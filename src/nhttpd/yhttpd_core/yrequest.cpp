@@ -492,7 +492,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 
 			// open file for write
 			int fd = open(upload_filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
-			if (fd<=0)
+			if (fd<0)
 			{
 				aprintf("cannot open file %s: ", upload_filename.c_str());
 				dperror("");

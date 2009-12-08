@@ -309,7 +309,7 @@ int CySocket::Send(char const *buffer, unsigned int length)
 //-----------------------------------------------------------------------------
 bool CySocket::CheckSocketOpen()
 {
-	char buffer[32];
+	char buffer[32]={0};
 
 #ifdef CONFIG_SYSTEM_CYGWIN
 	return !(recv(sock, buffer, sizeof(buffer), MSG_PEEK | MSG_NOSIGNAL) == 0);
