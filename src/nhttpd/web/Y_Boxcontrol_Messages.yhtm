@@ -1,0 +1,40 @@
+{=var-set:cancache=yPyes=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_message()
+{
+	dbox_message(document.f.nmsg.value);
+}
+function do_popup()
+{
+	dbox_popup(document.f.popup.value);
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:BoxControl#Message=}{=var-set:menu=Message=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="" method="get" enctype="application/x-www-form-urlencoded" accept-charset="UTF-8">
+		<table class="y_invisible_table" cellpadding="5">
+		<tr><td class="y_form_header">Message to Coolstram-TV Screen</td></tr>
+		<tr><td>
+			<input name="nmsg" type="text" size="50" maxlength="255" title="enter message to send to TV screen"/>
+			<input type="button" name="message" value="send" title="send message" onclick="do_message()"/>
+		</td></tr>
+		<tr><td class="y_form_header">Popup message to Coolstream-TV Screen</td></tr>
+		<tr><td>
+			<input name="popup" type="text" size="50" maxlength="255" title="enter message to send to TV screen"/>
+			<input type="button" name="pmessage" value="send" title="send message" onclick="do_popup()"/>
+		</td></tr>
+		</table>
+		<br/>
+	</form>
+	</div>
+</div>
+</body>
+</html>

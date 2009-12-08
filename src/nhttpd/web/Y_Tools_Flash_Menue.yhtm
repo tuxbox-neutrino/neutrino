@@ -1,0 +1,101 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function show_download_box(_show)
+{
+	var obj = document.getElementById("download_box");
+	obj.style.visibility= (_show) ? "visible" : "hidden";
+}
+function do_image_upload_dialog()
+{
+	var nr=0;
+	for(i=0; i<document.f.R1.length;i++)
+		if(document.f.elements[i].name == "R1")
+			if(document.f.elements[i].checked == true)
+			{
+				nr = document.f.elements[i].value;
+				document.f.mtd_text.value = document.f.elements[i].title;
+			}
+	document.f.mtd.value = nr;
+	document.f.execute.value = "script:Y_Tools image_flash_free_tmp";
+	document.f.tmpl.value = "Y_Tools_Flash_Upload.yhtm";
+	document.f.submit();
+}
+function do_image_download() 
+{
+	show_waitbox(true);
+	document.f.download.disabled = true;
+	document.f.upload.disabled = true;
+	window.setTimeout("do_image_download_2()",100);
+	/*setTimeout:refresh output*/
+}
+function do_image_download_2() 
+{
+	var nr=0;
+	for(i=0; i<document.f.R1.length;i++)
+		if(document.f.elements[i].name == "R1")
+			if(document.f.elements[i].checked == true)
+				nr = document.f.elements[i].value;
+	var res = loadSyncURL("/control/exec?Y_Tools&image_backup&"+nr);
+	document.getElementById("download_link").href = res;
+	document.f.download.disabled = false;
+	document.f.upload.disabled = false;
+	show_waitbox(false);
+	show_download_box(true);
+}
+function goConfirmUrl(_meld, _url) 
+{
+	if (confirm(_meld)==true)
+		loadSyncURL(_url);
+}
+function image_delete()
+{
+	var res = loadSyncURL("/control/exec?Y_Tools&image_delete");
+	show_download_box(false);
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text=Image will be generated (create image).=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb:Tools#Image=}{=var-set:menu=Image=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<b><font size="2">Partition</font></b><br/>
+		<form action="/y/cgi" name="f" id="f">
+			{=func:get_partition_list=}
+			<input type="hidden" name="tmpl" value="Y_Settings_mount.yhtm"/>
+			<input type="hidden" name="execute" value=""/>
+			<input type="hidden" name="mtd_text" value=""/>
+			<input type="hidden" name="mtd" value=""/>
+			<input type="button" name="download" value="Download" title="Generate Image for download" onclick="do_image_download()"/>
+			<input type="button" name="upload" value="Flash ..." title="go to Upload Dialog" onclick="do_image_upload_dialog()"/>
+		</form>
+	</div>
+</div>
+<div style="clear:both">&nbsp;</div>
+<div class="work_box">
+	<div class="work_box_head"><h2>Instruction</h2></div>
+	<div class="work_box_body" title="You should reboot the box before flashing">
+
+	It is usefull to reboot the Box before flashing.<br/>
+	<input type=button value="Restart" title="reboot" onclick='goConfirmUrl("dbox wirklich neu starten?","/control/reboot");'/>
+	</div>
+</div>
+<div style="clear:both">&nbsp;</div>
+<div class="work_box" id="download_box" style="visibility : hidden;">
+	<div class="work_box_head"><h2>Download</h2></div>
+	<div class="work_box_body" title="Download your image">
+		<b>The image was provided.</b>
+		<p>
+			1) <a id="download_link" type="application/octet-stream" href=""><u>Download</u></a><br/><br/>
+			2) <a href='javascript:image_delete();'><u>Download ready. Image in /tmp placed.</u></a>
+		</p>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

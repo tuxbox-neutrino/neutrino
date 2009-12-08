@@ -1,0 +1,25 @@
+dbox;tvinfo;klack
+#ARDx
+Das Erste;ARD;ARD
+Bayerisches FS;Bayern;Bayern
+WDR Köln;WDR;WDR
+hr-fernsehen;HR;HR 
+BR-alpha;Alpha;BR Alpha
+SÜWEST Ferns. BW;SWR;SWR BW
+
+#Free
+Pro Sieben;Pro7;Pro7
+terranova;Terra Nova;Terra Nova
+Kabel 1;Kabel1;Kabel1
+RTL II;RTL2;RTL2
+RTL Television;RTL;RTL
+Sat. 1;SAT1;Sat1
+9Live;9 Live;9Live
+
+#Kabel Deutschland
+History Channel;;The History Channel 
+SciFi (KD);Sci Fi;SciFi
+13th Street (KD);13th Street;13th Street
+Wetter Fernsehen;;Wetterfernsehen
+Disney Toon;;Toon Disney
+Disney Toon + 1;;Toon Disney Plus

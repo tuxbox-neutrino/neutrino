@@ -1,0 +1,65 @@
+=============================================================================
+Configuration File "yhttpd.conf"
+=============================================================================
+Types
+String			["]a text string["]
+bool			true | false
+
+-----------------------------------------------------------------------------
+configfile.version	=1
+-----------------------------------------------------------------------------
+General Server Settings
+-----------------------------------------------------------------------------
+server.user_name	Username in which context the webserver shoup be run
+			You need to be root
+			Type: 		String
+			Example: 	webserver
+server.group_name	Groupname to be applied
+			You need to be root
+			Type: 		String
+server.chroot		directory to be set as root
+			You need to be root
+			Type: 		String
+			Example: 	/var/htdocs
+server.log.loglevel	0..9
+server.no_keep-alive_ips List of IP-Adresses for clients not supporting keep-alive
+			like JtG-Server. (comma separated list)
+-----------------------------------------------------------------------------
+General Webserver Settings
+-----------------------------------------------------------------------------
+webserver.threading	Use Threading ?
+			Type: 		bool
+webserver.websites	List of hosted Websites
+			Type: 		Stringlist
+			Example:	Main, SSLsite, Admin
+
+-----------------------------------------------------------------------------
+Website Settings
+-----------------------------------------------------------------------------
+ATTENTION only <website name> = WebsiteMain implemented now
+
+<website name>.port
+<website name>.directory
+<website name>.override_directory
+<website name>.special_locations	StringPairList
+
+<website name>.ssl
+<website name>.ssl_pemfile
+<website name>.ssl_ca_file
+
+
+-----------------------------------------------------------------------------
+module settings
+-----------------------------------------------------------------------------
+mod_auth.authenticate		true/false
+mod_auth.username		String
+mod_auth.password		String
+mod_auth.no_auth_client=	IP-Adress of Client with no authentication
+
+mod_weblog.logfile	=/cygdrive/d/Work/y/ws/nhttpd30/build/cygwin/yhhtpd.log
+mod_weblog.log_format	=ELF|CLF|<empty>
+
+mod_cache.cache_directory=/tmp/.cache
+
+mod_sendfile.mime_types=htm:text/html,html:text/html,xml:text/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/bmp,css:text/css
+

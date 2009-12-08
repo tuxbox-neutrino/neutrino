@@ -1,0 +1,18 @@
+------------------------------------------------------------------------------
+nhttpd Version 3.x = (yhttpd 3.x + tuxboxapi)
+------------------------------------------------------------------------------
+
+13.09.2006 (yjogol)
+-------------------
+Starting with Version 3.0 the nhttpd source code was splitted into
+a core Webserver (yhttpd_core), extension modules (yhttpd_mods) and the 
+tuxbox specific code (tuxboxapi).
+
+The yhttpd_core and yhttp_mods are completly rewritten. 
+All Neutrino specific code was reorganized into yParser- and ControlAPI-code.
+
+The Hook-System (extension modules) encapsulate all requests and responses 
+for the tuxboxapi. So both tuxboxapi and yhttpd can be developed seperatlly and 
+independ from each other.
+
+Look at yhttpd_core/README

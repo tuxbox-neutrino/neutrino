@@ -1,0 +1,10 @@
+12.pcf,gz, 14B.pcf.gz and 15B.pcf.gz are
+Bitmap fonts taken from X11. Original names are
+
+6x12-ISO8859-1.pcf.gz
+7x14-ISO8859-1.pcf.gz
+9x15-ISO8859-1.pcf.gz
+
+Fontnames inside the fonts have been patched to Fix12,Fix14,Fix15
+(original name Fixed), cause tuxbox lcd-fontrenderer does not support
+2 files for the same font with diffrent pixel sizes.

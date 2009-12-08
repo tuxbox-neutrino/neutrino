@@ -1,0 +1,69 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_refresh_liveview()
+{
+	parent.live.location.reload();
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+	<form name="f" action="/y/cgi">
+		<table border="0" class="y_live_table" cellspacing="0" width="100%">
+			<tr><td class="y_form_header" colspan="2"><br/>VLC Settings (IE &amp; Mozilla >= 0.8.6.1)</td></tr>
+			<tr>
+				<td>Deinterlace</td>
+				<td>
+					<input type="radio" name="deinterlace" value="false" title="deinterlace: off"/>Off&nbsp;
+					<input type="radio" name="deinterlace" value="true" title="deinterlace: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>http caching</td>
+				<td><input type="text" name="http_caching" size="5" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;1000=}" title="http   caching. 0=off"/></td>
+			</tr>
+			<tr>
+				<td>UDP as default</td>
+				<td>
+					<input type="radio" name="udp" value="false" title="udp: off"/>Off&nbsp;
+					<input type="radio" name="udp" value="true" title="udp: on"/>On
+				</td>
+			</tr>		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_Live.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;Live_save_settings;nix"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+		<input type="button" value="Refresh LiveView" title="Refresh LiveView" onclick="do_refresh_liveview()"/>
+	</form>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;false=}";
+	if(val == "true")
+		document.f.deinterlace[1].checked = true;
+	else
+		document.f.deinterlace[0].checked = true;
+	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;udp;false=}";
+	if(val == "true")
+		document.f.udp[1].checked = true;
+	else
+		document.f.udp[0].checked = true;
+}
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}
+

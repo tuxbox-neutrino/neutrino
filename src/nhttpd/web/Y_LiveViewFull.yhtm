@@ -1,0 +1,45 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function init()
+{
+	{=if-equal:{=typ=}~transcode~
+	window.setTimeout("setTranscode()",500);
+	=}
+}
+function setTranscode()
+{
+	window.col2.location.href = "/Y_Live_Transcode.yhtm";
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Live_Timer#LiveView=}{=var-set:menu={=typ=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<table cellpadding="0" cellspacing="0" border="0">
+	<tr><td valign="top">
+		<iframe name="live" src="Y_Live.yhtm?mode={=mode=}&amp;typ={=typ=}" height="400" width="390" scrolling="no" align="left" marginheight="0" marginwidth="0" frameborder="0">
+		Ihr Browser unterst&uuml;tzt Inlineframes nicht oder zeigt sie in der derzeitigen Konfiguration nicht an.
+		</iframe>
+	</td>
+	<td>
+		<iframe name="col2" src="Y_blank.htm" height="400" width="350" scrolling="auto" marginheight="0" marginwidth="0" frameborder="0">
+		Ihr Browser unterst&uuml;tzt Inlineframes nicht oder zeigt sie in der derzeitigen Konfiguration nicht an.
+		</iframe>	
+	</td>
+	</tr>
+	</table>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	init();
+//]]>
+</script>
+
+</body>
+</html>

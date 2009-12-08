@@ -1,0 +1,471 @@
+{=var-set:must_management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+{=include-block:Y_Blocks.txt;head_no_charset=}
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/Y_VLC.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+
+/*globals*/
+{=var-set:udp={=if-file-exists:/sbin/udpstreamts~true~{=if-file-exists:/var/bin/udpstreamts~true~false=}=}=}
+var V2 = null;
+var IsUDP = false;
+var IsTimeshift = true; //TEST
+var IsLocked = false;
+var IsMute = false;
+var vlc_width = 384;
+var vlc_height = 288;
+var Window_delta_w = 0;
+var Window_delta_h = 0;
+var Mode = "tv";
+var AudioChannel = 0;
+
+/*resize,init*/
+function do_onresize()
+{
+	if((vlc_width+Window_delta_w != window.innerWidth) || (vlc_height+Window_delta_h != window.innerHeight)){
+		window.onresize=null;
+		do_resize_vlc(yClientWidth()-Window_delta_w,yClientHeight()-Window_delta_h);
+		window.onresize=do_onresize;
+	}
+}
+function do_resize_vlc(width, height)
+{
+	vlc_width = width;
+	vlc_height = height;
+	V2.set_resolution(width, height);
+}
+function do_resize()
+{
+	var dd = id('resolution');
+	var sel = dd.selectedIndex;
+	var w = -1;
+	var h = -1;
+	if(sel != -1){
+		switch(sel.toString()) {
+			case "0": w=384; h=288; break;
+			case "1": w=768; h=576; break;
+			case "2": w=960; h=720; break;
+			case "3": w=1152; h=864; break;
+		}
+	}
+	if(w != -1)
+		window.resizeTo(w+Window_delta_w, h+Window_delta_h);
+}
+function do_init()
+{
+	live_switchto(Mode);
+	vlc_width = 384;
+	vlc_height = 288;
+	Window_delta_w = yClientWidth() - vlc_width;
+	Window_delta_h = yClientHeight() - vlc_height;
+
+	if(Mode == "tv")
+		window.onresize=do_onresize;
+	insert_vlc_control();
+	build_bouquet_list(-1);
+	set_controls("play");
+	do_play();
+}
+function always_on_top() {
+	window.focus();
+	window.setTimeout("always_on_top()",100);
+}
+function do_onload()
+{
+	Mode = "{=mode=}";
+	if(Mode != "tv" && Mode != "radio")
+		Mode = "tv";
+	set_controls("disable");
+	if("{=ini-get:/var/tuxbox/config/Y-Web.conf;udp;false=}" == "true" && Mode == "tv")
+		id('udp').checked = true;
+	else if(Mode == "tv")
+		id('udp').checked = false;
+/*TODO
+	{=if-equal:{=typ=}~popup~
+		if(is_ie)
+			window.onblur = self.focus();
+		else
+			always_on_top();
+	=}
+*/
+	window.setTimeout("do_init()",300);
+}
+/*controls*/
+function set_controls(state)
+{
+	var go=false;
+	var play=false;
+	var opt=false;
+	if(V2 && V2.have_options())
+		opt=true;
+	var plugin="";
+	if(V2) plugin=V2.plugin;
+
+	switch(state){
+	case "disable":
+		go=false;
+		play=false;
+		break;
+	case "play":
+		go=true;
+		play=true;
+		break;
+	case "stop":
+		go=true;
+		play=false;
+		break;
+	}
+	obj_enable('go', go);
+	obj_enable('epg', go);
+	obj_enable('PlayOrPause', go);
+	obj_enable('stop', go);
+	obj_enable('mute', play);
+	obj_enable('volumeup', play);
+	obj_enable('volumedown', play);
+	obj_enable('livelock', go);
+	{=if-equal:{=typ=}~popup~~
+	show_obj('rec',opt);
+	obj_enable('rec', play && opt);
+	show_obj('transcode',opt);
+	obj_enable('transcode', play && opt);
+	=}
+	if(Mode == "tv"){
+		show_obj('have_udp',{=var-get:udp=});
+		obj_enable('udp', go);
+		obj_enable('fullscreen', play);
+		show_obj('snapshot',(plugin != "moz3"));
+		obj_enable('snapshot', play && (plugin != "moz3"));
+	}
+
+}
+function insert_vlc_control()
+{
+	if(Mode == "radio") {
+		var radio_html="<div style=\"width:"+vlc_width+"px;height:"+vlc_height+"px;text-align:center;\">"
+				+"<br/><br/><br/><br/><br/><br/><div id=\"vlc_radio\"></div><br/><h1>Radio</h1></div>";
+		obj_update('vlc_view',radio_html);
+		V2 = new CyVLC('vlc', 'vlc_radio', 1, 1);
+	} else
+		V2 = new CyVLC('vlc', 'vlc_view', vlc_width, vlc_height);
+}
+function insert_message_control(msg)
+{
+	var wait_html="<div style=\"width:"+vlc_width+"px;height:"+vlc_height+"px;text-align:center;\">"
+			+"<br/><br/><br/><br/><br/><br/><img src=\"/images/wait.gif\"><br/>"+msg+"</div>";
+	obj_update('vlc_view',wait_html);
+}
+function change_button_img(id,img)
+{
+	var imgstr = "<img src=\"/images/"+img+".png\" width=\"16\" height=\"16\">";
+	obj_update(id, imgstr);
+}
+/*vlc control*/
+function do_stop()
+{
+	V2.stop();
+	while(V2.is_playing())
+		;
+	change_button_img('PlayOrPause',"play");
+	set_controls("stop");
+}
+function dummy()
+{
+}
+function start_udp_server()
+{
+	var pids = loadSyncURL("/control/yweb?video_stream_pids=0&no_commas=true");
+	var args = "{=func:get_request_data clientaddr=} 31330 0 "+pids;
+	var _cmd = "udp_stream start "+args;
+	var __cmd = _cmd.replace(/ /g, "&");
+	loadXMLDoc("/control/exec?Y_Live&"+__cmd, dummy);
+}
+function do_play_state(_state, _options)
+{
+	change_button_img('PlayOrPause',"pause");
+	_options.push(":input-repeat=1");
+	V2.options = _options;
+	var mrl = "";
+	if(Mode == "tv" && id('udp').checked)
+		mrl = "udp://@:31330";
+	else
+		mrl = loadSyncURL("/control/build_live_url");
+	V2.set_actual_mrl(mrl);
+	V2.play();
+	V2.next();
+	set_controls("play");
+	if(id('udp').checked && Mode == "tv")
+		window.setTimeout("start_udp_server()",1000);
+}
+function do_play()
+{
+	var options = new Array();
+	if(Mode == "tv"){
+		{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;true=}~true~
+		options.push(":vout-filter=deinterlace");
+		options.push(":deinterlace-mode=bob");
+		=}
+		if(id('udp').checked && Mode == "tv"){
+			options.push(":access-filter=timeshift");
+		}
+		else{
+			var cachetime = {=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;0=};
+			if(cachetime > 0)
+				options.push(":http-caching="+cachetime);
+		}
+		if(AudioChannel != 0)
+			options.push(":audio-track="+AudioChannel);
+	}
+	do_play_state(0, options);
+}
+function do_play_or_pause()
+{
+	if(V2.is_playing()) {
+		change_button_img('PlayOrPause',"play");
+		V2.pause()
+		set_controls("stop");
+	} else {
+		change_button_img('PlayOrPause',"pause");
+		V2.play();
+		set_controls("play");
+		if(id('udp').checked)
+			window.setTimeout("start_udp_server()",1000);
+	}
+}
+/* bouquet & channel panel */
+function build_channel_list(bouquet, channel)
+{
+	set_controls("disable");
+	var used_channel = channel;
+	if(used_channel == -1)
+		used_channel = loadSyncURL("/y/cgi?execute=func:get_actual_channel_id");
+	var channel_dropdown_url = "/y/cgi?execute=func:get_channels_as_dropdown%20" + bouquet;
+	channel_dropdown_url  += "%20" + used_channel;
+	var channel_dropdown = "<select size=\"1\" class=\"y_live_channels\" id=\"channels\" title=\"select channel - use go to zap\">";
+	channel_dropdown += loadSyncURL(channel_dropdown_url);
+	channel_dropdown += "</select>";
+	obj_update('channels_div', channel_dropdown);
+	set_controls("play");
+}
+function build_bouquet_list(bouquet)
+{
+	var used_bouquet = bouquet;
+	if(used_bouquet == -1)
+		used_bouquet = loadSyncURL("/y/cgi?execute=func:get_actual_bouquet_number");
+	var bouquet_dropdown_url = "/y/cgi?execute=func:get_bouquets_as_dropdown%20" + used_bouquet + "{=if-empty:{=var-get:must_management=}~~%20true=}";
+	var bouquet_dropdown = "<select size=\"1\" class=\"y_live_bouquets\" id=\"bouquets\" onchange=\"change_bouquet()\" title=\"select bouquet - channels will be updated\">";
+	bouquet_dropdown += loadSyncURL(bouquet_dropdown_url);
+	bouquet_dropdown += "</select>";
+	obj_update('bouquets_div', bouquet_dropdown);
+	build_channel_list(used_bouquet, -1);
+}
+function change_bouquet()
+{
+	var dd = id('bouquets');
+	var bouquet = -1;
+	var channel = -1;
+	var sel = dd.selectedIndex;
+	if(sel != -1){
+		bouquet = dd[sel].value;
+		channel = 0;
+	}
+	build_channel_list(bouquet, channel);
+}
+function change_channel()
+{
+	var dd = id('channels');
+	var channel = -1;
+	var sel = dd.selectedIndex;
+	if(sel != -1)
+		channel = dd[sel].value;
+	do_stop();
+	AudioChannel = 0;
+	window.setTimeout("change_channel_zapto(\""+channel+"\")",500);
+}
+function change_channel_zapto(channel)
+{
+	dbox_zapto(channel);
+	window.setTimeout("change_channel_play()",500);
+}
+function change_channel_play()
+{
+	do_play();
+	if(V2.have_options() && Mode == "tv")
+		build_audio_pid_list();
+}
+/*other buttons*/
+function do_show_version()
+{
+	alert("Version:"+V2.version_string+" Generation:"+V2.plugin+"\nlevel1:"+V2.version_level1+" 2:"+V2.version_level2
+		+" 3:"+V2.version_level3+" 4:"+V2.version_level4);
+}
+function do_lock_toggle()
+{
+	if( !IsLocked ) {
+		change_button_img('livelock',"liveunlock");
+		IsLocked = true;
+		live_lock();
+	} else {
+		change_button_img('livelock',"livelock");
+		IsLocked = false;
+		live_unlock();
+	}
+}
+function do_mute_toggle()
+{
+	change_button_img('mute', (IsMute)?"volumemute":"volumeunmute");
+	IsMute = !IsMute;
+	V2.toggle_mute();
+}
+function view_streaminfo()
+{
+	window.open("/fb/info.dbox2","streaminfo","width=400,height=400");
+}
+function doChangeAudioPid()
+{
+	var dd = id('audiopid');
+	AudioChannel = dd.selectedIndex;
+	do_stop();
+//	insert_message_control("... zapping ...");
+	window.setTimeout("change_channel_play()",1000);
+}
+function build_audio_pid_list()
+{
+	var audio_pids_url = "/y/cgi?execute=func:get_audio_pids_as_dropdown";
+	var audio_pid_list = loadSyncURL(audio_pids_url);
+	audio_pid_list = "<select size=\"1\" class=\"y_live_audio_pids\" id=\"audiopid\" onChange=\"doChangeAudioPid()\">"
+			+ audio_pid_list
+			+ "</select>";
+	obj_update('audio_pid_list', audio_pid_list);
+}
+function view_epg()
+{
+	var sel=document.x.channels.selectedIndex;
+	if(sel != -1){
+		channel = document.x.channels[sel].value;
+		{=if-equal:{=typ=}~live~
+		var f = parent.col2;
+		f.location.href = "Y_Dyn_Pages.yhtm?page=frame_live_epg&channel="+channel;
+		~
+		window.open("Y_Dyn_Pages.yhtm?page=frame_live_epg&channel="+channel, "epg");
+		=}
+	}
+}
+function view_expert_mode()
+{
+	parent.col2.location.href = "/Y_Live_Expert.yhtm?browser={=browser=}&mode={=mode=}&typ={=typ=}";
+}
+function view_record_mode()
+{
+	parent.col2.location.href = "/Y_Live_Record.yhtm?browser={=browser=}&mode={=mode=}&typ={=typ=}";
+}
+function view_settings_mode()
+{
+	parent.col2.location.href = "/Y_Settings_Live.yhtm?browser={=browser=}&mode={=mode=}&typ={=typ=}";
+}
+function view_transcode_mode()
+{
+	parent.col2.location.href = "/Y_Live_Transcode.yhtm?browser={=browser=}&mode={=mode=}&typ=transcode";
+}
+
+//]]>
+</script>
+</head>
+<body onload="do_onload()">
+{=var-set:wait_text=Streaming-Informationen<br/>werden ermittelt.=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div id="live_panel">
+<form name="x" action="" method="get">
+	<table class="y_live_table" cellspacing="0" cellpadding="0" style="margin:0">
+		<tr><td>
+			<div id="bouquets_div"><div class="y_live_channels" style="border:1px solid #555555;">
+				<img src="/images/smallwait.gif"> getting bouquets ...</div>
+			</div>
+		</td><td>
+				{=if-equal:{=typ=}~popup~
+				{=if-equal:{=mode=}~tv~
+				<select id="resolution" onchange="do_resize()" title="select resolution">
+				<option value="1">384x288</option>
+				<option value="2">768x576</option>
+				<option value="2">960x720</option>
+				<option value="4">1152x864</option>
+				</select>
+			~&nbsp;=}=}
+		</td></tr>
+		<tr><td>
+			<div id="channels_div"><div class="y_live_bouquets" style="border:1px solid #555555;">
+				<img src="/images/smallwait.gif"> getting channels ...</div>
+			</div>
+		</td><td>
+			<button id="go" class="y_live_button" type="button" title="change channel" onclick="change_channel()" disabled="disabled">
+				<img src="/images/play.png"></button>
+			<button id="epg" class="y_live_button" type="button" title="view epg for selected channel" onclick="view_epg()" disabled="disabled">
+				<img src="/images/epg.png"></button>
+		</td></tr>
+	</table>
+</form>
+</div>
+
+<div id="vlc_view">
+</div>
+<div id="live_controls">
+	<form name="v" action="" method="get">
+		<button id="PlayOrPause" class="y_live_button" type="button" title="play or pause streaming" 
+			onclick="do_play_or_pause()"><img src="/images/pause.png"></button>
+		<button id="stop" type="button" title="stop streaming" onclick="do_stop()" class="y_live_button">
+			<img src="/images/stop.png"></button>
+		<button id="mute" class="y_live_button" type="button" value="Mute" title="mute / unmute volume" onclick="do_mute_toggle()">
+			<img src="/images/volumemute.png"></button>
+		<button id="volumedown" class="y_live_button" type="button" value="-" title="lower volume" onclick="V2.set_volume_delta(-10);">
+			<img src="/images/volumedown.png"></button>
+		<button id="volumeup" class="y_live_button" type="button" value="+" title="higher volume" onclick="V2.set_volume_delta(+10);">
+			<img src="/images/volumeup.png"></button>
+		{=if-equal:{=mode=}~tv~
+		<button id="fullscreen" class="y_live_button" type="button" value="F" 
+			title="switch to fullscreen-mode - or use double-click" onclick="V2.toggle_fullscreen()">
+			<img src="/images/fullscreen.png"></button>
+		=}
+		<button id="livelock" class="y_live_button" type="button" value="Lock" title="lock / unlock TV (record mode, rc, lcd)" name="lock" onclick="do_lock_toggle()">
+			<img src="/images/livelock.png"></button>
+<!--	</form>
+</div>
+<div id="live_extended_controls">
+	<form name="le" action="" method="get">-->
+		{=if-equal:{=mode=}~tv~
+		<span id="have_udp" style="visibility:hidden"><input type="checkbox" id="udp" title="UDP Streaming"/>UDP</span>
+		<button class="y_live_button" type="button" value="set" title="LiveView settings" id="settings" onclick="view_settings_mode()">
+			<img src="/images/properties.gif"></button>
+		<button class="y_live_button" type="button" value="S" title="create snapshot picture" id="snapshot" onclick="V2.snapshot()"  style="visibility:hidden">
+			<img src="/images/snapshot.png"></button>
+		=}
+		{=if-equal:{=typ=}~popup~~
+		{=if-equal:{=typ=}~transcode~~
+		<button id="rec" class="y_live_button" type="button" value="Rec" title="record mode" name="record_mode" onclick="view_record_mode()" style="visibility:hidden">
+			<img src="/images/record.gif"></button>
+		=}
+		<button id="transcode" class="y_live_button" type="button" value="Transcode" title="transcode mode" onclick="view_transcode_mode()" style="visibility:hidden">
+			<img src="/images/transcode.png"></button>
+		=}
+		<span id="audio_pid_list"></span>
+<!---
+		test: 
+		<input class="y_live_button" type="button" value="Ver" title="record mode" name="record_mode" onclick="do_show_version()"/>
+		<button class="y_live_button" type="button" value="test" title="" 
+			name="test" onclick="do_test()"/>test</button>
+		<input class="y_live_button" type="button" value="udp" title="test" name="snapshot" onclick="doUDP()"/>
+-->
+
+	</form>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	insert_message_control("... build vlc control ...");
+/*	{=if-equal:{=typ=}~popup~
+		always_on_top();
+	=}
+	window.setTimeout("do_init()",300);
+*/
+//]]>
+</script>
+
+</body>
+</html>

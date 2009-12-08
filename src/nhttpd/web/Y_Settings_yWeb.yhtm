@@ -1,0 +1,78 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit()
+{
+	show_waitbox(true);
+	yhttpd_cache_clear("");
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text=Values are saved (Save).=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#yWeb=}{=var-set:menu=yWeb=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table border="0" class="y_form_table">
+			<tr>
+				<td>Slave Box IP (2. dbox)</td>
+				<td><input type="text" name="slavebox" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}" title="enter IP (xxx.xxx.xxx.xxx) of slave-box"/></td>
+			</tr>
+			<tr>
+				<td>Management IP 1</td>
+				<td><input type="text" name="managementIP" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}" title="enter IP (xxx.xxx.xxx.xxx)"/></td>
+			</tr>
+			<tr>
+				<td>Management IP 2</td>
+				<td><input type="text" name="managementIP2" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}" title="enter IP (xxx.xxx.xxx.xxx)"/></td>
+			</tr>
+			<tr>
+				<td>Wake on Lan MAC 1</td>
+				<td><input type="text" name="wol_mac_1" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=}" title="enter MAC Adress (xx:xx:xx:xx:xx:xx)"/></td>
+			</tr>
+			<tr>
+				<td>Wake on Lan MAC 2</td>
+				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}" title="enter MAC Adress (xx:xx:xx:xx:xx:xx)"/></td>
+			</tr>
+			<tr>
+				<td>Wake on Lan MAC 3</td>
+				<td><input type="text" name="wol_mac_3" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}" title="enter MAC Adress (xx:xx:xx:xx:xx:xx)"/></td>
+			</tr>
+			<tr>
+				<td>VLC Recording path</td>
+				<td><input type="text" name="vlc_record_path" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}" title="VLC record path for LiveView direct recording."/></td>
+			</tr>
+<!---			<tr>
+				<td>VLC Aufnahmetyp</td>
+				<td><input type="text" name="vlc_record_mux_type" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_mux_type=}" title="VLC record mux type"/></td>
+			</tr>
+-->
+			<tr>
+				<td>Box-name</td>
+				<td><input type="text" name="yweb_box_name" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_name=}" 
+					title="Box Name in Top-Menue."/></td>
+			</tr>
+			<tr>
+				<td>Box-name/colour</td>
+				<td><input type="text" name="yweb_box_color" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=}" 
+					title="Box Name color in Top-Menue. e.g. enter 2188e0 without #"/></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_yWeb.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;yWeb_save_settings;nix"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}
+

@@ -1,0 +1,72 @@
+{=var-set:extention={=if-file-exists:/var/tuxbox/config/extentions.txt~/var/tuxbox/config/extentions.txt~{=if-file-exists:/var/httpd/extentions.txt~/var/httpd/extentions.txt~/share/tuxbox/neutrino/httpd-y/extentions.txt=}=}=}
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function y_add_li_to_ul(_ul, _class, _value)
+{
+	var __li=document.createElement("li");
+	var __class = document.createAttribute("class");
+	__class.nodeValue = _class;
+	_ul.setAttributeNode(__class);
+	_ul.appendChild(__li);
+	__li.innerHTML=_value;
+	return __li;
+}
+function build_menu()
+{
+	var extfile = "{=var-get:extention=}";
+	var extlist = loadSyncURL("/control/exec?Y_Tools&get_extention_list&" + Math.random());
+	var list = extlist.split("\n");
+	for(i=0;i<list.length;i++){
+		var ext_type = list[i].charAt(0);
+		if(ext_type=="n" || ext_type=="m"){
+			var pieces=list[i].split(",");
+			if(ext_type=="n"){
+				var item="<a target=\"work\" title=\""+pieces[2]+"\" href=\""+pieces[3]+"\">"+pieces[1]+"</a>";
+				y_add_li_to_ul(id("ext_normal"),"ext",item);
+			} else {
+				{=if-empty:{=var-get:management=}~
+				var item="<span class=\"disabled\" title=\""+pieces[2]+" (restricted by ManagementIP)\">"+pieces[1]+"</span>";
+				~
+				var item="<a target=\"work\" title=\""+pieces[2]+"\" href=\""+pieces[3]+"\">"+pieces[1]+"</a>";
+				=}
+				y_add_li_to_ul(id("ext_management"),"ext",item);
+			}
+		}
+	}
+}
+//]]>
+</script>
+</head>
+<body onload="build_menu()">
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Extentions</h2></div>
+	<div class="y_menu_sec_box_body">
+		<div class="y_menu_sec_section">Normal</div>
+		<div class="y_menu_sec">
+			<ul id="ext_normal">
+			<ul>
+		</div>
+		<div class="y_menu_sec_section">Management</div>
+		<div class="y_menu_sec" id="ext_management2">
+			<ul id="ext_management">
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">Admin</div>
+		<div class="y_menu_sec">
+			<ul>
+				{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="Extentions settings. (restricted by ManagementIP)">Settings</li>
+				~
+				<li><a target="work" title="Extentions settings" href="Y_Ext_Settings.yhtm">Settings</a></li>
+				<li><a target="work" title="Extentions updater/installer" href="Y_Ext_Update.yhtm">Updater/Installer</a></li>
+				=}
+			</ul>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

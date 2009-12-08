@@ -1,0 +1,85 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+var live_window;
+function go_live()
+{
+/*	try{
+		live_window.close();
+	}catch(e){}*/
+	var _url = (is_ie) ? "Y_Tools_NetStream.yhtm?browser=ie" : "Y_Tools_NetStream.yhtm?browser=moz";
+	parent.frames[1].location.href = _url;
+}
+function go_live_popup(_url)
+{
+	res_w=384;
+	res_h=288+90;
+	var par = "width="+res_w+",height="+res_h+",resizable=yes";
+	tv = window.open(_url,'tv',par);
+	parent.frames[1].location.href = "Y_Live_Msg.yhtm";
+}
+function go_live_popup_tv()
+{
+	live_window = go_live_popup("/Y_Live.yhtm?typ=popup&mode=tv");
+}
+function go_live_popup_radio()
+{
+	live_window = go_live_popup("/Y_Live.yhtm?typ=popup&mode=radio");
+}
+//]]>
+</script>
+</head>
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+<body>
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Live/Timer</h2></div>
+	<div class="y_menu_sec_box_body">
+		<div class="y_menu_sec_section">Live</div>
+		<div class="y_menu_sec">
+			<ul>
+				<li>
+					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
+						<td><a target="work" title="LiveTV" href="Y_LiveViewFull.yhtm?mode=tv&amp;typ=live">TV</a></td>
+						<td align="right"><a title="LiveTV (popup)" href="javascript:go_live_popup_tv()">Popup</a></td>
+					</tr></table>
+				</li>
+				<li>
+					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
+						<td><a target="work" title="LiveRadio" href="Y_LiveViewFull.yhtm?mode=radio&amp;typ=live">Radio</a></td>
+						<td align="right"><a title="LiveRadio (popup)" href="javascript:go_live_popup_radio()">Popup</a></td>
+					</tr></table>
+				</li>
+				<li><a title="LiveView" href="Y_Live.yhtm?browser=ie&type=live&mode=tv" target="work">LiveView</a></li>
+				<li id="transcode" style="display:none">
+				<a target="work" title="transcode box-stream" href="Y_LiveViewFull.yhtm?mode=tv&amp;typ=transcode">Transcoder</a></li>
+				<li><a title="test vlc plugin" href="javascript:go_live()">NetStream</a></li>
+				<li><a target="work" title="use LiveView with 2 boxes" href="Y_Live_DoubleView.yhtm">DoubleView</a></li>
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">Timer</div>
+		<div class="y_menu_sec">
+			<ul>
+				<li><a target="work" title="organize timer" href="Y_Timer_List.yhtm">Timer</a></li>
+				<li><a target="work" title="View EPG" href="Y_Boxcontrol_Bouquets.yhtm">EPG</a></li>
+				<li><a target="work" title="View EPG" href="Y_EPG_Plus.yhtm">EPG Plus</a></li>
+				<li><a target="work" title="timer synchronisation with web tv-planer" href="Y_Tools_Timer_Sync.yhtm">Timer Sync</a></li>
+				<!--<li><a target="work" title="recorder" href="Y_Blank.yhtm">Recorder</a></li>-->
+			</ul>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	if(is_ie)
+	{
+		var _obj = document.getElementById("transcode");
+		_obj.style.display = "block";
+	}
+	{=if-empty:{=start=}~~
+		go_live_popup_tv();
+	=}
+//]]>
+</script>
+</body>
+</html>

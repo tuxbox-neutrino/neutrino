@@ -1,0 +1,25 @@
+#!/bin/sh
+
+PREFIX=$HOME/dbox2/cdkroot
+CCPATH=
+HOST=powerpc-tuxbox-linux-gnu
+
+export PKG_CONFIG_PATH=$PREFIX/lib/pkgconfig
+export CC=$CCPATH$HOST-gcc
+export AR=$CCPATH$HOST-ar
+export NM=$CCPATH$HOST-nm
+export RANLIB=$CCPATH$HOST-ranlib
+export OBJDUMP=$CCPATH$HOST-objdump
+export STRIP=$CCPATH$HOST-strip
+
+export CFLAGS="-std=gnu99 -Wall -O2 -g0 -DNDEBUG -I"$PREFIX"/include/freetype2 -I"$PWD"/include -I"$PWD"/include/linux/dvb -DHAVE_DBOX2"
+export CXXFLAGS="-std=gnu++98 -Wall -O2 -g0 -DNDEBUG -I"$PREFIX"/include/freetype2 -I"$PWD"/include -I"$PWD"/include/linux/dvbooo -DHAVE_DBOX2"
+
+export LDFLAGS="-L"$PREFIX"/lib -lcurl -lssl -lcrypto -ldl"
+
+export DVB_API_VERSION=3
+export FREETYPE_CONFIG=$PREFIX/bin/freetype-config
+
+./autogen.sh
+./configure --prefix=$PREFIX --build=i386-pc-linux-gnu --host=$HOST --without-driver --with-target=cdk --with-targetprefix="/" "$*"
+

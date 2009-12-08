@@ -1,0 +1,37 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Extentions#Settings=}{=var-set:menu=Extentions Settings=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" accept-charset="UTF-8" action="/y/cgi">
+		<table border="0" class="y_form_table" cellspacing="0" cellpadding="0">
+			<tr>
+				<td>&nbsp;</td>
+				<td><textarea name="extentions" id="ext" cols="90" rows="30"  title="extention list" style="background : white; font : 'Courier New',medium  monospace; color : #436976;">{=if-file-exists:/var/tuxbox/config/extentions.txt~{=include:/var/tuxbox/config/extentions.txt=}~{=if-file-exists:/var/httpd/extentions.txt~{=include:/var/httpd/extentions.txt=}~{=include:/share/tuxbox/neutrino/httpd-y/extentions.txt=}=}=}</textarea></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Ext_Update_refresh.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;ext_save_settings;nix"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}
+

@@ -1,0 +1,71 @@
+{=var-set:cancache=yPConf=}
+{=include-block:Y_Blocks.txt;head=}
+</head>
+<body>
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Settings</h2></div>
+	<div class="y_menu_sec_box_body">
+		<div class="y_menu_sec_section">General</div>
+		<div class="y_menu_sec">
+			<ul>
+			{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="settings for yWeb itselfs (restricted by ManagementIP)">yWeb</li>
+				<li class="disabled" title="settings for Web Server daemon (restricted by ManagementIP)">WebServer</li>
+<!--dbox2 only				<li class="disabled" title="download or upload ucodes (restricted by ManagementIP)">Ucodes</li> dbox2 only-->
+				<li class="disabled" title="download or upload Bouquetlist, Channellist, ... (restricted by ManagementIP)">Zapit</li>
+				<li class="disabled" title="backup or upload boot logos (restricted by ManagementIP)">Boot Logo</li>
+				<li class="disabled" title="SyncTimer Settings (restricted by ManagementIP)">Timer Settings</a></li>
+			~
+				<li><a title="settings for yWeb itselfs" target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
+				<li><a title="settings for Web Server daemon" target="work" href="Y_Settings_nhttpd.yhtm">WebServer</a></li>
+<!--dbox2 only				<li><a title="download or upload ucodes" target="work" href="Y_Settings_ucodes.yhtm">Ucodes</a></li> dbox2 only-->
+				<li><a title="download or upload Bouquetlist, Channellist, ..." target="work" href="Y_Settings_zapit.yhtm">Zapit</a></li>
+<!--dbox2 only				<li><a title="backup or upload boot logos" target="work" href="Y_Tools_Bootlogo.yhtm">Boot Logo</a></li> dbox2 only-->
+				<li><a title="backup or restore settings" target="work" href="Y_Settings_Backup.yhtm">Backup &amp; Restore</a></li>
+				<li><a title="SyncTimer Settings" target="work" href="Y_Settings_Timer.yhtm">Timer Settings</a></li>
+			=}	
+				<!--<li><a title="change layout skin" target="work" href="Y_Settings_Skin.yhtm">Skins</a></li>-->
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">Neutrino</div>
+		<div class="y_menu_sec">
+			<ul>
+			{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="Bouquet Editor (restricted by ManagementIP)">Bouquet Editor</a></li>
+				<li class="disabled" title="Parental settings (restricted by ManagementIP)">Parental</a></li>
+				<li class="disabled" title="Recording settings (restricted by ManagementIP)">Recording</a></li>
+				<li class="disabled" title="Movieplayer settings (restricted by ManagementIP)">Movieplayer</a></li>
+				<li class="disabled" title="Audioplayer settings (restricted by ManagementIP)">Audioplayer</a></li>
+				<li class="disabled" title="Pictureviewer settings (restricted by ManagementIP)">Pictureviewer</a></li>
+				<li class="disabled" title="boot settings (restricted by ManagementIP)">Boot options</a></li>
+				<li class="disabled" title="rest of settings (restricted by ManagementIP)">Misc</a></li>
+			~
+
+				<li><a title="Bouquet Editor" target="work" href="Y_Boxcontrol_Bouquet_Editor_Main.yhtm">Bouquet Editor</a></li>
+				<li><a title="Parental settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental">Parental</a></li>
+				<li><a title="Recording settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record">Recording</a></li>
+				<li><a title="Direct Recording" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording">Direct Recording</a></li>
+				<li><a title="Movieplayer settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer">Movieplayer</a></li>
+				<li><a title="Audioplayer settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer">Audioplayer</a></li>
+				<li><a title="Pictureviewer settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer">Pictureviewer</a></li>
+<!--dbox2 only				<li><a title="boot settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions">Boot options</a></li> dbox2 only-->
+				<li><a title="rest of settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse">Misc</a></li>
+			=}	
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">Plugins</div>
+		<div class="y_menu_sec">
+			<ul>
+			{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="configure VNC-Plugin (restricted by ManagementIP)">VNC</li>
+			~
+				<li><a title="configure VNC-Plugin" target="work" href="Y_Settings_VNC.yhtm">VNC</a></li>
+			=}
+			</ul>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

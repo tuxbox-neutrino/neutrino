@@ -1,0 +1,36 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit() 
+{
+	show_waitbox(true);
+	document.f.su.disabled=true;
+	if(document.f.logotype[0].checked == true)
+		document.f.action="/control/exec?Y_Tools&bootlogo_upload";
+	else
+		document.f.action="/control/exec?Y_Tools&bootlogo_lcd_upload";
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text=Logo wird hochgeladen (Upload).=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Boot_Logo=}{=var-set:menu=Bootlogo / LCD=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;bootlogo_upload">
+		<p>
+		<font size="2" color="Red">Achtung<br/>Das Boot-Logo muss schon im Zielformat vorliegen!</font><br/>
+		<input type="radio" checked="checked" name="logotype" value="bootlogo_upload"/>Boot Logo<br/>
+		<input type="radio" name="logotype" value="bootlogo_lcd_upload"/>Boot LCD Logo<br/>
+		<input type="file" name="F1" size="20"/><br/>
+		<input type="button" name="su" value="hochladen" title="upload" onclick="do_submit()"/>
+		</p>
+	</form>
+	</div>
+</div>
+</body>
+</html>

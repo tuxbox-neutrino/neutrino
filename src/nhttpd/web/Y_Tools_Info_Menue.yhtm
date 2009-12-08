@@ -1,0 +1,47 @@
+{=var-set:cancache=yPyes=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript">
+//<![CDATA[
+function goUrl(_url)
+{
+	parent.frames[1].location.href = _url;
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb#Info=}{=var-set:menu=Info=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form action="">
+		<table  class="y_invisible_table" cellpadding="8">
+		<tr><td class="y_form_header">Linux</td></tr>
+		<tr><td>
+			<input type="button" value="Kernel Messages" title="show Linux kernel stack messages" onclick='goUrl("/control/exec?Y_Tools&amp;kernel-stack");'/>
+			<input type="button" value="Processes" title="show currently running processes" onclick='goUrl("/control/exec?Y_Tools&amp;ps");'/>
+			<input type="button" value="Memory" title="show memory space" onclick='goUrl("/control/exec?Y_Tools&amp;free");'/>
+		</td></tr>
+		<tr><td class="y_form_header">Coolstream HD1</td></tr>
+		<tr><td>
+			<input type="button" value="GUI Info" onclick='goUrl("/control/info");'/>
+			<input type="button" value="Version" onclick='goUrl("/control/info?version");'/>
+			<!--dbox2 only	<input type="button" value="Settings" onclick='goUrl("/control/info?settings");'/> dbox2 only-->
+			<input type="button" value="Time" onclick='goUrl("/control/gettime");'/>
+		</td></tr>
+		<tr><td class="y_form_header">proc</td></tr>
+		<tr><td>
+			<input type="button" value="CPU info" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;cpuinfo");'/>
+			<input type="button" value="MEM info" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;meminfo");'/>
+			<input type="button" value="Partitions" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;partitions");'/>
+			<input type="button" value="mtd" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;mtd");'/>
+			<input type="button" value="Stat" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;stat");'/>
+			<input type="button" value="version" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;version");'/>
+		</td></tr>
+		</table>
+	</form>
+	</div>
+</div>
+</body>
+
+</html>

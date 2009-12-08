@@ -1,0 +1,18 @@
+{=var-set:cancache=yPyes=}
+{=include-block:Y_Blocks.txt;headCache=}
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Info#Hilfe=}{=var-set:menu=Help=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<ul>
+		<li><a href="http://wiki.godofgta.de/Neutrino:yWeb" title="yWeb Help from Tuxbox Wiki" target="_blank">Tuxbox-Wiki Help</a></li>
+		<li><a href="http://www.yjogol.de/yFAQ.htm" title="FAQ at yjogol.de" target="_blank">FAQ zu yWeb</a></li>
+		<li><a href="http://forum.tuxbox.org" title="Tuxbox Dicussion Forum" target="_blank">Tuxbox Forum</a></li>
+		<li><a href="http://www.yjogol.de" title="Homepage of yWeb" target="_blank">Homepage yWeb</a></li>
+	</ul>
+	</div>
+</div>
+</body>
+</html>

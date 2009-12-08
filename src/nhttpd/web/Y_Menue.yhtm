@@ -1,0 +1,110 @@
+{=var-set:cancache=true=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+/*Indicator*/
+var g_i_active = false;
+var g_i_counter = 0;
+var g_i_rec_state = new Array("&nbsp;&nbsp;&nbsp;REC&nbsp;&nbsp;&nbsp;", "&nbsp;&nbsp;(REC)&nbsp;&nbsp;", " ((REC)) ", "(((REC)))");
+var g_i_recording = false;
+function i_state_check()
+{
+	var res = "";
+	//var res = loadSyncURL("/control/setmode?status");
+	g_i_recording = (res.search(/on/)!=-1);
+}
+function i_state_view()
+{
+	if(g_i_recording)
+		document.getElementById('state').innerHTML = g_i_rec_state[g_i_active %4];
+	else
+		document.getElementById('state').innerHTML = "";
+}
+function i_clock()
+{
+	now = new Date();
+	var hour = now.getHours();
+	var min = now.getMinutes();
+	if(hour < 10)
+		hour = "0" + hour;
+	if(min < 10)
+		min = "0" + min;
+	document.getElementById('clock').innerHTML = hour + ":" + min;
+}
+function i_interval()
+{
+	if(g_i_active<12)
+		g_i_active++; 
+	else
+	{
+		g_i_active=0;
+		i_clock();
+		i_state_check();
+	}
+	i_state_view();
+}
+function i_start()
+{
+	g_i_counter = 0;
+	i_clock();
+	g_i_active = window.setInterval('i_interval()', 1000);
+}
+function i_stop()
+{
+	window.clearInterval(g_i_active);
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="y_menu_prim_box">
+	<div class="y_menu_prim_box_head"><h2>&nbsp;</h2></div>
+	<div class="y_menu_prim_box_body">
+		<table border="0" width="100%">
+		<tr>
+			<td width="50" align="center" valign="middle"><a href="http://wiki.godofgta.de/Neutrino:yWeb" target="_blank"><img src="images/tux.gif" title="Tuxbox Wiki" alt="Tuxbox Wiki"/></a></td>
+			<td width="100">
+				<span style="font-weight: bold;font-size: 10pt;">yWeb</span>
+				<br/>
+				<span style="font-size: 8pt;">Version {=ini-get:Y_Version.txt;version=}</span>
+			</td>
+			<td>
+				<ul id="menu_prim" class="y_menu_prim">
+					<li><a class="y_menu_prim_item" target="base" href="Y_Dyn_Pages.yhtm?page=frame_boxcontrol" 
+						title="Boxcontrol &#038; Bouquets">Boxcontrol</a></li>
+					<li><a class="y_menu_prim_item" target="base" href="Y_Dyn_Pages.yhtm?page=frame_live" 
+						title="LiveView, Timer Sync &amp; Settings">Live/Timer</a></li>
+					<li><a class="y_menu_prim_item" target="base" href="Y_Dyn_Pages.yhtm?page=frame_tools" 
+						title="Mounts, WOL, Expert Tools">Tools</a></li>
+					<li><a class="y_menu_prim_item" target="base" href="Y_Dyn_Pages.yhtm?page=frame_settings" 
+						title="Settings for Box, Web, Plugins ...">Settings</a></li>
+					<li><a class="y_menu_prim_item" target="base" href="Y_Dyn_Pages.yhtm?page=frame_ext" 
+						title="User Extentions ...">Extentions</a></li>
+					<li><a class="y_menu_prim_item" target="base" href="Y_Dyn_Pages.yhtm?page=frame_info" 
+						title="Information about yWeb, Updates">Info</a></li>
+				</ul>
+			</td>
+			<td>
+				<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live_directtv" title="LiveTV"><img src="/images/live.gif"></a>&nbsp;
+				<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live&dostart=live_tv_popup" title="LiveTV Popup"><img src="/images/live_popup.gif"></a>&nbsp;
+				<a href="/control/build_live_url?vlc_link=true" title="Stream to VLC Client"><img src="/images/vlc.gif"></a>
+			</td>
+			<td align="right">
+				<span id="state" style="color : red;font-family: Courier New, Courier, monospace;">&nbsp;</span>
+				<span id="box_name" {=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=}~~style="color : #{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=};"=}>
+					<b>{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_name=}</b></span>
+				<span id="clock">00:00</span>
+			</td>
+		</tr>
+		</table>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	i_start();
+//]]>
+</script>
+
+</body>
+</html>

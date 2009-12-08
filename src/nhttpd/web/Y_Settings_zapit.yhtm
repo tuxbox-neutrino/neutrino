@@ -1,0 +1,56 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript">
+//<![CDATA[
+function do_submit() 
+{
+	document.f.su.disabled=true;
+	if (document.f.R1[0].checked == true)
+		_url="/control/exec?Y_Tools&zapit_upload&bouquets.xml";
+	else if (document.f.R1[1].checked == true)
+		_url="/control/exec?Y_Tools&zapit_upload&services.xml";
+	else if (document.f.R1[2].checked == true)
+		_url="/control/exec?Y_Tools&zapit_upload&ubouquets.xml";
+	else
+		alert("Please make a choice");
+	document.f.action=_url;
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#zapit=}{=var-set:menu=zapit=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<table border="0" cellpadding="5">
+		<tr><td class="y_form_header">Upload</td></tr>
+		<tr>
+			<td>
+				<form name="f" method="post" enctype="multipart/form-data" action="">
+					<p>
+					<input type="radio" name="R1" checked="checked" value="bouquets.xml"/>bouquets.xml<br/>
+					<input type="radio" name="R1" value="services.xml"/>services.xml<br/>
+					<input type="radio" name="R1" value="ubouquets.xml"/>ubouquets.xml<br/>
+				
+					<input type="file" name="F1" size="20"/>&nbsp;
+					<input type="button" id="su" value="Absenden" name="B1" title="upload selected file" onclick="do_submit()"/>
+					</p>
+				</form>
+			</td>
+		</tr>
+		<tr><td class="y_form_header">Download</td></tr>
+		<tr>
+			<td>
+			<ul>
+			<li><a type="application/octet-stream" href="/var/tuxbox/config/zapit/bouquets.xml"><u>bouquets.xml</u></a></li>
+			<li><a type="application/octet-stream" href="/var/tuxbox/config/zapit/services.xml"><u>services.xml</u></a></li>
+			<li><a type="application/octet-stream" href="/var/tuxbox/config/zapit/ubouquets.xml"><u>ubouquets.xml</u></a></li>
+			</ul>
+			</td>
+		</tr>
+	</table>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+@CHARSET "ISO-8859-1";
+body
+{
+	font-family: Arial, Tahoma, Verdana, Geneva, Helvetica, sans-serif;
+	background-color: White;
+	font-size:10pt;
+	color: black; 
+}
+
+img {border:0;}
+button {font-family:Arial,Sans-Serif;	color:#555555;}
+input {font-family:Arial,Sans-Serif;	color:#555555;}
+select {font-family:Arial,Sans-Serif;	color:#555555;}
+form {margin: 0; padding: 0;}
+
+h1 { 	font-size:16pt; font-weight: bold;}
+h2 { 	font-size:12pt;}
+a {
+	color: black; 
+	font-size:10pt;
+	text-decoration:underline; 
+}
+
+td {
+	color: black; 
+	font-size:10pt;
+}
+
+tr {
+	color: black; 
+	font-size:10pt;
+}
+.picture
+{
+	border: 1px dashed #2188e0;
+	border-collapse: collapse;
+}
+.title1
+{
+	padding:2px; border:1px solid #2188E0; border-collapse: collapse;
+	width: 500px;
+	font-weight:bold; background-color:#99CCFF;
+	font-size:12pt;
+	font-weight:bold; margin-top:5; margin-bottom:5
+}
+.URL
+{
+	font-family: Courier New;
+}
+.example     { font-family: Courier New; border: 1px solid #808080; margin: 10; padding: 
+               2px; background-color: #eeeeee; width:480px; }

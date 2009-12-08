@@ -1,0 +1,47 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function check_updates()
+{
+	loadSyncURL("/control/exec?Y_Tools&get_update_version");
+	location.reload();
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Info#Auf_Updates_pr.C3.BCfen=}{=var-set:menu=Auf Updates pr&uuml;fen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<table border="0" cellpadding="2" cellspacing="4">
+		<tr>
+			<td valign="top">
+				<b>Deine Version</b>
+				<p>
+				{=ini-get:Y_Version.txt;version=}<br/>
+				{=ini-get:Y_Version.txt;date=}<br/>
+				{=ini-get:Y_Version.txt;type=}<br/><br/>
+				{=ini-get:Y_Version.txt;info=}<br/>
+				</p>
+			</td>
+			<td valign="top">
+				<b>Neue Version</b>
+				<p>
+				{=ini-get:/tmp/version.txt;version=}<br/>
+				{=ini-get:/tmp/version.txt;date=}<br/>
+				{=ini-get:/tmp/version.txt;type=}<br/><br/>
+				{=ini-get:/tmp/version.txt;info=}<br/>
+				{=if-empty:{=ini-get:/tmp/version.txt;url=}~~
+				<a href="{=ini-get:/tmp/version.txt;url=}" target="_blank">Download</a><br/>
+				=}
+				</p>
+			</td>
+		</tr>
+		<tr><td><input type="button" onclick="check_updates()" value="check"/></td></tr>
+		</table>
+	</div>
+</div>
+</body>
+</html>

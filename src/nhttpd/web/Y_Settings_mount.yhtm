@@ -1,0 +1,87 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var check = {=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_type_{=R1=}=};
+	document.f.type[check].checked = true;
+	
+	check = {=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_automount_{=R1=}=};
+	document.f.automount[check].checked = true;
+}
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body onLoad="form_init()">
+{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb:Tools#Mounts=}{=var-set:menu=Mount {=R1=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<input type="hidden" name="nr" value="{=R1=}"/>
+		<table border="0" class="y_form_table">
+			<tr>
+				<td>Typ</td>
+				<td>
+					<input type="radio" name="type" value="0"/>NFS&nbsp;
+					<input type="radio" name="type" value="1"/>CIFS&nbsp;
+					<input type="radio" name="type" value="2"/>FTPFS
+				</td>
+			</tr>
+			<tr>
+				<td>IP</td>
+				<td><input type="text" name="ip" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_ip_{=R1=}=}"/></td>
+			</tr>
+			<tr>
+				<td>Directory</td>
+				<td><input type="text" name="dir" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_dir_{=R1=}=}" title="remote directory"/></td>
+			</tr>
+			<tr>
+				<td>Local Directory</td>
+				<td><input type="text" name="localdir" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_{=R1=}=}" title="local directory to by mounted"/></td>
+			</tr>
+			<tr>
+				<td>MAC</td>
+				<td><input type="text" name="mac" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_mac_{=R1=}=}"/></td>
+			</tr>
+			<tr>
+				<td>Option 1</td>
+				<td><input type="text" name="opt1" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_mount_options1_{=R1=}=}" title="mount options 1"/></td>
+			</tr>
+			<tr>
+				<td>Option 2</td>
+				<td><input type="text" name="opt2" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_mount_options2_{=R1=}=}" title="mount options 2"/></td>
+			</tr>
+			<tr>
+				<td>Automount</td>
+				<td>
+					<INPUT type="radio" name="automount" value="0" title="off"/>Off&nbsp;
+					<INPUT type="radio" name="automount" value="1" title="on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Username</td>
+				<td><input type="text" name="username" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_username_{=R1=}=}" title="username"/></td>
+			</tr>
+			<tr>
+				<td>Passwort</td>
+				<td><input type="password" name="password" size="30" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_password_{=R1=}=}" title="password"/></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_mount_liste.yhtm"/>
+		<input type="hidden" name="execute" value="func:mount-set-values"/>
+		<input type="button" value="Save ..." title="submit and save values" onClick="do_submit()"/>
+		<input type="button" value="Cancel" title="cancel" name="abort" onClick='window.document.location.href="/Y_Settings_mount_liste.yhtm"'/>
+	</form>
+	</div>
+</div>
+</body>
+</html>

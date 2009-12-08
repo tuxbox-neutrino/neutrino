@@ -1,0 +1,42 @@
+{=var-set:cancache=yPConf=}
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit() 
+{
+	if(document.f.filename.value != "")
+	{
+		out.location.href = "Y_Wait.yhtm";
+		document.f.su.disabled=true;
+		yhttpd_cache_clear("yPInstall");
+		yhttpd_cache_clear('');		
+		window.setTimeout("document.f.submit()",1000);
+		document.f.su.disabled=false;
+	}
+	else
+		alert("No file given!");
+}
+//]]>div
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+		{=var-set:help_url=Neutrino:yWeb:Tools#yInstaller=}{=var-set:menu=yInstaller=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;installer" target="out">
+			tar-File:&nbsp;<input type="file" name="filename" size="70"/>&nbsp;<br/>
+			<input type="button" name="su" value="install" title="upload and install" onclick="do_submit()"/>
+			<br/><br/>
+		</form>
+		<div style="height:290px;width:540px;">
+		<iframe height="250" width="500" scrolling="no" align="left" frameborder="0" name="out" id="out">Your Browser does not support IFrames.</iframe>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

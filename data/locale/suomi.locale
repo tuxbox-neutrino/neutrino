@@ -1,0 +1,1049 @@
+AUDIOSelectMenue.head Kielivalinta
+EPGMenu.epgplus EPG ohjelmaopas
+EPGMenu.eventinfo Ohjelman kuvaus
+EPGMenu.eventlist Kanavan ohjelmat
+EPGMenu.head Ohjelmatiedot
+EPGMenu.streaminfo Teknistä tietoa
+EPGPlus.actions Toiminnot
+EPGPlus.bybouquet_mode Kanavaniputtain
+EPGPlus.bypage_mode Sivu kerrallaan
+EPGPlus.change_font_size Muuta kirjasimen kokoa
+EPGPlus.change_font_style Muuta kirjasinta
+EPGPlus.change_size Muuta kokoa
+EPGPlus.channelentry_font Kanavat
+EPGPlus.channelentry_separationlineheight riviväli
+EPGPlus.channelentry_width Kanavanimien leveys
+EPGPlus.channelevententry_font Ohjelma
+EPGPlus.edit_fonts Muokkaa kirjasinta
+EPGPlus.edit_sizes Muokkaa kokoa
+EPGPlus.font_style_bold lihavointi
+EPGPlus.font_style_italic kursivointi
+EPGPlus.font_style_regular normaali
+EPGPlus.footer_fontbouquetchannelname Valitse kanavanipun/kanavan nimi
+EPGPlus.footer_fontbuttons Näppäimet
+EPGPlus.footer_fonteventdescription Ohjelman kuvaus
+EPGPlus.footer_fonteventshortdescription Ohjelman kuvaus lyhyesti
+EPGPlus.head EPG ohjelmaopas
+EPGPlus.header_font Header
+EPGPlus.horgap1_height height hor. gap 1
+EPGPlus.horgap2_height height hor. gap 2
+EPGPlus.next_bouquet Seuraava nippu
+EPGPlus.options Asetukset
+EPGPlus.page_down Sivu ylös
+EPGPlus.page_up Sivu alas
+EPGPlus.prev_bouquet Edellinen nippu
+EPGPlus.record Ajasta tallennus
+EPGPlus.refresh_epg Päivitä EPG-tiedot
+EPGPlus.remind Ajasta kanavanvaihto
+EPGPlus.reset_settings Palauta asetukset
+EPGPlus.save_settings Tallenna asetukset
+EPGPlus.scroll_mode Vieritys
+EPGPlus.select_font_name Kirjasimen valinta
+EPGPlus.settings Asetukset
+EPGPlus.slider_width slider width
+EPGPlus.stretch_mode Venytetty
+EPGPlus.swap_mode Vaihtotila
+EPGPlus.timeline_fontdate Pvm kirjasin
+EPGPlus.timeline_fonttime Aika Kirjasin
+EPGPlus.vergap1_width width ver. gap 1
+EPGPlus.vergap2_width width ver. gap 2
+EPGPlus.view_mode Näyttötila
+GENRE.ARTS.0 taide / kulttuuri
+GENRE.ARTS.1 esittävä taide
+GENRE.ARTS.10 kulttuurimakasiini
+GENRE.ARTS.11 muoti
+GENRE.ARTS.2 korkeakulttuuri
+GENRE.ARTS.3 uskonto
+GENRE.ARTS.4 populaarikulttuuri
+GENRE.ARTS.5 kirjallisuus
+GENRE.ARTS.6 elokuva
+GENRE.ARTS.7 kokeellinen elokuva
+GENRE.ARTS.8 uutiset / lehdistö
+GENRE.ARTS.9 uusmedia
+GENRE.CHILDRENs_PROGRAMMES.0 lasten ja nuorten ohjelmaa
+GENRE.CHILDRENs_PROGRAMMES.1 esikouluikäisten ohjelmaa
+GENRE.CHILDRENs_PROGRAMMES.2 viihdettä 6 - 14 vuotiaille
+GENRE.CHILDRENs_PROGRAMMES.3 viihdettä 10 - 16 vuotiaille
+GENRE.CHILDRENs_PROGRAMMES.4 opetusohjelmaa
+GENRE.CHILDRENs_PROGRAMMES.5 piirros- / nukkeanimaatio
+GENRE.DOCUS_MAGAZINES.0 dokumentti ja makasiini
+GENRE.DOCUS_MAGAZINES.1 luonto
+GENRE.DOCUS_MAGAZINES.2 teknologia / luonnontiede
+GENRE.DOCUS_MAGAZINES.3 lääketiede / fysiologia / psykologia
+GENRE.DOCUS_MAGAZINES.4 vieraat kulttuurit/tutkimusmatkailu
+GENRE.DOCUS_MAGAZINES.5 yhteiskunta ja hengellinen
+GENRE.DOCUS_MAGAZINES.6 koulutus
+GENRE.DOCUS_MAGAZINES.7 kielet
+GENRE.MOVIE.0 draama
+GENRE.MOVIE.1 dekkari/trilleri
+GENRE.MOVIE.2 seikkailu/lännenelokuva/sota
+GENRE.MOVIE.3 tieteis/fantasia/kauhu
+GENRE.MOVIE.4 komedia
+GENRE.MOVIE.5 sarjat/melodraama
+GENRE.MOVIE.6 romantiikka
+GENRE.MOVIE.7 historiallinen elokuva/draama
+GENRE.MOVIE.8 aikuisviihde/draama
+GENRE.MUSIC_DANCE.0 musiikki / tanssi
+GENRE.MUSIC_DANCE.1 rock / pop
+GENRE.MUSIC_DANCE.2 klassinen musiikki
+GENRE.MUSIC_DANCE.3 kansanmusiikki
+GENRE.MUSIC_DANCE.4 jazz
+GENRE.MUSIC_DANCE.5 musikaali / ooppera
+GENRE.MUSIC_DANCE.6 baletti
+GENRE.NEWS.0 uutiset
+GENRE.NEWS.1 uutiset / sääennuste
+GENRE.NEWS.2 ajankohtaisohjelma
+GENRE.NEWS.3 dokumentti
+GENRE.NEWS.4 keskustelu / haastattelu 
+GENRE.SHOW.0 viihde / visailu
+GENRE.SHOW.1 visailu
+GENRE.SHOW.2 viihdeohjelma
+GENRE.SHOW.3 keskusteluohjelma
+GENRE.SOCIAL_POLITICAL.0 yhteiskunta, politiikka ja talous
+GENRE.SOCIAL_POLITICAL.1 raportit ja makasiinit
+GENRE.SOCIAL_POLITICAL.2 talousneuvontaa
+GENRE.SOCIAL_POLITICAL.3 merkkihenkilöitä
+GENRE.SPORTS.0 urheilu
+GENRE.SPORTS.1 erikoistapahtumat
+GENRE.SPORTS.10 hevosurheilu
+GENRE.SPORTS.11 kamppailulajit
+GENRE.SPORTS.2 urheilumakasiini
+GENRE.SPORTS.3 jalkapallo
+GENRE.SPORTS.4 tennis/squash
+GENRE.SPORTS.5 joukkuelajit
+GENRE.SPORTS.6 yleisurheilu
+GENRE.SPORTS.7 moottoriurheilu
+GENRE.SPORTS.8 vesiurheilu
+GENRE.SPORTS.9 talviurheilu
+GENRE.TRAVEL_HOBBIES.0 harrasteet, viihde ja virkistys
+GENRE.TRAVEL_HOBBIES.1 matkailu ja turismi
+GENRE.TRAVEL_HOBBIES.2 käsityöt
+GENRE.TRAVEL_HOBBIES.3 autoilu
+GENRE.TRAVEL_HOBBIES.4 kuntoilu ja terveys
+GENRE.TRAVEL_HOBBIES.5 ruoka
+GENRE.TRAVEL_HOBBIES.6 ostos-tv
+GENRE.TRAVEL_HOBBIES.7 puutarha
+GENRE.UNKNOWN tuntematon
+apids.hint_1 Syötä streamattavat audio PIDit
+apids.hint_2 heksalukuina välilyönneillä erotettuna
+apidselector.head Valitse kieli
+audiomenu.PCMOffset PCM äänen vaimennus
+audiomenu.analogout Analoginen lähtö
+audiomenu.audio_left_right_selectable Stereo/mono-valinta
+audiomenu.audiochannel_up_down_enable Valitse ääniraita nuolilla
+audiomenu.avs avs
+audiomenu.avs_control Äänenvoimakkuuden säätö
+audiomenu.dolbydigital Suosi AC3/DD-ääniraitaa
+audiomenu.head Ääniasetukset
+audiomenu.lirc lirc
+audiomenu.monoleft mono vasen
+audiomenu.monoright mono oikea
+audiomenu.ost ost
+audiomenu.stereo stereo
+audioplayer.add Lisää
+audioplayer.artist_title Artisti, Kappale
+audioplayer.building_search_index Luon hakutietokantaa
+audioplayer.button_select_title_by_id etsi ID:llä
+audioplayer.button_select_title_by_name etsi nimellä
+audioplayer.defdir Aloitus hakemisto/suunta
+audioplayer.delete poista kaikki
+audioplayer.deleteall poista kaikki
+audioplayer.display_order järjestys
+audioplayer.enable_sc_metadata Näytä shoutcastin metadata
+audioplayer.fastforward kelaus eteenpäin
+audioplayer.follow valitse automaattisesti nykyinen
+audioplayer.head Soittolista
+audioplayer.highprio Korkea purun prioriteetti
+audioplayer.id3scan ID3 tietojen haku
+audioplayer.jump_backwards hyppää taaksepäin
+audioplayer.jump_dialog_hint1 Syötä hyppykohta
+audioplayer.jump_dialog_hint2 (suhteellinen, sekunneissa)
+audioplayer.jump_dialog_title Syötä hyppykohta
+audioplayer.jump_forwards Hyppy eteenpäin
+audioplayer.keylevel näppäin taso
+audioplayer.name Musiikkisoitin
+audioplayer.pause Tauko
+audioplayer.play Pääte .m3u lisätään automaattisesti
+audioplayer.playing Current Track
+audioplayer.playlist_fileerror_msg Tiedoston luonti epäonnistui:
+audioplayer.playlist_fileerror_title Virhe
+audioplayer.playlist_fileoverwrite_msg Haluatko ylikirjoittaa tiedoston:
+audioplayer.playlist_fileoverwrite_title Ylikirjoita?
+audioplayer.playlist_name Pääte .m3u lisätään automaattisesti
+audioplayer.playlist_name_hint1 Syötä soittolistan nimi
+audioplayer.playlist_name_hint2 Pääte .m3u lisätään automaattisesti
+audioplayer.reading_files Luetaan metadataa
+audioplayer.repeat_on Toisto päälle
+audioplayer.rewind kelaus taaksep.
+audioplayer.save_playlist tallenna soittolista
+audioplayer.screensaver_timeout ruudunsäästäjän viive (min, 0=pois)
+audioplayer.select_title_by_name Etsi nimellä (SMS)
+audioplayer.show_playlist Näytä soittolista
+audioplayer.shuffle satunnaissoitto
+audioplayer.stop Pysäytä
+audioplayer.title_artist Kappale, Artisti
+audioplayerpicsettings.general mp3-soitin / kuvankatselu
+bookmarkmanager.delete poista
+bookmarkmanager.name kirjanmerkit
+bookmarkmanager.rename uudelleen nimeä
+bookmarkmanager.select valitse
+bouqueteditor.add Lisää
+bouqueteditor.bouquetname Kanavanippujen nimet
+bouqueteditor.delete Poista
+bouqueteditor.discardingchanges Kumotaan muutokset. Odota hetki.
+bouqueteditor.hide Piilota
+bouqueteditor.lock Lukitse
+bouqueteditor.move Siirrä
+bouqueteditor.name Kanavaniput
+bouqueteditor.newbouquetname Uusi nimi kanavanipulle
+bouqueteditor.rename Nimeä
+bouqueteditor.return Valmis
+bouqueteditor.savechanges? Tallennetaanko muutokset?
+bouqueteditor.savingchanges Tallennetaan muutoksia. Odota hetki.
+bouqueteditor.switch TV/Radio
+bouqueteditor.switchmode TV/Radio
+bouquetlist.head Kanavaniput
+cablesetup.provider Verkko
+channellist.head Kaikki palvelut
+channellist.nonefound Kanavia ei löytynyt!\nTee kanavahaku\n(dbox-näppäin -> asetukset)
+channellist.since alkaen %02d:%02d
+colorchooser.alpha alpha
+colorchooser.blue sininen
+colorchooser.green vihreä
+colorchooser.red punainen
+colormenu.background Tausta
+colormenu.background_head Tausta
+colormenu.fade Fade valikot
+colormenu.font Kirjasinkoot
+colormenu.gtx_alpha Läpinäkyvyys
+colormenu.head Käyttöliittymän ulkoasu
+colormenu.menucolors Valikon värit
+colormenu.statusbar Infopalkin värit
+colormenu.textcolor Tekstin väri
+colormenu.textcolor_head Tekstin väri
+colormenu.themeselect Teeman valinta
+colormenu.timing OSD-ajoitukset
+colormenusetup.head Valikon värit
+colormenusetup.menucontent Valitun ikkunan sisältö
+colormenusetup.menucontent_inactive Passiivisen ikkunan sisältö
+colormenusetup.menucontent_selected Valitun ikkunan sisältö
+colormenusetup.menuhead Valikon otsikko
+colorstatusbar.head Infopalkki
+colorstatusbar.text Infopalkki
+colorthememenu.classic_theme Perinteinen
+colorthememenu.dblue_theme DarkBlue
+colorthememenu.dvb2k_theme DVB2000
+colorthememenu.head Teeman valinta
+colorthememenu.neutrino_theme Neutrino
+date.Apr  Huhti
+date.Aug  Elo
+date.Dec  Joulu
+date.Feb  Helmi
+date.Fri  Pe
+date.Jan  Tammi
+date.Jul  Heinä
+date.Jun  Kesä
+date.Mar  Maalis
+date.May  Touko
+date.Mon  Ma
+date.Nov  Marras
+date.Oct  Loka
+date.Sat  La
+date.Sep  Syys
+date.Sun  Su
+date.Thu  To
+date.Tue  Ti
+date.Wed  Ke
+epgextended.actors Näyttelijät
+epgextended.director Ohjaaja
+epgextended.guests Vieraat
+epgextended.original_title Alkuperäinen nimi
+epgextended.presenter Esittäjä
+epgextended.year_of_production Tuotantovuosi
+epglist.head Ohjelmalista - %s
+epglist.noevents EPG ei ole saatavilla...
+epgviewer.More_Screenings Muita näytöksiä tällä kanavalla
+epgviewer.nodetailed Lisäkuvausta ei ole saatavilla
+epgviewer.notfound EPG:tä ei löytynyt
+eventlistbar.channelswitch Ajasta kanavan vaihto
+eventlistbar.eventsort Lajittele
+eventlistbar.recordevent Tallenna
+experimentalsettings Kokeiluasetuksia
+experimentalsettings.head Kokeiluasetuksia
+favorites.addchannel Nykyinen kanava lisätään "Suosikit" kanavanippuun.\nOdota hetki...
+favorites.bouquetname Suosikit
+favorites.bqcreated Kanavanippu "Suosikit" luotu...\n
+favorites.chadded Kanava lisätty suosikkeihisi...\n
+favorites.chalreadyinbq Kanava on jo suosikeissasi...\n
+favorites.finalhint \nKäytä kanavanippueditoria suosikkiesi muokkaamiseen.\n
+favorites.menueadd Lisää kanava suosikkeihin
+favorites.nobouquets Suosikit ovat käytettävissä vain aktiivisista kanavanipuista.
+filebrowser.delete Poista
+filebrowser.denydirectoryleave Rajaa aloitushakemistoon
+filebrowser.dodelete1 Poista
+filebrowser.dodelete2 ?
+filebrowser.filter.active Suodatus päälle
+filebrowser.filter.inactive Suodatus pois
+filebrowser.head Tiedostoselain
+filebrowser.mark Merkitse
+filebrowser.nextpage Seur. sivu
+filebrowser.prevpage Edell. sivu
+filebrowser.scan Selaan kansiota
+filebrowser.select Valitse
+filebrowser.showrights Näytä tiedosto-oikeudet
+filebrowser.sort.date (pvm)
+filebrowser.sort.name (nimi)
+filebrowser.sort.namedirsfirst (hak/tied)
+filebrowser.sort.size (koko)
+filebrowser.sort.type (tyyppi)
+filesystem.is.utf8 Tiedostonimien merkistö
+filesystem.is.utf8.option.iso8859.1 ISO-8859-1
+filesystem.is.utf8.option.utf8 UTF-8
+flashupdate.actionreadflash Luetaan
+flashupdate.cantopenfile Tiedostoa ei voida avata
+flashupdate.cantopenmtd MTD-laitetta ei voida käyttää
+flashupdate.checkupdate Etsi uutta versiota
+flashupdate.currentreleasecycle Versio
+flashupdate.currentversion_sep Nykyinen versio
+flashupdate.currentversiondate Päiväys
+flashupdate.currentversionsnapshot Tyyppi
+flashupdate.currentversiontime Aika
+flashupdate.erasefailed Flashin tyhjennys epäonnistui
+flashupdate.erasing Flash-muistin tyhjennys
+flashupdate.experimentalimage Ohjelmisto jonka valitsit on testaamaton. Tämä tarkoittaa\n, että laitteesi ei ehkä käynnisty päivityksen jälkeen.\n\nOletko varma, että haluat päivittää tähän versioon?
+flashupdate.expertfunctions Erikoistoiminnot
+flashupdate.fileis0bytes Tiedosto on tyhjä (0 tavua)
+flashupdate.fileselector Valitse tiedosto
+flashupdate.flashreadyreboot Ohjelmistopäivitys onnistui.\nDBox täytyy käynnistää uudelleen.
+flashupdate.getinfofile Versiotiedot
+flashupdate.getinfofileerror Versiotietoja ei voitu lukea
+flashupdate.getupdatefile Päivityksen haku
+flashupdate.getupdatefileerror Päivityksen hakeminen epäonnistui
+flashupdate.globalprogress Kokonaiskesto:
+flashupdate.head Ohjelmistopäivitys
+flashupdate.md5check Ohjelmiston tarkastus
+flashupdate.md5sumerror Virheellinen ohjelmisto
+flashupdate.msgbox Uusi ohjelmistoversio löydetty:\nPvm: %s, %s\nOhjelmistopohja: %s\nTyyppi: %s\n\nHaluatko asentaa tämän ohjelmistoversion?
+flashupdate.msgbox_manual Uusi ohjelmistoversio löydetty:\nPvm: %s, %s\nOhjelmistopohja: %s\nTyyppi: %s\n\nHaluatko asentaa tämän ohjelmistoversion?
+flashupdate.mtdselector Valitse osio
+flashupdate.programmingflash Flash-muistin kirjoitus
+flashupdate.proxypassword Salasana
+flashupdate.proxypassword_hint1 Anna välityspalvelimen salasana.
+flashupdate.proxypassword_hint2 Jätä tyhjäksi, jos salasanaa ei tarvita.
+flashupdate.proxyserver Osoite ja portti
+flashupdate.proxyserver_hint1 Anna palvelimen nimi tai IP-osoite, muodossa palvelin:portti
+flashupdate.proxyserver_hint2 Jätä tyhjäksi mikäli välityspalvelinta ei käytetä.
+flashupdate.proxyserver_sep Välityspalvelin (proxy)
+flashupdate.proxyusername Käyttäjätunnus
+flashupdate.proxyusername_hint1 Anna välityspalvelimen käyttäjätunnus.
+flashupdate.proxyusername_hint2 Jätä tyhjäksi mikäli käyttätunnusta ei tarvita.
+flashupdate.readflash Lue koko flash-muisti
+flashupdate.readflashmtd Lue yksi osio
+flashupdate.ready Valmis
+flashupdate.reallyflashmtd Haluatko varmasti päivittää?\n\nMikäli päivitys epäonnistuu tai ohjelmisto\non viallinen, laite ei enää käynnisty uudelleen.\n\nOhjelmisto: %s\nKohde: %s
+flashupdate.savesuccess Ohjelmisto tallennettu polkuun %s.
+flashupdate.selectimage Saatavilla olevat ohjelmistot
+flashupdate.squashfs.noversion SquashFS-versiotarkastus toimii vain\nwebin kautta päivitettäessä.\n\nHaluatko jatkaa tarkastamatta versiota?
+flashupdate.titlereadflash Flash-muistin luku
+flashupdate.titlewriteflash Flash-muistin kirjoitus
+flashupdate.updatemode Päivitystapa
+flashupdate.updatemode_internet Internet
+flashupdate.updatemode_manual Manuaalinen
+flashupdate.url_file Päivitysasetukset 
+flashupdate.versioncheck Version tarkastus
+flashupdate.writeflash Kirjoita koko flash-muisti
+flashupdate.writeflashmtd Kirjoita yksi osio
+flashupdate.wrongbase Ohjelmistosi perusversio eroaa uudesta. Päivitys ei\nole mahdollista ilman koko ohjelmiston vaihtoa.
+fontmenu.channellist Kanavalista
+fontmenu.epg EPG
+fontmenu.eventlist Ohjelmalista
+fontmenu.gamelist Pelit
+fontmenu.head Kirjasinkoot
+fontmenu.infobar Infopalkki
+fontsize.channel_num_zap Kanavan suoravalinta
+fontsize.channellist Kanavalista
+fontsize.channellist_descr Kuvaus
+fontsize.channellist_number Numero
+fontsize.epg_date EPG päiväys
+fontsize.epg_info1 EPG info 1
+fontsize.epg_info2 EPG info 2
+fontsize.epg_title EPG otsikko
+fontsize.eventlist_datetime Päiväys / aika
+fontsize.eventlist_itemlarge Suuri
+fontsize.eventlist_itemsmall Pieni
+fontsize.eventlist_title Otsikko
+fontsize.filebrowser_item Tiedostoselain
+fontsize.gamelist_itemlarge Suuri
+fontsize.gamelist_itemsmall Pieni
+fontsize.hint Alustan kirjasinta,\nodota hetki...
+fontsize.imageinfo_info Ohjelmistotiedot
+fontsize.imageinfo_small Ohjelmiston lisenssitiedot
+fontsize.infobar_channame Kanavan nimi
+fontsize.infobar_info Info
+fontsize.infobar_number Numero
+fontsize.infobar_small Pieni
+fontsize.menu Valikkoteksti
+fontsize.menu_info Valikkotiedot
+fontsize.menu_title Valikko-otsikko
+gtxalpha.alpha1 Otsikko 
+gtxalpha.alpha2 Valikko 
+imageinfo.creator Koonnut:
+imageinfo.date Päiväys:
+imageinfo.dokumentation Ohjeet:
+imageinfo.forum Keskustelu:
+imageinfo.head Ohjelmiston tiedot
+imageinfo.homepage Kotisivu:
+imageinfo.image Nimi:
+imageinfo.license Lisenssi:
+imageinfo.version Versio:
+infoviewer.epgnotload EPG ei vielä valmis...
+infoviewer.epgwait odotetaan EPG:tä...
+infoviewer.eventlist Ohjelmaopas
+infoviewer.languages Ääni
+infoviewer.motor_moving Moottori kääntyy..
+infoviewer.nocurrent Ohjelmasta ei ole tietoja saatavilla
+infoviewer.noepg EPG ei ole käytettävissä
+infoviewer.notavailable Kanava ei ole käytettävissä
+infoviewer.selecttime Aikavalinta
+infoviewer.streaminfo Lisätoim.
+infoviewer.subchan_disp_pos Alikanavan näyttö
+infoviewer.subservice Subservices
+infoviewer.waittime Waiting for time...
+ipsetup.hint_1 Käytä 0..9, tai Nuoli ylös/alas,
+ipsetup.hint_2 OK tallentaa, Home keskeyttää
+keybindingmenu.RC Kaukosäätimen näppäintoisto
+keybindingmenu.addrecord - Ajastintallennus
+keybindingmenu.addrecord_head Ajastintallennuksen näppäin
+keybindingmenu.addremind - Kanavanvaihtoajastus
+keybindingmenu.addremind_head Kanavanvaihtoajastimen näppäin
+keybindingmenu.allchannels_on_ok Kaikki palvelut
+keybindingmenu.bouquetchannels_on_ok Kanavanipuittain
+keybindingmenu.bouquetdown - Edellinen kanavanippu
+keybindingmenu.bouquetdown_head Edellisen kanavanipun näppäin
+keybindingmenu.bouquethandling Kanavaselaus
+keybindingmenu.bouquetlist_on_ok Kanavanippu-lista
+keybindingmenu.bouquetup - Seuraava kanavanippu
+keybindingmenu.bouquetup_head Seuraavan kanavanipun näppäin
+keybindingmenu.cancel - Paluunäppäin
+keybindingmenu.cancel_head Paluunäppäin
+keybindingmenu.channeldown - Edellinen kanava
+keybindingmenu.channeldown_head Edellisen kanavan näppäin
+keybindingmenu.channellist Kanavalista
+keybindingmenu.channelup - Seuraava kanava
+keybindingmenu.channelup_head Seuraavan kanavan näppäin
+keybindingmenu.head Näppäinasetukset
+keybindingmenu.lastchannel - Paluu aiemmalle kanavalle
+keybindingmenu.lastchannel_head Paluu Aiemmalle kanavalle
+keybindingmenu.modechange Tilanvaihto
+keybindingmenu.pagedown - Seuraava sivu
+keybindingmenu.pagedown_head Seuraavan sivun näppäin
+keybindingmenu.pageup - Edellinen sivu
+keybindingmenu.pageup_head Edellisen sivun näppäin
+keybindingmenu.quickzap Pikavaihto
+keybindingmenu.repeatblock Toistoviive
+keybindingmenu.repeatblockgeneric Yleisviive
+keybindingmenu.sort - Lajittelujärjestys
+keybindingmenu.sort_head Lajittelujärjestyksen näppän
+keybindingmenu.subchanneldown - Edellinen alikanava
+keybindingmenu.subchanneldown_head Edellisen alikanavan näppäin
+keybindingmenu.subchannelup - Seuraava alikanava
+keybindingmenu.subchannelup_head Seuraavan alikanavan näppäin
+keybindingmenu.tvradiomode - TV/Radio
+keybindingmenu.tvradiomode_head TV/Radio valintanäppäin
+keybindingmenu.zaphistory - Kanavahistoria
+keybindingmenu.zaphistory_head Kanavahistorian näppäin
+keychooser.head Valitse uusi näppäin
+keychooser.text1 Paina näppäintä
+keychooser.text2 Odota hetki keskeyttääksesi
+keychoosermenu.currentkey Nykyinen näppäin
+keychoosermenu.setnew Aseta uusi näppäin
+keychoosermenu.setnone Ei näppäintä
+languagesetup.head Kielivalikko
+languagesetup.select Kieli
+lcdcontroler.brightness Kirkkaus
+lcdcontroler.brightnessstandby - valmiustilassa
+lcdcontroler.contrast Kontrasti
+lcdcontroler.head LCD asetukset
+lcdmenu.autodimm Automaattinen himmennys
+lcdmenu.dim_brightness Himmennetty kirkkaus
+lcdmenu.dim_time Viive ennen himmennystä
+lcdmenu.head LCD-näytön asetukset
+lcdmenu.inverse Käänteinen
+lcdmenu.lcdcontroler Kontrasti / Kirkkaus
+lcdmenu.power Näyttö
+lcdmenu.statusline Näytä
+lcdmenu.statusline.both äänenvoim. / aikajana
+lcdmenu.statusline.playtime aikajana
+lcdmenu.statusline.volume äänenvoimakkuus
+mainmenu.audioplayer Musiikkisoitin
+mainmenu.games Pelit
+mainmenu.head Päävalikko
+mainmenu.movieplayer Mediasoitin
+mainmenu.pausesectionsd Lue EPG
+mainmenu.pictureviewer Kuvankatselu
+mainmenu.radiomode Radio
+mainmenu.reboot Käynnistä uudelleen
+mainmenu.recording Tallennus
+mainmenu.recording_start Käynnistä
+mainmenu.recording_stop Pysäytä
+mainmenu.scartmode Scart
+mainmenu.scripts Lisäkomennot
+mainmenu.service Huoltovalikko
+mainmenu.settings Asetukset
+mainmenu.shutdown Sammuta
+mainmenu.sleeptimer Uniajastin
+mainmenu.tvmode TV
+mainsettings.audio Ääni
+mainsettings.colors Käyttöliittymän ulkoasu
+mainsettings.head Asetukset
+mainsettings.keybinding Näppäinasetukset
+mainsettings.language Kieli
+mainsettings.lcd LCD-näyttö
+mainsettings.misc Lisäasetukset
+mainsettings.network Verkko
+mainsettings.recording Tallennus
+mainsettings.savesettingsnow Tallenna asetukset
+mainsettings.savesettingsnow_hint Asetuksien tallennus,\nodota hetki...
+mainsettings.streaming Mediasoitin
+mainsettings.video Kuva
+menu.back Palaa
+messagebox.back Palaa
+messagebox.cancel Peruuta
+messagebox.discard Peruuta muutokset?
+messagebox.error Virhe
+messagebox.info Info
+messagebox.no Ei
+messagebox.yes Kyllä
+miscsettings.bootinfo Näytä tiedot käynnistyksessä
+miscsettings.bootmenu Näytä käynnistysvalikko
+miscsettings.cabledriver Lataa Nokian kaapeliajuri
+miscsettings.driver_boot Ajurit ja käynnistys
+miscsettings.fb_destination Konsoli
+miscsettings.general Yleiset
+miscsettings.head Sekalaiset asetukset
+miscsettings.hwsections Käytä hwsections:ia
+miscsettings.infobar_sat_display Näytä satelliitin nimi
+miscsettings.noaviawatchdog Käytä AVIA valvontaa
+miscsettings.noenxwatchdog Käytä eNX valvontaa
+miscsettings.pmtupdate Käytä PMT päivitystä
+miscsettings.shutdown_count Automaattinen sammutus
+miscsettings.shutdown_count_hint1 Aika minuutteina jonka jälkeen laite sammuu
+miscsettings.shutdown_count_hint2 automaattisesti valmiustilasta (0 = pois).
+miscsettings.shutdown_real Käytä valmiustilaa
+miscsettings.shutdown_real_rcdelay Sammutusviive
+miscsettings.sptsmode Käytä spts-tilaa
+miscsettings.startbhdriver Lataa BH-tilan ajurit
+miscsettings.tuxtxt_cache Teksti-tv:n välimuisti
+motorcontrol.head Kääntömoottorin asetukset
+moviebrowser.book_head Bookmarks
+moviebrowser.book_lastmoviestop Last play stop:
+moviebrowser.book_movieend Movie end:
+moviebrowser.book_moviestart Movie start:
+moviebrowser.book_name Name:
+moviebrowser.book_new New Bookmark
+moviebrowser.book_position Position:
+moviebrowser.book_type Jump (<0 back , >0 for):
+moviebrowser.book_type_backward Repeat
+moviebrowser.book_type_forward jump over
+moviebrowser.edit_book Bookmark change
+moviebrowser.edit_book_name_info1 Enter new Bookmark name
+moviebrowser.edit_book_name_info2 
+moviebrowser.edit_book_pos_info1 Enter new Position (s)
+moviebrowser.edit_book_pos_info2 
+moviebrowser.edit_book_type_info1 Enter new jump length (s)
+moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
+moviebrowser.edit_serie Enter name of serie
+moviebrowser.error_no_movies No movies found
+moviebrowser.foot_filter Filter:
+moviebrowser.foot_play Start movie
+moviebrowser.foot_sort Sort:
+moviebrowser.head TS MovieBrowser
+moviebrowser.head_filter Filter movies by category:
+moviebrowser.head_playlist Last played:
+moviebrowser.head_recordlist Last recorded:
+moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel 
+moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel 
+moviebrowser.hint_movieend Filmende in 5 s\n '0' zum weitersehen 
+moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition 
+moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition 
+moviebrowser.info_audio Audio
+moviebrowser.info_channel Channel
+moviebrowser.info_filename Name
+moviebrowser.info_genre_major Genre
+moviebrowser.info_genre_minor Genre
+moviebrowser.info_head Film Informationen
+moviebrowser.info_info1 Info 1
+moviebrowser.info_info2 Info 2
+moviebrowser.info_length Length (Min)
+moviebrowser.info_parental_lockage Parental Lock age
+moviebrowser.info_parental_lockage_0year always
+moviebrowser.info_parental_lockage_12year 12 years
+moviebrowser.info_parental_lockage_16year 16 years
+moviebrowser.info_parental_lockage_18year 18 years
+moviebrowser.info_parental_lockage_6year 6 years
+moviebrowser.info_parental_lockage_always never 
+moviebrowser.info_path Path
+moviebrowser.info_prevplaydate Last play date
+moviebrowser.info_prodcountry Country
+moviebrowser.info_prodyear Year
+moviebrowser.info_quality Quality
+moviebrowser.info_recorddate Record date
+moviebrowser.info_serie Serie
+moviebrowser.info_size File size (MB)
+moviebrowser.info_title Titel
+moviebrowser.info_videoformat Picture
+moviebrowser.menu_directories_head Paths
+moviebrowser.menu_help_head Help
+moviebrowser.menu_main_bookmarks Bookmarks
+moviebrowser.menu_main_head Settings
+moviebrowser.menu_main_movieinfo Movie info
+moviebrowser.menu_main_saveandback save and back
+moviebrowser.menu_nfs_head NFS settings
+moviebrowser.menu_parental_lock_activated activated
+moviebrowser.menu_parental_lock_activated_no no
+moviebrowser.menu_parental_lock_activated_yes yes
+moviebrowser.menu_parental_lock_activated_yes_temp yes (temporary)
+moviebrowser.menu_parental_lock_head Parental Lock
+moviebrowser.menu_parental_lock_rate_head Lock movies from
+moviebrowser.scan_for_movies Scan for Movies ...
+moviebrowser.serie_existingname Existing series
+moviebrowser.serie_head Serie
+moviebrowser.serie_name Change name
+moviebrowser.short_audio Audio
+moviebrowser.short_book Book
+moviebrowser.short_channel Channel
+moviebrowser.short_country Country
+moviebrowser.short_filename Name
+moviebrowser.short_format Format
+moviebrowser.short_genre_major Genre
+moviebrowser.short_genre_minor Genre
+moviebrowser.short_info1 Info 1
+moviebrowser.short_info2 Info 2
+moviebrowser.short_length Min
+moviebrowser.short_parental_lockage Age
+moviebrowser.short_path Path
+moviebrowser.short_prevplaydate Last
+moviebrowser.short_prodyear Year
+moviebrowser.short_quality * (quality)
+moviebrowser.short_recorddate Date
+moviebrowser.short_serie Serie
+moviebrowser.short_size MB
+moviebrowser.short_title Title
+moviebrowser.start_head Start movie from:
+moviebrowser.start_record_start Movie start
+movieplayer.bookmark Kirjanmerkit
+movieplayer.bookmarkname Kirjanmerkki
+movieplayer.bookmarkname_hint1 Syötä nimi uudelle kirjanmerkille
+movieplayer.bookmarkname_hint2 
+movieplayer.buffering Puskuroin...
+movieplayer.defdir Oletushakemisto
+movieplayer.defplugin Oletuslaajennos
+movieplayer.dvdplayback DVD
+movieplayer.fileplayback Toisto VLC:n kautta
+movieplayer.goto +,- -> suhteellinen hyppy
+movieplayer.goto.h1 = -> absoluuttinen hyppy
+movieplayer.goto.h2 +,- -> suhteellinen hyppy
+movieplayer.head Mediasoitin
+movieplayer.nostreamingserver Videon lähettäjäpalvelimeen ei saatu yhteyttä.
+movieplayer.pleasewait Odota hetki.\nYhdistän videopalvelimeen...
+movieplayer.toomanybookmarks Liian monta kirjanmerkkiä.\nPoista vähintään yksi ensin.
+movieplayer.tshelp1 Ohjeet: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.tshelp10 n. 10 minuuttia taaksepäin
+movieplayer.tshelp11 n. 10 minuuttia eteenpäin
+movieplayer.tshelp12 Ohjeet: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.tshelp2 Valitse ääniraita
+movieplayer.tshelp3 Tauko/Jatka
+movieplayer.tshelp4 Luo kirjanmerkki
+movieplayer.tshelp5 Näytä eteneminen
+movieplayer.tshelp6 n. minuutti taaksepäin
+movieplayer.tshelp7 n. minuutti eteenpäin
+movieplayer.tshelp8 n. 5 minuuttia taaksepäin
+movieplayer.tshelp9 n. 5 minuuttia eteenpäin
+movieplayer.tsplayback Toista tiedosto
+movieplayer.tsplayback_pc Toista tiedosto (PIN-koodattu)
+movieplayer.vcdplayback (S)VCD
+movieplayer.vlchelp1 Ohjeet: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.vlchelp10 n. 10 minuuttia taaksepäin
+movieplayer.vlchelp11 n. 10 minuuttia eteenpäin
+movieplayer.vlchelp12 Ohjeet: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.vlchelp2 Tahdista
+movieplayer.vlchelp3 Tauko/Jatka
+movieplayer.vlchelp4 Luo kirjanmerkki
+movieplayer.vlchelp5 Näytä eteneminen
+movieplayer.vlchelp6 n. minuutti taaksepäin
+movieplayer.vlchelp7 n. minuutti eteenpäin
+movieplayer.vlchelp8 n. 5 minuuttia taaksepäin
+movieplayer.vlchelp9 n. 5 minuuttia eteenpäin
+movieplayer.wrongvlcversion Tämä toiminto ei ole käytössä tässä VLC versiossa
+networkmenu.broadcast Broadcast-osoite
+networkmenu.dhcp DHCP
+networkmenu.gateway Yhdyskäytävä
+networkmenu.head Verkkoasetukset
+networkmenu.ipaddress IP-osoite
+networkmenu.mount Verkkolevyt
+networkmenu.nameserver Nimipalvelin
+networkmenu.netmask Aliverkon peite
+networkmenu.setupnow Ota asetukset käyttöön
+networkmenu.setuponstartup Verkko käynnistyksessä
+networkmenu.show Näytä nykyiset asetukset
+networkmenu.test Testaa verkkoasetukset
+nfs.alreadymounted Hakemisto on jo liitetty
+nfs.automount Liitä käynnistyksessä
+nfs.dir Palvelimen hakemisto
+nfs.ip Palvelimen IP-osoite
+nfs.localdir Paikallinen hakemisto
+nfs.mount Verkkolevyjen asetukset
+nfs.mount_options Liitosasetukset
+nfs.mounterror Tuntematon tiedostojärjestelmä
+nfs.mounterror_notsup Tuntematon tiedostojärjestelmä
+nfs.mountnow Liitä nyt
+nfs.mountok Liitos onnistui
+nfs.mounttimeout Liitos epäonnistui: aikakatkaisu
+nfs.password Salasana
+nfs.remount Liitä verkkolevyt uudelleen
+nfs.type Verkkolevyn tyyppi
+nfs.type_cifs CIFS
+nfs.type_lufs FTPFS
+nfs.type_nfs NFS
+nfs.umount Vapauta verkkolevy
+nfs.umounterror Virhe vapauttaessa verkkolevyä
+nfs.username Käyttäjätunnus
+nfsmenu.head Verkkolevyjen asetukset
+nvod.percentage (%d%% jäljellä)
+nvod.starting (Käynnistys %d minuutin kuluttua)
+nvodselector.directormode Suora-Tila
+nvodselector.head Valitse aloitusajankohta
+nvodselector.subservice Valitse palvelu
+options.default Palauta oletukset
+options.fb Framebuffer
+options.null (null)
+options.off Pois
+options.on Päällä
+options.on.without_messages Hiljaisesti
+options.serial Sarjaportti
+parentallock.changepin PIN-koodin vaihto
+parentallock.changepin_hint1 Syötä lapsilukon uusi PIN-koodi.
+parentallock.changetolocked lukituille kanavanipuille
+parentallock.head Syötä lapsilukon PIN-koodi
+parentallock.lockage Lukitse
+parentallock.lockage12 alle 12 vuotiailta
+parentallock.lockage16 alle 16 vuotiailta
+parentallock.lockage18 alle 18 vuotiailta
+parentallock.lockedchannel Lukittu kanava...
+parentallock.lockedprogram Lukittu ohjelma (alle %d vuotiailta)
+parentallock.never ei koskaan
+parentallock.onsignal lähetyksen mukaan
+parentallock.parentallock Lapsilukko
+parentallock.prompt PIN-koodin kysely
+pictureviewer.decode_server_ip palvelimen IP-osoite
+pictureviewer.decode_server_port palvelimen portti
+pictureviewer.defdir Aloitushakemisto
+pictureviewer.head Kuvankatselu
+pictureviewer.help1 siirry alas
+pictureviewer.help10 Katselu tila
+pictureviewer.help11 lue uudelleen kuva
+pictureviewer.help12 edellinen kuva
+pictureviewer.help13 seuraava kuva
+pictureviewer.help14 loitonna
+pictureviewer.help15 lähennä
+pictureviewer.help16 siirry ylös
+pictureviewer.help17 siirry vasemmalle
+pictureviewer.help18 siirry oikealle
+pictureviewer.help19 siirry alas
+pictureviewer.help2 poistu
+pictureviewer.help20 vaihda järjestystä
+pictureviewer.help21 lue kuva uudelleen (ei skaalausta)
+pictureviewer.help22 poistu
+pictureviewer.help3 muuta järjestystä
+pictureviewer.help4 älä muuta kuvan kokoa
+pictureviewer.help5 diaesitys
+pictureviewer.help6 edellinen kuva
+pictureviewer.help7 seuraava kuva
+pictureviewer.help8 muuta järjestystä
+pictureviewer.help9 poistu
+pictureviewer.resize.color_average advanced
+pictureviewer.resize.none ei mitään
+pictureviewer.resize.simple yksinkertainen
+pictureviewer.scaling skaalaus
+pictureviewer.show näytä
+pictureviewer.slide_time diaesityksessä kuvan näyttöaika
+pictureviewer.slideshow diaesitys
+pictureviewer.sortorder (tiedostonimi)
+pictureviewer.sortorder.date (pvm)
+pictureviewer.sortorder.filename (tiedostonimi)
+ping.ok tavoitettavissa (ping)
+ping.protocol ei tavoitettavissa (host or protocol error)
+ping.socket ei tavoitettavissa (socket error)
+ping.unreachable ei tavoitettavissa
+pinprotection.head Syötä PIN-koodi
+pinprotection.wrongcode Virheellinen PIN-koodi. Yritä uudelleen.
+plugins.result Info
+rclock.lockmsg Kaukosäädin on lukittu.\nAvaa painamalla ensin punaista- ja sitten DBox-näppäintä.
+rclock.menueadd Lukitse kaukosäädin
+rclock.title Kaukosäätimen lukitus
+rclock.unlockmsg Lukitus avattu.
+recordingmenu.apids Tallennuksen äänet
+recordingmenu.apids_ac3 Tallenna AC3 ääni
+recordingmenu.apids_alt Tallenna muut äänet
+recordingmenu.apids_std Tallenna oletusääni
+recordingmenu.choose_direct_rec_dir Hakemiston valinta välittömässä tall.
+recordingmenu.defdir Tallennushakemisto
+recordingmenu.dir_permissions Hakemisto-oikeudet
+recordingmenu.dir_permissions_hint Hakemiston oikeudet unix-tyyliin. Yleensä 755.
+recordingmenu.epg_for_filename Pitkät tiedostonimet (sis. EPG-tiedot)
+recordingmenu.file Tiedosto
+recordingmenu.filename_template Tiedostojen nimeäminen
+recordingmenu.filename_template_hint %c=kanava, %i=ohjelman nimi,%d=päiväys, %t=aika
+recordingmenu.filesettings Tiedostotallennuksen asetukset
+recordingmenu.head Tallennusasetukset
+recordingmenu.help Tallennustavat:\n- Palvelin:\n-- Tallennus käyttäen PC:ssä olevaa erillistä ohjelmistoa\n- Videonauhuri:\n-- Tallennus VCR-scart:iin kytketylle videonauhurille\n\n- Tiedosto:\n-- Tallennus suoraan tiedostoon\n -- verkkolevylle tai sisäiselle kiintolevylle\nTallennus spts-tilassa:\n- Päällä = TS\n- Pois = PES\n\nTiedostojärjestelmien suurimmat tiedostokoot:\n- NFS V2: 2 GB (2048 MB)\n- NFS V3: lähes rajoittamaton (0 MB)\n- FAT: 2 GB (2048 MB)\n- FAT32: 4 GB (4096 MB)
+recordingmenu.no_scart Älä vaihda scart-tilaan
+recordingmenu.off Pois
+recordingmenu.record_in_spts_mode Tallennus spts-tilassa
+recordingmenu.recording_type Tallennustapa
+recordingmenu.ringbuffers Rengaspuskureiden määrä
+recordingmenu.server Palvelin (stream)
+recordingmenu.server_ip Palvelimen IP-osoite
+recordingmenu.server_mac Palvelimen MAC
+recordingmenu.server_port Palvelimen portti
+recordingmenu.server_wakeup Palvelimen Wake-On-Lan
+recordingmenu.setupnow Ota asetukset käyttöön
+recordingmenu.splitsize Suurin tiedostokoko (MB)
+recordingmenu.stopplayback Pysäytä toisto
+recordingmenu.stopsectionsd Pysäytä sectionsd
+recordingmenu.stream_pmt_pid Tallenna PMT
+recordingmenu.stream_vtxt_pid Tallenna teksti-tv
+recordingmenu.use_fdatasync Tallenna synkronisesti (fdatasync)
+recordingmenu.use_o_sync Tallenna asynkronisesti (O_SYNC)
+recordingmenu.vcr Videonauhuri
+recordingmenu.zap_on_announce Kanavanvaihtoennakko
+recordtimer.announce Tallennus alkaa muutaman minuutin kuluttua
+repeatblocker.hint_1 Pienin aikaväli (ms) 2 näppäinpainalluksen tunnistamiseen
+repeatblocker.hint_2 Syötä 0 vaihtaaksesi kursori (punainen = välilyönti)
+satsetup.diseqc DiSEqC-toisto
+satsetup.diseqc10 DiSEqC 1.0
+satsetup.diseqc11 DiSEqC 1.1
+satsetup.diseqc12 DiSEqC 1.2
+satsetup.diseqcrepeat DiSEqC-toisto
+satsetup.extended Moottorin asetukset
+satsetup.extended_motor Moottorin asetukset
+satsetup.minidiseqc Mini-DiSEqC
+satsetup.motorcontrol Manaalinen moottorin asennus
+satsetup.nodiseqc no DiSEqC
+satsetup.satellite Satelliitti
+satsetup.savesettingsnow Tallenna asetukset
+satsetup.smatvremote SMATV Remote Tuning
+scantp.fec Virheenkorjaus
+scantp.fec_1_2 1/2
+scantp.fec_2_3 2/3
+scantp.fec_3_4 3/4
+scantp.fec_5_6 5/6
+scantp.fec_7_8 7/8
+scantp.freq Taajuus
+scantp.pol Polariteetti
+scantp.pol_h Vaaka
+scantp.pol_v Pysty
+scantp.rate Symbolinopeus
+scantp.scan Manuaalinen haku
+scantp.scanmode Nopea haku
+scants.abort_body Keskeytetäänkö haku?
+scants.abort_header Kanavien haku keskeytetty
+scants.actcable Kaapeli:
+scants.actsatellite Sateliitti:
+scants.bouquet Kanavaniput
+scants.bouquet_create luo uudet
+scants.bouquet_erase poista kaikki
+scants.bouquet_leave jätä nykyiset
+scants.bouquet_satellite satelliittinippu
+scants.bouquet_update päivitä
+scants.channel Kanava:
+scants.failed Lähetinhaku epäonnistui!
+scants.finished Lähetinhaku valmis!
+scants.freqdata Taajuus:
+scants.head Skannaa lähetin
+scants.numberofdataservices Data
+scants.numberofradioservices Radio
+scants.numberoftotalservices Yhteensä
+scants.numberoftvservices TV
+scants.provider Palveluntarjoaja:
+scants.startnow Aloita haku
+scants.transponders lähettimet:
+screensetup.lowerright vihreä = säädä alakulmaa
+screensetup.upperleft punainen = säädä yläkulmaa
+sectionsd.scanmode Autom. kanavapäivitys
+servicemenu.getplugins Lue laajennoslista uudelleen
+servicemenu.getplugins_hint Ladataan laajennoksia,\nodota hetki.
+servicemenu.head Huoltovalikko
+servicemenu.imageinfo Ohjelmiston tiedot
+servicemenu.reload Lue kanavalista uudelleen
+servicemenu.reload_hint Ladataan kanavalistoja,\nodota hetki.
+servicemenu.restart Käynnistä Neutrino uudelleen
+servicemenu.restart_failed Neutrinon uudelleenkäynnistys epäonnistui.
+servicemenu.restart_hint Uudelleenkäynnistetään Neutrino...
+servicemenu.restart_refused_recording Tallennus käynnissä. Uudelleenkäynnistys estetty.
+servicemenu.scants Kanavahaku
+servicemenu.ucodecheck µCodejen tiedot
+servicemenu.update Ohjelmistopäivitys
+settings.help Ohje
+settings.missingoptionsconffile Neutrinon asetukset päivitetty.\nUudet asetukset on alustettu oletusarvoihin.
+settings.noconffile Neutrinon asetuksia ei löytynyt.\nKaikki asetukset on alustettu oletusarvoihin.
+settings.pos_bottom_left vasen ala
+settings.pos_bottom_right oikea ala
+settings.pos_top_left vasen ylä
+settings.pos_top_right oikea ylä
+shutdown.recoding_query Tallennus käynnissä. Haluatko varmasti sammuttaa?
+shutdowntimer.announce Sammutus minuutin kuluttua.\nPeru sammutus?
+sleeptimerbox.announce Uniajastimessa minuutti jäljellä.
+sleeptimerbox.hint1 Sammutusaika minuutteina (000=ei sammutusta).
+sleeptimerbox.hint2 Laite sammuu itsestään asetetun ajan kuluttua.
+sleeptimerbox.title Uniajastin
+streamfeatures.head Lisätoiminnot
+streaminfo.aratio Kuvasuhde
+streaminfo.aratio_unknown Tuntematon kuvasuhde
+streaminfo.audiotype Ääniraita
+streaminfo.audiotype_unknown Tuntematon ääniraita
+streaminfo.bitrate Bittinopeus
+streaminfo.framerate Kuvataajuus
+streaminfo.framerate_unknown Tuntematon kuvataajuus
+streaminfo.head Lähetteen tiedot
+streaminfo.not_available ei saatavilla
+streaminfo.resolution Resoluutio
+streaminfo.signal Signaalitasot
+streaming.buffer_overflow Tallennus keskeytyi,\nkoska videota ei pystytty tallentamaan tarpeeksi nopeasti.
+streaming.busy Yksi tai useampi tallennus käynnissä.\nMikäli olet varma, että tallennusta ei ole, käynnistä laite uudelleen.
+streaming.dir_not_writable Tallennushakemistoon ei voida kirjoittaa\nTallennus ei toimi.
+streaming.success Tallennus onnistui.
+streaming.write_error Tallennus keskeytyi,\nkoska tallennustiedostoa ei voitu luoda.
+streaming.write_error_open Tallennus keskeytyi,\nkoska tallennustiedostoa ei voitu luoda.
+streamingmenu.352x288 352x288
+streamingmenu.352x576 352x576
+streamingmenu.480x576 480x576
+streamingmenu.704x576 704x576
+streamingmenu.head Mediasoittimen asetukset
+streamingmenu.mpeg1 MPEG1
+streamingmenu.mpeg2 MPEG2
+streamingmenu.off Pois
+streamingmenu.on Päällä
+streamingmenu.server_ip Palvelimen IP-osoite
+streamingmenu.server_port Palvelimen portti
+streamingmenu.streaming_audiorate Äänen datanopeus
+streamingmenu.streaming_force_avi_rawaudio Pakota AC3 AVI:lle
+streamingmenu.streaming_force_transcode_video Muunna video (MPG/VCD)
+streamingmenu.streaming_resolution Resoluutio
+streamingmenu.streaming_server_cddrive DVD-aseman polku
+streamingmenu.streaming_server_startdir Aloituspolku
+streamingmenu.streaming_transcode_audio Muunna audio (DVD/VCD/MPG)
+streamingmenu.streaming_transcode_video_codec MPEG video
+streamingmenu.streaming_type Palvelin (stream)
+streamingmenu.streaming_videorate Kuvan datanopeus
+streamingserver.noconnect Tallennuspalvelimelle ei saatu yhteyttä.\nTallennus keskeytetty.
+stringinput.caps ABC / abc
+stringinput.clear Tyhjennä kaikki
+timer.eventrecord.msg Oletko varma?
+timer.eventrecord.title Ajasta tallennus
+timer.eventtimed.msg Tapahtuma ajastettu.\nLaite käynnistyy ja vaihtaa\nkanavalle tähän aikaan.
+timer.eventtimed.title Ajasta tapahtuma
+timerbar.channelswitch Ajasta
+timerbar.recordevent Tallenna
+timerlist.alarmtime Alkuaika
+timerlist.apids Audio PIDit
+timerlist.bouquetselect Valitse kanavanippu
+timerlist.channel Valitse kanava
+timerlist.channelselect Valitse kanava
+timerlist.delete Poista
+timerlist.menumodify Muokkaa ajastusta
+timerlist.menunew Uusi ajastus
+timerlist.message Viesti
+timerlist.moderadio Radiokanavat
+timerlist.modeselect Tilan valinta
+timerlist.modetv TV-kanavat
+timerlist.modify Muokkaa
+timerlist.name Ajastukset
+timerlist.new Uusi ajastus
+timerlist.overlapping_timer Päällekkäisyys ajastuksissa. Jatketaanko?
+timerlist.plugin Laajennos
+timerlist.program.unknown Tuntematon ohjelma
+timerlist.recording_dir Tallennushakemisto
+timerlist.reload Lataa uudelleen
+timerlist.repeat Toisto
+timerlist.repeat.biweekly joka toinen viikko
+timerlist.repeat.byeventdescription kuvaksen mukaan
+timerlist.repeat.daily päivittäin
+timerlist.repeat.fourweekly 4 viikon välein
+timerlist.repeat.friday Pe
+timerlist.repeat.monday Ma
+timerlist.repeat.monthly kuukausittain
+timerlist.repeat.once kerran
+timerlist.repeat.saturday La
+timerlist.repeat.sunday Su
+timerlist.repeat.thursday To
+timerlist.repeat.tuesday Ti
+timerlist.repeat.unknown ei tiedossa
+timerlist.repeat.wednesday Ke
+timerlist.repeat.weekdays arkisin
+timerlist.repeat.weekly viikoittain
+timerlist.repeatcount Toistokerrat
+timerlist.repeatcount.help1 Toistokertojen lukumäärä.
+timerlist.repeatcount.help2 0 = rajoittamattomasti.
+timerlist.save Tallenna ajastus
+timerlist.standby Tila
+timerlist.standby.off Poistu valmiustilasta
+timerlist.standby.on Siirry valmiustilaan
+timerlist.stoptime Päättymisaika
+timerlist.type Toiminne
+timerlist.type.execplugin Suorita laajennos
+timerlist.type.nextprogram Seuraava ohjelma
+timerlist.type.record Tallennus
+timerlist.type.remind Muistutus
+timerlist.type.shutdown Sammutus
+timerlist.type.sleeptimer Uniajastin
+timerlist.type.standby Valmiustila
+timerlist.type.unknown Tuntematon
+timerlist.type.zapto Kanavanvaihto
+timerlist.weekdays 'X'=ajastus '-' ei ajastusta
+timerlist.weekdays.hint_1 Ma Ti Ke To Pe La Su
+timerlist.weekdays.hint_2 'X'=ajastus '-' ei ajastusta
+timersettings.record_safety_time_after Ajastuksen pidennys
+timersettings.record_safety_time_after.hint_1 Pidennysaika minuutteina (00=pois). Jokaista
+timersettings.record_safety_time_after.hint_2 tallennusta jatketaan tämän verran yliajalle.
+timersettings.record_safety_time_before Ajastuksen ennakko
+timersettings.record_safety_time_before.hint_1 Ennakkoaika minuutteina (00=pois). Jokainen
+timersettings.record_safety_time_before.hint_2 tallennus aloitetaan tämän verran etuajassa.
+timersettings.separator Ajastusasetukset
+timing.chanlist Kanavalista
+timing.epg EPG ohjelmaopas
+timing.filebrowser Tiedostoselain
+timing.head OSD-ajoitukset
+timing.hint_1 Aika sekunteina. Infopalkkia/valikkoa
+timing.hint_2 näytetään tämä aika.
+timing.infobar Infopalkki
+timing.menu Valikko
+timing.numericzap Kanavan valinta numerolla
+ucodecheck.avia500 Avia 500
+ucodecheck.avia600 Avia 600
+ucodecheck.cam-alpha Cam-Alpha
+ucodecheck.head µCodejen tiedot
+ucodecheck.ucode µCode
+ucodes.failure VAROITUS: µCodeja ei löytynyt!\n\nOle hyvä ja siirrä ne FTP:llä (tai DBox-BootManagerilla) laitteeseen,\nja käynnistä se uudelleen!
+videomenu.csync Tahdistuskorjaus
+videomenu.head Kuva-asetukset
+videomenu.rgb_centering RGB keskitys
+videomenu.screensetup OSD-näytön kohdistus
+videomenu.vcrswitch SCART:in automaattiohjaus
+videomenu.videoformat Kuvasuhde
+videomenu.videoformat_169 16:9
+videomenu.videoformat_43 4:3 (LB)
+videomenu.videoformat_431 4:3 (PS)
+videomenu.videoformat_autodetect automaattinen
+videomenu.videosignal Videolähtö
+videomenu.videosignal_composite CVBS
+videomenu.videosignal_rgb RGB + CVBS
+videomenu.videosignal_svideo S-Video
+videomenu.videosignal_yuv_c YUV + CVBS
+videomenu.videosignal_yuv_v YUV + VBS
+zapit.scantype Haettavat palvelut
+zapit.scantype.all kaikki palvelut
+zapit.scantype.radio vain radiokanavat
+zapit.scantype.tv vain TV-kanavat
+zapit.scantype.tvradio TV- ja radiokanavat
+zaptotimer.announce Kanava vaihtuu ajastetulle kanavalle minuutin kuluttua

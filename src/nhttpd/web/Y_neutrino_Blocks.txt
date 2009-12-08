@@ -1,0 +1,1230 @@
+# ------- Neutrino form
+# form-data in block (var-get:neutrino)
+start-block~neutrino_form
+
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+</head>
+<body>
+{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+{=include-block:Y_neutrino_Blocks.txt;{=var-get:neutrino=}=}
+{=include-block:Y_neutrino_Blocks.txt;neutrino_form_helpbox=}
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}
+end-block~neutrino_form
+
+# ------- Neutrino form help box
+start-block~neutrino_form_helpbox
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">To Synchronize with Neutrino</div></div>
+<div class="work_box_body">
+	After changing settings via yWeb: <br/>
+    Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.
+    <br/><br/>
+	After changing settings within Neutrino: <br/>
+    Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
+  </div>
+</div>
+end-block~neutrino_form_helpbox
+
+# ------- Neutrino form-data: record -------------------------------
+start-block~neutrino_form-data_record
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Aufnahme=}{=var-set:menu=Recording=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td>Recording device</td>
+				<td>
+					<select name="rec_type" onchange="change_rec_type()" title="record mode">
+					<option value="0" selected="selected">Off</option>
+					<option value="1">Server</option>
+					<option value="2">Videorekorder</option>
+					<option value="3">File</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">IP</td>
+				<td style="border-top: 1px solid #6D96A9;"><input type="text" name="ip" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_server_ip~open=}" title="server ip (xxx.xxx.xxx.xxx)"/></td>
+			</tr>
+			<tr>
+				<td>Port</td>
+				<td><input type="text" name="port" size="6" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_server_port;4000=}" title="port"/></td>
+			</tr>
+			<tr>
+				<td>Wake up</td>
+				<td>
+					<input type="radio" name="wol" value="0" title="wakup: off"/>Off&nbsp;
+					<input type="radio" name="wol" value="1" title="wakeup: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>MAC</td>
+				<td><input type="text" name="mac" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_server_mac=}" title="MAC"/></td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Stop Playback</td>
+				<td style="border-top: 1px solid #6D96A9;">
+					<input type="radio" name="stopplayback" value="false" title="stopplayback: off"/>Off
+					<input type="radio" name="stopplayback" value="true" title="stopplayback: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Sectionsd</td>
+				<td>
+					<input type="radio" name="stopsectionsd" value="false" title="stopsectionsd: off"/>Off
+					<input type="radio" name="stopsectionsd" value="true" title="stopsectionsd: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Scart</td>
+				<td style="border-top: 1px solid #6D96A9;">
+					<input type="radio" name="vcr_no_scart" value="0" title="vcr_no_scart: off"/>Off
+					<input type="radio" name="vcr_no_scart" value="1" title="vcr_no_scart: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Recording start time correction (sec)</td>
+				<td style="border-top: 1px solid #6D96A9;"><input type="text" name="EXTRA_TIME_START" size="5" value="{=ini-get:/var/tuxbox/config/timerd.conf;EXTRA_TIME_START;0=}" title="start timer delay"/>&nbsp;Reboot urgently</td>
+			</tr>
+			<tr>
+				<td>Recording stop time correction (sec)</td>
+				<td><input type="text" name="EXTRA_TIME_END" size="5" value="{=ini-get:/var/tuxbox/config/timerd.conf;EXTRA_TIME_END;0=}" title="end timer delay"/>&nbsp;Reboot urgently</td>
+			</tr>
+<!--dbox2 only			<tr>
+				<td style="border-top: 1px solid #6D96A9;">record in SPTS-Mode</td>
+				<td style="border-top: 1px solid #6D96A9;">
+					<input type="radio" name="in_spts_mode" value="false" title="SPTS mode: off"/>Off&nbsp;
+					<input type="radio" name="in_spts_mode" value="true" title="SPTS mode: on"/>On
+				</td>
+			</tr> dbox2 only-->
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Standard audio stream</td>
+				<td style="border-top: 1px solid #6D96A9;">
+					<input type="radio" name="audio_std" value="0" title="record standard audio channel: off"/>Off
+					<input type="radio" name="audio_std" value="1" title="record standard audio channel: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Alternative audio streams</td>
+				<td>
+					<input type="radio" name="audio_alt" value="0" title="record alternate audio channel: off"/>Off
+					<input type="radio" name="audio_alt" value="1" title="record alternate audio channel: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>AC3 audio stream</td>
+				<td>
+					<input type="radio" name="audio_ac3" value="0" title="record ac3 audio channels: off"/>Off
+					<input type="radio" name="audio_ac3" value="1" title="record ac3 audio channels: on"/>On
+				</td>
+			</tr>
+			<input type="hidden" name="recording_audio_pids_default" value=""/>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_record_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_server_wakeup;0=}";
+	if(val == "1")
+		document.f.wol[1].checked = true;
+	else
+		document.f.wol[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_stopplayback;false=}";
+	if(val == "true")
+		document.f.stopplayback[1].checked = true;
+	else
+		document.f.stopplayback[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_stopsectionsd;false=}";
+	if(val == "true")
+		document.f.stopsectionsd[1].checked = true;
+	else
+		document.f.stopsectionsd[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_vcr_no_scart;0=}";
+	if(val == "1")
+		document.f.vcr_no_scart[1].checked = true;
+	else
+		document.f.vcr_no_scart[0].checked = true;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_in_spts_mode;true=}";
+	if(val == "true")
+		document.f.in_spts_mode[1].checked = true;
+	else
+		document.f.in_spts_mode[0].checked = true;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_type;0=}";
+	document.f.rec_type.selectedIndex = val;
+		
+	change_rec_type();
+}
+function change_rec_type()
+{
+	if(document.f.rec_type.selectedIndex != 1)
+	{
+		document.f.ip.disabled = true;
+		document.f.port.disabled = true;
+		document.f.wol[0].disabled = true;
+		document.f.wol[1].disabled = true;
+		document.f.mac.disabled = true;
+		document.f.stopplayback[0].disabled = true;
+		document.f.stopplayback[1].disabled = true;
+		document.f.stopsectionsd[0].disabled = true;
+		document.f.stopsectionsd[1].disabled = true;
+	}
+	else
+	{
+		document.f.ip.disabled = false;
+		document.f.port.disabled = false;
+		document.f.wol[0].disabled = false;
+		document.f.wol[1].disabled = false;
+		document.f.mac.disabled = false;
+		document.f.stopplayback[0].disabled = false;
+		document.f.stopplayback[1].disabled = false;
+		document.f.stopsectionsd[0].disabled = false;
+		document.f.stopsectionsd[1].disabled = false;
+	}
+	if(document.f.rec_type.selectedIndex != 2)
+	{
+		document.f.vcr_no_scart[0].disabled = true;
+		document.f.vcr_no_scart[1].disabled = true;
+	}
+	else
+	{
+		document.f.vcr_no_scart[0].disabled = false;
+		document.f.vcr_no_scart[1].disabled = false;
+	}
+	if((document.f.rec_type.selectedIndex != 1 && (document.f.rec_type.selectedIndex != 3)))
+	{
+		document.f.in_spts_mode[0].disabled = true;
+		document.f.in_spts_mode[1].disabled = true;
+	}
+	else
+	{
+		document.f.in_spts_mode[0].disabled = false;
+		document.f.in_spts_mode[1].disabled = false;
+	}
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_record
+
+# ------- yWeb save Settings
+start-block~neutrino_record_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_ip;{=ip=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_port;{=port=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_mac;{=mac=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_wakeup;{=wol=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_type;{=rec_type=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_stopplayback;{=stopplayback=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_stopsectionsd;{=stopsectionsd=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_vcr_no_scart;{=vcr_no_scart=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_in_spts_mode;{=in_spts_mode=}~save=}
+{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_START;{=EXTRA_TIME_START=}=}
+{=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_END;{=EXTRA_TIME_END=}=}
+end-block~neutrino_record_save_settings
+
+
+# ------- Neutrino form-data: movieplayer -------------------------------
+start-block~neutrino_form-data_movieplayer
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Movieplayer=}{=var-set:menu=Movieplayer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td>Streaming server</td>
+				<td>
+					<input type="radio" name="streaming_type" value="0" title="Streamingserver: off" onchange="change_streaming_type()"/>Off&nbsp;
+					<input type="radio" name="streaming_type" value="1" title="Streamingserver: on" onchange="change_streaming_type()"/>On
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Streamingserver IP</td>
+				<td style="border-top: 1px solid #6D96A9;"><input type="text" name="streaming_server_ip" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_ip~open=}" title="server ip (xxx.xxx.xxx.xxx)"/></td>
+			</tr>
+			<tr>
+				<td>Streamingserver Port</td>
+				<td><input type="text" name="streaming_server_port" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_port;8080~cache=}" title="port"/></td>
+			</tr>
+			<tr>
+				<td>DVD Drive</td>
+				<td><input type="text" name="streaming_server_cddrive" size="10" value="{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_cddrive~cache=}" title="DVD drive on server"/></td>
+			</tr>
+			<tr>
+				<td>Directory (VLC)</td>
+				<td><input type="text" name="streaming_server_startdir" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_startdir~cache=}" title="VLC directory on server"/></td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Data Rate Video</td>
+				<td style="border-top: 1px solid #6D96A9;"><input type="text" name="streaming_videorate" size="6" value="{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_videorate;1000~cache=}" title="video data rate"/></td>
+			</tr>
+			<tr>
+				<td>Transcode</td>
+				<td>
+					<input type="radio" name="streaming_force_transcode_video" value="0" title="Transcode: off"/>Off&nbsp;
+					<input type="radio" name="streaming_force_transcode_video" value="1" title="Transcode: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>MPEG Video Codec</td>
+				<td>
+					<select name="streaming_transcode_video_codec" title="Video codec">
+					<option value="0" selected="selected">MPEG1</option>
+					<option value="1">MPEG2</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Resulotion</td>
+				<td>
+					<select name="streaming_resolution" title="Resolution">
+					<option value="0" selected="selected">352 x 288</option>
+					<option value="1">352 x 576</option>
+					<option value="2">480 x 576</option>
+					<option value="3">704 x 576</option>
+					<option value="4">352 x 277</option>
+					<option value="5">352 x 576</option>
+					<option value="6">480 x 576</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Data Rate Audio</td>
+				<td style="border-top: 1px solid #6D96A9;"><input type="text" name="streaming_audiorate" size="6" value="{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_audiorate;192~cache=}" title="audio data rate"/></td>
+			</tr>	
+			<tr>
+				<td>Transcode Audio (dvd/vcd/mpg)</td>
+				<td>
+					<input type="radio" name="streaming_transcode_audio" value="0" title="Transcode: off"/>Off&nbsp;
+					<input type="radio" name="streaming_transcode_audio" value="1" title="Transcode: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Force AC3 with avi</td>
+				<td>
+					<input type="radio" name="streaming_force_avi_rawaudio" value="0" title="force AC3: off"/>Off&nbsp;
+					<input type="radio" name="streaming_force_avi_rawaudio" value="1" title="force AC3: on"/>On
+				</td>
+			</tr>
+			
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;">Start Directory</td>
+				<td style="border-top: 1px solid #6D96A9;"><input type="text" name="network_nfs_moviedir" size="40" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_moviedir~cache=}" title="movie start directory"/></td>
+			</tr>	
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_movieplayer_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_type;0~cache=}";
+	if(val == "1")
+		document.f.streaming_type[1].checked = true;
+	else
+		document.f.streaming_type[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_force_transcode_video;0~cache=}";
+	if(val == "1")
+		document.f.streaming_force_transcode_video[1].checked = true;
+	else
+		document.f.streaming_force_transcode_video[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_transcode_audio;0~cache=}";
+	if(val == "1")
+		document.f.streaming_transcode_audio[1].checked = true;
+	else
+		document.f.streaming_transcode_audio[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_force_avi_rawaudio;0~cache=}";
+	if(val == "1")
+		document.f.streaming_force_avi_rawaudio[1].checked = true;
+	else
+		document.f.streaming_force_avi_rawaudio[0].checked = true;
+	
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_resolution;0~cache=}";
+		document.f.streaming_resolution.selectedIndex = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_transcode_video_codec;0~cache=}";
+		document.f.streaming_transcode_video_codec.selectedIndex = val;
+		
+	change_streaming_type();
+}
+function change_streaming_type()
+{
+	var vis = document.f.streaming_type[0].checked;
+	document.f.streaming_server_ip.disabled = vis;
+	document.f.streaming_server_port.disabled = vis;
+	document.f.streaming_server_cddrive.disabled = vis;
+	document.f.streaming_server_startdir.disabled = vis;
+	document.f.streaming_videorate.disabled = vis;
+	document.f.streaming_force_transcode_video[0].disabled = vis;
+	document.f.streaming_force_transcode_video[1].disabled = vis;
+	document.f.streaming_transcode_video_codec.disabled = vis;
+	document.f.streaming_resolution.disabled = vis;
+	document.f.streaming_audiorate.disabled = vis;
+	document.f.streaming_transcode_audio[0].disabled = vis;
+	document.f.streaming_transcode_audio[1].disabled = vis;
+	document.f.streaming_force_avi_rawaudio[0].disabled = vis;
+	document.f.streaming_force_avi_rawaudio[1].disabled = vis;
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_movieplayer
+
+# ------- yWeb save Settings
+start-block~neutrino_movieplayer_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_type;{=streaming_type=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_ip;{=streaming_server_ip=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_port;{=streaming_server_port=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_cddrive;{=streaming_server_cddrive=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_startdir;{=streaming_server_startdir=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_videorate;{=streaming_videorate=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_force_transcode_video;{=streaming_force_transcode_video=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_transcode_video_codec;{=streaming_transcode_video_codec=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_resolution;{=streaming_resolution=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_audiorate;{=streaming_audiorate=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_transcode_audio;{=streaming_transcode_audio=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_force_avi_rawaudio;{=streaming_force_avi_rawaudio=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_moviedir;{=network_nfs_moviedir=}~save=}
+end-block~neutrino_movieplayer_save_settings
+
+
+# ------- Neutrino form-data: parental -------------------------------
+start-block~neutrino_form-data_parental
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Jugendschutz=}{=var-set:menu=Parental=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td>Activate</td>
+				<td>
+					<select name="parentallock_prompt" title="parental type">
+					<option value="0">Never</option>
+					<option value="2">Bouquet</option>
+					<option value="3">Preblock</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td title="minimal age">Minimum Age</td>
+				<td>
+					<select name="parentallock_lockage" title="mimimal age">
+					<option value="12">12</option>
+					<option value="16">16</option>
+					<option value="18">18</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>PIN</td>
+				<td><input type="text" name="parentallock_pincode" size="4" value="{=ini-get:/var/tuxbox/config/neutrino.conf;parentallock_pincode~open=}" title="PIN code"/></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_parental_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val = "";
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;parentallock_prompt;0~open=}";
+	if(val > 0) val--;
+		document.f.parentallock_prompt.selectedIndex = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;parentallock_lockage;0~cache=}";
+	var sel=0;
+	if(val=="16") sel=1;
+	if(val=="18") sel=2;
+	document.f.parentallock_lockage.selectedIndex = sel;
+}
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_parental
+
+# ------- yWeb save Settings
+start-block~neutrino_parental_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;parentallock_prompt;{=parentallock_prompt=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;parentallock_lockage;{=parentallock_lockage=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;parentallock_pincode;{=parentallock_pincode=}~save=}
+end-block~neutrino_parental_save_settings
+
+# ------- Neutrino form-data: diverse -------------------------------
+start-block~neutrino_form-data_diverse
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Diverse=}{=var-set:menu=Misc=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td><strong>Standard</strong></td>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>Standby mode</td>
+				<td>
+					<input type="radio" name="shutdown_real" value="true" title="Shutdown: off"/>Off&nbsp;
+					<input type="radio" name="shutdown_real" value="false" title="Shutdown: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Turn off completely</td>
+				<td><input type="text" name="shutdown_count" size="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;shutdown_count;0~open=}" title="shutdown after x sec"/></td>
+			</tr>			
+			<tr>
+				<td>Infobar Satellite type</td>
+				<td>
+					<input type="radio" name="infobar_sat_display" value="false" title="infobar sat display: off"/>Off&nbsp;
+					<input type="radio" name="infobar_sat_display" value="true" title="infobar sat display: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Show Subchannel</td>
+				<td>
+					<select name="infobar_subchan_disp_pos" title="subchannel display position">
+					<option value="0" selected="selected">top right</option>
+					<option value="1">top left</option>
+					<option value="2">bottom left</option>
+					<option value="3">bottom right</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Save Teletext</td>
+				<td>
+					<input type="radio" name="tuxtxt_cache" value="false" title="tuxtxt cache: off"/>Off&nbsp;
+					<input type="radio" name="tuxtxt_cache" value="true" title="tuxtxt cache: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Virtual zap Infobar</td>
+				<td>
+					<input type="radio" name="virtual_zap_mode" value="false" title="virtual zap: off"/>Off&nbsp;
+					<input type="radio" name="virtual_zap_mode" value="true" title="virtual zap: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;"><strong>EPG-Settings</strong></td>
+				<td style="border-top: 1px solid #6D96A9;">&nbsp;</td>
+			</tr>
+
+			<tr>
+				<td>EPG-Cache (Days)</td>
+				<td><input type="text" name="epg_cache_time" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_cache_time~cache=}" title="EPG cache"/></td>
+			</tr>
+			<tr>
+				<td>EPG remove after (Std.)</td>
+				<td><input type="text" name="epg_old_events" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_old_events~cache=}" title=""/></td>
+			</tr>
+			<tr>
+				<td>Max. Events</td>
+				<td><input type="text" name="epg_max_events" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;epg_max_events~cache=}" title=""/></td>
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;"><strong>Remote Control</strong></td>
+				<td style="border-top: 1px solid #6D96A9;">&nbsp;</td>
+			</tr>
+
+			<tr>
+				<td>Repeat delay</td>
+				<td><input type="text" name="repeat_blocker" size="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;repeat_blocker~cache=}" title="repeat delay"/></td>
+			</tr>
+			<tr>
+				<td>Start delay</td>
+				<td><input type="text" name="repeat_genericblocker" size="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;repeat_genericblocker~cache=}" title="start delay"/></td>
+			</tr>
+			<tr>
+				<td>Delay Shutdown</td>
+				<td>
+					<input type="radio" name="shutdown_real_rcdelay" value="false" title="shutdown delay: off"/>Off&nbsp;
+					<input type="radio" name="shutdown_real_rcdelay" value="true" title="shutdown delay: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td style="border-top: 1px solid #6D96A9;"><strong>Filebrowser</strong></td>
+				<td style="border-top: 1px solid #6D96A9;">&nbsp;</td>
+			</tr>
+			<tr>
+				<td>Filesystem</td>
+				<td>
+					<input type="radio" name="filesystem_is_utf8" value="false" title="filesystem type"/>ISO-8859-1&nbsp;
+					<input type="radio" name="filesystem_is_utf8" value="true" title="filesystem type"/>UTF-8
+				</td>
+			</tr>
+			<tr>
+				<td>Show file rights</td>
+				<td>
+					<input type="radio" name="filebrowser_showrights" value="0" title="show filesystem rights: off"/>Off&nbsp;
+					<input type="radio" name="filebrowser_showrights" value="1" title="show filesystem rights: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Absolute start directory</td>
+				<td>
+					<input type="radio" name="filebrowser_denydirectoryleave" value="false" title="start directory is absolute: off"/>Off&nbsp;
+					<input type="radio" name="filebrowser_denydirectoryleave" value="true" title="start directory is absolute: on"/>On
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_diverse_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val = "{=ini-get:/var/tuxbox/config/neutrino.conf;shutdown_real~cache=}";
+	if(val == "false")
+		document.f.shutdown_real[1].checked = true;
+	else
+		document.f.shutdown_real[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;infobar_sat_display~cache=}";
+	if(val == "true")
+		document.f.infobar_sat_display[1].checked = true;
+	else
+		document.f.infobar_sat_display[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;infobar_subchan_disp_pos;0~cache=}";
+		document.f.infobar_subchan_disp_pos.selectedIndex = val;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;tuxtxt_cache~cache=}";
+	if(val == "true")
+		document.f.tuxtxt_cache[1].checked = true;
+	else
+		document.f.tuxtxt_cache[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;virtual_zap_mode~cache=}";
+	if(val == "true")
+		document.f.virtual_zap_mode[1].checked = true;
+	else
+		document.f.virtual_zap_mode[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;shutdown_real_rcdelay~cache=}";
+	if(val == "true")
+		document.f.shutdown_real_rcdelay[1].checked = true;
+	else
+		document.f.shutdown_real_rcdelay[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;infobar_sat_display~cache=}";
+	if(val == "true")
+		document.f.infobar_sat_display[1].checked = true;
+	else
+		document.f.infobar_sat_display[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;infobar_subchan_disp_pos;0~cache=}";
+		document.f.infobar_subchan_disp_pos.selectedIndex = val;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;tuxtxt_cache~cache=}";
+	if(val == "true")
+		document.f.tuxtxt_cache[1].checked = true;
+	else
+		document.f.tuxtxt_cache[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;shutdown_real_rcdelay~cache=}";
+	if(val == "true")
+		document.f.shutdown_real_rcdelay[1].checked = true;
+	else
+		document.f.shutdown_real_rcdelay[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;filesystem_is_utf8~cache=}";
+	if(val == "true")
+		document.f.filesystem_is_utf8[1].checked = true;
+	else
+		document.f.filesystem_is_utf8[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;filebrowser_showrights;0~cache=}";
+	if(val == "1")
+		document.f.filebrowser_showrights[1].checked = true;
+	else
+		document.f.filebrowser_showrights[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;filebrowser_denydirectoryleave~cache=}";
+	if(val == "true")
+		document.f.filebrowser_denydirectoryleave[1].checked = true;
+	else
+		document.f.filebrowser_denydirectoryleave[0].checked = true;
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_diverse
+
+# ------- yWeb save Settings 
+start-block~neutrino_diverse_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;shutdown_real;{=shutdown_real=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;shutdown_count;{=shutdown_count=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;infobar_sat_display;{=infobar_sat_display=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;infobar_subchan_disp_pos;{=infobar_subchan_disp_pos=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;tuxtxt_cache;{=tuxtxt_cache=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;virtual_zap_mode;{=virtual_zap_mode=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;epg_cache_time;{=epg_cache_time=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;epg_old_events;{=epg_old_events=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;epg_max_events;{=epg_max_events=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;repeat_blocker;{=repeat_blocker=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;repeat_genericblocker;{=repeat_genericblocker=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;shutdown_real_rcdelay;{=shutdown_real_rcdelay=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;filesystem_is_utf8;{=filesystem_is_utf8=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;filebrowser_showrights;{=filebrowser_showrights=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;filebrowser_denydirectoryleave;{=filebrowser_denydirectoryleave=}~save=}
+end-block~neutrino_diverse_save_settings
+
+
+# ------- Neutrino form-data: bootoptions -------------------------------
+start-block~neutrino_form-data_bootoptions
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Bootoptionen=}{=var-set:menu=Driver- and Bootoptions=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td>Load SPTS-Mode Drivers</td>
+				<td>
+					<input type="radio" name="misc_spts" value="false" title="SPTS mode: off"/>Off&nbsp;
+					<input type="radio" name="misc_spts" value="true" title="SPTS mode: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Show Bootmenu</td>
+				<td>
+					<input type="radio" name="bootmenu" value="0" title="Bootmenu: off"/>Off&nbsp;
+					<input type="radio" name="bootmenu" value="1" title="Bootmenu: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Show Infos whilst booting</td>
+				<td>
+					<input type="radio" name="bootinfo" value="0" title="Bootinfo: off"/>Off&nbsp;
+					<input type="radio" name="bootinfo" value="1" title="Bootinfo: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Use HW-Sections</td>
+				<td>
+					<input type="radio" name="hwsections" value="0" title="HW Sections: off"/>Off&nbsp;
+					<input type="radio" name="hwsections" value="1" title="HW Sections: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Activate AVIA-Watchdog</td>
+				<td>
+					<input type="radio" name="no_watchdog" value="0" title="AVIA-Watchdog: off"/>Off&nbsp;
+					<input type="radio" name="no_watchdog" value="1" title="AVIA-Watchdog: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Activate eNX-Watchdog</td>
+				<td>
+					<input type="radio" name="no_enxwatchdog" value="0" title="eNX-Watchdog: off"/>Off&nbsp;
+					<input type="radio" name="no_enxwatchdog" value="1" title="eNX-Watchdog: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Use PMT Update</td>
+				<td>
+					<input type="radio" name="pmt_update" value="0" title="PMT Update: off"/>Off&nbsp;
+					<input type="radio" name="pmt_update" value="1" title="PMT Update: on"/>On
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_bootoptions_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val = "{=ini-get:/var/tuxbox/config/neutrino.conf;misc_spts~open=}";
+	if(val == "true")
+		document.f.misc_spts[1].checked = true;
+	else
+		document.f.misc_spts[0].checked = true;
+
+	var val = "{=if-file-exists:/var/etc/.neutrino~1~0=}";
+	if(val == "0")
+		document.f.bootmenu[1].checked = true;
+	else
+		document.f.bootmenu[0].checked = true;
+
+	var val = "{=if-file-exists:/var/etc/.boot_info~1~0=}";
+	if(val == "1")
+		document.f.bootinfo[1].checked = true;
+	else
+		document.f.bootinfo[0].checked = true;
+
+	var val = "{=if-file-exists:/var/etc/.hw_sections~1~0=}";
+	if(val == "0")
+		document.f.hwsections[1].checked = true;
+	else
+		document.f.hwsections[0].checked = true;
+
+	var val = "{=if-file-exists:/var/etc/.no_watchdog~1~0=}";
+	if(val == "0")
+		document.f.no_watchdog[1].checked = true;
+	else
+		document.f.no_watchdog[0].checked = true;
+
+	var val = "{=if-file-exists:/var/etc/.no_enxwatchdog~1~0=}";
+	if(val == "0")
+		document.f.no_enxwatchdog[1].checked = true;
+	else
+		document.f.no_enxwatchdog[0].checked = true;
+
+	var val = "{=if-file-exists:/var/etc/.pmt_update~1~0=}";
+	if(val == "1")
+		document.f.pmt_update[1].checked = true;
+	else
+		document.f.pmt_update[0].checked = true;
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_bootoptions
+
+# ------- yWeb save Settings
+start-block~neutrino_bootoptions_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;misc_spts;{=misc_spts=}=}
+{=file-action:/var/etc/.neutrino;{=if-equal:{=bootmenu=}~0~add~delete=}=}
+{=file-action:/var/etc/.boot_info;{=if-equal:{=bootinfo=}~1~add~delete=}=}
+{=file-action:/var/etc/.hw_sections;{=if-equal:{=hwsections=}~0~add~delete=}=}
+{=file-action:/var/etc/.no_watchdog;{=if-equal:{=no_watchdog=}~0~add~delete=}=}
+{=file-action:/var/etc/.no_enxwatchdog;{=if-equal:{=no_enxwatchdog=}~0~add~delete=}=}
+{=file-action:/var/etc/.pmt_update;{=if-equal:{=pmt_update=}~1~add~delete=}=}
+
+{=file-action:/var/etc/.test;add;moin\nduu=}
+end-block~neutrino_bootoptions_save_settings
+
+# ------- Neutrino form-data: pictureviewer -------------------------------
+start-block~neutrino_form-data_pictureviewer
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Bildbetrachter=}{=var-set:menu=Pictureviewer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td>Scaling</td>
+				<td>
+					<select name="picviewer_scaling" title="scaling">
+					<option value="0" selected="selected">none</option>
+					<option value="1">simple</option>
+					<option value="2">complex</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Slideshow display time</td>
+				<td><input type="text" name="picviewer_slide_time" size="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_slide_time~open=}" title="view time"/></td>
+			</tr>
+			<tr>
+				<td>Start Directory</td>
+				<td><input type="text" name="network_nfs_picturedir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_picturedir~cache=}" title="directory to begin"/></td>
+			</tr>
+			<tr>
+				<td>Decoding-Server IP</td>
+				<td><input type="text" name="picviewer_decode_server_ip" size="15" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_ip~cache=}" title="server ip (xxx.xxx.xxx.xxx)"/></td>
+			</tr>
+			<tr>
+				<td>Decoding-Server Port</td>
+				<td><input type="text" name="picviewer_decode_server_port" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_port~cache=}" title="port"/></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_pictureviewer_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_scaling;0=}";
+	document.f.picviewer_scaling.selectedIndex = val;
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_pictureviewer
+
+# ------- yWeb save Settings
+start-block~neutrino_pictureviewer_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_scaling;{=picviewer_scaling=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_slide_time;{=picviewer_slide_time=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_picturedir;{=network_nfs_picturedir=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_ip;{=picviewer_decode_server_ip=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_port;{=picviewer_decode_server_port=}~save=}
+end-block~neutrino_pictureviewer_save_settings
+
+# ------- Neutrino form-data: audioplayer -------------------------------
+start-block~neutrino_form-data_audioplayer
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Audioplayer=}{=var-set:menu=Audioplayer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td>Display order</td>
+				<td>
+					<select name="audioplayer_display" title="display order">
+					<option value="0" selected="selected">Artist, Titel</option>
+					<option value="1">Titel, Artist</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>Select actual track</td>
+				<td>
+					<input type="radio" name="audioplayer_follow" value="0" title="select actual track: off"/>Off&nbsp;
+					<input type="radio" name="audioplayer_follow" value="1" title="select actual track: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Titele search by Name</td>
+				<td>
+					<input type="radio" name="audioplayer_select_title_by_name" value="0" title="search by Name: off"/>Off&nbsp;
+					<input type="radio" name="audioplayer_select_title_by_name" value="1" title="search by Name: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Activate repeat-mode</td>
+				<td>
+					<input type="radio" name="audioplayer_repeat_on" value="0" title="Repeatmode: off"/>Off&nbsp;
+					<input type="radio" name="audioplayer_repeat_on" value="1" title="Repeatmode: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Show Playlist</td>
+				<td>
+					<input type="radio" name="audioplayer_show_playlist" value="0" title="Show Playlist: off"/>Off&nbsp;
+					<input type="radio" name="audioplayer_show_playlist" value="1" title="Show Playlist: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Screensaver (min, 0=off)</td>
+				<td><input type="text" name="audioplayer_screensaver" size="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_screensaver~open=}" title="screen saver"/></td>
+			</tr>
+			<tr>
+				<td>High Decoding-Priority</td>
+				<td>
+					<input type="radio" name="audioplayer_highprio" value="0" title="decode at high priority: off"/>Off&nbsp;
+					<input type="radio" name="audioplayer_highprio" value="1" title="decode at high priority: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Start Directory</td>
+				<td><input type="text" name="network_nfs_audioplayerdir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_audioplayerdir~cache=}" title="directory to begin"/></td>
+			</tr>
+			<tr>
+				<td>Shoutcast Meta-Daten</td>
+				<td>
+					<input type="radio" name="audioplayer_enable_sc_metadata" value="0" title="parse Shoutcast Meta-Data: off"/>Off&nbsp;
+					<input type="radio" name="audioplayer_enable_sc_metadata" value="1" title="arse Shoutcast Meta-Data: on"/>On
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_audioplayer_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val;
+	var val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_follow~cache=}";
+	if(val == "1")
+		document.f.audioplayer_follow[1].checked = true;
+	else
+		document.f.audioplayer_follow[0].checked = true;
+	
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_select_title_by_name;0~cache=}";
+	if(val == "1")
+		document.f.audioplayer_select_title_by_name[1].checked = true;
+	else
+		document.f.audioplayer_select_title_by_name[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_repeat_on;0~cache=}";
+	if(val == "1")
+		document.f.audioplayer_repeat_on[1].checked = true;
+	else
+		document.f.audioplayer_repeat_on[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_show_playlist;0~cache=}";
+	if(val == "1")
+		document.f.audioplayer_show_playlist[1].checked = true;
+	else
+		document.f.audioplayer_show_playlist[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_highprio;0~cache=}";
+	if(val == "1")
+		document.f.audioplayer_highprio[1].checked = true;
+	else
+		document.f.audioplayer_highprio[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_enable_sc_metadata;0~cache=}";
+	if(val == "1")
+		document.f.audioplayer_enable_sc_metadata[1].checked = true;
+	else
+		document.f.audioplayer_enable_sc_metadata[0].checked = true;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_display;0~cache=}";
+	document.f.audioplayer_display.selectedIndex = val;
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_audioplayer
+
+# ------- save Settings
+start-block~neutrino_audioplayer_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_display;{=audioplayer_display=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_follow;{=audioplayer_follow=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_select_title_by_name;{=audioplayer_select_title_by_name=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_repeat_on;{=audioplayer_repeat_on=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_show_playlist;{=audioplayer_show_playlist=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_screensaver;{=audioplayer_screensaver=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_highprio;{=audioplayer_highprio=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_audioplayerdir;{=network_nfs_audioplayerdir=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_enable_sc_metadata;{=audioplayer_enable_sc_metadata=}~save=}
+end-block~neutrino_audioplayer_save_settings
+
+# ------- Neutrino form-data: direct_recording -------------------------------
+start-block~neutrino_form-data_direct_recording
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#Direktaufnahme=}{=var-set:menu=Direkt Recording=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table cellspacing="0" border="0" cellpadding="2">
+			<tr>
+				<td>Recording Directory</td>
+				<td><input type="text" name="network_nfs_recordingdir" size="16" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir;/mnt/filme~open=}" title="recording directory"/></td>
+			</tr>
+			<tr>
+				<td>Max. File size (MB)</td>
+				<td><input type="text" name="recording_splitsize" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_splitsize;9999~cache=}" title="Max filesize/splitsize"/></td>
+			</tr>
+			<tr>
+				<td>Max. Ringbuffer</td>
+				<td><input type="text" name="recordingmenu_ringbuffers" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.ringbuffers;20~cache=}" title="Max ringbuffers"/></td>
+			</tr>
+			<tr>
+				<td>Sync write (O_SYNC)</td>
+				<td>
+					<input type="radio" name="recordingmenu_use_o_sync" value="false" title="Sync write (O_SYNC): off"/>Off&nbsp;
+					<input type="radio" name="recordingmenu_use_o_sync" value="true" title="Sync write (O_SYNC): on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Sync write (fdatasync)</td>
+				<td>
+					<input type="radio" name="recordingmenu_use_fdatasync" value="false" title="Sync write (fdatasync): off"/>Off&nbsp;
+					<input type="radio" name="recordingmenu_use_fdatasync" value="true" title="Sync write (fdatasync): on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Record Teletext</td>
+				<td>
+					<input type="radio" name="recordingmenu_stream_vtxt_pid" value="false" title="record videotext: off"/>Off&nbsp;
+					<input type="radio" name="recordingmenu_stream_vtxt_pid" value="true" title="record videotext: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Record PMT</td>
+				<td>
+					<input type="radio" name="recordingmenu_stream_pmt_pid" value="false" title="record PMT: off"/>Off&nbsp;
+					<input type="radio" name="recordingmenu_stream_pmt_pid" value="true" title="record PMT: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Directory selection on direct recording</td>
+				<td>
+					<input type="radio" name="recording_choose_direct_rec_dir" value="0" title="Choose directory on record: off"/>Off&nbsp;
+					<input type="radio" name="recording_choose_direct_rec_dir" value="1" title="Choose directory on record: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Long Filenames (with EPG-Data)</td>
+				<td>
+					<input type="radio" name="recording_epg_for_filename" value="false" title="EPG in filename: off"/>Off&nbsp;
+					<input type="radio" name="recording_epg_for_filename" value="true" title="EPG in filename: on"/>On
+				</td>
+			</tr>
+			<tr>
+				<td>Recording Filename Template</td>
+				<td><input type="text" name="recording_filename_template_0" size="16" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_filename_template_0;%C_%I_%d_%t~cache=}" title="filename template %C=channel %T=title %I=info %d=date %t=time"/></td>
+			</tr>
+			<tr>
+				<td>Directory permission</td>
+				<td><input type="text" name="recording_dir_permissions_0" size="3" value="{=ini-get:/var/tuxbox/config/neutrino.conf;recording_dir_permissions_0;755~cache=}" title="directory permissions (UNIX octals)"/></td>
+			</tr>
+			
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_direct_recording_save_settings;nix"/>
+		<input type="hidden" name="form" value="{=form=}"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.use_o_sync;0~cache=}";
+	if(val == "true")
+		document.f.recordingmenu_use_o_sync[1].checked = true;
+	else
+		document.f.recordingmenu_use_o_sync[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.use_fdatasync;0~cache=}";
+	if(val == "true")
+		document.f.recordingmenu_use_fdatasync[1].checked = true;
+	else
+		document.f.recordingmenu_use_fdatasync[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_vtxt_pid;0~cache=}";
+	if(val == "true")
+		document.f.recordingmenu_stream_vtxt_pid[1].checked = true;
+	else
+		document.f.recordingmenu_stream_vtxt_pid[0].checked = true;
+		
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_pmt_pid;0~cache=}";
+	if(val == "true")
+		document.f.recordingmenu_stream_pmt_pid[1].checked = true;
+	else
+		document.f.recordingmenu_stream_pmt_pid[0].checked = true;
+	
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_choose_direct_rec_dir;0~cache=}";
+	if(val == "1")
+		document.f.recording_choose_direct_rec_dir[1].checked = true;
+	else
+		document.f.recording_choose_direct_rec_dir[0].checked = true;
+	
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_epg_for_filename;0~cache=}";
+	if(val == "true")
+		document.f.recording_epg_for_filename[1].checked = true;
+	else
+		document.f.recording_epg_for_filename[0].checked = true;
+}
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+form_init();
+//]]>
+</script>
+end-block~neutrino_form-data_direct_recording
+
+# ------- direct recording save Settings
+start-block~neutrino_direct_recording_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir;{=network_nfs_recordingdir=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_splitsize;{=recording_splitsize=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.ringbuffers;{=recordingmenu_ringbuffers=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.use_o_sync;{=recordingmenu_use_o_sync=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.use_fdatasync;{=recordingmenu_use_fdatasync=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_vtxt_pid;{=recordingmenu_stream_vtxt_pid=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recordingmenu.stream_pmt_pid;{=recordingmenu_stream_pmt_pid=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_choose_direct_rec_dir;{=recording_choose_direct_rec_dir=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_epg_for_filename;{=recording_epg_for_filename=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_filename_template_0;{=recording_filename_template_0=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_dir_permissions_0;{=recording_dir_permissions_0=}~save=}
+end-block~neutrino_direct_recording_save_settings
+

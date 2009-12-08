@@ -1,0 +1,148 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+/*sLog*/
+var sLog_body;
+var sLog_line_number;
+function sLog_init()
+{
+	sLog_line_number = 0;
+	sLog_body=document.getElementById("slog_list");
+}
+function sLog_clear()
+{
+	while(sLog_body.childNodes.length > 0)
+	{
+		aChild=sLog_body.firstChild;
+		sLog_body.removeChild(aChild);
+	}
+	sLog_line_number =  0;
+}
+function sLog_addRow(_body, state, action_text, state_text)
+{
+	sLog_line_number++;
+	var mycurrent_row = y_add_row_to_table(_body, ((sLog_line_number % 2) ==0)?"a":"b" );
+	var __img ="/images/ok.gif";
+	switch (state)
+	{
+		case "green":	__img = "/images/check_green.gif"; break;
+		case "yellow":	__img = "/images/excl_yellow.gif"; break;
+		case "ok":	__img = "/images/ok.gif"; break;
+		case "red":	__img = "/images/x_red.gif"; break;
+	}
+	y_add_html_cell_to_row(mycurrent_row, "icon", "<img src='"+__img+"'>");
+	y_add_html_cell_to_row(mycurrent_row, "action_text", action_text);
+	y_add_text_cell_to_row(mycurrent_row, "state_text", state_text);
+}
+/*check*/
+function wiki_url(_page)
+{
+	return "<a href=\"http://wiki.tuxbox.org/"+_page+"\" target='_blank'><b>[Help]<\/b><\/a>"
+}
+function do_check()
+{
+	sLog_init();
+	sLog_clear();
+	sLog_addRow(sLog_body, "ok", "yWeb Version is: {=ini-get:Y_Version.txt;version=} {=ini-get:Y_Version.txt;date=}", "ok");
+	
+	/*webserver*/
+	var needed_nhttpd_version = "3.1.2";
+	var nhttpd_version = loadSyncURL("/control/info?nhttpd_version");
+	if(nhttpd_version.search(/error/)!=-1)
+		nhttpd_version = "0.0.0-unknown";
+	if(nhttpd_version < needed_nhttpd_version)
+		sLog_addRow(sLog_body, "red", "WebServer: version: "+nhttpd_version+" version needed: "+needed_nhttpd_version+
+			" <a href='http://www.yjogol.de/yFAQ.htm#diy' target='_blank'><b>[Help]<\/b><\/a>", "fail");
+	else
+		sLog_addRow(sLog_body, "green", "WebServer: version is "+nhttpd_version, "ok");
+	
+	{=if-equal:{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.authenticate;false=}~false~~
+		sLog_addRow(sLog_body, "yellow", "WebServer: Authentication is on. "+wiki_url("Neutrino:yWeb:Settings#Webserver"), "notice");
+	=}
+	{=if-equal:{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80=}~80~~
+		sLog_addRow(sLog_body, "yellow", 
+		"WebServer: not set to Standard-Port. Actual: {=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80=} "+wiki_url("Neutrino:yWeb#Webserver"), "notice");
+	=}
+	/*settings*/	
+	{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}~~
+		sLog_addRow(sLog_body, "yellow", 
+		"Settings: Management IP(1) is set to {=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=} ! Your IP is {=func:get_request_data client_addr=}. "
+		+wiki_url("Neutrino:yWeb:Settings#yWeb"), "notice");
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~~
+		sLog_addRow(sLog_body, "yellow", 
+		"Settings: Management IP(2) is set to {=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=} ! Your IP is {=func:get_request_data client_addr=}. "
+		+wiki_url("Neutrino:yWeb#yWeb"), "notice");
+	=}
+	
+	/*programs*/
+	{=var-set:fbshot={=if-file-exists:/bin/fbshot~/bin/fbshot~{=if-file-exists:/var/bin/fbshot~/var/bin/fbshot~false=}=}=}
+	{=if-equal:{=var-get:fbshot=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: fbshot is not installed. OSD Screenshot is disabled. "+wiki_url("Neutrino:yWeb:BoxControl#OSD_Screenshot"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: fbshot is installed at: {=var-get:fbshot=}. OSD Screenshot is enabled.", "ok");
+	=}
+	{=var-set:dboxshot={=if-file-exists:/bin/dboxshot~/bin/dboxshot~{=if-file-exists:/var/bin/dboxshot~/var/bin/dboxshot~false=}=}=}
+	{=if-equal:{=var-get:dboxshot=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: dboxshot is not installed. Remote &amp; OSD is disabled. <a href='http://www.yjogol.de/yFAQ.htm#diy' target='_blank'><b>[Download]<\/b><\/a>", "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: dboxshot is installed at: {=var-get:dboxshot=}. Remote &amp; OSD is enabled.", "ok");
+	=}
+	{=var-set:fcp={=if-file-exists:/sbin/fcp~/sbin/fcp~{=if-file-exists:/var/bin/fcp~/var/bin/fcp~{=if-file-exists:/bin/fcp~/bin/fcp~false=}=}=}=}
+	{=if-equal:{=var-get:fcp=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: fcp is not installed. Image flashing is disabled. "+wiki_url("Neutrino:yWeb:Tools#Image"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: fcp is installed at: {=var-get:fcp=}. Image flashing is enabled.", "ok");
+	=}
+	{=var-set:etherwake={=if-file-exists:/bin/etherwake~/bin/etherwake~{=if-file-exists:/var/bin/etherwake~/var/bin/etherwake~false=}=}=}
+	{=if-equal:{=var-get:etherwake=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: etherwake is not installed. Wake on LAN is disabled. "+wiki_url("Neutrino:yWeb:Tools#Wake_on_LAN"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: etherwake is installed at: {=var-get:etherwake=}. Wake on LAN is enabled.", "ok");
+	=}
+	{=var-set:automount={=if-file-exists:/sbin/automount~/sbin/automount~{=if-file-exists:/var/bin/automount~/var/bin/automount~false=}=}=}
+	{=if-equal:{=var-get:automount=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: automount is not installed. AutoMount is disabled. "+wiki_url("Neutrino:yWeb:Tools#AutoMount"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: automount is installed at: {=var-get:automount=}. AutoMount is enabled.", "ok");
+	=}
+	{=var-set:udpstreamts={=if-file-exists:/sbin/udpstreamts~/sbin/udpstreamts~{=if-file-exists:/var/bin/udpstreamts~/var/bin/udpstreamts~false=}=}=}
+	{=if-equal:{=var-get:udpstreamts=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: udpstreamts is not installed. udp-streaming is disabled. "+wiki_url("Neutrino:yWeb:Live:Timer#UDP_Streaming"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: udpstreamts is installed at: {=var-get:udpstreamts=}. udp-streaming is enabled.", "ok");
+	=}
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">
+		{=var-set:help_url=Neutrino:yWeb:Tools#Check_Install=}{=var-set:menu=Check Install=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<br />
+		<form method="post" name="f" action="">
+			<input type="button" value="check" title="check" name="check" onclick="do_check()"/>&nbsp;
+		</form>
+	
+		<form method="post" name="log" action="">
+			<b>Check Results</b><br/>
+			<table class="y_work_table" cellpadding="4">
+			<thead align="left">
+			<tr>
+				<th>&nbsp;</th><th>Aktion</th><th>Status</th>
+			</tr>
+			</thead>
+			<tbody id="slog_list">
+			<tr><td></td></tr>
+			</tbody>
+			</table>
+			<br />
+		</form>
+	</div>
+</div>
+</body>
+</html>

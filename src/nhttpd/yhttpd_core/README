@@ -1,0 +1,22 @@
+------------------------------------------------------------------------------
+yhttpd-GOALS
+(yjogol@online.de, August 2006)
+------------------------------------------------------------------------------
+The yhttpd-Webserver is a small C++ based Webserver for embedded Systems.
+It has a simple Software-Architecture and uses for string-operations
+mostly buffer-save functions to prevent security exploits like buffer overruns.
+It is designed for threading and multiuser access for static files.
+It can be compiled on Windows Systems using Cygwin, on Linux-Systems
+and had been succesfully compiled for AVM Fritzbox or for 
+Maxtor Shared Storage.
+
+The code-base of yhttpd is Tuxbox-nhttpd 2.x (cvs.tuxbox.org)
+
+Starting with Version 3.0 the nhttpd source code was splitted into
+a core Webserver (yhttpd_core) and extension modules (yhttpd_mods).
+
+The yhttpd_core and yhttp_mods ware completly rewritten. 
+
+The Hook-System (extension modules) encapsulate all requests and responses 
+for the tuxboxapi. So both tuxapi and yhttpd can be developed seperatlly and 
+independ from each other.

@@ -1,0 +1,61 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript">
+//<![CDATA[
+function do_submit() 
+{
+	document.f.su.disabled=true;
+	if (document.f.R1[0].checked == true) {
+		_url="/control/exec?Y_Tools&ucodes_upload&cam-alpha.bin";
+	} else if (document.f.R1[1].checked == true) {
+		_url="/control/exec?Y_Tools&ucodes_upload&avia500.ux";
+	} else if (document.f.R1[2].checked == true) {
+		_url="/control/exec?Y_Tools&ucodes_upload&avia600.ux";
+	} else if (document.f.R1[3].checked == true) {
+		_url="/control/exec?Y_Tools&ucodes_upload&ucode.bin";
+	} else {
+	alert("Please make a choice");
+	}
+	document.f.action=_url;
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#ucodes=}{=var-set:menu=Ucodes=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<table border="0" cellpadding="5">
+	<tr><td class="y_form_header">Upload</td></tr>
+	<tr>
+		<td>
+			<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;test_upload">
+				<p>
+				<input type="radio" name="R1" checked="checked" value="cam-alpha.bin"/>camalpha.bin<br/>
+				<input type="radio" name="R1" value="avia500.ux"/>avia500.ux<br/>
+				<input type="radio" name="R1" value="avia600.ux"/>avia600.ux<br/>
+				<input type="radio" name="R1" value="ucode.bin"/>ucode.bin<br/>
+			
+				<input type="file" name="F1" size="20"/>&nbsp;
+				<input type="button" id="su" value="Absenden" title="upload selected file" name="B1" onclick="do_submit()"/>
+				</p>
+			</form>
+		</td>
+	</tr>
+	<tr><td class="y_form_header">Download</td></tr>
+	<tr>		
+		<td>
+			<ul>
+				<li><a type="application/octet-stream" href="/var/tuxbox/ucodes/avia500.ux"><u>avia500.ux</u></a></li>
+				<li><a type="application/octet-stream" href="/var/tuxbox/ucodes/avia600.ux"><u>avia600.ux</u></a></li>
+				<li><a type="application/octet-stream" href="/var/tuxbox/ucodes/cam-alpha.bin"><u>cam-alpha.bin</u></a></li>
+				<li><a type="application/octet-stream" href="/var/tuxbox/ucodes/ucode.bin"><u>ucode.bin</u></a></li>
+			</ul>
+		</td>
+	</tr>
+	</table>
+	</div>
+</div>
+</body>
+</html>

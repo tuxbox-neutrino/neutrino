@@ -1,0 +1,73 @@
+{=include-block:Y_Blocks.txt;head_no_charset=}
+</head>
+<body>
+<BR>
+{=func:get_current_stream_info=}
+<div class="y_head">Streaminfo ({=ServiceName=})</div>
+<div class="y_work_box">
+<TABLE cellspacing="2" cellpadding="3" class="tableborder" width="300px">
+<TR> 
+<TD class="set"><B>Resolution:</B></TD>
+<TD width="30">&nbsp;</TD>
+<TD class="set">{=VideoFormat=}</TD>
+</TR>
+<TR> 
+<TD class="set"><B>Relation:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=AspectRatio=}</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>Bitrate:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=BitRate=} bit/sec</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>Framerate:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=FPS=} fps</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>Audiotype:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=AudioType=}</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>onid:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=onid=}</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>sid:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=sid=}</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>tsid:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=tsid=}</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>frequency:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=tsfrequency=} ({=polarisation=})</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>vpid:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=vpid=}</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>apid:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=apid=}</div></TD>
+</TR>
+<TR> 
+<TD class="set"><B>vtxtpid:</B></TD>
+<TD>&nbsp;</TD>
+<TD class="set"> <div align="left">{=vtxtpid=}</div></TD>
+</TR>
+</TABLE>
+</CENTER>
+</div>
+</BODY>
+</HTML>

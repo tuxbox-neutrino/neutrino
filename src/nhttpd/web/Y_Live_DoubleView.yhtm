@@ -1,0 +1,19 @@
+{=include-block:Y_Blocks.txt;head=}
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Live_Timer#Double_View=}{=var-set:menu=Live - DoubleView=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<iframe name="I1" src="Y_Live_View.yhtm" target="Hauptframe" width="400" height="360" scrolling="no">
+		Your Browser does not support Inlineframes or is not configured correctely.
+		</iframe>
+		{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}~<div><font color="Red">No IP for the Slave Box supplied!<br>Einstellen unter Settings->yWeb.</font></div>~
+		<iframe name="I2" src="http://{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}/Y_Live_View.yhtm" width="400" height="360" scrolling="no">
+		Your Browser does not support Inlineframes or is not configured correctely.
+		</iframe>
+		=}
+	</div>
+</div>
+</body>
+</html>

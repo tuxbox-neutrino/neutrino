@@ -1,0 +1,115 @@
+{=var-set:cancache=yPInstall=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+var g_volumen = 100;
+function volumen_set_audiobar(_volumen)
+{
+	var l = document.getElementById("audiobar_left");
+	var r = document.getElementById("audiobar_right");
+	/*IE: width=0 -> =""*/
+	if(_volumen > 0)
+		l.width = _volumen.toString()+"%";
+	else
+		l.width = ""; 
+	if(_volumen >= 100)
+		r.width = ""; 
+	else
+		r.width = (100-_volumen).toString()+"%";
+}
+function volumen_get()
+{
+	var __volumen_str = loadSyncURL("/control/volume");
+	var __volumen = parseInt(__volumen_str,10);
+	if(isNaN(__volumen)) __volumen=100;
+	volumen_set_audiobar(__volumen);
+	g_volumen = __volumen;
+	return __volumen;
+}
+function volumen_set(_volumen)
+{
+	_volumen = Math.min(100, _volumen);
+	_volumen = Math.max(0, _volumen);
+	loadSyncURL("/control/volume?"+_volumen);
+	volumen_set_audiobar(_volumen);
+	g_volumen = _volumen;
+}
+function toggle_mute()
+{
+	var __button = document.getElementById("btMute");
+	if(__button.firstChild.nodeValue == "Mute"){
+		loadSyncURL("/control/volume?mute");
+		__button.firstChild.nodeValue = "Unmute";
+	}
+	else{
+		loadSyncURL("/control/volume?unmute");
+		__button.firstChild.nodeValue = "Mute";
+	}
+}
+function set_mode(_mode)
+{
+	var actual_mode = loadSyncURL("/control/getmode");
+	if(actual_mode != _mode)
+		loadSyncURL("/control/setmode?" + _mode);
+	parent.work.location.reload();
+}
+//]]>
+</script>
+</head>
+{=var-set:fbshot={=if-file-exists:/bin/fbshot~true~{=if-file-exists:/var/bin/fbshot~true~{=if-file-exists:/bin/dboxshot~true~{=if-file-exists:/var/bin/dboxshot~true~false=}=}=}=}=}
+{=var-set:dboxshot={=if-file-exists:/bin/dboxshot~true~{=if-file-exists:/var/bin/dboxshot~true~false=}=}=}
+<body>
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Boxcontrol</h2></div>
+	<div class="y_menu_sec_box_body">
+		<div class="y_menu_sec">
+			<ul>
+				<li><a target="work" title="Switch channels" href="Y_Boxcontrol_Bouquets.yhtm">Bouquets</a></li>
+				<li><a target="work" title="control box functions (reboot, remote control, SPTS, ...)" href="Y_Tools_Boxcontrol.yhtm">Control</a></li>
+				<li><a target="work" title="send Messages to box" href="Y_Boxcontrol_Messages.yhtm">Messages</a></li>
+				<li><a target="work" title="Web-based Remote Control" href="Y_Tools_Rcsim.yhtm">Remote</a></li>
+				{=if-equal:{=var-get:fbshot=}~true~
+				<li><a target="work" title="make osd screenshot" href="Y_Tools_fbshot.yhtm">OSD Screenshot</a></li>
+				~
+				<li class="disabled" title="fbshot not installed at /bin or /var/bin">OSD Screenshot</li>
+				=}
+				{=if-equal:{=var-get:dboxshot=}~true~
+				<li><a target="work" title="remote and osd" href="Y_Tools_remote_osd.yhtm">Remote &amp; OSD</a></li>
+				~
+				<li class="disabled" title="dboxshot not installed at /bin or /var/bin">Remote &amp; OSD</li>
+				=}
+			</ul>
+		</div>
+	</div>
+</div>
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Control</h2></div>
+	<div class="y_menu_sec_box_body">
+		<center>
+			<table class="y_text_boxcontrol_table" cellspacing="0" cellpadding="0" title="volumen display">
+			<tr>
+			<td id="audiobar_left" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="."/></td>
+			<td id="audiobar_right" width="0%" bgcolor="white"><img src="/images/blank.gif" height="1" width="0" alt="."/></td>
+			</tr>
+			</table>
+			<br/>
+			<span class="y_text_boxcontrol_button" title="decrease volumen">
+				<a href="javascript:volumen_set(g_volumen-10);">&nbsp;<strong>-</strong>&nbsp;</a></span>
+			<span class="y_text_boxcontrol_button" title="increase volumen">
+				<a href="javascript:volumen_set(g_volumen+10);">&nbsp;<strong>+</strong>&nbsp;</a></span>
+			<span class="y_text_boxcontrol_button" title="mute volumen">
+				<a id="btMute" href="javascript:toggle_mute();">Mute</a></span>
+			<br/><br/>
+			<span class="y_text_boxcontrol_button" title="switch to TV"><a href="javascript:set_mode('tv');">TV</a></span>
+			<span class="y_text_boxcontrol_button" title="switch to Radio"><a href="javascript:set_mode('radio');">Radio</a></span>
+		</center>
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	volumen_set_audiobar(volumen_get());
+//]]>
+</script>
+</body>
+</html>

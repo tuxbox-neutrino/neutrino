@@ -1,0 +1,896 @@
+EPGMenu.epgplus Vorschou Übersicht
+EPGMenu.eventinfo Info zur Sändig
+EPGMenu.eventlist Vorschou aktuells Programm
+EPGMenu.head EPG - Programm Informatione
+EPGMenu.streaminfo Technischi Information
+EPGPlus.actions Aktione
+EPGPlus.bybouquet_mode bouquetwiis
+EPGPlus.bypage_mode sitewiis
+EPGPlus.change_font_size Schriftgrössi ändere
+EPGPlus.change_font_style Schriftstil
+EPGPlus.change_size Größe ändere
+EPGPlus.channelentry_font Kanäu
+EPGPlus.channelentry_separationlineheight Höchi Linie zwüsche Kanäuiträg
+EPGPlus.channelentry_width Breiti vo de Kanäuname
+EPGPlus.channelevententry_font Sändige
+EPGPlus.edit_fonts Schrifte ischtöue
+EPGPlus.edit_sizes Abmässige ischtöue
+EPGPlus.font_style_bold Fett
+EPGPlus.font_style_italic Kursiv
+EPGPlus.font_style_regular Normau
+EPGPlus.footer_fontbouquetchannelname Selektierte Bouquet~/Kanauname
+EPGPlus.footer_fontbuttons Buttons
+EPGPlus.footer_fonteventdescription Titu 1 selekt. Sändig
+EPGPlus.footer_fonteventshortdescription Titu 2 selekt. Sändig
+EPGPlus.head Vorschau Übersicht (EPG Plus)
+EPGPlus.header_font Menütitu
+EPGPlus.horgap1_height Höchi hor. Lücke 1
+EPGPlus.horgap2_height Höchi hor. Lücke 2
+EPGPlus.next_bouquet Bouquet vor
+EPGPlus.options Optione
+EPGPlus.page_down Site zrugg
+EPGPlus.page_up Seite vor
+EPGPlus.prev_bouquet Bouquet zrugg
+EPGPlus.record Ufnahm
+EPGPlus.refresh_epg Aktualisiere
+EPGPlus.remind Vormerke
+EPGPlus.reset_settings Ischtöuige zruggsetze
+EPGPlus.save_settings Ischtöuige schpichere
+EPGPlus.scroll_mode Scroll Mode
+EPGPlus.select_font_name Schrift wähle
+EPGPlus.settings Ischtöuige
+EPGPlus.slider_width Breiti vom Slider
+EPGPlus.stretch_mode Stretch Mode
+EPGPlus.swap_mode Blättere
+EPGPlus.timeline_fontdate Zytscala Datum
+EPGPlus.timeline_fonttime Zytscala Zyt
+EPGPlus.vergap1_width Breiti ver. Lücke 1
+EPGPlus.vergap2_width Breiti ver. Lücke 2
+EPGPlus.view_mode Modus
+GENRE.ARTS.0 Kunscht / Kultur
+GENRE.ARTS.1 Darschtöuendi Kunscht
+GENRE.ARTS.10 Kunst-/Kultur-Magazin
+GENRE.ARTS.11 Mode
+GENRE.ARTS.2 Fine Arts
+GENRE.ARTS.3 Religion
+GENRE.ARTS.4 Voukskunscht
+GENRE.ARTS.5 Literatur
+GENRE.ARTS.6 Föum/Kino
+GENRE.ARTS.7 Experimental Föum/Video
+GENRE.ARTS.8 Rundfunk/Presse
+GENRE.ARTS.9 Nöi Mediä
+GENRE.CHILDRENs_PROGRAMMES.0 Chinder / Jugendprogramm
+GENRE.CHILDRENs_PROGRAMMES.1 Programm für Vorschouching
+GENRE.CHILDRENs_PROGRAMMES.2 Ungerhautigsprogramm für 6 bis 14-Jährigi
+GENRE.CHILDRENs_PROGRAMMES.3 Ungerhautigsprogramm für 10 bis 16-Jährigi
+GENRE.CHILDRENs_PROGRAMMES.4 Informations- und Böudigsprogramm
+GENRE.CHILDRENs_PROGRAMMES.5 Trickföum
+GENRE.DOCUS_MAGAZINES.0 Doku/Magazin
+GENRE.DOCUS_MAGAZINES.1 Natur/Tiär/Umwäut
+GENRE.DOCUS_MAGAZINES.2 Naturwüsseschaft und Technik
+GENRE.DOCUS_MAGAZINES.3 Medizin/Psüchologie/Psychologie
+GENRE.DOCUS_MAGAZINES.4 Usland/Expeditions
+GENRE.DOCUS_MAGAZINES.5 Soziau- u Geischteswüsseschaft
+GENRE.DOCUS_MAGAZINES.6 Witerböudig
+GENRE.DOCUS_MAGAZINES.7 Schprooche
+GENRE.MOVIE.0 Spöuföum / Drama
+GENRE.MOVIE.1 Krimi/Thriller
+GENRE.MOVIE.2 Abentürföum/Western/Chriägsföum
+GENRE.MOVIE.3 Science-Fiction/Fäntäsy/Horror
+GENRE.MOVIE.4 Comedy
+GENRE.MOVIE.5 Soap/Melodrama/Folklore
+GENRE.MOVIE.6 Romantik
+GENRE.MOVIE.7 serious/classical/religious/historical movie/drama
+GENRE.MOVIE.8 adult movie/Drama
+GENRE.MUSIC_DANCE.0 Musik/Ballet/Tanz
+GENRE.MUSIC_DANCE.1 Rock/Pop
+GENRE.MUSIC_DANCE.2 serious music/Klassik
+GENRE.MUSIC_DANCE.3 Vouksmusik
+GENRE.MUSIC_DANCE.4 Jäzz
+GENRE.MUSIC_DANCE.5 Musical/Oper
+GENRE.MUSIC_DANCE.6 Ballet
+GENRE.NEWS.0 Nachrichte
+GENRE.NEWS.1 Nachrichte/Wätter
+GENRE.NEWS.2 Nachrichtemagazin
+GENRE.NEWS.3 Dokumentation
+GENRE.NEWS.4 Diskussion/Interview/Debatte
+GENRE.SHOW.0 Show / Gameshow
+GENRE.SHOW.1 Gameshow/Quiz
+GENRE.SHOW.2 varietee
+GENRE.SHOW.3 Talkshow
+GENRE.SOCIAL_POLITICAL.0 Sozial & Politikereigniss / Wirtschaft
+GENRE.SOCIAL_POLITICAL.1 Magazin/Report/Dokumentation
+GENRE.SOCIAL_POLITICAL.2 Wirtschaft u Soziales
+GENRE.SOCIAL_POLITICAL.3 Bsungeri Mönsche
+GENRE.SPORTS.0 Schport
+GENRE.SPORTS.1 Grossereigniss (Olympischi Schpiu, Wäutmeischterschaft usw.)
+GENRE.SPORTS.10 Equestrian
+GENRE.SPORTS.11 Martial Sports
+GENRE.SPORTS.2 Schportmagazin
+GENRE.SPORTS.3 Schutte
+GENRE.SPORTS.4 Tennis
+GENRE.SPORTS.5 Mannschaftsschport
+GENRE.SPORTS.6 Liächtathletik
+GENRE.SPORTS.7 Motorschport
+GENRE.SPORTS.8 Wasserschport
+GENRE.SPORTS.9 Winterschport
+GENRE.TRAVEL_HOBBIES.0 Reise u Freizyt
+GENRE.TRAVEL_HOBBIES.1 Reisen u Tourismus
+GENRE.TRAVEL_HOBBIES.2 Handicraft
+GENRE.TRAVEL_HOBBIES.3 Motor
+GENRE.TRAVEL_HOBBIES.4 Fitness u Gsundheit
+GENRE.TRAVEL_HOBBIES.5 Chochä
+GENRE.TRAVEL_HOBBIES.6 Iichouf
+GENRE.TRAVEL_HOBBIES.7 Garte
+GENRE.UNKNOWN Unbekannt
+apids.hint_1 Gib diä z'streamende APIDs i,
+apids.hint_2 trennt dür ' ' i hexadezimaler Form
+apidselector.head Schproochuswau
+audiomenu.PCMOffset Lutschterkisänkig PCM
+audiomenu.analogout Analog-Usgang
+audiomenu.avs avs
+audiomenu.avs_control Volume Schtüürig avs/ost
+audiomenu.dolbydigital Dolby Digital outomatisch
+audiomenu.head Audio-Ischtöuige
+audiomenu.lirc lirc
+audiomenu.monoleft mono links
+audiomenu.monoright mono rächts
+audiomenu.ost ost
+audiomenu.stereo stereo
+audioplayer.add Dezuefüege
+audioplayer.artist_title Interpret, Titu
+audioplayer.building_search_index Erstöue Suechindex
+audioplayer.button_select_title_by_id Sueche n. ID
+audioplayer.button_select_title_by_name Sueche n. Name
+audioplayer.defdir Start-Verz.
+audioplayer.delete Lösche
+audioplayer.deleteall Aui lösche
+audioplayer.display_order Azeige
+audioplayer.enable_sc_metadata Aktiviere Shoutcast Meta-Daten Parsing
+audioplayer.fastforward schnäue Vorl.
+audioplayer.follow Selektiere akt. Track
+audioplayer.head Audio Playlist
+audioplayer.highprio Höchi Decodier-Priorität
+audioplayer.id3scan Scanne ID3-Tags
+audioplayer.jump_backwards rückw. schpringe
+audioplayer.jump_dialog_hint1 Bitte Schprungziu igä
+audioplayer.jump_dialog_hint2 (relativ, i Sekunde)
+audioplayer.jump_dialog_title Sprungziu igä
+audioplayer.jump_forwards vorw. schpringe
+audioplayer.keylevel Taschte-Umschautig
+audioplayer.name Audioplayer
+audioplayer.pause Pouse
+audioplayer.play Abschpiele
+audioplayer.playing Aktuelle Track
+audioplayer.playlist_fileerror_msg Datei cha nid erschtöut wärde:
+audioplayer.playlist_fileerror_title Fähler
+audioplayer.playlist_fileoverwrite_msg Söu diä Datei überschriebe wärde:
+audioplayer.playlist_fileoverwrite_title Überschribe?
+audioplayer.playlist_name Dateiname vo de Playlist
+audioplayer.playlist_name_hint1 Gib de Dateiname vo de Playlist i
+audioplayer.playlist_name_hint2 d'Erwiterig .m3u wird outomatisch agheicht
+audioplayer.reading_files Lise d'Metadate ii
+audioplayer.repeat_on Repeatmodus aktiviere
+audioplayer.rewind schnäue Rückl.
+audioplayer.save_playlist Playlist schpychere
+audioplayer.screensaver_timeout Böudschirmschoner (min, 0=aus)
+audioplayer.select_title_by_name Titusuechi noch Name (SMS)
+audioplayer.show_playlist Playlist azeige
+audioplayer.shuffle Shuffle
+audioplayer.stop Stopp
+audioplayer.title_artist Titu, Interpret
+audioplayerpicsettings.general Audioplayer / Böudbetrachter
+bookmarkmanager.delete Lösche
+bookmarkmanager.name Bookmarks
+bookmarkmanager.rename Umbenenne
+bookmarkmanager.select Uswähle
+bouqueteditor.add Dezuäfüäge
+bouqueteditor.bouquetname Name vom Bouquet
+bouqueteditor.delete Lösche
+bouqueteditor.discardingchanges änderige wärde verworfe. Bitte warte ...
+bouqueteditor.hide Vörschteckä
+bouqueteditor.lock Schperre
+bouqueteditor.move Vürschiäbe
+bouqueteditor.name Bouquet-Verwautig
+bouqueteditor.newbouquetname Nöiä Name vom Bouquet
+bouqueteditor.rename Umbenänne
+bouqueteditor.return Fertig
+bouqueteditor.savechanges? Söue d'änderige gschpicheret wärde?
+bouqueteditor.savingchanges änderige wärde gschpicheret. Bitte warte ...
+bouqueteditor.switch Kanau ufnä/entfärne
+bouqueteditor.switchmode TV/Radio
+bouquetlist.head Bouquets
+cablesetup.provider Kabuabiäter
+channellist.head Aui Kanäu
+channellist.nonefound äs si kei Kanäu gfungä wordä!\nBitte füär ä Kanausuächi dürä\n(dbox-Taschtä -> Service)
+channellist.since sit %02d:%02d
+colorchooser.alpha alpha
+colorchooser.blue blau
+colorchooser.green grüän
+colorchooser.red rot
+colormenu.background Hingergrundfarb
+colormenu.background_head Hingergrundfarb
+colormenu.fade Menüs faden
+colormenu.font Schriftgrössi
+colormenu.gtx_alpha Transparänz (GTX)
+colormenu.head Farb-Ischtöuige
+colormenu.menucolors Menüfarbe
+colormenu.statusbar Schtatusbauke
+colormenu.textcolor Textfarb
+colormenu.textcolor_head Textfarb
+colormenu.themeselect Theme uswähle
+colormenu.timing OSD Timeouts
+colormenusetup.head Menüfarbä
+colormenusetup.menucontent Fäischterinhaut
+colormenusetup.menucontent_inactive Fäischterinhaut deaktiviert
+colormenusetup.menucontent_selected Fäischterinhaut selektiert
+colormenusetup.menuhead Tituleischte
+colorstatusbar.head Schtatusbaukä-Farb
+colorstatusbar.text Schtatusbaukä
+colorthememenu.classic_theme Klassik
+colorthememenu.dblue_theme DarkBlue Theme
+colorthememenu.dvb2k_theme DVB2000 Theme
+colorthememenu.head Theme uswähle
+colorthememenu.neutrino_theme Neutrino Theme
+date.Apr  Apr
+date.Aug  Aug
+date.Dec  Dez
+date.Feb  Feb
+date.Fri  Fr
+date.Jan  Jan
+date.Jul  Jul
+date.Jun  Jun
+date.Mar  Mär
+date.May  Mai
+date.Mon  Mo
+date.Nov  Nov
+date.Oct  Okt
+date.Sat  Sa
+date.Sep  Sep
+date.Sun  So
+date.Thu  Do
+date.Tue  Di
+date.Wed  Mi
+epglist.head Vorschou - %s
+epglist.noevents Kei EPG-Informationä verfüägbar.
+epgviewer.More_Screenings Witäri Termin uf däm Kanau
+epgviewer.nodetailed Kei usfüärlichi Informationä verfüägbar
+epgviewer.notfound kei Programminformationä (EPG) gfunge
+eventlistbar.channelswitch Umschaute
+eventlistbar.eventsort Sortiere
+eventlistbar.recordevent Ufnä
+favorites.addchannel Dr aktuell Kanau wird zum Bouquet \n"Mini Favorite" däzuägfüegt. \ns'Schpichere bruucht ä Momänt...
+favorites.bouquetname Mini Favorite
+favorites.bqcreated Bouquet "Mini Favorite" isch aagleit worde...\n
+favorites.chadded Dr aktuell Kanau isch zu dä Favoritä däzuägfüegt worde...\n
+favorites.chalreadyinbq dr aktuell Kanau isch bereits i dä Favorite...\n
+favorites.finalhint \nUs Versehä däzuegfüegti Kanäu chöi mit\ndr Bouquetverwautig korrigiert wärde.\n
+favorites.menueadd Kanau i d'Favorite däzuefüege
+favorites.nobouquets Favorite si nume mit aktivierte Bouquets müglech
+filebrowser.delete Lösche
+filebrowser.denydirectoryleave Startverzeichnis absolut
+filebrowser.dodelete1 Söu
+filebrowser.dodelete2 glöscht wärde?
+filebrowser.filter.active Föuter a
+filebrowser.filter.inactive Föuter us
+filebrowser.head Filebrowser
+filebrowser.mark Markiere
+filebrowser.nextpage Site vor
+filebrowser.prevpage Site zrugg
+filebrowser.scan Dürsueche Verzeichnis
+filebrowser.select Auswähle
+filebrowser.showrights Dateirächt aazeige
+filebrowser.sort.date (Datum)
+filebrowser.sort.name (Dateiname)
+filebrowser.sort.namedirsfirst (Dateiname2)
+filebrowser.sort.size (Grössi)
+filebrowser.sort.type (Typ)
+filesystem.is.utf8 Dateisystem
+filesystem.is.utf8.option.iso8859.1 ISO-8859-1
+filesystem.is.utf8.option.utf8 UTF-8
+flashupdate.actionreadflash lisä Flash
+flashupdate.cantopenfile cha Datei nid öffnä
+flashupdate.cantopenmtd cha s'MTD-Device nid öffnä
+flashupdate.checkupdate noch nöiere version suäche
+flashupdate.currentreleasecycle Releasezyklus
+flashupdate.currentversion_sep Installierti Version
+flashupdate.currentversiondate Datum
+flashupdate.currentversionsnapshot ImageTyp
+flashupdate.currentversiontime Uhrzyt
+flashupdate.erasefailed Flash lösche fäugschlage
+flashupdate.erasing lösche Flash
+flashupdate.experimentalimage Du hesch ä Snapshot usgwäut, bitte beacht,\ndass diä Version nid teschtet isch u\neventuell dini Box nochem Update\nnüm funktionsfähig isch.\n\Wosch diä Version würklech installiere?
+flashupdate.expertfunctions Expertä-Funktione
+flashupdate.fileis0bytes d'Dateigrössi isch 0 Byte
+flashupdate.fileselector Datei-Uswau
+flashupdate.flashreadyreboot s'Image isch erfougrich gflasht worde.\nd'Box wird jetzt nöi gschtartet.
+flashupdate.getinfofile lade Versionsinfo
+flashupdate.getinfofileerror cha s'Update nid läse
+flashupdate.getupdatefile lade Update
+flashupdate.getupdatefileerror cha s'Update nid ladä
+flashupdate.globalprogress Gsamtschtatus:
+flashupdate.head Aktualisiärig
+flashupdate.md5check Imageprüäfig
+flashupdate.md5sumerror s'Image isch fählerhaft
+flashupdate.msgbox äs isch fougendes nöis Image gfunge wordä:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWosch diä Version jetzt abelade\nu inschtaliäre?
+flashupdate.msgbox_manual äs isch äs nöis Image gfunge worde:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWosch diä Version jetzt inschtalliäre?
+flashupdate.mtdselector Partitions-Uswau
+flashupdate.programmingflash programmierä Flash
+flashupdate.proxypassword Passwort
+flashupdate.proxypassword_hint1 Gib s'Proxy
+flashupdate.proxypassword_hint2 Passwort i
+flashupdate.proxyserver Proxyname
+flashupdate.proxyserver_hint1 Gib ä Proxyname oder IP i (Host:Port)
+flashupdate.proxyserver_hint2 ä läre Iitrag bedütet kei Proxy
+flashupdate.proxyserver_sep Proxysörver
+flashupdate.proxyusername Benutzername
+flashupdate.proxyusername_hint1 Gib ä Proxy-Benutzername i
+flashupdate.proxyusername_hint2 ä lääre Iitrag bedütet kei Authentifizierig
+flashupdate.readflash ganzes Flashimage usläse
+flashupdate.readflashmtd einzelni Partition usläse
+flashupdate.ready fertig
+flashupdate.reallyflashmtd Wosch dä Flashvorgang würklech düräfüere?\n\nFaus ä Fähler uftritt oder s'Image nid\nfunktionstüchtig isch, wird dini Box nüm bootä.\n\nImagename: %s\nZiel: %s
+flashupdate.savesuccess s'Image isch erfougrich ungerem\nDateiname %s gschpicheret worde.
+flashupdate.selectimage Verfüegbari Images
+flashupdate.squashfs.noversion Bi SquashFS Updates wärde Versionsüberprüefige momentan nur bi Web-Updates ungerstützt.\nWosch s'usgewäute Image würklech installiere?
+flashupdate.titlereadflash Flash usläse
+flashupdate.titlewriteflash Flash schribe
+flashupdate.updatemode Updatemodus
+flashupdate.updatemode_internet internet
+flashupdate.updatemode_manual manuell (ftp)
+flashupdate.url_file Konfigfile
+flashupdate.versioncheck Versionsüberprüäfig
+flashupdate.writeflash ganzes Flashimage iischpile
+flashupdate.writeflashmtd einzelni Partition iischpile
+flashupdate.wrongbase s'Releasezyklus wiicht ab, bitte\nzersch äs nöis Komplett-Image inschtaliäre!
+fontmenu.channellist Kanaulischte
+fontmenu.epg EPG
+fontmenu.eventlist Eventlist
+fontmenu.gamelist Gamelischte
+fontmenu.head Schriftgrössi Ischtöuige
+fontmenu.infobar Infobar
+fontsize.channel_num_zap Diräktuswau
+fontsize.channellist Kanaulischte
+fontsize.channellist_descr Beschribig
+fontsize.channellist_number Nummer
+fontsize.epg_date EPG Datum
+fontsize.epg_info1 EPG Info 1
+fontsize.epg_info2 EPG Info 2
+fontsize.epg_title EPG Titu
+fontsize.eventlist_datetime Eventlist Datum / Zyt
+fontsize.eventlist_itemlarge Eventlist gross
+fontsize.eventlist_itemsmall Eventlist chlii
+fontsize.eventlist_title Eventlist Titu
+fontsize.filebrowser_item Dateibrowser-Itrag
+fontsize.gamelist_itemlarge gross
+fontsize.gamelist_itemsmall chlii
+fontsize.hint Font wird initialisiert,\nbitte warte...
+fontsize.infobar_channame Infobar Kanau
+fontsize.infobar_info Infobar Info
+fontsize.infobar_number Infobar Nummer
+fontsize.infobar_small Infobar chlii
+fontsize.menu Menütext
+fontsize.menu_info Menü Info
+fontsize.menu_title Menü Titu
+gtxalpha.alpha1 Alpha 1
+gtxalpha.alpha2 Alpha 2
+infoviewer.epgnotload Informatione no nid glade...
+infoviewer.epgwait Warte uf EPG-Informatione...
+infoviewer.eventlist Programm
+infoviewer.languages Tonwau
+infoviewer.motor_moving Antennäpositioniärig
+infoviewer.nocurrent Kei Infos zum loufende Programm
+infoviewer.noepg Kei EPG-Informationä verfüegbar
+infoviewer.notavailable Kanau (zur Zyt) nid verfüägbar
+infoviewer.selecttime Schtartzyte
+infoviewer.streaminfo Features
+infoviewer.subchan_disp_pos Ungerkanauazeig
+infoviewer.subservice Böudregie
+infoviewer.waittime Warte uf d'Uhrzyt...
+ipsetup.hint_1 Benutz 0..9 oder uäche/abä
+ipsetup.hint_2 OK schpicheret, Home bricht ab
+keybindingmenu.RC Färnbediänig
+keybindingmenu.addrecord Ufnahm-Timer däzuäfüege
+keybindingmenu.addrecord_head Ufnahm-Timer däzuäfüege
+keybindingmenu.addremind Umschaut-Timer däzuäfüege
+keybindingmenu.addremind_head Umschaut-Timer däzuäfüege
+keybindingmenu.allchannels_on_ok Kanaulischtä
+keybindingmenu.bouquetchannels_on_ok Bouquet-Kanäu
+keybindingmenu.bouquetdown Bouquet zrugg
+keybindingmenu.bouquetdown_head Bouquet zrugg Taschte
+keybindingmenu.bouquethandling OK-Taschte für
+keybindingmenu.bouquetlist_on_ok Bouquetlischtä
+keybindingmenu.bouquetup Bouquet witer
+keybindingmenu.bouquetup_head Bouquet witer Taschte
+keybindingmenu.cancel Kanaulischtä schliässe
+keybindingmenu.cancel_head Kanaulischtä schliässe
+keybindingmenu.channeldown Kanau abä
+keybindingmenu.channeldown_head Kanau abä Taschte
+keybindingmenu.channellist Kanaulischtä
+keybindingmenu.channelup Kanau uäche
+keybindingmenu.channelup_head Kanau uäche Taschte
+keybindingmenu.head Taschtä-Ischtöuige
+keybindingmenu.lastchannel Letschte Kanau
+keybindingmenu.lastchannel_head Letschte Kanau
+keybindingmenu.modechange Modus wächsle
+keybindingmenu.pagedown Sitä abäblettere
+keybindingmenu.pagedown_head Sitä abäblettere
+keybindingmenu.pageup Sitä uechäblettere
+keybindingmenu.pageup_head Sitä uechäblettere
+keybindingmenu.quickzap Schnäuumschautig
+keybindingmenu.repeatblock Widerhouverzögerig
+keybindingmenu.repeatblockgeneric Aafangsverzögerig
+keybindingmenu.sort Sortierreiäfoug ändere
+keybindingmenu.sort_head Sortierreiäfoug ändere
+keybindingmenu.subchanneldown Ungerkanau zrugg
+keybindingmenu.subchanneldown_head Ungerkanau zrugg
+keybindingmenu.subchannelup Ungerkanau witer
+keybindingmenu.subchannelup_head Ungerkanau witer
+keybindingmenu.tvradiomode Fernseh-/Radio-Modus
+keybindingmenu.tvradiomode_head Fernseh-/Radio-Modus
+keybindingmenu.zaphistory Zapping-History Bouquet
+keybindingmenu.zaphistory_head Zapping-History Bouquet
+keychooser.head Nöii Taschte iischtöuä
+keychooser.text1 Bitte Taschte drücke
+keychooser.text2 Zum abbräche wartä..
+keychoosermenu.currentkey Momentani Taschte
+keychoosermenu.setnew Nöii Taschte ischtöuä
+keychoosermenu.setnone kei Taschte
+languagesetup.head Schproochiischtöuige
+languagesetup.select Schprooch
+lcdcontroler.brightness normali Häuigkeit
+lcdcontroler.brightnessstandby Standby Häuigkeit
+lcdcontroler.contrast Kontrascht
+lcdcontroler.head LCD Ischtöuigä
+lcdmenu.autodimm Outomatisch dimme
+lcdmenu.head LCD Ischtöuigä
+lcdmenu.inverse Invertierä
+lcdmenu.lcdcontroler Kontrascht / Häuigkeit
+lcdmenu.power Power
+lcdmenu.statusline Schtatuszilä
+lcdmenu.statusline.both Lutschterchi / Fortschritt
+lcdmenu.statusline.playtime Sändigsvortschritt
+lcdmenu.statusline.volume Lutschterchi
+mainmenu.audioplayer Audioplayer
+mainmenu.games Schpili
+mainmenu.head Houptmenü
+mainmenu.movieplayer Movieplayer
+mainmenu.pausesectionsd EPG usläse
+mainmenu.pictureviewer Böudbetrachter
+mainmenu.radiomode Radio-Modus
+mainmenu.recording Ufnäh
+mainmenu.recording_start Schtart
+mainmenu.recording_stop Schtopp
+mainmenu.scartmode Scart-Iigang
+mainmenu.scripts Skripte
+mainmenu.service Service
+mainmenu.settings Ischtöuige
+mainmenu.shutdown Usschaute
+mainmenu.sleeptimer SleepTimer
+mainmenu.tvmode TV-Modus
+mainsettings.audio Audio
+mainsettings.colors Farbä / Themes / Schrift
+mainsettings.head Ischtöuige
+mainsettings.keybinding Taschtä Ischtöuige
+mainsettings.language Schprooch
+mainsettings.lcd LC-Display
+mainsettings.misc Diversi Ischtöuige
+mainsettings.network Netzwärk
+mainsettings.recording Ufnahm
+mainsettings.savesettingsnow Ischtöuige jetzt schpichere
+mainsettings.savesettingsnow_hint Ischtöuige wärde jetzt gschpicheret,\nbitte wartä...
+mainsettings.streaming Movieplayer
+mainsettings.video Video
+menu.back Zrugg
+messagebox.back Zrugg
+messagebox.cancel Abbruch
+messagebox.discard Wosch d'änderige verwärfe?
+messagebox.error Fähler
+messagebox.info Informatione
+messagebox.no Nei
+messagebox.yes Jo
+miscsettings.bootinfo Infos bim Boote azeige
+miscsettings.bootmenu Bootmenü azeige
+miscsettings.driver_boot Triber- u Bootoptione
+miscsettings.fb_destination EXPERT! Boot-Konsole
+miscsettings.general Augemein
+miscsettings.head Diversi Ischtöuige
+miscsettings.hwsections HW-Sections verwände
+miscsettings.infobar_sat_display Infobar Satelliteazeig
+miscsettings.noaviawatchdog AVIA-Watchdog aktiviere
+miscsettings.noenxwatchdog eNX-Watchdog aktiviere
+miscsettings.pmtupdate PMT Update verwände
+miscsettings.shutdown_real Standbymodus
+miscsettings.shutdown_real_rcdelay Verzögerte Shutdown
+miscsettings.sptsmode SPTS-Mode Triber lade
+miscsettings.startbhdriver BH-Mode Triber lade
+motorcontrol.head Motor-Setup
+movieplayer.bookmark Bookmarks
+movieplayer.bookmarkname Bookmark Name
+movieplayer.bookmarkname_hint1 Gib ä Name für's nöie Bookmark i.
+movieplayer.bookmarkname_hint2 
+movieplayer.buffering Puffern...
+movieplayer.defdir Schtart-Verz.
+movieplayer.defplugin Start-Plugin
+movieplayer.dvdplayback DVD
+movieplayer.fileplayback Datei via VLC
+movieplayer.goto Schpringe zu ...
+movieplayer.goto.h1 = -> absolute Schprung
+movieplayer.goto.h2 +,- -> relative Schprung
+movieplayer.head Movieplayer
+movieplayer.nostreamingserver Verbindig zum\nStreamingsörver fäugschlage.
+movieplayer.pleasewait Bitte warte.\nd'Verbindig zum Streamingsörver wird härgschtöut.
+movieplayer.toomanybookmarks Du hesch scho zviu Bookmarks aagleit.\nEs muess zersch äs Angers glöscht wärde.
+movieplayer.tshelp1 Stop
+movieplayer.tshelp10 ca. 10 Minute zrugg
+movieplayer.tshelp11 ca. 10 Minute vor
+movieplayer.tshelp12 Höuf: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.tshelp2 Uswau vo de Tonspur
+movieplayer.tshelp3 Pouse/Witer
+movieplayer.tshelp4 Bookmark setze
+movieplayer.tshelp5 Zyt iblände
+movieplayer.tshelp6 ca. 1 Minute zrugg
+movieplayer.tshelp7 ca. 1 Minute vor
+movieplayer.tshelp8 ca. 5 Minute zrugg
+movieplayer.tshelp9 ca. 5 Minute vor
+movieplayer.tsplayback TS Abschpile
+movieplayer.tsplayback_pc TS Abschpiele mit PIN
+movieplayer.vcdplayback (S)VCD
+movieplayer.vlchelp1 Stop
+movieplayer.vlchelp10 ca. 10 Minute zrugg
+movieplayer.vlchelp11 ca. 10 Minuten vor
+movieplayer.vlchelp12 Höuf: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.vlchelp2 Resync
+movieplayer.vlchelp3 Pouse/Witer
+movieplayer.vlchelp4 Bookmark setze
+movieplayer.vlchelp5 Zyt iblände
+movieplayer.vlchelp6 ca. 1 Minute zrugg
+movieplayer.vlchelp7 ca. 1 Minute vor
+movieplayer.vlchelp8 ca. 5 Minute zrugg
+movieplayer.vlchelp9 ca. 5 Minute vor
+movieplayer.wrongvlcversion Funktion isch mit dere Version vom VLC nid müglech
+networkmenu.broadcast Broadcast
+networkmenu.dhcp DHCP
+networkmenu.gateway Schtandard Gateway
+networkmenu.head Netzwärk Ischtöuige
+networkmenu.ipaddress IP-Adrässi
+networkmenu.mount NFS/CIFS
+networkmenu.nameserver Namesörver
+networkmenu.netmask Netzmaske
+networkmenu.setupnow Netzwärkischtöuigä jetzt zuäwise
+networkmenu.setuponstartup Bim schtartä Netzwärk setze
+networkmenu.show aktivi Netzwärkischtöuigä zeigä
+networkmenu.test Netzwärk teschte
+nfs.alreadymounted Verzeichnis bereits gemountet
+nfs.automount Bim Schtart mounte
+nfs.dir NFS/CIFS Verzeichnis
+nfs.ip NFS/CIFS Sörver IP
+nfs.localdir lokaus Verzeichnis
+nfs.mount NFS/CIFS Verzeichnis mounte
+nfs.mount_options Mount-Optione
+nfs.mounterror Mount-Fähler
+nfs.mounterror_notsup Dateisystem-Typ wird nid ungerstützt
+nfs.mountnow Jetz mounte
+nfs.mountok Mount erfougriich
+nfs.mounttimeout Mount-Fehler: Timeout
+nfs.password CIFS Passwort
+nfs.remount Verzeichnisse erneut mounte
+nfs.type Typ
+nfs.type_cifs CIFS
+nfs.type_lufs FTPFS
+nfs.type_nfs NFS
+nfs.umount NFS/CIFS Verzeichnis unmounte
+nfs.umounterror Umount-Fähler
+nfs.username CIFS Benutzername
+nfsmenu.head NFS/CIFS/FTPFS Ischtöuige
+nvod.percentage (%d%% verbi)
+nvod.starting (Beginn i %d min)
+nvodselector.directormode Böudregie-Modus
+nvodselector.head Aafangszyt uswähle
+nvodselector.subservice Perschpektivä
+options.default Vorischtöuige bruuchä
+options.fb framebuffer
+options.null nou
+options.off aus
+options.on ein
+options.serial seriell
+parentallock.changepin PIN-Code feschtlege
+parentallock.changepin_hint1 Gib do dä nöi PIN-Code i!
+parentallock.changetolocked Bi vorgschperrte Bouquets
+parentallock.head Jugendschutz PIN
+parentallock.lockage Sändige
+parentallock.lockage12 ab 12 Johr sperre
+parentallock.lockage16 ab 16 Johr sperre
+parentallock.lockage18 ab 18 Johr sperre
+parentallock.lockedchannel Vorgschperrte Sänder...
+parentallock.lockedprogram Gschperrts Programm (FSK ab %d)
+parentallock.never Niä
+parentallock.onsignal Bi gsändeter Vorschperri
+parentallock.parentallock Jugendschutz
+parentallock.prompt PIN-Igab
+pictureviewer.decode_server_ip Decoding-Server IP
+pictureviewer.decode_server_port Decoding-Server Port
+pictureviewer.defdir Schtart-Verz.
+pictureviewer.head Böudbetrachter
+pictureviewer.help1 Menü-Modus
+pictureviewer.help10 Anzeige-Modus
+pictureviewer.help11 Böud nöi iläse
+pictureviewer.help12 vorhäriges Böud
+pictureviewer.help13 nöchscht's Böud
+pictureviewer.help14 Zoom out
+pictureviewer.help15 Zoom in
+pictureviewer.help16 Scroll obsi
+pictureviewer.help17 Scroll links
+pictureviewer.help18 Scroll rächts
+pictureviewer.help19 Scroll nidsi
+pictureviewer.help2 Böud azeige
+pictureviewer.help20 Sortierig ändere
+pictureviewer.help21 Bild unskaliert iläse
+pictureviewer.help22 Modus verloh
+pictureviewer.help3 Sortierig ändere
+pictureviewer.help4 Böud unskaliert iläse
+pictureviewer.help5 Diashow-Modus
+pictureviewer.help6 vorhärigs Böud
+pictureviewer.help7 nöchscht's Böud
+pictureviewer.help8 Sortierig ändere
+pictureviewer.help9 Modus verloh
+pictureviewer.resize.color_average Ufwändig
+pictureviewer.resize.none Keni
+pictureviewer.resize.simple Eifach
+pictureviewer.scaling Skalierig
+pictureviewer.show Azeige
+pictureviewer.slide_time Diaschou-Azeigduur
+pictureviewer.slideshow Diaschou
+pictureviewer.sortorder Sort.reiäfoug ändere
+pictureviewer.sortorder.date (Datum)
+pictureviewer.sortorder.filename (Dateiname)
+ping.ok isch erreichbar (ping)
+ping.protocol isch nid erreichbar (Host or protocol error)
+ping.socket isch nid erreichbar (Socket error)
+ping.unreachable isch nid erreichbar (unreachable)
+pinprotection.head PIN-Abfroog
+pinprotection.wrongcode Gib dä Code nomou i!
+plugins.result Pluginusgab
+rclock.lockmsg d'Färnbedienig vo de DBOX2 wird gschperrt.\num d'Schperri ufzhebe, bitte\n<ROT> u <DBOX> uf dr Färnbedienig\ndruecke.
+rclock.menueadd FB schperre 
+rclock.title Färnbedienig schperre
+rclock.unlockmsg Färnbedienig reaktiviert...
+recordingmenu.choose_direct_rec_dir Bi Sofortufn. Verzeichnisuswau
+recordingmenu.defdir Ufnahmeverzeichnis
+recordingmenu.epg_for_filename langi Dateiname (mit EPG-Date)
+recordingmenu.file Diräkt (Datei)
+recordingmenu.filesettingsseparator Diräktufnahm
+recordingmenu.head Ufnahm Ischtöuige
+recordingmenu.help Aufnahmegeräte:\n-----------------------\nServer:\nuf PC mit Höuf vomene Streaming-Programm\n\n(analoge) Videorekorder:\nüber VCR-Usgang\n\nDiräkt (Datei):\nuf es per NFS gemountetes Verzeichnis\noder ä interni Feschtplatte\nTS: SPTS-Mode Triber lade\nPES: SPTS-Mode Triber nid lade\n\n\nMaximali Dateigrössi:\n----------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: fasch unändlech (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
+recordingmenu.no_scart Ungerdrücke Scart-Umschautig
+recordingmenu.off aus
+recordingmenu.recording_type Ufnahme Grät
+recordingmenu.ringbuffers Anz. Ringpuffer
+recordingmenu.server Sörver
+recordingmenu.server_ip Ufnahmesörver IP
+recordingmenu.server_mac Mac Adrässi
+recordingmenu.server_port Ufnahmesörver Port
+recordingmenu.server_wakeup Ufnahmäsörver WOL
+recordingmenu.setupnow Ischtöuigä jetzt übernää
+recordingmenu.splitsize Max. Dateigrössi (MB)
+recordingmenu.stopplayback Playbäck aahaute
+recordingmenu.stopsectionsd Sectionsd aahaute
+recordingmenu.stream_all_audio_pids Aui Audiopids ufzeichne
+recordingmenu.stream_vtxt_pid Videotext ufzeichne
+recordingmenu.use_fdatasync Synchrones Schribe (fdatasync)
+recordingmenu.use_o_sync Synchrones Schribe (O_SYNC)
+recordingmenu.vcr Videorekorder
+recordtimer.announce d'Ufnahm beginnt i wenige Minute
+repeatblocker.hint_1 Mindeschtzyt (in ms) zwüschä 2 Taschtädrück
+repeatblocker.hint_2 0 schautet dä Blocker us (Rot isch " ")
+satsetup.diseqc DiSEqC
+satsetup.diseqc10 DiSEqC 1.0
+satsetup.diseqc11 DiSEqC 1.1
+satsetup.diseqc12 DiSEqC 1.2
+satsetup.diseqcrepeat DiSEqC-Widerholige
+satsetup.extended DiSEqC-Ischtöuige
+satsetup.extended_motor Motor-Ischtöuige
+satsetup.minidiseqc Mini-DiSEqC
+satsetup.motorcontrol Manuells Motor-Setup
+satsetup.nodiseqc Keis DiSEqC
+satsetup.satellite Satellit
+satsetup.savesettingsnow Ischtöuigä jetzt schpichere
+satsetup.smatvremote SMATV Remote Tuning
+scantp.abort_scan Breche Scan ab
+scantp.fec FEC
+scantp.fec_1_2 1/2
+scantp.fec_2_3 2/3
+scantp.fec_3_4 3/4
+scantp.fec_5_6 5/6
+scantp.fec_7_8 7/8
+scantp.freq Frequänz
+scantp.pol Polarisation
+scantp.pol_h H
+scantp.pol_v V
+scantp.rate Symbol rate
+scantp.scan Manual Scan
+scantp.scanmode Schnäu Scan
+scants.actcable Kabu:
+scants.actsatellite Satellit:
+scants.bouquet Bouquets
+scants.bouquet_create nöi erschtöuä
+scants.bouquet_erase lösche
+scants.bouquet_leave nid ändere
+scants.bouquet_satellite Satelliten-Bouquet
+scants.bouquet_update erneuere
+scants.channel Kanau:
+scants.failed Kanausuächi fäugschlage!
+scants.finished Kanausuächi erfougrich beändet!
+scants.freqdata Frequänz:
+scants.head Kanausuächi
+scants.numberofdataservices Data
+scants.numberofradioservices Radio
+scants.numberoftotalservices Gsamt
+scants.numberoftvservices TV
+scants.provider Aabieter:
+scants.startnow Kanausuächi schtartä
+scants.transponders Transponder:
+screensetup.lowerright grün = Böudrand ungä, rächts
+screensetup.upperleft rot = Böudrand obä, links
+servicemenu.head Service
+servicemenu.reload Kanaulischtä nöi lade
+servicemenu.reload_hint Kanaulischtä wärde nöi glade,\nbitte wartä...
+servicemenu.scants Kanausuächi
+servicemenu.ucodecheck UCodes überprüäfe
+servicemenu.update Software-Aktualisierig
+settings.help Höuf
+settings.missingoptionsconffile d'Neutrino-Ischtöuige si erwitert worde.\nDi nöiä Wärt wärde uf Standart gsetzt.
+settings.noconffile d'Neutrino Ischtöuige si nid gfungä\nworde. äs wärde d'Standartwärt bruucht.
+settings.pos_bottom_left unge links
+settings.pos_bottom_right unge rächts
+settings.pos_top_left obe links
+settings.pos_top_right obe rächts
+shutdowntimer.announce d'Box wird i einer Minute abägfahre.\nShutdown abbräche?
+sleeptimerbox.announce Sleeptimer i 1 min
+sleeptimerbox.hint1 Usschautzyt i Min. (000=aus)
+sleeptimerbox.hint2 d'Box schautet sich noch derä Zyt uus.
+sleeptimerbox.title Sleeptimer
+streamfeatures.head Features
+streaminfo.aratio Verhäutnis
+streaminfo.aratio_unknown Verhäutnis: unbekannt
+streaminfo.audiotype Audiotyp
+streaminfo.audiotype_unknown Audiotyp: unbekannt
+streaminfo.bitrate Bitrate
+streaminfo.framerate Böudrate
+streaminfo.framerate_unknown Böudrate: unbekannt
+streaminfo.head Informatione
+streaminfo.not_available nid verfüegbar
+streaminfo.resolution Uflösig
+streaminfo.signal Empfangssignau
+streaming.buffer_overflow d'Ufnahm isch leider abbroche,\ndo d'Date nid schnäu gnue gschribe hei chöne wärde.
+streaming.busy Eine oder mehreri Aufnahmprozäss si aktiv.\nSöt d'Ufnahm eigentlech beändet si,\nschafft ä Neustart vo Neutrino Abhiuf.
+streaming.dir_not_writable s'Ufnahmeverzeichnis isch ni beschribbar.\ns'Ufnä isch wäg däm nid müglech.
+streaming.success d'Ufnahm isch erfougrich beändet worde.
+streaming.write_error d'Ufnahme isch leider abbroche,\ndo ä Fähler bim Schribe vo de Date ufträte isch.
+streaming.write_error_open d'Ufnahm isch leider abbroche,\ndo diä entsprächend Datei nid zum Schribe g'öffnet cha wärde.
+streamingmenu.352x288 352x288
+streamingmenu.352x576 352x576
+streamingmenu.480x576 480x576
+streamingmenu.704x576 704x576
+streamingmenu.head Movieplayer Iischtöue
+streamingmenu.mpeg1 MPEG1
+streamingmenu.mpeg2 MPEG2
+streamingmenu.off Deaktiviert
+streamingmenu.on Aktiviert
+streamingmenu.server_ip Streamingsörver IP
+streamingmenu.server_port Streamingsörver Port
+streamingmenu.streaming_audiorate Daterate Audio
+streamingmenu.streaming_force_avi_rawaudio Erzwinge AC3 bei avi
+streamingmenu.streaming_force_transcode_video Transcod. ou bi mpg/vcd Video
+streamingmenu.streaming_resolution Uflösig
+streamingmenu.streaming_server_cddrive DVD Loufwärk
+streamingmenu.streaming_server_startdir Verzeichnis (VLC)
+streamingmenu.streaming_transcode_audio Transcod. Audio (dvd/vcd/mpg)
+streamingmenu.streaming_transcode_video_codec MPEG Video Codec
+streamingmenu.streaming_type Streamingsörver
+streamingmenu.streaming_videorate Daterate Video
+streamingserver.noconnect Kei verbindig zum Streamingsörver.\nd'Ufnahm wird abbroche.
+stringinput.caps Gross-/Chlibuächschtabe
+stringinput.clear Aues lösche
+timer.eventrecord.msg d'Sändig isch zur Ufnahm vorgmerkt worde
+timer.eventrecord.title Ufnahm vormerke
+timer.eventtimed.msg d'Sändig isch vorgmerkt
+timer.eventtimed.title Sändig vormerke
+timerbar.channelswitch Umschaute
+timerbar.recordevent Ufnä
+timerlist.alarmtime Alarmzyt
+timerlist.apids Audio PIDs
+timerlist.bouquetselect Bouquet wähle
+timerlist.channel Kanau
+timerlist.channelselect Kanau wähle
+timerlist.delete Lösche
+timerlist.menumodify Timer bearbeite
+timerlist.menunew Nöie Timer
+timerlist.message Nachricht
+timerlist.moderadio Radio Kanäu
+timerlist.modeselect Modus-Uswau
+timerlist.modetv TV Kanäu
+timerlist.modify Bearbeite
+timerlist.name Timerlischte
+timerlist.new Neuer Timer
+timerlist.plugin Plugin
+timerlist.program.unknown Programm unbekannt
+timerlist.recording_dir Ufnahmeverzeichnis
+timerlist.reload Aktualisiere
+timerlist.repeat Widerholige
+timerlist.repeat.biweekly 2-wöchentlech
+timerlist.repeat.byeventdescription siehe timer
+timerlist.repeat.daily täglech
+timerlist.repeat.fourweekly 4-wöchentlech
+timerlist.repeat.friday Fr
+timerlist.repeat.monday Mo
+timerlist.repeat.monthly monetlech
+timerlist.repeat.once eimalig
+timerlist.repeat.saturday Sa
+timerlist.repeat.sunday So
+timerlist.repeat.thursday Do
+timerlist.repeat.tuesday Di
+timerlist.repeat.unknown unbekannt
+timerlist.repeat.wednesday Mi
+timerlist.repeat.weekdays A Wochetäg
+timerlist.repeat.weekly wöchentlech
+timerlist.repeatcount Wiederholige
+timerlist.repeatcount.help1 Azau vo de Timerusfüehrige
+timerlist.repeatcount.help2 0 für unbegränzti Azau
+timerlist.save Timer spichere
+timerlist.standby SB Modus
+timerlist.standby.off Ufwache us Standby
+timerlist.standby.on Uf Standby go
+timerlist.stoptime Schtoppzyt
+timerlist.type Timertyp
+timerlist.type.execplugin Plugin usführe
+timerlist.type.nextprogram Nöchschts Programm
+timerlist.type.record Ufnahm
+timerlist.type.remind Erinnerig
+timerlist.type.shutdown Shutdown
+timerlist.type.sleeptimer Sleeptimer
+timerlist.type.standby Standby
+timerlist.type.unknown Unbekannt
+timerlist.type.zapto Umschaute
+timerlist.weekdays Wochetäg
+timerlist.weekdays.hint_1 Mo Di Mi Do Fr Sa So
+timerlist.weekdays.hint_2 'X'=Timer '-' kei Timer
+timersettings.record_safety_time_after Ufnahmeändi-Korrektur
+timersettings.record_safety_time_after.hint_1 Korrekturzyt i Min. (00=us), diä uf d'änd-
+timersettings.record_safety_time_after.hint_2 zyt vom jewilige Timer addiärt wird
+timersettings.record_safety_time_before Ufnahmeschtart-Korrektur
+timersettings.record_safety_time_before.hint_1 Korrekturzyt i Min. (00=us), diä bim Schtart
+timersettings.record_safety_time_before.hint_2 vom jewilige Timer abzoge wärde
+timersettings.separator Timerischtöuige
+timing.chanlist Kanaulischtä
+timing.epg EPG
+timing.filebrowser Filebrowser
+timing.head OSD Timeouts
+timing.hint_1 Ibländzyt i Sek., wiä lang s'OSD
+timing.hint_2 uf äm TV aazeiget wird
+timing.infobar Infobar
+timing.menu Menü
+timing.numericzap Umschaute mit Ziffertaschte
+ucodecheck.avia500 Avia 500
+ucodecheck.avia600 Avia 600
+ucodecheck.cam-alpha Cam-Alpha
+ucodecheck.head UCode überprüäfig
+ucodecheck.ucode UCode
+ucodes.failure Achtung, d'µCodes si NID gfunge worde!\n\nBitte per FTP (oder DBox-BootManager)\nuploade, u d'Box nöi schtarte!
+videomenu.csync Sync.-Korrektur
+videomenu.head Video-Ischtöuige
+videomenu.rgb_centering RGB-Zentrierig
+videomenu.screensetup Böudbereich ischtöue
+videomenu.vcrswitch Scart-Iigang outomatisch
+videomenu.videoformat Böudschirmformat
+videomenu.videoformat_169 16:9
+videomenu.videoformat_43 4:3 (LB)
+videomenu.videoformat_431 4:3 (PS)
+videomenu.videoformat_autodetect outomatisch
+videomenu.videosignal Video Signauart
+videomenu.videosignal_composite CVBS
+videomenu.videosignal_rgb RGB + CVBS
+videomenu.videosignal_svideo S-Video
+videomenu.videosignal_yuv_c YUV + CVBS
+videomenu.videosignal_yuv_v YUV + VBS
+zaptotimer.announce I einer Minute wird umgschautet

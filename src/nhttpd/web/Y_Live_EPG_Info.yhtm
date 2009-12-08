@@ -1,0 +1,22 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function show_info(_desc, _info1, _info2)
+{
+	document.getElementById("description").innerHTML = _desc;
+	document.getElementById("info1").innerHTML = _info1;
+	document.getElementById("info2").innerHTML = _info2;
+}
+//]]>
+</script>
+</head>
+<a href="javascript:window.history.back()"><u>Back</u></a>
+<body>
+	<div class="y_epg_info">
+		<div id="description">&nbsp;</div>
+		<div id="info1">&nbsp;</div>
+		<div id="info2">For details: move the mouse on the corresponding program.</div>
+	</div>
+</body>
+</html>

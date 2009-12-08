@@ -1,0 +1,15 @@
+{=include-block:Y_Blocks.txt;head=}
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:BoxControl#Bouquet=}{=var-set:menu=Bouquet=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<iframe src="Y_Boxcontrol_Bouquetlist.yhtm?bouquet=#akt" scrolling="auto" marginheight="1" marginwidth="1" frameborder="0" name="bouquets" 
+		style="height : 600px;width:20%;"></iframe>
+	<iframe src="Y_Boxcontrol_Channellist.yhtm?bouquet={=func:get_actual_bouquet_number=}" 
+		style="height : 600px;width:75%;" scrolling="auto" marginheight="1" marginwidth="1" frameborder="0" name="content"></iframe>
+	</div>
+</div>
+</body>
+</html>

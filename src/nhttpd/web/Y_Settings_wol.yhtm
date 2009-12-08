@@ -1,0 +1,53 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+var g_wol = new Array(
+	"{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=}", 
+	"{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}", 
+	"{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}");
+function do_wol(_nr) 
+{
+	var nhttpd_version = loadSyncURL("/control/exec?Y_Tools&wol&"+g_wol[_nr-1]);
+}
+function init_wol()
+{
+	for(i=1;i<=3;i++)
+		document.getElementById("wol"+i).disabled = (g_wol[i-1] == "");
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head">
+	<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb:Tools#Wake_on_LAN=}{=var-set:menu=Wake on LAN=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table border="0" class="y_form_table">
+			<tr>
+				<td>Wake on Lan MAC 1 ({=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=})</td>
+				<td><input id="wol1" type="button" name="wol_mac_1" value="wake up" title="wake up that MAC" onclick='do_wol(1)'/></td>
+			</tr>
+			<tr>
+				<td>Wake on Lan MAC 2 ({=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=})</td>
+				<td><input id="wol2" type="button" name="wol_mac_2" value="wake up" title="wake up that MAC" onclick='do_wol(2)'/></td>
+			</tr>
+			<tr>
+				<td>Wake on Lan MAC 3 ({=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=})</td>
+				<td><input id="wol3" type="button" name="wol_mac_3" value="wake up" title="wake up that MAC" onclick='do_wol(3)'/></td>
+			</tr>
+		</table>
+	</form>
+	<!--<a href="Y_Settings_yWeb.yhtm" title="WOL Settings">Settings</a>-->
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	init_wol();
+//]]>
+</script>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

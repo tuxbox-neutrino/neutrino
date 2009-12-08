@@ -1,0 +1,25 @@
+{=var-set:cancache=yPConf=}
+{=include-block:Y_Blocks.txt;head=}
+</head>
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+<body>
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Info</h2></div>
+	<div class="y_menu_sec_box_body">
+		<div class="y_menu_sec">
+			<ul id="menu_sec">
+				<li><a target="work" title="About yWeb" href="Y_About.yhtm">About</a></li>
+				<li><a target="work" title="Getting Help" href="Y_Info_Help.yhtm">Help</a></li>
+			{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="Check for Update of yWeb (restricted by ManagementIP)">Auf Updates pr&uuml;fen</li>
+			~
+<!--dbox2 only				<li><a target="work" title="Check for Updates of yWeb" href="Y_Info_Updates.yhtm">Auf Updates pr&uuml;fen</a></li> dbox2 only-->
+			=}
+			</ul>
+		</div>
+
+	</div>
+</div>
+
+</body>
+</html>

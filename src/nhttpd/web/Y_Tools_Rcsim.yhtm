@@ -1,0 +1,19 @@
+{=var-set:cancache=yPyes=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function rcsim(_key)
+{
+	if(_key == "KEY_POWER")
+		if(confirm("wirklich ausschalten? Power down?") != true)
+			return;
+	loadSyncURL("/control/rcem?"+_key);
+}
+//]]>
+</script>
+</head>
+<body>
+{=include-block:Y_Blocks.txt;remote=}
+</body>
+</html>

@@ -1,0 +1,28 @@
+{=include-block:Y_Blocks.txt;head_no_charset=}
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_zap(channelid)
+{
+	dbox_zapto(channelid);
+	window.location.reload();
+}
+function do_epg(channelid)
+{
+	window.location.href="Y_Dyn_Pages.yhtm?page=frame_live_epg&channel="+channelid;
+//	window.open("Y_Dyn_Pages.yhtm?page=frame_live_epg&channel="+channelid, "epg", "width=400");
+}
+function do_streaminfo()
+{
+	window.open("Y_StreamInfo.yhtm", "stream", "width=400");
+}
+//]]>
+</script>
+</head>
+<body>
+<table class="bouquetitemlist">
+{=func:get_bouquets_with_epg {=bouquet=}=}
+</table>
+</body>
+</html>

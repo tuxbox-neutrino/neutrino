@@ -1,0 +1,1237 @@
+EPGMenu.epgplus Műsorok áttekintése
+EPGMenu.eventinfo Műsor leírása
+EPGMenu.eventlist Csatorna műsora
+EPGMenu.head Elektronikus műsorfüzet
+EPGMenu.streaminfo Technikai információk
+EPGPlus.actions műveletek
+EPGPlus.bybouquet_mode csomag szerint
+EPGPlus.bypage_mode oldal szerint
+EPGPlus.change_font_size Betűméret
+EPGPlus.change_font_style Betűstílus
+EPGPlus.change_size Méret
+EPGPlus.channelentry_font Csatorna
+EPGPlus.channelentry_separationlineheight Elválasztó-vonalmagasság
+EPGPlus.channelentry_width Szélesség
+EPGPlus.channelevententry_font Műsor
+EPGPlus.edit_fonts Betűk szerkesztése
+EPGPlus.edit_sizes Méretek szerkesztése
+EPGPlus.font_style_bold kövér
+EPGPlus.font_style_italic dőlt
+EPGPlus.font_style_regular sima
+EPGPlus.footer_fontbouquetchannelname Csomag lábjegyzet
+EPGPlus.footer_fontbuttons Csomag gombok
+EPGPlus.footer_fonteventdescription Műsor lábjegyzet
+EPGPlus.footer_fonteventshortdescription Rövid leírás lábjegyzet
+EPGPlus.head Műsorok áttekintése (EPG Plus)
+EPGPlus.header_font Fejléc
+EPGPlus.horgap1_height Magasság1
+EPGPlus.horgap2_height Magasság2
+EPGPlus.next_bouquet Következő csomag
+EPGPlus.options opciók
+EPGPlus.page_down Oldalt le
+EPGPlus.page_up Oldalt fel
+EPGPlus.prev_bouquet előző csomag
+EPGPlus.record felvétel
+EPGPlus.refresh_epg Frissítés
+EPGPlus.remind Időzítés
+EPGPlus.reset_settings Alapértelmezés
+EPGPlus.save_settings Beállítások mentése
+EPGPlus.scroll_mode görgetési mód
+EPGPlus.select_font_name Betűtípus
+EPGPlus.settings Beállítások
+EPGPlus.slider_width Csúszkaszélesség
+EPGPlus.stretch_mode nyújtási mód
+EPGPlus.swap_mode Mód váltás
+EPGPlus.timeline_fontdate Dátum
+EPGPlus.timeline_fonttime Idő
+EPGPlus.vergap1_width Szélesség1
+EPGPlus.vergap2_width Szélesség2
+EPGPlus.view_mode Nézet
+GENRE.ARTS.0 mûvészet / kultúra
+GENRE.ARTS.1 performing arts
+GENRE.ARTS.10 mûvészet/kultúra magazin
+GENRE.ARTS.11 divat
+GENRE.ARTS.2 szépmûvészet
+GENRE.ARTS.3 vallás
+GENRE.ARTS.4 popular culture/traditional arts
+GENRE.ARTS.5 irodalom
+GENRE.ARTS.6 film/mozi
+GENRE.ARTS.7 kísérleti film/videó
+GENRE.ARTS.8 broadcasting/press
+GENRE.ARTS.9 new media
+GENRE.CHILDRENs_PROGRAMMES.0 gyermek/ifjúsági mûsor
+GENRE.CHILDRENs_PROGRAMMES.1 pre-school children's programmes
+GENRE.CHILDRENs_PROGRAMMES.2 entertainment programmes for 6 to 14
+GENRE.CHILDRENs_PROGRAMMES.3 entertainment programmes for 10 to 16
+GENRE.CHILDRENs_PROGRAMMES.4 informational/educational/school programmes
+GENRE.CHILDRENs_PROGRAMMES.5 báb/rajzfilm
+GENRE.DOCUS_MAGAZINES.0 documentation / magazine
+GENRE.DOCUS_MAGAZINES.1 természet/állatok/környezet
+GENRE.DOCUS_MAGAZINES.2 technológia/természettudomány
+GENRE.DOCUS_MAGAZINES.3 gyógyszer/élettan/lélektan
+GENRE.DOCUS_MAGAZINES.4 külföldi országok/expedíció
+GENRE.DOCUS_MAGAZINES.5 társadalmi/szellemi tudományok
+GENRE.DOCUS_MAGAZINES.6 további oktatás
+GENRE.DOCUS_MAGAZINES.7 nyelvek
+GENRE.MOVIE.0 film/dráma
+GENRE.MOVIE.1 detektív/thriller
+GENRE.MOVIE.2 kaland/western/háború
+GENRE.MOVIE.3 sci-fi/fantázia/horror
+GENRE.MOVIE.4 vígjáték
+GENRE.MOVIE.5 szappanopera/melódráma/népi
+GENRE.MOVIE.6 romatika
+GENRE.MOVIE.7 komoly/klasszikus/vallási/történelmi film/dráma
+GENRE.MOVIE.8 felnõtt film/dráma
+GENRE.MUSIC_DANCE.0 zene/balett/tánc
+GENRE.MUSIC_DANCE.1 rock/pop
+GENRE.MUSIC_DANCE.2 komolyzene/kalsszikus
+GENRE.MUSIC_DANCE.3 népzene
+GENRE.MUSIC_DANCE.4 jazz
+GENRE.MUSIC_DANCE.5 musical/opera
+GENRE.MUSIC_DANCE.6 balett
+GENRE.NEWS.0 hírek
+GENRE.NEWS.1 hírek/idõjárásjelentés
+GENRE.NEWS.2 hírmûsor
+GENRE.NEWS.3 ismeretterjesztõ
+GENRE.NEWS.4 megbeszélés/interjú/vita
+GENRE.SHOW.0 show/játék
+GENRE.SHOW.1 játék/kvíz/verseny
+GENRE.SHOW.2 varieté
+GENRE.SHOW.3 talk show
+GENRE.SOCIAL_POLITICAL.0 social & politic events / business
+GENRE.SOCIAL_POLITICAL.1 magazines/reports/documentary
+GENRE.SOCIAL_POLITICAL.2 economics/social advisory
+GENRE.SOCIAL_POLITICAL.3 remarkable people
+GENRE.SPORTS.0 sport
+GENRE.SPORTS.1 különleges esemény (Olimpiai Játékok, Világkupa, stb.)
+GENRE.SPORTS.10 lovaspóló
+GENRE.SPORTS.11 küzdõsportok
+GENRE.SPORTS.2 sportmagazin
+GENRE.SPORTS.3 labdarúgás
+GENRE.SPORTS.4 tenisz/squash
+GENRE.SPORTS.5 csapatjáték (kivéve labdarúgás)
+GENRE.SPORTS.6 atlétika
+GENRE.SPORTS.7 motorsport
+GENRE.SPORTS.8 vízisport
+GENRE.SPORTS.9 téli sportok
+GENRE.TRAVEL_HOBBIES.0 utazás és szórakozás
+GENRE.TRAVEL_HOBBIES.1 utazás és turizmus
+GENRE.TRAVEL_HOBBIES.2 kézimunka
+GENRE.TRAVEL_HOBBIES.3 motoring
+GENRE.TRAVEL_HOBBIES.4 fitnessz és egészség
+GENRE.TRAVEL_HOBBIES.5 sütés/fõzés
+GENRE.TRAVEL_HOBBIES.6 hirdetés/bevásárlás
+GENRE.TRAVEL_HOBBIES.7 kertgazdálkodás
+GENRE.UNKNOWN ismeretlen
+apids.hint_1 Üsse be a streamelni kívánt APID-eket,
+apids.hint_2 HEX-ben, szóközzel elválasztva!
+apidselector.head Nyelvválasztás
+audiomenu.PCMOffset PCM hangerő-csökkentés
+audiomenu.analogout Analóg kimenet
+audiomenu.avs avs
+audiomenu.avs_control Hangerő-szabalyzás (avs/ost)
+audiomenu.dolbydigital Dolby Digital
+audiomenu.head Hangbeállítások
+audiomenu.lirc lirc
+audiomenu.monoleft bal monó
+audiomenu.monoright jobb monó
+audiomenu.ost ost
+audiomenu.stereo sztereó
+audioplayer.add hozzáadás
+audioplayer.artist_title Előadó, Cím
+audioplayer.building_search_index building search index
+audioplayer.button_select_title_by_id search by ID
+audioplayer.button_select_title_by_name név szerinti keresés
+audioplayer.defdir Kiindulási könyvtár
+audioplayer.delete törlés
+audioplayer.deleteall összes törlése
+audioplayer.display_order kijelzési sorrend
+audioplayer.enable_sc_metadata enable shoutcast meta data parsing
+audioplayer.fastforward gyors előre
+audioplayer.follow auto select current
+audioplayer.head Audio Lejátszási lista
+audioplayer.highprio magas dekódolási prioritás
+audioplayer.id3scan ID3 TAG-ek beolvasása
+audioplayer.jump_backwards ugrás vissza
+audioplayer.jump_dialog_hint1 Kérem adja meg az ugrási célt!
+audioplayer.jump_dialog_hint2 (viszonylagos, másodpercben)
+audioplayer.jump_dialog_title Adja meg az ugrási célt!
+audioplayer.jump_forwards ugrás előre
+audioplayer.keylevel key level
+audioplayer.name Hanglejátszó
+audioplayer.pause Pillanatállj
+audioplayer.play Lejátszás
+audioplayer.playing Current Track
+audioplayer.playlist_fileerror_msg A fájlt nem lehet létrehozni:
+audioplayer.playlist_fileerror_title Hiba
+audioplayer.playlist_fileoverwrite_msg Kívánja felülírni ezt a fájlt?
+audioplayer.playlist_fileoverwrite_title Felülírja?
+audioplayer.playlist_name lejátszási lista fájlneve
+audioplayer.playlist_name_hint1 Kérem adja meg a lejátszási lista fájlnevét!
+audioplayer.playlist_name_hint2 Az .m3u kiterjeszés automatikusan hozzáadódik
+audioplayer.reading_files reading files
+audioplayer.repeat_on ismétlési mód bekapcsolása
+audioplayer.rewind visszatekerés
+audioplayer.save_playlist lejátszási lista mentése
+audioplayer.screensaver_timeout képernyővédő késleltetése (percben, 0=ki)
+audioplayer.select_title_by_name cím névszerinti keresése (SMS)
+audioplayer.show_playlist lejátszási lista mutatása
+audioplayer.shuffle véletlenszerű lejátszás
+audioplayer.stop Állj
+audioplayer.title_artist cím, előadó
+audioplayerpicsettings.general Hanglejátszó / Képnézegető
+bookmarkmanager.delete törlés
+bookmarkmanager.name Könyvjelzők
+bookmarkmanager.rename átnevezés
+bookmarkmanager.select kiválasztás
+bouqueteditor.add hozzáadás
+bouqueteditor.bouquetname Csomagok nevei
+bouqueteditor.delete törlés
+bouqueteditor.discardingchanges Vátozások elvetése. Kérem várjon!
+bouqueteditor.hide rejtés
+bouqueteditor.lock zárolás
+bouqueteditor.move mozgatás
+bouqueteditor.name Csomagszerkesztő
+bouqueteditor.newbouquetname Új csomag neve
+bouqueteditor.rename átnevezés
+bouqueteditor.return vissza
+bouqueteditor.savechanges? Kívánja menteni a változásokat?
+bouqueteditor.savingchanges Változások mentése. Kérem várjon!
+bouqueteditor.switch hozzáadás/eltávolítás
+bouqueteditor.switchmode TV/Rádió
+bouquetlist.head Csomagok
+cablesetup.provider Kábelszolgáltató
+channellist.head Összes csatorna
+channellist.nonefound A cstornalista üres.\nKérem futtasson egy keresést!
+channellist.since %02d:%02d óta
+colorchooser.alpha alpha
+colorchooser.blue kék
+colorchooser.green zöld
+colorchooser.red piros
+colormenu.background Háttér
+colormenu.fade Menük úsztatása
+colormenu.font Betűméret
+colormenu.gtx_alpha Áttetszőség
+colormenu.head Színbeállítások
+colormenu.menucolors Menüszínek
+colormenu.statusbar Infósor
+colormenu.textcolor Betűszín
+colormenu.themeselect Témaválasztás
+colormenu.timing OSD időtartam
+colormenusetup.head Menüszínek
+colormenusetup.menucontent ablaktartalom
+colormenusetup.menucontent_inactive inaktív ablaktartalom
+colormenusetup.menucontent_selected kijelölt ablaktartalom
+colormenusetup.menuhead Menü fejléc
+colorstatusbar.head Infósor
+colorstatusbar.text infósor
+colorthememenu.classic_theme Klasszikus
+colorthememenu.dblue_theme DarkBlue
+colorthememenu.dvb2k_theme DVB2000
+colorthememenu.head Témaválasztás
+colorthememenu.neutrino_theme Neutrino
+date.Apr  április
+date.Aug  augusztus
+date.Dec  december
+date.Feb  február
+date.Fri  péntek
+date.Jan  január
+date.Jul  július
+date.Jun  június
+date.Mar  március
+date.May  május
+date.Mon  hétfő
+date.Nov  november
+date.Oct  október
+date.Sat  szombat
+date.Sep  szeptember
+date.Sun  vasárnap
+date.Thu  csütörtök
+date.Tue  kedd
+date.Wed  szerda
+epglist.head Műsorlista - %s
+epglist.noevents Információ nem elérhető...
+epgviewer.More_Screenings További adások ezen a csatornán:
+epgviewer.nodetailed Nincs bővebb információ
+epgviewer.notfound Műsorfüzet nem elérhető
+eventlistbar.channelswitch időzítés
+eventlistbar.eventsort rendezés
+eventlistbar.recordevent felvétel
+favorites.addchannel A kiválasztott csatorna hozzáadódik a kedvencekhez.\nEz pár másodpercet vesz igénybe.
+favorites.bouquetname Kedvencek
+favorites.bqcreated A kedvencek csomag létrejött...
+favorites.chadded A kiválasztott csatorna hozzáadódott a kedvencekhez...
+favorites.chalreadyinbq A kiválasztott csatorna már benne van a kedvencekben...
+favorites.finalhint \nKérem használja a csomagszerkesztőt a kedvencek módosításához!\n
+favorites.menueadd csatorna hozzáadása a kedvencekhez
+favorites.nobouquets A kedvencek csak az aktív csomagokra érvényesek.
+filebrowser.delete törlés
+filebrowser.denydirectoryleave Abszolút kiindulási könyvtár
+filebrowser.dodelete1 Törlés
+filebrowser.dodelete2 ?
+filebrowser.filter.active szűrő be
+filebrowser.filter.inactive szűrő ki
+filebrowser.head Fájlböngésző
+filebrowser.mark kijelölés
+filebrowser.nextpage következő oldal
+filebrowser.prevpage előző oldal
+filebrowser.scan Könyvtár beolvasása
+filebrowser.select kiválasztás
+filebrowser.showrights Fájljogok kijelzése
+filebrowser.sort.date (dátum)
+filebrowser.sort.name (fájlnév)
+filebrowser.sort.namedirsfirst (fájlnév2)
+filebrowser.sort.size (méret)
+filebrowser.sort.type (típus)
+flashupdate.actionreadflash olvasás
+flashupdate.cantopenfile a fájl nem nyitható
+flashupdate.cantopenmtd az MTD eszköz nem nyitható
+flashupdate.checkupdate új verzió keresése
+flashupdate.currentreleasecycle kibocsátási ciklus
+flashupdate.currentversion_sep aktuális verzió
+flashupdate.currentversiondate dátum
+flashupdate.currentversionsnapshot image típusa
+flashupdate.currentversiontime idő
+flashupdate.erasefailed flash törlése sikertelen
+flashupdate.erasing Flash törlése
+flashupdate.experimentalimage A kiválasztott image kipróbálatlan verzió!\nEz azt jelentheti, hogy a készülék nem indul el a frissítés után.\nBiztos, hogy szeretne frissíteni erre a verzióra?
+flashupdate.expertfunctions Haladó funkciók
+flashupdate.fileis0bytes A fájlméret 0 Byte
+flashupdate.fileselector Fájlválasztó
+flashupdate.flashreadyreboot A frissítés sikeresen befejeződött.\nA beltéri egység most újraindul.
+flashupdate.getinfofile verzióinformáció lekérdezése
+flashupdate.getinfofileerror verzióinformáció lekérdezése sikertelen
+flashupdate.getupdatefile frissítés letöltése
+flashupdate.getupdatefileerror frissítés letöltése sikertelen
+flashupdate.globalprogress Összesen:
+flashupdate.head Szoftverfrissítés
+flashupdate.md5check image ellenőrzése
+flashupdate.md5sumerror az image hibás
+flashupdate.msgbox A következő image elérhető:\ndátum: %s, %s\nalap image: %s\nimage típus: %s\n\nKívánja letölteni és installálni ezt a verziót?
+flashupdate.msgbox_manual A következő image elérhető:\ndátum: %s, %s\nalap image: %s\nimage típus: %s\n\nKívánja installálni ezt a verziót?
+flashupdate.mtdselector Partícióválasztó
+flashupdate.programmingflash Flash írása
+flashupdate.proxypassword jelszó
+flashupdate.proxypassword_hint1 írja be a proxy jelszavát!
+flashupdate.proxypassword_hint2 üres bejegyzés esetén nincs hitelesítés
+flashupdate.proxyserver hostnév
+flashupdate.proxyserver_hint1 írja be a proxy nevét vagy IP címét és a portot! (host:port)
+flashupdate.proxyserver_hint2 üres bejegyzés esetén nincs proxy
+flashupdate.proxyserver_sep Proxy szerver
+flashupdate.proxyusername felhasználónév
+flashupdate.proxyusername_hint1 írja be a proxy felhasználónevet
+flashupdate.proxyusername_hint2 üres bejegyzés esetén nincs hitelesítés
+flashupdate.readflash Teljes image kiolvasása
+flashupdate.readflashmtd Egy partíció kiolvasása
+flashupdate.ready Kész
+flashupdate.reallyflashmtd Biztos benne, hogy programoz?\n\nHa hiba történik, vagy az image\nnem érvényes, a készülék nem fog elindulni a frissítés után!\n\Image neve: %s\nCél: %s
+flashupdate.savesuccess Az image sikeresen el lett mentve\n%s néven.
+flashupdate.selectimage Elérhető image-ek
+flashupdate.squashfs.noversion SquashFS version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
+flashupdate.titlereadflash Flash olvasása
+flashupdate.titlewriteflash Flash írása
+flashupdate.updatemode Frissítési mód
+flashupdate.updatemode_internet Internet
+flashupdate.updatemode_manual Kézi (FTP)
+flashupdate.url_file Konfigurációs fájl
+flashupdate.versioncheck Verzió ellenőrzése
+flashupdate.writeflash Teljes image írása
+flashupdate.writeflashmtd Egy partíció írása
+flashupdate.wrongbase Your Release cycle differs, unable to update\nwithout having installed the right version!
+fontmenu.channellist Csatornalista
+fontmenu.epg EPG
+fontmenu.eventlist Műsorfüzet
+fontmenu.gamelist Játéklista
+fontmenu.head Betűméretek beállítása
+fontmenu.infobar Infósor
+fontsize.channel_num_zap közvetlen kiválasztás
+fontsize.channellist Csatornalista
+fontsize.channellist_descr Leírás
+fontsize.channellist_number Szám
+fontsize.epg_date EPG dátum
+fontsize.epg_info1 EPG infó 1
+fontsize.epg_info2 EPG infó 2
+fontsize.epg_title EPG cím
+fontsize.eventlist_datetime dátum / idő
+fontsize.eventlist_itemlarge nagy
+fontsize.eventlist_itemsmall kicsi
+fontsize.eventlist_title cím
+fontsize.filebrowser_item fájlböngésző elem
+fontsize.gamelist_itemlarge nagy
+fontsize.gamelist_itemsmall kicsi
+fontsize.hint Betűtípus inicializálása,\nkérem várjon!
+fontsize.infobar_channame csatorna neve
+fontsize.infobar_info infó
+fontsize.infobar_number szám
+fontsize.infobar_small kicsi
+fontsize.menu menüszöveg
+fontsize.menu_info menü infó
+fontsize.menu_title menü címsor
+gtxalpha.alpha1 alpha 1
+gtxalpha.alpha2 alpha 2
+infoviewer.epgnotload EPG nincs betöltve....
+infoviewer.epgwait Várakozás a műsorinformációra...
+infoviewer.eventlist műsorlista
+infoviewer.languages hang
+infoviewer.motor_moving Motor pozícionálása
+infoviewer.nocurrent Nincs elérhető információ a műsorról
+infoviewer.noepg Műsorinformáció nem elérhető
+infoviewer.notavailable Csatorna nem elérhető
+infoviewer.selecttime időválasztás
+infoviewer.streaminfo extrák
+infoviewer.subservice alcsatornák
+infoviewer.waittime Várakozás az időre...
+ipsetup.hint_1 0..9, vagy fel/le,
+ipsetup.hint_2 OK: mentés, LAME/EXIT: mégsem
+keybindingmenu.RC Gombnyomás isméltésgátló
+keybindingmenu.addrecord Felvételi időzítő hozzáadása
+keybindingmenu.addremind Csatornaváltás-időzítő hozzáadása
+keybindingmenu.allchannels_on_ok minden csatorna
+keybindingmenu.bouquetchannels_on_ok aktuális csomag
+keybindingmenu.bouquetdown Csomagot vissza
+keybindingmenu.bouquethandling Csomagkezelés
+keybindingmenu.bouquetlist_on_ok Csomaglista
+keybindingmenu.bouquetup Következő csomag
+keybindingmenu.cancel Csatornalista bezárása
+keybindingmenu.channeldown Csatonát le
+keybindingmenu.channellist Csatornalista
+keybindingmenu.channelup Csatornát fel
+keybindingmenu.head Távvezérlő
+keybindingmenu.lastchannel Gyorsváltás
+keybindingmenu.modechange Módválasztás
+keybindingmenu.pagedown Oldalt le
+keybindingmenu.pageup Oldalt fel
+keybindingmenu.quickzap Gyorsváltás
+keybindingmenu.repeatblock Ismétlési késleltetés
+keybindingmenu.repeatblockgeneric Általános késleltetés
+keybindingmenu.sort Rendezési sorrend
+keybindingmenu.subchanneldown Alcsatornát le
+keybindingmenu.subchannelup Alcsatornát fel
+keybindingmenu.tvradiomode TV/Radió mód
+keybindingmenu.zaphistory Előző csatornák
+keychooser.head Új gomb beállítása
+keychooser.text1 Kérem nyomja meg a kívánt gombot!
+keychooser.text2 Várjon, ha mégsem.
+keychoosermenu.currentkey Aktuális gomb
+keychoosermenu.setnew Új gomb beállítása
+keychoosermenu.setnone Nincs gomb
+languagesetup.head Nyelv
+languagesetup.select Nyelv
+lcdcontroler.brightness Normál fényerő
+lcdcontroler.brightnessstandby Készenléti fényerő
+lcdcontroler.contrast kontraszt
+lcdcontroler.head Kijelző
+lcdmenu.autodimm automatikus halványítás
+lcdmenu.head LCD beállítások
+lcdmenu.inverse Inverz
+lcdmenu.lcdcontroler Kontraszt / fényerő
+lcdmenu.power Világítás
+lcdmenu.statusline Megjelenítés
+lcdmenu.statusline.both hangerő / eltelt idő
+lcdmenu.statusline.playtime eltelt idő
+lcdmenu.statusline.volume hangerő
+mainmenu.audioplayer Hanglejátszó
+mainmenu.games Játékok
+mainmenu.head Főmenü
+mainmenu.movieplayer Videólejátszó
+mainmenu.pausesectionsd EPG olvasása
+mainmenu.pictureviewer Képnézegető
+mainmenu.radiomode Rádió mód
+mainmenu.recording Felvétel
+mainmenu.recording_start start
+mainmenu.recording_stop stop
+mainmenu.scartmode SCART mód
+mainmenu.service Szolgáltatások
+mainmenu.settings Beállítások
+mainmenu.shutdown Kikapcsolás
+mainmenu.sleeptimer Elalváskapcsoló
+mainmenu.tvmode TV mód
+mainsettings.audio Hangbeállítások
+mainsettings.colors Színek / témák / betűtípusok
+mainsettings.head Beállítások
+mainsettings.keybinding Távvezérlő
+mainsettings.language Nyelv
+mainsettings.lcd Kijelző
+mainsettings.misc Egyéb beállítások
+mainsettings.network Hálózat
+mainsettings.recording Felvétel
+mainsettings.savesettingsnow Beállítások mentése
+mainsettings.savesettingsnow_hint Mentés folyamatban,\nkérem várjon...
+mainsettings.streaming Videólejátszó
+mainsettings.video Képbeállítások
+menu.back Vissza
+messagebox.back Vissza
+messagebox.cancel mégsem
+messagebox.discard Elveti a változásokat?
+messagebox.error Hiba
+messagebox.info Információ
+messagebox.no nem
+messagebox.yes igen
+miscsettings.bootinfo infók mutatása indításkor
+miscsettings.bootmenu indítási menü bekapcsoláskor
+miscsettings.driver_boot Meghajtó és indítási beállítások
+miscsettings.fb_destination Expert! Boot-Console
+miscsettings.general Általános
+miscsettings.head Egyéb beállítások
+miscsettings.hwsections hardverszekciók használata
+miscsettings.infobar_sat_display Műhold neve az infósoron
+miscsettings.pmtupdate PMT frissítés engedélyezése
+miscsettings.shutdown_real Készenlét engedélyezése
+miscsettings.shutdown_real_rcdelay Késleltetett kikapcsolás
+miscsettings.sptsmode SPTS mód használata
+miscsettings.startbhdriver BH módú meghajtók betöltése
+motorcontrol.head Motorbeállítások
+movieplayer.bookmark könyvjelzők
+movieplayer.bookmarkname könyvjelző neve
+movieplayer.bookmarkname_hint1 Kérem adjon nevet az új könyvjelzőnek!
+movieplayer.bookmarkname_hint2 
+movieplayer.buffering Buffering...
+movieplayer.defdir kiindulási könyvtár
+movieplayer.dvdplayback DVD
+movieplayer.fileplayback Fájl VLC-n keresztül
+movieplayer.goto Ugrás...
+movieplayer.goto.h1 = -> abszolút ugrás
+movieplayer.goto.h2 +,- -> relatív ugrás
+movieplayer.head Videólejátszó
+movieplayer.nostreamingserver A streamingszerver nem elérhető.
+movieplayer.pesplayback PES lejátszása (kísérleti)
+movieplayer.pleasewait Kérem várjon!\nCsatlakozás a streamingszerverhez...
+movieplayer.toomanybookmarks Túl sok könyvjelző.\nElőbb törölni kell egyet.
+movieplayer.tsplayback TS lejátszása
+movieplayer.vcdplayback (S)VCD
+movieplayer.wrongvlcversion Ez a funkció nem elérhető a VLC jelenlegi verziójával.
+networkmenu.broadcast Broadcast
+networkmenu.dhcp DHCP
+networkmenu.gateway Átjáró
+networkmenu.head Hálózat
+networkmenu.ipaddress IP cím
+networkmenu.mount NFS/CIFS
+networkmenu.nameserver DNS
+networkmenu.netmask Netmaszk
+networkmenu.setupnow Beállítások aktualizálása
+networkmenu.setuponstartup Hálózat inicializálása indításkor
+networkmenu.show Jelenlegi beállítások mutatása
+networkmenu.test Hálozat tesztelése
+nfs.alreadymounted directory already mounted
+nfs.automount mount on startup
+nfs.dir directory/share
+nfs.ip NFS/CIFS Server IP
+nfs.localdir local dir
+nfs.mount Mount NFS/CIFS volume
+nfs.mount_options mount options
+nfs.mounterror mount error
+nfs.mounterror_notsup filesystem type not supported
+nfs.mountnow mount now
+nfs.mounttimeout mount error: timeout
+nfs.password CIFS password
+nfs.remount remount directories
+nfs.type type
+nfs.type_cifs CIFS
+nfs.type_nfs NFS
+nfs.umount Unmount NFS/CIFS volume
+nfs.umounterror error umounting volume
+nfs.username CIFS username
+nfsmenu.head NFS/CIFS settings
+nvod.percentage (%d%% over)
+nvod.starting (kezdés %d pecr múlva)
+nvodselector.directormode közvetlen elérési mód
+nvodselector.head Kezdési időpont kiválasztása
+nvodselector.subservice Alcsatorna kiválasztása
+options.default Alapértelmezett értékek
+options.fb képernyő
+options.null null
+options.off ki
+options.on be
+options.serial serial
+parentallock.changepin PIN megváltoztatása
+parentallock.changepin_hint1 Ide üsse be az új PIN kódot!
+parentallock.changetolocked on locked bouquets
+parentallock.head Üsse be a PIN kódot!
+parentallock.lockage Program zárolása
+parentallock.lockage12 12 évtől
+parentallock.lockage16 16 évtől
+parentallock.lockage18 18 évtől
+parentallock.lockedchannel Zárolt csatorna...
+parentallock.lockedprogram Zárolt műsor (%d évtől)
+parentallock.never soha
+parentallock.onsignal műsor szerint
+parentallock.parentallock Gyermekzár
+parentallock.prompt PIN kód kérése
+pictureviewer.defdir kiindulási könyvtár
+pictureviewer.head Képnézegető
+pictureviewer.resize.color_average fejlett
+pictureviewer.resize.none nincs
+pictureviewer.resize.simple egyszerű
+pictureviewer.scaling méretezés
+pictureviewer.show mutatás
+pictureviewer.slide_time slideshow display time
+pictureviewer.slideshow vetítés
+pictureviewer.sortorder rendezési sorrend
+pictureviewer.sortorder.date (dátum)
+pictureviewer.sortorder.filename (fájlnév)
+ping.ok elérhető (ping)
+ping.protocol nem elérhető (host vagy protokoll hiba)
+ping.socket nem elérhető (socket hiba)
+ping.unreachable nem elérhető
+pinprotection.head Üsse be a PIN kódot
+pinprotection.wrongcode A PIN kód hibás! Próbálja újra!
+rclock.lockmsg A távvezérlő zárolva lesz.\nA nyitáshoz nyomja meg a PIROS gombot,\nmajd a MENU/DBOX gombot!
+rclock.menueadd Távvezérlő-zár
+rclock.title Távvezérlő zárolása
+rclock.unlockmsg Távvezérlő aktiválva
+recordingmenu.defdir felvételi könyvtár
+recordingmenu.file közvetlen (fájl)
+recordingmenu.head Felvétel
+recordingmenu.help Felvételi eszközök:\n--------------------------\nszerver:\nstreaming szoftver használata a PC-n\n\n(analóg) képmagnó:\nképmagnó használata\n\nközvetlen (fájl):\nközvetlen felvétel NFS könyvtárba,\nvagy beépített merevlemezre\n\n\nMax. fájlméret:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: elég nagy :) (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
+recordingmenu.no_scart ne kapcsoljon SCART módba
+recordingmenu.off ki
+recordingmenu.recording_type Felvételi eszköz
+recordingmenu.server Szerver
+recordingmenu.server_ip Felvételi szerver IP címe
+recordingmenu.server_mac MAC cím
+recordingmenu.server_port Felvételi szerver portja
+recordingmenu.server_wakeup Felvételi szerver WOL
+recordingmenu.setupnow Beállítások aktualizálása
+recordingmenu.splitsize Max. fájlméret (MB)
+recordingmenu.stopplayback Lejátszás megállítása
+recordingmenu.stopsectionsd SectionSD megállítása
+recordingmenu.stream_vtxt_pid Teletext rögzítése
+recordingmenu.use_o_sync Szinkron írás (O_SYNC)
+recordingmenu.vcr Képmagnó
+recordtimer.announce A felvétel néhány percen belül kezdődik
+repeatblocker.hint_1 A legrövidebb idő (ms-ban) két gombnyomás felismerésére
+repeatblocker.hint_2 0 érték kikapcsolja a blokkolót (PIROS gomb: szóköz)
+satsetup.diseqc DiSEqC
+satsetup.diseqc10 DiSEqC 1.0
+satsetup.diseqc11 DiSEqC 1.1
+satsetup.diseqc12 DiSEqC 1.2
+satsetup.diseqcrepeat DiSEqC-ismétlések
+satsetup.extended DiSEqC beállítások
+satsetup.extended_motor Motorbeállítások
+satsetup.minidiseqc Mini-DiSEqC
+satsetup.motorcontrol Kézi beállítás
+satsetup.nodiseqc nincs DiSEqC
+satsetup.satellite Műhold
+satsetup.savesettingsnow Beállítások mentése
+satsetup.smatvremote SMATV távhangolás
+scants.actcable Kábel:
+scants.actsatellite Műhold:
+scants.bouquet Csomagok kezelése
+scants.bouquet_create újak készítése
+scants.bouquet_erase összes törlése
+scants.bouquet_leave jelenlegiek megtartása
+scants.bouquet_satellite műhold-csomagok
+scants.bouquet_update frissítés
+scants.channel Csatorna:
+scants.failed A transzponderkeresés sikertelen!
+scants.finished A transponderkeresés sikereresen befejeződött!
+scants.freqdata Frekvencia:
+scants.head Transzponderkeresés
+scants.numberofdataservices Adat
+scants.numberofradioservices Rádio
+scants.numberoftotalservices Összesen
+scants.numberoftvservices TV
+scants.provider Szolgáltató:
+scants.startnow Keresés indítása
+scants.transponders Transzponder:
+screensetup.lowerright ZÖLD = jobb alsó
+screensetup.upperleft PIROS = bal felső
+servicemenu.head Szolgáltatások
+servicemenu.reload Csatornalista újratöltése
+servicemenu.reload_hint Újratöltés. Kérem várjon!
+servicemenu.scants Csatornakeresés
+servicemenu.ucodecheck Mikrokódok ellenőrzése
+servicemenu.update Szoftverfrissítés
+settings.help Segítség
+settings.missingoptionsconffile A konfigurációs fájl hiányzik.\nAz összes érték alapértelmezettre lesz állítva.
+settings.noconffile A beállítások hiányoznak.\nAlapértékek használata.
+shutdowntimer.announce A készülék 1 percen belül kikapcsol.\nMegszakítja a folyamatot?
+sleeptimerbox.announce Elalváskapcsoló 1 perc múlva
+sleeptimerbox.hint1 Kikapcsolási idő percben. (000=ki)
+sleeptimerbox.hint2 A készülék ennyi idő múlva fog kikapcsolni.
+sleeptimerbox.title Elalváskapcsoló
+streamfeatures.head Features
+streaminfo.aratio képarány
+streaminfo.aratio_unknown képarány: ismeretlen
+streaminfo.audiotype hangtípus
+streaminfo.audiotype_unknown hangtípus: ismeretlen
+streaminfo.bitrate bitráta
+streaminfo.framerate képkocka-ráta
+streaminfo.framerate_unknown képkocka-ráta: ismeretlen
+streaminfo.head Adatfolyam-információk
+streaminfo.not_available nem elérhető
+streaminfo.resolution felbontás
+streaminfo.signal Vett jel
+streaming.buffer_overflow A felvétel meg lett szakítva,\nmert az adatot nem lehetett eléggé gyorsan írni.
+streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino.
+streaming.dir_not_writable A felvételi könyvtár nem írható.\nA felvétel nem fog működni.
+streaming.success A felvétel sikeresen befejeződött.
+streaming.write_error A felvétel meg lett szakítva,\nmert hiba történt az írásnál.
+streaming.write_error_open A felvétel meg lett szakítva,\nmert a célfájlt nem lehet megnyitni.
+streamingmenu.352x288 352x288
+streamingmenu.352x576 352x576
+streamingmenu.480x576 480x576
+streamingmenu.704x576 704x576
+streamingmenu.head Videólejátszó
+streamingmenu.mpeg1 MPEG1
+streamingmenu.mpeg2 MPEG2
+streamingmenu.off ki
+streamingmenu.on be
+streamingmenu.server_ip streaming szerver IP címe
+streamingmenu.server_port streaming szerver portja
+streamingmenu.streaming_audiorate hang bitráta
+streamingmenu.streaming_force_avi_rawaudio Force AC3 for AVI
+streamingmenu.streaming_force_transcode_video MPG/VCD videó áttömörítése
+streamingmenu.streaming_resolution Felbontás
+streamingmenu.streaming_server_cddrive DVD meghajtó
+streamingmenu.streaming_server_startdir könyvtár (VLC)
+streamingmenu.streaming_transcode_audio Hang áttömörítése (DVD/VCD/MPG)
+streamingmenu.streaming_transcode_video_codec MPEG videókodek
+streamingmenu.streaming_type Streaming szerver
+streamingmenu.streaming_videorate videó adatráta
+streamingserver.noconnect Nincs kapcsolat a streaming szerverrel.\nFelvétel megszakítva.
+stringinput.caps nagybetű / kisbetű
+stringinput.clear összes törlése
+timer.eventrecord.msg   ... TO be DONE, or not to be done
+timer.eventrecord.title Felvétel időzítés
+timer.eventtimed.msg A műsor időzítve van.\nA készülék be fog kapcsolni és\nát fog kapcsolni a megadott csatornára a megadott időben.
+timer.eventtimed.title Műsor időzítés
+timerbar.channelswitch Időzítés
+timerbar.recordevent Felvétel
+timerlist.alarmtime Művelet időpontja
+timerlist.apids Hang PID-ek
+timerlist.bouquetselect Csomagok
+timerlist.channel Csatorna
+timerlist.channelselect Csatornák
+timerlist.delete törlés
+timerlist.menumodify módosítás
+timerlist.menunew új időzítő
+timerlist.message üzenet
+timerlist.moderadio Rádiócsatornák
+timerlist.modeselect Üzemmód választás
+timerlist.modetv Tévécsatornák
+timerlist.modify módosítás
+timerlist.name Időzítőlista
+timerlist.new új időzítő
+timerlist.program.unknown ismeretlen műsor
+timerlist.reload újratöltés
+timerlist.repeat ismétlés
+timerlist.repeat.biweekly kéthetente
+timerlist.repeat.byeventdescription lásd az időzítőt
+timerlist.repeat.daily naponta
+timerlist.repeat.fourweekly négyhetente
+timerlist.repeat.friday P
+timerlist.repeat.monday H
+timerlist.repeat.monthly havonta
+timerlist.repeat.once egyszer
+timerlist.repeat.saturday SZ
+timerlist.repeat.sunday V
+timerlist.repeat.thursday CS
+timerlist.repeat.tuesday K
+timerlist.repeat.unknown ismeretlen
+timerlist.repeat.wednesday SZ
+timerlist.repeat.weekdays hét adott napjain
+timerlist.repeat.weekly hetente
+timerlist.save Időzítő mentése
+timerlist.standby készenléti üzemmód
+timerlist.standby.off készenlét elhagyása
+timerlist.standby.on készenlétbe menetel
+timerlist.stoptime Megállás időpontja
+timerlist.type Időzítő típusa
+timerlist.type.nextprogram Következő műsor
+timerlist.type.record felvétel
+timerlist.type.remind emlékeztető
+timerlist.type.shutdown kikapcsolás
+timerlist.type.sleeptimer elalváskapcsoló
+timerlist.type.standby készenlét
+timerlist.type.unknown ismeretlen
+timerlist.type.zapto csatornaváltás
+timerlist.weekdays A hét napjai
+timerlist.weekdays.hint_1 H K SZ CS P SZ V
+timerlist.weekdays.hint_2 igen:X, nem:-
+timersettings.record_safety_time_after Megállás idejének korrekciója
+timersettings.record_safety_time_after.hint_1 Correction time in min. (00=off). This time
+timersettings.record_safety_time_after.hint_2 will added to stop time of every record timer.
+timersettings.record_safety_time_before Record start time correction
+timersettings.record_safety_time_before.hint_1 Correction time in min. (00=off). This time
+timersettings.record_safety_time_before.hint_2 will be deducted of every record timer.
+timersettings.separator Időzítő beállítások
+timing.chanlist Csatornalista
+timing.epg EPG
+timing.filebrowser Fájlböngésző
+timing.head OSD időtartam
+timing.hint_1 Time in sec. After this time the
+timing.hint_2 infobar will be faded out.
+timing.infobar Infósor
+timing.menu Menü
+timing.numericzap Numerikus váltás
+ucodecheck.avia500 Avia 500
+ucodecheck.avia600 Avia 600
+ucodecheck.cam-alpha Cam-Alpha
+ucodecheck.head Mikrokód ellenőrzés
+ucodecheck.ucode Mikrokód
+ucodes.failure Figyelem! A mikrokódok hiányoznak!\n\nKérem töltse fel őket a készülékbe,\nmajd indítson újra!
+videomenu.csync Szinkronkorrekció
+videomenu.head Képbeállítások
+videomenu.rgb_centering RGB középpont
+videomenu.screensetup Képernyő-beállítás
+videomenu.vcrswitch SCART automatikus kapcsolása
+videomenu.videoformat Formátum
+videomenu.videoformat_169 16:9
+videomenu.videoformat_43 4:3 (LB)
+videomenu.videoformat_431 4:3 (PS)
+videomenu.videoformat_autodetect automatikus
+videomenu.videosignal Videójel
+videomenu.videosignal_composite CVBS
+videomenu.videosignal_rgb RGB + CVBS
+videomenu.videosignal_svideo S-Video
+videomenu.videosignal_yuv_c YUV + CVBS
+videomenu.videosignal_yuv_v YUV + VBS
+zaptotimer.announce Csatornaváltás 1 perc múlva
+extra.auto automatikus
+extra.valid érvényes
+extra.all összes
+extra.new_keys új kulcsok
+extra.all_keys minden kulcs
+extra.vartmp /var/tmp
+extra.varkeys /var/keys
+extra.algo csak ismerteket
+extra.gbox_emu emu
+extra.gbox_softcam softcam
+extra.gbox_net hálózat
+extra.gbox_mix kevert
+extra.gbox_info GBOX infó
+extra.sep_extra Extrák
+extra.save_settings Beállítások mentése
+extra.extra_menu Kiegészítések
+extra.ecm_info ECM infó
+extra.pid_info PID infó
+extra.emm_info Új kulcsok
+extra.emu_type Emu típusa
+extra.camd CAMD
+extra.restart_camd CAMD újraindítása
+extra.mg_settings Mgcamd beállítások
+extra.netmode netmód
+extra.autoupdate autoupdate
+extra.show_ecm ECM kijelzése
+extra.show_emm EMM kijelzése
+extra.keyupdate kulcsfrissítés
+extra.osd OSD
+extra.keyfolder Kulcsok könyvtára
+extra.hash_pids PID-ek ellenőrzése
+extra.gbox_settings GBOX Settings
+extra.gbox_mode Üzemmód
+extra.newcamd_settings Newcamd beállítások
+extra.show_cw CW kijelzése
+extra.debug_ecm ECM debug
+extra.disable_cam CAM letiltása
+extra.show_cat Show CAT
+extra.show_pmt show PMT
+extra.update_pmt Update PMT
+extra.report_emm Report wrong EMM sig.
+extra.debug_emm Debug Emm
+extra.show_allca Show all ca sys.
+extra.reload_keys Reload keys on zap
+extra.reload_cfg Reload config on zap
+extra.cw_delay Default CW delay
+extra.dvbsnoop DVB Stream Info
+extra.dvbsnoop_pat Show PAT
+extra.dvbsnoop_cat Show CAT
+extra.dvbsnoop_tsdt Show TSDT
+extra.dvbsnoop_nit Show NIT
+extra.dvbsnoop_sdt Show SDT
+extra.dvbsnoop_eit Show EIT
+extra.dvbsnoop_rst Show RST
+extra.dvbsnoop_tdt Show TDT
+extra.dvbsnoop_sit Show SIT
+extra.dvbsnoop_pid Show manual PID
+extra.dvbsnoop_scan Scan PIDs
+extra.dvbsnoop_band Show pid bandwidth
+extra.logview View Log
+extra.ru ruDREAM
+extra.english Automatikus angol nyelv
+extra.dboxinfo Készülék infó
+extra.scan_mode Keresési mód
+extra.start_tostandby Készenlét bekapcsolás után
+extra.rotor_swap Kelet/Nyugat felcserélése
+extra.use_log Naplózás a /tmp/log -ba
+extra.spts_mode SPTS mód
+extra.hw_sect Hardwareszekciók
+extra.logo Logó száma
+extra.scan_full teljes
+extra.scan_fast gyors
+extra.hdd_slow lassú
+extra.hdd_middle közepes
+extra.hdd_fast gyors
+extra.hdd_ext3 Ext3FS
+extra.hdd_reiser ReiserFS
+extra.hdd_1min 1 perc
+extra.hdd_5min 5 perc
+extra.hdd_10min 10 perc
+extra.hdd_20min 20 perc
+extra.hdd_30min 30 perc
+extra.hdd_60min 60 perc
+extra.logo1 1
+extra.logo2 2
+extra.logo3 3
+extra.hdd_sleep Elalvási idő
+extra.hdd_noise Teljesítmény/zaj
+extra.hdd_activate Beállítások aktualizálása
+extra.hdd_fs Fájlrendszer
+extra.hdd_format Merevlemez formázása
+extra.hdd_check Fájlrendszer ellenőrzése
+extra.hdd_settings Merevlemez-beállítások
+extra.clear_log Napló törlése
+extra.zap_cycle Körbejárás
+extra.sms_channel SMS csatornaváltás
+extra.manual_scan Kézi keresés
+extra.tp_freq Frekvencia
+extra.tp_rate Symbol Rate
+extra.tp_pol Polarizáció
+extra.tp.pol_v V
+extra.tp_pol_h H
+extra.tp_fec FEC
+extra.fec_1_2 1/2
+extra.fec_2_3 2/3
+extra.fec_3_4 3/4
+extra.fec_5_6 5/6
+extra.fec_7_8 7/8
+extra.timezone Időzóna
+extra.zapit_menu Zapit beállítások
+extra.zapit_make_bouquet Csomagokon kívüli csatornák
+extra.zapit_save_last_chan Utolsó pozíció mentése
+extra.zapit_motor_speed Forgató sebessége
+extra.zapit_fe_timeout Hanglolásra várakozás
+extra.add_to_bouquet másolás csomagba
+extra.key_list_start eleje
+extra.key_list_end vége
+extra.chadded A csatorna hozzá lett adva a kiválasztott csomaghoz...\n
+extra.chalreadyinbq A csatorna már benne van a kiválasztott csomagban...\n
+extra.menu_left_exit "balra" = visszalépés a menüben
+extra.zapit_write_names Csatornanevek mentése
+extra.update_dir Könyvtár a frissítésekhezextra.cache Cache
+extra.debug Debug
+extra.zapit_backup Backup channels to /tmp
+extra.zapit_delete Delete channels
+extra.zapit_fast_zap fast zap
+extra.zapit_restore Restore channels from /tmp
+extra.zapit_sort_names Sort ch. by name
+filesystem.is.utf8 file system
+filesystem.is.utf8.option.iso8859.1 ISO-8859-1
+filesystem.is.utf8.option.utf8 UTF-8
+infoviewer.subchan_disp_pos Subchannel display
+mainmenu.scripts Scripts
+miscsettings.noaviawatchdog enable AVIA watchdog
+miscsettings.noenxwatchdog enable eNX watchdog
+movieplayer.defplugin Start-Plugin
+movieplayer.tshelp1 Stop 
+movieplayer.tshelp10 approx. 10 minutes back 
+movieplayer.tshelp11 skip approx. 10 minutes 
+movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
+movieplayer.tshelp2 Select audio track 
+movieplayer.tshelp3 Pause/Continue 
+movieplayer.tshelp4 Create bookmark 
+movieplayer.tshelp5 Show progress 
+movieplayer.tshelp6 approx. 1 minute back 
+movieplayer.tshelp7 skip approx. 1 minute 
+movieplayer.tshelp8 approx. 5 minutes back 
+movieplayer.tshelp9 skip approx. 5 minutes 
+movieplayer.vlchelp1 Stop 
+movieplayer.vlchelp10 approx. 10 minutes back 
+movieplayer.vlchelp11 skip approx. 10 minutes 
+movieplayer.vlchelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
+movieplayer.vlchelp2 Resync 
+movieplayer.vlchelp3 Pause/Continue 
+movieplayer.vlchelp4 Create bookmark 
+movieplayer.vlchelp5 Show progress 
+movieplayer.vlchelp6 approx. 1 minute back 
+movieplayer.vlchelp7 skip approx. 1 minute 
+movieplayer.vlchelp8 approx. 5 minutes back 
+movieplayer.vlchelp9 skip approx. 5 minutes 
+nfs.mountok mount successful
+nfs.type_lufs FTPFS
+pictureviewer.help1 menu mode
+pictureviewer.help10 show mode
+pictureviewer.help11 reread image
+pictureviewer.help12 previous image
+pictureviewer.help13 next image
+pictureviewer.help14 Zoom out
+pictureviewer.help15 Zoom in
+pictureviewer.help16 scroll up
+pictureviewer.help17 scroll left
+pictureviewer.help18 scroll right
+pictureviewer.help19 scroll down
+pictureviewer.help2 display image
+pictureviewer.help20 change sort order
+pictureviewer.help21 reread image (no scaling)
+pictureviewer.help22 exit
+pictureviewer.help3 change sort order
+pictureviewer.help4 do not scale picture
+pictureviewer.help5 diashow mode
+pictureviewer.help6 previous image
+pictureviewer.help7 next image
+pictureviewer.help8 change sort order
+pictureviewer.help9 exit
+plugins.result plugin output
+recordingmenu.choose_direct_rec_dir choose dir on imm. recording
+recordingmenu.epg_for_filename long filenames (with EPG data)
+recordingmenu.filesettings direct recording settings
+recordingmenu.ringbuffers no. of ringbuffers
+recordingmenu.use_fdatasync write synchronous (fdatasync)
+settings.pos_bottom_left bottom left
+settings.pos_bottom_right bottom right
+settings.pos_top_left oben top left
+settings.pos_top_right oben top right
+timerlist.plugin Plugin
+timerlist.recording_dir recording directory
+timerlist.repeatcount repeats 
+timerlist.repeatcount.help1 amount of timer repeats 
+timerlist.repeatcount.help2 0 for unlimited repeats 
+timerlist.type.execplugin Execute plugin
+extra.cache Cache
+pictureviewer.decode_server_ip decode server ip
+pictureviewer.decode_server_port decode server port
+scants.abort_body Should the search really be aborted?
+scants.abort_header Keresés megszakítása
+recordingmenu.record_in_spts_mode switch to spts mode before recording
+servicemenu.getplugins Reload plugins
+servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
+zapit.scantype scan for services
+zapit.scantype.all all services
+zapit.scantype.radio only radio
+zapit.scantype.tv only tv
+zapit.scantype.tvradio tv & radio
+colorthememenu.red_theme Simply Red
+lcdmenu.dim_brightness Brightness after dim timeout
+lcdmenu.dim_time Dim timeout
+timerlist.overlapping_timer Timer conflict. Create the timer anyway?
+extra.audio_run_player Audio key start player
+mpkey.rewind Rewind
+mpkey.forward Forward
+mpkey.pause Pause
+mpkey.stop Stop
+mpkey.play Play
+mpkey.audio Audio track
+mpkey.time Show time
+mpkey.bookmark save bookmark
+mpkey.plugin Run plugin
+extra.key_click Key click
+extra.loadcolors Load colors from
+extra.savecolors Save colors as
+extra.loadkeys Load keys from
+extra.savekeys Save keys as
+extra.loadconfig Load settings from
+extra.saveconfig Save settings as
+videomenu.videomode Video system
+videomenu.videomode_ntsc NTSC
+videomenu.videomode_pal PAL
+videomenu.videomode_palm PAL-M
+extra.key_timeshift Timeshift
+extra.key_plugin One touch plugin
+extra.timeshift_pause Timeshift pause
+rfmod.rfmod RF modulator
+rfmod.carrier Subcarrier Frequency
+rfmod.carrier4500 4.5
+rfmod.carrier5500 5.5
+rfmod.carrier6000 6.0
+rfmod.carrier6500 6.5
+rfmod.enable Enable sound
+rfmod.channel Channel
+rfmod.finetune Fine tune
+rfmod.standby Enable modulator
+rfmod.test Test pattern
+extra.zapit_scanpids Scan/Use pids
+extra.zapit_rezap_time Re-Zap on emu switch time
+extra.zapit_hvoltage High (13.5/18.5) voltage
+extra.key_unlock Unlock key
+extra.mg_netoptions Network options
+extra.mg_ecm_timeout Network ecm timeout
+extra.mg_reconnect Shares reconnect
+extra.mg_priority Share priority
+extra.mg_osd_options Osd options
+extra.mg_reread Reread files on zap
+servicemenu.imageinfo Image info
+imageinfo.creator Creator:
+imageinfo.date Date:
+imageinfo.dokumentation Docs:
+imageinfo.forum Forum:
+imageinfo.head Image info:
+imageinfo.homepage Home page:
+imageinfo.image Image:
+imageinfo.license License:
+imageinfo.version Version:
+extra.cache_txt Cache teletext
+extra.use_gotoxx Use gotoXX
+extra.latitude Latitude
+extra.longitude Longitude
+extra.ladirection LaDirection
+extra.lodirection LoDirection
+extra.south South
+extra.north North
+extra.east East
+extra.west West
+epgextended.actors Actors
+epgextended.director Director
+epgextended.guests Guests
+epgextended.original_title Original Title
+epgextended.presenter Presenter
+epgextended.year_of_production Year of Production
+recordingmenu.save_in_channeldir Save in channel dir
+servicemenu.restart Soft restart
+servicemenu.restart_failed Restart failed
+servicemenu.restart_hint Restarting, please wait
+servicemenu.restart_refused_recording Cant restart, recording in progress
+extra.cs Cardserver
+extra.restart_cs Restart cardserver
+extra.tp_mod Modulation
+extra.tp_mod_16 QAM/16
+extra.tp_mod_32 QAM/32
+extra.tp_mod_64 QAM/64
+extra.tp_mod_128 QAM/128
+extra.tp_mod_256 QAM/256
+moviebrowser.book_head Bookmarks
+moviebrowser.book_lastmoviestop Last play stop:
+moviebrowser.book_movieend Movie end:
+moviebrowser.book_moviestart Movie start:
+moviebrowser.book_name Name:
+moviebrowser.book_new New Bookmark
+moviebrowser.book_position Position:
+moviebrowser.book_type Jump (<0 back , >0 for):
+moviebrowser.book_type_backward Repeat
+moviebrowser.book_type_forward jump over
+moviebrowser.edit_book Bookmark change
+moviebrowser.edit_book_name_info1 Enter new Bookmark name
+moviebrowser.edit_book_name_info2 
+moviebrowser.edit_book_pos_info1 Enter new Position (s)
+moviebrowser.edit_book_pos_info2 
+moviebrowser.edit_book_type_info1 Enter new jump length (s)
+moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
+moviebrowser.edit_serie Enter name of serie
+moviebrowser.error_no_movies No movies found
+moviebrowser.foot_filter Filter:
+moviebrowser.foot_play Start movie
+moviebrowser.foot_sort Sort:
+moviebrowser.head TS MovieBrowser
+moviebrowser.head_filter Filter movies by category:
+moviebrowser.head_playlist Last played:
+moviebrowser.head_recordlist Last recorded:
+moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel 
+moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel 
+moviebrowser.hint_movieend Filmende in 5 s\n '0' zum weitersehen 
+moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition 
+moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition 
+moviebrowser.info_audio Audio
+moviebrowser.info_channel Channel
+moviebrowser.info_filename Name
+moviebrowser.info_genre_major Genre
+moviebrowser.info_genre_minor Genre
+moviebrowser.info_head Film Informationen
+moviebrowser.info_info1 Info 1
+moviebrowser.info_info2 Info 2
+moviebrowser.info_length Length (Min)
+moviebrowser.info_parental_lockage Parental Lock age
+moviebrowser.info_parental_lockage_0year always
+moviebrowser.info_parental_lockage_12year 12 years
+moviebrowser.info_parental_lockage_16year 16 years
+moviebrowser.info_parental_lockage_18year 18 years
+moviebrowser.info_parental_lockage_6year 6 years
+moviebrowser.info_parental_lockage_always never 
+moviebrowser.info_path Path
+moviebrowser.info_prevplaydate Last play date
+moviebrowser.info_prodcountry Country
+moviebrowser.info_prodyear Year
+moviebrowser.info_quality Quality
+moviebrowser.info_recorddate Record date
+moviebrowser.info_serie Serie
+moviebrowser.info_size File size (MB)
+moviebrowser.info_title Titel
+moviebrowser.info_videoformat Picture
+moviebrowser.menu_directories_head Paths
+moviebrowser.menu_help_head Help
+moviebrowser.menu_main_bookmarks Bookmarks
+moviebrowser.menu_main_head Settings
+moviebrowser.menu_main_movieinfo Movie info
+moviebrowser.menu_main_saveandback save and back
+moviebrowser.menu_nfs_head NFS settings
+moviebrowser.menu_parental_lock_activated activated
+moviebrowser.menu_parental_lock_activated_no no
+moviebrowser.menu_parental_lock_activated_yes yes
+moviebrowser.menu_parental_lock_activated_no_temp no (temporary)
+moviebrowser.menu_parental_lock_head Parental Lock
+moviebrowser.menu_parental_lock_rate_head Lock movies from
+moviebrowser.scan_for_movies Scan for Movies ...
+moviebrowser.serie_existingname Existing series
+moviebrowser.serie_head Serie
+moviebrowser.serie_name Change name
+moviebrowser.short_audio Audio
+moviebrowser.short_book Book
+moviebrowser.short_channel Channel
+moviebrowser.short_country Country
+moviebrowser.short_filename Name
+moviebrowser.short_format Format
+moviebrowser.short_genre_major Genre
+moviebrowser.short_genre_minor Genre
+moviebrowser.short_info1 Info 1
+moviebrowser.short_info2 Info 2
+moviebrowser.short_length Min
+moviebrowser.short_parental_lockage Age
+moviebrowser.short_path Path
+moviebrowser.short_prevplaydate Last
+moviebrowser.short_prodyear Year
+moviebrowser.short_quality * (quality)
+moviebrowser.short_recorddate Date
+moviebrowser.short_serie Serie
+moviebrowser.short_size MB
+moviebrowser.short_title Title
+moviebrowser.start_head Start movie from:
+moviebrowser.start_record_start Movie start
+options.on.without_messages Without msg
+extra.zapit_scan_sdt Scan SDT for updates
+extra.zapit_sdt_changed Channels changed, reload settings.
+miscsettings.virtual_zap_mode Virtual zap
+miscsettings.epg_head Epg settings
+miscsettings.epg_cache_days EPG-Cache (days)
+miscsettings.epg_old_hours Events old after (hours)
+miscsettings.epg_dir Dir for epg cache
+miscsettings.epg_save Save/Restore epg on reboot
+shutdown.recoding_query Box in record mode, you really want to shutdown ?
+recordingmenu.apids default audio streams
+recordingmenu.apids_ac3 record AC3 streams
+recordingmenu.apids_alt record alternative streams
+recordingmenu.apids_std record standard stream
+recordingmenu.stream_pmt_pid record PMT
+recordingmenu.zap_on_announce zap on recording announce
+timerlist.apids_dflt record default audio streams
+videomenu.osd OSD
+videomenu.tv-scart TV Scart
+videomenu.vcr-scart VCR Scart
+videomenu.vcrsignal VCR Output Signal Type
+videomenu.vcrsignal_composite CVBS
+videomenu.vcrsignal_svideo S-Video
+moviebrowser.option_browser Browser Options
+moviebrowser.book_clear_all Clear all
+moviebrowser.menu_save Save changes
+moviebrowser.menu_save_all Start update of movie info files
+moviebrowser.info_head_update Save changes in all movie info files
+moviebrowser.update_if_dest_empty_only Copy if destination is empty only
+moviebrowser.serie_auto_create Serie auto create
+moviebrowser.load_default Load default settings
+moviebrowser.browser_row_head Row settings
+moviebrowser.browser_row_nr Number of rows
+moviebrowser.browser_row_item Row item
+moviebrowser.browser_row_width Row width
+moviebrowser.reload_at_start Reload movie info at start
+moviebrowser.remount_at_start Remount at start
+moviebrowser.dir_head Additional paths
+moviebrowser.dir Path
+moviebrowser.use_dir Use directory
+moviebrowser.use_rec_dir Use record directory
+moviebrowser.use_movie_dir Use movie directory
+moviebrowser.hide_series Hide series
+moviebrowser.last_record_max_items Number of lines last record
+moviebrowser.last_play_max_items Number of lines last play
+moviebrowser.browser_frame_high Browser hight [Pixel]
+extra.auto_timeshift Auto-record, sec (0 = disable)
+extra.auto_delete Auto-delete
+extra.auto_to_record Move timeshift to records
+extra.record_time Fast/timeshift record time(hours)

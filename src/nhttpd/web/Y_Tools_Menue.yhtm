@@ -1,0 +1,48 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+</head>
+{=var-set:automount={=if-file-exists:/sbin/automount~true~{=if-file-exists:/var/bin/automount~true~false=}=}=}
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+<body>
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Tools</h2></div>
+	<div class="y_menu_sec_box_body">
+		<div class="y_menu_sec_section">Tools</div>
+		<div class="y_menu_sec">
+			<ul>
+			{=if-empty:{=var-get:management=}~
+<!--dbox2 only				<li class="disabled" title="organize file automounts (automount not installed)">AutoMounts</li> dbox2 only-->
+				<li class="disabled" title="organize file mounts (restricted by ManagementIP)">Mounts</li>
+				<li class="disabled" title="Wake on LAN (restricted by ManagementIP)">Wake on LAN</li>
+			~
+				{=if-empty:{=var-get:automount=}~
+<!--dbox2 only					<li class="disabled" title="organize file automounts (automount not installed)">AutoMounts</li> dbox2 only-->
+				~
+<!--dbox2 only					<li><a target="work" title="organize file automounts" href="Y_Settings_automount_liste.yhtm">AutoMounts</a></li> dbox2 only-->
+				=}
+				<li><a target="work" title="organize file mounts" href="Y_Settings_mount_liste.yhtm">Mounts</a></li>
+				<li><a target="work" title="Wake on LAN" href="Y_Settings_wol.yhtm">Wake on LAN</a></li>
+			=}
+				<li><a target="work" title="check Installation" href="Y_Tools_Check_Install.yhtm">Check Install</a></li>
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">Expert</div>
+		<div class="y_menu_sec">
+			<ul>
+				<li><a target="work" title="get box infos" href="Y_Dyn_Pages.yhtm?page=frame_tools-info">Info</a></li>
+				{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="backup or flash image. (restricted by ManagementIP)">Image</li>
+				<li class="disabled" title="command shell (restricted by ManagementIP)">Command Shell</li>
+				<li class="disabled" title="yInstaller (for files, plugins, ...) (restricted by ManagementIP)">yInstaller</li>
+				~
+<!--dbox2 only				<li><a target="work" title="backup or flash image" href="Y_Tools_Flash_Menue.yhtm">Image</a></li> dbox2 only-->
+				<li><a target="work" title="command shell" href="Y_Tools_Cmd.yhtm">Command Shell</a></li>
+				<li><a target="work" title="yInstaller (for files, plugins, ...)" href="Y_Tools_Installer.yhtm">yInstaller</a></li>
+				=}
+			</ul>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function doTranscode()
+{
+	var _live = parent.live;
+	if(document.v.transcode.value == "Transcode")
+	{
+		var transcode = "transcode{"+
+		"width="	+document.v.twidth.value+
+		",height="	+document.v.theight.value+
+		",vcodec="	+document.v.vcodec.value+
+		",vb="		+document.v.vb.value+
+		",scale="	+document.v.scale.value+
+		",acodec="	+document.v.acodec.value+
+		",ab="		+document.v.ab.value+
+		",channels="	+document.v.channels.value+
+		"}:";
+
+		var stream = "dst=std{"+
+			"access="+document.v.access.value+
+			",mux="+document.v.tmux.value+
+			",url="+document.v.tip.value+
+			"}";
+		if(document.v.tdisplay.checked)
+			stream = stream+",dst=display";
+		
+		var __vlc_cmd = ":sout=#"+transcode+"duplicate{"+stream+"}";
+		var options = new Array(__vlc_cmd,":input-repeat=1");
+		document.v.transcode.value = "Stop Transcode";
+		_live.do_play_state(1, options);
+	}
+	else
+	{
+		document.v.transcode.value = "Transcode";
+		_live.do_play();
+	}
+}
+//]]>
+</script>
+</head>
+<body>
+	<form name="v" action="" method="get">
+		<table class="y_live_table" cellspacing="0" width="100%">
+		<tr><td class="y_form_header" colspan="5">Transcode-Broadcast</td></tr>
+		<tr><td class="y_form_section"><br/>Video</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Width:</td>
+			<td><input type="text" name="twidth" size="4" value="384" class="y_live_button"/></td>
+			<td>Height:</td>
+			<td><input type="text" name="theight" size="4" value="288" class="y_live_button"/></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Codec:</td>
+			<td>
+				<select name="vcodec" class="y_live_button">
+				<option value="mp4v" selected>mp4v</option>
+				<option value="mp2v">mp2v</option>
+				<option value="DIV3">DIV3</option>
+				<option value="h264">h264</option>
+				</select>
+			</td>
+			<td>Bitrate:</td>
+			<td>
+				<select name="vb" class="y_live_button">
+				<option value="1024">1024</option>
+				<option value="786">786</option>
+				<option value="512">512</option>
+				<option value="384" selected>384</option>
+				<option value="256">256</option>
+				<option value="128">128</option>
+				<option value="96">96</option>
+				<option value="64">64</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Scale:</td>
+			<td>
+				<select name="scale" class="y_live_button">
+				<option value="0.25">0.25</option>
+				<option value="0.50">0.50</option>
+				<option value="0.75">0.75</option>
+				<option value="1.00" selected>1.00</option>
+				<option value="1.25">1.25</option>
+				<option value="1.50">1.50</option>
+				<option value="1.75">1.75</option>
+				<option value="2.00">2.00</option>
+				</select>
+			</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr><td class="y_form_section"><br/>Audio</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Codec:</td>
+			<td>
+				<select name="acodec" class="y_live_button">
+				<option value="mp4a" selected>mp4a</option>
+				<option value="mp3">mp3</option>
+				<option value="mp2a">mp2a</option>
+				<option value="a52">a52</option>
+				</select>
+			</td>
+			<td>Bitrate:</td>
+			<td>
+				<select name="ab" class="y_live_button">
+				<option value="192">192</option>
+				<option value="128">128</option>
+				<option value="96">96</option>
+				<option value="64">64</option>
+				<option value="32" selected>32</option>
+				<option value="16">16</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Channels:</td>
+			<td>
+				<select name="channels" class="y_live_button">
+				<option value="1">1</option>
+				<option value="2 selected">2</option>
+				<option value="6">6</option>
+				</select>
+			</td>
+			<td>&nbsp;</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr><td class="y_form_section"><br/>Access</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>Type:</td>
+			<td>
+				<select name="access" class="y_live_button">
+				<option value="udp" selected>udp</option>
+				<option value="http">http</option>
+				<option value="RTP">RTP</option>
+				</select>
+			</td>
+			<td>Mux:</td>
+			<td>
+				<select name="tmux" class="y_live_button">
+				<option value="ts" selected>ts</option>
+				<option value="ps">ps</option>
+				<option value="mp4">mp4</option>
+				<option value="mov">mov</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td>IP:Port:</td>
+			<td colspan="3">
+				<input type="text" name="tip" size="18" value="localhost:1234" class="y_live_button">
+			</td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td colspan="4">
+			<br/>
+				<input type="checkbox" name="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>Display on
+				&nbsp;<button class="y_live_button" type="button" value="transcode" title="transcode stream" name="transcode" onclick="doTranscode()">Transcode</button>
+			</td>
+		</tr>
+		</table>
+	</form>
+</body>
+</html>

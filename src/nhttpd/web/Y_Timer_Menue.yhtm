@@ -1,0 +1,24 @@
+{=include-block:Y_Blocks.txt;head=}
+</head>
+{=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
+<body>
+<div class="y_menu_sec_box">
+	<div class="y_menu_sec_box_head"><h2>Timer</h2></div>
+	<div class="y_menu_sec_box_body">
+		<div class="y_menu_sec">
+			<ul id="menu_sec">
+				<li><a target="work" title="organize timer" href="/fb/timer.dbox2">Timer</a></li>
+				<li><a target="work" title="sync timer with web tv planer" href="Y_Tools_Timer_Sync.yhtm">Sync Timer</a></li>
+				<li><a target="work" title="recorder" href="Y_Blank.yhtm">Recorder</a></li>
+			{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="SyncTimer Settings (restricted by ManagementIP)">Timer Settings</a></li>
+			~
+				<li><a title="SyncTimer Settings" target="work" href="Y_Settings_Timer.yhtm">Timer Settings</a></li>
+			=}	
+			</ul>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

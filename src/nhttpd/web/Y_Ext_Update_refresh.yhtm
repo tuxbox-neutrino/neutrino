@@ -1,0 +1,23 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_onload()
+{
+	parent.sec_menu.location.reload();
+}
+//]]>
+</script>
+</head>
+<body onload="do_onload()">
+{=var-set:wait_text=Values are updated.=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Extentions#Update=}{=var-set:menu=Extentions Settings saved=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body" width="100%s">
+		Settings stored. Menu is updated.
+	</div>
+</div>
+</body>
+</html>
+

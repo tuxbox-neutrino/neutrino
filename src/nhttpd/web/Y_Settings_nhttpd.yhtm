@@ -1,0 +1,116 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function form_init() 
+{
+	var val = "{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.authenticate;false=}";
+	if(val == "true")
+		document.f.authenticate[1].checked = true
+	else
+		document.f.authenticate[0].checked = true;
+	var val = "{=ini-get:/var/tuxbox/config/nhttpd.conf;webserver.threading;false=}";
+	if(val == "true")
+		document.f.threading[1].checked = true
+	else
+		document.f.threading[0].checked = true;
+}
+function do_submit()
+{
+	if(document.f.authpassword.value.length < 5)
+		alert("Passwort muss mind. 4 Zeichen haben");
+	else
+	if(document.f.port.value == "")
+		alert("Port muss angegeben werden");
+	else
+	{
+		show_waitbox(true);
+		yhttpd_cache_clear("yPConf");
+		document.f.submit();
+	}
+}
+//]]>
+</script>
+</head>
+<body onload="form_init()">
+{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Settings#WebServer=}{=var-set:menu=WebServer (nhttpd)=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<table border="0">
+			<tr><td colspan="2" class="y_form_header">Authentification</td></tr>
+			<tr>
+				<td>User</td>
+				<td><input type="text" name="authuser" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.username;root~open=}" title="username"/></td>
+			</tr>
+			<tr>
+				<td>Passwort</td>
+				<td><input type="password" name="authpassword" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.password;dbox2~cache=}" title="password"/></td>
+			</tr>
+			<tr>
+				<td>Client ohne Authentification</td>
+				<td><input type="text" name="noauthclient" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.no_auth_client~cache=}" title="Client with no authentication check. Enter IP."/></td>
+			</tr>
+			<tr>
+				<td>Authentification</td>
+				<td>
+					<input type="radio" name="authenticate" value="false" title="authentication: off"/>OFF&nbsp;
+					<input type="radio" name="authenticate" value="true" title="authentication: on"/>ON
+				</td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">General</td></tr>
+			<tr>
+				<td>Port</td>
+				<td><input type="text" name="port" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80~cache=}" title="port"/>
+				<br/>Changed port will only be valid after a restart.
+				</td>
+			</tr>
+<!--
+				<td>Threading</td>
+				<td>
+					<input type="radio" name="threading" value="false" title="threading: off"/>Off;
+					<input type="radio" name="threading" value="true" title="threading: on"/>On
+				<br/>Changed will be valid after a restart.
+				</td>
+-->
+			<tr>
+				<td>Hosted Web (Mount)</td>
+				<td><input type="text" name="hosteddocumentroot" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.HostedDocumentRoot~cache=}" title="Root of hosted Web. Enter mount directory."/></td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Logos &amp; Extras</td></tr>
+			<tr>
+				<td>Directory ("web"=nur URL)</td>
+				<td><input type="text" name="ExtrasDocRoot" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;ExtrasDocRoot~cache=}" title="Enter mount directory (/mnt/hosted/extras or web)."/></td>
+			</tr>
+			<tr>
+				<td>URL</td>
+				<td><input type="text" name="ExtrasDocURL" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;ExtrasDocURL~cache=}" title="URL Root of hosted Extra Web. Enter URL (/hosted/extras)."/></td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Server</td></tr>
+			<tr>
+				<td>IPs Not keep-alive<br/>(like JtG, comma seperated) </td>
+				<td><input type="text" name="no_keep_alive_ips" size="30" maxsize="254" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;~cache=}" title="IPs not to HTTP1.1 keep alive like JtG. Comma seperated."/>
+				</td>
+			</tr>
+			<tr>
+				<td>Cache</td>
+				<td><a href="/y/cache-info" target="_blank"><u>Cache info</u>&nbsp;</a><input type="button" name="clearcache" value="clear cache" title="clear cache" onclick="javascript:yhttpd_cache_clear('');"/></td>
+			</tr>
+			<tr>
+				<td>Server Configuration</td>
+				<td><a href="/y/server-config" target="_blank"><u>Server Config</u></a></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Settings_nhttpd.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;nhttpd_save_settings;nix"/>
+		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

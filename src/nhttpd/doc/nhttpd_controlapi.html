@@ -1,0 +1,1798 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<link rel="STYLESHEET" type="text/css" href="yhttpd.css"/>
+<title>ControlAPI</title>
+</head>
+<body>
+
+
+<h1>control-API Dokumentation</h1><hr>
+<br>
+<b>API-Aufrufe</b><table border="0">
+	<tr>
+		<td>1. <a href="#channellist">Die Kanalliste </a> </td>
+		<td><a href="http://dbox/control/channellist">http://dbox/control/channellist</a></td>
+	</tr>
+	<tr>
+		<td>2. <a href="#epg">EPG-Abfrage</a></td>
+		<td><a href="http://dbox/control/epg">http://dbox/control/epg</a></td>
+	</tr>
+	<tr>
+		<td>3. <a href="#shutdown">Die DBox herunterfahren</a></td>
+		<td><a href="http://dbox/control/shutdown">http://dbox/control/shutdown</a></td>
+	</tr>
+	<tr>
+		<td>4. <a href="#standby">Standby Mode</a></td>
+		<td><a href="http://dbox/control/standby">http://dbox/control/standby</a></td>
+	</tr>
+	<tr>
+		<td>5. <a href="#volume">Lautstaerke-Steuerung</a></td>
+		<td><a href="http://dbox/control/volume">http://dbox/control/volume</a></td>
+	</tr>
+	<tr>
+		<td>6. <a href="#zapto">Programm umschalten / Playback</a></td>
+		<td><a href="http://dbox/control/zapto">http://dbox/control/zapto</a></td>
+	</tr>
+	<tr>
+		<td>7. <a href="#setmode">Radio/TV, Record Mode</a></td>
+		<td><a href="http://dbox/control/setmode">http://dbox/control/setmode</a></td>
+	</tr>
+	<tr>
+		<td>8. <a href="#getmode">Radio/TV Mode Abfrage</a></td>
+		<td>http://dbox/control/getmode</td>
+	</tr>
+	<tr>
+		<td>9. <a href="#getdate">Datum von der Box abfragen</a></td>
+		<td><a href="http://dbox/control/getdate">http://dbox/control/getdate</a></td>
+	</tr>
+	<tr>
+		<td>10. <a href="#gettime">Uhrzeit von der Box abfragen</a></td>
+		<td><a href="http://dbox/control/gettime">http://dbox/control/gettime</a></td>
+	</tr>
+	<tr>
+		<td>11. <a href="#info">Allgemeine Informationen</a></td>
+		<td><a href="http://dbox/control/info">http://dbox/control/info</a></td>
+	</tr>
+	<tr>
+		<td>12. <a href="#getonidsid">Aktuellen Kanal abfragen</a></td>
+		<td><a href="http://dbox/control/getonidsid">
+		http://dbox/control/getonidsid</a></td>
+	</tr>
+	<tr>
+		<td>13. <a href="#getservicesxml">services.xml lesen</a></td>
+		<td><a href="http://dbox/control/getservicesxml">
+		http://dbox/control/getservicesxml</a></td>
+	</tr>
+	<tr>
+		<td>14. <a href="#getbouquetsxml">bouquets.xml auslesen</a></td>
+		<td><a href="http://dbox/control/getbouquetsxml">
+		http://dbox/control/getbouquetsxml</a></td>
+	</tr>
+	<tr>
+		<td>15. <a href="#getbouquets">Bouquetlist abfragen</a></td>
+		<td><a href="http://dbox/control/getbouquets">
+		http://dbox/control/getbouquets</a></td>
+	</tr>
+	<tr>
+		<td>16. <a href="#getbouquet">Bouquet abfragen</a></td>
+		<td><a href="http://dbox/control/getbouquet">
+		http://dbox/control/getbouquet</a></td>
+	</tr>
+	<tr>
+		<td>17. <a href="#message">Fenster in neutrino</a></td>
+		<td><a href="http://dbox/control/message">http://dbox/control/message</a></td>
+	</tr>
+	<tr>
+		<td>18. <a href="#timer">Timerd Interface</a></td>
+		<td><a href="http://dbox/control/timer">http://dbox/control/timer</a></td>
+	</tr>
+	<tr>
+		<td>19. <a href="#lcd">LCD-Interace</a></td>
+		<td><a href="http://dbox/control/lcd">http://dbox/control/lcd</a></td>
+	</tr>
+	<tr>
+		<td>20. <a href="#exec">Shellscript ausführen</a></td>
+		<td><a href="http://dbox/cgi-bin/exec">http://dbox/cgi-bin/exec</a></td>
+	</tr>
+	<tr>
+		<td>21. <a href="#system">System-/Treiberfunktionen</a></td>
+		<td><a href="http://dbox/control/system">http://dbox/control/system</a></td>
+	</tr>
+	<tr>
+		<td>22. <a href="#rc">Fernbedienung</a></td>
+		<td><a href="http://dbox/control/rc">http://dbox/control/rc</a></td>
+	</tr>
+	<tr>
+		<td>23. <a href="#reboot">Die DBox neu starten</a></td>
+		<td><a href="http://dbox/control/reboot">http://dbox/control/reboot</a></td>
+	</tr>
+	<tr>
+		<td>24. <a href="#settings">Einige Einstellungen lesen</a></td>
+		<td><a href="http://dbox/control/settings">http://dbox/control/settings</a></td>
+	</tr>
+	<tr>
+		<td>25. <a href="#version">Die /.versions-File lesen</a></td>
+		<td><a href="http://dbox/control/version">http://dbox/control/version</a></td>
+	</tr>
+	<tr>
+		<td>26. <a href="#startplugin">Plugin ausführen</a></td>
+		<td><a href="http://dbox/control/startplugin">
+		http://dbox/control/startplugin</a></td>
+	</tr>
+	<tr>
+		<td>27. <a href="#yweb">Support für yweb</a></td>
+		<td><a href="http://dbox/control/yweb">http://dbox/control/yweb</a></td>
+	</tr>
+	<tr>
+		<td>28. <a href="#aspectratio">Aspektratio lesen</a></td>
+		<td><a href="http://dbox/control/aspectratio">
+		http://dbox/control/aspectratio</a></td>
+	</tr>
+	<tr>
+		<td>29. <a href="#videoformat">Videoformat lesen/setzen</a></td>
+		<td><a href="http://dbox/control/videoformat">
+		http://dbox/control/videoformat</a></td>
+	</tr>
+	<tr>
+		<td>30. <a href="#videooutput">Videooutput lesen/setzen</a></td>
+		<td><a href="http://dbox/control/videooutput">
+		http://dbox/control/videooutput</a></td>
+	</tr>
+	<tr>
+		<td>31. <a href="#vcroutput">VCR-output lesen/setzen</a></td>
+		<td><a href="http://dbox/control/vcroutput">
+		http://dbox/control/vcroutput</a></td>
+	</tr>
+	<tr>
+		<td>32. <a href="#scartmode">Scartmode lesen/setzen</a></td>
+		<td><a href="http://dbox/control/scartmode">
+		http://dbox/control/scartmode</a></td>
+	</tr>
+	<tr>
+		<td>33. <a href="#rcem">Fernbedienungstasten emulieren</a></td>
+		<td><a href="http://dbox/control/rcem">http://dbox/control/rcem</a></td>
+	</tr>
+	<tr>
+		<td>34. <a href="#setbouquet">Bouquet-Editor: Attribute setzen</a></td>
+		<td><a href="http://dbox/control/setbouquet">
+		http://dbox/control/setbouquet</a></td>
+	</tr>
+	<tr>
+		<td>35. <a href="#savebouquet">Bouquet-Editor: Bouquet-Liste</a></td>
+		<td><a href="http://dbox/control/savebouquet">
+		http://dbox/control/savebouquet</a></td>
+	</tr>
+	<tr>
+		<td>36. <a href="#movebouquet">Bouquet-Editor: Bouquet verschieben</a></td>
+		<td><a href="http://dbox/control/movebouquet">
+		http://dbox/control/movebouquet</a></td>
+	</tr>
+	<tr>
+		<td>37. <a href="#deletebouquet">Bouquet-Editor: Bouquet löschen</a></td>
+		<td><a href="http://dbox/control/deletebouquet">
+		http://dbox/control/deletebouquet</a></td>
+	</tr>
+	<tr>
+		<td>38. <a href="#addbouquet">Bouquet-Editor: Bouquet hinzufügen</a></td>
+		<td><a href="http://dbox/control/addbouquet">
+		http://dbox/control/addbouquet</a></td>
+	</tr>
+	<tr>
+		<td>39. <a href="#renamebouquet">Bouquet-Editor: Bouquet umbenennen</a></td>
+		<td><a href="http://dbox/control/renamebouquet">
+		http://dbox/control/renamebouquet</a></td>
+	</tr>
+	<tr>
+		<td>40. <a href="#changebouquet">Bouquet-Editor: Bouquet Channels ändern</a></td>
+		<td><a href="http://dbox/control/changebouquet">
+		http://dbox/control/changebouquet</a></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
+</table>
+<p>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="channellist"></a>1. Die Kanalliste</div>
+<div class="URL">Handler: http://dbox/control/channellist</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rueckgabe:</b><br>
+<br>
+Es wird die gesamte Kanalliste von Neutrino zurueckgegeben.<br>
+Jede Zeile wird von einem Enter (\n) von der Naechsten getrennt.<br>
+Eine Zeile enthaelt ein Programm.<br>
+<br>
+<b>Rueckgabe-Format:</b> channel_id Programmname<br>
+<br>
+Die channel_id dient als Handle fuer andere Operationen wie Zappen oder EPG.<br>
+Die channel_id ist eine 64 bit Hexadezimalzahl.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/channellist<br>
+16dca Das Erste<br>
+16e29 EinsExtra<br>
+16e2a EinsFestival<br>
+16e2b EinsMuXx<br>
+16d66 ZDF<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1">2. <a name="epg"></a>EPG-Abfrage</div>
+<div class="URL">Handler: http://dbox/control/epg</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rueckgabe:</b><br>
+<br>
+Es werden alle verfuegbaren EPG's aller Programme, zur aktuellen Zeit<br>
+zurueckgegeben. Jede Zeile wird von einem Enter (\n) von der<br>
+Naechsten getrennt. Eine Zeile enthaelt die Information ueber die<br>
+aktuell laufende Sendung.<br>
+<br>
+<b>Rueckgabe-Format:</b> channel_id EVENTID Titel der Sendung<br>
+<br>
+Die EVENTID dient als Handle um genauere Informationen abzufragen.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/epg<br>
+8716804 571264467523 Wasserloch Nr. 3<br>
+8716304 571231699926 Ein Kaefig voller Helden<br>
+8716311 571232198133 Cop Rock<br>
+</div>
+<b>Parameter:</b> channel_id (64 bit, hexadezimal)<br>
+<b>Rueckgabe:</b><br>
+<br>
+Als Rueckgabe wird die Eventliste des durch die channel_id<br>
+identifizierten Senders gesendet, d.h. eine Liste, welche Filme auf<br>
+diesem Sender kommen. Jede Zeile wird von einem Enter (\n) von der<br>
+Naechsten getrennt.<br>
+<br>
+<b>Rueckgabe-Format:</b> EVENTID Startzeit Dauer Titel der Sendung<br>
+<br>
+Die EVENTID dient als Handle um genauere EPG-Informationen abzufragen.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/epg?8716304<br>
+571231699925 1021322700 1500 Shooting Stars<br>
+571231699926 1021324200 1500 Ein Kaefig voller Helden<br>
+571231699927 1021325700 1500 The Hitchhiker<br>
+571231699928 1021327200 1500 The Hitchhiker<br>
+</div>
+<b>Parameter:</b> id=channel_id<br>
+<b>Rueckgabe:</b><br>
+<br>
+Als Rueckgabe wird die Eventliste des durch die channel_id<br>
+identifizierten Senders gesendet, das heisst eine Liste, was fuer<br>
+Filme auf einem Sender kommen. Jeder Datensatz wird von einem<br>
+EnterEnter (\n\n) vom Naechsten getrennt.<br>
+<br>
+<b>Rueckgabe-Format:</b> <br>
+EVENTID Startzeit DURATION<br>
+TITLE<br>
+INFO1<br>
+INFO2<br>
+<br>
+Die EVENTID dient als Handle um genauere EPG-Informationen abzufragen.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/epg?id=16dcb<br>
+6143198520 1067754600 1800<br>
+Daten der Woche<br>
+Moderation: Andrea Müller<br>
+Themen: Kandidatenkür: Maas wird Spitzenkandidat<br>
+Aufsteiger: Auszeichnung für Scheer Dikussion: Längere<br>
+Arbeitszeiten; dazu ein Interview mit Christian Scholz,<br>
+Wirtschaftswissenschaftler Ladenschluss: Öffnungszeiten am<br>
+Sonntag <br>
+<br>
+6143198521 1067756400 1800<br>
+Abendschau<br>
+Themen: Protestmarsch &quot;Es reicht&quot; Vorabdruck: Harry<br>
+Potter Militär-Musikfest&#352;AbendschauNews Ermittlungen<br>
+gegen Michael Krausz Bahnunfall am Alexanderplatz Aubis<br>
+Urteil<br>
+</div>
+<br>
+<b>Parameter:</b> eventid=EVENTID<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird die ausführliche Beschreibung eines Films<br>
+zurückgegeben. Diese besteht aus einem Titel, einer allgemeinen<br>
+Info und der Beschreibung. Titel Info und Beschreibung derwen mit<br>
+einem Enter (\n) vonneinander getrennt. Es muss beachtet werden, dass<br>
+in der Beschreibung weitere Enter vorkommen können.<br>
+<br>
+<b>Rückgabe-Format:</b><br>
+Titel<br>
+Info<br>
+Beschreibung<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/epg?eventid=571231699926<br>
+Ein Käfig voller Helden<br>
+Operation 'Tiger' <br>
+blablabla <br>
+</div>
+<b>Parameter: ext</b><br>
+<b>Rueckgabe:</b><br>
+<br>
+Es werden alle verfuegbaren EPG's aller Programme, zur aktuellen Zeit<br>
+zurueckgegeben. Jede Zeile wird von einem Enter (\n) von der<br>
+Naechsten getrennt. Eine Zeile enthaelt die Information ueber die<br>
+aktuell laufende Sendung.<br>
+<br>
+<b>Rueckgabe-Format:</b> channel_id Startzeit Dauer EVENTID Titel der Sendung<br>
+<br>
+Die EVENTID dient als Handle um genauere Informationen abzufragen.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/epg?ext<br>
+8716330 1025382300 6900 571233417784 Rocky 2<br>
+</div>
+<b>Parameter:</b> xml=true&amp;channelid=&lt;channel_id&gt;|channelname=&lt;channel 
+name&gt;[&amp;details=true][&amp;max=&lt;max items&gt;][&amp;stoptime=&lt;long:stop time&gt;]<br>
+<b>Rückgabe:</b><br>
+Liefert zum angegebenen channel (angegeben durch channel_id oder channel_name) 
+das EPG als XML-Liste zurück.<br>
+channel_name=Ein oder mehrere durch Komma getrente Sendernamen.<br>
+Wird details=true angegeben, dann werden zusätzlich info1 and info2 mit 
+ausgegeben.<br>
+Zur Begrenzung der Menge der Listeneinträge kann max für die Anzahl der Elemente 
+oder <br>
+stoptime für die Uhrzeit bis zu der Angaben gemacht werden sollen, begrenzt 
+werden.<br>
+<div class="example">
+Beispiel:<br>
+&gt;&gt;&gt;http://192.168.0.15/control/epg?xml=true&amp;channelid=44d00016dca&amp;details=true&amp;max=2<br>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot;?&gt;<br>
+&lt;epglist&gt;<br>
+&lt;channel_id&gt;44d00016dca&lt;/channel_id&gt;<br>
+&lt;channel_name&gt;&lt;![CDATA[Das Erste]]&gt;&lt;/channel_name&gt;<br>
+&lt;prog&gt;<br>
+&lt;eventid&gt;309903955495411052&lt;/eventid&gt;<br>
+&lt;eventid_hex&gt;44d00016dcadd6c&lt;/eventid_hex&gt;<br>
+&lt;start_sec&gt;1148314800&lt;/start_sec&gt;<br>
+&lt;start_t&gt;18:20&lt;/start_t&gt;<br>
+&lt;date&gt;02.10.2006&lt;/date&gt;<br>
+&lt;stop_sec&gt;1148316600&lt;/stop_sec&gt;<br>
+&lt;stop_t&gt;18:50&lt;/stop_t&gt;<br>
+&lt;duration_min&gt;30&lt;/duration_min&gt;<br>
+&lt;description&gt;&lt;![CDATA[Marienhof]]&gt;&lt;/description&gt;<br>
+&lt;info1&gt;&lt;![CDATA[(Folge 2868)]]&gt;&lt;/info1&gt;<br>
+&lt;info2&gt;&lt;![CDATA[Sülo verachtet Constanze wegen ihrer Intrige. Luigi plündert das 
+Konto und haut ab. Jessy will Carlos über ihre Chats aufklären.]]&gt;&lt;/info2&gt;<br>
+&lt;/prog&gt;<br>
+&lt;prog&gt;<br>
+<br>
+&lt;eventid&gt;309903955495411054&lt;/eventid&gt;<br>
+&lt;eventid_hex&gt;44d00016dcadd6e&lt;/eventid_hex&gt;<br>
+&lt;start_sec&gt;1148316600&lt;/start_sec&gt;<br>
+&lt;start_t&gt;18:50&lt;/start_t&gt;<br>
+&lt;stop_sec&gt;1148320200&lt;/stop_sec&gt;<br>
+&lt;stop_t&gt;19:50&lt;/stop_t&gt;<br>
+<br>
+&lt;duration_min&gt;60&lt;/duration_min&gt;<br>
+&lt;description&gt;&lt;![CDATA[Großstadtrevier]]&gt;&lt;/description&gt;<br>
+&lt;info1&gt;&lt;![CDATA[239. Fenstergespenster]]&gt;&lt;/info1&gt;<br>
+&lt;info2&gt;&lt;![CDATA[Pech für Dirk Matthies: Da steigt er auf eine Leiter, weil ihn 
+mal der Putzfimmel überkommt, und - knacks! - bricht eine Sprosse. Das Bein ist 
+gebrochen, mehrere Rippen geprellt. Katja Metz versorgt ihn mit dem 
+Nötigsten.]]&gt;&lt;/info2&gt;<br>
+&lt;/prog&gt;<br>
+&lt;/epglist&gt;<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="shutdown"></a>3. Die DBox herunterfahren</div>
+<div class="URL">Handler: http://dbox/control/shutdown</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird der Text ok bei Erfolg oder error im Fehlerfall<br>
+zurückgegeben. Die Dbox schaltet sich bei ok sofort ab.<br>
+<br>
+<b>Rückgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/shutdown<br>
+ok<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="standby"></a>4. Standby Mode</div>
+<div class="URL">Handler: http://dbox/control/standby</div>
+<br>
+<b>Parameter: on</b><br>
+<b>Rückgabe:</b><br>
+<br>
+Schaltet in den Standby Mode<br>
+<br>
+<b>Rückgabe-Format:</b> ok /error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/standby?on<br>
+ok<br>
+</div>
+<b>Parameter: off</b><br>
+<b>Rückgabe:</b><br>
+<br>
+Schaltet den Standby Mode aus<br>
+<br>
+<b>Rückgabe-Format:</b> ok /error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/standby?off<br>
+ok<br>
+</div>
+<br>
+<b>Parameter: </b><br>
+<b>Rückgabe: </b><br>
+<br>
+Zeigt den Standby status an<br>
+<br>
+<b>Rückgabe-Format:</b> on / off<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/standby<br>
+on<br>
+</div>
+<p>
+<!-- ----------------------------------------------------------- -->
+</p>
+<div class="title1"><a name="volume"></a>5. Lautstärke-Steuerung</div>
+<div class="URL">Handler: http://dbox/control/volume</div>
+<br>
+<b>Parameter: keine</b><br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird die aktuell eingestellte Lautstärke zurückgegeben - die<br>
+Werte bewegen sich zwischen 0 (leise) und 100 (laut).<br>
+<br>
+<b>Rückgabe-Format:</b> Lautstärke<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/volume<br>
+80<br>
+</div>
+<br>
+<b>Parameter:</b> &lt;Lautstärke als ganze Zahl in 5er Schritten&gt;<br>
+<b>Rückgabe:</b><br>
+<br>
+Es kann die Lautstärke eingestellt werden - die Werte müssen<br>
+sich zwischen 0 (leise) und 100 (laut) bewegen. Es sollten nur Werte<br>
+in 5er-Schritten gesetzt werden (5,10,...). <br>
+<br>
+<b>Rückgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/volume?40<br>
+ok<br>
+</div>
+<br>
+<b>Parameter:</b> mute<br>
+<b>Rückgabe:</b><br>
+<br>
+Die Audio-Ausgabe wird abgeschaltet. Es kommt als Bestätigung der<br>
+String mute zurück.<br>
+<br>
+<b>Rückgabe-Format:</b> ok<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/volume?mute<br>
+mute<br>
+</div>
+<br>
+<b>Parameter:</b> unmute<br>
+<b>Rückgabe:</b><br>
+<br>
+Die Audio-Ausgabe wird wieder eingeschaltet. Es kommt als<br>
+Bestätigung der String unmute zurück.<br>
+<br>
+<b>Rückgabe-Format: </b>ok<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/volume?mute<br>
+unmute<br>
+</div>
+<br>
+<b>Parameter:</b> status<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird der Status (ob gerade mute aktiv ist) zurückgegeben.<br>
+0 - unmuted<br>
+1 - mute<br>
+<br>
+<b>Rückgabe-Format:</b> 0 oder 1<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/volume?status<br>
+1<br>
+</div>
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="zapto"></a>6. Programm umschalten</div>
+<div class="URL">Handler: http://dbox/control/zapto</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rueckgabe:</b><br>
+<br>
+Es wird die channel_id (hex-value, 64 bit, kein 0x-prefix) des aktuell<br>
+laufenden Senders zurueckgegeben.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto<br>
+16dcb<br>
+</div>
+<br>
+<b>Parameter:</b> getpids<br>
+<b>Rückgabe:</b><br>
+<br>
+Es werden die VPID und die APID des laufenden Senders angezeigt. Die<br>
+beiden Werte sind durch ein Enter voneinander getrennt.<br>
+<br>
+<b>Rückgabe-Format:</b><br>
+VPID<br>
+APID<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?getpids<br>
+305<br>
+306<br>
+</div>
+<b>Parameter:</b> getallpids<br>
+<b>Rückgabe:</b><br>
+<br>
+Es werden die VTXT PID, VPID und alle APIDs des laufenden Senders<br>
+angezeigt. Die Werte sind durch ein Enter voneinander getrennt.<br>
+Hinter jeder APID wird eine kurze Beschreibung angegeben, bei AC3<br>
+Streams zusätzlich (AC3).<br>
+<br>
+<b>Rückgabe-Format:</b><br>
+VPID<br>
+APID &lt;description&gt; [(AC3)]<br>
+[APID...]<br>
+[VTXT PID]<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?getallpids<br>
+<br>
+00511<br>
+00512 deutsch<br>
+00513 englisch<br>
+00515 Dolby Digital 2.0<br>
+00032 vtxt<br>
+00101 pmt<br>
+<br>
+oder <br>
+<br>
+00101<br>
+00102 German <br>
+00104 vtxt<br>
+00100 pmt<br>
+</div>
+<b>Parameter:</b> getallsubchannels<br>
+<b>Rückgabe:</b><br>
+<br>
+Es werden die Unterkanäle des aktuellen Senders zurückgegeben:<br>
+<br>
+<b>Rückgabe-Format:</b><br>
+channel_id channel_name<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?getallsubchannels<br>
+<br>
+400850012 Direkt Portal<br>
+1008500d4 D 1 - 11:30<br>
+3008500f1 D 1 - 12:00<br>
+3008500dc D 1 - 12:30<br>
+1008500d3 D 2 - 11:30<br>
+3008500f4 D 2 - 12:00<br>
+3008500f0 D 2 - 12:30<br>
+4008500d2 D 3 - 11:45<br>
+3008500f3 D 3 - 12:45<br>
+4008500d1 D 4 - 13:00<br>
+4008500d0 D 5 - 12:30<br>
+</div>
+<br>
+<b>Parameter:</b> stopplayback<br>
+<b>Rückgabe:</b><br>
+Stoppt die Decodierung um Graben zu können. Zusätzlich wird der<br>
+Sectionsd gestoppt. Rückgabewert sollte ok für Erfolg sein.<br>
+<br>
+<b>Rückgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?stopplayback<br>
+ok<br>
+</div>
+<br>
+<b>Parameter:</b> startplayback<br>
+<b>Rückgabe:</b><br>
+Startet die Decodierung nach dem Graben wieder, Sectionsd wird auch<br>
+wieder gestartet. Rückgabewert sollte ok für Erfolg sein.<br>
+<br>
+<b>Rückgabe-Format:</b> ok<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?startplayback<br>
+ok<br>
+</div>
+<br>
+<b>Parameter:</b> statusplayback<br>
+<b>Rückgabe:</b><br>
+'1': Playback aktiv, '0': kein Playback aktiv<br>
+<br>
+<b>Rückgabe-Format:</b> 0/1<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?statusplayback<br>
+0<br>
+</div>
+<br>
+<b>Parameter:</b> stopsectionsd<br>
+<b>Rückgabe:</b><br>
+Stoppt den Sectionsd zum Grabben. Rückgabewert sollte ok für Erfolg sein.<br>
+<br>
+<b>Rückgabe-Format:</b> ok<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?stopsectionsd<br>
+ok<br>
+</div>
+<br>
+<b>Parameter:</b> startsectionsd<br>
+<b>Rückgabe:</b><br>
+Startet Sectionsd nach dem Graben wieder. Rückgabewert sollte ok<br>
+für Erfolg sein.<br>
+<br>
+<b>Rückgabe-Format:</b> ok<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?startsectionsd<br>
+ok<br>
+</div>
+<br>
+<b>Parameter:</b> statussectionsd<br>
+<b>Rückgabe:</b><br>
+gibt den status des sectionsd zurück. (Scanning, bzw, kein scanning)<br>
+<br>
+<b>Rückgabe-Format:</b> '1': sectionsd scanning an, '0': sectionsd scanning aus<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?statussectionsd<br>
+1<br>
+</div>
+<br>
+<b>Parameter:</b> channel_id (64 bit, hexidecimal value)<br>
+<b>Rueckgabe:</b><br>
+<br>
+Zappt auf den angegebenen Kanal.<br>
+Als Rueckgabe ist im Erfolgsfall ok zu erwarten.<br>
+<br>
+<b>Rueckgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?16dcb<br>
+ok <br>
+</div>
+
+<b>Parameter:</b> channel_name oder channel_names (Ein oder mehrere durch Komma 
+getrente Sendernamen; URI encoded)<br>
+<b>Rueckgabe:</b><br>
+<br>
+Zappt auf den angegebenen Kanal.<br>
+Als Rueckgabe ist im Erfolgsfall ok zu erwarten.<br>
+<br>
+<b>Rueckgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/zapto?name=Das%20Erste<br>
+ok <br>
+</div>
+
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="setmode"></a>7. Radio/TV, Record Mode</div>
+<div class="URL">Handler: http://dbox/control/setmode</div>
+<br>
+<b>Parameter:</b> status<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird der aktuelle record mode status zurückgegeben on / off<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/setmode?status<br>
+on<br>
+</div>
+<b>Parameter:</b> radio<br>
+<b>Rückgabe:</b><br>
+<br>
+Schaltet in den radio mode<br>
+<br>
+<b>Rückgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/setmode?radio<br>
+ok<br>
+</div>
+<b>Parameter:</b> tv<br>
+<b>Rückgabe:</b><br>
+<br>
+Schaltet in den tv mode<br>
+<br>
+<b>Rückgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/setmode?tv<br>
+ok<br>
+</div>
+
+<br>
+<b>Parameter:</b> record<br>
+<b>Rückgabe:</b><br>
+<br>
+Schaltet in den record mode. Dies beinhaltet auch das stoppen, bzw,<br>
+das starten des sectionsd scanning, das starten des playbacks(immer)<br>
+und stoppen des playbacks (nur bei stopplayback=true).<br>
+<br>
+<b>Rückgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/setmode?record=start<br>
+ok<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/setmode?record=start&amp;stopplayback=true<br>
+ok<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/setmode?record=stop<br>
+ok<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getmode"></a>8. Radio/TV Mode Abfrage</div>
+<div class="URL">Handler: http://dbox/control/getmode</div>
+<br>
+<b>Parameter:</b> <br>
+<b>Rückgabe:</b> &quot;tv&quot;, &quot;radio&quot;, &quot;unkown&quot;<br>
+<br>
+Es wird der aktuelle mode zurückgegeben tv / radio / unknown (shouldn't happen)<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/getmode<br>
+tv<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getdate"></a>9. Datum von der Box abfragen</div>
+<div class="URL">Handler: http://dbox/control/getdate</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird das Datum zurückgegeben.<br>
+<br>
+<b>Rückgabe-Format:</b> dd.mm.yyyy<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/getdate<br>
+11.01.2002<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="gettime"></a>10. Zeit von der Box abfragen</div>
+<div class="URL">Handler: http://dbox/control/gettime</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird die Uhrzeit zurückgegeben.<br>
+<br>
+<b>Rückgabe-Format:</b> hh:mm:ss<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/gettime<br>
+20:34:24<br>
+</div>
+<b>Parameter:</b> rawtime<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird das Uhrzeit im time_t Format zurückgegeben.<br>
+<br>
+<b>Rückgabe-Format:</b> time_t<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/gettime?rawtime<br>
+1046804654<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="info"></a>11. Allgemeine Informationen abfragen</div>
+<div class="URL">Handler: http://dbox/control/info</div>
+<br>
+<b>Parameter:</b> streaminfo<br>
+<b>Rückgabe:</b><br>
+<br>
+Es werden Streaminfos zurückgegeben. Die Werte sind durch Enter (\n) getrennt<br>
+<br>
+<b>Rückgabe-Format:</b> X_res Y_res Bitrate VideoFormat Framerate AudioFormat<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/info?streaminfo<br>
+480<br>
+576<br>
+997500<br>
+4:3<br>
+25<br>
+joint stereo<br>
+</div>
+<b>Parameter:</b> version<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird der Inhalt der Datei /.version zurückgegeben. <br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/info?version<br>
+version: 1.1.27032002-21.8<br>
+md5sum: f1d7d47578bb9040a82085182934ce0e<br>
+Erstellt von alexW<br>
+</div>
+<b>Parameter:</b> settings<br>
+<b>Rückgabe:</b> <br>
+<br>
+Aktuelle Settings und DBox Typ<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/info?settings<br>
+Boxtype Nokia<br>
+videooutput RGB<br>
+videoformat 4:3<br>
+</div>
+<b>Parameter:</b> httpdversion<br>
+<b>Rückgabe:</b> <br>
+<br>
+Version des httpd <br>
+1 : nhttpd (legacy api)<br>
+2 : thttpd<br>
+3 : nhttpd<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/info?httpdversion<br>
+3<br>
+</div>
+<b>Parameter:</b> nhttpd_version<br>
+<b>Rückgabe:</b> Version des nhttpd (Neutrino)<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/info?nhttpd_version<br>
+2.2.1<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getonidsid"></a>12. Aktuellen Kanal abfragen</div>
+<div class="URL">Handler: http://dbox/control/getonidsid</div>
+<br>
+<b>Parameter:</b> <br>
+<b>Rueckgabe:</b><br>
+<br>
+Es wird die TSIDONIDSID des aktuellen Kanals zurueckgegeben.<br>
+<br>
+Diese Funktion sollte NICHT mehr verwendet werden und ist durch<br>
+folgenden Aufruf ersetzt:<br>
+http://dbox/control/zapto<br>
+<br>
+<b>Rueckgabe-Format:</b> TSIDONIDSID<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/getonidsid<br>
+44d00016dca<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getservicesxml"></a>13. services.xml lesen</div>
+<div class="URL">Handler: http://dbox/control/getservicesxml</div>
+<br>
+<b>Parameter:</b> <br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird der Inhalt der Datei /var/tuxbox/config/zapit/services.xml<br>
+zurückgegeben.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/getservicesxml<br>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot;?&gt;<br>
+&lt;ZAPIT&gt;<br>
+&lt;cable&gt;<br>
+&lt;transponder transportID=&quot;00001&quot; networkID=&quot;0&quot;&gt;<br>
+&lt;cable frequency=&quot;04020&quot; symbolRate=&quot;06900&quot; fec=&quot;0&quot; polarity=&quot;0&quot;/&gt;<br>
+...<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getbouquetsxml"></a>14. bouquets.xml auslesen</div>
+<div class="URL">Handler: http://dbox/control/getbouquetsxml</div>
+<br>
+Parameter: <br>
+Rückgabe:<br>
+<br>
+Es wird der Inhalt der Datei /var/tuxbox/config/zapit/bouquet.xml<br>
+zurückgegeben.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/getbouquetsxml<br>
+<br>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot;?&gt;<br>
+&lt;ZAPIT&gt;<br>
+&lt;Bouquet name=&quot;beispielbouquet&quot; hidden=&quot;0&quot; locked=&quot;0&quot;&gt;<br>
+&lt;channel serviceID=&quot;6d67&quot; name=&quot;3sat&quot; onid=&quot;0001&quot;/&gt;<br>
+...<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getbouquets"></a>15. Bouquetlist abfragen</div>
+<div class="URL">Handler: http://dbox/control/getbouquets</div>
+<br>
+<b>Parameter:</b> <br>
+<b>Rückgabe:</b><br>
+<br>
+Es werden alle Bouquets zurückgeliefert<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/getbouquets<br>
+1 ARD<br>
+3 Premiere World<br>
+4 VisionProgramme<br>
+5 ZDFvision<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="getbouquet"></a>16. Bouquet abfragen</div>
+<div class="URL">Handler: http://dbox/control/getbouquet</div>
+<br>
+<b>Parameter:</b> bouquet=Bouquet Nr. und mode=TV | RADIO oder actual und und 
+mode=TV | RADIO optional: xml=true<br>
+<b>Rueckgabe:</b><br>
+<br>
+Es werden alle Sender des Bouquets zurueckgeliefert. Wird actual mit<br>
+angegeben, dann wird das Bouquet genommen, welches den aktuellen<br>
+Sender als erstes enthält. <br>
+Nummer_des_Kanals channel_id Name_des_Senders<br>
+<div class="example">
+Beispiel:<br>
+&gt;&gt;&gt;http://dbox/control/getbouquet?bouquet=2&amp;mode=TV<br>
+20 12ee3 RTL Television<br>
+21 85002e SAT.1<br>
+22 850382 ProSieben<br>
+23 12ef4 RTL2<br>
+24 12f1c VOX<br>
+<br>
+Wird xml=1 angegeben, dann wird die Liste im XML-Format zurückgegeben:<br>
+Beispiel:<br>
+&gt;&gt;&gt;http://192.168.0.15/control/getbouquet?bouquet=3&amp;xml=true<br>
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;iso-8859-1&quot;?&gt;<br>
+&lt;bouquetlist&gt;<br>
+&lt;bouquet&gt;<br>
+&lt;bnumber&gt;3&lt;/bnumber&gt;<br>
+&lt;/bouquet&gt;<br>
+&lt;channel&gt;<br>
+&lt;number&gt;33&lt;/number&gt;<br>
+&lt;id&gt;44d00016dca&lt;/id&gt;<br>
+&lt;name&gt;&lt;![CDATA[Das Erste]]&gt;&lt;/name&gt;<br>
+&lt;/channel&gt;<br>
+&lt;channel&gt;<br>
+&lt;number&gt;34&lt;/number&gt;<br>
+&lt;id&gt;44d00016dcd&lt;/id&gt;<br>
+&lt;name&gt;&lt;![CDATA[arte]]&gt;&lt;/name&gt;<br>
+&lt;/channel&gt;<br>
+&lt;/bouquetlist&gt;<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="message"></a>17. Open popup window</div>
+<div class="URL">Handler: http://dbox/control/message</div>
+<br>
+<b>Parameter:</b> popup=text or nmsg=text<br>
+<br>
+<b>Return value:</b> ok<br>
+<br>
+Character encoding: UTF-8, spaces must be transmitted using %20<br>
+<br>
+Neutrino opens a pop up (popup) or message (nmsg) window in which the<br>
+text part of the parameter is displayed. A pop up window closes<br>
+itself after a few seconds whereas a message window must be closed<br>
+using the remote control.<br>
+<div class="example">
+Examples:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/message?popup=Hello%20World<br>
+opens a popup window on the TV screen with content &quot;Hello World&quot;<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/message?nmsg=Hello%20Welt<br>
+opens a message window on the TV screen with content &quot;Hello World&quot;<br>
+</div>
+Setting up UTF-8 for KDE Konqueror users:<br>
+-----------------------------------------<br>
+Use &quot;Settings -&gt; Web Shortcuts -&gt; Add&quot; to add an additional search<br>
+provider - for example: <br>
+- Search Provider Name: DBox Popup<br>
+- Search URI: http://dbox/control/message?popup=\{@}<br>
+- URI shortcut: dbox<br>
+- Charset: UTF-8<br>
+Accept the addition.<br>
+<br>
+Now you can simply time your popup messages in the location bar by<br>
+preceeding the text with &quot;dbox: &quot;, like in: <br>
+dbox: Hello ä ö ü Ä Ö Ü ß World<br>
+<br>
+UTF-8 help sponsored by google:<br>
+-------------------------------<br>
+http://www.google.com/search?q=%C3%A4%20%C3%B6%20%C3%BC%20%C3%84%20%C3%96%20%C3%9C%20%C3%9F&amp;ie=UTF-8&amp;oe=UTF-8<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1">17. Popup-Fenster oeffnen</div>
+<div class="URL">Handler: http://dbox/control/message</div>
+<br>
+<b>Parameter:</b> popup=Text oder nmsg=Text<br>
+<br>
+<b>Rückgabewert:</b> ok<br>
+<br>
+Zeichensatz: UTF-8, Leerzeichen muessen als %20 gesendet werden<br>
+<br>
+Neutrino oeffnet ein Popup(popup)- oder Message(nmsg)-Fenster, in dem<br>
+der Text des Parameters dargestellt wird. Ein Popupfenster schliesst<br>
+sich nach wenigen Sekunden selbst, wohingegen ein Message-Fenster mit<br>
+der Fernbedienung geschlossen werden muss.<br>
+<div class="example">
+Beispiele:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/message?popup=Hallo%20World<br>
+öffnet ein Popup-Fenster auf dem Fernseher, in dem &quot;Hallo World&quot; steht<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/message?nmsg=Hallo%20Welt<br>
+öffnet ein Message-Fenster auf dem Fernseher, in dem &quot;Hallo Welt&quot; steht<br>
+</div>
+KDE Konqueror Benutzer koennen folgendes Verfahren benutzen:<br>
+------------------------------------------------------------<br>
+Mit Hilfe von &quot;Settings -&gt; Web Shortcuts -&gt; Add&quot; einen neuen Search<br>
+Provider hinzufuegen. z.B.:<br>
+- Search Provider Name: DBox Popup<br>
+- Search URI: http://dbox/control/message?popup=\{@}<br>
+- URI shortcut: dbox<br>
+- Charset: UTF-8<br>
+<br>
+Nun kann eine Popup Message direkt in die Location Bar eingegeben<br>
+werden, wenn man ein &quot;dbox: &quot; davor setzt. Beispiel:<br>
+dbox: Hallo ä ö ü Ä Ö Ü ß World<br>
+<br>
+<br>
+Google's UTF-8 Tutorial:<br>
+------------------------<br>
+http://www.google.com/search?q=%C3%A4%20%C3%B6%20%C3%BC%20%C3%84%20%C3%96%20%C3%9C%20%C3%9F&amp;ie=UTF-8&amp;oe=UTF-8<br>
+<br>
+
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="timer"></a>18. Timerd Interface</div>
+<div class="URL">Handler: http://dbox/control/timer</div>
+<br>
+<b>Parameter:</b> [format=id]<br>
+<b>Rückgabe:</b><br>
+<br>
+Zeigt die Liste aller Timer<br>
+<br>
+<b>Rückgabe-Format:</b> <br>
+eventID eventType eventRepeat repcount announceTime alarmTime stopTime data<br>
+<br>
+<i>eventID</i> ist der timer-Platz.<br>
+<i>eventType</i> ist die Art des timers, die kann sein:<br>
+<br>
+1 = SHUTDOWN<br>
+2 = NEXTPROGRAM<br>
+3 = ZAPTO<br>
+4 = STANDBY<br>
+5 = RECORD<br>
+6 = REMIND<br>
+7 = SLEEPTIMER<br>
+8 = EXEC_PLUGIN<br>
+<br>
+siehe dazu auch:<br>
+<a href="http://cvs.tuxbox.org/cgi-bin/viewcvs.cgi/*checkout*/tuxbox/apps/tuxbox/neutrino/daemons/timerd/doku.html?rev=1.3&content-type=text/plain">http://cvs.tuxbox.org/cgi-bin/viewcvs.cgi/*checkout*/tuxbox/apps/tuxbox/neutrino/daemons/timerd/doku.html?rev=1.3&amp;content-type=text/plain</a><br>
+<br>
+<i>eventRepeat</i> ist die Angabe der timerwiderholung, die kann sein:<br>
+<br>
+0 = ONCE (Einmal)<br>
+1 = DAILY (Täglich)<br>
+2 = WEEKLY (Wöchentlich)<br>
+3 = BIWEEKLY (Alle 2 Wochen)<br>
+4 = FOURWEEKLY (Alle 4 Wochen)<br>
+5 = MONTHLY (Monatlich)<br>
+6 = BYEVENTDESCRIPTION (noch nicht implementiert)<br>
+<br>
+Es gibt auch noch eine Möglichkeit WEEKDAYS also auch wochentage<br>
+festzulegen wo die aufname statfinden soll. dies wird über einen<br>
+Bitschlüssel angegeben der Bit 9-15 für die Wochentage<br>
+ansieht. das heist:<br>
+<br>
+0000000100000000 = 256 = Montag<br>
+0000001000000000 = 512 = Dinstag<br>
+0000010000000000 = 1024 = Mittwoch<br>
+0000100000000000 = 2048 = Donerstag<br>
+0001000000000000 = 4096 = Freitag<br>
+0010000000000000 = 8192 = Samstag<br>
+0100000000000000 = 16384 = Sontag<br>
+<br>
+Dem zuvolge ist Montag+Mittwoch+Samstag <br>
+<br>
+0000000100000000 = 256<br>
+0000010000000000 = 1024<br>
+0010000000000000 = 8192<br>
+---------------- ----<br>
+0010010100000000 = 9472<br>
+<br>
+<i>repcount</i> bestimmt die Anzahl der Timeraufrufe, nach der der Timer<br>
+automatisch gelöscht wird. 0 bedeutet, dass es keine<br>
+Beschränkung gibt. Bei eventRepeat=ONCE hat diese Einstellung<br>
+keine Auswirkungen.<br>
+<br>
+<i>announceTime</i> ist die Zeit an der die Warnung for den timer auf den<br>
+Bildschirm erscheint. siehe auch Kapittel 16: popup. alarmTime ist<br>
+die Zeit des Timer-Starts stopTime ist die Stopzeit für den Timer<br>
+data ist der Name des Senders.<br>
+<br>
+<i>data</i> enthält weitere Angaben zum Timer. Bei RECORD z.B. den Sendernamen.<br>
+wurde format=id angegeben, so wird statt des Sendernames die channel-id 
+ausgegeben.<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/timer<br>
+1 1 1 4 1034309516 1034309576 1034284376 555089<br>
+<br>
+d.h. event 1, SHUTDOWN, DAILY, nach 4 Timerausführungen wird der<br>
+Timer gelöscht, announcezeit, alarm/startzeit, stopzeit,<br>
+kanal/daten die zeiten sind time_t (Unix Zeitstempel)<br>
+</div>
+<b>Parameter:</b> get=pre | post<br>
+<b>Rückgabe:</b> <br>
+<br>
+Gibt die voreingestellte Vor- bzw. Nachlaufzeit für RecordingSafty in Sekunden 
+aus.<p><b>Rueckgabe-Format:</b> Sekunden</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/timer&amp;get=pre<br>
+120<br>
+</div>
+&nbsp;<p><b>Parameter:</b><br>
+action,[id],&lt;alarm|ad,amo,ay,ah,ami|alDate,alTime&gt;,&lt;stop|sd,smo,sy,sh,smi|[stDate],stTime&gt;,announce,type,rep,repcount,channel_id,msg,rs,<br>
+[update] Rückgabe: ok / error<br>
+<br>
+announce, type, rep und repcount analog zum oben.<br>
+type: Default ist RECORD<br>
+rep: Default ist 0<br>
+repcount: Default ist 0<br>
+<br>
+<i>action</i> kann entweder new oder modify sein. Bei modify mus noch ein<br>
+Parameter id angegeben werden um festzulegen welcher Timer modifizirt<br>
+wird.<br>
+<br>
+Zeitangabe:<br>
+Variante 1)<br>
+Angabe im time_t Format (nur für action=new): announce, alarm und<br>
+stop mit einer time_t Zeit<br>
+<br>
+Variante 2)<br>
+Angabe in Parametern : <br>
+a/sd = Tag<br>
+a/smo = Monat<br>
+a/sy = Jahr<br>
+a/sh = Stunde<br>
+a/smi = Minute<br>
+meint: ad für Alarm Day und sd für Stop Day usw.<br>
+<br>
+Variante 3)<br>
+Formatierte Angabe (nur für action=new, Format muß genau eingehalten werden):<br>
+alDate = Datum Start, Format TT.MM.JJJJ<br>
+alTime = Uhrzeit Start, Format HH.MM<br>
+stDate = Datum Ende, Format TT.MM.JJJJ (optional)<br>
+stTime = Uhrzeit Ende, Format HH.MM<br>
+<br>
+<i>channel_id</i> ist die Kennung des Senders (als Hexadezimalzahl ohne '0x'-Prefix).<br>
+alternativ kann der Sendername direkt angegeben werden:<br>
+<i>channel_name</i> = Sendername (Ein oder mehrere durch Komma getrente Sendernamen;<br>
+muss URI codiert sein, also Leerzeichen mit &quot;%20&quot; ersetzen)<br>
+<br>
+<i>msg</i> ist die Message die bei REMIND gesendet wird<br>
+<br>
+Ist der Parameter &quot;<i>rs</i>&quot; auf &quot;1&quot; gesetzt, so wird bei Aufnahmetimern,<br>
+die in Neutrino konfigurierte &quot;Aufnahmestart/stop-Korrektur&quot;<br>
+berücksichtigt<br>
+<br>
+<i>rec_dir</i> kann einen Aufnahmepfad enthalten (er muss URI-codiert sein).<br>
+<br>
+<i>update</i>=1 bei action=new löscht einen ggf. vorhandenen Timer mit<br>
+gleicher Startzeit vor dem Hinzufügen. siehe dazu auch:<br>
+http://cvs.berlios.de/cgi-bin/viewcvs.cgi/tuxbox/apps/tuxbox/neutrino/daemons/nhttpd/webapi.cpp?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup<br>
+<br>
+<b>Rueckgabe-Format:</b> ok / error<br>
+</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/timer?action=new&amp;alarm=1034309576&amp;stop=1034284376&amp;announce=1034309576&amp;type=1&amp;rep=1&amp;channel_id=16dcb<br>
+ok<br>
+&gt;&gt;&gt;http://dbox/control/timer?action=new&amp;alDate=24.01.2006&amp;alTime=20.00&amp;stTime=20.15&amp;channel_name=Das%20Erste&amp;update=1<br>
+ok<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="lcd"></a>19. LCD Interface</div>
+<div class="URL">Handler: http://dbox/control/lcd</div>
+<br>
+<b>Parameter:</b> <br>
+lock, clear, png, raw, line, rect, xpos, ypos, size, font, color, text, update<br>
+Rückgabe: ok /error<br>
+<br>
+Ansteuerung des LCD-Interfaces über das Web-Interface<br>
+<br>
+Folgende Parameter werden dabei unterstützt:<br>
+<br>
+lock=n : n=1 -&gt; das Display wird bis auf Widerruf für Neutrino gesperrt<br>
+n=0 -&gt; das Display wird wieder für Neutrino freigegeben<br>
+<br>
+clear=n : n=1 -&gt; das Display wird gelöscht (sollte ganz vorn stehen)<br>
+n=0 -&gt; das Display wird vor der neuen Ausgabe nicht<br>
+gelöscht (kann entfallen) <br>
+<br>
+png=Dateiname : eine lokal auf der Box liegende PNG-Datei wird in's<br>
+Display geladen<br>
+(z.B. /share/tuxbox/lcdd/icons/setup.png als<br>
+Hintergrund)<br>
+<br>
+raw=x,y,xs,ys,d1,..,dn : überträgt die Daten d1 bis dn an die<br>
+Position (x,y) im Display mit xs Spalten<br>
+und ys Zeilen. Die Daten werden dezimal<br>
+übertragen. Jeder Wert repräsentiert<br>
+dabei 8 Punkte innerhalb einer Zeile. Das<br>
+höchstwertige Bit entspricht dem Pixel<br>
+ganz links. Sollen in einer Zeile 9 Pixel<br>
+geschrieben werden, sind dafür zwei<br>
+Datenwerte nötig, auch wenn die<br>
+restlichen 7 Bit des zweiten Wertes nicht<br>
+verwendet werden. Die Werte werden<br>
+zeilenweise hintereinandergeschrieben. Für ein<br>
+Rechteck von 8 Zeilen zu 9 Pixeln sind also<br>
+16 Werte erforderlich, beginnend mit dem<br>
+Wert für die 8 Pixel ganz links oben,<br>
+gefolgt von dem Wert für das letzte<br>
+Pixel der obersten Zeile (mit einem <br>
+Wert von 128 wenn es gesetzt werden soll),<br>
+dann der Wert für die ersten 8 Pixel der<br>
+zweiten Zeile usw.<br>
+<br>
+line=x1,y1,x2,y2,col : zeichnet eine Linie von (x1,y1) nach (x2,y2)<br>
+mit der Farbe col col=0 -&gt; aus, col=1 -&gt;<br>
+leuchtend, col=2 -&gt; invertierend<br>
+<br>
+rect=x1,y1,x2,y2,col1,col2: zeichnet ein Rechteck mit der linken<br>
+oberen Ecke (x1,y1) und der rechten<br>
+unteren Ecke (x2,y2), der Rahmenfarbe<br>
+col1 welches mit der Farbe col2<br>
+ausgefüllt wird (Farben siehe &quot;line&quot;) <br>
+<br>
+update=1 : an dieser Stelle wird das Display upgedatet. Somit kann<br>
+man zunächst einige Ausgaben machen und dann erst<br>
+alles zusammen updaten. Somit wird ein Flackern des<br>
+Displays verhindert. Sequenzen ohne diesen Parameter<br>
+haben auf die Anzeige also zunächst erst mal keine<br>
+Auswirkung.<br>
+<br>
+Die folgenden Parameter betreffen nur die Textausgabe<br>
+<br>
+text= : Auszugebender Text in UTF-8 Format (Leerzeichen = %20,<br>
+Zeilenumbruch = %0A usw.)<br>
+<br>
+xpos=nn : Position des ersten Zeichens horizontal (default 10)<br>
+<br>
+ypos=nn : Position der linken oberen Ecke des ersten Zeichens (default 10)<br>
+<br>
+size=nn : Größe des Textes (default 12)<br>
+<br>
+color=n : Textfarbe (default 1, siehe &quot;line&quot;)<br>
+<br>
+font=n : zu verwendender Font (default 0)<br>
+n=0 -&gt; micron.ttf, n=1 -&gt; micron_bold.ttf, n=2 -&gt; pakenham.ttf<br>
+<br>
+Hinweise: <br>
+----------------------------------<br>
+Innerhalb eines Aufrufes können mehrere Kommandos gleichzeitig<br>
+angegeben werden. Allerdings müssen sie von unterschiedlichem Typ<br>
+sein. Bei z.B. zwei rect-Parametern innerhalb eines Aufrufes wird der<br>
+zweite Parameter ignoriert. Abgearbeitet werden die Kommandos in der<br>
+Reihenfolge: lock, clear, png, raw, line, rect, xpos, ypos, size,<br>
+color, font, text, update. Der Parameter lock ist erforderlich, da<br>
+ohne Sperrung das Displays für Neutrino die über den nhttpd<br>
+gemachten Ausgaben auf dem Display spätestens nach einer Sekunde<br>
+durch das zyklische Update von Neutrino wieder überschrieben werden<br>
+würden. Daher ist bei der ersten Ausgabe lock=1 zu setzen. Wird das<br>
+Display nicht mehr benötigt, muß lock=0 gesetzt werden, damit<br>
+Neutrino wieder Zugriff auf das LCD erhält.<br>
+<div class="example">
+Beispiel: <br>
+----------------------------------<br>
+<br>
+wget -O /tmp/nhttpd.res 
+'http://localhost/control/lcd?lock=1&amp;clear=1&amp;rect=10,10,110,50,1,0&amp;xpos=20&amp;ypos=27&amp;size=22&amp;font=2&amp;text=%20Hallo%20Welt%0A%C3%9Cbungstext&amp;update=1'<br>
+wget -O /tmp/nhttpd.res 
+'http://localhost/control/lcd?rect=10,10,110,50,1,2&amp;update=1' <br>
+<br>
+um das Display wieder freizugeben, sollte zum Schluß<br>
+<br>
+wget -O /tmp/nhttpd.res 'http://localhost/control/lcd?lock=0'<br>
+<br>
+ausgeführt werden.<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="URL"><div class="title1"><a name="exec"></a>20. Shellscript ausführen</div>
+Handler: http://dbox/cgi-bin/exec</div>
+<br>
+<b>Parameter:</b> &lt;Scriptname&gt; (ohne .sh!)<br>
+<b>Rückgabe: </b>Ausgabe des Scripts<br>
+<br>
+Führt das Shellscript aus und liefert die Ausgabe an den Client zurück<br>
+<div class="example">
+Beispiel:<br>
+<br>
+buli.sh gibt einen RSS-Feed zurück, der vom Newsticker angezeigt<br>
+wird. In newsticker.list muss dann der Aufruf folgendermassen aussehen:<br>
+<br>
+http://dbox/cgi-bin/exec?buli<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="system"></a>21. System-/Treiberfunktionen</div>
+<div class="URL">Handler: http://dbox/control/system</div>
+<br>
+<b>Parameter:</b> getAViAExtIec<br>
+<b>Rückgabe:</b> Status des Iec (optischer Ausgang)<br>
+<br>
+0 = Iec deaktiviert<br>
+1 = Iec aktiviert<br>
+<div class="example">
+Beispiel:<br>
+http://dbox/control/system?getAViAExtIec<br>
+1<br>
+</div>
+<b>Parameter:</b> setAViAExtIec=on<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Aktiviert den Iec<br>
+<div class="example">
+Beispiel:<br>
+<br>
+http://dbox/control/system?setAViAExtIec=on<br>
+ok<br>
+</div>
+<b>Parameter:</b> setAViAExtIec=off<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Deaktiviert den Iec<br>
+<div class="example">
+Beispiel:<br>
+<br>
+http://dbox/control/system?setAViAExtIec=off<br>
+ok<br>
+</div>
+<b>Parameter:</b> getAViAExtPlayBack<br>
+<b>Rückgabe:</b> Gibt zurück, in welchem Dekoder-Modus der Avia laeuft<br>
+<br>
+0 = PES<br>
+1 = SPTS<br>
+<div class="example">
+Beispiel:<br>
+<br>
+http://dbox/control/system?getAViAExtPlayBack<br>
+1<br>
+</div>
+<b>Parameter:</b> getAViAExtPlayBack=pes<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Aktiviert den PES-Modus<br>
+<div class="example">
+Beispiel:<br>
+<br>
+http://dbox/control/system?setAViAExtPlayBack=pes<br>
+ok<br>
+</div>
+<b>Parameter:</b> getAViAExtPlayBack=spts<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Aktiviert den SPTS-Modus<br>
+<div class="example">
+Beispiel:<br>
+<br>
+http://dbox/control/system?setAViAExtPlayBack=spts<br>
+ok<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="rc"></a>21. Fernbedienung</div>
+<div class="URL">Handler: http://dbox/control/rc</div>
+<br>
+<b>Parameter:</b> lock<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Sperrt die Fernbedienung<br>
+<div class="example">
+Beispiel:<br>
+<br>
+http://dbox/control/rc?lock<br>
+ok<br>
+</div>
+<b>Parameter:</b> unlock<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Entsperrt die Fernbedienung<br>
+<div class="example">
+Beispiel:<br>
+<br>
+http://dbox/control/rc?unlock<br>
+ok<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="reboot"></a>23. Die DBox neu starten</div>
+<div class="URL">Handler: http://dbox/control/reboot</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rückgabe:</b><br>
+<br>
+Es wird der Text ok bei Erfolg oder error im Fehlerfall<br>
+zurückgegeben. Die Dbox startet sich bei ok sofort neu.<br>
+<b>
+<br>
+Rückgabe-Format:</b> ok / error<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/reboot<br>
+ok<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="settings"></a>24. Einige Einstellungen lesen</div>
+<div class="URL">Handler: http://dbox/control/settings</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rückgabe:</b> Text mit einer Beschreibung des Boxenherstellers,<br>
+Videooutputs und Videoformats.<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="version"></a>25. Die /.versions-File lesen</div>
+<div class="URL">Handler: http://dbox/control/version</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rückgabe</b>: Die Datei /.version wird ausgegeben.<br>
+<br>
+Die gleiche Funktionalität bietet http://dbox/control/info?version.<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="startplugin"></a>26. Plugin ausführen</div>
+<div class="URL">Handler: http://dbox/control/startplugin</div>
+<br>
+<b>Parameter:</b> name=&lt;pluginname&gt;<br>
+<b>Rückgabe:</b> ok/error<br>
+<br>
+Das Plugin mit dem Name &lt;pluginname&gt; wird gestartet.<br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/startplugin?name=tuxtxt<br>
+ok<br>
+</div>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="yweb"></a>27. Support für yweb</div>
+<div class="URL">Handler: http://dbox/control/yweb</div>
+<br>
+<b>Parameter:</b> <br>
+<b>Rückgabe:</b><br>
+<br>
+Supportfunktionen für yweb. Es wird empfohlen, diese nicht<br>
+ausserhalb von yweb zu benutzen.<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="aspectratio"></a>28. Aspektratio lesen</div>
+<div class="URL">Handler: http://dbox/control/aspectratio</div>
+<br>
+<b>Parameter:</b> keine<br>
+<b>Rückgabe:</b> 4:3/16:9<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="videoformat"></a>29. Videoformat lesen/setzen</div>
+<div class="URL">Handler: http://dbox/control/videoformat</div>
+<br>
+<b>Parameter: </b>keine/status<br>
+<b>Rückgabe:</b> automatic/4:3 (LB)/4:3 (PS)/16:9<br>
+<br>
+<b>Parameter:</b> automatic/4:3-LB/4:3-PS/16:9<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Setzt aktuelles Videoformat.<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="videooutput"></a>30. Videooutput lesen/setzen</div>
+<div class="URL">Handler: http://dbox/control/videooutput</div>
+<br>
+<b>Parameter: </b>keine/status<br>
+<b>Rückgabe:</b> CVBS/RGB with CVBS/S-Video/YUV with VBS/YUV with CVBS<br>
+<br>
+<b>Parameter:</b> cvbs/rgb/s-video/yuv-vbs/yuv-cvbs<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Setzt Videooutputtyp. <br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="vcroutput"></a>31. VCR-output lesen/setzen</div>
+vHandler: http://dbox/control/vcroutput</div>
+<br>
+<b>Parameter:</b> keine/status<br>
+<b>Rückgabe:</b> CVBS/S-Video<br>
+<br>
+<b>Parameter:</b> cvbs/s-video<br>
+<b>Rückgabe:</b> ok/error<br>
+<br>
+Setzt VCRoutputtyp. S-Video ist möglich nur bei Videooutput CVBS<br>
+und S-Video.<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="scartmode"></a>32. Scartmode lesen/setzen</div>
+<div class="URL">Handler: http://dbox/control/scartmode</div>
+<br>
+<b>Parameter:</b> keine/status<br>
+<b>Rückgabe:</b> on/off<br>
+<br>
+<b>Parameter:</b> on/off<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Schaltet Scartmode ein oder aus.<br>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="rcem"></a>33. Fernbedienungstasten emulieren</div>
+<div class="URL">Handler: http://dbox/control/rcem</div>
+<br>
+<b>Parameter:</b> &lt;keyname&gt;, repeat=&lt;n&gt; (default 1), delay=&lt;delaytime&gt; (default 250)<br>
+<b>Rückgabe</b>: ok<br>
+<br>
+Die Taste mit dem Name &lt;keyname&gt; wird emuliert. Als &lt;keyname&gt; wird<br>
+alle existierende Tasten, auch Tastaturtasten. Es wird &lt;n&gt;<br>
+Tastendrucken geschickt, mit einem Verzögerung von &lt;delaytime&gt;<br>
+dazwischen. In Detail: Erstmals wird ein KEY_PRESSED Event geschickt,<br>
+danach, &lt;n&gt; - 1 KEY_AUTOREPEAT Events mit Delay &lt;delaytime&gt;<br>
+millisekunden dazwischen, danach ein KEY_RELEASED Event.<br>
+<br>
+<b>Parameter:</b> &lt;keyname&gt;, duration=&lt;time&gt;, delay=&lt;delaytime&gt; (default 250)<br>
+<b>Rückgabe:</b> ok<br>
+<br>
+Äquivalent zu der erste Form, mit repeat =<br>
+&lt;time&gt;*1000/&lt;delaytime&gt;. Dies entspricht in wesentlichen die Taste<br>
+&lt;keyname&gt; für &lt;delaytime&gt; sekunden zu senden. Dies ist die Semantik<br>
+von den Argumenten des Programms rcsim. <br>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/rcem?KEY_HELP<br>
+ok<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/rcem?KEY_UP?repeat=4?delay=300<br>
+ok<br>
+</div>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="setbouquet"></a>34. Bouquet-Editor: Attribute setzen</div>
+<div class="URL">Handler: http://dbox/control/setbouquet</div>
+<br>
+<b>Parameter:</b> selected=&lt;id&gt;&amp;action=hide|show|lock|unlock<br>
+<b>Rückgabe</b>: ok / error<br>
+<br>
+Ändert für &quot;selected&quot; Bouquet das Sichtbarkeitsattribut (hide/show) oder 
+Zugriffsattribut<br>
+(lock/unlock). Die Funktion läuft im ZapIt-Bouqueteditor.
+<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/setbouquet?selected=2&amp;action=lock<br>
+ok<br>
+&nbsp;</div>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="savebouquet"></a>35. Bouquet-Editor: Bouquet-Liste 
+	speichern</div>
+<div class="URL">Handler: http://dbox/control/savebouquet</div>
+<br>
+<b>Parameter:</b> <br>
+<b>Rückgabe</b>: ok<br>
+/control/savebouquet schreibt die Daten permanent in das Bouquet-File.<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/savebouquet<br>
+ok<br>
+&nbsp;</div>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="movebouquet"></a>36. Bouquet-Editor: Bouquet verschieben</div>
+<div class="URL">Handler: http://dbox/control/movebouquet</div>
+<br>
+<b>Parameter:</b> selected=&lt;id&gt;&amp;action=up|down<br>
+<b>Rückgabe</b>: ok / error<br>
+<br>
+Verschiebt &quot;selected&quot;-Bouquet um eine Zeile nach oben oder unten in der 
+Bouquet-Liste. <br>
+Die Funktion läuft im ZapIt-Bouqueteditor.
+<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/movebouquet?selected=2&amp;action=down<br>
+ok<br>
+&nbsp;</div>
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="deletebouquet"></a>37. Bouquet-Editor: Bouquet löschen</div>
+<div class="URL">Handler: http://dbox/control/deletebouquet</div>
+<br>
+<b>Parameter:</b> selected=&lt;id&gt;<br>
+<b>Rückgabe</b>: ok / error<br>
+<br>
+Löscht &quot;selected&quot;-Bouquet aus der 
+Bouquet-Liste. <br>
+Die Funktion läuft im ZapIt-Bouqueteditor.
+<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/deletebouquet?selected=2<br>
+ok<br>
+&nbsp;</div>
+&nbsp;</p>
+
+
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="addbouquet"></a>38. Bouquet-Editor: Bouquet hinzufügen</div>
+<div class="URL">Handler: http://dbox/control/addbouquet</div>
+<br>
+<b>Parameter:</b> name=&lt;bouquetname&gt;<br>
+<b>Rückgabe</b>: ok / error<br>
+<br>
+Fügt ein neues Bouquet mit <i>bouquetname</i> hinzu. <br>
+Die Funktion läuft im ZapIt-Bouqueteditor.
+<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/addbouquet?name=neuer%20sender<br>
+ok<br>
+&nbsp;</div>
+
+
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="renamebouquet"></a>39. Bouquet-Editor: Bouquet umbenennen</div>
+<div class="URL">Handler: http://dbox/control/renamebouquet</div>
+<br>
+<b>Parameter:</b> selected=&lt;id&gt;&amp;nameto=&lt;new name&gt;<br>
+<b>Rückgabe</b>: ok / error<br>
+<br>
+Benennt &quot;selected&quot;-Bouquet in <i>new name</i> um. <br>
+Die Funktion läuft im ZapIt-Bouqueteditor.
+<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/renamebouquet?selected=2&amp;nameto=Lieblingssender<br>
+ok<br>
+&nbsp;</div>
+
+
+<br>
+
+<!-- ----------------------------------------------------------- -->
+<div class="title1"><a name="changebouquet"></a>40. Bouquet-Editor: Bouquet Channels 
+	ändern</div>
+<div class="URL">Handler: http://dbox/control/changebouquet</div>
+<br>
+<b>Parameter:</b> selected=&lt;id&gt;&amp;bchannels=&lt;channel_id&gt;[,&lt;channel_id&gt;]*[&amp;redirect=url]<br>
+<b>Rückgabe</b>: ok / error<br>
+<br>
+Fügt die unter bchannels angegebenen Channels dem &quot;selected&quot;-Bouquet 
+zu. <br>
+Die Funktion läuft im ZapIt-Bouqueteditor.
+<p>/control/savebouquet schreibt die Daten permanent in das Bouquet-File.</p>
+<div class="example">
+Beispiel:<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/changebouquet?selected=2&amp;bchannels=2712f001d099, 
+43700016d66<br>
+ok<br>
+&nbsp;</div>
+&nbsp;&nbsp;</p>
+
+
+&nbsp;</p>
+
+
+</p>
+
+
+</p>
+
+
+</p>
+
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+{=var-set:cancache=yPyes=}
+{=include-block:Y_Blocks.txt;headCache=}
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Info#About=}{=var-set:menu=About=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<table border="0" cellpadding="2" cellspacing="4">
+		<tr>
+			<td width="144" valign="top"><a href="http://www.yjogol.de" target="_blank"><img border="0" src="images/y.png" alt="y-logo"/></a></td>
+			<td valign="top">
+				<b>Coolstream HD1 yWeb</b>
+				<br/><a href="http://www.yjogol.de" target="_blank">www.yjogol.de</a>
+				<p>
+				{=ini-get:Y_Version.txt;version=}<br/>
+				{=ini-get:Y_Version.txt;date=}<br/>
+				{=ini-get:Y_Version.txt;type=}<br/><br/>
+				{=ini-get:Y_Version.txt;info=}<br/>
+				</p>
+			</td>
+		</tr>
+		</table>
+	</div>
+</div>
+</body>
+</html>

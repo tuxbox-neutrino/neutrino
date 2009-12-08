@@ -1,0 +1,125 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_stop()
+{
+	document.vlc.stop()
+}
+function doPlayOrPause()
+{
+	if( document.vlc.{=if-equal:{=browser=}~ie~playing~isplaying()=} )
+	{
+		document.v.PlayOrPause.value = " Play ";
+		document.vlc.pause()
+	} else {
+		document.v.PlayOrPause.value = "Pause";
+		document.vlc.play()
+	}
+}
+function doStop()
+{
+	document.v.PlayOrPause.value = " Play ";
+	document.vlc.stop()
+}
+function doLockUnlock()
+{
+	if( document.v.lock.value == "Lock" )
+	{
+		document.v.lock.value = "Unlock";
+		live_lock();
+	} else {
+		document.v.lock.value = "Lock";
+		live_unlock();
+	}
+}
+function doGo()
+{
+	var targetURL= document.v.targetTextField.value;
+{=if-equal:{=browser=}~ie~	
+	var options = new Array(":input-repeat=1");
+	document.vlc.addTarget(targetURL, options, 4+8, -666);
+~
+	document.vlc.add_item(targetURL);
+	document.vlc.next()
+	document.vlc.play()
+=}
+};
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Live_Timer#NetStream=}{=var-set:menu=Net Stream=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<font size="1">&nbsp;&nbsp;&nbsp; VLC Plugin Test</font>
+		<form name="v" action="">
+		<table border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<td>
+				MRL:
+				<input size="47" name="targetTextField" value="http://www.nasa.gov/55644main_NASATV_Windows.asx"/>
+				<input type="button" value="Go" title="start streaming the given MRL (Media-URL). Please wait..." onclick="doGo();"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+		{=if-equal:{=browser=}~ie~
+					<OBJECT classid="clsid:E23FE9C6-778E-49D4-B537-38FCDE4887D8" 
+						width="384" height="288" id="vlc" events="True">
+							<param name="Src" value="" />
+							<param name="ShowDisplay" value="True" />
+							<param name="Loop" value="False" />
+							<param name="AutoPlay" value="false" />
+						The VideoLan Client ActiveX is not installed.<br/>
+						You need <a href="http://www.videolan.org" target="_blank">VideoLan Client</a> V0.8.2 or higher.<br/>
+						Install with Option "ActiveX".
+					</OBJECT>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<button class="y_live_button" type="button" value="Pause" title="play or pause streaming" id="PlayOrPause" onclick="doPlayOrPause()">Pause</button>
+				<button class="y_live_button" type="button" value="stop" title="stop streaming" onclick="doStop()">Stop</button>
+				<button class="y_live_button" type="button" value="mute" title="mute / unmute volume" onclick="document.vlc.toggleMute()">Mute</button>
+				<button class="y_live_button" type="button" value="fullscreen" title="switch to fullscreen-mode - or use double-click" onclick="document.vlc.fullscreen()">FScreen</button>
+				<button class="y_live_button" type="button" value="minus" title="lower volume" onclick="document.vlc.volume=document.vlc.volume-10;">-</button>
+				<button class="y_live_button" type="button" value="plus" title="higher volume" onccclick="document.vlc.volume = document.vlc.volume+10;">+</button>
+				<button class="y_live_button" type="button" value="Lock" title="lock / unlock TV (record mode, rc, lcd)" name="lock" onclick="doLockUnlock()">Lock</button>
+		~
+					<embed type="application/x-vlc-plugin"
+						name="vlc"
+						autoplay="no" loop="yes" width="384" height="288">
+					</embed>
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<button class="y_live_button" type="button" value="stop" title="stop streaming" onclick="doStop()">Stop</button>
+				<button class="y_live_button" type="button" value="mute" title="mute / unmute volume" onclick="document.vlc.mute()">Mute</button>
+				<button class="y_live_button" type="button" value="fullscreen" title="switch to fullscreen-mode - or use double-click" onclick="document.vlc.fullscreen()">F</button>
+				<button class="y_live_button" type="button" value="minus" title="lower volume" onclick="document.vlc.set_volume(document.vlc.get_volume()-10);">-</button>
+				<button class="y_live_button" type="button" value="plus" title="higher volume" onclick="document.vlc.set_volume(document.vlc.get_volume()+10);">+</button>
+				<input class="y_live_button" type="button" value="Lock" title="lock / unlock TV (record mode, rc, lcd)" name="lock" onclick="doLockUnlock()"/>
+		=}
+				</td>
+			</tr>
+		</table>
+		</form>	
+	</div>
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	var res_w=parseInt("{=ini-get:/var/tuxbox/config/Y-Web.conf;live_resolution_w;384=}",10);
+	var res_h=parseInt("{=ini-get:/var/tuxbox/config/Y-Web.conf;live_resolution_h;288=}",10);
+	if(isNaN(res_w)) res_w=384;
+	if(isNaN(res_h)) res_h=288;
+	
+	document.vlc.width=res_w;
+	document.vlc.height=res_h;
+//]]>
+</script>	
+
+</body>
+</html>

@@ -1,0 +1,162 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+var aktiv;
+var flashing = false;
+
+function show_progress(_msg,_type,_proz)
+{
+	var __msg = document.getElementById("msg");
+	__msg.value = _msg;
+	if(_type == 1)
+		document.getElementById("erasing_left").width = _proz;
+	else if(_type == 2)
+	{
+		document.getElementById("erasing_left").width = "100%";
+		document.getElementById("writing_left").width = _proz;;
+	}
+	else if(_type == 3)
+	{
+		document.getElementById("writing_left").width = "100%";
+		document.getElementById("verifying_left").width = _proz;;
+	}
+}
+/* load fcp status from /tmp/e.txt*/
+function processReqChange() 
+{
+	if (g_req.readyState == 4) {
+		if (g_req.status == 200) 
+		{
+			var last = g_req.responseText.lastIndexOf("\r");
+			var last_line = g_req.responseText.slice(last+1, g_req.responseText.length);
+			var _type = 0;
+			if(last_line.search(/Erasing/)!=-1)
+				_type = 1;
+			if(last_line.search(/Writing/)!=-1)
+				_type = 2;
+			if(last_line.search(/Verifying/)!=-1)
+				_type = 3;
+			var Ausdruck = /\((.*)\)/;
+			var e=Ausdruck.exec(last_line);
+			var p = RegExp.$1;
+			show_progress(last_line, _type, p);
+		}
+	}
+}
+function do_submit() 
+{
+	var msg = "Image flashen?";
+	if(document.f.demo.checked)
+		msg = "DEMO: "+msg;
+	if(confirm(msg)==true)
+	{
+		show_waitbox(true);
+		document.f.submit();
+		document.f.su.disabled = true;
+		document.f.file.disabled = true;
+		document.f.demo.disabled = true;
+	}
+}
+function do_image_upload_ready() 
+{
+	show_waitbox(false);
+	show_obj("wait_flash", true);
+	aktiv = window.setInterval('loadXMLDoc("/tmp/e.txt", processReqChange)', 3000);
+	var simulate = "true";
+	if(!document.f.demo.checked)
+		simulate = "false";
+	window.setTimeout("out.location.href = \"/control/exec?Y_Tools&image_flash&{=mtd=}&"+simulate+"\"",1000);
+}
+function do_image_upload_ready_error() 
+{
+	document.f.su.disabled = false;
+	document.f.file.disabled = false;
+	document.f.demo.disabled = false;
+	show_waitbox(false);
+}
+function do_image_flash_ready() 
+{
+	window.clearInterval(aktiv);
+	show_obj("wait_flash", false);
+	alert("Image geflasht. Nach Reboot OK druecken");
+	top.location.href="/";
+}
+function do_test()
+{
+	show_obj("wait_flash", true);
+}
+//]]>div
+</script>
+</head>
+<body>
+{=var-set:fcp={=if-file-exists:/sbin/fcp~true~{=if-file-exists:/var/bin/fcp~true~{=if-file-exists:/bin/fcp~true~false=}=}=}=}
+{=var-set:wait_text=Image wird hochgeladen (upload image).=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div id="wait_flash" class="y_wait_box" style="left : 100px; position : absolute; top : 100px; visibility : hidden; z-index : 6;">
+	<div class="y_wait_box_head"><h2>Flashing</h2></div>
+	<div class="y_wait_box_body">
+		<p align="center">
+		<font color="#666666"><b>Image wird geflasht. Nicht unterbrechen!<br/>Image will be flashed. Do not interrupt!</b></font><br/><br/>
+		<img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/><br/><br/>
+		<input type="text" id="msg" value="" size="40" readonly="readonly" disabled="disabled"/>
+		</p>
+		<table border="0" style="margin-left:30px;margin-right:30px;">
+		<tr><td>Erasing</td>
+		<td>
+			<table width="250" style="border: 1px dashed #0066cc;">
+			<tr>
+				<td width="0%" bgcolor="#2188e0" id="erasing_left" height="5"><img src="/images/blank.gif" height="1" width="0" alt="blank"/></td>
+				<td id="erasing_right" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="blank"/></td>
+			</tr>
+			</table>
+		</td></tr>
+		<tr><td>Writing</td>
+		<td>
+			<table width="250" style="border: 1px dashed #0066cc;">
+			<tr>
+				<td id="writing_left" width="0%" bgcolor="#2188e0" height="5"><img src="/images/blank.gif" height="1" width="0" alt="blank"/></td>
+				<td id="writing_right" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="blank"/></td>
+			</tr>
+			</table>
+		</td></tr>
+		<tr><td>Verifying</td>
+		<td>
+			<table width="250" style="border: 1px dashed #0066cc;">
+			<tr>
+				<td id="verifying_left" width="0%" bgcolor="#2188e0" height="5"><img src="/images/blank.gif" height="1" width="0" alt="blank"/></td>
+				<td id="verifying_right" width="100%"><img src="/images/blank.gif" height="1" width="0" alt="blank"/></td>
+			</tr>
+			</table>
+		</td></tr>
+		</table>
+		<p align="center">
+		Please wait<br/>
+		
+		</p>
+	</div>
+</div>
+
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+		{=var-set:help_url=Neutrino:yWeb:Tools#Image=}{=var-set:menu=Image flashen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<b><font size="2">Partition mtd {=mtd=}</font><br/>{=mtd_text=}</b>
+	{=if-equal:{=var-get:fcp=}~true~
+		<form method="post" name="f" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;image_upload" target="out">
+			<p>
+			<input type="file" name="file" size="40"/><br/>
+			<span style="margin:0; padding:0;" title="Switch on Demo-Modus. Flashing will be simulated."><input type="checkbox" name="demo"/> Demomodus&nbsp;</span>
+			<input type="button" value="Image flashen" title="upload and flash" name="su" onclick="do_submit()"/><br/>
+			
+			</p>
+		</form>
+	~
+		<h2><br/><br/><br/><b><font color="#FF0000">fcp ist nicht installiert!</font></b></h2>
+	=}
+	</div>
+</div>
+<iframe name="out" id="out" width="100%" height="200" align="left" frameborder="0">Your Browser does not support IFrames.</iframe>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

@@ -1,0 +1,36 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<link rel="stylesheet" type="text/css" href="/Y_Main.css">
+<script language="JavaScript" type="text/javascript">
+function do_it() 
+{
+	_url="/control/exec?Y_Plugins&skin_set&"+
+		document.f.skin.value;
+	parent.frames[1].location.href=_url;
+}
+</script>
+
+</head>
+<body>
+
+<br>
+<div class="y_head">Skin {=var-set:help_url=Neutrino:yWeb:Settings#Skins=}{=include-block:Y_Blocks.txt;wiki_help=}</div>
+<div class="y_work_box">
+	<form name="f" action="">
+		<table border="0">
+			<tr>
+				<td>Skin</td>
+				<td><select size="1" name="skin">
+{=script:Y_Plugins skin_get=}
+				</select></td>
+				<td>&nbsp;</td>
+			</tr>
+
+		</table>
+		<br>
+		<input type="button" value="Setzen" name="B1" title="submit values" onClick='do_it()'>
+	</form>
+</div>
+</body>
+</html>

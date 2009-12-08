@@ -1,0 +1,67 @@
+{=var-set:cancache=yPConf=}
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit() 
+{
+	if(document.f.filename.value != "")
+	{
+		show_waitbox(true);
+		document.f.su.disabled=true;
+		window.setTimeout("document.f.submit()",1000);
+		document.f.su.disabled=false;
+	}
+}
+function do_backup()
+{
+	show_waitbox(true);
+	obj_disable("btBackup", true);
+	window.setTimeout("do_backup2()",500);
+}
+function do_backup2()
+{
+	var _url = loadSyncURL("/control/exec?Y_Tools&settings_backup_restore&backup");
+	var _down = document.getElementById("down");
+	_down.href = _url;
+	show_obj("down_box", true);
+	show_waitbox(false);
+	obj_disable("btBackup", false);
+}
+//]]>
+</script>
+</head>
+<body>
+{=var-set:wait_text=Settings=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+		{=var-set:help_url=Neutrino:yWeb:Settings#Backup_.26_Restore=}{=var-set:menu=Backup &amp; Restore=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<table class="y_invisible_table" cellspacing="0" width="100%">
+		<tr><td class="y_form_header">Backup</td></tr>
+		<tr>
+			<td><input id="btBackup" type="button" value ="Backup" title="backup settings" onclick="do_backup()"/>
+			<div id="down_box" style="visibility : hidden;">
+				<br/><a id="down" href="" type="application/octet-stream"><u>Download settings</u></a>
+			</div>
+			</td>
+		</tr>
+		<tr><td class="y_form_header">Restore (Warning: box will REBOOT after restore!)</td></tr>
+		<tr>
+			<td>
+				<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;settings_backup_restore&amp;restore">
+					tar-File:&nbsp;<input type="file" name="filename" size="70"/>&nbsp;<br/>
+					<input type="button" name="su" value="Restore" title="upload and restore settings" onclick="do_submit()"/>
+					<br/><br/>
+				</form>
+			</td>
+		</tr>
+		</table>
+
+	</div>
+</div>
+
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

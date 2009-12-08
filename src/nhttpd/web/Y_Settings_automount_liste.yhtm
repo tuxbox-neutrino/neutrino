@@ -1,0 +1,55 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+
+function do_submit()
+{
+	show_waitbox(true);
+	document.f.submit();
+}
+function do_edit()
+{
+	document.f.cmd.value = "edit";
+	do_submit();
+}
+function do_add()
+{
+	document.f.cmd.value = "add";
+	do_submit();
+}
+function do_delete()
+{
+	if(confirm("Mount wirklich loeschen?") == true)
+	{
+		var mountname = obj_get_radio_value("R1");
+		var _url ="/control/exec?Y_Tools&automount_setline&{=if-file-exists:/var/etc/auto.net~/var/etc/auto.net~/etc/auto.net=}&"+mountname+"&";
+		var res = loadSyncURL(_url);
+		alert("geloescht!");
+		location.reload();
+	}
+}
+//]]>
+</script>
+</head>
+<body>
+{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb:Tools#AutoMount=}{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div>
+	</div>
+	<div class="work_box_body">
+	<form action="/y/cgi" name="f" id="f">
+		{=script:Y_Tools automount_list {=if-file-exists:/var/etc/auto.net~/var/etc/auto.net~/etc/auto.net=}=}
+		<input type="hidden" name="tmpl" value="Y_Settings_automount.yhtm"/>
+		<input type="hidden" name="execute" value=""/>
+		<input type="hidden" name="cmd" value=""/>
+		<input type="button" value="Edit" title="edit mount settings" onclick="do_edit()"/>
+		<input type="button" value="Add" title="add new mount" onclick="do_add()"/>
+		<input type="button" value="Del" title="delete mount" onclick="do_delete()"/>
+	</form>
+	</div>
+</div>
+{=include-block:Y_neutrino_Blocks.txt;neutrino_form_helpbox=}
+</body>
+</html>

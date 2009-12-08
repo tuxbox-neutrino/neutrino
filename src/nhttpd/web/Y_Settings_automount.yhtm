@@ -1,0 +1,182 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function automount_edit()
+{
+	var mstr = loadSyncURL("/control/exec?Y_Tools&automount_getline&{=if-file-exists:/var/etc/auto.net~/var/etc/auto.net~/etc/auto.net=}&{=R1=}");
+	mstr = mstr.replace(/\t/gi," ");
+	mstr = mstr.replace(/[ ]+/gi," ");
+
+	var _mount = mstr.split(" ");
+	document.f.mountname.value = _mount[0];
+	var _ops_right = split_right(_mount[1],"=");
+	var _ops_list = _ops_right.split(",");
+	var fstype = _ops_list[0];
+
+	switch(fstype)
+	{
+		case "nfs":
+			obj_set_radio_value("type", "nfs");
+			document.f.opt1.value = split_right(_ops_right, ",");
+			var share_list = _mount[2].split(":");
+			document.f.ip.value = share_list[0];
+			document.f.dir.value = share_list[1];
+			break;
+
+		case	"cifs":
+			obj_set_radio_value("type", "cifs");
+			var _options = "";
+			for(i=1;i < _ops_list.length;i++)
+			{
+				var _sub_ops = _ops_list[i].split("=");
+				if(_sub_ops.length > 1)
+					
+					switch (_sub_ops[0])
+					{
+						case "user":
+						document.f.username.value = _sub_ops[1];
+						break;
+						
+						case "password":
+						document.f.password.value = _sub_ops[1];
+						break;
+					}
+				else
+				{
+					if(_options != "")
+						_options += ",";
+					_options += _ops_list[i];
+				}	
+			}
+			document.f.opt1.value = _options;
+			var Ausdruck = /\/\/(.*)\/(.*).*/;
+			Ausdruck.exec(_mount[2]);
+			document.f.ip.value = RegExp.$1;
+			document.f.dir.value = RegExp.$2;
+			break;
+
+		default:
+			alert("not implemented yet");
+			break;
+	}
+}
+function form_init() 
+{
+	obj_set_radio_value("type", "nfs");
+	{=if-equal:{=cmd=}~edit~
+	automount_edit();
+	=}
+	change_type();
+}
+function do_save()
+{
+	show_waitbox(true);
+	window.setTimeout("do_save2()",10);
+}
+function do_save2()
+{
+	var mountname = document.f.mountname.value;
+	mountname = mountname.replace(/#/gi,"---");
+	var fstype = obj_get_radio_value("type")
+	var mstr = mountname + "%20";
+
+	if(fstype == "nfs")
+	{
+		mstr += "-fstype=nfs";
+		mstr += ((document.f.opt1.value!="")?","+document.f.opt1.value:",ro,nolock");
+		var dir = document.f.dir.value;
+		if(dir.indexOf("/") != 0)
+			dir = "/"+dir;
+		mstr += "%20" + document.f.ip.value + ":" + dir;
+	}
+	else if(fstype == "cifs")
+	{
+		mstr += "-fstype=cifs";
+		if(document.f.opt1.value != "")
+			mstr += ((mstr!="")?",":",ro,soft")+document.f.opt1.value;
+		if(document.f.username.value != "")
+			mstr += ((mstr!="")?",":"")+"user="+document.f.username.value;
+		if(document.f.password.value != "")
+			mstr += ((mstr!="")?",":"")+"password="+document.f.password.value;
+		var dir = document.f.dir.value;
+		if(dir.indexOf("/") == 0)
+			dir = dir.substr(1);
+		mstr += ((mstr!="")?",":"")+"unc="+"//"+document.f.ip.value+"/"+dir;
+		mstr += "%20//"+document.f.ip.value+"/"+dir;
+	}
+	show_waitbox(false);
+	mstr = mstr.replace(/=/gi,",,");
+	
+	var _url ="/control/exec?Y_Tools&automount_setline&/var/etc/auto.net&"+mountname+"&"+mstr;
+	var res = loadSyncURL(_url);
+	window.document.location.href="/Y_Settings_automount_liste.yhtm";
+}
+function change_type()
+{
+	var fstype = obj_get_radio_value("type")
+	if(fstype == "nfs")
+	{
+		show_obj("vusername",false);
+		show_obj("vpassword",false);
+	}
+	else
+	{
+		show_obj("vusername",true);
+		show_obj("vpassword",true);
+	}
+}
+//]]>
+</script>
+</head>
+<body onLoad="form_init()">
+{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head">
+		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb:Tools#AutoMount=}{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" action="/y/cgi">
+		<input type="hidden" name="nr" value="{=R1=}"/>
+		<table border="0" class="y_form_table">
+			<tr>
+				<td>Mountname</td>
+				<td><input type="text" name="mountname" size="20" value=""  {=if-equal:{=cmd=}~add~~disabled="disabled"=}/></td>
+			</tr>			
+			<tr>
+				<td>Typ</td>
+				<td>
+					<input type="radio" name="type" value="nfs" onclick="change_type()"/>NFS&nbsp;
+					<input type="radio" name="type" value="cifs" onclick="change_type()"/>CIFS&nbsp;
+<!--					<input type="radio" name="type" value="2" onchange="change_type()"/>FTPFS-->
+				</td>
+			</tr>
+
+			<tr>
+				<td>IP</td>
+				<td><input type="text" name="ip" size="20" value=""/></td>
+			</tr>
+			<tr>
+				<td>Directory</td>
+				<td><input type="text" name="dir" size="30" value="" title="remote directory"/></td>
+			</tr>
+			<tr>
+				<td>Option</td>
+				<td><input type="text" name="opt1" size="30" value="" title="mount options 1"/></td>
+			</tr>
+			<tr id="vusername" style="visibility:hidden">
+				<td>Username</td>
+				<td><input type="text" name="username" size="30" value="" title="username"/></td>
+			</tr>
+			<tr id="vpassword" style="visibility:hidden">
+				<td>Password</td>
+				<td><input type="password" name="password" size="30" value="" title="password"/></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="button" value="Save ..." title="submit and save values" onClick="do_save()"/>
+		<input type="button" value="Cansel" title="cancel" name="abort" onClick='window.document.location.href="/Y_Settings_automount_liste.yhtm"'/>
+	</form>
+	</div>
+</div>
+</body>
+</html>

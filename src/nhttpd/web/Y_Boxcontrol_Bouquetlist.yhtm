@@ -1,0 +1,11 @@
+{=include-block:Y_Blocks.txt;head_no_charset=}
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
+</head>
+<body>
+<table class="bouquetlist" width="100%">
+<tr class="blist"><td><a href="Y_Boxcontrol_Channellist.yhtm#akt" target="content">Channels</a></td></tr>
+<tr><td><hr/></td></tr>
+{=func:get_bouquets_as_templatelist <tr class="blist"><td><a href="Y_Boxcontrol_Channellist.yhtm?bouquet=%d#akt" target="content">%s</a></td></tr>=}
+</table>
+</body>
+</html>

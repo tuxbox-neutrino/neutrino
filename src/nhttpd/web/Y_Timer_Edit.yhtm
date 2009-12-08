@@ -1,0 +1,166 @@
+{=func:set_timer_form {=typ=} {=tid=}=}
+{=include-block:Y_Blocks.txt;head_no_charset=}
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252"/>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function my_show(id) {document.getElementById(id).style.visibility="visible";}
+function my_hide(id) {document.getElementById(id).style.visibility="hidden";}
+function focusNMark()
+{
+	document.f.ad.select();
+	document.f.ad.focus();
+}
+function onEventChange()
+{
+	tType=document.f.type.value;
+	show_obj("StopDateRow",(tType == "5"));
+	show_obj("StandbyRow",(tType == "4"));
+	show_obj("ProgramRow",(tType == "5" || tType=="2" || tType=="3"));
+	show_obj("ApidRow",(tType == "5"));
+	show_obj("MessageRow",(tType == "6"));
+	show_obj("PluginNameRow",(tType == "8"));
+	focusNMark();
+}
+function onEventChange2()
+{
+	tType=document.f.rep.value;
+	show_obj("WeekdaysRow",(tType == "256"));
+	show_obj("repcountRow",!(tType == "0"));
+}
+
+function onApidDefChange()
+{ 
+	if(document.f.apcf.checked == true)
+	{
+		document.f.apst.checked=false;
+		document.f.apal.checked=false;
+		document.f.apac.checked=false;
+	}
+}
+function onApidChange()
+{
+	if(document.f.apst.checked == true || 
+		document.f.apal.checked == true ||
+		document.f.apac.checked == true)
+			document.f.apcf.checked=false;
+}
+function do_submit()
+{
+		show_waitbox(true);
+		document.f.submit();
+}
+function init()
+{
+	onEventChange();
+	onEventChange2();
+}
+//]]>
+</script>
+</head>
+<body onload="init()">
+{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:Live#Timer=}{=var-set:menu=Timer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+
+	<form method="get" name="f" action="/fb/timer.dbox2">
+	<input TYPE="hidden" name="action" value="{=typ=}"/>
+	<input name="id" TYPE="hidden" value="{=timerId=}"/>
+		<table border="0">
+			<tr><td colspan="2" class="y_form_header">Timer</td></tr>
+			<tr>
+				<td>Type</td>
+				<td>	<select name="type" onchange="onEventChange();">
+					{=timertype=}
+					</select>
+				</td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Times</td></tr>
+			<tr>
+				<td>Alarm-Date</td>
+				<td><input type="text" name="ad" value="{=alarm_mday=}" size="2" maxlength="2"/>
+				.&nbsp;<input type="text" name="amo" value="{=alarm_mon=}" size="2" maxlength="2"/>
+				.&nbsp;<input type="text" name="ay" value="{=alarm_year=}" size="4" maxlength="4"/>
+				&nbsp;Time&nbsp;<input type="text" name="ah" value="{=alarm_hour=}" size="2" maxlength="2"/>
+				&nbsp;:&nbsp;<input type="text" name="ami" value="{=alarm_min=}" size="2" maxlength="2"/>
+				</td>
+			</tr>
+			<tr id="StopDateRow">
+				<td>Stop-Datum</td>
+				<td><input type="text" name="sd" value="{=stop_mday=}" size="2" maxlength="2"/>
+				.&nbsp;<input type="text" name="smo" value="{=stop_mon=}" size="2" maxlength="2"/>
+				.&nbsp;<input type="text" name="sy" value="{=stop_year=}" size="4" maxlength="4"/>
+				&nbsp;Time&nbsp;<input type="text" name="sh" value="{=stop_hour=}" size="2" maxlength="2"/>
+				&nbsp;:&nbsp;<input type="text" name="smi" value="{=stop_min=}" size="2" maxlength="2"/>
+				</td>
+			</tr>
+
+			<tr>
+				<td>Repeat</td>
+				<td><select name="rep" onchange="onEventChange2();">
+				{=repeat=}
+				</select>
+				</td>
+			</tr>
+			<tr id="repcountRow" style="visibility:hidden;">
+				<td>repeat (0 = indefinitely)</td>
+				<td><input type="text" name="repcount" id="repcount" value="{=timer_repeatCount=}" size="4" maxlength="3"/>
+				</td>
+			</tr>
+			<tr id="WeekdaysRow" style="visibility:hidden;">
+				<td>Weekdays</td>
+				<td><input type="text" name="wd" value="{=weekdays=}" size="7" maxlength="7"/> (Mo-So, X=Timer)
+				</td>
+			</tr>
+
+			<tr><td colspan="2" class="y_form_header">Values</td></tr>
+			<tr id="ProgramRow" style="visibility:hidden">
+				<td>Program</td>
+				<td><select name="channel_id">
+				{=program_row=}
+				</select>
+				</td>
+			</tr>
+			<tr id="ApidRow" style="visibility:hidden">
+				<td>APIDs:</td>
+				<td><input type="checkbox" name="apcf" onchange="onApidDefChange();" {=if-equal:{=TIMERD_APIDS_CONF=}~y~checked="checked"=}/>Default
+				<input type="checkbox" name="apst" onchange="onApidChange();" {=if-equal:{=TIMERD_APIDS_STD=}~y~checked="checked"=}/>Standard
+				<input type="checkbox" name="apal" onchange="onApidChange();" {=if-equal:{=TIMERD_APIDS_ALT=}~y~checked="checked"=}/>Alternative
+				<input type="checkbox" name="apac" onchange="onApidChange();" {=if-equal:{=TIMERD_APIDS_AC3=}~y~checked="checked"=}/>AC3
+				</td>
+			</tr>
+			<tr id="StandbyRow" style="visibility:hidden">
+				<td>Standby</td>
+				<td><input type="radio" name="sbon" value="1" {=if-equal:{=standby=}~1~~checked="checked"=}/>On
+				<input type="radio" name="sbon" value="0" {=if-equal:{=standby=}~0~~checked="checked"=}/>Off
+				</td>
+			</tr>
+			<tr id="MessageRow" style="visibility:hidden">
+				<td>New</td>
+				<td><input type="text" name="msg" value="{=message=}" size="20" maxlength="30"/> ('/'=NL)
+				</td>
+			</tr>
+			<tr id="PluginNameRow" style="visibility:hidden">
+				<td>Plugin</td>
+				<td><input type="text" name="PluginName" value="{=pluginname=}" size="20" maxlength="30"/>
+				</td>
+			</tr>
+{=if-empty:{=timer_recordingDir=}~~
+			<tr>
+				<td>List:</td>
+				<td><input type="text" name="rec_dir" value="{=timer_recordingDir=}" size="20" maxlength="{=RECORD_DIR_MAXLEN-1=}"/>
+				</td>
+			</tr>
+=}			
+		</table>
+		<br/>
+		
+		<input type="button" value="save" title="submit and save values" onclick="do_submit()"/>
+		<input type="button" value="abort" onclick='window.document.location.href="/Y_Timer_List.yhtm"'/>
+	</form>
+	</div>
+</div>
+</body>
+</html>

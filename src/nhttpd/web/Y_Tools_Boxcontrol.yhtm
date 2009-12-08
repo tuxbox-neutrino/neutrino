@@ -1,0 +1,77 @@
+{=var-set:cancache=yPyes=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function goConfirmUrl(_meld, _url) 
+{
+	if (confirm(_meld)==true) goUrl(_url);
+}
+function goUrl(_url)
+{
+	out.location.href = _url;
+}
+//]]>
+</script>
+</head>
+<body>
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Neutrino:yWeb:BoxControl#Control=}{=var-set:menu=Control=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form action="">
+		<table class="y_invisible_table" cellpadding="5">
+		<tr><td class="y_form_header">Coolstream HD1</td><td class="y_form_header">Standby Mode</td></tr>
+		<tr>
+			<td>
+			<input type="button" value="Restart" title="reboot" onclick='goConfirmUrl("Do you really want to reboot the dbox?","/control/reboot");'/>
+			<input type="button" value="Turn Off" title="shutdown" onclick='goConfirmUrl("Do you really want to turn the Dbox off?","/control/shutdown");'/>
+			</td>
+			<td>
+			<input type="button" value="On" onclick='goUrl("/control/standby?on");'/>
+			<input type="button" value="Off" onclick='goUrl("/control/standby?off");'/>
+			<input type="button" value="Status" onclick='goUrl("/control/exec?Y_Tools&amp;standby_status");'/>
+			</td>
+		</tr>
+		<tr><td class="y_form_header">Playback</td><td class="y_form_header">Recording</td></tr>
+		<tr>
+			<td>
+			<input type="button" value="On" onclick='goUrl("/control/zapto?startplayback");'/>
+			<input type="button" value="Off" onclick='goUrl("/control/zapto?stopplayback");'/>
+			<input type="button" value="Status" onclick='goUrl("/control/zapto?statusplayback");'/>
+			</td>
+			<td>
+            <input type="button" value="On" onclick='goUrl("/control/setmode?record=start");'/>
+            <input type="button" value="Off" onclick='goUrl("/control/setmode?record=stop");'/>
+            <input type="button" value="Status" onclick='goUrl("/control/setmode?status");'/>
+			</td>
+		</tr>
+		<tr><td class="y_form_header">Remote Control</td><td class="y_form_header">Live Lock</td></tr>
+		<tr>
+			<td>
+			<input type="button" value="On" onclick='goUrl("/control/rc?unlock");'/>
+			<input type="button" value="Off" onclick='goUrl("/control/rc?lock");'/>
+			<input type="button" value="LCD Unlock" onclick='goUrl("/control/exec?Y_Live&amp;live_LCD_off");'/>
+			</td>
+			<td>
+			<input type="button" value="Lock" onclick='live_lock();'/>
+			<input type="button" value="Unlock" onclick='live_unlock();'/>
+			</td>
+		</tr>
+<!--dbox2 only		<tr><td class="y_form_header">Optical Output</td><td class="y_form_header">&nbsp;</td></tr>
+		<tr> dbox2 only-->
+<!--dbox2 only			<td>
+			<input type="button" value="On" onclick='goUrl("/control/system?setAViAExtIec=on");'/>
+			<input type="button" value="OFF" onclick='goUrl("/control/system?setAViAExtIec=off");'/>
+			<input type="button" value="Status" onclick='goUrl("/control/system?getAViAExtIec");'/>
+			</td> dbox2 only-->
+			<td>
+		</tr>	
+		</table>
+	</form>
+	</div>
+</div>
+<iframe name="out" id="out" width="100%" height="200" align="left" frameborder="0">Your Browser does not support IFrames.</iframe>
+
+</body>
+</html>
