@@ -254,7 +254,8 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 		}
-		else feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+		else 
+			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 
 		feparams.inversion = INVERSION_AUTO;
 
@@ -408,9 +409,9 @@ int LoadServices(fe_type_t frontendType, diseqc_t diseqcType, bool only_current)
 					init_sat(position);
 				}
 				satellitePositions[position].name = name;
-				position++;
 			}
 			ParseSatTransponders(frontendType, search, position);
+			position++;
 			search = search->xmlNextNode;
 		}
 	}
@@ -555,7 +556,7 @@ void SaveServices(bool tocopy)
 										spos_it->second.name.c_str(), spos_it->first, spos_it->second.diseqc, spos_it->second.uncommited);
 								break;
 							case FE_QAM: /* cable */
-								fprintf(fd, "\t<cable name=\"%s\">\n", spos_it->second.name.c_str());
+								fprintf(fd, "\t<cable name=\"%s\" position=\"%hd\">\n", spos_it->second.name.c_str(), spos_it->first);
 								break;
 							case FE_OFDM:
 							default:

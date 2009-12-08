@@ -965,6 +965,12 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
 	}
+	if(i == 0) {
+		char text[255];
+		sprintf(text, "No transponders found for %s\n", CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc);
+		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text, 450, 2);
+		return menu_return::RETURN_REPAINT;
+	}
 	int retval = menu->exec(NULL, "");
 	delete menu;
 	delete selector;
@@ -1031,14 +1037,13 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	CMenuWidget* satOnOff = NULL;
 	sat_iterator_t sit;
 
+	t_satellite_position currentSatellitePosition = frontend->getCurrentSatellitePosition();
 	if(g_info.delivery_system == DVB_S) {
 		satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, scanSettings.satNameNoDiseqc, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 		satOnOff = new CMenuWidget(LOCALE_SATSETUP_SATELLITE, NEUTRINO_ICON_SETTINGS);
 		satOnOff->addItem(GenericMenuSeparator);
 		satOnOff->addItem(GenericMenuBack);
 		satOnOff->addItem(GenericMenuSeparatorLine);
-
-		t_satellite_position currentSatellitePosition = frontend->getCurrentSatellitePosition();
 
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 			printf("Adding sat menu for %s position %d\n", sit->second.name.c_str(), sit->first);
@@ -1087,8 +1092,12 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	} else if (g_info.delivery_system == DVB_C) {
 		satSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, (char*)scanSettings.satNameNoDiseqc, true);
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+			printf("Adding cable menu for %s position %d\n", sit->second.name.c_str(), sit->first);
 			satSelect->addOption(sit->second.name.c_str());
-printf("Adding cable menu for %s position %d\n", sit->second.name.c_str(), sit->first);
+			if(currentSatellitePosition == sit->first) {
+				strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
+				sfound = 1;
+			}
 			dprintf(DEBUG_DEBUG, "got scanprovider (cable): %s\n", sit->second.name.c_str());
 		}
 	}
@@ -1542,8 +1551,8 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	miscSettings.addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
 	funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
 
-	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 #if 0
+	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 	miscSettings.addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));
 	miscSettings.addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
 #endif
