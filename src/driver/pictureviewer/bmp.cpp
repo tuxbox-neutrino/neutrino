@@ -80,6 +80,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 	raster = buff[0] + (buff[1]<<8) + (buff[2]<<16) + (buff[3]<<24);
 
 	if (lseek(fd, BMP_BPP_OFFSET, SEEK_SET) == -1) {
+		close(fd);
 		return(FH_ERROR_FORMAT);
 	}
 
