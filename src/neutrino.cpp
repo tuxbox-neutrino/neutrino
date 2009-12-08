@@ -2545,6 +2545,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	system("mount /media/sdb1 2> /dev/null");
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
+	delete hdd;
 #endif
 
 	InitZapper();
@@ -4108,6 +4109,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			networkConfig.automatic_start = (network_automatic_start == 1);
 			networkConfig.commitConfig();
 			saveSetup(NEUTRINO_SETTINGS_FILE);
+			delete hintBox;
 			delete frameBuffer;
 			execvp(global_argv[0], global_argv); // no return if successful
 			exit(1);
