@@ -442,8 +442,8 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	} else if (providerName == "Chambre des D\xE9" "put\xE9" "es") {
 		providerName = "Chambre des D\xC3\xA9" "put\xC3\xA9" "es";
 		in_blacklist = true;
-	} else if (providerName == "PREMIERE") {
-		providerName = "Premiere"; // well the name PREMIERE itself is not a problem
+	} else if (providerName == "SKY") {
+		providerName = "Sky"; // well the name PREMIERE itself is not a problem
 		in_blacklist = true;
 	} else if( (strncasecmp("POLSAT",providerName.c_str(),6)==0) || 
 			(strncmp("D1",providerName.c_str(),2)==0)  || (strncmp("OTV",providerName.c_str(),3)==0)  ||
@@ -463,6 +463,10 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		in_blacklist = true;
 	} else if(strncasecmp("RR Sat",providerName.c_str(),6)==0) {
 		providerName = "RRSat"; 
+		in_blacklist = true;
+	}
+	else if (providerName == "BetaDigital")
+	{
 		in_blacklist = true;
 	}
 
