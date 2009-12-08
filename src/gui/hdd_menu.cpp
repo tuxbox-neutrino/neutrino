@@ -123,6 +123,7 @@ int CHDDMenuHandler::doMenu ()
 		}
 		if (ioctl(fd, BLKGETSIZE64, &bytes))
 			perror("BLKGETSIZE64");
+		close(fd);
 
 		megabytes = bytes/1000000;
 
