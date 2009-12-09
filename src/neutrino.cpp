@@ -233,7 +233,6 @@ CBouquetList   * RADIObouquetList;
 CBouquetList   * RADIOsatList;
 CBouquetList   * RADIOfavList;
 CBouquetList   * RADIOallList;
-CBouquet       * hdBouquet;
 
 CPlugins       * g_PluginList;
 CRemoteControl * g_RemoteControl;
@@ -1649,7 +1648,6 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	if(g_bouquetManager->existsUBouquet(fav_bouquetname, true) == -1)
 		g_bouquetManager->addBouquet(fav_bouquetname, true, true);
 
-	if(hdBouquet) delete hdBouquet;
 	if(TVallList) delete TVallList;
 	if(RADIOallList) delete RADIOallList;
 	if(TVbouquetList) delete TVbouquetList;
@@ -1683,6 +1681,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	i = 1;
 
 	//CBouquet* tmp = TVfavList->addBouquet("HD");//FIXME locale
+	CBouquet* hdBouquet;
 	if(g_settings.make_hd_list)
 		hdBouquet = new CBouquet(0, (char *) "HD", 0);
 
