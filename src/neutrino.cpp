@@ -768,7 +768,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.spdif_dd = configfile.getInt32( "spdif_dd", 1);
 	g_settings.avsync = configfile.getInt32( "avsync", 1);
 	g_settings.clockrec = configfile.getInt32( "clockrec", 1);
-	g_settings.video_dbdr = configfile.getInt32("video_dbdr", 2);
+	g_settings.video_dbdr = configfile.getInt32("video_dbdr", 0);
 
 	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
 		sprintf(cfg_key, "enabled_video_mode_%d", i);
