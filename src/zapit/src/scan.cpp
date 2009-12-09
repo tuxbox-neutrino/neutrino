@@ -485,8 +485,10 @@ void *start_scanthread(void *scanmode)
 		if(cable) {
 			strcpy(providerName, xmlGetAttribute(search, "name"));
 			for (spI = scanProviders.begin(); spI != scanProviders.end(); spI++)
-				if (!strcmp(spI->second.c_str(), providerName))
+				if (!strcmp(spI->second.c_str(), providerName)) {
+					position = spI->first;
 					break;
+				}
 
 		} else {
 			for (spI = scanProviders.begin(); spI != scanProviders.end(); spI++)
