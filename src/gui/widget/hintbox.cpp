@@ -79,7 +79,10 @@ CHintBox::CHintBox(const neutrino_locale_t Caption, const char * const Text, con
 		else
 			break;
 	}
-	entries_per_page = ((height - theight) / fheight) - 1;
+	if (fheight != 0)
+		entries_per_page = ((height - theight) / fheight) - 1;
+	else	/* avoid division by zero */
+		entries_per_page = 1;
 	current_page = 0;
 
 	unsigned int additional_width;

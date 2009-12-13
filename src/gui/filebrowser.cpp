@@ -386,6 +386,8 @@ void CFileBrowser::commonInit()
 
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight();
+	if (fheight == 0)
+		fheight = 1; /* avoid div by zero on invalid font */
 	foheight = 30;
 
 	liststart = 0;

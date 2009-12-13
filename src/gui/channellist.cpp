@@ -451,6 +451,8 @@ int CChannelList::show()
 	if(theight < PIC_H) theight = PIC_H;
 
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+	if (fheight == 0)
+		fheight = 1; /* avoid crash on invalid font */
 	listmaxshow = (height - theight - buttonHeight -0)/fheight;
 	height = theight + buttonHeight + listmaxshow * fheight;
 	//info_height = fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;

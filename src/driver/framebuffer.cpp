@@ -552,6 +552,8 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	    radius = dy;
 	if (radius > 540)
 	    radius = 540;
+	if (radius < 1)		/* dx or dy = 0... */
+		radius = 1;	/* avoid div by zero below */
 
 	scf = (540 * MUL) / radius;
 
