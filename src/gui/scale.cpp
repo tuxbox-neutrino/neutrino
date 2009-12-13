@@ -39,20 +39,22 @@ inline unsigned int make16color(__u32 rgb)
 
 CScale::CScale (int w, int h, int r, int g, int b, bool inv)
 {
-  double div;
-//printf("new SCALE, w %d h %d size %d\n", w, h, sizeof(CScale)); fflush(stdout);
-  frameBuffer = CFrameBuffer::getInstance ();
   width = w;
   height = h;
   inverse = inv;
-
+#ifndef NO_BLINKENLIGHTS
+  double div;
+//printf("new SCALE, w %d h %d size %d\n", w, h, sizeof(CScale)); fflush(stdout);
+  frameBuffer = CFrameBuffer::getInstance ();
   div = (double) 100 / (double) width;
   red = (double) r / (double) div / (double) ITEMW;
   green = (double) g / (double) div / (double) ITEMW;
   yellow = (double) b / (double) div / (double) ITEMW;
+#endif
   percent = 255;
 }
 
+#ifndef NO_BLINKENLIGHTS
 void CScale::paint (int x, int y, int pcr)
 {
   int i, j, siglen;
@@ -118,6 +120,15 @@ void CScale::paint (int x, int y, int pcr)
 	percent = pcr;
   }
 }
+#else
+void CScale::paint (int x, int y, int pcr)
+{
+	if (pcr == percent)
+		return;
+	percent = pcr;
+	pb.paintProgressBar(x, y, width, height, pcr * width / 100, width, COL_INFOBAR_PLUS_3, COL_INFOBAR_PLUS_0, COL_INFOBAR_PLUS_3);
+}
+#endif
 
 void CScale::reset ()
 {
