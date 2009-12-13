@@ -1905,8 +1905,8 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	if (!m_playlist.empty() && (pos >= 0))
 	{
 		// 1. col thick line
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos1, 4, m_fheight, col2 /*, c_rad_small, CORNER_LEFT*/);//FIXME
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 3, ypos1, 8, m_fheight, col1 /*,  c_rad_small, CORNER_LEFT*/); // item marker
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos1, 4, m_fheight, col2, c_rad_small, CORNER_LEFT);
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 3, ypos1, 8, m_fheight, col1, c_rad_small, CORNER_LEFT); // item marker
 
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2, 4, m_info_height, col1);
 

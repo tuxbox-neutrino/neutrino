@@ -84,7 +84,7 @@ extern t_channel_id live_channel_id; //zapit
 #define ICON_OFFSET (2 + ICON_LARGE_WIDTH + 2 + ICON_LARGE_WIDTH + 2 + ICON_SMALL_WIDTH + 2)
 
 #define BOTTOM_BAR_OFFSET 0
-#define SHADOW_OFFSET 6
+//#define SHADOW_OFFSET 6
 #define borderwidth 4
 #define LEFT_OFFSET 5
 #define ASIZE 100
@@ -191,7 +191,7 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 	  strcpy (old_timestr, timestr);
 
 	  if (!firstPaint) {
-		frameBuffer->paintBoxRel (BoxEndX - time_width - LEFT_OFFSET, ChanNameY, time_width + LEFT_OFFSET, time_height, COL_INFOBAR_PLUS_0, ROUND_RADIUS, 1);
+		frameBuffer->paintBoxRel(BoxEndX - time_width - LEFT_OFFSET, ChanNameY, time_width + LEFT_OFFSET, time_height, COL_INFOBAR_PLUS_0, ROUND_RADIUS, CORNER_TOP);
 	  }
 
 	  timestr[2] = 0;
@@ -310,15 +310,15 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	asize = asize / 4;
 
 	//Shadow
-	frameBuffer->paintBox (BoxEndX-20, ChanNameY + SHADOW_OFFSET, BoxEndX + SHADOW_OFFSET, BoxEndY, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, 1);
-	frameBuffer->paintBox (ChanInfoX + SHADOW_OFFSET, BoxEndY -20, BoxEndX + SHADOW_OFFSET, BoxEndY + SHADOW_OFFSET, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, 2); //round
+	frameBuffer->paintBox(BoxEndX-20, ChanNameY + SHADOW_OFFSET, BoxEndX + SHADOW_OFFSET, BoxEndY, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBox(ChanInfoX + SHADOW_OFFSET, BoxEndY -20, BoxEndX + SHADOW_OFFSET, BoxEndY + SHADOW_OFFSET, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM); //round
 
 	//infobox
-	frameBuffer->paintBoxRel (ChanNameX-10, ChanNameY, BoxEndX-ChanNameX+10, BoxEndInfoY-ChanNameY, COL_INFOBAR_PLUS_0, ROUND_RADIUS, 1); // round
+	frameBuffer->paintBoxRel(ChanNameX-10, ChanNameY, BoxEndX-ChanNameX+10, BoxEndInfoY-ChanNameY, COL_INFOBAR_PLUS_0, ROUND_RADIUS, CORNER_TOP); // round
 
 	//number box
-	frameBuffer->paintBoxRel (BoxStartX + SHADOW_OFFSET, BoxStartY + SHADOW_OFFSET, ChanWidth, ChanHeight + 4, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, 3); // round
-	frameBuffer->paintBoxRel (BoxStartX, BoxStartY, ChanWidth, ChanHeight + 4, COL_INFOBAR_PLUS_0, ROUND_RADIUS, 3); // round
+	frameBuffer->paintBoxRel (BoxStartX + SHADOW_OFFSET, BoxStartY + SHADOW_OFFSET, ChanWidth, ChanHeight + 4, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS); // round
+	frameBuffer->paintBoxRel (BoxStartX, BoxStartY, ChanWidth, ChanHeight + 4, COL_INFOBAR_PLUS_0, ROUND_RADIUS); // round
 
 	int ChanNumYPos = BoxStartY + ChanHeight;
 	if (g_settings.infobar_sat_display && satellitePosition != 0 && satellitePositions.size()) {
@@ -377,7 +377,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 					frameBuffer->paintBoxRel (ChanInfoX + i*4, BoxEndInfoY + j*4, 2, 2, COL_INFOBAR_PLUS_1);
 			}
 		}
-		frameBuffer->paintBox (ChanInfoX, BoxEndY-20, BoxEndX, BoxEndY, COL_INFOBAR_BUTTONS_BACKGROUND, ROUND_RADIUS, 2); //round
+		frameBuffer->paintBox(ChanInfoX, BoxEndY-20, BoxEndX, BoxEndY, COL_INFOBAR_BUTTONS_BACKGROUND, ROUND_RADIUS, CORNER_BOTTOM); //round
 
 		showSNR();
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, ChanInfoX + 16*3 + asize * 3 + 2*7, BoxEndY - ICON_Y_1);
@@ -1067,8 +1067,8 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	  if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
 //printf("CInfoViewer::show_Data: ************************************************* runningPercent %d\n", runningPercent);
 		if(!calledFromEvent || (oldrunningPercent != runningPercent)) {
-			frameBuffer->paintBoxRel (BoxEndX - 104, posy + 6, 108, 14, COL_INFOBAR_SHADOW_PLUS_0, 1, 3);
-			frameBuffer->paintBoxRel (BoxEndX - 108, posy + 2, 108, 14, COL_INFOBAR_PLUS_0, 1, 3);
+			frameBuffer->paintBoxRel(BoxEndX - 104, posy + 6, 108, 14, COL_INFOBAR_SHADOW_PLUS_0, 1);
+			frameBuffer->paintBoxRel(BoxEndX - 108, posy + 2, 108, 14, COL_INFOBAR_PLUS_0, 1);
 			oldrunningPercent = runningPercent;
 		}
 		timescale->paint(BoxEndX - 102, posy + 2, runningPercent);

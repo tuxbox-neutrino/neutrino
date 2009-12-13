@@ -96,7 +96,7 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool select
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, ROUND_RADIUS, 3);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
 	}
 	else
 	{
@@ -165,7 +165,7 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 void CBEChannelSelectWidget::paintFoot()
 {
 	int ButtonWidth = width / 3;
-	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 2);
+	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);

@@ -453,7 +453,7 @@ void CEpgData::showHead(const t_channel_id channel_id)
 		frameBuffer->paintBackgroundBox (sx, sy- oldtoph- 1, sx+ ox, sy /*- toph*/);
 
 	//show the epg title
-	frameBuffer->paintBoxRel(sx, sy- toph, ox, toph, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 1);//round
+	frameBuffer->paintBoxRel(sx, sy- toph, ox, toph, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
 	bool logo_ok = false;
 
 	logo_ok = g_PicViewer->DisplayLogo(channel_id, sx+10, sy- toph+ (toph-PIC_H)/2/*5*/, PIC_W, PIC_H);
@@ -1040,7 +1040,7 @@ void CEpgData::showTimerEventBar (bool show)
 	// hide only?
 	if (! show) return;
 
-	frameBuffer->paintBoxRel(x,y,w,h, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 2);//round
+	frameBuffer->paintBoxRel(x,y,w,h, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
 
 	// Button: Timer Record & Channelswitch
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)

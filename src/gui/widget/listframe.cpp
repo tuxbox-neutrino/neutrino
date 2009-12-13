@@ -412,7 +412,7 @@ void CListFrame::refreshList(void)
 			frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, 
 					y+m_cFrame.iY, m_cFrameListRel.iWidth, 
 					m_nFontListHeight,  LIST_BACKGROUND_COLOR_SELECTED,
-					ROUND_RADIUS, 3);
+					ROUND_RADIUS);
 		}
 		int width;
 		int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
@@ -450,7 +450,7 @@ void CListFrame::refreshLine(int line)
 		color = LIST_FONT_COLOR_SELECTED;
 		frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY, 
 				m_cFrameListRel.iWidth, m_nFontListHeight, LIST_BACKGROUND_COLOR_SELECTED,
-				ROUND_RADIUS, 3);
+				ROUND_RADIUS);
 	}
 	else
 	{

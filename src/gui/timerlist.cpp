@@ -742,7 +742,7 @@ void CTimerList::paintItem(int pos)
 
 void CTimerList::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 1);
+	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
 	frameBuffer->paintIcon("timer.raw",x+5,y+4);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+35,y+theight+0, width- 45, g_Locale->getText(LOCALE_TIMERLIST_NAME), COL_MENUHEAD, 0, true); // UTF-8
 
@@ -761,7 +761,7 @@ const struct button_label TimerListButtons[3] =
 void CTimerList::paintFoot()
 {
 	int ButtonWidth = (width - 20) / 4;
-	frameBuffer->paintBoxRel(x,y+height, width,buttonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 2);
+	frameBuffer->paintBoxRel(x, y+height, width, buttonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
 	if (timerlist.empty())

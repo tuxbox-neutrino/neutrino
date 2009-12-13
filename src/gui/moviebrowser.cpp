@@ -1492,7 +1492,7 @@ void CMovieBrowser::refreshTitle(void)
 	//Paint Text Background
 	//TRACE("[mb]->refreshTitle : %s\r\n",m_textTitle.c_str());
 	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX, m_cBoxFrame.iY+	m_cBoxFrameTitleRel.iY, 
-				m_cBoxFrameTitleRel.iWidth, m_cBoxFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR, ROUND_RADIUS, 1);
+				m_cBoxFrameTitleRel.iWidth, m_cBoxFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR, ROUND_RADIUS, CORNER_TOP);
 
 	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + TEXT_BORDER_WIDTH, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (TEXT_BORDER_WIDTH << 1), m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
 }
@@ -1512,7 +1512,7 @@ void CMovieBrowser::refreshFoot(void)
 	// draw the background first
 	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameFootRel.iX, m_cBoxFrame.iY+	m_cBoxFrameFootRel.iY, 
 				m_cBoxFrameFootRel.iWidth, m_cBoxFrameFootRel.iHeight+ 6,  
-				(CFBWindow::color_t)COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 2);
+				(CFBWindow::color_t)COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 
 	int width = m_cBoxFrameFootRel.iWidth>>2;
 	

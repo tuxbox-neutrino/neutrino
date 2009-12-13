@@ -154,11 +154,11 @@ void CHintBox::refresh(void)
 
 	//window->paintBoxRel(borderwidth, height, width, borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
 	//window->paintBoxRel(width, borderwidth, borderwidth, height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	window->paintBoxRel(width-20, borderwidth, borderwidth+20, height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, 1); // right
-	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, 2); // bottom
+	window->paintBoxRel(width-20, borderwidth, borderwidth+20, height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, CORNER_TOP); // right
+	window->paintBoxRel(borderwidth, height-20, width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM); // bottom
 
 	//window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
-	window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 1);//round
+	window->paintBoxRel(0, 0, width, theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
 
 	if (!iconfile.empty())
 	{
@@ -169,7 +169,7 @@ void CHintBox::refresh(void)
 		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
 
 	//window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0);
-	window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, 2);//round
+	window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
 
 	int count = entries_per_page;
 	int ypos  = theight + (fheight >> 1);

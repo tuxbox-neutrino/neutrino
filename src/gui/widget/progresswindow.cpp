@@ -144,10 +144,10 @@ void CProgressWindow::hide()
 void CProgressWindow::paint()
 {
 	int ypos=y;
-	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 1);
+	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
 	if (caption != NONEXISTANT_LOCALE)
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight, width- 10, g_Locale->getText(caption), COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, 2);
+	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 
 	ypos+= hheight + (mheight >>1);
 	statusTextY = ypos+mheight;

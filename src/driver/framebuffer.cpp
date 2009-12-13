@@ -500,6 +500,10 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     if (!getActive())
         return;
 
+    int corner_tl = (type & CORNER_TOP_LEFT)     ? 1 : 0;
+    int corner_tr = (type & CORNER_TOP_RIGHT)    ? 1 : 0;
+    int corner_bl = (type & CORNER_BOTTOM_LEFT)  ? 1 : 0;
+    int corner_br = (type & CORNER_BOTTOM_RIGHT) ? 1 : 0;
 #ifdef USE_NEVIS_GXA
     /* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed 
        radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
@@ -543,7 +547,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     if ((type) && (radius))
     {
 	#define MUL 32768	/* just an multiplicator for all math to reduce rounding errors */
-	int ofs, scf, scl;
+	int ofs, scf, scl, ofl, ofr;
 
 	/* limit the radius */
 	if (radius > dx)
@@ -559,26 +563,31 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 
 	while (line < dy)
 	{
-	    ofs = 0;
+	    ofl = ofr = 0;
 
-	    if ((line < radius) && (type & 1))
+	    if (line < radius && (type & CORNER_TOP)) /* one of the top corners */
 	    {
 		/* uper round corners */
 		scl = scf * (radius - line) / MUL;
 		if ((scf * (radius - line) % MUL) >= (MUL / 2))	/* round up */
 		    scl++;
 		ofs = radius - (q_circle[scl] * MUL / scf);
+		// ofl = corner_tl * ofs; // might depend on the arch if multiply is faster or not
+		ofl = corner_tl ? ofs : 0;
+		ofr = corner_tr ? ofs : 0;
 	    }
-	    else if ((line >= (dy - radius)) && (type & 2))
+	    else if ((line >= dy - radius) && (type & CORNER_BOTTOM)) /* one of the bottom corners */
 	    {
 		/* lower round corners */
 		scl = scf * (radius - (dy - (line + 1))) / MUL;
 		if ((scf * (radius - (dy - (line + 1))) % MUL) >= (MUL / 2))	/* round up */
 		    scl++;
 		ofs = radius - (q_circle[scl] * MUL / scf);
+		ofl = corner_bl ? ofs : 0;
+		ofr = corner_br ? ofs : 0;
 	    }
-	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx - ofs, y + line));		/* endig point */
-    	    _write_gxa(gxa_base, cmd, GXA_POINT(x      + ofs, y + line));		/* start point */
+	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx - ofr, y + line));		/* endig point */
+	    _write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));		/* start point */
 
 	    line++;
 	}
@@ -594,6 +603,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     }
 
 #else
+#error TODO: please fix the rounded corner code for !USE_NEVIS_GXA case
     int F,R=radius,sx,sy,dxx=dx,dyy=dy,rx,ry,wx,wy;
 
     if (!getActive())

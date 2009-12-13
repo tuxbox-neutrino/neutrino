@@ -551,7 +551,7 @@ void CPictureViewerGui::paintItem(int pos)
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel(x,ypos, width-15, fheight, bgcolor, liststart+pos == selected ? ROUND_RADIUS : 0, 3);
+	frameBuffer->paintBoxRel(x, ypos, width-15, fheight, bgcolor, liststart+pos == selected ? ROUND_RADIUS : 0);
 	if(liststart+pos<playlist.size())
 	{
 		std::string tmp = playlist[liststart+pos].Name;
@@ -574,7 +574,7 @@ void CPictureViewerGui::paintHead()
 {
 //	printf("paintHead{\n");
 	std::string strCaption = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
-	frameBuffer->paintBoxRel(x,y, width,theight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 1);
+	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
 	frameBuffer->paintIcon("mp3.raw",x+7,y+10);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+35,y+theight+0, width- 45, strCaption, COL_MENUHEAD, 0, true); // UTF-8
 	int ypos=y+0;
@@ -599,7 +599,7 @@ void CPictureViewerGui::paintFoot()
 //	printf("paintFoot{\n");
 	int ButtonWidth = (width-20) / 4;
 	int ButtonWidth2 = (width-50) / 2;
-	frameBuffer->paintBoxRel(x,y+(height-2*buttonHeight), width,2*buttonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 2);
+	frameBuffer->paintBoxRel(x, y+(height-2*buttonHeight), width, 2*buttonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 	frameBuffer->paintHLine(x, x+width,  y+(height-2*buttonHeight), COL_INFOBAR_SHADOW_PLUS_0);
 
 	if (!playlist.empty())
