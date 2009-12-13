@@ -14,5 +14,5 @@ bin_PROGRAMS = sectionsdcontrol
 
 sectionsdcontrol_SOURCES = sectionsdcontrol.cpp
 sectionsdcontrol_LDADD = \
-	$(top_builddir)/lib/sectionsdclient/libsectionsdclient.a \
+	libsectionsdclient.a \
 	$(top_builddir)/lib/connection/libtuxbox-connection.a
