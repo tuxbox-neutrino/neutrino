@@ -253,9 +253,10 @@ int Font::setSize(int isize)
 	scaler.width  = isize * 64;
 	scaler.height = isize * 64;
 
-	if (FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size)<0)
+	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
+	if (err != 0)
 	{
-		dprintf(DEBUG_NORMAL, "FTC_Manager_Lookup_Size failed!\n");
+		dprintf(DEBUG_NORMAL, "%s:FTC_Manager_LookupSize failed (0x%x)\n", __FUNCTION__, err);
 		return 0;
 	}
 	face = size->face;
@@ -353,9 +354,11 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 
 	pthread_mutex_lock( &renderer->render_mutex );
 
-	if (FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size)<0)
+	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
+	if (err != 0)
 	{
-		dprintf(DEBUG_NORMAL, "FTC_Manager_Lookup_Size failed!\n");
+		dprintf(DEBUG_NORMAL, "%s:FTC_Manager_LookupSize failed (0x%x)\n", __FUNCTION__, err);
+		pthread_mutex_unlock(&renderer->render_mutex);
 		return;
 	}
 	face = size->face;
@@ -566,9 +569,11 @@ int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 {
 	pthread_mutex_lock( &renderer->render_mutex );
 
-	if (FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size)<0)
+	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
+	if (err != 0)
 	{
-		dprintf(DEBUG_NORMAL, "FTC_Manager_Lookup_Size failed!\n");
+		dprintf(DEBUG_NORMAL, "%s:FTC_Manager_LookupSize failed (0x%x)\n", __FUNCTION__, err);
+		pthread_mutex_unlock(&renderer->render_mutex);
 		return -1;
 	}
 	face = size->face;
