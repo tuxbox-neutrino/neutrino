@@ -49,6 +49,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
+#include <gui/widget/progressbar.h>
 
 #include <system/settings.h>
 #include <system/lastchannel.h>
@@ -1491,6 +1492,9 @@ void CChannelList::paintItem(int pos)
 		else
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->name.c_str());
 
+		CProgressBar pb;
+		int pb_space = prg_offset - title_offset;
+		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {
 		  
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l," - ");
@@ -1522,13 +1526,20 @@ void CChannelList::paintItem(int pos)
 					}
 					else
 					{
-						runningPercent=(jetzt-p_event->startTime) * 30 / p_event->duration;
-						if (runningPercent > 30)	// this would lead to negative value in paintBoxRel
-							runningPercent = 30;	// later on which can be fatal...
+						runningPercent=(jetzt-p_event->startTime) * pb_max / p_event->duration;
+						if (runningPercent > pb_max)	// this would lead to negative value in paintBoxRel
+							runningPercent = pb_max;	// later on which can be fatal...
 					}
-					frameBuffer->paintBoxRel(x+ 5+ numwidth+ title_offset, ypos+fheight/4, 34, fheight/2, COL_MENUCONTENT_PLUS_3, 0);//fill passive
-					frameBuffer->paintBoxRel(x+ 5+ numwidth+ title_offset+2, ypos+2+fheight/4, 30, fheight/2-4, COL_MENUCONTENT_PLUS_1, 0);//frame(passive)
-					frameBuffer->paintBoxRel(x+ 5+ numwidth+ title_offset+2, ypos+2+fheight/4, runningPercent, fheight/2-4, COL_MENUCONTENT_PLUS_3, 0);//fill(active)
+
+					int pb_activeCol , pb_passiveCol;
+					if (liststart + pos != selected) {
+						pb_activeCol = COL_MENUCONTENT_PLUS_3;
+						pb_passiveCol = COL_MENUCONTENT_PLUS_1;
+					} else {
+						pb_activeCol = COL_MENUCONTENTSELECTED_PLUS_2;
+						pb_passiveCol = COL_MENUCONTENTSELECTED_PLUS_0;
+					}
+					pb.paintProgressBar(x+5+numwidth + title_offset, ypos + fheight/4, pb_space + 2, fheight/2, runningPercent, pb_max, pb_activeCol, pb_passiveCol, pb_activeCol);
 				}
 			}
 
@@ -1544,11 +1555,15 @@ void CChannelList::paintItem(int pos)
 		}
 		else {
 			if(g_settings.channellist_extended){
-				short runningPercent=0;
-				frameBuffer->paintBoxRel(x+ 5+ numwidth+ title_offset, ypos+fheight/4, 34, fheight/2, COL_MENUCONTENT_PLUS_3, 0);//fill passive
-				frameBuffer->paintBoxRel(x+ 5+ numwidth+ title_offset+2, ypos+2+fheight/4, 30, fheight/2-4, COL_MENUCONTENT_PLUS_1, 0);//frame(passive)
-				frameBuffer->paintBoxRel(x+ 5+ numwidth+ title_offset+2, ypos+2+fheight/4, runningPercent, fheight/2-4, COL_MENUCONTENT_PLUS_3, 0);//fill(active)
-				frameBuffer->paintLine(x+ 5+ numwidth+ title_offset, ypos+fheight/4+1,x+ 5+ numwidth+ title_offset+ 32, ypos+fheight/4+fheight/2-3, COL_MENUCONTENT_PLUS_3);
+				int pbz_activeCol, pbz_passiveCol;
+				if (liststart + pos != selected) {
+					pbz_activeCol = COL_MENUCONTENT_PLUS_1;
+					pbz_passiveCol = COL_MENUCONTENT_PLUS_0;
+				} else {
+					pbz_activeCol = COL_MENUCONTENTSELECTED_PLUS_2;
+					pbz_passiveCol = COL_MENUCONTENTSELECTED_PLUS_0;
+				}
+				pb.paintProgressBar(x+5+numwidth + title_offset, ypos + fheight/4, pb_space + 2, fheight/2, 0, pb_max, pbz_activeCol, pbz_passiveCol, pbz_activeCol, 0, NULL, 0, NULL, true);
 			}
 			//name
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color, 0, true); // UTF-8
