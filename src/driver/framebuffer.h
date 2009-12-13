@@ -110,6 +110,9 @@ class CFrameBuffer
 
 		static CFrameBuffer* getInstance();
 
+		int getIconWidth(const char * const filename);	// infos about icon dimensions
+		int getIconHeight(const char * const filename);
+
 		void init(const char * const fbDevice = "/dev/fb/0");
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 

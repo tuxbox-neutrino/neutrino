@@ -443,6 +443,26 @@ printf("logo file: %s\n", fname);
 	return ret;
 }
 
+int CPictureViewer::getWidth(const char* name)
+{
+	int x, y;
+	CFormathandler *fh;
+	fh = fh_getsize(name, &x, &y, INT_MAX, INT_MAX);
+	if (fh == NULL)
+		return -1;
+	return x;
+}
+
+int CPictureViewer::getHeight(const char* name)
+{
+	int x, y;
+	CFormathandler *fh;
+	fh = fh_getsize(name, &x, &y, INT_MAX, INT_MAX);
+	if (fh == NULL)
+		return -1;
+	return y;
+}
+
 bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy, int width, int height)
 {
   int x, y;

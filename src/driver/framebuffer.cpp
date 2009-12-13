@@ -814,6 +814,70 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 	iconBasePath = iconPath;
 }
 
+int CFrameBuffer::getIconHeight(const char * const filename)
+{
+	struct rawHeader header;
+	uint16_t         height;
+	int              icon_fd;
+
+	char *ptr = rindex(filename, '.');
+	if (ptr) {
+		*ptr = 0;
+		std::string newname = iconBasePath + std::string(filename) + ".gif";
+		*ptr = '.';
+		if (!access(newname.c_str(), F_OK))
+			return g_PicViewer->getHeight(newname.c_str());
+	}
+
+	icon_fd = open(filename, O_RDONLY);
+
+	if (icon_fd == -1)
+	{
+		printf("Framebuffer getIconHeight: error while loading icon: %s\n", filename);
+		return 0;
+	}
+	else
+	{
+		read(icon_fd, &header, sizeof(struct rawHeader));
+		height = (header.height_hi << 8) | header.height_lo;
+	}
+
+	close(icon_fd);
+	return height;
+}
+
+int CFrameBuffer::getIconWidth(const char * const filename)
+{
+	struct rawHeader header;
+	uint16_t         width;
+	int              icon_fd;
+
+	char *ptr = rindex(filename, '.');
+	if (ptr) {
+		*ptr = 0;
+		std::string newname = iconBasePath + std::string(filename) + ".gif";
+		*ptr = '.';
+		if (!access(newname.c_str(), F_OK))
+			return g_PicViewer->getWidth(newname.c_str());
+	}
+
+	icon_fd = open(filename, O_RDONLY);
+
+	if (icon_fd == -1)
+	{
+		printf("Framebuffer getIconWidth: error while loading icon: %s\n", filename);
+		width = 0;
+	}
+	else
+	{
+		read(icon_fd, &header, sizeof(struct rawHeader));
+		width = (header.width_hi << 8) | header.width_lo;
+	}
+
+	close(icon_fd);
+	return width;
+}
+
 bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset)
 {
 	if (!getActive())
