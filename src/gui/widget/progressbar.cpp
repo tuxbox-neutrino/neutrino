@@ -58,7 +58,14 @@ void CProgressBar::paintProgressBar (	const int pos_x,
 	fb_pixel_t active_col = activebar_col != 0 ? activebar_col : COL_INFOBAR_PLUS_7;
 	fb_pixel_t passive_col = passivebar_col != 0 ? passivebar_col : COL_INFOBAR_PLUS_3;
 
-	int c_rad = RADIUS_SMALL;
+	/* radius is 0 for now, since the rounded corner code is sufficiently
+	   different from tuxbox.org's so that everything else looks 'strange' */
+	const int c_rad = 0;
+
+	/* if the bar is too small, do not draw the borders around it */
+	if (pb_height / 2 <= frame_widht)
+		frame_widht = 0;
+
 	// get icon size
 	int icon_w = 0, icon_h = 0;
 	icon_w = iconfile != NULL ? frameBuffer->getIconWidth(iconfile) : 0;
