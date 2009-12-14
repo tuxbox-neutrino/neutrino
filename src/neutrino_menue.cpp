@@ -1050,7 +1050,6 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 			satSelect->addOption(sit->second.name.c_str());
 			if (strcmp(scanSettings.satNameNoDiseqc,sit->second.name.c_str()) == 0) {
-				strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
 				sfound = 1;
 			}
 
