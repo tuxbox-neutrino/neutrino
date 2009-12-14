@@ -41,6 +41,14 @@ AC_ARG_ENABLE(restore-prev-mode,
          [  --enable-restore-prev-mode          enable return from graphics mode],
          [AC_DEFINE(RETURN_FROM_GRAPHICS_MODE,1,[enable return from graphics mode])])
 
+AC_ARG_ENABLE(blinkenlights,
+	AS_HELP_STRING(--disable-blinkenlights, disable colorful progress bars and use classical style),
+	,[enable_blinkenlights=yes])
+
+if test "$enable_blinkenlights" != "yes"; then
+AC_DEFINE(NO_BLINKENLIGHTS, 1, [disable colorful progress bars, use classical style])
+fi
+
 #
 # Check for libtdservicedb - the new one - for testing only
 #

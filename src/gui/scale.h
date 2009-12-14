@@ -1,10 +1,7 @@
 #ifndef __scale_
 #define __scale_
-/* define this if you do not want colorful blinkenlights
-   the classical progressbars will be used instead. */
-// #define NO_BLINKENLIGHTS
 #include <driver/framebuffer.h>
-
+/* config.h is included by driver/framebuffer.h already */
 #ifdef NO_BLINKENLIGHTS
 #include <gui/widget/progressbar.h>
 #endif
