@@ -1049,7 +1049,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 			printf("Adding sat menu for %s position %d\n", sit->second.name.c_str(), sit->first);
 
 			satSelect->addOption(sit->second.name.c_str());
-			if(currentSatellitePosition == sit->first) {
+			if (strcmp(scanSettings.satNameNoDiseqc,sit->second.name.c_str()) == 0) {
 				strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
 				sfound = 1;
 			}
