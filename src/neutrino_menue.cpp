@@ -1140,8 +1140,8 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		//motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  (int *)&zapitCfg.useGotoXX, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 		CStringInput * toff;
-		sprintf(zapit_lat, "%3.6f", zapitCfg.gotoXXLatitude);
-		sprintf(zapit_long, "%3.6f", zapitCfg.gotoXXLongitude);
+		sprintf(zapit_lat, "%02.6f", zapitCfg.gotoXXLatitude);
+		sprintf(zapit_long, "%02.6f", zapitCfg.gotoXXLongitude);
 
 		motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_LADIR,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true));
 		toff = new CStringInput(LOCALE_EXTRA_LAT, (char *) zapit_lat, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
