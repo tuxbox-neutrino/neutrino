@@ -285,9 +285,9 @@ void loadZapitSettings()
 	voltageOff = config.getBool("voltageOff", 0);
 
 	useGotoXX = config.getInt32("useGotoXX", 0);
-	gotoXXLatitude = strtod(config.getString("gotoXXLatitude", "0.0").c_str(), NULL);
-	gotoXXLongitude = strtod(config.getString("gotoXXLongitude", "0.0").c_str(), NULL);
-	gotoXXLaDirection = config.getInt32("gotoXXLaDirection", 0);
+	gotoXXLatitude = strtod(config.getString("gotoXXLatitude", "00.0").c_str(), NULL);
+	gotoXXLongitude = strtod(config.getString("gotoXXLongitude", "00.0").c_str(), NULL);
+	gotoXXLaDirection = config.getInt32("gotoXXLaDirection", 1);
 	gotoXXLoDirection = config.getInt32("gotoXXLoDirection", 0);
 	repeatUsals = config.getInt32("repeatUsals", 0);
 
