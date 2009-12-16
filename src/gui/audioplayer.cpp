@@ -559,7 +559,7 @@ int CAudioPlayerGui::show()
 			if(m_show_playlist && !m_playlist.empty() )
 			{
 				int prevselected = m_selected;
-				int step =  msg == CRCInput::RC_page_down ? m_listmaxshow : 1;
+				unsigned int step =  msg == CRCInput::RC_page_down ? m_listmaxshow : 1;
 				m_selected += step;
 
 				if(m_selected >= m_playlist.size()) {
