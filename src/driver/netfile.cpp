@@ -1109,7 +1109,7 @@ FILE *f_open(const char *filename, const char *acctype)
 				/* a smarter solution would be to get this info from /etc/mime.types */
 
 				ptr = strrchr(url.file , '.');
-#warning what about filenames without dots?
+				//#FIXME warning what about filenames without dots?
 
 				if (ptr++)
 				{
@@ -1137,7 +1137,7 @@ int f_close(FILE *stream)
 {
 	int i, rval;
 
-	dprintf(stderr, "f_close: stream 0x%x\n", stream);
+//	dprintf(stderr, "f_close: stream 0x%x\n", stream);
 	/* at first, lookup the stream in the stream type table and remove it */
 	for(i=0 ; (i<CACHEENTMAX) && (stream_type[i].stream != stream); i++){};
 
