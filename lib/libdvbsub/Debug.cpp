@@ -3,7 +3,7 @@
 #include "Debug.hpp"
 
 Debug::Debug() :
-	file_(""), level_(0),	fp_(stdout)
+	file_(const_cast<char *>("")), level_(0),	fp_(stdout)
 {
 }
 	
