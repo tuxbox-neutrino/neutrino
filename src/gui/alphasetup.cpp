@@ -101,7 +101,7 @@ int CAlphaSetup::exec(CMenuTarget* parent, const std::string &)
 	paint();
 
 	int selected = 0;
-	int max = 1;
+//	int max = 1;
 
 	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 ::TIMING_MENU]);
