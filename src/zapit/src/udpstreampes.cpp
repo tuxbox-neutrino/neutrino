@@ -63,7 +63,7 @@ int StreamStop;
 pid_t mainProcessID;
 int TSMode;
 
-struct {
+struct Send{
    int Socket;
    unsigned Packet;
    unsigned Watchdog;
@@ -74,7 +74,7 @@ struct {
    pid_t ProcessID;
 } Send;
 
-struct {
+struct SPkt{
   unsigned char *Buf[MAX_SPKT_BUF_NUM];
   unsigned char ReSend[MAX_SPKT_BUF_NUM][SPKT_BUF_PACKET_NUM];
   unsigned char ReSendStatus[MAX_SPKT_BUF_NUM];
