@@ -108,7 +108,7 @@ int CAudioSelectMenuHandler::doMenu ()
 		for (int i = 0 ; i < (int)cc->getSubtitleCount() ; ++i) {
 			CZapitAbsSub* s = cc->getChannelSub(i);
 			CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
-			CZapitTTXSub* st = reinterpret_cast<CZapitTTXSub*>(s);
+//			CZapitTTXSub* st = reinterpret_cast<CZapitTTXSub*>(s);
 			printf("[neutrino] adding subtitle %s pid %x\n", sd->ISO639_language_code.c_str(), sd->pId);
 			if (s->thisSubType == CZapitAbsSub::DVB) {
 				if(!sep_added) {
