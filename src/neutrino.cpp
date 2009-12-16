@@ -3400,7 +3400,7 @@ skip_message:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
-		int newmode = data & mode_mask;
+//		int newmode = data & mode_mask;
 
 		if((data & mode_mask)== mode_radio) {
 			if( mode != mode_radio ) {
