@@ -154,7 +154,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	int offset = g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE));
 	int sw = g_Font[font_info]->getRenderWidth ("99999.999");
 	int mm = g_Font[font_info]->getRenderWidth ("Max");//max min lenght
-	maxb = minb = lastb = 0;
+	maxb = minb = lastb = tmp_rate = 0;
 	ts_setup ();
 	while (1) {
 		neutrino_msg_data_t data;
@@ -177,7 +177,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 				cnt++;
 			int dheight = g_Font[font_info]->getHeight ();
 			int dx1 = x + 10;
-			int dy = y+ height - dheight - 5;
+	//			int dy = y+ height - dheight - 5;
 			if (ret && (lastb != bit_s)) {
 				lastb = bit_s;
 			  
@@ -335,7 +335,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	signal.old_snr = 1;
 	signal.old_ber = 1;
 
-	feSignal s = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+//	feSignal s = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 //	paint_signal_fe(rate, signal);
 }
 
@@ -467,7 +467,8 @@ void CStreamInfo2::paint (int mode)
 
 void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 {
-	char buf[100], buf2[100];
+	char buf[100];
+	//, buf2[100];
 	int xres, yres, aspectRatio, framerate;
 	// paint labels
 	int spaceoffset = 0,i = 0;
@@ -571,8 +572,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true);	// UTF-8
 	}
 	CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
-	int curnum = channelList->getActiveChannelNumber();
-	CZapitChannel * channel = channelList->getChannel(curnum);
+//	int curnum = channelList->getActiveChannelNumber();
+//	CZapitChannel * channel = channelList->getChannel(curnum);
 	CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo ();
 
 	//channel
@@ -587,7 +588,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	char * f=NULL, *s=NULL, *m=NULL;
 	if(frontend->getInfo()->type == FE_QPSK) {
 		frontend->getDelSys((fe_code_rate_t)si.fec, dvbs_get_modulation((fe_code_rate_t)si.fec), f, s, m);
-		sprintf ((char *) buf,"%d.%d (%c) %d %s %s %s", si.tsfrequency / 1000, si.tsfrequency % 1000, si.polarisation ? 'V' : 'H', si.rate / 1000,f,m,s=="DVB-S2"?"S2":"S1");
+		if (!strncmp(s,const_cast<char *>("DVB-S2"),6))
+			s=const_cast<char *>("S2");
+		else
+			s=const_cast<char *>("S1");
+			
+		sprintf ((char *) buf,"%d.%d (%c) %d %s %s %s", si.tsfrequency / 1000, si.tsfrequency % 1000, si.polarisation ? 'V' : 'H', si.rate / 1000,f,m,s);
 		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Tp. Freq.:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8	
 	}
@@ -634,8 +640,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	if (g_RemoteControl->current_PIDs.APIDs.empty()){
 		sprintf((char*) buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 	} else {
-		unsigned int i=0,j=0,sw=spaceoffset;
-		for (i= 0; (i<g_RemoteControl->current_PIDs.APIDs.size()) && (i<10); i++)
+		unsigned int sw=spaceoffset;
+		for (unsigned int i= 0; (i<g_RemoteControl->current_PIDs.APIDs.size()) && (i<10); i++)
 		{
 			sprintf((char*) buf, "0x%04x (%i)", g_RemoteControl->current_PIDs.APIDs[i].pid, g_RemoteControl->current_PIDs.APIDs[i].pid );
 			if (i == g_RemoteControl->current_PIDs.PIDs.selected_apid){
@@ -773,7 +779,7 @@ void CStreamInfo2::showSNR ()
 {
 	char percent[10];
 	int barwidth = 150;
-	uint16_t ssig, ssnr;
+//	uint16_t ssig, ssnr;
 	int sig, snr;
 	int posx, posy;
 	int sw;
