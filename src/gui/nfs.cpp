@@ -83,7 +83,7 @@ public:
 
 CNFSMountGui::CNFSMountGui()
 {
-#warning move probing from exec() to fsmounter
+	// FIXME #warning move probing from exec() to fsmounter
 	m_nfs_sup = CFSMounter::FS_UNPROBED;
 	m_cifs_sup = CFSMounter::FS_UNPROBED;
 	m_lufs_sup = CFSMounter::FS_UNPROBED;
@@ -195,7 +195,7 @@ int CNFSMountGui::menu()
 	return ret;
 }
 
-#warning MESSAGEBOX_NO_YES_XXX is defined in neutrino.cpp, too!
+	// FIXME #warning MESSAGEBOX_NO_YES_XXX is defined in neutrino.cpp, too!
 #define MESSAGEBOX_NO_YES_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MESSAGEBOX_NO_YES_OPTIONS[MESSAGEBOX_NO_YES_OPTION_COUNT] =
 {
