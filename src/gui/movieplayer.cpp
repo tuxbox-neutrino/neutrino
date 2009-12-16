@@ -763,7 +763,7 @@ void CMoviePlayerGui::PlayFile(void)
 				playback->FindAllPids(g_apids, g_ac3flags, &g_numpida, g_language);
 			}
 			for (unsigned int count = 0; count < g_numpida; count++) {
-				bool name_ok;
+				bool name_ok = false;
 				char apidnumber[10];
 				sprintf(apidnumber, "%d %X", count + 1, g_apids[count]);
 				enabled = true;

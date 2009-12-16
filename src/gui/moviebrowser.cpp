@@ -4127,7 +4127,7 @@ static off64_t copy_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 	CFile file;
 	bool need_gop = 0;
 	bool dst_done = 0;
-	bool was_cancel;
+	bool was_cancel = false;
 	int retval = 0;
 
 	buf = (unsigned char *) malloc(BUF_SIZE);
