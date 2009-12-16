@@ -1217,7 +1217,7 @@ void CChannelList::quickZap(int key, bool cycle)
 	int bsize = bouquetList->Bouquets.size();
 	if(!cycle && bsize > 1) {
 		int bactive = bouquetList->getActiveBouquetNumber();
-		int cactive = selected;
+		size_t cactive = selected;
 
 printf("CChannelList::quickZap: selected %d total %d active bouquet %d total %d\n", cactive, chanlist.size(), bactive, bsize);
 		if ( (key==g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
@@ -1359,7 +1359,7 @@ void CChannelList::paintDetails(int index)
 		else {
 			sat_iterator_t sit = satellitePositions.find(chanlist[index]->getSatellitePosition());
 			if(sit != satellitePositions.end()) {
-				int satNameWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth (sit->second.name);
+				//int satNameWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth (sit->second.name);
 				snprintf(&buf[len], sizeof(buf) - len, "(%s)\n", sit->second.name.c_str());
 			}
 		}
