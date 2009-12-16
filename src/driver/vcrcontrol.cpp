@@ -660,7 +660,7 @@ printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx
 		RestoreNeutrino();
 
 		printf("[vcrcontrol] stream2file error code: %d\n", error_msg);
-#warning FIXME: Use better error message
+		//FIXME: Use better error message
 		DisplayErrorMessage(g_Locale->getText(
 				      error_msg == STREAM2FILE_BUSY ? LOCALE_STREAMING_BUSY :
 				      error_msg == STREAM2FILE_INVALID_DIRECTORY ? LOCALE_STREAMING_DIR_NOT_WRITABLE :
