@@ -7354,7 +7354,7 @@ static void *eitThread(void *)
 				dmxNIT.change( 0 );
 			}
 #endif
-			int rs;
+			int rs = 0;
 			do {
 				struct timespec abs_wait;
 				struct timeval now;
