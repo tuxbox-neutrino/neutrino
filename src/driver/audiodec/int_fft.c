@@ -276,7 +276,7 @@ int iscale(int value, int numer, int denom)
 */
 fixed fix_dot(fixed *hpa, fixed *pb, int n)
 {
-        fixed *pa;
+        fixed *pa = NULL;
         long sum;
         register fixed a,b;
         //unsigned int seg,off;
