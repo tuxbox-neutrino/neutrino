@@ -404,10 +404,10 @@ void CFrameBuffer::setTransparency( int tr )
 {
 }
 
-void CFrameBuffer::setBlendLevel(int blev1, int blev2)
+void CFrameBuffer::setBlendLevel(int /*blev1*/, int /*blev2*/)
 {
-	unsigned short value = blev1;
 #if 0
+	unsigned short value = blev1;
 	if (ioctl(fd, FBIO_CHANGEOPACITY, &value) < 0)
 		printf("FBIO_CHANGEOPACITY failed.\n");
 #endif
