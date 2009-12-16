@@ -65,7 +65,9 @@ uint64_t cTimeMs::Now(void)
      // fall back to gettimeofday()
      }
 #else
+#if 0
 #  warning Posix monotonic clock not available
+#endif
 #endif
   struct timeval t;
   if (gettimeofday(&t, NULL) == 0)
