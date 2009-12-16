@@ -591,7 +591,7 @@ void CFlashExpert::showFileSelector(const std::string & actionkey)
 			if(pos!=-1)
 			{
 				fileselector->addItem(new CMenuForwarderNonLocalized(filen.c_str(), true, NULL, this, (actionkey + filen).c_str()));
-#warning TODO: make sure filen is UTF-8 encoded
+				//TODO  make sure filen is UTF-8 encoded
 			}
 			free(namelist[count]);
 		}
