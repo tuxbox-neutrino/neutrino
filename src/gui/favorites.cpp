@@ -60,7 +60,7 @@ int CFavorites::addChannelToFavorites(bool show_list)
 {
 	signed int   bouquet_id;
 	t_channel_id channel_id;
-	const char * fav_bouquetname;
+	//const char * fav_bouquetname;
 	int          status = 0;
 
 

@@ -346,6 +346,7 @@ void CPlugins::startPlugin(int number,int param)
 		return;
 	}
 
+#if 0
 	PluginExec execPlugin;
 	char depstring[129];
 	char			*argv[20];
@@ -357,7 +358,7 @@ void CPlugins::startPlugin(int number,int param)
 	char *        error;
 	int           vtpid      =  0;
 	PluginParam * startparam =  0;
-
+#endif
 	g_RCInput->clearRCMsg();
 #if 0
 	if (plugin_list[number].fb)

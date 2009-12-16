@@ -261,7 +261,7 @@ bool CFlashTool::erase(int globalProgressEnd)
 
 	if( ioctl( fd, MEMGETINFO, &meminfo ) != 0 )
 	{
-#warning TODO: localize error message
+	// TODO: localize error message
 		ErrorMessage = "can't get mtd-info";
 		return false;
 	}
@@ -490,7 +490,7 @@ int CMTDInfo::getMTDCount()
 
 std::string CMTDInfo::getMTDName(const int pos)
 {
-#warning TODO: check /proc/mtd specification to determine mtdname encoding
+	// TODO: check /proc/mtd specification to determine mtdname encoding
 
 	return FILESYSTEM_ENCODING_TO_UTF8_STRING(mtdData[pos]->name);
 }
