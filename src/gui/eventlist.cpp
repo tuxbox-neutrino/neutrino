@@ -730,7 +730,7 @@ void  EventList::showFunctionBar (bool show)
 	((unsigned int) g_settings.key_channelList_addrecord != CRCInput::RC_nokey))
     {
 	    pos = 0;
-#warning FIXME: display other icons depending on g_settings.key_channelList_addrecord
+	    // FIXME : display other icons depending on g_settings.key_channelList_addrecord
 	    if ((g_settings.key_channelList_addrecord == CRCInput::RC_red) && !g_settings.minimode) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, bx+8+cellwidth*pos, by+h_offset);
 	    	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx+bdx+cellwidth*pos, by+bh-h_offset, bw-30, g_Locale->getText(LOCALE_EVENTLISTBAR_RECORDEVENT), COL_INFOBAR, 0, true); // UTF-8
@@ -748,7 +748,7 @@ void  EventList::showFunctionBar (bool show)
     if ((unsigned int) g_settings.key_channelList_addremind != CRCInput::RC_nokey)
     {
 	    pos = 2;
-#warning FIXME: display other icons depending on g_settings.key_channelList_addremind
+	    // FIXME : display other icons depending on g_settings.key_channelList_addremind
 	    if (g_settings.key_channelList_addremind == CRCInput::RC_yellow)
 		    frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, bx+8+cellwidth*pos, by+h_offset );
 	    g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx+bdx+cellwidth*pos, by+bh-h_offset, bw-30, g_Locale->getText(LOCALE_EVENTLISTBAR_CHANNELSWITCH), COL_INFOBAR, 0, true); // UTF-8
@@ -758,7 +758,7 @@ void  EventList::showFunctionBar (bool show)
     if ((unsigned int) g_settings.key_channelList_sort != CRCInput::RC_nokey)
     {
 	    pos = 3;
-#warning FIXME: display other icons depending on g_settings.key_channelList_sort value
+	 //FIXME: display other icons depending on g_settings.key_channelList_sort value
 	    if (g_settings.key_channelList_sort == CRCInput::RC_blue)
 		    frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, bx+8+cellwidth*pos, by+h_offset );
 	    g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx+bdx+cellwidth*pos, by+bh-h_offset, bw-30, g_Locale->getText(LOCALE_EVENTLISTBAR_EVENTSORT), COL_INFOBAR, 0, true); // UTF-8
