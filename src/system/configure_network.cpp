@@ -19,6 +19,7 @@
  *
  */
 #include <config.h>
+#include <cstdio>               /* perror... */
 #include <sys/wait.h>
 #include "configure_network.h"
 #include "libnet.h"             /* netGetNameserver, netSetNameserver   */

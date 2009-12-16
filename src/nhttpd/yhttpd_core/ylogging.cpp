@@ -81,7 +81,7 @@ void CLogging::printf ( const char *fmt, ... )
 
 	va_list arglist;
 	va_start( arglist, fmt );
-	if(arglist)
+	// if(arglist)
 		vsnprintf( buffer, bufferlen, fmt, arglist );
 	va_end(arglist);
 

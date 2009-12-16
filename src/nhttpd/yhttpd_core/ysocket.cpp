@@ -4,6 +4,7 @@
 //=============================================================================
 
 #include <cstring>
+#include <cstdio>
 
 // system
 #include <arpa/inet.h>

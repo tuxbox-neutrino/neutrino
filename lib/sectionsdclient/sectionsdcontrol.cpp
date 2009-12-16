@@ -24,6 +24,7 @@
  */
 
 #include <cstring>
+#include <cstdio>
 
 #include <sectionsdclient/sectionsdclient.h>
 

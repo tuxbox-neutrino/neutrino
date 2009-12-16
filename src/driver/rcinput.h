@@ -33,6 +33,7 @@
 #define __MOD_rcinput__
 
 #include <linux/input.h>
+#include <stdint.h>
 #include <string>
 #include <vector>
 

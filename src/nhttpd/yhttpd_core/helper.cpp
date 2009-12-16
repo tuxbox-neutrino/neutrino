@@ -82,7 +82,7 @@ std::string string_printf(const char *fmt, ...)
 	char buffer[bufferlen];
 	va_list arglist;
 	va_start( arglist, fmt );
-	if(arglist)
+	// if(arglist)
 		vsnprintf( buffer, bufferlen, fmt, arglist );
 	va_end(arglist);
 	return std::string(buffer);

@@ -27,6 +27,7 @@
 
 //typedef  void CS_DMX_PDATA;
 
+#include <stdint.h>
 #include "client/zapittypes.h"
 
 typedef uint64_t transponder_id_t;

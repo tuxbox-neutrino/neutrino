@@ -5,6 +5,7 @@
 // c++
 #include <cerrno>
 #include <csignal>
+#include <cstdio>
 
 // system
 #include <arpa/inet.h>

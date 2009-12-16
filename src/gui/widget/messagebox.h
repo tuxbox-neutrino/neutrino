@@ -35,6 +35,7 @@
 
 #include <gui/widget/hintboxext.h>
 
+#include <stdint.h>
 #include <string>
 
 

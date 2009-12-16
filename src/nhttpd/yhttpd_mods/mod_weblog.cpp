@@ -5,6 +5,7 @@
 // Normally
 //=============================================================================
 #include <cstdarg>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
@@ -111,7 +112,7 @@ bool CmWebLog::printf(const char *fmt, ...)
 		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
 		va_list arglist;
 		va_start( arglist, fmt );
-		if(arglist)
+		// if(arglist)
 			vsnprintf( buffer, bufferlen, fmt, arglist );
 		va_end(arglist);
 		unsigned int len = strlen(buffer);

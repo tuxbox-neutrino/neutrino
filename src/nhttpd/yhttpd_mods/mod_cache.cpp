@@ -4,6 +4,7 @@
 //=============================================================================
 
 // system
+#include <cstdio>
 #include <pthread.h>
 #include <sys/stat.h>
 // yhttpd
