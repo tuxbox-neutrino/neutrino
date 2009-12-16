@@ -483,7 +483,7 @@ void *start_scanthread(void *scanmode)
 		t_satellite_position position = xmlGetSignedNumericAttribute(search, (char *) "position", 10);
 
 		if(cable) {
-			strcpy(providerName, xmlGetAttribute(search, "name"));
+			strcpy(providerName, xmlGetAttribute(search, const_cast<char*>("name")));
 			for (spI = scanProviders.begin(); spI != scanProviders.end(); spI++)
 				if (!strcmp(spI->second.c_str(), providerName)) {
 					position = spI->first;
