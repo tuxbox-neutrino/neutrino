@@ -369,7 +369,7 @@ void CBouquetManager::parseBouquetsXml(const xmlNodePtr root, bool bUser)
 		while ((search = xmlGetNextOccurence(search, "Bouquet")) != NULL) {
 			char * name = xmlGetAttribute(search, (char *) "name");
 			if(name == NULL)
-				name = "Unknown";
+				name = const_cast<char*>("Unknown");
 			//CZapitBouquet* newBouquet = addBouquet(xmlGetAttribute(search, (char *) "name"), bUser);
 			CZapitBouquet* newBouquet = addBouquet(name, bUser);
 			char* hidden = xmlGetAttribute(search, (char *) "hidden");
