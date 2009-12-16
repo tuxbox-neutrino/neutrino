@@ -141,7 +141,7 @@ bool CAudioPlayer::play(const CAudiofile* file, const bool highPrio)
 	}
 
 	bool ret = true;
-#warning fixme: There must be a way to call the playing thread without arguments. (NULL did not work for me)
+	//#warning fixme: There must be a way to call the playing thread without arguments. (NULL did not work for me)
 	if (pthread_create (&thrPlay, &attr, PlayThread, (void*)&ret) != 0 )
 	{
 		perror("audioplay: pthread_create(PlayThread)");
