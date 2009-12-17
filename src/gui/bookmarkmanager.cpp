@@ -232,7 +232,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	x=getScreenStartX( width );
-	y=(((g_settings.screen_EndY- g_settings.screen_StartY)-( height+ info_height) ) / 2) + g_settings.screen_StartY;
+	y=getScreenStartY( height + info_height );
 	listmaxshow = (height-theight-0)/(fheight*2);
 	liststart = 0;
 
