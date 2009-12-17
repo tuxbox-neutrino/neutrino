@@ -130,7 +130,7 @@ void CEpgData::start()
 {
 	ox = w_max (MAX_W * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
 	oy = h_max (MAX_H * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
-	sx = (((g_settings.screen_EndX-g_settings.screen_StartX) -ox) / 2) + g_settings.screen_StartX;
+	sx = getScreenStartX( ox );
 
 	topheight     = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
 	topboxheight  = topheight + 6;
