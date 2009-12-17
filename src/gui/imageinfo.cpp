@@ -82,8 +82,8 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	width = frameBuffer->getScreenWidth() - 10;
 	height = frameBuffer->getScreenHeight() - 10;
-	x=(((g_settings.screen_EndX- g_settings.screen_StartX)-width) / 2) + g_settings.screen_StartX;
-	y=(((g_settings.screen_EndY- g_settings.screen_StartY)-height) / 2) + g_settings.screen_StartY;
+	x=getScreenStartX( width );
+	y=getScreenStartY( height );
 
 	paint();
 
