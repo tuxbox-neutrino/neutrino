@@ -52,13 +52,13 @@
 
 #include <zapit/client/zapittools.h>
 
-/* for alexW images with old drivers: 
+/* for alexW images with old drivers:
  * #define USE_VBI_INTERFACE 1
  */
 
 #ifdef USE_VBI_INTERFACE
- #define AVIA_VBI_START_VTXT	1
- #define AVIA_VBI_STOP_VTXT	2 
+#define AVIA_VBI_START_VTXT	1
+#define AVIA_VBI_STOP_VTXT	2
 #endif
 
 #include <daemonc/remotecontrol.h>
@@ -76,9 +76,9 @@ bool CPlugins::plugin_exists(const std::string & filename)
 
 int CPlugins::find_plugin(const std::string & filename)
 {
-	for(int i = 0; i <  (int) plugin_list.size();i++)
+	for (int i = 0; i <  (int) plugin_list.size(); i++)
 	{
-		if( (filename.compare(plugin_list[i].filename) == 0) || (filename.compare(plugin_list[i].filename + ".cfg") == 0) )
+		if ( (filename.compare(plugin_list[i].filename) == 0) || (filename.compare(plugin_list[i].filename + ".cfg") == 0) )
 			return i;
 	}
 	return -1;
@@ -130,13 +130,13 @@ void CPlugins::scanDir(const char *dir)
 				}
 				// We do not check if new_plugin.pluginfile exists since .cfg in
 				// PLUGINDIR_VAR can overwrite settings in read only dir
-				// PLUGINDIR. This needs PLUGINDIR_VAR to be scanned at 
+				// PLUGINDIR. This needs PLUGINDIR_VAR to be scanned at
 				// first -> .cfg in PLUGINDIR will be skipped since plugin
 				// already exists in the list.
 				// This behavior is used to make sure plugins can be disabled
 				// by creating a .cfg in PLUGINDIR_VAR (PLUGINDIR often is read only).
 
-				if(!plugin_exists(new_plugin.filename))
+				if (!plugin_exists(new_plugin.filename))
 				{
 					plugin_list.push_back(new_plugin);
 					number_of_plugins++;
@@ -175,7 +175,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 
 	inFile.open(plugin_data->cfgfile.c_str());
 
-	while(linecount < 20 && getline(inFile, line[linecount++]));
+	while (linecount < 20 && getline(inFile, line[linecount++]));
 
 	plugin_data->fb = false;
 	plugin_data->rc = false;
@@ -244,9 +244,9 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 			plugin_data->hide = ((parm == "1")?true:false);
 		}
 		else if (cmd == "needenigma")
-  	        {
-  	                reject = ((parm == "1")?true:false);
-  	        }
+		{
+			reject = ((parm == "1")?true:false);
+		}
 
 	}
 
@@ -276,9 +276,9 @@ PluginParam * CPlugins::makeParam(const char * const id, const int value, Plugin
 
 void CPlugins::start_plugin_by_name(const std::string & filename,int param)
 {
-	for(int i = 0; i <  (int) plugin_list.size();i++)
+	for (int i = 0; i <  (int) plugin_list.size(); i++)
 	{
- 		if(filename.compare(g_PluginList->getName(i))==0)
+		if (filename.compare(g_PluginList->getName(i))==0)
 		{
 			startPlugin(i,param);
 			return;
@@ -291,7 +291,7 @@ void CPlugins::startPlugin(const char * const name)
 	int pluginnr = find_plugin(name);
 	if (pluginnr > -1)
 		startPlugin(pluginnr,0);
-	else 
+	else
 		printf("[CPlugins] could not find %s\n", name);
 
 }
@@ -303,7 +303,7 @@ void CPlugins::startScriptPlugin(int number)
 	if (!pluginfile_exists(plugin_list[number].pluginfile))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
-			   script, plugin_list[number].cfgfile.c_str());
+		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
 
@@ -313,12 +313,12 @@ void CPlugins::startScriptPlugin(int number)
 		char output[1024];
 		while (fgets(output,1024,f))
 		{
-			scriptOutput += output; 
+			scriptOutput += output;
 		}
 		pclose(f);
-	} 
-	else 
-	{	
+	}
+	else
+	{
 		printf("[CPlugins] can't execute %s\n",script);
 	}
 }
@@ -332,7 +332,7 @@ void CPlugins::startPlugin(int number,int param)
 	//bool ispip = strncmp(plugin_list[number].pluginfile.c_str(), "pip", 3) ? false : true;
 	bool ispip  = strstr(plugin_list[number].pluginfile.c_str(), "pip") != 0;
 //printf("exec: %s pip: %d\n", plugin_list[number].pluginfile.c_str(), ispip);
-	if(ispip && !g_RemoteControl->is_video_started)
+	if (ispip && !g_RemoteControl->is_video_started)
 		return;
 	if (plugin_list[number].type == CPlugins::P_TYPE_SCRIPT)
 	{
@@ -342,7 +342,7 @@ void CPlugins::startPlugin(int number,int param)
 	if (!pluginfile_exists(plugin_list[number].pluginfile))
 	{
 		printf("[CPlugins] could not find %s,\nperhaps wrong plugin type in %s\n",
-			   plugin_list[number].pluginfile.c_str(), plugin_list[number].cfgfile.c_str());
+		       plugin_list[number].pluginfile.c_str(), plugin_list[number].cfgfile.c_str());
 		return;
 	}
 
@@ -394,7 +394,7 @@ void CPlugins::startPlugin(int number,int param)
 			close(fd);
 		}
 #endif
-		if(param>0)
+		if (param>0)
 			vtpid=param;
 		startparam = makeParam(P_ID_VTXTPID, vtpid, startparam);
 	}
@@ -408,7 +408,7 @@ void CPlugins::startPlugin(int number,int param)
 	}
 
 	PluginParam *par = startparam;
-	for( ; par; par=par->next )
+	for ( ; par; par=par->next )
 	{
 		printf("[CPlugins] (id,val):(%s,%s)\n", par->id, par->val);
 	}
@@ -420,7 +420,7 @@ void CPlugins::startPlugin(int number,int param)
 	if ( depstring[0] )
 	{
 		p=depstring;
-		while( 1 )
+		while ( 1 )
 		{
 			argv[ argc ] = p;
 			argc++;
@@ -434,13 +434,13 @@ void CPlugins::startPlugin(int number,int param)
 				break;
 		}
 	}
-	for( i=0; i<argc; i++ )
+	for ( i=0; i<argc; i++ )
 	{
 		std::string libname = argv[i];
 		printf("[CPlugins] try load shared lib : %s\n",argv[i]);
 		libhandle[i] = dlopen ( *argv[i] == '/' ?
-			argv[i] : (PLUGINDIR "/"+libname).c_str(),
-			RTLD_NOW | RTLD_GLOBAL );
+					argv[i] : (PLUGINDIR "/"+libname).c_str(),
+					RTLD_NOW | RTLD_GLOBAL );
 		if ( !libhandle[i] )
 		{
 			fputs (dlerror(), stderr);
@@ -462,14 +462,14 @@ void CPlugins::startPlugin(int number,int param)
 				dlclose(handle);
 			} else {
 				printf("[CPlugins] try exec...\n");
-				if(ispip) {
+				if (ispip) {
 					g_Sectionsd->setPauseScanning (true);
 					g_Zapit->setEventMode(false);
 #if 0
 					//g_Controld->setEventMode(false);
 #endif
-					if(g_Zapit->isPlayBackActive()) {
-						if(!CNeutrinoApp::getInstance()->recordingstatus)
+					if (g_Zapit->isPlayBackActive()) {
+						if (!CNeutrinoApp::getInstance()->recordingstatus)
 							g_Zapit->setRecordMode(true);
 					} else {
 						/* no playback, we playing file ? zap to channel */
@@ -496,15 +496,15 @@ void CPlugins::startPlugin(int number,int param)
 //#endif
 
 		//if (!plugin_list[number].rc)
-			g_RCInput->restartInput();
+		g_RCInput->restartInput();
 		g_RCInput->clearRCMsg();
 
 		if (plugin_list[number].lcd)
-		{       
-			if(lcd_fd != -1)
+		{
+			if (lcd_fd != -1)
 				close(lcd_fd);
 			CLCD::getInstance()->resume();
-		}       
+		}
 
 		if (plugin_list[number].fb)
 		{
@@ -515,8 +515,8 @@ void CPlugins::startPlugin(int number,int param)
 #endif
 		}
 		frameBuffer->paintBackgroundBox(0,0,720,576);
-		if(ispip) {
-			if(!CNeutrinoApp::getInstance()->recordingstatus) {
+		if (ispip) {
+			if (!CNeutrinoApp::getInstance()->recordingstatus) {
 				g_Zapit->setRecordMode(false);
 			}
 #if 0
@@ -544,7 +544,7 @@ void CPlugins::startPlugin(int number,int param)
 	}
 
 	/* unload shared libs */
-	for( i=0; i<argc; i++ )
+	for ( i=0; i<argc; i++ )
 	{
 		if ( libhandle[i] )
 			dlclose(libhandle[i]);
@@ -552,7 +552,7 @@ void CPlugins::startPlugin(int number,int param)
 			break;
 	}
 
-	for(par = startparam ; par; )
+	for (par = startparam ; par; )
 	{
 		/* we must not free par->id, since it is the original */
 		free(par->val);
@@ -565,19 +565,19 @@ void CPlugins::startPlugin(int number,int param)
 	g_RCInput->clearRCMsg();
 	g_RCInput->stopInput();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
-printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
+	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
 	mysystem((char *) plugin_list[number].pluginfile.c_str(), NULL, NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();
 	g_RCInput->clearRCMsg();
-#endif 
+#endif
 }
 
 bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 {
 	for (std::vector<plugin>::iterator it=plugin_list.begin();
-		 it!=plugin_list.end();it++)
+			it!=plugin_list.end(); it++)
 	{
 		if (it->type == type && !it->hide)
 			return true;
@@ -599,20 +599,20 @@ CPlugins::p_type_t CPlugins::getPluginType(int type)
 {
 	switch (type)
 	{
-		case PLUGIN_TYPE_DISABLED:
-			return P_TYPE_DISABLED;
-			break;
-		case PLUGIN_TYPE_GAME:
-			return P_TYPE_GAME;
-			break;
-		case PLUGIN_TYPE_TOOL:
-			return P_TYPE_TOOL;
-			break;
-		case PLUGIN_TYPE_SCRIPT:
-			return P_TYPE_SCRIPT;
-			break;
-		default:
-			return P_TYPE_DISABLED;
+	case PLUGIN_TYPE_DISABLED:
+		return P_TYPE_DISABLED;
+		break;
+	case PLUGIN_TYPE_GAME:
+		return P_TYPE_GAME;
+		break;
+	case PLUGIN_TYPE_TOOL:
+		return P_TYPE_TOOL;
+		break;
+	case PLUGIN_TYPE_SCRIPT:
+		return P_TYPE_SCRIPT;
+		break;
+	default:
+		return P_TYPE_DISABLED;
 	}
 }
 

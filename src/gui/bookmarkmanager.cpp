@@ -35,7 +35,7 @@
 #include <neutrino.h>
 
 #include <system/settings.h>
-
+#include <driver/screen_max.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
@@ -71,8 +71,8 @@ int CBookmarkManager::addBookmark (CBookmark inBookmark) {
 		bookmarksmodified = true;
 		return 0;
 	}
-    // TODO:show dialog to delete old bookmark
-    return -1;    
+	// TODO:show dialog to delete old bookmark
+	return -1;
 }
 
 //------------------------------------------------------------------------
@@ -81,12 +81,12 @@ inline int CBookmarkManager::createBookmark (const std::string & name, const std
 }
 
 int CBookmarkManager::createBookmark (const std::string & url, const std::string & time) {
-    char bookmarkname[26]="";
-    CStringInputSMS bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, bookmarkname, 25, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-_");
-    bookmarkname_input.exec(NULL, "");
-    // TODO: return -1 if no name was entered
-    if(!strlen(bookmarkname)) return -1;
-    return createBookmark(std::string(bookmarkname), url, time);
+	char bookmarkname[26]="";
+	CStringInputSMS bookmarkname_input(LOCALE_MOVIEPLAYER_BOOKMARKNAME, bookmarkname, 25, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT1, LOCALE_MOVIEPLAYER_BOOKMARKNAME_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-_");
+	bookmarkname_input.exec(NULL, "");
+	// TODO: return -1 if no name was entered
+	if (!strlen(bookmarkname)) return -1;
+	return createBookmark(std::string(bookmarkname), url, time);
 }
 
 //------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void CBookmarkManager::readBookmarkFile() {
 	{
 		char bookmarkstring[BOOKMARKSTRINGLENGTH];
 		strcpy(bookmarkstring, BOOKMARKSTRING);
-	
+
 		bookmarksmodified = false;
 		bookmarks.clear();
 
@@ -146,7 +146,7 @@ void CBookmarkManager::readBookmarkFile() {
 			tmp = bookmarkstring;
 			tmp += "time";
 			std::string bookmarktime = bookmarkfile.getString(tmp, "");
-			
+
 			bookmarks.push_back(CBookmark(bookmarkname, bookmarkurl, bookmarktime));
 
 			bookmarkstring[BOOKMARKSTRINGMODIFICATIONPOINT]++;
@@ -162,7 +162,7 @@ void CBookmarkManager::writeBookmarkFile() {
 	strcpy(bookmarkstring, BOOKMARKSTRING);
 
 	printf("CBookmarkManager: Writing bookmark file\n");
-	
+
 	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); it++)
 	{
 		std::string tmp = bookmarkstring;
@@ -191,7 +191,7 @@ CBookmarkManager::CBookmarkManager() : bookmarkfile ('\t')
 //------------------------------------------------------------------------
 
 CBookmarkManager::~CBookmarkManager () {
-	flush();   
+	flush();
 }
 
 //------------------------------------------------------------------------
@@ -203,68 +203,65 @@ int CBookmarkManager::getBookmarkCount(void) const {
 //------------------------------------------------------------------------
 
 int CBookmarkManager::getMaxBookmarkCount(void) const {
-	return MAXBOOKMARKS;    
+	return MAXBOOKMARKS;
 }
 
 //------------------------------------------------------------------------
 
 void CBookmarkManager::flush() {
-    if (bookmarksmodified) {
-        writeBookmarkFile();   
-    }   
+	if (bookmarksmodified) {
+		writeBookmarkFile();
+	}
 }
 
 //------------------------------------------------------------------------
 
 const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 {
-	if(parent)
+	if (parent)
 	{
 		parent->hide();
 	}
-	
+
 	frameBuffer = CFrameBuffer::getInstance();
 	visible = false;
 	selected = 0;
 	// Max
-	width = 720;
-	if(g_settings.screen_EndX-g_settings.screen_StartX < width)
-		width=g_settings.screen_EndX-g_settings.screen_StartX-10;
+	width = w_max( 720, 10 );
 	buttonHeight = 25;
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	x=(((g_settings.screen_EndX- g_settings.screen_StartX)-width) / 2) + g_settings.screen_StartX;
+	x=getScreenStartX( width );
 	y=(((g_settings.screen_EndY- g_settings.screen_StartY)-( height+ info_height) ) / 2) + g_settings.screen_StartY;
 	listmaxshow = (height-theight-0)/(fheight*2);
 	liststart = 0;
-	
+
 	height = (g_settings.screen_EndY-g_settings.screen_StartY)-(info_height+50);
 	listmaxshow = (height-theight-0)/(fheight*2);
 	height = theight+0+listmaxshow*fheight*2;	// recalc height
-	if(bookmarks.size() < listmaxshow)
+	if (bookmarks.size() < listmaxshow)
 	{
 		listmaxshow=bookmarks.size();
 		height = theight+0+listmaxshow*fheight*2;	// recalc height
 	}
-	if(selected==bookmarks.size() && !(bookmarks.empty()))
+	if (selected==bookmarks.size() && !(bookmarks.empty()))
 	{
 		selected=bookmarks.size()-1;
 		liststart = (selected/listmaxshow)*listmaxshow;
 	}
-	x=(((g_settings.screen_EndX- g_settings.screen_StartX)-width) / 2) + g_settings.screen_StartX;
-	y=(((g_settings.screen_EndY- g_settings.screen_StartY)-( height+ info_height) ) / 2) + g_settings.screen_StartY;
 
 
 	int res = -1;
 
 	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
-	uint32_t msg; uint32_t data;
+	uint32_t msg;
+	uint32_t data;
 
 	bool loop=true;
 	bool update=true;
-	while(loop)
+	while (loop)
 	{
-		if(update)
+		if (update)
 		{
 			hide();
 			update=false;
@@ -272,11 +269,11 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 		}
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
-		if( msg <= CRCInput::RC_MaxRC )
+		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-		if( ( msg == CRCInput::RC_timeout ) ||
-			 ( msg == CRCInput::RC_home) )
+		if ( ( msg == CRCInput::RC_timeout ) ||
+				( msg == CRCInput::RC_home) )
 		{ //Exit after timeout or cancel key
 			res = -1;
 			loop=false;
@@ -284,7 +281,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 		else if ((msg == CRCInput::RC_up) && !(bookmarks.empty()))
 		{
 			int prevselected=selected;
-			if(selected==0)
+			if (selected==0)
 			{
 				selected = bookmarks.size()-1;
 			}
@@ -293,7 +290,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 			paintItem(prevselected - liststart);
 			unsigned int oldliststart = liststart;
 			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
+			if (oldliststart!=liststart)
 			{
 				paint();
 			}
@@ -309,7 +306,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 			paintItem(prevselected - liststart);
 			unsigned int oldliststart = liststart;
 			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
+			if (oldliststart!=liststart)
 			{
 				paint();
 			}
@@ -320,36 +317,36 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 		}
 		else if ((msg == CRCInput::RC_ok) && !(bookmarks.empty()))
 		{
-    		res = selected;
-    		loop=false;
+			res = selected;
+			loop=false;
 		}
-		else if((msg == CRCInput::RC_red) && !(bookmarks.empty()))
+		else if ((msg == CRCInput::RC_red) && !(bookmarks.empty()))
 		{
 			removeBookmark(selected);
 			update=true;
 		}
-		else if((msg==CRCInput::RC_yellow) && !(bookmarks.empty()))
+		else if ((msg==CRCInput::RC_yellow) && !(bookmarks.empty()))
 		{
 			renameBookmark(selected);
 			update=true;
 		}
-		else if((msg==CRCInput::RC_blue)||(msg==CRCInput::RC_green)||
-				  (CRCInput::isNumeric(msg)) )
+		else if ((msg==CRCInput::RC_blue)||(msg==CRCInput::RC_green)||
+				(CRCInput::isNumeric(msg)) )
 		{
 			//Ignore
 		}
-		else if(msg==CRCInput::RC_setup)
+		else if (msg==CRCInput::RC_setup)
 		{
 			res=-1;
 			loop=false;
 		}
-		else if( msg == CRCInput::RC_help )
+		else if ( msg == CRCInput::RC_help )
 		{
 			// TODO Add Help
 		}
 		else
 		{
-			if( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
 			{
 				loop = false;
 				res = menu_return::RETURN_EXIT_ALL;
@@ -368,7 +365,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 void CBookmarkManager::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight*2;
-	
+
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 
@@ -390,20 +387,20 @@ void CBookmarkManager::paintItem(int pos)
 	}
 
 	int real_width=width;
-	if(bookmarks.size()>listmaxshow)
+	if (bookmarks.size()>listmaxshow)
 	{
 		real_width-=15; //scrollbar
 	}
-	
+
 	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor);
-	if(liststart+pos<bookmarks.size())
+	if (liststart+pos<bookmarks.size())
 	{
 		CBookmark theBookmark = bookmarks[liststart+pos];
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, real_width-10, theBookmark.getName(), color, fheight, true); // UTF-8
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+2*fheight, real_width-10, theBookmark.getUrl(), color, fheight, true); // UTF-8
 
 		// LCD Display
-		if(liststart+pos==selected)
+		if (liststart+pos==selected)
 		{
 			CVFD::getInstance()->showMenuText(0, theBookmark.getName(), -1, true); // UTF-8
 			CVFD::getInstance()->showMenuText(1, theBookmark.getUrl(), -1, true); // UTF-8
@@ -415,7 +412,7 @@ void CBookmarkManager::paintItem(int pos)
 
 void CBookmarkManager::hide()
 {
-	if(visible)
+	if (visible)
 	{
 		frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
 		visible = false;
@@ -424,7 +421,7 @@ void CBookmarkManager::hide()
 
 //------------------------------------------------------------------------
 void CBookmarkManager::paintHead()
-{   
+{
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0);
 	frameBuffer->paintIcon("bookmarkmanager.raw",x+5,y+4);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+35,y+theight+0, width- 45, g_Locale->getText(LOCALE_BOOKMARKMANAGER_NAME), COL_MENUHEAD, 0, true); // UTF-8
@@ -447,7 +444,7 @@ void CBookmarkManager::paintFoot()
 	if (bookmarks.empty()) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 1* ButtonWidth + 10, y+height);
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width-1 * ButtonWidth + 38, y+height+24 - 2, ButtonWidth- 28, g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT), COL_INFOBAR, 0, true); // UTF-8
-    }    	
+	}
 	else
 	{
 		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + height + 4, ButtonWidth, 2, BookmarkmanagerButtons);
@@ -466,12 +463,12 @@ void CBookmarkManager::paint()
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_BOOKMARKMANAGER_NAME));
 
 	paintHead();
-	
-	for(unsigned int count=0;count<listmaxshow;count++)
+
+	for (unsigned int count=0; count<listmaxshow; count++)
 	{
 		paintItem(count);
 	}
-	if(bookmarks.size()>listmaxshow)
+	if (bookmarks.size()>listmaxshow)
 	{
 		int ypos = y+ theight;
 		int sb = 2*fheight* listmaxshow;

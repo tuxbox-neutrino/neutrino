@@ -61,10 +61,9 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	// height      = hheight+13*mheight+ 10;
 	width  = w_max (600, 0);
 	height = h_max (hheight+14*mheight+ 10, 0);
-	
 
-    x=(((g_settings.screen_EndX- g_settings.screen_StartX)-width) / 2) + g_settings.screen_StartX;
-	y=(((g_settings.screen_EndY- g_settings.screen_StartY)-height) / 2) + g_settings.screen_StartY;
+	x=getScreenStartX( width );
+	y=getScreenStartY( height );
 }
 
 
@@ -104,16 +103,16 @@ void CDBoxInfoWidget::paint()
 	int power = 0;
 	int is_val = 0xdeadbabe;
 	int fp_ver = 0;
-	
+
 	int fp = open("/dev/dbox/fp0", O_RDWR);
-	if(fp > 0) {
+	if (fp > 0) {
 		fp_ver = ioctl(fp, FP_IOCTL_GETID);
-		if(fp_ver < 0) fp_ver = 0;
+		if (fp_ver < 0) fp_ver = 0;
 		ioctl(fp, FP_IOCTL_UPGRADE_CTRL, &is_val);
-		if(is_val != 1) is_val = 0;
+		if (is_val != 1) is_val = 0;
 		ioctl(fp, FP_IOCTL_GET_LNB_CURRENT, &power);
 		close(fp);
-	} 
+	}
 	else is_val = 0;
 #endif
 	char buf[256];
@@ -123,12 +122,12 @@ void CDBoxInfoWidget::paint()
 	} else {
 
 		fgets(buf,255,fd);
-		while(!feof(fd)) {
-			if(fgets(buf,255,fd)!=NULL) {
+		while (!feof(fd)) {
+			if (fgets(buf,255,fd)!=NULL) {
 				g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, buf, COL_MENUCONTENT);
 				ypos+= mheight;
 				i++;
-				if(i > 6) break;
+				if (i > 6) break;
 			}
 		}
 		fclose(fd);
@@ -152,9 +151,9 @@ void CDBoxInfoWidget::paint()
 
 	sysinfo(&info);
 
-	sprintf( ubuf, "%2d:%02d%s  up ", 
-			current_time->tm_hour%12 ? current_time->tm_hour%12 : 12, 
-			current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
+	sprintf( ubuf, "%2d:%02d%s  up ",
+		 current_time->tm_hour%12 ? current_time->tm_hour%12 : 12,
+		 current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
 	strcat(sbuf, ubuf);
 	updays = (int) info.uptime / (60*60*24);
 	if (updays) {
@@ -164,16 +163,16 @@ void CDBoxInfoWidget::paint()
 	upminutes = (int) info.uptime / 60;
 	uphours = (upminutes / 60) % 24;
 	upminutes %= 60;
-	if(uphours)
+	if (uphours)
 		sprintf(ubuf,"%2d:%02d, ", uphours, upminutes);
 	else
 		sprintf(ubuf,"%d min, ", upminutes);
 	strcat(sbuf, ubuf);
 
-	sprintf(ubuf, "load: %ld.%02ld, %ld.%02ld, %ld.%02ld\n", 
-			LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]), 
-			LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]), 
-			LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
+	sprintf(ubuf, "load: %ld.%02ld, %ld.%02ld, %ld.%02ld\n",
+		LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]),
+		LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
+		LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
 	strcat(sbuf, ubuf);
 	ypos+= mheight/2;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, sbuf, COL_MENUCONTENT);
@@ -184,24 +183,24 @@ void CDBoxInfoWidget::paint()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
 	ypos+= mheight;
 
-    struct statfs s;
-    //long blocks_used;
-    //long blocks_percent_used;
+	struct statfs s;
+	//long blocks_used;
+	//long blocks_percent_used;
 
-    if (::statfs("/var", &s) == 0) {
-	//printf("/var filesystem total %ldKb, free %ldKb\n", (long)s.f_blocks*s.f_bsize/1024, (long)s.f_bfree*s.f_bsize/1024);
-	sprintf(ubuf, "/var filesystem total %ldKb, free %ldKb", (long)s.f_blocks*s.f_bsize/1024, (long)s.f_bfree*s.f_bsize/1024);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
-	ypos+= mheight;
-    }
-    else 
-        perror("/var statfs");
-    if (::statfs("/hdd", &s) == 0) {
+	if (::statfs("/var", &s) == 0) {
+		//printf("/var filesystem total %ldKb, free %ldKb\n", (long)s.f_blocks*s.f_bsize/1024, (long)s.f_bfree*s.f_bsize/1024);
+		sprintf(ubuf, "/var filesystem total %ldKb, free %ldKb", (long)s.f_blocks*s.f_bsize/1024, (long)s.f_bfree*s.f_bsize/1024);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
+		ypos+= mheight;
+	}
+	else
+		perror("/var statfs");
+	if (::statfs("/hdd", &s) == 0) {
 //printf("STATFS: type %lX free: %ld\n", s.f_type, s.f_bfree);
-	if( (s.f_type != (int) 0xEF53) && (s.f_type != (int) 0x52654973) && (s.f_type != (int) 0x6969) && (s.f_type != (int) 0xFF534D42) && (s.f_type != (int) 0x517B) && (s.f_type != (int) 0x58465342) )
-		return;
-	//printf("/hdd filesystem total %ldKb, free %ldKb\n", (long)(s.f_blocks/1024)*s.f_bsize, (long)(s.f_bfree/1024)*s.f_bsize);
-	sprintf(ubuf, "/hdd filesystem total %ldKb, free %ldKb", (long)(s.f_blocks/1024)*s.f_bsize, (long)(s.f_bfree/1024)*s.f_bsize);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
-    }
+		if ( (s.f_type != (int) 0xEF53) && (s.f_type != (int) 0x52654973) && (s.f_type != (int) 0x6969) && (s.f_type != (int) 0xFF534D42) && (s.f_type != (int) 0x517B) && (s.f_type != (int) 0x58465342) )
+			return;
+		//printf("/hdd filesystem total %ldKb, free %ldKb\n", (long)(s.f_blocks/1024)*s.f_bsize, (long)(s.f_bfree/1024)*s.f_bsize);
+		sprintf(ubuf, "/hdd filesystem total %ldKb, free %ldKb", (long)(s.f_blocks/1024)*s.f_bsize, (long)(s.f_bfree/1024)*s.f_bsize);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
+	}
 }

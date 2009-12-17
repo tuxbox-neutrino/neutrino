@@ -1,5 +1,5 @@
 /*
- * $Header: /cvs/tuxbox/apps/tuxbox/neutrino/src/driver/screen_max.h,v 1.1 2004/03/17 21:30:51 rasc Exp $
+ * $Header: /cvs/tuxbox/apps/tuxbox/neutrino/src/driver/screen_max.h,v 1.2 2009/12/15 09:42:59 dbt Exp $
  *
  *
  * This program is free software; you can redistribute it and/or modify
@@ -25,7 +25,8 @@
 
 int w_max (int w_size, int w_add);
 int h_max (int h_size, int h_add);
-
+int getScreenStartX(int width);
+int getScreenStartY(int height);
 
 
 #endif

@@ -66,8 +66,8 @@ void CImageInfo::Init(void)
 
 	width = frameBuffer->getScreenWidth() - 10;
 	height = frameBuffer->getScreenHeight() - 10;
-	x=(((g_settings.screen_EndX- g_settings.screen_StartX)-width) / 2) + g_settings.screen_StartX;
-	y=(((g_settings.screen_EndY- g_settings.screen_StartY)-height) / 2) + g_settings.screen_StartY;
+	x=getScreenStartX( width );
+	y=getScreenStartY( height );
 }
 
 CImageInfo::~CImageInfo()
@@ -78,7 +78,7 @@ CImageInfo::~CImageInfo()
 int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 {
 	if (parent)
- 		parent->hide();
+		parent->hide();
 
 	width = frameBuffer->getScreenWidth() - 10;
 	height = frameBuffer->getScreenHeight() - 10;
@@ -87,8 +87,8 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	paint();
 
- 	//paint_pig( width-170, y, 215, 170);
- 	paint_pig (width - width/3 - 10, y + 10, width/3, height/3);
+	//paint_pig( width-170, y, 215, 170);
+	paint_pig (width - width/3 - 10, y + 10, width/3, height/3);
 
 	neutrino_msg_t msg;
 
@@ -123,8 +123,8 @@ void CImageInfo::hide()
 
 void CImageInfo::paint_pig(int x, int y, int w, int h)
 {
-  	//frameBuffer->paintBoxRel(x,y,w,h, COL_BACKGROUND);
-  	frameBuffer->paintBackgroundBoxRel(x,y,w,h);
+	//frameBuffer->paintBoxRel(x,y,w,h, COL_BACKGROUND);
+	frameBuffer->paintBackgroundBoxRel(x,y,w,h);
 	videoDecoder->Pig(x, y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
@@ -140,7 +140,7 @@ void CImageInfo::paint()
 {
 	const char * head_string;
 	char imagedate[18] = "";
- 	int  xpos = x+10;
+	int  xpos = x+10;
 
 	ypos = y+5;
 
