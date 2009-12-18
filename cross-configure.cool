@@ -12,11 +12,11 @@ export RANLIB=$CCPATH$HOST-ranlib
 export OBJDUMP=$CCPATH$HOST-objdump
 export STRIP=$CCPATH$HOST-strip
 
-export CFLAGS="-Wall -g0 -O2 \
+export CFLAGS="-Wall -Werror -g0 -O2 \
 	 -D__KERNEL_STRICT_NAMES -DUSE_NEVIS_GXA \
 	-I"$PWD"/include -I"$PWD"/include/linux/dvb -I"$PREFIX"/include/freetype2"
 
-export CXXFLAGS="-Wall -g0 -O2 \
+export CXXFLAGS="-Wall -Werror -g0 -O2 \
 	 -D__KERNEL_STRICT_NAMES -DUSE_NEVIS_GXA \
 	-I"$PWD"/include -I"$PWD"/include/linux/dvb -I"$PREFIX"/include/freetype2"
 
