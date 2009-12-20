@@ -3618,7 +3618,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 		if(pixbuf!= NULL)
 			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
 
-		frameBuffer->paintIcon("volume.raw",x,y, COL_INFOBAR);
+		frameBuffer->paintIcon("volume.raw",x,y, 0, COL_INFOBAR);
 		frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
 		g_volscale->reset();
 		g_volscale->paint(x + 41, y + 12, g_settings.current_volume);

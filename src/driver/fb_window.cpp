@@ -70,9 +70,9 @@ void CFBWindow::paintBoxRel(const int _x, const int _y, const int _dx, const int
 	((CPrivateData *)private_data)->frameBuffer->paintBoxRel(x + _x, y + _y, _dx, _dy, _col, radius, type);
 }
 
-bool CFBWindow::paintIcon(const char * const _filename, const int _x, const int _y, const color_t _offset)
+bool CFBWindow::paintIcon(const char * const _filename, const int _x, const int _y, const int _h, const color_t _offset)
 {
-	((CPrivateData *)private_data)->frameBuffer->paintIcon(_filename, x + _x, y + _y, _offset);
+	((CPrivateData *)private_data)->frameBuffer->paintIcon(_filename, x + _x, y + _y, _h, _offset);
 	return 0;
 }
 

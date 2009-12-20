@@ -934,12 +934,17 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	return true;
 }
 
-bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const int y, const unsigned char offset)
+/* paint icon at position x/y,
+   if height h is given, center vertically between y and y+h
+   offset is a color offset (probably only useful with palette) */
+bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const int y,
+			     const int h, const unsigned char offset)
 {
 	if (!getActive())
 		return false;
 
 //printf("%s(file, %d, %d, %d)\n", __FUNCTION__, x, y, offset);
+	int  yy = y;
 
 	char * ptr = rindex(filename.c_str(), '.');
 	if(ptr) {
@@ -947,7 +952,11 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		std::string newname = iconBasePath + filename.c_str() + ".gif";
 		*ptr = '.';
 		if(!access(newname.c_str(), F_OK))
-			return g_PicViewer->DisplayImage(newname, x, y, 0, 0);
+		{
+			if (h != 0)
+				yy += (h - g_PicViewer->getHeight(newname.c_str())) / 2;
+			return g_PicViewer->DisplayImage(newname, x, yy, 0, 0);
+		}
 	}
 	struct rawHeader header;
 	uint16_t         width, height;
@@ -970,8 +979,11 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	width  = (header.width_hi  << 8) | header.width_lo;
 	height = (header.height_hi << 8) | header.height_lo;
 
+	if (h != 0)
+		yy += (h - height) / 2;
+
 	unsigned char pixbuf[768];
-	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
+	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
 	fb_pixel_t * d2;
 	for (int count=0; count<height; count ++ ) {
 		read(fd, &pixbuf[0], width >> 1 );
@@ -998,10 +1010,11 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	return true;
 }
 
-bool CFrameBuffer::paintIcon(const char * const filename, const int x, const int y, const unsigned char offset)
+bool CFrameBuffer::paintIcon(const char * const filename, const int x, const int y,
+			     const int h, const unsigned char offset)
 {
 //printf("%s(%s, %d, %d, %d)\n", __FUNCTION__, filename, x, y, offset);
-	return paintIcon(std::string(filename), x, y, offset);
+	return paintIcon(std::string(filename), x, y, h, offset);
 }
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
