@@ -508,7 +508,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     /* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed 
        radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
        ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
-    int q_circle[541] = {
+    static const int q_circle[541] = {
 	540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 540, 
         540, 540, 540, 540, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 539, 
         539, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 538, 537, 537, 537, 537, 537, 537, 537, 
