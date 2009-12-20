@@ -1128,19 +1128,17 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		xStart = InfoX;
 
 #ifndef NO_BLINKENLIGHTS
-	static int oldrunningPercent = -1;
 	int posy = BoxStartY + 16;
 	int height2 = 20;
 	if (pb_pos > -1)
 	{
-		if (oldrunningPercent != pb_pos) {
+		if (timescale->getPercent() != pb_pos) {
 			frameBuffer->paintBoxRel(BoxEndX - 104, posy + 6, 108, 14, COL_INFOBAR_SHADOW_PLUS_0, 1);
 			frameBuffer->paintBoxRel(BoxEndX - 108, posy + 2, 108, 14, COL_INFOBAR_PLUS_0, 1);
-			oldrunningPercent = pb_pos;
 		}
 		timescale->paint(BoxEndX - 102, posy + 2, pb_pos);
 	} else {
-		oldrunningPercent = -1;
+		timescale->reset();
 		frameBuffer->paintBackgroundBoxRel(BoxEndX - 108, posy, 112, height2);
 	}
 #else
