@@ -96,7 +96,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 				g_settings.screen_EndX = x_coord[1];
 				g_settings.screen_StartY = y_coord[0];
 				g_settings.screen_EndY = y_coord[1];
-				if (g_Infoviewer) /* recalc infobar position */
+				if (g_InfoViewer) /* recalc infobar position */
 					g_InfoViewer->start();
 				loop = false;
 				break;
