@@ -1988,6 +1988,9 @@ void CNeutrinoApp::SetupFonts()
 		g_Font[i] = g_fontRenderer->getFont(font.name, style[neutrino_font[i].style], configfile.getInt32(locale_real_names[neutrino_font[i].name], neutrino_font[i].defaultsize) + neutrino_font[i].size_offset * font.size_offset);
 	}
 	g_SignalFont = g_fontRenderer->getFont(font.name, style[signal_font.style], signal_font.defaultsize + signal_font.size_offset * font.size_offset);
+	/* recalculate infobar position */
+	if (g_InfoViewer)
+		g_InfoViewer->start();
 }
 
 /**************************************************************************************
