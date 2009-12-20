@@ -154,10 +154,10 @@ void CInfoViewer::Init()
   virtual_zap_mode = false;
   chanready = 1;
   fileplay = 0;
-  sigscale = new CScale(BAR_WIDTH, 8, RED_BAR, GREEN_BAR, YELLOW_BAR);
-  snrscale = new CScale(BAR_WIDTH, 8, RED_BAR, GREEN_BAR, YELLOW_BAR);
-  hddscale = new CScale(100, 4, 50, GREEN_BAR, 75, true);
-  varscale = new CScale(100, 4, 50, GREEN_BAR, 75, true);
+  sigscale = new CScale(BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
+  snrscale = new CScale(BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
+  hddscale = new CScale(100, 6, 50, GREEN_BAR, 75, true);
+  varscale = new CScale(100, 6, 50, GREEN_BAR, 75, true);
   timescale = new CScale(100, TIME_BAR_HEIGHT, 30, GREEN_BAR, 70, true);
   channel_id = live_channel_id;
 }
