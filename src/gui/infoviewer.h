@@ -66,9 +66,16 @@ class CInfoViewer
 	int            BoxStartY;
 	int            ButtonWidth;
 
+	int            ChanNameX;
+	int            ChanNameY;
 	int            ChanWidth;
 	int            ChanHeight;
 	int            ChanInfoX;
+
+	/* the position of the button bar */
+	int            BBarY;
+	int            BBarIconY;
+	int            BBarFontY;
 
 	int		asize;
 
@@ -83,7 +90,13 @@ class CInfoViewer
 	CChannelEventList               evtlist;
 	CChannelEventList::iterator     eli;
 
+	void paintBackground(int col_Numbox);
 	void show_Data( bool calledFromEvent = false );
+	void display_Info(const char *current, const char *next, bool UTF8 = true,
+			  bool starttimes = true, const int pb_pos = -1,
+			  const char *runningStart = NULL, const char *runningRest = NULL,
+			  const char *nextStart = NULL, const char *nextDuration = NULL,
+			  bool update_current = true, bool update_next = true);
 	void paintTime( bool show_dot, bool firstPaint );
 	
 	void showButton_Audio();

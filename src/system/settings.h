@@ -485,6 +485,9 @@ extern const neutrino_locale_t timing_setting_name[TIMING_SETTING_COUNT];
 #define RADIUS_MID      (g_settings.rounded_corners ? CORNER_RADIUS_MID : 0)
 #define RADIUS_SMALL    (g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
 
+// shadow
+#define SHADOW_OFFSET                   6
+
 /* end default values */
 
 struct SglobalInfo

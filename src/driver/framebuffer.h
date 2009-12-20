@@ -46,7 +46,6 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define CORNER_LEFT			0x9
 #define CORNER_BOTTOM		0xC
 #define CORNER_ALL		0xF
-#define SHADOW_OFFSET		6
 #else
 #define CORNER_TOP	0x1
 #define CORNER_BOTTOM	0x2
