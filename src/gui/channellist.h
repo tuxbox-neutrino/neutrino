@@ -98,7 +98,7 @@ class CChannelList
 		CZapitChannel* operator[]( uint32_t index) { if (chanlist.size() > index) return chanlist[index]; else return NULL;};
 		int getKey(int);
 
-		const char * const   getName                   (void) const { return name.c_str(); };
+		const char         * getName                   (void) const { return name.c_str(); };
 		const std::string &  getActiveChannelName      (void) const; // UTF-8
 		t_satellite_position getActiveSatellitePosition(void) const;
 		int                  getActiveChannelNumber    (void) const;

@@ -957,7 +957,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	}
 }
 
-const bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
+bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 {
 //printf("tuneChannel: tpid %llx\n", currentTransponder.TP_id);
 	transponder_list_t::iterator transponder = transponders.find(currentTransponder.TP_id);
@@ -966,14 +966,14 @@ const bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, false);
 }
 
-const bool CFrontend::retuneTP(bool nowait)
+bool CFrontend::retuneTP(bool nowait)
 {
 	/* used in pip only atm */
 	tuneFrequency(&curfe, currentTransponder.polarization, nowait);
 	return 0;
 }
 
-const bool CFrontend::retuneChannel(void)
+bool CFrontend::retuneChannel(void)
 {
 	setFrontend(&currentTransponder.feparams);
 	return 0;

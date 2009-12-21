@@ -53,9 +53,9 @@ class CBookmark
 	std::string time;
  public:
 	CBookmark(const std::string & name, const std::string & url, const std::string & time);
-	const char * const getName(void) const { return name.c_str(); };
-	const char * const getUrl (void) const { return url .c_str(); };
-	const char * const getTime(void) const { return time.c_str(); };                
+	const char *getName(void) const { return name.c_str(); };
+	const char *getUrl (void) const { return url .c_str(); };
+	const char *getTime(void) const { return time.c_str(); };
 	inline void setName(const std::string & new_name) { name = new_name; };
 	inline void setUrl (const std::string & new_url ) { url  = new_url ; };
 	inline void setTime(const std::string & new_time) { time = new_time; };

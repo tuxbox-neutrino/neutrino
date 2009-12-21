@@ -144,7 +144,7 @@ class CFrontend
 		uint32_t			getUncorrectedBlocks(void) const;
 		void				getDelSys(int f, int m, char * &fec, char * &sys, char * &mod);
 
-		const int32_t 			getCurrentSatellitePosition() { return currentSatellitePosition; }
+		int32_t				getCurrentSatellitePosition() { return currentSatellitePosition; }
 
 		void				setDiseqcRepeats(const uint8_t repeats)	{ diseqcRepeats = repeats; }
 		void				setDiseqcType(const diseqc_t type);
@@ -157,12 +157,12 @@ class CFrontend
 		void 				positionMotor(uint8_t motorPosition);
 		void				sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t command, uint8_t num_parameters, uint8_t parameter1, uint8_t parameter2, int repeat = 0);
 		void 				gotoXX(t_satellite_position pos);
-		const bool 			tuneChannel (CZapitChannel *channel, bool nvod);
-		const bool 			retuneChannel (void);
-		const bool 			retuneTP (bool nowait = true);
+		bool				tuneChannel(CZapitChannel *channel, bool nvod);
+		bool				retuneChannel(void);
+		bool				retuneTP(bool nowait = true);
 
 		fe_code_rate_t 			getCFEC ();
-		const transponder_id_t 		getTsidOnid()    { return currentTransponder.TP_id; }
+		transponder_id_t		getTsidOnid() { return currentTransponder.TP_id; }
 		void 				setTsidOnid(transponder_id_t newid)  { currentTransponder.TP_id = newid; }
 		uint32_t 			getRate ();
                 void Close();

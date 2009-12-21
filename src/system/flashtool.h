@@ -81,10 +81,10 @@ class CFlashVersionInfo
 	
 	CFlashVersionInfo(const std::string & versionString);
 	
-	const char * const getDate(void) const;
-	const char * const getTime(void) const;
-	const char * const getReleaseCycle(void) const;
-	const char * const getType(void) const;
+	const char *getDate(void) const;
+	const char *getTime(void) const;
+	const char *getReleaseCycle(void) const;
+	const char *getType(void) const;
 };
 
 
