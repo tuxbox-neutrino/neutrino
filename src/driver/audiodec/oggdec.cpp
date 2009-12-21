@@ -2,14 +2,14 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2004 Sania, Zwen
-	
+
 	Homepage: http://www.dbox2.info/
 
 	Kommentar:
 
 	ogg vorbis audio decoder
 	uses tremor libvorbisidec
-	
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -59,7 +59,7 @@ int ogg_seek(void *data, ogg_int64_t offset, int whence)
   return fseek((FILE*)data, (long)offset, whence);
 }
 
-int ogg_close(void *data)
+int ogg_close(void */*data*/)
 {
   return 0;
 }
@@ -91,7 +91,7 @@ CBaseDec::RetCode COggDec::Decoder(FILE *in, const int OutputFd, State* const st
   SetMetaData(&vf, meta_data);
 
   audioDecoder->PrepareClipPlay(ov_info(&vf,0)->channels, ov_info(&vf,0)->rate, 16, 1);
-  
+
   /* up and away ... */
   mSlotSize = MAX_OUTPUT_SAMPLES * 2 * ov_info(&vf,0)->channels;
   for(int i = 0 ; i < DECODE_SLOTS ; i++)
@@ -201,7 +201,7 @@ CBaseDec::RetCode COggDec::Decoder(FILE *in, const int OutputFd, State* const st
 
   /* clean up the junk from the party */
   ov_clear(&vf);
-  
+
   /* and drive home ;) */
   return Status;
 }
@@ -230,7 +230,7 @@ void* COggDec::OutputDsp(void * arg)
 	return NULL;
 }
 
-bool COggDec::GetMetaData(FILE *in, const bool nice, CAudioMetaData* m)
+bool COggDec::GetMetaData(FILE *in, const bool /*nice*/, CAudioMetaData* m)
 {
 	OggVorbis_File vf;
 	if (!Open(in, &vf))
@@ -306,7 +306,7 @@ bool COggDec::Open(FILE* in, OggVorbis_File* vf)
 	/* the netfile layer hooked in here. If we would not */
 	/* provide callbacks, the tremor lib and the netfile */
 	/* layer would clash and steal each other the data   */
-	/* from the stream !                                 */ 
+	/* from the stream !                                 */
 
 	cb.read_func  = ogg_read;
 	cb.seek_func  = ogg_seek;
@@ -339,10 +339,10 @@ bool COggDec::Open(FILE* in, OggVorbis_File* vf)
 	/* finish the opening and ignite the joint */
 	//ov_test_open(vf);
 
-	if(ov_seekable(vf)) 
+	if(ov_seekable(vf))
 		mSeekable = true;
 	else
 		mSeekable = false;
-	
+
 	return true;
 }

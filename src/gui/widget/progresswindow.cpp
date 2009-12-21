@@ -166,7 +166,7 @@ void CProgressWindow::paint()
 	showGlobalStatus(global_progress);
 }
 
-int CProgressWindow::exec(CMenuTarget* parent, const std::string & actionKey)
+int CProgressWindow::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
 	if(parent)
 	{

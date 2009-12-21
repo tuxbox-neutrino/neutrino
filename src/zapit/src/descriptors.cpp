@@ -105,7 +105,7 @@ void Video_window_descriptor(const unsigned char * const)
 }
 
 /* 0x09 */
-void CA_descriptor(const unsigned char * const buffer, uint16_t ca_system_id, uint16_t* ca_pid)
+void CA_descriptor(const unsigned char * const buffer, uint16_t /*ca_system_id*/, uint16_t* ca_pid)
 {
 //	if ((((buffer[2] & 0x1F) << 8) | buffer[3]) == ca_system_id)
 		*ca_pid = ((buffer[4] & 0x1F) << 8) | buffer[5];
@@ -215,7 +215,7 @@ void FlexMuxTiming_descriptor(const unsigned char * const)
  */
 
 /* 0x40 */
-void network_name_descriptor(const unsigned char * const buffer)
+void network_name_descriptor(const unsigned char * const /*buffer*/)
 {
 #if 0
 	unsigned char tag = buffer[0];
@@ -445,24 +445,24 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	} else if (providerName == "SKY") {
 		providerName = "Sky"; // well the name PREMIERE itself is not a problem
 		in_blacklist = true;
-	} else if( (strncasecmp("POLSAT",providerName.c_str(),6)==0) || 
+	} else if( (strncasecmp("POLSAT",providerName.c_str(),6)==0) ||
 			(strncmp("D1",providerName.c_str(),2)==0)  || (strncmp("OTV",providerName.c_str(),3)==0)  ||
-			(providerName=="REALITY TV")  || (providerName=="PL Media")  || 
+			(providerName=="REALITY TV")  || (providerName=="PL Media")  ||
 			(providerName=="ANIMAL PL")  || (providerName=="DISCOVERY") )
 	{
-		providerName = "Polsat"; 
+		providerName = "Polsat";
 		in_blacklist = true;
 	} else if(strncasecmp("TVN ",providerName.c_str(),4)==0) {
-		providerName = "TVN"; 
+		providerName = "TVN";
 		in_blacklist = true;
 	} else if (providerName == "bt" || providerName == "BT") {
-		providerName = "BT Broadcast Services"; 
+		providerName = "BT Broadcast Services";
 		in_blacklist = true;
 	} else if (strncasecmp("FT GLOBECAST",providerName.c_str(),12)==0) {
-		providerName = "GlobeCast"; 
+		providerName = "GlobeCast";
 		in_blacklist = true;
 	} else if(strncasecmp("RR Sat",providerName.c_str(),6)==0) {
-		providerName = "RRSat"; 
+		providerName = "RRSat";
 		in_blacklist = true;
 	}
 	else if (providerName == "BetaDigital")
@@ -488,7 +488,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	t_channel_id channel_id = CREATE_CHANNEL_ID64;
 	tallchans_iterator I = allchans.find(channel_id);
 	if (I != allchans.end()) {
-		//if(strcmp(serviceName.c_str(), I->second.getName().c_str())) 
+		//if(strcmp(serviceName.c_str(), I->second.getName().c_str()))
 		{
 //printf("[scan] ******************************* channel %s (%llx at %d) exist with name %s at %d !!\n", serviceName.c_str(), channel_id, freq, I->second.getName().c_str(), I->second.getFreqId());//FIXME
 			service_wr = 0;
@@ -697,7 +697,7 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 
 	if (I != curchans.end())
 		return;
-	
+
 	uint8_t service_provider_name_length = buffer[3];
 
 	std::string providerName((const char*)&(buffer[4]), service_provider_name_length);
@@ -713,9 +713,9 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 	} else if (providerName == "PREMIERE") {
 		in_blacklist = true;
 	}
-        else if( (strncasecmp("POLSAT",providerName.c_str(),6)==0) || 
+        else if( (strncasecmp("POLSAT",providerName.c_str(),6)==0) ||
         (strncmp("D1",providerName.c_str(),2)==0)  || (strncmp("OTV",providerName.c_str(),3)==0)  ||
-        (providerName=="REALITY TV")  || (providerName=="PL Media")  || 
+        (providerName=="REALITY TV")  || (providerName=="PL Media")  ||
         (providerName=="ANIMAL PL")  || (providerName=="DISCOVERY") )
         {
                 in_blacklist = true;

@@ -59,7 +59,7 @@ THandleStatus CNeutrinoYParser::Hook_SendResponse(CyhookHandler *hh)
 {
 	hh->status = HANDLED_NONE;
 
-//	log_level_printf(4,"Neutrinoparser Hook Start url:%s\n",hh->UrlData["url"].c_str());	
+//	log_level_printf(4,"Neutrinoparser Hook Start url:%s\n",hh->UrlData["url"].c_str());
 	init(hh);
 
 	CNeutrinoYParser *yP = new CNeutrinoYParser(NeutrinoAPI);		// create a Session
@@ -70,13 +70,13 @@ THandleStatus CNeutrinoYParser::Hook_SendResponse(CyhookHandler *hh)
 		yP->Execute(hh);
 		if(hh->status == HANDLED_NOT_IMPLEMENTED)
 			hh->status = HANDLED_NONE;	// y-calls can be implemented anywhere
-	}	
-		
+	}
+
 	delete yP;
 
-//	log_level_printf(4,"Neutrinoparser Hook Ende status:%d\n",(int)hh->status);	
-//	log_level_printf(5,"Neutrinoparser Hook Result:%s\n",hh->yresult.c_str());	
-	
+//	log_level_printf(4,"Neutrinoparser Hook Ende status:%d\n",(int)hh->status);
+//	log_level_printf(5,"Neutrinoparser Hook Result:%s\n",hh->yresult.c_str());
+
 	return hh->status;
 }
 //-----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ std::string  CNeutrinoYParser::YWeb_cgi_func(CyhookHandler *hh, std::string ycmd
 //-------------------------------------------------------------------------
 // y-func : mount_get_list
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_mount_get_list(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_mount_get_list(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	CConfigFile *Config = new CConfigFile(',');
 	std::string ysel, ytype, yip, ylocal_dir, ydir, ynr, yresult;
@@ -159,11 +159,11 @@ std::string  CNeutrinoYParser::func_mount_get_list(CyhookHandler *hh, std::strin
 		ynr=itoa(i);
 		ysel = ((i==0) ? "checked=\"checked\"" : "");
 		yitype = Config->getInt32("network_nfs_type_"+ynr,0);
-		ytype = ( (yitype==0) ? "NFS" :((yitype==1) ? "CIFS" : "FTPFS") ); 
+		ytype = ( (yitype==0) ? "NFS" :((yitype==1) ? "CIFS" : "FTPFS") );
 		yip = Config->getString("network_nfs_ip_"+ynr,"");
 		ydir = Config->getString("network_nfs_dir_"+ynr,"");
 		ylocal_dir = Config->getString("network_nfs_local_dir_"+ynr,"");
-		if(ydir != "") 
+		if(ydir != "")
 			ydir="("+ydir+")";
 
 		yresult += string_printf("<input type='radio' name='R1' value='%d' %s />%d %s - %s %s %s<br/>",
@@ -176,7 +176,7 @@ std::string  CNeutrinoYParser::func_mount_get_list(CyhookHandler *hh, std::strin
 //-------------------------------------------------------------------------
 // y-func : mount_set_values
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_mount_set_values(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_mount_set_values(CyhookHandler *hh, std::string /*para*/)
 {
 	CConfigFile *Config = new CConfigFile(',');
 	std::string ynr, yresult;
@@ -201,11 +201,11 @@ std::string  CNeutrinoYParser::func_mount_set_values(CyhookHandler *hh, std::str
 //-------------------------------------------------------------------------
 // y-func : get_bouquets_as_dropdown [<bouquet>] <doshowhidden>
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler */*hh*/, std::string para)
 {
 	std::string ynr, yresult, sel, nr_str, do_show_hidden;
 	int nr=1;
-	
+
 	ySplitString(para," ",nr_str, do_show_hidden);
 	if(nr_str != "")
 		nr = atoi(nr_str.c_str());
@@ -213,13 +213,13 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *hh, 
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
 		sel=(nr==(i+1)) ? "selected=\"selected\"" : "";
 		if(!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true")
-			yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), 
+			yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(),
 				(encodeString(std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
 			//yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), (encodeString(std::string(g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
 	}
 #if 0
 	for (unsigned int i = 0; i < NeutrinoAPI->BouquetList.size();i++)
-	{	
+	{
 		sel=(nr==(i+1)) ? "selected=\"selected\"" : "";
 		if(!NeutrinoAPI->BouquetList[i].hidden || do_show_hidden == "true")
 			yresult += string_printf("<option value=%u %s>%s</option>\n", (NeutrinoAPI->BouquetList[i].bouquet_nr) + 1, sel.c_str(), (encodeString(std::string(NeutrinoAPI->BouquetList[i].name))).c_str());
@@ -232,10 +232,10 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler *hh, 
 // y-func : get_bouquets_as_templatelist <tempalte> [~<do_show_hidden>]
 // TODO: select actual Bouquet
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler */*hh*/, std::string para)
 {
 	std::string yresult, ytemplate, do_show_hidden;
-	
+
 	ySplitString(para,"~",ytemplate, do_show_hidden);
 	//ytemplate += "\n"; //FIXME add newline to printf
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
@@ -246,7 +246,7 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *
 	}
 #if 0
 	for (unsigned int i = 0; i < NeutrinoAPI->BouquetList.size();i++)
-	{	
+	{
 		if(!NeutrinoAPI->BouquetList[i].hidden || do_show_hidden == "true")
 		{
 			yresult += string_printf(ytemplate.c_str(), (NeutrinoAPI->BouquetList[i].bouquet_nr) + 1, NeutrinoAPI->BouquetList[i].name);
@@ -259,7 +259,7 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *
 //-------------------------------------------------------------------------
 // y-func : get_actual_bouquet_number
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_actual_bouquet_number(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_actual_bouquet_number(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	//CZapitClient::BouquetChannelList *bouquet;
 	//int mode = CZapitClient::MODE_CURRENT;
@@ -277,13 +277,13 @@ std::string  CNeutrinoYParser::func_get_actual_bouquet_number(CyhookHandler *hh,
 //-------------------------------------------------------------------------
 // y-func : get_channel_dropdown [<bouquet_nr> [<channel_id>]]
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler */*hh*/, std::string para)
 {
 	std::string abouquet, achannel_id, yresult, sel, sid;
-	
+
 	int bnumber = 1;
 	int mode = CZapitClient::MODE_CURRENT;
-	
+
 	ySplitString(para," ",abouquet, achannel_id);
 	if(abouquet != "")
 		bnumber = atoi(abouquet.c_str());
@@ -319,7 +319,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	ZapitChannelList channels;
 	int num;
 	int mode = NeutrinoAPI->Zapit->getMode();
-	
+
 	ySplitString(para," ",abnumber, tmp);
 	if(abnumber != "")
 		BouquetNr = atoi(abnumber.c_str());
@@ -343,7 +343,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
 	std::string timestr;
 	bool have_logos = false;
-	
+
 	if(hh->WebserverConfigList["ExtrasDocumentRoot"] == "web" || (access((hh->WebserverConfigList["ExtrasDocumentRoot"]+"/logos").c_str(),4)==0) )
 		have_logos = true;
 
@@ -355,7 +355,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 #if 1
 		CChannelEvent *event;
 		event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
-		
+
 		classname = (i++ & 1) ? 'a' : 'b';
 		if (channel->channel_id == current_channel)
 			classname = 'c';
@@ -367,10 +367,10 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"')\"><img class=\"channel_logo\" src=\"%s/logos/"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					".jpg\"/></a></td>", classname, channel->channel_id, 
+					".jpg\"/></a></td>", classname, channel->channel_id,
 					(hh->WebserverConfigList["ExtrasDocumentURL"]).c_str(),
 					channel->channel_id & 0xFFFFFFFFFFFFULL);
-		
+
 		/* timer slider */
 		if(event && event->duration > 0)
 			prozent = 100 * (time(NULL) - event->startTime) / event->duration;
@@ -387,7 +387,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				, (prozent / 10) * 3
 				, (10 - (prozent / 10))*3
 			);
-				
+
 		/* channel name and buttons */
 		yresult += string_printf("<td>\n%s<a class=\"clist\" href=\"javascript:do_zap('"
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
@@ -416,19 +416,19 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			if (sectionsd_getNVODTimesServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, nvod_list))
 			{
 				CZapitClient::subServiceList subServiceList;
-				
+
 				for (CSectionsdClient::NVODTimesList::iterator ni = nvod_list.begin(); ni != nvod_list.end(); ni++)
 				{
 					CZapitClient::commandAddSubServices cmd;
 					CEPGData epg;
-					
+
 					// Byte Sequence by ntohs
 					cmd.original_network_id = ntohs(ni->original_network_id);
 					cmd.service_id = ntohs(ni->service_id);
 					cmd.transport_stream_id = ntohs(ni->transport_stream_id);
 
 					t_channel_id channel_id = CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(cmd.service_id, cmd.original_network_id, cmd.transport_stream_id);
-					
+
 					timestr = timeString(ni->zeit.startzeit); // FIXME: time is wrong (at least on little endian)!
 
 					//NeutrinoAPI->Sectionsd->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epg); // FIXME: der scheissendreck geht nit!!!
@@ -455,7 +455,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					NeutrinoAPI->Zapit->setSubServices(subServiceList);
 			}
 		}
-		
+
 		else if ((event = NeutrinoAPI->ChannelListEvents[channel->channel_id]))
 		{
 			//bool has_current_next = NeutrinoAPI->Sectionsd->getCurrentNextServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, currentNextInfo);
@@ -488,18 +488,18 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 //-------------------------------------------------------------------------
 // y-func : get_actual_channel_id
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_actual_channel_id(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_actual_channel_id(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	return string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, live_channel_id /*NeutrinoAPI->Zapit->getCurrentServiceID()*/);
 }
 //-------------------------------------------------------------------------
 // y-func : get_mode (returns tv|radio|unknown)
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_mode(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_mode(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	std::string yresult;
 	int mode = NeutrinoAPI->Zapit->getMode();
-	
+
 	if ( mode == CZapitClient::MODE_TV)
 		yresult = "tv";
 	else if ( mode == CZapitClient::MODE_RADIO)
@@ -512,12 +512,12 @@ std::string  CNeutrinoYParser::func_get_mode(CyhookHandler *hh, std::string para
 //-------------------------------------------------------------------------
 // y-func : get_video_pids (para=audio channel, returns: 0x0000,0x0000,0x0000)
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_video_pids(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_video_pids(CyhookHandler */*hh*/, std::string para)
 {
 	CZapitClient::responseGetPIDs pids;
 	int apid=0,apid_no=0,apid_idx=0;
 	pids.PIDs.vpid=0;
-	
+
 	if(para != "")
 		apid_no = atoi(para.c_str());
 	NeutrinoAPI->Zapit->getPIDS(pids);
@@ -531,15 +531,15 @@ std::string  CNeutrinoYParser::func_get_video_pids(CyhookHandler *hh, std::strin
 //-------------------------------------------------------------------------
 // y-func : get_radio_pids (returns: 0x0000)
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_radio_pid(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_radio_pid(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	CZapitClient::responseGetPIDs pids;
 	int apid=0;
-	
+
 	NeutrinoAPI->Zapit->getPIDS(pids);
 	if(!pids.APIDs.empty())
 		apid = pids.APIDs[0].pid;
-	
+
 	return string_printf("0x%04x",apid);
 }
 
@@ -547,13 +547,13 @@ std::string  CNeutrinoYParser::func_get_radio_pid(CyhookHandler *hh, std::string
 // y-func : get_audio_pids_as_dropdown (from controlapi)
 // prara: [apid] option value = apid-Value. Default apid-Index
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler */*hh*/, std::string para)
 {
 	std::string yresult;
 	static bool init_iso=true;
 	bool idx_as_id=true;
-	
-	if(para == "apid") 
+
+	if(para == "apid")
 		idx_as_id=false;
 	if(init_iso)
 	{
@@ -622,10 +622,10 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *hh
 //-------------------------------------------------------------------------
 // y-func : build umount list
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	std::string ysel, ymount, ylocal_dir, yfstype, ynr, yresult, mounts;
-	
+
 	std::ifstream in;
 	in.open("/proc/mounts", std::ifstream::in);
 	int j=0;
@@ -650,11 +650,11 @@ std::string  CNeutrinoYParser::func_unmount_get_list(CyhookHandler *hh, std::str
 //-------------------------------------------------------------------------
 // y-func : build partition list
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	std::string ysel, ymtd, yname, dummy, yresult;
 	char ytmp[200];
-	
+
 	std::ifstream in;
 	in.open("/proc/mtd", std::ifstream::in);
 	int j=0;
@@ -677,14 +677,14 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *hh, std::s
 //-------------------------------------------------------------------------
 // y-func : get boxtypetext (Nokia, Philips, Sagem)
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	return NeutrinoAPI->Dbox_Hersteller[NeutrinoAPI->Controld->getBoxType()];
 }
 //-------------------------------------------------------------------------
 // y-func : get stream info
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, std::string /*para*/)
 {
 	int bitInfo[10];
 	CZapitClient::CCurrentServiceInfo serviceinfo;
@@ -701,10 +701,10 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 	hh->ParamList["polarisation"] = serviceinfo.polarisation==1?"h":"v";
 	hh->ParamList["ServiceName"] = NeutrinoAPI->GetServiceName(live_channel_id);//NeutrinoAPI->Zapit->getCurrentServiceID());
 	NeutrinoAPI->GetStreamInfo(bitInfo);
-	
+
 	hh->ParamList["VideoFormat"] = string_printf("%d x %d", bitInfo[0], bitInfo[1] );
 	hh->ParamList["BitRate"] = string_printf("%d\n", bitInfo[4]*50);
-	
+
 	switch ( bitInfo[2] ) //format
 	{
 		case 2: hh->ParamList["AspectRatio"] = "4:3"; break;
@@ -733,7 +733,7 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 		unsigned char mode =	(header>> 6)&3;
 		unsigned char copy =	(header>> 3)&1;
 
-		hh->ParamList["AudioType"] = 
+		hh->ParamList["AudioType"] =
 			string_printf("%s (%s/%s) %s", modenames[mode],	sampfreqnames[sampfreq],
 				layernames[layer], copy?"c":"");
 	}
@@ -743,7 +743,7 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 // Template 1:classname, 2:zAlarmTime, 3: zStopTime, 4:zRep, 5:zRepCouunt
 //		6:zType, 7:sAddData, 8:timer->eventID, 9:timer->eventID
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler */*hh*/, std::string para)
 {
 	std::string yresult;
 	CTimerd::TimerList timerlist;				// List of bouquets
@@ -752,8 +752,8 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *hh, std::strin
 	NeutrinoAPI->Timerd->getTimerList(timerlist);
 	sort(timerlist.begin(), timerlist.end());
 
-	CZapitClient::BouquetChannelList channellist_tv;     
-	CZapitClient::BouquetChannelList channellist_radio;     
+	CZapitClient::BouquetChannelList channellist_tv;
+	CZapitClient::BouquetChannelList channellist_radio;
 	channellist_tv.clear();
 	channellist_radio.clear();
 
@@ -777,7 +777,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *hh, std::strin
 		if(timer->stopTime > 0)
 		{
 			struct tm *stopTime = localtime(&(timer->stopTime));
-			strftime(zStopTime,20,"%d.%m. %H:%M",stopTime);     
+			strftime(zStopTime,20,"%d.%m. %H:%M",stopTime);
 		}
 		// repeat
 		std::string zRep = NeutrinoAPI->timerEventRepeat2Str(timer->eventRepeat);
@@ -885,10 +885,10 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 		// init timerid
 		if(stimerid != "")
 			timerId = (unsigned)atoi(stimerid.c_str());
-		
+
 		NeutrinoAPI->Timerd->getTimer(timer, timerId);
 		std::string zType = NeutrinoAPI->timerEventType2Str(timer.eventType);
-	
+
 		hh->ParamList["timerId"] = itoa(timerId);
 		hh->ParamList["zType"] = zType;
 	}
@@ -934,7 +934,7 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 				sel = (i==(int)timer.eventType) ? "selected=\"selected\"" : "";
 			else
 				sel = (i==(int)CTimerd::TIMER_RECORD) ? "selected=\"selected\"" : "";
-			hh->ParamList["timertype"] += 
+			hh->ParamList["timertype"] +=
 				string_printf("<option value=\"%d\" %s>%s\n",i,sel.c_str(),zType.c_str());
 		}
 	}
@@ -949,7 +949,7 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 			zRep = NeutrinoAPI->timerEventRepeat2Str((CTimerd::CTimerEventRepeat) i);
 			if(cmd != "new")
 				sel = (((int)timer.eventRepeat) == i) ? "selected=\"selected\"" : "";
-			hh->ParamList["repeat"] += 
+			hh->ParamList["repeat"] +=
 				string_printf("<option value=\"%d\" %s>%s</option>\n",i,sel.c_str(),zRep.c_str());
 		}
 	}
@@ -959,14 +959,14 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 		sel = "selected=\"selected\"";
 	else
 		sel = "";
-	hh->ParamList["repeat"] += 
+	hh->ParamList["repeat"] +=
 		string_printf("<option value=\"%d\" %s>%s</option>\n",(int)CTimerd::TIMERREPEAT_WEEKDAYS, sel.c_str(), zRep.c_str());
 
 	// Weekdays
 	char weekdays[8];
 	NeutrinoAPI->Timerd->setWeekdaysToStr(timer.eventRepeat, weekdays);
 	hh->ParamList["weekdays"]=	 weekdays;
-	
+
 	// timer repeats
 	if (timer.eventRepeat == CTimerd::TIMERREPEAT_ONCE)
 		hh->ParamList["TIMERREPEAT_ONCE"]  = "y";
@@ -993,7 +993,7 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	}
 #if 0
 	// program row
-	CZapitClient::BouquetChannelList channellist;     
+	CZapitClient::BouquetChannelList channellist;
 	channellist.clear();
 	NeutrinoAPI->Zapit->getChannels(channellist,CZapitClient::MODE_TV, CZapitClient::SORT_BOUQUET, true);
 	CZapitClient::BouquetChannelList::iterator channel = channellist.begin();
@@ -1036,7 +1036,7 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	hh->ParamList["standby"] = (cmd == "new")? "0" : ((timer.standby_on)?"1":"0");
 	hh->ParamList["message"] = (cmd == "new")? "" : timer.message;
 	hh->ParamList["pluginname"] = (cmd == "new")? "" : timer.pluginName;
-	
+
 	return "";
 }
 
@@ -1090,7 +1090,7 @@ std::string  CNeutrinoYParser::func_bouquet_editor_main(CyhookHandler *hh, std::
 //-------------------------------------------------------------------------
 // func: Bouquet Edit
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_set_bouquet_edit_form(CyhookHandler *hh, std::string para)
+std::string  CNeutrinoYParser::func_set_bouquet_edit_form(CyhookHandler *hh, std::string /*para*/)
 {
 	if (!(hh->ParamList["selected"].empty()))
 	{

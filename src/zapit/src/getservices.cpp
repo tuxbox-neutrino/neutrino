@@ -220,7 +220,7 @@ void FindTransponder(xmlNodePtr search)
 
 		if (!(strcmp(xmlGetName(search), "cable")))
 			cable = true;
-		else if ((strcmp(xmlGetName(search), "sat"))) {	
+		else if ((strcmp(xmlGetName(search), "sat"))) {
 			search = search->xmlNextNode;
 			continue;
 		}
@@ -254,7 +254,7 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 		}
-		else 
+		else
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 
 		feparams.inversion = INVERSION_AUTO;
@@ -275,7 +275,7 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 				xml_fec += 9;
 			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 		}
-		transponder_id_t tid = 
+		transponder_id_t tid =
 			CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
 					feparams.frequency/1000, satellitePosition, fake_nid, fake_tid);
 
@@ -298,9 +298,9 @@ int LoadMotorPositions(void)
 	t_satellite_position satellitePosition;
 	int spos = 0, mpos = 0, diseqc = 0, uncom = 0, com = 0, usals = 0, inuse;
 	int offH = 10600, offL = 9750, sw = 11700;
-	
+
 	printf("[getservices] loading motor positions...\n");
-	
+
 	if ((fd = fopen(SATCONFIG, "r"))) {
 		fgets(buffer, 255, fd);
 		while(!feof(fd)) {
@@ -319,13 +319,13 @@ int LoadMotorPositions(void)
 				sit->second.use_in_scan = inuse;
 				sit->second.use_usals = usals;
 			}
-			fgets(buffer, 255, fd);	
+			fgets(buffer, 255, fd);
 		}
 		fclose(fd);
 	}
 	else
 		printf("[getservices] %s not found.\n", SATCONFIG);
-	
+
 	return 0;
 }
 
@@ -342,7 +342,7 @@ void SaveMotorPositions()
 	}
 	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals\n");
 	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position, 
+		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
 				sit->second.diseqc, sit->second.commited, sit->second.uncommited, sit->second.lnbOffsetLow,
 				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals);
 	}
@@ -365,7 +365,7 @@ static void init_sat(t_satellite_position position)
 	satellitePositions[position].use_usals = 0;
 }
 
-int LoadServices(fe_type_t frontendType, diseqc_t diseqcType, bool only_current)
+int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_current)
 {
 	xmlDocPtr parser;
 	bool satcleared = 0;
@@ -389,7 +389,7 @@ int LoadServices(fe_type_t frontendType, diseqc_t diseqcType, bool only_current)
 
 	if (scanInputParser != NULL) {
 		t_satellite_position position = 0;
-		if(!satcleared) 
+		if(!satcleared)
 			satellitePositions.clear();
 		satcleared = 1;
 
@@ -481,7 +481,7 @@ void zapit_cp(char * from, char * to)
 	sync();
 }
 
-void SaveServices(bool tocopy) 
+void SaveServices(bool tocopy)
 {
 	transponder_id_t 		tpid = 0;
 	FILE * fd = 0;

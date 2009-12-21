@@ -77,7 +77,7 @@ CStreamInfo2::CStreamInfo2 ()
 
 	max_width = frameBuffer->getScreenWidth(true);
 	max_height = frameBuffer->getScreenHeight(true);
-  
+
 	width =  frameBuffer->getScreenWidth();
 	height = frameBuffer->getScreenHeight();
 	x = frameBuffer->getScreenX();
@@ -138,8 +138,8 @@ int CStreamInfo2::doSignalStrengthLoop ()
 #define RED_BAR 40
 #define YELLOW_BAR 70
 #define GREEN_BAR 100
-#define BAR_WIDTH 150 
-#define BAR_HEIGHT 12 
+#define BAR_WIDTH 150
+#define BAR_HEIGHT 12
 
 	sigscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
 	snrscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
@@ -180,12 +180,12 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	//			int dy = y+ height - dheight - 5;
 			if (ret && (lastb != bit_s)) {
 				lastb = bit_s;
-			  
+
 				if (maxb < bit_s)
 					rate.max_short_average = maxb = bit_s;
 				if ((cnt > 10) && ((minb == 0) || (minb > bit_s)))
 					rate.min_short_average = minb = bit_s;
-				
+
 				for(i = 0; i < 3; i++){
 					switch (i) {
 						case 0:
@@ -223,7 +223,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		if (signal.max_snr < signal.snr) {
 			signal.max_snr = signal.snr;
 		}
-		
+
 		if ((signal.min_ber == 0) || (signal.min_ber > signal.ber)) {
 			signal.min_ber = signal.ber;
 		}
@@ -299,7 +299,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 
 	y1 = _y + h + iheight + iheight+iheight-8;
 	y2 = _y + h - sheight+8;
-	
+
 	frameBuffer->paintBoxRel(_x+xd*0,y2- 12,16,2, COL_RED); //red
 	g_Font[font_small]->RenderString(_x+20+xd*0, y2, 50, "BER", COL_MENUCONTENTDARK, 0, true);
 
@@ -308,16 +308,16 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 
 	frameBuffer->paintBoxRel(_x+8+xd*2,y2- 12,16,2, COL_GREEN); //green
 	g_Font[font_small]->RenderString(_x+28+xd*2, y2, 50, "SIG", COL_MENUCONTENTDARK, 0, true);
-	
+
 	frameBuffer->paintBoxRel(_x+xd*3,y2- 12,16,2,COL_YELLOW); // near yellow
 	g_Font[font_small]->RenderString(_x+20+xd*3, y2, 50, "Bitrate", COL_MENUCONTENTDARK, 0, true);
-	
+
 	sig_text_y = y1 - iheight;
 	sig_text_ber_x =  _x +      xd * 0;
 	sig_text_snr_x =  _x +  5 + xd * 1;
 	sig_text_sig_x =  _x +  5 + xd * 2;
 	sig_text_rate_x = _x + 10 + xd * 3;
-		
+
 	int maxmin_x; // x-position of min and max
 	if (paint_mode == 0) {
 		maxmin_x = sig_text_ber_x-40;
@@ -368,7 +368,7 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 		old_x = sigBox_x+x_now;
 		old_y = sigBox_y+sigBox_h-yd;
 	}
-	
+
 	if (s.ber != s.old_ber) {
 		SignalRenderStr(s.ber,     sig_text_ber_x, yt - sheight);
 		SignalRenderStr(s.max_ber, sig_text_ber_x, yt - sheight - sheight);
@@ -420,7 +420,7 @@ void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
 	g_Font[font_small]->RenderString(_x, _y + 5, 60, str, COL_MENUCONTENTDARK, 0, true);
 }
 
-void CStreamInfo2::paint (int mode)
+void CStreamInfo2::paint (int /*mode*/)
 {
 	const char *head_string;
 
@@ -462,7 +462,7 @@ void CStreamInfo2::paint (int mode)
 		paint_signal_fe_box (x, y, width, height-100);
 
 	}
-	
+
 }
 
 void CStreamInfo2::paint_techinfo(int xpos, int ypos)
@@ -475,7 +475,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	int array[4]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE)),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE))}; 
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE))};
 	for(i=0 ; i<4; i++)
 	{
 		if(spaceoffset < array[i])
@@ -592,10 +592,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			s=const_cast<char *>("S2");
 		else
 			s=const_cast<char *>("S1");
-			
+
 		sprintf ((char *) buf,"%d.%d (%c) %d %s %s %s", si.tsfrequency / 1000, si.tsfrequency % 1000, si.polarisation ? 'V' : 'H', si.rate / 1000,f,m,s);
 		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Tp. Freq.:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
-		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8	
+		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	// paint labels
 	spaceoffset = 68;
@@ -617,12 +617,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	sprintf((char*) buf, "0x%04x (%i)", si.tsid, si.tsid);
 	g_Font[font_small]->RenderString(xpos, ypos, width*2/3-10, "TSid:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
 	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
-	
+
 	//pmtpid
 	ypos+= sheight;
 	sprintf((char*) buf, "0x%04x (%i)", si.pmtpid, si.pmtpid);
 	g_Font[font_small]->RenderString(xpos, ypos, width*2/3-10, "PMTpid:", COL_MENUCONTENTDARK, 0, true); // UTF-8
-	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8 
+	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 
 	//vpid
 	ypos+= sheight;
@@ -670,7 +670,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	yypos = ypos;
 }
 
-int CStreamInfo2Handler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CStreamInfo2Handler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int res = menu_return::RETURN_EXIT_ALL;
 	if (parent){
@@ -723,7 +723,7 @@ int CStreamInfo2::update_rate ()
 {
 	unsigned char buf[TS_BUF_SIZE];
 	long b;
-	
+
 	int ret = 0;
 	int b_len, b_start;
 	int timeout = 100;
@@ -749,14 +749,14 @@ int CStreamInfo2::update_rate ()
 
 	d_tim_ms = delta_time_ms (&tv, &last_tv);
 	if (d_tim_ms <= 0)
-		d_tim_ms = 1;			//  ignore usecs 
+		d_tim_ms = 1;			//  ignore usecs
 
 	bit_s = (((unsigned long long) b * 8000ULL) + ((unsigned long long) d_tim_ms / 2ULL))
 		/ (unsigned long long) d_tim_ms;
 
 	d_tim_ms = delta_time_ms (&tv, &first_tv);
 	if (d_tim_ms <= 0)
-		d_tim_ms = 1;			//  ignore usecs 
+		d_tim_ms = 1;			//  ignore usecs
 
 	abit_s = ((b_total * 8000ULL) + ((unsigned long long) d_tim_ms / 2ULL))
 		/ (unsigned long long) d_tim_ms;

@@ -49,7 +49,7 @@ static unsigned int writebuf_size = 0;
 static unsigned char writebuf[PACKET_SIZE];
 
 static int
-sync_byte_offset (const unsigned char * buf, const unsigned int len) 
+sync_byte_offset (const unsigned char * buf, const unsigned int len)
 {
 
 	unsigned int i;
@@ -61,7 +61,7 @@ sync_byte_offset (const unsigned char * buf, const unsigned int len)
 	return -1;
 }
 
-void packet_stdout (int fd, unsigned char * buf, int count, void * p) 
+void packet_stdout (int fd, unsigned char * buf, int count, void * /*p*/)
 {
 
 	unsigned int size;
@@ -173,7 +173,7 @@ int open_incoming_port (int port)
 void * streamts_live_thread(void *data);
 int streamts_stop;
 
-void streamts_main_thread(void *data)
+void streamts_main_thread(void */*data*/)
 {
 	struct sockaddr_in servaddr;
 	int clilen;

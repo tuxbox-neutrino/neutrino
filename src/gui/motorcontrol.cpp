@@ -75,7 +75,7 @@ void CMotorControl::Init(void)
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 
 	satfindpid = -1;
-	
+
 	width = w_max(470, 0);
 	mheight = mheight - 2;
 	height = hheight + (20 * mheight) - 5;
@@ -114,10 +114,10 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	int lim_cmd;
 	if (!frameBuffer->getActive())
 		return menu_return::RETURN_EXIT_ALL;
-	
+
 	if (parent)
 		parent->hide();
-		
+
         x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
         y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 
@@ -190,14 +190,14 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						paintMenu();
 						paintStatus();
 						break;
-						
+
 					case CRCInput::RC_1:
 					case CRCInput::RC_right:
 						printf("[motorcontrol] left/1 key received... drive/Step motor west, stepMode: %d\n", stepMode);
 						motorStepWest();
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_red:
 					case CRCInput::RC_2:
 						printf("[motorcontrol] 2 key received... halt motor\n");
@@ -212,50 +212,50 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						motorStepEast();
 						paintStatus();
 						break;
-						
+
 					case CRCInput::RC_4:
 						printf("[motorcontrol] 4 key received... set west (soft) limit\n");
 						if(g_settings.rotor_swap) lim_cmd = 0x66;
 						else lim_cmd = 0x67;
 						g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
 						break;
-						
+
 					case CRCInput::RC_5:
 						printf("[motorcontrol] 5 key received... disable (soft) limits\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x63, 0, 0, 0);
 						break;
-					
+
 					case CRCInput::RC_6:
 						printf("[motorcontrol] 6 key received... set east (soft) limit\n");
 						if(g_settings.rotor_swap) lim_cmd = 0x67;
 						else lim_cmd = 0x66;
 						g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
 						break;
-					
+
 					case CRCInput::RC_7:
 						printf("[motorcontrol] 7 key received... goto reference position\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6B, 1, 0, 0);
 						satellitePosition = 0;
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_8:
 						printf("[motorcontrol] 8 key received... enable (soft) limits\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, 0, 0);
 						break;
-					
+
 					case CRCInput::RC_9:
 						printf("[motorcontrol] 9 key received... (re)-calculate positions\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6F, 1, 0, 0);
 						break;
-					
+
 					case CRCInput::RC_plus:
 					case CRCInput::RC_up:
 						printf("[motorcontrol] up key received... increase satellite position: %d\n", ++motorPosition);
 						satellitePosition = 0;
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_minus:
 					case CRCInput::RC_down:
 						if (motorPosition > 1) motorPosition--;
@@ -263,9 +263,9 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						satellitePosition = 0;
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_blue:
-						if (++stepMode > 3) 
+						if (++stepMode > 3)
 							stepMode = 0;
 						if (stepMode == STEP_MODE_OFF)
 							satellitePosition = 0;
@@ -273,10 +273,10 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						printf("[motorcontrol] red key received... toggle stepmode on/off: %d\n", stepMode);
 						paintStatus();
 						break;
-					
+
 					default:
 						//printf("[motorcontrol] message received...\n");
-						if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000)) 
+						if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 							delete (unsigned char*) data;
 						break;
 				}
@@ -292,14 +292,14 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						paintMenu();
 						paintStatus();
 						break;
-						
+
 					case CRCInput::RC_1:
 					case CRCInput::RC_right:
 						printf("[motorcontrol] left/1 key received... drive/Step motor west, stepMode: %d\n", stepMode);
 						motorStepWest();
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_red:
 					case CRCInput::RC_2:
 						printf("[motorcontrol] 2 key received... halt motor\n");
@@ -312,19 +312,19 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						motorStepEast();
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_green:
 					case CRCInput::RC_5:
 						printf("[motorcontrol] 5 key received... store present satellite number: %d\n", motorPosition);
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, motorPosition, 0);
 						break;
-					
+
 					case CRCInput::RC_6:
 						if (stepSize < 0x7F) stepSize++;
 						printf("[motorcontrol] 6 key received... increase Step size: %d\n", stepSize);
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_yellow:
 					case CRCInput::RC_7:
 						printf("[motorcontrol] 7 key received... goto satellite number: %d\n", motorPosition);
@@ -332,20 +332,20 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						satellitePosition = 0;
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_9:
 						if (stepSize > 1) stepSize--;
 						printf("[motorcontrol] 9 key received... decrease Step size: %d\n", stepSize);
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_plus:
 					case CRCInput::RC_up:
 						printf("[motorcontrol] up key received... increase satellite position: %d\n", ++motorPosition);
 						satellitePosition = 0;
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_minus:
 					case CRCInput::RC_down:
 						if (motorPosition > 1) motorPosition--;
@@ -353,28 +353,28 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						satellitePosition = 0;
 						paintStatus();
 						break;
-					
+
 					case CRCInput::RC_blue:
-						if (++stepMode > 2) 
+						if (++stepMode > 2)
 							stepMode = 0;
 						if (stepMode == STEP_MODE_OFF)
 							satellitePosition = 0;
 						printf("[motorcontrol] red key received... toggle stepmode on/off: %d\n", stepMode);
 						paintStatus();
 						break;
-					
+
 					default:
 						//printf("[motorcontrol] message received...\n");
-						if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000)) 
+						if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 							delete (unsigned char*) data;
 						break;
 				}
 			}
 		}
-		
+
 		istheend = (msg == CRCInput::RC_home);
 	}
-	
+
 	hide();
 
 	return menu_return::RETURN_REPAINT;
@@ -404,7 +404,7 @@ void CMotorControl::motorStepWest(void)
 		default:
 			g_Zapit->sendMotorCommand(0xE0, 0x31, cmd, 1, 40, 0);
 	}
-}	
+}
 
 void CMotorControl::motorStepEast(void)
 {
@@ -450,7 +450,7 @@ void CMotorControl::paintLine(int x, int y, int width, char * txt)
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x, y, width, txt, COL_MENUCONTENT, 0, true);
 }
 
-void CMotorControl::paintSeparator(int xpos, int * ypos, int width, char * txt)
+void CMotorControl::paintSeparator(int xpos, int * ypos, int width, char * /*txt*/)
 {
 	//int stringwidth = 0;
 	//int stringstartposX = 0;
@@ -459,7 +459,7 @@ void CMotorControl::paintSeparator(int xpos, int * ypos, int width, char * txt)
 	*ypos += th;
 	frameBuffer->paintHLineRel(xpos, width - 20, *ypos - (th >> 1), COL_MENUCONTENT_PLUS_3);
 	frameBuffer->paintHLineRel(xpos, width - 20, *ypos - (th >> 1) + 1, COL_MENUCONTENT_PLUS_1);
-	
+
 #if 0
 	stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(txt);
 	stringstartposX = 0;
@@ -473,19 +473,19 @@ void CMotorControl::paintStatus()
 {
 	char buf[256];
 	char buf2[256];
-	
+
 	int xpos1 = x + 10;
 	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth((char *) g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
 	int width2 = width - (xpos2 - xpos1) - 10;
 	int width1 = width - 10;
-	
+
 	ypos = ypos_status;
 	paintSeparator(xpos1, &ypos, width, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_SETTINGS));
-	
+
 	paintLine(xpos1, &ypos, width1, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
 	sprintf(buf, "%d", motorPosition);
 	paintLine(xpos2, ypos, width2 , buf);
-	
+
 	paintLine(xpos1, &ypos, width1, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_MOVEMENT));
 	switch(stepMode)
 	{
@@ -503,7 +503,7 @@ void CMotorControl::paintStatus()
 			break;
 	}
 	paintLine(xpos2, ypos, width2, buf);
-	
+
 	paintLine(xpos1, &ypos, width1, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_SIZE));
 	switch(stepMode)
 	{
@@ -525,7 +525,7 @@ void CMotorControl::paintStatus()
 			break;
 	}
 	paintLine(xpos2, ypos, width2, buf);
-	
+
 	paintSeparator(xpos1, &ypos, width, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STATUS));
 	strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_SAT_POS));
 	sprintf(buf2, "%d", satellitePosition);
@@ -609,7 +609,7 @@ void CMotorControl::paintMenu()
 		paintLine(xpos1, &ypos, width1, (char *) "(blue)");
 		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DRIVE));
 	}
-	
+
 	ypos_status = ypos;
 }
 
@@ -621,7 +621,7 @@ void CMotorControl::startSatFind(void)
 		waitpid(satfindpid, 0, 0);
 		satfindpid = -1;
 	}
-		
+
 	switch ((satfindpid = fork())) {
 		case -1:
 			printf("[motorcontrol] fork");
@@ -634,7 +634,7 @@ void CMotorControl::startSatFind(void)
 			//if (execlp("/bin/satfind", "satfind", "--tune", NULL) < 0)
 			if (execlp("/bin/satfind", "satfind", NULL) < 0)
 #endif
-				printf("[motorcontrol] execlp satfind failed.\n");		
+				printf("[motorcontrol] execlp satfind failed.\n");
 			break;
 	} /* switch */
 #endif
@@ -642,7 +642,7 @@ void CMotorControl::startSatFind(void)
 
 void CMotorControl::stopSatFind(void)
 {
-	
+
 	if (satfindpid != -1) {
 		printf("[motorcontrol] killing satfind...\n");
 		kill(satfindpid, SIGKILL);
@@ -651,7 +651,7 @@ void CMotorControl::stopSatFind(void)
 	}
 }
 
-#define BARWT 10 
+#define BARWT 10
 #define BAR_BL 2
 #define BARW (BARWT - BAR_BL)
 #define BARWW (BARWT - BARW)

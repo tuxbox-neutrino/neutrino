@@ -219,7 +219,7 @@ time_t changeUTCtoCtime(const unsigned char *buffer, int local_time)
 }
 
 // Thanks to tmbinc
-int saveStringToXMLfile(FILE *out, const char *c, int withControlCodes)
+int saveStringToXMLfile(FILE *out, const char *c, int /*withControlCodes*/)
 {
   if(!c)
     return 1;

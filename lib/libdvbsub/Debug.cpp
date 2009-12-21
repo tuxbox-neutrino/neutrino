@@ -6,7 +6,7 @@ Debug::Debug() :
 	file_(const_cast<char *>("")), level_(0),	fp_(stdout)
 {
 }
-	
+
 Debug::~Debug()
 {
 	if (fp_ && fp_ != stdout) {
@@ -29,7 +29,7 @@ FILE* Debug::set_file(char* file)
 	return fp_;
 }
 
-void Debug::print(int level, const char *fmt, ...)
+void Debug::print(int /*level*/, const char *fmt, ...)
 {
 	va_list argp;
 	va_start(argp, fmt);

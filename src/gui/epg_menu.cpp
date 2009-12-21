@@ -48,9 +48,9 @@
 //  -- EPG Menue Handler Class
 //  -- to be used for calls from Menue
 //  -- (2004-03-06 rasc)
-// 
+//
 
-int CEPGMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CEPGMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int           res = menu_return::RETURN_EXIT_ALL;
 

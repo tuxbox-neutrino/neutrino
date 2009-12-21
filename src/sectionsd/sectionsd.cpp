@@ -342,7 +342,7 @@ inline int EITThreadsUnPause(void)
 		dmxFSEIT.unpause() ||
 #endif
 		dmxPPT.unpause());
-} 
+}
 #endif
 
 bool timeset = false;
@@ -858,12 +858,12 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		}
 
 		SIeventPtr e(eptr);
-	
+
 		//Strip ExtendedDescription if too far in the future
 		if ((e->times.begin()->startzeit > zeit + secondsExtendedTextCache) &&
 		   (SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF) && (zeit != 0))
 			e->setExtendedText("OFF","");
-	
+
 		// Damit in den nicht nach Event-ID sortierten Mengen
 		// Mehrere Events mit gleicher ID sind, diese vorher loeschen
 		unlockEvents();
@@ -882,7 +882,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 				lastEvent--;
 			}
 			unlockMessaging();
-			unlockEvents();	
+			unlockEvents();
 			deleteEvent((*lastEvent)->uniqueKey());
 		}
 		else
@@ -907,9 +907,9 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 					// Falls das Event in den beiden Mengen mit Zeiten nicht vorhanden
 					// ist, dieses dort einfuegen
 					MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator i2 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.find(ie->second);
-					unlockEvents();	
+					unlockEvents();
 					writeLockEvents();
-				
+
 					if (i2 == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
 					{
 						// nicht vorhanden -> einfuegen
@@ -924,7 +924,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 			}
 		}
 		unlockEvents();
-		writeLockEvents();	
+		writeLockEvents();
 //		printf("Adding: %04x\n", (int) e->uniqueKey());
 
 		// normales Event
@@ -1140,7 +1140,7 @@ static void removeOldEvents(const long seconds)
 
 	// Alte events loeschen
 	time_t zeit = time(NULL);
-	
+
 	readLockEvents();
 
 	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
@@ -1161,9 +1161,9 @@ static void removeOldEvents(const long seconds)
 		else
 			++e;
 		readLockEvents();
-	}	
+	}
 	unlockEvents();
-	
+
 	return;
 }
 #ifdef UPDATE_NETWORKS
@@ -1189,7 +1189,7 @@ static void removeWasteEvents()
 		unlockEvents();
 		validevent = true;
 		haslinkage = false;
-		if ((last_original_network_id == e->second->original_network_id) && 
+		if ((last_original_network_id == e->second->original_network_id) &&
 			(last_transport_stream_id == e->second->transport_stream_id) &&
 			(last_service_id == e->second->service_id)) {
 			if (!lastidfound) {
@@ -1201,7 +1201,7 @@ static void removeWasteEvents()
 		}
 		else {
 			for (unsigned int i = 0; i < e->second->linkage_descs.size(); i++)
-				if ((e->second->linkage_descs[i].linkageType == 0xB0) || 
+				if ((e->second->linkage_descs[i].linkageType == 0xB0) ||
 					(e->second->linkage_descs[i].linkageType == 0x00))
 				{
 					haslinkage = true;
@@ -1220,7 +1220,7 @@ static void removeWasteEvents()
 						node = services_tp->xmlChildrenNode;
 						while (xmlGetNextOccurence(node, "channel") != NULL) {
 //						printf("here5\n");
-						if (e->second->service_id != xmlGetNumericAttribute(node, 
+						if (e->second->service_id != xmlGetNumericAttribute(node,
 											(char*)"service_id", 16))
 								node = node->xmlNextNode;
 							else break;
@@ -1289,7 +1289,7 @@ xmlNodePtr findBouquetByName(xmlDocPtr parser,char *name)
 		return NULL;
 	}
 	while (xmlGetNextOccurence(bouquet, "Bouquet") != NULL) {
-		if ((xmlGetNumericAttribute(bouquet, "type", 8) == 2) && 
+		if ((xmlGetNumericAttribute(bouquet, "type", 8) == 2) &&
 			(strcmp(xmlGetAttribute(bouquet, "name"), name) == 0))
 			return bouquet;
 		bouquet = bouquet->xmlNextNode;
@@ -1308,9 +1308,9 @@ static BouquetAdder* getNextAutoBouquet(BouquetAdder *currentAdder, const char *
 	while ((currentAdder) && (!found)) {
 		currentEntry = currentAdder->bae;
 		while ((currentEntry) && (!found)) {
-			if (	((strcmp(currentEntry->ProviderName, provname) == 0) || 
-					((strcmp(currentEntry->ProviderName, "") == 0))) && 
-				((currentEntry->onid == onid) || (currentEntry->onid == 0)) && 
+			if (	((strcmp(currentEntry->ProviderName, provname) == 0) ||
+					((strcmp(currentEntry->ProviderName, "") == 0))) &&
+				((currentEntry->onid == onid) || (currentEntry->onid == 0)) &&
 				((currentEntry->tsid == tsid) || (currentEntry->tsid == 0))	)
 				found = true;
 			excepts = currentEntry->es;
@@ -1327,7 +1327,7 @@ static BouquetAdder* getNextAutoBouquet(BouquetAdder *currentAdder, const char *
 	return currentAdder;
 }
 
-static bool bouquetContainsService(const xmlNodePtr bouquet, const t_original_network_id onid, 
+static bool bouquetContainsService(const xmlNodePtr bouquet, const t_original_network_id onid,
 				const t_transport_stream_id tsid, const t_service_id sid)
 {
 	if (!bouquet)
@@ -1406,14 +1406,14 @@ static void writebouquetwithoutend(FILE *fd, xmlNodePtr bouquet)
 	std::string name;
 
 	name = xmlGetAttribute(bouquet, "name");
-	
+
 	fprintf(fd, "\t<Bouquet type=\"%01x\" bouquet_id=\"%04x\" name=\"%s\" hidden=\"%01x\" locked=\"%01x\">\n",
 		xmlGetNumericAttribute(bouquet, "type", 16),
 		xmlGetNumericAttribute(bouquet, "bouquet_id", 16),
 		UTF8_to_UTF8XML(name.c_str()).c_str(),
 		xmlGetNumericAttribute(bouquet, "hidden", 16),
 		xmlGetNumericAttribute(bouquet, "locked", 16));
-	
+
 	xmlNodePtr channel = bouquet->xmlChildrenNode;
 	while (xmlGetNextOccurence(channel, "channel") != NULL) {
 		if (xmlGetAttribute(channel, "name") != NULL)
@@ -1426,7 +1426,7 @@ static void writebouquetwithoutend(FILE *fd, xmlNodePtr bouquet)
 				UTF8_to_UTF8XML(name.c_str()).c_str(),
 				xmlGetNumericAttribute(channel, "tsid", 16),
 				xmlGetNumericAttribute(channel, "onid", 16),
-				xmlGetSignedNumericAttribute(channel, "sat", 16));	
+				xmlGetSignedNumericAttribute(channel, "sat", 16));
 		}
 		else
 			fprintf(fd, "\t\t<channel serviceID=\"%04x\" name=\"%s\" tsid=\"%04x\" onid=\"%04x\"/>\n",
@@ -1434,14 +1434,14 @@ static void writebouquetwithoutend(FILE *fd, xmlNodePtr bouquet)
 				UTF8_to_UTF8XML(name.c_str()).c_str(),
 				xmlGetNumericAttribute(channel, "tsid", 16),
 				xmlGetNumericAttribute(channel, "onid", 16));
-				
+
 		channel = channel->xmlNextNode;
 	}
 }
 
 static bool AddServiceToAutoBouquets(const char *provname, const t_original_network_id onid,
 							const t_transport_stream_id tsid, const t_service_id sid,
-							const xmlDocPtr bouquet_parser, 
+							const xmlDocPtr bouquet_parser,
 							const xmlDocPtr current_parser)
 {
 	BouquetAdder *currentBouquet = CurrentBouquetAdder;
@@ -1546,10 +1546,10 @@ static bool addService(const SIservice &s, const int is_actual)
 	MySIservicesOrderUniqueKey::iterator si = mySIservicesOrderUniqueKey.find(s.uniqueKey());
 	already_exists = (si != mySIservicesOrderUniqueKey.end());
 	unlockServices();
-	
+
 	if ( (!already_exists) || ((is_actual & 7) && (!si->second->is_actual)) ) {
 
-		if (already_exists) 
+		if (already_exists)
 		{
 			writeLockServices();
 			mySIservicesOrderUniqueKey.erase(s.uniqueKey());
@@ -1634,7 +1634,7 @@ static int addBouquetEntry(const SIbouquet &s/*, int section_nr, int count*/)
 		printf("Section Number: %d Count: %d position: %04x\n", section_nr, number, bpptr->position);
 		*/
 		unlockBouquets();
-		writeLockBouquets();		
+		writeLockBouquets();
 		mySIbouquetsOrderUniqueKey.insert(std::make_pair(bpptr->uniqueKey(), bpptr));
 
 		//Because of Bouquet_Id misuse. see SIsections.cpp. IDs are introduced there
@@ -1664,7 +1664,7 @@ static MySItranspondersOrderUniqueKey mySItranspondersOrderUniqueKey;
 // Fuegt einen Tranponder in alle Mengen ein
 static bool addTransponder(const SInetwork &s, const bool is_actual)
 {
-	readLockTransponders();	
+	readLockTransponders();
 	MySItranspondersOrderUniqueKey::iterator si = mySItranspondersOrderUniqueKey.find(s.uniqueKey());
 	bool already_exists = (si != mySItranspondersOrderUniqueKey.end());
 
@@ -2353,7 +2353,7 @@ static void sendAllEvents(int connfd, t_channel_id serviceUniqueKey, bool oldFor
 			if ((*e)->get_channel_id() == serviceUniqueKey)
 			{
 				serviceIDfound = 1;
-				
+
 				bool copy = true;
 				if(search == 0); // nothing to do here
 				else if(search == 1)
@@ -2377,7 +2377,7 @@ static void sendAllEvents(int connfd, t_channel_id serviceUniqueKey, bool oldFor
 					if(eExtendedText.find(search_text) == std::string::npos)
 						copy = false;
 				}
-				
+
 				if(copy)
 				{
 					for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
@@ -2390,13 +2390,13 @@ static void sendAllEvents(int connfd, t_channel_id serviceUniqueKey, bool oldFor
 							char strZeit[MAX_SIZE_STRTIME];
 							char strZeit2[MAX_SIZE_STRTIME];
 							struct tm *tmZeit;
-	
+
 							tmZeit = localtime(&(t->startzeit));
 							count += snprintf(strZeit, MAX_SIZE_STRTIME, "%012llx ", (*e)->uniqueKey());
 							count += snprintf(strZeit2, MAX_SIZE_STRTIME, "%02d.%02d %02d:%02d %u ",
 									tmZeit->tm_mday, tmZeit->tm_mon + 1, tmZeit->tm_hour, tmZeit->tm_min, (*e)->times.begin()->dauer / 60);
 							count += (*e)->getName().length() + 1;
-	
+
 							if (count < MAX_SIZE_EVENTLIST) {
 								strcat(liste, strZeit);
 								strcat(liste, strZeit2);
@@ -2419,7 +2419,7 @@ static void sendAllEvents(int connfd, t_channel_id serviceUniqueKey, bool oldFor
 								count += (*e)->getText().length();
 							}
 							count++;
-	
+
 							if (count < MAX_SIZE_EVENTLIST) {
 								*((event_id_t *)liste) = (*e)->uniqueKey();
 								liste += sizeof(event_id_t);
@@ -2430,7 +2430,7 @@ static void sendAllEvents(int connfd, t_channel_id serviceUniqueKey, bool oldFor
 								strcpy(liste, (*e)->getName().c_str());
 								liste += (*e)->getName().length();
 								liste++;
-	
+
 								if (((*e)->getText()).empty())
 								{
 									strcpy(liste, (*e)->getExtendedText().substr(0, 50).c_str());
@@ -2508,7 +2508,7 @@ static void commandAllEventsChannelID(int connfd, char *data, const unsigned dat
 	return ;
 }
 
-static void commandDumpStatusInformation(int connfd, char* /*data*/, const unsigned /*dataLength*/)
+static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const unsigned /*dataLength*/)
 {
 	dputs("Request of status information");
 
@@ -3077,7 +3077,7 @@ static void commandCurrentNextInfoChannelID(int connfd, char *data, const unsign
 		}
 	}
 
-	//dprintf("flag: 0x%x, has_current: 0x%x has_next: 0x%x\n", flag, CSectionsdClient::epgflags::has_current, CSectionsdClient::epgflags::has_next); 
+	//dprintf("flag: 0x%x, has_current: 0x%x has_next: 0x%x\n", flag, CSectionsdClient::epgflags::has_current, CSectionsdClient::epgflags::has_next);
 	/* if another than the currently running program is requested, then flag will still be 0
 	   if either the current or the next event is not found, this condition will be true, too.
 	 */
@@ -3350,7 +3350,7 @@ static void sendEPG(int connfd, const SIevent& e, const SItime& t, int shortepg 
 		strcpy(p, e.item.c_str());
 		p += e.item.length() + 1;
 
-//		strlen(userClassification.c_str()) is not equal to e.userClassification.length() 
+//		strlen(userClassification.c_str()) is not equal to e.userClassification.length()
 //		because of binary data same is with contentClassification
 		// add length
 		*p = (unsigned char)e.contentClassification.length();
@@ -3475,7 +3475,7 @@ static void commandActualEPGchannelID(int connfd, char *data, const unsigned dat
 		sendEPG(connfd, evt, zeit);
 		return;
 	}
-	
+
 	unlockEvents();
 	dprintf("EPG not found!\n");
 
@@ -3716,7 +3716,7 @@ static void sendEventList(int connfd, const unsigned char serviceTyp1, const uns
 
 			uniqueOld = uniqueNow;
 		}
-		
+
 		if ( !found_already )
 		{
 			std::string eName = (*e)->getName();
@@ -4106,7 +4106,7 @@ static void commandTimesNVODservice(int connfd, char *data, const unsigned dataL
 
 	dprintf("data bytes: %u\n", responseHeader.dataLength);
 
- out:	
+ out:
 	if (writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS))
 	{
 		if (responseHeader.dataLength)
@@ -4272,7 +4272,7 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 		dprintf("new network_ntpserver = %s\n", ntpserver.c_str());
 		ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
 	}
-	
+
 	if (epg_dir.compare((std::string)&data[sizeof(struct sectionsd::commandSetConfig) + strlen(&data[sizeof(struct sectionsd::commandSetConfig)]) + 1])) {
 		epg_dir= (std::string)&data[sizeof(struct sectionsd::commandSetConfig) + strlen(&data[sizeof(struct sectionsd::commandSetConfig)]) + 1];
 		dprintf("new epg_dir = %s\n", epg_dir.c_str());
@@ -4700,7 +4700,7 @@ static void commandAllEventsChannelIDSearch(int connfd, char *data, const unsign
 		char *data_ptr = data;
 		char search = 0;
 		std::string search_text;
-		
+
 		t_channel_id channel_id = *(t_channel_id*)data_ptr;
 		data_ptr += sizeof(t_channel_id);
 		search = *data_ptr;
@@ -5908,7 +5908,7 @@ static bool updateNetwork()
 					} else {
 						dprintf("[sectionsd::updateNetwork] Transponder ONID: %04x TSID: %04x found.\n", onid, tsid);
 						if ( (s->second->is_actual & 7) && (needs_fix) ) {
-							//if(!(tmp = fopen(CURRENTSERVICES_XML, "r"))) 
+							//if(!(tmp = fopen(CURRENTSERVICES_XML, "r")))
 							if (current_parser == NULL) {
 								dprintf("[sectionsd::updateNetwork] services.xml provider needs update\n");
 								updateXMLnet(provider, onid, tsid, NULL, position);
@@ -6554,7 +6554,7 @@ static void *sdtThread(void *)
 
 				bouquet_filtered = checkBouquetFilter(bid);
 
-				if (((!bouquet_filtered) && (!bouquet_filter_is_whitelist)) || 
+				if (((!bouquet_filtered) && (!bouquet_filter_is_whitelist)) ||
 						((bouquet_filtered) && (bouquet_filter_is_whitelist))) {
 
 					// This is 0 .. MAX_BAT - 1 if already started or new and free or -1 if no free slot available.
@@ -7249,7 +7249,7 @@ static void *eitThread(void *)
 #if 0
 			writeLockMessaging();
 			if (update_eit){
-				if (dmxEIT.filters[dmxEIT.filter_index].filter == 0x4e) { 
+				if (dmxEIT.filters[dmxEIT.filter_index].filter == 0x4e) {
 					dprintf("[eitThread] got all current_next - sending event!\n");
 					messaging_wants_current_next_Event = false;
 					eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG, CEventServer::INITID_SECTIONSD, &messaging_current_servicekey, sizeof(messaging_current_servicekey) );
@@ -7554,7 +7554,7 @@ static void *cnThread(void *)
 					messaging_need_eit_version = false;
 					unlockMessaging();
 					sendToSleepNow = true;
-				} 
+				}
 #if 0 // 2009-09-14
 				else if (timeoutsDMX >= TIMEOUTS_EIT_VERSION_WAIT) {
 					dprintf("more than %d EIT DMX timeouts - bail out...\n", TIMEOUTS_EIT_VERSION_WAIT);
@@ -8062,7 +8062,7 @@ static void print_meminfo(void)
 		"total bytes memory allocated with `sbrk' by malloc, in bytes: %d (%dkB)\n",
 		meminfo.uordblks, meminfo.arena, meminfo.arena / 1024);
 }
-	
+
 //---------------------------------------------------------------------
 // housekeeping-thread
 // does cleaning on fetched datas
@@ -8166,7 +8166,7 @@ printf("[sectionsd] Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUni
 					}
 					bouquet_parser = parseXmlFile(BOUQUETS_XML);
 				}
-				snprintf(servicename, MAX_SIZE_SERVICENAME, 
+				snprintf(servicename, MAX_SIZE_SERVICENAME,
 						s->second->providerName.c_str());
 				if (AddServiceToAutoBouquets(&servicename[0],
 							s->second->original_network_id,
@@ -8254,7 +8254,7 @@ static void readEPGFilter(void)
 	if (filter_parser != NULL)
 	{
 		dprintf("Reading EPGFilters\n");
-		
+
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
 		if (xmlGetNumericAttribute(filter, (char *) "is_whitelist", 10) == 1)
 			epg_filter_is_whitelist = true;
@@ -8289,7 +8289,7 @@ static void readDVBTimeFilter(void)
 	if (filter_parser != NULL)
 	{
 		dprintf("Reading DVBTimeFilters\n");
-		
+
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
 		filter = filter->xmlChildrenNode;
 
@@ -8319,7 +8319,7 @@ static void readBouquetFilter(void)
 	if (filter_parser != NULL)
 	{
 		dprintf("Reading Bouquet Filters\n");
-		
+
 		xmlNodePtr mybouquets = xmlDocGetRootElement(filter_parser);
 		mybouquets = mybouquets->xmlChildrenNode;
 
@@ -8354,7 +8354,7 @@ static void readBouquetFilter(void)
 						BouquetAdderEntry *adderentry = new BouquetAdderEntry;
 						snprintf(adderentry->ProviderName, MAX_SIZE_MYBOUQUETS_STR,
 							xmlGetAttribute(entry,(char *) "provider"));
-						adderentry->onid = 
+						adderentry->onid =
 							xmlGetNumericAttribute(entry, (char *) "onid", 16);
 						adderentry->tsid =
 							xmlGetNumericAttribute(entry, (char *) "tsid", 16);
@@ -8365,9 +8365,9 @@ static void readBouquetFilter(void)
 						{
 							xmlNodePtr excepts = entry->xmlChildrenNode;
 							while (excepts) {
-								ExceptService *eservice = new 	
+								ExceptService *eservice = new
 											ExceptService;
-								eservice->sid = 
+								eservice->sid =
 									xmlGetNumericAttribute(entry,
 									(char *) "service_id", 16);
 								eservice->next = adderentry->es;
@@ -8451,7 +8451,7 @@ static void signalHandler(int signum)
 //int main(int argc, char **argv)
 extern cDemux * dmxUTC;
 
-void sectionsd_main_thread(void *data)
+void sectionsd_main_thread(void */*data*/)
 {
 	pthread_t threadTOT, threadEIT, threadCN, threadSDT, threadHouseKeeping;
 #ifdef UPDATE_NETWORKS
@@ -8786,7 +8786,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 		}
 	}
 
-	//dprintf("flag: 0x%x, has_current: 0x%x has_next: 0x%x\n", flag, CSectionsdClient::epgflags::has_current, CSectionsdClient::epgflags::has_next); 
+	//dprintf("flag: 0x%x, has_current: 0x%x has_next: 0x%x\n", flag, CSectionsdClient::epgflags::has_current, CSectionsdClient::epgflags::has_next);
 	/* if another than the currently running program is requested, then flag will still be 0
 	   if either the current or the next event is not found, this condition will be true, too.
 	 */
@@ -9109,7 +9109,7 @@ bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGD
                 ret = true;
 	} else
 		dprintf("EPG not found!\n");
-	
+
 	unlockEvents();
 	return ret;
 }
@@ -9165,7 +9165,7 @@ void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = t
 
 			uniqueOld = uniqueNow;
 		}
-		
+
 		if ( !found_already )
 		{
 			std::string eName = (*e)->getName();
@@ -9297,7 +9297,7 @@ bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSect
         return ret;
 }
 
-void sectionsd_setPrivatePid(unsigned short pid)
+void sectionsd_setPrivatePid(unsigned short /*pid*/)
 {
 #ifdef ENABLE_PPT
                 privatePid = pid;

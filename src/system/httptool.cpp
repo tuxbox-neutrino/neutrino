@@ -40,7 +40,7 @@ void CHTTPTool::setStatusViewer( CProgress_StatusViewer* statusview )
 }
 
 
-int CHTTPTool::show_progress( void *clientp, double dltotal, double dlnow, double ultotal, double ulnow )
+int CHTTPTool::show_progress( void *clientp, double dltotal, double dlnow, double /*ultotal*/, double /*ulnow*/ )
 {
 	CHTTPTool* hTool = ((CHTTPTool*)clientp);
 	if(hTool->statusViewer)

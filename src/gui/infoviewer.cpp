@@ -961,10 +961,10 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 void CInfoViewer::showButton_SubServices ()
 {
   if (!(g_RemoteControl->subChannels.empty ())) {
-        frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, 
+        frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW,
 		ChanInfoX + 2 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 2 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 2 + asize + 2, BBarY, InfoHeightY_Info);
         g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(
-		ChanInfoX + 2 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 2 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 2 + asize + 2 + NEUTRINO_ICON_BUTTON_YELLOW_WIDTH + 2, 
+		ChanInfoX + 2 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 2 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 2 + asize + 2 + NEUTRINO_ICON_BUTTON_YELLOW_WIDTH + 2,
 		BBarFontY, asize, g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME), COL_INFOBAR_BUTTONS, 0, true); // UTF-8
   }
 }
@@ -1502,7 +1502,7 @@ void CInfoViewer::showLcdPercentOver ()
   }
 }
 
-int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & actionkey)
+int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*actionkey*/)
 {
   int res = menu_return::RETURN_EXIT_ALL;
   CChannelList *channelList;
@@ -1540,44 +1540,44 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon)
 	int px = 0;
 
 	switch ( caid & 0xFF00 ) {
-		case 0x0E00: 
+		case 0x0E00:
 			px = endx - 48 - 38 - 9*10 - 7*14 - 10; sprintf(buf, "%s_%s.raw", "powervu", icon);
 			break;
-		case 0x4A00: 
+		case 0x4A00:
 			px = endx - 48 - 38 - 8*10 - 6*14 - 10; sprintf(buf, "%s_%s.raw", "d", icon);
 			break;
-		case 0x2600: 
+		case 0x2600:
 			px = endx - 48 - 38 - 7*10 - 5*14 - 10; sprintf(buf, "%s_%s.raw", "biss", icon);
 			break;
-		case 0x600: 
-		case 0x602: 
-		case 0x1700: 
+		case 0x600:
+		case 0x602:
+		case 0x1700:
 			px = endx - 48 - 38 - 6*10 - 4*14 - 10; sprintf(buf, "%s_%s.raw", "ird", icon);
 			break;
-		case 0x100: 
+		case 0x100:
 			px = endx - 48 - 38 - 5*10 - 4*14; sprintf(buf, "%s_%s.raw", "seca", icon);
 			break;
-		case 0x500: 
+		case 0x500:
 			px = endx - 48 - 38 - 4*10 - 3*14; sprintf(buf, "%s_%s.raw", "via", icon);
 			break;
-		case 0x1800: 
-		case 0x1801: 
+		case 0x1800:
+		case 0x1801:
 			px = endx - 48 - 38 - 3*10 - 2*14; sprintf(buf, "%s_%s.raw", "nagra", icon);
 			break;
-		case 0xB00: 
+		case 0xB00:
 			px = endx - 48 - 38 - 2*10 - 1*14; sprintf(buf, "%s_%s.raw", "conax", icon);
 			break;
-		case 0xD00: 
+		case 0xD00:
 			px = endx - 48 - 38 - 1*10; sprintf(buf, "%s_%s.raw", "cw", icon);
 			break;
-		case 0x900: 
+		case 0x900:
 			px = endx - 48; sprintf(buf, "%s_%s.raw", "nds", icon);
 			break;
-		default: 
+		default:
 			break;
          }/*case*/
 	 if(px) {
-		frameBuffer->paintIcon(buf, px, py ); 
+		frameBuffer->paintIcon(buf, px, py );
 	}
 }
 

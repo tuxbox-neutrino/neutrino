@@ -112,7 +112,7 @@ bool CBasicClient::send_string(const char* data)
 	}
 	else
 	{
-		send_length = length;
+		send_length = static_cast<uint8_t>(length);
 	}
 	return (send_data((char *)&send_length, sizeof(send_length)) &&
 		send_data(data, send_length));

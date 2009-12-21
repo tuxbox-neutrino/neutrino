@@ -391,7 +391,7 @@ const neutrino_locale_t * genre_sub_classes_list[10] =
 	genre_travel_hobbies
 };
 
-bool CEpgData::hasFollowScreenings(const t_channel_id channel_id, const std::string & title) {
+bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std::string & title) {
 	time_t curtime = time(NULL);
 
 	for (CChannelEventList::iterator e = evtlist.begin(); e != evtlist.end(); ++e )
@@ -968,7 +968,7 @@ void CEpgData::GetPrevNextEPGData( unsigned long long id, time_t* startzeit )
 // -- 2002-05-03 rasc
 //
 
-int CEpgData::FollowScreenings (const t_channel_id channel_id, const std::string & title)
+int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::string & title)
 
 {
 	CChannelEventList::iterator e;
@@ -1059,7 +1059,7 @@ void CEpgData::showTimerEventBar (bool show)
 //  -- to be used for calls from Menue
 //  -- (2004-03-06 rasc)
 
-int CEPGDataHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CEPGDataHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int           res = menu_return::RETURN_EXIT_ALL;
 	CChannelList  *channelList;

@@ -103,7 +103,7 @@ public:
 		iType=Type;
 		stopTime=time;
 	}
-	bool changeNotify(const neutrino_locale_t OptionName, void *)
+	bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
 	{
 		CTimerd::CTimerEventTypes type = (CTimerd::CTimerEventTypes) *iType;
 		if (type == CTimerd::TIMER_RECORD)
@@ -164,7 +164,7 @@ public:
 		iRepeat=repeat;
 	}
 
-	bool changeNotify(const neutrino_locale_t OptionName, void *)
+	bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
 	{
 		if (*iRepeat >= (int)CTimerd::TIMERREPEAT_WEEKDAYS)
 			m1->setActive (true);

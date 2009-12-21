@@ -48,7 +48,7 @@ class CListBox : public CMenuWidget
 		unsigned int	selected;
 		unsigned int	liststart;
 		unsigned int	listmaxshow;
-	
+
 		int 		ButtonHeight;
 
 		//----------------------------
@@ -59,7 +59,7 @@ class CListBox : public CMenuWidget
 		virtual void paintFoot();
 		virtual void hide();
 
-		
+
 		//------hier Methoden überschreiben-------
 
 		//------Fernbedienungsevents--------------
@@ -68,7 +68,7 @@ class CListBox : public CMenuWidget
 		virtual void onYellowKeyPressed(){};
 		virtual void onBlueKeyPressed(){};
 		virtual void onOkKeyPressed(){};
-		virtual void onOtherKeyPressed( int key ){};
+		virtual void onOtherKeyPressed( int /*key*/ ){};
 
 		//------gibt die Anzahl der Listenitems---
 		virtual unsigned int getItemCount();
@@ -81,7 +81,7 @@ class CListBox : public CMenuWidget
 		void setModified(void);
 
 	public:
-		CListBox(const char * const Caption); 
+		CListBox(const char * const Caption);
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 

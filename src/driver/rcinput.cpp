@@ -227,7 +227,7 @@ void CRCInput::calculateMaxFd()
 	for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++)
 		if (fd_rc[i] > fd_max)
 			fd_max = fd_rc[i];
-	
+
 	if(fd_pipe_high_priority[0] > fd_max)
 		fd_max = fd_pipe_high_priority[0];
 	if(fd_pipe_low_priority[0] > fd_max)
@@ -1120,12 +1120,12 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 				int ret;
 				ret = read(fd_rc[i], &ev, sizeof(t_input_event));
 
-				if(ret != sizeof(t_input_event)) 
+				if(ret != sizeof(t_input_event))
 					continue;
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, translate(ev.code, i), getKeyName(translate(ev.code, i)).c_str());
 				uint32_t trkey = translate(ev.code, i);
 
-				if (trkey == RC_nokey) 
+				if (trkey == RC_nokey)
 					continue;
 				if (ev.value) {
 #ifdef RCDEBUG
@@ -1151,7 +1151,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 							if (rc_last_repeat_key != ev.code) {
 								if ((now_pressed > last_keypress + repeat_block) ||
 										/* accept all keys after time discontinuity: */
-										(now_pressed < last_keypress)) 
+										(now_pressed < last_keypress))
 									rc_last_repeat_key = ev.code;
 								else
 									keyok = false;
@@ -1170,7 +1170,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 #ifdef ENABLE_REPEAT_CHECK
 						if ((now_pressed > last_keypress + repeat_block_generic) ||
 								/* accept all keys after time discontinuity: */
-								(now_pressed < last_keypress)) 
+								(now_pressed < last_keypress))
 #endif
 						{
 							last_keypress = now_pressed;
@@ -1456,7 +1456,7 @@ std::string CRCInput::getKeyName(const unsigned int key)
 *	transforms the rc-key to generic - internal use only!
 *
 **************************************************************************/
-int CRCInput::translate(int code, int num)
+int CRCInput::translate(int code, int /*num*/)
 {
 	if(code == 0x100) code = RC_up;
 	else if(code == 0x101) code = RC_down;
@@ -1474,7 +1474,7 @@ void CRCInput::open_click()
 {
 }
 
-void CRCInput::reset_dsp(int rate)
+void CRCInput::reset_dsp(int /*rate*/)
 {
 }
 

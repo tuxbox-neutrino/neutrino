@@ -303,11 +303,11 @@ bool CFlashTool::erase(int globalProgressEnd)
 	return true;
 }
 
-bool CFlashTool::check_cramfs( const std::string & filename )
+bool CFlashTool::check_cramfs( const std::string & /*filename*/ )
 {
 	int retVal =  0; //cramfs_crc( (char*) filename.c_str() );
 	printf("flashcheck returned: %d\n", retVal);
-	return retVal==1; 
+	return retVal==1;
 }
 #define FROMHEX(c) ((c)>='a' ? (c)-'a'+10 : ((c)>='A' ? (c)-'A'+10 : (c)-'0'))
 bool CFlashTool::check_md5( const std::string & filename, const std::string & smd5)
@@ -354,7 +354,7 @@ CFlashVersionInfo::CFlashVersionInfo(const std::string & versionString)
 		releaseCycle[2] = versionString[3];
 		releaseCycle[3] = 0;
 	}
-	else 
+	else
 */
 	{
 		releaseCycle[2] = versionString[2];

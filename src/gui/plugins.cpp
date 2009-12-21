@@ -324,7 +324,7 @@ void CPlugins::startScriptPlugin(int number)
 }
 
 int mysystem(char * cmd, char * arg1, char * arg2);
-void CPlugins::startPlugin(int number,int param)
+void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
 	delScriptOutput();

@@ -271,7 +271,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					}
 					else if(msg==CRCInput::RC_page_down) {
 						pos = (int) page_start[current_page + 1];// - 1;
-						if(pos >= (int) items.size()) 
+						if(pos >= (int) items.size())
 							pos = items.size()-1;
 						for (unsigned int count=pos ; count < items.size(); count++) {
 							CMenuItem* item = items[pos];
@@ -405,7 +405,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	while ( msg!=CRCInput::RC_timeout );
 	hide();
 
-	if ( fadeIn || fadeOut ) {       
+	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
 		frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
 	}
@@ -1077,7 +1077,7 @@ int CMenuForwarder::getWidth(void) const
 		option_text = option;
 	else if (option_string)
 		option_text = option_string->c_str();
-	
+
 
         if (option_text != NULL)
                 tw += 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
@@ -1222,7 +1222,7 @@ const char * CMenuSeparator::getString(void)
 	return g_Locale->getText(text);
 }
 
-int CMenuSeparator::paint(bool selected, bool last)
+int CMenuSeparator::paint(bool selected, bool /*last*/)
 {
 	int height;
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
@@ -1320,7 +1320,7 @@ int CLockedMenuForwarder::exec(CMenuTarget* parent)
 	return CMenuForwarder::exec(parent);
 }
 
-int CMenuSelectorTarget::exec(CMenuTarget* parent, const std::string & actionKey)
+int CMenuSelectorTarget::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
         if (actionKey != "")
                 *m_select = atoi(actionKey.c_str());

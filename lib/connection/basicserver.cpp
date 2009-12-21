@@ -156,7 +156,8 @@ bool CBasicServer::run(bool (parse_command)(CBasicMessage::Header &rmsg, int con
 			return true;
 	}
 	else {
-		while(parse(parse_command, version));
+		while(parse(parse_command, version))
+		{};
 
 		stop();
 

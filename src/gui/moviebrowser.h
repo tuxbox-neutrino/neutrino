@@ -1,6 +1,6 @@
 /***************************************************************************
 	Neutrino-GUI  -   DBoxII-Project
- 
+
  	Homepage: http://dbox.cyberphoria.org/
 
 	$Id: moviebrowser.h,v 1.5 2006/09/11 21:11:35 guenther Exp $
@@ -50,16 +50,16 @@
 	Update movie info on delete movie
 	Delete Background when menu is entered
 	Timeout updated (MB does not exit after options menu is left)
-	
+
 	Revision 1.4  2006/02/20 01:10:34  guenther
 	- temporary parental lock updated - remove 1s debug prints in movieplayer- Delete file without rescan of movies- Crash if try to scroll in list with 2 movies only- UTF8XML to UTF8 conversion in preview- Last file selection recovered- use of standard folders adjustable in config- reload and remount option in config
-	
+
 	Revision 1.3  2005/12/18 09:23:53  metallica
 	fix compil warnings
-	
+
 	Revision 1.2  2005/12/12 07:58:02  guenther
 	- fix bug on deleting CMovieBrowser - speed up parse time (20 ms per .ts file now)- update stale function- refresh directories on reload- print scan time in debug console
-	
+
 
 ****************************************************************************/
 #ifndef MOVIEBROWSER_H_
@@ -108,14 +108,14 @@ typedef enum
 	MB_INFO_GEOMETRIE 		= 16,
 	MB_INFO_AUDIO 			= 17,
 	MB_INFO_LENGTH 			= 18,
-	MB_INFO_SIZE 			= 19, 
+	MB_INFO_SIZE 			= 19,
 	MB_INFO_MAX_NUMBER		= 20 	// MUST be allways the last item in the list
 }MB_INFO_ITEM;
 
 
 
 typedef enum
-{	
+{
 	MB_DIRECTION_AUTO = 0,
 	MB_DIRECTION_UP = 1,
 	MB_DIRECTION_DOWN = 2,
@@ -125,7 +125,7 @@ typedef enum
 typedef struct
 {
 	MB_INFO_ITEM item;
-	MB_DIRECTION direction;	
+	MB_DIRECTION direction;
 }MB_SORTING;
 
 typedef enum
@@ -189,7 +189,7 @@ typedef struct
 	MB_FILTER filter;//MB_FILTER
 	MI_PARENTAL_LOCKAGE parentalLockAge ;//MI_PARENTAL_LOCKAGE
 	MB_PARENTAL_LOCK parentalLock;//MB_PARENTAL_LOCK
-	
+
 	std::string storageDir[MB_MAX_DIRS];
     int storageDirUsed[MB_MAX_DIRS];
     int storageDirRecUsed;
@@ -200,13 +200,13 @@ typedef struct
 
     int browser_serie_mode;
     int serie_auto_create;
-	/* these variables are used for the listframes */	
+	/* these variables are used for the listframes */
 	int browserFrameHeight;
 	int browserRowNr;
 	MB_INFO_ITEM browserRowItem[MB_MAX_ROWS];//MB_INFO_ITEM
 	int browserRowWidth[MB_MAX_ROWS];
 
-	// to be added to config later 
+	// to be added to config later
     int lastPlayMaxItems;
 	int lastPlayRowNr;
 	MB_INFO_ITEM lastPlayRow[MB_MAX_ROWS];
@@ -224,7 +224,7 @@ class CMovieBrowser : public CMenuTarget
 	public: // Variables /////////////////////////////////////////////////
 		int Multi_Select;    // for FileBrowser compatibility, not used in MovieBrowser
 		int Dirs_Selectable; // for FileBrowser compatibility, not used in MovieBrowser
-		
+
 	private: // Variables
 		//CFBWindow* m_pcWindow;
 		CFrameBuffer * m_pcWindow;
@@ -233,8 +233,8 @@ class CMovieBrowser : public CMenuTarget
 		CListFrame* m_pcLastPlay;
 		CListFrame* m_pcLastRecord;
 		CTextBox* m_pcInfo;
-		CListFrame* m_pcFilter;  
-	
+		CListFrame* m_pcFilter;
+
 		CBox m_cBoxFrame;
 		CBox m_cBoxFrameLastPlayList;
 		CBox m_cBoxFrameLastRecordList;
@@ -244,7 +244,7 @@ class CMovieBrowser : public CMenuTarget
 		CBox m_cBoxFrameFilter;
 		CBox m_cBoxFrameFootRel;
 		CBox m_cBoxFrameTitleRel;
-		
+
 		LF_LINES m_browserListLines;
 		LF_LINES m_recordListLines;
 		LF_LINES m_playListLines;
@@ -283,25 +283,25 @@ class CMovieBrowser : public CMenuTarget
 		Font* m_pcFontFoot;
 		Font* m_pcFontTitle;
 		std::string m_textTitle;
-		
+
 		MB_PARENTAL_LOCK m_parentalLock;
 		MB_STORAGE_TYPE m_storageType;
-	
+
 		CConfigFile	configfile;
 		CMovieInfo m_movieInfo;
 		MB_SETTINGS m_settings;
         std::vector<MB_DIR> m_dir;
-		
+
         int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
         int movieInfoUpdateAllIfDestEmptyOnly;
 
         //bool restart_mb_timeout;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
-		CMovieBrowser(const char* path); //P1 
-		CMovieBrowser(); //P1 
-		~CMovieBrowser(); //P1 
-		int exec(const char* path); //P1 
+		CMovieBrowser(const char* path); //P1
+		CMovieBrowser(); //P1
+		~CMovieBrowser(); //P1
+		int exec(const char* path); //P1
         int exec(CMenuTarget* parent, const std::string & actionKey);
 		std::string getCurrentDir(void); //P1 for FileBrowser compatibility
 		CFile* getSelectedFile(void); //P1 for FileBrowser compatibility
@@ -317,9 +317,9 @@ class CMovieBrowser : public CMenuTarget
 		bool delFile(CFile& file);
 		bool delFile_vlc(CFile& file);
 		bool delFile_std(CFile& file);
-		
+
 	private: //Functions
-		///// MovieBrowser init /////////////// 
+		///// MovieBrowser init ///////////////
 		void init(void); //P1
 		void initGlobalSettings(void); //P1
 		void initFrames(void);
@@ -327,7 +327,7 @@ class CMovieBrowser : public CMenuTarget
 		void initRows(void);
 		void reinit(void); //P1
 
-		///// MovieBrowser Main Window////////// 
+		///// MovieBrowser Main Window//////////
 		int paint(void); //P1
 		void refresh(void); //P1
         void hide(void); //P1
@@ -341,7 +341,7 @@ class CMovieBrowser : public CMenuTarget
 		void refreshTitle(void); //P2
 		void refreshInfo(void); // P2
 		void refreshLCD(void); // P2
-	
+
 		///// Events ///////////////////////////
 		bool onButtonPress(neutrino_msg_t msg); // P1
 		bool onButtonPressMainFrame(neutrino_msg_t msg); // P1
@@ -359,29 +359,29 @@ class CMovieBrowser : public CMenuTarget
 		void onSetGUIWindowPrev(void);
 		void onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler);  // P4
 		bool onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& pv_handle_list, MB_INFO_ITEM sort_type, MB_DIRECTION direction);
-		
-		///// parse Storage Directories ///////////// 
+
+		///// parse Storage Directories /////////////
         bool addDir(std::string& dirname, int* used);
         void updateDir(void);
 		void loadAllTsFileNamesFromStorage(void); // P1
 		bool loadTsFileNamesFromDir(const std::string & dirname); // P1
 		void getStorageInfo(void); // P3
-		
-		///// Menu //////////////////////////////////// 
+
+		///// Menu ////////////////////////////////////
 		bool showMenu(MI_MOVIE_INFO* movie_info); // P2
         void showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int  showStartPosSelectionMenu(void); // P2
-		
-		///// settings /////////////////////////////////// 
+
+		///// settings ///////////////////////////////////
 		bool loadSettings(MB_SETTINGS* settings); // P2
 		bool saveSettings(MB_SETTINGS* settings); // P2
         void defaultSettings(MB_SETTINGS* settings);
-		
-		///// EPG_DATA /XML /////////////////////////////// 
+
+		///// EPG_DATA /XML ///////////////////////////////
 		void loadMovies();
 		void loadAllMovieInfo(void); // P1
 		void saveMovieInfo(std::string* filename, MI_MOVIE_INFO* movie_info); // P2
-	
+
 		// misc
 		void showHelp(void);
 		bool isFiltered(MI_MOVIE_INFO& movie_info);
@@ -404,7 +404,7 @@ class CMovieHelp : public CMenuTarget
 		int exec( CMenuTarget* parent, const std::string & actionKey );
 };
 
-// I tried a lot to use the menu.cpp as ListBox selection, and I got three solution which are all garbage. 
+// I tried a lot to use the menu.cpp as ListBox selection, and I got three solution which are all garbage.
 //Might be replaced by somebody who is familiar with this stuff .
 
 // CLass to verifiy a menu was selected by the user. There might be better ways to do so.
@@ -413,12 +413,12 @@ class CSelectedMenu : public CMenuTarget
 	public:
 		bool selected;
 		CSelectedMenu(void){selected = false;};
-inline	int exec(CMenuTarget* parent, const std::string & actionKey){selected = true; return menu_return::RETURN_EXIT;};
+inline	int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/){selected = true; return menu_return::RETURN_EXIT;};
 };
 
 
-// This Class creates a menue item, which writes its caption to an given string (or an given int value to an given variable). 
-// The programm could use this class to verify, what menu was selected. 
+// This Class creates a menue item, which writes its caption to an given string (or an given int value to an given variable).
+// The programm could use this class to verify, what menu was selected.
 // A good listbox class might do the same. There might be better ways to do so.
 #define BUFFER_MAX 20
 class CMenuSelector : public CMenuItem

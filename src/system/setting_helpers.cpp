@@ -365,7 +365,7 @@ bool CLcdNotifier::changeNotify(const neutrino_locale_t, void *)
 	return true;
 }
 
-int CRfExec::exec(CMenuTarget* parent, const std::string& actionKey)
+int CRfExec::exec(CMenuTarget* /*parent*/, const std::string& /*actionKey*/)
 {
 	g_RFmod->init();
 	return true;
@@ -575,7 +575,7 @@ bool CRecAPIDSettingsNotifier::changeNotify(const neutrino_locale_t, void *)
 	return true;
 }
 
-int CAPIDChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
+int CAPIDChangeExec::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
 	//    printf("CAPIDChangeExec exec: %s\n", actionKey.c_str());
 	unsigned int sel= atoi(actionKey.c_str());
@@ -590,7 +590,7 @@ int dvbsub_start(int pid);
 int dvbsub_pause();
 int dvbsub_stop();
 
-int CSubtitleChangeExec::exec(CMenuTarget* parent, const std::string & actionKey)
+int CSubtitleChangeExec::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
 printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
 	if(actionKey == "off") {
@@ -667,7 +667,7 @@ int COnekeyPluginChangeExec::exec(CMenuTarget* parent, const std::string & actio
 	return menu_return::RETURN_EXIT;
 }
 
-int CUCodeCheckExec::exec(CMenuTarget* parent, const std::string & actionKey)
+int CUCodeCheckExec::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
 {
 #if 0
 	std::string text;
@@ -834,7 +834,7 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
 #endif
 };
 
-int CUserMenuMenu::exec(CMenuTarget* parent, const std::string & actionKey)
+int CUserMenuMenu::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
         if(parent != NULL)
                 parent->hide();
@@ -900,7 +900,7 @@ extern Zapit_config zapitCfg;
 void loadZapitSettings();
 void getZapitConfig(Zapit_config *Cfg);
 
-int CDataResetNotifier::exec(CMenuTarget* parent, const std::string& actionKey)
+int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionKey)
 {
 	bool delete_all = (actionKey == "all");
 	bool delete_chan = (actionKey == "channels") || delete_all;
@@ -908,7 +908,7 @@ int CDataResetNotifier::exec(CMenuTarget* parent, const std::string& actionKey)
 	neutrino_locale_t msg = delete_all ? LOCALE_RESET_ALL : delete_chan ? LOCALE_RESET_CHANNELS : LOCALE_RESET_SETTINGS;
 
 	int result = ShowMsgUTF(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-	if(result != CMessageBox::mbrYes) 
+	if(result != CMessageBox::mbrYes)
 		return true;
 
 	if(delete_all) {
@@ -928,7 +928,7 @@ int CDataResetNotifier::exec(CMenuTarget* parent, const std::string& actionKey)
 	if(delete_chan) {
 		system("rm -f /var/tuxbox/config/zapit/*.xml");
 		g_Zapit->reinitChannels();
-	} 
+	}
 	return true;
 }
 

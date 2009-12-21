@@ -85,7 +85,7 @@ DMX::~DMX()
 	closefd();
 }
 
-ssize_t DMX::read(char * const buf, const size_t buflength, const unsigned timeoutMInSeconds)
+ssize_t DMX::read(char * const /*buf*/, const size_t /*buflength*/, const unsigned /*timeoutMInSeconds*/)
 {
 	//FIXME is this used ??
 	printf("[sectionsd] ******************************* DMX::read called *******************************\n");
@@ -122,22 +122,22 @@ int DMX::immediate_stop(void)
 {
 	if (!isOpen())
 		return 1;
-	
+
 	closefd();
-	
+
 	return 0;
 }
 
 int DMX::stop(void)
 {
 	int rc;
-	
+
 	lock();
-	
+
 	rc = immediate_stop();
-	
+
 	unlock();
-	
+
 	return rc;
 }
 
@@ -199,7 +199,7 @@ bool DMX::check_complete(const unsigned char table_id, const unsigned short exte
 		}
 		while ((di != myDMXOrderUniqueKey.end()) && ((uint8_t) ((di->first >> 56) & 0xff) == table_id) &&
 			((uint16_t) ((di->first >> 40) & 0xffff) == extension_id) &&
-			(((uint8_t) ((di->first >> 32) & 0xff) == current_section_number + 1) || 
+			(((uint8_t) ((di->first >> 32) & 0xff) == current_section_number + 1) ||
 			((uint8_t) ((di->first >> 32) & 0xff) == current_section_number + 8)) &&
 			((uint16_t) ((di->first >> 16) & 0xffff) == onid) &&
 			((uint16_t) (di->first & 0xffff) == tsid))
@@ -233,7 +233,7 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 #endif
 		unsigned section_length_lo        : 8;
 	} __attribute__ ((packed));  // 3 bytes total
-	
+
 	struct extended_section_header {
 		unsigned table_extension_id_hi    : 8;
 		unsigned table_extension_id_lo    : 8;
@@ -275,7 +275,7 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 		timeouts++;
 		return -1;
 	}
-		
+
 	lock();
 
 	//rc = read(buf, 4098, timeoutInMSeconds);
@@ -301,7 +301,7 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 
 	initial_header = (minimal_section_header*)buf;
 	section_length = (initial_header->section_length_hi * 256) | initial_header->section_length_lo;
-	
+
 	if (section_length <= 0)
 	{
 		unlock();
@@ -331,7 +331,7 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 		return -1;
 	}
 
-	unlock();	
+	unlock();
 	// skip sections which are too short
 	if ((section_length < 5) ||
 	    (initial_header->table_id >= 0x4e && initial_header->table_id <= 0x6f && section_length < 14))
@@ -343,9 +343,9 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 	// check if it's extended syntax, e.g. NIT, BAT, SDT, EIT
 	if (initial_header->section_syntax_indicator != 0)
 	{
-		extended_header = (extended_section_header *)(buf+3); 
-		
-		// only current sections 
+		extended_header = (extended_section_header *)(buf+3);
+
+		// only current sections
 		if (extended_header->current_next_indicator != 0) {
 			// if ((initial_header.table_id >= 0x4e) && (initial_header.table_id <= 0x6f))
 			if (pID == 0x12) {
@@ -524,7 +524,7 @@ xprintf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>DMX::imediate_start: isOpen()<<<<<<<<<<<<
 int DMX::start(void)
 {
 	int rc;
-	
+
 	lock();
 
 	rc = immediate_start();
@@ -578,11 +578,11 @@ int DMX::request_pause(void)
 
 	lock();
 	//dprintf("request_pause: %d\n", real_pauseCounter);
-	
+
 	real_pauseCounter++;
-	
+
 	unlock();
-	
+
 	return 0;
 }
 

@@ -83,7 +83,7 @@ CAudioPlayer* CAudioPlayer::getInstance()
 	return AudioPlayer;
 }
 
-void* CAudioPlayer::PlayThread( void* dummy )
+void* CAudioPlayer::PlayThread( void* /*dummy*/ )
 {
 	int soundfd = -1;
 	g_RCInput->close_click();

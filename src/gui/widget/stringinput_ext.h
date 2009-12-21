@@ -54,7 +54,7 @@ class CExtendedInput : public CMenuTarget
 		int hintPosY;
 		int hheight; // head font height
 		int mheight; // menu font height
-		int iheight; 
+		int iheight;
 
 		std::vector<CExtendedInput_Item*> inputFields;
 		int selectedChar;
@@ -94,11 +94,11 @@ class CExtendedInput_Item
 	public:
 
 		virtual void setDataPointer(char* Data){data=Data;};
-		virtual void init(int &x, int &y){};
-		virtual void paint(int x, int y, bool focusGained){};
+		virtual void init(int &/*x*/, int &/*y*/){};
+		virtual void paint(int /*x*/, int /*y*/, bool /*focusGained*/){};
 		virtual bool isSelectable(){return true;};
 
-		virtual void keyPressed( int key ){};
+		virtual void keyPressed( int /*key*/ ){};
 };
 
 class CExtendedInput_Item_Spacer : public CExtendedInput_Item
@@ -130,7 +130,7 @@ class CExtendedInput_Item_Char : public CExtendedInput_Item
 	protected:
 		std::string allowedChars;
 		bool selectable;
-		
+
 		bool isAllowedChar( char );
 		int getCharID( char );
 

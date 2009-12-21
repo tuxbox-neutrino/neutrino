@@ -71,7 +71,7 @@ static int my_filter(const struct dirent * dent)
 	return 0;
 }
 
-int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	if (parent)
 		parent->hide();
@@ -173,7 +173,7 @@ int CHDDMenuHandler::doMenu ()
 	return ret;
 }
 
-int CHDDDestExec::exec(CMenuTarget* parent, const std::string&)
+int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 {
 	char cmd[100];
 
@@ -212,7 +212,7 @@ static int check_and_umount(char * dev, char * path)
 	return 0;
 }
 
-int CHDDFmtExec::exec(CMenuTarget* parent, const std::string& key)
+int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 {
 	char cmd[100];
 	CHintBox * hintbox;
@@ -304,7 +304,7 @@ int CHDDFmtExec::exec(CMenuTarget* parent, const std::string& key)
 			buf[21] = 0;
 			progress->showGlobalStatus(20);
                         progress->showStatusMessageUTF(buf);
-                } 
+                }
 		else if(strncmp(buf, "Creating", 8)) {
 			progress->showGlobalStatus(40);
                         progress->showStatusMessageUTF(buf);
@@ -358,7 +358,7 @@ _return:
 	return menu_return::RETURN_REPAINT;
 }
 
-int CHDDChkExec::exec(CMenuTarget* parent, const std::string& key)
+int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 {
 	char cmd[100];
 	CHintBox * hintbox;
@@ -453,7 +453,7 @@ ret1:
                         break;
         }
 	printf("CHDDChkExec: mount res %d\n", res);
-	
+
 	if(!srun) system("smbd");
 	return menu_return::RETURN_REPAINT;
 }

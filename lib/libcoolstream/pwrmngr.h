@@ -38,7 +38,7 @@ private:
 	bool			opened;
 	PWR_STATE		powerState;
 	//
-	static void ApplicationCallback(void *hHandle, void *pUserData, signed long eEvent, void *pEventData, void *pTag) {}
+	static void ApplicationCallback(void */*hHandle*/, void */*pUserData*/, signed long /*eEvent*/, void */*pEventData*/, void */*pTag*/) {}
 	bool SetState(PWR_STATE PowerState);
 public:
 	bool Open(void);

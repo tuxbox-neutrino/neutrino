@@ -42,7 +42,7 @@
 #include <neutrino.h>
 
 Drawable::Drawable()
-{	
+{
 }
 
 Drawable::~Drawable()
@@ -66,7 +66,7 @@ Drawable::DType Drawable::getType(void)
 
 
 // ------------------------------------------------------------------------------
-DText::DText(std::string& text) 
+DText::DText(std::string& text)
 {
 	m_text = text;
 	init();
@@ -81,14 +81,14 @@ DText::DText(const char *text)
 void DText::init()
 {
 	m_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(m_text, true); // UTF-8
-	m_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();	
+	m_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 
 
 void DText::draw(CFBWindow *window, int x, int y, int width)
 {
 	window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], x, y + m_height, width,
-						 m_text.c_str(), (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8	
+						 m_text.c_str(), (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
 }
 
 void DText::print(void)
@@ -115,7 +115,7 @@ void DIcon::init()
 	m_width = 16;
 }
 
-void DIcon::draw(CFBWindow *window, int x, int y, int width)
+void DIcon::draw(CFBWindow *window, int x, int y, int /*width*/)
 {
 	window->paintIcon(m_icon.c_str(), x, y);
 }
@@ -132,11 +132,11 @@ DPagebreak::DPagebreak()
 	m_width = 0;
 }
 
-void DPagebreak::draw(CFBWindow *window, int x, int y, int width)
+void DPagebreak::draw(CFBWindow */*window*/, int /*x*/, int /*y*/, int /*width*/)
 {
-// 	window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], 
-// 						 x, y + m_height, width, "<pagebreak>", 
-// 						 (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8	
+// 	window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU],
+// 						 x, y + m_height, width, "<pagebreak>",
+// 						 (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
 }
 
 void DPagebreak::print(void)

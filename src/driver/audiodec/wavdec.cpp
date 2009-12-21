@@ -2,13 +2,13 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2004 Zwen
-	
+
 	Homepage: http://www.dbox2.info/
 
 	Kommentar:
 
 	wav audio decoder
-	
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -78,7 +78,7 @@ int endianTest=1;
 CBaseDec::RetCode CWavDec::Decoder(FILE *in, int OutputFd, State* state, CAudioMetaData* meta_data, time_t* time_played, unsigned int* secondsToSkip)
 {
 	char* buffer;
-	RetCode Status=OK; 
+	RetCode Status=OK;
 
 	if (!SetMetaData(in, meta_data))
 	{
@@ -116,7 +116,7 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int OutputFd, State* state, CAudioM
 	{
 		while(*state==PAUSE)
 			usleep(10000);
-		
+
 		if(*state==FF || *state==REV)
 		{
 			if (oldSecsToSkip != *secondsToSkip)
@@ -158,14 +158,14 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int OutputFd, State* state, CAudioM
 		{
 			fprintf(stderr,"%s: PCM write error (%s).\n", ProgName, strerror(errno));
 			Status=WRITE_ERR;
-		}  
+		}
 		*time_played = (meta_data->bitrate!=0) ? (ftell(in)-header_size)*8/meta_data->bitrate : 0;
 	} while (bytes > 0 && *state!=STOP_REQ && Status==OK);
 	free(buffer);
 	return Status;
 }
 
-bool CWavDec::GetMetaData(FILE *in, const bool nice, CAudioMetaData* m)
+bool CWavDec::GetMetaData(FILE *in, const bool /*nice*/, CAudioMetaData* m)
 {
 	return SetMetaData(in, m);
 }
@@ -186,7 +186,7 @@ bool CWavDec::SetMetaData(FILE* in, CAudioMetaData* m)
 	struct WavHeader wh;
 
 	header_size = 44;
-	
+
 	fseek(in, 0, SEEK_END);
 	int filesize = ftell(in);
 	fseek(in, 0, SEEK_SET);

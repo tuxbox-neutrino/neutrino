@@ -116,7 +116,7 @@ void CVCRControl::unregisterDevice()
 void CVCRControl::registerDevice(CDevice * const device)
 {
 	unregisterDevice();
-	
+
 	Device = device;
 }
 
@@ -125,7 +125,7 @@ bool CVCRControl::Record(const CTimerd::RecordingInfo * const eventinfo)
 {
 	int mode = g_Zapit->isChannelTVChannel(eventinfo->channel_id) ? NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
 
-	return Device->Record(eventinfo->channel_id, mode, eventinfo->epgID, eventinfo->epgTitle, eventinfo->apids, eventinfo->epg_starttime); 
+	return Device->Record(eventinfo->channel_id, mode, eventinfo->epgID, eventinfo->epgTitle, eventinfo->apids, eventinfo->epg_starttime);
 }
 
 //-------------------------------------------------------------------------
@@ -248,18 +248,18 @@ bool CVCRControl::CVCRDevice::Stop()
 }
 
 //-------------------------------------------------------------------------
-bool CVCRControl::CVCRDevice::Record(const t_channel_id channel_id, int mode, const event_id_t epgid, const std::string& epgTitle, unsigned char apids, const time_t epg_time)
+bool CVCRControl::CVCRDevice::Record(const t_channel_id channel_id, int mode, const event_id_t epgid, const std::string& /*epgTitle*/, unsigned char apids, const time_t /*epg_time*/)
 {
 	printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx, apids 0x%X mode \n",
 	       channel_id, epgid, apids);
 	// leave menu (if in any)
 	g_RCInput->postMsg( CRCInput::RC_timeout, 0 );
-	
+
 	last_mode = CNeutrinoApp::getInstance()->getMode();
 	if(mode != last_mode) {
 		CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
 	}
-	
+
 	if(channel_id != 0)		// wenn ein channel angegeben ist
 	{
 		if(g_Zapit->getCurrentServiceID() != channel_id)	// und momentan noch nicht getuned ist
@@ -319,7 +319,7 @@ void CVCRControl::CFileAndServerDevice::RestoreNeutrino(void)
 	if (!g_Zapit->isPlayBackActive() && (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby))
 		g_Zapit->startPlayBack();
 	// alten mode wieder herstellen (ausser wen zwischenzeitlich auf oder aus sb geschalten wurde)
-	if(CNeutrinoApp::getInstance()->getMode() != last_mode && 
+	if(CNeutrinoApp::getInstance()->getMode() != last_mode &&
 	   CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby &&
 	   last_mode != NeutrinoMessages::mode_standby)
 		if(!autoshift) g_RCInput->postMsg( NeutrinoMessages::CHANGEMODE , last_mode);
@@ -398,10 +398,10 @@ std::string CVCRControl::CFileAndServerDevice::getCommandString(const CVCRComman
 	}
 
 	extMessage += extCommand;
-	extMessage += 
+	extMessage +=
 		"\">\n"
 		"\t\t<channelname>";
-	
+
 	CZapitClient::responseGetPIDs pids;
 	g_Zapit->getPIDS (pids);
 	CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo ();
@@ -422,9 +422,9 @@ std::string CVCRControl::CFileAndServerDevice::getCommandString(const CVCRComman
 		extMessage += "unknown";
 	else
 		extMessage += ZapitTools::UTF8_to_UTF8XML(tmpstring.c_str());
-	
+
 	extMessage += "</channelname>\n\t\t<epgtitle>";
-	
+
 	tmpstring = "not available";
 	if (epgid != 0)
 	{
@@ -440,12 +440,12 @@ std::string CVCRControl::CFileAndServerDevice::getCommandString(const CVCRComman
 		tmpstring = epgTitle;
 	}
 	extMessage += ZapitTools::UTF8_to_UTF8XML(tmpstring.c_str());
-	
+
 	extMessage += "</epgtitle>\n\t\t<id>";
-	
+
 	sprintf(tmp, PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id);
 	extMessage += tmp;
-	
+
 	extMessage += "</id>\n\t\t<info1>";
 	extMessage += ZapitTools::UTF8_to_UTF8XML(info1.c_str());
 	extMessage += "</info1>\n\t\t<info2>";
@@ -475,7 +475,7 @@ std::string CVCRControl::CFileAndServerDevice::getCommandString(const CVCRComman
 		extMessage += ZapitTools::UTF8_to_UTF8XML(g_RemoteControl->current_PIDs.APIDs[i].desc);
 		extMessage += "\"/>\n";
 	}
-	extMessage += 
+	extMessage +=
 		"\t\t</audiopids>\n"
 		"\t\t<vtxtpid>";
 	sprintf(tmp, "%u", si.vtxtpid);
@@ -494,7 +494,7 @@ bool CVCRControl::CFileDevice::Stop()
 	time_t end_time = time(0);
 //printf("[direct] Stop recording, g_movieInfo %lx\n", g_movieInfo); fflush(stdout);
 //FIXME why not save info if shift ?
-	//if(!autoshift || autoshift_delete) 
+	//if(!autoshift || autoshift_delete)
 	{
 		// g_movieInfo->length = (end_time - start_time) / 60;
 		g_movieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
@@ -519,7 +519,7 @@ bool CVCRControl::CFileDevice::Stop()
 }
 
 std::string ext_channel_name;
-bool CVCRControl::CFileDevice::Record(const t_channel_id channel_id, int mode, const event_id_t epgid, const std::string& epgTitle, unsigned char apids, const time_t epg_time) 
+bool CVCRControl::CFileDevice::Record(const t_channel_id channel_id, int mode, const event_id_t epgid, const std::string& epgTitle, unsigned char apids, const time_t epg_time)
 {
 printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx, apids 0x%X mode %d\n",
 	       channel_id, epgid, apids, mode);
@@ -561,7 +561,7 @@ printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx
 	// Create filename for recording
 	pos = Directory.size();
 	strcpy(filename, Directory.c_str());
-	
+
 	if ((pos == 0) || (filename[pos - 1] != '/')) {
 		filename[pos] = '/';
 		pos++;
@@ -597,21 +597,21 @@ printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx
 					} else {
 						perror("[vcrcontrol] mkdir");
 					}
-						
+
 				} else {
 					perror("[vcrcontrol] stat");
 				}
 			} else {
 				// directory exists
 				strcat(filename,"/");
-			}	
-					
+			}
+
 		} else
 			strcat(filename, "_");
 	}
 
 	pos = strlen(filename);
-	if (g_settings.recording_epg_for_filename) { 
+	if (g_settings.recording_epg_for_filename) {
 		if(epgid != 0) {
 			CShortEPGData epgdata;
 			//if (g_Sectionsd->getEPGidShort(epgid, &epgdata))
@@ -649,7 +649,7 @@ printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx
 
 	start_time = time(0);
 	stream2file_error_msg_t error_msg = ::start_recording(filename,
-			      getMovieInfoString(CMD_VCR_RECORD, channel_id, epgid, epgTitle, apid_list, epg_time).c_str(), 
+			      getMovieInfoString(CMD_VCR_RECORD, channel_id, epgid, epgTitle, apid_list, epg_time).c_str(),
 			      si.vpid, pids, numpids);
 
 	if (error_msg == STREAM2FILE_OK) {
@@ -673,7 +673,7 @@ printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx
 
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 
-void CVCRControl::Screenshot(const t_channel_id channel_id, char * fname) 
+void CVCRControl::Screenshot(const t_channel_id channel_id, char * fname)
 {
 	char filename[512]; // UTF-8
 	char cmd[512];
@@ -687,7 +687,7 @@ void CVCRControl::Screenshot(const t_channel_id channel_id, char * fname)
 			return;
 
 		strcpy(filename, "/hdd/screenshots/");
-	
+
 		pos = strlen(filename);
 		channel_name = g_Zapit->getChannelName(channel_id);
 		if (!(channel_name.empty())) {
@@ -750,7 +750,7 @@ bool CVCRControl::CServerDevice::Stop()
 }
 
 //-------------------------------------------------------------------------
-bool CVCRControl::CServerDevice::Record(const t_channel_id channel_id, int mode, const event_id_t epgid, const std::string& epgTitle, unsigned char apids, const time_t epg_time) 
+bool CVCRControl::CServerDevice::Record(const t_channel_id channel_id, int mode, const event_id_t epgid, const std::string& epgTitle, unsigned char apids, const time_t /*epg_time*/)
 {
 	printf("Record channel_id: "
 	       PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
@@ -839,7 +839,7 @@ extern unsigned short g_numpida;
 extern unsigned int g_currentapid, g_currentac3;
 
 //-------------------------------------------------------------------------
-std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRCommand command, const t_channel_id channel_id, const event_id_t epgid, const std::string& epgTitle, APIDList apid_list, const time_t epg_time)
+std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRCommand /*command*/, const t_channel_id channel_id, const event_id_t epgid, const std::string& epgTitle, APIDList apid_list, const time_t epg_time)
 {
 	std::string extMessage;
 	std::string apids10;
@@ -869,14 +869,14 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 			tmpstring = epgdata.title;
 			info1 = epgdata.info1;
 			info2 = epgdata.info2;
-			
+
 			g_movieInfo->parentalLockAge = epgdata.fsk;
 			if(epgdata.contentClassification.size() > 0 )
 				g_movieInfo->genreMajor = epgdata.contentClassification[0];
-				
+
 			g_movieInfo->length = epgdata.epg_times.dauer	/ 60;
-				
-			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",g_movieInfo->parentalLockAge,g_movieInfo->genreMajor,g_movieInfo->length);	
+
+			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",g_movieInfo->parentalLockAge,g_movieInfo->genreMajor,g_movieInfo->length);
 		}
 	} else if (!epgTitle.empty()) {
 		tmpstring = epgTitle;
@@ -934,7 +934,7 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 	g_movieInfo->epgVTXPID = si.vtxtpid;
 
 	g_cMovieInfo->encodeMovieInfoXml(&extMessage, g_movieInfo);
-	
+
 	//g_movieInfo->audioPids.clear();
 
 	return extMessage;

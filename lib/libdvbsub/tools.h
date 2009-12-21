@@ -78,7 +78,7 @@ private:
 public:
   cListObject(void);
   virtual ~cListObject();
-  virtual int Compare(const cListObject &ListObject) const { return 0; }
+  virtual int Compare(const cListObject /*&ListObject*/) const { return 0; }
       ///< Must return 0 if this object is equal to ListObject, a positive value
       ///< if it is "greater", and a negative value if it is "smaller".
   void Append(cListObject *Object);

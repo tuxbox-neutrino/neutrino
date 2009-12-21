@@ -183,7 +183,7 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 // we borrow this from filebrowser
 extern size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 
-CAudioPlayerGui::CAudioPlayerGui(bool inetmode)
+CAudioPlayerGui::CAudioPlayerGui(bool /*inetmode*/)
 {
 	m_frameBuffer = CFrameBuffer::getInstance();
 	m_visible = false;

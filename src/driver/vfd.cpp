@@ -94,7 +94,7 @@ void CVFD::count_down() {
 				setPower(0);
 			}
 		}
-	} 
+	}
 }
 
 void CVFD::wake_up() {
@@ -121,7 +121,7 @@ void* CVFD::TimeThread(void *)
 	return NULL;
 }
 
-void CVFD::init(const char * fontfile, const char * fontname)
+void CVFD::init(const char * /*fontfile*/, const char * /*fontname*/)
 {
 	//InitNewClock(); /FIXME
 
@@ -198,7 +198,7 @@ void CVFD::showTime(bool force)
 				strftime(timestr, 20, "%H:%M", t);
 				ShowText((char *) timestr);
 			}
-		} 
+		}
 	}
 
 	if (CNeutrinoApp::getInstance ()->recordingstatus) {
@@ -215,11 +215,11 @@ void CVFD::showTime(bool force)
 	}
 }
 
-void CVFD::showRCLock(int duration)
+void CVFD::showRCLock(int /*duration*/)
 {
 }
 
-void CVFD::showVolume(const char vol, const bool perform_update)
+void CVFD::showVolume(const char vol, const bool /*perform_update*/)
 {
 	static int oldpp = 0;
 	if(!has_lcd) return;
@@ -253,12 +253,12 @@ printf("CVFD::showVolume: %d, bar %d\n", (int) vol, pp);
 	}
 }
 
-void CVFD::showPercentOver(const unsigned char perc, const bool perform_update)
+void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update*/)
 {
 	if(!has_lcd) return;
 
 	if ((mode == MODE_TVRADIO) && !(g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME])) {
-		//if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 0) 
+		//if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] == 0)
 		{
 			ShowIcon(VFD_ICON_FRAME, true);
 			int pp;
@@ -285,7 +285,7 @@ printf("CVFD::showPercentOver: %d, bar %d\n", (int) perc, pp);
 	}
 }
 
-void CVFD::showMenuText(const int position, const char * text, const int highlight, const bool utf_encoded)
+void CVFD::showMenuText(const int /*position*/, const char * text, const int /*highlight*/, const bool /*utf_encoded*/)
 {
 	if(!has_lcd) return;
 	if (mode != MODE_MENU_UTF8)
@@ -295,10 +295,10 @@ void CVFD::showMenuText(const int position, const char * text, const int highlig
 	wake_up();
 }
 
-void CVFD::showAudioTrack(const std::string & artist, const std::string & title, const std::string & album)
+void CVFD::showAudioTrack(const std::string & /*artist*/, const std::string & title, const std::string & /*album*/)
 {
 	if(!has_lcd) return;
-	if (mode != MODE_AUDIO) 
+	if (mode != MODE_AUDIO)
 		return;
 printf("CVFD::showAudioTrack: %s\n", title.c_str());
 	ShowText((char *) title.c_str());
@@ -335,7 +335,7 @@ void CVFD::showAudioPlayMode(AUDIOMODES m)
 	wake_up();
 }
 
-void CVFD::showAudioProgress(const char perc, bool isMuted)
+void CVFD::showAudioProgress(const char /*perc*/, bool /*isMuted*/)
 {
 	if(!has_lcd) return;
 #if 0 // what is this ? FIXME
@@ -480,7 +480,7 @@ int CVFD::getBrightnessStandby()
 	return g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS];
 }
 
-void CVFD::setPower(int power)
+void CVFD::setPower(int /*power*/)
 {
 	if(!has_lcd) return;
 // old
@@ -564,9 +564,9 @@ printf("CVFD::ShowText: [%s]\n", str);
 		return;
 
 	strcpy(text, str);
-	
+
 //printf("****************************** CVFD::ShowText: %s\n", str);
-	//FIXME !! 
+	//FIXME !!
 	ret = ioctl(fd, IOC_VFD_SET_TEXT, len ? str : NULL);
 	if(ret < 0)
 		perror("IOC_VFD_SET_TEXT");

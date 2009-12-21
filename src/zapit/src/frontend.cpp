@@ -558,7 +558,7 @@ void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
 	}
 }
 
-int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool nowait)
+int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool /*nowait*/)
 {
 	fe_delivery_system delsys = SYS_DVBS;
 	fe_modulation_t modulation = QPSK;
@@ -791,7 +791,7 @@ void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const
 		usleep(1000 * ms);
 }
 
-uint32_t CFrontend::getDiseqcReply(const int timeout_ms) const
+uint32_t CFrontend::getDiseqcReply(const int /*timeout_ms*/) const
 {
 	return 0;
 }
@@ -849,7 +849,7 @@ void CFrontend::setDiseqcType(const diseqc_t newDiseqcType)
 		sendDiseqcReset();
 	}
 #else
-	
+
 	if (diseqcType != newDiseqcType) {
 		sendDiseqcPowerOn();
 		sendDiseqcReset();
@@ -888,7 +888,7 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 		sendDiseqcCommand(&cmd, 50);
 
 	printf("[fe%d] motor command sent.\n", fenumber);
-	
+
 }
 
 void CFrontend::positionMotor(uint8_t motorPosition)
@@ -957,7 +957,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	}
 }
 
-const bool CFrontend::tuneChannel(CZapitChannel * channel, bool nvod)
+const bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 {
 //printf("tuneChannel: tpid %llx\n", currentTransponder.TP_id);
 	transponder_list_t::iterator transponder = transponders.find(currentTransponder.TP_id);
@@ -991,7 +991,7 @@ int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization
 	return setParameters(&TP, nowait);
 }
 
-int CFrontend::setParameters(TP_params * TP, bool nowait)
+int CFrontend::setParameters(TP_params * TP, bool /*nowait*/)
 {
 	int freq_offset = 0;
 
@@ -1133,7 +1133,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 
 		delay = 0;
 		if (diseqcType == DISEQC_1_1) {	/* setup the uncommited switch first */
-			
+
 			delay = 60;	// delay for 1.0 after 1.1 command
 			cmd.msg[2] = 0x39;	/* port group = uncommited switches */
 #if 1
@@ -1152,7 +1152,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 #endif
 		}
 		if (diseqcType >= DISEQC_1_0) {	/* DISEQC 1.0 */
-			
+
 			usleep(delay * 1000);
 			//cmd.msg[0] |= 0x01;	/* repeated transmission */
 			cmd.msg[2] = 0x38;	/* port group = commited switches */
@@ -1176,7 +1176,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	currentTransponder.diseqc = sat_no;
 }
 
-void CFrontend::setSec(const uint8_t sat_no, const uint8_t pol, const bool high_band)
+void CFrontend::setSec(const uint8_t /*sat_no*/, const uint8_t pol, const bool high_band)
 {
 	fe_sec_voltage_t v = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
 	fe_sec_tone_mode_t t = high_band ? SEC_TONE_ON : SEC_TONE_OFF;

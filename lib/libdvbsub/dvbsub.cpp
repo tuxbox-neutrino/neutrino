@@ -149,7 +149,7 @@ int dvbsub_close()
 
 static cDemux * dmx;
 
-void* reader_thread(void *arg)
+void* reader_thread(void */*arg*/)
 {
 	uint8_t tmp[16];  /* actually 6 should be enough */
 	int count;
@@ -203,7 +203,7 @@ void* reader_thread(void *arg)
 				count += len;
 				tosync += len;
 				continue;
-			} 
+			}
 			tmp[0] = tmp[1];
 			tmp[1] = tmp[2];
 			count = 2;
@@ -222,7 +222,7 @@ void* reader_thread(void *arg)
 			}
 		}
 
-		packlen =  getbits(tmp, 4*8, 16) + 6;	
+		packlen =  getbits(tmp, 4*8, 16) + 6;
 
 		buf = new uint8_t[packlen];
 
@@ -265,7 +265,7 @@ void* reader_thread(void *arg)
 	pthread_exit(NULL);
 }
 
-void* dvbsub_thread(void* arg)
+void* dvbsub_thread(void* /*arg*/)
 {
 	struct timespec restartWait;
 	struct timeval now;

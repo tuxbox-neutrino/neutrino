@@ -537,7 +537,7 @@ void tuxtxt_allocate_cache(int magazine)
  ******************************************************************************/
 //#define TUXTXT_DEBUG 1 //FIXME
 static int stop_cache = 0;
-void *tuxtxt_CacheThread(void *arg)
+void *tuxtxt_CacheThread(void * /*arg*/)
 {
 	const unsigned char rev_lut[32] = {
 		0x00,0x08,0x04,0x0c, /*  upper nibble */

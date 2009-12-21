@@ -5,7 +5,7 @@
 // Extentions for the Webserver can be implemented with Hooks.
 // A "Hook"-Class must be inherited from Cyhook and can override the virtual
 // functions from Cyhook.
-// There are three types of Hooks. 
+// There are three types of Hooks.
 // 1) Server based Hooks (exactly one Instance of Cyhttpd)
 // 2) Webserver based Hooks (for each Instance of CWebserver, actually one; not now)
 // 3) Connection based Hooks (for each Instance of CWebserverConnection)
@@ -31,7 +31,7 @@
 // For example the CmAuth-Hook validates HTTP-Authentication and returns
 // HANDLED_CONTINUE if the authentication fits.
 // Each Hook_SendResponse is encapsulated from the webserver and should not work
-// on Socket-Connections. The Response is written to yresult. There are many 
+// on Socket-Connections. The Response is written to yresult. There are many
 // helper-function for Output and Status-Handling.
 // The Input is encapsulated too: ParamList, HeaderList, UrlData, ...
 // Look at Response.SendResponse()
@@ -77,7 +77,7 @@ typedef enum
 	HANDLED_SENDFILE,	// Set new URL and Send File
 	HANDLED_REWRITE,	// Set new URL and call Hooks again
 	HANDLED_CONTINUE,	// handled but go on
-	
+
 } THandleStatus;
 typedef std::list<Cyhook *> THookList;
 
@@ -94,13 +94,13 @@ public:
 	virtual std::string 	getHookVersion(void) {return std::string("0.0.0");}
 	virtual std::string 	getHookName(void) {return std::string("Abstract Hook Class");}
 	// CWebserverConnection based hooks
-	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh){return HANDLED_NONE;};
-	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh){return HANDLED_NONE;};
-	virtual THandleStatus	Hook_EndConnection(CyhookHandler *hh){return HANDLED_NONE;}
-	virtual THandleStatus	Hook_UploadSetFilename(CyhookHandler *hh, std::string &Filename){return HANDLED_NONE;}
-	virtual THandleStatus	Hook_UploadReady(CyhookHandler *hh, std::string Filename){return HANDLED_NONE;}
+	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler */*hh*/){return HANDLED_NONE;};
+	virtual THandleStatus 	Hook_SendResponse(CyhookHandler */*hh*/){return HANDLED_NONE;};
+	virtual THandleStatus	Hook_EndConnection(CyhookHandler */*hh*/){return HANDLED_NONE;}
+	virtual THandleStatus	Hook_UploadSetFilename(CyhookHandler */*hh*/, std::string &/*Filename*/){return HANDLED_NONE;}
+	virtual THandleStatus	Hook_UploadReady(CyhookHandler */*hh*/, std::string /*Filename*/){return HANDLED_NONE;}
 	// Cyhttpd based hooks
-	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList){return HANDLED_NONE;}; 
+	virtual THandleStatus 	Hook_ReadConfig(CConfigFile */*Config*/, CStringList &/*ConfigList*/){return HANDLED_NONE;};
 };
 
 //-----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ public:
 	time_t 		LastModified;		// Last Modified Time of Item to send / -1 dynamic content
 	std::string	Sendfile;		// Path & Name (local os style) of file to send
 	bool		keep_alive;
-		
+
 	// Input
 	CStringList 	ParamList; 		// local copy of ParamList (Request)
 	CStringList 	UrlData;		// local copy of UrlData (Request)
@@ -132,17 +132,17 @@ public:
 	// constructor & deconstructor
 	CyhookHandler(){};
 	virtual ~CyhookHandler(){};
-	
+
 	// hook slot handler
 	static void 	attach(Cyhook *yh)	// attach a Hook-Class to HookHandler
 		{HookList.push_back(yh);};
 	static void 	detach(Cyhook *yh)	// detach a Hook-Class to HookHandler
 		{HookList.remove(yh);};
-	
+
 	// session handling
-	void 		session_init(CStringList _ParamList, CStringList _UrlData, CStringList _HeaderList, 
+	void 		session_init(CStringList _ParamList, CStringList _UrlData, CStringList _HeaderList,
 					CStringList& _ConfigList, THttp_Method _Method, bool _keep_alive);
-	
+
 	// Cyhttpd based hooks
 	static THandleStatus	Hooks_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
 	// CWebserverConnection based hooks
@@ -152,7 +152,7 @@ public:
 	THandleStatus		Hooks_UploadSetFilename(std::string &Filename);
 	THandleStatus		Hooks_UploadReady(const std::string& Filename);
 
-	// status handling	
+	// status handling
 	void SetHeader(HttpResponseType _httpStatus, std::string _ResponseMimeType)
 		{httpStatus = _httpStatus; ResponseMimeType = _ResponseMimeType;}
 	void SetHeader(HttpResponseType _httpStatus, std::string _ResponseMimeType, THandleStatus _status)
@@ -167,11 +167,11 @@ public:
 	// output methods
 	std::string BuildHeader(bool cache = false);
 	void addResult(const std::string& result) 	{yresult += result;}
-	void addResult(const std::string& result, THandleStatus _status) 
+	void addResult(const std::string& result, THandleStatus _status)
 						{yresult += result; status = _status;}
 	void printf(const char *fmt, ...);
 	void Write(const std::string& text) 	{ addResult(text); }
-	void WriteLn(const std::string& text) 	{ addResult(text+"\r\n"); }	
+	void WriteLn(const std::string& text) 	{ addResult(text+"\r\n"); }
 	void Write(char const *text)		{Write(std::string(text));}
 	void WriteLn(char const *text)		{WriteLn(std::string(text));}
 	void SendHTMLHeader(const std::string& Titel);

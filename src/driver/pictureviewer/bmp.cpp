@@ -26,13 +26,13 @@ int fh_bmp_id(const char *name)
 {
 	int fd;
 	char id[2];
-	
+
 	fd = open(name, O_RDONLY);
 	if (fd == -1) {
 //		dbout("fh_bmp_id {\n");
 		return(0);
 	}
-	
+
 	read(fd, id, 2);
 	close(fd);
 	if ( id[0]=='B' && id[1]=='M' ) {
@@ -86,7 +86,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 
 	read(fd, buff, 2);
 	bpp = buff[0] + (buff[1]<<8);
-	
+
 	switch (bpp){
 		case 1: /* monochrome */
 			skip = fill4B(x/8+(x%8?1:0));
@@ -190,13 +190,13 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 				printf("Error: malloc\n");
 				return (FH_ERROR_MALLOC);
 			}
-			for (i=0; i<y; i++) 
+			for (i=0; i<y; i++)
 		   {
 				read(fd, tbuffer, x);
 				for (j=0; j<x; j++) {
-					wr_buffer[j*3] = pallete[tbuffer[j]].red; 
-					wr_buffer[j*3+1] = pallete[tbuffer[j]].green; 
-					wr_buffer[j*3+2] = pallete[tbuffer[j]].blue; 
+					wr_buffer[j*3] = pallete[tbuffer[j]].red;
+					wr_buffer[j*3+1] = pallete[tbuffer[j]].green;
+					wr_buffer[j*3+2] = pallete[tbuffer[j]].blue;
 				}
 				if (skip) {
 					read(fd, buff, skip);
@@ -213,7 +213,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 			skip = fill4B(x*3);
 			lseek(fd, raster, SEEK_SET);
 			unsigned char c;
-			for (i=0; i<y; i++) 
+			for (i=0; i<y; i++)
 			{
 				read(fd,wr_buffer,x*3);
 				for(j=0; j < x*3 ; j=j+3)
@@ -225,7 +225,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 				if (skip) {
 					read(fd, buff, skip);
 				}
-				wr_buffer -= x*3; // backoff 1 lines - x*3 
+				wr_buffer -= x*3; // backoff 1 lines - x*3
 			}
 			break;
 		default:
@@ -236,7 +236,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 //	dbout("fh_bmp_load }\n");
 	return(FH_ERROR_OK);
 }
-int fh_bmp_getsize(const char *name,int *x,int *y, int wanted_width, int wanted_height)
+int fh_bmp_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*wanted_height*/)
 {
 //	dbout("fh_bmp_getsize {\n");
 	int fd;
@@ -250,13 +250,13 @@ int fh_bmp_getsize(const char *name,int *x,int *y, int wanted_width, int wanted_
 		close(fd);//Resource leak: fd
 		return(FH_ERROR_FORMAT);
 	}
-	
+
 	read(fd, size, 4);
 	*x = size[0] + (size[1]<<8) + (size[2]<<16) + (size[3]<<24);
 //	*x-=1;
 	read(fd, size, 4);
 	*y = size[0] + (size[1]<<8) + (size[2]<<16) + (size[3]<<24);
-	
+
 	close(fd);
 //	dbout("fh_bmp_getsize }\n");
 	return(FH_ERROR_OK);

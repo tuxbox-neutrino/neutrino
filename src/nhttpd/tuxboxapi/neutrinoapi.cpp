@@ -136,7 +136,7 @@ void CNeutrinoAPI::UpdateBouquets(void)
 {
 #if 0
 	BouquetList.clear();
-	Zapit->getBouquets(BouquetList, true, true); 
+	Zapit->getBouquets(BouquetList, true, true);
 
 	for (unsigned int i = 1; i <= BouquetList.size(); i++)
 		UpdateBouquet(i);
@@ -164,7 +164,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 		//printf("Kanal ist aktuell\n");
 		return;
 	}
-	
+
 	if (Zapit->zapTo_serviceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
 		Sectionsd->setServiceChanged(channel_id&0xFFFFFFFFFFFFULL, false);
 }
@@ -259,10 +259,10 @@ bool CNeutrinoAPI::GetChannelEvents(void)
 	CChannelEventList::iterator eventIterator;
 
 	ChannelListEvents.clear();
-	
+
 	if (eList.begin() == eList.end())
 		return false;
-	
+
 	for (eventIterator = eList.begin(); eventIterator != eList.end(); eventIterator++)
 		ChannelListEvents[(*eventIterator).get_channel_id()] = &(*eventIterator);
 
@@ -290,19 +290,19 @@ std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)
 
 //-------------------------------------------------------------------------
 
-CZapitClient::BouquetChannelList *CNeutrinoAPI::GetBouquet(unsigned int BouquetNr, int Mode)
+CZapitClient::BouquetChannelList *CNeutrinoAPI::GetBouquet(unsigned int /*BouquetNr*/, int /*Mode*/)
 {
 //FIXME
 	printf("CNeutrinoAPI::GetChannelList still used !\n");
 	return NULL;
 #if 0
 	int mode;
-	
+
 	if (Mode == CZapitClient::MODE_CURRENT)
 		mode = Zapit->getMode();
 	else
 		mode = Mode;
-	
+
 	if (mode == CZapitClient::MODE_TV)
 		return &TVBouquetsList[BouquetNr];
 	else
@@ -312,19 +312,19 @@ CZapitClient::BouquetChannelList *CNeutrinoAPI::GetBouquet(unsigned int BouquetN
 
 //-------------------------------------------------------------------------
 
-CZapitClient::BouquetChannelList *CNeutrinoAPI::GetChannelList(int Mode)
+CZapitClient::BouquetChannelList *CNeutrinoAPI::GetChannelList(int /*Mode*/)
 {
 //FIXME
 	printf("CNeutrinoAPI::GetChannelList still used !\n");
 	return NULL;
 #if 0
 	int mode;
-	
+
 	if (Mode == CZapitClient::MODE_CURRENT)
 		mode = Zapit->getMode();
 	else
 		mode = Mode;
-	
+
 	if (mode == CZapitClient::MODE_TV)
 		return &TVChannelList;
 	else
@@ -334,7 +334,7 @@ CZapitClient::BouquetChannelList *CNeutrinoAPI::GetChannelList(int Mode)
 
 //-------------------------------------------------------------------------
 
-void CNeutrinoAPI::UpdateBouquet(unsigned int BouquetNr)
+void CNeutrinoAPI::UpdateBouquet(unsigned int /*BouquetNr*/)
 {
 #if 0 //FIXME
 	TVBouquetsList[BouquetNr].clear();

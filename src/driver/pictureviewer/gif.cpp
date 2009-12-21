@@ -33,7 +33,7 @@ int fh_gif_id(const char *name)
 	return(0);
 }
 
-inline void m_rend_gif_decodecolormap(unsigned char *cmb,unsigned char *rgbb,ColorMapObject *cm,int s,int l)
+inline void m_rend_gif_decodecolormap(unsigned char *cmb,unsigned char *rgbb,ColorMapObject *cm,int /*s*/,int l)
 {
 	GifColorType *cmentry;
 	int i;
@@ -45,7 +45,7 @@ inline void m_rend_gif_decodecolormap(unsigned char *cmb,unsigned char *rgbb,Col
 		*(rgbb++)=cmentry->Blue;
 	}
 }
-int fh_gif_load(const char *name,unsigned char **buffer,int* xp,int* yp)
+int fh_gif_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 {
 	int px,py,i,ibxs;
 	int j;
@@ -114,13 +114,13 @@ int fh_gif_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 				break;
 			default:
 				break;
-		}  
+		}
 	}
 	while( rt!= TERMINATE_RECORD_TYPE );
 	DGifCloseFile(gft);
 	return(FH_ERROR_OK);
 }
-int fh_gif_getsize(const char *name,int *x,int *y, int wanted_width, int wanted_height)
+int fh_gif_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*wanted_height*/)
 {
 	int px,py;
 	GifFileType *gft;
@@ -151,7 +151,7 @@ int fh_gif_getsize(const char *name,int *x,int *y, int wanted_width, int wanted_
 				break;
 			default:
 				break;
-		}  
+		}
 	}
 	while( rt!= TERMINATE_RECORD_TYPE );
 	DGifCloseFile(gft);

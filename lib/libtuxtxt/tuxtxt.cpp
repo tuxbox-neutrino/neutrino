@@ -9,7 +9,7 @@
  *              ported 2006 to Dreambox 7025 / 32Bit framebuffer              *
  *                   by Seddi <seddi@i-have-a-dreambox.com>                   *
  * 									      *
- *		ported 2009 to HD1 by Coolstream LTD 			      *	
+ *		ported 2009 to HD1 by Coolstream LTD 			      *
  *                                                                            *
  ******************************************************************************/
 
@@ -221,7 +221,7 @@ void ClearBB(int color)
 	FillRect(0,(var_screeninfo.yres-var_screeninfo.yoffset),fix_screeninfo.line_length,var_screeninfo.yres, color);
 }
 
-void ClearFB(int color)
+void ClearFB(int /*color*/)
 {
 	memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
 	//FillRect(0,var_screeninfo.yoffset,fix_screeninfo.line_length,var_screeninfo.yres,color);
@@ -295,7 +295,7 @@ void setcolors(unsigned short *pcolormap, int offset, int number)
 		bgra[j][2]=r;
 		bgra[j][1]=g;
 		bgra[j][0]=b;
-		
+
 		j++;
 	}
 }
@@ -1604,10 +1604,10 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
 			case RC_DOWN:
 				GetNextPageOne(swapupdown);
 				break;
-			case RC_RIGHT:	
+			case RC_RIGHT:
 				if (boxed)
 				{
-				    subtitledelay++;				    
+				    subtitledelay++;
 		    		    // display subtitledelay
 				    PosY = StartY;
 				    char ns[10];
@@ -1616,10 +1616,10 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
 				    RenderCharFB(ns[0],&atrtable[ATR_WB]);
 				    RenderCharFB(ns[1],&atrtable[ATR_WB]);
 				    RenderCharFB(ns[2],&atrtable[ATR_WB]);
-				    RenderCharFB(ns[4],&atrtable[ATR_WB]);					    
+				    RenderCharFB(ns[4],&atrtable[ATR_WB]);
 				}
 				else
-    				    GetNextSubPage(1);	
+    				    GetNextSubPage(1);
 				break;
 			case RC_LEFT:
 				if (boxed)
@@ -1634,10 +1634,10 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
 				    RenderCharFB(ns[0],&atrtable[ATR_WB]);
 				    RenderCharFB(ns[1],&atrtable[ATR_WB]);
 				    RenderCharFB(ns[2],&atrtable[ATR_WB]);
-				    RenderCharFB(ns[4],&atrtable[ATR_WB]);					    
+				    RenderCharFB(ns[4],&atrtable[ATR_WB]);
 				}
 				else
-				    GetNextSubPage(-1);	
+				    GetNextSubPage(-1);
 				break;
 			case RC_OK:
 				if (tuxtxt_cache.subpagetable[tuxtxt_cache.page] == 0xFF)
@@ -1664,10 +1664,10 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
 			case RC_PLUS:	 SwitchZoomMode();		break;
 			case RC_MINUS:	 SwitchScreenMode(-1);prevscreenmode = screenmode; break;
 			case RC_MUTE:	 SwitchTranspMode();	break;
-			case RC_TEXT:	 
+			case RC_TEXT:
 				if(transpmode == 1)
 					RCCode = RC_HOME;
-				SwitchTranspMode();	
+				SwitchTranspMode();
 				break;
 			case RC_HELP:	 SwitchHintMode();		break;
 			case RC_DBOX:	 ConfigMenu(0);			break;
@@ -1702,7 +1702,7 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
  * MyFaceRequester
  ******************************************************************************/
 
-FT_Error MyFaceRequester(FTC_FaceID face_id, FT_Library library, FT_Pointer request_data, FT_Face *aface)
+FT_Error MyFaceRequester(FTC_FaceID face_id, FT_Library library, FT_Pointer /*request_data*/, FT_Face *aface)
 {
 	FT_Error result;
 
@@ -1766,7 +1766,7 @@ int Init()
 	tuxtxt_cache.subpage    = tuxtxt_cache.subpagetable[tuxtxt_cache.page];
 	if (tuxtxt_cache.subpage == 0xff)
 	tuxtxt_cache.subpage    = 0;
-	
+
 	tuxtxt_cache.pageupdate = 0;
 
 	tuxtxt_cache.zap_subpage_manual = 0;
@@ -2061,7 +2061,7 @@ int Init()
 	gethotlist();
 	SwitchScreenMode(screenmode);
 	prevscreenmode = screenmode;
-	
+
 	printf("TuxTxt: init ok\n");
 
 	/* init successfull */
@@ -4638,7 +4638,7 @@ void RenderCharBB(int Char, tstPageAttr *Attribute)
  * RenderCharLCD                                                             *
  ******************************************************************************/
 
-void RenderCharLCD(int Digit, int XPos, int YPos)
+void RenderCharLCD(int /*Digit*/, int /*XPos*/, int /*YPos*/)
 {
 #if 0
 	int x, y;
@@ -4901,12 +4901,12 @@ void RenderPage()
 	    if (tv.tv_sec - tv_delay.tv_sec < subtitledelay)
 		return;
 	}
-	
+
 
 	/* update page or timestring */
 	if (transpmode != 2 && tuxtxt_cache.pageupdate && tuxtxt_cache.page_receiving != tuxtxt_cache.page && inputcounter == 2)
 	{
-	    if (boxed && subtitledelay) 
+	    if (boxed && subtitledelay)
 	    {
 		if (!delaystarted)
 		{
@@ -4929,13 +4929,13 @@ void RenderPage()
 		else
 			startrow = 1;
 		if (boxed)
-		{ 
-			if (screenmode != 0) 
+		{
+			if (screenmode != 0)
 				SwitchScreenMode(0); /* turn off divided screen */
 		}
-		else 
-		{ 
-			if (screenmode != prevscreenmode && !transpmode) 
+		else
+		{
+			if (screenmode != prevscreenmode && !transpmode)
 				SwitchScreenMode(prevscreenmode);
 		}
 
@@ -5333,7 +5333,7 @@ void CopyBB2FB()
 #endif
 
 		/* adapt background of backbuffer if changed */
-		if (StartX > 0 && *lfb != *(lfb + fix_screeninfo.line_length * var_screeninfo.yres)) 
+		if (StartX > 0 && *lfb != *(lfb + fix_screeninfo.line_length * var_screeninfo.yres))
 			FillBorder(*(lfb + fix_screeninfo.line_length * var_screeninfo.yoffset));
 //			 ClearBB(*(lfb + var_screeninfo.xres * var_screeninfo.yoffset));
 
@@ -5356,7 +5356,7 @@ void CopyBB2FB()
 	}
 	/* copy line25 in normal height */
 	if (!pagecatching )
-		memcpy(dst+(24*fontheight)*fix_screeninfo.line_length, src + (24*fontheight)*fix_screeninfo.line_length, fix_screeninfo.line_length*fontheight); 
+		memcpy(dst+(24*fontheight)*fix_screeninfo.line_length, src + (24*fontheight)*fix_screeninfo.line_length, fix_screeninfo.line_length*fontheight);
 
 	if (transpmode)
 		fillcolor = transp;
@@ -5367,7 +5367,7 @@ void CopyBB2FB()
 		src += 12*fontheight*fix_screeninfo.line_length;
 
 	/* copy topmenu in normal height (since PIG also keeps dimensions) */
-	if (screenmode == 1) 
+	if (screenmode == 1)
 	{
 		unsigned char *topdst = dst;
 

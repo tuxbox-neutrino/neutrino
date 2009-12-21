@@ -43,7 +43,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <zapit/client/zapittools.h> 
+#include <zapit/client/zapittools.h>
 
 unsigned int CBaseDec::mSamplerate=0;
 
@@ -194,7 +194,7 @@ bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 bool CBaseDec::SetDSP(int soundfd, int fmt, unsigned int dsp_speed, unsigned int channels)
 {
 	bool crit_error=false;
-	 
+
 	if (::ioctl(soundfd, SNDCTL_DSP_RESET))
 		printf("reset failed\n");
 	if(::ioctl(soundfd, SNDCTL_DSP_SETFMT, &fmt))
@@ -219,7 +219,7 @@ bool CBaseDec::SetDSP(int soundfd, int fmt, unsigned int dsp_speed, unsigned int
 			// disable iec aka digi out (avia reset enables it again)
 			//g_Zapit->IecOff();
 #endif
-		}	 		
+		}
 		//usleep(400000);
 		//if (!was_muted)
 		//	avs_mute(false);
@@ -229,7 +229,7 @@ bool CBaseDec::SetDSP(int soundfd, int fmt, unsigned int dsp_speed, unsigned int
 	return crit_error;
 }
 
-bool CBaseDec::avs_mute(bool mute)
+bool CBaseDec::avs_mute(bool /*mute*/)
 {
 	return true;
 }

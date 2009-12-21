@@ -58,13 +58,13 @@
 
 #include <zapit/client/zapittools.h>
 
-/* for alexW images with old drivers: 
+/* for alexW images with old drivers:
  * #define USE_VBI_INTERFACE 1
  */
 
 #ifdef USE_VBI_INTERFACE
  #define AVIA_VBI_START_VTXT	1
- #define AVIA_VBI_STOP_VTXT	2 
+ #define AVIA_VBI_STOP_VTXT	2
 #endif
 
 #include <daemonc/remotecontrol.h>
@@ -101,7 +101,7 @@ CPluginList::~CPluginList()
 	pluginlist.clear();
 }
 
-int CPluginList::exec(CMenuTarget* parent, const std::string & actionKey)
+int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
@@ -300,7 +300,7 @@ void CPluginList::paintHead()
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+38,y+theight+1, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
 	} else
 	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+8,y+theight+1, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8		
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+8,y+theight+1, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
 	}
 }
 
@@ -313,9 +313,9 @@ void CPluginList::paint()
 	height = theight+0+listmaxshow*fheight; // recalc height
 	x=getScreenStartX( width );
 	y=getScreenStartY( height );
-	
+
    liststart = (selected/listmaxshow)*listmaxshow;
-	
+
 	paintHead();
 	paintItems();
 }
@@ -325,13 +325,13 @@ void CPluginList::paintItems()
 	if(listmaxshow <= pluginlist.size()+1)
 	{
 		// Scrollbar
-		int nrOfPages = ((pluginlist.size()-1) / listmaxshow)+1; 
+		int nrOfPages = ((pluginlist.size()-1) / listmaxshow)+1;
 		int currPage  = (liststart/listmaxshow) +1;
 		float blockHeight = (height-theight-4)/nrOfPages;
 		frameBuffer->paintBoxRel(x+width, y+theight, 15, height-theight,  COL_MENUCONTENT_PLUS_1);
 		frameBuffer->paintBoxRel(x+ width +2, y+theight+2+int((currPage-1)*blockHeight) , 11, int(blockHeight), COL_MENUCONTENT_PLUS_3);
 	}
-	
+
    for(unsigned int count=0;count<listmaxshow;count++)
 	{
 		paintItem(count);

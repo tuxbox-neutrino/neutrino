@@ -80,7 +80,7 @@ THandleStatus CyParser::Hook_SendResponse(CyhookHandler *hh)
 {
 	hh->status = HANDLED_NONE;
 
-//	log_level_printf(4,"yparser hook start url:%s\n",hh->UrlData["url"].c_str());	
+//	log_level_printf(4,"yparser hook start url:%s\n",hh->UrlData["url"].c_str());
 	init(hh);
 
 	CyParser *yP = new CyParser();		// create a Session
@@ -94,9 +94,9 @@ THandleStatus CyParser::Hook_SendResponse(CyhookHandler *hh)
 	}
 	delete yP;
 
-//	log_level_printf(4,"yparser hook end status:%d\n",(int)hh->status);	
-//	log_level_printf(5,"yparser hook result:%s\n",hh->yresult.c_str());	
-	
+//	log_level_printf(4,"yparser hook end status:%d\n",(int)hh->status);
+//	log_level_printf(5,"yparser hook result:%s\n",hh->yresult.c_str());
+
 	return hh->status;
 }
 
@@ -108,7 +108,7 @@ void CyParser::Execute(CyhookHandler *hh)
 	int index = -1;
 	std::string filename = hh->UrlData["filename"];
 
-	log_level_printf(4,"yParser.Execute filename%s\n",filename.c_str());	
+	log_level_printf(4,"yParser.Execute filename%s\n",filename.c_str());
 	filename = string_tolower(filename);
 
 	// debugging informations
@@ -151,7 +151,7 @@ void CyParser::Execute(CyhookHandler *hh)
 	{
 		(this->*yCgiCallList[index].pfunc)(hh);
 		return;
-	}	
+	}
 }
 
 //=============================================================================
@@ -535,7 +535,7 @@ std::string  CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd)
 // Get Value from ini/conf-file (filename) for var (varname)
 // yaccess = open | cache
 //-------------------------------------------------------------------------
-std::string  CyParser::YWeb_cgi_get_ini(CyhookHandler *hh, std::string filename, std::string varname, std::string yaccess)
+std::string  CyParser::YWeb_cgi_get_ini(CyhookHandler */*hh*/, std::string filename, std::string varname, std::string yaccess)
 {
 	std::string result;
 	if((yaccess == "open") || (yaccess == ""))
@@ -551,7 +551,7 @@ std::string  CyParser::YWeb_cgi_get_ini(CyhookHandler *hh, std::string filename,
 // set Value from ini/conf-file (filename) for var (varname)
 // yaccess = open | cache | save
 //-------------------------------------------------------------------------
-void  CyParser::YWeb_cgi_set_ini(CyhookHandler *hh, std::string filename, std::string varname, std::string varvalue, std::string yaccess)
+void  CyParser::YWeb_cgi_set_ini(CyhookHandler */*hh*/, std::string filename, std::string varname, std::string varvalue, std::string yaccess)
 {
 	std::string result;
 	if((yaccess == "open") || (yaccess == ""))
@@ -576,7 +576,7 @@ std::string  CyParser::YWeb_cgi_include_block(std::string filename, std::string 
 	yresult = ydefault;
 
 	stat(filename.c_str(), &attrib);
-	
+
 	pthread_mutex_lock( &yParser_mutex );
 	if( (attrib.st_mtime == yCached_blocks_attrib.st_mtime) && (filename == yCached_blocks_filename) )
 	{
@@ -632,7 +632,7 @@ std::string  CyParser::YWeb_cgi_include_block(std::string filename, std::string 
 
 //-------------------------------------------------------------------------
 
-std::string CyParser::YexecuteScript(CyhookHandler *hh, std::string cmd)
+std::string CyParser::YexecuteScript(CyhookHandler */*hh*/, std::string cmd)
 {
 	std::string script, para, result;
 	bool found = false;
@@ -687,7 +687,7 @@ std::string CyParser::YexecuteScript(CyhookHandler *hh, std::string cmd)
 
 //=============================================================================
 // y-func : Dispatching
-// TODO: new functions for 
+// TODO: new functions for
 //	- Compiler-Time Settings like *httpd.conf etc
 //	- Versions of httpd, yParser, Hooks,
 //=============================================================================
@@ -755,7 +755,7 @@ std::string  CyParser::func_get_config_data(CyhookHandler *hh, std::string para)
 //-------------------------------------------------------------------------
 extern void yhttpd_reload_config();
 
-std::string  CyParser::func_do_reload_httpd_config(CyhookHandler *hh, std::string para)
+std::string  CyParser::func_do_reload_httpd_config(CyhookHandler */*hh*/, std::string /*para*/)
 {
 	log_level_printf(1,"func_do_reload_httpd_config: raise USR1 !!!\n");
 	//raise(SIGUSR1); // Send HUP-Signal to Reload Settings

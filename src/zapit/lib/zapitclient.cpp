@@ -370,7 +370,7 @@ bool CZapitClient::getBouquetChannels(const unsigned int bouquet, BouquetChannel
 	return return_value;
 }
 
-bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChannelList& channels, channelsMode mode, const bool utf_encoded)
+bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChannelList& channels, channelsMode mode, const bool /*utf_encoded*/)
 {
 	bool                                      return_value;
 	CZapitMessages::commandGetBouquetChannels msg;
@@ -543,7 +543,7 @@ void CZapitClient::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t cm
 
 /* start TS-Scan */
 bool CZapitClient::startScan(const int scan_mode)
-{	
+{
 	bool reply = send(CZapitMessages::CMD_SCANSTART, (char*)&scan_mode, sizeof(scan_mode));
 
 	close_connection();

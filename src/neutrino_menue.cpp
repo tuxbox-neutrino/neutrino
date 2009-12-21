@@ -230,7 +230,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOFORMAT_OPTIONS[VIDEOMENU_VIDEOFO
 };
 
 #define VIDEOMENU_43MODE_OPTION_COUNT 4
-const CMenuOptionChooser::keyval VIDEOMENU_43MODE_OPTIONS[VIDEOMENU_43MODE_OPTION_COUNT] = 
+const CMenuOptionChooser::keyval VIDEOMENU_43MODE_OPTIONS[VIDEOMENU_43MODE_OPTION_COUNT] =
 {
 	{ DISPLAY_AR_MODE_PANSCAN, LOCALE_VIDEOMENU_PANSCAN },
 	{ DISPLAY_AR_MODE_PANSCAN2, LOCALE_VIDEOMENU_PANSCAN2 },
@@ -250,7 +250,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE
 	{ 8, NONEXISTANT_LOCALE, "1080i 50Hz"	},
 	{ 10, NONEXISTANT_LOCALE, "1080p 24Hz"	},
 	{ 11, NONEXISTANT_LOCALE, "1080p 25Hz"	},
-	
+
 	{ 0, NONEXISTANT_LOCALE, "NTSC"		},
 	{ 3, NONEXISTANT_LOCALE, "480p"		},
 	{ 5, NONEXISTANT_LOCALE, "720p 60Hz"	},
@@ -619,7 +619,7 @@ CMenuOptionStringChooser* tzSelect;
 void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings,  CMenuWidget &audioSettings, CMenuWidget &parentallockSettings,
 				CMenuWidget &networkSettings, CMenuWidget &recordingSettings, CMenuWidget &colorSettings, CMenuWidget &lcdSettings,
 				CMenuWidget &keySettings, CMenuWidget &languageSettings, CMenuWidget &miscSettings,
-				CMenuWidget &service, CMenuWidget &fontSettings, CMenuWidget &audiopl_picSettings, CMenuWidget &streamingSettings, CMenuWidget &moviePlayer)
+				CMenuWidget &service, CMenuWidget &/*fontSettings*/, CMenuWidget &audiopl_picSettings, CMenuWidget &/*streamingSettings*/, CMenuWidget &moviePlayer)
 {
 
 #ifdef TEST_MENU
@@ -667,7 +667,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	moviePlayer.addItem(GenericMenuBack);
 	moviePlayer.addItem(GenericMenuSeparatorLine);
 
-	
+
 	//moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_PESPLAYBACK, true, NULL, moviePlayerGui, "pesplayback"));
 	//moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK_PC, true, NULL, moviePlayerGui, "tsplayback_pc"));
 	moviePlayer.addItem(new CLockedMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, g_settings.parentallock_pincode, false, true, NULL, moviePlayerGui, "tsmoviebrowser"));
@@ -753,7 +753,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 		else {
 			delete tzSelect;
 			tzSelect = NULL;
-		}	
+		}
 		xmlFreeDoc(parser);
 	}
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_OSD    , true, NULL, &colorSettings    , NULL, CRCInput::RC_8));
@@ -782,7 +782,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 		rfmenu->addItem( GenericMenuBack );
 		rfmenu->addItem( new CMenuForwarder(LOCALE_RECORDINGMENU_SETUPNOW, true, NULL, rfexec, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 		rfmenu->addItem( GenericMenuSeparatorLine );
-	
+
 		rfmenu->addItem( new CMenuOptionChooser(LOCALE_RF_CARRIER, &g_settings.rf_subcarrier, RF_CARRIER_OPTIONS, RF_CARRIER_OPTION_COUNT, true, rfnot));
 		rfmenu->addItem( new CMenuOptionChooser(LOCALE_RF_ENABLE, &g_settings.rf_soundenable, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, rfnot));
 		rfmenu->addItem( new CMenuOptionNumberChooser(LOCALE_RF_CHANNEL, &g_settings.rf_channel, true, 21, 69) );
@@ -908,7 +908,7 @@ class CTPSelectHandler : public CMenuTarget
 };
 
 extern std::map<transponder_id_t, transponder> select_transponders;
-int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	transponder_list_t::iterator tI;
 	sat_iterator_t sit;
@@ -978,7 +978,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 		old_selected = select;
 
 		tmpI = tmplist.find(select);
-		printf("CTPSelectHandler::exec: selected TP: freq %d pol %d SR %d\n", tmpI->second.feparams.frequency, 
+		printf("CTPSelectHandler::exec: selected TP: freq %d pol %d SR %d\n", tmpI->second.feparams.frequency,
 			tmpI->second.polarization, tmpI->second.feparams.u.qpsk.symbol_rate);
 		sprintf(get_set.TP_freq, "%d", tmpI->second.feparams.frequency);
 		switch(frontend->getInfo()->type) {
@@ -996,7 +996,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 			case FE_ATSC:
 				break;
 		}
-		
+
 	}
 	if(retval == menu_return::RETURN_EXIT_ALL)
 		return menu_return::RETURN_EXIT_ALL;
@@ -1580,7 +1580,7 @@ void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
 				if(pos != NULL) {
 					char iname[50];
 					*pos = '\0';
-					sprintf(iname, "%s.raw", locale); 
+					sprintf(iname, "%s.raw", locale);
 					CMenuOptionLanguageChooser* oj = new CMenuOptionLanguageChooser((char*)locale, this, iname);
 					oj->addOption(locale);
 					languageSettings.addItem( oj );
@@ -1817,7 +1817,7 @@ void CNeutrinoApp::InitRecordingSettings(CMenuWidget &recordingSettings)
 	g_settings.recording_audio_pids_std = ( g_settings.recording_audio_pids_default & TIMERD_APIDS_STD ) ? 1 : 0 ;
 	g_settings.recording_audio_pids_alt = ( g_settings.recording_audio_pids_default & TIMERD_APIDS_ALT ) ? 1 : 0 ;
 	g_settings.recording_audio_pids_ac3 = ( g_settings.recording_audio_pids_default & TIMERD_APIDS_AC3 ) ? 1 : 0 ;
-	
+
 	CRecAPIDSettingsNotifier * an = new CRecAPIDSettingsNotifier;
 	CMenuOptionChooser* aoj1 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &g_settings.recording_audio_pids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, an);
 	CMenuOptionChooser* aoj2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &g_settings.recording_audio_pids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, an);
@@ -2560,7 +2560,7 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
         keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_YELLOW, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_YELLOW,2)));
         keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_BLUE, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_BLUE,3)));
 
-	
+
 }
 // USERMENU
 // leave this functions, somebody might want to use it in the future again
@@ -3005,7 +3005,7 @@ bool CNeutrinoApp::showUserMenu(int button)
                 menu->exec(NULL,"");
 		selected[button] = menu->getSelected();
 	}
-        else if (menu_item != NULL)                     
+        else if (menu_item != NULL)
                 menu_item->exec( NULL );
 
         // restore mute symbol

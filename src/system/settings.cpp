@@ -55,7 +55,7 @@ CScanSettings::CScanSettings(void)
 	satNameNoDiseqc[0] = 0;
 }
 
-void CScanSettings::toSatList( CZapitClient::ScanSatelliteList& satList) const
+void CScanSettings::toSatList( CZapitClient::ScanSatelliteList& /*satList*/) const
 {
 #if 0
 	satList.clear();
@@ -170,7 +170,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	strcpy(TP_rate, configfile.getString("TP_rate", "27500000").c_str());
 #if HAVE_DVB_API_VERSION >= 3
 	if(TP_fec == 4) TP_fec = 5;
-#endif	
+#endif
 	scanSectionsd = configfile.getInt32("scanSectionsd", 0);
 	return true;
 }
@@ -183,7 +183,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32( "bouquetMode", bouquetMode );
 	configfile.setInt32( "scanType", scanType );
 	configfile.setString( "satNameNoDiseqc", satNameNoDiseqc );
-	
+
 	configfile.setInt32("scan_mode", scan_mode);
 	configfile.setInt32("TP_fec", TP_fec);
 	configfile.setInt32("TP_pol", TP_pol);

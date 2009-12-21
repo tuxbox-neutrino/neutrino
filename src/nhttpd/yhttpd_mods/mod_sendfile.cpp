@@ -36,8 +36,8 @@
 //      c) If the variant has not been modified since a valid If-
 //         Modified-Since date, the server SHOULD return a 304 (Not
 //         Modified) response.
-//         
-//  yjogol: ASSUMPTION Date-Format is ONLY RFC 1123 compatible!       
+//
+//  yjogol: ASSUMPTION Date-Format is ONLY RFC 1123 compatible!
 //=============================================================================
 
 // system
@@ -69,14 +69,14 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh)
 	hh->status = HANDLED_NONE;
 
 	int filed;
-	log_level_printf(4,"mod_sendfile prepare hook start url:%s\n",hh->UrlData["fullurl"].c_str());	
+	log_level_printf(4,"mod_sendfile prepare hook start url:%s\n",hh->UrlData["fullurl"].c_str());
 	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
 	if(mime != "")
 	{
 		//TODO: Check allowed directories / actually in GetFileName
 		// build filename
 		std::string fullfilename = GetFileName(hh, hh->UrlData["path"], hh->UrlData["filename"]);
-		
+
 		if( (filed = OpenFile(hh, fullfilename) ) != -1 ) //can access file?
 		{
 			struct stat statbuf;
@@ -98,16 +98,16 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh)
 				struct tm mod;
 				if(strptime(hh->HeaderList["If-Modified-Since"].c_str(), RFC1123FMT, &mod) != NULL)
 				{
-					mod.tm_isdst = 0; // daylight saving flag! 
+					mod.tm_isdst = 0; // daylight saving flag!
 					if_modified_since = mktime(&mod);
 				}
 			}
-	
+
 			// normalize obj_last_modified to GMT
 			struct tm *tmp = gmtime(&(hh->LastModified));
 			time_t LastModifiedGMT = mktime(tmp);
 			bool modified = (if_modified_since == (time_t)-1) || (if_modified_since < LastModifiedGMT);
-	
+
 			// Send normal or not-modified header
 			if(modified)
 			{
@@ -123,13 +123,13 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh)
 			hh->SetError(HTTP_NOT_FOUND);
 		}
 	}
-	log_level_printf(4,"mod_sendfile prepare hook end status:%d\n",(int)hh->status);	
-	
+	log_level_printf(4,"mod_sendfile prepare hook end status:%d\n",(int)hh->status);
+
 	return hh->status;
 }
 
 //-----------------------------------------------------------------------------
-// HOOK: Hook_ReadConfig 
+// HOOK: Hook_ReadConfig
 // This hook ist called from ReadConfig
 //-----------------------------------------------------------------------------
 THandleStatus CmodSendfile::Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList)
@@ -182,7 +182,7 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 //-----------------------------------------------------------------------------
 // Send File: Open File and check file type
 //-----------------------------------------------------------------------------
-int CmodSendfile::OpenFile(CyhookHandler *hh, std::string fullfilename)
+int CmodSendfile::OpenFile(CyhookHandler */*hh*/, std::string fullfilename)
 {
 	int  fd= -1;
 	std::string tmpstring;
@@ -209,6 +209,6 @@ std::string CmodSendfile::GetContentType(std::string ext)
 		{
 			ctype = MimeFileExtensions[i].mime;
 			break;
-		}	
+		}
 	return ctype;
 }

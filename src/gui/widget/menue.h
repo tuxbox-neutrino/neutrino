@@ -55,7 +55,7 @@ class CChangeObserver
 {
 	public:
 		virtual ~CChangeObserver(){}
-		virtual bool changeNotify(const neutrino_locale_t OptionName, void *Data)
+		virtual bool changeNotify(const neutrino_locale_t /*OptionName*/, void */*Data*/)
 		{
 			return false;
 		}
@@ -107,7 +107,7 @@ class CMenuItem
 			return false;
 		}
 
-		virtual int exec(CMenuTarget* parent)
+		virtual int exec(CMenuTarget* /*parent*/)
 		{
 			return 0;
 		}
@@ -153,7 +153,7 @@ class CMenuForwarder : public CMenuItem
 
 	virtual const char * getOption(void);
 	virtual const char * getName(void);
-	
+
  public:
 
 	CMenuForwarder(const neutrino_locale_t Text, const bool Active=true, const char * const Option=NULL, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
@@ -191,7 +191,7 @@ class CAbstractMenuOptionChooser : public CMenuItem
 		{
 			return height;
 		}
-	
+
 	bool isSelectable(void) const
 		{
 			return active;
@@ -214,7 +214,7 @@ class CMenuOptionNumberChooser : public CAbstractMenuOptionChooser
 
  public:
 	CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ = NULL, const int print_offset = 0, const int special_value = 0, const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE, const char * non_localized_name = NULL);
-	
+
 	int paint(bool selected, bool last = false);
 
 	int exec(CMenuTarget* parent);
@@ -239,7 +239,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 
  public:
 	CMenuOptionChooser(const neutrino_locale_t OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
-	CMenuOptionChooser(const char* OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false); 
+	CMenuOptionChooser(const char* OptionName, int * const OptionValue, const struct keyval * const Options, const unsigned Number_Of_Options, const bool Active = false, CChangeObserver * const Observ = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const std::string & IconName= "", bool Pulldown = false);
 
 	void setOptionValue(const int newvalue);
 	int getOptionValue(void) const;

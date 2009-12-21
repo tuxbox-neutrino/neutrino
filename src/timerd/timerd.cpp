@@ -48,7 +48,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	CTimerEventMap::iterator pos;
 	switch (rmsg.cmd)
 	{
-		
+
 		case CTimerdMsg::CMD_REGISTEREVENT :
 			CTimerManager::getInstance()->getEventServer()->registerEvent(connfd);
 			break;
@@ -91,7 +91,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					resp.alarmTime = event->alarmTime;
 					resp.stopTime = event->stopTime;
 					resp.repeatCount = event->repeatCount;
-					
+
 					if(event->eventType == CTimerd::TIMER_STANDBY)
 						resp.standby_on = static_cast<CTimerEvent_Standby*>(event)->standby_on;
 					else if(event->eventType == CTimerd::TIMER_NEXTPROGRAM)
@@ -108,8 +108,8 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 						resp.epg_starttime = ev->eventInfo.epg_starttime;
 						resp.channel_id = ev->eventInfo.channel_id;
 						resp.apids = ev->eventInfo.apids;
-						strcpy(resp.recordingDir, ev->recordingDir.substr(0,sizeof(resp.recordingDir)-1).c_str());						
-						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());						
+						strcpy(resp.recordingDir, ev->recordingDir.substr(0,sizeof(resp.recordingDir)-1).c_str());
+						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());
 					}
 					else if(event->eventType == CTimerd::TIMER_ZAPTO)
 					{
@@ -118,7 +118,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 						resp.epg_starttime = ev->eventInfo.epg_starttime;
 						resp.channel_id = ev->eventInfo.channel_id;
 						resp.apids = ev->eventInfo.apids;
-						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());						
+						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());
 					}
 					else if(event->eventType == CTimerd::TIMER_REMIND)
 					{
@@ -128,7 +128,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 					else if (event->eventType == CTimerd::TIMER_EXEC_PLUGIN)
 					{
 						memset(resp.pluginName, 0, sizeof(resp.pluginName));
-						strncpy(resp.pluginName, static_cast<CTimerEvent_ExecPlugin*>(event)->name, sizeof(resp.message)-1);						
+						strncpy(resp.pluginName, static_cast<CTimerEvent_ExecPlugin*>(event)->name, sizeof(resp.message)-1);
 					}
 				}
 			}
@@ -173,7 +173,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 						resp.channel_id = ev->eventInfo.channel_id;
 						resp.apids = ev->eventInfo.apids;
 						strcpy(resp.recordingDir, ev->recordingDir.substr(0,sizeof(resp.recordingDir)-1).c_str());
-						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());						
+						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());
 					}
 					else if(event->eventType == CTimerd::TIMER_ZAPTO)
 					{
@@ -182,7 +182,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 						resp.epg_starttime = ev->eventInfo.epg_starttime;
 						resp.channel_id = ev->eventInfo.channel_id;
 						resp.apids = ev->eventInfo.apids;
-						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());						
+						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());
 					}
 					else if(event->eventType == CTimerd::TIMER_REMIND)
 					{
@@ -217,7 +217,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 				{
 					switch (*type)
 					{
-						case CTimerd::TIMER_SHUTDOWN:						
+						case CTimerd::TIMER_SHUTDOWN:
 						case CTimerd::TIMER_NEXTPROGRAM:
 						case CTimerd::TIMER_ZAPTO:
 						case CTimerd::TIMER_STANDBY:
@@ -288,7 +288,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 				case CTimerd::TIMER_RECORD :
 				{
-					
+
 					CTimerd::TransferRecordingInfo recInfo;
 					CBasicServer::receive_data(connfd, &recInfo, sizeof(CTimerd::TransferRecordingInfo));
 				   if(recInfo.recordingSafety)
@@ -311,7 +311,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 						msgAddTimer.repeatCount,
 						recInfo.recordingDir);
 					rspAddTimer.eventID = CTimerManager::getInstance()->addEvent(event);
-				
+
 					break;
 				}
 				case CTimerd::TIMER_IMMEDIATE_RECORD :
@@ -384,7 +384,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 								       msgAddTimer.repeatCount);
 					rspAddTimer.eventID = CTimerManager::getInstance()->addEvent(event);
 					break;
-					
+
 				case CTimerd::TIMER_EXEC_PLUGIN :
 					CTimerdMsg::commandExecPlugin pluginMsg;
 					CBasicServer::receive_data(connfd, &pluginMsg, sizeof(CTimerdMsg::commandExecPlugin));
@@ -461,7 +461,7 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	return true;
 }
 
-int timerd_main_thread(void *data)
+int timerd_main_thread(void */*data*/)
 {
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 

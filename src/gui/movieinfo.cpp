@@ -1,4 +1,4 @@
- /***************************************************************************
+/***************************************************************************
 	Neutrino-GUI  -   DBoxII-Project
 
  	Homepage: http://dbox.cyberphoria.org/
@@ -106,7 +106,7 @@ bool CMovieInfo::convertTs2XmlName(std::string * filename)
 		}
 		*filename = filename->substr(0, bytes) + ".xml";
 		result = true;
-	} else			// not a TS file, return!!!!! 
+	} else			// not a TS file, return!!!!!
 	{
 		//TRACE("    not a TS file ");
 	}
@@ -320,7 +320,7 @@ bool CMovieInfo::loadMovieInfo(MI_MOVIE_INFO * movie_info, CFile * file)
 /************************************************************************
 
 ************************************************************************/
-bool CMovieInfo::parseXmlTree(char *text, MI_MOVIE_INFO * movie_info)
+bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 {
 #ifndef XMLTREE_LIB
 	return (false);		// no XML lib available return false
@@ -384,7 +384,7 @@ bool CMovieInfo::parseXmlTree(char *text, MI_MOVIE_INFO * movie_info)
 				XML_GET_DATA_STRING(xam1, MI_XML_TAG_SERIE_NAME, movie_info->serieName);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_LENGTH, movie_info->length);
 				XML_GET_DATA_STRING(xam1, MI_XML_TAG_PRODUCT_COUNTRY, movie_info->productionCountry);
-				//if(!strcmp(xam1->GetType(), MI_XML_TAG_PRODUCT_COUNTRY)) if(xam1->GetData() != NULL)strncpy(movie_info->productionCountry, xam1->GetData(),4);        
+				//if(!strcmp(xam1->GetType(), MI_XML_TAG_PRODUCT_COUNTRY)) if(xam1->GetData() != NULL)strncpy(movie_info->productionCountry, xam1->GetData(),4);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_PRODUCT_DATE, movie_info->productionDate);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_QUALITY, movie_info->quality);
 				XML_GET_DATA_INT(xam1, MI_XML_TAG_PARENTAL_LOCKAGE, movie_info->parentalLockAge);
@@ -426,7 +426,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 	std::string print_buffer;
 	tm *date_tm;
 	char date_char[100];
-	// prepare print buffer  
+	// prepare print buffer
 	print_buffer = movie_info.epgInfo1;
 	print_buffer += "\n";
 	print_buffer += movie_info.epgInfo2;
@@ -502,7 +502,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 		//snprintf(date_char, 12,"%4llu",movie_info.file.Size>>20);
 		sprintf(date_char, "%llu", movie_info.file.Size >> 20);
 		print_buffer += date_char;
-		//print_buffer += "\n"; 
+		//print_buffer += "\n";
 	}
 	print_buffer += "\n";
 	print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_PATH);
@@ -510,7 +510,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 	print_buffer += movie_info.file.Name;
 	print_buffer += "\n";
 
-	ShowMsg2UTF(movie_info.epgTitle.empty()? movie_info.file.getFileName().c_str() : movie_info.epgTitle.c_str(), print_buffer.c_str(), CMsgBox::mbrBack, CMsgBox::mbBack);	// UTF-8*/ 
+	ShowMsg2UTF(movie_info.epgTitle.empty()? movie_info.file.getFileName().c_str() : movie_info.epgTitle.c_str(), print_buffer.c_str(), CMsgBox::mbrBack, CMsgBox::mbBack);	// UTF-8*/
 
 }
 
@@ -520,15 +520,15 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 void CMovieInfo::printDebugMovieInfo(MI_MOVIE_INFO & movie_info)
 {
 	TRACE(" FileName: %s", movie_info.file.Name.c_str());
-	//TRACE(" FilePath: %s", movie_info.file.GetFilePath ); 
-	//TRACE(" FileLength: %d", movie_info.file.GetLength ); 
-	//TRACE(" FileStatus: %d", movie_info.file.GetStatus ); 
+	//TRACE(" FilePath: %s", movie_info.file.GetFilePath );
+	//TRACE(" FileLength: %d", movie_info.file.GetLength );
+	//TRACE(" FileStatus: %d", movie_info.file.GetStatus );
 
 	TRACE(" ********** Movie Data ***********\r\n");	// (date, month, year)
 	TRACE(" dateOfLastPlay: \t%d\r\n", (int)movie_info.dateOfLastPlay);	// (date, month, year)
-	TRACE(" dirItNr: \t\t%d\r\n", movie_info.dirItNr);	// 
-	TRACE(" genreMajor: \t\t%d\r\n", movie_info.genreMajor);	//genreMajor;                           
-	TRACE(" genreMinor: \t\t%d\r\n", movie_info.genreMinor);	//genreMinor;                           
+	TRACE(" dirItNr: \t\t%d\r\n", movie_info.dirItNr);	//
+	TRACE(" genreMajor: \t\t%d\r\n", movie_info.genreMajor);	//genreMajor;
+	TRACE(" genreMinor: \t\t%d\r\n", movie_info.genreMinor);	//genreMinor;
 	TRACE(" length: \t\t%d\r\n", movie_info.length);	// (minutes)
 	TRACE(" quality: \t\t%d\r\n", movie_info.quality);	// (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
 	TRACE(" productionCount:\t>%s<\r\n", movie_info.productionCountry.c_str());
@@ -550,7 +550,7 @@ void CMovieInfo::printDebugMovieInfo(MI_MOVIE_INFO & movie_info)
 	}
 
 	TRACE(" epgTitle: \t\t>%s<\r\n", movie_info.epgTitle.c_str());
-	TRACE(" epgInfo1:\t\t>%s<\r\n", movie_info.epgInfo1.c_str());	//epgInfo1              
+	TRACE(" epgInfo1:\t\t>%s<\r\n", movie_info.epgInfo1.c_str());	//epgInfo1
 	TRACE(" epgInfo2:\t\t\t>%s<\r\n", movie_info.epgInfo2.c_str());	//epgInfo2
 	TRACE(" epgChannel:\t\t>%s<\r\n", movie_info.epgChannel.c_str());
 	TRACE(" serieName:\t\t>%s<\r\n", movie_info.serieName.c_str());	// (name e.g. 'StarWars)
@@ -813,7 +813,7 @@ bool CMovieInfo::addNewBookmark(MI_MOVIE_INFO * movie_info, MI_BOOKMARK & new_bo
 	TRACE("[mi] addNewBookmark\r\n");
 	bool result = false;
 	if (movie_info != NULL) {
-		// search for free entry 
+		// search for free entry
 		bool loop = true;
 		for (int i = 0; i < MI_MOVIE_BOOK_USER_MAX && loop == true; i++) {
 			if (movie_info->bookmarks.user[i].pos == 0) {
@@ -857,9 +857,9 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 	movie_info->file.Size = 0;	// Megabytes
 	movie_info->file.Time = mktime(&timePlay);
 	movie_info->dateOfLastPlay = mktime(&timePlay);	// (date, month, year)
-	movie_info->dirItNr = 0;	// 
-	movie_info->genreMajor = 0;	//genreMajor;                           
-	movie_info->genreMinor = 0;	//genreMinor;                           
+	movie_info->dirItNr = 0;	//
+	movie_info->genreMajor = 0;	//genreMajor;
+	movie_info->genreMinor = 0;	//genreMinor;
 	movie_info->length = 0;	// (minutes)
 	movie_info->quality = 0;	// (3 stars: classics, 2 stars: very good, 1 star: good, 0 stars: OK)
 	movie_info->productionDate = 0;	// (Year)  years since 1900
@@ -878,7 +878,7 @@ void CMovieInfo::clearMovieInfo(MI_MOVIE_INFO * movie_info)
 
 	movie_info->productionCountry = "";
 	movie_info->epgTitle = "";
-	movie_info->epgInfo1 = "";	//epgInfo1              
+	movie_info->epgInfo1 = "";	//epgInfo1
 	movie_info->epgInfo2 = "";	//epgInfo2
 	movie_info->epgChannel = "";
 	movie_info->serieName = "";	// (name e.g. 'StarWars)
@@ -911,15 +911,15 @@ bool CMovieInfo::loadFile_std(CFile & file, char *buffer, int buffer_size)
 	bool result = true;
 
 	int fd = open(file.Name.c_str(), O_RDONLY);
-	if (fd == -1)		// cannot open file, return!!!!! 
+	if (fd == -1)		// cannot open file, return!!!!!
 	{
 		TRACE("[mi] loadXml: cannot open (%s)\r\n", file.getFileName().c_str());
 		return false;
 	}
 	//TRACE( "show_ts_info: File found (%s)\r\n" ,filename->c_str());
-	// read file content to buffer 
+	// read file content to buffer
 	int bytes = read(fd, buffer, buffer_size - 1);
-	if (bytes <= 0)		// cannot read file into buffer, return!!!! 
+	if (bytes <= 0)		// cannot read file into buffer, return!!!!
 	{
 		TRACE("[mi] loadXml: cannot read (%s)\r\n", file.getFileName().c_str());
 		return false;
@@ -929,7 +929,7 @@ bool CMovieInfo::loadFile_std(CFile & file, char *buffer, int buffer_size)
 	return (result);
 }
 
-bool CMovieInfo::loadFile_vlc(CFile & file, char *buffer, int buffer_size)
+bool CMovieInfo::loadFile_vlc(CFile & /*file*/, char */*buffer*/, int /*buffer_size*/)
 {
 	bool result = false;
 	return (result);
@@ -966,14 +966,14 @@ bool CMovieInfo::saveFile_std(const CFile & file, const char *text, const int te
 	return (result);
 }
 
-bool CMovieInfo::saveFile_vlc(const CFile & file, const char *text, const int text_size)
+bool CMovieInfo::saveFile_vlc(const CFile & /*file*/, const char */*text*/, const int /*text_size*/)
 {
 	bool result = false;
 	return (result);
 }
 
 /* 	char buf[2048];
-	
+
 	int done;
 	do
 	{
@@ -988,7 +988,7 @@ bool CMovieInfo::saveFile_vlc(const CFile & file, const char *text, const int te
 		}
 	} while (!done);
 	fclose(in);
- * 
+ *
  * */
 
 void CMovieInfo::copy(MI_MOVIE_INFO * src, MI_MOVIE_INFO * dst)

@@ -50,7 +50,7 @@ int dvbsub_getpid();
 //  -- AUDIO Selector Menue Handler Class
 //  -- to be used for calls from Menue
 //  -- (2005-08-31 rasc)
-// 
+//
 
 // -- this is a copy from neutrino.cpp!!
 #define AUDIOMENU_ANALOGOUT_OPTION_COUNT 3
@@ -61,7 +61,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT
 	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
 
-int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int           res = menu_return::RETURN_EXIT_ALL;
 

@@ -20,7 +20,7 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
- 
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -39,7 +39,7 @@
 //#undef USE_NEVIS_GXA // since OSD problem gone with new driver, until GXA will be faster//reenabled GXA-luc
 
 FT_Error FBFontRenderClass::myFTC_Face_Requester(FTC_FaceID  face_id,
-        FT_Library  library,
+        FT_Library  /*library*/,
         FT_Pointer  request_data,
         FT_Face*    aface)
 {
@@ -90,7 +90,7 @@ FBFontRenderClass::FBFontRenderClass(const int xr, const int yr)
 FBFontRenderClass::~FBFontRenderClass()
 {
 	fontListEntry * g;
-	
+
 	for (fontListEntry * f = font; f; f = g)
 	{
 		g = f->next;
@@ -248,8 +248,8 @@ FT_Error Font::getGlyphBitmap(FT_ULong glyph_index, FTC_SBit *sbit)
 
 int Font::setSize(int isize)
 {
-	int temp = font.width; 
-	font.width = font.height = isize; 
+	int temp = font.width;
+	font.width = font.height = isize;
 	scaler.width  = isize * 64;
 	scaler.height = isize * 64;
 
@@ -305,7 +305,7 @@ int Font::getHeight(void)
 int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on error
 {
 	int unicode_value;
-//printf("%c ", (unsigned char)(*text));	
+//printf("%c ", (unsigned char)(*text));
 	if (utf8_encoded && ((((unsigned char)(*text)) & 0x80) != 0))
 	{
 		int remaining_unicode_length;
@@ -326,7 +326,7 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 		}
 		else                     // cf.: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
 			return -1;       // corrupted character or a character with > 4 bytes utf-8 representation
-		
+
 		for (int i = 0; i < remaining_unicode_length; i++)
 		{
 			text++;
@@ -446,7 +446,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 				 (((fgt + deltat * i / 255) & ((1 << tl) - 1)) << to));
 		}
 	}
-	
+
 	int spread_by = 0;
 	if (stylemodifier == Font::Embolden)
 	{

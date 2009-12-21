@@ -41,7 +41,7 @@ static gdouble scale = 0;
 static gint xscale128[] = { 0, 1, 2, 3, 4, 6, 8, 9, 10, 14, 20, 27, 37, 50, 67, 94, 127 };
 static gint xscale256[] = { 0, 1, 2, 3, 5, 7, 10, 14, 20, 28, 40, 54, 74, 101, 137, 187, 255 };
 static gint xscale512[] = { 0, 2, 4, 6, 10, 14, 20, 28, 40, 56, 80, 108, 148, 202, 274, 374, 510 };
-#endif 
+#endif
 //#define DEBUG
 #if HAVE_DBOX2
 #define SAMPLES 256
@@ -65,7 +65,7 @@ static void do_fft(gint16 out_data[], gint16 in_data[])
 }
 #endif
 //static int threshold = -60;
-void sanalyzer_render_freq (gint16 in_data[])
+void sanalyzer_render_freq (gint16 /*in_data*/[])
 {
 #if 0
   gint i, c;

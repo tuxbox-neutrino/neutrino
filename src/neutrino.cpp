@@ -284,9 +284,9 @@ int safe_mkdir(char * path)
 	int ret = 0;
 	if(!strncmp(path, "/hdd", 4)) {
 		ret = statfs("/hdd", &s);
-		if((ret != 0) || (s.f_type == 0x72b6)) 
+		if((ret != 0) || (s.f_type == 0x72b6))
 			ret = -1;
-		else 
+		else
 			mkdir(path, 0755);
 	} else
 		mkdir(path, 0755);
@@ -1079,7 +1079,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	strcpy( g_settings.picviewer_slide_time, configfile.getString( "picviewer_slide_time", "10" ).c_str() );
 	g_settings.picviewer_scaling = configfile.getInt32("picviewer_scaling", 1 /*(int)CPictureViewer::SIMPLE*/);
 	g_settings.picviewer_decode_server_ip = configfile.getString("picviewer_decode_server_ip", "");
-	
+
 	//Audio-Player
 	g_settings.audioplayer_display = configfile.getInt32("audioplayer_display",(int)CAudioPlayerGui::ARTIST_TITLE);
 	g_settings.audioplayer_follow  = configfile.getInt32("audioplayer_follow",0);
@@ -1183,7 +1183,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 #endif
 #define DEFAULT_X_OFF 85
 #define DEFAULT_Y_OFF 34
-	if((g_settings.screen_width != (int) frameBuffer->getScreenWidth(true)) 
+	if((g_settings.screen_width != (int) frameBuffer->getScreenWidth(true))
 		|| (g_settings.screen_height != (int) frameBuffer->getScreenHeight(true))) {
 		g_settings.screen_StartX = DEFAULT_X_OFF;
 		g_settings.screen_StartY = DEFAULT_Y_OFF;
@@ -1633,7 +1633,7 @@ void CNeutrinoApp::firstChannel()
 extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 
-void CNeutrinoApp::channelsInit(bool bOnly)
+void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 {
 	printf("[neutrino] Creating channels lists...\n");
 	TIMER_START();
@@ -1760,7 +1760,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->tvChannels.empty())
 		{
 			CBouquet* tmp;
-			if(g_bouquetManager->Bouquets[i]->bUser) 
+			if(g_bouquetManager->Bouquets[i]->bUser)
 				tmp = TVfavList->addBouquet(g_bouquetManager->Bouquets[i]);
 			else
 				tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
@@ -1784,7 +1784,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->radioChannels.empty() )
 		{
 			CBouquet* tmp;
-			if(g_bouquetManager->Bouquets[i]->bUser) 
+			if(g_bouquetManager->Bouquets[i]->bUser)
 				tmp = RADIOfavList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
 			else
 				tmp = RADIObouquetList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
@@ -2199,7 +2199,7 @@ void CNeutrinoApp::SendSectionsdConfig(void)
 
 void CNeutrinoApp::InitZapper()
 {
- 	struct stat my_stat;    
+ 	struct stat my_stat;
 
 	g_InfoViewer->start();
 	SendSectionsdConfig();
@@ -2657,16 +2657,16 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
 			   if(g_RemoteControl->subChannels.size() > 0) {
 				g_RemoteControl->subChannelUp();
-				g_InfoViewer->showSubchan(); 
+				g_InfoViewer->showSubchan();
 			    } else
-				quickZap( msg ); 
+				quickZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
 			   if(g_RemoteControl->subChannels.size()> 0) {
 				g_RemoteControl->subChannelDown();
 				g_InfoViewer->showSubchan();
 			    } else
-				quickZap( msg ); 
+				quickZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
 				// Zap-History "Bouquet"
@@ -2723,7 +2723,7 @@ printf("[neutrino] timeshift try, recordingstatus %d, rec dir %s, timeshift dir 
 			else if( msg == CRCInput::RC_record || msg == CRCInput::RC_stop ) {
 printf("[neutrino] direct record\n");
 				if(recordingstatus) {
-					if(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY, 
+					if(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY,
 						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes)
 							g_Timerd->stopTimerEvent(recording_id);
 				} else if(msg != CRCInput::RC_stop ) {
@@ -2778,7 +2778,7 @@ printf("[neutrino] direct record\n");
 			{
 				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] != 0));
 			         // turn on LCD display
-				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO); 
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 				// show Infoviewer
 				if(show_info && channelList->getSize()) {
@@ -2811,7 +2811,7 @@ printf("[neutrino] direct record\n");
 				}
 			} else if( msg == CRCInput::RC_shift_radio) {
 				CVCRControl::getInstance()->Screenshot(g_RemoteControl->current_channel_id);
-			} 
+			}
 #endif
 			else {
 				if (msg == CRCInput::RC_home) {
@@ -2894,7 +2894,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 				ShowHintUTF (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text, true) + 10, 5);
 			}
 			return messages_return::handled;
-				
+
 		}
 	}
 
@@ -2933,8 +2933,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 				old_num = bouquetList->Bouquets[old_b]->channelList->getActiveChannelNumber();
 			}
 
-			//if(msg == CRCInput::RC_ok && bouquetList->Bouquets.size()) 
-			if(msg == CRCInput::RC_ok) 
+			//if(msg == CRCInput::RC_ok && bouquetList->Bouquets.size())
+			if(msg == CRCInput::RC_ok)
 			{
 				if(bouquetList->Bouquets.size() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
 					nNewChannel = bouquetList->Bouquets[old_b]->channelList->exec();//with ZAP!
@@ -3105,7 +3105,7 @@ _repeat:
 			bouquetList->activateBouquet(old_b_id, false);
 			old_b_id = -1;
 			g_RCInput->postMsg(CRCInput::RC_ok, 0);
-		} 
+		}
 	}
 	else if( msg == NeutrinoMessages::EVT_BOUQUETSCHANGED ) {
 		channelsInit();
@@ -3290,7 +3290,7 @@ _repeat:
 			if(recordingstatus==0) {
 				dvbsub_stop(); //FIXME if same channel ?
 				t_channel_id channel_id=((CTimerd::RecordingInfo*)data)->channel_id;
-				g_Zapit->zapTo_serviceID_NOWAIT(channel_id); 
+				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 			}
 		}
 		delete[] (unsigned char*) data;
@@ -3472,7 +3472,7 @@ skip_message:
 	return messages_return::unhandled;
 }
 
-void CNeutrinoApp::ExitRun(const bool write_si, int retcode)
+void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 {
 	if (!recordingstatus ||
             ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes)
@@ -3552,7 +3552,7 @@ void CNeutrinoApp::ExitRun(const bool write_si, int retcode)
 }
 void CNeutrinoApp::saveEpg()
 {
-	struct stat my_stat;    
+	struct stat my_stat;
 	if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0){
 		printf("Saving EPG to %s....\n", g_settings.epg_dir.c_str());
 		neutrino_msg_t      msg;
@@ -3593,7 +3593,7 @@ printf("AudioMute: current %d new %d isEvent: %d\n", current_muted, newValue, is
 	}
 }
 
-void CNeutrinoApp::setvol(int vol, int avs)
+void CNeutrinoApp::setvol(int vol, int /*avs*/)
 {
 	audioDecoder->setVolume(vol, vol);
 }
@@ -3649,7 +3649,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 				g_RCInput->postMsg(msg, data);
 				break;
 			}
-			
+
 			setvol(g_settings.current_volume,(g_settings.audio_avs_Control));
 			//timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] / 2);
 			timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : 3);
@@ -3836,7 +3836,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		g_Zapit->setStandby(false);
-		if(was_record) 
+		if(was_record)
 			g_Zapit->startPlayBack();
 		if(recordingstatus) was_record = 0;
 
@@ -4397,7 +4397,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 /**************************************************************************************
 *          changeNotify - features menu recording start / stop                        *
 **************************************************************************************/
-bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void *data)
+bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
 {
 	if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING_START)) || (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING)))
 	{

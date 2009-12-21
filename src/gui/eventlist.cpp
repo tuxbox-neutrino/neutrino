@@ -112,7 +112,7 @@ void EventList::readEvents(const t_channel_id channel_id)
 	time_t azeit=time(NULL);
 
 	CChannelEventList::iterator e;
-	
+
 	if ( evtlist.size() != 0 ) {
 
 		CEPGData epgData;
@@ -130,7 +130,7 @@ void EventList::readEvents(const t_channel_id channel_id)
 				{
 					CChannelEventList evtlist2; // stores the temporary eventlist of the subchannel channelid
 					t_channel_id channel_id2;
-#if 0				
+#if 0
 					for (e=evtlist.begin(); e!=evtlist.end(); ++e )
 					{
 						if ( e->startTime > azeit ) {
@@ -139,14 +139,14 @@ void EventList::readEvents(const t_channel_id channel_id)
 					}
 					// next line is to have a valid e
 					if (evtlist.end() == e) --e;
-#endif				
+#endif
 					for (unsigned int i=0; i<linkedServices.size(); i++)
 					{
 						channel_id2 = CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
 								linkedServices[i].serviceId,
 								linkedServices[i].originalNetworkId,
 								linkedServices[i].transportStreamId);
-							
+
 						// do not add parent events
 						if (channel_id != channel_id2) {
 							//evtlist2 = g_Sectionsd->getEventsServiceKey(channel_id2);
@@ -156,10 +156,10 @@ void EventList::readEvents(const t_channel_id channel_id)
 							for (unsigned int loop=0 ; loop<evtlist2.size(); loop++ )
 							{
 								// check if event is in the range of the portal parent event
-#if 0								
-								if ( (evtlist2[loop].startTime >= azeit) /*&& 
+#if 0
+								if ( (evtlist2[loop].startTime >= azeit) /*&&
 								     (evtlist2[loop].startTime < e->startTime + (int)e->duration)*/ )
-#endif								
+#endif
 								{
 									//FIXME: bad ?evtlist2[loop].sub = true;
 									evtlist.push_back(evtlist2[loop]);
@@ -186,7 +186,7 @@ void EventList::readEvents(const t_channel_id channel_id)
 		g_Timerd->getTimerList (timerlist);
 
 	}
-	
+
 	current_event = (unsigned int)-1;
 	for ( e=evtlist.begin(); e!=evtlist.end(); ++e )
 	{
@@ -220,7 +220,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	bool in_search = 0;
 
 	width  = w_max (580, 20);
-	height = h_max (480, 20); 
+	height = h_max (480, 20);
 
 	iheight = 30;	// info bar height (see below, hard coded at this time)
 	theight  = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
@@ -402,18 +402,18 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				{
 					int id = -1;
 					CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&id,NULL,g_settings.network_nfs_recordingdir);
-					if (recDirs.hasItem()) 
+					if (recDirs.hasItem())
 					{
 						hide();
 						recDirs.exec(NULL,"");
 						paint(channel_id);
 					} else
 					{
-						printf("[CEventList] no network devices available\n");					
+						printf("[CEventList] no network devices available\n");
 					}
 					if (id != -1)
 						recDir = g_settings.network_nfs_local_dir[id];
-					else 
+					else
 						recDir = NULL;
 				}
 				if (recDir != NULL)
@@ -446,7 +446,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
 				paint(channel_id);
-			}					
+			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_channelList_addremind )
 		{
@@ -460,7 +460,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				continue;
 			}
 			// FIXME g_Timerd->addZaptoTimerEvent(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id,
-			g_Timerd->addZaptoTimerEvent(channel_id, 
+			g_Timerd->addZaptoTimerEvent(channel_id,
 					evtlist[selected].startTime,
 					evtlist[selected].startTime - ANNOUNCETIME, 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
@@ -475,7 +475,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			selected = oldselected;
 			loop = false;
 		}
-		else if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel) 
+		else if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel)
 		{
 			if(in_search) {
 				in_search = false;
@@ -765,7 +765,7 @@ void  EventList::showFunctionBar (bool show)
     }
 }
 
-int CEventListHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int           res = menu_return::RETURN_EXIT_ALL;
 	EventList     *e;
@@ -790,13 +790,13 @@ int CEventListHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 
 
 /************************************************************************************************/
-int EventList::findEvents(void) 
+int EventList::findEvents(void)
 /************************************************************************************************/
 {
 	int res = 0;
 	int event = 0;
 	t_channel_id channel_id;  //g_Zapit->getCurrentServiceID()
-	
+
 	CEventFinderMenu menu(	&event,
 							&m_search_epg_item,
 							&m_search_keyword,
@@ -806,7 +806,7 @@ int EventList::findEvents(void)
 						  );
 	hide();
 	menu.exec(NULL,"");
-	
+
 	if(event == 1)
 	{
 		res = 1;
@@ -847,7 +847,7 @@ int EventList::findEvents(void)
 		sort(evtlist.begin(),evtlist.end(),sortByDateTime);
 		current_event = (unsigned int)-1;
 		time_t azeit=time(NULL);
-		
+
 		CChannelEventList::iterator e;
 		for ( e=evtlist.begin(); e!=evtlist.end(); ++e )
 		{
@@ -866,11 +866,11 @@ int EventList::findEvents(void)
 				evt.eventID = 0;
 				evtlist.push_back(evt);
 			}
-		}            
+		}
 		if (current_event == (unsigned int)-1)
 			current_event = 0;
 		selected= current_event;
-		
+
 		name = g_Locale->getText(LOCALE_EVENTFINDER_SEARCH);
 		name += ": '";
 		name += m_search_keyword;
@@ -908,7 +908,7 @@ bool CEventFinderMenuHandler::changeNotify(const neutrino_locale_t OptionName, v
 	return true;
 }
 */
-  
+
 #define SEARCH_LIST_OPTION_COUNT 3
 const CMenuOptionChooser::keyval SEARCH_LIST_OPTIONS[SEARCH_LIST_OPTION_COUNT] =
 {
@@ -935,7 +935,7 @@ const CMenuOptionChooser::keyval SEARCH_EPG_OPTIONS[SEARCH_EPG_OPTION_COUNT] =
 CEventFinderMenu::CEventFinderMenu(	int* 			event,
 									int* 			search_epg_item,
 									std::string* 	search_keyword,
-									int* 			search_list,		
+									int* 			search_list,
 									t_channel_id*	search_channel_id,
 									t_bouquet_id*	search_bouquet_id)
 /************************************************************************************************/
@@ -954,8 +954,8 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 /************************************************************************************************/
 {
 	int res = menu_return::RETURN_REPAINT;
-	
-	
+
+
 	if(actionkey =="")
 	{
 		if(parent != NULL)
@@ -968,7 +968,7 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 		//printf("1\n");
 		*m_event = true;
 		res = menu_return::RETURN_EXIT_ALL;
-	}	
+	}
 	else if(actionkey =="2")
 	{
 		//printf("2\n");
@@ -989,7 +989,7 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 			m_search_channelname = "";
 		}
 		*/
-	}	
+	}
 	else if(actionkey =="3")
 	{
 		//printf("3\n");
@@ -1023,12 +1023,12 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 				m_search_channelname = bouquetList->Bouquets[nNewBouquet]->channelList->getName();
 			}
 		}
-	}	
+	}
 	else if(actionkey =="4")
 	{
 		//printf("4\n");
-	}	
-	
+	}
+
 	return res;
 }
 
@@ -1038,7 +1038,7 @@ int CEventFinderMenu::showMenu(void)
 {
 	int res = menu_return::RETURN_REPAINT;
 	*m_event = false;
-	
+
 	if(*m_search_list == EventList::SEARCH_LIST_CHANNEL)
 	{
 		m_search_channelname = g_Zapit->getChannelName(*m_search_channel_id);
@@ -1051,15 +1051,15 @@ int CEventFinderMenu::showMenu(void)
 	{
 		m_search_channelname =="";
 	}
-	
+
 	CStringInputSMS stringInput(LOCALE_EVENTFINDER_KEYWORD,m_search_keyword, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.: ");
-	
+
 	CMenuForwarder* mf2	= new CMenuForwarder(LOCALE_EVENTFINDER_KEYWORD ,true, *m_search_keyword, &stringInput, NULL, CRCInput::RC_1 );
 	CMenuOptionChooser* mo0 	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_LIST , m_search_list, SEARCH_LIST_OPTIONS, SEARCH_LIST_OPTION_COUNT, true, NULL, CRCInput::RC_2);
 	CMenuForwarderNonLocalized* mf1	= new CMenuForwarderNonLocalized("", *m_search_list != EventList::SEARCH_LIST_ALL, m_search_channelname, this, "3", CRCInput::RC_3 );
 	CMenuOptionChooser* mo1 	= new CMenuOptionChooser(LOCALE_EVENTFINDER_SEARCH_WITHIN_EPG, m_search_epg_item, SEARCH_EPG_OPTIONS, SEARCH_EPG_OPTION_COUNT, true, NULL, CRCInput::RC_4);
 	CMenuForwarder* mf0 		= new CMenuForwarder(LOCALE_EVENTFINDER_START_SEARCH, true, NULL, this, "1", CRCInput::RC_5 );
-	
+
 	CMenuWidget searchMenu(LOCALE_EVENTFINDER_HEAD, "features.raw", 450);
 
         searchMenu.addItem(GenericMenuSeparator);
@@ -1070,7 +1070,7 @@ int CEventFinderMenu::showMenu(void)
         searchMenu.addItem(mo1, false);
         searchMenu.addItem(GenericMenuSeparatorLine);
         searchMenu.addItem(mf0, false);
-	
+
 	res = searchMenu.exec(NULL,"");
 	return(res);
 }

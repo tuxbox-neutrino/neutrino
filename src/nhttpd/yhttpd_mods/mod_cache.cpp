@@ -32,7 +32,7 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh)
 {
 	hh->status = HANDLED_NONE;
 
-	log_level_printf(4,"mod_cache prepare hook start url:%s\n",hh->UrlData["fullurl"].c_str());	
+	log_level_printf(4,"mod_cache prepare hook start url:%s\n",hh->UrlData["fullurl"].c_str());
 	std::string url = hh->UrlData["fullurl"];
 	if(CacheList.find(url) != CacheList.end())	// is in Cache. Rewrite URL or not modified
 	{
@@ -45,7 +45,7 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh)
 			struct tm mod;
 			if(strptime(hh->HeaderList["If-Modified-Since"].c_str(), RFC1123FMT, &mod) != NULL)
 			{
-				mod.tm_isdst = 0; // daylight saving flag! 
+				mod.tm_isdst = 0; // daylight saving flag!
 				if_modified_since = mktime(&mod);	// Date given
 			}
 		}
@@ -65,8 +65,8 @@ THandleStatus CmodCache::Hook_PrepareResponse(CyhookHandler *hh)
 			hh->SetHeader(HTTP_NOT_MODIFIED, CacheList[url].mime_type, HANDLED_READY);
 		pthread_mutex_unlock(&mutex);
 	}
-	log_level_printf(4,"mod_cache hook prepare end status:%d\n",(int)hh->status);	
-	
+	log_level_printf(4,"mod_cache hook prepare end status:%d\n",(int)hh->status);
+
 	return hh->status;
 }
 //-----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ THandleStatus CmodCache::Hook_SendResponse(CyhookHandler *hh)
 {
 	hh->status = HANDLED_NONE;
 	std::string url = hh->UrlData["fullurl"];
-	log_level_printf(4,"mod_cache hook start url:%s\n",url.c_str());	
+	log_level_printf(4,"mod_cache hook start url:%s\n",url.c_str());
 
 	std::string category = hh->HookVarList["CacheCategory"];
 	if(!(hh->HookVarList["CacheCategory"]).empty())	// Category set = cache it
@@ -99,13 +99,13 @@ THandleStatus CmodCache::Hook_SendResponse(CyhookHandler *hh)
 		else
 			hh->status = HANDLED_CONTINUE;	// y-calls can be implemented anywhere
 	}
-	log_level_printf(4,"mod_cache hook end status:%d\n",(int)hh->status);	
-	
+	log_level_printf(4,"mod_cache hook end status:%d\n",(int)hh->status);
+
 	return hh->status;
 }
 
 //-----------------------------------------------------------------------------
-// HOOK: Hook_ReadConfig 
+// HOOK: Hook_ReadConfig
 // This hook ist called from ReadConfig
 //-----------------------------------------------------------------------------
 THandleStatus CmodCache::Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList)
@@ -118,10 +118,10 @@ THandleStatus CmodCache::Hook_ReadConfig(CConfigFile *Config, CStringList &Confi
 //-------------------------------------------------------------------------
 // Build and Add a cache item
 //-------------------------------------------------------------------------
-void CmodCache::AddToCache(CyhookHandler *hh, std::string url, std::string content, std::string mime_type, std::string category)
+void CmodCache::AddToCache(CyhookHandler */*hh*/, std::string url, std::string content, std::string mime_type, std::string category)
 {
 	FILE *fd = NULL;
-	pthread_mutex_lock(&mutex); 
+	pthread_mutex_lock(&mutex);
 	std::string filename = cache_directory + "/" + itoa(CacheList.size());		// build cache filename
 	mkdir(cache_directory.c_str(), 0777);						// Create Cache directory
 	if((fd = fopen(filename.c_str(),"w")) != NULL)				// open file
@@ -157,7 +157,7 @@ void CmodCache::RemoveURLFromCache(std::string url)
 void CmodCache::RemoveCategoryFromCache(std::string category)
 {
 	pthread_mutex_lock(&mutex);
-	bool restart = false; 
+	bool restart = false;
 	do
 	{
 		restart = false;
@@ -203,8 +203,8 @@ void CmodCache::yshowCacheInfo(CyhookHandler *hh)
 
 	// cache list
 	yresult += string_printf("<table border=\"1\">\n");
-	yresult += string_printf("<tr><td>URL</td><td>Mime</td><td>Filename</td><td>Category</td><td>Created</td><td>Remove</td></tr>\n"); 
-	pthread_mutex_lock(&mutex); 
+	yresult += string_printf("<tr><td>URL</td><td>Mime</td><td>Filename</td><td>Category</td><td>Created</td><td>Remove</td></tr>\n");
+	pthread_mutex_lock(&mutex);
 	TCacheList::iterator i = CacheList.begin();
 	for ( ; i!= CacheList.end(); i++ )
 	{
@@ -213,14 +213,14 @@ void CmodCache::yshowCacheInfo(CyhookHandler *hh)
 		strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&(item->created)) );
 		yresult += string_printf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td>" \
 					"<td><a href=\"/y/cache-clear?url=%s\">url</a>&nbsp;" \
-					"<a href=\"/y/cache-clear?category=%s\">category</a></td></tr>\n", 
-			((*i).first).c_str(), 
+					"<a href=\"/y/cache-clear?category=%s\">category</a></td></tr>\n",
+			((*i).first).c_str(),
 			item->mime_type.c_str(),
 			item->filename.c_str(),
 			item->category.c_str(),
 			timeStr,
-			((*i).first).c_str(), 
-			item->category.c_str()	
+			((*i).first).c_str(),
+			item->category.c_str()
 			);
 	}
 	pthread_mutex_unlock(&mutex);						// Free
@@ -253,6 +253,6 @@ void CmodCache::yCacheClear(CyhookHandler *hh)
 	hh->SendHTMLHeader("Cache deletion");
 	hh->WriteLn(result);
 	hh->SendHTMLFooter();
-	
+
 }
 

@@ -165,7 +165,7 @@ void CChannelList::updateEvents(void)
 				sectionsd_getEventsServiceKey(chanlist[count]->channel_id &0xFFFFFFFFFFFFULL, events);
 				chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
 				for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
-					if (((long)(e->startTime) > atime) && 
+					if (((long)(e->startTime) > atime) &&
 							((e->startTime) < (long)(chanlist[count]->nextEvent.startTime)))
 					{
 						chanlist[count]->nextEvent= *e;
@@ -398,7 +398,7 @@ int CChannelList::doChannelMenu(void)
 					addChannelToBouquet(bouquet_id, channel_id);
 					return 1;
 				}
-				
+
 				break;
 			default:
 				break;
@@ -515,7 +515,7 @@ int CChannelList::show()
 				paintHead();
 				paint();
 			}
-			
+
 		}
 		else if (msg == (neutrino_msg_t) g_settings.key_list_start) {
 			selected=0;
@@ -706,7 +706,7 @@ int CChannelList::show()
 		}
 		else if ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help)) {
 			hide();
-			g_EpgData->show(chanlist[selected]->channel_id); 
+			g_EpgData->show(chanlist[selected]->channel_id);
 			paintHead();
 			paint();
 		} else {
@@ -775,11 +775,11 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 				{
 					g_RemoteControl->stopvideo();
 					zapProtection = new CZapProtection( g_settings.parentallock_pincode, data );
-					
+
 					if ( zapProtection->check() )
 					{
 						g_RemoteControl->startvideo();
-						
+
 						// remember it for the next time
 						chanlist[selected]->last_unlocked_EPGid= g_RemoteControl->current_EPGid;
 					}
@@ -824,7 +824,7 @@ printf("CChannelList::adjustToChannelID me %x list size %d channel_id %llx\n", (
 					TVsatList->adjustToChannelID(channel_id);
 					TVfavList->adjustToChannelID(channel_id);
 					TVallList->adjustToChannelID(channel_id);
-				} 
+				}
 				else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 					RADIObouquetList->adjustToChannelID(channel_id);
 					RADIOsatList->adjustToChannelID(channel_id);
@@ -912,7 +912,7 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 					TVbouquetList->adjustToChannelID(chan->channel_id);
 					TVsatList->adjustToChannelID(chan->channel_id);
 					TVfavList->adjustToChannelID(chan->channel_id);
-				} 
+				}
 				else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 					RADIObouquetList->adjustToChannelID(chan->channel_id);
 					RADIOsatList->adjustToChannelID(chan->channel_id);
@@ -1273,7 +1273,7 @@ void CChannelList::paintDetails(int index)
 #if 0
 	if (chanlist[index]->currentEvent.description.empty()) {
 		frameBuffer->paintBackgroundBoxRel(x, y+ height, width, info_height);
-	} else 
+	} else
 #endif
 	{
 		frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, ROUND_RADIUS);//round
@@ -1372,7 +1372,7 @@ void CChannelList::clearItem2DetailsLine ()
 	  paintItem2DetailsLine (-1, 0);
 }
 
-void CChannelList::paintItem2DetailsLine (int pos, int ch_index)
+void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 {
 	#define ConnectLineBox_Width	16
 
@@ -1446,7 +1446,7 @@ void CChannelList::paintItem(int pos)
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
 		char nameAndDescription[255];
 		if (!(chan->currentEvent.description.empty())) {
-			snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s", 
+			snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s",
 				chan->name.c_str(), chan->currentEvent.description.c_str());
 		} else {
 			snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->name.c_str());
@@ -1464,7 +1464,7 @@ void CChannelList::paintItem(int pos)
 		int title_offset=0;
 		uint8_t tcolor=(liststart + pos == selected) ? color : COL_MENUCONTENTINACTIVE;
 		int xtheight=fheight-2;
-		
+
 		if(g_settings.channellist_extended)
 		{
 			prg_offset=42;
@@ -1480,7 +1480,7 @@ void CChannelList::paintItem(int pos)
 			p_event = &chan->currentEvent;
 		}
 
-		if(chan->scrambled) 
+		if(chan->scrambled)
 			frameBuffer->paintIcon("ca.raw", x+width- 15 - 28, ypos + (fheight - 16)/2);
 
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
@@ -1496,7 +1496,7 @@ void CChannelList::paintItem(int pos)
 		int pb_space = prg_offset - title_offset;
 		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {
-		  
+
 			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l," - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription, true);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description, true);
@@ -1505,12 +1505,12 @@ void CChannelList::paintItem(int pos)
 				ch_desc_len = (width- numwidth- 60- 15- ch_name_len - prg_offset);
 			if (ch_desc_len< 0)
 				ch_desc_len = 0;
-			
+
 			if(g_settings.channellist_extended){
 				if(displayNext)
 				{
 					struct		tm *pStartZeit = localtime(&p_event->startTime);
-			
+
 					sprintf((char*) tmp, "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
 //					g_Font[SNeutrinoSettings::FONT_TYPE_IMAGEINFO_SMALL]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -poffs, tmp, COL_MENUCONTENT, 0, true);
 					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -prg_offset, tmp, tcolor, 0, true);
@@ -1519,7 +1519,7 @@ void CChannelList::paintItem(int pos)
 				{
 					time_t jetzt=time(NULL);
 					int runningPercent = 0;
-					
+
 					if (((jetzt - p_event->startTime + 30) / 60) < 0 )
 					{
 						runningPercent= 0;
@@ -1570,7 +1570,7 @@ void CChannelList::paintItem(int pos)
 		}
 		if (curr == selected) {
 			if (!(chan->currentEvent.description.empty())) {
-				snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s", 
+				snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s",
 						chan->name.c_str(), p_event->description.c_str());
 				CVFD::getInstance()->showMenuText(0, nameAndDescription, -1, true); // UTF-8
 			} else
@@ -1618,7 +1618,7 @@ void CChannelList::paintHead()
 	}
 
 	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM); //round
-	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth, 
+	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth,
 		vlist ? NUM_VLIST_BUTTONS : NUM_LIST_BUTTONS, vlist ? CChannelVListButtons : CChannelListButtons);
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 30, y+ 5 );

@@ -73,7 +73,7 @@ CZapitChannel* CZapitBouquet::getChannelByChannelID(const t_channel_id channel_i
 	CZapitChannel* result = NULL;
 
 	ZapitChannelList* channels = &tvChannels;
-	
+
 	switch (serviceType) {
 		case ST_RESERVED: // ?
 		case ST_DIGITAL_TELEVISION_SERVICE:
@@ -81,7 +81,7 @@ CZapitChannel* CZapitBouquet::getChannelByChannelID(const t_channel_id channel_i
 		case ST_NVOD_TIME_SHIFTED_SERVICE:
 			channels = &tvChannels;
 			break;
-				
+
 		case ST_DIGITAL_RADIO_SOUND_SERVICE:
 			channels = &radioChannels;
 			break;
@@ -117,7 +117,7 @@ void CZapitBouquet::addService(CZapitChannel* newChannel)
 		case ST_NVOD_TIME_SHIFTED_SERVICE:
 			tvChannels.push_back(newChannel);
 			break;
-			
+
 		case ST_DIGITAL_RADIO_SOUND_SERVICE:
 			radioChannels.push_back(newChannel);
 			break;
@@ -152,7 +152,7 @@ void CZapitBouquet::moveService(const unsigned int oldPosition, const unsigned i
 		case ST_NVOD_TIME_SHIFTED_SERVICE:
 			channels = &tvChannels;
 			break;
-			
+
 		case ST_DIGITAL_RADIO_SOUND_SERVICE:
 			channels = &radioChannels;
 			break;
@@ -203,7 +203,7 @@ void CBouquetManager::writeBouquetFooter(FILE * bouq_fd)
 	fprintf(bouq_fd, "\t</Bouquet>\n");
 }
 
-void CBouquetManager::writeBouquetChannels(FILE * bouq_fd, uint32_t i, bool bUser)
+void CBouquetManager::writeBouquetChannels(FILE * bouq_fd, uint32_t i, bool /*bUser*/)
 {
 	//bool write_names = bUser ? true : config.getBool("writeChannelsNames", true);
 	bool write_names = 1;
@@ -250,7 +250,7 @@ void CBouquetManager::writeBouquetChannels(FILE * bouq_fd, uint32_t i, bool bUse
 void CBouquetManager::saveBouquets(void)
 {
 	FILE * bouq_fd;
-	
+
 	bouq_fd = fopen(BOUQUETS_XML, "w");
 	fprintf(bouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
@@ -272,7 +272,7 @@ DBG("save Bouquets: name %s user: %d\n", Bouquets[i]->Name.c_str(), Bouquets[i]-
 void CBouquetManager::saveUBouquets(void)
 {
 	FILE * ubouq_fd;
-	
+
 	ubouq_fd = fopen(UBOUQUETS_XML, "w");
 	fprintf(ubouq_fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
 	for (unsigned int i = 0; i < Bouquets.size(); i++) {
@@ -493,7 +493,7 @@ void CBouquetManager::renumServices()
 	if(remainChannels)
 		deleteBouquet(remainChannels);
 	remainChannels = NULL;
-	
+
 	makeRemainingChannelsBouquet();
 }
 
@@ -617,7 +617,7 @@ CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const 
 		c = -2;
 	else {
 		b = 0;
-		c = -1; 
+		c = -1;
 		(*this)++;
 	}
 }

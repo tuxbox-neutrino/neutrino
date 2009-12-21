@@ -148,7 +148,7 @@ bool get_movie_info_apid_name(int apid, MI_MOVIE_INFO * movie_info, std::string 
 	return false;
 }
 
-int CAPIDSelectExec::exec(CMenuTarget * parent, const std::string & actionKey)
+int CAPIDSelectExec::exec(CMenuTarget * /*parent*/, const std::string & actionKey)
 {
 	apidchanged = 0;
 	unsigned int sel = atoi(actionKey.c_str());
@@ -329,17 +329,17 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		cutNeutrino();
 		timeshift = 1;
 		PlayFile();
-	} 
+	}
 	else if (actionKey == "ptimeshift") {
 		cutNeutrino();
 		timeshift = 2;
 		PlayFile();
-	} 
+	}
 	else if (actionKey == "rtimeshift") {
 		cutNeutrino();
 		timeshift = 3;
 		PlayFile();
-	} 
+	}
 #if 0
 	else if (actionKey == "bookmarkplayback") {
 		isBookmark = true;
@@ -545,7 +545,7 @@ void CMoviePlayerGui::PlayFile(void)
 				//TRACE(" %6ds\r\n",play_sec);
 
 				if (play_sec + 10 < jump_not_until || play_sec > jump_not_until + 10)
-					jump_not_until = 0;	// check if !jump is stale (e.g. if user jumped forward or backward) 
+					jump_not_until = 0;	// check if !jump is stale (e.g. if user jumped forward or backward)
 				if (new_bookmark.pos == 0)	// do bookmark activities only, if there is no new bookmark started
 				{
 					if (p_movie_info != NULL)	// process bookmarks if we have any movie info
@@ -1200,7 +1200,7 @@ void CMoviePlayerGui::PlayFile(void)
 				strReplace(fname, ".ts", ".bmp");
 				CVCRControl::getInstance()->Screenshot(0, (char *)fname.c_str());
 			}
-		} 
+		}
 #if 0
 		else if (msg == CRCInput::RC_shift_radio) {
 			if (isMovieBrowser == true && p_movie_info != NULL) {
@@ -1212,7 +1212,7 @@ void CMoviePlayerGui::PlayFile(void)
 				strcat(filename, ".bmp");
 				CVCRControl::getInstance()->Screenshot(0, filename);
 			}
-		} 
+		}
 #endif
 		else if (msg == CRCInput::RC_timeout) {
 			// nothing
@@ -1263,7 +1263,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 // checks if AR has changed an sets cropping mode accordingly (only video mode auto)
 static short archeck;
-void checkAspectRatio(int vdec, bool init)
+void checkAspectRatio(int /*vdec*/, bool init)
 {
 	static time_t last_check = 0;
 

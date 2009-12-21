@@ -160,7 +160,7 @@ void crw_cb_error_exit(j_common_ptr cinfo)
 //	 dbout("crw_cb_error_exit }\n");
 }
 
-int fh_crw_load(const char *filename,unsigned char **buffer,int* xp,int* yp)
+int fh_crw_load(const char *filename,unsigned char **buffer,int* xp,int* /*yp*/)
 {
 //	dbout("fh_crw_load (%d/%d) {\n",x,y);
 	struct jpeg_decompress_struct cinfo;
@@ -215,7 +215,7 @@ int fh_crw_load(const char *filename,unsigned char **buffer,int* xp,int* yp)
 			jpeg_read_scanlines(ciptr, &lb, 1);
 			memcpy(bp,lb,px*c);
 			bp+=px*c;
-		}                 
+		}
 
 	}
 	jpeg_finish_decompress(ciptr);
@@ -234,7 +234,7 @@ int fh_crw_getsize(const char *filename,int *x,int *y, int wanted_width, int wan
 
 	int px,py,c;
 	FILE *fh;
-	
+
 	ciptr=&cinfo;
 	if(!(fh=fopen(filename,"rb"))) return(FH_ERROR_FILE);
 

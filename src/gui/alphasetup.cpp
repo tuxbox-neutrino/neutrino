@@ -256,7 +256,7 @@ void CAlphaSetup::paint()
 	//paintSlider(x + 10, y + hheight + mheight, alpha2, LOCALE_GTXALPHA_ALPHA2, ALPHA_SETUP_ICON_DESELECTED     , false);
 }
 
-void CAlphaSetup::paintSlider(const int x, const int y, const unsigned char * const spos, const neutrino_locale_t text, const char * const iconname, const bool selected) // UTF-8
+void CAlphaSetup::paintSlider(const int x, const int y, const unsigned char * const spos, const neutrino_locale_t text, const char * const iconname, const bool /*selected*/) // UTF-8
 {
 	if (!spos)
 		return;

@@ -551,8 +551,8 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 	  time_t lastEndTime = this->startTime;
 
 	  CChannelEventList::const_iterator lastIt (channelEventList.end ());
-	  //for (CChannelEventList::const_iterator It = channelEventList.begin (); (It != channelEventList.end ()) && (It->startTime < (this->startTime + this->duration)); ++It) 
-	  for (CChannelEventList::const_iterator It = channelEventList.begin (); It != channelEventList.end (); ++It) 
+	  //for (CChannelEventList::const_iterator It = channelEventList.begin (); (It != channelEventList.end ()) && (It->startTime < (this->startTime + this->duration)); ++It)
+	  for (CChannelEventList::const_iterator It = channelEventList.begin (); It != channelEventList.end (); ++It)
 	  {
 //if(0x2bc000b004b7ULL == (channel->channel_id & 0xFFFFFFFFFFFFULL)) printf("*** Check1 event %s event start %ld this start %ld\n", It->description.c_str(), It->startTime, (this->startTime + this->duration));
 		if(!(It->startTime < (this->startTime + this->duration)) )
@@ -1167,7 +1167,7 @@ void EpgPlus::paint ()
 //  -- to be used for calls from Menue
 //  -- (2004-03-05 rasc)
 
-int CEPGplusHandler::exec (CMenuTarget * parent, const std::string & actionKey)
+int CEPGplusHandler::exec (CMenuTarget * parent, const std::string & /*actionKey*/)
 {
   int res = menu_return::RETURN_EXIT_ALL;
   EpgPlus *e;
@@ -1189,7 +1189,7 @@ EpgPlus::MenuTargetAddReminder::MenuTargetAddReminder (EpgPlus * epgPlus) {
   this->epgPlus = epgPlus;
 }
 
-int EpgPlus::MenuTargetAddReminder::exec (CMenuTarget * parent, const std::string & actionKey)
+int EpgPlus::MenuTargetAddReminder::exec (CMenuTarget * /*parent*/, const std::string & /*actionKey*/)
 {
   TCChannelEventEntries::const_iterator It = this->epgPlus->getSelectedEvent ();
 
@@ -1211,7 +1211,7 @@ EpgPlus::MenuTargetAddRecordTimer::MenuTargetAddRecordTimer (EpgPlus * epgPlus) 
   this->epgPlus = epgPlus;
 }
 
-int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * parent, const std::string & actionKey)
+int EpgPlus::MenuTargetAddRecordTimer::exec (CMenuTarget * /*parent*/, const std::string & /*actionKey*/)
 {
   TCChannelEventEntries::const_iterator It = this->epgPlus->getSelectedEvent ();
 
@@ -1234,7 +1234,7 @@ EpgPlus::MenuTargetRefreshEpg::MenuTargetRefreshEpg (EpgPlus * epgPlus) {
   this->epgPlus = epgPlus;
 }
 
-int EpgPlus::MenuTargetRefreshEpg::exec (CMenuTarget * parent, const std::string & actionKey)
+int EpgPlus::MenuTargetRefreshEpg::exec (CMenuTarget * /*parent*/, const std::string & /*actionKey*/)
 {
   this->epgPlus->refreshAll = true;
   return menu_return::RETURN_EXIT_ALL;

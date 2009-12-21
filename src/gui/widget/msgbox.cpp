@@ -59,10 +59,10 @@
 #define	TITLE_ICON_WIDTH			(40 - TEXT_BORDER_WIDTH)
 
 #define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX )
-#define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)	
+#define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)
 
 #define MIN_WINDOW_WIDTH  (MAX_WINDOW_WIDTH>>1)
-#define MIN_WINDOW_HEIGHT 40	
+#define MIN_WINDOW_HEIGHT 40
 
 #define DEFAULT_TITLE_FONT	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]
 #define DEFAULT_FOOT_FONT	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
@@ -72,21 +72,21 @@
 //////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	CMsgBox	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	CMsgBox
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
-CMsgBox::CMsgBox(  const char * text, 
+CMsgBox::CMsgBox(  const char * text,
 				   Font* fontText,
-				   const int _mode, 
-				   const CBox* position, 
+				   const int _mode,
+				   const CBox* position,
 				   const char * title,
 				   Font* fontTitle,
 				   const char * icon,
-				   int return_button , 
+				   int return_button ,
 				   const result_ default_result)
 {
 	//TRACE("->CMsgBox::CMsgBox\r\n");
@@ -119,7 +119,7 @@ CMsgBox::CMsgBox(  const char * text,
 
 	m_pcTextBox = new CTextBox(	text,
 								fontText,
-								_mode, 
+								_mode,
 								&m_cBoxFrameText);
 
 	if(_mode & AUTO_WIDTH || _mode & AUTO_HIGH)
@@ -144,12 +144,12 @@ CMsgBox::CMsgBox(  const char * text,
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	CMsgBox	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	CMsgBox
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 CMsgBox::CMsgBox(const char * text)
 {
@@ -161,12 +161,12 @@ CMsgBox::CMsgBox(const char * text)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	CMsgBox	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	CMsgBox
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 CMsgBox::CMsgBox()
 {
@@ -177,12 +177,12 @@ CMsgBox::CMsgBox()
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	~CMsgBox	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	~CMsgBox
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 CMsgBox::~CMsgBox()
 {
@@ -201,12 +201,12 @@ CMsgBox::~CMsgBox()
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	InitVar	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	InitVar
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void CMsgBox::initVar(void)
 {
@@ -242,12 +242,12 @@ void CMsgBox::initVar(void)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	InitFramesRel	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	InitFramesRel
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void CMsgBox::initFramesRel(void)
 {
@@ -312,16 +312,16 @@ void CMsgBox::initFramesRel(void)
 		m_cBoxFrameFootRel.iWidth,
 		m_cBoxFrameFootRel.iHeight
 		);
-#endif		
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	RefreshFoot	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	RefreshFoot
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void CMsgBox::refreshFoot(void)
 {
@@ -329,10 +329,10 @@ void CMsgBox::refreshFoot(void)
 	if(	!(m_nMode & FOOT)) return;
 
 	// draw the background first
-	m_pcWindow->paintBoxRel(	m_cBoxFrameFootRel.iX+m_cBoxFrame.iX, 
-								m_cBoxFrameFootRel.iY+m_cBoxFrame.iY, 
-								m_cBoxFrameFootRel.iWidth, 
-								m_cBoxFrameFootRel.iHeight,  
+	m_pcWindow->paintBoxRel(	m_cBoxFrameFootRel.iX+m_cBoxFrame.iX,
+								m_cBoxFrameFootRel.iY+m_cBoxFrame.iY,
+								m_cBoxFrameFootRel.iWidth,
+								m_cBoxFrameFootRel.iHeight,
 								(CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
 
 	//const char* text;
@@ -407,12 +407,12 @@ void CMsgBox::refreshFoot(void)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	RefreshTitle	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	RefreshTitle
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void CMsgBox::refreshTitle(void)
 {
@@ -420,24 +420,24 @@ void CMsgBox::refreshTitle(void)
 	if(	!(m_nMode & TITLE)) return;
 
 	// draw the background
-	m_pcWindow->paintBoxRel(	m_cBoxFrameTitleRel.iX+m_cBoxFrame.iX, 
-							m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY, 
-							m_cBoxFrameTitleRel.iWidth, 
-							m_cBoxFrameTitleRel.iHeight, 
+	m_pcWindow->paintBoxRel(	m_cBoxFrameTitleRel.iX+m_cBoxFrame.iX,
+							m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY,
+							m_cBoxFrameTitleRel.iWidth,
+							m_cBoxFrameTitleRel.iHeight,
 							(CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
 
 	if (!m_cIcon.empty())
 	{
 		// draw icon and title text
 		m_pcWindow->paintIcon(m_cIcon.c_str(), m_cBoxFrameTitleRel.iX + 8+m_cBoxFrame.iX, m_cBoxFrameTitleRel.iY + 5+m_cBoxFrame.iY);
-		/*m_pcWindow->RenderString(*/	
+		/*m_pcWindow->RenderString(*/
 		m_pcFontTitle->RenderString(
-								m_cBoxFrameTitleRel.iX + TITLE_ICON_WIDTH + TEXT_BORDER_WIDTH+m_cBoxFrame.iX, 
-								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY, 
-								m_cBoxFrameTitleRel.iWidth - TITLE_ICON_WIDTH + TEXT_BORDER_WIDTH, 
-								m_cTitle.c_str(), 
-								(CFBWindow::color_t)COL_MENUHEAD, 
-								0, 
+								m_cBoxFrameTitleRel.iX + TITLE_ICON_WIDTH + TEXT_BORDER_WIDTH+m_cBoxFrame.iX,
+								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY,
+								m_cBoxFrameTitleRel.iWidth - TITLE_ICON_WIDTH + TEXT_BORDER_WIDTH,
+								m_cTitle.c_str(),
+								(CFBWindow::color_t)COL_MENUHEAD,
+								0,
 								true); // UTF-8
 	}
 	else
@@ -445,40 +445,40 @@ void CMsgBox::refreshTitle(void)
 		// no icon available, just draw the title text
 		/*m_pcWindow->RenderString(*/
 		m_pcFontTitle->RenderString(
-								m_cBoxFrameTitleRel.iX + TEXT_BORDER_WIDTH+m_cBoxFrame.iX, 
-								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY, 
-								m_cBoxFrameTitleRel.iWidth - TEXT_BORDER_WIDTH, 
-								m_cTitle.c_str(), 
-								(CFBWindow::color_t)COL_MENUHEAD, 
-								0, 
+								m_cBoxFrameTitleRel.iX + TEXT_BORDER_WIDTH+m_cBoxFrame.iX,
+								m_cBoxFrameTitleRel.iHeight+3+m_cBoxFrame.iY,
+								m_cBoxFrameTitleRel.iWidth - TEXT_BORDER_WIDTH,
+								m_cTitle.c_str(),
+								(CFBWindow::color_t)COL_MENUHEAD,
+								0,
 								true); // UTF-8
 	}
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	RefreshBorder	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	RefreshBorder
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void CMsgBox::refreshBorder(void)
 {
 	if(	!(m_nMode & BORDER && m_nWindowFrameBorderWidth > 0)) return;
 
 	//draw bottom shadow
-	m_pcWindow->paintBoxRel(	m_nWindowFrameBorderWidth+m_cBoxFrame.iX, 
-							m_cBoxFrame.iHeight - m_nWindowFrameBorderWidth+m_cBoxFrame.iY, 
-							m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth, 
-							m_nWindowFrameBorderWidth,  
+	m_pcWindow->paintBoxRel(	m_nWindowFrameBorderWidth+m_cBoxFrame.iX,
+							m_cBoxFrame.iHeight - m_nWindowFrameBorderWidth+m_cBoxFrame.iY,
+							m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth,
+							m_nWindowFrameBorderWidth,
 							COL_INFOBAR_SHADOW_PLUS_0);
 
 	//draw right shadow
-	m_pcWindow->paintBoxRel(	m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth+m_cBoxFrame.iX, 
-							m_nWindowFrameBorderWidth+m_cBoxFrame.iY, 
-							m_nWindowFrameBorderWidth, 
-							m_cBoxFrame.iHeight - m_nWindowFrameBorderWidth,  
+	m_pcWindow->paintBoxRel(	m_cBoxFrame.iWidth - m_nWindowFrameBorderWidth+m_cBoxFrame.iX,
+							m_nWindowFrameBorderWidth+m_cBoxFrame.iY,
+							m_nWindowFrameBorderWidth,
+							m_cBoxFrame.iHeight - m_nWindowFrameBorderWidth,
 							COL_INFOBAR_SHADOW_PLUS_0);
 }
 
@@ -488,12 +488,12 @@ void CMsgBox::refreshBorder(void)
 
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	Hide	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	Hide
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 bool CMsgBox::hide(void)
 {
@@ -517,12 +517,12 @@ bool CMsgBox::hide(void)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	ScrollPageDown	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	ScrollPageDown
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void    CMsgBox::scrollPageDown(const int pages)
 {
@@ -535,12 +535,12 @@ void    CMsgBox::scrollPageDown(const int pages)
 };
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	ScrollPageUp	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	ScrollPageUp
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void    CMsgBox::scrollPageUp(const int pages)
 {
@@ -552,12 +552,12 @@ void    CMsgBox::scrollPageUp(const int pages)
 };
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	Paint	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	Paint
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 bool CMsgBox::paint(void)
 {
@@ -587,12 +587,12 @@ bool CMsgBox::paint(void)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	Refresh	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	Refresh
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 void CMsgBox::refresh(void)
 {
@@ -603,7 +603,7 @@ void CMsgBox::refresh(void)
 		TRACE("  return -> no window\r\n");
 		return;
 	}
-	
+
 	//re-draw message box window
 	refreshTitle();
 	refreshFoot();
@@ -617,12 +617,12 @@ void CMsgBox::refresh(void)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	Exec	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	Exec
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 {
@@ -655,7 +655,7 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 
 		if (msg == CRCInput::RC_timeout && returnDefaultOnTimeout)
 		{
-			// return default 
+			// return default
 			loop = false;
 		}
 		else if (	((msg == CRCInput::RC_timeout) ||
@@ -722,17 +722,17 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 
 	hide();
 #endif //VC
-	
+
 	return res;
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	SetText	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	SetText
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 bool CMsgBox::setText(const std::string* newText)
 {
@@ -759,18 +759,18 @@ bool CMsgBox::setText(const std::string* newText)
 			}
 		}
 	}
-	
+
 	return(result);
 };
 
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	SetText	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	SetText
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 int CMsgBox::result(void)
 {
@@ -778,31 +778,31 @@ int CMsgBox::result(void)
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	ShowMsg2UTF	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	ShowMsg2UTF
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 int ShowMsg2UTF(	const neutrino_locale_t Caption,
-					const char * const Text, 
-					const CMsgBox::result_ Default, 
-					const uint32_t ShowButtons, 
-					const char * const Icon, 
-					const int Width, 
-					const int timeout, 
+					const char * const Text,
+					const CMsgBox::result_ Default,
+					const uint32_t ShowButtons,
+					const char * const Icon,
+					const int Width,
+					const int timeout,
 					bool returnDefaultOnTimeout)
 {
 	//TRACE("->CMsgBox::ShowTextUTF \r\n");
 
 	int result = ShowMsg2UTF(	g_Locale->getText(Caption),
-								Text, 
-								Default, 
-								ShowButtons, 
-								Icon, 
-								Width, 
-								timeout, 
+								Text,
+								Default,
+								ShowButtons,
+								Icon,
+								Width,
+								timeout,
 								returnDefaultOnTimeout);
 
 	return (result);
@@ -810,40 +810,40 @@ int ShowMsg2UTF(	const neutrino_locale_t Caption,
 }
 
 //////////////////////////////////////////////////////////////////////
-// Function Name:	ShowMsg2UTF	
-// Description:		
-// Parameters:		
-// Data IN/OUT:		
-// Return:		
-// Notes:		
+// Function Name:	ShowMsg2UTF
+// Description:
+// Parameters:
+// Data IN/OUT:
+// Return:
+// Notes:
 //////////////////////////////////////////////////////////////////////
 int ShowMsg2UTF(	const char * const Title,
-					const char * const Text, 
-					const CMsgBox::result_ Default, 
-					const uint32_t ShowButtons, 
-					const char * const Icon, 
-					const int Width, 
-					const int timeout, 
+					const char * const Text,
+					const CMsgBox::result_ Default,
+					const uint32_t ShowButtons,
+					const char * const Icon,
+					const int /*Width*/,
+					const int timeout,
 					bool returnDefaultOnTimeout)
 {
-	int mode =  CMsgBox::SCROLL | 
-				CMsgBox::TITLE | 
-				CMsgBox::FOOT | 
-				CMsgBox::BORDER;// | 
-				//CMsgBox::NO_AUTO_LINEBREAK | 
-				//CMsgBox::CENTER | 
-				//CMsgBox::AUTO_WIDTH | 
+	int mode =  CMsgBox::SCROLL |
+				CMsgBox::TITLE |
+				CMsgBox::FOOT |
+				CMsgBox::BORDER;// |
+				//CMsgBox::NO_AUTO_LINEBREAK |
+				//CMsgBox::CENTER |
+				//CMsgBox::AUTO_WIDTH |
 				//CMsgBox::AUTO_HIGH;
 	CBox position (	g_settings.screen_StartX+30,
 					g_settings.screen_StartY+30,
 					g_settings.screen_EndX - g_settings.screen_StartX-60,
-					g_settings.screen_EndY - g_settings.screen_StartY-60); 
-	
+					g_settings.screen_EndY - g_settings.screen_StartY-60);
+
 	//TRACE("\r\n->ShowTextUTF %s\r\n",Text);
-   	CMsgBox* msgBox = new CMsgBox(		Text, 
-   										g_Font[SNeutrinoSettings::FONT_TYPE_MENU], 
-   										mode, 
-   										&position, 
+   	CMsgBox* msgBox = new CMsgBox(		Text,
+   										g_Font[SNeutrinoSettings::FONT_TYPE_MENU],
+   										mode,
+   										&position,
    										Title,
    										g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE],
    										Icon,
@@ -855,6 +855,6 @@ int ShowMsg2UTF(	const char * const Title,
 	int res = msgBox->result();
 
 	delete msgBox;
-	
+
 	return res;
 }

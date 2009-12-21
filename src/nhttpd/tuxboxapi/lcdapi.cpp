@@ -86,7 +86,7 @@ void CLCDAPI::LockDisplay(int plock)
 	}
 }
 
-void CLCDAPI::DrawLine(int x1, int y1, int x2, int y2, int col)
+void CLCDAPI::DrawLine(int /*x1*/, int /*y1*/, int /*x2*/, int /*y2*/, int /*col*/)
 {
 #if HAVE_LCD
 	int color=(col==0)?(CLCDDisplay::PIXEL_OFF):((col==2)?(CLCDDisplay::PIXEL_INV):(CLCDDisplay::PIXEL_ON));
@@ -94,7 +94,7 @@ void CLCDAPI::DrawLine(int x1, int y1, int x2, int y2, int col)
 #endif
 }
 
-void CLCDAPI::DrawRect(int x1, int y1, int x2, int y2, int coll, int colf)
+void CLCDAPI::DrawRect(int /*x1*/, int /*y1*/, int /*x2*/, int /*y2*/, int /*coll*/, int /*colf*/)
 {
 #if HAVE_LCD
 	int colorl=(coll==0)?(CLCDDisplay::PIXEL_OFF):((coll==2)?(CLCDDisplay::PIXEL_INV):(CLCDDisplay::PIXEL_ON));
@@ -103,7 +103,7 @@ void CLCDAPI::DrawRect(int x1, int y1, int x2, int y2, int coll, int colf)
 #endif
 }
 
-void CLCDAPI::DrawText(int px, int py, int psize, int pcolor, int pfont, char *pmsg)
+void CLCDAPI::DrawText(int /*px*/, int /*py*/, int /*psize*/, int /*pcolor*/, int /*pfont*/, char */*pmsg*/)
 {
 #if HAVE_LCD
 	int color=(pcolor==0)?(CLCDDisplay::PIXEL_OFF):((pcolor==2)?(CLCDDisplay::PIXEL_INV):(CLCDDisplay::PIXEL_ON));
@@ -116,7 +116,7 @@ void CLCDAPI::DrawText(int px, int py, int psize, int pcolor, int pfont, char *p
 #endif
 }
 
-bool CLCDAPI::ShowPng(char *filename)
+bool CLCDAPI::ShowPng(char */*filename*/)
 {
 #if HAVE_LCD
 	return display.load_png(filename);
@@ -124,13 +124,13 @@ bool CLCDAPI::ShowPng(char *filename)
 	return 0;
 }
 
-void CLCDAPI::ShowRaw(int xpos, int ypos, int xsize, int ysize, char *ascreen)
+void CLCDAPI::ShowRaw(int /*xpos*/, int /*ypos*/, int /*xsize*/, int /*ysize*/, char */*ascreen*/)
 {
 #if HAVE_LCD
 	int sbyte,dbit,dxpos,dypos,wasinc=0,gotval;
 	char *sptr=ascreen;
 	raw_display_t rscreen;
-	
+
 	display.dump_screen(&rscreen);
 	gotval=sscanf(sptr,"%d",&sbyte);
 	for(dypos=ypos; gotval && (dypos<(ypos+ysize)); dypos++)
@@ -173,7 +173,7 @@ void CLCDAPI::ShowRaw(int xpos, int ypos, int xsize, int ysize, char *ascreen)
 	display.load_screen(&rscreen);
 #endif
 }
-	
+
 
 //-------------------------------------------------------------------------
 // Konstruktor und destruktor
@@ -183,7 +183,7 @@ CLCDAPI::CLCDAPI()
 {
 #if HAVE_LCD
 //	int i;
-	
+
 
 //	display = new CLCDDisplay();
 	fontRenderer = new LcdFontRenderClass(&display);

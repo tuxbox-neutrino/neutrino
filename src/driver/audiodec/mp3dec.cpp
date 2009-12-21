@@ -3,7 +3,7 @@
 
 	Copyright (C) 2002 Bjoern Kalkbrenner <terminar@cyberphoria.org>
    (C) 2002,2003,2004 Zwen <Zwen@tuxbox.org>
-   
+
 	libmad MP3 low-level core
 	Homepage: http://www.cyberphoria.org/
 
@@ -90,7 +90,7 @@ void id3_finish_file(struct id3_file* file);
 }
 
 // Frames to skip in ff/rev mode
-#define FRAMES_TO_SKIP 50 // 75 
+#define FRAMES_TO_SKIP 50 // 75
 // nr of frames to play after skipping in rev/ff mode
 #define FRAMES_TO_PLAY 5
 
@@ -267,7 +267,7 @@ inline signed short CMP3Dec::MadFixedToSShort(const mad_fixed_t Fixed)
 		return 32767;
 	else if (Fixed < -MAD_F_ONE)
 		return -32768;
- 
+
 	return (signed short)(Fixed >> (MAD_F_FRACBITS + 1 - 16));
 }
 #endif
@@ -367,7 +367,7 @@ void CMP3Dec::CreateInfo(CAudioMetaData* m, int FrameNumber)
 #define INPUT_BUFFER_SIZE	(2*8192) //(5*8192) /* enough to skip big id3 tags */
 #define OUTPUT_BUFFER_SIZE      8192
 #define SPECTRUM_CNT 4
-CBaseDec::RetCode CMP3Dec::Decoder(FILE *InputFp, const int OutputFd,
+CBaseDec::RetCode CMP3Dec::Decoder(FILE *InputFp, const int /*OutputFd*/,
 								   State* const state,
 								   CAudioMetaData* meta_data,
 								   time_t* const time_played,
@@ -458,7 +458,7 @@ CBaseDec::RetCode CMP3Dec::Decoder(FILE *InputFp, const int OutputFd,
 				ReadSize=INPUT_BUFFER_SIZE,
 					ReadStart=InputBuffer,
 					Remaining=0;
-			
+
 			/* Fill-in the buffer. If an error occurs print a message
 			 * and leave the decoding loop. If the end of stream is
 			 * reached we also leave the loop but the return status is
@@ -523,19 +523,19 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 		 * this case one can call again mad_frame_decode() in order to
 		 * skip the faulty part and re-sync to the next frame.
 		 */
-		// decode 'FRAMES_TO_PLAY' frames each 'FRAMES_TO_SKIP' frames in ff/rev mode 
-		if( (*state!=FF && 
-			  *state!=REV) || 
+		// decode 'FRAMES_TO_PLAY' frames each 'FRAMES_TO_SKIP' frames in ff/rev mode
+		if( (*state!=FF &&
+			  *state!=REV) ||
 		    FrameCount % actFramesToSkip < FRAMES_TO_PLAY )
 			ret=mad_frame_decode(&Frame,&Stream);
 		else if(*state==FF) // in FF mode just decode the header, this sets bufferptr to next frame and also gives stats about the frame for totals
 			if (secondsToJump != 0 && !jumpDone)
-			{	
+			{
 				jumpDone=true;
 				// jump forwards
 				long bytesForward = (Stream.bufend - Stream.this_frame) + ((ftell(InputFp)+Stream.this_frame-Stream.bufend) / FrameCount)*(actFramesToSkip + FRAMES_TO_PLAY);
 				//printf("jump forwards by %d secs and %ld bytes",secondsToJump, bytesForward);
-				
+
 				if (fseek(InputFp, bytesForward, SEEK_CUR)!=0)
 				{
 					// Reached end, do nothing
@@ -568,12 +568,12 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 				*state=PLAY;
 				continue;
 			} else
-			{	
+			{
 				ret=mad_header_decode(&Frame.header,&Stream);
 			}
 		else
 		{ //REV
-			// Jump back 
+			// Jump back
 			long bytesBack = (Stream.bufend - Stream.this_frame) + ((ftell(InputFp)+Stream.this_frame-Stream.bufend) / FrameCount)*(actFramesToSkip + FRAMES_TO_PLAY);
 
 			if (secondsToJump!=0)
@@ -626,7 +626,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 			if(MAD_RECOVERABLE(Stream.error))
 			{
 				// no errrors in FF mode
-				if(*state!=FF && 
+				if(*state!=FF &&
 					*state!=REV)
 				{
 					fprintf(stderr,"%s: recoverable frame level error (%s)\n",
@@ -696,7 +696,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 			mad_timer_reset(&Timer);
 			Timer.seconds = *time_played;
 		}
-		
+
 		/* Accounting. The computed frame duration is in the frame
 		 * header structure. It is expressed as a fixed point number
 		 * whole data type is mad_timer_t. It is different from the
@@ -711,17 +711,17 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
       //                 MAD_UNITS_MINUTES,MAD_UNITS_MILLISECONDS,0);
 		*time_played = Timer.seconds;
 
-				
+
 		// decode 5 frames each 75 frames in ff mode
 		if( *state!=FF || FrameCount % actFramesToSkip < FRAMES_TO_PLAY)
 		{
-			
+
 			/* Once decoded the frame is synthesized to PCM samples. No errors
 			 * are reported by mad_synth_frame();
 			 */
 			mad_synth_frame(&Synth, &Frame);
-			
-			
+
+
 			/* Synthesized samples must be converted from mad's fixed
 			 * point number to the consumer format. Here we use signed
 			 * 16 bit native endian integers on two channels. Integer samples
@@ -733,7 +733,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 			{
 				mad_fixed_t * leftchannel = Synth.pcm.samples[0];
 				mad_fixed_t * rightchannel = Synth.pcm.samples[1];
-				
+
 				while (Synth.pcm.length-- > 0)
 				{
                                         ll = MadFixedToSShort(*(leftchannel++), true);
@@ -746,7 +746,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 #define DDIFF 0
 					if(g_settings.spectrum) {
 #if HAVE_DBOX2
-					if(scnt == SPECTRUM_CNT-2) 
+					if(scnt == SPECTRUM_CNT-2)
 #endif
 					{
                                         	j += 4;
@@ -759,7 +759,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 					}
 					}
 #endif
-					
+
 					/* Flush the buffer if it is full. */
 					if (OutputPtr == OutputBufferEnd)
 					{
@@ -770,7 +770,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 							Status = WRITE_ERR;
 							break;
 						}
-						
+
 						OutputPtr = OutputBuffer;
 #ifdef SPECTRUM
 						if(g_settings.spectrum) {
@@ -784,7 +784,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
                                                 	//sanalyzer_render_vu(data);
 							scnt++;
 #if HAVE_DBOX2
-							if(scnt >= SPECTRUM_CNT) 
+							if(scnt >= SPECTRUM_CNT)
 #endif
 							{
 								scnt = 0;
@@ -798,7 +798,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 			else
 			{
 				mad_fixed_t * leftchannel = Synth.pcm.samples[0];
-				
+
 				while (Synth.pcm.length-- > 0)
 				{
 					/* Left channel => copy to right channel */
@@ -807,13 +807,13 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 					ll = MadFixedToSShort(*(leftchannel++), false);
 					rr = ll;
 					*(((signed short *)OutputPtr) + 1) = *((signed short *)OutputPtr) = ll;
-				
+
 					OutputPtr += 4;
 #ifdef SPECTRUM
 #define DDIFF 1024
 					if(g_settings.spectrum) {
 #if HAVE_DBOX2
-					if(scnt == SPECTRUM_CNT-2) 
+					if(scnt == SPECTRUM_CNT-2)
 #endif
 					{
                                         	j += 4;
@@ -826,7 +826,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 					}
 					}
 #endif
-					
+
 					/* Flush the buffer if it is full. */
 					if (OutputPtr == OutputBufferEnd)
 					{
@@ -837,7 +837,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 							Status = WRITE_ERR;
 							break;
 						}
-						
+
 						OutputPtr = OutputBuffer;
 #ifdef SPECTRUM
 						if(g_settings.spectrum) {
@@ -849,7 +849,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 //int ms = (tv2.tv_sec - tv1.tv_sec) * 1000 + (tv2.tv_usec - tv1.tv_usec) / 1000;
 //if(ms)printf("Write takes %dms\n", ms);
 #if HAVE_DBOX2
-							if(scnt >= SPECTRUM_CNT) 
+							if(scnt >= SPECTRUM_CNT)
 #endif
 							{
                                                 		sanalyzer_render_freq(data);
@@ -860,7 +860,7 @@ q		 * next mad_frame_decode() invocation. (See the comments marked
 				}
 			}
 		}
-		
+
 		// if a custom value was set we only jump once
 		if ((*state==FF || *state==REV) && secondsToJump != 0 && !jumpDone) {
 			jumpDone=true;
@@ -1165,12 +1165,12 @@ void CMP3Dec::GetID3(FILE* in, CAudioMetaData* const m)
 	id3_ucs4_t const *ucs4;
 	id3_utf8_t *utf8;
 	char const spaces[] = "          ";
-	
-	struct 
+
+	struct
 		{
 		char const *id;
 		char const *name;
-	} const info[] = 
+	} const info[] =
 		{
 			{ ID3_FRAME_TITLE,  "Title"},
 			{ "TIT3",           0},	 /* Subtitle */
@@ -1345,7 +1345,7 @@ void CMP3Dec::GetID3(FILE* in, CAudioMetaData* const m)
 void id3_finish_file(struct id3_file* file)
 {
 	unsigned int i;
-	
+
 	if (file->path)
 		free(file->path);
 
@@ -1353,20 +1353,20 @@ void id3_finish_file(struct id3_file* file)
 		id3_tag_delref(file->primary);
 		id3_tag_delete(file->primary);
 	}
-	
+
 	for (i = 0; i < file->ntags; ++i) {
 		struct id3_tag *tag;
-		
+
 		tag = file->tags[i].tag;
 		if (tag) {
 			id3_tag_delref(tag);
 			id3_tag_delete(tag);
 		}
 	}
-	
+
 	if (file->tags)
 		free(file->tags);
-	
+
 	free(file);
-}	
+}
 
