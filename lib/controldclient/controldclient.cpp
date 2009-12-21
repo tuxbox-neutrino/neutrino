@@ -35,7 +35,7 @@
 #include <controldclient/controldclient.h>
 
 
-const unsigned char   CControldClient::getVersion   () const
+unsigned char CControldClient::getVersion   () const
 {
 	return CControldMsg::ACTVERSION;
 }

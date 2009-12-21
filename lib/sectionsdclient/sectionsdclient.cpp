@@ -21,7 +21,7 @@
 
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 #include <eventserver.h>
 
@@ -29,7 +29,7 @@
 #include <sectionsdclient/sectionsdMsg.h>
 
 
-const unsigned char   CSectionsdClient::getVersion   () const
+unsigned char   CSectionsdClient::getVersion   () const
 {
 	return sectionsd::ACTVERSION;
 }

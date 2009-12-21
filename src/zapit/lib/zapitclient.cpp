@@ -35,12 +35,12 @@
 #include <zapit/client/msgtypes.h>
 #include <zapit/client/zapittools.h>
 
-const unsigned char   CZapitClient::getVersion   () const
+unsigned char CZapitClient::getVersion() const
 {
 	return CZapitMessages::ACTVERSION;
 }
 
-const          char * CZapitClient::getSocketName() const
+const char * CZapitClient::getSocketName() const
 {
 	return ZAPIT_UDS_NAME;
 }

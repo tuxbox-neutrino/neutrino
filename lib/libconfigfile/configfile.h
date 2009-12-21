@@ -1,5 +1,5 @@
 /*
- * $Id: configfile.h,v 1.11 2003/09/25 18:52:27 thegoodguy Exp $
+ * $Id: configfile.h,v 1.12 2009/02/24 19:09:06 seife Exp $
  *
  * Copyright (C) 2001, 2002 Andreas Oberritter <obi@tuxbox.org>,
  *                          thegoodguy  <thegoodguy@tuxbox.org>
@@ -51,11 +51,11 @@ class CConfigFile
  public:
 	CConfigFile(const char p_delimiter, const bool p_saveDefaults = true);
 
-	const bool loadConfig(const char * const filename);
-	const bool loadConfig(const std::string & filename);
+	bool loadConfig(const char * const filename);
+	bool loadConfig(const std::string & filename);
 
-	const bool saveConfig(const char * const filename);
-	const bool saveConfig(const std::string & filename);
+	bool saveConfig(const char * const filename);
+	bool saveConfig(const std::string & filename);
 
 	void clear();
 
@@ -100,10 +100,10 @@ class CConfigFile
 	//
 	// flags
 	//
-	const bool getModifiedFlag() const { return modifiedFlag; }
+	bool getModifiedFlag() const { return modifiedFlag; }
 	void setModifiedFlag(const bool val) { modifiedFlag = val; }
 
-	const bool getUnknownKeyQueryedFlag() const { return unknownKeyQueryedFlag; }
+	bool getUnknownKeyQueryedFlag() const { return unknownKeyQueryedFlag; }
 	void setUnknownKeyQueryedFlag(const bool val) { unknownKeyQueryedFlag = val; }
 
 };

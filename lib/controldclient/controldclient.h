@@ -35,8 +35,8 @@
 class CControldClient:private CBasicClient
 {
  private:
-	virtual const unsigned char   getVersion   () const;
-	virtual const          char * getSocketName() const;
+	virtual unsigned char   getVersion   () const;
+	virtual const    char * getSocketName() const;
 
  public:
 
@@ -70,7 +70,7 @@ class CControldClient:private CBasicClient
 		static const char SCARTMODE_OFF = 0;
 
 		/*
-			setVolume(volume_type) : Setzten der Lautstärke
+			setVolume(volume_type) : Setzen der Lautstaerke
 			Parameter: 0..100 - 0=leise 100=laut
 			           volume_type     : device AVS/OST/UNKOWN(=last used)
 		*/
@@ -110,9 +110,9 @@ class CControldClient:private CBasicClient
 		char getVideoFormat();
 		/*
 			getAspectRatio : Aktueller Wert aus dem Bitstream
-					2: 4:3
-					3: 16:9
-					4: 2:2.1
+					0: 4:3
+					1: 16:9
+					2: 2:2.1
 		*/
 		char getAspectRatio();
 
@@ -128,7 +128,7 @@ class CControldClient:private CBasicClient
 		char getVideoOutput();
 
                 /*
-			setVCROutput(char) : Setzten des Videooutputs für VCR ( composite / svideo )
+			setVCROutput(char) : Setzen des Videooutputs fuer VCR ( composite / svideo )
 			Parameter: VIDEOOUTPUT_COMPOSITE = cvbs
 			VIDEOOUTPUT_SVIDEO    = svideo
 		*/
