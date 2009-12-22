@@ -35,7 +35,7 @@
  * First release of the XMLTree API (ryg)
  *
  */
- 
+
 #define stricmp strcasecmp
 
 #include <string.h>
@@ -346,16 +346,16 @@ void XMLTreeNode::SetMatchingMode(matchmode mode)
 
 void XMLTreeNode::DeleteAttribute(char *name)
 {
-  XMLAttribute *a, *next, *prev;
+  XMLAttribute *a, *next1, *prev;
 
   a=GetAttribute(name);
   if (!a) return;
 
-  next=a->GetNext();
+  next1=a->GetNext();
   prev=a->GetPrevious();
 
-  if (prev) prev->SetNext(next);
-  if (next) next->SetPrevious(prev);
+  if (prev) prev->SetNext(next1);
+  if (next1) next1->SetPrevious(prev);
 
   delete a;
 }
@@ -391,10 +391,10 @@ void XMLTreeNode::DeleteChildren()
   child=0;
 }
 
-void XMLTreeParser::StartElementHandler(const XML_Char *name, const XML_Char **atts)
+void XMLTreeParser::StartElementHandler(const XML_Char *name, const XML_Char **patts)
 {
   XMLTreeNode     *n;
-  const XML_Char **a=atts;
+  const XML_Char **a=patts;
 
   n=new XMLTreeNode(current, (char *) name);
 
@@ -402,7 +402,7 @@ void XMLTreeParser::StartElementHandler(const XML_Char *name, const XML_Char **a
   {
     while (*a) { n->SetAttribute((char *) a[0], (char *) a[1]); a+=2; };
   }
-  
+
   if (current)
   {
     n->SetPDataOff(current->GetDataSize());
@@ -429,7 +429,7 @@ void XMLTreeParser::CharacterDataHandler(const XML_Char *s, int len)
     current->AppendData((char *) s, len);
 }
 
-XMLTreeParser::XMLTreeParser(const XML_Char *encoding): XML_Parser(encoding)
+XMLTreeParser::XMLTreeParser(const XML_Char *encoding1): XML_Parser(encoding1)
 {
   root=current=0;
 
