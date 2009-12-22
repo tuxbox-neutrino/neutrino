@@ -191,9 +191,9 @@ const char *FBFontRenderClass::AddFont(const char * const filename, const bool m
 
 FBFontRenderClass::fontListEntry::~fontListEntry()
 {
-	delete[] filename;
-	delete[] family;
-	delete[] style;
+	free(filename);
+	free(family);
+	free(style);
 }
 
 Font *FBFontRenderClass::getFont(const char * const family, const char * const style, int size)
