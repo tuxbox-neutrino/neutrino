@@ -30,7 +30,7 @@
  * -----------
  *
  * - extension of lines across multiple lines using \ is not supported
- * 
+ *
  */
 
 bool read_file(const std::string filename, std::list<std::string> &line)
@@ -83,7 +83,7 @@ std::string remove_interface_from_line(const std::string interface, const std::s
 	if (in >> s)
 	{
 		out << s;  /* auto */
-		
+
 		while (in >> s)
 		{
 			if (s != interface)
@@ -109,13 +109,13 @@ bool write_interface(const std::string filename, const std::string name, const b
 	{
 		{
 			std::istringstream in((*it).c_str());
-			
+
 			if (!(in >> s))
 			{
 				it++;
 				continue;
 			}
-			
+
 			if (s != std::string("iface"))
 			{
 				if (s == std::string("auto"))
@@ -147,14 +147,14 @@ bool write_interface(const std::string filename, const std::string name, const b
 				it++;
 				continue;
 			}
-			
+
 			if (s != std::string(name))
 			{
 				it++;
 				continue;
 			}
 		}
-			
+
 		found = true;
 
 		/* replace line */
@@ -164,7 +164,7 @@ bool write_interface(const std::string filename, const std::string name, const b
 
 		if (automatic_start)
 			line.insert(it, "auto " + name);
-		
+
 		/* add attributes */
 		it++;
 		it = add_attributes(attribute, line, it);
@@ -174,27 +174,27 @@ bool write_interface(const std::string filename, const std::string name, const b
 		{
 			std::istringstream in((*it).c_str());
 
-			if (!(in >> s))             /* retain empty lines */	
+			if (!(in >> s))             /* retain empty lines */
 			{
 				it++;
 				continue;
 			}
-		
+
 			if (s[0] == '#')            /* retain comments */
 			{
 				it++;
 				continue;
 			}
-			
+
 			if (s == std::string("iface"))
 				break;
-			
+
 			if (s == std::string("auto"))
 				break;
-			
+
 			if (s == std::string("mapping"))
 				break;
-			
+
 			it = line.erase(it);
 		}
 	}
@@ -238,16 +238,16 @@ bool read_interface(const std::string filename, const std::string name, bool &au
 			advance = true;
 
 		{
-			std::istringstream in(s.c_str());
-			
-			if (!(in >> s))
+			std::istringstream in2(s.c_str());
+
+			if (!(in2 >> s))
 				continue;
-			
+
 			if (s != std::string("iface"))
 			{
 				if (s == std::string("auto"))
 				{
-					while (in >> s)
+					while (in2 >> s)
 					{
 						if (s == std::string(name))
 						{
@@ -259,18 +259,18 @@ bool read_interface(const std::string filename, const std::string name, bool &au
 				continue;
 			}
 
-			if (!(in >> s))
+			if (!(in2 >> s))
 				continue;
-			
+
 			if (s != std::string(name))
 				continue;
-			
-			if (!(in >> s))
+
+			if (!(in2 >> s))
 				continue;
-			
-			if (!(in >> t))
+
+			if (!(in2 >> t))
 				continue;
-			
+
 			family = s;
 			method = t;
 		}
@@ -280,26 +280,26 @@ bool read_interface(const std::string filename, const std::string name, bool &au
 			if (!getline(in, s))
 				return true;
 
-			std::istringstream in(s.c_str());
+			std::istringstream in3(s.c_str());
 
-			if (!(in >> t))             /* ignore empty lines */	
+			if (!(in3 >> t))             /* ignore empty lines */
 				continue;
-		
+
 			if (t[0] == '#')            /* ignore comments */
 				continue;
-			
+
 			if (t == std::string("iface"))
 				break;
-			
+
 			if (t == std::string("auto"))
 				break;
-			
+
 			if (t == std::string("mapping"))
 				break;
-			
-			if (!(in >> s))
+
+			if (!(in3 >> s))
 				continue;
-			
+
 			attribute[t] = s;
 		}
 		advance = false;
