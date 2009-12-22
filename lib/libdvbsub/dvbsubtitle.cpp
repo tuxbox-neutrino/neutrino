@@ -8,7 +8,7 @@
  * With some input from the "subtitle plugin" by Pekka Virtanen <pekka.virtanen@sci.fi>
  *
  * $Id: dvbsubtitle.cpp,v 1.1 2009/02/23 19:46:44 rhabarber1848 Exp $
- * dvbsubtitle for HD1 ported by Coolstream LTD 
+ * dvbsubtitle for HD1 ported by Coolstream LTD
  */
 
 #include "dvbsubtitle.h"
@@ -72,27 +72,27 @@ public:
   cSubtitleClut(int ClutId);
   int ClutId(void) { return clutId; }
   int Version(void) { return version; }
-  void SetVersion(int Version) { version = Version; }
+  void SetVersion(int pVersion) { version = pVersion; }
   void SetColor(int Bpp, int Index, tColor Color);
   const cPalette *GetPalette(int Bpp);
   };
 
-cSubtitleClut::cSubtitleClut(int ClutId)
+cSubtitleClut::cSubtitleClut(int pClutId)
 :palette2(2)
 ,palette4(4)
 ,palette8(8)
 {
-  clutId = ClutId;
+  clutId = pClutId;
   version = -1;
 }
 
-void cSubtitleClut::SetColor(int Bpp, int Index, tColor Color)
+void cSubtitleClut::SetColor(int Bpp, int pIndex, tColor Color)
 {
   switch (Bpp) {
-    case 2: palette2.SetColor(Index, Color); break;
-    case 4: palette4.SetColor(Index, Color); break;
-    case 8: palette8.SetColor(Index, Color); break;
-    default: esyslog("ERROR: wrong Bpp in cSubtitleClut::SetColor(%d, %d, %08X)", Bpp, Index, Color);
+    case 2: palette2.SetColor(pIndex, Color); break;
+    case 4: palette4.SetColor(pIndex, Color); break;
+    case 8: palette8.SetColor(pIndex, Color); break;
+    default: esyslog("ERROR: wrong Bpp in cSubtitleClut::SetColor(%d, %d, %08X)", Bpp, pIndex, Color);
     }
 }
 
@@ -135,18 +135,18 @@ public:
   int CodingMethod(void) { return codingMethod; }
   bool NonModifyingColorFlag(void) { return nonModifyingColorFlag; }
   void DecodeSubBlock(const uchar *Data, int Length, bool Even);
-  void SetVersion(int Version) { version = Version; }
+  void SetVersion(int pVersion) { version = pVersion; }
   void SetBackgroundColor(uchar BackgroundColor) { backgroundColor = BackgroundColor; }
   void SetForegroundColor(uchar ForegroundColor) { foregroundColor = ForegroundColor; }
-  void SetNonModifyingColorFlag(bool NonModifyingColorFlag) { nonModifyingColorFlag = NonModifyingColorFlag; }
-  void SetCodingMethod(int CodingMethod) { codingMethod = CodingMethod; }
+  void SetNonModifyingColorFlag(bool pNonModifyingColorFlag) { nonModifyingColorFlag = pNonModifyingColorFlag; }
+  void SetCodingMethod(int pCodingMethod) { codingMethod = pCodingMethod; }
   void SetPosition(int x, int y) { px = x; py = y; }
-  void SetProviderFlag(int ProviderFlag) { providerFlag = ProviderFlag; }
+  void SetProviderFlag(int pProviderFlag) { providerFlag = pProviderFlag; }
   };
 
-cSubtitleObject::cSubtitleObject(int ObjectId, cBitmap *Bitmap)
+cSubtitleObject::cSubtitleObject(int pObjectId, cBitmap *pBitmap)
 {
-  objectId = ObjectId;
+  objectId = pObjectId;
   version = -1;
   codingMethod = -1;
   nonModifyingColorFlag = false;
@@ -155,7 +155,7 @@ cSubtitleObject::cSubtitleObject(int ObjectId, cBitmap *Bitmap)
   foregroundColor = 0;
   providerFlag = -1;
   px = py = 0;
-  bitmap = Bitmap;
+  bitmap = pBitmap;
 }
 
 void cSubtitleObject::DecodeSubBlock(const uchar *Data, int Length, bool Even)
@@ -204,32 +204,32 @@ void cSubtitleObject::DecodeSubBlock(const uchar *Data, int Length, bool Even)
       }
 }
 
-void cSubtitleObject::DrawLine(int x, int y, tIndex Index, int Length)
+void cSubtitleObject::DrawLine(int x, int y, tIndex pIndex, int Length)
 {
-  if (nonModifyingColorFlag && Index == 1)
+  if (nonModifyingColorFlag && pIndex == 1)
      return;
   x += px;
   y += py;
   for (int pos = x; pos < x + Length; pos++)
-      bitmap->SetIndex(pos, y, Index);
+      bitmap->SetIndex(pos, y, pIndex);
 }
 
-uchar cSubtitleObject::Get2Bits(const uchar *Data, int &Index)
+uchar cSubtitleObject::Get2Bits(const uchar *Data, int &pIndex)
 {
-  uchar result = Data[Index];
+  uchar result = Data[pIndex];
   if (!nibblePos) {
-     Index++;
+     pIndex++;
      nibblePos = 8;
      }
   nibblePos -= 2;
   return (result >> nibblePos) & 0x03;
 }
 
-uchar cSubtitleObject::Get4Bits(const uchar *Data, int &Index)
+uchar cSubtitleObject::Get4Bits(const uchar *Data, int &pIndex)
 {
-  uchar result = Data[Index];
+  uchar result = Data[pIndex];
   if (!nibblePos) {
-     Index++;
+     pIndex++;
      nibblePos = 4;
      }
   else {
@@ -239,25 +239,25 @@ uchar cSubtitleObject::Get4Bits(const uchar *Data, int &Index)
   return result & 0x0F;
 }
 
-bool cSubtitleObject::Decode2BppCodeString(const uchar *Data, int &Index, int &x, int y)
+bool cSubtitleObject::Decode2BppCodeString(const uchar *Data, int &pIndex, int &x, int y)
 {
   int rl = 0;
   int color = 0;
-  uchar code = Get2Bits(Data, Index);
+  uchar code = Get2Bits(Data, pIndex);
   if (code) {
      color = code;
      rl = 1;
      }
   else {
-     code = Get2Bits(Data, Index);
+     code = Get2Bits(Data, pIndex);
      if (code & 2) { // switch_1
-        rl = ((code & 1) << 2) + Get2Bits(Data, Index) + 3;
-        color = Get2Bits(Data, Index);
+        rl = ((code & 1) << 2) + Get2Bits(Data, pIndex) + 3;
+        color = Get2Bits(Data, pIndex);
         }
      else if (code & 1)
         rl = 1; //color 0
      else {
-        code = Get2Bits(Data, Index);
+        code = Get2Bits(Data, pIndex);
         switch (code & 0x3) { //switch_3
           case 0:
                return false;
@@ -265,12 +265,12 @@ bool cSubtitleObject::Decode2BppCodeString(const uchar *Data, int &Index, int &x
                rl = 2; //color 0
                break;
           case 2:
-               rl = (Get2Bits(Data, Index) << 2) + Get2Bits(Data, Index) + 12;
-               color = Get2Bits(Data, Index);
+               rl = (Get2Bits(Data, pIndex) << 2) + Get2Bits(Data, pIndex) + 12;
+               color = Get2Bits(Data, pIndex);
                break;
           case 3:
-               rl = (Get2Bits(Data, Index) << 6) + (Get2Bits(Data, Index) << 4) + (Get2Bits(Data, Index) << 2) + Get2Bits(Data, Index) + 29;
-               color = Get2Bits(Data, Index);
+               rl = (Get2Bits(Data, pIndex) << 6) + (Get2Bits(Data, pIndex) << 4) + (Get2Bits(Data, pIndex) << 2) + Get2Bits(Data, pIndex) + 29;
+               color = Get2Bits(Data, pIndex);
                break;
           }
         }
@@ -280,17 +280,17 @@ bool cSubtitleObject::Decode2BppCodeString(const uchar *Data, int &Index, int &x
   return true;
 }
 
-bool cSubtitleObject::Decode4BppCodeString(const uchar *Data, int &Index, int &x, int y)
+bool cSubtitleObject::Decode4BppCodeString(const uchar *Data, int &pIndex, int &x, int y)
 {
   int rl = 0;
   int color = 0;
-  uchar code = Get4Bits(Data, Index);
+  uchar code = Get4Bits(Data, pIndex);
   if (code) {
      color = code;
      rl = 1;
      }
   else {
-     code = Get4Bits(Data, Index);
+     code = Get4Bits(Data, pIndex);
      if (code & 8) { // switch_1
         if (code & 4) { //switch_2
            switch (code & 3) { //switch_3
@@ -301,18 +301,18 @@ bool cSubtitleObject::Decode4BppCodeString(const uchar *Data, int &Index, int &x
                   rl = 2;
                   break;
              case 2:
-                  rl = Get4Bits(Data, Index) + 9;
-                  color = Get4Bits(Data, Index);
+                  rl = Get4Bits(Data, pIndex) + 9;
+                  color = Get4Bits(Data, pIndex);
                   break;
              case 3:
-                  rl = (Get4Bits(Data, Index) << 4) + Get4Bits(Data, Index) + 25;
-                  color = Get4Bits(Data, Index);
+                  rl = (Get4Bits(Data, pIndex) << 4) + Get4Bits(Data, pIndex) + 25;
+                  color = Get4Bits(Data, pIndex);
                   break;
              }
            }
         else {
            rl = (code & 3) + 4;
-           color = Get4Bits(Data, Index);
+           color = Get4Bits(Data, pIndex);
            }
         }
      else { // color 0
@@ -326,20 +326,20 @@ bool cSubtitleObject::Decode4BppCodeString(const uchar *Data, int &Index, int &x
   return true;
 }
 
-bool cSubtitleObject::Decode8BppCodeString(const uchar *Data, int &Index, int &x, int y)
+bool cSubtitleObject::Decode8BppCodeString(const uchar *Data, int &pIndex, int &x, int y)
 {
   int rl = 0;
   int color = 0;
-  uchar code = Data[Index++];
+  uchar code = Data[pIndex++];
   if (code) {
      color = code;
      rl = 1;
      }
   else {
-     code = Data[Index++];
+     code = Data[pIndex++];
      rl = code & 0x63;
      if (code & 0x80)
-        color = Data[Index++];
+        color = Data[pIndex++];
      else if (!rl)
         return false; //else color 0
      }
@@ -370,18 +370,18 @@ public:
   cSubtitleObject *GetObjectById(int ObjectId, bool New = false);
   int HorizontalAddress(void) { return horizontalAddress; }
   int VerticalAddress(void) { return verticalAddress; }
-  void SetVersion(int Version) { version = Version; }
-  void SetClutId(int ClutId) { clutId = ClutId; }
+  void SetVersion(int pVersion) { version = pVersion; }
+  void SetClutId(int pClutId) { clutId = pClutId; }
   void SetLevel(int Level);
   void SetDepth(int Depth);
-  void SetHorizontalAddress(int HorizontalAddress) { horizontalAddress = HorizontalAddress; }
-  void SetVerticalAddress(int VerticalAddress) { verticalAddress = VerticalAddress; }
+  void SetHorizontalAddress(int pHorizontalAddress) { horizontalAddress = pHorizontalAddress; }
+  void SetVerticalAddress(int pVerticalAddress) { verticalAddress = pVerticalAddress; }
   };
 
-cSubtitleRegion::cSubtitleRegion(int RegionId)
+cSubtitleRegion::cSubtitleRegion(int pRegionId)
 :cBitmap(1, 1, 4)
 {
-  regionId = RegionId;
+  regionId = pRegionId;
   version = -1;
   clutId = -1;
   horizontalAddress = 0;
@@ -389,12 +389,12 @@ cSubtitleRegion::cSubtitleRegion(int RegionId)
   level = 0;
 }
 
-void cSubtitleRegion::FillRegion(tIndex Index)
+void cSubtitleRegion::FillRegion(tIndex pIndex)
 {
-  dbgregions("FillRegion %d\n", Index);
+  dbgregions("FillRegion %d\n", pIndex);
   for (int y = 0; y < Height(); y++) {
       for (int x = 0; x < Width(); x++)
-          SetIndex(x, y, Index);
+          SetIndex(x, y, pIndex);
       }
 }
 
@@ -412,16 +412,16 @@ cSubtitleObject *cSubtitleRegion::GetObjectById(int ObjectId, bool New)
   return result;
 }
 
-void cSubtitleRegion::SetLevel(int Level)
+void cSubtitleRegion::SetLevel(int pLevel)
 {
-  if (Level > 0 && Level < 4)
-     level = 1 << Level;
+  if (pLevel > 0 && pLevel < 4)
+     level = 1 << pLevel;
 }
 
-void cSubtitleRegion::SetDepth(int Depth)
+void cSubtitleRegion::SetDepth(int pDepth)
 {
-  if (Depth > 0 && Depth < 4)
-     SetBpp(1 << Depth);
+  if (pDepth > 0 && pDepth < 4)
+     SetBpp(1 << pDepth);
 }
 
 // --- cDvbSubtitlePage ------------------------------------------------------
@@ -447,16 +447,16 @@ public:
   cSubtitleRegion *GetRegionById(int RegionId, bool New = false);
   int64_t Pts(void) const { return pts; }
   int Timeout(void) { return timeout; }
-  void SetVersion(int Version) { version = Version; }
-  void SetPts(int64_t Pts) { pts = Pts; }
+  void SetVersion(int pVersion) { version = pVersion; }
+  void SetPts(int64_t pPts) { pts = pPts; }
   void SetState(int State);
-  void SetTimeout(int Timeout) { timeout = Timeout; }
+  void SetTimeout(int pTimeout) { timeout = pTimeout; }
   void UpdateRegionPalette(cSubtitleClut *Clut);
 };
 
-cDvbSubtitlePage::cDvbSubtitlePage(int PageId)
+cDvbSubtitlePage::cDvbSubtitlePage(int pPageId)
 {
-	pageId = PageId;
+	pageId = pPageId;
 	version = -1;
 	state = -1;
 	pts = 0;
@@ -523,9 +523,9 @@ cSubtitleObject *cDvbSubtitlePage::GetObjectById(int ObjectId)
   return result;
 }
 
-void cDvbSubtitlePage::SetState(int State)
+void cDvbSubtitlePage::SetState(int pState)
 {
-  state = State;
+  state = pState;
   switch (state) {
     case 0: // normal case - page update
          dbgpages("page update\n");
@@ -643,12 +643,12 @@ public:
   void Clear(void);
   };
 
-cDvbSubtitleBitmaps::cDvbSubtitleBitmaps(int64_t Pts, int Timeout, tArea *Areas, int NumAreas)
+cDvbSubtitleBitmaps::cDvbSubtitleBitmaps(int64_t pPts, int pTimeout, tArea *pAreas, int pNumAreas)
 {
-  pts = Pts;
-  timeout = Timeout;
-  areas = Areas;
-  numAreas = NumAreas;
+  pts = pPts;
+  timeout = pTimeout;
+  areas = pAreas;
+  numAreas = pNumAreas;
 //  max_x = max_y = 0;
 //  min_x = min_y = 0xFFFF;
   //dbgconverter("cDvbSubtitleBitmaps::new: PTS: %lld\n", pts);
@@ -708,7 +708,7 @@ void cDvbSubtitleBitmaps::Draw()
 		int yoff = (yend - (576-bitmaps[i]->Y0()))*stride;
 		int ys = yend - (576-bitmaps[i]->Y0());
 
-		dbgconverter("cDvbSubtitleBitmaps::Draw %d colors= %d at %d,%d (x=%d y=%d) size %dx%d\n", 
+		dbgconverter("cDvbSubtitleBitmaps::Draw %d colors= %d at %d,%d (x=%d y=%d) size %dx%d\n",
 			i, NumColors, bitmaps[i]->X0(), bitmaps[i]->Y0(), xoff, ys, bitmaps[i]->Width(), bitmaps[i]->Height());
 
 		for (int y2 = 0; y2 < bitmaps[i]->Height(); y2++) {

@@ -50,7 +50,7 @@ public:
         ///< If Color is not yet contained in this palette, it will be added if
         ///< there is a free slot. If the color can't be added to this palette,
         ///< the closest existing color will be returned.
-  tColor Color(int Index) const { return Index < maxColors ? color[Index] : 0; }
+  tColor Color(int pIndex) const { return pIndex < maxColors ? color[pIndex] : 0; }
         ///< Returns the color at the given Index. If Index is outside the valid
         ///< range, 0 will be returned.
   void SetBpp(int Bpp);

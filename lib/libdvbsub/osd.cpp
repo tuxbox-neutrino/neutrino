@@ -18,9 +18,9 @@
 
 // --- cPalette --------------------------------------------------------------
 
-cPalette::cPalette(int Bpp)
+cPalette::cPalette(int pBpp)
 {
-  SetBpp(Bpp);
+  SetBpp(pBpp);
   SetAntiAliasGranularity(10, 10);
 }
 
@@ -41,44 +41,44 @@ void cPalette::Reset(void)
   modified = false;
 }
 
-int cPalette::Index(tColor Color)
+int cPalette::Index(tColor pColor)
 {
   // Check if color is already defined:
   for (int i = 0; i < numColors; i++) {
-      if (color[i] == Color)
+      if (color[i] == pColor)
          return i;
       }
   // No exact color, try a close one:
-  int i = ClosestColor(Color, 4);
+  int i = ClosestColor(pColor, 4);
   if (i >= 0)
      return i;
   // No close one, try to define a new one:
   if (numColors < maxColors) {
-     color[numColors++] = Color;
+     color[numColors++] = pColor;
      modified = true;
      return numColors - 1;
      }
   // Out of colors, so any close color must do:
-  return ClosestColor(Color);
+  return ClosestColor(pColor);
 }
 
-void cPalette::SetBpp(int Bpp)
+void cPalette::SetBpp(int pBpp)
 {
-  bpp = Bpp;
+  bpp = pBpp;
   maxColors = 1 << bpp;
   Reset();
 }
 
-void cPalette::SetColor(int Index, tColor Color)
+void cPalette::SetColor(int pIndex, tColor pColor)
 {
-  if (Index < maxColors) {
-     if (numColors <= Index) {
-        numColors = Index + 1;
+  if (pIndex < maxColors) {
+     if (numColors <= pIndex) {
+        numColors = pIndex + 1;
         modified = true;
         }
      else
-        modified |= color[Index] != Color;
-     color[Index] = Color;
+        modified |= color[pIndex] != pColor;
+     color[pIndex] = pColor;
      }
 }
 
@@ -91,14 +91,14 @@ const tColor *cPalette::Colors(int &NumColors) const
 void cPalette::Take(const cPalette &Palette, tIndexes *Indexes, tColor ColorFg, tColor ColorBg)
 {
   for (int i = 0; i < Palette.numColors; i++) {
-      tColor Color = Palette.color[i];
+      tColor pColor = Palette.color[i];
       if (ColorFg || ColorBg) {
          switch (i) {
-           case 0: Color = ColorBg; break;
-           case 1: Color = ColorFg; break;
+           case 0: pColor = ColorBg; break;
+           case 1: pColor = ColorFg; break;
            }
          }
-      int n = Index(Color);
+      int n = Index(pColor);
       if (Indexes)
          (*Indexes)[i] = n;
       }
@@ -131,14 +131,14 @@ tColor cPalette::Blend(tColor ColorFg, tColor ColorBg, uint8_t Level) const
   return (A << 24) | (R << 16) | (G << 8) | B;
 }
 
-int cPalette::ClosestColor(tColor Color, int MaxDiff) const
+int cPalette::ClosestColor(tColor pColor, int MaxDiff) const
 {
   int n = 0;
   int d = INT_MAX;
-  int A1 = (Color & 0xFF000000) >> 24;
-  int R1 = (Color & 0x00FF0000) >> 16;
-  int G1 = (Color & 0x0000FF00) >>  8;
-  int B1 = (Color & 0x000000FF);
+  int A1 = (pColor & 0xFF000000) >> 24;
+  int R1 = (pColor & 0x00FF0000) >> 16;
+  int G1 = (pColor & 0x0000FF00) >>  8;
+  int B1 = (pColor & 0x000000FF);
   for (int i = 0; i < numColors; i++) {
       int A2 = (color[i] & 0xFF000000) >> 24;
       int R2 = (color[i] & 0x00FF0000) >> 16;
@@ -153,13 +153,13 @@ int cPalette::ClosestColor(tColor Color, int MaxDiff) const
   return d <= MaxDiff ? n : -1;
 }
 
-cBitmap::cBitmap(int Width, int Height, int Bpp, int X0, int Y0)
-:cPalette(Bpp)
+cBitmap::cBitmap(int pWidth, int pHeight, int pBpp, int pX0, int pY0)
+:cPalette(pBpp)
 {
   bitmap = NULL;
-  x0 = X0;
-  y0 = Y0;
-  SetSize(Width, Height);
+  x0 = pX0;
+  y0 = pY0;
+  SetSize(pWidth, pHeight);
 }
 
 cBitmap::~cBitmap()
@@ -167,12 +167,12 @@ cBitmap::~cBitmap()
   free(bitmap);
 }
 
-void cBitmap::SetIndex(int x, int y, tIndex Index)
+void cBitmap::SetIndex(int x, int y, tIndex pIndex)
 {
   if (bitmap) {
      if (0 <= x && x < width && 0 <= y && y < height) {
-        if (bitmap[width * y + x] != Index) {
-           bitmap[width * y + x] = Index;
+        if (bitmap[width * y + x] != pIndex) {
+           bitmap[width * y + x] = pIndex;
            if (dirtyX1 > x)  dirtyX1 = x;
            if (dirtyY1 > y)  dirtyY1 = y;
            if (dirtyX2 < x)  dirtyX2 = x;
@@ -182,12 +182,12 @@ void cBitmap::SetIndex(int x, int y, tIndex Index)
      }
 }
 
-void cBitmap::SetSize(int Width, int Height)
+void cBitmap::SetSize(int pWidth, int pHeight)
 {
-  if (bitmap && Width == width && Height == height)
+  if (bitmap && pWidth == width && pHeight == height)
      return;
-  width = Width;
-  height = Height;
+  width = pWidth;
+  height = pHeight;
   free(bitmap);
   bitmap = NULL;
   dirtyX1 = 0;
