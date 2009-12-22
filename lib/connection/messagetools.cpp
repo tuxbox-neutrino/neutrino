@@ -27,7 +27,7 @@ size_t write_length_field (unsigned char * buffer, unsigned int length)
 {
         if (length < 128)
         {
-                buffer[0] = length;
+                buffer[0] = static_cast<unsigned char>(length);
                 return 1;
         }
         else
@@ -47,7 +47,7 @@ size_t write_length_field (unsigned char * buffer, unsigned int length)
                 while (shiftby != 0)
                 {
 			shiftby -= 8;
-                        buffer[pos++] = length >> shiftby;
+                        buffer[pos++] = static_cast<unsigned char>(length >> shiftby);
                 }
                 return pos;
         }
@@ -66,7 +66,7 @@ unsigned int parse_length_field (const unsigned char * buffer)
 
 	else if (size_indicator == 1)
 	{
-		unsigned char length_field_size = buffer[0] & 0x7F;
+		unsigned char length_field_size = static_cast<unsigned char>(buffer[0] & 0x7F);
 		unsigned int i;
 
 		for (i = 0; i < length_field_size; i++)
@@ -91,6 +91,6 @@ size_t get_length_field_size (const unsigned int length)
 
 	if (length < 0x1000000)
 		return 0x04;
-	
+
 	return 0x05;
 }
