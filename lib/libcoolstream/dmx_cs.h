@@ -67,7 +67,7 @@ class cDemux
 		void SetSyncMode(AVSYNC_TYPE mode);
 		void * getBuffer();
 		void * getChannel();
-		const DMX_CHANNEL_TYPE getChannelType(void);
+		DMX_CHANNEL_TYPE getChannelType(void);
 		void addPid(unsigned short Pid);
 		void getSTC(int64_t * STC);
 		//
