@@ -84,7 +84,7 @@ void CSectionsdClient::registerEvent(const unsigned int eventID, const unsigned 
 	msg2.clientID = clientID;
 
 	strcpy(msg2.udsName, udsName);
-	
+
 	send(sectionsd::CMD_registerEvents, (char*)&msg2, sizeof(msg2));
 
 	close_connection();
@@ -174,7 +174,7 @@ void CSectionsdClient::setServiceChanged(const t_channel_id channel_id, const bo
 	sectionsd::commandSetServiceChanged msg;
 
 	msg.channel_id   = channel_id;
-	msg.requestEvent = requestEvent; 
+	msg.requestEvent = requestEvent;
 
 	send(sectionsd::serviceChanged, (char *)&msg, sizeof(msg));
 
@@ -388,12 +388,12 @@ CChannelEventList CSectionsdClient::getChannelEvents(const bool tv_mode, t_chann
 }
 
 //GU:EPG
-/* This function does initiate a search for a keyword in all EPG Event of the Channel channel_id in sectionsd. 
-   The parameter search_typ does specify the search mode 
-	 0: none 			-> all EPG events of the channel are returned  
-	 1: keyword search in EPG Title 			 
-	 2: keyword search in EPG short description (INFO1)			
-	 3: keyword search in EPG description (INFO2)			 
+/* This function does initiate a search for a keyword in all EPG Event of the Channel channel_id in sectionsd.
+   The parameter search_typ does specify the search mode
+	 0: none 			-> all EPG events of the channel are returned
+	 1: keyword search in EPG Title
+	 2: keyword search in EPG short description (INFO1)
+	 3: keyword search in EPG description (INFO2)
   In case of a match, the EPG event is added to the Eventlist eList.
   */
 bool CSectionsdClient::getEventsServiceKeySearchAdd(CChannelEventList& eList,const t_channel_id channel_id,char search_typ,std::string& search_text)
@@ -407,26 +407,26 @@ bool CSectionsdClient::getEventsServiceKeySearchAdd(CChannelEventList& eList,con
 	char* pSData = new char[nBufSize];
 	char* pSData_ptr = pSData;
 
-	*(t_channel_id*)pSData_ptr = channel_id;   
+	*(t_channel_id*)pSData_ptr = channel_id;
 	pSData_ptr += sizeof(t_channel_id);
-	*pSData_ptr = search_typ;   
+	*pSData_ptr = search_typ;
 	pSData_ptr += sizeof(char);
 	strcpy(pSData_ptr,search_text.c_str());
-	
+
 	if (send(sectionsd::allEventsChannelIDSearch, pSData, nBufSize))
 	{
-		int nBufSize = readResponse();
+		int nBufSize2 = readResponse();
 
-		if( nBufSize > 0)
+		if( nBufSize2 > 0)
 		{
-			char* pData = new char[nBufSize];
-			receive_data(pData, nBufSize);
+			char* pData = new char[nBufSize2];
+			receive_data(pData, nBufSize2);
 
 			char* dp = pData;
 
 //			int a = eList.size();
 
-			while(dp < pData + nBufSize)
+			while(dp < pData + nBufSize2)
 			{
 				CChannelEvent aEvent;
 
@@ -640,7 +640,7 @@ bool CSectionsdClient::getEPGid(const event_id_t eventid, const time_t starttime
 	sectionsd::commandGetEPGid msg;
 
 	msg.eventid   = eventid;
-	msg.starttime = starttime; 
+	msg.starttime = starttime;
 
 	if (send(sectionsd::epgEPGid, (char *)&msg, sizeof(msg)))
 	{
@@ -726,7 +726,7 @@ bool CSectionsdClient::getEPGidShort(const event_id_t eventid, CShortEPGData * e
 	}
 
 	close_connection();
-	
+
 	return false;
 }
 #ifdef ENABLE_PPT
