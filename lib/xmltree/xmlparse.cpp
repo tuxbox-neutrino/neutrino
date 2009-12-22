@@ -1379,13 +1379,13 @@ enum XML_Error XML_Parser::processXmlDecl(int isGeneralTextEntity, const char *s
     else if (encodingName)
     {
       enum XML_Error result;
-      const XML_Char *s=poolStoreString(&tempPool, encoding, encodingName,
+      const XML_Char *s1=poolStoreString(&tempPool, encoding, encodingName,
                                         encodingName +
 					XmlNameLength(encoding, encodingName));
 
-      if (!s) return XML_ERROR_NO_MEMORY;
+      if (!s1) return XML_ERROR_NO_MEMORY;
 
-      result=handleUnknownEncoding(s);
+      result=handleUnknownEncoding(s1);
 
       poolDiscard(&tempPool);
 
