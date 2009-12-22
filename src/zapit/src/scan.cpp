@@ -318,7 +318,7 @@ int scan_transponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_pos
 	FrontendParameters feparams;
 	memset(&feparams, 0x00, sizeof(FrontendParameters));
 
-	feparams.frequency = xmlGetNumericAttribute(transponder, (char *) "frequency", 0);
+	feparams.frequency = xmlGetNumericAttribute(transponder, "frequency", 0);
         if(cable) {
                 if (feparams.frequency > 1000*1000)
                         feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
@@ -329,17 +329,17 @@ int scan_transponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_pos
 	feparams.inversion = INVERSION_AUTO;
 
 	if (cable) {
-		feparams.u.qam.symbol_rate = xmlGetNumericAttribute(transponder, (char *) "symbol_rate", 0);
-		feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(transponder, (char *) "fec_inner", 0);
-		feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(transponder, (char *) "modulation", 0);
+		feparams.u.qam.symbol_rate = xmlGetNumericAttribute(transponder, "symbol_rate", 0);
+		feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(transponder, "fec_inner", 0);
+		feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(transponder, "modulation", 0);
 		diseqc_pos = 0;
 	}
 	else if (frontend->getInfo()->type == FE_QPSK) {
-		feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(transponder, (char *) "symbol_rate", 0);
-		polarization = xmlGetNumericAttribute(transponder, (char *) "polarization", 0);
-		system = xmlGetNumericAttribute(transponder, (char *) "system", 0);
-		modulation = xmlGetNumericAttribute(transponder, (char *) "modulation", 0);
-		xml_fec = xmlGetNumericAttribute(transponder, (char *) "fec_inner", 0);
+		feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(transponder, "symbol_rate", 0);
+		polarization = xmlGetNumericAttribute(transponder, "polarization", 0);
+		system = xmlGetNumericAttribute(transponder, "system", 0);
+		modulation = xmlGetNumericAttribute(transponder, "modulation", 0);
+		xml_fec = xmlGetNumericAttribute(transponder, "fec_inner", 0);
 		xml_fec = CFrontend::getCodeRate(xml_fec, system);
 		if(modulation == 2)
 			xml_fec += 9;
@@ -443,7 +443,7 @@ void *start_scanthread(void *scanmode)
 {
 	scan_list_iterator_t spI;
 	char providerName[80] = "";
-	char *frontendType;
+	const char *frontendType;
 	uint8_t diseqc_pos = 0;
 	scanBouquetManager = new CBouquetManager();
 	processed_transponders = 0;
@@ -463,10 +463,10 @@ void *start_scanthread(void *scanmode)
 	nittransponders.clear();
 
 	cable = (frontend->getInfo()->type == FE_QAM);
-        if(cable)
-                frontendType = (char *) "cable";
-        else
-                frontendType = (char *) "sat";
+	if (cable)
+		frontendType = "cable";
+	else
+		frontendType = "sat";
 
 	scan_mode = mode & 0xFF;// NIT (0) or fast (1)
 	scan_sat_mode = mode & 0xFF00; // single = 0, all = 1
@@ -480,10 +480,10 @@ void *start_scanthread(void *scanmode)
 
 	/* read all sat or cable sections */
 	while ((search = xmlGetNextOccurence(search, frontendType)) != NULL) {
-		t_satellite_position position = xmlGetSignedNumericAttribute(search, (char *) "position", 10);
+		t_satellite_position position = xmlGetSignedNumericAttribute(search, "position", 10);
 
 		if(cable) {
-			strcpy(providerName, xmlGetAttribute(search, const_cast<char*>("name")));
+			strcpy(providerName, xmlGetAttribute(search, "name"));
 			for (spI = scanProviders.begin(); spI != scanProviders.end(); spI++)
 				if (!strcmp(spI->second.c_str(), providerName)) {
 					position = spI->first;
@@ -499,10 +499,10 @@ void *start_scanthread(void *scanmode)
 		/* provider is not wanted - jump to the next one */
 		if (spI != scanProviders.end()) {
 			/* get name of current satellite oder cable provider */
-			strcpy(providerName, xmlGetAttribute(search, (char *) "name"));
+			strcpy(providerName, xmlGetAttribute(search, "name"));
 
-			if (cable && xmlGetAttribute(search, (char *) "satfeed")) {
-				if (!strcmp(xmlGetAttribute(search, (char *) "satfeed"), "true"))
+			if (cable && xmlGetAttribute(search, "satfeed")) {
+				if (!strcmp(xmlGetAttribute(search, "satfeed"), "true"))
 					satfeed = true;
 			}
 

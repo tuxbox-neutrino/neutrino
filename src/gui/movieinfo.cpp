@@ -367,10 +367,10 @@ bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 					for (XMLTreeNode * xam2 = xam1->GetChild(); xam2; xam2 = xam2->GetNext()) {
 						if (!strcmp(xam2->GetType(), MI_XML_TAG_AUDIO)) {
 							EPG_AUDIO_PIDS pids;
-							pids.epgAudioPid = atoi(xam2->GetAttributeValue((char *)MI_XML_TAG_PID));
-							pids.atype = atoi(xam2->GetAttributeValue((char *)MI_XML_TAG_ATYPE));
-							pids.selected = atoi(xam2->GetAttributeValue((char *)MI_XML_TAG_SELECTED));
-							pids.epgAudioPidName = xam2->GetAttributeValue((char *)MI_XML_TAG_NAME);
+							pids.epgAudioPid = atoi(xam2->GetAttributeValue(MI_XML_TAG_PID));
+							pids.atype = atoi(xam2->GetAttributeValue(MI_XML_TAG_ATYPE));
+							pids.selected = atoi(xam2->GetAttributeValue(MI_XML_TAG_SELECTED));
+							pids.epgAudioPidName = xam2->GetAttributeValue(MI_XML_TAG_NAME);
 //printf("MOVIE INFO: apid %d type %d name %s selected %d\n", pids.epgAudioPid, pids.atype, pids.epgAudioPidName.c_str(), pids.selected);
 							movie_info->audioPids.push_back(pids);
 						}

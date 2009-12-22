@@ -187,7 +187,7 @@ XMLTreeNode::~XMLTreeNode()
   next=0;
 }
 
-XMLAttribute *XMLTreeNode::GetAttribute(char *name) const
+XMLAttribute *XMLTreeNode::GetAttribute(const char *name) const
 {
   XMLAttribute *a;
 
@@ -213,7 +213,7 @@ XMLAttribute *XMLTreeNode::GetAttribute(char *name) const
   return 0;
 }
 
-char *XMLTreeNode::GetAttributeValue(char *name) const
+char *XMLTreeNode::GetAttributeValue(const char *name) const
 {
   XMLAttribute *a;
 

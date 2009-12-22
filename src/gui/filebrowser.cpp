@@ -575,14 +575,14 @@ bool CFileBrowser::readDir_vlc(const std::string & dirname, CFileList* flist)
 			} else {
 				while (element) {
 					CFile file;
-					ptr = xmlGetAttribute(element, (char *) "type");
+					ptr = xmlGetAttribute(element, "type");
 					if (strcmp(ptr, "directory")==0)
 						file.Mode = S_IFDIR + 0777 ;
 					else
 						file.Mode = S_IFREG + 0777 ;
 
-					file.Name = dirname + xmlGetAttribute(element, (char *) "name");
-					ptr = xmlGetAttribute(element, (char *) "size");
+					file.Name = dirname + xmlGetAttribute(element, "name");
+					ptr = xmlGetAttribute(element, "size");
 					if (ptr) 
 						file.Size = atoi(ptr);
 					else 
@@ -725,7 +725,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 					CFile file;
 					if (xml_decode == 1) {
 						file.Mode = S_IFDIR + 0777 ;
-						file.Name = xmlGetAttribute(element, (char *) "name");
+						file.Name = xmlGetAttribute(element, "name");
 						file.Url = "/sbin/newxml.phtml?genre=" + file.Name;
 						file.Size = 0;
 						file.Time = 0;
@@ -735,17 +735,17 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 						ptr = xmlGetName(element);
 						if (ptr != NULL) {
 							if (strcmp(ptr, "tunein")==0) {
-								ptr = xmlGetAttribute(element, (char *) "base");
+								ptr = xmlGetAttribute(element, "base");
 								if (ptr)
 									tunein_base = ptr;
 							} else if (strcmp(ptr, "station")==0) {
-								ptr = xmlGetAttribute(element, (char *) "mt");
+								ptr = xmlGetAttribute(element, "mt");
 								if (ptr && (strcmp(ptr, "audio/mpeg")==0)) {
 									file.Mode = S_IFREG + 0777 ;
-									file.Name = xmlGetAttribute(element, (char *) "name");
-									file.Url = base + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, (char *) "id");
+									file.Name = xmlGetAttribute(element, "name");
+									file.Url = base + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, "id");
 									//printf("adding %s (%s)\n", file.Name.c_str(), file.Url.c_str());
-									ptr = xmlGetAttribute(element, (char *) "br");
+									ptr = xmlGetAttribute(element, "br");
 									if (ptr) {
 										file.Size = atoi(ptr);
 										file.Time = atoi(ptr);

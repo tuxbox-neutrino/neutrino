@@ -1,5 +1,5 @@
 /*
- * $Header: /cvs/tuxbox/apps/dvb/zapit/src/xmlinterface.cpp,v 1.25 2004/04/07 19:33:21 thegoodguy Exp $
+ * $Header: /cvs/tuxbox/apps/misc/libs/libxmltree/xmlinterface.cpp,v 1.3 2009/02/18 17:51:55 seife Exp $
  *
  * xmlinterface for zapit - d-box2 linux project
  *
@@ -18,14 +18,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+
+
+ * those files (xmlinterface.cpp and xmlinterface.h) lived at three different places
+   in the tuxbox-cvs before, so look there for history information:
+   - apps/dvb/zapit/include/zapit/xmlinterface.h
+   - apps/dvb/zapit/src/xmlinterface.cpp
+   - apps/tuxbox/neutrino/daemons/sectionsd/xmlinterface.cpp
+   - apps/tuxbox/neutrino/src/system/xmlinterface.cpp
+   - apps/tuxbox/neutrino/src/system/xmlinterface.h
  */
 
 #include <cstdio>
-#include <cstring>
 #include <cstdlib>
+#include <cstring>
 
-#include <xmlinterface.h>
+#include "xmlinterface.h"
 
 #ifdef USE_LIBXML
 #include <libxml/xmlmemory.h>
@@ -36,7 +44,7 @@
 #endif /* USE_LIBXML */
 
 
-unsigned long xmlGetNumericAttribute(const xmlNodePtr node, char *name, const int base)
+unsigned long xmlGetNumericAttribute(const xmlNodePtr node, const char *name, const int base)
 {
 	char *ptr = xmlGetAttribute(node, name);
 
@@ -46,7 +54,7 @@ unsigned long xmlGetNumericAttribute(const xmlNodePtr node, char *name, const in
 	return strtoul(ptr, 0, base);
 }
 
-long xmlGetSignedNumericAttribute(const xmlNodePtr node, char *name, const int base)
+long xmlGetSignedNumericAttribute(const xmlNodePtr node, const char *name, const int base)
 {
 	char *ptr = xmlGetAttribute(node, name);
 
@@ -77,17 +85,53 @@ std::string Unicode_Character_to_UTF8(const int character)
 #endif /* USE_LIBXML */
 }
 
+std::string convert_UTF8_To_UTF8_XML(const char* s)
+{
+	std::string r;
+
+	while ((*s) != 0)
+	{
+		/* cf.
+		 * http://www.w3.org/TR/2004/REC-xml-20040204/#syntax
+		 * and
+		 * http://www.w3.org/TR/2004/REC-xml-20040204/#sec-predefined-ent
+		 */
+		switch (*s)
+		{
+		case '<':
+			r += "&lt;";
+			break;
+		case '>':
+			r += "&gt;";
+			break;
+		case '&':
+			r += "&amp;";
+			break;
+		case '\"':
+			r += "&quot;";
+			break;
+		case '\'':
+			r += "&apos;";
+			break;
+		default:
+			r += *s;
+		}
+		s++;
+	}
+	return r;
+}
+
 #ifdef USE_LIBXML
-xmlDocPtr parseXmlFile(const char * filename)
+xmlDocPtr parseXml(const char * data)
 {
 	xmlDocPtr doc;
 	xmlNodePtr cur;
-	
-	doc = xmlParseFile(filename);
+
+	doc = xmlParseMemory(data, strlen(data));
 
 	if (doc == NULL)
 	{
-		WARN("Error parsing \"%s\"", filename);
+		WARN("Error parsing XML Data");
 		return NULL;
 	}
 	else
@@ -96,6 +140,32 @@ xmlDocPtr parseXmlFile(const char * filename)
 		if (cur == NULL)
 		{
 			WARN("Empty document\n");
+			xmlFreeDoc(doc);
+			return NULL;
+		}
+		else
+			return doc;
+	}
+}
+
+xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = true */)
+{
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+
+	doc = xmlParseFile(filename);
+
+	if (doc == NULL)
+	{
+		fprintf(stderr, "%s: Error parsing \"%s\"", __FUNCTION__, filename);
+		return NULL;
+	}
+	else
+	{
+		cur = xmlDocGetRootElement(doc);
+		if (cur == NULL)
+		{
+			fprintf(stderr, "%s: Empty document\n", __FUNCTION__);
 			xmlFreeDoc(doc);
 			return NULL;
 		}
@@ -112,24 +182,24 @@ xmlDocPtr parseXml(const char * data)
 
 	if (!tree_parser->Parse(data, strlen(data), true))
 	{
-		printf("Error parsing XML Data: %s at line %d\n",
-				tree_parser->ErrorString(tree_parser->GetErrorCode()),
-				tree_parser->GetCurrentLineNumber());
+			printf("Error parsing XML Data: %s at line %d\n",
+			       tree_parser->ErrorString(tree_parser->GetErrorCode()),
+			       tree_parser->GetCurrentLineNumber());
 
-		delete tree_parser;
-		return NULL;
-	}
+			delete tree_parser;
+			return NULL;
+		}
 
 	if (!tree_parser->RootNode())
 	{
-		printf("Error: No Root Node\n");
+        printf("Error: No Root Node\n");
 		delete tree_parser;
 		return NULL;
 	}
 	return tree_parser;
 }
 
-xmlDocPtr parseXmlFile(const char * filename)
+xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = true */)
 {
 	char buffer[2048];
 	XMLTreeParser* tree_parser;
@@ -141,7 +211,8 @@ xmlDocPtr parseXmlFile(const char * filename)
 
 	if (xml_file == NULL)
 	{
-		perror(filename);
+	        if (warning_by_nonexistence)
+			perror(filename);
 		return NULL;
 	}
 
@@ -154,10 +225,11 @@ xmlDocPtr parseXmlFile(const char * filename)
 
 		if (!tree_parser->Parse(buffer, length, done))
 		{
-			printf("Error parsing \"%s\": %s at line %d\n",
-			       filename,
-			       tree_parser->ErrorString(tree_parser->GetErrorCode()),
-			       tree_parser->GetCurrentLineNumber());
+			fprintf(stderr, "%s: Error parsing \"%s\": %s at line %d\n",
+				__FUNCTION__,
+				filename,
+				tree_parser->ErrorString(tree_parser->GetErrorCode()),
+				tree_parser->GetCurrentLineNumber());
 
 			fclose(xml_file);
 			delete tree_parser;

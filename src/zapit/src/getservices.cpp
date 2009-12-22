@@ -70,23 +70,23 @@ void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, 
 
 	/* read all transponders */
 	while ((node = xmlGetNextOccurence(node, "TS")) != NULL) {
-		transport_stream_id = xmlGetNumericAttribute(node, (char *) "id", 16);
-		original_network_id = xmlGetNumericAttribute(node, (char *) "on", 16);
-		feparams.frequency = xmlGetNumericAttribute(node, (char *) "frq", 0);
-		feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, (char *) "inv", 0);
+		transport_stream_id = xmlGetNumericAttribute(node, "id", 16);
+		original_network_id = xmlGetNumericAttribute(node, "on", 16);
+		feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
+		feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
 
 		if(cable) {
-			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(node, (char *) "sr", 0);
-			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, (char *) "fec", 0);
-			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, (char *) "mod", 0);
+			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
+			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
+			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
 
 			if (feparams.frequency > 1000*1000)
 				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
 		} else {
-			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, (char *) "fec", 0);
-			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, (char *) "sr", 0);
+			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
+			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
 
-			polarization = xmlGetNumericAttribute(node, (char *) "pol", 0);
+			polarization = xmlGetNumericAttribute(node, "pol", 0);
 
 			if(feparams.u.qpsk.symbol_rate < 50000) feparams.u.qpsk.symbol_rate = feparams.u.qpsk.symbol_rate * 1000;
 
@@ -128,19 +128,19 @@ void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream
 	t_channel_id chid;
 
 	while ((node = xmlGetNextOccurence(node, "S")) != NULL) {
-		service_id = xmlGetNumericAttribute(node, (char *) "i", 16);
-		name = xmlGetAttribute(node, (char *) "n");
-		service_type = xmlGetNumericAttribute(node, (char *) "t", 16);
-		vpid = xmlGetNumericAttribute(node, (char *) "v", 16);
-		apid = xmlGetNumericAttribute(node, (char *) "a", 16);
-		pcrpid = xmlGetNumericAttribute(node, (char *) "p", 16);
-		pmtpid = xmlGetNumericAttribute(node, (char *) "pmt", 16);
-		txpid = xmlGetNumericAttribute(node, (char *) "tx", 16);
-		vtype = xmlGetNumericAttribute(node, (char *) "vt", 16);
-		scrambled = xmlGetNumericAttribute(node, (char *) "s", 16);
+		service_id = xmlGetNumericAttribute(node, "i", 16);
+		name = xmlGetAttribute(node, "n");
+		service_type = xmlGetNumericAttribute(node, "t", 16);
+		vpid = xmlGetNumericAttribute(node, "v", 16);
+		apid = xmlGetNumericAttribute(node, "a", 16);
+		pcrpid = xmlGetNumericAttribute(node, "p", 16);
+		pmtpid = xmlGetNumericAttribute(node, "pmt", 16);
+		txpid = xmlGetNumericAttribute(node, "tx", 16);
+		vtype = xmlGetNumericAttribute(node, "vt", 16);
+		scrambled = xmlGetNumericAttribute(node, "s", 16);
 
 		chid = CREATE_CHANNEL_ID64;
-		char *ptr = xmlGetAttribute(node, (char *) "action");
+		char *ptr = xmlGetAttribute(node, "action");
 		bool remove = ptr ? (!strcmp(ptr, "remove") || !strcmp(ptr, "replace")) : false;
 		bool add    = ptr ? (!strcmp(ptr, "add")    || !strcmp(ptr, "replace")) : true;
 		if (remove) {
@@ -225,8 +225,8 @@ void FindTransponder(xmlNodePtr search)
 			continue;
 		}
 
-		satellitePosition = xmlGetSignedNumericAttribute(search, (char *) "position", 10);
-		DBG("going to parse dvb-%c provider %s\n", xmlGetName(search)[0], xmlGetAttribute(search, (char *) "name"));
+		satellitePosition = xmlGetSignedNumericAttribute(search, "position", 10);
+		DBG("going to parse dvb-%c provider %s\n", xmlGetName(search)[0], xmlGetAttribute(search, "name"));
 		ParseTransponders(search->xmlChildrenNode, satellitePosition, cable);
 		newfound++;
 		search = search->xmlNextNode;
@@ -248,7 +248,7 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 	while ((tps = xmlGetNextOccurence(tps, "transponder")) != NULL) {
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
 
-		feparams.frequency = xmlGetNumericAttribute(tps, (char *) "frequency", 0);
+		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
 		if (frontendType == FE_QAM) {
 			if (feparams.frequency > 1000*1000)
 				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
@@ -260,16 +260,16 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 		feparams.inversion = INVERSION_AUTO;
 
 		if (frontendType == FE_QAM) {
-			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(tps, (char *) "symbol_rate", 0);
-			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(tps, (char *) "fec_inner", 0);
-			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, (char *) "modulation", 0);
+			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
+			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(tps, "fec_inner", 0);
+			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, "modulation", 0);
 		}
 		else if (frontendType == FE_QPSK) {
-			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, (char *) "symbol_rate", 0);
-			polarization = xmlGetNumericAttribute(tps, (char *) "polarization", 0);
-			system = xmlGetNumericAttribute(tps, (char *) "system", 0);
-			modulation = xmlGetNumericAttribute(tps, (char *) "modulation", 0);
-			xml_fec = xmlGetNumericAttribute(tps, (char *) "fec_inner", 0);
+			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
+			polarization = xmlGetNumericAttribute(tps, "polarization", 0);
+			system = xmlGetNumericAttribute(tps, "system", 0);
+			modulation = xmlGetNumericAttribute(tps, "modulation", 0);
+			xml_fec = xmlGetNumericAttribute(tps, "fec_inner", 0);
 			xml_fec = CFrontend::getCodeRate(xml_fec, system);
 			if(modulation == 2)
 				xml_fec += 9;
@@ -396,15 +396,15 @@ int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_curr
 		xmlNodePtr search = xmlDocGetRootElement(scanInputParser)->xmlChildrenNode;
 		while (search) {
 			if (!(strcmp(xmlGetName(search), "sat"))) {
-				position = xmlGetSignedNumericAttribute(search, (char *) "position", 10);
-				char * name = xmlGetAttribute(search,(char *)  "name");
+				position = xmlGetSignedNumericAttribute(search, "position", 10);
+				char * name = xmlGetAttribute(search, "name");
 
 				if(satellitePositions.find(position) == satellitePositions.end()) {
 					init_sat(position);
 				}
 				satellitePositions[position].name = name;
 			} else if(!(strcmp(xmlGetName(search), "cable"))) {
-				char * name = xmlGetAttribute(search,(char *)  "name");
+				char * name = xmlGetAttribute(search, "name");
 				if(satellitePositions.find(position) == satellitePositions.end()) {
 					init_sat(position);
 				}
@@ -421,8 +421,8 @@ int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_curr
 		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
 		while (search) {
 			if (!(strcmp(xmlGetName(search), "sat"))) {
-				t_satellite_position position = xmlGetSignedNumericAttribute(search, (char *) "position", 10);
-				char * name = xmlGetAttribute(search,(char *)  "name");
+				t_satellite_position position = xmlGetSignedNumericAttribute(search, "position", 10);
+				char * name = xmlGetAttribute(search, "name");
 				if(satellitePositions.find(position) == satellitePositions.end()) {
 					init_sat(position);
 					satellitePositions[position].name = name;

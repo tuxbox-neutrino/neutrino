@@ -223,7 +223,7 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 	{
 		bool isdir;
 		std::string title, artist = "", album = "", id, children;
-		char *type, *p;
+		const char *type, *p;
 
 		if (!strcmp(node->GetType(), "container"))
 		{
@@ -239,18 +239,18 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 				{
 					p=snode->GetData();
 					if (!p)
-						p=(char *) "";
+						p = "";
 					title=std::string(p);
 				}
 			}
-			p = node->GetAttributeValue((char *) "id");
+			p = node->GetAttributeValue("id");
 			if (!p)
-				p=(char *) "";
+				p = "";
 			id=std::string(p);
 
-			p = node->GetAttributeValue((char *) "childCount");
+			p = node->GetAttributeValue("childCount");
 			if (!p)
-				p=(char *) "";
+				p = "";
 			children=std::string(p);
 
 			UPnPEntry entry={id, isdir, title, artist, album, children, resources, -1};
@@ -275,40 +275,40 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 				{
 					p=snode->GetData();
 					if (!p)
-						p=(char *) "";
+						p = "";
 					title=std::string(p);
 				}
 				else if (!strcmp(type,"artist"))
 				{
 					p=snode->GetData();
 					if (!p)
-						p=(char *) "";
+						p = "";
 					artist=std::string(p);
 				}
 				else if (!strcmp(type,"album"))
 				{
 					p=snode->GetData();
 					if (!p)
-						p=(char *) "";
+						p = "";
 					album=std::string(p);
 				}
 				else if (!strcmp(type,"res"))
 				{
 					p = snode->GetData();
 					if (!p)
-						p=(char *) "";
+						p = "";
 					url=std::string(p);
-					p = snode->GetAttributeValue((char *) "size");
+					p = snode->GetAttributeValue("size");
 					if (!p)
-						p=(char *) "0";
+						p = "0";
 					size=std::string(p);
-					p = snode->GetAttributeValue((char *) "duration");
+					p = snode->GetAttributeValue("duration");
 					if (!p)
-						p=(char *) "";
+						p = "";
 					duration=std::string(p);
-					p = snode->GetAttributeValue((char *) "protocolInfo");
+					p = snode->GetAttributeValue("protocolInfo");
 					if (!p)
-						p=(char *) "";
+						p = "";
 					protocol=std::string(p);
 					UPnPResource resource = {url, protocol, size, duration};
 					resources.push_back(resource);
@@ -345,14 +345,14 @@ std::vector<UPnPEntry> *CUpnpBrowserGui::decodeResult(std::string result)
 					}
 				}
 			}
-			p = node->GetAttributeValue((char *) "id");
+			p = node->GetAttributeValue("id");
 			if (!p)
-				p=(char *) "";
+				p = "";
 			id=std::string(p);
 
-			p = node->GetAttributeValue((char *) "childCount");
+			p = node->GetAttributeValue("childCount");
 			if (!p)
-				p=(char *) "";
+				p = "";
 			children=std::string(p);
 
 			UPnPEntry entry={id, isdir, title, artist, album, children, resources, preferred};

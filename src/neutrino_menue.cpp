@@ -740,8 +740,8 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 		bool found = false;
 		while (search) {
 			if (!strcmp(xmlGetName(search), "zone")) {
-				std::string name = xmlGetAttribute(search, (char *) "name");
-				std::string zone = xmlGetAttribute(search, (char *) "zone");
+				std::string name = xmlGetAttribute(search, "name");
+				std::string zone = xmlGetAttribute(search, "zone");
 				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
 				tzSelect->addOption(name.c_str());
 				found = true;

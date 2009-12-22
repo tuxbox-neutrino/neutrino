@@ -367,24 +367,24 @@ void CBouquetManager::parseBouquetsXml(const xmlNodePtr root, bool bUser)
 		INFO("reading bouquets");
 
 		while ((search = xmlGetNextOccurence(search, "Bouquet")) != NULL) {
-			char * name = xmlGetAttribute(search, (char *) "name");
+			char * name = xmlGetAttribute(search, "name");
 			if(name == NULL)
 				name = const_cast<char*>("Unknown");
-			//CZapitBouquet* newBouquet = addBouquet(xmlGetAttribute(search, (char *) "name"), bUser);
+			//CZapitBouquet* newBouquet = addBouquet(xmlGetAttribute(search, "name"), bUser);
 			CZapitBouquet* newBouquet = addBouquet(name, bUser);
-			char* hidden = xmlGetAttribute(search, (char *) "hidden");
-			char* locked = xmlGetAttribute(search, (char *) "locked");
+			char* hidden = xmlGetAttribute(search, "hidden");
+			char* locked = xmlGetAttribute(search, "locked");
 			newBouquet->bHidden = hidden ? (strcmp(hidden, "1") == 0) : false;
 			newBouquet->bLocked = locked ? (strcmp(locked, "1") == 0) : false;
 			newBouquet->bFav = (strcmp(name, "favorites") == 0);
 			channel_node = search->xmlChildrenNode;
 			while ((channel_node = xmlGetNextOccurence(channel_node, "S")) != NULL) {
-				std::string  name = xmlGetAttribute(channel_node, (char *) "n");
-				GET_ATTR(channel_node, (char *) "i", SCANF_SERVICE_ID_TYPE, service_id);
-				GET_ATTR(channel_node, (char *) "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
-				GET_ATTR(channel_node, (char *) "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);
-				GET_ATTR(channel_node, (char *) "t", SCANF_TRANSPORT_STREAM_ID_TYPE, transport_stream_id);
-				GET_ATTR(channel_node, (char *) "frq", SCANF_SATELLITE_POSITION_TYPE, freq);
+				std::string  name = xmlGetAttribute(channel_node, "n");
+				GET_ATTR(channel_node, "i", SCANF_SERVICE_ID_TYPE, service_id);
+				GET_ATTR(channel_node, "on", SCANF_ORIGINAL_NETWORK_ID_TYPE, original_network_id);
+				GET_ATTR(channel_node, "s", SCANF_SATELLITE_POSITION_TYPE, satellitePosition);
+				GET_ATTR(channel_node, "t", SCANF_TRANSPORT_STREAM_ID_TYPE, transport_stream_id);
+				GET_ATTR(channel_node, "frq", SCANF_SATELLITE_POSITION_TYPE, freq);
 				if(freq > 20000) freq = freq/1000;
 
 				CZapitChannel* chan;
@@ -393,7 +393,7 @@ void CBouquetManager::parseBouquetsXml(const xmlNodePtr root, bool bUser)
 //printf("Bouquet Channel-ID freq %d pos %d id %llx\n", freq, satellitePosition, CREATE_CHANNEL_ID64);
 				if (chan != NULL) {
 //printf("found\n");
-DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, (char *) "n"));
+DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
 #if 0
 					if(bUser && (name.length() > 1))
 						chan->setName(name);

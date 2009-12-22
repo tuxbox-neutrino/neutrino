@@ -1205,10 +1205,10 @@ void CAudioPlayerGui::scanXmlData(xmlDocPtr answer_parser, const char *nametag, 
 					else if (strcmp("mp3", type) == 0) 		skip = false;
 					else if (strcmp("application/mp3", type) == 0) 	skip = false;
 				} else {
-					url = xmlGetAttribute(element, (char *) urltag);
-					name = xmlGetAttribute(element, (char *) nametag);
+					url = xmlGetAttribute(element, urltag);
+					name = xmlGetAttribute(element, nametag);
 					if (bitratetag) {
-						ptr = xmlGetAttribute(element, (char *) bitratetag);
+						ptr = xmlGetAttribute(element, bitratetag);
 						if (ptr)
 							bitrate = atoi(ptr);
 					}

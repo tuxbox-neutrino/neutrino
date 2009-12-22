@@ -4385,7 +4385,7 @@ static void *insertEventsfromFile(void *)
 		eventfile = xmlDocGetRootElement(index_parser)->xmlChildrenNode;
 
 		while (eventfile) {
-			filename = xmlGetAttribute(eventfile, (char *) "name");
+			filename = xmlGetAttribute(eventfile, "name");
 			epgname = epg_dir + filename;
 			if (!(event_parser = parseXmlFile(epgname.c_str()))) {
 				dprintf("unable to open %s for reading\n", epgname.c_str());
@@ -4394,39 +4394,39 @@ static void *insertEventsfromFile(void *)
 				service = xmlDocGetRootElement(event_parser)->xmlChildrenNode;
 
 				while (service) {
-					onid = xmlGetNumericAttribute(service, (char *) "original_network_id", 16);
-					tsid = xmlGetNumericAttribute(service, (char *) "transport_stream_id", 16);
-					sid = xmlGetNumericAttribute(service, (char *) "service_id", 16);
+					onid = xmlGetNumericAttribute(service, "original_network_id", 16);
+					tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
+					sid = xmlGetNumericAttribute(service, "service_id", 16);
 
 					event = service->xmlChildrenNode;
 
 					while (event) {
 
-						SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, (char *) "id", 16));
+						SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
 
 						node = event->xmlChildrenNode;
 
-						while (xmlGetNextOccurence(node, (char *) "name") != NULL) {
-							e.setName(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, (char *) "lang"))),
-									std::string(xmlGetAttribute(node, (char *) "string")));
+						while (xmlGetNextOccurence(node, "name") != NULL) {
+							e.setName(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+									std::string(xmlGetAttribute(node, "string")));
 							node = node->xmlNextNode;
 						}
-						while (xmlGetNextOccurence(node, (char *) "text") != NULL) {
-							e.setText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, (char *) "lang"))),
-									std::string(xmlGetAttribute(node, (char *) "string")));
+						while (xmlGetNextOccurence(node, "text") != NULL) {
+							e.setText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+									std::string(xmlGetAttribute(node, "string")));
 							node = node->xmlNextNode;
 						}
-						while (xmlGetNextOccurence(node, (char *) "item") != NULL) {
-							e.item = std::string(xmlGetAttribute(node, (char *) "string"));
+						while (xmlGetNextOccurence(node, "item") != NULL) {
+							e.item = std::string(xmlGetAttribute(node, "string"));
 							node = node->xmlNextNode;
 						}
-						while (xmlGetNextOccurence(node, (char *) "item_description") != NULL) {
-							e.itemDescription = std::string(xmlGetAttribute(node, (char *) "string"));
+						while (xmlGetNextOccurence(node, "item_description") != NULL) {
+							e.itemDescription = std::string(xmlGetAttribute(node, "string"));
 							node = node->xmlNextNode;
 						}
-						while (xmlGetNextOccurence(node, (char *) "extended_text") != NULL) {
-							e.appendExtendedText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, (char *) "lang"))),
-										std::string(xmlGetAttribute(node, (char *) "string")));
+						while (xmlGetNextOccurence(node, "extended_text") != NULL) {
+							e.appendExtendedText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+										std::string(xmlGetAttribute(node, "string")));
 							node = node->xmlNextNode;
 						}
 						/*
@@ -4450,42 +4450,42 @@ static void *insertEventsfromFile(void *)
 							node = node->xmlNextNode;
 						}
 */
-						while (xmlGetNextOccurence(node, (char *) "time") != NULL) {
-							e.times.insert(SItime(xmlGetNumericAttribute(node, (char *) "start_time", 10),
-										xmlGetNumericAttribute(node, (char *) "duration", 10)));
+						while (xmlGetNextOccurence(node, "time") != NULL) {
+							e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
+										xmlGetNumericAttribute(node, "duration", 10)));
 							node = node->xmlNextNode;
 						}
 
 						int count = 0;
-						while (xmlGetNextOccurence(node, (char *) "content") != NULL) {
-							cclass[count] = xmlGetNumericAttribute(node, (char *) "class", 16);
-							cuser[count] = xmlGetNumericAttribute(node, (char *) "user", 16);
+						while (xmlGetNextOccurence(node, "content") != NULL) {
+							cclass[count] = xmlGetNumericAttribute(node, "class", 16);
+							cuser[count] = xmlGetNumericAttribute(node, "user", 16);
 							node = node->xmlNextNode;
 							count++;
 						}
 						e.contentClassification = std::string(cclass, count);
 						e.userClassification = std::string(cuser, count);
 
-						while (xmlGetNextOccurence(node, (char *) "component") != NULL) {
+						while (xmlGetNextOccurence(node, "component") != NULL) {
 							SIcomponent c;
-							c.streamContent = xmlGetNumericAttribute(node, (char *) "stream_content", 16);
-							c.componentType = xmlGetNumericAttribute(node, (char *) "type", 16);
-							c.componentTag = xmlGetNumericAttribute(node, (char *) "tag", 16);
-							c.component = std::string(xmlGetAttribute(node, (char *) "text"));
+							c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
+							c.componentType = xmlGetNumericAttribute(node, "type", 16);
+							c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
+							c.component = std::string(xmlGetAttribute(node, "text"));
 							e.components.insert(c);
 							node = node->xmlNextNode;
 						}
-						while (xmlGetNextOccurence(node, (char *) "parental_rating") != NULL) {
-							e.ratings.insert(SIparentalRating(std::string(UTF8_to_Latin1(xmlGetAttribute(node, (char *) "country"))), (unsigned char) xmlGetNumericAttribute(node, (char *) "rating", 10)));
+						while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
+							e.ratings.insert(SIparentalRating(std::string(UTF8_to_Latin1(xmlGetAttribute(node, "country"))), (unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
 							node = node->xmlNextNode;
 						}
-						while (xmlGetNextOccurence(node, (char *) "linkage") != NULL) {
+						while (xmlGetNextOccurence(node, "linkage") != NULL) {
 							SIlinkage l;
-							l.linkageType = xmlGetNumericAttribute(node, (char *) "type", 16);
-							l.transportStreamId = xmlGetNumericAttribute(node, (char *) "transport_stream_id", 16);
-							l.originalNetworkId = xmlGetNumericAttribute(node, (char *) "original_network_id", 16);
-							l.serviceId = xmlGetNumericAttribute(node, (char *) "service_id", 16);
-							l.name = std::string(xmlGetAttribute(node, (char *) "linkage_descriptor"));
+							l.linkageType = xmlGetNumericAttribute(node, "type", 16);
+							l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
+							l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
+							l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
+							l.name = std::string(xmlGetAttribute(node, "linkage_descriptor"));
 							e.linkage_descs.insert(e.linkage_descs.end(), l);
 
 							node = node->xmlNextNode;
@@ -8256,18 +8256,18 @@ static void readEPGFilter(void)
 		dprintf("Reading EPGFilters\n");
 
 		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
-		if (xmlGetNumericAttribute(filter, (char *) "is_whitelist", 10) == 1)
+		if (xmlGetNumericAttribute(filter, "is_whitelist", 10) == 1)
 			epg_filter_is_whitelist = true;
-		if (xmlGetNumericAttribute(filter, (char *) "except_current_next", 10) == 1)
+		if (xmlGetNumericAttribute(filter, "except_current_next", 10) == 1)
 			epg_filter_except_current_next = true;
 		filter = filter->xmlChildrenNode;
 
 		while (filter) {
 
-			onid = xmlGetNumericAttribute(filter, (char *) "onid", 16);
-			tsid = xmlGetNumericAttribute(filter, (char *) "tsid", 16);
-			sid  = xmlGetNumericAttribute(filter, (char *) "serviceID", 16);
-			if (xmlGetNumericAttribute(filter, (char *) "blacklist", 10) == 1)
+			onid = xmlGetNumericAttribute(filter, "onid", 16);
+			tsid = xmlGetNumericAttribute(filter, "tsid", 16);
+			sid  = xmlGetNumericAttribute(filter, "serviceID", 16);
+			if (xmlGetNumericAttribute(filter, "blacklist", 10) == 1)
 				addBlacklist(onid, tsid, sid);
 			else
 				addEPGFilter(onid, tsid, sid);
@@ -8295,9 +8295,9 @@ static void readDVBTimeFilter(void)
 
 		while (filter) {
 
-			onid = xmlGetNumericAttribute(filter, (char *) "onid", 16);
-			tsid = xmlGetNumericAttribute(filter, (char *) "tsid", 16);
-			sid  = xmlGetNumericAttribute(filter, (char *) "serviceID", 16);
+			onid = xmlGetNumericAttribute(filter, "onid", 16);
+			tsid = xmlGetNumericAttribute(filter, "tsid", 16);
+			sid  = xmlGetNumericAttribute(filter, "serviceID", 16);
 			addNoDVBTimelist(onid, tsid, sid);
 
 			filter = filter->xmlNextNode;
@@ -8326,13 +8326,13 @@ static void readBouquetFilter(void)
 		while ((xmlGetNextOccurence(mybouquets, "filter") != NULL) ||
 			(xmlGetNextOccurence(mybouquets, "adder") != NULL)) {
 			if (strcmp(xmlGetName(mybouquets), "filter") == 0) {
-				if (xmlGetNumericAttribute(mybouquets, (char *) "is_whitelist", 10) == 1)
+				if (xmlGetNumericAttribute(mybouquets, "is_whitelist", 10) == 1)
 					bouquet_filter_is_whitelist = true;
 				xmlNodePtr filter = mybouquets->xmlChildrenNode;
 
 				while (filter) {
 
-					bid  = xmlGetNumericAttribute(filter, (char *) "bouquet_id", 16);
+					bid  = xmlGetNumericAttribute(filter, "bouquet_id", 16);
 
 					addBouquetFilter(bid);
 
@@ -8344,8 +8344,8 @@ static void readBouquetFilter(void)
 				{
 					BouquetAdder *bouquet = new BouquetAdder;
 					snprintf(bouquet->BouquetName, MAX_SIZE_MYBOUQUETS_STR,
-							xmlGetAttribute(mybouquets, (char *) "name"));
-					bouquet->bid = xmlGetNumericAttribute(mybouquets, (char *) "bouquet_id", 16);
+							xmlGetAttribute(mybouquets, "name"));
+					bouquet->bid = xmlGetNumericAttribute(mybouquets, "bouquet_id", 16);
 					bouquet->bae = NULL;
        					bouquet->next = CurrentBouquetAdder;
 					CurrentBouquetAdder = bouquet;
@@ -8353,11 +8353,11 @@ static void readBouquetFilter(void)
 					while (entry) {
 						BouquetAdderEntry *adderentry = new BouquetAdderEntry;
 						snprintf(adderentry->ProviderName, MAX_SIZE_MYBOUQUETS_STR,
-							xmlGetAttribute(entry,(char *) "provider"));
+							xmlGetAttribute(entry, "provider"));
 						adderentry->onid =
-							xmlGetNumericAttribute(entry, (char *) "onid", 16);
+							xmlGetNumericAttribute(entry, "onid", 16);
 						adderentry->tsid =
-							xmlGetNumericAttribute(entry, (char *) "tsid", 16);
+							xmlGetNumericAttribute(entry, "tsid", 16);
 						adderentry->es = NULL;
        						adderentry->next = bouquet->bae;
 						bouquet->bae = adderentry;
@@ -8369,7 +8369,7 @@ static void readBouquetFilter(void)
 											ExceptService;
 								eservice->sid =
 									xmlGetNumericAttribute(entry,
-									(char *) "service_id", 16);
+									"service_id", 16);
 								eservice->next = adderentry->es;
 								adderentry->es = eservice;
 								excepts = excepts->xmlNextNode;

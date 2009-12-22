@@ -873,8 +873,8 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
                 xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
                 while (search) {
                         if (!strcmp(xmlGetName(search), "zone")) {
-                                name = xmlGetAttribute(search, (char *) "name");
-                                zone = xmlGetAttribute(search, (char *) "zone");
+				name = xmlGetAttribute(search, "name");
+				zone = xmlGetAttribute(search, "zone");
 				if(!strcmp(g_settings.timezone, name.c_str())) {
 					found = true;
 					break;

@@ -107,8 +107,8 @@ class XMLTreeNode
     XMLTreeNode  *GetParent() const { return parent; };
 
     XMLAttribute *GetAttributes() const { return attributes; }
-    XMLAttribute *GetAttribute(char *name) const;
-    char         *GetAttributeValue(char *name) const;
+    XMLAttribute *GetAttribute(const char *name) const;
+    char         *GetAttributeValue(const char *name) const;
 
     matchmode     GetMatchingMode() const { return mmode; }
 

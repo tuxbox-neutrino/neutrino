@@ -1,5 +1,5 @@
 /*
- * $Header: /cvs/tuxbox/apps/dvb/zapit/include/zapit/xmlinterface.h,v 1.21 2004/04/07 19:33:21 thegoodguy Exp $
+ * $Header: /cvs/tuxbox/apps/misc/libs/libxmltree/xmlinterface.h,v 1.2 2009/02/18 17:51:55 seife Exp $
  *
  * xmlinterface for zapit - d-box2 linux project
  *
@@ -18,7 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+
+
+ * those files (xmlinterface.cpp and xmlinterface.h) lived at three different places
+   in the tuxbox-cvs before, so look there for history information:
+   - apps/dvb/zapit/include/zapit/xmlinterface.h
+   - apps/dvb/zapit/src/xmlinterface.cpp
+   - apps/tuxbox/neutrino/daemons/sectionsd/xmlinterface.cpp
+   - apps/tuxbox/neutrino/src/system/xmlinterface.cpp
+   - apps/tuxbox/neutrino/src/system/xmlinterface.h
  */
 
 #ifndef __xmlinterface_h__
@@ -37,57 +45,28 @@ inline char*      xmlGetAttribute     (xmlNodePtr cur, const char * s) { return 
 inline char*      xmlGetName          (xmlNodePtr cur)                 { return (char *)(cur->name); };
 
 #else  /* use libxmltree */
-#include <xmltree.h>
+#include "xmltree.h"
 typedef XMLTreeParser* xmlDocPtr;
 typedef XMLTreeNode*   xmlNodePtr;
 #define xmlChildrenNode GetChild()
 #define xmlNextNode     GetNext()
 inline xmlNodePtr xmlDocGetRootElement(xmlDocPtr  doc)                 { return doc->RootNode(); };
 inline void       xmlFreeDoc          (xmlDocPtr  doc)                 { delete doc; };
-inline char*      xmlGetAttribute     (xmlNodePtr cur, char * s)       { return cur->GetAttributeValue(s); };
+inline char*      xmlGetAttribute     (xmlNodePtr cur, const char *s)  { return cur->GetAttributeValue(s); };
 inline char*      xmlGetName          (xmlNodePtr cur)                 { return cur->GetType();  };
 inline char*      xmlGetData          (xmlNodePtr cur)                 { return cur->GetData();  };
 #endif /* USE_LIBXML */
 
 
-unsigned long xmlGetNumericAttribute  (const xmlNodePtr node, char *name, const int base);
-long xmlGetSignedNumericAttribute     (const xmlNodePtr node, char *name, const int base);
+unsigned long xmlGetNumericAttribute  (const xmlNodePtr node, const char *name, const int base);
+long xmlGetSignedNumericAttribute     (const xmlNodePtr node, const char *name, const int base);
 xmlNodePtr xmlGetNextOccurence        (xmlNodePtr cur, const char * s);
 
 std::string Unicode_Character_to_UTF8(const int character);
 
-inline std::string convert_UTF8_To_UTF8_XML(const char * s)
-{
-	std::string r;
+std::string convert_UTF8_To_UTF8_XML(const char *s);
 
-	while ((*s) != 0)
-	{
-		/* cf. http://www.w3.org/TR/xhtml1/dtds.html */
-		switch (*s)
-		{
-			case '<':
-				r += "&lt;";
-				break;
-			case '>':
-				r += "&gt;";
-				break;
-			case '&':
-				r += "&amp;";
-				break;
-				case '\"':
-					r += "&quot;";
-				break;
-			case '\'':
-				r += "&apos;";
-				break;
-			default:
-				r += *s;
-		}
-		s++;
-	}
-	return r;
-}
 xmlDocPtr parseXml(const char *data);
-xmlDocPtr parseXmlFile(const char * filename);
+xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence = true);
 
 #endif /* __xmlinterface_h__ */
