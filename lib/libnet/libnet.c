@@ -33,7 +33,7 @@ static	void	scanip( char *str, unsigned char *to )
 		sp++;
 	}
 }
-	
+
 int	netSetIP( char *dev, char *ip, char *mask, char *brdcast )
 {
 	int					fd;
@@ -234,7 +234,7 @@ void	netGetNameserver( char *ip )
 {
 	FILE *fp;
 	char zeile[256];
-	char *index;
+	char *indexLocal;
 	unsigned zaehler;
 
 	*ip = 0;
@@ -246,12 +246,12 @@ void	netGetNameserver( char *ip )
 	{
 		if (!strncasecmp(zeile,"nameserver",10))
 		{
-			index = zeile + 10;
-			while ( (*index == ' ') || (*index == '\t') )
-				index++;
+			indexLocal = zeile + 10;
+			while ( (*indexLocal == ' ') || (*indexLocal == '\t') )
+				indexLocal++;
 			zaehler = 0;
-			while ( (zaehler < 15) && ( ((*index >= '0') && (*index <= '9')) || (*index == '.')))
-				ip[zaehler++] = *(index++);
+			while ( (zaehler < 15) && ( ((*indexLocal >= '0') && (*indexLocal <= '9')) || (*indexLocal == '.')))
+				ip[zaehler++] = *(indexLocal++);
 			ip[zaehler] = 0;
 			break;
 		}
