@@ -264,10 +264,12 @@ CFrameBuffer::~CFrameBuffer()
 {
 	if (background) {
 		delete[] background;
+		background = NULL;
 	}
 
 	if (backupBackground) {
 		delete[] backupBackground;
+		backupBackground = NULL;
 	}
 
 #if 0
@@ -285,8 +287,10 @@ CFrameBuffer::~CFrameBuffer()
 	if (lfb)
 		munmap(lfb, available);
 
-	if (virtual_fb)
+	if (virtual_fb){
 		delete[] virtual_fb;
+		virtual_fb = NULL;
+	}
 	close(fd);
 	close(tty);
 }
@@ -1286,9 +1290,10 @@ bool CFrameBuffer::loadBackgroundPic(const std::string & filename, bool show)
 		return true;
 
 //printf("loadBackgroundPic: %s\n", filename.c_str());
-	if (background)
+	if (background){
 		delete[] background;
-
+		background = NULL;
+	}
 	background = g_PicViewer->getImage(iconBasePath + filename, BACKGROUNDIMAGEWIDTH, 576);
 
 	if (background == NULL) {
@@ -1320,9 +1325,10 @@ bool CFrameBuffer::getuseBackground(void)
 
 void CFrameBuffer::saveBackgroundImage(void)
 {
-	if (backupBackground != NULL)
+	if (backupBackground != NULL){
 		delete[] backupBackground;
-
+		backupBackground = NULL;
+	}
 	backupBackground = background;
 	//useBackground(false); // <- necessary since no background is available
 	useBackgroundPaint = false;
@@ -1341,8 +1347,10 @@ void CFrameBuffer::restoreBackgroundImage(void)
 	else
 		useBackground(false); // <- necessary since no background is available
 
-	if (tmp != NULL)
+	if (tmp != NULL){
 		delete[] tmp;
+		tmp = NULL;
+	}
 }
 
 void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
