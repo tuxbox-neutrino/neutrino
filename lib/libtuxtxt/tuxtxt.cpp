@@ -1702,11 +1702,11 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
  * MyFaceRequester
  ******************************************************************************/
 
-FT_Error MyFaceRequester(FTC_FaceID face_id, FT_Library library, FT_Pointer /*request_data*/, FT_Face *aface)
+FT_Error MyFaceRequester(FTC_FaceID face_id, FT_Library plibrary, FT_Pointer /*request_data*/, FT_Face *aface)
 {
 	FT_Error result;
 
-	result = FT_New_Face(library, (char *) face_id, 0, aface);
+	result = FT_New_Face(plibrary, (char *) face_id, 0, aface);
 
 #if TUXTXT_DEBUG
 	if (!result)
@@ -1913,9 +1913,9 @@ int Init()
 	ymosaic[2] = (fontheight * 2 + 1) / 3;
 	ymosaic[3] = fontheight;
 	{
-		int i;
-		for (i = 0; i <= 10; i++)
-			aydrcs[i] = (fontheight * i + 5) / 10;
+		int i1;
+		for (i1 = 0; i1 <= 10; i1++)
+			aydrcs[i1] = (fontheight * i1 + 5) / 10;
 	}
 
 	//FIXME center
@@ -3048,11 +3048,11 @@ printf("[tuxtxt] Menu\n");
 					{
 						if (maxhotlist > 0) /* don't empty completely */
 						{
-							int i;
+							int i1;
 
-							for (i=hotindex; i<maxhotlist; i++) /* move rest of list */
+							for (i1=hotindex; i1<maxhotlist; i1++) /* move rest of list */
 							{
-								hotlist[i] = hotlist[i+1];
+								hotlist[i1] = hotlist[i1+1];
 							}
 							maxhotlist--;
 							if (hotindex > maxhotlist)
@@ -3766,7 +3766,7 @@ void SwitchScreenMode(int newscreenmode)
 	tuxtxt_cache.pageupdate = 1;
 
 	/* clear back buffer */
-	clearbbcolor = screenmode?transp:FullScrColor;
+	clearbbcolor = screenmode?transp:static_cast<int>(FullScrColor);
 	ClearBB(clearbbcolor);
 
 	/* set mode */
@@ -4677,7 +4677,7 @@ void RenderCharLCDsmall(int Char, int XPos, int YPos)
 void RenderMessage(int Message)
 {
 	int byte;
-	int fbcolor, timecolor, menuatr;
+	int fbcolor, timecolor, imenuatr;
 	int pagecolumn;
 	const char *msg;
 
@@ -4702,7 +4702,7 @@ void RenderMessage(int Message)
 	/* set colors */
 	fbcolor   = transp;
 	timecolor = transp<<4 | transp;
-	menuatr = ATR_MSG0;
+	imenuatr = ATR_MSG0;
 
 	/* clear framebuffer */
 	ClearFB(fbcolor);
@@ -4737,43 +4737,43 @@ void RenderMessage(int Message)
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*16;
 	for (byte = 0; byte < 37; byte++)
-		RenderCharFB(message_1[byte], &atrtable[menuatr + ((byte >= 9 && byte <= 27) ? 1 : 0)]);
-	RenderCharFB(message_1[37], &atrtable[menuatr + 2]);
+		RenderCharFB(message_1[byte], &atrtable[imenuatr + ((byte >= 9 && byte <= 27) ? 1 : 0)]);
+	RenderCharFB(message_1[37], &atrtable[imenuatr + 2]);
 
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*17;
-	RenderCharFB(message_2[0], &atrtable[menuatr + 0]);
+	RenderCharFB(message_2[0], &atrtable[imenuatr + 0]);
 	for (byte = 1; byte < 36; byte++)
-		RenderCharFB(message_2[byte], &atrtable[menuatr + 3]);
-	RenderCharFB(message_2[36], &atrtable[menuatr + 0]);
-	RenderCharFB(message_2[37], &atrtable[menuatr + 2]);
+		RenderCharFB(message_2[byte], &atrtable[imenuatr + 3]);
+	RenderCharFB(message_2[36], &atrtable[imenuatr + 0]);
+	RenderCharFB(message_2[37], &atrtable[imenuatr + 2]);
 
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*18;
-	RenderCharFB(msg[0], &atrtable[menuatr + 0]);
+	RenderCharFB(msg[0], &atrtable[imenuatr + 0]);
 	for (byte = 1; byte < 36; byte++)
-		RenderCharFB(msg[byte], &atrtable[menuatr + 3]);
-	RenderCharFB(msg[36], &atrtable[menuatr + 0]);
-	RenderCharFB(msg[37], &atrtable[menuatr + 2]);
+		RenderCharFB(msg[byte], &atrtable[imenuatr + 3]);
+	RenderCharFB(msg[36], &atrtable[imenuatr + 0]);
+	RenderCharFB(msg[37], &atrtable[imenuatr + 2]);
 
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*19;
-	RenderCharFB(message_4[0], &atrtable[menuatr + 0]);
+	RenderCharFB(message_4[0], &atrtable[imenuatr + 0]);
 	for (byte = 1; byte < 36; byte++)
-		RenderCharFB(message_4[byte], &atrtable[menuatr + 3]);
-	RenderCharFB(message_4[36], &atrtable[menuatr + 0]);
-	RenderCharFB(message_4[37], &atrtable[menuatr + 2]);
+		RenderCharFB(message_4[byte], &atrtable[imenuatr + 3]);
+	RenderCharFB(message_4[36], &atrtable[imenuatr + 0]);
+	RenderCharFB(message_4[37], &atrtable[imenuatr + 2]);
 
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*20;
 	for (byte = 0; byte < 37; byte++)
-		RenderCharFB(message_5[byte], &atrtable[menuatr + 0]);
-	RenderCharFB(message_5[37], &atrtable[menuatr + 2]);
+		RenderCharFB(message_5[byte], &atrtable[imenuatr + 0]);
+	RenderCharFB(message_5[37], &atrtable[imenuatr + 2]);
 
 	PosX = StartX + fontwidth+5;
 	PosY = StartY + fontheight*21;
 	for (byte = 0; byte < 38; byte++)
-		RenderCharFB(message_6[byte], &atrtable[menuatr + 2]);
+		RenderCharFB(message_6[byte], &atrtable[imenuatr + 2]);
 }
 
 /******************************************************************************
