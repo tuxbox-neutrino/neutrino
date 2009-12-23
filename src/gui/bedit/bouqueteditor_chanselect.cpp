@@ -85,13 +85,13 @@ bool CBEChannelSelectWidget::hasChanged()
 	return modified;
 }
 
-void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool selected)
+void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselected)
 {
 	int ypos = y+ theight + paintNr*fheight;
 
 	uint8_t    color;
 	fb_pixel_t bgcolor;
-	if (selected)
+	if (pselected)
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
@@ -130,7 +130,7 @@ void CBEChannelSelectWidget::onOkKeyPressed()
 		addChannelToBouquet( bouquet, Channels[selected]->channel_id);
 
 	bouquetChannels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
-	
+
 	paintItem( selected, selected - liststart, false);
 	g_RCInput->postMsg( CRCInput::RC_down, 0 );
 }

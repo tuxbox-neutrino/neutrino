@@ -67,7 +67,7 @@ CBouquetList::CBouquetList(const char * const Name)
 		name = g_Locale->getText(LOCALE_BOUQUETLIST_HEAD);
 	else
 		name = Name;
-		
+
 }
 
 CBouquetList::~CBouquetList()
@@ -85,12 +85,12 @@ CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 	return tmp;
 }
 
-CBouquet* CBouquetList::addBouquet(const char * const name, int BouquetKey, bool locked)
+CBouquet* CBouquetList::addBouquet(const char * const pname, int BouquetKey, bool locked)
 {
 	if ( BouquetKey==-1 )
 		BouquetKey= Bouquets.size();
 
-	CBouquet* tmp = new CBouquet( BouquetKey, name, locked );
+	CBouquet* tmp = new CBouquet( BouquetKey, pname, locked );
 	Bouquets.push_back(tmp);
 	return(tmp);
 }
@@ -231,8 +231,8 @@ int CBouquetList::doMenu()
 						tmp = g_bouquetManager->Bouquets[bouquet_id];
 
 					channels = &zapitBouquet->tvChannels;
-					for(int i = 0; i < (int) channels->size(); i++)
-						tmp->addService((*channels)[i]);
+					for(int li = 0; li < (int) channels->size(); li++)
+						tmp->addService((*channels)[li]);
 					return 1;
 					break;
 				default:
@@ -288,10 +288,10 @@ int CBouquetList::show(bool bShowChannelList)
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 
-	int maxpos= 1;
+	int lmaxpos= 1;
 	int i= Bouquets.size();
 	while ((i= i/10)!=0)
-		maxpos++;
+		lmaxpos++;
 
 	paintHead();
 	paint();
@@ -301,7 +301,7 @@ int CBouquetList::show(bool bShowChannelList)
 	int zapOnExit = false;
 
 	unsigned int chn= 0;
-	int pos= maxpos;
+	int pos= lmaxpos;
 
 	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
@@ -403,10 +403,10 @@ int CBouquetList::show(bool bShowChannelList)
 			}
 		}
 		else if (CRCInput::isNumeric(msg)) {
-			if (pos == maxpos) {
+			if (pos == lmaxpos) {
 				if (msg == CRCInput::RC_0) {
 					chn = firstselected;
-					pos = maxpos;
+					pos = lmaxpos;
 				} else {
 					chn = CRCInput::getNumericValue(msg);
 					pos = 1;
@@ -418,7 +418,7 @@ int CBouquetList::show(bool bShowChannelList)
 
 			if (chn > Bouquets.size()) {
 				chn = firstselected;
-				pos = maxpos;
+				pos = lmaxpos;
 			}
 
 			int prevselected=selected;
@@ -460,17 +460,17 @@ void CBouquetList::paintItem(int pos)
 	fb_pixel_t bgcolor;
 	bool iscurrent = true;
 	int npos = liststart + pos;
-	const char * name = NULL;
+	const char * lname = NULL;
 
 	if(npos < (int) Bouquets.size())
-		name = (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bFav) ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : Bouquets[npos]->channelList->getName();
+		lname = (Bouquets[npos]->zapitBouquet && Bouquets[npos]->zapitBouquet->bFav) ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : Bouquets[npos]->channelList->getName();
 
 	if (npos == (int) selected) {
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
 		if(npos < (int) Bouquets.size())
-			CVFD::getInstance()->showMenuText(0, name, -1, true);
+			CVFD::getInstance()->showMenuText(0, lname, -1, true);
 	} else {
 		if(npos < (int) Bouquets.size())
 			iscurrent = Bouquets[npos]->channelList->getSize() > 0;
@@ -486,7 +486,7 @@ void CBouquetList::paintItem(int pos)
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, name, color, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, lname, color, 0, true); // UTF-8
 		//CVFD::getInstance()->showMenuText(0, bouq->channelList->getName(), -1, true);
 	}
 }
@@ -530,7 +530,7 @@ void CBouquetList::paint()
 	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth, sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons);
 
-	if(Bouquets.size()) 
+	if(Bouquets.size())
 	{
 		for(unsigned int count=0;count<listmaxshow;count++) {
 			paintItem(count);

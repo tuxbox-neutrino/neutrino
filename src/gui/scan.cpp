@@ -384,18 +384,18 @@ void CScanTs::hide()
 	freqready = 0;
 }
 
-void CScanTs::paintLineLocale(int x, int * y, int width, const neutrino_locale_t l)
+void CScanTs::paintLineLocale(int px, int * py, int pwidth, const neutrino_locale_t l)
 {
-	frameBuffer->paintBoxRel(x, *y, width, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x, *y + mheight, width, g_Locale->getText(l), COL_MENUCONTENTINACTIVE, 0, true); // UTF-8
-	*y += mheight;
+	frameBuffer->paintBoxRel(px, *py, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py + mheight, pwidth, g_Locale->getText(l), COL_MENUCONTENTINACTIVE, 0, true); // UTF-8
+	*py += mheight;
 }
 
-void CScanTs::paintLine(int x, int y, int w, const char * const txt)
+void CScanTs::paintLine(int px, int py, int w, const char * const txt)
 {
-//printf("CScanTs::paintLine x %d y %d w %d width %d xpos2 %d: %s\n", x, y, w, width, xpos2, txt);
-	frameBuffer->paintBoxRel(x, y, w, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x, y + mheight, w, txt, COL_MENUCONTENT, 0, true); // UTF-8
+//printf("CScanTs::paintLine x %d y %d w %d width %d xpos2 %d: %s\n", px, py, w, width, xpos2, txt);
+	frameBuffer->paintBoxRel(px, py, w, mheight, COL_MENUCONTENT_PLUS_0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py + mheight, w, txt, COL_MENUCONTENT, 0, true); // UTF-8
 }
 
 void CScanTs::paint(bool fortest)

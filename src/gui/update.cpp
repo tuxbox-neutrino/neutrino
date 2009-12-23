@@ -112,9 +112,9 @@ class CNonLocalizedMenuSeparator : public CMenuSeparator
 	const char * the_text;
 
 public:
-	CNonLocalizedMenuSeparator(const char * text, const neutrino_locale_t Text) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text)
+	CNonLocalizedMenuSeparator(const char * ptext, const neutrino_locale_t Text1) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text1)
 		{
-			the_text = text;
+			the_text = ptext;
 		}
 
 	virtual const char * getString(void)
@@ -200,7 +200,7 @@ printf("[update] url %s version %s md5 %s name %s\n", url.c_str(), version.c_str
 				description += versionInfo.getDate();
 				description += ' ';
 				description += versionInfo.getTime();
-				
+
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
 
 				SelectionWidget.addItem(new CMenuForwarderNonLocalized(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
@@ -216,7 +216,7 @@ printf("[update] url %s version %s md5 %s name %s\n", url.c_str(), version.c_str
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR)); // UTF-8
 		return false;
 	}
-		
+
 	SelectionWidget.exec(NULL, "");
 
 	if (selected == -1)
@@ -273,13 +273,13 @@ printf("[update] mode is %d\n", g_settings.softupdate_mode);
 		showLocalStatus(100);
 		showGlobalStatus(20);
 		hide();
-		
+
 		msg_body = LOCALE_FLASHUPDATE_MSGBOX;
 #ifdef SQUASHFS
 		versionInfo = new CFlashVersionInfo(newVersion);//Memory leak: versionInfo
 		sprintf(msg, g_Locale->getText(msg_body), versionInfo->getDate(), versionInfo->getTime(), versionInfo->getReleaseCycle(), versionInfo->getType());
 
-		if(fileType < '3') 
+		if(fileType < '3')
 		{
 			if ((strncmp(RELEASE_CYCLE, versionInfo->getReleaseCycle(), 2) != 0) &&
 		    (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_WRONGBASE), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, "softupdate.raw") != CMessageBox::mbrYes))
@@ -456,7 +456,7 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 			free(buffer);
 		}
 	}
-	else // not image, install 
+	else // not image, install
 	{
 		char cmd[100];
 		sprintf(cmd, "install.sh %s %s", g_settings.update_dir, filename.c_str());
@@ -483,25 +483,25 @@ CFlashExpert::CFlashExpert()
 	selectedMTD = -1;
 }
 
-void CFlashExpert::readmtd(int readmtd)
+void CFlashExpert::readmtd(int preadmtd)
 {
 	char tmp[10];
-	sprintf(tmp, "%d", readmtd);
+	sprintf(tmp, "%d", preadmtd);
 	std::string filename = "/tmp/mtd";
 	filename += tmp;
 	filename += ".img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
 
-	if (readmtd == -1) {
+	if (preadmtd == -1) {
 		filename = "/tmp/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
-		readmtd = MTD_OF_WHOLE_IMAGE;
+		preadmtd = MTD_OF_WHOLE_IMAGE;
 	}
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
 	paint();
 	showGlobalStatus(0);
-	showStatusMessageUTF((std::string(g_Locale->getText(LOCALE_FLASHUPDATE_ACTIONREADFLASH)) + " (" + CMTDInfo::getInstance()->getMTDName(readmtd) + ')')); // UTF-8
+	showStatusMessageUTF((std::string(g_Locale->getText(LOCALE_FLASHUPDATE_ACTIONREADFLASH)) + " (" + CMTDInfo::getInstance()->getMTDName(preadmtd) + ')')); // UTF-8
 	CFlashTool ft;
 	ft.setStatusViewer( this );
-	ft.setMTDDevice(CMTDInfo::getInstance()->getMTDFileName(readmtd));
+	ft.setMTDDevice(CMTDInfo::getInstance()->getMTDFileName(preadmtd));
 
 	if(!ft.readFromMTD(filename, 100)) {
 		showStatusMessageUTF(ft.getErrorMessage()); // UTF-8
@@ -560,10 +560,10 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 	mtdselector->addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_CANCEL));
 	mtdselector->addItem(GenericMenuSeparatorLine);
 	CMTDInfo* mtdInfo =CMTDInfo::getInstance();
-	for(int x=0;x<mtdInfo->getMTDCount();x++) {
+	for(int lx=0;lx<mtdInfo->getMTDCount();lx++) {
 		char sActionKey[20];
-		sprintf(sActionKey, "%s%d", actionkey.c_str(), x);
-		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(x).c_str(), true, NULL, this, sActionKey));
+		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
+		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), true, NULL, this, sActionKey));
 	}
 	mtdselector->exec(NULL,"");
 	delete mtdselector;

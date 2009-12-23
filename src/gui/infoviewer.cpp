@@ -694,7 +694,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 void CInfoViewer::showSubchan ()
 {
-  CFrameBuffer *frameBuffer = CFrameBuffer::getInstance ();
+  CFrameBuffer *lframeBuffer = CFrameBuffer::getInstance ();
   CNeutrinoApp *neutrino = CNeutrinoApp::getInstance ();
 
   std::string subChannelName;	// holds the name of the subchannel/audio channel
@@ -746,19 +746,19 @@ void CInfoViewer::showSubchan ()
 	}
 
 	fb_pixel_t pixbuf[(dx + 2 * borderwidth) * (dy + 2 * borderwidth)];
-	frameBuffer->SaveScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
+	lframeBuffer->SaveScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
 
 	// clear border
-	frameBuffer->paintBackgroundBoxRel (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, borderwidth);
-	frameBuffer->paintBackgroundBoxRel (x - borderwidth, y + dy, dx + 2 * borderwidth, borderwidth);
-	frameBuffer->paintBackgroundBoxRel (x - borderwidth, y, borderwidth, dy);
-	frameBuffer->paintBackgroundBoxRel (x + dx, y, borderwidth, dy);
+	lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, borderwidth);
+	lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y + dy, dx + 2 * borderwidth, borderwidth);
+	lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y, borderwidth, dy);
+	lframeBuffer->paintBackgroundBoxRel (x + dx, y, borderwidth, dy);
 
-	frameBuffer->paintBoxRel (x, y, dx, dy, COL_MENUCONTENT_PLUS_0);
+	lframeBuffer->paintBoxRel (x, y, dx, dy, COL_MENUCONTENT_PLUS_0);
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + 30, dx - 20, text, COL_MENUCONTENT);
 
 	if (g_RemoteControl->director_mode) {
-	  frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_YELLOW, x + 8, y + dy - 20);
+	  lframeBuffer->paintIcon (NEUTRINO_ICON_BUTTON_YELLOW, x + 8, y + dy - 20);
 	  g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (x + 30, y + dy - 2, dx - 40, g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), COL_MENUCONTENT, 0, true);	// UTF-8
 	}
 
@@ -783,7 +783,7 @@ void CInfoViewer::showSubchan ()
 		}
 	  }
 	}
-	frameBuffer->RestoreScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
+	lframeBuffer->RestoreScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
   } else {
 	g_RCInput->postMsg (NeutrinoMessages::SHOW_INFOBAR, 0);
   }

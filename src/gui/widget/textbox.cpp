@@ -3,8 +3,8 @@
 
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar: 
-  
+	Kommentar:
+
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
 	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
 	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
@@ -63,12 +63,12 @@
 #define	SCROLL_MARKER_BORDER		 2
 
 #define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX - 40)
-#define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)	
+#define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)
 
 #define MIN_WINDOW_WIDTH  ((g_settings.screen_EndX - g_settings.screen_StartX)>>1)
-#define MIN_WINDOW_HEIGHT 40	
+#define MIN_WINDOW_HEIGHT 40
 
-CTextBox::CTextBox(const char * text, Font* font_text, const int mode, 
+CTextBox::CTextBox(const char * text, Font* font_text, const int pmode,
 		   const CBox* position, CFBWindow::color_t textBackgroundColor)
 {
 	//TRACE("[CTextBox] new\r\n");
@@ -86,20 +86,20 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int mode,
 		m_nMaxWidth = m_cFrame.iWidth;
 	}
 
-	m_nMode	= mode;
+	m_nMode	= pmode;
 
 	/* in case of auto line break, we do no support auto width  yet */
-	if( !(mode & NO_AUTO_LINEBREAK))
+	if( !(pmode & NO_AUTO_LINEBREAK))
 	{
 		m_nMode = m_nMode & ~AUTO_WIDTH; /* delete any AUTO_WIDTH*/
 	}
 
 #if 0
 	TRACE("  Mode: ");
-	if(mode & SCROLL) TRACE("SCROLL ");
-	if(mode & NO_AUTO_LINEBREAK) TRACE("NO_AUTO_LINEBREAK ");
-	if(mode & AUTO_WIDTH) TRACE("AUTO_WIDTH ");
-	if(mode & AUTO_HIGH) TRACE("AUTO_HIGH");
+	if(pmode & SCROLL) TRACE("SCROLL ");
+	if(pmode & NO_AUTO_LINEBREAK) TRACE("NO_AUTO_LINEBREAK ");
+	if(pmode & AUTO_WIDTH) TRACE("AUTO_WIDTH ");
+	if(pmode & AUTO_HIGH) TRACE("AUTO_HIGH");
 	TRACE("\r\n");
 
 #endif
@@ -112,7 +112,7 @@ CTextBox::CTextBox(const char * text, Font* font_text, const int mode,
 	/* Initialise the window frames first */
 	initFramesRel();
 
-	// than refresh text line array 
+	// than refresh text line array
 	refreshTextLineArray();
 }
 
@@ -127,7 +127,7 @@ CTextBox::CTextBox(const char * text)
 	/* Initialise the window frames first */
 	initFramesRel();
 
-	// than refresh text line array 
+	// than refresh text line array
 	refreshTextLineArray();
 }
 
@@ -171,7 +171,7 @@ void CTextBox::initVar(void)
 
 	m_nMaxHeight = MAX_WINDOW_HEIGHT;
 	m_nMaxWidth = MAX_WINDOW_WIDTH;
-	
+
 	m_textBackgroundColor = COL_MENUCONTENT_PLUS_0;
 
 	m_cLineArray.clear();
@@ -196,7 +196,7 @@ void CTextBox::reSizeMainFrameHeight(int textHeight)
 {
 	TRACE("[CTextBox]->ReSizeMainFrameHeight: %d, current: %d\r\n",textHeight,m_cFrameTextRel.iHeight);
 
-	int iNewWindowHeight =	textHeight 
+	int iNewWindowHeight =	textHeight
 							+ 2*TEXT_BORDER_WIDTH;
 
 	if( iNewWindowHeight > m_nMaxHeight) iNewWindowHeight = m_nMaxHeight;
@@ -215,7 +215,7 @@ void CTextBox::initFramesRel(void)
 	m_cFrameTextRel.iX		= 0;
 	m_cFrameTextRel.iY		= 0;
 	m_cFrameTextRel.iHeight	= m_cFrame.iHeight ;
-	
+
 	if(m_nMode & SCROLL)
 	{
 		m_cFrameScrollRel.iX		= m_cFrame.iWidth - SCROLL_FRAME_WIDTH;
@@ -258,7 +258,7 @@ void CTextBox::initFramesRel(void)
 }
 
 void CTextBox::refreshTextLineArray(void)
-{      
+{
 	//TRACE("[CTextBox]->RefreshLineArray \r\n");
 	int loop = true;
 	int pos_prev = 0;
@@ -291,7 +291,7 @@ void CTextBox::refreshTextLineArray(void)
 		lineBreakWidth = max_width;
 	//printf("TextBox: lineBreakWidth %d\n", lineBreakWidth);
 	int TextChars = m_cText.size();
-	// do not parse, if text is empty 
+	// do not parse, if text is empty
 	if(TextChars > 0)
 	{
 		while(loop)
@@ -386,7 +386,7 @@ void CTextBox::refreshTextLineArray(void)
 		m_nCurrentLine = 0;
 		m_nLinesPerPage = 1;
 	}
-#if 0	
+#if 0
 	TRACE_1(" m_nNrOfPages:     %d\r\n",m_nNrOfPages);
 	TRACE_1(" m_nNrOfLines:     %d\r\n",m_nNrOfLines);
 	TRACE_1(" m_nNrOfNewLine:   %d\r\n",m_nNrOfNewLine);
@@ -403,21 +403,21 @@ void CTextBox::refreshScroll(void)
 	if(	!(m_nMode & SCROLL)) return;
 	if( frameBuffer == NULL) return;
 
-	if (m_nNrOfPages > 1) 
+	if (m_nNrOfPages > 1)
 	{
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY, 
-				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, 
+		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
+				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
 				COL_MENUCONTENT_PLUS_1);
 		unsigned int marker_size = m_cFrameScrollRel.iHeight / m_nNrOfPages;
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER+m_cFrame.iX, 
-				m_cFrameScrollRel.iY + m_nCurrentPage * marker_size+m_cFrame.iY, 
-				m_cFrameScrollRel.iWidth - 2*SCROLL_MARKER_BORDER, 
+		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX + SCROLL_MARKER_BORDER+m_cFrame.iX,
+				m_cFrameScrollRel.iY + m_nCurrentPage * marker_size+m_cFrame.iY,
+				m_cFrameScrollRel.iWidth - 2*SCROLL_MARKER_BORDER,
 				marker_size, COL_MENUCONTENT_PLUS_3);
 	}
 	else
 	{
-		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY, 
-				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight, 
+		frameBuffer->paintBoxRel(m_cFrameScrollRel.iX+m_cFrame.iX, m_cFrameScrollRel.iY+m_cFrame.iY,
+				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
 				m_textBackgroundColor);
 	}
 }
@@ -427,7 +427,7 @@ void CTextBox::refreshText(void)
 	if( frameBuffer == NULL) return;
 	//TRACE("   CTextBox::refreshText: %d,%s\r\n",m_nCurrentLine,m_cLineArray[m_nCurrentLine].c_str());
 	//Paint Text Background
-	frameBuffer->paintBoxRel(m_cFrameTextRel.iX+m_cFrame.iX, m_cFrameTextRel.iY+m_cFrame.iY, 
+	frameBuffer->paintBoxRel(m_cFrameTextRel.iX+m_cFrame.iX, m_cFrameTextRel.iY+m_cFrame.iY,
 			m_cFrameTextRel.iWidth, m_cFrameTextRel.iHeight,  m_textBackgroundColor);
 
 	if( m_nNrOfLines <= 0) return;
@@ -444,8 +444,8 @@ void CTextBox::refreshText(void)
 			x_center = (m_cFrameTextRel.iWidth - m_pcFontText->getRenderWidth(m_cLineArray[i], true))>>1;
 		}
 
-		m_pcFontText->RenderString(m_cFrameTextRel.iX + TEXT_BORDER_WIDTH + x_center+m_cFrame.iX, 
-				y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(), 
+		m_pcFontText->RenderString(m_cFrameTextRel.iX + TEXT_BORDER_WIDTH + x_center+m_cFrame.iX,
+				y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
 				COL_MENUCONTENT, 0, true); // UTF-8
 	}
 }
@@ -459,13 +459,13 @@ void CTextBox::scrollPageDown(const int pages)
 
 	if(m_nCurrentPage + pages < m_nNrOfPages)
 	{
-		m_nCurrentPage += pages; 
+		m_nCurrentPage += pages;
 	}
-	else 
+	else
 	{
 		m_nCurrentPage = m_nNrOfPages - 1;
 	}
-	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage; 
+	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 	refresh();
 }
 
@@ -478,13 +478,13 @@ void CTextBox::scrollPageUp(const int pages)
 
 	if(m_nCurrentPage - pages > 0)
 	{
-		m_nCurrentPage -= pages; 
+		m_nCurrentPage -= pages;
 	}
-	else 
+	else
 	{
 		m_nCurrentPage = 0;
 	}
-	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage; 
+	m_nCurrentLine = m_nCurrentPage * m_nLinesPerPage;
 	refresh();
 }
 

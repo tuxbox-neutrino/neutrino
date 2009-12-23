@@ -656,7 +656,7 @@ void unsetRecordMode(void)
 	rec_channel_id = 0;
 }
 
-int prepare_channels(fe_type_t frontendType, diseqc_t diseqcType)
+int prepare_channels(fe_type_t frontendType, diseqc_t pdiseqcType)
 {
 	channel = 0;
 	transponders.clear();
@@ -667,7 +667,7 @@ int prepare_channels(fe_type_t frontendType, diseqc_t diseqcType)
                 scanInputParser = NULL;
         }
 
-	if (LoadServices(frontendType, diseqcType, false) < 0)
+	if (LoadServices(frontendType, pdiseqcType, false) < 0)
 		return -1;
 
 	INFO("LoadServices: success");
@@ -1503,9 +1503,9 @@ DBG("NVOD insert %llx\n", CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPO
 		if (msgBoolean.truefalse) {
 			// if(videoDecoder && (currentMode & RECORD_MODE)) videoDecoder->freeze();
 			enterStandby();
-			CZapitMessages::responseCmd response;
-			response.cmd = CZapitMessages::CMD_READY;
-			CBasicServer::send_data(connfd, &response, sizeof(response));
+			CZapitMessages::responseCmd presponse;
+			presponse.cmd = CZapitMessages::CMD_READY;
+			CBasicServer::send_data(connfd, &presponse, sizeof(presponse));
 		} else
 			leaveStandby();
 		break;
@@ -1924,7 +1924,7 @@ void leaveStandby(void)
 		zapit(live_channel_id, current_is_nvod, false, true);
 }
 
-unsigned zapTo(const unsigned int bouquet, const unsigned int channel)
+unsigned zapTo(const unsigned int bouquet, const unsigned int pchannel)
 {
 	if (bouquet >= g_bouquetManager->Bouquets.size()) {
 		WARN("Invalid bouquet %d", bouquet);
@@ -1938,12 +1938,12 @@ unsigned zapTo(const unsigned int bouquet, const unsigned int channel)
 	else
 		channels = &(g_bouquetManager->Bouquets[bouquet]->tvChannels);
 
-	if (channel >= channels->size()) {
-		WARN("Invalid channel %d in bouquet %d", channel, bouquet);
+	if (pchannel >= channels->size()) {
+		WARN("Invalid channel %d in bouquet %d", pchannel, bouquet);
 		return CZapitClient::ZAP_INVALID_PARAM;
 	}
 
-	return zapTo_ChannelID((*channels)[channel]->getChannelID(), false);
+	return zapTo_ChannelID((*channels)[pchannel]->getChannelID(), false);
 }
 
 unsigned int zapTo_ChannelID(t_channel_id channel_id, bool isSubService)
@@ -1974,9 +1974,9 @@ DBG("[zapit] NVOD chid %llx\n", channel_id);
 	return result;
 }
 
-unsigned zapTo(const unsigned int channel)
+unsigned zapTo(const unsigned int pchannel)
 {
-	CBouquetManager::ChannelIterator cit = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).FindChannelNr(channel);
+	CBouquetManager::ChannelIterator cit = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).FindChannelNr(pchannel);
 	if (!(cit.EndOfChannels()))
 		return zapTo_ChannelID((*cit)->getChannelID(), false);
 	else

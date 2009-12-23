@@ -227,12 +227,12 @@ void CEpgData::showText( int startPos, int ypos )
 	medlineheight = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getHeight();
 	medlinecount=(oy- botboxheight)/medlineheight;
 
-	int textCount = epgText.size();
+	int ltextCount = epgText.size();
 	int y=ypos;
 
 	frameBuffer->paintBoxRel(sx, y, ox- 15, sb, COL_MENUCONTENT_PLUS_0);
 
-	for (int i=startPos; i<textCount && i<startPos+medlinecount; i++,y+=medlineheight)
+	for (int i=startPos; i<ltextCount && i<startPos+medlinecount; i++,y+=medlineheight)
 	{
 		if ( i< info1_lines )
 			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(sx+10, y+medlineheight, ox- 15- 15, epgText[i], COL_MENUCONTENT, 0, true); // UTF-8
@@ -242,7 +242,7 @@ void CEpgData::showText( int startPos, int ypos )
 
 	frameBuffer->paintBoxRel(sx+ ox- 15, ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
-	int sbc= ((textCount- 1)/ medlinecount)+ 1;
+	int sbc= ((ltextCount- 1)/ medlinecount)+ 1;
 	float sbh= (sb- 4)/ sbc;
 	int sbs= (startPos+ 1)/ medlinecount;
 
@@ -742,8 +742,8 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 						}
 						else if (g_settings.recording_choose_direct_rec_dir == 1)
 						{
-							int id = -1;
-							CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&id,NULL,g_settings.network_nfs_recordingdir);
+							int lid = -1;
+							CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&lid,NULL,g_settings.network_nfs_recordingdir);
 							if (recDirs.hasItem())
 							{
 								hide();
@@ -753,8 +753,8 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 							{
 								printf("no network devices available\n");
 							}
-							if (id != -1)
-								strcpy(recDir, g_settings.network_nfs_local_dir[id]);
+							if (lid != -1)
+								strcpy(recDir, g_settings.network_nfs_local_dir[lid]);
 							//recDir = g_settings.network_nfs_local_dir[id];
 							//else
 							//recDir = NULL;
@@ -1021,7 +1021,7 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 // -- 2002-05-13 rasc
 //
 
-void CEpgData::showTimerEventBar (bool show)
+void CEpgData::showTimerEventBar (bool pshow)
 
 {
 	int  x,y,w,h;
@@ -1038,7 +1038,7 @@ void CEpgData::showTimerEventBar (bool show)
 
 	frameBuffer->paintBackgroundBoxRel(x,y,w,h);
 	// hide only?
-	if (! show) return;
+	if (! pshow) return;
 
 	frameBuffer->paintBoxRel(x,y,w,h, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
 

@@ -416,9 +416,9 @@ int CAudioPlayerGui::show()
 
 					sprintf(fname, "%s/mp3-%d.jpg", DATADIR "/neutrino/icons", pic_index);
 
-					int ret = access(fname, F_OK);
-					printf("CAudioPlayerGui::show: new pic %s: %s\n", fname, ret ? "not found" : "found");
-					if (ret == 0) {
+					int lret = access(fname, F_OK);
+					printf("CAudioPlayerGui::show: new pic %s: %s\n", fname, lret ? "not found" : "found");
+					if (lret == 0) {
 						pic_index++;
 						videoDecoder->StopPicture();
 						videoDecoder->ShowPicture(fname);

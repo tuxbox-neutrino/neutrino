@@ -124,14 +124,14 @@ int CListBox::getItemHeight()
 	return fheight;
 }
 
-void CListBox::paintItem(unsigned int /*itemNr*/, int paintNr, bool selected)
+void CListBox::paintItem(unsigned int /*itemNr*/, int paintNr, bool pselected)
 {
 	int ypos = y+ theight + paintNr*getItemHeight();
 
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 
-	if (selected)
+	if (pselected)
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;

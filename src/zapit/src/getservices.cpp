@@ -184,18 +184,18 @@ void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream
 							name.c_str(), chid, freq, ret.first->second.getName().c_str(), ret.first->second.getFreqId());
 					} else {
 						scnt++;
-						tallchans_iterator cit = ret.first;
-						cit->second.scrambled = scrambled;
+						tallchans_iterator cit1 = ret.first;
+						cit1->second.scrambled = scrambled;
 						service_type = cit->second.getServiceType();
 						if(pmtpid != 0 && (((service_type == 2) && (apid > 0)) || ( (service_type == 1)  && (vpid > 0) && (apid > 0))) ) {
 							DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);
-							cit->second.setVideoPid(vpid);
-							cit->second.setAudioPid(apid);
-							cit->second.setPcrPid(pcrpid);
-							cit->second.setPmtPid(pmtpid);
-							cit->second.setTeletextPid(txpid);
-							cit->second.setPidsFlag();
-							cit->second.type = vtype;
+							cit1->second.setVideoPid(vpid);
+							cit1->second.setAudioPid(apid);
+							cit1->second.setPcrPid(pcrpid);
+							cit1->second.setPmtPid(pmtpid);
+							cit1->second.setTeletextPid(txpid);
+							cit1->second.setPidsFlag();
+							cit1->second.type = vtype;
 						}
 					}
 				}

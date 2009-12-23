@@ -59,6 +59,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <limits>
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -782,7 +783,7 @@ void CMoviePlayerGui::PlayFile(void)
 				switch(g_ac3flags[count])
 				{
 					case 1: /*AC3,EAC3*/
-						if (apidtitle.find("AC3") < 0 || is_file_player)
+						if (apidtitle.find("AC3") == std::numeric_limits<size_t>::max() || is_file_player)
 							apidtitle.append(" (AC3)");
 						break;
 					case 2: /*teletext*/

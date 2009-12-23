@@ -270,7 +270,7 @@ int main (int argc, char** argv)
                         set_pal = true;
                         continue;
                 }
-        
+
                 else if (!strncmp(argv[i], "--1080", 6))
                 {
                         set_hd = 8;
@@ -336,7 +336,7 @@ int main (int argc, char** argv)
 		zapit.sendMotorCommand(motorCmdType, motorAddr, motorCmd, motorNumParameters, motorParam1, motorParam2);
 		return 0;
 	}
-	
+
 	/* kill zapit*/
 	if (killzapit)
 	{
@@ -389,8 +389,8 @@ int main (int argc, char** argv)
 	{
 #define NEUTRINO_UDS_NAME "/tmp/neutrino.sock"
 		std::cout << "registering neutrino" << std::endl;
-		for (int i = CZapitClient::FIRST_EVENT_MARKER; i < CZapitClient::LAST_EVENT_MARKER; i++)
-			zapit.registerEvent(i, 222, NEUTRINO_UDS_NAME);
+		for (int ic = CZapitClient::FIRST_EVENT_MARKER; ic < CZapitClient::LAST_EVENT_MARKER; ic++)
+			zapit.registerEvent(ic, 222, NEUTRINO_UDS_NAME);
 		return 0;
 	}
 
@@ -495,7 +495,7 @@ int main (int argc, char** argv)
                 //zapit.startPlayBack();
                 return 0;
         }
-                 
+
         if (set_hd)
         {
                 //zapit.stopPlayBack();
@@ -537,7 +537,7 @@ int main (int argc, char** argv)
 					goto channel_found;
 				}
 			}
-			
+
 			std::cout << "channel not found." << std::endl;
 			return 0;
 		}
@@ -584,9 +584,9 @@ int main (int argc, char** argv)
 		std::cout << "zapped to " << channels[channel-1].name << std::endl;
 	}
 
-	
+
 	if(!quiet)
-	{	
+	{
 		CZapitClient::responseGetPIDs pids;
 		zapit.getPIDS(pids);
 

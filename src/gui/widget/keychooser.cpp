@@ -124,10 +124,12 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 
  get_Message:
 	g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
-	
+
 	if (msg != CRCInput::RC_timeout)
 	{
-		if ((msg >= 0) && (msg <= CRCInput::RC_MaxRC))
+//		comparing an unsigned int against >= 0 is senseless!
+// 		if ((msg >= 0) && (msg <= CRCInput::RC_MaxRC))
+		if ((msg >0 ) && (msg <= CRCInput::RC_MaxRC))
 			*key = msg;
 		else if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all)
 			res = menu_return::RETURN_EXIT_ALL;

@@ -98,15 +98,15 @@ void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_
 
 extern int old_b_id;
 
-CChannelList::CChannelList(const char * const Name, bool historyMode, bool _vlist)
+CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
 {
 	frameBuffer = CFrameBuffer::getInstance();
-	name = Name;
+	name = pName;
 	selected = 0;
 	liststart = 0;
 	tuned=0xfffffff;
 	zapProtection = NULL;
-	this->historyMode = historyMode;
+	this->historyMode = phistoryMode;
 	vlist = _vlist;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 }
@@ -186,11 +186,11 @@ void CChannelList::updateEvents(void)
 			}
 
 			//CChannelEventList events = g_Sectionsd->getChannelEvents((CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
-			CChannelEventList events;
-			sectionsd_getChannelEvents(events, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
+			CChannelEventList levents;
+			sectionsd_getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
 			for (uint32_t count=0; count < chanlist.size(); count++) {
 				chanlist[count]->currentEvent = CChannelEvent();
-				for ( CChannelEventList::iterator e = events.begin(); e != events.end(); ++e )
+				for ( CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e )
 					if ((chanlist[count]->channel_id&0xFFFFFFFFFFFFULL) == e->get_channel_id()){
 						chanlist[count]->currentEvent= *e;
 						break;
@@ -1220,17 +1220,22 @@ void CChannelList::quickZap(int key, bool cycle)
 		size_t cactive = selected;
 
 printf("CChannelList::quickZap: selected %d total %d active bouquet %d total %d\n", cactive, chanlist.size(), bactive, bsize);
-		if ( (key==g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
-			cactive--;
-			if(cactive < 0) {
+		if ( (key==g_settings.key_quickzap_down) || (key == CRCInput::RC_left))
+		{
+			if(cactive == 0)
+			{
 				if(bactive == 0)
 					bactive = bsize - 1;
 				else
 					bactive--;
 				bouquetList->activateBouquet(bactive, false);
 				cactive = bouquetList->Bouquets[bactive]->channelList->getSize() - 1;
-			} else
+			}
+			else
+			{
 				selected = cactive;
+				--cactive;
+			}
 		}
 		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
 			cactive++;
@@ -1503,8 +1508,9 @@ void CChannelList::paintItem(int pos)
 
 			if ( (width- numwidth- 60- 15- prg_offset - ch_name_len)< ch_desc_len )
 				ch_desc_len = (width- numwidth- 60- 15- ch_name_len - prg_offset);
-			if (ch_desc_len< 0)
-				ch_desc_len = 0;
+			// Senseless code as ch_desc_len is a NOT signed integer
+// 			if (ch_desc_len< 0)
+// 				ch_desc_len = 0;
 
 			if(g_settings.channellist_extended){
 				if(displayNext)

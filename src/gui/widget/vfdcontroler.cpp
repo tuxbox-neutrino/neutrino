@@ -254,17 +254,17 @@ void CVfdControler::paint()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10, y+hheight+mheight*3+mheight/2, width, g_Locale->getText(LOCALE_OPTIONS_DEFAULT), COL_MENUCONTENT, 0, true); // UTF-8
 }
 
-void CVfdControler::paintSlider(int x, int y, unsigned int spos, float factor, const neutrino_locale_t text, bool selected)
+void CVfdControler::paintSlider(int px, int py, unsigned int spos, float factor, const neutrino_locale_t text, bool selected)
 {
 	int startx = 200;
 	char wert[5];
 
-	frameBuffer->paintBoxRel(x + startx, y, 120, mheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintIcon("volumebody.raw", x + startx, y+2+mheight/4);
-	frameBuffer->paintIcon(selected ? "volumeslider2blue.raw" : "volumeslider2.raw", (int)(x + (startx+3)+(spos / factor)), y+mheight/4);
+	frameBuffer->paintBoxRel(px + startx, py, 120, mheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintIcon("volumebody.raw", px + startx, py+2+mheight/4);
+	frameBuffer->paintIcon(selected ? "volumeslider2blue.raw" : "volumeslider2.raw", (int)(px + (startx+3)+(spos / factor)), py+mheight/4);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x, y+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
 	sprintf(wert, "%3d", spos); // UTF-8 encoded
-	frameBuffer->paintBoxRel(x + startx + 120 + 10, y, 50, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + startx + 120 + 10, y+mheight, width, wert, COL_MENUCONTENT, 0, true); // UTF-8
+	frameBuffer->paintBoxRel(px + startx + 120 + 10, py, 50, mheight, COL_MENUCONTENT_PLUS_0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px + startx + 120 + 10, py+mheight, width, wert, COL_MENUCONTENT, 0, true); // UTF-8
 }

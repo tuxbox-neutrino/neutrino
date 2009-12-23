@@ -153,8 +153,8 @@ unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel *
 
 			case 0x59:
 				if (esInfo->stream_type==0x06) {
-					unsigned char fieldCount=descriptor_length/8;
-					for (unsigned char fIdx=0;fIdx<fieldCount;fIdx++){
+					unsigned char fieldCount1=descriptor_length/8;
+					for (unsigned char fIdx=0;fIdx<fieldCount1;fIdx++){
 						char tmpLang[4];
 						memcpy(tmpLang,&buffer[pos + 8*fIdx + 2],3);
 						tmpLang[3] = '\0';
@@ -261,7 +261,7 @@ unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel *
 
 		case 0x05:// private section
 			{
-				int tmp=0;	
+				int tmp=0;
 				// Houdini: shameless stolen from enigma dvbservices.cpp
 				for (pos = 5; pos < ES_info_length + 5; pos += descriptor_length + 2) {
 					descriptor_tag = buffer[pos];
@@ -408,7 +408,7 @@ int parse_pmt(CZapitChannel * const channel)
 
 	if(!(currentMode & RECORD_MODE) && !scan_runs) {
 		ci->SendPMT(buffer, pmtlen);
-		fout = fopen("/tmp/pmt.tmp","wb"); 
+		fout = fopen("/tmp/pmt.tmp","wb");
 		if(fout != NULL) {
 			if ((int) fwrite(buffer, sizeof(unsigned char), pmtlen, fout) != pmtlen) {
 				unlink("/tmp/pmt.tmp");
@@ -480,7 +480,7 @@ int parse_pmt(CZapitChannel * const channel)
 	/* pmt */
 	section_length = ((buffer[1] & 0x0F) << 8) + buffer[2];
 
-	//if(!channel->getPidsFlag()) 
+	//if(!channel->getPidsFlag())
 		channel->setPcrPid(((buffer[8] & 0x1F) << 8) + buffer[9]);
 
 	program_info_length = ((buffer[10] & 0x0F) << 8) | buffer[11];
@@ -506,7 +506,7 @@ int parse_pmt(CZapitChannel * const channel)
 		channel->setCaPmt(NULL);
 		delete caPmt;
 	} else {
-		if(channel->getCaPmt() != 0) 
+		if(channel->getCaPmt() != 0)
 			delete channel->getCaPmt();
 		channel->setCaPmt(caPmt);
 	}
@@ -574,7 +574,7 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 }
 
 int pmt_stop_update_filter(int * fd)
-{       
+{
 printf("[pmt] stop update filter\n");
 	if(pmtDemux)
 		pmtDemux->Stop();

@@ -123,14 +123,14 @@ int add_to_scan(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t
 		if(poltmp2 != poltmp1) {
 			t_transport_stream_id transport_stream_id = tI->second.transport_stream_id;
 			t_original_network_id original_network_id = tI->second.original_network_id;
-			uint16_t freq = GET_FREQ_FROM_TPID(tI->first);
+			uint16_t freq1 = GET_FREQ_FROM_TPID(tI->first);
 			t_satellite_position satellitePosition = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
 			if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
 				satellitePosition = -satellitePosition;
 
-			freq++;
+			freq1++;
 			TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
-				freq, satellitePosition, original_network_id, transport_stream_id);
+				freq1, satellitePosition, original_network_id, transport_stream_id);
 				printf("[scan] add_to_scan: SAME freq %d pol1 %d pol2 %d tpid %llx\n", feparams->frequency, poltmp1, poltmp2, TsidOnid);
 			feparams->frequency = feparams->frequency+1000;
 			tI = scanedtransponders.find(TsidOnid);
@@ -256,7 +256,7 @@ _repeat:
 		}
 
 		TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
-				tI->second.feparams.frequency/1000, satellitePosition, tI->second.original_network_id, 
+				tI->second.feparams.frequency/1000, satellitePosition, tI->second.original_network_id,
 				tI->second.transport_stream_id);
 
 		//scanedtransponders.insert(std::pair <transponder_id_t,bool> (TsidOnid, true));
@@ -624,7 +624,7 @@ void * scan_transponder(void * arg)
 	scantransponders.clear();
 	scanedtransponders.clear();
 	nittransponders.clear();
-	if(cable) 
+	if(cable)
 		DBG("[scan_transponder] done scan freq %d rate %d fec %d mod %d\n", TP->feparams.frequency, TP->feparams.u.qam.symbol_rate, TP->feparams.u.qam.fec_inner,TP->feparams.u.qam.modulation);
 	else
 		DBG("[scan_transponder] done scan freq %d rate %d fec %d pol %d\n", TP->feparams.frequency, TP->feparams.u.qpsk.symbol_rate, TP->feparams.u.qpsk.fec_inner, TP->polarization);

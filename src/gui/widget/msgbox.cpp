@@ -736,11 +736,11 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 //////////////////////////////////////////////////////////////////////
 bool CMsgBox::setText(const std::string* newText)
 {
-	bool result = false;
+	bool lresult = false;
 	// update text in textbox if there is one
 	if(m_pcTextBox != NULL && newText != NULL)
 	{
-		result = m_pcTextBox->setText(newText);
+		lresult = m_pcTextBox->setText(newText);
 		if(m_nMode & AUTO_WIDTH || m_nMode & AUTO_HIGH)
 		{
 			/* window might changed in size ...*/
@@ -760,7 +760,7 @@ bool CMsgBox::setText(const std::string* newText)
 		}
 	}
 
-	return(result);
+	return(lresult);
 };
 
 

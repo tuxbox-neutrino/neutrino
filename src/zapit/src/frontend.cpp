@@ -54,7 +54,7 @@ extern CEventServer *eventServer;
 #define USALS
 
 static struct dtv_property clr_cmdargs[] = {
-	{ DTV_CLEAR,		{}, { 0			} },
+	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
 };
 
 static struct dtv_properties clr_cmdseq = {
@@ -63,15 +63,15 @@ static struct dtv_properties clr_cmdseq = {
 
 /* stolen from dvb.c from vlc */
 static struct dtv_property dvbs_cmdargs[] = {
-	{ DTV_FREQUENCY,	{}, { 0			} },
-	{ DTV_MODULATION,	{}, { QPSK		} },
-	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} },
-	{ DTV_SYMBOL_RATE,	{}, { 27500000		} },
-	{ DTV_VOLTAGE,		{}, { SEC_VOLTAGE_OFF	} },
-	{ DTV_TONE,		{}, { SEC_TONE_OFF	} },
-	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} },
-	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBS		} },
-	{ DTV_TUNE					  },
+	{ DTV_FREQUENCY,	{0,0,0}, { 0			},0 },
+	{ DTV_MODULATION,	{0,0,0}, { QPSK		},0 },
+	{ DTV_INVERSION,	{0,0,0}, { INVERSION_AUTO	},0 },
+	{ DTV_SYMBOL_RATE,	{0,0,0}, { 27500000		},0 },
+	{ DTV_VOLTAGE,		{0,0,0}, { SEC_VOLTAGE_OFF	},0 },
+	{ DTV_TONE,		{0,0,0}, { SEC_TONE_OFF	},0 },
+	{ DTV_INNER_FEC,	{0,0,0}, { FEC_AUTO		},0 },
+	{ DTV_DELIVERY_SYSTEM,	{0,0,0}, { SYS_DVBS		},0 },
+	{ DTV_TUNE,{0,0,0}, { 0			},0 },
 };
 
 static struct dtv_properties dvbs_cmdseq = {
@@ -79,17 +79,17 @@ static struct dtv_properties dvbs_cmdseq = {
 };
 
 static struct dtv_property dvbs2_cmdargs[] = {
-	{ DTV_FREQUENCY,	{}, { 0			} },
-	{ DTV_MODULATION,	{}, { PSK_8		} },
-	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} },
-	{ DTV_SYMBOL_RATE,	{}, { 27500000		} },
-	{ DTV_VOLTAGE,		{}, { SEC_VOLTAGE_OFF	} },
-	{ DTV_TONE,		{}, { SEC_TONE_OFF	} },
-	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} },
-	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBS2		} },
-	{ DTV_PILOT,		{}, { PILOT_AUTO	} },
-	{ DTV_ROLLOFF,		{}, { ROLLOFF_AUTO	} },
-	{ DTV_TUNE					  },
+	{ DTV_FREQUENCY,	{}, { 0			},0 },
+	{ DTV_MODULATION,	{}, { PSK_8		} ,0},
+	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
+	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
+	{ DTV_VOLTAGE,		{}, { SEC_VOLTAGE_OFF	} ,0},
+	{ DTV_TONE,		{}, { SEC_TONE_OFF	} ,0},
+	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
+	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBS2		} ,0},
+	{ DTV_PILOT,		{}, { PILOT_AUTO	} ,0},
+	{ DTV_ROLLOFF,		{}, { ROLLOFF_AUTO	} ,0},
+	{ DTV_TUNE,		{}, { 0			} ,0 },
 };
 
 static struct dtv_properties dvbs2_cmdseq = {
@@ -97,12 +97,12 @@ static struct dtv_properties dvbs2_cmdseq = {
 };
 
 static struct dtv_property dvbc_cmdargs[] = {
-	{ DTV_FREQUENCY,	{}, { 0			} },
-	{ DTV_MODULATION,	{}, { QAM_AUTO		} },
-	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} },
-	{ DTV_SYMBOL_RATE,	{}, { 27500000		} },
-	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBC_ANNEX_AC	} },
-	{ DTV_TUNE					  },
+	{ DTV_FREQUENCY,	{}, { 0			} ,0},
+	{ DTV_MODULATION,	{}, { QAM_AUTO		} ,0},
+	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
+	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
+	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBC_ANNEX_AC	} ,0},
+	{ DTV_TUNE,	{}, { 0			},0	  },
 };
 
 static struct dtv_properties dvbc_cmdseq = {
