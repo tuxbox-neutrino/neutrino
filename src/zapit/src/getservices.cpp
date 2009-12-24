@@ -122,7 +122,6 @@ void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream
 	std::string  name;
 	uint8_t      service_type;
 	unsigned short vpid, apid, pcrpid, pmtpid, txpid, vtype, scrambled;
-	tallchans_iterator cit;
 	std::string desc = "";
 	desc += "Preset";
 	t_channel_id chid;
@@ -186,7 +185,7 @@ void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream
 						scnt++;
 						tallchans_iterator cit1 = ret.first;
 						cit1->second.scrambled = scrambled;
-						service_type = cit->second.getServiceType();
+						service_type = cit1->second.getServiceType();
 						if(pmtpid != 0 && (((service_type == 2) && (apid > 0)) || ( (service_type == 1)  && (vpid > 0) && (apid > 0))) ) {
 							DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);
 							cit1->second.setVideoPid(vpid);
