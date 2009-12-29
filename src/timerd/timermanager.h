@@ -56,7 +56,7 @@ class CTimerEvent
 	CTimerEvent( CTimerd::CTimerEventTypes evtype, int mon = 0, int day = 0, int hour = 0, int min = 0, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 1);
 	CTimerEvent( CTimerd::CTimerEventTypes evtype, time_t announcetime, time_t alarmtime, time_t stoptime, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 1);
 	CTimerEvent( CTimerd::CTimerEventTypes evtype, CConfigFile *config, int iId);
-		
+
 	void setState(CTimerd::CTimerEventStates newstate){previousState = eventState; eventState = newstate;};
 
 	static int remain_min(const time_t t) {return (t - time(NULL)) / 60;};
@@ -76,8 +76,8 @@ typedef std::map<int, CTimerEvent*> CTimerEventMap;
 class CTimerEvent_Shutdown : public CTimerEvent
 {
  public:
-	CTimerEvent_Shutdown( time_t announceTime, time_t alarmTime, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 1) :
-		CTimerEvent(CTimerd::TIMER_SHUTDOWN, announceTime, alarmTime, (time_t) 0, evrepeat, repeatcount ){};
+	CTimerEvent_Shutdown( time_t lannounceTime, time_t lalarmTime, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 1) :
+		CTimerEvent(CTimerd::TIMER_SHUTDOWN, lannounceTime, lalarmTime, (time_t) 0, evrepeat, repeatcount ){};
 	CTimerEvent_Shutdown(CConfigFile *config, int iId):
 		CTimerEvent(CTimerd::TIMER_SHUTDOWN, config, iId){};
 	virtual void fireEvent();
@@ -87,8 +87,8 @@ class CTimerEvent_Shutdown : public CTimerEvent
 class CTimerEvent_Sleeptimer : public CTimerEvent
 {
  public:
-	CTimerEvent_Sleeptimer( time_t announceTime, time_t alarmTime, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 1) :
-		CTimerEvent(CTimerd::TIMER_SLEEPTIMER, announceTime, alarmTime, (time_t) 0,evrepeat,repeatcount ){};
+	CTimerEvent_Sleeptimer( time_t lannounceTime, time_t lalarmTime, CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE, uint32_t repeatcount = 1) :
+		CTimerEvent(CTimerd::TIMER_SLEEPTIMER, lannounceTime, lalarmTime, (time_t) 0,evrepeat,repeatcount ){};
 	CTimerEvent_Sleeptimer(CConfigFile *config, int iId):
 		CTimerEvent(CTimerd::TIMER_SLEEPTIMER, config, iId){};
 	virtual void fireEvent();
@@ -102,7 +102,7 @@ class CTimerEvent_Standby : public CTimerEvent
 	bool standby_on;
 
 	CTimerEvent_Standby(time_t announceTime,
-			    time_t alarmTime, 
+			    time_t alarmTime,
 			    bool sb_on,
 			    CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
 			    uint32_t repeatcount = 1);
@@ -117,10 +117,10 @@ class CTimerEvent_Record : public CTimerEvent
 	CTimerd::EventInfo eventInfo;
 	std::string recordingDir;
 	std::string epgTitle;
-	CTimerEvent_Record(time_t announceTime, time_t alarmTime, time_t stopTime, 
+	CTimerEvent_Record(time_t announceTime, time_t alarmTime, time_t stopTime,
 			   t_channel_id channel_id,
 			   event_id_t epgID = 0,
-			   time_t epg_starttime = 0, 
+			   time_t epg_starttime = 0,
 			   unsigned char apids = TIMERD_APIDS_STD,
 			   CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
 			   uint32_t repeatcount = 1, const std::string recDir = "");
@@ -139,13 +139,13 @@ class CTimerEvent_Record : public CTimerEvent
 class CTimerEvent_Zapto : public CTimerEvent_Record
 {
  public:
-	CTimerEvent_Zapto(time_t announceTime, time_t alarmTime, 
+	CTimerEvent_Zapto(time_t lannounceTime, time_t lalarmTime,
 			  t_channel_id channel_id,
 			  event_id_t epgID = 0,
-			  time_t epg_starttime = 0, 
+			  time_t epg_starttime = 0,
 			  CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
 			  uint32_t repeatcount = 1):
-		CTimerEvent_Record(announceTime, alarmTime, (time_t) 0, channel_id, epgID, epg_starttime, 0, evrepeat,repeatcount)
+		CTimerEvent_Record(lannounceTime, lalarmTime, (time_t) 0, channel_id, epgID, epg_starttime, 0, evrepeat,repeatcount)
 	{eventType = getEventType();};
 	CTimerEvent_Zapto(CConfigFile *config, int iId):
 		CTimerEvent_Record(config, iId)
@@ -162,7 +162,7 @@ class CTimerEvent_NextProgram : public CTimerEvent
  public:
 	CTimerd::EventInfo eventInfo;
 
-	CTimerEvent_NextProgram(time_t announceTime, time_t alarmTime, time_t stopTime, 
+	CTimerEvent_NextProgram(time_t announceTime, time_t alarmTime, time_t stopTime,
 				t_channel_id channel_id,
 				event_id_t epgID = 0,
 				time_t epg_starttime = 0,
@@ -182,7 +182,7 @@ class CTimerEvent_Remind : public CTimerEvent
 	char message[REMINDER_MESSAGE_MAXLEN];
 
 	CTimerEvent_Remind(time_t announceTime,
-			   time_t alarmTime, 
+			   time_t alarmTime,
 			   const char * const msg,
 			   CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
 			   uint32_t repeatcount = 1);
@@ -197,7 +197,7 @@ class CTimerEvent_ExecPlugin : public CTimerEvent
 	char name[EXEC_PLUGIN_NAME_MAXLEN];
 
 	CTimerEvent_ExecPlugin(time_t announceTime,
-			       time_t alarmTime, 
+			       time_t alarmTime,
 			       const char * const plugin,
 			       CTimerd::CTimerEventRepeat evrepeat = CTimerd::TIMERREPEAT_ONCE,
 			       uint32_t repeatcount = 1);
@@ -220,15 +220,15 @@ private:
 	int               m_extraTimeStart;
 	int               m_extraTimeEnd;
 	char 		  wakeup;
-	
+
 	CTimerManager();
 	static void* timerThread(void *arg);
 	CTimerEvent			*nextEvent();
 public:
-	
-	
+
+
 	static CTimerManager* getInstance();
-	
+
 	CEventServer* getEventServer() {return eventServer;};
 	int addEvent(CTimerEvent*,bool save = true);
 	bool removeEvent(int eventID);
@@ -245,7 +245,7 @@ public:
 	bool shutdown();
 	void shutdownOnWakeup(int currEventId);
 	void getRecordingSafety(int &pre, int &post){pre=m_extraTimeStart;post=m_extraTimeEnd;}
-	void setRecordingSafety(int pre, int post);  
+	void setRecordingSafety(int pre, int post);
 	void loadRecordingSafety();
 };
 

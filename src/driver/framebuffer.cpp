@@ -95,7 +95,8 @@ static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int of
 */
 static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, unsigned int value)
 {
-    while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000);
+    while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000)
+    {};
     *(volatile unsigned int *)(base_addr + offset) = value;
 }
 
@@ -901,16 +902,16 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 
 	struct rawHeader header;
 	uint16_t         width, height;
-	int              fd;
+	int              lfd;
 
-	fd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 
-	if (fd == -1) {
+	if (lfd == -1) {
 		printf("paintIcon8: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
-	read(fd, &header, sizeof(struct rawHeader));
+	read(lfd, &header, sizeof(struct rawHeader));
 
 	width  = (header.width_hi  << 8) | header.width_lo;
 	height = (header.height_hi << 8) | header.height_lo;
@@ -934,7 +935,7 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 		}
 		d += stride;
 	}
-	close(fd);
+	close(lfd);
 	return true;
 }
 
@@ -964,21 +965,21 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	}
 	struct rawHeader header;
 	uint16_t         width, height;
-	int              fd;
+	int              lfd;
 #if 0 // no need if we have whole / as r/w
 	std::string iconBasePath1 = "/var/share/icons/";
-	fd = open((iconBasePath1 + filename).c_str(), O_RDONLY);
-	if (fd == -1)
-		fd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath1 + filename).c_str(), O_RDONLY);
+	if (lfd == -1)
+		lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 #endif
-		fd = open((iconBasePath + filename).c_str(), O_RDONLY);
+		lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 
-	if (fd == -1) {
+	if (lfd == -1) {
 		printf("paintIcon: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
-	read(fd, &header, sizeof(struct rawHeader));
+	read(lfd, &header, sizeof(struct rawHeader));
 
 	width  = (header.width_hi  << 8) | header.width_lo;
 	height = (header.height_hi << 8) | header.height_lo;
@@ -1010,7 +1011,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		d += stride;
 	}
 
-	close(fd);
+	close(lfd);
 	return true;
 }
 
@@ -1029,17 +1030,17 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 //printf("%s()\n", __FUNCTION__);
 
 	struct rgbData rgbdata;
-	int            fd;
+	int            lfd;
 
-	fd = open((iconBasePath + filename).c_str(), O_RDONLY);
+	lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 
-	if (fd == -1) {
+	if (lfd == -1) {
 		printf("error while loading palette: %s%s\n", iconBasePath.c_str(), filename.c_str());
 		return;
 	}
 
 	int pos = 0;
-	int readb = read(fd, &rgbdata,  sizeof(rgbdata) );
+	int readb = read(lfd, &rgbdata,  sizeof(rgbdata) );
 	while(readb) {
 		__u32 rgb = (rgbdata.r<<16) | (rgbdata.g<<8) | (rgbdata.b);
 		int colpos = offset+pos;
@@ -1051,7 +1052,7 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 		pos++;
 	}
 	paletteSet(&cmap);
-	close(fd);
+	close(lfd);
 }
 
 void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
@@ -1163,22 +1164,22 @@ void CFrameBuffer::setBackgroundColor(const fb_pixel_t color)
 	backgroundColor = color;
 }
 
-bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t width, const uint16_t height, const uint16_t stride, fb_pixel_t * memp)
+bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t width, const uint16_t height, const uint16_t pstride, fb_pixel_t * memp)
 {
 	struct rawHeader header;
-	int              fd;
+	int              lfd;
 
 //printf("%s(%d, %d, memp)\n", __FUNCTION__, width, height);
 
-	fd = open((iconBasePath + filename).c_str(), O_RDONLY );
+	lfd = open((iconBasePath + filename).c_str(), O_RDONLY );
 
-	if (fd == -1)
+	if (lfd == -1)
 	{
 		printf("error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
 		return false;
 	}
 
-	read(fd, &header, sizeof(struct rawHeader));
+	read(lfd, &header, sizeof(struct rawHeader));
 
 	if ((width  != ((header.width_hi  << 8) | header.width_lo)) ||
 	    (height != ((header.height_hi << 8) | header.height_lo)))
@@ -1187,13 +1188,13 @@ bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t
 		return false;
 	}
 
-	if ((stride == 0) || (stride == width * sizeof(fb_pixel_t)))
-		read(fd, memp, height * width * sizeof(fb_pixel_t));
+	if ((pstride == 0) || (pstride == width * sizeof(fb_pixel_t)))
+		read(lfd, memp, height * width * sizeof(fb_pixel_t));
 	else
 		for (int i = 0; i < height; i++)
-			read(fd, ((uint8_t *)memp) + i * stride, width * sizeof(fb_pixel_t));
+			read(lfd, ((uint8_t *)memp) + i * pstride, width * sizeof(fb_pixel_t));
 
-	close(fd);
+	close(lfd);
 	return true;
 }
 
@@ -1214,7 +1215,7 @@ bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pix
 {
 	struct rawHeader header;
 	uint16_t         width, height;
-	int              fd;
+	int              lfd;
 
 	width = BACKGROUNDIMAGEWIDTH;
 	height = 576;
@@ -1225,19 +1226,19 @@ bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pix
 	header.height_hi = height >>    8;
 	header.transp    =              0;
 
-	fd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT);
+	lfd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT);
 
-	if (fd==-1)
+	if (lfd==-1)
 	{
 		printf("error while saving icon: %s%s", iconBasePath.c_str(), filename.c_str() );
 		return false;
 	}
 
-	write(fd, &header, sizeof(struct rawHeader));
+	write(lfd, &header, sizeof(struct rawHeader));
 
-	write(fd, memp, width * height * sizeof(fb_pixel_t));
+	write(lfd, memp, width * height * sizeof(fb_pixel_t));
 
-	close(fd);
+	close(lfd);
 	return true;
 }
 

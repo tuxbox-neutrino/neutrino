@@ -824,16 +824,16 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, unsig
 						{
 							case CSectionsdClient::EVT_TIMESET:
 								{
-									struct timeval tv;
-									gettimeofday( &tv, NULL );
-									long long timeOld = (long long) tv.tv_usec + (long long)((long long) tv.tv_sec * (long long) 1000000);
+									struct timeval ltv;
+									gettimeofday( &ltv, NULL );
+									long long timeOld = (long long) ltv.tv_usec + (long long)((long long) ltv.tv_sec * (long long) 1000000);
 
 									//printf("[neutrino] event TIMESET from SECTIONSD %x %x\n", emsg.eventID, *(unsigned*) p);
 									//g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
 									stime((time_t*) p);
 
-									gettimeofday( &tv, NULL );
-									long long timeNew = (long long) tv.tv_usec + (long long)((long long) tv.tv_sec * (long long) 1000000);
+									gettimeofday( &ltv, NULL );
+									long long timeNew = (long long) ltv.tv_usec + (long long)((long long) ltv.tv_sec * (long long) 1000000);
 
 									delete[] p;//new [] delete []
 									p= new unsigned char[ sizeof(long long) ];
@@ -1440,13 +1440,13 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 
 std::string CRCInput::getKeyName(const unsigned int key)
 {
-	int unicode_value = getUnicodeValue(key);
-	if (unicode_value == -1)
+	int lunicode_value = getUnicodeValue(key);
+	if (lunicode_value == -1)
 		return getSpecialKeyName(key);
 	else
 	{
 		char tmp[2];
-		tmp[0] = unicode_value;
+		tmp[0] = lunicode_value;
 		tmp[1] = 0;
 		return std::string(tmp);
 	}

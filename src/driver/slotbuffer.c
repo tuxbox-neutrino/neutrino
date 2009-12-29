@@ -34,7 +34,7 @@ slotbuffer_t * slotbuffer_construct(const size_t size)
 	slotbuffer->size          = size;
 	slotbuffer->read_pointer  = 0;
 	slotbuffer->write_pointer = 0;
-	
+
 	return slotbuffer;
 }
 
@@ -51,7 +51,7 @@ size_t slotbuffer_remaining_read_space(slotbuffer_t * const slotbuffer)
 	delta = slotbuffer->write_pointer;
 	delta -= slotbuffer->read_pointer;
 
-	return (delta >= 0) ? delta : (delta + slotbuffer->size);
+	return (delta >= 0) ? (size_t)delta : (size_t)(delta + slotbuffer->size);
 }
 
 size_t slotbuffer_remaining_write_space(slotbuffer_t * const slotbuffer)
@@ -61,7 +61,7 @@ size_t slotbuffer_remaining_write_space(slotbuffer_t * const slotbuffer)
 	delta = slotbuffer->read_pointer;
 	delta -= slotbuffer->write_pointer;
 
-	return ((delta > 0) ? delta : (delta + slotbuffer->size)) - 1;
+	return ((delta > 0) ? (size_t)delta : (size_t)(delta + slotbuffer->size)) - 1;
 }
 
 size_t slotbuffer_remaining_continuous_read_space(slotbuffer_t * const slotbuffer)
@@ -73,7 +73,7 @@ size_t slotbuffer_remaining_continuous_read_space(slotbuffer_t * const slotbuffe
 	read_pointer  = slotbuffer->read_pointer;
 	delta        -= read_pointer;
 
-	return (delta >= 0) ? delta : (slotbuffer->size - read_pointer);
+	return (delta >= 0) ? (size_t)delta : (size_t)(slotbuffer->size - read_pointer);
 }
 
 size_t slotbuffer_remaining_continuous_write_space(slotbuffer_t * const slotbuffer)
@@ -89,7 +89,7 @@ size_t slotbuffer_remaining_continuous_write_space(slotbuffer_t * const slotbuff
 	write_pointer  = slotbuffer->write_pointer;
 	delta         -= write_pointer;
 
-	return (delta > 0) ? (delta - 1) : (slotbuffer->size - write_pointer);
+	return (delta > 0) ? (size_t)(delta - 1) : (size_t)(slotbuffer->size - write_pointer);
 }
 
 void slotbuffer_advance_read_pointer(slotbuffer_t * const slotbuffer, const size_t delta)

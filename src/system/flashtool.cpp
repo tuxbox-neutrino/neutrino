@@ -250,7 +250,7 @@ bool CFlashTool::erase(int globalProgressEnd)
 {
 	int				fd;
 	mtd_info_t		meminfo;
-	erase_info_t	erase;
+	erase_info_t	lerase;
 	int				globalProgressBegin = 0;
 
 	if( (fd = open( mtdDevice.c_str(), O_RDWR )) < 0 )
@@ -271,18 +271,18 @@ bool CFlashTool::erase(int globalProgressEnd)
 		globalProgressBegin = statusViewer->getGlobalStatus();
 	}
 
-	erase.length = meminfo.erasesize;
-	for (erase.start = 0; erase.start < meminfo.size;erase.start += meminfo.erasesize)
+	lerase.length = meminfo.erasesize;
+	for (lerase.start = 0; lerase.start < meminfo.size;lerase.start += meminfo.erasesize)
 	{
 		printf( "Erasing %s erase size %x start %x size %x\n",
-		                 mtdDevice.c_str(), meminfo.erasesize, erase.start,
+		                 mtdDevice.c_str(), meminfo.erasesize, lerase.start,
 		                 meminfo.size );
 		printf( "\rErasing %u Kbyte @ %x -- %2u %% complete.",
-		                 meminfo.erasesize/1024, erase.start,
-		                 erase.start*100/meminfo.size );
+		                 meminfo.erasesize/1024, lerase.start,
+		                 lerase.start*100/meminfo.size );
 		if(statusViewer)
 		{
-			int prog = int(erase.start*100./meminfo.size);
+			int prog = int(lerase.start*100./meminfo.size);
 			statusViewer->showLocalStatus(prog);
 			if(globalProgressEnd!=-1)
 			{
@@ -291,7 +291,7 @@ bool CFlashTool::erase(int globalProgressEnd)
 			}
 		}
 
-		if(ioctl( fd, MEMERASE, &erase) != 0)
+		if(ioctl( fd, MEMERASE, &lerase) != 0)
 		{
 			ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_ERASEFAILED);
 			close(fd);

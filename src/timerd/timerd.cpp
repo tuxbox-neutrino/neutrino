@@ -141,58 +141,58 @@ bool timerd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 			if (CBasicServer::send_data(connfd, &responseInteger, sizeof(responseInteger)) == true)
 			{
-				for(CTimerEventMap::iterator pos = events.begin();pos != events.end();pos++)
+				for(CTimerEventMap::iterator lpos = events.begin();lpos != events.end();++lpos)
 				{
-					CTimerd::responseGetTimer resp;
+					CTimerd::responseGetTimer lresp;
 
-					CTimerEvent *event = pos->second;
+					CTimerEvent *event = lpos->second;
 
-					resp.eventID = event->eventID;
-					resp.eventState = event->eventState;
-					resp.eventType = event->eventType;
-					resp.eventRepeat = event->eventRepeat;
-					resp.announceTime = event->announceTime;
-					resp.alarmTime = event->alarmTime;
-					resp.stopTime = event->stopTime;
-					resp.repeatCount = event->repeatCount;
+					lresp.eventID = event->eventID;
+					lresp.eventState = event->eventState;
+					lresp.eventType = event->eventType;
+					lresp.eventRepeat = event->eventRepeat;
+					lresp.announceTime = event->announceTime;
+					lresp.alarmTime = event->alarmTime;
+					lresp.stopTime = event->stopTime;
+					lresp.repeatCount = event->repeatCount;
 
 					if(event->eventType == CTimerd::TIMER_STANDBY)
-						resp.standby_on = static_cast<CTimerEvent_Standby*>(event)->standby_on;
+						lresp.standby_on = static_cast<CTimerEvent_Standby*>(event)->standby_on;
 					else if(event->eventType == CTimerd::TIMER_NEXTPROGRAM)
 					{
-						resp.epgID = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.epgID;
-						resp.epg_starttime = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.epg_starttime;
-						resp.channel_id = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.channel_id;
-						resp.apids = static_cast<CTimerEvent_Record*>(event)->eventInfo.apids;
+						lresp.epgID = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.epgID;
+						lresp.epg_starttime = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.epg_starttime;
+						lresp.channel_id = static_cast<CTimerEvent_NextProgram*>(event)->eventInfo.channel_id;
+						lresp.apids = static_cast<CTimerEvent_Record*>(event)->eventInfo.apids;
 					}
 					else if(event->eventType == CTimerd::TIMER_RECORD)
 					{
 						CTimerEvent_Record* ev= static_cast<CTimerEvent_Record*>(event);
-						resp.epgID = ev->eventInfo.epgID;
-						resp.epg_starttime = ev->eventInfo.epg_starttime;
-						resp.channel_id = ev->eventInfo.channel_id;
-						resp.apids = ev->eventInfo.apids;
-						strcpy(resp.recordingDir, ev->recordingDir.substr(0,sizeof(resp.recordingDir)-1).c_str());
-						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());
+						lresp.epgID = ev->eventInfo.epgID;
+						lresp.epg_starttime = ev->eventInfo.epg_starttime;
+						lresp.channel_id = ev->eventInfo.channel_id;
+						lresp.apids = ev->eventInfo.apids;
+						strcpy(lresp.recordingDir, ev->recordingDir.substr(0,sizeof(lresp.recordingDir)-1).c_str());
+						strcpy(lresp.epgTitle, ev->epgTitle.substr(0,sizeof(lresp.epgTitle)-1).c_str());
 					}
 					else if(event->eventType == CTimerd::TIMER_ZAPTO)
 					{
 						CTimerEvent_Zapto* ev= static_cast<CTimerEvent_Zapto*>(event);
-						resp.epgID = ev->eventInfo.epgID;
-						resp.epg_starttime = ev->eventInfo.epg_starttime;
-						resp.channel_id = ev->eventInfo.channel_id;
-						resp.apids = ev->eventInfo.apids;
-						strcpy(resp.epgTitle, ev->epgTitle.substr(0,sizeof(resp.epgTitle)-1).c_str());
+						lresp.epgID = ev->eventInfo.epgID;
+						lresp.epg_starttime = ev->eventInfo.epg_starttime;
+						lresp.channel_id = ev->eventInfo.channel_id;
+						lresp.apids = ev->eventInfo.apids;
+						strcpy(lresp.epgTitle, ev->epgTitle.substr(0,sizeof(lresp.epgTitle)-1).c_str());
 					}
 					else if(event->eventType == CTimerd::TIMER_REMIND)
 					{
-						strcpy(resp.message, static_cast<CTimerEvent_Remind*>(event)->message);
+						strcpy(lresp.message, static_cast<CTimerEvent_Remind*>(event)->message);
 					}
 					else if(event->eventType == CTimerd::TIMER_EXEC_PLUGIN)
 					{
-						strcpy(resp.pluginName, static_cast<CTimerEvent_ExecPlugin*>(event)->name);
+						strcpy(lresp.pluginName, static_cast<CTimerEvent_ExecPlugin*>(event)->name);
 					}
-					CBasicServer::send_data(connfd, &resp, sizeof(CTimerd::responseGetTimer));
+					CBasicServer::send_data(connfd, &lresp, sizeof(CTimerd::responseGetTimer));
 				}
 			}
 			break;

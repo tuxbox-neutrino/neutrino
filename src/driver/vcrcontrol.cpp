@@ -704,7 +704,8 @@ void CVCRControl::Screenshot(const t_channel_id channel_id, char * fname)
 		pos = strlen(filename);
 
 		//if (g_Sectionsd->getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData))
-		if(sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData));
+		if(sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData))
+		{};
 			epgid = epgData.eventID;
 		if(epgid != 0) {
 			CShortEPGData epgdata;

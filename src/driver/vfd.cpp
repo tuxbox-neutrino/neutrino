@@ -285,13 +285,13 @@ printf("CVFD::showPercentOver: %d, bar %d\n", (int) perc, pp);
 	}
 }
 
-void CVFD::showMenuText(const int /*position*/, const char * text, const int /*highlight*/, const bool /*utf_encoded*/)
+void CVFD::showMenuText(const int /*position*/, const char * ptext, const int /*highlight*/, const bool /*utf_encoded*/)
 {
 	if(!has_lcd) return;
 	if (mode != MODE_MENU_UTF8)
 		return;
 
-	ShowText((char *) text);
+	ShowText((char *) ptext);
 	wake_up();
 }
 
