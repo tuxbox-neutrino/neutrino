@@ -437,35 +437,35 @@ void CMotorControl::hide()
 	stopSatFind();
 }
 
-void CMotorControl::paintLine(int x, int * y, int width, char * txt)
+void CMotorControl::paintLine(int px, int * py, int pwidth, char * txt)
 {
-	*y += mheight;
-	frameBuffer->paintBoxRel(x, *y - mheight, width, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x, *y, width, txt, COL_MENUCONTENT, 0, true);
+	*py += mheight;
+	frameBuffer->paintBoxRel(px, *py - mheight, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT, 0, true);
 }
 
-void CMotorControl::paintLine(int x, int y, int width, char * txt)
+void CMotorControl::paintLine(int px, int py, int pwidth, char * txt)
 {
-	//frameBuffer->paintBoxRel(x, y - mheight, width, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x, y, width, txt, COL_MENUCONTENT, 0, true);
+	//frameBuffer->paintBoxRel(px, py - mheight, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT, 0, true);
 }
 
-void CMotorControl::paintSeparator(int xpos, int * ypos, int width, char * /*txt*/)
+void CMotorControl::paintSeparator(int xpos, int * pypos, int pwidth, char * /*txt*/)
 {
 	//int stringwidth = 0;
 	//int stringstartposX = 0;
 	int th = 10;
 	//*ypos += mheight;
-	*ypos += th;
-	frameBuffer->paintHLineRel(xpos, width - 20, *ypos - (th >> 1), COL_MENUCONTENT_PLUS_3);
-	frameBuffer->paintHLineRel(xpos, width - 20, *ypos - (th >> 1) + 1, COL_MENUCONTENT_PLUS_1);
+	*pypos += th;
+	frameBuffer->paintHLineRel(xpos, pwidth - 20, *pypos - (th >> 1), COL_MENUCONTENT_PLUS_3);
+	frameBuffer->paintHLineRel(xpos, pwidth - 20, *pypos - (th >> 1) + 1, COL_MENUCONTENT_PLUS_1);
 
 #if 0
 	stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(txt);
 	stringstartposX = 0;
-	stringstartposX = (xpos + (width >> 1)) - (stringwidth >> 1);
-	frameBuffer->paintBoxRel(stringstartposX - 5, *ypos - mheight, stringwidth + 10, mheight, COL_MENUCONTENT_PLUS_0);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, *ypos, stringwidth, txt, COL_MENUCONTENT);
+	stringstartposX = (xpos + (pwidth >> 1)) - (stringwidth >> 1);
+	frameBuffer->paintBoxRel(stringstartposX - 5, *pypos - mheight, stringwidth + 10, mheight, COL_MENUCONTENT_PLUS_0);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, *pypos, stringwidth, txt, COL_MENUCONTENT);
 #endif
 }
 

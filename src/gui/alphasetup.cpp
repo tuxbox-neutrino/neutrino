@@ -256,7 +256,7 @@ void CAlphaSetup::paint()
 	//paintSlider(x + 10, y + hheight + mheight, alpha2, LOCALE_GTXALPHA_ALPHA2, ALPHA_SETUP_ICON_DESELECTED     , false);
 }
 
-void CAlphaSetup::paintSlider(const int x, const int y, const unsigned char * const spos, const neutrino_locale_t text, const char * const iconname, const bool /*selected*/) // UTF-8
+void CAlphaSetup::paintSlider(const int px, const int py, const unsigned char * const spos, const neutrino_locale_t text, const char * const iconname, const bool /*selected*/) // UTF-8
 {
 	if (!spos)
 		return;
@@ -265,8 +265,8 @@ void CAlphaSetup::paintSlider(const int x, const int y, const unsigned char * co
 
 	frameBuffer->paintBoxRel(x+70,y,120,mheight, COL_MENUCONTENT_PLUS_0);
 
-	frameBuffer->paintIcon("volumebody.raw", x + 70        , y + 2 + mheight / 4);
-	frameBuffer->paintIcon(iconname        , x + 73 + sspos, y     + mheight / 4);
+	frameBuffer->paintIcon("volumebody.raw", px + 70        , py + 2 + mheight / 4);
+	frameBuffer->paintIcon(iconname        , px + 73 + sspos, py     + mheight / 4);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x,y+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
 }

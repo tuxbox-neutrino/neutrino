@@ -103,19 +103,19 @@ FBFontRenderClass::~FBFontRenderClass()
 
 FT_Error FBFontRenderClass::FTC_Face_Requester(FTC_FaceID face_id, FT_Face* aface)
 {
-	fontListEntry *font=(fontListEntry *)face_id;
-	if (!font)
+	fontListEntry *lfont=(fontListEntry *)face_id;
+	if (!lfont)
 		return -1;
-	dprintf(DEBUG_DEBUG, "[FONT] FTC_Face_Requester (%s/%s)\n", font->family, font->style);
+	dprintf(DEBUG_DEBUG, "[FONT] FTC_Face_Requester (%s/%s)\n", lfont->family, lfont->style);
 
 	int error;
-	if ((error=FT_New_Face(library, font->filename, 0, aface)))
+	if ((error=FT_New_Face(library, lfont->filename, 0, aface)))
 	{
-		dprintf(DEBUG_NORMAL, "[FONT] FTC_Face_Requester (%s/%s) failed: %i\n", font->family, font->style, error);
+		dprintf(DEBUG_NORMAL, "[FONT] FTC_Face_Requester (%s/%s) failed: %i\n", lfont->family, lfont->style, error);
 		return error;
 	}
 
-	if (strcmp(font->style, (*aface)->style_name) != 0)
+	if (strcmp(lfont->style, (*aface)->style_name) != 0)
 	{
 		FT_Matrix matrix; // Italics
 
@@ -156,9 +156,9 @@ FTC_FaceID FBFontRenderClass::getFaceID(const char * const family, const char * 
 	return 0;
 }
 
-FT_Error FBFontRenderClass::getGlyphBitmap(FTC_ImageTypeRec *font, FT_ULong glyph_index, FTC_SBit *sbit)
+FT_Error FBFontRenderClass::getGlyphBitmap(FTC_ImageTypeRec *pfont, FT_ULong glyph_index, FTC_SBit *sbit)
 {
-	return FTC_SBitCache_Lookup(sbitsCache, font, glyph_index, sbit, NULL);
+	return FTC_SBitCache_Lookup(sbitsCache, pfont, glyph_index, sbit, NULL);
 }
 
 FT_Error FBFontRenderClass::getGlyphBitmap(FTC_ScalerRec *sc, FT_ULong glyph_index, FTC_SBit *sbit)
@@ -521,7 +521,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 				else
 				{
 					int start, end;
-					int color = -1;
+					int lcolor = -1;
 
 					if (ax < w)
 						start = 0;
@@ -534,12 +534,12 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 						end = spread_by + 1;
 
 					for (int i = start; i < end; i++)
-						if (color < *(s - i))
-							color = *(s - i);
+						if (lcolor < *(s - i))
+							lcolor = *(s - i);
 					#ifdef USE_NEVIS_GXA
-					frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[color]);
+					frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[lcolor]);
 					#else
-					*td++= colors[color];
+					*td++= colors[lcolor];
 					#endif
 					s++;
 				}
