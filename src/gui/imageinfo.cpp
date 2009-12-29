@@ -121,11 +121,11 @@ void CImageInfo::hide()
 	videoDecoder->Pig(-1, -1, -1, -1);
 }
 
-void CImageInfo::paint_pig(int x, int y, int w, int h)
+void CImageInfo::paint_pig(int px, int py, int w, int h)
 {
-	//frameBuffer->paintBoxRel(x,y,w,h, COL_BACKGROUND);
-	frameBuffer->paintBackgroundBoxRel(x,y,w,h);
-	videoDecoder->Pig(x, y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+	//frameBuffer->paintBoxRel(px,py,w,h, COL_BACKGROUND);
+	frameBuffer->paintBackgroundBoxRel(px,py,w,h);
+	videoDecoder->Pig(px, py, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
 void CImageInfo::paintLine(int xpos, int font, const char* text)

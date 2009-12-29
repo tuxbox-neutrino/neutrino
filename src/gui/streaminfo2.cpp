@@ -277,11 +277,11 @@ void CStreamInfo2::hide ()
   frameBuffer->paintBackgroundBoxRel (0, 0, max_width, max_height);
 }
 
-void CStreamInfo2::paint_pig (int x, int y, int w, int h)
+void CStreamInfo2::paint_pig (int px, int py, int w, int h)
 {
-  frameBuffer->paintBackgroundBoxRel (x, y, w, h);
-printf("CStreamInfo2::paint_pig x %d y %d w %d h %d\n", x, y, w, h);
-  videoDecoder->Pig(x, y, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
+  frameBuffer->paintBackgroundBoxRel (px,py, w, h);
+printf("CStreamInfo2::paint_pig x %d y %d w %d h %d\n", px, py, w, h);
+  videoDecoder->Pig(px, py, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
 void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
@@ -538,8 +538,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	//AUDIOTYPE
 	ypos += iheight;
-	int type, layer, freq, mode, bitrate;
-	audioDecoder->getAudioInfo(type, layer, freq, bitrate, mode);
+	int type, layer, freq, mode, lbitrate;
+	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
 #if 0
 	const char *layernames[4] = { "res", "III", "II", "I" };
 	const char *sampfreqnames[4] = { "44,1k", "48k", "32k", "res" };
@@ -641,17 +641,17 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		sprintf((char*) buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 	} else {
 		unsigned int sw=spaceoffset;
-		for (unsigned int i= 0; (i<g_RemoteControl->current_PIDs.APIDs.size()) && (i<10); i++)
+		for (unsigned int li= 0; (li<g_RemoteControl->current_PIDs.APIDs.size()) && (li<10); li++)
 		{
-			sprintf((char*) buf, "0x%04x (%i)", g_RemoteControl->current_PIDs.APIDs[i].pid, g_RemoteControl->current_PIDs.APIDs[i].pid );
-			if (i == g_RemoteControl->current_PIDs.PIDs.selected_apid){
+			sprintf((char*) buf, "0x%04x (%i)", g_RemoteControl->current_PIDs.APIDs[li].pid, g_RemoteControl->current_PIDs.APIDs[li].pid );
+			if (li == g_RemoteControl->current_PIDs.PIDs.selected_apid){
 				g_Font[font_small]->RenderString(xpos+sw, ypos, width*2/3-10, buf, COL_MENUHEAD, 0, true); // UTF-8
 			}
 			else{
 				g_Font[font_small]->RenderString(xpos+sw, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 			}
 			sw = g_Font[font_small]->getRenderWidth(buf)+sw+10;
-			if (((i+1)%3 == 0) &&(g_RemoteControl->current_PIDs.APIDs.size()-1 > i)){ // if we have lots of apids, put "intermediate" line with pids
+			if (((li+1)%3 == 0) &&(g_RemoteControl->current_PIDs.APIDs.size()-1 > li)){ // if we have lots of apids, put "intermediate" line with pids
 				ypos+= sheight;
 				sw=spaceoffset;
 			}

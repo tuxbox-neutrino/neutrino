@@ -175,7 +175,8 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 
 	inFile.open(plugin_data->cfgfile.c_str());
 
-	while (linecount < 20 && getline(inFile, line[linecount++]));
+	while (linecount < 20 && getline(inFile, line[linecount++]))
+	{};
 
 	plugin_data->fb = false;
 	plugin_data->rc = false;
