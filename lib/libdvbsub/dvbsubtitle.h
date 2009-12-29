@@ -35,7 +35,7 @@ private:
 public:
   cDvbSubtitleConverter(void);
   virtual ~cDvbSubtitleConverter();
-  void Action(void);
+  int Action(void);
   void Reset(void);
   void Clear(void);
   void Pause(bool pause);

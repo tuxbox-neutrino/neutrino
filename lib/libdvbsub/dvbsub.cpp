@@ -47,7 +47,7 @@ cDvbSubtitleConverter *dvbSubtitleConverter;
 int dvbsub_init() {
 	int trc;
 
-	sub_debug.set_level(42);
+	sub_debug.set_level(3);
 
 	reader_running = true;
 	// reader-Thread starten
@@ -149,7 +149,7 @@ int dvbsub_close()
 
 static cDemux * dmx;
 
-void* reader_thread(void */*arg*/)
+void* reader_thread(void * /*arg*/)
 {
 	uint8_t tmp[16];  /* actually 6 should be enough */
 	int count;
@@ -243,7 +243,7 @@ void* reader_thread(void */*arg*/)
 			}
 		}
 		if(!dvbsub_paused) {
-			printf("[subtitles] adding packet, len %d\n", count);
+			sub_debug.print(Debug::VERBOSE, "[subtitles] adding packet, len %d\n", count);
 			/* Packet now in memory */
 			packet_queue.push(buf);
 			/* TODO: allocation exception */
@@ -274,6 +274,7 @@ void* dvbsub_thread(void* /*arg*/)
 	if (!dvbSubtitleConverter)
 		dvbSubtitleConverter = new cDvbSubtitleConverter;
 
+	int timeout = 1000000;
 	while(dvbsub_running) {
 		uint8_t* packet;
 		int64_t pts;
@@ -282,10 +283,30 @@ void* dvbsub_thread(void* /*arg*/)
 		int packlen;
 
 		gettimeofday(&now, NULL);
-		TIMEVAL_TO_TIMESPEC(&now, &restartWait);
-		restartWait.tv_sec += 1;
 
 		int ret = 0;
+#if 1
+		now.tv_usec += (timeout == 0) ? 1000000 : timeout;   // add the timeout
+		while (now.tv_usec >= 1000000) {   // take care of an overflow
+			now.tv_sec++;
+			now.tv_usec -= 1000000;
+		}
+		restartWait.tv_sec = now.tv_sec;          // seconds
+		restartWait.tv_nsec = now.tv_usec * 1000; // nano seconds
+
+		pthread_mutex_lock( &packetMutex );
+		ret = pthread_cond_timedwait( &packetCond, &packetMutex, &restartWait );
+		pthread_mutex_unlock( &packetMutex );
+
+		timeout = dvbSubtitleConverter->Action();
+
+		if(packet_queue.size() == 0) {
+			continue;
+		}
+#else
+
+		TIMEVAL_TO_TIMESPEC(&now, &restartWait);
+		restartWait.tv_sec += 1;
 		if(packet_queue.size() == 0) {
 			pthread_mutex_lock( &packetMutex );
 			ret = pthread_cond_timedwait( &packetCond, &packetMutex, &restartWait );
@@ -300,7 +321,8 @@ void* dvbsub_thread(void* /*arg*/)
 		{
 			sub_debug.print(Debug::VERBOSE, "pthread_cond_timedwait fails with %s\n", strerror(errno));
 		}
-		sub_debug.print(Debug::VERBOSE, "\nPES: Wakeup, queue size %d\n", packet_queue.size());
+#endif
+		sub_debug.print(Debug::VERBOSE, "PES: Wakeup, queue size %d\n\n", packet_queue.size());
 		if(dvbsub_paused) {
 			do {
 				packet = packet_queue.pop();
@@ -350,7 +372,7 @@ void* dvbsub_thread(void* /*arg*/)
 		} else {
 			sub_debug.print(Debug::INFO, "End_of_PES is missing\n");
 		}
-		dvbSubtitleConverter->Action();
+		timeout = dvbSubtitleConverter->Action();
 
 next_round:
 		delete[] packet;

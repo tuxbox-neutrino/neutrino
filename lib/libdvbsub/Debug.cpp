@@ -1,3 +1,5 @@
+#include <sys/timeb.h>
+#include <time.h>
 #include <cstdio>
 #include <cstdarg>
 #include "Debug.hpp"
@@ -29,13 +31,26 @@ FILE* Debug::set_file(char* file)
 	return fp_;
 }
 
-void Debug::print(int /*level*/, const char *fmt, ...)
+void Debug::print(int level, const char *fmt, ...)
 {
 	va_list argp;
-	va_start(argp, fmt);
-	// if (level < level_) {
-		vfprintf(fp_, fmt, argp);
-	// }
-	va_end(argp);
+	struct timeb tp;
+	char buf[1024];
+	char tbuf[20];
+	int len;
+	struct tm tv;
+
+	if (level < level_) {
+		ftime(&tp);
+		localtime_r (&tp.time, &tv);
+		strftime (tbuf, 14, "%H:%M:%S", &tv);
+		len = sprintf(buf, "[ %s.%03d ] ", tbuf, tp.millitm);
+
+		va_start(argp, fmt);
+		//vfprintf(fp_, fmt, argp);
+		vsnprintf (&buf[len], 512, fmt, argp);
+		va_end(argp);
+		fprintf(fp_, "%s", buf);
+	}
 }
 
