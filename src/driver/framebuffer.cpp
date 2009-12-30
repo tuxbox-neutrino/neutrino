@@ -921,7 +921,7 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * d2;
 	for (int count=0; count<height; count ++ ) {
-		read(fd, &pixbuf[0], width );
+		read(lfd, &pixbuf[0], width );
 		unsigned char *pixpos = &pixbuf[0];
 		d2 = (fb_pixel_t *) d;
 		for (int count2=0; count2<width; count2 ++ ) {
@@ -991,7 +991,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
 	fb_pixel_t * d2;
 	for (int count=0; count<height; count ++ ) {
-		read(fd, &pixbuf[0], width >> 1 );
+		read(lfd, &pixbuf[0], width >> 1 );
 		unsigned char *pixpos = &pixbuf[0];
 		d2 = (fb_pixel_t *) d;
 		for (int count2=0; count2<width >> 1; count2 ++ ) {
