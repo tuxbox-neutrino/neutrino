@@ -685,7 +685,8 @@ void cDvbSubtitleBitmaps::Clear()
 {
 	dbgconverter("cDvbSubtitleBitmaps::Clear: x=% d y= %d, w= %d, h= %d\n", min_x, min_y, max_x-min_x, max_y-min_y);
 	if(max_x && max_y) {
-		CFrameBuffer::getInstance()->paintBackgroundBoxRel (min_x, min_y-10, max_x-min_x, max_y-min_y+10);
+		//CFrameBuffer::getInstance()->paintBackgroundBoxRel (min_x, min_y-10, max_x-min_x, max_y-min_y+10);
+		CFrameBuffer::getInstance()->paintBackground();
 		max_x = max_y = 0;
 		min_x = min_y = 0xFFFF;
 	}
@@ -799,7 +800,8 @@ void cDvbSubtitleConverter::Clear(void)
 {
 	if(max_x && max_y) {
 		dbgconverter("cDvbSubtitleConverter::Clear: x=% d y= %d, w= %d, h= %d\n", min_x, min_y, max_x-min_x, max_y-min_y);
-		CFrameBuffer::getInstance()->paintBackgroundBoxRel (min_x, min_y-10, max_x-min_x, max_y-min_y+10);
+		//CFrameBuffer::getInstance()->paintBackgroundBoxRel (min_x, min_y-10, max_x-min_x, max_y-min_y+10);
+		CFrameBuffer::getInstance()->paintBackground();
 		max_x = max_y = 0;
 		min_x = min_y = 0xFFFF;
 	}
@@ -827,19 +829,7 @@ int cDvbSubtitleConverter::ConvertFragments(const uchar *Data, int Length, int64
      int SubstreamHeaderLength = 4;
      bool ResetSubtitleAssembler = Data[PayloadOffset + 3] == 0x00;
 
-     // Compatibility mode for old subtitles plugin:
-#if 0
-     if ((Data[7] & 0x01) && (Data[PayloadOffset - 3] & 0x81) == 0x01 && Data[PayloadOffset - 2] == 0x81) {
-        PayloadOffset--;
-        SubstreamHeaderLength = 1;
-        ResetSubtitleAssembler = Data[8] >= 5;
-        }
-#endif
-
      if (Length > PayloadOffset + SubstreamHeaderLength) {
-//        int64_t pts = 0;//PesGetPts(Data);
-        //if (pts)
-        //   dbgconverter("Converter PTS: %lld\n", pts);
         const uchar *data = Data + PayloadOffset + SubstreamHeaderLength; // skip substream header
         int length = Length - PayloadOffset - SubstreamHeaderLength; // skip substream header
         if (ResetSubtitleAssembler)
@@ -874,9 +864,6 @@ int cDvbSubtitleConverter::Convert(const uchar *Data, int Length, int64_t pts)
   if (Data && Length > 8) {
      int PayloadOffset = 0;//PesPayloadOffset(Data);
      if (Length > PayloadOffset) {
-//        int64_t pts = 0;//PesGetPts(Data);
-        //if (pts)
-        //   dbgconverter("Converter PTS: %lld\n", pts);
         const uchar *data = Data + PayloadOffset;
         int length = Length - PayloadOffset;
         if (length > 3) {
@@ -950,6 +937,7 @@ int cDvbSubtitleConverter::Action(void)
 					Timeout.Set(sb->Timeout() * 1000);//max: was 1000 and timeout seems in 1/10 of sec ??
 				}
 				bitmaps->Del(sb, true);
+				WaitMs = 1000;
 			}
 			else if (Delta < WaitMs)
 				WaitMs = Delta;

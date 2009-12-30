@@ -243,7 +243,7 @@ void* reader_thread(void * /*arg*/)
 			}
 		}
 		if(!dvbsub_paused) {
-			sub_debug.print(Debug::VERBOSE, "[subtitles] adding packet, len %d\n", count);
+			sub_debug.print(Debug::VERBOSE, "[subtitles] adding packet, len %d buf 0x%x\n", count, buf);
 			/* Packet now in memory */
 			packet_queue.push(buf);
 			/* TODO: allocation exception */
@@ -324,11 +324,10 @@ void* dvbsub_thread(void* /*arg*/)
 #endif
 		sub_debug.print(Debug::VERBOSE, "PES: Wakeup, queue size %d\n\n", packet_queue.size());
 		if(dvbsub_paused) {
-			do {
+			while(packet_queue.size()) {
 				packet = packet_queue.pop();
-				if(packet)
-					delete[] packet;
-			} while(packet);
+				delete[] packet;
+			}
 			continue;
 		}
 		packet = packet_queue.pop();
