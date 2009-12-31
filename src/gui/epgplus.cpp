@@ -1241,8 +1241,8 @@ int EpgPlus::MenuTargetRefreshEpg::exec (CMenuTarget * /*parent*/, const std::st
 }
 
 struct CMenuOptionChooser::keyval menuOptionChooserSwitchSwapModes[] = {
-  {EpgPlus::SwapMode_ByPage, LOCALE_EPGPLUS_BYPAGE_MODE,0},
-  {EpgPlus::SwapMode_ByBouquet, LOCALE_EPGPLUS_BYBOUQUET_MODE,0}
+	{ EpgPlus::SwapMode_ByPage, LOCALE_EPGPLUS_BYPAGE_MODE },
+	{ EpgPlus::SwapMode_ByBouquet, LOCALE_EPGPLUS_BYBOUQUET_MODE }
 };
 
 EpgPlus::MenuOptionChooserSwitchSwapMode::MenuOptionChooserSwitchSwapMode (EpgPlus * pepgPlus)
@@ -1284,8 +1284,8 @@ int EpgPlus::MenuOptionChooserSwitchSwapMode::exec (CMenuTarget * parent)
 }
 
 struct CMenuOptionChooser::keyval menuOptionChooserSwitchViewModes[] = {
-  {EpgPlus::ViewMode_Scroll, LOCALE_EPGPLUS_STRETCH_MODE,0},
-  {EpgPlus::ViewMode_Stretch, LOCALE_EPGPLUS_SCROLL_MODE,0}
+	{ EpgPlus::ViewMode_Scroll, LOCALE_EPGPLUS_STRETCH_MODE },
+	{ EpgPlus::ViewMode_Stretch, LOCALE_EPGPLUS_SCROLL_MODE }
 };
 
 EpgPlus::MenuOptionChooserSwitchViewMode::MenuOptionChooserSwitchViewMode (EpgPlus * epgPlus)

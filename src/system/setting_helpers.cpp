@@ -812,25 +812,25 @@ unsigned long long getcurrenttime()
 #define USERMENU_ITEM_OPTION_COUNT SNeutrinoSettings::ITEM_MAX
 const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUNT] =
 {
-        {SNeutrinoSettings::ITEM_NONE, LOCALE_USERMENU_ITEM_NONE,0} ,
-        {SNeutrinoSettings::ITEM_BAR, LOCALE_USERMENU_ITEM_BAR,0} ,
-        {SNeutrinoSettings::ITEM_EPG_LIST, LOCALE_EPGMENU_EVENTLIST,0} ,
-        {SNeutrinoSettings::ITEM_EPG_SUPER, LOCALE_EPGMENU_EPGPLUS,0} ,
-        {SNeutrinoSettings::ITEM_EPG_INFO, LOCALE_EPGMENU_EVENTINFO,0} ,
-        {SNeutrinoSettings::ITEM_EPG_MISC, LOCALE_USERMENU_ITEM_EPG_MISC,0} ,
-        {SNeutrinoSettings::ITEM_AUDIO_SELECT, LOCALE_AUDIOSELECTMENUE_HEAD,0} ,
-        {SNeutrinoSettings::ITEM_SUBCHANNEL, LOCALE_INFOVIEWER_SUBSERVICE,0} ,
-        {SNeutrinoSettings::ITEM_RECORD, LOCALE_TIMERLIST_TYPE_RECORD,0} ,
-        {SNeutrinoSettings::ITEM_MOVIEPLAYER_MB, LOCALE_MOVIEBROWSER_HEAD,0} ,
-        {SNeutrinoSettings::ITEM_TIMERLIST, LOCALE_TIMERLIST_NAME,0} ,
-        {SNeutrinoSettings::ITEM_REMOTE, LOCALE_RCLOCK_MENUEADD,0} ,
-        {SNeutrinoSettings::ITEM_FAVORITS, LOCALE_FAVORITES_MENUEADD,0} ,
-        {SNeutrinoSettings::ITEM_TECHINFO, LOCALE_EPGMENU_STREAMINFO,0},
-        {SNeutrinoSettings::ITEM_PLUGIN, LOCALE_TIMERLIST_PLUGIN,0},
-        {SNeutrinoSettings::ITEM_VTXT, LOCALE_USERMENU_ITEM_VTXT,0} ,
+        { SNeutrinoSettings::ITEM_NONE,			LOCALE_USERMENU_ITEM_NONE },
+        { SNeutrinoSettings::ITEM_BAR,			LOCALE_USERMENU_ITEM_BAR },
+        { SNeutrinoSettings::ITEM_EPG_LIST,		LOCALE_EPGMENU_EVENTLIST },
+        { SNeutrinoSettings::ITEM_EPG_SUPER,		LOCALE_EPGMENU_EPGPLUS },
+        { SNeutrinoSettings::ITEM_EPG_INFO,		LOCALE_EPGMENU_EVENTINFO },
+        { SNeutrinoSettings::ITEM_EPG_MISC,		LOCALE_USERMENU_ITEM_EPG_MISC },
+        { SNeutrinoSettings::ITEM_AUDIO_SELECT,		LOCALE_AUDIOSELECTMENUE_HEAD },
+        { SNeutrinoSettings::ITEM_SUBCHANNEL,		LOCALE_INFOVIEWER_SUBSERVICE },
+        { SNeutrinoSettings::ITEM_RECORD,		LOCALE_TIMERLIST_TYPE_RECORD },
+        { SNeutrinoSettings::ITEM_MOVIEPLAYER_MB,	LOCALE_MOVIEBROWSER_HEAD },
+        { SNeutrinoSettings::ITEM_TIMERLIST,		LOCALE_TIMERLIST_NAME },
+        { SNeutrinoSettings::ITEM_REMOTE,		LOCALE_RCLOCK_MENUEADD },
+        { SNeutrinoSettings::ITEM_FAVORITS,		LOCALE_FAVORITES_MENUEADD },
+        { SNeutrinoSettings::ITEM_TECHINFO,		LOCALE_EPGMENU_STREAMINFO },
+        { SNeutrinoSettings::ITEM_PLUGIN,		LOCALE_TIMERLIST_PLUGIN },
+        { SNeutrinoSettings::ITEM_VTXT,			LOCALE_USERMENU_ITEM_VTXT },
 #if 0
-        {SNeutrinoSettings::ITEM_MOVIEPLAYER_TS, LOCALE_MAINMENU_MOVIEPLAYER,0} ,
-        {SNeutrinoSettings::ITEM_RESTART_CAMD, LOCALE_EXTRA_RESTARTCAMD,0}
+        { SNeutrinoSettings::ITEM_MOVIEPLAYER_TS,	LOCALE_MAINMENU_MOVIEPLAYER } ,
+        { SNeutrinoSettings::ITEM_RESTART_CAMD,		LOCALE_EXTRA_RESTARTCAMD }
 #endif
 };
 

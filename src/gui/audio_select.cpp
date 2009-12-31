@@ -56,9 +56,9 @@ int dvbsub_getpid();
 #define AUDIOMENU_ANALOGOUT_OPTION_COUNT 3
 const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT_OPTION_COUNT] =
 {
-	{ 0, LOCALE_AUDIOMENU_STEREO   ,0 },
-	{ 1, LOCALE_AUDIOMENU_MONOLEFT ,0 },
-	{ 2, LOCALE_AUDIOMENU_MONORIGHT ,0}
+	{ 0, LOCALE_AUDIOMENU_STEREO },
+	{ 1, LOCALE_AUDIOMENU_MONOLEFT },
+	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
 
 int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
