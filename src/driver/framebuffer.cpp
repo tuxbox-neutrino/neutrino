@@ -1048,7 +1048,7 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 			break;
 
 		paletteSetColor(colpos, rgb, 0xFF);
-		readb = read(fd, &rgbdata,  sizeof(rgbdata) );
+		readb = read(lfd, &rgbdata,  sizeof(rgbdata) );
 		pos++;
 	}
 	paletteSet(&cmap);
