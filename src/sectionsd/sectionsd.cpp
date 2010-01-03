@@ -8642,14 +8642,26 @@ void sectionsd_main_thread(void */*data*/)
         scanning = 0;
         timeset = true;
 printf("broadcasting...\n");
-        pthread_cond_broadcast(&timeIsSetCond);
-        pthread_cond_broadcast(&timeThreadSleepCond);
-        pthread_cond_broadcast(&dmxEIT.change_cond);
-        pthread_cond_broadcast(&dmxCN.change_cond);
+	pthread_mutex_lock(&timeIsSetMutex);
+	pthread_cond_broadcast(&timeIsSetCond);
+	pthread_mutex_unlock(&timeIsSetMutex);
+	pthread_mutex_lock(&timeThreadSleepMutex);
+	pthread_cond_broadcast(&timeThreadSleepCond);
+	pthread_mutex_unlock(&timeThreadSleepMutex);
+	pthread_mutex_lock(&dmxEIT.start_stop_mutex);
+	pthread_cond_broadcast(&dmxEIT.change_cond);
+	pthread_mutex_unlock(&dmxEIT.start_stop_mutex);
+	pthread_mutex_lock(&dmxCN.start_stop_mutex);
+	pthread_cond_broadcast(&dmxCN.change_cond);
+	pthread_mutex_unlock(&dmxCN.start_stop_mutex);
 #ifdef ENABLE_PPT
-        pthread_cond_broadcast(&dmxPPT.change_cond);
+	pthread_mutex_lock(&dmxPPT.start_stop_mutex);
+	pthread_cond_broadcast(&dmxPPT.change_cond);
+	pthread_mutex_unlock(&dmxPPT.start_stop_mutex);
 #endif
-        pthread_cond_broadcast(&dmxSDT.change_cond);
+	pthread_mutex_lock(&dmxSDT.start_stop_mutex);
+	pthread_cond_broadcast(&dmxSDT.change_cond);
+	pthread_mutex_unlock(&dmxSDT.start_stop_mutex);
 
 printf("pausing...\n");
         dmxEIT.request_pause();
