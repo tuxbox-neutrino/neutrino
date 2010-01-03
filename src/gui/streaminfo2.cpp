@@ -140,6 +140,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 #define BAR_HEIGHT 12
 	sigscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
 	snrscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
+	lastsnr = lastsig = -1;
 
 	neutrino_msg_t msg;
 	unsigned long long maxb, minb, lastb, tmp_rate;
