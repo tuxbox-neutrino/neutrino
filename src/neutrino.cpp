@@ -4429,6 +4429,8 @@ bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void */*data
 **************************************************************************************/
 void stop_daemons(bool stopall)
 {
+	streamts_stop = 1;
+	sectionsd_stop = 1;
 	dvbsub_close();
 	tuxtxt_stop();
 	tuxtxt_close();
@@ -4437,9 +4439,7 @@ void stop_daemons(bool stopall)
 	pthread_cancel(nhttpd_thread);
 	pthread_join(nhttpd_thread, NULL);
 	printf("httpd shutdown done\n");
-	streamts_stop = 1;
 	pthread_join(stream_thread, NULL);
-	sectionsd_stop = 1;
 	if(stopall) {
 		printf("timerd shutdown\n");
 		g_Timerd->shutdown();
