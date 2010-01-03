@@ -1893,28 +1893,24 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 		}
 		else if ((!strcmp(argv[x], "-xd"))) {
 			cnxt_debug = 1;
-			x++;
 		}
 		else if ((!strcmp(argv[x], "-sd"))) {
 			sections_debug = 1;
-			x++;
 		}
 		else if ((!strcmp(argv[x], "-zd"))) {
 			zapit_debug = 1;
-			x++;
 		}
 		else if (!strcmp(argv[x], "-r")) {
 			if (x < argc)
-				xres = atoi(argv[x++]);
+				xres = atoi(argv[++x]);
 			if (x < argc)
-				yres = atoi(argv[x++]);
+				yres = atoi(argv[++x]);
 		}
-		else if (!strcmp(argv[x], "-noblink")) {
+		else if (!strcmp(argv[x], "--noblink")) {
 			pb_blink = false;
-			x++;
 		} else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] [-f | --enable-flash] "
-					      "[-v | --verbose 0..3] [-noblink]\n");
+					      "[-v | --verbose 0..3] [--noblink]\n");
 			exit(1);
 		}
 	}
