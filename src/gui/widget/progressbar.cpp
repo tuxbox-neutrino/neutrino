@@ -47,6 +47,7 @@ CProgressBar::CProgressBar(const bool bl, const int w, const int h,
 	yellow = b;
 	width = w;
 	height = h;
+	last_width = -1;
 }
 
 CProgressBar::~CProgressBar()
