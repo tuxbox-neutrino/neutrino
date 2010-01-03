@@ -719,7 +719,8 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 			if (!eptr)
 			{
 				printf("[sectionsd::addEvent] new SIevent1 failed.\n");
-				throw std::bad_alloc();
+				return;
+				//throw std::bad_alloc();
 			}
 
 			SIeventPtr e(eptr);
@@ -854,7 +855,8 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		{
 			printf("[sectionsd::addEvent] new SIevent failed.\n");
 			unlockEvents();
-			throw std::bad_alloc();
+			return;
+			// throw std::bad_alloc();
 		}
 
 		SIeventPtr e(eptr);
@@ -987,7 +989,8 @@ static void addNVODevent(const SIevent &evt)
 	if (!eptr)
 	{
 		printf("[sectionsd::addNVODevent] new SIevent failed.\n");
-		throw std::bad_alloc();
+		return;
+		//throw std::bad_alloc();
 	}
 
 	SIeventPtr e(eptr);
@@ -1561,7 +1564,8 @@ static bool addService(const SIservice &s, const int is_actual)
 		if (!sp)
 		{
 			printf("[sectionsd::addService] new SIservice failed.\n");
-			throw std::bad_alloc();
+			return false;
+			//throw std::bad_alloc();
 		}
 
 		SIservicePtr sptr(sp);
@@ -5017,10 +5021,12 @@ bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 				dputs("Unknown format or version of request!");
 		}
 	} // try
+#ifdef WITH_EXCEPTIONS
 	catch (std::exception& e)
 	{
 		fprintf(stderr, "Caught std-exception in connection-thread %s!\n", e.what());
 	}
+#endif
 	catch (...)
 	{
 		fprintf(stderr, "Caught exception in connection-thread!\n");
@@ -6373,7 +6379,11 @@ static void *sdtThread(void *)
 	int rc;
 
 	if (static_buf == NULL)
-		throw std::bad_alloc();
+	{
+		xprintf("%s: could not allocate static_buf\n", __FUNCTION__);
+		pthread_exit(NULL);
+		//throw std::bad_alloc();
+	}
 #ifdef UPDATE_NETWORKS
 	for ( i = 0; i < MAX_SDTs; i++)
 		messaging_sdt_tid[i] = 0;
@@ -7184,7 +7194,11 @@ static void *eitThread(void *)
 	int rc;
 
 	if (static_buf == NULL)
-		throw std::bad_alloc();
+	{
+		xprintf("%s: could not allocate static_buf\n", __FUNCTION__);
+		pthread_exit(NULL);
+		//throw std::bad_alloc();
+	}
 
 	dmxEIT.start(); // -> unlock
 	if (!scanning)
@@ -7503,7 +7517,11 @@ static void *cnThread(void *)
 	int rc;
 
 	if (static_buf == NULL)
-		throw std::bad_alloc();
+	{
+		xprintf("%s: could not allocate static_buf\n", __FUNCTION__);
+		pthread_exit(NULL);
+		//throw std::bad_alloc();
+	}
 
 	dmxCN.start(); // -> unlock
 	if (!scanning)
