@@ -5,7 +5,7 @@
 #ifdef NO_BLINKENLIGHTS
 #include <gui/widget/progressbar.h>
 #endif
-
+#error scale.h/CScale is obsolete, use CProgressBar instead.
 class CScale
 {
  private:
