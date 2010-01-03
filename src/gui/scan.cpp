@@ -37,7 +37,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <gui/scale.h>
 #include <gui/scan.h>
 
 #include <driver/rcinput.h>
@@ -47,6 +46,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
+#include <gui/widget/progressbar.h>
 
 #include <system/settings.h>
 
@@ -66,9 +66,6 @@ extern CFrontend * frontend;
 #define NEUTRINO_SCAN_SETTINGS_FILE	CONFIGDIR "/scan.conf"
 TP_params TP;
 
-#define RED_BAR 40
-#define YELLOW_BAR 70
-#define GREEN_BAR 100
 #define BAR_BORDER 2
 #define BAR_WIDTH 150
 #define BAR_HEIGHT 16//(13 + BAR_BORDER*2)
@@ -82,8 +79,8 @@ CScanTs::CScanTs()
 	total = done = 0;
 	freqready = 0;
 
-	sigscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
-	snrscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
+	sigscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
 
 }
 
@@ -119,6 +116,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	sigscale->reset();
 	snrscale->reset();
+	lastsig = lastsnr = -1;
 
 	if (!frameBuffer->getActive())
 		return menu_return::RETURN_EXIT_ALL;
@@ -479,23 +477,25 @@ void CScanTs::showSNR ()
 
 	posy = y + height - mheight - 5;
 
-	if(sigscale->getPercent() != sig) {
+	if (lastsig != sig) {
+		lastsig = sig;
 		posx = x + 20;
 		sprintf(percent, "%d%% SIG", sig);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SIG");
 
-		sigscale->paint(posx - 1, posy+2, sig);
+		sigscale->paintProgressBar2(posx - 1, posy+2, sig);
 
 		posx = posx + barwidth + 3;
 		sw = x + 247 - posx;
 		frameBuffer->paintBoxRel(posx, posy - 2, sw, mheight, COL_MENUCONTENT_PLUS_0);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx+2, posy + mheight, sw, percent, COL_MENUCONTENT);
 	}
-	if(snrscale->getPercent() != snr) {
+	if (lastsnr != snr) {
+		lastsnr = snr;
 		posx = x + 20 + 260;
 		sprintf(percent, "%d%% SNR", snr);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SNR");
-		snrscale->paint(posx - 1, posy+2, snr);
+		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
 
 		posx = posx + barwidth + 3;
 		sw = x + width - posx;

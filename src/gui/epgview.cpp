@@ -40,6 +40,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
+#include <gui/widget/progressbar.h>
 #include <gui/timerlist.h>
 
 #include <global.h>
@@ -49,13 +50,11 @@
 #include <driver/screen_max.h>
 #include <gui/filebrowser.h>
 #include <gui/customcolor.h>
-#include <gui/scale.h>
 #include <gui/pictureviewer.h>
 
 extern CPictureViewer * g_PicViewer;
 #define PIC_W 52
 #define PIC_H 39
-static CScale * timescale;
 
 #define ICON_LARGE_WIDTH 26
 #define ROUND_RADIUS 9
@@ -120,7 +119,6 @@ CEpgData::CEpgData()
 {
 	bigFonts = false;
 	frameBuffer = CFrameBuffer::getInstance();
-	timescale = new CScale(100, 12, 30, 100, 70, true);
 }
 
 #define MAX_W 540
@@ -628,8 +626,8 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 	if ( epg_done!= -1 )
 	{
 		int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-		timescale->reset();
-		timescale->paint(pbx+2, sy+oy-height+2, epg_done);
+		CProgressBar pb;
+		pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 	}
 
 	GetPrevNextEPGData( epgData.eventID, &epgData.epg_times.startzeit );
@@ -668,9 +666,9 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 				if (data == g_InfoViewer->lcdUpdateTimer) {
 					GetEPGData(channel_id, id, &startzeit );
 					if ( epg_done!= -1 ) {
+						CProgressBar pb;
 						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-						timescale->reset();
-						timescale->paint(pbx+2, sy+oy-height+2, epg_done);
+						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 					}
 				}
 				CNeutrinoApp::getInstance()->handleMsg(msg, data);

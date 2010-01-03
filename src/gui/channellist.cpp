@@ -1497,7 +1497,7 @@ void CChannelList::paintItem(int pos)
 		else
 			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->name.c_str());
 
-		CProgressBar pb;
+		CProgressBar pb(false); /* never colored */
 		int pb_space = prg_offset - title_offset;
 		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {

@@ -21,12 +21,17 @@
  
 #ifndef __gui_widget_progressbar_h__
 #define __gui_widget_progressbar_h__
- 
+#include "config.h"
 #include <gui/color.h>
 #include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
 #include <system/settings.h>
 
+#ifdef NO_BLINKENLIGHTS
+#define PB_COLORED false
+#else
+#define PB_COLORED true
+#endif
 #include <string>
 
 class CProgressBar
@@ -35,9 +40,32 @@ class CProgressBar
 		CFrameBuffer * frameBuffer;
 		int font_pbar;
 		int frame_widht;
-	
+		int last_width;
+		int red, green, yellow;
+		bool blink, invert;
+		int width, height;
+		void realpaint(const int pos_x, const int pos_y,
+			       const int value, const int max_value,
+			       const fb_pixel_t activebar_col,
+			       const fb_pixel_t passivebar_col,
+			       const fb_pixel_t backgroundbar_col,
+			       const fb_pixel_t shadowbar_col,
+			       const char *upper_labeltext,
+			       const uint8_t uppertext_col,
+			       const char *iconfile,
+			       bool paintZero);
+
+
 	public:
-		CProgressBar();
+		CProgressBar(const bool blinkenlights = PB_COLORED,
+			     const int r = 40,
+			     const int g = 100,
+			     const int b =70, const bool inv = false);
+		CProgressBar(const int w, const int h,
+			     const bool blinkenlights = PB_COLORED,
+			     const int r = 40,
+			     const int g = 100,
+			     const int b =70, const bool inv = false);
 		~CProgressBar();
 
 /// void paintProgressBar(...)	
@@ -81,14 +109,28 @@ class CProgressBar
 					const uint8_t uppertext_col = 0,
 					const char * iconfile = NULL,
 					bool paintZero = false);
-	
+
+		void paintProgressBar2 (const int pos_x,
+					const int pos_y,
+					const int value,
+					const int max_value = 100,
+					const fb_pixel_t activebar_col = 0,
+					const fb_pixel_t passivebar_col = 0,
+					const fb_pixel_t frame_col = 0,
+					const fb_pixel_t shadowbar_col = 0,
+					const char * upper_labeltext = NULL,
+					const uint8_t uppertext_col = 0,
+					const char * iconfile = NULL,
+					bool paintZero = false);
+
 		void paintProgressBarDefault (	const int pos_x,
 						const int pos_y,
 						const int pb_width,
 						const int pb_height,
 						const int value,
 						const int max_value);
-						
+
+		void reset() { last_width = -1; } /* force update on next paint */
 };
 					
 #endif /* __gui_widget_progressbar_h__ */

@@ -27,7 +27,7 @@
 
 #include <driver/framebuffer.h>
 #include <driver/pig.h>
-#include <gui/scale.h>
+#include <gui/widget/progressbar.h>
 
 
 class CStreamInfo2 : public CMenuTarget
@@ -91,8 +91,9 @@ class CStreamInfo2 : public CMenuTarget
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int  y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
 		void SignalRenderStr (unsigned int value, int x, int y);
-		CScale *sigscale;
-		CScale *snrscale;
+		CProgressBar *sigscale;
+		CProgressBar *snrscale;
+		int lastsig, lastsnr;
 		void showSNR ();
 
 	public:

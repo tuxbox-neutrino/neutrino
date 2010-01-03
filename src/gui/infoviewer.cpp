@@ -42,7 +42,6 @@
 
 #include <fcntl.h>
 
-#include <gui/scale.h>
 #include <gui/infoviewer.h>
 
 #include <gui/widget/icons.h>
@@ -135,14 +134,16 @@ extern uint32_t shift_timer;
 extern char act_emu_str[20];
 extern std::string ext_channel_name;
 int m_CA_Status;
-static CScale * timescale;
-static CScale * hddscale;
-static CScale * varscale;
 extern bool timeset;
 
 CInfoViewer::CInfoViewer ()
 {
-  Init();
+	sigscale = NULL;
+	snrscale = NULL;
+	hddscale = NULL;
+	varscale = NULL;
+	timescale = NULL;
+	Init();
 }
 
 void CInfoViewer::Init()
@@ -159,11 +160,24 @@ void CInfoViewer::Init()
   virtual_zap_mode = false;
   chanready = 1;
   fileplay = 0;
-  sigscale = new CScale(BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
-  snrscale = new CScale(BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
-  hddscale = new CScale(100, 6, 50, GREEN_BAR, 75, true);
-  varscale = new CScale(100, 6, 50, GREEN_BAR, 75, true);
-  timescale = new CScale(100, TIME_BAR_HEIGHT, 30, GREEN_BAR, 70, true);
+
+	/* after font size changes, Init() might be called multiple times */
+	if (sigscale != NULL)
+		delete sigscale;
+	sigscale = new CProgressBar(BAR_WIDTH, 10, PB_COLORED, RED_BAR, GREEN_BAR, YELLOW_BAR);
+	if (snrscale != NULL)
+		delete snrscale;
+	snrscale = new CProgressBar(BAR_WIDTH, 10, PB_COLORED, RED_BAR, GREEN_BAR, YELLOW_BAR);
+	if (hddscale != NULL)
+		delete hddscale;
+	hddscale = new CProgressBar(100,        6, PB_COLORED, 50,      GREEN_BAR, 75, true);
+	if (varscale != NULL)
+		delete varscale;
+	varscale = new CProgressBar(100,        6, PB_COLORED, 50,      GREEN_BAR, 75, true);
+	if (timescale != NULL)
+		delete timescale;
+	timescale = new CProgressBar(PB_COLORED, 30, GREEN_BAR, 70, true);
+
   channel_id = live_channel_id;
   lcdUpdateTimer = 0;
 }
@@ -342,8 +356,9 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 	fileplay = (ChanNum == 0);
 	newfreq = true;
-	sigscale->reset(); snrscale->reset(); timescale->reset(); hddscale->reset(); varscale->reset();
 
+	sigscale->reset(); snrscale->reset(); timescale->reset(); hddscale->reset(); varscale->reset();
+	lastsig = lastsnr = lasthdd = lastvar = -1;
 #if 0
 	InfoHeightY = NUMBER_H * 9 / 8 + 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight () + 25;
 	InfoHeightY_Info = 40;
@@ -1038,10 +1053,11 @@ void CInfoViewer::showSNR ()
 	height = g_SignalFont->getHeight () - 1;
 	ChanNumYPos = BoxStartY + ChanHeight /*+ 4*/ - 2 * height;
 
-	if (sigscale->getPercent() != sig) {
+	if (lastsig != sig) {
+	  lastsig = sig;
 	  posx = BoxStartX + 4;
 	  posy = ChanNumYPos + 3;
-	  sigscale->paint(posx, posy+4, sig);
+	  sigscale->paintProgressBar(posx, posy+4, BAR_WIDTH, 10, sig, 100);
 
 	  sprintf (percent, "%d%%S", sig);
 	  posx = posx + barwidth + 2;
@@ -1049,11 +1065,12 @@ void CInfoViewer::showSNR ()
 	  frameBuffer->paintBoxRel (posx, posy, sw, height, COL_INFOBAR_PLUS_0);
 	  g_SignalFont->RenderString (posx, posy + height, sw, percent, COL_INFOBAR);
 	}
-	if (snrscale->getPercent() != snr) {
+	if (lastsnr != snr) {
+	  lastsnr = snr;
 	  posx = BoxStartX + 4;
 	  posy = ChanNumYPos + 3 + height - 2;
 
-	  snrscale->paint(posx, posy+4, snr);
+	  snrscale->paintProgressBar(posx, posy+4, BAR_WIDTH, 10, snr, 100);
 
 	  sprintf (percent, "%d%%Q", snr);
 	  posx = posx + barwidth + 2;
@@ -1071,8 +1088,8 @@ void CInfoViewer::showSNR ()
 	/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 	   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 	   the scales */
-	varscale->paint(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
-			BBarY + InfoHeightY_Info / 2 - 2 - 6, per);
+	varscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
+				   BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
 	per = 0;
 	//HD info
 	if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0) {
@@ -1094,8 +1111,8 @@ void CInfoViewer::showSNR ()
 		}
 	}
 
-	hddscale->paint(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
-			BBarY + InfoHeightY_Info / 2 + 2, per);
+	hddscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
+			BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
 }
 
 void CInfoViewer::display_Info(const char *current, const char *next,
@@ -1127,21 +1144,6 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	else
 		xStart = InfoX;
 
-#ifndef NO_BLINKENLIGHTS
-	int posy = BoxStartY + 16;
-	int height2 = 20;
-	if (pb_pos > -1)
-	{
-		if (timescale->getPercent() != pb_pos) {
-			frameBuffer->paintBoxRel(BoxEndX - 104, posy + 6, 108, 14, COL_INFOBAR_SHADOW_PLUS_0, 1);
-			frameBuffer->paintBoxRel(BoxEndX - 108, posy + 2, 108, 14, COL_INFOBAR_PLUS_0, 1);
-		}
-		timescale->paint(BoxEndX - 102, posy + 2, pb_pos);
-	} else {
-		timescale->reset();
-		frameBuffer->paintBackgroundBoxRel(BoxEndX - 108, posy, 112, height2);
-	}
-#else
 	if (pb_pos > -1)
 	{
 		int pb_w = 112;
@@ -1149,11 +1151,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		int pb_h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight() - 4;
 		if (pb_p > pb_w)
 			pb_p = pb_w;
-		CProgressBar pb;
-		pb.paintProgressBar(BoxEndX - pb_w - SHADOW_OFFSET, BoxStartY + 12, pb_w, pb_h, pb_p, pb_w,
-				    0, 0, COL_INFOBAR_PLUS_0, COL_INFOBAR_SHADOW_PLUS_0, "", COL_INFOBAR);
+		timescale->paintProgressBar(BoxEndX - pb_w - SHADOW_OFFSET, BoxStartY + 12, pb_w, pb_h, pb_p, pb_w,
+					    0, 0, COL_INFOBAR_PLUS_0, COL_INFOBAR_SHADOW_PLUS_0, "", COL_INFOBAR);
 	}
-#endif
 
 	int currTimeW = 0;
 	int nextTimeW = 0;
@@ -1220,7 +1220,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 		frameBuffer->paintBoxRel (b112+4, posy + 2, 98, 14, COL_INFOBAR_PLUS_0);
 		oldrunningPercent = file_prozent;
 	}
-	timescale->paint(b112+4, posy + 2, runningPercent);
+	timescale->paintProgressBar2(b112+4, posy + 2, runningPercent);
 
 	int xStart = BoxStartX + ChanWidth;
 	int ChanInfoY = BoxStartY + ChanHeight + 15;	//+10

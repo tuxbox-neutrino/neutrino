@@ -33,9 +33,9 @@
 #define __scants__
 
 #include <gui/widget/menue.h>
+#include <gui/widget/progressbar.h>
 #include <driver/framebuffer.h>
 #include <system/localize.h>
-#include <gui/scale.h>
 #include <string>
 
 
@@ -64,7 +64,8 @@ class CScanTs : public CMenuTarget
 		bool istheend;
 		uint32_t total;
 		uint32_t done;
-		CScale * snrscale, * sigscale;
+		int lastsnr, lastsig;
+		CProgressBar *snrscale, *sigscale;
 
 		void paint(bool fortest = false);
 		void paintLineLocale(int x, int * y, int width, const neutrino_locale_t l);

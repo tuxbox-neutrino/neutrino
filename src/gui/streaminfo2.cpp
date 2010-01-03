@@ -135,14 +135,10 @@ int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 
 int CStreamInfo2::doSignalStrengthLoop ()
 {
-#define RED_BAR 40
-#define YELLOW_BAR 70
-#define GREEN_BAR 100
 #define BAR_WIDTH 150
 #define BAR_HEIGHT 12
-
-	sigscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
-	snrscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
+	sigscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
 
 	neutrino_msg_t msg;
 	unsigned long long maxb, minb, lastb, tmp_rate;
@@ -246,6 +242,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 				sigscale->reset();
 			if(snrscale)
 				snrscale->reset();
+			lastsnr = lastsig = -1;
 			paint_mode = ++paint_mode % 2;
 			paint (paint_mode);
 			continue;
@@ -788,23 +785,25 @@ void CStreamInfo2::showSNR ()
 	sig = (signal.sig & 0xFFFF) * 100 / 65535;
 
 	int mheight = g_Font[font_info]->getHeight();
-	if(sigscale->getPercent() != sig) {
-	  	posy = yypos + (mheight/2);
+	if (lastsig != sig) {
+		lastsig = sig;
+		posy = yypos + (mheight/2);
 		posx = x + 10;
 		sprintf(percent, "%d%% SIG", sig);
 		sw = g_Font[font_info]->getRenderWidth (percent);
-		sigscale->paint(posx - 1, posy, sig);
+		sigscale->paintProgressBar2(posx - 1, posy, sig);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUHEAD_PLUS_0);
 		g_Font[font_info]->RenderString (posx+2, posy + mheight-5, sw, percent, COL_MENUCONTENTDARK);
 	}
-	if(snrscale->getPercent() != snr) {
-	  	posy = yypos + mheight + 4;
+	if (lastsnr != snr) {
+		lastsnr = snr;
+		posy = yypos + mheight + 4;
 		posx = x + 10;
 		sprintf(percent, "%d%% SNR", snr);
 		sw = g_Font[font_info]->getRenderWidth (percent);
-		snrscale->paint(posx - 1, posy+2, snr);
+		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUHEAD_PLUS_0, 0, true);

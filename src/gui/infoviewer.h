@@ -40,7 +40,7 @@
 #include <driver/fontrenderer.h>
 #include <system/settings.h>
 #include "widget/menue.h"
-#include <gui/scale.h>
+#include <gui/widget/progressbar.h>
 #include <string>
 
 class CInfoViewer
@@ -90,6 +90,9 @@ class CInfoViewer
 	CChannelEventList               evtlist;
 	CChannelEventList::iterator     eli;
 
+	int lastsnr, lastsig, lasthdd, lastvar, lasttime;
+	CProgressBar *snrscale, *sigscale, *hddscale, *varscale, *timescale;
+
 	void paintBackground(int col_Numbox);
 	void show_Data( bool calledFromEvent = false );
 	void display_Info(const char *current, const char *next, bool UTF8 = true,
@@ -115,7 +118,6 @@ class CInfoViewer
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();
 	void showSNR();
-	CScale * snrscale, * sigscale;
 
  public:
 	bool chanready;

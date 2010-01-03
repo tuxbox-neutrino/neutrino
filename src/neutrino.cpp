@@ -79,6 +79,7 @@
 #include "gui/widget/icons.h"
 #include "gui/widget/lcdcontroler.h"
 #include "gui/widget/vfdcontroler.h"
+#include "gui/widget/progressbar.h"
 #include "gui/widget/rgbcsynccontroler.h"
 #include "gui/widget/keychooser.h"
 #include "gui/widget/stringinput.h"
@@ -112,7 +113,6 @@
 #include "gui/pictureviewer.h"
 #include "gui/motorcontrol.h"
 #include "gui/filebrowser.h"
-#include "gui/scale.h"
 #include "gui/cam_menu.h"
 #include "gui/hdd_menu.h"
 #include "gui/upnpbrowser.h"
@@ -171,7 +171,7 @@ int dvbsub_pause();
 //char current_volume;
 extern int list_changed;
 
-static CScale * g_volscale;
+static CProgressBar *g_volscale;
 //NEW
 static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
@@ -2376,7 +2376,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
-	g_volscale = new CScale(200, 15, 50, 100, 80, true);
+	g_volscale = new CProgressBar(200, 15, PB_COLORED, 50, 100, 80, true);
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
@@ -3624,7 +3624,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 		frameBuffer->paintIcon("volume.raw",x,y, 0, COL_INFOBAR);
 		frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
 		g_volscale->reset();
-		g_volscale->paint(x + 41, y + 12, g_settings.current_volume);
+		g_volscale->paintProgressBar2(x + 41, y + 12, g_settings.current_volume);
 	}
 
 	neutrino_msg_data_t data;
@@ -3668,7 +3668,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 		if (bDoPaint) {
 			if(vol != g_settings.current_volume) {
 				vol = g_settings.current_volume;
-				g_volscale->paint(x + 41, y + 12, g_settings.current_volume);
+				g_volscale->paintProgressBar2(x + 41, y + 12, g_settings.current_volume);
 			}
 		}
 

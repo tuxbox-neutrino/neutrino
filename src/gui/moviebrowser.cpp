@@ -64,14 +64,14 @@
 #include <gui/widget/icons.h>
 #include <sys/mount.h>
 #include <utime.h>
-#include <gui/scale.h>
+#include <gui/widget/progressbar.h>
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
 
 extern CPictureViewer * g_PicViewer;
 #define PIC_W 52
 #define PIC_H 39
-static CScale * timescale;
+static CProgressBar *timescale;
 #define ROUND_RADIUS 9
 
 #define my_scandir scandir64
@@ -3893,13 +3893,13 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 	}
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-	if(!timescale)
-		timescale = new CScale(200, 15, 0, 100, 0);
+	if (! timescale)
+		timescale = new CProgressBar(200, 15, PB_COLORED, 0, 100, 0);
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;
 	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
-	timescale->paint(x + 41, y + 12, percent);
+	timescale->paintProgressBar2(x + 41, y + 12, percent);
 	int len = minfo->length;
 	off64_t size = minfo->file.Size;
 	//off64_t secsize = len ? size/len/60 : 511040;
@@ -4041,7 +4041,7 @@ if(buf[0] != 0x47) printf("cut: buffer not aligned at %lld\n", sdone);
 					sdone += r;
 					spos += r - wptr;
 					percent = (int) ((float)(spos)/(float)(newsize)*100.);
-					timescale->paint(x + 41, y + 12, percent);
+					timescale->paintProgressBar2(x + 41, y + 12, percent);
 #if REAL_CUT
 					int wr = write(dstfd, &buf[wptr], r-wptr);
 					if(wr < (r-wptr)) {
@@ -4147,13 +4147,13 @@ static off64_t copy_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie, bool onefi
 printf("copy: len %d minute %lld second %lld\n", len, len ? size/len : 511040*60, secsize);
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-	if(!timescale)
-		timescale = new CScale(200, 15, 0, 100, 0);
+	if (! timescale)
+		timescale = new CProgressBar(200, 15, PB_COLORED, 0, 100, 0);
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;
 	frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
-	timescale->paint(x + 41, y + 12, percent);
+	timescale->paintProgressBar2(x + 41, y + 12, percent);
 
 	newsize = 0;
 	for(int book_nr = 0; book_nr < MI_MOVIE_BOOK_USER_MAX; book_nr++) {
@@ -4269,7 +4269,7 @@ if(buf[0] != 0x47) printf("copy: buffer not aligned at %lld\n", sdone);
 				spos += r - wptr;
 				btotal += r;
 				percent = (int) ((float)(btotal)/(float)(newsize)*100.);
-				timescale->paint(x + 41, y + 12, percent);
+				timescale->paintProgressBar2(x + 41, y + 12, percent);
 #if REAL_CUT
 				int wr = write(dstfd, &buf[wptr], r-wptr);
 				if(wr < (r-wptr)) {

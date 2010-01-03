@@ -35,7 +35,6 @@
 #include <neutrino.h>
 #include <gui/customcolor.h>
 #include <driver/rcinput.h>
-#include <gui/scale.h>
 #include <gui/motorcontrol.h>
 #include <gui/color.h>
 #include <gui/widget/menue.h>
@@ -90,8 +89,8 @@ void CMotorControl::Init(void)
 	motorPosition = 1;
 	satellitePosition = 0;
 	stepDelay = 10;
-	sigscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
-	snrscale = new CScale(BAR_WIDTH, BAR_HEIGHT, RED_BAR, GREEN_BAR, YELLOW_BAR);
+	sigscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)
@@ -109,6 +108,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 
 	sigscale->reset();
 	snrscale->reset();
+	lastsnr = lastsig = -1;
 
 	bool istheend = false;
 	int lim_cmd;
@@ -680,23 +680,25 @@ void CMotorControl::showSNR()
 	bheight = mheight - 5;
 	posy = y + height - mheight - 5;
 
-	if(sigscale->getPercent() != sig) {
+	if (lastsig != sig) {
+		lastsig = sig;
 		posx = x + 10;
 		sprintf(percent, "%d%% SIG", sig);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SIG");
 
-		sigscale->paint(posx-1, posy, sig);
+		sigscale->paintProgressBar2(posx-1, posy, sig);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString (posx+2, posy + mheight, sw, percent, COL_MENUCONTENT);
 	}
 
-	if(snrscale->getPercent() != snr) {
+	if (lastsnr != snr) {
+		lastsnr = snr;
 		posx = x + 10 + 210;
 		sprintf(percent, "%d%% SNR", snr);
 		sw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("100% SNR");
-		snrscale->paint(posx-1, posy, snr);
+		snrscale->paintProgressBar2(posx-1, posy, snr);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 2, sw+4, mheight, COL_MENUCONTENT_PLUS_0);

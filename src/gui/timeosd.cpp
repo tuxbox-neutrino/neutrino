@@ -29,9 +29,9 @@
 #include <gui/timeosd.h>
 #include <driver/fontrenderer.h>
 #include <system/settings.h>
-#include <gui/scale.h>
+#include <gui/widget/progressbar.h>
 
-static CScale * timescale;
+static CProgressBar *timescale;
 
 #define TIMEOSD_FONT SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME
 #define TIMEBARH 38
@@ -42,8 +42,8 @@ CTimeOSD::CTimeOSD()
 	visible=false;
 	m_mode=MODE_ASC;
 	GetDimensions();
-	if(!timescale)
-		timescale = new CScale(200, 32, 40, 100, 70, true);
+	if (! timescale)
+		timescale = new CProgressBar(200, 32, PB_COLORED, 40, 100, 70, true);
 }
 
 CTimeOSD::~CTimeOSD()
@@ -121,7 +121,7 @@ void CTimeOSD::update(time_t time_show)
 
 void CTimeOSD::updatePos(short runningPercent)
 {
-	timescale->paint(m_xstart, m_y, runningPercent);
+	timescale->paintProgressBar2(m_xstart, m_y, runningPercent);
 }
 
 void CTimeOSD::hide()
