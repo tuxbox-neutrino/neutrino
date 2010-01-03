@@ -127,8 +127,14 @@ CEpgData::CEpgData()
 
 void CEpgData::start()
 {
-	ox = w_max (MAX_W * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
-	oy = h_max (MAX_H * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
+	/* This defines the size of the EPG window. We leave 35 pixels left and right,
+	 * 25 pixels top and bottom. It adjusts itself to the "visible screen" settings
+	 */
+	ox = w_max (1280, 70);
+	oy = h_max (720, 50 + 30); // 30 for the bottom button box.
+
+//	ox = w_max (MAX_W * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
+//	oy = h_max (MAX_H * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
 	sx = getScreenStartX( ox );
 
 	topheight     = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
@@ -145,6 +151,7 @@ void CEpgData::start()
 	oy = botboxheight+medlinecount*medlineheight; // recalculate //FIXME
 	sy = getScreenStartY(oy- topboxheight);
 	toph = topboxheight;
+fprintf(stderr, "CEpgData::start ox: %d oy: %d sx: %d sy: %d xmax: %d ymax: %d\n", ox, oy, sy, sy, w_max(9999,0), h_max(9999,0));
 }
 
 void CEpgData::addTextToArray(const std::string & text) // UTF-8
@@ -627,7 +634,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 	if ( epg_done!= -1 )
 	{
 		int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-		CProgressBar pb(pb_blink);
+		CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
 		pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 	}
 
@@ -667,7 +674,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 				if (data == g_InfoViewer->lcdUpdateTimer) {
 					GetEPGData(channel_id, id, &startzeit );
 					if ( epg_done!= -1 ) {
-						CProgressBar pb(pb_blink);
+						CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
 						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
 						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 					}
