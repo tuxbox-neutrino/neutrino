@@ -97,6 +97,8 @@ int time_left_width;
 int time_dot_width;
 int time_width;
 int time_height;
+int info_time_width;
+
 bool newfreq = true;
 char old_timestr[10];
 static event_id_t last_curr_id = 0, last_next_id = 0;
@@ -178,6 +180,9 @@ void CInfoViewer::Init()
 	if (timescale != NULL)
 		delete timescale;
 	timescale = new CProgressBar(pb_blink, -1,       -1, 30,      GREEN_BAR, 70, true);
+
+	/* we need to calculate this only once */
+	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + 10;
 
   channel_id = live_channel_id;
   lcdUpdateTimer = 0;
@@ -1141,7 +1146,11 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int InfoX = ChanInfoX + 10;
 
 	if (starttimes)
-		xStart = BoxStartX + ChanWidth;
+	{
+		xStart = InfoX + info_time_width;
+		if (xStart < BoxStartX + ChanWidth)	/* for small fonts, adjusting to the edge of the */
+			xStart = BoxStartX + ChanWidth;	/* channelnumberbox looks better */
+	}
 	else
 		xStart = InfoX;
 
@@ -1170,7 +1179,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	{
 		frameBuffer->paintBox(InfoX, CurrInfoY - height, currTimeX, CurrInfoY, COL_INFOBAR_PLUS_0);
 		if (runningStart != NULL)
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, CurrInfoY, 100, runningStart, COL_INFOBAR, 0, UTF8);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, CurrInfoY, info_time_width, runningStart, COL_INFOBAR, 0, UTF8);
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(xStart, CurrInfoY, currTimeX - xStart - 5, current, COL_INFOBAR, 0, UTF8);
 		oldCurrTimeX = currTimeX;
 	}
@@ -1186,7 +1195,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	{
 		frameBuffer->paintBox(InfoX, NextInfoY-height, BoxEndX, NextInfoY, COL_INFOBAR_PLUS_0);
 		if (nextStart != NULL)
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, NextInfoY, 100, nextStart, COL_INFOBAR, 0, UTF8);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, NextInfoY, info_time_width, nextStart, COL_INFOBAR, 0, UTF8);
 		if (starttimes)
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(xStart, NextInfoY, nextTimeX - xStart - 5, next, COL_INFOBAR, 0, UTF8);
 		else
