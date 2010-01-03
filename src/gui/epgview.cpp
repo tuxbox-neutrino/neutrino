@@ -906,8 +906,10 @@ void CEpgData::GetEPGData(const t_channel_id channel_id, unsigned long long id, 
 		}
 
 		struct tm *pStartZeit = localtime(&(epgData.epg_times).startzeit);
-		char temp[11];
-		strftime( temp, sizeof(temp), "%d.%m.%Y", pStartZeit);
+		char temp[30]={0};
+		int  l = 0;
+		l = snprintf(temp, sizeof(temp),"%s.",g_Locale->getText(CLocaleManager::getWeekday(pStartZeit)));
+		strftime( temp+l, sizeof(temp)-l,"%d.%m.%Y", pStartZeit);
 		epg_date= temp;
 		strftime( temp, sizeof(temp), "%H:%M", pStartZeit);
 		epg_start= temp;
