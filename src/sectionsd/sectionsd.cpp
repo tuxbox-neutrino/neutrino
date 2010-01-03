@@ -6479,6 +6479,9 @@ static void *sdtThread(void *)
 			rs = pthread_cond_timedwait( &dmxSDT.change_cond, &dmxSDT.start_stop_mutex, &abs_wait );
 			pthread_mutex_unlock( &dmxSDT.start_stop_mutex );
 
+			if(sectionsd_stop)
+				break;
+
 			if (rs == ETIMEDOUT)
 			{
 				dprintf("dmxSDT: waking up again - looking for new services :)\n");
