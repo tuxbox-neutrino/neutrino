@@ -1860,6 +1860,7 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 extern int cnxt_debug;
 extern int sections_debug;
 extern int zapit_debug;
+bool pb_blink;	/* TODO: get rid of global external variable for this */
 
 void CNeutrinoApp::CmdParser(int argc, char **argv)
 {
@@ -1868,6 +1869,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
                 global_argv[i] = argv[i];
         global_argv[argc] = NULL;
 
+	pb_blink = true;
 	softupdate = false;
 	fromflash = false;
 
@@ -1906,8 +1908,13 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 				xres = atoi(argv[x++]);
 			if (x < argc)
 				yres = atoi(argv[x++]);
+		}
+		else if (!strcmp(argv[x], "-noblink")) {
+			pb_blink = false;
+			x++;
 		} else {
-			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] [-f | --enable-flash] [-v | --verbose 0..3]\n");
+			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] [-f | --enable-flash] "
+					      "[-v | --verbose 0..3] [-noblink]\n");
 			exit(1);
 		}
 	}
@@ -2376,7 +2383,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
-	g_volscale = new CProgressBar(200, 15, PB_COLORED, 50, 100, 80, true);
+	g_volscale = new CProgressBar(pb_blink, 200, 15, 50, 100, 80, true);
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 

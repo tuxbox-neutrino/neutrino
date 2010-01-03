@@ -27,11 +27,6 @@
 #include <driver/fontrenderer.h>
 #include <system/settings.h>
 
-#ifdef NO_BLINKENLIGHTS
-#define PB_COLORED false
-#else
-#define PB_COLORED true
-#endif
 #include <string>
 
 class CProgressBar
@@ -57,15 +52,20 @@ class CProgressBar
 
 
 	public:
-		CProgressBar(const bool blinkenlights = PB_COLORED,
+		/* parameters:
+		   blinkenligts: true if you want colored progressbars. needed, no default.
+		   w, h: width / height of bar. Can later be set with paintProgressbar.
+		         paintProgressBar2 can oly be used if w and h are set.
+		   r, g, b: percentage of the bar where red/green/yellow is used.
+		         only used if blinkenlights == true.
+		   inv:  false => red on the left side, true: red on right side. */
+		CProgressBar(const bool blinkenlights,
+			     const int w = -1,
+			     const int h = -1,
 			     const int r = 40,
 			     const int g = 100,
-			     const int b =70, const bool inv = false);
-		CProgressBar(const int w, const int h,
-			     const bool blinkenlights = PB_COLORED,
-			     const int r = 40,
-			     const int g = 100,
-			     const int b =70, const bool inv = false);
+			     const int b =70,
+			     const bool inv = false);
 		~CProgressBar();
 
 /// void paintProgressBar(...)	
@@ -93,8 +93,6 @@ class CProgressBar
 	iconfile > optional, name of iconfile
 	paintZero > optional, if set to true and value = 0, then paints a diagonal line instead of active bar as symbolic for a zero value
 */
-
-	
 		void paintProgressBar (	const int pos_x,
 					const int pos_y,
 					const int pb_width,

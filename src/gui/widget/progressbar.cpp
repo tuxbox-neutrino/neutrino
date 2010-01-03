@@ -33,23 +33,8 @@
 #define GREEN  0x00FF00
 #define YELLOW 0xFFFF00
 
-
-CProgressBar::CProgressBar(const bool bl, const int r, const int g, const int b, const bool inv)
-{
-	frameBuffer = CFrameBuffer::getInstance();
-	font_pbar = SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL;
-	// frame width around active bar
-	frame_widht = 2;
-	blink = bl;
-	invert = inv;
-	red = r;
-	green = g;
-	yellow = b;
-	width = height = -1;
-}
-
-CProgressBar::CProgressBar(const int w, const int h,
-			   const bool bl, const int r, const int g, const int b, const bool inv)
+CProgressBar::CProgressBar(const bool bl, const int w, const int h,
+			   const int r, const int g, const int b, const bool inv)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	font_pbar = SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL;
@@ -132,7 +117,7 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	const int c_rad = 0;
 
 	/* if the bar is too small, do not draw the borders around it */
-	if (height / 2 <= frame_widht || blink)
+	if (height / 2 <= frame_widht || blink || backgroundbar_col == 0)
 		frame_widht = 0;
 	// get icon size
 	int icon_w = 0, icon_h = 0;

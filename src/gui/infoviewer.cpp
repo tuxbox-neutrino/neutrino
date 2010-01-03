@@ -82,13 +82,6 @@ extern t_channel_id live_channel_id; //zapit
 
 #define ICON_OFFSET (2 + ICON_LARGE_WIDTH + 2 + ICON_LARGE_WIDTH + 2 + ICON_SMALL_WIDTH + 2)
 
-#ifdef NO_BLINKENLIGHTS
-#define BOTTOM_BAR_OFFSET 0
-#else
-/* BOTTOM_BAR_OFFSET is used for the blinkenlights iconbar */
-#define BOTTOM_BAR_OFFSET 22
-#endif
-
 #define borderwidth 4
 #define LEFT_OFFSET 5
 #define ASIZE 100
@@ -107,6 +100,9 @@ int time_height;
 bool newfreq = true;
 char old_timestr[10];
 static event_id_t last_curr_id = 0, last_next_id = 0;
+
+extern bool pb_blink;
+int bottom_bar_offset;
 
 extern CZapitClient::SatelliteList satList;
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
@@ -161,22 +157,27 @@ void CInfoViewer::Init()
   chanready = 1;
   fileplay = 0;
 
+	/* maybe we should not tie this to the blinkenlights settings? */
+	if (pb_blink)
+		bottom_bar_offset = 22;
+	else
+		bottom_bar_offset = 0;
 	/* after font size changes, Init() might be called multiple times */
 	if (sigscale != NULL)
 		delete sigscale;
-	sigscale = new CProgressBar(BAR_WIDTH, 10, PB_COLORED, RED_BAR, GREEN_BAR, YELLOW_BAR);
+	sigscale = new CProgressBar(pb_blink, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
 	if (snrscale != NULL)
 		delete snrscale;
-	snrscale = new CProgressBar(BAR_WIDTH, 10, PB_COLORED, RED_BAR, GREEN_BAR, YELLOW_BAR);
+	snrscale = new CProgressBar(pb_blink, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
 	if (hddscale != NULL)
 		delete hddscale;
-	hddscale = new CProgressBar(100,        6, PB_COLORED, 50,      GREEN_BAR, 75, true);
+	hddscale = new CProgressBar(pb_blink, 100,        6, 50,      GREEN_BAR, 75, true);
 	if (varscale != NULL)
 		delete varscale;
-	varscale = new CProgressBar(100,        6, PB_COLORED, 50,      GREEN_BAR, 75, true);
+	varscale = new CProgressBar(pb_blink, 100,        6, 50,      GREEN_BAR, 75, true);
 	if (timescale != NULL)
 		delete timescale;
-	timescale = new CProgressBar(PB_COLORED, 30, GREEN_BAR, 70, true);
+	timescale = new CProgressBar(pb_blink, -1,       -1, 30,      GREEN_BAR, 70, true);
 
   channel_id = live_channel_id;
   lcdUpdateTimer = 0;
@@ -199,7 +200,7 @@ void CInfoViewer::Init()
                 |02:34     Next Event                                |  |
                 |                                                    |  |
      BoxEndY----+----------------------------------------------------+--+
-                |                     optional blinkenlights iconbar |  BOTTOM_BAR_OFFSET
+                |                     optional blinkenlights iconbar |  bottom_bar_offset
      BBarY------+----------------------------------------------------+--+
                 | * red   * green  * yellow  * blue ====== [DD][16:9]|  InfoHeightY_Info
                 +----------------------------------------------------+--+
@@ -222,10 +223,10 @@ void CInfoViewer::start ()
 #endif
 	BoxStartX = g_settings.screen_StartX + 10;
 	BoxEndX = g_settings.screen_EndX - 10;
-	BoxEndY = g_settings.screen_EndY - 10 - InfoHeightY_Info - BOTTOM_BAR_OFFSET;
+	BoxEndY = g_settings.screen_EndY - 10 - InfoHeightY_Info - bottom_bar_offset;
 	BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
 
-	BBarY = BoxEndY + BOTTOM_BAR_OFFSET;
+	BBarY = BoxEndY + bottom_bar_offset;
 	BBarFontY = BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()) / 2; /* center in buttonbar */
 
 	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
@@ -303,7 +304,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 	int c_rad_mid = RADIUS_MID;
 	int BoxEndInfoY = BoxEndY;
 	if (showButtonBar) // add button bar and blinkenlights
-		BoxEndInfoY += InfoHeightY_Info + BOTTOM_BAR_OFFSET;
+		BoxEndInfoY += InfoHeightY_Info + bottom_bar_offset;
 	// kill left side
 	frameBuffer->paintBackgroundBox(BoxStartX,
 					BoxStartY + ChanHeight - 6,
@@ -481,11 +482,11 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	if (showButtonBar) {
 		sec_timer_id = g_RCInput->addTimer (1*1000*1000, false);
 
-		if (BOTTOM_BAR_OFFSET > 0)
+		if (bottom_bar_offset > 0)
 		{ // FIXME
-			frameBuffer->paintBox(ChanInfoX, BoxEndY, BoxEndX, BoxEndY + BOTTOM_BAR_OFFSET, COL_BLACK);
+			frameBuffer->paintBox(ChanInfoX, BoxEndY, BoxEndX, BoxEndY + bottom_bar_offset, COL_BLACK);
 			int xcnt = (BoxEndX - ChanInfoX) / 4;
-			int ycnt = (BOTTOM_BAR_OFFSET) / 4;
+			int ycnt = bottom_bar_offset / 4;
 			for(int i = 0; i < xcnt; i++) {
 				for(int j = 0; j < ycnt; j++)
 					/* BoxEndY + 2 is the magic number that also appears in paint_ca_icons */
@@ -1462,7 +1463,7 @@ void CInfoViewer::killTitle()
 	if (is_visible)
 	{
 		is_visible = false;
-		int bottom = BoxEndY + SHADOW_OFFSET + BOTTOM_BAR_OFFSET;
+		int bottom = BoxEndY + SHADOW_OFFSET + bottom_bar_offset;
 		if (showButtonBar)
 			bottom += InfoHeightY_Info;
 		frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
@@ -1531,7 +1532,7 @@ int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*action
 
 void CInfoViewer::paint_ca_icons(int caid, char * icon)
 {
-	if (BOTTOM_BAR_OFFSET == 0)
+	if (bottom_bar_offset == 0)
 		return;
 
 	char buf[20];

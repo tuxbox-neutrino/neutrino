@@ -46,6 +46,7 @@
 #include <zapit/frontend_c.h>
 
 extern CFrontend * frontend;
+extern bool pb_blink;
 
 static int g_sig;
 static int g_snr;
@@ -89,8 +90,8 @@ void CMotorControl::Init(void)
 	motorPosition = 1;
 	satellitePosition = 0;
 	stepDelay = 10;
-	sigscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
+	sigscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)

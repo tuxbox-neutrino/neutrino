@@ -60,6 +60,7 @@
 #include <video_cs.h>
 extern cVideo * videoDecoder;
 extern CFrontend * frontend;
+extern bool pb_blink;
 
 #define NEUTRINO_SCAN_START_SCRIPT	CONFIGDIR "/scan.start"
 #define NEUTRINO_SCAN_STOP_SCRIPT	CONFIGDIR "/scan.stop"
@@ -79,8 +80,8 @@ CScanTs::CScanTs()
 	total = done = 0;
 	freqready = 0;
 
-	sigscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(BAR_WIDTH, BAR_HEIGHT);
+	sigscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
 
 }
 
