@@ -61,6 +61,7 @@ class CEpgData
 		std::string 		epg_end;
 		int			epg_done;
 		bool			bigFonts;
+		time_t			tmp_curent_zeit;
 
 		unsigned long long	prev_id;
 		time_t			prev_zeit;

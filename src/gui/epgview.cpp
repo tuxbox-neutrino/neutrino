@@ -130,11 +130,11 @@ void CEpgData::start()
 	/* This defines the size of the EPG window. We leave 35 pixels left and right,
 	 * 25 pixels top and bottom. It adjusts itself to the "visible screen" settings
 	 */
-	ox = w_max (1280, 70);
-	oy = h_max (720, 50 + 30); // 30 for the bottom button box.
+//	ox = w_max (1280, 70);
+//	oy = h_max (720, 50 + 30); // 30 for the bottom button box.
 
-//	ox = w_max (MAX_W * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
-//	oy = h_max (MAX_H * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
+	ox = w_max ((bigFonts ? g_settings.screen_EndX : MAX_W), 70);
+	oy = h_max ((bigFonts ? g_settings.screen_EndY : MAX_H), 50 + 30 );// 30 for the bottom button box.
 	sx = getScreenStartX( ox );
 
 	topheight     = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
@@ -906,11 +906,12 @@ void CEpgData::GetEPGData(const t_channel_id channel_id, unsigned long long id, 
 		}
 
 		struct tm *pStartZeit = localtime(&(epgData.epg_times).startzeit);
-		char temp[30]={0};
-		int  l = 0;
-		l = snprintf(temp, sizeof(temp),"%s.",g_Locale->getText(CLocaleManager::getWeekday(pStartZeit)));
-		strftime( temp+l, sizeof(temp)-l,"%d.%m.%Y", pStartZeit);
-		epg_date= temp;
+		tmp_curent_zeit = (epgData.epg_times).startzeit;
+		char temp[20]={0};
+		strftime( temp, sizeof(temp),"%d.%m.%Y", pStartZeit);
+		epg_date = g_Locale->getText(CLocaleManager::getWeekday(pStartZeit));
+		epg_date += ".";
+		epg_date += temp;
 		strftime( temp, sizeof(temp), "%H:%M", pStartZeit);
 		epg_start= temp;
 
@@ -980,21 +981,19 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 
 {
 	CChannelEventList::iterator e;
-	time_t			curtime;
 	struct  tm		*tmStartZeit;
 	std::string		screening_dates,screening_nodual;
 	int				count;
-	char			tmpstr[256];
+	char			tmpstr[256]={0};
 
 
 	count = 0;
 	screening_dates = screening_nodual = "";
 	// alredy read: evtlist = g_Sectionsd->getEventsServiceKey( channel_id&0xFFFFFFFFFFFFULL );
-	curtime = time(NULL);
 
 	for ( e= evtlist.begin(); e != evtlist.end(); ++e )
 	{
-		if (e->startTime <= curtime) continue;
+		if (e->startTime <= tmp_curent_zeit) continue;
 		if (! e->eventID) continue;
 		if (e->description == title) {
 			count++;
