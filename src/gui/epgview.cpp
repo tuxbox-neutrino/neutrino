@@ -127,14 +127,8 @@ CEpgData::CEpgData()
 
 void CEpgData::start()
 {
-	/* This defines the size of the EPG window. We leave 35 pixels left and right,
-	 * 25 pixels top and bottom. It adjusts itself to the "visible screen" settings
-	 */
-//	ox = w_max (1280, 70);
-//	oy = h_max (720, 50 + 30); // 30 for the bottom button box.
-
-	ox = w_max ((bigFonts ? g_settings.screen_EndX : MAX_W), 70);
-	oy = h_max ((bigFonts ? g_settings.screen_EndY : MAX_H), 50 + 30 );// 30 for the bottom button box.
+	ox = w_max (MAX_W * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
+	oy = h_max (MAX_H * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
 	sx = getScreenStartX( ox );
 
 	topheight     = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
@@ -151,7 +145,6 @@ void CEpgData::start()
 	oy = botboxheight+medlinecount*medlineheight; // recalculate //FIXME
 	sy = getScreenStartY(oy- topboxheight);
 	toph = topboxheight;
-fprintf(stderr, "CEpgData::start ox: %d oy: %d sx: %d sy: %d xmax: %d ymax: %d\n", ox, oy, sy, sy, w_max(9999,0), h_max(9999,0));
 }
 
 void CEpgData::addTextToArray(const std::string & text) // UTF-8
