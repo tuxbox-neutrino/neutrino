@@ -2718,8 +2718,6 @@ void CMovieBrowser::showHelp(void)
 #define MAX_STRING 30
 void CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 {
-    unsigned int i = 0;
-
      /********************************************************************/
     /**  MovieInfo menu ******************************************************/
 
@@ -2744,7 +2742,7 @@ void CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
     bookmarkMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, bookEndIntInput.getValue(),   &bookEndIntInput));
     bookmarkMenu.addItem(GenericMenuSeparatorLine);
 
-    for(int li =0 ; i < MI_MOVIE_BOOK_USER_MAX && i < MAX_NUMBER_OF_BOOKMARK_ITEMS; i++ )
+    for(int li =0 ; li < MI_MOVIE_BOOK_USER_MAX && li < MAX_NUMBER_OF_BOOKMARK_ITEMS; li++ )
     {
         pBookNameInput[li] =    new CStringInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, &movie_info->bookmarks.user[li].name, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_NAME_INFO2, "abcdefghijklmnopqrstuvwxyz0123456789-.: ");
         pBookPosIntInput[li] =  new CIntInput (LOCALE_MOVIEBROWSER_EDIT_BOOK, (int&) movie_info->bookmarks.user[li].pos, 20, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO1, LOCALE_MOVIEBROWSER_EDIT_BOOK_POS_INFO2);
@@ -2772,7 +2770,7 @@ void CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 
     /********************************************************************/
     /**  update movie info  ******************************************************/
-        for(i=0; i<MB_INFO_MAX_NUMBER; i++)
+        for(unsigned int i=0; i<MB_INFO_MAX_NUMBER; i++)
             movieInfoUpdateAll[i]=0;
         movieInfoUpdateAllIfDestEmptyOnly=true;
 
