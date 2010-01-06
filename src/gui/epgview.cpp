@@ -665,7 +665,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 			{
 			case NeutrinoMessages::EVT_TIMER:
 				if (data == g_InfoViewer->lcdUpdateTimer) {
-					GetEPGData(channel_id, id, &startzeit );
+					GetEPGData(channel_id, id, &startzeit, false);
 					if ( epg_done!= -1 ) {
 						CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
 						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
@@ -812,6 +812,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 				frameBuffer->paintBackgroundBox (sx, sy- toph, sx+ ox, sy+ oy);
 				showTimerEventBar (false);
 				start();
+				textypos = sy;
 //printf("bigFonts %d\n", bigFonts);
 				if (bigFonts)
 				{
@@ -872,9 +873,10 @@ void CEpgData::hide()
 bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 
-void CEpgData::GetEPGData(const t_channel_id channel_id, unsigned long long id, time_t* startzeit )
+void CEpgData::GetEPGData(const t_channel_id channel_id, unsigned long long id, time_t* startzeit, bool clear )
 {
-	epgText.clear();
+	if(clear)
+		epgText.clear();
 	emptyLineCount = 0;
 	epgData.title.clear();
 
