@@ -431,11 +431,11 @@ bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdC
 
 void CEpgData::showHead(const t_channel_id channel_id)
 {
-	int pos;
 	std::string text1 = epgData.title;
 	std::string text2 = "";
 	if (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1, true) > ox - PIC_W - 5)
 	{
+		int pos;
 		do
 		{
 			pos = text1.find_last_of("[ .]+");
@@ -676,7 +676,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 				break;
 			case NeutrinoMessages::EVT_CURRENTNEXT_EPG:
 				if (/*!id && */ ((*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL))) {
-					show(channel_id);
+					show(channel_id,0,NULL,false);
 					showPos=0;
 				}
 				CNeutrinoApp::getInstance()->handleMsg(msg, data);
