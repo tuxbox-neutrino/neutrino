@@ -149,6 +149,41 @@ int dvbsub_close()
 
 static cDemux * dmx;
 
+
+void dvbsub_get_stc(int64_t * STC)
+{
+	if(dmx)
+		dmx->getSTC(STC);
+}
+
+static int64_t get_pts(unsigned char * packet)
+{
+	int64_t pts;
+	int pts_dts_flag;
+
+	pts_dts_flag = getbits(packet, 7*8, 2);
+	if ((pts_dts_flag == 2) || (pts_dts_flag == 3)) {
+		pts = (uint64_t)getbits(packet, 9*8+4, 3) << 30;  /* PTS[32..30] */
+		pts |= getbits(packet, 10*8, 15) << 15;           /* PTS[29..15] */
+		pts |= getbits(packet, 12*8, 15);                 /* PTS[14..0] */
+	} else {
+		pts = 0;
+	}
+	return pts;
+}
+
+#define LimitTo32Bit(n) (n & 0x00000000FFFFFFFFL)
+
+static int64_t get_pts_stc_delta(int64_t pts)
+{
+	int64_t stc, delta;
+
+	dvbsub_get_stc(&stc);
+	delta = LimitTo32Bit(pts) - LimitTo32Bit(stc);
+	delta /= 90;
+	return delta;
+}
+
 void* reader_thread(void * /*arg*/)
 {
 	uint8_t tmp[16];  /* actually 6 should be enough */
@@ -243,7 +278,7 @@ void* reader_thread(void * /*arg*/)
 			}
 		}
 		if(!dvbsub_paused) {
-			sub_debug.print(Debug::VERBOSE, "[subtitles] adding packet, len %d buf 0x%x\n", count, buf);
+			sub_debug.print(Debug::VERBOSE, "[subtitles] ******************* new packet, len %d buf 0x%x pts-stc diff %lld *******************\n", count, buf, get_pts_stc_delta(get_pts(buf)));
 			/* Packet now in memory */
 			packet_queue.push(buf);
 			/* TODO: allocation exception */
@@ -337,6 +372,7 @@ void* dvbsub_thread(void* /*arg*/)
 		}
 		packlen = (packet[4] << 8 | packet[5]) + 6;
 
+#if 0
 		/* Get PTS */
 		pts_dts_flag = getbits(packet, 7*8, 2);
 		if ((pts_dts_flag == 2) || (pts_dts_flag == 3)) {
@@ -346,6 +382,8 @@ void* dvbsub_thread(void* /*arg*/)
 		} else {
 			pts = 0;
 		}
+#endif
+		pts = get_pts(packet);
 
 		dataoffset = packet[8] + 8 + 1;
 		if (packet[dataoffset] != 0x20) {
@@ -356,9 +394,9 @@ void* dvbsub_thread(void* /*arg*/)
 			goto next_round;
 		}
 
-		sub_debug.print(Debug::VERBOSE, "PES packet: len %d PTS=%Ld (%02d:%02d:%02d.%d)\n",
-				packlen, pts, (int)(pts/324000000), (int)((pts/5400000)%60),
-				(int)((pts/90000)%60), (int)(pts%90000));
+		sub_debug.print(Debug::VERBOSE, "PES packet: len %d data len %d PTS=%Ld (%02d:%02d:%02d.%d) diff %lld\n",
+				packlen, packlen - (dataoffset + 2), pts, (int)(pts/324000000), (int)((pts/5400000)%60),
+				(int)((pts/90000)%60), (int)(pts%90000), get_pts_stc_delta(pts));
 
 		if (packlen <= dataoffset + 3) {
 			sub_debug.print(Debug::INFO, "Packet too short, discard\n");
@@ -381,10 +419,4 @@ next_round:
 
 	sub_debug.print(Debug::VERBOSE, "%s shutdown\n", __FUNCTION__);
 	pthread_exit(NULL);
-}
-
-void dvbsub_get_stc(int64_t * STC)
-{
-	if(dmx)
-		dmx->getSTC(STC);
 }

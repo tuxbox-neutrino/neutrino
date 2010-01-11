@@ -8,4 +8,4 @@ AM_CPPFLAGS = -fno-rtti -fno-exceptions
 noinst_LIBRARIES = libdvbsub.a
 
 libdvbsub_a_SOURCES = dvbsub.cpp dvbsubtitle.cpp \
-	tools.cpp osd.cpp PacketQueue.cpp helpers.cpp Debug.cpp
+	tools.cpp PacketQueue.cpp helpers.cpp Debug.cpp
