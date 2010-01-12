@@ -30,6 +30,7 @@
 
 int usage (const char * basename)
 {
+	std::cout << "get current channel id: " << basename << " -gi" << std::endl;
 	std::cout << "bouquet list: " << basename << " [-ra]" << std::endl;
 	std::cout << "channel list: " << basename << " [-ra] <bouquet-number>" << std::endl;
 	std::cout << "zap by number: " << basename << " [-ra] <bouquet-number> <channel-number>" << std::endl;
@@ -57,9 +58,9 @@ int usage (const char * basename)
 	std::cout << "shutdown zapit: " << basename << " -kill" << std::endl;
 	std::cout << "enter standby: " << basename << " -esb" << std::endl;
 	std::cout << "leave standby: " << basename << " -lsb" << std::endl;
-        std::cout << "switch to hd 1080i mode: " << basename << " --1080" << std::endl;
-        std::cout << "switch to pal mode: " << basename << " --pal" << std::endl;
-        std::cout << "switch to hd 720p mode: " << basename << " --720p" << std::endl;
+	std::cout << "switch to hd 1080i mode: " << basename << " --1080" << std::endl;
+	std::cout << "switch to pal mode: " << basename << " --pal" << std::endl;
+	std::cout << "switch to hd 720p mode: " << basename << " --720p" << std::endl;
 	std::cout << "send diseqc 1.2 motor command: " << basename << " -m <cmdtype> <addr> <cmd> <number of parameters> <parameter 1> <parameter 2>" << std::endl;
 	return -1;
 }
@@ -90,8 +91,8 @@ int main (int argc, char** argv)
 	bool register_neutrino = false;
 	bool savebouquets = false;
 	bool show_satellites = false;
-        bool set_pal = false;
-        int  set_hd = 0;
+	bool set_pal = false;
+	int  set_hd = 0;
 	bool scan = false;
 	bool rezap = false;
 	bool zapByName = false;
@@ -100,6 +101,7 @@ int main (int argc, char** argv)
 	bool leaveStandby = false;
 	bool sendMotorCommand = false;
 	bool quiet = false;
+	bool getchannel = false;
 	uint8_t motorCmdType = 0;
 	uint8_t motorCmd = 0;
 	uint8_t motorNumParameters = 0;
@@ -241,13 +243,13 @@ int main (int argc, char** argv)
 			{
 				sscanf(argv[++i], "%lld", &satmask);
 				sscanf(argv[++i], "%d", &diseqc[0]);
-/*
-				diseqc[0] = strlen(argv[i+1]);
-				for (i++, j = 0; j <= diseqc[0]; j++)
-				{
-					diseqc[j+1] = argv[i][j] - 48;
-				}
-*/
+				/*
+								diseqc[0] = strlen(argv[i+1]);
+								for (i++, j = 0; j <= diseqc[0]; j++)
+								{
+									diseqc[j+1] = argv[i][j] - 48;
+								}
+				*/
 				continue;
 			}
 		}
@@ -265,31 +267,31 @@ int main (int argc, char** argv)
 			}
 			continue;
 		}
-                else if (!strncmp(argv[i], "--pal", 4))
-                {
-                        set_pal = true;
-                        continue;
-                }
-
-                else if (!strncmp(argv[i], "--1080", 6))
-                {
-                        set_hd = 8;
-                        continue;
-                }
-                else if (!strncmp(argv[i], "--1083", 6))
-                {
-                        set_hd = 9;
-                        continue;
-                }
-                else if (!strncmp(argv[i], "--1082", 6))
-                {
-                        set_hd = 10;
-                        continue;
+		else if (!strncmp(argv[i], "--pal", 4))
+		{
+			set_pal = true;
+			continue;
 		}
-                else if (!strncmp(argv[i], "--720", 5))
-                {
-                        set_hd = 7;
-                        continue;
+
+		else if (!strncmp(argv[i], "--1080", 6))
+		{
+			set_hd = 8;
+			continue;
+		}
+		else if (!strncmp(argv[i], "--1083", 6))
+		{
+			set_hd = 9;
+			continue;
+		}
+		else if (!strncmp(argv[i], "--1082", 6))
+		{
+			set_hd = 10;
+			continue;
+		}
+		else if (!strncmp(argv[i], "--720", 5))
+		{
+			set_hd = 7;
+			continue;
 		}
 		else if (!strncmp(argv[i], "-unmute", 7))
 		{
@@ -303,6 +305,11 @@ int main (int argc, char** argv)
 				sscanf(argv[++i], "%d", &volume);
 				continue;
 			}
+		}
+		else if (!strncmp(argv[i], "-gi", 3))
+		{
+			getchannel = true;
+			continue;
 		}
 		else if (i < argc - 1)
 		{
@@ -321,10 +328,10 @@ int main (int argc, char** argv)
 #if 0
 	TP_params TP;
 	TP.TP_id = 12345;
-        TP.polarization = 1;
-        TP.feparams.Frequency = 11727000;
-        TP.feparams.u.qpsk.SymbolRate = 27500000;
-        TP.feparams.u.qpsk.FEC_inner = (CodeRate) 3;
+	TP.polarization = 1;
+	TP.feparams.Frequency = 11727000;
+	TP.feparams.u.qpsk.SymbolRate = 27500000;
+	TP.feparams.u.qpsk.FEC_inner = (CodeRate) 3;
 
 	zapit.scan_TP(TP);
 	exit(0);
@@ -439,7 +446,7 @@ int main (int argc, char** argv)
 		std::vector<CZapitClient::responseGetSatelliteList>::const_iterator rI;
 		for ( ii = 0, rI = satelliteList.begin(); rI != satelliteList.end(); ii++, rI++)
 			printf("%lld : %s %d\n", ii, rI->satName, rI->satPosition);
-			//std::cout << (1 << ii) << ": " << rI->satName << std::endl;
+		//std::cout << (1 << ii) << ": " << rI->satName << std::endl;
 
 		return 0;
 	}
@@ -488,21 +495,27 @@ int main (int argc, char** argv)
 		return 0;
 	}
 
-        if (set_pal)
-        {
-                //zapit.stopPlayBack();
-                zapit.setVideoSystem(2);
-                //zapit.startPlayBack();
-                return 0;
-        }
+	if (set_pal)
+	{
+		//zapit.stopPlayBack();
+		zapit.setVideoSystem(2);
+		//zapit.startPlayBack();
+		return 0;
+	}
 
-        if (set_hd)
-        {
-                //zapit.stopPlayBack();
-                zapit.setVideoSystem(set_hd);
-                //zapit.startPlayBack();
-                return 0;
-        }
+	if (set_hd)
+	{
+		//zapit.stopPlayBack();
+		zapit.setVideoSystem(set_hd);
+		//zapit.startPlayBack();
+		return 0;
+	}
+	if (getchannel)
+	{
+		t_channel_id channel = zapit.getCurrentServiceID();
+		printf("%llx (%s)\n", channel, (zapit.getChannelName(channel)).c_str());
+		return 0;
+	}
 
 
 	/* choose source mode */
@@ -579,13 +592,12 @@ int main (int argc, char** argv)
 			return 0;
 		}
 
-	channel_found:
+channel_found:
 		zapit.zapTo(channels[channel-1].nr);
 		std::cout << "zapped to " << channels[channel-1].name << std::endl;
 	}
 
-
-	if(!quiet)
+	if (!quiet)
 	{
 		CZapitClient::responseGetPIDs pids;
 		zapit.getPIDS(pids);
