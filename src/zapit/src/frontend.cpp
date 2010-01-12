@@ -899,9 +899,12 @@ void CFrontend::positionMotor(uint8_t motorPosition)
 
 	if (motorPosition != 0) {
 		secSetVoltage(SEC_VOLTAGE_13, 15);
-		secSetTone(SEC_TONE_OFF, 15);
+		secSetTone(SEC_TONE_OFF, 25);
 		cmd.msg[3] = motorPosition;
-		sendDiseqcCommand(&cmd, 15);
+		
+		for (int i = 0; i <= repeatUsals; ++i)
+			     sendDiseqcCommand(&cmd, 50);
+	
 		printf("[fe%d] motor positioning command sent.\n", fenumber);
 	}
 }
@@ -991,14 +994,21 @@ int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization
 	return setParameters(&TP, nowait);
 }
 
-int CFrontend::setParameters(TP_params * TP, bool /*nowait*/)
+int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 {
-	int freq_offset = 0;
+	int freq_offset = 0, freq;
+	TP_params currTP;
+	FrontendParameters *feparams;
+
+	/* Copy the data for local use */
+	currTP		= *TP;
+	feparams	= &currTP.feparams;
+	freq		= (int) feparams->frequency;
 
 	if (info.type == FE_QPSK) {
 		bool high_band;
 
-		if ((int)TP->feparams.frequency < lnbSwitch) {
+		if (freq < lnbSwitch) {
 			high_band = false;
 			freq_offset = lnbOffsetLow;
 		} else {
@@ -1006,16 +1016,12 @@ int CFrontend::setParameters(TP_params * TP, bool /*nowait*/)
 			freq_offset = lnbOffsetHigh;
 		}
 
-		TP->feparams.frequency = abs(TP->feparams.frequency - freq_offset);
+		feparams->frequency = abs(freq - freq_offset);
 		setSec(TP->diseqc, TP->polarization, high_band);
-	}
-	if (info.type == FE_QAM) {
-		if (TP->feparams.frequency < 1000*1000)
-			TP->feparams.frequency=TP->feparams.frequency*1000;
-	}
+	} else if (info.type == FE_QAM) {
+		if (freq < 1000*1000)
+			feparams->frequency = freq * 1000;
 #if 0
-	else if (info.type == FE_QAM) {
-
 		switch (TP->feparams.inversion) {
 		case INVERSION_OFF:
 			TP->feparams.inversion = INVERSION_ON;
@@ -1025,26 +1031,29 @@ int CFrontend::setParameters(TP_params * TP, bool /*nowait*/)
 			TP->feparams.inversion = INVERSION_OFF;
 			break;
 		}
-	}
 #endif
-	printf("[fe0] tuner to frequency %d (offset %d)\n", TP->feparams.frequency, freq_offset);
+	}
 
-	setFrontend(&TP->feparams);
+	printf("[fe0] tuner to frequency %d (offset %d)\n", feparams->frequency, freq_offset);
+	setFrontend(feparams);
 
-	if (tuned) {
 #if 0
+	if (tuned) {
 		ret = diff(event.parameters.frequency, TP->feparams.frequency);
 		/* if everything went ok, then it is a good idea to copy the real
 		 * frontend parameters, so we can update the service list, if it differs.
 		 * TODO: set a flag to indicate a change in the service list */
 		memcpy(&currentTransponder.feparams, &event.parameters, sizeof(struct dvb_frontend_parameters));
-#endif
 	}
+#endif
+
+#if 0
 	/* add the frequency offset to the frontend parameters again
 	 * because they are used for the channel list and were given
 	 * to this method as a pointer */
 	if (info.type == FE_QPSK)
 		TP->feparams.frequency += freq_offset;
+#endif
 
 	return tuned;
 }
