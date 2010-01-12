@@ -32,10 +32,15 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#define _FILE_OFFSET_BITS 64
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <libgen.h>
+#include <mntent.h>
+
 #include <gui/dboxinfo.h>
+#include <gui/widget/progressbar.h>
 
 #include <global.h>
 
@@ -45,13 +50,13 @@
 
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
+extern bool pb_blink;
 
 static const int FSHIFT = 16;              /* nr of bits of precision */
 #define FIXED_1         (1<<FSHIFT)     /* 1.0 as fixed-point */
 #define LOAD_INT(x) ((x) >> FSHIFT)
 #define LOAD_FRAC(x) LOAD_INT(((x) & (FIXED_1-1)) * 100)
 #define ROUND_RADIUS 9
-
 CDBoxInfoWidget::CDBoxInfoWidget()
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -92,115 +97,158 @@ void CDBoxInfoWidget::hide()
 void CDBoxInfoWidget::paint()
 {
 	int ypos=y;
+	int tmpypos=ypos;
 	int i = 0;
 	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight+1, width, "Uptime/Mem/Fs info", COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 
 	ypos+= hheight + (mheight >>1);
-
-#if 0
-	int power = 0;
-	int is_val = 0xdeadbabe;
-	int fp_ver = 0;
-
-	int fp = open("/dev/dbox/fp0", O_RDWR);
-	if (fp > 0) {
-		fp_ver = ioctl(fp, FP_IOCTL_GETID);
-		if (fp_ver < 0) fp_ver = 0;
-		ioctl(fp, FP_IOCTL_UPGRADE_CTRL, &is_val);
-		if (is_val != 1) is_val = 0;
-		ioctl(fp, FP_IOCTL_GET_LNB_CURRENT, &power);
-		close(fp);
-	}
-	else is_val = 0;
-#endif
-	char buf[256];
 	FILE* fd = fopen("/proc/cpuinfo", "rt");
 	if (fd==NULL) {
 		printf("error while opening proc-cpuinfo\n" );
 	} else {
+		char *buffer=NULL;
+		size_t len = 0;
+		ssize_t read;
+		while ((read = getline(&buffer, &len, fd)) != -1) {
+			if (!(strncmp(const_cast<char *>("Hardware"),buffer,8))) {
+				char *t=rindex(buffer,'\n');
+				if(t)
+					*t='\0';
 
-		fgets(buf,255,fd);
-		while (!feof(fd)) {
-			if (fgets(buf,255,fd)!=NULL) {
-				g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, buf, COL_MENUCONTENT);
-				ypos+= mheight;
-				i++;
-				if (i > 6) break;
+				std::string hw;
+				char *p=rindex(buffer,':');
+				if(p)
+					hw=++p;
+				hw+=" Info";
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, tmpypos+ hheight+1, width, hw.c_str(), COL_MENUHEAD, 0, true); // UTF-8
+				break;
 			}
+			i++;
+			if (i > 2)
+				continue;
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, buffer, COL_MENUCONTENT);
+			ypos+= mheight;
 		}
 		fclose(fd);
+		if (buffer)
+			free(buffer);
 	}
+	char *ubuf=NULL, *sbuf=NULL;
+	int buf_size=256;
+	ubuf = new char[buf_size];
+	sbuf = new char[buf_size];
 
-#if 0
-	sprintf(buf, "FP version 1.0%d, Upgrade Available: %s, LNB current: %d\n", fp_ver, is_val == 1 ? "yes" : "no", power);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, buf, COL_MENUCONTENT);
-	ypos+= mheight;
-#endif
+	if (sbuf != NULL && ubuf != NULL) {
+		int updays, uphours, upminutes;
+		struct sysinfo info;
+		struct tm *current_time;
+		time_t current_secs;
+		memset(sbuf, 0, 256);
+		time(&current_secs);
+		current_time = localtime(&current_secs);
 
-	int updays, uphours, upminutes;
-	struct sysinfo info;
-	struct tm *current_time;
-	time_t current_secs;
-	char ubuf[256], sbuf[256];
+		sysinfo(&info);
 
-	memset(sbuf, 0, 256);
-	time(&current_secs);
-	current_time = localtime(&current_secs);
-
-	sysinfo(&info);
-
-	sprintf( ubuf, "%2d:%02d%s  up ",
-		 current_time->tm_hour%12 ? current_time->tm_hour%12 : 12,
-		 current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
-	strcat(sbuf, ubuf);
-	updays = (int) info.uptime / (60*60*24);
-	if (updays) {
-		sprintf(ubuf, "%d day%s, ", updays, (updays != 1) ? "s" : "");
+		snprintf( ubuf,buf_size, "%2d:%02d%s  up ",
+			  current_time->tm_hour%12 ? current_time->tm_hour%12 : 12,
+			  current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
 		strcat(sbuf, ubuf);
-	}
-	upminutes = (int) info.uptime / 60;
-	uphours = (upminutes / 60) % 24;
-	upminutes %= 60;
-	if (uphours)
-		sprintf(ubuf,"%2d:%02d, ", uphours, upminutes);
-	else
-		sprintf(ubuf,"%d min, ", upminutes);
-	strcat(sbuf, ubuf);
+		updays = (int) info.uptime / (60*60*24);
+		if (updays) {
+			snprintf(ubuf,buf_size, "%d day%s, ", updays, (updays != 1) ? "s" : "");
+			strcat(sbuf, ubuf);
+		}
+		upminutes = (int) info.uptime / 60;
+		uphours = (upminutes / 60) % 24;
+		upminutes %= 60;
+		if (uphours)
+			snprintf(ubuf,buf_size,"%2d:%02d, ", uphours, upminutes);
+		else
+			snprintf(ubuf,buf_size,"%d min, ", upminutes);
+		strcat(sbuf, ubuf);
 
-	sprintf(ubuf, "load: %ld.%02ld, %ld.%02ld, %ld.%02ld\n",
-		LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]),
-		LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
-		LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
-	strcat(sbuf, ubuf);
-	ypos+= mheight/2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, sbuf, COL_MENUCONTENT);
-	ypos+= mheight;
+		snprintf(ubuf,buf_size, "load: %ld.%02ld, %ld.%02ld, %ld.%02ld\n",
+			 LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]),
+			 LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
+			 LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
+		strcat(sbuf, ubuf);
+		ypos+= mheight/2;
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, sbuf, COL_MENUCONTENT);
+		ypos+= mheight;
 
-	sprintf(ubuf, "memory total %dKb, free %dKb", (int) info.totalram/1024, (int) info.freeram/1024);
-	ypos+= mheight/2;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
-	ypos+= mheight;
-
-	struct statfs s;
-	//long blocks_used;
-	//long blocks_percent_used;
-
-	if (::statfs("/var", &s) == 0) {
-		//printf("/var filesystem total %ldKb, free %ldKb\n", (long)s.f_blocks*s.f_bsize/1024, (long)s.f_bfree*s.f_bsize/1024);
-		sprintf(ubuf, "/var filesystem total %ldKb, free %ldKb", (long)s.f_blocks*s.f_bsize/1024, (long)s.f_bfree*s.f_bsize/1024);
+		snprintf(ubuf,buf_size, "memory total %dKb, free %dKb", (int) info.totalram/1024, (int) info.freeram/1024);
+		ypos+= mheight/2;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
 		ypos+= mheight;
+		struct statfs s;
+
+		FILE *          mountFile;
+		struct mntent * mnt;
+
+		if ((mountFile = setmntent("/proc/mounts", "r")) == 0 ) {
+			perror("/proc/mounts");
+		}
+		else {
+			float gb=0;
+			char c=' ';
+			int offsetw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("Filesystem      Size    Used       Available   Use% ");
+			offsetw += 20;
+			int i = 0;
+			while ( ((mnt = getmntent(mountFile)) != 0) && (i<8 )) {
+				if (::statfs(mnt->mnt_dir, &s) == 0) {
+					switch (s.f_type)
+					{
+					case (int) 0xEF53:      /*EXT2 & EXT3*/
+					case (int) 0x6969:      /*NFS*/
+					case (int) 0xFF534D42:  /*CIFS*/
+					case (int) 0x517B:      /*SMB*/
+					case (int) 0x52654973:  /*REISERFS*/
+					case (int) 0x65735546:  /*fuse for ntfs*/
+					case (int) 0x58465342:  /*xfs*/
+					case (int) 0x4d44:      /*msdos*/
+						gb = 1024.0*1024.0;
+						c = 'G';
+						break;
+					case (int) 0x72b6:	/*jffs2*/ 
+					if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
+						continue;
+						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, "Filesystem      Size    Used       Available   Use% ", COL_MENUCONTENTINACTIVE);
+						ypos+= mheight;
+
+						gb = 1024.0;
+						c = 'M';
+					break;
+					default:
+						continue;
+					}
+					if ( s.f_blocks > 0 ) {
+						long	blocks_used;
+						long	blocks_percent_used;
+						blocks_used = s.f_blocks - s.f_bfree;
+						blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
+						snprintf(ubuf,buf_size,
+							 "%-10s  % 7.2f%c  % 7.2f%c  % 7.2f%c  % 5ld%%\n"
+							 ,basename(mnt->mnt_fsname)
+							 ,(s.f_blocks * (s.f_bsize / 1024.0)) / gb, c
+							 ,((s.f_blocks - s.f_bfree)  * (s.f_bsize / 1024.0)) / gb, c
+							 ,s.f_bavail * (s.f_bsize / 1024.0) / gb, c
+							 ,blocks_percent_used
+							);
+						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
+						CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
+						pb.paintProgressBarDefault(x+offsetw, ypos+3, 120, mheight-10, blocks_percent_used, 100);
+						ypos+= mheight;
+					}
+					i++;
+				}
+			}
+			endmntent(mountFile);
+		}
 	}
-	else
-		perror("/var statfs");
-	if (::statfs("/hdd", &s) == 0) {
-//printf("STATFS: type %lX free: %ld\n", s.f_type, s.f_bfree);
-		if ( (s.f_type != (int) 0xEF53) && (s.f_type != (int) 0x52654973) && (s.f_type != (int) 0x6969) && (s.f_type != (int) 0xFF534D42) && (s.f_type != (int) 0x517B) && (s.f_type != (int) 0x58465342) )
-			return;
-		//printf("/hdd filesystem total %ldKb, free %ldKb\n", (long)(s.f_blocks/1024)*s.f_bsize, (long)(s.f_bfree/1024)*s.f_bsize);
-		sprintf(ubuf, "/hdd filesystem total %ldKb, free %ldKb", (long)(s.f_blocks/1024)*s.f_bsize, (long)(s.f_bfree/1024)*s.f_bsize);
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
-	}
+	if (sbuf)
+		delete[] sbuf;
+	if (ubuf)
+		delete[] ubuf;
+
 }
