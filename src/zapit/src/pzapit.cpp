@@ -512,8 +512,8 @@ int main (int argc, char** argv)
 	}
 	if (getchannel)
 	{
-		t_channel_id channel = zapit.getCurrentServiceID();
-		printf("%llx (%s)\n", channel, (zapit.getChannelName(channel)).c_str());
+		t_channel_id channelid = zapit.getCurrentServiceID();
+		printf("%llx (%s)\n", channelid, (zapit.getChannelName(channelid)).c_str());
 		return 0;
 	}
 
