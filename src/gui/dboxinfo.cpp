@@ -194,7 +194,7 @@ void CDBoxInfoWidget::paint()
 			char c=' ';
 			int offsetw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("Filesystem      Size    Used       Available   Use% ");
 			offsetw += 20;
-			int i = 0;
+			i = 0;
 			while ( ((mnt = getmntent(mountFile)) != 0) && (i<8 )) {
 				if (::statfs(mnt->mnt_dir, &s) == 0) {
 					switch (s.f_type)
