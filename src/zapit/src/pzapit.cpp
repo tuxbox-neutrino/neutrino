@@ -35,6 +35,7 @@ int usage (const char * basename)
 	std::cout << "channel list: " << basename << " [-ra] <bouquet-number>" << std::endl;
 	std::cout << "zap by number: " << basename << " [-ra] <bouquet-number> <channel-number>" << std::endl;
 	std::cout << "zap by name: " << basename << " [-ra] -n <channel-name>" << std::endl;
+	std::cout << "zap by channel id: " << basename << " -zi <chanid (hex)>" << std::endl;
 	std::cout << "set diseqc type: " << basename << " -dt <type>" << std::endl;
 	std::cout << "set diseqc repeats: " << basename << " -dr <count>" << std::endl;
 	std::cout << "(-ra toggles radio mode)" << std::endl;
@@ -111,7 +112,7 @@ int main (int argc, char** argv)
 	uint32_t  diseqc[5];
 	unsigned int tmp;
 	int scan_mode = 1;
-
+	t_channel_id zapsid = 0;
 	/* command line */
 	for (i = 1; i < argc; i++)
 	{
@@ -310,6 +311,14 @@ int main (int argc, char** argv)
 		{
 			getchannel = true;
 			continue;
+		}
+		else if (!strncmp(argv[i], "-zi", 3))
+		{
+			if (i < argc - 1)
+			{
+				sscanf(argv[++i], "%llx", &zapsid);
+				continue;
+			}
 		}
 		else if (i < argc - 1)
 		{
@@ -521,6 +530,15 @@ int main (int argc, char** argv)
 	/* choose source mode */
 	zapit.setMode(radio ? CZapitClient::MODE_RADIO : CZapitClient::MODE_TV);
 
+	if (zapsid > 0)
+	{
+		printf("Zapping to: %llx (%s) ", zapsid, (zapit.getChannelName(zapsid)).c_str());
+		tmp = zapit.zapTo_serviceID(zapsid);
+		if (!tmp)
+		  printf("failed");
+		printf("\n");
+		return tmp;
+	}
 	/* set audio channel */
 	if (audio)
 	{
