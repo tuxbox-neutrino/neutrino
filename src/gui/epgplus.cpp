@@ -317,9 +317,9 @@ EpgPlus::ChannelEntry::ChannelEntry (const CZapitChannel * pchannel, int pindex,
 {
   this->channel = pchannel;
 
-  if (channel != NULL) {
+  if (pchannel != NULL) {
 	std::stringstream pdisplayName;
-	pdisplayName << index + 1 << " " << channel->getName ();
+	pdisplayName << pindex + 1 << " " << pchannel->getName ();
 
 	this->displayName = pdisplayName.str ();
   }
