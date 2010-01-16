@@ -14,4 +14,10 @@ install_DATA = \
 	volumeslider2red.raw vtxt.raw vtxt_gray.raw movie.raw movieplayer.raw \
 	hidden.raw bookmarkmanager.raw mute_small.raw dbox_small.raw \
 	0.raw 1.raw 2.raw 3.raw 4.raw 5.raw 6.raw 7.raw 8.raw 9.raw \
-	up.raw right.raw down.raw left.raw fta.raw ca.raw
+	up.raw right.raw down.raw left.raw fta.raw ca.raw \
+	16.raw b16.raw b2.raw b3.raw ca.gif card.raw card_gray.raw card_green.raw ddfill.raw \
+	deutsch.gif dutch.gif ellinika.gif english.gif french.gif hungarian.gif italiano.gif \
+	language.gif polski.gif polski.raw portugues.gif romania.gif russkij.gif local.raw \
+	mainmenue.gif mute_zap_gray.raw mute_zap_green.raw \
+	net.raw net_gray.raw net_green.raw notyet.raw \
+	power_white.raw pv_gray.raw x_green.raw x_white.raw x_yellow.raw
