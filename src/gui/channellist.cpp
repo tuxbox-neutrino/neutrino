@@ -428,6 +428,10 @@ int CChannelList::exec()
 /* return: >= 0 to zap, -1 on cancel, -3 on list mode change, -4 list edited, -2 zap but no restore old list/chan ?? */
 int CChannelList::show()
 {
+	/* temporary debugging stuff */
+	struct timeval t1, t2;
+	gettimeofday(&t1, NULL);
+
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool actzap = 0;
@@ -466,6 +470,10 @@ int CChannelList::show()
 	paintHead();
 	updateEvents();
 	paint();
+
+	gettimeofday(&t2, NULL);
+	fprintf(stderr, "CChannelList::show(): %llu ms to paint channellist\n",
+		((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL);
 
 	int oldselected = selected;
 	int zapOnExit = false;
