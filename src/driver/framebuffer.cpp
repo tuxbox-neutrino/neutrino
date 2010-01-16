@@ -509,7 +509,12 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     int corner_tr = (type & CORNER_TOP_RIGHT)    ? 1 : 0;
     int corner_bl = (type & CORNER_BOTTOM_LEFT)  ? 1 : 0;
     int corner_br = (type & CORNER_BOTTOM_RIGHT) ? 1 : 0;
-#ifdef USE_NEVIS_GXA
+
+#ifndef USE_NEVIS_GXA
+    int swidth = stride / sizeof(fb_pixel_t);
+    fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
+#endif
+
     /* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
        radius of 540 px which is the half of the max HD graphics size of 1080 px. So with that table we
        ca draw boxes with round corners and als circles by just setting dx = dy = radius (max 540). */
@@ -544,10 +549,12 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	 23};
 
     int line = 0;
+#ifdef USE_NEVIS_GXA
     unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
     _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);		/* setup the drawing color */
     _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 		/* X is major axis, skip last pixel */
+#endif
 
     if ((type) && (radius))
     {
@@ -591,9 +598,16 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		ofl = corner_bl ? ofs : 0;
 		ofr = corner_br ? ofs : 0;
 	    }
+#ifdef USE_NEVIS_GXA
 	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx - ofr, y + line));		/* endig point */
 	    _write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));		/* start point */
-
+#else
+	    for (int pos = x + ofl; pos < x + dx - ofr; pos++)
+	    {
+		*(fbp + pos) = col;
+	    }
+	    fbp += swidth;
+#endif
 	    line++;
 	}
     }
@@ -601,121 +615,19 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     {
 	while (line < dy)
 	{
+#ifdef USE_NEVIS_GXA
     	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y + line));		/* endig point */
     	    _write_gxa(gxa_base, cmd, GXA_POINT(x,      y + line));		/* start point */
+#else
+	    for (int pos = x; pos < x + dx; pos++)
+	    {
+		*(fbp + pos) = col;
+	    }
+	    fbp += swidth;
+#endif
 	    line++;
 	}
     }
-
-#else
-#error TODO: please fix the rounded corner code for !USE_NEVIS_GXA case
-    int F,R=radius,sx,sy,dxx=dx,dyy=dy,rx,ry,wx,wy;
-
-    if (!getActive())
-        return;
-
-    uint8_t *pos = ((uint8_t *)getFrameBufferPointer()) + x*sizeof(fb_pixel_t) + stride*y;
-    uint8_t *pos0 = 0, *pos1 = 0, *pos2 = 0, *pos3 = 0;
-
-    fb_pixel_t *dest0, *dest1;
-
-    if(R) {
-        if(--dyy<=0) {
-        //if(dyy <= 0)
-            dyy=1;
-        }
-
-        if(R==1 || R>(dxx/2) || R>(dyy/2)) {
-            R=dxx/10;
-            F=dyy/10;
-            if(R>F) {
-                if(R>(dyy/3)) {
-                    R=dyy/3;
-                }
-            } else {
-                R=F;
-                if(R>(dxx/3)) {
-                    R=dxx/3;
-                }
-            }
-        }
-        sx=0;
-        sy=R;
-        F=1-R;
-
-        rx=R-sx;
-        ry=R-sy;
-
-	if(type & 1) {
-        	pos1=pos+(ry*stride); // top 1
-        	pos2=pos+(rx*stride); // top 2
-	}
-	if(type & 2) {
-        	pos0=pos+((dyy-ry)*stride); // bottom 1
-        	pos3=pos+((dyy-rx)*stride); // bottom 2
-	}
-        while (sx <= sy) {
-            rx=R-sx;
-            ry=R-sy;
-            wx=rx<<1;
-            wy=ry<<1;
-            dest0=(fb_pixel_t *)(pos0+rx*sizeof(fb_pixel_t));
-            dest1=(fb_pixel_t *)(pos1+rx*sizeof(fb_pixel_t));
-            for (int i=0; i<(dxx-wx); i++) {
-		if(type & 2)
-                	*(dest0++)=col;	//bottom 1
-		if(type & 1)
-                	*(dest1++)=col;	// top 1
-            }
-            dest0=(fb_pixel_t *)(pos2+ry*sizeof(fb_pixel_t));
-            dest1=(fb_pixel_t *)(pos3+ry*sizeof(fb_pixel_t));
-            for (int i=0; i<(dxx-wy); i++) {
-		if(type & 1)
-                	*(dest0++)=col;	// top 2
-		if(type & 2)
-                	*(dest1++)=col;	//bottom 2
-            }
-            sx++;
-            pos2-=stride;
-            pos3+=stride;
-            if (F<0) {
-                F+=(sx<<1)-1;
-            } else {
-                F+=((sx-sy)<<1);
-                sy--;
-                pos0-=stride;
-                pos1+=stride;
-            }
-        }
-	if(type & 1)
-        	pos+=R*stride;
-    }
-
-    int start = R;
-    int end = dyy - R;
-    if(!(type & 1))
-	start = 0;
-    if(!(type & 2))
-	end = dyy+ (R ? 1 : 0);
-
-#if 0
-        fb_fillrect fillrect;
-        fillrect.dx = x;
-        fillrect.dy = y+start;
-        fillrect.width = dx;
-        fillrect.height = end;
-        fillrect.color = col;
-        fillrect.rop = ROP_COPY;
-        ioctl(fd, FBIO_FILL_RECT, &fillrect);
-#else
-    for (int count= start; count < end; count++) {
-        dest0=(fb_pixel_t *)pos;
-        for (int i=0; i<dxx; i++)
-            *(dest0++)=col;
-        pos+=stride;
-    }
-#endif
-#endif /* USE_NEVIS_GXA */
 }
 
 void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
