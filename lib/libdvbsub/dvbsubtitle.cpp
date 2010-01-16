@@ -277,12 +277,13 @@ int cDvbSubtitleConverter::Action(void)
 	static cTimeMs Timeout(0xFFFF*1000);
 	int WaitMs = WAITMS;
 
+	if (!running)
+		return 0;
+
 	if(!avctx) {
-		dbgconverter("cDvbSubtitleConverter::Convert: no context\n");
+		dbgconverter("cDvbSubtitleConverter::Action: no context\n");
 		return -1;
 	}
-	if(!running)
-		return 0;
 
 	Lock();
 	if (cDvbSubtitleBitmaps *sb = bitmaps->First()) {
