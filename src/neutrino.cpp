@@ -3807,6 +3807,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		} else
 			g_Zapit->stopPlayBack();
 
+		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(true);
 		if(g_settings.epg_save) {
 			saveEpg();
@@ -3845,6 +3846,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		videoDecoder->Standby(false);
 		g_Sectionsd->setPauseScanning(false);
+		g_Sectionsd->setServiceChanged(live_channel_id&0xFFFFFFFFFFFFULL, true );
 
                 if(g_settings.mode_clock)
                         InfoClock->StartClock();
