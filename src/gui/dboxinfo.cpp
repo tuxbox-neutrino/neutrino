@@ -64,11 +64,10 @@ CDBoxInfoWidget::CDBoxInfoWidget()
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	// width       = 600;
 	// height      = hheight+13*mheight+ 10;
-	width  = w_max (600, 0);
-	height = h_max (hheight+14*mheight+ 10, 0);
-
-	x=getScreenStartX( width );
-	y=getScreenStartY( height );
+	width = 0;
+	height = 0;
+	x = 0;
+	y = 0;
 }
 
 
@@ -96,8 +95,55 @@ void CDBoxInfoWidget::hide()
 
 void CDBoxInfoWidget::paint()
 {
+	const char *head = "Filesystem      Size    Used       Available   Use% ";
+	int offsetw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head);
+	offsetw += 20;
+	width = offsetw + 10 + 120;
+	height = hheight + 6 * mheight;
+
+	struct statfs s;
+	FILE *          mountFile;
+	struct mntent * mnt;
+
+	/* this is lame, as it duplicates code. OTOH, it is small and fast enough...
+	   The algorithm is exactly the same as below in the display routine */
+	if ((mountFile = setmntent("/proc/mounts", "r")) == NULL) {
+		perror("/proc/mounts");
+	} else {
+		while ((mnt = getmntent(mountFile)) != NULL) {
+			if (::statfs(mnt->mnt_dir, &s) == 0) {
+				switch (s.f_type)	/* f_type is long */
+				{
+				case 0xEF53L:		/*EXT2 & EXT3*/
+				case 0x6969L:		/*NFS*/
+				case 0xFF534D42L:	/*CIFS*/
+				case 0x517BL:		/*SMB*/
+				case 0x52654973L:	/*REISERFS*/
+				case 0x65735546L:	/*fuse for ntfs*/
+				case 0x58465342L:	/*xfs*/
+				case 0x4d44L:		/*msdos*/
+					break;
+				case 0x72b6L:		/*jffs2*/
+					if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
+						continue;
+					height += mheight;
+					break;
+				default:
+					continue;
+				}
+				height += mheight;
+			}
+		}
+		endmntent(mountFile);
+	}
+
+	width = w_max(width, 0);
+	height = h_max(height, 0);
+	x = getScreenStartX(width);
+	y = getScreenStartY(height);
+
+	fprintf(stderr, "CDBoxInfoWidget::CDBoxInfoWidget() x = %d, y = %d, width = %d height = %d\n", x, y, width, height);
 	int ypos=y;
-	int tmpypos=ypos;
 	int i = 0;
 	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
 	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
@@ -121,13 +167,13 @@ void CDBoxInfoWidget::paint()
 				if(p)
 					hw=++p;
 				hw+=" Info";
-				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, tmpypos+ hheight+1, width, hw.c_str(), COL_MENUHEAD, 0, true); // UTF-8
+				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, y + hheight+1, width - 10, hw.c_str(), COL_MENUHEAD, 0, true); // UTF-8
 				break;
 			}
 			i++;
 			if (i > 2)
 				continue;
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, buffer, COL_MENUCONTENT);
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, buffer, COL_MENUCONTENT);
 			ypos+= mheight;
 		}
 		fclose(fd);
@@ -174,17 +220,13 @@ void CDBoxInfoWidget::paint()
 			 LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
 		strcat(sbuf, ubuf);
 		ypos+= mheight/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, sbuf, COL_MENUCONTENT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, sbuf, COL_MENUCONTENT);
 		ypos+= mheight;
 
 		snprintf(ubuf,buf_size, "memory total %dKb, free %dKb", (int) info.totalram/1024, (int) info.freeram/1024);
 		ypos+= mheight/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT);
 		ypos+= mheight;
-		struct statfs s;
-
-		FILE *          mountFile;
-		struct mntent * mnt;
 
 		if ((mountFile = setmntent("/proc/mounts", "r")) == 0 ) {
 			perror("/proc/mounts");
@@ -192,10 +234,7 @@ void CDBoxInfoWidget::paint()
 		else {
 			float gb=0;
 			char c=' ';
-			int offsetw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth ("Filesystem      Size    Used       Available   Use% ");
-			offsetw += 20;
-			i = 0;
-			while ( ((mnt = getmntent(mountFile)) != 0) && (i<8 )) {
+			while ((mnt = getmntent(mountFile)) != 0) {
 				if (::statfs(mnt->mnt_dir, &s) == 0) {
 					switch (s.f_type)
 					{
@@ -211,14 +250,14 @@ void CDBoxInfoWidget::paint()
 						c = 'G';
 						break;
 					case (int) 0x72b6:	/*jffs2*/ 
-					if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
-						continue;
-						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, "Filesystem      Size    Used       Available   Use% ", COL_MENUCONTENTINACTIVE);
+						if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
+							continue;
+						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, head, COL_MENUCONTENTINACTIVE);
 						ypos+= mheight;
 
 						gb = 1024.0;
 						c = 'M';
-					break;
+						break;
 					default:
 						continue;
 					}
@@ -235,13 +274,20 @@ void CDBoxInfoWidget::paint()
 							 ,s.f_bavail * (s.f_bsize / 1024.0) / gb, c
 							 ,blocks_percent_used
 							);
-						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width, ubuf, COL_MENUCONTENT);
-						CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
-						pb.paintProgressBarDefault(x+offsetw, ypos+3, 120, mheight-10, blocks_percent_used, 100);
+						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT);
+						int pbw = width - offsetw - 10;
+//fprintf(stderr, "width: %d offsetw: %d pbw: %d\n", width, offsetw, pbw);
+						if (pbw > 8) /* smaller progressbar is not useful ;) */
+						{
+							CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
+							pb.paintProgressBarDefault(x+offsetw, ypos+3, pbw, mheight-10, blocks_percent_used, 100);
+						}
 						ypos+= mheight;
 					}
 					i++;
 				}
+				if (ypos > y + height - mheight)	/* the screen is not high enough */
+					break;				/* todo: scrolling? */
 			}
 			endmntent(mountFile);
 		}
