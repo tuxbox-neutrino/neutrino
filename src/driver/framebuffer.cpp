@@ -396,7 +396,13 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	}
 
 	stride = fix.line_length;
-printf("FB: %dx%dx%d line lenght %d\n", xRes, yRes, bpp, stride);
+	printf("FB: %dx%dx%d line length %d. %s nevis GXA accelerator.\n", xRes, yRes, bpp, stride,
+#ifdef USE_NEVIS_GXA
+		"Using"
+#else
+		"Not using"
+#endif
+	);
 
 	memset(getFrameBufferPointer(), 0, stride * yRes);
         if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
