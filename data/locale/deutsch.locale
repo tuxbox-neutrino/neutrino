@@ -23,9 +23,6 @@ audiomenu.spdif_dd Dolby Digital über S/PDIF
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audioplayer.add Hinzufügen
-audioplayer.add_ic Icecast
-audioplayer.add_loc Lokale Radio liste
-audioplayer.add_sc Shoutcast
 audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche n. ID
@@ -46,7 +43,6 @@ audioplayer.jump_dialog_hint2 (relativ, in Sekunden)
 audioplayer.jump_dialog_title Sprungziel eingeben
 audioplayer.jump_forwards vorw. springen
 audioplayer.keylevel Tasten-Umschaltung
-audioplayer.load_radio_stations Load internet radio sender
 audioplayer.name Audioplayer
 audioplayer.pause Pause
 audioplayer.play Abspielen
@@ -69,7 +65,6 @@ audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
 audioplayer.title_artist Titel, Interpret
-audioplayer.receiving_list Liste wird empfangen, bitte warten..
 audioplayerpicsettings.general Audioplayer/ Bildbetrachter
 AUDIOSelectMenue.head Auswahl der Tonspur
 bookmarkmanager.delete Löschen
@@ -266,7 +261,7 @@ extra.fec_3_4 3/ 4
 extra.fec_5_6 5/ 6
 extra.fec_7_8 7/ 8
 extra.fec_s2_8psk_1_2 1/2 s2 8psk
-extra.fec_s2_8psk_2_3 2/3 s2 8psk
+extra.fec_s2_8psk_2_3 3/2 s2 8psk
 extra.fec_s2_8psk_3_4 3/4 s2 8psk
 extra.fec_s2_8psk_3_5 3/5 s2 8psk
 extra.fec_s2_8psk_4_5 4/5 s2 8psk
@@ -275,7 +270,7 @@ extra.fec_s2_8psk_7_8 7/8 s2 8psk
 extra.fec_s2_8psk_8_9 8/9 s2 8psk
 extra.fec_s2_8psk_9_10 9/10 s2 8psk
 extra.fec_s2_qpsk_1_2 1/2 s2 qpsk
-extra.fec_s2_qpsk_2_3 2/3 s2 qpsk
+extra.fec_s2_qpsk_2_3 3/2 s2 qpsk
 extra.fec_s2_qpsk_3_4 3/4 s2 qpsk
 extra.fec_s2_qpsk_3_5 3/5 s2 qpsk
 extra.fec_s2_qpsk_4_5 4/5 s2 qpsk
@@ -597,7 +592,6 @@ infoviewer.streaminfo Erweiterungen
 infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subservice Bildregie
 infoviewer.waittime Warte auf Uhrzeit...
-inetradio.name Internetradio
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/ runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
@@ -1316,10 +1310,6 @@ ucodecheck.cam-alpha Cam-Alpha
 ucodecheck.head UCode Überprüfung
 ucodecheck.ucode UCode
 ucodes.failure Achtung, die µCodes wurden NICHT gefunden!\n\nBitte per FTP (oder DBox-BootManager)\nuploaden, und die box neu starten!
-upnpbrowser.head UPnP Browser
-upnpbrowser.noservers No UPnP servers found
-upnpbrowser.rescan Scan again
-upnpbrowser.scanning Scanning for UPnP servers
 usermenu.button_blue Benutzermenü 'blau'
 usermenu.button_green Benutzermenü 'grün'
 usermenu.button_red Benutzermenü 'rot'
@@ -1379,3 +1369,13 @@ zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
 zaptotimer.announce In einer Minute wird umgeschaltet.
+audioplayer.add_ic Icecast
+audioplayer.add_loc Lokale radio liste
+audioplayer.add_sc Shoutcast
+audioplayer.load_radio_stations Load internet radio sender
+audioplayer.receiving_list Liste wird empfangen, bitte warten..
+inetradio.name Internetradio
+upnpbrowser.head UPnP Browser
+upnpbrowser.noservers No UPnP servers found
+upnpbrowser.rescan Scan again
+upnpbrowser.scanning Scanning for UPnP servers

@@ -1,7 +1,7 @@
 EPGMenu.epgplus Elec. Programma Gids 
 EPGMenu.eventinfo Details aktuele uitzending
-EPGMenu.eventlist Programma gids aktuele zender
-EPGMenu.head EPG - Elec-Programma-Gids
+EPGMenu.eventlist Programmagids aktuele zender
+EPGMenu.head EPG - EPG
 EPGMenu.streaminfo technische informatie
 EPGPlus.actions Akties 
 EPGPlus.bybouquet_mode per bouquet
@@ -28,11 +28,11 @@ EPGPlus.horgap1_height hoogte 1
 EPGPlus.horgap2_height hoogte 2
 EPGPlus.next_bouquet volgend bouquet
 EPGPlus.options opties
-EPGPlus.page_down pagina neer
+EPGPlus.page_down pagina terug
 EPGPlus.page_up pagina op
 EPGPlus.prev_bouquet vorig bouquet
 EPGPlus.record opnemen
-EPGPlus.refresh_epg aktualiseren
+EPGPlus.refresh_epg ververs de epg
 EPGPlus.remind Herinnering
 EPGPlus.reset_settings reset instellingen
 EPGPlus.save_settings sla instellingen op
@@ -126,19 +126,27 @@ GENRE.UNKNOWN onbekend
 apids.hint_1 Geef APIDs om te streamen
 apids.hint_2 in HEX in gescheiden door ' '
 apidselector.head Selecteer taal
-audiomenu.PCMOffset Verlaag Volume PCM
-audiomenu.analogout Analoge Output
+audio.srs_algo Methode
+audio.srs_algo_light eenvoudig
+audio.srs_algo_normal normaal
+audio.srs_iq SRS True-volume technologie
+audio.srs_nmgr Noise-manager 
+audio.srs_volume Referentie luidsterkte
+audiomenu.PCMOffset PCM offset
+audiomenu.analogout Analoge uitgang
 audiomenu.avs avs
-audiomenu.avs_control Volume Kontrole avs/oost
+audiomenu.avs_control Volume kontrole avs/oost
 audiomenu.dolbydigital Dolby Digital
-audiomenu.head Audio Instellingen
+audiomenu.hdmi_dd Dolby Digital via HDMI
+audiomenu.head Audio instellingen
 audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
 audiomenu.ost oost
 audiomenu.stereo stereo
-audioplayer.add voegtoe
+audioplayer.add voeg toe
 audioplayer.artist_title Artiest, Titel
+audiomenu.avsync A/V sync
 audioplayer.building_search_index building search index
 audioplayer.button_select_title_by_id zoek op ID
 audioplayer.button_select_title_by_name zoek op naam
@@ -160,25 +168,26 @@ audioplayer.keylevel toets stand
 audioplayer.name Audiospeler
 audioplayer.pause pause
 audioplayer.play Afspelen
-audioplayer.playing Aktuele Track
-audioplayer.playlist_fileerror_msg File niet gemaakt:
-audioplayer.playlist_fileerror_title File fout
-audioplayer.playlist_fileoverwrite_msg Wil je deze file overschrijven:
+audioplayer.playing huidige track
+audioplayer.playlist_fileerror_msg Bestand niet gemaakt:
+audioplayer.playlist_fileerror_title Bestands fout
+audioplayer.playlist_fileoverwrite_msg Wil je dit bestand overschrijven:
 audioplayer.playlist_fileoverwrite_title Titel overschrijven?
 audioplayer.playlist_name filenaam van de afspeellijst
-audioplayer.playlist_name_hint1 Geef aub de filenaam van de afspeellijst in
+audioplayer.playlist_name_hint1 Geef aub de naam van de afspeellijst in
 audioplayer.playlist_name_hint2 De extensie .m3u wordt aut. toegevoegd
 audioplayer.enable_sc_metadata enable shoutcast meta data parsing
-audioplayer.repeat_on herhaal mode inschakelen
-audioplayer.rewind opnieuw spoelen
+audioplayer.repeat_on herhaal-mode inschakelen
+audioplayer.rewind terug spoelen
 audioplayer.save_playlist sla afspeellijst op
 audioplayer.screensaver_timeout screensaver timeout (min, 0=off)
 audioplayer.select_title_by_name zoek titel bij naam (SMS)
 audioplayer.show_playlist Toon afspeellijst
-audioplayer.shuffle schudden
+audioplayer.shuffle willekeurig
+audiomenu.spdif_dd Dolby Digital via S/PDIF
 audioplayer.stop Stop
 audioplayer.title_artist Titel, Artiest
-audioplayerpicsettings.general audiospeler / plaatjeskijken
+audioplayerpicsettings.general audiospeler / afbeeldingen
 bookmarkmanager.delete wissen
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename hernoem
@@ -199,9 +208,19 @@ bouqueteditor.savingchanges Sla veranderingen op. Wacht aub ...
 bouqueteditor.switch voegtoe/verwijder
 bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
-cablesetup.provider kabel provider
-channellist.head All Onderhoud
+cablesetup.provider kabel-provider
+channellist.current_tp Huidige transponder
+channellist.edit Bewerken
+channellist.epgtext_align_left links
+channellist.epgtext_align_right rechts
+channellist.extended Uitgebreide EPG tonen
+channellist.fav Favorieten
+channellist.head Alle kanalen
+channellist.history Historie
+channellist.make_hdlist HD-kanalen als favoriet tonen
 channellist.nonefound Geen kanalen gevonden!\nVoer aub een scan uit\n(DBOX-key -> onderhoud)
+channellist.provs providers
+channellist.sats Satellieten
 channellist.since start tijd %02d:%02d
 colorchooser.alpha alpha
 colorchooser.blue blauw
@@ -253,19 +272,27 @@ epglist.noevents EPG niet aanwezig...
 epgviewer.More_Screenings Volgend scherm
 epgviewer.nodetailed Geen gedetaileerde informatie aanwezig
 epgviewer.notfound geen epg gevonden
-eventlistbar.channelswitch markeren
-eventlistbar.eventsort sorteer
-eventlistbar.recordevent neemop
+eventfinder.head EPG-zoeken
+eventfinder.keyword Zoek naar bepaalde tekst
+eventfinder.search Zoek
+eventfinder.search_within_list Zoek binnen een tekst
+eventfinder.searching zoeken...
+eventfinder.search_within_epg Zoeken in
+eventfinder.start_search Zoeken starten
+eventlistbar.channelswitch Omschakelen
+eventlistbar.eventsort Sorteren
+eventlistbar.recordevent Openemen
+extra.temp_timeshift Timeshift
 favorites.addchannel Het aktuele kanaal wordt toegevoegd \naan het bouquet"My Favorites".\nDit duurt enkele seconden...
-favorites.bouquetname My Favorites
-favorites.bqcreated Bouquet "My Favorites" is gemaakt...\n
+favorites.bouquetname Mijn favorieten
+favorites.bqcreated Bouquet "Mijn favorieten" is gemaakt...\n
 favorites.chadded Het aktuele Kanaal is aan je favorieten toegevoegd...\n
 favorites.chalreadyinbq Het aktuele kanaal is reeds in je Favorieten...\n
 favorites.finalhint \nGebruik de bouquet bewerker om je Favorieten aan te passen.\n
 favorites.menueadd voeg Kanaal toe aan favorieten
 favorites.nobouquets Favorieten zijn alleen beschikbaar bij geactiveerde Bouquets .
 filebrowser.delete Wis
-filebrowser.denydirectoryleave weiger dir teverlaten
+filebrowser.denydirectoryleave weiger dir te verlaten
 filebrowser.dodelete1 Wis
 filebrowser.dodelete2 ?
 filebrowser.filter.active Filter aan
@@ -276,14 +303,14 @@ filebrowser.nextpage volgende pagina
 filebrowser.prevpage vorige pagina
 filebrowser.scan Scanning folder
 filebrowser.select Selecteer
-filebrowser.showrights Toon file rechten
+filebrowser.showrights Toon bestands rechten
 filebrowser.sort.date (datum)
 filebrowser.sort.name (filenaam)
 filebrowser.sort.namedirsfirst (filenaam2)
 filebrowser.sort.size (grootte)
 filebrowser.sort.type (type)
 flashupdate.actionreadflash Flash lezen
-flashupdate.cantopenfile kan de file niet openen
+flashupdate.cantopenfile kan bestand niet openen
 flashupdate.cantopenmtd kan mtd-device niet openen
 flashupdate.checkupdate zoek naar nieuwe versie
 flashupdate.currentreleasecycle Release cycle
@@ -368,16 +395,42 @@ fontsize.menu_info Menu Info
 fontsize.menu_title Menu Titel
 gtxalpha.alpha1 Alpha 1
 gtxalpha.alpha2 Alpha 2
+hdd_10min 10 min.
+hdd_1min 1 min.
+hdd_20min 20 min.
+hdd_30min 30 min.
+hdd_5min 5 min.
+hdd_60min 60 min.
+hdd_activate Instellingen aktiveren
+hdd_check Controleer systeem
+hdd_check_failed Controle van harddisk mislukt
+hdd_ext3 Ext3fs
+hdd_fast Snel
+hdd_format Formatteer harddisk
+hdd_format_failed Formatteren mislukt
+hdd_format_warn Formatteren wordt gestart
+hdd_fs Bestands systeem
+hdd_manage Disk management
+hdd_middle Middel
+hdd_noise Acoustiek-instelling
+hdd_not_found Geen harddisk gedetecteerd
+hdd_reiser Reiserfs
+hdd_settings Harddisk instellingen
+hdd_sleep Stop motor na 
+hdd_slow Langzaam
+hdd_umount_warn unmout harddisk
 infoviewer.epgnotload EPG niet geladen....
 infoviewer.epgwait wacht op EPG...
 infoviewer.eventlist Prg,s overzicht
 infoviewer.languages Talen
+infoviewer.next Hierna
+infoviewer.now Huidig
 infoviewer.motor_moving Motor aan het werk
 infoviewer.nocurrent Geen info over aktueel programma beschikbaar
 infoviewer.noepg EPG niet beschikbaar
 infoviewer.notavailable Kanaal niet beschikbaar
 infoviewer.selecttime Tijd kiezen
-infoviewer.streaminfo Stream info
+infoviewer.streaminfo Extra's
 infoviewer.subservice Subservices
 infoviewer.waittime Wacht op de tijd...
 ipsetup.hint_1 Benut 0..9, of benut Op/Neer,
@@ -429,13 +482,14 @@ lcdmenu.statusline status lijn
 lcdmenu.statusline.both volume / speelduur
 lcdmenu.statusline.playtime speelduur
 lcdmenu.statusline.volume volume
-mainmenu.audioplayer Audiospeler
+mainmenu.audioplayer Audio-speler
 mainmenu.games Spellen
 mainmenu.head Hoofd Menu
-mainmenu.movieplayer Filmspeler
+mainmenu.movieplayer Movie-player
 mainmenu.pausesectionsd Lees EPG
-mainmenu.pictureviewer Plaatjeskijker
+mainmenu.pictureviewer Afbeeldingen
 mainmenu.radiomode Radio-Mode
+mainmenu.reboot Herstart neutrino
 mainmenu.recording Opnemen
 mainmenu.recording_start start
 mainmenu.recording_stop stop
@@ -453,10 +507,12 @@ mainsettings.language Taal
 mainsettings.lcd LC-Display
 mainsettings.misc Diverse instellingen
 mainsettings.network Netwerk
+mainsettings.osd OSD instellingen
 mainsettings.recording Opnemen
 mainsettings.savesettingsnow sla instellingen nu op
 mainsettings.savesettingsnow_hint Sla instellingen op,\nwacht aub...
 mainsettings.streaming Filmspeler
+mainsettings.timezone Tijdzone
 mainsettings.video Video
 menu.back terug
 messagebox.back terug
@@ -468,13 +524,20 @@ messagebox.no Nee
 messagebox.yes Ja
 miscsettings.bootinfo Toon info bij start
 miscsettings.bootmenu Toon boot menu
+miscsettings.channellist Kanalenlijst
+miscsettings.channellist_epgtext_align Huidige uitzending tonen
 miscsettings.driver_boot driver en boot opties
+miscsettings.epg_cache EPG cache (Dagen)
+miscsettings.epg_extendedcache Beschrijvingen behouden (Uren)
+miscsettings.epg_old_events EPG verwijderen na (Uren)
+miscsettings.epg_max_events Max. events
 miscsettings.fb_destination Expert! Boot-Console
 miscsettings.general Algemeen
 miscsettings.head Diverse instellingen
 miscsettings.hwsections hardware secties gebruiken
 miscsettings.infobar_sat_display Satelliet display op infobar
 miscsettings.pmtupdate enable pmt update
+miscsettings.shutdown_count Geheel uitschakelen na
 miscsettings.shutdown_real Schakel standby in
 miscsettings.shutdown_real_rcdelay Vertraagde shutdown
 miscsettings.sptsmode gebruik spts mode
@@ -507,6 +570,14 @@ networkmenu.ipaddress IP adres
 networkmenu.mount NFS/CIFS
 networkmenu.nameserver server naam
 networkmenu.netmask netmask
+networkmenu.ntpenable Synchroniseren van tijd via internet
+networkmenu.ntprefresh NTP/ DVB-verversen na (sek.)
+networkmenu.ntprefresh_hint1 NTP/ DVB-time-sync in minuten
+networkmenu.ntprefresh_hint2 EPG-Reset of reboot benodigd
+networkmenu.ntpserver NTP-Server (Time-server)
+networkmenu.ntpserver_hint1 NTP-server Bijvoorbeeld: ntp1.ptb.de
+networkmenu.ntpserver_hint2 EPG-Reset of reboot benodigd
+networkmenu.ntptitle Tijd-syncronisatie
 networkmenu.setupnow netwerk veranderingen uitvoeren
 networkmenu.setuponstartup netwerk bij startup
 networkmenu.show Toon actief netwerk instellingen
@@ -557,47 +628,50 @@ parentallock.onsignal bij uitgezending lock
 parentallock.parentallock Jeugd bescherming
 parentallock.prompt prompt voor PIN
 pictureviewer.defdir start dir.
-pictureviewer.head Plaatjes kijker
-pictureviewer.resize.color_average uitvoerig
+pictureviewer.head Viewer
+pictureviewer.resize.color_average gemiddeld
 pictureviewer.resize.none niet
 pictureviewer.resize.simple eenvoudig
 pictureviewer.scaling scaling
 pictureviewer.show Tonen
-pictureviewer.slide_time diashow speel duur
+pictureviewer.slide_time speelduur van diashow
 pictureviewer.slideshow diashow
 pictureviewer.sortorder verander sorteer volgorde
-pictureviewer.sortorder.date (datum)
-pictureviewer.sortorder.filename (filenaam)
+pictureviewer.sortorder.date datum
+pictureviewer.sortorder.filename bestandsnaam
 ping.ok is bereikbaar (ping)
 ping.protocol is onbereikbaar (host of protocol fout)
 ping.socket is onbereikbaar (socket fout)
 ping.unreachable is onbereikbaar
 pinprotection.head Geef PIN code in
 pinprotection.wrongcode PIN-Code was verkeerd! Probeer opnieuw.
-rclock.lockmsg Je ruDbox A-fstand B-ediening is vergrendeld.\nOm je A-B te ontgrendelen, druk <ROOD> en <DBOX>\nop je A-fstand B-ediening.
+rclock.lockmsg Je Coolstream A-fstand B-ediening is vergrendeld.\nOm je A-B te ontgrendelen, druk <ROOD> en <DBOX>\nop je A-fstand B-ediening.
 rclock.menueadd Vergrendel A-B 
 rclock.title Vergrendel Afstand Bediening
 rclock.unlockmsg A-fstand B-ediening gereactiveerd.
-recordingmenu.defdir opneem directory
+recordingmenu.defdir Opname opslaan in
 recordingmenu.file direct (file)
 recordingmenu.head Opneem instellingen
 recordingmenu.help Recording devices:\n--------------------------\nserver:\ngebruik stream software op een PC\n\n(analoog) vcr:\ngebruik de vcr uitgang\n\ndirect (file):\ndirect in een NFS mounted directory\nof op een interne hard disk\nTS: gebruik spts mode(dbox2)\nPES: niet spts mode(dbox2) gebruiken\n\n\nMax. file grootte:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: bijna ongelimiteerd (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.no_scart onderdruk scart mode schakelen
 recordingmenu.off uit
-recordingmenu.recording_type opneem device
+recordingmenu.recording_type opslag-medium
 recordingmenu.server server
-recordingmenu.server_ip opneem server IP
+recordingmenu.server_ip opslag-server IP
 recordingmenu.server_mac MAC adres
-recordingmenu.server_port opneem server poort
-recordingmenu.server_wakeup opneem server WOL
+recordingmenu.server_port opslag-server poort
+recordingmenu.server_wakeup opslag-server WOL
 recordingmenu.setupnow activeer veranderingen nu
 recordingmenu.splitsize Max. file grootte (MB)
 recordingmenu.stopplayback stop terug spelen
 recordingmenu.stopsectionsd stop sectionsd
 recordingmenu.stream_vtxt_pid neem videotext op
+recordingmenu.tsdir TS opslaan in
 recordingmenu.use_o_sync schrijf synchroon (O_SYNC)
 recordingmenu.vcr vcr
 recordtimer.announce Opname start over enkele minuten
+reset_channels Wis alle kanalen
+reset_settings Terug naar fabrieksinstellingen
 repeatblocker.hint_1 Kortste tijd (in ms) tussen 2 toets aanslagen
 repeatblocker.hint_2 0 schakeld de blocker uit (rood is space)
 satsetup.diseqc DiSEqC
@@ -607,6 +681,9 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqcrepeat DiSEqC-herhalingen
 satsetup.extended DiSEqC-Instellingen
 satsetup.extended_motor Motor-Instellingen
+satsetup.auto_scan Automatisch scannen
+satsetup.auto_scan_all Alle satellieten automatisch scannen
+satsetup.manual_scan Handmatig scannen
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motorcontrol Motor handmatig instellen
 satsetup.nodiseqc geen DiSEqC
@@ -638,7 +715,7 @@ screensetup.upperleft rood = links boven instellen
 servicemenu.head Onderhoud
 servicemenu.reload lees kanaallijst opnieuw in
 servicemenu.reload_hint Lees kanaallijst opnieuw in,\ngeduld aub.
-servicemenu.scants Scan onderhouden
+servicemenu.scants Kanalen zoeken
 servicemenu.ucodecheck Check ucodes
 servicemenu.update Software Update
 settings.help Help
@@ -770,15 +847,48 @@ ucodecheck.cam-alpha Cam-Alpha
 ucodecheck.head UCode check
 ucodecheck.ucode UCode
 ucodes.failure ATTENTIE, µCodes NIeT gevonden!\n\nAub uploaden via FTP (of DBox-BootManager),\nen herstart je ruDbox!
+usermenu.button_blue Gebruikersmenu 'blauw'
+usermenu.button_green Gebruikersmenu 'groen'
+usermenu.button_red Gebruikersmenu 'rood'
+usermenu.button_yellow Gebruikersmenu 'geel'
+usermenu.head Gebruikersmenu
+usermenu.item_bar ---- Scheiding ----
+usermenu.item_epg_misc EPG funkties
+usermenu.item_none 
+usermenu.item_vtxt Teletext
+usermenu.name Naam
+video_mode_ok Video-instellingen ok ?
+videomenu.43mode 4:3 beeldverhouding
+videomenu.analog_hd_rgb RGB (HD)
+videomenu.analog_hd_yprpb_cinch YPbPr -> Cinch (HD)
+videomenu.analog_hd_yprpb_scart YPbPr -> Scart (HD)
+videomenu.analog_mode Videomode
+videomenu.analog_sd_rgb RGB (SD)
+videomenu.analog_sd_yprpb_cinch YPbPr -> Cinch (SD)
+videomenu.analog_sd_yprpb_scart YPbPr -> Scart (SD)
+videomenu.auto Automatisch
 videomenu.csync sync correctie
+videomenu.dbdr Beeldverbeteraar (Filter) 
+videomenu.dbdr_none uit
+videomenu.dbdr_deblock Blockbildung
+videomenu.dbdr_both Block- & Ringbildung
+videomenu.enabled_modes Videosysteem onder de V.F-Toets
+videomenu.fullscreen Volledig beeld
 videomenu.head Video Instellingen
+videomenu.letterbox Letterbox
 videomenu.rgb_centering RGB centrering
 videomenu.screensetup Scherm aanpassen
+videomenu.tv-scart TV Scart
+videomenu.vcr-scart VCR Scart
+videomenu.vcrsignal VCR-uitgang signaal type
+videomenu.vcrsignal_composiet CVBS
+videomenu.vcrsignal_svideo S-Video
 videomenu.vcrswitch Schakel Scart automatisch
 videomenu.videoformat Formaat
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
+videomenu.videoformat_149 14:9
 videomenu.videoformat_autodetect autodetecteer
 videomenu.videosignal VideoOutput
 videomenu.videosignal_composite CVBS
@@ -787,52 +897,6 @@ videomenu.videosignal_svideo S-Video
 videomenu.videosignal_yuv_c YUV + CVBS
 videomenu.videosignal_yuv_v YUV + VBS
 zaptotimer.announce Zap naar timer in een minute
-extra.auto Auto
-extra.valid Valid
-extra.all Alles
-extra.new_keys Nieuwe keys
-extra.all_keys Alle keys
-extra.vartmp /var/tmp
-extra.varkeys /var/keys
-extra.algo Algo pids
-extra.gbox_emu Emu
-extra.gbox_softcam Softcam
-extra.gbox_net Netwerk
-extra.gbox_mix Mixed
-extra.gbox_info Gbox Info
-extra.sep_extra Extras
-extra.save_settings Sla Instellingen op
-extra.extra_menu Addons
-extra.ecm_info Ecm Info
-extra.pid_info Pid Info
-extra.emm_info New Keys
-extra.emu_type Emu Type
-extra.camd Camd
-extra.restart_camd Herstart camd
-extra.mg_settings Mgcamd instellingen
-extra.netmode Netmode
-extra.autoupdate Autoupdate
-extra.show_ecm Toon Ecm
-extra.show_emm Toon Emm
-extra.keyupdate Key update
-extra.osd OSD
-extra.keyfolder Key dir
-extra.hash_pids Hash pids
-extra.gbox_settings Gbox instellingen
-extra.gbox_mode Mode
-extra.newcamd_settings Newcamd instellingen
-extra.show_cw Toon CW
-extra.debug_ecm Debug Ecm
-extra.disable_cam Disable CAM
-extra.show_cat Toon CAT
-extra.show_pmt Toon PMT
-extra.update_pmt Update PMT
-extra.report_emm Meld verkeerd EMM sig.
-extra.debug_emm Debug Emm
-extra.show_allca Toon alle ca sys.
-extra.reload_keys Herlaad keys bij zap
-extra.reload_cfg Herlaad config bij zap
-extra.cw_delay Default CW delay
 extra.dvbsnoop DVB Stream Info
 extra.dvbsnoop_pat Toon PAT
 extra.dvbsnoop_cat Toon CAT
@@ -851,7 +915,7 @@ extra.ru ruDREAM
 extra.english Engels
 extra.dboxinfo Box Info
 extra.scan_mode Scan mode
-extra.start_tostandby Start tot standby
+extra.start_tostandby In standby gaan na opstarten
 extra.rotor_swap Swap rotor oost/west
 extra.use_log Log to /tmp/log
 extra.spts_mode SPTS mode
@@ -916,10 +980,11 @@ extra.zapit_delete Delete channels
 extra.zapit_fast_zap fast zap
 extra.zapit_restore Restore channels from /tmp
 extra.zapit_sort_names Sort ch. by name
+fan_speed Ventilator snelheid
 filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
-infoviewer.subchan_disp_pos Subchannel display
+infoviewer.subchan_disp_pos Toon subkanalen
 mainmenu.scripts Scripts
 miscsettings.noaviawatchdog enable AVIA watchdog
 miscsettings.noenxwatchdog enable eNX watchdog
@@ -973,38 +1038,39 @@ pictureviewer.help7 next image
 pictureviewer.help8 change sort order
 pictureviewer.help9 exit
 plugins.result plugin output
-recordingmenu.choose_direct_rec_dir choose dir on imm. recording
-recordingmenu.epg_for_filename long filenames (with EPG data)
-recordingmenu.filesettings direct recording settings
+recordingmenu.choose_direct_rec_dir kies dir. voor directe opnames
+recordingmenu.epg_for_filename lange bestandsnamen (met EPG data)
+recordingmenu.filesettings direct opname instellingen
 recordingmenu.ringbuffers no. of ringbuffers
-recordingmenu.use_fdatasync write synchronous (fdatasync)
-settings.pos_bottom_left bottom left
-settings.pos_bottom_right bottom right
-settings.pos_top_left oben top left
-settings.pos_top_right oben top right
+recordingmenu.use_fdatasync schrijf synchronous (fdatasync)
+settings.pos_bottom_left linksonder
+settings.pos_bottom_right rechtsonder
+settings.pos_top_left linksboven
+settings.pos_top_right rechtsboven
 timerlist.plugin Plugin
-timerlist.recording_dir recording directory
-timerlist.repeatcount repeats 
-timerlist.repeatcount.help1 amount of timer repeats 
-timerlist.repeatcount.help2 0 for unlimited repeats 
-timerlist.type.execplugin Execute plugin
-audioplayer.reading_files reading files
-pictureviewer.decode_server_ip decode server ip
-pictureviewer.decode_server_port decode server port
-scants.abort_body Should the search really be aborted?
+timerlist.recording_dir opname directory
+timerlist.repeatcount herhalingen 
+timerlist.repeatcount.help1 aantal timer herhalingen 
+timerlist.repeatcount.help2 0 voor ongelimiteerd 
+timerlist.type.execplugin Start plugin
+audioplayer.reading_files bestanden lezen
+pictureviewer.decode_server_ip decodeer server ip
+pictureviewer.decode_server_port decodeer server port
+scants.abort_body Zoeken echt afbreken?
 scants.abort_header Onderbreek Scan
 recordingmenu.record_in_spts_mode switch to spts mode before recording
-servicemenu.getplugins Reload plugins
-servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
-zapit.scantype scan for services
-zapit.scantype.all all services
-zapit.scantype.radio only radio
-zapit.scantype.tv only tv
+servicemenu.getplugins Herlaad plugins
+servicemenu.getplugins_hint Herladen van plugins bezig,\nmomentje aub..
+usermenu.head Gebruikers menu
+zapit.scantype scan naar services
+zapit.scantype.all alle services
+zapit.scantype.radio alleen radio
+zapit.scantype.tv alleen tv
 zapit.scantype.tvradio tv & radio
-colorthememenu.red_theme Simply Red
-lcdmenu.dim_brightness Brightness after dim timeout
+colorthememenu.red_theme Simpel Red
+lcdmenu.dim_brightness Helderheid na dim-timeout
 lcdmenu.dim_time Dim timeout
-timerlist.overlapping_timer Timer conflict. Create the timer anyway?
+timerlist.overlapping_timer Timer conflict. Ondanks dit toch de timer maken?
 extra.audio_run_player Audio key start player
 mpkey.rewind Rewind
 mpkey.forward Forward
@@ -1016,13 +1082,13 @@ mpkey.time Show time
 mpkey.bookmark save bookmark
 mpkey.plugin Run plugin
 extra.key_click Key click
-extra.loadcolors Load colors from
-extra.savecolors Save colors as
-extra.loadkeys Load keys from
-extra.savekeys Save keys as
-extra.loadconfig Load settings from
-extra.saveconfig Save settings as
-videomenu.videomode Video system
+extra.loadcolors Kleuren inladen vanaf
+extra.savecolors Kleuren opslaan als
+extra.loadkeys Keys inladen vanaf
+extra.savekeys Keys opslaan als
+extra.loadconfig Instellingen laden
+extra.saveconfig Sla configuratie op als
+videomenu.videomode Video systeem
 videomenu.videomode_ntsc NTSC
 videomenu.videomode_pal PAL
 videomenu.videomode_palm PAL-M
@@ -1030,45 +1096,36 @@ extra.key_timeshift Timeshift
 extra.key_plugin One touch plugin
 extra.timeshift_pause Timeshift pause
 rfmod.rfmod RF modulator
-rfmod.carrier Subcarrier Frequency
+rfmod.carrier Subcarrier Frequentie
 rfmod.carrier4500 4.5
 rfmod.carrier5500 5.5
 rfmod.carrier6000 6.0
 rfmod.carrier6500 6.5
-rfmod.enable Enable sound
-rfmod.channel Channel
+rfmod.enable Schakel geluid in
+rfmod.channel Kanaal
 rfmod.finetune Fine tune
-rfmod.standby Enable modulator
-rfmod.test Test pattern
-extra.zapit_scanpids Scan/Use pids
-extra.zapit_rezap_time Re-Zap on emu switch time
-extra.zapit_hvoltage High (13.5/18.5) voltage
-extra.key_unlock Unlock key
-extra.mg_netoptions Network options
-extra.mg_ecm_timeout Network ecm timeout
-extra.mg_reconnect Shares reconnect
-extra.mg_priority Share priority
-extra.mg_osd_options Osd options
-extra.mg_reread Reread files on zap
-servicemenu.imageinfo Image info
-imageinfo.creator Creator:
-imageinfo.date Date:
+rfmod.standby Schakel modulator in
+rfmod.test Test-beeld
+extra.zapit_scanpids Scan/Gebruik pids
+servicemenu.imageinfo Techies Image info
+imageinfo.creator Gemaakt door:
+imageinfo.date Datum:
 imageinfo.dokumentation Docs:
 imageinfo.forum Forum:
 imageinfo.head Image info:
 imageinfo.homepage Home page:
 imageinfo.image Image:
-imageinfo.license License:
-imageinfo.version Version:
+imageinfo.license Licentie:
+imageinfo.version Versie:
 extra.cache_txt Cache teletext
-extra.use_gotoxx Use gotoXX
+extra.use_gotoxx Gebruik gotoXX
 extra.latitude Latitude
 extra.longitude Longitude
 extra.ladirection LaDirection
 extra.lodirection LoDirection
-extra.south South
-extra.north North
-extra.east East
+extra.south Zuid
+extra.north Noord
+extra.east Oost
 extra.west West
 epgextended.actors Actors
 epgextended.director Director
@@ -1091,147 +1148,149 @@ extra.tp_mod_128 QAM/128
 extra.tp_mod_256 QAM/256
 moviebrowser.book_head Bookmarks
 moviebrowser.book_lastmoviestop Last play stop:
-moviebrowser.book_movieend Movie end:
-moviebrowser.book_moviestart Movie start:
-moviebrowser.book_name Name:
-moviebrowser.book_new New Bookmark
-moviebrowser.book_position Position:
-moviebrowser.book_type Jump (<0 back , >0 for):
-moviebrowser.book_type_backward Repeat
-moviebrowser.book_type_forward jump over
-moviebrowser.edit_book Bookmark change
-moviebrowser.edit_book_name_info1 Enter new Bookmark name
+moviebrowser.book_movieend Einde film:
+moviebrowser.book_moviestart Start film:
+moviebrowser.book_name Naam:
+moviebrowser.book_new Nieuwe bookmark
+moviebrowser.book_position Positie:
+moviebrowser.book_type Spring (<0 terug , >0 voor):
+moviebrowser.book_type_backward Herhaal
+moviebrowser.book_type_forward sprong van
+moviebrowser.edit_book Bookmark verander
+moviebrowser.edit_book_name_info1 Geef nieuwe bookmark naam
 moviebrowser.edit_book_name_info2 
-moviebrowser.edit_book_pos_info1 Enter new Position (s)
+moviebrowser.edit_book_pos_info1 Geef nieuwe eindpositie (s)
 moviebrowser.edit_book_pos_info2 
-moviebrowser.edit_book_type_info1 Enter new jump length (s)
-moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
-moviebrowser.edit_serie Enter name of serie
-moviebrowser.error_no_movies No movies found
+moviebrowser.edit_book_type_info1 Geef lengte nieuwe sprong (s)
+moviebrowser.edit_book_type_info2 <0 terug , >0 voor, 0: geen
+moviebrowser.edit_serie Geef de naam van de serie op
+moviebrowser.error_no_movies geen films gevonden
 moviebrowser.foot_filter Filter:
-moviebrowser.foot_play Start movie
-moviebrowser.foot_sort Sort:
-moviebrowser.head TS MovieBrowser
-moviebrowser.head_filter Filter movies by category:
-moviebrowser.head_playlist Last played:
-moviebrowser.head_recordlist Last recorded:
-moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel 
-moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel 
-moviebrowser.hint_movieend Filmende in 5 s\n '0' zum weitersehen 
-moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition 
-moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition 
+moviebrowser.foot_play Start film
+moviebrowser.foot_sort Sorteer:
+moviebrowser.head TS Film browser
+moviebrowser.head_filter Filter flims per kategorie:
+moviebrowser.head_playlist Laatst afgespeeld:
+moviebrowser.head_recordlist Laatst opgenomen:
+moviebrowser.hint_jumpbackward Sprong terug over 5 s\n '0' om te annuleren 
+moviebrowser.hint_jumpforward Srong vooruit over 5 s\n '0' om te annuleren 
+moviebrowser.hint_movieend Einde van de film over 5 s\n '0' om verder te kijken 
+moviebrowser.hint_newbook_backward Nieuwe sprong terug\n 'blue' voor eindpositie 
+moviebrowser.hint_newbook_forward Nieuwe sprong vooruit\n 'blue' voor eindpositie 
 moviebrowser.info_audio Audio
-moviebrowser.info_channel Channel
-moviebrowser.info_filename Name
+moviebrowser.info_channel Kanaal
+moviebrowser.info_filename Naam
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre
-moviebrowser.info_head Film Informationen
+moviebrowser.info_head Film informatie
 moviebrowser.info_info1 Info 1
 moviebrowser.info_info2 Info 2
-moviebrowser.info_length Length (Min)
-moviebrowser.info_parental_lockage Parental Lock age
-moviebrowser.info_parental_lockage_0year always
-moviebrowser.info_parental_lockage_12year 12 years
-moviebrowser.info_parental_lockage_16year 16 years
-moviebrowser.info_parental_lockage_18year 18 years
-moviebrowser.info_parental_lockage_6year 6 years
-moviebrowser.info_parental_lockage_always never 
+moviebrowser.info_length Lengte (Min)
+moviebrowser.info_parental_lockage Kinderslot instellingen
+moviebrowser.info_parental_lockage_0year altijd
+moviebrowser.info_parental_lockage_12year 12 jaar
+moviebrowser.info_parental_lockage_16year 16 jaar
+moviebrowser.info_parental_lockage_18year 18 jaar
+moviebrowser.info_parental_lockage_6year 6 jaar
+moviebrowser.info_parental_lockage_always nooit 
 moviebrowser.info_path Path
-moviebrowser.info_prevplaydate Last play date
-moviebrowser.info_prodcountry Country
-moviebrowser.info_prodyear Year
-moviebrowser.info_quality Quality
-moviebrowser.info_recorddate Record date
+moviebrowser.info_prevplaydate Laatst afgespleeld op
+moviebrowser.info_prodcountry LAnd
+moviebrowser.info_prodyear Jaar
+moviebrowser.info_quality Qualiteit
+moviebrowser.info_recorddate Datum van opname
 moviebrowser.info_serie Serie
-moviebrowser.info_size File size (MB)
+moviebrowser.info_size Bestandsgrootte in (MB)
 moviebrowser.info_title Titel
-moviebrowser.info_videoformat Picture
-moviebrowser.menu_directories_head Paths
+moviebrowser.info_videoformat Afbeeldingen
+moviebrowser.menu_directories_head Directory's
 moviebrowser.menu_help_head Help
 moviebrowser.menu_main_bookmarks Bookmarks
-moviebrowser.menu_main_head Settings
-moviebrowser.menu_main_movieinfo Movie info
-moviebrowser.menu_main_saveandback save and back
+moviebrowser.menu_main_head Instellingen
+moviebrowser.menu_main_movieinfo Film info
+moviebrowser.menu_main_saveandback opslaan en terug
 moviebrowser.menu_nfs_head NFS settings
-moviebrowser.menu_parental_lock_activated activated
-moviebrowser.menu_parental_lock_activated_no no
-moviebrowser.menu_parental_lock_activated_yes yes
-moviebrowser.menu_parental_lock_activated_no_temp no (temporary)
-moviebrowser.menu_parental_lock_head Parental Lock
-moviebrowser.menu_parental_lock_rate_head Lock movies from
-moviebrowser.scan_for_movies Scan for Movies ...
-moviebrowser.serie_existingname Existing series
+moviebrowser.menu_parental_lock_activated geactiveerd
+moviebrowser.menu_parental_lock_activated_no nee
+moviebrowser.menu_parental_lock_activated_yes ja
+moviebrowser.menu_parental_lock_activated_no_temp nee (tijdelijk)
+moviebrowser.menu_parental_lock_head Kinderslot
+moviebrowser.menu_parental_lock_rate_head Lock films van
+moviebrowser.scan_for_movies Films scannen ...
+moviebrowser.serie_existingname Betsaande series
 moviebrowser.serie_head Serie
-moviebrowser.serie_name Change name
+moviebrowser.serie_name Verander naam
 moviebrowser.short_audio Audio
-moviebrowser.short_book Book
-moviebrowser.short_channel Channel
-moviebrowser.short_country Country
-moviebrowser.short_filename Name
+moviebrowser.short_book Boek
+moviebrowser.short_channel Kanaal
+moviebrowser.short_country Land
+moviebrowser.short_filename Naam
 moviebrowser.short_format Format
 moviebrowser.short_genre_major Genre
 moviebrowser.short_genre_minor Genre
 moviebrowser.short_info1 Info 1
 moviebrowser.short_info2 Info 2
 moviebrowser.short_length Min
-moviebrowser.short_parental_lockage Age
+moviebrowser.short_parental_lockage Leeftijd
 moviebrowser.short_path Path
-moviebrowser.short_prevplaydate Last
-moviebrowser.short_prodyear Year
+moviebrowser.short_prevplaydate Laatst
+moviebrowser.short_prodyear Jaar
 moviebrowser.short_quality * (quality)
-moviebrowser.short_recorddate Date
+moviebrowser.short_recorddate Datum
 moviebrowser.short_serie Serie
 moviebrowser.short_size MB
-moviebrowser.short_title Title
-moviebrowser.start_head Start movie from:
-moviebrowser.start_record_start Movie start
+moviebrowser.short_title Titel
+moviebrowser.start_head Start film from:
+moviebrowser.start_record_start Film start
 options.on.without_messages Without msg
 extra.zapit_scan_sdt Scan SDT for updates
-extra.zapit_sdt_changed Channels changed, reload settings.
+extra.zapit_sdt_changed Kanalenlijst veranderd, herladen van lijsten.
 miscsettings.virtual_zap_mode Virtual zap
-miscsettings.epg_head Epg settings
-miscsettings.epg_cache_days  EPG-Cache (days)
-miscsettings.epg_old_hours Events old after (hours)
-miscsettings.epg_dir Dir for epg cache
-miscsettings.epg_save Save/Restore epg on reboot
-shutdown.recoding_query Box in record mode, you really want to shutdown ?
+miscsettings.epg_head Epg instellingen
+miscsettings.epg_cache_days  EPG-Cache (dagen)
+miscsettings.epg_old_hours Events verouderd na (uren)
+miscsettings.epg_dir Dir voor epg cache
+miscsettings.epg_save Save/Herstel EPG na herstart
+shutdown.recoding_query De opname echt afbreken ?
 recordingmenu.apids default audio streams
 recordingmenu.apids_ac3 record AC3 streams
-recordingmenu.apids_alt record alternative streams
-recordingmenu.apids_std record standard stream
-recordingmenu.stream_pmt_pid record PMT
-recordingmenu.zap_on_announce zap on recording announce
-timerlist.apids_dflt record default audio streams
+recordingmenu.apids_alt record alternatieve streams
+recordingmenu.apids_std record standaard stream
+recordingmenu.stream_pmt_pid opname PMT
+recordingmenu.zap_on_announce melding zappen tijdens opname
+timerlist.apids_dflt record standaard audio streams
 videomenu.osd OSD
 videomenu.tv-scart TV Scart
 videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR Output Signal Type
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-moviebrowser.option_browser Browser Options
-moviebrowser.book_clear_all Clear all
-moviebrowser.menu_save Save changes
-moviebrowser.menu_save_all Start update of movie info files
-moviebrowser.info_head_update Save changes in all movie info files
+moviebrowser.option_browser Browser Opties
+moviebrowser.book_clear_all Alles wissen
+moviebrowser.menu_save Veranderingen opslaan
+moviebrowser.menu_save_all Start update van film info bestanden
+moviebrowser.info_head_update Alle wijzigingen van alle film info bestanden opslaan
 moviebrowser.update_if_dest_empty_only Copy if destination is empty only
 moviebrowser.serie_auto_create Serie auto create
-moviebrowser.load_default Load default settings
-moviebrowser.browser_row_head Row settings
-moviebrowser.browser_row_nr Number of rows
-moviebrowser.browser_row_item Row item
-moviebrowser.browser_row_width Row width
-moviebrowser.reload_at_start Reload movie info at start
-moviebrowser.remount_at_start Remount at start
+moviebrowser.load_default Laadt standaard instellingen
+moviebrowser.browser_row_head Kolom instellingen
+moviebrowser.browser_row_nr Aantal kolommen
+moviebrowser.browser_row_item Kolom item
+moviebrowser.browser_row_width Kolom breedte
+moviebrowser.reload_at_start Opnieuw inladen van film info na starten
+moviebrowser.remount_at_start Hermount na opstarten
 moviebrowser.dir_head Additional paths
 moviebrowser.dir Path
-moviebrowser.use_dir Use directory
-moviebrowser.use_rec_dir Use record directory
-moviebrowser.use_movie_dir Use movie directory
-moviebrowser.hide_series Hide series
-moviebrowser.last_record_max_items Number of lines last record
-moviebrowser.last_play_max_items Number of lines last play
-moviebrowser.browser_frame_high Browser hight [Pixel]
-extra.auto_timeshift Auto-record, sec (0 = disable)
-extra.auto_delete Auto-delete
-extra.auto_to_record Move timeshift to records
-extra.record_time Fast/timeshift record time(hours)
+moviebrowser.use_dir Gebruik directory
+moviebrowser.use_rec_dir Gebruik record directory
+moviebrowser.use_movie_dir Gebruik movie directory
+moviebrowser.hide_series Verberg series
+moviebrowser.last_record_max_items Aantal regels van laatste opname
+moviebrowser.last_play_max_items Aantal regels van laatst gespeelde video
+moviebrowser.browser_frame_high Browser hoogte [Pixel]
+extra.auto_timeshift Auto-record, sec (0 = uit)
+extra.auto_delete Automatiisch wissen
+extra.auto_to_record Verplaats timeshift naar opnames
+extra.record_time Fast/timeshift opname periode (uren)
+subtitles.head Ondertitels
+subtitles.stop Stop ondertiteling

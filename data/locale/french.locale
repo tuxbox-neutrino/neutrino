@@ -788,52 +788,6 @@ videomenu.videosignal_svideo S-Vidéo
 videomenu.videosignal_yuv_c YUV + CVBS
 videomenu.videosignal_yuv_v YUV + VBS
 zaptotimer.announce Zapper vers programmeur dans une minute
-extra.auto Auto
-extra.valid Valider
-extra.all tout
-extra.new_keys Nouvelles clés(keys)
-extra.all_keys Toutes les clés
-extra.vartmp /var/tmp
-extra.varkeys /var/keys
-extra.algo Algo pids
-extra.gbox_emu Emu
-extra.gbox_softcam Softcam
-extra.gbox_net Réseau
-extra.gbox_mix Mélange
-extra.gbox_info Gbox Info
-extra.sep_extra Extras
-extra.save_settings Sauvegarder les réglages
-extra.extra_menu Addons
-extra.ecm_info Ecm Info
-extra.pid_info Pid Info
-extra.emm_info Nouvelles clés(Keys)
-extra.emu_type Type d’Emu
-extra.camd Camd
-extra.restart_camd Redémarrer camd
-extra.mg_settings Réglages Mgcamd
-extra.netmode Mode réseau
-extra.autoupdate m.à.j Automatique
-extra.show_ecm Montrer Ecm
-extra.show_emm Montrer Emm
-extra.keyupdate m.à.j des clés(keys)
-extra.osd OSD(affichage)
-extra.keyfolder Répertoire des clés(keys)
-extra.hash_pids Hash pids
-extra.gbox_settings Réglage Gbox
-extra.gbox_mode Mode
-extra.newcamd_settings Réglage Newcamd
-extra.show_cw Montrer CW
-extra.debug_ecm Débguer Ecm
-extra.disable_cam Désctiver CAM
-extra.show_cat Montrer CAT
-extra.show_pmt Montrer PMT
-extra.update_pmt m.à.j PMT
-extra.report_emm Report wrong EMM sig.
-extra.debug_emm Déboguer Emm
-extra.show_allca Montrer tout ca sys.
-extra.reload_keys Recharger les clés après un Zap
-extra.reload_cfg Recharger config après un zap
-extra.cw_delay Délai CW par défaut
 extra.dvbsnoop DVB Infos Stream
 extra.dvbsnoop_pat Montrer PAT
 extra.dvbsnoop_cat Montrer CAT
@@ -1041,15 +995,6 @@ rfmod.finetune Fine tune
 rfmod.standby Enable modulator
 rfmod.test Test pattern
 extra.zapit_scanpids Scan/Use pids
-extra.zapit_rezap_time Re-Zap on emu switch time
-extra.zapit_hvoltage High (13.5/18.5) voltage
-extra.key_unlock Unlock key
-extra.mg_netoptions Network options
-extra.mg_ecm_timeout Network ecm timeout
-extra.mg_reconnect Shares reconnect
-extra.mg_priority Share priority
-extra.mg_osd_options Osd options
-extra.mg_reread Reread files on zap
 servicemenu.imageinfo Image info
 imageinfo.creator Creator:
 imageinfo.date Date:
@@ -1235,3 +1180,5 @@ extra.auto_timeshift Auto-record, sec (0 = disable)
 extra.auto_delete Auto-delete
 extra.auto_to_record Move timeshift to records
 extra.record_time Fast/timeshift record time(hours)
+subtitles.head Subtitles
+subtitles.stop Stop subtitles

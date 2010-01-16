@@ -789,51 +789,6 @@ videomenu.videosignal_yuv_c YUV + CVBS
 videomenu.videosignal_yuv_v YUV + VBS
 zaptotimer.announce Csatornaváltás 1 perc múlva
 extra.auto automatikus
-extra.valid érvényes
-extra.all összes
-extra.new_keys új kulcsok
-extra.all_keys minden kulcs
-extra.vartmp /var/tmp
-extra.varkeys /var/keys
-extra.algo csak ismerteket
-extra.gbox_emu emu
-extra.gbox_softcam softcam
-extra.gbox_net hálózat
-extra.gbox_mix kevert
-extra.gbox_info GBOX infó
-extra.sep_extra Extrák
-extra.save_settings Beállítások mentése
-extra.extra_menu Kiegészítések
-extra.ecm_info ECM infó
-extra.pid_info PID infó
-extra.emm_info Új kulcsok
-extra.emu_type Emu típusa
-extra.camd CAMD
-extra.restart_camd CAMD újraindítása
-extra.mg_settings Mgcamd beállítások
-extra.netmode netmód
-extra.autoupdate autoupdate
-extra.show_ecm ECM kijelzése
-extra.show_emm EMM kijelzése
-extra.keyupdate kulcsfrissítés
-extra.osd OSD
-extra.keyfolder Kulcsok könyvtára
-extra.hash_pids PID-ek ellenőrzése
-extra.gbox_settings GBOX Settings
-extra.gbox_mode Üzemmód
-extra.newcamd_settings Newcamd beállítások
-extra.show_cw CW kijelzése
-extra.debug_ecm ECM debug
-extra.disable_cam CAM letiltása
-extra.show_cat Show CAT
-extra.show_pmt show PMT
-extra.update_pmt Update PMT
-extra.report_emm Report wrong EMM sig.
-extra.debug_emm Debug Emm
-extra.show_allca Show all ca sys.
-extra.reload_keys Reload keys on zap
-extra.reload_cfg Reload config on zap
-extra.cw_delay Default CW delay
 extra.dvbsnoop DVB Stream Info
 extra.dvbsnoop_pat Show PAT
 extra.dvbsnoop_cat Show CAT
@@ -1041,15 +996,6 @@ rfmod.finetune Fine tune
 rfmod.standby Enable modulator
 rfmod.test Test pattern
 extra.zapit_scanpids Scan/Use pids
-extra.zapit_rezap_time Re-Zap on emu switch time
-extra.zapit_hvoltage High (13.5/18.5) voltage
-extra.key_unlock Unlock key
-extra.mg_netoptions Network options
-extra.mg_ecm_timeout Network ecm timeout
-extra.mg_reconnect Shares reconnect
-extra.mg_priority Share priority
-extra.mg_osd_options Osd options
-extra.mg_reread Reread files on zap
 servicemenu.imageinfo Image info
 imageinfo.creator Creator:
 imageinfo.date Date:
@@ -1235,3 +1181,5 @@ extra.auto_timeshift Auto-record, sec (0 = disable)
 extra.auto_delete Auto-delete
 extra.auto_to_record Move timeshift to records
 extra.record_time Fast/timeshift record time(hours)
+subtitles.head Subtitles
+subtitles.stop Stop subtitles
