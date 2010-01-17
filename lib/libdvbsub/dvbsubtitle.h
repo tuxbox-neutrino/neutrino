@@ -33,6 +33,8 @@ private:
   cList<cDvbSubtitleBitmaps> *bitmaps;
   AVCodecContext * avctx;
   AVCodec * avcodec;
+  int min_x, min_y, max_x, max_y;
+  cTimeMs Timeout;
 public:
   cDvbSubtitleConverter(void);
   virtual ~cDvbSubtitleConverter();
