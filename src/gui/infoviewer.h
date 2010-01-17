@@ -66,6 +66,8 @@ class CInfoViewer
 	int            BoxStartY;
 	int            ButtonWidth;
 
+	std::string ChannelName;
+
 	int            ChanNameX;
 	int            ChanNameY;
 	int            ChanWidth;
@@ -117,6 +119,7 @@ class CInfoViewer
 	void showFailure();
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();
+	int showChannelLogo(const t_channel_id logo_channel_id);
 	void showSNR();
 
  public:
