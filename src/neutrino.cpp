@@ -2605,15 +2605,20 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				//g_EpgData->show( g_Zapit->getCurrentServiceID() );
+				dvbsub_pause();
 				g_EpgData->show(live_channel_id);
+				dvbsub_start(0);
 			}
 			else if( msg == CRCInput::RC_epg ) {
+				dvbsub_pause();
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
+				dvbsub_start(0);
 			}
 			else if( msg == CRCInput::RC_text) {
 				g_RCInput->clearRCMsg();
 				if(g_settings.mode_clock)
 					InfoClock->StopClock();
+				dvbsub_pause();
 
 				tuxtx_main(g_RCInput->getFileHandle(), frameBuffer->getFrameBufferPointer(), g_RemoteControl->current_PIDs.PIDs.vtxtpid,
 					frameBuffer->getScreenX(), frameBuffer->getScreenY(), frameBuffer->getScreenWidth(), frameBuffer->getScreenHeight());
@@ -2625,6 +2630,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				AudioMute(current_muted, true);
 				if(g_settings.mode_clock)
 					InfoClock->StartClock();
+				dvbsub_start(0);
 			}
 			else if( msg == CRCInput::RC_setup ) {
 				if(!g_settings.minimode) {
@@ -2647,10 +2653,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					tvMode();
 			}
 			else if( ((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && ((neutrino_msg_t)g_settings.key_tvradio_mode == CRCInput::RC_nokey)) {
-				if(mode == mode_radio )
+				if(mode == mode_radio ) {
 					tvMode();
-				else if(mode == mode_tv)
+				}
+				else if(mode == mode_tv) {
 					radioMode();
+				}
 			}
 			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
 			{
@@ -2659,6 +2667,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
 			   if(g_RemoteControl->subChannels.size() > 0) {
+				dvbsub_pause();
 				g_RemoteControl->subChannelUp();
 				g_InfoViewer->showSubchan();
 			    } else
@@ -2666,6 +2675,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
 			   if(g_RemoteControl->subChannels.size()> 0) {
+				dvbsub_pause();
 				g_RemoteControl->subChannelDown();
 				g_InfoViewer->showSubchan();
 			    } else
@@ -2685,6 +2695,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
+				dvbsub_pause();
 				channelList->numericZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_plugin ) {
@@ -2735,17 +2746,25 @@ printf("[neutrino] direct record\n");
 				}
 			}
 			else if( msg == CRCInput::RC_red ) {
+				dvbsub_pause();
 				showUserMenu(SNeutrinoSettings::BUTTON_RED);
+				dvbsub_start(0);
 			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
+				dvbsub_pause();
 				showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+				dvbsub_start(0);
 			}
 			else if( msg == CRCInput::RC_yellow ) {       // NVODs
+				dvbsub_pause();
 				showUserMenu(SNeutrinoSettings::BUTTON_YELLOW);
+				dvbsub_start(0);
 			}
 			else if( msg == CRCInput::RC_blue ) {
+				dvbsub_pause();
 				showUserMenu(SNeutrinoSettings::BUTTON_BLUE);
+				dvbsub_start(0);
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
 				dvbsub_pause();
