@@ -13,7 +13,6 @@
 #include "Debug.hpp"
 #include "PacketQueue.hpp"
 #include "semaphore.h"
-#include "dvbsub_thread.hpp"
 #include "helpers.hpp"
 #include "dvbsubtitle.h"
 
