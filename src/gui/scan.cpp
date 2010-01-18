@@ -60,7 +60,6 @@
 #include <video_cs.h>
 extern cVideo * videoDecoder;
 extern CFrontend * frontend;
-extern bool pb_blink;
 
 #define NEUTRINO_SCAN_START_SCRIPT	CONFIGDIR "/scan.start"
 #define NEUTRINO_SCAN_STOP_SCRIPT	CONFIGDIR "/scan.stop"
@@ -80,9 +79,9 @@ CScanTs::CScanTs()
 	total = done = 0;
 	freqready = 0;
 
-	sigscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
-
+	sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+	pbBlinkChange = g_settings.progressbar_color;
 }
 
 extern int scan_pids;
@@ -114,6 +113,18 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	if(scan_all)
 		scan_mode |= 0xFF00;
+
+	if(pbBlinkChange != g_settings.progressbar_color){
+		pbBlinkChange = g_settings.progressbar_color;
+		if(sigscale){
+			delete sigscale;
+			sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+		}
+		if(snrscale){
+			delete snrscale;
+			snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+		}
+	}
 
 	sigscale->reset();
 	snrscale->reset();

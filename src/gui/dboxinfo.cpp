@@ -50,7 +50,6 @@
 
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
-extern bool pb_blink;
 
 static const int FSHIFT = 16;              /* nr of bits of precision */
 #define FIXED_1         (1<<FSHIFT)     /* 1.0 as fixed-point */
@@ -279,7 +278,7 @@ void CDBoxInfoWidget::paint()
 //fprintf(stderr, "width: %d offsetw: %d pbw: %d\n", width, offsetw, pbw);
 						if (pbw > 8) /* smaller progressbar is not useful ;) */
 						{
-							CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
+							CProgressBar pb(g_settings.progressbar_color, -1, -1, 30, 100, 70, true);
 							pb.paintProgressBarDefault(x+offsetw, ypos+3, pbw, mheight-10, blocks_percent_used, 100);
 						}
 						ypos+= mheight;

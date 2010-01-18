@@ -46,7 +46,6 @@
 #include <zapit/frontend_c.h>
 
 extern CFrontend * frontend;
-extern bool pb_blink;
 
 static int g_sig;
 static int g_snr;
@@ -90,8 +89,9 @@ void CMotorControl::Init(void)
 	motorPosition = 1;
 	satellitePosition = 0;
 	stepDelay = 10;
-	sigscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(pb_blink, BAR_WIDTH, BAR_HEIGHT);
+	sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+	pbBlinkChange = g_settings.progressbar_color;
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)
@@ -107,6 +107,17 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
         CZapitClient::commandSetScanSatelliteList sat;
 	sat_iterator_t sit;
 
+	if(pbBlinkChange != g_settings.progressbar_color){
+		pbBlinkChange = g_settings.progressbar_color;
+		if(sigscale){
+			delete sigscale;
+			sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+		}
+		if(snrscale){
+			delete snrscale;
+			snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+		}
+	}
 	sigscale->reset();
 	snrscale->reset();
 	lastsnr = lastsig = -1;

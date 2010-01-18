@@ -52,7 +52,6 @@
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 
-extern bool pb_blink;
 extern CPictureViewer * g_PicViewer;
 #define PIC_W 52
 #define PIC_H 39
@@ -627,7 +626,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 	if ( epg_done!= -1 )
 	{
 		int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-		CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
+		CProgressBar pb(g_settings.progressbar_color, -1, -1, 30, 100, 70, true);
 		pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 	}
 
@@ -667,7 +666,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 				if (data == g_InfoViewer->lcdUpdateTimer) {
 					GetEPGData(channel_id, id, &startzeit, false);
 					if ( epg_done!= -1 ) {
-						CProgressBar pb(pb_blink, -1, -1, 30, 100, 70, true);
+						CProgressBar pb(g_settings.progressbar_color, -1, -1, 30, 100, 70, true);
 						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
 						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 					}

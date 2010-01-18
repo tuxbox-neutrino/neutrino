@@ -68,7 +68,6 @@
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
 
-extern bool pb_blink;
 extern CPictureViewer * g_PicViewer;
 #define PIC_W 52
 #define PIC_H 39
@@ -3893,7 +3892,7 @@ static off64_t cut_movie(MI_MOVIE_INFO * minfo, CMovieInfo * cmovie)
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
-		timescale = new CProgressBar(pb_blink, 200, 15, 0, 100, 0);
+		timescale = new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;
@@ -4147,7 +4146,7 @@ printf("copy: len %d minute %lld second %lld\n", len, len ? size/len : 511040*60
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
-		timescale = new CProgressBar(pb_blink, 200, 15, 0, 100, 0);
+		timescale = new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;

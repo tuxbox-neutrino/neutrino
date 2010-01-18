@@ -1552,7 +1552,8 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	miscSettings.addItem(GenericMenuSeparatorLine);
 	miscSettings.addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
 	funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-
+	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	miscSettings.addItem(m1);
 #if 0
 	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 	miscSettings.addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));

@@ -107,7 +107,6 @@ bool newfreq = true;
 char old_timestr[10];
 static event_id_t last_curr_id = 0, last_next_id = 0;
 
-extern bool pb_blink;
 int bottom_bar_offset;
 
 extern CZapitClient::SatelliteList satList;
@@ -169,26 +168,14 @@ void CInfoViewer::Init()
 		infobar_show_channellogo = atoi(tmp);
 
 	/* maybe we should not tie this to the blinkenlights settings? */
-	if (pb_blink)
+	if (g_settings.progressbar_color)
 		bottom_bar_offset = 22;
 	else
 		bottom_bar_offset = 0;
 	/* after font size changes, Init() might be called multiple times */
-	if (sigscale != NULL)
-		delete sigscale;
-	sigscale = new CProgressBar(pb_blink, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
-	if (snrscale != NULL)
-		delete snrscale;
-	snrscale = new CProgressBar(pb_blink, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
-	if (hddscale != NULL)
-		delete hddscale;
-	hddscale = new CProgressBar(pb_blink, 100,        6, 50,      GREEN_BAR, 75, true);
-	if (varscale != NULL)
-		delete varscale;
-	varscale = new CProgressBar(pb_blink, 100,        6, 50,      GREEN_BAR, 75, true);
-	if (timescale != NULL)
-		delete timescale;
-	timescale = new CProgressBar(pb_blink, -1,       -1, 30,      GREEN_BAR, 70, true);
+	changePB();
+
+	pbBlinkChange = g_settings.progressbar_color;
 
 	/* we need to calculate this only once */
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + 10;
@@ -259,6 +246,25 @@ void CInfoViewer::start ()
 
 	if (lcdUpdateTimer == 0)
 		lcdUpdateTimer = g_RCInput->addTimer (LCD_UPDATE_TIME_TV_MODE, false, true);
+}
+
+void CInfoViewer::changePB()
+{
+		if (sigscale != NULL)
+			delete sigscale;
+		sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
+		if (snrscale != NULL)
+			delete snrscale;
+		snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
+		if (hddscale != NULL)
+			delete hddscale;
+		hddscale = new CProgressBar(g_settings.progressbar_color, 100,        6, 50,      GREEN_BAR, 75, true);
+		if (varscale != NULL)
+			delete varscale;
+		varscale = new CProgressBar(g_settings.progressbar_color, 100,        6, 50,      GREEN_BAR, 75, true);
+		if (timescale != NULL)
+			delete timescale;
+		timescale = new CProgressBar(g_settings.progressbar_color, -1,       -1, 30,      GREEN_BAR, 70, true);
 }
 
 void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
@@ -369,6 +375,11 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	aspectRatio = 0;
 
 	bool fadeIn = g_settings.widget_fade && (!is_visible) && showButtonBar;
+
+	if(pbBlinkChange != g_settings.progressbar_color){
+		pbBlinkChange = g_settings.progressbar_color;
+		changePB();
+	}
 
 	is_visible = true;
 	if (!calledFromNumZap && fadeIn)
@@ -1211,7 +1222,7 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 		if (pb_p > pb_w)
 			pb_p = pb_w;
 		timescale->paintProgressBar(BoxEndX - pb_w - SHADOW_OFFSET, BoxStartY + 12, pb_w, pb_h, pb_p, pb_w,
-					    0, 0, pb_blink ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0, COL_INFOBAR_SHADOW_PLUS_0, "", COL_INFOBAR);
+					    0, 0, g_settings.progressbar_color ? COL_INFOBAR_SHADOW_PLUS_0 : COL_INFOBAR_PLUS_0, COL_INFOBAR_SHADOW_PLUS_0, "", COL_INFOBAR);
 	}
 
 	int currTimeW = 0;

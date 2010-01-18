@@ -32,7 +32,6 @@
 #include <gui/widget/progressbar.h>
 
 static CProgressBar *timescale;
-extern bool pb_blink;
 
 #define TIMEOSD_FONT SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME
 #define TIMEBARH 38
@@ -44,7 +43,7 @@ CTimeOSD::CTimeOSD()
 	m_mode=MODE_ASC;
 	GetDimensions();
 	if (! timescale)
-		timescale = new CProgressBar(pb_blink, 200, 32, 40, 100, 70, true);
+		timescale = new CProgressBar(g_settings.progressbar_color, 200, 32, 40, 100, 70, true);
 }
 
 CTimeOSD::~CTimeOSD()

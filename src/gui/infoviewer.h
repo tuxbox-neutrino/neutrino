@@ -94,6 +94,8 @@ class CInfoViewer
 
 	int lastsnr, lastsig, lasthdd, lastvar, lasttime;
 	CProgressBar *snrscale, *sigscale, *hddscale, *varscale, *timescale;
+	bool pbBlinkChange;
+	void changePB();
 
 	void paintBackground(int col_Numbox);
 	void show_Data( bool calledFromEvent = false );

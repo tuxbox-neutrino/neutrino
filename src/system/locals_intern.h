@@ -855,6 +855,7 @@ const char *locale_real_names[] = {
 	"pinprotection.head",
 	"pinprotection.wrongcode",
 	"plugins.result",
+	"progressbar.color",
 	"rclock.lockmsg",
 	"rclock.menueadd",
 	"rclock.title",

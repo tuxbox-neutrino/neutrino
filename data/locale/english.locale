@@ -655,6 +655,7 @@ ping.unreachable is unreachable
 pinprotection.head Enter PIN code
 pinprotection.wrongcode PIN-Code was wrong! Try again.
 plugins.result plugin output
+progressbar.color Progressbar Color
 rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
 rclock.menueadd Lock RC 
 rclock.title Lock Remote Control

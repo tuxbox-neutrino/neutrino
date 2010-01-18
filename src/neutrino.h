@@ -134,7 +134,7 @@ private:
 	int				current_muted;
 
 	bool				skipShutdownTimer;
-
+	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
 	CKeySetupNotifier       	*keySetupNotifier;
 	CNVODChangeExec         	*NVODChanger;

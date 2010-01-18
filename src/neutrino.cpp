@@ -799,6 +799,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
         strcpy(g_settings.shutdown_count, configfile.getString("shutdown_count","0").c_str());
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
+	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
+	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
@@ -1298,6 +1300,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("shutdown_count"           , g_settings.shutdown_count);
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
+	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
+	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
@@ -1860,7 +1864,6 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 extern int cnxt_debug;
 extern int sections_debug;
 extern int zapit_debug;
-bool pb_blink;	/* TODO: get rid of global external variable for this */
 
 void CNeutrinoApp::CmdParser(int argc, char **argv)
 {
@@ -1869,7 +1872,6 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
                 global_argv[i] = argv[i];
         global_argv[argc] = NULL;
 
-	pb_blink = true;
 	softupdate = false;
 	fromflash = false;
 
@@ -1906,11 +1908,9 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			if (x < argc)
 				yres = atoi(argv[++x]);
 		}
-		else if (!strcmp(argv[x], "--noblink")) {
-			pb_blink = false;
-		} else {
+		else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] [-f | --enable-flash] "
-					      "[-v | --verbose 0..3] [--noblink]\n");
+					      "[-v | --verbose 0..3]\n");
 			exit(1);
 		}
 	}
@@ -2379,7 +2379,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
-	g_volscale = new CProgressBar(pb_blink, 200, 15, 50, 100, 80, true);
+	g_volscale = new CProgressBar(g_settings.progressbar_color, 200, 15, 50, 100, 80, true);
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
@@ -2553,7 +2553,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hdd->exec(NULL, "");
 	delete hdd;
 #endif
-
+	pbBlinkChange = g_settings.progressbar_color;
 	InitZapper();
 	InitRecordingSettings(recordingSettings);
 	InitStreamingSettings(streamingSettings);
@@ -3642,6 +3642,12 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 		pixbuf = new fb_pixel_t[dx * dy];
 		if(pixbuf!= NULL)
 			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
+		if(pbBlinkChange != g_settings.progressbar_color){
+			pbBlinkChange = g_settings.progressbar_color;
+			if(g_volscale)
+				delete g_volscale;
+			g_volscale = new CProgressBar(g_settings.progressbar_color, 200, 15, 50, 100, 80, true);
+		}
 
 		frameBuffer->paintIcon("volume.raw",x,y, 0, COL_INFOBAR);
 		frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
