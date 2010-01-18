@@ -171,15 +171,15 @@ int safe_mkdir(char * path);
 #define OPTIONS_OFF0_ON1_OPTION_COUNT 2
 const CMenuOptionChooser::keyval OPTIONS_OFF0_ON1_OPTIONS[OPTIONS_OFF0_ON1_OPTION_COUNT] =
 {
-        { 0, LOCALE_OPTIONS_OFF },
-        { 1, LOCALE_OPTIONS_ON  }
+	{ 0, LOCALE_OPTIONS_OFF },
+	{ 1, LOCALE_OPTIONS_ON  }
 };
 
 #define OPTIONS_OFF1_ON0_OPTION_COUNT 2
 const CMenuOptionChooser::keyval OPTIONS_OFF1_ON0_OPTIONS[OPTIONS_OFF1_ON0_OPTION_COUNT] =
 {
-        { 1, LOCALE_OPTIONS_OFF },
-        { 0, LOCALE_OPTIONS_ON  }
+	{ 1, LOCALE_OPTIONS_OFF },
+	{ 0, LOCALE_OPTIONS_ON  }
 };
 
 #define VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT 8
@@ -216,8 +216,8 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VID
 #define VIDEOMENU_VCRSIGNAL_OPTION_COUNT 2
 const CMenuOptionChooser::keyval VIDEOMENU_VCRSIGNAL_OPTIONS[VIDEOMENU_VCRSIGNAL_OPTION_COUNT] =
 {
-        { 2, LOCALE_VIDEOMENU_VCRSIGNAL_SVIDEO    },
-        { 0, LOCALE_VIDEOMENU_VCRSIGNAL_COMPOSITE }
+	{ 2, LOCALE_VIDEOMENU_VCRSIGNAL_SVIDEO    },
+	{ 0, LOCALE_VIDEOMENU_VCRSIGNAL_COMPOSITE }
 };
 
 #define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 3//2
@@ -260,9 +260,9 @@ const CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEO
 #define VIDEOMENU_DBDR_OPTION_COUNT 3
 const CMenuOptionChooser::keyval VIDEOMENU_DBDR_OPTIONS[VIDEOMENU_DBDR_OPTION_COUNT] =
 {
-        { 0, LOCALE_VIDEOMENU_DBDR_NONE },
-        { 1, LOCALE_VIDEOMENU_DBDR_DEBLOCK },
-        { 2, LOCALE_VIDEOMENU_DBDR_BOTH }
+	{ 0, LOCALE_VIDEOMENU_DBDR_NONE },
+	{ 1, LOCALE_VIDEOMENU_DBDR_DEBLOCK },
+	{ 2, LOCALE_VIDEOMENU_DBDR_BOTH }
 };
 
 #include "videosettings.h"
@@ -285,8 +285,8 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, "video.raw
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOMODE, &g_settings.video_Mode, VIDEOMENU_VIDEOMODE_OPTIONS, VIDEOMENU_VIDEOMODE_OPTION_COUNT, true, this, CRCInput::RC_nokey, "", true));
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this));
 
-        CMenuWidget* menu = new CMenuWidget(LOCALE_VIDEOMENU_ENABLED_MODES, NEUTRINO_ICON_SETTINGS);
-	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+	CMenuWidget* menu = new CMenuWidget(LOCALE_VIDEOMENU_ENABLED_MODES, NEUTRINO_ICON_SETTINGS);
+	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 		menu->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 	addItem(new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, menu));
@@ -311,22 +311,22 @@ void CVideoSettings::nextMode(void)
 	int curmode = 0;
 	int i;
 
-	for(i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
-		if(VIDEOMENU_VIDEOMODE_OPTIONS[i].key == g_settings.video_Mode) {
+	for (i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
+		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key == g_settings.video_Mode) {
 			curmode = i;
 			break;
 		}
 	}
 
 	i = 0;
-	while(true) {
+	while (true) {
 		curmode++;
-		if(curmode >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
+		if (curmode >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
 			curmode = 0;
-		if(g_settings.enabled_video_modes[curmode])
+		if (g_settings.enabled_video_modes[curmode])
 			break;
 		i++;
-		if(i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
+		if (i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
 			return;
 	}
 
@@ -343,14 +343,14 @@ void CVideoSettings::next43Mode(void)
 	neutrino_locale_t text;
 	int curmode = 0;
 
-	for(int i = 0; i < VIDEOMENU_43MODE_OPTION_COUNT; i++) {
-		if(VIDEOMENU_43MODE_OPTIONS[i].key == g_settings.video_43mode) {
+	for (int i = 0; i < VIDEOMENU_43MODE_OPTION_COUNT; i++) {
+		if (VIDEOMENU_43MODE_OPTIONS[i].key == g_settings.video_43mode) {
 			curmode = i;
 			break;
 		}
 	}
 	curmode++;
-	if(curmode >= VIDEOMENU_43MODE_OPTION_COUNT)
+	if (curmode >= VIDEOMENU_43MODE_OPTION_COUNT)
 		curmode = 0;
 
 	text =  VIDEOMENU_43MODE_OPTIONS[curmode].value;
@@ -364,14 +364,14 @@ void CVideoSettings::SwitchFormat(void)
 	neutrino_locale_t text;
 	int curmode = 0;
 
-	for(int i = 0; i < VIDEOMENU_VIDEOFORMAT_OPTION_COUNT; i++) {
-		if(VIDEOMENU_VIDEOFORMAT_OPTIONS[i].key == g_settings.video_Format) {
+	for (int i = 0; i < VIDEOMENU_VIDEOFORMAT_OPTION_COUNT; i++) {
+		if (VIDEOMENU_VIDEOFORMAT_OPTIONS[i].key == g_settings.video_Format) {
 			curmode = i;
 			break;
 		}
 	}
 	curmode++;
-	if(curmode >= VIDEOMENU_VIDEOFORMAT_OPTION_COUNT)
+	if (curmode >= VIDEOMENU_VIDEOFORMAT_OPTION_COUNT)
 		curmode = 0;
 
 	text =  VIDEOMENU_VIDEOFORMAT_OPTIONS[curmode].value;
@@ -403,10 +403,10 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *)
 	{
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_VIDEOFORMAT) ||
-		ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_43MODE))
+			ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_43MODE))
 	{
 		//if(g_settings.video_Format != 1 && g_settings.video_Format != 3)
-		if(g_settings.video_Format != 1 && g_settings.video_Format != 3 && g_settings.video_Format != 2)
+		if (g_settings.video_Format != 1 && g_settings.video_Format != 3 && g_settings.video_Format != 2)
 			g_settings.video_Format = 3;
 		videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 	}
@@ -414,9 +414,9 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *)
 	{
 		videoDecoder->SetVideoSystem(g_settings.video_Mode);
 		//videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode);//FIXME
-		if(prev_video_mode != g_settings.video_Mode) {
+		if (prev_video_mode != g_settings.video_Mode) {
 			frameBuffer->paintBackground();
-			if(ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEOMODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, "info.raw") != CMessageBox::mbrYes) {
+			if (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_VIDEOMODE_OK), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, "info.raw") != CMessageBox::mbrYes) {
 				g_settings.video_Mode = prev_video_mode;
 				videoDecoder->SetVideoSystem(g_settings.video_Mode);
 				//videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode);//FIXME
@@ -436,8 +436,8 @@ void CVideoSettings::paint()
 #ifdef TEST_MENU
 class CTestMenu : public CMenuTarget
 {
-        public:
-                int exec(CMenuTarget* parent,  const std::string &actionkey);
+public:
+	int exec(CMenuTarget* parent,  const std::string &actionkey);
 };
 
 #include <sys/ioctl.h>
@@ -446,18 +446,18 @@ class CTestMenu : public CMenuTarget
 
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	if(parent)
+	if (parent)
 		parent->hide();
 
 	printf("CTestMenu::exec: %s\n", actionKey.c_str());
-	if(actionKey == "vfd") {
+	if (actionKey == "vfd") {
 		CVFD::getInstance()->Clear();
 		int icon = 0x00040000;
-		while(icon > 0x2) {
+		while (icon > 0x2) {
 			CVFD::getInstance()->ShowIcon((vfd_icon) icon, true);
 			icon /= 2;
 		}
-		for(int i = 0x01000001; i <= 0x0C000001; i+= 0x01000000) {
+		for (int i = 0x01000001; i <= 0x0C000001; i+= 0x01000000) {
 			CVFD::getInstance()->ShowIcon((vfd_icon) i, true);
 		}
 		CVFD::getInstance()->ShowIcon((vfd_icon) 0x09000002, true);
@@ -467,7 +467,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		int ch = 0x2588;
 		int len = XmlUtf8Encode(ch, buf);
 
-		for(int i = 0; i < 12; i++) {
+		for (int i = 0; i < 12; i++) {
 			memcpy(&text[i*len], buf, len);
 		}
 		text[12*len] = 0;
@@ -476,7 +476,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "VFD test, Press OK to return", CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
 		CVFD::getInstance()->Clear();
 	}
-	else if(actionKey == "network") {
+	else if (actionKey == "network") {
 		int fd, ret;
 		struct ifreq ifr;
 		char * ip = NULL, str[255];
@@ -488,11 +488,11 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		strncpy(ifr.ifr_name, "eth0", IFNAMSIZ-1);
 
 		ret = ioctl(fd, SIOCGIFHWADDR, &ifr);
-		if(ret < 0)
+		if (ret < 0)
 			perror("SIOCGIFHWADDR");
 
 		ret = ioctl(fd, SIOCGIFADDR, &ifr );
-		if(ret < 0)
+		if (ret < 0)
 			perror("SIOCGIFADDR");
 		else {
 			addrp = (struct sockaddr_in *)&(ifr.ifr_addr);
@@ -500,25 +500,25 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 
 		sprintf(str, "MAC: %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\nIP: %s",
-				(unsigned char)ifr.ifr_hwaddr.sa_data[0],
-				(unsigned char)ifr.ifr_hwaddr.sa_data[1],
-				(unsigned char)ifr.ifr_hwaddr.sa_data[2],
-				(unsigned char)ifr.ifr_hwaddr.sa_data[3],
-				(unsigned char)ifr.ifr_hwaddr.sa_data[4],
-				(unsigned char)ifr.ifr_hwaddr.sa_data[5], ip == NULL ? "Unknown" : ip);
+			(unsigned char)ifr.ifr_hwaddr.sa_data[0],
+			(unsigned char)ifr.ifr_hwaddr.sa_data[1],
+			(unsigned char)ifr.ifr_hwaddr.sa_data[2],
+			(unsigned char)ifr.ifr_hwaddr.sa_data[3],
+			(unsigned char)ifr.ifr_hwaddr.sa_data[4],
+			(unsigned char)ifr.ifr_hwaddr.sa_data[5], ip == NULL ? "Unknown" : ip);
 
 		close(fd);
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
 	}
-	else if(actionKey == "card") {
+	else if (actionKey == "card") {
 	}
-	else if(actionKey == "hdd") {
+	else if (actionKey == "hdd") {
 		char buffer[255];
 		FILE *f = fopen("/proc/mounts", "r");
 		bool mounted = false;
-		if(f != NULL) {
+		if (f != NULL) {
 			while (fgets (buffer, 255, f) != NULL) {
-				if(strstr(buffer, "/dev/sda1")) {
+				if (strstr(buffer, "/dev/sda1")) {
 					mounted = true;
 					break;
 				}
@@ -529,21 +529,21 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		printf("%s\n", buffer);
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buffer, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
 	}
-	else if(actionKey == "buttons") {
+	else if (actionKey == "buttons") {
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
 		CHintBox * khintBox = NULL;
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, "Press button, or press EXIT to return");
 		hintBox->paint();
-		while(1) {
+		while (1) {
 			g_RCInput->getMsg(&msg, &data, 100);
-			if(msg == CRCInput::RC_home)
+			if (msg == CRCInput::RC_home)
 				break;
 
 			if (msg != CRCInput::RC_timeout && msg <= CRCInput::RC_MaxRC) {
 				char keyname[50];
 				sprintf(keyname, "Button [%s] pressed (EXIT to return)", g_RCInput->getKeyName(msg).c_str());
-				if(khintBox) {
+				if (khintBox) {
 					delete khintBox;
 				}
 				khintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, keyname);
@@ -551,58 +551,58 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 				khintBox->paint();
 			}
 		}
-		if(khintBox)
+		if (khintBox)
 			delete khintBox;
 		delete hintBox;
 	}
-	else if(actionKey == "22kon" || actionKey == "22koff") {
+	else if (actionKey == "22kon" || actionKey == "22koff") {
 		CScanTs * scanTs = new CScanTs();
 
 		int freq = (actionKey == "22kon") ? 12000*1000: 11000*1000;
 
-                sprintf(get_set.TP_freq, "%d", freq);
+		sprintf(get_set.TP_freq, "%d", freq);
 #if 0 // not needed ?
-                switch(frontend->getInfo()->type) {
-                        case FE_QPSK:
-                                sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
-                                get_set.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
-                                get_set.TP_pol = tmpI->second.polarization;
-                                break;
-                        case FE_QAM:
-                                sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-                                get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-                                get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
-                                break;
+		switch (frontend->getInfo()->type) {
+		case FE_QPSK:
+			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
+			get_set.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
+			get_set.TP_pol = tmpI->second.polarization;
+			break;
+		case FE_QAM:
+			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
+			get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
+			get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
+			break;
 		}
 #endif
 		scanTs->exec(NULL, "test");
 		delete scanTs;
 	}
-        else if(actionKey == "scan") {
-                CScanTs * scanTs = new CScanTs();
+	else if (actionKey == "scan") {
+		CScanTs * scanTs = new CScanTs();
 
-                int freq = 12538000;
-                sprintf(get_set.TP_freq, "%d", freq);
-                switch(frontend->getInfo()->type) {
-                        case FE_QPSK:
-                                sprintf(get_set.TP_rate, "%d", 41250*1000);
-                                get_set.TP_fec = 1;
-                                get_set.TP_pol = 1;
-                                break;
-                        case FE_QAM:
+		int freq = 12538000;
+		sprintf(get_set.TP_freq, "%d", freq);
+		switch (frontend->getInfo()->type) {
+		case FE_QPSK:
+			sprintf(get_set.TP_rate, "%d", 41250*1000);
+			get_set.TP_fec = 1;
+			get_set.TP_pol = 1;
+			break;
+		case FE_QAM:
 #if 0
-                                sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-                                get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-                                get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
+			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
+			get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
+			get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
 #endif
-                                break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
-                }
-                scanTs->exec(NULL, "manual");
-                delete scanTs;
-        }
+			break;
+		case FE_OFDM:
+		case FE_ATSC:
+			break;
+		}
+		scanTs->exec(NULL, "manual");
+		delete scanTs;
+	}
 
 	return menu_return::RETURN_REPAINT;
 }
@@ -686,19 +686,19 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	int shortcut = 4;
 	if (g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT))
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SCRIPTS, true, NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT), "",
-		CRCInput::convertDigitToKey(shortcut++)));
+						    CRCInput::convertDigitToKey(shortcut++)));
 	mainMenu.addItem(GenericMenuSeparatorLine);
 
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &mainSettings, NULL,
-										CRCInput::convertDigitToKey(shortcut++)));
+					    CRCInput::convertDigitToKey(shortcut++)));
 	mainMenu.addItem(new CLockedMenuForwarder(LOCALE_MAINMENU_SERVICE, g_settings.parentallock_pincode, false, true, NULL, &service, NULL,
-					  CRCInput::convertDigitToKey(shortcut++)));
+			 CRCInput::convertDigitToKey(shortcut++)));
 	mainMenu.addItem(GenericMenuSeparatorLine);
 
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget, NULL,
-					CRCInput::convertDigitToKey(shortcut++)));
-        mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot",
-					CRCInput::convertDigitToKey(shortcut++)));
+					    CRCInput::convertDigitToKey(shortcut++)));
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot",
+					    CRCInput::convertDigitToKey(shortcut++)));
 
 	//mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_standby, "power.raw"));//FIXME
 
@@ -720,7 +720,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO     , true, NULL, &audioSettings    , NULL, CRCInput::RC_2));
 	mainSettings.addItem(new CLockedMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, g_settings.parentallock_pincode, true, true, NULL, &parentallockSettings, NULL, CRCInput::RC_3));
 #if 0
-	if(g_settings.parentallock_prompt)
+	if (g_settings.parentallock_prompt)
 		mainSettings.addItem(new CLockedMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, g_settings.parentallock_pincode, true, true, NULL, &parentallockSettings, NULL, CRCInput::RC_3));
 	else
 		mainSettings.addItem(new CMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, true, NULL, &parentallockSettings, NULL, CRCInput::RC_3));
@@ -747,7 +747,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 			}
 			search = search->xmlNextNode;
 		}
-		if(found)
+		if (found)
 			mainSettings.addItem(tzSelect);
 		else {
 			delete tzSelect;
@@ -757,7 +757,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	}
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_OSD    , true, NULL, &colorSettings    , NULL, CRCInput::RC_8));
 
-	if(CVFD::getInstance()->has_lcd)
+	if (CVFD::getInstance()->has_lcd)
 		mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_LCD       , true, NULL, &lcdSettings      , NULL, CRCInput::RC_9));
 
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, &keySettings      , NULL, CRCInput::RC_blue  , NEUTRINO_ICON_BUTTON_BLUE  ));
@@ -772,7 +772,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 #endif
 #if 0
 	g_RFmod = new RFmod();
-	if(g_RFmod->rfmodfd >=0) {
+	if (g_RFmod->rfmodfd >=0) {
 		g_RFmod->init();
 		CMenuWidget * rfmenu  = new CMenuWidget(LOCALE_RFMOD, "settings.raw");
 		CRfNotifier * rfnot = new CRfNotifier();
@@ -830,29 +830,29 @@ const CMenuOptionChooser::keyval SATSETUP_DISEQC_OPTIONS[SATSETUP_DISEQC_OPTION_
 #define CABLESETUP_SCANTP_FEC_COUNT 5
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[SATSETUP_SCANTP_FEC_COUNT] =
 {
-        { FEC_1_2, LOCALE_SCANTP_FEC_1_2 },
-        { FEC_2_3, LOCALE_SCANTP_FEC_2_3 },
-        { FEC_3_4, LOCALE_SCANTP_FEC_3_4 },
-        { FEC_5_6, LOCALE_SCANTP_FEC_5_6 },
-        { FEC_7_8, LOCALE_SCANTP_FEC_7_8 },
-        { FEC_S2_QPSK_1_2, LOCALE_FEC_S2_QPSK_1_2 },
-        { FEC_S2_QPSK_2_3, LOCALE_FEC_S2_QPSK_2_3 },
-        { FEC_S2_QPSK_3_4, LOCALE_FEC_S2_QPSK_3_4 },
-        { FEC_S2_QPSK_5_6, LOCALE_FEC_S2_QPSK_5_6 },
-        { FEC_S2_QPSK_7_8, LOCALE_FEC_S2_QPSK_7_8 },
-        { FEC_S2_QPSK_8_9, LOCALE_FEC_S2_QPSK_8_9 },
-        { FEC_S2_QPSK_3_5, LOCALE_FEC_S2_QPSK_3_5 },
-        { FEC_S2_QPSK_4_5, LOCALE_FEC_S2_QPSK_4_5 },
-        { FEC_S2_QPSK_9_10, LOCALE_FEC_S2_QPSK_9_10 },
-        { FEC_S2_8PSK_1_2, LOCALE_FEC_S2_8PSK_1_2 },
-        { FEC_S2_8PSK_2_3, LOCALE_FEC_S2_8PSK_2_3 },
-        { FEC_S2_8PSK_3_4, LOCALE_FEC_S2_8PSK_3_4 },
-        { FEC_S2_8PSK_5_6, LOCALE_FEC_S2_8PSK_5_6 },
-        { FEC_S2_8PSK_7_8, LOCALE_FEC_S2_8PSK_7_8 },
-        { FEC_S2_8PSK_8_9, LOCALE_FEC_S2_8PSK_8_9 },
-        { FEC_S2_8PSK_3_5, LOCALE_FEC_S2_8PSK_3_5 },
-        { FEC_S2_8PSK_4_5, LOCALE_FEC_S2_8PSK_4_5 },
-        { FEC_S2_8PSK_9_10, LOCALE_FEC_S2_8PSK_9_10 }
+	{ FEC_1_2, LOCALE_SCANTP_FEC_1_2 },
+	{ FEC_2_3, LOCALE_SCANTP_FEC_2_3 },
+	{ FEC_3_4, LOCALE_SCANTP_FEC_3_4 },
+	{ FEC_5_6, LOCALE_SCANTP_FEC_5_6 },
+	{ FEC_7_8, LOCALE_SCANTP_FEC_7_8 },
+	{ FEC_S2_QPSK_1_2, LOCALE_FEC_S2_QPSK_1_2 },
+	{ FEC_S2_QPSK_2_3, LOCALE_FEC_S2_QPSK_2_3 },
+	{ FEC_S2_QPSK_3_4, LOCALE_FEC_S2_QPSK_3_4 },
+	{ FEC_S2_QPSK_5_6, LOCALE_FEC_S2_QPSK_5_6 },
+	{ FEC_S2_QPSK_7_8, LOCALE_FEC_S2_QPSK_7_8 },
+	{ FEC_S2_QPSK_8_9, LOCALE_FEC_S2_QPSK_8_9 },
+	{ FEC_S2_QPSK_3_5, LOCALE_FEC_S2_QPSK_3_5 },
+	{ FEC_S2_QPSK_4_5, LOCALE_FEC_S2_QPSK_4_5 },
+	{ FEC_S2_QPSK_9_10, LOCALE_FEC_S2_QPSK_9_10 },
+	{ FEC_S2_8PSK_1_2, LOCALE_FEC_S2_8PSK_1_2 },
+	{ FEC_S2_8PSK_2_3, LOCALE_FEC_S2_8PSK_2_3 },
+	{ FEC_S2_8PSK_3_4, LOCALE_FEC_S2_8PSK_3_4 },
+	{ FEC_S2_8PSK_5_6, LOCALE_FEC_S2_8PSK_5_6 },
+	{ FEC_S2_8PSK_7_8, LOCALE_FEC_S2_8PSK_7_8 },
+	{ FEC_S2_8PSK_8_9, LOCALE_FEC_S2_8PSK_8_9 },
+	{ FEC_S2_8PSK_3_5, LOCALE_FEC_S2_8PSK_3_5 },
+	{ FEC_S2_8PSK_4_5, LOCALE_FEC_S2_8PSK_4_5 },
+	{ FEC_S2_8PSK_9_10, LOCALE_FEC_S2_8PSK_9_10 }
 };
 
 #define SATSETUP_SCANTP_MOD_COUNT 5
@@ -902,8 +902,8 @@ const CMenuOptionChooser::keyval DISEQC_ORDER_OPTIONS[DISEQC_ORDER_OPTION_COUNT]
 
 class CTPSelectHandler : public CMenuTarget
 {
-	public:
-		int exec(CMenuTarget* parent,  const std::string &actionkey);
+public:
+	int exec(CMenuTarget* parent,  const std::string &actionkey);
 };
 
 extern std::map<transponder_id_t, transponder> select_transponders;
@@ -923,48 +923,48 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 	if (parent)
 		parent->hide();
 
-	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		if(!strcmp(sit->second.name.c_str(), CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc)) {
+	for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		if (!strcmp(sit->second.name.c_str(), CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc)) {
 			position = sit->first;
 			break;
 		}
 	}
-	if(old_position != position) {
+	if (old_position != position) {
 		old_selected = 0;
 		old_position = position;
 	}
 
-        CMenuWidget* menu = new CMenuWidget(LOCALE_SCANTS_SELECT_TP, NEUTRINO_ICON_SETTINGS);
-        CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+	CMenuWidget* menu = new CMenuWidget(LOCALE_SCANTS_SELECT_TP, NEUTRINO_ICON_SETTINGS);
+	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 	i = 0;
-	for(tI = select_transponders.begin(); tI != select_transponders.end(); tI++) {
+	for (tI = select_transponders.begin(); tI != select_transponders.end(); tI++) {
 		t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-		if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
+		if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
 			satpos = -satpos;
-		if(satpos != position)
+		if (satpos != position)
 			continue;
 
 		char buf[128];
 		sprintf(cnt, "%d", i);
 		char * f, *s, *m;
-		switch(frontend->getInfo()->type) {
-			case FE_QPSK:
-				frontend->getDelSys(tI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tI->second.feparams.u.qpsk.fec_inner),  f, s, m);
-				snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.polarization ? 'V' : 'H', tI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-				break;
-			case FE_QAM:
-				frontend->getDelSys(tI->second.feparams.u.qam.fec_inner, tI->second.feparams.u.qam.modulation, f, s, m);
-				snprintf(buf, sizeof(buf), "%d %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
+		switch (frontend->getInfo()->type) {
+		case FE_QPSK:
+			frontend->getDelSys(tI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tI->second.feparams.u.qpsk.fec_inner),  f, s, m);
+			snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.polarization ? 'V' : 'H', tI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+			break;
+		case FE_QAM:
+			frontend->getDelSys(tI->second.feparams.u.qam.fec_inner, tI->second.feparams.u.qam.modulation, f, s, m);
+			snprintf(buf, sizeof(buf), "%d %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
+			break;
+		case FE_OFDM:
+		case FE_ATSC:
+			break;
 		}
 		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), old_selected == i);
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
 	}
-	if(i == 0) {
+	if (i == 0) {
 		char text[255];
 		sprintf(text, "No transponders found for %s\n", CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc);
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text, 450, 2);
@@ -973,31 +973,31 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 	int retval = menu->exec(NULL, "");
 	delete menu;
 	delete selector;
-	if(select >= 0) {
+	if (select >= 0) {
 		old_selected = select;
 
 		tmpI = tmplist.find(select);
 		printf("CTPSelectHandler::exec: selected TP: freq %d pol %d SR %d\n", tmpI->second.feparams.frequency,
-			tmpI->second.polarization, tmpI->second.feparams.u.qpsk.symbol_rate);
+		       tmpI->second.polarization, tmpI->second.feparams.u.qpsk.symbol_rate);
 		sprintf(get_set.TP_freq, "%d", tmpI->second.feparams.frequency);
-		switch(frontend->getInfo()->type) {
-			case FE_QPSK:
-				sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
-				get_set.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
-				get_set.TP_pol = tmpI->second.polarization;
-				break;
-			case FE_QAM:
-				sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-				get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-				get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
+		switch (frontend->getInfo()->type) {
+		case FE_QPSK:
+			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
+			get_set.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
+			get_set.TP_pol = tmpI->second.polarization;
+			break;
+		case FE_QAM:
+			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
+			get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
+			get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
+			break;
+		case FE_OFDM:
+		case FE_ATSC:
+			break;
 		}
 
 	}
-	if(retval == menu_return::RETURN_EXIT_ALL)
+	if (retval == menu_return::RETURN_EXIT_ALL)
 		return menu_return::RETURN_EXIT_ALL;
 
 	return menu_return::RETURN_REPAINT;
@@ -1037,14 +1037,14 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	sat_iterator_t sit;
 
 	t_satellite_position currentSatellitePosition = frontend->getCurrentSatellitePosition();
-	if(g_info.delivery_system == DVB_S) {
+	if (g_info.delivery_system == DVB_S) {
 		satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, scanSettings.satNameNoDiseqc, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 		satOnOff = new CMenuWidget(LOCALE_SATSETUP_SATELLITE, NEUTRINO_ICON_SETTINGS);
 		satOnOff->addItem(GenericMenuSeparator);
 		satOnOff->addItem(GenericMenuBack);
 		satOnOff->addItem(GenericMenuSeparatorLine);
 
-		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 			printf("Adding sat menu for %s position %d\n", sit->second.name.c_str(), sit->first);
 
 			satSelect->addOption(sit->second.name.c_str());
@@ -1089,10 +1089,10 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		}
 	} else if (g_info.delivery_system == DVB_C) {
 		satSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, (char*)scanSettings.satNameNoDiseqc, true);
-		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 			printf("Adding cable menu for %s position %d\n", sit->second.name.c_str(), sit->first);
 			satSelect->addOption(sit->second.name.c_str());
-			if(currentSatellitePosition == sit->first) {
+			if (currentSatellitePosition == sit->first) {
 				strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
 				sfound = 1;
 			}
@@ -1115,7 +1115,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 	if (g_info.delivery_system == DVB_S)
 		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_POL, (int *)&scanSettings.TP_pol, SATSETUP_SCANTP_POL, SATSETUP_SCANTP_POL_COUNT, true, NULL, CRCInput::convertDigitToKey(4));
-	else if(g_info.delivery_system == DVB_C)
+	else if (g_info.delivery_system == DVB_C)
 		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_MOD, (int *)&scanSettings.TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(4));
 
 	satfindMenu->addItem(Freq);
@@ -1152,7 +1152,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		motorMenu->addItem(new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF) );
 	}
 
-	if(!sfound && satellitePositions.size()) {
+	if (!sfound && satellitePositions.size()) {
 		sit = satellitePositions.begin();
 		strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
 	}
@@ -1224,7 +1224,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	settings.addItem(ojScantype);
 	settings.addItem(ojBouquets);
 
-	if(g_info.delivery_system == DVB_S) {
+	if (g_info.delivery_system == DVB_S) {
 		settings.addItem(ojDiseqc);
 		settings.addItem(ojDiseqcRepeats);
 		settings.addItem(fsatSetup);
@@ -1234,7 +1234,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_AUTO_SCAN, true, NULL, autoScan, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
-	if(g_info.delivery_system == DVB_S) {
+	if (g_info.delivery_system == DVB_S) {
 		settings.addItem(fautoScanAll);
 	}
 }
@@ -1285,7 +1285,7 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &scanSe
 	service.addItem(GenericMenuSeparator);
 	service.addItem(GenericMenuBack);
 	service.addItem(GenericMenuSeparatorLine);
- 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, &scanSettings, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
+	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, &scanSettings, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 	// service.addItem(new CMenuForwarder(LOCALE_EXTRA_ZAPIT_MENU      , true, NULL, zapit_menu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, this, "reloadchannels", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	service.addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE ));
@@ -1318,7 +1318,7 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &scanSe
 		//	mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_WRITEFLASH   , true, NULL, fe, "writeflash"   ));
 		mtdexpert->addItem(GenericMenuSeparatorLine);
 		mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_READFLASHMTD , true, NULL, fe, "readflashmtd" ));
-		if(softupdate)
+		if (softupdate)
 			mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_WRITEFLASHMTD, true, NULL, fe, "writeflashmtd"));
 		mtdexpert->addItem(GenericMenuSeparatorLine);
 
@@ -1413,7 +1413,7 @@ void CNeutrinoApp::InitAudioplPicSettings(CMenuWidget &audioplPicSettings)
 
 	audioplPicSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO     , &g_settings.audioplayer_highprio    , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
 
-	if(CVFD::getInstance()->has_lcd) //FIXME
+	if (CVFD::getInstance()->has_lcd) //FIXME
 		audioplPicSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SPECTRUM     , &g_settings.spectrum    , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
 	audioplPicSettings.addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_DEFDIR, true, g_settings.network_nfs_audioplayerdir, this, "audioplayerdir"));
 	audioplPicSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true ));
@@ -1472,56 +1472,57 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 {
 	dprintf(DEBUG_DEBUG, "init miscsettings\n");
-	miscSettings.addItem(GenericMenuSeparator);
-	miscSettings.addItem(GenericMenuBack);
-	miscSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	miscSettings.addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_GENERAL));
-
+	addMenueIntroItems(miscSettings);
+//	miscSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CMenuWidget *miscSettingsGeneral = new CMenuWidget(LOCALE_MISCSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
+	addMenueIntroItems(*miscSettingsGeneral);
 #if 0
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
-
 	CMiscNotifier* miscNotifier = new CMiscNotifier( m1 );
-
 	miscSettings.addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier));
 #endif
-       CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
+	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 
-	miscSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, true, g_settings.shutdown_count, miscSettings_shutdown_count));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_STARTSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, true, g_settings.shutdown_count, miscSettings_shutdown_count));
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_STARTSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 	//miscSettings.addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTORSWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTORSWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_VIRTUAL_ZAP_MODE, &g_settings.virtual_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true));
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_VIRTUAL_ZAP_MODE, &g_settings.virtual_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettings.addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, miscSettingsGeneral, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 
 	//channellist
-	miscSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_CHANNELLIST));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_HDLIST, &g_settings.make_hd_list, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	CMenuWidget *miscSettingsChannellist = new CMenuWidget(LOCALE_MISCSETTINGS_CHANNELLIST, NEUTRINO_ICON_SETTINGS);
+	addMenueIntroItems(*miscSettingsChannellist);
+	miscSettingsChannellist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
+	miscSettingsChannellist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettingsChannellist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_HDLIST, &g_settings.make_hd_list, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettingsChannellist->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettings.addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, miscSettingsChannellist, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW) );
 
-        miscSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_EPG_HEAD));
-
+	//EPGSettings
+	CMenuWidget *miscSettingsEPGSettings = new CMenuWidget(LOCALE_MISCSETTINGS_EPG_HEAD, NEUTRINO_ICON_SETTINGS);
+	addMenueIntroItems(*miscSettingsEPGSettings);
 	CSectionsdConfigNotifier* sectionsdConfigNotifier = new CSectionsdConfigNotifier;
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-        CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &g_settings.epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-        miscSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, g_settings.epg_cache, miscSettings_epg_cache));
-        CStringInput * miscSettings_epg_cache_e = new CStringInput(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, &g_settings.epg_extendedcache, 3,LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT1, LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-
-        miscSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, g_settings.epg_extendedcache, miscSettings_epg_cache_e));
-
-        CStringInput * miscSettings_epg_old_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, &g_settings.epg_old_events, 2,LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-        miscSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, g_settings.epg_old_events, miscSettings_epg_old_events));
-        CStringInput * miscSettings_epg_max_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, &g_settings.epg_max_events, 5,LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-        miscSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, g_settings.epg_max_events, miscSettings_epg_max_events));
-        miscSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, true, g_settings.epg_dir, this, "epgdir"));
+	miscSettingsEPGSettings->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &g_settings.epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
+	miscSettingsEPGSettings->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, g_settings.epg_cache, miscSettings_epg_cache));
+	CStringInput * miscSettings_epg_cache_e = new CStringInput(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, &g_settings.epg_extendedcache, 3,LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT1, LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
+	miscSettingsEPGSettings->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, g_settings.epg_extendedcache, miscSettings_epg_cache_e));
+	CStringInput * miscSettings_epg_old_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, &g_settings.epg_old_events, 2,LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
+	miscSettingsEPGSettings->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, g_settings.epg_old_events, miscSettings_epg_old_events));
+	CStringInput * miscSettings_epg_max_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, &g_settings.epg_max_events, 5,LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
+	miscSettingsEPGSettings->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, g_settings.epg_max_events, miscSettings_epg_max_events));
+	miscSettingsEPGSettings->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, true, g_settings.epg_dir, this, "epgdir"));
+	miscSettings.addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, miscSettingsEPGSettings, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN) );
+	//end of EPGSettings
 
 #if 0
 	miscSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_DRIVER_BOOT));
-	if(access("/var/tuxbox/emlog", F_OK) == 0)
+	if (access("/var/tuxbox/emlog", F_OK) == 0)
 		g_settings.emlog = 1;
 	miscSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_USELOG, &g_settings.emlog, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, new CLogChangeNotifier));
 #endif
@@ -1534,14 +1535,17 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 
 	miscSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
 	miscSettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCK, true, g_settings.repeat_blocker, keySettings_repeatBlocker));
- 	miscSettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
+	miscSettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
 	miscSettings.addItem(m1);
 #endif
+	//filebrowsersettings
+	CMenuWidget *miscSettingsFilebrowser = new CMenuWidget(LOCALE_FILEBROWSER_HEAD, NEUTRINO_ICON_SETTINGS);
+	addMenueIntroItems(*miscSettingsFilebrowser);
+	miscSettingsFilebrowser->addItem(new CMenuOptionChooser(LOCALE_FILESYSTEM_IS_UTF8            , &g_settings.filesystem_is_utf8            , MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS, MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT, true ));
+	miscSettingsFilebrowser->addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_SHOWRIGHTS        , &g_settings.filebrowser_showrights        , MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true ));
+	miscSettingsFilebrowser->addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_DENYDIRECTORYLEAVE, &g_settings.filebrowser_denydirectoryleave, MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true ));
+	miscSettings.addItem( new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, miscSettingsFilebrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE) );
 
-	miscSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FILEBROWSER_HEAD));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_FILESYSTEM_IS_UTF8            , &g_settings.filesystem_is_utf8            , MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS, MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT, true ));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_SHOWRIGHTS        , &g_settings.filebrowser_showrights        , MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true ));
-	miscSettings.addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_DENYDIRECTORYLEAVE, &g_settings.filebrowser_denydirectoryleave, MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true ));
 	// miscSettings.addItem(new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin,this,"onekeyplugin"));
 	funNotifier = new CFanControlNotifier();
 	//miscSettings.addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 0, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
@@ -1568,15 +1572,15 @@ void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
 
 	char *pfad[] = {(char *) DATADIR "/neutrino/locale",(char *) "/var/tuxbox/config/locale"};
 
-	for(int p = 0;p < 2;p++) {
+	for (int p = 0; p < 2; p++) {
 		n = scandir(pfad[p], &namelist, 0, alphasort);
-		if(n < 0) {
+		if (n < 0) {
 			perror("loading locales: scandir");
 		} else {
-			for(int count=0;count<n;count++) {
+			for (int count=0; count<n; count++) {
 				char * locale = strdup(namelist[count]->d_name);
 				char * pos = strstr(locale, ".locale");
-				if(pos != NULL) {
+				if (pos != NULL) {
 					char iname[50];
 					*pos = '\0';
 					sprintf(iname, "%s.raw", locale);
@@ -1618,16 +1622,16 @@ const CMenuOptionChooser::keyval AUDIOMENU_SRS_OPTIONS[AUDIOMENU_SRS_OPTION_COUN
 #define AUDIOMENU_AVSYNC_OPTION_COUNT 3
 const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTION_COUNT] =
 {
-        { 0, LOCALE_OPTIONS_OFF },
-        { 1, LOCALE_OPTIONS_ON  },
-        { 2, LOCALE_AUDIOMENU_AVSYNC_AM }
+	{ 0, LOCALE_OPTIONS_OFF },
+	{ 1, LOCALE_OPTIONS_ON  },
+	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
 };
 
 #define AUDIOMENU_CLOCKREC_OPTION_COUNT 3
 const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_OPTION_COUNT] =
 {
-        { 0, LOCALE_OPTIONS_OFF },
-        { 1, LOCALE_OPTIONS_ON  },
+	{ 0, LOCALE_OPTIONS_OFF },
+	{ 1, LOCALE_OPTIONS_ON  },
 };
 
 void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier)
@@ -1705,9 +1709,9 @@ void CNeutrinoApp::InitNetworkSettings(CMenuWidget &networkSettings)
 	CIPInput * networkSettings_Gateway    = new CIPInput(LOCALE_NETWORKMENU_GATEWAY   , networkConfig.gateway   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CIPInput * networkSettings_NameServer = new CIPInput(LOCALE_NETWORKMENU_NAMESERVER, networkConfig.nameserver, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 
-        CSectionsdConfigNotifier* sectionsdConfigNotifier = new CSectionsdConfigNotifier;
-        CStringInputSMS * networkSettings_NtpServer = new CStringInputSMS(LOCALE_NETWORKMENU_NTPSERVER, &g_settings.network_ntpserver, 30, LOCALE_NETWORKMENU_NTPSERVER_HINT1, LOCALE_NETWORKMENU_NTPSERVER_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ", sectionsdConfigNotifier);
-        CStringInput * networkSettings_NtpRefresh = new CStringInput(LOCALE_NETWORKMENU_NTPREFRESH, &g_settings.network_ntprefresh, 3,LOCALE_NETWORKMENU_NTPREFRESH_HINT1, LOCALE_NETWORKMENU_NTPREFRESH_HINT2 , "0123456789 ", sectionsdConfigNotifier);
+	CSectionsdConfigNotifier* sectionsdConfigNotifier = new CSectionsdConfigNotifier;
+	CStringInputSMS * networkSettings_NtpServer = new CStringInputSMS(LOCALE_NETWORKMENU_NTPSERVER, &g_settings.network_ntpserver, 30, LOCALE_NETWORKMENU_NTPSERVER_HINT1, LOCALE_NETWORKMENU_NTPSERVER_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ", sectionsdConfigNotifier);
+	CStringInput * networkSettings_NtpRefresh = new CStringInput(LOCALE_NETWORKMENU_NTPREFRESH, &g_settings.network_ntprefresh, 3,LOCALE_NETWORKMENU_NTPREFRESH_HINT1, LOCALE_NETWORKMENU_NTPREFRESH_HINT2 , "0123456789 ", sectionsdConfigNotifier);
 
 	CMenuForwarder *m0 = new CMenuForwarder(LOCALE_NETWORKMENU_SETUPNOW, true, NULL, this, "network", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_NETWORKMENU_IPADDRESS , networkConfig.inet_static, networkConfig.address   , networkSettings_NetworkIP );
@@ -1715,8 +1719,8 @@ void CNeutrinoApp::InitNetworkSettings(CMenuWidget &networkSettings)
 	CMenuForwarder *m3 = new CMenuForwarder(LOCALE_NETWORKMENU_BROADCAST , networkConfig.inet_static, networkConfig.broadcast , networkSettings_Broadcast );
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_NETWORKMENU_GATEWAY   , networkConfig.inet_static, networkConfig.gateway   , networkSettings_Gateway   );
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_NETWORKMENU_NAMESERVER, networkConfig.inet_static, networkConfig.nameserver, networkSettings_NameServer);
-        CMenuForwarder *m6 = new CMenuForwarder( LOCALE_NETWORKMENU_NTPSERVER, true , g_settings.network_ntpserver, networkSettings_NtpServer );
-        CMenuForwarder *m7 = new CMenuForwarder( LOCALE_NETWORKMENU_NTPREFRESH, true , g_settings.network_ntprefresh, networkSettings_NtpRefresh );
+	CMenuForwarder *m6 = new CMenuForwarder( LOCALE_NETWORKMENU_NTPSERVER, true , g_settings.network_ntpserver, networkSettings_NtpServer );
+	CMenuForwarder *m7 = new CMenuForwarder( LOCALE_NETWORKMENU_NTPREFRESH, true , g_settings.network_ntprefresh, networkSettings_NtpRefresh );
 
 	CDHCPNotifier* dhcpNotifier = new CDHCPNotifier(m1,m2,m3,m4,m5);
 
@@ -1748,9 +1752,9 @@ void CNeutrinoApp::InitNetworkSettings(CMenuWidget &networkSettings)
 	networkSettings.addItem( m4);
 	networkSettings.addItem( m5);
 	networkSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_NETWORKMENU_NTPTITLE));
-        networkSettings.addItem(new CMenuOptionChooser(LOCALE_NETWORKMENU_NTPENABLE, &g_settings.network_ntpenable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, sectionsdConfigNotifier));
-        networkSettings.addItem( m6);
-        networkSettings.addItem( m7);
+	networkSettings.addItem(new CMenuOptionChooser(LOCALE_NETWORKMENU_NTPENABLE, &g_settings.network_ntpenable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, sectionsdConfigNotifier));
+	networkSettings.addItem( m6);
+	networkSettings.addItem( m7);
 
 	networkSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_NETWORKMENU_MOUNT));
 	networkSettings.addItem(new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, new CNFSMountGui(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
@@ -1848,7 +1852,7 @@ void CNeutrinoApp::InitRecordingSettings(CMenuWidget &recordingSettings)
 	recordingSettings.addItem(fRecDir);
 	recordingSettings.addItem(fTsDir);
 	recordingSettings.addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_RECORD_TIME, &g_settings.record_hours, true, 1, 24, NULL) );
-	if(1) { //has_hdd) {
+	if (1) { //has_hdd) {
 		recordingSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_TIMESHIFT_PAUSE, &g_settings.timeshift_pause, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		recordingSettings.addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_AUTO_TIMESHIFT, &g_settings.auto_timeshift, true, 0, 300, NULL));
 		recordingSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_AUTO_DELETE, &g_settings.auto_delete, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -1924,7 +1928,7 @@ void CNeutrinoApp::InitRecordingSettings(CMenuWidget &recordingSettings)
 	directRecordingSettings->addItem(oj11);
 	directRecordingSettings->addItem(oj13);
 	recordingstatus = 0;
-	if(has_hdd) {
+	if (has_hdd) {
 		directRecordingSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_TIMESHIFT_PAUSE, &g_settings.timeshift_pause, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		directRecordingSettings->addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_AUTO_TIMESHIFT, &g_settings.auto_timeshift, true, 0, 300));
 		directRecordingSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_AUTO_DELETE, &g_settings.auto_delete, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -1964,7 +1968,7 @@ void CNeutrinoApp::InitStreamingSettings(CMenuWidget &streamingSettings)
 
 	CIPInput * streamingSettings_server_ip = new CIPInput(LOCALE_STREAMINGMENU_SERVER_IP, g_settings.streaming_server_ip, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CStringInput * streamingSettings_server_port = new CStringInput(LOCALE_STREAMINGMENU_SERVER_PORT, g_settings.streaming_server_port, 6, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2,"0123456789 ");
- 	CStringInputSMS * cddriveInput = new CStringInputSMS(LOCALE_STREAMINGMENU_STREAMING_SERVER_CDDRIVE, g_settings.streaming_server_cddrive, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""§$%&/()=?-:\\ ");
+	CStringInputSMS * cddriveInput = new CStringInputSMS(LOCALE_STREAMINGMENU_STREAMING_SERVER_CDDRIVE, g_settings.streaming_server_cddrive, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""§$%&/()=?-:\\ ");
 	CStringInput * streamingSettings_videorate = new CStringInput(LOCALE_STREAMINGMENU_STREAMING_VIDEORATE, g_settings.streaming_videorate, 5, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2,"0123456789 ");
 	CStringInput * streamingSettings_audiorate = new CStringInput(LOCALE_STREAMINGMENU_STREAMING_AUDIORATE, g_settings.streaming_audiorate, 5, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2,"0123456789 ");
 	CStringInputSMS * startdirInput = new CStringInputSMS(LOCALE_STREAMINGMENU_STREAMING_SERVER_STARTDIR, g_settings.streaming_server_startdir, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"abcdefghijklmnopqrstuvwxyz0123456789!""§$%&/()=?-:\\ ");
@@ -1976,7 +1980,7 @@ void CNeutrinoApp::InitStreamingSettings(CMenuWidget &streamingSettings)
 	CMenuForwarder* mf5 = new CMenuForwarder(LOCALE_STREAMINGMENU_STREAMING_AUDIORATE      , (g_settings.streaming_type==1), g_settings.streaming_audiorate      , streamingSettings_audiorate);
 	CMenuForwarder* mf6 = new CMenuForwarder(LOCALE_STREAMINGMENU_STREAMING_SERVER_STARTDIR, (g_settings.streaming_type==1), g_settings.streaming_server_startdir, startdirInput);
 	CMenuForwarder* mf7 = new CMenuForwarder(LOCALE_MOVIEPLAYER_DEFDIR, true, g_settings.network_nfs_moviedir,this,"moviedir");
- 	CMenuForwarder* mf8 = new CMenuForwarder(LOCALE_MOVIEPLAYER_DEFPLUGIN, true, g_settings.movieplayer_plugin,this,"movieplugin");
+	CMenuForwarder* mf8 = new CMenuForwarder(LOCALE_MOVIEPLAYER_DEFPLUGIN, true, g_settings.movieplayer_plugin,this,"movieplugin");
 	CMenuOptionChooser* oj1 = new CMenuOptionChooser(LOCALE_STREAMINGMENU_STREAMING_TRANSCODE_AUDIO      , &g_settings.streaming_transcode_audio      , MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
 
 	CMenuOptionChooser* oj2 = new CMenuOptionChooser(LOCALE_STREAMINGMENU_STREAMING_FORCE_AVI_RAWAUDIO   , &g_settings.streaming_force_avi_rawaudio   , MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
@@ -2022,87 +2026,87 @@ private:
 protected:
 
 	virtual const char * getOption(void)
-		{
-			sprintf(value, "%u", configfile->getInt32(locale_real_names[text], defaultvalue));
-			return value;
-		}
+	{
+		sprintf(value, "%u", configfile->getInt32(locale_real_names[text], defaultvalue));
+		return value;
+	}
 
 	virtual bool changeNotify(const neutrino_locale_t OptionName, void * Data)
-		{
-			configfile->setInt32(locale_real_names[text], atoi(value));
-			return observer->changeNotify(OptionName, Data);
-		}
+	{
+		configfile->setInt32(locale_real_names[text], atoi(value));
+		return observer->changeNotify(OptionName, Data);
+	}
 
 
 public:
 	CMenuNumberInput(const neutrino_locale_t Text, const int32_t DefaultValue, CChangeObserver * const _observer, CConfigFile * const _configfile) : CMenuForwarder(Text, true, NULL, this)
-		{
-			observer     = _observer;
-			configfile   = _configfile;
-			defaultvalue = DefaultValue;
-		}
+	{
+		observer     = _observer;
+		configfile   = _configfile;
+		defaultvalue = DefaultValue;
+	}
 
 	int exec(CMenuTarget * parent, const std::string & actionKey)
-		{
-			CStringInput input(text, (char *)getOption(), 3, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, "0123456789 ", this);
-			return input.exec(parent, actionKey);
-		}
+	{
+		CStringInput input(text, (char *)getOption(), 3, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, "0123456789 ", this);
+		return input.exec(parent, actionKey);
+	}
 };
 
 const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[4] =
 {
-        SNeutrinoSettings::FONT_TYPE_CHANNELLIST,
-        SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR,
-        SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER,
-        SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST,
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR,
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER,
+	SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP
 };
 
 const SNeutrinoSettings::FONT_TYPES eventlist_font_sizes[4] =
 {
-        SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE,
-        SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE,
-        SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL,
-        SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME,
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE,
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE,
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL,
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME,
 };
 
 const SNeutrinoSettings::FONT_TYPES infobar_font_sizes[4] =
 {
-        SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER,
-        SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME,
-        SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO,
-        SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER,
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME,
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO,
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL
 };
 
 const SNeutrinoSettings::FONT_TYPES epg_font_sizes[4] =
 {
-        SNeutrinoSettings::FONT_TYPE_EPG_TITLE,
-        SNeutrinoSettings::FONT_TYPE_EPG_INFO1,
-        SNeutrinoSettings::FONT_TYPE_EPG_INFO2,
-        SNeutrinoSettings::FONT_TYPE_EPG_DATE
+	SNeutrinoSettings::FONT_TYPE_EPG_TITLE,
+	SNeutrinoSettings::FONT_TYPE_EPG_INFO1,
+	SNeutrinoSettings::FONT_TYPE_EPG_INFO2,
+	SNeutrinoSettings::FONT_TYPE_EPG_DATE
 };
 
 const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
 {
-        SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE,
-        SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
+	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE,
+	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
 };
 
 const SNeutrinoSettings::FONT_TYPES other_font_sizes[4] =
 {
-        SNeutrinoSettings::FONT_TYPE_MENU,
-        SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
-        SNeutrinoSettings::FONT_TYPE_MENU_INFO,
-        SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
+	SNeutrinoSettings::FONT_TYPE_MENU,
+	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
+	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
+	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
 };
 
 font_sizes_groups font_sizes_groups[6] =
 {
-        {LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha"},
-        {LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve"},
-        {LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg"},
-        {LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf"},
-        {LOCALE_FONTMENU_GAMELIST   , 2, gamelist_font_sizes   , "fontsize.dgam"},
-        {NONEXISTANT_LOCALE         , 4, other_font_sizes      , "fontsize.doth"}
+	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha"},
+	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve"},
+	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg"},
+	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf"},
+	{LOCALE_FONTMENU_GAMELIST   , 2, gamelist_font_sizes   , "fontsize.dgam"},
+	{NONEXISTANT_LOCALE         , 4, other_font_sizes      , "fontsize.doth"}
 };
 
 #define FONT_STYLE_REGULAR 0
@@ -2111,28 +2115,28 @@ font_sizes_groups font_sizes_groups[6] =
 
 font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
 {
-        {LOCALE_FONTSIZE_MENU               ,  20, FONT_STYLE_BOLD   , 0},
-        {LOCALE_FONTSIZE_MENU_TITLE         ,  30, FONT_STYLE_BOLD   , 0},
-        {LOCALE_FONTSIZE_MENU_INFO          ,  16, FONT_STYLE_REGULAR, 0},
-        {LOCALE_FONTSIZE_EPG_TITLE          ,  25, FONT_STYLE_REGULAR, 1},
-        {LOCALE_FONTSIZE_EPG_INFO1          ,  17, FONT_STYLE_ITALIC , 2},
-        {LOCALE_FONTSIZE_EPG_INFO2          ,  17, FONT_STYLE_REGULAR, 2},
-        {LOCALE_FONTSIZE_EPG_DATE           ,  15, FONT_STYLE_REGULAR, 2},
-        {LOCALE_FONTSIZE_EVENTLIST_TITLE    ,  30, FONT_STYLE_REGULAR, 0},
-        {LOCALE_FONTSIZE_EVENTLIST_ITEMLARGE,  20, FONT_STYLE_BOLD   , 1},
-        {LOCALE_FONTSIZE_EVENTLIST_ITEMSMALL,  14, FONT_STYLE_REGULAR, 1},
-        {LOCALE_FONTSIZE_EVENTLIST_DATETIME ,  16, FONT_STYLE_REGULAR, 1},
-        {LOCALE_FONTSIZE_GAMELIST_ITEMLARGE ,  20, FONT_STYLE_BOLD   , 1},
-        {LOCALE_FONTSIZE_GAMELIST_ITEMSMALL ,  16, FONT_STYLE_REGULAR, 1},
-        {LOCALE_FONTSIZE_CHANNELLIST        ,  20, FONT_STYLE_BOLD   , 1},
-        {LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
-        {LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
-        {LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
-        {LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  30 /* orig 50*/, FONT_STYLE_BOLD   , 0},
-        {LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
-        {LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, FONT_STYLE_REGULAR, 1},
-        {LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1},
-        {LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1}
+	{LOCALE_FONTSIZE_MENU               ,  20, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_MENU_TITLE         ,  30, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_MENU_INFO          ,  16, FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_EPG_TITLE          ,  25, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_EPG_INFO1          ,  17, FONT_STYLE_ITALIC , 2},
+	{LOCALE_FONTSIZE_EPG_INFO2          ,  17, FONT_STYLE_REGULAR, 2},
+	{LOCALE_FONTSIZE_EPG_DATE           ,  15, FONT_STYLE_REGULAR, 2},
+	{LOCALE_FONTSIZE_EVENTLIST_TITLE    ,  30, FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_EVENTLIST_ITEMLARGE,  20, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_EVENTLIST_ITEMSMALL,  14, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_EVENTLIST_DATETIME ,  16, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_GAMELIST_ITEMLARGE ,  20, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_GAMELIST_ITEMSMALL ,  16, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_CHANNELLIST        ,  20, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
+	{LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  30 /* orig 50*/, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1}
 };
 
 void CNeutrinoApp::AddFontSettingItem(CMenuWidget &fontSettings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry)
@@ -2234,21 +2238,21 @@ void CNeutrinoApp::InitColorSettingsMenuColors(CMenuWidget &colorSettings_menuCo
 	colorSettings_menuColors.addItem(GenericMenuBack);
 
 	CColorChooser* chHeadcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.menu_Head_red, &g_settings.menu_Head_green, &g_settings.menu_Head_blue,
-																  &g_settings.menu_Head_alpha, colorSetupNotifier);
+			&g_settings.menu_Head_alpha, colorSetupNotifier);
 	CColorChooser* chHeadTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &g_settings.menu_Head_Text_red, &g_settings.menu_Head_Text_green, &g_settings.menu_Head_Text_blue,
-																		NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	CColorChooser* chContentcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.menu_Content_red, &g_settings.menu_Content_green, &g_settings.menu_Content_blue,
-																	  &g_settings.menu_Content_alpha, colorSetupNotifier);
+			&g_settings.menu_Content_alpha, colorSetupNotifier);
 	CColorChooser* chContentTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &g_settings.menu_Content_Text_red, &g_settings.menu_Content_Text_green, &g_settings.menu_Content_Text_blue,
-																			NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	CColorChooser* chContentSelectedcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.menu_Content_Selected_red, &g_settings.menu_Content_Selected_green, &g_settings.menu_Content_Selected_blue,
-																				 &g_settings.menu_Content_Selected_alpha, colorSetupNotifier);
+			&g_settings.menu_Content_Selected_alpha, colorSetupNotifier);
 	CColorChooser* chContentSelectedTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &g_settings.menu_Content_Selected_Text_red, &g_settings.menu_Content_Selected_Text_green, &g_settings.menu_Content_Selected_Text_blue,
-																					  NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	CColorChooser* chContentInactivecolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.menu_Content_inactive_red, &g_settings.menu_Content_inactive_green, &g_settings.menu_Content_inactive_blue,
-																				 &g_settings.menu_Content_inactive_alpha, colorSetupNotifier);
+			&g_settings.menu_Content_inactive_alpha, colorSetupNotifier);
 	CColorChooser* chContentInactiveTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &g_settings.menu_Content_inactive_Text_red, &g_settings.menu_Content_inactive_Text_green, &g_settings.menu_Content_inactive_Text_blue,
-																					  NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 	colorSettings_menuColors.addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 	colorSettings_menuColors.addItem( new CMenuForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chHeadcolor ));
 	colorSettings_menuColors.addItem( new CMenuForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chHeadTextcolor ));
@@ -2270,9 +2274,9 @@ void CNeutrinoApp::InitColorSettingsStatusBarColors(CMenuWidget &colorSettings_s
 	colorSettings_statusbarColors.addItem(GenericMenuBack);
 
 	CColorChooser* chInfobarcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.infobar_red, &g_settings.infobar_green, &g_settings.infobar_blue,
-																	  &g_settings.infobar_alpha, colorSetupNotifier);
+			&g_settings.infobar_alpha, colorSetupNotifier);
 	CColorChooser* chInfobarTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &g_settings.infobar_Text_red, &g_settings.infobar_Text_green, &g_settings.infobar_Text_blue,
-																			NULL, colorSetupNotifier);
+			NULL, colorSetupNotifier);
 
 	colorSettings_statusbarColors.addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORSTATUSBAR_TEXT));
 	colorSettings_statusbarColors.addItem( new CMenuForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chInfobarcolor ));
@@ -2322,11 +2326,11 @@ void CNeutrinoApp::InitLcdSettings(CMenuWidget &lcdSettings)
 	lcdSettings.addItem(oj);
 #endif
 	CStringInput * dim_time = new CStringInput(LOCALE_LCDMENU_DIM_TIME, g_settings.lcd_setting_dim_time, 3,
-						    NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
+			NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
 	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_DIM_TIME,true, g_settings.lcd_setting_dim_time,dim_time));
 
 	CStringInput * dim_brightness = new CStringInput(LOCALE_LCDMENU_DIM_BRIGHTNESS, g_settings.lcd_setting_dim_brightness, 3,
-							  NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
+			NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
 	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_DIM_BRIGHTNESS,true, g_settings.lcd_setting_dim_brightness,dim_brightness));
 
 	lcdSettings.addItem(GenericMenuSeparatorLine);
@@ -2363,16 +2367,16 @@ enum keynames {
 	KEY_SUBCHANNEL_DOWN,
 	KEY_ZAP_HISTORY,
 	KEY_LASTCHANNEL,
-        MPKEY_REWIND,
-        MPKEY_FORWARD,
-        MPKEY_PAUSE,
-        MPKEY_STOP,
-        MPKEY_PLAY,
-        MPKEY_AUDIO,
-        MPKEY_TIME,
-        MPKEY_BOOKMARK,
+	MPKEY_REWIND,
+	MPKEY_FORWARD,
+	MPKEY_PAUSE,
+	MPKEY_STOP,
+	MPKEY_PLAY,
+	MPKEY_AUDIO,
+	MPKEY_TIME,
+	MPKEY_BOOKMARK,
 	KEY_TIMESHIFT,
-        MPKEY_PLUGIN,
+	MPKEY_PLUGIN,
 	KEY_PLUGIN,
 	KEY_UNLOCK
 };
@@ -2397,16 +2401,16 @@ const neutrino_locale_t keydescription_head[KEYBINDS_COUNT] =
 	LOCALE_KEYBINDINGMENU_SUBCHANNELDOWN,
 	LOCALE_KEYBINDINGMENU_ZAPHISTORY,
 	LOCALE_KEYBINDINGMENU_LASTCHANNEL,
-        LOCALE_MPKEY_REWIND,
-        LOCALE_MPKEY_FORWARD,
-        LOCALE_MPKEY_PAUSE,
-        LOCALE_MPKEY_STOP,
-        LOCALE_MPKEY_PLAY,
-        LOCALE_MPKEY_AUDIO,
-        LOCALE_MPKEY_TIME,
-        LOCALE_MPKEY_BOOKMARK,
+	LOCALE_MPKEY_REWIND,
+	LOCALE_MPKEY_FORWARD,
+	LOCALE_MPKEY_PAUSE,
+	LOCALE_MPKEY_STOP,
+	LOCALE_MPKEY_PLAY,
+	LOCALE_MPKEY_AUDIO,
+	LOCALE_MPKEY_TIME,
+	LOCALE_MPKEY_BOOKMARK,
 	LOCALE_EXTRA_KEY_TIMESHIFT,
-        LOCALE_MPKEY_PLUGIN,
+	LOCALE_MPKEY_PLUGIN,
 	LOCALE_EXTRA_KEY_PLUGIN,
 	LOCALE_EXTRA_KEY_UNLOCK
 };
@@ -2430,16 +2434,16 @@ const neutrino_locale_t keydescription[KEYBINDS_COUNT] =
 	LOCALE_KEYBINDINGMENU_SUBCHANNELDOWN,
 	LOCALE_KEYBINDINGMENU_ZAPHISTORY,
 	LOCALE_KEYBINDINGMENU_LASTCHANNEL,
-        LOCALE_MPKEY_REWIND,
-        LOCALE_MPKEY_FORWARD,
-        LOCALE_MPKEY_PAUSE,
-        LOCALE_MPKEY_STOP,
-        LOCALE_MPKEY_PLAY,
-        LOCALE_MPKEY_AUDIO,
-        LOCALE_MPKEY_TIME,
-        LOCALE_MPKEY_BOOKMARK,
+	LOCALE_MPKEY_REWIND,
+	LOCALE_MPKEY_FORWARD,
+	LOCALE_MPKEY_PAUSE,
+	LOCALE_MPKEY_STOP,
+	LOCALE_MPKEY_PLAY,
+	LOCALE_MPKEY_AUDIO,
+	LOCALE_MPKEY_TIME,
+	LOCALE_MPKEY_BOOKMARK,
 	LOCALE_EXTRA_KEY_TIMESHIFT,
-        LOCALE_MPKEY_PLUGIN,
+	LOCALE_MPKEY_PLUGIN,
 	LOCALE_EXTRA_KEY_PLUGIN,
 	LOCALE_EXTRA_KEY_UNLOCK
 };
@@ -2463,7 +2467,7 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 
 	keySettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
 	keySettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCK, true, g_settings.repeat_blocker, keySettings_repeatBlocker));
- 	keySettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
+	keySettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
 
 	keySettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_SHUTDOWN));
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
@@ -2474,42 +2478,42 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 	keySettings.addItem(m1);
 
 	int * keyvalue_p[KEYBINDS_COUNT] =
-		{
-			&g_settings.key_tvradio_mode,
-			&g_settings.key_channelList_pageup,
-			&g_settings.key_channelList_pagedown,
-			&g_settings.key_list_start,
-			&g_settings.key_list_end,
+	{
+		&g_settings.key_tvradio_mode,
+		&g_settings.key_channelList_pageup,
+		&g_settings.key_channelList_pagedown,
+		&g_settings.key_list_start,
+		&g_settings.key_list_end,
 
-			&g_settings.key_channelList_cancel,
-			&g_settings.key_channelList_sort,
-			&g_settings.key_channelList_addrecord,
-			&g_settings.key_channelList_addremind,
-			&g_settings.key_bouquet_up,
+		&g_settings.key_channelList_cancel,
+		&g_settings.key_channelList_sort,
+		&g_settings.key_channelList_addrecord,
+		&g_settings.key_channelList_addremind,
+		&g_settings.key_bouquet_up,
 
-			&g_settings.key_bouquet_down,
-			&g_settings.key_quickzap_up,
-			&g_settings.key_quickzap_down,
-			&g_settings.key_subchannel_up,
-			&g_settings.key_subchannel_down,
+		&g_settings.key_bouquet_down,
+		&g_settings.key_quickzap_up,
+		&g_settings.key_quickzap_down,
+		&g_settings.key_subchannel_up,
+		&g_settings.key_subchannel_down,
 
-			&g_settings.key_zaphistory,
-			&g_settings.key_lastchannel,
+		&g_settings.key_zaphistory,
+		&g_settings.key_lastchannel,
 
-			&g_settings.mpkey_rewind,
-			&g_settings.mpkey_forward,
-			&g_settings.mpkey_pause,
-			&g_settings.mpkey_stop,
-			&g_settings.mpkey_play,
-			&g_settings.mpkey_audio,
-			&g_settings.mpkey_time,
-			&g_settings.mpkey_bookmark,
+		&g_settings.mpkey_rewind,
+		&g_settings.mpkey_forward,
+		&g_settings.mpkey_pause,
+		&g_settings.mpkey_stop,
+		&g_settings.mpkey_play,
+		&g_settings.mpkey_audio,
+		&g_settings.mpkey_time,
+		&g_settings.mpkey_bookmark,
 
-			&g_settings.key_timeshift,
-			&g_settings.mpkey_plugin,
-			&g_settings.key_plugin,
-			&g_settings.key_unlock
-		};
+		&g_settings.key_timeshift,
+		&g_settings.mpkey_plugin,
+		&g_settings.key_plugin,
+		&g_settings.key_unlock
+	};
 
 	CKeyChooser * keychooser[KEYBINDS_COUNT];
 
@@ -2552,12 +2556,12 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 	keySettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_HEAD, true, NULL, bindSettings));
 	//mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, &keySettings      , NULL, CRCInput::RC_blue  , NEUTRINO_ICON_BUTTON_BLUE  ));
 
-        // USERMENU
-        keySettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_HEAD));
-        keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_RED, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_RED,0)));
-        keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_GREEN, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_GREEN,1)));
-        keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_YELLOW, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_YELLOW,2)));
-        keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_BLUE, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_BLUE,3)));
+	// USERMENU
+	keySettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_HEAD));
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_RED, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_RED,0)));
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_GREEN, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_GREEN,1)));
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_YELLOW, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_YELLOW,2)));
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_BLUE, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_BLUE,3)));
 
 
 }
@@ -2565,83 +2569,83 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 // leave this functions, somebody might want to use it in the future again
 void CNeutrinoApp::SelectNVOD()
 {
-        if (!(g_RemoteControl->subChannels.empty()))
-        {
-                // NVOD/SubService- Kanal!
-                CMenuWidget NVODSelector(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, "video.raw", 350);
-                if(getNVODMenu(&NVODSelector))
-                        NVODSelector.exec(NULL, "");
-        }
+	if (!(g_RemoteControl->subChannels.empty()))
+	{
+		// NVOD/SubService- Kanal!
+		CMenuWidget NVODSelector(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, "video.raw", 350);
+		if (getNVODMenu(&NVODSelector))
+			NVODSelector.exec(NULL, "");
+	}
 }
 
 bool CNeutrinoApp::getNVODMenu(CMenuWidget* menu)
 {
-        if(menu == NULL)
-                return false;
-        if (g_RemoteControl->subChannels.empty())
-                return false;
+	if (menu == NULL)
+		return false;
+	if (g_RemoteControl->subChannels.empty())
+		return false;
 
-        menu->addItem(GenericMenuSeparator);
+	menu->addItem(GenericMenuSeparator);
 
-        int count = 0;
-        char nvod_id[5];
+	int count = 0;
+	char nvod_id[5];
 
-        for( CSubServiceListSorted::iterator e=g_RemoteControl->subChannels.begin(); e!=g_RemoteControl->subChannels.end(); ++e)
-        {
-                sprintf(nvod_id, "%d", count);
+	for ( CSubServiceListSorted::iterator e=g_RemoteControl->subChannels.begin(); e!=g_RemoteControl->subChannels.end(); ++e)
+	{
+		sprintf(nvod_id, "%d", count);
 
-                if( !g_RemoteControl->are_subchannels ) {
-                        char nvod_time_a[50], nvod_time_e[50], nvod_time_x[50];
-                        char nvod_s[100];
-                        struct  tm *tmZeit;
+		if ( !g_RemoteControl->are_subchannels ) {
+			char nvod_time_a[50], nvod_time_e[50], nvod_time_x[50];
+			char nvod_s[100];
+			struct  tm *tmZeit;
 
-                        tmZeit= localtime(&e->startzeit);
-                        sprintf(nvod_time_a, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
+			tmZeit= localtime(&e->startzeit);
+			sprintf(nvod_time_a, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
 
-                        time_t endtime = e->startzeit+ e->dauer;
-                        tmZeit= localtime(&endtime);
-                        sprintf(nvod_time_e, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
+			time_t endtime = e->startzeit+ e->dauer;
+			tmZeit= localtime(&endtime);
+			sprintf(nvod_time_e, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
 
-                        time_t jetzt=time(NULL);
-                        if(e->startzeit > jetzt) {
-                                int mins=(e->startzeit- jetzt)/ 60;
-                                sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_STARTING), mins);
-                        }
-                        else if( (e->startzeit<= jetzt) && (jetzt < endtime) ) {
-                                int proz=(jetzt- e->startzeit)*100/ e->dauer;
-                                sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_PERCENTAGE), proz);
-                        }
-                        else
-                                nvod_time_x[0]= 0;
+			time_t jetzt=time(NULL);
+			if (e->startzeit > jetzt) {
+				int mins=(e->startzeit- jetzt)/ 60;
+				sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_STARTING), mins);
+			}
+			else if ( (e->startzeit<= jetzt) && (jetzt < endtime) ) {
+				int proz=(jetzt- e->startzeit)*100/ e->dauer;
+				sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_PERCENTAGE), proz);
+			}
+			else
+				nvod_time_x[0]= 0;
 
-                        sprintf(nvod_s, "%s - %s %s", nvod_time_a, nvod_time_e, nvod_time_x);
-                        menu->addItem(new CMenuForwarderNonLocalized(nvod_s, true, NULL, NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
-                } else {
-                        menu->addItem(new CMenuForwarderNonLocalized(e->subservice_name.c_str(), true, NULL, NVODChanger, nvod_id, CRCInput::convertDigitToKey(count)), (count == g_RemoteControl->selected_subchannel));
-                }
+			sprintf(nvod_s, "%s - %s %s", nvod_time_a, nvod_time_e, nvod_time_x);
+			menu->addItem(new CMenuForwarderNonLocalized(nvod_s, true, NULL, NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
+		} else {
+			menu->addItem(new CMenuForwarderNonLocalized(e->subservice_name.c_str(), true, NULL, NVODChanger, nvod_id, CRCInput::convertDigitToKey(count)), (count == g_RemoteControl->selected_subchannel));
+		}
 
-                count++;
-        }
+		count++;
+	}
 
-        if( g_RemoteControl->are_subchannels ) {
-                menu->addItem(GenericMenuSeparatorLine);
-                CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_NVODSELECTOR_DIRECTORMODE, &g_RemoteControl->director_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-                menu->addItem(oj);
-        }
-        return true;
+	if ( g_RemoteControl->are_subchannels ) {
+		menu->addItem(GenericMenuSeparatorLine);
+		CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_NVODSELECTOR_DIRECTORMODE, &g_RemoteControl->director_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+		menu->addItem(oj);
+	}
+	return true;
 }
 
 void CNeutrinoApp::SelectAPID()
 {
 #if 0
-	if( g_RemoteControl->current_PIDs.APIDs.size()> 1 )
+	if ( g_RemoteControl->current_PIDs.APIDs.size()> 1 )
 	{
 		// wir haben APIDs für diesen Kanal!
 
 		CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, "audio.raw", 300);
 		APIDSelector.addItem(GenericMenuSeparator);
 
-		for( unsigned int count=0; count<g_RemoteControl->current_PIDs.APIDs.size(); count++ )
+		for ( unsigned int count=0; count<g_RemoteControl->current_PIDs.APIDs.size(); count++ )
 		{
 			char apid[5];
 			sprintf(apid, "%d", count);
@@ -2666,363 +2670,373 @@ const neutrino_msg_t key_helper_msg_def[BUTTONMAX]={CRCInput::RC_red,CRCInput::R
 const char * key_helper_icon_def[BUTTONMAX]={NEUTRINO_ICON_BUTTON_RED,NEUTRINO_ICON_BUTTON_GREEN,NEUTRINO_ICON_BUTTON_YELLOW,NEUTRINO_ICON_BUTTON_BLUE};
 class CKeyHelper
 {
-        private:
-                int number_key;
-                bool color_key_used[BUTTONMAX];
-        public:
-                CKeyHelper(){reset();};
-                void reset(void)
-                {
-                        number_key = 1;
-                        for(int i= 0; i < BUTTONMAX; i++ )
-                                color_key_used[i] = false;
-                };
+private:
+	int number_key;
+	bool color_key_used[BUTTONMAX];
+public:
+	CKeyHelper() {
+		reset();
+	};
+	void reset(void)
+	{
+		number_key = 1;
+		for (int i= 0; i < BUTTONMAX; i++ )
+			color_key_used[i] = false;
+	};
 
-                /* Returns the next available button, to be used in menu as 'direct' keys. Appropriate
-                 * definitions are returnd in msp and icon
-                 * A color button could be requested as prefered button (other buttons are not supported yet).
-                 * If the appropriate button is already in used, the next number_key button is returned instead
-                 * (first 1-9 and than 0). */
-                bool get(neutrino_msg_t* msg, const char** icon, neutrino_msg_t prefered_key = CRCInput::RC_nokey)
-                {
-                        bool result = false;
-                        int button = -1;
-                        if(prefered_key == CRCInput::RC_red)
-                                button = 0;
-                        if(prefered_key == CRCInput::RC_green)
-                                button = 1;
-                        if(prefered_key == CRCInput::RC_yellow)
-                                button = 2;
-                        if(prefered_key == CRCInput::RC_blue)
-                                button = 3;
+	/* Returns the next available button, to be used in menu as 'direct' keys. Appropriate
+	 * definitions are returnd in msp and icon
+	 * A color button could be requested as prefered button (other buttons are not supported yet).
+	 * If the appropriate button is already in used, the next number_key button is returned instead
+	 * (first 1-9 and than 0). */
+	bool get(neutrino_msg_t* msg, const char** icon, neutrino_msg_t prefered_key = CRCInput::RC_nokey)
+	{
+		bool result = false;
+		int button = -1;
+		if (prefered_key == CRCInput::RC_red)
+			button = 0;
+		if (prefered_key == CRCInput::RC_green)
+			button = 1;
+		if (prefered_key == CRCInput::RC_yellow)
+			button = 2;
+		if (prefered_key == CRCInput::RC_blue)
+			button = 3;
 
-                        *msg = CRCInput::RC_nokey;
-                        *icon = "";
-                        if(button >= 0 && button < BUTTONMAX)
-                        { // try to get color button
-                                if( color_key_used[button] == false)
-                                {
-                                        color_key_used[button] = true;
-                                        *msg = key_helper_msg_def[button];
-                                        *icon = key_helper_icon_def[button];
-                                        result = true;
-                                }
-                        }
+		*msg = CRCInput::RC_nokey;
+		*icon = "";
+		if (button >= 0 && button < BUTTONMAX)
+		{ // try to get color button
+			if ( color_key_used[button] == false)
+			{
+				color_key_used[button] = true;
+				*msg = key_helper_msg_def[button];
+				*icon = key_helper_icon_def[button];
+				result = true;
+			}
+		}
 
-                        if( result == false && number_key < 10) // no key defined yet, at least try to get a numbered key
-                        {
-                                // there is still a available number_key
-                                *msg = CRCInput::convertDigitToKey(number_key);
-                                *icon = "";
-                                if(number_key == 9)
-                                        number_key = 0;
-                                else if(number_key == 0)
-                                        number_key = 10;
-                                else
-                                        number_key++;
-                                result = true;
-                        }
-                        return (result);
-                };
+		if ( result == false && number_key < 10) // no key defined yet, at least try to get a numbered key
+		{
+			// there is still a available number_key
+			*msg = CRCInput::convertDigitToKey(number_key);
+			*icon = "";
+			if (number_key == 9)
+				number_key = 0;
+			else if (number_key == 0)
+				number_key = 10;
+			else
+				number_key++;
+			result = true;
+		}
+		return (result);
+	};
 };
 
 // USERMENU
 bool CNeutrinoApp::showUserMenu(int button)
 {
-        if(button < 0 || button >= SNeutrinoSettings::BUTTON_MAX)
-                return false;
+	if (button < 0 || button >= SNeutrinoSettings::BUTTON_MAX)
+		return false;
 
-        CMenuItem* menu_item = NULL;
-        CKeyHelper keyhelper;
-        neutrino_msg_t key = CRCInput::RC_nokey;
-        const char * icon = NULL;
+	CMenuItem* menu_item = NULL;
+	CKeyHelper keyhelper;
+	neutrino_msg_t key = CRCInput::RC_nokey;
+	const char * icon = NULL;
 	int dummy;
 
-        int menu_items = 0;
-        int menu_prev = -1;
+	int menu_items = 0;
+	int menu_prev = -1;
 	static int selected[SNeutrinoSettings::BUTTON_MAX] = {-1, -1, -1, -1};
 
-        // define classes
-        CFavorites* tmpFavorites                                = NULL;
-        CPauseSectionsdNotifier* tmpPauseSectionsdNotifier      = NULL;
-        CAudioSelectMenuHandler* tmpAudioSelectMenuHandler      = NULL;
-        CMenuWidget* tmpNVODSelector                            = NULL;
-        CStreamInfo2Handler*    tmpStreamInfo2Handler           = NULL;
-        CEventListHandler* tmpEventListHandler                  = NULL;
-        CEPGplusHandler* tmpEPGplusHandler                      = NULL;
-        CEPGDataHandler* tmpEPGDataHandler                      = NULL;
+	// define classes
+	CFavorites* tmpFavorites                                = NULL;
+	CPauseSectionsdNotifier* tmpPauseSectionsdNotifier      = NULL;
+	CAudioSelectMenuHandler* tmpAudioSelectMenuHandler      = NULL;
+	CMenuWidget* tmpNVODSelector                            = NULL;
+	CStreamInfo2Handler*    tmpStreamInfo2Handler           = NULL;
+	CEventListHandler* tmpEventListHandler                  = NULL;
+	CEPGplusHandler* tmpEPGplusHandler                      = NULL;
+	CEPGDataHandler* tmpEPGDataHandler                      = NULL;
 
-        std::string txt = g_settings.usermenu_text[button];
-        if (button == SNeutrinoSettings::BUTTON_RED) {
-                if( txt.empty() )
-                        txt = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
-        }
-        else if( button == SNeutrinoSettings::BUTTON_GREEN) {
-                if( txt.empty() )
-                        txt = g_Locale->getText(LOCALE_INFOVIEWER_LANGUAGES);
-        }
-        else if( button == SNeutrinoSettings::BUTTON_YELLOW) {
-                if( txt.empty() )
-                        txt = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
-                        //txt = g_Locale->getText(LOCALE_NVODSELECTOR_DIRECTORMODE);
-        }
-        else if( button == SNeutrinoSettings::BUTTON_BLUE) {
-                if( txt.empty() )
-                        txt = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
-        }
-        CMenuWidget *menu = new CMenuWidget(txt.c_str() , "features.raw", 350);
-        if (menu == NULL)
-                return 0;
-        menu->addItem(GenericMenuSeparator);
+	std::string txt = g_settings.usermenu_text[button];
+	if (button == SNeutrinoSettings::BUTTON_RED) {
+		if ( txt.empty() )
+			txt = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_GREEN) {
+		if ( txt.empty() )
+			txt = g_Locale->getText(LOCALE_INFOVIEWER_LANGUAGES);
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_YELLOW) {
+		if ( txt.empty() )
+			txt = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
+		//txt = g_Locale->getText(LOCALE_NVODSELECTOR_DIRECTORMODE);
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_BLUE) {
+		if ( txt.empty() )
+			txt = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
+	}
+	CMenuWidget *menu = new CMenuWidget(txt.c_str() , "features.raw", 350);
+	if (menu == NULL)
+		return 0;
+	menu->addItem(GenericMenuSeparator);
 
-        // go through any postition number
-        for(int pos = 0; pos < SNeutrinoSettings::ITEM_MAX ; pos++) {
-                // now compare pos with the position of any item. Add this item if position is the same
-                switch(g_settings.usermenu[button][pos]) {
-                        case SNeutrinoSettings::ITEM_NONE:
-                                // do nothing
-                                break;
+	// go through any postition number
+	for (int pos = 0; pos < SNeutrinoSettings::ITEM_MAX ; pos++) {
+		// now compare pos with the position of any item. Add this item if position is the same
+		switch (g_settings.usermenu[button][pos]) {
+		case SNeutrinoSettings::ITEM_NONE:
+			// do nothing
+			break;
 
-                        case SNeutrinoSettings::ITEM_BAR:
-                                if(menu_prev == -1 || menu_prev == SNeutrinoSettings::ITEM_BAR )
-                                        break;
+		case SNeutrinoSettings::ITEM_BAR:
+			if (menu_prev == -1 || menu_prev == SNeutrinoSettings::ITEM_BAR )
+				break;
 
-                                menu->addItem(GenericMenuSeparatorLine);
-                                menu_prev = SNeutrinoSettings::ITEM_BAR;
-                                break;
+			menu->addItem(GenericMenuSeparatorLine);
+			menu_prev = SNeutrinoSettings::ITEM_BAR;
+			break;
 
-                        case SNeutrinoSettings::ITEM_FAVORITS:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_FAVORITS;
-                                tmpFavorites = new CFavorites;
-                                keyhelper.get(&key,&icon,CRCInput::RC_green);
-                                menu_item = new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, true, NULL, tmpFavorites, "-1", key, icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_FAVORITS:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_FAVORITS;
+			tmpFavorites = new CFavorites;
+			keyhelper.get(&key,&icon,CRCInput::RC_green);
+			menu_item = new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, true, NULL, tmpFavorites, "-1", key, icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_RECORD:
-                                if(g_settings.recording_type == RECORDING_OFF)
-                                        break;
+		case SNeutrinoSettings::ITEM_RECORD:
+			if (g_settings.recording_type == RECORDING_OFF)
+				break;
 
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_RECORD;
-                                keyhelper.get(&key,&icon,CRCInput::RC_red);
-                                menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_RECORDING, &recordingstatus, MAINMENU_RECORDING_OPTIONS, MAINMENU_RECORDING_OPTION_COUNT, true, this, key, icon);
-                                menu->addItem(menu_item, false);
-				//if(has_hdd)
-				//	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_AUTO_TO_RECORD, autoshift, NULL, this, "autolink"), false);
-                                break;
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_RECORD;
+			keyhelper.get(&key,&icon,CRCInput::RC_red);
+			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_RECORDING, &recordingstatus, MAINMENU_RECORDING_OPTIONS, MAINMENU_RECORDING_OPTION_COUNT, true, this, key, icon);
+			menu->addItem(menu_item, false);
+			//if(has_hdd)
+			//	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_AUTO_TO_RECORD, autoshift, NULL, this, "autolink"), false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_MOVIEPLAYER_MB:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_MB;
-                                keyhelper.get(&key,&icon,CRCInput::RC_green);
-                                menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, moviePlayerGui, "tsmoviebrowser", key, icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_MOVIEPLAYER_MB:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_MB;
+			keyhelper.get(&key,&icon,CRCInput::RC_green);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, moviePlayerGui, "tsmoviebrowser", key, icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_TIMERLIST:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_TIMERLIST;
-                                keyhelper.get(&key,&icon,CRCInput::RC_yellow);
-                                menu_item = new CMenuForwarder(LOCALE_TIMERLIST_NAME, true, NULL, Timerlist, "-1", key, icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_TIMERLIST:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_TIMERLIST;
+			keyhelper.get(&key,&icon,CRCInput::RC_yellow);
+			menu_item = new CMenuForwarder(LOCALE_TIMERLIST_NAME, true, NULL, Timerlist, "-1", key, icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_REMOTE:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_REMOTE;
-                                keyhelper.get(&key,&icon);
-                                menu_item = new CMenuForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, this->rcLock, "-1" , key, icon );
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_REMOTE:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_REMOTE;
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, this->rcLock, "-1" , key, icon );
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_EPG_SUPER:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_EPG_SUPER;
-                                tmpEPGplusHandler = new CEPGplusHandler();
-                                keyhelper.get(&key,&icon,CRCInput::RC_green);
-                                menu_item = new CMenuForwarder(LOCALE_EPGMENU_EPGPLUS   , true, NULL, tmpEPGplusHandler  ,  "-1", key, icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_EPG_SUPER:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_EPG_SUPER;
+			tmpEPGplusHandler = new CEPGplusHandler();
+			keyhelper.get(&key,&icon,CRCInput::RC_green);
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EPGPLUS   , true, NULL, tmpEPGplusHandler  ,  "-1", key, icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_EPG_LIST:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_EPG_LIST;
-                                tmpEventListHandler = new CEventListHandler();
-                                keyhelper.get(&key,&icon,CRCInput::RC_red);
-                                menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTLIST , true, NULL, tmpEventListHandler,  "-1", key, icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_EPG_LIST:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_EPG_LIST;
+			tmpEventListHandler = new CEventListHandler();
+			keyhelper.get(&key,&icon,CRCInput::RC_red);
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTLIST , true, NULL, tmpEventListHandler,  "-1", key, icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_EPG_INFO:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_EPG_INFO;
-                                tmpEPGDataHandler = new CEPGDataHandler();
-                                keyhelper.get(&key,&icon,CRCInput::RC_yellow);
-                                menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTINFO , true, NULL, tmpEPGDataHandler ,  "-1", key, icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_EPG_INFO:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_EPG_INFO;
+			tmpEPGDataHandler = new CEPGDataHandler();
+			keyhelper.get(&key,&icon,CRCInput::RC_yellow);
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_EVENTINFO , true, NULL, tmpEPGDataHandler ,  "-1", key, icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_EPG_MISC:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_EPG_MISC;
-                                dummy = g_Sectionsd->getIsScanningActive();
-				//dummy = sectionsd_scanning;
-                                tmpPauseSectionsdNotifier = new CPauseSectionsdNotifier;
-                                keyhelper.get(&key,&icon);
-                                menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, tmpPauseSectionsdNotifier , key, icon );
-                                menu->addItem(menu_item, false);
-                                menu_items++;
-                                keyhelper.get(&key,&icon);
-                                menu_item = new CMenuForwarder(LOCALE_MAINMENU_CLEARSECTIONSD, true, NULL, this, "clearSectionsd", key,icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_EPG_MISC:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_EPG_MISC;
+			dummy = g_Sectionsd->getIsScanningActive();
+			//dummy = sectionsd_scanning;
+			tmpPauseSectionsdNotifier = new CPauseSectionsdNotifier;
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, tmpPauseSectionsdNotifier , key, icon );
+			menu->addItem(menu_item, false);
+			menu_items++;
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_MAINMENU_CLEARSECTIONSD, true, NULL, this, "clearSectionsd", key,icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_AUDIO_SELECT:
-				//g_settings.audio_left_right_selectable || g_RemoteControl->current_PIDs.APIDs.size() > 1)
-                                if (1) {
-                                        menu_items++;
-                                        menu_prev = SNeutrinoSettings::ITEM_AUDIO_SELECT;
-                                        tmpAudioSelectMenuHandler = new CAudioSelectMenuHandler;
-                                        keyhelper.get(&key,&icon);
-                                        menu_item = new CMenuForwarder(LOCALE_AUDIOSELECTMENUE_HEAD, true, NULL, tmpAudioSelectMenuHandler, "-1", key,icon);
-                                        menu->addItem(menu_item, false);
-                                }
-                                break;
-
-                        case SNeutrinoSettings::ITEM_SUBCHANNEL:
-                                if (!(g_RemoteControl->subChannels.empty())) {
-                                        // NVOD/SubService- Kanal!
-                                        tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, "video.raw", 350);
-                                        if(getNVODMenu(tmpNVODSelector)) {
-                                                menu_items++;
-                                                menu_prev = SNeutrinoSettings::ITEM_SUBCHANNEL;
-                                                keyhelper.get(&key,&icon);
-                                                menu_item = new CMenuForwarder(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, true, NULL, tmpNVODSelector, "-1", key,icon);
-                                                menu->addItem(menu_item, false);
-                                        }
-                                }
-                                break;
-
-                        case SNeutrinoSettings::ITEM_TECHINFO:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_TECHINFO;
-                                tmpStreamInfo2Handler = new CStreamInfo2Handler();
-                                keyhelper.get(&key,&icon,CRCInput::RC_blue);
-                                menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, true, NULL, tmpStreamInfo2Handler    , "-1", key, icon );
-                                menu->addItem(menu_item, false);
-                                break;
-                        case SNeutrinoSettings::ITEM_PLUGIN:
-				{
-				char id[5];
-				int cnt = 0;
-                                for(unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
-                                {
-                                        std::string tmp = g_PluginList->getName(count);
-                                        if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count) && tmp.find("Teletext") == std::string::npos)
-                                        {
-                                                sprintf(id, "%d", count);
-                                                menu_items++;
-                                                menu_prev = SNeutrinoSettings::ITEM_PLUGIN;
-
-                                                //keyhelper.get(&key,&icon,CRCInput::RC_blue);
-                                                keyhelper.get(&key,&icon);
-                                                menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
-                                                //menu->addItem(menu_item, (cnt == 0));
-                                                menu->addItem(menu_item, 0);
-                                                cnt++;
-                                        }
-                                }
-                                }
-                                break;
-			case SNeutrinoSettings::ITEM_VTXT:
+		case SNeutrinoSettings::ITEM_AUDIO_SELECT:
+			//g_settings.audio_left_right_selectable || g_RemoteControl->current_PIDs.APIDs.size() > 1)
+			if (1) {
 				menu_items++;
-				menu_prev = SNeutrinoSettings::ITEM_VTXT;
+				menu_prev = SNeutrinoSettings::ITEM_AUDIO_SELECT;
+				tmpAudioSelectMenuHandler = new CAudioSelectMenuHandler;
 				keyhelper.get(&key,&icon);
-				menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, StreamFeaturesChanger, "teletext", key, icon);
-				menu->addItem(menu_item, 0);
+				menu_item = new CMenuForwarder(LOCALE_AUDIOSELECTMENUE_HEAD, true, NULL, tmpAudioSelectMenuHandler, "-1", key,icon);
+				menu->addItem(menu_item, false);
+			}
+			break;
 
-                                break;
+		case SNeutrinoSettings::ITEM_SUBCHANNEL:
+			if (!(g_RemoteControl->subChannels.empty())) {
+				// NVOD/SubService- Kanal!
+				tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, "video.raw", 350);
+				if (getNVODMenu(tmpNVODSelector)) {
+					menu_items++;
+					menu_prev = SNeutrinoSettings::ITEM_SUBCHANNEL;
+					keyhelper.get(&key,&icon);
+					menu_item = new CMenuForwarder(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, true, NULL, tmpNVODSelector, "-1", key,icon);
+					menu->addItem(menu_item, false);
+				}
+			}
+			break;
+
+		case SNeutrinoSettings::ITEM_TECHINFO:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_TECHINFO;
+			tmpStreamInfo2Handler = new CStreamInfo2Handler();
+			keyhelper.get(&key,&icon,CRCInput::RC_blue);
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, true, NULL, tmpStreamInfo2Handler    , "-1", key, icon );
+			menu->addItem(menu_item, false);
+			break;
+		case SNeutrinoSettings::ITEM_PLUGIN:
+		{
+			char id[5];
+			int cnt = 0;
+			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
+			{
+				std::string tmp = g_PluginList->getName(count);
+				if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count) && tmp.find("Teletext") == std::string::npos)
+				{
+					sprintf(id, "%d", count);
+					menu_items++;
+					menu_prev = SNeutrinoSettings::ITEM_PLUGIN;
+
+					//keyhelper.get(&key,&icon,CRCInput::RC_blue);
+					keyhelper.get(&key,&icon);
+					menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
+					//menu->addItem(menu_item, (cnt == 0));
+					menu->addItem(menu_item, 0);
+					cnt++;
+				}
+			}
+		}
+		break;
+		case SNeutrinoSettings::ITEM_VTXT:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_VTXT;
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, StreamFeaturesChanger, "teletext", key, icon);
+			menu->addItem(menu_item, 0);
+
+			break;
 #if 0 // FIXME not supported yet
-                        case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:
-                                menu_items++;
-                                menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_TS;
-                                keyhelper.get(&key,&icon,CRCInput::RC_green);
-                                menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK, true, NULL, moviePlayerGui, "tsplayback", key, icon);
-                                menu->addItem(menu_item, false);
-                                break;
+		case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_TS;
+			keyhelper.get(&key,&icon,CRCInput::RC_green);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK, true, NULL, moviePlayerGui, "tsplayback", key, icon);
+			menu->addItem(menu_item, false);
+			break;
 
-                        case SNeutrinoSettings::ITEM_VTXT:
-                                for(unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
-                                {
-                                        std::string tmp = g_PluginList->getName(count);
-                                        if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count) && tmp.find("Teletext") != std::string::npos)
-                                        {
-                                                sprintf(id, "%d", count);
-                                                menu_items++;
-                                                menu_prev = SNeutrinoSettings::ITEM_VTXT;
+		case SNeutrinoSettings::ITEM_VTXT:
+			for (unsigned int count = 0; count < (unsigned int) g_PluginList->getNumberOfPlugins(); count++)
+			{
+				std::string tmp = g_PluginList->getName(count);
+				if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count) && tmp.find("Teletext") != std::string::npos)
+				{
+					sprintf(id, "%d", count);
+					menu_items++;
+					menu_prev = SNeutrinoSettings::ITEM_VTXT;
 
-                                                //keyhelper.get(&key,&icon,CRCInput::RC_blue);
-                                                keyhelper.get(&key,&icon);
-                                                menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
-                                                menu->addItem(menu_item, 0);
-                                        }
-                                }
-                                break;
+					//keyhelper.get(&key,&icon,CRCInput::RC_blue);
+					keyhelper.get(&key,&icon);
+					menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
+					menu->addItem(menu_item, 0);
+				}
+			}
+			break;
 #endif
-                        default:
-                                printf("[neutrino] WARNING! menu wrong item!!\n");
-                                break;
-                }
-        }
+		default:
+			printf("[neutrino] WARNING! menu wrong item!!\n");
+			break;
+		}
+	}
 
-        // Allow some tailoring for privat image bakers ;)
-        if (button == SNeutrinoSettings::BUTTON_RED) {
-        }
-        else if( button == SNeutrinoSettings::BUTTON_GREEN) {
-        }
-        else if( button == SNeutrinoSettings::BUTTON_YELLOW) {
-        }
-        else if( button == SNeutrinoSettings::BUTTON_BLUE) {
+	// Allow some tailoring for privat image bakers ;)
+	if (button == SNeutrinoSettings::BUTTON_RED) {
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_GREEN) {
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_YELLOW) {
+	}
+	else if ( button == SNeutrinoSettings::BUTTON_BLUE) {
 #ifdef _EXPERIMENTAL_SETTINGS_
-                //Experimental Settings
-                if(menu_prev != -1)
-                        menu->addItem(GenericMenuSeparatorLine);
-                menu_items ++;
-                menu_key++;
-                // FYI: there is a memory leak with 'new CExperimentalSettingsMenuHandler()
-                menu_item = new CMenuForwarder(LOCALE_EXPERIMENTALSETTINGS, true, NULL, new CExperimentalSettingsMenuHandler(), "-1", CRCInput::convertDigitToKey(menu_key), "");
-                menu->addItem(menu_item, false);
+		//Experimental Settings
+		if (menu_prev != -1)
+			menu->addItem(GenericMenuSeparatorLine);
+		menu_items ++;
+		menu_key++;
+		// FYI: there is a memory leak with 'new CExperimentalSettingsMenuHandler()
+		menu_item = new CMenuForwarder(LOCALE_EXPERIMENTALSETTINGS, true, NULL, new CExperimentalSettingsMenuHandler(), "-1", CRCInput::convertDigitToKey(menu_key), "");
+		menu->addItem(menu_item, false);
 #endif
-        }
+	}
 
-        // show menu if there are more than 2 items only
+	// show menu if there are more than 2 items only
 	// otherwise, we start the item directly (must be the last one)
-        if(menu_items > 1 ) {
+	if (menu_items > 1 ) {
 		menu->setSelected(selected[button]);
-                menu->exec(NULL,"");
+		menu->exec(NULL,"");
 		selected[button] = menu->getSelected();
 	}
-        else if (menu_item != NULL)
-                menu_item->exec( NULL );
+	else if (menu_item != NULL)
+		menu_item->exec( NULL );
 
-        // restore mute symbol
-        //AudioMute(current_muted, true);
+	// restore mute symbol
+	//AudioMute(current_muted, true);
 
-        // clear the heap
-        if(tmpFavorites)                delete tmpFavorites;
-        if(tmpPauseSectionsdNotifier)   delete tmpPauseSectionsdNotifier;
-        if(tmpAudioSelectMenuHandler)   delete tmpAudioSelectMenuHandler;
-        if(tmpNVODSelector)             delete tmpNVODSelector;
-        if(tmpStreamInfo2Handler)       delete tmpStreamInfo2Handler;
-        if(tmpEventListHandler)         delete tmpEventListHandler;
-        if(tmpEPGplusHandler)           delete tmpEPGplusHandler;
-        if(tmpEPGDataHandler)           delete tmpEPGDataHandler;
-        if(menu)                        delete menu;
+	// clear the heap
+	if (tmpFavorites)                delete tmpFavorites;
+	if (tmpPauseSectionsdNotifier)   delete tmpPauseSectionsdNotifier;
+	if (tmpAudioSelectMenuHandler)   delete tmpAudioSelectMenuHandler;
+	if (tmpNVODSelector)             delete tmpNVODSelector;
+	if (tmpStreamInfo2Handler)       delete tmpStreamInfo2Handler;
+	if (tmpEventListHandler)         delete tmpEventListHandler;
+	if (tmpEPGplusHandler)           delete tmpEPGplusHandler;
+	if (tmpEPGDataHandler)           delete tmpEPGDataHandler;
+	if (menu)                        delete menu;
 	return 0;
 }
 
 void CNeutrinoApp::ShowStreamFeatures()
 {
+}
+
+/*adds the typical menu intro with separator, back button and separatorline to menu*/
+void CNeutrinoApp::addMenueIntroItems(CMenuWidget &item)
+{
+	item.addItem(GenericMenuSeparator);
+	item.addItem(GenericMenuBack);
+	item.addItem(GenericMenuSeparatorLine);
 }
