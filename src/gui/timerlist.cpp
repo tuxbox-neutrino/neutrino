@@ -1085,7 +1085,7 @@ int CTimerList::newTimer()
 				mwradio->addItem(new CMenuForwarderNonLocalized((*channels)[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + (*channels)[j]->getName()).c_str()));
 			}
 			if (!channels->empty())
-				mcradio.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
+				mcradio.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwradio));
 		}
 	}
 
