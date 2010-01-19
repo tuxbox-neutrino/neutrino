@@ -1469,6 +1469,15 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 	{ 600, NONEXISTANT_LOCALE, "600 Mhz"},
 };
 
+#define LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT 4
+const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT]=
+{
+   { 0 , LOCALE_MISCSETTINGS_INFOBAR_DISP_0 },
+   { 1 , LOCALE_MISCSETTINGS_INFOBAR_DISP_1 },
+   { 2 , LOCALE_MISCSETTINGS_INFOBAR_DISP_2 },
+   { 3 , LOCALE_MISCSETTINGS_INFOBAR_DISP_3 }
+};
+
 void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 {
 	dprintf(DEBUG_DEBUG, "init miscsettings\n");
@@ -1554,6 +1563,10 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	miscSettings.addItem(m1);
+	//
+	CMenuOptionChooser *m2 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DISP_LOG, &g_settings.infobar_show_channellogo, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT, true);
+	miscSettings.addItem(m2);
+
 #if 0
 	CCpuFreqNotifier * cpuNotifier = new CCpuFreqNotifier();
 	miscSettings.addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_NORMAL, &g_settings.cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true, cpuNotifier));

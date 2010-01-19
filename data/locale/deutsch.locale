@@ -709,6 +709,11 @@ miscsettings.fb_destination EXPERT! Boot-Konsole
 miscsettings.general Allgemein
 miscsettings.head Diverse Einstellungen
 miscsettings.hwsections EPG Daten per Hardware filtern
+miscsettings.infobar_disp_0 Kein Logo
+miscsettings.infobar_disp_1 Logo in der Nummernbox
+miscsettings.infobar_disp_2 Logo Infobar / Kanalnummer
+miscsettings.infobar_disp_3 Logo Infobar / Signalbalken
+miscsettings.infobar_disp_log Infobar Dis.
 miscsettings.infobar_sat_display Infobar Satellitenanzeige
 miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
 miscsettings.noenxwatchdog eNX-Watchdog aktivieren

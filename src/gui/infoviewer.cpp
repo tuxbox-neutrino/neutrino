@@ -93,10 +93,6 @@ extern t_channel_id live_channel_id; //zapit
 
 #define ROUND_RADIUS 7
 
-/* ###################### TODO: add to GUI settings ################# */
-int infobar_show_channellogo = 3;
-/* ################################################################## */
-
 int time_left_width;
 int time_dot_width;
 int time_width;
@@ -162,11 +158,6 @@ void CInfoViewer::Init()
 	chanready = 1;
 	fileplay = 0;
 
-	/* I'm too lazy to code a menu now */
-	char *tmp = getenv("LOGO_POS");
-	if (tmp)
-		infobar_show_channellogo = atoi(tmp);
-
 	/* maybe we should not tie this to the blinkenlights settings? */
 	if (g_settings.progressbar_color)
 		bottom_bar_offset = 22;
@@ -215,7 +206,7 @@ void CInfoViewer::start ()
 		      25;
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+ 5;
 
-	if (/*g_settings.*/infobar_show_channellogo != 3) /* 3 is "old default" with sigscales etc. */
+	if ( g_settings.infobar_show_channellogo != 3) /* 3 is "old default" with sigscales etc. */
 	{
 		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(widest_number) + 10;
 		ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
@@ -381,6 +372,19 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		changePB();
 	}
 
+	if ( g_settings.infobar_show_channellogo != 3) /* 3 is "old default" with sigscales etc. */
+	{
+		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(widest_number) + 10;
+		ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
+	}
+	else
+	{	/* default mode, with signal bars etc. */
+		ChanWidth = 122;
+		ChanHeight = 74;
+	}
+	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;	//oberkante schatten?
+	ChanInfoX = BoxStartX + (ChanWidth / 3);
+
 	is_visible = true;
 	if (!calledFromNumZap && fadeIn)
 		fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
@@ -490,8 +494,8 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 
 	int ChannelLogoMode = showChannelLogo(channel_id); // get logo mode, paint channel logo if adjusted
-	bool logo_ok = (/*g_settings.*/infobar_show_channellogo != 0 && ChannelLogoMode != 0);
-fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",infobar_show_channellogo, ChannelLogoMode, logo_ok);
+	bool logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
+fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 	paintTime (show_dot, true);
 	showRecordIcon (show_dot);
@@ -514,7 +518,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",infob
 	if (ChanNum) /* !fileplay */
 	{
 		/* TODO: the logic will get much easier once we decouple channellogo and signal bars */
-		if ((!logo_ok && /*g_settings.*/infobar_show_channellogo < 2) || infobar_show_channellogo == 2) // no logo in numberbox
+		if ((!logo_ok && g_settings.infobar_show_channellogo < 2) || g_settings.infobar_show_channellogo == 2) // no logo in numberbox
 		{
 			// show number in numberbox
 			int tmpwidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum);
@@ -522,7 +526,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",infob
 				BoxStartX + (ChanWidth - tmpwidth) / 2, ChanNumYPos,
 				ChanWidth, strChanNum, col_NumBoxText);
 		}
-		if (ChannelLogoMode == 1 || (/*g_settings.*/infobar_show_channellogo == 3 && !logo_ok)) /* channel number besides channel name */
+		if (ChannelLogoMode == 1 || ( g_settings.infobar_show_channellogo == 3 && !logo_ok)) /* channel number besides channel name */
 		{
 			ChanNumWidth = 5 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth (strChanNum);
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
@@ -1092,7 +1096,7 @@ void CInfoViewer::showSNR ()
 
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
-	if (! fileplay && /*g_settings.*/infobar_show_channellogo == 3) {
+	if (! fileplay && g_settings.infobar_show_channellogo == 3) {
 		if (newfreq && chanready) {
 			char freq[20];
 
@@ -1584,7 +1588,7 @@ returns mode of painted channel logo,
 *******************************************************************************/
 int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 {
-	if (!/*g_settings.*/infobar_show_channellogo) // show logo only if configured
+	if (!g_settings.infobar_show_channellogo) // show logo only if configured
 		return 0;
 
 	char strChanId[16];
@@ -1640,7 +1644,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 		return 0;
 	}
 
-	if (/*g_settings.*/infobar_show_channellogo == 1) // paint logo in numberbox
+	if (g_settings.infobar_show_channellogo == 1) // paint logo in numberbox
 	{
 		// calculate mid of numberbox
 		int satNameHeight = g_settings.infobar_sat_display ? g_SignalFont->getHeight() : 0;
@@ -1655,7 +1659,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 		logo_y = y_mid - logo_h / 2;
 		res = 1;
 	}
-	else if (/*g_settings.*/infobar_show_channellogo == 2) // paint logo in place of channel name
+	else if (g_settings.infobar_show_channellogo == 2) // paint logo in place of channel name
 	{
 		// check logo dimensions
 		resize_logo(&logo_w, &logo_h, chan_w, time_height);
@@ -1667,7 +1671,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 		logo_y = y_mid - logo_h / 2;
 		res = 2;
 	}
-	else if (/*g_settings.*/infobar_show_channellogo == 3) // paint logo beside channel name
+	else if (g_settings.infobar_show_channellogo == 3) // paint logo beside channel name
 	{
 		// check logo dimensions
 		int Logo_max_width = chan_w - logo_w - 10;
