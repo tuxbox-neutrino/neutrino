@@ -866,7 +866,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	if (!getActive())
 		return false;
 
-//printf("%s(file, %d, %d, %d)\n", __FUNCTION__, x, y, offset);
+	//printf("%s(file, %d, %d, %d)\n", __FUNCTION__, x, y, offset);
 	int  yy = y;
 
 	char * ptr = rindex(filename.c_str(), '.');
@@ -890,13 +890,74 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	if (lfd == -1)
 		lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 #endif
+	uint8_t * data;
+	uint8_t transp;
+
+	std::map<std::string, rawIcon>::iterator it;
+	it = icon_cache.find((iconBasePath + filename).c_str());
+	if(it == icon_cache.end()) {
+		struct rawIcon tmpIcon;
+
 		lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 
-	if (lfd == -1) {
-		printf("paintIcon: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
-		return false;
+		if (lfd == -1) {
+			printf("paintIcon: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+			return false;
+		}
+		read(lfd, &header, sizeof(struct rawHeader));
+
+		tmpIcon.width = width  = (header.width_hi  << 8) | header.width_lo;
+		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
+		tmpIcon.transp = transp = header.transp;
+		tmpIcon.data = (uint8_t*) malloc(width*height);
+		data = tmpIcon.data;
+
+		unsigned char pixbuf[768];
+		for (int count = 0; count < height; count ++ ) {
+			read(lfd, &pixbuf[0], width >> 1 );
+			unsigned char *pixpos = &pixbuf[0];
+			for (int count2 = 0; count2 < width >> 1; count2 ++ ) {
+				unsigned char compressed = *pixpos;
+				unsigned char pix1 = (compressed & 0xf0) >> 4;
+				unsigned char pix2 = (compressed & 0x0f);
+				*data++ = pix1;
+				*data++ = pix2;
+				pixpos++;
+			}
+		}
+		close(lfd);
+
+		data = tmpIcon.data;
+
+		icon_cache.insert(std::pair <std::string, rawIcon> (iconBasePath + filename, tmpIcon));
+	} else {
+		data = it->second.data;
+		width = it->second.width;
+		height = it->second.height;
+		transp = it->second.transp;
+		//printf("paintIcon: cached %s %d x %d\n", (iconBasePath + filename).c_str(), width, height);
+	}
+	if (h != 0)
+		yy += (h - height) / 2;
+
+	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
+	fb_pixel_t * d2;
+
+	for (int count = 0; count < height; count++ ) {
+		unsigned char *pixpos = &data[count * width];
+		d2 = (fb_pixel_t *) d;
+		for (int count2 = 0; count2 < width; count2++ ) {
+			unsigned char pix = *pixpos;
+			if (pix != transp) {
+				paintPixel(d2, pix + offset);
+			}
+			d2++;
+			pixpos++;
+		}
+		d += stride;
 	}
 
+#if 0
 	read(lfd, &header, sizeof(struct rawHeader));
 
 	width  = (header.width_hi  << 8) | header.width_lo;
@@ -930,6 +991,7 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	}
 
 	close(lfd);
+#endif
 	return true;
 }
 

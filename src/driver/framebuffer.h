@@ -31,6 +31,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <map>
 
 #define fb_pixel_t uint32_t
 
@@ -75,6 +76,14 @@ class CFrameBuffer
 			uint8_t transp;
 		} __attribute__ ((packed));
 
+		struct rawIcon
+		{
+			uint16_t width;
+			uint16_t height;
+			uint8_t transp;
+			uint8_t * data;
+		};
+
 		std::string     iconBasePath;
 
 		int             fd, tty;
@@ -103,6 +112,8 @@ class CFrameBuffer
 		volatile uint8_t *gxa_base;		/* base address for the GXA's register access */
 		#endif /* USE_NEVIS_GXA */
 		bool locked;
+		std::map<std::string, rawIcon> icon_cache;
+
 	public:
 #ifndef FB_USE_PALETTE
 		fb_pixel_t realcolor[256];
