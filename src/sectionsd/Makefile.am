@@ -9,8 +9,6 @@ INCLUDES = \
 
 AM_CPPFLAGS = -D DO_NOT_INCLUDE_STUFF_NOT_NEEDED_FOR_SECTIONSD
 
-AM_CXXFLAGS = -fno-exceptions
-
 noinst_LIBRARIES = libsectionsd.a
 libsectionsd_a_SOURCES = sectionsd.cpp dmxapi.cpp debug.cpp dmx.cpp SIsections.cpp SIevents.cpp SIutils.cpp SIlanguage.cpp edvbstring.cpp
 

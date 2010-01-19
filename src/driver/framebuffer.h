@@ -102,6 +102,7 @@ class CFrameBuffer
 		unsigned int	  smem_start;		/* as aquired from the fbdev, the framebuffers physical start address */
 		volatile uint8_t *gxa_base;		/* base address for the GXA's register access */
 		#endif /* USE_NEVIS_GXA */
+		bool locked;
 	public:
 #ifndef FB_USE_PALETTE
 		fb_pixel_t realcolor[256];
@@ -199,6 +200,9 @@ class CFrameBuffer
 		void ClearFrameBuffer();
 		void showFrame(const std::string & filename);
 		bool loadBackgroundPic(const std::string & filename, bool show = true);
+		bool Lock(void);
+		void Unlock(void);
+		bool Locked(void) { return locked; };
 };
 
 

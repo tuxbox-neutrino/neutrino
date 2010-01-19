@@ -136,6 +136,9 @@
 #include <linux/reboot.h>
 #include <sys/reboot.h>
 
+#include "libdvbsub/dvbsub.h"
+#include "libtuxtxt/teletext.h"
+
 int old_b_id = -1;
 CHintBox * reloadhintBox = 0;
 uint32_t sec_timer;
@@ -156,17 +159,6 @@ uint32_t shift_timer;
 uint32_t scrambled_timer;
 char recDir[255];
 char timeshiftDir[255];
-
-extern int  tuxtxt_init();
-extern void tuxtxt_start(int tpid);
-extern int  tuxtxt_stop();
-extern void tuxtxt_close();
-
-int dvbsub_init();
-int dvbsub_stop();
-int dvbsub_close();
-int dvbsub_start(int pid);
-int dvbsub_pause();
 
 //char current_volume;
 extern int list_changed;
@@ -2573,8 +2565,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	return 0;
 }
-
-int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h);
 
 void CNeutrinoApp::quickZap(int msg)
 {

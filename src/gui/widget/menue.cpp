@@ -154,9 +154,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	int pos = 0;
 	exit_pressed = false;
 
+	frameBuffer->Lock();
+
 	if (parent)
 		parent->hide();
-
 
 	bool fadeIn = g_settings.widget_fade;
 	bool fadeOut = false;
@@ -417,6 +418,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		CMenuItem* item = items[count];
 		item->init(-1, 0, 0, 0);
 	}
+
+	frameBuffer->Unlock();
 	return retval;
 }
 

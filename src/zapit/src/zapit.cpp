@@ -63,6 +63,9 @@
 #include <audio_cs.h>
 #include <video_cs.h>
 
+#include "libdvbsub/dvbsub.h"
+#include "libtuxtxt/teletext.h"
+
 /* globals */
 int zapit_ready;
 int abort_zapit;
@@ -335,10 +338,6 @@ CZapitClient::responseGetLastChannel load_settings(void)
  */
 static int pmt_update_fd = -1;
 static bool update_pmt = true;
-extern int dvbsub_pause();
-extern int dvbsub_stop();
-extern int dvbsub_getpid();
-extern int dvbsub_start(int pid);
 
 int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool /*nowait*/ = 0)
 {
@@ -1857,6 +1856,7 @@ in record mode we stop onle cam1, while cam continue to decrypt recording channe
 
 	playing = false;
 
+	tuxtx_stop_subtitle();
 	if(standby)
 		dvbsub_pause();
 	else

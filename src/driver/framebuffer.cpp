@@ -1423,3 +1423,16 @@ void CFrameBuffer::showFrame(const std::string & filename)
 	else
 		videoDecoder->ShowPicture((iconBasePath + filename).c_str());
 }
+
+bool CFrameBuffer::Lock()
+{
+	if(locked)
+		return false;
+	locked = true;
+	return true;
+}
+
+void CFrameBuffer::Unlock()
+{
+	locked = false;
+}

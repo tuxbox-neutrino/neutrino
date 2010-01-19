@@ -882,9 +882,6 @@ void CInfoViewer::showIcon_16_9 ()
 	}
 }
 
-extern "C" void tuxtxt_start(int tpid);
-extern "C" int  tuxtxt_stop();
-
 void CInfoViewer::showIcon_VTXT () const
 {
 	frameBuffer->paintIcon((g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? "vtxt.raw" : "vtxt_gray.raw",

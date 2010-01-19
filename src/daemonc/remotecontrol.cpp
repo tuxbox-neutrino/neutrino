@@ -41,14 +41,9 @@
 #include <driver/vcrcontrol.h>
 
 #include <driver/encoding.h>
+#include "libdvbsub/dvbsub.h"
+#include "libtuxtxt/teletext.h"
 
-#ifndef TUXTXT_CFG_STANDALONE
-extern int  tuxtxt_init();
-extern void tuxtxt_start(int tpid);
-extern int  tuxtxt_stop();
-extern void tuxtxt_close();
-extern void dvbsub_pause(bool pause);
-#endif
 //FIXME: auto-timeshift
 extern bool autoshift;
 extern uint32_t shift_timer;

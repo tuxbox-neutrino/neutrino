@@ -42,9 +42,10 @@
 extern CRemoteControl		* g_RemoteControl; /* neutrino.cpp */
 extern CAPIDChangeExec		* APIDChanger;
 extern CAudioSetupNotifier	* audioSetupNotifier;
-int dvbsub_getpid();
 
 #include <gui/audio_select.h>
+#include "libdvbsub/dvbsub.h"
+#include "libtuxtxt/teletext.h"
 
 //
 //  -- AUDIO Selector Menue Handler Class
@@ -93,9 +94,9 @@ int CAudioSelectMenuHandler::doMenu ()
 	AudioSelector.addItem(GenericMenuSeparatorLine);
 
 	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOGOUT,
-				&g_settings.audio_AnalogMode,
-				AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT,
-				true, audioSetupNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+			&g_settings.audio_AnalogMode,
+			AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT,
+			true, audioSetupNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 
 	AudioSelector.addItem( oj );
 
@@ -107,18 +108,34 @@ int CAudioSelectMenuHandler::doMenu ()
 	if(cc) {
 		for (int i = 0 ; i < (int)cc->getSubtitleCount() ; ++i) {
 			CZapitAbsSub* s = cc->getChannelSub(i);
-			CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
-//			CZapitTTXSub* st = reinterpret_cast<CZapitTTXSub*>(s);
-			printf("[neutrino] adding subtitle %s pid %x\n", sd->ISO639_language_code.c_str(), sd->pId);
 			if (s->thisSubType == CZapitAbsSub::DVB) {
+				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
+				printf("[neutrino] adding DVB subtitle %s pid %x\n", sd->ISO639_language_code.c_str(), sd->pId);
 				if(!sep_added) {
 					sep_added = true;
 					AudioSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SUBTITLES_HEAD));
 				}
-				char spid[5];
-				sprintf(spid, "%d", sd->pId);
-				AudioSelector.addItem(new CMenuForwarderNonLocalized(sd->ISO639_language_code.c_str(),
-					sd->pId != dvbsub_getpid(), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
+				char spid[10];
+				sprintf(spid, "DVB:%d", sd->pId);
+				char item[64];
+				sprintf(item, "DVB: %s (pid %x)", sd->ISO639_language_code.c_str(), sd->pId);
+				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
+							sd->pId != dvbsub_getpid(), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
+			}
+			if (s->thisSubType == CZapitAbsSub::TTX) {
+				CZapitTTXSub* sd = reinterpret_cast<CZapitTTXSub*>(s);
+				printf("[neutrino] adding TTX subtitle %s pid %x mag %X page %x\n", sd->ISO639_language_code.c_str(), sd->pId, sd->teletext_magazine_number, sd->teletext_page_number);
+				if(!sep_added) {
+					sep_added = true;
+					AudioSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SUBTITLES_HEAD));
+				}
+				char spid[10];
+				int page = ((sd->teletext_magazine_number & 0xFF) << 8) | sd->teletext_page_number;
+				sprintf(spid, "TTX:%d:%03X", sd->pId, page); 
+				char item[64];
+				sprintf(item, "TTX: %s (pid %x page %03X)", sd->ISO639_language_code.c_str(), sd->pId, page);
+				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
+							!tuxtx_subtitle_running(sd->pId, page), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
 			}
 		}
 		if(sep_added) {

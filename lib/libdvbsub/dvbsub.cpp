@@ -41,8 +41,8 @@ static int dvbsub_pid;
 static int dvbsub_stopped;
 
 cDvbSubtitleConverter *dvbSubtitleConverter;
-void* reader_thread(void *arg);
-void* dvbsub_thread(void* arg);
+static void* reader_thread(void *arg);
+static void* dvbsub_thread(void* arg);
 
 int dvbsub_init() {
 	int trc;
@@ -184,7 +184,7 @@ static int64_t get_pts_stc_delta(int64_t pts)
 	return delta;
 }
 
-void* reader_thread(void * /*arg*/)
+static void* reader_thread(void * /*arg*/)
 {
 	uint8_t tmp[16];  /* actually 6 should be enough */
 	int count;
@@ -277,7 +277,7 @@ void* reader_thread(void * /*arg*/)
 	pthread_exit(NULL);
 }
 
-void* dvbsub_thread(void* /*arg*/)
+static void* dvbsub_thread(void* /*arg*/)
 {
 	struct timespec restartWait;
 	struct timeval now;

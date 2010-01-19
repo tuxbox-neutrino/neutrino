@@ -61,6 +61,8 @@
 #include <video_cs.h>
 #include <dmx_cs.h>
 #include <pwrmngr.h>
+#include "libdvbsub/dvbsub.h"
+#include "libtuxtxt/teletext.h"
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -586,19 +588,30 @@ int CAPIDChangeExec::exec(CMenuTarget* /*parent*/, const std::string & actionKey
 	return menu_return::RETURN_EXIT;
 }
 
-int dvbsub_start(int pid);
-int dvbsub_pause();
-int dvbsub_stop();
-
 int CSubtitleChangeExec::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
 printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
 	if(actionKey == "off") {
+		tuxtx_stop_subtitle();
 		dvbsub_stop();
-	} else {
-		int pid = atoi(actionKey.c_str());
+		return menu_return::RETURN_EXIT;
+	}
+	if(!strncmp(actionKey.c_str(), "DVB", 3)) {
+		char * pidptr = strchr(actionKey.c_str(), ':');
+		int pid = atoi(pidptr+1);
 		dvbsub_pause();
 		dvbsub_start(pid);
+	} else {
+		char * ptr = strchr(actionKey.c_str(), ':');
+		ptr++;
+		int pid = atoi(ptr);
+		ptr = strchr(ptr, ':');
+		ptr++;
+		int page = strtol(ptr, NULL, 16);
+printf("CSubtitleChangeExec::exec: TTX, pid %x page %x\n", pid, page);
+		tuxtx_stop_subtitle();
+		tuxtx_main(g_RCInput->getFileHandle(), CFrameBuffer::getInstance()->getFrameBufferPointer(), pid,
+				CFrameBuffer::getInstance()->getScreenX(), CFrameBuffer::getInstance()->getScreenY(), CFrameBuffer::getInstance()->getScreenWidth(), CFrameBuffer::getInstance()->getScreenHeight(), page);
 	}
         return menu_return::RETURN_EXIT;
 }

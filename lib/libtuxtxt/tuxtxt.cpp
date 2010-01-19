@@ -1477,15 +1477,54 @@ void eval_l25()
  * main loop                                                                  *
  ******************************************************************************/
 
-int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
+static int subtitle_mode;
+static pthread_t ttx_sub_thread;
+static int reader_running;
+
+static void* reader_thread(void * /*arg*/)
+{
+	printf("TuxTxt subtitle thread started\n");
+	reader_running = 1;
+	while(reader_running) {
+		RenderPage();
+	}
+	CleanUp();
+	tuxtxt_close();
+	printf("TuxTxt subtitle thread stopped\n");
+}
+
+void tuxtx_stop_subtitle()
+{
+	printf("TuxTxt stopping subtitle thread ...\n");
+	reader_running = 0;
+	if(ttx_sub_thread)
+		pthread_join(ttx_sub_thread, NULL);
+	ttx_sub_thread = NULL;
+}
+
+int tuxtx_subtitle_running(int pid, int page)
+{
+	if(reader_running && (tuxtxt_cache.vtxtpid == pid) && (tuxtxt_cache.page == page))
+	{
+		return 1;
+	}
+	return 0;
+}
+
+int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h, int page)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
+	subtitle_mode = 0;
 //printf("to init tuxtxt\n");fflush(stdout);
 #if !TUXTXT_CFG_STANDALONE
 	int initialized = tuxtxt_init();
-	if ( initialized )
+	if (initialized)
 		tuxtxt_cache.page = 0x100;
+	if(page) {
+		tuxtxt_cache.page = page;
+		subtitle_mode = 1;
+	}
 #endif
 
 	/* show versioninfo */
@@ -1507,7 +1546,7 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
 	if(tuxtxt_cache.vtxtpid == 0)
 		printf("[tuxtxt] No PID given, so scanning for PIDs ...\n\n");
 	else
-		printf("[tuxtxt] using PID %x\n", tuxtxt_cache.vtxtpid);
+		printf("[tuxtxt] using PID %x page %d\n", tuxtxt_cache.vtxtpid, tuxtxt_cache.page);
 
 	fcntl(rc, F_SETFL, fcntl(rc, F_GETFL) | O_EXCL | O_NONBLOCK);
 
@@ -1543,6 +1582,10 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h)
 	if (Init() == 0)
 		return 0;
 
+	if(subtitle_mode) {
+		pthread_create(&ttx_sub_thread, 0, reader_thread, (void *) NULL);
+		return 1;
+	}
 	//transpmode = 1;
 	/* main loop */
 	do {
@@ -3326,7 +3369,7 @@ void PageInput(int Number)
 		{
 			tuxtxt_cache.subpage = subp;
 			tuxtxt_cache.pageupdate = 1;
-#if TUXTXT_DEBUG
+#if 1 //TUXTXT_DEBUG
 			printf("TuxTxt <DirectInput: %.3X-%.2X>\n", tuxtxt_cache.page, tuxtxt_cache.subpage);
 #endif
 		}

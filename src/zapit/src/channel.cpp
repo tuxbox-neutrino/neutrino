@@ -206,7 +206,7 @@ printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n
 		if ((*subI)->thisSubType==CZapitAbsSub::DVB){
 			tmpSub=reinterpret_cast<CZapitDVBSub*>(*subI);
 			if (tmpSub->ISO639_language_code==langCode) {
-				oldSub = tmpSub;
+				//oldSub = tmpSub;
 				if (tmpSub->pId==pid &&
 						tmpSub->subtitling_type==subtitling_type &&
 						tmpSub->composition_page_id==composition_page_id &&
