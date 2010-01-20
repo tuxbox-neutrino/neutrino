@@ -793,7 +793,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
-	g_settings.casystem_display = configfile.getBool("casystem_display", true );
+	g_settings.casystem_display = configfile.getBool("casystem_display", false );
 
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
