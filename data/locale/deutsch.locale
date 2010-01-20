@@ -12,15 +12,15 @@ audiomenu.avs avs
 audiomenu.avs_control Volume Steuerung avs/ost
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
-audiomenu.dolbydigital DD Feed automatisch
-audiomenu.hdmi_dd DD über HDMI
+audiomenu.dolbydigital DD-Unterkanal automatisch
+audiomenu.hdmi_dd DolbyDigital über HDMI
 audiomenu.head Audio-Einstellungen
 audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
 audiomenu.ost ost
 audiomenu.PCMOffset Lautstärkeabsenkung PCM
-audiomenu.spdif_dd DD über S/PDIF
+audiomenu.spdif_dd DolbyDigital über S/PDIF
 audiomenu.stereo stereo
 audioplayer.add Hinzufügen
 audioplayer.add_ic Icecast
@@ -266,7 +266,7 @@ extra.fec_3_4 3/4 S1_Q
 extra.fec_5_6 5/6 S1_Q
 extra.fec_7_8 7/8 S1_Q
 extra.fec_s2_8psk_1_2 1/2 S2_8
-extra.fec_s2_8psk_2_3 3/2 S2_8
+extra.fec_s2_8psk_2_3 2/3 S2_8
 extra.fec_s2_8psk_3_4 3/4 S2_8
 extra.fec_s2_8psk_3_5 3/5 S2_8
 extra.fec_s2_8psk_4_5 4/5 S2_8
@@ -275,7 +275,7 @@ extra.fec_s2_8psk_7_8 7/8 S2_8
 extra.fec_s2_8psk_8_9 8/9 S2_8
 extra.fec_s2_8psk_9_10 9/10 S2_8
 extra.fec_s2_qpsk_1_2 1/2 S2_Q
-extra.fec_s2_qpsk_2_3 3/2 S2_Q
+extra.fec_s2_qpsk_2_3 2/3 S2_Q
 extra.fec_s2_qpsk_3_4 3/4 S2_Q
 extra.fec_s2_qpsk_3_5 3/5 S2_Q
 extra.fec_s2_qpsk_4_5 4/5 S2_Q
@@ -285,8 +285,8 @@ extra.fec_s2_qpsk_8_9 8/9 S2_Q
 extra.fec_s2_qpsk_9_10 9/10 S2_Q
 extra.hw_sect Hardware Sektionen
 extra.key_click Tastendruck
-extra.key_list_end Keylistenenende
-extra.key_list_start Keylistenenanfang
+extra.key_list_end Listenende
+extra.key_list_start Listenanfang
 extra.key_plugin One-touch-Plugin
 extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
@@ -615,8 +615,8 @@ keybindingmenu.channelup Kanal hoch
 keybindingmenu.head Tasten-Einstellungen
 keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.modechange Moduswechsel
-keybindingmenu.pagedown Seite runterblättern
-keybindingmenu.pageup Seite hochblättern
+keybindingmenu.pagedown Seite weiter
+keybindingmenu.pageup Seite zurück
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.RC Fernbedienung
 keybindingmenu.repeatblock Wiederholungsverzögerung
@@ -715,8 +715,6 @@ miscsettings.fb_destination EXPERT! Boot-Konsole
 miscsettings.general Allgemein
 miscsettings.head Diverse Einstellungen
 miscsettings.hwsections EPG Daten per Hardware filtern
-miscsettings.infobar Infobar
-miscsettings.infobar_casystem_display CA-System Anzeige
 miscsettings.infobar_disp_0 Kein Logo
 miscsettings.infobar_disp_1 Logo in der Nummernbox
 miscsettings.infobar_disp_2 Logo Infobar / Kanalnummer
