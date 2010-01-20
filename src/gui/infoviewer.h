@@ -96,7 +96,8 @@ class CInfoViewer
 	CProgressBar *snrscale, *sigscale, *hddscale, *varscale, *timescale;
 	bool pbBlinkChange;
 	void changePB();
-
+	bool casysChange;
+	bool channellogoChange;
 	void paintBackground(int col_Numbox);
 	void show_Data( bool calledFromEvent = false );
 	void display_Info(const char *current, const char *next, bool UTF8 = true,
