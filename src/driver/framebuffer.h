@@ -214,6 +214,12 @@ class CFrameBuffer
 		bool Lock(void);
 		void Unlock(void);
 		bool Locked(void) { return locked; };
+#ifdef USE_NEVIS_GXA
+		void add_gxa_sync_marker(void);
+		void waitForIdle(void);
+#else
+		inline void waitForIdle(void) {};
+#endif
 };
 
 

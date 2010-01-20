@@ -36,7 +36,9 @@
 
 #include <system/debug.h>
 
-//#undef USE_NEVIS_GXA // since OSD problem gone with new driver, until GXA will be faster//reenabled GXA-luc
+/* Drawing pixels is actually faster without the GXA accelerator (wich OTOH is
+   faster for drawing lines, so disable it here. */
+#undef USE_NEVIS_GXA
 
 FT_Error FBFontRenderClass::myFTC_Face_Requester(FTC_FaceID  face_id,
         FT_Library  /*library*/,
@@ -454,6 +456,11 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 		if (spread_by < 1)
 			spread_by = 1;
 	}
+
+	/* the GXA seems to do it's job asynchonously, so we need to wait until
+	   it's ready, otherwise the font will sometimes "be overwritten" with
+	   background color */
+	frameBuffer->waitForIdle();
 
 	for (; *text; text++)
 	{

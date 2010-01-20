@@ -75,6 +75,7 @@ extern CPictureViewer * g_PicViewer;
 #define GXA_DST_BMP_SEL(x)      (x << 5)
 #define GXA_PARAM_COUNT(x)      (x << 2)
 
+#define GXA_CMD_REG		0x001C
 #define GXA_FG_COLOR_REG	0x0020
 #define GXA_BG_COLOR_REG        0x0024
 #define GXA_LINE_CONTROL_REG    0x0038
@@ -86,6 +87,7 @@ extern CPictureViewer * g_PicViewer;
 #define GXA_CMD_BLT             0x00010800
 #define GXA_CMD_NOT_ALPHA       0x00011000
 #define GXA_CMD_NOT_TEXT        0x00018000
+#define GXA_CMD_QMARK		0x00001000
 
 /*
 static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int offset)
@@ -93,6 +95,9 @@ static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int of
     return *(volatile unsigned int *)(base_addr + offset);
 }
 */
+
+static unsigned int _mark = 0;
+
 static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, unsigned int value)
 {
     while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000)
@@ -100,6 +105,36 @@ static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, u
     *(volatile unsigned int *)(base_addr + offset) = value;
 }
 
+/* this adds a tagged marker into the GXA queue. Once this comes out
+   of the other end of the queue, all commands before it are finished */
+void CFrameBuffer::add_gxa_sync_marker(void)
+{
+	unsigned int cmd = GXA_CMD_QMARK | GXA_PARAM_COUNT(1);
+	// TODO: locking?
+	_mark++;
+	_mark &= 0x0000001F; /* bit 0x20 crashes the kernel, if set */
+	_write_gxa(gxa_base, cmd, _mark);
+	//fprintf(stderr, "%s: wrote %02x\n", __FUNCTION__, _mark);
+}
+
+/* wait until the current marker comes out of the GXA command queue */
+void CFrameBuffer::waitForIdle(void)
+{
+	unsigned int cfg, count = 0;
+	do {
+		cfg = *(volatile unsigned int *)(gxa_base + GXA_CMD_REG);
+		cfg >>= 24;	/* the token is stored in bits 31...24 */
+		if (cfg == _mark)
+			break;
+		/* usleep is too coarse, because of CONFIG_HZ=100 in kernel
+		   so use sched_yield to at least give other threads a chance to run */
+		sched_yield();
+		//fprintf(stderr, "%s: read  %02x, expected %02x\n", __FUNCTION__, cfg, _mark);
+	} while(++count < 2048); /* don't deadlock here if there is an error */
+
+	if (count > 512) /* more than 100 are unlikely, */
+		fprintf(stderr, "CFrameBuffer::waitForIdle: count is big (%d)!\n", count);
+}
 #endif /* USE_NEVIS_GXA */
 
 /*******************************************************************************/
@@ -634,6 +669,11 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	    line++;
 	}
     }
+#ifdef USE_NEVIS_GXA
+    /* the GXA seems to do asynchronous rendering, so we add a sync marker
+       to which the fontrenderer code can synchronize */
+    add_gxa_sync_marker();
+#endif
 }
 
 void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
