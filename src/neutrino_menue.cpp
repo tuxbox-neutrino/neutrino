@@ -333,6 +333,7 @@ void CVideoSettings::nextMode(void)
 	text =  VIDEOMENU_VIDEOMODE_OPTIONS[curmode].valname;
 
 	g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
+	CVFD::getInstance()->ShowText((char *)text);
 	videoDecoder->SetVideoSystem(g_settings.video_Mode);
 	//videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode);//FIXME
 	ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
@@ -2122,7 +2123,7 @@ font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
 	{LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  30 /* orig 50*/, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  50, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1},
