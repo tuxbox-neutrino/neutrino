@@ -341,11 +341,13 @@ bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 	XMLTreeNode *root = parser->RootNode();
 	if (!root) {
 		TRACE(" root error \r\n");
+		delete parser;
 		return (false);
 	}
 
 	if (strcmp(root->GetType(), MI_XML_TAG_NEUTRINO)) {
 		TRACE("not neutrino file. %s", root->GetType());
+		delete parser;
 		return (false);
 	}
 
@@ -922,6 +924,7 @@ bool CMovieInfo::loadFile_std(CFile & file, char *buffer, int buffer_size)
 	if (bytes <= 0)		// cannot read file into buffer, return!!!!
 	{
 		TRACE("[mi] loadXml: cannot read (%s)\r\n", file.getFileName().c_str());
+		close(fd);
 		return false;
 	}
 	close(fd);

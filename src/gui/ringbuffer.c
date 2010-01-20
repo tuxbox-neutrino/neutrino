@@ -32,7 +32,7 @@ ringbuffer_t *
 ringbuffer_create (int sz)
 {
   int power_of_two;
-  ringbuffer_t *rb;
+  ringbuffer_t *rb = NULL;
 
   rb = malloc (sizeof (ringbuffer_t));
 
