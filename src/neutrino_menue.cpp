@@ -654,9 +654,8 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 #if 0
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayerGui, "tsmoviebrowser", CRCInput::RC_2));
 #else
-	moviePlayer.addItem(GenericMenuSeparator);
-	moviePlayer.addItem(GenericMenuBack);
-	moviePlayer.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(moviePlayer);
+
 	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, moviePlayerGui, "tsmoviebrowser", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, moviePlayerGui, "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, &moviePlayer, NULL, CRCInput::RC_2));
@@ -705,9 +704,8 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainMenu.addItem( new CMenuSeparator(CMenuSeparator::LINE) );
 	mainMenu.addItem( new CMenuForwarder(LOCALE_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, CRCInput::convertDigitToKey(shortcut++)));
 
-	mainSettings.addItem(GenericMenuSeparator);
-	mainSettings.addItem(GenericMenuBack);
-	mainSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(mainSettings);
+
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	mainSettings.addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig"));
 	mainSettings.addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig"));
@@ -1029,9 +1027,8 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 	CMenuWidget* satfindMenu = new CMenuWidget(LOCALE_MOTORCONTROL_HEAD, NEUTRINO_ICON_SETTINGS);
 
-	satfindMenu->addItem(GenericMenuSeparator);
-	satfindMenu->addItem(GenericMenuBack);
-	satfindMenu->addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(*satfindMenu);
+
 	CMenuOptionStringChooser *satSelect = NULL;
 	CMenuWidget* satOnOff = NULL;
 	sat_iterator_t sit;
@@ -1040,9 +1037,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	if (g_info.delivery_system == DVB_S) {
 		satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, scanSettings.satNameNoDiseqc, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 		satOnOff = new CMenuWidget(LOCALE_SATSETUP_SATELLITE, NEUTRINO_ICON_SETTINGS);
-		satOnOff->addItem(GenericMenuSeparator);
-		satOnOff->addItem(GenericMenuBack);
-		satOnOff->addItem(GenericMenuSeparatorLine);
+		addMenueIntroItems(*satOnOff);
 
 		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 			printf("Adding sat menu for %s position %d\n", sit->second.name.c_str(), sit->first);
@@ -1053,9 +1048,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 			}
 
 			CMenuWidget* tempsat = new CMenuWidget(sit->second.name.c_str(), NEUTRINO_ICON_SETTINGS);
-			tempsat->addItem(GenericMenuSeparator);
-			tempsat->addItem(GenericMenuBack);
-			tempsat->addItem(GenericMenuSeparatorLine);
+			addMenueIntroItems(*tempsat);
 
 			CMenuOptionChooser * inuse = new CMenuOptionChooser(sit->second.name.c_str(),  &sit->second.use_in_scan, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 			CMenuOptionNumberChooser * diseqc = new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQC_INPUT, &sit->second.diseqc, ((dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED)), -1, 15, NULL, 1, -1, LOCALE_OPTIONS_OFF);
@@ -1161,9 +1154,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 	CScanTs * scanTs = new CScanTs();
 
-	manualScan->addItem(GenericMenuSeparator);
-	manualScan->addItem(GenericMenuBack);
-	manualScan->addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(*manualScan);
 
 	manualScan->addItem(satSelect);
 	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, tpSelect, "test"));
@@ -1177,9 +1168,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "manual", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 	CMenuWidget* autoScan = new CMenuWidget(LOCALE_SATSETUP_AUTO_SCAN, NEUTRINO_ICON_SETTINGS);
-	autoScan->addItem(GenericMenuSeparator);
-	autoScan->addItem(GenericMenuBack);
-	autoScan->addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(*autoScan);
 	autoScan->addItem(satSelect);
 	autoScan->addItem(useNit);
 	autoScan->addItem(scanPids);
@@ -1207,9 +1196,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		satNotify->addItem(2, fautoScanAll);
 
 
-		autoScanAll->addItem(GenericMenuSeparator);
-		autoScanAll->addItem(GenericMenuBack);
-		autoScanAll->addItem(GenericMenuSeparatorLine);
+		addMenueIntroItems(*autoScanAll);
 		autoScanAll->addItem(new CMenuForwarder(LOCALE_SATSETUP_SATELLITE, true, NULL, satOnOff, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 		autoScanAll->addItem(useNit);
 		autoScanAll->addItem(scanPids);
@@ -1282,9 +1269,7 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &scanSe
 	zapit_menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ZAPIT_RESTORE, true, "", zexec /*new CZapitDestExec*/, "restore"));
 #endif
 
-	service.addItem(GenericMenuSeparator);
-	service.addItem(GenericMenuBack);
-	service.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(service);
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, &scanSettings, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 	// service.addItem(new CMenuForwarder(LOCALE_EXTRA_ZAPIT_MENU      , true, NULL, zapit_menu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, this, "reloadchannels", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
@@ -1302,15 +1287,11 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &scanSe
 	{
 		dprintf(DEBUG_DEBUG, "init soft-update-stuff\n");
 		CMenuWidget* updateSettings = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, "softupdate.raw", 550);
-		updateSettings->addItem(GenericMenuSeparator);
-		updateSettings->addItem(GenericMenuBack);
-		updateSettings->addItem(GenericMenuSeparatorLine);
+		addMenueIntroItems(*updateSettings);
 
 		//experten-funktionen für mtd lesen/schreiben
 		CMenuWidget* mtdexpert = new CMenuWidget(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, "softupdate.raw");
-		mtdexpert->addItem(GenericMenuSeparator);
-		mtdexpert->addItem(GenericMenuBack);
-		mtdexpert->addItem(GenericMenuSeparatorLine);
+		addMenueIntroItems(*mtdexpert);
 		CFlashExpert* fe = new CFlashExpert();
 
 		//mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_READFLASH    , true, NULL, fe, "readflash"    ));
@@ -1576,9 +1557,7 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 
 void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
 {
-	languageSettings.addItem(GenericMenuSeparator);
-	languageSettings.addItem(GenericMenuBack);
-	languageSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(languageSettings);
 
 	struct dirent **namelist;
 	int n;
@@ -1650,9 +1629,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_O
 
 void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier)
 {
-	audioSettings.addItem(GenericMenuSeparator);
-	audioSettings.addItem(GenericMenuBack);
-	audioSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(audioSettings);
 
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOGOUT, &g_settings.audio_AnalogMode, AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT, true, audioSetupNotifier));
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_DOLBYDIGITAL, &g_settings.audio_DolbyDigital, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
@@ -1703,9 +1680,7 @@ const CMenuOptionChooser::keyval PARENTALLOCK_LOCKAGE_OPTIONS[PARENTALLOCK_LOCKA
 
 void CNeutrinoApp::InitParentalLockSettings(CMenuWidget &parentallockSettings)
 {
-	parentallockSettings.addItem(GenericMenuSeparator);
-	parentallockSettings.addItem(GenericMenuBack);
-	parentallockSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(parentallockSettings);
 
 	parentallockSettings.addItem(new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS , PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked));
 
@@ -1741,9 +1716,7 @@ void CNeutrinoApp::InitNetworkSettings(CMenuWidget &networkSettings)
 	network_automatic_start = networkConfig.automatic_start ? 1 : 0;
 	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_NETWORKMENU_SETUPONSTARTUP, &network_automatic_start, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 
-	networkSettings.addItem(GenericMenuSeparator);
-	networkSettings.addItem(GenericMenuBack);
-	networkSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(networkSettings);
 
 	networkSettings.addItem( oj );
 	networkSettings.addItem(new CMenuForwarder(LOCALE_NETWORKMENU_TEST, true, NULL, this, "networktest"));
@@ -1976,9 +1949,7 @@ const CMenuOptionChooser::keyval STREAMINGMENU_STREAMING_TYPE_OPTIONS[STREAMINGM
 
 void CNeutrinoApp::InitStreamingSettings(CMenuWidget &streamingSettings)
 {
-	streamingSettings.addItem(GenericMenuSeparator);
-	streamingSettings.addItem(GenericMenuBack);
-	streamingSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(streamingSettings);
 
 	CIPInput * streamingSettings_server_ip = new CIPInput(LOCALE_STREAMINGMENU_SERVER_IP, g_settings.streaming_server_ip, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CStringInput * streamingSettings_server_port = new CStringInput(LOCALE_STREAMINGMENU_SERVER_PORT, g_settings.streaming_server_port, 6, LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2,"0123456789 ");
@@ -2160,9 +2131,7 @@ void CNeutrinoApp::AddFontSettingItem(CMenuWidget &fontSettings, const SNeutrino
 
 void CNeutrinoApp::InitFontSettings(CMenuWidget &fontSettings)
 {
-	fontSettings.addItem(GenericMenuSeparator);
-	fontSettings.addItem(GenericMenuBack);
-	fontSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(fontSettings);
 	//fontSettings.addItem( new CMenuForwarder(LOCALE_EPGPLUS_SELECT_FONT_NAME, true, NULL, this, "select_font"));
 	AddFontSettingItem(fontSettings, SNeutrinoSettings::FONT_TYPE_MENU);
 	AddFontSettingItem(fontSettings, SNeutrinoSettings::FONT_TYPE_MENU_TITLE);
@@ -2172,9 +2141,7 @@ void CNeutrinoApp::InitFontSettings(CMenuWidget &fontSettings)
 	for (int i = 0; i < 5; i++)
 	{
 		CMenuWidget * fontSettingsSubMenu = new CMenuWidget(font_sizes_groups[i].groupname, "colors.raw");
-		fontSettingsSubMenu->addItem(GenericMenuSeparator);
-		fontSettingsSubMenu->addItem(GenericMenuBack);
-		fontSettingsSubMenu->addItem(GenericMenuSeparatorLine);
+		addMenueIntroItems(*fontSettingsSubMenu);
 		for (unsigned int j = 0; j < font_sizes_groups[i].count; j++)
 		{
 			AddFontSettingItem(*fontSettingsSubMenu, font_sizes_groups[i].content[j]);
@@ -2193,9 +2160,7 @@ void CNeutrinoApp::InitFontSettings(CMenuWidget &fontSettings)
 void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fontSettings )
 {
 	CScreenSetup  * ScreenSetup = new CScreenSetup();
-	colorSettings.addItem(GenericMenuSeparator);
-	colorSettings.addItem(GenericMenuBack);
-	colorSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(colorSettings);
 
 	CMenuWidget *colorSettings_Themes = new CMenuWidget(LOCALE_COLORTHEMEMENU_HEAD, NEUTRINO_ICON_SETTINGS);
 	InitColorThemesSettings(*colorSettings_Themes);
@@ -2232,9 +2197,7 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 
 void CNeutrinoApp::InitColorThemesSettings(CMenuWidget &colorSettings_Themes)
 {
-	colorSettings_Themes.addItem(GenericMenuSeparator);
-	colorSettings_Themes.addItem(GenericMenuBack);
-	colorSettings_Themes.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(colorSettings_Themes);
 	colorSettings_Themes.addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCOLORS, true, NULL, this, "loadcolors"));
 	colorSettings_Themes.addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECOLORS, true, NULL, this, "savecolors"));
 	colorSettings_Themes.addItem(GenericMenuSeparatorLine);
@@ -2299,9 +2262,7 @@ void CNeutrinoApp::InitColorSettingsStatusBarColors(CMenuWidget &colorSettings_s
 
 void CNeutrinoApp::InitColorSettingsTiming(CMenuWidget &colorSettings_timing)
 {
-	colorSettings_timing.addItem(GenericMenuSeparator);
-	colorSettings_timing.addItem(GenericMenuBack);
-	colorSettings_timing.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(colorSettings_timing);
 
 	for (int i = 0; i < TIMING_SETTING_COUNT; i++)
 	{
@@ -2323,10 +2284,7 @@ const CMenuOptionChooser::keyval LCDMENU_STATUSLINE_OPTIONS[LCDMENU_STATUSLINE_O
 
 void CNeutrinoApp::InitLcdSettings(CMenuWidget &lcdSettings)
 {
-	lcdSettings.addItem(GenericMenuSeparator);
-
-	lcdSettings.addItem(GenericMenuBack);
-	lcdSettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(lcdSettings);
 
 	CVfdControler* lcdsliders = new CVfdControler(LOCALE_LCDMENU_HEAD, NULL);
 
@@ -2466,9 +2424,7 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 {
 	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, "keybinding.raw", 400);
 
-	keySettings.addItem(GenericMenuSeparator);
-	keySettings.addItem(GenericMenuBack);
-	keySettings.addItem(GenericMenuSeparatorLine);
+	addMenueIntroItems(keySettings);
 
 	keySettings.addItem(new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys"));
 	keySettings.addItem(new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys"));
