@@ -15,6 +15,7 @@
 
 #include "tuxtxt.h"
 #include <dmx_cs.h>
+#include "driver/framebuffer.h"
 
 void FillRect(int x, int y, int w, int h, int color)
 {
@@ -1477,20 +1478,45 @@ void eval_l25()
  * main loop                                                                  *
  ******************************************************************************/
 
-static int subtitle_mode;
 static pthread_t ttx_sub_thread;
 static int reader_running;
+static int ttx_paused;
+static int ttx_req_pause;
 
 static void* reader_thread(void * /*arg*/)
 {
 	printf("TuxTxt subtitle thread started\n");
 	reader_running = 1;
+	ttx_paused = 0;
 	while(reader_running) {
-		RenderPage();
+		if(ttx_paused)
+			usleep(10);
+		else
+			RenderPage();
+		if(ttx_req_pause) {
+			ttx_req_pause = 0;
+			ttx_paused = 1;
+		}
 	}
 	CleanUp();
 	tuxtxt_close();
 	printf("TuxTxt subtitle thread stopped\n");
+	pthread_exit(NULL);
+}
+
+void tuxtx_pause_subtitle(bool pause)
+{
+	if(!reader_running)
+		return;
+
+	if(!pause)
+		ttx_paused = 0;
+	else {
+		ttx_req_pause = 1;
+		while(!ttx_paused)
+			sleep(10);
+		printf("TuxTxt subtitle paused\n");
+	}
 }
 
 void tuxtx_stop_subtitle()
@@ -1502,8 +1528,11 @@ void tuxtx_stop_subtitle()
 	ttx_sub_thread = NULL;
 }
 
-int tuxtx_subtitle_running(int pid, int page)
+int tuxtx_subtitle_running(int pid, int page, int *running)
 {
+	if(running)
+		*running = reader_running;
+
 	if(reader_running && (tuxtxt_cache.vtxtpid == pid) && (tuxtxt_cache.page == page))
 	{
 		return 1;
@@ -1511,11 +1540,11 @@ int tuxtx_subtitle_running(int pid, int page)
 	return 0;
 }
 
-int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h, int page)
+int tuxtx_main(int _rc, int pid, int page)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
-	subtitle_mode = 0;
+	bool use_gui = 1;
 //printf("to init tuxtxt\n");fflush(stdout);
 #if !TUXTXT_CFG_STANDALONE
 	int initialized = tuxtxt_init();
@@ -1523,7 +1552,7 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h, int pag
 		tuxtxt_cache.page = 0x100;
 	if(page) {
 		tuxtxt_cache.page = page;
-		subtitle_mode = 1;
+		use_gui = 1;
 	}
 #endif
 
@@ -1539,7 +1568,12 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h, int pag
         }
 
 	rc = _rc;
-	lfb = (unsigned char *) _fb;
+	lfb = (unsigned char *) CFrameBuffer::getInstance()->getFrameBufferPointer();
+
+	int x = CFrameBuffer::getInstance()->getScreenX();
+	int y = CFrameBuffer::getInstance()->getScreenY();
+	int w = CFrameBuffer::getInstance()->getScreenWidth();
+	int h = CFrameBuffer::getInstance()->getScreenHeight();
 
 	tuxtxt_cache.vtxtpid = pid;
 
@@ -1582,7 +1616,7 @@ int tuxtx_main(int _rc, void * _fb, int pid, int x, int y, int w, int h, int pag
 	if (Init() == 0)
 		return 0;
 
-	if(subtitle_mode) {
+	if(!use_gui) {
 		pthread_create(&ttx_sub_thread, 0, reader_thread, (void *) NULL);
 		return 1;
 	}

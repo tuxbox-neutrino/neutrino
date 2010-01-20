@@ -262,5 +262,7 @@ public:
 	};
 	void SetChannelMode(int mode);
 	void quickZap(int msg);
+	void StopSubtitles();
+	void StartSubtitles();
 };
 #endif

@@ -2597,23 +2597,23 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				//g_EpgData->show( g_Zapit->getCurrentServiceID() );
-				dvbsub_pause();
+				StopSubtitles();
 				g_EpgData->show(live_channel_id);
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_epg ) {
-				dvbsub_pause();
+				StopSubtitles();
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_text) {
 				g_RCInput->clearRCMsg();
 				if(g_settings.mode_clock)
 					InfoClock->StopClock();
-				dvbsub_pause();
+				StopSubtitles();
+				tuxtx_stop_subtitle();
 
-				tuxtx_main(g_RCInput->getFileHandle(), frameBuffer->getFrameBufferPointer(), g_RemoteControl->current_PIDs.PIDs.vtxtpid,
-					frameBuffer->getScreenX(), frameBuffer->getScreenY(), frameBuffer->getScreenWidth(), frameBuffer->getScreenHeight());
+				tuxtx_main(g_RCInput->getFileHandle(), g_RemoteControl->current_PIDs.PIDs.vtxtpid);
 
 				frameBuffer->paintBackground();
 				//if(!g_settings.cacheTXT)
@@ -2622,11 +2622,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				AudioMute(current_muted, true);
 				if(g_settings.mode_clock)
 					InfoClock->StartClock();
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_setup ) {
 				if(!g_settings.minimode) {
-					dvbsub_pause();
+					StopSubtitles();
                                 	if(g_settings.mode_clock)
                                 	        InfoClock->StopClock();
 					mainMenu.exec(NULL, "");
@@ -2634,7 +2634,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					AudioMute(current_muted, true);
                                 	if(g_settings.mode_clock)
                                 	        InfoClock->StartClock();
-					dvbsub_start(0);
+					StartSubtitles();
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 				}
 			}
@@ -2659,7 +2659,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
 			   if(g_RemoteControl->subChannels.size() > 0) {
-				dvbsub_pause();
+				StopSubtitles();
 				g_RemoteControl->subChannelUp();
 				g_InfoViewer->showSubchan();
 			    } else
@@ -2667,7 +2667,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
 			   if(g_RemoteControl->subChannels.size()> 0) {
-				dvbsub_pause();
+				StopSubtitles();
 				g_RemoteControl->subChannelDown();
 				g_InfoViewer->showSubchan();
 			    } else
@@ -2679,15 +2679,15 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					InfoClock->StopClock();
 					g_settings.mode_clock=false;
 				} else {
-					dvbsub_pause();
+					StopSubtitles();
 					int res = channelList->numericZap( msg );
 					if(res < 0)
-						dvbsub_start(0);
+						StartSubtitles();
 				}
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
-				dvbsub_pause();
+				StopSubtitles();
 				channelList->numericZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_plugin ) {
@@ -2706,11 +2706,11 @@ printf("[neutrino] timeshift try, recordingstatus %d, rec dir %s, timeshift dir 
 
 				if(g_RemoteControl->is_video_started) {
 					if(recordingstatus) {
-						//dvbsub_pause();
+						//StopSubtitles();
 						moviePlayerGui->exec(NULL, tmode);
-						//dvbsub_start(0);
+						//StartSubtitles();
 					} else if(msg != CRCInput::RC_rewind) {
-						//dvbsub_pause();
+						//StopSubtitles();
 						if(g_settings.temp_timeshift) {
 							startAutoRecord(true);
 						} else {
@@ -2718,9 +2718,9 @@ printf("[neutrino] timeshift try, recordingstatus %d, rec dir %s, timeshift dir 
 							doGuiRecord(g_settings.network_nfs_recordingdir, true);
 						}
 						if(recordingstatus) {
-							//dvbsub_pause();
+							//StopSubtitles();
 							moviePlayerGui->exec(NULL, tmode);
-							//dvbsub_start(0);
+							//StartSubtitles();
 						}
 					}
 				}
@@ -2738,30 +2738,30 @@ printf("[neutrino] direct record\n");
 				}
 			}
 			else if( msg == CRCInput::RC_red ) {
-				dvbsub_pause();
+				StopSubtitles();
 				showUserMenu(SNeutrinoSettings::BUTTON_RED);
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
-				dvbsub_pause();
+				StopSubtitles();
 				showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_yellow ) {       // NVODs
-				dvbsub_pause();
+				StopSubtitles();
 				showUserMenu(SNeutrinoSettings::BUTTON_YELLOW);
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_blue ) {
-				dvbsub_pause();
+				StopSubtitles();
 				showUserMenu(SNeutrinoSettings::BUTTON_BLUE);
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
-				dvbsub_pause();
+				StopSubtitles();
 				audioPlayer->exec(NULL, "");
-				dvbsub_start(0);
+				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play ) {
 				bool show = true;
@@ -2771,13 +2771,13 @@ printf("[neutrino] direct record\n");
 					delete zapProtection;
 				}
 				if(show) {
-					//dvbsub_pause();
+					//StopSubtitles();
 					if( mode == mode_radio )
 						videoDecoder->StopPicture();
 					moviePlayerGui->exec(NULL, "tsmoviebrowser");
 					if( mode == mode_radio )
 						videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
-					//dvbsub_start(0);
+					//StartSubtitles();
 				}
 			}
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
@@ -2796,9 +2796,9 @@ printf("[neutrino] direct record\n");
 
 				// show Infoviewer
 				if(show_info && channelList->getSize()) {
-					dvbsub_pause();
+					StopSubtitles();
 					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID()); // UTF-8
-					dvbsub_start(0);
+					StartSubtitles();
 				}
 			}
 #if 0
@@ -2935,7 +2935,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			if(g_settings.mode_clock)
 				InfoClock->StopClock();
 
-			dvbsub_pause();
+			StopSubtitles();
 
 			int nNewChannel = -1;
 			int old_num = 0;
@@ -2981,8 +2981,9 @@ _repeat:
 
 			if(g_settings.mode_clock)
 				InfoClock->StartClock();
+			/* FIXME: more check for StartSubtitles() like was no zap ?? */
 			if(mode == mode_tv)
-				dvbsub_start(0);
+				StartSubtitles();
 			return messages_return::handled;
 		}
 	}
@@ -3714,7 +3715,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_TV_MODE, false );
 		CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, false);
 		if(!rezap)
-			dvbsub_start(0);
+			StartSubtitles();
 	}
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -3808,7 +3809,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
 		}
-		dvbsub_pause();
+		StopSubtitles();
 
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
@@ -3879,7 +3880,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 			startAutoRecord(true);
 		}
 		wasshift = false;
-		dvbsub_start(0);
+		StartSubtitles();
 	}
 }
 
@@ -3890,7 +3891,7 @@ printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_RADIO_MODE, false );
 		CVFD::getInstance()->ShowIcon(VFD_ICON_TV, false);
-		dvbsub_pause();
+		StopSubtitles();
 	}
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, true);
@@ -4735,4 +4736,25 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setString( "repeat_blocker", g_settings.repeat_blocker );
 	tconfig.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
 	tconfig.saveConfig(fname);
+}
+
+void CNeutrinoApp::StopSubtitles()
+{
+	int ttx, dvbpid;
+
+	dvbpid = dvbsub_getpid();
+	tuxtx_subtitle_running(0, 0, &ttx);
+
+	if(dvbpid)
+		dvbsub_pause();
+	if(ttx) {
+		tuxtx_pause_subtitle(true);
+		frameBuffer->paintBackground();
+	}
+}
+
+void CNeutrinoApp::StartSubtitles()
+{
+	dvbsub_start(0);
+	tuxtx_pause_subtitle(false);
 }

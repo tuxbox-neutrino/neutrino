@@ -135,7 +135,7 @@ int CAudioSelectMenuHandler::doMenu ()
 				char item[64];
 				sprintf(item, "TTX: %s (pid %x page %03X)", sd->ISO639_language_code.c_str(), sd->pId, page);
 				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
-							!tuxtx_subtitle_running(sd->pId, page), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
+							!tuxtx_subtitle_running(sd->pId, page, NULL), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
 			}
 		}
 		if(sep_added) {

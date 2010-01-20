@@ -599,6 +599,7 @@ printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
 	if(!strncmp(actionKey.c_str(), "DVB", 3)) {
 		char * pidptr = strchr(actionKey.c_str(), ':');
 		int pid = atoi(pidptr+1);
+		tuxtx_stop_subtitle();
 		dvbsub_pause();
 		dvbsub_start(pid);
 	} else {
@@ -610,8 +611,8 @@ printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
 		int page = strtol(ptr, NULL, 16);
 printf("CSubtitleChangeExec::exec: TTX, pid %x page %x\n", pid, page);
 		tuxtx_stop_subtitle();
-		tuxtx_main(g_RCInput->getFileHandle(), CFrameBuffer::getInstance()->getFrameBufferPointer(), pid,
-				CFrameBuffer::getInstance()->getScreenX(), CFrameBuffer::getInstance()->getScreenY(), CFrameBuffer::getInstance()->getScreenWidth(), CFrameBuffer::getInstance()->getScreenHeight(), page);
+		dvbsub_stop();
+		tuxtx_main(g_RCInput->getFileHandle(), pid, page);
 	}
         return menu_return::RETURN_EXIT;
 }

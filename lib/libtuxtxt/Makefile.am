@@ -1,6 +1,7 @@
 INCLUDES = \
         -I$(top_srcdir)/src/zapit/include \
-	-I$(top_srcdir)/lib/libcoolstream
+	-I$(top_srcdir)/lib/libcoolstream \
+	-I$(top_srcdir)/src
 
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 

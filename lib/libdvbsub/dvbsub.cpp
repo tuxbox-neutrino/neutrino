@@ -73,10 +73,10 @@ int dvbsub_init() {
 int dvbsub_pause()
 {
 	if(reader_running) {
+		dvbsub_paused = true;
 		if(dvbSubtitleConverter) {
 			dvbSubtitleConverter->Pause(true);
 		}
-		dvbsub_paused = true;
 		printf("[dvb-sub] paused\n");
 	}
 
@@ -88,7 +88,6 @@ int dvbsub_start(int pid)
 	if(!dvbsub_paused && (pid == 0)) {
 		return 0;
 	}
-
 
 	if(pid) {
 		if(pid != dvbsub_pid)
@@ -108,7 +107,7 @@ int dvbsub_start(int pid)
 		printf("[dvb-sub] started with pid 0x%x\n", pid);
 	}
 
-	return 0;
+	return 1;
 }
 
 int dvbsub_stop()
@@ -290,7 +289,6 @@ static void* dvbsub_thread(void* /*arg*/)
 	while(dvbsub_running) {
 		uint8_t* packet;
 		int64_t pts;
-		int pts_dts_flag;
 		int dataoffset;
 		int packlen;
 
