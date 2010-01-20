@@ -492,6 +492,8 @@ miscsettings.fb_destination Expert! Boot-Console
 miscsettings.general General
 miscsettings.head Misc settings
 miscsettings.hwsections use hardware sections
+miscsettings.infobar Infobar
+miscsettings.infobar_casystem_display CA-System Display
 miscsettings.infobar_disp_0 without Logo
 miscsettings.infobar_disp_1 Logo 1
 miscsettings.infobar_disp_2 Logo 2

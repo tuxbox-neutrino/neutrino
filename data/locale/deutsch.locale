@@ -10,19 +10,22 @@ audio.srs_volume Referenzlautstärke
 audiomenu.analogout Analog-Ausgang
 audiomenu.avs avs
 audiomenu.avs_control Volume Steuerung avs/ost
-audiomenu.dolbydigital Dolby Digital automatisch
-audiomenu.hdmi_dd Dolby Digital über HDMI
+audiomenu.avsync A/V sync
+audiomenu.avsync_am Audio master
+audiomenu.dolbydigital DD Feed automatisch
+audiomenu.hdmi_dd DD über HDMI
 audiomenu.head Audio-Einstellungen
 audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
 audiomenu.ost ost
 audiomenu.PCMOffset Lautstärkeabsenkung PCM
+audiomenu.spdif_dd DD über S/PDIF
 audiomenu.stereo stereo
-audiomenu.spdif_dd Dolby Digital über S/PDIF
-audiomenu.avsync A/V sync
-audiomenu.avsync_am Audio master
 audioplayer.add Hinzufügen
+audioplayer.add_ic Icecast
+audioplayer.add_loc Lokale Radioliste
+audioplayer.add_sc Shoutcast
 audioplayer.artist_title Interpret, Titel
 audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche n. ID
@@ -43,6 +46,7 @@ audioplayer.jump_dialog_hint2 (relativ, in Sekunden)
 audioplayer.jump_dialog_title Sprungziel eingeben
 audioplayer.jump_forwards vorw. springen
 audioplayer.keylevel Tasten-Umschaltung
+audioplayer.load_radio_stations Lade Radiosender
 audioplayer.name Audioplayer
 audioplayer.pause Pause
 audioplayer.play Abspielen
@@ -55,6 +59,7 @@ audioplayer.playlist_name Dateiname der Playlist
 audioplayer.playlist_name_hint1 Geben Sie den Dateinamen der Playlist ein
 audioplayer.playlist_name_hint2 Die Erweiterung .m3u wird automatisch angehängt
 audioplayer.reading_files Lese die Dateien ein
+audioplayer.receiving_list Liste wird empfangen, bitte warten..
 audioplayer.repeat_on Repeatmodus aktivieren
 audioplayer.rewind schneller Rückl.
 audioplayer.save_playlist Playlist speichern
@@ -71,13 +76,13 @@ bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
 bookmarkmanager.select Auswählen
-bouqueteditor.add Hinzufügen
+bouqueteditor.add Zufügen
 bouqueteditor.bouquetname Name des Bouquets
 bouqueteditor.delete Löschen
 bouqueteditor.discardingchanges Änderungen werden verworfen. Bitte warten ...
 bouqueteditor.hide Verstecken
 bouqueteditor.lock Sperren
-bouqueteditor.move Verschieben
+bouqueteditor.move Bewegen
 bouqueteditor.name Bouquet-Verwaltung
 bouqueteditor.newbouquetname Neuer Name des Bouquets
 bouqueteditor.rename Umbenennen
@@ -88,22 +93,22 @@ bouqueteditor.switch Kanal aufnehmen/ entfernen
 bouqueteditor.switchmode TV/ Radio
 bouquetlist.head Bouquets
 cablesetup.provider Kabelanbieter
-cam.empty Kein CA-Modul im Steckplatz 
-cam.init_ok CA-Modul. Initialisierung beendet -> 
-cam.inserted CA-Modul im Steckplatz 
-cam.removed CA-Modul entfernt -> Steckplatz 
+cam.empty Kein CAM im Slot 
+cam.init_ok CAM-Init beendet -> 
+cam.inserted CAM im Slot 
+cam.removed CAM entfernt -> Slot 
 cam.settings Common Interface
-cam.timeout CA-Modul nicht aktiv (timeout)
-cam.waiting Warte auf CA-Modul
+cam.timeout CAM antwortet nicht
+cam.waiting Warte auf CAM-Antwort
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
 channellist.epgtext_align_left links
 channellist.epgtext_align_right rechts
-channellist.extended EPG-Erweiterungen anzeigen
+channellist.extended erweiterte Kanalliste
 channellist.favs Favoriten
 channellist.head Alle Kanäle
-channellist.history Historie
-channellist.make_hdlist HD-Kanäle als Favoriten anzeigen
+channellist.history Verlauf
+channellist.make_hdlist Erzeuge "HD"- Bouquet
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
 channellist.sats Satelliten
@@ -176,7 +181,7 @@ EPGPlus.change_font_size Schriftgröße ändern
 EPGPlus.change_font_style Schriftstil
 EPGPlus.change_size Größe ändern
 EPGPlus.channelentry_font Kanäle
-EPGPlus.channelentry_separationlineheight Linienhöhe zwischen Kanaleinträgen
+EPGPlus.channelentry_separationlineheight Höhe Linie zwischen Kanaleinträgen
 EPGPlus.channelentry_width Breite der Kanalnamen
 EPGPlus.channelevententry_font Sendungen
 EPGPlus.edit_fonts Schriften einstellen
@@ -205,7 +210,7 @@ EPGPlus.save_settings Einstellungen speichern
 EPGPlus.scroll_mode Scroll-Modus
 EPGPlus.select_font_name Schrift wählen
 EPGPlus.settings Einstellungen
-EPGPlus.slider_width Breite des Schiebreglers
+EPGPlus.slider_width Breite des Schiebereglers
 EPGPlus.stretch_mode Stretch-Modus
 EPGPlus.swap_mode Blättern
 EPGPlus.timeline_fontdate Zeitscala Datum
@@ -226,7 +231,7 @@ eventfinder.start_search Suche starten
 eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
-extra.add_to_bouquet dem Bouquet hinzufügen
+extra.add_to_bouquet dem Bouquet zufügen
 extra.all alle
 extra.audio_run_player Audiotaste startet Player
 extra.auto auto
@@ -255,29 +260,29 @@ extra.dvbsnoop_tdt Zeige TDT
 extra.dvbsnoop_tsdt Zeige TSDT
 extra.east Osten 
 extra.english Englisch
-extra.fec_1_2 1/ 2
-extra.fec_2_3 2/ 3
-extra.fec_3_4 3/ 4
-extra.fec_5_6 5/ 6
-extra.fec_7_8 7/ 8
-extra.fec_s2_8psk_1_2 1/2 s2 8psk
-extra.fec_s2_8psk_2_3 3/2 s2 8psk
-extra.fec_s2_8psk_3_4 3/4 s2 8psk
-extra.fec_s2_8psk_3_5 3/5 s2 8psk
-extra.fec_s2_8psk_4_5 4/5 s2 8psk
-extra.fec_s2_8psk_5_6 5/6 s2 8psk
-extra.fec_s2_8psk_7_8 7/8 s2 8psk
-extra.fec_s2_8psk_8_9 8/9 s2 8psk
-extra.fec_s2_8psk_9_10 9/10 s2 8psk
-extra.fec_s2_qpsk_1_2 1/2 s2 qpsk
-extra.fec_s2_qpsk_2_3 3/2 s2 qpsk
-extra.fec_s2_qpsk_3_4 3/4 s2 qpsk
-extra.fec_s2_qpsk_3_5 3/5 s2 qpsk
-extra.fec_s2_qpsk_4_5 4/5 s2 qpsk
-extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
-extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
-extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
-extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
+extra.fec_1_2 1/2 S1_Q
+extra.fec_2_3 2/3 S1_Q
+extra.fec_3_4 3/4 S1_Q
+extra.fec_5_6 5/6 S1_Q
+extra.fec_7_8 7/8 S1_Q
+extra.fec_s2_8psk_1_2 1/2 S2_8
+extra.fec_s2_8psk_2_3 3/2 S2_8
+extra.fec_s2_8psk_3_4 3/4 S2_8
+extra.fec_s2_8psk_3_5 3/5 S2_8
+extra.fec_s2_8psk_4_5 4/5 S2_8
+extra.fec_s2_8psk_5_6 5/6 S2_8
+extra.fec_s2_8psk_7_8 7/8 S2_8
+extra.fec_s2_8psk_8_9 8/9 S2_8
+extra.fec_s2_8psk_9_10 9/10 S2_8
+extra.fec_s2_qpsk_1_2 1/2 S2_Q
+extra.fec_s2_qpsk_2_3 3/2 S2_Q
+extra.fec_s2_qpsk_3_4 3/4 S2_Q
+extra.fec_s2_qpsk_3_5 3/5 S2_Q
+extra.fec_s2_qpsk_4_5 4/5 S2_Q
+extra.fec_s2_qpsk_5_6 5/6 S2_Q
+extra.fec_s2_qpsk_7_8 7/8 S2_Q
+extra.fec_s2_qpsk_8_9 8/9 S2_Q
+extra.fec_s2_qpsk_9_10 9/10 S2_Q
 extra.hw_sect Hardware Sektionen
 extra.key_click Tastendruck
 extra.key_list_end Keylistenenende
@@ -334,7 +339,7 @@ extra.use_gotoxx Benutze gotoXX
 extra.use_log Logge nach /tmp/log
 extra.valid gültig
 extra.west Westen
-extra.zap_cycle Umschaltzyklen
+extra.zap_cycle Zap nur in Bouquet
 extra.zapit_backup Sichere Kanalliste nach /tmp
 extra.zapit_delete Lösche Kanal
 extra.zapit_fast_zap Schnellumschaltung
@@ -439,8 +444,8 @@ flashupdate.writeflashmtd einzelne Partition einspielen
 flashupdate.wrongbase Abweichende Release-Information\nFortfahren? 
 fontmenu.channellist Kanalliste
 fontmenu.epg EPG (Programmführer)
-fontmenu.eventlist Eventliste
-fontmenu.gamelist Spielliste
+fontmenu.eventlist Event-Liste
+fontmenu.gamelist Spiele-Liste
 fontmenu.head Einstellungen der Schriftgrössen
 fontmenu.infobar Infobar
 fontsize.channel_num_zap Direktauswahl
@@ -562,7 +567,7 @@ hdd_fs Dateisystem
 hdd_manage Festplattenverwaltung
 hdd_middle Mittel
 hdd_noise Akustik-Einstellung
-hdd_not_found Keine Festplatte gefunden
+hdd_not_found Keine Festplatte
 hdd_reiser Reiserfs
 hdd_settings Festplatteneinstellungen
 hdd_sleep Motorstopp nach 
@@ -577,16 +582,17 @@ imageinfo.homepage Homepage:
 imageinfo.image Image:
 imageinfo.license Lizenz:
 imageinfo.version Version:
+inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen...
 infoviewer.epgwait Warte auf EPG-Informationen...
 infoviewer.eventlist EPG/ Vorschau
 infoviewer.languages Tonwahl
 infoviewer.motor_moving Antennenpositionierung
-infoviewer.next Nächste Sendung
-infoviewer.now Aktuelle Sendung
+infoviewer.next später
 infoviewer.nocurrent Keine Info zu laufendem Programm
 infoviewer.noepg Keine EPG-Information verfügbar
 infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar.
+infoviewer.now jetzt
 infoviewer.selecttime Startzeiten
 infoviewer.streaminfo Erweiterungen
 infoviewer.subchan_disp_pos Unterkanalanzeige
@@ -687,8 +693,8 @@ messagebox.no Nein
 messagebox.yes Ja
 miscsettings.bootinfo Infos beim Booten anzeigen
 miscsettings.bootmenu Bootmenü anzeigen
-miscsettings.channellist Kanallisten-Einstellungen
-miscsettings.channellist_epgtext_align Aktuelle Sendung anzeigen
+miscsettings.channellist Kanalliste
+miscsettings.channellist_epgtext_align Event-Text ausrichten
 miscsettings.driver_boot Treiber- und Bootoptionen
 miscsettings.epg_cache EPG-Cache (Tage)
 miscsettings.epg_cache_hint1 EPG-Daten im Voraus zwischenspeichern?
@@ -709,6 +715,8 @@ miscsettings.fb_destination EXPERT! Boot-Konsole
 miscsettings.general Allgemein
 miscsettings.head Diverse Einstellungen
 miscsettings.hwsections EPG Daten per Hardware filtern
+miscsettings.infobar Infobar
+miscsettings.infobar_casystem_display CA-System Anzeige
 miscsettings.infobar_disp_0 Kein Logo
 miscsettings.infobar_disp_1 Logo in der Nummernbox
 miscsettings.infobar_disp_2 Logo Infobar / Kanalnummer
@@ -719,8 +727,8 @@ miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
 miscsettings.noenxwatchdog eNX-Watchdog aktivieren
 miscsettings.pmtupdate PMT Aktualisierung verwenden
 miscsettings.shutdown_count Komplett ausschalten nach
-miscsettings.shutdown_count_hint1 Auschalthilfetext 1
-miscsettings.shutdown_count_hint2 Auschalthilfetext 1
+miscsettings.shutdown_count_hint1 Bitte warten ...
+miscsettings.shutdown_count_hint2 Sie können die Box jetzt ausschalten!
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sptsmode SPTS-Mode Treiber laden
@@ -728,7 +736,7 @@ miscsettings.startbhdriver BH-Mode Treiber laden
 miscsettings.virtual_zap_mode Virtual Zap
 motorcontrol.calc_positions (Neu)-Berechne(n)) Positionen
 motorcontrol.disable_limit Deaktiviere (soft) Limit
-motorcontrol.drive_mode Fahr Modus
+motorcontrol.drive_mode Fahr-Modus
 motorcontrol.drive_mode_auto Fahrmodus/ automatischer Stopp
 motorcontrol.east_limit Setze östliches (soft) Limit
 motorcontrol.enable_limit Aktiviere (soft) Limit
@@ -748,10 +756,10 @@ motorcontrol.sat_pos Satellitenposition (Step Mode):
 motorcontrol.settings Motor Einstellungen
 motorcontrol.status Status
 motorcontrol.step_decrease Schrittweite runter (c)
-motorcontrol.step_drive Umsch. Schrittsetzungs-/Fahr-Modus (b)
+motorcontrol.step_drive Umschalten Schritt-/Fahr-Modus (b)
 motorcontrol.step_east Fahre Motor nach Osten (b,c)
 motorcontrol.step_increase Schrittweite rauf (c)
-motorcontrol.step_mode Schrittsetzungsmodus
+motorcontrol.step_mode Schrittmodus
 motorcontrol.step_size (c) Schrittweite:
 motorcontrol.step_west Fahre Motor nach Westen (b,c)
 motorcontrol.stop_moving Stoppe bei guten Signal(moving)
@@ -790,7 +798,7 @@ moviebrowser.error_no_movies Keine Filme gefunden
 moviebrowser.foot_filter Filter:
 moviebrowser.foot_play Film starten
 moviebrowser.foot_sort Sortieren:
-moviebrowser.head TS Filmarchiv
+moviebrowser.head TS Filmarchiv (eigene Aufnahmen)
 moviebrowser.head_filter Filme nach Kategorie filtern:
 moviebrowser.head_playlist Zuletzt gesehen:
 moviebrowser.head_recordlist Zuletzt aufgenommen:
@@ -940,17 +948,17 @@ networkmenu.ipaddress IP-Adresse
 networkmenu.mount NFS/ CIFS/ FTPFS
 networkmenu.nameserver Nameserver
 networkmenu.netmask Netzmaske
-networkmenu.ntpenable Zeit über Internet syncronisieren
-networkmenu.ntprefresh NTP/ DVB-Aktualisierung (sek.)
-networkmenu.ntprefresh_hint1 NTP/ DVB-Time-Sync in Minuten
-networkmenu.ntprefresh_hint2 Braucht Reboot oder EPG-Reset
-networkmenu.ntpserver NTP-Server (Zeitserver)
-networkmenu.ntpserver_hint1 NTP-Server Beispiel: ntp1.ptb.de
+networkmenu.ntpenable Zeit per INet synchronisieren
+networkmenu.ntprefresh NTP/ DVB-Aktualisierung [s]
+networkmenu.ntprefresh_hint1 NTP/ DVB-Time-Sync [min]
+networkmenu.ntprefresh_hint2 braucht Reboot oder EPG-Reset
+networkmenu.ntpserver NTP-URL (Zeitserver)
+networkmenu.ntpserver_hint1 NTP-URL Beispiel: ntp1.ptb.de
 networkmenu.ntpserver_hint2 braucht Reboot oder EPG-Reset
-networkmenu.ntptitle Zeitsyncronisation
-networkmenu.setupnow Netzwerkeinstellungen jetzt zuweisen
-networkmenu.setuponstartup Beim Starten Netzwerk setzen
-networkmenu.show aktive Netzwerkeinstellungen zeigen
+networkmenu.ntptitle Zeitsynchronisation
+networkmenu.setupnow Einstellungen jetzt zuweisen
+networkmenu.setuponstartup Beim Start Netzwerk setzen
+networkmenu.show Aktive Einstellungen zeigen
 networkmenu.test Netzwerk testen
 neutrino_starting Neutrino wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
@@ -1088,7 +1096,7 @@ repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen zurücksetzen
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
-reset_settings Zurückstellen auf Werkseinstellungen 
+reset_settings Zurück auf Werkseinstellungen 
 rfmod.carrier Unterträger-Frequenz
 rfmod.carrier4500 4.5
 rfmod.carrier5500 5.5
@@ -1104,14 +1112,14 @@ satsetup.auto_scan Ausgewählten Satelliten scannen
 satsetup.auto_scan_all Alle Satelliten scannen
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
-satsetup.diseqc10 DiSEqC 1.0
-satsetup.diseqc11 DiSEqC 1.1
-satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Erweiterte Auswahl
 satsetup.diseqc_com_uncom Committed/ Uncommitted
 satsetup.diseqc_input Diseqc Einspeisung
 satsetup.diseqc_order Einspeisungsfolge
 satsetup.diseqc_uncom_com Uncommitted/ Committed
+satsetup.diseqc10 DiSEqC 1.0
+satsetup.diseqc11 DiSEqC 1.1
+satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.do_scan Satelliten scannen
 satsetup.extended DiSEqC-Einstellungen
@@ -1129,9 +1137,9 @@ satsetup.satellite Satellit
 satsetup.savesettingsnow Einstellungen jetzt speichern
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommitted 
-satsetup.use_nit Benutze NIT
+satsetup.usals_repeat USALS wiederholen
+satsetup.use_nit Auswertung NIT
 satsetup.use_usals Benutze USALS
-satsetup.usals_repeat USALS command repeat
 scants.abort_body Scanvorgang wirklich abbrechen?
 scants.abort_header breche Scan ab...
 scants.actcable Kabel:
@@ -1172,7 +1180,7 @@ servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.ucodecheck UCodes überprüfen
 servicemenu.update Software-Aktualisierung
-settings.help Help
+settings.help Hilfe
 settings.missingoptionsconffile Die Neutrino-Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
 settings.noconffile Die Neutrino-Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
 settings.pos_bottom_left unten links 
@@ -1316,6 +1324,10 @@ ucodecheck.cam-alpha Cam-Alpha
 ucodecheck.head UCode Überprüfung
 ucodecheck.ucode UCode
 ucodes.failure Achtung, die µCodes wurden NICHT gefunden!\n\nBitte per FTP (oder DBox-BootManager)\nuploaden, und die box neu starten!
+upnpbrowser.head UPnP Browser
+upnpbrowser.noservers Kein UPnP-Server gefunden
+upnpbrowser.rescan Neue Suche
+upnpbrowser.scanning Suche nach UPnP-Servern
 usermenu.button_blue Benutzermenü 'blau'
 usermenu.button_green Benutzermenü 'grün'
 usermenu.button_red Benutzermenü 'rot'
@@ -1328,31 +1340,31 @@ usermenu.item_vtxt Teletext
 usermenu.name Name
 video_mode_ok Video-Einstellungen ok ?
 videomenu.43mode 4:3 Anzeigeverhalten
-videomenu.analog_hd_rgb_scart RGB on scart (HD)
-videomenu.analog_hd_rgb_cinch RGB on cinch (HD)
+videomenu.analog_hd_rgb_cinch RGB -> Cinch (HD)
+videomenu.analog_hd_rgb_scart RGB -> Scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr -> Cinch (HD)
 videomenu.analog_hd_yprpb_scart YPbPr -> Scart (HD)
 videomenu.analog_mode Videomodus
-videomenu.analog_sd_rgb_scart RGB on scart (SD)
-videomenu.analog_sd_rgb_cinch RGB on cinch (SD)
+videomenu.analog_sd_rgb_cinch RGB -> Cinch (SD)
+videomenu.analog_sd_rgb_scart RGB -> Scart (SD)
 videomenu.analog_sd_yprpb_cinch YPbPr -> Cinch (SD)
 videomenu.analog_sd_yprpb_scart YPbPr -> Scart (SD)
-videomenu.scart Scart
-videomenu.cinch Cinch
 videomenu.auto Automatisch
+videomenu.cinch Cinch
 videomenu.csync Sync.-Korrektur
-videomenu.dbdr Bildverbesserung (Filter) 
+videomenu.dbdr MPEG2 Filter
+videomenu.dbdr_both deBlock & deRing
+videomenu.dbdr_deblock deBlock
 videomenu.dbdr_none aus
-videomenu.dbdr_deblock Blockbildung
-videomenu.dbdr_both Block- & Ringbildung
-videomenu.enabled_modes Videosysteme auf der V.F-Taste
+videomenu.enabled_modes Videosysteme auf der VF-Taste
 videomenu.fullscreen Vollbild
 videomenu.head Video-Einstellungen
-videomenu.panscan2 14:9 Pan&Scan
 videomenu.letterbox Letterbox
 videomenu.osd OSD
-videomenu.panscan Pan&Scan
+videomenu.panscan Pan & Scan
+videomenu.panscan2 14:9 Pan & Scan
 videomenu.rgb_centering RGB-Zentrierung
+videomenu.scart Scart
 videomenu.screensetup Bildbereich einstellen
 videomenu.tv-scart TV Scart
 videomenu.vcr-scart VCR Scart
@@ -1375,13 +1387,3 @@ zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
 zaptotimer.announce In einer Minute wird umgeschaltet.
-audioplayer.add_ic Icecast
-audioplayer.add_loc Lokale radio liste
-audioplayer.add_sc Shoutcast
-audioplayer.load_radio_stations Load internet radio sender
-audioplayer.receiving_list Liste wird empfangen, bitte warten..
-inetradio.name Internetradio
-upnpbrowser.head UPnP Browser
-upnpbrowser.noservers No UPnP servers found
-upnpbrowser.rescan Scan again
-upnpbrowser.scanning Scanning for UPnP servers

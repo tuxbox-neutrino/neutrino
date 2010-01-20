@@ -64,6 +64,7 @@ struct SNeutrinoSettings
 	int fan_speed;
 	int infobar_show_channellogo;
 	int progressbar_color;
+	int casystem_display;
 
 	//audio
 	int audio_AnalogMode;

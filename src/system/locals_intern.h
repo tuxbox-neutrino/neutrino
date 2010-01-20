@@ -526,6 +526,8 @@ const char *locale_real_names[] = {
 	"miscsettings.general",
 	"miscsettings.head",
 	"miscsettings.hwsections",
+	"miscsettings.infobar",
+	"miscsettings.infobar_casystem_display",
 	"miscsettings.infobar_disp_0",
 	"miscsettings.infobar_disp_1",
 	"miscsettings.infobar_disp_2",

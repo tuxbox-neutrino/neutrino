@@ -159,7 +159,7 @@ void CInfoViewer::Init()
 	fileplay = 0;
 
 	/* maybe we should not tie this to the blinkenlights settings? */
-	if (g_settings.progressbar_color)
+	if (g_settings.casystem_display)
 		bottom_bar_offset = 22;
 	else
 		bottom_bar_offset = 0;
@@ -216,6 +216,7 @@ void CInfoViewer::start ()
 		ChanWidth = 122;
 		ChanHeight = 74;
 	}
+
 	BoxStartX = g_settings.screen_StartX + 10;
 	BoxEndX = g_settings.screen_EndX - 10;
 	BoxEndY = g_settings.screen_EndY - 10 - InfoHeightY_Info - bottom_bar_offset;
@@ -371,7 +372,27 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		pbBlinkChange = g_settings.progressbar_color;
 		changePB();
 	}
+//#################################################################
+	if (g_settings.casystem_display)
+		bottom_bar_offset = 22;
+	else
+		bottom_bar_offset = 0;
 
+	BoxStartX = g_settings.screen_StartX + 10;
+	BoxEndX = g_settings.screen_EndX - 10;
+	BoxEndY = g_settings.screen_EndY - 10 - InfoHeightY_Info - bottom_bar_offset;
+	BoxStartY = BoxEndY - InfoHeightY - ChanHeight / 2;
+
+	BBarY = BoxEndY + bottom_bar_offset;
+	BBarFontY = BBarY + InfoHeightY_Info - (InfoHeightY_Info - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()) / 2; /* center in buttonbar */
+
+	/* ChanNameX gets modified in showChannelLogo(), so we initialize it in showTitle()
+	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
+	 */
+	ChanNameY = BoxStartY + (ChanHeight / 2) + SHADOW_OFFSET;	//oberkante schatten?
+	ChanInfoX = BoxStartX + (ChanWidth / 3);
+
+//#################################################################
 	if ( g_settings.infobar_show_channellogo != 3) /* 3 is "old default" with sigscales etc. */
 	{
 		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(widest_number) + 10;
