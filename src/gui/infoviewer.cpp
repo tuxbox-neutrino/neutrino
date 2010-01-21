@@ -553,7 +553,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 	if (showButtonBar) {
 		sec_timer_id = g_RCInput->addTimer (1*1000*1000, false);
 
-		if (bottom_bar_offset > 0)
+		if (g_settings.casystem_display)
 		{ // FIXME
 			frameBuffer->paintBox(ChanInfoX, BoxEndY, BoxEndX, BoxEndY + bottom_bar_offset, COL_BLACK);
 			int xcnt = (BoxEndX - ChanInfoX) / 4;
@@ -924,7 +924,6 @@ void CInfoViewer::showMotorMoving (int duration)
 
 int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
-
 	if ((msg == NeutrinoMessages::EVT_CURRENTNEXT_EPG) || (msg == NeutrinoMessages::EVT_NEXTPROGRAM)) {
 //printf("CInfoViewer::handleMsg: NeutrinoMessages::EVT_CURRENTNEXT_EPG data %llx current %llx\n", *(t_channel_id *) data, channel_id & 0xFFFFFFFFFFFFULL);
 		if ((*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL)) {
@@ -934,12 +933,29 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 			showLcdPercentOver ();
 		}
 		return messages_return::handled;
-	} else if (msg == NeutrinoMessages::EVT_TIMER) {
+	} else if (msg == NeutrinoMessages::EVT_ZAP_GOTPIDS) {
+		if ((*(t_channel_id *) data) == channel_id) {
+			if (is_visible && showButtonBar) {
+				showIcon_VTXT ();
+				showIcon_SubT();
+				showIcon_CA_Status (0);
+			}
+		}
+		return messages_return::handled;
+	} else if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) ||
+			(msg == NeutrinoMessages::EVT_ZAP_ISNVOD)){
+		channel_id = (*(t_channel_id *)data);
+		return messages_return::handled;
+	}else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID) {
+		chanready = 1;
+		Set_CA_Status (data);
+		showSNR ();
+		return messages_return::handled;
+	}else if (msg == NeutrinoMessages::EVT_TIMER) {
 		if (data == fadeTimer) {
 			// hierher kann das event nur dann kommen, wenn ein anderes Fenster im Vordergrund ist!
 			g_RCInput->killTimer (fadeTimer);
 			frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
-
 			return messages_return::handled;
 		} else if (data == lcdUpdateTimer) {
 //printf("CInfoViewer::handleMsg: lcdUpdateTimer\n");
@@ -960,25 +976,11 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				showButton_Audio ();
 		}
 		return messages_return::handled;
-	} else if (msg == NeutrinoMessages::EVT_ZAP_GOTPIDS) {
-		if ((*(t_channel_id *) data) == channel_id) {
-			if (is_visible && showButtonBar) {
-				showIcon_VTXT ();
-				showIcon_SubT();
-				showIcon_CA_Status (0);
-			}
-		}
-		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES) {
 		if ((*(t_channel_id *) data) == channel_id) {
 			if (is_visible && showButtonBar)
 				showButton_SubServices ();
 		}
-		return messages_return::handled;
-	} else if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) ||
-			(msg == NeutrinoMessages::EVT_ZAP_ISNVOD))
-	{
-		channel_id = (*(t_channel_id *)data);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_COMPLETE) {
 		chanready = 1;
@@ -1018,7 +1020,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		aspectRatio = data;
 		if (is_visible && showButtonBar)
 			showIcon_16_9 ();
-
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_TIMESET) {
 		gotTime = true;
@@ -1031,11 +1032,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_FTA) {
 		Set_CA_Status (false);
-		return messages_return::handled;
-	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID) {
-		chanready = 1;
-		Set_CA_Status (data);
-		showSNR ();
 		return messages_return::handled;
 	}
 
@@ -1777,7 +1773,7 @@ int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*action
 
 void CInfoViewer::paint_ca_icons(int caid, char * icon)
 {
-	if (bottom_bar_offset == 0)
+	if (!g_settings.casystem_display)
 		return;
 
 	char buf[20];
