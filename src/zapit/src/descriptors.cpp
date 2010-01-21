@@ -359,7 +359,7 @@ int cable_delivery_system_descriptor(const unsigned char * const buffer, t_trans
 	feparams.u.qam.modulation = CFrontend::getModulation(buffer[8]);
 //printf("TP:: freq %X Frequency %X ID %llx\n", freq, feparams.frequency, CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, original_network_id, transport_stream_id));
 
-        feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+        //feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
         freq = feparams.frequency / 100;
         TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, original_network_id, transport_stream_id);
         add_to_scan(TsidOnid, &feparams, 0);
