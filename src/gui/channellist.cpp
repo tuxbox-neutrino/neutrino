@@ -157,10 +157,11 @@ void CChannelList::updateEvents(void)
 	CChannelEventList events;
 
 	if (displayNext) {
-		if (chanlist.size()) {
+		size_t chanlist_size = chanlist.size();
+		if (chanlist_size) {
 			time_t atime = time(NULL);
 			unsigned int count;
-			for (count=0; count < chanlist.size(); count++){
+			for (count=0; count < chanlist_size; count++){
 				//CChannelEventList events = g_Sectionsd->getEventsServiceKey(chanlist[liststart+count]->channel_id &0xFFFFFFFFFFFFULL);
 				sectionsd_getEventsServiceKey(chanlist[count]->channel_id &0xFFFFFFFFFFFFULL, events);
 				chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
@@ -177,18 +178,17 @@ void CChannelList::updateEvents(void)
 	} else {
 		t_channel_id *p_requested_channels = NULL;
 		int size_requested_channels = 0;
-
-		if (chanlist.size()) {
-			size_requested_channels = chanlist.size()*sizeof(t_channel_id);
-			p_requested_channels    = (t_channel_id*)malloc(size_requested_channels);
-			for (uint32_t count = 0; count < chanlist.size(); count++){
+		size_t chanlist_size = chanlist.size();
+		if (chanlist_size) {
+			size_requested_channels = chanlist_size*sizeof(t_channel_id);
+			p_requested_channels    = new t_channel_id[size_requested_channels];
+			for (uint32_t count = 0; count < chanlist_size; count++){
 				p_requested_channels[count] = chanlist[count]->channel_id&0xFFFFFFFFFFFFULL;
 			}
-
 			//CChannelEventList events = g_Sectionsd->getChannelEvents((CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
 			CChannelEventList levents;
 			sectionsd_getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
-			for (uint32_t count=0; count < chanlist.size(); count++) {
+			for (uint32_t count=0; count < chanlist_size; count++) {
 				chanlist[count]->currentEvent = CChannelEvent();
 				for ( CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e )
 					if ((chanlist[count]->channel_id&0xFFFFFFFFFFFFULL) == e->get_channel_id()){
@@ -196,7 +196,7 @@ void CChannelList::updateEvents(void)
 						break;
 					}
 			}
-			if (p_requested_channels != NULL) free(p_requested_channels);
+			if (p_requested_channels != NULL) delete[] p_requested_channels;
 		}
 	}
 	events.clear();

@@ -2606,6 +2606,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
 				StartSubtitles();
 			}
+			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
+			{
+				//quickzap
+				quickZap(msg);
+			}
+
 			else if( msg == CRCInput::RC_text) {
 				g_RCInput->clearRCMsg();
 				if(g_settings.mode_clock)
@@ -2651,11 +2657,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				else if(mode == mode_tv) {
 					radioMode();
 				}
-			}
-			else if( ( msg == (neutrino_msg_t) g_settings.key_quickzap_up ) || ( msg == (neutrino_msg_t) g_settings.key_quickzap_down ) )
-			{
-				//quickzap
-				quickZap(msg);
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
 			   if(g_RemoteControl->subChannels.size() > 0) {
