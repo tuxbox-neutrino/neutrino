@@ -322,7 +322,7 @@ int scan_transponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_pos
         if(cable) {
                 if (feparams.frequency > 1000*1000)
                         feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
-                feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+                //feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
         }
         else feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 

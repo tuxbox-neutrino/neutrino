@@ -81,7 +81,9 @@ void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, 
 			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
 
 			if (feparams.frequency > 1000*1000)
-				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
+				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
+
+			//feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 		} else {
 			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
 			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
@@ -90,10 +92,15 @@ void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, 
 
 			if(feparams.u.qpsk.symbol_rate < 50000) feparams.u.qpsk.symbol_rate = feparams.u.qpsk.symbol_rate * 1000;
 
-			if(feparams.frequency < 20000) feparams.frequency = feparams.frequency*1000;
+			if(feparams.frequency < 20000) 
+				feparams.frequency = feparams.frequency*1000;
+			else
+				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 		}
-		feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-		freq = feparams.frequency/1000;
+		if(cable)
+			freq = feparams.frequency/100;
+		else
+			freq = feparams.frequency/1000;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition,original_network_id,transport_stream_id);
 		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
@@ -611,7 +618,7 @@ void SaveServices(bool tocopy)
 	int i = 0;
 	for (tallchans::iterator it = allchans.begin(); it != allchans.end(); it++)
 		if (chans_processed.find(it->first) == chans_processed.end())
-			printf("unsed channel %d sat %d freq %d sid %04X: %s\n", ++i, it->second.getSatellitePosition(), it->second.getFreqId(), it->second.getServiceId(), it->second.getName().c_str());
+			printf("unused channel %d sat %d freq %d sid %04X: %s\n", ++i, it->second.getSatellitePosition(), it->second.getFreqId(), it->second.getServiceId(), it->second.getName().c_str());
 	chans_processed.clear();
 #endif
 	printf("processed channels: %d\n", processed);
