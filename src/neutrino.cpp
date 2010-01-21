@@ -4468,6 +4468,7 @@ void stop_daemons(bool stopall)
 	pthread_join(sections_thread, NULL);
 	printf("sectionsd shutdown done\n");
 #endif
+	tuxtx_stop_subtitle();
 	printf("zapit shutdown\n");
 	g_Zapit->shutdown();
 	pthread_join(zapit_thread, NULL);

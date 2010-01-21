@@ -1512,9 +1512,10 @@ void tuxtx_pause_subtitle(bool pause)
 	if(!pause)
 		ttx_paused = 0;
 	else {
+		printf("TuxTxt subtitle asking to pause...\n");
 		ttx_req_pause = 1;
 		while(!ttx_paused)
-			sleep(10);
+			usleep(10);
 		printf("TuxTxt subtitle paused\n");
 	}
 }
@@ -1552,7 +1553,7 @@ int tuxtx_main(int _rc, int pid, int page)
 		tuxtxt_cache.page = 0x100;
 	if(page) {
 		tuxtxt_cache.page = page;
-		use_gui = 1;
+		use_gui = 0;
 	}
 #endif
 
@@ -4966,7 +4967,6 @@ void RenderPage()
 {
 	int row, col, byte, startrow = 0;;
 	int national_subset_bak = national_subset;
-
 
 	/* update lcd */
 	UpdateLCD();
