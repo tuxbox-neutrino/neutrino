@@ -71,7 +71,7 @@ uint32_t processed_transponders;
 uint32_t failed_transponders;
 uint32_t  actual_freq;
 uint32_t actual_polarisation;
-int scan_mode = 0;
+int scan_mode = 0; /* 0 = NIT, 1 = fast */
 int scan_sat_mode = 0;
 CBouquetManager* scanBouquetManager;
 
@@ -110,10 +110,10 @@ int add_to_scan(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t
 	DBG("add_to_scan: freq %d pol %d tpid %llx\n", feparams->frequency, polarity, TsidOnid);
 //if(fromnit) printf("add_to_scan: freq %d pol %d tpid %llx\n", feparams->frequency, polarity, TsidOnid);
 	freq_id_t freq;
-	if(frontend->getInfo()->type == FE_QPSK)
-		freq = feparams->frequency / 1000;
+	if(cable)
+		freq = feparams->frequency/100;
 	else
-		freq = feparams->frequency / 100;
+		freq = feparams->frequency/1000;
 
 	uint8_t poltmp1 = polarity & 1;
 	uint8_t poltmp2;
@@ -182,10 +182,11 @@ int build_bf_transponder(FrontendParameters *feparams, t_satellite_position sate
 {
 DBG("[scan] freq= %d, rate= %d, position %d\n", feparams->frequency, feparams->u.qam.symbol_rate, satellitePosition);
 	freq_id_t freq;
-	if(frontend->getInfo()->type == FE_QPSK)
-		freq = feparams->frequency / 1000;
+	if(cable)
+		freq = feparams->frequency/100;
 	else
-		freq = feparams->frequency / 100;
+		freq = feparams->frequency/1000;
+
         if(scan_mode) {
                 fake_tid++; fake_nid++;
                 return add_to_scan(
@@ -221,9 +222,9 @@ _repeat:
 		printf("[scan] scanning: %llx\n", tI->first);
 
 		if(cable)
-			actual_freq = tI->second.feparams.frequency / 1000;
-		else
 			actual_freq = tI->second.feparams.frequency;
+		else
+			actual_freq = tI->second.feparams.frequency/1000;
 
 		processed_transponders++;
 		eventServer->sendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, CEventServer::INITID_ZAPIT, &processed_transponders, sizeof(processed_transponders));
@@ -242,7 +243,9 @@ _repeat:
 		}
 		if(abort_scan)
 			return 0;
-		if(0 /*scan_mode*/) {//FIXME
+
+#if 0
+		if(scan_mode) {
 			TsidOnid = get_sdt_TsidOnid(satellitePosition, tI->second.feparams.frequency/1000);
 			DBG("[scan] actual tp-id %llx\n", TsidOnid);
 			if(!TsidOnid)
@@ -251,6 +254,7 @@ _repeat:
 			tI->second.transport_stream_id = (TsidOnid >> 16)&0xFFFF;
 			tI->second.original_network_id = TsidOnid &0xFFFF;
 		}
+#endif
 		if(abort_scan)
 			return 0;
 
@@ -263,10 +267,10 @@ _repeat:
 			}
 #endif
 		freq_id_t freq;
-		if(frontend->getInfo()->type == FE_QPSK)
-			freq = tI->second.feparams.frequency/1000;
-		else
+		if(cable)
 			freq = tI->second.feparams.frequency/100;
+		else
+			freq = tI->second.feparams.frequency/1000;
 		//INFO("parsing SDT (tsid:onid %04x:%04x)", tI->second.transport_stream_id, tI->second.original_network_id);
 		status = parse_sdt(&tI->second.transport_stream_id, &tI->second.original_network_id, satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
 		if(status < 0) {
@@ -304,7 +308,7 @@ _repeat:
 #else
 		if(!scan_mode) {
 			printf("[scan] trying to parse NIT\n");
-			status = parse_nit(satellitePosition, tI->second.feparams.frequency/1000);
+			status = parse_nit(satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
 			if(status < 0)
 				printf("[scan] NIT failed !\n");
 		}
@@ -370,10 +374,13 @@ int scan_transponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_pos
 			xml_fec += 9;
 		feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 	}
+#if 0
         if (cable && satfeed) {
                 /* build special transponder for cable with satfeed */
                 status = build_bf_transponder(&feparams, satellitePosition);
-        } else {
+        } else 
+#endif
+	{
 		/* read network information table */
 		fake_tid++; fake_nid++;
 		status = add_to_scan(
@@ -614,15 +621,22 @@ void * scan_transponder(void * arg)
 		printf("[scan_transponder] freq %d rate %d fec %d pol %d NIT %s\n", TP->feparams.frequency, TP->feparams.u.qpsk.symbol_rate, TP->feparams.u.qpsk.fec_inner, TP->polarization, scan_mode ? "no" : "yes");
 	} else
 		printf("[scan_transponder] freq %d rate %d fec %d mod %d\n", TP->feparams.frequency, TP->feparams.u.qam.symbol_rate, TP->feparams.u.qam.fec_inner, TP->feparams.u.qam.modulation);
-
+#if 0
         if (cable) {
                 /* build special transponder for cable with satfeed */
                 build_bf_transponder(&(TP->feparams), satellitePosition);
-        } else {
+        } else 
+#endif
+	{
+		freq_id_t freq;
+		if(cable)
+			freq = TP->feparams.frequency/100;
+		else
+			freq = TP->feparams.frequency/1000;
 		/* read network information table */
 		fake_tid++; fake_nid++;
 		status = add_to_scan(
-			CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(TP->feparams.frequency/1000, satellitePosition, fake_nid, fake_tid),
+			CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq /*TP->feparams.frequency/1000*/, satellitePosition, fake_nid, fake_tid),
 			&TP->feparams, TP->polarization);
 	}
 	get_sdts(satellitePosition);

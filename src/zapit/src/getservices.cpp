@@ -255,13 +255,18 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
 
 		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
+
+		freq_id_t freq;
 		if (frontendType == FE_QAM) {
 			if (feparams.frequency > 1000*1000)
 				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
-			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			//feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			freq = feparams.frequency/100;
 		}
-		else
+		else {
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			freq = feparams.frequency/1000;
+		}
 
 		feparams.inversion = INVERSION_AUTO;
 
@@ -281,9 +286,10 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 				xml_fec += 9;
 			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 		}
+		
 		transponder_id_t tid =
 			CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
-					feparams.frequency/1000, satellitePosition, fake_nid, fake_tid);
+					freq /*feparams.frequency/1000*/, satellitePosition, fake_nid, fake_tid);
 
 		polarization &= 1;
 		select_transponders.insert (
