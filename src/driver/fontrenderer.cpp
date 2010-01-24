@@ -412,7 +412,7 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	int pen1=-1; // "pen" positions for kerning, pen2 is "x"
 
 	static fb_pixel_t oldbgcolor = 0, oldfgcolor = 0;
-	static fb_pixel_t colors[256];
+	static fb_pixel_t colors[256]={0};
 
 	fb_pixel_t bgcolor = frameBuffer->realcolor[color];
 	fb_pixel_t fgcolor = frameBuffer->realcolor[(((((int)color) + 2) | 7) - 2)];
@@ -500,61 +500,63 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 
 		#ifndef USE_NEVIS_GXA
 		int stride  = frameBuffer->getStride();
-		uint8_t * d = ((uint8_t *)frameBuffer->getFrameBufferPointer()) + (x + glyph->left) * sizeof(fb_pixel_t) + stride * (y - glyph->top);
+		int ap=(x + glyph->left) * sizeof(fb_pixel_t) + stride * (y - glyph->top);
+		uint8_t * d = ((uint8_t *)frameBuffer->getFrameBufferPointer()) + ap;
 		#endif
 		uint8_t * s = glyph->buffer;
 		int w       = glyph->width;
 		int h       = glyph->height;
 		int pitch   = glyph->pitch;
-
-		for (int ay=0; ay<h; ay++)
-		{
-			#ifndef USE_NEVIS_GXA
-			fb_pixel_t * td = (fb_pixel_t *)d;
-			#endif
-
-			int ax;
-			for (ax=0; ax < w + spread_by; ax++)
+		if(ap>-1){
+			for (int ay=0; ay<h; ay++)
 			{
-				if (stylemodifier != Font::Embolden)
+				#ifndef USE_NEVIS_GXA
+				fb_pixel_t * td = (fb_pixel_t *)d;
+				#endif
+
+				int ax;
+				for (ax=0; ax < w + spread_by; ax++)
 				{
-					#ifdef USE_NEVIS_GXA
-					/* not nice (and also slower), but currently the easiest way to prevent visible errors */
-					frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[*s++]);
-					#else
-					*td++= colors[*s++];
-					#endif
-				}
-				else
-				{
-					int start, end;
-					int lcolor = -1;
-
-					if (ax < w)
-						start = 0;
+					if (stylemodifier != Font::Embolden)
+					{
+						#ifdef USE_NEVIS_GXA
+						/* not nice (and also slower), but currently the easiest way to prevent visible errors */
+						frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[*s++]);
+						#else
+						*td++= colors[*s++];
+						#endif
+					}
 					else
-						start = ax - w + 1;
+					{
+						int start, end;
+						int lcolor = -1;
 
-					if (ax < spread_by)
-						end = ax + 1;
-					else
-						end = spread_by + 1;
+						if (ax < w)
+							start = 0;
+						else
+							start = ax - w + 1;
 
-					for (int i = start; i < end; i++)
-						if (lcolor < *(s - i))
-							lcolor = *(s - i);
-					#ifdef USE_NEVIS_GXA
-					frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[lcolor]);
-					#else
-					*td++= colors[lcolor];
-					#endif
-					s++;
+						if (ax < spread_by)
+							end = ax + 1;
+						else
+							end = spread_by + 1;
+
+						for (int i = start; i < end; i++)
+							if (lcolor < *(s - i))
+								lcolor = *(s - i);
+						#ifdef USE_NEVIS_GXA
+						frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[lcolor]);
+						#else
+						*td++= colors[lcolor];
+						#endif
+						s++;
+					}
 				}
+				s += pitch- ax;
+				#ifndef USE_NEVIS_GXA
+				d += stride;
+				#endif
 			}
-			s += pitch- ax;
-			#ifndef USE_NEVIS_GXA
-			d += stride;
-			#endif
 		}
 		x+=glyph->xadvance+1;
 		//x+=glyph->xadvance;
