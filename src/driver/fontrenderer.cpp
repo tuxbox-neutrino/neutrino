@@ -507,7 +507,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 		int w       = glyph->width;
 		int h       = glyph->height;
 		int pitch   = glyph->pitch;
+		#ifndef USE_NEVIS_GXA
 		if(ap>-1){
+		#endif
 			for (int ay=0; ay<h; ay++)
 			{
 				#ifndef USE_NEVIS_GXA
@@ -557,7 +559,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 				d += stride;
 				#endif
 			}
+		#ifndef USE_NEVIS_GXA
 		}
+		#endif
 		x+=glyph->xadvance+1;
 		//x+=glyph->xadvance;
 		if(pen1>x)
