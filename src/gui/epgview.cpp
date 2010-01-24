@@ -126,11 +126,12 @@ CEpgData::CEpgData()
 
 void CEpgData::start()
 {
+ 	topheight     = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
+
 	ox = w_max (MAX_W * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
-	oy = h_max (MAX_H * (bigFonts ? BIG_FONT_FAKTOR : 1), 0);
+	oy = h_max (MAX_H * (bigFonts ? BIG_FONT_FAKTOR : 1), topheight*3);//reserve for head
 	sx = getScreenStartX( ox );
 
-	topheight     = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getHeight();
 	topboxheight  = topheight + 6;
 
 	if (topboxheight < PIC_H) topboxheight = PIC_H;
