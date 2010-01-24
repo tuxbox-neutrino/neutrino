@@ -94,7 +94,7 @@ void CDBoxInfoWidget::hide()
 
 void CDBoxInfoWidget::paint()
 {
-	const char *head = " Filesystem        Size    Used       Available   Use% ";
+	const char *head = "Filesystem     Size    Used     Available   Use%      ";
 	int offsetw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head);
 	offsetw += 20;
 	width = offsetw + 10 + 120;
@@ -266,7 +266,7 @@ void CDBoxInfoWidget::paint()
 						blocks_used = s.f_blocks - s.f_bfree;
 						blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
 						snprintf(ubuf,buf_size,
-							 "%10.10s %7.2f%c  %7.2f%c %7.2f%c %5ld%%\n"
+							 "%-10.10s %7.2f%c  %7.2f%c %7.2f%c %5ld%%\n"
 							 ,basename(mnt->mnt_fsname)
 							 ,(s.f_blocks * (s.f_bsize / 1024.0)) / gb, c
 							 ,((s.f_blocks - s.f_bfree)  * (s.f_bsize / 1024.0)) / gb, c
