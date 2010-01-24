@@ -258,7 +258,7 @@ void SIsectionEIT::parseExtendedEventDescriptor(const char *buf, SIevent &e, uns
 #endif
 		{
 			//e.appendExtendedText(language, std::string((const char *)(items+1), min(maxlen-((const char *)items+1-buf), *items)));
-			e.appendExtendedText(language, convertDVBUTF8((const char *)(items+1), min(maxlen-((const char *)items+2-buf), (*items)), table, tsidonid));
+			e.appendExtendedText(language, convertDVBUTF8((const char *)(items+1), min(maxlen-((const char *)items+1-buf), (*items)), table, tsidonid));
 //			printf("Extended Text: %s\n", e.extendedText.c_str());
 		}
 	}
