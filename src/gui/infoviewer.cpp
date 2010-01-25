@@ -300,18 +300,18 @@ void CInfoViewer::showRecordIcon (const bool show)
 {
 	recordModeActive = CNeutrinoApp::getInstance ()->recordingstatus || shift_timer;
 	if (recordModeActive) {
-		ChanNameX = BoxStartX + ChanWidth + 20;
+		int ChanName_X = BoxStartX + ChanWidth + 20;
 		if (show) {
-			frameBuffer->paintIcon (autoshift ? "ats.raw" : NEUTRINO_ICON_BUTTON_RED, ChanNameX, BoxStartY + 12);
+			frameBuffer->paintIcon (autoshift ? "ats.raw" : NEUTRINO_ICON_BUTTON_RED, ChanName_X, BoxStartY + 12);
 			if (!autoshift && !shift_timer) {
 				int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
-				frameBuffer->paintBoxRel (ChanNameX + 28 + SHADOW_OFFSET, BoxStartY + 12 + SHADOW_OFFSET, 300, 20, COL_INFOBAR_SHADOW_PLUS_0);
-				frameBuffer->paintBoxRel (ChanNameX + 28, BoxStartY + 12, 300, 20, COL_INFOBAR_PLUS_0);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanNameX + 30, BoxStartY + 12 + chanH, 300, ext_channel_name.c_str (), COL_INFOBAR, 0, true);
+				frameBuffer->paintBoxRel (ChanName_X + 28 + SHADOW_OFFSET, BoxStartY + 12 + SHADOW_OFFSET, 300, 20, COL_INFOBAR_SHADOW_PLUS_0);
+				frameBuffer->paintBoxRel (ChanName_X + 28, BoxStartY + 12, 300, 20, COL_INFOBAR_PLUS_0);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X + 30, BoxStartY + 12 + chanH, 300, ext_channel_name.c_str (), COL_INFOBAR, 0, true);
 			} else
-				frameBuffer->paintBackgroundBoxRel (ChanNameX + 28, BoxStartY + 12, 300 + SHADOW_OFFSET, 20 + SHADOW_OFFSET);
+				frameBuffer->paintBackgroundBoxRel (ChanName_X + 28, BoxStartY + 12, 300 + SHADOW_OFFSET, 20 + SHADOW_OFFSET);
 		} else {
-			frameBuffer->paintBackgroundBoxRel (ChanNameX, BoxStartY + 10, 20, 20);
+			frameBuffer->paintBackgroundBoxRel (ChanName_X, BoxStartY + 10, 20, 20);
 		}
 	}
 }
