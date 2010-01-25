@@ -1897,10 +1897,11 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			zapit_debug = 1;
 		}
 		else if (!strcmp(argv[x], "-r")) {
+			x++;
 			if (x < argc)
-				xres = atoi(argv[++x]);
+				xres = atoi(argv[x++]);
 			if (x < argc)
-				yres = atoi(argv[++x]);
+				yres = atoi(argv[x++]);
 		}
 		else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] [-f | --enable-flash] "
