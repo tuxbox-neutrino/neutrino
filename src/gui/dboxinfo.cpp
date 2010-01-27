@@ -94,8 +94,12 @@ void CDBoxInfoWidget::hide()
 
 void CDBoxInfoWidget::paint()
 {
-	const char *head = "Filesystem     Size    Used     Available   Use%      ";
-	int offsetw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(head);
+	const int headSize = 5;
+	const char *head[headSize] = {"Filesystem", "Size", "Used", "Available", "Use%"};
+	int sizeOffset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("9999.99M");
+	int percOffset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("100%");
+	int nameOffset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("WWWwwwwwww");
+	int offsetw = nameOffset+ (sizeOffset+10)*3 +10+percOffset+10;
 	offsetw += 20;
 	width = offsetw + 10 + 120;
 	height = hheight + 6 * mheight;
@@ -158,12 +162,12 @@ void CDBoxInfoWidget::paint()
 		while ((read = getline(&buffer, &len, fd)) != -1) {
 			if (!(strncmp(const_cast<char *>("Hardware"),buffer,8))) {
 				char *t=rindex(buffer,'\n');
-				if(t)
+				if (t)
 					*t='\0';
 
 				std::string hw;
 				char *p=rindex(buffer,':');
-				if(p)
+				if (p)
 					hw=++p;
 				hw+=" Info";
 				g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, y + hheight+1, width - 10, hw.c_str(), COL_MENUHEAD, 0, true); // UTF-8
@@ -226,7 +230,9 @@ void CDBoxInfoWidget::paint()
 		ypos+= mheight/2;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT);
 		ypos+= mheight;
-
+		int headOffset=0;
+		int mpOffset=0;
+		bool rec_mp=false;
 		if ((mountFile = setmntent("/proc/mounts", "r")) == 0 ) {
 			perror("/proc/mounts");
 		}
@@ -248,10 +254,31 @@ void CDBoxInfoWidget::paint()
 						gb = 1024.0*1024.0;
 						c = 'G';
 						break;
-					case (int) 0x72b6:	/*jffs2*/ 
+					case (int) 0x72b6:	/*jffs2*/
 						if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
 							continue;
-						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, head, COL_MENUCONTENTINACTIVE);
+						// paint mount head
+						for (int j = 0; j < headSize; j++) {
+							switch (j)
+							{
+							case 0:
+								headOffset = 10;
+								break;
+							case 1:
+								headOffset = nameOffset + 20;
+								break;
+							case 2:
+								headOffset = nameOffset + sizeOffset+10 +20;
+								break;
+							case 3:
+								headOffset = nameOffset + (sizeOffset+10)*2+15;
+								break;
+							case 4:
+								headOffset = nameOffset + (sizeOffset+10)*3+15;
+								break;
+							}
+							g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset, ypos+ mheight, width - 10, head[j], COL_MENUCONTENTINACTIVE);
+						}
 						ypos+= mheight;
 
 						gb = 1024.0;
@@ -265,15 +292,54 @@ void CDBoxInfoWidget::paint()
 						long	blocks_percent_used;
 						blocks_used = s.f_blocks - s.f_bfree;
 						blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
-						snprintf(ubuf,buf_size,
-							 "%-10.10s %7.2f%c  %7.2f%c %7.2f%c %5ld%%\n"
-							 ,basename(mnt->mnt_fsname)
-							 ,(s.f_blocks * (s.f_bsize / 1024.0)) / gb, c
-							 ,((s.f_blocks - s.f_bfree)  * (s.f_bsize / 1024.0)) / gb, c
-							 ,s.f_bavail * (s.f_bsize / 1024.0) / gb, c
-							 ,blocks_percent_used
-							);
-						g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT);
+						//paint mountpoints
+						for (int j = 0; j < headSize; j++) {
+							switch (j)
+							{
+							case 0: {
+								if (s.f_type != 0x72b6)
+								{
+									char *p1=NULL, *p2=NULL;
+									p1=strchr(g_settings.network_nfs_recordingdir+1,'/') ;
+									p2=strchr(mnt->mnt_dir+1,'/') ;
+									if (p2) {
+										if (strstr(p1,p2)) {
+
+											rec_mp = true;
+										}
+									}
+									else {
+										if (strstr(g_settings.network_nfs_recordingdir,mnt->mnt_dir)) {
+											rec_mp = true;
+										}
+									}
+								}
+								mpOffset = 10;
+								snprintf(ubuf,buf_size,"%-10.10s",basename(mnt->mnt_fsname));
+							}
+							break;
+							case 1:
+								mpOffset = nameOffset + 10;
+
+								snprintf(ubuf,buf_size,"%7.2f%c", (s.f_blocks * (s.f_bsize / 1024.0)) / gb, c);
+								break;
+							case 2:
+								mpOffset = nameOffset+ (sizeOffset+10)*1+10;
+								snprintf(ubuf,buf_size,"%7.2f%c", ((s.f_blocks - s.f_bfree)  * (s.f_bsize / 1024.0)) / gb, c);
+								break;
+							case 3:
+								mpOffset = nameOffset+ (sizeOffset+10)*2+10;
+								snprintf(ubuf,buf_size,"%7.2f%c", s.f_bavail * (s.f_bsize / 1024.0) / gb, c);
+								break;
+							case 4:
+								mpOffset = nameOffset+ (sizeOffset+10)*3+10;
+
+								snprintf(ubuf,buf_size,"%4ld%c", blocks_percent_used,'%');
+								break;
+							}
+							g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset, ypos+ mheight, width - 10, ubuf, rec_mp ? COL_MENUHEAD+2:COL_MENUCONTENT);
+							rec_mp = false;
+						}
 						int pbw = width - offsetw - 10;
 //fprintf(stderr, "width: %d offsetw: %d pbw: %d\n", width, offsetw, pbw);
 						if (pbw > 8) /* smaller progressbar is not useful ;) */
