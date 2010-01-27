@@ -65,6 +65,7 @@ class CPictureViewer
 	bool DisplayImage (const std::string & name, int posx, int posy, int width, int height);
 	bool DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height);
 	fb_pixel_t * getImage (const std::string & name, int width, int height);
+	fb_pixel_t * getIcon (const std::string & name, int *width, int *height);
 	int getWidth(const char *name);
 	int getHeight(const char *name);
 

@@ -56,14 +56,14 @@ void CPictureViewer::add_format (int (*picsize) (const char *, int *, int *, int
 
 void CPictureViewer::init_handlers (void)
 {
+#ifdef FBV_SUPPORT_PNG
+  add_format (fh_png_getsize, fh_png_load, fh_png_id);
+#endif
 #ifdef FBV_SUPPORT_GIF
   add_format (fh_gif_getsize, fh_gif_load, fh_gif_id);
 #endif
 #ifdef FBV_SUPPORT_JPEG
   add_format (fh_jpeg_getsize, fh_jpeg_load, fh_jpeg_id);
-#endif
-#ifdef FBV_SUPPORT_PNG
-  add_format (fh_png_getsize, fh_png_load, fh_png_id);
 #endif
 #ifdef FBV_SUPPORT_BMP
   add_format (fh_bmp_getsize, fh_bmp_load, fh_bmp_id);
@@ -547,14 +547,53 @@ printf("getImage: decoded %s, %d x %d \n", name.c_str (), x, y);
 			int bp;
 			ret = (fb_pixel_t *) convertRGB2FB(buffer, x, y, var->bits_per_pixel, &bp, 0);
 			free(buffer);
-			//fb_display (buffer, x, y, 0, 0, posx, posy, false, convertSetupAlpha2Alpha(g_settings.infobar_alpha));
 		} else {
 	  		printf ("Error decoding file %s\n", name.c_str ());
 	  		free (buffer);
 	  		buffer = NULL;
 		}
-  	} else
+  	} 
 		printf("Error open file %s\n", name.c_str ());
 
 	return ret;
+}
+
+fb_pixel_t * CPictureViewer::getIcon (const std::string & name, int *width, int *height)
+{
+	int x, y;
+	CFormathandler *fh;
+	unsigned char * rgbbuff;
+	fb_pixel_t * fbbuff = NULL;
+
+  	fh = fh_getsize (name.c_str (), &x, &y, INT_MAX, INT_MAX);
+  	if (!fh) {
+		return NULL;
+	}
+	rgbbuff = (unsigned char *) malloc (x * y * 3);
+	if (rgbbuff == NULL) {
+		printf ("Error: malloc\n");
+		return NULL;
+	}
+	if (fh->get_pic (name.c_str (), &rgbbuff, &x, &y) == FH_ERROR_OK) {
+		int count = x*y;
+		fbbuff = (fb_pixel_t *) malloc(count * sizeof(fb_pixel_t));
+		//printf("getIcon: decoded %s, %d x %d buf %x\n", name.c_str (), x, y, fbbuff);
+
+		for(int i = 0; i < count ; i++) {
+			int transp = 0;
+
+			if(rgbbuff[i*3] || rgbbuff[i*3+1] || rgbbuff[i*3+2])
+				transp = 0xFF;
+
+			fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+		}
+
+		*width = x;
+		*height = y;
+	} else 
+		printf ("Error decoding file %s\n", name.c_str ());
+
+	free (rgbbuff);
+
+	return fbbuff;
 }

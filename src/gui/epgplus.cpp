@@ -1023,7 +1023,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 						this->selectedChannelEntry->paint (true, this->selectedTime);
 					} else {
 						this->startTime += this->duration;
-						this->createChannelEntries (this->selectedChannelEntry->index);
+						/*this->createChannelEntries (this->selectedChannelEntry->index);*/
 
 						this->selectedTime = this->startTime;
 						this->createChannelEntries (this->selectedChannelEntry->index);
@@ -1082,13 +1082,20 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 		}
 
 		this->hide ();
+#if 0
 		for (TChannelEntries::iterator It = this->displayedChannelEntries.begin ();
 				It != this->displayedChannelEntries.end (); It++) {
 			delete *It;
 		}
 		this->displayedChannelEntries.clear ();
+#endif
 	}
 	while (this->refreshAll);
+	for (TChannelEntries::iterator It = this->displayedChannelEntries.begin ();
+			It != this->displayedChannelEntries.end (); It++) {
+		delete *It;
+	}
+	this->displayedChannelEntries.clear ();
 
 	return res;
 }

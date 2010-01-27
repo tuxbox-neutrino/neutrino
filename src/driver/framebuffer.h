@@ -81,7 +81,7 @@ class CFrameBuffer
 			uint16_t width;
 			uint16_t height;
 			uint8_t transp;
-			uint8_t * data;
+			fb_pixel_t * data;
 		};
 
 		std::string     iconBasePath;
@@ -113,6 +113,7 @@ class CFrameBuffer
 		#endif /* USE_NEVIS_GXA */
 		bool locked;
 		std::map<std::string, rawIcon> icon_cache;
+		int cache_size;
 
 	public:
 #ifndef FB_USE_PALETTE

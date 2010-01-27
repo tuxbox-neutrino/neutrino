@@ -2298,6 +2298,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	SetupFonts();
 	SetupTiming();
+	g_PicViewer = new CPictureViewer();
 	colorSetupNotifier        = new CColorSetupNotifier;
 	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 	hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
@@ -2382,7 +2383,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	g_PluginList = new CPlugins;
 	g_PluginList->setPluginDir(PLUGINDIR);
-	g_PicViewer = new CPictureViewer();
 	// mount shares before scanning for plugins
 	CFSMounter::automount();
 	//load Pluginlist before main menu (only show script menu if at least one script is available

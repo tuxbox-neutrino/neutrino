@@ -48,6 +48,8 @@
 extern cVideo * videoDecoder;
 
 extern CPictureViewer * g_PicViewer;
+#define ICON_CACHE_SIZE 1024*1024*2 // 2mb
+
 #define BACKGROUNDIMAGEWIDTH 720
 
 //#undef USE_NEVIS_GXA //FIXME
@@ -240,6 +242,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 	_write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
 	_write_gxa(gxa_base, GXA_CONTENT_ID_REG, 0);
 #endif
+	cache_size = 0;
 
 #if 0
 	if ((tty=open("/dev/vc/0", O_RDWR))<0) {
@@ -903,53 +906,61 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const int y,
 			     const int h, const unsigned char offset)
 {
+	struct rawHeader header;
+	int         width, height;
+	int              lfd;
+	fb_pixel_t * data;
+	uint8_t transp;
+	struct rawIcon tmpIcon;
+	std::map<std::string, rawIcon>::iterator it;
+	int dsize;
+
 	if (!getActive())
 		return false;
 
-	//printf("%s(file, %d, %d, %d)\n", __FUNCTION__, x, y, offset);
 	int  yy = y;
+	//printf("CFrameBuffer::paintIcon: load %s\n", filename.c_str());fflush(stdout);
 
-	char * ptr = rindex(filename.c_str(), '.');
-	if(ptr) {
-		*ptr = 0;
-		std::string newname = iconBasePath + filename.c_str() + ".gif";
-		*ptr = '.';
-		if(!access(newname.c_str(), F_OK))
-		{
-			if (h != 0)
-				yy += (h - g_PicViewer->getHeight(newname.c_str())) / 2;
-			return g_PicViewer->DisplayImage(newname, x, yy, 0, 0);
-		}
-	}
-	struct rawHeader header;
-	uint16_t         width, height;
-	int              lfd;
-#if 0 // no need if we have whole / as r/w
-	std::string iconBasePath1 = "/var/share/icons/";
-	lfd = open((iconBasePath1 + filename).c_str(), O_RDONLY);
-	if (lfd == -1)
-		lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
-#endif
-	uint8_t * data;
-	uint8_t transp;
-
-	std::map<std::string, rawIcon>::iterator it;
-	it = icon_cache.find((iconBasePath + filename).c_str());
+	/* we cache and check original name */
+	it = icon_cache.find(iconBasePath + filename);
 	if(it == icon_cache.end()) {
-		struct rawIcon tmpIcon;
+		char * ptr = rindex(filename.c_str(), '.');
+		if(ptr) {
+			*ptr = 0;
+			std::string newname = iconBasePath + filename.c_str() + ".png";
+			*ptr = '.';
+			//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
+
+			data = g_PicViewer->getIcon(newname, &width, &height);
+
+			if(data) {
+				dsize = width*height*sizeof(fb_pixel_t);
+				//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
+				if(cache_size+dsize < ICON_CACHE_SIZE) {
+					cache_size += dsize;
+					tmpIcon.width = width;
+					tmpIcon.height = height;
+					tmpIcon.data = data;
+					icon_cache.insert(std::pair <std::string, rawIcon> (iconBasePath + filename, tmpIcon));
+					//printf("Cached %s, cache size %d\n", newname.c_str(), cache_size);
+				}
+				goto _display;
+			}
+		}
 
 		lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
 
 		if (lfd == -1) {
-			printf("paintIcon: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+			//printf("paintIcon: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
 			return false;
 		}
 		read(lfd, &header, sizeof(struct rawHeader));
 
 		tmpIcon.width = width  = (header.width_hi  << 8) | header.width_lo;
 		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
-		tmpIcon.transp = transp = header.transp;
-		tmpIcon.data = (uint8_t*) malloc(width*height);
+
+		dsize = width*height*sizeof(fb_pixel_t);
+		tmpIcon.data = (fb_pixel_t*) malloc(dsize);
 		data = tmpIcon.data;
 
 		unsigned char pixbuf[768];
@@ -960,8 +971,14 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 				unsigned char compressed = *pixpos;
 				unsigned char pix1 = (compressed & 0xf0) >> 4;
 				unsigned char pix2 = (compressed & 0x0f);
-				*data++ = pix1;
-				*data++ = pix2;
+				if (pix1 != header.transp)
+					*data++ = realcolor[pix1+offset];
+				else
+					*data++ = 0;
+				if (pix2 != header.transp)
+					*data++ = realcolor[pix2+offset];
+				else
+					*data++ = 0;
 				pixpos++;
 			}
 		}
@@ -969,14 +986,18 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		data = tmpIcon.data;
 
-		icon_cache.insert(std::pair <std::string, rawIcon> (iconBasePath + filename, tmpIcon));
+		if(cache_size+dsize < ICON_CACHE_SIZE) {
+			cache_size += dsize;
+			icon_cache.insert(std::pair <std::string, rawIcon> (iconBasePath + filename, tmpIcon));
+			//printf("Cached %s, cache size %d\n", (iconBasePath + filename).c_str(), cache_size);
+		}
 	} else {
 		data = it->second.data;
 		width = it->second.width;
 		height = it->second.height;
-		transp = it->second.transp;
-		//printf("paintIcon: cached %s %d x %d\n", (iconBasePath + filename).c_str(), width, height);
+		//printf("paintIcon: already cached %s %d x %d\n", (iconBasePath + filename).c_str(), width, height);
 	}
+_display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
@@ -984,12 +1005,12 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	fb_pixel_t * d2;
 
 	for (int count = 0; count < height; count++ ) {
-		unsigned char *pixpos = &data[count * width];
+		fb_pixel_t *pixpos = &data[count * width];
 		d2 = (fb_pixel_t *) d;
 		for (int count2 = 0; count2 < width; count2++ ) {
-			unsigned char pix = *pixpos;
-			if (pix != transp) {
-				paintPixel(d2, pix + offset);
+			fb_pixel_t pix = *pixpos;
+			if (pix != 0) {
+				*d2 = pix;
 			}
 			d2++;
 			pixpos++;
@@ -997,41 +1018,6 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		d += stride;
 	}
 
-#if 0
-	read(lfd, &header, sizeof(struct rawHeader));
-
-	width  = (header.width_hi  << 8) | header.width_lo;
-	height = (header.height_hi << 8) | header.height_lo;
-
-	if (h != 0)
-		yy += (h - height) / 2;
-
-	unsigned char pixbuf[768];
-	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
-	fb_pixel_t * d2;
-	for (int count=0; count<height; count ++ ) {
-		read(lfd, &pixbuf[0], width >> 1 );
-		unsigned char *pixpos = &pixbuf[0];
-		d2 = (fb_pixel_t *) d;
-		for (int count2=0; count2<width >> 1; count2 ++ ) {
-			unsigned char compressed = *pixpos;
-			unsigned char pix1 = (compressed & 0xf0) >> 4;
-			unsigned char pix2 = (compressed & 0x0f);
-			if (pix1 != header.transp) {
-				paintPixel(d2, pix1 + offset);
-			}
-			d2++;
-			if (pix2 != header.transp) {
-				paintPixel(d2, pix2 + offset);
-			}
-			d2++;
-			pixpos++;
-		}
-		d += stride;
-	}
-
-	close(lfd);
-#endif
 	return true;
 }
 
