@@ -1498,7 +1498,8 @@ static void* reader_thread(void * /*arg*/)
 			ttx_paused = 1;
 		}
 	}
-	CleanUp();
+	if(!ttx_paused)
+		CleanUp();
 	tuxtxt_close();
 	printf("TuxTxt subtitle thread stopped\n");
 	pthread_exit(NULL);

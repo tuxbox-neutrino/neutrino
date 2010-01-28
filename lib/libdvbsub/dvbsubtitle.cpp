@@ -103,27 +103,41 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 	int i;
 	int stride = CFrameBuffer::getInstance()->getScreenWidth(true);
 	int wd = CFrameBuffer::getInstance()->getScreenWidth();
-	int xs = CFrameBuffer::getInstance()->getScreenX();
+	int xstart = CFrameBuffer::getInstance()->getScreenX();
 	int yend = CFrameBuffer::getInstance()->getScreenY() + CFrameBuffer::getInstance()->getScreenHeight();
+	int ystart = CFrameBuffer::getInstance()->getScreenY();
 	uint32_t *sublfb = CFrameBuffer::getInstance()->getFrameBufferPointer();
 
-	dbgconverter("cDvbSubtitleBitmaps::Draw: %d bitmaps, x= %d, width= %d yend=%d stride %d\n", Count(), xs, wd, yend, stride);
+	dbgconverter("cDvbSubtitleBitmaps::Draw: %d bitmaps, x= %d, width= %d yend=%d stride %d\n", Count(), xstart, wd, yend, stride);
 
 	for (i = 0; i < Count(); i++) {
 		/* center on screen */
-		/* int xoff = xs + (wd - sub.rects[i]->w) / 2;*/
+		/* int xoff = xstart + (wd - sub.rects[i]->w) / 2;*/
 		int xdiff = (wd > 720) ? ((wd - 720) / 2) : 0;
-		int xoff = sub.rects[i]->x + xs + xdiff; // 720 - (720 - x) = orig offset; 
-		/* move to screen bottom */
-		int yoff = (yend - (576 - sub.rects[i]->y)) * stride;
-		int ys = yend - (576 - sub.rects[i]->y);
-
-		dbgconverter("cDvbSubtitleBitmaps::Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d) \n", i+1, 
-				sub.rects[i]->x, sub.rects[i]->y, sub.rects[i]->w, sub.rects[i]->h, sub.rects[i]->nb_colors, xoff, ys);
+		int xoff = sub.rects[i]->x + xstart + xdiff;
 
 		uint32_t * colors = (uint32_t *) sub.rects[i]->pict.data[1];
 		int width = sub.rects[i]->w;
 		int height = sub.rects[i]->h;
+
+		int ys = yend - (576 - sub.rects[i]->y + height);
+
+		double xc = (double) CFrameBuffer::getInstance()->getScreenWidth(true)/(double) 720;
+		double yc = (double) CFrameBuffer::getInstance()->getScreenHeight(true)/(double) 576;
+
+		int nw = (double) width * xc;
+		int nh = (double) height * yc;
+
+		xoff = (double) xoff / (xc > 0 ? xc : 1);
+		ys = (double) ys*yc - nh; 
+		if(ys < 0)
+			ys = ystart;
+
+		dbgconverter("cDvbSubtitleBitmaps::Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d w=%d h=%d) \n", i+1, 
+				sub.rects[i]->x, sub.rects[i]->y, sub.rects[i]->w, sub.rects[i]->h, sub.rects[i]->nb_colors, xoff, ys, nw, nh);
+
+
+		int yoff = ys * stride;
 
 		fb_pixel_t * data = (fb_pixel_t*) malloc(width*height*sizeof(fb_pixel_t));
 		fb_pixel_t * ptr = data;
@@ -139,21 +153,14 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 				}
 			}
 		}
-		int nw = (double) (width *  (double) CFrameBuffer::getInstance()->getScreenWidth(true))/(double) 720;
-		int nh = (double) (height * (double) CFrameBuffer::getInstance()->getScreenHeight(true))/(double) 576;
-		dbgconverter("cDvbSubtitleBitmaps::Draw: %d x %d -> %d x %d\n", width, height, nw, nh);
 
 		fb_pixel_t * newdata = simple_resize32 (data, width, height, nw, nh);
-
-		xoff = 0;
 
 		ptr = newdata;
 		for (int y2 = 0; y2 < nh; y2++) {
 			int y = y2*stride + yoff;
 			for (int x2 = 0; x2 < nw; x2++)
-			{
-					*(sublfb + xoff + x2 + y) = *ptr++;
-			}
+				*(sublfb + xoff + x2 + y) = *ptr++;
 		}
 		free(newdata);
 
