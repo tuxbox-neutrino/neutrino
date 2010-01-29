@@ -65,7 +65,7 @@ int CEPGMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 
 int CEPGMenuHandler::doMenu ()
 {
-	CMenuWidget EPGSelector(LOCALE_EPGMENU_HEAD, "features.raw", 350);
+	CMenuWidget EPGSelector(LOCALE_EPGMENU_HEAD, NEUTRINO_ICON_FEATURES, 350);
 
 	// EPGSelector.addItem(GenericMenuSeparator);
 	EPGSelector.addItem(new CMenuForwarder(LOCALE_EPGMENU_EVENTLIST , true, NULL, new CEventListHandler(), NULL, CRCInput::RC_red   , NEUTRINO_ICON_BUTTON_RED   ), false);

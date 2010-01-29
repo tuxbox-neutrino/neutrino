@@ -44,6 +44,7 @@
 
 #include <gui/color.h>
 #include <gui/widget/messagebox.h>
+#include "gui/widget/icons.h"
 
 #define ROUND_RADIUS 8
 
@@ -53,10 +54,10 @@
 #define VALUE_ALPHA 3
 
 static const char * const iconnames[4] = {
-	"volumeslider2red.raw",
-	"volumeslider2green.raw",
-	"volumeslider2blue.raw",
-	"volumeslider2alpha.raw"
+	NEUTRINO_ICON_VOLUMESLIDER2RED,
+	NEUTRINO_ICON_VOLUMESLIDER2GREEN,
+	NEUTRINO_ICON_VOLUMESLIDER2BLUE,
+	NEUTRINO_ICON_VOLUMESLIDER2ALPHA
 };
 
 static const neutrino_locale_t colorchooser_names[4] =
@@ -249,8 +250,8 @@ void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutr
 	if (!spos)
 		return;
 	frameBuffer->paintBoxRel(px+70,py,120,mheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintIcon("volumebody.raw",px+70,py+2+mheight/4);
-	frameBuffer->paintIcon(selected ? iconname : "volumeslider2.raw",px+73+(*spos),py+mheight/4);
+	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY,px+70,py+2+mheight/4);
+	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_VOLUMESLIDER2,px+73+(*spos),py+mheight/4);
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
 }

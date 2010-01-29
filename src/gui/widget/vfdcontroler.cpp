@@ -41,6 +41,7 @@
 
 #include <gui/color.h>
 #include <gui/widget/messagebox.h>
+#include "gui/widget/icons.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -260,8 +261,8 @@ void CVfdControler::paintSlider(int px, int py, unsigned int spos, float factor,
 	char wert[5];
 
 	frameBuffer->paintBoxRel(px + startx, py, 120, mheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintIcon("volumebody.raw", px + startx, py+2+mheight/4);
-	frameBuffer->paintIcon(selected ? "volumeslider2blue.raw" : "volumeslider2.raw", (int)(px + (startx+3)+(spos / factor)), py+mheight/4);
+	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY, px + startx, py+2+mheight/4);
+	frameBuffer->paintIcon(selected ? NEUTRINO_ICON_VOLUMESLIDER2BLUE : NEUTRINO_ICON_VOLUMESLIDER2, (int)(px + (startx+3)+(spos / factor)), py+mheight/4);
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
 	sprintf(wert, "%3d", spos); // UTF-8 encoded

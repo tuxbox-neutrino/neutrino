@@ -853,7 +853,7 @@ int CUserMenuMenu::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
         if(parent != NULL)
                 parent->hide();
 
-        CMenuWidget menu (local , "keybinding.raw");
+        CMenuWidget menu (local , NEUTRINO_ICON_KEYBINDING);
         menu.addItem(GenericMenuSeparator);
         menu.addItem(GenericMenuBack);
         menu.addItem(GenericMenuSeparatorLine);

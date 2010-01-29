@@ -123,7 +123,7 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 		parent->hide();
 
 	if (!bouquetList) {
-		ShowLocalizedMessage(LOCALE_FAVORITES_BOUQUETNAME, LOCALE_FAVORITES_NOBOUQUETS, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+		ShowLocalizedMessage(LOCALE_FAVORITES_BOUQUETNAME, LOCALE_FAVORITES_NOBOUQUETS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		return res;
 	}
 
@@ -148,7 +148,7 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		if (status & 2)  str += g_Locale->getText(LOCALE_EXTRA_CHADDED);
 		else	str += g_Locale->getText(LOCALE_EXTRA_CHALREADYINBQ);
-		ShowMsgUTF(LOCALE_EXTRA_ADD_TO_BOUQUET, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw"); // UTF-8
+		ShowMsgUTF(LOCALE_EXTRA_ADD_TO_BOUQUET, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO); // UTF-8
 	}
 	else
 	{
@@ -156,7 +156,7 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (status & 2)  str += g_Locale->getText(LOCALE_FAVORITES_CHADDED);
 		else             str += g_Locale->getText(LOCALE_FAVORITES_CHALREADYINBQ);
 		if (status) str +=  g_Locale->getText(LOCALE_FAVORITES_FINALHINT);
-		ShowMsgUTF(LOCALE_FAVORITES_BOUQUETNAME, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw"); // UTF-8
+		ShowMsgUTF(LOCALE_FAVORITES_BOUQUETNAME, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO); // UTF-8
 	}
 
 

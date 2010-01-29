@@ -2263,7 +2263,6 @@ void CNeutrinoApp::setupRecordingDevice(void)
 	}
 }
 
-//CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , "streaming.raw"       );
 CMenuWidget * gmoviePlayer;
 #if 0
 CPipSetup * g_Pip0;
@@ -2407,25 +2406,23 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	c_SMSKeyInput = new SMSKeyInput();
 	//Main settings
-	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , "mainmenue.raw"       );
+	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    languageSettings    (LOCALE_LANGUAGESETUP_HEAD            , "language.raw"        );
-	CMenuWidget    audioSettings       (LOCALE_AUDIOMENU_HEAD                , "audio.raw"           );
-	CMenuWidget    parentallockSettings(LOCALE_PARENTALLOCK_PARENTALLOCK     , "lock.raw"            , 500);
-	CMenuWidget    networkSettings     (LOCALE_NETWORKMENU_HEAD              , "network.raw"         );
-	CMenuWidget    recordingSettings   (LOCALE_RECORDINGMENU_HEAD            , "recording.raw"       );
-	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , "streaming.raw"       );
-	//CMenuWidget    colorSettings       (LOCALE_COLORMENU_HEAD                , "colors.raw"          );
-	CMenuWidget    colorSettings       (LOCALE_MAINSETTINGS_OSD                , "colors.raw"          );
-	CMenuWidget    fontSettings        (LOCALE_FONTMENU_HEAD                 , "colors.raw"          );
-	CMenuWidget    lcdSettings         (LOCALE_LCDMENU_HEAD                  , "lcd.raw"             );
-	//CMenuWidget    keySettings         (LOCALE_KEYBINDINGMENU_HEAD           , "keybinding.raw"      , 400);
-	CMenuWidget    keySettings         (LOCALE_MAINSETTINGS_KEYBINDING           , "keybinding.raw"      , 400);
+	CMenuWidget    languageSettings    (LOCALE_LANGUAGESETUP_HEAD            , NEUTRINO_ICON_LANGUAGE);
+	CMenuWidget    audioSettings       (LOCALE_AUDIOMENU_HEAD                , NEUTRINO_ICON_AUDIO);
+	CMenuWidget    parentallockSettings(LOCALE_PARENTALLOCK_PARENTALLOCK     , NEUTRINO_ICON_LOCK            , 500);
+	CMenuWidget    networkSettings     (LOCALE_NETWORKMENU_HEAD              , NEUTRINO_ICON_NETWORK);
+	CMenuWidget    recordingSettings   (LOCALE_RECORDINGMENU_HEAD            , NEUTRINO_ICON_RECORDING);
+	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
+	CMenuWidget    colorSettings       (LOCALE_MAINSETTINGS_OSD              , NEUTRINO_ICON_COLORS);
+	CMenuWidget    fontSettings        (LOCALE_FONTMENU_HEAD                 , NEUTRINO_ICON_COLORS);
+	CMenuWidget    lcdSettings         (LOCALE_LCDMENU_HEAD                  , NEUTRINO_ICON_LCD);
+	CMenuWidget    keySettings         (LOCALE_MAINSETTINGS_KEYBINDING       , NEUTRINO_ICON_KEYBINDING      , 400);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    scanSettings        (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    service             (LOCALE_SERVICEMENU_HEAD              , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , "streaming.raw"       );
+	CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , NEUTRINO_ICON_STREAMING);
 	gmoviePlayer = &moviePlayer;
 
 	InitMainMenu(mainMenu, mainSettings, audioSettings, parentallockSettings, networkSettings, recordingSettings,
@@ -3644,7 +3641,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 			g_volscale = new CProgressBar(g_settings.progressbar_color, 200, 15, 50, 100, 80, true);
 		}
 
-		frameBuffer->paintIcon("volume.raw",x,y, 0, COL_INFOBAR);
+		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x,y, 0, COL_INFOBAR);
 		frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
 		g_volscale->reset();
 		g_volscale->paintProgressBar2(x + 41, y + 12, g_settings.current_volume);
@@ -4276,7 +4273,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 	}
 	else if(actionKey == "movieplugin") {
 		parent->hide();
-		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, "features.raw", 350);
+		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES, 350);
 		MoviePluginSelector.addItem(GenericMenuSeparator);
 
 		char id[5];
@@ -4297,7 +4294,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 	}
 	else if(actionKey == "onekeyplugin") {
 		parent->hide();
-		CMenuWidget MoviePluginSelector(LOCALE_EXTRA_KEY_PLUGIN, "features.raw", 350);
+		CMenuWidget MoviePluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES, 350);
 		MoviePluginSelector.addItem(GenericMenuSeparator);
 
 		char id[5];

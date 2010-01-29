@@ -95,10 +95,10 @@ void CBEBouquetWidget::paintItem(int pos)
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 8, ypos+4);
 
 		if ((*Bouquets)[current]->bLocked)
-			frameBuffer->paintIcon("lock.raw", x + 7, ypos);
+			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 7, ypos);
 
 		if ((*Bouquets)[current]->bHidden)
-			frameBuffer->paintIcon("hidden.raw", x + 37, ypos);
+			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + 37, ypos);
 
 		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+68, ypos+ fheight, width-68, (*Bouquets)[current]->Name, color, 0, true);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+68, ypos+ fheight, width-68, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color, 0, true);

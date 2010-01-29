@@ -571,7 +571,7 @@ void CPictureViewerGui::paintHead()
 //	printf("paintHead{\n");
 	std::string strCaption = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
 	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
-	frameBuffer->paintIcon("mp3.raw",x+7,y+10);
+	frameBuffer->paintIcon(NEUTRINO_ICON_MP3,x+7,y+10);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+35,y+theight+0, width- 45, strCaption, COL_MENUHEAD, 0, true); // UTF-8
 	int ypos=y+0;
 	if (theight > 26)

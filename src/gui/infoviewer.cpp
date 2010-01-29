@@ -302,7 +302,7 @@ void CInfoViewer::showRecordIcon (const bool show)
 	if (recordModeActive) {
 		int ChanName_X = BoxStartX + ChanWidth + 20;
 		if (show) {
-			frameBuffer->paintIcon (autoshift ? "ats.raw" : NEUTRINO_ICON_BUTTON_RED, ChanName_X, BoxStartY + 12);
+			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_BUTTON_RED, ChanName_X, BoxStartY + 12);
 			if (!autoshift && !shift_timer) {
 				int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
 				frameBuffer->paintBoxRel (ChanName_X + 28 + SHADOW_OFFSET, BoxStartY + 12 + SHADOW_OFFSET, 300, 20, COL_INFOBAR_SHADOW_PLUS_0);
@@ -880,7 +880,7 @@ void CInfoViewer::showIcon_16_9 ()
 {
 	if ((aspectRatio == 0) || (aspectRatio != videoDecoder->getAspectRatio())) {
 		aspectRatio = videoDecoder->getAspectRatio();
-		frameBuffer->paintIcon((aspectRatio > 2) ? "16_9.raw" : "16_9_gray.raw",
+		frameBuffer->paintIcon((aspectRatio > 2) ? NEUTRINO_ICON_16_9 : NEUTRINO_ICON_16_9_GREY,
 				       BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2), BBarY,
 				       InfoHeightY_Info);
 	}
@@ -888,7 +888,7 @@ void CInfoViewer::showIcon_16_9 ()
 
 void CInfoViewer::showIcon_VTXT () const
 {
-	frameBuffer->paintIcon((g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? "vtxt.raw" : "vtxt_gray.raw",
+	frameBuffer->paintIcon((g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? NEUTRINO_ICON_VTXT : NEUTRINO_ICON_VTXT_GREY,
 			       BoxEndX - (2*ICON_SMALL_WIDTH + 2*2), BBarY, InfoHeightY_Info);
 }
 
@@ -899,7 +899,7 @@ void CInfoViewer::showIcon_SubT() const
 	if (cc && cc->getSubtitleCount())
 		have_sub = true;
 
-	frameBuffer->paintIcon(have_sub ? "subt.raw" : "subt_gray.raw", BoxEndX - (ICON_SMALL_WIDTH + 2),
+	frameBuffer->paintIcon(have_sub ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY, BoxEndX - (ICON_SMALL_WIDTH + 2),
 			       BBarY, InfoHeightY_Info);
 }
 
@@ -1518,11 +1518,11 @@ void CInfoViewer::showButton_Audio ()
 	}
 	const char *dd_icon;
 	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < count) && (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
-		dd_icon = "dd.raw";
+		dd_icon = NEUTRINO_ICON_DD;
 	else if (g_RemoteControl->has_ac3)
-		dd_icon = "dd_avail.raw";
+		dd_icon = NEUTRINO_ICON_DD_AVAIL;
 	else
-		dd_icon = "dd_gray.raw";
+		dd_icon = NEUTRINO_ICON_DD_GREY;
 
 	frameBuffer->paintIcon(dd_icon, BoxEndX - (ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 3*2),
 			       BBarY, InfoHeightY_Info);
@@ -1784,46 +1784,46 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon)
 	switch ( caid & 0xFF00 ) {
 	case 0x0E00:
 		px = endx - 48 - 38 - 9*10 - 7*14 - 10;
-		sprintf(buf, "%s_%s.raw", "powervu", icon);
+		sprintf(buf, "%s_%s", "powervu", icon);
 		break;
 	case 0x4A00:
 		px = endx - 48 - 38 - 8*10 - 6*14 - 10;
-		sprintf(buf, "%s_%s.raw", "d", icon);
+		sprintf(buf, "%s_%s", "d", icon);
 		break;
 	case 0x2600:
 		px = endx - 48 - 38 - 7*10 - 5*14 - 10;
-		sprintf(buf, "%s_%s.raw", "biss", icon);
+		sprintf(buf, "%s_%s", "biss", icon);
 		break;
 	case 0x600:
 	case 0x602:
 	case 0x1700:
 		px = endx - 48 - 38 - 6*10 - 4*14 - 10;
-		sprintf(buf, "%s_%s.raw", "ird", icon);
+		sprintf(buf, "%s_%s", "ird", icon);
 		break;
 	case 0x100:
 		px = endx - 48 - 38 - 5*10 - 4*14;
-		sprintf(buf, "%s_%s.raw", "seca", icon);
+		sprintf(buf, "%s_%s", "seca", icon);
 		break;
 	case 0x500:
 		px = endx - 48 - 38 - 4*10 - 3*14;
-		sprintf(buf, "%s_%s.raw", "via", icon);
+		sprintf(buf, "%s_%s", "via", icon);
 		break;
 	case 0x1800:
 	case 0x1801:
 		px = endx - 48 - 38 - 3*10 - 2*14;
-		sprintf(buf, "%s_%s.raw", "nagra", icon);
+		sprintf(buf, "%s_%s", "nagra", icon);
 		break;
 	case 0xB00:
 		px = endx - 48 - 38 - 2*10 - 1*14;
-		sprintf(buf, "%s_%s.raw", "conax", icon);
+		sprintf(buf, "%s_%s", "conax", icon);
 		break;
 	case 0xD00:
 		px = endx - 48 - 38 - 1*10;
-		sprintf(buf, "%s_%s.raw", "cw", icon);
+		sprintf(buf, "%s_%s", "cw", icon);
 		break;
 	case 0x900:
 		px = endx - 48;
-		sprintf(buf, "%s_%s.raw", "nds", icon);
+		sprintf(buf, "%s_%s", "nds", icon);
 		break;
 	default:
 		break;

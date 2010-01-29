@@ -1494,7 +1494,7 @@ void CChannelList::paintItem(int pos)
 		}
 
 		if(chan->scrambled)
-			frameBuffer->paintIcon("ca.raw", x+width- 15 - 28, ypos + (fheight - 16)/2);
+			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos + (fheight - 16)/2);
 
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);

@@ -57,9 +57,9 @@
 #include <global.h>
 #include <neutrino.h>
 
-#define ALPHA_SETUP_ICON_DESELECTED      "volumeslider2.raw"
-#define ALPHA_SETUP_ICON_ALPHA1_SELECTED "volumeslider2red.raw"
-#define ALPHA_SETUP_ICON_ALPHA2_SELECTED "volumeslider2green.raw"
+#define ALPHA_SETUP_ICON_DESELECTED      NEUTRINO_ICON_VOLUMESLIDER2
+#define ALPHA_SETUP_ICON_ALPHA1_SELECTED NEUTRINO_ICON_VOLUMESLIDER2RED
+#define ALPHA_SETUP_ICON_ALPHA2_SELECTED NEUTRINO_ICON_VOLUMESLIDER2GREEN
 
 
 CAlphaSetup::CAlphaSetup(const neutrino_locale_t Name, unsigned char* Alpha1, unsigned char* Alpha2, CChangeObserver* Observer)
@@ -265,7 +265,7 @@ void CAlphaSetup::paintSlider(const int px, const int py, const unsigned char * 
 
 	frameBuffer->paintBoxRel(x+70,y,120,mheight, COL_MENUCONTENT_PLUS_0);
 
-	frameBuffer->paintIcon("volumebody.raw", px + 70        , py + 2 + mheight / 4);
+	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY, px + 70        , py + 2 + mheight / 4);
 	frameBuffer->paintIcon(iconname        , px + 73 + sspos, py     + mheight / 4);
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8

@@ -910,7 +910,6 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	int         width, height;
 	int              lfd;
 	fb_pixel_t * data;
-	uint8_t transp;
 	struct rawIcon tmpIcon;
 	std::map<std::string, rawIcon>::iterator it;
 	int dsize;
@@ -922,36 +921,33 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 	//printf("CFrameBuffer::paintIcon: load %s\n", filename.c_str());fflush(stdout);
 
 	/* we cache and check original name */
-	it = icon_cache.find(iconBasePath + filename);
+	it = icon_cache.find(filename);
 	if(it == icon_cache.end()) {
-		char * ptr = rindex(filename.c_str(), '.');
-		if(ptr) {
-			*ptr = 0;
-			std::string newname = iconBasePath + filename.c_str() + ".png";
-			*ptr = '.';
-			//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
+		std::string newname = iconBasePath + filename.c_str() + ".png";
+		//printf("CFrameBuffer::paintIcon: check for %s\n", newname.c_str());fflush(stdout);
 
-			data = g_PicViewer->getIcon(newname, &width, &height);
+		data = g_PicViewer->getIcon(newname, &width, &height);
 
-			if(data) {
-				dsize = width*height*sizeof(fb_pixel_t);
-				//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
-				if(cache_size+dsize < ICON_CACHE_SIZE) {
-					cache_size += dsize;
-					tmpIcon.width = width;
-					tmpIcon.height = height;
-					tmpIcon.data = data;
-					icon_cache.insert(std::pair <std::string, rawIcon> (iconBasePath + filename, tmpIcon));
-					//printf("Cached %s, cache size %d\n", newname.c_str(), cache_size);
-				}
-				goto _display;
+		if(data) {
+			dsize = width*height*sizeof(fb_pixel_t);
+			//printf("CFrameBuffer::paintIcon: %s found, data %x size %d x %d\n", newname.c_str(), data, width, height);fflush(stdout);
+			if(cache_size+dsize < ICON_CACHE_SIZE) {
+				cache_size += dsize;
+				tmpIcon.width = width;
+				tmpIcon.height = height;
+				tmpIcon.data = data;
+				icon_cache.insert(std::pair <std::string, rawIcon> (filename, tmpIcon));
+				//printf("Cached %s, cache size %d\n", newname.c_str(), cache_size);
 			}
+			goto _display;
 		}
 
-		lfd = open((iconBasePath + filename).c_str(), O_RDONLY);
+		newname = iconBasePath + filename.c_str() + ".raw";
+
+		lfd = open(newname.c_str(), O_RDONLY);
 
 		if (lfd == -1) {
-			//printf("paintIcon: error while loading icon: %s%s\n", iconBasePath.c_str(), filename.c_str());
+			//printf("paintIcon: error while loading icon: %s\n", newname.c_str());
 			return false;
 		}
 		read(lfd, &header, sizeof(struct rawHeader));
@@ -988,14 +984,14 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 
 		if(cache_size+dsize < ICON_CACHE_SIZE) {
 			cache_size += dsize;
-			icon_cache.insert(std::pair <std::string, rawIcon> (iconBasePath + filename, tmpIcon));
-			//printf("Cached %s, cache size %d\n", (iconBasePath + filename).c_str(), cache_size);
+			icon_cache.insert(std::pair <std::string, rawIcon> (filename, tmpIcon));
+			//printf("Cached %s, cache size %d\n", newname.c_str(), cache_size);
 		}
 	} else {
 		data = it->second.data;
 		width = it->second.width;
 		height = it->second.height;
-		//printf("paintIcon: already cached %s %d x %d\n", (iconBasePath + filename).c_str(), width, height);
+		//printf("paintIcon: already cached %s %d x %d\n", newname.c_str(), width, height);
 	}
 _display:
 	if (h != 0)

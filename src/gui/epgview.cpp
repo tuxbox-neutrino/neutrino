@@ -614,11 +614,11 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 		{
 			if ( tags[i].streamContent == 1 && (tags[i].componentType == 2 || tags[i].componentType == 3) )
 			{
-				frameBuffer->paintIcon("16_9.raw" ,ox+sx-(ICON_LARGE_WIDTH+2)-(ICON_LARGE_WIDTH+2),sy + oy+5 );
+				frameBuffer->paintIcon(NEUTRINO_ICON_16_9 ,ox+sx-(ICON_LARGE_WIDTH+2)-(ICON_LARGE_WIDTH+2),sy + oy+5 );
 			}
 			else if ( tags[i].streamContent == 2 && tags[i].componentType == 5 )
 			{
-				frameBuffer->paintIcon("dd.raw", ox+sx-(ICON_LARGE_WIDTH+2), sy + oy+5);
+				frameBuffer->paintIcon(NEUTRINO_ICON_DD, ox+sx-(ICON_LARGE_WIDTH+2), sy + oy+5);
 			}
 		}
 	}
@@ -777,10 +777,10 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 												      epgData.eventID, epgData.epg_times.startzeit,
 												      epgData.epg_times.startzeit - (ANNOUNCETIME + 120 ),
 												      TIMERD_APIDS_CONF, true, recDir,true);
-									ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+									ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 								}
 							} else {
-								ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+								ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 							}
 						}
 					}
@@ -799,7 +799,7 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 								     epgData.epg_times.startzeit,
 								     epgData.epg_times.startzeit - ANNOUNCETIME, 0,
 								     epgData.eventID, epgData.epg_times.startzeit, 0);
-					ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+					ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 				}
 				else
 					printf("timerd not available\n");

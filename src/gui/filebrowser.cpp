@@ -1277,18 +1277,18 @@ void CFileBrowser::paintItem(unsigned int pos)
 #ifdef ENABLE_FLAC
 			case CFile::FILE_FLAC:
 #endif
-				fileicon = "mp3.raw";
+				fileicon = NEUTRINO_ICON_MP3;
 //				color = COL_MENUCONTENT;
 				break;
 
 			case CFile::FILE_DIR:
-				fileicon = "folder.raw";
+				fileicon = NEUTRINO_ICON_FOLDER;
 				break;
 
 			case CFile::FILE_PICTURE:
 			case CFile::FILE_TEXT:
 			default:
-				fileicon = "file.raw";
+				fileicon = NEUTRINO_ICON_FILE;
 			}
 			frameBuffer->paintIcon(fileicon, x+5 , ypos + (fheight-16) / 2 );
 

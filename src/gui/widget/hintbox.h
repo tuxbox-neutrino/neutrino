@@ -63,7 +63,7 @@ class CHintBox
 
  public:
 	// Text is UTF-8 encoded
-	CHintBox(const neutrino_locale_t Caption, const char * const Text, const int Width = 450, const char * const Icon = "info.raw");
+	CHintBox(const neutrino_locale_t Caption, const char * const Text, const int Width = 450, const char * const Icon = NEUTRINO_ICON_INFO);
 	~CHintBox(void);
 
 	bool has_scrollbar(void);

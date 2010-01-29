@@ -171,7 +171,7 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 
 int CNFSMountGui::menu()
 {
-	CMenuWidget mountMenuW(LOCALE_NFS_MOUNT, "network.raw", 720);
+	CMenuWidget mountMenuW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK, 720);
 	mountMenuW.addItem(GenericMenuSeparator);
 	mountMenuW.addItem(GenericMenuBack);
 	mountMenuW.addItem(GenericMenuSeparatorLine);
@@ -246,7 +246,7 @@ int CNFSMountGui::menuEntry(int nr)
 	   (m_nfs_sup != CFSMounter::FS_UNSUPPORTED && *type != (int)CFSMounter::NFS) ||
 	   (m_lufs_sup != CFSMounter::FS_UNSUPPORTED && *type != (int)CFSMounter::LUFS);
 
-	CMenuWidget mountMenuEntryW(LOCALE_NFS_MOUNT, "network.raw",720);
+	CMenuWidget mountMenuEntryW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK,720);
 	mountMenuEntryW.addItem(GenericMenuSeparator);
 	mountMenuEntryW.addItem(GenericMenuBack);
 	mountMenuEntryW.addItem(GenericMenuSeparatorLine);
@@ -306,7 +306,7 @@ int CNFSUmountGui::menu()
 {
 	int count = 0;
 	CFSMounter::MountInfos infos;
-	CMenuWidget umountMenu(LOCALE_NFS_UMOUNT, "network.raw",720);
+	CMenuWidget umountMenu(LOCALE_NFS_UMOUNT, NEUTRINO_ICON_NETWORK,720);
 	umountMenu.addItem(GenericMenuSeparator);
 	umountMenu.addItem(GenericMenuBack);
 	umountMenu.addItem(GenericMenuSeparatorLine);
@@ -339,7 +339,7 @@ int CNFSSmallMenu::exec( CMenuTarget* parent, const std::string & actionKey )
 {
 	if (actionKey.empty())
 	{
-		CMenuWidget menu(LOCALE_NFSMENU_HEAD, "network.raw");
+		CMenuWidget menu(LOCALE_NFSMENU_HEAD, NEUTRINO_ICON_NETWORK);
 		CNFSMountGui mountGui;
 		CNFSUmountGui umountGui;
 		menu.addItem(GenericMenuSeparator);

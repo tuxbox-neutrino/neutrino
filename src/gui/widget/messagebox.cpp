@@ -297,5 +297,5 @@ int ShowMsgUTF(const neutrino_locale_t Caption, const std::string & Text, const 
 
 void DisplayErrorMessage(const char * const ErrorMsg)
 {
-	ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, "error.raw");
+	ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
 }

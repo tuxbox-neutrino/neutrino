@@ -477,7 +477,7 @@ void CMoviePlayerGui::PlayFile(void)
 #define BOOKMARK_START_MENU_MAX_ITEMS 6
 	CSelectedMenu cSelectedMenuBookStart[BOOKMARK_START_MENU_MAX_ITEMS];
 
-	CMenuWidget bookStartMenu(LOCALE_MOVIEBROWSER_BOOK_NEW, "streaming.raw");
+	CMenuWidget bookStartMenu(LOCALE_MOVIEBROWSER_BOOK_NEW, NEUTRINO_ICON_STREAMING);
 	bookStartMenu.addItem(GenericMenuSeparator);
 	bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_HEAD, true, NULL, &cSelectedMenuBookStart[0]));
 	bookStartMenu.addItem(GenericMenuSeparatorLine);
@@ -755,7 +755,7 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 
 		if (showaudioselectdialog) {
-			CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, "audio.raw", 300);
+			CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO, 300);
 			APIDSelector.addItem(GenericMenuSeparator);
 			CAPIDSelectExec *APIDChanger = new CAPIDSelectExec;
 			bool enabled;

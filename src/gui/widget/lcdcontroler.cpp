@@ -326,8 +326,8 @@ void CLcdControler::paintSlider(int x, int y, unsigned int spos, float factor, c
 	char wert[5];
 
 	frameBuffer->paintBoxRel(x + startx, y, 120, mheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintIcon("volumebody.raw", x + startx, y+2+mheight/4);
-	frameBuffer->paintIcon(selected ? "volumeslider2blue.raw" : "volumeslider2.raw", (int)(x + (startx+3)+(spos / factor)), y+mheight/4);
+	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY, x + startx, y+2+mheight/4);
+	frameBuffer->paintIcon(selected ? NEUTRINO_ICON_VOLUMESLIDER2BLUE : NEUTRINO_ICON_VOLUMESLIDER2, (int)(x + (startx+3)+(spos / factor)), y+mheight/4);
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x, y+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
 	sprintf(wert, "%3d", spos); // UTF-8 encoded
