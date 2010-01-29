@@ -72,30 +72,30 @@ cDvbSubtitleBitmaps::~cDvbSubtitleBitmaps()
     memset(&sub, 0, sizeof(AVSubtitle));
 }
 
-fb_pixel_t * simple_resize32(fb_pixel_t * orgin, int ox, int oy, int dx, int dy)
+fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, int ox, int oy, int dx, int dy)
 {
-        fb_pixel_t  *cr,*p,*l;
-        int i,j,k,ip;
+	fb_pixel_t  *cr,*l;
+	int i,j,k,ip;
 
-        cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
+	cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
 
-        if(cr == NULL) {
-                printf("Error: malloc\n");
-                return(orgin);
-        }
-        l = cr;
+	if(cr == NULL) {
+		printf("Error: malloc\n");
+		return NULL;
+	}
+	l = cr;
 
-        for(j = 0; j < dy; j++, l += dx)
-        {
-                p = orgin + (j*oy/dy*ox);
-
-                for(i = 0, k = 0; i < dx; i++, k++) {
-                        ip = i*ox/dx;
-                        l[k] = p[ip];
-                }
-        }
-        free(orgin);
-        return(cr);
+	for(j = 0; j < dy; j++, l += dx)
+	{
+		uint8_t * p = orgin + (j*oy/dy*ox);
+		for(i = 0, k = 0; i < dx; i++, k++) {
+			ip = i*ox/dx;
+			int idx = p[ip];
+			if(idx < nb_colors)
+				l[k] = colors[idx];
+		}
+	}
+	return(cr);
 }
 
 void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
@@ -110,55 +110,39 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 
 	dbgconverter("cDvbSubtitleBitmaps::Draw: %d bitmaps, x= %d, width= %d yend=%d stride %d\n", Count(), xstart, wd, yend, stride);
 
-	for (i = 0; i < Count(); i++) {
-		/* center on screen */
-		/* int xoff = xstart + (wd - sub.rects[i]->w) / 2;*/
-		int xdiff = (wd > 720) ? ((wd - 720) / 2) : 0;
-		int xoff = sub.rects[i]->x + xstart + xdiff;
+	double xc = (double) CFrameBuffer::getInstance()->getScreenWidth(true)/(double) 720;
+	double yc = (double) CFrameBuffer::getInstance()->getScreenHeight(true)/(double) 576;
+	xc = yc; //FIXME should we scale also to full width ?
+	int xf = xc * (double) 720;
 
+	for (i = 0; i < Count(); i++) {
 		uint32_t * colors = (uint32_t *) sub.rects[i]->pict.data[1];
 		int width = sub.rects[i]->w;
 		int height = sub.rects[i]->h;
-
-		int ys = yend - (576 - sub.rects[i]->y + height);
-
-		double xc = (double) CFrameBuffer::getInstance()->getScreenWidth(true)/(double) 720;
-		double yc = (double) CFrameBuffer::getInstance()->getScreenHeight(true)/(double) 576;
+		int xoff, yoff;
 
 		int nw = (double) width * xc;
 		int nh = (double) height * yc;
 
-		xoff = (double) xoff / (xc > 0 ? xc : 1);
-		ys = (double) ys*yc - nh; 
-		if(ys < 0)
-			ys = ystart;
+		int xdiff = (wd > xf) ? ((wd - xf) / 2) : 0;
+		xoff = sub.rects[i]->x*xc + xstart + xdiff;
 
-		dbgconverter("cDvbSubtitleBitmaps::Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d w=%d h=%d) \n", i+1, 
-				sub.rects[i]->x, sub.rects[i]->y, sub.rects[i]->w, sub.rects[i]->h, sub.rects[i]->nb_colors, xoff, ys, nw, nh);
-
-
-		int yoff = ys * stride;
-
-		fb_pixel_t * data = (fb_pixel_t*) malloc(width*height*sizeof(fb_pixel_t));
-		fb_pixel_t * ptr = data;
-
-		for (int y2 = 0; y2 < sub.rects[i]->h; y2++) {
-			for (int x2 = 0; x2 < sub.rects[i]->w; x2++)
-			{
-				int idx = sub.rects[i]->pict.data[0][y2*sub.rects[i]->w+x2];
-				if(idx > sub.rects[i]->nb_colors) {
-					dbgconverter("cDvbSubtitleBitmaps::Draw pixel at %d x %d is %d!\n", x2, y2, idx);
-				} else {
-					*ptr++ = colors[idx];
-				}
-			}
+		if(sub.rects[i]->y < 576/2) {
+			yoff = ystart + sub.rects[i]->y*yc;
+		} else {
+			yoff = yend - (576 - (double) (sub.rects[i]->y + height))*yc - nh;
+			if(yoff < ystart)
+				yoff = ystart;
 		}
 
-		fb_pixel_t * newdata = simple_resize32 (data, width, height, nw, nh);
+		dbgconverter("cDvbSubtitleBitmaps::Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d w=%d h=%d) \n", i+1, 
+				sub.rects[i]->x, sub.rects[i]->y, sub.rects[i]->w, sub.rects[i]->h, sub.rects[i]->nb_colors, xoff, yoff, nw, nh);
 
-		ptr = newdata;
+		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->pict.data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
+
+		fb_pixel_t * ptr = newdata;
 		for (int y2 = 0; y2 < nh; y2++) {
-			int y = y2*stride + yoff;
+			int y = (yoff + y2) * stride;
 			for (int x2 = 0; x2 < nw; x2++)
 				*(sublfb + xoff + x2 + y) = *ptr++;
 		}
@@ -166,12 +150,12 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 
 		if(min_x > xoff)
 			min_x = xoff;
-		if(min_y > ys)
-			min_y = ys;
+		if(min_y > yoff)
+			min_y = yoff;
 		if(max_x < (xoff + nw))
 			max_x = xoff + nw;
-		if(max_y < (ys + nh))
-			max_y = ys + nh;
+		if(max_y < (yoff + nh))
+			max_y = yoff + nh;
 	}
 	if(Count())
 		dbgconverter("cDvbSubtitleBitmaps::Draw: finish, min/max screen: x=% d y= %d, w= %d, h= %d\n", min_x, min_y, max_x-min_x, max_y-min_y);
