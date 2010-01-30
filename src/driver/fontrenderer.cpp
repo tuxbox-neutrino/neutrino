@@ -525,7 +525,10 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 						/* not nice (and also slower), but currently the easiest way to prevent visible errors */
 						frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[*s++]);
 						#else
-						*td++= colors[*s++];
+						/* do not paint the backgroundcolor, see below */
+						if (colors[*s] != bgcolor)
+							*td = colors[*s];
+						td++; s++;
 						#endif
 					}
 					else
@@ -549,7 +552,13 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 						#ifdef USE_NEVIS_GXA
 						frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[lcolor]);
 						#else
-						*td++= colors[lcolor];
+						/* we make the font "transparent" by not painting the background color
+						   colored boxes are painted beneath the fonts anyway
+						   note that this is not totally correct, because of subpixel hinting etc,
+						   but that should be barely visible in reality ;) */
+						if (colors[lcolor] != bgcolor)
+							*td = colors[lcolor];
+						td++;
 						#endif
 						s++;
 					}
