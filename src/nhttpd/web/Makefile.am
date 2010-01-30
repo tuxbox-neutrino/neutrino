@@ -2,11 +2,6 @@ SUBDIRS = images scripts
 
 installdir = $(DATADIR)/neutrino/httpd-y
 
-%.gz: %
-	gzip $< -c > $@
-
-all: channels.js.gz Y_Baselib.js.gz Y_VLC.js.gz
-
 install_DATA =	Y_About.yhtm Y_Boxcontrol_Bouquet_Editor_Edit.yhtm \
 		Y_Boxcontrol_Bouquet_Editor_Main.yhtm \
 		Y_Boxcontrol_Bouquetlist.yhtm Y_Boxcontrol_Bouquets.yhtm \
@@ -37,7 +32,7 @@ install_DATA =	Y_About.yhtm Y_Boxcontrol_Bouquet_Editor_Edit.yhtm \
 		Y_blank.htm \
 		index.html \
 		Y_Main.css \
-		channels.js.gz Y_Baselib.js.gz Y_VLC.js.gz \
+		channels.js Y_Baselib.js Y_VLC.js \
 		channels.txt extentions.txt robots.txt Y_Blocks.txt \
 		Y_neutrino_Blocks.txt Y_Version.txt \
 		favicon.ico
