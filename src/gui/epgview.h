@@ -73,7 +73,7 @@ class CEpgData
 		int         		textCount;
 		std::vector<std::string> epgText;
 		int			topheight,topboxheight;
-		int			botheight,botboxheight;
+		int			buttonheight,botboxheight;
 		int			medlineheight,medlinecount;
 
 		void GetEPGData(const t_channel_id channel_id, unsigned long long id, time_t* startzeit, bool clear = true );
@@ -84,7 +84,6 @@ class CEpgData
 		bool hasFollowScreenings(const t_channel_id channel_id, const std::string & title);
 		int FollowScreenings(const t_channel_id channel_id, const std::string & title);
 		void showTimerEventBar(bool show);
-		void showHead(const t_channel_id channel_id);
 
 	public:
 
