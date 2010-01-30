@@ -4474,7 +4474,14 @@ void stop_daemons(bool stopall)
 	CVFD::getInstance()->Clear();
 	if(stopall) {
 		delete moviePlayerGui;
+		if (cpuFreq)
+			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		if (powerManager) {
+			/* if we were in standby, leave it otherwise, the next
+			   start of neutrino will fail in "_write_gxa" in
+			   framebuffer.cpp
+			   => this is needed because the drivers are crap :( */
+			powerManager->SetStandby(false, false);
 			powerManager->Close();
 			delete powerManager;
 		}
