@@ -5,10 +5,10 @@ install_DATA = \
 	colors.raw dbox.raw dd.raw dd_avail.raw dd_gray.raw error.raw features.raw \
 	file.raw folder.raw games.raw gelb.raw gruen.raw help.raw help_small.raw \
 	home.raw info.raw keybinding.raw language.raw lcd.raw lock.raw mainmenue.raw \
-	mounted.raw mp3.raw mute.raw network.raw not_mounted.raw numericpad.raw ok.raw power.raw radar.pal \
+	mounted.raw mute.raw network.raw not_mounted.raw numericpad.raw ok.raw power.raw \
 	radar0.raw radar1.raw radar2.raw radar3.raw radar4.raw radar5.raw radar6.raw \
-	radar7.raw radar8.raw radar9.raw radiomode.pal radiomode.raw recording.raw \
-	rot.raw scan.pal scan.raw settings.raw shell.raw shutdown.pal shutdown.raw softupdate.raw \
+	radar7.raw radar8.raw radar9.raw recording.raw \
+	rot.raw settings.raw shell.raw softupdate.raw \
 	streaming.raw timer.raw video.raw volume.raw volumebody.raw volumeslider2.raw \
 	volumeslider2alpha.raw volumeslider2blue.raw volumeslider2green.raw \
 	volumeslider2red.raw vtxt.raw vtxt_gray.raw movie.raw movieplayer.raw \
@@ -17,7 +17,9 @@ install_DATA = \
 	up.raw right.raw down.raw left.raw fta.raw ca.raw \
 	16.raw b16.raw b2.raw b3.raw ca.gif card.raw card_gray.raw card_green.raw ddfill.raw \
 	deutsch.gif dutch.gif ellinika.gif english.gif french.gif hungarian.gif italiano.gif \
-	language.gif polski.gif polski.raw portugues.gif romania.gif russkij.gif local.raw \
+	language.gif polski.gif portugues.gif romania.gif russkij.gif local.raw \
 	mainmenue.gif mute_zap_gray.raw mute_zap_green.raw \
 	net.raw net_gray.raw net_green.raw notyet.raw \
-	power_white.raw pv_gray.raw x_green.raw x_white.raw x_yellow.raw
+	power_white.raw pv_gray.raw x_green.raw x_white.raw x_yellow.raw \
+	mp3.jpg mp3-0.jpg mp3-1.jpg mp3-2.jpg mp3-3.jpg mp3-4.jpg mp3-5.jpg mp3-6.jpg mp3-7.jpg \
+	radiomode.jpg scan.jpg shutdown.jpg start.jpg
