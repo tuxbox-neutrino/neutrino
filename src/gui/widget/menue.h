@@ -264,6 +264,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 
 	void setOptionValue(const int newvalue);
 	int getOptionValue(void) const;
+	int getWidth(void) const;
 
 	int paint(bool selected, bool last = 0);
 
@@ -332,6 +333,7 @@ class CMenuWidget : public CMenuTarget
 		std::vector<unsigned int> page_start;
 		std::string			iconfile;
 
+		int			needed_width;
 		int			width;
 		int			height;
 		int         wanted_height;
@@ -349,6 +351,7 @@ class CMenuWidget : public CMenuTarget
 
 	public:
 		CMenuWidget();
+		/* TODO: mwidth and mheight are not used anymore. remove if nobody misses them */
 		CMenuWidget(const char* Name, const std::string & Icon = "", const int mwidth = 400, const int mheight = 576);
 		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 400, const int mheight = 576);
 		~CMenuWidget();

@@ -100,16 +100,18 @@ CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int m
 	Init(Icon, mwidth, mheight);
 }
 
-void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int mheight)
+void CMenuWidget::Init(const std::string & Icon, const int /*mwidth*/, const int /*mheight*/)
 {
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
         selected = -1;
-        width = mwidth;
-        if(width > (int) frameBuffer->getScreenWidth())
-                width = frameBuffer->getScreenWidth();
-        height = mheight;
-        wanted_height=mheight;
+	needed_width = 0; /* is set in addItem() */
+	width = 0; /* is set in paint() */
+
+	/* set the max height to 9/10 of usable screen height
+	   debatable, if the callers need a possibility to set this */
+	height = frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
+	wanted_height = height;
         current_page=0;
 	offx = offy = 0;
 }
@@ -137,6 +139,11 @@ void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
 {
 	if (defaultselected)
 		selected = items.size();
+	int tmpw = menuItem->getWidth() + 10 + 10; /* 10 pixels to the left and right of the text */
+	if (tmpw > needed_width) {
+		//fprintf(stderr, "CMenuWidget::addItem: increase width from %d to %d '%s' offx: %d\n", needed_width, tmpw, menuItem->iconName.c_str(), offx);
+		needed_width = tmpw;
+	}
 	items.push_back(menuItem);
 }
 
@@ -439,6 +446,7 @@ void CMenuWidget::paint()
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, l_name*/); //FIXME menu name
 
 	height=wanted_height;
+	width = needed_width;
 
 	if(height > ((int)frameBuffer->getScreenHeight() - 10))
 		height = frameBuffer->getScreenHeight() - 10;
@@ -446,8 +454,6 @@ void CMenuWidget::paint()
 	int neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(l_name, true); // UTF-8
 	if (neededWidth > width-48) {
 		width= neededWidth+ 49;
-		if(width > (int)frameBuffer->getScreenWidth())
-			width = frameBuffer->getScreenWidth();
 	}
 	int hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	int itemHeightTotal=0;
@@ -475,6 +481,9 @@ void CMenuWidget::paint()
 			break;
 		}
 	}
+	width += iconOffset;
+	if (width > (int)frameBuffer->getScreenWidth())
+		width = frameBuffer->getScreenWidth();
 
 	// shrink menu if less items
 	if(hheight+itemHeightTotal < height)
@@ -877,6 +886,27 @@ int CMenuOptionChooser::paint( bool selected , bool last)
 	return y+height;
 }
 
+int CMenuOptionChooser::getWidth(void) const
+{
+	int ow = 0;
+	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(optionNameString, true);
+	int width = tw;
+
+	for(unsigned int count = 0; count < options.size(); count++) {
+		ow = 0;
+		if (options[count].valname)
+			ow = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]
+				->getRenderWidth(options[count].valname, true);
+		else
+			ow = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]
+				->getRenderWidth(g_Locale->getText(options[count].value), true);
+
+		if (tw + ow > width)
+			width = tw + ow;
+	}
+
+	return width + 10; /* min 10 pixels between option name and value. enough? */
+}
 
 //-------------------------------------------------------------------------------------------------------------------------------
 
