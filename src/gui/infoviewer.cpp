@@ -1329,10 +1329,13 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 			runningPercent = 0;
 			sprintf (runningRest, "in %d min", -seit);
 		} else {
-			runningPercent = (unsigned) ((float) (jetzt - info_CurrentNext.current_zeit.startzeit) / (float) info_CurrentNext.current_zeit.dauer * 100.);
+			runningPercent = (jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
 			if (runningPercent > 100)
 				runningPercent = 100;
-			sprintf (runningRest, "%d / %d min", seit, rest);
+			if (rest >= 0)
+				sprintf(runningRest, "%d / %d min", seit, rest);
+			else
+				sprintf(runningRest, "%d +%d min", info_CurrentNext.current_zeit.dauer / 60, -rest);
 		}
 
 		struct tm *pStartZeit = localtime (&info_CurrentNext.current_zeit.startzeit);
