@@ -1324,9 +1324,11 @@ void CChannelList::paintDetails(int index)
 						text1 = text1.substr( 0, pos );
 				} while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (width - 30 - seit_len) ) );
 
-				std::string text3 = p_event->description.substr(text1.length()+ 1);
+				std::string text3 = ""; /* not perfect, but better than crashing... */
+				if (p_event->description.length() > text1.length())
+					text3 = p_event->description.substr(text1.length()+ 1);
 
-				if (!(text2.empty()))
+				if (!text2.empty() && !text3.empty())
 					text3= text3+ " - ";
 
 				xstart += g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text3, true);
