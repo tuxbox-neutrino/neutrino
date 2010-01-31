@@ -90,6 +90,8 @@ static EpgPlus::SizeSetting sizeSettingTable[] = {
 	{EpgPlus::EPGPlus_vergap2_width, 4},
 };
 
+static bool bigfont = false;
+
 Font *EpgPlus::Header::font = NULL;
 
 EpgPlus::Header::Header (CFrameBuffer * pframeBuffer, int px, int py, int pwidth)
@@ -498,6 +500,7 @@ void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfBu
 
 EpgPlus::EpgPlus ()
 {
+	selectedChannelEntry = NULL;
 	this->init ();
 }
 
@@ -636,11 +639,16 @@ void EpgPlus::init ()
 
 	std::string FileName = std::string (g_settings.font_file);
 	for (size_t i = 0; i < NumberOfFontSettings; ++i) {
+		int size = fontSettingTable[i].size;
+		if (bigfont && (fontSettingTable[i].settingID == EpgPlus::EPGPlus_channelentry_font ||
+				fontSettingTable[i].settingID == EpgPlus::EPGPlus_channelevententry_font)) {
+			size = size * 3 / 2; /* increase font size for channel name and event title */
+		}
 		std::string family = g_fontRenderer->getFamily (FileName.c_str ());
-		Font *font = g_fontRenderer->getFont (family.c_str (), fontSettingTable[i].style, fontSettingTable[i].size);
+		Font *font = g_fontRenderer->getFont(family.c_str(), fontSettingTable[i].style, size);
 
 		if (font == NULL)
-			font = g_fontRenderer->getFont (family.c_str (), "Regular", fontSettingTable[i].size);
+			font = g_fontRenderer->getFont(family.c_str(), "Regular", size);
 
 		fonts[i] = font;
 	}
@@ -654,8 +662,6 @@ void EpgPlus::init ()
 	ChannelEntry::init ();
 	ChannelEventEntry::init ();
 	Footer::init ();
-
-	this->selectedChannelEntry = NULL;
 
 	channelsTableWidth = sizes[EPGPlus_channelentry_width];
 	sliderWidth = sizes[EPGPlus_slider_width];
@@ -787,6 +793,15 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			if (msg <= CRCInput::RC_MaxRC)
 				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
+			if (msg == CRCInput::RC_epg) {
+				//fprintf(stderr, "RC_Epg, bigfont = %d\n", bigfont);
+				hide();
+				bigfont = !bigfont;
+				free();
+				init();
+				refreshAll = true;
+				break;
+			}
 			if ((msg == CRCInput::RC_page_down) || (msg == CRCInput::RC_yellow)) {
 				switch (this->currentSwapMode) {
 				case SwapMode_ByPage:
