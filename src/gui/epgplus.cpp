@@ -80,8 +80,9 @@ static EpgPlus::FontSetting fontSettingTable[] = {
 	{ EpgPlus::EPGPlus_footer_fontbuttons,			"Regular",	16 },
 };
 
+/* negative size means "screen width in percent" */
 static EpgPlus::SizeSetting sizeSettingTable[] = {
-	{EpgPlus::EPGPlus_channelentry_width, 100},
+	{EpgPlus::EPGPlus_channelentry_width, -15 }, /* 15 percent of screen width */
 	{EpgPlus::EPGPlus_channelentry_separationlineheight, 2},
 	{EpgPlus::EPGPlus_slider_width, 15},
 	{EpgPlus::EPGPlus_horgap1_height, 4},
@@ -654,7 +655,10 @@ void EpgPlus::init ()
 	}
 
 	for (size_t i = 0; i < NumberOfSizeSettings; ++i) {
-		sizes[i] = sizeSettingTable[i].size;
+		int size = sizeSettingTable[i].size;
+		if (size < 0) /* size < 0 == width in percent x -1 */
+			size = usableScreenWidth * size / -100;
+		sizes[i] = size;
 	}
 
 	Header::init ();
