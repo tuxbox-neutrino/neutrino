@@ -23,7 +23,7 @@ install_DATA = \
 	mp3.jpg mp3-0.jpg mp3-1.jpg mp3-2.jpg mp3-3.jpg mp3-4.jpg mp3-5.jpg mp3-6.jpg mp3-7.jpg \
 	radiomode.jpg scan.jpg shutdown.jpg start.jpg \
 	net.raw net_gray.raw net_green.raw \
-	subt.raw subt_gray.raw \
+	subt.raw subt_gray.raw mp3.raw \
 	biss.raw biss_gray.raw biss_green.raw biss_white.raw biss_yellow.raw \
 	conax.raw conax_gray.raw conax_green.raw conax_white.raw conax_yellow.raw \
 	cw.raw cw_gray.raw cw_green.raw cw_white.raw cw_yellow.raw \
