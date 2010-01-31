@@ -84,7 +84,7 @@ public:
 	struct FontSetting
 	{
 		FontSettingID     settingID;
-		char*             style;
+		const char*       style;
 		int               size;
 	};
 

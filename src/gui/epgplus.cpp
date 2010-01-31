@@ -69,15 +69,15 @@ int EpgPlus::sliderWidth = 0;
 int EpgPlus::channelsTableWidth = 0;
 
 static EpgPlus::FontSetting fontSettingTable[] = {
-	{EpgPlus::EPGPlus_header_font, (char *) "Bold", 20},
-	{EpgPlus::EPGPlus_timeline_fonttime, (char *) "Bold", 16},
-	{EpgPlus::EPGPlus_timeline_fontdate, (char *) "Bold", 14},
-	{EpgPlus::EPGPlus_channelentry_font, (char *) "Bold", 16},
-	{EpgPlus::EPGPlus_channelevententry_font, (char *) "Regular", 16},
-	{EpgPlus::EPGPlus_footer_fontbouquetchannelname, (char *) "Bold", 24},
-	{EpgPlus::EPGPlus_footer_fonteventdescription, (char *) "Regular", 16},
-	{EpgPlus::EPGPlus_footer_fonteventshortdescription, (char *) "Regular", 16},
-	{EpgPlus::EPGPlus_footer_fontbuttons, (char *) "Regular", 16},
+	{ EpgPlus::EPGPlus_header_font,				"Bold",		20 },
+	{ EpgPlus::EPGPlus_timeline_fonttime,			"Bold",		16 },
+	{ EpgPlus::EPGPlus_timeline_fontdate,			"Bold",		14 },
+	{ EpgPlus::EPGPlus_channelentry_font,			"Bold",		16 },
+	{ EpgPlus::EPGPlus_channelevententry_font,		"Regular",	16 },
+	{ EpgPlus::EPGPlus_footer_fontbouquetchannelname,	"Bold",		24 },
+	{ EpgPlus::EPGPlus_footer_fonteventdescription,		"Regular",	16 },
+	{ EpgPlus::EPGPlus_footer_fonteventshortdescription,	"Regular",	16 },
+	{ EpgPlus::EPGPlus_footer_fontbuttons,			"Regular",	16 },
 };
 
 static EpgPlus::SizeSetting sizeSettingTable[] = {
