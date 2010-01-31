@@ -3874,7 +3874,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		} else {
 			tvMode( false );
 		}
-		AudioMute(current_muted, false );
+		AudioMute(current_muted, true);
 		if((mode == mode_tv) && wasshift) {
 			startAutoRecord(true);
 		}

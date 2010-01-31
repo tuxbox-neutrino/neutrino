@@ -29,6 +29,7 @@
 #include <zapit/settings.h>  // DEMUX_DEVICE
 #include <zapit/types.h>
 #include <zapit/bouquets.h>
+#include <zapit/frontend_c.h>
 #include <dmx_cs.h>
 
 #define SDT_SIZE 1026
@@ -135,6 +136,7 @@ int nvod_service_ids(
 	return -1;
 }
 
+extern CFrontend *frontend;
 int parse_sdt(
 	t_transport_stream_id *p_transport_stream_id,
 	t_original_network_id *p_original_network_id,
@@ -170,6 +172,8 @@ int parse_sdt(
 	unsigned char mask[DMX_FILTER_SIZE];
 
 	int flen;
+	bool cable_hack_done = false;
+	bool cable = (frontend->getInfo()->type == FE_QAM);
 #if 1
 	flen = 5;
 	memset(filter, 0x00, DMX_FILTER_SIZE);
@@ -206,6 +210,7 @@ int parse_sdt(
 		return -1;
 	}
 	do {
+_repeat:
 		if (dmx->Read(buffer, SDT_SIZE) < 0) {
 			delete dmx;
 			return -1;
@@ -215,8 +220,14 @@ int parse_sdt(
 
 
 		section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
-		transport_stream_id = (buffer[3] << 8) | buffer[4];
-		original_network_id = (buffer[8] << 8) | buffer[9];
+		if(cable_hack_done) {
+			if( (transport_stream_id == ((buffer[3] << 8) | buffer[4])) &&
+				(original_network_id == ((buffer[8] << 8) | buffer[9])))
+					break;
+		} else {
+			transport_stream_id = (buffer[3] << 8) | buffer[4];
+			original_network_id = (buffer[8] << 8) | buffer[9];
+		}
 
 		unsigned char secnum = buffer[6];
 		printf("[SDT] section %X last %X tsid 0x%x onid 0x%x -> %s\n", buffer[6], buffer[7], transport_stream_id, original_network_id, secdone[secnum] ? "skip" : "use");
@@ -342,6 +353,11 @@ int parse_sdt(
 		}
 	} while(sectotal < buffer[7]);
 	//while (filter[4]++ != buffer[7]);
+	if(cable && !cable_hack_done && sectotal == 0) {
+		cable_hack_done = true;
+		secdone[0] = 0;
+		goto _repeat;
+	}
 	delete dmx;
 
 	return 0;

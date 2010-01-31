@@ -456,7 +456,7 @@ int CAudioPlayerGui::show()
 			clear_before_update = true;
 			update = true;
 		}
-		else if (msg == CRCInput::RC_home)
+		else if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop)
 		{
 			if (m_state != CAudioPlayerGui::STOP)
 				stop();

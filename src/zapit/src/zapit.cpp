@@ -514,7 +514,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
         }
         if(audioDecoder) {
                 //audioDecoder->setVolume(volume_left, volume_right);
-                //audioDecoder->setChannel(audio_mode); //FIXME
+                audioDecoder->setChannel(audio_mode);
         }
 
 	if (!we_playing)

@@ -210,9 +210,11 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_dropdown(CyhookHandler */*hh
 	if(nr_str != "")
 		nr = atoi(nr_str.c_str());
 
+	int mode = NeutrinoAPI->Zapit->getMode();
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
+		ZapitChannelList * channels = mode == CZapitClient::MODE_RADIO ? &g_bouquetManager->Bouquets[i]->radioChannels : &g_bouquetManager->Bouquets[i]->tvChannels;
 		sel=(nr==(i+1)) ? "selected=\"selected\"" : "";
-		if(!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true")
+		if(!channels->empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true"))
 			yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(),
 				(encodeString(std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
 			//yresult += string_printf("<option value=%u %s>%s</option>\n", i + 1, sel.c_str(), (encodeString(std::string(g_bouquetManager->Bouquets[i]->Name.c_str()))).c_str());
@@ -282,7 +284,8 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler */*hh
 	std::string abouquet, achannel_id, yresult, sel, sid;
 
 	int bnumber = 1;
-	int mode = CZapitClient::MODE_CURRENT;
+	//int mode = CZapitClient::MODE_CURRENT;
+	int mode = NeutrinoAPI->Zapit->getMode();
 
 	ySplitString(para," ",abouquet, achannel_id);
 	if(abouquet != "")

@@ -37,6 +37,9 @@
 #include <sstream>
 #include <driver/audioplay.h>
 #include <linux/soundcard.h>
+#include <audio_cs.h>
+
+extern cAudio * audioDecoder;
 
 #define ProgName "WavDec"
 // nr of msecs to skip in ff/rev mode
@@ -47,7 +50,7 @@
 struct WavHeader
 {
 	char  ChunkID[4];
-   int   ChunkSize;
+	int   ChunkSize;
 	char  Format[4];
 	char  Subchunk1ID[4];
 	int   Subchunk1Size;
@@ -73,7 +76,7 @@ int endianTest=1;
                              ((((l) & 0xff00) >> 8) | \
                              (((l) &  0x00ff) << 8)))
 
-#define MAX_OUTPUT_SAMPLES 1022 /* AVIA_GT_PCM_MAX_SAMPLES-1 */
+#define MAX_OUTPUT_SAMPLES 2048 /* AVIA_GT_PCM_MAX_SAMPLES-1 */
 
 CBaseDec::RetCode CWavDec::Decoder(FILE *in, int OutputFd, State* state, CAudioMetaData* meta_data, time_t* time_played, unsigned int* secondsToSkip)
 {
@@ -98,12 +101,15 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int OutputFd, State* state, CAudioM
 			Status=DATA_ERR;
 			return Status;
 	}
-
+#if 0
 	if (SetDSP(OutputFd, fmt, meta_data->samplerate , mChannels))
 	{
 		Status=DSPSET_ERR;
 		return Status;
 	}
+#endif
+	audioDecoder->PrepareClipPlay(mChannels, meta_data->samplerate, mBitsPerSample, fmt == AFMT_S16_LE ? 1 : 0);
+
 	int actSecsToSkip = (*secondsToSkip != 0) ? *secondsToSkip : MSECS_TO_SKIP / 1000;
 	unsigned int oldSecsToSkip = *secondsToSkip;
 	int jumppos=0;
@@ -154,13 +160,15 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int OutputFd, State* state, CAudioM
 		}
 
 		bytes = fread(buffer, 1, buffersize, in);
-		if (write(OutputFd, buffer, bytes) != bytes)
+		//if (write(OutputFd, buffer, bytes) != bytes)
+		if(audioDecoder->WriteClip((unsigned char*) buffer, bytes) != bytes)
 		{
 			fprintf(stderr,"%s: PCM write error (%s).\n", ProgName, strerror(errno));
 			Status=WRITE_ERR;
 		}
 		*time_played = (meta_data->bitrate!=0) ? (ftell(in)-header_size)*8/meta_data->bitrate : 0;
 	} while (bytes > 0 && *state!=STOP_REQ && Status==OK);
+	audioDecoder->StopClip();
 	free(buffer);
 	return Status;
 }
