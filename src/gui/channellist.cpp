@@ -1516,11 +1516,13 @@ void CChannelList::paintItem(int pos)
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription, true);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description, true);
 
-			if ( (width- numwidth- 60- 15- prg_offset - ch_name_len)< ch_desc_len )
-				ch_desc_len = (width- numwidth- 60- 15- ch_name_len - prg_offset);
-			// Senseless code as ch_desc_len is a NOT signed integer
-// 			if (ch_desc_len< 0)
-// 				ch_desc_len = 0;
+			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 20; // 15 = scrollbar, 20 = spaces
+			if (chan->scrambled || (g_settings.channellist_extended ||g_settings.channellist_epgtext_align_right))
+				max_desc_len -= 28; /* do we need space for the lock icon? */
+			if (max_desc_len < 0)
+				max_desc_len = 0;
+			if (ch_desc_len > max_desc_len)
+				ch_desc_len = max_desc_len;
 
 			if(g_settings.channellist_extended){
 				if(displayNext)
