@@ -137,8 +137,6 @@ class CMenuSeparator : public CMenuItem
 		int paint(bool selected=false, bool last = false);
 		int getHeight(void) const;
 		int getWidth(void) const;
-
-		virtual const char * getString(void);
 };
 
 class CMenuForwarder : public CMenuItem

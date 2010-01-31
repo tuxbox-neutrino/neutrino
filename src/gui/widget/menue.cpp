@@ -1304,12 +1304,15 @@ int CMenuSeparator::getHeight(void) const
 
 int CMenuSeparator::getWidth(void) const
 {
-	return 0;
-}
-
-const char * CMenuSeparator::getString(void)
-{
-	return g_Locale->getText(text);
+	int w = 0;
+	if (type & LINE)
+		w = 30; /* 15 pixel left and right */
+	if ((type & STRING) && text != NONEXISTANT_LOCALE)
+	{
+		const char *l_text = g_Locale->getText(text);
+		w += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true);
+	}
+	return w;
 }
 
 int CMenuSeparator::paint(bool selected, bool /*last*/)
@@ -1331,7 +1334,7 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 		{
 			int stringstartposX;
 
-			const char * l_text = getString();
+			const char *l_text = g_Locale->getText(text);
 			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true); // UTF-8
 
 			/* if no alignment is specified, align centered */
