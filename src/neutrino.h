@@ -220,6 +220,7 @@ public:
 	void loadColors(const char * fname);
 	void SetupTiming();
 	void SetupFonts();
+	const char *digiIcon(int digi);
 
 	void setVolume(const neutrino_msg_t key, const bool bDoPaint = true, bool nowait = false);
 	~CNeutrinoApp();

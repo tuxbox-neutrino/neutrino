@@ -133,7 +133,7 @@ char SIevent::getFSK() const
 			    return (it->rating == 0 ? 0 : 18); // return FSK 18 for : 0x10 to 0xFF defined by the broadcaster
 		}
 	}
-	if (ratings.size() != 0)
+	if (!ratings.empty())
 	{
 		if ((ratings.begin()->rating >= 0x01) && (ratings.begin()->rating <= 0x0F))
 			return (ratings.begin()->rating + 3);
