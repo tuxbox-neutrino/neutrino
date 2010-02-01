@@ -1187,6 +1187,7 @@ bool CFrameBuffer::loadPictureToMem(const std::string & filename, const uint16_t
 	    (height != ((header.height_hi << 8) | header.height_lo)))
 	{
 		printf("error while loading icon: %s - invalid resolution = %hux%hu\n", filename.c_str(), width, height);
+		close(lfd);
 		return false;
 	}
 

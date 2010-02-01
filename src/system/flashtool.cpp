@@ -176,6 +176,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	if(filesize==0)
 	{
 		ErrorMessage = g_Locale->getText(LOCALE_FLASHUPDATE_FILEIS0BYTES);
+		close(fd1);
 		return false;
 	}
 
@@ -187,6 +188,7 @@ bool CFlashTool::program( const std::string & filename, int globalProgressEndEra
 	//g_Zapit->shutdown(); sleep(2);
 	if(!erase(globalProgressEndErase))
 	{
+		close(fd1);
 		return false;
 	}
 
@@ -263,6 +265,7 @@ bool CFlashTool::erase(int globalProgressEnd)
 	{
 	// TODO: localize error message
 		ErrorMessage = "can't get mtd-info";
+		close(fd);
 		return false;
 	}
 
