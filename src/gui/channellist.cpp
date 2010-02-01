@@ -529,13 +529,13 @@ int CChannelList::show()
 			selected=0;
 			liststart = (selected/listmaxshow)*listmaxshow;
 			paint();
-			if(new_mode_active) { actzap = true; zapTo(selected); }
+			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
 		}
 		else if (msg == (neutrino_msg_t) g_settings.key_list_end) {
 			selected=chanlist.size()-1;
 			liststart = (selected/listmaxshow)*listmaxshow;
 			paint();
-			if(new_mode_active) { actzap = true; zapTo(selected); }
+			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
 		}
                 else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
                 {
@@ -555,7 +555,7 @@ int CChannelList::show()
                         else
                                 paintItem(selected - liststart);
 
-			if(new_mode_active) { actzap = true; zapTo(selected); }
+			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
                         //paintHead();
                 }
                 else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
@@ -581,7 +581,7 @@ int CChannelList::show()
                         else
                                 paintItem(selected - liststart);
 
-			if(new_mode_active) { actzap = true; zapTo(selected); }
+			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
                         //paintHead();
                 }
 
@@ -630,8 +630,10 @@ int CChannelList::show()
 			}
 		}
 		else if ( msg == CRCInput::RC_ok ) {
-			zapOnExit = true;
-			loop=false;
+			if(SameTP()) {
+				zapOnExit = true;
+				loop=false;
+			}
 		}
 		else if ( msg == CRCInput::RC_spkr ) {
 			new_mode_active = (new_mode_active ? 0 : 1);
@@ -1521,7 +1523,7 @@ void CChannelList::paintItem(int pos)
 				max_desc_len -= 28; /* do we need space for the lock icon? */
 			if (max_desc_len < 0)
 				max_desc_len = 0;
-			if (ch_desc_len > max_desc_len)
+			if ((int) ch_desc_len > max_desc_len)
 				ch_desc_len = max_desc_len;
 
 			if(g_settings.channellist_extended){
@@ -1677,4 +1679,14 @@ int CChannelList::getSize() const
 int CChannelList::getSelectedChannelIndex() const
 {
 	return this->selected;
+}
+
+bool CChannelList::SameTP()
+{
+	bool iscurrent = true;
+
+	if(!autoshift && CNeutrinoApp::getInstance()->recordingstatus )
+		iscurrent = (chanlist[selected]->channel_id >> 16) == (rec_channel_id >> 16);
+
+	return iscurrent;
 }

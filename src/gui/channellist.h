@@ -130,6 +130,7 @@ class CChannelList
 		void SortAlpha(void);
 		void SortSat(void);
 		void ClearList(void);
+		bool SameTP();
 		//friend class CZapitChannel;
 };
 #endif

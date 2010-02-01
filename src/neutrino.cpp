@@ -2661,6 +2661,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				StopSubtitles();
 				g_RemoteControl->subChannelUp();
 				g_InfoViewer->showSubchan();
+			    } else if(g_settings.virtual_zap_mode) {
+				if(channelList->getSize()) {
+					StopSubtitles();
+					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
+					StartSubtitles();
+				}
 			    } else
 				quickZap( msg );
 			}
@@ -2669,8 +2675,22 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				StopSubtitles();
 				g_RemoteControl->subChannelDown();
 				g_InfoViewer->showSubchan();
+			    } else if(g_settings.virtual_zap_mode) {
+				if(channelList->getSize()) {
+					StopSubtitles();
+					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
+					StartSubtitles();
+				}
 			    } else
 				quickZap( msg );
+			}
+			/* in case key_subchannel_up/down redefined */
+			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
+				if(channelList->getSize()) {
+					StopSubtitles();
+					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
+					StartSubtitles();
+				}
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
 				// Zap-History "Bouquet"
