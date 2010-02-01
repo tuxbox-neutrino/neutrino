@@ -2695,7 +2695,7 @@ public:
 		{
 			// there is still a available number_key
 			*msg = CRCInput::convertDigitToKey(number_key);
-			*icon = "";
+			*icon = CNeutrinoApp::getInstance()->digiIcon(number_key);
 			if (number_key == 9)
 				number_key = 0;
 			else if (number_key == 0)
