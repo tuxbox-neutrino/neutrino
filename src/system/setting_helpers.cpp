@@ -925,6 +925,7 @@ bool CLedControlNotifier::changeNotify(const neutrino_locale_t, void* /*data*/)
 	return true;
 }
 
+#if HAVE_COOL_HARDWARE
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 {
 	int cfd, ret;
@@ -945,6 +946,12 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 	}
 	return true;
 }
+#else
+bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void *)
+{
+	return true;
+}
+#endif
 
 bool CCpuFreqNotifier::changeNotify(const neutrino_locale_t, void * data)
 {

@@ -2902,6 +2902,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			system("/bin/umount -a");
 			sleep(1);
 			{
+#if HAVE_COOL_HARDWARE
 				standby_data_t standby;
 				time_t mtime = time(NULL);
 				struct tm *tmtime = localtime(&mtime);
@@ -2955,6 +2956,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 						while(true) sleep(1);
 					}
 				}
+#else
+				reboot(LINUX_REBOOT_CMD_RESTART);
+#endif
 			}
 #if 0
 			neutrino_msg_t      msg;
