@@ -125,7 +125,8 @@ GENRE.TRAVEL_HOBBIES.7 gardening
 GENRE.UNKNOWN unknown
 apidselector.head Select language
 audiomenu.PCMOffset Volume Decrease PCM
-audiomenu.analogout Analog Output
+audiomenu.analog_mode Analog mode
+audiomenu.analog_out Analog output
 audiomenu.avs avs
 audiomenu.avs_control Volume Control avs/ost
 audiomenu.dolbydigital Dolby Digital

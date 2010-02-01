@@ -78,6 +78,7 @@ struct SNeutrinoSettings
 	int srs_nmgr_enable;
 	int hdmi_dd;
 	int spdif_dd;
+	int analog_out;
 	int video_dbdr;
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;

@@ -484,8 +484,10 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 	{
 	}
 #endif
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_ANALOGOUT)) {
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_ANALOG_MODE)) {
 		g_Zapit->setAudioMode(g_settings.audio_AnalogMode);
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_ANALOG_OUT)) {
+		audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_HDMI_DD)) {
 		audioDecoder->SetHdmiDD(g_settings.hdmi_dd ? true : false);
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_SPDIF_DD)) {

@@ -758,6 +758,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.srs_nmgr_enable = configfile.getInt32( "srs_nmgr_enable", 0);
 	g_settings.hdmi_dd = configfile.getInt32( "hdmi_dd", 0);
 	g_settings.spdif_dd = configfile.getInt32( "spdif_dd", 1);
+	g_settings.analog_out = configfile.getInt32( "analog_out", 1);
 	g_settings.avsync = configfile.getInt32( "avsync", 1);
 	g_settings.clockrec = configfile.getInt32( "clockrec", 1);
 	g_settings.video_dbdr = configfile.getInt32("video_dbdr", 0);
@@ -1263,6 +1264,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "srs_ref_volume", g_settings.srs_ref_volume);
 	configfile.setInt32( "srs_nmgr_enable", g_settings.srs_nmgr_enable);
 	configfile.setInt32( "hdmi_dd", g_settings.hdmi_dd);
+	configfile.setInt32( "analog_out", g_settings.analog_out);
 	configfile.setInt32( "spdif_dd", g_settings.spdif_dd);
 	configfile.setInt32( "avsync", g_settings.avsync);
 	configfile.setInt32( "clockrec", g_settings.clockrec);
@@ -2320,6 +2322,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
 	audioDecoder->SetHdmiDD(g_settings.hdmi_dd ? true : false);
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
+	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
+
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
 

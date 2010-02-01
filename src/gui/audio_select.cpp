@@ -75,6 +75,13 @@ int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &/*acti
 	return res;
 }
 
+#define OPTIONS_OFF0_ON1_OPTION_COUNT 2
+const CMenuOptionChooser::keyval OPTIONS_OFF0_ON1_OPTIONS[OPTIONS_OFF0_ON1_OPTION_COUNT] =
+{
+        { 0, LOCALE_OPTIONS_OFF },
+        { 1, LOCALE_OPTIONS_ON  }
+};
+
 int CAudioSelectMenuHandler::doMenu ()
 {
 	CMenuWidget AudioSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO, 360);
@@ -93,10 +100,16 @@ int CAudioSelectMenuHandler::doMenu ()
 	// -- setup menue for to Dual Channel Stereo
 	AudioSelector.addItem(GenericMenuSeparatorLine);
 
-	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOGOUT,
+	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_MODE,
 			&g_settings.audio_AnalogMode,
 			AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT,
 			true, audioSetupNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+
+	AudioSelector.addItem( oj );
+
+	oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_OUT, &g_settings.analog_out,
+			 OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, 
+			true, audioSetupNotifier, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
 	AudioSelector.addItem( oj );
 

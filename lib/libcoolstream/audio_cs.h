@@ -57,6 +57,7 @@ class cAudio
 		bool hdmiDD;
 		bool spdifDD;
 		bool hasMuteScheduled;
+		bool analogOut;
 	public:
 		/* construct & destruct */
 		cAudio(void * hBuffer, void * encHD, void * encSD);
@@ -108,7 +109,7 @@ class cAudio
 		void SetHdmiDD(bool enable);
 		void SetSpdifDD(bool enable);
 		void ScheduleMute(bool On);
-
+		void EnableAnalogOut(bool enable);
 };
 
 #endif
