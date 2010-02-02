@@ -3040,6 +3040,7 @@ const char * CNeutrinoApp::digiIcon(int digi)
 		case 0:
 			return NEUTRINO_ICON_BUTTON_0;
 		default:
+			return NULL;
 		break;
 	}
 }

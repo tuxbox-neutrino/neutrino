@@ -2572,6 +2572,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 void CNeutrinoApp::quickZap(int msg)
 {
+	if(recordingstatus && !autoshift) {
+		StopSubtitles();
+		int res = channelList->numericZap(g_settings.key_zaphistory);
+		if(res < 0)
+			StartSubtitles();
+		return;
+	}
 	if((bouquetList != NULL) && !(bouquetList->Bouquets.empty()))
 		bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
 	else
@@ -2711,7 +2718,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
 				StopSubtitles();
-				channelList->numericZap( msg );
+				int res = channelList->numericZap( msg );
+				if(res < 0)
+					StartSubtitles();
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_plugin ) {
 				g_PluginList->start_plugin_by_name(g_settings.onekey_plugin.c_str(), 0);
@@ -3580,14 +3589,26 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			if (g_RCInput != NULL)
 				delete g_RCInput;
 
-			stop_daemons();
-
 			int fspeed = 0;
 			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+			CVFD::getInstance()->ShowText((char *) "Rebooting...");
+
+			stop_daemons();
+
+#if 0 /* FIXME this next hack to test, until we find real crash on exit reason */
+			system("/etc/init.d/rcK");
+			system("/bin/sync");
+			system("/bin/umount -a");
+
+			reboot(LINUX_REBOOT_CMD_RESTART);
+#else
+			_exit(retcode);
+#endif
 			exit(retcode);
 		}
 	}
 }
+
 void CNeutrinoApp::saveEpg()
 {
 	struct stat my_stat;
@@ -3605,6 +3626,7 @@ void CNeutrinoApp::saveEpg()
 		}
 	}
 }
+
 void CNeutrinoApp::AudioMute( int newValue, bool isEvent )
 {
 	//printf("MUTE: val %d current %d event %d\n", newValue, current_muted, isEvent);

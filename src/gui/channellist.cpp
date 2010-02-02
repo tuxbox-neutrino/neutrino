@@ -947,9 +947,10 @@ int CChannelList::numericZap(int key)
 	// -- quickzap "0" to last seen channel...
 	if (key == g_settings.key_lastchannel) {
 		t_channel_id channel_id = lastChList.getlast(1);
-		if(channel_id) {
+		if(channel_id && SameTP(channel_id)) {
 			lastChList.clear_storedelay (); // ignore store delay
 			zapTo_ChannelID(channel_id);
+			res = 0;
 		}
 		return res;
 	}
@@ -1099,7 +1100,10 @@ int CChannelList::numericZap(int key)
 	if ( doZap ) {
 		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)
 			g_InfoViewer->killTitle();
-		zapTo( chn );
+		if(SameTP(chanlist[chn]->channel_id)) {
+			zapTo( chn );
+			res = 0;
+		}
 	} else {
 		showInfo(tuned);
 		g_InfoViewer->killTitle();
@@ -1206,7 +1210,8 @@ void CChannelList::virtual_zap_mode(bool up)
         {
 		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)
 			g_InfoViewer->killTitle();
-                zapTo( chn );
+		if(SameTP(chanlist[chn]->channel_id))
+			zapTo( chn );
         }
         else
         {
@@ -1221,8 +1226,8 @@ void CChannelList::virtual_zap_mode(bool up)
 
 void CChannelList::quickZap(int key, bool cycle)
 {
-        if(chanlist.size() == 0)
-                return;
+	if(chanlist.size() == 0)
+		return;
 
 	int bsize = bouquetList->Bouquets.size();
 	if(!cycle && bsize > 1) {
@@ -1268,9 +1273,7 @@ printf("CChannelList::quickZap: new selected %d total %d active bouquet %d total
 		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
 			selected = (selected+1)%chanlist.size();
 		}
-
 		//printf("[neutrino] quick zap selected = %d bouquetList %x getActiveBouquetNumber %d orgChannelList %x\n", selected, bouquetList, bouquetList->getActiveBouquetNumber(), bouquetList->orgChannelList);
-
 		CNeutrinoApp::getInstance()->channelList->zapTo(getKey(selected)-1);
 	}
 	g_RCInput->clearRCMsg(); //FIXME test for n.103
@@ -1437,7 +1440,7 @@ void CChannelList::paintItem(int pos)
 	bool iscurrent = true;
 	unsigned int curr = liststart + pos;
 
-	if(!autoshift && CNeutrinoApp::getInstance()->recordingstatus && curr < chanlist.size()) {
+	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift && curr < chanlist.size()) {
 		iscurrent = (chanlist[curr]->channel_id >> 16) == (rec_channel_id >> 16);
 //printf("recording %llx current %llx current = %s\n", rec_channel_id, chanlist[liststart + pos]->channel->channel_id, iscurrent? "yes" : "no");
 	}
@@ -1681,12 +1684,15 @@ int CChannelList::getSelectedChannelIndex() const
 	return this->selected;
 }
 
-bool CChannelList::SameTP()
+bool CChannelList::SameTP(t_channel_id channel_id)
 {
 	bool iscurrent = true;
 
-	if(!autoshift && CNeutrinoApp::getInstance()->recordingstatus )
-		iscurrent = (chanlist[selected]->channel_id >> 16) == (rec_channel_id >> 16);
+	if(channel_id == 0)
+		channel_id = chanlist[selected]->channel_id;
+
+	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift)
+		iscurrent = (channel_id >> 16) == (rec_channel_id >> 16);
 
 	return iscurrent;
 }

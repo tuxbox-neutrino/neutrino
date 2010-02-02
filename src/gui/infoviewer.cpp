@@ -43,7 +43,7 @@
 #include <fcntl.h>
 
 #include <gui/infoviewer.h>
-
+#include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
 
@@ -66,6 +66,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
+extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
 extern CFrontend * frontend;
 extern cVideo * videoDecoder;
@@ -771,8 +772,13 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 			g_RCInput->killTimer (fadeTimer);
 			frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
 		}
-		if (virtual_zap_mode)
-			CNeutrinoApp::getInstance()->channelList->virtual_zap_mode(msg == CRCInput::RC_right);
+		if (virtual_zap_mode) {
+			/* if bouquet cycle set, do virtual over current bouquet */
+			if(g_settings.zap_cycle && (bouquetList != NULL) && !(bouquetList->Bouquets.empty()))
+				bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->virtual_zap_mode(msg == CRCInput::RC_right);
+			else
+				CNeutrinoApp::getInstance()->channelList->virtual_zap_mode(msg == CRCInput::RC_right);
+		}
 
 	}
 	aspectRatio = 0;
