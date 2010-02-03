@@ -506,8 +506,11 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 #endif
                 volume_left = volume_right = audio_map_it->second.volume;
                 audio_mode = audio_map_it->second.mode;
+#if 0
 		if(audio_map_it->second.subpid > 0)
 			dvbsub_start(audio_map_it->second.subpid);
+#endif
+		dvbsub_setpid(audio_map_it->second.subpid);
         } else {
                 volume_left = volume_right = def_volume_left;
                 audio_mode = def_audio_mode;

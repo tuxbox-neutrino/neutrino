@@ -2572,9 +2572,11 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 void CNeutrinoApp::quickZap(int msg)
 {
+	int res;
+
+	StopSubtitles();
 	if(recordingstatus && !autoshift) {
-		StopSubtitles();
-		int res = channelList->numericZap(g_settings.key_zaphistory);
+		res = channelList->numericZap(g_settings.key_zaphistory);
 		if(res < 0)
 			StartSubtitles();
 		return;
@@ -2817,7 +2819,10 @@ printf("[neutrino] direct record\n");
 				g_InfoViewer->showSubchan();
 			}
 			else if (CRCInput::isNumeric(msg)) {
-				channelList->numericZap( msg );
+				StopSubtitles();
+				int res = channelList->numericZap( msg );
+				if(res < 0)
+					StartSubtitles();
 			}
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
@@ -2927,6 +2932,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			scrambled_timer = 0;
 		}
 		scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);
+		if(!g_InfoViewer->is_visible)
+			StartSubtitles();
 	}
 	if ((msg == NeutrinoMessages::EVT_TIMER)) {
 		if(data == shift_timer) {
@@ -3000,6 +3007,8 @@ _repeat:
 				bouquetList->activateBouquet(old_b, false);
 				if(bouquetList->Bouquets.size())
 					bouquetList->Bouquets[old_b]->channelList->setSelected(old_num-1);
+				if(mode == mode_tv)
+					StartSubtitles();
 			}
 			else if(nNewChannel == -3) { // list mode changed
 				printf("************************* ZAP NEW MODE: bouquetList %x size %d\n", (int) bouquetList, bouquetList->Bouquets.size());fflush(stdout);
@@ -3013,9 +3022,11 @@ _repeat:
 
 			if(g_settings.mode_clock)
 				InfoClock->StartClock();
+#if 0
 			/* FIXME: more check for StartSubtitles() like was no zap ?? */
 			if(mode == mode_tv)
 				StartSubtitles();
+#endif
 			return messages_return::handled;
 		}
 	}

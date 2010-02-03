@@ -125,6 +125,11 @@ int dvbsub_getpid()
 	return dvbsub_pid;
 }
 
+void dvbsub_setpid(int pid)
+{
+	dvbsub_pid = pid;
+}
+
 int dvbsub_close()
 {
 	if(threadReader) {
