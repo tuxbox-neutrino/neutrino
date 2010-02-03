@@ -5,9 +5,10 @@ audio.srs_algo Art
 audio.srs_algo_light einfach
 audio.srs_algo_normal normal
 audio.srs_iq SRS TruVolume Technologie
-audio.srs_nmgr Noise-Manager 
+audio.srs_nmgr Noise-Manager
 audio.srs_volume Referenzlautstärke
-audiomenu.analogout Analog-Ausgang
+audiomenu.analog_mode Analog Modus
+audiomenu.analog_out Analog-Ausgang
 audiomenu.avs avs
 audiomenu.avs_control Volume Steuerung avs/ost
 audiomenu.avsync A/V sync
@@ -93,10 +94,10 @@ bouqueteditor.switch Kanal aufnehmen/ entfernen
 bouqueteditor.switchmode TV/ Radio
 bouquetlist.head Bouquets
 cablesetup.provider Kabelanbieter
-cam.empty Kein CAM im Slot 
-cam.init_ok CAM-Init beendet -> 
-cam.inserted CAM im Slot 
-cam.removed CAM entfernt -> Slot 
+cam.empty Kein CAM im Slot
+cam.init_ok CAM-Init beendet ->
+cam.inserted CAM im Slot
+cam.removed CAM entfernt -> Slot
 cam.settings Common Interface
 cam.timeout CAM antwortet nicht
 cam.waiting Warte auf CAM-Antwort
@@ -258,7 +259,7 @@ extra.dvbsnoop_sdt Zeige SDT
 extra.dvbsnoop_sit Zeige SIT
 extra.dvbsnoop_tdt Zeige TDT
 extra.dvbsnoop_tsdt Zeige TSDT
-extra.east Osten 
+extra.east Osten
 extra.english Englisch
 extra.fec_1_2 1/2 S1_Q
 extra.fec_2_3 2/3 S1_Q
@@ -304,7 +305,7 @@ extra.logview Log anzeigen
 extra.longitude Längengrad
 extra.manual_scan Manueller Scan
 extra.menu_left_exit "links" = Menü zurück
-extra.north Norden 
+extra.north Norden
 extra.record_time Timeshift Aufnahmezeit in Stunden
 extra.rotor_swap Rotor dreht Ost/ West
 extra.save_settings Einstellungen speichern
@@ -334,7 +335,7 @@ extra.tp_mod_64 QAM/64
 extra.tp_pol Polarization
 extra.tp_pol_h H
 extra.tp_rate Symbolrate
-extra.update_dir Update-Verzeichnis 
+extra.update_dir Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.use_log Logge nach /tmp/log
 extra.valid gültig
@@ -343,7 +344,7 @@ extra.zap_cycle Zap nur in Bouquet
 extra.zapit_backup Sichere Kanalliste nach /tmp
 extra.zapit_delete Lösche Kanal
 extra.zapit_fast_zap Schnellumschaltung
-extra.zapit_fe_timeout Tunen fehlgeschlagen 
+extra.zapit_fe_timeout Tunen fehlgeschlagen
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_menu Zapit-Einstellungen
@@ -441,7 +442,7 @@ flashupdate.url_file Konfigfile
 flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
 flashupdate.writeflashmtd einzelne Partition einspielen
-flashupdate.wrongbase Abweichende Release-Information\nFortfahren? 
+flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
 fontmenu.channellist Kanalliste
 fontmenu.epg EPG (Programmführer)
 fontmenu.eventlist Event-Liste
@@ -570,7 +571,7 @@ hdd_noise Akustik-Einstellung
 hdd_not_found Keine Festplatte
 hdd_reiser Reiserfs
 hdd_settings Festplatteneinstellungen
-hdd_sleep Motorstopp nach 
+hdd_sleep Motorstopp nach
 hdd_slow Langsam
 hdd_umount_warn unmout des Laufwerks
 imageinfo.creator Ersteller:
@@ -634,7 +635,7 @@ keychoosermenu.setnew Neue Taste einstellen
 keychoosermenu.setnone Keine Taste
 languagesetup.head Spracheinstellungen
 languagesetup.select Sprache
-lcdcontroler.brightness normale Helligkeit 
+lcdcontroler.brightness normale Helligkeit
 lcdcontroler.brightnessstandby Standby Helligkeit
 lcdcontroler.contrast Kontrast
 lcdcontroler.head VFD Einstellungen
@@ -701,7 +702,7 @@ miscsettings.epg_cache_hint1 EPG-Daten im Voraus zwischenspeichern?
 miscsettings.epg_cache_hint2 (Angabe in Tagen)
 miscsettings.epg_dir EPG Speicherverzeichnis
 miscsettings.epg_extendedcache Sendungsbeschr. behalten (Std.)
-miscsettings.epg_extendedcache_hint1 Dauer für die Zwischenspeicherung der 
+miscsettings.epg_extendedcache_hint1 Dauer für die Zwischenspeicherung der
 miscsettings.epg_extendedcache_hint2 Sendungsbeschreibung (Angabe in Stunden)
 miscsettings.epg_head EPG Einstellungen
 miscsettings.epg_max_events Max. Events
@@ -790,7 +791,7 @@ moviebrowser.edit_book Bookmark Ändern
 moviebrowser.edit_book_name_info1 Neuer Markierungsname
 moviebrowser.edit_book_name_info2 book name info2
 moviebrowser.edit_book_pos_info1 Neue Position (s)
-moviebrowser.edit_book_pos_info2 
+moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
 moviebrowser.edit_book_type_info2 <0 zurück , >0 vor, 0: kein
 moviebrowser.edit_serie Name der Serie
@@ -805,7 +806,7 @@ moviebrowser.head_recordlist Zuletzt aufgenommen:
 moviebrowser.hide_series Verstecke Serien
 moviebrowser.hint_jumpbackward Rücksprung in 5 s\n '0' zum Weitersehen
 moviebrowser.hint_jumpforward Werbung überspringen in 5 s\n '0' zum Ansehen
-moviebrowser.hint_movieend Filmende in 5 s\n '0' zum Weitersehen 
+moviebrowser.hint_movieend Filmende in 5 s\n '0' zum Weitersehen
 moviebrowser.hint_newbook_backward Neue Wiederholung\n 'blue' für Endposition
 moviebrowser.hint_newbook_forward Neuer Werbesprung\n 'blue' für Endposition
 moviebrowser.info_audio Audio
@@ -824,7 +825,7 @@ moviebrowser.info_parental_lockage_12year 12 Jahre
 moviebrowser.info_parental_lockage_16year 16 Jahre
 moviebrowser.info_parental_lockage_18year 18 Jahre
 moviebrowser.info_parental_lockage_6year 6 Jahre
-moviebrowser.info_parental_lockage_always nie 
+moviebrowser.info_parental_lockage_always nie
 moviebrowser.info_path Verzeichnis
 moviebrowser.info_prevplaydate Letzte Wiedergabe
 moviebrowser.info_prodcountry Land
@@ -890,7 +891,7 @@ moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Bookmark ein
-movieplayer.bookmarkname_hint2 
+movieplayer.bookmarkname_hint2
 movieplayer.buffering Puffern...
 movieplayer.defdir Start-Verz.
 movieplayer.defplugin Start-Plugin
@@ -904,32 +905,32 @@ movieplayer.nostreamingserver Es konnte keine Verbindung\nzum Streamingserver he
 movieplayer.pesplayback PES Abspielen (experimentell)
 movieplayer.pleasewait Bitte warten Sie.\nDie Verbindung zum Streamingserver wird hergestellt.
 movieplayer.toomanybookmarks Sie haben bereits zu viele Bookmarks angelegt.\nEs muß erst ein anderes gelöscht werden.
-movieplayer.tshelp1 Stopp 
-movieplayer.tshelp10 ca. 10 Minuten zurück 
-movieplayer.tshelp11 ca. 10 Minuten vor 
-movieplayer.tshelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.tshelp2 Auswahl der Tonspur 
-movieplayer.tshelp3 Pause/ Weiter 
-movieplayer.tshelp4 Bookmark setzen 
-movieplayer.tshelp5 Zeit einblenden 
-movieplayer.tshelp6 ca. 1 Minute zurück 
-movieplayer.tshelp7 ca. 1 Minute vor 
-movieplayer.tshelp8 ca. 5 Minuten zurück 
-movieplayer.tshelp9 ca. 5 Minuten vor 
+movieplayer.tshelp1 Stopp
+movieplayer.tshelp10 ca. 10 Minuten zurück
+movieplayer.tshelp11 ca. 10 Minuten vor
+movieplayer.tshelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.tshelp2 Auswahl der Tonspur
+movieplayer.tshelp3 Pause/ Weiter
+movieplayer.tshelp4 Bookmark setzen
+movieplayer.tshelp5 Zeit einblenden
+movieplayer.tshelp6 ca. 1 Minute zurück
+movieplayer.tshelp7 ca. 1 Minute vor
+movieplayer.tshelp8 ca. 5 Minuten zurück
+movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stopp 
-movieplayer.vlchelp10 ca. 10 Minuten zurück 
-movieplayer.vlchelp11 ca. 10 Minuten vor 
-movieplayer.vlchelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.vlchelp2 Resync 
-movieplayer.vlchelp3 Pause/ Weiter 
-movieplayer.vlchelp4 Bookmark setzen 
-movieplayer.vlchelp5 Zeit einblenden 
-movieplayer.vlchelp6 ca. 1 Minute zurück 
-movieplayer.vlchelp7 ca. 1 Minute vor 
-movieplayer.vlchelp8 ca. 5 Minuten zurück 
-movieplayer.vlchelp9 ca. 5 Minuten vor 
+movieplayer.vlchelp1 Stopp
+movieplayer.vlchelp10 ca. 10 Minuten zurück
+movieplayer.vlchelp11 ca. 10 Minuten vor
+movieplayer.vlchelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.vlchelp2 Resync
+movieplayer.vlchelp3 Pause/ Weiter
+movieplayer.vlchelp4 Bookmark setzen
+movieplayer.vlchelp5 Zeit einblenden
+movieplayer.vlchelp6 ca. 1 Minute zurück
+movieplayer.vlchelp7 ca. 1 Minute vor
+movieplayer.vlchelp8 ca. 5 Minuten zurück
+movieplayer.vlchelp9 ca. 5 Minuten vor
 movieplayer.wrongvlcversion Funktion ist mit der benutzten Version des VLC nicht möglich
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Bookmark
@@ -1054,7 +1055,7 @@ pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.result Pluginausgabe
 progressbar.color Fortschrittsbalken farbe
 rclock.lockmsg Die Fernbedienung der Coolstream wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
-rclock.menueadd FB sperren 
+rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert...
 recordingmenu.apids Voreinstellung für Tonspuren
@@ -1096,7 +1097,7 @@ repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
 reset_all Werkseinstellungen zurücksetzen
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
-reset_settings Zurück auf Werkseinstellungen 
+reset_settings Zurück auf Werkseinstellungen
 rfmod.carrier Unterträger-Frequenz
 rfmod.carrier4500 4.5
 rfmod.carrier5500 5.5
@@ -1108,7 +1109,7 @@ rfmod.finetune Feintuning
 rfmod.rfmod RF Modulator
 rfmod.standby Modulator aktivieren
 rfmod.test Testbild
-satsetup.auto_scan Ausgewählten Satelliten scannen 
+satsetup.auto_scan Ausgewählten Satelliten scannen
 satsetup.auto_scan_all Alle Satelliten scannen
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
@@ -1136,8 +1137,9 @@ satsetup.sat_setup Setup LNB-Konfiguration
 satsetup.satellite Satellit
 satsetup.savesettingsnow Einstellungen jetzt speichern
 satsetup.smatvremote SMATV Remote Tuning
-satsetup.uncomm_input Uncommitted 
+satsetup.uncomm_input Uncommitted
 satsetup.usals_repeat USALS wiederholen
+satsetup.use_fta_flag nur freie Kanäle
 satsetup.use_nit Auswertung NIT
 satsetup.use_usals Benutze USALS
 scants.abort_body Scanvorgang wirklich abbrechen?
@@ -1183,10 +1185,10 @@ servicemenu.update Software-Aktualisierung
 settings.help Hilfe
 settings.missingoptionsconffile Die Neutrino-Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
 settings.noconffile Die Neutrino-Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
-settings.pos_bottom_left unten links 
-settings.pos_bottom_right unten rechts 
-settings.pos_top_left oben links 
-settings.pos_top_right oben rechts 
+settings.pos_bottom_left unten links
+settings.pos_bottom_right unten rechts
+settings.pos_top_left oben links
+settings.pos_top_right oben rechts
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 min runtergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Sleeptimer in 1 min
@@ -1335,7 +1337,7 @@ usermenu.button_yellow Benutzermenü 'gelb'
 usermenu.head Benutzermenü
 usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
-usermenu.item_none 
+usermenu.item_none
 usermenu.item_vtxt Teletext
 usermenu.name Name
 video_mode_ok Video-Einstellungen ok ?

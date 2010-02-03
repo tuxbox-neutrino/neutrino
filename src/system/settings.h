@@ -368,7 +368,7 @@ struct SNeutrinoSettings
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
 
-	char lcd_setting_dim_time[4];          
+	char lcd_setting_dim_time[4];
 	char lcd_setting_dim_brightness[4];
 
 #define FILESYSTEM_ENCODING_TO_UTF8(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a).c_str())
@@ -407,7 +407,7 @@ struct SNeutrinoSettings
 	int filebrowser_showrights;
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
-	
+
 	//uboot
 	int	uboot_lcd_inverse;
 	int	uboot_lcd_contrast;
@@ -524,6 +524,7 @@ class CScanSettings
 	delivery_system_t         delivery_system;
 	int		scanSectionsd;
 	int		scan_mode;
+	int     scan_fta_flag;
 	int		TP_fec;
 	int		TP_pol;
 	int		TP_mod;

@@ -162,6 +162,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	scanType=(CZapitClient::scanType) configfile.getInt32("scanType", scanType);
 	strcpy(satNameNoDiseqc, configfile.getString("satNameNoDiseqc", satNameNoDiseqc).c_str());
 
+    scan_fta_flag = configfile.getInt32("scan_fta_flag", 0);
 	scan_mode = configfile.getInt32("scan_mode", 1); // NIT (0) or fast (1)
 	TP_fec = configfile.getInt32("TP_fec", 1);
 	TP_pol = configfile.getInt32("TP_pol", 0);
@@ -184,6 +185,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32( "scanType", scanType );
 	configfile.setString( "satNameNoDiseqc", satNameNoDiseqc );
 
+    configfile.setInt32("scan_fta_flag", scan_fta_flag);
 	configfile.setInt32("scan_mode", scan_mode);
 	configfile.setInt32("TP_fec", TP_fec);
 	configfile.setInt32("TP_pol", TP_pol);

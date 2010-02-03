@@ -378,7 +378,7 @@ int scan_transponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_pos
         if (cable && satfeed) {
                 /* build special transponder for cable with satfeed */
                 status = build_bf_transponder(&feparams, satellitePosition);
-        } else 
+        } else
 #endif
 	{
 		/* read network information table */
@@ -625,7 +625,7 @@ void * scan_transponder(void * arg)
         if (cable) {
                 /* build special transponder for cable with satfeed */
                 build_bf_transponder(&(TP->feparams), satellitePosition);
-        } else 
+        } else
 #endif
 	{
 		freq_id_t freq;

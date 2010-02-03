@@ -610,7 +610,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 CMenuWidget * TestMenu;
 #endif
- 
+
 CVideoSettings * videoSettings;
 CMenuOptionStringChooser* tzSelect;
 /**************************************************************************************
@@ -1019,6 +1019,8 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	CMenuOptionChooser* useNit = new CMenuOptionChooser(LOCALE_SATSETUP_USE_NIT, (int *)&scanSettings.scan_mode, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	CMenuOptionChooser* scanPids = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_SCANPIDS,  &scan_pids, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 
+	CMenuOptionChooser* ftaFlag = new CMenuOptionChooser(LOCALE_SATSETUP_USE_FTA_FLAG, (int *)&scanSettings.scan_fta_flag, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+
 	CMenuWidget* satSetup = new CMenuWidget(LOCALE_SATSETUP_SAT_SETUP, NEUTRINO_ICON_SETTINGS);
 	satSetup->addItem(GenericMenuSeparator);
 	satSetup->addItem(GenericMenuBack);
@@ -1164,16 +1166,18 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	manualScan->addItem(fec);
 	manualScan->addItem(mod_pol);
 	manualScan->addItem(useNit);
+	manualScan->addItem(ftaFlag);
 	manualScan->addItem(GenericMenuSeparatorLine);
 	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_TEST, true, NULL, scanTs, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "manual", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "manual", CRCInput::convertDigitToKey(0), digiIcon(0)));
 
 	CMenuWidget* autoScan = new CMenuWidget(LOCALE_SATSETUP_AUTO_SCAN, NEUTRINO_ICON_SETTINGS);
 	addMenueIntroItems(*autoScan);
 	autoScan->addItem(satSelect);
 	autoScan->addItem(useNit);
 	autoScan->addItem(scanPids);
-	autoScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "auto", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+	autoScan->addItem(ftaFlag);
+	autoScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "auto", CRCInput::convertDigitToKey(0), digiIcon(0)));
 
 	CMenuOptionChooser* ojDiseqc = NULL;
 	CMenuOptionNumberChooser * ojDiseqcRepeats = NULL;
@@ -1201,7 +1205,8 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		autoScanAll->addItem(new CMenuForwarder(LOCALE_SATSETUP_SATELLITE, true, NULL, satOnOff, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 		autoScanAll->addItem(useNit);
 		autoScanAll->addItem(scanPids);
-		autoScanAll->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "all", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+		autoScanAll->addItem(ftaFlag);
+		autoScanAll->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "all", CRCInput::convertDigitToKey(0), digiIcon(0)));
 	}
 
 	settings.addItem(GenericMenuSeparator);
@@ -2562,7 +2567,7 @@ bool CNeutrinoApp::getNVODMenu(CMenuWidget* menu)
 		return false;
 
 	menu->addItem(GenericMenuSeparator);
-                      
+
 	int count = 0;
 	char nvod_id[5];
 

@@ -933,6 +933,7 @@ const char *locale_real_names[] = {
 	"satsetup.auto_scan",
 	"satsetup.auto_scan_all",
 	"satsetup.manual_scan",
+	"satsetup.use_fta_flag",
 	"satsetup.use_nit",
 	"satsetup.use_usals",
 	"satsetup.usals_repeat",

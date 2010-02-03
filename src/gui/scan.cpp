@@ -85,6 +85,7 @@ CScanTs::CScanTs()
 }
 
 extern int scan_pids;
+extern int scan_fta_flag;//in zapit descriptors definiert
 #define get_set CNeutrinoApp::getInstance()->getScanSettings()
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
@@ -93,6 +94,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	neutrino_msg_data_t data;
 	//bool manual = (get_set.scan_mode == 2);
 	int scan_mode = get_set.scan_mode;
+	scan_fta_flag = get_set.scan_fta_flag;
+
 	sat_iterator_t sit;
 	bool scan_all = actionKey == "all";
 	bool test = actionKey == "test";

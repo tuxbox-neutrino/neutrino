@@ -3,7 +3,7 @@ EPGMenu.eventinfo Details current program
 EPGMenu.eventlist Eventlist current programm
 EPGMenu.head EPG - Program Information
 EPGMenu.streaminfo technical information
-EPGPlus.actions Actions 
+EPGPlus.actions Actions
 EPGPlus.bybouquet_mode by bouquet
 EPGPlus.bypage_mode by page
 EPGPlus.change_font_size font size
@@ -351,7 +351,7 @@ flashupdate.url_file config file
 flashupdate.versioncheck checking version
 flashupdate.writeflash Write whole image
 flashupdate.writeflashmtd Write one partition
-flashupdate.wrongbase Your Release cycle differs.\nTo continue? 
+flashupdate.wrongbase Your Release cycle differs.\nTo continue?
 fontmenu.channellist Channellist
 fontmenu.epg EPG
 fontmenu.eventlist Eventlist
@@ -514,7 +514,7 @@ motorcontrol.head Satellite finder
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
-movieplayer.bookmarkname_hint2 
+movieplayer.bookmarkname_hint2
 movieplayer.buffering Buffering...
 movieplayer.defdir start dir.
 movieplayer.defplugin Start-Plugin
@@ -528,32 +528,32 @@ movieplayer.nostreamingserver The streaming server could not be reached.
 movieplayer.pesplayback Play PES (Experimental)
 movieplayer.pleasewait Please wait.\nConnecting to the streaming server...
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
-movieplayer.tshelp1 Stop 
-movieplayer.tshelp10 approx. 10 minutes back 
-movieplayer.tshelp11 skip approx. 10 minutes 
-movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.tshelp2 Select audio track 
-movieplayer.tshelp3 Pause/Continue 
-movieplayer.tshelp4 Create bookmark 
-movieplayer.tshelp5 Show progress 
-movieplayer.tshelp6 approx. 1 minute back 
-movieplayer.tshelp7 skip approx. 1 minute 
-movieplayer.tshelp8 approx. 5 minutes back 
-movieplayer.tshelp9 skip approx. 5 minutes 
+movieplayer.tshelp1 Stop
+movieplayer.tshelp10 approx. 10 minutes back
+movieplayer.tshelp11 skip approx. 10 minutes
+movieplayer.tshelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.tshelp2 Select audio track
+movieplayer.tshelp3 Pause/Continue
+movieplayer.tshelp4 Create bookmark
+movieplayer.tshelp5 Show progress
+movieplayer.tshelp6 approx. 1 minute back
+movieplayer.tshelp7 skip approx. 1 minute
+movieplayer.tshelp8 approx. 5 minutes back
+movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stop 
-movieplayer.vlchelp10 approx. 10 minutes back 
-movieplayer.vlchelp11 skip approx. 10 minutes 
-movieplayer.vlchelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.vlchelp2 Resync 
-movieplayer.vlchelp3 Pause/Continue 
-movieplayer.vlchelp4 Create bookmark 
-movieplayer.vlchelp5 Show progress 
-movieplayer.vlchelp6 approx. 1 minute back 
-movieplayer.vlchelp7 skip approx. 1 minute 
-movieplayer.vlchelp8 approx. 5 minutes back 
-movieplayer.vlchelp9 skip approx. 5 minutes 
+movieplayer.vlchelp1 Stop
+movieplayer.vlchelp10 approx. 10 minutes back
+movieplayer.vlchelp11 skip approx. 10 minutes
+movieplayer.vlchelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.vlchelp2 Resync
+movieplayer.vlchelp3 Pause/Continue
+movieplayer.vlchelp4 Create bookmark
+movieplayer.vlchelp5 Show progress
+movieplayer.vlchelp6 approx. 1 minute back
+movieplayer.vlchelp7 skip approx. 1 minute
+movieplayer.vlchelp8 approx. 5 minutes back
+movieplayer.vlchelp9 skip approx. 5 minutes
 movieplayer.wrongvlcversion This feature is not support by your current version of VLC
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
@@ -665,7 +665,7 @@ pinprotection.wrongcode PIN-Code was wrong! Try again.
 plugins.result plugin output
 progressbar.color Progressbar Color
 rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RED> \n and <MENU> on your remote control.
-rclock.menueadd Lock RC 
+rclock.menueadd Lock RC
 rclock.title Lock Remote Control
 rclock.unlockmsg Remote control reactivated.
 recordingmenu.choose_direct_rec_dir choose dir on imm. recording
@@ -835,9 +835,9 @@ timerlist.repeat.unknown unknown
 timerlist.repeat.wednesday We
 timerlist.repeat.weekdays on weekdays
 timerlist.repeat.weekly weekly
-timerlist.repeatcount repeats 
-timerlist.repeatcount.help1 amount of timer repeats 
-timerlist.repeatcount.help2 0 for unlimited repeats 
+timerlist.repeatcount repeats
+timerlist.repeatcount.help1 amount of timer repeats
+timerlist.repeatcount.help2 0 for unlimited repeats
 timerlist.save Save timer
 timerlist.standby SB mode
 timerlist.standby.off Leave standby
@@ -1082,10 +1082,10 @@ moviebrowser.book_type Jump (<0 back , >0 for):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward jump over
 moviebrowser.edit_book Bookmark change
-moviebrowser.edit_book_name_info1 Enter new Bookmark name 
+moviebrowser.edit_book_name_info1 Enter new Bookmark name
 moviebrowser.edit_book_name_info2
 moviebrowser.edit_book_pos_info1 Enter new Position (s)
-moviebrowser.edit_book_pos_info2 
+moviebrowser.edit_book_pos_info2
 moviebrowser.edit_book_type_info1 Enter new jump length (s)
 moviebrowser.edit_book_type_info2 <0 back , >0 for, 0: none
 moviebrowser.edit_serie Enter name of serie
@@ -1097,11 +1097,11 @@ moviebrowser.head TS MovieBrowser
 moviebrowser.head_filter Filter movies by category:
 moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
-moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel 
-moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel 
-moviebrowser.hint_movieend Filmende in 5 s\n '0' zum weitersehen 
-moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition 
-moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition 
+moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel
+moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel
+moviebrowser.hint_movieend Filmende in 5 s\n '0' zum weitersehen
+moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition
+moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition
 moviebrowser.info_audio Audio
 moviebrowser.info_channel Channel
 moviebrowser.info_filename Name
@@ -1116,7 +1116,7 @@ moviebrowser.info_parental_lockage_12year 12 years
 moviebrowser.info_parental_lockage_16year 16 years
 moviebrowser.info_parental_lockage_18year 18 years
 moviebrowser.info_parental_lockage_6year 6 years
-moviebrowser.info_parental_lockage_always never 
+moviebrowser.info_parental_lockage_always never
 moviebrowser.info_path Path
 moviebrowser.info_prevplaydate Last play date
 moviebrowser.info_prodcountry Country
@@ -1277,6 +1277,7 @@ satsetup.motor_pos Rotor position
 satsetup.auto_scan Auto-Scan selected Satellite
 satsetup.auto_scan_all Auto-Scan multiple Satellites
 satsetup.manual_scan Manual frequency scan
+satsetup.use_fta_flag just free Channels
 satsetup.use_nit Use NIT
 satsetup.diseqc_advanced Advanced
 satsetup.diseqc_order Input order

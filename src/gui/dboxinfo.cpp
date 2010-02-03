@@ -88,9 +88,6 @@ void CDBoxInfoWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
 }
-#define FP_IOCTL_GET_LNB_CURRENT 0x100
-#define FP_IOCTL_GETID          0
-#define FP_IOCTL_UPGRADE_CTRL    0x200
 
 void CDBoxInfoWidget::paint()
 {
@@ -320,7 +317,6 @@ void CDBoxInfoWidget::paint()
 							break;
 							case 1:
 								mpOffset = nameOffset + 10;
-
 								snprintf(ubuf,buf_size,"%7.2f%c", (s.f_blocks * (s.f_bsize / 1024.0)) / gb, c);
 								break;
 							case 2:
@@ -333,7 +329,6 @@ void CDBoxInfoWidget::paint()
 								break;
 							case 4:
 								mpOffset = nameOffset+ (sizeOffset+10)*3+10;
-
 								snprintf(ubuf,buf_size,"%4ld%c", blocks_percent_used,'%');
 								break;
 							}
