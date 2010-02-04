@@ -299,6 +299,11 @@ return 0;
 	return temp;
 }
 
+int Font::getWidth(void)
+{
+	return fontwidth;
+}
+
 int Font::getHeight(void)
 {
 	return height;

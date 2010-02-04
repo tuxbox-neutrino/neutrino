@@ -68,6 +68,7 @@ class Font
 	int getRenderWidth(const char *        text, const bool utf8_encoded = false);
 	int getRenderWidth(const std::string & text, const bool utf8_encoded = false);
 	int getHeight(void);
+	int getWidth(void);
 	int getSize(){return font.width;}
 	int setSize(int isize);
 
