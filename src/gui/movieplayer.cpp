@@ -281,7 +281,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	bool usedBackground = frameBuffer->getuseBackground();
 	if (usedBackground) {
 		frameBuffer->saveBackgroundImage();
-		frameBuffer->ClearFrameBuffer();
+		frameBuffer->Clear();
 	}
 
 	const CBookmark *theBookmark = NULL;

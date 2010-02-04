@@ -793,7 +793,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 						CAudioPlayer::getInstance()->play(&mp3, g_settings.audioplayer_highprio == 1);
 					}
 					m_playing_entry = (*entries)[selected - index];
-#if 0
+#if 0 // TODO !
 // #ifdef ENABLE_PICTUREVIEWER
 					else if ((mime == "image/gif") || (mime == "image/jpeg"))
 					{
@@ -825,7 +825,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 						}
 						m_frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 						m_frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
-						m_frameBuffer->ClearFrameBuffer();
+						m_frameBuffer->Clear();
 						delete viewer;
 					}
 // #endif

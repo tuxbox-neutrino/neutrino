@@ -1923,12 +1923,7 @@ void CNeutrinoApp::SetupFrameBuffer()
 		dprintf(DEBUG_NORMAL, "Error while setting framebuffer mode\n");
 		exit(-1);
 	}
-	//make 1..8 transparent for dummy painting
-	//for(int count =0;count<256;count++)
-	for(int count =0;count<8;count++)
-		frameBuffer->paletteSetColor(count, 0x000000, 0xffff);
-	frameBuffer->paletteSet();
-	frameBuffer->ClearFrameBuffer();
+	frameBuffer->Clear();
 }
 
 /**************************************************************************************
@@ -2282,6 +2277,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 {
 	CmdParser(argc, argv);
 
+	init_cs_api();
+
 	CHintBox * hintBox;
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
@@ -2308,8 +2305,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_NEUTRINO_STARTING));
-
-	init_cs_api();
 
 	pthread_create (&zapit_thread, NULL, zapit_main_thread, (void *) g_settings.video_Mode);
 	audioSetupNotifier        = new CAudioSetupNotifier;

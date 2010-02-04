@@ -2312,7 +2312,7 @@ void CAudioPlayerGui::screensaver(bool on)
 	if (on)
 	{
 		m_screensaver = true;
-		m_frameBuffer->ClearFrameBuffer();
+		m_frameBuffer->Clear();
 		stimer = g_RCInput->addTimer(10*1000*1000, false);
 	}
 	else

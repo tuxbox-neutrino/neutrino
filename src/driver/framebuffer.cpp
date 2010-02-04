@@ -45,6 +45,7 @@
 #include <global.h>
 //#include <cnxtfb.h>
 #include <video_cs.h>
+#include <init_cs.h>
 extern cVideo * videoDecoder;
 
 extern CPictureViewer * g_PicViewer;
@@ -90,6 +91,9 @@ extern CPictureViewer * g_PicViewer;
 #define GXA_CMD_NOT_ALPHA       0x00011000
 #define GXA_CMD_NOT_TEXT        0x00018000
 #define GXA_CMD_QMARK		0x00001000
+
+#define GXA_BMP1_TYPE_REG      0x0048
+#define GXA_BMP1_ADDR_REG      0x004C
 
 /*
 static unsigned int _read_gxa(volatile unsigned char *base_addr, unsigned int offset)
@@ -191,6 +195,8 @@ CFrameBuffer* CFrameBuffer::getInstance()
 
 void CFrameBuffer::init(const char * const fbDevice)
 {
+        int tr = 0xFF;
+
 	fd = open(fbDevice, O_RDWR);
 	if(!fd) fd = open(fbDevice, O_RDWR);
 
@@ -238,12 +244,36 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	/* tell the GXA where the framebuffer to draw on starts */
 	smem_start = (unsigned int) fix.smem_start;
+printf("smem_start %x\n", smem_start);
         _write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
 	_write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
 	_write_gxa(gxa_base, GXA_CONTENT_ID_REG, 0);
 #endif
 	cache_size = 0;
 
+        /* Windows Colors */
+        paletteSetColor(0x1, 0x010101, tr);
+        paletteSetColor(0x2, 0x800000, tr);
+        paletteSetColor(0x3, 0x008000, tr);
+        paletteSetColor(0x4, 0x808000, tr);
+        paletteSetColor(0x5, 0x000080, tr);
+        paletteSetColor(0x6, 0x800080, tr);
+        paletteSetColor(0x7, 0x008080, tr);
+        paletteSetColor(0x8, 0xA0A0A0, tr);
+        paletteSetColor(0x9, 0x505050, tr);
+        paletteSetColor(0xA, 0xFF0000, tr);
+        paletteSetColor(0xB, 0x00FF00, tr);
+        paletteSetColor(0xC, 0xFFFF00, tr);
+        paletteSetColor(0xD, 0x0000FF, tr);
+        paletteSetColor(0xE, 0xFF00FF, tr);
+        paletteSetColor(0xF, 0x00FFFF, tr);
+        paletteSetColor(0x10, 0xFFFFFF, tr);
+        paletteSetColor(0x11, 0x000000, tr);
+        paletteSetColor(COL_BACKGROUND, 0x000000, 0xffff);
+
+        paletteSet();
+
+        useBackground(false);
 #if 0
 	if ((tty=open("/dev/vc/0", O_RDWR))<0) {
 		perror("open (tty)");
@@ -900,6 +930,32 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	return true;
 }
 
+bool CFrameBuffer::blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh)
+{
+	u32 cmd;
+	void * uKva;
+
+#ifdef USE_NEVIS_GXA
+	uKva = cs_phys_addr(data);
+printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", data, uKva);
+	if(uKva == NULL)
+		return false;
+
+	cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
+
+	_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | sw);
+	_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
+
+	_write_gxa(gxa_base, cmd, GXA_POINT(dx, dy));   /* destination pos */
+	_write_gxa(gxa_base, cmd, GXA_POINT(sw, sh));   /* source width */
+	_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));   /* source pos */
+
+	return true;
+#else
+	return false;
+#endif
+}
+
 /* paint icon at position x/y,
    if height h is given, center vertically between y and y+h
    offset is a color offset (probably only useful with palette) */
@@ -956,7 +1012,8 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		tmpIcon.height = height = (header.height_hi << 8) | header.height_lo;
 
 		dsize = width*height*sizeof(fb_pixel_t);
-		tmpIcon.data = (fb_pixel_t*) malloc(dsize);
+
+		tmpIcon.data = (fb_pixel_t*) cs_malloc_uncached(dsize);
 		data = tmpIcon.data;
 
 		unsigned char pixbuf[768];
@@ -997,6 +1054,9 @@ _display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
+	if(blitToPrimary(data, x, y, width, height))
+		return true;
+ 
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
 	fb_pixel_t * d2;
 
@@ -1466,38 +1526,9 @@ void CFrameBuffer::switch_signal (int signal)
 	}
 }
 
-void CFrameBuffer::ClearFrameBuffer()
+void CFrameBuffer::Clear()
 {
-	int tr;
-
-	tr = 0xFF;
-	//paletteSetColor(0, 0xFFFFFF, 0xFF);
-	//Windows Colors
-	paletteSetColor(0x1, 0x010101, tr);
-	paletteSetColor(0x2, 0x800000, tr);
-	paletteSetColor(0x3, 0x008000, tr);
-	paletteSetColor(0x4, 0x808000, tr);
-	paletteSetColor(0x5, 0x000080, tr);
-	paletteSetColor(0x6, 0x800080, tr);
-	paletteSetColor(0x7, 0x008080, tr);
-	paletteSetColor(0x8, 0xA0A0A0, tr);
-	paletteSetColor(0x9, 0x505050, tr);
-	paletteSetColor(0xA, 0xFF0000, tr);
-	paletteSetColor(0xB, 0x00FF00, tr);
-	paletteSetColor(0xC, 0xFFFF00, tr);
-	paletteSetColor(0xD, 0x0000FF, tr);
-	paletteSetColor(0xE, 0xFF00FF, tr);
-	paletteSetColor(0xF, 0x00FFFF, tr);
-	paletteSetColor(0x10, 0xFFFFFF, tr);
-	paletteSetColor(0x11, 0x000000, tr);
-	useBackground(false);
-
-	paintBackground();
-
-	//background
-	paletteSetColor(COL_BACKGROUND, 0x000000, 0xffff);
-
-	paletteSet();
+	memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
 void CFrameBuffer::showFrame(const std::string & filename)

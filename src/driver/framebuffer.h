@@ -116,9 +116,7 @@ class CFrameBuffer
 		int cache_size;
 
 	public:
-#ifndef FB_USE_PALETTE
 		fb_pixel_t realcolor[256];
-#endif
 
 		~CFrameBuffer();
 
@@ -156,11 +154,7 @@ class CFrameBuffer
 		//paint functions
 		inline void paintPixel(fb_pixel_t * const dest, const uint8_t color) const
 			{
-#ifdef FB_USE_PALETTE
-				*dest = color;
-#else
 				*dest = realcolor[color];
-#endif
 			};
 		void paintPixel(int x, int y, const fb_pixel_t col);
 
@@ -209,7 +203,7 @@ class CFrameBuffer
 		void SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
 		void RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp);
 
-		void ClearFrameBuffer();
+		void Clear();
 		void showFrame(const std::string & filename);
 		bool loadBackgroundPic(const std::string & filename, bool show = true);
 		bool Lock(void);
@@ -221,6 +215,7 @@ class CFrameBuffer
 #else
 		inline void waitForIdle(void) {};
 #endif
+		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 };
 
 

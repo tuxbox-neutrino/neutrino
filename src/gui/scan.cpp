@@ -277,7 +277,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	scan_pids = _scan_pids;
 	videoDecoder->StopPicture();
-	frameBuffer->ClearFrameBuffer();
+	frameBuffer->Clear();
 	g_Sectionsd->setPauseScanning(false);
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 

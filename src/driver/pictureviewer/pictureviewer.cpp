@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
+#include "init_cs.h"
+
 /* resize.cpp */
 extern unsigned char *simple_resize (unsigned char *orgin, int ox, int oy, int dx, int dy);
 extern unsigned char *color_average_resize (unsigned char *orgin, int ox, int oy, int dx, int dy);
@@ -86,107 +88,109 @@ CPictureViewer::CFormathandler * CPictureViewer::fh_getsize (const char *name, i
 
 bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, bool unscaled)
 {
-// dbout("DecodeImage {\n"); 
-  if (name == m_NextPic_Name) {
-//      dbout("DecodeImage }\n"); 
-	return true;
-  }
-
-  int x, y, xs, ys, imx, imy;
-  getCurrentRes (&xs, &ys);
-
-  // Show red block for "next ready" in view state
-  if (showBusySign)
-	showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
-
-  CFormathandler *fh;
-  if (unscaled)
-	fh = fh_getsize (name.c_str (), &x, &y, INT_MAX, INT_MAX);
-  else
-	fh = fh_getsize (name.c_str (), &x, &y, m_endx - m_startx, m_endy - m_starty);
-  if (fh) {
-	if (m_NextPic_Buffer != NULL) {
-	  free (m_NextPic_Buffer);
+	// dbout("DecodeImage {\n"); 
+	if (name == m_NextPic_Name) {
+		//      dbout("DecodeImage }\n"); 
+		return true;
 	}
-	m_NextPic_Buffer = (unsigned char *) malloc (x * y * 3);
-	if (m_NextPic_Buffer == NULL) {
-	  printf ("Error: malloc\n");
-	  return false;
-	}
-//      dbout("---Decoding Start(%d/%d)\n",x,y);
-	if (fh->get_pic (name.c_str (), &m_NextPic_Buffer, &x, &y) == FH_ERROR_OK) {
-//          dbout("---Decoding Done\n");
-	  if ((x > (m_endx - m_startx) || y > (m_endy - m_starty)) && m_scaling != NONE && !unscaled) {
-		if ((m_aspect_ratio_correction * y * (m_endx - m_startx) / x) <= (m_endy - m_starty)) {
-		  imx = (m_endx - m_startx);
-		  imy = (int) (m_aspect_ratio_correction * y * (m_endx - m_startx) / x);
-		} else {
-		  imx = (int) ((1.0 / m_aspect_ratio_correction) * x * (m_endy - m_starty) / y);
-		  imy = (m_endy - m_starty);
+
+	int x, y, xs, ys, imx, imy;
+
+	xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+	ys = CFrameBuffer::getInstance()->getScreenHeight(true);
+
+	// Show red block for "next ready" in view state
+	if (showBusySign)
+		showBusy (m_startx + 3, m_starty + 3, 10, 0xff, 00, 00);
+
+	CFormathandler *fh;
+	if (unscaled)
+		fh = fh_getsize (name.c_str (), &x, &y, INT_MAX, INT_MAX);
+	else
+		fh = fh_getsize (name.c_str (), &x, &y, m_endx - m_startx, m_endy - m_starty);
+	if (fh) {
+		if (m_NextPic_Buffer != NULL) {
+			free (m_NextPic_Buffer);
 		}
-		if (m_scaling == SIMPLE)
-		  m_NextPic_Buffer = simple_resize (m_NextPic_Buffer, x, y, imx, imy);
-		else
-		  m_NextPic_Buffer = color_average_resize (m_NextPic_Buffer, x, y, imx, imy);
-		x = imx;
-		y = imy;
-	  }
-	  m_NextPic_X = x;
-	  m_NextPic_Y = y;
-	  if (x < (m_endx - m_startx))
-		m_NextPic_XPos = (m_endx - m_startx - x) / 2 + m_startx;
-	  else
-		m_NextPic_XPos = m_startx;
-	  if (y < (m_endy - m_starty))
-		m_NextPic_YPos = (m_endy - m_starty - y) / 2 + m_starty;
-	  else
-		m_NextPic_YPos = m_starty;
-	  if (x > (m_endx - m_startx))
-		m_NextPic_XPan = (x - (m_endx - m_startx)) / 2;
-	  else
-		m_NextPic_XPan = 0;
-	  if (y > (m_endy - m_starty))
-		m_NextPic_YPan = (y - (m_endy - m_starty)) / 2;
-	  else
-		m_NextPic_YPan = 0;
+		m_NextPic_Buffer = (unsigned char *) malloc (x * y * 3);
+		if (m_NextPic_Buffer == NULL) {
+			printf ("DecodeImage: Error: malloc\n");
+			return false;
+		}
+		//      dbout("---Decoding Start(%d/%d)\n",x,y);
+		if (fh->get_pic (name.c_str (), &m_NextPic_Buffer, &x, &y) == FH_ERROR_OK) {
+			//          dbout("---Decoding Done\n");
+			if ((x > (m_endx - m_startx) || y > (m_endy - m_starty)) && m_scaling != NONE && !unscaled) {
+				if ((m_aspect_ratio_correction * y * (m_endx - m_startx) / x) <= (m_endy - m_starty)) {
+					imx = (m_endx - m_startx);
+					imy = (int) (m_aspect_ratio_correction * y * (m_endx - m_startx) / x);
+				} else {
+					imx = (int) ((1.0 / m_aspect_ratio_correction) * x * (m_endy - m_starty) / y);
+					imy = (m_endy - m_starty);
+				}
+				if (m_scaling == SIMPLE)
+					m_NextPic_Buffer = simple_resize (m_NextPic_Buffer, x, y, imx, imy);
+				else
+					m_NextPic_Buffer = color_average_resize (m_NextPic_Buffer, x, y, imx, imy);
+				x = imx;
+				y = imy;
+			}
+			m_NextPic_X = x;
+			m_NextPic_Y = y;
+			if (x < (m_endx - m_startx))
+				m_NextPic_XPos = (m_endx - m_startx - x) / 2 + m_startx;
+			else
+				m_NextPic_XPos = m_startx;
+			if (y < (m_endy - m_starty))
+				m_NextPic_YPos = (m_endy - m_starty - y) / 2 + m_starty;
+			else
+				m_NextPic_YPos = m_starty;
+			if (x > (m_endx - m_startx))
+				m_NextPic_XPan = (x - (m_endx - m_startx)) / 2;
+			else
+				m_NextPic_XPan = 0;
+			if (y > (m_endy - m_starty))
+				m_NextPic_YPan = (y - (m_endy - m_starty)) / 2;
+			else
+				m_NextPic_YPan = 0;
+		} else {
+			printf ("Unable to read file !\n");
+			free (m_NextPic_Buffer);
+			m_NextPic_Buffer = (unsigned char *) malloc (3);
+			if (m_NextPic_Buffer == NULL) {
+				printf ("DecodeImage: Error: malloc\n");
+				return false;
+			}
+			memset (m_NextPic_Buffer, 0, 3);
+			m_NextPic_X = 1;
+			m_NextPic_Y = 1;
+			m_NextPic_XPos = 0;
+			m_NextPic_YPos = 0;
+			m_NextPic_XPan = 0;
+			m_NextPic_YPan = 0;
+		}
 	} else {
-	  printf ("Unable to read file !\n");
-	  free (m_NextPic_Buffer);
-	  m_NextPic_Buffer = (unsigned char *) malloc (3);
-	  if (m_NextPic_Buffer == NULL) {
-		printf ("Error: malloc\n");
-		return false;
-	  }
-	  memset (m_NextPic_Buffer, 0, 3);
-	  m_NextPic_X = 1;
-	  m_NextPic_Y = 1;
-	  m_NextPic_XPos = 0;
-	  m_NextPic_YPos = 0;
-	  m_NextPic_XPan = 0;
-	  m_NextPic_YPan = 0;
+		printf ("Unable to read file or format not recognized!\n");
+		if (m_NextPic_Buffer != NULL) {
+			free (m_NextPic_Buffer);
+		}
+		m_NextPic_Buffer = (unsigned char *) malloc (3);
+		if (m_NextPic_Buffer == NULL) {
+			printf ("DecodeImage: Error: malloc\n");
+			return false;
+		}
+		memset (m_NextPic_Buffer, 0, 3);
+		m_NextPic_X = 1;
+		m_NextPic_Y = 1;
+		m_NextPic_XPos = 0;
+		m_NextPic_YPos = 0;
+		m_NextPic_XPan = 0;
+		m_NextPic_YPan = 0;
 	}
-  } else {
-	printf ("Unable to read file or format not recognized!\n");
-	if (m_NextPic_Buffer != NULL) {
-	  free (m_NextPic_Buffer);
-	}
-	m_NextPic_Buffer = (unsigned char *) malloc (3);
-	if (m_NextPic_Buffer == NULL) {
-	  printf ("Error: malloc\n");
-	  return false;
-	}
-	memset (m_NextPic_Buffer, 0, 3);
-	m_NextPic_X = 1;
-	m_NextPic_Y = 1;
-	m_NextPic_XPos = 0;
-	m_NextPic_YPos = 0;
-	m_NextPic_XPan = 0;
-	m_NextPic_YPan = 0;
-  }
-  m_NextPic_Name = name;
-  hideBusy ();
-//   dbout("DecodeImage }\n"); 
-  return (m_NextPic_Buffer != NULL);
+	m_NextPic_Name = name;
+	hideBusy ();
+	//   dbout("DecodeImage }\n"); 
+	return (m_NextPic_Buffer != NULL);
 }
 
 void CPictureViewer::SetVisible (int startx, int endx, int starty, int endy)
@@ -278,70 +282,77 @@ void CPictureViewer::Zoom (float factor)
 
 void CPictureViewer::Move (int dx, int dy)
 {
-//  dbout("Move %d %d\n",dx,dy);
-  showBusy (m_startx + 3, m_starty + 3, 10, 0x00, 0xff, 00);
+	int xs, ys;
 
-  int xs, ys;
-  getCurrentRes (&xs, &ys);
-  m_CurrentPic_XPan += dx;
-  if (m_CurrentPic_XPan + xs >= m_CurrentPic_X)
-	m_CurrentPic_XPan = m_CurrentPic_X - xs - 1;
-  if (m_CurrentPic_XPan < 0)
-	m_CurrentPic_XPan = 0;
+	//  dbout("Move %d %d\n",dx,dy);
+	showBusy (m_startx + 3, m_starty + 3, 10, 0x00, 0xff, 00);
 
-  m_CurrentPic_YPan += dy;
-  if (m_CurrentPic_YPan + ys >= m_CurrentPic_Y)
-	m_CurrentPic_YPan = m_CurrentPic_Y - ys - 1;
-  if (m_CurrentPic_YPan < 0)
-	m_CurrentPic_YPan = 0;
+	xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+	ys = CFrameBuffer::getInstance()->getScreenHeight(true);
 
-  if (m_CurrentPic_X < (m_endx - m_startx))
-	m_CurrentPic_XPos = (m_endx - m_startx - m_CurrentPic_X) / 2 + m_startx;
-  else
-	m_CurrentPic_XPos = m_startx;
-  if (m_CurrentPic_Y < (m_endy - m_starty))
-	m_CurrentPic_YPos = (m_endy - m_starty - m_CurrentPic_Y) / 2 + m_starty;
-  else
-	m_CurrentPic_YPos = m_starty;
-//  dbout("Display x(%d) y(%d) xpan(%d) ypan(%d) xpos(%d) ypos(%d)\n",m_CurrentPic_X, m_CurrentPic_Y, 
-//          m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
+	m_CurrentPic_XPan += dx;
+	if (m_CurrentPic_XPan + xs >= m_CurrentPic_X)
+		m_CurrentPic_XPan = m_CurrentPic_X - xs - 1;
+	if (m_CurrentPic_XPan < 0)
+		m_CurrentPic_XPan = 0;
 
-  fb_display (m_CurrentPic_Buffer, m_CurrentPic_X, m_CurrentPic_Y, m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
+	m_CurrentPic_YPan += dy;
+	if (m_CurrentPic_YPan + ys >= m_CurrentPic_Y)
+		m_CurrentPic_YPan = m_CurrentPic_Y - ys - 1;
+	if (m_CurrentPic_YPan < 0)
+		m_CurrentPic_YPan = 0;
+
+	if (m_CurrentPic_X < (m_endx - m_startx))
+		m_CurrentPic_XPos = (m_endx - m_startx - m_CurrentPic_X) / 2 + m_startx;
+	else
+		m_CurrentPic_XPos = m_startx;
+	if (m_CurrentPic_Y < (m_endy - m_starty))
+		m_CurrentPic_YPos = (m_endy - m_starty - m_CurrentPic_Y) / 2 + m_starty;
+	else
+		m_CurrentPic_YPos = m_starty;
+	//  dbout("Display x(%d) y(%d) xpan(%d) ypan(%d) xpos(%d) ypos(%d)\n",m_CurrentPic_X, m_CurrentPic_Y, 
+	//          m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
+
+	fb_display (m_CurrentPic_Buffer, m_CurrentPic_X, m_CurrentPic_Y, m_CurrentPic_XPan, m_CurrentPic_YPan, m_CurrentPic_XPos, m_CurrentPic_YPos);
 }
 
 CPictureViewer::CPictureViewer ()
 {
-  fh_root = NULL;
-  m_scaling = COLOR;
-  //m_aspect = 4.0 / 3;
-  m_aspect = 16.0 / 9;
-  m_CurrentPic_Name = "";
-  m_CurrentPic_Buffer = NULL;
-  m_CurrentPic_X = 0;
-  m_CurrentPic_Y = 0;
-  m_CurrentPic_XPos = 0;
-  m_CurrentPic_YPos = 0;
-  m_CurrentPic_XPan = 0;
-  m_CurrentPic_YPan = 0;
-  m_NextPic_Name = "";
-  m_NextPic_Buffer = NULL;
-  m_NextPic_X = 0;
-  m_NextPic_Y = 0;
-  m_NextPic_XPos = 0;
-  m_NextPic_YPos = 0;
-  m_NextPic_XPan = 0;
-  m_NextPic_YPan = 0;
-  int xs, ys;
-  getCurrentRes (&xs, &ys);
-  m_startx = 0;
-  m_endx = xs - 1;
-  m_starty = 0;
-  m_endy = ys - 1;
-  m_aspect_ratio_correction = m_aspect / ((double) xs / ys);
+	int xs, ys;
 
-  m_busy_buffer = NULL;
+	fh_root = NULL;
+	m_scaling = COLOR;
+	//m_aspect = 4.0 / 3;
+	m_aspect = 16.0 / 9;
+	m_CurrentPic_Name = "";
+	m_CurrentPic_Buffer = NULL;
+	m_CurrentPic_X = 0;
+	m_CurrentPic_Y = 0;
+	m_CurrentPic_XPos = 0;
+	m_CurrentPic_YPos = 0;
+	m_CurrentPic_XPan = 0;
+	m_CurrentPic_YPan = 0;
+	m_NextPic_Name = "";
+	m_NextPic_Buffer = NULL;
+	m_NextPic_X = 0;
+	m_NextPic_Y = 0;
+	m_NextPic_XPos = 0;
+	m_NextPic_YPos = 0;
+	m_NextPic_XPan = 0;
+	m_NextPic_YPan = 0;
 
-  init_handlers ();
+	xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+	ys = CFrameBuffer::getInstance()->getScreenHeight(true);
+
+	m_startx = 0;
+	m_endx = xs - 1;
+	m_starty = 0;
+	m_endy = ys - 1;
+	m_aspect_ratio_correction = m_aspect / ((double) xs / ys);
+
+	m_busy_buffer = NULL;
+
+	init_handlers ();
 }
 
 void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b)
@@ -350,17 +361,17 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
   unsigned char rgb_buffer[3];
   unsigned char *fb_buffer;
   unsigned char *busy_buffer_wrk;
-  int cpp;
+  int cpp = 4;
   struct fb_var_screeninfo *var;
-  var = CFrameBuffer::getInstance ()->getScreenInfo ();
+  var = CFrameBuffer::getInstance()->getScreenInfo ();
 
   rgb_buffer[0] = r;
   rgb_buffer[1] = g;
   rgb_buffer[2] = b;
 
-  fb_buffer = (unsigned char *) convertRGB2FB (rgb_buffer, 1, 1, var->bits_per_pixel, &cpp);
+  fb_buffer = (unsigned char *) convertRGB2FB (rgb_buffer, 1, 1);
   if (fb_buffer == NULL) {
-	printf ("Error: malloc\n");
+	printf ("showBusy: Error: malloc 1\n");
 	return;
   }
   if (m_busy_buffer != NULL) {
@@ -369,11 +380,11 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
   }
   m_busy_buffer = (unsigned char *) malloc (width * width * cpp);
   if (m_busy_buffer == NULL) {
-	printf ("Error: malloc\n");
+	printf ("showBusy: Error: malloc 2: \n");
 	return;
   }
   busy_buffer_wrk = m_busy_buffer;
-  unsigned char *fb = (unsigned char *) CFrameBuffer::getInstance ()->getFrameBufferPointer ();
+  unsigned char *fb = (unsigned char *) CFrameBuffer::getInstance()->getFrameBufferPointer();
   unsigned int stride = CFrameBuffer::getInstance ()->getStride ();
 
   for (int y = sy; y < sy + width; y++) {
@@ -433,13 +444,21 @@ bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int w
 {
         char fname[255];
 	bool ret = false;
+
         sprintf(fname, "%s/%llx.jpg", LOGO_DIR2, channel_id & 0xFFFFFFFFFFFFULL);
 printf("logo file: %s\n", fname);
         if(access(fname, F_OK))
                 sprintf(fname, "%s/%llx.gif", LOGO_DIR2, channel_id & 0xFFFFFFFFFFFFULL);
-        if(!access(fname, F_OK)) {
-                ret = DisplayImage(fname, posx, posy, width, height);
-        }
+
+	if(!access(fname, F_OK)) {
+		//ret = DisplayImage(fname, posx, posy, width, height);
+		//fb_pixel_t * data = getImage(fname, width, height);
+		fb_pixel_t * data = getIcon(fname, &width, &height);
+		if(data) {
+			CFrameBuffer::getInstance()->blitToPrimary(data, posx, posy, width, height);
+			cs_free_uncached(data);
+		}
+	}
 	return ret;
 }
 
@@ -471,8 +490,6 @@ bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy,
 
   if (m_NextPic_Name != name || m_NextPic_X != width || m_NextPic_Y != height) {
 
-  	//getCurrentRes (&xs, &ys);
-
   	fh = fh_getsize (name.c_str (), &x, &y, INT_MAX, INT_MAX);
   	if (fh) {
 		if (m_NextPic_Buffer != NULL)
@@ -480,7 +497,7 @@ bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy,
 
 		m_NextPic_Buffer = (unsigned char *) malloc (x * y * 3);
 		if (m_NextPic_Buffer == NULL) {
-		  	printf ("Error: malloc\n");
+		  	printf ("DisplayImage: Error: malloc\n");
 		  	return false;
 		}
 		if (fh->get_pic (name.c_str (), &m_NextPic_Buffer, &x, &y) == FH_ERROR_OK) {
@@ -488,6 +505,7 @@ bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy,
 			//FIXME m_aspect_ratio_correction ?
 			if(width && height) {
 				if(x != width || y != height) {
+printf("DisplayImage: resize %s, %d x %d to x=%d y=%d\n", name.c_str (), x, y, posx, posy);
 					//m_NextPic_Buffer = simple_resize (m_NextPic_Buffer, x, y, imx, imy);
 					m_NextPic_Buffer = color_average_resize (m_NextPic_Buffer, x, y, width, height);
 					x = width;
@@ -532,7 +550,7 @@ fb_pixel_t * CPictureViewer::getImage (const std::string & name, int width, int 
 
 		buffer = (unsigned char *) malloc (x * y * 3);
 		if (buffer == NULL) {
-		  	printf ("Error: malloc\n");
+		  	printf ("getImage: Error: malloc\n");
 		  	return false;
 		}
 		if (fh->get_pic (name.c_str (), &buffer, &x, &y) == FH_ERROR_OK) {
@@ -544,8 +562,7 @@ printf("getImage: decoded %s, %d x %d \n", name.c_str (), x, y);
 				y = height;
 			} 
 			struct fb_var_screeninfo *var = CFrameBuffer::getInstance()->getScreenInfo();
-			int bp;
-			ret = (fb_pixel_t *) convertRGB2FB(buffer, x, y, var->bits_per_pixel, &bp, 0);
+			ret = (fb_pixel_t *) convertRGB2FB(buffer, x, y, 0);
 			free(buffer);
 		} else {
 	  		printf ("Error decoding file %s\n", name.c_str ());
@@ -571,12 +588,14 @@ fb_pixel_t * CPictureViewer::getIcon (const std::string & name, int *width, int 
 	}
 	rgbbuff = (unsigned char *) malloc (x * y * 3);
 	if (rgbbuff == NULL) {
-		printf ("Error: malloc\n");
+		printf ("getIcon: Error: malloc\n");
 		return NULL;
 	}
 	if (fh->get_pic (name.c_str (), &rgbbuff, &x, &y) == FH_ERROR_OK) {
 		int count = x*y;
-		fbbuff = (fb_pixel_t *) malloc(count * sizeof(fb_pixel_t));
+
+		//fbbuff = (fb_pixel_t *) malloc(count * sizeof(fb_pixel_t));
+		fbbuff = (fb_pixel_t *) cs_malloc_uncached(count * sizeof(fb_pixel_t));
 		//printf("getIcon: decoded %s, %d x %d buf %x\n", name.c_str (), x, y, fbbuff);
 
 		for(int i = 0; i < count ; i++) {
