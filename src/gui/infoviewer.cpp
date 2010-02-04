@@ -218,11 +218,14 @@ void CInfoViewer::start ()
 	{	/* default mode, with signal bars etc. */
 		ChanWidth = 122;
 		ChanHeight = 74;
-		int test = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth("12555.0 MHz H") + 10;
+		int test = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*12;
 		if(test > ChanWidth){
 			ChanWidth = test;
 		}
-
+		test = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
+		if(test > ChanHeight){
+			ChanHeight = test;
+		}
 	}
 
 	BoxStartX = g_settings.screen_StartX + 10;

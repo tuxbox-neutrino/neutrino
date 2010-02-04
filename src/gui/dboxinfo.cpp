@@ -93,9 +93,10 @@ void CDBoxInfoWidget::paint()
 {
 	const int headSize = 5;
 	const char *head[headSize] = {"Filesystem", "Size", "Used", "Available", "Use%"};
-	int sizeOffset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("9999.99M");
-	int percOffset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("100%");
-	int nameOffset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("WWWwwwwwww");
+	int fontWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
+	int sizeOffset = fontWidth * 7;//9999.99M
+	int percOffset = fontWidth * 3 ;//100%
+	int nameOffset = fontWidth * 9;//WWWwwwwwww
 	int offsetw = nameOffset+ (sizeOffset+10)*3 +10+percOffset+10;
 	offsetw += 20;
 	width = offsetw + 10 + 120;
