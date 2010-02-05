@@ -122,8 +122,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 		frame_widht = 0;
 	// get icon size
 	int icon_w = 0, icon_h = 0;
-	icon_w = iconfile != NULL ? frameBuffer->getIconWidth(iconfile) : 0;
-	icon_h = iconfile != NULL ? frameBuffer->getIconHeight(iconfile) : 0;
+	if(iconfile != NULL)
+		frameBuffer->getIconSize(iconfile, &icon_w, &icon_h);
 
 	// start positions x/y active bar
 	int start_x = icon_w != 0 ? pos_x  + icon_w + 2*frame_widht : pos_x + frame_widht;

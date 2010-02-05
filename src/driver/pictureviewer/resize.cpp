@@ -30,7 +30,7 @@ unsigned char * simple_resize(unsigned char * orgin,int ox,int oy,int dx,int dy)
 
 unsigned char * color_average_resize(unsigned char * orgin,int ox,int oy,int dx,int dy)
 {
-//   dbout("color_average_resize{\n");
+	/* dbout("color_average_resize{\n");*/
 	unsigned char *cr,*p,*q;
 	int i,j,k,l,ya,yb;
 	int sq,r,g,b;
@@ -39,7 +39,7 @@ unsigned char * color_average_resize(unsigned char * orgin,int ox,int oy,int dx,
 	if(cr==NULL)
 	{
 		printf("Error: malloc\n");
-//      dbout("color_average_resize}\n");
+		/* dbout("color_average_resize}\n"); */
 		return(orgin);
 	}
 	p=cr;
@@ -72,6 +72,6 @@ unsigned char * color_average_resize(unsigned char * orgin,int ox,int oy,int dx,
 		}
 	}
 	free(orgin);
-//   dbout("color_average_resize}\n");
+	/* dbout("color_average_resize}\n"); */
 	return(cr);
 }

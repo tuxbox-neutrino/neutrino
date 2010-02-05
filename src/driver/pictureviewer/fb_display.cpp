@@ -51,9 +51,10 @@ void fb_display(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y
 		return;
 
 	/* ClearFB if image is smaller */
-	//if(x_size < (int)var->xres || y_size < (int)var->yres)
+	/* if(x_size < (int)var->xres || y_size < (int)var->yres) */
 	if(clearfb)
 		CFrameBuffer::getInstance()->Clear();
+
 	blit2FB(fbbuff, x_size, y_size, var->xres, var->yres, x_pan, y_pan, x_offs, y_offs);
 	free(fbbuff);
 }

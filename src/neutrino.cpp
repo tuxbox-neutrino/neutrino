@@ -3599,6 +3599,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
 			CVFD::getInstance()->ShowText((char *) "Rebooting...");
 
+			delete frameBuffer;
 			stop_daemons();
 
 #if 0 /* FIXME this next hack to test, until we find real crash on exit reason */
@@ -4173,7 +4174,9 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RESTART_HINT));
 			hintBox->paint();
 
-			stop_daemons();
+			networkConfig.automatic_start = (network_automatic_start == 1);
+			networkConfig.commitConfig();
+			saveSetup(NEUTRINO_SETTINGS_FILE);
 
 			delete g_RCInput;
 			delete g_Sectionsd;
@@ -4183,11 +4186,11 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete g_Zapit;
 			delete CVFD::getInstance();
 
-			networkConfig.automatic_start = (network_automatic_start == 1);
-			networkConfig.commitConfig();
-			saveSetup(NEUTRINO_SETTINGS_FILE);
 			delete hintBox;
 			delete frameBuffer;
+
+			stop_daemons();
+
 			execvp(global_argv[0], global_argv); // no return if successful
 			exit(1);
 		}
@@ -4471,7 +4474,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 /**************************************************************************************
 *          changeNotify - features menu recording start / stop                        *
 **************************************************************************************/
-bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void */*data*/)
+bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
 {
 	if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING_START)) || (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING)))
 	{

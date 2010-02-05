@@ -1450,7 +1450,12 @@ void CChannelList::paintItem(int pos)
 		paintItem2DetailsLine (pos, curr);
 		paintDetails(curr);
 		frameBuffer->paintBoxRel(x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
-        	g_PicViewer->DisplayLogo(chanlist[selected]->channel_id, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+		//g_PicViewer->DisplayLogo(chanlist[selected]->channel_id, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+
+		std::string lname;
+		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname))
+			g_PicViewer->DisplayImage(lname, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
 	} else {
 		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;

@@ -261,7 +261,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 
 	name = channelname;
 	sort_mode=0;
-	paintHead(channel_id);
+	paintHead(channel_id, name);
 	readEvents(channel_id);
 	paint(channel_id);
 	showFunctionBar(true);
@@ -370,7 +370,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			else
 				liststart=(selected/listmaxshow)*listmaxshow;
 			hide();
-			paintHead(channel_id);
+			paintHead(channel_id, name);
 			paint(channel_id);
 			showFunctionBar(true);
 
@@ -481,7 +481,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			if(in_search) {
 				in_search = false;
 				name = channelname;
-				paintHead(channel_id);
+				paintHead(channel_id, name);
 				readEvents(channel_id);
 				paint(channel_id);
 				showFunctionBar(true);
@@ -525,7 +525,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 					timerlist.clear();
 					g_Timerd->getTimerList (timerlist);
 
-					paintHead(channel_id);
+					paintHead(channel_id, name);
 					paint(channel_id);
 					showFunctionBar(true);
 				}
@@ -672,14 +672,18 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_id)
 	}
 }
 
-void EventList::paintHead(t_channel_id channel_id)
+void EventList::paintHead(t_channel_id channel_id, std::string channelname)
 {
 	bool logo_ok = false;
 
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
-#ifndef FB_USE_PALETTE
-        logo_ok = g_PicViewer->DisplayLogo(channel_id, x+10, y+(theight-PIC_H)/2, PIC_W, PIC_H);
-#endif
+
+	std::string lname;
+	if(g_PicViewer->GetLogoName(channel_id, channelname, lname))
+		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+
+        //logo_ok = g_PicViewer->DisplayLogo(channel_id, x+10, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+
 	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+PIC_W:0),y+theight+1, width, name.c_str(), COL_MENUHEAD, 0, true); // UTF-8
 }
 
@@ -884,7 +888,7 @@ int EventList::findEvents(void)
 		name += m_search_keyword;
 		name += "'";
 	}
-	paintHead(0);
+	paintHead(0, "");
 	paint();
 	showFunctionBar(true);
 	return(res);

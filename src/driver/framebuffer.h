@@ -122,9 +122,6 @@ class CFrameBuffer
 
 		static CFrameBuffer* getInstance();
 
-		int getIconWidth(const char * const filename);	// infos about icon dimensions
-		int getIconHeight(const char * const filename);
-
 		void init(const char * const fbDevice = "/dev/fb/0");
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
 
@@ -173,11 +170,10 @@ class CFrameBuffer
 
 		void setIconBasePath(const std::string & iconPath);
 
+		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */
-		bool paintIcon (const char * const filename, const int x, const int y,
-				const int h = 0, const unsigned char offset = 1);
 		bool paintIcon (const std::string & filename, const int x, const int y,
-				const int h = 0, const unsigned char offset = 1);
+				const int h = 0, const unsigned char offset = 1, bool paint = true);
 		bool paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset = 0);
 		void loadPal   (const std::string & filename, const unsigned char offset = 0, const unsigned char endidx = 255);
 
@@ -215,6 +211,9 @@ class CFrameBuffer
 #else
 		inline void waitForIdle(void) {};
 #endif
+		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
+		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
+		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 };
 

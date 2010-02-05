@@ -518,16 +518,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 	sprintf (strChanNum, "%d", ChanNum);
 
 	int ChanNumWidth = 0;
-#if 0
-	if (showButtonBar) {
-#define PIC_W 52
-#define PIC_H 39
-#define PIC_X (ChanNameX + 10)
-#define PIC_Y (ChanNameY + time_height - PIC_H)
-		logo_ok = g_PicViewer->DisplayLogo(channel_id, PIC_X, PIC_Y, PIC_W, PIC_H);
-		ChanNumWidth = PIC_W + 10;
-	}
-#endif
+
 	if (ChanNum) /* !fileplay */
 	{
 		/* TODO: the logic will get much easier once we decouple channellogo and signal bars */
@@ -1605,12 +1596,6 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 	if (!g_settings.infobar_show_channellogo) // show logo only if configured
 		return 0;
 
-	char strChanId[16];
-	sprintf(strChanId, "%llx", logo_channel_id & 0xFFFFFFFFFFFFULL);
-	/* first the channel-id, then the channelname */
-	std::string strLogoName[2] = { (std::string)strChanId, ChannelName };
-	/* first jpg, then gif */
-	std::string strLogoExt[2] = { ".jpg", ".gif" };
 	std::string strAbsIconPath;
 
 	int x_mid, y_mid, logo_w, logo_h;
@@ -1619,36 +1604,12 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 	int start_x = ChanNameX;
 	int chan_w = BoxEndX- (start_x+ 20)- time_width- 15;
 
-	bool logo_available = false;
-	int i, j;
+	bool logo_available = g_PicViewer->GetLogoName(logo_channel_id, ChannelName, strAbsIconPath, &logo_w, &logo_h);
 
-	// check if logo is available
-	for (i = 0; i < 2; i++)
-	{
-		for (j = 0; j < 2; j++)
-		{
-			std::string tmp(LOGO_DIR2 "/" + strLogoName[i] + strLogoExt[j]);
-			//fprintf(stderr, "%s: checking for '%s'...", __FUNCTION__, tmp.c_str());
-			if (access(tmp.c_str(), R_OK) != -1)
-			{
-				//fprintf(stderr, "ok!\n");
-				strAbsIconPath = tmp;
-				logo_available = true;
-				break;
-			}
-			//fprintf(stderr, "failed\n");
-		}
-		if (logo_available)
-			break;
-	}
+	fprintf(stderr, "%s: logo_available: %d file: %s\n", __FUNCTION__, logo_available, strAbsIconPath.c_str());
 
-	//fprintf(stderr, "%s: logo_available: %d file: %s\n", __FUNCTION__, logo_available, strAbsIconPath.c_str());
 	if (! logo_available)
 		return 0;
-
-	// get logo sizes
-	logo_w = g_PicViewer->getWidth(strAbsIconPath.c_str());
-	logo_h = g_PicViewer->getHeight(strAbsIconPath.c_str());
 
 	if ((logo_w == 0) || (logo_h == 0)) // corrupt logo size?
 	{

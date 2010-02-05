@@ -228,7 +228,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 	}
 
 #ifdef USE_NEVIS_GXA
-	/* Open 7dev/mem for HW-register access */
+	/* Open /dev/mem for HW-register access */
 	devmem_fd = open("/dev/mem", O_RDWR | O_SYNC);
 	if (devmem_fd < 0) {
 		perror("Unable to open /dev/mem");
@@ -331,6 +331,14 @@ nolfb:
 
 CFrameBuffer::~CFrameBuffer()
 {
+	std::map<std::string, rawIcon>::iterator it;
+
+	for(it = icon_cache.begin(); it != icon_cache.end(); it++) {
+		/* printf("FB: delete cached icon %s: %x\n", it->first.c_str(), (int) it->second.data); */
+		cs_free_uncached(it->second.data);
+	}
+	icon_cache.clear();
+
 	if (background) {
 		delete[] background;
 		background = NULL;
@@ -740,32 +748,20 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 		return;
 
 #ifdef USE_NEVIS_GXA
-    /* draw a single vertical line from point x/y with hight dx */
-    unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
+	/* draw a single vertical line from point x/y with hight dx */
+	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
-    _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
-    _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, y + dy));		/* end point */
-    _write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */
+	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
+	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
+	_write_gxa(gxa_base, cmd, GXA_POINT(x, y + dy));		/* end point */
+	_write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */
 #else /* USE_NEVIS_GXA */
-#if 0
-	fb_fillrect fillrect;
-	fillrect.dx = x;
-	fillrect.dy = y;
-	fillrect.width = 1;
-	fillrect.height = dy;
-	fillrect.color = col;
-	fillrect.rop = ROP_COPY;
-	ioctl(fd, FBIO_FILL_RECT, &fillrect);
-	return;
-#else
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 
 	for(int count=0;count<dy;count++) {
 		*(fb_pixel_t *)pos = col;
 		pos += stride;
 	}
-#endif
 #endif /* USE_NEVIS_GXA */
 }
 
@@ -820,68 +816,22 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 	iconBasePath = iconPath;
 }
 
-int CFrameBuffer::getIconHeight(const char * const filename)
+void CFrameBuffer::getIconSize(const char * const filename, int* width, int *height)
 {
-	struct rawHeader header;
-	uint16_t         height;
-	int              icon_fd;
+	std::map<std::string, rawIcon>::iterator it;
 
-	char *ptr = rindex(filename, '.');
-	if (ptr) {
-		*ptr = 0;
-		std::string newname = iconBasePath + std::string(filename) + ".gif";
-		*ptr = '.';
-		if (!access(newname.c_str(), F_OK))
-			return g_PicViewer->getHeight(newname.c_str());
+	*width = 0;
+	*height = 0;
+
+	/* if code ask for size, lets cache it. assume we have enough ram for cache */
+	/* FIXME offset seems never used in code, always default = 1 ? */
+	if(paintIcon(filename, 0, 0, 0, 1, false)) {
+		it = icon_cache.find(filename);
+		if(it != icon_cache.end()) {
+			*width = it->second.width;
+			*height = it->second.height;
+		}
 	}
-
-	icon_fd = open(filename, O_RDONLY);
-
-	if (icon_fd == -1)
-	{
-		printf("Framebuffer getIconHeight: error while loading icon: %s\n", filename);
-		return 0;
-	}
-	else
-	{
-		read(icon_fd, &header, sizeof(struct rawHeader));
-		height = (header.height_hi << 8) | header.height_lo;
-	}
-
-	close(icon_fd);
-	return height;
-}
-
-int CFrameBuffer::getIconWidth(const char * const filename)
-{
-	struct rawHeader header;
-	uint16_t         width;
-	int              icon_fd;
-
-	char *ptr = rindex(filename, '.');
-	if (ptr) {
-		*ptr = 0;
-		std::string newname = iconBasePath + std::string(filename) + ".gif";
-		*ptr = '.';
-		if (!access(newname.c_str(), F_OK))
-			return g_PicViewer->getWidth(newname.c_str());
-	}
-
-	icon_fd = open(filename, O_RDONLY);
-
-	if (icon_fd == -1)
-	{
-		printf("Framebuffer getIconWidth: error while loading icon: %s\n", filename);
-		width = 0;
-	}
-	else
-	{
-		read(icon_fd, &header, sizeof(struct rawHeader));
-		width = (header.width_hi << 8) | header.width_lo;
-	}
-
-	close(icon_fd);
-	return width;
 }
 
 bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset)
@@ -932,12 +882,12 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 
 bool CFrameBuffer::blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh)
 {
+#ifdef USE_NEVIS_GXA
 	u32 cmd;
 	void * uKva;
 
-#ifdef USE_NEVIS_GXA
 	uKva = cs_phys_addr(data);
-printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", data, uKva);
+printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", (int) data, (int) uKva);
 	if(uKva == NULL)
 		return false;
 
@@ -960,7 +910,7 @@ printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", data, uKva);
    if height h is given, center vertically between y and y+h
    offset is a color offset (probably only useful with palette) */
 bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const int y,
-			     const int h, const unsigned char offset)
+			     const int h, const unsigned char offset, bool paint)
 {
 	struct rawHeader header;
 	int         width, height;
@@ -1050,13 +1000,17 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		height = it->second.height;
 		//printf("paintIcon: already cached %s %d x %d\n", newname.c_str(), width, height);
 	}
+	if(!paint)
+		return true;
+
 _display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
-	if(blitToPrimary(data, x, y, width, height))
-		return true;
+	blit2FB(data, width, height, x, yy, 0, 0, true);
+	return true;
  
+#if 0
 	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * yy;
 	fb_pixel_t * d2;
 
@@ -1075,14 +1029,17 @@ _display:
 	}
 
 	return true;
+#endif
 }
 
+#if 0
 bool CFrameBuffer::paintIcon(const char * const filename, const int x, const int y,
 			     const int h, const unsigned char offset)
 {
 //printf("%s(%s, %d, %d, %d)\n", __FUNCTION__, filename, x, y, offset);
 	return paintIcon(std::string(filename), x, y, h, offset);
 }
+#endif
 
 void CFrameBuffer::loadPal(const std::string & filename, const unsigned char offset, const unsigned char endidx)
 {
@@ -1552,3 +1509,105 @@ void CFrameBuffer::Unlock()
 {
 	locked = false;
 }
+
+void * CFrameBuffer::convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp)
+{
+	unsigned long i;
+	unsigned int *fbbuff;
+	unsigned long count = x*y;
+
+	fbbuff = (unsigned int *) malloc(count * sizeof(unsigned int));
+	if(fbbuff == NULL)
+	{
+		printf("convertRGB2FB: Error: malloc\n");
+		return NULL;
+	}
+
+	for(i = 0; i < count ; i++)
+		fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+
+	return (void *) fbbuff;
+}
+
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+{
+	int  xc, yc;
+
+	xc = (width > xRes) ? xRes : width;
+	yc = (height > yRes) ? yRes : height;
+
+#ifdef USE_NEVIS_GXA
+        u32 cmd;
+        void * uKva;
+
+        uKva = cs_phys_addr(fbbuff);
+	printf("CFrameBuffer::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
+
+	if(uKva != NULL) {
+		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);
+
+		_write_gxa(gxa_base, GXA_BMP1_TYPE_REG, (3 << 16) | width);
+		_write_gxa(gxa_base, GXA_BMP1_ADDR_REG, (unsigned int) uKva);
+
+		_write_gxa(gxa_base, cmd, GXA_POINT(xoff, yoff));   /* destination pos */
+		_write_gxa(gxa_base, cmd, GXA_POINT(xc, yc));   /* source width, FIXME real or adjusted xc, yc ? */
+		_write_gxa(gxa_base, cmd, GXA_POINT(xp, yp));   /* source pos */
+
+		return;
+	}
+#endif
+
+	fb_pixel_t*  data = (fb_pixel_t *) fbbuff;
+
+	uint8_t * d = ((uint8_t *)getFrameBufferPointer()) + xoff * sizeof(fb_pixel_t) + stride * yoff;
+	fb_pixel_t * d2;
+
+	for (int count = 0; count < yc; count++ ) {
+		fb_pixel_t *pixpos = &data[(count + yp) * width];
+		d2 = (fb_pixel_t *) d;
+		for (int count2 = 0; count2 < xc; count2++ ) {
+			fb_pixel_t pix = *(pixpos + xp);
+			if (!transp || (pix != 0)) {
+				*d2 = pix;
+			}
+			d2++;
+			pixpos++;
+		}
+		d += stride;
+	}
+#if 0
+	for(int i = 0; i < yc; i++){
+		memcpy(clfb + (i + yoff)*stride + xoff*4, ip + (i + yp)*width + xp, xc*4);
+	}
+#endif
+}
+
+void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)
+{
+        void *fbbuff = NULL;
+
+        if(rgbbuff == NULL)
+                return;
+
+        /* correct panning */
+        if(x_pan > x_size - (int)xRes) x_pan = 0;
+        if(y_pan > y_size - (int)yRes) y_pan = 0;
+
+        /* correct offset */
+        if(x_offs + x_size > (int)xRes) x_offs = 0;
+        if(y_offs + y_size > (int)yRes) y_offs = 0;
+
+        /* blit buffer 2 fb */
+        fbbuff = convertRGB2FB(rgbbuff, x_size, y_size, transp);
+        if(fbbuff==NULL)
+                return;
+
+        /* ClearFB if image is smaller */
+        /* if(x_size < (int)xRes || y_size < (int)yRes) */
+        if(clearfb)
+                CFrameBuffer::getInstance()->Clear();
+
+        blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
+        free(fbbuff);
+}
+

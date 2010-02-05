@@ -26,11 +26,7 @@
 class CFBWindow
 {
  public:
-#ifdef FB_USE_PALETTE
-	typedef unsigned short color_t;
-#else
 	typedef unsigned int color_t;
-#endif
 	typedef void *         font_t;
 	typedef void *         private_data_t;
 

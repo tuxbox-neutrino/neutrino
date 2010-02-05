@@ -592,9 +592,8 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameTitleRel.iY = 		0;
 	m_cBoxFrameTitleRel.iWidth = 		m_cBoxFrame.iWidth;
 	m_cBoxFrameTitleRel.iHeight = 		m_pcFontTitle->getHeight();
-#ifndef FB_USE_PALETTE
+
 	if(m_cBoxFrameTitleRel.iHeight < PIC_H) m_cBoxFrameTitleRel.iHeight = PIC_H;
-#endif
 
 	m_cBoxFrameBrowserList.iX = 		m_cBoxFrame.iX;
 	m_cBoxFrameBrowserList.iY = 		m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
@@ -1181,20 +1180,22 @@ void CMovieBrowser::refreshMovieInfo(void)
 		int divx = 720/m_cBoxFrameInfo.iHeight;
 		int picw = 720/divx;
 		int pich = 576/divx;
-#ifndef FB_USE_PALETTE
 		std::string fname = m_movieSelectionHandler->file.Name;
 		strReplace(fname, ".ts", ".bmp");
 //printf("screenshot name: %s\n", fname.c_str());
 		logo_ok = !access(fname.c_str(), F_OK);
-#endif
+
 		m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-picw-20: 0);
 
-#ifndef FB_USE_PALETTE
 //printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
 		int lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-PIC_W-10;
 		int ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-PIC_H)/2;
 		m_pcWindow->paintBoxRel(lx, ly, PIC_W, PIC_H, TITLE_BACKGROUND_COLOR);
-        	g_PicViewer->DisplayLogo(m_movieSelectionHandler->epgEpgId >>16, lx, ly, PIC_W, PIC_H);
+        	//g_PicViewer->DisplayLogo(m_movieSelectionHandler->epgEpgId >>16, lx, ly, PIC_W, PIC_H);
+        	std::string lname;
+		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname))
+			g_PicViewer->DisplayImage(lname, lx, ly, PIC_W, PIC_H);
+		
 		if(logo_ok) {
 #if 0
 			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - picw -10;
@@ -1209,7 +1210,6 @@ void CMovieBrowser::refreshMovieInfo(void)
 			m_pcWindow->paintHLineRel(lx, picw, ly+pich, COL_WHITE);
 			g_PicViewer->DisplayImage(fname, lx+3, ly+3, picw-3, pich-3);
 		}
-#endif
 	}
 }
 

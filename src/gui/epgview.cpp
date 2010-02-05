@@ -52,6 +52,8 @@
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 
+#include <zapit/bouquets.h>
+
 extern CPictureViewer * g_PicViewer;
 #define PIC_W 52
 #define PIC_H 39
@@ -433,7 +435,7 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 extern char recDir[255];
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-
+extern tallchans allchans;
 int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_t* a_startzeit, bool doLoop )
 {
 	int res = menu_return::RETURN_REPAINT;
@@ -571,8 +573,21 @@ int CEpgData::show(const t_channel_id channel_id, unsigned long long a_id, time_
 	frameBuffer->paintBoxRel(sx, sy, ox, toph, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
 
 	int pic_offx = 0;
-	if (g_PicViewer->DisplayLogo(channel_id, sx+10, sy + (toph-PIC_H)/2/*5*/, PIC_W, PIC_H))
-		pic_offx = PIC_W + 10;
+
+	//hack..
+	tallchans_iterator cit = allchans.find(channel_id);
+	if(cit != allchans.end()) {
+		std::string lname;
+		if(g_PicViewer->GetLogoName(channel_id, cit->second.getName(), lname)) {
+			g_PicViewer->DisplayImage(lname, sx+10, sy + (toph-PIC_H)/2/*5*/, PIC_W, PIC_H);
+			pic_offx = PIC_W + 10;
+		}
+
+	}
+
+	//if (g_PicViewer->DisplayLogo(channel_id, sx+10, sy + (toph-PIC_H)/2/*5*/, PIC_W, PIC_H))
+	//	pic_offx = PIC_W + 10;
+
 	g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->RenderString(sx+15 + pic_offx, sy + topheight+ 3, ox-15- pic_offx, text1, COL_MENUHEAD, 0, true);
 	if (!(text2.empty()))
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->RenderString(sx+15+ pic_offx, sy+ 2* topheight+ 3, ox-15 - pic_offx, text2, COL_MENUHEAD, 0, true);
