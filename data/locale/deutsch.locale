@@ -1337,7 +1337,7 @@ usermenu.button_yellow Benutzermenü 'gelb'
 usermenu.head Benutzermenü
 usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
-usermenu.item_none
+usermenu.item_none 
 usermenu.item_vtxt Teletext
 usermenu.name Name
 video_mode_ok Video-Einstellungen ok ?
