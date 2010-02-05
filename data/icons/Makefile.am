@@ -5,7 +5,7 @@ install_DATA = \
 	16_9.png 16_9_gray.png \
 	audio.png \
 	fta.raw 16.raw b16.raw b2.raw b3.raw \
-	bayrisch.png ch-baslerdeutsch.png ch-berndeutsch.png deutsch.png dutch.png \
+	bayrisch.png ch-baslerdeutsch.png ch-berndeutsch.png deutsch.png dutch.png bosanski.png \
 	ellinika.png english.png francais.png french.png hungarian.png italiano.png \
 	polski.png portugues.png romania.png russkij.png netherlands.png suomi.png svenska.png \
 	language.png \
