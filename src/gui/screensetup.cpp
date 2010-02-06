@@ -46,10 +46,10 @@
 #include <global.h>
 #include <neutrino.h>
 
-int x=15*5;
-int y=15*25;
-int BoxHeight=15*4;
-int BoxWidth=15*23;
+int x_box = 15 * 5;
+int y_box; //=15*25;
+int BoxHeight; //=15*4;
+int BoxWidth; //=15*23;
 
 inline unsigned int make16color(__u32 rgb)
 {
@@ -72,6 +72,14 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 	{
 		parent->hide();
 	}
+
+	y_box = frameBuffer->getScreenHeight(true) / 2;
+	BoxHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	BoxWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT));
+	int tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT));
+	if (tmp > BoxWidth)
+		BoxWidth = tmp;
+	BoxWidth += 30;
 
 	x_coord[0] = g_settings.screen_StartX;
 	x_coord[1] = g_settings.screen_EndX;
@@ -124,12 +132,18 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 				{
 					selected = ( msg == CRCInput::RC_green ) ? 1 : 0 ;
 
-					frameBuffer->paintBoxRel(x,y, BoxWidth,BoxHeight/2, (selected==0)? COL_MENUCONTENTSELECTED_PLUS_0:COL_MENUCONTENT_PLUS_0);
-					frameBuffer->paintBoxRel(x,y+BoxHeight/2, BoxWidth,BoxHeight/2, (selected==1)? COL_MENUCONTENTSELECTED_PLUS_0:COL_MENUCONTENT_PLUS_0);
+					frameBuffer->paintBoxRel(x_box, y_box, BoxWidth, BoxHeight,
+						(selected == 0)?COL_MENUCONTENTSELECTED_PLUS_0:COL_MENUCONTENT_PLUS_0);
+					frameBuffer->paintBoxRel(x_box, y_box, y_box + BoxHeight, BoxWidth, BoxHeight,
+						(selected ==1 )?COL_MENUCONTENTSELECTED_PLUS_0:COL_MENUCONTENT_PLUS_0);
 
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+30,y+BoxHeight/2, BoxWidth, g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT ), (selected == 0)?COL_MENUCONTENTSELECTED:COL_MENUCONTENT, 0, true); // UTF-8
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + 30, y_box + BoxHeight, BoxWidth,
+						g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT),
+						(selected == 0)?COL_MENUCONTENTSELECTED:COL_MENUCONTENT, 0, true);
 
-					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+30,y+BoxHeight, BoxWidth, g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT), (selected == 1)?COL_MENUCONTENTSELECTED:COL_MENUCONTENT, 0, true); // UTF-8
+					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + 30, y_box + BoxHeight * 2, BoxWidth,
+						g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT),
+						(selected == 1)?COL_MENUCONTENTSELECTED:COL_MENUCONTENT, 0, true);
 
 					paintIcons();
 					break;
@@ -231,8 +245,8 @@ void CScreenSetup::unpaintBorder(int pselected)
 
 void CScreenSetup::paintIcons()
 {
-        frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, x+6, y+8);
-        frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x+6, y+36 );
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, x_box + 6, y_box + 8);
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x_box + 6, y_box + 8 + BoxHeight);
 }
 
 void CScreenSetup::paintBorderUL()
@@ -247,30 +261,29 @@ void CScreenSetup::paintBorderLR()
 
 void CScreenSetup::paintCoords()
 {
-	int w = 15*9;
-	int h = 15*6;
+	Font *f = g_Font[SNeutrinoSettings::FONT_TYPE_MENU];
+	int w = f->getRenderWidth("EX: 2222") * 5 / 4;	/* half glyph border left and right */
+	int fh = f->getHeight();
+	int h = fh * 4;		/* 4 lines, fonts have enough space around them, no extra border */
 
-	//int x=15*19;
-	//int y=15*16;
-	int x1 = (frameBuffer->getScreenWidth(true) - w) / 2;
-	int y1 = (frameBuffer->getScreenHeight(true) - h) / 2;
+	int x1 = (frameBuffer->getScreenWidth(true) - w) / 2;	/* centered */
+	int y1 = frameBuffer->getScreenHeight(true) / 2 - h;	/* above center, to avoid conflict */
+	int x2 = x1 + w / 10;
+	int y2 = y1 + fh;
 
-	frameBuffer->paintBoxRel(x1,y1, 15*9,15*6, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x1, y1, w, h, COL_MENUCONTENT_PLUS_0);
 
-	char xpos[30];
-	char ypos[30];
-	char xepos[30];
-	char yepos[30];
-
-	sprintf((char*) &xpos, "SX: %d",x_coord[0] );
-	sprintf((char*) &ypos, "SY: %d", y_coord[0] );
-	sprintf((char*) &xepos, "EX: %d", x_coord[1] );
-	sprintf((char*) &yepos, "EY: %d", y_coord[1] );
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x1+10,y1+30, 200, xpos, COL_MENUCONTENT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x1+10,y1+50, 200, ypos, COL_MENUCONTENT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x1+10,y1+70, 200, xepos, COL_MENUCONTENT);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x1+10,y1+90, 200, yepos, COL_MENUCONTENT);
+	char str[4][16];
+	snprintf(str[0], 16, "SX: %d", x_coord[0]);
+	snprintf(str[1], 16, "SY: %d", y_coord[0]);
+	snprintf(str[2], 16, "EX: %d", x_coord[1]);
+	snprintf(str[3], 16, "EY: %d", y_coord[1]);
+	/* the code is smaller with this loop instead of open-coded 4x RenderString() :-) */
+	for (int i = 0; i < 4; i++)
+	{
+		f->RenderString(x2, y2, w, str[i], COL_MENUCONTENT);
+		y2 += fh;
+	}
 }
 
 void CScreenSetup::paint()
@@ -297,12 +310,12 @@ void CScreenSetup::paint()
         //frameBuffer->paintBoxRel(225, 89, 496, 3, COL_MENUCONTENT_PLUS_0); //upper letterbox marker
         //frameBuffer->paintBoxRel(0, 495, 481, 3, COL_MENUCONTENT_PLUS_0);  //lower letterbox marker
 
-        frameBuffer->paintBoxRel(x, y, BoxWidth, BoxHeight/2, COL_MENUCONTENTSELECTED_PLUS_0);   //upper selected box
-        frameBuffer->paintBoxRel(x, y+BoxHeight/2, BoxWidth, BoxHeight/2, COL_MENUCONTENT_PLUS_0);  //lower selected box
+	frameBuffer->paintBoxRel(x_box, y_box, BoxWidth, BoxHeight, COL_MENUCONTENTSELECTED_PLUS_0);   //upper selected box
+	frameBuffer->paintBoxRel(x_box, y_box + BoxHeight, BoxWidth, BoxHeight, COL_MENUCONTENT_PLUS_0); //lower selected box
 
-        g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+30, y+BoxHeight/2, BoxWidth,
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + 30, y_box + BoxHeight, BoxWidth,
 		g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT ), COL_MENUCONTENTSELECTED , 0, true); // UTF-8
-        g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+30, y+BoxHeight, BoxWidth,
+        g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + 30, y_box + BoxHeight * 2, BoxWidth,
 		g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT), COL_MENUCONTENT, 0, true); // UTF-8
 //new end
 #if 0 // old
