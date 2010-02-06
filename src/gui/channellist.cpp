@@ -473,7 +473,7 @@ int CChannelList::show()
 
 	gettimeofday(&t2, NULL);
 	fprintf(stderr, "CChannelList::show(): %llu ms to paint channellist\n",
-		((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL);
+			((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL);
 
 	int oldselected = selected;
 	int zapOnExit = false;
@@ -537,53 +537,57 @@ int CChannelList::show()
 			paint();
 			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
 		}
-                else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
-                {
-                        int step = 0;
-                        int prev_selected = selected;
+		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+		{
+			int step = 0;
+			int prev_selected = selected;
 
-                        step =  ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-                        selected -= step;
-                        if((prev_selected-step) < 0)            // because of uint
-                                selected = chanlist.size() - 1;
+			step =  ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+			selected -= step;
+			if((prev_selected-step) < 0)            // because of uint
+				selected = chanlist.size() - 1;
 
-                        paintItem(prev_selected - liststart);
-                        unsigned int oldliststart = liststart;
-                        liststart = (selected/listmaxshow)*listmaxshow;
-                        if(oldliststart!=liststart)
-                                paint();
-                        else
-                                paintItem(selected - liststart);
-
-			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
-                        //paintHead();
-                }
-                else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
-                {
-                        unsigned int step = 0;
-                        int prev_selected = selected;
-
-                        step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-                        selected += step;
-
-                        if(selected >= chanlist.size()) {
-                                if (((chanlist.size() / listmaxshow) + 1) * listmaxshow == chanlist.size() + listmaxshow) // last page has full entries
-                                        selected = 0;
-                                else
-                                        selected = ((step == listmaxshow) && (selected < (((chanlist.size() / listmaxshow)+1) * listmaxshow))) ? (chanlist.size() - 1) : 0;
+			paintItem(prev_selected - liststart);
+			unsigned int oldliststart = liststart;
+			liststart = (selected/listmaxshow)*listmaxshow;
+			if(oldliststart!=liststart)
+				paint();
+			else {
+				paintItem(selected - liststart);
+				showChannelLogo();
 			}
 
-                        paintItem(prev_selected - liststart);
-                        unsigned int oldliststart = liststart;
-                        liststart = (selected/listmaxshow)*listmaxshow;
-                        if(oldliststart!=liststart)
-                                paint();
-                        else
-                                paintItem(selected - liststart);
+			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			//paintHead();
+		}
+		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+		{
+			unsigned int step = 0;
+			int prev_selected = selected;
+
+			step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+			selected += step;
+
+			if(selected >= chanlist.size()) {
+				if (((chanlist.size() / listmaxshow) + 1) * listmaxshow == chanlist.size() + listmaxshow) // last page has full entries
+					selected = 0;
+				else
+					selected = ((step == listmaxshow) && (selected < (((chanlist.size() / listmaxshow)+1) * listmaxshow))) ? (chanlist.size() - 1) : 0;
+			}
+
+			paintItem(prev_selected - liststart);
+			unsigned int oldliststart = liststart;
+			liststart = (selected/listmaxshow)*listmaxshow;
+			if(oldliststart!=liststart)
+				paint();
+			else {
+				paintItem(selected - liststart);
+				showChannelLogo();
+			}
 
 			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
-                        //paintHead();
-                }
+			//paintHead();
+		}
 
 		else if ((msg == (neutrino_msg_t)g_settings.key_bouquet_up) && (bouquetList != NULL)) {
 			if (bouquetList->Bouquets.size() > 0) {
@@ -641,21 +645,21 @@ int CChannelList::show()
 		}
 		else if (CRCInput::isNumeric(msg) && (this->historyMode || g_settings.sms_channel)) {
 			if (this->historyMode) { //numeric zap
-			      switch (msg) {
-				        case CRCInput::RC_0:selected = 0;break;
-				        case CRCInput::RC_1:selected = 1;break;
-				        case CRCInput::RC_2:selected = 2;break;
-				        case CRCInput::RC_3:selected = 3;break;
-				        case CRCInput::RC_4:selected = 4;break;
-				        case CRCInput::RC_5:selected = 5;break;
-				        case CRCInput::RC_6:selected = 6;break;
-				        case CRCInput::RC_7:selected = 7;break;
-				        case CRCInput::RC_8:selected = 8;break;
-				        case CRCInput::RC_9:selected = 9;break;
-		        	};
-		      		zapOnExit = true;
-		      		loop = false;
-    			}
+				switch (msg) {
+					case CRCInput::RC_0:selected = 0;break;
+					case CRCInput::RC_1:selected = 1;break;
+					case CRCInput::RC_2:selected = 2;break;
+					case CRCInput::RC_3:selected = 3;break;
+					case CRCInput::RC_4:selected = 4;break;
+					case CRCInput::RC_5:selected = 5;break;
+					case CRCInput::RC_6:selected = 6;break;
+					case CRCInput::RC_7:selected = 7;break;
+					case CRCInput::RC_8:selected = 8;break;
+					case CRCInput::RC_9:selected = 9;break;
+				};
+				zapOnExit = true;
+				loop = false;
+			}
 			else if(g_settings.sms_channel) {
 				uint32_t i;
 				unsigned char smsKey = 0;
@@ -671,7 +675,7 @@ int CChannelList::show()
 					for(i = selected+1; i < chanlist.size(); i++) {
 						char firstCharOfTitle = chanlist[i]->name.c_str()[0];
 						if(tolower(firstCharOfTitle) == smsKey) {
-//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
+							//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
 							break;
 						}
 					}
@@ -679,7 +683,7 @@ int CChannelList::show()
 						for(i = 0; i < chanlist.size(); i++) {
 							char firstCharOfTitle = chanlist[i]->name.c_str()[0];
 							if(tolower(firstCharOfTitle) == smsKey) {
-//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
+								//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
 								break;
 							}
 						}
@@ -695,6 +699,7 @@ int CChannelList::show()
 							paint();
 						} else {
 							paintItem(selected - liststart);
+							showChannelLogo();
 						}
 					}
 					c_SMSKeyInput->resetOldKey();
@@ -729,7 +734,7 @@ int CChannelList::show()
 	hide();
 	if (bShowBouquetList) {
 		res = bouquetList->exec(true);
-printf("CChannelList:: bouquetList->exec res %d\n", res);
+		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	new_mode_active = 0;
@@ -740,7 +745,7 @@ printf("CChannelList:: bouquetList->exec res %d\n", res);
 	if(zapOnExit)
 		res = selected;
 
-printf("CChannelList::show *********** res %d\n", res);
+	printf("CChannelList::show *********** res %d\n", res);
 	return(res);
 }
 
@@ -1432,6 +1437,15 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	}
 }
 
+void CChannelList::showChannelLogo()
+{
+	frameBuffer->paintBoxRel(x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
+
+	std::string lname;
+	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname))
+		g_PicViewer->DisplayImage(lname, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+}
+
 void CChannelList::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight;
@@ -1449,13 +1463,14 @@ void CChannelList::paintItem(int pos)
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		paintItem2DetailsLine (pos, curr);
 		paintDetails(curr);
+
+#if 0
 		frameBuffer->paintBoxRel(x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
-		//g_PicViewer->DisplayLogo(chanlist[selected]->channel_id, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
 
 		std::string lname;
 		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname))
 			g_PicViewer->DisplayImage(lname, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
-
+#endif
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
 	} else {
 		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
@@ -1676,7 +1691,7 @@ void CChannelList::paint()
 	int sbs= (selected/listmaxshow);
 
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
-
+	showChannelLogo();
 }
 
 int CChannelList::getSize() const

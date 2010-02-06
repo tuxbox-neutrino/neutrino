@@ -1516,7 +1516,8 @@ void * CFrameBuffer::convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsi
 	unsigned int *fbbuff;
 	unsigned long count = x*y;
 
-	fbbuff = (unsigned int *) malloc(count * sizeof(unsigned int));
+	//fbbuff = (unsigned int *) malloc(count * sizeof(unsigned int));
+	fbbuff = (unsigned int *) cs_malloc_uncached(count * sizeof(unsigned int));
 	if(fbbuff == NULL)
 	{
 		printf("convertRGB2FB: Error: malloc\n");
@@ -1608,6 +1609,5 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
                 CFrameBuffer::getInstance()->Clear();
 
         blit2FB(fbbuff, x_size, y_size, x_offs, y_offs, x_pan, y_pan);
-        free(fbbuff);
+        cs_free_uncached(fbbuff);
 }
-

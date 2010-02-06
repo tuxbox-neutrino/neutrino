@@ -84,6 +84,7 @@ class CChannelList
 		void paint();
 		void paintHead();
 		void hide();
+		void showChannelLogo();
 
 	public:
 		CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false );

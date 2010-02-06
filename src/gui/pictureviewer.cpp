@@ -397,7 +397,7 @@ int CPictureViewerGui::show()
 		}
 		else if ( msg == CRCInput::RC_1 )
 		{
-			if (m_state != MENU)
+			if (m_state != MENU && !playlist.empty())
 			{
 				m_viewer->Zoom(2.0/3);
 			}
@@ -405,14 +405,14 @@ int CPictureViewerGui::show()
 		}
 		else if ( msg == CRCInput::RC_2 )
 		{
-			if (m_state != MENU)
+			if (m_state != MENU && !playlist.empty())
 			{
 				m_viewer->Move(0,-50);
 			}
 		}
 		else if ( msg == CRCInput::RC_3 )
 		{
-			if (m_state != MENU)
+			if (m_state != MENU && !playlist.empty())
 			{
 				m_viewer->Zoom(1.5);
 			}
@@ -420,7 +420,7 @@ int CPictureViewerGui::show()
 		}
 		else if ( msg == CRCInput::RC_4 )
 		{
-			if (m_state != MENU)
+			if (m_state != MENU && !playlist.empty())
 			{
 				m_viewer->Move(-50,0);
 			}
@@ -447,14 +447,14 @@ int CPictureViewerGui::show()
 		}
 		else if ( msg == CRCInput::RC_6 )
 		{
-			if (m_state != MENU && playlist.empty())
+			if (m_state != MENU && !playlist.empty())
 			{
 				m_viewer->Move(50,0);
 			}
 		}
 		else if ( msg == CRCInput::RC_8 )
 		{
-			if (m_state != MENU && playlist.empty())
+			if (m_state != MENU && !playlist.empty())
 			{
 				m_viewer->Move(0,50);
 			}

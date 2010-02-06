@@ -387,7 +387,7 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 	m_busy_y = sy;
 	m_busy_width = width;
 	m_busy_cpp = cpp;
-	free (fb_buffer);
+	cs_free_uncached (fb_buffer);
 	//  dbout("Show Busy}\n");
 }
 
@@ -546,12 +546,10 @@ printf("getImage: resize %s to %d x %d \n", name.c_str (), width, height);
 				y = height;
 			} 
 			ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.infobar_alpha));
-			free(buffer);
 		} else {
 	  		printf ("Error decoding file %s\n", name.c_str ());
-	  		free (buffer);
-	  		buffer = NULL;
 		}
+		free(buffer);
   	} else
 		printf("Error open file %s\n", name.c_str ());
 
