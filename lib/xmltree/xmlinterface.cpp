@@ -182,17 +182,17 @@ xmlDocPtr parseXml(const char * data)
 
 	if (!tree_parser->Parse(data, strlen(data), true))
 	{
-			printf("Error parsing XML Data: %s at line %d\n",
-			       tree_parser->ErrorString(tree_parser->GetErrorCode()),
-			       tree_parser->GetCurrentLineNumber());
+		printf("Error parsing XML Data: %s at line %d\n",
+		       tree_parser->ErrorString(tree_parser->GetErrorCode()),
+		       tree_parser->GetCurrentLineNumber());
 
-			delete tree_parser;
-			return NULL;
-		}
+		delete tree_parser;
+		return NULL;
+	}
 
 	if (!tree_parser->RootNode())
 	{
-        printf("Error: No Root Node\n");
+		printf("Error: No Root Node\n");
 		delete tree_parser;
 		return NULL;
 	}
@@ -211,7 +211,7 @@ xmlDocPtr parseXmlFile(const char * filename, bool warning_by_nonexistence /* = 
 
 	if (xml_file == NULL)
 	{
-	        if (warning_by_nonexistence)
+		if (warning_by_nonexistence)
 			perror(filename);
 		return NULL;
 	}
