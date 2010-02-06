@@ -300,8 +300,8 @@ std::string  CNeutrinoYParser::func_get_channels_as_dropdown(CyhookHandler */*hh
 			CZapitChannel * channel = channels[j];
 			char buf[100],id[20];
 			sprintf(id,PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS,channel->channel_id);
-			std::string sid = std::string(id);
-			sel = (sid == achannel_id) ? "selected=\"selected\"" : "";
+			std::string _sid = std::string(id);
+			sel = (_sid == achannel_id) ? "selected=\"selected\"" : "";
 			sectionsd_getActualEPGServiceKey(channel->channel_id&0xFFFFFFFFFFFFULL, &epg);
 			sprintf(buf,"<option value="PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS" %s>%.20s - %.30s</option>\n", channel->channel_id, sel.c_str(), channel->getName().c_str(),epg.title.c_str());
                         yresult += buf;
@@ -931,12 +931,12 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	{
 		if(i!=(int)CTimerd::TIMER_NEXTPROGRAM)
 		{
-			std::string sel;
+			std::string _sel;
 			std::string zType = NeutrinoAPI->timerEventType2Str((CTimerd::CTimerEventTypes) i);
 			if(cmd != "new")
-				sel = (i==(int)timer.eventType) ? "selected=\"selected\"" : "";
+				_sel = (i==(int)timer.eventType) ? "selected=\"selected\"" : "";
 			else
-				sel = (i==(int)CTimerd::TIMER_RECORD) ? "selected=\"selected\"" : "";
+				_sel = (i==(int)CTimerd::TIMER_RECORD) ? "selected=\"selected\"" : "";
 			hh->ParamList["timertype"] +=
 				string_printf("<option value=\"%d\" %s>%s\n",i,sel.c_str(),zType.c_str());
 		}
@@ -978,21 +978,21 @@ std::string  CNeutrinoYParser::func_set_timer_form(CyhookHandler *hh, std::strin
 	t_channel_id current_channel = (cmd == "new") ? live_channel_id /*NeutrinoAPI->Zapit->getCurrentServiceID()*/ : timer.channel_id;
 	CBouquetManager::ChannelIterator cit = g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
-		std::string sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
+		std::string _sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
 		hh->ParamList["program_row"] +=
 			string_printf("<option value=\""
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"\" %s>%s</option>\n",
-				(*cit)->channel_id, sel.c_str(), (*cit)->getName().c_str());
+				(*cit)->channel_id, _sel.c_str(), (*cit)->getName().c_str());
 	}
 	cit = g_bouquetManager->radioChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
-		std::string sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
+		std::string _sel = ((*cit)->channel_id == current_channel) ? "selected=\"selected\"" : "";
 		hh->ParamList["program_row"] +=
 			string_printf("<option value=\""
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"\" %s>%s</option>\n",
-				(*cit)->channel_id, sel.c_str(), (*cit)->getName().c_str());
+				(*cit)->channel_id, _sel.c_str(), (*cit)->getName().c_str());
 	}
 #if 0
 	// program row

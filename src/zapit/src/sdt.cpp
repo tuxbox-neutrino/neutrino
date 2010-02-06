@@ -158,8 +158,8 @@ int parse_sdt(
 
 	/* service_description_section elements */
 	unsigned short section_length;
-	unsigned short transport_stream_id;
-	unsigned short original_network_id;
+	unsigned short transport_stream_id = 0;
+	unsigned short original_network_id = 0;
 	unsigned short service_id;
 	unsigned short descriptors_loop_length;
 	unsigned short running_status;

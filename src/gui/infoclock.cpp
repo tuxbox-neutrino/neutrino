@@ -65,6 +65,7 @@ void* CInfoClock::TimerProc(void *arg)
 		show_dot = !show_dot;
 		InfoClock->paintTime(show_dot);
 	}
+	return 0;
 }
 
 void CInfoClock::StartClock()
