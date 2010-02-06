@@ -198,7 +198,7 @@ unsigned int CDVBString::add_character(const unsigned char character, const unsi
 	content += Unicode_Character_to_UTF8(character_unicode_value);
 	return characters_parsed;
 }
-	
+
 CDVBString::CDVBString(const char * the_content, const int size)
 {
 	int i;
@@ -232,19 +232,19 @@ CDVBString::CDVBString(const char * the_content, const int size)
 				i++;
 		}
 	}
-};
+}
 
 bool CDVBString::operator==(const CDVBString s)
 {
 	return (this->content == s.content);
-};
+}
 
 bool CDVBString::operator!=(const CDVBString s)
 {
 	return !(operator==(s));
-};
+}
 
 std::string CDVBString::getContent()
 {
 	return content;
-};
+}
