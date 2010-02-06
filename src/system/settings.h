@@ -364,7 +364,7 @@ struct SNeutrinoSettings
 		LCD_POWER              = 3,
 		LCD_INVERSE            = 4,
 		LCD_SHOW_VOLUME        = 5,
-		LCD_AUTODIMM           = 6,
+		LCD_AUTODIMM           = 6
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
 
