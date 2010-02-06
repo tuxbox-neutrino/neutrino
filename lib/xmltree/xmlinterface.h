@@ -50,11 +50,11 @@ typedef XMLTreeParser* xmlDocPtr;
 typedef XMLTreeNode*   xmlNodePtr;
 #define xmlChildrenNode GetChild()
 #define xmlNextNode     GetNext()
-inline xmlNodePtr xmlDocGetRootElement(xmlDocPtr  doc)                 { return doc->RootNode(); };
-inline void       xmlFreeDoc          (xmlDocPtr  doc)                 { delete doc; };
-inline char*      xmlGetAttribute     (xmlNodePtr cur, const char *s)  { return cur->GetAttributeValue(s); };
-inline char*      xmlGetName          (xmlNodePtr cur)                 { return cur->GetType();  };
-inline char*      xmlGetData          (xmlNodePtr cur)                 { return cur->GetData();  };
+inline xmlNodePtr xmlDocGetRootElement(xmlDocPtr  doc)                 { return doc->RootNode(); }
+inline void       xmlFreeDoc          (xmlDocPtr  doc)                 { delete doc; }
+inline char*      xmlGetAttribute     (xmlNodePtr cur, const char *s)  { return cur->GetAttributeValue(s); }
+inline char*      xmlGetName          (xmlNodePtr cur)                 { return cur->GetType();  }
+inline char*      xmlGetData          (xmlNodePtr cur)                 { return cur->GetData();  }
 #endif /* USE_LIBXML */
 
 
