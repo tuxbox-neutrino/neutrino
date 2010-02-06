@@ -1,6 +1,6 @@
 //=============================================================================
 // YHTTPD
-// Socket Class : Basic Socket Operations 
+// Socket Class : Basic Socket Operations
 //=============================================================================
 
 #include <cstring>
@@ -167,7 +167,7 @@ bool CySocket::listen(int port, int max_connections)
 {
 	if(sock == INVALID_SOCKET)
 		return false;
-		
+
 	// set sockaddr for listening
 	sockaddr_in sai;
   	memset(&sai, 0, sizeof(sai));
@@ -200,7 +200,7 @@ CySocket* CySocket::accept()
 		new_ySocket->set_option(IPPROTO_TCP, TCP_CORK);
 #else
 		set_tcp_nodelay();
-#endif	
+#endif
 	}
 	new_ySocket->isOpened = true;
 //	handling = true;
@@ -301,7 +301,7 @@ int CySocket::Send(char const *buffer, unsigned int length)
 	else
 #endif
 		len = ::send(sock, buffer, length, MSG_NOSIGNAL);
-	if(len >= 0)
+	if(len > 0)
 		BytesSend += len;
 	return len;
 }
@@ -346,7 +346,7 @@ int CySocket::SendFile(int filed)
 #else
 	char sbuf[1024];
 	unsigned int r=0;
-	while ((r=read(filed, sbuf, 1024)) > 0) 
+	while ((r=read(filed, sbuf, 1024)) > 0)
 	{
     		if (Send(sbuf, r) < 0)
     		{
@@ -355,7 +355,7 @@ int CySocket::SendFile(int filed)
       		}
   	}
 #endif // Y_CONFIG_HAVE_SENDFILE
-	log_level_printf(9,"<Sock:SendFile>: Bytes:%ld\n", BytesSend);  
+	log_level_printf(9,"<Sock:SendFile>: Bytes:%ld\n", BytesSend);
 	return true;
 }
 //-----------------------------------------------------------------------------
@@ -403,7 +403,7 @@ unsigned int CySocket::ReceiveFileGivenLength(int filed, unsigned int _length)
 			{
 				isValid = false;
 				break;
-			}	
+			}
 			_readbytes += bytes_gotten;
 	    		if (write(filed, buffer, bytes_gotten) != bytes_gotten)
 	    		{
@@ -431,7 +431,7 @@ std::string CySocket::ReceiveBlock()
 		return "";
 //	signal(SIGALRM, ytimeout);
 	alarm(1);
- 
+
 	while(true)
 	{
 		// check bytes in Socket buffer
@@ -452,7 +452,7 @@ std::string CySocket::ReceiveBlock()
 		}
 		// Read data
 		int bytes_gotten = Read(buffer, readarg);
-		
+
 	        if(bytes_gotten == -1 && errno == EINTR)// non-blocking
 	        	continue;
 		if(bytes_gotten <= 0)			// ERROR Code gotten or Conection closed by peer
@@ -464,7 +464,7 @@ std::string CySocket::ReceiveBlock()
 		if((u_long)bytes_gotten < readarg)		// no more bytes
 			break;
 	}
-	alarm(0); 
+	alarm(0);
 	signal(SIGALRM,SIG_IGN);
 	return result;
 }
@@ -481,7 +481,7 @@ std::string CySocket::ReceiveLine()
 
 	while(true)
 	{
-		// read one char		
+		// read one char
 		if(Read(buffer+bytes_gotten, 1) == 1)
 		{
 			if(buffer[bytes_gotten] == '\n')
@@ -500,6 +500,6 @@ std::string CySocket::ReceiveLine()
 	}
 	buffer[++bytes_gotten] = '\0';
 	result.assign(buffer, bytes_gotten);
-	
+
 	return result;
 }

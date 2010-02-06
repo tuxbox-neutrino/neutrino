@@ -88,7 +88,7 @@ void CLogging::printf ( const char *fmt, ... )
 	pthread_mutex_lock( &Log_mutex );
 	::printf(buffer);
 	if(LogToFile)
-		;	//FIXME Logging to File
+		usleep(0);	//FIXME Logging to File
 	pthread_mutex_unlock( &Log_mutex );
 }
 
