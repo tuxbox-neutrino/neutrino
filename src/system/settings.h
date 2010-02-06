@@ -451,8 +451,8 @@ struct SNeutrinoSettings
                 ITEM_REMOTE = 11,
                 ITEM_FAVORITS = 12,
                 ITEM_TECHINFO = 13,
-                ITEM_PLUGIN = 14,
-                ITEM_VTXT = 15,
+                ITEM_VTXT = 14,
+                ITEM_PLUGIN = 15,
 #if 0
                 ITEM_MOVIEPLAYER_TS = 16,
 		ITEM_RESTART_CAMD = 17,

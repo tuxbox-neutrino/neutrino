@@ -2769,7 +2769,6 @@ bool CNeutrinoApp::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_NONE:
 			// do nothing
 			break;
-
 		case SNeutrinoSettings::ITEM_BAR:
 			if (menu_prev == -1 || menu_prev == SNeutrinoSettings::ITEM_BAR )
 				break;
@@ -2819,7 +2818,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_REMOTE:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_REMOTE;
-			keyhelper.get(&key,&icon);
+			keyhelper.get(&key,&icon,CRCInput::RC_red);
 			menu_item = new CMenuForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, this->rcLock, "-1" , key, icon );
 			menu->addItem(menu_item, false);
 			break;
@@ -2923,14 +2922,15 @@ bool CNeutrinoApp::showUserMenu(int button)
 			}
 		}
 		break;
+
 		case SNeutrinoSettings::ITEM_VTXT:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_VTXT;
-			keyhelper.get(&key,&icon);
+			keyhelper.get(&key,&icon,CRCInput::RC_blue);
 			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, StreamFeaturesChanger, "teletext", key, icon);
 			menu->addItem(menu_item, 0);
-
 			break;
+
 #if 0 // FIXME not supported yet
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:
 			menu_items++;
