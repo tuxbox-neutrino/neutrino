@@ -78,7 +78,7 @@ int endianTest=1;
 
 #define MAX_OUTPUT_SAMPLES 2048 /* AVIA_GT_PCM_MAX_SAMPLES-1 */
 
-CBaseDec::RetCode CWavDec::Decoder(FILE *in, int OutputFd, State* state, CAudioMetaData* meta_data, time_t* time_played, unsigned int* secondsToSkip)
+CBaseDec::RetCode CWavDec::Decoder(FILE *in, int /*OutputFd*/, State* state, CAudioMetaData* meta_data, time_t* time_played, unsigned int* secondsToSkip)
 {
 	char* buffer;
 	RetCode Status=OK;

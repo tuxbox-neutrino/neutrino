@@ -1029,7 +1029,7 @@ CTimerEvent_Standby::CTimerEvent_Standby( time_t announce_Time, time_t alarm_Tim
 					  bool sb_on,
 					  CTimerd::CTimerEventRepeat evrepeat,
 					  uint32_t repeatcount):
-	CTimerEvent(CTimerd::TIMER_STANDBY, announceTime, alarm_Time, (time_t) 0, evrepeat,repeatcount)
+	CTimerEvent(CTimerd::TIMER_STANDBY, announce_Time, alarm_Time, (time_t) 0, evrepeat,repeatcount)
 {
 	standby_on = sb_on;
 }
