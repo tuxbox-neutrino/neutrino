@@ -53,6 +53,7 @@ class CScreenSetup : public CMenuTarget
     void paintBorderLR();
     void paintCoords();
     void paintBorder(int selected);
+    void unpaintBorder(int selected);
     void paintIcons();
 	
  public:

@@ -51,6 +51,11 @@ int y=15*25;
 int BoxHeight=15*4;
 int BoxWidth=15*23;
 
+inline unsigned int make16color(__u32 rgb)
+{
+        return 0xFF000000 | rgb;
+}
+
 CScreenSetup::CScreenSetup()
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -130,52 +135,58 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 					break;
 				}
 			case CRCInput::RC_up:
+			{
+
+				int min = (selected == 0) ? 0 : 400;
+				if (y_coord[selected] <= min)
+					y_coord[selected] = min;
+				else
 				{
+					unpaintBorder(selected);
 					y_coord[selected]--;
-
-					int min = ( selected == 0 ) ? 0 : 400;
-					if ( y_coord[selected] < min )
-						y_coord[selected] = min ;
-					else
-						paintBorder( selected );
-					break;
+					paintBorder(selected);
 				}
+				break;
+			}
 			case CRCInput::RC_down:
+			{
+				int max = (selected == 0 )? 200 : frameBuffer->getScreenHeight(true) - 1;
+				if (y_coord[selected] >= max)
+					y_coord[selected] = max;
+				else
 				{
+					unpaintBorder(selected);
 					y_coord[selected]++;
-
-					//int max = ( selected == 0 ) ? 200 : 575;
-					int max = ( selected == 0 ) ? 200 : frameBuffer->getScreenHeight(true)-1;
-printf("selected %d y %d max %d\n", selected, y_coord[selected], max);
-					if ( y_coord[selected] > max )
-						y_coord[selected] = max ;
-					else
-						paintBorder( selected );
-					break;
+					paintBorder(selected);
 				}
+				break;
+			}
 			case CRCInput::RC_left:
+			{
+				int min = (selected == 0) ? 0 : 400;
+				if (x_coord[selected] <= min)
+					x_coord[selected] = min;
+				else
 				{
+					unpaintBorder(selected);
 					x_coord[selected]--;
-
-					int min = ( selected == 0 ) ? 0 : 400;
-					if ( x_coord[selected] < min )
-						x_coord[selected] = min ;
-					else
-						paintBorder( selected );
-					break;
+					paintBorder( selected );
 				}
+				break;
+			}
 			case CRCInput::RC_right:
+			{
+				int max = (selected == 0) ? 200 : frameBuffer->getScreenWidth(true) - 1;
+				if (y_coord[selected] >= max)
+					y_coord[selected] = max;
+				else
 				{
+					unpaintBorder(selected);
 					x_coord[selected]++;
-
-					//int max = ( selected == 0 ) ? 200 : 719;
-					int max = ( selected == 0 ) ? 200 : frameBuffer->getScreenWidth(true)-1;
-					if ( y_coord[selected] > max )
-						y_coord[selected] = max ;
-					else
-						paintBorder( selected );
-					break;
+					paintBorder( selected );
 				}
+				break;
+			}
 			case CRCInput::RC_favorites:
 			case CRCInput::RC_sat:
 				break;
@@ -209,6 +220,13 @@ void CScreenSetup::paintBorder( int pselected )
 		paintBorderLR();
 
 	paintCoords();
+}
+
+void CScreenSetup::unpaintBorder(int pselected)
+{
+	int x = x_coord[pselected] - 96 * pselected;
+	int y = y_coord[pselected] - 96 * pselected;
+	frameBuffer->paintBoxRel(x, y, 96, 96, make16color(0xA0A0A0));
 }
 
 void CScreenSetup::paintIcons()
@@ -253,11 +271,6 @@ void CScreenSetup::paintCoords()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x1+10,y1+50, 200, ypos, COL_MENUCONTENT);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x1+10,y1+70, 200, xepos, COL_MENUCONTENT);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x1+10,y1+90, 200, yepos, COL_MENUCONTENT);
-}
-
-inline unsigned int make16color(__u32 rgb)
-{
-        return 0xFF000000 | rgb;
 }
 
 void CScreenSetup::paint()
