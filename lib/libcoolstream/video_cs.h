@@ -15,7 +15,7 @@ typedef enum {
 	ANALOG_SD_YPRPB_SCART,
 	ANALOG_HD_RGB_SCART,
 	ANALOG_HD_YPRPB_SCART,
-	ANALOG_SCART_MASK = 0x10,
+	ANALOG_SCART_MASK = 0x10
 } analog_mode_t;
 
 typedef enum {
@@ -53,7 +53,7 @@ typedef enum {
 	DISPLAY_AR_14_9,
 	DISPLAY_AR_16_9,
 	DISPLAY_AR_20_9,
-	DISPLAY_AR_RAW,
+	DISPLAY_AR_RAW
 } DISPLAY_AR;
 
 typedef enum {
@@ -179,7 +179,7 @@ class cVideo
 		int64_t GetPTS(void);
 
 		int Flush(void);
-		
+
 		/* set video_system */
 		int SetVideoSystem(int video_system, bool remember = true);
 		int SetStreamType(VIDEO_FORMAT type);
