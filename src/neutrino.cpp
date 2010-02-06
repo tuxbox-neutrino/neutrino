@@ -775,7 +775,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.standby_cpufreq = 50;
 
 	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 1);
-	//fb-alphawerte für gtx
+	//fb-alpha values for gtx
 	g_settings.gtx_alpha1 = configfile.getInt32( "gtx_alpha1", 255);
 	g_settings.gtx_alpha2 = configfile.getInt32( "gtx_alpha2", 1);
 
@@ -1277,7 +1277,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
-	//fb-alphawerte für gtx
+	//fb-alpha values for gtx
 	configfile.setInt32( "gtx_alpha1", g_settings.gtx_alpha1 );
 	configfile.setInt32( "gtx_alpha2", g_settings.gtx_alpha2 );
 
@@ -1759,16 +1759,16 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 		//if (!g_bouquetManager->Bouquets[i]->bHidden && (g_bouquetManager->Bouquets[i]->bUser || !g_bouquetManager->Bouquets[i]->tvChannels.empty() ))
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->tvChannels.empty())
 		{
-			CBouquet* tmp;
+			CBouquet* _tmp;
 			if(g_bouquetManager->Bouquets[i]->bUser)
-				tmp = TVfavList->addBouquet(g_bouquetManager->Bouquets[i]);
+				_tmp = TVfavList->addBouquet(g_bouquetManager->Bouquets[i]);
 			else
-				tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
+				_tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
 
 			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->tvChannels);
-			tmp->channelList->setSize(channels->size());
+			_tmp->channelList->setSize(channels->size());
 			for(int j = 0; j < (int) channels->size(); j++) {
-				tmp->channelList->addChannel((*channels)[j]);
+				_tmp->channelList->addChannel((*channels)[j]);
 			}
 			bnum++;
 		}
@@ -1783,16 +1783,16 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 		//if (!g_bouquetManager->Bouquets[i]->bHidden && (g_bouquetManager->Bouquets[i]->bUser || !g_bouquetManager->Bouquets[i]->radioChannels.empty() ))
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->radioChannels.empty() )
 		{
-			CBouquet* tmp;
+			CBouquet* _tmp;
 			if(g_bouquetManager->Bouquets[i]->bUser)
-				tmp = RADIOfavList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
+				_tmp = RADIOfavList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
 			else
-				tmp = RADIObouquetList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
+				_tmp = RADIObouquetList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
 
 			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->radioChannels);
-			tmp->channelList->setSize(channels->size());
+			_tmp->channelList->setSize(channels->size());
 			for(int j = 0; j < (int) channels->size(); j++) {
-				tmp->channelList->addChannel((*channels)[j]);
+				_tmp->channelList->addChannel((*channels)[j]);
 			}
 			bnum++;
 		}
@@ -2419,7 +2419,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    keySettings         (LOCALE_MAINSETTINGS_KEYBINDING       , NEUTRINO_ICON_KEYBINDING      , 400);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    scanSettings        (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
+	CMenuWidget    _scanSettings       (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    service             (LOCALE_SERVICEMENU_HEAD              , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , NEUTRINO_ICON_STREAMING);
 	gmoviePlayer = &moviePlayer;
@@ -2428,13 +2428,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 			colorSettings, lcdSettings, keySettings, languageSettings, miscSettings,
 			service, fontSettings, audioplPicSettings, streamingSettings, moviePlayer);
 
-	InitServiceSettings(service, scanSettings);
+	InitServiceSettings(service, _scanSettings);
 	InitLanguageSettings(languageSettings);
 	InitAudioplPicSettings(audioplPicSettings);
 	InitMiscSettings(miscSettings);
 	InitAudioSettings(audioSettings, audioSetupNotifier);
 	InitParentalLockSettings(parentallockSettings);
-	InitScanSettings(scanSettings);
+	InitScanSettings(_scanSettings);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 #if 0
@@ -2522,7 +2522,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 		if(ret != menu_return::RETURN_EXIT_ALL)
 			networkSettings.exec(NULL, "");
 		if(ret != menu_return::RETURN_EXIT_ALL)
-			scanSettings.exec(NULL, "");
+			_scanSettings.exec(NULL, "");
 
 		videoDecoder->StopPicture();
 	}
@@ -3040,8 +3040,8 @@ _repeat:
 				new_msg = (mode == mode_standby) ? NeutrinoMessages::STANDBY_OFF : NeutrinoMessages::STANDBY_ON;
 				//printf("standby: new msg %X\n", new_msg);
 				if ((g_settings.shutdown_real_rcdelay)) {
-					neutrino_msg_t      msg;
-					neutrino_msg_data_t data;
+					neutrino_msg_t      _msg;
+					neutrino_msg_data_t mdata;
 					struct timeval      endtime;
 					time_t              seconds;
 
@@ -3058,10 +3058,10 @@ _repeat:
 					//printf("standby: timeout %d\n", timeout);
 
 					while(true) {
-						g_RCInput->getMsg_ms(&msg, &data, timeout);
+						g_RCInput->getMsg_ms(&_msg, &mdata, timeout);
 
 						//printf("standby: input msg %X\n", msg);
-						if (msg == CRCInput::RC_timeout)
+						if (_msg == CRCInput::RC_timeout)
 							break;
 
 						gettimeofday(&endtime, NULL);
@@ -3070,7 +3070,7 @@ _repeat:
 							seconds--;
 						//printf("standby: input seconds %d\n", seconds);
 						if (seconds >= 1) {
-							if (msg == CRCInput::RC_standby)
+							if (_msg == CRCInput::RC_standby)
 								new_msg = NeutrinoMessages::SHUTDOWN;
 							break;
 						}
@@ -3320,10 +3320,10 @@ _repeat:
 				perror("etherwake failed");
 		}
 		if (g_settings.recording_type == RECORDING_FILE) {
-			char * recDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
+			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
-				if (strcmp(g_settings.network_nfs_local_dir[i],recDir) == 0) {
-					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recDir);
+				if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
+					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
 					std::string command = "etherwake ";
 					command += g_settings.network_nfs_mac[i];
 					if(system(command.c_str()) != 0)
@@ -3989,12 +3989,12 @@ void CNeutrinoApp::startNextRecording()
 		if (CVCRControl::getInstance()->isDeviceRegistered()) {
 			recording_id = nextRecordingInfo->eventID;
 			if (g_settings.recording_type == RECORDING_FILE) {
-				char *recDir = strlen(nextRecordingInfo->recordingDir) > 0 ?
+				char *recordingDir = strlen(nextRecordingInfo->recordingDir) > 0 ?
 					nextRecordingInfo->recordingDir : g_settings.network_nfs_recordingdir;
-				if (!CFSMounter::isMounted(recDir)) {
+				if (!CFSMounter::isMounted(recordingDir)) {
 					doRecord = false;
 					for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
-						if (strcmp(g_settings.network_nfs_local_dir[i],recDir) == 0) {
+						if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
 							CFSMounter::MountRes mres =
 								CFSMounter::mount(g_settings.network_nfs_ip[i].c_str(), g_settings.network_nfs_dir[i],
 										  g_settings.network_nfs_local_dir[i], (CFSMounter::FSType) g_settings.network_nfs_type[i],
@@ -4020,12 +4020,12 @@ void CNeutrinoApp::startNextRecording()
 						// recording dir does not seem to exist in config anymore
 						// or an error occured while mounting
 						// -> try default dir
-						recDir = g_settings.network_nfs_recordingdir;
+						recordingDir = g_settings.network_nfs_recordingdir;
 						doRecord = true;
 					}
 				}
-				(static_cast<CVCRControl::CFileDevice*>(recordingdevice))->Directory = std::string(recDir);
-printf("CNeutrinoApp::startNextRecording: start to dir %s\n", recDir);
+				(static_cast<CVCRControl::CFileDevice*>(recordingdevice))->Directory = std::string(recordingDir);
+printf("CNeutrinoApp::startNextRecording: start to dir %s\n", recordingDir);
 			}
 			if(doRecord && CVCRControl::getInstance()->Record(nextRecordingInfo))
 				recordingstatus = 1;
