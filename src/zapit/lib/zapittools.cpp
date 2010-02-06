@@ -69,13 +69,13 @@ namespace ZapitTools {
 	std::string UTF8_to_UTF8XML(const char * s)
 	{
 		std::string r;
-	
+
 		while ((*s) != 0)
 		{
 			/* cf. http://www.w3.org/TR/xhtml1/dtds.html */
 			switch (*s)
 			{
-			case '<':           
+			case '<':
 				r += "&lt;";
 				break;
 			case '>':
@@ -101,7 +101,7 @@ namespace ZapitTools {
 	std::string Latin1_to_UTF8(const char * s)
 	{
 		std::string r;
-	
+
 		while((*s) != 0)
 		{
 			unsigned char c = *s;
@@ -117,7 +117,7 @@ namespace ZapitTools {
 			}
 
 			s++;
-		}		
+		}
 		return r;
 	}
-};
+}
