@@ -224,9 +224,9 @@ void CScreenSetup::paintBorder( int pselected )
 
 void CScreenSetup::unpaintBorder(int pselected)
 {
-	int x = x_coord[pselected] - 96 * pselected;
-	int y = y_coord[pselected] - 96 * pselected;
-	frameBuffer->paintBoxRel(x, y, 96, 96, make16color(0xA0A0A0));
+	int cx = x_coord[pselected] - 96 * pselected;
+	int cy = y_coord[pselected] - 96 * pselected;
+	frameBuffer->paintBoxRel(cx, cy, 96, 96, make16color(0xA0A0A0));
 }
 
 void CScreenSetup::paintIcons()
