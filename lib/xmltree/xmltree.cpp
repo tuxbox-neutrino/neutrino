@@ -342,7 +342,7 @@ void XMLTreeNode::SetPDataOff(int pdo)
 void XMLTreeNode::SetMatchingMode(matchmode mode)
 {
   mmode=mode;
-};
+}
 
 void XMLTreeNode::DeleteAttribute(char *name)
 {

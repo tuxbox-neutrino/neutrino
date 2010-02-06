@@ -159,7 +159,7 @@ XML_Parser::XML_Parser(const XML_Char *encodingName)
 
   dataBufEnd=dataBuf+INIT_DATA_BUF_SIZE;
   XmlInitEncoding(&initEncoding, &encoding, 0);
-};
+}
 
 XML_Parser *XML_Parser::ExternalEntityParserCreate(const XML_Char *openEntityNames, const XML_Char *encodingName)
 {
@@ -176,7 +176,7 @@ XML_Parser *XML_Parser::ExternalEntityParserCreate(const XML_Char *openEntityNam
 
   parser->processor=externalEntityInitProcessor;
   return parser;
-};
+}
 
 XML_Parser::~XML_Parser()
 {
@@ -211,7 +211,7 @@ XML_Parser::~XML_Parser()
 
   if (unknownEncodingRelease)
     unknownEncodingRelease(unknownEncodingData);
-};
+}
 
 int XML_Parser::SetBase(const XML_Char *p)
 {
@@ -226,12 +226,12 @@ int XML_Parser::SetBase(const XML_Char *p)
     dtd.base=0;
 
   return 1;
-};
+}
 
 const XML_Char *XML_Parser::GetBase()
 {
   return dtd.base;
-};
+}
 
 int XML_Parser::Parse(const char *s, int len, int isFinal)
 {
@@ -301,7 +301,7 @@ int XML_Parser::Parse(const char *s, int len, int isFinal)
     memcpy(GetBuffer(len), s, len);
     return ParseBuffer(len, isFinal);
   };
-};
+}
 
 int XML_Parser::ParseBuffer(int len, int isFinal)
 {
@@ -326,7 +326,7 @@ int XML_Parser::ParseBuffer(int len, int isFinal)
     eventEndPtr=eventPtr;
     return 0;
   };
-};
+}
 
 void *XML_Parser::GetBuffer(int len)
 {
@@ -375,12 +375,12 @@ void *XML_Parser::GetBuffer(int len)
   };
 
   return bufferEnd;
-};
+}
 
 enum XML_Error XML_Parser::GetErrorCode()
 {
   return errorCode;
-};
+}
 
 long XML_Parser::GetCurrentByteIndex()
 {
@@ -388,7 +388,7 @@ long XML_Parser::GetCurrentByteIndex()
     return parseEndByteIndex-(parseEndPtr-eventPtr);
 
   return -1;
-};
+}
 
 int XML_Parser::GetCurrentLineNumber()
 {
@@ -399,7 +399,7 @@ int XML_Parser::GetCurrentLineNumber()
   };
 
   return position.lineNumber+1;
-};
+}
 
 int XML_Parser::GetCurrentColumnNumber()
 {
@@ -410,13 +410,13 @@ int XML_Parser::GetCurrentColumnNumber()
   };
 
   return position.columnNumber;
-};
+}
 
 void XML_Parser::DefaultCurrent()
 {
   if (defaultHandler)
     reportDefault(encoding, eventPtr, eventEndPtr);
-};
+}
 
 const XML_LChar *XML_Parser::ErrorString(int code)
 {
@@ -449,14 +449,14 @@ const XML_LChar *XML_Parser::ErrorString(int code)
     return message[code];
 
   return 0;
-};
+}
 
 enum XML_Error contentProcessor(void *parser, const char *start, const char *end, const char **endPtr)
 {
   XML_Parser *p=(XML_Parser *) parser;
 
   return p->doContent(0, p->encoding, start, end, endPtr);
-};
+}
 
 enum XML_Error externalEntityInitProcessor(void *parser, const char *start, const char *end, const char **endPtr)
 {
@@ -1069,7 +1069,7 @@ enum XML_Error XML_Parser::doContent(int startTagLevel, const ENCODING *enc, con
   };
 
   // not reached
-};
+}
 
 /* If tagName is non-null, build a real list of attributes,
 otherwise just check the attributes for well-formedness. */
@@ -1185,7 +1185,7 @@ enum XML_Error XML_Parser::storeAtts(const ENCODING *enc, const XML_Char *tagNam
   while (i-->0) ((XML_Char *)appAtts[i<<1])[-1]=0;
 
   return XML_ERROR_NONE;
-};
+}
 
 /* The idea here is to avoid using stack for each CDATA section when
 the whole file is parsed with one call. */
@@ -1203,7 +1203,7 @@ enum XML_Error cdataSectionProcessor(void *parser, const char *start, const char
   };
 
   return result;
-};
+}
 
 /* startPtr gets set to non-null is the section is closed, and to null if
 the section is not yet closed. */
@@ -1312,7 +1312,7 @@ enum XML_Error XML_Parser::doCdataSection(const ENCODING *enc, const char **star
   };
 
   // not reached
-};
+}
 
 enum XML_Error XML_Parser::initializeEncoding()
 {
@@ -1347,7 +1347,7 @@ enum XML_Error XML_Parser::initializeEncoding()
   if (XmlInitEncoding(&initEncoding, &encoding, s)) return XML_ERROR_NONE;
 
   return handleUnknownEncoding(protocolEncodingName);
-};
+}
 
 enum XML_Error XML_Parser::processXmlDecl(int isGeneralTextEntity, const char *s, const char *next)
 {
@@ -1395,7 +1395,7 @@ enum XML_Error XML_Parser::processXmlDecl(int isGeneralTextEntity, const char *s
   };
 
   return XML_ERROR_NONE;
-};
+}
 
 enum XML_Error XML_Parser::handleUnknownEncoding(const XML_Char *encodingName)
 {
@@ -1435,7 +1435,7 @@ enum XML_Error XML_Parser::handleUnknownEncoding(const XML_Char *encodingName)
   };
 
   return XML_ERROR_UNKNOWN_ENCODING;
-};
+}
 
 enum XML_Error prologInitProcessor(void *parser, const char *s, const char *end, const char **nextPtr)
 {
@@ -1828,7 +1828,7 @@ enum XML_Error prologProcessor(void *parser, const char *s, const char *end, con
   };
 
   // not reached
-};
+}
 
 enum XML_Error epilogProcessor(void *parser, const char *s, const char *end, const char **nextPtr)
 {
@@ -1897,14 +1897,14 @@ enum XML_Error epilogProcessor(void *parser, const char *s, const char *end, con
 
     p->eventPtr=s=next;
   };
-};
+}
 
 enum XML_Error errorProcessor(void *parser, const char* /*s*/, const char* /*end*/, const char** /*nextPtr*/)
 {
   XML_Parser *p=(XML_Parser *) parser;
 
   return p->errorCode;
-};
+}
 
 enum XML_Error XML_Parser::storeAttributeValue(const ENCODING *enc, int isCdata, const char *ptr, const char *end, STRING_POOL *pool)
 {
@@ -1918,7 +1918,7 @@ enum XML_Error XML_Parser::storeAttributeValue(const ENCODING *enc, int isCdata,
   if (!poolAppendChar(pool, XML_T('\0'))) return XML_ERROR_NO_MEMORY;
 
   return XML_ERROR_NONE;
-};
+}
 
 enum XML_Error XML_Parser::appendAttributeValue(const ENCODING *enc, int isCdata, const char *ptr, const char *end, STRING_POOL *pool)
 {
@@ -2059,7 +2059,7 @@ enum XML_Error XML_Parser::appendAttributeValue(const ENCODING *enc, int isCdata
   };
 
   // not reached
-};
+}
 
 enum XML_Error XML_Parser::storeEntityValue(const char *entityTextPtr, const char *entityTextEnd)
 {
@@ -2157,7 +2157,7 @@ enum XML_Error XML_Parser::storeEntityValue(const char *entityTextPtr, const cha
   };
 
   // not reached
-};
+}
 
 static void normalizeLines(XML_Char *s)
 {
@@ -2183,7 +2183,7 @@ static void normalizeLines(XML_Char *s)
   } while (*s);
 
   *p=XML_T('\0');
-};
+}
 
 int XML_Parser::reportProcessingInstruction(const ENCODING *enc, const char *start, const char *end)
 {
@@ -2215,7 +2215,7 @@ int XML_Parser::reportProcessingInstruction(const ENCODING *enc, const char *sta
   poolClear(&tempPool);
 
   return 1;
-};
+}
 
 void XML_Parser::reportDefault(const ENCODING *enc, const char *s, const char *end)
 {
@@ -2244,7 +2244,7 @@ void XML_Parser::reportDefault(const ENCODING *enc, const char *s, const char *e
   }
   else
     DefaultHandler((XML_Char *) s, (XML_Char *) end-(XML_Char *) s);
-};
+}
 
 int XML_Parser::defineAttribute(ELEMENT_TYPE *type, ATTRIBUTE_ID *attId, int isCdata, const XML_Char *value)
 {
@@ -2277,7 +2277,7 @@ int XML_Parser::defineAttribute(ELEMENT_TYPE *type, ATTRIBUTE_ID *attId, int isC
   type->nDefaultAtts+=1;
 
   return 1;
-};
+}
 
 ATTRIBUTE_ID *XML_Parser::getAttributeId(const ENCODING *enc, const char *start, const char *end)
 {
@@ -2299,7 +2299,7 @@ ATTRIBUTE_ID *XML_Parser::getAttributeId(const ENCODING *enc, const char *start,
     poolFinish(&dtd.pool);
 
   return id;
-};
+}
 
 const XML_Char *XML_Parser::getOpenEntityNames()
 {
@@ -2326,7 +2326,7 @@ const XML_Char *XML_Parser::getOpenEntityNames()
   if (!poolAppendChar(&tempPool, XML_T('\0'))) return 0;
 
   return tempPool.start;
-};
+}
 
 int XML_Parser::setOpenEntityNames(const XML_Char *openEntityNames)
 {
@@ -2356,7 +2356,7 @@ int XML_Parser::setOpenEntityNames(const XML_Char *openEntityNames)
   };
 
   return 1;
-};
+}
 
 
 void XML_Parser::normalizePublicId(XML_Char *publicId)
@@ -2381,7 +2381,7 @@ void XML_Parser::normalizePublicId(XML_Char *publicId)
 
   if (p!=publicId && p[-1]==XML_T(' ')) --p;
   *p=XML_T('\0');
-};
+}
 
 static int dtdInit(DTD *p)
 {
@@ -2396,7 +2396,7 @@ static int dtdInit(DTD *p)
   p->base=0;
 
   return 1;
-};
+}
 
 static void dtdDestroy(DTD *p)
 {
@@ -2416,7 +2416,7 @@ static void dtdDestroy(DTD *p)
   hashTableDestroy(&(p->attributeIds));
 
   poolDestroy(&(p->pool));
-};
+}
 
 /* Do a deep copy of the DTD.  Return 0 for out of memory; non-zero otherwise.
    The new DTD has already been initialized. */
@@ -2551,7 +2551,7 @@ static int dtdCopy(DTD *newDtd, const DTD *oldDtd)
   newDtd->standalone=oldDtd->standalone;
 
   return 1;
-};
+}
 
 static void poolInit(STRING_POOL *pool)
 {
@@ -2560,7 +2560,7 @@ static void poolInit(STRING_POOL *pool)
   pool->start=0;
   pool->ptr=0;
   pool->end=0;
-};
+}
 
 static void poolClear(STRING_POOL *pool)
 {
@@ -2582,7 +2582,7 @@ static void poolClear(STRING_POOL *pool)
   pool->start=0;
   pool->ptr=0;
   pool->end=0;
-};
+}
 
 void poolDestroy(STRING_POOL *pool)
 {
@@ -2609,7 +2609,7 @@ void poolDestroy(STRING_POOL *pool)
   pool->ptr=0;
   pool->start=0;
   pool->end=0;
-};
+}
 
 static XML_Char *poolAppend(STRING_POOL *pool, const ENCODING *enc, const char *ptr, const char *end)
 {
@@ -2624,7 +2624,7 @@ static XML_Char *poolAppend(STRING_POOL *pool, const ENCODING *enc, const char *
   };
 
   return pool->start;
-};
+}
 
 static const XML_Char *poolCopyString(STRING_POOL *pool, const XML_Char *s)
 {
@@ -2637,7 +2637,7 @@ static const XML_Char *poolCopyString(STRING_POOL *pool, const XML_Char *s)
   poolFinish(pool);
 
   return s;
-};
+}
 
 static const XML_Char *poolCopyStringN(STRING_POOL *pool, const XML_Char *s, int n)
 {
@@ -2651,7 +2651,7 @@ static const XML_Char *poolCopyStringN(STRING_POOL *pool, const XML_Char *s, int
   s=pool->start;
   poolFinish(pool);
   return s;
-};
+}
 
 static XML_Char *poolStoreString(STRING_POOL *pool, const ENCODING *enc, const char *ptr, const char *end)
 {
@@ -2661,7 +2661,7 @@ static XML_Char *poolStoreString(STRING_POOL *pool, const ENCODING *enc, const c
   *(pool->ptr)++=0;
 
   return pool->start;
-};
+}
 
 static int poolGrow(STRING_POOL *pool)
 {
@@ -2737,4 +2737,4 @@ static int poolGrow(STRING_POOL *pool)
   };
 
   return 1;
-};
+}
