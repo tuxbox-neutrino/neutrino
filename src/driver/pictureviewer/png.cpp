@@ -78,8 +78,11 @@ int fh_png_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 		png_set_background(png_ptr, (png_color_16*)&my_background, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
 	}
 
-	if (color_type & PNG_COLOR_MASK_ALPHA)
-		png_set_strip_alpha(png_ptr);
+	/* this test does not trigger for 8bit-paletted PNGs with newer libpng (1.2.40 at least),
+	   but the data delivered is with alpha channel anyway, so always strip alpha for now
+	   if (color_type & PNG_COLOR_MASK_ALPHA)
+	 */
+	png_set_strip_alpha(png_ptr);
 
 	if (bit_depth < 8)
 		png_set_packing(png_ptr);
@@ -98,6 +101,7 @@ int fh_png_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 	if (width * 3 != png_get_rowbytes(png_ptr, info_ptr))
 	{
 		printf("[png.cpp]: Error processing %s - please report (including image).\n", name);
+		printf("           width: %d rowbytes: %d\n", width, png_get_rowbytes(png_ptr, info_ptr));
 		fclose(fh);
 		return(FH_ERROR_FORMAT);
 	}
