@@ -83,7 +83,7 @@ void gethotlist()
 			if (!fgets(line, sizeof(line), hl))
 				break;
 
-			if (1 == sscanf(line, "%x", &hotlist[maxhotlist+1]))
+			if (1 == sscanf(line, "%x", (unsigned int*)&hotlist[maxhotlist+1]))
 			{
 				if (hotlist[maxhotlist+1] >= 0x100 && hotlist[maxhotlist+1] <= 0x899)
 				{
@@ -4084,33 +4084,37 @@ void FillTrapez(int x0, int y0, int l0, int xoffset1, int h, int l1, int color)
 }
 void FlipHorz(int x, int y, int w, int h)
 {
-	unsigned char buf[w*4];
+	unsigned char *buf= new unsigned char[w*4];
 	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length;
 	int w1,h1;
-
-	for (h1 = 0 ; h1 < h ; h1++)
-	{
-		memcpy(buf,p,w*4);
-		for (w1 = 0 ; w1 < w ; w1++)
+	if(buf != NULL){
+		for (h1 = 0 ; h1 < h ; h1++)
 		{
-			memcpy(p+w1*4,buf+((w-w1)*4)-4,4);
+			memcpy(buf,p,w*4);
+			for (w1 = 0 ; w1 < w ; w1++)
+			{
+				memcpy(p+w1*4,buf+((w-w1)*4)-4,4);
+			}
+			p += fix_screeninfo.line_length;
 		}
-		p += fix_screeninfo.line_length;
+		delete [] buf;
 	}
 }
 void FlipVert(int x, int y, int w, int h)
 {
-	unsigned char buf[w*4];
+	unsigned char *buf= new unsigned char[w*4];
 	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length, *p1, *p2;
 	int h1;
-
-	for (h1 = 0 ; h1 < h/2 ; h1++)
-	{
-		p1 = (p+(h1*fix_screeninfo.line_length));
-		p2 = (p+(h-(h1+1))*fix_screeninfo.line_length);
-		memcpy(buf,p1,w*4);
-		memcpy(p1,p2,w*4);
-		memcpy(p2,buf,w*4);
+	if(buf != NULL){
+		for (h1 = 0 ; h1 < h/2 ; h1++)
+		{
+			p1 = (p+(h1*fix_screeninfo.line_length));
+			p2 = (p+(h-(h1+1))*fix_screeninfo.line_length);
+			memcpy(buf,p1,w*4);
+			memcpy(p1,p2,w*4);
+			memcpy(p2,buf,w*4);
+		}
+		delete [] buf;
 	}
 }
 
