@@ -2818,7 +2818,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_REMOTE:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_REMOTE;
-			keyhelper.get(&key,&icon,CRCInput::RC_red);
+			keyhelper.get(&key,&icon);
 			menu_item = new CMenuForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, this->rcLock, "-1" , key, icon );
 			menu->addItem(menu_item, false);
 			break;
