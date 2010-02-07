@@ -1271,7 +1271,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	char runningStart[10];
 	char runningRest[20];
 	char runningPercent = 0;
-	static char oldrunningPercent = 255;
+//	static char oldrunningPercent = 255;
 
 	char nextStart[10];
 	char nextDuration[10];

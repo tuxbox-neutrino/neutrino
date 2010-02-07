@@ -109,7 +109,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*m
 	width = 0; /* is set in paint() */
 
 	if (mwidth > 100) /* warn about abuse until we found all offenders... */
-		fprintf(stderr, "CMenuWidget::Init (%s) (%s) mwidth over 100%: %d\n", nameString.c_str(), Icon.c_str(), mwidth);
+		fprintf(stderr, "CMenuWidget::Init (%s) (%s) mwidth over 100%%: %d\n", nameString.c_str(), Icon.c_str(), mwidth);
 	else
 		needed_width = frameBuffer->getScreenWidth() * mwidth / 100;
 
@@ -409,9 +409,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 			if ( msg <= CRCInput::RC_MaxRC )
 			{
-				// recalculate timeout für RC-Tasten
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-::TIMING_MENU]);
+				// recalculate timeout for RC-keys
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 			}
 		}
 	}
