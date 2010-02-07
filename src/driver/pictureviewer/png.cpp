@@ -80,9 +80,11 @@ int fh_png_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 
 	/* this test does not trigger for 8bit-paletted PNGs with newer libpng (1.2.40 at least),
 	   but the data delivered is with alpha channel anyway, so always strip alpha for now
-	   if (color_type & PNG_COLOR_MASK_ALPHA)
 	 */
-	png_set_strip_alpha(png_ptr);
+#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 2 && PNG_LIBPNG_VER_RELEASE < 40
+	if (color_type & PNG_COLOR_MASK_ALPHA)
+#endif
+		png_set_strip_alpha(png_ptr);
 
 	if (bit_depth < 8)
 		png_set_packing(png_ptr);
