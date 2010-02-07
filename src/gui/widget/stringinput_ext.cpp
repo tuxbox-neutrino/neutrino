@@ -136,7 +136,15 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 
 	onBeforeExec();
 	int res = menu_return::RETURN_REPAINT;
-	char oldval[inputFields.size()+10], dispval[inputFields.size()+10];
+
+        char *oldval = new char[inputFields.size()+10];
+	if(oldval == NULL)
+		return res;
+	char  *dispval = new char[inputFields.size()+10];
+	if(dispval == NULL){
+		delete[] oldval;
+		return res;
+	}
 
 	if (parent)
 	{
@@ -146,7 +154,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	strcpy(oldval, value);
 	paint();
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 ::TIMING_MENU]);
 
 	bool loop=true;
@@ -196,7 +204,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 						break;
 					}
 				}
-			} 
+			}
 			if(!found) {
 				for(int i = 0; i < (int) inputFields.size(); i++) {
 //printf("old %d sel %d size %d i %d\n", oldSelectedChar, selectedChar, inputFields.size(), i);
@@ -268,6 +276,9 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		observ->changeNotify(name, value);
 	}
 
+	delete[] oldval;
+	delete[] oldval;
+
 	return res;
 }
 
@@ -329,7 +340,7 @@ void CExtendedInput_Item_Char::paint(int x, int y, bool focusGained )
 
 	uint8_t    color;
 	fb_pixel_t bgcolor;
-	
+
 	if (focusGained)
 	{
 		color   = COL_MENUCONTENTSELECTED;
@@ -463,7 +474,7 @@ CDateInput::CDateInput(const neutrino_locale_t Name, time_t* Time, const neutrin
 	sprintf( value, "%02d.%02d.%04d %02d:%02d", tmTime->tm_mday, tmTime->tm_mon+1,
 				tmTime->tm_year+1900,
 				tmTime->tm_hour, tmTime->tm_min);
-	
+
 	frameBuffer = CFrameBuffer::getInstance();
 	addInputField( new CExtendedInput_Item_Char("0123") );
 	addInputField( new CExtendedInput_Item_Char("0123456789") );

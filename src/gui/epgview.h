@@ -63,9 +63,9 @@ class CEpgData
 		bool			bigFonts;
 		time_t			tmp_curent_zeit;
 
-		unsigned long long	prev_id;
+		uint64_t		prev_id;
 		time_t			prev_zeit;
-		unsigned long long 	next_id;
+		uint64_t		next_id;
 		time_t 			next_zeit;
 
 		int			ox, oy, sx, sy, toph, sb;
@@ -76,8 +76,8 @@ class CEpgData
 		int			buttonheight,botboxheight;
 		int			medlineheight,medlinecount;
 
-		void GetEPGData(const t_channel_id channel_id, unsigned long long id, time_t* startzeit, bool clear = true );
-		void GetPrevNextEPGData( unsigned long long id, time_t* startzeit );
+		void GetEPGData(const t_channel_id channel_id, uint64_t id, time_t* startzeit, bool clear = true );
+		void GetPrevNextEPGData( uint64_t id, time_t* startzeit );
 		void addTextToArray( const std::string & text );
 		void processTextToArray(std::string text);
 		void showText( int startPos, int ypos );
@@ -89,7 +89,7 @@ class CEpgData
 
 		CEpgData();
 		void start( );
-		int show(const t_channel_id channel_id, unsigned long long id = 0, time_t* startzeit = NULL, bool doLoop = true );
+		int show(const t_channel_id channel_id, uint64_t id = 0, time_t* startzeit = NULL, bool doLoop = true );
 		void hide();
 };
 

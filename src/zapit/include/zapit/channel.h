@@ -136,7 +136,7 @@ class CZapitChannel
 		CCaPmt * 			caPmt;
 
 		/* from neutrino CChannel class */
-		unsigned long long      last_unlocked_EPGid;
+		uint64_t      last_unlocked_EPGid;
 
 		friend class CChannelList;
 

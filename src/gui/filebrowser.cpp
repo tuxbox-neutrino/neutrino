@@ -555,7 +555,7 @@ bool CFileBrowser::readDir_vlc(const std::string & dirname, CFileList* flist)
 	curl_easy_cleanup(curl_handle);
 
 	// std::cout << "Answer:" << std::endl << "----------------" << std::endl << answer << std::endl;
-	
+
 	if (!answer.empty() && httpres == 0)
 	{
 		xmlDocPtr answer_parser = parseXml(answer.c_str());
@@ -583,9 +583,9 @@ bool CFileBrowser::readDir_vlc(const std::string & dirname, CFileList* flist)
 
 					file.Name = dirname + xmlGetAttribute(element, "name");
 					ptr = xmlGetAttribute(element, "size");
-					if (ptr) 
+					if (ptr)
 						file.Size = atoi(ptr);
-					else 
+					else
 						file.Size = 0;
 					file.Time = 0;
 
@@ -597,7 +597,7 @@ bool CFileBrowser::readDir_vlc(const std::string & dirname, CFileList* flist)
 			return true;
 		}
 	}
-	
+
 	/* since all CURL error messages use only US-ASCII characters, when can safely print them as if they were UTF-8 encoded */
 	if (httpres == 22) {
 	    strcat(error, "\nProbably wrong vlc version\nPlease use vlc 0.8.5 or higher");
@@ -676,7 +676,7 @@ and add to neutrino playlist
 	curl_easy_cleanup(curl_handle);
 
 	//std::cout << "Answer:" << std::endl << "----------------" << std::endl << answer << std::endl;
-	
+
 	if (!answer.empty() && httpres == 0)
 	{
 printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
@@ -687,9 +687,9 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 			unsigned char xml_decode = 0;
 			xmlNodePtr element = xmlDocGetRootElement(answer_parser);
 
-			if (strcmp(xmlGetName(element), "genrelist") == 0) 
+			if (strcmp(xmlGetName(element), "genrelist") == 0)
 				xml_decode = 1;
-			else if (strcmp(xmlGetName(element), "stationlist") == 0) 
+			else if (strcmp(xmlGetName(element), "stationlist") == 0)
 				xml_decode = 2;
 			element = element->xmlChildrenNode;
 
@@ -765,7 +765,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 			return true;
 		}
 	}
-	
+
 	/* since all CURL error messages use only US-ASCII characters, when can safely print them as if they were UTF-8 encoded */
 	if (httpres == 22) {
 	    strcat(error, "\nProbably wrong link.");
@@ -851,7 +851,7 @@ bool CFileBrowser::exec(const char * const dirname)
 
 	int oldselected = selected;
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER]);
 
 	bool loop=true;
 	while (loop)
@@ -954,7 +954,7 @@ bool CFileBrowser::exec(const char * const dirname)
 #ifdef ENABLE_INTERNETRADIO
 					if (m_Mode == ModeSC) {
 						ChangeDir(filelist[selected].Url);
-					} else 
+					} else
 #endif
 					{
 	 					if (filelist[selected].getFileName() != "..") {
@@ -1314,7 +1314,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 #define KILOBYTE 1024LL
 				char tmpstr[256];
 				const char *unit = "";
-				long long factor = 0;
+				int64_t factor = 0;
 				if (actual_file->Size >= GIGABYTE)
 				{
 					factor = GIGABYTE;

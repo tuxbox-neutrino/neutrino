@@ -3702,7 +3702,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 
 	neutrino_msg_data_t data;
 
-	unsigned long long timeoutEnd;
+	uint64_t timeoutEnd;
 
 	do {
 		if (msg <= CRCInput::RC_MaxRC) {

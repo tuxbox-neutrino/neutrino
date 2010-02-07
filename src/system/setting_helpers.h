@@ -37,7 +37,7 @@
 
 #include <string>
 
-unsigned long long getcurrenttime();
+uint64_t getcurrenttime();
 
 class CSatelliteSetupNotifier : public CChangeObserver
 {

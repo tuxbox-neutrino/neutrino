@@ -23,7 +23,7 @@ uint32_t getbits(const uint8_t* buf, uint32_t offset, uint8_t len)
 		len -= 8;
 	}
 	if (len > 8) {
-		unsigned long long tmp = retval << 8;
+		uint64_t tmp = retval << 8;
 		tmp |= *(a+4);
 		tmp >>= ((8-(offset%8)) + (8-(len)));
 		return tmp & (mask -1);

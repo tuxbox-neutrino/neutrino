@@ -117,7 +117,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				g_Zapit->zapTo_serviceID_NOWAIT(current_channel_id );
 				g_Sectionsd->setServiceChanged(current_channel_id &0xFFFFFFFFFFFFULL, false);
 
-				zap_completion_timeout = getcurrenttime() + 2 * (long long) 1000000;
+				zap_completion_timeout = getcurrenttime() + 2 * (int64_t) 1000000;
 
 				return messages_return::handled;
 			}
@@ -384,7 +384,7 @@ void CRemoteControl::getNVODs()
 						NVODs[i].original_network_id,
 						NVODs[i].service_id,
 						NVODs[i].transport_stream_id,
-						NVODs[i].zeit.startzeit, 
+						NVODs[i].zeit.startzeit,
 						NVODs[i].zeit.dauer);
 
 					CSubServiceListSorted::iterator e= subChannels.begin();
@@ -629,7 +629,7 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 	needs_nvods = false;
 	director_mode = 0;
 
-	unsigned long long now = getcurrenttime();
+	uint64_t now = getcurrenttime();
 	if ( zap_completion_timeout < now )
 	{
 		g_InfoViewer->chanready = 0;
@@ -647,7 +647,7 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		g_Sectionsd->setServiceChanged( current_channel_id&0xFFFFFFFFFFFFULL, false );
 		abort_zapit = 0;
 
-		zap_completion_timeout = now + 2 * (long long) 1000000;
+		zap_completion_timeout = now + 2 * (int64_t) 1000000;
 		if ( current_programm_timer != 0 )
 		{
 			g_RCInput->killTimer( current_programm_timer );

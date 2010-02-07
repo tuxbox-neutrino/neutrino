@@ -184,7 +184,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 	paint();
 	int retval = menu_return::RETURN_REPAINT;
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	if ( fadeIn )
 		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );

@@ -88,7 +88,7 @@ class CSectionsdClient : private CBasicClient
 			EVT_BOUQUETS_UPDATE,
 			EVT_WRITE_SI_FINISHED
 		};
-	
+
 	struct epgflags {
 		enum
 		{
@@ -101,7 +101,7 @@ class CSectionsdClient : private CBasicClient
 			current_has_linkagedescriptors= 0x40
 		};
 	};
-	
+
 	struct responseGetComponentTags
 	{
 		std::string   component;        // Text aus dem Component Descriptor
@@ -150,7 +150,7 @@ class CSectionsdClient : private CBasicClient
 	struct CurrentNextInfo : public responseGetCurrentNextInfoChannelID
 	{};
 
-	typedef struct 
+	typedef struct
 	{
 		int scanMode;
 		int epg_cache;
@@ -174,7 +174,7 @@ class CSectionsdClient : private CBasicClient
 	bool getIsTimeSet();
 
 //	void setEventsAreOldInMinutes(const unsigned short minutes);
-	
+
 	void setPauseScanning(const bool doPause);
 
 	bool getIsScanningActive();
@@ -198,11 +198,11 @@ class CSectionsdClient : private CBasicClient
 	void setPrivatePid(const unsigned short pid);
 
 //	void setSectionsdScanMode(const int scanMode);
-	
+
 	void freeMemory();
-	
+
 	void readSIfromXML(const char * epgxmlname);
-	
+
 	void writeSI2XML(const char * epgxmlname);
 
 	/*
@@ -217,13 +217,13 @@ class CSectionsdClient : private CBasicClient
 
 	void setConfig(const epg_config config);
 	void dumpStatus(void);
-	
+
 };
 
 class CEPGData
 {
  public:
-	unsigned long long              eventID;
+	uint64_t eventID;
 	CSectionsdClient::sectionsdTime	epg_times;
 	std::string                     title;
 	std::string                     info1;

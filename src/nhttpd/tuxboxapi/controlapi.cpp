@@ -1031,7 +1031,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		else if (hh->ParamList["eventid"] != "")
 		{
 			//special epg query
-			unsigned long long epgid;
+			uint64_t epgid;
 			sscanf( hh->ParamList["eventid"].c_str(), "%llu", &epgid);
 			CShortEPGData epg;
 			//if (NeutrinoAPI->Sectionsd->getEPGidShort(epgid,&epg))
@@ -1046,7 +1046,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		{
 			if (hh->ParamList["starttime"] != "")
 			{
-				unsigned long long epgid;
+				uint64_t epgid;
 				time_t starttime;
 				sscanf( hh->ParamList["fskid"].c_str(), "%llu", &epgid);
 				sscanf( hh->ParamList["starttime"].c_str(), "%lu", &starttime);

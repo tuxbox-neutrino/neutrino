@@ -195,7 +195,7 @@ int CMessageBox::exec(int timeout)
 	if ( timeout == -1 )
 		timeout = g_settings.timing[SNeutrinoSettings::TIMING_EPG];
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
 
 	bool loop=true;
 	while (loop)
@@ -204,7 +204,7 @@ int CMessageBox::exec(int timeout)
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 		if (msg == CRCInput::RC_timeout && returnDefaultOnTimeout)
 		{
-			// return default 
+			// return default
 			loop = false;
 		}
 		else if (((msg == CRCInput::RC_timeout) ||
@@ -270,7 +270,7 @@ int CMessageBox::exec(int timeout)
 	}
 
 	hide();
-	
+
 	return res;
 }
 
@@ -281,7 +281,7 @@ int ShowMsgUTF(const neutrino_locale_t Caption, const char * const Text, const C
 	messageBox->exec(timeout);
 	int res = messageBox->result;
 	delete messageBox;
-	
+
 	return res;
 }
 

@@ -304,7 +304,14 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	neutrino_msg_data_t data;
 	int res = menu_return::RETURN_REPAINT;
 
-        char oldval[size+1], dispval[size+1];
+        char *oldval = new char[size+1];
+	if(oldval == NULL)
+		return res;
+	char  *dispval = new char[size+1];
+	if(dispval == NULL){
+		delete[] oldval;
+		return res;
+	}
         oldval[size] = 0;
         dispval[size] = 0;
 
@@ -317,7 +324,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 	paint();
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 ::TIMING_MENU]);
 
 	bool loop=true;
@@ -446,7 +453,8 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
         {
                 observ->changeNotify(name, value);
         }
-
+	delete[] oldval;
+	delete[] oldval;
 	return res;
 }
 

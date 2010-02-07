@@ -71,7 +71,7 @@ typedef std::vector<CSubService> CSubServiceListSorted;
 class CRemoteControl
 {
 	unsigned int            current_programm_timer;
-	unsigned long long      zap_completion_timeout;
+	uint64_t		zap_completion_timeout;
 	std::string             current_channel_name;
 	t_channel_id            current_sub_channel_id;
 
@@ -81,8 +81,8 @@ class CRemoteControl
 
 public:
 	t_channel_id                  current_channel_id;
-	unsigned long long            current_EPGid;
-	unsigned long long            next_EPGid;
+	uint64_t		      current_EPGid;
+	uint64_t                      next_EPGid;
 	CZapitClient::responseGetPIDs current_PIDs;
 
 	// APID - Details

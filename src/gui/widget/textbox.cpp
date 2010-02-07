@@ -514,7 +514,7 @@ bool CTextBox::setText(const std::string* newText, int _max_width)
 		result = true;
 	}
 	return(result);
-};
+}
 
 void CTextBox::paint (void)
 {

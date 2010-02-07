@@ -229,7 +229,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	while (!istheend) {
 		paintRadar();
 
-		unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd_MS( 250 );
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS( 250 );
 
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
@@ -263,7 +263,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		//paintLine(xpos2, ypos_frequency, xpos_frequency, text);
 		frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(xpos1, y + hheight, width, text, COL_MENUHEAD, 0, true); // UTF-8
-		unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 			if ( msg <= CRCInput::RC_MaxRC )

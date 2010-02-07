@@ -230,7 +230,7 @@ int ShowHintUTF(const neutrino_locale_t Caption, const char * const Text, const 
 		timeout = 5; /// default timeout 5 sec
 		//timeout = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR];
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
 
 	int res = messages_return::none;
 

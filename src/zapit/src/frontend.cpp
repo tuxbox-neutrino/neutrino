@@ -356,7 +356,7 @@ struct dvb_frontend_parameters CFrontend::getFrontend(void) const
 
 uint32_t CFrontend::getBitErrorRate(void) const
 {
-	uint32_t ber;
+	uint32_t ber = 0;
 	fop(ioctl, FE_READ_BER, &ber);
 
 	return ber;
@@ -364,7 +364,7 @@ uint32_t CFrontend::getBitErrorRate(void) const
 
 uint16_t CFrontend::getSignalStrength(void) const
 {
-	uint16_t strength;
+	uint16_t strength = 0;
 	fop(ioctl, FE_READ_SIGNAL_STRENGTH, &strength);
 
 	return strength;
@@ -372,7 +372,7 @@ uint16_t CFrontend::getSignalStrength(void) const
 
 uint16_t CFrontend::getSignalNoiseRatio(void) const
 {
-	uint16_t snr;
+	uint16_t snr = 0;
 	fop(ioctl, FE_READ_SNR, &snr);
 	return snr;
 }
@@ -901,10 +901,10 @@ void CFrontend::positionMotor(uint8_t motorPosition)
 		secSetVoltage(SEC_VOLTAGE_13, 15);
 		secSetTone(SEC_TONE_OFF, 25);
 		cmd.msg[3] = motorPosition;
-		
+
 		for (int i = 0; i <= repeatUsals; ++i)
 			     sendDiseqcCommand(&cmd, 50);
-	
+
 		printf("[fe%d] motor positioning command sent.\n", fenumber);
 	}
 }

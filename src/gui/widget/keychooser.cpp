@@ -108,7 +108,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
-	unsigned long long timeoutEnd;
+	uint64_t timeoutEnd;
 
 	int res = menu_return::RETURN_REPAINT;
 

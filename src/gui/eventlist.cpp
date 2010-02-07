@@ -268,7 +268,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 
 	int oldselected = selected;
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
 	bool loop = true;
 	while (loop)
@@ -340,7 +340,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 
 		else if (msg == (neutrino_msg_t)g_settings.key_channelList_sort)
 		{
-			unsigned long long selected_id = evtlist[selected].eventID;
+			uint64_t selected_id = evtlist[selected].eventID;
 			if(sort_mode==0)
 			{
 				sort_mode++;

@@ -818,11 +818,11 @@ void showCurrentNetworkSettings()
 	ShowMsgUTF(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 }
 
-unsigned long long getcurrenttime()
+uint64_t getcurrenttime()
 {
 	struct timeval tv;
 	gettimeofday( &tv, NULL );
-	return (unsigned long long) tv.tv_usec + (unsigned long long)((unsigned long long) tv.tv_sec * (unsigned long long) 1000000);
+	return (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
 }
 // USERMENU
 #define USERMENU_ITEM_OPTION_COUNT SNeutrinoSettings::ITEM_MAX

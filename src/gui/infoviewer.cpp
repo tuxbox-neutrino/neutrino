@@ -661,7 +661,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 
 		bool hideIt = true;
 		virtual_zap_mode = false;
-		unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]);
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]);
 
 		int res = messages_return::none;
 //		time_t ta, tb;
@@ -854,7 +854,7 @@ void CInfoViewer::showSubchan ()
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (x + 30, y + dy - 2, dx - 40, g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), COL_MENUCONTENT, 0, true);	// UTF-8
 		}
 
-		unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd (2);
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd (2);
 		int res = messages_return::none;
 
 		neutrino_msg_t msg;

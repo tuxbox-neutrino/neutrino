@@ -303,7 +303,7 @@ int CBouquetList::show(bool bShowChannelList)
 	unsigned int chn= 0;
 	int pos= lmaxpos;
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
 	bool loop=true;
 	while (loop) {

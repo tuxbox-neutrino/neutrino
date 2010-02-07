@@ -57,27 +57,27 @@ class EpgPlus
 public:
   enum FontSettingID
   {
-    EPGPlus_header_font = 0,                         
-    EPGPlus_timeline_fonttime,                   
-    EPGPlus_timeline_fontdate,                   
-    EPGPlus_channelentry_font,                   
-    EPGPlus_channelevententry_font,              
-    EPGPlus_footer_fontbouquetchannelname,       
-    EPGPlus_footer_fonteventdescription,         
-    EPGPlus_footer_fonteventshortdescription,    
-    EPGPlus_footer_fontbuttons,                  
+    EPGPlus_header_font = 0,
+    EPGPlus_timeline_fonttime,
+    EPGPlus_timeline_fontdate,
+    EPGPlus_channelentry_font,
+    EPGPlus_channelevententry_font,
+    EPGPlus_footer_fontbouquetchannelname,
+    EPGPlus_footer_fonteventdescription,
+    EPGPlus_footer_fonteventshortdescription,
+    EPGPlus_footer_fontbuttons,
     NumberOfFontSettings
   };
 
   enum SizeSettingID
-  {                                                 
-    EPGPlus_channelentry_width = 0,                    
-    EPGPlus_channelentry_separationlineheight,     
-    EPGPlus_slider_width,                          
-    EPGPlus_horgap1_height,                        
-    EPGPlus_horgap2_height,                        
-    EPGPlus_vergap1_width,                         
-    EPGPlus_vergap2_width,                         
+  {
+    EPGPlus_channelentry_width = 0,
+    EPGPlus_channelentry_separationlineheight,
+    EPGPlus_slider_width,
+    EPGPlus_horgap1_height,
+    EPGPlus_horgap2_height,
+    EPGPlus_vergap1_width,
+    EPGPlus_vergap2_width,
 	 NumberOfSizeSettings
   };
 
@@ -91,20 +91,20 @@ public:
 	struct SizeSetting
 	{
 		SizeSettingID     settingID;
-		int               size;           
+		int               size;
 	};
 
 
   enum TViewMode
   {
     ViewMode_Stretch,
-    ViewMode_Scroll,
+    ViewMode_Scroll
   };
 
-  enum TSwapMode  
+  enum TSwapMode
   {
     SwapMode_ByPage,
-    SwapMode_ByBouquet,
+    SwapMode_ByBouquet
   };
 
   class Footer;
@@ -132,7 +132,7 @@ public:
     int x;
     int y;
     int width;
-    
+
     static Font* font;
   };
 
@@ -142,7 +142,7 @@ public:
   //// construction / destruction
   public:
     TimeLine ( CFrameBuffer* frameBuffer , int x , int y , int width , int startX , int durationX);
-    
+
     ~TimeLine();
 
   //// methods
@@ -168,7 +168,7 @@ public:
     int x;
     int y;
     int width;
-  
+
     static Font* fontTime;
     static Font* fontDate;
 
@@ -308,7 +308,7 @@ public:
       );
 
     static int getUsedHeight();
-  
+
   //// attributes
   public:
     CFrameBuffer* frameBuffer;
@@ -318,7 +318,7 @@ public:
     int width;
 
     static Font*  fontBouquetChannelName;
-    static Font*  fontEventDescription;     
+    static Font*  fontEventDescription;
     static Font*  fontEventShortDescription;
     static Font*  fontButtons;
 
@@ -328,7 +328,7 @@ public:
     std::string currentChannelName;
   };
 
-	
+
   class MenuTargetAddReminder : public CMenuTarget
 	{
 		public:
@@ -393,7 +393,7 @@ public:
 			virtual ~MenuOptionChooserSwitchViewMode();
 
 		public:
-      int exec ( CMenuTarget* parent); 
+      int exec ( CMenuTarget* parent);
 
 		private:
       int oldTimingMenuSettings;
@@ -445,7 +445,7 @@ public:
   void init();
   void free();
 
-  int exec ( CChannelList* channelList , int selectedChannelIndex , CBouquetList* bouquetList); 
+  int exec ( CChannelList* channelList , int selectedChannelIndex , CBouquetList* bouquetList);
 
 private:
   static std::string getTimeString ( const time_t& time , const std::string& format);

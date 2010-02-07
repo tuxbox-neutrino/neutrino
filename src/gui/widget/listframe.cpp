@@ -578,7 +578,7 @@ void CListFrame::scrollPageDown(const int pages)
 	}
 	//TRACE("[CListFrame]  m_nCurrentLine: %d, m_nCurrentPage: %d \r\n",m_nCurrentLine,m_nCurrentPage);
 	refresh();
-};
+}
 
 void CListFrame::scrollPageUp(const int pages)
 {

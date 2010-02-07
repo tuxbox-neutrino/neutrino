@@ -111,9 +111,9 @@ struct sectionsd
 
 	struct commandGetEPGid
 	{
-		unsigned long long eventid;
+		uint64_t eventid;
 		time_t             starttime;
-	} __attribute__ ((packed)) ; 
+	} __attribute__ ((packed)) ;
 
 	struct commandSetServiceChanged
 	{
@@ -327,19 +327,19 @@ struct sectionsd
 //     none
 //   data of response:
 //     success status (sizeof(bool))
-//  
+//
 // SaveLanguages
 //   data of request:
 //     none
 //   data of response:
 //     success status (sizeof(bool))
-// 
+//
 // SetLanguages
 //   data of request:
 //     n * 3 bytes (iso_639_2 language codes)
 //   data of response:
 //     success status (sizeof(bool))
-//   
+//
 //	GetLanguages
 //   data of request:
 //     none

@@ -532,7 +532,7 @@ void    CMsgBox::scrollPageDown(const int pages)
 		m_pcTextBox->scrollPageDown(pages);
 	}
 
-};
+}
 
 //////////////////////////////////////////////////////////////////////
 // Function Name:	ScrollPageUp
@@ -549,7 +549,7 @@ void    CMsgBox::scrollPageUp(const int pages)
 	{
 		m_pcTextBox->scrollPageUp(pages);
 	}
-};
+}
 
 //////////////////////////////////////////////////////////////////////
 // Function Name:	Paint
@@ -646,7 +646,7 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 	if ( timeout == -1 )
 		timeout = g_settings.timing[SNeutrinoSettings::TIMING_EPG];
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
 
 	bool loop=true;
 	while (loop)
@@ -761,7 +761,7 @@ bool CMsgBox::setText(const std::string* newText)
 	}
 
 	return(lresult);
-};
+}
 
 
 //////////////////////////////////////////////////////////////////////
