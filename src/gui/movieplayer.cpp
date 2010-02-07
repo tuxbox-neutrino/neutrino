@@ -1062,7 +1062,7 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_audio) {
 			showaudioselectdialog = true;
-		} else if (msg == CRCInput::RC_help) {
+		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			if (timeshift)
 				g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(), CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());	// UTF-8
 
