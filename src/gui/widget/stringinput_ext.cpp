@@ -276,7 +276,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 		observ->changeNotify(name, value);
 	}
 
-	delete[] oldval;
+	delete[] dispval;
 	delete[] oldval;
 
 	return res;
