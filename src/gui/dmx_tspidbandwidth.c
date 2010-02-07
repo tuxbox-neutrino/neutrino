@@ -24,7 +24,7 @@ int ts_pidbandwidth (OPTION *opt)
   int 		 dmxfd;
   struct timeval tv,last_tv, first_tv;
   int		 pid;
-  unsigned long long      b_total;
+  uint64_t      b_total;
   long           b;
   long           packets_bad;
   long           packets_total;
@@ -113,7 +113,7 @@ int ts_pidbandwidth (OPTION *opt)
 				b_len = read(pfd.fd, buf, sizeof(buf));
 				gettimeofday (&tv, NULL);
 
-			
+
 				if (b_len >= TS_LEN) {
 					b_start = sync_ts (buf, b_len);
 				} else {
@@ -134,7 +134,7 @@ int ts_pidbandwidth (OPTION *opt)
 				// -- calc bandwidth
 
 				{
-				   unsigned long long  bit_s;
+				   uint64_t  bit_s;
 				   long  d_tim_ms;
 				   int   packets;
 
@@ -142,36 +142,36 @@ int ts_pidbandwidth (OPTION *opt)
 				   packets_total += packets;
 
 
-				   // output on different verbosity levels 
+				   // output on different verbosity levels
 				   // -- current bandwidth
 				   d_tim_ms = delta_time_ms (&tv, &last_tv);
-				   if (d_tim_ms <= 0) d_tim_ms = 1;   //  ignore usecs 
+				   if (d_tim_ms <= 0) d_tim_ms = 1;   //  ignore usecs
 
 				   out (3, "packets read: %3d/(%ld)   d_time: %2ld.%03ld s  = ",
 					packets, packets_total, d_tim_ms / 1000UL, d_tim_ms % 1000UL);
 
 				   // -- current bandwidth in kbit/sec
-				   // --- cast to unsigned long long so it doesn't overflow as
+				   // --- cast to uint64_t so it doesn't overflow as
 				   // --- early, add time / 2 before division for correct rounding
-				   bit_s = (((unsigned long long)b * 8000ULL) + ((unsigned long long)d_tim_ms / 2ULL))
-					   / (unsigned long long)d_tim_ms;
+				   bit_s = (((uint64_t)b * 8000ULL) + ((uint64_t)d_tim_ms / 2ULL))
+					   / (uint64_t)d_tim_ms;
 
 				   out (1, "%5llu.%03llu kbit/s", bit_s / 1000ULL, bit_s % 1000ULL);
 
 
 				   // -- average bandwidth
 				   d_tim_ms = delta_time_ms (&tv,&first_tv);
-				   if (d_tim_ms <= 0) d_tim_ms = 1;   //  ignore usecs 
+				   if (d_tim_ms <= 0) d_tim_ms = 1;   //  ignore usecs
 
-				   bit_s = ((b_total * 8000ULL) + ((unsigned long long)d_tim_ms / 2ULL))
-					   / (unsigned long long)d_tim_ms;
+				   bit_s = ((b_total * 8000ULL) + ((uint64_t)d_tim_ms / 2ULL))
+					   / (uint64_t)d_tim_ms;
 
 				   last_avg.kb_sec = (unsigned long) (bit_s / 1000ULL);
 				   last_avg.b_sec  = (unsigned long) (bit_s % 1000ULL);
 
 				   out (2, "   (Avrg: %5lu.%03lu kbit/s)", last_avg.kb_sec, last_avg.b_sec);
 
-				   
+
 				   // -- bad packet(s) check in buffer
 				   {
 				     int bp;

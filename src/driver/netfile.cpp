@@ -640,7 +640,7 @@ int parse_response(URL *url, void *opt, CSTATE *state)
 	/* then return now with the content length as return value */
 	getHeaderVal("Content-Length:", rval);
 	//  dprintf(stderr, "file size: %d\n", rval);
-	if(rval >= 0) 
+	if(rval >= 0)
 		return rval;
 
 	/* yet another hack: this is only implemented to be able to fetch */
@@ -654,7 +654,7 @@ int parse_response(URL *url, void *opt, CSTATE *state)
 
 	/* no content length indication from the server ? Then treat it as stream */
 	getHeaderVal("icy-metaint:", meta_interval);
-	if(meta_interval < 0) 
+	if(meta_interval < 0)
 		meta_interval = 0;
 
 	if (state != NULL) {
@@ -1069,7 +1069,7 @@ FILE *f_open(const char *filename, const char *acctype)
 			/* try to connect to all servers until we find one that */
 			/* is willing to serve us */
 			{
-				int i;			
+				int i;
 				for(i=0, fd = NULL; ((fd == NULL) && (i<25)); i++)
 				{
 					const char* const chptr = strstr(servers[i], "://");
@@ -1415,7 +1415,7 @@ int push(FILE *fd, char *buf, long len)
 
 			for(j=0; j<2; j++)
 			{
-				if(amt[j] > blen) 
+				if(amt[j] > blen)
 					amt[j] = blen;
 
 				if(amt[j])
@@ -1576,7 +1576,7 @@ int pop(FILE *fd, char *buf, long len)
 
 	if(cache[i].filter_arg)
 		if(cache[i].filter_arg->state)
-			cache[i].filter_arg->state->buffered = 65536L * (long long)cache[i].filled / (long long)CACHESIZE;
+			cache[i].filter_arg->state->buffered = 65536L * (int64_t)cache[i].filled / (int64_t)CACHESIZE;
 
 	return rval;
 }
@@ -1618,11 +1618,11 @@ void CacheFillThread(void *c)
 		if (ret > 0 && (pfd.revents & POLLIN) == POLLIN) {
 #if 0 //FIXME: fread blocks i/o on dead connection
 			rval = fread(buf, 1, datalen, scache->fd);
-			if ((rval == 0) && feof(scache->fd)) 
+			if ((rval == 0) && feof(scache->fd))
 				break; /* exit cache fill thread if eof and nothing to push */
 #else
 			rval = read(fileno(scache->fd), buf, datalen);
-			if (rval == 0) 
+			if (rval == 0)
 				break; /* exit cache fill thread if eof and nothing to push */
 #endif
 			/* if there is a filter function set up for this stream, then */
@@ -1638,7 +1638,7 @@ void CacheFillThread(void *c)
 			if( push(scache->fd, buf, rval) < 0)
 				break;
 		}
-	} 
+	}
 	while(!scache->closed);
 	//while( (rval == datalen) && (!scache->closed) );
 
@@ -1719,7 +1719,7 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 			ptr = strchr(md, '=');
 			strncpy(state->title, ptr + 2, 4096);
 			ptr = strchr(state->title, ';');
-			if(ptr) 
+			if(ptr)
 				*(ptr - 1) = 0;
 			state->artist[0] = 0;
 		}
@@ -1728,7 +1728,7 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 			SKIP(ptr);
 			strcpy(state->title, ptr);
 			ptr = strchr(state->title, ';');
-			if(ptr) 
+			if(ptr)
 				*(ptr - 1) = 0;
 
 			ptr = strstr(md, "StreamTitle=");
@@ -1738,7 +1738,7 @@ void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 			if(!ptr)
 				ptr = strstr(state->artist, ", ");
 
-			if(ptr) 
+			if(ptr)
 				*ptr = 0;
 		}
 		state->state = RUNNING;
@@ -1749,9 +1749,9 @@ void ShoutCAST_DestroyFilter(void *a)
 {
 	STREAM_FILTER *arg = (STREAM_FILTER*)a;
 
-	if(arg->state) 
+	if(arg->state)
 		free(arg->state), arg->state = NULL;
-	if(arg->user)  
+	if(arg->user)
 		free(arg->user),  arg->user  = NULL;
 }
 
@@ -1937,14 +1937,14 @@ void parseURL_url(URL& url) {
 
 		/* extract the file path from the url */
 		ptr = strchr(ptr + 3, '/');
-		if(ptr) 
+		if(ptr)
 			strcpy(url.file, ptr);
-		else  
+		else
 			strcpy(url.file, "/");
 
 		/* extract the host part from the url */
 		ptr = strchr(url.host, '/');
-		if(ptr) 
+		if(ptr)
 			*ptr = 0;
 
 		if ((ptr = strchr(url.host, '@')))

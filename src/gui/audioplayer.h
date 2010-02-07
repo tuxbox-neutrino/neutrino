@@ -55,11 +55,11 @@ typedef std::pair<unsigned char, CPosList> CTitle2PosItem;
 class CAudiofileExt : public CAudiofile
 {
 public:
-	
+
 	CAudiofileExt();
 
 	CAudiofileExt(std::string name, CFile::FileType type);
-	
+
 	CAudiofileExt(const CAudiofileExt& src);
 
 	void operator=(const CAudiofileExt& src);
@@ -80,7 +80,7 @@ class RandomNumber
 
 	int operator()(int n)
 	{
-		return ((long long)n * rand() / RAND_MAX);
+		return ((int64_t)n * rand() / RAND_MAX);
 	}
 };
 
@@ -207,9 +207,9 @@ class CAudioPlayerGui : public CMenuTarget
 	void getFileInfoToDisplay(std::string& fileInfo, CAudiofileExt &file);
 
 	void printSearchTree();
-	
+
 	void buildSearchTree();
-	
+
 	unsigned char getFirstChar(CAudiofileExt &file);
 
 	void printTimevalDiff(timeval &start, timeval &end);
@@ -225,7 +225,7 @@ class CAudioPlayerGui : public CMenuTarget
 	 * Example:
 	 * absFilename: /mnt/audio/A/abc.mp3
 	 * fromDir: /mnt/audio/B
-	 * => ../A/abc.mp3 will be returned 
+	 * => ../A/abc.mp3 will be returned
 	 * @param fromDir the directory from where we want to
 	 * access the file
 	 * @param absFilename the file we want to access in a
@@ -235,8 +235,8 @@ class CAudioPlayerGui : public CMenuTarget
 	 */
 	std::string absPath2Rel(const std::string& fromDir,
 				const std::string& absFilename);
-	
-	/** 
+
+	/**
 	 * Asks the user if the file filename should be overwritten or not
 	 * @param filename the name of the file
 	 * @return true if file should be overwritten, false otherwise
@@ -248,7 +248,7 @@ class CAudioPlayerGui : public CMenuTarget
 	bool shufflePlaylist(void);
 	bool playNext(bool allow_rotate = false);
 	bool playPrev(bool allow_rotate = false);
-	
+
  public:
 	CAudioPlayerGui(bool inetmode = false);
 	~CAudioPlayerGui();

@@ -225,8 +225,8 @@ void SIsectionEIT::parseExtendedEventDescriptor(const char *buf, SIevent &e, uns
 				// string, delimit multiple entries with a newline
 				e.itemDescription.append(std::string((const char *)(items+2), min(maxlen-((const char *)items+2-buf), (*items)-1)));
 				e.itemDescription.append("\n");
-			} 
-			else 
+			}
+			else
 #endif
 			{
 				// 21.07.2005 - collect all extended events in one
@@ -254,7 +254,7 @@ void SIsectionEIT::parseExtendedEventDescriptor(const char *buf, SIevent &e, uns
 #if 0
 		if(*(items+1) < 0x06) { // other code table
 			e.appendExtendedText(language, std::string((const char *)(items+2), min(maxlen-((const char *)items+2-buf), (*items)-1)));
-		} else 
+		} else
 #endif
 		{
 			//e.appendExtendedText(language, std::string((const char *)(items+1), min(maxlen-((const char *)items+1-buf), *items)));
@@ -269,7 +269,7 @@ std::string SIsectionEIT::freesatHuffmanDecode(std::string input)
 {
     const char *src = input.c_str();
     uint size = input.length();
-    
+
     if (src[1] == 1 || src[1] == 2)
     {
         std::string uncompressed(size * 3, ' ');
@@ -391,7 +391,7 @@ void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsign
 #else
 			e.setName(language, std::string(buf+1, evt->event_name_length-1));
 #endif
-		} else 
+		} else
 #endif // 0
 {
 #ifdef ENABLE_FREESATEPG
@@ -413,7 +413,7 @@ void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsign
 #else
 			e.setText(language, std::string((++buf)+1, textlength-1));
 #endif
-		} else 
+		} else
 #endif // 0
 {
 #ifdef ENABLE_FREESATEPG
@@ -615,7 +615,7 @@ void SIsectionPPT::parsePrivateContentOrderDescriptor(const char *buf, SIevent &
     return; // defekt
 
 #if 0
-// to be done    
+// to be done
     unsigned char Order_number_length;
     char Order_number[Order_number_length];
     unsigned char Order_price_length;
@@ -750,7 +750,7 @@ void SIsectionPPT::parse(void)
 	}
 
 	actPos = &buffer[sizeof(SI_section_PPT_header)];
-	
+
 	/*while (actPos < &buffer[bufferLength])*/ {
 		SIevent e;
 		descriptors_loop_length = (((SI_section_PPT_header*)buffer)->descriptor_section_length_hi << 8) | ((SI_section_PPT_header*)buffer)->descriptor_section_length_lo;
@@ -905,7 +905,7 @@ void SIsectionBAT::parseBouquetNameDescriptor(const char *buf, SIbouquet &s)
   struct descr_generic_header *sv=(struct descr_generic_header *)buf;
   buf+=sizeof(struct descr_generic_header);
   if(sv->descriptor_length) {
-  
+
 //    if(*buf < 0x06) // other code table
   //    s.bouquetName=std::string(buf+1, sv->descriptor_length-1);
     //else
@@ -1008,21 +1008,21 @@ void SIsectionBAT::parse(void)
 			buf+=sizeof(struct descr_generic_header);
 			struct private_data_specifier *pds=(struct private_data_specifier *)buf;
 			buf+=sizeof(struct private_data_specifier);
-			current_private_data_specifier=(((pds->byte1 << 24) | (pds->byte2 << 16)) | (pds->byte3 << 8)) | pds->byte4; 
+			current_private_data_specifier=(((pds->byte1 << 24) | (pds->byte2 << 16)) | (pds->byte3 << 8)) | pds->byte4;
 					//printf("Private Data Specifier: %08x\n", current_private_data_specifier);
 		}
 		len-=desc->descriptor_length+2;
 		des+=desc->descriptor_length+2;
 	}
 	//s.bouquetName = bouquetName;
- 	
+
 	actPos += sizeof(SI_section_BAT_header) + descriptors_loop_length;
-	
+
 	ll = (struct loop_len *)actPos;
 	descriptors_loop_length = (ll->descriptors_loop_length_hi << 8) | ll->descriptors_loop_length_lo; 	//len is not used at the moment
 //	printf("desclen: %hu\n", descriptors_loop_length);
 	actPos += sizeof(loop_len);
-		
+
 	if (bouquet_id != 0x0001) {
 		while (actPos <= &buffer[bufferLength - sizeof(struct bat_service)]) {
 			sv = (struct bat_service *)actPos;
@@ -1032,15 +1032,15 @@ void SIsectionBAT::parse(void)
 	//	printf("Section Number: %d Count: %d position: %04x\n", bh->section_number, count, s.position);
 			descriptors_length = (sv->descriptors_loop_length_hi << 8) | sv->descriptors_loop_length_lo;
 		 // Transport Stream Loop
-		//count = parseDescriptors(((const char *)sv) + sizeof(struct bat_service), descriptors_length, s, bh->section_number, count,	
+		//count = parseDescriptors(((const char *)sv) + sizeof(struct bat_service), descriptors_length, s, bh->section_number, count,
 		 //(const char *) bouquetName[0]);
 		 	bool found = false;
 			int loop_count = 1;
 		 	while (loop_count >= 0) {
-			
+
 				const char *des_ = ((const char *)sv) + sizeof(struct bat_service);
 				len = descriptors_length;
-			
+
 				while(len>=sizeof(struct descr_generic_header)) {
     					desc=(struct descr_generic_header *)des_;
 //    printf("Type: %s\n", decode_descr(desc->descriptor_tag));
@@ -1052,7 +1052,7 @@ void SIsectionBAT::parse(void)
 //      printf("Found service list descriptor\n");
 				//count = parseServiceListDescriptor((const char *)desc, s, section_no, count);
 				//struct descr_generic_header *sv=(struct descr_generic_header *)buf;
-					
+
 	  					while(dlen >= sizeof(struct service_list_entry)) {
   							struct service_list_entry *sl=(struct service_list_entry *)buf;
 							buf+=sizeof(struct service_list_entry);
@@ -1074,16 +1074,16 @@ void SIsectionBAT::parse(void)
 									struct digplus_order_entry *oe = (struct digplus_order_entry *)privbuf;
 									privbuf+=order_entry_size;
 									/*
-									printf("Search: %04x Service_id: %04x Posi:%04x\n", 
+									printf("Search: %04x Service_id: %04x Posi:%04x\n",
 										(sl->service_id_hi << 8) | sl->service_id_lo,
 										(oe->service_id_hi << 8) | oe->service_id_lo,
 										(oe->channel_number_hi << 8) | oe->channel_number_lo);
 									*/
-									if (	((sl->service_id_hi << 8) | sl->service_id_lo) == 
+									if (	((sl->service_id_hi << 8) | sl->service_id_lo) ==
 										((oe->service_id_hi << 8) | oe->service_id_lo)) {
 										bs.position = (oe->channel_number_hi << 8) | oe->channel_number_lo;
 										/*
-										printf("Found Search: %04x Service_id: %04x Posi:%04x\n", 
+										printf("Found Search: %04x Service_id: %04x Posi:%04x\n",
 										(sl->service_id_hi << 8) | sl->service_id_lo,
 										current_service_id,
 										current_channel_number);
@@ -1106,8 +1106,8 @@ void SIsectionBAT::parse(void)
 						struct private_data_specifier *pds=(struct private_data_specifier *)buf;
 						buf+=sizeof(struct private_data_specifier);
 						if ((pds->byte1 != 0) || (pds->byte2 != 0) || (pds->byte3 != 0) || (pds->byte4 != 0))
-							current_private_data_specifier=(((pds->byte1 << 24) | (pds->byte2 << 16)) | 
-											(pds->byte3 << 8)) | pds->byte4; 
+							current_private_data_specifier=(((pds->byte1 << 24) | (pds->byte2 << 16)) |
+											(pds->byte3 << 8)) | pds->byte4;
 					//printf("Private Data Specifier: %08x\n", current_private_data_specifier);
 					}
 					if (desc->descriptor_tag == 0x81) {
@@ -1116,7 +1116,7 @@ void SIsectionBAT::parse(void)
 							privdesc = (struct descr_generic_header *)desc;
 							found = true;
 						}
-					}					
+					}
 					if (desc->descriptor_tag == 0x82) {
 						if ((current_private_data_specifier == 0x00000010) || (bouquet_id == 0x0021)) {
 							//printf("TPS Bouquet ordering descriptor found!\n");
@@ -1148,17 +1148,17 @@ void SIsectionBAT::parse(void)
 							//check if resulting bouquets on 28.2E look more sensible...
 							struct bskyb_bid *bid = (struct bskyb_bid *)privbuf;
 							if ((bid->unknown1 == 0xff) && (bid->unknown2 == 0xff)) {
-							
+
 								privbuf+=2; //first 2 bytes of each 0xb1 desc unknown
-							
+
 								while (privdlen >= sizeof(struct bskyb_order_entry)) {
 									struct bskyb_order_entry *oe = (struct bskyb_order_entry *)privbuf;
 									privbuf+=sizeof(struct bskyb_order_entry);
 									SIbouquet bs(bouquet_id);
 									bs.bouquetName = bouquetName;
-									bs.transport_stream_id = (sv->transport_stream_id_hi << 8) | 
+									bs.transport_stream_id = (sv->transport_stream_id_hi << 8) |
 													sv->transport_stream_id_lo;
-									bs.original_network_id = (sv->original_network_id_hi << 8) | 
+									bs.original_network_id = (sv->original_network_id_hi << 8) |
 													sv->original_network_id_lo;
 									bs.service_id = (oe->service_id_hi << 8) | oe->service_id_lo;
 									bs.serviceTyp = oe->service_type;
@@ -1173,9 +1173,9 @@ void SIsectionBAT::parse(void)
 	    				len-=desc->descriptor_length+2;
     					des_+=desc->descriptor_length+2;
   				}
-				loop_count--;	
+				loop_count--;
 			}
-		 
+
 			actPos += sizeof(struct bat_service) + descriptors_length;
 	//	count++;
 		}
@@ -1244,7 +1244,7 @@ void SIsectionNIT::parse(void)
 		bufferLength=0;
 		return;
 	}
-	
+
 	actPos = buffer;				// We need Bouquet ID and bouquet descriptor length from header
 	bufEnd = buffer + bufferLength;
 	nh = (struct SI_section_NIT_header *)actPos;	// Header
@@ -1254,12 +1254,12 @@ void SIsectionNIT::parse(void)
 //	printf("ident: %hu actpos: %p buf+bl: %p desclen: %hu\n", bi.bouquet_id, actPos, buffer+bufferLength, descriptors_loop_length);
 //	parseDescriptors(((const char *)bh) + sizeof(SI_section_BAT_header), descriptors_loop_length, s); //Fill out Bouquet Name
 	actPos += sizeof(SI_section_NIT_header) + descriptors_loop_length;
-	
+
 	ll = (struct loop_len *)actPos;
 	descriptors_loop_length = (ll->descriptors_loop_length_hi << 8) | ll->descriptors_loop_length_lo; 	//len is not used at the moment
 //	printf("desclen: %hu\n", descriptors_loop_length);
 	actPos += sizeof(loop_len);
-	
+
 	while (actPos <= bufEnd - sizeof(struct nit_transponder)) {
 		tp = (struct nit_transponder *)actPos;
 		SInetwork s(tp);
@@ -1313,7 +1313,7 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 {
 	int fd;
 	struct SI_section_header header;
-	unsigned long long firstKey=(unsigned long long)-1;
+	uint64_t firstKey=(uint64_t)-1;
 	SIsections missingSections;
 	char *buf;
 	unsigned short section_length;
@@ -1396,7 +1396,7 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 			delete[] buf;
 		}
 
-	} while (firstKey == (unsigned long long) -1);
+	} while (firstKey == (uint64_t) -1);
 
 	// Die restlichen Segmente lesen
 	szeit = time(NULL);
@@ -1540,7 +1540,7 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 		}
 
 		section_length = (header.section_length_hi << 8) | header.section_length_lo;
-		
+
 		buf = new char[sizeof(header) + section_length - 5];
 
 		if (!buf) {

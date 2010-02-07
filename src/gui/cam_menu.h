@@ -34,7 +34,7 @@ class CCAMMenuHandler : public CMenuTarget
 	private:
 		CHintBox * hintBox;
 		cDvbCi * ci;
-		unsigned long long timeoutEnd;
+		uint64_t timeoutEnd;
 		//int slot;
 		int doMenu(int slot);
 		int doMainMenu();

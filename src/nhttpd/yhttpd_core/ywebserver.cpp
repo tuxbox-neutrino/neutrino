@@ -1,6 +1,6 @@
 //=============================================================================
 // YHTTPD
-// Webserver Class : Until now: exact one instance 
+// Webserver Class : Until now: exact one instance
 //=============================================================================
 // c++
 #include <cerrno>
@@ -52,7 +52,7 @@ CWebserver::CWebserver()
 	//pthread_attr_init(&attr);
 	//pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 	port=80;
-	
+
 
 }
 //-----------------------------------------------------------------------------
@@ -61,22 +61,22 @@ CWebserver::~CWebserver()
 	listenSocket.close();
 }
 //=============================================================================
-// Start Webserver. Main-Loop. 
+// Start Webserver. Main-Loop.
 //-----------------------------------------------------------------------------
 // Wait for Connection and schedule ist to handle_connection()
 // HTTP/1.1 should can handle "keep-alive" connections to reduce socket
-// creation and handling. This is handled using FD_SET and select Socket 
+// creation and handling. This is handled using FD_SET and select Socket
 // mechanism.
-// select wait for socket-activity. Cases: 
+// select wait for socket-activity. Cases:
 //	1) get a new connection
 //	2) re-use a socket
-//	3) timeout: close unused sockets 
+//	3) timeout: close unused sockets
 //-----------------------------------------------------------------------------
 //	from RFC 2616:
 //	8 Connections
 //	8.1 Persistent Connections
 //	8.1.1 Purpose
-//	
+//
 //	   Prior to persistent connections, a separate TCP connection was
 //	   established to fetch each URL, increasing the load on HTTP servers
 //	   and causing congestion on the Internet. The use of inline images and
@@ -87,32 +87,32 @@ CWebserver::~CWebserver()
 //	   measurements of actual HTTP/1.1 (RFC 2068) implementations show good
 //	   results [39]. Alternatives have also been explored, for example,
 //	   T/TCP [27].
-//	
+//
 //	   Persistent HTTP connections have a number of advantages:
-//	
+//
 //	      - By opening and closing fewer TCP connections, CPU time is saved
 //	        in routers and hosts (clients, servers, proxies, gateways,
 //	        tunnels, or caches), and memory used for TCP protocol control
 //	        blocks can be saved in hosts.
-//	
+//
 //	      - HTTP requests and responses can be pipelined on a connection.
 //	        Pipelining allows a client to make multiple requests without
 //	        waiting for each response, allowing a single TCP connection to
 //	        be used much more efficiently, with much lower elapsed time.
-//	
+//
 //	      - Network congestion is reduced by reducing the number of packets
 //	        caused by TCP opens, and by allowing TCP sufficient time to
 //	        determine the congestion state of the network.
-//	
+//
 //	      - Latency on subsequent requests is reduced since there is no time
 //	        spent in TCP's connection opening handshake.
-//	
+//
 //	      - HTTP can evolve more gracefully, since errors can be reported
 //	        without the penalty of closing the TCP connection. Clients using
 //	        future versions of HTTP might optimistically try a new feature,
 //	        but if communicating with an older server, retry with old
 //	        semantics after an error is reported.
-//	
+//
 //	   HTTP implementations SHOULD implement persistent connections.
 //=============================================================================
 #define MAX_TIMEOUTS_TO_CLOSE 10
@@ -134,7 +134,7 @@ bool CWebserver::run(void)
 	fcntl(listener, F_SETFD , O_NONBLOCK); 	// listener master socket non-blocking
 	int timeout_counter = 0;		// Counter for Connection Timeout checking
 	int test_counter = 0;			// Counter for Testing long running Connections
-	
+
 	// main Webserver Loop
 	while(!terminate)
 	{
@@ -143,8 +143,8 @@ bool CWebserver::run(void)
 		tv.tv_usec	= 10000;	// microsec: Timeout for select ! for re-use / keep-alive socket
 		tv.tv_sec	= 0;		// seconds
 		int fd 		= -1;
-		
-		// select : wait for socket activity	
+
+		// select : wait for socket activity
 		if(open_connections <= 0)	// No open Connection. Wait in select.
 			fd = select(fdmax+1,&read_fds, NULL, NULL, NULL);// wait for socket activity
 		else
@@ -167,7 +167,7 @@ bool CWebserver::run(void)
 			// Testoutput for long living threads
 			if(++test_counter >= MAX_TIMEOUTS_TO_TEST)
 			{
-				for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++) 
+				for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++)
 					if(SocketList[j] != NULL) 		// here is a socket
 						log_level_printf(2,"FD-TEST sock:%d handle:%d open:%d\n",SocketList[j]->get_socket(),
 							SocketList[j]->handling,SocketList[j]->isOpened);
@@ -179,10 +179,10 @@ bool CWebserver::run(void)
 				CloseConnectionSocketsByTimeout();
 				timeout_counter=0;
 			}
-			continue;		// main loop again	
+			continue;		// main loop again
 		}
 		//----------------------------------------------------------------------------------------
-		// Check all observed descriptors & check new or re-use Connections 
+		// Check all observed descriptors & check new or re-use Connections
 		//----------------------------------------------------------------------------------------
 		for(int i = listener; i <= fdmax; i++)
 		{
@@ -209,7 +209,7 @@ bool CWebserver::run(void)
 							char httpstr[]=HTTP_PROTOCOL " 503 Service Unavailable\r\n\r\n";
 							SocketList[slot]->Send(httpstr, strlen(httpstr));
 							SL_CloseSocketBySlot(slot);
-						}	
+						}
 					}
 			}
 		}// for
@@ -245,8 +245,8 @@ int CWebserver::AcceptNewConnectionSocket()
 {
 	int slot = -1;
 	CySocket *connectionSock = NULL;
-	int newfd; 
-	
+	int newfd;
+
 	if(!(connectionSock = listenSocket.accept() ))				// Blocking wait
 	{
 		dperror("Socket accept error. Continue.\n");
@@ -256,7 +256,7 @@ int CWebserver::AcceptNewConnectionSocket()
 #ifdef Y_CONFIG_USE_OPEN_SSL
 	if(Cyhttpd::ConfigList["SSL"]=="true")
 		connectionSock->initAsSSL();					// make it a SSL-socket
-#endif		
+#endif
 	log_level_printf(2,"FD: new con fd:%d on port:%d\n",connectionSock->get_socket(), connectionSock->get_accept_port());
 
 	// Add Socket to List
@@ -284,7 +284,7 @@ int CWebserver::AcceptNewConnectionSocket()
 int CWebserver::SL_GetExistingSocket(SOCKET sock)
 {
 	int slot = -1;
-	for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++) 
+	for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++)
 		if(SocketList[j] != NULL 			// here is a socket
 			&& SocketList[j]->get_socket() == sock)	// we know that socket
 		{
@@ -299,7 +299,7 @@ int CWebserver::SL_GetExistingSocket(SOCKET sock)
 int CWebserver::SL_GetFreeSlot()
 {
 	int slot = -1;
-	for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++) 
+	for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++)
 		if(SocketList[j] == NULL) 	// here is a free slot
 		{
 			slot = j;
@@ -314,7 +314,7 @@ int CWebserver::SL_GetFreeSlot()
 void CWebserver::CloseConnectionSocketsByTimeout()
 {
 	CySocket *connectionSock = NULL;
-	for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++) 
+	for(int j=0;j < HTTPD_MAX_CONNECTIONS;j++)
 	if(SocketList[j] != NULL 			// here is a socket
 		&& !SocketList[j]->handling) 		// it is not handled
 	{
@@ -329,7 +329,7 @@ void CWebserver::CloseConnectionSocketsByTimeout()
 			struct 	timeval 	tv_now;
 			struct	timezone 	tz_now;
 			gettimeofday(&tv_now, &tz_now);
-			long long tdiff = ((tv_now.tv_sec - connectionSock->tv_start_waiting.tv_sec) * 1000000
+			int64_t tdiff = ((tv_now.tv_sec - connectionSock->tv_start_waiting.tv_sec) * 1000000
 				+ (tv_now.tv_usec - connectionSock->tv_start_waiting.tv_usec));
 			if(tdiff < HTTPD_KEEPALIVE_TIMEOUT || tdiff <0)
 				shouldClose = false;
@@ -343,7 +343,7 @@ void CWebserver::CloseConnectionSocketsByTimeout()
 }
 //-----------------------------------------------------------------------------
 // Add Socket fd to FD_SET again (for select-handling)
-// Add start-time for waiting for connection re-use / keep-alive 
+// Add start-time for waiting for connection re-use / keep-alive
 //-----------------------------------------------------------------------------
 void CWebserver::addSocketToMasterSet(SOCKET fd)
 {
@@ -356,11 +356,11 @@ void CWebserver::addSocketToMasterSet(SOCKET fd)
 	gettimeofday(&tv_now, &tz_now);
 	SocketList[slot]->tv_start_waiting = tv_now; 	// add keep-alive wait time
 	FD_SET(fd, &master);				// add fd to select-master-set
-}	 
-				
+}
+
 //-----------------------------------------------------------------------------
 // Close (FD_SET handled) Socket
-// Clear it from SocketList 
+// Clear it from SocketList
 //-----------------------------------------------------------------------------
 void CWebserver::SL_CloseSocketBySlot(int slot)
 {
@@ -397,7 +397,7 @@ bool CWebserver::CheckKeepAliveAllowedByIP(std::string client_ip)
 //-----------------------------------------------------------------------------
 // Set Entry(number)to NULL in Threadlist
 //-----------------------------------------------------------------------------
-void CWebserver::clear_Thread_List_Number(int number) 
+void CWebserver::clear_Thread_List_Number(int number)
 {
 	pthread_mutex_lock( &mutex );
 	if(number <HTTPD_MAX_CONNECTIONS)
@@ -446,7 +446,7 @@ bool CWebserver::handle_connection(CySocket *newSock)
 
 		// start connection Thread
 		if(pthread_create(&Connection_Thread_List[index], &attr, WebThread, (void *)newConn) != 0)
-			dperror("Could not create Connection-Thread\n");		
+			dperror("Could not create Connection-Thread\n");
 	}
 	else	// non threaded
 		WebThread((void *)newConn);

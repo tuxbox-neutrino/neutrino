@@ -99,7 +99,7 @@ int CLcdControler::exec(CMenuTarget* parent, const std::string &)
 	CLCD::getInstance()->setAutoDimm(0);	// autodimm deactivated to control and see the real settings
 	paint();
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
 	bool loop=true;
 	while (loop)

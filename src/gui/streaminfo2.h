@@ -42,7 +42,7 @@ class CStreamInfo2 : public CMenuTarget
 		int hheight,iheight,sheight; 	// head/info/small font height
 
 		int  max_height;	// Frambuffer 0.. max
-		int  max_width;	
+		int  max_width;
 
 		int yypos;
 		int  paint_mode;
@@ -67,7 +67,7 @@ class CStreamInfo2 : public CMenuTarget
 			unsigned long	sig, old_sig, max_sig, min_sig;
 			unsigned long	snr, old_snr, max_snr, min_snr;
 		} signal;
-		
+
 		struct bitrate {
 			unsigned int short_average, max_short_average, min_short_average;
 		} rate;
@@ -76,9 +76,9 @@ class CStreamInfo2 : public CMenuTarget
 
 		int dvrfd, dmxfd;
 		struct timeval tv, last_tv, first_tv;
-		unsigned long long bit_s;
-		unsigned long long abit_s;
-		unsigned long long b_total;
+		uint64_t bit_s;
+		uint64_t abit_s;
+		uint64_t b_total;
 
 		int update_rate();
 		int ts_setup();

@@ -920,7 +920,7 @@ int CMovieBrowser::exec(const char* path)
 	if ( timeout == -1 )
 		timeout = g_settings.timing[SNeutrinoSettings::TIMING_FILEBROWSER];
 
-	unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
 
 	if(m_settings.remount == true)
 	{
@@ -1195,7 +1195,7 @@ void CMovieBrowser::refreshMovieInfo(void)
         	std::string lname;
 		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname))
 			g_PicViewer->DisplayImage(lname, lx, ly, PIC_W, PIC_H);
-		
+
 		if(logo_ok) {
 #if 0
 			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - picw -10;

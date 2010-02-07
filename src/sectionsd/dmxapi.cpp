@@ -59,7 +59,7 @@ struct SI_section_TOT_header
 	unsigned char      reserved_future_use      :  1;
 	unsigned char      reserved1                :  2;
 	unsigned short     section_length           : 12;
-	unsigned long long UTC_time                 : 40;
+	uint64_t UTC_time                 : 40;
 	unsigned char      reserved2                :  4;
 	unsigned short     descriptors_loop_length  : 12;
 }
@@ -72,7 +72,7 @@ struct SI_section_TDT_header
 	unsigned char      reserved_future_use      :  1;
 	unsigned char      reserved1                :  2;
 	unsigned short     section_length           : 12;
-/*	unsigned long long UTC_time                 : 40;*/
+/*	uint64_t UTC_time                 : 40;*/
 	UTC_t              UTC_time;
 }
 __attribute__ ((packed)); /* 8 bytes */
@@ -107,7 +107,7 @@ bool getUTC(UTC_t * const UTC, const bool TDT)
 		memcpy(cUTC, &tdt_tot_header.UTC_time, 5);
 		if ((cUTC[2] > 0x23) || (cUTC[3] > 0x59) || (cUTC[4] > 0x59)) // no valid time
 		{
-			printf("[sectionsd] getUTC: invalid %s section received: %02x %02x %02x %02x %02x\n", 
+			printf("[sectionsd] getUTC: invalid %s section received: %02x %02x %02x %02x %02x\n",
 					TDT ? "TDT" : "TOT", cUTC[0], cUTC[1], cUTC[2], cUTC[3], cUTC[4]);
 			ret = false;
 		}

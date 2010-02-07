@@ -231,7 +231,7 @@ struct SI_section_PPT_header { // Premiere Private Table
 #endif
 	unsigned section_number			: 8;
 	unsigned last_section_number		: 8;
-	
+
 	unsigned content_id_32_25		: 8;
 	unsigned content_id_24_17		: 8;
 	unsigned content_id_16_9		: 8;
@@ -313,7 +313,7 @@ public:
 	}
 
 	unsigned short tableIDextension(void) const {
-		return buffer ? ((((struct SI_section_header *)buffer)->table_id_extension_hi << 8) | 
+		return buffer ? ((((struct SI_section_header *)buffer)->table_id_extension_hi << 8) |
 			((struct SI_section_header *)buffer)->table_id_extension_lo) : (unsigned short) -1;
 	}
 
@@ -337,22 +337,22 @@ public:
 		return (struct SI_section_header *)buffer;
 	}
 
-	static unsigned long long key(const struct SI_section_header *header) {
+	static uint64_t key(const struct SI_section_header *header) {
 		// Der eindeutige Key einer SIsection besteht aus 1 Byte Table-ID,
 		// 2 Byte Table-ID-extension, 1 Byte Section number
 		// 1 Byte Version number und 1 Byte current_next_indicator
 		if (!header)
-			return (unsigned long long) -1;
-		return 	(((unsigned long long)header->table_id) << 40) +
-			(((unsigned long long)header->table_id_extension_hi) << 32) +
-			(((unsigned long long)header->table_id_extension_lo) << 24) +
-			(((unsigned long long)header->section_number) << 16) +
-			(((unsigned long long)header->version_number) << 8) +
-			(((unsigned long long)header->current_next_indicator));
+			return (uint64_t) -1;
+		return 	(((uint64_t)header->table_id) << 40) +
+			(((uint64_t)header->table_id_extension_hi) << 32) +
+			(((uint64_t)header->table_id_extension_lo) << 24) +
+			(((uint64_t)header->section_number) << 16) +
+			(((uint64_t)header->version_number) << 8) +
+			(((uint64_t)header->current_next_indicator));
 	}
 
-	unsigned long long key(void) const {
-		return buffer ? key(header()) : (unsigned long long) -1;
+	uint64_t key(void) const {
+		return buffer ? key(header()) : (uint64_t) -1;
 	}
 
 	// Der Operator zum sortieren
@@ -580,9 +580,9 @@ public:
 	long duration(void) const {
 
 		if (!buffer) return(0);
-		
-		if (!((((struct SI_section_PPT_header *)buffer)->duration_hi == 0xff) && 
-		      (((struct SI_section_PPT_header *)buffer)->duration_mid == 0xff) && 
+
+		if (!((((struct SI_section_PPT_header *)buffer)->duration_hi == 0xff) &&
+		      (((struct SI_section_PPT_header *)buffer)->duration_mid == 0xff) &&
 		      (((struct SI_section_PPT_header *)buffer)->duration_lo == 0xff)))
 			return  ((((struct SI_section_PPT_header *)buffer)->duration_hi)>>4)*10*3600L + ((((struct SI_section_PPT_header *)buffer)->duration_hi)&0x0f)*3600L +
 				((((struct SI_section_PPT_header *)buffer)->duration_mid)>>4)*10*60L + ((((struct SI_section_PPT_header *)buffer)->duration_mid)&0x0f)*60L +
@@ -642,7 +642,7 @@ protected:
 	void parseComponentDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parseParentalRatingDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parseLinkageDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-	
+
 	void parsePrivateContentOrderDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parsePrivateParentalInformationDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parsePrivateContentTransmissionDescriptor(const char *buf, SIevent &e, unsigned maxlen);
@@ -741,7 +741,7 @@ public:
 		parsed = 0;
 		parse();
 	}
-	
+
 	t_transport_stream_id transport_stream_id(void) const {
 		return buffer ? ((((struct SI_section_SDT_header *)buffer)->transport_stream_id_hi << 8) |
 				((struct SI_section_SDT_header *)buffer)->transport_stream_id_lo) : 0;
@@ -797,15 +797,15 @@ class SIsectionBAT : public SIsection
 public:
 	SIsectionBAT(const SIsection &s) : SIsection(s) {
 		parsed = 0;
-		parse();	
+		parse();
 	}
-	
+
 	// Std-Copy
 	SIsectionBAT(const SIsectionBAT &s) : SIsection(s) {
 		bsv = s.bsv;
 		parsed = s.parsed;
 	}
-	
+
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
 	SIsectionBAT(unsigned bufLength, char *buf) : SIsection(bufLength, buf) {
 		parsed = 0;
@@ -838,13 +838,13 @@ public:
 	void dump(void) const {
 		dump((struct SI_section_BAT_header *)buffer);
 	}
-	
+
 	const SIbouquets &bouquets(void) const {
 		//if(!parsed)
 		//	parse(); -> nicht const
 		return bsv;
 	}
-	
+
 protected:
 	SIbouquets bsv;
 	int parsed;
@@ -859,15 +859,15 @@ class SIsectionNIT : public SIsection
 public:
 	SIsectionNIT(const SIsection &s) : SIsection(s) {
 		parsed = 0;
-		parse();	
+		parse();
 	}
-	
+
 	// Std-Copy
 	SIsectionNIT(const SIsectionNIT &s) : SIsection(s) {
 		ntw = s.ntw;
 		parsed = s.parsed;
 	}
-	
+
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
 	SIsectionNIT(unsigned bufLength, char *buf) : SIsection(bufLength, buf) {
 		parsed = 0;
@@ -900,13 +900,13 @@ public:
 	void dump(void) const {
 		dump((struct SI_section_NIT_header *)buffer);
 	}
-	
+
 	const SInetworks &networks(void) const {
 		//if(!parsed)
 		//	parse(); -> nicht const
 		return ntw;
 	}
-	
+
 protected:
 	SInetworks ntw;
 	int parsed;

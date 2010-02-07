@@ -376,16 +376,16 @@ inline bool waitForTimeset(void)
 	return true;
 }
 
-static long long last_profile_call;
+static int64_t last_profile_call;
 
 void showProfiling( std::string text )
 {
 	struct timeval tv;
 
 	gettimeofday( &tv, NULL );
-	long long now = (long long) tv.tv_usec + (long long)((long long) tv.tv_sec * (long long) 1000000);
+	int64_t now = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
 
-	long long tmp = now - last_profile_call;
+	int64_t tmp = now - last_profile_call;
 	dprintf("--> '%s' %lld.%03lld\n", text.c_str(), tmp / 1000LL, tmp % 1000LL);
 	last_profile_call = now;
 }
@@ -2875,8 +2875,8 @@ static void commandLinkageDescriptorsUniqueKey(int connfd, char *data, const uns
 	return ;
 }
 /*
-std::vector<long long>	messaging_skipped_sections_ID [0x22];			// 0x4e .. 0x6f
-static long long 	messaging_sections_max_ID [0x22];			// 0x4e .. 0x6f
+std::vector<int64_t>	messaging_skipped_sections_ID [0x22];			// 0x4e .. 0x6f
+static int64_t 	messaging_sections_max_ID [0x22];			// 0x4e .. 0x6f
 static int 		messaging_sections_got_all [0x22];			// 0x4e .. 0x6f
 */
 //static unsigned char 	messaging_current_version_number = 0xff;
@@ -2885,8 +2885,8 @@ static int 		messaging_sections_got_all [0x22];			// 0x4e .. 0x6f
 static bool		messaging_eit_is_busy = false;
 static bool		messaging_need_eit_version = false;
 
-//std::vector<long long>	messaging_sdt_skipped_sections_ID [2];			// 0x42, 0x46
-//static long long 	messaging_sdt_sections_max_ID [2];			// 0x42, 0x46
+//std::vector<int64_t>	messaging_sdt_skipped_sections_ID [2];			// 0x42, 0x46
+//static int64_t 	messaging_sdt_sections_max_ID [2];			// 0x42, 0x46
 //static int 		messaging_sdt_sections_got_all [2];			// 0x42, 0x46
 /*
 static bool 		messaging_sdt_actual_sections_got_all;						// 0x42
@@ -6643,7 +6643,7 @@ struct local_time_offset {
   unsigned char reserved : 1;
   unsigned char local_time_offset_polarity : 1;
   unsigned short local_time_offs : 16;
-  unsigned long long time_of_chng : 40;
+  uint64_t time_of_chng : 40;
   unsigned short next_time_offset : 8;
 } __attribute__ ((packed)) ;
 
