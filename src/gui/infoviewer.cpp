@@ -243,7 +243,7 @@ void CInfoViewer::start ()
 	ChanInfoX = BoxStartX + (ChanWidth / 3);
 
 	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight()+5;
-	time_left_width = 2* g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
+	time_left_width = 2 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getWidth(); /* still a kludge */
 	time_dot_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
 	time_width = time_left_width* 2+ time_dot_width;
 
@@ -1211,14 +1211,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	int xStart;
 	int InfoX = ChanInfoX + 10;
 
+	xStart = InfoX;
 	if (starttimes)
-	{
-		xStart = InfoX + info_time_width;
-		if (xStart < BoxStartX + ChanWidth)	/* for small fonts, adjusting to the edge of the */
-			xStart = BoxStartX + ChanWidth;	/* channelnumberbox looks better */
-	}
-	else
-		xStart = InfoX;
+		xStart += info_time_width + 10;
 
 	if (pb_pos > -1)
 	{
