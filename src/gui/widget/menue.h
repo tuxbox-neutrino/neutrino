@@ -349,9 +349,10 @@ class CMenuWidget : public CMenuTarget
 
 	public:
 		CMenuWidget();
-		/* TODO: mwidth and mheight are not used anymore. remove if nobody misses them */
-		CMenuWidget(const char* Name, const std::string & Icon = "", const int mwidth = 400, const int mheight = 576);
-		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 400, const int mheight = 576);
+		/* TODO: mheight is not used anymore. remove if nobody misses it */
+		/* mwidth (minimum width) in percent of screen width */
+		CMenuWidget(const char* Name, const std::string & Icon = "", const int mwidth = 0, const int mheight = 576);
+		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 0, const int mheight = 576);
 		~CMenuWidget();
 
 		virtual void addItem(CMenuItem* menuItem, const bool defaultselected = false);

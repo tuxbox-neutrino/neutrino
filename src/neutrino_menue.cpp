@@ -1292,7 +1292,7 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &_scanS
 	//if(softupdate)
 	{
 		dprintf(DEBUG_DEBUG, "init soft-update-stuff\n");
-		CMenuWidget* updateSettings = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, 550);
+		CMenuWidget* updateSettings = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE);
 		addMenueIntroItems(*updateSettings);
 
 		// expert-functions to read/write mtd
@@ -2177,7 +2177,7 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	InitColorThemesSettings(*colorSettings_Themes);
 
 	colorSettings.addItem( new CMenuForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, colorSettings_Themes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
-	CMenuWidget *colorSettings_menuColors = new CMenuWidget(LOCALE_COLORMENUSETUP_HEAD, NEUTRINO_ICON_SETTINGS, 400, 400);
+	CMenuWidget *colorSettings_menuColors = new CMenuWidget(LOCALE_COLORMENUSETUP_HEAD, NEUTRINO_ICON_SETTINGS);
 	InitColorSettingsMenuColors(*colorSettings_menuColors);
 	colorSettings.addItem( new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, colorSettings_menuColors, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN) );
 
@@ -2433,7 +2433,7 @@ const neutrino_locale_t keydescription[KEYBINDS_COUNT] =
 
 void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 {
-	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, 400);
+	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
 
 	addMenueIntroItems(keySettings);
 
@@ -2553,7 +2553,7 @@ void CNeutrinoApp::SelectNVOD()
 	if (!(g_RemoteControl->subChannels.empty()))
 	{
 		// NVOD/SubService- Kanal!
-		CMenuWidget NVODSelector(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, NEUTRINO_ICON_VIDEO, 350);
+		CMenuWidget NVODSelector(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, NEUTRINO_ICON_VIDEO);
 		if (getNVODMenu(&NVODSelector))
 			NVODSelector.exec(NULL, "");
 	}
@@ -2623,7 +2623,7 @@ void CNeutrinoApp::SelectAPID()
 	{
 		// we have APIDs for this channel!
 
-		CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO, 300);
+		CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
 		APIDSelector.addItem(GenericMenuSeparator);
 
 		for ( unsigned int count=0; count<g_RemoteControl->current_PIDs.APIDs.size(); count++ )
@@ -2757,7 +2757,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 		if ( txt.empty() )
 			txt = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
 	}
-	CMenuWidget *menu = new CMenuWidget(txt.c_str() , NEUTRINO_ICON_FEATURES, 350);
+	CMenuWidget *menu = new CMenuWidget(txt.c_str() , NEUTRINO_ICON_FEATURES);
 	if (menu == NULL)
 		return 0;
 	menu->addItem(GenericMenuSeparator);
@@ -2880,7 +2880,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_SUBCHANNEL:
 			if (!(g_RemoteControl->subChannels.empty())) {
 				// NVOD/SubService- Kanal!
-				tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, NEUTRINO_ICON_VIDEO, 350);
+				tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, NEUTRINO_ICON_VIDEO);
 				if (getNVODMenu(tmpNVODSelector)) {
 					menu_items++;
 					menu_prev = SNeutrinoSettings::ITEM_SUBCHANNEL;

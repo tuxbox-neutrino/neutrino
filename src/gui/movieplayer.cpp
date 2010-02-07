@@ -755,7 +755,7 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 
 		if (showaudioselectdialog) {
-			CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO, 300);
+			CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
 			APIDSelector.addItem(GenericMenuSeparator);
 			CAPIDSelectExec *APIDChanger = new CAPIDSelectExec;
 			bool enabled;

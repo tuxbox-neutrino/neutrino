@@ -887,7 +887,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				break;
 				}
 			} else if (msg == (neutrino_msg_t) CRCInput::RC_red) {
-				CMenuWidget menuWidgetActions (LOCALE_EPGPLUS_ACTIONS, NEUTRINO_ICON_FEATURES, 400);
+				CMenuWidget menuWidgetActions(LOCALE_EPGPLUS_ACTIONS, NEUTRINO_ICON_FEATURES);
 				if (!g_settings.minimode)
 					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, new MenuTargetAddRecordTimer (this), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
 				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, new MenuTargetRefreshEpg (this), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
@@ -898,7 +898,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				this->refreshAll = true;
 			} else if (msg == (neutrino_msg_t) CRCInput::RC_blue) {
 
-				CMenuWidget menuWidgetOptions (LOCALE_EPGPLUS_OPTIONS, NEUTRINO_ICON_FEATURES, 500);
+				CMenuWidget menuWidgetOptions(LOCALE_EPGPLUS_OPTIONS, NEUTRINO_ICON_FEATURES);
 				menuWidgetOptions.addItem (new MenuOptionChooserSwitchSwapMode (this));
 				menuWidgetOptions.addItem (new MenuOptionChooserSwitchViewMode (this));
 

@@ -84,7 +84,7 @@ const CMenuOptionChooser::keyval OPTIONS_OFF0_ON1_OPTIONS[OPTIONS_OFF0_ON1_OPTIO
 
 int CAudioSelectMenuHandler::doMenu ()
 {
-	CMenuWidget AudioSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO, 360);
+	CMenuWidget AudioSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
 	unsigned int count;
 	CSubtitleChangeExec SubtitleChanger;
 

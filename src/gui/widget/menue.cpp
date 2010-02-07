@@ -100,13 +100,18 @@ CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int m
 	Init(Icon, mwidth, mheight);
 }
 
-void CMenuWidget::Init(const std::string & Icon, const int /*mwidth*/, const int /*mheight*/)
+void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*mheight*/)
 {
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
         selected = -1;
 	needed_width = 0; /* is set in addItem() */
 	width = 0; /* is set in paint() */
+
+	if (mwidth > 100) /* warn about abuse until we found all offenders... */
+		fprintf(stderr, "CMenuWidget::Init (%s) (%s) mwidth over 100%: %d\n", nameString.c_str(), Icon.c_str(), mwidth);
+	else
+		needed_width = frameBuffer->getScreenWidth() * mwidth / 100;
 
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */

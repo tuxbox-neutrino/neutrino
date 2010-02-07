@@ -137,7 +137,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	httpTool.setStatusViewer(this);
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILE)); // UTF-8
 
-	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE, 600);
+	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE);
 	SelectionWidget.addItem(GenericMenuSeparator);
 	SelectionWidget.addItem(GenericMenuBack);
 

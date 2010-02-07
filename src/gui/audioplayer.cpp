@@ -699,7 +699,7 @@ int CAudioPlayerGui::show()
 				if (m_inetmode) {
 					static int old_select = 0;
 					char cnt[5];
-					CMenuWidget InputSelector(LOCALE_AUDIOPLAYER_LOAD_RADIO_STATIONS, NEUTRINO_ICON_AUDIO, 400);
+					CMenuWidget InputSelector(LOCALE_AUDIOPLAYER_LOAD_RADIO_STATIONS, NEUTRINO_ICON_AUDIO);
 					int count = 0;
 					int select = -1;
 					CMenuSelectorTarget *InetRadioInputChanger = new CMenuSelectorTarget(&select);

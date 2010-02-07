@@ -2405,18 +2405,18 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	c_SMSKeyInput = new SMSKeyInput();
 	//Main settings
-	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU);
+	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU,   22);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    languageSettings    (LOCALE_LANGUAGESETUP_HEAD            , NEUTRINO_ICON_LANGUAGE);
 	CMenuWidget    audioSettings       (LOCALE_AUDIOMENU_HEAD                , NEUTRINO_ICON_AUDIO);
-	CMenuWidget    parentallockSettings(LOCALE_PARENTALLOCK_PARENTALLOCK     , NEUTRINO_ICON_LOCK            , 500);
+	CMenuWidget    parentallockSettings(LOCALE_PARENTALLOCK_PARENTALLOCK     , NEUTRINO_ICON_LOCK);
 	CMenuWidget    networkSettings     (LOCALE_NETWORKMENU_HEAD              , NEUTRINO_ICON_NETWORK);
 	CMenuWidget    recordingSettings   (LOCALE_RECORDINGMENU_HEAD            , NEUTRINO_ICON_RECORDING);
 	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
 	CMenuWidget    colorSettings       (LOCALE_MAINSETTINGS_OSD              , NEUTRINO_ICON_COLORS);
 	CMenuWidget    fontSettings        (LOCALE_FONTMENU_HEAD                 , NEUTRINO_ICON_COLORS);
 	CMenuWidget    lcdSettings         (LOCALE_LCDMENU_HEAD                  , NEUTRINO_ICON_LCD);
-	CMenuWidget    keySettings         (LOCALE_MAINSETTINGS_KEYBINDING       , NEUTRINO_ICON_KEYBINDING      , 400);
+	CMenuWidget    keySettings         (LOCALE_MAINSETTINGS_KEYBINDING       , NEUTRINO_ICON_KEYBINDING);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    _scanSettings       (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
@@ -4328,7 +4328,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 	}
 	else if(actionKey == "movieplugin") {
 		parent->hide();
-		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES, 350);
+		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
 		MoviePluginSelector.addItem(GenericMenuSeparator);
 
 		char id[5];
@@ -4349,7 +4349,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 	}
 	else if(actionKey == "onekeyplugin") {
 		parent->hide();
-		CMenuWidget MoviePluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES, 350);
+		CMenuWidget MoviePluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES);
 		MoviePluginSelector.addItem(GenericMenuSeparator);
 
 		char id[5];
