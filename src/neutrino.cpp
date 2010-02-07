@@ -4341,7 +4341,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 				// zB vtxt-plugins
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, MoviePluginChanger, id, CRCInput::convertDigitToKey(count), digiIcon(count)), (cnt == 0));
+				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, MoviePluginChanger, id, CRCInput::convertDigitToKey(count)), (cnt == 0));
 				cnt++;
 			}
 		}
@@ -4362,7 +4362,7 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 				// zB vtxt-plugins
 				sprintf(id, "%d", count);
 				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, OnekeyPluginChanger, id, CRCInput::convertDigitToKey(count), digiIcon(count)), (cnt == 0));
+				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, OnekeyPluginChanger, id, CRCInput::convertDigitToKey(count)), (cnt == 0));
 				cnt++;
 			}
 		}

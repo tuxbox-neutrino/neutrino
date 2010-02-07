@@ -481,11 +481,15 @@ void CMenuWidget::paint()
 	for (unsigned int i= 0; i< items.size(); i++) {
 		if ((!(items[i]->iconName.empty())) || CRCInput::isNumeric(items[i]->directKey))
 		{
+			const char *tmp;
+			if (items[i]->iconName.empty())
+				tmp = CRCInput::getKeyName(items[i]->directKey).c_str();
+			else
+				tmp = items[i]->iconName.c_str();
 			int w, h;
-			frameBuffer->getIconSize(items[i]->iconName.c_str(), &w, &h);
+			frameBuffer->getIconSize(tmp, &w, &h);
 			if (w > iconOffset)
 				iconOffset = w;
-			break;
 		}
 	}
 	iconOffset += 10;
@@ -865,15 +869,11 @@ int CMenuOptionChooser::paint( bool selected , bool last)
 	}
 	else if (CRCInput::isNumeric(directKey))
 	{
-#if 0
-		std::string newicon = CRCInput::getKeyName(directKey) + ".raw";
-		//printf("MENU: newicon %s\n", newicon);
-		if(!frameBuffer->paintIcon(newicon, x + 10, y + ((height - 20) >> 1)))
-#endif
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + 15, y+ height, height, CRCInput::getKeyName(directKey), color, height);
+		std::string number = CRCInput::getKeyName(directKey);
+		if (! frameBuffer->paintIcon(number, x + 10, y, height))
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]
+				->RenderString(x + 15, y + height, height, number, color, height);
 	}
-
-
 
 	int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_option, true); // UTF-8
 	int stringstartposName = x + offx + 10;
@@ -1001,6 +1001,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 
 int CMenuOptionStringChooser::paint( bool selected, bool last )
 {
+	CFrameBuffer *fb = CFrameBuffer::getInstance();
 	unsigned char color   = COL_MENUCONTENT;
 	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
 	if (selected) {
@@ -1013,11 +1014,11 @@ int CMenuOptionStringChooser::paint( bool selected, bool last )
 	}
 
 	if(selected)
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS); //FIXME
+		fb->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS); //FIXME
 	else if(last)
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS, CORNER_BOTTOM); //FIXME
+		fb->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS, CORNER_BOTTOM); //FIXME
 	else
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor);
+		fb->paintBoxRel(x, y, dx, height, bgcolor);
 
 
 	const char * l_optionName = g_Locale->getText(optionName);
@@ -1029,11 +1030,14 @@ int CMenuOptionStringChooser::paint( bool selected, bool last )
 
 	if (!(iconName.empty()))
 	{
-		CFrameBuffer::getInstance()->paintIcon(iconName, x + 10, y, height);
+		fb->paintIcon(iconName, x + 10, y, height);
 	}
 	else if (CRCInput::isNumeric(directKey))
 	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + 15, y+ height, height, CRCInput::getKeyName(directKey), color, height);
+		std::string number = CRCInput::getKeyName(directKey);
+		if (! fb->paintIcon(number, x + 10, y, height))
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]
+				->RenderString(x + 15, y + height, height, number, color, height);
         }
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height, dx- (stringstartposName - x),  l_optionName, color, 0, true); // UTF-8
@@ -1258,13 +1262,10 @@ int CMenuForwarder::paint(bool selected, bool last)
 	}
 	else if (CRCInput::isNumeric(directKey))
 	{
-#if 0
-printf("MENU: key %s\n", CRCInput::getKeyName(directKey).c_str()); fflush(stdout);
-		std::string newicon = CRCInput::getKeyName(directKey) + ".raw";
-printf("MENU: newicon %s\n", newicon.c_str()); fflush(stdout);
-		if(!frameBuffer->paintIcon(newicon, x + 10, y + ((height - 20) >> 1)))
-#endif
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x + 15, y+ height, height, CRCInput::getKeyName(directKey), color, height);
+		std::string number = CRCInput::getKeyName(directKey);
+		if (! frameBuffer->paintIcon(number, x + 10, y, height))
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]
+				->RenderString(x + 15, y + height, height, number, color, height);
 	}
 
 	if (option_text != NULL)
