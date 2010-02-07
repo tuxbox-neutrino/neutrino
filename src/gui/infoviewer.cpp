@@ -1277,15 +1277,15 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	char nextDuration[10];
 
 	int is_nvod = false;
-	int b114 = BoxEndX - 114 + 7;
-	int b112 = BoxEndX - 112 + 7;
 
 	if (fileplay) {
-		int posy = BoxStartY + 12;
 		runningPercent = file_prozent;
 		if (runningPercent > 100)
 			runningPercent = 100;
-
+#if 0
+		int posy = BoxStartY + 12;
+		int b114 = BoxEndX - 114 + 7;
+		int b112 = BoxEndX - 112 + 7;
 		if (!calledFromEvent || (oldrunningPercent != runningPercent)) {
 			frameBuffer->paintBoxRel (b114+4, posy, 102, 18, COL_INFOBAR_SHADOW_PLUS_0);
 			frameBuffer->paintBoxRel (b112+4, posy + 2, 98, 14, COL_INFOBAR_PLUS_0);
@@ -1301,7 +1301,9 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (xStart, ChanInfoY + height, duration1TextPos - xStart - 5, g_file_epg, COL_INFOBAR, 0, true);
 		ChanInfoY += height;
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (xStart, ChanInfoY + height, duration1TextPos - xStart - 5, g_file_epg1, COL_INFOBAR, 0, true);
-
+#else
+		display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, runningPercent);
+#endif
 		return;
 	}
 
