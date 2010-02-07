@@ -4178,18 +4178,20 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			networkConfig.commitConfig();
 			saveSetup(NEUTRINO_SETTINGS_FILE);
 
+			/* this is an ugly mess :-( */
 			delete g_RCInput;
 			delete g_Sectionsd;
-			delete g_Timerd;
 			delete g_RemoteControl;
 			delete g_fontRenderer;
-			delete g_Zapit;
-			delete CVFD::getInstance();
 
 			delete hintBox;
 			delete frameBuffer;
 
 			stop_daemons();
+			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
+			delete g_Timerd;
+			delete g_Zapit;
+			delete CVFD::getInstance();
 
 			execvp(global_argv[0], global_argv); // no return if successful
 			exit(1);
