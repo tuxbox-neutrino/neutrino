@@ -482,10 +482,14 @@ void CMenuWidget::paint()
 	for (unsigned int i= 0; i< items.size(); i++) {
 		if ((!(items[i]->iconName.empty())) || CRCInput::isNumeric(items[i]->directKey))
 		{
-			iconOffset = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+			int w, h;
+			frameBuffer->getIconSize(items[i]->iconName.c_str(), &w, &h);
+			if (w > iconOffset)
+				iconOffset = w;
 			break;
 		}
 	}
+	iconOffset += 10;
 	width += iconOffset;
 	if (width > (int)frameBuffer->getScreenWidth())
 		width = frameBuffer->getScreenWidth();
