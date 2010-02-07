@@ -511,7 +511,7 @@ void CMenuWidget::paint()
 	frameBuffer->paintBoxRel(x, y, width+sb_width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP); //FIXME rounded
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+38,y+hheight+1, width-40, l_name, COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintIcon(iconfile, x + 8, y + 5);
+	frameBuffer->paintIcon(iconfile, x + 8, y, hheight);
 
 	item_start_y = y+hheight;
 	paintItems();
@@ -862,7 +862,7 @@ int CMenuOptionChooser::paint( bool selected , bool last)
 
 	if (!(iconName.empty()))
 	{
-		frameBuffer->paintIcon(iconName, x + 10, y + ((height - 20) >> 1));
+		frameBuffer->paintIcon(iconName, x + 10, y, height);
 	}
 	else if (CRCInput::isNumeric(directKey))
 	{
@@ -1030,7 +1030,7 @@ int CMenuOptionStringChooser::paint( bool selected, bool last )
 
 	if (!(iconName.empty()))
 	{
-		CFrameBuffer::getInstance()->paintIcon(iconName, x + 10, y + ((height - 20) >> 1));
+		CFrameBuffer::getInstance()->paintIcon(iconName, x + 10, y, height);
 	}
 	else if (CRCInput::isNumeric(directKey))
 	{
@@ -1120,7 +1120,7 @@ int CMenuOptionLanguageChooser::paint( bool selected, bool last )
 
 	if (!(iconName.empty()))
 	{
-		CFrameBuffer::getInstance()->paintIcon(iconName, x + 10, y + ((height - 11) >> 1));
+		CFrameBuffer::getInstance()->paintIcon(iconName, x + 10, y, height);
 	}
 
 	//int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(optionValue);
@@ -1255,7 +1255,7 @@ int CMenuForwarder::paint(bool selected, bool last)
 
 	if (!iconName.empty())
 	{
-		frameBuffer->paintIcon(iconName, x + 10, y+ ((height- 20)>>1) );
+		frameBuffer->paintIcon(iconName, x + 10, y, height);
 	}
 	else if (CRCInput::isNumeric(directKey))
 	{
