@@ -413,9 +413,9 @@ void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
 {
 	char str[30];
 
-	frameBuffer->paintBoxRel(_x, _y - sheight + 5, 60, sheight - 1, COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(_x, _y - sheight + 5, 70, sheight - 1, COL_MENUHEAD_PLUS_0);
 	sprintf(str,"%6u",value);
-	g_Font[font_small]->RenderString(_x, _y + 5, 60, str, COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x, _y + 5, 70, str, COL_MENUCONTENTDARK, 0, true);
 }
 
 void CStreamInfo2::paint (int /*mode*/)
@@ -596,7 +596,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	// paint labels
-	spaceoffset = 68;
+	spaceoffset = g_Font[font_info]->getRenderWidth("VTXTpid:");
 
 	//onid
 	ypos+= sheight;
@@ -800,7 +800,7 @@ void CStreamInfo2::showSNR ()
 	}
 	if (lastsnr != snr) {
 		lastsnr = snr;
-		posy = yypos + mheight + 4;
+		posy = yypos + mheight + 10;
 		posx = x + 10;
 		sprintf(percent, "%d%% SNR", snr);
 		sw = g_Font[font_info]->getRenderWidth (percent);
