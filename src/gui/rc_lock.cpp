@@ -49,12 +49,12 @@ int CRCLock::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 
 	bool no_input = (actionKey == NO_USER_INPUT);
-	if (ShowLocalizedMessage(LOCALE_RCLOCK_TITLE, LOCALE_RCLOCK_LOCKMSG, 
-				 CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel, 
+	if (ShowLocalizedMessage(LOCALE_RCLOCK_TITLE, LOCALE_RCLOCK_LOCKMSG,
+				 CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbCancel,
 				 NEUTRINO_ICON_INFO,450,no_input ? 5 : -1,no_input) == CMessageBox::mbrCancel)
 		return menu_return::RETURN_EXIT_ALL;
 
-	// -- Lockup Box	
+	// -- Lockup Box
 	lockBox();
 
 	ShowLocalizedMessage(LOCALE_RCLOCK_TITLE, LOCALE_RCLOCK_UNLOCKMSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO,450, no_input ? 5 : -1);
@@ -66,7 +66,7 @@ void CRCLock::lockBox()
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
-	unsigned long long timeoutEnd;
+	uint64_t timeoutEnd;
 
 	// -- Loop until release key pressed
 	// -- Key sequence:  <RED> <DBOX> within 5 secs
@@ -92,7 +92,7 @@ void CRCLock::lockBox()
 		// -- so be it...
 
 		if (msg >  CRCInput::RC_MaxRC) {
-			CNeutrinoApp::getInstance()->handleMsg(msg, data); 
+			CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		} else {
 			CVFD::getInstance()->showRCLock();
 			// Since showRCLock blocks 2secs for each key we eat all

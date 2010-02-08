@@ -303,7 +303,7 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 		changeNotify(LOCALE_VIDEOMENU_SCART, NULL);
 		changeNotify(LOCALE_VIDEOMENU_CINCH, NULL);
 	}
-};
+}
 
 void CVideoSettings::nextMode(void)
 {
@@ -427,12 +427,12 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *)
 	}
 
 	return true;
-};
+}
 
 void CVideoSettings::paint()
 {
 	CMenuWidget::paint();
-};
+}
 
 #ifdef TEST_MENU
 class CTestMenu : public CMenuTarget

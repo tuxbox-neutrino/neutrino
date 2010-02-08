@@ -47,7 +47,7 @@ class CPluginList : public CMenuTarget
 		enum result_
 		{
 			close  = 0,
-			resume = 1,
+			resume = 1
 		} result;
 
 	private:
@@ -90,7 +90,7 @@ class CPluginList : public CMenuTarget
 		virtual CPluginList::result_ pluginSelected();
 
 	public:
-	
+
 		CPluginList(const neutrino_locale_t Name, const uint32_t listtype);
 		virtual ~CPluginList();
 
@@ -103,7 +103,7 @@ class CPluginChooser : public CPluginList
 	private:
 	char* selected_plugin;
 	protected:
-	
+
 	CPluginList::result_ pluginSelected();
 
 	public:

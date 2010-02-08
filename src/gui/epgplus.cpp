@@ -789,7 +789,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 		this->paint ();
 
-		unsigned long long timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 		bool loop = true;
 		while (loop) {
 			g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);

@@ -30,7 +30,7 @@ enum stream2file_error_msg_t
 	STREAM2FILE_INVALID_PID               = -3,
 	STREAM2FILE_PES_FILTER_FAILURE        = -4,
 	STREAM2FILE_DVR_OPEN_FAILURE          = -5,
-	STREAM2FILE_RECORDING_THREADS_FAILED  = -6,
+	STREAM2FILE_RECORDING_THREADS_FAILED  = -6
 };
 
 enum stream2file_status_t
