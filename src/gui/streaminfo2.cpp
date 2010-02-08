@@ -348,7 +348,7 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 	frameBuffer->paintVLine(sigBox_x+sigBox_pos, sigBox_y, sigBox_y+sigBox_h, COL_WHITE);
 	frameBuffer->paintVLine(sigBox_x+x_now, sigBox_y, sigBox_y+sigBox_h+1, COL_BLACK);
 
-	long value = (long) (br.short_average / 1000ULL);
+	long value = (long) (bit_s / 1000ULL);
 
 	SignalRenderStr(value,     sig_text_rate_x, yt - sheight);
 	SignalRenderStr(br.max_short_average/ 1000ULL, sig_text_rate_x, yt - sheight - sheight);
