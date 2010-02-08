@@ -49,9 +49,10 @@ class CKeyValue : public CMenuSeparator
 public:
 	int         keyvalue;
 
-	CKeyValue() : CMenuSeparator(CMenuSeparator::STRING, LOCALE_KEYCHOOSERMENU_CURRENTKEY)
-		{
-		};
+	CKeyValue(int k) : CMenuSeparator(CMenuSeparator::STRING, LOCALE_KEYCHOOSERMENU_CURRENTKEY)
+	{
+		keyvalue = k;
+	};
 
 	virtual const char * getString(void)
 		{
@@ -71,7 +72,7 @@ CKeyChooser::CKeyChooser(int * const Key, const neutrino_locale_t title, const s
 	keyChooser = new CKeyChooserItem(LOCALE_KEYCHOOSER_HEAD, key);
 	keyDeleter = new CKeyChooserItemNoKey(key);
 
-	addItem(new CKeyValue());
+	addItem(new CKeyValue(*key));
 	addItem(GenericMenuSeparatorLine);
 	addItem(GenericMenuBack);
 	addItem(GenericMenuSeparatorLine);
