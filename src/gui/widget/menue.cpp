@@ -895,7 +895,7 @@ int CMenuOptionChooser::paint( bool selected , bool last)
 	return y+height;
 }
 
-int CMenuOptionChooser::getWidth(void) const
+int CMenuOptionChooser::getWidth(void)
 {
 	int ow = 0;
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(optionNameString, true);
@@ -1171,7 +1171,7 @@ int CMenuForwarder::getHeight(void) const
 	return g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 
-int CMenuForwarder::getWidth(void) const
+int CMenuForwarder::getWidth(void)
 {
 	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(text), true);
 	const char * option_text = NULL;
@@ -1312,14 +1312,19 @@ int CMenuSeparator::getHeight(void) const
 	return (text == NONEXISTANT_LOCALE) ? 10 : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 
-int CMenuSeparator::getWidth(void) const
+const char * CMenuSeparator::getString(void)
+{
+	return g_Locale->getText(text);
+}
+
+int CMenuSeparator::getWidth(void)
 {
 	int w = 0;
 	if (type & LINE)
 		w = 30; /* 15 pixel left and right */
 	if ((type & STRING) && text != NONEXISTANT_LOCALE)
 	{
-		const char *l_text = g_Locale->getText(text);
+		const char *l_text = getString();
 		w += g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true);
 	}
 	return w;
@@ -1344,7 +1349,7 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 		{
 			int stringstartposX;
 
-			const char *l_text = g_Locale->getText(text);
+			const char *l_text = getString();
 			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true); // UTF-8
 
 			/* if no alignment is specified, align centered */

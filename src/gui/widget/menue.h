@@ -97,7 +97,7 @@ class CMenuItem
 		virtual int paint (bool selected = false, bool last = false) = 0;
 
 		virtual int getHeight(void) const = 0;
-		virtual int getWidth(void) const
+		virtual int getWidth(void)
 		{
 			return 0;
 		}
@@ -136,7 +136,9 @@ class CMenuSeparator : public CMenuItem
 
 		int paint(bool selected=false, bool last = false);
 		int getHeight(void) const;
-		int getWidth(void) const;
+		int getWidth(void);
+
+		virtual const char * getString(void);
 };
 
 class CMenuForwarder : public CMenuItem
@@ -158,7 +160,7 @@ class CMenuForwarder : public CMenuItem
 	CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
 	int paint(bool selected=false, bool last = false);
 	int getHeight(void) const;
-	int getWidth(void) const;
+	int getWidth(void);
 	int exec(CMenuTarget* parent);
 	bool isSelectable(void) const
 		{
@@ -262,7 +264,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 
 	void setOptionValue(const int newvalue);
 	int getOptionValue(void) const;
-	int getWidth(void) const;
+	int getWidth(void);
 
 	int paint(bool selected, bool last = 0);
 
