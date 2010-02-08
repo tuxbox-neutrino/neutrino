@@ -55,7 +55,7 @@ struct SNeutrinoSettings
 	//misc
 	int shutdown_real;
 	int shutdown_real_rcdelay;
-        char shutdown_count[4];
+	char shutdown_count[4];
 	char record_safety_time_before[3];
 	char record_safety_time_after[3];
 	int infobar_sat_display;
@@ -95,7 +95,7 @@ struct SNeutrinoSettings
 	char language[25];
 	char timezone[150];
 
-        // EPG
+	// EPG
 	int epg_save;
 	std::string epg_cache;
 	std::string epg_old_events;
@@ -280,11 +280,11 @@ struct SNeutrinoSettings
 	int key_timeshift;
 	int key_plugin;
 
-        int rf_subcarrier;
-        int rf_soundenable;
-        int rf_channel;
-        int rf_finetune;
-        int rf_standby;
+	int rf_subcarrier;
+	int rf_soundenable;
+	int rf_channel;
+	int rf_finetune;
+	int rf_standby;
 
 	int key_unlock;
 	int cacheTXT;
@@ -426,41 +426,41 @@ struct SNeutrinoSettings
 	int	sms_channel;
 	char	font_file[100];
 	char	update_dir[100];
-        // USERMENU
-        typedef enum
-        {
-                BUTTON_RED = 0,  // Do not change ordering of members, add new item just before BUTTON_MAX!!!
-                BUTTON_GREEN = 1,
-                BUTTON_YELLOW = 2,
-                BUTTON_BLUE = 3,
-                BUTTON_MAX   // MUST be always the last in the list
-        }USER_BUTTON;
-        typedef enum
-        {
-                ITEM_NONE = 0, // Do not change ordering of members, add new item just before ITEM_MAX!!!
-                ITEM_BAR = 1,
-                ITEM_EPG_LIST = 2,
-                ITEM_EPG_SUPER = 3,
-                ITEM_EPG_INFO = 4,
-                ITEM_EPG_MISC = 5,
-                ITEM_AUDIO_SELECT = 6,
-                ITEM_SUBCHANNEL = 7,
-                ITEM_RECORD = 8,
-                ITEM_MOVIEPLAYER_MB = 9,
-                ITEM_TIMERLIST = 10,
-                ITEM_REMOTE = 11,
-                ITEM_FAVORITS = 12,
-                ITEM_TECHINFO = 13,
-                ITEM_VTXT = 14,
-                ITEM_PLUGIN = 15,
+	// USERMENU
+	typedef enum
+	{
+		BUTTON_RED = 0,  // Do not change ordering of members, add new item just before BUTTON_MAX!!!
+		BUTTON_GREEN = 1,
+		BUTTON_YELLOW = 2,
+		BUTTON_BLUE = 3,
+		BUTTON_MAX   // MUST be always the last in the list
+	} USER_BUTTON;
+	typedef enum
+	{
+		ITEM_NONE = 0, // Do not change ordering of members, add new item just before ITEM_MAX!!!
+		ITEM_BAR = 1,
+		ITEM_EPG_LIST = 2,
+		ITEM_EPG_SUPER = 3,
+		ITEM_EPG_INFO = 4,
+		ITEM_EPG_MISC = 5,
+		ITEM_AUDIO_SELECT = 6,
+		ITEM_SUBCHANNEL = 7,
+		ITEM_RECORD = 8,
+		ITEM_MOVIEPLAYER_MB = 9,
+		ITEM_TIMERLIST = 10,
+		ITEM_FAVORITS = 12,
+		ITEM_VTXT = 11,
+		ITEM_TECHINFO = 13,
+		ITEM_REMOTE = 14,
+		ITEM_PLUGIN = 15,
 #if 0
-                ITEM_MOVIEPLAYER_TS = 16,
+		ITEM_MOVIEPLAYER_TS = 16,
 		ITEM_RESTART_CAMD = 17,
 #endif
-                ITEM_MAX   // MUST be always the last in the list
-        }USER_ITEM;
-        std::string usermenu_text[BUTTON_MAX];
-        int usermenu[BUTTON_MAX][ITEM_MAX];  // (USER_ITEM)  [button][position in Menue] = feature item
+		ITEM_MAX   // MUST be always the last in the list
+	} USER_ITEM;
+	std::string usermenu_text[BUTTON_MAX];
+	int usermenu[BUTTON_MAX][ITEM_MAX];  // (USER_ITEM)  [button][position in Menue] = feature item
 
 };
 
@@ -514,7 +514,7 @@ const int PARENTALLOCK_PROMPT_ONSIGNAL       = 3;
 
 class CScanSettings
 {
- public:
+public:
 	CConfigFile	configfile;
 	int		bouquetMode;
 	int		scanType;
