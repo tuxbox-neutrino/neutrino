@@ -331,7 +331,7 @@ class CMenuWidget : public CMenuTarget
 		std::vector<unsigned int> page_start;
 		std::string			iconfile;
 
-		int			needed_width;
+		int			min_width;
 		int			width;
 		int			height;
 		int         wanted_height;

@@ -105,13 +105,13 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*m
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
         selected = -1;
-	needed_width = 0; /* is set in addItem() */
+	min_width = 0;
 	width = 0; /* is set in paint() */
 
 	if (mwidth > 100) /* warn about abuse until we found all offenders... */
 		fprintf(stderr, "CMenuWidget::Init (%s) (%s) mwidth over 100%%: %d\n", nameString.c_str(), Icon.c_str(), mwidth);
 	else
-		needed_width = frameBuffer->getScreenWidth() * mwidth / 100;
+		min_width = frameBuffer->getScreenWidth() * mwidth / 100;
 
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */
@@ -144,11 +144,6 @@ void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
 {
 	if (defaultselected)
 		selected = items.size();
-	int tmpw = menuItem->getWidth() + 10 + 10; /* 10 pixels to the left and right of the text */
-	if (tmpw > needed_width) {
-		//fprintf(stderr, "CMenuWidget::addItem: increase width from %d to %d '%s' offx: %d\n", needed_width, tmpw, menuItem->iconName.c_str(), offx);
-		needed_width = tmpw;
-	}
 	items.push_back(menuItem);
 }
 
@@ -449,8 +444,14 @@ void CMenuWidget::paint()
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, l_name*/); //FIXME menu name
 
-	height=wanted_height;
-	width = needed_width;
+	height = wanted_height;
+	width = min_width;
+
+	for (unsigned int i= 0; i< items.size(); i++) {
+		int tmpw = items[i]->getWidth() + 10 + 10; /* 10 pixels to the left and right of the text */
+		if (tmpw > width)
+			width = tmpw;
+	}
 
 	if(height > ((int)frameBuffer->getScreenHeight() - 10))
 		height = frameBuffer->getScreenHeight() - 10;
