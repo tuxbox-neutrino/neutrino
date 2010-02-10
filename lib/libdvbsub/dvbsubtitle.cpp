@@ -224,9 +224,9 @@ void cDvbSubtitleConverter::Pause(bool pause)
 		Clear();
 		running = false;
 		Unlock();
-		Reset();
+		//Reset();
 	} else {
-		Reset();
+		//Reset();
 		running = true;
 	}
 }

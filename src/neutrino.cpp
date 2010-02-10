@@ -2224,6 +2224,8 @@ void CNeutrinoApp::InitZapper()
 			if(g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0)
 				tuxtxt_start(g_RemoteControl->current_PIDs.PIDs.vtxtpid);
 		g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
+		//g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_COMPLETE, (neutrino_msg_data_t) &live_channel_id);
+		StartSubtitles();
 	}
 }
 
