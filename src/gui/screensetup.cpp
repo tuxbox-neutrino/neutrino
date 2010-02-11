@@ -134,7 +134,7 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 
 					frameBuffer->paintBoxRel(x_box, y_box, BoxWidth, BoxHeight,
 						(selected == 0)?COL_MENUCONTENTSELECTED_PLUS_0:COL_MENUCONTENT_PLUS_0);
-					frameBuffer->paintBoxRel(x_box, y_box, y_box + BoxHeight, BoxWidth, BoxHeight,
+					frameBuffer->paintBoxRel(x_box, y_box + BoxHeight, BoxWidth, BoxHeight,
 						(selected ==1 )?COL_MENUCONTENTSELECTED_PLUS_0:COL_MENUCONTENT_PLUS_0);
 
 					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + 30, y_box + BoxHeight, BoxWidth,

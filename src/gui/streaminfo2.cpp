@@ -186,7 +186,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 				for(i = 0; i < 3; i++){
 					switch (i) {
 						case 0:
-						tmp_rate = bit_s;
+						tmp_rate = rate.short_average;
 						sprintf(tmp_str, "%s", g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
 						offset_tmp = 0;
 						break;
@@ -308,7 +308,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	g_Font[font_small]->RenderString(_x+28+xd*2, y2, 50, "SIG", COL_MENUCONTENTDARK, 0, true);
 
 	frameBuffer->paintBoxRel(_x+xd*3,y2- 12,16,2,COL_YELLOW); // near yellow
-	g_Font[font_small]->RenderString(_x+20+xd*3, y2, 50, "Bitrate", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*3, y2, 70, "Bitrate", COL_MENUCONTENTDARK, 0, true);
 
 	sig_text_y = y1 - iheight;
 	sig_text_ber_x =  _x +      xd * 0;
@@ -354,7 +354,7 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 	SignalRenderStr(br.max_short_average/ 1000ULL, sig_text_rate_x, yt - sheight - sheight);
 	SignalRenderStr(br.min_short_average/ 1000ULL, sig_text_rate_x, yt);
 	if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ){
-		yd = y_signal_fe (value, 15000, sigBox_h);// Video + Audio
+		yd = y_signal_fe (value, 20000, sigBox_h);// Video + Audio
 	} else {
 		yd = y_signal_fe (value, 512, sigBox_h); // Audio only
 	}
@@ -596,7 +596,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	else if(frontend->getInfo()->type == FE_QAM) {
-		sprintf((char*) buf, "%d.%d MHz", si.tsfrequency/1000000, si.tsfrequency%1000);
+		sprintf((char*) buf, "%d.%d MHz", si.tsfrequency/1000, si.tsfrequency%1000);
 		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Tp. Freq.:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
