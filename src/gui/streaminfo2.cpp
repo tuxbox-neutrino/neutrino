@@ -597,12 +597,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			s=const_cast<char *>("S1");
 
 		sprintf ((char *) buf,"%d.%d (%c) %d %s %s %s", si.tsfrequency / 1000, si.tsfrequency % 1000, si.polarisation ? 'V' : 'H', si.rate / 1000,f,m,s);
-		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Frequenz:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
+		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Tp. Freq.:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	else if(frontend->getInfo()->type == FE_QAM) {
 		sprintf((char*) buf, "%d.%d MHz", si.tsfrequency/1000, si.tsfrequency%1000);
-		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Tp. Freq.:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
+		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Frequenz:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	// paint labels
