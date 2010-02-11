@@ -354,7 +354,7 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 	SignalRenderStr(br.max_short_average/ 1000ULL, sig_text_rate_x, yt - sheight - sheight);
 	SignalRenderStr(br.min_short_average/ 1000ULL, sig_text_rate_x, yt);
 	if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ){
-		yd = y_signal_fe (value, 20000, sigBox_h);// Video + Audio
+		yd = y_signal_fe (value, scaling, sigBox_h);// Video + Audio
 	} else {
 		yd = y_signal_fe (value, 512, sigBox_h); // Audio only
 	}
@@ -591,11 +591,14 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	char * f=NULL, *s=NULL, *m=NULL;
 	if(frontend->getInfo()->type == FE_QPSK) {
 		frontend->getDelSys((fe_code_rate_t)si.fec, dvbs_get_modulation((fe_code_rate_t)si.fec), f, s, m);
-		if (!strncmp(s,const_cast<char *>("DVB-S2"),6))
+		if (!strncmp(s,const_cast<char *>("DVB-S2"),6)){
 			s=const_cast<char *>("S2");
-		else
+			scaling = 20000;
+		}
+		else{
 			s=const_cast<char *>("S1");
-
+			scaling = 15000;
+		}
 		sprintf ((char *) buf,"%d.%d (%c) %d %s %s %s", si.tsfrequency / 1000, si.tsfrequency % 1000, si.polarisation ? 'V' : 'H', si.rate / 1000,f,m,s);
 		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Tp. Freq.:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
