@@ -1542,7 +1542,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
         void * uKva;
 
         uKva = cs_phys_addr(fbbuff);
-	printf("CFrameBuffer::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
+	//printf("CFrameBuffer::blit2FB: data %x Kva %x\n", (int) fbbuff, (int) uKva);
 
 	if(uKva != NULL) {
 		cmd = GXA_CMD_BLT | GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(1) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(3);

@@ -140,12 +140,16 @@ int dvbsub_getpid()
 
 void dvbsub_setpid(int pid)
 {
+	dvbsub_pid = pid;
+
+	if(dvbsub_pid == 0)
+		return;
+
 	clear_queue();
 
 	if(dvbSubtitleConverter)
 		dvbSubtitleConverter->Reset();
 
-	dvbsub_pid = pid;
 	pid_change_req = 1;
 	dvbsub_stopped = 0;
 

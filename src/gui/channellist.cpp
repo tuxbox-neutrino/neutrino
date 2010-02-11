@@ -917,7 +917,7 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
 		}
-		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
+		//g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 
 		if (bouquetList != NULL) {
 			//bouquetList->adjustToChannel( getActiveChannelNumber());
@@ -927,13 +927,16 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 					TVbouquetList->adjustToChannelID(chan->channel_id);
 					TVsatList->adjustToChannelID(chan->channel_id);
 					TVfavList->adjustToChannelID(chan->channel_id);
+					TVallList->adjustToChannelID(chan->channel_id);
 				}
 				else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
 					RADIObouquetList->adjustToChannelID(chan->channel_id);
 					RADIOsatList->adjustToChannelID(chan->channel_id);
 					RADIOfavList->adjustToChannelID(chan->channel_id);
+					RADIOallList->adjustToChannelID(chan->channel_id);
 				}
 		}
+		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 	}
 }
 
