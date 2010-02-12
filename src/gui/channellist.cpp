@@ -442,8 +442,10 @@ int CChannelList::show()
 
 	//width  = w_max (560, 0);
 	//height = h_max (420 + (1+3+16+3), 60);
-	width  = w_max (((g_settings.channellist_extended)?720:660), 0);
-	height = h_max (450, 60);
+	//width  = w_max (((g_settings.channellist_extended)?720:660), 0);
+	//height = h_max (450, 60);
+	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * 15):(frameBuffer->getScreenWidth() / 20 * 14)), 0);
+	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
 
 	if (chanlist.empty()) {
 		return res;
