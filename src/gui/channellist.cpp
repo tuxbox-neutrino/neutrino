@@ -1540,8 +1540,8 @@ void CChannelList::paintItem(int pos)
 		int pb_space = prg_offset - title_offset;
 		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {
-
-			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l," - ");
+			if(!g_settings.channellist_epgtext_align_right)
+				snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l," - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription, true);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description, true);
 
