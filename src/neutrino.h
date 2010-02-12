@@ -264,5 +264,6 @@ public:
 	void quickZap(int msg);
 	void StopSubtitles();
 	void StartSubtitles();
+	void showInfo(void);
 };
 #endif

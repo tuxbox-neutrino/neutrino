@@ -2383,7 +2383,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	g_PluginList = new CPlugins;
 	g_PluginList->setPluginDir(PLUGINDIR);
+
 	// mount shares before scanning for plugins
+	system("mkdir /media/sda1 2> /dev/null");
+	system("mount /media/sda1 2> /dev/null");
+	system("mkdir /media/sdb1 2> /dev/null");
+	system("mount /media/sdb1 2> /dev/null");
+
 	CFSMounter::automount();
 	//load Pluginlist before main menu (only show script menu if at least one script is available
 	g_PluginList->loadPlugins();
@@ -2537,15 +2543,11 @@ int CNeutrinoApp::run(int argc, char **argv)
 		configfile.setModifiedFlag(true);
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 	}
-#if 1 // FIXME
-	system("mkdir /media/sda1 2> /dev/null");
-	system("mount /media/sda1 2> /dev/null");
-	system("mkdir /media/sdb1 2> /dev/null");
-	system("mount /media/sdb1 2> /dev/null");
+
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
 	delete hdd;
-#endif
+
 	pbBlinkChange = g_settings.progressbar_color;
 	InitZapper();
 	InitRecordingSettings(recordingSettings);
@@ -2582,6 +2584,13 @@ void CNeutrinoApp::quickZap(int msg)
 		bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
 	else
 		channelList->quickZap(msg);
+}
+
+void CNeutrinoApp::showInfo()
+{
+	StopSubtitles();
+	g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
+	StartSubtitles();
 }
 
 void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
@@ -2673,9 +2682,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				g_InfoViewer->showSubchan();
 			    } else if(g_settings.virtual_zap_mode) {
 				if(channelList->getSize()) {
-					StopSubtitles();
-					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
-					StartSubtitles();
+					showInfo();
 				}
 			    } else
 				quickZap( msg );
@@ -2687,9 +2694,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				g_InfoViewer->showSubchan();
 			    } else if(g_settings.virtual_zap_mode) {
 				if(channelList->getSize()) {
-					StopSubtitles();
-					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
-					StartSubtitles();
+					showInfo();
 				}
 			    } else
 				quickZap( msg );
@@ -2697,9 +2702,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			/* in case key_subchannel_up/down redefined */
 			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
 				if(channelList->getSize()) {
-					StopSubtitles();
-					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID());
-					StartSubtitles();
+					showInfo();
 				}
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
@@ -2830,9 +2833,7 @@ printf("[neutrino] direct record\n");
 
 				// show Infoviewer
 				if(show_info && channelList->getSize()) {
-					StopSubtitles();
-					g_InfoViewer->showTitle(channelList->getActiveChannelNumber(), channelList->getActiveChannelName(), channelList->getActiveSatellitePosition(), channelList->getActiveChannel_ChannelID()); // UTF-8
-					StartSubtitles();
+					showInfo();
 				}
 			}
 #if 0
@@ -4806,10 +4807,10 @@ void CNeutrinoApp::saveKeys(const char * fname)
 
 void CNeutrinoApp::StopSubtitles()
 {
-	int ttx, dvbpid;
+	int ttx, dvbpid, ttxpid, ttxpage;
 
 	dvbpid = dvbsub_getpid();
-	tuxtx_subtitle_running(0, 0, &ttx);
+	tuxtx_subtitle_running(&ttxpid, &ttxpage, &ttx);
 
 	if(dvbpid)
 		dvbsub_pause();

@@ -40,6 +40,8 @@ typedef struct audio_map_set {
         int mode;
         unsigned int volume;
         int subpid;
+	int ttxpid;
+	int ttxpage;
 } audio_map_set_t;
 
 /* subtitling support */

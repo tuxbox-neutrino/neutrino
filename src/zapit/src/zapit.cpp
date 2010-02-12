@@ -238,8 +238,9 @@ void saveZapitSettings(bool write, bool write_a)
                 FILE *audio_config_file = fopen(AUDIO_CONFIG_FILE, "w");
                 if (audio_config_file) {
                   for (audio_map_it = audio_map.begin(); audio_map_it != audio_map.end(); audio_map_it++) {
-                        fprintf(audio_config_file, "%llx %d %d %d %d\n", (uint64_t) audio_map_it->first,
-                                (int) audio_map_it->second.apid, (int) audio_map_it->second.mode, (int) audio_map_it->second.volume, (int) audio_map_it->second.subpid);
+                        fprintf(audio_config_file, "%llx %d %d %d %d %d %d\n", (uint64_t) audio_map_it->first,
+                                (int) audio_map_it->second.apid, (int) audio_map_it->second.mode, (int) audio_map_it->second.volume, 
+				(int) audio_map_it->second.subpid, (int) audio_map_it->second.ttxpid, (int) audio_map_it->second.ttxpage);
                   }
 		  fdatasync(fileno(audio_config_file));
                   fclose(audio_config_file);
@@ -253,17 +254,19 @@ void load_audio_map()
 	audio_map.clear();
         if (audio_config_file) {
           t_channel_id chan;
-          int apid = 0, subpid = 0;
+          int apid = 0, subpid = 0, ttxpid = 0, ttxpage = 0;
           int mode = 0;
           int volume = 0;
           char s[1000];
           while (fgets(s, 1000, audio_config_file)) {
-            sscanf(s, "%llx %d %d %d %d", &chan, &apid, &mode, &volume, &subpid);
+            sscanf(s, "%llx %d %d %d %d %d %d", &chan, &apid, &mode, &volume, &subpid, &ttxpid, &ttxpage);
 //printf("**** Old channelinfo: %llx %d\n", chan, apid);
             audio_map[chan].apid = apid;
             audio_map[chan].subpid = subpid;
             audio_map[chan].mode = mode;
             audio_map[chan].volume = volume;
+	    audio_map[chan].ttxpid = ttxpid;
+	    audio_map[chan].ttxpage = ttxpage;
           }
           fclose(audio_config_file);
         }
@@ -355,6 +358,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
                 audio_map[channel->getChannelID()].mode = audio_mode;
                 audio_map[channel->getChannelID()].volume = audioDecoder->getVolume();
                 audio_map[channel->getChannelID()].subpid = dvbsub_getpid();
+		tuxtx_subtitle_running(&audio_map[channel->getChannelID()].ttxpid, &audio_map[channel->getChannelID()].ttxpage, NULL);
         }
 
 	if (in_nvod) {
@@ -511,6 +515,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 			dvbsub_start(audio_map_it->second.subpid);
 #endif
 		dvbsub_setpid(audio_map_it->second.subpid);
+		tuxtx_set_pid(audio_map_it->second.ttxpid, audio_map_it->second.ttxpage);
         } else {
                 volume_left = volume_right = def_volume_left;
                 audio_mode = def_audio_mode;

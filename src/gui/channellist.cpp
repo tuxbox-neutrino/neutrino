@@ -833,9 +833,6 @@ printf("CChannelList::adjustToChannelID me %x list size %d channel_id %llx\n", (
 
 			tuned = i;
 			if (bToo && (bouquetList != NULL)) {
-				//bouquetList->adjustToChannel( getActiveChannelNumber());
-				//bouquetList->adjustToChannelID(channel_id);
-//FIXME test
 				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
 					TVbouquetList->adjustToChannelID(channel_id);
 					TVsatList->adjustToChannelID(channel_id);
@@ -924,7 +921,7 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 		if (bouquetList != NULL) {
 			//bouquetList->adjustToChannel( getActiveChannelNumber());
 			//bouquetList->adjustToChannelID(chan->channel_id);
-//FIXME test
+#if 0
 				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
 					TVbouquetList->adjustToChannelID(chan->channel_id);
 					TVsatList->adjustToChannelID(chan->channel_id);
@@ -937,6 +934,8 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 					RADIOfavList->adjustToChannelID(chan->channel_id);
 					RADIOallList->adjustToChannelID(chan->channel_id);
 				}
+#endif
+				CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
 		}
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 	}

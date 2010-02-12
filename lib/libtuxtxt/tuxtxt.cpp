@@ -16,13 +16,13 @@
 #include "tuxtxt.h"
 #include <dmx_cs.h>
 #include "driver/framebuffer.h"
+#include "teletext.h"
 
 void FillRect(int x, int y, int w, int h, int color)
 {
 	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length;
 #if 1
 	unsigned int col = bgra[color][3] << 24 | bgra[color][2] << 16 | bgra[color][1] << 8 | bgra[color][0];
-
 	if (w > 0)
 		for (int count = 0; count < h; count++) {
 			unsigned int * dest0 = (unsigned int *)p;
@@ -219,7 +219,8 @@ void RenderClearMenuLineBB(char *p, tstPageAttr *attrcol, tstPageAttr *attr)
 
 void ClearBB(int color)
 {
-	FillRect(0,(var_screeninfo.yres-var_screeninfo.yoffset),fix_screeninfo.line_length,var_screeninfo.yres, color);
+	FillRect(0,(var_screeninfo.yres-var_screeninfo.yoffset),var_screeninfo.xres,var_screeninfo.yres, color);
+	//FillRect(0,(var_screeninfo.yres-var_screeninfo.yoffset),fix_screeninfo.line_length,var_screeninfo.yres, color);
 }
 
 void ClearFB(int /*color*/)
@@ -230,7 +231,7 @@ void ClearFB(int /*color*/)
 
 void ClearB(int color)
 {
-	FillRect(0,0,fix_screeninfo.line_length,var_screeninfo.yres*2,color);
+	FillRect(0,0,var_screeninfo.xres,var_screeninfo.yres*2,color);
 }
 
 
@@ -1016,37 +1017,37 @@ int eval_triplet(int iOData, tstCachedPage *pstCachedPage,
 
 	return 0; /* normal exit, no termination */
 }
+
 int setnational(unsigned char sec)
 {
-	switch (sec)
-	{
-		case 0x08:
-			return NAT_PL; //polish
-		case 0x16:
-		case 0x36:
-			return NAT_TR; //turkish
-		case 0x1d:
-			return NAT_SR; //serbian, croatian, slovenian
-		case 0x20:
-		case 0x24:
-		case 0x25:
-			return NAT_RU; // cyrillic
-		case 0x22:
-			return NAT_ET; // estonian
-		case 0x23:
-			return NAT_LV; // latvian, lithuanian
-		case 0x37:
-			return NAT_GR; // greek
-		case 0x47:
-		case 0x57:
-			// TODO : arabic
-			break;
-		case 0x55:
-			// TODO : hebrew
-			break;
-
-	}
-	return countryconversiontable[sec & 0x07];
+        switch (sec)
+        {
+                case 0x08:
+                        return NAT_PL; //polish
+                case 0x16:
+                case 0x36:
+                        return NAT_TR; //turkish
+                case 0x1d:
+                        return NAT_SR; //serbian, croatian, slovenian
+                case 0x20:
+                        return NAT_SC; // serbian, croatian
+                case 0x24:
+                        return NAT_RB; // russian, bulgarian
+                case 0x25:
+                        return NAT_UA; // ukrainian
+                case 0x22:
+                        return NAT_ET; // estonian
+                case 0x23:
+                        return NAT_LV; // latvian, lithuanian
+                case 0x37:
+                        return NAT_GR; // greek
+                case 0x55:
+                        return NAT_HB; // hebrew
+                case 0x47:
+                case 0x57:
+                        return NAT_AR; // arabic
+        }
+        return countryconversiontable[sec & 0x07];
 }
 
 /* evaluate level 2.5 information */
@@ -1482,12 +1483,14 @@ static pthread_t ttx_sub_thread;
 static int reader_running;
 static int ttx_paused;
 static int ttx_req_pause;
+static int sub_pid, sub_page;
+static bool use_gui;
 
 static void* reader_thread(void * /*arg*/)
 {
 	printf("TuxTxt subtitle thread started\n");
 	reader_running = 1;
-	ttx_paused = 0;
+	//ttx_paused = 0;
 	while(reader_running) {
 		if(ttx_paused)
 			usleep(10);
@@ -1507,12 +1510,15 @@ static void* reader_thread(void * /*arg*/)
 
 void tuxtx_pause_subtitle(bool pause)
 {
-	if(!reader_running)
-		return;
-
-	if(!pause)
+	if(!pause) {
+		printf("TuxTxt subtitle unpause, running %d pid %d page %d\n", reader_running, sub_pid, sub_page);
 		ttx_paused = 0;
+		if(!reader_running && sub_pid && sub_page)
+			tuxtx_main(0, sub_pid, sub_page);
+	}
 	else {
+		if(!reader_running)
+			return;
 		printf("TuxTxt subtitle asking to pause...\n");
 		ttx_req_pause = 1;
 		while(!ttx_paused)
@@ -1528,32 +1534,55 @@ void tuxtx_stop_subtitle()
 	if(ttx_sub_thread)
 		pthread_join(ttx_sub_thread, NULL);
 	ttx_sub_thread = NULL;
+	sub_pid = sub_page = 0;
+	ttx_paused = 0;
 }
 
-int tuxtx_subtitle_running(int pid, int page, int *running)
+void tuxtx_set_pid(int pid, int page)
 {
+	if(reader_running)
+		tuxtx_stop_subtitle();
+
+	sub_pid = pid;
+	sub_page = page;
+	printf("TuxTxt subtitle set pid %d page %d\n", sub_pid, sub_page);
+#if 0
+	ttx_paused = 1;
+	if(sub_pid && sub_page)
+		tuxtx_main(0, sub_pid, sub_page);
+#endif
+}
+
+int tuxtx_subtitle_running(int *pid, int *page, int *running)
+{
+	int ret = 0;
+
 	if(running)
 		*running = reader_running;
 
-	if(reader_running && (tuxtxt_cache.vtxtpid == pid) && (tuxtxt_cache.page == page))
+	if(reader_running && (tuxtxt_cache.vtxtpid == *pid) && (tuxtxt_cache.page == *page))
 	{
-		return 1;
+		ret = 1;
 	}
-	return 0;
+	*pid = sub_pid;
+	*page = sub_page;
+
+	return ret;
 }
 
 int tuxtx_main(int _rc, int pid, int page)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
-	bool use_gui = 1;
+	use_gui = 1;
 //printf("to init tuxtxt\n");fflush(stdout);
 #if !TUXTXT_CFG_STANDALONE
 	int initialized = tuxtxt_init();
 	if (initialized)
 		tuxtxt_cache.page = 0x100;
 	if(page) {
-		tuxtxt_cache.page = page;
+		sub_page = tuxtxt_cache.page = page;
+		sub_pid = pid;
 		use_gui = 0;
 	}
 #endif
@@ -2431,52 +2460,54 @@ skip_pid:
 /******************************************************************************
  * GetNationalSubset                                                          *
  ******************************************************************************/
-
 int GetNationalSubset(char *cc)
 {
-	if (memcmp(cc, "cze", 3) == 0 || memcmp(cc, "ces", 3) == 0 ||
-	    memcmp(cc, "slo", 3) == 0 || memcmp(cc, "slk", 3) == 0)
-		return 0;
-	if (memcmp(cc, "eng", 3) == 0)
-		return 1;
-	if (memcmp(cc, "est", 3) == 0)
-		return 2;
-	if (memcmp(cc, "fre", 3) == 0 || memcmp(cc, "fra", 3) == 0)
-		return 3;
-	if (memcmp(cc, "ger", 3) == 0 || memcmp(cc, "deu", 3) == 0)
-		return 4;
-	if (memcmp(cc, "ita", 3) == 0)
-		return 5;
-	if (memcmp(cc, "lav", 3) == 0 || memcmp(cc, "lit", 3) == 0)
-		return 6;
-	if (memcmp(cc, "pol", 3) == 0)
-		return 7;
-	if (memcmp(cc, "spa", 3) == 0 || memcmp(cc, "por", 3) == 0)
-		return 8;
-	if (memcmp(cc, "rum", 3) == 0 || memcmp(cc, "ron", 3) == 0)
-		return 9;
-	if (memcmp(cc, "scc", 3) == 0 || memcmp(cc, "srp", 3) == 0 ||
-	    memcmp(cc, "scr", 3) == 0 || memcmp(cc, "hrv", 3) == 0 ||
-	    memcmp(cc, "slv", 3) == 0)
-		return 10;
-	if (memcmp(cc, "swe", 3) == 0 ||
-	    memcmp(cc, "dan", 3) == 0 ||
-	    memcmp(cc, "nor", 3) == 0 ||
-	    memcmp(cc, "fin", 3) == 0 ||
-	    memcmp(cc, "hun", 3) == 0)
-		return 11;
-	if (memcmp(cc, "tur", 3) == 0)
-		return 12;
-	if (memcmp(cc, "rus", 3) == 0 ||
-	    memcmp(cc, "bul", 3) == 0 ||
-	    memcmp(cc, "ser", 3) == 0 ||
-	    memcmp(cc, "cro", 3) == 0 ||
-	    memcmp(cc, "ukr", 3) == 0)
-		return NAT_RU;
-	if (memcmp(cc, "gre", 3) == 0)
-		return NAT_GR;
-
-	return NAT_DEFAULT;	/* use default charset */
+        if (memcmp(cc, "cze", 3) == 0 || memcmp(cc, "ces", 3) == 0 ||
+            memcmp(cc, "slo", 3) == 0 || memcmp(cc, "slk", 3) == 0)
+                return 0;
+        if (memcmp(cc, "eng", 3) == 0)
+                return 1;
+        if (memcmp(cc, "est", 3) == 0)
+                return 2;
+        if (memcmp(cc, "fre", 3) == 0 || memcmp(cc, "fra", 3) == 0)
+                return 3;
+        if (memcmp(cc, "ger", 3) == 0 || memcmp(cc, "deu", 3) == 0)
+                return 4;
+        if (memcmp(cc, "ita", 3) == 0)
+                return 5;
+        if (memcmp(cc, "lav", 3) == 0 || memcmp(cc, "lit", 3) == 0)
+                return 6;
+        if (memcmp(cc, "pol", 3) == 0)
+                return 7;
+        if (memcmp(cc, "spa", 3) == 0 || memcmp(cc, "por", 3) == 0)
+                return 8;
+        if (memcmp(cc, "rum", 3) == 0 || memcmp(cc, "ron", 3) == 0)
+                return 9;
+        if (memcmp(cc, "scc", 3) == 0 || memcmp(cc, "srp", 3) == 0 ||
+            memcmp(cc, "scr", 3) == 0 || memcmp(cc, "hrv", 3) == 0 ||
+            memcmp(cc, "slv", 3) == 0)
+                return 10;
+        if (memcmp(cc, "swe", 3) == 0 ||
+            memcmp(cc, "dan", 3) == 0 ||
+            memcmp(cc, "nor", 3) == 0 ||
+            memcmp(cc, "fin", 3) == 0 ||
+            memcmp(cc, "hun", 3) == 0)
+                return 11;
+        if (memcmp(cc, "tur", 3) == 0)
+                return 12;
+        if (memcmp(cc, "rus", 3) == 0 || memcmp(cc, "bul", 3) == 0)
+            return NAT_RB;
+        if (memcmp(cc, "ser", 3) == 0 || memcmp(cc, "cro", 3) == 0)
+            return NAT_SC;
+        if (memcmp(cc, "ukr", 3) == 0)
+                return NAT_UA;
+        if (memcmp(cc, "gre", 3) == 0)
+                return NAT_GR;
+        if (memcmp(cc, "heb", 3) == 0)
+                return NAT_HB;
+        if (memcmp(cc, "ara", 3) == 0)
+                return NAT_AR;
+        return NAT_DEFAULT;     /* use default charset */
 }
 
 /******************************************************************************
@@ -4247,26 +4278,35 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	}
 
 	// G0+G2 set designation
-	if (Attribute->setG0G2 != 0x3f)
-	{
-		switch (Attribute->setG0G2)
-		{
-			case 0x20 :
-			case 0x24 :
-			case 0x25 :
-				national_subset_local = NAT_RU;
-				break;
-			case 0x37:
-				national_subset_local = NAT_GR;
-				break;
-				//TODO: arabic and hebrew
-			default:
-				national_subset_local = countryconversiontable[Attribute->setG0G2 & 0x07];
-				break;
+        if (Attribute->setG0G2 != 0x3f)
+        {
+                switch (Attribute->setG0G2)
+                {
+                        case 0x20 :
+                                national_subset_local = NAT_SC;
+                                break;
+                        case 0x24 :
+                                national_subset_local = NAT_RB;
+                                break;
+                        case 0x25 :
+                                national_subset_local = NAT_UA;
+                                break;
+                        case 0x37:
+                                national_subset_local = NAT_GR;
+                                break;
+                        case 0x55:
+                                national_subset_local = NAT_HB;
+                                break;
+                        case 0x47:
+                        case 0x57:
+                                national_subset_local = NAT_AR;
+                                break;
+                        default:
+                                national_subset_local = countryconversiontable[Attribute->setG0G2 & 0x07];
+                                break;
+                }
+        }
 
-		}
-
-	}
 	if (Attribute->charset == C_G0S) // use secondary charset
 		national_subset_local = national_subset_secondary;
 	if (zoom && Attribute->doubleh)
@@ -4313,7 +4353,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 
 	/* handle mosaic */
 	if ((Attribute->charset == C_G1C || Attribute->charset == C_G1S) &&
-		 ((Char&0xA0) == 0x20))
+			((Char&0xA0) == 0x20))
 	{
 		int w1 = (curfontwidth / 2 ) *xfactor;
 		int w2 = (curfontwidth - w1) *xfactor;
@@ -4400,14 +4440,15 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 			}
 			axdrcs[12] = curfontwidth; /* adjust last x-offset according to position, FIXME: double width */
 			RenderDRCS(p,
-						  lfb + PosX*4 + (yoffset + PosY) * fix_screeninfo.line_length,
-						  axdrcs, fgcolor, bgcolor);
+					lfb + PosX*4 + (yoffset + PosY) * fix_screeninfo.line_length,
+					axdrcs, fgcolor, bgcolor);
 		}
 		else
 			FillRect(PosX, PosY + yoffset, curfontwidth, factor*fontheight, bgcolor);
 		PosX += curfontwidth;
 		return;
 	}
+#if 0//old
 	else if (Attribute->charset == C_G2 && Char >= 0x20 && Char <= 0x7F)
 	{
 		if (national_subset_local == NAT_GR)
@@ -4435,127 +4476,152 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 		Char = nationaltable23[NAT_DE][Char-0x23]; /* #$ as in german option */
 	else if (national_subset_local == NAT_RU && Char >= 0x40 && Char <= 0x7E) /* remap complete areas for cyrillic */
 		Char = G0tablecyrillic[Char-0x20];
+#endif
+	else if (Attribute->charset == C_G2 && Char >= 0x20 && Char <= 0x7F)
+	{
+		if ((national_subset_local == NAT_SC) || (national_subset_local == NAT_RB) || (national_subset_local == NAT_UA))
+			Char = G2table[1][Char-0x20];
+		else if (national_subset_local == NAT_GR)
+			Char = G2table[2][Char-0x20];
+		else if (national_subset_local == NAT_AR)
+			Char = G2table[3][Char-0x20];
+		else
+			Char = G2table[0][Char-0x20];
+	}
+	else if (national_subset_local == NAT_SC && Char >= 0x20 && Char <= 0x7F) /* remap complete areas for serbian/croatian */
+		Char = G0table[0][Char-0x20];
+	else if (national_subset_local == NAT_RB && Char >= 0x20 && Char <= 0x7F) /* remap complete areas for russian/bulgarian */
+		Char = G0table[1][Char-0x20];
+	else if (national_subset_local == NAT_UA && Char >= 0x20 && Char <= 0x7F) /* remap complete areas for ukrainian */
+		Char = G0table[2][Char-0x20];
+	else if (national_subset_local == NAT_GR && Char >= 0x20 && Char <= 0x7F) /* remap complete areas for greek */
+		Char = G0table[3][Char-0x20];
+	else if (national_subset_local == NAT_HB && Char >= 0x20 && Char <= 0x7F) /* remap complete areas for hebrew */
+		Char = G0table[4][Char-0x20];
+	else if (national_subset_local == NAT_AR && Char >= 0x20 && Char <= 0x7F) /* remap complete areas for arabic */
+		Char = G0table[5][Char-0x20];
+
 	else
 	{
 		/* load char */
 		switch (Char)
 		{
-		case 0x00:
-		case 0x20:
-			FillRect(PosX, PosY + yoffset, curfontwidth, factor*fontheight, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0x23:
-		case 0x24:
-			Char = nationaltable23[national_subset_local][Char-0x23];
-			break;
-		case 0x40:
-			Char = nationaltable40[national_subset_local];
-			break;
-		case 0x5B:
-		case 0x5C:
-		case 0x5D:
-		case 0x5E:
-		case 0x5F:
-		case 0x60:
-			Char = nationaltable5b[national_subset_local][Char-0x5B];
-			break;
-		case 0x7B:
-		case 0x7C:
-		case 0x7D:
-		case 0x7E:
-			Char = nationaltable7b[national_subset_local][Char-0x7B];
-			break;
-		case 0x7F:
-			FillRect(PosX, PosY + yoffset, curfontwidth, factor*ascender, fgcolor);
-			FillRect(PosX, PosY + yoffset + factor*ascender, curfontwidth, factor*(fontheight-ascender), bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE0: /* |- */
-			DrawHLine(PosX, PosY + yoffset, curfontwidth, fgcolor);
-			DrawVLine(PosX, PosY + yoffset +1, fontheight -1, fgcolor);
-			FillRect(PosX +1, PosY + yoffset +1, curfontwidth-1, fontheight-1, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE1: /* - */
-			DrawHLine(PosX, PosY + yoffset, curfontwidth, fgcolor);
-			FillRect(PosX, PosY + yoffset +1, curfontwidth, fontheight-1, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE2: /* -| */
-			DrawHLine(PosX, PosY + yoffset, curfontwidth, fgcolor);
-			DrawVLine(PosX + curfontwidth -1, PosY + yoffset +1, fontheight -1, fgcolor);
-			FillRect(PosX, PosY + yoffset +1, curfontwidth-1, fontheight-1, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE3: /* |  */
-			DrawVLine(PosX, PosY + yoffset, fontheight, fgcolor);
-			FillRect(PosX +1, PosY + yoffset, curfontwidth -1, fontheight, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE4: /*  | */
-			DrawVLine(PosX + curfontwidth -1, PosY + yoffset, fontheight, fgcolor);
-			FillRect(PosX, PosY + yoffset, curfontwidth -1, fontheight, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE5: /* |_ */
-			DrawHLine(PosX, PosY + yoffset + fontheight -1, curfontwidth, fgcolor);
-			DrawVLine(PosX, PosY + yoffset, fontheight -1, fgcolor);
-			FillRect(PosX +1, PosY + yoffset, curfontwidth-1, fontheight-1, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE6: /* _ */
-			DrawHLine(PosX, PosY + yoffset + fontheight -1, curfontwidth, fgcolor);
-			FillRect(PosX, PosY + yoffset, curfontwidth, fontheight-1, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE7: /* _| */
-			DrawHLine(PosX, PosY + yoffset + fontheight -1, curfontwidth, fgcolor);
-			DrawVLine(PosX + curfontwidth -1, PosY + yoffset, fontheight -1, fgcolor);
-			FillRect(PosX, PosY + yoffset, curfontwidth-1, fontheight-1, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE8: /* Ii */
-			FillRect(PosX +1, PosY + yoffset, curfontwidth -1, fontheight, bgcolor);
-			for (Row=0; Row < curfontwidth/2; Row++)
-				DrawVLine(PosX + Row, PosY + yoffset + Row, fontheight - Row, fgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xE9: /* II */
-			FillRect(PosX, PosY + yoffset, curfontwidth/2, fontheight, fgcolor);
-			FillRect(PosX + curfontwidth/2, PosY + yoffset, (curfontwidth+1)/2, fontheight, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xEA: /* °  */
-			FillRect(PosX, PosY + yoffset, curfontwidth, fontheight, bgcolor);
-			FillRect(PosX, PosY + yoffset, curfontwidth/2, curfontwidth/2, fgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xEB: /* ¬ */
-			FillRect(PosX, PosY + yoffset +1, curfontwidth, fontheight -1, bgcolor);
-			for (Row=0; Row < curfontwidth/2; Row++)
-				DrawHLine(PosX + Row, PosY + yoffset + Row, curfontwidth - Row, fgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xEC: /* -- */
-			FillRect(PosX, PosY + yoffset, curfontwidth, curfontwidth/2, fgcolor);
-			FillRect(PosX, PosY + yoffset + curfontwidth/2, curfontwidth, fontheight - curfontwidth/2, bgcolor);
-			PosX += curfontwidth;
-			return;
-		case 0xED:
-		case 0xEE:
-		case 0xEF:
-		case 0xF0:
-		case 0xF1:
-		case 0xF2:
-		case 0xF3:
-		case 0xF4:
-		case 0xF5:
-		case 0xF6:
-			Char = arrowtable[Char - 0xED];
-			break;
-		default:
-			break;
+			case 0x00:
+			case 0x20:
+				FillRect(PosX, PosY + yoffset, curfontwidth, factor*fontheight, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0x23:
+			case 0x24:
+				Char = nationaltable23[national_subset_local][Char-0x23];
+				break;
+			case 0x40:
+				Char = nationaltable40[national_subset_local];
+				break;
+			case 0x5B:
+			case 0x5C:
+			case 0x5D:
+			case 0x5E:
+			case 0x5F:
+			case 0x60:
+				Char = nationaltable5b[national_subset_local][Char-0x5B];
+				break;
+			case 0x7B:
+			case 0x7C:
+			case 0x7D:
+			case 0x7E:
+				Char = nationaltable7b[national_subset_local][Char-0x7B];
+				break;
+			case 0x7F:
+				FillRect(PosX, PosY + yoffset, curfontwidth, factor*ascender, fgcolor);
+				FillRect(PosX, PosY + yoffset + factor*ascender, curfontwidth, factor*(fontheight-ascender), bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE0: /* |- */
+				DrawHLine(PosX, PosY + yoffset, curfontwidth, fgcolor);
+				DrawVLine(PosX, PosY + yoffset +1, fontheight -1, fgcolor);
+				FillRect(PosX +1, PosY + yoffset +1, curfontwidth-1, fontheight-1, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE1: /* - */
+				DrawHLine(PosX, PosY + yoffset, curfontwidth, fgcolor);
+				FillRect(PosX, PosY + yoffset +1, curfontwidth, fontheight-1, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE2: /* -| */
+				DrawHLine(PosX, PosY + yoffset, curfontwidth, fgcolor);
+				DrawVLine(PosX + curfontwidth -1, PosY + yoffset +1, fontheight -1, fgcolor);
+				FillRect(PosX, PosY + yoffset +1, curfontwidth-1, fontheight-1, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE3: /* |  */
+				DrawVLine(PosX, PosY + yoffset, fontheight, fgcolor);
+				FillRect(PosX +1, PosY + yoffset, curfontwidth -1, fontheight, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE4: /*  | */
+				DrawVLine(PosX + curfontwidth -1, PosY + yoffset, fontheight, fgcolor);
+				FillRect(PosX, PosY + yoffset, curfontwidth -1, fontheight, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE5: /* |_ */
+				DrawHLine(PosX, PosY + yoffset + fontheight -1, curfontwidth, fgcolor);
+				DrawVLine(PosX, PosY + yoffset, fontheight -1, fgcolor);
+				FillRect(PosX +1, PosY + yoffset, curfontwidth-1, fontheight-1, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE6: /* _ */
+				DrawHLine(PosX, PosY + yoffset + fontheight -1, curfontwidth, fgcolor);
+				FillRect(PosX, PosY + yoffset, curfontwidth, fontheight-1, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE7: /* _| */
+				DrawHLine(PosX, PosY + yoffset + fontheight -1, curfontwidth, fgcolor);
+				DrawVLine(PosX + curfontwidth -1, PosY + yoffset, fontheight -1, fgcolor);
+				FillRect(PosX, PosY + yoffset, curfontwidth-1, fontheight-1, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE8: /* Ii */
+				FillRect(PosX +1, PosY + yoffset, curfontwidth -1, fontheight, bgcolor);
+				for (Row=0; Row < curfontwidth/2; Row++)
+					DrawVLine(PosX + Row, PosY + yoffset + Row, fontheight - Row, fgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xE9: /* II */
+				FillRect(PosX, PosY + yoffset, curfontwidth/2, fontheight, fgcolor);
+				FillRect(PosX + curfontwidth/2, PosY + yoffset, (curfontwidth+1)/2, fontheight, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xEA: /* °  */
+				FillRect(PosX, PosY + yoffset, curfontwidth, fontheight, bgcolor);
+				FillRect(PosX, PosY + yoffset, curfontwidth/2, curfontwidth/2, fgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xEB: /* ¬ */
+				FillRect(PosX, PosY + yoffset +1, curfontwidth, fontheight -1, bgcolor);
+				for (Row=0; Row < curfontwidth/2; Row++)
+					DrawHLine(PosX + Row, PosY + yoffset + Row, curfontwidth - Row, fgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xEC: /* -- */
+				FillRect(PosX, PosY + yoffset, curfontwidth, curfontwidth/2, fgcolor);
+				FillRect(PosX, PosY + yoffset + curfontwidth/2, curfontwidth, fontheight - curfontwidth/2, bgcolor);
+				PosX += curfontwidth;
+				return;
+			case 0xED:
+			case 0xEE:
+			case 0xEF:
+			case 0xF0:
+			case 0xF1:
+			case 0xF2:
+			case 0xF3:
+			case 0xF4:
+			case 0xF5:
+			case 0xF6:
+				Char = arrowtable[Char - 0xED];
+				break;
+			default:
+				break;
 		}
 	}
 	if (Char <= 0x20)
@@ -4584,7 +4650,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	{
 #if TUXTXT_DEBUG
 		printf("TuxTxt <FTC_SBitCache_Lookup: 0x%x> c%x a%x g%x w%d h%d x%d y%d\n",
-				 error, Char, (int) Attribute, glyph, curfontwidth, fontheight, PosX, PosY);
+				error, Char, (int) Attribute, glyph, curfontwidth, fontheight, PosX, PosY);
 #endif
 		FillRect(PosX, PosY + yoffset, curfontwidth, fontheight, bgcolor);
 		PosX += curfontwidth;
@@ -4598,105 +4664,117 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 	if (Attribute->diacrit)
 	{
 		FTC_SBit        sbit_diacrit;
-
+#if 0
 		if (national_subset_local == NAT_GR)
 			Char = G2table[2][0x20+ Attribute->diacrit];
 		else if (national_subset_local == NAT_RU)
 			Char = G2table[1][0x20+ Attribute->diacrit];
 		else
 			Char = G2table[0][0x20+ Attribute->diacrit];
+#endif
+                if ((national_subset_local == NAT_SC) || (national_subset_local == NAT_RB) || (national_subset_local == NAT_UA))
+                        Char = G2table[1][0x20+ Attribute->diacrit];
+                else if (national_subset_local == NAT_GR)
+                        Char = G2table[2][0x20+ Attribute->diacrit];
+                else if (national_subset_local == NAT_HB)
+                        Char = G2table[3][0x20+ Attribute->diacrit];
+                else if (national_subset_local == NAT_AR)
+                        Char = G2table[4][0x20+ Attribute->diacrit];
+                else
+                        Char = G2table[0][0x20+ Attribute->diacrit];
+
 		if ((glyph = FT_Get_Char_Index(face, Char)))
 		{
 			if ((error = FTC_SBitCache_Lookup(cache, &typettf, glyph, &sbit_diacrit, NULL)) == 0)
 
 			{
-					sbitbuffer = (unsigned char*) localbuffer;
-					memcpy(sbitbuffer,sbit->buffer,sbit->pitch*sbit->height);
+				sbitbuffer = (unsigned char*) localbuffer;
+				memcpy(sbitbuffer,sbit->buffer,sbit->pitch*sbit->height);
 
-					for (Row = 0; Row < sbit->height; Row++)
+				for (Row = 0; Row < sbit->height; Row++)
+				{
+					for (Pitch = 0; Pitch < sbit->pitch; Pitch++)
 					{
-						for (Pitch = 0; Pitch < sbit->pitch; Pitch++)
-						{
-							if (sbit_diacrit->pitch > Pitch && sbit_diacrit->height > Row)
-								sbitbuffer[Row*sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*sbit->pitch+Pitch];
-						}
+						if (sbit_diacrit->pitch > Pitch && sbit_diacrit->height > Row)
+							sbitbuffer[Row*sbit->pitch+Pitch] |= sbit_diacrit->buffer[Row*sbit->pitch+Pitch];
 					}
 				}
 			}
 		}
+	}
 
-		unsigned char *p;
-		int f; /* running counter for zoom factor */
+	unsigned char *p;
+	int f; /* running counter for zoom factor */
 
-		Row = factor * (ascender - sbit->top + TTFShiftY);
-		FillRect(PosX, PosY + yoffset, curfontwidth, Row, bgcolor); /* fill upper margin */
+	Row = factor * (ascender - sbit->top + TTFShiftY);
+	FillRect(PosX, PosY + yoffset, curfontwidth, Row, bgcolor); /* fill upper margin */
 
-		if (ascender - sbit->top + TTFShiftY + sbit->height > fontheight)
-			sbit->height = fontheight - ascender + sbit->top - TTFShiftY; /* limit char height to defined/calculated fontheight */
+	if (ascender - sbit->top + TTFShiftY + sbit->height > fontheight)
+		sbit->height = fontheight - ascender + sbit->top - TTFShiftY; /* limit char height to defined/calculated fontheight */
 
 
-		p = lfb + PosX*4 + (yoffset + PosY + Row) * fix_screeninfo.line_length; /* running pointer into framebuffer */
-		for (Row = sbit->height; Row; Row--) /* row counts up, but down may be a little faster :) */
+	p = lfb + PosX*4 + (yoffset + PosY + Row) * fix_screeninfo.line_length; /* running pointer into framebuffer */
+	for (Row = sbit->height; Row; Row--) /* row counts up, but down may be a little faster :) */
+	{
+		int pixtodo = (usettf ? sbit->width : curfontwidth);
+		char *pstart = (char*) p;
+
+		for (Bit = xfactor * (sbit->left + TTFShiftX); Bit > 0; Bit--) /* fill left margin */
 		{
-			int pixtodo = (usettf ? sbit->width : curfontwidth);
-			char *pstart = (char*) p;
+			for (f = factor-1; f >= 0; f--)
+				memcpy((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);/*bgcolor*/
+			p+=4;
+			if (!usettf)
+				pixtodo--;
+		}
 
-			for (Bit = xfactor * (sbit->left + TTFShiftX); Bit > 0; Bit--) /* fill left margin */
+		for (Pitch = sbit->pitch; Pitch; Pitch--)
+		{
+			for (Bit = 0x80; Bit; Bit >>= 1)
 			{
+				int color;
+
+				if (--pixtodo < 0)
+					break;
+
+				if (*sbitbuffer & Bit) /* bit set -> foreground */
+					color = fgcolor;
+				else /* bit not set -> background */
+					color = bgcolor;
+
 				for (f = factor-1; f >= 0; f--)
-					memcpy((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);/*bgcolor*/
+					memcpy((p + f*fix_screeninfo.line_length),bgra[color],4);
 				p+=4;
-				if (!usettf)
-					pixtodo--;
-			}
 
-			for (Pitch = sbit->pitch; Pitch; Pitch--)
-			{
-				for (Bit = 0x80; Bit; Bit >>= 1)
+				if (xfactor > 1) /* double width */
 				{
-					int color;
-
-					if (--pixtodo < 0)
-						break;
-
-					if (*sbitbuffer & Bit) /* bit set -> foreground */
-						color = fgcolor;
-					else /* bit not set -> background */
-						color = bgcolor;
-
 					for (f = factor-1; f >= 0; f--)
 						memcpy((p + f*fix_screeninfo.line_length),bgra[color],4);
 					p+=4;
 
-					if (xfactor > 1) /* double width */
-					{
-						for (f = factor-1; f >= 0; f--)
-							memcpy((p + f*fix_screeninfo.line_length),bgra[color],4);
-						p+=4;
-
-						if (!usettf)
-							pixtodo--;
-					}
+					if (!usettf)
+						pixtodo--;
 				}
-				sbitbuffer++;
 			}
-			for (Bit = (usettf ? (curfontwidth - xfactor*(sbit->width + sbit->left + TTFShiftX)) : pixtodo);
-				  Bit > 0; Bit--) /* fill rest of char width */
-			{
-				for (f = factor-1; f >= 0; f--)
-					memcpy((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);
-				p+=4;
-			}
-
-			p = (unsigned char*) pstart + factor*fix_screeninfo.line_length;
+			sbitbuffer++;
+		}
+		for (Bit = (usettf ? (curfontwidth - xfactor*(sbit->width + sbit->left + TTFShiftX)) : pixtodo);
+				Bit > 0; Bit--) /* fill rest of char width */
+		{
+			for (f = factor-1; f >= 0; f--)
+				memcpy((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);
+			p+=4;
 		}
 
-		Row = ascender - sbit->top + sbit->height + TTFShiftY;
-		FillRect(PosX, PosY + yoffset + Row*factor, curfontwidth, (fontheight - Row) * factor, bgcolor); /* fill lower margin */
-		if (Attribute->underline)
-			FillRect(PosX, PosY + yoffset + (fontheight-2)* factor, curfontwidth,2*factor, fgcolor); /* underline char */
+		p = (unsigned char*) pstart + factor*fix_screeninfo.line_length;
+	}
 
-		PosX += curfontwidth;
+	Row = ascender - sbit->top + sbit->height + TTFShiftY;
+	FillRect(PosX, PosY + yoffset + Row*factor, curfontwidth, (fontheight - Row) * factor, bgcolor); /* fill lower margin */
+	if (Attribute->underline)
+		FillRect(PosX, PosY + yoffset + (fontheight-2)* factor, curfontwidth,2*factor, fgcolor); /* underline char */
+
+	PosX += curfontwidth;
 }
 
 /******************************************************************************
@@ -4988,18 +5066,17 @@ void RenderPage()
 	/* update page or timestring */
 	if (transpmode != 2 && tuxtxt_cache.pageupdate && tuxtxt_cache.page_receiving != tuxtxt_cache.page && inputcounter == 2)
 	{
-	    if (boxed && subtitledelay)
-	    {
-		if (!delaystarted)
+		if (boxed && subtitledelay)
 		{
-		    gettimeofday(&tv_delay,NULL);
-		    delaystarted = 1;
-		    return;
+			if (!delaystarted)
+			{
+				gettimeofday(&tv_delay,NULL);
+				delaystarted = 1;
+				return;
+			}
+			else
+				delaystarted = 0;
 		}
-		else
-		    delaystarted = 0;
-
-	    }
 
 		/* reset update flag */
 		tuxtxt_cache.pageupdate = 0;
@@ -5010,6 +5087,7 @@ void RenderPage()
 			DecodePage();
 		else
 			startrow = 1;
+
 		if (boxed)
 		{
 			if (screenmode != 0)
@@ -5088,7 +5166,7 @@ void RenderPage()
 		/* update framebuffer */
 		CopyBB2FB();
 	}
-	else if (transpmode != 2)
+	else if (use_gui && transpmode != 2)
 	{
 		if (zoommode != 2)
 		{

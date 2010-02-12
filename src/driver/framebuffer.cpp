@@ -480,7 +480,8 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 #endif
 	);
 
-	memset(getFrameBufferPointer(), 0, stride * yRes);
+	//memset(getFrameBufferPointer(), 0, stride * yRes);
+	paintBackground();
         if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
                 printf("screen unblanking failed\n");
         }
@@ -945,6 +946,8 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 				icon_cache.insert(std::pair <std::string, rawIcon> (filename, tmpIcon));
 				//printf("Cached %s, cache size %d\n", newname.c_str(), cache_size);
 			}
+			if(!paint)
+				return true;
 			goto _display;
 		}
 
@@ -1485,7 +1488,8 @@ void CFrameBuffer::switch_signal (int signal)
 
 void CFrameBuffer::Clear()
 {
-	memset(getFrameBufferPointer(), 0, stride * yRes);
+	paintBackground();
+	//memset(getFrameBufferPointer(), 0, stride * yRes);
 }
 
 void CFrameBuffer::showFrame(const std::string & filename)
