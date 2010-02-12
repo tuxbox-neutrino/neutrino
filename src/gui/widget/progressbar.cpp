@@ -196,8 +196,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 		if (active_pb_width != last_width) {
 			int step;
 			if (active_pb_width > last_width) {
-				step = 255 / rd;
 				for (i = 0; (i < rd) && (i < maxi); i++) {
+					step = 255 / rd;
 					if (invert)
 						rgb = GREEN + ((unsigned char)(step * i) << 16); // adding red
 					else
@@ -207,8 +207,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
 									 POINT, POINT, color);
 				}
-				step = 255 / yw / 2;
 				for (; (i < yw) && (i < maxi); i++) {
+					step = 255 / yw / 2;
 					if (invert)
 						rgb = YELLOW - ((unsigned char)(step * (b++)) << 8); // removing green
 					else
@@ -218,8 +218,8 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 						frameBuffer->paintBoxRel(pos_x + i * ITEMW, pos_y + j * ITEMW,
 									 POINT, POINT, color);
 				}
-				step = 255 / gn;
 				for (; (i < gn) && (i < maxi); i++) {
+					step = 255 / gn;
 					if (invert)
 						rgb = YELLOW - ((unsigned char) (step * (b++)) << 8); // removing green
 					else
