@@ -316,7 +316,6 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	sig_text_rate_x = _x + 10 + xd * 3;
 
 	int maxmin_x; // x-position of min and max
-	int max_pos = 0;
 	int fontW = g_Font[font_small]->getWidth();
 
 	if (paint_mode == 0) {
@@ -324,9 +323,8 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	}
 	else {
 		maxmin_x = _x + 40 + xd * 3 + (fontW*4);
-		max_pos= sheight;
 	}
-	g_Font[font_small]->RenderString(maxmin_x, y1 + max_pos , 50, "max", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + sheight , 50, "max", COL_MENUCONTENTDARK, 0, true);
 	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3), 50, "min", COL_MENUCONTENTDARK, 0, true);
 
 
@@ -354,8 +352,8 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 	long value = (long) (bit_s / 1000ULL);
 
 	SignalRenderStr(value,     sig_text_rate_x, yt + sheight);
-	SignalRenderStr(br.max_short_average/ 1000ULL, sig_text_rate_x, yt + (sheight * 2));
-	SignalRenderStr(br.min_short_average/ 1000ULL, sig_text_rate_x, yt);
+	SignalRenderStr(br.max_short_average/ 1000ULL, sig_text_rate_x, yt);
+	SignalRenderStr(br.min_short_average/ 1000ULL, sig_text_rate_x, yt + (sheight * 2));
 	if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ){
 		yd = y_signal_fe (value, scaling, sigBox_h);// Video + Audio
 	} else {
@@ -372,8 +370,8 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 
 	if (s.ber != s.old_ber) {
 		SignalRenderStr(s.ber,     sig_text_ber_x, yt + sheight);
-		SignalRenderStr(s.max_ber, sig_text_ber_x, yt + (sheight * 2));
-		SignalRenderStr(s.min_ber, sig_text_ber_x, yt);
+		SignalRenderStr(s.max_ber, sig_text_ber_x, yt);
+		SignalRenderStr(s.min_ber, sig_text_ber_x, yt + (sheight * 2));
 	}
 	yd = y_signal_fe (s.ber, 4000, sigBox_h);
 	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_RED); //red
@@ -381,8 +379,8 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 
 	if (s.sig != s.old_sig) {
 		SignalRenderStr(s.sig,     sig_text_sig_x, yt + sheight);
-		SignalRenderStr(s.max_sig, sig_text_sig_x, yt + (sheight * 2));
-		SignalRenderStr(s.min_sig, sig_text_sig_x, yt);
+		SignalRenderStr(s.max_sig, sig_text_sig_x, yt);
+		SignalRenderStr(s.min_sig, sig_text_sig_x, yt + (sheight * 2));
 	}
 	yd = y_signal_fe (s.sig, 65000, sigBox_h);
 	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_GREEN); //green
@@ -390,8 +388,8 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 
 	if (s.snr != s.old_snr) {
 		SignalRenderStr(s.snr,     sig_text_snr_x, yt + sheight);
-		SignalRenderStr(s.max_snr, sig_text_snr_x, yt + (sheight * 2));
-		SignalRenderStr(s.min_snr, sig_text_snr_x, yt);
+		SignalRenderStr(s.max_snr, sig_text_snr_x, yt);
+		SignalRenderStr(s.min_snr, sig_text_snr_x, yt + (sheight * 2));
 	}
 	yd = y_signal_fe (s.snr, 65000, sigBox_h);
 	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_BLUE); //blue
