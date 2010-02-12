@@ -320,7 +320,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	int fontW = g_Font[font_small]->getWidth();
 
 	if (paint_mode == 0) {
-		maxmin_x = sig_text_ber_x-50;
+		maxmin_x = sig_text_ber_x-(fontW*4);
 	}
 	else {
 		maxmin_x = _x + 40 + xd * 3 + (fontW*4);
@@ -473,11 +473,12 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	int xres, yres, aspectRatio, framerate;
 	// paint labels
 	int spaceoffset = 0,i = 0;
-	int array[4]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
+	int array[5]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_ARATIO)),
 		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE)),
-		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE))};
-	for(i=0 ; i<4; i++)
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_AUDIOTYPE)),
+		      g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_SCANTS_FREQDATA))};
+	for(i=0 ; i<5; i++)
 	{
 		if(spaceoffset < array[i])
 			spaceoffset = array[i];
@@ -608,7 +609,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	}
 	else if(frontend->getInfo()->type == FE_QAM) {
 		sprintf((char*) buf, "%d.%d MHz", si.tsfrequency/1000, si.tsfrequency%1000);
-		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, "Frequenz:" , COL_MENUCONTENTDARK, 0, true); // UTF-8
+		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, g_Locale->getText (LOCALE_SCANTS_FREQDATA) , COL_MENUCONTENTDARK, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 		scaling = 20000;
 	}
