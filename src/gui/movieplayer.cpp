@@ -1062,38 +1062,6 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_audio) {
 			showaudioselectdialog = true;
-		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
-			if (timeshift)
-				g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(), CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());	// UTF-8
-
-			else {
-				if (isMovieBrowser) {
-					g_file_epg = p_movie_info->epgTitle;
-					g_file_epg1 = p_movie_info->epgInfo1;
-					g_InfoViewer->showTitle(0, p_movie_info->epgChannel.c_str(), 0, 0);	// UTF-8
-
-				} else {
-					char temp_name[255];
-					char *slash = strrchr(filename, '/');
-					if (slash) {
-						slash++;
-						int len = strlen(slash);
-						for (int i = 0; i < len; i++) {
-							if (slash[i] == '_')
-								temp_name[i] = ' ';
-							else
-								temp_name[i] = slash[i];
-						}
-						temp_name[len] = 0;
-					}
-					g_file_epg = "";
-					g_file_epg1 = "";
-					g_InfoViewer->showTitle(0, temp_name, 0, 0);	// UTF-8
-				}
-				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
-				update_lcd = true;
-				//showHelpTS();
-			}
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_time) {
 			if (FileTime.IsVisible()) {
 				if (FileTime.GetMode() == CTimeOSD::MODE_ASC) {
@@ -1147,6 +1115,38 @@ void CMoviePlayerGui::PlayFile(void)
 				FileTime.show(position / 1000);
 				FileTime.updatePos(file_prozent);
 				time_forced = true;
+			}
+		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
+			if (timeshift)
+				g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(), CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());	// UTF-8
+
+			else {
+				if (isMovieBrowser) {
+					g_file_epg = p_movie_info->epgTitle;
+					g_file_epg1 = p_movie_info->epgInfo1;
+					g_InfoViewer->showTitle(0, p_movie_info->epgChannel.c_str(), 0, 0);	// UTF-8
+
+				} else {
+					char temp_name[255];
+					char *slash = strrchr(filename, '/');
+					if (slash) {
+						slash++;
+						int len = strlen(slash);
+						for (int i = 0; i < len; i++) {
+							if (slash[i] == '_')
+								temp_name[i] = ' ';
+							else
+								temp_name[i] = slash[i];
+						}
+						temp_name[len] = 0;
+					}
+					g_file_epg = "";
+					g_file_epg1 = "";
+					g_InfoViewer->showTitle(0, temp_name, 0, 0);	// UTF-8
+				}
+				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+				update_lcd = true;
+				//showHelpTS();
 			}
 		} else if (msg == CRCInput::RC_1) {	// Jump Backwards 1 minute
 			//update_lcd = true;
