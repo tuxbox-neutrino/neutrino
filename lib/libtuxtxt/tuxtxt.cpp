@@ -4676,10 +4676,12 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
                         Char = G2table[1][0x20+ Attribute->diacrit];
                 else if (national_subset_local == NAT_GR)
                         Char = G2table[2][0x20+ Attribute->diacrit];
+#if 0
                 else if (national_subset_local == NAT_HB)
                         Char = G2table[3][0x20+ Attribute->diacrit];
+#endif
                 else if (national_subset_local == NAT_AR)
-                        Char = G2table[4][0x20+ Attribute->diacrit];
+                        Char = G2table[3][0x20+ Attribute->diacrit];
                 else
                         Char = G2table[0][0x20+ Attribute->diacrit];
 
