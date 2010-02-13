@@ -4143,7 +4143,7 @@ printf("copy: len %d minute %lld second %lld\n", len, len ? size/len : 511040*60
 
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	if (! timescale)
-		timescale = new CProgressBar(g_settings.progressbar_color, 200, 15, 0, 100, 0);
+		timescale = new CProgressBar(true, 200, 15, 0, 100, 0);
         int dx = 256;
         int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
         int y = g_settings.screen_EndY - 50;

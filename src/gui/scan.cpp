@@ -79,8 +79,8 @@ CScanTs::CScanTs()
 	total = done = 0;
 	freqready = 0;
 
-	sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
-	snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
+	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
+	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 	pbBlinkChange = g_settings.progressbar_color;
 }
 
@@ -117,6 +117,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(scan_all)
 		scan_mode |= 0xFF00;
 
+#if 0
 	if(pbBlinkChange != g_settings.progressbar_color){
 		pbBlinkChange = g_settings.progressbar_color;
 		if(sigscale){
@@ -128,7 +129,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
 		}
 	}
-
+#endif
 	sigscale->reset();
 	snrscale->reset();
 	lastsig = lastsnr = -1;
@@ -386,7 +387,7 @@ void CScanTs::paintRadar(void)
 
 	sprintf(filename, "radar%d.raw", radar);
 	radar = (radar + 1) % 10;
-	frameBuffer->paintIcon8(filename, xpos_radar, ypos_radar, 17);
+	frameBuffer->paintIcon8(filename, xpos_radar, ypos_radar, 18);
 }
 
 void CScanTs::hide()
@@ -423,7 +424,7 @@ void CScanTs::paint(bool fortest)
 	//frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
 
-	frameBuffer->loadPal("radar.pal", 17, 37);
+	frameBuffer->loadPal("radar.pal", 18, 38);
 
 	ypos = y + hheight + (mheight >> 1);
 

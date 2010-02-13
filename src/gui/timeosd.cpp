@@ -43,7 +43,7 @@ CTimeOSD::CTimeOSD()
 	m_mode=MODE_ASC;
 	GetDimensions();
 	if (! timescale)
-		timescale = new CProgressBar(g_settings.progressbar_color, 200, 32, 40, 100, 70, true);
+		timescale = new CProgressBar(true, 200, 32, 40, 100, 70, true);
 }
 
 CTimeOSD::~CTimeOSD()

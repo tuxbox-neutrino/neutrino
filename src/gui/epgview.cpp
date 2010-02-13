@@ -633,7 +633,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	if ( epg_done!= -1 )
 	{
 		int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-		CProgressBar pb(g_settings.progressbar_color, -1, -1, 30, 100, 70, true);
+		CProgressBar pb(true, -1, -1, 30, 100, 70, true);
 		pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 	}
 
@@ -673,7 +673,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				if (data == g_InfoViewer->lcdUpdateTimer) {
 					GetEPGData(channel_id, id, &startzeit, false);
 					if ( epg_done!= -1 ) {
-						CProgressBar pb(g_settings.progressbar_color, -1, -1, 30, 100, 70, true);
+						CProgressBar pb(true, -1, -1, 30, 100, 70, true);
 						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
 						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 					}

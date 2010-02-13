@@ -255,19 +255,19 @@ void CInfoViewer::changePB()
 {
 		if (sigscale != NULL)
 			delete sigscale;
-		sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
+		sigscale = new CProgressBar(true, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
 		if (snrscale != NULL)
 			delete snrscale;
-		snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
+		snrscale = new CProgressBar(true, BAR_WIDTH, 10, RED_BAR, GREEN_BAR, YELLOW_BAR);
 		if (hddscale != NULL)
 			delete hddscale;
-		hddscale = new CProgressBar(g_settings.progressbar_color, 100,        6, 50,      GREEN_BAR, 75, true);
+		hddscale = new CProgressBar(true, 100,        6, 50,      GREEN_BAR, 75, true);
 		if (varscale != NULL)
 			delete varscale;
-		varscale = new CProgressBar(g_settings.progressbar_color, 100,        6, 50,      GREEN_BAR, 75, true);
+		varscale = new CProgressBar(true, 100,        6, 50,      GREEN_BAR, 75, true);
 		if (timescale != NULL)
 			delete timescale;
-		timescale = new CProgressBar(g_settings.progressbar_color, -1,       -1, 30,      GREEN_BAR, 70, true);
+		timescale = new CProgressBar(true, -1,       -1, 30,      GREEN_BAR, 70, true);
 }
 
 void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
@@ -381,7 +381,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 	if(pbBlinkChange != g_settings.progressbar_color){
 		pbBlinkChange = g_settings.progressbar_color;
-		changePB();
+		//changePB();
 	}
 
 	if (casysChange != g_settings.casystem_display || channellogoChange != g_settings.infobar_show_channellogo){
@@ -1810,10 +1810,10 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon)
 
 static char * gray = (char *) "white";
 //static char * green = (char *) "green";
-		     static char * white = (char *) "yellow";
-					   extern int pmt_caids[10];
+static char * white = (char *) "yellow";
+extern int pmt_caids[10];
 
-					   void CInfoViewer::showIcon_CA_Status (int notfirst)
+void CInfoViewer::showIcon_CA_Status (int notfirst)
 {
 #if 0
 	FILE *f;

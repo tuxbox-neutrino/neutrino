@@ -48,6 +48,7 @@ CProgressBar::CProgressBar(const bool bl, const int w, const int h,
 	width = w;
 	height = h;
 	last_width = -1;
+	bl_changed = g_settings.progressbar_color;
 }
 
 CProgressBar::~CProgressBar()
@@ -109,6 +110,10 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 			     const char *iconfile,
 			     bool paintZero)
 {
+	if(bl_changed != g_settings.progressbar_color) {
+		bl_changed = g_settings.progressbar_color;
+		reset();
+	}
 	// set colors
 	fb_pixel_t active_col = activebar_col != 0 ? activebar_col : COL_INFOBAR_PLUS_7;
 	fb_pixel_t passive_col = passivebar_col != 0 ? passivebar_col : COL_INFOBAR_PLUS_3;
@@ -118,7 +123,7 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	const int c_rad = 0;
 
 	/* if the bar is too small, do not draw the borders around it */
-	if (height / 2 <= frame_widht || blink || backgroundbar_col == 0)
+	if (height / 2 <= frame_widht || (blink && g_settings.progressbar_color) || backgroundbar_col == 0)
 		frame_widht = 0;
 	// get icon size
 	int icon_w = 0, icon_h = 0;
@@ -142,7 +147,7 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 	// max height progressbar bar, if icon height larger than pb_height then get height from icon
 	int pb_max_height = icon_h > height ? icon_h + 2* frame_widht : height;
 
-	if (! blink)
+	if (!blink || !g_settings.progressbar_color)
 	{
 		// max height of active/passive bar
 		int bar_height = pb_max_height - 2*frame_widht;

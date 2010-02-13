@@ -2375,7 +2375,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
-	g_volscale = new CProgressBar(g_settings.progressbar_color, 200, 15, 50, 100, 80, true);
+	g_volscale = new CProgressBar(true, 200, 15, 50, 100, 80, true);
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
@@ -3690,13 +3690,14 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 		pixbuf = new fb_pixel_t[dx * dy];
 		if(pixbuf!= NULL)
 			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
+#if 0
 		if(pbBlinkChange != g_settings.progressbar_color){
 			pbBlinkChange = g_settings.progressbar_color;
 			if(g_volscale)
 				delete g_volscale;
 			g_volscale = new CProgressBar(g_settings.progressbar_color, 200, 15, 50, 100, 80, true);
 		}
-
+#endif
 		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x,y, 0, COL_INFOBAR);
 		frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
 		g_volscale->reset();

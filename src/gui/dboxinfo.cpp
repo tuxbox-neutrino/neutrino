@@ -340,7 +340,7 @@ void CDBoxInfoWidget::paint()
 //fprintf(stderr, "width: %d offsetw: %d pbw: %d\n", width, offsetw, pbw);
 						if (pbw > 8) /* smaller progressbar is not useful ;) */
 						{
-							CProgressBar pb(g_settings.progressbar_color, -1, -1, 30, 100, 70, true);
+							CProgressBar pb(true, -1, -1, 30, 100, 70, true);
 							pb.paintProgressBarDefault(x+offsetw, ypos+3, pbw, mheight-10, blocks_percent_used, 100);
 						}
 						ypos+= mheight;

@@ -37,7 +37,7 @@ class CProgressBar
 		int frame_widht;
 		int last_width;
 		int red, green, yellow;
-		bool blink, invert;
+		bool blink, invert, bl_changed;
 		int width, height;
 		void realpaint(const int pos_x, const int pos_y,
 			       const int value, const int max_value,
@@ -53,7 +53,7 @@ class CProgressBar
 
 	public:
 		/* parameters:
-		   blinkenligts: true if you want colored progressbars. needed, no default.
+		   blinkenligts: true if you want code to follow progressbar_color. needed, no default.
 		   w, h: width / height of bar. Can later be set with paintProgressbar.
 		         paintProgressBar2 can oly be used if w and h are set.
 		   r, g, b: percentage of the bar where red/green/yellow is used.
