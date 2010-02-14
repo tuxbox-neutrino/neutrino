@@ -567,7 +567,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 		frameBuffer->paintBoxRel(ChanInfoX, BBarY, BoxEndX - ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, ROUND_RADIUS, CORNER_BOTTOM); //round
 
 		showSNR();
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, ChanInfoX + 16*3 + asize * 3 + 2*7,
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, ChanInfoX + 16*3 + asize * 3 + 6,
 				       BBarY, InfoHeightY_Info);
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(ChanInfoX + 16*4 + asize * 3 + 2*8, BBarFontY, ButtonWidth - (2 + NEUTRINO_ICON_BUTTON_BLUE_WIDTH + 2 + 2), g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO), COL_INFOBAR_BUTTONS, 0, true); // UTF-8
 
