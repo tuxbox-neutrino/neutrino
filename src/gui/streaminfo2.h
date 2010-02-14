@@ -61,7 +61,8 @@ class CStreamInfo2 : public CMenuTarget
 		int   sig_text_sig_x;
 		int   sig_text_snr_x;
 		int   sig_text_rate_x;
-		int    average_bitrate_pos;
+		int   average_bitrate_pos;
+		int   average_bitrate_offset;
 		unsigned int scaling;
 		struct feSignal {
 			unsigned long	ber, old_ber, max_ber, min_ber;

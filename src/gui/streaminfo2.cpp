@@ -182,10 +182,10 @@ int CStreamInfo2::doSignalStrengthLoop ()
 					sprintf(tmp_str, "%s:",g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
 					g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_MENUCONTENTDARK, 0, true);
 					sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
-					frameBuffer->paintBoxRel (dx1 + offset + 10 , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
-					g_Font[font_info]->RenderString (dx1 + offset + 15, average_bitrate_pos, sw - 10, currate, COL_MENUCONTENTDARK);
+					frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
+					g_Font[font_info]->RenderString (dx1 + average_bitrate_offset , average_bitrate_pos, sw - 10, currate, COL_MENUCONTENTDARK);
 					sprintf(tmp_str, "(%s)",g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE));
-					g_Font[font_info]->RenderString (dx1 + offset+sw + 15, average_bitrate_pos, sw *2, tmp_str, COL_MENUCONTENTDARK);
+					g_Font[font_info]->RenderString (dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, tmp_str, COL_MENUCONTENTDARK);
 
 			}
 			if(snrscale && sigscale)
@@ -463,7 +463,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		if(spaceoffset < array[i])
 			spaceoffset = array[i];
 	}
-	spaceoffset+=4;
+	average_bitrate_offset = spaceoffset+=4;
 
 	videoDecoder->getPictureInfo(xres, yres, framerate);
 	aspectRatio = videoDecoder->getAspectRatio();
