@@ -1811,7 +1811,6 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon)
 static char * gray = (char *) "white";
 //static char * green = (char *) "green";
 static char * white = (char *) "yellow";
-extern int pmt_caids[10];
 
 void CInfoViewer::showIcon_CA_Status (int notfirst)
 {
@@ -1822,12 +1821,13 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 	int acaid = 0;
 	int py = BoxEndY - InfoHeightY_Info;
 #endif
+	extern int pmt_caids[4][11];
 	int i;
 	int caids[] = { 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
 
 	if (!notfirst) {
 		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
-			paint_ca_icons(caids[i], (char *) (pmt_caids[i] ? white : gray));
+			paint_ca_icons(caids[i], (char *) (pmt_caids[0][i] ? white : gray));
 		}
 	}
 }

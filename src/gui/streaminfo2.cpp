@@ -49,7 +49,7 @@
 #include <audio_cs.h>
 #include <dmx_cs.h>
 #include <zapit/satconfig.h>
-
+#include <string>
 extern CFrontend * frontend;
 extern cVideo * videoDecoder;
 extern cAudio * audioDecoder;
@@ -143,14 +143,12 @@ int CStreamInfo2::doSignalStrengthLoop ()
 
 	neutrino_msg_t msg;
 	uint64_t maxb, minb, lastb, tmp_rate;
-	int cnt = 0,i=0;
+	int cnt = 0;
 	uint16_t ssig, ssnr;
 	uint32_t  ber;
 	char tmp_str[150];
-	int offset_tmp = 0;
 	int offset = g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE));
 	int sw = g_Font[font_info]->getRenderWidth ("99999.999");
-	int mm = g_Font[font_info]->getRenderWidth ("Max");//max min lenght
 	maxb = minb = lastb = tmp_rate = 0;
 	ts_setup ();
 	while (1) {
@@ -174,7 +172,6 @@ int CStreamInfo2::doSignalStrengthLoop ()
 				cnt++;
 			int dheight = g_Font[font_info]->getHeight ();
 			int dx1 = x + 10;
-	//			int dy = y+ height - dheight - 5;
 			if (ret && (lastb != bit_s)) {
 				lastb = bit_s;
 
@@ -182,30 +179,14 @@ int CStreamInfo2::doSignalStrengthLoop ()
 					rate.max_short_average = maxb = bit_s;
 				if ((cnt > 10) && ((minb == 0) || (minb > bit_s)))
 					rate.min_short_average = minb = bit_s;
+					sprintf(tmp_str, "%s:",g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
+					g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_MENUCONTENTDARK, 0, true);
+					sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
+					frameBuffer->paintBoxRel (dx1 + offset + 10 , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
+					g_Font[font_info]->RenderString (dx1 + offset + 15, average_bitrate_pos, sw - 10, currate, COL_MENUCONTENTDARK);
+					sprintf(tmp_str, "(%s)",g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE));
+					g_Font[font_info]->RenderString (dx1 + offset+sw + 15, average_bitrate_pos, sw *2, tmp_str, COL_MENUCONTENTDARK);
 
-				for(i = 0; i < 3; i++){
-					switch (i) {
-						case 0:
-						tmp_rate = rate.short_average;
-						sprintf(tmp_str, "%s", g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
-						offset_tmp = 0;
-						break;
-						case 1:
-						tmp_rate = minb;
-						sprintf(tmp_str, "%s", "Min");
-						offset_tmp = offset+5;
-						break;
-						case 2:
-						tmp_rate = maxb;
-						sprintf(tmp_str, "%s", "Max");
-						offset_tmp = offset+5+mm;
-						break;
-					}
-					g_Font[font_info]->RenderString (dx1+offset_tmp+((sw)*i), yypos+(dheight*4), offset, tmp_str, COL_MENUCONTENTDARK, 0, true);
-					sprintf(currate, "%5llu.%03llu", tmp_rate / 1000ULL, tmp_rate % 1000ULL);
-					frameBuffer->paintBoxRel (dx1+offset+5+((sw+mm)*i), yypos+(dheight*3), sw, dheight, COL_MENUHEAD_PLUS_0);
-					g_Font[font_info]->RenderString (dx1+offset+10+((sw+mm)*i), yypos+(dheight*4), sw - 10, currate, COL_MENUCONTENTDARK);
-				}
 			}
 			if(snrscale && sigscale)
 				showSNR ();
@@ -324,8 +305,9 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	else {
 		maxmin_x = _x + 40 + xd * 3 + (fontW*4);
 	}
-	g_Font[font_small]->RenderString(maxmin_x, y1 + sheight , 50, "max", COL_MENUCONTENTDARK, 0, true);
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3), 50, "min", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + sheight + 5, 50, "max", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 2) +5, 50, "now", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +5, 50, "min", COL_MENUCONTENTDARK, 0, true);
 
 
 	sigBox_pos = 0;
@@ -535,6 +517,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf));
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, width*2/3 - 10, buf, COL_MENUCONTENTDARK, 0, true);	// UTF-8
+	// place for average bitrate
+	average_bitrate_pos = ypos += iheight;
 
 	//AUDIOTYPE
 	ypos += iheight;
@@ -612,6 +596,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 		scaling = 20000;
 	}
+
 	// paint labels
 	int fontW = g_Font[font_small]->getWidth();
 	spaceoffset = 7 * fontW;
@@ -683,8 +668,207 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 
 	yypos = ypos;
+	paintCASystem(xpos,ypos);
 }
 
+void CStreamInfo2::paintCASystem(int xpos, int ypos)
+{
+	extern int pmt_caids[4][11];
+	unsigned short i,j;
+	bool ecm_pid_ok = true;
+	std::string casys[11]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
+	bool caids[11] ={ false, false, false, false, false, false, false, false, false, false, false };
+	char tmp[100] = {0};
+	int array[11] = {0};
+	for(i = 0; i < 11; i++){
+		array[i]=0;
+		array[i] = g_Font[font_info]->getRenderWidth( casys[i].c_str() );
+	}
+
+	for(j=0;j<4;j++){
+		for(i=0;i<11;i++){
+			if(pmt_caids[j][i] > 0 && i == 0){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 1){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 2){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 3){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 4){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 5){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 6){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 7){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 8){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 9){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			else if(pmt_caids[j][i] > 0 && i == 10){
+				for( int k = 0; k < 4;k++){
+					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
+						pmt_caids[j][i]=0;
+					}
+				}
+				if(pmt_caids[j][i] > 0 )
+				{
+					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
+					casys[i] += tmp;
+				}
+				caids[i] = true;
+			}
+			ecm_pid_ok = true;
+		}
+	}
+	int spaceoffset = 0 ;
+	  
+	for(i=0 ; i<11; i++){
+		if(caids[i] == true)
+			if(spaceoffset < array[i])
+				spaceoffset = array[i];
+	}
+	spaceoffset+=4;
+	ypos += iheight*2 +4;
+	bool cryptsysteme = true;
+	for(int ca_id = 0;ca_id < 11;ca_id++){
+		if(caids[ca_id] == true){
+			if(cryptsysteme){
+				ypos += iheight;
+				g_Font[font_info]->RenderString(xpos , ypos, width*2/3-10, "Cryptsysteme:" , COL_MENUCONTENTDARK, 0, false);
+				cryptsysteme = false;
+			}
+			ypos += sheight;
+			int width_txt = 0, index = 0;
+			const char *tok = " ";
+			std::string::size_type last_pos = casys[ca_id].find_first_not_of(tok, 0);
+			std::string::size_type pos = casys[ca_id].find_first_of(tok, last_pos);
+			while (std::string::npos != pos || std::string::npos != last_pos){
+				g_Font[font_small]->RenderString(xpos + width_txt, ypos, width*2/3-10, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , COL_MENUCONTENTDARK, 0, false);
+				if(index == 0)
+					width_txt = spaceoffset;
+				else
+					width_txt += g_Font[font_small]->getRenderWidth(casys[ca_id].substr(last_pos, pos - last_pos).c_str())+10;
+				index++;
+				last_pos = casys[ca_id].find_first_not_of(tok, pos);
+				pos = casys[ca_id].find_first_of(tok, last_pos);
+			}
+		}
+	}
+
+}
 int CStreamInfo2Handler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
 	int res = menu_return::RETURN_EXIT_ALL;

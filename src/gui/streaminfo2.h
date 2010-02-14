@@ -61,6 +61,7 @@ class CStreamInfo2 : public CMenuTarget
 		int   sig_text_sig_x;
 		int   sig_text_snr_x;
 		int   sig_text_rate_x;
+		int    average_bitrate_pos;
 		unsigned int scaling;
 		struct feSignal {
 			unsigned long	ber, old_ber, max_ber, min_ber;
@@ -87,6 +88,7 @@ class CStreamInfo2 : public CMenuTarget
 		void paint(int mode);
 		void paint_pig(int x, int y, int w, int h);
 		void paint_techinfo(int x, int y);
+		void paintCASystem(int xpos, int ypos);
 		void paint_signal_fe_box(int x, int y, int w, int h);
 		void paint_signal_fe(struct bitrate rate, struct feSignal s);
 		int  y_signal_fe(unsigned long value, unsigned long max_range, int max_y);
@@ -95,7 +97,6 @@ class CStreamInfo2 : public CMenuTarget
 		CProgressBar *snrscale;
 		int lastsig, lastsnr;
 		void showSNR ();
-
 	public:
 
 		CStreamInfo2();

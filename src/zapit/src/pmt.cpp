@@ -346,7 +346,7 @@ unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel *
 }
 
 int curpmtpid;
-int pmt_caids[10] = {0,0,0,0,0,0,0,0,0,0};
+int pmt_caids[4][11] = {{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0}};
 
 int parse_pmt(CZapitChannel * const channel)
 {
@@ -358,10 +358,11 @@ int parse_pmt(CZapitChannel * const channel)
 	unsigned char buffer[PMT_SIZE];
 
 	/* current position in buffer */
-	unsigned short i;
-	for(i=0;i<10;i++)
-		pmt_caids[i] = 0;
-
+	unsigned short i,j;
+	for(j=0;j<4;j++){
+		for(i=0;i<10;i++)
+			pmt_caids[j][i] = 0;
+	}
 	/* length of elementary stream description */
 	unsigned short ES_info_length;
 
@@ -419,6 +420,7 @@ int parse_pmt(CZapitChannel * const channel)
 
 	dpmtlen=0;
 	pos=10;
+	short int ci0 = 0, ci1 = 0, ci2 = 0, ci3 = 0, ci4 = 0, ci5 = 0, ci6 = 0, ci7 = 0, ci8 = 0, ci9 = 0, ci10 = 0;
 	if(!scan_runs) {
 		while(pos+2<pmtlen) {
 			dpmtlen=((buffer[pos] & 0x0f) << 8) | buffer[pos+1];
@@ -427,26 +429,27 @@ int parse_pmt(CZapitChannel * const channel)
 				if ( ia < pmtlen - 4 )
 					if(buffer[ia]==0x09 && buffer[ia+1]>0) {
 						switch(buffer[ia+2]) {
-							case 0x06: pmt_caids[0] = 1;
-							case 0x17: pmt_caids[0] = 1;
+							case 0x06: pmt_caids[ci0++][0] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x01: pmt_caids[1] = 1;
+							case 0x17: pmt_caids[ci1++][1] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x05: pmt_caids[2] = 1;
+							case 0x01: pmt_caids[ci2++][2] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x18: pmt_caids[3] = 1;
+							case 0x05: pmt_caids[ci3++][3] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x0B: pmt_caids[4] = 1;
+							case 0x18: pmt_caids[ci4++][4] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x0D: pmt_caids[5] = 1;
+							case 0x0B: pmt_caids[ci5++][5] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x09: pmt_caids[6] = 1;
+							case 0x0D: pmt_caids[ci6++][6] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x26: pmt_caids[7] = 1;
+							case 0x09: pmt_caids[ci7++][7] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x4a: pmt_caids[8] = 1;
+							case 0x26: pmt_caids[ci8++][8] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
-							case 0x0E: pmt_caids[9] = 1;
+							case 0x4a: pmt_caids[ci9++][9] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
+								   break;
+							case 0x0E: pmt_caids[ci10++][10] = (buffer[ia+4] & 0x1f) << 8 | buffer[ia+5];
 								   break;
 						} //switch
 					} // if

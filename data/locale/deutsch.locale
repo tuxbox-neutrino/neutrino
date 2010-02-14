@@ -1200,6 +1200,7 @@ streaminfo.aratio Verhältnis
 streaminfo.aratio_unknown Verhältnis: unbekannt
 streaminfo.audiotype Audiotyp
 streaminfo.audiotype_unknown Audiotyp: unbekannt
+streaminfo.average_bitrate Durchschnitt
 streaminfo.bitrate Bitrate
 streaminfo.framerate Bildrate
 streaminfo.framerate_unknown Bildrate: unbekannt

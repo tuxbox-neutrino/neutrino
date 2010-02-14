@@ -993,6 +993,7 @@ const char *locale_real_names[] = {
 	"streaminfo.aratio_unknown",
 	"streaminfo.audiotype",
 	"streaminfo.audiotype_unknown",
+	"streaminfo.average_bitrate",
 	"streaminfo.bitrate",
 	"streaminfo.framerate",
 	"streaminfo.framerate_unknown",

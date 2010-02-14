@@ -756,6 +756,7 @@ streaminfo.aratio Aspect Ratio
 streaminfo.aratio_unknown Aspect Ratio: unknown
 streaminfo.audiotype Audiotype
 streaminfo.audiotype_unknown Audiotype: unknown
+streaminfo.average_bitrate Average
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: unknown
