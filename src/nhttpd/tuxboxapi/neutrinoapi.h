@@ -6,7 +6,7 @@
 #include <string>
 
 // tuxbox
-#include <controldclient/controldclient.h>
+//#include <controldclient/controldclient.h>
 #include <eventserver.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
@@ -28,7 +28,7 @@ bool _initialize_iso639_map(void);
 class CNeutrinoAPI
 {
 	// Clientlibs
-	CControldClient		*Controld;
+	//CControldClient		*Controld;
 	CSectionsdClient	*Sectionsd;
 	CZapitClient		*Zapit;
 	CTimerdClient		*Timerd;

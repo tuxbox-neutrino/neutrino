@@ -804,12 +804,6 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 
 						if (g_settings.video_Format==1)
 							viewer->SetAspectRatio(16.0/9);
-						else if (g_settings.video_Format==0)
-						{
-							CControldClient cdc;
-							cdc.setVideoFormat(CControldClient::VIDEOFORMAT_4_3);
-							viewer->SetAspectRatio(4.0/3);
-						}
 						else
 							viewer->SetAspectRatio(4.0/3);
 

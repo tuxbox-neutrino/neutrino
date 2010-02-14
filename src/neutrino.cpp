@@ -299,9 +299,7 @@ static void initGlobals(void)
 	g_fontRenderer  = NULL;
 
 	g_RCInput       = NULL;
-	//g_Controld      = new CControldClient;
 	g_Timerd        = NULL;
-	//g_Zapit         = new CZapitClient;
 	g_RemoteControl = NULL;
 
 	g_EpgData       = NULL;
@@ -2445,12 +2443,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	InitScanSettings(_scanSettings);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
-#if 0
-	g_Controld->registerEvent(CControldClient::EVT_MUTECHANGED, 222, NEUTRINO_UDS_NAME);
-	g_Controld->registerEvent(CControldClient::EVT_VOLUMECHANGED, 222, NEUTRINO_UDS_NAME);
-	g_Controld->registerEvent(CControldClient::EVT_MODECHANGED, 222, NEUTRINO_UDS_NAME);
-	g_Controld->registerEvent(CControldClient::EVT_VCRCHANGED, 222, NEUTRINO_UDS_NAME);
-#endif
 
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
@@ -3148,9 +3140,11 @@ _repeat:
 		return messages_return::handled | messages_return::cancel_info;
 	}
 	else if( msg == NeutrinoMessages::EVT_MUTECHANGED ) {
+#if 0
 		CControldMsg::commandMute* cmd = (CControldMsg::commandMute*) data;
 		if(cmd->type == (CControld::volume_type)g_settings.audio_avs_Control)
 			AudioMute( cmd->mute, true );
+#endif
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
@@ -3728,13 +3722,11 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 			}
 
 			setvol(g_settings.current_volume,(g_settings.audio_avs_Control));
-			//timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] / 2);
 			timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : 3);
 		}
 		else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
 			//current_volume = g_Controld->getVolume((CControld::volume_type)g_settings.audio_avs_Control);//FIXME
 //printf("setVolume EVT_VOLCHANGED %d\n", current_volume);
-			//timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] / 2);
 			timeoutEnd = CRCInput::calcTimeoutEnd(3);
 		}
 		else if (handleMsg(msg, data) & messages_return::unhandled) {

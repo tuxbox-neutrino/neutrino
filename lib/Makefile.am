@@ -1,7 +1,6 @@
 SUBDIRS = \
 	connection \
 	libeventserver \
-	controldclient \
 	sectionsdclient \
 	timerdclient \
 	libconfigfile \

@@ -741,6 +741,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 					read_bytes= recv(fd_eventclient, p, emsg.dataSize, MSG_WAITALL);
 					//printf("[neutrino] eventbody read %d bytes - initiator %x\n", read_bytes, emsg.initiatorID );
 
+#if 0
 					if ( emsg.initiatorID == CEventServer::INITID_CONTROLD )
 					{
 						switch(emsg.eventID)
@@ -766,7 +767,9 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								printf("[neutrino] event INITID_CONTROLD - unknown eventID 0x%x\n",  emsg.eventID );
 						}
 					}
-					else if ( emsg.initiatorID == CEventServer::INITID_HTTPD )
+					else 
+#endif
+					if ( emsg.initiatorID == CEventServer::INITID_HTTPD )
 					{
 						switch(emsg.eventID)
 						{

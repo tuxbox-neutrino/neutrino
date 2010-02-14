@@ -133,8 +133,6 @@ std::string g_file_epg;
 std::string g_file_epg1;
 bool showaudioselectdialog = false;
 
-void checkAspectRatio(int vdec, bool init);
-
 bool get_movie_info_apid_name(int apid, MI_MOVIE_INFO * movie_info, std::string * apidtitle)
 {
 	if (movie_info == NULL || apidtitle == NULL)
@@ -1260,41 +1258,6 @@ void CMoviePlayerGui::PlayFile(void)
 
 	if (g_settings.mode_clock)
 		InfoClock->StartClock();
-}
-
-// checks if AR has changed an sets cropping mode accordingly (only video mode auto)
-static short archeck;
-void checkAspectRatio(int /*vdec*/, bool init)
-{
-	static time_t last_check = 0;
-
-	// only necessary for auto mode, check each 5 sec. max
-	if (g_settings.video_Format != 0 || (!init && time(NULL) <= last_check + archeck))
-		return;
-#if 0
-	char aspectRatio = 2;
-	if (init) {
-		aspectRatio = g_Controld->getAspectRatio();
-		last_check = 0;
-		archeck = 1;
-		return;
-	} else {
-		char newRatio = g_Controld->getAspectRatio();
-		if (newRatio != aspectRatio) {
-			printf("[movieplayer] AR change detected in auto mode, adjusting display format\n");
-			video_displayformat_t vdt;
-			if (newRatio == 2)
-				vdt = VIDEO_LETTER_BOX;
-			else
-				vdt = VIDEO_CENTER_CUT_OUT;
-			if (ioctl(vdec, VIDEO_SET_DISPLAY_FORMAT, vdt))
-				perror("[movieplayer] VIDEO_SET_DISPLAY_FORMAT");
-			aspectRatio = newRatio;
-			archeck = 5;
-		}
-		last_check = time(NULL);
-	}
-#endif
 }
 
 void CMoviePlayerGui::showHelpTS()

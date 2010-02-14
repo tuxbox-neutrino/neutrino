@@ -263,13 +263,11 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 		m_current = 0;
 
 	m_selected = 0;
-	//m_width = 710;
-	//if((g_settings.screen_EndX - g_settings.screen_StartX) < m_width+ConnectLineBox_Width)
 	m_width=(g_settings.screen_EndX - g_settings.screen_StartX) - ConnectLineBox_Width - 5;
-	//m_height = 570;
-	//if((g_settings.screen_EndY - g_settings.screen_StartY) < m_height)
+
 	m_height = (g_settings.screen_EndY - g_settings.screen_StartY - 5);
 	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+
 	m_buttonHeight = std::min(25, m_sheight);
 	m_theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
@@ -288,14 +286,10 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 	{
 		parent->hide();
 	}
-#if 0
-	if (g_settings.video_Format != g_settings.video_backgroundFormat)
-		g_Controld->setVideoFormat(g_settings.video_backgroundFormat);
-#endif
+
 	bool usedBackground = m_frameBuffer->getuseBackground();
 	if (usedBackground)
 		m_frameBuffer->saveBackgroundImage();
-
 
 	// set zapit in standby mode
 	g_Zapit->stopPlayBack();
@@ -304,18 +298,9 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 
 	// tell neutrino we're in audio mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_audio );
-#if 0
-	// remember last mode
-	CZapitClient::responseGetLastChannel firstchannel;
-	g_Zapit->getLastChannel(firstchannel.channelNumber, firstchannel.mode);
-	if ((firstchannel.mode == 'r') ?
-			(CNeutrinoApp::getInstance()->zapto_radio_on_init_done) :
-			(CNeutrinoApp::getInstance()->zapto_tv_on_init_done))
-		m_LastMode=(CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
-	else
-		m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
-#endif
+
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode());
+
 	// Stop sectionsd
 	g_Sectionsd->setPauseScanning(true);
 
@@ -330,11 +315,6 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 		m_frameBuffer->restoreBackgroundImage();
 	m_frameBuffer->useBackground(usedBackground);
 	m_frameBuffer->paintBackground();
-
-	// Restore last mode
-	//t_channel_id channel_id=CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID();
-	//g_Zapit->zapTo_serviceID(channel_id);
-	//g_Zapit->setStandby(false);
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_END_SCRIPT ".");
 	if (system(AUDIOPLAYER_END_SCRIPT) != 0)

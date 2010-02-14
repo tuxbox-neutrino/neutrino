@@ -5,7 +5,7 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 {
 	CMenuForwarder *   SyncControlerForwarder;
 	CMenuOptionChooser * VcrVideoOutSignalOptionChooser;
-	CRGBCSyncControler RGBCSyncControler;
+	/*CRGBCSyncControler RGBCSyncControler;*/
 	int                vcr_video_out_signal;
 
 public:

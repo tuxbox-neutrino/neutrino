@@ -85,7 +85,7 @@ std::string CNeutrinoAPI::audiotype_names[5] 	= {"none", "single channel","dual 
 //=============================================================================
 CNeutrinoAPI::CNeutrinoAPI()
 {
-	Controld = new CControldClient();
+	//Controld = new CControldClient();
 	Sectionsd = new CSectionsdClient();
 	Zapit = new CZapitClient();
 	Timerd = new CTimerdClient();
@@ -118,8 +118,8 @@ CNeutrinoAPI::~CNeutrinoAPI(void)
 		delete NeutrinoYParser;
 	if (ControlAPI)
 		delete ControlAPI;
-	if (Controld)
-		delete Controld;
+	//if (Controld)
+	//	delete Controld;
 	if (Sectionsd)
 		delete Sectionsd;
 	if (Zapit)

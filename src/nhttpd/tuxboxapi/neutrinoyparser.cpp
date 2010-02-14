@@ -680,9 +680,10 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler */*hh*/, st
 //-------------------------------------------------------------------------
 // y-func : get boxtypetext (Nokia, Philips, Sagem)
 //-------------------------------------------------------------------------
-std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler */*hh*/, std::string /*para*/)
+std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler * /*hh*/, std::string /*para*/)
 {
-	return NeutrinoAPI->Dbox_Hersteller[NeutrinoAPI->Controld->getBoxType()];
+	return "Coolstream";//FIXME
+	//return NeutrinoAPI->Dbox_Hersteller[NeutrinoAPI->Controld->getBoxType()];
 }
 //-------------------------------------------------------------------------
 // y-func : get stream info

@@ -466,9 +466,6 @@ void CPlugins::startPlugin(int number,int /*param*/)
 				if (ispip) {
 					g_Sectionsd->setPauseScanning (true);
 					g_Zapit->setEventMode(false);
-#if 0
-					//g_Controld->setEventMode(false);
-#endif
 					if (g_Zapit->isPlayBackActive()) {
 						if (!CNeutrinoApp::getInstance()->recordingstatus)
 							g_Zapit->setRecordMode(true);
@@ -520,9 +517,6 @@ void CPlugins::startPlugin(int number,int /*param*/)
 			if (!CNeutrinoApp::getInstance()->recordingstatus) {
 				g_Zapit->setRecordMode(false);
 			}
-#if 0
-			//g_Controld->setEventMode(true);
-#endif
 			g_Zapit->setEventMode(true);
 			g_Sectionsd->setPauseScanning (false);
 		}

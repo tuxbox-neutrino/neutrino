@@ -760,12 +760,15 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::AspectRatioCGI(CyhookHandler *hh)
 {
+#if HAVE_DBOX2 // FIXME: not implemented
 	hh->printf("%s", NeutrinoAPI->Controld->getAspectRatio() == '\0' ? "4:3" : "16:9");
+#endif
 }
 
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 {
+#if HAVE_DBOX2 // FIXME: not implemented
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 	  	hh->WriteLn(NeutrinoAPI->videoformat_names[(unsigned int)NeutrinoAPI->Controld->getVideoFormat()]);
 		return;
@@ -788,11 +791,14 @@ void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 	} else {
 		hh->SendError();
 	}
+#endif
+	hh->SendOk();
 }
 
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoOutputCGI(CyhookHandler *hh)
 {
+#if HAVE_DBOX2 // FIXME: not implemented
 	unsigned int videooutput=0;
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 		hh->WriteLn(NeutrinoAPI->videooutput_names[(unsigned int) NeutrinoAPI->Controld->getVideoOutput()]);
@@ -812,12 +818,14 @@ void CControlAPI::VideoOutputCGI(CyhookHandler *hh)
 	}
 
 	NeutrinoAPI->Controld->setVideoOutput(videooutput);
+#endif
 	hh->SendOk();
 }
 
 //-----------------------------------------------------------------------------
 void CControlAPI::VCROutputCGI(CyhookHandler *hh)
 {
+#if HAVE_DBOX2 // FIXME: not implemented
 	unsigned int vcroutput;
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 		hh->WriteLn(NeutrinoAPI->videooutput_names[(unsigned char)NeutrinoAPI->Controld->getVCROutput()]);
@@ -840,6 +848,7 @@ void CControlAPI::VCROutputCGI(CyhookHandler *hh)
 		return;
 	}
 	NeutrinoAPI->Controld->setVCROutput(vcroutput);
+#endif
 	hh->SendOk();
 
 	return;
@@ -848,6 +857,7 @@ void CControlAPI::VCROutputCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::ScartModeCGI(CyhookHandler *hh)
 {
+#if HAVE_DBOX2 // FIXME: not implemented
 	bool new_status;
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 		hh->printf(NeutrinoAPI->Controld->getScartMode() ? "on" : "off");
@@ -861,14 +871,20 @@ void CControlAPI::ScartModeCGI(CyhookHandler *hh)
 		return;
 	}
 	NeutrinoAPI->Controld->setScartMode(new_status);
+#endif
 	hh->SendOk();
 }
 
 //-------------------------------------------------------------------------
 void CControlAPI::VolumeCGI(CyhookHandler *hh)
 {
-	if (hh->ParamList.empty()) //without param: show actual volumen
-		hh->printf("%d", NeutrinoAPI->Controld->getVolume());
+	if (hh->ParamList.empty()) { //without param: show actual volumen
+                unsigned int volume;
+                NeutrinoAPI->Zapit->getVolume(&volume, &volume);
+		hh->printf("%d", volume);
+		//hh->printf("%d", NeutrinoAPI->Controld->getVolume());
+	}
+
 	else if (hh->ParamList["1"].compare("mute") == 0)
 	{
 		NeutrinoAPI->Zapit->muteAudio(true);
@@ -883,7 +899,8 @@ void CControlAPI::VolumeCGI(CyhookHandler *hh)
 	{
 
 		hh->Write((char *) (NeutrinoAPI->Controld->getMute() ? "1" : "0"));	//  mute
-	}*/
+	}
+*/
 	else if(hh->ParamList["1"]!="")
 	{	//set volume
 		char vol = atol( hh->ParamList["1"].c_str() );
@@ -1546,6 +1563,7 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::SendSettings(CyhookHandler *hh)
 {
+#if 0
 	hh->WriteLn(
 		"Boxtype " +
 		NeutrinoAPI->Dbox_Hersteller[NeutrinoAPI->Controld->getBoxType()] +
@@ -1556,6 +1574,7 @@ void CControlAPI::SendSettings(CyhookHandler *hh)
 		"videoformat " +
 		NeutrinoAPI->videoformat_names[(unsigned char)NeutrinoAPI->Controld->getVideoFormat()]
 	);
+#endif
 }
 
 //-----------------------------------------------------------------------------
