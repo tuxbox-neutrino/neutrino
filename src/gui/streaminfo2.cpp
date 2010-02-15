@@ -590,7 +590,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	else if(frontend->getInfo()->type == FE_QAM) {
-		sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
+		sprintf ((char *) buf, "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
 		g_Font[font_info]->RenderString(xpos, ypos, width*2/3-10, buf , COL_MENUCONTENTDARK, 0, true); // UTF-8
 		sprintf((char*) buf, "%d.%d MHz", si.tsfrequency/1000, si.tsfrequency%1000);
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, width*2/3-10, buf, COL_MENUCONTENTDARK, 0, true); // UTF-8
