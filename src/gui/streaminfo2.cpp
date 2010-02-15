@@ -22,10 +22,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#define SCREEN_X	720
-#define SCREEN_Y	572
-
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/poll.h>
@@ -281,13 +277,13 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 
 
 	frameBuffer->paintBoxRel(_x+xd*0,y1- 12,16,2, COL_RED); //red
-	g_Font[font_small]->RenderString(_x+20+xd*0, y1, fw*3, "BER", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*0, y1, fw*4, "BER", COL_MENUCONTENTDARK, 0, true);
 
 	frameBuffer->paintBoxRel(_x+xd*1,y1- 12,16,2,COL_BLUE); //blue
-	g_Font[font_small]->RenderString(_x+20+xd*1, y1, fw*3+2, "SNR", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*1, y1, fw*4, "SNR", COL_MENUCONTENTDARK, 0, true);
 
 	frameBuffer->paintBoxRel(_x+8+xd*2,y1- 12,16,2, COL_GREEN); //green
-	g_Font[font_small]->RenderString(_x+28+xd*2, y1, fw*3, "SIG", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+28+xd*2, y1, fw*4, "SIG", COL_MENUCONTENTDARK, 0, true);
 
 	frameBuffer->paintBoxRel(_x+xd*3,y1- 12,16,2,COL_YELLOW); // near yellow
 	g_Font[font_small]->RenderString(_x+20+xd*3, y1, fw*5, "Bitrate", COL_MENUCONTENTDARK, 0, true);
@@ -397,7 +393,7 @@ void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
 {
 	char str[30];
 	int fw = g_Font[font_small]->getWidth();
-	fw *=5;
+	fw *=(fw>17)?5:6;
 	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUHEAD_PLUS_0);
 	sprintf(str,"%6u",value);
 	g_Font[font_small]->RenderString(_x, _y + 5, fw, str, COL_MENUCONTENTDARK, 0, true);
@@ -843,7 +839,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				spaceoffset = array[i];
 	}
 	spaceoffset+=4;
-	ypos += iheight*2 +4;
+	ypos += iheight*2;
 	bool cryptsysteme = true;
 	for(int ca_id = 0;ca_id < 11;ca_id++){
 		if(caids[ca_id] == true){
@@ -864,6 +860,8 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				else
 					width_txt += g_Font[font_small]->getRenderWidth(casys[ca_id].substr(last_pos, pos - last_pos).c_str())+10;
 				index++;
+				if (index > 5)
+					break;
 				last_pos = casys[ca_id].find_first_not_of(tok, pos);
 				pos = casys[ca_id].find_first_of(tok, last_pos);
 			}
@@ -991,7 +989,7 @@ void CStreamInfo2::showSNR ()
 	int mheight = g_Font[font_info]->getHeight();
 	if (lastsig != sig) {
 		lastsig = sig;
-		posy = yypos + (mheight/2);
+		posy = yypos + (mheight/2)-5;
 		posx = x + 10;
 		sprintf(percent, "%d%% SIG", sig);
 		sw = g_Font[font_info]->getRenderWidth (percent);
@@ -1003,7 +1001,7 @@ void CStreamInfo2::showSNR ()
 	}
 	if (lastsnr != snr) {
 		lastsnr = snr;
-		posy = yypos + mheight + 10;
+		posy = yypos + mheight + 5;
 		posx = x + 10;
 		sprintf(percent, "%d%% SNR", snr);
 		sw = g_Font[font_info]->getRenderWidth (percent);
