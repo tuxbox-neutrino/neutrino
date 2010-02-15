@@ -687,10 +687,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			if(pmt_caids[j][i] > 0 && i == 0){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -700,10 +700,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 1){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -713,10 +713,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 2){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -726,10 +726,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 3){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -739,10 +739,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 4){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -752,10 +752,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 5){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -765,10 +765,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 6){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -778,10 +778,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 7){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -791,10 +791,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 8){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -804,10 +804,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 9){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
@@ -817,10 +817,10 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			else if(pmt_caids[j][i] > 0 && i == 10){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=0;
+						pmt_caids[j][i]=1;
 					}
 				}
-				if(pmt_caids[j][i] > 0 )
+				if(pmt_caids[j][i] > 1 )
 				{
 					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
 					casys[i] += tmp;
