@@ -277,19 +277,20 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	frameBuffer->paintBoxRel(sigBox_x,sigBox_y,sigBox_w+2,sigBox_h, COL_BLACK);
 	sig_text_y = sigBox_y + sigBox_h;
 	y1 = sig_text_y + sheight+4;
+	int fw = g_Font[font_small]->getWidth();
 
 
 	frameBuffer->paintBoxRel(_x+xd*0,y1- 12,16,2, COL_RED); //red
-	g_Font[font_small]->RenderString(_x+20+xd*0, y1, 50, "BER", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*0, y1, fw*3, "BER", COL_MENUCONTENTDARK, 0, true);
 
 	frameBuffer->paintBoxRel(_x+xd*1,y1- 12,16,2,COL_BLUE); //blue
-	g_Font[font_small]->RenderString(_x+20+xd*1, y1, 50, "SNR", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*1, y1, fw*3+2, "SNR", COL_MENUCONTENTDARK, 0, true);
 
 	frameBuffer->paintBoxRel(_x+8+xd*2,y1- 12,16,2, COL_GREEN); //green
-	g_Font[font_small]->RenderString(_x+28+xd*2, y1, 50, "SIG", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+28+xd*2, y1, fw*3, "SIG", COL_MENUCONTENTDARK, 0, true);
 
 	frameBuffer->paintBoxRel(_x+xd*3,y1- 12,16,2,COL_YELLOW); // near yellow
-	g_Font[font_small]->RenderString(_x+20+xd*3, y1, 70, "Bitrate", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x+20+xd*3, y1, fw*5, "Bitrate", COL_MENUCONTENTDARK, 0, true);
 
 	sig_text_ber_x =  _x +      xd * 0;
 	sig_text_snr_x =  _x +  5 + xd * 1;
@@ -305,9 +306,9 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	else {
 		maxmin_x = _x + 40 + xd * 3 + (fontW*4);
 	}
-	g_Font[font_small]->RenderString(maxmin_x, y1 + sheight + 5, 50, "max", COL_MENUCONTENTDARK, 0, true);
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 2) +5, 50, "now", COL_MENUCONTENTDARK, 0, true);
-	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +5, 50, "min", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + sheight + 5, fw*3, "max", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 2) +5, fw*3, "now", COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +5, fw*3, "min", COL_MENUCONTENTDARK, 0, true);
 
 
 	sigBox_pos = 0;
@@ -395,10 +396,11 @@ int CStreamInfo2::y_signal_fe (unsigned long value, unsigned long max_value, int
 void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
 {
 	char str[30];
-
-	frameBuffer->paintBoxRel(_x, _y - sheight + 5, 70, sheight - 1, COL_MENUHEAD_PLUS_0);
+	int fw = g_Font[font_small]->getWidth();
+	fw *=5;
+	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUHEAD_PLUS_0);
 	sprintf(str,"%6u",value);
-	g_Font[font_small]->RenderString(_x, _y + 5, 70, str, COL_MENUCONTENTDARK, 0, true);
+	g_Font[font_small]->RenderString(_x, _y + 5, fw, str, COL_MENUCONTENTDARK, 0, true);
 }
 
 void CStreamInfo2::paint (int /*mode*/)
