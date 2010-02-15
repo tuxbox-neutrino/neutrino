@@ -673,7 +673,6 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 {
 	extern int pmt_caids[4][11];
 	unsigned short i,j;
-	bool ecm_pid_ok = true;
 	std::string casys[11]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	bool caids[11] ={ false, false, false, false, false, false, false, false, false, false, false };
 	char tmp[100] = {0};
@@ -828,7 +827,6 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			ecm_pid_ok = true;
 		}
 	}
 	int spaceoffset = 0 ;

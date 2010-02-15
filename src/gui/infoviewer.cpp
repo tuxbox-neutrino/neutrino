@@ -1770,7 +1770,6 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon)
 		sprintf(buf, "%s_%s", "biss", icon);
 		break;
 	case 0x600:
-	case 0x602:
 	case 0x1700:
 		px = endx - 48 - 38 - 6*10 - 4*14 - 10;
 		sprintf(buf, "%s_%s", "ird", icon);
@@ -1784,7 +1783,6 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon)
 		sprintf(buf, "%s_%s", "via", icon);
 		break;
 	case 0x1800:
-	case 0x1801:
 		px = endx - 48 - 38 - 3*10 - 2*14;
 		sprintf(buf, "%s_%s", "nagra", icon);
 		break;
@@ -1824,10 +1822,10 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 	extern int pmt_caids[4][11];
 	int i;
 	int caids[] = { 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
-
 	if (!notfirst) {
 		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
-			paint_ca_icons(caids[i], (char *) (pmt_caids[0][i] ? white : gray));
+			if(!(i == 1 && pmt_caids[0][0] != 0 && pmt_caids[0][1] == 0 ))
+				paint_ca_icons(caids[i], (char *) (pmt_caids[0][i] ? white : gray));
 		}
 	}
 }
