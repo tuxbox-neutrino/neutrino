@@ -32,7 +32,9 @@ private:
 	void SendEventList(CyhookHandler *hh,t_channel_id channel_id);
 	void SendcurrentVAPid(CyhookHandler *hh);
 	void SendAllCurrentVAPid(CyhookHandler *hh);
+#if 0
 	void SendSettings(CyhookHandler *hh);
+#endif
 	void SendStreamInfo(CyhookHandler *hh);
 	void SendBouquets(CyhookHandler *hh);
 	void SendBouquet(CyhookHandler *hh,int BouquetNr);
@@ -60,7 +62,9 @@ private:
 	void RCCGI(CyhookHandler *hh);
 	void GetDateCGI(CyhookHandler *hh);
 	void GetTimeCGI(CyhookHandler *hh);
+#if 0
 	void SettingsCGI(CyhookHandler *hh);
+#endif
 	void GetServicesxmlCGI(CyhookHandler *hh);
 	void GetBouquetsxmlCGI(CyhookHandler *hh);
 	void GetChannel_IDCGI(CyhookHandler *hh);
@@ -79,7 +83,9 @@ private:
 	void YWebCGI(CyhookHandler *hh);
 	void RebootCGI(CyhookHandler *hh);
 	void RCEmCGI(CyhookHandler *hh);
+#if 0
 	void AspectRatioCGI(CyhookHandler *hh);
+#endif
 	void VideoFormatCGI(CyhookHandler *hh);
 	void VideoOutputCGI(CyhookHandler *hh);
 	void VCROutputCGI(CyhookHandler *hh);

@@ -145,7 +145,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"reboot", 		&CControlAPI::RebootCGI,	"text/plain"},
 	{"getdate", 		&CControlAPI::GetDateCGI,	"text/plain"},
 	{"gettime", 		&CControlAPI::GetTimeCGI,	"text/plain"},
+#if 0
 	{"settings", 		&CControlAPI::SettingsCGI,	"text/plain"},
+#endif
 	{"info", 		&CControlAPI::InfoCGI,		"text/plain"},
 	{"version", 		&CControlAPI::VersionCGI,	""},
 	// boxcontrol - devices
@@ -160,7 +162,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"exec", 		&CControlAPI::ExecCGI,		"+xml"},
 	{"yweb", 		&CControlAPI::YWebCGI,		"text/plain"},
 	// video handling
+#if 0
 	{"aspectratio", 	&CControlAPI::AspectRatioCGI,	"text/plain"},
+#endif
 	{"videoformat", 	&CControlAPI::VideoFormatCGI,	"text/plain"},
 	{"videooutput", 	&CControlAPI::VideoOutputCGI,	"text/plain"},
 	{"vcroutput", 		&CControlAPI::VCROutputCGI,	"text/plain"},
@@ -511,14 +515,14 @@ void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 	else
 		hh->SendError();
 }
-
+#if 0
 //-----------------------------------------------------------------------------
 // send settings
 void CControlAPI::SettingsCGI(CyhookHandler *hh)
 {
 	SendSettings(hh);
 }
-
+#endif
 //-----------------------------------------------------------------------------
 // send services.xml
 void CControlAPI::GetServicesxmlCGI(CyhookHandler *hh)
@@ -582,8 +586,10 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 	{
 		if (hh->ParamList["1"] == "streaminfo")		// print streaminfo
 			SendStreamInfo(hh);
+#if 0
 		else if (hh->ParamList["1"] == "settings")	// print settings
 			SendSettings(hh);
+#endif
 		else if (hh->ParamList["1"] == "version")	// send version file
 			hh->SendFile("/.version");
 		else if (hh->ParamList["1"] == "httpdversion")	// print httpd version typ (only ffor comptibility)
@@ -756,7 +762,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
   close(evd);
   hh->SendOk();
 }
-
+#if 0
 //-----------------------------------------------------------------------------
 void CControlAPI::AspectRatioCGI(CyhookHandler *hh)
 {
@@ -764,7 +770,7 @@ void CControlAPI::AspectRatioCGI(CyhookHandler *hh)
 	hh->printf("%s", NeutrinoAPI->Controld->getAspectRatio() == '\0' ? "4:3" : "16:9");
 #endif
 }
-
+#endif
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 {
@@ -1559,7 +1565,7 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 		hh->printf("%05u pmt\n",pids.PIDs.pmtpid);
 
 }
-
+#if 0
 //-----------------------------------------------------------------------------
 void CControlAPI::SendSettings(CyhookHandler *hh)
 {
@@ -1576,7 +1582,7 @@ void CControlAPI::SendSettings(CyhookHandler *hh)
 	);
 #endif
 }
-
+#endif
 //-----------------------------------------------------------------------------
 void CControlAPI::SendTimers(CyhookHandler *hh)
 {
