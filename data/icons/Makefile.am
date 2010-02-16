@@ -15,11 +15,10 @@ install_DATA = \
 	help.png help_small.png hidden.png home.png info.png \
 	keybinding.png lcd.png local.png lock.png mainmenue.png \
 	mounted.png movie.png \
-	movieplayer.raw power_white.raw pv_gray.raw \
 	mp3.png mute.png mute_small.png mute_zap_gray.png mute_zap_green.png \
 	network.png not_mounted.png notyet.png numericpad.png ok.png power.png \
 	radar.pal radar0.raw radar1.raw radar2.raw radar3.raw radar4.raw \
-	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw \
+	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw movieplayer.raw \
 	recording.png settings.png shell.png softupdate.png streaming.png \
 	subt.png subt_gray.png timer.png video.png \
 	volume.png volumebody.png volumeslider2.png volumeslider2alpha.png \
@@ -27,9 +26,6 @@ install_DATA = \
 	vtxt.png vtxt_gray.png \
 	mp3.jpg mp3-0.jpg mp3-1.jpg mp3-2.jpg mp3-3.jpg mp3-4.jpg mp3-5.jpg mp3-6.jpg mp3-7.jpg \
 	radiomode.jpg scan.jpg shutdown.jpg start.jpg \
-	fta.raw 16.raw b16.raw b2.raw b3.raw \
-	card.raw card_gray.raw card_green.raw \
-	net.raw net_gray.raw net_green.raw \
 	x_green.png x_white.png x_yellow.png \
 	biss_green.png biss_white.png biss_yellow.png \
 	conax_green.png conax_white.png conax_yellow.png \
