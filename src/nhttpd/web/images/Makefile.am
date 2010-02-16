@@ -9,7 +9,7 @@ install_DATA =	addfolder.gif arrowdown.gif arrowup.gif audiobar.gif \
 		hidden.gif home-dir.gif hourglas.gif \
 		live.gif live_popup.gif lock.gif \
 		new.gif ok.gif properties.gif \
-		rc.gif record.gif reload.gif rename.gif \
+		record.gif reload.gif rename.gif \
 		smallwait.gif \
 		timer.gif tux.gif \
 		unlock.gif upload.gif \
@@ -21,5 +21,4 @@ install_DATA =	addfolder.gif arrowdown.gif arrowup.gif audiobar.gif \
 		snapshot.png stop.png streaminfo.png \
 		transcode.png \
 		volumedown.png volumemute.png volumeunmute.png volumeup.png \
-		y.png \
-		rcd.jpg rc_sagem.jpg
+		y.png rcd.jpg
