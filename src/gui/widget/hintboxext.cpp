@@ -44,8 +44,6 @@
 
 #define ROUND_RADIUS 9
 
-#define borderwidth 4
-
 #define HINTBOXEXT_MAX_HEIGHT 420
 
 CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon)
@@ -166,7 +164,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 // 	printf("pages: %d, startEntryVec: %d\n",page+1,m_startEntryOfPage.size()-1);
 // 	printf("maxEntries: %d\n", m_maxEntriesPerPage);
 
-	m_width = w_max(maxWidth,borderwidth); 
+	m_width = w_max(maxWidth,SHADOW_OFFSET); 
 	m_currentPage = 0;
 	m_pages = page + 1;
 	unsigned int additional_width;
@@ -208,8 +206,8 @@ void CHintBoxExt::paint(bool toround)
         CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
         m_window = new CFBWindow(frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - m_width ) >> 1),
                                frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - m_height) >> 2),
-                               m_width + borderwidth,
-                               m_height + borderwidth);
+                               m_width + SHADOW_OFFSET,
+                               m_height + SHADOW_OFFSET);
 
 	refresh(toround);
 }
@@ -221,15 +219,9 @@ void CHintBoxExt::refresh(bool toround)
 		return;
 	}
 	// bottom, right shadow
-	//m_window->paintBoxRel(borderwidth, m_height, m_width, borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	//m_window->paintBoxRel(m_width, borderwidth, borderwidth, m_height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0);
-	m_window->paintBoxRel(m_width-20, borderwidth, borderwidth+20, m_height - borderwidth, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, 1);//round
-	//m_window->paintBoxRel(borderwidth, m_height-20, m_width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, toround ? ROUND_RADIUS : 0, 2);//round
-	m_window->paintBoxRel(borderwidth, m_height-20, m_width, borderwidth+20, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, 2);//round
-	
+	m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
 	// title
-	//m_window->paintBoxRel(0, 0, m_width, m_theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0);
-	m_window->paintBoxRel(0, 0, m_width, m_theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, ROUND_RADIUS, 1);//round
+	m_window->paintBoxRel(0, 0, m_width, m_theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
 
 	if (!m_iconfile.empty())
 	{
@@ -240,8 +232,7 @@ void CHintBoxExt::refresh(bool toround)
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, m_theight, m_width - 10, g_Locale->getText(m_caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
 
 	// background of text panel
-	//m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0);
-	m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, toround ? ROUND_RADIUS : 0, 2);//round
+	m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, toround ? ROUND_RADIUS : 0, CORNER_BOTTOM);//round
 
 	int yPos  = m_theight + (m_fheight >> 1);
 
