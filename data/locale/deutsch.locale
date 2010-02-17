@@ -1,5 +1,3 @@
-apids.hint_1 Geben Sie die zu streamenden APIDs ein,
-apids.hint_2 getrennt durch ' ' in hexadezimaler Form
 apidselector.head Sprachauswahl
 audio.srs_algo Art
 audio.srs_algo_light einfach
@@ -9,6 +7,7 @@ audio.srs_nmgr Noise-Manager
 audio.srs_volume Referenzlautstärke
 audiomenu.analog_mode Analog Modus
 audiomenu.analog_out Analog-Ausgang
+audiomenu.auto_lang Automatische Sprache
 audiomenu.avs avs
 audiomenu.avs_control Volume Steuerung avs/ost
 audiomenu.avsync A/V sync
@@ -21,6 +20,8 @@ audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
 audiomenu.ost ost
 audiomenu.PCMOffset Lautstärkeabsenkung PCM
+audiomenu.pref_lang Bevorzugte Sprache
+audiomenu.pref_lang_head Bevorzugte Sprachen
 audiomenu.spdif_dd DolbyDigital über S/PDIF
 audiomenu.stereo stereo
 audioplayer.add Hinzufügen
@@ -40,7 +41,6 @@ audioplayer.fastforward schneller Vorl.
 audioplayer.follow Selektiere akt. Track
 audioplayer.head Audio Playlist
 audioplayer.highprio Hohe Decodier-Priorität
-audioplayer.id3scan Scanne ID3-Tags
 audioplayer.jump_backwards rückw. springen
 audioplayer.jump_dialog_hint1 Bitte Sprungziel eingeben
 audioplayer.jump_dialog_hint2 (relativ, in Sekunden)
@@ -53,7 +53,6 @@ audioplayer.pause Pause
 audioplayer.play Abspielen
 audioplayer.playing Aktueller Track
 audioplayer.playlist_fileerror_msg Datei kann nicht erstellt werden:
-audioplayer.playlist_fileerror_title Fehler
 audioplayer.playlist_fileoverwrite_msg Soll diese Datei überschrieben werden:
 audioplayer.playlist_fileoverwrite_title Überschreiben?
 audioplayer.playlist_name Dateiname der Playlist
@@ -168,7 +167,6 @@ epgextended.guests Gäste
 epgextended.original_title Originaltitel
 epgextended.presenter Moderator
 epgextended.year_of_production Produktionsjahr
-epglist.head Vorschau - %s
 epglist.noevents Keine EPG-Information verfügbar.
 EPGMenu.epgplus Vorschauübersicht
 EPGMenu.eventinfo Info zur Sendung
@@ -233,34 +231,16 @@ eventlistbar.channelswitch Umschalten
 eventlistbar.eventsort Sortieren
 eventlistbar.recordevent Aufnehmen
 extra.add_to_bouquet dem Bouquet zufügen
-extra.all alle
 extra.audio_run_player Audiotaste startet Player
-extra.auto auto
 extra.auto_delete Automatisch löschen
 extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
 extra.auto_to_record Timeshift zu den Aufnahmen hinzufügen
-extra.cache Cache
 extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt....\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet....\n
 extra.clear_log Logdatei löschen
 extra.dboxinfo Box-Info
-extra.debug Debug
-extra.dvbsnoop DVB Stream Info
-extra.dvbsnoop_band Zeige PID Bandbreite
-extra.dvbsnoop_cat Zeige CAT
-extra.dvbsnoop_eit Zeige EIT
-extra.dvbsnoop_nit Zeige NIT
-extra.dvbsnoop_pat Zeige PAT
-extra.dvbsnoop_pid Zeige manuelle PID
-extra.dvbsnoop_rst Zeige RST
-extra.dvbsnoop_scan Scan PIDs
-extra.dvbsnoop_sdt Zeige SDT
-extra.dvbsnoop_sit Zeige SIT
-extra.dvbsnoop_tdt Zeige TDT
-extra.dvbsnoop_tsdt Zeige TSDT
 extra.east Osten
-extra.english Englisch
 extra.fec_1_2 1/2 S1_Q
 extra.fec_2_3 2/3 S1_Q
 extra.fec_3_4 3/4 S1_Q
@@ -298,24 +278,18 @@ extra.loadconfig Lade Einstellungen von
 extra.loadkeys Lade Tastenbelegung von
 extra.lodirection Längengrad-Ausrichtung
 extra.logo Logonummer
-extra.logo1 1
-extra.logo2 2
-extra.logo3 3
-extra.logview Log anzeigen
 extra.longitude Längengrad
 extra.manual_scan Manueller Scan
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
 extra.record_time Timeshift Aufnahmezeit in Stunden
 extra.rotor_swap Rotor dreht Ost/ West
-extra.save_settings Einstellungen speichern
 extra.savecolors Speichere Farben als
 extra.saveconfig Speichere Einstellungen als
 extra.savekeys Speichere Tastenbelegung als
 extra.scan_fast Schnell
 extra.scan_full Total
 extra.scan_mode Scan-Modus
-extra.sep_extra Extras
 extra.sms_channel SMS-Modus Kanal
 extra.south Süden
 extra.spts_mode SPTS-Modus
@@ -338,11 +312,9 @@ extra.tp_rate Symbolrate
 extra.update_dir Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.use_log Logge nach /tmp/log
-extra.valid gültig
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
 extra.zapit_backup Sichere Kanalliste nach /tmp
-extra.zapit_delete Lösche Kanal
 extra.zapit_fast_zap Schnellumschaltung
 extra.zapit_fe_timeout Tunen fehlgeschlagen
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
@@ -638,7 +610,6 @@ languagesetup.select Sprache
 lcdcontroler.brightness normale Helligkeit
 lcdcontroler.brightnessstandby Standby Helligkeit
 lcdcontroler.contrast Kontrast
-lcdcontroler.head VFD Einstellungen
 lcdmenu.autodimm Automatisch dimmen
 lcdmenu.dim_brightness Helligkeit nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
@@ -670,7 +641,6 @@ mainmenu.shutdown Ausschalten
 mainmenu.sleeptimer SleepTimer
 mainmenu.tvmode TV-Modus
 mainsettings.audio Audio
-mainsettings.colors Farben/ Themes/ Schrift
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten Einstellungen
 mainsettings.language Sprache
@@ -733,7 +703,6 @@ miscsettings.shutdown_count_hint2 Sie können die Box jetzt ausschalten!
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sptsmode SPTS-Mode Treiber laden
-miscsettings.startbhdriver BH-Mode Treiber laden
 miscsettings.virtual_zap_mode Virtual Zap
 motorcontrol.calc_positions (Neu)-Berechne(n)) Positionen
 motorcontrol.disable_limit Deaktiviere (soft) Limit
@@ -817,7 +786,6 @@ moviebrowser.info_genre_minor Genre
 moviebrowser.info_head Film Informationen
 moviebrowser.info_head_update Inhalte in allen sichtbaren Filminfos speichern
 moviebrowser.info_info1 Info 1
-moviebrowser.info_info2 Info 2
 moviebrowser.info_length Spieldauer (Min)
 moviebrowser.info_parental_lockage Altersfreigabe
 moviebrowser.info_parental_lockage_0year immer
@@ -843,8 +811,6 @@ moviebrowser.menu_directories_head Verzeichnisse/Freier Speicher
 moviebrowser.menu_help_head Hilfe
 moviebrowser.menu_main_bookmarks Markierungen
 moviebrowser.menu_main_head Einstellungen
-moviebrowser.menu_main_movieinfo Filminfo
-moviebrowser.menu_main_saveandback Speichern und verlassen
 moviebrowser.menu_nfs_head NFS Einstellung
 moviebrowser.menu_parental_lock_activated aktiviert
 moviebrowser.menu_parental_lock_activated_no nein
@@ -859,7 +825,6 @@ moviebrowser.reload_at_start Filminfos neu laden bei Start
 moviebrowser.remount_at_start Filmdepot verbinden bei Start
 moviebrowser.scan_for_movies Suche Filme ...
 moviebrowser.serie_auto_create Serien automatisch zuordnen
-moviebrowser.serie_existingname Vorhandene Serie
 moviebrowser.serie_head Serie
 moviebrowser.serie_name Name ändern
 moviebrowser.short_audio Audio
