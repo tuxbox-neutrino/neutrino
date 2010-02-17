@@ -40,11 +40,14 @@
 #include <cstring>
 #include <fstream>
 #include <string>
+#include <iostream>
+#include <map>
+#include <stdlib.h>
 
 //static const char * iso639filename = "/usr/share/iso-codes/iso-639.tab";
 static const char * iso639filename = "/share/iso-codes/iso-639.tab";
 
-#if 1
+#if 0
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -129,10 +132,8 @@ const char * getISO639Description(const char * const iso)
 		return ((iso639_t *)value)->name;
 }
 #else
-#include <iostream>
-#include <map>
 
-static std::map<std::string, std::string> iso639;
+std::map<std::string, std::string> iso639;
 
 void initialize_iso639_map(void)
 {
@@ -175,7 +176,7 @@ CLocaleManager::~CLocaleManager()
 {
 	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
 		if (localeData[j] != locale_real_names[j])
-			free(localeData[j]);
+			::free(localeData[j]);
 
 	delete localeData;
 }
@@ -187,7 +188,7 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	unsigned int i;
 	FILE * fd;
 
-	initialize_iso639_map();
+	//initialize_iso639_map();
 
 	for (i = 0; i < 2; i++)
 	{

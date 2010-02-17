@@ -147,6 +147,9 @@ const char *locale_real_names[] = {
 	"audiomenu.avsync",
 	"audiomenu.avsync_am",
 	"audiomenu.clockrec",
+	"audiomenu.auto_lang",
+	"audiomenu.pref_lang_head",
+	"audiomenu.pref_lang",
 	"audioplayer.add",
 	"audioplayer.add_ic",
 	"audioplayer.add_loc",
@@ -1176,7 +1179,6 @@ const char *locale_real_names[] = {
 	"zapit.scantype.tv",
 	"zapit.scantype.tvradio",
 	"zaptotimer.announce",
-	"extra.english",
 	"extra.dboxinfo",
 	"extra.scan_mode",
 	"extra.start_tostandby",
@@ -1364,4 +1366,5 @@ const char *locale_real_names[] = {
 	"cpu.freq_standby",
 	"cpu.freq_default"
 };
+
 #endif

@@ -799,7 +799,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
 
 	g_settings.audio_avs_Control = false;
-	g_settings.audio_english = configfile.getInt32( "audio_english", 0 );
+	g_settings.auto_lang = configfile.getInt32( "auto_lang", 0 );
+	for(int i = 0; i < 3; i++) {
+		sprintf(cfg_key, "pref_lang_%d", i);
+		g_settings.pref_lang[i] = configfile.getString(cfg_key, "");
+	}
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 1 );
 	g_settings.sms_channel = configfile.getInt32( "sms_channel", 0 );
 	strcpy( g_settings.audio_PCMOffset, configfile.getString( "audio_PCMOffset", "0" ).c_str() );
@@ -1301,7 +1305,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
 	configfile.setBool("audio_DolbyDigital"   , g_settings.audio_DolbyDigital   );
 	configfile.setInt32( "audio_avs_Control", g_settings.audio_avs_Control );
-	configfile.setInt32( "audio_english", g_settings.audio_english );
+	configfile.setInt32( "auto_lang", g_settings.auto_lang );
+	for(int i = 0; i < 3; i++) {
+		sprintf(cfg_key, "pref_lang_%d", i);
+		configfile.setString(cfg_key, g_settings.pref_lang[i]);
+	}
 	configfile.setString( "audio_PCMOffset", g_settings.audio_PCMOffset );
 
 	//vcr
@@ -2284,6 +2292,9 @@ int CNeutrinoApp::run(int argc, char **argv)
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
 
 	bool display_language_selection;
+
+	initialize_iso639_map();
+
 	CLocaleManager::loadLocale_ret_t loadLocale_ret = g_Locale->loadLocale(g_settings.language);
 	if (loadLocale_ret == CLocaleManager::NO_SUCH_LOCALE)
 	{
@@ -2756,7 +2767,7 @@ printf("[neutrino] timeshift try, recordingstatus %d, rec dir %s, timeshift dir 
 printf("[neutrino] direct record\n");
 				if(recordingstatus) {
 					if(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY,
-						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes)
+						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 							g_Timerd->stopTimerEvent(recording_id);
 				} else if(msg != CRCInput::RC_stop ) {
 					recordingstatus = 1;

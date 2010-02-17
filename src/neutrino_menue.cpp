@@ -1630,13 +1630,78 @@ const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_O
 	{ 1, LOCALE_OPTIONS_ON  },
 };
 
+void sectionsd_set_languages(const std::vector<std::string>& newLanguages);
+
+class CLangSelectHandler : public CMenuTarget
+{
+public:
+	void setLanguages(void);
+	int exec(CMenuTarget* parent,  const std::string &actionkey);
+};
+
+int CLangSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
+{
+	std::map<std::string, std::string>::const_iterator tI;
+	int i;
+	char cnt[5];
+	int select = -1;
+	int num = atoi(actionkey.c_str());
+
+	if (parent)
+		parent->hide();
+
+	CMenuWidget* menu = new CMenuWidget(LOCALE_AUDIOMENU_PREF_LANG, NEUTRINO_ICON_SETTINGS);
+	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+	i = 0;
+	for (tI = iso639.begin(); tI != iso639.end(); tI++) {
+		sprintf(cnt, "%d", i);
+		menu->addItem(new CMenuForwarderNonLocalized(tI->second.c_str(), true, NULL, selector, cnt), g_settings.pref_lang[num] == tI->first);
+		i++;
+	}
+	if (i == 0) {
+		char text[255];
+		sprintf(text, "No languages found !\n");
+		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text, 450, 2);
+		return menu_return::RETURN_REPAINT;
+	}
+	int retval = menu->exec(NULL, "");
+	delete menu;
+	delete selector;
+	if (select >= 0) {
+		tI = iso639.begin();
+		for(i = 0; i < select; i++)
+			tI++;
+
+		printf("CLangSelectHandler: selected %d: %s (%s)\n", i, tI->first.c_str(), tI->second.c_str());
+		g_settings.pref_lang[num] = tI->first.c_str();
+		setLanguages();
+	}
+	if (retval == menu_return::RETURN_EXIT_ALL)
+		return menu_return::RETURN_EXIT_ALL;
+
+	return menu_return::RETURN_REPAINT;
+}
+
+void CLangSelectHandler::setLanguages(void)
+{
+	std::vector<std::string> languages;
+	bool found = false;
+
+	for(int i = 0; i < 3; i++) {
+		if(g_settings.pref_lang[i].size()) {
+			languages.push_back(g_settings.pref_lang[i]);
+			found = true;
+		}
+	}
+	if(found)
+		sectionsd_set_languages(languages);
+}
+
 void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier)
 {
 	addMenueIntroItems(audioSettings);
 
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_MODE, &g_settings.audio_AnalogMode, AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_DOLBYDIGITAL, &g_settings.audio_DolbyDigital, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_ENGLISH, &g_settings.audio_english, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_SPDIF_DD, &g_settings.spdif_dd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier));
@@ -1649,14 +1714,23 @@ void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNoti
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_SRS_NMGR, &g_settings.srs_nmgr_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
 	audioSettings.addItem(new CMenuOptionNumberChooser(LOCALE_SRS_VOLUME, &g_settings.srs_ref_volume, true, 1, 100, audioSetupNotifier));
 
+	audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
+
+	CLangSelectHandler * langSelect = new CLangSelectHandler();
+	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_DOLBYDIGITAL, &g_settings.audio_DolbyDigital, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
+	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_LANG, &g_settings.auto_lang, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
+	audioSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG, true, NULL, langSelect, "0"));
+	audioSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG, true, NULL, langSelect, "1"));
+	audioSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG, true, NULL, langSelect, "2"));
+
+	langSelect->setLanguages();
+
 #if 0
 	CStringInput * audio_PCMOffset = new CStringInput(LOCALE_AUDIOMENU_PCMOFFSET, g_settings.audio_PCMOffset, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ", audioSetupNotifier);
 	CMenuForwarder *mf = new CMenuForwarder(LOCALE_AUDIOMENU_PCMOFFSET, true, g_settings.audio_PCMOffset, audio_PCMOffset );
 	audioSettings.addItem(mf);
 #endif
 }
-
-
 
 #if 1
 #define PARENTALLOCK_PROMPT_OPTION_COUNT 3

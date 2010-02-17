@@ -129,7 +129,7 @@ audiomenu.analog_mode Analog mode
 audiomenu.analog_out Analog output
 audiomenu.avs avs
 audiomenu.avs_control Volume Control avs/ost
-audiomenu.dolbydigital Dolby Digital
+audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.head Audio Settings
 audiomenu.lirc lirc
 audiomenu.monoleft mono left
@@ -140,6 +140,9 @@ audiomenu.hdmi_dd Encoded DD on HDMI
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
+audiomenu.auto_lang Use prefered languages
+audiomenu.pref_lang_head Audio/EPG language preferences
+audiomenu.pref_lang Prefered language
 audioplayer.add Add
 audioplayer.artist_title Artist, Title
 audioplayer.building_search_index building search index

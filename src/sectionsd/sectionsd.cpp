@@ -9340,3 +9340,8 @@ void sectionsd_setPrivatePid(unsigned short /*pid*/)
                 }
 #endif
 }
+
+void sectionsd_set_languages(const std::vector<std::string>& newLanguages)
+{
+	SIlanguage::setLanguages(newLanguages);
+}

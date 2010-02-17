@@ -36,8 +36,12 @@
 #include <system/locals.h>
 #include_next<locale.h>
 #include <time.h>
+#include <string>
+#include <map>
 
+void initialize_iso639_map(void);
 const char * getISO639Description(const char * const iso);
+extern std::map<std::string, std::string> iso639;
 
 #define ARE_LOCALES_EQUAL(a,b) (a == b)
 

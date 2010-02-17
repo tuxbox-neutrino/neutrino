@@ -421,10 +421,43 @@ void CRemoteControl::getNVODs()
 void CRemoteControl::processAPIDnames()
 {
 	has_unresolved_ctags= false;
-	has_ac3 = false;
+	has_ac3 = false; //FIXME what this variable suppoused to do ?? seems unused
+	int pref_found = -1;
+	int pref_ac3_found = -1;
+	int pref_idx = -1;
+	int pref_ac3_idx = -1;
+	int ac3_found = -1;
+
+	if(g_settings.auto_lang) {
+		/* first we check prefs to find pid according to pref index */
+		for(int i = 0; i < 3; i++) {
+			for(int j = 0; j < (int) current_PIDs.APIDs.size(); j++) {
+				/* processAPIDnames called 2 times, TODO find better way to detect second call */
+				if (strlen( current_PIDs.APIDs[j].desc ) != 3)
+					continue;
+
+				if(strcasecmp(current_PIDs.APIDs[j].desc, g_settings.pref_lang[i].c_str()) == 0) {
+					/* remember first pref found index and pid*/
+					if(pref_found < 0) {
+						pref_found = j;
+						pref_idx = i;
+					}
+					if(current_PIDs.APIDs[j].is_ac3 && g_settings.audio_DolbyDigital && (pref_ac3_found < 0)) {
+						pref_ac3_found = j;
+						pref_ac3_idx = i;
+					}
+				}
+			} /* for all pids */
+		} /*for all prefs*/
+
+		/* reset pref ac3, if it have lower priority */
+		if((pref_idx >= 0) && (pref_idx < pref_ac3_idx))
+			pref_ac3_found = -1;
+	}
 
 	for(unsigned int count=0; count< current_PIDs.APIDs.size(); count++)
 	{
+		printf("Neutrino: apid name= %s (%s) pid= %X\n", current_PIDs.APIDs[count].desc, getISO639Description( current_PIDs.APIDs[count].desc ), current_PIDs.APIDs[count].pid);
 		if ( current_PIDs.APIDs[count].component_tag != 0xFF )
 		{
 			has_unresolved_ctags= true;
@@ -439,8 +472,9 @@ void CRemoteControl::processAPIDnames()
 		{
 			strncat(current_PIDs.APIDs[count].desc, " (AC3)", 25);
 			has_ac3 = true;
+			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
+				ac3_found = count;
 		}
-//printf("Neutrino: have apid name= %s pid= %X english= %d\n", current_PIDs.APIDs[count].desc, current_PIDs.APIDs[count].pid, g_settings.audio_english);
 	}
 
 	if ( has_unresolved_ctags )
@@ -472,18 +506,18 @@ void CRemoteControl::processAPIDnames()
 						}
 					}
 				}
-
+#if 0 // old
 				CZapitClient::APIDList::iterator e = current_PIDs.APIDs.begin();
 				while ( e != current_PIDs.APIDs.end() )
 				{
 					if ( e->is_ac3 )
 					{
-							has_ac3 = true;
+						has_ac3 = true;
 					}
 					e++;
 				}
 
-				if ( ( g_settings.audio_english == 0) && (g_settings.audio_DolbyDigital == 1))
+				if ( /*( g_settings.audio_english == 0) &&*/ (g_settings.audio_DolbyDigital == 1))
 				{
 					for (unsigned int j=0; j< current_PIDs.APIDs.size(); j++)
 						if ( current_PIDs.APIDs[j].is_ac3 )
@@ -494,22 +528,27 @@ void CRemoteControl::processAPIDnames()
 				}
 				if ( current_PIDs.PIDs.selected_apid >= current_PIDs.APIDs.size() )
 				{
-                			setAPID( 0 );
+					setAPID( 0 );
 				}
+#endif
 			}
 		}
 	}
-	if ( (g_settings.audio_english == 1) && (current_PIDs.APIDs.size() > 1) )
+	printf("Neutrino: pref_found %d pref_ac3_found %d ac3_found %d\n", pref_found, pref_ac3_found, ac3_found);
+	if(pref_ac3_found >= 0) {
+		printf("Neutrino: set apid name= %s pid= %X\n", current_PIDs.APIDs[pref_ac3_found].desc, current_PIDs.APIDs[pref_ac3_found].pid);
+		setAPID(pref_ac3_found);
+	} else if(pref_found >= 0) {
+		printf("Neutrino: set apid name= %s pid= %X\n", current_PIDs.APIDs[pref_found].desc, current_PIDs.APIDs[pref_found].pid);
+		setAPID(pref_found);
+	}
+	else if(ac3_found >= 0) {
+		printf("Neutrino: set apid name= %s pid= %X\n", current_PIDs.APIDs[ac3_found].desc, current_PIDs.APIDs[ac3_found].pid);
+		setAPID(ac3_found);
+	}
+	else if ( current_PIDs.PIDs.selected_apid >= current_PIDs.APIDs.size() )
 	{
-		for (unsigned int j=0; j< current_PIDs.APIDs.size(); j++)
-		{
-			if ( strstr(current_PIDs.APIDs[j].desc, "eng") || strstr(current_PIDs.APIDs[j].desc, "Tonoption 2") || strstr(current_PIDs.APIDs[j].desc, "Eng") || strstr(current_PIDs.APIDs[j].desc, "ENG"))
-			{
-				printf("Neutrino: set apid name= %s pid= %X\n", current_PIDs.APIDs[j].desc, current_PIDs.APIDs[j].pid);
-				setAPID( j );
-				break;
-			}
-		}
+		setAPID( 0 );
 	}
 
 	t_channel_id * p = new t_channel_id;

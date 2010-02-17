@@ -70,7 +70,7 @@ struct SNeutrinoSettings
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
 	int audio_avs_Control;
-	int audio_english;
+	int auto_lang;
 	char audio_PCMOffset[3];
 	int srs_enable;
 	int srs_algo;
@@ -94,6 +94,8 @@ struct SNeutrinoSettings
 	//language
 	char language[25];
 	char timezone[150];
+
+	std::string pref_lang[3];
 
 	// EPG
 	int epg_save;
