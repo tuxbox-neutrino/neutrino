@@ -73,10 +73,21 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 	frameBuffer = CFrameBuffer::getInstance();
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	observer = Observer;
-	name = Name;
-	width = w_max(360, 0);
-	height = h_max(hheight+ mheight* 4, 0);
+	font_info   = SNeutrinoSettings::FONT_TYPE_MENU;
+	observer    = Observer;
+	name        = Name;
+	
+	//calculate max width of LOCALS
+	offset = 0;
+	for (int i = 0; i < 4; i++) {
+		int tmpoffset = g_Font[font_info]->getRenderWidth(g_Locale->getText (colorchooser_names[i]));
+		if (tmpoffset > offset) {
+			offset = tmpoffset;
+		}
+	}
+	
+	width = w_max((offset + 290), 0); //fixme: get rid of hardcoded 290
+	height      = h_max(hheight+ mheight* 4, 0);
 
 	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth()-width) >> 1);
 	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);
@@ -96,7 +107,7 @@ void CColorChooser::setColor()
 
 	fb_pixel_t col = ((tAlpha << 24) & 0xFF000000) | color;
 		//((tAlpha << 24) & 0xFF000000) | ((color << 16) & 0x00FF0000) | (color & 0x0000FF00) | ((color >> 16) & 0xFF);
-	frameBuffer->paintBoxRel(x+222,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, col);
+	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, col);
 }
 
 int CColorChooser::exec(CMenuTarget* parent, const std::string &)
@@ -241,17 +252,17 @@ void CColorChooser::paint()
 		paintSlider(x + 10, y + hheight + mheight * i, value[i], colorchooser_names[i], iconnames[i], (i == 0));
 
 	//color preview
-	frameBuffer->paintBoxRel(x+220,y+hheight+5,    mheight*4,   mheight*4-10, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x+222,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, 254);
+	frameBuffer->paintBoxRel(x+offset+160,y+hheight+5,    mheight*4,   mheight*4-10, COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(x+offset+162,y+hheight+2+5,  mheight*4-4 ,mheight*4-4-10, 254);
 }
 
 void CColorChooser::paintSlider(int px, int py, unsigned char *spos, const neutrino_locale_t text, const char * const iconname, const bool selected)
 {
 	if (!spos)
 		return;
-	frameBuffer->paintBoxRel(px+70,py,120,mheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY,px+70,py+2+mheight/4);
-	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_VOLUMESLIDER2,px+73+(*spos),py+mheight/4);
+	frameBuffer->paintBoxRel(px+offset+10,py,120,mheight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY,px+offset+10,py+2+mheight/4);
+	frameBuffer->paintIcon(selected ? iconname : NEUTRINO_ICON_VOLUMESLIDER2,px+offset+13+(*spos),py+mheight/4);
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px,py+mheight, width, g_Locale->getText(text), COL_MENUCONTENT, 0, true); // UTF-8
 }

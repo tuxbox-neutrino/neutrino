@@ -48,6 +48,8 @@ class CColorChooser : public CMenuTarget
 		int width;
 		int height;
 		int hheight,mheight; // head/menu font height
+		int offset;
+		int font_info;
 
 		unsigned char * value[4]; // r, g, b, alpha
 
