@@ -26,7 +26,7 @@
 #include <configfile.h>
 
 #include <gui/widget/menue.h>
-
+#include <system/localize.h>
 #include <driver/framebuffer.h>
 #include <driver/pig.h>
 
@@ -45,6 +45,9 @@ class CImageInfo : public CMenuTarget
 
 		int max_height;	// Frambuffer 0.. max
 		int max_width;
+		
+		neutrino_locale_t name;
+		int offset;
 
 		int font_head;
 		int font_info;

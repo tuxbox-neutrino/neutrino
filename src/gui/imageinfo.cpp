@@ -23,9 +23,6 @@
 #include <config.h>
 #endif
 
-#define SCREEN_X	720
-#define SCREEN_Y	572
-
 #include <gui/imageinfo.h>
 
 #include <global.h>
@@ -49,6 +46,18 @@ CImageInfo::CImageInfo()
 	Init();
 }
 
+static const neutrino_locale_t info_items[8] =
+{
+	LOCALE_IMAGEINFO_IMAGE,
+	LOCALE_IMAGEINFO_DATE,
+	LOCALE_IMAGEINFO_VERSION,
+	LOCALE_IMAGEINFO_CREATOR,
+	LOCALE_IMAGEINFO_HOMEPAGE,
+	LOCALE_IMAGEINFO_DOKUMENTATION,
+	LOCALE_IMAGEINFO_FORUM,
+	LOCALE_IMAGEINFO_LICENSE
+};
+
 void CImageInfo::Init(void)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -68,6 +77,18 @@ void CImageInfo::Init(void)
 	height = frameBuffer->getScreenHeight() - 10;
 	x=getScreenStartX( width );
 	y=getScreenStartY( height );
+	
+	// calculate max width of used LOCALES
+	offset = 0;
+	
+	for (int i = 0; i < 8; i++) {
+		int tmpoffset = g_Font[font_info]->getRenderWidth(g_Locale->getText (info_items[i]));
+		if (tmpoffset > offset) {
+			offset = tmpoffset;
+		}
+	}
+	
+	offset = offset + 15;
 }
 
 CImageInfo::~CImageInfo()
@@ -158,76 +179,77 @@ void CImageInfo::paint()
 	CConfigFile config('\t');
 	config.loadConfig("/.version");
 
-	const char * imagename = config.getString("imagename", "Neutrino").c_str();
+	const char * imagename = config.getString("imagename", "Neutrino-HD").c_str();
 	const char * homepage  = config.getString("homepage",  "n/a").c_str();
 	const char * creator   = config.getString("creator",   "n/a").c_str();
 	const char * version   = config.getString("version",   "no version").c_str();
-	const char * docs      = config.getString("docs",   "man neutrino").c_str();
-	const char * forum     = config.getString("forum",   "http://forum.tuxbox.org").c_str();
-
+	const char * docs      = config.getString("docs",      "man neutrino").c_str();
+	const char * forum     = config.getString("forum",     "http://forum.tuxbox.org").c_str();
+	
 	static CFlashVersionInfo versionInfo(version);
 	const char * releaseCycle = versionInfo.getReleaseCycle();
 	sprintf((char*) imagedate, "%s  %s", versionInfo.getDate(), versionInfo.getTime());
 
 	ypos += iheight;
+	
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_IMAGE));
-	paintLine(xpos+125, font_info, imagename);
+	paintLine(xpos+offset, font_info, imagename);
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_DATE));
-	paintLine(xpos+125, font_info, imagedate);
+	paintLine(xpos+offset, font_info, imagedate);
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_VERSION));
-	paintLine(xpos+125, font_info, releaseCycle);
+	paintLine(xpos+offset, font_info, releaseCycle);
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_CREATOR));
-	paintLine(xpos+125, font_info, creator);
+	paintLine(xpos+offset, font_info, creator);
 
 	ypos += iheight+15;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_HOMEPAGE));
-	paintLine(xpos+125, font_info, homepage);
+	paintLine(xpos+offset, font_info, homepage);
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_DOKUMENTATION));
-	paintLine(xpos+125, font_info, docs);
+	paintLine(xpos+offset, font_info, docs);
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_FORUM));
-	paintLine(xpos+125, font_info, forum);
+	paintLine(xpos+offset, font_info, forum);
 
 	ypos += iheight+15;
 	paintLine(xpos, font_info,g_Locale->getText(LOCALE_IMAGEINFO_LICENSE));
-	paintLine(xpos+125, font_small, "This program is free software; you can redistribute it and/or modify");
+	paintLine(xpos+offset, font_small, "This program is free software; you can redistribute it and/or modify");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "it under the terms of the GNU General Public License as published by");
+	paintLine(xpos+offset, font_small, "it under the terms of the GNU General Public License as published by");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "the Free Software Foundation; either version 2 of the License, or");
+	paintLine(xpos+offset, font_small, "the Free Software Foundation; either version 2 of the License, or");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "(at your option) any later version.");
+	paintLine(xpos+offset, font_small, "(at your option) any later version.");
 
 	ypos+= sheight+10;
-	paintLine(xpos+125, font_small, "This program is distributed in the hope that it will be useful,");
+	paintLine(xpos+offset, font_small, "This program is distributed in the hope that it will be useful,");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "but WITHOUT ANY WARRANTY; without even the implied warranty of");
+	paintLine(xpos+offset, font_small, "but WITHOUT ANY WARRANTY; without even the implied warranty of");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
+	paintLine(xpos+offset, font_small, "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "See the GNU General Public License for more details.");
+	paintLine(xpos+offset, font_small, "See the GNU General Public License for more details.");
 
 	ypos+= sheight+10;
-	paintLine(xpos+125, font_small, "You should have received a copy of the GNU General Public License");
+	paintLine(xpos+offset, font_small, "You should have received a copy of the GNU General Public License");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "along with this program; if not, write to the Free Software");
+	paintLine(xpos+offset, font_small, "along with this program; if not, write to the Free Software");
 
 	ypos+= sheight;
-	paintLine(xpos+125, font_small, "Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.");
+	paintLine(xpos+offset, font_small, "Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.");
 }
