@@ -52,7 +52,16 @@
 
 std::vector<std::string> SIlanguage::languages;
 pthread_mutex_t SIlanguage::languages_lock = PTHREAD_MUTEX_INITIALIZER;
-CSectionsdClient::SIlanguageMode_t SIlanguage::mode = CSectionsdClient::ALL;
+
+/*
+ALL = Show all available languages
+FIRST_FIRST = Show first found language from list. If not found show first of available language
+FIRST_ALL = Show first found language from list. If not found show all available languages.
+ALL_FIRST = Show all wanted languages if possible. If not found show first of av ailable language
+ALL_ALL = Show all wanted languages if possible. If not found show all available languages.
+*/
+//CSectionsdClient::SIlanguageMode_t SIlanguage::mode = CSectionsdClient::ALL;
+CSectionsdClient::SIlanguageMode_t SIlanguage::mode = CSectionsdClient::FIRST_ALL;
 
 void SIlanguage::filter(const std::map<std::string, std::string>& s, int max, std::string& retval)
 {
