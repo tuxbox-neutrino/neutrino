@@ -783,8 +783,10 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 				if ((c1->componentType != c2->componentType) ||
 					(c1->componentTag != c2->componentTag) ||
 					(c1->streamContent != c2->streamContent) ||
-					(strcmp(c1->component.c_str(),c2->component.c_str()) != 0))
+					(strcmp(c1->component.c_str(),c2->component.c_str()) != 0)){
 					already_exists = false;
+					break;
+				}
 				c1++;
 				c2++;
 			}
@@ -801,8 +803,10 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 					(si->second->linkage_descs[i].transportStreamId !=
 						evt.linkage_descs[i].transportStreamId) ||
 					(strcmp(si->second->linkage_descs[i].name.c_str(),
-						evt.linkage_descs[i].name.c_str()) != 0))
+						evt.linkage_descs[i].name.c_str()) != 0)){
 					already_exists = false;
+					break;
+				}
 			}
 		}
 
@@ -813,8 +817,10 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 			SIparentalRatings::iterator p2 = evt.ratings.begin();
 			while ((p1 != si->second->ratings.end()) && (p2 != evt.ratings.end())) {
 				if ((p1->rating != p2->rating) ||
-					(strcmp(p1->countryCode.c_str(),p2->countryCode.c_str()) != 0))
+					(strcmp(p1->countryCode.c_str(),p2->countryCode.c_str()) != 0)){
 					already_exists = false;
+					break;
+				}
 				p1++;
 				p2++;
 			}
@@ -860,7 +866,10 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		}
 
 		SIeventPtr e(eptr);
-
+		  // If new extended event descriptor is empty use old one, if applicable
+		if ((e->getExtendedText().length() == 0) && (si != mySIeventsOrderUniqueKey.end()) &&
+			(SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF))
+				  e->setExtendedText("OFF",si->second->getExtendedText());
 		//Strip ExtendedDescription if too far in the future
 		if ((e->times.begin()->startzeit > zeit + secondsExtendedTextCache) &&
 		   (SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF) && (zeit != 0))
