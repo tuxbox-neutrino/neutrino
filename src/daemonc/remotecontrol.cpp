@@ -472,7 +472,7 @@ void CRemoteControl::processAPIDnames()
 		{
 			strncat(current_PIDs.APIDs[count].desc, " (AC3)", 25);
 			has_ac3 = true;
-			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
+			if((strlen( current_PIDs.APIDs[count].desc ) == 3) && g_settings.audio_DolbyDigital && (ac3_found < 0))
 				ac3_found = count;
 		}
 	}
