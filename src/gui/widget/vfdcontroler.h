@@ -49,6 +49,8 @@ class CVfdControler : public CMenuTarget
 		int width;
 		int height;
 		int hheight,mheight; // head/menu font height
+		int font_info;
+		int lwidth;
 
 		unsigned char brightness;
 		unsigned char brightnessstandby;

@@ -54,15 +54,25 @@
 
 CVfdControler::CVfdControler(const neutrino_locale_t Name, CChangeObserver* Observer)
 {
-	frameBuffer = CFrameBuffer::getInstance();
-	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	observer = Observer;
-	name = Name;
-	width = w_max(390, 0);
-	height = h_max(hheight+ mheight* 3+ +mheight/2, 0);
-	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth()-width) >> 1);
-	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);
+	frameBuffer	= CFrameBuffer::getInstance();
+	hheight		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	mheight		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	font_info	= SNeutrinoSettings::FONT_TYPE_MENU;
+	observer	= Observer;
+	name		= Name;
+	
+	// calculate width
+	lwidth		= g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_LCDCONTROLER_BRIGHTNESSSTANDBY));
+	int tmpwidth 	= g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_LCDCONTROLER_BRIGHTNESS));
+	
+	if (tmpwidth > lwidth) {
+		lwidth = tmpwidth;
+	}
+	
+	width		= w_max((210 + lwidth), 0);  // fixme: get rid of hardcoded 210 (slider + slidertext)
+	height		= h_max(hheight+ mheight* 3+ +mheight/2, 0);
+	x		= frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth()-width) >> 1);
+	y		= frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);
 
 	brightness = CVFD::getInstance()->getBrightness();
 	brightnessstandby = CVFD::getInstance()->getBrightnessStandby();
@@ -257,7 +267,7 @@ void CVfdControler::paint()
 
 void CVfdControler::paintSlider(int px, int py, unsigned int spos, float factor, const neutrino_locale_t text, bool selected)
 {
-	int startx = 200;
+	int startx = lwidth + 15;
 	char wert[5];
 
 	frameBuffer->paintBoxRel(px + startx, py, 120, mheight, COL_MENUCONTENT_PLUS_0);
