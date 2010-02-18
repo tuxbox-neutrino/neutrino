@@ -622,6 +622,9 @@ void CTimerManager::loadRecordingSafety()
 	{
 		/* set defaults if no configuration file exists */
 		dprintf("%s not found\n", CONFIGFILE);
+		m_extraTimeStart = 0;
+		m_extraTimeEnd = 0;
+		config.saveConfig(CONFIGFILE);
 	}
 	else
 	{
