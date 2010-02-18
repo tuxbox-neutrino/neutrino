@@ -3645,8 +3645,13 @@ void CNeutrinoApp::saveEpg()
 void CNeutrinoApp::AudioMute( int newValue, bool isEvent )
 {
 	//printf("MUTE: val %d current %d event %d\n", newValue, current_muted, isEvent);
-	int dx = 40;
-	int dy = 40;
+	int dx = 0;
+	int dy = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE,&dx,&dy);
+	int offset = (dx/4);
+	dx += offset;
+	dy += offset;
+
 	int x = g_settings.screen_EndX-dx;
 	int y = g_settings.screen_StartY;
 
@@ -3661,7 +3666,7 @@ printf("AudioMute: current %d new %d isEvent: %d\n", current_muted, newValue, is
 	{
 		if( current_muted ) {
 			frameBuffer->paintBoxRel(x, y, dx, dy, COL_INFOBAR_PLUS_0);
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, x+5, y+5);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, x+(offset/2), y+(offset/2));
 		}
 		else
 			frameBuffer->paintBackgroundBoxRel(x, y, dx, dy);
