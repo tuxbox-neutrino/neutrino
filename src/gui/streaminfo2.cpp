@@ -684,7 +684,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 
 	for(j=0;j<4;j++){
 		for(i=0;i<11;i++){
-			if(pmt_caids[j][i] > 0 && i == 0){
+			if(pmt_caids[j][i] > 1 && i == 0){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -697,7 +697,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 1){
+			else if(pmt_caids[j][i] > 1 && i == 1){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -710,7 +710,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 2){
+			else if(pmt_caids[j][i] > 1 && i == 2){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -723,7 +723,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 3){
+			else if(pmt_caids[j][i] > 1 && i == 3){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -736,7 +736,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 4){
+			else if(pmt_caids[j][i] > 1 && i == 4){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -749,7 +749,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 5){
+			else if(pmt_caids[j][i] > 1 && i == 5){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -762,7 +762,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 6){
+			else if(pmt_caids[j][i] > 1 && i == 6){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -775,7 +775,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 7){
+			else if(pmt_caids[j][i] > 1 && i == 7){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -788,7 +788,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 8){
+			else if(pmt_caids[j][i] > 1 && i == 8){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -801,7 +801,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 9){
+			else if(pmt_caids[j][i] > 1 && i == 9){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
@@ -814,7 +814,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 				}
 				caids[i] = true;
 			}
-			else if(pmt_caids[j][i] > 0 && i == 10){
+			else if(pmt_caids[j][i] > 1 && i == 10){
 				for( int k = 0; k < 4;k++){
 					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
 						pmt_caids[j][i]=1;
