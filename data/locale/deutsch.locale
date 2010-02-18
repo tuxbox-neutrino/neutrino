@@ -1156,7 +1156,7 @@ settings.missingoptionsconffile Die Neutrino-Einstellungen wurden erweitert.\nDi
 settings.noconffile Die Neutrino-Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
-settings.pos_default_center unten Mitte
+settings.pos_default_center oben Mitte
 settings.pos_higher_center erhöht Mitte
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts

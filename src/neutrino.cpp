@@ -3692,10 +3692,37 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 	int y = g_settings.screen_EndY - 100;
 #else
 
-	int x = frameBuffer->getScreenX() + 10;
-	int y = frameBuffer->getScreenY() + 0;
+	int x = frameBuffer->getScreenX();
+	int y = frameBuffer->getScreenY();
 #endif
 	int vol = g_settings.current_volume;
+	int sw = frameBuffer->getScreenWidth();
+	int sh = frameBuffer->getScreenHeight();
+	int borderX = x ;
+	switch( g_settings.volume_pos )
+	{
+		case 0:// upper right
+			x = sw - dx;
+		break;
+		case 1:// upper left
+			x = borderX;
+		break;
+		case 2:// bottom left
+			x = borderX;
+			y = sh - dy;
+		break;
+		case 3:// bottom right
+			x = sw - dx;
+			y = sh - dy;
+		break;
+		case 4:// center default
+			x = ((sw - dx) / 2) + x;
+		break;
+		case 5:// center higher
+			x = ((sw - dx) / 2) + x;
+			y = sh - 100;
+		break;
+	}
 
 	fb_pixel_t * pixbuf = NULL;
 
