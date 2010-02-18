@@ -1104,7 +1104,7 @@ satsetup.savesettingsnow Einstellungen jetzt speichern
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommitted
 satsetup.usals_repeat USALS wiederholen
-satsetup.use_fta_flag nur freie Kanäle
+satsetup.use_fta_flag nur FTA Kanäle
 satsetup.use_nit Auswertung NIT
 satsetup.use_usals Benutze USALS
 scants.abort_body Scanvorgang wirklich abbrechen?
