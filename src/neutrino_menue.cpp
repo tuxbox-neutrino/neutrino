@@ -1632,69 +1632,35 @@ const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_O
 
 void sectionsd_set_languages(const std::vector<std::string>& newLanguages);
 
-class CLangSelectHandler : public CMenuTarget
+class CLangSelectNotifier : public CChangeObserver
 {
 public:
-	void setLanguages(void);
-	int exec(CMenuTarget* parent,  const std::string &actionkey);
+        bool changeNotify(const neutrino_locale_t, void * data);
 };
 
-int CLangSelectHandler::exec(CMenuTarget* parent, const std::string &actionkey)
-{
-	std::map<std::string, std::string>::const_iterator tI;
-	int i;
-	char cnt[5];
-	int select = -1;
-	int num = atoi(actionkey.c_str());
-
-	if (parent)
-		parent->hide();
-
-	CMenuWidget* menu = new CMenuWidget(LOCALE_AUDIOMENU_PREF_LANG, NEUTRINO_ICON_SETTINGS);
-	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
-	i = 0;
-	for (tI = iso639.begin(); tI != iso639.end(); tI++) {
-		sprintf(cnt, "%d", i);
-		menu->addItem(new CMenuForwarderNonLocalized(tI->second.c_str(), true, NULL, selector, cnt), g_settings.pref_lang[num] == tI->first);
-		i++;
-	}
-	if (i == 0) {
-		char text[255];
-		sprintf(text, "No languages found !\n");
-		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text, 450, 2);
-		return menu_return::RETURN_REPAINT;
-	}
-	int retval = menu->exec(NULL, "");
-	delete menu;
-	delete selector;
-	if (select >= 0) {
-		tI = iso639.begin();
-		for(i = 0; i < select; i++)
-			tI++;
-
-		printf("CLangSelectHandler: selected %d: %s (%s)\n", i, tI->first.c_str(), tI->second.c_str());
-		g_settings.pref_lang[num] = tI->first.c_str();
-		setLanguages();
-	}
-	if (retval == menu_return::RETURN_EXIT_ALL)
-		return menu_return::RETURN_EXIT_ALL;
-
-	return menu_return::RETURN_REPAINT;
-}
-
-void CLangSelectHandler::setLanguages(void)
+bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	std::vector<std::string> languages;
 	bool found = false;
+	std::map<std::string, std::string>::const_iterator it;
 
 	for(int i = 0; i < 3; i++) {
-		if(g_settings.pref_lang[i].size()) {
-			languages.push_back(g_settings.pref_lang[i]);
-			found = true;
+		if(strlen(g_settings.pref_lang[i])) {
+			printf("setLanguages: %d: %s\n", i, g_settings.pref_lang[i]);
+			std::string temp(g_settings.pref_lang[i]);
+			for(it = iso639.begin(); it != iso639.end(); it++) {
+				if(temp == it->second) {
+					languages.push_back(it->first);
+					printf("setLanguages: adding %s\n", it->first.c_str());
+					found = true;
+				}
+			}
 		}
 	}
 	if(found)
 		sectionsd_set_languages(languages);
+
+	return true;
 }
 
 void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier)
@@ -1715,15 +1681,19 @@ void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNoti
 	audioSettings.addItem(new CMenuOptionNumberChooser(LOCALE_SRS_VOLUME, &g_settings.srs_ref_volume, true, 1, 100, audioSetupNotifier));
 
 	audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
-
-	CLangSelectHandler * langSelect = new CLangSelectHandler();
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_DOLBYDIGITAL, &g_settings.audio_DolbyDigital, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_LANG, &g_settings.auto_lang, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG, true, NULL, langSelect, "0"));
-	audioSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG, true, NULL, langSelect, "1"));
-	audioSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG, true, NULL, langSelect, "2"));
 
-	langSelect->setLanguages();
+	CLangSelectNotifier * langNotifier = new CLangSelectNotifier();
+	for(int i = 0; i < 3; i++) {
+		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_LANG, g_settings.pref_lang[i], true, langNotifier, CRCInput::convertDigitToKey(i+1), "", true);
+		std::map<std::string, std::string>::const_iterator it;
+		for(it = iso639rev.begin(); it != iso639rev.end(); it++) {
+			langSelect->addOption(it->first.c_str());
+		}
+		audioSettings.addItem(langSelect);
+	}
+	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
 #if 0
 	CStringInput * audio_PCMOffset = new CStringInput(LOCALE_AUDIOMENU_PCMOFFSET, g_settings.audio_PCMOffset, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ", audioSetupNotifier);

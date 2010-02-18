@@ -210,7 +210,7 @@ void SIsectionEIT::parseExtendedEventDescriptor(const char *buf, SIevent &e, uns
 	int tsidonid = (e.transport_stream_id << 16) | e.original_network_id;
 	int table = get_table(evt->iso_639_2_language_code_hi, evt->iso_639_2_language_code_mid, evt->iso_639_2_language_code_lo);
 
-	char lang[] = {evt->iso_639_2_language_code_hi, evt->iso_639_2_language_code_mid, evt->iso_639_2_language_code_lo, '\0'};
+	char lang[] = {tolower(evt->iso_639_2_language_code_hi), tolower(evt->iso_639_2_language_code_mid), tolower(evt->iso_639_2_language_code_lo), '\0'};
 	std::string language(lang);
 
 	while(items < (unsigned char *)(buf + sizeof(struct descr_extended_event_header) + evt->length_of_items)) {
@@ -379,7 +379,7 @@ void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsign
 	int tsidonid = (e.transport_stream_id << 16) | e.original_network_id;
 	int table = get_table(evt->language_code_hi, evt->language_code_mid, evt->language_code_lo);
 
-	char lang[] = {evt->language_code_hi, evt->language_code_mid, evt->language_code_lo, '\0'};
+	char lang[] = {tolower(evt->language_code_hi), tolower(evt->language_code_mid), tolower(evt->language_code_lo), '\0'};
 	std::string language(lang);
 
 	buf+=sizeof(struct descr_short_event_header);

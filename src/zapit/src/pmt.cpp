@@ -104,7 +104,7 @@ unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel *
 
 			case 0x0A: /* ISO_639_language_descriptor */
 				for (i = 0; i < 3; i++)
-					description += buffer[pos + i + 2];
+					description += tolower(buffer[pos + i + 2]);
 				break;
 
 			case 0x13: /* Defined in ISO/IEC 13818-6 */

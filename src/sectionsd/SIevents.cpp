@@ -218,6 +218,7 @@ std::string SIevent::getName() const
 
 void SIevent::setName(const std::string &lang, const std::string &name)
 {
+//printf("setName: lang %s text %s\n", lang.c_str(), name.c_str());
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode()){
 		langName[languangeOFF] = name;
 	} else {
@@ -240,6 +241,7 @@ std::string SIevent::getText() const
 
 void SIevent::setText(const std::string &lang, const std::string &text)
 {
+//printf("setText: lang %s text %s\n", lang.c_str(), text.c_str());
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode()){
 		langText[languangeOFF] = text;
 	} else {
@@ -271,6 +273,7 @@ void SIevent::appendExtendedText(const std::string &lang, const std::string &tex
 
 void SIevent::setExtendedText(const std::string &lang, const std::string &text)
 {
+//printf("setExtendedText: lang %s text %s\n", lang.c_str(), text.c_str());
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode()){
 		langExtendedText[languangeOFF] = text;
 	} else {

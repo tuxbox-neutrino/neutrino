@@ -433,18 +433,25 @@ void CRemoteControl::processAPIDnames()
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < (int) current_PIDs.APIDs.size(); j++) {
 				/* processAPIDnames called 2 times, TODO find better way to detect second call */
-				if (strlen( current_PIDs.APIDs[j].desc ) != 3)
+				if(strlen( current_PIDs.APIDs[j].desc ) != 3)
+					continue;
+				if(strlen(g_settings.pref_lang[i]) == 0)
 					continue;
 
-				if(strcasecmp(current_PIDs.APIDs[j].desc, g_settings.pref_lang[i].c_str()) == 0) {
-					/* remember first pref found index and pid*/
-					if(pref_found < 0) {
-						pref_found = j;
-						pref_idx = i;
-					}
-					if(current_PIDs.APIDs[j].is_ac3 && g_settings.audio_DolbyDigital && (pref_ac3_found < 0)) {
-						pref_ac3_found = j;
-						pref_ac3_idx = i;
+				std::string temp(g_settings.pref_lang[i]);
+				std::map<std::string, std::string>::const_iterator it;
+				for(it = iso639.begin(); it != iso639.end(); it++) {
+					if(temp == it->second && strcasecmp(current_PIDs.APIDs[j].desc, it->first.c_str()) == 0) {
+						/* remember first pref found index and pid*/
+						if(pref_found < 0) {
+							pref_found = j;
+							pref_idx = i;
+						}
+						if(current_PIDs.APIDs[j].is_ac3 && g_settings.audio_DolbyDigital && (pref_ac3_found < 0)) {
+							pref_ac3_found = j;
+							pref_ac3_idx = i;
+						}
+						break;
 					}
 				}
 			} /* for all pids */

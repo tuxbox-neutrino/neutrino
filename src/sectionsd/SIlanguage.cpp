@@ -177,7 +177,8 @@ bool SIlanguage::saveLanguages()
 
 	for (std::vector<std::string>::iterator it = languages.begin() ;
 			 it != languages.end() ; ++it) {
-		file << " " << *it;
+		file << *it;
+		file << "\n";
 		if (file.fail()) goto error;
 	}
 

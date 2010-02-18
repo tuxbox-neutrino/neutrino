@@ -95,7 +95,7 @@ struct SNeutrinoSettings
 	char language[25];
 	char timezone[150];
 
-	std::string pref_lang[3];
+	char pref_lang[3][30];
 
 	// EPG
 	int epg_save;

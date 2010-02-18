@@ -134,6 +134,7 @@ const char * getISO639Description(const char * const iso)
 #else
 
 std::map<std::string, std::string> iso639;
+std::map<std::string, std::string> iso639rev;
 
 void initialize_iso639_map(void)
 {
@@ -147,8 +148,10 @@ void initialize_iso639_map(void)
 		{
 			getline(in, v);
 			iso639[s] = v;
-			if (s != t)
+			if (s != t) {
 				iso639[t] = v;
+			}
+			iso639rev[v] = s;
 		}
 	}
 	else

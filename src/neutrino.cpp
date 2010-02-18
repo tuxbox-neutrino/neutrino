@@ -802,7 +802,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.auto_lang = configfile.getInt32( "auto_lang", 0 );
 	for(int i = 0; i < 3; i++) {
 		sprintf(cfg_key, "pref_lang_%d", i);
-		g_settings.pref_lang[i] = configfile.getString(cfg_key, "");
+		strncpy(g_settings.pref_lang[i], configfile.getString(cfg_key, "").c_str(), 30);
 	}
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 1 );
 	g_settings.sms_channel = configfile.getInt32( "sms_channel", 0 );
