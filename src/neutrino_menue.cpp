@@ -612,7 +612,7 @@ CMenuWidget * TestMenu;
 #endif
 
 CVideoSettings * videoSettings;
-CMenuOptionStringChooser* tzSelect;
+//CMenuOptionStringChooser* tzSelect;
 /**************************************************************************************
 *          CNeutrinoApp -  init main menu                                             *
 **************************************************************************************/
@@ -729,9 +729,8 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	//mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_STREAMING , true, NULL, &streamingSettings, NULL, CRCInput::convertDigitToKey(sett_count++)));
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_LANGUAGE  , true, NULL, &languageSettings , NULL, CRCInput::convertDigitToKey(sett_count++)));
 
-	xmlDocPtr parser;
-
-	parser = parseXmlFile("/etc/timezone.xml");
+#if 0
+	xmlDocPtr parser = parseXmlFile("/etc/timezone.xml");
 	if (parser != NULL) {
 		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, g_settings.timezone, true, new CTZChangeNotifier(), CRCInput::convertDigitToKey(sett_count++), "", true);
 		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
@@ -754,6 +753,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 		}
 		xmlFreeDoc(parser);
 	}
+#endif
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_OSD    , true, NULL, &colorSettings    , NULL, CRCInput::convertDigitToKey(sett_count++)));
 
 	if (CVFD::getInstance()->has_lcd)
@@ -1503,7 +1503,9 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	//miscSettings.addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 0, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
 //	miscSettings.addItem(GenericMenuSeparatorLine);
 	miscSettingsGeneral->addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
-	funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);	
+
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 //	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_VOLUME_POS, &g_settings.volume_pos, VOLUMEBAR_DISP_POS_OPTIONS, VOLUMEBAR_DISP_POS_OPTIONS_COUNT, true));
 	miscSettings.addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, miscSettingsGeneral, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 
@@ -1577,70 +1579,6 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 #endif
 }
 
-void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
-{
-	addMenueIntroItems(languageSettings);
-
-	struct dirent **namelist;
-	int n;
-	//		printf("scanning locale dir now....(perhaps)\n");
-
-	char *pfad[] = {(char *) DATADIR "/neutrino/locale",(char *) "/var/tuxbox/config/locale"};
-
-	for (int p = 0; p < 2; p++) {
-		n = scandir(pfad[p], &namelist, 0, alphasort);
-		if (n < 0) {
-			perror("loading locales: scandir");
-		} else {
-			for (int count=0; count<n; count++) {
-				char * locale = strdup(namelist[count]->d_name);
-				char * pos = strstr(locale, ".locale");
-				if (pos != NULL) {
-					char iname[50];
-					*pos = '\0';
-					sprintf(iname, "%s", locale);
-					CMenuOptionLanguageChooser* oj = new CMenuOptionLanguageChooser((char*)locale, this, iname);
-					oj->addOption(locale);
-					languageSettings.addItem( oj );
-				} else
-					free(locale);
-				free(namelist[count]);
-			}
-			free(namelist);
-		}
-	}
-}
-
-#define AUDIOMENU_ANALOGOUT_OPTION_COUNT 3
-const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT_OPTION_COUNT] =
-{
-	{ 0, LOCALE_AUDIOMENU_STEREO    },
-	{ 1, LOCALE_AUDIOMENU_MONOLEFT  },
-	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
-};
-
-#define AUDIOMENU_SRS_OPTION_COUNT 2
-const CMenuOptionChooser::keyval AUDIOMENU_SRS_OPTIONS[AUDIOMENU_SRS_OPTION_COUNT] =
-{
-	{ 0 , LOCALE_SRS_ALGO_LIGHT },
-	{ 1 , LOCALE_SRS_ALGO_NORMAL }
-};
-
-#define AUDIOMENU_AVSYNC_OPTION_COUNT 3
-const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTION_COUNT] =
-{
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_OPTIONS_ON  },
-	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
-};
-
-#define AUDIOMENU_CLOCKREC_OPTION_COUNT 3
-const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_OPTION_COUNT] =
-{
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_OPTIONS_ON  },
-};
-
 void sectionsd_set_languages(const std::vector<std::string>& newLanguages);
 
 class CLangSelectNotifier : public CChangeObserver
@@ -1674,6 +1612,120 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 	return true;
 }
 
+void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
+{
+	addMenueIntroItems(languageSettings);
+
+	struct dirent **namelist;
+	int n;
+	//		printf("scanning locale dir now....(perhaps)\n");
+
+	char *pfad[] = {(char *) DATADIR "/neutrino/locale",(char *) "/var/tuxbox/config/locale"};
+	CMenuWidget * localeMenu = new CMenuWidget(LOCALE_LANGUAGESETUP_OSD, NEUTRINO_ICON_LANGUAGE);
+	addMenueIntroItems(*localeMenu);
+
+	for (int p = 0; p < 2; p++) {
+		n = scandir(pfad[p], &namelist, 0, alphasort);
+		if (n < 0) {
+			perror("loading locales: scandir");
+		} else {
+			for (int count=0; count<n; count++) {
+				char * locale = strdup(namelist[count]->d_name);
+				char * pos = strstr(locale, ".locale");
+				if (pos != NULL) {
+					char iname[50];
+					*pos = '\0';
+					sprintf(iname, "%s", locale);
+					CMenuOptionLanguageChooser* oj = new CMenuOptionLanguageChooser((char*)locale, this, iname);
+					oj->addOption(locale);
+					localeMenu->addItem( oj );
+				} else
+					free(locale);
+				free(namelist[count]);
+			}
+			free(namelist);
+		}
+	}
+	languageSettings.addItem(new CMenuForwarder(LOCALE_LANGUAGESETUP_OSD, true, NULL, localeMenu, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+
+	xmlDocPtr parser = parseXmlFile("/etc/timezone.xml");
+
+	CMenuOptionStringChooser* tzSelect;
+	if (parser != NULL) {
+		tzSelect = new CMenuOptionStringChooser(LOCALE_MAINSETTINGS_TIMEZONE, g_settings.timezone, true, new CTZChangeNotifier(), CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+		xmlNodePtr search = xmlDocGetRootElement(parser)->xmlChildrenNode;
+		bool found = false;
+		while (search) {
+			if (!strcmp(xmlGetName(search), "zone")) {
+				std::string name = xmlGetAttribute(search, "name");
+				std::string zone = xmlGetAttribute(search, "zone");
+				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
+				tzSelect->addOption(name.c_str());
+				found = true;
+			}
+			search = search->xmlNextNode;
+		}
+		if (found)
+			languageSettings.addItem(tzSelect);
+		else {
+			delete tzSelect;
+			tzSelect = NULL;
+		}
+		xmlFreeDoc(parser);
+	}
+
+//	languageSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
+
+
+	CMenuWidget * prefMenu = new CMenuWidget(LOCALE_AUDIOMENU_PREF_LANG, NEUTRINO_ICON_LANGUAGE);
+	addMenueIntroItems(*prefMenu);
+
+	prefMenu->addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_LANG, &g_settings.auto_lang, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL));
+	prefMenu->addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_SUBS, &g_settings.auto_subs, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL));
+
+	CLangSelectNotifier * langNotifier = new CLangSelectNotifier();
+	for(int i = 0; i < 3; i++) {
+		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_LANG, g_settings.pref_lang[i], true, langNotifier, CRCInput::convertDigitToKey(i+1), "", true);
+		std::map<std::string, std::string>::const_iterator it;
+		for(it = iso639rev.begin(); it != iso639rev.end(); it++) {
+			langSelect->addOption(it->first.c_str());
+		}
+		prefMenu->addItem(langSelect);
+	}
+	languageSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG_HEAD, true, NULL, prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+}
+
+#define AUDIOMENU_ANALOGOUT_OPTION_COUNT 3
+const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT_OPTION_COUNT] =
+{
+	{ 0, LOCALE_AUDIOMENU_STEREO    },
+	{ 1, LOCALE_AUDIOMENU_MONOLEFT  },
+	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
+};
+
+#define AUDIOMENU_SRS_OPTION_COUNT 2
+const CMenuOptionChooser::keyval AUDIOMENU_SRS_OPTIONS[AUDIOMENU_SRS_OPTION_COUNT] =
+{
+	{ 0 , LOCALE_SRS_ALGO_LIGHT },
+	{ 1 , LOCALE_SRS_ALGO_NORMAL }
+};
+
+#define AUDIOMENU_AVSYNC_OPTION_COUNT 3
+const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTION_COUNT] =
+{
+	{ 0, LOCALE_OPTIONS_OFF },
+	{ 1, LOCALE_OPTIONS_ON  },
+	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
+};
+
+#define AUDIOMENU_CLOCKREC_OPTION_COUNT 3
+const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_OPTION_COUNT] =
+{
+	{ 0, LOCALE_OPTIONS_OFF },
+	{ 1, LOCALE_OPTIONS_ON  },
+};
+
 void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier)
 {
 	addMenueIntroItems(audioSettings);
@@ -1691,8 +1743,10 @@ void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNoti
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_SRS_NMGR, &g_settings.srs_nmgr_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
 	audioSettings.addItem(new CMenuOptionNumberChooser(LOCALE_SRS_VOLUME, &g_settings.srs_ref_volume, true, 1, 100, audioSetupNotifier));
 
-	audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
+	//audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
+	audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE));
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_DOLBYDIGITAL, &g_settings.audio_DolbyDigital, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
+#if 0
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_LANG, &g_settings.auto_lang, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL));
 	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_SUBS, &g_settings.auto_subs, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL));
 
@@ -1706,7 +1760,7 @@ void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNoti
 		audioSettings.addItem(langSelect);
 	}
 	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-
+#endif
 #if 0
 	CStringInput * audio_PCMOffset = new CStringInput(LOCALE_AUDIOMENU_PCMOFFSET, g_settings.audio_PCMOffset, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ", audioSetupNotifier);
 	CMenuForwarder *mf = new CMenuForwarder(LOCALE_AUDIOMENU_PCMOFFSET, true, g_settings.audio_PCMOffset, audio_PCMOffset );

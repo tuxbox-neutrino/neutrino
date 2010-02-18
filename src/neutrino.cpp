@@ -2280,7 +2280,7 @@ CPipSetup * g_Pip0;
 #endif
 #include "videosettings.h"
 extern CVideoSettings * videoSettings;
-extern CMenuOptionStringChooser* tzSelect;
+//extern CMenuOptionStringChooser* tzSelect;
 
 void CISendMessage(uint32_t msg, uint32_t data)
 {
@@ -2383,7 +2383,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_RCInput = new CRCInput;
 
 	g_Sectionsd = new CSectionsdClient;
-	//g_Sectionsd->setServiceChanged(live_channel_id &0xFFFFFFFFFFFFULL, false);
 	g_Timerd = new CTimerdClient;
 
 	g_RemoteControl = new CRemoteControl;
@@ -2533,9 +2532,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 			videoSettings->exec(NULL, "");
 		if(ret != menu_return::RETURN_EXIT_ALL)
 			colorSettings.exec(NULL, "");
-		if(ret != menu_return::RETURN_EXIT_ALL)
-			if(tzSelect)
-				tzSelect->exec(NULL);
 		if(ret != menu_return::RETURN_EXIT_ALL)
 			networkSettings.exec(NULL, "");
 		if(ret != menu_return::RETURN_EXIT_ALL)

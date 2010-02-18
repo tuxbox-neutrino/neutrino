@@ -466,6 +466,7 @@ const char *locale_real_names[] = {
 	"keychoosermenu.setnew",
 	"keychoosermenu.setnone",
 	"languagesetup.head",
+	"languagesetup.osd",
 	"languagesetup.select",
 	"lcdcontroler.brightness",
 	"lcdcontroler.brightnessstandby",
