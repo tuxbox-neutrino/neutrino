@@ -140,7 +140,8 @@ audiomenu.hdmi_dd Encoded DD on HDMI
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
-audiomenu.auto_lang Use prefered languages
+audiomenu.auto_lang Auto select audio
+audiomenu.auto_subs Auto select subtitles
 audiomenu.pref_lang_head Audio/EPG language preferences
 audiomenu.pref_lang Prefered language
 audioplayer.add Add

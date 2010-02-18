@@ -800,6 +800,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.audio_avs_Control = false;
 	g_settings.auto_lang = configfile.getInt32( "auto_lang", 0 );
+	g_settings.auto_subs = configfile.getInt32( "auto_subs", 0 );
 	for(int i = 0; i < 3; i++) {
 		sprintf(cfg_key, "pref_lang_%d", i);
 		strncpy(g_settings.pref_lang[i], configfile.getString(cfg_key, "").c_str(), 30);
@@ -1306,6 +1307,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("audio_DolbyDigital"   , g_settings.audio_DolbyDigital   );
 	configfile.setInt32( "audio_avs_Control", g_settings.audio_avs_Control );
 	configfile.setInt32( "auto_lang", g_settings.auto_lang );
+	configfile.setInt32( "auto_subs", g_settings.auto_subs );
 	for(int i = 0; i < 3; i++) {
 		sprintf(cfg_key, "pref_lang_%d", i);
 		configfile.setString(cfg_key, g_settings.pref_lang[i]);
@@ -2231,6 +2233,7 @@ void CNeutrinoApp::InitZapper()
 				tuxtxt_start(g_RemoteControl->current_PIDs.PIDs.vtxtpid);
 		g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
 		//g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_COMPLETE, (neutrino_msg_data_t) &live_channel_id);
+		SelectSubtitles();
 		StartSubtitles();
 	}
 }
@@ -2933,6 +2936,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			scrambled_timer = 0;
 		}
 		scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);
+		SelectSubtitles();
 		if(!g_InfoViewer->is_visible)
 			StartSubtitles();
 	}
@@ -4833,4 +4837,52 @@ void CNeutrinoApp::StartSubtitles()
 {
 	dvbsub_start(0);
 	tuxtx_pause_subtitle(false);
+}
+
+void CNeutrinoApp::SelectSubtitles()
+{
+	if(!g_settings.auto_subs)
+		return;
+
+	int curnum = channelList->getActiveChannelNumber();
+	CZapitChannel * cc = channelList->getChannel(curnum);
+
+	for(int i = 0; i < 3; i++) {
+		if(strlen(g_settings.pref_lang[i]) == 0)
+			continue;
+
+		std::string temp(g_settings.pref_lang[i]);
+
+		for(int j = 0 ; j < (int)cc->getSubtitleCount() ; j++) {
+			CZapitAbsSub* s = cc->getChannelSub(j);
+			if (s->thisSubType == CZapitAbsSub::DVB) {
+				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
+				std::map<std::string, std::string>::const_iterator it;
+				for(it = iso639.begin(); it != iso639.end(); it++) {
+					if(temp == it->second && sd->ISO639_language_code == it->first) {
+						printf("CNeutrinoApp::SelectSubtitles: found DVB %s, pid %x\n", sd->ISO639_language_code.c_str(), sd->pId);
+						dvbsub_stop();
+						dvbsub_setpid(sd->pId);
+						return;
+					}
+				}
+			}
+		}
+		for(int j = 0 ; j < (int)cc->getSubtitleCount() ; j++) {
+			CZapitAbsSub* s = cc->getChannelSub(j);
+			if (s->thisSubType == CZapitAbsSub::TTX) {
+				CZapitTTXSub* sd = reinterpret_cast<CZapitTTXSub*>(s);
+				std::map<std::string, std::string>::const_iterator it;
+				for(it = iso639.begin(); it != iso639.end(); it++) {
+					if(temp == it->second && sd->ISO639_language_code == it->first) {
+						int page = ((sd->teletext_magazine_number & 0xFF) << 8) | sd->teletext_page_number;
+						printf("CNeutrinoApp::SelectSubtitles: found TTX %s, pid %x page %03X\n", sd->ISO639_language_code.c_str(), sd->pId, page);
+						tuxtx_stop_subtitle();
+						tuxtx_set_pid(sd->pId, page);
+						return;
+					}
+				}
+			}
+		}
+	}
 }

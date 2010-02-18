@@ -71,6 +71,7 @@ struct SNeutrinoSettings
 	int audio_DolbyDigital;
 	int audio_avs_Control;
 	int auto_lang;
+	int auto_subs;
 	char audio_PCMOffset[3];
 	int srs_enable;
 	int srs_algo;
