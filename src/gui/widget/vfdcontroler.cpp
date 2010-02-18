@@ -68,8 +68,10 @@ CVfdControler::CVfdControler(const neutrino_locale_t Name, CChangeObserver* Obse
 	if (tmpwidth > lwidth) {
 		lwidth = tmpwidth;
 	}
+	// reuse tmpwidth as dummy
+	tmpwidth = g_Font[font_info]->getRenderWidth("15");
 	
-	width		= w_max((lwidth + 15 + 120 + 10 + 50 + 15), 0);
+	width		= w_max((15 + lwidth + 15 + 120 + 10 + tmpwidth + 10 + 15), 0);
 	height		= h_max(hheight+ mheight* 3+ +mheight/2, 0);
 	x		= frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth()-width) >> 1);
 	y		= frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);
