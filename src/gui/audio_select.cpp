@@ -153,7 +153,7 @@ int CAudioSelectMenuHandler::doMenu ()
 			}
 		}
 		if(sep_added) {
-			AudioSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, &SubtitleChanger, "off"));
+			AudioSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, &SubtitleChanger, "off", CRCInput::RC_stop));
 		}
 
 	}
