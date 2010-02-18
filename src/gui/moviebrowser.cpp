@@ -1523,13 +1523,13 @@ void CMovieBrowser::refreshFoot(void)
 	// draw yellow (sort)
 	if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
 	{
-		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, m_cBoxFrame.iX+xpos1, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1));
+		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, m_cBoxFrame.iX+xpos1, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + 4 + (ADD_FOOT_HEIGHT>>1));
 		m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1 + 20, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, sort_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
 	}
 
 	if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
 	{
-		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, m_cBoxFrame.iX+xpos1+width, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1));
+		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, m_cBoxFrame.iX+xpos1+width, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + 4 + (ADD_FOOT_HEIGHT>>1));
 		m_pcFontFoot->RenderString(m_cBoxFrame.iX+ xpos1+width + 20, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width -30, filter_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
 	}
 	//std::string ok_text;
