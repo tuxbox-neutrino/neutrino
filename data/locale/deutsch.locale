@@ -8,6 +8,7 @@ audio.srs_volume Referenzlautstärke
 audiomenu.analog_mode Analog Modus
 audiomenu.analog_out Analog-Ausgang
 audiomenu.auto_lang Sprache automatisch
+audiomenu.auto_subs Untertitel automatisch
 audiomenu.avs avs
 audiomenu.avs_control Volume Steuerung avs/ost
 audiomenu.avsync A/V sync
@@ -608,6 +609,7 @@ keychoosermenu.currentkey Derzeitige Taste
 keychoosermenu.setnew Neue Taste einstellen
 keychoosermenu.setnone Keine Taste
 languagesetup.head Spracheinstellungen
+languagesetup.osd Menüsprache
 languagesetup.select Sprache
 lcdcontroler.brightness normale Helligkeit
 lcdcontroler.brightnessstandby Standby Helligkeit
