@@ -86,8 +86,8 @@ CColorChooser::CColorChooser(const neutrino_locale_t Name, unsigned char *R, uns
 		}
 	}
 	
-	width = w_max((offset + 290), 0); //fixme: get rid of hardcoded 290
-	height      = h_max(hheight+ mheight* 4, 0);
+	width 	    = w_max((offset + (162 + mheight*4 + 10)), 0);
+	height	    = h_max(hheight+ mheight* 4, 0);
 
 	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth()-width) >> 1);
 	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);

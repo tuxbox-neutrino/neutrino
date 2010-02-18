@@ -69,7 +69,7 @@ CVfdControler::CVfdControler(const neutrino_locale_t Name, CChangeObserver* Obse
 		lwidth = tmpwidth;
 	}
 	
-	width		= w_max((210 + lwidth), 0);  // fixme: get rid of hardcoded 210 (slider + slidertext)
+	width		= w_max((lwidth + 15 + 120 + 10 + 50 + 15), 0);
 	height		= h_max(hheight+ mheight* 3+ +mheight/2, 0);
 	x		= frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth()-width) >> 1);
 	y		= frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);
