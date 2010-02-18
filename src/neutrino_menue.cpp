@@ -1465,6 +1465,17 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
    { 3 , LOCALE_MISCSETTINGS_INFOBAR_DISP_3 }
 };
 
+#define VOLUMEBAR_DISP_POS_OPTIONS_COUNT 6
+const CMenuOptionChooser::keyval  VOLUMEBAR_DISP_POS_OPTIONS[VOLUMEBAR_DISP_POS_OPTIONS_COUNT]=
+{
+	{ 0 , LOCALE_SETTINGS_POS_TOP_RIGHT },
+	{ 1 , LOCALE_SETTINGS_POS_TOP_LEFT },
+	{ 2 , LOCALE_SETTINGS_POS_BOTTOM_LEFT },
+	{ 3 , LOCALE_SETTINGS_POS_BOTTOM_RIGHT },
+	{ 4 , LOCALE_SETTINGS_POS_DEFAULT_CENTER },
+	{ 5 , LOCALE_SETTINGS_POS_HIGHER_CENTER }
+};
+
 void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 {
 	dprintf(DEBUG_DEBUG, "init miscsettings\n");
@@ -1492,8 +1503,8 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	//miscSettings.addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 0, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
 //	miscSettings.addItem(GenericMenuSeparatorLine);
 	miscSettingsGeneral->addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
-	funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-
+	funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+//	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_VOLUME_POS, &g_settings.volume_pos, VOLUMEBAR_DISP_POS_OPTIONS, VOLUMEBAR_DISP_POS_OPTIONS_COUNT, true));
 	miscSettings.addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, miscSettingsGeneral, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 
 	//channellist

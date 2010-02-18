@@ -748,6 +748,8 @@ settings.missingoptionsconffile The neutrino-settings have been updated.\nNew Op
 settings.noconffile No neutrino-settings found.\nUsing defaults.
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
+settings.pos_default_center bottom center
+settings.pos_higher_center higher center
 settings.pos_top_left oben top left
 settings.pos_top_right oben top right
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Sutdown ?
@@ -1050,6 +1052,8 @@ imageinfo.image Image:
 imageinfo.license License:
 imageinfo.version Version:
 extra.cache_txt Cache teletext
+extra.scrambled_message Scrambled Message
+extra.volume_pos Volumebar
 extra.use_gotoxx Use gotoXX
 extra.latitude Latitude
 extra.longitude Longitude

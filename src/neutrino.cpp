@@ -793,7 +793,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.casystem_display = configfile.getBool("casystem_display", false );
-
+	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );                                                                                                  
+	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );                                                                                                                  
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
@@ -1301,6 +1302,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setBool("casystem_display"  , g_settings.casystem_display  );
+	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );                                                                                                      
+	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );                                                                                                                   
 
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
@@ -2947,7 +2950,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			return messages_return::handled;
 		} else if(data == scrambled_timer) {
 			scrambled_timer = 0;
-			if(videoDecoder->getBlank() && videoDecoder->getPlayState()) {
+			if(g_settings.scrambled_message && videoDecoder->getBlank() && videoDecoder->getPlayState()) {
 				const char * text = g_Locale->getText(LOCALE_SCRAMBLED_CHANNEL);
 				ShowHintUTF (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text, true) + 10, 5);
 			}

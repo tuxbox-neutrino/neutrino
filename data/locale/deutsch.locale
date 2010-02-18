@@ -236,6 +236,8 @@ extra.auto_delete Automatisch löschen
 extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
 extra.auto_to_record Timeshift zu den Aufnahmen hinzufügen
 extra.cache_txt Teletext zwischenspeichern
+extra.scrambled_message Verschlüsselung Meldeung
+extra.volume_pos Lautstärkeanzeige
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt....\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet....\n
 extra.clear_log Logdatei löschen
@@ -1152,6 +1154,8 @@ settings.missingoptionsconffile Die Neutrino-Einstellungen wurden erweitert.\nDi
 settings.noconffile Die Neutrino-Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
+settings.pos_default_center unten Mitte
+settings.pos_higher_center erhöht Mitte
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
