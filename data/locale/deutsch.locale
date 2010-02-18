@@ -236,7 +236,7 @@ extra.auto_delete Automatisch löschen
 extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
 extra.auto_to_record Timeshift zu den Aufnahmen hinzufügen
 extra.cache_txt Teletext zwischenspeichern
-extra.scrambled_message Verschlüsselung Meldeung
+extra.scrambled_message Verschlüsselung melden
 extra.volume_pos Lautstärkeanzeige
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt....\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet....\n
