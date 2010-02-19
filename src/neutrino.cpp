@@ -802,9 +802,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.audio_avs_Control = false;
 	g_settings.auto_lang = configfile.getInt32( "auto_lang", 0 );
 	g_settings.auto_subs = configfile.getInt32( "auto_subs", 0 );
+
 	for(int i = 0; i < 3; i++) {
 		sprintf(cfg_key, "pref_lang_%d", i);
 		strncpy(g_settings.pref_lang[i], configfile.getString(cfg_key, "").c_str(), 30);
+		sprintf(cfg_key, "pref_subs_%d", i);
+		strncpy(g_settings.pref_subs[i], configfile.getString(cfg_key, "").c_str(), 30);
 	}
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 1 );
 	g_settings.sms_channel = configfile.getInt32( "sms_channel", 0 );
@@ -1314,6 +1317,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	for(int i = 0; i < 3; i++) {
 		sprintf(cfg_key, "pref_lang_%d", i);
 		configfile.setString(cfg_key, g_settings.pref_lang[i]);
+		sprintf(cfg_key, "pref_subs_%d", i);
+		configfile.setString(cfg_key, g_settings.pref_subs[i]);
 	}
 	configfile.setString( "audio_PCMOffset", g_settings.audio_PCMOffset );
 
@@ -4874,10 +4879,10 @@ void CNeutrinoApp::SelectSubtitles()
 	CZapitChannel * cc = channelList->getChannel(curnum);
 
 	for(int i = 0; i < 3; i++) {
-		if(strlen(g_settings.pref_lang[i]) == 0)
+		if(strlen(g_settings.pref_subs[i]) == 0)
 			continue;
 
-		std::string temp(g_settings.pref_lang[i]);
+		std::string temp(g_settings.pref_subs[i]);
 
 		for(int j = 0 ; j < (int)cc->getSubtitleCount() ; j++) {
 			CZapitAbsSub* s = cc->getChannelSub(j);

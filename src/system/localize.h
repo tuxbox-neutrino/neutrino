@@ -50,6 +50,7 @@ class CLocaleManager
 {
 	private:
 		char * * localeData;
+		char * * defaultData;
 		
 	public:
 		enum loadLocale_ret_t
@@ -62,7 +63,7 @@ class CLocaleManager
 		CLocaleManager();
 		~CLocaleManager();
 
-		loadLocale_ret_t loadLocale(const char * const locale);
+		loadLocale_ret_t loadLocale(const char * const locale, bool asdefault = false);
 
 		const char * getText(const neutrino_locale_t keyName) const;
 

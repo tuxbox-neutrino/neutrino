@@ -173,6 +173,12 @@ CLocaleManager::CLocaleManager()
 	localeData = new char * [sizeof(locale_real_names)/sizeof(const char *)];
 	for (unsigned int i = 0; i < (sizeof(locale_real_names)/sizeof(const char *)); i++)
 		localeData[i] = (char *)locale_real_names[i];
+
+	defaultData = new char * [sizeof(locale_real_names)/sizeof(const char *)];
+	for (unsigned int i = 0; i < (sizeof(locale_real_names)/sizeof(const char *)); i++)
+		defaultData[i] = (char *)locale_real_names[i];
+
+	loadLocale("english", true);
 }
 
 CLocaleManager::~CLocaleManager()
@@ -186,10 +192,11 @@ CLocaleManager::~CLocaleManager()
 
 const char * path[2] = {"/var/tuxbox/config/locale/", DATADIR "/neutrino/locale/"};
 
-CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const locale)
+CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const locale, bool asdefault)
 {
 	unsigned int i;
 	FILE * fd;
+	char ** loadData = asdefault ? defaultData : localeData;
 
 	//initialize_iso639_map();
 
@@ -210,12 +217,15 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 		return NO_SUCH_LOCALE;
 	}
 
-	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
-		if (localeData[j] != locale_real_names[j])
-		{
-			free(localeData[j]);
-			localeData[j] = (char *)locale_real_names[j];
+	if(!asdefault) {
+		for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++) {
+			if (loadData[j] != locale_real_names[j] && loadData[j] != defaultData[j])
+			{
+				free(loadData[j]);
+			}
+			loadData[j] = (char *)locale_real_names[j];
 		}
+	}
 
 	char buf[1000];
 
@@ -258,8 +268,8 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 //printf("[%s] [%s]\n", buf,locale_real_names[i]);
 				if(!strcmp(buf,locale_real_names[i]))
 				{
-					if(localeData[i] == locale_real_names[i])
-						localeData[i] = strdup(text.c_str());
+					if(loadData[i] == locale_real_names[i])
+						loadData[i] = strdup(text.c_str());
 					else
 						printf("[%s.locale] dup entry: %s\n", locale, locale_real_names[i]);
 					break;
@@ -295,9 +305,11 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	}
 	fclose(fd);
 	for (unsigned j = 1; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
-		if (localeData[j] == locale_real_names[j])
+		if (loadData[j] == locale_real_names[j])
 		{
 			printf("[%s.locale] missing entry: %s\n", locale, locale_real_names[j]);
+			if(!asdefault)
+				loadData[j] = defaultData[j];
 		}
 
 	return (

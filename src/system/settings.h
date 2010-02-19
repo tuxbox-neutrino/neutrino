@@ -99,6 +99,7 @@ struct SNeutrinoSettings
 	char timezone[150];
 
 	char pref_lang[3][30];
+	char pref_subs[3][30];
 
 	// EPG
 	int epg_save;
