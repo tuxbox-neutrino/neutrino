@@ -751,10 +751,10 @@ settings.missingoptionsconffile The neutrino-settings have been updated.\nNew Op
 settings.noconffile No neutrino-settings found.\nUsing defaults.
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
-settings.pos_default_center oben center
+settings.pos_default_center top center
 settings.pos_higher_center higher center
-settings.pos_top_left oben top left
-settings.pos_top_right oben top right
+settings.pos_top_left top left
+settings.pos_top_right top right
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Sutdown ?
 sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Shutdown time in min. (000=off)
