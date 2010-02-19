@@ -23,6 +23,8 @@ audiomenu.ost ost
 audiomenu.PCMOffset Lautstärkeabsenkung PCM
 audiomenu.pref_lang Bevorzugte Sprache
 audiomenu.pref_lang_head Bevorzugte Sprachen
+audiomenu.pref_subs_head Bevorzugte Untertitelsprachen
+audiomenu.pref_subs Bevorzugte Untertitelsprache
 audiomenu.spdif_dd DolbyDigital über S/PDIF
 audiomenu.stereo stereo
 audioplayer.add Hinzufügen

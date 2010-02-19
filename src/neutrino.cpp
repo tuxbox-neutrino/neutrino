@@ -2394,7 +2394,11 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
-	g_volscale = new CProgressBar(true, 200, 15, 50, 100, 80, true);
+
+	int dx = 0;
+	int dy = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME,&dx,&dy);
+	g_volscale = new CProgressBar(true, dy*12.5, dy, 50, 100, 80, true);
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
@@ -3690,8 +3694,11 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 {
 	neutrino_msg_t msg = key;
 
-	int dx = 256;
-	int dy = 40;
+	int dx = 0;//256
+	int dy = 0;//32
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME,&dx,&dy);
+	dx *=16;
+	dy *=2;
 #if 0 // orig
 	int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
 	int y = g_settings.screen_EndY - 100;
@@ -3703,17 +3710,15 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 	int vol = g_settings.current_volume;
 	int sw = frameBuffer->getScreenWidth();
 	int sh = frameBuffer->getScreenHeight();
-	int borderX = x ;
+
 	switch( g_settings.volume_pos )
 	{
 		case 0:// upper right
 			x = sw - dx;
 		break;
 		case 1:// upper left
-			x = borderX;
 		break;
 		case 2:// bottom left
-			x = borderX;
 			y = sh - dy;
 		break;
 		case 3:// bottom right
@@ -3743,10 +3748,13 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 			g_volscale = new CProgressBar(g_settings.progressbar_color, 200, 15, 50, 100, 80, true);
 		}
 #endif
-		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x,y, 0, COL_INFOBAR);
-		frameBuffer->paintBoxRel (x + 40, y+12, 200, 15, COL_INFOBAR_PLUS_0);
+		frameBuffer->paintBoxRel(x , y , dx, dy, COL_INFOBAR_SHADOW_PLUS_1, dy/2);
+		frameBuffer->paintBoxRel (x + dy + (dy/4)-2, y+(dy/4)-2, ((dy/2)*12.5) +4, dy/2+4, COL_INFOBAR_PLUS_3);
+		frameBuffer->paintBoxRel (x + dy + (dy/4),   y+(dy/4), (dy/2)*12.5, dy/2, COL_INFOBAR_PLUS_0);
+		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x+dy/2,y+(dy/4), 0, COL_INFOBAR);
+
 		g_volscale->reset();
-		g_volscale->paintProgressBar2(x + 41, y + 12, g_settings.current_volume);
+		g_volscale->paintProgressBar2(x + dy+ (dy/4), y +(dy/4), g_settings.current_volume);
 	}
 
 	neutrino_msg_data_t data;
@@ -3788,7 +3796,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 		if (bDoPaint) {
 			if(vol != g_settings.current_volume) {
 				vol = g_settings.current_volume;
-				g_volscale->paintProgressBar2(x + 41, y + 12, g_settings.current_volume);
+				g_volscale->paintProgressBar2(x + dy+ (dy/4), y +(dy/4), g_settings.current_volume);
 			}
 		}
 
