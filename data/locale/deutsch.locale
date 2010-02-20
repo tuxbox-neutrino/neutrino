@@ -300,6 +300,9 @@ extra.sms_channel SMS-Modus Kanal
 extra.south Süden
 extra.spts_mode SPTS-Modus
 extra.start_tostandby In den Standby starten
+extra.rounded_corners Eckendarstellung
+extra.rounded_corners_off eckig
+extra.rounded_corners_on abgerundet
 extra.temp_timeshift Temporäres Timeshift
 extra.timeshift_pause Timeshift Pause
 extra.timezone Zeitzone

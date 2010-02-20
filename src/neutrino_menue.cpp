@@ -1486,6 +1486,13 @@ const CMenuOptionChooser::keyval  MENU_DISP_POS_OPTIONS[MENU_DISP_POS_OPTIONS_CO
         { 4 , LOCALE_SETTINGS_POS_BOTTOM_RIGHT }
 };
 
+#define MENU_CORNERSETTINGS_TYPE_OPTION_COUNT 2
+const CMenuOptionChooser::keyval MENU_CORNERSETTINGS_TYPE_OPTIONS[MENU_CORNERSETTINGS_TYPE_OPTION_COUNT] =
+{
+	{ 0, LOCALE_EXTRA_ROUNDED_CORNERS_OFF },
+	{ 1, LOCALE_EXTRA_ROUNDED_CORNERS_ON  }
+};
+
 void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 {
 	dprintf(DEBUG_DEBUG, "init miscsettings\n");
@@ -1518,6 +1525,7 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_VOLUME_POS, &g_settings.volume_pos, VOLUMEBAR_DISP_POS_OPTIONS, VOLUMEBAR_DISP_POS_OPTIONS_COUNT, true));
 	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_SETTINGS_MENU_POS, &g_settings.menu_pos, MENU_DISP_POS_OPTIONS, MENU_DISP_POS_OPTIONS_COUNT, true));
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true));
 	miscSettings.addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, miscSettingsGeneral, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 
 	//channellist

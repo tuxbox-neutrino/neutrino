@@ -46,7 +46,6 @@
 #include <gui/widget/messagebox.h>
 #include "gui/widget/icons.h"
 
-#define ROUND_RADIUS 8
 
 #define VALUE_R     0
 #define VALUE_G     1
@@ -243,10 +242,10 @@ void CColorChooser::hide()
 void CColorChooser::paint()
 {
 	//frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP); //round
+	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, RADIUS_MID, CORNER_TOP); //round
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
 	//frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_MID, CORNER_BOTTOM);//round
 
 	for (int i = 0; i < 4; i++)
 		paintSlider(x + 10, y + hheight + mheight * i, value[i], colorchooser_names[i], iconnames[i], (i == 0));

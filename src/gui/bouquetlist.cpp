@@ -55,7 +55,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#define ROUND_RADIUS 9
 extern CBouquetManager *g_bouquetManager;
 
 CBouquetList::CBouquetList(const char * const Name)
@@ -468,7 +467,7 @@ void CBouquetList::paintItem(int pos)
 	if (npos == (int) selected) {
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
+		frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 		if(npos < (int) Bouquets.size())
 			CVFD::getInstance()->showMenuText(0, lname, -1, true);
 	} else {
@@ -501,7 +500,7 @@ const struct button_label CBouquetListButtons[4] =
 
 void CBouquetList::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, name, COL_MENUHEAD, 0, true); // UTF-8
 }
 
@@ -522,12 +521,12 @@ void CBouquetList::paint()
 	else // if(lastnum<100000)
 		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00000");
 
-	//frameBuffer->paintBoxRel(x, y+theight, width, height-theight+10, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	//frameBuffer->paintBoxRel(x, y+theight, width, height-theight+10, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - buttonHeight, COL_MENUCONTENT_PLUS_0);
 
 	int ButtonWidth = (width - 20) / 4;
 
-	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth, sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons);
 
 	if(Bouquets.size())

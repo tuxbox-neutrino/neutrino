@@ -48,8 +48,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#define ROUND_RADIUS 9
-
 CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -479,8 +477,8 @@ void CStringInput::paint()
 
 	//frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0);
 	//frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP); //round
-	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //round
+	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	if (!(iconfile.empty()))
 	{
@@ -693,7 +691,7 @@ void CStringInputSMS::paint()
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x+20+140, y+ hheight+ mheight+ iheight* 3+ 30, 0, COL_MENUCONTENT);
 
-	frameBuffer->paintBoxRel(x,y+height-25, width,25, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x,y+height-25, width,25, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	frameBuffer->paintHLine(x, x+width,  y+height-25, COL_INFOBAR_SHADOW_PLUS_0);
 
 	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 8, y+height-25+1, 230, 2, CStringInputSMSButtons);

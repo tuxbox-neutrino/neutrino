@@ -59,7 +59,6 @@ extern CPictureViewer * g_PicViewer;
 #define PIC_H 39
 
 #define ICON_LARGE_WIDTH 26
-#define ROUND_RADIUS 9
 
 int findItem(std::string strItem, std::vector<std::string> & vecItems) {
 	for (std::vector<std::string>::size_type nCnt = 0; nCnt < vecItems.size(); nCnt++) {
@@ -570,7 +569,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	}
 
 	//show the epg
-	frameBuffer->paintBoxRel(sx, sy, ox, toph, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBoxRel(sx, sy, ox, toph, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 
 	int pic_offx = 0;
 
@@ -1048,7 +1047,7 @@ void CEpgData::showTimerEventBar (bool pshow)
 	// hide only?
 	if (! pshow) return;
 
-	frameBuffer->paintBoxRel(x,y,w,h, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(x,y,w,h, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	// Button: Timer Record & Channelswitch
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)

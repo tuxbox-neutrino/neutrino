@@ -52,8 +52,6 @@
 extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 
-#define ROUND_RADIUS 9
-
 CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bouquet)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -81,7 +79,7 @@ void CBEChannelWidget::paintItem(int pos)
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 	} else {
 		color   = COL_MENUCONTENT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
@@ -132,7 +130,7 @@ void CBEChannelWidget::paint()
 
 void CBEChannelWidget::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, caption.c_str() , COL_MENUHEAD, 0, true);
 }
 
@@ -146,7 +144,7 @@ const struct button_label CBEChannelWidgetButtons[4] =
 
 void CBEChannelWidget::paintFoot()
 {
-	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
 	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + height + 4, (width - 20) / 4, 4, CBEChannelWidgetButtons);

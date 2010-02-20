@@ -40,8 +40,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#define ROUND_RADIUS 9
-
 CMessageBox::CMessageBox(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon, const CMessageBox::result_ Default, const uint32_t ShowButtons) : CHintBoxExt(Caption, Text, Width, Icon)
 {
 	returnDefaultOnTimeout = false;
@@ -100,7 +98,7 @@ void CMessageBox::paintButtons()
 	fb_pixel_t bgcolor;
 
 	//m_window->paintBoxRel(0, m_height - (m_fheight << 1), m_width, (m_fheight << 1), (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0);
-	m_window->paintBoxRel(0, m_height - (m_fheight << 1), m_width, (m_fheight << 1), (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	m_window->paintBoxRel(0, m_height - (m_fheight << 1), m_width, (m_fheight << 1), (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	//irgendwann alle vergleichen - aber cancel ist sicher der längste
 	int MaxButtonTextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL), true); // UTF-8
@@ -128,7 +126,7 @@ void CMessageBox::paintButtons()
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 		//m_window->paintBoxRel(xpos, m_height - m_fheight - 20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor);
-		m_window->paintBoxRel(xpos, m_height - m_fheight - 20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, ROUND_RADIUS);//round
+		m_window->paintBoxRel(xpos, m_height - m_fheight - 20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
 		m_window->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14, m_height - m_fheight - 15);
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
 		xpos += ButtonWidth + ButtonSpacing;
@@ -149,7 +147,7 @@ void CMessageBox::paintButtons()
 		}
 
 		//m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor);
-		m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, ROUND_RADIUS);//round
+		m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
 		m_window->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos+14, m_height-m_fheight-15);
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_NO), (CFBWindow::color_t)color, 0, true); // UTF-8
 		xpos += ButtonWidth + ButtonSpacing;
@@ -170,7 +168,7 @@ void CMessageBox::paintButtons()
 		}
 
 		//m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor);
-		m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, ROUND_RADIUS);//round
+		m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
 		m_window->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+10, m_height-m_fheight-19);
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : LOCALE_MESSAGEBOX_BACK), (CFBWindow::color_t)color, 0, true); // UTF-8
 	}

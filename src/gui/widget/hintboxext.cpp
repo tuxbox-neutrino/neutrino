@@ -42,8 +42,6 @@
 
 #include <iostream>
 
-#define ROUND_RADIUS 9
-
 #define HINTBOXEXT_MAX_HEIGHT 420
 
 CHintBoxExt::CHintBoxExt(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon)
@@ -219,9 +217,9 @@ void CHintBoxExt::refresh(bool toround)
 		return;
 	}
 	// bottom, right shadow
-	m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
+	m_window->paintBoxRel(SHADOW_OFFSET, SHADOW_OFFSET, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, toround ? CORNER_ALL : CORNER_BOTTOM | CORNER_TOP_RIGHT);
 	// title
-	m_window->paintBoxRel(0, 0, m_width, m_theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
+	m_window->paintBoxRel(0, 0, m_width, m_theight, (CFBWindow::color_t)COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
 
 	if (!m_iconfile.empty())
 	{
@@ -232,7 +230,7 @@ void CHintBoxExt::refresh(bool toround)
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, m_theight, m_width - 10, g_Locale->getText(m_caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
 
 	// background of text panel
-	m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, toround ? ROUND_RADIUS : 0, CORNER_BOTTOM);//round
+	m_window->paintBoxRel(0, m_theight, m_width, (m_maxEntriesPerPage + 1) * m_fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, toround ? RADIUS_LARGE : 0, CORNER_BOTTOM);//round
 
 	int yPos  = m_theight + (m_fheight >> 1);
 

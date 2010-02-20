@@ -50,8 +50,6 @@
 #define BRIGHTNESSFACTOR 2.55
 #define CONTRASTFACTOR 0.63
 
-#define ROUND_RADIUS 9
-
 CLcdControler::CLcdControler(const neutrino_locale_t Name, CChangeObserver* Observer)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -307,8 +305,8 @@ void CLcdControler::paint()
 
 	//frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0);
 	//frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
-	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(x,y, width,hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
+	frameBuffer->paintBoxRel(x,y+hheight, width,height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
 

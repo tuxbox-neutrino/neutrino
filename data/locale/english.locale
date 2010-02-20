@@ -926,6 +926,9 @@ zaptotimer.announce Zapto timer in one minute
 extra.dboxinfo Box Info
 extra.scan_mode Scan mode
 extra.start_tostandby Startup to standby
+extra.rounded_corners Shape of corners
+extra.rounded_corners_off angular
+extra.rounded_corners_on rounded
 extra.rotor_swap Swap rotor east/west
 extra.use_log Log to /tmp/log
 extra.spts_mode SPTS mode

@@ -50,8 +50,6 @@
 
 #define BRIGHTNESSFACTOR 0.15 // 0 - 15
 
-#define ROUND_RADIUS 9
-
 CVfdControler::CVfdControler(const neutrino_locale_t Name, CChangeObserver* Observer)
 {
 	frameBuffer	= CFrameBuffer::getInstance();
@@ -134,7 +132,7 @@ int CVfdControler::exec(CMenuTarget* parent, const std::string &)
 					CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 					break;
 				case 2:
-					frameBuffer->paintBoxRel(x, y+hheight+mheight*2+mheight/2, width, mheight, COL_MENUCONTENTSELECTED_PLUS_0, ROUND_RADIUS);
+					frameBuffer->paintBoxRel(x, y+hheight+mheight*2+mheight/2, width, mheight, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_LARGE);
 					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10, y+hheight+mheight*3+mheight/2, width, g_Locale->getText(LOCALE_OPTIONS_DEFAULT), COL_MENUCONTENTSELECTED, 0, true); // UTF-8
 					break;
 				}
@@ -154,7 +152,7 @@ int CVfdControler::exec(CMenuTarget* parent, const std::string &)
 				case 1:
 					paintSlider(x+10, y+hheight+mheight, brightnessstandby, BRIGHTNESSFACTOR, LOCALE_LCDCONTROLER_BRIGHTNESSSTANDBY, true);
 					CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
-					frameBuffer->paintBoxRel(x, y+hheight+mheight*2+mheight/2, width, mheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+					frameBuffer->paintBoxRel(x, y+hheight+mheight*2+mheight/2, width, mheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 					g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10, y+hheight+mheight*3+mheight/2, width, g_Locale->getText(LOCALE_OPTIONS_DEFAULT), COL_MENUCONTENT, 0, true); // UTF-8
 					break;
 				case 2:
@@ -255,8 +253,8 @@ void CVfdControler::paint()
 {
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
-	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
-	frameBuffer->paintBoxRel(x, y+hheight, width, height-hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
+	frameBuffer->paintBoxRel(x, y+hheight, width, height-hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+hheight, width, g_Locale->getText(name), COL_MENUHEAD, 0, true); // UTF-8
 

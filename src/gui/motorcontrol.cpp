@@ -59,7 +59,6 @@ static int moving = 0;
 #define BAR_BORDER 2
 #define BAR_WIDTH 100
 #define BAR_HEIGHT 16 //(13 + BAR_BORDER*2)
-#define ROUND_RADIUS 9
 
 #define get_set CNeutrinoApp::getInstance()->getScanSettings()
 CMotorControl::CMotorControl()
@@ -537,9 +536,9 @@ void CMotorControl::paintStatus()
 void CMotorControl::paint()
 {
 	ypos = y;
-	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + 10, ypos + hheight, width, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos += hheight + (mheight >> 1) - 10;
 	ypos_menue = ypos;

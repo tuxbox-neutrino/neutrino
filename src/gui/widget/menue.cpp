@@ -49,8 +49,6 @@
 
 #include <cctype>
 
-#define ROUND_RADIUS 9
-
 /* the following generic menu items are integrated into multiple menus at the same time */
 CMenuSeparator CGenericMenuSeparator;
 CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE);
@@ -533,7 +531,7 @@ void CMenuWidget::paint()
 	}
 
 	//frameBuffer->paintBoxRel(x,y, width+sb_width,hheight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x, y, width+sb_width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP); //FIXME rounded
+	frameBuffer->paintBoxRel(x, y, width+sb_width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //FIXME rounded
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+38,y+hheight+1, width-40, l_name, COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintIcon(iconfile, x + 8, y, hheight);
@@ -560,12 +558,12 @@ void CMenuWidget::paintItems()
 	{
 		int sbh= ((item_height-4) / total_pages);
 		// items box
-		frameBuffer->paintBoxRel(x, item_start_y, width+15, item_height+10, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+		frameBuffer->paintBoxRel(x, item_start_y, width+15, item_height+10, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 		// scrollbar
 		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1);
 		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page* sbh, 11, sbh, COL_MENUCONTENT_PLUS_3);
 	} else
-		frameBuffer->paintBoxRel(x, item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//FIXME round
+		frameBuffer->paintBoxRel(x, item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//FIXME round
 
 	int ypos=item_start_y;
 	for (unsigned int count = 0; count < items.size(); count++) {
@@ -646,9 +644,9 @@ int CMenuOptionNumberChooser::paint(bool selected, bool last)
 	}
 
 	if(selected)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS); //FIXME
+		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
 	else if(last)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS, CORNER_BOTTOM); //FIXME
+		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
 	else
 		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor);
 
@@ -857,9 +855,9 @@ int CMenuOptionChooser::paint( bool selected , bool last)
 	}
 
 	if(selected)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS); //FIXME
+		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
 	else if(last)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS, CORNER_BOTTOM); //FIXME
+		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
 	else
 		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor);
 
@@ -1036,9 +1034,9 @@ int CMenuOptionStringChooser::paint( bool selected, bool last )
 	}
 
 	if(selected)
-		fb->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS); //FIXME
+		fb->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
 	else if(last)
-		fb->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS, CORNER_BOTTOM); //FIXME
+		fb->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
 	else
 		fb->paintBoxRel(x, y, dx, height, bgcolor);
 
@@ -1137,9 +1135,9 @@ int CMenuOptionLanguageChooser::paint( bool selected, bool last )
 	}
 
 	if(selected)
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS); //FIXME
+		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
 	else if(last)
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS, CORNER_BOTTOM); //FIXME
+		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
 	else
 		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor);
 
@@ -1271,9 +1269,9 @@ int CMenuForwarder::paint(bool selected, bool last)
 	}
 
 	if(selected)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS); //FIXME
+		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
 	else if(last)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, ROUND_RADIUS, CORNER_BOTTOM); //FIXME
+		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
 	else
 		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+ height, dx- (stringstartposX - x), l_text, color, 0, true); // UTF-8

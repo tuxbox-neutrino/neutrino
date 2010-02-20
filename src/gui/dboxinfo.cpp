@@ -55,7 +55,7 @@ static const int FSHIFT = 16;              /* nr of bits of precision */
 #define FIXED_1         (1<<FSHIFT)     /* 1.0 as fixed-point */
 #define LOAD_INT(x) ((x) >> FSHIFT)
 #define LOAD_FRAC(x) LOAD_INT(((x) & (FIXED_1-1)) * 100)
-#define ROUND_RADIUS 9
+
 CDBoxInfoWidget::CDBoxInfoWidget()
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -146,8 +146,8 @@ void CDBoxInfoWidget::paint()
 	fprintf(stderr, "CDBoxInfoWidget::CDBoxInfoWidget() x = %d, y = %d, width = %d height = %d\n", x, y, width, height);
 	int ypos=y;
 	int i = 0;
-	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
-	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
+	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos+= hheight + (mheight >>1);
 	FILE* fd = fopen("/proc/cpuinfo", "rt");

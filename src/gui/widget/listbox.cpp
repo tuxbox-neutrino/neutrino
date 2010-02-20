@@ -31,7 +31,6 @@
 #include <neutrino.h>
 
 #include <gui/widget/icons.h>
-#define ROUND_RADIUS 9
 
 CListBox::CListBox(const char * const Caption)
 {
@@ -80,7 +79,7 @@ void CListBox::paint()
 void CListBox::paintHead()
 {
 	//frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x, y, width, theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
+	frameBuffer->paintBoxRel(x, y, width, theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, caption.c_str() , COL_MENUHEAD, 0, true);
 }
 
@@ -88,7 +87,7 @@ void CListBox::paintFoot()
 {
 	int ButtonWidth = width / 4;
 	//frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x, y+height, width, ButtonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(x, y+height, width, ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 	frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 4* ButtonWidth+ 8, y+height+1);

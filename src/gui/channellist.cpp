@@ -82,7 +82,6 @@ extern CBouquetList   * RADIOallList;
 
 #define PIC_W 52
 #define PIC_H 39
-#define ROUND_RADIUS 9
 
 extern t_channel_id rec_channel_id;
 extern bool autoshift;
@@ -1320,7 +1319,7 @@ void CChannelList::paintDetails(int index)
 	} else
 #endif
 	{
-		frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, ROUND_RADIUS);//round
+		frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
 
 		if (!p_event->description.empty()) {
 			char cNoch[50]; // UTF-8
@@ -1453,7 +1452,7 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,4, col1);
 			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,1, col2);
 
-			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, ROUND_RADIUS);
+			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, RADIUS_LARGE);
 		}
 	}
 }
@@ -1492,7 +1491,7 @@ void CChannelList::paintItem(int pos)
 		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname))
 			g_PicViewer->DisplayImage(lname, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
 #endif
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 	} else {
 		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
@@ -1669,7 +1668,7 @@ const struct button_label CChannelVListButtons[NUM_VLIST_BUTTONS] =
 void CChannelList::paintHead()
 {
 	// head
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);//round
+	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width- 65, name, COL_MENUHEAD, 0, true); // UTF-8
 
 	int ButtonWidth = (width - 20) / 4;
@@ -1681,7 +1680,7 @@ void CChannelList::paintHead()
 		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
 	}
 
-	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM); //round
+	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
 	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth,
 		vlist ? NUM_VLIST_BUTTONS : NUM_LIST_BUTTONS, vlist ? CChannelVListButtons : CChannelListButtons);
 

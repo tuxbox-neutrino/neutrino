@@ -49,8 +49,6 @@
 #include <config.h>
 #endif
 
-#define ROUND_RADIUS 9
-
 #include "stdlib.h"
 #include "listframe.h"
 #include <gui/widget/icons.h>
@@ -412,7 +410,7 @@ void CListFrame::refreshList(void)
 			frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX,
 					y+m_cFrame.iY, m_cFrameListRel.iWidth,
 					m_nFontListHeight,  LIST_BACKGROUND_COLOR_SELECTED,
-					ROUND_RADIUS);
+					RADIUS_LARGE);
 		}
 		int width;
 		int x = m_cFrameListRel.iX + TEXT_BORDER_WIDTH;
@@ -450,7 +448,7 @@ void CListFrame::refreshLine(int line)
 		color = LIST_FONT_COLOR_SELECTED;
 		frameBuffer->paintBoxRel(m_cFrameListRel.iX+m_cFrame.iX, y+m_cFrame.iY,
 				m_cFrameListRel.iWidth, m_nFontListHeight, LIST_BACKGROUND_COLOR_SELECTED,
-				ROUND_RADIUS);
+				RADIUS_LARGE);
 	}
 	else
 	{

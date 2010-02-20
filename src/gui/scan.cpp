@@ -70,8 +70,6 @@ TP_params TP;
 #define BAR_WIDTH 150
 #define BAR_HEIGHT 16//(13 + BAR_BORDER*2)
 
-#define ROUND_RADIUS 9
-
 CScanTs::CScanTs()
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -248,7 +246,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 		const char * text = g_Locale->getText(success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
 		//paintLine(xpos2, ypos_frequency, xpos_frequency, text);
-		frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+		frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(xpos1, y + hheight, width, text, COL_MENUHEAD, 0, true); // UTF-8
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
@@ -405,10 +403,10 @@ void CScanTs::paint(bool fortest)
 	ypos = y;
 
 	//frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(xpos1, ypos + hheight, width, fortest ? g_Locale->getText(LOCALE_SCANTS_TEST) : g_Locale->getText(LOCALE_SCANTS_HEAD), COL_MENUHEAD, 0, true); // UTF-8
 	//frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0);
-	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	frameBuffer->loadPal("radar.pal", 18, 38);
 

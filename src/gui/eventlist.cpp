@@ -63,8 +63,6 @@ extern CPictureViewer * g_PicViewer;
 #define PIC_W 52
 #define PIC_H 39
 
-#define ROUND_RADIUS 9
-
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
@@ -604,7 +602,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_id)
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, color == COL_MENUCONTENTSELECTED ? ROUND_RADIUS : 0);
+	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, color == COL_MENUCONTENTSELECTED ? RADIUS_LARGE : 0);
 
 	if(liststart+pos<evtlist.size())
 	{
@@ -676,7 +674,7 @@ void EventList::paintHead(t_channel_id channel_id, std::string channelname)
 {
 	bool logo_ok = false;
 
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 
 	std::string lname;
 	if(g_PicViewer->GetLogoName(channel_id, channelname, lname))
@@ -734,7 +732,7 @@ void  EventList::showFunctionBar (bool show)
 
     // -- frameBuffer->paintBoxRel(x,y,w,h, COL_INFOBAR_SHADOW_PLUS_1);
     //frameBuffer->paintBoxRel(bx,by,bw,bh, COL_MENUHEAD_PLUS_0);
-    frameBuffer->paintBoxRel(bx,by,bw,bh, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+    frameBuffer->paintBoxRel(bx,by,bw,bh, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 
     // -- Button: Timer Record & Channelswitch

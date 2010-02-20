@@ -51,7 +51,6 @@
 #include <zapit/client/zapittools.h>
 extern CBouquetManager *g_bouquetManager;
 
-#define ROUND_RADIUS 9
 
 CBEBouquetWidget::CBEBouquetWidget()
 {
@@ -80,7 +79,7 @@ void CBEBouquetWidget::paintItem(int pos)
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, ROUND_RADIUS);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
 	} else {
 		bool has_channels = true;
 		if(current < Bouquets->size())
@@ -127,7 +126,7 @@ void CBEBouquetWidget::paint()
 
 void CBEBouquetWidget::paintHead()
 {
-	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width, g_Locale->getText(LOCALE_BOUQUETLIST_HEAD), COL_MENUHEAD, 0, true); // UTF-8
 }
 
@@ -146,7 +145,7 @@ void CBEBouquetWidget::paintFoot()
 	Button[2] = CBEBouquetWidgetButtons[2];
 	Button[3].button = NEUTRINO_ICON_BUTTON_BLUE;
 
-	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
 	switch( blueFunction)

@@ -92,7 +92,6 @@ extern t_channel_id live_channel_id; //zapit
 
 #define LCD_UPDATE_TIME_TV_MODE (60 * 1000 * 1000)
 
-#define ROUND_RADIUS 7
 
 int time_left_width;
 int time_dot_width;
@@ -292,7 +291,7 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 		strcpy (old_timestr, timestr);
 
 		if (!firstPaint) {
-			frameBuffer->paintBoxRel(BoxEndX - time_width - LEFT_OFFSET, ChanNameY, time_width + LEFT_OFFSET, time_height, COL_INFOBAR_PLUS_0, ROUND_RADIUS, CORNER_TOP);
+			frameBuffer->paintBoxRel(BoxEndX - time_width - LEFT_OFFSET, ChanNameY, time_width + LEFT_OFFSET, time_height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_TOP);
 		}
 
 		timestr[2] = 0;
@@ -472,15 +471,15 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 #if 0
 	//Shadow
-	frameBuffer->paintBox(BoxEndX-20, ChanNameY + SHADOW_OFFSET, BoxEndX + SHADOW_OFFSET, BoxEndY, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, CORNER_TOP);
-	frameBuffer->paintBox(ChanInfoX + SHADOW_OFFSET, BoxEndY -20, BoxEndX + SHADOW_OFFSET, BoxEndY + SHADOW_OFFSET, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS, CORNER_BOTTOM); //round
+	frameBuffer->paintBox(BoxEndX-20, ChanNameY + SHADOW_OFFSET, BoxEndX + SHADOW_OFFSET, BoxEndY, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL, CORNER_TOP);
+	frameBuffer->paintBox(ChanInfoX + SHADOW_OFFSET, BoxEndY -20, BoxEndX + SHADOW_OFFSET, BoxEndY + SHADOW_OFFSET, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL, CORNER_BOTTOM); //round
 
 	//infobox
-	frameBuffer->paintBoxRel(ChanNameX-10, ChanNameY, BoxEndX-ChanNameX+10, BoxEndInfoY-ChanNameY, COL_INFOBAR_PLUS_0, ROUND_RADIUS, CORNER_TOP); // round
+	frameBuffer->paintBoxRel(ChanNameX-10, ChanNameY, BoxEndX-ChanNameX+10, BoxEndInfoY-ChanNameY, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_TOP); // round
 
 	//number box
-	frameBuffer->paintBoxRel (BoxStartX + SHADOW_OFFSET, BoxStartY + SHADOW_OFFSET, ChanWidth, ChanHeight + 4, COL_INFOBAR_SHADOW_PLUS_0, ROUND_RADIUS); // round
-	frameBuffer->paintBoxRel (BoxStartX, BoxStartY, ChanWidth, ChanHeight + 4, COL_INFOBAR_PLUS_0, ROUND_RADIUS); // round
+	frameBuffer->paintBoxRel (BoxStartX + SHADOW_OFFSET, BoxStartY + SHADOW_OFFSET, ChanWidth, ChanHeight + 4, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL); // round
+	frameBuffer->paintBoxRel (BoxStartX, BoxStartY, ChanWidth, ChanHeight + 4, COL_INFOBAR_PLUS_0, RADIUS_SMALL); // round
 #endif
 	paintBackground(col_NumBox);
 
@@ -558,7 +557,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 					frameBuffer->paintBoxRel(ChanInfoX + i*4, BoxEndY + 2 + j*4, 2, 2, COL_INFOBAR_PLUS_1);
 			}
 		}
-		frameBuffer->paintBoxRel(ChanInfoX, BBarY, BoxEndX - ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, ROUND_RADIUS, CORNER_BOTTOM); //round
+		frameBuffer->paintBoxRel(ChanInfoX, BBarY, BoxEndX - ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
 
 		showSNR();
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, ChanInfoX + 16*3 + asize * 3 + 2*6,
