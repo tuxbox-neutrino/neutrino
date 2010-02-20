@@ -21,10 +21,11 @@ audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
 audiomenu.ost ost
 audiomenu.PCMOffset Lautstärkeabsenkung PCM
-audiomenu.pref_lang Bevorzugte Sprache
-audiomenu.pref_lang_head Bevorzugte Sprachen
-audiomenu.pref_subs_head Bevorzugte Untertitelsprachen
-audiomenu.pref_subs Bevorzugte Untertitelsprache
+audiomenu.pref_lang Sprache
+audiomenu.pref_lang_head Tonwahl
+audiomenu.pref_languages Bevorzugte Sprachen
+audiomenu.pref_subs_head Untertitelwahl
+audiomenu.pref_subs Sprache
 audiomenu.spdif_dd DolbyDigital über S/PDIF
 audiomenu.stereo stereo
 audioplayer.add Hinzufügen
