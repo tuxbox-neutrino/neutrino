@@ -91,7 +91,6 @@ void CMotorControl::Init(void)
 	stepDelay = 10;
 	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	pbBlinkChange = g_settings.progressbar_color;
 }
 
 int CMotorControl::exec(CMenuTarget* parent, const std::string &)
@@ -107,19 +106,6 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
         CZapitClient::commandSetScanSatelliteList sat;
 	sat_iterator_t sit;
 
-#if 0
-	if(pbBlinkChange != g_settings.progressbar_color){
-		pbBlinkChange = g_settings.progressbar_color;
-		if(sigscale){
-			delete sigscale;
-			sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
-		}
-		if(snrscale){
-			delete snrscale;
-			snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
-		}
-	}
-#endif
 	sigscale->reset();
 	snrscale->reset();
 	lastsnr = lastsig = -1;

@@ -81,7 +81,6 @@ CScanTs::CScanTs()
 
 	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
-	pbBlinkChange = g_settings.progressbar_color;
 }
 
 extern int scan_pids;
@@ -117,19 +116,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(scan_all)
 		scan_mode |= 0xFF00;
 
-#if 0
-	if(pbBlinkChange != g_settings.progressbar_color){
-		pbBlinkChange = g_settings.progressbar_color;
-		if(sigscale){
-			delete sigscale;
-			sigscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
-		}
-		if(snrscale){
-			delete snrscale;
-			snrscale = new CProgressBar(g_settings.progressbar_color, BAR_WIDTH, BAR_HEIGHT);
-		}
-	}
-#endif
 	sigscale->reset();
 	snrscale->reset();
 	lastsig = lastsnr = -1;

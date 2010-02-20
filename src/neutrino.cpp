@@ -795,6 +795,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.casystem_display = configfile.getBool("casystem_display", false );
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );                                                                                                  
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );                                                                                                                  
+	g_settings.menu_pos = configfile.getInt32("menu_pos", 0 );                                                                                                                  
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
@@ -1305,8 +1306,9 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setBool("casystem_display"  , g_settings.casystem_display  );
-	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );                                                                                                      
-	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );                                                                                                                   
+	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
+	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
+	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
@@ -2562,7 +2564,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hdd->exec(NULL, "");
 	delete hdd;
 
-	pbBlinkChange = g_settings.progressbar_color;
 	InitZapper();
 	InitRecordingSettings(recordingSettings);
 	InitStreamingSettings(streamingSettings);
@@ -3697,6 +3698,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 	int dx = 0;//256
 	int dy = 0;//32
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME,&dx,&dy);
+printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 	dx *=16;
 	dy *=2;
 #if 0 // orig
@@ -3715,23 +3717,23 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 	{
 		case 0:// upper right
 			x = sw - dx;
-		break;
+			break;
 		case 1:// upper left
-		break;
+			break;
 		case 2:// bottom left
 			y = sh - dy;
-		break;
+			break;
 		case 3:// bottom right
 			x = sw - dx;
 			y = sh - dy;
-		break;
+			break;
 		case 4:// center default
 			x = ((sw - dx) / 2) + x;
-		break;
+			break;
 		case 5:// center higher
 			x = ((sw - dx) / 2) + x;
 			y = sh - 100;
-		break;
+			break;
 	}
 
 	fb_pixel_t * pixbuf = NULL;
@@ -3740,14 +3742,7 @@ void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool
 		pixbuf = new fb_pixel_t[dx * dy];
 		if(pixbuf!= NULL)
 			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
-#if 0
-		if(pbBlinkChange != g_settings.progressbar_color){
-			pbBlinkChange = g_settings.progressbar_color;
-			if(g_volscale)
-				delete g_volscale;
-			g_volscale = new CProgressBar(g_settings.progressbar_color, 200, 15, 50, 100, 80, true);
-		}
-#endif
+
 		frameBuffer->paintBoxRel(x , y , dx, dy, COL_INFOBAR_SHADOW_PLUS_1, dy/2);
 		frameBuffer->paintBoxRel (x + dy + (dy/4)-2, y+(dy/4)-2, ((dy/2)*12.5) +4, dy/2+4, COL_INFOBAR_PLUS_3);
 		frameBuffer->paintBoxRel (x + dy + (dy/4),   y+(dy/4), (dy/2)*12.5, dy/2, COL_INFOBAR_PLUS_0);

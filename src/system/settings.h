@@ -67,6 +67,7 @@ struct SNeutrinoSettings
 	int casystem_display;
 	int scrambled_message;
 	int volume_pos;
+	int menu_pos;
 
 	//audio
 	int audio_AnalogMode;

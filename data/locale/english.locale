@@ -756,6 +756,7 @@ settings.pos_default_center top center
 settings.pos_higher_center higher center
 settings.pos_top_left top left
 settings.pos_top_right top right
+settings.menu_pos Menu position
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Sutdown ?
 sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Shutdown time in min. (000=off)

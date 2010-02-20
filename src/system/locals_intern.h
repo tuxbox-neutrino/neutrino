@@ -992,6 +992,7 @@ const char *locale_real_names[] = {
 	"settings.pos_higher_center",
 	"settings.pos_top_left",
 	"settings.pos_top_right",
+	"settings.menu_pos",
 	"shutdowntimer.announce",
 	"shutdown.recoding_query",
 	"sleeptimerbox.announce",

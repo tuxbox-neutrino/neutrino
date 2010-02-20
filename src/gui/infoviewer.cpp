@@ -167,7 +167,6 @@ void CInfoViewer::Init()
 	/* after font size changes, Init() might be called multiple times */
 	changePB();
 
-	pbBlinkChange = g_settings.progressbar_color;
 	casysChange = g_settings.casystem_display;
 	channellogoChange = g_settings.infobar_show_channellogo;
 
@@ -378,11 +377,6 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	aspectRatio = 0;
 
 	bool fadeIn = g_settings.widget_fade && (!is_visible) && showButtonBar;
-
-	if(pbBlinkChange != g_settings.progressbar_color){
-		pbBlinkChange = g_settings.progressbar_color;
-		//changePB();
-	}
 
 	if (casysChange != g_settings.casystem_display || channellogoChange != g_settings.infobar_show_channellogo){
 		casysChange = g_settings.casystem_display;

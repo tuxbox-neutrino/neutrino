@@ -511,6 +511,27 @@ void CMenuWidget::paint()
 	else
 		sb_width=0;
 
+	switch(g_settings.menu_pos) {
+		case 0: //DEFAULT_CENTER
+			break;
+		case 1: //TOP_LEFT
+			y = offy + frameBuffer->getScreenY() + 10;
+			x = offx + frameBuffer->getScreenX() + 10;
+			break;
+		case 2: //TOP_RIGHT
+			y = offy + frameBuffer->getScreenY() + 10;
+			x = offx + frameBuffer->getScreenX() + frameBuffer->getScreenWidth() - width - sb_width - 10;
+			break;
+		case 3: //BOTTOM_LEFT
+			y = offy + frameBuffer->getScreenY() + frameBuffer->getScreenHeight() - height - 10;
+			x = offx + frameBuffer->getScreenX() + 10;
+			break;
+		case 4: //BOTTOM_RIGHT
+			y = offy + frameBuffer->getScreenY() + frameBuffer->getScreenHeight() - height - 10;
+			x = offx + frameBuffer->getScreenX() + frameBuffer->getScreenWidth() - width - sb_width - 10;
+			break;
+	}
+
 	//frameBuffer->paintBoxRel(x,y, width+sb_width,hheight, COL_MENUHEAD_PLUS_0);
 	frameBuffer->paintBoxRel(x, y, width+sb_width, hheight, COL_MENUHEAD_PLUS_0, ROUND_RADIUS, CORNER_TOP); //FIXME rounded
 

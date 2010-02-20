@@ -67,7 +67,6 @@ class CMotorControl : public CMenuTarget
 		int satfindpid;
 		int lastsnr, lastsig;
 		CProgressBar *snrscale, *sigscale;
-		bool pbBlinkChange;
 		void paint();
 		void paintMenu(void);
 		void paintStatus(void);
