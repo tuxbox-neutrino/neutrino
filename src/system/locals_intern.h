@@ -149,6 +149,7 @@ const char *locale_real_names[] = {
 	"audiomenu.clockrec",
 	"audiomenu.auto_lang",
 	"audiomenu.auto_subs",
+	"audiomenu.pref_languages",
 	"audiomenu.pref_lang_head",
 	"audiomenu.pref_lang",
 	"audiomenu.pref_subs_head",

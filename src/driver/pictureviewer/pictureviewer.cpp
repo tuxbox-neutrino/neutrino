@@ -83,11 +83,12 @@ CPictureViewer::CFormathandler * CPictureViewer::fh_getsize (const char *name, i
 bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, bool unscaled)
 {
 	// dbout("DecodeImage {\n"); 
+#if 0 // quick fix for issue #245. TODO more smart fix for this problem
 	if (name == m_NextPic_Name) {
 		//      dbout("DecodeImage }\n"); 
 		return true;
 	}
-
+#endif
 	int x, y, xs, ys, imx, imy;
 
 	xs = CFrameBuffer::getInstance()->getScreenWidth(true);

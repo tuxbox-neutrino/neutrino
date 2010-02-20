@@ -1674,12 +1674,8 @@ void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
 		xmlFreeDoc(parser);
 	}
 
-//	languageSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
+	CMenuWidget * prefMenu = new CMenuWidget(LOCALE_AUDIOMENU_PREF_LANGUAGES, NEUTRINO_ICON_LANGUAGE);
 
-	//audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
-
-	CMenuWidget * prefMenu = new CMenuWidget(LOCALE_AUDIOMENU_PREF_LANG, NEUTRINO_ICON_LANGUAGE);
-	//addMenueIntroItems(*prefMenu);
 	prefMenu->addItem(GenericMenuSeparator);
 	prefMenu->addItem(GenericMenuBack);
 	prefMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
@@ -1699,7 +1695,7 @@ void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
 	prefMenu->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_SUBS_HEAD));
 	prefMenu->addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_SUBS, &g_settings.auto_subs, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL));
 	for(int i = 0; i < 3; i++) {
-		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_SUBS, g_settings.pref_subs[i], true, NULL, CRCInput::RC_nokey, "", true);
+		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_SUBS, g_settings.pref_subs[i], true, NULL, CRCInput::convertDigitToKey(i+4), "", true);
 		std::map<std::string, std::string>::const_iterator it;
 		for(it = iso639rev.begin(); it != iso639rev.end(); it++) {
 			langSelect->addOption(it->first.c_str());
@@ -1707,7 +1703,7 @@ void CNeutrinoApp::InitLanguageSettings(CMenuWidget &languageSettings)
 		prefMenu->addItem(langSelect);
 	}
 
-	languageSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANG_HEAD, true, NULL, prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	languageSettings.addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 }
 

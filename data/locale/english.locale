@@ -142,6 +142,7 @@ audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.auto_lang Auto select audio
 audiomenu.auto_subs Auto select subtitles
+audiomenu.pref_languages Language preferences
 audiomenu.pref_lang_head Audio/EPG language preferences
 audiomenu.pref_lang Prefered language
 audiomenu.pref_subs_head Subtitle language preferences

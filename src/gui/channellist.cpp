@@ -546,8 +546,16 @@ int CChannelList::show()
 
 			step =  ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
 			selected -= step;
+#if 0
 			if((prev_selected-step) < 0)            // because of uint
 				selected = chanlist.size() - 1;
+#endif
+			if((prev_selected-step) < 0) {
+				if(prev_selected != 0 && step != 1)
+					selected = 0;
+				else
+					selected = chanlist.size() - 1;
+			}
 
 			paintItem(prev_selected - liststart);
 			unsigned int oldliststart = liststart;
@@ -569,9 +577,18 @@ int CChannelList::show()
 
 			step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
 			selected += step;
-
+#if 0
 			if(selected >= chanlist.size()) {
 				if (((chanlist.size() / listmaxshow) + 1) * listmaxshow == chanlist.size() + listmaxshow) // last page has full entries
+					selected = 0;
+				else
+					selected = ((step == listmaxshow) && (selected < (((chanlist.size() / listmaxshow)+1) * listmaxshow))) ? (chanlist.size() - 1) : 0;
+			}
+#endif
+			if(selected >= chanlist.size()) {
+				if((chanlist.size() - listmaxshow -1 < prev_selected) && (prev_selected != (chanlist.size() - 1)) && (step != 1))
+					selected = chanlist.size() - 1;
+				else if (((chanlist.size() / listmaxshow) + 1) * listmaxshow == chanlist.size() + listmaxshow) // last page has full entries
 					selected = 0;
 				else
 					selected = ((step == listmaxshow) && (selected < (((chanlist.size() / listmaxshow)+1) * listmaxshow))) ? (chanlist.size() - 1) : 0;
