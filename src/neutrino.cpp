@@ -3745,7 +3745,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 		if(pixbuf!= NULL)
 			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
 
-		frameBuffer->paintBoxRel(x , y , dx, dy, COL_INFOBAR_SHADOW_PLUS_1, dy/2);
+		frameBuffer->paintBoxRel(x , y , dx, dy, COL_INFOBAR_SHADOW_PLUS_1, g_settings.rounded_corners ? dy/2 : 0);
 		frameBuffer->paintBoxRel (x + dy + (dy/4)-2, y+(dy/4)-2, ((dy/2)*12.5) +4, dy/2+4, COL_INFOBAR_PLUS_3);
 		frameBuffer->paintBoxRel (x + dy + (dy/4),   y+(dy/4), (dy/2)*12.5, dy/2, COL_INFOBAR_PLUS_0);
 		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x+dy/2,y+(dy/4), 0, COL_INFOBAR);
