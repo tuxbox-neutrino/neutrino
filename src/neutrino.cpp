@@ -3732,7 +3732,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 			break;
 		case 5:// center higher
 			x = ((sw - dx) / 2) + x;
-			y = sh - 100;
+			y = sh - sh/15;
 			break;
 	}
 
