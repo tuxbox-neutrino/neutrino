@@ -573,7 +573,7 @@ int CChannelList::show()
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
 			unsigned int step = 0;
-			int prev_selected = selected;
+			unsigned int prev_selected = selected;
 
 			step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
 			selected += step;

@@ -1162,6 +1162,7 @@ settings.pos_default_center oben Mitte
 settings.pos_higher_center erhöht Mitte
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
+settings.menu_pos Menüposition
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 min runtergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Sleeptimer in 1 min
