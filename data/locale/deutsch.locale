@@ -7,7 +7,7 @@ audio.srs_nmgr Noise-Manager
 audio.srs_volume Referenzlautstärke
 audiomenu.analog_mode Analog Modus
 audiomenu.analog_out Analog-Ausgang
-audiomenu.auto_lang Sprache automatisch
+audiomenu.auto_lang Tonwahl automatisch
 audiomenu.auto_subs Untertitel automatisch
 audiomenu.avs avs
 audiomenu.avs_control Volume Steuerung avs/ost
