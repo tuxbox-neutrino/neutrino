@@ -2440,7 +2440,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	c_SMSKeyInput = new SMSKeyInput();
 	//Main settings
-	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU,   22);
+	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    languageSettings    (LOCALE_LANGUAGESETUP_HEAD            , NEUTRINO_ICON_LANGUAGE);
 	CMenuWidget    audioSettings       (LOCALE_AUDIOMENU_HEAD                , NEUTRINO_ICON_AUDIO);
