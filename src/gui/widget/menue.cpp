@@ -108,8 +108,11 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*m
 
 	if (mwidth > 100) /* warn about abuse until we found all offenders... */
 		fprintf(stderr, "CMenuWidget::Init (%s) (%s) mwidth over 100%%: %d\n", nameString.c_str(), Icon.c_str(), mwidth);
-	else
-		min_width = frameBuffer->getScreenWidth() * mwidth / 100;
+	else {
+		min_width = frameBuffer->getScreenWidth(true) * mwidth / 100;
+		if(min_width > (int) frameBuffer->getScreenWidth())
+			min_width = frameBuffer->getScreenWidth();
+	}
 
 	/* set the max height to 9/10 of usable screen height
 	   debatable, if the callers need a possibility to set this */
