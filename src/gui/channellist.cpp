@@ -310,6 +310,13 @@ int CChannelList::doChannelMenu(void)
 	int result;
 	char cnt[5];
 	t_channel_id channel_id;
+	bool enabled = true;
+
+	if(old_b_id >= (int) bouquetList->Bouquets.size() || !bouquetList->Bouquets[old_b_id]->zapitBouquet) {
+		enabled = false;
+		if(old_selected < 2)//FIXME take care if some items added before 0, 1
+			old_selected = 2;
+	}
 
 	if(!bouquetList || g_settings.minimode)
 		return 0;
@@ -318,9 +325,9 @@ int CChannelList::doChannelMenu(void)
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	sprintf(cnt, "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, enabled, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i++);
 	sprintf(cnt, "%d", i);
-	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_MOVE, true, NULL, selector, cnt, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), old_selected == i++);
+	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_MOVE, enabled, NULL, selector, cnt, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), old_selected == i++);
 	sprintf(cnt, "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ADD_TO_BOUQUET, true, NULL, selector, cnt, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), old_selected == i++);
 	sprintf(cnt, "%d", i);
@@ -351,7 +358,6 @@ int CChannelList::doChannelMenu(void)
 			case 1: // move
 				old_bouquet_id = bouquetList->getActiveBouquetNumber();
 				old_bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[old_bouquet_id]->channelList->getName());
-
 				do {
 					new_bouquet_id = bouquetList->exec(false);
 				} while(new_bouquet_id == -3);
@@ -882,7 +888,11 @@ int CChannelList::hasChannel(int nChannelNr)
 
 int CChannelList::hasChannelID(t_channel_id channel_id)
 {
-	for (uint32_t i=0;i<chanlist.size();i++) {
+	for (uint32_t i=0; i < chanlist.size();i++) {
+		if(chanlist[i] == NULL) {
+			printf("CChannelList::hasChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
+			continue;
+		}
 		if (chanlist[i]->channel_id == channel_id)
 			return i;
 	}

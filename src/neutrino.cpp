@@ -3175,6 +3175,7 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::EVT_SERVICESCHANGED ) {
+printf("NeutrinoMessages::EVT_SERVICESCHANGED\n");fflush(stdout);
 		channelsInit();
 		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		if(old_b_id >= 0) {
@@ -3184,6 +3185,7 @@ _repeat:
 		}
 	}
 	else if( msg == NeutrinoMessages::EVT_BOUQUETSCHANGED ) {
+printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		channelsInit();
 		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		return messages_return::handled;

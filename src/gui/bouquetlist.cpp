@@ -125,15 +125,16 @@ void CBouquetList::adjustToChannel( int nChannelNr)
 
 void CBouquetList::adjustToChannelID(t_channel_id channel_id)
 {
+printf("CBouquetList::adjustToChannelID [%s] to %llx, selected %d size %d\n", name.c_str(), channel_id, selected, Bouquets.size());
 	if(selected < Bouquets.size()) {
 		int nChannelPos = Bouquets[selected]->channelList->hasChannelID(channel_id);
 		if(nChannelPos > -1) {
-printf("CBouquetList::adjustToChannelID to %llx -> not needed\n", channel_id);
+printf("CBouquetList::adjustToChannelID [%s] to %llx -> not needed\n", name.c_str(), channel_id);
 			Bouquets[selected]->channelList->setSelected(nChannelPos);
 			return;
 		}
 	}
-printf("CBouquetList::adjustToChannelID to %llx\n", channel_id);
+printf("CBouquetList::adjustToChannelID [%s] to %llx\n", name.c_str(), channel_id);
 	for (uint32_t i=0; i < Bouquets.size(); i++) {
 		if(i == selected)
 			continue;
@@ -238,6 +239,7 @@ int CBouquetList::doMenu()
 					break;
 			}
 		}
+		return -1;
 	} else {
 		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i ++);
 		ret = menu->exec(NULL, "");
@@ -259,6 +261,7 @@ int CBouquetList::doMenu()
 					break;
 			}
 		}
+		return -1;
 	}
 	return 0;
 }
@@ -338,10 +341,10 @@ int CBouquetList::show(bool bShowChannelList)
 			continue; //FIXME msgs not forwarded to neutrino !!
 		else if ( msg == CRCInput::RC_setup) {
 			int ret = doMenu();
-			if(ret) {
+			if(ret > 0) {
 				res = -4;
 				loop = false;
-			} else
+			} else if(ret < 0)
 				paint();
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_list_start ) {
