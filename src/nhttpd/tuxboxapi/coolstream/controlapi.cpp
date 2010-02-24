@@ -746,12 +746,9 @@ void CControlAPI::VolumeCGI(CyhookHandler *hh)
 		NeutrinoAPI->Zapit->muteAudio(false);
 		hh->SendOk();
 	}
-#if 0 //FIXME
-
 	else if (hh->ParamList["1"].compare("status") == 0) { // Mute status
 		hh->Write("1"); //FIXME coolstream implemented?
 	}
-#endif
 	else if(hh->ParamList["1"]!="") { //set volume
 		char vol = atol( hh->ParamList["1"].c_str() );
 		NeutrinoAPI->Zapit->setVolume(vol,vol);
