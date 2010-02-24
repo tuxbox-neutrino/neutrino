@@ -29,11 +29,11 @@ public:
 	~CmodSendfile(void){};
 
 	// Hooks
-	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh); 	
-//	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh); 	
+	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh);
+//	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh);
 	virtual std::string 	getHookName(void) {return std::string("mod_sendfile");}
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.1 $");}
-	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList); 
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.2 $");}
+	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
 };
 
 #endif /* __yhttpd_mod_sendfile_h__ */

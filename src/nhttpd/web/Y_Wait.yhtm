@@ -1,0 +1,18 @@
+{=var-set:cancache=yPyes=}
+{=include-block:Y_Blocks.txt;head=}
+</head>
+<body>
+<br/>
+<table class="y_wait_box_visible" cellpadding="8">
+<tr>
+	<td>
+		<font color="#666666"><b>Anfrage wird bearbeitet</b></font><p align="center">
+		<img border="0" src="images/wait.gif"/></p>
+		<p align="center"><font size="2">
+		Bitte warten ...</font>
+	</td>
+</tr>
+</table>
+
+</body>
+</html>

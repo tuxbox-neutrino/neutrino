@@ -17,7 +17,7 @@ public:
 	// Hooks
 	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh); 
 	virtual std::string 	getHookName(void) {return std::string("mod_auth");}
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.2 $");}
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.3 $");}
 	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList); 
 protected:
 	bool CheckAuth(CyhookHandler *hh);

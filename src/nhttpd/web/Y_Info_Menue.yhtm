@@ -1,19 +1,36 @@
 {=var-set:cancache=yPConf=}
 {=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/Y_yweb.js"></script>
+<script type="text/javascript">
+function init(){
+	var menu=ext.select_menu('info');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu').insert({'bottom':el}); 
+	});
+}
+</script>
 </head>
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
-<body>
+<body onload="init()">
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>Info</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec">
-			<ul id="menu_sec">
-				<li><a target="work" title="About yWeb" href="Y_About.yhtm">About</a></li>
-				<li><a target="work" title="Getting Help" href="Y_Info_Help.yhtm">Help</a></li>
+			<ul id="secmenu">
+				<li><a target="work" title="About yWeb" href="Y_About.yhtm">{=L:About=}</a></li>
+				<li><a target="work" title="Getting Help" href="Y_Info_Help.yhtm">{=L:help=}</a></li>
 			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="Check for Update of yWeb (restricted by ManagementIP)">Auf Updates pr&uuml;fen</li>
+				<li class="disabled" title="Check for Update of yWeb (restricted by ManagementIP)">{=L:check_for_updates=}</li>
 			~
-<!--dbox2 only				<li><a target="work" title="Check for Updates of yWeb" href="Y_Info_Updates.yhtm">Auf Updates pr&uuml;fen</a></li> dbox2 only-->
+				<li><a target="work" title="Check for Updates of yWeb" href="Y_Info_Updates.yhtm">{=L:check_for_updates=}</a></li>
 			=}
 			</ul>
 		</div>

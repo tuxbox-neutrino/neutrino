@@ -1,0 +1,366 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit()
+{
+	if(document.f.p_pincode.value.length < 4)
+		alert("PIN Code muss 4-stellig sein");
+	else{
+		show_waitbox(true);
+		document.f.submit();
+	}
+}
+function do_init()
+{
+	obj_set_radio_value('p_tv', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_tvmode;1~open=}");
+	obj_set_radio_value('p_radio', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_radiomode;1~cache=}");
+	obj_set_radio_value('p_scart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_scartmode;1~cache=}");
+	obj_set_radio_value('p_games', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_games;1~cache=}");
+	obj_set_radio_value('p_audioplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_audioplayer;1~cache=}");
+	obj_set_radio_value('p_inetradio', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_inetradio;1~cache=}");
+	obj_set_radio_value('p_esound', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_esound;1~cache=}");
+	obj_set_radio_value('p_movieplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_movieplayer;1~cache=}");
+	obj_set_radio_value('p_picviewer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pictureviewer;1~cache=}");
+	obj_set_radio_value('p_pinstatus', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pinstatus;0~cache=}");
+	obj_set_radio_value('p_upnp', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_upnpbrowser;1~cache=}");
+	obj_set_radio_value('p_sleeptimer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_sleeptimer;1~cache=}");
+	obj_set_radio_value('p_reboot', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_reboot;1~cache=}");
+	obj_set_radio_value('p_shutdown', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_shutdown;1~cache=}");
+	obj_set_radio_value('p_settings', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_settings;0~cache=}");
+	obj_set_radio_value('p_video', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_video;1~cache=}");
+	obj_set_radio_value('p_audio', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_audio;1~cache=}");
+	obj_set_radio_value('p_youth', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_youth;1~cache=}");
+	obj_set_radio_value('p_network', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_network;1~cache=}");
+	obj_set_radio_value('p_recording', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_recording;1~cache=}");
+	obj_set_radio_value('p_language', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_language;1~cache=}");
+	obj_set_radio_value('p_colors', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_colors;1~cache=}");
+	obj_set_radio_value('p_lcd', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_lcd;1~cache=}");
+	obj_set_radio_value('p_keybinding', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_keybinding;1~cache=}");
+	obj_set_radio_value('p_mediaplayer', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_mediaplayer;1~cache=}");
+	obj_set_radio_value('p_driver', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_driver;1~cache=}");
+	obj_set_radio_value('p_misc', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_misc;1~cache=}");
+	obj_set_radio_value('p_service', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_service;0~cache=}");
+	obj_set_radio_value('p_bouqueteditor', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_bouqueteditor;1~cache=}");
+	obj_set_radio_value('p_scants', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_scants;1~cache=}");
+	obj_set_radio_value('p_reload', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_reload;1~cache=}");
+	obj_set_radio_value('p_getplugins', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_getplugins;1~cache=}");
+	obj_set_radio_value('p_restart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_restart;1~cache=}");
+	obj_set_radio_value('p_epgrestart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_epgrestart;1~cache=}");
+	obj_set_radio_value('p_ucodecheck', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_ucodecheck;1~cache=}");
+	obj_set_radio_value('p_chan_epg_stat', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_chan_epg_stat;1~cache=}");
+	obj_set_radio_value('p_imageinfo', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_imageinfo;1~cache=}");
+	obj_set_radio_value('p_update', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_update;1~cache=}");
+	obj_set_radio_value('p_bluebutton', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_bluebutton;1~cache=}");
+	obj_set_radio_value('p_redbutton', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_redbutton;1~cache=}");
+}
+//]]>
+</script>
+
+</head>
+<body onload="do_init()">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Settings-Personalize=}{=var-set:menu=Personalisierung=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" class="y_form" action="">
+		<table cellspacing="0" border="0" cellpadding="2" width="100%">
+			<tr><td colspan="2" class="y_form_header">Zugang Personalisierung</td></tr>
+			<tr><td width="35%">PIN ben&ouml;tigt</td>
+				<td>
+					<input type="radio" name="p_pinstatus" value="1"/>JA&nbsp;
+					<input type="radio" name="p_pinstatus" value="0"/>NEIN
+				</td>
+			</tr>
+			<tr>
+				<td>PIN Code</td>
+				<td>&nbsp;<input type="text" name="p_pincode" size="4" maxlength="4" value="{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_pincode~open=}" title="PIN code"/></td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Farbtasten</td></tr>
+			<tr><td>Taste Blau (Features)</td>
+				<td>
+					<input type="radio" name="p_bluebutton" value="1"/>AKTIVIERT&nbsp;
+					<input type="radio" name="p_bluebutton" value="0"/>DEAKTIVIERT
+				</td>
+			</tr>
+			<tr><td>Taste Rot (EPG/Info)</td>
+				<td>
+					<input type="radio" name="p_redbutton" value="1"/>AKTIVIERT&nbsp;
+					<input type="radio" name="p_redbutton" value="0"/>DEAKTIVIERT
+				</td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Hauptmen&uuml;</td></tr>
+			<tr><td>TV-Modus</td>
+				<td>
+					<input type="radio" name="p_tv" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_tv" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_tv" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Radio-Modus</td>
+				<td>
+					<input type="radio" name="p_radio" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_radio" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_radio" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Scart-Eingang</td>
+				<td>
+					<input type="radio" name="p_scart" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_scart" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_scart" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Spiele</td>
+				<td>
+					<input type="radio" name="p_games" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_games" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_games" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Audioplayer</td>
+				<td>
+					<input type="radio" name="p_audioplayer" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_audioplayer" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_audioplayer" value="2"/>PIN
+				</td>
+			</tr>
+			</tr><td>Internetradio</td>
+				<td>
+					<input type="radio" name="p_inetradio" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_inetradio" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_inetradio" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Esound Soundserver</td>
+				<td>
+					<input type="radio" name="p_esound" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_esound" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_esound" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Movieplayer</td>
+				<td>
+					<input type="radio" name="p_movieplayer" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_movieplayer" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_movieplayer" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Bildbetrachter</td>
+				<td>
+					<input type="radio" name="p_picviewer" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_picviewer" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_picviewer" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>UPNP Browser</td>
+				<td>
+					<input type="radio" name="p_upnp" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_upnp" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_upnp" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>SleepTimer</td>
+				<td>
+					<input type="radio" name="p_sleeptimer" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_sleeptimer" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_sleeptimer" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Neu starten</td>
+				<td>
+					<input type="radio" name="p_reboot" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_reboot" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_reboot" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Ausschalten</td>
+				<td>
+					<input type="radio" name="p_shutdown" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_shutdown" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_shutdown" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Einstellungen</td></tr>
+			<tr><td>Einstellungen-Men&uuml; mit PIN</td>
+				<td>
+					<input type="radio" name="p_settings" value="1"/>JA&nbsp;
+					<input type="radio" name="p_settings" value="0"/>NEIN
+				</td>
+			</tr>
+			<tr><td>Video</td>
+				<td>
+					<input type="radio" name="p_video" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_video" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_video" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Audio</td>
+				<td>
+					<input type="radio" name="p_audio" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_audio" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_audio" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Jugendschutz</td>
+				<td>
+					<input type="radio" name="p_youth" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_youth" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_youth" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Netzwerk</td>
+				<td>
+					<input type="radio" name="p_network" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_network" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_network" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Aufnahme</td>
+				<td>
+					<input type="radio" name="p_recording" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_recording" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_recording" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Sprache</td>
+				<td>
+					<input type="radio" name="p_language" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_language" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_language" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Farben / Themes / Schrift</td>
+				<td>
+					<input type="radio" name="p_colors" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_colors" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_colors" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>LCD-Display</td>
+				<td>
+					<input type="radio" name="p_lcd" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_lcd" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_lcd" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Tasten Einstellungen</td>
+				<td>
+					<input type="radio" name="p_keybinding" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_keybinding" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_keybinding" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Medienwiedergabe</td>
+				<td>
+					<input type="radio" name="p_mediaplayer" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_mediaplayer" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_mediaplayer" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Treiber- und Bootoptionen</td>
+				<td>
+					<input type="radio" name="p_driver" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_driver" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_driver" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Diverse Einstellungen</td>
+				<td>
+					<input type="radio" name="p_misc" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_misc" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_misc" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Service</td></tr>
+			<tr><td>Service-Men&uuml; mit PIN</td>
+				<td>
+					<input type="radio" name="p_service" value="1"/>JA&nbsp;
+					<input type="radio" name="p_service" value="0"/>NEIN
+				</td>
+			</tr>
+			<tr><td>Bouquet-Verwaltung</td>
+				<td>
+					<input type="radio" name="p_bouqueteditor" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_bouqueteditor" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_bouqueteditor" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Kanalsuche</td>
+				<td>
+					<input type="radio" name="p_scants" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_scants" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_scants" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Kanallisten neu laden</td>
+				<td>
+					<input type="radio" name="p_reload" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_reload" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_reload" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Plugins neu laden</td>
+				<td>
+					<input type="radio" name="p_getplugins" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_getplugins" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_getplugins" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Neutrino neu starten</td>
+				<td>
+					<input type="radio" name="p_restart" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_restart" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_restart" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>EPG neu starten</td>
+				<td>
+					<input type="radio" name="p_epgrestart" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_epgrestart" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_epgrestart" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Ucodes &uuml;berpr&uuml;fen</td>
+				<td>
+					<input type="radio" name="p_ucodecheck" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_ucodecheck" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_ucodecheck" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Sender/EPG Statistik</td>
+				<td>
+					<input type="radio" name="p_chan_epg_stat" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_chan_epg_stat" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_chan_epg_stat" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Image Informationen</td>
+				<td>
+					<input type="radio" name="p_imageinfo" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_imageinfo" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_imageinfo" value="2"/>PIN
+				</td>
+			</tr>
+			<tr><td>Software-Aktualisierung</td>
+				<td>
+					<input type="radio" name="p_update" value="0"/>nicht sichtbar&nbsp;
+					<input type="radio" name="p_update" value="1"/>sichtbar&nbsp;
+					<input type="radio" name="p_update" value="2"/>PIN
+				</td>
+			</tr>
+		</table>
+		<br />
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;personalize_save_settings;nix"/>
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
+		&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>
+		&nbsp;<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

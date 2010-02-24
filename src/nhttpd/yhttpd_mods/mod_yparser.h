@@ -67,7 +67,7 @@ private:
 	// local Session vars
 	CStringList ycgi_vars;	//ycgi session vars
 	CConfigFile *yConfig;
-	
+
 	// mutex for vars and caching (yCached_*)
 	static pthread_mutex_t yParser_mutex;
 	// ycgi globals
@@ -88,6 +88,8 @@ private:
 	std::string func_get_config_data(CyhookHandler *hh, std::string para);
 	std::string func_do_reload_httpd_config(CyhookHandler *hh, std::string para);
 	std::string func_change_httpd(CyhookHandler *hh, std::string para);
+	std::string func_get_languages_as_dropdown(CyhookHandler *hh, std::string para);
+	std::string func_set_language(CyhookHandler *, std::string para);
 
 	// helpers
 	std::string YWeb_cgi_get_ini(CyhookHandler *hh, std::string filename, std::string varname, std::string yaccess);
@@ -109,13 +111,13 @@ public:
 	// constructor & deconstructor
 	CyParser();
 	~CyParser(void);
-	
+
 	// virtual functions for BaseClass
 	virtual std::string 	YWeb_cgi_func(CyhookHandler *hh, std::string ycmd);
 	// virtual functions for HookHandler/Hook
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.2 $");}
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.4 $");}
 	virtual std::string 	getHookName(void) {return "mod_yparser";}
-	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh); 	
+	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh);
 };
 
 #endif /* __yhttpd_yparser_h__ */

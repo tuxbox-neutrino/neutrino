@@ -39,7 +39,7 @@ neutrino_LDADD = \
 	timerd/libtimerd.a \
 	zapit/src/libzapit.a \
 	nhttpd/libnhttpd.a \
-	nhttpd/tuxboxapi/libnhttpd_tuxboxapi.a \
+	nhttpd/tuxboxapi/coolstream/libnhttpd_tuxboxapi.a \
 	nhttpd/yhttpd_mods/libyhttpdmods.a \
 	nhttpd/yhttpd_core/libyhttpd.a \
 	$(top_builddir)/lib/sectionsdclient/libsectionsdclient.a \

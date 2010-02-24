@@ -4,7 +4,7 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_submit() 
+function do_submit()
 {
 	if(document.f.cmd.value != "")
 	{
@@ -16,16 +16,16 @@ function do_submit()
 		document.f.cmd.value="";
 	}
 }
-function set_pwd(_pwd) 
+function set_pwd(_pwd)
 {
 	document.f.pwd.value = _pwd;
 }
-function do_clear() 
+function do_clear()
 {
 	document.co.cmds.value = "";
 }
 /* Cursor to end . works only with IE */
-function setCaretToEnd(control) 
+function setCaretToEnd(control)
 {
 	if (control.createTextRange) {
 		var range = control.createTextRange();
@@ -48,7 +48,7 @@ function doUpload()
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Neutrino:yWeb:Tools#Command_Shell=}{=var-set:menu=Command Shell=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		{=var-set:help_url=Help-Tools-Command_Shell=}{=var-set:menu=Command Shell=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="co" action="">
 		<textarea name="cmds" cols="80" rows="18"  title="shell output window" style="display: block;background : white; font : 'Courier New','medium  monospace'; color : #436976;"></textarea>
@@ -58,7 +58,7 @@ function doUpload()
 		<table>
 		<tr>
 			<td><input type="button" name="clear" value="clear" title="clear output screeb" onclick="do_clear()"/></td>
-			<td><input type="checkbox" name="appendx" value="1" title="append output (only IE)"/>append output (only IE scrollen)
+			<td><input type="checkbox" name="appendx" value="1" title="append output (only IE)"/>&nbsp;fortlaufende Ausgabe (nur IE - wg. scrollen)
 			<!--<input type="button" value="Upload" title="upload a file to current directory" onClick="doUpload()">-->
 			</td>
 		</tr><tr>

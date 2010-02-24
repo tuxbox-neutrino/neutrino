@@ -1,69 +1,144 @@
 {=var-set:cancache=yPConf=}
 {=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/Y_yweb.js"></script>
+<script type="text/javascript">
+function init(){
+	var menu=ext.select_menu('settings_general');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu_general').insert({'bottom':el}); 
+	});
+	var menu=ext.select_menu('settings_neutrino');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu_neutrino').insert({'bottom':el}); 
+	});
+	var menu=ext.select_menu('settings_plugins');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu_plugins').insert({'bottom':el}); 
+	});
+}
+</script>
 </head>
-<body>
+<body onload="init()">
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
 <div class="y_menu_sec_box">
-	<div class="y_menu_sec_box_head"><h2>Settings</h2></div>
+	<div class="y_menu_sec_box_head"><h2>{=L:settings=}</h2></div>
 	<div class="y_menu_sec_box_body">
-		<div class="y_menu_sec_section">General</div>
+		<div class="y_menu_sec_section">{=L:general=}</div>
 		<div class="y_menu_sec">
-			<ul>
+			<ul id="secmenu_general">
 			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="settings for yWeb itselfs (restricted by ManagementIP)">yWeb</li>
-				<li class="disabled" title="settings for Web Server daemon (restricted by ManagementIP)">WebServer</li>
-<!--dbox2 only				<li class="disabled" title="download or upload ucodes (restricted by ManagementIP)">Ucodes</li> dbox2 only-->
-				<li class="disabled" title="download or upload Bouquetlist, Channellist, ... (restricted by ManagementIP)">Zapit</li>
-				<li class="disabled" title="backup or upload boot logos (restricted by ManagementIP)">Boot Logo</li>
-				<li class="disabled" title="SyncTimer Settings (restricted by ManagementIP)">Timer Settings</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">yWeb</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:webserver=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:zapit=}</li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:ucodes=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:boot_logo=}</li>
+			~=}
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=timer_settings=}</a></li>
 			~
-				<li><a title="settings for yWeb itselfs" target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
-				<li><a title="settings for Web Server daemon" target="work" href="Y_Settings_nhttpd.yhtm">WebServer</a></li>
-<!--dbox2 only				<li><a title="download or upload ucodes" target="work" href="Y_Settings_ucodes.yhtm">Ucodes</a></li> dbox2 only-->
-				<li><a title="download or upload Bouquetlist, Channellist, ..." target="work" href="Y_Settings_zapit.yhtm">Zapit</a></li>
-<!--dbox2 only				<li><a title="backup or upload boot logos" target="work" href="Y_Tools_Bootlogo.yhtm">Boot Logo</a></li> dbox2 only-->
-				<li><a title="backup or restore settings" target="work" href="Y_Settings_Backup.yhtm">Backup &amp; Restore</a></li>
-				<li><a title="SyncTimer Settings" target="work" href="Y_Settings_Timer.yhtm">Timer Settings</a></li>
+				<li><a target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
+				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:webserver=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_zapit.yhtm">{=L:zapit=}</a></li>
+				<li><a target="work" href="Y_Settings_ucodes.yhtm">{=L:ucodes=}</a></li>
+				<li><a target="work" href="Y_Tools_Bootlogo.yhtm">{=L:boot_logo=}</a></li>
+			~=}
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_Backup.yhtm">{=L:backup_restore=}</a></li>
+			~=}
+				<li><a target="work" href="Y_Settings_Timer.yhtm">{=timer_settings=}</a></li>
 			=}	
 				<!--<li><a title="change layout skin" target="work" href="Y_Settings_Skin.yhtm">Skins</a></li>-->
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">Neutrino</div>
 		<div class="y_menu_sec">
-			<ul>
+			<ul id="secmenu_neutrino">
 			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="Bouquet Editor (restricted by ManagementIP)">Bouquet Editor</a></li>
-				<li class="disabled" title="Parental settings (restricted by ManagementIP)">Parental</a></li>
-				<li class="disabled" title="Recording settings (restricted by ManagementIP)">Recording</a></li>
-				<li class="disabled" title="Movieplayer settings (restricted by ManagementIP)">Movieplayer</a></li>
-				<li class="disabled" title="Audioplayer settings (restricted by ManagementIP)">Audioplayer</a></li>
-				<li class="disabled" title="Pictureviewer settings (restricted by ManagementIP)">Pictureviewer</a></li>
-				<li class="disabled" title="boot settings (restricted by ManagementIP)">Boot options</a></li>
-				<li class="disabled" title="rest of settings (restricted by ManagementIP)">Misc</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:bouquet_editor=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:video_audio=}</a></li>
+			~=}
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:parental=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:recording=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:direct_recording=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:audio_player=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:esound_server=}</a></li>
+			~=}
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:movieplayer=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:pictureviewer=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:lcd_display=}</a></li>
+			~=}
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:key_settings=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:boot_options=}</a></li>
+			~=}
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:others=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:peronalization=}</li>
 			~
-
-				<li><a title="Bouquet Editor" target="work" href="Y_Boxcontrol_Bouquet_Editor_Main.yhtm">Bouquet Editor</a></li>
-				<li><a title="Parental settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental">Parental</a></li>
-				<li><a title="Recording settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record">Recording</a></li>
-				<li><a title="Direct Recording" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording">Direct Recording</a></li>
-				<li><a title="Movieplayer settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer">Movieplayer</a></li>
-				<li><a title="Audioplayer settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer">Audioplayer</a></li>
-				<li><a title="Pictureviewer settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer">Pictureviewer</a></li>
-<!--dbox2 only				<li><a title="boot settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions">Boot options</a></li> dbox2 only-->
-				<li><a title="rest of settings" target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse">Misc</a></li>
-			=}	
-			</ul>
-		</div>
-		<div class="y_menu_sec_section">Plugins</div>
-		<div class="y_menu_sec">
-			<ul>
-			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="configure VNC-Plugin (restricted by ManagementIP)">VNC</li>
-			~
-				<li><a title="configure VNC-Plugin" target="work" href="Y_Settings_VNC.yhtm">VNC</a></li>
+				<li><a target="work" href="Y_Boxcontrol_Bouquet_Editor_Main.yhtm">{=L:bouquet_editor=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_video_audio.yhtm">{=L:video_audio=}</a></li>
+			~=}
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental">{=L:parental=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record">{=L:recording=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording">{=L:direct_recording=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer">{=L:audio_player=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound">{=L:esound_server=}</a></li>
+			~=}
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer">{=L:movieplayer=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer">{=L:pictureviewer=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_lcd.yhtm">{=L:lcd_display=}</a></li>
+			~=}
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_buttons.yhtm">{=L:key_settings=}</a></li>
+			~=}
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions">{=L:boot_options=}</a></li>
+			~=}
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse">{=L:others=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_personalize.yhtm">{=L:peronalization=}</a></li>
+			~=}
 			=}
 			</ul>
 		</div>
+	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+		<div class="y_menu_sec_section">{=L:plugins=}</div>
+		<div class="y_menu_sec">
+			<ul id="secmenu_plugins">
+			{=if-empty:{=var-get:management=}~
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">VNC</li>
+			~
+				<li><a target="work" href="Y_Settings_VNC.yhtm">VNC</a></li>
+			=}
+			</ul>
+		</div>
+	~=}
 	</div>
 </div>
 

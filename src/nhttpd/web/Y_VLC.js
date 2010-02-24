@@ -1,6 +1,6 @@
 /*	VLC abstraction by yjogol@online.de
-	$Date: 2007/02/21 17:38:48 $
-	$Revision: 1.1 $
+	$Date: 2008/11/13 16:45:38 $
+	$Revision: 1.4 $
 */
 /*ie1=ActiveC, moz1=Mozilla<0.8.5.1, moz2>= 0.8.5.1*/
 var CyVLC = function(_id, masterid, width, height) {
@@ -36,12 +36,12 @@ CyVLC.prototype = {
 		}
 		this.insert_control();
 		this.vlc = id(_id);
-		this.set_resolution(this.c_width, this.c_height);
 		if(is_ie) {
 			this.version_string = this._get_version();
 			this._generate_sub_versions();
 			this._determine_plugin_generation();
 		}
+		this.set_resolution(this.c_width, this.c_height);
 	},
 	_get_version : function() {
 		if(is_ie)
@@ -55,6 +55,8 @@ CyVLC.prototype = {
 				var plug = navigator.plugins['VLC multimedia plugin'];
 				if(typeof plug == 'undefined')
 					var plug = navigator.plugins['VLC Multimedia Plugin'];
+				if(typeof plug == 'undefined')
+					var plug = navigator.plugins['VLC Multimedia Plug-in'];
 				var ex = /^.*[vV]ersion [\"]*([^ \"]*)[\"]*.*$/;
 				var ve = ex.exec(plug.description);
 				if(ve[1])
@@ -170,7 +172,7 @@ CyVLC.prototype = {
 	},
 	toggle_mute : function() {
 		switch(this.plugin) {
-			case "ie1":	this.vlc.toggleMute();reak;
+			case "ie1":	this.vlc.toggleMute();break;
 			case "moz2":	this.vlc.audio.toggleMute();break;
 			default:	this.vlc.mute();break;
 		}
@@ -220,11 +222,14 @@ CyVLC.prototype = {
 		if(is_ie) {
 			vlc_control_html =
 				"<object classid=\"clsid:E23FE9C6-778E-49D4-B537-38FCDE4887D8\" " +
+/*				"<object classid=\"clsid:9BE31822-FDAD-461B-AD51-BE1D1C159921\" " +*/
+				
 					"width=\""+this.c_width+"\" height=\""+this.c_height+"\" id=\""+this.id+"\" events=\"True\">" +
 					"<param name='ShowDisplay' value='"+this.c_show_display+"' />" +
 					"<param name='Loop' value='"+this.c_loop+"' />" +
 					"<param name='AutoPlay' value='"+this.c_auto_play+"' />" +
-					"<param name=\"Visible\" value=\"-1\"/>" +
+/*					"<param name=\"Visible\" value=\"-1\"/>" + */
+					"<param name='ShowDisplay' value='True'/>" +
 					"The VideoLan Client ActiveX is not installed.<br/>"+
 					"You need <a href='http://www.videolan.org' target='_blank'>VideoLan Client</a> V0.8.5 or higher.<br/>" +
 					"Install with Option ActiveX." +

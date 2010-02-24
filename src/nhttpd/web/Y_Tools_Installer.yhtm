@@ -4,35 +4,50 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_submit() 
+function do_submit()
 {
 	if(document.f.filename.value != "")
 	{
 		out.location.href = "Y_Wait.yhtm";
 		document.f.su.disabled=true;
 		yhttpd_cache_clear("yPInstall");
-		yhttpd_cache_clear('');		
+		yhttpd_cache_clear('');
 		window.setTimeout("document.f.submit()",1000);
 		document.f.su.disabled=false;
 	}
 	else
 		alert("No file given!");
 }
+function init(){
+	var res=dbox_exec_tools("var_space");
+	var Ausdruck = /([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*).*$/;
+	Ausdruck.exec(res);
+	var total = RegExp.$2;
+	var used = RegExp.$3;
+	var avaiable = RegExp.$4;
+	var percentage = RegExp.$5;
+	if(total != "")
+		str="Platz in /var Gesamt: "+total+"k Benutzt: "+used+"k Frei: "+avaiable+"k Anteil benutzt: "+percentage;
+	else
+		str="Kann freien Speicherplatz nicht ermitteln /var ist keine Partition! JFFS2 oder YADD?";
+	id("free").innerHTML=str;
+}
 //]]>div
 </script>
 </head>
-<body>
+<body onload="init()">
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Neutrino:yWeb:Tools#yInstaller=}{=var-set:menu=yInstaller=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		{=var-set:help_url=Help-Tools-yInstaller=}{=var-set:menu=yInstaller=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;installer" target="out">
 			tar-File:&nbsp;<input type="file" name="filename" size="70"/>&nbsp;<br/>
-			<input type="button" name="su" value="install" title="upload and install" onclick="do_submit()"/>
+			<input type="button" name="su" value="installieren" title="upload and install" onclick="do_submit()"/>
 			<br/><br/>
 		</form>
-		<div style="height:290px;width:540px;">
-		<iframe height="250" width="500" scrolling="no" align="left" frameborder="0" name="out" id="out">Your Browser does not support IFrames.</iframe>
+		<div id="free"></div>
+		<div style="height:290px;width:740px;">
+		<iframe height="250" width="750" scrolling="auto" align="left" frameborder="0" name="out" id="out">Your Browser does not support IFrames.</iframe>
 		</div>
 	</div>
 </div>

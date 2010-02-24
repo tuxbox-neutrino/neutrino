@@ -32,9 +32,7 @@ private:
 	void SendEventList(CyhookHandler *hh,t_channel_id channel_id);
 	void SendcurrentVAPid(CyhookHandler *hh);
 	void SendAllCurrentVAPid(CyhookHandler *hh);
-#if 0
 	void SendSettings(CyhookHandler *hh);
-#endif
 	void SendStreamInfo(CyhookHandler *hh);
 	void SendBouquets(CyhookHandler *hh);
 	void SendBouquet(CyhookHandler *hh,int BouquetNr);
@@ -45,7 +43,7 @@ private:
 	friend class CNeutrinoWebserver; // for timer /fb/ compatibility
 	void doModifyTimer(CyhookHandler *hh);
 	void doNewTimer(CyhookHandler *hh);
-	
+
 	//yweb
 	void YWeb_SendVideoStreamingPids(CyhookHandler *hh, int apid_no);
 	void YWeb_SendRadioStreamingPid(CyhookHandler *hh);
@@ -59,12 +57,11 @@ private:
 	void ExecCGI(CyhookHandler *hh);
 	void SystemCGI(CyhookHandler *hh);
 	void StandbyCGI(CyhookHandler *hh);
+	void EsoundCGI(CyhookHandler *hh);
 	void RCCGI(CyhookHandler *hh);
 	void GetDateCGI(CyhookHandler *hh);
 	void GetTimeCGI(CyhookHandler *hh);
-#if 0
 	void SettingsCGI(CyhookHandler *hh);
-#endif
 	void GetServicesxmlCGI(CyhookHandler *hh);
 	void GetBouquetsxmlCGI(CyhookHandler *hh);
 	void GetChannel_IDCGI(CyhookHandler *hh);
@@ -83,9 +80,7 @@ private:
 	void YWebCGI(CyhookHandler *hh);
 	void RebootCGI(CyhookHandler *hh);
 	void RCEmCGI(CyhookHandler *hh);
-#if 0
 	void AspectRatioCGI(CyhookHandler *hh);
-#endif
 	void VideoFormatCGI(CyhookHandler *hh);
 	void VideoOutputCGI(CyhookHandler *hh);
 	void VCROutputCGI(CyhookHandler *hh);
@@ -103,7 +98,7 @@ private:
 protected:
 	static const unsigned int PLUGIN_DIR_COUNT = 5;
 	static std::string PLUGIN_DIRS[PLUGIN_DIR_COUNT];
-	CNeutrinoAPI	*NeutrinoAPI;	
+	CNeutrinoAPI	*NeutrinoAPI;
 
 	void init(CyhookHandler *hh);
 	void Execute(CyhookHandler *hh);
@@ -114,8 +109,9 @@ public:
 
 	// virtual functions for HookHandler/Hook
 	virtual std::string getHookName(void) {return std::string("mod_ControlAPI");}
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.4 $");}
-	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh); 
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.1.2.1 $");}
+	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh);
+	virtual THandleStatus Hook_PrepareResponse(CyhookHandler *hh);
 };
 
 #endif /* __nhttpd_neutrinocontrolapi_hpp__ */

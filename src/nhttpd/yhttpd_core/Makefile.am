@@ -13,6 +13,6 @@ AM_CPPFLAGS = -fno-rtti -fno-exceptions
 noinst_LIBRARIES = libyhttpd.a
 
 libyhttpd_a_SOURCES = \
-	ylogging.cpp helper.cpp \
+	ylogging.cpp helper.cpp ylanguage.cpp\
 	ywebserver.cpp yconnection.cpp yrequest.cpp yresponse.cpp yhook.cpp ysocket.cpp
 

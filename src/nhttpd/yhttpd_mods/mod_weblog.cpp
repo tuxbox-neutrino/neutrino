@@ -5,9 +5,8 @@
 // Normally
 //=============================================================================
 #include <cstdarg>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
+#include <cstdlib>
 
 #include "mod_weblog.h"
 #include "helper.h"
@@ -57,7 +56,7 @@ THandleStatus CmWebLog::Hook_EndConnection(CyhookHandler *hh)
 // HOOK: Hook_ReadConfig
 // This hook ist called from ReadConfig
 //-----------------------------------------------------------------------------
-THandleStatus CmWebLog::Hook_ReadConfig(CConfigFile *Config, CStringList &/*ConfigList*/)
+THandleStatus CmWebLog::Hook_ReadConfig(CConfigFile *Config, CStringList &)
 {
 	LogFormat	= Config->getString("mod_weblog.log_format", LOG_FORMAT);
 	WebLogFilename	= Config->getString("mod_weblog.logfile", LOG_FILE);
@@ -112,8 +111,7 @@ bool CmWebLog::printf(const char *fmt, ...)
 		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
 		va_list arglist;
 		va_start( arglist, fmt );
-		// if(arglist)
-			vsnprintf( buffer, bufferlen, fmt, arglist );
+		vsnprintf( buffer, bufferlen, fmt, arglist );
 		va_end(arglist);
 		unsigned int len = strlen(buffer);
 		success = (fwrite(buffer, len, 1, WebLogFile) == len);

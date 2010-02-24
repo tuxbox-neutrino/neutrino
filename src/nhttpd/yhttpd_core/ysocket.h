@@ -73,7 +73,7 @@ public:
 	// send & receive
 	int 		SendFile(int filed);				// Send a File
 	std::string 	ReceiveBlock();					// receive a Block. Look at length
-	unsigned int 	ReceiveFileGivenLength(int filed, unsigned int _length); // Receive File of given length
+	unsigned int	ReceiveFileGivenLength(int filed, unsigned int _length); // Receive File of given length
 	std::string 	ReceiveLine();					// receive until "\n"
 
 protected:

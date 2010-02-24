@@ -13,12 +13,12 @@ function check_updates()
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Neutrino:yWeb:Info#Auf_Updates_pr.C3.BCfen=}{=var-set:menu=Auf Updates pr&uuml;fen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Info-Auf_Updates_pruefen=}{=var-set:menu={=L:check_for_updates=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<table border="0" cellpadding="2" cellspacing="4">
 		<tr>
 			<td valign="top">
-				<b>Deine Version</b>
+				<b>{=L:your_version=}</b>
 				<p>
 				{=ini-get:Y_Version.txt;version=}<br/>
 				{=ini-get:Y_Version.txt;date=}<br/>
@@ -27,14 +27,14 @@ function check_updates()
 				</p>
 			</td>
 			<td valign="top">
-				<b>Neue Version</b>
+				<b>{=L:actual_version=}</b>
 				<p>
 				{=ini-get:/tmp/version.txt;version=}<br/>
 				{=ini-get:/tmp/version.txt;date=}<br/>
 				{=ini-get:/tmp/version.txt;type=}<br/><br/>
 				{=ini-get:/tmp/version.txt;info=}<br/>
 				{=if-empty:{=ini-get:/tmp/version.txt;url=}~~
-				<a href="{=ini-get:/tmp/version.txt;url=}" target="_blank">Download</a><br/>
+				<a href="{=ini-get:/tmp/version.txt;url=}" target="_blank">{=L:download=}</a><br/>
 				=}
 				</p>
 			</td>

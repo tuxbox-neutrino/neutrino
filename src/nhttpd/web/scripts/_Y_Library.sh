@@ -1,8 +1,8 @@
 #!/bin/sh
 # -----------------------------------------------------------
 # Y Library (yjogol)
-# $Date: 2006/09/16 14:52:23 $
-# $Revision: 1.1 $
+# $Date: 2007/11/26 20:54:55 $
+# $Revision: 1.2 $
 # -----------------------------------------------------------
 
 # -----------------------------------------------------------
@@ -10,7 +10,7 @@
 # -----------------------------------------------------------
 call_webserver()
 {
-	port=`sed -n /^Port=/p $y_config_nhttpd | sed -e s/^Port=//1`
+	port=`sed -n /^WebsiteMain.port=/p $y_config_nhttpd | sed -e s/^WebsiteMain.port=//1`
 	tmp=`wget -O - -q "http://localhost:$port/$1"`
 	echo "$tmp"
 }
@@ -25,7 +25,7 @@ buildLocalIP()
 }
 
 # -----------------------------------------------------------
-# Streaming URL für sed
+# Streaming URL fï¿½r sed
 # -----------------------------------------------------------
 buildStreamingURL()
 {
@@ -46,7 +46,7 @@ buildStreamingRawURL()
 }
 
 # -----------------------------------------------------------
-# Audio: Streaming URL für sed
+# Audio: Streaming URL fï¿½r sed
 # -----------------------------------------------------------
 buildStreamingAudioURL()
 {

@@ -39,7 +39,7 @@ void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = t
 //=============================================================================
 
 static std::map<std::string, std::string> iso639;
-
+#ifndef initialize_iso639_map
 bool _initialize_iso639_map(void)
 {
 	std::string s, t, u, v;
@@ -61,7 +61,7 @@ bool _initialize_iso639_map(void)
  	else
 		return false;
 }
-
+#endif
 //-----------------------------------------------------------------------------
 const char * _getISO639Description(const char * const iso)
 {
@@ -85,7 +85,7 @@ std::string CNeutrinoAPI::audiotype_names[5] 	= {"none", "single channel","dual 
 //=============================================================================
 CNeutrinoAPI::CNeutrinoAPI()
 {
-	//Controld = new CControldClient();
+	Controld = new CControldClient();
 	Sectionsd = new CSectionsdClient();
 	Zapit = new CZapitClient();
 	Timerd = new CTimerdClient();
@@ -107,6 +107,8 @@ CNeutrinoAPI::CNeutrinoAPI()
 	EventServer->registerEvent2( NeutrinoMessages::EVT_START_PLUGIN, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::LOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 	EventServer->registerEvent2( NeutrinoMessages::UNLOCK_RC, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::ESOUND_ON, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
+	EventServer->registerEvent2( NeutrinoMessages::ESOUND_OFF, CEventServer::INITID_HTTPD, "/tmp/neutrino.sock");
 }
 //-------------------------------------------------------------------------
 
@@ -118,8 +120,8 @@ CNeutrinoAPI::~CNeutrinoAPI(void)
 		delete NeutrinoYParser;
 	if (ControlAPI)
 		delete ControlAPI;
-	//if (Controld)
-	//	delete Controld;
+	if (Controld)
+		delete Controld;
 	if (Sectionsd)
 		delete Sectionsd;
 	if (Zapit)
@@ -134,15 +136,12 @@ CNeutrinoAPI::~CNeutrinoAPI(void)
 
 void CNeutrinoAPI::UpdateBouquets(void)
 {
-#if 0
 	BouquetList.clear();
-	Zapit->getBouquets(BouquetList, true, true);
-
+	Zapit->getBouquets(BouquetList, true);
 	for (unsigned int i = 1; i <= BouquetList.size(); i++)
 		UpdateBouquet(i);
 
 	UpdateChannelList();
-#endif
 }
 
 //-------------------------------------------------------------------------
@@ -166,7 +165,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 	}
 
 	if (Zapit->zapTo_serviceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id&0xFFFFFFFFFFFFULL, false);
+		Sectionsd->setServiceChanged(channel_id, false);
 }
 //-------------------------------------------------------------------------
 
@@ -179,7 +178,7 @@ void CNeutrinoAPI::ZapToSubService(const char * const target)
 	       &channel_id);
 
 	if (Zapit->zapTo_subServiceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id&0xFFFFFFFFFFFFULL, false);
+		Sectionsd->setServiceChanged(channel_id, false);
 }
 //-------------------------------------------------------------------------
 t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_name)
@@ -188,16 +187,18 @@ t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_nam
 	//int mode = Zapit->getMode();
 	t_channel_id channel_id = (t_channel_id)-1;
 	CStringArray channel_names = ySplitStringVector(search_channel_name, ",");
-
-	for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
-		std::string channel_name = it->second.getName();
+	CZapitClient::BouquetChannelList *channellist = GetChannelList(CZapitClient::MODE_CURRENT);
+	CZapitClient::BouquetChannelList::iterator channel = channellist->begin();
+	for(; channel != channellist->end();channel++)
+	{
+		std::string channel_name = channel->name;
 		for(unsigned int j=0;j<channel_names.size();j++)
 		{
 			if(channel_names[j].length() == channel_name.length() &&
 				equal(channel_names[j].begin(), channel_names[j].end(),
 				channel_name.begin(), nocase_compare)) //case insensitive  compare
 			{
-				channel_id = it->second.channel_id;
+				channel_id = channel->channel_id;
 				break;
 			}
 		}
@@ -236,15 +237,10 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 			value=strtoul(tmpptr,NULL,0);
 			bitInfo[pos]= value;
 			pos++;
-#if !HAVE_DB0X2
-			if(pos > 4) break;
-#endif
 		}
 	}
-#if !HAVE_DB0X2
 	bitInfo[4] = 37500;
 	bitInfo[6] = 3;
-#endif
 	fclose(fd);
 
 	return true;
@@ -254,8 +250,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 
 bool CNeutrinoAPI::GetChannelEvents(void)
 {
-	//eList = Sectionsd->getChannelEvents();
-	sectionsd_getChannelEvents(eList);
+	eList = Sectionsd->getChannelEvents();
 	CChannelEventList::iterator eventIterator;
 
 	ChannelListEvents.clear();
@@ -273,29 +268,21 @@ bool CNeutrinoAPI::GetChannelEvents(void)
 
 std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)
 {
-	tallchans_iterator it = allchans.find(channel_id);
-	if (it != allchans.end())
-		it->second.getName();
-#if 0
 	unsigned int i;
+
 	for (i = 0; i < TVChannelList.size(); i++)
 		if (TVChannelList[i].channel_id == channel_id)
 			return TVChannelList[i].name;
 	for (i = 0; i < RadioChannelList.size(); i++)
 		if (RadioChannelList[i].channel_id == channel_id)
 			return RadioChannelList[i].name;
-#endif
 	return "";
 }
 
 //-------------------------------------------------------------------------
 
-CZapitClient::BouquetChannelList *CNeutrinoAPI::GetBouquet(unsigned int /*BouquetNr*/, int /*Mode*/)
+CZapitClient::BouquetChannelList *CNeutrinoAPI::GetBouquet(unsigned int BouquetNr, int Mode)
 {
-//FIXME
-	printf("CNeutrinoAPI::GetChannelList still used !\n");
-	return NULL;
-#if 0
 	int mode;
 
 	if (Mode == CZapitClient::MODE_CURRENT)
@@ -307,17 +294,12 @@ CZapitClient::BouquetChannelList *CNeutrinoAPI::GetBouquet(unsigned int /*Bouque
 		return &TVBouquetsList[BouquetNr];
 	else
 		return &RadioBouquetsList[BouquetNr];
-#endif
 }
 
 //-------------------------------------------------------------------------
 
-CZapitClient::BouquetChannelList *CNeutrinoAPI::GetChannelList(int /*Mode*/)
+CZapitClient::BouquetChannelList *CNeutrinoAPI::GetChannelList(int Mode)
 {
-//FIXME
-	printf("CNeutrinoAPI::GetChannelList still used !\n");
-	return NULL;
-#if 0
 	int mode;
 
 	if (Mode == CZapitClient::MODE_CURRENT)
@@ -329,31 +311,24 @@ CZapitClient::BouquetChannelList *CNeutrinoAPI::GetChannelList(int /*Mode*/)
 		return &TVChannelList;
 	else
 		return &RadioChannelList;
-#endif
 }
 
 //-------------------------------------------------------------------------
-
-void CNeutrinoAPI::UpdateBouquet(unsigned int /*BouquetNr*/)
+void CNeutrinoAPI::UpdateBouquet(unsigned int BouquetNr)
 {
-#if 0 //FIXME
 	TVBouquetsList[BouquetNr].clear();
 	RadioBouquetsList[BouquetNr].clear();
-	Zapit->getBouquetChannels(BouquetNr - 1, TVBouquetsList[BouquetNr], CZapitClient::MODE_TV, true);
-	Zapit->getBouquetChannels(BouquetNr - 1, RadioBouquetsList[BouquetNr], CZapitClient::MODE_RADIO, true);
-#endif
+	Zapit->getBouquetChannels(BouquetNr - 1, TVBouquetsList[BouquetNr], CZapitClient::MODE_TV);
+	Zapit->getBouquetChannels(BouquetNr - 1, RadioBouquetsList[BouquetNr], CZapitClient::MODE_RADIO);
 }
 
 //-------------------------------------------------------------------------
-
 void CNeutrinoAPI::UpdateChannelList(void)
 {
-#if 0
 	TVChannelList.clear();
 	RadioChannelList.clear();
-	Zapit->getChannels(RadioChannelList, CZapitClient::MODE_RADIO, CZapitClient::SORT_BOUQUET, true);
-	Zapit->getChannels(TVChannelList, CZapitClient::MODE_TV, CZapitClient::SORT_BOUQUET, true);
-#endif
+	Zapit->getChannels(RadioChannelList, CZapitClient::MODE_RADIO);
+	Zapit->getChannels(TVChannelList, CZapitClient::MODE_TV);
 }
 
 //-------------------------------------------------------------------------

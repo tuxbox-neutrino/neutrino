@@ -11,15 +11,15 @@ function do_refresh_liveview()
 </script>
 </head>
 <body>
-{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
-	<form name="f" action="/y/cgi">
-		<table border="0" class="y_live_table" cellspacing="0" width="100%">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+	<form class="y_form" name="f" action="/y/cgi">
+		<table border="0" cellspacing="0">
 			<tr><td class="y_form_header" colspan="2"><br/>VLC Settings (IE &amp; Mozilla >= 0.8.6.1)</td></tr>
 			<tr>
 				<td>Deinterlace</td>
 				<td>
-					<input type="radio" name="deinterlace" value="false" title="deinterlace: off"/>Off&nbsp;
-					<input type="radio" name="deinterlace" value="true" title="deinterlace: on"/>On
+					<input type="radio" name="deinterlace" value="false" title="deinterlace: off"/>AUS&nbsp;
+					<input type="radio" name="deinterlace" value="true" title="deinterlace: on"/>AN
 				</td>
 			</tr>
 			<tr>
@@ -29,19 +29,33 @@ function do_refresh_liveview()
 			<tr>
 				<td>UDP as default</td>
 				<td>
-					<input type="radio" name="udp" value="false" title="udp: off"/>Off&nbsp;
-					<input type="radio" name="udp" value="true" title="udp: on"/>On
+					<input type="radio" name="udp" value="false" title="udp: off"/>AUS&nbsp;
+					<input type="radio" name="udp" value="true" title="udp: on"/>AN
 				</td>
-			</tr>		</table>
+			</tr>
+			<tr>
+				<td>Slave Box IP (2. dbox)</td>
+				<td><input type="text" name="slavebox" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}" title="enter IP (xxx.xxx.xxx.xxx) of slave-box"/></td>
+			</tr>
+			<tr>
+				<td>VLC Aufnahmepfad</td>
+				<td><input type="text" name="vlc_record_path" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}" title="VLC record path for LiveView direct recording."/></td>
+			</tr>
+<!---			<tr>
+				<td>VLC Aufnahmetyp</td>
+				<td><input type="text" name="vlc_record_mux_type" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_mux_type=}" title="VLC record mux type"/></td>
+			</tr>
+-->
+			</table>
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_Live.yhtm"/>
 		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;Live_save_settings;nix"/>
-		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
-		<input type="button" value="Refresh LiveView" title="Refresh LiveView" onclick="do_refresh_liveview()"/>
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
+		<button type="button" ytype="refresh" title="Refresh LiveView" onclick="do_refresh_liveview()">Refresh LiveView</button>
 	</form>
 <script type="text/javascript">
 //<![CDATA[
-function form_init() 
+function form_init()
 {
 	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;false=}";
 	if(val == "true")

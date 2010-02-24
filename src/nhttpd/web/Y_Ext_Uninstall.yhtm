@@ -1,0 +1,79 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/prototype.js"></script>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/Y_yweb.js"></script>
+<script type="text/javascript" src="/Y_Ext_Update.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function init(){
+	window.setTimeout("uninstall_build_list();",300);
+}
+//]]>
+</script>
+<style>
+.type, .uninstall{
+	text-align:center;;
+}
+</style>
+</head>
+<body onload="init()">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Extensions-Uninstall=}{=var-set:menu=Extensions Uninstaller=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<div id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
+			<span id="status">Search for Extensions ...</span></div>
+
+	<form method="post" name="update" action="">
+<!--		<input type="button" value="build list" title="build list" onclick="build_list()"/>-->
+		<br/>
+		<div class="y_form_header_oline">installed extensions</div>
+		<table class="lt_table" cellspacing="0" cellpadding="2">
+		<thead align="left">
+		<tr valign="bottom">
+			<th>Type</th><th>Extension</th>
+			<th>Tag</th><th>Version</th><th>Size/k</th><th>uninstall</th><th>Info</th>
+		</tr>
+		</thead>
+		<tbody id="update_list">
+		<tr><td></td></tr>
+		</tbody>
+		</table>
+	</form>
+	<br/>
+	<div id="free">?</div>
+	Free:&nbsp;<span id="avaiable">?</span>k
+	<form method="post" name="log" action="">
+	<div class="y_form_header_oline">Log</div>
+		<table class="lt_table" cellspacing="0" cellpadding="4">
+		<thead align="left">
+		<tr>
+			<th>&nbsp;</th><th>Action</th><th>Status</th>
+		</tr>
+		</thead>
+		<tbody id="slog_list">
+		<tr><td></td></tr>
+		</tbody>
+		</table>
+		<br/>
+	</form>
+	<br/>
+	<div class="y_form_header">New extension settings (preview)</div>
+	<form name="f" accept-charset="UTF-8" action="/y/cgi">
+		<table border="0" class="y_form_table" cellspacing="0" cellpadding="0">
+			<tr>
+				<td><textarea name="extentions" cols="90" rows="5"   title="extention list" style="background : white; font : 'Courier New',medium  monospace; color : #436976;"></textarea></td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Ext_Update_refresh.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;ext_save_settings;nix"/>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}
+

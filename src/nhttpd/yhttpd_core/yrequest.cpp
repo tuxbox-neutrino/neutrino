@@ -18,7 +18,7 @@
 // c++
 #include <cstdarg>
 #include <cstdio>
-#include <string.h>
+#include <cstring>
 #include <cstdlib>
 #include <errno.h>
 // system
@@ -40,7 +40,7 @@ CWebserverRequest::CWebserverRequest(CWebserver *pWebserver)
 }
 
 //=============================================================================
-// Parsing Request 
+// Parsing Request
 //=============================================================================
 //-----------------------------------------------------------------------------
 // Main Request Parsing
@@ -80,14 +80,14 @@ bool CWebserverRequest::HandleRequest(void)
 	if(Connection->Method == M_GET || Connection->Method == M_HEAD)
 	{
 		std::string tmp_line;
-		//read header (speed up: read rest of request in blockmode) 
+		//read header (speed up: read rest of request in blockmode)
 		tmp_line = Connection->sock->ReceiveBlock();
 		if(!Connection->sock->isValid)
 		{
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
 		}
-	
+
 		if(tmp_line == "")
 		{
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
@@ -97,12 +97,12 @@ bool CWebserverRequest::HandleRequest(void)
 	}
 	// Other Methods
 	if(Connection->Method == M_DELETE || Connection->Method == M_PUT || Connection->Method == M_TRACE)
-	{	
+	{
 		//todo: implement
 		aprintf("HTTP Method not implemented :%d\n",Connection->Method);
 		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
 		return false;
-	}	
+	}
 	// handle POST (read header & body)
 	if(Connection->Method == M_POST)
 	{
@@ -118,7 +118,7 @@ bool CWebserverRequest::HandleRequest(void)
 // Parse the start-line
 //	from RFC2616 / 5.1 Request-Line (start-line):
 //	Request-Line   = Method SP Request-URI SP HTTP-Version CRLF (SP=Space)
-// 
+//
 //	Determine Reqest-Method, URL, HTTP-Version and Split Parameters
 //	Split URL into path, filename, fileext .. UrlData[]
 //-----------------------------------------------------------------------------
@@ -161,7 +161,7 @@ bool CWebserverRequest::ParseStartLine(std::string start_line)
 //       attribute               = token
 //       value                   = token | quoted-string
 //
-// 	If parameter attribute is multiple times given, the values are stored like this: 
+// 	If parameter attribute is multiple times given, the values are stored like this:
 // 		<attribute>=<value1>,<value2>,..,<value n>
 //-----------------------------------------------------------------------------
 bool CWebserverRequest::ParseParams(std::string param_string)
@@ -175,7 +175,7 @@ bool CWebserverRequest::ParseParams(std::string param_string)
 			ende = true;
 		if(ySplitStringExact(param,"=",name,value))
 		{
-			value = trim(value);
+			value = trim(decodeString(value));
 			if(ParameterList[name].empty())
 				ParameterList[name] = value;
 			else
@@ -228,7 +228,7 @@ bool CWebserverRequest::ParseHeader(std::string header)
 void CWebserverRequest::analyzeURL(std::string url)
 {
 	ParameterList.clear();
-	// URI decode	
+	// URI decode
 	url = decodeString(url);
 	url = trim(url, "\r\n"); // non-HTTP-Standard: allow \r or \n in URL. Delete it.
 	UrlData["fullurl"] = url;
@@ -237,7 +237,7 @@ void CWebserverRequest::analyzeURL(std::string url)
 		ParseParams(UrlData["paramstring"]);			// split params to ParameterList
 	else								// No Params
 		UrlData["url"] = url;
-				
+
 	if(!ySplitStringLast(UrlData["url"],"/",UrlData["path"],UrlData["filename"]))
 	{
 		UrlData["path"] = "/";					// Set "/" if not contained
@@ -258,7 +258,7 @@ void CWebserverRequest::analyzeURL(std::string url)
 bool CWebserverRequest::HandlePost()
 {
 	//read header: line by line
-	std::string raw_header, tmp_line;		
+	std::string raw_header, tmp_line;
 	do
 	{
 		tmp_line = Connection->sock->ReceiveLine();
@@ -306,11 +306,13 @@ bool CWebserverRequest::HandlePost()
 		std::string post_header;
 		// get message-body
 		post_header = Connection->sock->ReceiveBlock();
-		if(post_header.length() < content_len)
+		while(post_header.length() < content_len)
 		{
-			aprintf("POST form less data then expected\n");
+			post_header += Connection->sock->ReceiveBlock();
+/*			aprintf("POST form less data then expected\n");
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
+*/
 		}
 		// parse the params in post_header (message-body) an add them to ParameterList
 		ParseParams(post_header);
@@ -320,51 +322,51 @@ bool CWebserverRequest::HandlePost()
 //-----------------------------------------------------------------------------
 // POST multipart ! FILE UPLOAD!
 //
-// No 'Content-type: multipart/mixed' now supported 
+// No 'Content-type: multipart/mixed' now supported
 // designed for recursion for different boundaries.
 //
 // 	from RFC 1867:
 //	2.  HTML forms with file submission
-//	
+//
 //	   The current HTML specification defines eight possible values for the
 //	   attribute TYPE of an INPUT element: CHECKBOX, HIDDEN, IMAGE,
 //	   PASSWORD, RADIO, RESET, SUBMIT, TEXT.
-//	
+//
 //	   In addition, it defines the default ENCTYPE attribute of the FORM
 //	   element using the POST METHOD to have the default value
 //	   "application/x-www-form-urlencoded"
 //
 //	6. Examples
-//	
+//
 //	   Suppose the server supplies the following HTML:
-//	
+//
 //	     <FORM ACTION="http://server.dom/cgi/handle"
 //	           ENCTYPE="multipart/form-data"
 //	           METHOD=POST>
 //	     What is your name? <INPUT TYPE=TEXT NAME=submitter>
 //	     What files are you sending? <INPUT TYPE=FILE NAME=pics>
 //	     </FORM>
-//	
+//
 //	   and the user types "Joe Blow" in the name field, and selects a text
 //	   file "file1.txt" for the answer to 'What files are you sending?'
-//	
+//
 //	   The client might send back the following data:
-//	
+//
 //	        Content-type: multipart/form-data, boundary=AaB03x
-//	
+//
 //	        --AaB03x
 //	        content-disposition: form-data; name="field1"
-//	
+//
 //	        Joe Blow
 //	        --AaB03x
 //	        content-disposition: form-data; name="pics"; filename="file1.txt"
 //	        Content-Type: text/plain
-//	
+//
 //	         ... contents of file1.txt ...
 //	        --AaB03x--
 //
 //	7. Registration of multipart/form-data
-//	
+//
 //	   The media-type multipart/form-data follows the rules of all multipart
 //	   MIME data streams as outlined in RFC 1521. It is intended for use in
 //	   returning the data that comes about from filling out a form. In a
@@ -372,7 +374,7 @@ bool CWebserverRequest::HandlePost()
 //	   are a series of fields to be supplied by the user who fills out the
 //	   form. Each field has a name. Within a given form, the names are
 //	   unique.
-//	
+//
 //	   multipart/form-data contains a series of parts. Each part is expected
 //	   to contain a content-disposition header where the value is "form-
 //	   data" and a name attribute specifies the field name within the form,
@@ -380,7 +382,7 @@ bool CWebserverRequest::HandlePost()
 //	   the field name corresponding to that field. Field names originally in
 //	   non-ASCII character sets may be encoded using the method outlined in
 //	   RFC 1522.
-//	
+//
 //	   As with all multipart MIME types, each part has an optional Content-
 //	   Type which defaults to text/plain.  If the contents of a file are
 //	   returned via filling out a form, then the file input is identified as
@@ -388,11 +390,11 @@ bool CWebserverRequest::HandlePost()
 //	   multiple files are to be returned as the result of a single form
 //	   entry, they can be returned as multipart/mixed embedded within the
 //	   multipart/form-data.
-//	
+//
 //	   Each part may be encoded and the "content-transfer-encoding" header
 //	   supplied if the value of that part does not conform to the default
 //	   encoding.
-//	
+//
 //	   File inputs may also identify the file name. The file name may be
 //	   described using the 'filename' parameter of the "content-disposition"
 //	   header. This is not required, but is strongly recommended in any case
@@ -417,7 +419,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			return 0;
 		}
 		log_level_printf(7,"<POST Boundary> Boundary START found\n");
-		
+
 		// read content-disposition: ...
 		tmp_line = Connection->sock->ReceiveLine();
 		content_len -= tmp_line.length();
@@ -455,7 +457,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 				return 0;
 			}
 			var_value = trim(var_value);
-			ParameterList[var_name] = var_value;					
+			ParameterList[var_name] = var_value;
 			log_level_printf(7,"<POST Boundary> filename found. name:(%s) value:(%s)\n", var_name.c_str(), var_value.c_str());
 
 			//read 'Content-Type: <mime>'
@@ -468,7 +470,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 				return 0;
 			}
 			var_value = trim(right);
-			ParameterList[var_name+"_mime"] = var_value;					
+			ParameterList[var_name+"_mime"] = var_value;
 			log_level_printf(7,"<POST Boundary> Content-Type found. name:(%s_mime) value:(%s)\n", var_name.c_str(), var_value.c_str());
 
 
@@ -479,20 +481,20 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			{
 				log_level_printf(7,"<POST Boundary> no empty line found. line:(%s)\n", tmp_line.c_str());
 				return 0;
-				
+
 			}
 			log_level_printf(7,"<POST Boundary> read file Start\n");
-			
+
 			std::string upload_filename;
 			upload_filename = UPLOAD_TMP_FILE;
 			// Hook for Filename naming
 			Connection->HookHandler.Hooks_UploadSetFilename(upload_filename);
 			// Set upload filename to ParameterList["<name>_upload_filename"]="<upload_filename>"
-			ParameterList[var_name+"_upload_filename"] = upload_filename;					
+			ParameterList[var_name+"_upload_filename"] = upload_filename;
 
 			// open file for write
 			int fd = open(upload_filename.c_str(), O_WRONLY|O_CREAT|O_TRUNC);
-			if (fd<0)
+			if (fd<=0)
 			{
 				aprintf("cannot open file %s: ", upload_filename.c_str());
 				dperror("");
@@ -500,7 +502,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			}
 
 			// ASSUMPTION: the complete multipart has no more then SEARCH_BOUNDARY_LEN bytes after the file.
-			// It only works, if no multipart/mixed is used (e.g. in file attachments). Not nessesary in embedded systems. 
+			// It only works, if no multipart/mixed is used (e.g. in file attachments). Not nessesary in embedded systems.
 			// To speed up uploading, read content_len - SEARCH_BOUNDARY_LEN bytes in blockmode.
 			// To save memory, write them direct into the file.
 			#define SEARCH_BOUNDARY_LEN 2*RECEIVE_BLOCK_LEN // >= RECEIVE_BLOCK_LEN in ySocket
@@ -510,19 +512,19 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 				_readbytes = Connection->sock->ReceiveFileGivenLength(fd, content_len - SEARCH_BOUNDARY_LEN);
 				content_len -= _readbytes;
 				log_level_printf(8,"<POST Boundary> read block (already:%d all:%d)\n", _readbytes, content_len);
-			}						
+			}
 
 			// read rest of file and check for boundary end
 			_readbytes = 0;
 			bool is_CRLF = false;
-			
+
 			bool found_end_boundary = false;
 			do
 			{
 				// read line by line
 				tmp_line = Connection->sock->ReceiveLine();
 				_readbytes += tmp_line.length();
-				
+
 				// is this line a boundary?
 				if(tmp_line.find(boundary) != std::string::npos)
 				{
@@ -533,21 +535,21 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 				else // no Boundary: write CRFL if found in last line
 				{
 					if(is_CRLF)
-				    		if ((unsigned int)write(fd, "\r\n", 2) != 2)
-				    		{
+						if ((unsigned int)write(fd, "\r\n", 2) != 2)
+						{
 							perror("write file failed\n");
-				      			return 0;
-				      		}					
+							return 0;
+						}
 				}
 				// normal line: write it to file
 				// CRLF at end? Maybe CRLF before boundary. Can not decide yet
 				is_CRLF = (tmp_line.length()>=2 && tmp_line[tmp_line.length()-2]=='\r' && tmp_line[tmp_line.length()-1]=='\n');
 				int write_len = is_CRLF ? tmp_line.length()-2 : tmp_line.length();
-		    		if (write(fd, tmp_line.c_str(), write_len) != write_len)
-		    		{
+				if (write(fd, tmp_line.c_str(), write_len) != write_len)
+				{
 					perror("write file failed\n");
-		      			return 0;
-		      		}
+					return 0;
+				}
 				log_level_printf(2,"<POST Boundary> read file (already:%d all:%d)\n", _readbytes, content_len);
 			}
 			while((_readbytes < content_len) && (tmp_line.length() != 0));
@@ -556,7 +558,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			log_level_printf(2,"<POST Boundary> read file End\n");
 			if(found_end_boundary) // upload ok?
 			{
-				
+
 				Connection->HookHandler.Hooks_UploadReady(upload_filename);
 				return 0;
 			}
@@ -577,7 +579,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 				log_level_printf(7,"<POST Boundary> no var_name END found. line:(%s)\n", tmp_line.c_str());
 				return 0;
 			}
-			
+
 			//read empty line as separator
 			tmp_line = Connection->sock->ReceiveLine();
 			content_len -= tmp_line.length();
@@ -585,15 +587,15 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			{
 				log_level_printf(7,"<POST Boundary> no empty line found. line:(%s)\n", tmp_line.c_str());
 				return 0;
-				
+
 			}
 			//read var_value line
 			// ASSUMPTION!!!! Only one Line for value, new line is a boundary again
 			// ATTENTION!! var_name must not be unique. So Parameters are store by number too.
 			var_value = Connection->sock->ReceiveLine();
 			content_len -= tmp_line.length();
-			var_value = trim(var_value);
-			ParameterList[var_name] = var_value;					
+			var_value = trim(decodeString(var_value));
+			ParameterList[var_name] = var_value;
 			log_level_printf(7,"<POST Boundary> Parameter found. name:(%s) value:(%s)\n", var_name.c_str(), var_value.c_str());
 		}
 	}

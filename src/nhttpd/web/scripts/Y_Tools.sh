@@ -1,8 +1,8 @@
 #!/bin/sh
 # -----------------------------------------------------------
 # Tools (yjogol)
-# $Date: 2007/02/21 17:41:04 $
-# $Revision: 1.2 $
+# $Date: 2010/01/03 18:54:42 $
+# $Revision: 1.9 $
 # -----------------------------------------------------------
 . ./_Y_Globals.sh
 . ./_Y_Library.sh
@@ -103,6 +103,7 @@ flash_mtd()
 		msg_nmsg "Image%20%20flashing!"
 		if [ "$simulate" = "false" ]
 		then
+			umount /hdd #yet: fixed setting
 			fcp -v "$y_upload_file" /dev/mtd/$1 >/tmp/e.txt
 		else #simulation/DEMO
 			i="0"
@@ -112,7 +113,7 @@ flash_mtd()
 				b=`expr $i \* 63`
 				b=`expr $b / 10`
 				echo -e "\rDEMO: Erasing blocks: $b/63 ($p%)" >>/tmp/e.txt
-				i=`expr $i + 1`	
+				i=`expr $i + 1`
 				sleep 1
 			done
 			i="0"
@@ -122,7 +123,7 @@ flash_mtd()
 				b=`expr $i \* 8064`
 				b=`expr $b / 20`
 				echo -e "\rDEMO: Writing data: $b k/8064k ($p%)" >>/tmp/e.txt
-				i=`expr $i + 1`	
+				i=`expr $i + 1`
 				sleep 2
 			done
 			i="0"
@@ -132,7 +133,7 @@ flash_mtd()
 				b=`expr $i \* 8064`
 				b=`expr $b / 5`
 				echo -e "\rDEMO: Verifying data: $b k/8064k ($p%)" >>/tmp/e.txt
-				i=`expr $i + 1`	
+				i=`expr $i + 1`
 				sleep 1
 			done
 		fi
@@ -140,7 +141,7 @@ flash_mtd()
 		msg="flashing done ... please reboot box now ..."
 		msg="$msg <script language='JavaScript' type='text/javascript'>window.setTimeout('parent.do_image_flash_ready()',1000)</script>"
 		y_format_message_html
-		
+
 		if [ "$simulate" = "false" ]
 		then
 			busybox reboot -d10
@@ -235,7 +236,7 @@ do_mount()
 			cmd="mount -t nfs $ip:$dir $local_dir -o $options1"
 			;;
 		1)
-			cmd="mount -t cifs //$ip/$dir $local_dir -o username=$username,password=$password,unc=//$ip/$dir,$options1";
+			cmd="mount -t cifs $ip/$dir $local_dir -o username=$username,password=$password,unc=//$ip/$dir,$options1";
 			;;
 		2)
 			cmd="lufsd none $local_dir -o fs=ftpfs,username=$username,password=$password,host=$ip,root=/$dir,$options1";
@@ -248,8 +249,9 @@ do_mount()
 	then
 		cmd="$cmd,$options2"
 	fi
-
 	res=`$cmd`
+	echo "$cmd" >/tmp/mount.log
+	echo "$res" >>/tmp/mount.log
 	echo "$res"
 	echo "view mounts"
 	m=`mount`
@@ -271,7 +273,7 @@ do_automount_list()
 {
 	i="1"
 	sel="checked='checked'"
-	cat $1|sed -n /-fstype/p|\
+	cat $1|sed /#/d|sed -n /-fstype/p|\
 	while read mountname options share
 	do
 		mountvalue=`echo "$mountname"|sed -e "s/#/---/g"`
@@ -360,12 +362,12 @@ do_installer()
 		tar -xf "$y_upload_file"
 		rm $y_upload_file
 		if [ -s "$y_install" ] #look for install.sh
-		then		
+		then
 			chmod 755 $y_install
 			o=`$y_install` # execute
 			rm -f $y_install # clean up
 			if [ -s "$y_out_html" ] #html - output?
-			then	
+			then
 				echo '<html><head><link rel="stylesheet" type="text/css" href="/Y_Main.css">'
 				echo "<meta http-equiv='refresh' content='0; $y_out_html'></head>"
 				echo "<body><a href='$y_out_html'>If automatic forwarding does not go.</a>"
@@ -386,19 +388,22 @@ do_installer()
 		y_format_message_html
 	fi
 }
+
 # -----------------------------------------------------------
 # extention Installer $1=URL
 # -----------------------------------------------------------
 do_ext_installer()
 {
-	rm $y_upload_file
-	wgetlog=`wget -O $y_upload_file $1 2>/tmp/err.log`
+	if [ -e $y_upload_file ]; then
+		rm $y_upload_file
+	fi
+	wgetlog=`wget -O $y_upload_file $1 2>&1`
 	if [ -s "$y_upload_file" ];then
 		cd $y_path_tmp
 		tar -xf "$y_upload_file"
 		rm $y_upload_file
 		if [ -s "$y_install" ] #look for install.sh
-		then		
+		then
 			chmod 755 $y_install
 			o=`$y_install` # execute
 			rm -f $y_install # clean up
@@ -408,6 +413,14 @@ do_ext_installer()
 		e=`cat /tmp/err.log`
 		echo "error: $y_install not found. wget=$wgetlog $e"
 	fi
+}
+do_ext_uninstaller()
+{
+	uinst="/var/tuxbox/config/ext/uninstall.sh"
+	if [ -e "$uinst"  ]; then
+		chmod 755 "$uinst"
+		`$uinst $1_uninstall.inc`
+	fi 
 }
 # -----------------------------------------------------------
 # view /proc/$1 Informations
@@ -428,14 +441,46 @@ wol()
 	y_format_message_html
 }
 # -----------------------------------------------------------
+# lcd shot
+# $1= optionen | leer
 # -----------------------------------------------------------
-dofbshot()
+do_lcshot()
 {
-	rm -r /tmp/a.png
-	fbshot -q /tmp/a.png >/dev/null
-	msg="<img src='' name="fb" id="fb">"
-	msg="$msg <script language='JavaScript' type='text/javascript'>document.fb.src='/tmp/a.png?hash=' + Math.random();window.setTimeout('parent.do_ready()',1000)</script>"
-	y_format_message_html_plain
+	if [ -e "/var/bin/lcshot" ]; then
+		/var/bin/lcshot $*
+	else
+		/bin/lcshot $*
+	fi
+}
+# -----------------------------------------------------------
+# osd shot
+# $1= fb | dbox bzw. leer
+# -----------------------------------------------------------
+do_fbshot()
+{
+	if [ "$1" = "fb" ]; then
+		shift 1
+		if [ -e "/var/bin/fbshot" ]; then
+			/var/bin/fbshot $*
+		else
+			fbshot $*
+		fi
+	else
+		shift 1
+		if [ -e "/var/bin/dboxshot" ]; then
+			/var/bin/dboxshot $*
+		else
+			dboxshot $*
+		fi
+	fi
+}
+# -----------------------------------------------------------
+# delete fbshot created graphics
+# -----------------------------------------------------------
+do_fbshot_clear()
+{
+	rm /tmp/*.bmp
+	rm /tmp/*.png
 }
 
 # -----------------------------------------------------------
@@ -468,17 +513,17 @@ do_settings_backup_restore()
 			cp -rf ./config /var/tuxbox/
 			rm -r ./config
 			msg="$msg ok"
-			y_format_message_html
-			sync
-			sync
-			umount -a
-			reboot -f
 		else
 			msg="$msg error: no upload file"
 		fi
 		y_format_message_html
 		;;
 	esac
+}
+restart_neutrino()
+{
+	echo "fixme"
+#	kill -HUP `pidof neutrino`
 }
 # -----------------------------------------------------------
 # Main
@@ -507,21 +552,26 @@ case "$1" in
 	domount)		shift 1; do_mount $* ;;
 	dounmount)		shift 1; do_unmount $* ;;
 	cmd)			shift 1; do_cmd $* ;;
-	installer)		shift 1; do_installer $* ;;
-	ext_installer)	shift 1; do_ext_installer $* ;;
+	installer)		shift 1; do_installer $* 2>&1 ;;
+	ext_uninstaller)	shift 1; do_ext_uninstaller $* 2>&1 ;;
+	ext_installer)	shift 1; do_ext_installer $* 2>&1 ;;
 	proc)			shift 1; proc $* ;;
 	wol)			shift 1; wol $* ;;
-	dofbshot)		dofbshot ;;
-	get_update_version)	wget -O /tmp/version.txt "http://www.yjogol.de/download/Y_Version.txt" ;;
+	lcshot)			shift 1; do_lcshot $* ;;
+	fbshot)			shift 1; do_fbshot $* ;;
+	fbshot_clear)		do_fbshot_clear ;;
+	get_update_version)	wget -O /tmp/version.txt "http://www.yjogol.com/download/Y_Version.txt" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)		shift 1; $* ;;
 	automount_list)		shift 1; do_automount_list $* ;;
 	automount_getline)	shift 1; do_automount_getline $* ;;
 	automount_setline)	shift 1; do_automount_setline $* ;;
-		
+	restart_neutrino)	restart_neutrino ;;
+	have_plugin_scripts) find /var/tuxbox/plugins -name '*.sh' ;;
 	timer_get_tvinfo)
 		shift 1
-		res=`wget -O /tmp/tvinfo.xml "http://www.tvinfo.de/share/vidac/rec_info.php?username=$1&password=$2"`
+		rm -r /tmp/tvinfo.xml
+		res=`wget -O /tmp/tvinfo.xml "http://www.tvinfo.de/share/vidac/rec_info.php?username=$1&password=$2" 2>&1`
 		if  ! [ -s /tmp/tvinfo.xml ]
 		then
 			res="$res File empty!"
@@ -533,18 +583,27 @@ case "$1" in
 		config_open $y_config_Y_Web
 		url=`config_get_value "klack_url"`
 		klack_url=`echo "$url"|sed -e 's/;/\&/g'`
-		wget -O /tmp/klack.xml "$klack_url" ;;
-		
+		securitycode=`config_get_value "klack_securitycode"`
+		klack_url=`echo "$klack_url&secCode=$securitycode"`
+		wget -O /tmp/klack.xml "$klack_url" 2>&1 ;;
+
+	restart_sectionsd)
+		killall sectionsd
+		sectionsd >/dev/null 2>&1
+		msg="sectionsd reboot. ok."
+		y_format_message_html
+		;;
+
 	get_synctimer_channels)
 		if [ -e "$y_path_config/channels.txt" ]
 		then
-			cat $y_path_config/channels.txt 
+			cat $y_path_config/channels.txt
 		else
-			cat $y_path_httpd/channels.txt 
+			cat $y_path_httpd/channels.txt
 		fi
 		;;
 
-	get_extention_list)
+	get_extension_list)
 		if [ -e "$y_path_config/extentions.txt" ]
 		then
 			cat $y_path_config/extentions.txt
@@ -553,14 +612,14 @@ case "$1" in
 		fi
 		;;
 
-	write_extention_list)
+	write_extension_list)
 		shift 1
 		echo  "$*" >$y_path_config/extentions.txt
 		;;
-	
+
 	url_get)
 		shift 1
-		res=`wget -O /tmp/$2 "$1" >/tmp/url.log`
+		res=`wget -O /tmp/$2 "$1" >/tmp/url.log 2>&1`
 		cat /tmp/$2
 		;;
 
@@ -573,7 +632,15 @@ case "$1" in
 			echo "on"
 		fi
 		;;
-
+	var_space)
+		df /var|grep /var
+		;;
+	tmp_space)
+		df /tmp|grep /tmp
+		;;
 	*)
 		echo "[Y_Tools.sh] Parameter falsch: $*" ;;
 esac
+
+
+

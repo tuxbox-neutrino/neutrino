@@ -5,7 +5,6 @@
 // c++
 #include <cerrno>
 #include <csignal>
-#include <cstdio>
 
 // system
 #include <arpa/inet.h>
@@ -49,8 +48,10 @@ CWebserver::CWebserver()
 	FD_ZERO(&read_fds);
 	fdmax = 0;
 	open_connections = 0;
-	//pthread_attr_init(&attr);
-	//pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+#ifdef Y_CONFIG_BUILD_AS_DAEMON
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+#endif
 	port=80;
 
 
@@ -128,7 +129,7 @@ bool CWebserver::run(void)
 
 	// initialize values for select
 	int listener = listenSocket.get_socket();// Open Listener
-    	struct timeval tv;			// timeout struct
+	struct timeval tv;			// timeout struct
 	FD_SET(listener, &master);		// add the listener to the master set
 	fdmax = listener;			// init max fd
 	fcntl(listener, F_SETFD , O_NONBLOCK); 	// listener master socket non-blocking
@@ -157,8 +158,8 @@ bool CWebserver::run(void)
 		// Socket Error?
 		if(fd == -1 && errno != EINTR)
 		{
-            		perror("select");
-            		return false;
+			perror("select");
+			return false;
 		}
 
 		// Socket Timeout?
@@ -419,11 +420,14 @@ bool CWebserver::handle_connection(CySocket *newSock)
 	newConn->ySock = newSock;
 	newConn->ySock->handling = true;
 	newConn->WebserverBackref = this;
-	//newConn->is_treaded = is_threading;
+#ifdef Y_CONFIG_BUILD_AS_DAEMON
+	newConn->is_treaded = is_threading;
+#else
 	newConn->is_treaded = false;
-
+#endif
 	int index = -1;
-	if(0) /*if(is_threading) FIXME not work */
+#ifdef Y_CONFIG_BUILD_AS_DAEMON
+	if(is_threading)
 	{
 		pthread_mutex_lock( &mutex );
 		// look for free Thread slot
@@ -449,6 +453,7 @@ bool CWebserver::handle_connection(CySocket *newSock)
 			dperror("Could not create Connection-Thread\n");
 	}
 	else	// non threaded
+#endif
 		WebThread((void *)newConn);
 	return ((index != -1) || !is_threading);
 }

@@ -36,7 +36,7 @@ function do_delete()
 {=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb:Tools#AutoMount=}{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div>
+		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-AutoMount=}{=var-set:menu=AutoMount=}{=include-block:Y_Blocks.txt;work_menu=}</div>
 	</div>
 	<div class="work_box_body">
 	<form action="/y/cgi" name="f" id="f">
@@ -44,9 +44,9 @@ function do_delete()
 		<input type="hidden" name="tmpl" value="Y_Settings_automount.yhtm"/>
 		<input type="hidden" name="execute" value=""/>
 		<input type="hidden" name="cmd" value=""/>
-		<input type="button" value="Edit" title="edit mount settings" onclick="do_edit()"/>
-		<input type="button" value="Add" title="add new mount" onclick="do_add()"/>
-		<input type="button" value="Del" title="delete mount" onclick="do_delete()"/>
+		<button type="button" ytype="edit" title="edit mount settings" onclick="do_edit()">&auml;ndern</button>
+		<button type="button" ytype="add" title="add new mount" onclick="do_add()">hinzuf&uuml;gen</button>
+		<button type="button" ytype="delete" title="delete mount" onclick="do_delete()">l&ouml;schen</button>
 	</form>
 	</div>
 </div>

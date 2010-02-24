@@ -1,0 +1,189 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_init()
+{
+	var val = "";
+//video
+	val = "{=ini-get:/var/tuxbox/config/controld.conf;videooutput;1~open=}";
+		document.f.videooutput.selectedIndex = val;
+	obj_set_radio_value('vcroutput', "{=ini-get:/var/tuxbox/config/controld.conf;vcroutput;0~cache=}");
+		document.f.h_vcroutput.value = obj_get_radio_value("vcroutput");
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;video_Format;2~open=}";
+		document.f.video_Format.selectedIndex = val;
+	
+	val = "{=ini-get:/var/tuxbox/config/controld.conf;video_backgroundFormat;2~cache=}";
+	var sel = 0;
+	if(val=="2") sel=1;
+	if(val=="3") sel=2;
+	document.f.video_backgroundFormat.selectedIndex = sel;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;video_csync;0~cache=}"
+		document.f.video_csync.value = val;
+	obj_set_radio_value('vcr_AutoSwitch', "{=ini-get:/var/tuxbox/config/neutrino.conf;vcr_AutoSwitch;true~cache=}");
+//audio
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_AnalogMode;0~cache=}";
+		document.f.audio_AnalogMode.selectedIndex = val;
+	obj_set_radio_value('audiochannel_up_down_enable', "{=ini-get:/var/tuxbox/config/neutrino.conf;audiochannel_up_down_enable;false~cache=}");
+	obj_set_radio_value('audio_left_right_selectable', "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_left_right_selectable;false~cache=}");
+	obj_set_radio_value('audio_DolbyDigital', "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_DolbyDigital;false~cache=}");
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_avs_Control;1~cache=}";
+		document.f.audio_avs_Control.selectedIndex = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_PCMOffset;0~cache=}"
+		document.f.audio_PCMOffset.value = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;audio_step;5~cache=}"
+		document.f.audio_step.value = val;
+}
+function set_hidden_values()
+{
+	document.f.h_videooutput.value = document.f.videooutput.selectedIndex;
+	document.f.h_video_csync.value = document.f.video_csync.value;
+	document.f.h_vcroutput.value = obj_get_radio_value("vcroutput");
+	document.f.h_audio_avs_Control.value = document.f.audio_avs_Control.selectedIndex;
+}
+function do_submit()
+{
+	if(document.f.video_csync.value < 0 || document.f.video_csync.value > 31)
+		alert("Erlaubte Werte: 0 - 31");
+	else{
+		set_hidden_values();
+		show_waitbox(true);
+		document.f.submit();
+	}
+}
+//]]>
+</script>
+</head>
+<body onload="do_init()">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Settings-Video-Audio=}{=var-set:menu=Video und Audio Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" class="y_form" action="">
+		<table cellspacing="0" border="0" cellpadding="2" width="100%">
+			<tr>
+				<td colspan="2" class="y_form_header">Video</td>
+			</tr>
+			<tr><td width="35%">Video Signalart</td>
+				<td>
+					<select name="videooutput" title="select videooutput" disabled="disabled">
+					<option value="0" selected="selected">CVBS</option>
+					<option value="1">RGB + CVBS</option>
+					<option value="2">S-Video</option>
+					<option value="3">YUV + VBS</option>
+					<option value="4">YUV + CVBS</option>
+					</select>
+					<input type="hidden" name="h_videooutput"/>(*)
+				</td>
+			</tr>
+			<tr>
+				<td>Bildschirmformat</td>
+				<td>
+					<select name="video_Format" title="select videoformat">
+					<option value="0" selected="selected">automatisch</option>
+					<option value="1">16:9</option>
+					<option value="2">4:3 (LB)</option>
+					<option value="3">4:3 (PS)</option>
+					</select>
+				</td>				
+			</tr>
+			<tr>
+				<td>Hintergrundbildformat</td>
+				<td>
+					<select name="video_backgroundFormat" title="select backgroundformat">
+					<option value="1" selected="selected">16:9</option>
+					<option value="2">4:3 (LB)</option>
+					<option value="3">4:3 (PS)</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>RGB-Zentrierung</td>
+				<td>
+					<input type="text" name="video_csync" size="2" maxlength="2" disabled="disabled" title="set rgb-sync"/>
+					<input type="hidden" name="h_video_csync"/>(*)				
+				</td>
+			</tr>
+			<tr>
+				<td title="select vcr_output">VCR-Ausgang Signalart</td>
+				<td>
+					<input type="radio" name="vcroutput" value="0" disabled="disabled"/>CVBS&nbsp;
+					<input type="radio" name="vcroutput" value="2" disabled="disabled"/>S-Video
+					<input type="hidden" name="h_vcroutput"/>(*)
+				</td>
+			</tr>
+			<tr>
+				<td title="vcr_AutoSwitch: off/on">Scart-Eingang automatisch</td>
+				<td>
+					<input type="radio" name="vcr_AutoSwitch" value="false"/>NEIN&nbsp;
+					<input type="radio" name="vcr_AutoSwitch" value="true"/>JA
+				</td>
+			</tr>
+			<tr><td colspan="2" class="y_form_header">Audio</td></tr>
+			<tr>
+				<td>Analog-Ausgang</td>
+				<td>
+					<select name="audio_AnalogMode" title="select audio analogMode">
+					<option value="0" selected="selected">Stereo</option>
+					<option value="1">Mono links</option>
+					<option value="2">Mono rechts</option>
+					</select>
+				</td>				
+			</tr>
+			<tr>
+				<td title="audiochannel selectable in menu: off/on">in Tonwahl w&auml;hlbar</td>
+				<td>
+					<input type="radio" name="audiochannel_up_down_enable" value="false"/>AUS&nbsp;
+					<input type="radio" name="audiochannel_up_down_enable" value="true"/>EIN
+				</td>
+			</tr>
+			<tr>
+				<td title="enable audioselect with left/right: off/on">Audio mit Links/Rechts w&auml;hlbar</td>
+				<td>
+					<input type="radio" name="audio_left_right_selectable" value="false"/>AUS&nbsp;
+					<input type="radio" name="audio_left_right_selectable" value="true"/>EIN
+				</td>
+			</tr>
+			<tr><td title="dolby digital default: off/on">Dolby Digital Default</td>
+				<td>
+					<input type="radio" name="audio_DolbyDigital" value="false"/>AUS&nbsp;
+					<input type="radio" name="audio_DolbyDigital" value="true"/>EIN
+				</td>
+			</tr>
+			<tr><td>Volume Steuerung</td>
+				<td>
+					<select name="audio_avs_Control" title="select volume control" disabled="disabled">
+					<option value="0" selected="selected">ost</option>
+					<option value="1">avs</option>
+					<option value="2">lirc</option>
+					</select>
+					<input type="hidden" name="h_audio_avs_Control"/>(*)
+				</td>			
+			</tr>
+			<tr><td>Lautst&auml;rkeabsenkung PCM</td>
+				<td>
+					<input type="text" name="audio_PCMOffset" size="2" maxlength="2" title="pcm offset"/>
+				</td>
+			</tr>
+			<tr><td>Lautst&auml;rke Schrittweite</td>
+				<td>
+					<input type="text" name="audio_step" size="2" maxlength="2" title="audio step"/>
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;video_audio_save_settings;nix"/>
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>&nbsp;
+		<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>&nbsp;
+		<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(* diese Einstellungen sind nur lesbar)
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

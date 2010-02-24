@@ -94,13 +94,13 @@ public:
 	virtual std::string 	getHookVersion(void) {return std::string("0.0.0");}
 	virtual std::string 	getHookName(void) {return std::string("Abstract Hook Class");}
 	// CWebserverConnection based hooks
-	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler */*hh*/){return HANDLED_NONE;};
-	virtual THandleStatus 	Hook_SendResponse(CyhookHandler */*hh*/){return HANDLED_NONE;};
-	virtual THandleStatus	Hook_EndConnection(CyhookHandler */*hh*/){return HANDLED_NONE;}
-	virtual THandleStatus	Hook_UploadSetFilename(CyhookHandler */*hh*/, std::string &/*Filename*/){return HANDLED_NONE;}
-	virtual THandleStatus	Hook_UploadReady(CyhookHandler */*hh*/, std::string /*Filename*/){return HANDLED_NONE;}
+	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *){return HANDLED_NONE;};
+	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *){return HANDLED_NONE;};
+	virtual THandleStatus	Hook_EndConnection(CyhookHandler *){return HANDLED_NONE;}
+	virtual THandleStatus	Hook_UploadSetFilename(CyhookHandler *, std::string &){return HANDLED_NONE;}
+	virtual THandleStatus	Hook_UploadReady(CyhookHandler *, std::string){return HANDLED_NONE;}
 	// Cyhttpd based hooks
-	virtual THandleStatus 	Hook_ReadConfig(CConfigFile */*Config*/, CStringList &/*ConfigList*/){return HANDLED_NONE;};
+	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *, CStringList &){return HANDLED_NONE;};
 };
 
 //-----------------------------------------------------------------------------

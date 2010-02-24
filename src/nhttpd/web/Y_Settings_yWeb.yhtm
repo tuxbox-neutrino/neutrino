@@ -3,71 +3,98 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_submit()
-{
+function do_submit(){
 	show_waitbox(true);
 	yhttpd_cache_clear("");
 	document.f.submit();
 }
+function do_init(){
+	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default~open=}";
+	var sel=2;
+	switch(val){
+		case "default": sel=0; break;
+		case "Nokia": sel=1; break;
+	}
+	document.f.fb.selectedIndex = sel;
+	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;start_page;bouquets~cache=}";
+	var sel=2;
+	switch(val){
+		case "bouquets": sel=0; break;
+		case "control": sel=1; break;
+	}
+	document.f.start_page.selectedIndex = sel;
+}
 //]]>
 </script>
 </head>
-<body>
-{=var-set:wait_text=Values are saved (Save).=}{=include-block:Y_Blocks.txt;snip_wait=}
+<body onload="do_init()">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Neutrino:yWeb:Settings#yWeb=}{=var-set:menu=yWeb=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-yWeb=}{=var-set:menu=yWeb=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
-	<form name="f" action="/y/cgi">
+	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" class="y_form_table">
+			<tr><td class="y_form_header" colspan="4">{=L:management_IPs=}</td></tr>
 			<tr>
-				<td>Slave Box IP (2. dbox)</td>
-				<td><input type="text" name="slavebox" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}" title="enter IP (xxx.xxx.xxx.xxx) of slave-box"/></td>
+				<td>IP 1</td>
+				<td colspan="3"><input type="text" name="managementIP" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}" title="{=L:enter_ip_desc=}"/></td>
 			</tr>
 			<tr>
-				<td>Management IP 1</td>
-				<td><input type="text" name="managementIP" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip=}" title="enter IP (xxx.xxx.xxx.xxx)"/></td>
+				<td>IP 2</td>
+				<td colspan="3"><input type="text" name="managementIP2" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}" title="{=L:enter_ip_desc=}"/></td>
+			</tr>
+			<tr><td class="y_form_header" colspan="4">{=L:wake_on_lan=}</td></tr>
+			<tr>
+				<td>MAC 1</td>
+				<td><input type="text" name="wol_mac_1" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=}" title="{=L:enter_mac_desc=}"/></td>
+				<td>{=L:description=}</td>
+				<td><input type="text" name="wol_desc_1" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_1=}" title="{=L:enter_description_desc=}"/></td>
 			</tr>
 			<tr>
-				<td>Management IP 2</td>
-				<td><input type="text" name="managementIP2" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}" title="enter IP (xxx.xxx.xxx.xxx)"/></td>
+				<td>MAC 2</td>
+				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}" title="{=L:enter_mac_desc=}"/></td>
+				<td>{=L:description=}</td>
+				<td><input type="text" name="wol_desc_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_2=}" title="{=L:enter_description_desc=}"/></td>
 			</tr>
 			<tr>
-				<td>Wake on Lan MAC 1</td>
-				<td><input type="text" name="wol_mac_1" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_1=}" title="enter MAC Adress (xx:xx:xx:xx:xx:xx)"/></td>
+				<td>MAC 3</td>
+				<td><input type="text" name="wol_mac_3" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}" title="{=L:enter_mac_desc=}"/></td>
+				<td>{=L:description=}</td>
+				<td><input type="text" name="wol_desc_3" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_3=}" title="{=L:enter_description_desc=}"/></td>
+			</tr>
+			<tr><td class="y_form_header" colspan="4">{=L:box_tag=}</td></tr>
+			<tr>
+				<td>{=L:tag=}</td>
+				<td colspan="3"><input type="text" name="yweb_box_name" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_name=}"
+					title="{=L:box_tag_desc=}"/></td>
 			</tr>
 			<tr>
-				<td>Wake on Lan MAC 2</td>
-				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}" title="enter MAC Adress (xx:xx:xx:xx:xx:xx)"/></td>
+				<td>{=L:color=}</td>
+				<td colspan="3"><input type="text" name="yweb_box_color" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=}"
+					title="{=L:box_color_desc=}"/></td>
+			</tr>
+			<tr><td class="y_form_header" colspan="4">{=L:others=}</td></tr>
+			<tr>
+				<td>{=L:remote=}</td>
+				<td colspan="3">	<select name="fb" title="{=L:remote=}">
+					<option value="default" selected="selected">default</option>
+					<option value="Nokia">Nokia</option>
+					<option value="Sagem">Sagem/Philips</option>
+					<option value="Coolstream">Coolstream</option>
 			</tr>
 			<tr>
-				<td>Wake on Lan MAC 3</td>
-				<td><input type="text" name="wol_mac_3" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}" title="enter MAC Adress (xx:xx:xx:xx:xx:xx)"/></td>
-			</tr>
-			<tr>
-				<td>VLC Recording path</td>
-				<td><input type="text" name="vlc_record_path" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}" title="VLC record path for LiveView direct recording."/></td>
-			</tr>
-<!---			<tr>
-				<td>VLC Aufnahmetyp</td>
-				<td><input type="text" name="vlc_record_mux_type" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_mux_type=}" title="VLC record mux type"/></td>
-			</tr>
--->
-			<tr>
-				<td>Box-name</td>
-				<td><input type="text" name="yweb_box_name" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_name=}" 
-					title="Box Name in Top-Menue."/></td>
-			</tr>
-			<tr>
-				<td>Box-name/colour</td>
-				<td><input type="text" name="yweb_box_color" size="8" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;yweb_box_color=}" 
-					title="Box Name color in Top-Menue. e.g. enter 2188e0 without #"/></td>
+				<td>{=L:start_page=}</td>
+				<td colspan="3">	<select name="start_page" title="{=L:start_page=}">
+					<option value="bouquets" selected="selected">{=L:bouquets=}</option>
+					<option value="control">{=L:control=}</option>
+					<option value="none">{=L:empty=}</option>
 			</tr>
 		</table>
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_yWeb.yhtm"/>
 		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;yWeb_save_settings;nix"/>
-		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+		<button type="button" ytype="save" title="{=L:save_values_desc=}" onclick="do_submit()">{=L:save=}</button>
 	</form>
 	</div>
 </div>

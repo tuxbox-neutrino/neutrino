@@ -6,6 +6,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
+#include <strings.h>
 
 // yhttpd
 #include "yhook.h"
@@ -18,7 +19,7 @@
 THookList CyhookHandler::HookList;
 
 //=============================================================================
-// Hook Handling 
+// Hook Handling
 //=============================================================================
 //-----------------------------------------------------------------------------
 // Hook Dispatcher for Session Hooks
@@ -65,8 +66,8 @@ THandleStatus CyhookHandler::Hooks_PrepareResponse()
 	log_level_printf(8,"PrepareResponse Hook-List Result:\n%s\n", yresult.c_str());
 	status = _status;
 	return _status;
-}	
-	
+}
+
 //-----------------------------------------------------------------------------
 // Hook Dispatcher for Server based Hooks
 // Execute every Hook in HookList until State change != HANDLED_NONE and
@@ -88,7 +89,7 @@ THandleStatus CyhookHandler::Hooks_ReadConfig(CConfigFile *Config, CStringList &
 	}
 	log_level_printf(4,"ReadConfig Hook-List End\n");
 	return _status;
-}	
+}
 //-----------------------------------------------------------------------------
 // Hook Dispatcher for EndConnection
 //-----------------------------------------------------------------------------
@@ -156,7 +157,7 @@ THandleStatus CyhookHandler::Hooks_UploadReady(const std::string& Filename)
 //=============================================================================
 // Output helpers
 //=============================================================================
-void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData, CStringList _HeaderList, 
+void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData, CStringList _HeaderList,
 		CStringList& _ConfigList, THttp_Method _Method, bool _keep_alive)
 {
 	ParamList 		= _ParamList;
@@ -210,7 +211,7 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData, C
 //                      | Server                  ; implemented
 //                      | Vary                    ; not implemented
 //                      | WWW-Authenticate        ; implemented (by mod_auth and SendHeader)
-//                       
+//
 //       entity-header  = Allow                    ; not implemented
 //                      | Content-Encoding         ; not implemented
 //                      | Content-Language         ; not implemented
@@ -223,12 +224,12 @@ void CyhookHandler::session_init(CStringList _ParamList, CStringList _UrlData, C
 //                      | Last-Modified            ; implemented for static files
 //                      | extension-header
 //
-//       extension-header = message-header                       
+//       extension-header = message-header
 //=============================================================================
 std::string CyhookHandler::BuildHeader(bool cache)
 {
 	std::string result="";
-	
+
 	const char *responseString = "";
 	const char *infoString = 0;
 
@@ -256,7 +257,7 @@ std::string CyhookHandler::BuildHeader(bool cache)
 			// Status HTTP_*_TEMPORARILY (redirection)
 			result += string_printf("Location: %s\r\n",NewURL.c_str());
 			// NO break HERE !!!
-									
+
 		default:
 			time_t timer = time(0);
 			char timeStr[80];
@@ -285,26 +286,29 @@ std::string CyhookHandler::BuildHeader(bool cache)
 #else
 			result += "Connection: close\r\n";
 #endif
+			// gzipped ?
+			if(UrlData["fileext"] == "gz")
+				result += "Content-Encoding: gzip\r\n";
 			// content-len, last-modified
 			if(httpStatus == HTTP_NOT_MODIFIED ||httpStatus == HTTP_NOT_FOUND)
 				result += "Content-Length: 0\r\n";
 			else if(GetContentLength() >0)
-			{    
+			{
 				time_t mod_time = time(NULL);
 				if(LastModified != (time_t)-1)
 					mod_time = LastModified;
-					
+
 				strftime(timeStr, sizeof(timeStr), RFC1123FMT, gmtime(&mod_time));
 				result += string_printf("Last-Modified: %s\r\nContent-Length: %ld\r\n", timeStr, GetContentLength());
-			}			
+			}
 			result += "\r\n";	// End of Header
 			break;
 	}
 
 	// Body
 	if (Method != M_HEAD)
-        switch (httpStatus)
-        {
+	switch (httpStatus)
+	{
 		case HTTP_OK:
 		case HTTP_NOT_MODIFIED:
 		case HTTP_CONTINUE:
@@ -317,13 +321,13 @@ std::string CyhookHandler::BuildHeader(bool cache)
 		case HTTP_MOVED_TEMPORARILY:
 		case HTTP_MOVED_PERMANENTLY:
 			result += "<html><head><title>Object moved</title></head><body>";
-			result += string_printf("302 : Object moved.<br/>If you dont get redirected click <a href=\"%s\">here</a></body></html>\n",NewURL.c_str());	
-                	break;
+			result += string_printf("302 : Object moved.<br/>If you dont get redirected click <a href=\"%s\">here</a></body></html>\n",NewURL.c_str());
+			break;
 
 		default:
 			// Error pages
-                	break;
-        }
+			break;
+	}
 	return result;
 }
 

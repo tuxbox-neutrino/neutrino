@@ -1,10 +1,10 @@
-{=var-set:cancache=yPyes=}
 {=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function goUrl(_url)
-{
-	parent.frames[1].location.href = _url;
+function goUrl(_url){
+	var res = loadSyncURL(_url);
+	id("out").innerHTML = res;
 }
 //]]>
 </script>
@@ -12,22 +12,22 @@ function goUrl(_url)
 <body>
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb#Info=}{=var-set:menu=Info=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-Info=}{=var-set:menu=Info=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form action="">
-		<table  class="y_invisible_table" cellpadding="8">
+		<table  class="y_invisible_table" cellpadding="5" width="100%">
 		<tr><td class="y_form_header">Linux</td></tr>
 		<tr><td>
-			<input type="button" value="Kernel Messages" title="show Linux kernel stack messages" onclick='goUrl("/control/exec?Y_Tools&amp;kernel-stack");'/>
-			<input type="button" value="Processes" title="show currently running processes" onclick='goUrl("/control/exec?Y_Tools&amp;ps");'/>
-			<input type="button" value="Memory" title="show memory space" onclick='goUrl("/control/exec?Y_Tools&amp;free");'/>
+			<input type="button" value="Kernel Meldungen" title="show Linux kernel stack messages" onclick='goUrl("/control/exec?Y_Tools&amp;kernel-stack");'/>
+			<input type="button" value="Prozesse" title="show currently running processes" onclick='goUrl("/control/exec?Y_Tools&amp;ps");'/>
+			<input type="button" value="Speicher" title="show memory space" onclick='goUrl("/control/exec?Y_Tools&amp;free");'/>
 		</td></tr>
-		<tr><td class="y_form_header">Coolstream HD1</td></tr>
+		<tr><td class="y_form_header">Box</td></tr>
 		<tr><td>
-			<input type="button" value="GUI Info" onclick='goUrl("/control/info");'/>
+			<input type="button" value="Info" onclick='goUrl("/control/info");'/>
 			<input type="button" value="Version" onclick='goUrl("/control/info?version");'/>
-			<!--dbox2 only	<input type="button" value="Settings" onclick='goUrl("/control/info?settings");'/> dbox2 only-->
-			<input type="button" value="Time" onclick='goUrl("/control/gettime");'/>
+			<input type="button" value="Settings" onclick='goUrl("/control/info?settings");'/>
+			<input type="button" value="Box Zeit" onclick='goUrl("/control/gettime");'/>
 		</td></tr>
 		<tr><td class="y_form_header">proc</td></tr>
 		<tr><td>
@@ -42,6 +42,7 @@ function goUrl(_url)
 	</form>
 	</div>
 </div>
+<div id="out"></div>
 </body>
 
 </html>

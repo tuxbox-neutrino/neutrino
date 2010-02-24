@@ -21,19 +21,24 @@ end-block~build_live_url
 
 # ------- yWeb save Settings
 start-block~yWeb_save_settings
-{=ini-set:/var/tuxbox/config/Y-Web.conf;slavebox;{=slavebox=}~open=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;management_ip;{=managementIP=}~cache=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;management_ip;{=managementIP=}~open=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;management_ip2;{=managementIP2=}~cache=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;wol_mac_1;{=wol_mac_1=}~cache=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;wol_mac_2;{=wol_mac_2=}~cache=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;wol_mac_3;{=wol_mac_3=}~cache=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_desc_1;{=wol_desc_1=}~cache=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_desc_2;{=wol_desc_2=}~cache=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;wol_desc_3;{=wol_desc_3=}~cache=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;fb;{=fb=}~cache=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;start_page;{=start_page=}~cache=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;yweb_box_name;{=yweb_box_name=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;yweb_box_color;{=yweb_box_color=}~cache=}
-{=ini-set:/var/tuxbox/config/Y-Web.conf;vlc_record_path;{=vlc_record_path=}~save=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;yweb_box_color;{=yweb_box_color=}~save=}
 end-block~yWeb_save_settings
 
 # ------- Live save Settings
 start-block~Live_save_settings
+{=ini-set:/var/tuxbox/config/Y-Web.conf;slavebox;{=slavebox=}~open=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;vlc_record_path;{=vlc_record_path=}~cache=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;deinterlace;{=deinterlace=}~cache=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;deinterlace_filter;{=v=}~cache=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;udp;{=udp=}~cache=}
@@ -46,14 +51,114 @@ start-block~nhttpd_save_settings
 {=ini-set:/var/tuxbox/config/nhttpd.conf;mod_auth.password;{=authpassword=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;mod_auth.no_auth_client;{=noauthclient=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;mod_auth.authenticate;{=authenticate=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;{=port=}~cache=} 
-{=ini-set:/var/tuxbox/config/nhttpd.conf;webserver.threading;{=threading=}~cache=} 
+{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;{=port=}~cache=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;webserver.threading;{=threading=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;{=no_keep_alive_ips=}~cache=}
 {=ini-set:/var/tuxbox/config/nhttpd.conf;Tuxbox.HostedDocumentRoot;{=HostedDocRoot=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;ExtrasDocRoot;{=ExtrasDocRoot=}~cache=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;ExtrasDocURL;{=ExtrasDocURL=}~save=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory;{=override_directory=}~cache=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types;{=mod_sendfile_mime_types=}~cache=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;mod_sendfile.sendAll;{=mod_sendfile_sendAll=}~cache=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;Language.selected;{=language=}~cache=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL;{=Tuxbox_LogosURL=}~save=}
 {=func:do_reload_httpd_config=}
 end-block~nhttpd_save_settings
+
+# ------- Video / Audio save Settings
+start-block~video_audio_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;video_Format;{=video_Format=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;video_backgroundFormat;{=video_backgroundFormat=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;video_csync;{=h_video_csync=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;vcr_AutoSwitch;{=vcr_AutoSwitch=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audio_AnalogMode;{=audio_AnalogMode=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audiochannel_up_down_enable;{=audiochannel_up_down_enable=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audio_left_right_selectable;{=audio_left_right_selectable=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audio_avs_Control;{=h_audio_avs_Control=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audio_DolbyDigital;{=audio_DolbyDigital=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audio_PCMOffset;{=audio_PCMOffset=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;audio_step;{=audio_step=}~save=}
+{=ini-set:/var/tuxbox/config/controld.conf;vcroutput;{=h_vcroutput=}~open=}
+{=ini-set:/var/tuxbox/config/controld.conf;videooutput;{=h_videooutput=}~save=}
+end-block~video_audio_save_settings
+
+# ------- LCD save Settings
+start-block~lcd_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_power;{=lcd_power=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_inverse;{=lcd_inverse=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_dim_time;{=lcd_dim_time=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_dim_brightness;{=lcd_dim_brightness=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_epgmode;{=lcd_epgmode=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_show_volume;{=lcd_show_volume=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_contrast;{=lcd_contrast=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_brightness;{=lcd_brightness=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;lcd_standbybrightness;{=lcd_standbybrightness=}~save=}
+end-block~lcd_save_settings
+
+# ------- Buttons save Settings
+start-block~buttons_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;bouquetlist_mode;{=bouquetlist_mode=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_bouquet_down;{=key_bouquet_down=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_bouquet_up;{=key_bouquet_up=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_addrecord;{=key_channelList_addrecord=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_addremind;{=key_channelList_addremind=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_cancel;{=key_channelList_cancel=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_pagedown;{=key_channelList_pagedown=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_pageup;{=key_channelList_pageup=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_reload;{=key_channelList_reload=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_search;{=key_channelList_search=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_channelList_sort;{=key_channelList_sort=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_lastchannel;{=key_lastchannel=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_quickzap_down;{=key_quickzap_down=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_quickzap_up;{=key_quickzap_up=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_subchannel_down;{=key_subchannel_down=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_subchannel_toggle;{=key_subchannel_toggle=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_subchannel_up;{=key_subchannel_up=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_tvradio_mode;{=key_tvradio_mode=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;key_zaphistory;{=key_zaphistory=}~save=}
+end-block~buttons_save_settings
+
+# ------- Personalize save Settings
+start-block~personalize_save_settings
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_tvmode;{=p_tv=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_radiomode;{=p_radio=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_scartmode;{=p_scart=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_games;{=p_games=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_audioplayer;{=p_audioplayer=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_inetradio;{=p_inetradio=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_esound;{=p_esound=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_movieplayer;{=p_movieplayer=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_pictureviewer;{=p_picviewer=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_pincode;{=p_pincode=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_upnpbrowser;{=p_upnp=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_sleeptimer;{=p_sleeptimer=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_reboot;{=p_reboot=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_shutdown;{=p_shutdown=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_settings;{=p_settings=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_video;{=p_video=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_audio;{=p_audio=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_youth;{=p_youth=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_network;{=p_network=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_recording;{=p_recording=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_language;{=p_language=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_colors;{=p_colors=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_lcd;{=p_lcd=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_keybinding;{=p_keybinding=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_mediaplayer;{=p_mediaplayer=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_driver;{=p_driver=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_misc;{=p_misc=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_service;{=p_service=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_bouqueteditor;{=p_bouqueteditor=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_scants;{=p_scants=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_reload;{=p_reload=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_getplugins;{=p_getplugins=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_restart;{=p_restart=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_epgrestart;{=p_epgrestart=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_ucodecheck;{=p_ucodecheck=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_chan_epg_stat;{=p_chan_epg_stat=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_imageinfo;{=p_imageinfo=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_update;{=p_update=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_bluebutton;{=p_bluebutton=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_redbutton;{=p_redbutton=}~save=}
+end-block~personalize_save_settings
 
 # ------- VNC save Settings
 start-block~vnc_save_settings
@@ -68,6 +173,7 @@ start-block~timer_save_settings
 {=ini-set:/var/tuxbox/config/Y-Web.conf;tvinfo_username;{=tvinfo_username=}=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;tvinfo_password;{=tvinfo_password=}=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;klack_url;{=klack_url=}=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;klack_securitycode;{=klack_securitycode=}=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;live_resolution_w;{=ini-get:/var/tuxbox/config/Y-Web.conf;live_resolution_w;384=}=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;live_resolution_h;{=ini-get:/var/tuxbox/config/Y-Web.conf;live_resolution_h;288=}=}
 {=file-action:/var/tuxbox/config/channels.txt;add;{=channels=}=}
@@ -83,7 +189,7 @@ start-block~no_management
 {=include-block:Y_Blocks.txt;head=}
 </head>
 <body>
-<br/>
+<br />
 <div class="y_head">Error</div>
 <div class="y_work_box" title="This page could be used for management proposes only">
 	This page could be used for management proposes only.
@@ -116,7 +222,7 @@ start-block~snip_wait
 		{=if-empty:{=var-get:wait_text=}~Inquiry is worked on~{=var-get:wait_text=}=}</span><br/>
 		<img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/><br/><br/>
 		Please wait<br/>
-		
+
 		</p>
 	</div>
 </div>
@@ -132,16 +238,16 @@ start-block~snip_show_wait
 		{=if-empty:{=var-get:wait_text=}~Inquiry is worked on~{=var-get:wait_text=}=}</span><br/>
 		<img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/><br/><br/>
 		Please wait<br/>
-		
+
 		</p>
 	</div>
 </div>
 end-block~snip_show_wait
 
 # ------- Wiki Help display
-#<img src="/images/help.gif" align="bottom">
+#<img src="/images/help.gif" align="bottom" />
 start-block~wiki_help
-<a href="http://wiki.godofgta.de/{=var-get:help_url=}" target="_blank" title="get help from wiki.godofgta.de">?</a>
+<a href="http://www.yjogol.com/{=var-get:help_url=}" target="_blank" title="get help from www.yjogol.com">?</a>
 end-block~wiki_help
 
 # ------- work menu
@@ -161,49 +267,49 @@ start-block~head
 <meta http-equiv="cache-control" content="no-cache" />
 <meta http-equiv="expires" content="0" />
 <title>yWeb</title>
-<link rel="STYLESHEET" type="text/css" href="/Y_Main.css"/>
+<link rel="stylesheet" type="text/css" href="/Y_Main.css" />
 end-block~head
 
 # ------- Lay-HEAD
 start-block~headCache
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>yWeb</title>
-<link rel="STYLESHEET" type="text/css" href="/Y_Main.css"/>
+<link rel="stylesheet" type="text/css" href="/Y_Main.css" />
 end-block~headCache
 
 # ------- Lay-HEAD without charset
 start-block~head_no_charset
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>yWeb</title>
-<link rel="STYLESHEET" type="text/css" href="/Y_Main.css"/>
+<link rel="stylesheet" type="text/css" href="/Y_Main.css" />
 end-block~head_no_charset
 
 # ------- Lay-Frame HEAD
 start-block~frame_head
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
-       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-<html>
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<link rel="STYLESHEET" type="text/css" href="/Y_Main.css"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="/Y_Main.css" />
 <title>yWeb</title>
 end-block~frame_head
 
 # ------- Lay-Frame HEAD
 start-block~frame_iso_head
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
-       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-<html>
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"/>
-<link rel="STYLESHEET" type="text/css" href="/Y_Main.css"/>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<link rel="stylesheet" type="text/css" href="/Y_Main.css" />
 <title>yWeb</title>
 end-block~frame_iso_head
 
@@ -212,9 +318,9 @@ start-block~frame_main
 {=include-block:Y_Blocks.txt;frame_head=}
 <title>dbox yWeb</title>
 </head>
-<frameset rows="60,*">
-	<frame name="prim_menu" src="Y_Menue.yhtm" scrolling="no" frameborder="0" noresize="noresize" />
-	<frame name="base" src="Y_Dyn_Pages.yhtm?page=frame_boxcontrol" frameborder="0" style="height:100%"/>
+<frameset rows="60,*" frameborder="0" framespacing="0">
+	<frame name="prim_menu" src="Y_Menue.yhtm" scrolling="no"  marginwidth="0" marginheight="0" frameborder="0" noresize="noresize" />
+	<frame name="base" src="Y_Dyn_Pages.yhtm?page=frame_boxcontrol"  marginwidth="0" marginheight="0" frameborder="0" style="height:100%"; />
 	<noframes>
 		<body>
 		<p>Your Browser does not support Frames.</p>
@@ -228,7 +334,7 @@ end-block~frame_main
 start-block~page_frame_rest
 {=include-block:Y_Blocks.txt;head=}
 </head>
-<body style="background : #F0F0F0;">
+<body style="background : white;">
 </body>
 </html>
 end-block~page_frame_rest
@@ -237,9 +343,9 @@ end-block~page_frame_rest
 start-block~frame_secondary
 {=include-block:Y_Blocks.txt;frame_iso_head=}
 </head>
-<frameset cols="157,*">
-	<frame name="sec_menu" src="{=var-get:sec_menu=}" scrolling="no" noresize="noresize" frameborder="0"/>
-	<frame name="work" src="{=var-get:work=}" scrolling="auto" frameborder="0"/>
+<frameset cols="157,*" frameborder="0" framespacing="0">
+	<frame name="sec_menu" src="{=var-get:sec_menu=}" scrolling="no" noresize="noresize" frameborder="0" />
+	<frame name="work" src="{=var-get:work=}" scrolling="auto" frameborder="0" />
 	<noframes>
 		<body>
 		<p>Your Browser does not support Frames.</p>
@@ -252,7 +358,12 @@ end-block~frame_secondary
 # ------- Lay-Frame Boxcontrol-Menu
 start-block~frame_boxcontrol
 {=var-set:sec_menu=Y_Boxcontrol_Menue.yhtm=}
-{=var-set:work=Y_Boxcontrol_Bouquets.yhtm=}
+{=var-set:startpage={=ini-get:/var/tuxbox/config/Y-Web.conf;start_page;bouquets=}=}
+{=var-set:work=
+	{=if-equal:{=var-get:startpage=}~bouquets~Y_Boxcontrol_Bouquets.yhtm
+	~
+		{=if-equal:{=var-get:startpage=}~control~Y_Tools_Boxcontrol.yhtm~Y_blank.yhtm=}
+	=}=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_boxcontrol
 
@@ -305,30 +416,14 @@ start-block~frame_info
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_info
 
-# ------- Lay-Frame Tools-Info-Menu
-start-block~frame_tools-info
-{=include-block:Y_Blocks.txt;frame_head=}
-</head>
-<frameset rows="370,*">
-	<frame name="oben" src="Y_Tools_Info_Menue.yhtm" scrolling="auto" frameborder="0"/>
-	<frame name="unten" src="Y_blank.htm" scrolling="auto" frameborder="0"/>
-	<noframes>
-		<body>
-		<p>Your Browser does not support Frames.</p>
-		</body>
-	</noframes>
-</frameset>
-</html>
-end-block~frame_tools-info
-
 # ==== LIVE
 # ------- Lay-Frame Live-EPG Frameset
 start-block~frame_live_epg
 {=include-block:Y_Blocks.txt;frame_head=}
 </head>
-<frameset rows="100,*">
-	<frame name="epg_info" src="Y_Live_EPG_Info.yhtm" scrolling="auto" frameborder="0"/>
-	<frame name="epg_list" src="Y_Live_EPG.yhtm?channel={=channel=}" scrolling="auto" frameborder="0" style="height:100%"/>
+<frameset rows="100,*" frameborder="0" framespacing="0">
+	<frame name="epg_info" src="Y_Live_EPG_Info.yhtm" scrolling="auto" frameborder="0" />
+	<frame name="epg_list" src="Y_Live_EPG.yhtm?channel={=channel=}" scrolling="auto" frameborder="0" style="height:100%" />
 	<noframes>
 		<body>
 		<p>Your Browser does not support Frames.</p>
@@ -340,6 +435,77 @@ end-block~frame_live_epg
 
 # ------- Remote
 start-block~remote
+{=if-equal:Nokia~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~default~{=func:get_boxtype=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}=}~{=include-block:Y_Blocks.txt;remote_standard=}~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~Sagem~{=include-block:Y_Blocks.txt;remote_sagem=}~{=include-block:Y_Blocks.txt;remote_coolstream=}=}=}
+end-block~remote
+
+# ------- Remote
+start-block~remote_standard
+<img src="images/rc.jpg" usemap="#rc" alt="remote" />
+<map name="rc" id="rc">
+  <area shape="rect" href="javascript:rcsim('KEY_SETUP')" coords="7,95,45,109" />
+  <area shape="circle" href="javascript:rcsim('KEY_7')" coords="60,102,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_4')" coords="60,78,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_9')" coords="102,92,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_8')" coords="82,95,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_6')" coords="102,71,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_5')" coords="80,73,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_3')" coords="102,49,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_2')" coords="82,51,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_1')" coords="60,55,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_0')" coords="59,126,11" />
+  <area shape="poly" href="javascript:rcsim('KEY_LEFT')" coords="35,264,51,252,45,238,50,222,39,210,27,239" />
+  <area shape="poly" href="javascript:rcsim('KEY_RIGHT')" coords="97,265,87,255,91,241,85,223,98,210,108,240" />
+  <area shape="poly" href="javascript:rcsim('KEY_UP')" coords="83,216,95,206,69,195,41,206,53,220,69,214" />
+  <area shape="poly" href="javascript:rcsim('KEY_DOWN')" coords="95,271,85,255,71,262,51,256,41,268,68,283" />
+  <area shape="rect" href="javascript:rcsim('KEY_HOME')" coords="7,72,45,86" />
+  <area shape="circle" href="javascript:rcsim('KEY_MUTE')" coords="61,321,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_OK')" coords="66,237,18" />
+  <area shape="circle" href="javascript:rcsim('KEY_BLUE')" coords="100,139,12" />
+  <area shape="circle" href="javascript:rcsim('KEY_YELLOW')" coords="60,153,11" />
+  <area shape="circle" href="javascript:rcsim('KEY_GREEN')" coords="37,171,12" />
+  <area shape="circle" href="javascript:rcsim('KEY_RED')" coords="21,196,11" />
+  <area shape="circle" href="javascript:rcsim('KEY_HELP')" coords="101,333,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_VOLUMEUP')" coords="17,270,10" />
+  <area shape="circle" href="javascript:rcsim('KEY_VOLUMEDOWN')" coords="30,293,9" />
+  <area shape="rect" href="javascript:rcsim('KEY_POWER')" coords="7,49,46,64" />
+</map>
+end-block~remote_standard
+
+# ------- Remote Sagem
+start-block~remote_sagem
+<img src="images/rc_sagem.jpg" usemap="#rc" alt="remote" /> 
+<map name="rc" id="rc"> 
+  <area shape="poly" href="javascript:rcsim('KEY_RIGHT')" coords="100,117,100,180,67,146,100,116" /> 
+  <area shape="poly" href="javascript:rcsim('KEY_DOWN')" coords="36,181,101,180,66,146" /> 
+  <area shape="poly" href="javascript:rcsim('KEY_UP')" coords="101,116,36,116,66,146" /> 
+  <area shape="poly" href="javascript:rcsim('KEY_LEFT')" coords="66,147,36,117,35,182" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_SETUP')" coords="105,100,15" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_HELP')" coords="32,100,16" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_POWER')" coords="108,33,15" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_MUTE')" coords="69,255,13" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_VOLUMEUP')" coords="92,225,17" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_VOLUMEDOWN')" coords="47,225,17" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_OK')" coords="37,196,11" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_HOME')" coords="103,195,11" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_BLUE')" coords="108,72,11" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_RED')" coords="30,72,11" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_GREEN')" coords="54,57,11" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_YELLOW')" coords="85,57,11" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_0')" coords="69,363,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_9')" coords="102,336,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_8')" coords="69,337,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_7')" coords="37,336,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_6')" coords="102,310,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_5')" coords="69,310,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_4')" coords="37,310,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_3')" coords="102,284,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_2')" coords="69,284,12" /> 
+  <area shape="circle" href="javascript:rcsim('KEY_1')" coords="37,284,12" /> 
+</map>
+end-block~remote_sagem
+
+# ------- Remote Coolstream
+start-block~remote_coolstream
 <img src="images/rcd.jpg" usemap="#rc"/>
 <map name="rc">
   <area shape="rect" href="javascript:rcsim('KEY_POWER')" coords="175, 29, 210, 68" />
@@ -388,7 +554,4 @@ start-block~remote
   <area shape="rect" href="javascript:rcsim('KEY_STOP')" coords="105, 695, 155, 717" />
   <area shape="rect" href="javascript:rcsim('KEY_PLAY')" coords="165, 695, 210, 716" />
 </map>
-end-block~remote
-
-
-
+end-block~remote_coolstream

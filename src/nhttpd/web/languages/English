@@ -1,0 +1,177 @@
+# =========Main Menue
+boxcontrol=Boxcontrol
+boxcontrol_desc=Boxcontrol & Bouquets
+live=Live
+live_desc=LiveView, Timer Sync &amp; Settings
+tools=Tools
+tools_desc=Mounts, WOL, Expert Tools
+settings=Settings
+settings_desc=Settings for Box, Web, Plugins ...
+extensions=Extensions
+extensions_desc=User Extentions ...
+info=Info
+info_desc=Information about yWeb, Updates
+
+live_tv_desc=LiveTV
+live_tv_popup_desc=LiveTV popup
+remote_full_desc=Remote & OSD full
+stream_to_vlc_client_desc=Stream to VLC Client
+
+version=Version
+
+#========= Boxcontrol Menue
+bouquets_desc=Switch channels
+bouquets=Bouquets
+control_desc=control box functions (reboot, remote control, SPTS, ...)
+control=Control
+messages_desc=send Messages to box
+messages=Messages
+remote_desc=Web-based Remote Control
+remote=Remote
+lcd_screenshot_desc=make lcd screenshot
+lcd_screenshot=LCD Screenshot
+lcd_screenshot_desc_ni=lcshot not installed at /bin or /var/bin
+osd_screenshot_desc=make osd screenshot
+osd_screenshot=OSD Screenshot
+osd_screenshot_desc_ni=fbshot not installed at /bin or /var/bin
+remote_osd_desc=remote and osd
+remote_osd=Remote & OSD
+remote_osd_desc_ni=dboxshot not installed at /bin or /var/bin
+
+decrease_volume=decrease volumen
+increase_volume=increase volumen
+mute_volume=mute volumen
+switch_to_tv=switch to TV
+switch_to_radio=switch to Radio
+webinf_slavebox=Webinterface der SlaveBox
+volumen_display=volumen display
+
+========= BOX Control
+freemem=FreeMem
+lock=lock
+unlock=unlock
+lcd_unlock=LCD unlock
+standby_mode=standby mode
+recording_mode=recording mode
+box=box
+playback=playback
+epg_sectiond=EPG Sectiond
+spts=SPTS
+live_lock=live lock
+optical_output=optical output
+esound_server=ESound Server
+
+message_to_screen_desc=enter message to send to TV screen
+message_to_screen=Message on screen
+popup_to_screen=Message as popup
+send_message=send message
+====== EXtension
+ext.installer_updater=Installer/Updater
+restriced_by_management_ip=restricted by ManagementIP
+====== Bouquet
+bouquets_must_be_saved=All bouquets must be saved!
+bouquet_editor=Bouquet-Editor
+bouquet_add=add bouquet
+name_of_bouquet=Name of bouquets
+rename_bouquet=rename bouquet
+========EPG
+get_epg=get EPG ...
+epg_plus=EPG Plus
+select_bouquet=select bouquet - channels will be updated
+hover_for_details=move to program for more details
+========Settings NHTTP
+webserver=Webserver
+authentication=Authentication
+client_without_authentication_desc=Client with no authentication check. Enter IP.
+client_without_authentication=Client without Authentication
+active_after_boot=active after boot
+port=Port
+threading=Threading
+alternate_web_folder=Alternate Web-Folder
+allowed_file_extensions=Allowed File Extensions / MIME
+allow_all_file_extensions=Allow all File Extensions
+url_of_logos_desc=Enter URL of Logos
+ips_without_keep_alive_desc=(e.g. JtG Server, separate with commas)
+ips_without_keep_alive=IPs with No keep-alive
+cache=Cache
+cache_info=Cache info
+clear_cache=clear cache
+server_configuration=Server Configuration
+=========Settings yWeb
+enter_ip_desc=enter IP (xxx.xxx.xxx.xxx)
+enter_mac_desc=enter MAC Adress (xx:xx:xx:xx:xx:xx)
+enter_description_desc=enter description
+management_IPs=Management IPs
+wake_on_lan=Wake on Lan
+box_tag_desc=Box Name in Top-Menue.
+box_tag=Box Tag
+box_color_desc=Box Name color in Top-Menue. e.g. enter 2188e0 without #
+start_page=Start page
+=======Settings general
+ucodes=Ucodes
+boot_logo=Boot Logo
+timer_settings=Timer Settings
+zapit=Zapit
+backup_restore=Backup &amp; Restore
+video_audio=Video/Audio
+parental=Parental
+direct_recording=Direct Recording
+recording=Recording
+audio_player=Audioplayer
+esound_server=Esound Server
+movieplayer=Movieplayer
+pictureviewer=Picture Viewer
+lcd_display=LC-Display
+key_settings=Key Layout
+boot_options=Boot options
+peronalization=Personalization
+plugins=Plugins
+=========== GENERAL
+user=User
+password=Password
+language=Language
+general=General
+logos=Logos
+url=URL
+server=Server
+refreshing=refreshing ...
+refresh=refresh
+record=record
+zap=zap
+lookup=lookup
+save_values_desc=submit and save values
+save_values=Save values ...
+save=save
+save_all=save all
+administration=Administration
+normal=Normal
+management=Management
+uninstaller=Uninstaller
+send=send
+cancel=cancel
+answer=Answer
+reboot=reboot
+shutdown=shutdown
+status=status
+restart=restart
+on=on
+off=off
+download=Download
+back=back
+date=date
+from=from
+to=to
+program=program
+others=others
+description=description
+color=Color
+tag=Tag
+empty=empty
+==========
+#Info
+help=Help
+About=About
+check_for_updates=Check for Updates
+your_version=Your Version
+actual_version=Actual Version
+

@@ -3,20 +3,17 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_submit()
-{
+function do_submit(){
 	show_waitbox(true);
 	for (i=document.getElementById('channels').bchannels.length-1; i >= 0 ; i--) {
 		document.getElementById('channels').bchannels.options[i].selected=true;
 	}
 	document.getElementById('channels').submit();
 }
-function do_abort()
-{
+function do_abort(){
 	document.location.href="/Y_Boxcontrol_Bouquet_Editor_Main.yhtm?selected={=selected=}";
 }
-function movechannels(source, destination)
-{
+function movechannels(source, destination){
 	for (i=0; i < source.length; i++) {
 		if (source.options[i].selected==true) {
 			destination.options[destination.length] = new Option(source.options[i].text, source.options[i].value);
@@ -28,8 +25,7 @@ function movechannels(source, destination)
 		}
 	}
 }
-function poschannel(box, direction)
-{
+function poschannel(box, direction){
 	if (direction==0) {
 		for (i=1; i < box.length  ; i++) {
 			if (box.options[i].selected==true) {
@@ -57,10 +53,10 @@ function poschannel(box, direction)
 </head>
 
 <body>
-{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Neutrino:yWeb:BoxControl#Bouquet-Editor=}{=var-set:menu=Bouquet &quot;{=name=}&quot; workon=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-BoxControl-Bouquet-Editor=}{=var-set:menu=Bouquet &quot;{=name=}&quot;=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<form action="/control/changebouquet" method="post" id="channels" enctype="x-www-form-urlencoded">
 		<p><input type="hidden" name="selected" value="{=selected=}" /></p>
@@ -72,10 +68,10 @@ function poschannel(box, direction)
 				</select>
 			</td>
 			<td align="center">
-				<input type="button" value="up" onclick="poschannel(document.getElementById('channels').bchannels, 0);" /><br /><br />
-				<input type="button" value="down" onclick="poschannel(document.getElementById('channels').bchannels, 1);" /><br /><br />
-				<input type="button" value="&gt;&gt;&gt;" onclick="movechannels(document.getElementById('channels').bchannels, document.getElementById('channels').achannels);" /><br /><br />
-				<input type="button" value="&lt;&lt;&lt;" onclick="movechannels(document.getElementById('channels').achannels, document.getElementById('channels').bchannels);" /><br /><br />
+				<button type="button" title="move up" onclick="poschannel(document.getElementById('channels').bchannels, 0);">&nbsp;<img src="/images/arrowup.png">&nbsp;</button><br /><br />
+				<button type="button" title="move down" onclick="poschannel(document.getElementById('channels').bchannels, 1);">&nbsp;<img src="/images/arrowdown.png">&nbsp;</button><br /><br />
+				<button type="button" title="remove" onclick="movechannels(document.getElementById('channels').bchannels, document.getElementById('channels').achannels);">&nbsp;<img src="/images/arrowright.png">&nbsp;</button><br /><br />
+				<button type="button" title="add" onclick="movechannels(document.getElementById('channels').achannels, document.getElementById('channels').bchannels);">&nbsp;<img src="/images/arrowleft.png">&nbsp;</button><br /><br />
 			</td>
 			<td>
 				<select multiple="multiple" size="20" name="achannels">
@@ -85,9 +81,9 @@ function poschannel(box, direction)
 		</tr>
 		</table>
 		<input type="hidden" name="redirect" value="/Y_Boxcontrol_Bouquet_Editor_Main.yhtm"/>
-		<p><input type="button" value="submit" onclick="do_submit();" />
-		<input type="button" value="abort" onclick="do_abort();" /></p>
-		All changes must be still stored!
+		<p><button type="button" ytype="save" onclick="do_submit();">{=L:save=}</button>
+		<button type="button" ytype="cancel" onclick="do_abort();">{=L:cancel=}</button></p>
+		{=L:bouquets_must_be_saved=}
 		</form>
 	</div>
 </div>

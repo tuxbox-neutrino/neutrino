@@ -2,7 +2,7 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_mount() 
+function do_mount()
 {
 	show_waitbox(true);
 	var nr = 0;
@@ -27,16 +27,16 @@ function do_edit()
 {=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head">
-		<div class="work_box_head_h2">{=var-set:help_url=Neutrino:yWeb:Tools#Mounts=}{=var-set:menu=Mount=}{=include-block:Y_Blocks.txt;work_menu=}</div>
+		<div class="work_box_head_h2">{=var-set:help_url=Help-Tools-Mounts=}{=var-set:menu=Mount=}{=include-block:Y_Blocks.txt;work_menu=}</div>
 	</div>
 	<div class="work_box_body">
 	<form action="/y/cgi" name="f" id="f">
 		{=func:mount-get-list=}
 		<input type="hidden" name="tmpl" value="Y_Settings_mount.yhtm"/>
 		<input type="hidden" name="execute" value=""/>
-		<input type="button" value="Edit ..." title="edit mount settings" onclick="do_edit()"/>
-		<input type="button" value="Mount" title="mount selected directory" onclick="do_mount()"/>
-		<input type="button" value="Unmount list" title="view unmount list" onclick='window.document.location.href="/Y_Settings_umount_liste.yhtm"'/>
+		<button type="button" ytype="edit" title="edit mount settings" onclick="do_edit()">&Auml;ndern</button>
+		<button type="button" ytype="no" title="mount selected directory" onclick="do_mount()">Mount</button>
+		<button type="button" ytype="no" title="view unmount list" onclick='window.document.location.href="/Y_Settings_umount_liste.yhtm"'>Unmount list</button>
 	</form>
 	</div>
 </div>

@@ -23,6 +23,7 @@
 #include "helper.h"
 #include "ylogging.h"
 #include "mod_yparser.h"
+#include "ylanguage.h"
 
 //=============================================================================
 // Initialization of static variables
@@ -80,7 +81,7 @@ THandleStatus CyParser::Hook_SendResponse(CyhookHandler *hh)
 {
 	hh->status = HANDLED_NONE;
 
-//	log_level_printf(4,"yparser hook start url:%s\n",hh->UrlData["url"].c_str());
+	log_level_printf(4,"yparser hook start url:%s\n",hh->UrlData["url"].c_str());
 	init(hh);
 
 	CyParser *yP = new CyParser();		// create a Session
@@ -317,7 +318,8 @@ std::string CyParser::cgi_file_parsing(CyhookHandler *hh, std::string htmlfilena
 //-----------------------------------------------------------------------------
 std::string  CyParser::cgi_cmd_parsing(CyhookHandler *hh, std::string html_template, bool ydebug)
 {
-	unsigned int start, end, esc_len = strlen(YPARSER_ESCAPE_START);
+	std::string::size_type start, end;
+	unsigned int esc_len = strlen(YPARSER_ESCAPE_START);
 	bool is_cmd;
 	std::string ycmd,yresult;
 
@@ -367,6 +369,8 @@ std::string  CyParser::cgi_cmd_parsing(CyhookHandler *hh, std::string html_templ
 //	var-set:<varname>=<varvalue>
 //	global-var-get:<varname>
 //	global-var-set:<varname>=<varvalue>
+//	file-action:<filename>;<action=add|addend|delete>[;<content>]
+//	L:<translation-id>
 //-----------------------------------------------------------------------------
 
 std::string  CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd)
@@ -375,7 +379,9 @@ std::string  CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd)
 
 	if (ySplitString(ycmd,":",ycmd_type,ycmd_name))
 	{
-		if(ycmd_type == "script")
+		if(ycmd_type == "L")
+			yresult = CLanguage::getInstance()->getTranslation(ycmd_name);
+		else if(ycmd_type == "script")
 			yresult = YexecuteScript(hh, ycmd_name);
 		else if(ycmd_type == "if-empty")
 		{
@@ -502,16 +508,17 @@ std::string  CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd)
 			if (ySplitString(ycmd_name,";",filename,tmp))
 			{
 				ySplitString(tmp,";",actionname, content);
+				replace(content, "\r\n", "\n");
 				if(actionname == "add")
 				{
-					std::fstream fout(filename.c_str(), std::fstream::out );
+					std::fstream fout(filename.c_str(), std::fstream::out|std::fstream::binary);
 					fout << content;
 					fout.close();
 				}
 				else
 				if(actionname == "append")
 				{
-					std::fstream fout(filename.c_str(), std::fstream::app );
+					std::fstream fout(filename.c_str(), std::fstream::app|std::fstream::binary );
 					fout << content;
 					fout.close();
 				}
@@ -526,7 +533,12 @@ std::string  CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd)
 			yresult = "ycgi-type unknown";
 	}
 	else if (hh->ParamList[ycmd] != "")
-		yresult = hh->ParamList[ycmd];
+	{
+		if((hh->ParamList[ycmd]).find("script") == std::string::npos)
+			yresult = hh->ParamList[ycmd];
+		else
+			yresult = "<!--Not Allowed script in "+ycmd+" -->";
+	}
 
 	return yresult;
 }
@@ -535,7 +547,7 @@ std::string  CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd)
 // Get Value from ini/conf-file (filename) for var (varname)
 // yaccess = open | cache
 //-------------------------------------------------------------------------
-std::string  CyParser::YWeb_cgi_get_ini(CyhookHandler */*hh*/, std::string filename, std::string varname, std::string yaccess)
+std::string  CyParser::YWeb_cgi_get_ini(CyhookHandler *, std::string filename, std::string varname, std::string yaccess)
 {
 	std::string result;
 	if((yaccess == "open") || (yaccess == ""))
@@ -551,7 +563,7 @@ std::string  CyParser::YWeb_cgi_get_ini(CyhookHandler */*hh*/, std::string filen
 // set Value from ini/conf-file (filename) for var (varname)
 // yaccess = open | cache | save
 //-------------------------------------------------------------------------
-void  CyParser::YWeb_cgi_set_ini(CyhookHandler */*hh*/, std::string filename, std::string varname, std::string varvalue, std::string yaccess)
+void  CyParser::YWeb_cgi_set_ini(CyhookHandler *, std::string filename, std::string varname, std::string varvalue, std::string yaccess)
 {
 	std::string result;
 	if((yaccess == "open") || (yaccess == ""))
@@ -610,7 +622,7 @@ std::string  CyParser::YWeb_cgi_include_block(std::string filename, std::string 
 	if(yfile.length() != 0)
 	{
 		std::string t = "start-block~"+blockname;
-		unsigned int start, end;
+		std::string::size_type start, end;
 		if((start = yfile.find(t)) != std::string::npos)
 		{
 			if((end = yfile.find("end-block~"+blockname, start+t.length())) != std::string::npos)
@@ -632,7 +644,7 @@ std::string  CyParser::YWeb_cgi_include_block(std::string filename, std::string 
 
 //-------------------------------------------------------------------------
 
-std::string CyParser::YexecuteScript(CyhookHandler */*hh*/, std::string cmd)
+std::string CyParser::YexecuteScript(CyhookHandler *, std::string cmd)
 {
 	std::string script, para, result;
 	bool found = false;
@@ -699,6 +711,8 @@ const CyParser::TyFuncCall CyParser::yFuncCallList[]=
 	{"get_config_data", 			&CyParser::func_get_config_data},
 	{"do_reload_httpd_config", 		&CyParser::func_do_reload_httpd_config},
 	{"httpd_change", 			&CyParser::func_change_httpd},
+	{"get_languages_as_dropdown", 		&CyParser::func_get_languages_as_dropdown},
+	{"set_language", 			&CyParser::func_set_language},
 };
 
 //-------------------------------------------------------------------------
@@ -754,8 +768,7 @@ std::string  CyParser::func_get_config_data(CyhookHandler *hh, std::string para)
 // y-func : Reload the httpd.conf
 //-------------------------------------------------------------------------
 extern void yhttpd_reload_config();
-
-std::string  CyParser::func_do_reload_httpd_config(CyhookHandler */*hh*/, std::string /*para*/)
+std::string  CyParser::func_do_reload_httpd_config(CyhookHandler *, std::string )
 {
 	log_level_printf(1,"func_do_reload_httpd_config: raise USR1 !!!\n");
 	//raise(SIGUSR1); // Send HUP-Signal to Reload Settings
@@ -776,4 +789,43 @@ std::string  CyParser::func_change_httpd(CyhookHandler *hh, std::string para)
 	}
 	else
 	return "ERROR [change_httpd]: para has not path to a file";
+}
+//-------------------------------------------------------------------------
+// y-func : get_header_data
+//-------------------------------------------------------------------------
+std::string  CyParser::func_get_languages_as_dropdown(CyhookHandler *, std::string)
+{
+	std::string yresult, sel;
+	DIR	*d;
+	struct dirent *dir;
+
+	std::string act_language = CLanguage::getInstance()->language;
+	d = opendir( (CLanguage::getInstance()->language_dir).c_str() );
+	if( d != NULL ) {
+		while( ( dir = readdir( d ) ) ) {
+			if( strcmp( dir->d_name, "." ) == 0 || strcmp( dir->d_name, ".." ) == 0 )
+				continue;
+			if( dir->d_type != DT_DIR ) {
+				sel=(act_language==std::string(dir->d_name)) ? "selected=\"selected\"" : "";
+				yresult += string_printf("<option value=%s %s>%s</option>\n",
+						dir->d_name, sel.c_str(), (encodeString(std::string(dir->d_name))).c_str());
+			}
+		}
+		closedir( d );
+	}
+	return yresult;
+}
+//-------------------------------------------------------------------------
+// y-func : get_header_data
+//-------------------------------------------------------------------------
+std::string  CyParser::func_set_language(CyhookHandler *, std::string para)
+{
+	if(para != ""){
+		CConfigFile *Config = new CConfigFile(',');
+		Config->loadConfig(HTTPD_CONFIGFILE);
+		Config->setString("Language.selected", para);
+		Config->saveConfig(HTTPD_CONFIGFILE);
+		yhttpd_reload_config();
+	}
+	return "";
 }

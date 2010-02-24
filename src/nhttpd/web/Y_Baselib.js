@@ -1,11 +1,15 @@
 /*	yWeb Baselib by yjogol
-	$Date: 2007/02/21 17:38:48 $
-	$Revision: 1.3 $
+	$Date: 2008/02/24 08:23:12 $
+	$Revision: 1.5 $
 */
+var baselib_version="2.0.0";
 var agt=navigator.userAgent.toLowerCase();
 var is_ie     = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
-
 /*DHTML-Basics*/
+function $yN(_obj_name)
+{
+	return $(document.getElementsByName(_obj_name));
+}
 function id(obj_id)
 {
 	return document.getElementById(obj_id);
@@ -38,7 +42,7 @@ function obj_create(_typ, _class)
 {
 	var __obj 	= document.createElement(_typ);
 	var __class 	= document.createAttribute("class");
-		
+
 	__class.nodeValue = _class;
 	__obj.setAttributeNode(__class);
 	return __obj;
@@ -108,9 +112,18 @@ function y_add_html_cell_to_row(_row, _name, _value)
 	__cell.innerHTML = _value;
 	return __cell;
 }
+function y_add_li_to_ul(_ul, _class, _value){
+	var __li=document.createElement("li");
+	var __class = document.createAttribute("class");
+	__class.nodeValue = _class;
+	_ul.setAttributeNode(__class);
+	_ul.appendChild(__li);
+	__li.innerHTML=_value;
+	return __li;
+}
 function getXMLNodeItemValue(node, itemname)
 {
-			
+
 	var item = node.getElementsByTagName(itemname);
 	if(item.length>0)
 		if(item[0].firstChild)
@@ -132,9 +145,9 @@ function obj_addAttributeNode(_obj, _attr, _value)
 }
 /*XMLHttpRequest AJAX*/
 var g_req;
-function loadXMLDoc(_url, _processReqChange) 
+function loadXMLDoc(_url, _processReqChange)
 {
-	if (window.XMLHttpRequest) 
+	if (window.XMLHttpRequest)
 	{
 		g_req = new XMLHttpRequest();
 		g_req.onreadystatechange = _processReqChange;
@@ -143,71 +156,81 @@ function loadXMLDoc(_url, _processReqChange)
 		g_req.open("GET", _url, true);
 		g_req.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 		g_req.send(null);
-	} 
+	}
 	else if (window.ActiveXObject)
 	{
 		g_req = new ActiveXObject("Microsoft.XMLHTTP");
-		if (g_req) 
+		if (g_req)
 		{
 			g_req.onreadystatechange = _processReqChange;
 			g_req.open("GET", _url, true);
 			g_req.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 			g_req.send();
 		}
-	} 
+	}
 	else
 		alert("Kein Browser-Support fr XMLHttpRequest");
 }
-function loadSyncURL(_url) 
+function loadSyncURL2(_url)
+{
+	var myAjax = new Ajax.Request(
+	_url,
+	{
+		method: 'post',
+		asynchronous: false
+	});
+	return myAjax.responseText;
+}
+function loadSyncURL(_url)
 {
 	var _req;
-	if (window.XMLHttpRequest) 
+	if (window.XMLHttpRequest)
 	{
 		_req = new XMLHttpRequest();
 		_req.open("GET", _url, false);
 		_req.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 		_req.send(null);
-	} 
+	}
 	else if (window.ActiveXObject)
 	{
 		_req = new ActiveXObject("Microsoft.XMLHTTP");
-		if(_req) 
+		if(_req)
 		{
 			_req.open("GET", _url, false);
 			_req.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 			_req.send();
 		}
-	} 
+	}
 	else
 		alert("Kein Browser-Support fr XMLHttpRequest");
-	if (_req.readyState == 4 && _req.status == 200) 
+	if (_req.readyState == 4 && _req.status == 200)
 		return _req.responseText;
 	else
 		return "";
 }
-function loadSyncURLxml(_url) 
+function loadSyncURLxml(_url)
 {
 	var _req;
-	if (window.XMLHttpRequest) 
+	if (window.XMLHttpRequest)
 	{
 		_req = new XMLHttpRequest();
 		_req.open("GET", _url, false);
 		_req.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 		_req.send(null);
-	} 
+	}
 	else if (window.ActiveXObject)
 	{
 		_req = new ActiveXObject("Microsoft.XMLHTTP");
-		if(_req) 
+		if(_req)
 		{
 			_req.open("GET", _url, false);
 			_req.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");
 			_req.send();
 		}
-	} 
+	}
 	else
 		alert("Kein Browser-Support fr XMLHttpRequest");
-	if (_req.readyState == 4 && _req.status == 200) 
+	if (_req.readyState == 4 && _req.status == 200)
 		return _req.responseXML;
 	else
 		return "";
@@ -254,7 +277,7 @@ function split_one(_str, _delimiter)
 {
 	var __p = _str.indexOf(_delimiter);
 	var __left = _str.substring(0, __p);
-	var __right = _str.substring(__p+1);
+	var __right = _str.substring(__p+_delimiter.length);
 	return new Array(__left, __right);
 }
 function split_left(_str, _delimiter)
@@ -278,6 +301,50 @@ function epg_de_qout(_str)
 	_str = de_qout(_str);
 	_str = _str.replace(/\x8A/g,"<br/>");
 	return _str;
+}
+function split_version(vstring,v){
+	var l=vstring.split(".");
+	v.set('major', (l.length>0)?l[0]:"0");
+	v.set('minor', (l.length>1)?l[1]:"0");
+	v.set('patch', (l.length>2)?l[2]:"0");
+	v.set('pre', (l.length>3)?l[3]:"0");
+}
+function version_less(l, r) /* l<= r?*/{
+	return 	(l.get('major') < r.get('major'))||
+		((l.get('major') == r.get('major')) && (l.get('minor') < r.get('minor'))) ||
+		((l.get('major') == r.get('major')) && (l.get('minor') == r.get('minor')) && (l.get('patch') < r.get('patch'))) ||
+		((l.get('major') == r.get('major')) && (l.get('minor') == r.get('minor')) && (l.get('patch') == r.get('patch')) && (l.get('pre') < r.get('pre')));
+}
+function version_le(l, r) /* l<= r?*/{
+	return 	(l.get('major') < r.get('major'))||
+		((l.get('major') == r.get('major')) && (l.get('minor') < r.get('minor'))) ||
+		((l.get('major') == r.get('major')) && (l.get('minor') == r.get('minor')) && (l.get('patch') < r.get('patch'))) ||
+		((l.get('major') == r.get('major')) && (l.get('minor') == r.get('minor')) && (l.get('patch') == r.get('patch')) && (l.get('pre') <= r.get('pre')));
+}
+function version_str_less(l, r) /* l<= r?*/{
+	var lh=$H(); 
+	split_version(l,lh);
+	var rh=$H();
+	split_version(r,rh);
+	return version_less(lh,rh);
+}
+function str_to_hash(str){
+	var h=new Hash();
+	var items=str.split(",");
+	items.each(function(e){
+		pair=split_one(e,":");
+		if(pair.length==2)
+			h.set((pair[0]).gsub("\"","").gsub("'","").strip(),(pair[1]).strip().gsub("\"","").gsub("'",""));
+	});
+	return h;
+}
+function hash_to_str(h){
+	var str="";
+	h.each(function(e){
+		if(str!="")str+=",";
+		str+=e.key+":"+e.value;
+	});
+	return str;
 }
 /*etc*/
 function format_time(_t)
@@ -305,10 +372,23 @@ function bt_set_value(_bt_name, _text)
 	__button.firstChild.nodeValue = _text;
 }
 /*dbox*/
+/*expermental*/
+function dbox_rcsim(_key){
+	loadSyncURL("/control/rcem?" + _key);
+}
+function dbox_reload_neutrino(){
+	var sc=dbox_exec_tools("restart_neutrino");
+}
 function dbox_exec_command(_cmd)
 {
+	alert("Diese Funktion dbox_exec_command wurde aus Sicherheitsgruenden abgeschafft. Bitte Extension updaten.");
 	var __cmd = _cmd.replace(/ /g, "&");
-	return loadSyncURL("/control/exec?Y_Tools&exec_cmd&"+__cmd);
+//	return loadSyncURL("/control/exec?Y_Tools&exec_cmd&"+__cmd);
+}
+function dbox_exec_tools(_cmd)
+{
+	var __cmd = _cmd.replace(/ /g, "&");
+	return loadSyncURL("/control/exec?Y_Tools&"+__cmd);
 }
 function dbox_message(_msg)
 {
@@ -358,7 +438,7 @@ function live_switchto(_mode)
 		dbox_spts_set(true);
 	else if(_mode == "radio" && _actual_spts)
 		dbox_spts_set(false);
-	
+
 	var _actual_mode = dbox_getmode();
 	if(_actual_mode != _mode)
 		dbox_setmode(_mode);

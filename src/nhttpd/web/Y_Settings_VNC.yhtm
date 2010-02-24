@@ -2,7 +2,7 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function form_init() 
+function form_init()
 {
 	var val = {=ini-get:/var/tuxbox/config/vnc.conf;scale;1=};
 	document.f.scale[val-1].selected = true;
@@ -16,10 +16,10 @@ function do_submit()
 </script>
 </head>
 <body onload="form_init()">
-{=var-set:wait_text=Save.=}{=include-block:Y_Blocks.txt;snip_wait=}
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Neutrino:yWeb:Settings#VNC=}{=var-set:menu=VNC=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-VNC=}{=var-set:menu=VNC=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="">
 		<table border="0">
@@ -36,7 +36,7 @@ function do_submit()
 				<td><input type="password" name="password" size="20" value="{=ini-get:/var/tuxbox/config/vnc.conf;passwd=}"/></td>
 			</tr>
 			<tr>
-				<td>Scaling</td>
+				<td>Skalierung</td>
 				<td>
 				<select name="scale" title="enter scale for Screen">
 				<option value="1">1</option>
@@ -50,7 +50,7 @@ function do_submit()
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_nhttpd.yhtm"/>
 		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;vnc_save_settings;nix"/>
-		<input type="button" value="Save ..." title="submit and save values" onclick="do_submit()"/>
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
 	</form>
 	</div>
 </div>

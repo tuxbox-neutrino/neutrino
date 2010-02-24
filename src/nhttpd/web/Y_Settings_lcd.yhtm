@@ -1,0 +1,168 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<style type="text/css">
+/*<![CDATA[*/
+	.alink {
+	text-decoration: underline;
+	}
+/*]]>*/
+</style>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+/*<![CDATA[*/
+function do_init()
+{
+	var val = "";
+	obj_set_radio_value('lcd_power', "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_power;1~open=}");
+	obj_set_radio_value('lcd_inverse', "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_inverse;0~cache=}");
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_dim_time;0~cache=}";
+		document.f.lcd_dim_time.value = val;	
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_dim_brightness;0~cache=}";
+		document.f.lcd_dim_brightness.value = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_contrast;15~cache=}";
+		document.f.lcd_contrast.value = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_brightness;255~cache=}";
+		document.f.lcd_brightness.value = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_standbybrightness;170~cache=}";
+		document.f.lcd_standbybrightness.value = val;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_epgmode;1~cache=}";
+	var sel = 0;
+	if(val=="2") sel=1;
+	if(val=="3") sel=2;
+	if(val=="7") sel=3;
+	if(val=="11") sel=4;
+	if(val=="15") sel=5;
+		document.f.lcd_epgmode.selectedIndex = sel;
+
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;lcd_show_volume;0~cache=}"
+		document.f.lcd_show_volume.value = val;
+}
+
+function setDefault()
+{
+	document.f.lcd_contrast.value = 15;
+	document.f.lcd_brightness.value = 255;
+	document.f.lcd_standbybrightness.value = 170;
+}
+
+function do_submit()
+{
+		show_waitbox(true);
+		if (document.f.lcd_contrast.value > 63)
+			document.f.lcd_contrast.value = 63;
+		else if (document.f.lcd_contrast.value < 0)
+			document.f.lcd_contrast.value = 0;
+		if (document.f.lcd_brightness.value > 255)
+			document.f.lcd_brightness.value = 255;
+		else if (document.f.lcd_brightness.value < 0)
+			document.f.lcd_brightness.value = 0;
+		if (document.f.lcd_standbybrightness.value > 255)
+			document.f.lcd_standbybrightness.value = 255;
+		else if (document.f.lcd_standbybrightness.value < 0)
+			document.f.lcd_standbybrightness.value = 0;
+		document.f.submit();
+}
+/*]]>*/
+</script>
+</head>
+<body onload="do_init()">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Settings-LCD=}{=var-set:menu=LCD Einstellungen=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" class="y_form" action="">
+		<table cellspacing="0" border="0" cellpadding="2" width="100%">
+			<tr>
+				<td colspan="2" class="y_form_header">LCD</td>
+			</tr>
+			<tr>
+				<td title="lcd: off/on" width="35%">Power</td>
+				<td>
+					<input type="radio" name="lcd_power" value="0" />AUS&nbsp;
+					<input type="radio" name="lcd_power" value="1" />EIN
+				</td>
+			</tr>
+			<tr>
+				<td title="inverse lcd: off/on">Invertieren</td>
+				<td>
+					<input type="radio" name="lcd_inverse" value="0" />AUS&nbsp;
+					<input type="radio" name="lcd_inverse" value="1" />EIN
+				</td>
+			</tr>
+			<tr>
+				<td  title="dimm-timeout">Dimm-Timeout</td>
+				<td>
+					<input type="text" name="lcd_dim_time" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr>
+				<td title="brightness after dimm-timeout">Helligkeit nach dimm-Timeout</td>
+				<td>
+					<input type="text" name="lcd_dim_brightness" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" class="y_form_header">Kontrast / Helligkeit</td>
+			</tr>
+			<tr>
+				<td title="lcd contrast 0-63">Kontrast</td>
+				<td>
+					<input type="text" name="lcd_contrast" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr>
+				<td title="lcd brightness normal 0-255">normale Helligkeit</td>
+				<td>
+					<input type="text" name="lcd_brightness" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr> 
+				<td title="lcd brightness standby 0-255">Standby Helligkeit</td>
+				<td>
+					<input type="text" name="lcd_standbybrightness" size="3" maxlength="3" />
+				</td>
+			</tr>
+			<tr> 
+				<td>&nbsp;</td>
+				<td><a href="javascript:setDefault()" class="alink">Voreinstellung benutzen</a></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="y_form_header">Anzeige-Modi</td>
+			</tr>
+			<tr><td>EPG-Anzeige</td>
+				<td>
+					<select name="lcd_epgmode" title="select visualisation of LCD">
+					<option value="1" selected="selected">Standard (Kanal)</option>
+					<option value="2">Sendung</option>
+					<option value="3">Kanal / Sendung</option>
+					<option value="7">Kanal / Trennl. / Sendung</option>
+					<option value="11">Kanal (kurz) / Sendung</option>
+					<option value="15">Kanal (kurz) / Trennl. / Sendung</option>
+					</select>
+				</td>			
+			</tr>
+			<tr><td>Statuszeile</td>
+				<td>
+					<select name="lcd_show_volume" title="select visualisation of LCD">
+					<option value="0" selected="selected">Sendungsfortschritt</option>
+					<option value="1">Lautst&auml;rke</option>
+					<option value="2">Lautst&auml;rke / Fortschritt</option>
+					<option value="3">Laut. / Fort. / Audio</option>
+					</select>
+				</td>			
+			</tr>
+		</table>
+		<br />
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;lcd_save_settings;nix" />
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>&nbsp;
+		<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>&nbsp;
+		<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

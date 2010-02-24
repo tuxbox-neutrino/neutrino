@@ -81,14 +81,15 @@ void CLogging::printf ( const char *fmt, ... )
 
 	va_list arglist;
 	va_start( arglist, fmt );
-	// if(arglist)
+	if(arglist)
 		vsnprintf( buffer, bufferlen, fmt, arglist );
 	va_end(arglist);
 
 	pthread_mutex_lock( &Log_mutex );
 	::printf(buffer);
-	if(LogToFile)
-		usleep(0);	//FIXME Logging to File
+	if(LogToFile) {
+		;	//FIXME Logging to File
+	}
 	pthread_mutex_unlock( &Log_mutex );
 }
 

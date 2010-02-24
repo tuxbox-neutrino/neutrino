@@ -71,7 +71,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh)
 	int filed;
 	log_level_printf(4,"mod_sendfile prepare hook start url:%s\n",hh->UrlData["fullurl"].c_str());
 	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
-	if(mime != "")
+	if(((mime != "") || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true")) && (hh->UrlData["fileext"] != "yhtm"))
 	{
 		//TODO: Check allowed directories / actually in GetFileName
 		// build filename
@@ -136,6 +136,7 @@ THandleStatus CmodSendfile::Hook_ReadConfig(CConfigFile *Config, CStringList &Co
 {
 	std::string exttypes = Config->getString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT);
 	ConfigList["mod_sendfile.mime_types"] = exttypes;
+	ConfigList["mod_sendfile.sendAll"] = Config->getString("mod_sendfile.sendAll", HTTPD_SENDFILE_ALL);
 
 	bool ende = false;
 	std::string item, ext, mime;
@@ -167,8 +168,12 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 
 	if( access(std::string(hh->WebserverConfigList["PublicDocumentRoot"] + tmpfilename).c_str(),4) == 0)
 		tmpfilename = hh->WebserverConfigList["PublicDocumentRoot"] + tmpfilename;
+	else if( access(std::string(hh->WebserverConfigList["PublicDocumentRoot"] + tmpfilename + ".gz").c_str(),4) == 0)
+		tmpfilename = hh->WebserverConfigList["PublicDocumentRoot"] + tmpfilename + ".gz";
 	else if(access(std::string(hh->WebserverConfigList["PrivatDocumentRoot"] + tmpfilename).c_str(),4) == 0)
 		tmpfilename = hh->WebserverConfigList["PrivatDocumentRoot"] + tmpfilename;
+	else if(access(std::string(hh->WebserverConfigList["PrivatDocumentRoot"] + tmpfilename + ".gz").c_str(),4) == 0)
+		tmpfilename = hh->WebserverConfigList["PrivatDocumentRoot"] + tmpfilename + ".gz";
 #ifdef Y_CONFIG_FEATUE_SENDFILE_CAN_ACCESS_ALL
 	else if(access(tmpfilename.c_str(),4) == 0)
 		;
@@ -182,7 +187,7 @@ std::string CmodSendfile::GetFileName(CyhookHandler *hh, std::string path, std::
 //-----------------------------------------------------------------------------
 // Send File: Open File and check file type
 //-----------------------------------------------------------------------------
-int CmodSendfile::OpenFile(CyhookHandler */*hh*/, std::string fullfilename)
+int CmodSendfile::OpenFile(CyhookHandler *, std::string fullfilename)
 {
 	int  fd= -1;
 	std::string tmpstring;

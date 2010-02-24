@@ -25,7 +25,7 @@ function doTranscode()
 			"}";
 		if(document.v.tdisplay.checked)
 			stream = stream+",dst=display";
-		
+
 		var __vlc_cmd = ":sout=#"+transcode+"duplicate{"+stream+"}";
 		var options = new Array(__vlc_cmd,":input-repeat=1");
 		document.v.transcode.value = "Stop Transcode";
@@ -41,26 +41,29 @@ function doTranscode()
 </script>
 </head>
 <body>
-	<form name="v" action="" method="get">
-		<table class="y_live_table" cellspacing="0" width="100%">
+	<form class="y_form" name="v" action="" method="get">
+		<table cellspacing="0">
 		<tr><td class="y_form_header" colspan="5">Transcode-Broadcast</td></tr>
-		<tr><td class="y_form_section"><br/>Video</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr><td class="y_form_section"><br/>Video</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>&nbsp;</td>
-			<td>Width:</td>
+			<td>Breite:</td>
 			<td><input type="text" name="twidth" size="4" value="384" class="y_live_button"/></td>
-			<td>Height:</td>
+			<td>H&ouml;he:</td>
 			<td><input type="text" name="theight" size="4" value="288" class="y_live_button"/></td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Codec:</td>
 			<td>
 				<select name="vcodec" class="y_live_button">
 				<option value="mp4v" selected>mp4v</option>
+				<option value="mp1v">mp1v</option>
 				<option value="mp2v">mp2v</option>
 				<option value="DIV3">DIV3</option>
 				<option value="h264">h264</option>
+				<option value="H263">h263</option>
+				<option value="h264">h264</option>
+				<option value="WMV1">WMV1</option>
+				<option value="WMV1">WMV2</option>
 				</select>
 			</td>
 			<td>Bitrate:</td>
@@ -78,7 +81,6 @@ function doTranscode()
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Scale:</td>
 			<td>
 				<select name="scale" class="y_live_button">
@@ -95,9 +97,8 @@ function doTranscode()
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
-		<tr><td class="y_form_section"><br/>Audio</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr><td class="y_form_section"><br/>Audio</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Codec:</td>
 			<td>
 				<select name="acodec" class="y_live_button">
@@ -105,6 +106,9 @@ function doTranscode()
 				<option value="mp3">mp3</option>
 				<option value="mp2a">mp2a</option>
 				<option value="a52">a52</option>
+				<option value="vorb">vorb</option>
+				<option value="flac">flac</option>
+				<option value="fl32">fl32</option>
 				</select>
 			</td>
 			<td>Bitrate:</td>
@@ -120,7 +124,6 @@ function doTranscode()
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Channels:</td>
 			<td>
 				<select name="channels" class="y_live_button">
@@ -132,9 +135,8 @@ function doTranscode()
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
-		<tr><td class="y_form_section"><br/>Access</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr><td class="y_form_section"><br/>Access</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Type:</td>
 			<td>
 				<select name="access" class="y_live_button">
@@ -150,22 +152,24 @@ function doTranscode()
 				<option value="ps">ps</option>
 				<option value="mp4">mp4</option>
 				<option value="mov">mov</option>
-				</select>
+				<option value="ogg">ogg</option>
+				<option value="asf">asf</option>
+				<option value="mpeg1">mpeg1</option>
+				<option value="wav">wav</option>
+s				</select>
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>IP:Port:</td>
 			<td colspan="3">
 				<input type="text" name="tip" size="18" value="localhost:1234" class="y_live_button">
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
-			<td colspan="4">
+			<td colspan="3">
 			<br/>
 				<input type="checkbox" name="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>Display on
-				&nbsp;<button class="y_live_button" type="button" value="transcode" title="transcode stream" name="transcode" onclick="doTranscode()">Transcode</button>
+				&nbsp;<button class="y_live_button" type="button" value="transcode" title="transcode stream" name="transcode" onclick="doTranscode()"><img src="/images/transcode.png">&nbsp;Transcode</button>
 			</td>
 		</tr>
 		</table>

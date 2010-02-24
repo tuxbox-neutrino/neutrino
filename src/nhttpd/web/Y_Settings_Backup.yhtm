@@ -4,7 +4,7 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_submit() 
+function do_submit()
 {
 	if(document.f.filename.value != "")
 	{
@@ -36,8 +36,12 @@ function do_backup2()
 {=var-set:wait_text=Settings=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Neutrino:yWeb:Settings#Backup_.26_Restore=}{=var-set:menu=Backup &amp; Restore=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		{=var-set:help_url=Help-Settings-Backup_Restore=}{=var-set:menu=Backup &amp; Restore=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
+		<p><div style="border: 1px solid #cccccc;margin-top:20px">
+		<img src="/images/cross.png">&nbsp;<span><font size="2" color="Red"><b>Achtung</b>&nbsp;</font>Backup &amp; Restore ist nur bei einem gleichen Image mit gleichem Stand sinnvoll.
+		</span></div></p>
+		<br />
 		<table class="y_invisible_table" cellspacing="0" width="100%">
 		<tr><td class="y_form_header">Backup</td></tr>
 		<tr>
@@ -47,7 +51,7 @@ function do_backup2()
 			</div>
 			</td>
 		</tr>
-		<tr><td class="y_form_header">Restore (Warning: box will REBOOT after restore!)</td></tr>
+		<tr><td class="y_form_header">Restore</td></tr>
 		<tr>
 			<td>
 				<form name="f" method="post" enctype="multipart/form-data" action="/control/exec?Y_Tools&amp;settings_backup_restore&amp;restore">

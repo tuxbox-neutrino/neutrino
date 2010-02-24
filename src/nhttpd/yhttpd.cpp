@@ -6,7 +6,6 @@
 // system
 #include <csignal>
 #include <unistd.h>
-#include <cstdio>
 #include <cstdlib>
 #include <pwd.h>
 #include <grp.h>
@@ -15,6 +14,7 @@
 // yhttpd
 #include "yconfig.h"
 #include "ylogging.h"
+#include "ylanguage.h"
 #include "yhook.h"
 
 #ifdef Y_CONFIG_USE_YPARSER
@@ -37,11 +37,6 @@ CStringList Cyhttpd::ConfigList;
 static CmAuth *auth = NULL;
 #endif
 
-#ifdef Y_CONFIG_USE_TESTHOOK
-#include "mod_testhook.h"
-static CTesthook *testhook = NULL;
-#endif
-
 #ifdef Y_CONFIG_USE_WEBLOG
 #include "mod_weblog.h"
 static CmWebLog *weblog = NULL;
@@ -58,7 +53,7 @@ static CmodCache mod_cache; // static instance
 #endif
 
 //-----------------------------------------------------------------------------
-#ifdef CONFIG_SYSTEM_TUXBOX
+#if defined(CONFIG_SYSTEM_TUXBOX) || defined(CONFIG_SYSTEM_TUXBOX_COOLSTREAM)
 #include "neutrinoapi.h"
 static CNeutrinoAPI *NeutrinoAPI;
 #endif
@@ -67,10 +62,10 @@ static CNeutrinoAPI *NeutrinoAPI;
 // Main: Main Entry, Command line passing, Webserver Instance creation & Loop
 //=============================================================================
 volatile sig_atomic_t Cyhttpd::sig_do_shutdown = 0;
-#if 0
 //-----------------------------------------------------------------------------
 // Signal Handling
 //-----------------------------------------------------------------------------
+#ifdef Y_CONFIG_BUILD_AS_DAEMON
 static void sig_catch(int msignal)
 {
 	aprintf("!!! SIGNAL !!! :%d!\n",msignal);
@@ -100,6 +95,7 @@ static void sig_catch(int msignal)
 }
 #endif
 
+//-----------------------------------------------------------------------------
 void yhttpd_reload_config()
 {
 	if (yhttpd)
@@ -108,18 +104,12 @@ void yhttpd_reload_config()
 //-----------------------------------------------------------------------------
 // Main Entry
 //-----------------------------------------------------------------------------
-//int main(int argc, char **argv)
-void * nhttpd_main_thread(void */*data*/)
+#ifndef Y_CONFIG_BUILD_AS_DAEMON
+void * nhttpd_main_thread(void *)
 {
-	//int argc = 1;
-	//char **argv;
-	//bool do_fork = false;
-
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
-
 	aprintf("Webserver %s tid %ld\n", WEBSERVERNAME, syscall(__NR_gettid));
 	yhttpd = new Cyhttpd();
-
 //CLogging::getInstance()->setDebug(true);
 //CLogging::getInstance()->LogLevel = 9;
 	if(!yhttpd)
@@ -128,52 +118,6 @@ void * nhttpd_main_thread(void */*data*/)
 		return (void *) EXIT_FAILURE;
 	}
 	yhttpd->flag_threading_off = true;
-#if 0
-	for (int i = 1; i < argc; i++)
-	{
-		if ((!strncmp(argv[i], "-d", 2)) || (!strncmp(argv[i], "--debug", 7)))
-		{
-			CLogging::getInstance()->setDebug(true);
-			do_fork = false;
-		}
-		else if ((!strncmp(argv[i], "-f", 2)) || (!strncmp(argv[i], "--fork", 6)) || (!strncmp(argv[i], "-nf", 3)))
-		{
-			do_fork = false;
-		}
-		else if ((!strncmp(argv[i], "-h", 2)) || (!strncmp(argv[i], "--help", 6)))
-		{
-			yhttpd->usage(stdout);
-			return (void *) EXIT_SUCCESS;
-		}
-		else if ((!strncmp(argv[i], "-v", 2)) || (!strncmp(argv[i],"--version", 9)))
-		{
-			yhttpd->version(stdout);
-			return (void *) EXIT_SUCCESS;
-		}
-		else if ((!strncmp(argv[i], "-t", 2)) || (!strncmp(argv[i],"--thread-off", 12)))
-		{
-			yhttpd->flag_threading_off = true;
-		}
-		else if ((!strncmp(argv[i], "-l", 2)) )
-		{
-			if(argv[i][2] >= '0' && argv[i][2] <= '9')
-				CLogging::getInstance()->LogLevel = (argv[i][2]-'0');
-		}
-		else
-		{
-			yhttpd->usage(stderr);
-			return (void *) EXIT_FAILURE;
-		}
-	}
-	// setup signal catching (subscribing)
-	//signal(SIGPIPE, sig_catch);
-	//signal(SIGINT, sig_catch);
-	//signal(SIGHUP, sig_catch);
-	//signal(SIGUSR1, sig_catch);
-	//signal(SIGTERM, sig_catch);
-    	//signal(SIGCLD, SIG_IGN);
-//	signal(SIGALRM, sig_catch);
-#endif
 
 	yhttpd->hooks_attach();
 	yhttpd->ReadConfig();
@@ -190,7 +134,98 @@ void * nhttpd_main_thread(void */*data*/)
 	aprintf("Main end\n");
 	return (void *) EXIT_SUCCESS;
 }
+#endif
+#ifdef Y_CONFIG_BUILD_AS_DAEMON
+int main(int argc, char **argv)
+{
+	aprintf("Webserver %s\n", WEBSERVERNAME);
+	bool do_fork = true;
+	yhttpd = new Cyhttpd();
+	if(!yhttpd)
+	{
+		aprintf("Error initializing WebServer\n");
+		return EXIT_FAILURE;
+	}
+	for (int i = 1; i < argc; i++)
+	{
+		if ((!strncmp(argv[i], "-d", 2)) || (!strncmp(argv[i], "--debug", 7)))
+		{
+			CLogging::getInstance()->setDebug(true);
+			do_fork = false;
+		}
+		else if ((!strncmp(argv[i], "-f", 2)) || (!strncmp(argv[i], "--fork", 6)))
+		{
+			do_fork = false;
+		}
+		else if ((!strncmp(argv[i], "-h", 2)) || (!strncmp(argv[i], "--help", 6)))
+		{
+			yhttpd->usage(stdout);
+			return EXIT_SUCCESS;
+		}
+		else if ((!strncmp(argv[i], "-v", 2)) || (!strncmp(argv[i],"--version", 9)))
+		{
+			yhttpd->version(stdout);
+			return EXIT_SUCCESS;
+		}
+		else if ((!strncmp(argv[i], "-t", 2)) || (!strncmp(argv[i],"--thread-off", 12)))
+		{
+			yhttpd->flag_threading_off = true;
+		}
+		else if ((!strncmp(argv[i], "-l", 2)) )
+		{
+			if(argv[i][2] >= '0' && argv[i][2] <= '9')
+				CLogging::getInstance()->LogLevel = (argv[i][2]-'0');
+		}
+		else
+		{
+			yhttpd->usage(stderr);
+			return EXIT_FAILURE;
+		}
+	}
+	// setup signal catching (subscribing)
+	signal(SIGPIPE, sig_catch);
+	signal(SIGINT, sig_catch);
+	signal(SIGHUP, sig_catch);
+	signal(SIGUSR1, sig_catch);
+	signal(SIGTERM, sig_catch);
+	signal(SIGCLD, SIG_IGN);
+//	signal(SIGALRM, sig_catch);
 
+	yhttpd->hooks_attach();
+	yhttpd->ReadConfig();
+	if(yhttpd->Configure())
+	{
+		// Start Webserver: fork ist if not in debug mode
+		aprintf("Webserver starting...\n");
+		if (do_fork)
+		{
+			log_level_printf(9,"do fork\n");
+			switch (fork()) {
+			case -1:
+				dperror("fork");
+				return -1;
+			case 0:
+				break;
+			default:
+				return EXIT_SUCCESS;
+			}
+
+			if (setsid() == -1)
+			{
+				dperror("Error setsid");
+				return EXIT_FAILURE;
+			}
+		}
+		dprintf("Start in Debug-Mode\n"); // non forked debugging loop
+
+		yhttpd->run();
+	}
+	delete yhttpd;
+
+	aprintf("Main end\n");
+	return EXIT_SUCCESS;
+}
+#endif
 //=============================================================================
 // Class yhttpd
 //=============================================================================
@@ -348,7 +383,7 @@ void Cyhttpd::hooks_attach()
 	CyhookHandler::attach(testhook);
 #endif
 
-#ifdef CONFIG_SYSTEM_TUXBOX
+#if defined(CONFIG_SYSTEM_TUXBOX) || defined(CONFIG_SYSTEM_TUXBOX_COOLSTREAM)
 	NeutrinoAPI = new CNeutrinoAPI();
 	CyhookHandler::attach(NeutrinoAPI->NeutrinoYParser);
 	CyhookHandler::attach(NeutrinoAPI->ControlAPI);
@@ -387,7 +422,7 @@ void Cyhttpd::hooks_detach()
 	delete testhook;
 #endif
 
-#ifdef CONFIG_SYSTEM_TUXBOX
+#if defined(CONFIG_SYSTEM_TUXBOX) || defined(CONFIG_SYSTEM_TUXBOX_COOLSTREAM)
 	CyhookHandler::detach(NeutrinoAPI->NeutrinoYParser);
 #else
 #ifdef Y_CONFIG_USE_YPARSER
@@ -423,13 +458,14 @@ void Cyhttpd::ReadConfig(void)
 	Config->loadConfig(HTTPD_CONFIGFILE);
 	// convert old config files
 	if(have_config)
-		if(Config->getInt32("Port", 0) != 0)
+	{
+		if(Config->getInt32("configfile.version",0) == 0)
 		{
 			CConfigFile OrgConfig = *Config;
 			Config->clear();
 
 			Config->setInt32("server.log.loglevel", OrgConfig.getInt32("LogLevel", 0));
-			Config->setString("configfile.version", "1");
+			Config->setInt32("configfile.version", CONF_VERSION);
 			Config->setString("webserver.websites", "WebsiteMain");
 			Config->setBool("webserver.threading", OrgConfig.getBool("THREADS", true));
 			Config->setInt32("WebsiteMain.port",OrgConfig.getInt32("Port", HTTPD_STANDARD_PORT));
@@ -451,6 +487,21 @@ void Cyhttpd::ReadConfig(void)
 			Config->saveConfig(HTTPD_CONFIGFILE);
 
 		}
+		if (Config->getInt32("configfile.version") < 2)
+		{
+			Config->setString("mod_sendfile.mime_types", HTTPD_SENDFILE_EXT);
+			Config->setInt32("configfile.version", CONF_VERSION);
+			Config->setString("mod_sendfile.sendAll","false");
+			Config->saveConfig(HTTPD_CONFIGFILE);
+		}
+		if (Config->getInt32("configfile.version") < 4)
+		{
+			Config->setInt32("configfile.version", CONF_VERSION);
+			Config->setString("Language.selected", HTTPD_DEFAULT_LANGUAGE);
+			Config->setString("Language.directory", HTTPD_LANGUAGEDIR);
+			Config->saveConfig(HTTPD_CONFIGFILE);
+		}
+	}
 	// configure debugging & logging
 	if(CLogging::getInstance()->LogLevel == 0)
 		CLogging::getInstance()->LogLevel = Config->getInt32("server.log.loglevel", 0);
@@ -460,7 +511,7 @@ void Cyhttpd::ReadConfig(void)
 	// informational use
 	ConfigList["WebsiteMain.port"]= itoa(Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT));
 	ConfigList["webserver.threading"]= Config->getString("webserver.threading", "true");
-	ConfigList["configfile.version"]= Config->getString("configfile.version", "1");
+	ConfigList["configfile.version"]= Config->getInt32("configfile.version", CONF_VERSION);
 	ConfigList["server.log.loglevel"]= itoa(Config->getInt32("server.log.loglevel", 0));
 	ConfigList["server.no_keep-alive_ips"]= Config->getString("server.no_keep-alive_ips", "");
 	webserver->conf_no_keep_alive_ips = Config->getStringVector("server.no_keep-alive_ips");
@@ -483,6 +534,10 @@ void Cyhttpd::ReadConfig(void)
 	ConfigList["server.group_name"]= Config->getString("server.group_name", "");
 	ConfigList["server.chroot"]= Config->getString("server.chroot", "");
 
+	// language
+	ConfigList["Language.directory"]=Config->getString("Language.directory", HTTPD_LANGUAGEDIR);
+	ConfigList["Language.selected"]=Config->getString("Language.selected", HTTPD_DEFAULT_LANGUAGE);
+	yhttpd->ReadLanguage();
 
 	// Read App specifig settings by Hook
 	CyhookHandler::Hooks_ReadConfig(Config, ConfigList);
@@ -492,4 +547,14 @@ void Cyhttpd::ReadConfig(void)
 		Config->saveConfig(HTTPD_CONFIGFILE);
 	log_level_printf(3,"ReadConfig End\n");
 	delete Config;
+}
+//-----------------------------------------------------------------------------
+// Read Webserver Configurationfile for languages
+//-----------------------------------------------------------------------------
+void Cyhttpd::ReadLanguage(void)
+{
+	// Init Class vars
+	CLanguage *lang = CLanguage::getInstance();
+	log_level_printf(3,"ReadLanguage:%s\n",ConfigList["Language.selected"].c_str());
+	lang->setLanguage(ConfigList["Language.selected"]);
 }

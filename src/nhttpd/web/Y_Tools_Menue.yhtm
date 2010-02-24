@@ -1,42 +1,84 @@
 {=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/Y_yweb.js"></script>
+<script type="text/javascript">
+function cmd_popup(){
+	window.open('Y_Tools_Cmd.yhtm','cmd','width=720,height=470,resizable=yes');
+}
+function init(){
+	var menu=ext.select_menu('tools');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu_tools').insert({'bottom':el}); 
+	});
+	var menu=ext.select_menu('expert');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu_expert').insert({'bottom':el}); 
+	});
+}
+</script>
 </head>
-{=var-set:automount={=if-file-exists:/sbin/automount~true~{=if-file-exists:/var/bin/automount~true~false=}=}=}
+{=var-set:automount={=if-file-exists:/sbin/automount~true~{=if-file-exists:/var/bin/automount~true~=}=}=}
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
-<body>
+{=var-set:etherwake={=if-file-exists:/bin/etherwake~/bin/etherwake~{=if-file-exists:/var/bin/etherwake~/var/bin/etherwake~=}=}=}
+
+<body onload="init()">
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>Tools</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec_section">Tools</div>
 		<div class="y_menu_sec">
-			<ul>
+			<ul id="secmenu_tools">
 			{=if-empty:{=var-get:management=}~
-<!--dbox2 only				<li class="disabled" title="organize file automounts (automount not installed)">AutoMounts</li> dbox2 only-->
+				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li class="disabled" title="organize file automounts (automount not installed)">AutoMounts</li>
 				<li class="disabled" title="organize file mounts (restricted by ManagementIP)">Mounts</li>
 				<li class="disabled" title="Wake on LAN (restricted by ManagementIP)">Wake on LAN</li>
+				~=}
 			~
-				{=if-empty:{=var-get:automount=}~
-<!--dbox2 only					<li class="disabled" title="organize file automounts (automount not installed)">AutoMounts</li> dbox2 only-->
-				~
-<!--dbox2 only					<li><a target="work" title="organize file automounts" href="Y_Settings_automount_liste.yhtm">AutoMounts</a></li> dbox2 only-->
-				=}
+				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+					{=if-empty:{=var-get:automount=}~
+					<li class="disabled" title="organize file automounts (automount not installed)">AutoMounts</li>
+					~
+					<li><a target="work" title="organize file automounts" href="Y_Settings_automount_liste.yhtm">AutoMounts</a></li>
+					=}
 				<li><a target="work" title="organize file mounts" href="Y_Settings_mount_liste.yhtm">Mounts</a></li>
-				<li><a target="work" title="Wake on LAN" href="Y_Settings_wol.yhtm">Wake on LAN</a></li>
+				{=if-empty:{=var-get:etherwake=}~
+					<li class="disabled" title="Wake on LAN (etherwake not installed)" >Wake on LAN</li>
+				~
+					<li><a target="work" title="Wake on LAN" href="Y_Settings_wol.yhtm">Wake on LAN</a></li>
+				=}
+				~=}
 			=}
 				<li><a target="work" title="check Installation" href="Y_Tools_Check_Install.yhtm">Check Install</a></li>
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">Expert</div>
 		<div class="y_menu_sec">
-			<ul>
-				<li><a target="work" title="get box infos" href="Y_Dyn_Pages.yhtm?page=frame_tools-info">Info</a></li>
+			<ul id="secmenu_expert">
+				<li><a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">Info</a></li>
 				{=if-empty:{=var-get:management=}~
 				<li class="disabled" title="backup or flash image. (restricted by ManagementIP)">Image</li>
 				<li class="disabled" title="command shell (restricted by ManagementIP)">Command Shell</li>
 				<li class="disabled" title="yInstaller (for files, plugins, ...) (restricted by ManagementIP)">yInstaller</li>
 				~
-<!--dbox2 only				<li><a target="work" title="backup or flash image" href="Y_Tools_Flash_Menue.yhtm">Image</a></li> dbox2 only-->
-				<li><a target="work" title="command shell" href="Y_Tools_Cmd.yhtm">Command Shell</a></li>
+					{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+						<li><a target="work" title="backup or flash image" href="Y_Tools_Flash_Menue.yhtm">Image</a></li>
+					~=}
+				<li><a target="work" title="command shell" href="Y_Tools_Cmd.yhtm">Command Shell</a>&nbsp;
+				<a title="command shell (popup)" href="javascript:cmd_popup()"><img src="/images/popup.png"/></a></li>
 				<li><a target="work" title="yInstaller (for files, plugins, ...)" href="Y_Tools_Installer.yhtm">yInstaller</a></li>
 				=}
 			</ul>

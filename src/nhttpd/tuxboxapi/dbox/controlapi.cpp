@@ -29,18 +29,7 @@
 #include "controlapi.h"
 #include "lcdapi.h"
 
-bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
-bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
-void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
-bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
-bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-extern tallchans allchans;
-extern CBouquetManager *g_bouquetManager;
-extern t_channel_id live_channel_id;
-
-//#define EVENTDEV "/dev/input/event0"
-#define EVENTDEV "/dev/input/input0"
+#define EVENTDEV "/dev/input/event0"
 //-----------------------------------------------------------------------------
 enum {	// not defined in input.h but used like that, at least in 2.4.22
 	KEY_RELEASED = 0,
@@ -78,6 +67,19 @@ void CControlAPI::init(CyhookHandler *hh)
 //=============================================================================
 // Hooks!
 //=============================================================================
+//-----------------------------------------------------------------------------
+THandleStatus CControlAPI::Hook_PrepareResponse(CyhookHandler *hh)
+{
+	init(hh);
+
+	if(hh->UrlData["path"] == "/control/"
+		|| hh->UrlData["path"] == "/cgi-bin/"
+		|| hh->UrlData["path"] == "/fb/"
+		)
+		return HANDLED_READY;
+	else
+		return HANDLED_NONE;
+}
 //-----------------------------------------------------------------------------
 // HOOK: response_hook Handler
 // This is the main dispatcher for this module
@@ -143,11 +145,10 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"standby", 		&CControlAPI::StandbyCGI,	"text/plain"},
 	{"shutdown", 		&CControlAPI::ShutdownCGI,	"text/plain"},
 	{"reboot", 		&CControlAPI::RebootCGI,	"text/plain"},
+	{"esound", 		&CControlAPI::EsoundCGI,	"text/plain"},
 	{"getdate", 		&CControlAPI::GetDateCGI,	"text/plain"},
 	{"gettime", 		&CControlAPI::GetTimeCGI,	"text/plain"},
-#if 0
 	{"settings", 		&CControlAPI::SettingsCGI,	"text/plain"},
-#endif
 	{"info", 		&CControlAPI::InfoCGI,		"text/plain"},
 	{"version", 		&CControlAPI::VersionCGI,	""},
 	// boxcontrol - devices
@@ -162,9 +163,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"exec", 		&CControlAPI::ExecCGI,		"+xml"},
 	{"yweb", 		&CControlAPI::YWebCGI,		"text/plain"},
 	// video handling
-#if 0
 	{"aspectratio", 	&CControlAPI::AspectRatioCGI,	"text/plain"},
-#endif
 	{"videoformat", 	&CControlAPI::VideoFormatCGI,	"text/plain"},
 	{"videooutput", 	&CControlAPI::VideoOutputCGI,	"text/plain"},
 	{"vcroutput", 		&CControlAPI::VCROutputCGI,	"text/plain"},
@@ -383,45 +382,28 @@ void CControlAPI::SystemCGI(CyhookHandler *hh)
 	{
 
 		if (hh->ParamList["1"] == "getAViAExtIec") {
-#if HAVE_DBOX2
 			hh->printf("%d\n", NeutrinoAPI->Zapit->IecState());
-#else
-			hh->printf("%d\n", 1);
-#endif
-
 		}
 		else if (hh->ParamList["setAViAExtIec"] == "on")
 		{
-#if HAVE_DBOX2
 			NeutrinoAPI->Zapit->IecOn();
-#endif
 			hh->SendOk();
 		}
 		else if (hh->ParamList["setAViAExtIec"] == "off")
 		{
-#if HAVE_DBOX2
 			NeutrinoAPI->Zapit->IecOff();
-#endif
 			hh->SendOk();
 		}
 		else if (hh->ParamList["1"] == "getAViAExtPlayBack")
-#if HAVE_DBOX2
 			hh->printf("%d\n", NeutrinoAPI->Zapit->PlaybackState());
-#else
-			hh->printf("%d\n", 1);
-#endif
 		else if (hh->ParamList["setAViAExtPlayBack"] == "pes")
 		{
-#if HAVE_DBOX2
 			NeutrinoAPI->Zapit->PlaybackPES();
-#endif
 			hh->SendOk();
 		}
 		else if (hh->ParamList["setAViAExtPlayBack"] == "spts")
 		{
-#if HAVE_DBOX2
 			NeutrinoAPI->Zapit->PlaybackSPTS();
-#endif
 			hh->SendOk();
 		}
 		else
@@ -450,11 +432,9 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 			hh->SendError();
 	}
 	else
-#if HAVE_DBOX2 // FIXME: not implemented
 		if(NeutrinoAPI->Controld->getVideoPowerDown())
 			hh->WriteLn("on");
 		else
-#endif
 			hh->WriteLn("off");
 }
 
@@ -474,6 +454,25 @@ void CControlAPI::RCCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
+void CControlAPI::EsoundCGI(CyhookHandler *hh)
+{
+	if (!(hh->ParamList.empty()))
+	{
+		if (hh->ParamList["1"] == "on") // esound on
+		{
+			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::ESOUND_ON, CEventServer::INITID_HTTPD);
+		}
+		else if (hh->ParamList["1"] == "off") // esound off
+		{
+			NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::ESOUND_OFF, CEventServer::INITID_HTTPD);
+		}
+		else
+			hh->SendError();
+	}
+	hh->SendOk();
+}
+
+//-----------------------------------------------------------------------------
 // Get actual Date
 // security: strftime has buffer-overflow limit. ok!
 //-----------------------------------------------------------------------------
@@ -483,9 +482,9 @@ void CControlAPI::GetDateCGI(CyhookHandler *hh)
 	{
 		//paramlos
 		char *timestr = new char[50];
-		struct timeb tm;
-		ftime(&tm);
-		strftime(timestr, 20, "%d.%m.%Y\n", localtime(&tm.time) );
+		struct timeval tm;
+		gettimeofday(&tm, NULL);
+		strftime(timestr, 20, "%d.%m.%Y\n", localtime(&tm.tv_sec) );
 		hh->Write(timestr);
 		delete[] timestr;
 	}
@@ -515,14 +514,12 @@ void CControlAPI::GetTimeCGI(CyhookHandler *hh)
 	else
 		hh->SendError();
 }
-#if 0
 //-----------------------------------------------------------------------------
 // send settings
 void CControlAPI::SettingsCGI(CyhookHandler *hh)
 {
 	SendSettings(hh);
 }
-#endif
 //-----------------------------------------------------------------------------
 // send services.xml
 void CControlAPI::GetServicesxmlCGI(CyhookHandler *hh)
@@ -586,10 +583,8 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 	{
 		if (hh->ParamList["1"] == "streaminfo")		// print streaminfo
 			SendStreamInfo(hh);
-#if 0
 		else if (hh->ParamList["1"] == "settings")	// print settings
 			SendSettings(hh);
-#endif
 		else if (hh->ParamList["1"] == "version")	// send version file
 			hh->SendFile("/.version");
 		else if (hh->ParamList["1"] == "httpdversion")	// print httpd version typ (only ffor comptibility)
@@ -654,52 +649,130 @@ struct key {
 #endif
 
 static const struct key keynames[] = {
-        {"KEY_POWER",           KEY_POWER},
-        {"KEY_MUTE",            KEY_MUTE},
-        {"KEY_1",               KEY_1},
-        {"KEY_2",               KEY_2},
-        {"KEY_3",               KEY_3},
-        {"KEY_4",               KEY_4},
-        {"KEY_5",               KEY_5},
-        {"KEY_6",               KEY_6},
-        {"KEY_7",               KEY_7},
-        {"KEY_8",               KEY_8},
-        {"KEY_9",               KEY_9},
-        {"KEY_0",               KEY_0},
-        {"KEY_INFO",            KEY_INFO},
-        {"KEY_MODE",            KEY_MODE},
-        {"KEY_SETUP",           KEY_MENU},
-        {"KEY_EPG",             KEY_EPG},
-        {"KEY_FAVORITES",       KEY_FAVORITES},
-        {"KEY_HOME",            KEY_EXIT},
-        {"KEY_UP",              KEY_UP},
-        {"KEY_LEFT",            KEY_LEFT},
-        {"KEY_OK",              KEY_OK},
-        {"KEY_RIGHT",           KEY_RIGHT},
-        {"KEY_DOWN",            KEY_DOWN},
-        {"KEY_VOLUMEUP",        KEY_VOLUMEUP},
-        {"KEY_VOLUMEDOWN",      KEY_VOLUMEDOWN},
-        {"KEY_PAGEUP",          KEY_PAGEUP},
-        {"KEY_PAGEDOWN",        KEY_PAGEDOWN},
-        {"KEY_TV",              KEY_TV},
-        {"KEY_TEXT",            KEY_TEXT},
-        {"KEY_RADIO",           KEY_RADIO},
-        {"KEY_RED",             KEY_RED},
-        {"KEY_GREEN",           KEY_GREEN},
-        {"KEY_YELLOW",          KEY_YELLOW},
-        {"KEY_BLUE",            KEY_BLUE},
-        {"KEY_SAT",             KEY_SAT},
-        {"KEY_HELP",            KEY_HELP},
-        {"KEY_NEXT",            KEY_NEXT},
-        {"KEY_PREVIOUS",        KEY_PREVIOUS},
-        {"KEY_TIME",            KEY_TIME},
-        {"KEY_AUDIO",           KEY_AUDIO},
-        {"KEY_REWIND",          KEY_REWIND},
-        {"KEY_FORWARD",         KEY_FORWARD},
-        {"KEY_PAUSE",           KEY_PAUSE},
-        {"KEY_RECORD",          KEY_RECORD},
-        {"KEY_STOP",            KEY_STOP},
-        {"KEY_PLAY",           KEY_PLAY}
+  {"KEY_0",		KEY_0},
+  {"KEY_1",		KEY_1},
+  {"KEY_2",		KEY_2},
+  {"KEY_3",		KEY_3},
+  {"KEY_4",		KEY_4},
+  {"KEY_5",		KEY_5},
+  {"KEY_6",		KEY_6},
+  {"KEY_7",		KEY_7},
+  {"KEY_8",		KEY_8},
+  {"KEY_9",		KEY_9},
+  {"KEY_BACKSPACE",	KEY_BACKSPACE},
+  {"KEY_HOME",		KEY_HOME},
+  {"KEY_UP",		KEY_UP},
+  {"KEY_PAGEUP",	KEY_PAGEUP},
+  {"KEY_LEFT",		KEY_LEFT},
+  {"KEY_RIGHT",		KEY_RIGHT},
+  {"KEY_DOWN",		KEY_DOWN},
+  {"KEY_PAGEDOWN",	KEY_PAGEDOWN},
+  {"KEY_MUTE",		KEY_MUTE},
+  {"KEY_VOLUMEDOWN",	KEY_VOLUMEDOWN},
+  {"KEY_VOLUMEUP",	KEY_VOLUMEUP},
+  {"KEY_POWER",		KEY_POWER},
+  {"KEY_HELP",		KEY_HELP},
+  {"KEY_SETUP",		KEY_SETUP},
+  {"KEY_OK",		KEY_OK},
+  {"KEY_RED",		KEY_RED},
+  {"KEY_GREEN",		KEY_GREEN},
+  {"KEY_YELLOW",	KEY_YELLOW},
+  {"KEY_BLUE",		KEY_BLUE},
+  {"KEY_TOPLEFT",	KEY_TOPLEFT},
+  {"KEY_TOPRIGHT",	KEY_TOPRIGHT},
+  {"KEY_BOTTOMLEFT",	KEY_BOTTOMLEFT},
+  {"KEY_BOTTOMRIGHT",	KEY_BOTTOMRIGHT},
+
+  //////////////// Keys on the IR Keyboard
+  {"KEY_ESC",		KEY_ESC},
+
+  {"KEY_MINUS",		KEY_MINUS},
+  {"KEY_EQUAL",		KEY_EQUAL},
+  {"KEY_TAB",		KEY_TAB},
+  {"KEY_Q",		KEY_Q},
+  {"KEY_W",		KEY_W},
+  {"KEY_E",		KEY_E},
+  {"KEY_R",		KEY_R},
+  {"KEY_T",		KEY_T},
+  {"KEY_Y",		KEY_Y},
+  {"KEY_U",		KEY_U},
+  {"KEY_I",		KEY_I},
+  {"KEY_O",		KEY_O},
+  {"KEY_P",		KEY_P},
+  {"KEY_LEFTBRACE",	KEY_LEFTBRACE},
+  {"KEY_RIGHTBRACE",	KEY_RIGHTBRACE},
+  {"KEY_ENTER",		KEY_ENTER},
+  {"KEY_LEFTCTRL",	KEY_LEFTCTRL},
+  {"KEY_A",		KEY_A},
+  {"KEY_S",		KEY_S},
+  {"KEY_D",		KEY_D},
+  {"KEY_F",		KEY_F},
+  {"KEY_G",		KEY_G},
+  {"KEY_H",		KEY_H},
+  {"KEY_J",		KEY_J},
+  {"KEY_K",		KEY_K},
+  {"KEY_L",		KEY_L},
+  {"KEY_SEMICOLON",	KEY_SEMICOLON},
+  {"KEY_APOSTROPHE",	KEY_APOSTROPHE},
+  {"KEY_GRAVE",		KEY_GRAVE},
+  {"KEY_LEFTSHIFT",	KEY_LEFTSHIFT},
+  {"KEY_BACKSLASH",	KEY_BACKSLASH},
+  {"KEY_Z",		KEY_Z},
+  {"KEY_X",		KEY_X},
+  {"KEY_C",		KEY_C},
+  {"KEY_V",		KEY_V},
+  {"KEY_B",		KEY_B},
+  {"KEY_N",		KEY_N},
+  {"KEY_M",		KEY_M},
+  {"KEY_COMMA",		KEY_COMMA},
+  {"KEY_DOT",		KEY_DOT},
+  {"KEY_SLASH",		KEY_SLASH},
+  {"KEY_RIGHTSHIFT",	KEY_RIGHTSHIFT},
+  {"KEY_KPASTERISK",	KEY_KPASTERISK},
+  {"KEY_LEFTALT",	KEY_LEFTALT},
+  {"KEY_SPACE",		KEY_SPACE},
+  {"KEY_CAPSLOCK",	KEY_CAPSLOCK},
+  {"KEY_F1",		KEY_F1},
+  {"KEY_F2",		KEY_F2},
+  {"KEY_F3",		KEY_F3},
+  {"KEY_F4",		KEY_F4},
+  {"KEY_F5",		KEY_F5},
+  {"KEY_F6",		KEY_F6},
+  {"KEY_F7",		KEY_F7},
+  {"KEY_F8",		KEY_F8},
+  {"KEY_F9",		KEY_F9},
+  {"KEY_F10",		KEY_F10},
+  {"KEY_NUMLOCK",	KEY_NUMLOCK},
+  {"KEY_SCROLLLOCK",	KEY_SCROLLLOCK},
+  {"KEY_KP7",		KEY_KP7},
+  {"KEY_KP8",		KEY_KP8},
+  {"KEY_KP9",		KEY_KP9},
+  {"KEY_KPMINUS",	KEY_KPMINUS},
+  {"KEY_KP4",		KEY_KP4},
+  {"KEY_KP5",		KEY_KP5},
+  {"KEY_KP6",		KEY_KP6},
+  {"KEY_KPPLUS",	KEY_KPPLUS},
+  {"KEY_KP1",		KEY_KP1},
+  {"KEY_KP2",		KEY_KP2},
+  {"KEY_KP3",		KEY_KP3},
+  {"KEY_KP0",		KEY_KP0},
+  {"KEY_KPDOT",		KEY_KPDOT},
+  {"KEY_102ND",		KEY_102ND},
+  {"KEY_KPENTER",	KEY_KPENTER},
+  {"KEY_KPSLASH",	KEY_KPSLASH},
+  {"KEY_SYSRQ",		KEY_SYSRQ},
+  {"KEY_RIGHTALT",	KEY_RIGHTALT},
+  {"KEY_END",		KEY_END},
+  {"KEY_INSERT",	KEY_INSERT},
+  {"KEY_DELETE",	KEY_DELETE},
+
+  {"KEY_PAUSE",		KEY_PAUSE},
+
+  {"KEY_LEFTMETA",	KEY_LEFTMETA},
+  {"KEY_RIGHTMETA",	KEY_RIGHTMETA},
+
+  {"BTN_LEFT",		BTN_LEFT},
+  {"BTN_RIGHT",		BTN_RIGHT}
 };
 
 // The code here is based on rcsim. Thx Carjay!
@@ -742,7 +815,6 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
     close(evd);
     return;
   }
-#if HAVE_DBOX2
   for (unsigned int i = 0; i < repeat - 1; i++) {
     usleep(delay*1000);
     if (rc_send(evd, sendcode, KEY_AUTOREPEAT) < 0){
@@ -752,7 +824,6 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
       return;
     }
   }
-#endif
   if (rc_send(evd, sendcode, KEY_RELEASED)<0){
     perror("writing 'KEY_RELEASED' event failed");
     close(evd);
@@ -762,19 +833,14 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh)
   close(evd);
   hh->SendOk();
 }
-#if 0
 //-----------------------------------------------------------------------------
 void CControlAPI::AspectRatioCGI(CyhookHandler *hh)
 {
-#if HAVE_DBOX2 // FIXME: not implemented
 	hh->printf("%s", NeutrinoAPI->Controld->getAspectRatio() == '\0' ? "4:3" : "16:9");
-#endif
 }
-#endif
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 {
-#if HAVE_DBOX2 // FIXME: not implemented
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 	  	hh->WriteLn(NeutrinoAPI->videoformat_names[(unsigned int)NeutrinoAPI->Controld->getVideoFormat()]);
 		return;
@@ -797,14 +863,12 @@ void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 	} else {
 		hh->SendError();
 	}
-#endif
 	hh->SendOk();
 }
 
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoOutputCGI(CyhookHandler *hh)
 {
-#if HAVE_DBOX2 // FIXME: not implemented
 	unsigned int videooutput=0;
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 		hh->WriteLn(NeutrinoAPI->videooutput_names[(unsigned int) NeutrinoAPI->Controld->getVideoOutput()]);
@@ -821,17 +885,16 @@ void CControlAPI::VideoOutputCGI(CyhookHandler *hh)
 		videooutput = CControldClient::VIDEOOUTPUT_YUV_CVBS;
 	else {
 		hh->SendError();
+		return;
 	}
 
 	NeutrinoAPI->Controld->setVideoOutput(videooutput);
-#endif
 	hh->SendOk();
 }
 
 //-----------------------------------------------------------------------------
 void CControlAPI::VCROutputCGI(CyhookHandler *hh)
 {
-#if HAVE_DBOX2 // FIXME: not implemented
 	unsigned int vcroutput;
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 		hh->WriteLn(NeutrinoAPI->videooutput_names[(unsigned char)NeutrinoAPI->Controld->getVCROutput()]);
@@ -854,7 +917,6 @@ void CControlAPI::VCROutputCGI(CyhookHandler *hh)
 		return;
 	}
 	NeutrinoAPI->Controld->setVCROutput(vcroutput);
-#endif
 	hh->SendOk();
 
 	return;
@@ -863,7 +925,6 @@ void CControlAPI::VCROutputCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::ScartModeCGI(CyhookHandler *hh)
 {
-#if HAVE_DBOX2 // FIXME: not implemented
 	bool new_status;
 	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
 		hh->printf(NeutrinoAPI->Controld->getScartMode() ? "on" : "off");
@@ -877,40 +938,33 @@ void CControlAPI::ScartModeCGI(CyhookHandler *hh)
 		return;
 	}
 	NeutrinoAPI->Controld->setScartMode(new_status);
-#endif
 	hh->SendOk();
 }
 
 //-------------------------------------------------------------------------
 void CControlAPI::VolumeCGI(CyhookHandler *hh)
 {
-	if (hh->ParamList.empty()) { //without param: show actual volumen
-                unsigned int volume;
-                NeutrinoAPI->Zapit->getVolume(&volume, &volume);
-		hh->printf("%d", volume);
-		//hh->printf("%d", NeutrinoAPI->Controld->getVolume());
+	if (hh->ParamList.empty()) {//without param: show actual volumen
+		hh->printf("%d", NeutrinoAPI->Controld->getVolume());
 	}
-
 	else if (hh->ParamList["1"].compare("mute") == 0)
 	{
-		NeutrinoAPI->Zapit->muteAudio(true);
+		NeutrinoAPI->Controld->setMute(true);
 		hh->SendOk();
 	}
 	else if (hh->ParamList["1"].compare("unmute") == 0)
 	{
-		NeutrinoAPI->Zapit->muteAudio(false);
+		NeutrinoAPI->Controld->setMute(false);
 		hh->SendOk();
 	}
-/*	else if (hh->ParamList["1"].compare("status") == 0)//FIXME
+	else if (hh->ParamList["1"].compare("status") == 0)
 	{
-
 		hh->Write((char *) (NeutrinoAPI->Controld->getMute() ? "1" : "0"));	//  mute
 	}
-*/
 	else if(hh->ParamList["1"]!="")
 	{	//set volume
 		char vol = atol( hh->ParamList["1"].c_str() );
-		NeutrinoAPI->Zapit->setVolume(vol,vol);
+		NeutrinoAPI->Controld->setVolume(vol);
 		hh->SendOk();
 	}
 	else
@@ -926,9 +980,6 @@ void CControlAPI::ChannellistCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 {
-	//CZapitClient::BouquetChannelList *bouquet;
-	CZapitClient::BouquetList blist;
-
 	if (!(hh->ParamList.empty()))
 	{
 		int mode = CZapitClient::MODE_CURRENT;
@@ -945,10 +996,18 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 		if (hh->ParamList["1"] == "actual")
 		{
 			int actual=0;
-			for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
-				if(g_bouquetManager->existsChannelInBouquet(i, live_channel_id)) {
-					actual=i+1;
-					break;
+			CZapitClient::BouquetChannelList *bouquet;
+			CZapitClient::BouquetList blist;
+			//easier?
+			for (unsigned int i = 0; i < NeutrinoAPI->BouquetList.size() && actual == 0;i++)
+			{
+				//hh->printf("%u %s\n", (NeutrinoAPI->BouquetList[i].bouquet_nr) + 1, NeutrinoAPI->BouquetList[i].name);
+				bouquet = NeutrinoAPI->GetBouquet((NeutrinoAPI->BouquetList[i].bouquet_nr) + 1, mode);
+				CZapitClient::BouquetChannelList::iterator channel = bouquet->begin();
+				for (unsigned int j = 0; channel != bouquet->end() && actual == 0; channel++,j++)
+				{
+					if(channel->channel_id == NeutrinoAPI->Zapit->getCurrentServiceID())
+						actual=i+1;
 				}
 			}
 			hh->printf("%d",actual);
@@ -958,41 +1017,32 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 			hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 			hh->WriteLn("<bouquetlist>");
 			hh->printf("<bouquet>\n\t<bnumber>%s</bnumber>\n</bouquet>\n",hh->ParamList["bouquet"].c_str());
+			CZapitClient::BouquetChannelList *bouquet;
+			bouquet = NeutrinoAPI->GetBouquet(atoi(hh->ParamList["bouquet"].c_str()), mode);
+			CZapitClient::BouquetChannelList::iterator channel = bouquet->begin();
 
-			ZapitChannelList channels;
-			int BouquetNr = atoi(hh->ParamList["bouquet"].c_str());
-			if(BouquetNr > 0)
-				BouquetNr--;
-			channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[BouquetNr]->radioChannels : g_bouquetManager->Bouquets[BouquetNr]->tvChannels;
-			int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr) : g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr)) ;
-			for(int j = 0; j < (int) channels.size(); j++) {
-				CZapitChannel * channel = channels[j];
+			for (unsigned int i = 0; channel != bouquet->end(); channel++,i++)
 				hh->printf("<channel>\n\t<number>%u</number>\n\t<id>"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"</id>\n\t<name><![CDATA[%s]]></name>\n</channel>\n",
-					num + j,
+					channel->nr,
 					channel->channel_id,
-					channel->getName().c_str());
-			}
+					channel->name);
 			hh->WriteLn("</bouquetlist>");
 		}
 		else
 		{
-			ZapitChannelList channels;
-			int BouquetNr = atoi(hh->ParamList["bouquet"].c_str());
-			if(BouquetNr > 0)
-				BouquetNr--;
-			channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[BouquetNr]->radioChannels : g_bouquetManager->Bouquets[BouquetNr]->tvChannels;
-			int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr) : g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr)) ;
-			for(int j = 0; j < (int) channels.size(); j++) {
-				CZapitChannel * channel = channels[j];
+			CZapitClient::BouquetChannelList *bouquet;
+			bouquet = NeutrinoAPI->GetBouquet(atoi(hh->ParamList["bouquet"].c_str()), mode);
+			CZapitClient::BouquetChannelList::iterator channel = bouquet->begin();
+
+			for (unsigned int i = 0; channel != bouquet->end(); channel++,i++)
 				hh->printf("%u "
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					" %s\n",
-					num + j,
+					channel->nr,
 					channel->channel_id,
-					channel->getName().c_str());
-			}
+					channel->name);
 		}
 	}
 	else
@@ -1009,37 +1059,34 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::EpgCGI(CyhookHandler *hh)
 {
-	//hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
+	CChannelEvent *event;
+	NeutrinoAPI->GetChannelEvents();
+
 	if (hh->ParamList.empty())
 	{
-		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
-		CChannelEvent *event;
-		NeutrinoAPI->GetChannelEvents();
-
-		int mode = NeutrinoAPI->Zapit->getMode();
-		CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
-		for (; !(cit.EndOfChannels()); cit++) {
-			CZapitChannel * channel = *cit;
+		hh->SetHeader(HTTP_OK, "text/plain");
+		CZapitClient::BouquetChannelList *channellist = NeutrinoAPI->GetChannelList(CZapitClient::MODE_CURRENT);
+		CZapitClient::BouquetChannelList::iterator channel = channellist->begin();
+		for(; channel != channellist->end();channel++)
+		{
 			event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
-			if(event)
+			if (event)
 				hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %llu %s\n",
-					channel->channel_id,
-					event->eventID,
-					event->description.c_str());
+						" %llu %s\n",
+						channel->channel_id,
+						event->eventID,
+						event->description.c_str());
 		}
 	}
 	else if (hh->ParamList["xml"].empty())
 	{
-		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
+		hh->SetHeader(HTTP_OK, "text/plain");
 		if (hh->ParamList["1"] == "ext")
 		{
-			CChannelEvent *event;
-			NeutrinoAPI->GetChannelEvents();
-			int mode = NeutrinoAPI->Zapit->getMode();
-			CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
-			for (; !(cit.EndOfChannels()); cit++) {
-				CZapitChannel * channel = *cit;
+			CZapitClient::BouquetChannelList *channellist = NeutrinoAPI->GetChannelList(CZapitClient::MODE_CURRENT);
+			CZapitClient::BouquetChannelList::iterator channel = channellist->begin();
+			for(; channel != channellist->end();channel++)
+			{
 				event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
 				if(event)
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
@@ -1054,11 +1101,10 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		else if (hh->ParamList["eventid"] != "")
 		{
 			//special epg query
-			uint64_t epgid;
+			unsigned long long epgid;
 			sscanf( hh->ParamList["eventid"].c_str(), "%llu", &epgid);
 			CShortEPGData epg;
-			//if (NeutrinoAPI->Sectionsd->getEPGidShort(epgid,&epg))
-			if (sectionsd_getEPGidShort(epgid,&epg))
+			if (NeutrinoAPI->Sectionsd->getEPGidShort(epgid,&epg))
 			{
 				hh->WriteLn(epg.title);
 				hh->WriteLn(epg.info1);
@@ -1069,13 +1115,12 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		{
 			if (hh->ParamList["starttime"] != "")
 			{
-				uint64_t epgid;
+				unsigned long long epgid;
 				time_t starttime;
 				sscanf( hh->ParamList["fskid"].c_str(), "%llu", &epgid);
 				sscanf( hh->ParamList["starttime"].c_str(), "%lu", &starttime);
 				CEPGData longepg;
-				//if(NeutrinoAPI->Sectionsd->getEPGid(epgid, starttime, &longepg))
-				if(sectionsd_getEPGid(epgid, starttime, &longepg))
+				if(NeutrinoAPI->Sectionsd->getEPGid(epgid, starttime, &longepg))
 				{
 					hh->printf("%u\n", longepg.fsk);
 					return;
@@ -1089,14 +1134,12 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 			sscanf(hh->ParamList["id"].c_str(),
 			       SCANF_CHANNEL_ID_TYPE,
 			       &channel_id);
-			//NeutrinoAPI->eList = NeutrinoAPI->Sectionsd->getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL);
-			sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
+			NeutrinoAPI->eList = NeutrinoAPI->Sectionsd->getEventsServiceKey(channel_id);
 			CChannelEventList::iterator eventIterator;
 			for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++)
 			{
 				CShortEPGData epg;
-				//if (NeutrinoAPI->Sectionsd->getEPGidShort(eventIterator->eventID,&epg))
-				if (sectionsd_getEPGidShort(eventIterator->eventID,&epg))
+				if (NeutrinoAPI->Sectionsd->getEPGidShort(eventIterator->eventID,&epg))
 				{
 					hh->printf("%llu %ld %d\n", eventIterator->eventID, eventIterator->startTime, eventIterator->duration);
 					hh->printf("%s\n",epg.title.c_str());
@@ -1120,7 +1163,8 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 	//	stoptime : show only items until stoptime reached
 	else if (!(hh->ParamList["xml"].empty()))
 	{
-		hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
+		hh->SetHeader(HTTP_OK, "text/xml");
+
 		t_channel_id channel_id = (t_channel_id)-1;
 
 		if (!(hh->ParamList["channelid"].empty()))
@@ -1135,10 +1179,9 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		}
 		if(channel_id != (t_channel_id)-1)
 		{
-			hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+			hh->WriteLn("<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>");
 			hh->WriteLn("<epglist>");
-			//NeutrinoAPI->eList = NeutrinoAPI->Sectionsd->getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL);
-			sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
+			NeutrinoAPI->eList = NeutrinoAPI->Sectionsd->getEventsServiceKey(channel_id);
 			hh->printf("<channel_id>"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"</channel_id>\r\n", channel_id);
@@ -1167,7 +1210,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 				struct tm *mtime = localtime(&eventIterator->startTime);
 				strftime(zbuffer,20,"%H:%M",mtime);
 				hh->printf("\t<start_t>%s</start_t>\r\n", zbuffer);
-				bzero(zbuffer,25);
+				memset(zbuffer, 0, 25);
 				strftime(zbuffer,20,"%d.%m.%Y",mtime);
 				hh->printf("\t<date>%s</date>\r\n", zbuffer);
 				hh->printf("\t<stop_sec>%ld</stop_sec>\r\n", eventIterator->startTime+eventIterator->duration);
@@ -1181,9 +1224,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 				if (!(hh->ParamList["details"].empty()))
 				{
 					CShortEPGData epg;
-
-					//if (NeutrinoAPI->Sectionsd->getEPGidShort(eventIterator->eventID,&epg))
-					if (sectionsd_getEPGidShort(eventIterator->eventID,&epg))
+					if (NeutrinoAPI->Sectionsd->getEPGidShort(eventIterator->eventID,&epg))
 					{
 						hh->printf("\t<info1><![CDATA[%s]]></info1>\r\n",epg.info1.c_str());
 						hh->printf("\t<info2><![CDATA[%s]]></info2>\r\n",epg.info2.c_str());
@@ -1244,16 +1285,32 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 			hh->SendOk();
 		}
 		else if (hh->ParamList["1"] == "statussectionsd")
-			hh->Write((char *) (NeutrinoAPI->Sectionsd->getIsScanningActive() ? "1" : "0"));
+			hh->Write((char *) (NeutrinoAPI->Sectionsd->getIsScanningActive() ? "scanning active" : "scanning paused\n"));
+		else if (hh->ParamList["1"] == "restartsectionsd")
+		{
+			NeutrinoAPI->Sectionsd->Restart();
+			hh->printf("--&gt; restarting sectionsd...<br>");
+			NeutrinoAPI->Sectionsd->RegisterNeutrino();
+			hh->printf("--&gt; registering neutrino...<br>");
+			NeutrinoAPI->Sectionsd->setPauseScanning(false);
+			hh->printf("--&gt; set scanning active...<br>");
+			NeutrinoAPI->Sectionsd->setServiceChanged(NeutrinoAPI->Zapit->getCurrentServiceID(), false);
+			hh->printf("--&gt; send sectionsd ServiceChanged...<br>");
+			hh->printf("<hr style=\"color:black; background-color:black; height:2px; width:250px; margin-left:0; text-align:left;\">");
+			hh->Write((char *) (NeutrinoAPI->Sectionsd->getIsScanningActive() ? "sectionsd restarted, scanning active!" : "sectionsd restarted, scanning paused"));
+		}
+		else if (hh->ParamList["1"] == "freememsectionsd")
+		{
+			NeutrinoAPI->Sectionsd->freeMemory();
+			hh->printf("freeing memory... done!\n");
+		}
 		else if (hh->ParamList["1"] == "getallsubchannels")
 		{
 			t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
 			CSectionsdClient::LinkageDescriptorList desc;
 			CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-			//NeutrinoAPI->Sectionsd->getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
-			sectionsd_getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
-			//if (NeutrinoAPI->Sectionsd->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey,desc))
-			if (sectionsd_getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey,desc))
+			NeutrinoAPI->Sectionsd->getCurrentNextServiceKey(current_channel, currentNextInfo);
+			if (NeutrinoAPI->Sectionsd->getLinkageDescriptorsUniqueKey(currentNextInfo.current_uniqueKey,desc))
 			{
 				for(unsigned int i=0;i< desc.size();i++)
 				{
@@ -1337,28 +1394,26 @@ void CControlAPI::LCDAction(CyhookHandler *hh)
 			error=1;
 	}
 	if (hh->ParamList["clear"] != "") {
-		if(sscanf( hh->ParamList["clear"].c_str(), "%d", &tval)) {
+		if(sscanf( hh->ParamList["clear"].c_str(), "%d", &tval)){
 			if(tval)
 				NeutrinoAPI->LcdAPI->Clear();
-		} else {
-			error=1;
 		}
+		else
+			error=1;
 	}
-	if (hh->ParamList["png"] != "")
+	if (hh->ParamList["png"] != "") {
 		if(! NeutrinoAPI->LcdAPI->ShowPng((char*)hh->ParamList["png"].c_str()))
 			error=1;
-	if (hh->ParamList["raw"] != "")
-	{
+	}
+	if (hh->ParamList["raw"] != "") {
 		char *sptr=strdup((char*)hh->ParamList["raw"].c_str()),*pptr;
 		int loop=4;
 		pptr=sptr;
 		error=1;
-		if(sscanf(pptr, "%d,%d,%d,%d",&x1,&y1,&x2,&y2)==4)
-		{
+		if(sscanf(pptr, "%d,%d,%d,%d",&x1,&y1,&x2,&y2)==4) {
 			while(loop-- && ((pptr=strchr(pptr,','))!=NULL))
 				++pptr;
-			if(pptr)
-			{
+			if(pptr) {
 				NeutrinoAPI->LcdAPI->ShowRaw(x1,y1,x2,y2,pptr);
 				error=0;
 			}
@@ -1414,9 +1469,9 @@ void CControlAPI::LCDAction(CyhookHandler *hh)
 		if(sscanf( hh->ParamList["update"].c_str(), "%d", &tval)) {
 			if(tval)
 				NeutrinoAPI->LcdAPI->Update();
-		} else {
-			error=1;
 		}
+		else
+			error=1;
 	}
 
 	if(error) 	hh->SendError();
@@ -1429,9 +1484,7 @@ void CControlAPI::LCDAction(CyhookHandler *hh)
 void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 {
 	int pos;
-
-	//NeutrinoAPI->eList = NeutrinoAPI->Sectionsd->getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL);
-	sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
+	NeutrinoAPI->eList = NeutrinoAPI->Sectionsd->getEventsServiceKey(channel_id);
 	CChannelEventList::iterator eventIterator;
 
 	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, pos++)
@@ -1441,16 +1494,14 @@ void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 //-----------------------------------------------------------------------------
 void CControlAPI::SendChannelList(CyhookHandler *hh)
 {
-	int mode = NeutrinoAPI->Zapit->getMode();
-	hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
-	CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
-	for (; !(cit.EndOfChannels()); cit++) {
-		CZapitChannel * channel = *cit;
+	CZapitClient::BouquetChannelList *channellist = NeutrinoAPI->GetChannelList(CZapitClient::MODE_CURRENT);
+	CZapitClient::BouquetChannelList::iterator channel = channellist->begin();
+
+	for(; channel != channellist->end();channel++)
 		hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				" %s\n",
 				channel->channel_id,
-				channel->getName().c_str());
-	}
+				channel->name);
 }
 
 //-----------------------------------------------------------------------------
@@ -1512,10 +1563,8 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 
 	t_channel_id current_channel = NeutrinoAPI->Zapit->getCurrentServiceID();
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
-	//NeutrinoAPI->Sectionsd->getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
-	sectionsd_getCurrentNextServiceKey(current_channel&0xFFFFFFFFFFFFULL, currentNextInfo);
-	//if (NeutrinoAPI->Sectionsd->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
-	if (sectionsd_getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
+	NeutrinoAPI->Sectionsd->getCurrentNextServiceKey(current_channel, currentNextInfo);
+	if (NeutrinoAPI->Sectionsd->getComponentTagsUniqueKey(currentNextInfo.current_uniqueKey,tags))
 	{
 		for (unsigned int i=0; i< tags.size(); i++)
 		{
@@ -1565,11 +1614,9 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 		hh->printf("%05u pmt\n",pids.PIDs.pmtpid);
 
 }
-#if 0
 //-----------------------------------------------------------------------------
 void CControlAPI::SendSettings(CyhookHandler *hh)
 {
-#if 0
 	hh->WriteLn(
 		"Boxtype " +
 		NeutrinoAPI->Dbox_Hersteller[NeutrinoAPI->Controld->getBoxType()] +
@@ -1580,9 +1627,7 @@ void CControlAPI::SendSettings(CyhookHandler *hh)
 		"videoformat " +
 		NeutrinoAPI->videoformat_names[(unsigned char)NeutrinoAPI->Controld->getVideoFormat()]
 	);
-#endif
 }
-#endif
 //-----------------------------------------------------------------------------
 void CControlAPI::SendTimers(CyhookHandler *hh)
 {
@@ -1613,9 +1658,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 		case CTimerd::TIMER_RECORD:
 			if (!send_id)
 			{
-				//strncpy(zAddData, NeutrinoAPI->Zapit->getChannelName(timer->channel_id).c_str(), 22);
-				strncpy(zAddData, NeutrinoAPI->GetServiceName(timer->channel_id).c_str(), 22);
-
+				strncpy(zAddData, NeutrinoAPI->Zapit->getChannelName(timer->channel_id).c_str(), 22);
 				if (zAddData[0] == 0)
 					strcpy(zAddData, NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unbekannter TV-Kanal" : "Unbekannter Radiokanal");
 			}
@@ -1712,7 +1755,7 @@ void CControlAPI::YWeb_SendRadioStreamingPid(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
-std::string CControlAPI::YexecuteScript(CyhookHandler */*hh*/, std::string cmd)
+std::string CControlAPI::YexecuteScript(CyhookHandler *, std::string cmd)
 {
 	std::string script, para, result;
 	bool found = false;
@@ -1806,7 +1849,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		// Alarm Time - Format exact! HH:MM
 		if(hh->ParamList["alTime"] != "")
 			sscanf(hh->ParamList["alTime"].c_str(),"%2d.%2d",&(alarmTime->tm_hour), &(alarmTime->tm_min));
-
+		alHour = alarmTime->tm_hour;
 		correctTime(alarmTime);
 		alarmTimeT = mktime(alarmTime);
 		announceTimeT = alarmTimeT;
@@ -1825,7 +1868,6 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 			}
 		correctTime(stopTime);
 		stopTimeT = mktime(stopTime);
-		alHour = alarmTime->tm_hour;
 		if(hh->ParamList["stDate"] == "" && alHour > stopTime->tm_hour)
 			stopTimeT += 24* 60 * 60; // add 1 Day
 	}
@@ -1844,6 +1886,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 			alarmTime->tm_hour = atoi(hh->ParamList["ah"].c_str());
 		if(hh->ParamList["ami"] != "")
 			alarmTime->tm_min = atoi(hh->ParamList["ami"].c_str());
+		alarmTime->tm_sec = 0;
 		correctTime(alarmTime);
 		alarmTimeT = mktime(alarmTime);
 		announceTimeT = alarmTimeT;
@@ -1860,6 +1903,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 			stopTime->tm_hour = atoi(hh->ParamList["sh"].c_str());
 		if(hh->ParamList["smi"] != "")
 			stopTime->tm_min = atoi(hh->ParamList["smi"].c_str());
+		stopTime->tm_sec = 0;
 		correctTime(stopTime);
 		stopTimeT = mktime(stopTime);
 	}
@@ -1883,8 +1927,35 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		rep = (CTimerd::CTimerEventRepeat) atoi(hh->ParamList["rep"].c_str());
 	else // default: no repeat
 		rep = (CTimerd::CTimerEventRepeat)0;
+
 	if(((int)rep) >= ((int)CTimerd::TIMERREPEAT_WEEKDAYS) && hh->ParamList["wd"] != "")
-		NeutrinoAPI->Timerd->getWeekdaysFromStr(&rep, hh->ParamList["wd"].c_str());
+		NeutrinoAPI->Timerd->getWeekdaysFromStr((int*)&rep, hh->ParamList["wd"].c_str());
+	// apids
+	bool changeApids=false;
+	unsigned char apids=0;
+	if(hh->ParamList["apcf"] == "on")
+	{
+		changeApids=true;
+		apids=0;
+	}
+	else
+	{
+		if(hh->ParamList["apst"] == "on")
+		{
+			changeApids=true;
+			apids |= TIMERD_APIDS_STD;
+		}
+		if(hh->ParamList["apal"] == "on")
+		{
+			changeApids=true;
+			apids |= TIMERD_APIDS_ALT;
+		}
+		if(hh->ParamList["apac"] == "on")
+		{
+			changeApids=true;
+			apids |= TIMERD_APIDS_AC3;
+		}
+	}
 
 	CTimerd::RecordingInfo recinfo;
 	CTimerd::EventInfo eventinfo;
@@ -1901,6 +1972,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 	else
 		eventinfo.channel_id = NeutrinoAPI->ChannelNameToChannelId(hh->ParamList["channel_name"]);
 
+	std::string _rec_dir = hh->ParamList["rec_dir"];
 	void *data=NULL;
 	if(type == CTimerd::TIMER_RECORD)
 		announceTimeT-=120;
@@ -1913,15 +1985,16 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		data= &eventinfo;
 	else if (type==CTimerd::TIMER_RECORD)
 	{
-		std::string _rec_dir = hh->ParamList["rec_dir"];
 		if(_rec_dir == "")
 		{
 			// get Default Recordingdir
 			CConfigFile *Config = new CConfigFile(',');
 			Config->loadConfig(NEUTRINO_CONFIGFILE);
-			_rec_dir = Config->getString("network_nfs_recordingdir", "/mnt/filme");
-			delete Config;//Memory leak: Config
+			_rec_dir = Config->getString("recording_dir_0", "/mnt/filme");
+			delete Config;
 		}
+		if(changeApids)
+			eventinfo.apids = apids;
 		recinfo = eventinfo;
 		strncpy(recinfo.recordingDir, _rec_dir.c_str(), RECORD_DIR_MAXLEN-1);
 		data = &recinfo;
@@ -1946,7 +2019,13 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 		if(hh->ParamList["id"] != "")
 		{
 			unsigned modyId = atoi(hh->ParamList["id"].c_str());
-			NeutrinoAPI->Timerd->removeTimerEvent(modyId);
+			if(type == CTimerd::TIMER_RECORD)
+				NeutrinoAPI->Timerd->modifyRecordTimerEvent(modyId, announceTimeT, alarmTimeT, stopTimeT, rep,repCount,_rec_dir.c_str());
+			else
+				NeutrinoAPI->Timerd->modifyTimerEvent(modyId, announceTimeT, alarmTimeT, stopTimeT, rep,repCount);
+//					NeutrinoAPI->Timerd->removeTimerEvent(modyId);
+			if(changeApids)
+				NeutrinoAPI->Timerd->modifyTimerAPid(modyId,apids);
 		}
 		else
 		{
@@ -1970,9 +2049,12 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 					NeutrinoAPI->Timerd->removeTimerEvent(timer->eventID);
 					break;
 				}
+			NeutrinoAPI->Timerd->addTimerEvent(type,data,announceTimeT,alarmTimeT,stopTimeT,rep,repCount);
 		}
 	}
-	NeutrinoAPI->Timerd->addTimerEvent(type,data,announceTimeT,alarmTimeT,stopTimeT,rep,repCount);
+	else
+		NeutrinoAPI->Timerd->addTimerEvent(type,data,announceTimeT,alarmTimeT,stopTimeT,rep,repCount);
+
 	hh->SendOk();
 }
 //-------------------------------------------------------------------------
@@ -2057,7 +2139,7 @@ void CControlAPI::renameBouquetCGI(CyhookHandler *hh)
 		{
 			if (NeutrinoAPI->Zapit->existsBouquet((hh->ParamList["nameto"]).c_str()) == -1)
 			{
-				NeutrinoAPI->Zapit->renameBouquet(atoi(hh->ParamList["selected"].c_str()) - 1, hh->ParamList["nameto"].c_str());
+				NeutrinoAPI->Zapit->renameBouquet(atoi(hh->ParamList["selected"].c_str()) - 1, ZapitTools::Latin1_to_UTF8(hh->ParamList["nameto"].c_str()).c_str());
 				hh->SendOk();
 				return;
 			}
@@ -2072,7 +2154,7 @@ void CControlAPI::changeBouquetCGI(CyhookHandler *hh)
 	{
 		int selected = atoi(hh->ParamList["selected"].c_str());
 		CZapitClient::BouquetChannelList BChannelList;
-		NeutrinoAPI->Zapit->getBouquetChannels(selected - 1, BChannelList, CZapitClient::MODE_CURRENT, true);
+		NeutrinoAPI->Zapit->getBouquetChannels(selected - 1, BChannelList, CZapitClient::MODE_CURRENT);
 		CZapitClient::BouquetChannelList::iterator channels = BChannelList.begin();
 		for(; channels != BChannelList.end();channels++)
 		{
@@ -2141,8 +2223,7 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 		if(!pids.APIDs.empty())
 			apid = pids.APIDs[0].pid;
 
-		//xpids = string_printf("0x%04x",apid);
-		xpids = string_printf("0x%04x,0x%04x",pids.PIDs.pmtpid,apid);
+		xpids = string_printf("0x%04x",apid);
 	}
 	else
 		hh->SendError();
@@ -2152,10 +2233,8 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 		url = "http://"+hh->ParamList["host"];
 	else
 		url = "http://"+hh->HeaderList["Host"];
-	//url += (mode == CZapitClient::MODE_TV) ? ":31339/0," : ":31338/";
-	url += ":31339/0,";
+	url += (mode == CZapitClient::MODE_TV) ? ":31339/0," : ":31338/";
 	url += xpids;
-printf("Live url: %s\n", url.c_str());
 	// response url
 	if(hh->ParamList["vlc_link"] !="")
 	{
@@ -2164,7 +2243,7 @@ printf("Live url: %s\n", url.c_str());
 	}
 	else
 	{
-		hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
+		hh->SetHeader(HTTP_OK, "text/html");
 		hh->Write(url);
 	}
 }

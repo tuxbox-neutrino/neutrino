@@ -1,0 +1,341 @@
+{=include-block:Y_Blocks.txt;management_check_top=}
+{=include-block:Y_Blocks.txt;head=}
+<style type="text/css">
+/*<![CDATA[*/
+.alink {
+	text-decoration: underline;
+}
+input[type="text"],select {
+	font-weight: bold;
+	background-color: #FF9;
+	width: 145px;
+}
+.butnokey {
+	visibility: hidden;
+	vertical-align: middle;
+	font-size: 9px;
+}
+/*]]>*/
+</style>
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_init()
+{
+	var val = "";
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;bouquetlist_mode;0~open=}";
+		document.f.bouquetlist_mode.selectedIndex = val;
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_bouquet_down;105~cache=}";
+		document.f.key_bouquet_down.value = itoKey(val);	
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_bouquet_up;106~cache=}";
+		document.f.key_bouquet_up.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_addrecord;398~cache=}";
+		document.f.key_channelList_addrecord.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_addremind;400~cache=}";
+		document.f.key_channelList_addremind.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_cancel;102~cache=}";
+		document.f.key_channelList_cancel.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_pagedown;115~cache=}";
+		document.f.key_channelList_pagedown.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_pageup;114~cache=}";
+		document.f.key_channelList_pageup.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_reload;141~cache=}";
+		document.f.key_channelList_reload.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_search;399~cache=}";
+		document.f.key_channelList_search.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_channelList_sort;401~cache=}";
+		document.f.key_channelList_sort.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_lastchannel;11~cache=}";
+		document.f.key_lastchannel.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_quickzap_down;108~cache=}";
+		document.f.key_quickzap_down.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_quickzap_up;103~cache=}";
+		document.f.key_quickzap_up.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_subchannel_down;105~cache=}";
+		document.f.key_subchannel_down.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_subchannel_toggle;11~cache=}";
+		document.f.key_subchannel_toggle.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_subchannel_up;106~cache=}";
+		document.f.key_subchannel_up.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_tvradio_mode;-2~cache=}";
+		document.f.key_tvradio_mode.value = itoKey(val);
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;key_zaphistory;102~cache=}";
+		document.f.key_zaphistory.value = itoKey(val);
+}
+function rcsim(_key)
+{
+	var	radioLength = document.f.but.length;
+	for(var i=0; i<radioLength; i++)
+		if(document.f.but[i].checked) {
+			document.getElementById('id'+(100+i)).value = _key;
+			break;
+		}
+}
+function setFocus()
+{
+	hideAll();
+	var	radioLength = document.f.but.length;
+	for(var i=0; i<radioLength; i++)
+		if(document.f.but[i].checked) {
+			document.getElementById('id'+(100+i)).focus();
+			document.getElementById('id'+(200+i)).style.visibility = "visible";
+			break;
+		}
+}
+function setradio(_i)
+{
+	hideAll();
+	document.f.but[_i].checked = "checked";
+	document.getElementById('id'+(200+_i)).style.visibility = "visible";
+}
+function hideAll()
+{
+	var	radioLength = document.f.but.length;
+	for(var t=0; t<radioLength; t++)
+		document.getElementById('id'+(200+t)).style.visibility = "hidden";
+}
+function killkey()
+{
+	var	radioLength = document.f.but.length;
+		for(var i=0; i<radioLength; i++)
+		if(document.f.but[i].checked) {
+			document.getElementById('id'+(100+i)).value = "KEY_NONE";
+			break;
+		}
+}
+function keytoi(_key)
+{
+var i;
+	switch(_key) {
+		case "KEY_NONE": i="-2"; break;
+		case "KEY_1": i="2"; break;
+		case "KEY_2": i="3"; break;
+		case "KEY_3": i="4"; break;
+		case "KEY_4": i="5"; break;
+		case "KEY_5": i="6"; break;
+		case "KEY_6": i="7"; break;
+		case "KEY_7": i="8"; break;
+		case "KEY_8": i="9"; break;
+		case "KEY_9": i="10"; break;
+		case "KEY_0": i="11"; break;
+		case "KEY_HOME": i="102"; break;
+		case "KEY_UP": i="103"; break;
+		case "KEY_LEFT": i="105"; break;
+		case "KEY_RIGHT": i="106"; break;
+		case "KEY_DOWN": i="108"; break;
+		case "KEY_MUTE": i="113"; break;
+		case "KEY_VOLUMEDOWN": i="114"; break;
+		case "KEY_VOLUMEUP": i="115"; break;
+		case "KEY_POWER": i="116"; break;
+		case "KEY_HELP": i="138"; break;
+		case "KEY_SETUP": i="141"; break;
+		case "KEY_OK": i="352"; break;
+		case "KEY_RED": i="398"; break;
+		case "KEY_GREEN": i="399"; break;
+		case "KEY_YELLOW": i="400"; break;
+		case "KEY_BLUE": i="401"; break;
+		default: i="-2"; break;
+	}
+	return i;
+}
+function itoKey(_val)
+{
+var _key;
+	switch(_val) {
+		case "-2": _key="KEY_NONE"; break;
+		case "2": _key="KEY_1"; break;
+		case "3": _key="KEY_2"; break;
+		case "4": _key="KEY_3"; break;
+		case "5": _key="KEY_4"; break;
+		case "6": _key="KEY_5"; break;
+		case "7": _key="KEY_6"; break;
+		case "8": _key="KEY_7"; break;
+		case "9": _key="KEY_8"; break;
+		case "10": _key="KEY_9"; break;
+		case "11": _key="KEY_0"; break;
+		case "102": _key="KEY_HOME"; break;
+		case "103": _key="KEY_UP"; break;
+		case "105": _key="KEY_LEFT"; break;
+		case "106": _key="KEY_RIGHT"; break;
+		case "108": _key="KEY_DOWN"; break;
+		case "113": _key="KEY_MUTE"; break;
+		case "114": _key="KEY_VOLUMEDOWN"; break;
+		case "115": _key="KEY_VOLUMEUP"; break;
+		case "116": _key="KEY_POWER"; break;
+		case "138": _key="KEY_HELP"; break;
+		case "141": _key="KEY_SETUP"; break;
+		case "352": _key="KEY_OK"; break;
+		case "398": _key="KEY_RED"; break;
+		case "399": _key="KEY_GREEN"; break;
+		case "400": _key="KEY_YELLOW"; break;
+		case "401": _key="KEY_BLUE"; break;
+		default: _key="KEY_NONE"; break;
+	}
+	return _key;
+}
+function setDefault()
+{
+	document.f.bouquetlist_mode.selectedIndex = 0;
+	document.f.key_bouquet_down.value = "KEY_LEFT"; //105
+	document.f.key_bouquet_up.value = "KEY_RIGHT"; //106
+	document.f.key_channelList_addrecord.value = "KEY_RED"; //398
+	document.f.key_channelList_addremind.value = "KEY_YELLOW"; //400
+	document.f.key_channelList_cancel.value = "KEY_HOME"; //102
+	document.f.key_channelList_pagedown.value = "KEY_VOLUMEUP"; //115
+	document.f.key_channelList_pageup.value = "KEY_VOLUMEDOWN"; //114
+	document.f.key_channelList_reload.value = "KEY_SETUP"; //141
+	document.f.key_channelList_search.value = "KEY_GREEN"; //399
+	document.f.key_channelList_sort.value = "KEY_BLUE"; //401
+	document.f.key_lastchannel.value = "KEY_0"; //11
+	document.f.key_quickzap_down.value = "KEY_DOWN"; //108
+	document.f.key_quickzap_up.value = "KEY_UP"; //103
+	document.f.key_subchannel_down.value = "KEY_LEFT"; //105
+	document.f.key_subchannel_toggle.value = "KEY_0"; //11
+	document.f.key_subchannel_up.value = "KEY_RIGHT"; //106
+	document.f.key_tvradio_mode.value = "KEY_NONE"; //-2
+	document.f.key_zaphistory.value = "KEY_HOME"; //102
+}
+function do_submit()
+{
+	show_waitbox(true);
+	var	radioLength = document.f.but.length;
+	for(var i=0; i<radioLength; i++) {
+			document.getElementById('id'+(100+i)).value = keytoi(document.getElementById('id'+(100+i)).value);
+	}
+	document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body onload="do_init()">
+{=var-set:wait_text=Werte werden &uuml;bernommen (Save).=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Settings-Buttons=}{=var-set:menu=Tastenbelegung=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+		<form name="f" class="y_form" action="">
+			<table cellspacing="0" border="0" cellpadding="2" width="100%">
+			<tr>
+				<td width="25%">&nbsp;</td>
+				<td colspan="2" class="y_form_header">Modus wechsel</td>
+			</tr>
+			<tr>
+				<td rowspan="20">{=include-block:Y_Blocks.txt;remote=}</td>
+				<td><input type="radio" name="but" onclick="setFocus()" />TV-/Radio-Modus</td>
+				<td><input type="text" name="key_tvradio_mode" id="id100" onclick="setradio(0)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id200" value="Keine Taste" onclick="killkey()" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="y_form_header">Kanalliste</td>
+			</tr>
+			<tr>
+				<td>&nbsp;OK-Taste f&uuml;r</td>
+				<td>
+					<select name="bouquetlist_mode" title="OK-Button for...">
+					<option value="0" selected="selected">Bouquet-Kan&auml;le</option>
+					<option value="1">Bouquetliste</option>
+					<option value="2">Kanalliste</option>
+					</select>
+				</td>				
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Seite hochbl&auml;ttern</td>
+				<td><input type="text" name="key_channelList_pageup" id="id101" onclick="setradio(1)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id201" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Seite runterbl&auml;ttern</td>
+				<td><input type="text" name="key_channelList_pagedown" id="id102" onclick="setradio(2)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id202" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Kanalliste schlie&szlig;en</td>
+				<td><input type="text" name="key_channelList_cancel" id="id103" onclick="setradio(3)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id203" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Sortierreihenfolge &auml;ndern</td>
+				<td><input type="text" name="key_channelList_sort" id="id104" onclick="setradio(4)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id204" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Stichwortsuche im EPG</td>
+				<td><input type="text" name="key_channelList_search" id="id105" onclick="setradio(5)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id205" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Aufnahme-Timer hinzuf&uuml;gen</td>
+				<td><input type="text" name="key_channelList_addrecord" id="id106" onclick="setradio(6)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id206" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Umschalt-Timer hinzuf&uuml;gen</td>
+				<td><input type="text" name="key_channelList_addremind" id="id107" onclick="setradio(7)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id207" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> EPG aktualisieren</td>
+				<td><input type="text" name="key_channelList_reload" id="id108" onclick="setradio(8)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id208" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="y_form_header">Schnellumschaltung</td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Kanal hoch</td>
+				<td><input type="text" name="key_quickzap_up" id="id109" onclick="setradio(9)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id209" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Kanal runter</td>
+				<td><input type="text" name="key_quickzap_down" id="id110" onclick="setradio(10)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id210" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Bouquet weiter</td>
+				<td><input type="text" name="key_bouquet_down" id="id111" onclick="setradio(11)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id211" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Bouquet zur&uuml;ck</td>
+				<td><input type="text" name="key_bouquet_up" id="id112" onclick="setradio(12)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id212" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Unterkanal weiter</td>
+				<td><input type="text" name="key_subchannel_down" id="id113" onclick="setradio(13)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id213" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Unterkanal zur&uuml;ck</td>
+				<td><input type="text" name="key_subchannel_up" id="id114" onclick="setradio(14)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id214" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Unterkanal wechseln</td>
+				<td><input type="text" name="key_subchannel_toggle" id="id115" onclick="setradio(15)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id215" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Zapping-History Bouquet</td>
+				<td><input type="text" name="key_zaphistory" id="id116" onclick="setradio(16)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id216" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			<tr>
+				<td><a href="javascript:setDefault()" class="alink">Vorbelegung benutzen</a></td>
+				<td><input type="radio" name="but" onclick="setFocus()" /> Letzter Kanal</td>
+				<td><input type="text" name="key_lastchannel" id="id117" onclick="setradio(17)" readonly="readonly" />
+				&nbsp;<input type="button" class="butnokey" id="id217" onclick="killkey()" value="Keine Taste" /></td>
+			</tr>
+			</table>
+			<br />
+			<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;buttons_save_settings;nix" />
+			<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
+			&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>
+			&nbsp;<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">Hilfe</a>
+		</form>
+	</div>
+</div>
+</body>
+</html>
+{=include-block:Y_Blocks.txt;management_check_bottom=}

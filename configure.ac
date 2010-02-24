@@ -82,7 +82,9 @@ src/nhttpd/Makefile
 src/nhttpd/web/Makefile
 src/nhttpd/web/images/Makefile
 src/nhttpd/web/scripts/Makefile
+src/nhttpd/web/languages/Makefile
 src/nhttpd/tuxboxapi/Makefile
+src/nhttpd/tuxboxapi/coolstream/Makefile
 src/nhttpd/yhttpd_core/Makefile
 src/nhttpd/yhttpd_mods/Makefile
 src/Makefile

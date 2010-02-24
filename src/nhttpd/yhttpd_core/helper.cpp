@@ -73,7 +73,7 @@ std::string timeString(time_t time)
 		return std::string("??:??");
 }
 //-------------------------------------------------------------------------
-// Printf and return formatet String. Buffer-save! 
+// Printf and return formatet String. Buffer-save!
 // max length up to bufferlen -> then snip
 //-------------------------------------------------------------------------
 #define bufferlen 4*1024
@@ -82,7 +82,7 @@ std::string string_printf(const char *fmt, ...)
 	char buffer[bufferlen];
 	va_list arglist;
 	va_start( arglist, fmt );
-	// if(arglist)
+	if(arglist)
 		vsnprintf( buffer, bufferlen, fmt, arglist );
 	va_end(arglist);
 	return std::string(buffer);
@@ -93,7 +93,7 @@ std::string string_printf(const char *fmt, ...)
 //-------------------------------------------------------------------------
 bool ySplitString(std::string str, std::string delimiter, std::string& left, std::string& right)
 {
-	unsigned int pos;
+	std::string::size_type pos;
 	if ((pos = str.find_first_of(delimiter)) != std::string::npos)
 	{
 		left = str.substr(0, pos);
@@ -112,7 +112,7 @@ bool ySplitString(std::string str, std::string delimiter, std::string& left, std
 //-------------------------------------------------------------------------
 bool ySplitStringExact(std::string str, std::string delimiter, std::string& left, std::string& right)
 {
-	unsigned int pos;
+	std::string::size_type pos;
 	if ((pos = str.find(delimiter)) != std::string::npos)
 	{
 		left = str.substr(0, pos);
@@ -131,7 +131,7 @@ bool ySplitStringExact(std::string str, std::string delimiter, std::string& left
 //-------------------------------------------------------------------------
 bool ySplitStringLast(std::string str, std::string delimiter, std::string& left, std::string& right)
 {
-	unsigned int pos;
+	std::string::size_type pos;
 	if ((pos = str.find_last_of(delimiter)) != std::string::npos)
 	{
 		left = str.substr(0, pos);
@@ -165,7 +165,7 @@ CStringArray ySplitStringVector(std::string str, std::string delimiter)
 //-------------------------------------------------------------------------
 // trim whitespaces
 //-------------------------------------------------------------------------
-std::string trim(std::string const& source, char const* delims) 
+std::string trim(std::string const& source, char const* delims)
 {
 	std::string result(source);
 	std::string::size_type index = result.find_last_not_of(delims);
@@ -178,6 +178,19 @@ std::string trim(std::string const& source, char const* delims)
 	else
 		result.erase();
 	return result;
+}
+//-------------------------------------------------------------------------
+// replace all occurrences find_what
+//-------------------------------------------------------------------------
+void replace(std::string &str, const std::string &find_what, const std::string &replace_with)
+{
+	std::string::size_type pos=0;
+	while((pos=str.find(find_what, pos))!=std::string::npos)
+	{
+		str.erase(pos, find_what.length());
+		str.insert(pos, replace_with);
+		pos+=replace_with.length();
+	}
 }
 //-------------------------------------------------------------------------
 // equal-function for case insensitive compare
@@ -228,7 +241,7 @@ std::string decodeString(std::string encodedString)
 std::string encodeString(std::string decodedString)
 {
 	unsigned int len = sizeof(char) * decodedString.length()*5 + 1;
-	std::string result( len, '\0' ); 
+	std::string result( len, '\0' );
 	char *newString = (char *)result.c_str();
 	char *dstring = (char *)decodedString.c_str();
 	char one_char;
@@ -236,9 +249,9 @@ std::string encodeString(std::string decodedString)
 	{
 		while((one_char = *dstring++)) /* use the null character as a loop terminator */
 		{
-			if(isalnum(one_char)) 
+			if(isalnum(one_char))
 				*newString++ = one_char;
-			else 
+			else
 				newString += sprintf(newString, "&#%d;", (unsigned char) one_char);
 		}
 

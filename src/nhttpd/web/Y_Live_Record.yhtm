@@ -1,108 +1,92 @@
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 /*0=normal, 1=record*/
+var isRecord=false;
 function setControls(state)
 {
-	switch(state)
-	{
+	switch(state)	{
 		case 1:
-			document.v.record_filename.disabled=true;
-			document.v.tdisplay.disabled=true;
-			document.v.transon.disabled=true;
+			$('record_filename','tdisplay', 'transon').invoke('disable');
 			break;
-	
+
 		default:
-			document.v.record_filename.disabled=false;
-			document.v.tdisplay.disabled=false;
-			document.v.transon.disabled=false;
+			$('record_filename','tdisplay', 'transon').invoke('enable');
 			break;
 	}
 }
 /*0=custom, 1=off*/
 function setControlsCustom(state)
 {
-	switch(state)
-	{
+	switch(state){
 		case 1:
 		{=if-equal:{=mode=}~tv~
-			document.v.twidth.disabled=true;
-			document.v.theight.disabled=true;
-			document.v.vcodec.disabled=true;
-			document.v.vb.disabled=true;
-			document.v.scale.disabled=true;
+			$('twidth','theight', 'vcodec', 'vb', 'scale').invoke('disable');
 		=}
-			document.v.acodec.disabled=true;
-			document.v.ab.disabled=true;
-			document.v.channels.disabled=true;
-			document.v.tmux.disabled=true;
+			$('acodec','ab', 'channels', 'tmux').invoke('disable');
 			break;
 
 		default:
 		{=if-equal:{=mode=}~tv~
-			document.v.twidth.disabled=false;
-			document.v.theight.disabled=false;
-			document.v.vcodec.disabled=false;
-			document.v.vb.disabled=false;
-			document.v.scale.disabled=false;
+			$('twidth','theight', 'vcodec', 'vb', 'scale').invoke('enable');
 		=}
-			document.v.acodec.disabled=false;
-			document.v.ab.disabled=false;
-			document.v.channels.disabled=false;
-			document.v.tmux.disabled=false;
+			$('acodec','ab', 'channels', 'tmux').invoke('enable');
 			break;
 	}
 }
 function on_profile_change()
 {
-	if(document.v.profile.value == "custom")
+	if($F('profile') == "custom")
 		setControlsCustom(0);
 	else
 		setControlsCustom(1);
 }
 function on_transon_change()
 {
-	if(document.v.transon.checked)
-	{
-		document.v.profile.disabled=false;
+	if($('transon').checked){
+		$('profile').enable();
 		on_profile_change();
 	}
-	else
-	{
-		document.v.profile.disabled=true;
+	else	{
+		$('profile').disable();
 		setControlsCustom(1);
 	}
 }
 function doRecord()
 {
 	var _live = parent.live;
-	if(document.v.record.value == "Record")
+	if(!isRecord)
 	{
 		var transcode = "";
 		var stream = "";
-		if(document.v.transon.checked)
+		if($('transon').checked)
 		{
-			switch(document.v.profile.value)
+			switch($F('profile'))
 			{
 				case "custom":
 					transcode = "transcode{"+
 	{=if-equal:{=mode=}~tv~
-					"width="	+document.v.twidth.value+
-					",height="	+document.v.theight.value+
-					",vcodec="	+document.v.vcodec.value+
-					",vb="		+document.v.vb.value+
-					",scale="	+document.v.scale.value+
+					"width="	+$F('twidth')+
+					",height="	+$F('theight')+
+					",vcodec="	+$F('vcodec')+
+					",vb="		+$F('vb')+
+					",scale="	+$F('scale')+
 					","+
-	=}				
-					"acodec="	+document.v.acodec.value+
-					",ab="		+document.v.ab.value+
-					",channels="	+document.v.channels.value+
+	=}
+					"acodec="	+$F('acodec')+
+					",ab="		+$F('ab')+
+					",channels="	+$F('channels')+
 					",deinterlace}:";
 					break;
 
 				case "ipod":
 					transcode = "transcode{width=320,height=240,vcodec=mp4v,vb=768,acodec=mp4a,ab=128}:";
+					break;
+
+				case "divx3":
+					transcode = "transcode{vcodec=DIV3,vb=1024,scale=1,acodec=mp3,ab=192,channels=2}:";
 					break;
 
 				case "mp3":
@@ -114,13 +98,13 @@ function doRecord()
 					break;
 			}
 		}
-		switch(document.v.profile.value)
+		switch($F('profile'))
 		{
 			case "mp3":
 				stream = "dst=std{"+
 				"access=file"+
 				",mux=raw"+
-				",url="+document.v.record_filename.value+
+				",url=\""+$F('record_filename')+"\""+
 				"}";
 				break;
 
@@ -128,104 +112,106 @@ function doRecord()
 				stream = "dst=std{"+
 				"access=file"+
 				",mux=mp4"+
-				",url="+document.v.record_filename.value+
+				",url=\""+$F('record_filename')+"\""+
+				"}";
+				break;
+
+			case "divx3":
+				stream = "dst=std{"+
+				"access=file"+
+				",mux=asf"+
+				",url=\""+$F('record_filename')+"\""+
 				"}";
 				break;
 
 			default:
 				stream = "dst=std{"+
 				"access=file"+
-				",mux="+document.v.tmux.value+
-				",url="+document.v.record_filename.value+
+				",mux="+$F('tmux')+
+				",url=\""+$F('record_filename')+"\""+
 				"}";
 				break;
 		}
-		if(document.v.tdisplay.checked)
+		if($('tdisplay').checked)
 			stream = stream+",dst=display";
 
 		var __vlc_cmd = ":sout=#"+transcode+"duplicate{"+stream+"}";
-/*		var sel = document.v.tmux.selectedIndex;
-		var ymux = (sel != -1) ? document.v.tmux[sel].value : "ts";
-		var __vlc_cmd = ":sout=#duplicate{dst=display,dst=std{access=file,mux="+ymux+",url="+document.v.record_filename.value+"}}";
-*/
-		var options = new Array(__vlc_cmd,":input-repeat=1");
-		document.v.record.value = "Stop Record";
 		setControls(1);
-		_live.do_play_state(1, options);
+		_live.do_play_bystring(__vlc_cmd);
 	}
 	else
 	{
-		document.v.record.value = "Record";
 		setControls(0);
 		_live.do_play();
 	}
+	isRecord=!isRecord;
+	$('record').update( (isRecord)? "Stop Record": "Record");
 }
 //]]>
 </script>
 </head>
 <body>
-	<form name="v" action="" method="get">
-		<table class="y_live_table" cellspacing="0" width="100%">
-		<tr><td class="y_form_header" colspan="5">Record Mode</td></tr>
+	<form id="v" class="y_form" action="" method="get">
+		<table cellspacing="0" width="100%">
+		<tr><td class="y_form_header" colspan="4">Record Mode</td></tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Filename:</td>
-			<td colspan="3"><input type="text" name="record_filename" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}"/></td>
+			<td colspan="3"><input type="text" id="record_filename" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}"/></td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td colspan="4">
-				<input type="checkbox" name="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>Display on&nbsp;
-				<input type="checkbox" name="transon" value="1" title="use transcoding" onclick="on_transon_change()"/>Transcoding on
+				<input type="checkbox" id="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>Display on&nbsp;
+				<input type="checkbox" id="transon" value="1" title="use transcoding" onclick="on_transon_change()"/>Transcoding on
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td colspan="4">
 			<br/>
-				<button class="y_live_button" type="button" value="r" title="record stream to file" name="record" onclick="doRecord()">Record</button> 
+				<button class="y_live_button" type="button" value="Record" title="record stream to file" onclick="doRecord()">
+					<img src="/images/record.png">&nbsp;<span id="record">Record</span></button>
 			</td>
 		</tr>
-		<tr><td class="y_form_header" colspan="5"><br/>Record Transcode</td></tr>
+		<tr><td class="y_form_header" colspan="4"><br/>Record Transcode</td></tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Profile:</td>
-			<td>
-				<select name="profile" class="y_live_button" onchange="on_profile_change()">
+			<td colspan="3">
+				<select id="profile" class="y_live_button" onchange="on_profile_change()">
 	{=if-equal:{=mode=}~tv~
 				<option value="ipod" selected>iPod Video</option>
+				<option value="divx3">DivX</option>
 	=}
 				<option value="custom">custom</option>
 				<option value="ipoda">iPod Audio</option>
 				<option value="mp3">mp3 Audio</option>
 				</select>
 			</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
 		</tr>
 	{=if-equal:{=mode=}~tv~
-		<tr><td class="y_form_section"><br/>Video</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr><td class="y_form_section"><br/>Video</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Breite:</td>
-			<td><input type="text" name="twidth" size="4" value="384" class="y_live_button"/></td>
+			<td><input type="text" id="twidth" size="4" value="720" class="y_live_button"/></td>
 			<td>H&ouml;he:</td>
-			<td><input type="text" name="theight" size="4" value="288" class="y_live_button"/></td>
+			<td><input type="text" id="theight" size="4" value="576" class="y_live_button"/></td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Codec:</td>
 			<td>
-				<select name="vcodec" class="y_live_button">
+				<select id="vcodec" class="y_live_button">
 				<option value="mp4v" selected>mp4v</option>
+				<option value="mp1v">mp1v</option>
 				<option value="mp2v">mp2v</option>
 				<option value="DIV3">DIV3</option>
 				<option value="h264">h264</option>
+				<option value="H263">h263</option>
+				<option value="h264">h264</option>
+				<option value="WMV1">WMV1</option>
+				<option value="WMV1">WMV2</option>
 				</select>
 			</td>
 			<td>Bitrate:</td>
-			<td> 
-				<select name="vb" class="y_live_button">
+			<td>
+				<select id="vb" class="y_live_button">
 				<option value="1024">1024</option>
 				<option value="786">786</option>
 				<option value="512">512</option>
@@ -238,10 +224,9 @@ function doRecord()
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Scale:</td>
 			<td>
-				<select name="scale" class="y_live_button">
+				<select id="scale" class="y_live_button">
 				<option value="0.25">0.25</option>
 				<option value="0.50">0.50</option>
 				<option value="0.75">0.75</option>
@@ -256,21 +241,23 @@ function doRecord()
 			<td>&nbsp;</td>
 		</tr>
 	=}
-		<tr><td class="y_form_section">Audio</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr><td class="y_form_section">Audio</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Codec:</td>
 			<td>
-				<select name="acodec" class="y_live_button">
+				<select id="acodec" class="y_live_button">
 				<option value="mp4a" selected>mp4a</option>
 				<option value="mp3">mp3</option>
 				<option value="mp2a">mp2a</option>
 				<option value="a52">a52</option>
+				<option value="vorb">vorb</option>
+				<option value="flac">flac</option>
+				<option value="fl32">fl32</option>
 				</select>
 			</td>
 			<td>Bitrate:</td>
 			<td>
-				<select name="ab" class="y_live_button">
+				<select id="ab" class="y_live_button">
 				<option value="192">192</option>
 				<option value="128">128</option>
 				<option value="96">96</option>
@@ -281,10 +268,9 @@ function doRecord()
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Channels:</td>
 			<td>
-				<select name="channels" class="y_live_button">
+				<select id="channels" class="y_live_button">
 				<option value="1">1</option>
 				<option value="2 selected">2</option>
 				<option value="6">6</option>
@@ -293,21 +279,24 @@ function doRecord()
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
-		<tr><td class="y_form_section">Mux</td><td class="y_form_section" colspan="4">&nbsp;</td></tr>
+		<tr><td class="y_form_section">Mux</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>&nbsp;</td>
 			<td>Mux:</td>
 			<td>
-				<select name="tmux" class="y_live_button">
+				<select id="tmux" class="y_live_button">
 	{=if-equal:{=mode=}~tv~
 				<option value="ts" selected>ts</option>
 				<option value="ps">ps</option>
 				<option value="mp4">mp4</option>
 				<option value="mov">mov</option>
-				<option value="raw">raw</option>
+				<option value="ogg">ogg</option>
+				<option value="asf">asf</option>
+				<option value="mpeg1">mpeg1</option>
+				<option value="wav">wav</option>
 	~
 				<option value="raw" selected>raw</option>
 				<option value="mp4">mp4</option>
+				<option value="ogg">ogg</option>
 	=}
 				</select>
 			</td>

@@ -1,23 +1,22 @@
 {=var-set:cancache=yPyes=}
 {=include-block:Y_Blocks.txt;headCache=}
 </head>
+{=var-set:alt_httpd={=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory;/var/httpd=}=}
+{=var-set:vf={=if-file-exists:{=var-get:alt_httpd=}/Y_Version.txt~{=var-get:alt_httpd=}/Y_Version.txt~Y_Version.txt=}=}
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Neutrino:yWeb:Info#About=}{=var-set:menu=About=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Info-About=}{=var-set:menu=About=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<table border="0" cellpadding="2" cellspacing="4">
 		<tr>
-			<td width="144" valign="top"><a href="http://www.yjogol.de" target="_blank"><img border="0" src="images/y.png" alt="y-logo"/></a></td>
+			<td width="144" valign="bottom"><a href="http://www.yjogol.com" target="_blank"><img border="0" src="images/yjogol.gif" alt="yjogol"/></a></td>
+			<td valign="bottom" style="font-size:18pt;">yWeb</td>
+		</tr><tr>			
+			<td valign="top"><a href="http://www.yjogol.com" class="exlink" target="_blank">www.yjogol.com</a></td>
 			<td valign="top">
-				<b>Coolstream HD1 yWeb</b>
-				<br/><a href="http://www.yjogol.de" target="_blank">www.yjogol.de</a>
-				<p>
-				{=ini-get:Y_Version.txt;version=}<br/>
-				{=ini-get:Y_Version.txt;date=}<br/>
-				{=ini-get:Y_Version.txt;type=}<br/><br/>
-				{=ini-get:Y_Version.txt;info=}<br/>
-				</p>
+				{=ini-get:{=var-get:vf=};version=} - {=ini-get:{=var-get:vf=};date=} - {=ini-get:{=var-get:vf=};type=}<br/><br/>
+				{=ini-get:{=var-get:vf=};info=}<br/>
 			</td>
 		</tr>
 		</table>

@@ -39,18 +39,18 @@ public:
 
 	CmodCache(){};
 	~CmodCache(void){};
-	
+
 	void		AddToCache(CyhookHandler *hh, std::string url, std::string content, std::string mime_type, std::string cartegory="none");
 	static void 	RemoveURLFromCache(std::string url);
 	static void 	RemoveCategoryFromCache(std::string category);
 	static void 	DeleteCache(void);
 
 	// Hooks
-	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh); 	
-	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh); 	
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.1 $");}
+	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh);
+	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh);
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.2 $");}
 	virtual std::string 	getHookName(void) {return std::string("mod_cache");}
-	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList); 
+	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
 };
 
 #endif /* __yhttpd_mod_cache_h__ */
