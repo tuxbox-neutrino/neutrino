@@ -1081,12 +1081,13 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 						}
 					}
 				}
-				else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
-					g_RCInput->postMsg (msg, 0);
-					res = menu_return::RETURN_EXIT_ALL;
-					loop = false;
-				}
-			} else {
+			}
+			else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+				g_RCInput->postMsg (msg, 0);
+				res = menu_return::RETURN_EXIT_ALL;
+				loop = false;
+			}
+			else {
 				if (CNeutrinoApp::getInstance ()->handleMsg (msg, data) & messages_return::cancel_all) {
 					loop = false;
 					res = menu_return::RETURN_EXIT_ALL;

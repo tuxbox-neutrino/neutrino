@@ -1096,6 +1096,9 @@ bool CFileBrowser::exec(const char * const dirname)
 			if (!(filelist.empty()))
 				SMSInput(msg_repeatok);
 		}
+		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+			//FIXME do nothing ?
+		}
 		else
 		{
 			if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )

@@ -1213,6 +1213,9 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 		}
 #endif
+		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+			//FIXME do nothing ?
+		}
 		else if (msg == CRCInput::RC_timeout) {
 			// nothing
 		} else if ((msg == NeutrinoMessages::ANNOUNCE_RECORD) || msg == NeutrinoMessages::RECORD_START || msg == NeutrinoMessages::ZAPTO || msg == NeutrinoMessages::STANDBY_ON || msg == NeutrinoMessages::SHUTDOWN || msg == NeutrinoMessages::SLEEPTIMER) {	// Exit for Record/Zapto Timers
