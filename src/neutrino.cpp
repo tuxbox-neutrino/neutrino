@@ -3714,11 +3714,16 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 	int vol = g_settings.current_volume;
 	int sw = frameBuffer->getScreenWidth();
 	int sh = frameBuffer->getScreenHeight();
+	int clock_height = 0;
 
 	switch( g_settings.volume_pos )
 	{
 		case 0:// upper right
+			if(g_settings.mode_clock){
+				clock_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
+			}
 			x = sw - dx;
+			y += clock_height;
 			break;
 		case 1:// upper left
 			break;
@@ -3745,10 +3750,10 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 		if(pixbuf!= NULL)
 			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
 
-		frameBuffer->paintBoxRel(x , y , dx, dy, COL_INFOBAR_SHADOW_PLUS_1, g_settings.rounded_corners ? dy/2 : 0);
-		frameBuffer->paintBoxRel (x + dy + (dy/4)-2, y+(dy/4)-2, ((dy/2)*12.5) +4, dy/2+4, COL_INFOBAR_PLUS_3);
-		frameBuffer->paintBoxRel (x + dy + (dy/4),   y+(dy/4), (dy/2)*12.5, dy/2, COL_INFOBAR_PLUS_0);
-		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x+dy/2,y+(dy/4), 0, COL_INFOBAR);
+		frameBuffer->paintBoxRel(x , y , dx, dy, COL_MENUCONTENT_PLUS_0, g_settings.rounded_corners ? dy/2 : 0);
+		frameBuffer->paintBoxRel (x + dy + (dy/4)-2, y+(dy/4)-2, ((dy/2)*12.5) +4, dy/2+4, COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel (x + dy + (dy/4),   y+(dy/4), (dy/2)*12.5, dy/2, COL_MENUCONTENT_PLUS_1);
+		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x+dy/2,y+(dy/4), 0, COL_MENUCONTENT_PLUS_0);
 
 		g_volscale->reset();
 		g_volscale->paintProgressBar2(x + dy+ (dy/4), y +(dy/4), g_settings.current_volume);

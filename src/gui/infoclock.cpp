@@ -12,12 +12,13 @@
 #include <sys/param.h>
 #include "infoclock.h"
 
-#define XOFF 10
 #define YOFF 0
 
 CInfoClock::CInfoClock()
 {
 	frameBuffer      = CFrameBuffer::getInstance();
+	x = frameBuffer->getScreenWidth();
+	y = frameBuffer->getScreenY();
 
 	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
 	int t1 = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
@@ -35,9 +36,6 @@ CInfoClock::~CInfoClock()
 
 void CInfoClock::paintTime( bool show_dot)
 {
-	int x = g_settings.screen_EndX - XOFF;
-	int y = g_settings.screen_StartY + YOFF;
-
 	char timestr[10];
 	time_t tm;
 
@@ -46,7 +44,7 @@ void CInfoClock::paintTime( bool show_dot)
 		strftime((char*) &timestr, 20, "%H:%M:%S", localtime(&tm));
 	else
 		strftime((char*) &timestr, 20, "%H.%M:%S", localtime(&tm));
-	frameBuffer->paintBoxRel(x - time_width - 15, y, time_width, time_height, COL_MENUCONTENT_PLUS_0, 7);
+	frameBuffer->paintBoxRel(x - time_width - 15, y, time_width, time_height, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(x - time_width- 10, y+ time_height, time_width, timestr, COL_MENUCONTENT);
 }
 
@@ -78,8 +76,6 @@ void CInfoClock::StartClock()
 
 void CInfoClock::StopClock()
 {
-	int x = g_settings.screen_EndX - XOFF;
-	int y = g_settings.screen_StartY + YOFF;
 	if(thrTimer) {
 		pthread_cancel(thrTimer);
 		thrTimer = 0;

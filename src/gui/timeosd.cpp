@@ -69,9 +69,9 @@ void CTimeOSD::show(time_t time_show)
 void CTimeOSD::GetDimensions()
 {
 	m_xstart = g_settings.screen_StartX + 10;
-	m_xend = g_settings.screen_EndX - 10;
+	m_xend = frameBuffer->getScreenWidth();
 	m_height = g_Font[TIMEOSD_FONT]->getHeight();
-	m_y = g_settings.screen_StartY + 10;
+	m_y = frameBuffer->getScreenY();
 	m_width = g_Font[TIMEOSD_FONT]->getRenderWidth("00:00:00");
 	if(g_settings.mode_clock) {
 		int x1 = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
@@ -127,11 +127,11 @@ void CTimeOSD::updatePos(short runningPercent)
 void CTimeOSD::hide()
 {
 	GetDimensions();
-printf("CTimeOSD::hide: x %d y %d xend %d yend %d\n", m_xstart, m_y , m_xend - (g_settings.mode_clock ? 35 : 0), m_height + 15);
+printf("CTimeOSD::hide: x %d y %d xend %d yend %d\n", m_xstart, m_y , m_xend - (g_settings.mode_clock ? m_width-5 : 0), m_height + 15);
 	if(!visible)
 		return;
 	//frameBuffer->paintBackgroundBoxRel(m_xstart-10, m_y - 10 , m_xend - (g_settings.mode_clock ? 35 : 0), m_height + 15);
-	frameBuffer->paintBackgroundBoxRel(m_xstart-2, m_y , m_xend - (g_settings.mode_clock ? 35 : 0), m_height + 15);
+	frameBuffer->paintBackgroundBoxRel(m_xstart-2, m_y , m_xend - (g_settings.mode_clock ? m_width-5 : 0), m_height + 15);
 	visible=false;
 	timescale->reset();
 }

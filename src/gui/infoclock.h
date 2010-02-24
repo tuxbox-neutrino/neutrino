@@ -20,7 +20,7 @@ class CInfoClock
 	int 			time_width;
 	int 			time_height;
 	void 			paintTime( bool show_dot);
-
+	int 			y,x;
 	static void		CleanUpProc(void* arg);
 	static void*		TimerProc(void *arg);
 
