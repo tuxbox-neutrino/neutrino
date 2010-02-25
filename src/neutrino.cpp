@@ -1977,12 +1977,19 @@ void CNeutrinoApp::SetupFonts()
 	printf("[neutrino] settings font file %s\n", g_settings.font_file);
 
 	if(access(g_settings.font_file, F_OK)) {
-		font.filename = strdup(FONTDIR"/neutrino.ttf");
-		strcpy(g_settings.font_file, font.filename);
-	}
-	else
-		font.filename = strdup(g_settings.font_file);
+		if(!access(FONTDIR"/neutrino.ttf", F_OK)){
+			font.filename = strdup(FONTDIR"/neutrino.ttf");
+			strcpy(g_settings.font_file, font.filename);
+		}
+		else{
+			  fprintf( stderr,"[neutrino] font file [%s] not found\n neutrino exit\n",FONTDIR"/neutrino.ttf");
+			  _exit(0);
+		}
 
+	}
+	else{
+		font.filename = strdup(g_settings.font_file);
+	}
 	style[0] = g_fontRenderer->AddFont(font.filename);
 
 	if(font.name != NULL)
