@@ -429,27 +429,38 @@ int parse_pmt(CZapitChannel * const channel)
 				if ( ia < pmtlen - 4 )
 					if(buffer[ia]==0x09 && buffer[ia+1]>0) {
 						switch(buffer[ia+2]) {
-							case 0x06: pmt_caids[ci0++][0] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x06: pmt_caids[ci0][0] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci0 < 3) ci0++;
 								   break;
-							case 0x17: pmt_caids[ci1++][1] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x17: pmt_caids[ci1][1] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci1 < 3) ci1++;
 								   break;
-							case 0x01: pmt_caids[ci2++][2] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x01: pmt_caids[ci2][2] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci2 < 3) ci2++;
 								   break;
-							case 0x05: pmt_caids[ci3++][3] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x05: pmt_caids[ci3][3] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci3 < 3) ci3++;
 								   break;
-							case 0x18: pmt_caids[ci4++][4] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x18: pmt_caids[ci4][4] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci4 < 3) ci4++;
 								   break;
-							case 0x0B: pmt_caids[ci5++][5] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x0B: pmt_caids[ci5][5] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci5 < 3) ci5++;
 								   break;
-							case 0x0D: pmt_caids[ci6++][6] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x0D: pmt_caids[ci6][6] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci6 < 3) ci6++;
 								   break;
-							case 0x09: pmt_caids[ci7++][7] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x09: pmt_caids[ci7][7] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci7 < 3) ci7++;
 								   break;
-							case 0x26: pmt_caids[ci8++][8] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x26: pmt_caids[ci8][8] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci8 < 3) ci8++;
 								   break;
-							case 0x4a: pmt_caids[ci9++][9] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x4a: pmt_caids[ci9][9] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci9 < 3) ci9++;
 								   break;
-							case 0x0E: pmt_caids[ci10++][10] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+							case 0x0E: pmt_caids[ci10][10] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci10 < 3) ci10++;
 								   break;
 						} //switch
 					} // if
