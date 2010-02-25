@@ -312,14 +312,15 @@ int CChannelList::doChannelMenu(void)
 	t_channel_id channel_id;
 	bool enabled = true;
 
-	if(old_b_id >= (int) bouquetList->Bouquets.size() || !bouquetList->Bouquets[old_b_id]->zapitBouquet) {
+	if(!bouquetList || g_settings.minimode)
+		return 0;
+
+	if(vlist)
+	{
 		enabled = false;
 		if(old_selected < 2)//FIXME take care if some items added before 0, 1
 			old_selected = 2;
 	}
-
-	if(!bouquetList || g_settings.minimode)
-		return 0;
 
 	CMenuWidget* menu = new CMenuWidget(LOCALE_CHANNELLIST_EDIT, NEUTRINO_ICON_SETTINGS);
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
@@ -417,12 +418,6 @@ int CChannelList::exec()
   	displayNext = 0; // always start with current events
 	int nNewChannel = show();
 	if ( nNewChannel > -1) {
-#if 0
-		if(this != CNeutrinoApp::getInstance ()->channelList)
-			CNeutrinoApp::getInstance ()->channelList->adjustToChannelID(chanlist[nNewChannel]->channel_id, false);
-		zapTo(nNewChannel);
-#endif
-		//channelList->zapTo(bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->getKey(nNewChannel)-1);
 		CNeutrinoApp::getInstance ()->channelList->zapTo(getKey(nNewChannel)-1);
 	}
 
@@ -843,7 +838,7 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 {
 	unsigned int i;
 
-printf("CChannelList::adjustToChannelID me %x list size %d channel_id %llx\n", (int) this, chanlist.size(), channel_id);fflush(stdout);
+printf("CChannelList::adjustToChannelID me %x [%s] list size %d channel_id %llx\n", (int) this, getName(), chanlist.size(), channel_id);fflush(stdout);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
 			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
@@ -855,18 +850,35 @@ printf("CChannelList::adjustToChannelID me %x list size %d channel_id %llx\n", (
 
 			tuned = i;
 			if (bToo && (bouquetList != NULL)) {
+				int old_mode = g_settings.channel_mode;
+				int new_mode = old_mode;
+				bool has_channel;
 				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
-					TVbouquetList->adjustToChannelID(channel_id);
-					TVsatList->adjustToChannelID(channel_id);
-					TVfavList->adjustToChannelID(channel_id);
-					TVallList->adjustToChannelID(channel_id);
+					has_channel = TVfavList->adjustToChannelID(channel_id);
+					if(!has_channel && old_mode == LIST_MODE_FAV)
+						new_mode = LIST_MODE_PROV;
+					has_channel = TVbouquetList->adjustToChannelID(channel_id);
+					if(!has_channel && old_mode == LIST_MODE_PROV)
+						new_mode = LIST_MODE_SAT;
+					has_channel = TVsatList->adjustToChannelID(channel_id);
+					if(!has_channel && old_mode == LIST_MODE_SAT)
+						new_mode = LIST_MODE_ALL;
+					has_channel = TVallList->adjustToChannelID(channel_id);
 				}
 				else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
-					RADIObouquetList->adjustToChannelID(channel_id);
-					RADIOsatList->adjustToChannelID(channel_id);
-					RADIOfavList->adjustToChannelID(channel_id);
-					RADIOallList->adjustToChannelID(channel_id);
+					has_channel = RADIOfavList->adjustToChannelID(channel_id);
+					if(!has_channel && old_mode == LIST_MODE_FAV)
+						new_mode = LIST_MODE_PROV;
+					has_channel = RADIObouquetList->adjustToChannelID(channel_id);
+					if(!has_channel && old_mode == LIST_MODE_PROV)
+						new_mode = LIST_MODE_SAT;
+					has_channel = RADIOsatList->adjustToChannelID(channel_id);
+					if(!has_channel && old_mode == LIST_MODE_SAT)
+						new_mode = LIST_MODE_ALL;
+					has_channel = RADIOallList->adjustToChannelID(channel_id);
 				}
+				if(old_mode != new_mode)
+					CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
 			}
 //printf("CChannelList::adjustToChannelID me %x to %llx bToo %s OK: %d\n", (int) this, channel_id, bToo ? "yes" : "no", i);fflush(stdout);
 			return true;
@@ -945,23 +957,7 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 		//g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 
 		if (bouquetList != NULL) {
-			//bouquetList->adjustToChannel( getActiveChannelNumber());
-			//bouquetList->adjustToChannelID(chan->channel_id);
-#if 0
-				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {
-					TVbouquetList->adjustToChannelID(chan->channel_id);
-					TVsatList->adjustToChannelID(chan->channel_id);
-					TVfavList->adjustToChannelID(chan->channel_id);
-					TVallList->adjustToChannelID(chan->channel_id);
-				}
-				else if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio) {
-					RADIObouquetList->adjustToChannelID(chan->channel_id);
-					RADIOsatList->adjustToChannelID(chan->channel_id);
-					RADIOfavList->adjustToChannelID(chan->channel_id);
-					RADIOallList->adjustToChannelID(chan->channel_id);
-				}
-#endif
-				CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
+			CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
 		}
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 	}
@@ -1659,20 +1655,6 @@ struct button_label CChannelListButtons[NUM_LIST_BUTTONS] =
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_INFOVIEWER_NEXT},
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_BOUQUETLIST_HEAD}
-#if 0
-	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_BOUQUETEDITOR_DELETE},
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETEDITOR_MOVE},
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EXTRA_ADD_TO_BOUQUET}
-#endif
-};
-
-#define NUM_VLIST_BUTTONS 3
-const struct button_label CChannelVListButtons[NUM_VLIST_BUTTONS] =
-{
-	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_INFOVIEWER_NEXT},
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_BOUQUETLIST_HEAD}
-	//{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EXTRA_ADD_TO_BOUQUET}
 };
 
 void CChannelList::paintHead()
@@ -1692,7 +1674,7 @@ void CChannelList::paintHead()
 
 	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
 	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth,
-		vlist ? NUM_VLIST_BUTTONS : NUM_LIST_BUTTONS, vlist ? CChannelVListButtons : CChannelListButtons);
+			NUM_LIST_BUTTONS, CChannelListButtons);
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 30, y+ 5 );
 	if (bouquetList != NULL)

@@ -59,12 +59,12 @@ class CBouquet
 		CChannelList*	channelList;
 		CZapitBouquet * zapitBouquet;
 
-		CBouquet(const int Unique_key, const char * const Name, const bool locked)
+		CBouquet(const int Unique_key, const char * const Name, const bool locked, bool vlist = false)
 		{
 			zapitBouquet = NULL;
 			unique_key = Unique_key;
 			bLocked = locked;
-			channelList = new CChannelList(Name);
+			channelList = new CChannelList(Name, false, vlist);
 		}
 
 		~CBouquet()
@@ -115,8 +115,9 @@ class CBouquetList
 		int show(bool bShowChannelList = true);
 		int showChannelList(int nBouquet = -1);
 		void adjustToChannel(int nChannelNr);
-		void adjustToChannelID(t_channel_id channel_id);
+		bool adjustToChannelID(t_channel_id channel_id);
 		int exec( bool bShowChannelList);
+		bool hasChannelID(t_channel_id channel_id);
 };
 
 

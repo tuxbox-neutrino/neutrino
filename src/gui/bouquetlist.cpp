@@ -79,8 +79,10 @@ CBouquetList::~CBouquetList()
 
 CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 {
-	CBouquet* tmp = addBouquet(zapitBouquet->Name.c_str(), -1, zapitBouquet->bLocked);
+	int BouquetKey= Bouquets.size();//FIXME not used ?
+	CBouquet* tmp = new CBouquet(BouquetKey, zapitBouquet->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : zapitBouquet->Name.c_str(), zapitBouquet->bLocked);
 	tmp->zapitBouquet = zapitBouquet;
+	Bouquets.push_back(tmp);
 	return tmp;
 }
 
@@ -89,7 +91,7 @@ CBouquet* CBouquetList::addBouquet(const char * const pname, int BouquetKey, boo
 	if ( BouquetKey==-1 )
 		BouquetKey= Bouquets.size();
 
-	CBouquet* tmp = new CBouquet( BouquetKey, pname, locked );
+	CBouquet* tmp = new CBouquet( BouquetKey, pname, locked, true);
 	Bouquets.push_back(tmp);
 	return(tmp);
 }
@@ -123,7 +125,17 @@ void CBouquetList::adjustToChannel( int nChannelNr)
 	}
 }
 
-void CBouquetList::adjustToChannelID(t_channel_id channel_id)
+bool CBouquetList::hasChannelID(t_channel_id channel_id)
+{
+	for (uint32_t i = 0; i < Bouquets.size(); i++) {
+		int nChannelPos = Bouquets[i]->channelList->hasChannelID(channel_id);
+		if (nChannelPos > -1)
+			return true;
+	}
+	return false;
+}
+
+bool CBouquetList::adjustToChannelID(t_channel_id channel_id)
 {
 printf("CBouquetList::adjustToChannelID [%s] to %llx, selected %d size %d\n", name.c_str(), channel_id, selected, Bouquets.size());
 	if(selected < Bouquets.size()) {
@@ -131,7 +143,7 @@ printf("CBouquetList::adjustToChannelID [%s] to %llx, selected %d size %d\n", na
 		if(nChannelPos > -1) {
 printf("CBouquetList::adjustToChannelID [%s] to %llx -> not needed\n", name.c_str(), channel_id);
 			Bouquets[selected]->channelList->setSelected(nChannelPos);
-			return;
+			return true;
 		}
 	}
 printf("CBouquetList::adjustToChannelID [%s] to %llx\n", name.c_str(), channel_id);
@@ -142,9 +154,10 @@ printf("CBouquetList::adjustToChannelID [%s] to %llx\n", name.c_str(), channel_i
 		if (nChannelPos > -1) {
 			selected = i;
 			Bouquets[i]->channelList->setSelected(nChannelPos);
-			return;
+			return true;
 		}
 	}
+	return false;
 }
 /* used in channellist to switch bouquets up/down */
 int CBouquetList::showChannelList( int nBouquet)

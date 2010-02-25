@@ -1680,8 +1680,8 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 	if(TVchannelList) delete TVchannelList;
 	if(RADIOchannelList) delete RADIOchannelList;
 
-	TVchannelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-	RADIOchannelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
+	TVchannelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD), false, true);
+	RADIOchannelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD), false, true);
 
 	TVbouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_PROVS));
 	TVbouquetList->orgChannelList = TVchannelList;
@@ -1700,10 +1700,9 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 	uint32_t i;
 	i = 1;
 
-	//CBouquet* tmp = TVfavList->addBouquet("HD");//FIXME locale
 	CBouquet* hdBouquet;
 	if(g_settings.make_hd_list)
-		hdBouquet = new CBouquet(0, (char *) "HD", 0);
+		hdBouquet = new CBouquet(0, (char *) "HD", false);
 
 	int tvi = 0, ri = 0, hi = 0;
 	for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
@@ -1733,13 +1732,15 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 
 	TVallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
 	tmp = TVallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-	*(tmp->channelList) = *TVchannelList;
+	//*(tmp->channelList) = *TVchannelList;
+	tmp->channelList = new CChannelList(*TVchannelList);
 	tmp->channelList->SortAlpha();
 	TVallList->orgChannelList = TVchannelList;
 
 	RADIOallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
 	tmp = RADIOallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-	*(tmp->channelList) = *RADIOchannelList;
+	//*(tmp->channelList) = *RADIOchannelList;
+	tmp->channelList = new CChannelList(*RADIOchannelList);
 	tmp->channelList->SortAlpha();
 	RADIOallList->orgChannelList = RADIOchannelList;
 
@@ -1779,16 +1780,15 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 		//if (!g_bouquetManager->Bouquets[i]->bHidden && (g_bouquetManager->Bouquets[i]->bUser || !g_bouquetManager->Bouquets[i]->tvChannels.empty() ))
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->tvChannels.empty())
 		{
-			CBouquet* _tmp;
 			if(g_bouquetManager->Bouquets[i]->bUser)
-				_tmp = TVfavList->addBouquet(g_bouquetManager->Bouquets[i]);
+				tmp = TVfavList->addBouquet(g_bouquetManager->Bouquets[i]);
 			else
-				_tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
+				tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
 
 			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->tvChannels);
-			_tmp->channelList->setSize(channels->size());
+			tmp->channelList->setSize(channels->size());
 			for(int j = 0; j < (int) channels->size(); j++) {
-				_tmp->channelList->addChannel((*channels)[j]);
+				tmp->channelList->addChannel((*channels)[j]);
 			}
 			bnum++;
 		}
@@ -1803,16 +1803,15 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 		//if (!g_bouquetManager->Bouquets[i]->bHidden && (g_bouquetManager->Bouquets[i]->bUser || !g_bouquetManager->Bouquets[i]->radioChannels.empty() ))
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->radioChannels.empty() )
 		{
-			CBouquet* _tmp;
 			if(g_bouquetManager->Bouquets[i]->bUser)
-				_tmp = RADIOfavList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
+				tmp = RADIOfavList->addBouquet(g_bouquetManager->Bouquets[i]);
 			else
-				_tmp = RADIObouquetList->addBouquet(g_bouquetManager->Bouquets[i]->Name.c_str(), i, g_bouquetManager->Bouquets[i]->bLocked);
+				tmp = RADIObouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
 
 			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->radioChannels);
-			_tmp->channelList->setSize(channels->size());
+			tmp->channelList->setSize(channels->size());
 			for(int j = 0; j < (int) channels->size(); j++) {
-				_tmp->channelList->addChannel((*channels)[j]);
+				tmp->channelList->addChannel((*channels)[j]);
 			}
 			bnum++;
 		}
