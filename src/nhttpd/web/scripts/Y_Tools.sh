@@ -543,7 +543,7 @@ case "$1" in
 	ucodes_upload)		ucodes_upload $2 ;;
 	zapit_upload)		zapit_upload $2 ;;
 	kernel-stack)		msg=`dmesg`; y_format_message_html ;;
-	ps)			msg=`ps -c`; y_format_message_html ;;
+	ps)			msg=`ps`; y_format_message_html ;;
 	free)			f=`free`; p=`df -h`; msg="RAM Memory use\n-------------------\n$f\n\nPartitions\n-------------------\n$p"
 				y_format_message_html ;;
 	yreboot)		yreboot; echo "Reboot..." ;;
