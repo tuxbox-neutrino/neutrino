@@ -22,18 +22,16 @@
 //=============================================================================
 // Constructor & Destructor
 //=============================================================================
-CmWebLog::CmWebLog(void)
-{
+CmWebLog::CmWebLog(void) {
 	pthread_mutex_lock(&WebLog_mutex); // yea, its mine
 	RefCounter++;
 	pthread_mutex_unlock(&WebLog_mutex);
 }
 //-----------------------------------------------------------------------------
-CmWebLog::~CmWebLog(void)
-{
+CmWebLog::~CmWebLog(void) {
 	pthread_mutex_lock(&WebLog_mutex); // yea, its mine
 	--RefCounter;
-	if(RefCounter <= 0)
+	if (RefCounter <= 0)
 		CloseLogFile();
 	pthread_mutex_unlock(&WebLog_mutex);
 }
@@ -43,11 +41,10 @@ CmWebLog::~CmWebLog(void)
 //-----------------------------------------------------------------------------
 // HOOK: Hook_EndConnection
 //-----------------------------------------------------------------------------
-THandleStatus CmWebLog::Hook_EndConnection(CyhookHandler *hh)
-{
-	if(LogFormat == "CLF")
+THandleStatus CmWebLog::Hook_EndConnection(CyhookHandler *hh) {
+	if (LogFormat == "CLF")
 		AddLogEntry_CLF(hh);
-	else if(LogFormat == "ELF")
+	else if (LogFormat == "ELF")
 		AddLogEntry_ELF(hh);
 	return HANDLED_CONTINUE; // even on Log-Error: continue
 }
@@ -56,31 +53,27 @@ THandleStatus CmWebLog::Hook_EndConnection(CyhookHandler *hh)
 // HOOK: Hook_ReadConfig
 // This hook ist called from ReadConfig
 //-----------------------------------------------------------------------------
-THandleStatus CmWebLog::Hook_ReadConfig(CConfigFile *Config, CStringList &)
-{
-	LogFormat	= Config->getString("mod_weblog.log_format", LOG_FORMAT);
-	WebLogFilename	= Config->getString("mod_weblog.logfile", LOG_FILE);
+THandleStatus CmWebLog::Hook_ReadConfig(CConfigFile *Config, CStringList &) {
+	LogFormat = Config->getString("mod_weblog.log_format", LOG_FORMAT);
+	WebLogFilename = Config->getString("mod_weblog.logfile", LOG_FILE);
 	return HANDLED_CONTINUE;
 }
 //-----------------------------------------------------------------------------
-bool CmWebLog::OpenLogFile()
-{
-	if(WebLogFilename == "")
+bool CmWebLog::OpenLogFile() {
+	if (WebLogFilename == "")
 		return false;
-	if(WebLogFile == NULL)
-	{
+	if (WebLogFile == NULL) {
 		bool isNew = false;
 		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
-		if(access(WebLogFilename.c_str(), 4) != 0)
+		if (access(WebLogFilename.c_str(), 4) != 0)
 			isNew = true;
-		WebLogFile = fopen(WebLogFilename.c_str(),"a");
-		if(isNew)
-		{
-			if(LogFormat == "ELF")
-			{
+		WebLogFile = fopen(WebLogFilename.c_str(), "a");
+		if (isNew) {
+			if (LogFormat == "ELF") {
 				printf("#Version: 1.0\n");
 				printf("#Remarks: yhttpd" WEBSERVERNAME "\n");
-				printf("#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n");
+				printf(
+						"#Fields: c-ip username date time x-request cs-uri sc-status cs-method bytes time-taken x-time-request x-time-response cached\n");
 			}
 		}
 		pthread_mutex_unlock(&WebLog_mutex);
@@ -88,34 +81,30 @@ bool CmWebLog::OpenLogFile()
 	return (WebLogFile != NULL);
 }
 //-----------------------------------------------------------------------------
-void CmWebLog::CloseLogFile()
-{
-	if(WebLogFile != NULL)
-	{
+void CmWebLog::CloseLogFile() {
+	if (WebLogFile != NULL) {
 		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
-		fclose(WebLogFile);
+		fclose( WebLogFile);
 		WebLogFile = NULL;
 		pthread_mutex_unlock(&WebLog_mutex);
 	}
 }
 //-----------------------------------------------------------------------------
 #define bufferlen 1024*8
-bool CmWebLog::printf(const char *fmt, ...)
-{
-	if(!OpenLogFile())
+bool CmWebLog::printf(const char *fmt, ...) {
+	if (!OpenLogFile())
 		return false;
 	bool success = false;
 	char buffer[bufferlen];
-	if(WebLogFile != NULL)
-	{
+	if (WebLogFile != NULL) {
 		pthread_mutex_lock(&WebLog_mutex); // yeah, its mine
 		va_list arglist;
-		va_start( arglist, fmt );
-		vsnprintf( buffer, bufferlen, fmt, arglist );
+		va_start(arglist, fmt);
+		vsnprintf(buffer, bufferlen, fmt, arglist);
 		va_end(arglist);
 		unsigned int len = strlen(buffer);
 		success = (fwrite(buffer, len, 1, WebLogFile) == len);
-		fflush(WebLogFile);
+		fflush( WebLogFile);
 		pthread_mutex_unlock(&WebLog_mutex);
 	}
 	return success;

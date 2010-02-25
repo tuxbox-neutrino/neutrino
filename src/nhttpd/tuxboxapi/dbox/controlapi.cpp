@@ -54,9 +54,9 @@ void CControlAPI::init(CyhookHandler *hh)
 {
 	if(PLUGIN_DIRS[0] == "")
 	{	// given in nhttpd.conf
-		PLUGIN_DIRS[0]=hh->WebserverConfigList["PublicDocumentRoot"];
+		PLUGIN_DIRS[0]=hh->WebserverConfigList["WebsiteMain.override_directory"];
 		PLUGIN_DIRS[0].append("/scripts");
-		PLUGIN_DIRS[1]=hh->WebserverConfigList["PrivatDocumentRoot"];
+		PLUGIN_DIRS[1]=hh->WebserverConfigList["WebsiteMain.directory"];
 		PLUGIN_DIRS[1].append("/scripts");
 		PLUGIN_DIRS[2]="/var/tuxbox/plugins";
 		PLUGIN_DIRS[3]=PLUGINDIR;
@@ -136,40 +136,40 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"channellist", 	&CControlAPI::ChannellistCGI,	"text/plain"},
 	{"getbouquet", 		&CControlAPI::GetBouquetCGI,	"+xml"},
 	{"getbouquets", 	&CControlAPI::GetBouquetsCGI,	"text/plain"},
-	{"getmode", 		&CControlAPI::GetModeCGI,	"text/plain"},
-	{"setmode", 		&CControlAPI::SetModeCGI,	"text/plain"},
-	{"epg", 		&CControlAPI::EpgCGI,		""},
-	{"zapto", 		&CControlAPI::ZaptoCGI,		"text/plain"},
+	{"getmode", 		&CControlAPI::GetModeCGI,		"text/plain"},
+	{"setmode", 		&CControlAPI::SetModeCGI,		"text/plain"},
+	{"epg", 			&CControlAPI::EpgCGI,			""},
+	{"zapto", 			&CControlAPI::ZaptoCGI,			"text/plain"},
 	{"getonidsid", 		&CControlAPI::GetChannel_IDCGI,	"text/plain"},
 	// boxcontrol - system
-	{"standby", 		&CControlAPI::StandbyCGI,	"text/plain"},
-	{"shutdown", 		&CControlAPI::ShutdownCGI,	"text/plain"},
-	{"reboot", 		&CControlAPI::RebootCGI,	"text/plain"},
-	{"esound", 		&CControlAPI::EsoundCGI,	"text/plain"},
-	{"getdate", 		&CControlAPI::GetDateCGI,	"text/plain"},
-	{"gettime", 		&CControlAPI::GetTimeCGI,	"text/plain"},
-	{"settings", 		&CControlAPI::SettingsCGI,	"text/plain"},
-	{"info", 		&CControlAPI::InfoCGI,		"text/plain"},
-	{"version", 		&CControlAPI::VersionCGI,	""},
+	{"standby", 		&CControlAPI::StandbyCGI,		"text/plain"},
+	{"shutdown", 		&CControlAPI::ShutdownCGI,		"text/plain"},
+	{"reboot", 			&CControlAPI::RebootCGI,		"text/plain"},
+	{"esound", 			&CControlAPI::EsoundCGI,		"text/plain"},
+	{"getdate", 		&CControlAPI::GetDateCGI,		"text/plain"},
+	{"gettime", 		&CControlAPI::GetTimeCGI,		"text/plain"},
+	{"settings", 		&CControlAPI::SettingsCGI,		"text/plain"},
+	{"info", 			&CControlAPI::InfoCGI,			"text/plain"},
+	{"version", 		&CControlAPI::VersionCGI,		""},
 	// boxcontrol - devices
-	{"volume", 		&CControlAPI::VolumeCGI,	"text/plain"},
-	{"lcd", 		&CControlAPI::LCDAction,	"text/plain"},
-	{"system", 		&CControlAPI::SystemCGI,	"text/plain"},
-	{"message", 		&CControlAPI::MessageCGI,	"text/plain"},
-	{"rc", 			&CControlAPI::RCCGI,		"text/plain"},
-	{"rcem", 		&CControlAPI::RCEmCGI,		"text/plain"},
+	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
+	{"lcd", 			&CControlAPI::LCDAction,		"text/plain"},
+	{"system", 			&CControlAPI::SystemCGI,		"text/plain"},
+	{"message", 		&CControlAPI::MessageCGI,		"text/plain"},
+	{"rc", 				&CControlAPI::RCCGI,			"text/plain"},
+	{"rcem", 			&CControlAPI::RCEmCGI,			"text/plain"},
 	// Start skripts, plugins
 	{"startplugin", 	&CControlAPI::StartPluginCGI,	"text/plain"},
-	{"exec", 		&CControlAPI::ExecCGI,		"+xml"},
-	{"yweb", 		&CControlAPI::YWebCGI,		"text/plain"},
+	{"exec", 			&CControlAPI::ExecCGI,			"+xml"},
+	{"yweb", 			&CControlAPI::YWebCGI,			"text/plain"},
 	// video handling
 	{"aspectratio", 	&CControlAPI::AspectRatioCGI,	"text/plain"},
 	{"videoformat", 	&CControlAPI::VideoFormatCGI,	"text/plain"},
 	{"videooutput", 	&CControlAPI::VideoOutputCGI,	"text/plain"},
-	{"vcroutput", 		&CControlAPI::VCROutputCGI,	"text/plain"},
-	{"scartmode", 		&CControlAPI::ScartModeCGI,	"text/plain"},
+	{"vcroutput", 		&CControlAPI::VCROutputCGI,		"text/plain"},
+	{"scartmode", 		&CControlAPI::ScartModeCGI,		"text/plain"},
 	// timer
-	{"timer", 		&CControlAPI::TimerCGI,		"text/plain"},
+	{"timer", 			&CControlAPI::TimerCGI,			"text/plain"},
 	// bouquet editing
 	{"setbouquet", 		&CControlAPI::setBouquetCGI,	"text/plain"},
 	{"savebouquet",		&CControlAPI::saveBouquetCGI,	"text/plain"},

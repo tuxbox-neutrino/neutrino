@@ -73,7 +73,7 @@ function do_submit()
 			<tr>
 				<td>{=L:alternate_web_folder=}</td>
 				<td><input type="text" name="override_directory" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory~cache=}" title="{=L:alternate_web_folder=}"/>&nbsp;{=L:active_after_boot=}
-					<input type="hidden" name="HostedDocRoot" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.HostedDocumentRoot~cache=}" title="Root of hosted Web. Enter mount directory."/></td>
+					<input type="hidden" name="HostedDocRoot" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory~cache=}" title="Root of hosted Web. Enter mount directory."/></td>
 			</tr>
 			<tr>
 				<td>{=L:allowed_file_extensions=}</td>

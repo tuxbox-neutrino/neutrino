@@ -63,9 +63,9 @@ void CControlAPI::init(CyhookHandler *hh)
 {
 	if(PLUGIN_DIRS[0] == "")
 	{	// given in nhttpd.conf
-		PLUGIN_DIRS[0]=hh->WebserverConfigList["PublicDocumentRoot"];
+		PLUGIN_DIRS[0]=hh->WebserverConfigList["WebsiteMain.override_directory"];
 		PLUGIN_DIRS[0].append("/scripts");
-		PLUGIN_DIRS[1]=hh->WebserverConfigList["PrivatDocumentRoot"];
+		PLUGIN_DIRS[1]=hh->WebserverConfigList["WebsiteMain.directory"];
 		PLUGIN_DIRS[1].append("/scripts");
 		PLUGIN_DIRS[2]="/var/tuxbox/plugins";
 		PLUGIN_DIRS[3]=PLUGINDIR;
@@ -145,37 +145,37 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"channellist", 	&CControlAPI::ChannellistCGI,	"text/plain"},
 	{"getbouquet", 		&CControlAPI::GetBouquetCGI,	"+xml"},
 	{"getbouquets", 	&CControlAPI::GetBouquetsCGI,	"text/plain"},
-	{"getmode", 		&CControlAPI::GetModeCGI,	"text/plain"},
-	{"setmode", 		&CControlAPI::SetModeCGI,	"text/plain"},
-	{"epg", 		&CControlAPI::EpgCGI,		""},
-	{"zapto", 		&CControlAPI::ZaptoCGI,		"text/plain"},
+	{"getmode", 		&CControlAPI::GetModeCGI,		"text/plain"},
+	{"setmode", 		&CControlAPI::SetModeCGI,		"text/plain"},
+	{"epg", 			&CControlAPI::EpgCGI,			""},
+	{"zapto", 			&CControlAPI::ZaptoCGI,			"text/plain"},
 	{"getonidsid", 		&CControlAPI::GetChannel_IDCGI,	"text/plain"},
 	// boxcontrol - system
-	{"standby", 		&CControlAPI::StandbyCGI,	"text/plain"},
-	{"shutdown", 		&CControlAPI::ShutdownCGI,	"text/plain"},
-	{"reboot", 		&CControlAPI::RebootCGI,	"text/plain"},
-	{"getdate", 		&CControlAPI::GetDateCGI,	"text/plain"},
-	{"gettime", 		&CControlAPI::GetTimeCGI,	"text/plain"},
-	{"info", 		&CControlAPI::InfoCGI,		"text/plain"},
-	{"version", 		&CControlAPI::VersionCGI,	""},
+	{"standby", 		&CControlAPI::StandbyCGI,		"text/plain"},
+	{"shutdown", 		&CControlAPI::ShutdownCGI,		"text/plain"},
+	{"reboot", 			&CControlAPI::RebootCGI,		"text/plain"},
+	{"getdate", 		&CControlAPI::GetDateCGI,		"text/plain"},
+	{"gettime", 		&CControlAPI::GetTimeCGI,		"text/plain"},
+	{"info", 			&CControlAPI::InfoCGI,			"text/plain"},
+	{"version", 		&CControlAPI::VersionCGI,		""},
 	// boxcontrol - devices
-	{"volume", 		&CControlAPI::VolumeCGI,	"text/plain"},
-	{"lcd", 		&CControlAPI::LCDAction,	"text/plain"},
-	{"system", 		&CControlAPI::SystemCGI,	"text/plain"},
-	{"message", 		&CControlAPI::MessageCGI,	"text/plain"},
-	{"rc", 			&CControlAPI::RCCGI,		"text/plain"},
-	{"rcem", 		&CControlAPI::RCEmCGI,		"text/plain"},
+	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
+	{"lcd", 			&CControlAPI::LCDAction,		"text/plain"},
+	{"system", 			&CControlAPI::SystemCGI,		"text/plain"},
+	{"message", 		&CControlAPI::MessageCGI,		"text/plain"},
+	{"rc", 				&CControlAPI::RCCGI,			"text/plain"},
+	{"rcem", 			&CControlAPI::RCEmCGI,			"text/plain"},
 	// Start skripts, plugins
 	{"startplugin", 	&CControlAPI::StartPluginCGI,	"text/plain"},
-	{"exec", 		&CControlAPI::ExecCGI,		"+xml"},
-	{"yweb", 		&CControlAPI::YWebCGI,		"text/plain"},
+	{"exec", 			&CControlAPI::ExecCGI,			"+xml"},
+	{"yweb", 			&CControlAPI::YWebCGI,			"text/plain"},
 	// video handling
 	{"videoformat", 	&CControlAPI::VideoFormatCGI,	"text/plain"},
 	{"videooutput", 	&CControlAPI::VideoOutputCGI,	"text/plain"},
-	{"vcroutput", 		&CControlAPI::VCROutputCGI,	"text/plain"},
-	{"scartmode", 		&CControlAPI::ScartModeCGI,	"text/plain"},
+	{"vcroutput", 		&CControlAPI::VCROutputCGI,		"text/plain"},
+	{"scartmode", 		&CControlAPI::ScartModeCGI,		"text/plain"},
 	// timer
-	{"timer", 		&CControlAPI::TimerCGI,		"text/plain"},
+	{"timer", 			&CControlAPI::TimerCGI,			"text/plain"},
 	// bouquet editing
 	{"setbouquet", 		&CControlAPI::setBouquetCGI,	"text/plain"},
 	{"savebouquet",		&CControlAPI::saveBouquetCGI,	"text/plain"},
@@ -652,53 +652,53 @@ static const struct key keynames[] = {
 };
 
 // The code here is based on rcsim. Thx Carjay!
-void CControlAPI::RCEmCGI(CyhookHandler *hh)
-{
-  if (hh->ParamList.empty()) {
-    hh->SendError();
-    return;
-  }
-  std::string keyname = hh->ParamList["1"];
-  int sendcode = -1;
-  for (unsigned int i = 0; sendcode == -1 && i < sizeof(keynames)/sizeof(key); i++) {
-    if (!strcmp(keyname.c_str(), keynames[i].name))
-      sendcode = keynames[i].code;
-  }
+void CControlAPI::RCEmCGI(CyhookHandler *hh) {
+	if (hh->ParamList.empty()) {
+		hh->SendError();
+		return;
+	}
+	std::string keyname = hh->ParamList["1"];
+	int sendcode = -1;
+	for (unsigned int i = 0; sendcode == -1 && i < sizeof(keynames)
+			/ sizeof(key); i++) {
+		if (!strcmp(keyname.c_str(), keynames[i].name))
+			sendcode = keynames[i].code;
+	}
 
-  if (sendcode == -1) {
-    printf("[nhttpd] Key %s not found\n", keyname.c_str());
-    hh->SendError();
-    return;
-  }
-  unsigned int repeat = 1;
-  unsigned int delay = 250;
-  if (hh->ParamList["delay"] != "")
-    delay = atoi(hh->ParamList["delay"].c_str());
-  if (hh->ParamList["duration"] != "")
-    repeat = atoi(hh->ParamList["duration"].c_str())*1000/delay;
-  if (hh->ParamList["repeat"] != "")
-    repeat = atoi(hh->ParamList["repeat"].c_str());
+	if (sendcode == -1) {
+		printf("[nhttpd] Key %s not found\n", keyname.c_str());
+		hh->SendError();
+		return;
+	}
+	unsigned int repeat = 1;
+	unsigned int delay = 250;
+	if (hh->ParamList["delay"] != "")
+		delay = atoi(hh->ParamList["delay"].c_str());
+	if (hh->ParamList["duration"] != "")
+		repeat = atoi(hh->ParamList["duration"].c_str()) * 1000 / delay;
+	if (hh->ParamList["repeat"] != "")
+		repeat = atoi(hh->ParamList["repeat"].c_str());
 
-  int evd = open(EVENTDEV, O_RDWR);
-  if (evd < 0) {
-    hh->SendError();
-    perror("opening event0 failed");
-    return;
-  }
-  if (rc_send(evd, sendcode, KEY_PRESSED) < 0){
-    perror("writing 'KEY_PRESSED' event failed");
-    hh->SendError();
-    close(evd);
-    return;
-  }
-  if (rc_send(evd, sendcode, KEY_RELEASED)<0){
-    perror("writing 'KEY_RELEASED' event failed");
-    close(evd);
-       hh->SendError();
-    return;
-  }
-  close(evd);
-  hh->SendOk();
+	int evd = open(EVENTDEV, O_RDWR);
+	if (evd < 0) {
+		hh->SendError();
+		perror("opening event0 failed");
+		return;
+	}
+	if (rc_send(evd, sendcode, KEY_PRESSED) < 0) {
+		perror("writing 'KEY_PRESSED' event failed");
+		hh->SendError();
+		close(evd);
+		return;
+	}
+	if (rc_send(evd, sendcode, KEY_RELEASED) < 0) {
+		perror("writing 'KEY_RELEASED' event failed");
+		close(evd);
+		hh->SendError();
+		return;
+	}
+	close(evd);
+	hh->SendOk();
 }
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
@@ -926,8 +926,8 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		{
 			t_channel_id channel_id;
 			sscanf(hh->ParamList["id"].c_str(),
-			       SCANF_CHANNEL_ID_TYPE,
-			       &channel_id);
+				SCANF_CHANNEL_ID_TYPE,
+				&channel_id);
 			sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
 			CChannelEventList::iterator eventIterator;
 			for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++)
@@ -947,8 +947,8 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 			//eventlist for a chan
 			t_channel_id channel_id;
 			sscanf(hh->ParamList["1"].c_str(),
-			       SCANF_CHANNEL_ID_TYPE,
-			       &channel_id);
+				SCANF_CHANNEL_ID_TYPE,
+				&channel_id);
 			SendEventList(hh, channel_id);
 		}
 	}

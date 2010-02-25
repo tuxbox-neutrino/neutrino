@@ -50,11 +50,9 @@ function show_info(_index)
 }
 function check_logo()
 {
-	{=if-equal:{=ini-get:/var/tuxbox/config/nhttpd.conf;ExtrasDocRoot=}~web~~
-	var test = loadSyncURL("{=ini-get:/var/tuxbox/config/nhttpd.conf;ExtrasDocURL=}/logos/{=channel=}.gif");
-	if(test != "")
-	=}
+	{=if-empty:{=logoid=}~~
 		show_obj("logo",true);
+	=}
 }
 function show_epg() {
 	show_waitbox(true);
@@ -108,7 +106,7 @@ function _show_epg()
 	<table id="epglist" class="y_invisible_table" cellpadding="4" cellspacing="0" width="100%">
 	<thead align="left">
 	<tr>
-		<th colspan="2"><img id="logo" src="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL=}/{=channel=}.gif" style="visibility:hidden">&nbsp;</th>
+		<th colspan="2"><img id="logo" src="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL=}/{=logoid=}.jpg" style="visibility:hidden">&nbsp;</th>
 		<th>{=L:date=}</th><th>{=L:from=}</th><th>{=L:to=}</th><th>{=L:program=}</th>
 	</tr>
 	</thead>

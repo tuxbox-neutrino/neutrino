@@ -83,10 +83,10 @@ std::string CLanguage::getTranslation(std::string id){
 std::string CLanguage::getLanguageDir(void){
 	std::string tmpfilename = "/"+Cyhttpd::ConfigList["Language.directory"],dir="";
 
-	if( access(std::string(Cyhttpd::ConfigList["PublicDocumentRoot"] + tmpfilename).c_str(),4) == 0)
-		dir = Cyhttpd::ConfigList["PublicDocumentRoot"] + tmpfilename;
-	else if(access(std::string(Cyhttpd::ConfigList["PrivatDocumentRoot"] + tmpfilename).c_str(),4) == 0)
-		dir = Cyhttpd::ConfigList["PrivatDocumentRoot"] + tmpfilename;
+	if( access(std::string(Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename).c_str(),4) == 0)
+		dir = Cyhttpd::ConfigList["WebsiteMain.override_directory"] + tmpfilename;
+	else if(access(std::string(Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename).c_str(),4) == 0)
+		dir = Cyhttpd::ConfigList["WebsiteMain.directory"] + tmpfilename;
 	return dir;
 }
 

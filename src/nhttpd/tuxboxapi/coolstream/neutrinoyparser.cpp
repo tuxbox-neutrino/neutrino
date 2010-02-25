@@ -85,10 +85,8 @@ THandleStatus CNeutrinoYParser::Hook_SendResponse(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 THandleStatus CNeutrinoYParser::Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList)
 {
-	ConfigList["ExtrasDocumentRoot"]= Config->getString("ExtrasDocRoot", EXTRASDOCUMENTROOT);
-	ConfigList["ExtrasDocumentURL"]	= Config->getString("ExtrasDocURL", EXTRASDOCUMENTURL);
-//	ConfigList["NewGui"]		= Config->getString("NewGui", "true");
-	ConfigList["Zapit_XML_Path"]	= Config->getString("Zapit_XML_Path", ZAPITXMLPATH);
+//	ConfigList["ExtrasDocumentRoot"]= Config->getString("ExtrasDocRoot", EXTRASDOCUMENTROOT);
+//	ConfigList["ExtrasDocumentURL"]	= Config->getString("ExtrasDocURL", EXTRASDOCUMENTURL);
 	ConfigList["TUXBOX_LOGOS_URL"]= Config->getString("Tuxbox.LogosURL", TUXBOX_LOGOS_URL);
 
 	if (Config->getInt32("configfile.version") < 3)
@@ -106,26 +104,26 @@ THandleStatus CNeutrinoYParser::Hook_ReadConfig(CConfigFile *Config, CStringList
 //=============================================================================
 const CNeutrinoYParser::TyFuncCall CNeutrinoYParser::yFuncCallList[]=
 {
-	{"mount-get-list", 		&CNeutrinoYParser::func_mount_get_list},
-	{"mount-set-values", 		&CNeutrinoYParser::func_mount_set_values},
+	{"mount-get-list", 				&CNeutrinoYParser::func_mount_get_list},
+	{"mount-set-values", 			&CNeutrinoYParser::func_mount_set_values},
 	{"get_bouquets_as_dropdown",	&CNeutrinoYParser::func_get_bouquets_as_dropdown},
 	{"get_bouquets_as_templatelist",&CNeutrinoYParser::func_get_bouquets_as_templatelist},
 	{"get_actual_bouquet_number",	&CNeutrinoYParser::func_get_actual_bouquet_number},
 	{"get_channels_as_dropdown",	&CNeutrinoYParser::func_get_channels_as_dropdown},
-	{"get_bouquets_with_epg",	&CNeutrinoYParser::func_get_bouquets_with_epg},
-	{"get_actual_channel_id",	&CNeutrinoYParser::func_get_actual_channel_id},
-	{"get_mode",			&CNeutrinoYParser::func_get_mode},
-	{"get_video_pids",		&CNeutrinoYParser::func_get_video_pids},
-	{"get_audio_pid",		&CNeutrinoYParser::func_get_radio_pid},
+	{"get_bouquets_with_epg",		&CNeutrinoYParser::func_get_bouquets_with_epg},
+	{"get_actual_channel_id",		&CNeutrinoYParser::func_get_actual_channel_id},
+	{"get_mode",					&CNeutrinoYParser::func_get_mode},
+	{"get_video_pids",				&CNeutrinoYParser::func_get_video_pids},
+	{"get_audio_pid",				&CNeutrinoYParser::func_get_radio_pid},
 	{"get_audio_pids_as_dropdown",	&CNeutrinoYParser::func_get_audio_pids_as_dropdown},
-	{"umount_get_list",		&CNeutrinoYParser::func_unmount_get_list},
-	{"get_partition_list",		&CNeutrinoYParser::func_get_partition_list},
-	{"get_boxtype",			&CNeutrinoYParser::func_get_boxtype},
-	{"get_current_stream_info",	&CNeutrinoYParser::func_get_current_stream_info},
-	{"get_timer_list",		&CNeutrinoYParser::func_get_timer_list},
-	{"set_timer_form",		&CNeutrinoYParser::func_set_timer_form},
-	{"bouquet_editor_main",		&CNeutrinoYParser::func_bouquet_editor_main},
-	{"set_bouquet_edit_form",	&CNeutrinoYParser::func_set_bouquet_edit_form},
+	{"umount_get_list",				&CNeutrinoYParser::func_unmount_get_list},
+	{"get_partition_list",			&CNeutrinoYParser::func_get_partition_list},
+	{"get_boxtype",					&CNeutrinoYParser::func_get_boxtype},
+	{"get_current_stream_info",		&CNeutrinoYParser::func_get_current_stream_info},
+	{"get_timer_list",				&CNeutrinoYParser::func_get_timer_list},
+	{"set_timer_form",				&CNeutrinoYParser::func_set_timer_form},
+	{"bouquet_editor_main",			&CNeutrinoYParser::func_bouquet_editor_main},
+	{"set_bouquet_edit_form",		&CNeutrinoYParser::func_set_bouquet_edit_form},
 
 };
 //-------------------------------------------------------------------------
@@ -330,7 +328,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 	std::string timestr;
 	bool have_logos = false;
 
-	if(hh->WebserverConfigList["TUXBOX_LOGOS_URL"] != "" ||hh->WebserverConfigList["ExtrasDocumentRoot"] == "web" || (access((hh->WebserverConfigList["ExtrasDocumentRoot"]+"/logos").c_str(),4)==0) )
+	if(hh->WebserverConfigList["Tuxbox.LogosURL"] != "")
 		have_logos = true;
 	for(int j = 0; j < (int) channels.size(); j++)
 	{
@@ -348,10 +346,10 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 		if(have_logos)
 			yresult += string_printf("<td class=\"%c\" width=\"44\" rowspan=\"2\"><a href=\"javascript:do_zap('"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"')\"><img class=\"channel_logo\" src=\"%s/logos/"
+					"')\"><img class=\"channel_logo\" src=\"%s/"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					".jpg\"/></a></td>", classname, channel->channel_id,
-					(hh->WebserverConfigList["ExtrasDocumentURL"]).c_str(),
+					(hh->WebserverConfigList["Tuxbox.LogosURL"]).c_str(),
 					channel->channel_id & 0xFFFFFFFFFFFFULL);
 
 		/* timer slider */
@@ -376,6 +374,8 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"')\">&nbsp;%d. %s%s</a>&nbsp;<a href=\"javascript:do_epg('"
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+				"','"
+				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				"')\">%s</a>\n",
 				((channel->channel_id == current_channel) ? "<a name=\"akt\"></a>" : " "),
 				channel->channel_id,
@@ -383,6 +383,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				channel->getName().c_str(),
 				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
 				channel->channel_id,
+				channel->channel_id & 0xFFFFFFFFFFFFULL,
 				((NeutrinoAPI->ChannelListEvents[channel->channel_id]) ? "<img src=\"/images/elist.gif\" alt=\"Programmvorschau\" style=\"border: 0px\" />" : ""));
 
 		if (channel->channel_id == current_channel)
@@ -441,7 +442,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 
 			yresult += string_printf("<tr><td class=\"%cepg\">",classname);
 			yresult += string_printf("%s&nbsp;%s&nbsp;"
-			                "<span style=\"font-size: 8pt; white-space: nowrap\">(%ld von %d min, %d%%)</span>"
+					"<span style=\"font-size: 8pt; white-space: nowrap\">(%ld von %d min, %d%%)</span>"
 					, timestr.c_str()
 					, event->description.c_str()
 					, (time(NULL) - event->startTime)/60

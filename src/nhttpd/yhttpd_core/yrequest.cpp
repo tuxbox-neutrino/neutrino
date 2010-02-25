@@ -33,8 +33,7 @@
 //=============================================================================
 // Constructor & Destructor
 //=============================================================================
-CWebserverRequest::CWebserverRequest(CWebserver *pWebserver)
-{
+CWebserverRequest::CWebserverRequest(CWebserver *pWebserver) {
 	Webserver = pWebserver;
 	CWebserverRequest();
 }
@@ -51,61 +50,53 @@ CWebserverRequest::CWebserverRequest(CWebserver *pWebserver)
 //		[ message-body ]
 //	start-line      = Request-Line | Status-Line
 //-----------------------------------------------------------------------------
-bool CWebserverRequest::HandleRequest(void)
-{
+bool CWebserverRequest::HandleRequest(void) {
 	std::string start_line = "";
 	// read first line
-	do
-	{
+	do {
 		start_line = Connection->sock->ReceiveLine();
-		if(!Connection->sock->isValid)
+		if (!Connection->sock->isValid)
 			return false;
-		if(start_line == "")	// Socket empty
+		if (start_line == "") // Socket empty
 		{
-			log_level_printf(1,"HandleRequest: End of line not found\n");
+			log_level_printf(1, "HandleRequest: End of line not found\n");
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			Connection->RequestCanceled = true;
 			return false;
 		}
-	}
-	while(start_line == "\r\n"); // ignore empty lines at begin on start-line
+	} while (start_line == "\r\n"); // ignore empty lines at begin on start-line
 
 	start_line = trim(start_line);
-	log_level_printf(1,"Request: %s\n", start_line.c_str() );
+	log_level_printf(1, "Request: %s\n", start_line.c_str());
 	UrlData["startline"] = start_line;
-	if(!ParseStartLine(start_line))
+	if (!ParseStartLine(start_line))
 		return false;
 
-
-	if(Connection->Method == M_GET || Connection->Method == M_HEAD)
-	{
+	if (Connection->Method == M_GET || Connection->Method == M_HEAD) {
 		std::string tmp_line;
 		//read header (speed up: read rest of request in blockmode)
 		tmp_line = Connection->sock->ReceiveBlock();
-		if(!Connection->sock->isValid)
-		{
+		if (!Connection->sock->isValid) {
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
 		}
 
-		if(tmp_line == "")
-		{
+		if (tmp_line == "") {
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
 		}
 		ParseHeader(tmp_line);
 	}
 	// Other Methods
-	if(Connection->Method == M_DELETE || Connection->Method == M_PUT || Connection->Method == M_TRACE)
-	{
+	if (Connection->Method == M_DELETE || Connection->Method == M_PUT
+			|| Connection->Method == M_TRACE) {
 		//todo: implement
-		aprintf("HTTP Method not implemented :%d\n",Connection->Method);
+		aprintf("HTTP Method not implemented :%d\n", Connection->Method);
 		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
 		return false;
 	}
 	// handle POST (read header & body)
-	if(Connection->Method == M_POST)
-	{
+	if (Connection->Method == M_POST) {
 		Connection->Response.Write("HTTP/1.1 100 Continue\r\n\r\n"); // POST Requests requires CONTINUE in HTTP/1.1
 		return HandlePost();
 	}
@@ -122,33 +113,29 @@ bool CWebserverRequest::HandleRequest(void)
 //	Determine Reqest-Method, URL, HTTP-Version and Split Parameters
 //	Split URL into path, filename, fileext .. UrlData[]
 //-----------------------------------------------------------------------------
-bool CWebserverRequest::ParseStartLine(std::string start_line)
-{
-	std::string method,url,http,tmp;
+bool CWebserverRequest::ParseStartLine(std::string start_line) {
+	std::string method, url, http, tmp;
 
-	log_level_printf(8,"<ParseStartLine>: line: %s\n", start_line.c_str() );
-	if(ySplitString(start_line," ",method,tmp))
-	{
-		if(ySplitStringLast(tmp," ",url,Connection->httprotocol))
-		{
+	log_level_printf(8, "<ParseStartLine>: line: %s\n", start_line.c_str());
+	if (ySplitString(start_line, " ", method, tmp)) {
+		if (ySplitStringLast(tmp, " ", url, Connection->httprotocol)) {
 			analyzeURL(url);
 			UrlData["httprotocol"] = Connection->httprotocol;
 			// determine http Method
-			if(method.compare("POST") == 0)		Connection->Method = M_POST;
-			else if(method.compare("GET") == 0)	Connection->Method = M_GET;
-			else if(method.compare("PUT") == 0)	Connection->Method = M_PUT;
-			else if(method.compare("HEAD") == 0)	Connection->Method = M_HEAD;
-			else if(method.compare("PUT") == 0)	Connection->Method = M_PUT;
-			else if(method.compare("DELETE") == 0)	Connection->Method = M_DELETE;
-			else if(method.compare("TRACE") == 0)	Connection->Method = M_TRACE;
-			else
-			{
-				log_level_printf(1,"Unknown Method or invalid request\n");
+			if (method.compare("POST") == 0)		Connection->Method = M_POST;
+			else if (method.compare("GET") == 0)	Connection->Method = M_GET;
+			else if (method.compare("PUT") == 0)	Connection->Method = M_PUT;
+			else if (method.compare("HEAD") == 0)	Connection->Method = M_HEAD;
+			else if (method.compare("PUT") == 0)	Connection->Method = M_PUT;
+			else if (method.compare("DELETE") == 0)	Connection->Method = M_DELETE;
+			else if (method.compare("TRACE") == 0)	Connection->Method = M_TRACE;
+			else {
+				log_level_printf(1, "Unknown Method or invalid request\n");
 				Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
-				log_level_printf(3,"Request: '%s'\n",rawbuffer.c_str());
+				log_level_printf(3, "Request: '%s'\n", rawbuffer.c_str());
 				return false;
 			}
-			log_level_printf(3,"Request: FullURL: %s\n",UrlData["fullurl"].c_str());
+			log_level_printf(3, "Request: FullURL: %s\n", UrlData["fullurl"].c_str());
 			return true;
 		}
 	}
@@ -164,28 +151,24 @@ bool CWebserverRequest::ParseStartLine(std::string start_line)
 // 	If parameter attribute is multiple times given, the values are stored like this:
 // 		<attribute>=<value1>,<value2>,..,<value n>
 //-----------------------------------------------------------------------------
-bool CWebserverRequest::ParseParams(std::string param_string)
-{
+bool CWebserverRequest::ParseParams(std::string param_string) {
 	bool ende = false;
-	std::string param, name="", value, number;
+	std::string param, name = "", value, number;
 
-	while(!ende)
-	{
-		if(!ySplitStringExact(param_string,"&",param,param_string))
+	while (!ende) {
+		if (!ySplitStringExact(param_string, "&", param, param_string))
 			ende = true;
-		if(ySplitStringExact(param,"=",name,value))
-		{
+		if (ySplitStringExact(param, "=", name, value)) {
 			value = trim(decodeString(value));
-			if(ParameterList[name].empty())
+			if (ParameterList[name].empty())
 				ParameterList[name] = value;
-			else
-			{
+			else {
 				ParameterList[name] += ",";
 				ParameterList[name] += value;
 			}
 		}
-		number = string_printf("%d", ParameterList.size()+1);
-		log_level_printf(7,"ParseParams: name: %s value: %s\n",name.c_str(), value.c_str());
+		number = string_printf("%d", ParameterList.size() + 1);
+		log_level_printf(7, "ParseParams: name: %s value: %s\n", name.c_str(), value.c_str());
 		ParameterList[number] = name;
 	}
 	return true;
@@ -201,19 +184,17 @@ bool CWebserverRequest::ParseParams(std::string param_string)
 //		and consisting of either *TEXT or combinations
 //		of token, separators, and quoted-string>
 //-----------------------------------------------------------------------------
-bool CWebserverRequest::ParseHeader(std::string header)
-{
+bool CWebserverRequest::ParseHeader(std::string header) {
 	bool ende = false;
 	std::string sheader, name, value;
 	HeaderList.clear();
 
-	while(!ende)
-	{
-		if(!ySplitStringExact(header,"\r\n",sheader,header))
+	while (!ende) {
+		if (!ySplitStringExact(header, "\r\n", sheader, header))
 			ende = true;
-		if(ySplitStringExact(sheader,":",name,value))
+		if (ySplitStringExact(sheader, ":", name, value))
 			HeaderList[name] = trim(value);
-		log_level_printf(8,"ParseHeader: name: %s value: %s\n",name.c_str(), value.c_str());
+		log_level_printf(8, "ParseHeader: name: %s value: %s\n", name.c_str(), value.c_str());
 	}
 	return true;
 }
@@ -225,66 +206,65 @@ bool CWebserverRequest::ParseHeader(std::string header)
 //	http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query ]]
 // query data is splitted and stored in ParameterList
 //-----------------------------------------------------------------------------
-void CWebserverRequest::analyzeURL(std::string url)
-{
+void CWebserverRequest::analyzeURL(std::string url) {
 	ParameterList.clear();
 	// URI decode
 	url = decodeString(url);
 	url = trim(url, "\r\n"); // non-HTTP-Standard: allow \r or \n in URL. Delete it.
 	UrlData["fullurl"] = url;
 	// split Params
-	if(ySplitString(url,"?",UrlData["url"],UrlData["paramstring"]))	// split pure URL and all Params
-		ParseParams(UrlData["paramstring"]);			// split params to ParameterList
-	else								// No Params
+	if (ySplitString(url, "?", UrlData["url"], UrlData["paramstring"])) // split pure URL and all Params
+		ParseParams( UrlData["paramstring"]); // split params to ParameterList
+	else
+		// No Params
 		UrlData["url"] = url;
 
-	if(!ySplitStringLast(UrlData["url"],"/",UrlData["path"],UrlData["filename"]))
-	{
-		UrlData["path"] = "/";					// Set "/" if not contained
-	}
-	else
+	if (!ySplitStringLast(UrlData["url"], "/", UrlData["path"],
+			UrlData["filename"])) {
+		UrlData["path"] = "/"; // Set "/" if not contained
+	} else
 		UrlData["path"] += "/";
-	if(( UrlData["url"].length() == 1) || (UrlData["url"][UrlData["url"].length()-1] == '/' ))
-	{ // if "/" at end use index.html
+	if ((UrlData["url"].length() == 1)
+			|| (UrlData["url"][UrlData["url"].length() - 1] == '/')) { // if "/" at end use index.html
 		UrlData["path"] = UrlData["url"];
 		UrlData["filename"] = "index.html";
 	}
-	ySplitStringLast(UrlData["filename"],".",UrlData["filenamepure"],UrlData["fileext"]);
+	ySplitStringLast(UrlData["filename"], ".", UrlData["filenamepure"],
+			UrlData["fileext"]);
 }
 
 //-----------------------------------------------------------------------------
 // Handle Post (Form and ONE file upload)
 //-----------------------------------------------------------------------------
-bool CWebserverRequest::HandlePost()
-{
+bool CWebserverRequest::HandlePost() {
 	//read header: line by line
 	std::string raw_header, tmp_line;
-	do
-	{
+	do {
 		tmp_line = Connection->sock->ReceiveLine();
-		if(tmp_line == "")	// Socket empty
+		if (tmp_line == "") // Socket empty
 		{
-			log_level_printf(1,"HandleRequest: (Header) End of line not found: %s\n", strerror(errno));
+			log_level_printf(1,
+					"HandleRequest: (Header) End of line not found: %s\n",
+					strerror(errno));
 			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
 			return false;
 		}
 		raw_header.append(tmp_line);
-	}
-	while(tmp_line != "\r\n"); // header ends with first empty line
+	} while (tmp_line != "\r\n"); // header ends with first empty line
 	ParseHeader(raw_header);
 
 	// read meesage body
 	unsigned int content_len = 0;
-	if(HeaderList["Content-Length"] != "")
-		content_len = atoi( HeaderList["Content-Length"].c_str() );
+	if (HeaderList["Content-Length"] != "")
+		content_len = atoi(HeaderList["Content-Length"].c_str());
 
 	// Get Rest of Request from Socket
-	log_level_printf(2,"Connection->Method Post !\n");
-	log_level_printf(9,"Conntent Type:%s\n",(HeaderList["Content-Type"]).c_str());
-	log_level_printf(8,"Post Content-Length:%d as string:(%s)\n", content_len, HeaderList["Content-Length"].c_str());
+	log_level_printf(2, "Connection->Method Post !\n");
+	log_level_printf(9, "Conntent Type:%s\n", (HeaderList["Content-Type"]).c_str());
+	log_level_printf(8, "Post Content-Length:%d as string:(%s)\n", content_len, HeaderList["Content-Length"].c_str());
 
 	static const std::string t = "multipart/form-data; boundary=";
-	if(HeaderList["Content-Type"].compare(0,t.length(),t) == 0)	// this a a multpart POST, normallly: file upload
+	if (HeaderList["Content-Type"].compare(0, t.length(), t) == 0) // this a a multpart POST, normallly: file upload
 	{
 #ifdef Y_CONFIG_FEATURE_UPLOAD
 		std::string boundary = "--" + HeaderList["Content-Type"].substr(t.length(),HeaderList["Content-Type"].length() - t.length());
@@ -298,21 +278,20 @@ bool CWebserverRequest::HandlePost()
 		Connection->Response.SendError(HTTP_NOT_IMPLEMENTED);
 		return false;
 #endif
-	}
-	else if(HeaderList["Content-Type"].compare("application/x-www-form-urlencoded") == 0)	//this is a normal POST with form-data (no upload)
+	} else if (HeaderList["Content-Type"].compare(
+			"application/x-www-form-urlencoded") == 0) //this is a normal POST with form-data (no upload)
 	{
 		// handle normal form POST
-		log_level_printf(6,"Handle POST application/x-www-form-urlencoded\n");
+		log_level_printf(6, "Handle POST application/x-www-form-urlencoded\n");
 		std::string post_header;
 		// get message-body
 		post_header = Connection->sock->ReceiveBlock();
-		while(post_header.length() < content_len)
-		{
+		while (post_header.length() < content_len) {
 			post_header += Connection->sock->ReceiveBlock();
-/*			aprintf("POST form less data then expected\n");
-			Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
-			return false;
-*/
+			/*			aprintf("POST form less data then expected\n");
+			 Connection->Response.SendError(HTTP_INTERNAL_SERVER_ERROR);
+			 return false;
+			 */
 		}
 		// parse the params in post_header (message-body) an add them to ParameterList
 		ParseParams(post_header);
@@ -401,35 +380,31 @@ bool CWebserverRequest::HandlePost()
 //	   where the original filename is known. This is useful or necessary in
 //	   many applications.
 //-----------------------------------------------------------------------------
-unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigned int content_len)
-{
+unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary,
+		unsigned int content_len) {
 	std::string tmp_line;
 
 	// read boundary
 	tmp_line = Connection->sock->ReceiveLine();
 	content_len -= tmp_line.length();
 
-	log_level_printf(2,"<POST Boundary> Start\n");
-	if(tmp_line.find(boundary) != std::string::npos)
-	{
+	log_level_printf(2, "<POST Boundary> Start\n");
+	if (tmp_line.find(boundary) != std::string::npos) {
 		// is it the boudary end?
-		if(tmp_line.find(boundary+"--") != std::string::npos)
-		{
-			log_level_printf(7,"<POST Boundary> Boundary END found\n");
+		if (tmp_line.find(boundary + "--") != std::string::npos) {
+			log_level_printf(7, "<POST Boundary> Boundary END found\n");
 			return 0;
 		}
-		log_level_printf(7,"<POST Boundary> Boundary START found\n");
+		log_level_printf(7, "<POST Boundary> Boundary START found\n");
 
 		// read content-disposition: ...
 		tmp_line = Connection->sock->ReceiveLine();
 		content_len -= tmp_line.length();
-		if(tmp_line.find("Content-Disposition:") == std::string::npos)
-		{
-			log_level_printf(7,"<POST Boundary> no content-disposition found. line:(%s)\n", tmp_line.c_str());
+		if (tmp_line.find("Content-Disposition:") == std::string::npos) {
+			log_level_printf(7, "<POST Boundary> no content-disposition found. line:(%s)\n", tmp_line.c_str());
 			return 0;
 		}
-		if(tmp_line.find("filename") != std::string::npos)
-		{
+		if (tmp_line.find("filename") != std::string::npos) {
 #ifdef Y_CONFIG_FEATURE_UPLOAD
 			// this part is a file
 			log_level_printf(2,"<POST Boundary> disposition !!this is a file!! found. line:(%s)\n", tmp_line.c_str());
@@ -473,7 +448,6 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			ParameterList[var_name+"_mime"] = var_value;
 			log_level_printf(7,"<POST Boundary> Content-Type found. name:(%s_mime) value:(%s)\n", var_name.c_str(), var_value.c_str());
 
-
 			//read empty line as separator
 			tmp_line = Connection->sock->ReceiveLine();
 			content_len -= tmp_line.length();
@@ -505,7 +479,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			// It only works, if no multipart/mixed is used (e.g. in file attachments). Not nessesary in embedded systems.
 			// To speed up uploading, read content_len - SEARCH_BOUNDARY_LEN bytes in blockmode.
 			// To save memory, write them direct into the file.
-			#define SEARCH_BOUNDARY_LEN 2*RECEIVE_BLOCK_LEN // >= RECEIVE_BLOCK_LEN in ySocket
+#define SEARCH_BOUNDARY_LEN 2*RECEIVE_BLOCK_LEN // >= RECEIVE_BLOCK_LEN in ySocket
 			unsigned int _readbytes = 0;
 			if((int)content_len - SEARCH_BOUNDARY_LEN >0)
 			{
@@ -529,17 +503,17 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 				if(tmp_line.find(boundary) != std::string::npos)
 				{
 					if(tmp_line.find(boundary+"--") != std::string::npos)
-						found_end_boundary = true; // it is the end! of POST request!
-					break;	// boundary found. end of file.
+					found_end_boundary = true; // it is the end! of POST request!
+					break; // boundary found. end of file.
 				}
 				else // no Boundary: write CRFL if found in last line
 				{
 					if(is_CRLF)
-						if ((unsigned int)write(fd, "\r\n", 2) != 2)
-						{
-							perror("write file failed\n");
-							return 0;
-						}
+					if ((unsigned int)write(fd, "\r\n", 2) != 2)
+					{
+						perror("write file failed\n");
+						return 0;
+					}
 				}
 				// normal line: write it to file
 				// CRLF at end? Maybe CRLF before boundary. Can not decide yet
@@ -563,29 +537,25 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 				return 0;
 			}
 #endif // Y_CONFIG_FEATURE_UPLOAD
-		}
-		else
+		} else
 		// this part is a POST variable/parameter
 		{
 			// get var_name from 'content-disposition: form-data; name="var_name"'
 			std::string left, right, var_name, var_value;
-			if(!ySplitStringExact(tmp_line, "name=\"", left, right))
-			{
-				log_level_printf(7,"<POST Boundary> no var_name START found. line:(%s)\n", tmp_line.c_str());
+			if (!ySplitStringExact(tmp_line, "name=\"", left, right)) {
+				log_level_printf(7, "<POST Boundary> no var_name START found. line:(%s)\n", tmp_line.c_str());
 				return 0;
 			}
-			if(!ySplitStringExact(right, "\"", var_name, right))
-			{
-				log_level_printf(7,"<POST Boundary> no var_name END found. line:(%s)\n", tmp_line.c_str());
+			if (!ySplitStringExact(right, "\"", var_name, right)) {
+				log_level_printf(7, "<POST Boundary> no var_name END found. line:(%s)\n", tmp_line.c_str());
 				return 0;
 			}
 
 			//read empty line as separator
 			tmp_line = Connection->sock->ReceiveLine();
 			content_len -= tmp_line.length();
-			if(tmp_line != "\r\n")
-			{
-				log_level_printf(7,"<POST Boundary> no empty line found. line:(%s)\n", tmp_line.c_str());
+			if (tmp_line != "\r\n") {
+				log_level_printf(7, "<POST Boundary> no empty line found. line:(%s)\n", tmp_line.c_str());
 				return 0;
 
 			}
@@ -596,7 +566,7 @@ unsigned int CWebserverRequest::HandlePostBoundary(std::string boundary, unsigne
 			content_len -= tmp_line.length();
 			var_value = trim(decodeString(var_value));
 			ParameterList[var_name] = var_value;
-			log_level_printf(7,"<POST Boundary> Parameter found. name:(%s) value:(%s)\n", var_name.c_str(), var_value.c_str());
+			log_level_printf(7, "<POST Boundary> Parameter found. name:(%s) value:(%s)\n", var_name.c_str(), var_value.c_str());
 		}
 	}
 	return content_len;
