@@ -1,4 +1,4 @@
-{=global-var-set:boxtype={=ini-get:/var/tuxbox/config/nhttpd.conf;Box.type;coolstream=}=}
+{=global-var-set:boxtype=coolstream=}
 {=global-var-set:alpha=true=}
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/prototype.js"></script>

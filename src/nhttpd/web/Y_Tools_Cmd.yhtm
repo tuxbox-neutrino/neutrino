@@ -48,7 +48,7 @@ function doUpload()
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-		{=var-set:help_url=Help-Tools-Command_Shell=}{=var-set:menu=Command Shell=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+		{=var-set:help_url=Help-Tools-Command_Shell=}{=var-set:menu={=L:tools.command_shell=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="co" action="">
 		<textarea name="cmds" cols="80" rows="18"  title="shell output window" style="display: block;background : white; font : 'Courier New','medium  monospace'; color : #436976;"></textarea>
@@ -57,17 +57,17 @@ function doUpload()
 	<form name="f" target="tmp" onsubmit="do_submit();return false;" action="">
 		<table>
 		<tr>
-			<td><input type="button" name="clear" value="clear" title="clear output screeb" onclick="do_clear()"/></td>
-			<td><input type="checkbox" name="appendx" value="1" title="append output (only IE)"/>&nbsp;fortlaufende Ausgabe (nur IE - wg. scrollen)
+			<td><input type="button" name="clear" value="{=L:clear=}" onclick="do_clear()"/></td>
+			<td><input type="checkbox" name="appendx" value="1" title="append output (only IE)"/>&nbsp;{=L:tools.cmd_shell.output_desc=}
 			<!--<input type="button" value="Upload" title="upload a file to current directory" onClick="doUpload()">-->
 			</td>
 		</tr><tr>
-			<td>Path:&nbsp;</td>
-			<td><input name="pwd" type="text" size="60" maxlength="255" title="actual path" value="/"/></td>
+			<td>{=L:tools.path=}:&nbsp;</td>
+			<td><input name="pwd" type="text" size="60" maxlength="255" value="/"/></td>
 		</tr><tr>
-			<td>Command:</td>
-			<td><input name="cmd" type="text" size="60" maxlength="255" title="enter command to execute"/>
-			<input type="submit" name="Submit" value="do it" title="execute shell command"/></td>
+			<td>{=L:tools.command=}:</td>
+			<td><input name="cmd" type="text" size="60" maxlength="255" title="{=L:tools.cmd.enter_command=}"/>
+			<input type="submit" name="submit" value="{=L:submit=}" title="{=L:tools.cmd.execute_command=}"/></td>
 		</tr>
 		</table>
 	</form>

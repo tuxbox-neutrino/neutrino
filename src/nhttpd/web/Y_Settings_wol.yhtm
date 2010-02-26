@@ -44,7 +44,7 @@ function goto_settings(){
 			<tr><td colspan="2"><a href="javascript:goto_settings()" class="inlink">{=L:settings=}</a></td></tr>
 		</table>
 	</form>
-	<!--<a href="Y_Settings_yWeb.yhtm" title="WOL Settings">Einstellungen</a>-->
+	<!--<a href="Y_Settings_yWeb.yhtm" title="WOL Settings">{=L:settings=}</a>-->
 	</div>
 </div>
 <script type="text/javascript">

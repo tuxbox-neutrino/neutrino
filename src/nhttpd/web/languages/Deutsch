@@ -134,8 +134,28 @@ tools.info.partitions=Partitions
 tools.info.mtd=mtd
 tools.info.stat=Statistik
 tools.info.version=Version
+============ Tools
+tools.automount_desc=Automounts organisieren
+tools.automount=AutoMounts
+tools.mounts_desc=File mounts organisieren
+tools.mounts=Mounts
+tools.wake_on_lan=Wake on LAN
+tools.check_install=Installation prüfen
+tools.expert=Expert
+tools.image_desc=Image sichern oder flashen
+tools.image=Image
+tools.command_shell=Kommandozeile
+tools.not_installed=nicht installiert
+tools.cmd_shell.output_desc=fortlaufende Ausgabe (nur IE - wg. scrollen)
+tools.path=Verzeichnis
+tools.command=Kommando
+tools.cmd.enter_command=Auszuführendes Kommando eingeben
+tools.cmd.execute_command=Kommando ausführen
 
 =========== GENERAL
+clear=löschen
+submit=Ausführen
+action=Aktion
 user=Benutzer
 password=Passwort
 language=Sprache
