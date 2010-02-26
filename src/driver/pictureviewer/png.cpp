@@ -78,10 +78,10 @@ int fh_png_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 		png_set_background(png_ptr, (png_color_16*)&my_background, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
 	}
 
-	/* this test does not trigger for 8bit-paletted PNGs with newer libpng (1.2.40 at least),
+	/* this test does not trigger for 8bit-paletted PNGs with newer libpng (1.2.36 at least),
 	   but the data delivered is with alpha channel anyway, so always strip alpha for now
 	 */
-#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 2 && PNG_LIBPNG_VER_RELEASE < 40
+#if PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR <= 2 && PNG_LIBPNG_VER_RELEASE < 36
 	if (color_type & PNG_COLOR_MASK_ALPHA)
 #endif
 		png_set_strip_alpha(png_ptr);
