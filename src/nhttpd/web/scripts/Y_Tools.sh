@@ -436,7 +436,13 @@ proc()
 # -----------------------------------------------------------
 wol()
 {
-	msg=`etherwake $1`
+	if [ -e /bin/etherwake ]; then
+		msg=`etherwake $1`
+	else
+		if [ -e /bin/ether-wake ]; then
+			msg=`ether-wake $1`
+		fi
+	fi
 	msg="<b>Wake on LAN $1</b><br><br>$msg"
 	y_format_message_html
 }
