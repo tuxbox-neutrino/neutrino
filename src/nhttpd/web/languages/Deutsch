@@ -64,7 +64,7 @@ message_to_screen=Meldung auf Bildschirm
 popup_to_screen=Popup auf Bildschirm
 send_message=Nachricht senden
 ====== EXtension
-ext.installer_updater=Installtion
+ext.installer_updater=Installation
 restriced_by_management_ip=Zugriff verwert wg. ManagementIP
 ====== Bouquet
 bouquets_must_be_saved=Alle &Auml;nderungen m&uuml;ssen noch gespeichert werden!
@@ -124,6 +124,17 @@ key_settings=Tastenbelegung
 boot_options=Bootoptionen
 peronalization=Personalisierung
 plugins=Plugins
+============ Tools Info
+tools.info.show_messages=Kernel Meldungen
+tools.info.processes=Prozesse
+tools.info.memory=Speicher
+tools.info.cpu_info=CPU Info
+tools.info.mem_info=Speicher info
+tools.info.partitions=Partitions
+tools.info.mtd=mtd
+tools.info.stat=Statistik
+tools.info.version=Version
+
 =========== GENERAL
 user=Benutzer
 password=Passwort

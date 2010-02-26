@@ -18,25 +18,18 @@ function goUrl(_url){
 		<table  class="y_invisible_table" cellpadding="5" width="100%">
 		<tr><td class="y_form_header">Linux</td></tr>
 		<tr><td>
-			<input type="button" value="Kernel Meldungen" title="show Linux kernel stack messages" onclick='goUrl("/control/exec?Y_Tools&amp;kernel-stack");'/>
-			<input type="button" value="Prozesse" title="show currently running processes" onclick='goUrl("/control/exec?Y_Tools&amp;ps");'/>
-			<input type="button" value="Speicher" title="show memory space" onclick='goUrl("/control/exec?Y_Tools&amp;free");'/>
-		</td></tr>
-		<tr><td class="y_form_header">Box</td></tr>
-		<tr><td>
-			<input type="button" value="Info" onclick='goUrl("/control/info");'/>
-			<input type="button" value="Version" onclick='goUrl("/control/info?version");'/>
-			<input type="button" value="Settings" onclick='goUrl("/control/info?settings");'/>
-			<input type="button" value="Box Zeit" onclick='goUrl("/control/gettime");'/>
+			<input type="button" value="{=L:tools.info.show_messages=}" onclick='goUrl("/control/exec?Y_Tools&amp;kernel-stack");'/>
+			<input type="button" value="{=L:tools.info.processes=}" onclick='goUrl("/control/exec?Y_Tools&amp;ps");'/>
+			<input type="button" value="{=L:tools.info.memory=}" onclick='goUrl("/control/exec?Y_Tools&amp;free");'/>
 		</td></tr>
 		<tr><td class="y_form_header">proc</td></tr>
 		<tr><td>
-			<input type="button" value="CPU info" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;cpuinfo");'/>
-			<input type="button" value="MEM info" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;meminfo");'/>
-			<input type="button" value="Partitions" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;partitions");'/>
-			<input type="button" value="mtd" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;mtd");'/>
-			<input type="button" value="Stat" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;stat");'/>
-			<input type="button" value="version" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;version");'/>
+			<input type="button" value="{=L:tools.info.cpu_info=}" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;cpuinfo");'/>
+			<input type="button" value="{=L:tools.info.mem_info=}" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;meminfo");'/>
+			<input type="button" value="{=L:tools.info.partitions=}" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;partitions");'/>
+			<input type="button" value="{=L:tools.info.mtd=}" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;mtd");'/>
+			<input type="button" value="{=L:tools.info.stat=}" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;stat");'/>
+			<input type="button" value="{=L:tools.info.version=}" onclick='goUrl("/control/exec?Y_Tools&amp;proc&amp;version");'/>
 		</td></tr>
 		</table>
 	</form>
@@ -44,5 +37,4 @@ function goUrl(_url){
 </div>
 <div id="out"></div>
 </body>
-
 </html>

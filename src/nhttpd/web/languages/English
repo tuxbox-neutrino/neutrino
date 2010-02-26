@@ -126,6 +126,16 @@ key_settings=Key Layout
 boot_options=Boot options
 peronalization=Personalization
 plugins=Plugins
+============ Tools Info
+tools.info.show_messages=Kernel Messages
+tools.info.processes=Processes
+tools.info.memory=Memory
+tools.info.cpu_info=CPU info
+tools.info.mem_info=Memory info
+tools.info.partitions=Partitions
+tools.info.mtd=mtd
+tools.info.stat=Statistics
+tools.info.version=Version
 =========== GENERAL
 user=User
 password=Password
