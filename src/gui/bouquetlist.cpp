@@ -113,6 +113,7 @@ int CBouquetList::getActiveBouquetNumber()
 	return selected;
 }
 
+#if 0
 void CBouquetList::adjustToChannel( int nChannelNr)
 {
 	for (uint32_t i=0; i<Bouquets.size(); i++) {
@@ -124,7 +125,7 @@ void CBouquetList::adjustToChannel( int nChannelNr)
 		}
 	}
 }
-
+#endif
 bool CBouquetList::hasChannelID(t_channel_id channel_id)
 {
 	for (uint32_t i = 0; i < Bouquets.size(); i++) {
@@ -342,13 +343,17 @@ int CBouquetList::show(bool bShowChannelList)
 			hide();
 			return -3;
 		} else if(msg == CRCInput::RC_yellow || msg == CRCInput::RC_sat) {
-			CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_SAT);
-			hide();
-			return -3;
+			if(bShowChannelList) {
+				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_SAT);
+				hide();
+				return -3;
+			}
 		} else if(msg == CRCInput::RC_blue) {
-			CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_ALL);
-			hide();
-			return -3;
+			if(bShowChannelList) {
+				CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_ALL);
+				hide();
+				return -3;
+			}
 		}
 		else if(Bouquets.size() == 0)
 			continue; //FIXME msgs not forwarded to neutrino !!

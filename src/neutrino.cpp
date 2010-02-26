@@ -199,6 +199,8 @@ int prev_video_mode;
 int xres = 72;
 int yres = 72; // TODO: no globals for that.
 
+int g_channel_list_changed;
+
 void stop_daemons(bool stopall = true);
 // uncomment if you want to have a "test" menue entry  (rasc)
 
@@ -1704,19 +1706,25 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 	if(g_settings.make_hd_list)
 		hdBouquet = new CBouquet(0, (char *) "HD", false);
 
+	/* TODO: check, is really needed to have main "all channels" list sorted
+ 		according to channel number ? Anything besides 
+		channelList::zapTo(pos) using direct [number] access in list ?? 
+		zapTo(pos) used in epgplus.cpp and channellist.cpp
+
+		getActiveChannelNumber used to get index for direct access too ?
+	*/
 	int tvi = 0, ri = 0, hi = 0;
 	for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
 		if (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
 			TVchannelList->putChannel(&(it->second));
 			tvi++;
-#if 1
+
 			if(g_settings.make_hd_list)
 				if(it->second.isHD()) {
 					//printf("HD channel: %d %s sid %x\n", it->second.getSatellitePosition(), it->second.getName().c_str(), it->second.getServiceId());
 					hdBouquet->channelList->addChannel(&(it->second));
 					hi++;
 				}
-#endif
 		}
 		else if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
 			RADIOchannelList->putChannel(&(it->second));
@@ -3037,18 +3045,18 @@ _repeat:
 				nNewChannel = bouquetList->exec(true);
 				goto _repeat;
 			}
-			else if(nNewChannel == -4) {
+			//else if(nNewChannel == -4) 
+			if(g_channel_list_changed)
+			{
+				SetChannelMode(old_mode);
+				g_channel_list_changed = 0;
 				if(old_b_id < 0) old_b_id = old_b;
 				g_Zapit->saveBouquets();
 			}
 
 			if(g_settings.mode_clock)
 				InfoClock->StartClock();
-#if 0
-			/* FIXME: more check for StartSubtitles() like was no zap ?? */
-			if(mode == mode_tv)
-				StartSubtitles();
-#endif
+
 			return messages_return::handled;
 		}
 	}

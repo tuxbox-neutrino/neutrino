@@ -89,6 +89,7 @@ int info_height = 0;
 bool new_mode_active = 0;
 //int list_changed = 0;
 static bool pipzap;
+extern int g_channel_list_changed;
 
 extern CBouquetManager *g_bouquetManager;
 void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen);
@@ -485,7 +486,7 @@ int CChannelList::show()
 
 	bool loop=true;
 	while (loop) {
-		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd );
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true);
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
@@ -516,8 +517,8 @@ int CChannelList::show()
 		}
 		else if ( msg == CRCInput::RC_setup) {
 			old_b_id = bouquetList->getActiveBouquetNumber();
-			int ret = doChannelMenu();
-			if(ret) {
+			g_channel_list_changed = doChannelMenu();
+			if(g_channel_list_changed) {
 				res = -4;
 				loop = false;
 			} else {
@@ -889,6 +890,7 @@ printf("CChannelList::adjustToChannelID me %x [%s] list size %d channel_id %llx\
 	return false;
 }
 
+#if 0
 int CChannelList::hasChannel(int nChannelNr)
 {
 	for (uint32_t i=0;i<chanlist.size();i++) {
@@ -897,6 +899,7 @@ int CChannelList::hasChannel(int nChannelNr)
 	}
 	return(-1);
 }
+#endif
 
 int CChannelList::hasChannelID(t_channel_id channel_id)
 {
@@ -988,7 +991,8 @@ int CChannelList::numericZap(int key)
 
 	if (key == g_settings.key_zaphistory) {
 		if(!autoshift && CNeutrinoApp::getInstance()->recordingstatus) {
-			CChannelList * orgList = bouquetList->orgChannelList;
+			//CChannelList * orgList = bouquetList->orgChannelList;
+			CChannelList * orgList = CNeutrinoApp::getInstance()->channelList;
 			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
 			t_channel_id recid = rec_channel_id >> 16;
 			for ( unsigned int i = 0 ; i < orgList->chanlist.size(); i++) {
@@ -1304,7 +1308,6 @@ printf("CChannelList::quickZap: new selected %d total %d active bouquet %d total
 		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
 			selected = (selected+1)%chanlist.size();
 		}
-		//printf("[neutrino] quick zap selected = %d bouquetList %x getActiveBouquetNumber %d orgChannelList %x\n", selected, bouquetList, bouquetList->getActiveBouquetNumber(), bouquetList->orgChannelList);
 		CNeutrinoApp::getInstance()->channelList->zapTo(getKey(selected)-1);
 	}
 	g_RCInput->clearRCMsg(); //FIXME test for n.103

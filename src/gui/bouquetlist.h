@@ -114,7 +114,7 @@ class CBouquetList
 		int activateBouquet(int id, bool bShowChannelList);
 		int show(bool bShowChannelList = true);
 		int showChannelList(int nBouquet = -1);
-		void adjustToChannel(int nChannelNr);
+		//void adjustToChannel(int nChannelNr);
 		bool adjustToChannelID(t_channel_id channel_id);
 		int exec( bool bShowChannelList);
 		bool hasChannelID(t_channel_id channel_id);
