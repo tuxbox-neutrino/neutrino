@@ -259,8 +259,9 @@ std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)
 {
 	tallchans_iterator it = allchans.find(channel_id);
 	if (it != allchans.end())
-		it->second.getName();
-	return "";
+		return it->second.getName();
+	else
+		return "";
 }
 
 //-------------------------------------------------------------------------
