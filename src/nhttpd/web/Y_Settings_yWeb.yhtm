@@ -9,11 +9,12 @@ function do_submit(){
 	document.f.submit();
 }
 function do_init(){
-	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default~open=}";
+	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;{=if-equal:{=global-var-get:boxtype=}~coolstream~Coolstream~default=}~open=}";
 	var sel=2;
 	switch(val){
 		case "default": sel=0; break;
 		case "Nokia": sel=1; break;
+		case "Coolstream": sel=3; break;
 	}
 	document.f.fb.selectedIndex = sel;
 	val = "{=ini-get:/var/tuxbox/config/Y-Web.conf;start_page;bouquets~cache=}";

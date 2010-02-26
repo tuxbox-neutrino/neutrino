@@ -435,7 +435,8 @@ end-block~frame_live_epg
 
 # ------- Remote
 start-block~remote
-{=if-equal:Nokia~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~default~{=func:get_boxtype=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}=}~{=include-block:Y_Blocks.txt;remote_standard=}~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~Sagem~{=include-block:Y_Blocks.txt;remote_sagem=}~{=include-block:Y_Blocks.txt;remote_coolstream=}=}=}
+{=var-set:defaultfb={=if-equal:{=global-var-get:boxtype=}~coolstream~Coolstream~default=}=}
+{=if-equal:Nokia~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;{=var-get:defaultfb=}=}~default~{=func:get_boxtype=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;{=var-get:defaultfb=}=}=}~{=include-block:Y_Blocks.txt;remote_standard=}~{=if-equal:{=ini-get:/var/tuxbox/config/Y-Web.conf;fb;default=}~Sagem~{=include-block:Y_Blocks.txt;remote_sagem=}~{=include-block:Y_Blocks.txt;remote_coolstream=}=}=}
 end-block~remote
 
 # ------- Remote
