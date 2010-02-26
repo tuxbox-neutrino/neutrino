@@ -1049,11 +1049,13 @@ bool CFileBrowser::exec(const char * const dirname)
 							if (pos != std::string::npos) {
 								ChangeDir("..");
 							}
+#if 0 // quick fix for #253, i dont think we ever need to return "/" as selected -- focus
 							else {
 								loop = false;
 								res = true;
 								filelist[selected].Name = "/";
 							}
+#endif
 						}
 					}
 				}
