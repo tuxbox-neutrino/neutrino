@@ -113,6 +113,13 @@ set.audio_channels=Audio channels
 set.rec.audio_standard=Record standard audio channel
 set.rec.audio_alternate=Record alternate audio channel
 set.rec.audio_ac3=Record ac3 audio channel
+set.rec.timeshift_desc=Timeshift
+set.rec.timeshift.directory=Directory
+set.rec.timeshift.recordtime=Recording time in hours
+set.rec.timeshift.pause=Pause
+set.rec.timeshift.auto_record=Autom. Recording (in Sec, 0=deactivate)
+set.rec.timeshift.auto_delete=Automatic deletion
+set.rec.timeshift.tmp_timeshift=Temporaly timeshift
 ========Neutrino Settings - Movieplayer
 set.mp.sources=Sources
 set.mp.streamingserver_ip=Streamingserver IP

@@ -53,14 +53,12 @@ start-block~neutrino_form-data_record
 			<tr>
 				<td>{=L:set.rec.recserver_ip=}</td>
 				<td>	<input type="text" id="ip" name="ip" size="20" title="server ip (xxx.xxx.xxx.xxx)"/>
-					<input type="hidden" name="h_ip"/>
 				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.recserver_port=}</td>
 				<td>
 					<input type="text" id="port" name="port" size="6" title="port"/>
-					<input type="hidden" name="h_port"/>
 				</td>
 			</tr>
 			<tr>
@@ -68,14 +66,12 @@ start-block~neutrino_form-data_record
 				<td>
 					<input type="radio" id="wol0" name="wol" value="0" onchange="change_mac()"/>{=L:off=}&nbsp;
 					<input type="radio" id="wol1" name="wol" value="1" onchange="change_mac()"/>{=L:on=}
-					<input type="hidden" name="h_wol"/>
 				</td>
 			</tr>
 			<tr>
 				<td>{=L:set.rec.mac_adress=}</td>
 				<td>
 					<input type="text" id="mac" name="mac" size="20"/>
-					<input type="hidden" name="h_mac"/>
 				</td>
 			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:set.rec.rec_behavior=}</td></tr>
@@ -84,7 +80,6 @@ start-block~neutrino_form-data_record
 				<td>
 					<input type="radio" id="sp0" name="stopplayback" value="false"/>{=L:off=}&nbsp;
 					<input type="radio" id="sp1" name="stopplayback" value="true""/>{=L:on=}
-					<input type="hidden" name="h_stopplayback"/>
 				</td>
 			</tr>
 			<tr>
@@ -95,7 +90,6 @@ start-block~neutrino_form-data_record
 					<option value="1">{=L:set.rec.stop=}</option>
 					<option value="2">{=L:set.rec.restart=}</option>
 					</select>
-					<input type="hidden" name="h_stopsectionsd"/>
 				</td>
 			</tr>
 			<tr>
@@ -110,7 +104,6 @@ start-block~neutrino_form-data_record
 				<td>
 					<input type="radio" id="vcr0" name="vcr_no_scart" value="0"/>{=L:off=}&nbsp;
 					<input type="radio" id="vcr1" name="vcr_no_scart" value="1"/>{=L:on=}
-					<input type="hidden" name="h_vcr_no_scart"/>
 				</td>
 			</tr>
 		{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
@@ -119,7 +112,6 @@ start-block~neutrino_form-data_record
 				<td>
 					<input type="radio" id="spts0" name="in_spts_mode" value="false"/>{=L:off=}&nbsp;
 					<input type="radio" id="spts1" name="in_spts_mode" value="true"/>{=L:on=}
-					<input type="hidden" name="h_in_spts_mode"/>
 				</td>
 			</tr>
 		~=}
@@ -159,6 +151,41 @@ start-block~neutrino_form-data_record
 				</td>
 			</tr>
 			<input type="hidden" name="recording_audio_pids_default" value=""/>
+			<tr><td colspan="2" class="y_form_header">{=L:set.rec.timeshift_desc=}</td></tr>
+			<tr>
+				<td>{=L:set.rec.timeshift.directory=}</td>
+				<td><input type="text" name="timeshiftdir" size="60" value="{=ini-get:/var/tuxbox/config/neutrino.conf;timeshiftdir~open=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:set.rec.timeshift.recordtime=}</td>
+				<td><input type="text" name="record_hours" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;record_hours~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:set.rec.timeshift.pause=}</td>
+				<td>
+					<input class="audio" type="radio" name="timeshift_pause" value="0"/>{=L:off=}&nbsp;
+					<input class="audio" type="radio" name="timeshift_pause" value="1"/>{=L:on=}
+				</td>
+			</tr>
+			<tr>
+				<td>{=L:set.rec.timeshift.auto_record=}</td>
+				<td><input type="text" name="auto_timeshift" size="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;auto_timeshift~cache=}" /></td>
+			</tr>
+			<tr>
+				<td>{=L:set.rec.timeshift.auto_delete=}</td>
+				<td>
+					<input class="audio" type="radio" name="auto_delete" value="0"/>{=L:off=}&nbsp;
+					<input class="audio" type="radio" name="auto_delete" value="1"/>{=L:on=}
+				</td>
+			</tr>
+			<tr>
+				<td>{=L:set.rec.timeshift.tmp_timeshift=}</td>
+				<td>
+					<input class="audio" type="radio" name="temp_timeshift" value="0"/>{=L:off=}&nbsp;
+					<input class="audio" type="radio" name="temp_timeshift" value="1"/>{=L:on=}
+				</td>
+			</tr>
+
 		</table>
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
@@ -186,6 +213,10 @@ function form_init()
 	obj_set_radio_value('zap_on_announce', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_zap_on_announce;false=}");
 	obj_set_radio_value('vcr_no_scart', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_vcr_no_scart;0=}");
 	obj_set_radio_value('in_spts_mode', "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_in_spts_mode;true=}");
+
+	obj_set_radio_value('timeshift_pause', "{=ini-get:/var/tuxbox/config/neutrino.conf;timeshift_pause;0=}");
+	obj_set_radio_value('auto_delete', "{=ini-get:/var/tuxbox/config/neutrino.conf;auto_delete;true=}");
+	obj_set_radio_value('temp_timeshift', "{=ini-get:/var/tuxbox/config/neutrino.conf;temp_timeshift;0=}");
 
 	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;recording_stopsectionsd;0~cache=}";
 		document.f.stopsectionsd.selectedIndex = val;
@@ -228,17 +259,7 @@ function change_rec_type()
 	}
 	change_mac();
 }
-function set_hidden_values()
-{
-	document.f.h_ip.value = document.f.ip.value;
-	document.f.h_port.value = document.f.port.value;
-	document.f.h_wol.value = obj_get_radio_value("wol");
-	document.f.h_mac.value = document.f.mac.value;
-	document.f.h_stopplayback.value = obj_get_radio_value("stopplayback");
-	document.f.h_stopsectionsd.value = document.f.stopsectionsd.selectedIndex;
-	document.f.h_vcr_no_scart.value = obj_get_radio_value("vcr_no_scart");
-	document.f.h_in_spts_mode.value = obj_get_radio_value("in_spts_mode");
-}
+
 function change_mac()
 {
 	var vis = document.f.wol[0].checked;
@@ -247,7 +268,6 @@ function change_mac()
 }
 function do_submit()
 {
-	set_hidden_values();
 	show_waitbox(true);
 	var val = (document.f.audio_std[1].checked == true)?1:0;
 	val +=(document.f.audio_alt[1].checked == true)?2:0;
@@ -262,16 +282,22 @@ end-block~neutrino_form-data_record
 
 # ------- yWeb save Settings
 start-block~neutrino_record_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_ip;{=h_ip=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_port;{=h_port=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_mac;{=h_mac=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_wakeup;{=h_wol=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_ip;{=ip=}~open=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_port;{=port=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_mac;{=mac=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_server_wakeup;{=wol=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;recording_type;{=rec_type=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_stopplayback;{=h_stopplayback=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_stopsectionsd;{=h_stopsectionsd=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_stopplayback;{=stopplayback=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_stopsectionsd;{=stopsectionsd=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;recording_zap_on_announce;{=zap_on_announce=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_vcr_no_scart;{=h_vcr_no_scart=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;recording_in_spts_mode;{=h_in_spts_mode=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_vcr_no_scart;{=vcr_no_scart=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;recording_in_spts_mode;{=in_spts_mode=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;timeshiftdir;{=timeshiftdir=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;record_hours;{=record_hours=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;timeshift_pause;{=timeshift_pause=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;auto_timeshift;{=auto_timeshift=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;auto_delete;{=auto_delete=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;temp_timeshift;{=temp_timeshift=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;recording_audio_pids_default;{=recording_audio_pids_default=}~save=}
 {=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_START;{=EXTRA_TIME_START=}=}
 {=ini-set:/var/tuxbox/config/timerd.conf;EXTRA_TIME_END;{=EXTRA_TIME_END=}=}
