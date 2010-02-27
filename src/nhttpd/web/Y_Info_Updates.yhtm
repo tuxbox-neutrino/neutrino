@@ -4,7 +4,11 @@
 //<![CDATA[
 function check_updates()
 {
-	loadSyncURL("/control/exec?Y_Tools&get_update_version");
+	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+	loadSyncURL("/control/exec?Y_Tools&get_update_version_dbox");
+	~
+	loadSyncURL("/control/exec?Y_Tools&get_update_version_coolstream");
+	=}
 	location.reload();
 }
 //]]>

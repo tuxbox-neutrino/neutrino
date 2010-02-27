@@ -566,7 +566,8 @@ case "$1" in
 	lcshot)			shift 1; do_lcshot $* ;;
 	fbshot)			shift 1; do_fbshot $* ;;
 	fbshot_clear)		do_fbshot_clear ;;
-	get_update_version)	wget -O /tmp/version.txt "http://www.yjogol.com/download/Y_Version.txt" ;;
+	get_update_version_dbox)	wget -O /tmp/version.txt "http://www.yjogol.com/download/Y_Version.txt" ;;
+	get_update_version_coolstream)	wget -O /tmp/version.txt "http://www.yjogol.com/download/coolstream/Y_Version.txt" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
 	exec_cmd)		shift 1; $* ;;
 	automount_list)		shift 1; do_automount_list $* ;;
