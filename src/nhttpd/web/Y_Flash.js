@@ -1,5 +1,5 @@
 /*	yWeb Flash by yjogol
-	$Date: 2008/02/24 08:23:12 $
+	$Date$
 	$Revision: 1.3 $
 */
 function do_image_upload_dialog()

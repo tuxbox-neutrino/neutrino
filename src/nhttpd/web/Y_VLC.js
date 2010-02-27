@@ -1,5 +1,5 @@
 /*	VLC abstraction by yjogol@online.de
-	$Date: 2008/11/13 16:45:38 $
+	$Date$
 	$Revision: 1.4 $
 */
 /*ie1=ActiveC, moz1=Mozilla<0.8.5.1, moz2>= 0.8.5.1*/

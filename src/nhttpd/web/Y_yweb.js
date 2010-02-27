@@ -1,6 +1,6 @@
 /*	yWeb by yjogol
 	internal organisation of yweb
-	$Date: 2008/02/24 08:23:12 $
+	$Date$
 	$Revision: 1.1 $
 */
 

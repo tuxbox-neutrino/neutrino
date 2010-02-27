@@ -1,5 +1,5 @@
 /*	yWeb Live by yjogol
-	$Date: 2008/11/13 16:45:38 $
+	$Date$
 	$Revision: 1.3 $
 */
 /*globals*/
