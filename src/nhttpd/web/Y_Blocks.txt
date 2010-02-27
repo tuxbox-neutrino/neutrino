@@ -313,12 +313,75 @@ start-block~frame_iso_head
 <title>yWeb</title>
 end-block~frame_iso_head
 
+# ------- nhttpd save Settings
+start-block~start_wizard_save_settings
+{=ini-set:/var/tuxbox/config/Y-Web.conf;start_page;{=start_page=}~open=}
+{=ini-set:/var/tuxbox/config/Y-Web.conf;startup;true~save=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;Language.selected;{=language=}~save=}
+{=func:do_reload_httpd_config=}
+end-block~start_wizard_save_settings
+
+# ------- Start Wizard
+start-block~start_wizard_page
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript">
+//<![CDATA[
+function do_submit()
+{
+
+		show_waitbox(true);
+		yhttpd_cache_clear("");
+		document.f.submit();
+}
+//]]>
+</script>
+</head>
+<body">
+{=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
+<div class="work_box">
+	<div class="work_box_head"><div class="work_box_head_h2">
+	{=var-set:help_url=Help-Settings-StartWizard=}{=var-set:menu={=L:start.head=}Start Wizard=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	<div class="work_box_body">
+	<form name="f" class="y_form" action="/y/cgi">
+		<table border="0" width="100%">
+			<tr><td colspan="2" class="y_form_header">Wellcome to yWeb</td></tr>
+			<tr>
+				<td>{=L:language=}</td>
+				<td colspan="3">	<select name="language" title="{=L:language=}">
+					{=func:get_languages_as_dropdown=}
+				</select>
+			</tr>
+			<tr>
+				<td>{=L:start_page=}</td>
+				<td>	<select name="start_page" title="{=L:start_page=}">
+					<option value="bouquets" selected="selected">{=L:bouquets=}</option>
+					<option value="control">{=L:control=}</option>
+					<option value="none">{=L:empty=}</option>
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<input type="hidden" name="tmpl" value="Y_Refresh.yhtm"/>
+		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;start_wizard_save_settings;nix"/>
+		<button type="button" ytype="save" title="{=L:save_values_desc=}" onclick="do_submit()">{=L:save=}</button>
+	</form>
+	</div>
+</div>
+</body>
+</html>
+end-block~start_wizard_page
+
 # ------- Lay-Frame MAIN
 start-block~frame_main
+
+{=if-empty:{=ini-get:/var/tuxbox/config/Y-Web.conf;startup=}~
+{=include-block:Y_Blocks.txt;start_wizard_page=}
+~
 {=include-block:Y_Blocks.txt;frame_head=}
-<title>dbox yWeb</title>
+<title>yWeb</title>
 </head>
-<frameset rows="60,*" frameborder="0" framespacing="0">
+	<frameset rows="60,*" frameborder="0" framespacing="0">
 	<frame name="prim_menu" src="Y_Menue.yhtm" scrolling="no"  marginwidth="0" marginheight="0" frameborder="0" noresize="noresize" />
 	<frame name="base" src="Y_Dyn_Pages.yhtm?page=frame_boxcontrol"  marginwidth="0" marginheight="0" frameborder="0" style="height:100%"; />
 	<noframes>
@@ -328,6 +391,8 @@ start-block~frame_main
 	</noframes>
 </frameset>
 </html>
+=}
+
 end-block~frame_main
 
 # ------- Lay-Frame MAIN

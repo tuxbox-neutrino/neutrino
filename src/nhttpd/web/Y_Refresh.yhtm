@@ -1,0 +1,14 @@
+{=include-block:Y_Blocks.txt;head=}
+<script type="text/javascript">
+//<![CDATA[
+function do_onload()
+{
+	top.location.href="/";
+}
+//]]>
+</script>
+</head>
+<body onload="do_onload()">
+refreshing...
+</body>
+</html>
