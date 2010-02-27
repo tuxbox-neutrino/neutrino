@@ -283,6 +283,7 @@ function build_subchannels(){
 		display_obj("subsRow", false);
 }
 function change_channel_play(){
+	insert_vlc_control();
 	do_play();
 	if (V2.have_options() && Mode == "tv") {
 		build_audio_pid_list();
