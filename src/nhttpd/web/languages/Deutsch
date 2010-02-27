@@ -151,6 +151,30 @@ tools.path=Verzeichnis
 tools.command=Kommando
 tools.cmd.enter_command=Auszuführendes Kommando eingeben
 tools.cmd.execute_command=Kommando ausführen
+=========== LIVE
+live.get_stream_info=Streaming-Informationen<br/>werden ermittelt.
+live.getting_bouquets=Hole Bouquets ...
+live.getting_channels=Hole Sender ...
+live.select_resolution=Auflösung auswählen
+live.change_channel=Sender wechseln
+live.view_epg=EPG für aktuellen Sender anzeigen
+live.reload=Bouquets und Sender neu laden
+live.getting_subchannels=Hole Unterkanäle ...
+live.play_or_pause=Abspielen oder Pause
+live.stop=Stoppen
+live.mute=Stummschaltung an / aus
+live.lower_volume=leiser
+live.higher_volume=lauter
+live.fullscreen=Ganzer Bildschirm (auch mit Doppelklick) mit ESC zurück
+live.lock_unlock=Box sperren / entsperren
+live.toggle_udp=UDP Streaming an/aus
+live.settings=LiveView Einstellungen
+live.snapshot=Schnappschuss erstellen
+live.record=Aufnahmemodus
+live.transcode=Transkodiermodus
+live.build_vlc=... erstelle Live ...
+live.select_bouquet=Bouquet auswählen - Sender werden aktualisiert
+live.select_channel=Sender wechseln - nutze zap
 
 =========== GENERAL
 clear=löschen

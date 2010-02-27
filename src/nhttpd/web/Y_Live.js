@@ -72,7 +72,7 @@ function do_init(){
 //	g_intervall = window.setInterval('i_interval()', 20000);
 }
 function i_interval(){
-	obj_update('bouquets_div', "<img src=\"/images/smallwait.gif\"/> getting bouquets ...");
+	obj_update('bouquets_div', "<img src=\"/images/smallwait.gif\"/> "+Lgetting_bouquets);
 	window.setTimeout("i_interval2()",300);
 }
 function i_interval2(){
@@ -215,19 +215,6 @@ function do_play_or_pause(){
 	}
 }
 /* bouquet & channel panel */
-function build_channel_list(bouquet, channel){
-	set_controls("disable");
-	var used_channel = channel;
-	if(used_channel == -1)
-		used_channel = loadSyncURL("/y/cgi?execute=func:get_actual_channel_id");
-	var channel_dropdown_url = "/y/cgi?execute=func:get_channels_as_dropdown%20" + bouquet;
-	channel_dropdown_url  += "%20" + used_channel;
-	var channel_dropdown = "<select size=\"1\" class=\"y_live_channels\" id=\"channels\" title=\"select channel - use go to zap\">";
-	channel_dropdown += loadSyncURL(channel_dropdown_url);
-	channel_dropdown += "</select>";
-	obj_update('channels_div', channel_dropdown);
-	set_controls("play");
-}
 function change_bouquet(){
 	var dd = id('bouquets');
 	var bouquet = -1;
@@ -237,7 +224,7 @@ function change_bouquet(){
 		bouquet = dd[sel].value;
 		channel = 0;
 	}
-	obj_update('channels_div', "<img src=\"/images/smallwait.gif\"/> getting channels ...");
+	obj_update('channels_div', "<img src=\"/images/smallwait.gif\"/> "+Lgetting_channels);
 	window.setTimeout("build_channel_list("+bouquet+", "+channel+")",2000);
 }
 function change_channel(){

@@ -11,11 +11,24 @@ function build_bouquet_list(bouquet){
 	if(used_bouquet == -1)
 		used_bouquet = loadSyncURL("/y/cgi?execute=func:get_actual_bouquet_number");
 	var bouquet_dropdown_url = "/y/cgi?execute=func:get_bouquets_as_dropdown%20" + used_bouquet + "{=if-empty:{=var-get:must_management=}~~%20true=}";
-	var bouquet_dropdown = "<select size=\"1\" class=\"y_live_bouquets\" id=\"bouquets\" onchange=\"change_bouquet()\" title=\"select bouquet - channels will be updated\">";
+	var bouquet_dropdown = "<select size=\"1\" class=\"y_live_bouquets\" id=\"bouquets\" onchange=\"change_bouquet()\" title=\"{=L:live.select_bouquet=}\">";
 	bouquet_dropdown += loadSyncURL(bouquet_dropdown_url);
 	bouquet_dropdown += "<\/select>";
 	obj_update('bouquets_div', bouquet_dropdown);
 	build_channel_list(used_bouquet, -1);
+}
+function build_channel_list(bouquet, channel){
+	set_controls("disable");
+	var used_channel = channel;
+	if(used_channel == -1)
+		used_channel = loadSyncURL("/y/cgi?execute=func:get_actual_channel_id");
+	var channel_dropdown_url = "/y/cgi?execute=func:get_channels_as_dropdown%20" + bouquet;
+	channel_dropdown_url  += "%20" + used_channel;
+	var channel_dropdown = "<select size=\"1\" class=\"y_live_channels\" id=\"channels\" title=\"{=L:live.select_channel=}\">";
+	channel_dropdown += loadSyncURL(channel_dropdown_url);
+	channel_dropdown += "</select>";
+	obj_update('channels_div', channel_dropdown);
+	set_controls("play");
 }
 function view_epg(){
 	var sel=document.x.channels.selectedIndex;
@@ -48,18 +61,18 @@ function view_transcode_mode(){
 </script>
 </head>
 <body>
-{=var-set:wait_text=Streaming-Informationen<br/>werden ermittelt.=}{=include-block:Y_Blocks.txt;snip_wait=}
+{=var-set:wait_text={=L:live.get_stream_info=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div id="live_panel">
 <form name="x" action="" method="get" style="margin:0;padding:0;">
 	<table class="y_live_table" cellspacing="0" cellpadding="0" style="margin:0">
 		<tr><td>
 			<div id="bouquets_div"><div class="y_live_channels" style="border:1px solid #555555;">
-				<img src="/images/smallwait.gif"/> getting bouquets ...</div>
+				<img src="/images/smallwait.gif"/> {=L:live.getting_bouquets=}</div>
 			</div>
 		</td><td>
 				{=if-equal:{=typ=}~popup~
 				{=if-equal:{=mode=}~tv~
-				<select id="resolution" onchange="do_resize()" title="select resolution">
+				<select id="resolution" onchange="do_resize()" title="{=L:live.select_resolution=}">
 				<option value="1">384x288</option>
 				<option value="2">768x576</option>
 				<option value="2">960x720</option>
@@ -69,23 +82,23 @@ function view_transcode_mode(){
 		</td></tr>
 		<tr><td>
 			<div id="channels_div"><div class="y_live_bouquets" style="border:1px solid #555555;">
-				<img src="/images/smallwait.gif"/> getting channels ...</div>
+				<img src="/images/smallwait.gif"/> {=L:live.getting_channels=}</div>
 			</div>
 		</td><td>
-			<button id="go" class="y_live_button" type="button" title="change channel" onclick="change_channel()" disabled="disabled">
+			<button id="go" class="y_live_button" type="button" title="{=L:live.change_channel=}" onclick="change_channel()" disabled="disabled">
 				<img src="/images/play.png"/></button>
-			<button id="epg" class="y_live_button" type="button" title="view epg for selected channel" onclick="view_epg()" disabled="disabled">
+			<button id="epg" class="y_live_button" type="button" title="{=L:live.view_epg=}" onclick="view_epg()" disabled="disabled">
 				<img src="/images/epg.png"/></button>
-			<button id="epg_reload" class="y_live_button" type="button" title="reload bouquets and channels" onclick="view_epg_reload()">
+			<button id="epg_reload" class="y_live_button" type="button" title="{=L:live.reload=}" onclick="view_epg_reload()">
 				<img src="/images/reload.gif"/></button>
 		</td></tr>
 		<tr id="subsRow" style="display:none">
 			<td>
 			<div id="subs_div"><div class="y_live_channels" style="border:1px solid #555555;">
-				<img src="/images/smallwait.gif"/> getting subchannels ...</div>
+				<img src="/images/smallwait.gif"/> {=L:live.getting_subchannels=}</div>
 			</div>
 			</td><td>
-			<button class="y_live_button" type="button" title="change channel" onclick="change_sub_channel()">
+			<button class="y_live_button" type="button" title="{=L:live.change_channel=}" onclick="change_sub_channel()">
 				<img src="/images/play.png"/></button>
 
 			</td>
@@ -98,38 +111,38 @@ function view_transcode_mode(){
 </div>
 <div id="live_controls">
 	<form name="v" action="" method="get" style="margin:0;padding:0;">
-		<button id="PlayOrPause" class="y_live_button" type="button" title="play or pause streaming"
+		<button id="PlayOrPause" class="y_live_button" type="button" title="{=L:live.play_or_pause=}"
 			onclick="do_play_or_pause()"><img src="/images/pause.png"/></button>
-		<button id="stop" type="button" title="stop streaming" onclick="do_stop()" class="y_live_button">
+		<button id="stop" type="button" title="{=L:live.stop=}" onclick="do_stop()" class="y_live_button">
 			<img src="/images/stop.png"/></button>
-		<button id="mute" class="y_live_button" type="button" value="Mute" title="mute / unmute volume" onclick="do_mute_toggle()">
+		<button id="mute" class="y_live_button" type="button" value="Mute" title="{=L:live.mute=}" onclick="do_mute_toggle()">
 			<img src="/images/volumemute.png"/></button>
-		<button id="volumedown" class="y_live_button" type="button" value="-" title="lower volume" onclick="V2.set_volume_delta(-10);">
+		<button id="volumedown" class="y_live_button" type="button" value="-" title="{=L:live.lower_volume=}" onclick="V2.set_volume_delta(-10);">
 			<img src="/images/volumedown.png"/></button>
-		<button id="volumeup" class="y_live_button" type="button" value="+" title="higher volume" onclick="V2.set_volume_delta(+10);">
+		<button id="volumeup" class="y_live_button" type="button" value="+" title="{=L:live.higher_volume=}" onclick="V2.set_volume_delta(+10);">
 			<img src="/images/volumeup.png"/></button>
 		{=if-equal:{=mode=}~tv~
 		<button id="fullscreen" class="y_live_button" type="button" value="F"
-			title="switch to fullscreen-mode - or use double-click" onclick="V2.toggle_fullscreen()">
+			title="{=L:live.fullscreen=}" onclick="V2.toggle_fullscreen()">
 			<img src="/images/fullscreen.png"/></button>
 		=}
-		<button id="livelock" class="y_live_button" type="button" value="Lock" title="lock / unlock TV (record mode, rc, lcd)" name="lock" onclick="do_lock_toggle()">
+		<button id="livelock" class="y_live_button" type="button" value="Lock" title="{=L:live.lock_unlock=}" name="lock" onclick="do_lock_toggle()">
 			<img src="/images/livelock.png"/></button>
 
 		{=if-equal:{=mode=}~tv~
-		<button class="y_live_button"  style="visibility:hidden" type="button" value="set" title="UDP Streaming on/off" id="udp" onclick="do_udp_toggle()">
+		<button class="y_live_button"  style="visibility:hidden" type="button" value="set" title="{=L:live.toggle_udp=}" id="udp" onclick="do_udp_toggle()">
 			<img src="/images/udp_switch_on.png"/></button>
-		<button class="y_live_button" type="button" value="set" title="LiveView settings" id="settings" onclick="view_settings_mode()">
+		<button class="y_live_button" type="button" value="set" title="{=L:live.settings=}" id="settings" onclick="view_settings_mode()">
 			<img src="/images/properties.png"/></button>
-		<button class="y_live_button" type="button" value="S" title="create snapshot picture" id="snapshot" onclick="V2.snapshot()"  style="visibility:hidden">
+		<button class="y_live_button" type="button" value="S" title="{=L:live.snapshot=}" id="snapshot" onclick="V2.snapshot()"  style="visibility:hidden">
 			<img src="/images/snapshot.png"/></button>
 		=}
 		{=if-equal:{=typ=}~popup~~
 		{=if-equal:{=typ=}~transcode~~
-		<button id="rec" class="y_live_button" type="button" value="Rec" title="record mode" name="record_mode" onclick="view_record_mode()" style="visibility:hidden">
+		<button id="rec" class="y_live_button" type="button" value="Rec" title="{=L:live.record=}" name="record_mode" onclick="view_record_mode()" style="visibility:hidden">
 			<img src="/images/record.png"/></button>
 		=}
-		<button id="transcode" class="y_live_button" type="button" value="Transcode" title="transcode mode" onclick="view_transcode_mode()" style="visibility:hidden">
+		<button id="transcode" class="y_live_button" type="button" value="Transcode" title="{=L:live.transcode=}" onclick="view_transcode_mode()" style="visibility:hidden">
 			<img src="/images/transcode.png"/></button>
 		=}
 		<span id="audio_pid_list"></span>
@@ -142,9 +155,12 @@ function view_transcode_mode(){
 	Mode = "{=mode=}";
 	LiveTyp = "{=typ=}";
 	ClientAddr = "{=func:get_request_data clientaddr=}";
-	insert_message_control("... build vlc control ...");
+	insert_message_control("{=L:live.build_vlc=}");
 	isDeinterlace = ("{=ini-get:/var/tuxbox/config/Y-Web.conf;deinterlace;true=}" == "true");
 	cachetime = {=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;0=};
+	Lgetting_channels="{=L:live.getting_channels=}";
+	Lgetting_bouquets="{=L:live.getting_bouquets=}";
+	
 /*	{=if-equal:{=typ=}~popup~
 		always_on_top();
 	=}
