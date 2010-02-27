@@ -480,6 +480,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 			print_buffer += movie_info.audioPids[i].epgAudioPidName;
 			print_buffer += ", ";
 		}
+		print_buffer.erase(print_buffer.size()-2);
 	}
 
 	print_buffer += "\n\n";
