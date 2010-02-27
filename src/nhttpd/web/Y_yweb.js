@@ -1,7 +1,7 @@
 /*	yWeb by yjogol
 	internal organisation of yweb
 	$Date$
-	$Revision: 1.1 $
+	$Revision$
 */
 
 /* define namespace */

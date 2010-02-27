@@ -22,7 +22,7 @@ public:
 		return std::string("mod_auth");
 	}
 	virtual std::string getHookVersion(void) {
-		return std::string("$Revision: 1.3 $");
+		return std::string("$Revision$");
 	}
 	virtual THandleStatus Hook_ReadConfig(CConfigFile *Config,
 			CStringList &ConfigList);

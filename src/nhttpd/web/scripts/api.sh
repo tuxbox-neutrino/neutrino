@@ -3,7 +3,7 @@
 # API Script (yjogol)
 # for yWeb independent shell calls
 # $Date$
-# $Revision: 1.3 $
+# $Revision$
 # -----------------------------------------------------------
 API_VERSION_MAJOR="1"
 API_VERSION_MINOR="0"

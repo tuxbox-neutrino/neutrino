@@ -62,7 +62,7 @@ public:
 	virtual std::string 	YWeb_cgi_func(CyhookHandler *hh, std::string ycmd);
 	// virtual functions for HookHandler/Hook
 	virtual std::string 	getHookName(void) {return std::string("mod_NeutrinoYParser-Coolstream");}
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.1.2.1 $");}
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision$");}
 	virtual THandleStatus	Hook_SendResponse(CyhookHandler *hh);
 	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
 };

@@ -1,6 +1,6 @@
 /*	yWeb EPG by yjogol
 	$Date$
-	$Revision: 1.2 $
+	$Revision$
 */
 /*EPG+*/
 var g_width_px=0; /*display width*/

@@ -1,6 +1,6 @@
 /*	yWeb Flash by yjogol
 	$Date$
-	$Revision: 1.3 $
+	$Revision$
 */
 function do_image_upload_dialog()
 {

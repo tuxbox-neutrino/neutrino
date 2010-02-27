@@ -1,6 +1,6 @@
 /*	yWeb Live by yjogol
 	$Date$
-	$Revision: 1.3 $
+	$Revision$
 */
 /*globals*/
 var V2 = null;

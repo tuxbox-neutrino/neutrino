@@ -32,7 +32,7 @@ public:
 	virtual THandleStatus 	Hook_PrepareResponse(CyhookHandler *hh);
 //	virtual THandleStatus 	Hook_SendResponse(CyhookHandler *hh);
 	virtual std::string 	getHookName(void) {return std::string("mod_sendfile");}
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 1.2 $");}
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision$");}
 	virtual THandleStatus 	Hook_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
 };
 

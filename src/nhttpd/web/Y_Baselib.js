@@ -1,6 +1,6 @@
 /*	yWeb Baselib by yjogol
 	$Date$
-	$Revision: 1.5 $
+	$Revision$
 */
 var baselib_version="2.0.0";
 var agt=navigator.userAgent.toLowerCase();
