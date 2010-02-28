@@ -106,7 +106,6 @@ class CBouquetList
 
 		std::vector<CBouquet*>	Bouquets;
 
-		CChannelList* orgChannelList;
 		CBouquet* addBouquet(const char * const name, int BouquetKey=-1, bool locked=false );
 		CBouquet* addBouquet(CZapitBouquet * zapitBouquet);
 		void deleteBouquet(CBouquet* bouquet);

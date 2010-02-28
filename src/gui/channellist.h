@@ -39,6 +39,7 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/channel.h>
+#include <zapit/bouquets.h>
 
 #include <string>
 #include <vector>
@@ -55,6 +56,7 @@ class CChannelList
 	private:
 		CFrameBuffer		*frameBuffer;
 		unsigned int		selected;
+		t_channel_id		selected_chid;
 		CLastChannel		lastChList;
 		unsigned int		liststart;
 		unsigned int		listmaxshow;
@@ -64,7 +66,7 @@ class CChannelList
 		int			buttonHeight;
 
 		std::string             name;
-		std::vector<CZapitChannel*>	chanlist;
+		ZapitChannelList	chanlist;
 		CZapProtection* 	zapProtection;
 
 		int 			width;
@@ -89,6 +91,7 @@ class CChannelList
 		CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false );
 		~CChannelList();
 
+		void SetChannelList(ZapitChannelList* channels);
 		void addChannel(CZapitChannel* chan, int num = 0);
 		void putChannel(CZapitChannel* chan);
 
@@ -105,6 +108,7 @@ class CChannelList
 		t_channel_id         getActiveChannel_ChannelID(void) const;
 
 		void zapTo(int pos, bool forceStoreToLastChannels = false);
+		void NewZap(t_channel_id channel_id);
 		void virtual_zap_mode(bool up);
 		bool zapTo_ChannelID(const t_channel_id channel_id);
 		bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);

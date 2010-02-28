@@ -1655,8 +1655,11 @@ void CNeutrinoApp::firstChannel()
 extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 
-void CNeutrinoApp::channelsInit(bool /*bOnly*/)
+void CNeutrinoApp::channelsInit(bool bOnly)
 {
+	int bnum;
+	CBouquet* tmp;
+
 	printf("[neutrino] Creating channels lists...\n");
 	TIMER_START();
 
@@ -1670,13 +1673,11 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 	if(g_bouquetManager->existsUBouquet(fav_bouquetname, true) == -1)
 		g_bouquetManager->addBouquet(fav_bouquetname, true, true);
 
-	if(TVallList) delete TVallList;
-	if(RADIOallList) delete RADIOallList;
+
 	if(TVbouquetList) delete TVbouquetList;
-	if(TVsatList) delete TVsatList;
-	if(TVfavList) delete TVfavList;
 	if(RADIObouquetList) delete RADIObouquetList;
-	if(RADIOsatList) delete RADIOsatList;
+
+	if(TVfavList) delete TVfavList;
 	if(RADIOfavList) delete RADIOfavList;
 
 	if(TVchannelList) delete TVchannelList;
@@ -1686,18 +1687,10 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 	RADIOchannelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD), false, true);
 
 	TVbouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_PROVS));
-	TVbouquetList->orgChannelList = TVchannelList;
-	TVsatList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_SATS));
-	TVsatList->orgChannelList = TVchannelList;
 	TVfavList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_FAVS));
-	TVfavList->orgChannelList = TVchannelList;
 
 	RADIObouquetList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_PROVS));
-	RADIObouquetList->orgChannelList = RADIOchannelList;
-	RADIOsatList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_SATS));
-	RADIOsatList->orgChannelList = RADIOchannelList;
 	RADIOfavList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_FAVS));
-	RADIOfavList->orgChannelList = RADIOchannelList;
 
 	uint32_t i;
 	i = 1;
@@ -1734,53 +1727,63 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 	if(hi)
 		hdBouquet->channelList->SortSat();
 
+	TIMER_STOP("[neutrino] all channels took");
+
 	printf("[neutrino] got %d TV (%d is HD) and %d RADIO channels\n", tvi, hi, ri); fflush(stdout);
 
-	CBouquet* tmp;
+	/* unless we will do real channel delete from allchans, needed once ? */
+	if(!bOnly) {
+		if(TVallList) delete TVallList;
+		if(RADIOallList) delete RADIOallList;
 
-	TVallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-	tmp = TVallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-	//*(tmp->channelList) = *TVchannelList;
-	tmp->channelList = new CChannelList(*TVchannelList);
-	tmp->channelList->SortAlpha();
-	TVallList->orgChannelList = TVchannelList;
+		TVallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
+		tmp = TVallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
+		tmp->channelList = new CChannelList(*TVchannelList);
+		tmp->channelList->SortAlpha();
 
-	RADIOallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-	tmp = RADIOallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
-	//*(tmp->channelList) = *RADIOchannelList;
-	tmp->channelList = new CChannelList(*RADIOchannelList);
-	tmp->channelList->SortAlpha();
-	RADIOallList->orgChannelList = RADIOchannelList;
+		RADIOallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
+		tmp = RADIOallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
+		tmp->channelList = new CChannelList(*RADIOchannelList);
+		tmp->channelList->SortAlpha();
 
-	int bnum;
-	sat_iterator_t sit;
-	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		tvi = 0, ri = 0;
-		CBouquet* tmp1 = TVsatList->addBouquet(sit->second.name.c_str());
-		CBouquet* tmp2 = RADIOsatList->addBouquet(sit->second.name.c_str());
+		if(TVsatList) delete TVsatList;
+		TVsatList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_SATS));
+		if(RADIOsatList) delete RADIOsatList;
+		RADIOsatList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_SATS));
 
-		for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
-			if(it->second.getSatellitePosition() == sit->first) {
-				if (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
-					tmp1->channelList->addChannel(&(it->second));
-					tvi++;
-				}
-				else if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
-					tmp2->channelList->addChannel(&(it->second));
-					ri++;
+		sat_iterator_t sit;
+		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+			if(!sit->second.have_channels)
+				continue;
+
+			tvi = 0, ri = 0;
+			CBouquet* tmp1 = TVsatList->addBouquet(sit->second.name.c_str());
+			CBouquet* tmp2 = RADIOsatList->addBouquet(sit->second.name.c_str());
+
+			for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
+				if(it->second.getSatellitePosition() == sit->first) {
+					if (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
+						tmp1->channelList->addChannel(&(it->second));
+						tvi++;
+					}
+					else if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
+						tmp2->channelList->addChannel(&(it->second));
+						ri++;
+					}
 				}
 			}
+			if(tvi)
+				tmp1->channelList->SortAlpha();
+			else
+				TVsatList->deleteBouquet(tmp1);
+			if(ri)
+				tmp2->channelList->SortAlpha();
+			else
+				RADIOsatList->deleteBouquet(tmp2);
+			if(tvi || ri)
+				printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
 		}
-		if(tvi)
-			tmp1->channelList->SortAlpha();
-		else
-			TVsatList->deleteBouquet(tmp1);
-		if(ri)
-			tmp2->channelList->SortAlpha();
-		else
-			RADIOsatList->deleteBouquet(tmp2);
-		if(tvi || ri)
-			printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
+		TIMER_STOP("[neutrino] sats took");
 	}
 
 	bnum = 0;
@@ -1794,14 +1797,13 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 				tmp = TVbouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
 
 			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->tvChannels);
-			tmp->channelList->setSize(channels->size());
-			for(int j = 0; j < (int) channels->size(); j++) {
-				tmp->channelList->addChannel((*channels)[j]);
-			}
+			tmp->channelList->SetChannelList(channels);
 			bnum++;
 		}
 	}
 	printf("[neutrino] got %d TV bouquets\n", bnum); fflush(stdout);
+
+	TIMER_STOP("[neutrino] tv took");
 
 	if(g_settings.make_hd_list)
 		TVfavList->Bouquets.push_back(hdBouquet);
@@ -1817,10 +1819,7 @@ void CNeutrinoApp::channelsInit(bool /*bOnly*/)
 				tmp = RADIObouquetList->addBouquet(g_bouquetManager->Bouquets[i]);
 
 			ZapitChannelList* channels = &(g_bouquetManager->Bouquets[i]->radioChannels);
-			tmp->channelList->setSize(channels->size());
-			for(int j = 0; j < (int) channels->size(); j++) {
-				tmp->channelList->addChannel((*channels)[j]);
-			}
+			tmp->channelList->SetChannelList(channels);
 			bnum++;
 		}
 	}
@@ -2930,9 +2929,10 @@ printf("[neutrino] direct record\n");
 	}
 }
 
-int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
+int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	int res = 0;
+	neutrino_msg_t msg = _msg;
 //printf("[neutrino] handleMsg %X data %X\n", msg, data); fflush(stdout);
 
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
@@ -3015,8 +3015,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 			if(bouquetList->Bouquets.size()) {
 				old_num = bouquetList->Bouquets[old_b]->channelList->getActiveChannelNumber();
 			}
-
-			//if(msg == CRCInput::RC_ok && bouquetList->Bouquets.size())
+_show:
 			if(msg == CRCInput::RC_ok)
 			{
 				if(bouquetList->Bouquets.size() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
@@ -3051,7 +3050,16 @@ _repeat:
 				SetChannelMode(old_mode);
 				g_channel_list_changed = 0;
 				if(old_b_id < 0) old_b_id = old_b;
-				g_Zapit->saveBouquets();
+				//g_Zapit->saveBouquets();
+				/* lets do it in sync */
+				reloadhintBox->paint();
+				g_bouquetManager->saveBouquets();
+				g_bouquetManager->saveUBouquets();
+				g_bouquetManager->renumServices();
+				channelsInit(true);
+				bouquetList->activateBouquet(old_b_id, false);
+				msg = CRCInput::RC_ok;
+				goto _show;
 			}
 
 			if(g_settings.mode_clock)

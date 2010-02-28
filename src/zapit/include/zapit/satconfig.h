@@ -13,6 +13,7 @@ typedef struct sat_config {
 	int use_in_scan;
 	int use_usals;
 	std::string name;
+	int have_channels;
 	t_satellite_position position;
 } sat_config_t;
 

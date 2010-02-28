@@ -874,9 +874,12 @@ void CZapitClient::renumChannellist()
 
 
 /* saves current bouquet configuration to bouquets.xml*/
-void CZapitClient::saveBouquets()
+void CZapitClient::saveBouquets(const bool saveall)
 {
-	send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS);
+	CZapitMessages::commandBoolean msg;
+	msg.truefalse = saveall;
+
+	send(CZapitMessages::CMD_BQ_SAVE_BOUQUETS, (char*)&msg, sizeof(msg));
 
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));

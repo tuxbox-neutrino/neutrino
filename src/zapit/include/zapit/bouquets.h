@@ -17,7 +17,6 @@
 #include <zapit/client/zapitclient.h>
 
 #include "channel.h"
-#include "xmlinterface.h"
 
 using namespace std;
 
@@ -62,7 +61,7 @@ class CBouquetManager
 	CZapitBouquet * remainChannels;
 
 	void makeRemainingChannelsBouquet(void);
-	void parseBouquetsXml            (const xmlNodePtr root, bool ub = false);
+	void parseBouquetsXml            (char * fname, bool ub = false);
 	void writeBouquetHeader          (FILE * bouq_fd, uint32_t i, const char * bouquetName);
 	void writeBouquetFooter          (FILE * bouq_fd);
 	void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);

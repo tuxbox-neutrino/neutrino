@@ -353,9 +353,16 @@ void CBouquetManager::sortBouquets(void)
 	sort(Bouquets.begin(), Bouquets.end(), CmpBouquetByChName());
 }
 
-void CBouquetManager::parseBouquetsXml(const xmlNodePtr root, bool bUser)
+void CBouquetManager::parseBouquetsXml(char * fname, bool bUser)
 {
-	xmlNodePtr search=root->xmlChildrenNode;
+	xmlDocPtr parser;
+
+	parser = parseXmlFile(fname);
+	if (parser == NULL)
+		return;
+
+	xmlNodePtr root = xmlDocGetRootElement(parser);
+	xmlNodePtr search = root->xmlChildrenNode;
 	xmlNodePtr channel_node;
 
 	if (search) {
@@ -414,28 +421,18 @@ DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id,
 		}
 		INFO("found %d bouquets", Bouquets.size());
 	}
+	xmlFreeDoc(parser);
 }
 
 void CBouquetManager::loadBouquets(bool ignoreBouquetFile)
 {
-	xmlDocPtr parser;
-
 TIMER_START();
 	if (ignoreBouquetFile == false) {
-		parser = parseXmlFile(BOUQUETS_XML);
-		if (parser != NULL) {
-			parseBouquetsXml(xmlDocGetRootElement(parser), false);
-			xmlFreeDoc(parser);
-			parser = NULL;
-		}
+		parseBouquetsXml((char *) BOUQUETS_XML, false);
 		sortBouquets();
 	}
-	parser = parseXmlFile(UBOUQUETS_XML);
-	if (parser != NULL) {
-		parseBouquetsXml(xmlDocGetRootElement(parser), true);
-		xmlFreeDoc(parser);
-		parser = NULL;
-	}
+
+	parseBouquetsXml((char *) UBOUQUETS_XML, true);
 	renumServices();
 TIMER_STOP("[zapit] bouquet loading took");
 }

@@ -79,6 +79,7 @@ extern CBouquetList   * RADIObouquetList;
 extern CBouquetList   * RADIOsatList;
 extern CBouquetList   * RADIOfavList;
 extern CBouquetList   * RADIOallList;
+extern tallchans allchans;
 
 #define PIC_W 52
 #define PIC_H 39
@@ -108,6 +109,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	zapProtection = NULL;
 	this->historyMode = phistoryMode;
 	vlist = _vlist;
+	selected_chid = 0;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 }
 
@@ -128,6 +130,11 @@ void CChannelList::setSize(int newsize)
 {
 	chanlist.reserve(newsize);
 	//chanlist.resize(newsize);
+}
+
+void CChannelList::SetChannelList(ZapitChannelList* channels)
+{
+	chanlist = *channels;
 }
 
 void CChannelList::addChannel(CZapitChannel* channel, int num)
@@ -348,7 +355,11 @@ int CChannelList::doChannelMenu(void)
 
 				if(result == CMessageBox::mbrYes) {
 					bouquet_id = bouquetList->getActiveBouquetNumber();
-					bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[bouquet_id]->channelList->getName());
+					if(!strcmp(bouquetList->Bouquets[bouquet_id]->channelList->getName(), g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME)))
+						bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+					else
+						bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[bouquet_id]->channelList->getName());
+
 					if (bouquet_id == -1)
 						return 0;
 					if(g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
@@ -387,7 +398,12 @@ int CChannelList::doChannelMenu(void)
 				hide();
 				if(bouquet_id < 0)
 					return 0;
-				bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[bouquet_id]->channelList->getName());
+
+				if(!strcmp(bouquetList->Bouquets[bouquet_id]->channelList->getName(), g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME)))
+					bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+				else
+					bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[bouquet_id]->channelList->getName());
+
 				if (bouquet_id == -1)
 					return 0;
 				if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
@@ -419,7 +435,11 @@ int CChannelList::exec()
   	displayNext = 0; // always start with current events
 	int nNewChannel = show();
 	if ( nNewChannel > -1) {
+#if 1
 		CNeutrinoApp::getInstance ()->channelList->zapTo(getKey(nNewChannel)-1);
+#else
+		CNeutrinoApp::getInstance ()->channelList->NewZap(chanlist[nNewChannel]->channel_id);
+#endif
 	}
 
 	return nNewChannel;
@@ -762,8 +782,10 @@ int CChannelList::show()
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
 
-	if(zapOnExit)
+	if(zapOnExit) {
 		res = selected;
+		//selected_chid = chanlist[selected]->channel_id;
+	}
 
 	printf("CChannelList::show *********** res %d\n", res);
 	return(res);
@@ -835,10 +857,12 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 		return messages_return::unhandled;
 }
 /* bToo default to true */
+/* TODO make this member of CNeutrinoApp, because this only called from "whole" list ? */
 bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 {
 	unsigned int i;
 
+	selected_chid = channel_id;
 printf("CChannelList::adjustToChannelID me %x [%s] list size %d channel_id %llx\n", (int) this, getName(), chanlist.size(), channel_id);fflush(stdout);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
@@ -917,7 +941,10 @@ int CChannelList::hasChannelID(t_channel_id channel_id)
 // for adjusting bouquet's channel list after numzap or quickzap
 void CChannelList::setSelected( int nChannelNr)
 {
+printf("CChannelList::setSelected me %s %d -> %s\n", name.c_str(), nChannelNr, (nChannelNr < chanlist.size() && chanlist[nChannelNr] != NULL) ? chanlist[nChannelNr]->getName().c_str() : "********* NONE *********");
 	selected = nChannelNr;
+	//FIXME real difference between tuned and selected ?!
+	tuned = nChannelNr;
 }
 
 // -- Zap to channel with channel_id
@@ -934,6 +961,7 @@ printf("**************************** CChannelList::zapTo_ChannelID %llx\n", chan
 }
 
 /* forceStoreToLastChannels defaults to false */
+/* TODO make this private to call only from "current" list, where selected/pos not means channel number */
 void CChannelList::zapTo(int pos, bool forceStoreToLastChannels)
 {
 	if (chanlist.empty()) {
@@ -951,14 +979,16 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
 	}
 	if(!new_mode_active) {
-		selected= pos;
+		selected = pos;
+		/* TODO lastChList.store also called in adjustToChannelID, which is called
+		   only from "whole" channel list. Why here too ? */
 		lastChList.store (selected, chan->channel_id, forceStoreToLastChannels);
 		/* remove recordModeActive from infobar */
 		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
 		}
-		//g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 
+		// TODO check is it possible bouquetList is NULL ?
 		if (bouquetList != NULL) {
 			CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
 		}
@@ -966,6 +996,30 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 	}
 }
 
+/* to replace zapTo_ChannelID and zapTo from "whole" list ? */
+void CChannelList::NewZap(t_channel_id channel_id)
+{
+	tallchans_iterator it = allchans.find(channel_id);
+
+	if(it == allchans.end())
+		return;
+
+	CZapitChannel* chan = &it->second;
+printf("**************************** CChannelList::NewZap me %x %s tuned %d new %s -> %llx\n", (int) this, name.c_str(), tuned, chan->name.c_str(), chan->channel_id);
+
+	if(selected_chid != chan->channel_id) {
+		selected_chid = chan->channel_id;
+		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked);
+		/* remove recordModeActive from infobar */
+		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
+			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
+		}
+		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
+		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
+	}
+}
+
+/* Called only from "all" channel list */
 int CChannelList::numericZap(int key)
 {
 	neutrino_msg_t      msg;
@@ -1163,6 +1217,7 @@ void CChannelList::virtual_zap_mode(bool up)
           chn = 1;
         if (chn == 0)
           chn = (int)chanlist.size();
+
         int lastchan= -1;
         bool doZap = true;
         bool showEPG = false;
@@ -1297,7 +1352,13 @@ printf("CChannelList::quickZap: selected %d total %d active bouquet %d total %d\
 				selected = cactive;
 		}
 printf("CChannelList::quickZap: new selected %d total %d active bouquet %d total %d\n", cactive, bouquetList->Bouquets[bactive]->channelList->getSize(), bactive, bsize);
+#if 1
 		CNeutrinoApp::getInstance()->channelList->zapTo(bouquetList->Bouquets[bactive]->channelList->getKey(cactive)-1);
+#else
+		CZapitChannel* chan = bouquetList->Bouquets[bactive]->channelList->getChannelFromIndex(cactive);
+		if(chan != NULL)
+			CNeutrinoApp::getInstance ()->channelList->NewZap(chan->channel_id);
+#endif
 	} else {
 		if ( (key==g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
 			if(selected == 0)
@@ -1308,7 +1369,11 @@ printf("CChannelList::quickZap: new selected %d total %d active bouquet %d total
 		else if ((key==g_settings.key_quickzap_up) || (key == CRCInput::RC_right)) {
 			selected = (selected+1)%chanlist.size();
 		}
+#if 1
 		CNeutrinoApp::getInstance()->channelList->zapTo(getKey(selected)-1);
+#else
+		CNeutrinoApp::getInstance ()->channelList->NewZap(chanlist[selected]->channel_id);
+#endif
 	}
 	g_RCInput->clearRCMsg(); //FIXME test for n.103
 }

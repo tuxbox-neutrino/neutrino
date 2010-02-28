@@ -982,8 +982,8 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
 		frontend->setTsidOnid(0);
 		zapit(live_channel_id, current_is_nvod);
-  	        //eventServer->sendEvent(CZapitClient::EVT_SERVICES_CHANGED, CEventServer::INITID_ZAPIT);
-		eventServer->sendEvent(CZapitClient::EVT_BOUQUETS_CHANGED, CEventServer::INITID_ZAPIT);
+  	        eventServer->sendEvent(CZapitClient::EVT_SERVICES_CHANGED, CEventServer::INITID_ZAPIT);
+		//eventServer->sendEvent(CZapitClient::EVT_BOUQUETS_CHANGED, CEventServer::INITID_ZAPIT);
   	        break;
   	}
 	case CZapitMessages::CMD_SCANSTART: {
@@ -1334,10 +1334,14 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		break;
 
 	case CZapitMessages::CMD_BQ_SAVE_BOUQUETS: {
+		CZapitMessages::commandBoolean msgBoolean;
+		CBasicServer::receive_data(connfd, &msgBoolean, sizeof(msgBoolean));
+
 		CZapitMessages::responseCmd response;
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 #if 0
+		//if (msgBoolean.truefalse)
 		if(g_list_changed) {
 			eventServer->sendEvent(CZapitClient::EVT_SERVICES_CHANGED, CEventServer::INITID_ZAPIT);
 		} else
@@ -1346,7 +1350,8 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		g_bouquetManager->saveBouquets();
 		g_bouquetManager->saveUBouquets();
 		g_bouquetManager->renumServices();
-		eventServer->sendEvent(CZapitClient::EVT_SERVICES_CHANGED, CEventServer::INITID_ZAPIT);
+		//eventServer->sendEvent(CZapitClient::EVT_SERVICES_CHANGED, CEventServer::INITID_ZAPIT);
+		eventServer->sendEvent(CZapitClient::EVT_BOUQUETS_CHANGED, CEventServer::INITID_ZAPIT);
 		if(g_list_changed) {
 			SaveServices(true);
 			g_list_changed = 0;

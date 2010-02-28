@@ -132,8 +132,15 @@ void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream
 	std::string desc = "";
 	desc += "Preset";
 	t_channel_id chid;
+	int dummy;
+	int * have_ptr = &dummy;
+
+	sat_iterator_t sit = satellitePositions.find(satellitePosition);
+	if(sit != satellitePositions.end())
+		have_ptr = &sit->second.have_channels;
 
 	while ((node = xmlGetNextOccurence(node, "S")) != NULL) {
+		*have_ptr = 1;
 		service_id = xmlGetNumericAttribute(node, "i", 16);
 		name = xmlGetAttribute(node, "n");
 		service_type = xmlGetNumericAttribute(node, "t", 16);

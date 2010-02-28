@@ -211,11 +211,18 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 				step = (msg==(neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
 				selected -= step;
+#if 0
 				if((prev_selected-step) < 0)		// because of uint
 				{
 					selected = Channels->size() - 1;
 				}
-
+#endif
+				if((prev_selected-step) < 0) {
+					if(prev_selected != 0 && step != 1)
+						selected = 0;
+					else
+						selected = Channels->size() - 1;
+				}
 				if (state == beDefault)
 				{
 					paintItem(prev_selected - liststart);
@@ -243,7 +250,7 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 			step = (msg==(neutrino_msg_t)g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
 			selected += step;
-
+#if 0
 			if(selected >= Channels->size())
 			{
 				if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
@@ -251,7 +258,15 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				else
 					selected = ((step == listmaxshow) && (selected < (((Channels->size() / listmaxshow) + 1) * listmaxshow))) ? (Channels->size() - 1) : 0;
 			}
-
+#endif
+			if(selected >= Channels->size()) {
+				if((Channels->size() - listmaxshow -1 < prev_selected) && (prev_selected != (Channels->size() - 1)) && (step != 1))
+					selected = Channels->size() - 1;
+				else if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
+					selected = 0;
+				else
+					selected = ((step == listmaxshow) && (selected < (((Channels->size() / listmaxshow)+1) * listmaxshow))) ? (Channels->size() - 1) : 0;
+			}
 			if (state == beDefault)
 			{
 				paintItem(prev_selected - liststart);
