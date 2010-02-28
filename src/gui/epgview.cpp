@@ -548,28 +548,55 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	else
 		processTextToArray(strEpisode + epgData.info2);
 
+	// Add a blank line
+	processTextToArray("");
+
+
 	// 21.07.2005 - rainerk
 	// Show extended information
 	if ( !epgData.itemDescriptions.empty() && !epgData.items.empty()) {
 		char line[256];
 		std::vector<std::string>::iterator description;
 		std::vector<std::string>::iterator item;
-		processTextToArray(""); // Add a blank line
 		for (description = epgData.itemDescriptions.begin(), item = epgData.items.begin(); description != epgData.itemDescriptions.end(), item != epgData.items.end(); ++description, ++item) {
 			sprintf(line, "%s: %s", (*(description)).c_str(), (*(item)).c_str());
 			processTextToArray(line);
 		}
 	}
 
+	// Show FSK information
 	if (epgData.fsk > 0)
 	{
-		char _tfsk[11];
-		sprintf (_tfsk, "FSK: ab %d", epgData.fsk );
-		processTextToArray( _tfsk ); // UTF-8
+		char fskInfo[4];
+		sprintf(fskInfo, "%d", epgData.fsk);
+		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AGE_RATING)) + ": " + fskInfo); // UTF-8
 	}
 
+	// Show length information
+	char lengthInfo[11];
+	sprintf(lengthInfo, "%d", epgData.epg_times.dauer / 60);
+	processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_LENGTH)) + ": " + lengthInfo); // UTF-8
+
+	// Show audio information
+	std::string audioInfo = "";
+	CSectionsdClient::ComponentTagList tags;
+	bool hasComponentTags = CEitManager::getInstance()->getComponentTagsUniqueKey( epgData.eventID, tags);
+	if (hasComponentTags)
+	{
+		for (unsigned int i = 0; i < tags.size(); i++)
+			if (tags[i].streamContent == 2)
+				audioInfo += tags[i].component + ", ";
+
+		if (!audioInfo.empty())
+		{
+			audioInfo.erase(audioInfo.size()-2);
+			processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_AUDIO)) + ": " + ZapitTools::Latin1_to_UTF8(audioInfo)); // UTF-8
+		}
+	}
+
+	// Show genre information
 	if (epgData.contentClassification.length()> 0)
-		processTextToArray(GetGenre(epgData.contentClassification[0])); // UTF-8
+		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_GENRE)) + ": " + GetGenre(epgData.contentClassification[0])); // UTF-8
 //	processTextToArray( epgData.userClassification.c_str() );
 
 
@@ -619,11 +646,10 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	showTimerEventBar (true);
 
 	//show Content&Component for Dolby & 16:9
-	CSectionsdClient::ComponentTagList tags;
 	int dummy_h,dummy_w;
 	frameBuffer->getIconSize(NEUTRINO_ICON_16_9_GREY, &dummy_w, &dummy_h);
 	if (dummy_h == 16 && dummy_w == 26){ // show only standard icon size
-		if (CEitManager::getInstance()->getComponentTagsUniqueKey( epgData.eventID, tags))
+		if (hasComponentTags)
 		{
 			for (unsigned int i=0; i< tags.size(); i++)
 			{

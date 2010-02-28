@@ -312,6 +312,10 @@ epgextended.year_of_production Year of Production
 epglist.noevents EPG is not available...
 epgviewer.More_Screenings More Screenings on this Channel
 epgviewer.More_Screenings_short More Screenings
+epgviewer.age_rating Age rating
+epgviewer.audio Audio
+epgviewer.genre Genre
+epgviewer.length Length (min.)
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound No EPG found
 eventfinder.head Search in EPG
