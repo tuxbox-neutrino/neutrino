@@ -628,7 +628,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	printf("[zapit] %d services loaded (%d)...\n", service_count, allchans.size());
 	TIMER_STOP("[zapit] service loading took");
 
-	if(zapit_debug) {//FIXME
+	if(0) { //zapit_debug) {//FIXME
 		sat_iterator_t sit;
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++)
 			printf("satelliteName = %s (%d), satellitePosition = %d motor position = %d usals %d\n", sit->second.name.c_str(), sit->second.name.size(), sit->first, sit->second.motor_position, sit->second.use_usals);
