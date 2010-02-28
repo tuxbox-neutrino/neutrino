@@ -484,7 +484,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	paintBackground(col_NumBox);
 
 	int ChanNumYPos = BoxStartY + ChanHeight;
-	if (g_settings.infobar_sat_display && satellitePosition != 0 && satellitePositions.size()) {
+	if (g_settings.infobar_sat_display && satellitePosition != 0 && !satellitePositions.empty()) {
 		sat_iterator_t sit = satellitePositions.find(satellitePosition);
 
 		if (sit != satellitePositions.end()) {
@@ -1312,7 +1312,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	if (! is_visible)
 		return;
 
-	if ((g_RemoteControl->current_channel_id == channel_id) && (g_RemoteControl->subChannels.size () > 0) && (!g_RemoteControl->are_subchannels)) {
+	if ((g_RemoteControl->current_channel_id == channel_id) && (!g_RemoteControl->subChannels.empty()) && (!g_RemoteControl->are_subchannels)) {
 		is_nvod = true;
 		info_CurrentNext.current_zeit.startzeit = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].startzeit;
 		info_CurrentNext.current_zeit.dauer = g_RemoteControl->subChannels[g_RemoteControl->selected_subchannel].dauer;
@@ -1748,64 +1748,74 @@ int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*action
 	return res;
 }
 
-
-
-#define ICON_H 16
-#define ICON_Y_2 (16 + 2 + ICON_H)
-#define MAX_EW 146
-
-
 void CInfoViewer::paint_ca_icons(int caid, char * icon)
 {
-	if (!g_settings.casystem_display)
-		return;
-
 	char buf[20];
-	int endx = ChanInfoX - 8 + ((BoxEndX - ChanInfoX)/4)*4;
+	int endx = BoxEndX -3;
 	int py = BoxEndY + 2; /* hand-crafted, should be automatic */
 	int px = 0;
+	const char *icon_name[10] = {"powervu","d","biss","ird","seca","via","nagra","conax","cw","nds"};
+	static int icon_offset[10] = {0,0,0,0,0,0,0,0,0,0};
+	static bool init_flag = false;
+
+	if(!init_flag){
+		init_flag = true;
+		int icon_sizeH = 0;
+		int icon_sizeW [10] = {0,0,0,0,0,0,0,0,0,0};
+
+		for(int i = 0; i < 10; i++){
+			sprintf(buf, "%s_%s", icon_name[i], icon);//2 biss
+			frameBuffer->getIconSize(buf, &icon_sizeW[i], &icon_sizeH);
+		}
+
+		for(int j = 0; j < 10; j++){
+			for(int i = j; i < 10; i++){
+				icon_offset[j] += icon_sizeW[i]+ 10;
+		      }
+		}
+	}
 
 	switch ( caid & 0xFF00 ) {
 	case 0x0E00:
-		px = endx - 48 - 38 - 9*10 - 7*14 - 10;
-		sprintf(buf, "%s_%s", "powervu", icon);
+		px = endx - (icon_offset[0] - 10);
+		sprintf(buf, "%s_%s", icon_name[0], icon);//0 powervu
 		break;
 	case 0x4A00:
-		px = endx - 48 - 38 - 8*10 - 6*14 - 10;
-		sprintf(buf, "%s_%s", "d", icon);
+		px = endx - (icon_offset[1] - 10);
+		sprintf(buf, "%s_%s", icon_name[1], icon);// 1 d
 		break;
 	case 0x2600:
-		px = endx - 48 - 38 - 7*10 - 5*14 - 10;
-		sprintf(buf, "%s_%s", "biss", icon);
+		px = endx - (icon_offset[2] - 10);
+		sprintf(buf, "%s_%s", icon_name[2], icon);//2 biss
 		break;
 	case 0x600:
 	case 0x1700:
-		px = endx - 48 - 38 - 6*10 - 4*14 - 10;
-		sprintf(buf, "%s_%s", "ird", icon);
+		px = endx - (icon_offset[3] - 10);
+		sprintf(buf, "%s_%s", icon_name[3], icon);//3 icon
 		break;
 	case 0x100:
-		px = endx - 48 - 38 - 5*10 - 4*14;
-		sprintf(buf, "%s_%s", "seca", icon);
+		px = endx - (icon_offset[4] - 10);
+		sprintf(buf, "%s_%s", icon_name[4], icon);//4 seca
 		break;
 	case 0x500:
-		px = endx - 48 - 38 - 4*10 - 3*14;
-		sprintf(buf, "%s_%s", "via", icon);
+		px = endx - (icon_offset[5] - 10);
+		sprintf(buf, "%s_%s", icon_name[5], icon);//5 via 
 		break;
 	case 0x1800:
-		px = endx - 48 - 38 - 3*10 - 2*14;
-		sprintf(buf, "%s_%s", "nagra", icon);
+		px = endx - (icon_offset[6] - 10);
+		sprintf(buf, "%s_%s", icon_name[6], icon);//6 nagra
 		break;
 	case 0xB00:
-		px = endx - 48 - 38 - 2*10 - 1*14;
-		sprintf(buf, "%s_%s", "conax", icon);
+		px = endx - (icon_offset[7] - 10);
+		sprintf(buf, "%s_%s", icon_name[7], icon);//7 conax
 		break;
 	case 0xD00:
-		px = endx - 48 - 38 - 1*10;
-		sprintf(buf, "%s_%s", "cw", icon);
+		px = endx - (icon_offset[8] - 10);
+		sprintf(buf, "%s_%s", icon_name[8], icon);//8 cw
 		break;
 	case 0x900:
-		px = endx - 48;
-		sprintf(buf, "%s_%s", "nds", icon);
+		px = endx - (icon_offset[9] - 10);
+		sprintf(buf, "%s_%s", icon_name[9], icon);//9 nds
 		break;
 	default:
 		break;
@@ -1815,19 +1825,22 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon)
 	}
 }
 
-static char * gray = (char *) "white";
-//static char * green = (char *) "green";
-static char * white = (char *) "yellow";
-
 void CInfoViewer::showIcon_CA_Status (int notfirst)
 {
+	if (!g_settings.casystem_display)
+		return;
+
 #if 0
 	FILE *f;
 	char input[256];
 	char buf[256];
 	int acaid = 0;
 	int py = BoxEndY - InfoHeightY_Info;
+	static char * green = (char *) "green";
 #endif
+	static char * gray = (char *) "white";
+	static char * white = (char *) "yellow";
+
 	extern int pmt_caids[4][11];
 	int i;
 	int caids[] = { 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
