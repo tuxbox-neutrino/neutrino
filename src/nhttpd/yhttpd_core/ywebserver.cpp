@@ -218,6 +218,8 @@ bool CWebserver::run(void) {
 		CySocket *newConnectionSock;
 		if (!(newConnectionSock = listenSocket.accept())) //Now: Blocking wait
 		{
+			pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+			pthread_testcancel();
 			dperror("Socket accept error. Continue.\n");
 			continue;
 		}

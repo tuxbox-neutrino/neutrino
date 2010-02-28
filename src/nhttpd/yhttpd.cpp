@@ -107,6 +107,7 @@ void yhttpd_reload_config() {
 #ifndef Y_CONFIG_BUILD_AS_DAEMON
 void * nhttpd_main_thread(void *) {
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	aprintf("Webserver %s tid %ld\n", WEBSERVERNAME, syscall(__NR_gettid));
 	yhttpd = new Cyhttpd();
 	//CLogging::getInstance()->setDebug(true);
