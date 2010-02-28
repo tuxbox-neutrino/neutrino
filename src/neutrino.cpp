@@ -1853,15 +1853,15 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hdd->exec(NULL, "");
 	delete hdd;
 
+	hintBox->hide(); // InitZapper also displays a hintbox
+	delete hintBox;
+
 	g_volume = CVolume::getInstance();
 	cCA::GetInstance()->Ready(true);
 	InitZapper();
 
 	g_volume->AudioMute(current_muted, true);
 	SHTDCNT::getInstance()->init();
-
-	hintBox->hide();
-	delete hintBox;
 
 	RealRun(personalize.getWidget(0)/**main**/);
 
