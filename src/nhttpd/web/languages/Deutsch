@@ -82,8 +82,26 @@ set.reload_neutrino=Neutrino neuladen
 set.reboot_required=Neustart notwendig
 set.sync_with_neutrino_desc=After changing settings via yWeb: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
 set.sync_with_neutrino=Zur Synchronisation mit Neutrino
-========Settings Menue
+========Settings General & Menue
 set.menue.webserver=Webserver
+ucodes=Ucodes
+boot_logo=Boot Logo
+timer_settings=Timer Einstellungen
+zapit=Zapit
+backup_restore=Sichern und Wiederherstellen
+video_audio=Video/Audio
+parental=Jugendschutz
+direct_recording=Direktaufnahme
+recording=Aufnahme
+audio_player=Audioplayer
+esound_server=Esound Server
+movieplayer=Movieplayer
+pictureviewer=Bildbetrachter
+lcd_display=LC-Display
+key_settings=Tastenbelegung
+boot_options=Bootoptionen
+peronalization=Personalisierung
+plugins=Plugins
 ========Neutrino Settings - Recording
 set.rec.rec_dest=Aufnahmeziel
 set.rec.device=Aufnahmeger&auml;t
@@ -161,6 +179,7 @@ set.nhttpd.allowed_file_extensions=Erlaubte Dateiendungen / MIME
 set.nhttpd.allow_all_file_extensions=Alle Dateiendungen erlauben
 set.nhttpd.url_of_logos_desc=URL bzw. Verzeichnis der Logos eingeben
 set.nhttpd.url_of_logos=URL bzw. Verzeichnis der Logos
+set.nhttpd.server=Server
 set.nhttpd.ips_without_keep_alive_desc=(z.B. JtG Server, Mit Kommas trennen)
 set.nhttpd.ips_without_keep_alive=IPs mit No keep-alive
 set.nhttpd.cache=Cache
@@ -178,25 +197,7 @@ set.yweb.box_tag=Box Bezeichnung
 set.yweb.box_color_desc=Farbe der Box Bezeichnung im Top-Menue. z.B. 2188e0 eingeben ohne #
 set.yweb.box_color=Farbe
 set.yweb.start_page=Startseite
-=======Settings general
-ucodes=Ucodes
-boot_logo=Boot Logo
-timer_settings=Timer Einstellungen
-zapit=Zapit
-backup_restore=Sichern und Wiederherstellen
-video_audio=Video/Audio
-parental=Jugendschutz
-direct_recording=Direktaufnahme
-recording=Aufnahme
-audio_player=Audioplayer
-esound_server=Esound Server
-movieplayer=Movieplayer
-pictureviewer=Bildbetrachter
-lcd_display=LC-Display
-key_settings=Tastenbelegung
-boot_options=Bootoptionen
-peronalization=Personalisierung
-plugins=Plugins
+
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen
 tools.info.processes=Prozesse

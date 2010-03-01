@@ -96,11 +96,13 @@ function do_submit()
 				<td><input type="text" name="Tuxbox_LogosURL" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL~cache=}" title="{=L:set.nhttpd.url_of_logos_desc=}"/></td>
 			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:set.nhttpd.server=}</td></tr>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 			<tr>
 				<td>{=L:set.nhttpd.ips_without_keep_alive=}<br/>{=L:set.nhttpd.ips_without_keep_alive_desc=} </td>
 				<td><input type="text" name="no_keep_alive_ips" size="30" maxsize="254" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;~cache=}" "/>
 				</td>
 			</tr>
+			=}
 			<tr>
 				<td>{=L:set.nhttpd.cache=}</td>
 				<td><a href="/y/cache-info" target="_blank"><u>{=L:set.nhttpd.cache_info=}</u>&nbsp;</a><button type="button" ytype="clear" name="clearcache" onclick="javascript:yhttpd_cache_clear('');">{=L:set.nhttpd.clear_cache=}</button></td>
