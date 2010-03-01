@@ -79,6 +79,7 @@ class cAudio
 		/* volume, min = 0, max = 255 */
 		int setVolume(unsigned int left, unsigned int right);
 		int getVolume(void) { return volume;}
+		bool getMuteStatus(void) { return Muted; }
 
 		/* start and stop audio */
 		int Start(void);

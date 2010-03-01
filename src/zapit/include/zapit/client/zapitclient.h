@@ -1,5 +1,5 @@
 /*
-  Client-Interface für zapit  -   DBoxII-Project
+  Client-Interface fï¿½r zapit  -   DBoxII-Project
 
   License: GPL
 
@@ -353,6 +353,7 @@ class CZapitClient:public CBasicClient
 
 	/* mute audio */
 	void muteAudio(const bool mute);
+	bool getMuteStatus();
 
 	/* set audio volume */
 	void setVolume(const unsigned int left, const unsigned int right);

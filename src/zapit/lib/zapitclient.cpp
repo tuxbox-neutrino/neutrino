@@ -467,6 +467,16 @@ void CZapitClient::muteAudio(const bool mute)
 
 	close_connection();
 }
+// Get mute status
+bool CZapitClient::getMuteStatus()
+{
+	CZapitMessages::commandBoolean msg;
+
+	send(CZapitMessages::CMD_GET_MUTE_STATUS, (char*)&msg, sizeof(msg));
+	CBasicClient::receive_data((char*)&msg, sizeof(msg));
+	close_connection();
+	return msg.truefalse;
+}
 
 void CZapitClient::setVolume(const unsigned int left, const unsigned int right)
 {

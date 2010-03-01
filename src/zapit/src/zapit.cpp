@@ -1508,7 +1508,13 @@ DBG("NVOD insert %llx\n", CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPO
                 CBasicServer::send_data(connfd, &msgVolume, sizeof(msgVolume));
                 break;
         }
-
+	case CZapitMessages::CMD_GET_MUTE_STATUS: {
+		CZapitMessages::commandBoolean msgBoolean;
+		if(audioDecoder)
+			msgBoolean.truefalse = audioDecoder->getMuteStatus();
+		CBasicServer::send_data(connfd, &msgBoolean, sizeof(msgBoolean));
+		break;
+	}
 	case CZapitMessages::CMD_SET_STANDBY: {
 		CZapitMessages::commandBoolean msgBoolean;
 		CBasicServer::receive_data(connfd, &msgBoolean, sizeof(msgBoolean));
