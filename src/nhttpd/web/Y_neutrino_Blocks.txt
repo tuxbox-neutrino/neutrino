@@ -1156,35 +1156,35 @@ end-block~neutrino_bootoptions_save_settings
 start-block~neutrino_form-data_pictureviewer
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Bildbetrachter=}{=var-set:menu=Bildbetrachter=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-Bildbetrachter=}{=var-set:menu={=L:set.pv.pictureviewer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
 			<tr>
-				<td width="35%">Skalierung</td>
+				<td width="35%">{=L:set.pv.scale=}</td>
 				<td>
-					<select name="picviewer_scaling" title="scaling">
-					<option value="0" selected="selected">keine / none</option>
-					<option value="1">einfach / simple</option>
-					<option value="2">aufwendig / complex</option>
+					<select name="picviewer_scaling" title="{=L:set.pv.scale=}">
+					<option value="0" selected="selected">{=L:set.pv.scale.none=}</option>
+					<option value="1">{=L:set.pv.scale.simple=}</option>
+					<option value="2">{=L:set.pv.scale.complex=}</option>
 					</select>
 				</td>
 			</tr>
 			<tr>
-				<td>Diaschau-Anzeigedauer</td>
-				<td><input type="text" name="picviewer_slide_time" size="2" maxlength="2" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_slide_time~open=}" title="view time"/></td>
+				<td>{=L:set.pv.slideshow_duration=}</td>
+				<td><input type="text" name="picviewer_slide_time" size="2" maxlength="2" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_slide_time~open=}" /></td>
 			</tr>
 			<tr>
-				<td>Start-Verz.</td>
-				<td><input type="text" name="picviewer_picturedir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_picturedir~cache=}" title="directory to begin"/></td>
+				<td>{=L:set.pv.start_dir=}</td>
+				<td><input type="text" name="picviewer_picturedir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_picturedir~cache=}" /></td>
 			</tr>
 			<tr>
-				<td>Decoding-Server IP</td>
-				<td><input type="text" name="picviewer_decode_server_ip" size="15" maxlength="15" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_ip~cache=}" title="server ip (xxx.xxx.xxx.xxx)"/></td>
+				<td>{=L:set.pv.decoding_server_ip=}</td>
+				<td><input type="text" name="picviewer_decode_server_ip" size="15" maxlength="15" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_ip~cache=}" /></td>
 			</tr>
 			<tr>
-				<td>Decoding-Server Port</td>
-				<td><input type="text" name="picviewer_decode_server_port" size="5" maxlength="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_port~cache=}" title="port"/></td>
+				<td>{=L:set.pv.decoding_server_port=}</td>
+				<td><input type="text" name="picviewer_decode_server_port" size="5" maxlength="5" value="{=ini-get:/var/tuxbox/config/neutrino.conf;picviewer_decode_server_port~cache=}" /></td>
 			</tr>
 		</table>
 		<br/>
@@ -1192,7 +1192,7 @@ start-block~neutrino_form-data_pictureviewer
 		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_pictureviewer_save_settings;nix"/>
 		<input type="hidden" name="form" value="{=form=}"/>
 		<button type="button" ytype="save" title="{=L:save_values_desc=}s" onclick="do_submit()">{=L:save=}</button>
-		&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>
+		&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">{=L:set.reload_neutrino=}</button>
 		&nbsp;<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">{=L:help=}</a>
 	</form>
 	</div>
@@ -1230,64 +1230,64 @@ end-block~neutrino_pictureviewer_save_settings
 start-block~neutrino_form-data_audioplayer
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Audioplayer=}{=var-set:menu=Audioplayer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-Audioplayer=}{=var-set:menu={=L:set.ap.audioplayer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
 			<tr>
-				<td width="35%">Anzeige</td>
+				<td width="35%">{=L:set.ap.display_order=}</td>
 				<td>
-					<select name="audioplayer_display" title="display order">
-					<option value="0" selected="selected">Interpret, Titel</option>
-					<option value="1">Titel, Interpret</option>
+					<select name="audioplayer_display" >
+					<option value="0" selected="selected">{=L:set.ap.display_order.actor_title=}</option>
+					<option value="1">{=L:set.ap.display_order.title_actor=}</option>
 					</select>
 				</td>
 			</tr>
-			<tr title="select actual track: off/on">
-				<td>Selektiere akt. Track</td>
+			<tr>
+				<td>{=L:set.ap.select_actual_track=}</td>
 				<td>
 					<input type="radio" name="audioplayer_follow" value="0"/>{=L:off=}&nbsp;
 					<input type="radio" name="audioplayer_follow" value="1"/>{=L:on=}
 				</td>
 			</tr>
-			<tr title="search by Name: off/on">
-				<td>Titelsuche nach Name</td>
+			<tr>
+				<td>{=L:set.ap.search_by_name=}</td>
 				<td>
 					<input type="radio" name="audioplayer_select_title_by_name" value="0"/>{=L:off=}&nbsp;
 					<input type="radio" name="audioplayer_select_title_by_name" value="1"/>{=L:on=}
 				</td>
 			</tr>
-			<tr title="Repeatmode: off/on">
-				<td>Repeatmodus aktivieren</td>
+			<tr>
+				<td>{=L:set.ap.repeat_mode=}</td>
 				<td>
 					<input type="radio" name="audioplayer_repeat_on" value="0"/>{=L:off=}&nbsp;
 					<input type="radio" name="audioplayer_repeat_on" value="1"/>{=L:on=}
 				</td>
 			</tr>
-			<tr title="Show Playlist: off/on">
-				<td>Playlist anzeigen</td>
+			<tr>
+				<td>{=L:set.ap.show_playlist=}</td>
 				<td>
 					<input type="radio" name="audioplayer_show_playlist" value="0"/>{=L:off=}&nbsp;
 					<input type="radio" name="audioplayer_show_playlist" value="1"/>{=L:on=}
 				</td>
 			</tr>
 			<tr>
-				<td>Bildschirmschoner (min, 0=aus)</td>
-				<td><input type="text" name="audioplayer_screensaver" size="2" maxlength="2" value="{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_screensaver~open=}" title="screen saver"/></td>
+				<td>{=L:set.ap.screensaver=}</td>
+				<td><input type="text" name="audioplayer_screensaver" size="2" maxlength="2" value="{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_screensaver~open=}" /></td>
 			</tr>
-			<tr title="decode at high priority: off/on">
-				<td>Hohe Decodier-Priorit&auml;t</td>
+			<tr>
+				<td>{=L:set.ap.decode_priority=}</td>
 				<td>
 					<input type="radio" name="audioplayer_highprio" value="0"/>{=L:off=}&nbsp;
 					<input type="radio" name="audioplayer_highprio" value="1"/>{=L:on=}
 				</td>
 			</tr>
 			<tr>
-				<td>Start-Verz.</td>
-				<td><input type="text" name="audioplayer_audioplayerdir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_audioplayerdir~cache=}" title="directory to begin"/></td>
+				<td>{=L:set.ap.start_dir=}</td>
+				<td><input type="text" name="audioplayer_audioplayerdir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_audioplayerdir~cache=}" /></td>
 			</tr>
-			<tr title="parse Shoutcast Meta-Data: off/on">
-				<td>Shoutcast Meta-Daten</td>
+			<tr>
+				<td>{=L:set.ap.parse_shoutcast=}</td>
 				<td>
 					<input type="radio" name="audioplayer_enable_sc_metadata" value="0"/>{=L:off=}&nbsp;
 					<input type="radio" name="audioplayer_enable_sc_metadata" value="1"/>{=L:on=}
@@ -1299,7 +1299,7 @@ start-block~neutrino_form-data_audioplayer
 		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_audioplayer_save_settings;nix"/>
 		<input type="hidden" name="form" value="{=form=}"/>
 		<button type="button" ytype="save" title="{=L:save_values_desc=}s" onclick="do_submit()">{=L:save=}</button>
-		&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">reload Neutrino</button>
+		&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">{=L:set.reload_neutrino=}</button>
 		&nbsp;<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">{=L:help=}</a>
 	</form>
 	</div>

@@ -197,7 +197,29 @@ set.yweb.box_tag=Box Bezeichnung
 set.yweb.box_color_desc=Farbe der Box Bezeichnung im Top-Menue. z.B. 2188e0 eingeben ohne #
 set.yweb.box_color=Farbe
 set.yweb.start_page=Startseite
-
+========Settings Picture viewer
+set.pv.pictureviewer=Bildbetrachter
+set.pv.scale=Skalierung
+set.pv.scale.none=keine
+set.pv.scale.simple=einfach
+set.pv.scale.complex=aufwendig
+set.pv.slideshow_duration=Diaschau-Anzeigedauer
+set.pv.start_dir=Start-Verzeichnis
+set.pv.decoding_server_ip=Decoding-Server IP
+set.pv.decoding_server_port=Decoding-Server Port</td>
+========Settings Audioplayer
+set.ap.audioplayer=Audioplayer
+set.ap.display_order.actor_title=Interpret, Titel
+set.ap.display_order.title_actor=Titel, Interpret
+set.ap.display_order=Anzeige
+set.ap.select_actual_track=Selektiere akt. Track
+set.ap.search_by_name=Titelsuche nach Name
+set.ap.repeat_mode=Repeatmodus aktivieren
+set.ap.show_playlist=Playlist anzeigen
+set.ap.screensaver=Bildschirmschoner (min, 0=aus)
+set.ap.decode_priority=Hohe Decodier-Priorit&auml;t
+set.ap.start_dir=Start-Verzeichnis
+set.ap.parse_shoutcast=Shoutcast Meta-Daten
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen
 tools.info.processes=Prozesse

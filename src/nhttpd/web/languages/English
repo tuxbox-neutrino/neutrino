@@ -199,6 +199,29 @@ set.yweb.box_tag=Box Tag
 set.yweb.box_color_desc=Box Name color in Top-Menue. e.g. enter 2188e0 without #
 set.yweb.box_color=Color
 set.yweb.start_page=Start page
+========Settings Picture viewer
+set.pv.pictureviewer=Pictureviewer
+set.pv.scale=Scaling
+set.pv.scale.none=none
+set.pv.scale.simple=simple
+set.pv.scale.complex=complex
+set.pv.slideshow_duration=Slideshow View time
+set.pv.start_dir=Start Directory
+set.pv.decoding_server_ip=Decoding-Server IP
+set.pv.decoding_server_port=Decoding-Server Port</td>
+========Settings Audioplayer
+set.ap.audioplayer=Audioplayer
+set.ap.display_order.actor_title=Actor, Title
+set.ap.display_order.title_actor=Title, Actor
+set.ap.display_order=Display
+set.ap.select_actual_track=Select actual Track
+set.ap.search_by_name=Search by name
+set.ap.repeat_mode=Activate repeat mode
+set.ap.show_playlist=Show playlists
+set.ap.screensaver=Screen saver (min, 0=off)
+set.ap.decode_priority=High decoding priority
+set.ap.start_dir=Start directory
+set.ap.parse_shoutcast=Shoutcast Meta-Data
 ============ Tools Info
 tools.info.show_messages=Kernel Messages
 tools.info.processes=Processes
