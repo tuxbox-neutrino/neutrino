@@ -29,11 +29,11 @@ function do_submit()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-WebServer=}{=var-set:menu={=L:webserver=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-WebServer=}{=var-set:menu={=L:set.nhttpd.webserver=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table border="0" width="100%">
-			<tr><td colspan="2" class="y_form_header">{=L:authentication=}</td></tr>
+			<tr><td colspan="2" class="y_form_header">{=L:set.nhttpd.authentication=}</td></tr>
 			<tr>
 				<td>{=L:user=}</td>
 				<td><input type="text" name="authuser" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.username;root~open=}" title="{=L:user=}"/></td>
@@ -43,11 +43,11 @@ function do_submit()
 				<td><input type="password" name="authpassword" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.password;dbox2~cache=}" title="{=L:password=}"/></td>
 			</tr>
 			<tr>
-				<td>{=L:client_without_authentication=}</td>
-				<td><input type="text" name="noauthclient" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.no_auth_client~cache=}" title="{=L:client_without_authentication_desc=}"/></td>
+				<td>{=L:set.nhttpd.client_without_authentication=}</td>
+				<td><input type="text" name="noauthclient" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_auth.no_auth_client~cache=}" title="{=L:set.nhttpd.client_without_authentication_desc=}"/></td>
 			</tr>
 			<tr>
-				<td>{=L:authentication=}</td>
+				<td>{=L:set.nhttpd.authentication=}</td>
 				<td>
 					<input type="radio" name="authenticate" value="false" />{=L:off=}&nbsp;
 					<input type="radio" name="authenticate" value="true" />{=L:on=}
@@ -61,26 +61,30 @@ function do_submit()
 				</select>
 			</tr>
 			<tr>
-				<td>{=L:port=}</td>
+				<td>{=L:set.nhttpd.port=}</td>
 				<td><input type="text" name="port" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.port;80~cache=}" title="{=L:port=}"/>&nbsp;{=L:active_after_boot=}
 				</td>
 			</tr>
-				<td>{=L:threading=}</td>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+			<tr>
+				<td>{=L:set.nhttpd.threading=}</td>
 				<td>
 					<input type="radio" name="threading" value="false" />{=L:off=}&nbsp;
 					<input type="radio" name="threading" value="true" />{=L:on=}
 				</td>
+			</tr>
+			=}
 			<tr>
-				<td>{=L:alternate_web_folder=}</td>
+				<td>{=L:set.nhttpd.alternate_web_folder=}</td>
 				<td><input type="text" name="override_directory" size="20" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory~cache=}" title="{=L:alternate_web_folder=}"/>&nbsp;{=L:active_after_boot=}
 					<input type="hidden" name="HostedDocRoot" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.hosted_directory~cache=}" title="Root of hosted Web. Enter mount directory."/></td>
 			</tr>
 			<tr>
-				<td>{=L:allowed_file_extensions=}</td>
+				<td>{=L:set.nhttpd.allowed_file_extensions=}</td>
 				<td><input type="text" name="mod_sendfile_mime_types" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types~cache=}" "/></td>
 			</tr>
 			<tr>
-				<td>{=L:allow_all_file_extensions=}</td>
+				<td>{=L:set.nhttpd.allow_all_file_extensions=}</td>
 				<td>
 					<input type="radio" name="mod_sendfile_sendAll" value="false" />{=L:off=}&nbsp;
 					<input type="radio" name="mod_sendfile_sendAll" value="true" />{=L:on=}
@@ -88,22 +92,22 @@ function do_submit()
 			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:logos=}</td></tr>
 			<tr>
-				<td>{=L:url=}</td>
-				<td><input type="text" name="Tuxbox_LogosURL" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL~cache=}" title="{=L:url_of_logos_desc=}"/></td>
+				<td>{=L:set.nhttpd.url_of_logos=}</td>
+				<td><input type="text" name="Tuxbox_LogosURL" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL~cache=}" title="{=L:set.nhttpd.url_of_logos_desc=}"/></td>
 			</tr>
-			<tr><td colspan="2" class="y_form_header">{=L:server=}</td></tr>
+			<tr><td colspan="2" class="y_form_header">{=L:set.nhttpd.server=}</td></tr>
 			<tr>
-				<td>{=L:ips_without_keep_alive=}<br/>{=L:ips_without_keep_alive_desc=} </td>
+				<td>{=L:set.nhttpd.ips_without_keep_alive=}<br/>{=L:set.nhttpd.ips_without_keep_alive_desc=} </td>
 				<td><input type="text" name="no_keep_alive_ips" size="30" maxsize="254" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;server.no_keep-alive_ips;~cache=}" "/>
 				</td>
 			</tr>
 			<tr>
-				<td>{=L:cache=}</td>
-				<td><a href="/y/cache-info" target="_blank"><u>{=L:cache_info=}</u>&nbsp;</a><button type="button" ytype="clear" name="clearcache" onclick="javascript:yhttpd_cache_clear('');">{=L:clear_cache=}</button></td>
+				<td>{=L:set.nhttpd.cache=}</td>
+				<td><a href="/y/cache-info" target="_blank"><u>{=L:set.nhttpd.cache_info=}</u>&nbsp;</a><button type="button" ytype="clear" name="clearcache" onclick="javascript:yhttpd_cache_clear('');">{=L:set.nhttpd.clear_cache=}</button></td>
 			</tr>
 			<tr>
-				<td>{=L:server_configuration=}</td>
-				<td><a href="/y/server-config" target="_blank"><u>{=L:server_configuration=}</u></a></td>
+				<td>{=L:set.nhttpd.server_configuration=}</td>
+				<td><a href="/y/server-config" target="_blank"><u>{=L:set.nhttpd.server_configuration=}</u></a></td>
 			</tr>
 		</table>
 		<br/>

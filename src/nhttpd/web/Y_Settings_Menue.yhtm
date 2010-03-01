@@ -48,16 +48,16 @@ function init(){
 			<ul id="secmenu_general">
 			{=if-empty:{=var-get:management=}~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">yWeb</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:webserver=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.webserver=}</li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:zapit=}</li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:ucodes=}</li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:boot_logo=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:timer_settings=}</a></li>
 			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=timer_settings=}</a></li>
 			~
 				<li><a target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
-				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:webserver=}</a></li>
+				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:set.menue.webserver=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_zapit.yhtm">{=L:zapit=}</a></li>
 				<li><a target="work" href="Y_Settings_ucodes.yhtm">{=L:ucodes=}</a></li>
@@ -65,8 +65,8 @@ function init(){
 			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_Backup.yhtm">{=L:backup_restore=}</a></li>
+				<li><a target="work" href="Y_Settings_Timer.yhtm">{=L:timer_settings=}</a></li>
 			~=}
-				<li><a target="work" href="Y_Settings_Timer.yhtm">{=timer_settings=}</a></li>
 			=}	
 				<!--<li><a title="change layout skin" target="work" href="Y_Settings_Skin.yhtm">Skins</a></li>-->
 			</ul>

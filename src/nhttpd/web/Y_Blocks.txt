@@ -1,4 +1,3 @@
-# ------- Timer iFrame
 start-block~timer
 {=include-block:Y_Blocks.txt;head=}
 </head>
@@ -353,8 +352,8 @@ function do_submit()
 				</select>
 			</tr>
 			<tr>
-				<td>{=L:start_page=}</td>
-				<td>	<select name="start_page" title="{=L:start_page=}">
+				<td>{=L:set.yweb.start_page=}</td>
+				<td>	<select name="start_page" title="{=L:set.yweb.start_page=}">
 					<option value="bouquets" selected="selected">{=L:bouquets=}</option>
 					<option value="control">{=L:control=}</option>
 					<option value="none">{=L:empty=}</option>
