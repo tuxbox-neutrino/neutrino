@@ -49,39 +49,41 @@ function init(){
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
 <body>
 <div class="y_menu_sec_box">
-	<div class="y_menu_sec_box_head"><h2>Live/Timer</h2></div>
+	<div class="y_menu_sec_box_head"><h2>{=L:live.heading=}</h2></div>
 	<div class="y_menu_sec_box_body">
-		<div class="y_menu_sec_section">Live</div>
+		<div class="y_menu_sec_section">{=L:live.live=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_live">
 				<li>
 					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
-						<td><a target="work" title="LiveTV" href="Y_LiveViewFull.yhtm?mode=tv&amp;typ=live">TV</a></td>
-						<td align="right"><a title="LiveTV (popup)" href="javascript:go_live_popup_tv()"><img src="/images/popup.png"/></a></td>
+						<td><a target="work" href="Y_LiveViewFull.yhtm?mode=tv&amp;typ=live">{=L:live.tv=}</a></td>
+						<td align="right"><a title="{=L:live.tv_popup_desc=}LiveTV (popup)" href="javascript:go_live_popup_tv()"><img src="/images/popup.png"/></a></td>
 					</tr></table>
 				</li>
 				<li>
 					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
-						<td><a target="work" title="LiveRadio" href="Y_LiveViewFull.yhtm?mode=radio&amp;typ=live">Radio</a></td>
-						<td align="right"><a title="LiveRadio (popup)" href="javascript:go_live_popup_radio()"><img src="/images/popup.png"/></a></td>
-					</tr></table>
-				</li>
-				<li><a target="work" title="use LiveView with 2 boxes" href="Y_Live_DoubleView.yhtm">DoubleView</a></li>
-			</ul>
-		</div>
-		<div class="y_menu_sec_section">Timer</div>
-		<div class="y_menu_sec">
-			<ul id="secmenu_timer">
-				<li><a target="work" title="organize timer" href="Y_Timer_List.yhtm">Timer</a></li>
-				<li><a target="work" title="View EPG" href="Y_Boxcontrol_Bouquets.yhtm">EPG</a></li>
-				<li>
-					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
-						<td><a target="work" title="View EPG" href="Y_EPG_Plus.yhtm">EPG Plus</a></td>
-						<td align="right"><a title="EPG+ (popup)" href="javascript:epg_plus_popup()"><img src="/images/popup.png"/></a></td>
+						<td><a target="work" href="Y_LiveViewFull.yhtm?mode=radio&amp;typ=live">{=L:live.radio=}</a></td>
+						<td align="right"><a title="{=L:live.radio_popup_desc=}" href="javascript:go_live_popup_radio()"><img src="/images/popup.png"/></a></td>
 					</tr></table>
 				</li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" title="timer synchronisation with web tv-planer" href="Y_Tools_Timer_Sync.yhtm">Timer Sync</a></li>
+				<li><a target="work" title="use LiveView with 2 boxes" href="Y_Live_DoubleView.yhtm">{=L:live.double_view=}</a></li>
+			=}
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">{=L:live.timer=}</div>
+		<div class="y_menu_sec">
+			<ul id="secmenu_timer">
+				<li><a target="work" href="Y_Timer_List.yhtm">{=L:live.timer=}</a></li>
+				<li><a target="work" href="Y_Boxcontrol_Bouquets.yhtm">{=L:live.epg=}</a></li>
+				<li>
+					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
+						<td><a target="work" href="Y_EPG_Plus.yhtm">{=L:live.epg_plus=}</a></td>
+						<td align="right"><a title="{=L:live.epg_plus_popup_desc=}" href="javascript:epg_plus_popup()"><img src="/images/popup.png"/></a></td>
+					</tr></table>
+				</li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Tools_Timer_Sync.yhtm">{=L:live.timer_sync=}</a></li>
 			~=}
 				<!--<li><a target="work" title="recorder" href="Y_Blank.yhtm">Recorder</a></li>-->
 			</ul>

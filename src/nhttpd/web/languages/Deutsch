@@ -247,6 +247,19 @@ tools.path=Verzeichnis
 tools.command=Kommando
 tools.cmd.enter_command=Auszuführendes Kommando eingeben
 tools.cmd.execute_command=Kommando ausführen
+=========== LIVE Menue
+live.heading=Live/Timer
+live.live=Live
+live.tv_popup_desc=LiveTV (popup)
+live.tv=TV
+live.radio_popup_desc=LiveRadio (popup)
+live.radio=Radio
+live.double_view=DoubleView
+live.timer=Time
+live.epg=EPG
+live.epg_plus_popup_desc=EPG+ (popup)
+live.epg_plus=EPG Plus
+live.timer_sync=Timer Sync
 =========== LIVE
 live.get_stream_info=Streaming-Informationen<br/>werden ermittelt.
 live.getting_bouquets=Hole Bouquets ...
@@ -271,7 +284,28 @@ live.transcode=Transkodiermodus
 live.build_vlc=... erstelle Live ...
 live.select_bouquet=Bouquet auswählen - Sender werden aktualisiert
 live.select_channel=Sender wechseln - nutze zap
-
+=========== LIVE Timer Edit
+live.timer_edit.timer=Timer
+live.timer_edit.times=Zeiten
+live.timer_edit.alarm_date=Alarm-Datum
+live.timer_edit.time=Zeit
+live.timer_edit.stop_date=Stop-Datum
+live.timer_edit.repeat=Wiederholung
+live.timer_edit.repeat1=Wiederholungen (0 = unbegrenzt)
+live.timer_edit.weekdays.format=(Mo-So, X=Timer)
+live.timer_edit.weekdays=Wochentage
+live.timer_edit.values=Werte
+live.timer_edit.channel=Programm
+live.timer_edit.apids=APIDs
+live.timer_edit.apids.default=Default
+live.timer_edit.apids.standard=Standard
+live.timer_edit.apids.alt=Alternative
+live.timer_edit.apids.ac3=AC3
+live.timer_edit.apids=APids
+live.timer_edit.standby=Standby
+live.timer_edit.plugin=Plugin
+live.timer_edit.rec_dir=Aufnahmeverzeichnis
+live.timer_edit.description=Beschreibung
 =========== GENERAL
 clear=löschen
 submit=Ausführen

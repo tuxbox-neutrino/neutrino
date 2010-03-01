@@ -4,16 +4,16 @@
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Live_Timer-Timer=}{=var-set:menu=Timer=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Live_Timer-Timer=}{=var-set:menu={=L:live.timer_edit.timer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 <table class="timer">
 <tr class="timer_header">
-	<td>Alarm-Zeit</td>
-	<td>Stop-Zeit</td>
-	<td>Wiederholung</td>
-	<td>Wiederholungen</td>
-	<td>Typ</td>
-	<td>Beschreibung</td>
+	<td>{=L:live.timer_edit.alarm_date=}</td>
+	<td>{=L:live.timer_edit.stop_date=}</td>
+	<td>{=L:live.timer_edit.repeat=}</td>
+	<td>{=L:live.timer_edit.repeat=}</td>
+	<td>{=L:live.timer_edit.type=}</td>
+	<td>{=L:live.timer_edit.description=}</td>
 	<td>&nbsp;</td>
 	<td>&nbsp;</td>
 </tr>
