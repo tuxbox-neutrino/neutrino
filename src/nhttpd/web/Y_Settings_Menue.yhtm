@@ -81,12 +81,14 @@ function init(){
 			~=}
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:parental=}</a></li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:recording=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:direct_recording=}</a></li>
+			=}
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:audio_player=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:esound_server=}</a></li>
-			~=}
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:movieplayer=}</a></li>
+			~=}
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:pictureviewer=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:lcd_display=}</a></li>
@@ -94,8 +96,8 @@ function init(){
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:key_settings=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:boot_options=}</a></li>
-			~=}
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:others=}</a></li>
+			~=}
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:peronalization=}</li>
 			~
 				<li><a target="work" href="Y_Boxcontrol_Bouquet_Editor_Main.yhtm">{=L:bouquet_editor=}</a></li>
@@ -104,12 +106,14 @@ function init(){
 			~=}
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental">{=L:parental=}</a></li>
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record">{=L:recording=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording">{=L:direct_recording=}</a></li>
+			=}
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer">{=L:audio_player=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound">{=L:esound_server=}</a></li>
-			~=}
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer">{=L:movieplayer=}</a></li>
+			~=}
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer">{=L:pictureviewer=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_lcd.yhtm">{=L:lcd_display=}</a></li>
@@ -119,8 +123,8 @@ function init(){
 			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions">{=L:boot_options=}</a></li>
-			~=}
 				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse">{=L:others=}</a></li>
+			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_personalize.yhtm">{=L:peronalization=}</a></li>
 			~=}
