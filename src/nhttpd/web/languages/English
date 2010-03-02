@@ -232,6 +232,16 @@ tools.info.partitions=Partitions
 tools.info.mtd=mtd
 tools.info.stat=Statistics
 tools.info.version=Version
+============ Tools yInstaller
+tools.yinstaller.no_file_given=No file given!
+tools.yinstaller.space.var=Space in /var total
+tools.yinstaller.space.used=k used
+tools.yinstaller.space.free=k free
+tools.yinstaller.space.percentage=k percentage used
+tools.yinstaller.not_determine=Can not determine free space. /var is no partition! JFFS2, YADD or USB?
+tools.yinstaller.head=yInstaller
+tools.yinstaller.tar_file=tar-File
+tools.yinstaller.upload_install=upload and install
 ============ Tools
 tools.automount_desc=organize file automounts
 tools.automount=AutoMounts
@@ -308,7 +318,8 @@ live.timer_edit.standby=Standby
 live.timer_edit.plugin=Plugin
 live.timer_edit.rec_dir=Recordind directory
 live.timer_edit.description=Description
-=========== GENERAL
+=========== GENERAL / GLOBAL
+global.no_iframes=Your Browser does not support IFrames.
 clear=clear
 submit=Submit
 action=Action
