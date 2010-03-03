@@ -1,36 +1,40 @@
 {=include-block:Y_Blocks.txt;head=}
 <script type="text/javascript" src="/Y_Baselib.js"></script>
+<script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript">
 //<![CDATA[
 function rcsim(_key) {
+	$('statusline').show();
+	$('buttons').hide();
 	dbox_rcsim(_key);
-	do_dboxshot();
+	window.setTimeout("do_dboxshot()",50);
 }
 function do_dboxshot(){
-	var res = dbox_exec_tools("fbshot -r -o /tmp/a.bmp");
-	if(res != "")
-		dbox_exec_tools("fbshot -o /tmp/a.bmp");
+	var res = dbox_exec_tools("fbshot fb /tmp/a.png");
 	var _shot = document.getElementById("shot");
-	_shot.src = "/tmp/a.bmp?"+Math.random();
+	_shot.src = "/tmp/a.png?"+Math.random();
+	$('statusline').hide();
+	$('buttons').show();
 }
 function do_clearshot(){
 	window.setTimeout("do_clearshot2()", 500);
 }
 function do_clearshot2(){
 	dbox_exec_tools("fbshot_clear");
-	show_waitbox(false);
 }
 //]]>
 </script>
 </head>
 <body onload="do_dboxshot()">
-{=var-set:wait_text=Schnappschuss wird erstellt (take snapshot)=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
 	{=var-set:help_url=Help-BoxControl-Remote_OSD=}{=var-set:menu=Remote &amp; OSD=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
-		<button name="dboxshot" ytype="shot" onclick="do_dboxshot()">Shot</button>&nbsp;
-		<button name="clearshot" ytype="clearshot" onclick="do_clearshot()">Delete shots</button>
+		<div style="height:30x;">
+		<span id="buttons" style="display:none"><button name="dboxshot" ytype="shot" onclick="do_dboxshot()">Shot</button>&nbsp;
+		<button name="clearshot" ytype="clearshot" onclick="do_clearshot()">Delete shots</button></span>
+		<span id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/></span>
+		</div>
 		<table cellpadding="0">
 		<tr>
 			<td>{=include-block:Y_Blocks.txt;remote=}</td>
