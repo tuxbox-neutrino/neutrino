@@ -4,19 +4,19 @@
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Message=}{=var-set:menu={=L:messages=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-BoxControl-Message=}{=var-set:menu={=L:bc.menue.messages=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/control/message" method="get" enctype="application/x-www-form-urlencoded" accept-charset="UTF-8">
 		<table class="y_invisible_table" cellpadding="5" width="100%">
-		<tr><td class="y_form_header">{=L:message_to_screen=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.msg.message_to_screen=}</td></tr>
 		<tr><td>
-			<input name="nmsg" type="text" size="50" maxlength="255" title="{=L:message_to_screen_desc=}"/>
-			<button type="submit" name="message" ytype="go" title="{=L:send=message=}">{=L:send=}</button>
+			<input name="nmsg" type="text" size="50" maxlength="255" title="{=L:bc.msg.message_to_screen_desc=}"/>
+			<button type="submit" name="message" ytype="go" title="{=L:bc.msg.send_message=}">{=L:send=}</button>
 		</td></tr>
-		<tr><td class="y_form_header">{=L:popup_to_screen=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.msg.popup_to_screen=}</td></tr>
 		<tr><td>
-			<input name="popup" type="text" size="50" maxlength="255" title="{=L:message_to_screen_desc=}"/>
-			<button type="submit" name="pmessage" ytype="go" title="{=L:send=message=}">{=L:send=}</button>
+			<input name="popup" type="text" size="50" maxlength="255" title="{=L:bc.msg.message_to_screen_desc=}"/>
+			<button type="submit" name="pmessage" ytype="go" title="{=L:bc.msg.send_message=}">{=L:send=}</button>
 		</td></tr>
 		</table>
 		<br/>

@@ -41,7 +41,7 @@ function init(){
 <body onload="init()">
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
 <div class="y_menu_sec_box">
-	<div class="y_menu_sec_box_head"><h2>{=L:settings=}</h2></div>
+	<div class="y_menu_sec_box_head"><h2>{=L:main.settings=}</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec_section">{=L:general=}</div>
 		<div class="y_menu_sec">

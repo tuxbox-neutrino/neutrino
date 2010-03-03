@@ -98,29 +98,29 @@ function vlc() {
 		<table border="0" width="100%">
 		<tr>
 			<td width="150" id="prim">
-				<span style="font-size: 8pt;position:relative;left:45px;top:10px;">{=L:version=} {=ini-get:Y_Version.txt;version=}</span>
+				<span style="font-size: 8pt;position:relative;left:45px;top:10px;">{=L:main.version=} {=ini-get:Y_Version.txt;version=}</span>
 			</td>
 			<td>
 				<ul id="menu_prim" class="y_menu_prim">
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_boxcontrol"
-						title="{=L:boxcontrol_desc=}">{=L:boxcontrol=}</a></li>
+						title="{=L:main.boxcontrol_desc=}">{=L:main.boxcontrol=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live"
-						title="{=L:live_desc=}">{=L:live=}</a></li>
+						title="{=L:main.live_desc=}">{=L:main.live=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_tools"
-						title="{=L:tools_desc=}">{=L:tools=}</a></li>
+						title="{=L:main.tools_desc=}">{=L:main.tools=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_settings"
-						title="{=L:settings_desc=}">{=L:settings=}</a></li>
+						title="{=L:main.settings_desc=}">{=L:main.settings=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_ext"
-						title="{=L:extensions_desc=}">{=L:extensions=}</a></li>
+						title="{=L:main.extensions_desc=}">{=L:main.extensions=}</a></li>
 					<li><a target="base" href="Y_Dyn_Pages.yhtm?page=frame_info"
-						title="{=L:info_desc=}">{=L:info=}</a></li>
+						title="{=L:main.info_desc=}">{=L:main.info=}</a></li>
 				</ul>
 			</td>
 			<td>
-				<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live_directtv" title={=L:live_tv_desc=}><img src="/images/live.gif"></a>&nbsp;
-				<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live&dostart=live_tv_popup" title="{=L:live_tv_popup_desc=}"><img src="/images/live_popup.gif"></a>&nbsp;
-				<a target="base" href="Y_Tools_remote_osd.yhtm?full=1" title="{=L:remote_full_desc=}"><img src="/images/fb.png"></a>&nbsp;
-				<a href="javascript:vlc()" title="{=L:stream_to_vlc_client_desc=}"><img src="/images/vlc.gif"></a>
+				<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live_directtv" title={=L:main.live_tv_desc=}><img src="/images/live.gif"></a>&nbsp;
+				<a target="base" href="Y_Dyn_Pages.yhtm?page=frame_live&dostart=live_tv_popup" title="{=L:main.live_tv_popup_desc=}"><img src="/images/live_popup.gif"></a>&nbsp;
+				<a target="base" href="Y_Tools_remote_osd.yhtm?full=1" title="{=L:main.remote_full_desc=}"><img src="/images/fb.png"></a>&nbsp;
+				<a href="javascript:vlc()" title="{=L:main.stream_to_vlc_client_desc=}"><img src="/images/vlc.gif"></a>
 			</td>
 			<td align="right">
 				<span id="state" style="color : red;font-family: Courier New, Courier, monospace;">&nbsp;</span>

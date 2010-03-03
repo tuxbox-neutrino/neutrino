@@ -29,7 +29,7 @@ function build_menu(){
 </head>
 <body onload="build_menu()">
 <div class="y_menu_sec_box">
-	<div class="y_menu_sec_box_head"><h2>{=L:extensions=}</h2></div>
+	<div class="y_menu_sec_box_head"><h2>{=L:main.extensions=}</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec_section">{=L:normal=}</div>
 		<div class="y_menu_sec">

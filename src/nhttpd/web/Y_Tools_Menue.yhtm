@@ -35,9 +35,9 @@ function init(){
 {=var-set:etherwake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/etherwake~/bin/etherwake~{=if-file-exists:/var/bin/etherwake~/var/bin/etherwake~=}=}=}=}
 <body onload="init()">
 <div class="y_menu_sec_box">
-	<div class="y_menu_sec_box_head"><h2>{=L:tools=}</h2></div>
+	<div class="y_menu_sec_box_head"><h2>{=L:main.tools=}</h2></div>
 	<div class="y_menu_sec_box_body">
-		<div class="y_menu_sec_section">{=L:tools=}</div>
+		<div class="y_menu_sec_section">{=L:main.tools=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_tools">
 			{=if-empty:{=var-get:management=}~

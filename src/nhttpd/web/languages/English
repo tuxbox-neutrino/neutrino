@@ -1,70 +1,77 @@
+#========= MAIN Menue
+main.live_tv_desc=LiveTV
+main.live_tv_popup_desc=LiveTV popup
+main.remote_full_desc=Remote & OSD full
+main.stream_to_vlc_client_desc=Stream to VLC Client
+main.version=Version
+
 # =========Main Menue
-boxcontrol=Boxcontrol
-boxcontrol_desc=Boxcontrol & Bouquets
-live=Live
-live_desc=LiveView, Timer Sync &amp; Settings
-tools=Tools
-tools_desc=Mounts, WOL, Expert Tools
-settings=Settings
-settings_desc=Settings for Box, Web, Plugins ...
-extensions=Extensions
-extensions_desc=User Extentions ...
-info=Info
-info_desc=Information about yWeb, Updates
-
-live_tv_desc=LiveTV
-live_tv_popup_desc=LiveTV popup
-remote_full_desc=Remote & OSD full
-stream_to_vlc_client_desc=Stream to VLC Client
-
-version=Version
+main.boxcontrol=Boxcontrol
+main.boxcontrol_desc=Boxcontrol & Bouquets
+main.live=Live
+main.live_desc=LiveView, Timer Sync &amp; Settings
+main.tools=Tools
+main.tools_desc=Mounts, WOL, Expert Tools
+main.settings=Settings
+main.settings_desc=Settings for Box, Web, Plugins ...
+main.extensions=Extensions
+main.extensions_desc=User Extensions ...
+main.info=Info
+main.info_desc=Information about yWeb, Updates
 
 #========= Boxcontrol Menue
-bouquets_desc=Switch channels
-bouquets=Bouquets
-control_desc=control box functions (reboot, remote control, SPTS, ...)
-control=Control
-messages_desc=send Messages to box
-messages=Messages
-remote_desc=Web-based Remote Control
-remote=Remote
-lcd_screenshot_desc=make lcd screenshot
-lcd_screenshot=LCD Screenshot
-lcd_screenshot_desc_ni=lcshot not installed at /bin or /var/bin
-osd_screenshot_desc=make osd screenshot
-osd_screenshot=OSD Screenshot
-osd_screenshot_desc_ni=fbshot not installed at /bin or /var/bin
-remote_osd_desc=remote and osd
-remote_osd=Remote & OSD
-remote_osd_desc_ni=dboxshot not installed at /bin or /var/bin
+bc.menue.bouquets_desc=Switch channels
+bc.menue.bouquets=Bouquets
+bc.menue.control_desc=control box functions (reboot, remote control, SPTS, ...)
+bc.menue.control=Control
+bc.menue.messages_desc=send Messages to box
+bc.menue.messages=Messages
+bc.menue.remote_desc=Web-based Remote Control
+bc.menue.remote=Remote
+bc.menue.lcd_screenshot_desc=make lcd screenshot
+bc.menue.lcd_screenshot=LCD Screenshot
+bc.menue.lcd_screenshot_desc_ni=lcshot not installed at /bin or /var/bin
+bc.menue.osd_screenshot_desc=make osd screenshot
+bc.menue.osd_screenshot=OSD Screenshot
+bc.menue.osd_screenshot_desc_ni=fbshot not installed at /bin or /var/bin
+bc.menue.remote_osd_desc=remote and osd
+bc.menue.remote_osd=Remote & OSD
+bc.menue.remote_osd_desc_ni=dboxshot not installed at /bin or /var/bin
 
-decrease_volume=decrease volumen
-increase_volume=increase volumen
-mute_volume=mute volumen
-switch_to_tv=switch to TV
-switch_to_radio=switch to Radio
-webinf_slavebox=Webinterface der SlaveBox
-volumen_display=volumen display
+bc.menue.decrease_volume=decrease volumen
+bc.menue.increase_volume=increase volumen
+bc.menue.mute_volume=mute volumen
+bc.menue.switch_to_tv=switch to TV
+bc.menue.switch_to_radio=switch to Radio
+bc.menue.webinf_slavebox=Webinterface der SlaveBox
+bc.menue.volumen_display=volumen display
 
 ========= BOX Control
-freemem=FreeMem
-lock=lock
-unlock=unlock
-lcd_unlock=LCD unlock
-standby_mode=standby mode
-recording_mode=recording mode
-box=box
-playback=playback
-epg_sectiond=EPG Sectiond
-spts=SPTS
-live_lock=live lock
-optical_output=optical output
-esound_server=ESound Server
-
-message_to_screen_desc=enter message to send to TV screen
-message_to_screen=Message on screen
-popup_to_screen=Message as popup
-send_message=send message
+bc.control.freemem=FreeMem
+bc.control.lock=lock
+bc.control.unlock=unlock
+bc.control.lcd_unlock=LCD unlock
+bc.control.standby_mode=standby mode
+bc.control.recording_mode=recording mode
+bc.control.box=box
+bc.control.remote=remote
+bc.control.playback=playback
+bc.control.epg_sectiond=EPG Sectiond
+bc.control.spts=SPTS
+bc.control.live_lock=live lock
+bc.control.optical_output=optical output
+bc.control.esound_server=ESound Server
+bc.control.reboot.ask=Really restart the Box?
+bc.control.reboot=reboot
+bc.control.shutdown.ask=Really shutdown the Box?
+bc.control.shutdown=shutdown
+bc.control.status=Status
+bc.control.restart=restart
+========= BOX Control - Message
+bc.msg.message_to_screen_desc=enter message to send to TV screen
+bc.msg.message_to_screen=Message on screen
+bc.msg.popup_to_screen=Message as popup
+bc.msg.send_message=send message
 ====== EXtension
 ext.installer_updater=Installer/Updater
 restriced_by_management_ip=restricted by ManagementIP

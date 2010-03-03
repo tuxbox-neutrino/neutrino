@@ -21,73 +21,73 @@ function goUrl(_url){
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Control=}{=var-set:menu=Control=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-BoxControl-Control=}{=var-set:menu={=L:bc.menue.control=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form action="">
 		<table class="y_invisible_table" cellpadding="5" width="100%">
-		<tr><td class="y_form_header">{=L:box=}</td><td class="y_form_header">{=L:standby_mode=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.control.box=}</td><td class="y_form_header">{=L:bc.control.standby_mode=}</td></tr>
 		<tr>
 			<td>
-			<input type="button" value="{=L:reboot=}" title="reboot" onclick='goConfirmUrl("dbox wirklich neu starten?","/control/reboot");'/>
-			<input type="button" value="{=L:shutdown=}" title="shutdown" onclick='goConfirmUrl("dbox wirklich ausschalten?","/control/shutdown");'/>
+			<input type="button" value="{=L:bc.control.reboot=}" onclick='goConfirmUrl("{=L:bc.control.reboot.ask=}","/control/reboot");'/>
+			<input type="button" value="{=L:bc.control.shutdown=}" onclick='goConfirmUrl("{=L:bc.control.shutdown.ask=}","/control/shutdown");'/>
 			</td>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/standby?on");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/standby?off");'/>
 		{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-			<input type="button" value="{=L:status=}" onclick='goUrl("/control/exec?Y_Tools&amp;standby_status");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/exec?Y_Tools&amp;standby_status");'/>
 		~=}
 			</td>
 		</tr>
-		<tr><td class="y_form_header">{=L:playback=}</td><td class="y_form_header">{=L:recording_mode=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.control.playback=}</td><td class="y_form_header">{=L:bc.control.recording_mode=}</td></tr>
 		<tr>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/zapto?startplayback");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/zapto?stopplayback");'/>
-			<input type="button" value="{=L:status=}" onclick='goUrl("/control/zapto?statusplayback");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/zapto?statusplayback");'/>
 			</td>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/setmode?record=start");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/setmode?record=stop");'/>
-			<input type="button" value="{=L:status=}" onclick='goUrl("/control/setmode?status");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/setmode?status");'/>
 			</td>
 		</tr>
 	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-		<tr><td class="y_form_header">{=L:epg_sectiond=}</td><td class="y_form_header">{=L:spts=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.control.epg_sectiond=}</td><td class="y_form_header">{=L:bc.control.spts=}</td></tr>
 		<tr>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/zapto?startsectionsd");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/zapto?stopsectionsd");'/>
-			<input type="button" value="{=L:status=}" onclick='goUrl("/control/zapto?statussectionsd");'/>
-			<input type="button" value="{=L:restart=}" onclick='goUrl("/control/zapto?restartsectionsd");'/>
-			<input type="button" value="{=L:freemem=}" onclick='goUrl("/control/zapto?freememsectionsd");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/zapto?statussectionsd");'/>
+			<input type="button" value="{=L:bc.control.restart=}" onclick='goUrl("/control/zapto?restartsectionsd");'/>
+			<input type="button" value="{=L:bc.control.freemem=}" onclick='goUrl("/control/zapto?freememsectionsd");'/>
 			</td>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/system?setAViAExtPlayBack=spts");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/system?setAViAExtPlayBack=pes");'/>
-			<input type="button" value="{=L:status=}" onclick='goUrl("/control/system?getAViAExtPlayBack");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/system?getAViAExtPlayBack");'/>
 			</td>
 		</tr>
 	~=}
-		<tr><td class="y_form_header">{=L:remote=}</td><td class="y_form_header">{=L:live_lock=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.control.remote=}</td><td class="y_form_header">{=L:bc.control.live_lock=}</td></tr>
 		<tr>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/rc?unlock");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/rc?lock");'/>
-			<input type="button" value="{=L:lcd_unlock=}" onclick='goUrl("/control/exec?Y_Live&amp;live_unlock");'/>
+			<input type="button" value="{=L:bc.control.lcd_unlock=}" onclick='goUrl("/control/exec?Y_Live&amp;live_unlock");'/>
 			</td>
 			<td>
-			<input type="button" value="{=L:lock=}" onclick='live_lock();' />
-			<input type="button" value="{=L:unlock=}" onclick='live_unlock();' />
+			<input type="button" value="{=L:bc.control.lock=}" onclick='live_lock();' />
+			<input type="button" value="{=L:bc.control.unlock=}" onclick='live_unlock();' />
 			</td>
 		</tr>
 	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-		<tr><td class="y_form_header">{=L:optical_output=}</td><td class="y_form_header">{=L:esound_server=}</td></tr>
+		<tr><td class="y_form_header">{=L:bc.control.optical_output=}</td><td class="y_form_header">{=L:bc.control.esound_server=}</td></tr>
 		<tr>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/system?setAViAExtIec=on");'/>
 			<input type="button" value="{=L:off=}" onclick='goUrl("/control/system?setAViAExtIec=off");'/>
-			<input type="button" value="{=L:status=}" onclick='goUrl("/control/system?getAViAExtIec");'/>
+			<input type="button" value="{=L:bc.control.status=}" onclick='goUrl("/control/system?getAViAExtIec");'/>
 			</td>
 			<td>
 			<input type="button" value="{=L:on=}" onclick='goUrl("/control/esound?on");'/>
