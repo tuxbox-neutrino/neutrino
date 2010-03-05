@@ -169,7 +169,7 @@ function loadXMLDoc(_url, _processReqChange)
 		}
 	}
 	else
-		alert("Kein Browser-Support fr XMLHttpRequest");
+		alert("No Browser-support for XMLHttpRequest");
 }
 function loadSyncURL2(_url)
 {
@@ -202,7 +202,7 @@ function loadSyncURL(_url)
 		}
 	}
 	else
-		alert("Kein Browser-Support fr XMLHttpRequest");
+		alert("No Browser-support for XMLHttpRequest");
 	if (_req.readyState == 4 && _req.status == 200)
 		return _req.responseText;
 	else
@@ -229,7 +229,7 @@ function loadSyncURLxml(_url)
 		}
 	}
 	else
-		alert("Kein Browser-Support fr XMLHttpRequest");
+		alert("No Browser-support for XMLHttpRequest");
 	if (_req.readyState == 4 && _req.status == 200)
 		return _req.responseXML;
 	else
@@ -381,7 +381,7 @@ function dbox_reload_neutrino(){
 }
 function dbox_exec_command(_cmd)
 {
-	alert("Diese Funktion dbox_exec_command wurde aus Sicherheitsgruenden abgeschafft. Bitte Extension updaten.");
+	alert("Function dbox_exec_command is deactivated for security reasons");
 	var __cmd = _cmd.replace(/ /g, "&");
 //	return loadSyncURL("/control/exec?Y_Tools&exec_cmd&"+__cmd);
 }

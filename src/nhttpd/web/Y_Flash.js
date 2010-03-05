@@ -92,7 +92,7 @@ function progress_get()
 }
 function do_submit()
 {
-	var msg = "Image flashen?";
+	var msg = "Flash Image?";
 	if(document.f.demo.checked)
 		msg = "DEMO: "+msg;
 	if(confirm(msg)==true){
@@ -112,6 +112,6 @@ function do_image_flash_ready()
 	window.clearInterval(aktiv);
 	$('flash_diag').hide();
 	loadSyncURL("/control/lcd?lock=0");
-	alert("Image geflasht. Nach Reboot OK druecken");
+	alert("Image flashed. Press OK after reboot");
 	top.location.href="/";
 }
