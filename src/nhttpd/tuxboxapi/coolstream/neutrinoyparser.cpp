@@ -384,7 +384,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 				(channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) ? " (NVOD)" : "",
 				channel->channel_id,
 				channel->channel_id & 0xFFFFFFFFFFFFULL,
-				((NeutrinoAPI->ChannelListEvents[channel->channel_id]) ? "<img src=\"/images/elist.gif\" alt=\"Programmvorschau\" style=\"border: 0px\" />" : ""));
+				((NeutrinoAPI->ChannelListEvents[channel->channel_id]) ? "<img src=\"/images/elist.gif\" alt=\"Program preview\" style=\"border: 0px\" />" : ""));
 
 		if (channel->channel_id == current_channel)
 			yresult += string_printf("\n&nbsp;&nbsp;<a href=\"javascript:do_streaminfo()\"><img src=\"/images/streaminfo.png\" alt=\"Streaminfo\" style=\"border: 0px\" /></a>");
@@ -669,8 +669,8 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 	hh->ParamList["tsid"] = itoh(serviceinfo.tsid);
 	hh->ParamList["vpid"] = itoh(serviceinfo.vpid);
 	hh->ParamList["apid"] = itoh(serviceinfo.apid);
-	hh->ParamList["vtxtpid"] = (serviceinfo.vtxtpid != 0)?itoh(serviceinfo.vtxtpid):"nicht verf&uuml;gbar";
-	hh->ParamList["pmtpid"] = (serviceinfo.pmtpid != 0)?itoh(serviceinfo.pmtpid):"nicht verf&uuml;gbar";
+	hh->ParamList["vtxtpid"] = (serviceinfo.vtxtpid != 0)?itoh(serviceinfo.vtxtpid):"not available";
+	hh->ParamList["pmtpid"] = (serviceinfo.pmtpid != 0)?itoh(serviceinfo.pmtpid):"not available";
 	hh->ParamList["tsfrequency"] = string_printf("%d.%d MHz", serviceinfo.tsfrequency/1000, serviceinfo.tsfrequency%1000);
 	hh->ParamList["polarisation"] = serviceinfo.polarisation==1?"h":"v";
 	hh->ParamList["ServiceName"] = NeutrinoAPI->GetServiceName(live_channel_id);//NeutrinoAPI->Zapit->getCurrentServiceID());
@@ -772,7 +772,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 			{
 				sAddData = NeutrinoAPI->GetServiceName(timer->channel_id);
 				if (sAddData.empty())
-					sAddData = NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unbekannter TV-Kanal" : "Unbekannter Radiokanal";
+					sAddData = NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
 
 				if( timer->apids != TIMERD_APIDS_CONF)
 				{
@@ -1010,11 +1010,11 @@ std::string  CNeutrinoYParser::func_bouquet_editor_main(CyhookHandler *hh, std::
 		// lock/unlock
 		std::string lock_action = (bouquet->bLocked) ? "unlock" : "lock";
 		std::string lock_img 	= (bouquet->bLocked) ? "lock" : "unlock";
-		std::string lock_alt 	= (bouquet->bLocked) ? "entsperren" : "sperren";
+		std::string lock_alt 	= (bouquet->bLocked) ? "unlock" : "lock";
 		// hide/show
 		std::string hidden_action= (bouquet->bHidden) ? "show" : "hide";
 		std::string hidden_img 	= (bouquet->bHidden) ? "hidden" : "visible";
-		std::string hidden_alt 	= (bouquet->bHidden) ? "verstecken" : "anzeigen";
+		std::string hidden_alt 	= (bouquet->bHidden) ? "hide" : "show";
 		// move down
 		std::string down_show 	= (i + 1 < bouquetSize) ? "visible" : "hidden";
 		//move up
