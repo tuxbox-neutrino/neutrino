@@ -21,20 +21,19 @@ function init(){
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Extensions-Uninstall=}{=var-set:menu=Extensions Uninstaller=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Extensions-Uninstall=}{=var-set:menu={=L:ext.uninstaller=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
-			<span id="status">Search for Extensions ...</span></div>
+			<span id="status">{=L:ext.search_for_ext=}</span></div>
 
 	<form method="post" name="update" action="">
-<!--		<input type="button" value="build list" title="build list" onclick="build_list()"/>-->
 		<br/>
-		<div class="y_form_header_oline">installed extensions</div>
+		<div class="y_form_header_oline">{=L:ext.installed_extensions=}</div>
 		<table class="lt_table" cellspacing="0" cellpadding="2">
 		<thead align="left">
 		<tr valign="bottom">
-			<th>Type</th><th>Extension</th>
-			<th>Tag</th><th>Version</th><th>Size/k</th><th>uninstall</th><th>Info</th>
+			<th>{=L:ext.type=}</th><th>{=L:ext.extension=}</th>
+			<th>{=L:ext.tag=}</th><th>{=L:ext.version=}</th><th>{=L:ext.size=}</th><th>{=L:ext.uninstall=}</th><th>{=L:ext.info=}</th>
 		</tr>
 		</thead>
 		<tbody id="update_list">
@@ -44,13 +43,13 @@ function init(){
 	</form>
 	<br/>
 	<div id="free">?</div>
-	Free:&nbsp;<span id="avaiable">?</span>k
+	{=L:ext.free=}:&nbsp;<span id="avaiable">?</span>k
 	<form method="post" name="log" action="">
 	<div class="y_form_header_oline">Log</div>
 		<table class="lt_table" cellspacing="0" cellpadding="4">
 		<thead align="left">
 		<tr>
-			<th>&nbsp;</th><th>Action</th><th>Status</th>
+			<th>&nbsp;</th><th>{=L:ext.action=}</th><th>{=L:ext.status=}</th>
 		</tr>
 		</thead>
 		<tbody id="slog_list">
@@ -60,7 +59,7 @@ function init(){
 		<br/>
 	</form>
 	<br/>
-	<div class="y_form_header">New extension settings (preview)</div>
+	<div class="y_form_header">{=L:ext.preview=}</div>
 	<form name="f" accept-charset="UTF-8" action="/y/cgi">
 		<table border="0" class="y_form_table" cellspacing="0" cellpadding="0">
 			<tr>

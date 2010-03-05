@@ -75,6 +75,25 @@ bc.msg.send_message=send message
 ====== EXtension
 ext.installer_updater=Installer/Updater
 restriced_by_management_ip=restricted by ManagementIP
+ext.uninstaller=Extensions Uninstaller
+ext.search_for_ext=Search for Extensions ...
+ext.installed_extensions=installed extensions
+ext.type=Type
+ext.extension=Extension
+ext.tag=Tag
+ext.version=Version
+ext.size=Size/k
+ext.uninstall=Uninstall
+ext.info=Info
+ext.free=Free
+ext.action=Action
+ext.status=Status
+ext.preview=New extension settings (preview)
+ext.update_preview=Update Preview List
+ext.your=Your
+ext.update=Update
+ext.update_install=update/install
+ext.site=Site
 ====== Bouquet
 bouquets_must_be_saved=All bouquets must be saved!
 bouquet_editor=Bouquet-Editor
