@@ -10,7 +10,7 @@
 # Settings : Skins
 # ===========================================================
 # -----------------------------------------------------------
-# Skin Liste
+# Skin List [Function inactive]
 # -----------------------------------------------------------
 skin_get()
 {
@@ -33,7 +33,7 @@ skin_get()
 	echo "$html_option_list"
 }
 # -----------------------------------------------------------
-# Skin setzen : css ueberschreiben  $1=Skin-Name
+# Set Skin: override css   $1=Skin-Name [Function inactive]
 # -----------------------------------------------------------
 skin_set()
 {
@@ -167,14 +167,14 @@ upload_copy()
 # -----------------------------------------------------------
 bootlogo_upload()
 {
-	msg="Boot-Logo neu gesetzt"
+	msg="Boot-Logo installed"
 	upload_copy "$y_boot_logo"
 	y_format_message_html
 }
 # -----------------------------------------------------------
 bootlogo_lcd_upload()
 {
-	msg="Boot-Logo-LCD neu gesetzt"
+	msg="Boot-Logo-LCD installed"
 	upload_copy "$y_boot_logo_lcd"
 	y_format_message_html
 }
@@ -267,7 +267,7 @@ do_unmount()
 }
 # -----------------------------------------------------------
 # AutoMount
-# deaktive mount "#" replaces "---" and "=" replaced ",,"
+# deactivate mount "#" replaces "---" and "=" replaced ",,"
 # -----------------------------------------------------------
 do_automount_list()
 {
@@ -282,12 +282,15 @@ do_automount_list()
 		i=`expr $i + 1`
 	done
 }
+# -----------------------------------------------------------
 do_automount_getline()
 {
 	mountname=`echo "$2"|sed -e "s/---/#/g"`
 	cat $1|sed -n "/^[#]*$mountname[^a-zA-Z0-9]/p"
 }
+# -----------------------------------------------------------
 # $1:filename, $2:mountname, $3-*:mountstring
+# -----------------------------------------------------------
 do_automount_setline()
 {
 	if ! [ -e $1 ]; then
@@ -537,44 +540,45 @@ restart_neutrino()
 #debug
 echo "call:$*" >> "/tmp/debug.txt"
 case "$1" in
-	skin_set)		skin_set $2 ;;
-	skin_get)		skin_get ;;
-	image_upload)		image_upload ;;
-	image_backup)		image_backup_mtd $2; echo "/tmp/flash_mtd$2.img" ;;
-	image_flash)		shift 1; flash_mtd $* ;;
+	skin_set)				skin_set $2 ;;
+	skin_get)				skin_get ;;
+	image_upload)			image_upload ;;
+	image_backup)			image_backup_mtd $2; echo "/tmp/flash_mtd$2.img" ;;
+	image_flash)			shift 1; flash_mtd $* ;;
 	image_flash_free_tmp)	rm -r /tmp/*.img ;;
-	image_delete)		image_delete_download_page ;;
-	bootlogo_upload)	bootlogo_upload ;;
+	image_delete)			image_delete_download_page ;;
+	bootlogo_upload)		bootlogo_upload ;;
 	bootlogo_lcd_upload)	bootlogo_lcd_upload ;;
-	ucodes_upload)		ucodes_upload $2 ;;
-	zapit_upload)		zapit_upload $2 ;;
-	kernel-stack)		msg=`dmesg`; y_format_message_html ;;
-	ps)			msg=`ps`; y_format_message_html ;;
-	free)			f=`free`; p=`df -h`; msg="RAM Memory use\n-------------------\n$f\n\nPartitions\n-------------------\n$p"
-				y_format_message_html ;;
-	yreboot)		yreboot; echo "Reboot..." ;;
-	check_yWeb_conf) 	check_Y_Web_conf ;;
-	rcsim)			rcsim $2 >/dev/null ;;
-	domount)		shift 1; do_mount $* ;;
-	dounmount)		shift 1; do_unmount $* ;;
-	cmd)			shift 1; do_cmd $* ;;
-	installer)		shift 1; do_installer $* 2>&1 ;;
-	ext_uninstaller)	shift 1; do_ext_uninstaller $* 2>&1 ;;
-	ext_installer)	shift 1; do_ext_installer $* 2>&1 ;;
-	proc)			shift 1; proc $* ;;
-	wol)			shift 1; wol $* ;;
-	lcshot)			shift 1; do_lcshot $* ;;
-	fbshot)			shift 1; do_fbshot $* ;;
-	fbshot_clear)		do_fbshot_clear ;;
+	ucodes_upload)			ucodes_upload $2 ;;
+	zapit_upload)			zapit_upload $2 ;;
+	kernel-stack)			msg=`dmesg`; y_format_message_html ;;
+	ps)						msg=`ps`; y_format_message_html ;;
+	free)					f=`free`; p=`df -h`; msg="RAM Memory use\n-------------------\n$f\n\nPartitions\n-------------------\n$p"
+							y_format_message_html ;;
+	yreboot)				yreboot; echo "Reboot..." ;;
+	check_yWeb_conf) 		check_Y_Web_conf ;;
+	rcsim)					rcsim $2 >/dev/null ;;
+	domount)				shift 1; do_mount $* ;;
+	dounmount)				shift 1; do_unmount $* ;;
+	cmd)					shift 1; do_cmd $* ;;
+	installer)				shift 1; do_installer $* 2>&1 ;;
+	ext_uninstaller)		shift 1; do_ext_uninstaller $* 2>&1 ;;
+	ext_installer)			shift 1; do_ext_installer $* 2>&1 ;;
+	proc)					shift 1; proc $* ;;
+	wol)					shift 1; wol $* ;;
+	lcshot)					shift 1; do_lcshot $* ;;
+	fbshot)					shift 1; do_fbshot $* ;;
+	fbshot_clear)			do_fbshot_clear ;;
 	get_update_version_dbox)	wget -O /tmp/version.txt "http://www.yjogol.com/download/Y_Version.txt" ;;
 	get_update_version_coolstream)	wget -O /tmp/version.txt "http://www.yjogol.com/download/coolstream/Y_Version.txt" ;;
 	settings_backup_restore)	shift 1; do_settings_backup_restore $* ;;
-	exec_cmd)		shift 1; $* ;;
-	automount_list)		shift 1; do_automount_list $* ;;
-	automount_getline)	shift 1; do_automount_getline $* ;;
-	automount_setline)	shift 1; do_automount_setline $* ;;
-	restart_neutrino)	restart_neutrino ;;
-	have_plugin_scripts) find /var/tuxbox/plugins -name '*.sh' ;;
+	exec_cmd)				shift 1; $* ;;
+	automount_list)			shift 1; do_automount_list $* ;;
+	automount_getline)		shift 1; do_automount_getline $* ;;
+	automount_setline)		shift 1; do_automount_setline $* ;;
+	restart_neutrino)		restart_neutrino ;;
+	have_plugin_scripts)	 find /var/tuxbox/plugins -name '*.sh' ;;
+
 	timer_get_tvinfo)
 		shift 1
 		rm -r /tmp/tvinfo.xml
@@ -646,7 +650,7 @@ case "$1" in
 		df /tmp|grep /tmp
 		;;
 	*)
-		echo "[Y_Tools.sh] Parameter falsch: $*" ;;
+		echo "[Y_Tools.sh] Parameter wrong: $*" ;;
 esac
 
 

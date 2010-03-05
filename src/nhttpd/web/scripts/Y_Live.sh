@@ -11,14 +11,18 @@
 # -----------------------------------------------------------
 live_lock()
 {
-	call_webserver "control/lcd?lock=1&clear=1&rect=10,10,110,50,1,0&xpos=20&ypos=27&size=22&font=2&text=%20%20%20%20yWeb%0A%20%20LiveView&update=1" >/dev/null
+	if [ "$boxtype" != "coolstream" ]; then
+		call_webserver "control/lcd?lock=1&clear=1&rect=10,10,110,50,1,0&xpos=20&ypos=27&size=22&font=2&text=%20%20%20%20yWeb%0A%20%20LiveView&update=1" >/dev/null
+	fi
 	call_webserver "control/rc?lock" >/dev/null
 	call_webserver "control/zapto?stopplayback" >/dev/null
 }
 # -----------------------------------------------------------
 live_unlock()
 {
-	call_webserver "control/lcd?lock=0" >/dev/null
+	if [ "$boxtype" != "coolstream" ]; then
+		call_webserver "control/lcd?lock=0" >/dev/null
+	fi
 	call_webserver "control/rc?unlock"  >/dev/null
 	call_webserver "control/zapto?startplayback" >/dev/null
 }
@@ -26,13 +30,17 @@ live_unlock()
 prepare_tv()
 {
 	# SPTS on
-	call_webserver "control/system?setAViAExtPlayBack=spts" >/dev/null
+	if [ "$boxtype" != "coolstream" ]; then
+		call_webserver "control/system?setAViAExtPlayBack=spts" >/dev/null
+	fi
 }
 # -----------------------------------------------------------
 prepare_radio()
 {
 	# SPTS off
-	call_webserver "control/system?setAViAExtPlayBack=pes" >/dev/null
+	if [ "$boxtype" != "coolstream" ]; then
+		call_webserver "control/system?setAViAExtPlayBack=pes" >/dev/null
+	fi
 }
 
 # -----------------------------------
@@ -108,7 +116,7 @@ case "$1" in
 		;;
 
 	*)
-		echo "Parameter falsch: $*" ;;
+		echo "Parameter wrong: $*" ;;
 esac
 
 
