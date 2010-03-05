@@ -67,7 +67,7 @@ function init(){
 		<div class="y_menu_sec_section">{=L:tools.expert=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_expert">
-				<li><a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">{=L:info=}</a></li>
+				<li><a target="work" title="get box infos" href="Y_Tools_Info_Menue.yhtm">{=L:main.info=}</a></li>
 				{=if-empty:{=var-get:management=}~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:tools.image=}</li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:tools.command_shell=}</li>
