@@ -48,6 +48,7 @@
 #include <zapit/pat.h>
 #include <zapit/pmt.h>
 #include <zapit/scan.h>
+#include <zapit/fastscan.h>
 #include <zapit/settings.h>
 #include <zapit/zapit.h>
 #include <dmx_cs.h>
@@ -730,6 +731,26 @@ int start_scan(int scan_mode)
 	return 0;
 }
 
+int start_fast_scan(int scan_mode, int opid)
+{
+	fast_scan_type_t scant;
+
+	scant.type = scan_mode;
+	scant.op = (fs_operator_t) opid;
+
+	scan_runs = 1;
+	stopPlayBack(true);
+	pmt_stop_update_filter(&pmt_update_fd);
+
+	found_transponders = 0;
+	found_channels = 0;
+        if (pthread_create(&scan_thread, 0, start_fast_scan,  (void*)&scant)) {
+                ERROR("pthread_create");
+                scan_runs = 0;
+                return -1;
+        }
+	return 0;
+}
 
 bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 {

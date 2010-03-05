@@ -83,6 +83,8 @@ CScanTs::CScanTs()
 
 extern int scan_pids;
 extern int scan_fta_flag;//in zapit descriptors definiert
+extern int start_fast_scan(int scan_mode, int opid);
+
 #define get_set CNeutrinoApp::getInstance()->getScanSettings()
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
@@ -97,6 +99,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	bool scan_all = actionKey == "all";
 	bool test = actionKey == "test";
 	bool manual = (actionKey == "manual") || test;
+	bool fast = (actionKey == "fast");
+
 	CZapitClient::ScanSatelliteList satList;
 	CZapitClient::commandSetScanSatelliteList sat;
 	int _scan_pids = scan_pids;
@@ -146,7 +150,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
 	}
 	satList.clear();
-	if(manual || !scan_all) {
+	if(fast) {
+	}
+	else if(manual || !scan_all) {
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 			if(!strcmp(sit->second.name.c_str(),get_set.satNameNoDiseqc)) {
 				sat.position = sit->first;
@@ -181,7 +187,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)CNeutrinoApp::getInstance()->getScanSettings().bouquetMode);
 
 	/* send satellite list to zapit */
-	g_Zapit->setScanSatelliteList( satList);
+	if(satList.size())
+		g_Zapit->setScanSatelliteList( satList);
 
         /* send scantype to zapit */
         g_Zapit->setScanType((CZapitClient::scanType) CNeutrinoApp::getInstance()->getScanSettings().scanType );
@@ -204,10 +211,11 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		success = g_Zapit->tune_TP(TP);
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
+	else if(fast) {
+		success = !start_fast_scan(get_set.fast_type, get_set.fast_op);
+	}
 	else
 		success = g_Zapit->startScan(scan_mode);
-
-	//paint();
 
 	/* poll for messages */
 	istheend = !success;

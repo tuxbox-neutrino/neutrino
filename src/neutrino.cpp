@@ -3930,9 +3930,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 //printf("********* CNeutrinoApp::standbyMode, was_record %d bOnOff %d\n", was_record, bOnOff);
 	//printf( ( bOnOff ) ? "mode: standby on\n" : "mode: standby off\n" );
 	if( bOnOff ) {
-		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
-		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
-			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
 
 		if(autoshift) {
 			stopAutoRecord();
@@ -3967,6 +3964,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
                         InfoClock->StopClock();
 
 
+		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
+		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
+			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
+
 		lastMode = mode;
 		mode = mode_standby;
 		int fspeed = 1;
@@ -3985,6 +3986,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		frameBuffer->setActive(true);
 
 		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
 		if (system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");

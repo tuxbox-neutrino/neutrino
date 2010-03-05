@@ -135,6 +135,7 @@
 
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
+#include <zapit/fastscan.h>
 
 //#define TEST_MENU
 
@@ -1003,6 +1004,23 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 }
 
 extern int scan_pids;
+
+#define FAST_SCAN_OPTIONS_COUNT 3
+const CMenuOptionChooser::keyval FAST_SCAN_OPTIONS[FAST_SCAN_OPTIONS_COUNT] =
+{
+	{ FAST_SCAN_SD, LOCALE_SATSETUP_FASTSCAN_SD },
+        { FAST_SCAN_HD, LOCALE_SATSETUP_FASTSCAN_HD  },
+        { FAST_SCAN_ALL, LOCALE_SATSETUP_FASTSCAN_ALL  }
+};
+
+#define FAST_SCAN_PROV_OPTIONS_COUNT 3
+const CMenuOptionChooser::keyval FAST_SCAN_PROV_OPTIONS[FAST_SCAN_PROV_OPTIONS_COUNT] =
+{
+	{ OPERATOR_CD, LOCALE_SATSETUP_FASTSCAN_PROV_CD },
+        { OPERATOR_TVV, LOCALE_SATSETUP_FASTSCAN_PROV_TVV  },
+        { OPERATOR_TELESAT, LOCALE_SATSETUP_FASTSCAN_PROV_TELESAT  }
+};
+
 void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 {
 	dprintf(DEBUG_DEBUG, "init scansettings\n");
@@ -1019,7 +1037,9 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	CMenuOptionChooser* useNit = new CMenuOptionChooser(LOCALE_SATSETUP_USE_NIT, (int *)&scanSettings.scan_mode, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	CMenuOptionChooser* scanPids = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_SCANPIDS,  &scan_pids, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 
-	CMenuOptionChooser* ftaFlag = new CMenuOptionChooser(LOCALE_SATSETUP_USE_FTA_FLAG, (int *)&scanSettings.scan_fta_flag, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	// Please lets keep shortcuts which used for a long time - unchanged. -- focus
+	//CMenuOptionChooser* ftaFlag = new CMenuOptionChooser(LOCALE_SATSETUP_USE_FTA_FLAG, (int *)&scanSettings.scan_fta_flag, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	CMenuOptionChooser* ftaFlag = new CMenuOptionChooser(LOCALE_SATSETUP_USE_FTA_FLAG, (int *)&scanSettings.scan_fta_flag, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(0));
 
 	CMenuWidget* satSetup = new CMenuWidget(LOCALE_SATSETUP_SAT_SETUP, NEUTRINO_ICON_SETTINGS);
 	satSetup->addItem(GenericMenuSeparator);
@@ -1096,6 +1116,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		}
 	}
 	satfindMenu->addItem(satSelect);
+	satfindMenu->addItem(new CMenuForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, tpSelect, "test"));
 
 	int freq_length = (g_info.delivery_system == DVB_S) ? 8 : 6;
 
@@ -1169,7 +1190,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	manualScan->addItem(ftaFlag);
 	manualScan->addItem(GenericMenuSeparatorLine);
 	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_TEST, true, NULL, scanTs, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "manual", CRCInput::convertDigitToKey(0)));
+	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "manual", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 	CMenuWidget* autoScan = new CMenuWidget(LOCALE_SATSETUP_AUTO_SCAN, NEUTRINO_ICON_SETTINGS);
 	addMenueIntroItems(*autoScan);
@@ -1177,7 +1198,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	autoScan->addItem(useNit);
 	autoScan->addItem(scanPids);
 	autoScan->addItem(ftaFlag);
-	autoScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "auto", CRCInput::convertDigitToKey(0)));
+	autoScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "auto", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 	CMenuOptionChooser* ojDiseqc = NULL;
 	CMenuOptionNumberChooser * ojDiseqcRepeats = NULL;
@@ -1206,7 +1227,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		autoScanAll->addItem(useNit);
 		autoScanAll->addItem(scanPids);
 		autoScanAll->addItem(ftaFlag);
-		autoScanAll->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "all", CRCInput::convertDigitToKey(0)));
+		autoScanAll->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "all", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	}
 
 	settings.addItem(GenericMenuSeparator);
@@ -1229,6 +1250,17 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 	if (g_info.delivery_system == DVB_S) {
 		settings.addItem(fautoScanAll);
+
+		CMenuWidget* fastScanMenu = new CMenuWidget(LOCALE_SATSETUP_FASTSCAN_HEAD, NEUTRINO_ICON_SETTINGS);
+		addMenueIntroItems(*fastScanMenu);
+
+		CMenuOptionChooser* fastProv = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_PROV, (int *)&scanSettings.fast_op, FAST_SCAN_PROV_OPTIONS, FAST_SCAN_PROV_OPTIONS_COUNT, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+		CMenuOptionChooser* fastType = new CMenuOptionChooser(LOCALE_SATSETUP_FASTSCAN_TYPE, (int *)&scanSettings.fast_type, FAST_SCAN_OPTIONS, FAST_SCAN_OPTIONS_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN, true);
+
+		fastScanMenu->addItem(fastProv);
+		fastScanMenu->addItem(fastType);
+		fastScanMenu->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "fast", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+		settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_FASTSCAN_HEAD, true, NULL, fastScanMenu, "", CRCInput::convertDigitToKey(0)));
 	}
 }
 

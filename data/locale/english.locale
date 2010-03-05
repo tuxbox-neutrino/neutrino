@@ -1302,6 +1302,15 @@ satsetup.diseqc_uncom_com Uncommited/Commited
 satsetup.comm_input Commited input
 satsetup.use_usals Use usals
 satsetup.usals_repeat USALS command repeat
+satsetup.fastscan_head Fast scan (Astra 1, 19.2E, 12.515Mhz)
+satsetup.fastscan_type Scan type
+satsetup.fastscan_sd SD only
+satsetup.fastscan_hd HD only
+satsetup.fastscan_all SD and HD
+satsetup.fastscan_prov Provider
+satsetup.fastscan_prov_cd CanalDigitaal
+satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_prov_telesat TéléSAT
 motorcontrol.user_menu User menu
 motorcontrol.install_menu Install menu
 motorcontrol.step_west Step/Drive Motor West (b,c)

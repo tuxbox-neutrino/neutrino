@@ -162,7 +162,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	scanType=(CZapitClient::scanType) configfile.getInt32("scanType", scanType);
 	strcpy(satNameNoDiseqc, configfile.getString("satNameNoDiseqc", satNameNoDiseqc).c_str());
 
-    scan_fta_flag = configfile.getInt32("scan_fta_flag", 0);
+	scan_fta_flag = configfile.getInt32("scan_fta_flag", 0);
 	scan_mode = configfile.getInt32("scan_mode", 1); // NIT (0) or fast (1)
 	TP_fec = configfile.getInt32("TP_fec", 1);
 	TP_pol = configfile.getInt32("TP_pol", 0);
@@ -173,6 +173,9 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	if(TP_fec == 4) TP_fec = 5;
 #endif
 	scanSectionsd = configfile.getInt32("scanSectionsd", 0);
+	fast_type = configfile.getInt32("fast_type", 1);
+	fast_op = configfile.getInt32("fast_op", 0);
+
 	return true;
 }
 
@@ -185,7 +188,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32( "scanType", scanType );
 	configfile.setString( "satNameNoDiseqc", satNameNoDiseqc );
 
-    configfile.setInt32("scan_fta_flag", scan_fta_flag);
+	configfile.setInt32("scan_fta_flag", scan_fta_flag);
 	configfile.setInt32("scan_mode", scan_mode);
 	configfile.setInt32("TP_fec", TP_fec);
 	configfile.setInt32("TP_pol", TP_pol);
@@ -193,6 +196,8 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setString("TP_freq", TP_freq);
 	configfile.setString("TP_rate", TP_rate);
 	configfile.setInt32("scanSectionsd", scanSectionsd );
+	configfile.setInt32("fast_type", fast_type);
+	configfile.setInt32("fast_op", fast_op);
 
 	if(configfile.getModifiedFlag())
 		configfile.saveConfig(fileName);

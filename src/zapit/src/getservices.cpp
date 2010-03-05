@@ -29,7 +29,7 @@
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>
-
+#include <set>
 extern xmlDocPtr scanInputParser;
 extern transponder_list_t transponders;
 extern tallchans allchans;

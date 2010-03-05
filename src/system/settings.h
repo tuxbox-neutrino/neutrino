@@ -531,12 +531,14 @@ public:
 	delivery_system_t         delivery_system;
 	int		scanSectionsd;
 	int		scan_mode;
-	int     scan_fta_flag;
+	int		scan_fta_flag;
 	int		TP_fec;
 	int		TP_pol;
 	int		TP_mod;
 	char		TP_freq[10];
 	char		TP_rate[9];
+	int		fast_type;
+	int		fast_op;
 
 	CScanSettings();
 
