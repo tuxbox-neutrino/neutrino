@@ -188,7 +188,7 @@ function do_play_bystring(_str){
 function do_play_state(_state, _options){
 	change_button_img('PlayOrPause',"pause");
 	_options.push(":input-repeat=1");
-alert("options:"+_options);
+//	alert("options:"+_options);
 	V2.options = _options;
 	var mrl = "";
 	if(Mode == "tv" && isUDP)
