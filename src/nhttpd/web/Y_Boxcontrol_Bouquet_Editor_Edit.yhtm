@@ -68,10 +68,10 @@ function poschannel(box, direction){
 				</select>
 			</td>
 			<td align="center">
-				<button type="button" title="{=L:bou.move_up=}" onclick="poschannel(document.getElementById('channels').bchannels, 0);">&nbsp;<img src="/images/arrowup.png">&nbsp;</button><br /><br />
-				<button type="button" title="{=L:bou.move_down=}" onclick="poschannel(document.getElementById('channels').bchannels, 1);">&nbsp;<img src="/images/arrowdown.png">&nbsp;</button><br /><br />
-				<button type="button" title="{=L:bou.remove=}" onclick="movechannels(document.getElementById('channels').bchannels, document.getElementById('channels').achannels);">&nbsp;<img src="/images/arrowright.png">&nbsp;</button><br /><br />
-				<button type="button" title="{=L:bou.add=}" onclick="movechannels(document.getElementById('channels').achannels, document.getElementById('channels').bchannels);">&nbsp;<img src="/images/arrowleft.png">&nbsp;</button><br /><br />
+				<button type="button" title="{=L:bou.move_up=}" onclick="poschannel(document.getElementById('channels').bchannels, 0);">&nbsp;<img src="/images/arrowup.png"/>&nbsp;</button><br /><br />
+				<button type="button" title="{=L:bou.move_down=}" onclick="poschannel(document.getElementById('channels').bchannels, 1);">&nbsp;<img src="/images/arrowdown.png"/>&nbsp;</button><br /><br />
+				<button type="button" title="{=L:bou.remove=}" onclick="movechannels(document.getElementById('channels').bchannels, document.getElementById('channels').achannels);">&nbsp;<img src="/images/arrowright.png"/>&nbsp;</button><br /><br />
+				<button type="button" title="{=L:bou.add=}" onclick="movechannels(document.getElementById('channels').achannels, document.getElementById('channels').bchannels);">&nbsp;<img src="/images/arrowleft.png"/>&nbsp;</button><br /><br />
 			</td>
 			<td>
 				<select multiple="multiple" size="20" name="achannels">

@@ -98,7 +98,7 @@ function do_rename(){
 }
 //]]>
 </script>
-<style>
+<style type="text/css">
 .fly_form
 {
 	visibility: hidden;
@@ -131,7 +131,6 @@ function do_rename(){
 		</div>
 		<div id="rename" class="fly_form">
 			<form name="rename" accept-charset="UTF-8" action="">
-				<p>
 				<p><b>{=L:rename_bouquet=}</b><br/>
 				{=L:name_of_bouquet=}:
 				<input type="text" size="30" name="bouquet_name" />

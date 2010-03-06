@@ -101,12 +101,12 @@ function _show_epg()
 //]]>
 </script>
 </head>
-{=var-set:wait_text={=L:get_epg=}=}{=include-block:Y_Blocks.txt;snip_show_wait=}
 <body onload="show_epg()">
+{=var-set:wait_text={=L:get_epg=}=}{=include-block:Y_Blocks.txt;snip_show_wait=}
 	<table id="epglist" class="y_invisible_table" cellpadding="4" cellspacing="0" width="100%">
 	<thead align="left">
 	<tr>
-		<th colspan="2"><img id="logo" src="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL=}/{=logoid=}.jpg" style="visibility:hidden">&nbsp;</th>
+		<th colspan="2"><img id="logo" src="{=ini-get:/var/tuxbox/config/nhttpd.conf;Tuxbox.LogosURL=}/{=logoid=}.jpg" style="visibility:hidden"/>&nbsp;</th>
 		<th>{=L:date=}</th><th>{=L:from=}</th><th>{=L:to=}</th><th>{=L:program=}</th>
 	</tr>
 	</thead>

@@ -34,7 +34,7 @@ function build_menu(){
 		<div class="y_menu_sec_section">{=L:normal=}</div>
 		<div class="y_menu_sec">
 			<ul id="ext_normal">
-			<ul>
+			</ul>
 		</div>
 		<div class="y_menu_sec_section">{=L:management=}</div>
 		<div class="y_menu_sec" id="ext_management2">

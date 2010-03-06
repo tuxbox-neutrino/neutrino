@@ -55,7 +55,7 @@ function doTranscode()
 			<td>Codec:</td>
 			<td>
 				<select name="vcodec" class="y_live_button">
-				<option value="mp4v" selected>mp4v</option>
+				<option value="mp4v" selected="selected">mp4v</option>
 				<option value="mp1v">mp1v</option>
 				<option value="mp2v">mp2v</option>
 				<option value="DIV3">DIV3</option>
@@ -72,7 +72,7 @@ function doTranscode()
 				<option value="1024">1024</option>
 				<option value="786">786</option>
 				<option value="512">512</option>
-				<option value="384" selected>384</option>
+				<option value="384" selected="selected">384</option>
 				<option value="256">256</option>
 				<option value="128">128</option>
 				<option value="96">96</option>
@@ -87,7 +87,7 @@ function doTranscode()
 				<option value="0.25">0.25</option>
 				<option value="0.50">0.50</option>
 				<option value="0.75">0.75</option>
-				<option value="1.00" selected>1.00</option>
+				<option value="1.00" selected="selected">1.00</option>
 				<option value="1.25">1.25</option>
 				<option value="1.50">1.50</option>
 				<option value="1.75">1.75</option>
@@ -102,7 +102,7 @@ function doTranscode()
 			<td>Codec:</td>
 			<td>
 				<select name="acodec" class="y_live_button">
-				<option value="mp4a" selected>mp4a</option>
+				<option value="mp4a" selected="selected">mp4a</option>
 				<option value="mp3">mp3</option>
 				<option value="mp2a">mp2a</option>
 				<option value="a52">a52</option>
@@ -118,7 +118,7 @@ function doTranscode()
 				<option value="128">128</option>
 				<option value="96">96</option>
 				<option value="64">64</option>
-				<option value="32" selected>32</option>
+				<option value="32" selected="selected">32</option>
 				<option value="16">16</option>
 				</select>
 			</td>
@@ -128,7 +128,7 @@ function doTranscode()
 			<td>
 				<select name="channels" class="y_live_button">
 				<option value="1">1</option>
-				<option value="2 selected">2</option>
+				<option value="2 selected="selected"">2</option>
 				<option value="6">6</option>
 				</select>
 			</td>
@@ -140,7 +140,7 @@ function doTranscode()
 			<td>Type:</td>
 			<td>
 				<select name="access" class="y_live_button">
-				<option value="udp" selected>udp</option>
+				<option value="udp" selected="selected">udp</option>
 				<option value="http">http</option>
 				<option value="RTP">RTP</option>
 				</select>
@@ -148,7 +148,7 @@ function doTranscode()
 			<td>Mux:</td>
 			<td>
 				<select name="tmux" class="y_live_button">
-				<option value="ts" selected>ts</option>
+				<option value="ts" selected="selected">ts</option>
 				<option value="ps">ps</option>
 				<option value="mp4">mp4</option>
 				<option value="mov">mov</option>
@@ -156,20 +156,20 @@ function doTranscode()
 				<option value="asf">asf</option>
 				<option value="mpeg1">mpeg1</option>
 				<option value="wav">wav</option>
-s				</select>
+				</select>
 			</td>
 		</tr>
 		<tr>
 			<td>IP:Port:</td>
 			<td colspan="3">
-				<input type="text" name="tip" size="18" value="localhost:1234" class="y_live_button">
+				<input type="text" name="tip" size="18" value="localhost:1234" class="y_live_button"/>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="3">
 			<br/>
 				<input type="checkbox" name="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>Display on
-				&nbsp;<button class="y_live_button" type="button" value="transcode" title="transcode stream" name="transcode" onclick="doTranscode()"><img src="/images/transcode.png">&nbsp;Transcode</button>
+				&nbsp;<button class="y_live_button" type="button" value="transcode" title="transcode stream" name="transcode" onclick="doTranscode()"><img src="/images/transcode.png"/>&nbsp;Transcode</button>
 			</td>
 		</tr>
 		</table>

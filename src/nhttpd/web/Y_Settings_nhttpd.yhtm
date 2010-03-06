@@ -58,7 +58,7 @@ function do_submit()
 				<td>{=L:language=}</td>
 				<td colspan="3">	<select name="language" title="{=L:language=}">
 					{=func:get_languages_as_dropdown=}
-				</select>
+				</select></td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.port=}</td>
@@ -81,7 +81,7 @@ function do_submit()
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.allowed_file_extensions=}</td>
-				<td><input type="text" name="mod_sendfile_mime_types" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types~cache=}" "/></td>
+				<td><input type="text" name="mod_sendfile_mime_types" size="60" value="{=ini-get:/var/tuxbox/config/nhttpd.conf;mod_sendfile.mime_types~cache=}"/></td>
 			</tr>
 			<tr>
 				<td>{=L:set.nhttpd.allow_all_file_extensions=}</td>

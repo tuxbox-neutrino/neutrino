@@ -572,7 +572,7 @@ end-block~remote_sagem
 # ------- Remote Coolstream
 start-block~remote_coolstream
 <img src="images/rcd.jpg" usemap="#rc"/>
-<map name="rc">
+<map name="rc" id="rc"> 
   <area shape="rect" href="javascript:rcsim('KEY_POWER')" coords="175, 29, 210, 68" />
   <area shape="rect" href="javascript:rcsim('KEY_MUTE')" coords="61, 32, 90, 64" />
   <area shape="rect" href="javascript:rcsim('KEY_1')" coords="55, 87, 95, 123" />

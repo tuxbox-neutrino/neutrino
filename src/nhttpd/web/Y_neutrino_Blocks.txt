@@ -150,9 +150,9 @@ start-block~neutrino_form-data_record
 				<td>
 					<input class="audio" type="radio" name="audio_ac3" value="0"/>{=L:off=}&nbsp;
 					<input class="audio" type="radio" name="audio_ac3" value="1"/>{=L:on=}
+					<input type="hidden" name="recording_audio_pids_default" value=""/>
 				</td>
 			</tr>
-			<input type="hidden" name="recording_audio_pids_default" value=""/>
 			<tr><td colspan="2" class="y_form_header">{=L:set.rec.timeshift_desc=}</td></tr>
 			<tr>
 				<td>{=L:set.rec.timeshift.directory=}</td>

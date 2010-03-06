@@ -1,5 +1,5 @@
 {=include-block:Y_Blocks.txt;head_no_charset=}
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript" src="/prototype.js"></script>
 <script type="text/javascript" src="/Y_EPG.js"></script>
@@ -24,7 +24,7 @@ function epg_imdb(){
 			</select>
 			<button id="btGet" type="button" ytype="refresh" title="{=L:epg.refresh=}" onclick="build_epg_plus_main()">{=L:refresh=}</button>
 			<button id="btPast" type="button" ytype="timedown" title="{=L:epg.past_hours=}" onclick="build_epg_plus_delta(-2)">-2</button>
-			<button id="btNext" type="button" ytype="timeup"" title="{=L:epg.next_hours=}" onclick="build_epg_plus_delta(2)">+2</button>
+			<button id="btNext" type="button" ytype="timeup" title="{=L:epg.next_hours=}" onclick="build_epg_plus_delta(2)">+2</button>
 		</form>
 
 		<div id="epg_plus">&nbsp;</div>
@@ -39,7 +39,7 @@ function epg_imdb(){
 				<div id="d_desc" class="ep_info_desc">&nbsp;</div>
 				<div id="d_info1" class="ep_info_info1">&nbsp;</div>
 			</td>
-			<td width="20"><a href="javascript:show_obj('epg_info',false);"><img src="/images/cross.png"></a></td>
+			<td width="20"><a href="javascript:show_obj('epg_info',false);"><img src="/images/cross.png"/></a></td>
 		</tr>
 		<tr>
 			<td colspan="3">

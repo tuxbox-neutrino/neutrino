@@ -83,6 +83,7 @@ function do_init(){
 					<option value="Nokia">Nokia</option>
 					<option value="Sagem">Sagem/Philips</option>
 					<option value="Coolstream">Coolstream</option>
+					</select></td>
 			</tr>
 			<tr>
 				<td>{=L:set.yweb.start_page=}</td>
@@ -90,6 +91,7 @@ function do_init(){
 					<option value="bouquets" selected="selected">{=L:bouquets=}</option>
 					<option value="control">{=L:control=}</option>
 					<option value="none">{=L:empty=}</option>
+					</select></td>
 			</tr>
 		</table>
 		<br/>

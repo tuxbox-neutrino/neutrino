@@ -10,7 +10,7 @@
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
 	{=var-set:help_url=Help-Extensions-Update=}{=var-set:menu={=L:ext.installer_updater=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
-	<div class="work_box_body" width="100%">
+	<div class="work_box_body" style="width:100%">
 		<div id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/>
 			<span id="status">{=L:ext.search_for_ext=}</span></div>
 
