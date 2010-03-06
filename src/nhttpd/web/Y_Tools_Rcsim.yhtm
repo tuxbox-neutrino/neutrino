@@ -6,7 +6,7 @@
 function rcsim(_key)
 {
 	if(_key == "KEY_POWER")
-		if(confirm("wirklich ausschalten? Power down?") != true)
+		if(confirm("{=L:bc.control.shutdown.ask=}") != true)
 			return;
 	loadSyncURL("/control/rcem?"+_key);
 }

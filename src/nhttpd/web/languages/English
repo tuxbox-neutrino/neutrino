@@ -95,7 +95,7 @@ bc.menue.switch_to_radio=switch to Radio
 bc.menue.webinf_slavebox=Webinterface der SlaveBox
 bc.menue.volumen_display=volumen display
 
-========= BOX Control
+========= Boxcontrol
 bc.control.freemem=FreeMem
 bc.control.lock=lock
 bc.control.unlock=unlock
@@ -117,11 +117,16 @@ bc.control.shutdown=shutdown
 bc.control.status=Status
 bc.control.restart=restart
 
-========= BOX Control - Message
+========= Boxcontrol - Message
 bc.msg.message_to_screen_desc=enter message to send to TV screen
 bc.msg.message_to_screen=Message on screen
 bc.msg.popup_to_screen=Message as popup
 bc.msg.send_message=send message
+
+======== Boxcontrol - Remote & OSD
+bc.osd.shot=Shot
+bc.osd.delete_shots=Delete shots
+bc.osd.shap_wait_text=Take Snapshot
 
 ====== EXtension
 ext.installer_updater=Installer/Updater
