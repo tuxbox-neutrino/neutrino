@@ -644,7 +644,7 @@ case "$1" in
 		fi
 		;;
 	var_space)
-		df /var|grep /var
+		df |grep mtd2
 		;;
 	tmp_space)
 		df /tmp|grep /tmp
