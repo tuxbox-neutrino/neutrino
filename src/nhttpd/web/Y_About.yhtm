@@ -1,12 +1,12 @@
-{=var-set:cancache=yPyes=}
-{=include-block:Y_Blocks.txt;headCache=}
+{=var-set:cancache=yPConf=}
+{=include-block:Y_Blocks.txt;head=}
 </head>
 {=var-set:alt_httpd={=ini-get:/var/tuxbox/config/nhttpd.conf;WebsiteMain.override_directory;/var/httpd=}=}
 {=var-set:vf={=if-file-exists:{=var-get:alt_httpd=}/Y_Version.txt~{=var-get:alt_httpd=}/Y_Version.txt~Y_Version.txt=}=}
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Info-About=}{=var-set:menu=About=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Info-About=}{=var-set:menu={=L:info.About=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<table border="0" cellpadding="2" cellspacing="4">
 		<tr>

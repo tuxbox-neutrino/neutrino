@@ -36,13 +36,13 @@ function set_timer(_channel_id, _start, _stop)
 {
 	var rec = "/control/timer?action=new&type=5&alarm="+_start+"&stop="+_stop+"&announce="+_start+"&channel_id="+_channel_id+"&rs=1";
 	var res = loadSyncURL(rec);
-	alert("Record gesetzt");
+	alert("{=L:epg.set_timer=}");
 }
 function set_zapit(_channel_id, _start)
 {
 	var rec = "/control/timer?action=new&type=3&alarm="+_start+"&channel_id="+_channel_id;
 	var res = loadSyncURL(rec);
-	alert("Zapping gesetzt");
+	alert("{=L:epg.zap_to=}");
 }
 function show_info(_index)
 {

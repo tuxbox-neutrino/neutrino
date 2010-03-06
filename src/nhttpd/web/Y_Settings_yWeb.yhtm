@@ -55,7 +55,7 @@ function do_init(){
 			<tr>
 				<td>MAC 2</td>
 				<td><input type="text" name="wol_mac_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_2=}" title="{=L:set.yweb.enter_mac_desc=}"/></td>
-				<td>{=L:dset.yweb.escription=}</td>
+				<td>{=L:set.yweb.description=}</td>
 				<td><input type="text" name="wol_desc_2" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_2=}" title="{=L:set.yweb.enter_description_desc=}"/></td>
 			</tr>
 			<tr>
@@ -77,7 +77,7 @@ function do_init(){
 			</tr>
 			<tr><td class="y_form_header" colspan="4">{=L:others=}</td></tr>
 			<tr>
-				<td>{=L:remote=}</td>
+				<td>{=L:set.yweb.remote=}</td>
 				<td colspan="3">	<select name="fb" title="{=L:remote=}">
 					<option value="default" selected="selected">default</option>
 					<option value="Nokia">Nokia</option>

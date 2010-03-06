@@ -49,23 +49,23 @@ function init(){
 			{=if-empty:{=var-get:management=}~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">yWeb</li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.webserver=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:zapit=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.zapit=}</li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:ucodes=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:boot_logo=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:timer_settings=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.ucodes=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.boot_logo=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.timer_settings=}</a></li>
 			~=}
 			~
 				<li><a target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
 				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:set.menue.webserver=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_zapit.yhtm">{=L:zapit=}</a></li>
-				<li><a target="work" href="Y_Settings_ucodes.yhtm">{=L:ucodes=}</a></li>
-				<li><a target="work" href="Y_Tools_Bootlogo.yhtm">{=L:boot_logo=}</a></li>
+				<li><a target="work" href="Y_Settings_zapit.yhtm">{=L:set.menue.zapit=}</a></li>
+				<li><a target="work" href="Y_Settings_ucodes.yhtm">{=L:set.menue.ucodes=}</a></li>
+				<li><a target="work" href="Y_Tools_Bootlogo.yhtm">{=L:set.menue.boot_logo=}</a></li>
 			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_Backup.yhtm">{=L:backup_restore=}</a></li>
-				<li><a target="work" href="Y_Settings_Timer.yhtm">{=L:timer_settings=}</a></li>
+				<li><a target="work" href="Y_Settings_Backup.yhtm">{=L:set.menue.backup_restore=}</a></li>
+				<li><a target="work" href="Y_Settings_Timer.yhtm">{=L:set.menue.timer_settings=}</a></li>
 			~=}
 			=}	
 				<!--<li><a title="change layout skin" target="work" href="Y_Settings_Skin.yhtm">Skins</a></li>-->
@@ -75,58 +75,58 @@ function init(){
 		<div class="y_menu_sec">
 			<ul id="secmenu_neutrino">
 			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:bouquet_editor=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.bouquet_editor=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:video_audio=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.video_audio=}</a></li>
 			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:parental=}</a></li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:recording=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.parental=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.recording=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:direct_recording=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.direct_recording=}</a></li>
 			=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:audio_player=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.audio_player=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:esound_server=}</a></li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:movieplayer=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.esound_server=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.movieplayer=}</a></li>
 			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:pictureviewer=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.pictureviewer=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:lcd_display=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.lcd_display=}</a></li>
 			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:key_settings=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.key_settings=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:boot_options=}</a></li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:others=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.boot_options=}</a></li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.others=}</a></li>
 			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:peronalization=}</li>
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.peronalization=}</li>
 			~
-				<li><a target="work" href="Y_Boxcontrol_Bouquet_Editor_Main.yhtm">{=L:bouquet_editor=}</a></li>
+				<li><a target="work" href="Y_Boxcontrol_Bouquet_Editor_Main.yhtm">{=L:set.menue.bouquet_editor=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_video_audio.yhtm">{=L:video_audio=}</a></li>
+				<li><a target="work" href="Y_Settings_video_audio.yhtm">{=L:set.menue.video_audio=}</a></li>
 			~=}
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental">{=L:parental=}</a></li>
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record">{=L:recording=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental">{=L:set.menue.parental=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record">{=L:set.menue.recording=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording">{=L:direct_recording=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording">{=L:set.menue.direct_recording=}</a></li>
 			=}
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer">{=L:audio_player=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer">{=L:set.menue.audio_player=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound">{=L:esound_server=}</a></li>
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer">{=L:movieplayer=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound">{=L:set.menue.esound_server=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer">{=L:set.menue.movieplayer=}</a></li>
 			~=}
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer">{=L:pictureviewer=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer">{=L:set.menue.pictureviewer=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_lcd.yhtm">{=L:lcd_display=}</a></li>
-			~=}
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_buttons.yhtm">{=L:key_settings=}</a></li>
+				<li><a target="work" href="Y_Settings_lcd.yhtm">{=L:set.menue.lcd_display=}</a></li>
 			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions">{=L:boot_options=}</a></li>
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse">{=L:others=}</a></li>
+				<li><a target="work" href="Y_Settings_buttons.yhtm">{=L:set.menue.key_settings=}</a></li>
 			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_personalize.yhtm">{=L:peronalization=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions">{=L:set.menue.boot_options=}</a></li>
+				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse">{=L:set.menue.others=}</a></li>
+			~=}
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" href="Y_Settings_personalize.yhtm">{=L:set.menue.peronalization=}</a></li>
 			~=}
 			=}
 			</ul>

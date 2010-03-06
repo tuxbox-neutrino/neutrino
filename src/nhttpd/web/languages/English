@@ -1,3 +1,52 @@
+=========== GENERAL / GLOBAL
+global.no_iframes=Your Browser does not support IFrames.
+clear=clear
+submit=Submit
+action=Action
+user=User
+password=Password
+language=Language
+general=General
+logos=Logos
+url=URL
+server=Server
+refreshing=refreshing ...
+refresh=refresh
+record=record
+zap=zap
+lookup=lookup
+save_values_desc=submit and save values
+save_values=Save values ...
+save=save
+save_all=save all
+administration=Administration
+normal=Normal
+management=Management
+uninstaller=Uninstaller
+send=send
+cancel=cancel
+answer=Answer
+reboot=reboot
+shutdown=shutdown
+status=Status
+restart=restart
+on=on
+off=off
+download=Download
+back=back
+date=date
+from=from
+to=to
+program=program
+others=Others
+description=description
+color=Color
+tag=Tag
+empty=empty
+check=check
+help=Help
+restriced_by_management_ip=restricted by ManagementIP
+
 #========= MAIN Menue
 main.live_tv_desc=LiveTV
 main.live_tv_popup_desc=LiveTV popup
@@ -67,14 +116,15 @@ bc.control.shutdown.ask=Really shutdown the Box?
 bc.control.shutdown=shutdown
 bc.control.status=Status
 bc.control.restart=restart
+
 ========= BOX Control - Message
 bc.msg.message_to_screen_desc=enter message to send to TV screen
 bc.msg.message_to_screen=Message on screen
 bc.msg.popup_to_screen=Message as popup
 bc.msg.send_message=send message
+
 ====== EXtension
 ext.installer_updater=Installer/Updater
-restriced_by_management_ip=restricted by ManagementIP
 ext.uninstaller=Extensions Uninstaller
 ext.search_for_ext=Search for Extensions ...
 ext.installed_extensions=installed extensions
@@ -94,42 +144,64 @@ ext.your=Your
 ext.update=Update
 ext.update_install=update/install
 ext.site=Site
+
 ====== Bouquet
-bouquets_must_be_saved=All bouquets must be saved!
-bouquet_editor=Bouquet-Editor
-bouquet_add=add bouquet
-name_of_bouquet=Name of bouquets
-rename_bouquet=rename bouquet
+bou.bouquet=Bouquet
+bou.bouquets_must_be_saved=All bouquets must be saved!
+bou.bouquet_editor=Bouquet-Editor
+bou.bouquet_add=add bouquet
+bou.name_of_bouquet=Name of bouquets
+bou.rename_bouquet=rename bouquet
+bou.move_up=move up
+bou.move_down=move down
+bou.remove=remove
+bou.delete=delete
+bou.add=add
+bou.rename=rename
+bou.bouqets_saved=Bouquets saved
+bou.delete1=Really delete Bouquet
+bou.delete2=
+bou.no_bouquet_name=No Bouquet-Name entered
+
 ========EPG
-get_epg=get EPG ...
-epg_plus=EPG Plus
-select_bouquet=select bouquet - channels will be updated
-hover_for_details=move to program for more details
+epg.get_epg=get EPG ...
+epg.epg_plus=EPG Plus
+epg.select_bouquet=select bouquet - channels will be updated
+epg.hover_for_details=move to program for more details
+epg.refresh=get or refresh EPG
+epg.past_hours=past hours
+epg.next_hours=next hours
+epg.set_timer=Set timer for recording. Done.
+epg.zap_to=Set switch to channel. Done.
+
 ========Settings
 set.reload_neutrino=reload Neutrino
 set.reboot_required=reboot required
 set.sync_with_neutrino_desc=After changing settings via yWeb: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
 set.sync_with_neutrino=Synchronization with Neutrino
+
 =======Settings General & Menue
 set.menue.webserver=Webserver
-ucodes=Ucodes
-boot_logo=Boot Logo
-timer_settings=Timer Settings
-zapit=Zapit
-backup_restore=Backup &amp; Restore
-video_audio=Video/Audio
-parental=Parental
-direct_recording=Direct Recording
-recording=Recording
-audio_player=Audioplayer
-esound_server=Esound Server
-movieplayer=Movieplayer
-pictureviewer=Picture Viewer
-lcd_display=LC-Display
-key_settings=Key Layout
-boot_options=Boot options
-peronalization=Personalization
-plugins=Plugins
+set.menue.ucodes=Ucodes
+set.menue.boot_logo=Boot Logo
+set.menue.timer_settings=Timer Settings
+set.menue.zapit=Zapit
+set.menue.backup_restore=Backup &amp; Restore
+set.menue.bouquet_editor=Bouquet-Editor
+set.menue.video_audio=Video/Audio
+set.menue.parental=Parental
+set.menue.direct_recording=Direct Recording
+set.menue.recording=Recording
+set.menue.audio_player=Audioplayer
+set.menue.esound_server=Esound Server
+set.menue.movieplayer=Movieplayer
+set.menue.pictureviewer=Picture Viewer
+set.menue.lcd_display=LC-Display
+set.menue.key_settings=Key Layout
+set.menue.boot_options=Boot options
+set.menue.peronalization=Personalization
+set.menue.plugins=Plugins
+set.menue.others=Others
 ========Neutrino Settings - Recording
 set.rec.rec_dest=Recoring destination
 set.rec.device=Recording device
@@ -155,7 +227,7 @@ set.rec.timer_settings=Timer settings
 set.rec.start_delay=Record start delay (sec)
 set.rec.stop_delay=Record stop delay (sec)
 set.rec.zap_delay=Zap start delay (sec)
-set.audio_channels=Audio channels
+set.rec.audio_channels=Audio channels
 set.rec.audio_standard=Record standard audio channel
 set.rec.audio_alternate=Record alternate audio channel
 set.rec.audio_ac3=Record ac3 audio channel
@@ -166,6 +238,7 @@ set.rec.timeshift.pause=Pause
 set.rec.timeshift.auto_record=Autom. Recording (in Sec, 0=deactivate)
 set.rec.timeshift.auto_delete=Automatic deletion
 set.rec.timeshift.tmp_timeshift=Temporaly timeshift
+
 ========Neutrino Settings - Movieplayer
 set.mp.sources=Sources
 set.mp.streamingserver_ip=Streamingserver IP
@@ -187,6 +260,7 @@ set.mp.only_movieplayer=Only Movieplayer1
 set.mp.used_buffer=Used Buffer (WabberQueue)
 set.mp.number_buffersegments=Number of buffer segs
 set.mp.picture_in_browser=TV Picture in Browser
+
 ========Neutrino Settings - Parental
 set.parental.activate=Activate
 set.parental.type.never=Never
@@ -194,6 +268,7 @@ set.parental.type.bouquet=Bouquet
 set.parental.type.preset=Preset
 set.parental.minimum_age=Minimum Age
 set.parental.pin=PIN
+
 ========Settings NHTTP
 set.nhttpd.webserver=Webserver
 set.nhttpd.authentication=Authentication
@@ -214,9 +289,11 @@ set.nhttpd.cache=Cache
 set.nhttpd.cache_info=Cache info
 set.nhttpd.clear_cache=clear cache
 set.nhttpd.server_configuration=Server Configuration
+
 =========Settings yWeb
 set.yweb.enter_ip_desc=enter IP (xxx.xxx.xxx.xxx)
 set.yweb.enter_mac_desc=enter MAC Adress (xx:xx:xx:xx:xx:xx)
+set.yweb.description=Description
 set.yweb.enter_description_desc=enter description
 set.yweb.management_IPs=Management IPs
 set.yweb.wake_on_lan=Wake on Lan
@@ -225,6 +302,8 @@ set.yweb.box_tag=Box Tag
 set.yweb.box_color_desc=Box Name color in Top-Menue. e.g. enter 2188e0 without #
 set.yweb.box_color=Color
 set.yweb.start_page=Start page
+set.yweb.remote=Remote
+
 ========Settings Picture viewer
 set.pv.pictureviewer=Pictureviewer
 set.pv.scale=Scaling
@@ -235,6 +314,7 @@ set.pv.slideshow_duration=Slideshow View time
 set.pv.start_dir=Start Directory
 set.pv.decoding_server_ip=Decoding-Server IP
 set.pv.decoding_server_port=Decoding-Server Port</td>
+
 ========Settings Audioplayer
 set.ap.audioplayer=Audioplayer
 set.ap.display_order.actor_title=Actor, Title
@@ -248,6 +328,7 @@ set.ap.screensaver=Screen saver (min, 0=off)
 set.ap.decode_priority=High decoding priority
 set.ap.start_dir=Start directory
 set.ap.parse_shoutcast=Shoutcast Meta-Data
+
 ============ Tools Info
 tools.info.show_messages=Kernel Messages
 tools.info.processes=Processes
@@ -258,6 +339,7 @@ tools.info.partitions=Partitions
 tools.info.mtd=mtd
 tools.info.stat=Statistics
 tools.info.version=Version
+
 ============ Tools yInstaller
 tools.yinstaller.no_file_given=No file given!
 tools.yinstaller.space.var=Space in /var total
@@ -268,6 +350,7 @@ tools.yinstaller.not_determine=Can not determine free space. /var is no partitio
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-File
 tools.yinstaller.upload_install=upload and install
+
 ============ Tools
 tools.automount_desc=organize file automounts
 tools.automount=AutoMounts
@@ -285,6 +368,7 @@ tools.path=Path
 tools.command=Command
 tools.cmd.enter_command=enter command to execute
 tools.cmd.execute_command=execute shell command
+
 =========== LIVE Menue
 live.heading=Live/Timer
 live.live=Live
@@ -298,6 +382,7 @@ live.epg=EPG
 live.epg_plus_popup_desc=EPG+ (popup)
 live.epg_plus=EPG Plus
 live.timer_sync=Timer Sync
+
 =========== LIVE tv/radio
 live.get_stream_info=Getting <br/>Streaming-Informationen.
 live.getting_bouquets=getting bouquets ...
@@ -322,6 +407,7 @@ live.transcode=transcode mode
 live.build_vlc=... build vlc control ...
 live.select_bouquet=select bouquet - channels will be updated
 live.select_channel=select channel - use go to zap
+
 =========== LIVE Timer Edit
 live.timer_edit.timer=Timer
 live.timer_edit.times=Times
@@ -344,56 +430,11 @@ live.timer_edit.standby=Standby
 live.timer_edit.plugin=Plugin
 live.timer_edit.rec_dir=Recordind directory
 live.timer_edit.description=Description
-=========== GENERAL / GLOBAL
-global.no_iframes=Your Browser does not support IFrames.
-clear=clear
-submit=Submit
-action=Action
-user=User
-password=Password
-language=Language
-general=General
-logos=Logos
-url=URL
-server=Server
-refreshing=refreshing ...
-refresh=refresh
-record=record
-zap=zap
-lookup=lookup
-save_values_desc=submit and save values
-save_values=Save values ...
-save=save
-save_all=save all
-administration=Administration
-normal=Normal
-management=Management
-uninstaller=Uninstaller
-send=send
-cancel=cancel
-answer=Answer
-reboot=reboot
-shutdown=shutdown
-status=Status
-restart=restart
-on=on
-off=off
-download=Download
-back=back
-date=date
-from=from
-to=to
-program=program
-others=Others
-description=description
-color=Color
-tag=Tag
-empty=empty
-==========
-#Info
-help=Help
-About=About
-check_for_updates=Check for Updates
-your_version=Your Version
-actual_version=Actual Version
+
+========== INFO
+info.help=Help
+info.About=About
+info.check_for_updates=Check for Updates
+info.your_version=Your Version
+info.actual_version=Actual Version
 

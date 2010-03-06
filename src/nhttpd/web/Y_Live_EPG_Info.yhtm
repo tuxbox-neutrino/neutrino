@@ -15,7 +15,7 @@ function show_info(_desc, _info1, _info2){
 	<div class="y_epg_info">
 		<div id="description">&nbsp;</div>
 		<div id="info1">&nbsp;</div>
-		<div id="info2">{=L:hover_for_details=}</div>
+		<div id="info2">{=L:epg.hover_for_details=}</div>
 	</div>
 </body>
 </html>

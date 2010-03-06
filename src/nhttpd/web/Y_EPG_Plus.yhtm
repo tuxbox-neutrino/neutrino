@@ -14,17 +14,17 @@ function epg_imdb(){
 {=var-set:wait_text={=L:get_epg=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Live_Timer-EPG_Plus=}{=var-set:menu={=L:epg_plus=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Live_Timer-EPG_Plus=}{=var-set:menu={=L:epg.epg_plus=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<form name="e">
-			<select size="1" class="y_live_bouquets" name="bouquets" title="{=L:select_bouquet=}">
+			<select size="1" class="y_live_bouquets" name="bouquets" title="{=L:epg.select_bouquet=}">
 			{=func:get_bouquets_as_dropdown {=if-empty:{=bouquets=}~{=func:get_actual_bouquet_number=}~{=bouquets=}=}=}
 			</select>
 			<select id="epg_time" size="1" name="epg_time">
 			</select>
-			<button id="btGet" type="button" ytype="{=L:refresh=}" title="get or refresh EPG" onclick="build_epg_plus_main()">{=L:refresh=}</button>
-			<button id="btPast" type="button" ytype="timedown" title="past hours" onclick="build_epg_plus_delta(-2)">-2</button>
-			<button id="btNext" type="button" ytype="timeup"" title="next hours" onclick="build_epg_plus_delta(2)">+2</button>
+			<button id="btGet" type="button" ytype="refresh" title="{=L:epg.refresh=}" onclick="build_epg_plus_main()">{=L:refresh=}</button>
+			<button id="btPast" type="button" ytype="timedown" title="{=L:epg.past_hours=}" onclick="build_epg_plus_delta(-2)">-2</button>
+			<button id="btNext" type="button" ytype="timeup"" title="{=L:epg.next_hours=}" onclick="build_epg_plus_delta(2)">+2</button>
 		</form>
 
 		<div id="epg_plus">&nbsp;</div>
@@ -52,8 +52,8 @@ function epg_imdb(){
 		</tr>
 		<tr>
 			<td colspan="3">
-				<button ytype="record" title="set timer for recording" onclick="epg_set_timer();show_obj('epg_info',false);">{=L:record=}</button>
-				<button ytype="zap" title="switch to channel" onclick="epg_zapto();show_obj('epg_info',false);">{=L:zap=}</button>
+				<button ytype="record" title="{=L:epg.set_timer=}" onclick="epg_set_timer();show_obj('epg_info',false);">{=L:record=}</button>
+				<button ytype="zap" title="{=L:epg.zap_to=}" onclick="epg_zapto();show_obj('epg_info',false);">{=L:zap=}</button>
 				{=L:lookup=}:
 				<span id="d_lookup"></span>
 			</td>

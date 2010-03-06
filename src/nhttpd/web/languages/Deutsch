@@ -1,3 +1,52 @@
+=========== GENERAL / GLOBAL
+global.no_iframes=Dein Browser unterstützt keine IFrames.
+clear=löschen
+submit=Ausführen
+action=Aktion
+user=Benutzer
+password=Passwort
+language=Sprache
+general=Allgemein
+logos=Logos
+url=URL
+server=Server
+refreshing=aktualisieren ...
+refresh=Aktualisieren
+record=aufnehmen
+zap=umschalten
+lookup=nachschlagen
+save_values_desc=senden und speichern der Werte
+save_values=Werte werden übernommen ...
+administration=Administration
+normal=Normal
+management=Management
+uninstaller=Deinstallation
+send=senden
+save=speichern
+save_all=Alle &Auml;nderungen speichern
+cancel=abbrechen
+answer=Antwort
+reboot=Neustart
+shutdown=Ausschalten
+status=Status
+restart=Neustart
+on=An
+off=Aus
+download=Herunterladen
+back=Zur&uuml;ck
+date=Datum
+from=Von
+to=bis
+program=Sendung
+others=Sonstiges
+description=Beschreibung
+color=Farbe
+tag=Bezeichnung
+empty=leer
+check=prüfen
+help=Hilfe
+restriced_by_management_ip=Zugriff verwert wg. ManagementIP
+
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung
 main.boxcontrol_desc=Boxcontrol & Bouquets
@@ -69,9 +118,9 @@ bc.msg.message_to_screen_desc=Nachricht eingeben
 bc.msg.message_to_screen=Meldung auf Bildschirm
 bc.msg.popup_to_screen=Popup auf Bildschirm
 bc.msg.send_message=Nachricht senden
+
 ====== EXtension
 ext.installer_updater=Installation
-restriced_by_management_ip=Zugriff verwert wg. ManagementIP
 ext.uninstaller=Deinstallation Erweiterungen
 ext.search_for_ext=Suche nach Extensions ...
 ext.installed_extensions=Installierte Erweiterungen
@@ -91,42 +140,63 @@ ext.your=Deine
 ext.update=Aktuelle
 ext.update_install=Aktualisierung / Installation
 ext.site=Site
+
 ====== Bouquet
-bouquets_must_be_saved=Alle &Auml;nderungen m&uuml;ssen noch gespeichert werden!
-bouquet_editor=Bouquet-Editor
-bouquet_add=Bouquet hinzuf&uuml;gen
-name_of_bouquet=Name des neuen Bouquets
-rename_bouquet=Bouquet umbenennen
+bou.bouquets_must_be_saved=Alle &Auml;nderungen m&uuml;ssen noch gespeichert werden!
+bou.bouquet_editor=Bouquet-Editor
+bou.bouquet_add=Bouquet hinzuf&uuml;gen
+bou.name_of_bouquet=Name des neuen Bouquets
+bou.rename_bouquet=Bouquet umbenennen
+bou.move_up=Nach oben
+bou.move_down=Nach unten
+bou.remove=Entfernen
+bou.delete=Löschen
+bou.add=Hinzufügen
+bou.rename=Umbenennen
+bou.bouqets_saved=Bouquet-Liste gespeichert
+bou.delete1=Bouquet
+bou.delete2=wirklich loeschen
+bou.no_bouquet_name=Es wurde kein Bouquet-Name angegeben
+
 ========EPG
-get_epg=EPG holen ...
-epg_plus=EPG Plus
-select_bouquet=Bouquet auswählen - Kanäle werden aktualisiert
-hover_for_details=F&uuml;r Details: Maus &uuml;ber die entsprechende Sendung bewegen.
+epg.get_epg=EPG holen ...
+epg.epg_plus=EPG Plus
+epg.select_bouquet=Bouquet auswählen - Kanäle werden aktualisiert
+epg.hover_for_details=F&uuml;r Details: Maus &uuml;ber die entsprechende Sendung bewegen.
+epg.refresh=EPG Daten aktualisieren
+epg.past_hours=Stunden zurück
+epg.next_hours=Stunden vor
+epg.set_timer=Timer für Aufnahme gesetzt
+epg.zap_to=Umschalt-Timer gesetzt
+
 ========Neutrino Settings
 set.reload_neutrino=Neutrino neuladen
 set.reboot_required=Neustart notwendig
 set.sync_with_neutrino_desc=After changing settings via yWeb: <br/>Choose on TV "Main Menu->Service->Soft restart", to accept the changes within neutrino.<br/><br/>After changing settings within Neutrino: <br/>Choose on TV "Main Menu->Settings->Save settings now", to accept these changes and reload this page.
 set.sync_with_neutrino=Zur Synchronisation mit Neutrino
+
 ========Settings General & Menue
 set.menue.webserver=Webserver
-ucodes=Ucodes
-boot_logo=Boot Logo
-timer_settings=Timer Einstellungen
-zapit=Zapit
-backup_restore=Sichern und Wiederherstellen
-video_audio=Video/Audio
-parental=Jugendschutz
-direct_recording=Direktaufnahme
-recording=Aufnahme
-audio_player=Audioplayer
-esound_server=Esound Server
-movieplayer=Movieplayer
-pictureviewer=Bildbetrachter
-lcd_display=LC-Display
-key_settings=Tastenbelegung
-boot_options=Bootoptionen
-peronalization=Personalisierung
-plugins=Plugins
+set.menue.ucodes=Ucodes
+set.menue.boot_logo=Boot Logo
+set.menue.timer_settings=Timer Einstellungen
+set.menue.zapit=Zapit
+set.menue.backup_restore=Sichern und Wiederherstellen
+set.menue.bouquet_editor=Bouquet-Editor
+set.menue.video_audio=Video/Audio
+set.menue.parental=Jugendschutz
+set.menue.direct_recording=Direktaufnahme
+set.menue.recording=Aufnahme
+set.menue.audio_player=Audioplayer
+set.menue.esound_server=Esound Server
+set.menue.movieplayer=Movieplayer
+set.menue.pictureviewer=Bildbetrachter
+set.menue.lcd_display=LC-Display
+set.menue.key_settings=Tastenbelegung
+set.menue.boot_options=Bootoptionen
+set.menue.peronalization=Personalisierung
+set.menue.plugins=Plugins
+set.menue.others=Diverses
 ========Neutrino Settings - Recording
 set.rec.rec_dest=Aufnahmeziel
 set.rec.device=Aufnahmeger&auml;t
@@ -152,7 +222,7 @@ set.rec.timer_settings=Timereinstellungen
 set.rec.start_delay=Aufnahmestart-Korrektur (Sek)
 set.rec.stop_delay=Aufnahmeende-Korrektur (Sek)
 set.rec.zap_delay=Umschaltstart-Korrektur (Sek)
-set.audio_channels=Tonspuren
+set.rec.audio_channels=Tonspuren
 set.rec.audio_standard=Standard Tonspur aufnehmen
 set.rec.audio_alternate=Alternative Tonspur aufnehmen
 set.rec.audio_ac3=AC3 Tonspuren aufnehmen
@@ -163,6 +233,7 @@ set.rec.timeshift.pause=Pause
 set.rec.timeshift.auto_record=Autom. Aufnahme (in Sek, 0=deaktiviert)
 set.rec.timeshift.auto_delete=Automatisches Löschen
 set.rec.timeshift.tmp_timeshift=Temporäres timeshift
+
 ========Neutrino Settings - Movieplayer
 set.mp.sources=Quellen
 set.mp.streamingserver_ip=Streamingserver IP
@@ -184,6 +255,7 @@ set.mp.only_movieplayer=Nur Movieplayer1
 set.mp.used_buffer=Verwende Buffer (WabberQueue)
 set.mp.number_buffersegments=Anzahl Buffersegmente
 set.mp.picture_in_browser=TV Bild im Browser
+
 ========Neutrino Settings - Parental
 set.parental.activate=Aktivieren
 set.parental.type.never=Nie
@@ -191,6 +263,7 @@ set.parental.type.bouquet=Bouquet
 set.parental.type.preset=Vorsperre
 set.parental.minimum_age=Mindestalter
 set.parental.pin=PIN
+
 ========Settings NHTTP
 set.nhttpd.webserver=Webserver
 set.nhttpd.authentication=Authentifikation
@@ -211,9 +284,11 @@ set.nhttpd.cache=Cache
 set.nhttpd.cache_info=Cache Informationen
 set.nhttpd.clear_cache=Cache löschen
 set.nhttpd.server_configuration=Server Konfiguration
+
 =========Settings yWeb
 set.yweb.enter_ip_desc=IP Adresse eingeben (xxx.xxx.xxx.xxx)
 set.yweb.enter_mac_desc=MAC Adresse eingeben (xx:xx:xx:xx:xx:xx)
+set.yweb.description=Bezeichnung
 set.yweb.enter_description_desc=Beschreibung eingeben
 set.yweb.management_IPs=Management IPs
 set.yweb.wake_on_lan=Wake on Lan
@@ -222,6 +297,8 @@ set.yweb.box_tag=Box Bezeichnung
 set.yweb.box_color_desc=Farbe der Box Bezeichnung im Top-Menue. z.B. 2188e0 eingeben ohne #
 set.yweb.box_color=Farbe
 set.yweb.start_page=Startseite
+set.yweb.remote=Fernbedienung
+
 ========Settings Picture viewer
 set.pv.pictureviewer=Bildbetrachter
 set.pv.scale=Skalierung
@@ -232,6 +309,7 @@ set.pv.slideshow_duration=Diaschau-Anzeigedauer
 set.pv.start_dir=Start-Verzeichnis
 set.pv.decoding_server_ip=Decoding-Server IP
 set.pv.decoding_server_port=Decoding-Server Port</td>
+
 ========Settings Audioplayer
 set.ap.audioplayer=Audioplayer
 set.ap.display_order.actor_title=Interpret, Titel
@@ -245,6 +323,7 @@ set.ap.screensaver=Bildschirmschoner (min, 0=aus)
 set.ap.decode_priority=Hohe Decodier-Priorit&auml;t
 set.ap.start_dir=Start-Verzeichnis
 set.ap.parse_shoutcast=Shoutcast Meta-Daten
+
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen
 tools.info.processes=Prozesse
@@ -255,6 +334,7 @@ tools.info.partitions=Partitions
 tools.info.mtd=mtd
 tools.info.stat=Statistik
 tools.info.version=Version
+
 ============ Tools yInstaller
 tools.yinstaller.no_file_given=Keine Datei angegeben!
 tools.yinstaller.space.var=Platz in /var Gesamt
@@ -265,6 +345,7 @@ tools.yinstaller.not_determine=Kann freien Speicherplatz nicht ermitteln /var is
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-Datei
 tools.yinstaller.upload_install=hochladen und installieren
+
 ============ Tools
 tools.automount_desc=Automounts organisieren
 tools.automount=AutoMounts
@@ -282,6 +363,7 @@ tools.path=Verzeichnis
 tools.command=Kommando
 tools.cmd.enter_command=Auszuführendes Kommando eingeben
 tools.cmd.execute_command=Kommando ausführen
+
 =========== LIVE Menue
 live.heading=Live/Timer
 live.live=Live
@@ -290,11 +372,12 @@ live.tv=TV
 live.radio_popup_desc=LiveRadio (popup)
 live.radio=Radio
 live.double_view=DoubleView
-live.timer=Time
+live.timer=Timer
 live.epg=EPG
 live.epg_plus_popup_desc=EPG+ (popup)
 live.epg_plus=EPG Plus
 live.timer_sync=Timer Sync
+
 =========== LIVE
 live.get_stream_info=Streaming-Informationen<br/>werden ermittelt.
 live.getting_bouquets=Hole Bouquets ...
@@ -319,6 +402,7 @@ live.transcode=Transkodiermodus
 live.build_vlc=... erstelle Live ...
 live.select_bouquet=Bouquet auswählen - Sender werden aktualisiert
 live.select_channel=Sender wechseln - nutze zap
+
 =========== LIVE Timer Edit
 live.timer_edit.timer=Timer
 live.timer_edit.times=Zeiten
@@ -341,54 +425,10 @@ live.timer_edit.standby=Standby
 live.timer_edit.plugin=Plugin
 live.timer_edit.rec_dir=Aufnahmeverzeichnis
 live.timer_edit.description=Beschreibung
-=========== GENERAL / GLOBAL
-global.no_iframes=Dein Browser unterstützt keine IFrames.
-clear=löschen
-submit=Ausführen
-action=Aktion
-user=Benutzer
-password=Passwort
-language=Sprache
-general=Allgemein
-logos=Logos
-url=URL
-server=Server
-refreshing=aktualisieren ...
-refresh=Aktualisieren
-record=aufnehmen
-zap=umschalten
-lookup=nachschlagen
-save_values_desc=senden und speichern der Werte
-save_values=Werte werden übernommen ...
-administration=Administration
-normal=Normal
-management=Management
-uninstaller=Deinstallation
-send=senden
-save=speichern
-save_all=Alle &Auml;nderungen speichern
-cancel=abbrechen
-answer=Antwort
-reboot=Neustart
-shutdown=Ausschalten
-status=Status
-restart=Neustart
-on=An
-off=Aus
-download=Herunterladen
-back=Zur&uuml;ck
-date=Datum
-from=Von
-to=bis
-program=Sendung
-others=Sonstiges
-description=Beschreibung
-color=Farbe
-tag=Bezeichnung
-empty=leer
+
 =========INFO
-help=Hilfe
-About=Über
-check_for_updates=Auf Updates prüfen
-your_version=Deine Version
-actual_version=Aktuelle Version
+info.help=Hilfe
+info.About=Über
+info.check_for_updates=Auf Updates prüfen
+info.your_version=Deine Version
+info.actual_version=Aktuelle Version

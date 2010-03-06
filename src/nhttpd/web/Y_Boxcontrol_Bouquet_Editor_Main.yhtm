@@ -26,7 +26,7 @@ function do_set(bouquetnr, action){
 function do_save(){
 	hide_forms();
 	loadSyncURL("/control/savebouquet");
-	alert("Bouquet-Liste gespeichert");
+	alert("{=L:bou.bouqets_saved=}");
 }
 function do_update(){
 	hide_forms();
@@ -42,7 +42,7 @@ function do_move(bouquetnr, action){
 	window.setTimeout('do_reload()',50);
 }
 function do_delete(bouquetnr, bouquet_name){
-	if (confirm("Bouquet \""+bouquet_name+"\" wirklich loeschen?")==true){
+	if (confirm("{=L:bou.delete1=} \""+bouquet_name+"\" {=L:bou.delete2=}?")==true){
 		loadSyncURL("/control/deletebouquet?selected="+bouquetnr);
 		gurl = "/Y_Boxcontrol_Bouquet_Editor_Main.yhtm?selected=" + bouquetnr+ "#akt";
 		window.setTimeout('do_reload()',50);
@@ -68,7 +68,7 @@ function do_add(){
 		window.setTimeout('do_reload()',200);
 	}
 	else
-		alert("Es wurde kein Bouquet-Name angegeben!");
+		alert("{=L:bou.no_bouquet_name=}!");
 }
 function do_rename_start(bouquetnr, bouquet_name){
 	hide_forms();
@@ -94,7 +94,7 @@ function do_rename(){
 //		}
 	}
 	else
-		alert("Es wurde kein Bouquet-Name angegeben!");
+		alert("{=L:bou.no_bouquet_name=}!");
 }
 //]]>
 </script>
@@ -116,7 +116,7 @@ function do_rename(){
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-BoxControl-Bouquet-Editor=}{=var-set:menu={=L:bouquet_editor=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-BoxControl-Bouquet-Editor=}{=var-set:menu={=L:set.menue.bouquet_editor=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<div id="add" class="fly_form">
 			<form name="add" accept-charset="UTF-8" action="">
@@ -149,30 +149,30 @@ function do_rename(){
 <td align="center" width="30px">
 	%s
 	<a href="javascript:do_set('%d','%s');">
-	<img src="/images/%s.png" alt="%s" style="border: 0px" /></a>
+	<img src="/images/%s.png" title="%s" style="border: 0px" /></a>
 </td>
 <td align="center" width="30px">
 	<a href="javascript:do_set('%d','%s');">
-	<img src="/images/%s.png" alt="%s" style="border: 0px" />
+	<img src="/images/%s.png" title="%s" style="border: 0px" />
 	</a>
 </td>
 <td><a href="/Y_Boxcontrol_Bouquet_Editor_Edit.yhtm?selected=%d&amp;name=%s">%s</a></td>
 <td width="100" style="white-space: nowrap; font-weight:normal;">
 	<a href="javascript:do_rename_start('%d','%s');">
-	<img src="/images/modify.png" alt="umbenennen" style="border: 0px" /></a>&nbsp;
+	<img src="/images/modify.png" title="{=L:bou.rename=}" style="border: 0px" /></a>&nbsp;
 	<a href="javascript:do_delete('%d','%s');">
-	<img src="/images/remove.png" alt="l&ouml;schen" style="border: 0px" /></a>&nbsp;
+	<img src="/images/remove.png" title="{=L:bou.delete=}" style="border: 0px" /></a>&nbsp;
 	<span  style="visibility:%s;"><a href="javascript:do_move('%d','down');">
-	<img src="/images/arrowdown.png" alt="nach unten" style="border: 0px" /></a>&nbsp;</span>
+	<img src="/images/arrowdown.png" title="{=L:bou.move_down=}" style="border: 0px" /></a>&nbsp;</span>
 	<span  style="visibility:%s;"><a href="javascript:do_move('%d','up');">
-	<img src="/images/arrowup.png" alt="nach oben" style="border: 0px" /></a>&nbsp;</span>
+	<img src="/images/arrowup.png" title="{=L:bou.move_up=}" style="border: 0px" /></a>&nbsp;</span>
 </td>
 </tr>
 =}
 {=func:bouquet_editor_main {=var-get:row=}=}
 		</table>
 		<p>
-			<button type="button" ytype="add" onclick="javascript:do_add_start()">{=L:bouquet_add=}</button>
+			<button type="button" ytype="add" onclick="javascript:do_add_start()">{=L:bou.bouquet_add=}</button>
 			<button type="button" ytype="saveall" onclick="javascript:do_save()">{=L:save_all=}</button>
 		</p>
 	</div>

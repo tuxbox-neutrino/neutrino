@@ -17,12 +17,12 @@ function check_updates()
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Info-Auf_Updates_pruefen=}{=var-set:menu={=L:check_for_updates=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Info-Auf_Updates_pruefen=}{=var-set:menu={=L:info.check_for_updates=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 		<table border="0" cellpadding="2" cellspacing="4">
 		<tr>
 			<td valign="top">
-				<b>{=L:your_version=}</b>
+				<b>{=L:info.your_version=}</b>
 				<p>
 				{=ini-get:Y_Version.txt;version=}<br/>
 				{=ini-get:Y_Version.txt;date=}<br/>
@@ -31,7 +31,7 @@ function check_updates()
 				</p>
 			</td>
 			<td valign="top">
-				<b>{=L:actual_version=}</b>
+				<b>{=L:info.actual_version=}</b>
 				<p>
 				{=ini-get:/tmp/version.txt;version=}<br/>
 				{=ini-get:/tmp/version.txt;date=}<br/>
@@ -43,7 +43,7 @@ function check_updates()
 				</p>
 			</td>
 		</tr>
-		<tr><td><input type="button" onclick="check_updates()" value="check"/></td></tr>
+		<tr><td><input type="button" onclick="check_updates()" value="{=L:check=}"/></td></tr>
 		</table>
 	</div>
 </div>

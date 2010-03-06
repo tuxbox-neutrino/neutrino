@@ -34,7 +34,7 @@ end-block~neutrino_form_helpbox
 start-block~neutrino_form-data_record
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Aufnahme=}{=var-set:menu={=L:recording=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-Aufnahme=}{=var-set:menu={=L:set.menue.recording=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -130,7 +130,7 @@ start-block~neutrino_form-data_record
 				<td>{=L:set.rec.zap_delay=}</td>
 				<td><input type="text" name="ZAPTO_EXTRA_TIME_START" size="3" maxlength="3" value="{=ini-get:/var/tuxbox/config/timerd.conf;ZAPTO_EXTRA_TIME_START;0=}" />&nbsp;{=L:set.reboot_required=}</td>
 			</tr>
-			<tr><td colspan="2" class="y_form_header">{=L:set.audio_channels=}</td></tr>
+			<tr><td colspan="2" class="y_form_header">{=L:set.rec.audio_channels=}</td></tr>
 			<tr>
 				<td>{=L:set.rec.audio_standard=}</td>
 				<td>
@@ -320,7 +320,7 @@ end-block~neutrino_record_save_settings
 start-block~neutrino_form-data_movieplayer
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Movieplayer=}{=var-set:menu={=L:movieplayer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-Movieplayer=}{=var-set:menu={=L:set.menue.movieplayer=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
@@ -579,7 +579,7 @@ end-block~neutrino_movieplayer_save_settings
 start-block~neutrino_form-data_parental
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Jugendschutz=}{=var-set:menu={=L:parental=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-Jugendschutz=}{=var-set:menu={=L:set.menue.parental=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">

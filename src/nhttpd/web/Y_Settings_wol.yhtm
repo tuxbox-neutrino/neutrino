@@ -41,7 +41,7 @@ function goto_settings(){
 				<td>Wake on Lan MAC 3 ({=ini-get:/var/tuxbox/config/Y-Web.conf;wol_mac_3=}) {=ini-get:/var/tuxbox/config/Y-Web.conf;wol_desc_3=}</td>
 				<td><input id="wol3" type="button" name="wol_mac_3" value="wake up" title="wake up that MAC" onclick='do_wol(3)'/></td>
 			</tr>
-			<tr><td colspan="2"><a href="javascript:goto_settings()" class="inlink">{=L:settings=}</a></td></tr>
+			<tr><td colspan="2"><a href="javascript:goto_settings()" class="inlink">{=L:main.settings=}</a></td></tr>
 		</table>
 	</form>
 	<!--<a href="Y_Settings_yWeb.yhtm" title="WOL Settings">{=L:settings=}</a>-->
