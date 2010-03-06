@@ -1,0 +1,1375 @@
+AUDIOSelectMenue.head Výber zvuku
+EPGMenu.epgplus Multi EPG
+EPGMenu.eventinfo Popis programu
+EPGMenu.eventlist Prehľad programov
+EPGMenu.head EPG - Programový sprievodca
+EPGMenu.streaminfo Technické informácie
+EPGPlus.actions Akcie
+EPGPlus.bybouquet_mode buketmi
+EPGPlus.bypage_mode stranami
+EPGPlus.change_font_size Veľkosť písma
+EPGPlus.change_font_style Štýl písma
+EPGPlus.change_size Veľkosť
+EPGPlus.channelentry_font Názov kanála
+EPGPlus.channelentry_separationlineheight Výška oddeľovačov
+EPGPlus.channelentry_width Šírka
+EPGPlus.channelevententry_font Názov programu
+EPGPlus.edit_fonts Úprava fontov
+EPGPlus.edit_sizes Úprava velikostí
+EPGPlus.font_style_bold tučný
+EPGPlus.font_style_italic kurzíva
+EPGPlus.font_style_regular normálny
+EPGPlus.footer_fontbouquetchannelname Pasek: Buket
+EPGPlus.footer_fontbuttons Pasek: Tlačítka
+EPGPlus.footer_fonteventdescription Pasek: Titul programu
+EPGPlus.footer_fonteventshortdescription Pasek: Popis programu
+EPGPlus.head Multi EPG
+EPGPlus.header_font Nadpis
+EPGPlus.horgap1_height Výška horného rozostupu
+EPGPlus.horgap2_height Výška dolného rozostupu
+EPGPlus.next_bouquet nasl.buket
+EPGPlus.options Možnosti
+EPGPlus.page_down Predchádzajúca strana
+EPGPlus.page_up Nasledujúca strana
+EPGPlus.prev_bouquet predch.buket
+EPGPlus.record Záznam1
+EPGPlus.refresh_epg Obnov
+EPGPlus.remind Plánovač
+EPGPlus.reset_settings Obnov pôvodné
+EPGPlus.save_settings Ulož nastavenia
+EPGPlus.scroll_mode pretáčanie
+EPGPlus.select_font_name Názov fontu
+EPGPlus.settings Nastavenia
+EPGPlus.slider_width Šírka posuvníka
+EPGPlus.stretch_mode rozšírenie
+EPGPlus.swap_mode Zmena stránkovania
+EPGPlus.timeline_fontdate Dátum
+EPGPlus.timeline_fonttime Čas
+EPGPlus.vergap1_width Šírka ľavého okraja
+EPGPlus.vergap2_width Šírka pravého okraja
+EPGPlus.view_mode Spôsob zobrazenia
+GENRE.ARTS.0 umenie/kultúra
+GENRE.ARTS.1 divadlo
+GENRE.ARTS.10 umelecké/kultúrne maazíny
+GENRE.ARTS.11 móda
+GENRE.ARTS.2 jemné umenie
+GENRE.ARTS.3 náboženstvo
+GENRE.ARTS.4 ľudové umenie
+GENRE.ARTS.5 literatúra
+GENRE.ARTS.6 film/kino
+GENRE.ARTS.7 experimentálny film /video
+GENRE.ARTS.8 vysielanie/tlač
+GENRE.ARTS.9 nové média
+GENRE.CHILDRENs_PROGRAMMES.0 programy pre deti a mládež
+GENRE.CHILDRENs_PROGRAMMES.1 programy pre deti predškolského veku
+GENRE.CHILDRENs_PROGRAMMES.2 zábavné programy pre ľudí vo veku 6 – 14 rokov
+GENRE.CHILDRENs_PROGRAMMES.3 zábavné programy pre ľudí vo veku 10 – 16 rokov
+GENRE.CHILDRENs_PROGRAMMES.4 informačné a náučné školské programy
+GENRE.CHILDRENs_PROGRAMMES.5 animované programy
+GENRE.DOCUS_MAGAZINES.0 dokumenty/magazíny
+GENRE.DOCUS_MAGAZINES.1 príroda/zvieratá/životné prostredie
+GENRE.DOCUS_MAGAZINES.2 technológie/prírodné vedy
+GENRE.DOCUS_MAGAZINES.3 zdravotníctvo/filozófia/psychológia
+GENRE.DOCUS_MAGAZINES.4 zahraničie/výpravy
+GENRE.DOCUS_MAGAZINES.5 spoločenské/humanitné vedy
+GENRE.DOCUS_MAGAZINES.6 osveta
+GENRE.DOCUS_MAGAZINES.7 jazyky
+GENRE.MOVIE.0 kinofilm/dráma
+GENRE.MOVIE.1 kriminálny/napínavý
+GENRE.MOVIE.2 dobrodružný/western/vojenský
+GENRE.MOVIE.3 sci-fi/fantázia/horror
+GENRE.MOVIE.4 komédia
+GENRE.MOVIE.5 telenovela/melodráma/folklór
+GENRE.MOVIE.6 romantika
+GENRE.MOVIE.7 vážna dráma/klasika/náboženský/historický
+GENRE.MOVIE.8 filmy pre dospelých
+GENRE.MUSIC_DANCE.0 hudba/tanec
+GENRE.MUSIC_DANCE.1 rock/pop
+GENRE.MUSIC_DANCE.2 vážna/klasická hudba
+GENRE.MUSIC_DANCE.3 národná/ľudová hudba
+GENRE.MUSIC_DANCE.4 jazz
+GENRE.MUSIC_DANCE.5 muzikál/opera
+GENRE.MUSIC_DANCE.6 balet
+GENRE.NEWS.0 správy
+GENRE.NEWS.1 správy/počasie
+GENRE.NEWS.2 spravodajský magazín
+GENRE.NEWS.3 dokument
+GENRE.NEWS.4 diskusia/rozhovor/rokovanie
+GENRE.SHOW.0 estráda/telehra
+GENRE.SHOW.1 telehra/kvíz/súťaž
+GENRE.SHOW.2 varieté
+GENRE.SHOW.3 debata
+GENRE.SOCIAL_POLITICAL.0 spoločenské a politické udalosti/obchod
+GENRE.SOCIAL_POLITICAL.1 magazíny/reportáže/dokumenty
+GENRE.SOCIAL_POLITICAL.2 ekonomické/spoločenské poradenstvo
+GENRE.SOCIAL_POLITICAL.3 významný ľudia
+GENRE.SPORTS.0 šport
+GENRE.SPORTS.1 mimoriadne udalosti (olimpiady, majstrovstvá sveta...)
+GENRE.SPORTS.10 jazdectvo
+GENRE.SPORTS.11 vojenské športy
+GENRE.SPORTS.2 športové magazíny
+GENRE.SPORTS.3 futbal
+GENRE.SPORTS.4 tenis
+GENRE.SPORTS.5 skupinové športy
+GENRE.SPORTS.6 atletika
+GENRE.SPORTS.7 motorizmus
+GENRE.SPORTS.8 vodné športy
+GENRE.SPORTS.9 zimné športy
+GENRE.TRAVEL_HOBBIES.0 cestovanie a odych
+GENRE.TRAVEL_HOBBIES.1 turistika/cestovanie
+GENRE.TRAVEL_HOBBIES.2 plavba
+GENRE.TRAVEL_HOBBIES.3 autoturistika
+GENRE.TRAVEL_HOBBIES.4 fyzická kondícia a zdravie
+GENRE.TRAVEL_HOBBIES.5 varenie
+GENRE.TRAVEL_HOBBIES.6 inzertovanie/nakupovanie
+GENRE.TRAVEL_HOBBIES.7 záhradkárstvo
+GENRE.UNKNOWN neznáme
+apidselector.head Výber jazyka
+audiomenu.PCMOffset Zníženie hlasitosti PCM
+audiomenu.analog_mode Analógový mód
+audiomenu.analog_out Analógový výstup
+audiomenu.avs avs
+audiomenu.avs_control Ovládanie hlasitosti avs/ost
+audiomenu.dolbydigital Zvuk Dolby Digital
+audiomenu.head Nastavenia zvuku
+audiomenu.lirc lirc
+audiomenu.monoleft mono ľavý kanál
+audiomenu.monoright mono pravý kanál
+audiomenu.ost ost
+audiomenu.stereo stereo
+audiomenu.hdmi_dd Zvuk DD na HDMI
+audiomenu.spdif_dd Zvuk DD na SPDIF
+audiomenu.avsync A/V synch
+audiomenu.avsync_am Hlavný zvuk
+audiomenu.clockrec Vzorkovanie
+audiomenu.auto_lang Automatický výber zvuku
+audiomenu.auto_subs Automatický výber titulkov
+audiomenu.pref_languages Jazykové nastavenia
+audiomenu.pref_lang_head Nastavenie jazyku zvuku/EPG
+audiomenu.pref_lang Preferovaný jazyk
+audiomenu.pref_subs_head Nastavenie jazyku vybraných titulkov
+audiomenu.pref_subs Preferované titulky
+audioplayer.add pridaj
+audioplayer.add_ic Icecast
+audioplayer.add_loc Zoznam lokálnych radií
+audioplayer.add_sc Shoutcast
+audioplayer.artist_title Umelec, Názov
+audioplayer.building_search_index tvorba vyhľadávacieho indexu
+audioplayer.button_select_title_by_id hľadaj poľa ID
+audioplayer.button_select_title_by_name hľadaj poľa názvu
+audioplayer.defdir Východzí adresár
+audioplayer.delete zmaž
+audioplayer.deleteall zmaž všetko
+audioplayer.display_order Poradie
+audioplayer.enable_sc_metadata Použi meta-data pre shoutcast
+audioplayer.fastforward pretoč dopredu
+audioplayer.follow Urob výber hraného
+audioplayer.head Zoznam prehrávania
+audioplayer.highprio Veľká priorita dekódovania
+audioplayer.spectrum lcd a-spektrum
+audioplayer.jump_backwards skoč dozadu
+audioplayer.jump_dialog_hint1 čas skoku
+audioplayer.jump_dialog_hint2 v sekundách.
+audioplayer.jump_dialog_title Zadaj čas skoku
+audioplayer.jump_forwards skoč dopredu
+audioplayer.keylevel funkcie klávesy
+audioplayer.load_radio_stations Nahraj internetové radia
+audioplayer.name Prehrávač súborov
+audioplayer.pause pauza
+audioplayer.play spusti
+audioplayer.playing Prehrávaná skladba
+audioplayer.playlist_fileerror_msg Súbor som nemohol vytvoriť:
+audioplayer.playlist_fileoverwrite_msg Prepíšem tento súbor:
+audioplayer.playlist_fileoverwrite_title Prepísať?
+audioplayer.playlist_name Názov súboru na zozname prehrávania
+audioplayer.playlist_name_hint1 Zadajte názov súboru do zoznamu prehrávania
+audioplayer.playlist_name_hint2 Prípona .m3u bude doplnená automaticky
+audioplayer.reading_files Načítavam súbory
+audioplayer.receiving_list Načítavam zoznam, čakaj...
+audioplayer.repeat_on Spusti mód opakovania
+audioplayer.rewind pretoč dozadu
+audioplayer.save_playlist ulož zoznam
+audioplayer.screensaver_timeout Vypnutie obrazu (minúta, 0=vypnuté)
+audioplayer.select_title_by_name Vyber titul podľa názvu (SMS)
+audioplayer.show_playlist Zobraz zoznam
+audioplayer.shuffle náhodne
+audioplayer.stop zastav
+audioplayer.title_artist Titul, Umelec
+audioplayerpicsettings.general Nastavenia prehrávača
+bookmarkmanager.delete zmaž
+bookmarkmanager.name záložky
+bookmarkmanager.rename premenuj
+bookmarkmanager.select vyber
+bouqueteditor.add pridaj
+bouqueteditor.bouquetname Názov buketu
+bouqueteditor.delete zmaž
+bouqueteditor.discardingchanges Zrušenie zmien. Prosim čakajte.
+bouqueteditor.hide skry
+bouqueteditor.lock zamkni
+bouqueteditor.move presuň
+bouqueteditor.name Úprava buketov
+bouqueteditor.newbouquetname Nový názov buketu
+bouqueteditor.rename premenuj
+bouqueteditor.return hotovo
+bouqueteditor.savechanges? Uloženie týchto zmien?
+bouqueteditor.savingchanges Ukladám zmeny. Prosim čakaj ...
+bouqueteditor.switch pridaj/odstráň
+bouqueteditor.switchmode TV/Rádio
+bouquetlist.head Bukety
+cablesetup.provider Káblový poskytovateľ
+channellist.edit Uprav
+channellist.epgtext_align_left do ľava
+channellist.epgtext_align_right do prava
+channellist.extended Grafické EPG v zozname
+channellist.head Všetky kanály
+channellist.nonefound Nenájdený zoznam kanálov!\nVykonaj vyhľadanie kanálov\n(MENU -> Služby)
+channellist.since od %02d:%02d
+channellist.start spúšťa %02d:%02d
+channellist.favs Obľúbené
+channellist.provs Poskytovatelia
+channellist.sats Satelity
+channellist.history História
+channellist.current_tp Aktuálny transpondér
+channellist.make_hdlist Vytvor zoznam pre HD kanály
+colorchooser.alpha Priehľadnosť
+colorchooser.blue Modrý
+colorchooser.green Zelený
+colorchooser.red Červený
+colormenu.background Pozadie
+colormenu.fade Miznúce menu
+colormenu.font Veľkosť písma
+colormenu.gtx_alpha Priehladnosť (GTX)
+colormenu.head Nastavenia farieb
+colormenu.menucolors Farby menu
+colormenu.statusbar Stavový riadok
+colormenu.textcolor Farba textu
+colormenu.themeselect Výber tém
+colormenu.timing Čas zobrazenia na OSD
+colormenusetup.head Farby menu
+colormenusetup.menucontent Obsahové okno
+colormenusetup.menucontent_inactive Neaktívne v obsahovom okne
+colormenusetup.menucontent_selected Vybrané v obsahovom okne
+colormenusetup.menuhead Hlavička
+colorstatusbar.head Stavový riadok
+colorstatusbar.text Text stavového riadku
+colorthememenu.classic_theme Klasika
+colorthememenu.dblue_theme DarkBlue
+colorthememenu.dvb2k_theme DVB2000
+colorthememenu.red_theme Jednoduchý červený
+colorthememenu.head Výber tém
+colorthememenu.neutrino_theme Neutrino
+colorthememenu.gray Sivá
+date.Apr  Apr
+date.Aug  Aug
+date.Dec  Dec
+date.Feb  Feb
+date.Fri  Pi
+date.Jan  Jan
+date.Jul  Jul
+date.Jun  Jun
+date.Mar  Mar
+date.May  Máj
+date.Mon  Po
+date.Nov  Nov
+date.Oct  Okt
+date.Sat  So
+date.Sep  Sep
+date.Sun  Ne
+date.Thu  Št
+date.Tue  Ut
+date.Wed  St
+epgextended.actors Herci
+epgextended.director Režisér
+epgextended.guests Hostia
+epgextended.original_title Originálny titul
+epgextended.presenter Prezentovač
+epgextended.year_of_production Rok výroby
+epglist.noevents EPG je nedostupné...
+epgviewer.More_Screenings Podobné relácie na tomto kanály
+epgviewer.nodetailed Detailné informácie sú nedostupné
+epgviewer.notfound Nenájdené programové informácie (EPG)
+eventfinder.head Hľadaj v EPG
+eventfinder.keyword Klávesnica
+eventfinder.search Hľadaj
+eventfinder.search_within_epg Hľadaj s EPG
+eventfinder.search_within_list Hľadaj so zoznamom
+eventfinder.searching Hľadaj s klávesnicou v EPG...
+eventfinder.start_search Spusti hľadanie
+eventlistbar.channelswitch prejdi
+eventlistbar.eventsort triedenie
+eventlistbar.recordevent nahraj
+favorites.addchannel Aktuálny kanál bude pridaný \ndo buketu "Obľúbené". \nTo potrvá niekoľko sekúnd...
+favorites.bouquetname Obľúbené
+favorites.bqcreated Buket "Obľúbené" bol vytvorený...\n
+favorites.chadded Aktuálny kanál bol pridaný do obľúbených...\n
+favorites.chalreadyinbq Aktuálny kanál sa už nachádza v obľúbených...\n
+favorites.finalhint \nPouži editor buketov pre dokonačenie\nzmien v obľúbených.\n
+favorites.menueadd Pridaj kanál do obľúbených
+favorites.nobouquets Obľúbené sú dostupné iba pri použití Buketov.
+favorites.copy Kopíruj buket do Obľúbených
+filebrowser.delete zmaž
+filebrowser.denydirectoryleave Hlavný adresár
+filebrowser.dodelete1 zmaž
+filebrowser.dodelete2 ?
+filebrowser.filter.active filtruj
+filebrowser.filter.inactive nefiltruj
+filebrowser.head Prehliadač súborov
+filebrowser.mark označ
+filebrowser.nextpage nasl.strana
+filebrowser.prevpage pred.strana
+filebrowser.scan Prehľadanie adesára
+filebrowser.select výber
+filebrowser.showrights Zobraz práva súborov
+filebrowser.sort.date (dátum)
+filebrowser.sort.name (súbory)
+filebrowser.sort.namedirsfirst (kat,súbory)
+filebrowser.sort.size (veľkosť)
+filebrowser.sort.type (typ)
+filesystem.is.utf8 Znaková sada súboru
+filesystem.is.utf8.option.iso8859.1 ISO-8859-1
+filesystem.is.utf8.option.utf8 UTF-8
+flashupdate.actionreadflash načítavanie
+flashupdate.cantopenfile Otvorenie súboru nemožné
+flashupdate.cantopenmtd Otvorenie MTD-zariadenie nemožné
+flashupdate.checkupdate Zisti novú verziu
+flashupdate.currentreleasecycle Číslo verzie
+flashupdate.currentversion_sep Aktuálna verzia
+flashupdate.currentversiondate Dátum
+flashupdate.currentversionsnapshot Typ Image
+flashupdate.currentversiontime Hodina
+flashupdate.erasefailed Vymazanie pamäte FLASH sa nepodarilo
+flashupdate.erasing Mazanie pamäte FLASH
+flashupdate.experimentalimage Vybraný IMAGE je testovacou verziou\na môže mi spôsobiť chybu zavádzania po inštalácii.\n\nNaozaj chceš nainštalovať túto verziu?
+flashupdate.expertfunctions Doplnkové funkcie
+flashupdate.fileis0bytes Veľkosť súboru je 0 bajtov
+flashupdate.fileselector Výber súboru
+flashupdate.flashreadyreboot Nainštalovanie IMAGE je správne.\nBox sa opätovne spustí.
+flashupdate.getinfofile Získavanie informácie o verzii
+flashupdate.getinfofileerror Nie je možné zistiť verziu
+flashupdate.getupdatefile Získavanie aktualizácie
+flashupdate.getupdatefileerror Nie je možná aktualizácia
+flashupdate.globalprogress Celkový postup:
+flashupdate.head SW aktualizácia
+flashupdate.md5check Kontrola IMAGE
+flashupdate.md5sumerror IMAGE má chyby
+flashupdate.msgbox Zistený nový súbor:\nDátum: %s, %s\nBaseImage: %s\nTyp: %s\n\nNaozaj prevziať a nainštalovať\ntento súbor?
+flashupdate.msgbox_manual Zistený nový súbor:\nDátum: %s, %s\nBaseImage: %s\nTyp IMAGE: %s\n\nNaozaj nainštalovať\ntento súbor?
+flashupdate.mtdselector Výber partície
+flashupdate.programmingflash Programovanie pamäte FLASH
+flashupdate.proxypassword Heslo
+flashupdate.proxypassword_hint1 Vloženie hesla servera proxy
+flashupdate.proxypassword_hint2 Prázde pole znamená nepoužitie hesla
+flashupdate.proxyserver Názov servera proxy
+flashupdate.proxyserver_hint1 Vloženie názovu servera proxy alebo IP (host:port)
+flashupdate.proxyserver_hint2 Prázdne pole znamená nepoužitie proxy servera
+flashupdate.proxyserver_sep Server proxy
+flashupdate.proxyusername Užívateľ
+flashupdate.proxyusername_hint1 Vloženie mena uživateľa servera proxy
+flashupdate.proxyusername_hint2 Prázdne pole znamená nepoužite autorizácie
+flashupdate.readflash Načítanie celého IMAGE z pamäte FLASH
+flashupdate.readflashmtd Uloženie jednej partície
+flashupdate.ready Hotovo.
+flashupdate.reallyflashmtd Naozaj vykonať programovanie?\n\nV prípade výskytu chyby alebo nesprávneho súboru\n box nenabehne.\n\nNázov súboru: %s\nCieľ: %s
+flashupdate.savesuccess IMAGE bol úspešne uložený \nako %s.
+flashupdate.selectimage Dostupné súbory
+flashupdate.squashfs.noversion Kontrola SquashFS verzií je podporovaná len počas aktualizácie cez internet.\nSkutočne nainštalovať tento súbor?
+flashupdate.titlereadflash Načítanie pamäte FLASH
+flashupdate.titlewriteflash Zapísanie pamäte FLASH
+flashupdate.updatemode Spôsob aktualizácie
+flashupdate.updatemode_internet Internet
+flashupdate.updatemode_manual ručne
+flashupdate.url_file Konfiguračný súbor
+flashupdate.versioncheck Kontrola verzie
+flashupdate.writeflash Zapísanie celého IMAGE do pamäte FLASH
+flashupdate.writeflashmtd Zapísanie jednej partície
+flashupdate.wrongbase Vaša verzia je odlišná.\nPokračovať?
+fontmenu.channellist Zoznam kanálov
+fontmenu.epg EPG
+fontmenu.eventlist Programový sprievodca
+fontmenu.gamelist Zoznam hier
+fontmenu.head Nastavenia veľkosti písma
+fontmenu.infobar Stavový riadok
+fontsize.channel_num_zap priamy výber
+fontsize.channellist Zoznam kanálov
+fontsize.channellist_descr Popis
+fontsize.channellist_number Číslo
+fontsize.epg_date Dátum EPG
+fontsize.epg_info1 Informácia EPG 1
+fontsize.epg_info2 Informácia EPG 2
+fontsize.epg_title Titul EPG
+fontsize.eventlist_datetime Dátum/Čas EPG
+fontsize.eventlist_itemlarge Veľké EPG
+fontsize.eventlist_itemsmall Malé EPG
+fontsize.eventlist_title Titul EPG
+fontsize.filebrowser_item Položka prehliadača súborov
+fontsize.gamelist_itemlarge Veľký zoznam hier
+fontsize.gamelist_itemsmall Malý zoznam hier
+fontsize.hint Inicializácia písma,\nprosím čakaj...
+fontsize.infobar_channame Názov kanálu
+fontsize.infobar_info Informácia na stavovom riadku
+fontsize.infobar_number Kanál na stavovom riadku
+fontsize.infobar_small Malý stavový riadok
+fontsize.menu Text menu
+fontsize.menu_info Informačné menu
+fontsize.menu_title Titulok menu
+gtxalpha.alpha1 Alfa 1
+gtxalpha.alpha2 Alfa 2
+infoviewer.epgnotload EPG informácie nie sú načítané...
+infoviewer.epgwait čakám na informácie EPG...
+infoviewer.eventlist Prehľad EPG
+infoviewer.languages Zvuk
+infoviewer.motor_moving Nastavenie antény
+infoviewer.next Nasleduje
+infoviewer.nocurrent Nedostupné informácie pre aktuálny program
+infoviewer.noepg EPG je nedostupné
+infoviewer.notavailable Kanál (teraz) nedostupný
+infoviewer.now Teraz
+infoviewer.selecttime Časy začatia
+infoviewer.streaminfo Informácia
+infoviewer.subchan_disp_pos Zobrazenie podkanálov
+infoviewer.subservice Doplnkové služby
+infoviewer.waittime Načítavanie hodín...
+ipsetup.hint_1 Použi 0...9 alebo klávesy NAHOR/NADOL
+ipsetup.hint_2 OK = uloženie, EXIT = zrušenie
+keybindingmenu.RC Nastavenie ovládača
+keybindingmenu.addrecord Pridanie nahrávania
+keybindingmenu.addremind Pridanie zmeny kanálu
+keybindingmenu.allchannels_on_ok Všetky kanály
+keybindingmenu.bouquetchannels_on_ok Aktuálny buket
+keybindingmenu.bouquetdown Predchádzajúci buket
+keybindingmenu.bouquethandling Obsluha buketu
+keybindingmenu.bouquetlist_on_ok Zoznam buketov
+keybindingmenu.bouquetup Nasledujúci buket
+keybindingmenu.cancel Zatvorenie zoznamu kanálov
+keybindingmenu.channeldown Nasledujúci kanál
+keybindingmenu.channellist Zoznam kanálov
+keybindingmenu.channelup Predchádzajúci kanál
+keybindingmenu.head Nastavenie klávesov
+keybindingmenu.lastchannel Späť na posledný kanála
+keybindingmenu.modechange Zmena spôsobu
+keybindingmenu.pagedown Nasledujúca strana
+keybindingmenu.pageup Predchádzajúca strana
+keybindingmenu.quickzap Rýchle prepnutie kanálov
+keybindingmenu.repeatblock Oneskorenie opakovania
+keybindingmenu.repeatblockgeneric Základné oneskorenie
+keybindingmenu.sort Zmena poradia triedenia
+keybindingmenu.subchanneldown Predchádzajúci podkanál
+keybindingmenu.subchannelup Nasledujúci podkanál
+keybindingmenu.tvradiomode TV/Radio
+keybindingmenu.zaphistory História prepínania buketov
+keychooser.head Nastvenie nového klávesu
+keychooser.text1 Stlač kláves
+keychooser.text2 Čakám na stlačenie
+keychoosermenu.currentkey aktuálny kláves
+keychoosermenu.setnew Nastavenie nového klávesu
+keychoosermenu.setnone Zrušenie priradenia
+languagesetup.head Nastavenie jazyka
+languagesetup.osd Jazyk OSD
+languagesetup.select Jazyk
+lcdcontroler.brightness Jas
+lcdcontroler.brightnessstandby Jas v spánku
+lcdcontroler.contrast Kontrast
+lcdmenu.autodimm Automatické stmievanie
+lcdmenu.dim_brightness Jas po zhasnutí
+lcdmenu.dim_time Čas zhasnutia
+lcdmenu.head Nastavenie VFD
+lcdmenu.inverse Invertovať
+lcdmenu.lcdcontroler Kontrast/Jas
+lcdmenu.power Zapnutie
+lcdmenu.statusline Stavový riadok
+lcdmenu.statusline.both hlasitosť/hraný čas
+lcdmenu.statusline.playtime odohratý čas
+lcdmenu.statusline.volume hlasitosť
+mainmenu.audioplayer Prehrávač súborov
+mainmenu.clearsectionsd Vyčistenie EPG zachytávania
+mainmenu.games Hry
+mainmenu.head Hlavné menu
+mainmenu.movieplayer Prehrávač filmov
+mainmenu.pausesectionsd Načítavanie EPG
+mainmenu.pictureviewer Prehliadač obrázkov
+mainmenu.radiomode Radio
+mainmenu.reboot Reboot
+mainmenu.recording Nahrávanie
+mainmenu.recording_start Spusti
+mainmenu.recording_stop Zasatav
+mainmenu.scartmode Eurokonektor (SCART)
+mainmenu.scripts Skripty
+mainmenu.service Služby
+mainmenu.settings Nastavenia
+mainmenu.shutdown Vypnúť
+mainmenu.sleeptimer Časovač vypnutia
+mainmenu.tvmode TV
+mainsettings.audio Zvuk
+mainsettings.osd Nastavenia OSD
+mainsettings.head Nastavenia
+mainsettings.keybinding Nastavenia kláves
+mainsettings.language Jazyk
+mainsettings.timezone Časová zóna
+mainsettings.lcd Zobrazovač VFD
+mainsettings.misc Iné nastavenia
+mainsettings.network Sieť
+mainsettings.recording Nahrávanie
+mainsettings.savesettingsnow Uloženie nastavenia
+mainsettings.savesettingsnow_hint Zapisovanie nastavení,\nprosím čakaj...
+mainsettings.streaming Tvorenie filmov
+mainsettings.video Obraz
+menu.back späť
+messagebox.back späť
+messagebox.cancel zruš
+messagebox.discard Zruš zmeny?
+messagebox.error Chyba
+messagebox.info Správa
+messagebox.no nie
+messagebox.yes áno
+miscsettings.bootinfo Zobrazovanie štartovacej informácie
+miscsettings.bootmenu Zobrazenie BOOT Menu
+miscsettings.channellist Nastavenia zoznamu kanálov
+miscsettings.channellist_epgtext_align Zarovnaj EPG text
+miscsettings.driver_boot Pokročilé možnosti
+miscsettings.fb_destination Štartovacia konzola (Expert)
+miscsettings.general Hlavné nastavenia
+miscsettings.head Iné nastavenia
+miscsettings.hwsections Použitie sekcie HW
+miscsettings.infobar Inforiadok
+miscsettings.infobar_casystem_display Zobrazenie CA-Systému
+miscsettings.infobar_disp_0 bez Loga
+miscsettings.infobar_disp_1 Logo 1
+miscsettings.infobar_disp_2 Logo 2
+miscsettings.infobar_disp_3 Logo 3
+miscsettings.infobar_disp_log Informačné okno
+miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
+miscsettings.shutdown_count Vypnúť po
+miscsettings.shutdown_count_hint1 Čas (v minútach) pre prepnutie zo stavu spánku
+miscsettings.shutdown_count_hint2 do hlbokého spánku (0=vypnuté)
+miscsettings.noaviawatchdog použitie AVIA sledovača
+miscsettings.noenxwatchdog použitie ENX sledovača
+miscsettings.pmtupdate použitie aktualizácie PMT
+miscsettings.shutdown_real Umožnenie spánku
+miscsettings.shutdown_real_rcdelay Oneskorenie vypnutia
+miscsettings.sptsmode použitie SPTS spôsobu
+miscsettings.virtual_zap_mode Virtuálne prepínanie
+miscsettings.epg_cache Zachytávanie EPG (dni)
+miscsettings.epg_cache_hint1 Ako dlho uchovávať dáta EPG v budúcnosti?
+miscsettings.epg_cache_hint2 Nastavenie v dňoch.
+miscsettings.epg_dir Adresár EPG
+miscsettings.epg_extendedcache Podrobný popis programu (hodiny)
+miscsettings.epg_extendedcache_hint1 Ako dlho zachytávať rozšírený
+miscsettings.epg_extendedcache_hint2 popis programu (nastavenie v hodinách)
+miscsettings.epg_head Nastavenia EPG
+miscsettings.epg_max_events Maximum programov
+miscsettings.epg_max_events_hint1 Koľko programov bude uložených?
+miscsettings.epg_max_events_hint2 normálne 6000, 0 pre zrušenie limitu
+miscsettings.epg_old_events Odstráň neaktuálne EPG
+miscsettings.epg_old_events_hint1 Ako dlho zapisovať dáta EPG po uplinutí doby?
+miscsettings.epg_old_events_hint2 Nastavenie v hodinách.
+miscsettings.epg_save Ulož/Obnov EPG po reštarte
+motorcontrol.head Satelitný vyhľadávač
+motorcontrol.user_menu Uživateľské menu
+motorcontrol.install_menu Inštalačné menu
+motorcontrol.step_west Krok/Posuv motora na Západ (b,c)
+motorcontrol.step_east Krok/Posuv motora na Východ (b,c)
+motorcontrol.halt Zastav motor
+motorcontrol.west_limit Nastav západný (soft) limit
+motorcontrol.east_limit Nastav východný (soft) limit
+motorcontrol.enable_limit Zapni (soft) limity
+motorcontrol.disable_limit Vypni (soft) limity
+motorcontrol.ref_position Choď na referenčnú pozíciu
+motorcontrol.calc_positions Prepočítaj pozície
+motorcontrol.pos_increase Zvýš pozíciu motora (a)
+motorcontrol.pos_decrease Zníž pozíciu motora (a)
+motorcontrol.step_drive Prepni spôsob Krok/Posuv (b)
+motorcontrol.store Ulož pozíciu motora (a)
+motorcontrol.step_increase Zvíš veľkosť kroku (c)
+motorcontrol.step_decrease Zníž veľkosť kroku (c)
+motorcontrol.goto Choď na pozíciu motora (a)
+motorcontrol.notdef Nepoužité
+motorcontrol.motor_pos (a) Pozícia motora:
+motorcontrol.settings Nastavenia ovládania motora
+motorcontrol.movement (b) Presun:
+motorcontrol.step_mode mód kroku
+motorcontrol.drive_mode mód pohybu
+motorcontrol.drive_mode_auto Zastavenie pohybu Ručné/Automatické
+motorcontrol.timed_mode čas pre mód kroku
+motorcontrol.step_size (c) Veľkosť kroku:
+motorcontrol.stop_moving Zastav na dobrom signále (pohybovanie)
+motorcontrol.stop_stopped Zastav na dobrom signále (zastavenie)
+motorcontrol.no_mode nepoužité
+motorcontrol.msec ms
+motorcontrol.status Stav
+motorcontrol.sat_pos Pozícia satelitu (krokovací mód):
+moviebrowser.option_browser Možnosti prehliadača
+moviebrowser.book_clear_all Vyčisti všetko
+moviebrowser.menu_save Ulož zmeny
+moviebrowser.menu_save_all Spusti aktualizáciu informácií o súbore
+moviebrowser.info_head_update Ulož zmeny vo všetkých informačných súboroch filmu
+moviebrowser.update_if_dest_empty_only Kopírovať len ak je cieľové miesto prázdne
+moviebrowser.serie_auto_create Automaticky vytvor serial
+moviebrowser.load_default Nahrať prednastavené nastavenia
+moviebrowser.browser_row_head Nastavenia riadku
+moviebrowser.browser_row_nr Počet stĺpcov
+moviebrowser.browser_row_item Položka stĺpca
+moviebrowser.browser_row_width Šírka stĺpca
+moviebrowser.reload_at_start Načítanie informácie o filme pri štarte
+moviebrowser.remount_at_start Pripoj pri štarte
+moviebrowser.dir_head Doplnkové adresáre
+moviebrowser.dir Adresár
+moviebrowser.use_dir Použi adresár
+moviebrowser.use_rec_dir Použi adresár nahrávania
+moviebrowser.use_movie_dir Použi adresár filmov
+moviebrowser.hide_series Skryť serialy
+moviebrowser.last_record_max_items Počet liniek posledného nahrávania
+moviebrowser.last_play_max_items Počet liniek posledného prehrávania
+moviebrowser.browser_frame_high Výška prehliadača [pixel]
+moviebrowser.book_head Záložky
+moviebrowser.book_lastmoviestop Posledné prerušenie:
+moviebrowser.book_movieend Koniec filmu:
+moviebrowser.book_moviestart Žačiatok filmu:
+moviebrowser.book_name Názov:
+moviebrowser.book_new Nová záložka
+moviebrowser.book_position Pozícia:
+moviebrowser.book_type Skok (<0 vzad , >0 vpred):
+moviebrowser.book_type_backward Opakovať
+moviebrowser.book_type_forward Skok za
+moviebrowser.edit_book Zmeň záložku
+moviebrowser.edit_book_name_info1 Zadanie nového názovu záložky
+moviebrowser.edit_book_name_info2 názov knihy
+moviebrowser.edit_book_pos_info1 Zadanie novej pozície
+moviebrowser.edit_book_pos_info2 ????
+moviebrowser.edit_book_type_info1 Zadanie novej dĺžky skoku
+moviebrowser.edit_book_type_info2 <0 vzad , >0 vpred, 0: nikde
+moviebrowser.edit_serie Zadanie názvu série
+moviebrowser.error_no_movies Nenájdené filmy
+moviebrowser.foot_filter Filtrovať:
+moviebrowser.foot_play Štart filmu
+moviebrowser.foot_sort Triedenie:
+moviebrowser.head TS prehrávač filmov
+moviebrowser.head_filter Filtrovanie filmov podľa kategórie:
+moviebrowser.head_playlist Posledné pustený:
+moviebrowser.head_recordlist Posledne nahraný:
+moviebrowser.hint_jumpbackward Skok vzad o 5s\n '0' zruš
+moviebrowser.hint_jumpforward Skok vpred o 5s\n '0' zruš
+moviebrowser.hint_movieend Ukončenie sledovania za 5 s\n '0' zruš
+moviebrowser.hint_newbook_backward Nový skok vzad \n 'MODRÝ' na koniec
+moviebrowser.hint_newbook_forward Nový skok vpred\n 'MODRÝ' na koniec
+moviebrowser.info_audio Zvuk
+moviebrowser.info_channel Kanál
+moviebrowser.info_filename Názov
+moviebrowser.info_genre_major Žáner
+moviebrowser.info_genre_minor Vedľajší žáner
+moviebrowser.info_head Informácia o filme
+moviebrowser.info_info1 Info 1
+moviebrowser.info_length Dĺžka (Min)
+moviebrowser.info_parental_lockage Rodičovský zámok
+moviebrowser.info_parental_lockage_0year vždy
+moviebrowser.info_parental_lockage_12year 12 rokov
+moviebrowser.info_parental_lockage_16year 16 rokov
+moviebrowser.info_parental_lockage_18year 18 rokov
+moviebrowser.info_parental_lockage_6year 6 rokov
+moviebrowser.info_parental_lockage_always nikdy
+moviebrowser.info_path Adresár
+moviebrowser.info_prevplaydate Dátum posledného pozerania
+moviebrowser.info_prodcountry Krajina
+moviebrowser.info_prodyear Rok
+moviebrowser.info_quality Kvalita
+moviebrowser.info_recorddate Dátum nahrávky
+moviebrowser.info_serie Serial
+moviebrowser.info_size Veľkosť (MB)
+moviebrowser.info_title Titul
+moviebrowser.info_videoformat Obraz
+moviebrowser.menu_directories_head Adresáre
+moviebrowser.menu_help_head Nápoveda
+moviebrowser.menu_main_bookmarks Záložky
+moviebrowser.menu_main_head Nastavenia
+moviebrowser.menu_nfs_head Nastavenia NFS
+moviebrowser.menu_parental_lock_activated Aktívácia
+moviebrowser.menu_parental_lock_activated_no nie
+moviebrowser.menu_parental_lock_activated_yes áno
+moviebrowser.menu_parental_lock_activated_no_temp nie (dočasne)
+moviebrowser.menu_parental_lock_head Blokovanie
+moviebrowser.menu_parental_lock_rate_head Blokovať film z ...
+moviebrowser.scan_for_movies Hľadaj pre film ...
+moviebrowser.serie_head Serialy
+moviebrowser.serie_name Zmena názvu
+moviebrowser.short_audio Zvuk
+moviebrowser.short_book Kniha
+moviebrowser.short_channel Kanál
+moviebrowser.short_country Krajina
+moviebrowser.short_filename Názov
+moviebrowser.short_format Formát
+moviebrowser.short_genre_major Hlavný žáner
+moviebrowser.short_genre_minor Vedlajší žáner
+moviebrowser.short_info1 Info 1
+moviebrowser.short_info2 Info 2
+moviebrowser.short_length Min
+moviebrowser.short_parental_lockage Vek
+moviebrowser.short_path Adresár
+moviebrowser.short_prevplaydate Posledne
+moviebrowser.short_prodyear Rok
+moviebrowser.short_quality * (kvalita)
+moviebrowser.short_recorddate Dátum
+moviebrowser.short_serie Serial
+moviebrowser.short_size Veľkosť
+moviebrowser.short_title Titul
+moviebrowser.start_head Pozerať film od:
+moviebrowser.start_record_start Začiatok filmu
+movieplayer.bookmark Záložky
+movieplayer.bookmarkname Názov záložky
+movieplayer.bookmarkname_hint1 Vložienie názvu
+movieplayer.bookmarkname_hint2 novej záložky?
+movieplayer.buffering Vyrovnávanie...
+movieplayer.defdir Štartovací adresár
+movieplayer.defplugin Štarovací PLUGIN
+movieplayer.dvdplayback DVD
+movieplayer.fileplayback Súbor cez VLC
+movieplayer.goto Skoč do ...
+movieplayer.goto.h1 = -> absolútny skok
+movieplayer.goto.h2 +,- -> relatívny skok
+movieplayer.head Tvorenie filmov
+movieplayer.nostreamingserver Nawiązanie połączenia z serwerem\nstrumieniowania nie powiodło się.
+movieplayer.pesplayback Prehrávanie PES
+movieplayer.pleasewait Prosám čakajte.\nPripájanie na streamovací server...
+movieplayer.toomanybookmarks Veľa záložiek.\nJe potrebné vymazať jednu najprv.
+movieplayer.tshelp1 Zastavenie
+movieplayer.tshelp10 asi 10 min dozadu
+movieplayer.tshelp11 asi 10 min dopredu
+movieplayer.tshelp12 Nápoveda: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.tshelp2 Výbrer zvukovej stopy
+movieplayer.tshelp3 Prerušenie/Pokračovanie
+movieplayer.tshelp4 Vytvorí záložku
+movieplayer.tshelp5 Zobrazí postup
+movieplayer.tshelp6 asi 1 min dozadu
+movieplayer.tshelp7 asi 1 min dopredu
+movieplayer.tshelp8 asi 5 min dozadu
+movieplayer.tshelp9 asi 5 min dopredu
+movieplayer.tsplayback Prehrť TS
+movieplayer.vcdplayback (S)VCD
+movieplayer.vlchelp1 Zastavenie
+movieplayer.vlchelp10 asi 10 min dozadu
+movieplayer.vlchelp11 asi 10 min dopredu
+movieplayer.vlchelp12 Nápoveda: http://www.giggo.de/dbox2/movieplayer.html\n
+movieplayer.vlchelp2 Zosynchronizovanie
+movieplayer.vlchelp3 Prerušenie/Pokračovanie
+movieplayer.vlchelp4 Vytvorí záložku
+movieplayer.vlchelp5 Zobrazí postup
+movieplayer.vlchelp6 asi 1 min dozadu
+movieplayer.vlchelp7 asi 1 min dopredu
+movieplayer.vlchelp8 asi 5 min dozadu
+movieplayer.vlchelp9 asi 5 min dopredu
+movieplayer.wrongvlcversion Vlastnosť nie je podporovaná Vašou aktuálnou verziou VLC
+networkmenu.broadcast Vysielanie
+networkmenu.dhcp Prevzatie z DHCP
+networkmenu.gateway Predvolená brána
+networkmenu.head Nastavenia siete
+networkmenu.ipaddress Adresa IP
+networkmenu.mount NFS/CIFS/FTPFS
+networkmenu.nameserver DNS
+networkmenu.netmask Maska podsiete
+networkmenu.ntpenable Synchronizácia
+networkmenu.ntprefresh Skontroluj po (min):
+networkmenu.ntprefresh_hint1 Zosynchronizuje čas po (minúty)
+networkmenu.ntprefresh_hint2 Potrebný reštart boxu alebo reštart EPG
+networkmenu.ntpserver NTP server
+networkmenu.ntpserver_hint1 NTP server napr.: ntpl.ptb.de
+networkmenu.ntpserver_hint2 Potrebný reštart boxu alebo reštart EPG
+networkmenu.ntptitle Aktualizácia hodín
+networkmenu.setupnow Použi nastavenia siete
+networkmenu.setuponstartup Nastavenie siete pri štarte
+networkmenu.show Zobrazenie sieťového nastavenia
+networkmenu.test Otestovanie siete
+nfs.alreadymounted Adresár je už pripojený
+nfs.automount Pripoj pri spustení
+nfs.dir Adresár/zdielanie
+nfs.ip IP servera NFS/CIFS
+nfs.localdir Lokálny adresár
+nfs.mount Pripoj adresár
+nfs.mount_options Možnosti pripojenia
+nfs.mounterror Chyba pripojenia
+nfs.mounterror_notsup Nepodporovaný súborový systém
+nfs.mountnow Pripoj teraz
+nfs.mountok Pripojenie úspešné
+nfs.mounttimeout Chyba pripojenia: uplinul časový limit
+nfs.password Heslo CIFS
+nfs.remount Znovu pripoj
+nfs.type Typ
+nfs.type_cifs CIFS
+nfs.type_lufs FTPFS
+nfs.type_nfs NFS
+nfs.umount Odpoj adresár
+nfs.umounterror Chyba odpojenia adresára
+nfs.username uživateľ CIFS
+nfsmenu.head Nastavenia NFS/CIFS/FTPFS
+nvod.percentage (prešlo: %d%% min)
+nvod.starting (spustenie za %d min)
+nvodselector.directormode Priamo
+nvodselector.head Výber času spustenia
+nvodselector.subservice Výber podkanálu
+options.default obnov predvolené
+options.fb FRAMEBUFFER
+options.null nič
+options.off nie
+options.on áno
+options.serial SERIAL
+parentallock.changepin Zmena PIN kódu
+parentallock.changepin_hint1 Zadanie Vášho nového bezpečnostného PIN kódu!
+parentallock.changetolocked zamknuté bukety
+parentallock.head Zadanie bezpečnostného PIN kódu
+parentallock.lockage Blokovanie
+parentallock.lockage12 od 12 rokov
+parentallock.lockage16 od 16 rokov
+parentallock.lockage18 od 18 rokov
+parentallock.lockedchannel Kanál zamknutý...
+parentallock.lockedprogram Program zamknutý (od %d rokov)
+parentallock.never nikdy
+parentallock.onsignal pri zistení zámku
+parentallock.parentallock Rodičovský zámok
+parentallock.prompt Použitie PIN kódu
+pictureviewer.decode_server_ip IP servera dekódovania
+pictureviewer.decode_server_port Port servera dekódovania
+pictureviewer.defdir Východzí adresár
+pictureviewer.head Prehliadač obrázkov
+pictureviewer.help1 Spôsob menu
+pictureviewer.help10 Zobrazenie spôsobu
+pictureviewer.help11 Znovunačítanie obrázku
+pictureviewer.help12 Predchádzajúci obrázok
+pictureviewer.help13 Nasledujúci obrázok
+pictureviewer.help14 Zmenšenie
+pictureviewer.help15 Zvečšenie
+pictureviewer.help16 Pohyb nahor
+pictureviewer.help17 Pohyb doľava
+pictureviewer.help18 Pohyb doprava
+pictureviewer.help19 Pohyb nadol
+pictureviewer.help2 Zobrazenie obrázku
+pictureviewer.help20 Zmena poradia triedenia
+pictureviewer.help21 Znovunačítanie obrázku (bez orezania)
+pictureviewer.help22 Ukončenie
+pictureviewer.help3 Zmena poradia triedenia
+pictureviewer.help4 Bez mierky obrázku
+pictureviewer.help5 Spôsob DIASHOW
+pictureviewer.help6 Predchádzajúci obrázok
+pictureviewer.help7 Nasledujúci obrázok
+pictureviewer.help8 Zmena poradia triedenia
+pictureviewer.help9 Ukončenie
+pictureviewer.resize.color_average rozšírené
+pictureviewer.resize.none žiadne
+pictureviewer.resize.simple jednoduché
+pictureviewer.scaling Prispôsobenie
+pictureviewer.show zobraz
+pictureviewer.slide_time Čas zobrazenia pri prezentácii
+pictureviewer.slideshow Prezentácia
+pictureviewer.sortorder Zmena poradia triedenia
+pictureviewer.sortorder.date (dátum)
+pictureviewer.sortorder.filename (názov súboru)
+ping.ok odpovedal (ping)
+ping.protocol je nedosiahnutý (chyba hostu alebo protokolu)
+ping.socket je nedosiahnutý (chyba soketu)
+ping.unreachable neodpovedal
+pinprotection.head Zadanie PIN kódu
+pinprotection.wrongcode Nespávny PIN kód! Skúste znova.
+plugins.result Výstup PLUGINu
+progressbar.color Farba stavového riadku
+rclock.lockmsg Váš ovládač boxu bude zablokovaný.\n\nPre odblokovanie stlačte [ČERVENÝ] \na [MENU] na Vašom ovládači.
+rclock.menueadd Zamknutie DO
+rclock.title Zamknutie Diaľkového Ovládača
+rclock.unlockmsg Ovládač opäť funkčný.
+recordingmenu.apids Predvolené zvukové stopy
+recordingmenu.apids_ac3 Nahraj zvuk AC3
+recordingmenu.apids_alt Nahraj ostatné zvukové stopy
+recordingmenu.apids_std Nahraj štandartný zvuk
+recordingmenu.choose_direct_rec_dir Výber adresára pre nahrávanie
+recordingmenu.defdir Adresár nahrávania
+recordingmenu.tsdir Adresár časového posuvu
+recordingmenu.epg_for_filename dlhé názvy (z dát EPG)
+recordingmenu.file disk (súbor)
+recordingmenu.filesettings Nastavenia priameho nahrávania
+recordingmenu.head Nastavenia nahrávania
+recordingmenu.help Nahrávacie zariadenie:\n--------------------------------------\nserver:\npotrebný streamovaci SW na PC\n\(analóg) VCR:\npotrebný VCR (druhý SCART)\n\ndisk (súbor):\npotrebný pripojený sieťový NFS adresár\nalebo vnútorný HDD disk\nTS: použi SPTS mód(dBox2)\nPES: nepouži SPTS mód(dBox2)\n\n\nMaximálna veľkosť súboru:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: takmer nekonečné (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)\n\nPre NFS (UDP) sa doporučuje synchronizovaný zápis
+recordingmenu.no_scart Neprepnúť do SCART módu
+recordingmenu.off vypnuté
+recordingmenu.record_in_spts_mode Prepnúť do SPTS módu pred nahrávaním
+recordingmenu.recording_type Nahrávacie zariadenie
+recordingmenu.ringbuffers no. z RINGBUFFERS
+recordingmenu.save_in_channeldir Zapísanie do adresára kanálu
+recordingmenu.server server
+recordingmenu.server_ip Adresa IP servera
+recordingmenu.server_mac Adresa MAC servera
+recordingmenu.server_port Port servera
+recordingmenu.server_wakeup Zobudenie servera
+recordingmenu.setupnow Použi nastavenia
+recordingmenu.splitsize Max. veľkosť súboru (MB)
+recordingmenu.stopplayback Zastav prehrávanie
+recordingmenu.stopsectionsd Zastav SEKCIE
+recordingmenu.stream_vtxt_pid Nahrávanie teletextu
+recordingmenu.stream_pmt_pid nahrávanie PMT
+recordingmenu.use_fdatasync Synchronizovaný zápis (ftdatasync)
+recordingmenu.use_o_sync Synchronizovaný zápis (O_SYNC)
+recordingmenu.vcr videomagnetofón
+recordingmenu.zap_on_announce Informuj o zapnutí nahrávania
+recordtimer.announce Začatie nahrávania za pár minút.
+repeatblocker.hint_1 Doba spozdenia (ms) medzi dvoma stlačeniami klávesy
+repeatblocker.hint_2 0 = vypnutie blokovania (červené tlačítko)
+satsetup.diseqc DiSEqC
+satsetup.diseqc10 DiSEqC 1.0
+satsetup.diseqc11 DiSEqC 1.1
+satsetup.diseqc12 DiSEqC 1.2
+satsetup.diseqc_advanced Rozšírené
+satsetup.diseqc_order Poradie vstupu
+satsetup.diseqc_com_uncom Potvrdený/Nepotvrdený
+satsetup.diseqc_uncom_com Nepotvrdený/Potvrdený
+satsetup.diseqcrepeat DiSEqC opakovania
+satsetup.extended Nastavenia DiSEqC
+satsetup.extended_motor Nastavenia motora
+satsetup.minidiseqc Mini-DiSEqC
+satsetup.motorcontrol Ručné nastavenie motora
+satsetup.nodiseqc bez DiSEqC
+satsetup.satellite Satelit
+satsetup.savesettingsnow Uloženie nastavení
+satsetup.smatvremote SMATV ladenie
+satsetup.sat_setup Nastavenia vstupov a LNB pre satelity
+satsetup.do_scan Zahrnúť všetky do vyhľadávania
+satsetup.lofl LNB spodné pásmo
+satsetup.lofh LNB horné pásmo
+satsetup.lofs LNB prepnutie pásma
+satsetup.diseqc_input DiSEqC vstup
+satsetup.uncomm_input Nepotvrdený vstup
+satsetup.comm_input Potvrdený vstup
+satsetup.motor_pos Pozícia v motore
+satsetup.auto_scan Automatické prehľadanie vybraného satelitu
+satsetup.auto_scan_all Automatické prehľadanie vybraných satelitov
+satsetup.manual_scan Ručné prehľadávanie
+satsetup.use_fta_flag Len nekódované
+satsetup.use_nit Použitie NIT
+satsetup.use_usals Použitie USALS
+satsetup.usals_repeat Opakovanie USALS príkazu
+scants.abort_body Skutočne prerušiť vyhľadávanie?
+scants.abort_header Prerušenie vyhľadávania
+scants.actcable Kábel:
+scants.actsatellite Satelit:
+scants.bouquet Bukety
+scants.bouquet_create vytvor nový
+scants.bouquet_erase zmaz všetky
+scants.bouquet_leave bez zmien
+scants.bouquet_satellite Satelitný Buket
+scants.bouquet_update aktualizácia
+scants.channel Kanál:
+scants.failed Neúspešné prehľadávanie!
+scants.finished Dokončené prehľadávanie transpondérov!
+scants.freqdata Kmitočet:
+scants.head Prehľadanie transpondéra
+scants.numberofdataservices Data
+scants.numberofradioservices Radio
+scants.numberoftotalservices Celkom
+scants.numberoftvservices TV
+scants.provider Poskytovateľ:
+scants.startnow Spusti prehľadávanie
+scants.test Otestovanie signálu
+scants.transponders Transpondéry:
+scants.select_tp Vyber transpondér
+screensetup.lowerright zelený = dolný, pravý okraj
+screensetup.upperleft červený = horný, ľavý oraj
+servicemenu.getplugins Načítanie PLUGINov
+servicemenu.getplugins_hint Načítavanie PLUGINov,\nprosím čakajte.
+servicemenu.head Služby
+servicemenu.reload Načítanie zoznamu kanálov
+servicemenu.reload_hint Načítavania zoznamu kanálov,\nprosím počkajte.
+servicemenu.restart Reštart software
+servicemenu.restart_failed Chyba počas reštartu
+servicemenu.restart_hint Reštartovanie, prosím čakajte
+servicemenu.restart_refused_recording Neumožnené reštartovanie, prebieha nahrávanie
+servicemenu.scants Hľadanie kanálov
+servicemenu.ucodecheck Kontrola verzie uCodes
+servicemenu.update Aktualizácia software
+settings.help Nápoveda
+settings.missingoptionsconffile Nastavenia Neutrino boli aktualizované.\nNové možosti budú mať prednastavené hodnoty.
+settings.noconffile Nenájdené nastavenia Neutrino.\nPoužité budú prednastavené hodnoty.
+settings.pos_bottom_left ľavý spodok
+settings.pos_bottom_right pravý spodok
+settings.pos_default_center vrchný stred
+settings.pos_higher_center vyšší stred
+settings.pos_top_left ľavý vrch
+settings.pos_top_right pravý vrch
+settings.menu_pos Umiestnenie ponuky
+shutdowntimer.announce Vypnutie boxu za minútu.\nZrušiť vypnutie?
+shutdown.recoding_query Skutočne prerušiť nahrávanie?
+sleeptimerbox.announce Do vypnutia ostáva minúta.
+sleeptimerbox.hint1 Čas do vypnutia v minútach (000=vypnuté)
+sleeptimerbox.hint2 Po uplinutí tohto času sa vypnem.
+sleeptimerbox.title Časovač vypnutia
+streamfeatures.head Vlastnosti
+streaminfo.aratio Formát obrazu
+streaminfo.aratio_unknown Formát obrazu: neznámy
+streaminfo.audiotype Formát zvuku
+streaminfo.audiotype_unknown Formát zvuku: neznámy
+streaminfo.average_bitrate priemer
+streaminfo.bitrate Prenosová rýchlosť
+streaminfo.framerate Snímková rýchlosť
+streaminfo.framerate_unknown Snímková rýchlosť: neznáma
+streaminfo.head Technické informácie
+streaminfo.not_available nedostupné
+streaminfo.resolution Rolíšenie
+streaminfo.signal Parametre signálu
+streaming.buffer_overflow Nahrávanie bolo prerušené\npretože dáta nemohli byť rýchlo ukladané.
+streaming.busy Nahrávací proces aktívny.\nAk sa správa zobrazuje a nie je nič nahrávané,\nreštartujte Neutrino.
+streaming.dir_not_writable Do nahrávacieho adresára nie je možné nahrávať.\nNahrávanie nebude pracovať.
+streaming.success Úspešné ukončenie nahrávania.
+streaming.write_error Nahrávanie bolo prerušené\npretože vznikla chybu počas zapisovacieho procesu.
+streaming.write_error_open Nahrávanie bolo prerušené\npretože cieľový súbor nemohol byť otvorený.
+streamingmenu.352x288 352x288
+streamingmenu.352x576 352x576
+streamingmenu.480x576 480x576
+streamingmenu.704x576 704x576
+streamingmenu.head Nastavenia tvorenia filmov
+streamingmenu.mpeg1 MPEG1
+streamingmenu.mpeg2 MPEG2
+streamingmenu.off vypnutý
+streamingmenu.on zapnutý
+streamingmenu.server_ip IP servera streamovania
+streamingmenu.server_port Port servera streamovania
+streamingmenu.streaming_audiorate Rýchlosť prenosu zvuku
+streamingmenu.streaming_force_avi_rawaudio Vynútiť AC3 pre AVI
+streamingmenu.streaming_force_transcode_video Prekódovanie obrazu (MPG/VCD)
+streamingmenu.streaming_resolution Rozlíšenie
+streamingmenu.streaming_server_cddrive DVD disk
+streamingmenu.streaming_server_startdir Adresár (VLC)
+streamingmenu.streaming_transcode_audio Prekódovanie zvuku (DVD/VCD/MPG)
+streamingmenu.streaming_transcode_video_codec Kodek obrazu
+streamingmenu.streaming_type Server streamovania
+streamingmenu.streaming_videorate Prenosová rýchlosť obrazu
+streamingserver.noconnect Nepripojenie streamovacieho servera.\nNahrávanie bude prerušené.
+stringinput.caps veľké/malé znaky
+stringinput.clear všetko zmaž
+timer.eventrecord.msg  ... Ukončené, alebo neukončené
+timer.eventrecord.title Plánovač nahrávania
+timer.eventtimed.msg Táto program je naplánovaný.\nBox bude zapnutý a \nprepnutý na tento kanál v stanovenom čase.
+timer.eventtimed.title Plánovač programov
+timerbar.channelswitch prepni
+timerbar.recordevent nahraj
+timerlist.alarmtime Čas spustenia
+timerlist.apids PIDy zvuku
+timerlist.apids_dflt nahrávanie normálnzch zvukových stôp
+timerlist.bouquetselect Výber buketu
+timerlist.channel Kanál
+timerlist.channelselect Výber kanálu
+timerlist.delete zmaž
+timerlist.menumodify upravenie časovača
+timerlist.menunew nový plán
+timerlist.message Správa
+timerlist.moderadio Radiové kanály
+timerlist.modeselect Výber typu
+timerlist.modetv Televízne kanály
+timerlist.modify uprav
+timerlist.name Časovač
+timerlist.new nový plán
+timerlist.overlapping_timer Konflikt časovača. Vytvoriť plán aj tak?
+timerlist.plugin PLUGIN
+timerlist.program.unknown Neznámy program
+timerlist.recording_dir Adresár nahrávania
+timerlist.reload obnov
+timerlist.repeat Opakuj
+timerlist.repeat.biweekly v dňoch voľna
+timerlist.repeat.byeventdescription pozrieť plán
+timerlist.repeat.daily denne
+timerlist.repeat.fourweekly štyri krát týždenne
+timerlist.repeat.friday Pi
+timerlist.repeat.monday Po
+timerlist.repeat.monthly mesačne
+timerlist.repeat.once raz
+timerlist.repeat.saturday So
+timerlist.repeat.sunday Ne
+timerlist.repeat.thursday Št
+timerlist.repeat.tuesday Ut
+timerlist.repeat.unknown neznáme
+timerlist.repeat.wednesday St
+timerlist.repeat.weekdays v dňoch týždňa
+timerlist.repeat.weekly týždenne
+timerlist.repeatcount Opakovania
+timerlist.repeatcount.help1 Počet opakovaní
+timerlist.repeatcount.help2 ´0´ - stále opakuj
+timerlist.save Ulož plán
+timerlist.standby Stav pripravenosti
+timerlist.standby.off zo stavu pripravenosti
+timerlist.standby.on do stavu pripravenosti
+timerlist.stoptime Čas vypnutia
+timerlist.type Typ časovača
+timerlist.type.execplugin spustenie PLUGINu
+timerlist.type.nextprogram Nasledujúci program
+timerlist.type.record nahrávanie
+timerlist.type.remind pripomenutie
+timerlist.type.shutdown vypnutie
+timerlist.type.sleeptimer časové vypnutie
+timerlist.type.standby pripravenosť
+timerlist.type.unknown neznáme
+timerlist.type.zapto prepnutie
+timerlist.weekdays V dňoch týždňa
+timerlist.weekdays.hint_1 Po Ut St Št Pi So Ne
+timerlist.weekdays.hint_2 'X'=plánované '-' neplánované
+timersettings.record_safety_time_after Korekcia ukončenia nahrávania
+timersettings.record_safety_time_after.hint_1 Čas v min. (00=vypnuté), ktorý bude pripočítaný
+timersettings.record_safety_time_after.hint_2 po ukončení daného plánu
+timersettings.record_safety_time_before Korekcia začiatku nahrávania
+timersettings.record_safety_time_before.hint_1 Čass v min. (00=vypnuté), ktorý bude odpočítaný
+timersettings.record_safety_time_before.hint_2 pri spustení daného plánu
+timersettings.separator Nastavenie časovača
+timing.chanlist Zoznam kanálov
+timing.epg EPG
+timing.filebrowser Prehliadač súborov
+timing.head Čas zobrazenia OSD
+timing.hint_1 Čas zobrazenia OSD
+timing.hint_2 na obrazovke TV (v sekundách)
+timing.infobar Stavový riadok
+timing.menu Menu
+timing.numericzap Prepínanie číslami
+ucodecheck.avia500 Avia 500
+ucodecheck.avia600 Avia 600
+ucodecheck.cam-alpha Cam-Alpha
+ucodecheck.head Kontrola uCode
+ucodecheck.ucode uCode
+ucodes.failure POZOR, nenájdené uCodes!\n\nOdošli súbory cez FTP (alebo s pomocou\nprogramu DBox-BootManager) a potom reštartuj svoj box!
+upnpbrowser.head UPnP prehliadač
+upnpbrowser.noservers Nenájdený UPnP server
+upnpbrowser.rescan Znova hľadať
+upnpbrowser.scanning Hľadanie UPnP serverov
+usermenu.button_blue Uživateľské menu MODRÉ
+usermenu.button_green Uživateľské menu ZELENÉ
+usermenu.button_red Uživateľské menu ČERVENÉ
+usermenu.button_yellow Uživateľské menu ŽLTÉ
+usermenu.head Uživateľské menu
+usermenu.item_bar --- Lemovanie ---
+usermenu.item_epg_misc Funkcie EPG
+usermenu.item_none Nič
+usermenu.item_vtxt Teletext
+usermenu.name Názov
+videomenu.csync korekcia synchronizácie
+videomenu.head Nastavenia obrazu
+videomenu.osd OSD
+videomenu.rgb_centering centrovanie RGB
+videomenu.screensetup Nastavenie zobrazenia OSD
+videomenu.tv-scart TV SCART
+videomenu.vcr-scart VCR SCART
+videomenu.vcrsignal Typ signálu VCR výstupu
+videomenu.vcrsignal_composite CVBS
+videomenu.vcrsignal_svideo S-Video
+videomenu.vcrswitch Automatické prepnutie SCARTu
+videomenu.videoformat Formát obrazu
+videomenu.videoformat_169 16:9
+videomenu.videoformat_43 4:3
+videomenu.videoformat_149 14:9
+videomenu.videoformat_autodetect automatický
+videomenu.43mode Zobrazenie formátu 4:3
+videomenu.panscan Pan&Scan
+videomenu.panscan2 14:9 Pan&Scan
+videomenu.letterbox Letterbox
+videomenu.fullscreen Celý obraz
+videomenu.auto Automaticky
+videomenu.analog_mode Analógový výstup
+videomenu.analog_sd_rgb_scart RGB na SCART (SD)
+videomenu.analog_sd_rgb_cinch RGB na CINCH (SD)
+videomenu.analog_sd_yprpb_scart YPbPr na SCART (SD)
+videomenu.analog_sd_yprpb_cinch YPbPr na CINCH (SD)
+videomenu.analog_hd_rgb_scart RGB na SCART (HD)
+videomenu.analog_hd_rgb_cinch RGB na CINCH (HD)
+videomenu.analog_hd_yprpb_scart YPbPr na SCART (HD)
+videomenu.analog_hd_yprpb_cinch YPbPr na CINCH (HD)
+videomenu.scart SCART
+videomenu.cinch CINCH
+videomenu.dbdr MPEG2 deblock/dering
+videomenu.dbdr_none nič
+videomenu.dbdr_deblock deblock
+videomenu.dbdr_both deblock+dering
+videomenu.enabled_modes Nastavenie módov pre VF klávesu
+zapit.scantype Vyhľadávanie kanálov
+zapit.scantype.all všetkých
+zapit.scantype.radio iba Radio
+zapit.scantype.tv iba TV
+zapit.scantype.tvradio TV a Radio
+zaptotimer.announce Minúta do zmeny kanálu.
+extra.dboxinfo Informácie o systéme
+extra.scan_mode Spôsob prehľadávania
+extra.start_tostandby Spustenie do stavu pripravenosti
+extra.rounded_corners Vzhľad rohov
+extra.rounded_corners_off hranatý
+extra.rounded_corners_on zaoblený
+extra.rotor_swap Vymeniť východ/západ motoru
+extra.use_log Logovanie do /tmp/log
+extra.spts_mode SPTS mód
+extra.hw_sect Sekcia hardwéru
+extra.logo Čislo loga(Štartovacie logo?)
+extra.scan_full Úplné prehľádávanie (XML+NIT)
+extra.scan_fast Rýchle prehľadávanie (XML)
+hdd_slow pomalo
+hdd_middle stredne
+hdd_fast rýchlo
+hdd_ext3 Súborový systém Ext3
+hdd_reiser Reiserfs
+hdd_1min 1 minúta
+hdd_5min 5 minút
+hdd_10min 10 minút
+hdd_20min 20 minút
+hdd_30min 30 minút
+hdd_60min 60 minút
+hdd_sleep Čas uspania
+hdd_noise Hlučnosť
+hdd_activate Použi nastavenia
+hdd_fs Súborový systém
+hdd_format Formátovanie HDD
+hdd_format_warn Naozaj formátovať? Všetky dáta budú stratené!
+hdd_format_failed Chyba počas formátovania disku !
+hdd_umount_warn Chyba počas odpojenia disku !
+hdd_check Kontrola súborového systému
+hdd_check_failed Chyba kontroly disku !
+hdd_settings Nastavenia HDD
+hdd_manage Spravovanie HDD
+hdd_not_found Nenájdený disk
+extra.clear_log Vyčisti Log
+extra.zap_cycle Vypnúť históriu kanálov
+extra.sms_channel Mód SMS pre kanál
+extra.manual_scan Ručné prehľadanie
+extra.tp_freq Kmitočet
+extra.tp_rate SymbolRate
+extra.tp_pol Polarizácia
+extra.tp.pol_v V
+extra.tp_pol_h H
+extra.tp_fec FEC
+extra.fec_1_2 1/2
+extra.fec_2_3 2/3
+extra.fec_3_4 3/4
+extra.fec_5_6 5/6
+extra.fec_7_8 7/8
+extra.tp_mod Modulácia
+extra.tp_mod_16 QAM/16
+extra.tp_mod_32 QAM/32
+extra.tp_mod_64 QAM/64
+extra.tp_mod_128 QAM/128
+extra.tp_mod_256 QAM/256
+extra.timezone Časová zóna
+extra.zapit_menu Možnosti prepínania
+extra.zapit_make_bouquet Wykonaj pozostałe listy kanałów
+extra.zapit_save_last_chan Ukladať posledný kanál
+extra.zapit_motor_speed Rýchlosť točenia (10 = 1st/sek)
+extra.zapit_fe_timeout Prekročený čas ladenia
+extra.zapit_fast_zap Rýchle prepínanie
+extra.zapit_sort_names Triedenie kanálov podľa názvu
+extra.zapit_scanpids Vyhľadávanie s PIDmi
+extra.zapit_rezap_time Prepnúť na EMU prepínacím časom
+extra.zapit_hvoltage Zvýšenie napájania (13.5/18.5)
+reset_channels Zmazanie všetkych kanálov
+reset_settings Návrat k prednastavenému nastaveniu
+reset_all Továrenské nastavenie
+reset_confirm Skutočne?
+extra.zapit_backup Záloha kanálov do /tmp
+extra.zapit_restore Obnova kanálov z /tmp
+extra.add_to_bouquet Pridanie do buketu
+extra.key_list_start Na začiatok
+extra.key_list_end Na koniec
+extra.chadded Aktuálny kanál bol pridaný do vybraného buketu....\n
+extra.chalreadyinbq Aktuálny kanál sa už nachádza vo vybranom bukete....\n
+extra.menu_left_exit "Ľavý" = návrat menu
+extra.zapit_write_names Zapísanie názvov kanálov
+extra.update_dir Adresár aktualizácie
+extra.audio_run_player Stlačenie AUDIO spustí prehrávač
+mpkey.rewind Dozadu
+mpkey.forward Dopredu
+mpkey.pause Preruš
+mpkey.stop Zastav
+mpkey.play Prehraj
+mpkey.audio Zvuková stpopa
+mpkey.time Zobrazenie času
+mpkey.bookmark Ulož záložku
+mpkey.plugin Spusti PLUGIN
+extra.loadcolors Nahraj farby z ...
+extra.savecolors Ulož farby ako ...
+extra.loadkeys Nahraj nastavenia kláves
+extra.savekeys Ulož nastavenia kláves
+extra.loadconfig Nahraj nastavenia z ...
+extra.saveconfig Ulož nastavenia ako ...
+extra.key_click Stlač tlačítko
+videomenu.videomode Obrazový mód
+videomenu.videomode_ntsc NTSC
+videomenu.videomode_pal PAL
+videomenu.videomode_palm PAL-M
+extra.key_timeshift Časový posuv
+extra.key_plugin Tlačítko zobrazujúce PLUGIN
+extra.timeshift_pause Pozastavenie časového posuvu
+rfmod.rfmod Modulátor RF
+rfmod.carrier Nosný kmitočet
+rfmod.carrier4500 4.5
+rfmod.carrier5500 5.5
+rfmod.carrier6000 6.0
+rfmod.carrier6500 6.5
+rfmod.enable Použi zvuk
+rfmod.channel Kanál
+rfmod.finetune Jemné ladenie
+rfmod.standby Použi modlátor
+rfmod.test Testovacie pruhy
+extra.key_unlock Odblokuj
+servicemenu.imageinfo Informácia o IMAGE
+imageinfo.creator Vytvoril:
+imageinfo.date Dátum:
+imageinfo.dokumentation Dokumentácia:
+imageinfo.forum Fórum:
+imageinfo.head Informácia o IMAGE
+imageinfo.homepage Domov:
+imageinfo.image Image:
+imageinfo.license Licencia:
+imageinfo.version Verzia:
+inetradio.name Internetové radio
+extra.cache_txt Zachytávanie teletextu
+extra.scrambled_message Správa kódovania
+extra.volume_pos Ukazovateľ hlasitosti
+extra.use_gotoxx Použi gotoXX
+extra.latitude Zem.šírka
+extra.longitude Zem.dľžka
+extra.ladirection Umiestnenie zem.šírky
+extra.lodirection Umiestnenie zem.dľžky
+extra.south Južne
+extra.north Severne
+extra.east Východne
+extra.west Západne
+options.on.without_messages Bez správ
+extra.zapit_scan_sdt Prehľadávanie SDT pre aktualizáciu
+extra.zapit_sdt_changed Zmenené kanály, načítanie nastavenia.
+extra.auto_timeshift Auto-nahrávanie, sec (0=vypnuté)
+extra.temp_timeshift Dočasný časový posuv
+extra.auto_delete Auto-mazanie
+extra.auto_to_record Presun časového posuvu do nahrávok
+extra.record_time Rýchly čas nahrávania (hodiny)
+extra.fec_s2_qpsk_1_2 1/2 s2 qpsk
+extra.fec_s2_qpsk_2_3 2/3 s2 qpsk
+extra.fec_s2_qpsk_3_4 3/4 s2 qpsk
+extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
+extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
+extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
+extra.fec_s2_qpsk_3_5 3/5 s2 qpsk
+extra.fec_s2_qpsk_4_5 4/5 s2 qpsk
+extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
+extra.fec_s2_8psk_1_2 1/2 s2 8psk
+extra.fec_s2_8psk_2_3 2/3 s2 8psk
+extra.fec_s2_8psk_3_4 3/4 s2 8psk
+extra.fec_s2_8psk_5_6 5/6 s2 8psk
+extra.fec_s2_8psk_7_8 7/8 s2 8psk
+extra.fec_s2_8psk_8_9 8/9 s2 8psk
+extra.fec_s2_8psk_3_5 3/5 s2 8psk
+extra.fec_s2_8psk_4_5 4/5 s2 8psk
+extra.fec_s2_8psk_9_10 9/10 s2 8psk
+video_mode_ok Video mód pracuje správne?
+scrambled_channel Kódovaný kanál
+neutrino_starting Spustenie Neutrina...
+cam.settings Podmienený prístup
+cam.empty Žiadny modul v šachte
+cam.inserted Vložený modul do šachty
+cam.removed Odstránený modul zo šachty
+cam.init_ok Inicializácia modulu ukončená
+cam.waiting Čakám na odpoveď
+cam.timeout Čas čakania uplynul,\nvraciam sa do menu
+subtitles.head Titulky
+subtitles.stop Vypnúť titulky
+fan_speed Rýchlosť CPU ventlátora
+audio.srs_iq SRS TruVolume
+audio.srs_algo Mód
+audio.srs_algo_light Jemný
+audio.srs_algo_normal Normálny
+audio.srs_volume Východzia hlasitosť
+audio.srs_nmgr Potlačovač šumu
+cpu.freq Cpu kmitočet
+cpu.freq_normal Normal kmitočet
+cpu.freq_standby Standby kmitočet
+cpu.freq_default default kmitočet

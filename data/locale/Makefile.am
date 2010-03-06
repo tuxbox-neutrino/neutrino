@@ -13,6 +13,7 @@ install_DATA = \
 	polski.locale \
 	portugues.locale \
 	russkij.locale \
+	slovak.locale \
 	suomi.locale \
 	svenska.locale
 
