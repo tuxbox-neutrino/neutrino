@@ -354,8 +354,8 @@ function do_submit()
 			<tr>
 				<td>{=L:set.yweb.start_page=}</td>
 				<td>	<select name="start_page" title="{=L:set.yweb.start_page=}">
-					<option value="bouquets" selected="selected">{=L:bouquets=}</option>
-					<option value="control">{=L:control=}</option>
+					<option value="bouquets" selected="selected">{=bc.menue.bouquets=}</option>
+					<option value="control">{=L:bc.menue.control=}</option>
 					<option value="none">{=L:empty=}</option>
 				</td>
 			</tr>
