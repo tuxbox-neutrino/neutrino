@@ -25,7 +25,7 @@ function do_onload(){
 		change_button_img('udp',"udp_switch_off");
 	else if(Mode == "tv")
 		change_button_img('udp',"udp_switch_on");
-	window.setTimeout("do_init()",300);
+	window.setTimeout("do_init()",100);
 }
 function do_onresize(){
 	if((vlc_width+Window_delta_w != window.innerWidth) || (vlc_height+Window_delta_h != window.innerHeight)){
@@ -57,8 +57,8 @@ function do_resize(){
 }
 function do_init(){
 	live_switchto(Mode);
-	vlc_width = 384;
-	vlc_height = 288;
+//	vlc_width = 384;
+//	vlc_height = 288;
 	Window_delta_w = yClientWidth() - vlc_width;
 	Window_delta_h = yClientHeight() - vlc_height;
 
@@ -73,7 +73,7 @@ function do_init(){
 }
 function i_interval(){
 	obj_update('bouquets_div', "<img src=\"/images/smallwait.gif\"/> "+Lgetting_bouquets);
-	window.setTimeout("i_interval2()",300);
+	window.setTimeout("i_interval2()",100);
 }
 function i_interval2(){
 	build_bouquet_list(-1);
@@ -237,7 +237,7 @@ function change_channel(){
 		channel = dd[sel].value;
 	do_stop();
 	AudioChannel = 0;
-	window.setTimeout("change_channel_zapto(\""+channel+"\")",500);
+	window.setTimeout("change_channel_zapto(\""+channel+"\")",100);
 }
 function change_sub_channel(){
 	var dd = id('subs');
@@ -247,7 +247,7 @@ function change_sub_channel(){
 		channel = dd[sel].value;
 	do_stop();
 	AudioChannel = 0;
-	window.setTimeout("change_channel_zapto(\""+channel+"\")",500);
+	window.setTimeout("change_channel_zapto(\""+channel+"\")",100);
 }
 function change_channel_zapto(channel){
 	dbox_zapto(channel);
@@ -314,7 +314,7 @@ function doChangeAudioPid(){
 	AudioChannel = dd.selectedIndex;
 	do_stop();
 //	insert_message_control("... zapping ...");
-	window.setTimeout("change_channel_play()",1000);
+	window.setTimeout("change_channel_play()",100);
 }
 function build_audio_pid_list(){
 	var audio_pids_url = "/y/cgi?execute=func:get_audio_pids_as_dropdown";
