@@ -554,7 +554,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 			for (int i = 0; i < xcnt; i++) {
 				for (int j = 0; j < ycnt; j++)
 					/* BoxEndY + 2 is the magic number that also appears in paint_ca_icons */
-					frameBuffer->paintBoxRel(ChanInfoX + i*4, BoxEndY + 2 + j*4, 2, 2, COL_INFOBAR_PLUS_1);
+					frameBuffer->paintBoxRel((ChanInfoX + 2) + i*4, BoxEndY + 2 + j*4, 2, 2, COL_INFOBAR_PLUS_1);
 			}
 		}
 		frameBuffer->paintBoxRel(ChanInfoX, BBarY, BoxEndX - ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
