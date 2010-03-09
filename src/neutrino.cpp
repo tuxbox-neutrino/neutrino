@@ -721,6 +721,10 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
+#define DEFAULT_X_START 60
+#define DEFAULT_Y_START 20
+#define DEFAULT_X_END   1220
+#define DEFAULT_Y_END   560
 int CNeutrinoApp::loadSetup(const char * fname)
 {
 	char cfg_key[81];
@@ -1036,10 +1040,10 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	//screen configuration
-	g_settings.screen_StartX = configfile.getInt32( "screen_StartX", 37 );
-	g_settings.screen_StartY = configfile.getInt32( "screen_StartY", 23 );
-	g_settings.screen_EndX = configfile.getInt32( "screen_EndX", 668 );
-	g_settings.screen_EndY = configfile.getInt32( "screen_EndY", 555 );
+	g_settings.screen_StartX = configfile.getInt32( "screen_StartX", DEFAULT_X_START);
+	g_settings.screen_StartY = configfile.getInt32( "screen_StartY", DEFAULT_Y_START );
+	g_settings.screen_EndX = configfile.getInt32( "screen_EndX", DEFAULT_X_END);
+	g_settings.screen_EndY = configfile.getInt32( "screen_EndY", DEFAULT_Y_END);
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
@@ -1188,14 +1192,12 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 		g_settings.uboot_console_bak = g_settings.uboot_console;
 	}
 #endif
-#define DEFAULT_X_OFF 85
-#define DEFAULT_Y_OFF 34
-	if((g_settings.screen_width != (int) frameBuffer->getScreenWidth(true))
-		|| (g_settings.screen_height != (int) frameBuffer->getScreenHeight(true))) {
-		g_settings.screen_StartX = DEFAULT_X_OFF;
-		g_settings.screen_StartY = DEFAULT_Y_OFF;
-		g_settings.screen_EndX = frameBuffer->getScreenWidth(true) - DEFAULT_X_OFF;
-		g_settings.screen_EndY = frameBuffer->getScreenHeight(true) - DEFAULT_Y_OFF;
+	if((g_settings.screen_width && g_settings.screen_width != (int) frameBuffer->getScreenWidth(true))
+		|| (g_settings.screen_height && g_settings.screen_height != (int) frameBuffer->getScreenHeight(true))) {
+		g_settings.screen_StartX = DEFAULT_X_START;
+		g_settings.screen_StartY = DEFAULT_Y_START;
+		g_settings.screen_EndX = DEFAULT_X_END;
+		g_settings.screen_EndY = DEFAULT_Y_END;
 		g_settings.screen_width = frameBuffer->getScreenWidth(true);
 		g_settings.screen_height = frameBuffer->getScreenHeight(true);
 	}
@@ -2552,16 +2554,30 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	if (display_language_selection) {
 		hintBox->hide();
+		languageSettings.setWizardMode(true);
 		int ret = languageSettings.exec(NULL, "");
+		languageSettings.setWizardMode(false);
 
-		if(ret != menu_return::RETURN_EXIT_ALL)
+		if(ret != menu_return::RETURN_EXIT_ALL) {
+			videoSettings->setWizardMode(true);
 			videoSettings->exec(NULL, "");
-		if(ret != menu_return::RETURN_EXIT_ALL)
+			videoSettings->setWizardMode(false);
+		}
+		if(ret != menu_return::RETURN_EXIT_ALL) {
+			colorSettings.setWizardMode(true);
 			colorSettings.exec(NULL, "");
-		if(ret != menu_return::RETURN_EXIT_ALL)
+			colorSettings.setWizardMode(false);
+		}
+		if(ret != menu_return::RETURN_EXIT_ALL) {
+			networkSettings.setWizardMode(true);
 			networkSettings.exec(NULL, "");
-		if(ret != menu_return::RETURN_EXIT_ALL)
+			networkSettings.setWizardMode(false);
+		}
+		if(ret != menu_return::RETURN_EXIT_ALL) {
+			_scanSettings.setWizardMode(true);
 			_scanSettings.exec(NULL, "");
+			_scanSettings.setWizardMode(false);
+		}
 
 		videoDecoder->StopPicture();
 	}

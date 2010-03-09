@@ -485,6 +485,7 @@ mainsettings.savesettingsnow_hint Saving settings,\nplease wait...
 mainsettings.streaming Movieplayer
 mainsettings.video Video
 menu.back back
+menu.next Next (press Menu to quit)
 messagebox.back Back
 messagebox.cancel Cancel
 messagebox.discard Discard changes?

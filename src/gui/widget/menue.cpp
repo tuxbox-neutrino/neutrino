@@ -52,10 +52,13 @@
 /* the following generic menu items are integrated into multiple menus at the same time */
 CMenuSeparator CGenericMenuSeparator;
 CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE);
-CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK);
+//CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK);
+CMenuForwarder CGenericMenuBack(LOCALE_MENU_BACK, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME);
+CMenuForwarder CGenericMenuNext(LOCALE_MENU_NEXT, true, NULL, NULL, NULL, CRCInput::RC_nokey, NEUTRINO_ICON_BUTTON_HOME);
 CMenuSeparator * const GenericMenuSeparator = &CGenericMenuSeparator;
 CMenuSeparator * const GenericMenuSeparatorLine = &CGenericMenuSeparatorLine;
 CMenuForwarder * const GenericMenuBack = &CGenericMenuBack;
+CMenuForwarder * const GenericMenuNext = &CGenericMenuNext;
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 {
@@ -80,6 +83,7 @@ CMenuWidget::CMenuWidget()
         selected = -1;
         iconOffset = 0;
 	offx = offy = 0;
+	from_wizard = false;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const int mheight)
@@ -178,6 +182,14 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
         else
 		fadeValue = g_settings.gtx_alpha1;
 
+	if(from_wizard) {
+		for (unsigned int count = 0; count < items.size(); count++) {
+			if(items[count] == GenericMenuBack) {
+				items[count] = GenericMenuNext;
+				break;
+			}
+		}
+	}
 	paint();
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -422,6 +434,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	for (unsigned int count = 0; count < items.size(); count++) {
+		if(items[count] == GenericMenuNext)
+			items[count] = GenericMenuBack;
 		CMenuItem* item = items[count];
 		item->init(-1, 0, 0, 0);
 	}

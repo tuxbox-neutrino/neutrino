@@ -519,6 +519,7 @@ const char *locale_real_names[] = {
 	"mainsettings.streaming",
 	"mainsettings.video",
 	"menu.back",
+	"menu.next",
 	"messagebox.back",
 	"messagebox.cancel",
 	"messagebox.discard",

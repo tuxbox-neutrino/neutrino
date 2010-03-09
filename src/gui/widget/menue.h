@@ -346,6 +346,7 @@ class CMenuWidget : public CMenuTarget
 		unsigned int         current_page;
 		unsigned int         total_pages;
 		bool		     exit_pressed;
+		bool		     from_wizard;
 		void Init(const std::string & Icon, const int mwidth, const int mheight);
 		virtual void paintItems();
 
@@ -366,6 +367,7 @@ class CMenuWidget : public CMenuTarget
 		int getSelected() { return selected; };
 		void move(int xoff, int yoff);
 		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
+		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};
 };
 
 class CPINProtection
