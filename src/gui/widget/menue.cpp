@@ -124,6 +124,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*m
 	wanted_height = height;
         current_page=0;
 	offx = offy = 0;
+	from_wizard = false;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -434,8 +435,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
 	for (unsigned int count = 0; count < items.size(); count++) {
-		if(items[count] == GenericMenuNext)
+		if(items[count] == GenericMenuNext) {
 			items[count] = GenericMenuBack;
+		}
 		CMenuItem* item = items[count];
 		item->init(-1, 0, 0, 0);
 	}

@@ -4655,7 +4655,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 
 	if (!(glyph = FT_Get_Char_Index(face, Char)))
 	{
-#if 0// TUXTXT_DEBUG
+#if 1// TUXTXT_DEBUG
 		printf("TuxTxt <FT_Get_Char_Index for Char %d %x \"%c\" failed\n", Char, Char, Char);
 #endif
 		FillRect(PosX, PosY + yoffset, curfontwidth, factor*fontheight, bgcolor);
