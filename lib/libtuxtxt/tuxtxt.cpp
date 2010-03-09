@@ -14,9 +14,12 @@
  ******************************************************************************/
 
 #include "tuxtxt.h"
-#include <dmx_cs.h>
 #include "driver/framebuffer.h"
 #include "teletext.h"
+#include <dmx_cs.h>
+#include <video_cs.h>
+
+extern cVideo * videoDecoder;
 
 void FillRect(int x, int y, int w, int h, int color)
 {
@@ -1601,11 +1604,6 @@ int tuxtx_main(int _rc, int pid, int page)
 	rc = _rc;
 	lfb = (unsigned char *) CFrameBuffer::getInstance()->getFrameBufferPointer();
 
-	int x = CFrameBuffer::getInstance()->getScreenX();
-	int y = CFrameBuffer::getInstance()->getScreenY();
-	int w = CFrameBuffer::getInstance()->getScreenWidth();
-	int h = CFrameBuffer::getInstance()->getScreenHeight();
-
 	tuxtxt_cache.vtxtpid = pid;
 
 	if(tuxtxt_cache.vtxtpid == 0)
@@ -1632,15 +1630,22 @@ int tuxtx_main(int _rc, int pid, int page)
 	/* set variable screeninfo for double buffering */
 	var_screeninfo.yoffset      = 0;
 #if 0
-	sx = 80;
-	sy = 40;
-	ex = var_screeninfo.xres - sx;
-	ey = var_screeninfo.yres - sy;
-#endif
 	sx = x + 10;
 	sy = y + 10;
 	ex = x + w - 10;
 	ey = y + h - 10;
+#endif
+	int x = CFrameBuffer::getInstance()->getScreenX();
+	int y = CFrameBuffer::getInstance()->getScreenY();
+	int w = CFrameBuffer::getInstance()->getScreenWidth();
+	int h = CFrameBuffer::getInstance()->getScreenHeight();
+
+	int tx = (w - (h * 4 / 3)) / 2;
+	sx = x + tx;
+	ex = x + w - tx;
+	sy = y;
+	ey = y + h;
+printf("[tuxtxt] screen is %dx%d at %dx%d border %d\n", ex-sx, ey-sy, sx, sy, tx);
 	/* initialisations */
 	transpmode = 0;
 
@@ -2015,7 +2020,8 @@ int Init()
 	setfontwidth(fontwidth_normal);
 	fontwidth_topmenumain = (TV43STARTX-sx) / 40;
 	fontwidth_topmenusmall = (ex- TOPMENUSTARTX) / TOPMENUCHARS;
-	fontwidth_small = (TV169FULLSTARTX-sx)  / 40;
+	//fontwidth_small = (TV169FULLSTARTX-sx)  / 40;
+	fontwidth_small = (CFrameBuffer::getInstance()->getScreenWidth()/2) / 40;
 	ymosaic[0] = 0; /* y-offsets for 2*3 mosaic */
 	ymosaic[1] = (fontheight + 1) / 3;
 	ymosaic[2] = (fontheight * 2 + 1) / 3;
@@ -3890,26 +3896,28 @@ void SwitchScreenMode(int newscreenmode)
 		{
 			fw = fontwidth_topmenumain;
 			fh = fontheight;
-			tw = TV43WIDTH;
 			displaywidth= (TV43STARTX     -sx);
 			StartX = sx; //+ (((ex-sx) - (40*fw+2+tw)) / 2); /* center screen */
 			tx = TV43STARTX;
 			ty = TV43STARTY;
+			tw = TV43WIDTH;
 			th = TV43HEIGHT;
 		}
 		else /* 2: split with full height tv picture */
 		{
+			StartX = CFrameBuffer::getInstance()->getScreenX();
 			fw = fontwidth_small;
 			fh = fontheight;
 			tx = TV169FULLSTARTX;
 			ty = TV169FULLSTARTY;
 			tw = TV169FULLWIDTH;
 			th = TV169FULLHEIGHT;
-			displaywidth= (TV169FULLSTARTX-sx);
+			displaywidth = CFrameBuffer::getInstance()->getScreenWidth()/2;
 		}
 
 		setfontwidth(fw);
 
+		videoDecoder->Pig(tx, ty, tw, th, CFrameBuffer::getInstance()->getScreenWidth(true), CFrameBuffer::getInstance()->getScreenHeight(true));
 #if 0
 		int sm = 0;
 		ioctl(pig, VIDIOC_OVERLAY, &sm);
@@ -3929,6 +3937,16 @@ void SwitchScreenMode(int newscreenmode)
 #if 0
 		ioctl(pig, VIDIOC_OVERLAY, &screenmode);
 #endif
+		videoDecoder->Pig(-1, -1, -1, -1);
+
+		int x = CFrameBuffer::getInstance()->getScreenX();
+		int y = CFrameBuffer::getInstance()->getScreenY();
+		int w = CFrameBuffer::getInstance()->getScreenWidth();
+		int h = CFrameBuffer::getInstance()->getScreenHeight();
+
+		int tx = (w - (h * 4 / 3)) / 2;
+		sx = x + tx;
+		ex = x + w - tx;
 
 		setfontwidth(fontwidth_normal);
 		displaywidth= (ex-sx);
@@ -5117,12 +5135,14 @@ void RenderPage()
 		setfontwidth(fontwidth_normal);
 		fontwidth_topmenumain = (TV43STARTX-sx) / (40-nofirst);
 		fontwidth_topmenusmall = (ex- TOPMENUSTARTX) / TOPMENUCHARS;
-		fontwidth_small = (TV169FULLSTARTX-sx)  / (40-nofirst);
+		//fontwidth_small = (TV169FULLSTARTX-sx)  / (40-nofirst);
+		fontwidth_small = (CFrameBuffer::getInstance()->getScreenWidth()/2)  / (40-nofirst);
 		switch(screenmode)
 		{
 			case 0:	setfontwidth(fontwidth_normal)     ; displaywidth= (ex             -sx);break;
 			case 1:  setfontwidth(fontwidth_topmenumain); displaywidth= (TV43STARTX     -sx);break;
-			case 2:  setfontwidth(fontwidth_small)      ; displaywidth= (TV169FULLSTARTX-sx);break;
+			//case 2:  setfontwidth(fontwidth_small)      ; displaywidth= (TV169FULLSTARTX-sx);break;
+			case 2:  setfontwidth(fontwidth_small)      ; displaywidth= (CFrameBuffer::getInstance()->getScreenWidth()/2);break;
 		}
 		if (transpmode || (boxed && !screenmode))
 		{

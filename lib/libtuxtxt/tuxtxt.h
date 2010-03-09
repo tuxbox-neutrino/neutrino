@@ -84,14 +84,17 @@ int displaywidth;
 #define fontwidth_small_lcd 8
 
 #define TV43STARTX (ex - 146) //(StartX + 2 + (40-nofirst)*fontwidth_topmenumain + (40*fontwidth_topmenumain/abx))
-#define TV169FULLSTARTX (sx+ 8*40) //(sx +(ex +1 - sx)/2)
 #define TVENDX ex
 #define TVENDY (StartY + 25*fontheight)
 #define TV43WIDTH 144 /* 120 */
 #define TV43HEIGHT 116 /* 96 */
 #define TV43STARTY (TVENDY - TV43HEIGHT)
+
+//#define TV169FULLSTARTX (sx+ 8*40) //(sx +(ex +1 - sx)/2)
+#define TV169FULLSTARTX (CFrameBuffer::getInstance()->getScreenX() + CFrameBuffer::getInstance()->getScreenWidth()/2)
 #define TV169FULLSTARTY sy
-#define TV169FULLWIDTH  (ex - sx)/2
+//#define TV169FULLWIDTH  (ex - sx)/2
+#define TV169FULLWIDTH  (CFrameBuffer::getInstance()->getScreenWidth()/2)
 #define TV169FULLHEIGHT (ey - sy)
 
 #define TOPMENUSTARTX TV43STARTX+2

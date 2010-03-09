@@ -764,7 +764,8 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 	if (currentVoltage == voltage)
 		return;
 
-	printf("[fe%d] voltage %s high %d\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18", highVoltage);
+	printf("[fe%d] voltage %s\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18");
+	//printf("[fe%d] voltage %s high %d\n", fenumber, voltage == SEC_VOLTAGE_OFF ? "OFF" : voltage == SEC_VOLTAGE_13 ? "13" : "18", highVoltage);
 	//int val = highVoltage;
 	//fop(ioctl, FE_ENABLE_HIGH_LNB_VOLTAGE, val);
 
@@ -881,7 +882,7 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 	cmd.msg[3] = parameter1;
 	cmd.msg[4] = parameter2;
 	cmd.msg_len = 3 + num_parameters;
-	secSetVoltage(SEC_VOLTAGE_13, 15);
+	secSetVoltage(highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
 	secSetTone(SEC_TONE_OFF, 25);
 
 	for(i = 0; i <= repeat; i++)
@@ -898,7 +899,7 @@ void CFrontend::positionMotor(uint8_t motorPosition)
 	};
 
 	if (motorPosition != 0) {
-		secSetVoltage(SEC_VOLTAGE_13, 15);
+		secSetVoltage(highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
 		secSetTone(SEC_TONE_OFF, 25);
 		cmd.msg[3] = motorPosition;
 

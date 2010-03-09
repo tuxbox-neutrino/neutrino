@@ -682,6 +682,7 @@ int CChannelList::show()
 		else if ( msg == CRCInput::RC_spkr ) {
 			new_mode_active = (new_mode_active ? 0 : 1);
 			paintHead();
+			showChannelLogo();
 		}
 		else if (CRCInput::isNumeric(msg) && (this->historyMode || g_settings.sms_channel)) {
 			if (this->historyMode) { //numeric zap
@@ -941,7 +942,7 @@ int CChannelList::hasChannelID(t_channel_id channel_id)
 // for adjusting bouquet's channel list after numzap or quickzap
 void CChannelList::setSelected( int nChannelNr)
 {
-printf("CChannelList::setSelected me %s %d -> %s\n", name.c_str(), nChannelNr, (nChannelNr < chanlist.size() && chanlist[nChannelNr] != NULL) ? chanlist[nChannelNr]->getName().c_str() : "********* NONE *********");
+//printf("CChannelList::setSelected me %s %d -> %s\n", name.c_str(), nChannelNr, (nChannelNr < chanlist.size() && chanlist[nChannelNr] != NULL) ? chanlist[nChannelNr]->getName().c_str() : "********* NONE *********");
 	selected = nChannelNr;
 	//FIXME real difference between tuned and selected ?!
 	tuned = nChannelNr;

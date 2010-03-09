@@ -1046,7 +1046,7 @@ rfmod.standby Enable modulator
 rfmod.test Test pattern
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_rezap_time Re-Zap on emu switch time
-extra.zapit_hvoltage High (13.5/18.5) voltage
+extra.zapit_hvoltage 18V for rotor moving 
 extra.key_unlock Unlock key
 servicemenu.imageinfo Image info
 imageinfo.creator Creator:
