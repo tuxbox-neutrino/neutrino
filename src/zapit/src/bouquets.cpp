@@ -104,7 +104,7 @@ CZapitChannel* CZapitBouquet::getChannelByChannelID(const t_channel_id channel_i
 void CZapitBouquet::sortBouquet(void)
 {
 //printf("*************** sorting %s TV\n", Name.c_str());fflush(stdout);//FIXME
-	sort(tvChannels.begin(), tvChannels.end(), CmpChannelByChName());fflush(stdout);//FIXME
+	sort(tvChannels.begin(), tvChannels.end(), CmpChannelByChName());
 //printf("*************** sorting %s RADIO\n", Name.c_str());
 	sort(radioChannels.begin(), radioChannels.end(), CmpChannelByChName());
 }

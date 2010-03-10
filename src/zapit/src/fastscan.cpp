@@ -47,9 +47,11 @@ extern t_channel_id live_channel_id;
 
 int process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition);
 void process_service_list_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
+void process_logical_service_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
 
 std::map <t_channel_id, t_satellite_position> fast_services_sat;
 std::map <t_channel_id, freq_id_t> fast_services_freq;
+std::map <t_channel_id, int> fast_services_number;
 
 void * start_fast_scan(void * arg)
 {
@@ -90,18 +92,19 @@ void * start_fast_scan(void * arg)
 
 	fast_services_sat.clear();
 	fast_services_freq.clear();
+	fast_services_number.clear();
 
 	if(type & FAST_SCAN_SD) {
 		res = parse_fnt(op->sd_pid, op->id);
 		if(res == 0)
-			parse_fst(op->sd_pid, op->id);
+			parse_fst(op->sd_pid, op);
 
 		printf("[fast scan] pid %d (SD) scan done, found %d transponders and %d services\n", op->sd_pid, found_transponders, found_channels);
 	}
 	if(type & FAST_SCAN_HD) {
 		res = parse_fnt(op->hd_pid, op->id);
 		if(res == 0)
-			res = parse_fst(op->hd_pid, op->id);
+			res = parse_fst(op->hd_pid, op);
 
 		printf("[fast scan] pid %d (HD) scan done, found %d transponders and %d services\n", op->hd_pid, found_transponders, found_channels);
 	}
@@ -111,6 +114,7 @@ void * start_fast_scan(void * arg)
 		SaveServices(true);
 		scanBouquetManager->saveBouquets(bouquetMode, "");
 		g_bouquetManager->saveBouquets();
+		g_bouquetManager->saveUBouquets();
 		g_bouquetManager->clearAll();
 		g_bouquetManager->loadBouquets();
 		stop_scan(true);
@@ -122,6 +126,7 @@ void * start_fast_scan(void * arg)
 	}
 	fast_services_sat.clear();
 	fast_services_freq.clear();
+	fast_services_number.clear();
 
 	printf("[fast scan] fast scan done, found %d transponders and %d services\n", found_transponders, found_channels);
 	return NULL;
@@ -130,10 +135,22 @@ _err:
 	return NULL;
 }
 
-int parse_fst(unsigned short pid, unsigned short operator_id)
+struct CmpChannelByNum: public binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+{
+        bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+                {
+			return c1->number < c2->number;
+;
+                };
+};
+
+int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 {
 	int secdone[255];
 	int sectotal = -1;
+	unsigned short operator_id = op->id;
+	CZapitBouquet* bouquet;
+	int bouquetId;
 
 	memset(secdone, 0, 255);
 
@@ -217,16 +234,25 @@ int parse_fst(unsigned short pid, unsigned short operator_id)
 
 						t_satellite_position satellitePosition = 0;
 						freq_id_t freq = 0;
+						int num = 0;
 
 						t_channel_id channel_id = CREATE_CHANNEL_ID64;
 
 						std::map <t_channel_id, t_satellite_position>::iterator sIt = fast_services_sat.find(channel_id);
-						if(sIt != fast_services_sat.end())
+						if(sIt != fast_services_sat.end()) {
 							satellitePosition = sIt->second;
+							sat_iterator_t sit = satellitePositions.find(satellitePosition);
+							if(sit != satellitePositions.end())
+								sit->second.have_channels = true;
+						}
 
 						std::map <t_channel_id, freq_id_t>::iterator fIt = fast_services_freq.find(channel_id);
 						if(fIt != fast_services_freq.end())
 							freq = fIt->second;
+
+						std::map <t_channel_id, int>::iterator nIt = fast_services_number.find(channel_id);
+						if(nIt != fast_services_number.end())
+							num = nIt->second;
 
 						//std::string providerName = CDVBString((const char*)&(dbuf[4]), service_provider_name_length).getContent();
 						//std::string serviceName  = CDVBString((const char*)&(dbuf[4 + service_provider_name_length + 1]), (2 + dbuf[1]) - (4 + service_provider_name_length + 1)).getContent();
@@ -236,7 +262,7 @@ int parse_fst(unsigned short pid, unsigned short operator_id)
 						
 						eventServer->sendEvent(CZapitClient::EVT_SCAN_PROVIDER, CEventServer::INITID_ZAPIT, (void *) providerName.c_str(), providerName.length() + 1);
 #ifdef SCAN_DEBUG
-						printf("[FST] sat %04d onid %04x tid %04x sid %04x vpid %04x apid %04x pcr %04x freq %05d type %d prov [%s] name [%s]\n", satellitePosition, original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid, freq, service_type, providerName.c_str(), serviceName.c_str());
+						printf("[FST] #%04d at %04d: net %04x tp %04x sid %04x v %04x a %04x pcr %04x frq %05d type %d prov [%s] name [%s]\n", num, satellitePosition, original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid, freq, service_type, providerName.c_str(), serviceName.c_str());
 #endif
 						found_channels ++;
 						eventServer->sendEvent ( CZapitClient::EVT_SCAN_NUM_CHANNELS, CEventServer::INITID_ZAPIT, &found_channels, sizeof(found_channels));
@@ -260,7 +286,6 @@ int parse_fst(unsigned short pid, unsigned short operator_id)
 								break;
 						}
 						eventServer->sendEvent(CZapitClient::EVT_SCAN_SERVICENAME, CEventServer::INITID_ZAPIT, (void *) serviceName.c_str(), serviceName.length() + 1);
-						//service_descriptor(buffer + pos2, service_id, transport_stream_id, original_network_id, satellitePosition, freq, free_CA_mode);
 						channel_id = CREATE_CHANNEL_ID64;
 
 						CZapitChannel * channel;
@@ -293,9 +318,8 @@ int parse_fst(unsigned short pid, unsigned short operator_id)
 						channel->setAudioPid(audio_pid);
 						channel->setPcrPid(pcr_pid);
 						channel->setPidsFlag();
+						channel->number = num;
 
-						CZapitBouquet* bouquet;
-						int bouquetId;
 						char pname[100];
 						if (frontend->getInfo()->type == FE_QPSK)
 							snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
@@ -304,14 +328,23 @@ int parse_fst(unsigned short pid, unsigned short operator_id)
 
 						bouquetId = scanBouquetManager->existsBouquet(pname);
 
-						if (bouquetId == -1)
+						if (bouquetId == -1) {
 							bouquet = scanBouquetManager->addBouquet(std::string(pname), false);
+						}
 						else
 							bouquet = scanBouquetManager->Bouquets[bouquetId];
 						bouquet->addService(channel);
+
 						if(channel->getServiceType() == 1)
 							live_channel_id = channel->getChannelID();
 
+						bouquetId = g_bouquetManager->existsUBouquet(op->name);
+						if (bouquetId == -1) {
+							bouquet = g_bouquetManager->addBouquet(std::string(op->name), true);
+						}
+						else
+							bouquet = g_bouquetManager->Bouquets[bouquetId];
+						bouquet->addService(channel);
 					}
 					break;
 				default:
@@ -322,6 +355,13 @@ int parse_fst(unsigned short pid, unsigned short operator_id)
 		}
 	} while(sectotal < buffer[7]);
 	delete dmx;
+
+	bouquetId = g_bouquetManager->existsUBouquet(op->name);
+	if (bouquetId >= 0) {
+		bouquet = g_bouquetManager->Bouquets[bouquetId];
+		sort(bouquet->tvChannels.begin(), bouquet->tvChannels.end(), CmpChannelByNum());
+		sort(bouquet->radioChannels.begin(), bouquet->radioChannels.end(), CmpChannelByNum());
+	}
 
 	printf("[FST] done\n\n");
 	return 0;
@@ -472,6 +512,7 @@ int parse_fnt(unsigned short pid, unsigned short operator_id)
 						process_service_list_descriptor(buffer + pos2, transport_stream_id, original_network_id, 0, 0);
 						break;
 					case 0x83: // logical_service_desciptor
+						process_logical_service_descriptor(buffer + pos2, transport_stream_id, original_network_id, 0, 0);
 						break;
 					case 0x44:
 						//cable_delivery_system_descriptor(buffer + pos2, transport_stream_id, original_network_id, satellitePosition, freq);
@@ -499,6 +540,16 @@ int parse_fnt(unsigned short pid, unsigned short operator_id)
 	delete dmx;
 	printf("[FNT] done\n\n");
 	return ret;
+}
+
+void process_logical_service_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
+{
+	for (int i = 0; i < buffer[1]; i += 4) {
+		t_service_id service_id = buffer[i + 2] << 8 | buffer[i + 3];
+		t_channel_id channel_id = CREATE_CHANNEL_ID64;
+		int num = (buffer[i + 4] & 0x3F) << 8 | buffer[i + 5];
+		fast_services_number[channel_id] = num;
+	}
 }
 
 void process_service_list_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
