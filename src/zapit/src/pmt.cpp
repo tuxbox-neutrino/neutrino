@@ -28,6 +28,7 @@
 #include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/pmt.h>
+#include <sectionsd/edvbstring.h>
 #include <dmx_cs.h>
 
 #include <dvb-ci.h>
@@ -37,6 +38,7 @@
 #define RECORD_MODE 0x4
 extern int currentMode;
 extern short scan_runs;
+
 /*
  * Stream types
  * ------------
@@ -100,11 +102,21 @@ unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel *
 
 			case 0x09:
 				esInfo->addCaDescriptor(buffer + pos);
+				descramble = true;
 				break;
 
 			case 0x0A: /* ISO_639_language_descriptor */
+#if 0
+printf("descr 0x0A: %02X %02X %02X\n", buffer[pos+2], buffer[pos+3], buffer[pos+4]);
+#endif
+				/* FIXME cyfra+ radio -> 41 20 31 ?? */
+				if (description != "" && buffer[pos + 3] == ' ') {
+					description += buffer[pos + 3];
+					description += buffer[pos + 4];
+				} else {
 				for (i = 0; i < 3; i++)
 					description += tolower(buffer[pos + i + 2]);
+				}
 				break;
 
 			case 0x13: /* Defined in ISO/IEC 13818-6 */
@@ -217,8 +229,17 @@ unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel *
 				break;
 
 			case 0xC5: /* User Private descriptor - Canal+ Radio */
-				for (i = 0; i < 24; i++)
-					description += buffer[pos + i + 3];
+				//description = convertDVBUTF8((const char*)&buffer[pos+3], 24, 2, 1);
+				description = convertDVBUTF8((const char*)&buffer[pos+3], 24, 2, channel->getTransportStreamId() << 16 | channel->getOriginalNetworkId());
+#if 0
+printf("descr 0xC5\n");
+				for (i = 0; i < 24; i++) {
+printf("%02X ", buffer[pos + i]);
+					//description += buffer[pos + i + 3];
+				}
+printf("\n");
+printf("[pmt] name %s\n", description.c_str());
+#endif
 				break;
 
 			case 0xC6: /* unknown, Astra 19.2E */

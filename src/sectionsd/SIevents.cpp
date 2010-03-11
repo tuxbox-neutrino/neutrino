@@ -218,11 +218,13 @@ std::string SIevent::getName() const
 
 void SIevent::setName(const std::string &lang, const std::string &name)
 {
+	std::string tmp = name;
+	std::replace(tmp.begin(), tmp.end(), '\n', ' ');
 //printf("setName: lang %s text %s\n", lang.c_str(), name.c_str());
 	if (CSectionsdClient::LANGUAGE_MODE_OFF == SIlanguage::getMode()){
-		langName[languangeOFF] = name;
+		langName[languangeOFF] = tmp; //name;
 	} else {
-		langName[lang] = name;
+		langName[lang] = tmp; //name;
 	}
 }
 

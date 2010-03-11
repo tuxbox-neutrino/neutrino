@@ -141,6 +141,8 @@ static int get_table(unsigned char hi, unsigned char mid, unsigned char lo)
                 return 5;
         else if(!strcmp(lang, "bul"))
                 return 5;
+        else if(!strcmp(lang, "ara"))
+                return 6;
         return 0;
 }
 

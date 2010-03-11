@@ -461,7 +461,7 @@ int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_curr
 	printf("[zapit] %d services loaded (%d)...\n", scnt, allchans.size());
 	TIMER_STOP("[zapit] service loading took");
 
-	if(1) { //zapit_debug) {//FIXME
+	if(zapit_debug) {//FIXME
 		sat_iterator_t sit;
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++)
 			printf("satelliteName = %s (%d), satellitePosition = %d motor position = %d usals %d\n", sit->second.name.c_str(), sit->second.name.size(), sit->first, sit->second.motor_position, sit->second.use_usals);
