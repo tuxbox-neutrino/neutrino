@@ -114,7 +114,7 @@ bc.control.reboot.ask=Really restart the Box?
 bc.control.reboot=reboot
 bc.control.shutdown.ask=Really shutdown the Box?
 bc.control.shutdown=shutdown
-bc.control.status=Status
+bc.control.status=status
 bc.control.restart=restart
 
 ========= Boxcontrol - Message

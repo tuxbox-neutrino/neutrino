@@ -112,6 +112,8 @@ bc.control.reboot.ask=Box wirklich neu starten?
 bc.control.reboot=Neustart
 bc.control.shutdown.ask=dbox wirklich ausschalten?
 bc.control.shutdown=Ausschalten
+bc.control.status=Status
+bc.control.restart=Neu starten
 
 ========= Boxcontrol - Message
 bc.msg.message_to_screen_desc=Nachricht eingeben
