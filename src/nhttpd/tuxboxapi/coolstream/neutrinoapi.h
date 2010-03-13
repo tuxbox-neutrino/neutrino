@@ -48,6 +48,8 @@ class CNeutrinoAPI
 	static std::string videooutput_names[5];
 	static std::string videoformat_names[5];
 	static std::string audiotype_names[5];
+	static std::string mpegmodes[];
+	static std::string ddmodes[];
 
 	// get functions to collect data
 	bool GetChannelEvents(void);
@@ -70,6 +72,9 @@ class CNeutrinoAPI
 	std::string timerEventRepeat2Str(CTimerd::CTimerEventRepeat rep);
 	std::string getVideoAspectRatioAsString(void);
 	int setVideoAspectRatioAsString(std::string newRatioString);
+	std::string getVideoResolutionAsString(void);
+	std::string getVideoFramerateAsString(void);
+	std::string getAudioInfoAsString(void);
 public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);

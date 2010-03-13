@@ -660,7 +660,6 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, std::string)
 {
-	int bitInfo[10];
 	CZapitClient::CCurrentServiceInfo serviceinfo;
 
 	serviceinfo = NeutrinoAPI->Zapit->getCurrentServiceInfo();
@@ -674,37 +673,11 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 	hh->ParamList["tsfrequency"] = string_printf("%d.%d MHz", serviceinfo.tsfrequency/1000, serviceinfo.tsfrequency%1000);
 	hh->ParamList["polarisation"] = serviceinfo.polarisation==1?"h":"v";
 	hh->ParamList["ServiceName"] = NeutrinoAPI->GetServiceName(live_channel_id);//NeutrinoAPI->Zapit->getCurrentServiceID());
-	NeutrinoAPI->GetStreamInfo(bitInfo);
-
-	hh->ParamList["VideoFormat"] = string_printf("%d x %d", bitInfo[0], bitInfo[1] );
-	hh->ParamList["BitRate"] = string_printf("%d\n", bitInfo[4]*50);
-
+	hh->ParamList["VideoFormat"] = NeutrinoAPI->getVideoResolutionAsString();
+//	hh->ParamList["BitRate"] = NeutrinoAPI->getVideoFramerateAsString();
 	hh->ParamList["AspectRatio"] = NeutrinoAPI->getVideoAspectRatioAsString();
-
-	switch ( bitInfo[3] ) //fps
-	{
-		case 3: hh->ParamList["FPS"] = "25"; break;
-		case 6: hh->ParamList["FPS"] = "50"; break;
-		default: hh->ParamList["FPS"]= "unknown";
-	}
-
-	if (!bitInfo[7]) hh->ParamList["AudioType"]="unknown";
-	else {
-		const char* layernames[4]={"res","III","II","I"};
-		const char* sampfreqnames[4]={"44,1k","48k","32k","res"};
-		const char* modenames[4]={"stereo","joint_st","dual_ch","single_ch"};
-
-		long header = bitInfo[7];
-
-		unsigned char layer =	(header>>17)&3;
-		unsigned char sampfreq =(header>>10)&3;
-		unsigned char mode =	(header>> 6)&3;
-		unsigned char copy =	(header>> 3)&1;
-
-		hh->ParamList["AudioType"] =
-			string_printf("%s (%s/%s) %s", modenames[mode],	sampfreqnames[sampfreq],
-				layernames[layer], copy?"c":"");
-	}
+	hh->ParamList["FPS"] = NeutrinoAPI->getVideoFramerateAsString();
+	hh->ParamList["AudioType"] = NeutrinoAPI->getAudioInfoAsString();
 	return "";
 }
 //-------------------------------------------------------------------------

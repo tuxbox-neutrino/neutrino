@@ -83,6 +83,7 @@ private:
 	void VideoOutputCGI(CyhookHandler *hh);
 	void VCROutputCGI(CyhookHandler *hh);
 	void ScartModeCGI(CyhookHandler *hh);
+	void AudioCGI(CyhookHandler *hh);
 	void setBouquetCGI(CyhookHandler *hh);
 	void saveBouquetCGI(CyhookHandler *hh);
 	void moveBouquetCGI(CyhookHandler *hh);

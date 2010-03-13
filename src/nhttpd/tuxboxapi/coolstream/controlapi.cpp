@@ -169,12 +169,13 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"startplugin", 	&CControlAPI::StartPluginCGI,	"text/plain"},
 	{"exec", 			&CControlAPI::ExecCGI,			"+xml"},
 	{"yweb", 			&CControlAPI::YWebCGI,			"text/plain"},
-	// video handling
+	// video & Audio handling
 	{"aspectratio", 	&CControlAPI::AspectRatioCGI,	"text/plain"},
 	{"videoformat", 	&CControlAPI::VideoFormatCGI,	"text/plain"},
 	{"videooutput", 	&CControlAPI::VideoOutputCGI,	"text/plain"},
 	{"vcroutput", 		&CControlAPI::VCROutputCGI,		"text/plain"},
 	{"scartmode", 		&CControlAPI::ScartModeCGI,		"text/plain"},
+	{"audio", 			&CControlAPI::AudioCGI,			"text/plain"},
 	// timer
 	{"timer", 			&CControlAPI::TimerCGI,			"text/plain"},
 	// bouquet editing
@@ -738,6 +739,16 @@ void CControlAPI::ScartModeCGI(CyhookHandler *hh)
 {
 // FIXME: not implemented
 	hh->SendOk();
+}
+
+//-----------------------------------------------------------------------------
+void CControlAPI::AudioCGI(CyhookHandler *hh)
+{
+	if (hh->ParamList.empty() || hh->ParamList["1"] == "info") {
+		hh->printf("%s",(NeutrinoAPI->getAudioInfoAsString()).c_str());
+		return;
+	}
+	//TODO: more
 }
 
 //-------------------------------------------------------------------------

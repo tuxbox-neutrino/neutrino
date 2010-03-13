@@ -16,6 +16,7 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <sstream>
 
 // tuxbox
 #include <neutrinoMessages.h>
@@ -99,6 +100,8 @@ std::string CNeutrinoAPI::Dbox_Hersteller[4]	= {"none", "Nokia", "Philips", "Sag
 std::string CNeutrinoAPI::videooutput_names[5]	= {"CVBS", "RGB with CVBS", "S-Video", "YUV with VBS", "YUV with CVBS"};
 std::string CNeutrinoAPI::videoformat_names[5]	= {"automatic", "4:3", "14:9", "16:9", "20:9"};
 std::string CNeutrinoAPI::audiotype_names[5] 	= {"none", "single channel","dual channel","joint stereo","stereo"};
+std::string CNeutrinoAPI::mpegmodes[] 			= { "stereo", "joint_st", "dual_ch", "single_ch" };
+std::string CNeutrinoAPI::ddmodes[] 			= { "CH1/CH2", "C", "L/R", "L/C/R", "L/R/S", "L/C/R/S", "L/R/SL/SR", "L/C/R/SL/SR" };
 
 //=============================================================================
 // Constructor & Destructor
@@ -416,7 +419,7 @@ std::string CNeutrinoAPI::getVideoAspectRatioAsString(void) {
 //-------------------------------------------------------------------------
 int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString) {
 	int newRatioInt = -1;
-	for(int i=0;i<sizeof(videoformat_names);i++)
+	for(int i=0;i<(int)sizeof(videoformat_names);i++)
 		if( videoformat_names[i] == newRatioString){
 			newRatioInt = i;
 			break;
@@ -425,3 +428,38 @@ int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString) {
 		videoDecoder->setAspectRatio(newRatioInt, -1);
 	return newRatioInt;
 }
+//-------------------------------------------------------------------------
+std::string CNeutrinoAPI::getVideoResolutionAsString(void) {
+	int xres, yres, framerate;
+	videoDecoder->getPictureInfo(xres, yres, framerate);
+	std::stringstream out;
+	out << xres << "x" << yres;
+	return out.str();
+}
+
+//-------------------------------------------------------------------------
+std::string CNeutrinoAPI::getVideoFramerateAsString(void) {
+	int xres, yres, framerate;
+	std::string sframerate="unknown";
+	videoDecoder->getPictureInfo(xres, yres, framerate);
+	switch(framerate){
+		case 2:
+			sframerate="25fps";break;
+		case 5:
+			sframerate="50fps";break;
+	}
+	return sframerate;
+}
+
+//-------------------------------------------------------------------------
+std::string CNeutrinoAPI::getAudioInfoAsString(void) {
+	int type, layer, freq, mode, lbitrate;
+	audioDecoder->getAudioInfo(type, layer, freq, lbitrate, mode);
+	std::stringstream out;
+	if(type == 0)
+		out << "MPEG " << mpegmodes[mode] << " (" << freq <<")";
+	else
+		out << "DD " << ddmodes[mode] << " (" << freq <<")";
+	return out.str();
+}
+
