@@ -709,9 +709,14 @@ void CControlAPI::AspectRatioCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 {
-// FIXME: not implemented
-	hh->printf("Videoformat:%s\n",(NeutrinoAPI->getVideoAspectRatioAsString()).c_str());
-//	hh->SendOk();
+	if (hh->ParamList.empty() || hh->ParamList["1"] == "status") {
+		hh->printf("%s",(NeutrinoAPI->getVideoAspectRatioAsString()).c_str());
+		return;
+	}
+	if (NeutrinoAPI->setVideoAspectRatioAsString(hh->ParamList["1"]) != -1)
+		hh->SendOk();
+	else
+		hh->SendError();
 }
 
 //-----------------------------------------------------------------------------

@@ -406,11 +406,22 @@ std::string CNeutrinoAPI::timerEventRepeat2Str(CTimerd::CTimerEventRepeat rep)
 }
 
 //-------------------------------------------------------------------------
-std::string CNeutrinoAPI::getVideoAspectRatioAsString() {
+std::string CNeutrinoAPI::getVideoAspectRatioAsString(void) {
 	int aspectRatio = videoDecoder->getAspectRatio();
 	if (aspectRatio >= 0 && aspectRatio <= 4)
 		return videoformat_names[aspectRatio];
 	else
 		return "unknown";
 }
-
+//-------------------------------------------------------------------------
+int CNeutrinoAPI::setVideoAspectRatioAsString(std::string newRatioString) {
+	int newRatioInt = -1;
+	for(int i=0;i<sizeof(videoformat_names);i++)
+		if( videoformat_names[i] == newRatioString){
+			newRatioInt = i;
+			break;
+		}
+	if(newRatioInt != -1)
+		videoDecoder->setAspectRatio(newRatioInt, -1);
+	return newRatioInt;
+}

@@ -68,7 +68,8 @@ class CNeutrinoAPI
 
 	std::string timerEventType2Str(CTimerd::CTimerEventTypes type);
 	std::string timerEventRepeat2Str(CTimerd::CTimerEventRepeat rep);
-	std::string getVideoAspectRatioAsString();
+	std::string getVideoAspectRatioAsString(void);
+	int setVideoAspectRatioAsString(std::string newRatioString);
 public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);
