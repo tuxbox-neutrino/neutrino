@@ -176,6 +176,20 @@ epg.next_hours=Stunden vor
 epg.set_timer=Timer für Aufnahme gesetzt
 epg.zap_to=Umschalt-Timer gesetzt
 
+========EPG Streaminfo
+epg.si.streaminfo=Streaminfo
+epg.si.resolution=Aufl&ouml;sung
+epg.si.ratio=Verh&auml;ltnis
+epg.si.fps=Bildrate
+epg.si.audiotype=Audiotyp
+epg.si.frequence=Frequenz
+epg.si.onid=Original Network ID
+epg.si.sid=Service ID
+epg.si.tsid=Transponder Stream ID
+epg.si.vpid=Video PID
+epg.si.apid=Audio PID
+epg.si.vtxtpid=Teletext PID
+
 ========Neutrino Settings
 set.reload_neutrino=Neutrino neuladen
 set.reboot_required=Neustart notwendig
