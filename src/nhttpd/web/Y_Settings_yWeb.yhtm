@@ -88,8 +88,8 @@ function do_init(){
 			<tr>
 				<td>{=L:set.yweb.start_page=}</td>
 				<td colspan="3">	<select name="start_page" title="{=L:start_page=}">
-					<option value="bouquets" selected="selected">{=L:bouquets=}</option>
-					<option value="control">{=L:control=}</option>
+					<option value="bouquets" selected="selected">{=L:bc.menue.bouquets=}</option>
+					<option value="control">{=L:bc.menue.control=}</option>
 					<option value="none">{=L:empty=}</option>
 					</select></td>
 			</tr>
