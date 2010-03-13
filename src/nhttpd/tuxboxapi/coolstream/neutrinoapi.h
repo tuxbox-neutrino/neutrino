@@ -46,7 +46,7 @@ class CNeutrinoAPI
 	// some constants
 	static std::string Dbox_Hersteller[4];
 	static std::string videooutput_names[5];
-	static std::string videoformat_names[4];
+	static std::string videoformat_names[5];
 	static std::string audiotype_names[5];
 
 	// get functions to collect data
@@ -68,7 +68,7 @@ class CNeutrinoAPI
 
 	std::string timerEventType2Str(CTimerd::CTimerEventTypes type);
 	std::string timerEventRepeat2Str(CTimerd::CTimerEventRepeat rep);
-
+	std::string getVideoAspectRatioAsString();
 public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);

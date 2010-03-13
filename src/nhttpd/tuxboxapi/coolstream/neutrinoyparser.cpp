@@ -679,13 +679,7 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 	hh->ParamList["VideoFormat"] = string_printf("%d x %d", bitInfo[0], bitInfo[1] );
 	hh->ParamList["BitRate"] = string_printf("%d\n", bitInfo[4]*50);
 
-	switch ( bitInfo[2] ) //format
-	{
-		case 2: hh->ParamList["AspectRatio"] = "4:3"; break;
-		case 3: hh->ParamList["AspectRatio"] = "16:9"; break;
-		case 4: hh->ParamList["AspectRatio"] = "2.21:1"; break;
-		default: hh->ParamList["AspectRatio"]= "unknown"; break;
-	}
+	hh->ParamList["AspectRatio"] = NeutrinoAPI->getVideoAspectRatioAsString();
 
 	switch ( bitInfo[3] ) //fps
 	{

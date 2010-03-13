@@ -19,12 +19,32 @@
 
 // tuxbox
 #include <neutrinoMessages.h>
-
+#include <global.h>
+#include <neutrino.h>
+#include <driver/fontrenderer.h>
+#include <driver/rcinput.h>
+#include <driver/screen_max.h>
+#include <gui/color.h>
+#include <gui/widget/icons.h>
+#include <gui/customcolor.h>
+#include <daemonc/remotecontrol.h>
+#include <zapit/frontend_c.h>
+#include <video_cs.h>
+#include <audio_cs.h>
+#include <dmx_cs.h>
+#include <zapit/satconfig.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
+
 extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
+extern CFrontend * frontend;
+extern cVideo * videoDecoder;
+extern cAudio * audioDecoder;
+
+extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
+extern CZapitClient::SatelliteList satList;
 
 // yhttpd
 #include "ylogging.h"
@@ -38,7 +58,7 @@ void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = t
 // No Class Helpers
 //=============================================================================
 
-static std::map<std::string, std::string> iso639;
+//static std::map<std::string, std::string> iso639;
 #ifndef initialize_iso639_map
 bool _initialize_iso639_map(void)
 {
@@ -77,7 +97,7 @@ const char * _getISO639Description(const char * const iso)
 //=============================================================================
 std::string CNeutrinoAPI::Dbox_Hersteller[4]	= {"none", "Nokia", "Philips", "Sagem"};
 std::string CNeutrinoAPI::videooutput_names[5]	= {"CVBS", "RGB with CVBS", "S-Video", "YUV with VBS", "YUV with CVBS"};
-std::string CNeutrinoAPI::videoformat_names[4]	= {"automatic", "16:9", "4:3 (LB)", "4:3 (PS)"};
+std::string CNeutrinoAPI::videoformat_names[5]	= {"automatic", "4:3", "14:9", "16:9", "20:9"};
 std::string CNeutrinoAPI::audiotype_names[5] 	= {"none", "single channel","dual channel","joint stereo","stereo"};
 
 //=============================================================================
@@ -383,5 +403,14 @@ std::string CNeutrinoAPI::timerEventRepeat2Str(CTimerd::CTimerEventRepeat rep)
 			result = "Unknown";
 	}
 	return result;
+}
+
+//-------------------------------------------------------------------------
+std::string CNeutrinoAPI::getVideoAspectRatioAsString() {
+	int aspectRatio = videoDecoder->getAspectRatio();
+	if (aspectRatio >= 0 && aspectRatio <= 4)
+		return videoformat_names[aspectRatio];
+	else
+		return "unknown";
 }
 

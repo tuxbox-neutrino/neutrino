@@ -170,6 +170,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"exec", 			&CControlAPI::ExecCGI,			"+xml"},
 	{"yweb", 			&CControlAPI::YWebCGI,			"text/plain"},
 	// video handling
+	{"aspectratio", 	&CControlAPI::AspectRatioCGI,	"text/plain"},
 	{"videoformat", 	&CControlAPI::VideoFormatCGI,	"text/plain"},
 	{"videooutput", 	&CControlAPI::VideoOutputCGI,	"text/plain"},
 	{"vcroutput", 		&CControlAPI::VCROutputCGI,		"text/plain"},
@@ -701,10 +702,16 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 	hh->SendOk();
 }
 //-----------------------------------------------------------------------------
+void CControlAPI::AspectRatioCGI(CyhookHandler *hh)
+{
+	hh->printf("%s",(NeutrinoAPI->getVideoAspectRatioAsString()).c_str());
+}
+//-----------------------------------------------------------------------------
 void CControlAPI::VideoFormatCGI(CyhookHandler *hh)
 {
 // FIXME: not implemented
-	hh->SendOk();
+	hh->printf("Videoformat:%s\n",(NeutrinoAPI->getVideoAspectRatioAsString()).c_str());
+//	hh->SendOk();
 }
 
 //-----------------------------------------------------------------------------
