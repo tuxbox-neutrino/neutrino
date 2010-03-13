@@ -176,6 +176,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"vcroutput", 		&CControlAPI::VCROutputCGI,		"text/plain"},
 	{"scartmode", 		&CControlAPI::ScartModeCGI,		"text/plain"},
 	{"audio", 			&CControlAPI::AudioCGI,			"text/plain"},
+	{"crypt", 			&CControlAPI::CryptCGI,			"text/plain"},
 	// timer
 	{"timer", 			&CControlAPI::TimerCGI,			"text/plain"},
 	// bouquet editing
@@ -780,6 +781,17 @@ void CControlAPI::VolumeCGI(CyhookHandler *hh)
 	else
 		hh->SendError();
 }
+
+//-----------------------------------------------------------------------------
+void CControlAPI::CryptCGI(CyhookHandler *hh)
+{
+	if (hh->ParamList.empty() || hh->ParamList["1"] == "info") {
+		hh->printf("%s",(NeutrinoAPI->getCryptInfoAsString()).c_str());
+		return;
+	}
+	//TODO: more
+}
+
 
 //-----------------------------------------------------------------------------
 void CControlAPI::ChannellistCGI(CyhookHandler *hh)

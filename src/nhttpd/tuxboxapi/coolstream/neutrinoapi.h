@@ -75,6 +75,7 @@ class CNeutrinoAPI
 	std::string getVideoResolutionAsString(void);
 	std::string getVideoFramerateAsString(void);
 	std::string getAudioInfoAsString(void);
+	std::string getCryptInfoAsString(void);
 public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);

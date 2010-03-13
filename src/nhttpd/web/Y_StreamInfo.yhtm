@@ -89,6 +89,14 @@
 			<td>&nbsp;</td>
 			<td class="set"> <div align="left">{=vtxtpid=}</div></td>
 		</tr>
+		<tr>
+			<td class="set" colspan="3">&nbsp;</td>
+		</tr>
+		<tr> 
+			<td class="set"><b>{=L:epg.si.crypt=}:</b></td>
+			<td>&nbsp;</td>
+			<td class="set"> <div align="left">{=Crypt=}</div></td>
+		</tr>
 	</table>
 </div>
 </body>

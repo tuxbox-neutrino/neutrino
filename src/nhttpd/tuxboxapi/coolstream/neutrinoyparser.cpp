@@ -678,6 +678,7 @@ std::string  CNeutrinoYParser::func_get_current_stream_info(CyhookHandler *hh, s
 	hh->ParamList["AspectRatio"] = NeutrinoAPI->getVideoAspectRatioAsString();
 	hh->ParamList["FPS"] = NeutrinoAPI->getVideoFramerateAsString();
 	hh->ParamList["AudioType"] = NeutrinoAPI->getAudioInfoAsString();
+	hh->ParamList["Crypt"] = NeutrinoAPI->getCryptInfoAsString();
 	return "";
 }
 //-------------------------------------------------------------------------

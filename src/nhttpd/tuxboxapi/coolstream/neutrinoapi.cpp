@@ -463,3 +463,19 @@ std::string CNeutrinoAPI::getAudioInfoAsString(void) {
 	return out.str();
 }
 
+//-------------------------------------------------------------------------
+std::string CNeutrinoAPI::getCryptInfoAsString(void) {
+	extern int pmt_caids[4][11];
+	unsigned short i,j;
+	std::stringstream out;
+	std::string casys[11]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
+	for(i=0;i<4;i++){
+		for(j=0;j<11;j++){
+			if(pmt_caids[i][j]){
+				out << casys[j] << hex << pmt_caids[i][j]<< "\n";
+			}
+		}
+	}
+	return out.str();
+}
+
