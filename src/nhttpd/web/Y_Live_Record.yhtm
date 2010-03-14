@@ -145,7 +145,7 @@ function doRecord()
 		_live.do_play();
 	}
 	isRecord=!isRecord;
-	$('record').update( (isRecord)? "Stop Record": "Record");
+	$('record').update( (isRecord)? "{=L:live.rec.stop_record=}": "{=L:live.rec.record=}");
 }
 //]]>
 </script>
@@ -153,27 +153,27 @@ function doRecord()
 <body>
 	<form id="v" class="y_form" action="" method="get">
 		<table cellspacing="0" width="100%">
-		<tr><td class="y_form_header" colspan="4">Record Mode</td></tr>
+		<tr><td class="y_form_header" colspan="4">{=L:live.rec.record_mode=}</td></tr>
 		<tr>
-			<td>Filename:</td>
+			<td>{=L:live.rec.filename=}:</td>
 			<td colspan="3"><input type="text" id="record_filename" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}"/></td>
 		</tr>
 		<tr>
 			<td colspan="4">
-				<input type="checkbox" id="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>Display on&nbsp;
-				<input type="checkbox" id="transon" value="1" title="use transcoding" onclick="on_transon_change()"/>Transcoding on
+				<input type="checkbox" id="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>{=L:live.rec.display_on=}&nbsp;
+				<input type="checkbox" id="transon" value="1" title="use transcoding" onclick="on_transon_change()"/>{=L:live.rec.transcoding_on=}
 			</td>
 		</tr>
 		<tr>
 			<td colspan="4">
 			<br/>
 				<button class="y_live_button" type="button" value="Record" title="record stream to file" onclick="doRecord()">
-					<img src="/images/record.png"/>&nbsp;<span id="record">Record</span></button>
+					<img src="/images/record.png"/>&nbsp;<span id="record">{=L:live.rec.record=}</span></button>
 			</td>
 		</tr>
-		<tr><td class="y_form_header" colspan="4"><br/>Record Transcode</td></tr>
+		<tr><td class="y_form_header" colspan="4"><br/>{=L:live.rec.tanscode=}</td></tr>
 		<tr>
-			<td>Profile:</td>
+			<td>{=L:live.rec.profile=}:</td>
 			<td colspan="3">
 				<select id="profile" class="y_live_button" onchange="on_profile_change()">
 	{=if-equal:{=mode=}~tv~
@@ -187,15 +187,15 @@ function doRecord()
 			</td>
 		</tr>
 	{=if-equal:{=mode=}~tv~
-		<tr><td class="y_form_section"><br/>Video</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
+		<tr><td class="y_form_section"><br/>{=L:live.rec.video=}</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>Breite:</td>
+			<td>{=L:live.rec.width=}:</td>
 			<td><input type="text" id="twidth" size="4" value="720" class="y_live_button"/></td>
-			<td>H&ouml;he:</td>
+			<td>{=L:live.rec.height=}:</td>
 			<td><input type="text" id="theight" size="4" value="576" class="y_live_button"/></td>
 		</tr>
 		<tr>
-			<td>Codec:</td>
+			<td>{=L:live.rec.codec=}:</td>
 			<td>
 				<select id="vcodec" class="y_live_button">
 				<option value="mp4v" selected="selected">mp4v</option>
@@ -209,7 +209,7 @@ function doRecord()
 				<option value="WMV1">WMV2</option>
 				</select>
 			</td>
-			<td>Bitrate:</td>
+			<td>{=L:live.rec.bitrate=}:</td>
 			<td>
 				<select id="vb" class="y_live_button">
 				<option value="1024">1024</option>
@@ -224,7 +224,7 @@ function doRecord()
 			</td>
 		</tr>
 		<tr>
-			<td>Scale:</td>
+			<td>{=L:live.rec.scale=}:</td>
 			<td>
 				<select id="scale" class="y_live_button">
 				<option value="0.25">0.25</option>
@@ -241,9 +241,9 @@ function doRecord()
 			<td>&nbsp;</td>
 		</tr>
 	=}
-		<tr><td class="y_form_section">Audio</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
+		<tr><td class="y_form_section">{=L:live.rec.audio=}</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>Codec:</td>
+			<td>{=L:live.rec.codec=}:</td>
 			<td>
 				<select id="acodec" class="y_live_button">
 				<option value="mp4a" selected="selected">mp4a</option>
@@ -255,7 +255,7 @@ function doRecord()
 				<option value="fl32">fl32</option>
 				</select>
 			</td>
-			<td>Bitrate:</td>
+			<td>{=L:live.rec.bitrate=}:</td>
 			<td>
 				<select id="ab" class="y_live_button">
 				<option value="192">192</option>
@@ -268,7 +268,7 @@ function doRecord()
 			</td>
 		</tr>
 		<tr>
-			<td>Channels:</td>
+			<td>{=L:live.rec.channels=}:</td>
 			<td>
 				<select id="channels" class="y_live_button">
 				<option value="1">1</option>

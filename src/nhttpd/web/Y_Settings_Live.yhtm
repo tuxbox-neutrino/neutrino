@@ -14,32 +14,32 @@ function do_refresh_liveview()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 	<form class="y_form" name="f" action="/y/cgi">
 		<table border="0" cellspacing="0">
-			<tr><td class="y_form_header" colspan="2"><br/>VLC Settings (IE &amp; Mozilla >= 0.8.6.1)</td></tr>
+			<tr><td class="y_form_header" colspan="2"><br/>{=L:live.set.vlc_settings=}</td></tr>
 			<tr>
-				<td>Deinterlace</td>
+				<td>{=L:live.set.deinterlace=}</td>
 				<td>
-					<input type="radio" name="deinterlace" value="false" title="deinterlace: off"/>AUS&nbsp;
-					<input type="radio" name="deinterlace" value="true" title="deinterlace: on"/>AN
+					<input type="radio" name="deinterlace" value="false"/>{=L:off=}&nbsp;
+					<input type="radio" name="deinterlace" value="true"/>{=L:on=}
 				</td>
 			</tr>
 			<tr>
-				<td>http caching</td>
-				<td><input type="text" name="http_caching" size="5" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;1000=}" title="http   caching. 0=off"/></td>
+				<td>{=L:live.set.http_caching=}</td>
+				<td><input type="text" name="http_caching" size="5" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;http_caching;1000=}"/></td>
 			</tr>
 			<tr>
-				<td>UDP as default</td>
+				<td>{=L:live.set.udp_defaul=}</td>
 				<td>
-					<input type="radio" name="udp" value="false" title="udp: off"/>AUS&nbsp;
-					<input type="radio" name="udp" value="true" title="udp: on"/>AN
+					<input type="radio" name="udp" value="false"/>{=L:off=}&nbsp;
+					<input type="radio" name="udp" value="true"/>{=L:on=}
 				</td>
 			</tr>
 			<tr>
-				<td>Slave Box IP (2. dbox)</td>
-				<td><input type="text" name="slavebox" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}" title="enter IP (xxx.xxx.xxx.xxx) of slave-box"/></td>
+				<td>{=L:live.set.slavebox_ip=}</td>
+				<td><input type="text" name="slavebox" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}" title="{=L:live.set.enter_ip=}"/></td>
 			</tr>
 			<tr>
-				<td>VLC Aufnahmepfad</td>
-				<td><input type="text" name="vlc_record_path" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}" title="VLC record path for LiveView direct recording."/></td>
+				<td>{=L:live.set.vlc_rec_dir=}</td>
+				<td><input type="text" name="vlc_record_path" size="17" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;vlc_record_path=}"/></td>
 			</tr>
 <!---			<tr>
 				<td>VLC Aufnahmetyp</td>
@@ -50,8 +50,8 @@ function do_refresh_liveview()
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_Live.yhtm"/>
 		<input type="hidden" name="execute" value="include-block:Y_Blocks.txt;Live_save_settings;nix"/>
-		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
-		<button type="button" ytype="refresh" title="Refresh LiveView" onclick="do_refresh_liveview()">Refresh LiveView</button>
+		<button type="button" ytype="save" title="{=L:save_values_desc=}" onclick="do_submit()">{=L:save=}</button>
+		<button type="button" ytype="refresh" onclick="do_refresh_liveview()">{=L:live.set.refresh_liveview=}</button>
 	</form>
 <script type="text/javascript">
 //<![CDATA[

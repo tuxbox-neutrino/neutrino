@@ -12,10 +12,10 @@ function form_init()
 function do_submit()
 {
 	if(document.f.authpassword.value.length < 5)
-		alert("Passwort muss mind. 4 Zeichen haben");
+		alert("{=L:set.nhttpd.check_password=}");
 	else
 	if(document.f.port.value == "")
-		alert("Port muss angegeben werden");
+		alert("{=L:set.nhttpd.check_port=}");
 	else{
 		show_waitbox(true);
 		yhttpd_cache_clear("");

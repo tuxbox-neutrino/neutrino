@@ -4,8 +4,7 @@
 <script type="text/javascript" src="/Y_yweb.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_onload()
-{
+function do_onload() {
 	yhttpd_cache_clear('');
 	ext.read_items();	
 	parent.sec_menu.location.reload();
@@ -17,9 +16,9 @@ function do_onload()
 {=var-set:wait_text={=L:refreshing=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Extensions-Update=}{=var-set:menu=Extensions Settings saved=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Extensions-Update=}{=var-set:menu={=L:ext.ext_saved=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body" width="100%s">
-		Settings saved. Refreshing Menue now.
+		{=L:ext.refresh_now=}
 	</div>
 </div>
 </body>

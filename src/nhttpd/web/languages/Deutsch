@@ -126,6 +126,9 @@ bc.osd.shot=Schnappschuss
 bc.osd.delete_shots=Schnappschuss löschen
 bc.osd.shap_wait_text=Schnappschuss wird erstellt
 
+========= Boxcontrol - Others
+bc.channels=Sender
+
 ====== EXtension
 ext.installer_updater=Installation
 ext.uninstaller=Deinstallation Erweiterungen
@@ -147,6 +150,8 @@ ext.your=Deine
 ext.update=Aktuelle
 ext.update_install=Aktualisierung / Installation
 ext.site=Site
+ext.refresh_now=Einstellungen gespeichert. Menues werden aktualisiert.
+ext.ext_saved=Erweiterungseinstellungen gespeichert
 
 ====== Bouquet
 bou.bouquets_must_be_saved=Alle &Auml;nderungen m&uuml;ssen noch gespeichert werden!
@@ -306,6 +311,8 @@ set.nhttpd.cache=Cache
 set.nhttpd.cache_info=Cache Informationen
 set.nhttpd.clear_cache=Cache löschen
 set.nhttpd.server_configuration=Server Konfiguration
+set.nhttpd.check_password=Passwort muss mind. 4 Zeichen haben
+set.nhttpd.check_port=Port muss angegeben werden
 
 =========Settings yWeb
 set.yweb.enter_ip_desc=IP Adresse eingeben (xxx.xxx.xxx.xxx)
@@ -424,6 +431,40 @@ live.transcode=Transkodiermodus
 live.build_vlc=... erstelle Live ...
 live.select_bouquet=Bouquet auswählen - Sender werden aktualisiert
 live.select_channel=Sender wechseln - nutze zap
+live.live_popup_msg=Während des LiveTVs keine Sender wechseln!
+live.unlock=FB freigeben
+
+=========== LIVE Record
+live.rec.record_mode=Aufnahmemodus
+live.rec.filename=Dateiname
+live.rec.display_on=Bildschirm an
+live.rec.transcoding_on=Transkodierung an
+live.rec.record=Aufname
+live.rec.stop_record=Aufnahme Stopp
+live.rec.tanscode=Afnahme transkodiert
+live.rec.profile=Profile
+live.rec.video=Video
+live.rec.width=Breite
+live.rec.height=H&ouml;he
+live.rec.codec=Codec
+live.rec.bitrate=Bitrate
+live.rec.scale=Skalierung
+live.rec.audio=Audio
+live.rec.channels=Sender
+live.rec.trans_broadcast=Transkodierung als Broadcast
+live.rec.access=Zugriff
+live.rec.type=Typ
+live.rec.ip_port=IP:Port
+
+=========== LIVE Settings
+live.set.vlc_settings=VLC Einstellungen (IE &amp; Mozilla >= 0.8.6.1)
+live.set.deinterlace=Deinterlace
+live.set.http_caching=http caching
+live.set.udp_defaul=UDP als Standard
+live.set.slavebox_ip=Slave Box IP (2. Box)
+live.set.enter_ip=IP (xxx.xxx.xxx.xxx) der Slavebox eingeben
+live.set.vlc_rec_dir=VLC Aufnahmepfad
+live.set.refresh_liveview=LiveView aktualisieren
 
 =========== LIVE Timer Edit
 live.timer_edit.timer=Timer

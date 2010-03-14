@@ -445,13 +445,6 @@ start-block~frame_live_directtv
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_live_directtv
 
-# ------- Lay-Frame Timer-Menu
-start-block~frame_timer
-{=var-set:sec_menu=Y_Timer_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
-{=include-block:Y_Blocks.txt;frame_secondary=}
-end-block~frame_timer
-
 # ------- Lay-Frame Tools-Menu
 start-block~frame_tools
 {=var-set:sec_menu=Y_Tools_Menue.yhtm=}

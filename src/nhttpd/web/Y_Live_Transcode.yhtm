@@ -43,16 +43,16 @@ function doTranscode()
 <body>
 	<form class="y_form" name="v" action="" method="get">
 		<table cellspacing="0">
-		<tr><td class="y_form_header" colspan="5">Transcode-Broadcast</td></tr>
-		<tr><td class="y_form_section"><br/>Video</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
+		<tr><td class="y_form_header" colspan="5">{=L:live.rec.trans_broadcast=}</td></tr>
+		<tr><td class="y_form_section"><br/>{=L:live.rec.video=}</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>Breite:</td>
+			<td>{=L:live.rec.width=}:</td>
 			<td><input type="text" name="twidth" size="4" value="384" class="y_live_button"/></td>
-			<td>H&ouml;he:</td>
+			<td>{=L:live.rec.height=}:</td>
 			<td><input type="text" name="theight" size="4" value="288" class="y_live_button"/></td>
 		</tr>
 		<tr>
-			<td>Codec:</td>
+			<td>{=L:live.rec.codec=}:</td>
 			<td>
 				<select name="vcodec" class="y_live_button">
 				<option value="mp4v" selected="selected">mp4v</option>
@@ -66,7 +66,7 @@ function doTranscode()
 				<option value="WMV1">WMV2</option>
 				</select>
 			</td>
-			<td>Bitrate:</td>
+			<td>{=L:live.rec.bitrate=}:</td>
 			<td>
 				<select name="vb" class="y_live_button">
 				<option value="1024">1024</option>
@@ -81,7 +81,7 @@ function doTranscode()
 			</td>
 		</tr>
 		<tr>
-			<td>Scale:</td>
+			<td>{=L:live.rec.scale=}:</td>
 			<td>
 				<select name="scale" class="y_live_button">
 				<option value="0.25">0.25</option>
@@ -97,9 +97,9 @@ function doTranscode()
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
-		<tr><td class="y_form_section"><br/>Audio</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
+		<tr><td class="y_form_section"><br/>{=L:live.rec.audio=}</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>Codec:</td>
+			<td>{=L:live.rec.codec=}:</td>
 			<td>
 				<select name="acodec" class="y_live_button">
 				<option value="mp4a" selected="selected">mp4a</option>
@@ -111,7 +111,7 @@ function doTranscode()
 				<option value="fl32">fl32</option>
 				</select>
 			</td>
-			<td>Bitrate:</td>
+			<td>{=L:live.rec.bitrate=}:</td>
 			<td>
 				<select name="ab" class="y_live_button">
 				<option value="192">192</option>
@@ -124,7 +124,7 @@ function doTranscode()
 			</td>
 		</tr>
 		<tr>
-			<td>Channels:</td>
+			<td>{=L:live.rec.channels=}:</td>
 			<td>
 				<select name="channels" class="y_live_button">
 				<option value="1">1</option>
@@ -135,9 +135,9 @@ function doTranscode()
 			<td>&nbsp;</td>
 			<td>&nbsp;</td>
 		</tr>
-		<tr><td class="y_form_section"><br/>Access</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
+		<tr><td class="y_form_section"><br/>{=L:live.rec.access=}</td><td class="y_form_section" colspan="3">&nbsp;</td></tr>
 		<tr>
-			<td>Type:</td>
+			<td>{=L:live.rec.type=}:</td>
 			<td>
 				<select name="access" class="y_live_button">
 				<option value="udp" selected="selected">udp</option>
@@ -160,7 +160,7 @@ function doTranscode()
 			</td>
 		</tr>
 		<tr>
-			<td>IP:Port:</td>
+			<td>{=L:live.rec.ip_port=}:</td>
 			<td colspan="3">
 				<input type="text" name="tip" size="18" value="localhost:1234" class="y_live_button"/>
 			</td>
@@ -168,7 +168,7 @@ function doTranscode()
 		<tr>
 			<td colspan="3">
 			<br/>
-				<input type="checkbox" name="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>Display on
+				<input type="checkbox" name="tdisplay" value="1" title="Display on while transcoding" checked="checked"/>{=L:live.rec.display_on=}
 				&nbsp;<button class="y_live_button" type="button" value="transcode" title="transcode stream" name="transcode" onclick="doTranscode()"><img src="/images/transcode.png"/>&nbsp;Transcode</button>
 			</td>
 		</tr>

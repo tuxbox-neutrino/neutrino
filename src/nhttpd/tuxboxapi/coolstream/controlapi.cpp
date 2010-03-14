@@ -606,52 +606,52 @@ struct key {
 #endif
 
 static const struct key keynames[] = {
-        {"KEY_POWER",           KEY_POWER},
-        {"KEY_MUTE",            KEY_MUTE},
-        {"KEY_1",               KEY_1},
-        {"KEY_2",               KEY_2},
-        {"KEY_3",               KEY_3},
-        {"KEY_4",               KEY_4},
-        {"KEY_5",               KEY_5},
-        {"KEY_6",               KEY_6},
-        {"KEY_7",               KEY_7},
-        {"KEY_8",               KEY_8},
-        {"KEY_9",               KEY_9},
-        {"KEY_0",               KEY_0},
-        {"KEY_INFO",            KEY_INFO},
-        {"KEY_MODE",            KEY_MODE},
-        {"KEY_SETUP",           KEY_MENU},
-        {"KEY_EPG",             KEY_EPG},
-        {"KEY_FAVORITES",       KEY_FAVORITES},
-        {"KEY_HOME",            KEY_EXIT},
-        {"KEY_UP",              KEY_UP},
-        {"KEY_LEFT",            KEY_LEFT},
-        {"KEY_OK",              KEY_OK},
-        {"KEY_RIGHT",           KEY_RIGHT},
-        {"KEY_DOWN",            KEY_DOWN},
-        {"KEY_VOLUMEUP",        KEY_VOLUMEUP},
-        {"KEY_VOLUMEDOWN",      KEY_VOLUMEDOWN},
-        {"KEY_PAGEUP",          KEY_PAGEUP},
-        {"KEY_PAGEDOWN",        KEY_PAGEDOWN},
-        {"KEY_TV",              KEY_TV},
-        {"KEY_TEXT",            KEY_TEXT},
-        {"KEY_RADIO",           KEY_RADIO},
-        {"KEY_RED",             KEY_RED},
-        {"KEY_GREEN",           KEY_GREEN},
-        {"KEY_YELLOW",          KEY_YELLOW},
-        {"KEY_BLUE",            KEY_BLUE},
-        {"KEY_SAT",             KEY_SAT},
-        {"KEY_HELP",            KEY_HELP},
-        {"KEY_NEXT",            KEY_NEXT},
-        {"KEY_PREVIOUS",        KEY_PREVIOUS},
-        {"KEY_TIME",            KEY_TIME},
-        {"KEY_AUDIO",           KEY_AUDIO},
-        {"KEY_REWIND",          KEY_REWIND},
-        {"KEY_FORWARD",         KEY_FORWARD},
-        {"KEY_PAUSE",           KEY_PAUSE},
-        {"KEY_RECORD",          KEY_RECORD},
-        {"KEY_STOP",            KEY_STOP},
-        {"KEY_PLAY",           KEY_PLAY}
+	{"KEY_POWER",		KEY_POWER},
+	{"KEY_MUTE",		KEY_MUTE},
+	{"KEY_1",			KEY_1},
+	{"KEY_2",			KEY_2},
+	{"KEY_3",			KEY_3},
+	{"KEY_4",			KEY_4},
+	{"KEY_5",			KEY_5},
+	{"KEY_6",			KEY_6},
+	{"KEY_7",			KEY_7},
+	{"KEY_8",			KEY_8},
+	{"KEY_9",			KEY_9},
+	{"KEY_0",			KEY_0},
+	{"KEY_INFO",		KEY_INFO},
+	{"KEY_MODE",		KEY_MODE},
+	{"KEY_SETUP",		KEY_MENU},
+	{"KEY_EPG",			KEY_EPG},
+	{"KEY_FAVORITES",	KEY_FAVORITES},
+	{"KEY_HOME",		KEY_EXIT},
+	{"KEY_UP",			KEY_UP},
+	{"KEY_LEFT",		KEY_LEFT},
+	{"KEY_OK",			KEY_OK},
+	{"KEY_RIGHT",		KEY_RIGHT},
+	{"KEY_DOWN",		KEY_DOWN},
+	{"KEY_VOLUMEUP",	KEY_VOLUMEUP},
+	{"KEY_VOLUMEDOWN",	KEY_VOLUMEDOWN},
+	{"KEY_PAGEUP",		KEY_PAGEUP},
+	{"KEY_PAGEDOWN",	KEY_PAGEDOWN},
+	{"KEY_TV",			KEY_TV},
+	{"KEY_TEXT",		KEY_TEXT},
+	{"KEY_RADIO",		KEY_RADIO},
+	{"KEY_RED",			KEY_RED},
+	{"KEY_GREEN",		KEY_GREEN},
+	{"KEY_YELLOW",		KEY_YELLOW},
+	{"KEY_BLUE",		KEY_BLUE},
+	{"KEY_SAT",			KEY_SAT},
+	{"KEY_HELP",		KEY_HELP},
+	{"KEY_NEXT",		KEY_NEXT},
+	{"KEY_PREVIOUS",	KEY_PREVIOUS},
+	{"KEY_TIME", 		KEY_TIME},
+	{"KEY_AUDIO",		KEY_AUDIO},
+	{"KEY_REWIND",		KEY_REWIND},
+	{"KEY_FORWARD",		KEY_FORWARD},
+	{"KEY_PAUSE",		KEY_PAUSE},
+	{"KEY_RECORD",		KEY_RECORD},
+	{"KEY_STOP",		KEY_STOP},
+	{"KEY_PLAY",		KEY_PLAY}
 };
 
 // The code here is based on rcsim. Thx Carjay!
@@ -791,7 +791,6 @@ void CControlAPI::CryptCGI(CyhookHandler *hh)
 	}
 	//TODO: more
 }
-
 
 //-----------------------------------------------------------------------------
 void CControlAPI::ChannellistCGI(CyhookHandler *hh)
@@ -1177,7 +1176,6 @@ void CControlAPI::StartPluginCGI(CyhookHandler *hh)
 		}
 		else
 			hh->SendError();
-
 	}
 	else
 		hh->SendError();
@@ -1220,26 +1218,10 @@ void CControlAPI::SendChannelList(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::SendStreamInfo(CyhookHandler *hh)
 {
-
-	int bitInfo[10];
-	NeutrinoAPI->GetStreamInfo(bitInfo);
-	hh->printf("%d\n%d\n", bitInfo[0], bitInfo[1] );	//Resolution x y
-	hh->printf("%d\n", bitInfo[4]*50);			//Bitrate bit/sec
-
-	switch (bitInfo[2]) //format
-	{
-		case 2: hh->Write("4:3\n"); break;
-		case 3: hh->Write("16:9\n"); break;
-		case 4: hh->Write("2.21:1\n"); break;
-		default: hh->Write("unknown\n"); break;
-	}
-	switch (bitInfo[3]) //fps
-	{
-		case 3: hh->Write("25\n"); break;
-		case 6: hh->Write("50\n"); break;
-		default: hh->Write("unknown\n");
-	}
-	hh->WriteLn(NeutrinoAPI->audiotype_names[bitInfo[6]]);
+	hh->WriteLn(NeutrinoAPI->getVideoResolutionAsString());
+	hh->WriteLn(NeutrinoAPI->getVideoAspectRatioAsString());
+	hh->WriteLn(NeutrinoAPI->getVideoFramerateAsString());
+	hh->WriteLn(NeutrinoAPI->getAudioInfoAsString());
 }
 
 //-----------------------------------------------------------------------------
@@ -1629,7 +1611,6 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 
 	if(((int)rep) >= ((int)CTimerd::TIMERREPEAT_WEEKDAYS) && hh->ParamList["wd"] != "")
 		NeutrinoAPI->Timerd->getWeekdaysFromStr(&rep, hh->ParamList["wd"].c_str());
-#if 0 //FIXME
 	// apids
 	bool changeApids=false;
 	unsigned char apids=0;
@@ -1656,7 +1637,6 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 			apids |= TIMERD_APIDS_AC3;
 		}
 	}
-#endif
 	CTimerd::RecordingInfo recinfo;
 	CTimerd::EventInfo eventinfo;
 	eventinfo.epgID = 0;
@@ -1693,10 +1673,8 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 			_rec_dir = Config->getString("network_nfs_recordingdir", "/mnt/filme");
 			delete Config;//Memory leak: Config
 		}
-#if 0 //FIXME?
 		if(changeApids)
 			eventinfo.apids = apids;
-#endif
 		recinfo = eventinfo;
 		strncpy(recinfo.recordingDir, _rec_dir.c_str(), RECORD_DIR_MAXLEN-1);
 		data = &recinfo;
@@ -1930,7 +1908,7 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 	//url += (mode == CZapitClient::MODE_TV) ? ":31339/0," : ":31338/";
 	url += ":31339/0,";
 	url += xpids;
-printf("Live url: %s\n", url.c_str());
+
 	// response url
 	if(hh->ParamList["vlc_link"] !="")
 	{

@@ -4,10 +4,10 @@
 <body>
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Live_Timer-LiveView=}{=var-set:menu=LiveView PopUp=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Live_Timer-LiveView=}{=var-set:menu={=L:live.tv_popup_desc=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
-		Under Live-View do not zap channels direct by the web or by the dbox' RC.<br/>
-		<a href="Javascript:live_unlock();"><u>unlock</u></a>
+		{=L:live.live_popup_msg=}<br/>
+		<a href="Javascript:live_unlock();"><u>{=L:live.unlock=}</u></a>
 	</div>
 </div>
 </body>

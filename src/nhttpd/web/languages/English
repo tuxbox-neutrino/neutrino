@@ -128,6 +128,9 @@ bc.osd.shot=Shot
 bc.osd.delete_shots=Delete shots
 bc.osd.shap_wait_text=Take Snapshot
 
+========= Boxcontrol - Others
+bc.channels=Channels
+
 ====== EXtension
 ext.installer_updater=Installer/Updater
 ext.uninstaller=Extensions Uninstaller
@@ -149,6 +152,8 @@ ext.your=Your
 ext.update=Update
 ext.update_install=update/install
 ext.site=Site
+ext.refresh_now=Settings saved. Refreshing Menue now.
+ext.ext_saved=Extensions Settings saved
 
 ====== Bouquet
 bou.bouquet=Bouquet
@@ -309,6 +314,8 @@ set.nhttpd.cache=Cache
 set.nhttpd.cache_info=Cache info
 set.nhttpd.clear_cache=clear cache
 set.nhttpd.server_configuration=Server Configuration
+set.nhttpd.check_password=Password must have 4 letters at minimum
+set.nhttpd.check_port=Port is required
 
 =========Settings yWeb
 set.yweb.enter_ip_desc=enter IP (xxx.xxx.xxx.xxx)
@@ -427,6 +434,40 @@ live.transcode=transcode mode
 live.build_vlc=... build vlc control ...
 live.select_bouquet=select bouquet - channels will be updated
 live.select_channel=select channel - use go to zap
+live.live_popup_msg=Under Live-View do not zap channels direct by the web or by the box' RC.
+live.unlock=unlock RC
+
+=========== LIVE Record
+live.rec.record_mode=Record Mode
+live.rec.filename=Filename
+live.rec.display_on=Display on
+live.rec.transcoding_on=Transcoding on
+live.rec.record=Record
+live.rec.stop_record=Stop Record
+live.rec.tanscode=Record Transcode
+live.rec.profile=Profile
+live.rec.video=Video
+live.rec.width=Width
+live.rec.height=Height
+live.rec.codec=Codec
+live.rec.bitrate=Bitrate
+live.rec.scale=Scale
+live.rec.audio=Audio
+live.rec.channels=Channels
+live.rec.trans_broadcast=Transcode-Broadcast
+live.rec.access=Access
+live.rec.type=Type
+live.rec.ip_port=IP:Port
+
+=========== LIVE Settings
+live.set.vlc_settings=VLC Settings (IE &amp; Mozilla >= 0.8.6.1)
+live.set.deinterlace=Deinterlace
+live.set.http_caching=http caching
+live.set.udp_defaul=UDP as default
+live.set.slavebox_ip=Slave Box IP (2. dbox)
+live.set.enter_ip=enter IP (xxx.xxx.xxx.xxx) of slave-box
+live.set.vlc_rec_dir=VLC Recording Directory
+live.set.refresh_liveview=Refresh LiveView
 
 =========== LIVE Timer Edit
 live.timer_edit.timer=Timer
