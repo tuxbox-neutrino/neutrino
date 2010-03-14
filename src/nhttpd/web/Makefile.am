@@ -72,7 +72,6 @@ install_DATA =	channels.js \
 		Y_StreamInfo.yhtm \
 		Y_Timer_Edit.yhtm \
 		Y_Timer_List.yhtm \
-		Y_Timer_Menue.yhtm \
 		Y_Tools_Bootlogo.yhtm \
 		Y_Tools_Boxcontrol.yhtm \
 		Y_Tools_Check_Install.yhtm \
@@ -84,7 +83,6 @@ install_DATA =	channels.js \
 		Y_Tools_Installer.yhtm \
 		Y_Tools_lcshot.yhtm \
 		Y_Tools_Menue.yhtm \
-		Y_Tools_NetStream.yhtm \
 		Y_Tools_Rcsim.yhtm \
 		Y_Tools_remote_osd.yhtm  \
 		Y_Tools_Timer_Sync.js \
