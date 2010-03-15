@@ -222,6 +222,7 @@ colorchooser.red red
 colormenu.background Background
 colormenu.fade Fade menus
 colormenu.font Font size
+colormenu.font_ttx Teletext font
 colormenu.gtx_alpha Transparency (GTX)
 colormenu.head Color Settings
 colormenu.menucolors Menucolor
@@ -981,7 +982,7 @@ extra.zapit_menu Zapit options
 extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_save_last_chan Save last channel
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
-extra.zapit_fe_timeout Tune timeout
+extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
 extra.add_to_bouquet Add to bouquet
 extra.key_list_start home
 extra.key_list_end end

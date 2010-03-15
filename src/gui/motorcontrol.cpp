@@ -126,6 +126,8 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 			sat.position = sit->first;
 			strncpy(sat.satName, get_set.satNameNoDiseqc, 50);
 			satList.push_back(sat);
+			if(sit->second.motor_position)
+				motorPosition = sit->second.motor_position;
 			break;
 		}
 	}
@@ -154,7 +156,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	while (!istheend)
 	{
 
-		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(250);
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(100 /*250*/);
 		msg = CRCInput::RC_nokey;
 
 		while (!(msg == CRCInput::RC_timeout) && (!(msg == CRCInput::RC_home)))
@@ -166,13 +168,14 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 				if(last_snr < g_snr) {
 					wasgrow = 1;
 				}
-				//if((last_snr > g_snr) && last_snr > 37000) {
+				//if((last_snr > g_snr) && last_snr > 37000)
 				if(wasgrow && (last_snr > g_snr) && last_snr > 50) {
 //printf("Must stop rotor!!!\n");
 					g_Zapit->sendMotorCommand(0xE0, 0x31, 0x60, 0, 0, 0);
 					moving = 0;
 					paintStatus();
 					last_snr = 0;
+					g_Zapit->tune_TP(TP);
 				} else
 					last_snr = g_snr;
 			} else
@@ -195,6 +198,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						printf("[motorcontrol] left/1 key received... drive/Step motor west, stepMode: %d\n", stepMode);
 						motorStepWest();
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_red:
@@ -203,6 +207,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x60, 0, 0, 0);
 						moving = 0;
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_3:
@@ -210,6 +215,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						printf("[motorcontrol] right/3 key received... drive/Step motor east, stepMode: %d\n", stepMode);
 						motorStepEast();
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_4:
@@ -217,11 +223,13 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						if(g_settings.rotor_swap) lim_cmd = 0x66;
 						else lim_cmd = 0x67;
 						g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_5:
 						printf("[motorcontrol] 5 key received... disable (soft) limits\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x63, 0, 0, 0);
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_6:
@@ -229,6 +237,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						if(g_settings.rotor_swap) lim_cmd = 0x67;
 						else lim_cmd = 0x66;
 						g_Zapit->sendMotorCommand(0xE1, 0x31, lim_cmd, 0, 0, 0);
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_7:
@@ -236,16 +245,19 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6B, 1, 0, 0);
 						satellitePosition = 0;
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_8:
 						printf("[motorcontrol] 8 key received... enable (soft) limits\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, 0, 0);
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_9:
 						printf("[motorcontrol] 9 key received... (re)-calculate positions\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6F, 1, 0, 0);
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_plus:
@@ -297,12 +309,14 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						printf("[motorcontrol] left/1 key received... drive/Step motor west, stepMode: %d\n", stepMode);
 						motorStepWest();
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_red:
 					case CRCInput::RC_2:
 						printf("[motorcontrol] 2 key received... halt motor\n");
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x60, 0, 0, 0);
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_3:
@@ -310,12 +324,14 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						printf("[motorcontrol] right/3 key received... drive/Step motor east, stepMode: %d\n", stepMode);
 						motorStepEast();
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_green:
 					case CRCInput::RC_5:
 						printf("[motorcontrol] 5 key received... store present satellite number: %d\n", motorPosition);
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, motorPosition, 0);
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_6:
@@ -330,6 +346,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6B, 1, motorPosition, 0);
 						satellitePosition = 0;
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_9:
@@ -343,6 +360,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						printf("[motorcontrol] up key received... increase satellite position: %d\n", ++motorPosition);
 						satellitePosition = 0;
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_minus:
@@ -351,6 +369,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 						printf("[motorcontrol] down key received... decrease satellite position: %d\n", motorPosition);
 						satellitePosition = 0;
 						paintStatus();
+						g_Zapit->tune_TP(TP);
 						break;
 
 					case CRCInput::RC_blue:
@@ -375,6 +394,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	}
 
 	hide();
+	frontend->setTsidOnid(0);
 
 	return menu_return::RETURN_REPAINT;
 }

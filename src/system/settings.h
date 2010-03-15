@@ -432,6 +432,7 @@ struct SNeutrinoSettings
 	int	zap_cycle;
 	int	sms_channel;
 	char	font_file[100];
+	char	ttx_font_file[100];
 	char	update_dir[100];
 	// USERMENU
 	typedef enum

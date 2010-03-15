@@ -516,10 +516,23 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 			dvbsub_start(audio_map_it->second.subpid);
 #endif
 		dvbsub_setpid(audio_map_it->second.subpid);
-		tuxtx_set_pid(audio_map_it->second.ttxpid, audio_map_it->second.ttxpage);
+
+		std::string tmplang;
+		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
+			CZapitAbsSub* s = channel->getChannelSub(i);
+			if(s->pId == audio_map_it->second.ttxpid) {
+				tmplang = s->ISO639_language_code;
+				break;
+			}
+		}
+		if(tmplang.empty())
+			tuxtx_set_pid(audio_map_it->second.ttxpid, audio_map_it->second.ttxpage, (char *) channel->getTeletextLang());
+		else
+			tuxtx_set_pid(audio_map_it->second.ttxpid, audio_map_it->second.ttxpage, (char *) tmplang.c_str());
         } else {
                 volume_left = volume_right = def_volume_left;
                 audio_mode = def_audio_mode;
+		tuxtx_set_pid(0, 0, (char *) channel->getTeletextLang());
         }
         if(audioDecoder) {
                 //audioDecoder->setVolume(volume_left, volume_right);
@@ -530,6 +543,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 		startPlayBack(channel);
 
 	printf("[zapit] sending capmt....\n");
+
 	/* currently, recording always starts after zap to channel.
 	 * if we not in record mode, we just send new pmt over cam0,
 	 * if mode is recording, we zapping from or back to recording channel.

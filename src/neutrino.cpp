@@ -725,6 +725,8 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 #define DEFAULT_Y_START 20
 #define DEFAULT_X_END   1220
 #define DEFAULT_Y_END   560
+std::string ttx_font_file = "";
+
 int CNeutrinoApp::loadSetup(const char * fname)
 {
 	char cfg_key[81];
@@ -1064,6 +1066,8 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	strcpy(g_settings.softupdate_proxypassword, configfile.getString("softupdate_proxypassword", "" ).c_str());
 //
 	strcpy( g_settings.font_file, configfile.getString( "font_file", FONTDIR"/neutrino.ttf" ).c_str() );
+	strcpy( g_settings.ttx_font_file, configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf" ).c_str() );
+	ttx_font_file = g_settings.ttx_font_file;
 	strcpy( g_settings.update_dir, configfile.getString( "update_dir", "/tmp" ).c_str() );
 	//BouquetHandling
 	g_settings.bouquetlist_mode = configfile.getInt32( "bouquetlist_mode", 0 );
@@ -1554,6 +1558,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 #endif
 	configfile.setString("update_dir", g_settings.update_dir);
 	configfile.setString("font_file", g_settings.font_file);
+	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
 	//BouquetHandling
 	configfile.setInt32( "bouquetlist_mode", g_settings.bouquetlist_mode );
 
@@ -3600,6 +3605,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
 		dprintf(DEBUG_INFO, "exit\n");
+		StopSubtitles();
 		g_Zapit->stopPlayBack();
 
 		frameBuffer->paintBackground();
@@ -4147,6 +4153,7 @@ printf("CNeutrinoApp::startNextRecording: start to dir %s\n", recordingDir);
 *          CNeutrinoApp -  exec, menuitem callback (shutdown)                         *
 **************************************************************************************/
 void SaveMotorPositions();
+
 int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	//	printf("ac: %s\n", actionKey.c_str());
@@ -4423,6 +4430,20 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 		if (fileBrowser.exec(FONTDIR) == true) {
 			strcpy(g_settings.font_file, fileBrowser.getSelectedFile()->Name.c_str());
 			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+			SetupFonts();
+		}
+		return menu_return::RETURN_REPAINT;
+	}
+	else if(actionKey == "ttx_font") {
+		parent->hide();
+		CFileBrowser fileBrowser;
+		CFileFilter fileFilter;
+		fileFilter.addFilter("ttf");
+		fileBrowser.Filter = &fileFilter;
+		if (fileBrowser.exec(FONTDIR) == true) {
+			strcpy(g_settings.ttx_font_file, fileBrowser.getSelectedFile()->Name.c_str());
+			ttx_font_file = fileBrowser.getSelectedFile()->Name;
+			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
 			SetupFonts();
 		}
 		return menu_return::RETURN_REPAINT;
@@ -4961,7 +4982,7 @@ void CNeutrinoApp::SelectSubtitles()
 						int page = ((sd->teletext_magazine_number & 0xFF) << 8) | sd->teletext_page_number;
 						printf("CNeutrinoApp::SelectSubtitles: found TTX %s, pid %x page %03X\n", sd->ISO639_language_code.c_str(), sd->pId, page);
 						tuxtx_stop_subtitle();
-						tuxtx_set_pid(sd->pId, page);
+						tuxtx_set_pid(sd->pId, page, (char *) sd->ISO639_language_code.c_str());
 						return;
 					}
 				}

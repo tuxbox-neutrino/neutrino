@@ -140,6 +140,7 @@ class CZapitChannel
 		/* from neutrino CChannel class */
 		uint64_t      last_unlocked_EPGid;
 
+		std::string ttx_language_code;
 		friend class CChannelList;
 
 	public:
@@ -174,6 +175,7 @@ class CZapitChannel
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
 		unsigned short		getPmtPid(void)			{ return pmtPid; }
 		unsigned short		getTeletextPid(void)		{ return teletextPid; }
+		const char *		getTeletextLang(void)		{ return ttx_language_code.c_str(); }
 		unsigned short		getVideoPid(void)		{ return videoPid; }
 		unsigned short		getPrivatePid(void)		{ return privatePid; }
 		unsigned short		getPreAudioPid(void)		{ return audioPid; }
@@ -193,6 +195,7 @@ class CZapitChannel
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
 		void setTeletextPid(unsigned short pTeletextPid)	{ teletextPid = pTeletextPid; }
+		void setTeletextLang(char * lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }
 		void setAudioPid(unsigned short pAudioPid)		{ audioPid = pAudioPid; }
 		void setPrivatePid(unsigned short pPrivatePid)		{ privatePid = pPrivatePid; }

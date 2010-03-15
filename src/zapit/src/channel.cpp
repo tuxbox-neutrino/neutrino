@@ -41,6 +41,7 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	//currentEvent = NULL;
 	pmtPid = 0;
 	resetPids();
+	ttx_language_code = "";
 //printf("NEW CHANNEL %s %x\n", name.c_str(), this);
 }
 

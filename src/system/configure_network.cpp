@@ -29,10 +29,28 @@
 CNetworkConfig::CNetworkConfig(void)
 {
 	char our_nameserver[16];
+
 	netGetNameserver(our_nameserver);
 	nameserver = our_nameserver;
 	inet_static = getInetAttributes("eth0", automatic_start, address, netmask, broadcast, gateway);
+
+	init_vars();
 	copy_to_orig();
+}
+
+void CNetworkConfig::init_vars(void)
+{
+	char mask[16];
+	char _broadcast[16];
+	char router[16];
+	char ip[16];
+
+	netGetDefaultRoute(router);
+	gateway = router;
+	netGetIP((char *) "eth0", ip, mask, _broadcast);
+	netmask = mask;
+	broadcast = _broadcast;
+	address = ip;
 }
 
 void CNetworkConfig::copy_to_orig(void)
@@ -108,6 +126,9 @@ int mysystem(char * cmd, char * arg1, char * arg2)
 void CNetworkConfig::startNetwork(void)
 {
 	system("/sbin/ifup -v eth0");
+	if (!inet_static) {
+		init_vars();
+	}
 	//mysystem((char *) "ifup",  (char *) "-v",  (char *) "eth0");
 }
 

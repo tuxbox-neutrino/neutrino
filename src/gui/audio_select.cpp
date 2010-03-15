@@ -145,7 +145,7 @@ int CAudioSelectMenuHandler::doMenu ()
 				char spid[10];
 				int page = ((sd->teletext_magazine_number & 0xFF) << 8) | sd->teletext_page_number;
 				int pid = sd->pId;
-				sprintf(spid, "TTX:%d:%03X", sd->pId, page); 
+				sprintf(spid, "TTX:%d:%03X:%s", sd->pId, page, sd->ISO639_language_code.c_str()); 
 				char item[64];
 				sprintf(item, "TTX: %s (pid %x page %03X)", sd->ISO639_language_code.c_str(), sd->pId, page);
 				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,

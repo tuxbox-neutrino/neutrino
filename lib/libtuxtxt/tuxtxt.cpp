@@ -21,10 +21,19 @@
 
 extern cVideo * videoDecoder;
 
+static pthread_t ttx_sub_thread;
+static int reader_running;
+static int ttx_paused;
+static int ttx_req_pause;
+static int sub_pid, sub_page;
+static bool use_gui;
+static int cfg_national_subset;
+
+#define USE_FBPAN // FBIOPAN_DISPLAY seems to be working in current driver
+
 void FillRect(int x, int y, int w, int h, int color)
 {
 	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length;
-#if 1
 	unsigned int col = bgra[color][3] << 24 | bgra[color][2] << 16 | bgra[color][1] << 8 | bgra[color][0];
 	if (w > 0)
 		for (int count = 0; count < h; count++) {
@@ -33,18 +42,6 @@ void FillRect(int x, int y, int w, int h, int color)
 				*(dest0++) = col;
 			p += fix_screeninfo.line_length;
 		}
-#else
-	int xtmp;
-	if (w > 0)
-		for ( ; h > 0 ; h--)
-		{
-			for (xtmp=0; xtmp<=w; xtmp++)
-			{
-				memcpy(p+xtmp*4,bgra[color],4);
-			}
-			p += fix_screeninfo.line_length;
-		}
-#endif
 }
 
 void FillBorder(int color)
@@ -222,21 +219,19 @@ void RenderClearMenuLineBB(char *p, tstPageAttr *attrcol, tstPageAttr *attr)
 
 void ClearBB(int color)
 {
-	FillRect(0,(var_screeninfo.yres-var_screeninfo.yoffset),var_screeninfo.xres,var_screeninfo.yres, color);
-	//FillRect(0,(var_screeninfo.yres-var_screeninfo.yoffset),fix_screeninfo.line_length,var_screeninfo.yres, color);
+	FillRect(0, (var_screeninfo.yres - var_screeninfo.yoffset), var_screeninfo.xres, var_screeninfo.yres, color);
 }
 
 void ClearFB(int /*color*/)
 {
-	memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
-	//FillRect(0,var_screeninfo.yoffset,fix_screeninfo.line_length,var_screeninfo.yres,color);
+	//memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
+	CFrameBuffer::getInstance()->paintBackground();
 }
 
 void ClearB(int color)
 {
 	FillRect(0,0,var_screeninfo.xres,var_screeninfo.yres*2,color);
 }
-
 
 int  GetCurFontWidth()
 {
@@ -277,7 +272,6 @@ void setfontwidth(int newwidth)
 	}
 }
 
-
 void setcolors(unsigned short *pcolormap, int offset, int number)
 {
 	int i,trans_tmp;
@@ -305,7 +299,6 @@ void setcolors(unsigned short *pcolormap, int offset, int number)
 	}
 }
 
-
 /* hexdump of page contents to stdout for debugging */
 void dump_page()
 {
@@ -328,7 +321,6 @@ void dump_page()
 		printf("\n");
 	}
 }
-
 
 /* get object data */
 /* in: absolute triplet number (0..506, start at packet 3 byte 1) */
@@ -1467,27 +1459,30 @@ void eval_l25()
 			}
 		}
 
-		if (boxed || transpmode)
-//			FullScrColor = transp;
+		if (boxed || transpmode) {
 			FillBorder(transp);
-		else
+		} else if(use_gui) {
 			FillBorder(FullScrColor);
+		}
 		if (colortable) /* as late as possible to shorten the time the old page is displayed with the new colors */
 			setcolors(colortable, 16, 16); /* set colors for CLUTs 2+3 */
 	} /* is_dec(page) */
-
 }
 
 /******************************************************************************
  * main loop                                                                  *
  ******************************************************************************/
-
-static pthread_t ttx_sub_thread;
-static int reader_running;
-static int ttx_paused;
-static int ttx_req_pause;
-static int sub_pid, sub_page;
-static bool use_gui;
+static void cleanup_fb_pan()
+{
+#ifdef USE_FBPAN
+	if (var_screeninfo.yoffset)
+	{
+		var_screeninfo.yoffset = 0;
+		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
+			perror("TuxTxt <FBIOPAN_DISPLAY>");
+	}
+#endif
+}
 
 static void* reader_thread(void * /*arg*/)
 {
@@ -1506,6 +1501,7 @@ static void* reader_thread(void * /*arg*/)
 	}
 	if(!ttx_paused)
 		CleanUp();
+	cleanup_fb_pan();
 	tuxtxt_close();
 	printf("TuxTxt subtitle thread stopped\n");
 	pthread_exit(NULL);
@@ -1527,6 +1523,7 @@ void tuxtx_pause_subtitle(bool pause)
 		while(!ttx_paused)
 			usleep(10);
 		printf("TuxTxt subtitle paused\n");
+		cleanup_fb_pan();
 	}
 }
 
@@ -1541,14 +1538,16 @@ void tuxtx_stop_subtitle()
 	ttx_paused = 0;
 }
 
-void tuxtx_set_pid(int pid, int page)
+void tuxtx_set_pid(int pid, int page, char * cc)
 {
 	if(reader_running)
 		tuxtx_stop_subtitle();
 
 	sub_pid = pid;
 	sub_page = page;
-	printf("TuxTxt subtitle set pid %d page %d\n", sub_pid, sub_page);
+
+	cfg_national_subset = GetNationalSubset(cc);
+	printf("TuxTxt subtitle set pid %d page %d lang %s (%d)\n", sub_pid, sub_page, cc, cfg_national_subset);
 #if 0
 	ttx_paused = 1;
 	if(sub_pid && sub_page)
@@ -1578,6 +1577,7 @@ int tuxtx_main(int _rc, int pid, int page)
 	char cvs_revision[] = "$Revision: 1.95 $";
 
 	use_gui = 1;
+	boxed = 0;
 //printf("to init tuxtxt\n");fflush(stdout);
 #if !TUXTXT_CFG_STANDALONE
 	int initialized = tuxtxt_init();
@@ -1587,6 +1587,7 @@ int tuxtx_main(int _rc, int pid, int page)
 		sub_page = tuxtxt_cache.page = page;
 		sub_pid = pid;
 		use_gui = 0;
+		boxed = 1;
 	}
 #endif
 
@@ -1645,7 +1646,8 @@ int tuxtx_main(int _rc, int pid, int page)
 	ex = x + w - tx;
 	sy = y;
 	ey = y + h;
-printf("[tuxtxt] screen is %dx%d at %dx%d border %d\n", ex-sx, ey-sy, sx, sy, tx);
+
+	printf("[tuxtxt] screen is %dx%d at %dx%d border %d\n", ex-sx, ey-sy, sx, sy, tx);
 	/* initialisations */
 	transpmode = 0;
 
@@ -1796,10 +1798,6 @@ printf("[tuxtxt] screen is %dx%d at %dx%d border %d\n", ex-sx, ey-sy, sx, sy, tx
 	/* exit */
 	CleanUp();
 
-#if 0
-	close(rc);
-	close(lcd);
-#endif
 	close(fb);
 
 #if 1
@@ -1834,16 +1832,17 @@ FT_Error MyFaceRequester(FTC_FaceID face_id, FT_Library plibrary, FT_Pointer /*r
 /******************************************************************************
  * Init                                                                       *
  ******************************************************************************/
-
+extern std::string ttx_font_file;
+static bool ft_init_done = false;
 int Init()
 {
 	int error, i;
 	unsigned char magazine;
+	static std::string font_file;
 
 	/* init data */
 
-
- 	//page_atrb[32] = transp<<4 | transp;
+	//page_atrb[32] = transp<<4 | transp;
 	inputcounter  = 2;
 
 	for (magazine = 1; magazine < 9; magazine++)
@@ -1852,7 +1851,7 @@ int Init()
 		tuxtxt_cache.current_subpage [magazine] = -1;
 	}
 #if TUXTXT_CFG_STANDALONE
-/* init data */
+	/* init data */
 	memset(&tuxtxt_cache.astCachetable, 0, sizeof(tuxtxt_cache.astCachetable));
 	memset(&tuxtxt_cache.subpagetable, 0xFF, sizeof(tuxtxt_cache.subpagetable));
 	memset(&tuxtxt_cache.astP29, 0, sizeof(tuxtxt_cache.astP29));
@@ -1878,7 +1877,7 @@ int Init()
 	next_10    = 0x100;
 	tuxtxt_cache.subpage    = tuxtxt_cache.subpagetable[tuxtxt_cache.page];
 	if (tuxtxt_cache.subpage == 0xff)
-	tuxtxt_cache.subpage    = 0;
+		tuxtxt_cache.subpage    = 0;
 
 	tuxtxt_cache.pageupdate = 0;
 
@@ -1896,8 +1895,8 @@ int Init()
 	screen_mode2 = 0;
 	color_mode   = 10;
 	trans_mode   = 10;
-	menulanguage = 0;	/* german */
-	national_subset = 0;/* default */
+	menulanguage = 1;	/* english */
+	/*national_subset = 0;*//* default */
 	auto_national   = 1;
 	swapupdown      = 0;
 	showhex         = 0;
@@ -1905,7 +1904,7 @@ int Init()
 	show39          = 1;
 	showl25         = 1;
 	dumpl25         = 0;
-	usettf          = 0;
+	usettf          = 1;
 	TTFWidthFactor16  = 28;
 	TTFHeightFactor16 = 16;
 	TTFShiftX         = 0;
@@ -1987,31 +1986,7 @@ int Init()
 	savedscreenmode = screenmode;
 	national_subset_secondary = NAT_DEFAULT;
 
-
-	/* init fontlibrary */
-	if ((error = FT_Init_FreeType(&library)))
-	{
-		printf("TuxTxt <FT_Init_FreeType: 0x%.2X>", error);
-		return 0;
-	}
-
-	if ((error = FTC_Manager_New(library, 7, 2, 0, &MyFaceRequester, NULL, &manager)))
-	{
-		FT_Done_FreeType(library);
-		printf("TuxTxt <FTC_Manager_New: 0x%.2X>\n", error);
-		return 0;
-	}
-
-	if ((error = FTC_SBitCache_New(manager, &cache)))
-	{
-		FTC_Manager_Done(manager);
-		FT_Done_FreeType(library);
-		printf("TuxTxt <FTC_SBitCache_New: 0x%.2X>\n", error);
-		return 0;
-	}
-
 	fontwidth = 0;	/* initialize at first setting */
-
 
 	/* calculate font dimensions */
 	displaywidth = (ex-sx);
@@ -2037,6 +2012,7 @@ int Init()
 	StartX = sx; //+ (((ex-sx) - 40*fontwidth) / 2);
 	StartY = sy + (((ey-sy) - 25*fontheight) / 2);
 
+#if 0
 	if (usettf)
 	{
 		typettf.face_id = (FTC_FaceID) TUXTXTTTFVAR;
@@ -2062,67 +2038,76 @@ int Init()
 			return 0;
 		}
 	}
-	ascender = (usettf ? fontheight * face->ascender / face->units_per_EM : 16);
+#endif
+	if(!ft_init_done || font_file != ttx_font_file) {
+		printf("TuxTxt: init fontlibrary\n");
+		if(ft_init_done) {
+			FTC_Manager_Done(manager);
+			FT_Done_FreeType(library);
+			ft_init_done = false;
+		}
+		/* init fontlibrary */
+		if ((error = FT_Init_FreeType(&library)))
+		{
+			printf("TuxTxt <FT_Init_FreeType: 0x%.2X>", error);
+			return 0;
+		}
+
+		if ((error = FTC_Manager_New(library, 7, 2, 1024*1024, &MyFaceRequester, NULL, &manager)))
+		{
+			FT_Done_FreeType(library);
+			printf("TuxTxt <FTC_Manager_New: 0x%.2X>\n", error);
+			return 0;
+		}
+
+		if ((error = FTC_SBitCache_New(manager, &cache)))
+		{
+			FTC_Manager_Done(manager);
+			FT_Done_FreeType(library);
+			printf("TuxTxt <FTC_SBitCache_New: 0x%.2X>\n", error);
+			return 0;
+		}
+
+		if (usettf) {
+			printf("TuxTxt: using font %s\n", ttx_font_file.c_str());
+			typettf.face_id = (FTC_FaceID) ttx_font_file.c_str();
+			typettf.height = (FT_UShort) fontheight * TTFHeightFactor16 / 16;
+		} else {
+			typettf.face_id = (FTC_FaceID) TUXTXTOTB;
+			typettf.width  = (FT_UShort) 23;
+			typettf.height = (FT_UShort) 23;
+		}
+
+		typettf.flags = FT_LOAD_MONOCHROME;
+
+		if ((error = FTC_Manager_LookupFace(manager, typettf.face_id, &face)))
+		{
+			printf("TuxTxt <FTC_Manager_LookupFace failed with Errorcode 0x%.2X>\n", error);
+			FTC_Manager_Done(manager);
+			FT_Done_FreeType(library);
+			return 0;
+		}
+		font_file = ttx_font_file;
+		ft_init_done = true;
+
+		ascender = (usettf ? fontheight * face->ascender / face->units_per_EM : 16);
+	}
 #if TUXTXT_DEBUG
 	printf("TuxTxt <fh%d fw%d fs%d tm%d ts%d ym%d %d %d sx%d sy%d a%d>\n",
-			 fontheight, fontwidth, fontwidth_small, fontwidth_topmenumain, fontwidth_topmenusmall,
-			 ymosaic[0], ymosaic[1], ymosaic[2], StartX, StartY, ascender);
+			fontheight, fontwidth, fontwidth_small, fontwidth_topmenumain, fontwidth_topmenusmall,
+			ymosaic[0], ymosaic[1], ymosaic[2], StartX, StartY, ascender);
 #endif
 
-#if 0
-	/* get fixed screeninfo */
-	if (ioctl(fb, FBIOGET_FSCREENINFO, &fix_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_FSCREENINFO>");
-		return 0;
-	}
-
-	/* get variable screeninfo */
-	if (ioctl(fb, FBIOGET_VSCREENINFO, &var_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_VSCREENINFO>");
-		return 0;
-	}
-
-	/* set variable screeninfo for double buffering */
-	var_screeninfo.yoffset      = 0;
-#endif
-#if 0
-	var_screeninfo.yres_virtual = 2*var_screeninfo.yres;
-	var_screeninfo.xres_virtual = var_screeninfo.xres;
-
-	if (ioctl(fb, FBIOPUT_VSCREENINFO, &var_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOPUT_VSCREENINFO>");
-		return 0;
-	}
-
-	if (ioctl(fb, FBIOGET_VSCREENINFO, &var_screeninfo) == -1)
-	{
-		perror("TuxTxt <FBIOGET_VSCREENINFO>");
-		return 0;
-	}
-#endif
 #if TUXTXT_DEBUG
 	printf("TuxTxt <screen real %d*%d, virtual %d*%d, offset %d>\n",
-	       var_screeninfo.xres, var_screeninfo.yres,
-	       var_screeninfo.xres_virtual, var_screeninfo.yres_virtual,
-	       var_screeninfo.yoffset);
+			var_screeninfo.xres, var_screeninfo.yres,
+			var_screeninfo.xres_virtual, var_screeninfo.yres_virtual,
+			var_screeninfo.yoffset);
 #endif
-
 
 	/* set new colormap */
 	setcolors((unsigned short *)defaultcolors, 0, SIZECOLTABLE);
-#if 0
-	/* map framebuffer into memory */
-	lfb = (unsigned char*)mmap(0, fix_screeninfo.smem_len, PROT_READ | PROT_WRITE, MAP_SHARED, fb, 0);
 
-	if (!lfb)
-	{
-		perror("TuxTxt <mmap>");
-		return 0;
-	}
-#endif
 	ClearBB(transp); /* initialize backbuffer */
 	for (i = 0; i < 40 * 25; i++)
 	{
@@ -2143,7 +2128,6 @@ int Init()
 		{
 			FTC_Manager_Done(manager);
 			FT_Done_FreeType(library);
-			//munmap(lfb, fix_screeninfo.smem_len);
 			return 0;
 		}
 
@@ -2162,7 +2146,11 @@ int Init()
 	{
 		SDT_ready = 0;
 		getpidsdone = 0;
-//		tuxtxt_cache.pageupdate = 1; /* force display of message page not found (but not twice) */
+		//getpidsdone = GetTeletextPIDs(false);
+		if(auto_national && cfg_national_subset)
+			national_subset = cfg_national_subset;
+		printf("Tuxtxt: national_subset %d (cfg %d)\n", national_subset, cfg_national_subset);
+		//		tuxtxt_cache.pageupdate = 1; /* force display of message page not found (but not twice) */
 
 	}
 #if TUXTXT_CFG_STANDALONE
@@ -2173,7 +2161,12 @@ int Init()
 #endif
 	fcntl(rc, F_SETFL, O_NONBLOCK);
 	gethotlist();
-	SwitchScreenMode(screenmode);
+
+	if(use_gui)
+		SwitchScreenMode(screenmode);
+	else
+		SwitchScreenMode(0);
+
 	prevscreenmode = screenmode;
 
 	printf("TuxTxt: init ok\n");
@@ -2205,12 +2198,17 @@ void CleanUp()
 	//tuxtxt_stop();
 #endif
 
-	memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
+#ifdef USE_FBPAN
+	cleanup_fb_pan();
+#endif
+	//memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
+	CFrameBuffer::getInstance()->paintBackground();
 
+#if 0
 	/* close freetype */
 	FTC_Manager_Done(manager);
 	FT_Done_FreeType(library);
-
+#endif
 	if (hotlistchanged)
 		savehotlist();
 
@@ -2348,13 +2346,15 @@ int GetTeletextPIDs()
 							pid_table[pids_found].national_subset = NAT_DEFAULT; /* use default charset */
 						}
 
-#if TUXTXT_DEBUG
-						printf("TuxTxt <Service %04x Country code \"%3s\" national subset %2d%s>\n",
-								 pid_table[pids_found].service_id,
-								 country_code,
-								 pid_table[pids_found].national_subset,
-								 (pid_table[pids_found].vtxt_pid == tuxtxt_cache.vtxtpid) ? " * " : ""
-								 );
+#if 1 // TUXTXT_DEBUG
+						printf("TuxTxt <Service #%d %04x pid %04x Country code \"%3s\" national subset %2d%s>\n",
+								pids_found,
+								pid_table[pids_found].service_id,
+								pid_table[pids_found].vtxt_pid,
+								country_code,
+								pid_table[pids_found].national_subset,
+								(pid_table[pids_found].vtxt_pid == tuxtxt_cache.vtxtpid) ? " * " : ""
+						      );
 #endif
 
 						pids_found++;
@@ -2412,6 +2412,7 @@ skip_pid:
 					diff = 0;
 					pid_table[pid_test].service_name_len = bufSDT[sdt_scan+9 + bufSDT[sdt_scan+8]];
 
+					//FIXME ??
 					for (byte = 0; byte < pid_table[pid_test].service_name_len; byte++)
 					{
 						if (bufSDT[sdt_scan+10 + bufSDT[sdt_scan + 8] + byte] == (unsigned char)'Ä')
@@ -2447,11 +2448,15 @@ skip_pid:
 
 	if (tuxtxt_cache.vtxtpid != 0)
 	{
-		while (pid_table[current_service].vtxt_pid != tuxtxt_cache.vtxtpid && current_service < pids_found)
+		while (pid_table[current_service].vtxt_pid != tuxtxt_cache.vtxtpid && current_service < pids_found) {
 			current_service++;
+		}
 
-		if (auto_national && current_service < pids_found)
+		if (auto_national && current_service < pids_found) {
 			national_subset = pid_table[current_service].national_subset;
+			printf("Tuxtxt: GetTeletextPIDs set national_subset -> %d\n", national_subset);
+		}
+		printf("Tuxtxt: GetTeletextPIDs national_subset %d\n", national_subset);
 		RenderMessage(ShowServiceName);
 	}
 
@@ -2470,43 +2475,43 @@ int GetNationalSubset(char *cc)
 {
         if (memcmp(cc, "cze", 3) == 0 || memcmp(cc, "ces", 3) == 0 ||
             memcmp(cc, "slo", 3) == 0 || memcmp(cc, "slk", 3) == 0)
-                return 0;
+                return NAT_CZ;
         if (memcmp(cc, "eng", 3) == 0)
-                return 1;
+                return NAT_UK;
         if (memcmp(cc, "est", 3) == 0)
-                return 2;
+                return NAT_ET;
         if (memcmp(cc, "fre", 3) == 0 || memcmp(cc, "fra", 3) == 0)
-                return 3;
+                return NAT_FR;
         if (memcmp(cc, "ger", 3) == 0 || memcmp(cc, "deu", 3) == 0)
-                return 4;
+                return NAT_DE;
         if (memcmp(cc, "ita", 3) == 0)
-                return 5;
+                return NAT_IT;
         if (memcmp(cc, "lav", 3) == 0 || memcmp(cc, "lit", 3) == 0)
-                return 6;
+                return NAT_LV;
         if (memcmp(cc, "pol", 3) == 0)
-                return 7;
+                return NAT_PL;
         if (memcmp(cc, "spa", 3) == 0 || memcmp(cc, "por", 3) == 0)
-                return 8;
+                return NAT_SP;
         if (memcmp(cc, "rum", 3) == 0 || memcmp(cc, "ron", 3) == 0)
-                return 9;
+                return NAT_RO;
         if (memcmp(cc, "scc", 3) == 0 || memcmp(cc, "srp", 3) == 0 ||
             memcmp(cc, "scr", 3) == 0 || memcmp(cc, "hrv", 3) == 0 ||
             memcmp(cc, "slv", 3) == 0)
-                return 10;
+                return NAT_SR;
         if (memcmp(cc, "swe", 3) == 0 ||
             memcmp(cc, "dan", 3) == 0 ||
             memcmp(cc, "nor", 3) == 0 ||
             memcmp(cc, "fin", 3) == 0 ||
             memcmp(cc, "hun", 3) == 0)
-                return 11;
+                return NAT_SW;
         if (memcmp(cc, "tur", 3) == 0)
-                return 12;
+                return NAT_TR;
         if (memcmp(cc, "rus", 3) == 0 || memcmp(cc, "bul", 3) == 0)
-            return NAT_RB;
+		return NAT_RB;
         if (memcmp(cc, "ser", 3) == 0 || memcmp(cc, "cro", 3) == 0)
-            return NAT_SC;
+		return NAT_SC;
         if (memcmp(cc, "ukr", 3) == 0)
-                return NAT_UA;
+		return NAT_UA;
         if (memcmp(cc, "gre", 3) == 0)
                 return NAT_GR;
         if (memcmp(cc, "heb", 3) == 0)
@@ -2716,7 +2721,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 	memset(&menu[Menu_Width*MenuLine[M_TRA] + 3+trans_mode  ], 0x20,24-trans_mode);
 
 	memcpy(&menu[Menu_Width*MenuLine[M_AUN] + Menu_Width - 5], &configonoff[menulanguage][auto_national ? 3 : 0], 3);
-	if (national_subset != NAT_DE)
+	/*if (national_subset != NAT_DE)*/
 		memcpy(&menu[Menu_Width*MenuLine[M_NAT] + 2], &countrystring[national_subset*COUNTRYSTRING_WIDTH], COUNTRYSTRING_WIDTH);
 	if (national_subset == 0  || auto_national)
 		menu[MenuLine[M_NAT]*Menu_Width +  1] = ' ';
@@ -2749,7 +2754,6 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 
 void ConfigMenu(int Init)
 {
-printf("[tuxtxt] Menu\n");
 	int val, menuitem = M_Start;
 	int current_pid = 0;
 	int hotindex;
@@ -2759,8 +2763,9 @@ printf("[tuxtxt] Menu\n");
 	char menu[Menu_Height*Menu_Width];
 
 	if (auto_national && tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage] &&
-		tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage]->pageinfo.nationalvalid)
+		tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage]->pageinfo.nationalvalid) {
 		national_subset = countryconversiontable[tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage]->pageinfo.national];
+	}
 
 	if (getpidsdone)
 	{
@@ -2791,6 +2796,15 @@ printf("[tuxtxt] Menu\n");
 
 	/* clear framebuffer */
 	ClearFB(transp);
+
+	//FIXME this is hack. sometimes menu appear over txt page -> FB pan problem ?
+	int old_pagecatching = pagecatching;
+	pagecatching = 1;
+	ClearBB(transp);
+	CopyBB2FB();
+	pagecatching = old_pagecatching;
+	// hack end
+
 	clearbbcolor = black;
 	Menu_Init(menu, current_pid, menuitem, hotindex);
 
@@ -3277,7 +3291,6 @@ printf("[tuxtxt] Menu\n");
 						RCCode = -1;
 						if (oldscreenmode)
 							SwitchScreenMode(oldscreenmode); /* restore divided screen */
-printf("[tuxtxt] Menu return from M_PID\n");
 						transpmode = oldtrans;
 						return;
 					}
@@ -3343,6 +3356,8 @@ printf("[tuxtxt] Menu return from M_PID\n");
 		UpdateLCD(); /* update number of cached pages */
 	} while ((RCCode != RC_HOME) && (RCCode != RC_DBOX) && (RCCode != RC_MUTE));
 
+	ClearBB(transp);
+	CopyBB2FB();
 	/* reset to nonblocking mode */
 	fcntl(rc, F_SETFL, O_NONBLOCK);
 	tuxtxt_cache.pageupdate = 1;
@@ -3350,7 +3365,6 @@ printf("[tuxtxt] Menu return from M_PID\n");
 	if (oldscreenmode)
 		SwitchScreenMode(oldscreenmode); /* restore divided screen */
 	transpmode = oldtrans;
-printf("[tuxtxt] Menu return\n");
 }
 
 /******************************************************************************
@@ -3864,13 +3878,12 @@ void SwitchScreenMode(int newscreenmode)
 	/* reset transparency mode */
 	if (transpmode)
 		transpmode = 0;
-		//transpmode = 1; //NEW
 
 	if (newscreenmode < 0) /* toggle mode */
 		screenmode++;
 	else /* set directly */
 		screenmode = newscreenmode;
-//	if ((screenmode > (screen_mode2 ? 2 : 1)) || (screenmode < 0))
+
 	if ((screenmode > 2) || (screenmode < 0))
 		screenmode = 0;
 
@@ -3883,7 +3896,9 @@ void SwitchScreenMode(int newscreenmode)
 
 	/* clear back buffer */
 	clearbbcolor = screenmode?transp:static_cast<int>(FullScrColor);
-	ClearBB(clearbbcolor);
+
+	if(use_gui)
+		ClearBB(clearbbcolor);
 
 	/* set mode */
 	if (screenmode)								 /* split */
@@ -3940,7 +3955,6 @@ void SwitchScreenMode(int newscreenmode)
 		videoDecoder->Pig(-1, -1, -1, -1);
 
 		int x = CFrameBuffer::getInstance()->getScreenX();
-		int y = CFrameBuffer::getInstance()->getScreenY();
 		int w = CFrameBuffer::getInstance()->getScreenWidth();
 		int h = CFrameBuffer::getInstance()->getScreenHeight();
 
@@ -4861,7 +4875,8 @@ void RenderMessage(int Message)
 	int fbcolor, timecolor, imenuatr;
 	int pagecolumn;
 	const char *msg;
-
+	int national_subset_back = national_subset;
+	national_subset = menusubset[menulanguage];
 
 /*                     00000000001111111111222222222233333333334 */
 /*                     01234567890123456789012345678901234567890 */
@@ -4955,6 +4970,7 @@ void RenderMessage(int Message)
 	PosY = StartY + fontheight*21;
 	for (byte = 0; byte < 38; byte++)
 		RenderCharFB(message_6[byte], &atrtable[imenuatr + 2]);
+	national_subset = national_subset_back;
 }
 
 /******************************************************************************
@@ -5155,10 +5171,10 @@ void RenderPage()
 			 national_subset <= NAT_MAX_FROM_HEADER && /* not for GR/RU as long as line28 is not evaluated */
 			 pageinfo && pageinfo->nationalvalid) /* individual subset according to page header */
 		{
-			national_subset = countryconversiontable[pageinfo->national];
 #if TUXTXT_DEBUG
-			printf("p%03x b%d n%d v%d i%d\n", tuxtxt_cache.page,national_subset_bak, national_subset, pageinfo->nationalvalid, pageinfo->national);
+			printf("p%03x bak %d nat %d valid %d info nat %d\n", tuxtxt_cache.page,national_subset_bak, national_subset, pageinfo->nationalvalid, pageinfo->national);
 #endif
+			national_subset = countryconversiontable[pageinfo->national];
 		}
 		/* render page */
 		PosY = StartY + startrow*fontheight;
@@ -5285,13 +5301,14 @@ void showlink(int column, int linkpage)
 	int oldfontwidth = fontwidth;
 	int yoffset;
 
-#if 0
+#ifdef USE_FBPAN
 	if (var_screeninfo.yoffset)
 		yoffset = 0;
 	else
 		yoffset = var_screeninfo.yres;
-#endif
+#else
 	yoffset = var_screeninfo.yres; //NEW
+#endif
 
 	int abx = ((displaywidth)%(40-nofirst) == 0 ? displaywidth+1 : (displaywidth)/(((displaywidth)%(40-nofirst)))+1);// distance between 'inserted' pixels
 	int width = displaywidth /4;
@@ -5321,7 +5338,8 @@ void showlink(int column, int linkpage)
 	else /* display number */
 	{
 		PosX = StartX + column*width;
-		FillRect(PosX, PosY+yoffset, displaywidth+sx-PosX, fontheight, atrtable[ATR_L250 + column].bg);
+		//FillRect(PosX, PosY+yoffset, displaywidth+sx-PosX, fontheight, atrtable[ATR_L250 + column].bg);
+		FillRect(PosX, PosY+yoffset, width, fontheight, atrtable[ATR_L250 + column].bg);
 		if (linkpage < tuxtxt_cache.page)
 		{
 			line[6] = '<';
@@ -5493,16 +5511,14 @@ void CopyBB2FB()
 	unsigned char *src, *dst, *topsrc;
 	int fillcolor, i, screenwidth, swtmp;
 
-//printf("[tuxtxt] CopyBB2FB: zoommode %d\n", zoommode);
-
 	/* line 25 */
-	if (!pagecatching)
+	if (!pagecatching && use_gui)
 		CreateLine25();
+
 	/* copy backbuffer to framebuffer */
 	if (!zoommode)
 	{
-		memcpy(lfb, lfb+fix_screeninfo.line_length * var_screeninfo.yres, fix_screeninfo.line_length*var_screeninfo.yres);
-#if 0
+#ifdef USE_FBPAN
 		/* if yoffset != 0, we had active page 1, and activate 0 */
 		/* else active was page 0, activate page 1 */
 		if (var_screeninfo.yoffset)
@@ -5512,12 +5528,15 @@ void CopyBB2FB()
 
 		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
 			perror("TuxTxt <FBIOPAN_DISPLAY>");
+#else
+		memcpy(lfb, lfb+fix_screeninfo.line_length * var_screeninfo.yres, fix_screeninfo.line_length*var_screeninfo.yres);
 #endif
 
 		/* adapt background of backbuffer if changed */
-		if (StartX > 0 && *lfb != *(lfb + fix_screeninfo.line_length * var_screeninfo.yres))
+		if (StartX > 0 && *lfb != *(lfb + fix_screeninfo.line_length * var_screeninfo.yres)) {
 			FillBorder(*(lfb + fix_screeninfo.line_length * var_screeninfo.yoffset));
 //			 ClearBB(*(lfb + var_screeninfo.xres * var_screeninfo.yoffset));
+		}
 
 		if (clearbbcolor >= 0)
 		{

@@ -720,8 +720,9 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 					}
 					else
 					{
-						pageinfo_thread->nationalvalid = 1;
+						//pageinfo_thread->nationalvalid = 1;// FIXME without full eval some is broken
 						pageinfo_thread->national = rev_lut[b1] & 0x07;
+//printf("TuxTxt 0: b1=%x\n", rev_lut[b1]);
 					}
 
 					/* check parity, copy line 0 to cache (start and end 8 bytes are not needed and used otherwise) */
@@ -958,7 +959,8 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 							pageinfo_thread->function = t1 & 0x0f;
 							if (!pageinfo_thread->nationalvalid)
 							{
-								pageinfo_thread->nationalvalid = 1;
+//printf("TuxTxt 28: t1=%x\n", t1>>4);
+								// pageinfo_thread->nationalvalid = 1; // FIXME without full eval some is broken
 								pageinfo_thread->national = (t1>>4) & 0x07;
 							}
 						}

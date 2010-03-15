@@ -243,6 +243,7 @@ const char *locale_real_names[] = {
 	"colormenu.background",
 	"colormenu.fade",
 	"colormenu.font",
+	"colormenu.font_ttx",
 	"colormenu.gtx_alpha",
 	"colormenu.head",
 	"colormenu.menucolors",

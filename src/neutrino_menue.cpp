@@ -1004,12 +1004,12 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 
 extern int scan_pids;
 
-#define FAST_SCAN_OPTIONS_COUNT 3
+#define FAST_SCAN_OPTIONS_COUNT 2
 const CMenuOptionChooser::keyval FAST_SCAN_OPTIONS[FAST_SCAN_OPTIONS_COUNT] =
 {
 	{ FAST_SCAN_SD, LOCALE_SATSETUP_FASTSCAN_SD },
-        { FAST_SCAN_HD, LOCALE_SATSETUP_FASTSCAN_HD  },
-        { FAST_SCAN_ALL, LOCALE_SATSETUP_FASTSCAN_ALL  }
+        { FAST_SCAN_HD, LOCALE_SATSETUP_FASTSCAN_HD  }
+        /*{ FAST_SCAN_ALL, LOCALE_SATSETUP_FASTSCAN_ALL  }*/
 };
 
 #define FAST_SCAN_PROV_OPTIONS_COUNT 3
@@ -1244,6 +1244,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		settings.addItem(fsatSetup);
 		settings.addItem(fmotorMenu);
 	}
+	settings.addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 0, 100) );
 
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_AUTO_SCAN, true, NULL, autoScan, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
@@ -2350,6 +2351,7 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	colorSettings.addItem(GenericMenuSeparatorLine);
 	colorSettings.addItem( new CMenuForwarder(LOCALE_COLORMENU_FONT, true, NULL, &fontSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE) );
 	colorSettings.addItem( new CMenuForwarder(LOCALE_EPGPLUS_SELECT_FONT_NAME, true, NULL, this, "select_font"));
+	colorSettings.addItem( new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, NULL, this, "ttx_font"));
 
 	CMenuWidget *colorSettings_timing = new CMenuWidget(LOCALE_COLORMENU_TIMING, NEUTRINO_ICON_SETTINGS);
 	InitColorSettingsTiming(*colorSettings_timing);

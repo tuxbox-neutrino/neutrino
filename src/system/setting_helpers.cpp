@@ -536,6 +536,10 @@ bool CIPChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 
 	CNeutrinoApp::getInstance()->networkConfig.netmask = (_ip[0] == 10) ? "255.0.0.0" : "255.255.255.0";
 
+	sprintf(ip, "%hhu.%hhu.%hhu.1", _ip[0], _ip[1], _ip[2]);
+	CNeutrinoApp::getInstance()->networkConfig.nameserver = ip;
+	CNeutrinoApp::getInstance()->networkConfig.gateway = ip;
+
 	return true;
 }
 
@@ -611,8 +615,11 @@ printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
 		ptr = strchr(ptr, ':');
 		ptr++;
 		int page = strtol(ptr, NULL, 16);
-printf("CSubtitleChangeExec::exec: TTX, pid %x page %x\n", pid, page);
+		ptr = strchr(ptr, ':');
+		ptr++;
+printf("CSubtitleChangeExec::exec: TTX, pid %x page %x lang %s\n", pid, page, ptr);
 		tuxtx_stop_subtitle();
+		tuxtx_set_pid(pid, page, ptr);
 		dvbsub_stop();
 		tuxtx_main(g_RCInput->getFileHandle(), pid, page);
 	}

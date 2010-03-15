@@ -143,13 +143,18 @@ printf("descr 0x0A: %02X %02X %02X\n", buffer[pos+2], buffer[pos+3], buffer[pos+
 				break;
 
 			case 0x56: /* teletext descriptor */
-				for (unsigned char fIdx=0;fIdx<fieldCount;fIdx++) {
-					char tmpLang[4];
+				char tmpLang[4];
+				//printf("[pmt] teletext pid %x: %s\n", esInfo->elementary_PID, tmpLang);
+				printf("[pmt] teletext pid %x\n", esInfo->elementary_PID);
+				for (unsigned char fIdx = 0; fIdx < fieldCount; fIdx++) {
 					memcpy(tmpLang, &buffer[pos + 5*fIdx + 2], 3);
 					tmpLang[3] = '\0';
 					unsigned char teletext_type=buffer[pos + 5*fIdx + 5]>> 3;
 					unsigned char teletext_magazine_number = buffer[pos + 5*fIdx + 5] & 7;
 					unsigned char teletext_page_number=buffer[pos + 5*fIdx + 6];
+printf("[pmt] teletext type %d mag %d page %d lang %s\n", teletext_type, teletext_magazine_number, teletext_page_number, tmpLang);
+					if (teletext_type==0x01)
+						channel->setTeletextLang(tmpLang);
 					if (teletext_type==0x02){
 						channel->addTTXSubtitle(esInfo->elementary_PID,tmpLang,teletext_magazine_number,teletext_page_number);
 					} else {

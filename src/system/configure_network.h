@@ -37,6 +37,7 @@ class CNetworkConfig
 
 	void copy_to_orig(void);
 	bool modified_from_orig(void);
+	void init_vars(void);
 
  public:
 	bool        automatic_start;
