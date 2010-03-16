@@ -45,6 +45,8 @@ void CNetworkConfig::init_vars(void)
 	char router[16];
 	char ip[16];
 
+	hostname = netGetHostname();
+
 	netGetDefaultRoute(router);
 	gateway = router;
 	netGetIP((char *) "eth0", ip, mask, _broadcast);
@@ -61,6 +63,7 @@ void CNetworkConfig::copy_to_orig(void)
 	orig_broadcast       = broadcast;
 	orig_gateway         = gateway;
 	orig_inet_static     = inet_static;
+	orig_hostname	     = hostname;
 }
 
 bool CNetworkConfig::modified_from_orig(void)
@@ -71,6 +74,7 @@ bool CNetworkConfig::modified_from_orig(void)
 		(orig_netmask         != netmask        ) ||
 		(orig_broadcast       != broadcast      ) ||
 		(orig_gateway         != gateway        ) ||
+		(orig_hostname        != hostname        ) ||
 		(orig_inet_static     != inet_static    )
 		);
 }
@@ -79,6 +83,9 @@ void CNetworkConfig::commitConfig(void)
 {
 	if (modified_from_orig())
 	{
+		if(orig_hostname != hostname)
+			netSetHostname((char *) hostname.c_str());
+
 		copy_to_orig();
 
 		if (inet_static)

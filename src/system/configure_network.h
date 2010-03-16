@@ -33,6 +33,7 @@ class CNetworkConfig
 	std::string orig_broadcast;
 	std::string orig_gateway;
 	std::string orig_nameserver;
+	std::string orig_hostname;
 	bool        orig_inet_static;
 
 	void copy_to_orig(void);
@@ -46,6 +47,7 @@ class CNetworkConfig
 	std::string broadcast;
 	std::string gateway;
 	std::string nameserver;
+	std::string hostname;
 	bool        inet_static;
 
 	CNetworkConfig(void);

@@ -82,10 +82,12 @@ class CDHCPNotifier : public CChangeObserver
 {
 	private:
 		CMenuForwarder* toDisable[5];
+		CMenuForwarder* toEnable[1];
 	public:
-		CDHCPNotifier( CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*);
+		CDHCPNotifier( CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*);
 		bool changeNotify(const neutrino_locale_t, void * data);
 };
+
 class CStreamingNotifier : public CChangeObserver
 {
 	private:

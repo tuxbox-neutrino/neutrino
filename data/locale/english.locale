@@ -569,6 +569,7 @@ networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway default gateway
 networkmenu.head Network Settings
+networkmenu.hostname Hostname
 networkmenu.ipaddress IP address
 networkmenu.mount NFS/CIFS/FTPFS
 networkmenu.nameserver name server

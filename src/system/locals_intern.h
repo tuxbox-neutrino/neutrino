@@ -767,6 +767,7 @@ const char *locale_real_names[] = {
 	"networkmenu.dhcp",
 	"networkmenu.gateway",
 	"networkmenu.head",
+	"networkmenu.hostname",
 	"networkmenu.ipaddress",
 	"networkmenu.mount",
 	"networkmenu.nameserver",

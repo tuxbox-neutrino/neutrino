@@ -205,9 +205,16 @@ char	*netGetHostname( void )
 
 void	netSetHostname( char *host )
 {
+	FILE * fp;
+
 	strcpy(hostbuf,host);
 	hostis=1;
 	sethostname(hostbuf,strlen(hostbuf)+1);
+	fp = fopen("/etc/hostname", "w");
+	if(fp != NULL) {
+		fprintf(fp, "%s\n", hostbuf);
+		fclose(fp);
+	}
 }
 
 void	netSetNameserver(const char * const ip)

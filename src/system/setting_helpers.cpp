@@ -206,13 +206,14 @@ bool CTP_scanNotifier::changeNotify(const neutrino_locale_t, void * Data)
 	}
 	return true;
 }
-CDHCPNotifier::CDHCPNotifier( CMenuForwarder* a1, CMenuForwarder* a2, CMenuForwarder* a3, CMenuForwarder* a4, CMenuForwarder* a5)
+CDHCPNotifier::CDHCPNotifier( CMenuForwarder* a1, CMenuForwarder* a2, CMenuForwarder* a3, CMenuForwarder* a4, CMenuForwarder* a5, CMenuForwarder* a6)
 {
 	toDisable[0] = a1;
 	toDisable[1] = a2;
 	toDisable[2] = a3;
 	toDisable[3] = a4;
 	toDisable[4] = a5;
+	toEnable[0] = a6;
 }
 
 
@@ -221,6 +222,8 @@ bool CDHCPNotifier::changeNotify(const neutrino_locale_t, void * data)
 	CNeutrinoApp::getInstance()->networkConfig.inet_static = ((*(int*)(data)) == 0);
 	for(int x=0;x<5;x++)
 		toDisable[x]->setActive(CNeutrinoApp::getInstance()->networkConfig.inet_static);
+
+	toEnable[0]->setActive(!CNeutrinoApp::getInstance()->networkConfig.inet_static);
 	return true;
 }
 
