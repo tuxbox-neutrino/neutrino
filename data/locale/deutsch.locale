@@ -125,6 +125,7 @@ colorchooser.red rot
 colormenu.background Hintergrundfarbe
 colormenu.fade Menüs faden
 colormenu.font Schriftgröße
+colormenu.font_ttx Teletext Schriftart
 colormenu.gtx_alpha Transparenz (GTX)
 colormenu.head Farb-Einstellungen
 colormenu.menucolors Menüfarben
@@ -299,7 +300,7 @@ extra.scan_mode Scan-Modus
 extra.sms_channel SMS-Modus Kanal
 extra.south Süden
 extra.spts_mode SPTS-Modus
-extra.start_tostandby In den Standby starten
+extra.start_tostandby Standby nach Boxstart
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
@@ -649,7 +650,7 @@ mainmenu.service Service
 mainmenu.settings Einstellungen
 mainmenu.shutdown Ausschalten
 mainmenu.sleeptimer SleepTimer
-mainmenu.tvmode TV-Modus
+mainmenu.tvmode TV-Modus/ Uhr
 mainsettings.audio Audio
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten Einstellungen
@@ -665,6 +666,7 @@ mainsettings.streaming Movieplayer
 mainsettings.timezone Zeitzone
 mainsettings.video Video
 menu.back Zurück
+menu.next Weiter (Menü zum Beenden)
 messagebox.back Zurück
 messagebox.cancel Abbruch
 messagebox.discard Wollen Sie die Änderungen verwerfen?
@@ -770,7 +772,7 @@ moviebrowser.edit_book Bookmark Ändern
 moviebrowser.edit_book_name_info1 Neuer Markierungsname
 moviebrowser.edit_book_name_info2 book name info2
 moviebrowser.edit_book_pos_info1 Neue Position (s)
-moviebrowser.edit_book_pos_info2
+moviebrowser.edit_book_pos_info2 
 moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
 moviebrowser.edit_book_type_info2 <0 zurück , >0 vor, 0: kein
 moviebrowser.edit_serie Name der Serie
@@ -866,7 +868,7 @@ moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Bookmark ein
-movieplayer.bookmarkname_hint2
+movieplayer.bookmarkname_hint2 
 movieplayer.buffering Puffern...
 movieplayer.defdir Start-Verz.
 movieplayer.defplugin Start-Plugin
@@ -920,6 +922,7 @@ networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Standard Gateway
 networkmenu.head Netzwerk Einstellungen
+networkmenu.hostname Hostname
 networkmenu.ipaddress IP-Adresse
 networkmenu.mount NFS/ CIFS/ FTPFS
 networkmenu.nameserver Nameserver
@@ -1100,6 +1103,15 @@ satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.do_scan Satelliten scannen
 satsetup.extended DiSEqC-Einstellungen
 satsetup.extended_motor Motor-Einstellungen
+satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
+satsetup.fastscan_type Scantyp
+satsetup.fastscan_sd nur SD
+satsetup.fastscan_hd nur HD
+satsetup.fastscan_all SD und HD
+satsetup.fastscan_prov Anbieter
+satsetup.fastscan_prov_cd CanalDigitaal
+satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_prov_telesat TéléSAT
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
@@ -1163,7 +1175,7 @@ settings.noconffile Die Neutrino-Einstellungen wurden nicht\ngefunden. Es werden
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
 settings.pos_default_center oben Mitte
-settings.pos_higher_center erhöht Mitte
+settings.pos_higher_center unten Mitte
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
 settings.menu_pos Menüposition
