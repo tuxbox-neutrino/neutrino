@@ -1361,6 +1361,7 @@ cam.removed CAM removed from slot
 cam.init_ok CAM init complete
 cam.waiting Waiting for CI answer
 cam.timeout Timeout waiting CI menu ready
+cam.reset Reset
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
 favorites.copy Copy bouquet to Favorites

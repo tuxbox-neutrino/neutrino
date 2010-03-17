@@ -80,6 +80,10 @@ printf("CCAMMenuHandler::exec: actionkey %s\n", actionkey.c_str());
 		return doMenu(0);
 	} else if(actionkey == "cam2") {
 		return doMenu(1);
+	} else if(actionkey == "reset1") {
+		ci->Reset(0);
+	} else if(actionkey == "reset2") {
+		ci->Reset(1);
 	}
 
 	return doMainMenu ();
@@ -105,6 +109,8 @@ int CCAMMenuHandler::doMainMenu ()
 		ci->GetName(0, name1);
 printf("CCAMMenuHandler::doMenu cam1 name %s\n", name1);
 		cammenu->addItem(new CMenuForwarderNonLocalized(name1, true, NULL, this, "cam1", CRCInput::RC_1));
+		cammenu->addItem(new CMenuForwarder(LOCALE_CAM_RESET, true, NULL, this, "reset1"));
+		cammenu->addItem( GenericMenuSeparatorLine );
 	} else {
 		sprintf(str1, "%s 1", g_Locale->getText(LOCALE_CAM_EMPTY));
 		tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
@@ -115,6 +121,7 @@ printf("CCAMMenuHandler::doMenu cam1 name %s\n", name1);
 		ci->GetName(1, name2);
 printf("CCAMMenuHandler::doMenu cam2 name %s\n", name2);
 		cammenu->addItem(new CMenuForwarderNonLocalized(name2, true, NULL, this, "cam2", CRCInput::RC_2));
+		cammenu->addItem(new CMenuForwarder(LOCALE_CAM_RESET, true, NULL, this, "reset2"));
 	} else {
 		sprintf(str2, "%s 2", g_Locale->getText(LOCALE_CAM_EMPTY));
 		tempMenu = new CMenuWidget(str2, NEUTRINO_ICON_SETTINGS);

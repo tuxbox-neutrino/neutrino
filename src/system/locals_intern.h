@@ -1377,6 +1377,7 @@ const char *locale_real_names[] = {
 	"cam.init_ok",
 	"cam.waiting",
 	"cam.timeout",
+	"cam.reset",
 	"subtitles.head",
 	"subtitles.stop",
 	"fan_speed",
