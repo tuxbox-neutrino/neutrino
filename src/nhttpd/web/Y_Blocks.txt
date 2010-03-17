@@ -316,7 +316,7 @@ end-block~frame_iso_head
 start-block~start_wizard_save_settings
 {=ini-set:/var/tuxbox/config/Y-Web.conf;start_page;{=start_page=}~open=}
 {=ini-set:/var/tuxbox/config/Y-Web.conf;startup;true~save=}
-{=ini-set:/var/tuxbox/config/nhttpd.conf;Language.selected;{=language=}~save=}
+{=ini-set:/var/tuxbox/config/nhttpd.conf;Language.selected;{=language=}=}
 {=func:do_reload_httpd_config=}
 end-block~start_wizard_save_settings
 

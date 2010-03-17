@@ -47,6 +47,7 @@ install_DATA =	channels.js \
 		Y_Main.css \
 		Y_Menue.yhtm \
 		Y_neutrino_Blocks.txt \
+		Y_Refresh.yhtm \
 		Y_Settings_automount_liste.yhtm \
 		Y_Settings_automount.yhtm \
 		Y_Settings_Backup.yhtm \
