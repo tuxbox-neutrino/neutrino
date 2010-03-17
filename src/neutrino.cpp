@@ -725,6 +725,12 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 #define DEFAULT_Y_START 20
 #define DEFAULT_X_END   1220
 #define DEFAULT_Y_END   560
+
+#define DEFAULT_X_START 60
+#define DEFAULT_Y_START 20
+#define DEFAULT_X_END   1220
+#define DEFAULT_Y_END   560
+
 std::string ttx_font_file = "";
 
 int CNeutrinoApp::loadSetup(const char * fname)

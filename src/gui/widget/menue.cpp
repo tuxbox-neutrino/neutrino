@@ -172,6 +172,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	if (parent)
 		parent->hide();
 
+	/* set the max height to 9/10 of usable screen height
+	   debatable, if the callers need a possibility to set this */
+	//FIXME width ??
+	height = frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
+	wanted_height = height;
+
 	bool fadeIn = g_settings.widget_fade;
 	bool fadeOut = false;
 	int fadeValue;

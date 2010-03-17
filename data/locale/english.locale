@@ -230,6 +230,9 @@ colormenu.statusbar Infobar
 colormenu.textcolor Textcolor
 colormenu.themeselect select theme
 colormenu.timing OSD Timing
+colormenu.osd_preset TV preset
+colormenu.hd_preset LCD
+colormenu.sd_preset CRT
 colormenusetup.head Menu Colors
 colormenusetup.menucontent Window-Content
 colormenusetup.menucontent_inactive Window-Content inactive

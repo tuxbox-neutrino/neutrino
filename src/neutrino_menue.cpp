@@ -2337,6 +2337,12 @@ void CNeutrinoApp::InitFontSettings(CMenuWidget &fontSettings)
 	fontSettings.addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[5].actionkey));
 }
 
+#define OSD_PRESET_OPTIONS_COUNT 2
+const CMenuOptionChooser::keyval OSD_PRESET_OPTIONS[OSD_PRESET_OPTIONS_COUNT] =
+{
+	{ 560, LOCALE_COLORMENU_SD_PRESET },
+	{ 696, LOCALE_COLORMENU_HD_PRESET }
+};
 void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fontSettings )
 {
 	CScreenSetup  * ScreenSetup = new CScreenSetup();
@@ -2365,6 +2371,7 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	colorSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_VIDEOMENU_OSD));
 	colorSettings.addItem(new CMenuForwarder(LOCALE_TIMING_HEAD, true, NULL, colorSettings_timing));
 	colorSettings.addItem(new CMenuForwarder(LOCALE_VIDEOMENU_SCREENSETUP, true, NULL, ScreenSetup));//, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	colorSettings.addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_EndY, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true));
 #if 0
 	colorSettings.addItem(GenericMenuSeparatorLine);
 	//menuefaden nur bei enx-chips!
