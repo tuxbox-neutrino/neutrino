@@ -1,3 +1,7 @@
+#	yWeb language file (Englisch) by yjogol
+#	language version: 1.0
+#	$Date$
+#	$Revision$
 =========== GENERAL / GLOBAL
 global.no_iframes=Your Browser does not support IFrames.
 clear=clear
