@@ -369,7 +369,7 @@ void SaveMotorPositions()
 	fclose(fd);
 }
 
-static void init_sat(t_satellite_position position)
+void init_sat(t_satellite_position position)
 {
 	satellitePositions[position].position = 0;
 	satellitePositions[position].diseqc = -1;

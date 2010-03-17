@@ -53,6 +53,32 @@ std::map <t_channel_id, t_satellite_position> fast_services_sat;
 std::map <t_channel_id, freq_id_t> fast_services_freq;
 std::map <t_channel_id, int> fast_services_number;
 
+extern void init_sat(t_satellite_position position);
+
+void init_fastscan_lnb(int id)
+{
+	init_sat(192);
+	init_sat(235);
+	init_sat(282);
+	init_sat(130);
+	switch(id) {
+		default:
+		case CD_OPERATOR_ID:
+		case OPERATOR_TVV:
+			satellitePositions[192].diseqc = 0;
+			satellitePositions[235].diseqc = 1;
+			satellitePositions[282].diseqc = 2;
+			satellitePositions[130].diseqc = 3;
+			break;
+		case OPERATOR_TELESAT:
+			satellitePositions[130].diseqc = 0;
+			satellitePositions[192].diseqc = 1;
+			satellitePositions[235].diseqc = 2;
+			satellitePositions[282].diseqc = 3;
+			break;
+	}
+}
+
 void * start_fast_scan(void * arg)
 {
 	fast_scan_type_t * scan = (fast_scan_type_t *) arg;
@@ -83,6 +109,8 @@ void * start_fast_scan(void * arg)
 	polarization = 0;
 
 	eventServer->sendEvent(CZapitClient::EVT_SCAN_SATELLITE, CEventServer::INITID_ZAPIT, op->name, strlen(op->name)+1);
+
+	init_fastscan_lnb(op->id);
 	if(!tuneFrequency(&feparams, polarization, 192)) {
 		printf("[fast scan] tune failed\n");
 		goto _err;
@@ -190,6 +218,10 @@ int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 		delete dmx;
 		return -1;
 	}
+
+	g_bouquetManager->clearAll();
+	allchans.clear();
+
 	do {
 		if (dmx->Read(buffer, SEC_SIZE) < 0) {
 			delete dmx;
