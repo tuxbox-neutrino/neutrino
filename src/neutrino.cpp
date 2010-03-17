@@ -776,6 +776,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.cpufreq = configfile.getInt32("cpufreq", 0);
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
+	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
 
 //FIXME
 	g_settings.cpufreq = 0;
@@ -1293,6 +1294,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "cpufreq", g_settings.cpufreq);
 	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);
 	configfile.setInt32("rounded_corners", g_settings.rounded_corners);
+	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	//fb-alpha values for gtx
@@ -4005,6 +4007,11 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 
 		powerManager->SetStandby(false, false);
+
+		if(g_settings.ci_standby_reset) {
+			g_CamHandler->exec(NULL, "reset1");
+			g_CamHandler->exec(NULL, "reset2");
+		}
 		frameBuffer->setActive(true);
 
 		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);

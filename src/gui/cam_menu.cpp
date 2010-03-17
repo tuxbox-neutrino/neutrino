@@ -81,13 +81,25 @@ printf("CCAMMenuHandler::exec: actionkey %s\n", actionkey.c_str());
 	} else if(actionkey == "cam2") {
 		return doMenu(1);
 	} else if(actionkey == "reset1") {
-		ci->Reset(0);
+		if(ci->CamPresent(0))
+			ci->Reset(0);
 	} else if(actionkey == "reset2") {
-		ci->Reset(1);
+		if(ci->CamPresent(1))
+			ci->Reset(1);
 	}
+
+	if(!parent)
+		return 0;
 
 	return doMainMenu ();
 }
+
+#define OPTIONS_OFF0_ON1_OPTION_COUNT 2
+const CMenuOptionChooser::keyval OPTIONS_OFF0_ON1_OPTIONS[OPTIONS_OFF0_ON1_OPTION_COUNT] =
+{
+        { 0, LOCALE_OPTIONS_OFF },
+        { 1, LOCALE_OPTIONS_ON  }
+};
 
 int CCAMMenuHandler::doMainMenu ()
 {
@@ -102,6 +114,9 @@ int CCAMMenuHandler::doMainMenu ()
 
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CAM_SETTINGS, NEUTRINO_ICON_SETTINGS);
 	cammenu->addItem( GenericMenuBack );
+	cammenu->addItem( GenericMenuSeparatorLine );
+
+	cammenu->addItem( new CMenuOptionChooser(LOCALE_CAM_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	cammenu->addItem( GenericMenuSeparatorLine );
 
 	CMenuWidget * tempMenu;

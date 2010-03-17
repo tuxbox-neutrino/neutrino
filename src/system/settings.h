@@ -91,6 +91,7 @@ struct SNeutrinoSettings
 	int avsync;
 	int clockrec;
 	int rounded_corners;
+	int ci_standby_reset;
 
 	//vcr
 	int vcr_AutoSwitch;
