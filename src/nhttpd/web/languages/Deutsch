@@ -1,5 +1,5 @@
 #	yWeb language file (German/Deutsch) by yjogol
-#	language version: 1.0
+#	language version: 1.1
 #	$Date$
 #	$Revision$
 =========== GENERAL / GLOBAL
@@ -357,6 +357,16 @@ set.ap.decode_priority=Hohe Decodier-Priorit&auml;t
 set.ap.start_dir=Start-Verzeichnis
 set.ap.parse_shoutcast=Shoutcast Meta-Daten
 
+========Settings Timer
+set.timer.header=Timer Settings
+set.timer.username=Benutzername
+set.timer.password=Passwort
+set.timer.klack.url_desc=("&" wir beim Speichern zu ";" konvertiert)
+set.timer.klack.url=Persönliche RSS TV-Planer URL
+set.timer.klack.security_code_desc=Klack Sicherheits Code
+set.timer.klack.security_code=Sicherheits Code
+set.timer.channel_name_replacelist=Sendernamen-Ersetzungsliste
+
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen
 tools.info.processes=Prozesse
@@ -492,6 +502,27 @@ live.timer_edit.standby=Standby
 live.timer_edit.plugin=Plugin
 live.timer_edit.rec_dir=Aufnahmeverzeichnis
 live.timer_edit.description=Beschreibung
+
+=========== LIVE Timer Sync
+live.timer-sync.get_timer=Timer holen.
+live.timer-sync.header=Timer Synchonisieren
+live.timer-sync.timer_source=Timer Quelle
+live.timer-sync.rec_dir=Aufnahmeverzeichnis
+live.timer-sync.settings=Einstellungen
+live.timer-sync.debugging=Debugging
+live.timer-sync.get_selected=Hole gewählte
+live.timer-sync.clear_all=Lösche alle
+live.timer-sync.timer_preview=Timer Vorschauliste
+live.timer-sync.start_time=Startzeit
+live.timer-sync.end_time=Endezeit
+live.timer-sync.channel=Sender
+ive.timer-sync.programm=Sendung
+live.timer-sync.source=Quelle
+live.timer-sync.set_timer=Setze Timer
+live.timer-sync.clear_log=Lösche Log
+live.timer-sync.log=Log
+live.timer-sync.action=Aktion
+live.timer-sync.status=Status
 
 =========INFO
 info.help=Hilfe

@@ -1,5 +1,5 @@
 #	yWeb language file (Englisch) by yjogol
-#	language version: 1.0
+#	language version: 1.1
 #	$Date$
 #	$Revision$
 =========== GENERAL / GLOBAL
@@ -360,6 +360,16 @@ set.ap.decode_priority=High decoding priority
 set.ap.start_dir=Start directory
 set.ap.parse_shoutcast=Shoutcast Meta-Data
 
+========Settings Timer
+set.timer.header=Timer Settings
+set.timer.username=Username
+set.timer.password=Password
+set.timer.klack.url_desc=("&" will be converted to ";" on save)
+set.timer.klack.url=Personal RSS TV-Planer URL
+set.timer.klack.security_code_desc=your klack security code to get your data without login
+set.timer.klack.security_code=Security Code
+set.timer.channel_name_replacelist=Channel name replace list
+
 ============ Tools Info
 tools.info.show_messages=Kernel Messages
 tools.info.processes=Processes
@@ -495,6 +505,27 @@ live.timer_edit.standby=Standby
 live.timer_edit.plugin=Plugin
 live.timer_edit.rec_dir=Recordind directory
 live.timer_edit.description=Description
+
+=========== LIVE Timer Sync
+live.timer-sync.get_timer=Get timer.
+live.timer-sync.header=Timer Sync
+live.timer-sync.timer_source=Timer Source
+live.timer-sync.rec_dir=Recording directory
+live.timer-sync.settings=Settings
+live.timer-sync.debugging=Debugging
+live.timer-sync.get_selected=get selected
+live.timer-sync.clear_all=clear all
+live.timer-sync.timer_preview=Timer Preview List
+live.timer-sync.start_time=Start time
+live.timer-sync.end_time=End time
+live.timer-sync.channel=Channel
+ive.timer-sync.programm=Program
+live.timer-sync.source=Source
+live.timer-sync.set_timer=set timer
+live.timer-sync.clear_log=clear log
+live.timer-sync.log=Log
+live.timer-sync.action=Action
+live.timer-sync.status=Status
 
 ========== INFO
 info.help=Help
