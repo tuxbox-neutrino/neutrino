@@ -80,7 +80,7 @@ printf("CCAMMenuHandler::exec: actionkey %s\n", actionkey.c_str());
 		return doMenu(0);
 	} else if(actionkey == "cam2") {
 		return doMenu(1);
-#if 0
+#if 1
 	} else if(actionkey == "reset1") {
 		if(ci->CamPresent(0))
 			ci->Reset(0);
