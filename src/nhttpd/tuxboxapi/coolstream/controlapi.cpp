@@ -842,9 +842,12 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 				CZapitChannel * channel = channels[j];
 				hh->printf("<channel>\n\t<number>%u</number>\n\t<id>"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"</id>\n\t<name><![CDATA[%s]]></name>\n</channel>\n",
+					"</id>\n\t<short_id>"
+					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+					"</short_id>\n\t<name><![CDATA[%s]]></name>\n</channel>\n",
 					num + j,
 					channel->channel_id,
+					channel->channel_id&0xFFFFFFFFFFFFULL,
 					channel->getName().c_str());
 			}
 			hh->WriteLn("</bouquetlist>");
@@ -1012,6 +1015,9 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 			hh->printf("<channel_id>"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"</channel_id>\r\n", channel_id);
+			hh->printf("<channel_short_id>"
+					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+					"</channel_short_id>\r\n", channel_id&0xFFFFFFFFFFFFULL);
 			hh->printf("<channel_name><![CDATA[%s]]></channel_name>\r\n", NeutrinoAPI->GetServiceName(channel_id).c_str());
 
 			// max = maximal output items
