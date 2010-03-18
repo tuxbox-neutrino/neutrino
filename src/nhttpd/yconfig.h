@@ -25,7 +25,7 @@
 //-----------------------------------------------------------------------------
 // General central Definitions <configure!>
 //-----------------------------------------------------------------------------
-#define HTTPD_VERSION 		"3.2.5"				// Webserver version  (can be overloaded)
+#define HTTPD_VERSION 		"3.2.6"				// Webserver version  (can be overloaded)
 #define YHTTPD_VERSION 		"1.3.1"				// Webserver version  (Version of yhttpd-core!)
 #define IADDR_LOCAL 		"127.0.0.1"			// local IP
 #define HTTPD_NAME 			"yhttpd"			// Webserver name (can be overloaded)
@@ -109,7 +109,7 @@
 #define EXTRASDOCUMENTROOT				"/mnt/hosted/extras"
 #define EXTRASDOCUMENTURL				"/hosted/extras"
 #define ZAPITXMLPATH					"/var/tuxbox/config/zapit"
-#define TUXBOX_LOGOS_URL				""
+#define TUXBOX_LOGOS_URL				"/usr/share/tuxbox/neutrino/icons/logos"
 
 // switch for Box differences
 #ifdef CONFIG_SYSTEM_TUXBOX
