@@ -3,8 +3,7 @@
 <script type="text/javascript" src="/Y_Baselib.js"></script>
 <script type="text/javascript">
 //<![CDATA[
-function do_submit()
-{
+function do_submit() {
 	show_waitbox(true);
 	var t = document.f.klack_url.value.replace(/&/gi,";");
 	document.f.klack_url.value = t;
@@ -17,7 +16,7 @@ function do_submit()
 {=var-set:wait_text={=L:save_values=}=}{=include-block:Y_Blocks.txt;snip_wait=}
 <div class="work_box">
 	<div class="work_box_head"><div class="work_box_head_h2">
-	{=var-set:help_url=Help-Settings-Timer_Settings=}{=var-set:menu=Timer Settings=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
+	{=var-set:help_url=Help-Settings-Timer_Settings=}{=var-set:menu={=L:set.timer.header=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
 	<form name="f" class="y_form" accept-charset="UTF-8" action="/y/cgi?execute=include-block:Y_Blocks.txt;timer_save_settings;nix" method="POST">
 		<table border="0" width="100%">
@@ -25,36 +24,36 @@ function do_submit()
 				<td colspan="2" class="y_form_header">tvinfo.de</td>
 			</tr>
 			<tr>
-				<td>Benutzername</td>
-				<td><input type="text" name="tvinfo_username" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_username=}" title="username"/></td>
+				<td>{=L:set.timer.username=}</td>
+				<td><input type="text" name="tvinfo_username" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_username=}"/></td>
 			</tr>
 			<tr>
-				<td>Passwort</td>
-				<td><input type="password" name="tvinfo_password" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_password=}" title="password"/><br/><br/></td>
+				<td>{=L:set.timer.password=}</td>
+				<td><input type="password" name="tvinfo_password" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_password=}"/><br/><br/></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="y_form_header">klack.de (V2)</td>
 			</tr>
 			<tr>
-				<td>personal RSS TV-Planer URL</td>
-				<td><input type="text" name="klack_url" size="60" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}" title="Klack.de RSS TV-Planer URL"/><br/>
-				(&#038; will be converted to &quot;;&quot; on save)</br></td>
+				<td>{=L:set.timer.klack.url=}</td>
+				<td><input type="text" name="klack_url" size="60" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}"/><br/>
+				{=L:set.timer.klack.url_desc=}</br></td>
 			</tr>
 			<tr>
-				<td>Security Code</td>
-				<td><input type="password" name="klack_securitycode" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_securitycode=}" title="your klack security code to get your data without login"/><br/><br/></td>
+				<td>{=L:set.timer.klack.security_code=}</td>
+				<td><input type="password" name="klack_securitycode" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_securitycode=}" title="{=L:set.timer.klack.security_code_desc=}"/><br/><br/></td>
 			</tr>
 			<tr>
-				<td colspan="2" class="y_form_header">Sendernamen</td>
+				<td colspan="2" class="y_form_header">{=L:set.timer.channel_name_replacelist=}</td>
 			</tr>
 			<tr>
 				<td>&nbsp;</td>
-				<td><textarea name="channels" cols="60" rows="10"  title="channel name replacement" style="background : white; font : 'Courier New',medium  monospace; color : #436976;">{=if-file-exists:/var/tuxbox/config/channels.txt~{=include:/var/tuxbox/config/channels.txt=}~{=if-file-exists:/var/httpd/channels.txt~{=include:/var/httpd/channels.txt=}~{=include:/share/tuxbox/neutrino/httpd-y/channels.txt=}=}=}</textarea></td>
+				<td><textarea name="channels" cols="60" rows="10" style="background : white; font : 'Courier New',medium  monospace; color : #436976;">{=if-file-exists:/var/tuxbox/config/channels.txt~{=include:/var/tuxbox/config/channels.txt=}~{=if-file-exists:/var/httpd/channels.txt~{=include:/var/httpd/channels.txt=}~{=include:/share/tuxbox/neutrino/httpd/channels.txt=}=}=}</textarea></td>
 			</tr>
 		</table>
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_Timer.yhtm"/>
-		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">Speichern</button>
+		<button type="button" ytype="save" title="submit and save values" onclick="do_submit()">{=L:save=}</button>
 	</form>
 	</div>
 </div>

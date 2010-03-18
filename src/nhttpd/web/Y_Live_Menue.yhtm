@@ -66,9 +66,7 @@ function init(){
 						<td align="right"><a title="{=L:live.radio_popup_desc=}" href="javascript:go_live_popup_radio()"><img src="/images/popup.png"/></a></td>
 					</tr></table>
 				</li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" title="use LiveView with 2 boxes" href="Y_Live_DoubleView.yhtm">{=L:live.double_view=}</a></li>
-			=}
+				<!-- <li><a target="work" title="use LiveView with 2 boxes" href="Y_Live_DoubleView.yhtm">{=L:live.double_view=}</a></li> -->
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">{=L:live.timer=}</div>
@@ -82,9 +80,7 @@ function init(){
 						<td align="right"><a title="{=L:live.epg_plus_popup_desc=}" href="javascript:epg_plus_popup()"><img src="/images/popup.png"/></a></td>
 					</tr></table>
 				</li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Tools_Timer_Sync.yhtm">{=L:live.timer_sync=}</a></li>
-			~=}
 				<!--<li><a target="work" title="recorder" href="Y_Blank.yhtm">Recorder</a></li>-->
 			</ul>
 		</div>

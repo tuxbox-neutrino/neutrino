@@ -53,8 +53,8 @@ function init(){
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.ucodes=}</li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.boot_logo=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.timer_settings=}</a></li>
 			~=}
+				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.timer_settings=}</a></li>
 			~
 				<li><a target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
 				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:set.menue.webserver=}</a></li>
@@ -65,8 +65,8 @@ function init(){
 			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_Backup.yhtm">{=L:set.menue.backup_restore=}</a></li>
-				<li><a target="work" href="Y_Settings_Timer.yhtm">{=L:set.menue.timer_settings=}</a></li>
 			~=}
+				<li><a target="work" href="Y_Settings_Timer.yhtm">{=L:set.menue.timer_settings=}</a></li>
 			=}	
 				<!--<li><a title="change layout skin" target="work" href="Y_Settings_Skin.yhtm">Skins</a></li>-->
 			</ul>
