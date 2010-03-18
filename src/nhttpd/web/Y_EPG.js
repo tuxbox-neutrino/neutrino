@@ -33,6 +33,10 @@ function epg_zapto(){
 function epg_set_timer(){
 	dbox_set_timer($("d_channel_id").innerHTML, $("d_start").innerHTML, $("d_stop").innerHTML);
 }
+function set_zapit(){
+	var rec = "/control/timer?action=new&type=3&alarm="+$("d_start").innerHTML+"&channel_id="+$("d_channel_id").innerHTML;
+	var res = loadSyncURL(rec);
+}
 function build_epg_clear(){
 	var ep = $("epg_plus");
 	obj_clear_all_childs(ep);
@@ -186,10 +190,11 @@ function build_epg_plus_loop(_starttime, _stoptime)
 		var _bouquet = g_bouquet_list[g_i];
 		var __channel_name = getXMLNodeItemValue(_bouquet, "name");
 		var __channel_id = getXMLNodeItemValue(_bouquet, "id");
+		var __short_channel_id = getXMLNodeItemValue(_bouquet, "short_id");
 		var ep = $("epg_plus");
 		var __bdiv = obj_createAt(ep, "div", "ep_bouquet");
 		var __bname_div = obj_createAt(__bdiv, "div", "ep_bouquet_name");
-		var ch_name_with_logo= (g_logosURL!="")?"<img class=\"channel_logos\" src=\""+g_logosURL+"/"+__channel_id+".gif\" alt=\""+__channel_name+"\" >":__channel_name;
+		var ch_name_with_logo= (g_logosURL!="")?"<img class=\"channel_logos\" src=\""+g_logosURL+"/"+__short_channel_id+".jpg\" title=\""+__channel_name+"\" alt=\""+__channel_name+"\" >":__channel_name;
 		$(__bname_div).update("<a href=\"javascript:do_zap('"+__channel_id+"');\">"+ch_name_with_logo+"</a>");
 		build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime);
 		window.setTimeout("build_epg_plus_loop("+_starttime+","+_stoptime+")",100);

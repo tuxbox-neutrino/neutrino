@@ -545,7 +545,7 @@ tr {
 	background-color: #FF6600;
 	height: 100%;
 	font-size:8pt;
-	z-index:-10;
+	z-index:10;
 	-moz-opacity: 0.2;
 	opacity:.20;
 	filter: alpha(opacity=20);	

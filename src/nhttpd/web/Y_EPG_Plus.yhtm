@@ -53,7 +53,7 @@ function epg_imdb(){
 		<tr>
 			<td colspan="3">
 				<button ytype="record" title="{=L:epg.set_timer=}" onclick="epg_set_timer();show_obj('epg_info',false);">{=L:record=}</button>
-				<button ytype="zap" title="{=L:epg.zap_to=}" onclick="epg_zapto();show_obj('epg_info',false);">{=L:zap=}</button>
+				<button ytype="zap" title="{=L:epg.zap_to=}" onclick="set_zapit();show_obj('epg_info',false);">{=L:zap=}</button>
 				{=L:lookup=}:
 				<span id="d_lookup"></span>
 			</td>
