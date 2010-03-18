@@ -103,6 +103,8 @@ cam.inserted CAM im Slot
 cam.removed CAM entfernt -> Slot
 cam.settings Common Interface
 cam.timeout CAM antwortet nicht
+cam.reset Reset
+cam.reset_standby Reset nach standby
 cam.waiting Warte auf CAM-Antwort
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
@@ -133,6 +135,7 @@ colormenu.statusbar Statusbalken
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
 colormenu.timing OSD Timeouts
+colormenu.osd_preset Monitor Auswahl
 colormenusetup.head Menüfarben
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
@@ -1087,7 +1090,7 @@ rfmod.finetune Feintuning
 rfmod.rfmod RF Modulator
 rfmod.standby Modulator aktivieren
 rfmod.test Testbild
-satsetup.auto_scan Ausgewählten Satelliten scannen
+satsetup.auto_scan Satelliten/Kabelnetzbetreiber scannen
 satsetup.auto_scan_all Alle Satelliten scannen
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
