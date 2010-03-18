@@ -193,6 +193,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
         /* send scantype to zapit */
         g_Zapit->setScanType((CZapitClient::scanType) CNeutrinoApp::getInstance()->getScanSettings().scanType );
 
+	tuned = frontend->getStatus();
 	paint(test);
 	/* go */
 	if(test) {
@@ -310,6 +311,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			sprintf(buffer, "%u", data);
 			xpos_frequency = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(buffer, true);
 			paintLine(xpos2, ypos_frequency, xpos_frequency, buffer);
+			paintRadar();
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_REPORT_FREQUENCYP:
@@ -377,6 +379,11 @@ void CScanTs::paintRadar(void)
 {
 	char filename[30];
 
+	if(tuned != frontend->getStatus()) {
+		tuned = frontend->getStatus();
+		frameBuffer->loadPal(tuned ? "radar.pal" : "radar_red.pal", 18, 38);
+	}
+
 	sprintf(filename, "radar%d.raw", radar);
 	radar = (radar + 1) % 10;
 	frameBuffer->paintIcon8(filename, xpos_radar, ypos_radar, 18);
@@ -416,7 +423,7 @@ void CScanTs::paint(bool fortest)
 	//frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
-	frameBuffer->loadPal("radar.pal", 18, 38);
+	frameBuffer->loadPal(tuned ? "radar.pal" : "radar_red.pal", 18, 38);
 
 	ypos = y + hheight + (mheight >> 1);
 
@@ -479,7 +486,6 @@ void CScanTs::showSNR ()
 
 	ssig = frontend->getSignalStrength();
 	ssnr = frontend->getSignalNoiseRatio();
-
 	snr = (ssnr & 0xFFFF) * 100 / 65535;
 	sig = (ssig & 0xFFFF) * 100 / 65535;
 

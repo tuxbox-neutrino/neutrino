@@ -65,6 +65,7 @@ class CScanTs : public CMenuTarget
 		uint32_t total;
 		uint32_t done;
 		int lastsnr, lastsig;
+		int tuned;
 		CProgressBar *snrscale, *sigscale;
 
 		void paint(bool fortest = false);

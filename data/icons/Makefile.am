@@ -17,7 +17,7 @@ install_DATA = \
 	mounted.png movie.png \
 	mp3.png mute.png mute_small.png mute_zap_gray.png mute_zap_green.png \
 	network.png not_mounted.png notyet.png numericpad.png ok.png power.png \
-	radar.pal radar0.raw radar1.raw radar2.raw radar3.raw radar4.raw \
+	radar_red.pal radar.pal radar0.raw radar1.raw radar2.raw radar3.raw radar4.raw \
 	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw movieplayer.raw \
 	recording.png settings.png shell.png softupdate.png streaming.png \
 	subt.png subt_gray.png timer.png video.png \

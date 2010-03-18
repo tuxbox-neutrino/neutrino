@@ -914,14 +914,15 @@ void CInfoViewer::showFailure ()
 void CInfoViewer::showMotorMoving (int duration)
 {
 	char text[256];
+#if 0
 	char buffer[10];
-
 	sprintf (buffer, "%d", duration);
 	strcpy (text, g_Locale->getText (LOCALE_INFOVIEWER_MOTOR_MOVING));
 	strcat (text, " (");
 	strcat (text, buffer);
 	strcat (text, " s)");
-
+#endif
+	sprintf(text, "%s (%ds)", g_Locale->getText (LOCALE_INFOVIEWER_MOTOR_MOVING), duration);
 	ShowHintUTF (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text, true) + 10, duration);	// UTF-8
 }
 

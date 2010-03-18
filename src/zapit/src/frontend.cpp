@@ -345,7 +345,12 @@ uint32_t CFrontend::getRate()
 
 fe_status_t CFrontend::getStatus(void) const
 {
-	fe_status_t status = (fe_status_t) 0;
+#if 0 // FIXME FE_READ_STATUS should be fixed in drivers !
+	struct dvb_frontend_event event;
+	fop(ioctl, FE_READ_STATUS, &event.status);
+	printf("CFrontend::getStatus: %d\n", event.status);
+#endif
+	fe_status_t status = (fe_status_t) tuned;
 	return status;
 }
 
@@ -567,6 +572,8 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	int fec;
 	fe_code_rate_t fec_inner;
 
+	tuned = false;
+
 	/* Decode the needed settings */
 	switch (info.type) {
 	case FE_QPSK:
@@ -717,8 +724,6 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	}
 	printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
 
-	tuned = false;
-
 	{
 		TIMER_INIT();
 		TIMER_START();
@@ -732,7 +737,6 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		TIMER_INIT();
 		TIMER_START();
 
-		//tuned = true;
 		getEvent();
 
 		TIMER_STOP("[fe0] tuning took");
