@@ -22,7 +22,6 @@ install_DATA =	channels.js \
 		Y_Boxcontrol_Messages.yhtm \
 		Y_Dyn_Pages.yhtm \
 		Y_EPG.js \
-		Y_EPG_Plus.js \
 		Y_EPG_Plus.yhtm \
 		Y_Ext_Menue.yhtm \
 		Y_Ext_Settings.yhtm \
