@@ -5,7 +5,7 @@ install_DATA = \
 	audio.png 16_9.png 16_9_gray.png \
 	language.png bayrisch.png ch-baslerdeutsch.png ch-berndeutsch.png deutsch.png dutch.png bosanski.png \
 	ellinika.png english.png francais.png french.png hungarian.png italiano.png \
-	polski.png portugues.png romania.png russkij.png nederlands.png suomi.png svenska.png \
+	polski.png portugues.png romania.png russkij.png nederlands.png slovak.png suomi.png svenska.png \
 	blau.png gelb.png gruen.png rot.png \
 	bookmarkmanager.png border_lr.png border_ul.png \
 	ca.png colors.png dbox.png dbox_small.png \

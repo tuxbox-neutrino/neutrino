@@ -757,7 +757,7 @@ moviebrowser.book_clear_all Lösche alle
 moviebrowser.book_head Markierungen
 moviebrowser.book_lastmoviestop letzter Wiedergabestopp:
 moviebrowser.book_movieend Filmende:
-moviebrowser.book_moviestart Filstart:
+moviebrowser.book_moviestart Filmstart:
 moviebrowser.book_name Name:
 moviebrowser.book_new Neue Markierung
 moviebrowser.book_position Position:
@@ -1306,7 +1306,7 @@ timersettings.record_safety_time_before.hint_1 Korrekturzeit in Min. (00=aus), d
 timersettings.record_safety_time_before.hint_2 des jeweiligen Timers abgezogen werden
 timersettings.separator Timereinstellungen
 timing.chanlist Kanalliste
-timing.epg Epg
+timing.epg EPG
 timing.filebrowser Filebrowser
 timing.head OSD Timeouts
 timing.hint_1 Einblendzeit in Sek., die das OSD
