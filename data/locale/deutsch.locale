@@ -802,7 +802,7 @@ moviebrowser.info_head Film Informationen
 moviebrowser.info_head_update Inhalte in allen sichtbaren Filminfos speichern
 moviebrowser.info_info1 Info 1
 moviebrowser.info_length Spieldauer (Min)
-moviebrowser.info_parental_lockage Altersfreigabe
+moviebrowser.info_parental_lockage FSK
 moviebrowser.info_parental_lockage_0year immer
 moviebrowser.info_parental_lockage_12year 12 Jahre
 moviebrowser.info_parental_lockage_16year 16 Jahre
@@ -853,7 +853,7 @@ moviebrowser.short_genre_minor Genre
 moviebrowser.short_info1 Info 1
 moviebrowser.short_info2 Info 2
 moviebrowser.short_length Min
-moviebrowser.short_parental_lockage Altersfreigabe
+moviebrowser.short_parental_lockage FSK
 moviebrowser.short_path Pfad
 moviebrowser.short_prevplaydate Zuletzt
 moviebrowser.short_prodyear Jahr
