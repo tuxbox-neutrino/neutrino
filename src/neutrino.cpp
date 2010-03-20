@@ -726,11 +726,6 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 #define DEFAULT_X_END   1220
 #define DEFAULT_Y_END   560
 
-#define DEFAULT_X_START 60
-#define DEFAULT_Y_START 20
-#define DEFAULT_X_END   1220
-#define DEFAULT_Y_END   560
-
 std::string ttx_font_file = "";
 
 int CNeutrinoApp::loadSetup(const char * fname)
@@ -3245,7 +3240,7 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 	}
 	else if( msg == NeutrinoMessages::EVT_RECORDMODE ) {
 		/* sent by rcinput, then got msg from zapit about record activated/deactivated */
-		dprintf(DEBUG_DEBUG, "neutino - recordmode %s\n", ( data ) ? "on":"off" );
+		dprintf(DEBUG_DEBUG, "neutrino - recordmode %s\n", ( data ) ? "on":"off" );
 		if(!recordingstatus && was_record && (!data)) {
 			g_Zapit->setStandby(true);
 			was_record = 0;
