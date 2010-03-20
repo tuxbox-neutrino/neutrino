@@ -3152,6 +3152,7 @@ _repeat:
 			g_RCInput->postMsg(new_msg, 0);
 			return messages_return::cancel_all | messages_return::handled;
 		}
+#if 0
 		else  /* data == 1: KEY_POWER released                         */
 			if (standby_pressed_at.tv_sec != 0) /* check if we received a KEY_POWER pressed event before */
 			{                                   /* required for correct handling of KEY_POWER events of  */
@@ -3166,6 +3167,7 @@ _repeat:
 					return messages_return::cancel_all | messages_return::handled;
 				}
 			}
+#endif
 	}
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{

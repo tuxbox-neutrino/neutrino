@@ -37,7 +37,6 @@ EPGPlus.remind Schedule
 EPGPlus.reset_settings reset settings
 EPGPlus.save_settings save settings
 EPGPlus.scroll_mode Scroll Mode
-EPGPlus.select_font_name font name
 EPGPlus.settings settings
 EPGPlus.slider_width slider width
 EPGPlus.stretch_mode Stretch Mode
@@ -221,24 +220,22 @@ colorchooser.green green
 colorchooser.red red
 colormenu.background Background
 colormenu.fade Fade menus
-colormenu.font Font size
-colormenu.font_ttx Teletext font
+colormenu.font Select GUI font
+colormenu.font_ttx Select Teletext font
 colormenu.gtx_alpha Transparency (GTX)
 colormenu.head Color Settings
-colormenu.menucolors Menucolor
-colormenu.statusbar Infobar
-colormenu.textcolor Textcolor
+colormenu.menucolors Colors
+colormenu.textcolor Text color
 colormenu.themeselect select theme
-colormenu.timing OSD Timing
+colormenu.timing OSD Timeouts
 colormenu.osd_preset TV preset
 colormenu.hd_preset LCD
 colormenu.sd_preset CRT
-colormenusetup.head Menu Colors
-colormenusetup.menucontent Window-Content
-colormenusetup.menucontent_inactive Window-Content inactive
-colormenusetup.menucontent_selected Window-Content selected
-colormenusetup.menuhead Menu Header
-colorstatusbar.head Infobar
+colormenusetup.head Colors
+colormenusetup.menucontent Content
+colormenusetup.menucontent_inactive Content inactive
+colormenusetup.menucontent_selected Content selected
+colormenusetup.menuhead Header
 colorstatusbar.text Infobar
 colorthememenu.classic_theme Classic Theme
 colorthememenu.dblue_theme DarkBlue Theme
@@ -363,11 +360,13 @@ flashupdate.versioncheck checking version
 flashupdate.writeflash Write whole image
 flashupdate.writeflashmtd Write one partition
 flashupdate.wrongbase Your Release cycle differs.\nTo continue?
+fontmenu.menu Menu
+fontmenu.sizes Font sizes
 fontmenu.channellist Channellist
 fontmenu.epg EPG
 fontmenu.eventlist Eventlist
 fontmenu.gamelist Gamelist
-fontmenu.head Fontsize settings
+fontmenu.head Font settings
 fontmenu.infobar Infobar
 fontsize.channel_num_zap direct selection
 fontsize.channellist Channellist
@@ -460,6 +459,7 @@ lcdmenu.statusline.volume volume
 mainmenu.audioplayer Audioplayer
 mainmenu.games Games
 mainmenu.head Main Menu
+mainmenu.media Media
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd Read EPG
 mainmenu.pictureviewer Picture viewer
@@ -884,7 +884,6 @@ timersettings.separator Timer settings
 timing.chanlist Channellist
 timing.epg Epg
 timing.filebrowser Filebrowser
-timing.head OSD Timeouts
 timing.hint_1 Time in sec. After this time the
 timing.hint_2 infobar will be faded out.
 timing.infobar Infobar
