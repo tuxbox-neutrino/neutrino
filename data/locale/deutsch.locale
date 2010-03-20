@@ -101,7 +101,7 @@ cam.empty Kein CAM im Slot
 cam.init_ok CAM-Init beendet ->
 cam.inserted CAM im Slot
 cam.removed CAM entfernt -> Slot
-cam.settings Common Interface
+cam.settings CI-Module
 cam.timeout CAM antwortet nicht
 cam.reset Reset
 cam.reset_standby Reset nach standby
