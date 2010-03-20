@@ -48,7 +48,7 @@ int usage (const char * basename)
 	std::cout << "save bouquets: " << basename << " -sb" << std::endl
 		  << std::endl;
 	std::cout << "show satellites: " << basename << " -sh" << std::endl;
-	std::cout << "rezap" << basename << " -rz" << std::endl;
+	std::cout << "rezap " << basename << " -rz" << std::endl;
 	std::cout << "select satellites: " << basename << " -se <satmask> <diseqc order>" << std::endl;
 	std::cout << "start transponderscan: " << basename << " -st" << std::endl
 		  << std::endl;
@@ -59,6 +59,13 @@ int usage (const char * basename)
 	std::cout << "shutdown zapit: " << basename << " -kill" << std::endl;
 	std::cout << "enter standby: " << basename << " -esb" << std::endl;
 	std::cout << "leave standby: " << basename << " -lsb" << std::endl;
+	std::cout << "get aspect ratio: " << basename << " -var" << std::endl;
+	std::cout << "set aspect ratio: " << basename << " -var <aspectratio>" << std::endl;
+#if 0
+	//FIXME howto read aspect mode back?
+	std::cout << "get 4:3 mode: " << basename << " -vm43" << std::endl;
+#endif
+	std::cout << "set 4:3 mode: " << basename << " -vm43 <4:3mode>" << std::endl;
 	std::cout << "switch to hd 1080i mode: " << basename << " --1080" << std::endl;
 	std::cout << "switch to pal mode: " << basename << " --pal" << std::endl;
 	std::cout << "switch to hd 720p mode: " << basename << " --720p" << std::endl;
@@ -83,6 +90,8 @@ int main (int argc, char** argv)
 	int mute = -1;
 	int volume = -1;
 	int nvod = -1;
+	int arat = -1;
+	int m43 = -1;
 	const char * channelName = NULL;
 
 	bool playback = false;
@@ -103,6 +112,8 @@ int main (int argc, char** argv)
 	bool sendMotorCommand = false;
 	bool quiet = false;
 	bool getchannel = false;
+	bool aspectratio = false;
+	bool mode43 = false;
 	uint8_t motorCmdType = 0;
 	uint8_t motorCmd = 0;
 	uint8_t motorNumParameters = 0;
@@ -232,6 +243,26 @@ int main (int argc, char** argv)
 		{
 			recordmode = true;
 			continue;
+		}
+		else if (!strncmp(argv[i], "-var", 4))
+		{
+			aspectratio = true;
+			if (i < argc - 1)
+				sscanf(argv[++i], "%d", &arat);
+			continue;
+		}
+		else if (!strncmp(argv[i], "-vm43", 5))
+		{
+			mode43 = true;
+			if (i < argc - 1)
+			{
+				sscanf(argv[++i], "%d", &m43);
+				continue;
+			}
+#if 0 
+			//FIXME howto read aspect mode back?
+			continue;
+#endif
 		}
 		else if (!strncmp(argv[i], "-sb", 3))
 		{
@@ -438,6 +469,30 @@ int main (int argc, char** argv)
 	if (recordmode)
 	{
 		zapit.setRecordMode(!zapit.isRecordModeActive());
+		return 0;
+	}
+
+	if (aspectratio)
+	{
+		if(arat >= 0)
+			zapit.setAspectRatio(arat);
+		else
+		{
+			zapit.getAspectRatio(&arat);
+			printf("%d\n", arat);
+		}
+		return 0;
+	}
+
+	if (mode43)
+	{
+		if(m43 >= 0)
+			zapit.setMode43(m43);
+		else
+		{
+			zapit.getMode43(&m43);
+			printf("%d\n",m43);
+		}
 		return 0;
 	}
 

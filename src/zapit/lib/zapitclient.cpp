@@ -1004,6 +1004,40 @@ bool CZapitClient::isRecordModeActive()
 	return response.activated;
 }
 
+void CZapitClient::getAspectRatio(int *ratio)
+{
+	CZapitMessages::commandInt msg;
+	send(CZapitMessages::CMD_GET_ASPECTRATIO, 0, 0);
+	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	* ratio = msg.val;
+	close_connection();
+}
+
+void CZapitClient::setAspectRatio(int ratio)
+{
+	CZapitMessages::commandInt msg;
+	msg.val = ratio;
+	send(CZapitMessages::CMD_SET_ASPECTRATIO, (char*)&msg, sizeof(msg));
+	close_connection();
+}
+
+void CZapitClient::getMode43(int *m43)
+{
+	CZapitMessages::commandInt msg;
+	send(CZapitMessages::CMD_GET_MODE43, 0, 0);
+	CBasicClient::receive_data((char* )&msg, sizeof(msg));
+	* m43 = msg.val;
+	close_connection();
+}
+
+void CZapitClient::setMode43(int m43)
+{
+	CZapitMessages::commandInt msg;
+	msg.val = m43;
+	send(CZapitMessages::CMD_SET_MODE43, (char*)&msg, sizeof(msg));
+	close_connection();
+}
+
 void CZapitClient::registerEvent(const unsigned int eventID, const unsigned int clientID, const char * const udsName)
 {
 	CEventServer::commandRegisterEvent msg;

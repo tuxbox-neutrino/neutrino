@@ -136,15 +136,19 @@ class CZapitMessages
 			CMD_TUNE_TP                        = 91,
 			CMD_SB_LOCK_PLAYBACK		   = 92,
 			CMD_SB_UNLOCK_PLAYBACK		   = 93,
-			CMD_GET_BOUQUET_NCHANNELS           = 94,
+			CMD_GET_BOUQUET_NCHANNELS          = 94,
 			CMD_SET_EVENT_MODE                 = 95,
-			CMD_REZAP		  = 96,
-			CMD_GETCONFIG		  = 97,
-			CMD_SETCONFIG		  = 98,
-			CMD_SCANSTOP                      = 99,
-			CMD_GET_VOLUME          = 104,
-			CMD_GET_AUDIO_MODE      = 105,
-			CMD_GET_MUTE_STATUS				= 106
+			CMD_REZAP		  	   = 96,
+			CMD_GETCONFIG		  	   = 97,
+			CMD_SETCONFIG		  	   = 98,
+			CMD_SCANSTOP			   = 99,
+			CMD_GET_VOLUME			   = 104,
+			CMD_GET_AUDIO_MODE		   = 105,
+			CMD_GET_MUTE_STATUS		   = 106,
+			CMD_GET_ASPECTRATIO		   = 107,
+			CMD_SET_ASPECTRATIO		   = 108,
+			CMD_GET_MODE43			   = 109,
+			CMD_SET_MODE43			   = 110
 
 		};
 

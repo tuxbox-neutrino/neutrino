@@ -82,6 +82,8 @@ map<t_channel_id, audio_map_set_t>::iterator audio_map_it;
 unsigned int volume_left = 0, volume_right = 0;
 unsigned int def_volume_left = 0, def_volume_right = 0;
 int audio_mode = 0;
+int aspectratio=0;
+int mode43=0;
 int def_audio_mode = 0;
 t_channel_id live_channel_id;
 static t_channel_id rec_channel_id;
@@ -1443,12 +1445,48 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		audio_mode = msg.val;
 		break;
 	}
-        case CZapitMessages::CMD_GET_AUDIO_MODE: {
-                CZapitMessages::commandInt msg;
-                msg.val = (int) audio_mode;
-                CBasicServer::send_data(connfd, &msg, sizeof(msg));
-                break;
-        }
+
+	case CZapitMessages::CMD_GET_AUDIO_MODE: {
+		CZapitMessages::commandInt msg;
+		msg.val = (int) audio_mode;
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
+
+	case CZapitMessages::CMD_SET_ASPECTRATIO: {
+		CZapitMessages::commandInt msg;
+		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
+		aspectratio=(int) msg.val;
+		if(videoDecoder) videoDecoder->setAspectRatio(aspectratio, -1);
+		break;
+	}
+
+	case CZapitMessages::CMD_GET_ASPECTRATIO: {
+		CZapitMessages::commandInt msg;
+		if(videoDecoder) aspectratio=videoDecoder->getAspectRatio();
+		msg.val = aspectratio;
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
+
+	case CZapitMessages::CMD_SET_MODE43: {
+		CZapitMessages::commandInt msg;
+		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
+		mode43=(int) msg.val;
+		if(videoDecoder) videoDecoder->setAspectRatio(-1, mode43);
+		break;
+	}
+
+#if 0 
+	//FIXME howto read aspect mode back?
+	case CZapitMessages::CMD_GET_MODE43: {
+		CZapitMessages::commandInt msg;
+		if(videoDecoder) mode43=videoDecoder->getCroppingMode();
+		msg.val = mode43;
+		CBasicServer::send_data(connfd, &msg, sizeof(msg));
+		break;
+	}
+#endif
 
 	case CZapitMessages::CMD_GETPIDS: {
 		if (channel) {
