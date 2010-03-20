@@ -126,22 +126,22 @@ colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
 colormenu.fade Menüs faden
-colormenu.font Schriftgröße
+colormenu.font Neutrino Schriftart
 colormenu.font_ttx Teletext Schriftart
 colormenu.gtx_alpha Transparenz (GTX)
 colormenu.head Farb-Einstellungen
 colormenu.menucolors Menüfarben
-colormenu.statusbar Statusbalken
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
 colormenu.timing OSD Timeouts
 colormenu.osd_preset Monitor Auswahl
+colormenu.hd_preset LCD
+colormenu.sd_preset CRT
 colormenusetup.head Menüfarben
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
 colormenusetup.menuhead Titelleiste
-colorstatusbar.head Statusbalken-Farben
 colorstatusbar.text Statusbalken
 colorthememenu.classic_theme Klassik
 colorthememenu.dblue_theme DarkBlue Theme
@@ -215,7 +215,6 @@ EPGPlus.remind Vormerken
 EPGPlus.reset_settings Einstellungen zurücksetzen
 EPGPlus.save_settings Einstellungen speichern
 EPGPlus.scroll_mode Scroll-Modus
-EPGPlus.select_font_name Schrift wählen
 EPGPlus.settings Einstellungen
 EPGPlus.slider_width Breite des Schiebereglers
 EPGPlus.stretch_mode Stretch-Modus
@@ -329,7 +328,7 @@ extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
 extra.zapit_backup Sichere Kanalliste nach /tmp
 extra.zapit_fast_zap Schnellumschaltung
-extra.zapit_fe_timeout Tuning Zeitüberschreitung (1 = 10ms)
+extra.zapit_fe_timeout Tuning Timeout (1=10ms)
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_menu Zapit-Einstellungen
@@ -428,11 +427,13 @@ flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
 flashupdate.writeflashmtd einzelne Partition einspielen
 flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
+fontmenu.menu Menü
+fontmenu.sizes Schriftgrössen
 fontmenu.channellist Kanalliste
 fontmenu.epg EPG (Programmführer)
 fontmenu.eventlist Event-Liste
 fontmenu.gamelist Spiele-Liste
-fontmenu.head Einstellungen der Schriftgrössen
+fontmenu.head Schrift
 fontmenu.infobar Infobar
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
@@ -639,6 +640,7 @@ mainmenu.audioplayer Audioplayer
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
 mainmenu.head Hauptmenü
+mainmenu.media Multimedia
 mainmenu.movieplayer Movieplayer
 mainmenu.pausesectionsd EPG auslesen
 mainmenu.pictureviewer Bildbetrachter
@@ -1308,11 +1310,10 @@ timersettings.separator Timereinstellungen
 timing.chanlist Kanalliste
 timing.epg EPG
 timing.filebrowser Filebrowser
-timing.head OSD Timeouts
 timing.hint_1 Einblendzeit in Sek., die das OSD
 timing.hint_2 auf dem TV angezeigt wird
 timing.infobar Infobar
-timing.menu Menu
+timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
 ucodecheck.avia500 Avia 500
 ucodecheck.avia600 Avia 600
@@ -1361,7 +1362,7 @@ videomenu.panscan Pan & Scan
 videomenu.panscan2 14:9 Pan & Scan
 videomenu.rgb_centering RGB-Zentrierung
 videomenu.scart Scart
-videomenu.screensetup Bildbereich einstellen
+videomenu.screensetup Bildbereich
 videomenu.tv-scart TV Scart
 videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR-Ausgang Signalart
