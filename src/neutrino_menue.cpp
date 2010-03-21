@@ -1013,6 +1013,8 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	int sfound = 0;
 	int dmode = scanSettings.diseqcMode;
 	int shortcut = 1;
+	int all_usals = 1;
+
 	CTPSelectHandler * tpSelect = new CTPSelectHandler();
 
 	CSatelliteSetupNotifier * satNotify = new CSatelliteSetupNotifier();
@@ -1067,6 +1069,8 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 			CMenuOptionNumberChooser * motor = new CMenuOptionNumberChooser(LOCALE_SATSETUP_MOTOR_POS, &sit->second.motor_position, true, 0, 64, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 			//CMenuOptionChooser * usals = new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  &sit->second.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, dmode == DISEQC_ADVANCED);
 			CMenuOptionChooser * usals = new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  &sit->second.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+			if(!sit->second.use_usals)
+				all_usals = 0;
 
 			satNotify->addItem(1, diseqc);
 			satNotify->addItem(0, comm);
@@ -1154,6 +1158,9 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		toff = new CStringInput(LOCALE_EXTRA_LONG, (char *) zapit_long, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
 		motorMenu->addItem(new CMenuForwarder(LOCALE_EXTRA_LONG, true, zapit_long, toff));
 		motorMenu->addItem(new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF) );
+		CAllUsalsNotifier * usalsNotify = new CAllUsalsNotifier();
+		CMenuOptionChooser * allusals = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &all_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, usalsNotify);
+		motorMenu->addItem(allusals);
 	}
 
 	if (!sfound && satellitePositions.size()) {

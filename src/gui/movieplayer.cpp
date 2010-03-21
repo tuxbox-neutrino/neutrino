@@ -1231,7 +1231,7 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 
 		if (exit) {
-printf("Exit, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, p_movie_info);
+//printf("Exit, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, p_movie_info);
 			if (isMovieBrowser == true && p_movie_info != NULL) {
 				// if we have a movie information, try to save the stop position
 				ftime(&current_time);

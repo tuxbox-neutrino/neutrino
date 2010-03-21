@@ -1570,6 +1570,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "screen_StartY_crt", g_settings.screen_StartY_crt );
 	configfile.setInt32( "screen_EndX_crt", g_settings.screen_EndX_crt );
 	configfile.setInt32( "screen_EndY_crt", g_settings.screen_EndY_crt );
+	configfile.setInt32( "screen_preset", g_settings.screen_preset );
 	configfile.setInt32( "screen_width", g_settings.screen_width);
 	configfile.setInt32( "screen_height", g_settings.screen_height);
 

@@ -63,6 +63,7 @@
 #include <pwrmngr.h>
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"
+#include <zapit/satconfig.h>
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -1002,4 +1003,16 @@ printf("CScreePresetNotifier::changeNotify preset %d (setting %d)\n", preset, g_
 	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
 	CFrameBuffer::getInstance()->Clear();
 	return true;
+}
+
+bool CAllUsalsNotifier::changeNotify(const neutrino_locale_t OptionName, void * data)
+{
+	int onoff = * (int *) data;
+printf("CAllUsalsNotifier::changeNotify: %s\n", onoff ? "ON" : "OFF");
+
+	sat_iterator_t sit;
+
+	for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		sit->second.use_usals = onoff;
+	}
 }
