@@ -110,6 +110,17 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 				g_settings.screen_EndX = x_coord[1];
 				g_settings.screen_StartY = y_coord[0];
 				g_settings.screen_EndY = y_coord[1];
+				if(g_settings.screen_preset) {
+					g_settings.screen_StartX_lcd = g_settings.screen_StartX;
+					g_settings.screen_StartY_lcd = g_settings.screen_StartY;
+					g_settings.screen_EndX_lcd = g_settings.screen_EndX;
+					g_settings.screen_EndY_lcd = g_settings.screen_EndY;
+				} else {
+					g_settings.screen_StartX_crt = g_settings.screen_StartX;
+					g_settings.screen_StartY_crt = g_settings.screen_StartY;
+					g_settings.screen_EndX_crt = g_settings.screen_EndX;
+					g_settings.screen_EndY_crt = g_settings.screen_EndY;
+				}
 				if (g_InfoViewer) /* recalc infobar position */
 					g_InfoViewer->start();
 				loop = false;

@@ -317,6 +317,15 @@ struct SNeutrinoSettings
 	int screen_StartY;
 	int screen_EndX;
 	int screen_EndY;
+	int screen_StartX_crt;
+	int screen_StartY_crt;
+	int screen_EndX_crt;
+	int screen_EndY_crt;
+	int screen_StartX_lcd;
+	int screen_StartY_lcd;
+	int screen_EndX_lcd;
+	int screen_EndY_lcd;
+	int screen_preset;
 	int screen_width;
 	int screen_height;
 

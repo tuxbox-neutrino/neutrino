@@ -721,10 +721,15 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
-#define DEFAULT_X_START 60
-#define DEFAULT_Y_START 20
-#define DEFAULT_X_END   1220
-#define DEFAULT_Y_END   560
+#define DEFAULT_X_START_SD	60
+#define DEFAULT_Y_START_SD	20
+#define DEFAULT_X_END_SD	1220
+#define DEFAULT_Y_END_SD	560
+
+#define DEFAULT_X_START_HD	5
+#define DEFAULT_Y_START_HD	5
+#define DEFAULT_X_END_HD	1275
+#define DEFAULT_Y_END_HD	715
 
 std::string ttx_font_file = "";
 
@@ -1044,10 +1049,21 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	//screen configuration
-	g_settings.screen_StartX = configfile.getInt32( "screen_StartX", DEFAULT_X_START);
-	g_settings.screen_StartY = configfile.getInt32( "screen_StartY", DEFAULT_Y_START );
-	g_settings.screen_EndX = configfile.getInt32( "screen_EndX", DEFAULT_X_END);
-	g_settings.screen_EndY = configfile.getInt32( "screen_EndY", DEFAULT_Y_END);
+	g_settings.screen_StartX_crt = configfile.getInt32( "screen_StartX_crt", DEFAULT_X_START_SD);
+	g_settings.screen_StartY_crt = configfile.getInt32( "screen_StartY_crt", DEFAULT_Y_START_SD );
+	g_settings.screen_EndX_crt = configfile.getInt32( "screen_EndX_crt", DEFAULT_X_END_SD);
+	g_settings.screen_EndY_crt = configfile.getInt32( "screen_EndY_crt", DEFAULT_Y_END_SD);
+	g_settings.screen_StartX_lcd = configfile.getInt32( "screen_StartX_lcd", DEFAULT_X_START_HD);
+	g_settings.screen_StartY_lcd = configfile.getInt32( "screen_StartY_lcd", DEFAULT_Y_START_HD );
+	g_settings.screen_EndX_lcd = configfile.getInt32( "screen_EndX_lcd", DEFAULT_X_END_HD);
+	g_settings.screen_EndY_lcd = configfile.getInt32( "screen_EndY_lcd", DEFAULT_Y_END_HD);
+	g_settings.screen_preset = configfile.getInt32( "screen_preset", 0);
+
+	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
+	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
+	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
+	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
+
 	g_settings.screen_width = configfile.getInt32("screen_width", 0);
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
@@ -1198,12 +1214,14 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 		g_settings.uboot_console_bak = g_settings.uboot_console;
 	}
 #endif
+	/* in case FB resolution changed */
 	if((g_settings.screen_width && g_settings.screen_width != (int) frameBuffer->getScreenWidth(true))
-		|| (g_settings.screen_height && g_settings.screen_height != (int) frameBuffer->getScreenHeight(true))) {
-		g_settings.screen_StartX = DEFAULT_X_START;
-		g_settings.screen_StartY = DEFAULT_Y_START;
-		g_settings.screen_EndX = DEFAULT_X_END;
-		g_settings.screen_EndY = DEFAULT_Y_END;
+			|| (g_settings.screen_height && g_settings.screen_height != (int) frameBuffer->getScreenHeight(true))) {
+		g_settings.screen_StartX = g_settings.screen_preset ? DEFAULT_X_START_HD : DEFAULT_X_START_SD;
+		g_settings.screen_StartY = g_settings.screen_preset ? DEFAULT_Y_START_HD : DEFAULT_Y_START_SD;
+		g_settings.screen_EndX = g_settings.screen_preset ? DEFAULT_X_END_HD : DEFAULT_X_END_SD;
+		g_settings.screen_EndY = g_settings.screen_preset ? DEFAULT_Y_END_HD : DEFAULT_Y_END_SD;
+
 		g_settings.screen_width = frameBuffer->getScreenWidth(true);
 		g_settings.screen_height = frameBuffer->getScreenHeight(true);
 	}
@@ -1544,10 +1562,14 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 
 	//screen configuration
-	configfile.setInt32( "screen_StartX", g_settings.screen_StartX );
-	configfile.setInt32( "screen_StartY", g_settings.screen_StartY );
-	configfile.setInt32( "screen_EndX", g_settings.screen_EndX );
-	configfile.setInt32( "screen_EndY", g_settings.screen_EndY );
+	configfile.setInt32( "screen_StartX_lcd", g_settings.screen_StartX_lcd );
+	configfile.setInt32( "screen_StartY_lcd", g_settings.screen_StartY_lcd );
+	configfile.setInt32( "screen_EndX_lcd", g_settings.screen_EndX_lcd );
+	configfile.setInt32( "screen_EndY_lcd", g_settings.screen_EndY_lcd );
+	configfile.setInt32( "screen_StartX_crt", g_settings.screen_StartX_crt );
+	configfile.setInt32( "screen_StartY_crt", g_settings.screen_StartY_crt );
+	configfile.setInt32( "screen_EndX_crt", g_settings.screen_EndX_crt );
+	configfile.setInt32( "screen_EndY_crt", g_settings.screen_EndY_crt );
 	configfile.setInt32( "screen_width", g_settings.screen_width);
 	configfile.setInt32( "screen_height", g_settings.screen_height);
 

@@ -2326,8 +2326,8 @@ void CNeutrinoApp::InitFontSettings(CMenuWidget &fontSettings)
 #define OSD_PRESET_OPTIONS_COUNT 2
 const CMenuOptionChooser::keyval OSD_PRESET_OPTIONS[OSD_PRESET_OPTIONS_COUNT] =
 {
-	{ 560, LOCALE_COLORMENU_SD_PRESET },
-	{ 696, LOCALE_COLORMENU_HD_PRESET }
+	{ 0, LOCALE_COLORMENU_SD_PRESET },
+	{ 1, LOCALE_COLORMENU_HD_PRESET }
 };
 
 void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fontSettings )
@@ -2349,7 +2349,8 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	colorSettings.addItem(new CMenuForwarder(LOCALE_COLORMENU_TIMING, true, NULL, colorSettings_timing, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	colorSettings.addItem(new CMenuForwarder(LOCALE_VIDEOMENU_SCREENSETUP, true, NULL, ScreenSetup, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
-	colorSettings.addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_EndY, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, NULL, CRCInput::RC_1));
+	CScreePresetNotifier * presetNotify = new CScreePresetNotifier();
+	colorSettings.addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify, CRCInput::RC_1));
 
 	//infobar
 	CMenuWidget *miscSettingsInfobar = new CMenuWidget(LOCALE_MISCSETTINGS_INFOBAR, NEUTRINO_ICON_SETTINGS);
