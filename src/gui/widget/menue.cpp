@@ -866,6 +866,9 @@ int CMenuOptionChooser::paint( bool selected , bool last)
 {
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 
+	if(optionName != NONEXISTANT_LOCALE)
+		optionNameString  = g_Locale->getText(optionName);
+
 	unsigned char color   = COL_MENUCONTENT;
 	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
 	if (selected)
