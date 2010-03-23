@@ -1015,4 +1015,5 @@ printf("CAllUsalsNotifier::changeNotify: %s\n", onoff ? "ON" : "OFF");
 	for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 		sit->second.use_usals = onoff;
 	}
+	return true;
 }

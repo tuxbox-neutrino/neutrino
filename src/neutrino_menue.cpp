@@ -1013,7 +1013,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	int sfound = 0;
 	int dmode = scanSettings.diseqcMode;
 	int shortcut = 1;
-	int all_usals = 1;
+	static int all_usals = 1;
 
 	CTPSelectHandler * tpSelect = new CTPSelectHandler();
 
@@ -1238,7 +1238,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		settings.addItem(fsatSetup);
 		settings.addItem(fmotorMenu);
 	}
-	settings.addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 0, 100) );
+	settings.addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100) );
 
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_AUTO_SCAN, true, NULL, autoScan, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
