@@ -776,8 +776,8 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 	//int val = highVoltage;
 	//fop(ioctl, FE_ENABLE_HIGH_LNB_VOLTAGE, val);
 
-	TIMER_INIT();
-	TIMER_START();
+	//TIMER_INIT();
+	//TIMER_START();
 	if (fop(ioctl, FE_SET_VOLTAGE, voltage) == 0) {
 		currentVoltage = voltage;
 		//TIMER_STOP("[fe0] FE_SET_VOLTAGE took");
