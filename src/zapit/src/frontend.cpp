@@ -345,13 +345,15 @@ uint32_t CFrontend::getRate()
 
 fe_status_t CFrontend::getStatus(void) const
 {
-#if 0 // FIXME FE_READ_STATUS should be fixed in drivers !
+#if 1 // FIXME FE_READ_STATUS works ?
 	struct dvb_frontend_event event;
 	fop(ioctl, FE_READ_STATUS, &event.status);
-	printf("CFrontend::getStatus: %d\n", event.status);
-#endif
+	//printf("CFrontend::getStatus: %x\n", event.status);
+	return (fe_status_t) (event.status & FE_HAS_LOCK);
+#else
 	fe_status_t status = (fe_status_t) tuned;
 	return status;
+#endif
 }
 
 struct dvb_frontend_parameters CFrontend::getFrontend(void) const
@@ -421,7 +423,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			continue;
 		}
 		if (ret == 0) {
-			TIMER_STOP("[fe0] poll timeout, time");
+			TIMER_STOP("[fe0] ############################## poll timeout, time");
 			msec += TIME_STEP;
 			continue;
 		}
@@ -429,21 +431,22 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 		if (pfd.revents & (POLLIN | POLLPRI)) {
 			TIMER_STOP("[fe0] poll has event after");
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
+
+			//fop(ioctl, FE_READ_STATUS, &event.status);
 			ret = ioctl(fd, FE_GET_EVENT, &event);
 			if (ret < 0) {
 				perror("CFrontend::getEvent ioctl");
 				continue;
 			}
-			printf("[fe0] poll events %d status %d\n", pfd.revents, event.status);
-			//fop(ioctl, FE_READ_STATUS, &event.status);
+			//printf("[fe0] poll events %d status %d\n", pfd.revents, event.status);
 
 			if (event.status & FE_HAS_LOCK) {
-				printf("[fe%d] FE_HAS_LOCK: freq %lu\n", fenumber, (long unsigned int)event.parameters.frequency);
+				printf("[fe%d] ****************************** FE_HAS_LOCK: freq %lu\n", fenumber, (long unsigned int)event.parameters.frequency);
 				tuned = true;
 				break;
 			} else if (event.status & FE_TIMEDOUT) {
-				printf("[fe%d] FE_TIMEDOUT\n", fenumber);
-				/*break; */
+				printf("[fe%d] ############################## FE_TIMEDOUT\n", fenumber);
+				break;
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
 					printf("[fe%d] FE_HAS_SIGNAL\n", fenumber);
@@ -659,13 +662,13 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	//printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
 
 	{
-		TIMER_INIT();
-		TIMER_START();
+		//TIMER_INIT();
+		//TIMER_START();
 		if ((ioctl(fd, FE_SET_PROPERTY, &clr_cmdseq)) == -1) {
 			perror("FE_SET_PROPERTY failed");
 			return 0;
 		}
-		TIMER_STOP("[fe0] FE_SET_PROPERTY clear took");
+		//TIMER_STOP("[fe0] FE_SET_PROPERTY clear took");
 	}
 
 	struct dtv_properties *p;
@@ -707,7 +710,7 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		pfd.events = POLLIN | POLLPRI;
 		pfd.revents = 0;
 
-#if 0
+#if 1
 		while (1) {
 			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
 				break;
@@ -725,13 +728,13 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
 
 	{
-		TIMER_INIT();
-		TIMER_START();
+		//TIMER_INIT();
+		//TIMER_START();
 		if ((ioctl(fd, FE_SET_PROPERTY, p)) == -1) {
 			perror("FE_SET_PROPERTY failed");
 			return false;
 		}
-		TIMER_STOP("[fe0] FE_SET_PROPERTY took");
+		//TIMER_STOP("[fe0] FE_SET_PROPERTY took");
 	}
 	{
 		TIMER_INIT();
@@ -758,9 +761,9 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 	TIMER_START();
 	if (fop(ioctl, FE_SET_TONE, toneMode) == 0) {
 		currentToneMode = toneMode;
+		TIMER_STOP("[fe0] FE_SET_TONE took");
 		usleep(1000 * ms);
 	}
-	TIMER_STOP("[fe0] FE_SET_TONE took");
 }
 
 void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
@@ -777,9 +780,9 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 	TIMER_START();
 	if (fop(ioctl, FE_SET_VOLTAGE, voltage) == 0) {
 		currentVoltage = voltage;
+		//TIMER_STOP("[fe0] FE_SET_VOLTAGE took");
 		usleep(1000 * ms);	// FIXME : is needed ?
 	}
-	TIMER_STOP("[fe0] FE_SET_VOLTAGE took");
 }
 
 void CFrontend::secResetOverload(void)
