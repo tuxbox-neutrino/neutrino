@@ -95,7 +95,7 @@ THandleStatus CNeutrinoYParser::Hook_ReadConfig(CConfigFile *Config, CStringList
 		Config->setInt32("configfile.version", CONF_VERSION);
 		Config->saveConfig(HTTPD_CONFIGFILE);
 	}
-
+	std::string logo = ConfigList["TUXBOX_LOGOS_URL"];
 	return HANDLED_CONTINUE;
 }
 
@@ -342,15 +342,12 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 
 		std::string bouquetstr = (BouquetNr >= 0) ? ("&amp;bouquet=" + itoa(BouquetNr)) : "";
 		yresult += "<tr>";
-//FIXME: Logo-Extensions
+
 		if(have_logos)
 			yresult += string_printf("<td class=\"%c\" width=\"44\" rowspan=\"2\"><a href=\"javascript:do_zap('"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"')\"><img class=\"channel_logo\" src=\"%s/"
-					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					".jpg\"/></a></td>", classname, channel->channel_id,
-					(hh->WebserverConfigList["Tuxbox.LogosURL"]).c_str(),
-					channel->channel_id & 0xFFFFFFFFFFFFULL);
+					"')\"><img class=\"channel_logo\" src=\"%s\"/></a></td>", classname, channel->channel_id,
+					(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id)).c_str());
 
 		/* timer slider */
 		if(event && event->duration > 0)

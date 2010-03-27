@@ -601,6 +601,7 @@ tr {
 	background-color: white;
 	left: 50px;
 	top: 50px;
+	width: 600px;
 }
 #epg_time {
 	font-size: 8pt;

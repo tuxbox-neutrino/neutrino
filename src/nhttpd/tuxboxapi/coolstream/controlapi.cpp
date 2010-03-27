@@ -190,7 +190,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"updatebouquet",	&CControlAPI::updateBouquetCGI,	"text/plain"},
 	// utils
 	{"build_live_url",	&CControlAPI::build_live_url,	""},
-
+	{"get_logo",		&CControlAPI::logoCGI,	"text/plain"},
 
 };
 //-----------------------------------------------------------------------------
@@ -844,11 +844,13 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 					"</id>\n\t<short_id>"
 					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"</short_id>\n\t<name><![CDATA[%s]]></name>\n</channel>\n",
+					"</short_id>\n\t<name><![CDATA[%s]]></name>\n<logo><![CDATA[%s]]></logo>\n</channel>\n",
 					num + j,
 					channel->channel_id,
 					channel->channel_id&0xFFFFFFFFFFFFULL,
-					channel->getName().c_str());
+					channel->getName().c_str(),
+					NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id).c_str()
+					);
 			}
 			hh->WriteLn("</bouquetlist>");
 		}
@@ -1926,4 +1928,13 @@ void CControlAPI::build_live_url(CyhookHandler *hh)
 		hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
 		hh->Write(url);
 	}
+}
+//-------------------------------------------------------------------------
+void CControlAPI::logoCGI(CyhookHandler *hh)
+{
+	t_channel_id channel_id;
+	sscanf(hh->ParamList["1"].c_str(),
+		SCANF_CHANNEL_ID_TYPE,
+		&channel_id);
+	hh->Write(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel_id));
 }

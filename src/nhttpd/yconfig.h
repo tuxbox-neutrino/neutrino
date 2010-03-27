@@ -25,7 +25,7 @@
 //-----------------------------------------------------------------------------
 // General central Definitions <configure!>
 //-----------------------------------------------------------------------------
-#define HTTPD_VERSION 		"3.2.6"				// Webserver version  (can be overloaded)
+#define HTTPD_VERSION 		"3.2.7"				// Webserver version  (can be overloaded)
 #define YHTTPD_VERSION 		"1.3.1"				// Webserver version  (Version of yhttpd-core!)
 #define IADDR_LOCAL 		"127.0.0.1"			// local IP
 #define HTTPD_NAME 			"yhttpd"			// Webserver name (can be overloaded)

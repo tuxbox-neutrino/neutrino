@@ -76,6 +76,7 @@ class CNeutrinoAPI
 	std::string getVideoFramerateAsString(void);
 	std::string getAudioInfoAsString(void);
 	std::string getCryptInfoAsString(void);
+	std::string getLogoFile(std::string _logoURL, t_channel_id channelId);
 public:
 	CNeutrinoAPI();
 	~CNeutrinoAPI(void);

@@ -51,7 +51,7 @@ function do_check(){
 	sLog_addRow(sLog_body, "ok", "yWeb Version is: {=ini-get:Y_Version.txt;version=} {=ini-get:Y_Version.txt;date=}", "ok");
 
 	/*webserver*/
-	var needed_nhttpd_version = "3.2.6";
+	var needed_nhttpd_version = "3.2.7";
 	var nhttpd_version = loadSyncURL("/control/info?nhttpd_version");
 	if(nhttpd_version.search(/error/)!=-1)
 		nhttpd_version = "0.0.0-unknown";

@@ -94,6 +94,7 @@ private:
 	void changeBouquetCGI(CyhookHandler *hh);
 	void updateBouquetCGI(CyhookHandler *hh);
 	void build_live_url(CyhookHandler *hh);
+	void logoCGI(CyhookHandler *hh);
 
 protected:
 	static const unsigned int PLUGIN_DIR_COUNT = 5;

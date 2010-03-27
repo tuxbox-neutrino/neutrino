@@ -61,9 +61,10 @@ function show_epg_item(_index){
 	$("d_start").update(epg_data[_index][3]);
 	$("d_stop").update(epg_data[_index][5]);
 	$("d_channel_id").update(epg_data[_index][6]);
-	$('d_logo').update( (g_logosURL!="")?"<img class=\"channel_logos\" src=\""+g_logosURL+"/"+epg_data[_index][6]+".gif\">":"" );
+	var logo =epg_data[_index][7];
+	$('d_logo').update( (logo!="")?"<img class=\"channel_logos\" src=\""+logo+"\">":"" );
 	var imdb_link = '<a target="_blank" class="exlink" href="http://german.imdb.com/find?s=all&q='+(epg_data[_index][0]).gsub(" ","+")+'">IMDb</a>';
-	var klack_link = '<a target="_blank" class="exlink" href="http://klack.de/ProgramFinder2.php3?ZWTITLE='+(epg_data[_index][0]).gsub(" ","+")+'">klack.de</a>';
+	var klack_link = '<a target="_blank" class="exlink" href="http://www.klack.de/index.php?page=Programfinder2.php&TITLE='+(epg_data[_index][0]).gsub(" ","+")+'">klack.de</a>';
 	var tvinfo_link = '<a target="_blank" class="exlink" href="http://www.tvinfo.de/exe.php3?quicksearch=1&volltext='+(epg_data[_index][0]).gsub(" ","+")+'&tpk=&showall=&genretipp=&target=list.inc">tvinfo.de</a>';
 	$('d_lookup').update(imdb_link+" "+klack_link+" "+tvinfo_link);
 	
@@ -78,7 +79,7 @@ function show_epg_item(_index){
 	show_obj("epg_info",true);
 }
 /* build one channel row*/
-function build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime)
+function build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime, _logo)
 {
 	var xml = loadSyncURLxml("/control/epg?xml=true&channelid="+__channel_id+"}&details=true&stoptime="+_stoptime);
 	if(xml){
@@ -98,7 +99,7 @@ function build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime)
 				var _info2	= epg_de_qout(getXMLNodeItemValue(prog, "info2"));
 				var __item = obj_createAt(__bdiv, "div", "ep_bouquet_item");
 
-				var epg_obj= new Array(_desc, _info1, _info2, _start, _start_t, _stop.toString(), __channel_id);
+				var epg_obj= new Array(_desc, _info1, _info2, _start, _start_t, _stop.toString(), __channel_id, _logo);
 				epg_data.push(epg_obj);
 				__item.innerHTML = "<span onclick=\"show_epg_item('"+epg_data_index+"');\" title=\""+_start_t+" "+_desc+" (click for details)\">"+_desc+"</span>";
 				build_epg_setbox(__item, _starttime, _stoptime, _start, _stop);
@@ -191,12 +192,13 @@ function build_epg_plus_loop(_starttime, _stoptime)
 		var __channel_name = getXMLNodeItemValue(_bouquet, "name");
 		var __channel_id = getXMLNodeItemValue(_bouquet, "id");
 		var __short_channel_id = getXMLNodeItemValue(_bouquet, "short_id");
+		var __logo = getXMLNodeItemValue(_bouquet, "logo");
 		var ep = $("epg_plus");
 		var __bdiv = obj_createAt(ep, "div", "ep_bouquet");
 		var __bname_div = obj_createAt(__bdiv, "div", "ep_bouquet_name");
-		var ch_name_with_logo= (g_logosURL!="")?"<img class=\"channel_logos\" src=\""+g_logosURL+"/"+__short_channel_id+".jpg\" title=\""+__channel_name+"\" alt=\""+__channel_name+"\" >":__channel_name;
+		var ch_name_with_logo= (g_logosURL!="")?"<img class=\"channel_logos\" src=\""+__logo+"\" title=\""+__channel_name+"\" alt=\""+__channel_name+"\" >":__channel_name;
 		$(__bname_div).update("<a href=\"javascript:do_zap('"+__channel_id+"');\">"+ch_name_with_logo+"</a>");
-		build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime);
+		build_epg_bouquet(__bdiv, __channel_id, _starttime, _stoptime, __logo);
 		window.setTimeout("build_epg_plus_loop("+_starttime+","+_stoptime+")",100);
 		g_i++;
 	}
