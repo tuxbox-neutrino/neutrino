@@ -502,7 +502,7 @@ int parse_fnt(unsigned short pid, unsigned short operator_id)
 			FrontendParameters feparams;
 			uint8_t polarization;
 			t_satellite_position satellitePosition = 0;
-			freq_id_t freq;
+			freq_id_t freq = 0;
 
 			for (pos2 = pos + 6; pos2 < pos + transport_descriptors_length + 6; pos2 += buffer[pos2 + 1] + 2)
 			{

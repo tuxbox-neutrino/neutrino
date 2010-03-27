@@ -131,7 +131,7 @@ int startPlayBack(CZapitChannel * thisChannel);
 int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool nowait = 0);
 
 #define TIMER_INIT()					\
-	static unsigned int tmin = 2000, tmax;		\
+	static unsigned int tmin = 2000, tmax = 0;	\
 	struct timeval tv, tv2;				\
 	unsigned int timer_msec = 0;
 
@@ -402,9 +402,6 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 	TIMER_INIT();
 
-	int msec = TIME_STEP;
-	int tmsec = msec;
-
 	pfd.fd = fd;
 	pfd.events = POLLIN | POLLPRI;
 	pfd.revents = 0;
@@ -415,16 +412,15 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 	TIMER_START();
 
 	//while (msec <= TIMEOUT_MAX_MS ) {
-	while ((int) timer_msec <= TIMEOUT_MAX_MS) {
+	while ((int) timer_msec < TIMEOUT_MAX_MS) {
 		//int ret = poll(&pfd, 1, TIME_STEP);
-		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS);
+		int ret = poll(&pfd, 1, TIMEOUT_MAX_MS - timer_msec);
 		if (ret < 0) {
 			perror("CFrontend::getEvent poll");
 			continue;
 		}
 		if (ret == 0) {
 			TIMER_STOP("[fe0] ############################## poll timeout, time");
-			msec += TIME_STEP;
 			continue;
 		}
 
@@ -446,7 +442,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 				break;
 			} else if (event.status & FE_TIMEDOUT) {
 				printf("[fe%d] ############################## FE_TIMEDOUT\n", fenumber);
-				break;
+				/*break;*/
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
 					printf("[fe%d] FE_HAS_SIGNAL\n", fenumber);
@@ -464,10 +460,6 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			TIMER_STOP("[fe0] poll hup after");
 			reset();
 		}
-		msec += TIME_STEP;
-		tmsec += TIME_STEP;
-		if (tmsec > 15000)
-			break;
 	}
 	//printf("[fe%d] event after: %d\n", fenumber, tmsec);
 	return event;
@@ -703,27 +695,14 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	struct dvb_frontend_event ev;
 
 	{
-		TIMER_INIT();
-		TIMER_START();
-		struct pollfd pfd;
-		pfd.fd = fd;
-		pfd.events = POLLIN | POLLPRI;
-		pfd.revents = 0;
-
-#if 1
+		//TIMER_INIT();
+		//TIMER_START();
 		while (1) {
 			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
 				break;
 			printf("[fe0] DEMOD: event status %d\n", ev.status);
 		}
-#else
-		int ret = poll(&pfd, 1, 100);
-		if (ret > 0) {
-			if (ioctl(fd, FE_GET_EVENT, &ev) >= 0)
-				printf("[fe0] CLEAR DEMOD: event status %d\n", ev.status);
-		}
-#endif
-		TIMER_STOP("[fe0] clear events took");
+		//TIMER_STOP("[fe0] clear events took");
 	}
 	printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
 
@@ -740,7 +719,8 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		TIMER_INIT();
 		TIMER_START();
 
-		getEvent();
+		struct dvb_frontend_event event;
+		event = getEvent();
 
 		TIMER_STOP("[fe0] tuning took");
 	}
