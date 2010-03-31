@@ -37,6 +37,7 @@ private:
 	void SendBouquet(CyhookHandler *hh,int BouquetNr);
 	void SendChannelList(CyhookHandler *hh);
 	void SendTimers(CyhookHandler *hh);
+	void SendTimersXML(CyhookHandler *hh);
 
 	// subs
 	friend class CNeutrinoWebserver; // for timer /fb/ compatibility
