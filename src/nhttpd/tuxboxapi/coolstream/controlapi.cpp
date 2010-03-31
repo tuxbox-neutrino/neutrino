@@ -1479,14 +1479,15 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 		std::string zRep = NeutrinoAPI->timerEventRepeat2Str(timer->eventRepeat);
 		std::string zRepCount;
 		if (timer->eventRepeat == CTimerd::TIMERREPEAT_ONCE)
-			zRepCount = "no";
+			zRepCount = "-";
 		else
 			zRepCount = (timer->repeatCount == 0) ? "&#x221E;" : string_printf("%dx",timer->repeatCount);
 		hh->printf("\t\t\t<repeat_count>%s</repeat_count>\n",zRepCount.c_str());
-		hh->printf("\t\t\t<repeat>%d</repeat>\n",(int)timer->eventRepeat);
+		hh->printf("\t\t\t<repeat_number>%d</repeat_number>\n",(int)timer->eventRepeat);
+		hh->printf("\t\t\t<repeat>%s</repeat>\n",zRep.c_str());
 		char weekdays[8]={0};
 		NeutrinoAPI->Timerd->setWeekdaysToStr(timer->eventRepeat, weekdays);
-		hh->printf("\t\t\t<repeat_text>%s</repeat_text>\n",weekdays);
+		hh->printf("\t\t\t<repeat_weekdays>%s</repeat_weekdays>\n",weekdays);
 
 		// channel infos
 		std::string channel_name = NeutrinoAPI->GetServiceName(timer->channel_id);
