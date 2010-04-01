@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <dirent.h>
 // tuxbox
+#include <global.h>
 #include <neutrinoMessages.h>
 #include <zapit/client/zapittools.h>
 #include <zapit/channel.h>
@@ -144,7 +145,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"getbouquetsxml", 	&CControlAPI::GetBouquetsxmlCGI,""},
 	{"channellist", 	&CControlAPI::ChannellistCGI,	"text/plain"},
 	{"getbouquet", 		&CControlAPI::GetBouquetCGI,	"+xml"},
-	{"getbouquets", 	&CControlAPI::GetBouquetsCGI,	"text/plain"},
+	{"getbouquets", 	&CControlAPI::GetBouquetsCGI,	"+xml"},
 	{"getmode", 		&CControlAPI::GetModeCGI,		"text/plain"},
 	{"setmode", 		&CControlAPI::SetModeCGI,		"text/plain"},
 	{"epg", 			&CControlAPI::EpgCGI,			""},
@@ -233,7 +234,7 @@ void CControlAPI::Execute(CyhookHandler *hh)
 	else if(std::string(yCgiCallList[index].mime_type) == "")	// decide in function
 		;
 	else if(std::string(yCgiCallList[index].mime_type) == "+xml")		// Parameter xml?
-		if (hh->ParamList["xml"] != "")
+		if ((hh->ParamList["xml"] != "") ||(hh->ParamList["format"] == "xml"))
 			hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 		else
 			hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
@@ -827,40 +828,22 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 					break;
 				}
 			}
-
 			hh->printf("%d",actual);
-		}
-		else if (!(hh->ParamList["xml"].empty()))
-		{
-			hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-			hh->WriteLn("<bouquetlist>");
-			hh->printf("<bouquet>\n\t<bnumber>%s</bnumber>\n</bouquet>\n",hh->ParamList["bouquet"].c_str());
-
-			ZapitChannelList channels;
-			int BouquetNr = atoi(hh->ParamList["bouquet"].c_str());
-			if(BouquetNr > 0)
-				BouquetNr--;
-			channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[BouquetNr]->radioChannels : g_bouquetManager->Bouquets[BouquetNr]->tvChannels;
-			int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr) : g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr)) ;
-			for(int j = 0; j < (int) channels.size(); j++) {
-				CZapitChannel * channel = channels[j];
-				hh->printf("<channel>\n\t<number>%u</number>\n\t<id>"
-					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"</id>\n\t<short_id>"
-					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"</short_id>\n\t<name><![CDATA[%s]]></name>\n<logo><![CDATA[%s]]></logo>\n</channel>\n",
-					num + j,
-					channel->channel_id,
-					channel->channel_id&0xFFFFFFFFFFFFULL,
-					channel->getName().c_str(),
-					NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id).c_str()
-					);
-			}
-			hh->WriteLn("</bouquetlist>");
 		}
 		else
 		{
-//FIXME - check for a better way
+			// write header
+			if (hh->ParamList["format"] == "json"){
+				hh->WriteLn("{");
+				hh->printf("\t{bouquetnumber: %d}\n",hh->ParamList["bouquet"].c_str());
+				hh->WriteLn("\t{cannels: {");
+			}
+			else if((hh->ParamList["format"] == "xml") || !(hh->ParamList["xml"].empty()) ){
+				hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+				hh->WriteLn("<bouquetlist>");
+				hh->printf("<bouquet>\n\t<bnumber>%s</bnumber>\n</bouquet>\n",hh->ParamList["bouquet"].c_str());
+			}
+
 			ZapitChannelList channels;
 			int BouquetNr = atoi(hh->ParamList["bouquet"].c_str());
 			if(BouquetNr > 0)
@@ -869,13 +852,47 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 			int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr) : g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr)) ;
 			for(int j = 0; j < (int) channels.size(); j++) {
 				CZapitChannel * channel = channels[j];
-				hh->printf("%u "
-					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					" %s\n",
-					num + j,
-					channel->channel_id,
-					channel->getName().c_str());
+
+				if (hh->ParamList["format"] == "json"){
+					hh->printf("\t\t{number: %u, id: "
+						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+						", short_id: "
+						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+						", name: %s, logo: %s}\n",
+						num + j,
+						channel->channel_id,
+						channel->channel_id&0xFFFFFFFFFFFFULL,
+						channel->getName().c_str(),
+						NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id).c_str()
+					);
+				}
+				else if((hh->ParamList["format"] == "xml") || !(hh->ParamList["xml"].empty()) ){
+					hh->printf("<channel>\n\t<number>%u</number>\n\t<id>"
+						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+						"</id>\n\t<short_id>"
+						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+						"</short_id>\n\t<name><![CDATA[%s]]></name>\n<logo><![CDATA[%s]]></logo>\n</channel>\n",
+						num + j,
+						channel->channel_id,
+						channel->channel_id&0xFFFFFFFFFFFFULL,
+						channel->getName().c_str(),
+						NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id).c_str()
+					);
+				}
+				else{
+					hh->printf("%u "
+						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+						" %s\n",
+						num + j,
+						channel->channel_id,
+						channel->getName().c_str());
+				}
 			}
+			// write footer
+			if (hh->ParamList["format"] == "json")
+				hh->WriteLn("\t}\n}");
+			else if((hh->ParamList["format"] == "xml") || !(hh->ParamList["xml"].empty()) )
+				hh->WriteLn("</bouquetlist>");
 		}
 	}
 	else
@@ -883,10 +900,55 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
+//	Return all bouquets
+//-----------------------------------------------------------------------------
+//	Parameter: 	format = <empty>|json|xml (optional) -> output type
+//				showhidden = true (default) | false -> show hidden bouquets
+//				encode = true | false (default) use URLencode
+//	Result:
+//				bouquet number, bouquet name
+//-----------------------------------------------------------------------------
 void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 {
-	for (unsigned int i = 0; i < NeutrinoAPI->BouquetList.size();i++)
-		hh->printf("%u %s\n", (NeutrinoAPI->BouquetList[i].bouquet_nr) + 1, NeutrinoAPI->BouquetList[i].name);
+	bool show_hidden = true;
+	bool encode = false;
+
+	if (hh->ParamList["showhidden"] == "false")
+		show_hidden = false;
+
+	if (hh->ParamList["encode"] == "true")
+		encode = true;
+
+	// write header
+	if (hh->ParamList["format"] == "json")
+		hh->WriteLn("{");
+	else if (hh->ParamList["format"] == "xml"){
+		hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		hh->WriteLn("<bouquets>");
+	}
+
+	int mode = NeutrinoAPI->Zapit->getMode();
+	std::string bouquet;
+	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
+		ZapitChannelList * channels = mode == CZapitClient::MODE_RADIO ? &g_bouquetManager->Bouquets[i]->radioChannels : &g_bouquetManager->Bouquets[i]->tvChannels;
+		if(!channels->empty() && (!g_bouquetManager->Bouquets[i]->bHidden || show_hidden)){
+			bouquet = std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str());
+			if(encode)
+				bouquet = encodeString(bouquet); // encode (URLencode) the bouquetname
+
+			if (hh->ParamList["format"] == "json")
+				hh->printf("{number: %u, name: %s}\n", i + 1, bouquet.c_str() );
+			else if (hh->ParamList["format"] == "xml")
+				hh->printf("\t<bouquet>\n\t\t<number>%u</number>\n\t\t<name>%s</name>\n\t</bouquet>\n", i + 1, bouquet.c_str() );
+			else
+				hh->printf("%u %s\n", i + 1, bouquet.c_str() );
+		}
+	}
+	// write footer
+	if (hh->ParamList["format"] == "json")
+		hh->WriteLn("}");
+	else if (hh->ParamList["format"] == "xml")
+		hh->WriteLn("</bouquets>");
 }
 
 //-----------------------------------------------------------------------------
