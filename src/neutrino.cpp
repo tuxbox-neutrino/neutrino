@@ -3130,7 +3130,7 @@ _repeat:
 				new_msg = (mode == mode_standby) ? NeutrinoMessages::STANDBY_OFF : NeutrinoMessages::STANDBY_ON;
 				//printf("standby: new msg %X\n", new_msg);
 				if ((g_settings.shutdown_real_rcdelay)) {
-					neutrino_msg_t      _msg;
+					neutrino_msg_t      _msg_;
 					neutrino_msg_data_t mdata;
 					struct timeval      endtime;
 					time_t              seconds;
@@ -3148,10 +3148,10 @@ _repeat:
 					//printf("standby: timeout %d\n", timeout);
 
 					while(true) {
-						g_RCInput->getMsg_ms(&_msg, &mdata, timeout);
+						g_RCInput->getMsg_ms(&_msg_, &mdata, timeout);
 
 						//printf("standby: input msg %X\n", msg);
-						if (_msg == CRCInput::RC_timeout)
+						if (_msg_ == CRCInput::RC_timeout)
 							break;
 
 						gettimeofday(&endtime, NULL);
@@ -3160,7 +3160,7 @@ _repeat:
 							seconds--;
 						//printf("standby: input seconds %d\n", seconds);
 						if (seconds >= 1) {
-							if (_msg == CRCInput::RC_standby)
+							if (_msg_ == CRCInput::RC_standby)
 								new_msg = NeutrinoMessages::SHUTDOWN;
 							break;
 						}

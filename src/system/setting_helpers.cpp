@@ -992,7 +992,7 @@ bool CCpuFreqNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return true;
 }
 
-bool CScreePresetNotifier::changeNotify(const neutrino_locale_t OptionName, void * data)
+bool CScreePresetNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
 {
 	int preset = * (int *) data;
 printf("CScreePresetNotifier::changeNotify preset %d (setting %d)\n", preset, g_settings.screen_preset);
@@ -1005,7 +1005,7 @@ printf("CScreePresetNotifier::changeNotify preset %d (setting %d)\n", preset, g_
 	return true;
 }
 
-bool CAllUsalsNotifier::changeNotify(const neutrino_locale_t OptionName, void * data)
+bool CAllUsalsNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
 {
 	int onoff = * (int *) data;
 printf("CAllUsalsNotifier::changeNotify: %s\n", onoff ? "ON" : "OFF");
