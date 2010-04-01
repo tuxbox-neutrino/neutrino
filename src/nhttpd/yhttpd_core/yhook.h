@@ -69,14 +69,14 @@ class Cyhook;
 typedef enum
 {
 	HANDLED_NONE	= 0,	// Init
-	HANDLED_READY,		// Handled
-	HANDLED_ABORT,		// Abort Connection Fatal
-	HANDLED_ERROR,		// Have Error like missing Parameter
+	HANDLED_READY,			// Handled
+	HANDLED_ABORT,			// Abort Connection Fatal
+	HANDLED_ERROR,			// Have Error like missing Parameter
 	HANDLED_NOT_IMPLEMENTED,// URL should be handled but not implemented
 	HANDLED_REDIRECTION,	// Set new URL and send HTTPD Object Moved
-	HANDLED_SENDFILE,	// Set new URL and Send File
-	HANDLED_REWRITE,	// Set new URL and call Hooks again
-	HANDLED_CONTINUE,	// handled but go on
+	HANDLED_SENDFILE,		// Set new URL and Send File
+	HANDLED_REWRITE,		// Set new URL and call Hooks again
+	HANDLED_CONTINUE,		// handled but go on
 
 } THandleStatus;
 typedef std::list<Cyhook *> THookList;
@@ -112,23 +112,23 @@ protected:
 	static THookList HookList;
 public:
 	// Output
-	std::string 	yresult;		// content for response output
-	THandleStatus 	status; 		// status of Hook handling
+	std::string 	yresult;			// content for response output
+	THandleStatus 	status; 			// status of Hook handling
 	HttpResponseType httpStatus;		// http-status code for response
 	std::string 	ResponseMimeType;	// mime-type for response
-	std::string 	NewURL;			// new URL for Redirection
-	long		ContentLength;		// Length of Response Body
-	time_t 		LastModified;		// Last Modified Time of Item to send / -1 dynamic content
-	std::string	Sendfile;		// Path & Name (local os style) of file to send
+	std::string 	NewURL;				// new URL for Redirection
+	long		ContentLength;			// Length of Response Body
+	time_t 		LastModified;			// Last Modified Time of Item to send / -1 dynamic content
+	std::string	Sendfile;				// Path & Name (local os style) of file to send
 	bool		keep_alive;
 
 	// Input
-	CStringList 	ParamList; 		// local copy of ParamList (Request)
-	CStringList 	UrlData;		// local copy of UrlData (Request)
-	CStringList 	HeaderList;		// local copy of HeaderList (Request)
-	CStringList 	WebserverConfigList;	// Reference (writable) to ConfigList
+	CStringList 	ParamList;			// local copy of ParamList (Request)
+	CStringList 	UrlData;			// local copy of UrlData (Request)
+	CStringList 	HeaderList;			// local copy of HeaderList (Request)
+	CStringList 	WebserverConfigList;// Reference (writable) to ConfigList
 	CStringList 	HookVarList;		// Variables in Hook-Handling passing to other Hooks
-	THttp_Method 	Method;			// HTTP Method (requested)
+	THttp_Method 	Method;				// HTTP Method (requested)
 	// constructor & deconstructor
 	CyhookHandler(){};
 	virtual ~CyhookHandler(){};
@@ -146,7 +146,7 @@ public:
 	// Cyhttpd based hooks
 	static THandleStatus	Hooks_ReadConfig(CConfigFile *Config, CStringList &ConfigList);
 	// CWebserverConnection based hooks
-	THandleStatus 		Hooks_PrepareResponse();	// Hook for Response.SendResonse Dispatching
+	THandleStatus 		Hooks_PrepareResponse();// Hook for Response.SendResonse Dispatching
 	THandleStatus 		Hooks_SendResponse();	// Hook for Response.SendResonse Dispatching
 	THandleStatus 		Hooks_EndConnection();
 	THandleStatus		Hooks_UploadSetFilename(std::string &Filename);
@@ -170,17 +170,17 @@ public:
 	void addResult(const std::string& result, THandleStatus _status)
 						{yresult += result; status = _status;}
 	void printf(const char *fmt, ...);
-	void Write(const std::string& text) 	{ addResult(text); }
-	void WriteLn(const std::string& text) 	{ addResult(text+"\r\n"); }
-	void Write(char const *text)		{Write(std::string(text));}
-	void WriteLn(char const *text)		{WriteLn(std::string(text));}
+	void Write(const std::string& text)			{addResult(text);}
+	void WriteLn(const std::string& text)		{addResult(text+"\r\n");}
+	void Write(char const *text)				{Write(std::string(text));}
+	void WriteLn(char const *text)				{WriteLn(std::string(text));}
 	void SendHTMLHeader(const std::string& Titel);
 	void SendHTMLFooter(void);
-	void SendOk(void) 			{Write("ok");}
-	void SendError(void) 			{Write("error");}
-	void SendFile(const std::string& url) 		{NewURL = url; status = HANDLED_SENDFILE;}
-	void SendRedirect(const std::string& url) 	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
-	void SendRewrite(const std::string& url){NewURL = url; status = HANDLED_REWRITE;}
+	void SendOk(void)							{(ParamList["response"]=="json") ? Write("{\"success\": true}") : Write("ok");}
+	void SendError(void)						{(ParamList["response"]=="json") ? Write("{\"success\": false}") : Write("error");}
+	void SendFile(const std::string& url)		{NewURL = url; status = HANDLED_SENDFILE;}
+	void SendRedirect(const std::string& url)	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
+	void SendRewrite(const std::string& url)	{NewURL = url; status = HANDLED_REWRITE;}
 	friend class CyParser;
 };
 
