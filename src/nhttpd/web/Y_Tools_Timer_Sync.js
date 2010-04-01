@@ -282,7 +282,7 @@ function do_set_timer()
 				+"&rec_dir="+document.f.rec_dir.value
 				+"&rs=1"
 				+"&update=1";
-			_url = _urlt.replace(/:/gi,".");
+//			_url = _urlt.replace(/:/gi,".");
 			/*_url = encodeURI(_url);*/
 			loadSyncURL(_url);
 			channels++;

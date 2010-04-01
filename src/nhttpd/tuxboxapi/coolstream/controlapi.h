@@ -43,7 +43,7 @@ private:
 	friend class CNeutrinoWebserver; // for timer /fb/ compatibility
 	void doModifyTimer(CyhookHandler *hh);
 	void doNewTimer(CyhookHandler *hh);
-
+	void _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
 	//yweb
 	void YWeb_SendVideoStreamingPids(CyhookHandler *hh, int apid_no);
 	void YWeb_SendRadioStreamingPid(CyhookHandler *hh);
