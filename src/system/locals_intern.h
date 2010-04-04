@@ -1248,6 +1248,8 @@ const char *locale_real_names[] = {
 	"extra.tp.pol_v",
 	"extra.tp_pol_h",
 	"extra.tp_fec",
+	"extra.fec_auto",
+	"extra.fec_auto_s2",
 	"extra.fec_1_2",
 	"extra.fec_2_3",
 	"extra.fec_3_4",

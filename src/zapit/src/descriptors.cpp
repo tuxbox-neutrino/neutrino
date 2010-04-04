@@ -400,10 +400,10 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	CZapitChannel *channel = NULL;
 	bool tpchange = false;
 	static transponder_id_t last_tpid = 0;
-    //scrambled
-    if(free_ca && scan_fta_flag){
-        return;
-    }
+	//scrambled
+	if(free_ca && scan_fta_flag){
+		return;
+	}
 
 	service_type = fix_service_type(service_type);
 	uint8_t real_type = service_type;

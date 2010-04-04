@@ -975,6 +975,8 @@ extra.tp_pol Polarization
 extra.tp.pol_v V
 extra.tp_pol_h H
 extra.tp_fec FEC
+extra.fec_auto Auto DVB-S
+extra.fec_auto_s2 Auto DVB-S2
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
 extra.fec_3_4 3/4
@@ -1269,7 +1271,7 @@ extra.fec_s2_qpsk_3_5 3/5 s2 qpsk
 extra.fec_s2_qpsk_4_5 4/5 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.fec_s2_8psk_1_2 1/2 s2 8psk
-extra.fec_s2_8psk_2_3 3/2 s2 8psk
+extra.fec_s2_8psk_2_3 2/3 s2 8psk
 extra.fec_s2_8psk_3_4 3/4 s2 8psk
 extra.fec_s2_8psk_5_6 5/6 s2 8psk
 extra.fec_s2_8psk_7_8 7/8 s2 8psk

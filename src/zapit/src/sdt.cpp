@@ -30,6 +30,7 @@
 #include <zapit/types.h>
 #include <zapit/bouquets.h>
 #include <zapit/frontend_c.h>
+#include <zapit/satconfig.h>
 #include <dmx_cs.h>
 
 #define SDT_SIZE 1026
@@ -216,14 +217,14 @@ _repeat:
 			return -1;
 		}
 		if(buffer[0] != 0x42)
-		        printf("[SDT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
+			printf("[SDT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
 
 
 		section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
 		if(cable_hack_done) {
 			if( (transport_stream_id == ((buffer[3] << 8) | buffer[4])) &&
-				(original_network_id == ((buffer[8] << 8) | buffer[9])))
-					break;
+					(original_network_id == ((buffer[8] << 8) | buffer[9])))
+				break;
 		} else {
 			transport_stream_id = (buffer[3] << 8) | buffer[4];
 			original_network_id = (buffer[8] << 8) | buffer[9];
@@ -250,104 +251,104 @@ _repeat:
 			for (pos2 = pos + 5; pos2 < pos + descriptors_loop_length + 5; pos2 += buffer[pos2 + 1] + 2) {
 				//printf("[sdt] descriptor %X\n", buffer[pos2]);
 				switch (buffer[pos2]) {
-				case 0x0A:
-					ISO_639_language_descriptor(buffer + pos2);
-					break;
+					case 0x0A:
+						ISO_639_language_descriptor(buffer + pos2);
+						break;
 
-/*				case 0x40:
-					network_name_descriptor(buffer + pos2);
-					break;
-*/
-				case 0x42:
-					stuffing_descriptor(buffer + pos2);
-					break;
+						/*				case 0x40:
+										network_name_descriptor(buffer + pos2);
+										break;
+										*/
+					case 0x42:
+						stuffing_descriptor(buffer + pos2);
+						break;
 
-				case 0x47:
-					bouquet_name_descriptor(buffer + pos2);
-					break;
+					case 0x47:
+						bouquet_name_descriptor(buffer + pos2);
+						break;
 
-				case 0x48:
-					service_descriptor(buffer + pos2, service_id, transport_stream_id, original_network_id, satellitePosition, freq, free_CA_mode);
-					break;
+					case 0x48:
+						service_descriptor(buffer + pos2, service_id, transport_stream_id, original_network_id, satellitePosition, freq, free_CA_mode);
+						break;
 
-				case 0x49:
-					country_availability_descriptor(buffer + pos2);
-					break;
+					case 0x49:
+						country_availability_descriptor(buffer + pos2);
+						break;
 
-				case 0x4A:
-					linkage_descriptor(buffer + pos2);
-					break;
+					case 0x4A:
+						linkage_descriptor(buffer + pos2);
+						break;
 
-				case 0x4B:
-					//NVOD_reference_descriptor(buffer + pos2);
-					break;
+					case 0x4B:
+						//NVOD_reference_descriptor(buffer + pos2);
+						break;
 
-				case 0x4C:
-					time_shifted_service_descriptor(buffer + pos2);
-					break;
+					case 0x4C:
+						time_shifted_service_descriptor(buffer + pos2);
+						break;
 
-				case 0x51:
-					mosaic_descriptor(buffer + pos2);
-					break;
+					case 0x51:
+						mosaic_descriptor(buffer + pos2);
+						break;
 
-				case 0x53:
-					CA_identifier_descriptor(buffer + pos2);
-					break;
+					case 0x53:
+						CA_identifier_descriptor(buffer + pos2);
+						break;
 
-				case 0x5D:
-					multilingual_service_name_descriptor(buffer + pos2);
-					break;
+					case 0x5D:
+						multilingual_service_name_descriptor(buffer + pos2);
+						break;
 
-				case 0x5F:
-					private_data_specifier_descriptor(buffer + pos2);
-					break;
+					case 0x5F:
+						private_data_specifier_descriptor(buffer + pos2);
+						break;
 
-				case 0x64:
-					data_broadcast_descriptor(buffer + pos2);
-					break;
+					case 0x64:
+						data_broadcast_descriptor(buffer + pos2);
+						break;
 
-				case 0x80: /* unknown, Eutelsat 13.0E */
-					break;
+					case 0x80: /* unknown, Eutelsat 13.0E */
+						break;
 
-				case 0x84: /* unknown, Eutelsat 13.0E */
-					break;
+					case 0x84: /* unknown, Eutelsat 13.0E */
+						break;
 
-				case 0x86: /* unknown, Eutelsat 13.0E */
-					break;
+					case 0x86: /* unknown, Eutelsat 13.0E */
+						break;
 
-				case 0x88: /* unknown, Astra 19.2E */
-					break;
+					case 0x88: /* unknown, Astra 19.2E */
+						break;
 
-				case 0xB2: /* unknown, Eutelsat 13.0E */
-					break;
+					case 0xB2: /* unknown, Eutelsat 13.0E */
+						break;
 
-				case 0xC0: /* unknown, Eutelsat 13.0E */
-					break;
+					case 0xC0: /* unknown, Eutelsat 13.0E */
+						break;
 
-				case 0xE4: /* unknown, Astra 19.2E */
-					break;
+					case 0xE4: /* unknown, Astra 19.2E */
+						break;
 
-				case 0xE5: /* unknown, Astra 19.2E */
-					break;
+					case 0xE5: /* unknown, Astra 19.2E */
+						break;
 
-				case 0xE7: /* unknown, Eutelsat 13.0E */
-					break;
+					case 0xE7: /* unknown, Eutelsat 13.0E */
+						break;
 
-				case 0xED: /* unknown, Astra 19.2E */
-					break;
+					case 0xED: /* unknown, Astra 19.2E */
+						break;
 
-				case 0xF8: /* unknown, Astra 19.2E */
-					break;
+					case 0xF8: /* unknown, Astra 19.2E */
+						break;
 
-				case 0xF9: /* unknown, Astra 19.2E */
-					break;
+					case 0xF9: /* unknown, Astra 19.2E */
+						break;
 
-				default:
-					/*
-					DBG("descriptor_tag: %02x\n", buffer[pos2]);
-					generic_descriptor(buffer + pos2);
-					*/
-					break;
+					default:
+						/*
+						   DBG("descriptor_tag: %02x\n", buffer[pos2]);
+						   generic_descriptor(buffer + pos2);
+						   */
+						break;
 				}
 			}
 		}
@@ -360,6 +361,9 @@ _repeat:
 	}
 	delete dmx;
 
+	sat_iterator_t sit = satellitePositions.find(satellitePosition);
+	if(sit != satellitePositions.end())
+		sit->second.have_channels = true;
 	return 0;
 }
 

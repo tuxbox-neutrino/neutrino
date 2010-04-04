@@ -53,6 +53,15 @@ extern CEventServer *eventServer;
 #define WEST	1
 #define USALS
 
+#define FREQUENCY	1
+#define MODULATION	2
+#define INVERSION	3
+#define SYMBOL_RATE	4
+#define INNER_FEC	5
+#define DELIVERY_SYSTEM 6
+#define PILOTS		7
+#define ROLLOFF		8
+
 static struct dtv_property clr_cmdargs[] = {
 	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
 };
@@ -63,15 +72,14 @@ static struct dtv_properties clr_cmdseq = {
 
 /* stolen from dvb.c from vlc */
 static struct dtv_property dvbs_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
 	{ DTV_FREQUENCY,	{0,0,0}, { 0			},0 },
-	{ DTV_MODULATION,	{0,0,0}, { QPSK		},0 },
+	{ DTV_MODULATION,	{0,0,0}, { QPSK			},0 },
 	{ DTV_INVERSION,	{0,0,0}, { INVERSION_AUTO	},0 },
 	{ DTV_SYMBOL_RATE,	{0,0,0}, { 27500000		},0 },
-	{ DTV_VOLTAGE,		{0,0,0}, { SEC_VOLTAGE_OFF	},0 },
-	{ DTV_TONE,		{0,0,0}, { SEC_TONE_OFF	},0 },
 	{ DTV_INNER_FEC,	{0,0,0}, { FEC_AUTO		},0 },
 	{ DTV_DELIVERY_SYSTEM,	{0,0,0}, { SYS_DVBS		},0 },
-	{ DTV_TUNE,{0,0,0}, { 0			},0 },
+	{ DTV_TUNE,		{0,0,0}, { 0			},0 },
 };
 
 static struct dtv_properties dvbs_cmdseq = {
@@ -79,12 +87,11 @@ static struct dtv_properties dvbs_cmdseq = {
 };
 
 static struct dtv_property dvbs2_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
 	{ DTV_FREQUENCY,	{}, { 0			},0 },
 	{ DTV_MODULATION,	{}, { PSK_8		} ,0},
 	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
 	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
-	{ DTV_VOLTAGE,		{}, { SEC_VOLTAGE_OFF	} ,0},
-	{ DTV_TONE,		{}, { SEC_TONE_OFF	} ,0},
 	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
 	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBS2		} ,0},
 	{ DTV_PILOT,		{}, { PILOT_AUTO	} ,0},
@@ -97,6 +104,7 @@ static struct dtv_properties dvbs2_cmdseq = {
 };
 
 static struct dtv_property dvbc_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
 	{ DTV_FREQUENCY,	{}, { 0			} ,0},
 	{ DTV_MODULATION,	{}, { QAM_AUTO		} ,0},
 	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
@@ -109,16 +117,6 @@ static struct dtv_properties dvbc_cmdseq = {
 	sizeof(dvbc_cmdargs) / sizeof(struct dtv_property), dvbc_cmdargs
 };
 
-#define FREQUENCY	0
-#define MODULATION	1
-#define INVERSION	2
-#define SYMBOL_RATE	3
-#define BANDWIDTH	3
-#define VOLTAGE		4
-#define TONE		5
-#define INNER_FEC	6
-#define PILOTS		8
-#define ROLLOFF		9
 
 #define diff(x,y)	(max(x,y) - min(x,y))
 
@@ -399,6 +397,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 {
 	struct dvb_frontend_event event;
 	struct pollfd pfd;
+	static unsigned int timedout = 0;
 
 	TIMER_INIT();
 
@@ -434,14 +433,16 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 				perror("CFrontend::getEvent ioctl");
 				continue;
 			}
-			//printf("[fe0] poll events %d status %d\n", pfd.revents, event.status);
+			//printf("[fe0] poll events %d status %x\n", pfd.revents, event.status);
 
 			if (event.status & FE_HAS_LOCK) {
 				printf("[fe%d] ****************************** FE_HAS_LOCK: freq %lu\n", fenumber, (long unsigned int)event.parameters.frequency);
 				tuned = true;
 				break;
 			} else if (event.status & FE_TIMEDOUT) {
-				printf("[fe%d] ############################## FE_TIMEDOUT\n", fenumber);
+				if(timedout < timer_msec)
+					timedout = timer_msec;
+				printf("[fe%d] ############################## FE_TIMEDOUT (max %d)\n", fenumber, timedout);
 				/*break;*/
 			} else {
 				if (event.status & FE_HAS_SIGNAL)
@@ -645,6 +646,7 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	default:
 		printf("[fe0] DEMOD: unknown FEC: %d\n", fec_inner);
 	case FEC_AUTO:
+	case FEC_S2_AUTO:
 		fec = FEC_AUTO;
 		break;
 	}
@@ -653,7 +655,7 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	getDelSys(fec_inner, modulation, f, s, m);
 	//printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
 
-	{
+	if(0) {
 		//TIMER_INIT();
 		//TIMER_START();
 		if ((ioctl(fd, FE_SET_PROPERTY, &clr_cmdseq)) == -1) {
@@ -674,8 +676,10 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		} else {
 			p = &dvbs_cmdseq;
 		}
+#if 0 // we set this before
 		p->props[VOLTAGE].u.data	= currentVoltage;
 		p->props[TONE].u.data		= currentToneMode;
+#endif
 		p->props[FREQUENCY].u.data	= feparams->frequency;
 		p->props[SYMBOL_RATE].u.data	= feparams->u.qpsk.symbol_rate;
 		p->props[INNER_FEC].u.data	= fec; /*_inner*/ ;
@@ -707,13 +711,13 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
 
 	{
-		//TIMER_INIT();
-		//TIMER_START();
-		if ((ioctl(fd, FE_SET_PROPERTY, p)) == -1) {
+		TIMER_INIT();
+		TIMER_START();
+		if ((ioctl(fd, FE_SET_PROPERTY, p)) < 0) {
 			perror("FE_SET_PROPERTY failed");
 			return false;
 		}
-		//TIMER_STOP("[fe0] FE_SET_PROPERTY took");
+		TIMER_STOP("[fe0] FE_SET_PROPERTY took");
 	}
 	{
 		TIMER_INIT();
@@ -859,6 +863,8 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 {
 	struct dvb_diseqc_master_cmd cmd;
 	int i;
+	fe_sec_tone_mode_t oldTone = currentToneMode;
+	fe_sec_voltage_t oldVoltage = currentVoltage;
 
 	printf("[fe%d] sendMotorCommand: cmdtype   = %x, address = %x, cmd   = %x\n", fenumber, cmdtype, address, command);
 	printf("[fe%d] sendMotorCommand: num_parms = %d, parm1   = %x, parm2 = %x\n", fenumber, num_parameters, parameter1, parameter2);
@@ -869,12 +875,16 @@ void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t comma
 	cmd.msg[3] = parameter1;
 	cmd.msg[4] = parameter2;
 	cmd.msg_len = 3 + num_parameters;
-	secSetVoltage(highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
-	secSetTone(SEC_TONE_OFF, 25);
+
+	//secSetVoltage(highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15);
+	secSetVoltage(SEC_VOLTAGE_13, 15);
+	secSetTone(SEC_TONE_OFF, 15);
 
 	for(i = 0; i <= repeat; i++)
 		sendDiseqcCommand(&cmd, 50);
 
+	secSetVoltage(oldVoltage, 15);
+	secSetTone(oldTone, 15);
 	printf("[fe%d] motor command sent.\n", fenumber);
 
 }
@@ -1544,4 +1554,5 @@ void CFrontend::gotoXX(t_satellite_position pos)
 
 	printf("RotorCmd = %04x\n", RotorCmd);
 	sendMotorCommand(0xE0, 0x31, 0x6E, 2, ((RotorCmd & 0xFF00) / 0x100), RotorCmd & 0xFF, repeatUsals);
+	secSetVoltage(highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15); //FIXME ?
 }
