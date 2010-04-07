@@ -1,6 +1,11 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 #AM_CPPFLAGS = -fno-rtti
 
+svn_version.h: 
+	sleep 30 && rm svn_version.h & echo "#define SVNVERSION \"$$(svnversion -n || echo svn_oops!)\" " > svn_version.h
+
+noinst_HEADERS = svn_version.h
+
 SUBDIRS = widget bedit
 
 INCLUDES = \
@@ -34,4 +39,3 @@ libneutrino_gui2_a_SOURCES = \
 
 libtimerlist_a_SOURCES = \
 	timerlist.cpp
-

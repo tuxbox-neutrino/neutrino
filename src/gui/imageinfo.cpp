@@ -37,6 +37,8 @@
 #include <system/flashtool.h>
 #include <video_cs.h>
 
+#include "svn_version.h"
+#define SVN_REV "SVN Rev.:"
 extern cVideo * videoDecoder;
 
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -87,7 +89,10 @@ void CImageInfo::Init(void)
 			offset = tmpoffset;
 		}
 	}
-	
+	int off_tmp = g_Font[font_info]->getRenderWidth(SVN_REV);
+	if(off_tmp > offset)
+		offset  = off_tmp;
+
 	offset = offset + 15;
 }
 
@@ -175,7 +180,6 @@ void CImageInfo::paint()
 	ypos += hheight;
 	ypos += (iheight >>1);
 
-
 	CConfigFile config('\t');
 	config.loadConfig("/.version");
 
@@ -191,7 +195,6 @@ void CImageInfo::paint()
 	sprintf((char*) imagedate, "%s  %s", versionInfo.getDate(), versionInfo.getTime());
 
 	ypos += iheight;
-	
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_IMAGE));
 	paintLine(xpos+offset, font_info, imagename);
 
@@ -202,6 +205,10 @@ void CImageInfo::paint()
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_VERSION));
 	paintLine(xpos+offset, font_info, releaseCycle);
+
+	ypos += iheight;
+	paintLine(xpos    , font_info, SVN_REV);
+	paintLine(xpos+offset, font_info, SVNVERSION );
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_CREATOR));
