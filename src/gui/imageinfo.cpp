@@ -39,6 +39,7 @@
 
 #include "svn_version.h"
 #define SVN_REV "SVN Rev.:"
+#define GIT_REV "GIT Build:"
 extern cVideo * videoDecoder;
 
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -89,7 +90,11 @@ void CImageInfo::Init(void)
 			offset = tmpoffset;
 		}
 	}
+#ifdef SVNVERSION
 	int off_tmp = g_Font[font_info]->getRenderWidth(SVN_REV);
+#else
+	int off_tmp = g_Font[font_info]->getRenderWidth(GIT_REV);
+#endif
 	if(off_tmp > offset)
 		offset  = off_tmp;
 
@@ -207,9 +212,13 @@ void CImageInfo::paint()
 	paintLine(xpos+offset, font_info, releaseCycle);
 
 	ypos += iheight;
+#ifdef SVNVERSION
 	paintLine(xpos    , font_info, SVN_REV);
 	paintLine(xpos+offset, font_info, SVNVERSION );
-
+#else
+	paintLine(xpos    , font_info, GIT_REV);
+	paintLine(xpos+offset, font_info, BUILT_DATE );
+#endif
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_CREATOR));
 	paintLine(xpos+offset, font_info, creator);

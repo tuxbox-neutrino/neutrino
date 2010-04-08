@@ -1,8 +1,14 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 #AM_CPPFLAGS = -fno-rtti
 
-svn_version.h: 
-	sleep 30 && rm svn_version.h & echo "#define SVNVERSION \"$$(svnversion -n || echo svn_oops!)\" " > svn_version.h
+BUILT_SOURCES  = svn_version.h
+
+svn_version.h:
+	@if test -d .svn ; then \
+		sleep 180 && rm svn_version.h & echo "#define SVNVERSION \"$$(svnversion -n || echo svn_oops!)\" " > svn_version.h ; \
+	else \
+		sleep 180 && rm svn_version.h & echo '#define BUILT_DATE "'`date`'"' > svn_version.h ; \
+	fi
 
 noinst_HEADERS = svn_version.h
 
@@ -25,14 +31,14 @@ INCLUDES = \
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 
 libneutrino_gui_a_SOURCES = \
-	bouquetlist.cpp channellist.cpp eventlist.cpp pluginlist.cpp \
+	imageinfo.cpp bouquetlist.cpp channellist.cpp eventlist.cpp pluginlist.cpp \
 	favorites.cpp sleeptimer.cpp screensetup.cpp \
 	epgview.cpp infoviewer.cpp scan.cpp update.cpp \
 	filebrowser.cpp audioplayer.cpp nfs.cpp pictureviewer.cpp \
 	movieplayer.cpp rc_lock.cpp bookmarkmanager.cpp \
 	timeosd.cpp epgplus.cpp epg_menu.cpp \
 	streaminfo2.cpp dboxinfo.cpp \
-	plugins.cpp imageinfo.cpp audio_select.cpp moviebrowser.cpp movieinfo.cpp
+	plugins.cpp audio_select.cpp moviebrowser.cpp movieinfo.cpp
 
 libneutrino_gui2_a_SOURCES = \
 	color.cpp alphasetup.cpp motorcontrol.cpp hdd_menu.cpp cam_menu.cpp infoclock.cpp upnpbrowser.cpp
