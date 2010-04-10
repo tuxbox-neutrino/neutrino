@@ -494,8 +494,9 @@ void Cyhttpd::ReadConfig(void) {
 	}
 	// configure debugging & logging
 	if (CLogging::getInstance()->LogLevel == 0)
-		CLogging::getInstance()->LogLevel = Config->getInt32(
-				"server.log.loglevel", 0);
+		CLogging::getInstance()->LogLevel = Config->getInt32("server.log.loglevel", 0);
+	if (CLogging::getInstance()->LogLevel > 0)
+		CLogging::getInstance()->setDebug(true);
 
 	// get variables
 	webserver->init(Config->getInt32("WebsiteMain.port", HTTPD_STANDARD_PORT),

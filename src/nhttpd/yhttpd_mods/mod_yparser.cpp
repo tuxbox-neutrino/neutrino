@@ -81,7 +81,7 @@ THandleStatus CyParser::Hook_SendResponse(CyhookHandler *hh) {
 	init(hh);
 
 	CyParser *yP = new CyParser(); // create a Session
-	if (hh->UrlData["fileext"] == "yhtm") // yParser for yhtm-File
+	if (hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh") // yParser for y*-Files
 		yP->ParseAndSendFile(hh);
 	else if (hh->UrlData["path"] == "/y/") // /y/<cgi> commands
 	{
@@ -246,7 +246,7 @@ void CyParser::ParseAndSendFile(CyhookHandler *hh) {
 		yresult = cgi_cmd_parsing(hh, ycmd, ydebug); // parsing engine
 	}
 	// parsing given file
-	yresult += cgi_file_parsing(hh, hh->UrlData["filename"], ydebug);
+	yresult += cgi_file_parsing(hh, hh->UrlData["path"]+hh->UrlData["filename"], ydebug);
 	if (yresult.length() <= 0)
 		hh->SetError(HTTP_NOT_IMPLEMENTED, HANDLED_NOT_IMPLEMENTED);
 	else {

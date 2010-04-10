@@ -63,7 +63,7 @@ THandleStatus CNeutrinoYParser::Hook_SendResponse(CyhookHandler *hh)
 	init(hh);
 
 	CNeutrinoYParser *yP = new CNeutrinoYParser(NeutrinoAPI);		// create a Session
-	if(hh->UrlData["fileext"] == "yhtm")	// yParser for yhtm-File
+	if (hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh") // yParser for y*-Files
 		yP->ParseAndSendFile(hh);
 	else if(hh->UrlData["path"] == "/y/")	// /y/<cgi> commands
 	{

@@ -67,7 +67,7 @@ THandleStatus CmodSendfile::Hook_PrepareResponse(CyhookHandler *hh) {
 	log_level_printf(4, "mod_sendfile prepare hook start url:%s\n", hh->UrlData["fullurl"].c_str());
 	std::string mime = sendfileTypes[hh->UrlData["fileext"]];
 	if (((mime != "") || (hh->WebserverConfigList["mod_sendfile.sendAll"] == "true"))
-			&& (hh->UrlData["fileext"] != "yhtm")) {
+			&& !(hh->UrlData["fileext"] == "yhtm" || hh->UrlData["fileext"] == "yjs" || hh->UrlData["fileext"] == "ysh")) {
 		//TODO: Check allowed directories / actually in GetFileName
 		// build filename
 		std::string fullfilename = GetFileName(hh, hh->UrlData["path"],
