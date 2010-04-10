@@ -7,6 +7,7 @@
 // C++
 #include <string>
 // yhttpd
+#include <zapit/channel.h>
 #include "yhook.h"
 
 // forward declaration
@@ -44,6 +45,7 @@ private:
 	void doModifyTimer(CyhookHandler *hh);
 	void doNewTimer(CyhookHandler *hh);
 	void _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
+	void _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int nr);
 	//yweb
 	void YWeb_SendVideoStreamingPids(CyhookHandler *hh, int apid_no);
 	void YWeb_SendRadioStreamingPid(CyhookHandler *hh);
