@@ -192,6 +192,8 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	// utils
 	{"build_live_url",	&CControlAPI::build_live_url,	""},
 	{"get_logo",		&CControlAPI::logoCGI,	"text/plain"},
+	// settings
+	{"config",			&CControlAPI::ConfigCGI,	"text/plain"},
 
 };
 //-----------------------------------------------------------------------------
@@ -2223,4 +2225,71 @@ void CControlAPI::logoCGI(CyhookHandler *hh)
 		SCANF_CHANNEL_ID_TYPE,
 		&channel_id);
 	hh->Write(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel_id));
+}
+//-------------------------------------------------------------------------
+void CControlAPI::ConfigCGI(CyhookHandler *hh)
+{
+	bool load = true;
+	CConfigFile *Config = new CConfigFile(',');
+	ConfigDataMap conf;
+	std::string config_filename="";
+	std::string error = "";
+	std::string result = "";
+
+	if (hh->ParamList["action"] == "submit")
+		load = false;
+
+	// Para "config" describes the config type
+	if(hh->ParamList["config"] == "neutrino")
+		config_filename = NEUTRINO_CONFIGFILE;
+	else if(hh->ParamList["config"] == "nhttpd")
+		config_filename = HTTPD_CONFIGFILE;
+	else if(hh->ParamList["config"] == "yweb")
+		config_filename = YWEB_CONFIGFILE;
+
+	if(config_filename != ""){
+		Config->loadConfig(config_filename);
+
+		if(load){
+			conf = Config->getConfigDataMap();
+			ConfigDataMap::iterator it;
+			for(it = conf.begin(); it != conf.end(); it++){
+				std::string key =it->first;
+				replace(key,".","_dot_");
+				replace(key,"-","_bind_");
+				if(!(hh->ParamList["config"] == "nhttpd" && it->first == "mod_auth.password")){
+					// Output as json (default)
+					if (hh->ParamList["format"] == "json" || hh->ParamList["format"] == ""){
+						result += string_printf("%s: '%s',\n", (key).c_str(), (it->second).c_str());
+					}
+				}
+			}
+		} else {
+			for (CStringList::iterator it = hh->ParamList.begin(); it
+					!= hh->ParamList.end(); it++)
+				if(it->first != "_dc" && it->first != "action" && it->first != "format" && it->first != "config"){
+					Config->setString(it->first, it->second);
+				}
+			if(config_filename != "")
+				Config->saveConfig(config_filename);
+		}
+	}
+	else
+		error = string_printf("no config defined for: %s", (hh->ParamList["config"]).c_str() );
+
+	if(error == ""){
+		if (hh->ParamList["format"] == "json" || hh->ParamList["format"] == ""){
+			hh->WriteLn("{success: 'true', data:{");
+			hh->WriteLn(result);
+			hh->WriteLn("}}");
+		}
+	} else {
+		if (hh->ParamList["format"] == "json" || hh->ParamList["format"] == ""){
+			hh->WriteLn("{success: 'false', error:{");
+			hh->WriteLn(error);
+			hh->WriteLn("}}");
+		}
+	}
+
+	delete Config;
 }

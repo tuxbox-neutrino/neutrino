@@ -30,12 +30,11 @@
 #include <string>
 #include <vector>
 
+typedef std::map<std::string, std::string> ConfigDataMap;
 
 class CConfigFile
 {
  private:
-
-	typedef std::map<std::string, std::string> ConfigDataMap;
 
 	ConfigDataMap configData;
 	char delimiter;
@@ -106,6 +105,7 @@ class CConfigFile
 	bool getUnknownKeyQueryedFlag() const { return unknownKeyQueryedFlag; }
 	void setUnknownKeyQueryedFlag(const bool val) { unknownKeyQueryedFlag = val; }
 
+	ConfigDataMap getConfigDataMap(){ return configData; }
 };
 
 #endif /* __configfile_h__ */

@@ -25,7 +25,7 @@
 //-----------------------------------------------------------------------------
 // General central Definitions <configure!>
 //-----------------------------------------------------------------------------
-#define HTTPD_VERSION 		"3.3.0"				// Webserver version  (can be overloaded)
+#define HTTPD_VERSION 		"3.3.1"				// Webserver version  (can be overloaded)
 #define YHTTPD_VERSION 		"1.3.1"				// Webserver version  (Version of yhttpd-core!)
 #define IADDR_LOCAL 		"127.0.0.1"			// local IP
 #define HTTPD_NAME 			"yhttpd"			// Webserver name (can be overloaded)
@@ -103,6 +103,7 @@
 
 #define HTTPD_CONFIGDIR 				"/var/tuxbox/config"
 #define HTTPD_CONFIGFILE HTTPD_CONFIGDIR "/nhttpd.conf"
+#define YWEB_CONFIGFILE HTTPD_CONFIGDIR "/Y-Web.conf"
 #define PUBLICDOCUMENTROOT				"/var/httpd"
 #define NEUTRINO_CONFIGFILE				"/var/tuxbox/config/neutrino.conf"
 #define HOSTEDDOCUMENTROOT				"/mnt/hosted"
