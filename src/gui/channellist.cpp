@@ -1534,11 +1534,11 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CChannelList::showChannelLogo()
 {
-	frameBuffer->paintBoxRel(x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(x + width - 135 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
 
 	std::string lname;
 	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname))
-		g_PicViewer->DisplayImage(lname, x + width - 100 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+		g_PicViewer->DisplayImage(lname, x + width - 135 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
 }
 
 void CChannelList::paintItem(int pos)
@@ -1728,11 +1728,27 @@ struct button_label CChannelListButtons[NUM_LIST_BUTTONS] =
 
 void CChannelList::paintHead()
 {
+	int timestr_len = 0;
+	char timestr[10] = {0};
+	time_t now = time(NULL);
+	struct tm *tm = localtime(&now);
+
+	bool gotTime = g_Sectionsd->getIsTimeSet();
+
+	if(gotTime){
+		strftime(timestr, 10, "%H:%M", tm);
+		timestr_len = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(timestr, true); // UTF-8
+	}
+
 	// head
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width- 65, name, COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width-10-timestr_len-10, name, COL_MENUHEAD, 0, true); // UTF-8
 
 	int ButtonWidth = (width - 20) / 4;
+
+	if (gotTime){
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+width-65-timestr_len, y+theight+0, timestr_len+1, timestr, COL_MENUHEAD, 0, true); // UTF-8
+	}  
 
 	// foot
 	if (displayNext) {
@@ -1748,7 +1764,7 @@ void CChannelList::paintHead()
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 30, y+ 5 );
 	if (bouquetList != NULL)
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - 60, y + 5); // icon for bouquet list button
-	frameBuffer->paintIcon(new_mode_active ? NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE, x + width - 90, y + 5);
+//	frameBuffer->paintIcon(new_mode_active ? NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE, x + width - 90, y + 5);
 }
 
 void CChannelList::paint()
