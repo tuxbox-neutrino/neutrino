@@ -405,6 +405,7 @@ infoviewer.notavailable Channel not available
 infoviewer.selecttime Timeselection
 infoviewer.streaminfo Features
 infoviewer.subchan_disp_pos Subchannel display
+infoviewer.subchan_infobar Full infobar
 infoviewer.subservice Subservices
 infoviewer.waittime Waiting for time...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
@@ -482,6 +483,7 @@ mainsettings.keybinding Key Setup
 mainsettings.language International settings
 mainsettings.lcd VFD-Display
 mainsettings.misc Misc settings
+mainsettings.manage Manage settings
 mainsettings.network Network
 mainsettings.recording Recording
 mainsettings.savesettingsnow save settings now
