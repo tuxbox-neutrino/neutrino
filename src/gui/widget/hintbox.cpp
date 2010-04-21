@@ -237,11 +237,13 @@ int ShowHintUTF(const neutrino_locale_t Caption, const char * const Text, const 
 	{
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
-		if ((msg == CRCInput::RC_timeout) ||
-		    (msg == CRCInput::RC_home   ) ||
-		    (msg == CRCInput::RC_ok     ))
+		if ((msg == CRCInput::RC_timeout) || (msg == CRCInput::RC_ok))
 		{
-				res = messages_return::cancel_info;
+			res = messages_return::cancel_info;
+		}
+		else if(msg == CRCInput::RC_home)
+		{
+			res = messages_return::cancel_all;
 		}
 		else if ((hintBox->has_scrollbar()) && ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)))
 		{
@@ -252,9 +254,13 @@ int ShowHintUTF(const neutrino_locale_t Caption, const char * const Text, const 
 		}
 		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
 		}
-		else if((msg == CRCInput::RC_mode) || (msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
-				res = messages_return::cancel_info;
-				g_RCInput->postMsg(msg, data);
+		else if(msg == CRCInput::RC_mode) {
+			res = messages_return::handled;
+			break;
+		}
+		else if((msg == CRCInput::RC_next) || (msg == CRCInput::RC_prev)) {
+			res = messages_return::cancel_all;
+			g_RCInput->postMsg(msg, data);
 		}
 		else
 		{
@@ -264,14 +270,14 @@ int ShowHintUTF(const neutrino_locale_t Caption, const char * const Text, const 
 
 				// raus hier und darüber behandeln...
 				g_RCInput->postMsg(msg, data);
-				res = messages_return::cancel_info;
+				res = messages_return::cancel_all;
 			}
 		}
 	}
 
 	hintBox->hide();
 	delete hintBox;
-	return 1;
+	return res;
 }
 
 int ShowLocalizedHint(const neutrino_locale_t Caption, const neutrino_locale_t Text, const int Width, int timeout, const char * const Icon)

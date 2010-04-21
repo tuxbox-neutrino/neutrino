@@ -1659,7 +1659,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_setup)
 	{
-		if(m_movieSelectionHandler != NULL)
+		//if(m_movieSelectionHandler != NULL)
 			showMenu(m_movieSelectionHandler);
 	}
 	else if (msg == CRCInput::RC_text || msg == CRCInput::RC_radio) {

@@ -125,6 +125,7 @@ private:
 	bool				fromflash;
 	CTimerd::RecordingInfo* nextRecordingInfo;
 	//bool				record_mode;
+	int				lastChannelMode;
 
 	struct timeval                  standby_pressed_at;
 
@@ -258,7 +259,7 @@ public:
 	int recording_id;
 	void SendSectionsdConfig(void);
 	int GetChannelMode(void) {
-		return g_settings.channel_mode;
+		return lastChannelMode;
 	};
 	void SetChannelMode(int mode);
 	void quickZap(int msg);

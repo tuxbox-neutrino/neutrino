@@ -876,7 +876,7 @@ printf("CChannelList::adjustToChannelID me %x [%s] list size %d channel_id %llx\
 
 			tuned = i;
 			if (bToo && (bouquetList != NULL)) {
-				int old_mode = g_settings.channel_mode;
+				int old_mode = CNeutrinoApp::getInstance()->GetChannelMode();
 				int new_mode = old_mode;
 				bool has_channel;
 				if(CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_tv) {

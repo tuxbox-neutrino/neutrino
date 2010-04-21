@@ -802,82 +802,86 @@ void CInfoViewer::showSubchan ()
 	}
 
 	if (!(subChannelName.empty ())) {
-		char text[100];
-		sprintf (text, "%d - %s", subchannel, subChannelName.c_str ());
+		if( g_settings.infobar_subchan_disp_pos == 4 ) {
+			g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR , 0 );
+		} else {
+			char text[100];
+			sprintf (text, "%d - %s", subchannel, subChannelName.c_str ());
 
-		int dx = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth (text) + 20;
-		int dy = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight(); // 25;
+			int dx = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth (text) + 20;
+			int dy = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight(); // 25;
 
-		if (g_RemoteControl->director_mode) {
-			int w = 20 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth (g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), true) + 20;	// UTF-8
-			int h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-			if (w > dx)
-				dx = w;
-			dy = dy + h + 5; //dy * 2;
-		} else
-			dy = dy + 5;
+			if (g_RemoteControl->director_mode) {
+				int w = 20 + g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth (g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), true) + 20;	// UTF-8
+				int h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+				if (w > dx)
+					dx = w;
+				dy = dy + h + 5; //dy * 2;
+			} else
+				dy = dy + 5;
 
-		int x = 0, y = 0;
-		if (g_settings.infobar_subchan_disp_pos == 0) {
-			// Rechts-Oben
-			x = g_settings.screen_EndX - dx - 10;
-			y = g_settings.screen_StartY + 10;
-		} else if (g_settings.infobar_subchan_disp_pos == 1) {
-			// Links-Oben
-			x = g_settings.screen_StartX + 10;
-			y = g_settings.screen_StartY + 10;
-		} else if (g_settings.infobar_subchan_disp_pos == 2) {
-			// Links-Unten
-			x = g_settings.screen_StartX + 10;
-			y = g_settings.screen_EndY - dy - 10;
-		} else if (g_settings.infobar_subchan_disp_pos == 3) {
-			// Rechts-Unten
-			x = g_settings.screen_EndX - dx - 10;
-			y = g_settings.screen_EndY - dy - 10;
-		}
+			int x = 0, y = 0;
+			if (g_settings.infobar_subchan_disp_pos == 0) {
+				// Rechts-Oben
+				x = g_settings.screen_EndX - dx - 10;
+				y = g_settings.screen_StartY + 10;
+			} else if (g_settings.infobar_subchan_disp_pos == 1) {
+				// Links-Oben
+				x = g_settings.screen_StartX + 10;
+				y = g_settings.screen_StartY + 10;
+			} else if (g_settings.infobar_subchan_disp_pos == 2) {
+				// Links-Unten
+				x = g_settings.screen_StartX + 10;
+				y = g_settings.screen_EndY - dy - 10;
+			} else if (g_settings.infobar_subchan_disp_pos == 3) {
+				// Rechts-Unten
+				x = g_settings.screen_EndX - dx - 10;
+				y = g_settings.screen_EndY - dy - 10;
+			}
 
-		fb_pixel_t pixbuf[(dx + 2 * borderwidth) * (dy + 2 * borderwidth)];
-		lframeBuffer->SaveScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
+			fb_pixel_t pixbuf[(dx + 2 * borderwidth) * (dy + 2 * borderwidth)];
+			lframeBuffer->SaveScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
 
-		// clear border
-		lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, borderwidth);
-		lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y + dy, dx + 2 * borderwidth, borderwidth);
-		lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y, borderwidth, dy);
-		lframeBuffer->paintBackgroundBoxRel (x + dx, y, borderwidth, dy);
+			// clear border
+			lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, borderwidth);
+			lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y + dy, dx + 2 * borderwidth, borderwidth);
+			lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y, borderwidth, dy);
+			lframeBuffer->paintBackgroundBoxRel (x + dx, y, borderwidth, dy);
 
-		lframeBuffer->paintBoxRel (x, y, dx, dy, COL_MENUCONTENT_PLUS_0);
-		//g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + 30, dx - 20, text, COL_MENUCONTENT, 0, true);
+			lframeBuffer->paintBoxRel (x, y, dx, dy, COL_MENUCONTENT_PLUS_0);
+			//g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + 30, dx - 20, text, COL_MENUCONTENT, 0, true);
 
-		if (g_RemoteControl->director_mode) {
-			lframeBuffer->paintIcon (NEUTRINO_ICON_BUTTON_YELLOW, x + 8, y + dy - 20);
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (x + 30, y + dy - 2, dx - 40, g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), COL_MENUCONTENT, 0, true);	// UTF-8
-			int h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - h - 2, dx - 20, text, COL_MENUCONTENT, 0, true);
-		} else
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - 2, dx - 20, text, COL_MENUCONTENT, 0, true);
+			if (g_RemoteControl->director_mode) {
+				lframeBuffer->paintIcon (NEUTRINO_ICON_BUTTON_YELLOW, x + 8, y + dy - 20);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (x + 30, y + dy - 2, dx - 40, g_Locale->getText (LOCALE_NVODSELECTOR_DIRECTORMODE), COL_MENUCONTENT, 0, true);	// UTF-8
+				int h = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - h - 2, dx - 20, text, COL_MENUCONTENT, 0, true);
+			} else
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - 2, dx - 20, text, COL_MENUCONTENT, 0, true);
 
-		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd (2);
-		int res = messages_return::none;
+			uint64_t timeoutEnd = CRCInput::calcTimeoutEnd (2);
+			int res = messages_return::none;
 
-		neutrino_msg_t msg;
-		neutrino_msg_data_t data;
+			neutrino_msg_t msg;
+			neutrino_msg_data_t data;
 
-		while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
-			g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
+			while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
+				g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
-			if (msg == CRCInput::RC_timeout) {
-				res = messages_return::cancel_info;
-			} else {
-				res = neutrino->handleMsg (msg, data);
-
-				if (res & messages_return::unhandled) {
-					// raus hier und im Hauptfenster behandeln...
-					g_RCInput->postMsg (msg, data);
+				if (msg == CRCInput::RC_timeout) {
 					res = messages_return::cancel_info;
+				} else {
+					res = neutrino->handleMsg (msg, data);
+
+					if (res & messages_return::unhandled) {
+						// raus hier und im Hauptfenster behandeln...
+						g_RCInput->postMsg (msg, data);
+						res = messages_return::cancel_info;
+					}
 				}
 			}
+			lframeBuffer->RestoreScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
 		}
-		lframeBuffer->RestoreScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
 	} else {
 		g_RCInput->postMsg (NeutrinoMessages::SHOW_INFOBAR, 0);
 	}

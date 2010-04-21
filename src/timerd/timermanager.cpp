@@ -116,7 +116,7 @@ void* CTimerManager::timerThread(void *arg)
 		else
 		{
 			time_t now = time(NULL);
-			dprintf("Timer Thread time: %u\n", (uint) now);
+			dprintf("Timer Thread time: %u: %s", (uint) now, ctime(&now));
 
 			// fire events who's time has come
 			CTimerEvent *event;
@@ -771,6 +771,30 @@ CTimerEvent::CTimerEvent( CTimerd::CTimerEventTypes evtype, time_t announcetime,
 	stopTime = stoptime;
 	repeatCount = repeatcount;
 	previousState = CTimerd::TIMERSTATE_SCHEDULED;
+
+	time_t diff = 0;
+	time_t mtime = time(NULL);
+	struct tm *tmtime = localtime(&mtime);
+	int isdst1 = tmtime->tm_isdst;
+
+	mtime = alarmtime;
+	tmtime = localtime(&mtime);
+	int isdst2 = tmtime->tm_isdst;
+
+	if(isdst2 > isdst1) //change from winter to summer
+	{
+		diff-=3600;
+	}
+	else if(isdst1 > isdst2) //change from summer to winter
+	{
+		diff+=3600;
+	}
+#if 0 //FIXME EPG vs manual timer ?
+	printf("############## CTimerEvent dst %d -> %d diff %d\n", isdst1, isdst2, diff);
+	alarmTime += diff;
+	announceTime += diff;
+	stopTime += diff;
+#endif
 }
 
 //------------------------------------------------------------
@@ -786,7 +810,6 @@ CTimerEvent::CTimerEvent( CTimerd::CTimerEventTypes evtype, int mon, int day, in
 		tmtime->tm_mday = day;
 	tmtime->tm_hour = hour;
 	tmtime->tm_min = min;
-
 	CTimerEvent(evtype, (time_t) 0, mktime(tmtime), (time_t)0, evrepeat, repeatcount);
 }
 //------------------------------------------------------------

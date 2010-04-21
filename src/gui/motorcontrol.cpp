@@ -98,6 +98,8 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	neutrino_msg_data_t data;
 	TP_params TP;
 	int wasgrow = 0;
+	uint8_t origPosition;
+
 	last_snr = 0;
 	moving = 0;
 
@@ -131,6 +133,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 			break;
 		}
 	}
+	origPosition = motorPosition;
 
        	g_Zapit->setScanSatelliteList( satList);
 
@@ -329,9 +332,26 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 
 					case CRCInput::RC_green:
 					case CRCInput::RC_5:
-						printf("[motorcontrol] 5 key received... store present satellite number: %d\n", motorPosition);
-						g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, motorPosition, 0);
-						//g_Zapit->tune_TP(TP);
+						{
+							bool store = true;
+							printf("[motorcontrol] 5 key received... store present satellite number: %d\n", motorPosition);
+							if(motorPosition != origPosition) {
+								printf("[motorcontrol] position changed %d -> %d\n", origPosition, motorPosition);
+								for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+									if(sit->second.motor_position == motorPosition)
+										break;
+								}
+								if(sit != satellitePositions.end()) {
+									printf("[motorcontrol] new positions configured for %s\n", sit->second.name.c_str());
+									std::string buf = g_Locale->getText(LOCALE_MOTORCONTROL_OVERRIDE);
+									buf += sit->second.name;
+									store = (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
+								}
+							}
+							if(store)
+								g_Zapit->sendMotorCommand(0xE0, 0x31, 0x6A, 1, motorPosition, 0);
+							//g_Zapit->tune_TP(TP);
+						}
 						break;
 
 					case CRCInput::RC_6:

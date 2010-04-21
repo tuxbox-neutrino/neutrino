@@ -29,9 +29,19 @@
 
 void paintButtons(CFrameBuffer * const frameBuffer, Font * const font, const CLocaleManager * const localemanager, const int x, const int y, const unsigned int buttonwidth, const unsigned int count, const struct button_label * const content)
 {
+	int fh = font->getHeight();
 	for (unsigned int i = 0; i < count; i++)
 	{
+#if 0
+		int iw, ih, yy;
+		frameBuffer->getIconSize(content[i].button, &iw, &ih);
+		yy = y + (fh - ih)/2;
+		frameBuffer->paintIcon(content[i].button, x + i * buttonwidth, yy);
+		font->RenderString(x + i * buttonwidth + iw + 5, y + 19, buttonwidth - iw - 5, localemanager->getText(content[i].locale), COL_INFOBAR, 0, true); // UTF-8
+#else
 		frameBuffer->paintIcon(content[i].button, x + i * buttonwidth, y);
+		//FIXME why y+19 ??
 		font->RenderString(x + i * buttonwidth + 20, y + 19, buttonwidth - 20, localemanager->getText(content[i].locale), COL_INFOBAR, 0, true); // UTF-8
+#endif
 	}
 }

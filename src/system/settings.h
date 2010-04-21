@@ -51,6 +51,7 @@ struct SNeutrinoSettings
 	unsigned char video_csync;
 	char current_volume;
 	int channel_mode;
+	int channel_mode_radio;
 
 	//misc
 	int shutdown_real;

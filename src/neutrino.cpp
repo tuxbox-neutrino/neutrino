@@ -759,6 +759,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.video_43mode = configfile.getInt32("video_43mode", 0);
 	g_settings.current_volume = configfile.getInt32("current_volume", 100);
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
+	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
 	g_settings.video_csync = configfile.getInt32( "video_csync", 0 );
 
 	g_settings.fan_speed = configfile.getInt32( "fan_speed", 1);
@@ -1292,6 +1293,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "video_43mode", g_settings.video_43mode );
 	configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
+	configfile.setInt32( "channel_mode_radio", g_settings.channel_mode_radio );
 	configfile.setInt32( "video_csync", g_settings.video_csync );
 
 	configfile.setInt32( "fan_speed", g_settings.fan_speed);
@@ -1859,7 +1861,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	printf("[neutrino] got %d RADIO bouquets\n", bnum); fflush(stdout);
 	TIMER_STOP("[neutrino] took");
 
-	SetChannelMode(g_settings.channel_mode);
+	SetChannelMode(lastChannelMode);
 
 	dprintf(DEBUG_DEBUG, "\nAll bouquets-channels received\n");
 #ifdef DEBUG
@@ -1874,10 +1876,13 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 void CNeutrinoApp::SetChannelMode(int newmode)
 {
 printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
-	if(mode == mode_radio)
+	if(mode == mode_radio) {
 		channelList = RADIOchannelList;
-	else
+		g_settings.channel_mode_radio = newmode;
+	} else {
 		channelList = TVchannelList;
+		g_settings.channel_mode = newmode;
+	}
 
 	switch(newmode) {
 		case LIST_MODE_FAV:
@@ -1910,7 +1915,7 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 			}
 			break;
 	}
-	g_settings.channel_mode = newmode;
+	lastChannelMode = newmode;
 }
 
 /**************************************************************************************
@@ -2269,6 +2274,7 @@ void CNeutrinoApp::InitZapper()
 			g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
 	}
 	firstChannel();
+	lastChannelMode = g_settings.channel_mode;
 	channelsInit();
 
 	if(firstchannel.mode == 't') {
@@ -3056,7 +3062,8 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			int nNewChannel = -1;
 			int old_num = 0;
 			int old_b = bouquetList->getActiveBouquetNumber();
-			int old_mode = g_settings.channel_mode;
+			//int old_mode = g_settings.channel_mode;
+			int old_mode = GetChannelMode();
 			printf("************************* ZAP START: bouquetList %x size %d old_b %d\n", (int) bouquetList, bouquetList->Bouquets.size(), old_b);fflush(stdout);
 
 			if(bouquetList->Bouquets.size()) {
@@ -3932,7 +3939,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 	frameBuffer->paintBackground();
 
 	g_RemoteControl->tvMode();
-	SetChannelMode(g_settings.channel_mode);//FIXME needed ?
+	SetChannelMode(g_settings.channel_mode);
 	if( rezap ) {
 		firstChannel();
 		channelList->tuned = 0xfffffff;;
@@ -4111,7 +4118,7 @@ printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 	}
 
 	g_RemoteControl->radioMode();
-	SetChannelMode(g_settings.channel_mode);//FIXME needed?
+	SetChannelMode(g_settings.channel_mode_radio);
 	if( rezap ) {
 		firstChannel();
 		channelList->tuned = 0xfffffff;;
@@ -4721,7 +4728,6 @@ int main(int argc, char **argv)
 
 	for(int i = 3; i < 256; i++)
 		close(i);
-
 	tzset();
 	initGlobals();
 

@@ -311,6 +311,7 @@ void CVideoSettings::nextMode(void)
 	const char * text;
 	int curmode = 0;
 	int i;
+	bool disp_cur = 1;
 
 	for (i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
 		if (VIDEOMENU_VIDEOMODE_OPTIONS[i].key == g_settings.video_Mode) {
@@ -318,26 +319,41 @@ void CVideoSettings::nextMode(void)
 			break;
 		}
 	}
-
-	i = 0;
-	while (true) {
-		curmode++;
-		if (curmode >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
-			curmode = 0;
-		if (g_settings.enabled_video_modes[curmode])
-			break;
-		i++;
-		if (i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
-			return;
-	}
-
 	text =  VIDEOMENU_VIDEOMODE_OPTIONS[curmode].valname;
 
-	g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
-	CVFD::getInstance()->ShowText((char *)text);
-	videoDecoder->SetVideoSystem(g_settings.video_Mode);
+	while(1) {
+		int res = ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 
-	ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
+		if(disp_cur && res != messages_return::handled)
+			return;
+
+		disp_cur = 0;
+
+		if(res == messages_return::handled) {
+			i = 0;
+			while (true) {
+				curmode++;
+				if (curmode >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
+					curmode = 0;
+				if (g_settings.enabled_video_modes[curmode])
+					break;
+				i++;
+				if (i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
+					return;
+			}
+
+			text =  VIDEOMENU_VIDEOMODE_OPTIONS[curmode].valname;
+		}
+		else if(res == messages_return::cancel_info) {
+			g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
+			CVFD::getInstance()->ShowText((char *)text);
+			videoDecoder->SetVideoSystem(g_settings.video_Mode);
+			return;
+		}
+		else
+			return;
+	}
+	//ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 }
 
 void CVideoSettings::next43Mode(void)
@@ -720,7 +736,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
-	mainSettings.addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS    , true, NULL, resetNotifier, "settings"));
+	//mainSettings.addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS    , true, NULL, resetNotifier, "settings"));
 
 	mainSettings.addItem(GenericMenuSeparatorLine);
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_VIDEO     , true, NULL, videoSettings    , NULL, CRCInput::convertDigitToKey(sett_count++)));
@@ -750,10 +766,15 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainSettings.addItem(new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, new CHDDMenuHandler()));
 	//mainSettings.addItem(new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler));
 
-	mainSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE));
-	mainSettings.addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig"));
-	mainSettings.addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig"));
+	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_MANAGE, NEUTRINO_ICON_SETTINGS);
+	addMenueIntroItems(*mset);
 
+	mainSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE));
+	mset->addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS    , true, NULL, resetNotifier, "settings"));
+	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig"));
+	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig"));
+
+	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, mset));
 #ifdef TEST_MENU
 	mainMenu.addItem(new CMenuForwarderNonLocalized("Test menu", true, NULL, TestMenu));
 #endif
@@ -1050,7 +1071,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	CMenuWidget* satOnOff = NULL;
 	sat_iterator_t sit;
 
-	t_satellite_position currentSatellitePosition = frontend->getCurrentSatellitePosition();
+	//t_satellite_position currentSatellitePosition = frontend->getCurrentSatellitePosition();
 	if (g_info.delivery_system == DVB_S) {
 		satSelect = new CMenuOptionStringChooser(LOCALE_SATSETUP_SATELLITE, scanSettings.satNameNoDiseqc, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 		satOnOff = new CMenuWidget(LOCALE_SATSETUP_SATELLITE, NEUTRINO_ICON_SETTINGS);
@@ -1104,8 +1125,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 			printf("Adding cable menu for %s position %d\n", sit->second.name.c_str(), sit->first);
 			satSelect->addOption(sit->second.name.c_str());
-			if (currentSatellitePosition == sit->first) {
-				strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
+			if (strcmp(scanSettings.satNameNoDiseqc,sit->second.name.c_str()) == 0) {
 				sfound = 1;
 			}
 			dprintf(DEBUG_DEBUG, "got scanprovider (cable): %s\n", sit->second.name.c_str());
@@ -1455,13 +1475,14 @@ const CMenuOptionChooser::keyval MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS[MISCSET
 	{ 1, LOCALE_FILESYSTEM_IS_UTF8_OPTION_UTF8      }
 };
 
-#define INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT 4
+#define INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT 5
 const CMenuOptionChooser::keyval  INFOBAR_SUBCHAN_DISP_POS_OPTIONS[INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT]=
 {
 	{ 0 , LOCALE_SETTINGS_POS_TOP_RIGHT },
 	{ 1 , LOCALE_SETTINGS_POS_TOP_LEFT },
 	{ 2 , LOCALE_SETTINGS_POS_BOTTOM_LEFT },
-	{ 3 , LOCALE_SETTINGS_POS_BOTTOM_RIGHT }
+	{ 3 , LOCALE_SETTINGS_POS_BOTTOM_RIGHT },
+	{ 4 , LOCALE_INFOVIEWER_SUBCHAN_INFOBAR }
 };
 
 #define CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT 2
