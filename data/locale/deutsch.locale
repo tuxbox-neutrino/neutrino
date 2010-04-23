@@ -255,6 +255,8 @@ extra.fec_2_3 2/3 S1_Q
 extra.fec_3_4 3/4 S1_Q
 extra.fec_5_6 5/6 S1_Q
 extra.fec_7_8 7/8 S1_Q
+extra.fec_auto Auto DVB-S
+extra.fec_auto_s2 Auto DVB-S2
 extra.fec_s2_8psk_1_2 1/2 S2_8
 extra.fec_s2_8psk_2_3 2/3 S2_8
 extra.fec_s2_8psk_3_4 3/4 S2_8
@@ -583,6 +585,7 @@ infoviewer.now jetzt
 infoviewer.selecttime Startzeiten
 infoviewer.streaminfo Erweiterungen
 infoviewer.subchan_disp_pos Unterkanalanzeige
+infoviewer.subchan_infobar Komplette Infobar
 infoviewer.subservice Bildregie
 infoviewer.waittime Warte auf Uhrzeit...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/ runter
@@ -662,6 +665,7 @@ mainsettings.keybinding Tasten Einstellungen
 mainsettings.language Sprache
 mainsettings.lcd VFD-Display
 mainsettings.misc Diverse Einstellungen
+mainsettings.manage Einstellungen verwalten
 mainsettings.network Netzwerk
 mainsettings.osd OSD Einstellungen
 mainsettings.recording Aufnahme
@@ -736,6 +740,7 @@ motorcontrol.movement (b) Bewegung:
 motorcontrol.msec Millisekunden
 motorcontrol.no_mode keine Sorge (wasn das?)
 motorcontrol.notdef nicht benutzt
+motorcontrol.override 
 motorcontrol.pos_decrease Motorposition runter (a)
 motorcontrol.pos_increase Motorposition rauf (a)
 motorcontrol.ref_position Gehe zu Referenzposition
