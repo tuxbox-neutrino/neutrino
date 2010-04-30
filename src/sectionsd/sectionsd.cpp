@@ -8739,7 +8739,6 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
 
-	eList.clear();
 	if (serviceUniqueKey != 0) {
 		// service Found
 		readLockEvents();
