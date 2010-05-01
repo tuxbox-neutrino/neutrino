@@ -64,13 +64,13 @@ void CControlAPI::init(CyhookHandler *hh)
 {
 	if(PLUGIN_DIRS[0] == "")
 	{	// given in nhttpd.conf
-		PLUGIN_DIRS[0]=hh->WebserverConfigList["WebsiteMain.override_directory"];
-		PLUGIN_DIRS[0].append("/scripts");
-		PLUGIN_DIRS[1]=hh->WebserverConfigList["WebsiteMain.directory"];
+		PLUGIN_DIRS[0]=PLUGIN_DIRS[1]=hh->WebserverConfigList["WebsiteMain.override_directory"];
 		PLUGIN_DIRS[1].append("/scripts");
-		PLUGIN_DIRS[2]="/var/tuxbox/plugins";
-		PLUGIN_DIRS[3]=PLUGINDIR;
-		PLUGIN_DIRS[4]="/mnt/plugins";
+		PLUGIN_DIRS[2]=PLUGIN_DIRS[3]=hh->WebserverConfigList["WebsiteMain.directory"];
+		PLUGIN_DIRS[3].append("/scripts");
+		PLUGIN_DIRS[4]="/var/tuxbox/plugins";
+		PLUGIN_DIRS[5]=PLUGINDIR;
+		PLUGIN_DIRS[6]="/mnt/plugins";
 	}
 }
 
@@ -973,6 +973,61 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 	else if (hh->ParamList["format"] == "xml")
 		hh->WriteLn("</bouquets>");
 }
+//-----------------------------------------------------------------------------
+//	details EPG Information for channelid
+//-----------------------------------------------------------------------------
+void CControlAPI::channelEPGAsXML(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime)
+{
+	sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
+	hh->printf("<channel_id>"
+			PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+			"</channel_id>\r\n", channel_id);
+	hh->printf("<channel_short_id>"
+			PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+			"</channel_short_id>\r\n", channel_id&0xFFFFFFFFFFFFULL);
+	hh->printf("<channel_name><![CDATA[%s]]></channel_name>\r\n", NeutrinoAPI->GetServiceName(channel_id).c_str());
+
+	int i=0;
+	CChannelEventList::iterator eventIterator;
+	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, i++)
+	{
+		if( (max != -1 && i >= max) || ( stoptime != -1 && eventIterator->startTime >= stoptime))
+			break;
+		hh->WriteLn("<prog>");
+		hh->printf("\t<bouquetnr>%d</bouquetnr>\r\n", bouquetnr);
+		hh->printf("\t<channel_id>"
+				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+				"</channel_id>\r\n", channel_id);
+		hh->printf("\t<eventid>%llu</eventid>\r\n", eventIterator->eventID);
+		hh->printf("\t<eventid_hex>%llx</eventid_hex>\r\n", eventIterator->eventID);
+		hh->printf("\t<start_sec>%ld</start_sec>\r\n", eventIterator->startTime);
+		char zbuffer[25] = {0};
+		struct tm *mtime = localtime(&eventIterator->startTime);
+		strftime(zbuffer,20,"%H:%M",mtime);
+		hh->printf("\t<start_t>%s</start_t>\r\n", zbuffer);
+		bzero(zbuffer,25);
+		strftime(zbuffer,20,"%d.%m.%Y",mtime);
+		hh->printf("\t<date>%s</date>\r\n", zbuffer);
+		hh->printf("\t<stop_sec>%ld</stop_sec>\r\n", eventIterator->startTime+eventIterator->duration);
+		long _stoptime = eventIterator->startTime+eventIterator->duration;
+		mtime = localtime(&_stoptime);
+		strftime(zbuffer,20,"%H:%M",mtime);
+		hh->printf("\t<stop_t>%s</stop_t>\r\n", zbuffer);
+		hh->printf("\t<duration_min>%d</duration_min>\r\n", (int)(eventIterator->duration/60));
+		hh->printf("\t<description><![CDATA[%s]]></description>\r\n", eventIterator->description.c_str());
+
+		if (!(hh->ParamList["details"].empty()))
+		{
+			CShortEPGData epg;
+			if (sectionsd_getEPGidShort(eventIterator->eventID,&epg))
+			{
+				hh->printf("\t<info1><![CDATA[%s]]></info1>\r\n",epg.info1.c_str());
+				hh->printf("\t<info2><![CDATA[%s]]></info2>\r\n",epg.info2.c_str());
+			}
+		}
+		hh->WriteLn("</prog>");
+	}
+}
 
 //-----------------------------------------------------------------------------
 void CControlAPI::EpgCGI(CyhookHandler *hh)
@@ -1086,8 +1141,18 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 	else if (!(hh->ParamList["xml"].empty()))
 	{
 		hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
-		t_channel_id channel_id = (t_channel_id)-1;
+		// max = maximal output items
+		int max = -1;
+		if (!(hh->ParamList["max"].empty()))
+			max = atoi( hh->ParamList["max"].c_str() );
 
+		// stoptime = maximal output items until starttime >= stoptime
+		long stoptime = -1;
+		if (!(hh->ParamList["stoptime"].empty()))
+			stoptime = atol( hh->ParamList["stoptime"].c_str() );
+
+		// determine channelid
+		t_channel_id channel_id = (t_channel_id)-1;
 		if (!(hh->ParamList["channelid"].empty()))
 		{
 			sscanf(hh->ParamList["channelid"].c_str(),
@@ -1098,66 +1163,66 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 		{
 			channel_id = NeutrinoAPI->ChannelNameToChannelId( hh->ParamList["channelname"].c_str() );
 		}
-		if(channel_id != (t_channel_id)-1)
+		// or determine bouquetnr -> iterate the bouquet
+		int bouquetnr = -1;
+		bool all_bouquets = false;
+
+		if(hh->ParamList["bouquetnr"] == "all")
+			all_bouquets = true;
+		else
+		if (!(hh->ParamList["bouquetnr"].empty()))
 		{
-			hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-			hh->WriteLn("<epglist>");
-			sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
-			hh->printf("<channel_id>"
-					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"</channel_id>\r\n", channel_id);
-			hh->printf("<channel_short_id>"
-					PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-					"</channel_short_id>\r\n", channel_id&0xFFFFFFFFFFFFULL);
-			hh->printf("<channel_name><![CDATA[%s]]></channel_name>\r\n", NeutrinoAPI->GetServiceName(channel_id).c_str());
-
-			// max = maximal output items
-			int max = -1;
-			if (!(hh->ParamList["max"].empty()))
-				max = atoi( hh->ParamList["max"].c_str() );
-
-			// stoptime = maximal output items until starttime >= stoptime
-			long stoptime = -1;
-			if (!(hh->ParamList["stoptime"].empty()))
-				stoptime = atol( hh->ParamList["stoptime"].c_str() );
-			int i=0;
-			CChannelEventList::iterator eventIterator;
-			for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, i++)
-			{
-				if( (max != -1 && i >= max) || ( stoptime != -1 && eventIterator->startTime >= stoptime))
-					break;
-				hh->WriteLn("<prog>");
-				hh->printf("\t<eventid>%llu</eventid>\r\n", eventIterator->eventID);
-				hh->printf("\t<eventid_hex>%llx</eventid_hex>\r\n", eventIterator->eventID);
-				hh->printf("\t<start_sec>%ld</start_sec>\r\n", eventIterator->startTime);
-				char zbuffer[25] = {0};
-				struct tm *mtime = localtime(&eventIterator->startTime);
-				strftime(zbuffer,20,"%H:%M",mtime);
-				hh->printf("\t<start_t>%s</start_t>\r\n", zbuffer);
-				bzero(zbuffer,25);
-				strftime(zbuffer,20,"%d.%m.%Y",mtime);
-				hh->printf("\t<date>%s</date>\r\n", zbuffer);
-				hh->printf("\t<stop_sec>%ld</stop_sec>\r\n", eventIterator->startTime+eventIterator->duration);
-				long _stoptime = eventIterator->startTime+eventIterator->duration;
-				mtime = localtime(&_stoptime);
-				strftime(zbuffer,20,"%H:%M",mtime);
-				hh->printf("\t<stop_t>%s</stop_t>\r\n", zbuffer);
-				hh->printf("\t<duration_min>%d</duration_min>\r\n", (int)(eventIterator->duration/60));
-				hh->printf("\t<description><![CDATA[%s]]></description>\r\n", eventIterator->description.c_str());
-
-				if (!(hh->ParamList["details"].empty()))
-				{
-					CShortEPGData epg;
-					if (sectionsd_getEPGidShort(eventIterator->eventID,&epg))
-					{
-						hh->printf("\t<info1><![CDATA[%s]]></info1>\r\n",epg.info1.c_str());
-						hh->printf("\t<info2><![CDATA[%s]]></info2>\r\n",epg.info2.c_str());
-					}
-				}
-				hh->WriteLn("</prog>");
-			}
-			hh->WriteLn("</epglist>");
+			bouquetnr = atoi( hh->ParamList["bouquetnr"].c_str() );
+			bouquetnr--;
 		}
+
+		hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		hh->WriteLn("<epglist>");
+
+		if(bouquetnr>=0)
+		{
+			// list for given bouquet
+			ZapitChannelList channels;
+			int mode = NeutrinoAPI->Zapit->getMode();
+
+			channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[bouquetnr]->radioChannels : g_bouquetManager->Bouquets[bouquetnr]->tvChannels;
+			std::string bouquet = std::string(g_bouquetManager->Bouquets[bouquetnr]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[bouquetnr]->Name.c_str());
+			bouquet = encodeString(bouquet); // encode (URLencode) the bouquetname
+			hh->printf("\t<bouquet>\n\t\t<number>%d</number>\n\t\t<name><![CDATA[%s]]></name>\n\t", bouquetnr+1, bouquet.c_str());
+
+			for(int j = 0; j < (int) channels.size(); j++) {
+				CZapitChannel * channel = channels[j];
+				hh->WriteLn("\t\t<channel>");
+				channelEPGAsXML(hh, bouquetnr+1, channel->channel_id, max, stoptime);
+				hh->WriteLn("\t\t</channel>");
+			}
+			hh->WriteLn("\t</bouquet>");
+		}
+		else if(all_bouquets)
+		{
+			// list all bouquets			if(encode)
+			ZapitChannelList channels;
+			int mode = NeutrinoAPI->Zapit->getMode();
+
+			for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
+				channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
+				std::string bouquet = std::string(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) :g_bouquetManager->Bouquets[i]->Name.c_str());
+				bouquet = encodeString(bouquet); // encode (URLencode) the bouquetname
+				hh->printf("\t<bouquet>\n\t\t<number>%d</number>\n\t\t<name><![CDATA[%s]]></name>\n\t", i+1, bouquet.c_str());
+
+				for(int j = 0; j < (int) channels.size(); j++) {
+					CZapitChannel * channel = channels[j];
+					hh->WriteLn("\t\t<channel>");
+					channelEPGAsXML(hh, j+1, channel->channel_id, max, stoptime);
+					hh->WriteLn("\t\t</channel>");
+				}
+				hh->WriteLn("\t</bouquet>");
+			}
+		}
+		else
+			// list one channel
+			channelEPGAsXML(hh, 0, channel_id, max, stoptime);
+		hh->WriteLn("</epglist>");
 	}
 }
 
@@ -2266,10 +2331,14 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 			}
 		} else {
 			for (CStringList::iterator it = hh->ParamList.begin(); it
-					!= hh->ParamList.end(); it++)
-				if(it->first != "_dc" && it->first != "action" && it->first != "format" && it->first != "config"){
-					Config->setString(it->first, it->second);
+					!= hh->ParamList.end(); it++){
+				std::string key = it->first;
+				replace(key,"_dot_",".");
+				replace(key,"_bind_","-");
+				if(key != "_dc" && key != "action" && key != "format" && key != "config"){
+					Config->setString(key, it->second);
 				}
+			}
 			if(config_filename != "")
 				Config->saveConfig(config_filename);
 		}

@@ -46,6 +46,8 @@ private:
 	void doNewTimer(CyhookHandler *hh);
 	void _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
 	void _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int nr);
+	void channelEPGAsXML(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime);
+
 	//yweb
 	void YWeb_SendVideoStreamingPids(CyhookHandler *hh, int apid_no);
 	void YWeb_SendRadioStreamingPid(CyhookHandler *hh);
@@ -101,7 +103,7 @@ private:
 	void ConfigCGI(CyhookHandler *hh);
 
 protected:
-	static const unsigned int PLUGIN_DIR_COUNT = 5;
+	static const unsigned int PLUGIN_DIR_COUNT = 7;
 	static std::string PLUGIN_DIRS[PLUGIN_DIR_COUNT];
 	CNeutrinoAPI	*NeutrinoAPI;
 
