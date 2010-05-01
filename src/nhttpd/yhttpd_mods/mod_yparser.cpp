@@ -54,10 +54,10 @@ void CyParser::init(CyhookHandler *hh) {
 	if (HTML_DIRS[0] == "") {
 		CyParser::HTML_DIRS[0] = hh->WebserverConfigList["WebsiteMain.override_directory"];
 		HTML_DIRS[1] = hh->WebserverConfigList["WebsiteMain.directory"];
-		PLUGIN_DIRS[0] = HTML_DIRS[0];
-		PLUGIN_DIRS[0].append("/scripts");
-		PLUGIN_DIRS[1] = HTML_DIRS[1];
+		PLUGIN_DIRS[0]=PLUGIN_DIRS[1] = HTML_DIRS[0];
 		PLUGIN_DIRS[1].append("/scripts");
+		PLUGIN_DIRS[2]=PLUGIN_DIRS[3] = HTML_DIRS[1];
+		PLUGIN_DIRS[3].append("/scripts");
 	}
 }
 //=============================================================================
@@ -727,7 +727,7 @@ std::string CyParser::func_change_httpd(CyhookHandler *hh, std::string para) {
 // y-func : get_header_data
 //-------------------------------------------------------------------------
 std::string CyParser::func_get_languages_as_dropdown(CyhookHandler *,
-		std::string) {
+		std::string para) {
 	std::string yresult, sel;
 	DIR *d;
 	struct dirent *dir;
@@ -739,12 +739,11 @@ std::string CyParser::func_get_languages_as_dropdown(CyhookHandler *,
 			if (strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0)
 				continue;
 			if (dir->d_type != DT_DIR) {
-				sel
-						= (act_language == std::string(dir->d_name)) ? "selected=\"selected\""
-								: "";
-				yresult += string_printf("<option value=%s %s>%s</option>\n",
-						dir->d_name, sel.c_str(), (encodeString(std::string(
-								dir->d_name))).c_str());
+				sel = (act_language == std::string(dir->d_name)) ? "selected=\"selected\"" : "";
+				yresult += string_printf("<option value=%s %s>%s</option>",
+						dir->d_name, sel.c_str(), (encodeString(std::string(dir->d_name))).c_str());
+				if(para != "nonl")
+					yresult += "\n";
 			}
 		}
 		closedir(d);

@@ -42,7 +42,7 @@ private:
 	//-------------------------------------------------------------------------
 	static const unsigned int HTML_DIR_COUNT = 2;
 	static std::string HTML_DIRS[HTML_DIR_COUNT];
-	static const unsigned int PLUGIN_DIR_COUNT = 2;
+	static const unsigned int PLUGIN_DIR_COUNT = 4;
 	static std::string PLUGIN_DIRS[PLUGIN_DIR_COUNT];
 
 	// CGI call Dispatcher Array
