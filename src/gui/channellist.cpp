@@ -170,6 +170,7 @@ void CChannelList::updateEvents(void)
 			unsigned int count;
 			for (count=0; count < chanlist_size; count++){
 				//CChannelEventList events = g_Sectionsd->getEventsServiceKey(chanlist[liststart+count]->channel_id &0xFFFFFFFFFFFFULL);
+				events.clear();
 				sectionsd_getEventsServiceKey(chanlist[count]->channel_id &0xFFFFFFFFFFFFULL, events);
 				chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
 				for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
