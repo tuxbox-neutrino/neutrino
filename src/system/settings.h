@@ -69,7 +69,7 @@ struct SNeutrinoSettings
 	int scrambled_message;
 	int volume_pos;
 	int menu_pos;
-
+	int infobar_show_var_hdd;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;

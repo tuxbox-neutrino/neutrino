@@ -714,7 +714,8 @@ miscsettings.infobar_disp_1 Logo in der Nummernbox
 miscsettings.infobar_disp_2 Logo Infobar / Kanalnummer
 miscsettings.infobar_disp_3 Logo Infobar / Signalbalken
 miscsettings.infobar_disp_log Infobar Dis.
-miscsettings.infobar_sat_display Infobar Kabel-/Satellitenanbieter
+miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
+miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd )
 miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
 miscsettings.noenxwatchdog eNX-Watchdog aktivieren
 miscsettings.pmtupdate PMT Aktualisierung verwenden

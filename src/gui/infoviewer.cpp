@@ -1162,40 +1162,41 @@ void CInfoViewer::showSNR ()
 			g_SignalFont->RenderString (posx, posy + height, sw, percent, COL_INFOBAR);
 		}
 	}
-
-	struct statfs s;
-	int per = 0;
-	if (::statfs("/var", &s) == 0) {
-		per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
-	}
+	if(g_settings.infobar_show_var_hdd){
+		struct statfs s;
+		int per = 0;
+		if (::statfs("/var", &s) == 0) {
+			per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
+		}
 	/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 	   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 	   the scales */
-	varscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
-				   BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
-	per = 0;
+		varscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
+						BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
+		 per = 0;
 	//HD info
-	if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0) {
-		switch (s.f_type)
-		{
-		case (int) 0xEF53:      /*EXT2 & EXT3*/
-		case (int) 0x6969:      /*NFS*/
-		case (int) 0xFF534D42:  /*CIFS*/
-		case (int) 0x517B:      /*SMB*/
-		case (int) 0x52654973:  /*REISERFS*/
-		case (int) 0x65735546:  /*fuse for ntfs*/
-		case (int) 0x58465342:  /*xfs*/
-		case (int) 0x4d44:      /*msdos*/
-			per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
+		if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0) {
+			switch (s.f_type)
+			{
+			case (int) 0xEF53:      /*EXT2 & EXT3*/
+			case (int) 0x6969:      /*NFS*/
+			case (int) 0xFF534D42:  /*CIFS*/
+			case (int) 0x517B:      /*SMB*/
+			case (int) 0x52654973:  /*REISERFS*/
+			case (int) 0x65735546:  /*fuse for ntfs*/
+			case (int) 0x58465342:  /*xfs*/
+			case (int) 0x4d44:      /*msdos*/
+				per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
+				break;
+			default:
+				fprintf( stderr,"%s Unknow File system type: %i\n",g_settings.network_nfs_recordingdir ,s.f_type);
 			break;
-		default:
-			fprintf( stderr,"%s Unknow File system type: %i\n",g_settings.network_nfs_recordingdir ,s.f_type);
-			break;
+			}
 		}
-	}
 
-	hddscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
-				   BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
+		hddscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
+							BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
+	}
 }
 
 void CInfoViewer::display_Info(const char *current, const char *next,
