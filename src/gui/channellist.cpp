@@ -1535,11 +1535,11 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CChannelList::showChannelLogo()
 {
-	frameBuffer->paintBoxRel(x + width - 135 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(x + width - timestr_len - PIC_W - icons_width, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
 
 	std::string lname;
 	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname))
-		g_PicViewer->DisplayImage(lname, x + width - 135 - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+		g_PicViewer->DisplayImage(lname, x + width - timestr_len - PIC_W - icons_width, y+(theight-PIC_H)/2, PIC_W, PIC_H);
 }
 
 void CChannelList::paintItem(int pos)
@@ -1603,7 +1603,7 @@ void CChannelList::paintItem(int pos)
 
 		if(g_settings.channellist_extended)
 		{
-			prg_offset=42;
+			prg_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
 			title_offset=6;
 		}
 
@@ -1632,8 +1632,7 @@ void CChannelList::paintItem(int pos)
 		int pb_space = prg_offset - title_offset;
 		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {
-			if(!g_settings.channellist_epgtext_align_right)
-				snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l," - ");
+			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription, true);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description, true);
 
@@ -1729,13 +1728,19 @@ struct button_label CChannelListButtons[NUM_LIST_BUTTONS] =
 
 void CChannelList::paintHead()
 {
-	int timestr_len = 0;
 	char timestr[10] = {0};
 	time_t now = time(NULL);
 	struct tm *tm = localtime(&now);
 
 	bool gotTime = g_Sectionsd->getIsTimeSet();
+	int  dx = 0, dy = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP,&dx,&dy);
+	icons_width = dx;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX,&dx,&dy);
+	icons_width += dx;
+	icons_width += dx/2;
 
+	timestr_len = 0;
 	if(gotTime){
 		strftime(timestr, 10, "%H:%M", tm);
 		timestr_len = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(timestr, true); // UTF-8
@@ -1748,7 +1753,7 @@ void CChannelList::paintHead()
 	int ButtonWidth = (width - 20) / 4;
 
 	if (gotTime){
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+width-65-timestr_len, y+theight+0, timestr_len+1, timestr, COL_MENUHEAD, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+width-icons_width-timestr_len, y+theight+0, timestr_len+1, timestr, COL_MENUHEAD, 0, true); // UTF-8
 	}  
 
 	// foot
@@ -1762,9 +1767,10 @@ void CChannelList::paintHead()
 	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth,
 			NUM_LIST_BUTTONS, CChannelListButtons);
 
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 30, y+ 5 );
-	if (bouquetList != NULL)
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - 60, y + 5); // icon for bouquet list button
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- icons_width/2, y+ 5 );
+	if (bouquetList != NULL){
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - icons_width, y + 5); // icon for bouquet list button
+	}
 //	frameBuffer->paintIcon(new_mode_active ? NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE, x + width - 90, y + 5);
 }
 

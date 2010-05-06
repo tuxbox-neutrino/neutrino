@@ -74,6 +74,8 @@ class CChannelList
 		int 			x;
 		int 			y;
 
+		int 			timestr_len;
+		int 			icons_width;
 		bool historyMode;
 		bool vlist; // "virtual" list, not bouquet
 		bool displayNext;
