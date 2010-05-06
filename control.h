@@ -46,22 +46,22 @@ typedef struct cs_control_data {
 
 /* ioctls */
 #define CS_CONTROL_MAGIC		0xDE
-#define IOC_CONTROL_WIDESCREEN		_IOW(CS_CONTROL_MAGIC, 8, unsigned int)
-#define IOC_CONTROL_TVAV		_IOW(CS_CONTROL_MAGIC, 9, unsigned int)
-#define IOC_CONTROL_RGB			_IOW(CS_CONTROL_MAGIC, 10, unsigned int)
-#define IOC_CONTROL_SCART_STATUS	_IOR(CS_CONTROL_MAGIC, 11, scart_status_t *)
-#define IOC_CONTROL_PWM_SPEED		_IOW(CS_CONTROL_MAGIC, 12, unsigned int)
-#define IOC_CONTROL_HDDPOWER		_IOW(CS_CONTROL_MAGIC, 13, unsigned int)
+#define IOC_CONTROL_WIDESCREEN		_IOW(CS_CONTROL_MAGIC, 20, unsigned int)
+#define IOC_CONTROL_TVAV		_IOW(CS_CONTROL_MAGIC, 21, unsigned int)
+#define IOC_CONTROL_RGB			_IOW(CS_CONTROL_MAGIC, 22, unsigned int)
+#define IOC_CONTROL_SCART_STATUS	_IOR(CS_CONTROL_MAGIC, 23, scart_status_t *)
+#define IOC_CONTROL_PWM_SPEED		_IOW(CS_CONTROL_MAGIC, 24, unsigned int)
+#define IOC_CONTROL_HDDPOWER		_IOW(CS_CONTROL_MAGIC, 25, unsigned int)
 
 /* ioctl for getting board serial and revision */
-#define IOC_CONTROL_BOARD_SERIAL_LOW	_IOR(CS_CONTROL_MAGIC, 14, unsigned int *)
-#define IOC_CONTROL_BOARD_SERIAL_HIGH	_IOR(CS_CONTROL_MAGIC, 15, unsigned int *)
-#define IOC_CONTROL_BOARD_REV		_IOR(CS_CONTROL_MAGIC, 16, unsigned int *)
+#define IOC_CONTROL_BOARD_SERIAL_LOW	_IOR(CS_CONTROL_MAGIC, 26, unsigned int *)
+#define IOC_CONTROL_BOARD_SERIAL_HIGH	_IOR(CS_CONTROL_MAGIC, 27, unsigned int *)
+#define IOC_CONTROL_BOARD_REV		_IOR(CS_CONTROL_MAGIC, 28, unsigned int *)
 
 /* ioctl for setting TS routing */
-#define IOC_CONTROL_TSROUTE_GET_HSDP_CONFIG	_IOR(CS_CONTROL_MAGIC, 17, tsrouter_hsdp_config_t *)
-#define IOC_CONTROL_TSROUTE_SET_HSDP_CONFIG	_IOW(CS_CONTROL_MAGIC, 18, tsrouter_tsp_config_t *)
-#define IOC_CONTROL_TSROUTE_GET_TSP_CONFIG	_IOR(CS_CONTROL_MAGIC, 19, tsrouter_hsdp_config_t *)
-#define IOC_CONTROL_TSROUTE_SET_TSP_CONFIG	_IOW(CS_CONTROL_MAGIC, 20, tsrouter_tsp_config_t *)
+#define IOC_CONTROL_TSROUTE_GET_HSDP_CONFIG	_IOR(CS_CONTROL_MAGIC, 29, tsrouter_hsdp_config_t *)
+#define IOC_CONTROL_TSROUTE_SET_HSDP_CONFIG	_IOW(CS_CONTROL_MAGIC, 30, tsrouter_tsp_config_t *)
+#define IOC_CONTROL_TSROUTE_GET_TSP_CONFIG	_IOR(CS_CONTROL_MAGIC, 31, tsrouter_hsdp_config_t *)
+#define IOC_CONTROL_TSROUTE_SET_TSP_CONFIG	_IOW(CS_CONTROL_MAGIC, 32, tsrouter_tsp_config_t *)
 
 #endif /* __CONTROL_H */

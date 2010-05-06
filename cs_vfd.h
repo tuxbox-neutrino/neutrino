@@ -45,11 +45,32 @@ typedef enum
 
 typedef enum
 {
-    VFD_FLAG_NONE	 = 0x00,
-    VFD_FLAG_SCROLL_ON	 = 0x01,	/* switch scrolling on */
-    VFD_FLAG_SCROLL_LTR  = 0x02,	/* scroll from left to rightinstead of default right to left direction (i.e. for arabic text) */
-    VFD_FLAG_SCROLL_SIO	 = 0x04		/* start/stop scrolling with empty screen (scroll in/out) */
+    VFD_FLAG_NONE		= 0x00,
+    VFD_FLAG_SCROLL_ON		= 0x01,	/* switch scrolling on */
+    VFD_FLAG_SCROLL_LTR		= 0x02,	/* scroll from left to rightinstead of default right to left direction (i.e. for arabic text) */
+    VFD_FLAG_SCROLL_SIO		= 0x04,	/* start/stop scrolling with empty screen (scroll in/out) */
+    VFD_FLAG_SCROLL_DELAY	= 0x08,	/* delayed scroll start */
+    VFD_FLAG_ALIGN_LEFT		= 0x10,	/* align the text in display from the left (default) */
+    VFD_FLAG_ALIGN_RIGHT	= 0x20,	/* align the text in display from the right (arabic) */
 } vfd_flag;
+
+typedef struct {
+	unsigned char		brightness;
+	unsigned char		flags;
+	unsigned char		current_hour;
+	unsigned char		current_minute;
+	unsigned char		timer_minutes_hi;
+	unsigned char		timer_minutes_lo;
+} standby_data_t;
+
+typedef enum {
+	VFD_LED_1_ON		= 0x81,
+	VFD_LED_2_ON		= 0x82,
+	VFD_LED_3_ON		= 0x83,
+	VFD_LED_1_OFF		= 0x01,
+	VFD_LED_2_OFF		= 0x02,
+	VFD_LED_3_OFF		= 0x03,
+} vfd_led_ctrl_t;
 
 #define IOC_VFD_SET_BRIGHT	_IOW(0xDE,  1, unsigned char)	/* set the display brighness in 16 steps between 0 to 15 */
 #define IOC_VFD_CLEAR_ALL	_IOW(0xDE,  2, unsigned int)	/* clear the entire display (both text and icons) */
@@ -58,5 +79,7 @@ typedef enum
 #define IOC_VFD_CLEAR_ICON	_IOW(0xDE,  5, vfd_icon)	/* switch the given icon off */
 #define IOC_VFD_SET_OUTPUT	_IOW(0xDE,  6, unsigned char)	/* switch the given output on (supported by the controller, but not used in the hardware) */
 #define IOC_VFD_CLEAR_OUTPUT	_IOW(0xDE,  7, unsigned char)	/* switch the given output off (supported by the controller, but not used in the hardware) */
+#define IOC_VFD_STANDBY		_IOW(0xDE,  8, standby_data_t *)/* switch the vfd/psu in standby */
+#define IOC_VFD_LED_CTRL	_IOW(0xDE,  9, unsigned char)/* switch the vfd/psu in standby */
 
 #endif /* __CS_VFD__ */
