@@ -1577,7 +1577,7 @@ void CChannelList::paintItem(int pos)
 
 		if(g_settings.channellist_extended)
 		{
-			prg_offset=42;
+			prg_offset = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00:00");
 			title_offset=6;
 		}
 
@@ -1606,8 +1606,7 @@ void CChannelList::paintItem(int pos)
 		int pb_space = prg_offset - title_offset;
 		int pb_max = pb_space - 4;
 		if (!(p_event->description.empty())) {
-			if(!g_settings.channellist_epgtext_align_right)
-				snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l," - ");
+			snprintf(nameAndDescription+l, sizeof(nameAndDescription)-l,g_settings.channellist_epgtext_align_right ? "  ":" - ");
 			unsigned int ch_name_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(nameAndDescription, true);
 			unsigned int ch_desc_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(p_event->description, true);
 
