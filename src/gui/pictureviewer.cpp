@@ -115,8 +115,23 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	height = h_max (570, 0);
 
 	sheight      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	buttonHeight = std::min(25, sheight);
+
+        int icol_w, icol_h;
+
 	theight      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &icol_w, &icol_h);
+	theight = std::max(theight, icol_h);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
+	theight = std::max(theight, icol_h);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &icol_w, &icol_h);
+	theight = std::max(theight, icol_h);
+
+        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+        buttonHeight = 8 + std::max(icol_h+2, sheight);
+
 	fheight      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	listmaxshow = (height-theight-2*buttonHeight)/(fheight);
 	height = theight+2*buttonHeight+listmaxshow*fheight;	// recalc height
@@ -568,14 +583,19 @@ void CPictureViewerGui::paintHead()
 {
 //	printf("paintHead{\n");
 	std::string strCaption = g_Locale->getText(LOCALE_PICTUREVIEWER_HEAD);
+
+	int iw1, iw2, iw3, ih;
+	frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw1, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw2, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &iw3, &ih);
+
 	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	frameBuffer->paintIcon(NEUTRINO_ICON_MP3,x+7,y+10);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+35,y+theight+0, width- 45, strCaption, COL_MENUHEAD, 0, true); // UTF-8
-	int ypos=y+0;
-	if (theight > 26)
-		ypos = (theight-26) / 2 + y ;
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 60, ypos );
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x+ width- 30, ypos );
+
+	frameBuffer->paintIcon(NEUTRINO_ICON_MP3, x+5, y, theight);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+iw1+10, y+theight+0, width- iw1 - iw2 - iw3 - 5*5, strCaption, COL_MENUHEAD, 0, true); // UTF-8
+
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- iw2 - 5, y, theight);
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x+ width- iw2 - iw3 - 10, y, theight );
 //	printf("paintHead}\n");
 }
 
@@ -593,28 +613,43 @@ void CPictureViewerGui::paintFoot()
 //	printf("paintFoot{\n");
 	int ButtonWidth = (width-20) / 4;
 	int ButtonWidth2 = (width-50) / 2;
+
 	frameBuffer->paintBoxRel(x, y+(height-2*buttonHeight), width, 2*buttonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	frameBuffer->paintHLine(x, x+width,  y+(height-2*buttonHeight), COL_INFOBAR_SHADOW_PLUS_0);
 
 	if (!playlist.empty())
 	{
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x + 1* ButtonWidth2 + 25, y+(height-buttonHeight)-3);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + 1 * ButtonWidth2 + 53 , y+(height-buttonHeight)+24 - 4, ButtonWidth2- 28, g_Locale->getText(LOCALE_PICTUREVIEWER_SHOW), COL_INFOBAR, 0, true); // UTF-8
+		//frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x + 1* ButtonWidth2 + 25, y+(height-buttonHeight)-3);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x + 1* ButtonWidth2 + 25, y+height-buttonHeight, buttonHeight);
+		//g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + 1 * ButtonWidth2 + 53 , y+(height-buttonHeight)+24 - 4, ButtonWidth2- 28, g_Locale->getText(LOCALE_PICTUREVIEWER_SHOW), COL_INFOBAR, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + 1 * ButtonWidth2 + 53 , 
+				y + height - buttonHeight + sheight + (buttonHeight - sheight)/2, ButtonWidth2- 28,
+				g_Locale->getText(LOCALE_PICTUREVIEWER_SHOW), COL_INFOBAR, 0, true); // UTF-8
 
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_5, x+ 0* ButtonWidth2 + 25, y+(height-buttonHeight)-3);
+		//frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_5, x+ 0* ButtonWidth2 + 25, y+(height-buttonHeight)-3);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_5, x+ 0* ButtonWidth2 + 25, y+height-buttonHeight, buttonHeight);
 		std::string tmp = g_Locale->getText(LOCALE_PICTUREVIEWER_SORTORDER);
 		tmp += ' ';
 		if (m_sort==FILENAME)
 			tmp += g_Locale->getText(LOCALE_PICTUREVIEWER_SORTORDER_DATE);
 		else if (m_sort==DATE)
 			tmp += g_Locale->getText(LOCALE_PICTUREVIEWER_SORTORDER_FILENAME);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+ 0* ButtonWidth2 +53 , y+(height-buttonHeight)+24 - 4, ButtonWidth2- 28, tmp, COL_INFOBAR, 0, true); // UTF-8
+		//g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+ 0* ButtonWidth2 +53 , y+(height-buttonHeight)+24 - 4, ButtonWidth2- 28, tmp, COL_INFOBAR, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+ 0* ButtonWidth2 +53 , 
+				y + height - buttonHeight + sheight + (buttonHeight - sheight)/2, 
+				ButtonWidth2- 28, tmp, COL_INFOBAR, 0, true); // UTF-8
 
 
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - 2 * buttonHeight) + 4, ButtonWidth, 4, PictureViewerButtons);
+		//::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - 2 * buttonHeight) + 4, ButtonWidth, 4, PictureViewerButtons);
+		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, 
+			x + 10, y + (height - 2 * buttonHeight), ButtonWidth, buttonHeight,
+			4, PictureViewerButtons);
 	}
 	else
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + ButtonWidth + 10, y + (height - 2 * buttonHeight) + 4, ButtonWidth, 1, &(PictureViewerButtons[1]));
+		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, 
+			/*x + ButtonWidth + 10, y + (height - 2 * buttonHeight) + 4, ButtonWidth,*/
+			x + ButtonWidth + 10, y + (height - 2 * buttonHeight), ButtonWidth, buttonHeight,
+			1, &(PictureViewerButtons[1]));
 //	printf("paintFoot}\n");
 }
 //------------------------------------------------------------------------

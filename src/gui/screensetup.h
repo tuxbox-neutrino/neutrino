@@ -45,6 +45,10 @@ class CScreenSetup : public CMenuTarget
  private:
     CFrameBuffer * frameBuffer;
     int	selected;
+    int x_box;
+    int y_box;
+    int BoxHeight;
+    int BoxWidth;
     int x_coord[2];
     int y_coord[2];
 

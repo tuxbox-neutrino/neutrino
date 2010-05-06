@@ -410,12 +410,13 @@ Font *EpgPlus::Footer::fontEventShortDescription = NULL;
 Font *EpgPlus::Footer::fontButtons = NULL;
 int EpgPlus::Footer::color = 0;
 
-EpgPlus::Footer::Footer (CFrameBuffer * pframeBuffer, int px, int py, int pwidth)
+EpgPlus::Footer::Footer (CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int height)
 {
 	this->frameBuffer = pframeBuffer;
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
+	this->buttonHeight = height;
 }
 
 EpgPlus::Footer::~Footer ()
@@ -438,8 +439,9 @@ void EpgPlus::Footer::setBouquetChannelName (const std::string & newBouquetName,
 
 int EpgPlus::Footer::getUsedHeight ()
 {
+
 	return fontBouquetChannelName->getHeight () + fontEventDescription->getHeight ()
-	       + fontEventShortDescription->getHeight () + fontButtons->getHeight ();
+	       + fontEventShortDescription->getHeight () /* + fontButtons->getHeight ()*/;
 }
 
 void EpgPlus::Footer::paintEventDetails (const std::string & description, const std::string & shortDescription)
@@ -486,17 +488,17 @@ struct button_label buttonLabels[] = {
 
 void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfButtons)
 {
-	int yPos = this->y + this->getUsedHeight () - this->fontButtons->getHeight ();
-
 	int buttonWidth = (this->width - 20) / 4;
+	int yPos = this->y + this->getUsedHeight ();
 
-	int buttonHeight = 7 + std::min (16, this->fontButtons->getHeight ());
+	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, buttonHeight, COL_MENUHEAD_PLUS_0);
 
-	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, this->fontButtons->getHeight (), COL_MENUHEAD_PLUS_0);
+	::paintButtons (this->frameBuffer, this->fontButtons, g_Locale, this->x + 10,
+		yPos, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels);
 
-	::paintButtons (this->frameBuffer, this->fontButtons, g_Locale, this->x + 10, yPos + this->fontButtons->getHeight () - buttonHeight + 3, buttonWidth, numberOfButtons, pbuttonLabels);
-
-	this->frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_HELP, this->x + this->width - 30, yPos - this->fontButtons->getHeight ());
+        int icol_w, icol_h;
+        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
+	this->frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_HELP, this->x + this->width - icol_w - 10, yPos, buttonHeight);
 }
 
 EpgPlus::EpgPlus ()
@@ -678,7 +680,17 @@ void EpgPlus::init ()
 	int headerHeight = Header::getUsedHeight ();
 	int timeLineHeight = TimeLine::getUsedHeight ();
 	this->entryHeight = ChannelEntry::getUsedHeight ();
-	int footerHeight = Footer::getUsedHeight ();
+
+        int icol_w, icol_h, h2;
+
+        CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+	CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &h2);
+	if(icol_h < h2)
+		icol_h = h2;
+
+	//int buttonHeight = 6 + std::max (icol_h+2, fonts[EPGPlus_footer_fontbuttons]->getHeight ());
+	int buttonHeight = std::max (icol_h+4, fonts[EPGPlus_footer_fontbuttons]->getHeight ());
+	int footerHeight = Footer::getUsedHeight () + buttonHeight;
 
 	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - horGap1Height - horGap2Height - footerHeight) / this->entryHeight;
 
@@ -739,7 +751,7 @@ void EpgPlus::init ()
 
 	this->timeLine = new TimeLine (this->frameBuffer, this->timeLineX, this->timeLineY, this->timeLineWidth, this->eventsTableX, this->eventsTableWidth);
 
-	this->footer = new Footer (this->frameBuffer, this->footerX, this->footerY, this->footerWidth);
+	this->footer = new Footer (this->frameBuffer, this->footerX, this->footerY, this->footerWidth, buttonHeight);
 }
 
 void EpgPlus::free ()

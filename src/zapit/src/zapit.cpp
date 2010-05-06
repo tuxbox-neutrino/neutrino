@@ -400,6 +400,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 
 	pmt_stop_update_filter(&pmt_update_fd);
 	stopPlayBack(true);
+	ci->SendPMT((unsigned char*) "", 0);
 
 	/* store the new channel */
 	if ((!channel) || (channel_id != channel->getChannelID()))

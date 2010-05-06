@@ -46,14 +46,11 @@
 #include <global.h>
 #include <neutrino.h>
 
-int x_box = 15 * 5;
-int y_box; //=15*25;
-int BoxHeight; //=15*4;
-int BoxWidth; //=15*23;
+//int x_box = 15 * 5;
 
 inline unsigned int make16color(__u32 rgb)
 {
-        return 0xFF000000 | rgb;
+	return 0xFF000000 | rgb;
 }
 
 CScreenSetup::CScreenSetup()
@@ -73,13 +70,20 @@ int CScreenSetup::exec(CMenuTarget* parent, const std::string &)
 		parent->hide();
 	}
 
+	x_box = 15*5;
 	y_box = frameBuffer->getScreenHeight(true) / 2;
-	BoxHeight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+
+        int icol_w, icol_h;
+        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+
+	BoxHeight = std::max(icol_h+4, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight());
 	BoxWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT));
+
 	int tmp = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT));
 	if (tmp > BoxWidth)
 		BoxWidth = tmp;
-	BoxWidth += 30;
+
+	BoxWidth += 10 + icol_w;
 
 	x_coord[0] = g_settings.screen_StartX;
 	x_coord[1] = g_settings.screen_EndX;
@@ -256,8 +260,16 @@ void CScreenSetup::unpaintBorder(int pselected)
 
 void CScreenSetup::paintIcons()
 {
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, x_box + 6, y_box + 8);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x_box + 6, y_box + 8 + BoxHeight);
+        int icol_w, icol_h;
+        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, x_box + 5, y_box, BoxHeight);
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x_box + 5, y_box+BoxHeight, BoxHeight);
+
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + icol_w + 10, y_box + BoxHeight, BoxWidth,
+		g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT ), COL_MENUCONTENTSELECTED , 0, true); // UTF-8
+        g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + icol_w + 10, y_box + BoxHeight * 2, BoxWidth,
+		g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT), COL_MENUCONTENT, 0, true); // UTF-8
 }
 
 void CScreenSetup::paintBorderUL()
@@ -313,29 +325,17 @@ void CScreenSetup::paint()
 	for(int count = 0; count < w; count += 15)
 		frameBuffer->paintVLine(count, 0, h-1, make16color(0x505050) );
 
-	//frameBuffer->paintBox(0,0, 15*15,15*15, make16color(0xA0A0A0));
-	//frameBuffer->paintBox(32*15+1, 23*15+1, 719,575, make16color(0xA0A0A0));
 	frameBuffer->paintBox(0, 0, w/3, h/3, make16color(0xA0A0A0));
 	frameBuffer->paintBox(w-w/3, h-h/3, w-1, h-1, make16color(0xA0A0A0));
-//new
-        //frameBuffer->paintBoxRel(225, 89, 496, 3, COL_MENUCONTENT_PLUS_0); //upper letterbox marker
-        //frameBuffer->paintBoxRel(0, 495, 481, 3, COL_MENUCONTENT_PLUS_0);  //lower letterbox marker
 
 	frameBuffer->paintBoxRel(x_box, y_box, BoxWidth, BoxHeight, COL_MENUCONTENTSELECTED_PLUS_0);   //upper selected box
 	frameBuffer->paintBoxRel(x_box, y_box + BoxHeight, BoxWidth, BoxHeight, COL_MENUCONTENT_PLUS_0); //lower selected box
 
+#if 0
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + 30, y_box + BoxHeight, BoxWidth,
 		g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT ), COL_MENUCONTENTSELECTED , 0, true); // UTF-8
         g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x_box + 30, y_box + BoxHeight * 2, BoxWidth,
 		g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT), COL_MENUCONTENT, 0, true); // UTF-8
-//new end
-#if 0 // old
-	int x=15*5;
-	int y=15*24;
-	frameBuffer->paintBoxRel(x,y, 15*23,15*4, COL_MENUCONTENT_PLUS_0);
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+30,y+29, 15*23, g_Locale->getText(LOCALE_SCREENSETUP_UPPERLEFT ), COL_MENUHEAD   , 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+30,y+49, 15*23, g_Locale->getText(LOCALE_SCREENSETUP_LOWERRIGHT), COL_MENUCONTENT, 0, true); // UTF-8
 #endif
 
 	paintIcons();

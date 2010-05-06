@@ -284,6 +284,7 @@ public:
       , int x
       , int y
       , int width
+      , int height
       );
 
     ~Footer();
@@ -316,6 +317,7 @@ public:
     int x;
     int y;
     int width;
+    int buttonHeight;
 
     static Font*  fontBouquetChannelName;
     static Font*  fontEventDescription;

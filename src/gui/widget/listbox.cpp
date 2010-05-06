@@ -181,9 +181,18 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 
 				step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
 				selected -= step;
+
+				if((prev_selected-step) < 0) {
+					if(prev_selected != 0 && step != 1)
+						selected = 0;
+					else
+						selected = getItemCount() - 1;
+				}
+
+#if 0
 				if((prev_selected-step) < 0)            // because of uint
 					selected = getItemCount() - 1;
-
+#endif
 				paintItem(prev_selected - liststart);
 				unsigned int oldliststart = liststart;
 				liststart = (selected/listmaxshow)*listmaxshow;
@@ -198,17 +207,28 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		{
 			if(getItemCount()!=0) {
 				unsigned int step = 0;
-				int prev_selected = selected;
+				unsigned int prev_selected = selected;
 
 				step = ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
 				selected += step;
 
+				if(selected >= getItemCount()) {
+					if((getItemCount() - listmaxshow -1 < prev_selected) && (prev_selected != (getItemCount() - 1)) && (step != 1))
+						selected = getItemCount() - 1;
+					else if (((getItemCount() / listmaxshow) + 1) * listmaxshow == getItemCount() + listmaxshow) // last page has full entries
+						selected = 0;
+					else
+						selected = ((step == listmaxshow) && (selected < (((getItemCount() / listmaxshow)+1) * listmaxshow))) ? (getItemCount() - 1) : 0;
+				}
+
+#if 0
 				if(selected >= getItemCount()) {
 					if (((getItemCount() / listmaxshow) + 1) * listmaxshow == getItemCount() + listmaxshow) // last page has full entries
 						selected = 0;
 					else
 						selected = ((step == listmaxshow) && (selected < (((getItemCount() / listmaxshow) + 1) * listmaxshow))) ? (getItemCount() - 1) : 0;
 				}
+#endif
 
 				paintItem(prev_selected - liststart);
 				unsigned int oldliststart = liststart;

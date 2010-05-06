@@ -44,6 +44,8 @@ class CListBox : public CMenuWidget
 
 		int		fheight;
 		int		theight;
+		int		iheight;
+		int		iconoffset;
 
 		unsigned int	selected;
 		unsigned int	liststart;

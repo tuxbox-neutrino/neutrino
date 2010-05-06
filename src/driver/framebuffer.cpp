@@ -826,12 +826,16 @@ void CFrameBuffer::getIconSize(const char * const filename, int* width, int *hei
 
 	/* if code ask for size, lets cache it. assume we have enough ram for cache */
 	/* FIXME offset seems never used in code, always default = 1 ? */
-	if(paintIcon(filename, 0, 0, 0, 1, false)) {
-		it = icon_cache.find(filename);
-		if(it != icon_cache.end()) {
-			*width = it->second.width;
-			*height = it->second.height;
+
+	it = icon_cache.find(filename);
+	if(it == icon_cache.end()) {
+		if(paintIcon(filename, 0, 0, 0, 1, false)) {
+			it = icon_cache.find(filename);
 		}
+	}
+	if(it != icon_cache.end()) {
+		*width = it->second.width;
+		*height = it->second.height;
 	}
 }
 
@@ -946,8 +950,6 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 				icon_cache.insert(std::pair <std::string, rawIcon> (filename, tmpIcon));
 				//printf("Cached %s, cache size %d\n", newname.c_str(), cache_size);
 			}
-			if(!paint)
-				return true;
 			goto _display;
 		}
 
@@ -1003,10 +1005,10 @@ bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const in
 		height = it->second.height;
 		//printf("paintIcon: already cached %s %d x %d\n", newname.c_str(), width, height);
 	}
+_display:
 	if(!paint)
 		return true;
 
-_display:
 	if (h != 0)
 		yy += (h - height) / 2;
 

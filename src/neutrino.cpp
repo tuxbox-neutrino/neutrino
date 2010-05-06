@@ -3288,8 +3288,13 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::RECORD_START) {
-		if( mode == mode_standby )
+		if( mode == mode_standby ) {//FIXME better at announce ?
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+			if(g_settings.ci_standby_reset) {
+				g_CamHandler->exec(NULL, "reset1");
+				g_CamHandler->exec(NULL, "reset2");
+			}
+		}
 
 		if(autoshift) {
 			stopAutoRecord();
@@ -3630,6 +3635,8 @@ skip_message:
 	return messages_return::unhandled;
 }
 
+extern time_t timer_minutes;
+
 void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 {
 	if (!recordingstatus ||
@@ -3657,16 +3664,50 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		}
 
 		if(retcode) {
-			neutrino_msg_t      msg;
-			neutrino_msg_data_t data;
-
 			printf("entering off state\n");
 			mode = mode_off;
 
-			stop_daemons(false);
+			stop_daemons(true);
 
 			system("/bin/sync");
 			system("/bin/umount -a");
+			system("/etc/init.d/rcK");
+			sleep(1);
+			{
+				standby_data_t standby;
+				time_t mtime = time(NULL);
+				struct tm *tmtime = localtime(&mtime);
+				time_t fp_timer = 0;
+
+				if(timer_minutes)
+					fp_timer = (timer_minutes - mtime)/60;
+printf("now: %ld, timer %ld, FP timer %ld\n", mtime/60, timer_minutes/60, fp_timer);fflush(stdout);
+
+				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS];
+				standby.flags               = 0;
+				standby.current_hour        = tmtime->tm_hour;
+				standby.current_minute      = tmtime->tm_min;
+				standby.timer_minutes_hi    = fp_timer >> 8;;
+				standby.timer_minutes_lo    = fp_timer & 0xFF;
+
+				int fd = open("/dev/display", O_RDONLY);
+				if (fd < 0) {
+					perror("/dev/display");
+					reboot(LINUX_REBOOT_CMD_RESTART);
+				} else {
+
+					if (ioctl(fd, IOC_VFD_STANDBY, (standby_data_t *)  &standby)) {
+						perror("IOC_VFD_STANDBY");
+						reboot(LINUX_REBOOT_CMD_RESTART);
+					} else {
+						while(true) sleep(1);
+					}
+				}
+			}
+#if 0
+			neutrino_msg_t      msg;
+			neutrino_msg_data_t data;
+
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 			powerManager->SetStandby(true, true);
 			int fspeed = 0;
@@ -3697,6 +3738,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 					reboot(LINUX_REBOOT_CMD_RESTART);
 				}
 			}
+#endif
 		} else {
 			if (g_RCInput != NULL)
 				delete g_RCInput;
@@ -3753,10 +3795,10 @@ void CNeutrinoApp::AudioMute( int newValue, bool isEvent )
 	int x = g_settings.screen_EndX-dx;
 	int y = g_settings.screen_StartY;
 
+printf("AudioMute: current %d new %d isEvent: %d\n", current_muted, newValue, isEvent);
 	CVFD::getInstance()->setMuted(newValue);
 	current_muted = newValue;
 
-printf("AudioMute: current %d new %d isEvent: %d\n", current_muted, newValue, isEvent);
 	//if( !isEvent )
 		g_Zapit->muteAudio(current_muted);
 

@@ -54,6 +54,8 @@
 #include <gui/eventlist.h>
 #include <gui/color.h>
 #include <gui/infoviewer.h>
+
+#define ENABLE_GUI_MOUNT
 #ifdef ENABLE_GUI_MOUNT
 #include <gui/nfs.h>
 #endif
@@ -268,9 +270,14 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 	m_height = (g_settings.screen_EndY - g_settings.screen_StartY - 5);
 	m_sheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
-	m_buttonHeight = std::min(25, m_sheight);
+	m_buttonHeight = std::max(25, m_sheight);
 	m_theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+
+	int iw, ih;
+	m_frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw, &ih);
+	m_theight = std::max(m_theight, ih+4);
+
 	m_title_height = m_fheight*2 + 20 + m_sheight + 4;
 	m_info_height = m_fheight*2;
 	m_listmaxshow = (m_height - m_info_height - m_title_height - m_theight - 2*m_buttonHeight) / (m_fheight);
@@ -1599,25 +1606,40 @@ void CAudioPlayerGui::paintHead()
 		strCaption = g_Locale->getText(LOCALE_INETRADIO_NAME);
 	else
 		strCaption = g_Locale->getText(LOCALE_AUDIOPLAYER_HEAD);
+
 	m_frameBuffer->paintBoxRel(m_x, m_y + m_title_height, m_width, m_theight, COL_MENUHEAD_PLUS_0, c_rad_mid, CORNER_TOP);
-	m_frameBuffer->paintIcon(NEUTRINO_ICON_MP3,m_x + 7, m_y + m_title_height + 10);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(m_x + 35, m_y + m_theight + m_title_height + 0,
-			m_width - 45, strCaption, COL_MENUHEAD, 0, true); // UTF-8
+
+	//m_frameBuffer->paintIcon(NEUTRINO_ICON_MP3,m_x + 7, m_y + m_title_height + 10);
+	int iw, ih;
+	m_frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw, &ih);
+	m_frameBuffer->paintIcon(NEUTRINO_ICON_MP3, m_x + 10, m_y + m_title_height, m_theight);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(m_x + 20 + iw, m_y + m_theight + m_title_height + 0,
+			m_width - 20 - iw, strCaption, COL_MENUHEAD, 0, true); // UTF-8
 	int ypos = m_y + m_title_height;
-	if (m_theight > 26)
-		ypos = (m_theight - 26) / 2 + m_y + m_title_height;
+	//if (m_theight > 26)
+	//	ypos = (m_theight - 26) / 2 + m_y + m_title_height;
+	int xpos = m_x + m_width - 10;
+
 #ifdef ENABLE_GUI_MOUNT
-	if (!m_inetmode)
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, m_x + m_width - 30, ypos);
+	if (!m_inetmode) {
+		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &iw, &ih);
+		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, xpos - iw, ypos, m_theight);
+		xpos -= (iw + 10);
+	}
+		//m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, m_x + m_width - 30, ypos);
 #endif
 #if 1
 	if ( CNeutrinoApp::getInstance()->isMuted() )
 	{
+#if 0
 		int xpos = m_x + m_width - 75;
 		ypos = m_y + m_title_height;
 		if (m_theight > 32)
 			ypos = (m_theight - 32) / 2 + m_y + m_title_height;
 		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos, ypos);
+#endif
+		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &iw, &ih);
+		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos - iw, ypos, m_theight);
 	}
 #endif
 }

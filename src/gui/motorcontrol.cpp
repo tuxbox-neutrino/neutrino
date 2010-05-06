@@ -344,7 +344,9 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 								if(sit != satellitePositions.end()) {
 									printf("[motorcontrol] new positions configured for %s\n", sit->second.name.c_str());
 									std::string buf = g_Locale->getText(LOCALE_MOTORCONTROL_OVERRIDE);
+									buf += " ";
 									buf += sit->second.name;
+									buf += " ?";
 									store = (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
 								}
 							}

@@ -77,10 +77,12 @@ class CBEBouquetWidget : public CMenuWidget
 
 		unsigned int		liststart;
 		unsigned int		listmaxshow;
-		int					fheight; // Fonthoehe Bouquetlist-Inhalt
-		int					theight; // Fonthoehe Bouquetlist-Titel
+		int			fheight; // Fonthoehe Bouquetlist-Inhalt
+		int			theight; // Fonthoehe Bouquetlist-Titel
 
-		int 				ButtonHeight;
+		int 			ButtonHeight;
+		int			iconoffset;
+		int			iheight; // item height
 		//std::string				name;
 		bool	bouquetsChanged;
 		int		width;

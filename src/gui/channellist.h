@@ -73,9 +73,8 @@ class CChannelList
 		int 			height;
 		int 			x;
 		int 			y;
+		int			logo_off;
 
-		int 			timestr_len;
-		int 			icons_width;
 		bool historyMode;
 		bool vlist; // "virtual" list, not bouquet
 		bool displayNext;

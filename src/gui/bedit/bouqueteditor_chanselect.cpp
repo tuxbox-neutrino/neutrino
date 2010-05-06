@@ -41,6 +41,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <gui/widget/icons.h>
+#include <gui/widget/buttons.h>
 
 #include <zapit/client/zapitclient.h>
 #include <zapit/channel.h>
@@ -53,12 +54,25 @@ void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_
 CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsigned int Bouquet, CZapitClient::channelsMode Mode)
 	:CListBox(Caption.c_str())
 {
+	int icol_w, icol_h, fh;
+
 	bouquet = Bouquet;
 	mode =    Mode;
 	ButtonHeight = 25;
+	iconoffset = 0;
 
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_GREEN, &icol_w, &icol_h);
+	iheight = std::max(fheight, icol_h+2);
+	iconoffset = std::max(iconoffset, icol_w);
+
+	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &icol_w, &icol_h);
+	ButtonHeight = std::max(fh, icol_h+4);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HOME, &icol_w, &icol_h);
+	ButtonHeight = std::max(ButtonHeight, icol_h+4);
 
 	liststart = 0;
 }
@@ -85,7 +99,7 @@ bool CBEChannelSelectWidget::hasChanged()
 
 void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselected)
 {
-	int ypos = y+ theight + paintNr*fheight;
+	int ypos = y+ theight + paintNr*iheight;
 
 	uint8_t    color;
 	fb_pixel_t bgcolor;
@@ -93,29 +107,29 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
 	}
 	else
 	{
 		color   = COL_MENUCONTENT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
-
 
 	if(itemNr < getItemCount())
 	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8, ypos+ fheight, width - (8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8 + 8), Channels[itemNr]->getName(), color, 0, true);
-
 		if( isChannelInBouquet(itemNr))
 		{
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x+8, ypos+4);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, x+10, ypos, iheight);
 		}
 		else
 		{
-			frameBuffer->paintBoxRel(x+8, ypos+4, NEUTRINO_ICON_BUTTON_GREEN_WIDTH, fheight-4, bgcolor);
+			//frameBuffer->paintBoxRel(x+8, ypos+4, NEUTRINO_ICON_BUTTON_GREEN_WIDTH, fheight-4, bgcolor);
+			frameBuffer->paintBoxRel(x+10, ypos, iconoffset, iheight, bgcolor);
 		}
+		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8, ypos+ fheight, width - (8 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 8 + 8), Channels[itemNr]->getName(), color, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width - 20 - iconoffset, Channels[itemNr]->getName(), color, 0, true);
 	}
 }
 
@@ -137,8 +151,8 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 {
         width  = w_max (500, 0);
         height = h_max (440, 50);
-	listmaxshow = (height-theight-0)/fheight;
-	height = theight+0+listmaxshow*fheight; // recalc height
+	listmaxshow = (height-theight-0)/iheight;
+	height = theight+0+listmaxshow*iheight; // recalc height
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 
@@ -151,7 +165,7 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 				Channels.push_back(&(it->second));
 	} else {
 		for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++)
-			if (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE)
+			if (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE)
 				Channels.push_back(&(it->second));
 	}
 	sort(Channels.begin(), Channels.end(), CmpChannelByChName());
@@ -159,16 +173,25 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 	return CListBox::exec(parent, actionKey);
 }
 
+const struct button_label CBEChannelSelectButtons[] =
+{
+	{ NEUTRINO_ICON_BUTTON_OKAY, LOCALE_BOUQUETEDITOR_SWITCH },
+	{ NEUTRINO_ICON_BUTTON_HOME, LOCALE_BOUQUETEDITOR_RETURN }
+};
 
 void CBEChannelSelectWidget::paintFoot()
 {
-	int ButtonWidth = width / 3;
-	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	int ButtonWidth = (width - 20) / 2;
+	frameBuffer->paintBoxRel(x, y+height, width, ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
+	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + height, ButtonWidth, ButtonHeight, 2, CBEChannelSelectButtons);
+
+#if 0
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width- 3* ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_SWITCH), COL_INFOBAR, 0, true); // UTF-8
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HOME, x+width - ButtonWidth+ 8, y+height+1);
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+width - ButtonWidth+ 38, y+height+24 - 2, width, g_Locale->getText(LOCALE_BOUQUETEDITOR_RETURN), COL_INFOBAR, 0, true); // UTF-8
+#endif
 }

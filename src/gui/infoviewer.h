@@ -80,6 +80,7 @@ class CInfoViewer
 	int            BBarFontY;
 
 	int		asize;
+	int		icol_w, icol_h;
 
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
         t_channel_id   channel_id;

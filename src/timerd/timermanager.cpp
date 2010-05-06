@@ -46,7 +46,7 @@
 #define FP_IOCTL_GET_RTC         0x102
 
 extern bool timeset;
-
+time_t timer_minutes;
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 //------------------------------------------------------------
@@ -664,7 +664,7 @@ void CTimerManager::saveEventsToConfig()
 //------------------------------------------------------------
 bool CTimerManager::shutdown()
 {
-
+timerd_debug = 1;
 	time_t nextAnnounceTime=0;
 	bool status=false;
 	dprintf("stopping timermanager thread ...\n");
@@ -690,6 +690,7 @@ bool CTimerManager::shutdown()
 	for(;pos != events.end();pos++)
 	{
 		CTimerEvent *event = pos->second;
+dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType, event->eventState, event->announceTime);
 		if((event->eventType == CTimerd::TIMER_RECORD ||
 			 event->eventType == CTimerd::TIMER_ZAPTO ) &&
 			event->eventState == CTimerd::TIMERSTATE_SCHEDULED)
@@ -698,18 +699,18 @@ bool CTimerManager::shutdown()
 			if(event->announceTime < nextAnnounceTime || nextAnnounceTime==0)
 			{
 				nextAnnounceTime=event->announceTime;
+				dprintf("shutdown: nextAnnounceTime %ld\n", nextAnnounceTime);
 			}
 		}
 	}
-#if 0
-	int erg;
 
+	timer_minutes = 0;
 	if(nextAnnounceTime!=0)
 	{
-//FIXME: do we have wakeup ?
-		time_t minutes = nextAnnounceTime-3*60;
+		timer_minutes = nextAnnounceTime-3*60;
 	}
-#endif
+	dprintf("shutdown: timeset: %d timer_minutes %ld\n", timeset, timer_minutes);
+
 	pthread_mutex_unlock(&tm_eventsMutex);
 	return status;
 }

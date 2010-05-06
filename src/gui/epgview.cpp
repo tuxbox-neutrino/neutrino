@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <gui/epgview.h>
 
+#include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
@@ -663,6 +664,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		while (loop)
 		{
 			g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+			if ( msg <= CRCInput::RC_MaxRC )
+				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 
 			scrollCount = medlinecount;
 
@@ -753,6 +756,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								hide();
 								recDirs.exec(NULL,"");
 								show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+								timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 							} else
 							{
 								printf("no network devices available\n");
@@ -783,9 +787,11 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 												      epgData.epg_times.startzeit - (ANNOUNCETIME + 120 ),
 												      TIMERD_APIDS_CONF, true, recDir,true);
 									ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+									timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 								}
 							} else {
 								ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+								timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 							}
 						}
 					}
@@ -805,6 +811,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 								     epgData.epg_times.startzeit - ANNOUNCETIME, 0,
 								     epgData.eventID, epgData.epg_times.startzeit, 0);
 					ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 				}
 				else
 					printf("timerd not available\n");
@@ -1028,27 +1035,44 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 // -- 2002-05-13 rasc
 //
 
+const struct button_label EpgButtons[] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_TIMERBAR_RECORDEVENT },
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERBAR_CHANNELSWITCH }
+};
+
 void CEpgData::showTimerEventBar (bool pshow)
 
 {
-	int  x,y,w,h;
+	int  x,y,w,h,fh;
 	int  cellwidth;		// 4 cells
-	int  h_offset, pos;
+        int icol_w, icol_h;
 
-	w = ox;
-	h = 30;
-	x = sx;
+	w = ox - 20;
+	x = sx + 10;
 	y = sy + oy;
-	h_offset = 5;
 	cellwidth = w / 4;
 
+	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
-	frameBuffer->paintBackgroundBoxRel(x,y,w,h);
+        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+	h = std::max(fh, icol_h+4);
+
+	frameBuffer->paintBackgroundBoxRel(sx,y,ox,h);
 	// hide only?
-	if (! pshow) return;
+	if (! pshow) 
+		return;
 
-	frameBuffer->paintBoxRel(x,y,w,h, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(sx,y,ox,h, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
 
+	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
+		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale,
+				x, y, cellwidth*2, h, 2, EpgButtons);
+	else
+		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale,
+				x + cellwidth*2, y, cellwidth, h, 1, &EpgButtons[1]);
+
+#if 0
 	// Button: Timer Record & Channelswitch
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 	{
@@ -1060,6 +1084,7 @@ void CEpgData::showTimerEventBar (bool pshow)
 	pos = 2;
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x+8+cellwidth*pos, y+h_offset );
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x+29+cellwidth*pos, y+h-h_offset, w-30, g_Locale->getText(LOCALE_TIMERBAR_CHANNELSWITCH), COL_INFOBAR, 0, true); // UTF-8
+#endif
 }
 
 //  -- EPG Data Viewer Menu Handler Class

@@ -161,8 +161,11 @@ void CHintBox::refresh(void)
 
 	if (!iconfile.empty())
 	{
-		window->paintIcon(iconfile.c_str(), 8, 5);
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 40, theight, width - 40, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
+		int iw, ih;
+		CFrameBuffer::getInstance()->getIconSize(iconfile.c_str(), &iw, &ih);
+		//window->paintIcon(iconfile.c_str(), 8, 5);
+		window->paintIcon(iconfile.c_str(), 10, 0, theight);
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
 	}
 	else
 		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8

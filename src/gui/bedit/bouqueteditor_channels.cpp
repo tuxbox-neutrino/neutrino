@@ -54,12 +54,19 @@ extern CBouquetManager *g_bouquetManager;
 
 CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bouquet)
 {
+	int icol_w, icol_h;
 	frameBuffer = CFrameBuffer::getInstance();
 	selected = 0;
 	ButtonHeight = 25;
+	iconoffset = 0;
 
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
+	iheight = std::max(fheight, icol_h+2);
+
+	iconoffset = std::max(iconoffset, icol_w);
 
 	liststart = 0;
 	state = beDefault;
@@ -72,27 +79,29 @@ void CBEChannelWidget::paintItem(int pos)
 {
 	uint8_t    color;
 	fb_pixel_t bgcolor;
-	int ypos = y+ theight+0 + pos*fheight;
+	int ypos = y+ theight+0 + pos*iheight;
 	unsigned int current = liststart + pos;
 
 	if(current == selected) {
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, COL_MENUCONTENT_PLUS_0);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor, RADIUS_LARGE);
 	} else {
 		color   = COL_MENUCONTENT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor);
+		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
 	}
 
 	if ((current == selected) && (state == beMoving))
 	{
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 8, ypos+4);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 10, ypos, iheight);
 	}
 	if(current < Channels->size())
 	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, (*Channels)[current]->getName(), color, 0, true);
+		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, (*Channels)[current]->getName(), color, 0, true);
+		//FIXME numwidth ? we not show chan numbers
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width- iconoffset- 20, (*Channels)[current]->getName(), color, 0, true);
 	}
 }
 
@@ -118,7 +127,7 @@ void CBEChannelWidget::paint()
 	}
 
 	int ypos = y+ theight;
-	int sb = fheight* listmaxshow;
+	int sb = iheight* listmaxshow;
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
 	int sbc= ((Channels->size()- 1)/ listmaxshow)+ 1;
@@ -144,10 +153,17 @@ const struct button_label CBEChannelWidgetButtons[4] =
 
 void CBEChannelWidget::paintFoot()
 {
+	int icol_w, icol_h, fh;
+
+	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+	ButtonHeight = std::max(fh, icol_h+4);
+
 	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
-	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + height + 4, (width - 20) / 4, 4, CBEChannelWidgetButtons);
+	//::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + height + 4, (width - 20) / 4, 4, CBEChannelWidgetButtons);
+	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + height, (width - 20) / 4, ButtonHeight, 4, CBEChannelWidgetButtons);
 }
 
 void CBEChannelWidget::hide()
@@ -168,8 +184,8 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
         width  = w_max (500, 0);
         height = h_max (440, 50);
-	listmaxshow = (height-theight-0)/fheight;
-	height = theight+0+listmaxshow*fheight; // recalc height
+	listmaxshow = (height-theight-0)/iheight;
+	height = theight+0+listmaxshow*iheight; // recalc height
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 

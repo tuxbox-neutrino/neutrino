@@ -1354,6 +1354,7 @@ motorcontrol.no_mode don't care
 motorcontrol.msec milliseconds
 motorcontrol.status Status
 motorcontrol.sat_pos Satellite Position (Step Mode):
+motorcontrol.override Override position used for
 mainsettings.timezone Timezone
 scrambled_channel Scrambled channel
 neutrino_starting Neutrino starting...

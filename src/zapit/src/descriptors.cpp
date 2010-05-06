@@ -485,6 +485,8 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		providerName = CDVBString((const char*)&(buffer[4]), service_provider_name_length).getContent();
 		serviceName  = CDVBString((const char*)&(buffer[4 + service_provider_name_length + 1]), (2 + buffer[1]) - (4 + service_provider_name_length + 1)).getContent();
 	}
+	if(serviceName.empty())
+		return;
 
 	found_channels++;
 	eventServer->sendEvent ( CZapitClient::EVT_SCAN_NUM_CHANNELS, CEventServer::INITID_ZAPIT, &found_channels, sizeof(found_channels));

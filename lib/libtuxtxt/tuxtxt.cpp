@@ -29,7 +29,7 @@ static int sub_pid, sub_page;
 static bool use_gui;
 static int cfg_national_subset;
 
-#define USE_FBPAN // FBIOPAN_DISPLAY seems to be working in current driver
+//#define USE_FBPAN // FBIOPAN_DISPLAY seems to be working in current driver
 
 void FillRect(int x, int y, int w, int h, int color)
 {
@@ -2007,7 +2007,6 @@ int Init()
 			aydrcs[i1] = (fontheight * i1 + 5) / 10;
 	}
 
-	//FIXME center
 	/* center screen */
 	StartX = sx; //+ (((ex-sx) - 40*fontwidth) / 2);
 	StartY = sy + (((ey-sy) - 25*fontheight) / 2);
@@ -2202,7 +2201,8 @@ void CleanUp()
 	cleanup_fb_pan();
 #endif
 	//memset(lfb,0, var_screeninfo.yres*fix_screeninfo.line_length);
-	CFrameBuffer::getInstance()->paintBackground();
+	//CFrameBuffer::getInstance()->paintBackground();
+	ClearFB(transp);
 
 #if 0
 	/* close freetype */
@@ -5526,6 +5526,7 @@ void CopyBB2FB()
 		else
 			var_screeninfo.yoffset = var_screeninfo.yres;
 
+		//FIXME check zoom mode code
 		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
 			perror("TuxTxt <FBIOPAN_DISPLAY>");
 #else

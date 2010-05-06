@@ -465,8 +465,11 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	/* showChannelLogo() changes this, so better reset it every time... */
 	ChanNameX = BoxStartX + ChanWidth + SHADOW_OFFSET;
 
+	/* assuming all color icons must have same size */
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+
 	asize = (BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102) - ChanInfoX;
-	asize = asize - (NEUTRINO_ICON_BUTTON_RED_WIDTH+6)*4;
+	asize = asize - (icol_w+6)*4;
 	asize = asize / 4;
 
 #if 0
@@ -560,14 +563,17 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 		frameBuffer->paintBoxRel(ChanInfoX, BBarY, BoxEndX - ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
 
 		showSNR();
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, ChanInfoX + 16*3 + asize * 3 + 2*6,
+		//frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, ChanInfoX + 16*3 + asize * 3 + 2*6,
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, ChanInfoX + 10 + (icol_w + 4 + asize + 2) * 3,
 				       BBarY, InfoHeightY_Info);
 
 		std::string txt = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_BLUE];
 		if (txt.empty())
 			txt = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
 
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(ChanInfoX + 16*4 + asize * 3 + 2*8, BBarFontY, ButtonWidth - (2 + NEUTRINO_ICON_BUTTON_BLUE_WIDTH + 4 + 2), txt, COL_INFOBAR_BUTTONS, 0, true); // UTF-8
+		//g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(ChanInfoX + 16*4 + asize * 3 + 2*8, BBarFontY, ButtonWidth - (2 + icol_w + 4 + 2), txt, COL_INFOBAR_BUTTONS, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(ChanInfoX + 10 + (icol_w + 4 + asize + 2) * 3 + icol_w + 4, 
+				BBarFontY, ButtonWidth - (2 + icol_w + 4 + 2), txt, COL_INFOBAR_BUTTONS, 0, true); // UTF-8
 
 		showButton_Audio ();
 		showButton_SubServices ();
@@ -1054,13 +1060,15 @@ void CInfoViewer::showButton_SubServices ()
 {
 	if (!(g_RemoteControl->subChannels.empty ())) {
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW,
-				ChanInfoX + 10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 4 + asize + 2, BBarY, InfoHeightY_Info);
+				ChanInfoX + 10 + (icol_w + 4 + asize + 2) * 2, BBarY, InfoHeightY_Info);
+				/*ChanInfoX + 10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 4 + asize + 2, BBarY, InfoHeightY_Info);*/
 		std::string txt = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_YELLOW];
 		if (txt.empty())
 			txt = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(
-			ChanInfoX + 10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_YELLOW_WIDTH + 4,
+			ChanInfoX + 10 + (icol_w + 4 + asize + 2) * 2 + icol_w + 4,
+			/*ChanInfoX + 10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_YELLOW_WIDTH + 4,*/
 			BBarFontY, asize, txt, COL_INFOBAR_BUTTONS, 0, true); // UTF-8
 	}
 }
@@ -1390,7 +1398,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 			std::string txt = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_RED];
 			if (txt.empty())
 				txt = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(ChanInfoX + (10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4), BBarFontY, asize, txt, COL_INFOBAR_BUTTONS, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(ChanInfoX + (10 + icol_w + 4), BBarFontY, asize, txt, COL_INFOBAR_BUTTONS, 0, true); // UTF-8
 		}
 	}
 
@@ -1524,13 +1532,14 @@ void CInfoViewer::showButton_Audio ()
 	// green, in case of several APIDs
 	uint32_t count = g_RemoteControl->current_PIDs.APIDs.size ();
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN,
-			ChanInfoX + 10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4 + asize + 2,
+			ChanInfoX + 10 + icol_w + 4 + asize + 2,
 			BBarY, InfoHeightY_Info);
 
 	std::string txt = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 	if (count > 0) {
 		int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
-		int sx = ChanInfoX + 10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 4;
+		/*int sx = ChanInfoX + 10 + NEUTRINO_ICON_BUTTON_RED_WIDTH + 4 + asize + 2 + NEUTRINO_ICON_BUTTON_GREEN_WIDTH + 4;*/
+		int sx = ChanInfoX + 10 + (icol_w + 4)*2 + asize + 2;
 
 		frameBuffer->paintBoxRel(sx, BBarY, asize, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND);
 

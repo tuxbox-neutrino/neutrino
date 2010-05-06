@@ -222,9 +222,24 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	height = h_max (480, 20);
 
 	iheight = 30;	// info bar height (see below, hard coded at this time)
+
+	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	if(iheight < fh)
+		iheight = fh;
+
+	int icol_w, icol_h;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+	if(iheight < icol_h)
+		iheight = icol_h;
+
 	theight  = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
 
 	if(theight < PIC_H) theight = PIC_H;
+
+	int iw, ih;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw, &ih);
+	if(theight < ih)
+		theight = ih;
 
 	fheight1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->getHeight();
 	{
@@ -266,7 +281,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 
 	int oldselected = selected;
 
-	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 
 	bool loop = true;
 	while (loop)
@@ -274,7 +289,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
 		if ( msg <= CRCInput::RC_MaxRC )
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 
 		if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
@@ -406,6 +421,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 						hide();
 						recDirs.exec(NULL,"");
 						paint(channel_id);
+						timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 					} else
 					{
 						printf("[CEventList] no network devices available\n");
@@ -437,9 +453,11 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 									evtlist[selected].startTime - (ANNOUNCETIME + 120),
 									TIMERD_APIDS_CONF, true, recDir,true);
 							ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+							timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 						}
 					} else {
 						ShowLocalizedMessage(LOCALE_TIMER_EVENTRECORD_TITLE, LOCALE_TIMER_EVENTRECORD_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+						timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 					}
 				}
 				timerlist.clear();
@@ -467,6 +485,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			timerlist.clear();
 			g_Timerd->getTimerList (timerlist);
 			paint(channel_id);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 
 		else if (msg == CRCInput::RC_timeout)
@@ -513,6 +532,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				}
 				else
 				{
+					//FIXME why getMsg ?
 					g_RCInput->getMsg( &msg, &data, 0 );
 
 					if ( ( msg != CRCInput::RC_red ) && ( msg != CRCInput::RC_timeout ) )
@@ -520,19 +540,21 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 						// RC_red schlucken
 						g_RCInput->postMsg( msg, data );
 					}
+					/* in case timer was added in g_EpgData */
 					timerlist.clear();
 					g_Timerd->getTimerList (timerlist);
 
 					paintHead(channel_id, name);
 					paint(channel_id);
 					showFunctionBar(true);
+					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 				}
 			}
 		}
 		else if ( msg==CRCInput::RC_green )
 		{
 			in_search = findEvents();
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
 			g_RCInput->postMsg (msg, 0);
@@ -633,19 +655,8 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_id)
 
 			sprintf(tmpstr, "[%d min]", evtlist[liststart+pos].duration / 60 );
 			duration_str = tmpstr;
-#if 0
-			CTimerd::TimerList::iterator timer = timerlist.begin();
-			for(; timer != timerlist.end(); timer++) {
-				if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD)) {
-					if(timer->epgID == evtlist[liststart+pos].eventID) {
-						if(timer->epg_starttime == evtlist[liststart+pos].startTime)
-						  icontype = timer->eventType == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_BUTTON_YELLOW : NEUTRINO_ICON_BUTTON_RED;
-						break;
-					}
-				}
-			}
-#endif
 		}
+
 		CTimerd::CTimerEventTypes etype = isScheduled(channel_id, &evtlist[liststart+pos]);
 		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_BUTTON_YELLOW : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_BUTTON_RED : 0;
 
@@ -663,10 +674,14 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_id)
 			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20- w, ypos+ fheight1+3, fwidth2, beginnt, color);
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20, ypos+ fheight1+3, fwidth2, duration_str, color, 0, true); // UTF-8
-		if(icontype != 0)
-			frameBuffer->paintIcon(icontype, x+2, ypos + fheight - 16 - (fheight1 - 16)/2);
+		int iw = 0, ih;
+		if(icontype != 0) {
+			frameBuffer->getIconSize(icontype, &iw, &ih);
+			//frameBuffer->paintIcon(icontype, x+5, ypos + fheight - 16 - (fheight1 - 16)/2);
+			frameBuffer->paintIcon(icontype, x+5, ypos + fheight - ih - (fheight1 - ih)/2, fheight1);
+		}
 		// 2nd line
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+ 20, ypos+ fheight, width- 25- 20, evtlist[liststart+pos].description, color, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+10+iw, ypos+ fheight, width- 25- 20, evtlist[liststart+pos].description, color, 0, true);
 	}
 }
 
@@ -689,8 +704,11 @@ void EventList::paint(t_channel_id channel_id)
 {
 	liststart = (selected/listmaxshow)*listmaxshow;
 
-	if (evtlist[0].eventID != 0)
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- 30, y+ 5 );
+	int iw = 0, ih;
+	if (evtlist[0].eventID != 0) {
+		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw, &ih);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width - 4 - iw, y, theight);
+	}
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height-theight-iheight, COL_MENUCONTENT_PLUS_0, 0, CORNER_TOP);
 	for(unsigned int count=0;count<listmaxshow;count++)
@@ -712,67 +730,65 @@ void EventList::paint(t_channel_id channel_id)
 
 void  EventList::showFunctionBar (bool show)
 {
-  int  bx,by,bw,bh;
-  int  cellwidth;		// 4 cells
-  int  h_offset, pos;
-  int  bdx;
+	int  bx,by,bw,bh;
+	int  cellwidth;		// 4 cells
+	int  pos;
 
-  bw = width;
-  bh = iheight;
-  bx = x;
-  by = y + height-iheight;
-  h_offset = 5;
-  cellwidth = bw / 4;
-  bdx = iheight-1;
+	bx = x + 8;
+	bw = width - 16;
+	bh = iheight;
+	by = y + height-iheight;
+	cellwidth = bw / 4;
 
+	frameBuffer->paintBackgroundBoxRel(x,by,width,bh);
+	// -- hide only?
+	if (! show) return;
 
-    frameBuffer->paintBackgroundBoxRel(bx,by,bw,bh);
-    // -- hide only?
-    if (! show) return;
+	int icol_w, icol_h;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
-    // -- frameBuffer->paintBoxRel(x,y,w,h, COL_INFOBAR_SHADOW_PLUS_1);
-    //frameBuffer->paintBoxRel(bx,by,bw,bh, COL_MENUHEAD_PLUS_0);
-    frameBuffer->paintBoxRel(bx,by,bw,bh, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x,by,width,bh, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
+	// -- Button: Timer Record & Channelswitch
+	if ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
+			((unsigned int) g_settings.key_channelList_addrecord != CRCInput::RC_nokey))
+	{
+		pos = 0;
+		// FIXME : display other icons depending on g_settings.key_channelList_addrecord
+		if ((g_settings.key_channelList_addrecord == CRCInput::RC_red) && !g_settings.minimode) {
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, bx + cellwidth*pos, by + (iheight-icol_h)/2);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx + icol_w + 8 + cellwidth*pos, by+bh-(iheight-fh)/2, cellwidth-icol_w-8, g_Locale->getText(LOCALE_EVENTLISTBAR_RECORDEVENT), COL_INFOBAR, 0, true); // UTF-8
+		}
+	}
+	if (1)
+	{
+		pos = 1;
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, bx + cellwidth*pos, by + (iheight-icol_h)/2);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx + icol_w + 8 + cellwidth*pos, by+bh-(iheight-fh)/2, cellwidth-icol_w-8, g_Locale->getText(LOCALE_EVENTFINDER_SEARCH), COL_INFOBAR, 0, true); // UTF-8
+	}
 
-    // -- Button: Timer Record & Channelswitch
-    if ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
-	((unsigned int) g_settings.key_channelList_addrecord != CRCInput::RC_nokey))
-    {
-	    pos = 0;
-	    // FIXME : display other icons depending on g_settings.key_channelList_addrecord
-	    if ((g_settings.key_channelList_addrecord == CRCInput::RC_red) && !g_settings.minimode) {
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RED, bx+8+cellwidth*pos, by+h_offset);
-	    	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx+bdx+cellwidth*pos, by+bh-h_offset, bw-30, g_Locale->getText(LOCALE_EVENTLISTBAR_RECORDEVENT), COL_INFOBAR, 0, true); // UTF-8
-	    }
-    }
-    if (1)
-    {
-                pos = 1;
-                frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, bx+8+cellwidth*pos, by+h_offset);
-                g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx+bdx+cellwidth*pos, by+bh-h_offset, bw-30, g_Locale->getText(LOCALE_EVENTFINDER_SEARCH), COL_INFOBAR,
- 0, true); // UTF-8
-    }
+	// Button: Timer Channelswitch
+	if ((unsigned int) g_settings.key_channelList_addremind != CRCInput::RC_nokey)
+	{
+		pos = 2;
+		// FIXME : display other icons depending on g_settings.key_channelList_addremind
+		if (g_settings.key_channelList_addremind == CRCInput::RC_yellow) {
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, bx + cellwidth*pos, by + (iheight-icol_h)/2);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx + icol_w + 8 + cellwidth*pos, by+bh-(iheight-fh)/2, cellwidth-icol_w-8, g_Locale->getText(LOCALE_EVENTLISTBAR_CHANNELSWITCH), COL_INFOBAR, 0, true); // UTF-8
+		}
+	}
 
-    // Button: Timer Channelswitch
-    if ((unsigned int) g_settings.key_channelList_addremind != CRCInput::RC_nokey)
-    {
-	    pos = 2;
-	    // FIXME : display other icons depending on g_settings.key_channelList_addremind
-	    if (g_settings.key_channelList_addremind == CRCInput::RC_yellow)
-		    frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, bx+8+cellwidth*pos, by+h_offset );
-	    g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx+bdx+cellwidth*pos, by+bh-h_offset, bw-30, g_Locale->getText(LOCALE_EVENTLISTBAR_CHANNELSWITCH), COL_INFOBAR, 0, true); // UTF-8
-    }
-
-    // Button: Event Re-Sort
-    if ((unsigned int) g_settings.key_channelList_sort != CRCInput::RC_nokey)
-    {
-	    pos = 3;
-	 //FIXME: display other icons depending on g_settings.key_channelList_sort value
-	    if (g_settings.key_channelList_sort == CRCInput::RC_blue)
-		    frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, bx+8+cellwidth*pos, by+h_offset );
-	    g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx+bdx+cellwidth*pos, by+bh-h_offset, bw-30, g_Locale->getText(LOCALE_EVENTLISTBAR_EVENTSORT), COL_INFOBAR, 0, true); // UTF-8
-    }
+	// Button: Event Re-Sort
+	if ((unsigned int) g_settings.key_channelList_sort != CRCInput::RC_nokey)
+	{
+		pos = 3;
+		//FIXME: display other icons depending on g_settings.key_channelList_sort value
+		if (g_settings.key_channelList_sort == CRCInput::RC_blue) {
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_BLUE, bx + cellwidth*pos, by + (iheight-icol_h)/2);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(bx + icol_w + 8 + cellwidth*pos, by+bh-(iheight-fh)/2, cellwidth-icol_w-8, g_Locale->getText(LOCALE_EVENTLISTBAR_EVENTSORT), COL_INFOBAR, 0, true); // UTF-8
+		}
+	}
 }
 
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)

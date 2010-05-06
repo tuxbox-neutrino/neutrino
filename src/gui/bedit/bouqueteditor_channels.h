@@ -62,12 +62,14 @@ class CBEChannelWidget : public CMenuWidget
 		unsigned int		liststart;
 		unsigned int		listmaxshow;
 		unsigned int		numwidth;
-		int					fheight;
-		int					theight;
+		int			fheight;
+		int			theight;
+		int			iconoffset;
+		int                     iheight; // item height
 
-		int 				ButtonHeight;
-		std::string				caption;
-		bool				channelsChanged;
+		int 			ButtonHeight;
+		std::string		caption;
+		bool			channelsChanged;
 
 		CZapitClient::channelsMode mode;
 

@@ -208,6 +208,8 @@ int CColorChooser::exec(CMenuTarget* parent, const std::string &)
 				*value[VALUE_B] = b_alt;
 				if (value[VALUE_ALPHA])
 					*value[VALUE_ALPHA] = a_alt;
+				loop = false;
+				break;
 
 			case CRCInput::RC_sat:
 			case CRCInput::RC_favorites:
