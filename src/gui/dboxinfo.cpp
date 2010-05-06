@@ -223,14 +223,34 @@ void CDBoxInfoWidget::paint()
 		ypos+= mheight/2;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, sbuf, COL_MENUCONTENT);
 		ypos+= mheight;
-
-		snprintf(ubuf,buf_size, "memory total %dKb, free %dKb", (int) info.totalram/1024, (int) info.freeram/1024);
-		ypos+= mheight/2;
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, ubuf, COL_MENUCONTENT);
-		ypos+= mheight;
 		int headOffset=0;
 		int mpOffset=0;
-		bool rec_mp=false;
+		bool rec_mp=false, memory_flag = false;
+		
+		// paint mount head
+		for (int j = 0; j < headSize; j++) {
+			switch (j)
+			{
+				case 0:
+				headOffset = 10;
+				break;
+				case 1:
+				headOffset = nameOffset + 20;
+				break;
+				case 2:
+				headOffset = nameOffset + sizeOffset+10 +20;
+				break;
+				case 3:
+				headOffset = nameOffset + (sizeOffset+10)*2+15;
+				break;
+				case 4:
+				headOffset = nameOffset + (sizeOffset+10)*3+15;
+				break;
+			}
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset, ypos+ mheight, width - 10, head[j], COL_MENUCONTENTINACTIVE);
+		}
+		ypos+= mheight;
+
 		if ((mountFile = setmntent("/proc/mounts", "r")) == 0 ) {
 			perror("/proc/mounts");
 		}
@@ -253,31 +273,10 @@ void CDBoxInfoWidget::paint()
 						c = 'G';
 						break;
 					case (int) 0x72b6:	/*jffs2*/
-						if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
-							continue;
-						// paint mount head
-						for (int j = 0; j < headSize; j++) {
-							switch (j)
-							{
-							case 0:
-								headOffset = 10;
-								break;
-							case 1:
-								headOffset = nameOffset + 20;
-								break;
-							case 2:
-								headOffset = nameOffset + sizeOffset+10 +20;
-								break;
-							case 3:
-								headOffset = nameOffset + (sizeOffset+10)*2+15;
-								break;
-							case 4:
-								headOffset = nameOffset + (sizeOffset+10)*3+15;
-								break;
-							}
-							g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ headOffset, ypos+ mheight, width - 10, head[j], COL_MENUCONTENTINACTIVE);
+						if (strcmp(mnt->mnt_fsname, "rootfs") == 0){
+						  strcpy(mnt->mnt_fsname,"memory");
+						  memory_flag = true;
 						}
-						ypos+= mheight;
 
 						gb = 1024.0;
 						c = 'M';
@@ -285,11 +284,14 @@ void CDBoxInfoWidget::paint()
 					default:
 						continue;
 					}
-					if ( s.f_blocks > 0 ) {
+					if ( s.f_blocks > 0 || memory_flag ) {
 						long	blocks_used;
 						long	blocks_percent_used;
 						blocks_used = s.f_blocks - s.f_bfree;
-						blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
+						if(memory_flag){
+							blocks_percent_used = (info.totalram/1024 - info.freeram/1024)*100/(info.totalram/1024);
+						}else
+							blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
 						//paint mountpoints
 						for (int j = 0; j < headSize; j++) {
 							switch (j)
@@ -318,15 +320,25 @@ void CDBoxInfoWidget::paint()
 							break;
 							case 1:
 								mpOffset = nameOffset + 10;
-								snprintf(ubuf,buf_size,"%7.2f%c", (s.f_blocks * (s.f_bsize / 1024.0)) / gb, c);
+								if(memory_flag)
+									snprintf(ubuf,buf_size,"%7.2f%c", info.totalram/1024.0 / gb, c);
+								else
+									snprintf(ubuf,buf_size,"%7.2f%c", (s.f_blocks * (s.f_bsize / 1024.0)) / gb, c);
+
 								break;
 							case 2:
 								mpOffset = nameOffset+ (sizeOffset+10)*1+10;
-								snprintf(ubuf,buf_size,"%7.2f%c", ((s.f_blocks - s.f_bfree)  * (s.f_bsize / 1024.0)) / gb, c);
+								if(memory_flag)
+									snprintf(ubuf,buf_size,"%7.2f%c", (info.totalram/1024.0 - info.freeram/1024.0) / gb, c);
+								else
+									snprintf(ubuf,buf_size,"%7.2f%c", ((s.f_blocks - s.f_bfree)  * (s.f_bsize / 1024.0)) / gb, c);
 								break;
 							case 3:
 								mpOffset = nameOffset+ (sizeOffset+10)*2+10;
-								snprintf(ubuf,buf_size,"%7.2f%c", s.f_bavail * (s.f_bsize / 1024.0) / gb, c);
+								if(memory_flag)
+									snprintf(ubuf,buf_size,"%7.2f%c", info.freeram / 1024.0 / gb, c);
+								else
+									snprintf(ubuf,buf_size,"%7.2f%c", s.f_bavail * (s.f_bsize / 1024.0) / gb, c);
 								break;
 							case 4:
 								mpOffset = nameOffset+ (sizeOffset+10)*3+10;
@@ -337,6 +349,7 @@ void CDBoxInfoWidget::paint()
 							rec_mp = false;
 						}
 						int pbw = width - offsetw - 10;
+						memory_flag = false;
 //fprintf(stderr, "width: %d offsetw: %d pbw: %d\n", width, offsetw, pbw);
 						if (pbw > 8) /* smaller progressbar is not useful ;) */
 						{
