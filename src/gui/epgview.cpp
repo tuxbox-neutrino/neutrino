@@ -578,9 +578,14 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	tallchans_iterator cit = allchans.find(channel_id);
 	if(cit != allchans.end()) {
 		std::string lname;
-		if(g_PicViewer->GetLogoName(channel_id, cit->second.getName(), lname)) {
-			g_PicViewer->DisplayImage(lname, sx+10, sy + (toph-PIC_H)/2/*5*/, PIC_W, PIC_H);
-			pic_offx = PIC_W + 10;
+		int logo_w = 0;
+		int logo_h = 0;
+		if(g_PicViewer->GetLogoName(channel_id, cit->second.getName(), lname, &logo_w, &logo_h)) {
+			if(logo_h > PIC_H) 
+				logo_h = PIC_H;
+
+			g_PicViewer->DisplayImage(lname, sx+10, sy + (toph-logo_h)/2/*5*/, logo_w, logo_h);
+			pic_offx = logo_w + 10;
 		}
 
 	}

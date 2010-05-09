@@ -692,12 +692,16 @@ void EventList::paintHead(t_channel_id channel_id, std::string channelname)
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 
 	std::string lname;
-	if(g_PicViewer->GetLogoName(channel_id, channelname, lname))
-		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-PIC_H)/2, PIC_W, PIC_H);
-
+	int logo_w = 0;
+	int logo_h = 0;
+	if(g_PicViewer->GetLogoName(channel_id, channelname, lname, &logo_w, &logo_h)){
+		if(logo_h > PIC_H) 
+			logo_h = PIC_H;
+		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-logo_h)/2, logo_w, logo_h);
+	}
         //logo_ok = g_PicViewer->DisplayLogo(channel_id, x+10, y+(theight-PIC_H)/2, PIC_W, PIC_H);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+PIC_W:0),y+theight+1, width, name.c_str(), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+logo_w:0),y+theight+1, width, name.c_str(), COL_MENUHEAD, 0, true); // UTF-8
 }
 
 void EventList::paint(t_channel_id channel_id)
