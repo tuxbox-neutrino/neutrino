@@ -1536,11 +1536,17 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CChannelList::showChannelLogo()
 {
-	frameBuffer->paintBoxRel(x + width - logo_off - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H, COL_MENUHEAD_PLUS_0);
+	static int logo_w = PIC_W;
+	static int logo_h = PIC_H;
+	frameBuffer->paintBoxRel(x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
 
 	std::string lname;
-	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname))
-		g_PicViewer->DisplayImage(lname, x + width - logo_off - PIC_W, y+(theight-PIC_H)/2, PIC_W, PIC_H);
+	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)){
+		if(logo_h > PIC_H) 
+			  logo_h = PIC_H;
+		
+		g_PicViewer->DisplayImage(lname, x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h);
+	}
 }
 
 void CChannelList::paintItem(int pos)
