@@ -1536,8 +1536,8 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CChannelList::showChannelLogo()
 {
-	static int logo_w = PIC_W;
-	static int logo_h = PIC_H;
+	static int logo_w = 0;
+	static int logo_h = 0;
 	frameBuffer->paintBoxRel(x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
 
 	std::string lname;
