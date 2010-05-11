@@ -3,7 +3,6 @@ installdir = $(FONTDIR)
 install_DATA = \
 	md_khmurabi_10.ttf \
 	micron_bold.ttf \
-	Micron_italic.ttf \
 	micron_italic.ttf \
 	micron.ttf \
 	neutrino.ttf \
