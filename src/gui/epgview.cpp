@@ -56,8 +56,6 @@
 #include <zapit/bouquets.h>
 
 extern CPictureViewer * g_PicViewer;
-#define PIC_W 52
-#define PIC_H 39
 
 #define ICON_LARGE_WIDTH 26
 
@@ -487,12 +485,14 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			text2 = epgData.title.substr(text1.length()+ 1, uint(-1) );
 	}
 
+	const int pic_h = 39;
+
 	if (text2 != "")
 		toph = 2 * topboxheight;
 	else
 		toph = topboxheight;
-	if (toph < PIC_H)
-		toph = PIC_H;
+
+	toph = std::max(toph, pic_h);
 
 	sb = oy - toph - botboxheight;
 
@@ -581,8 +581,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		int logo_w = 0;
 		int logo_h = 0;
 		if(g_PicViewer->GetLogoName(channel_id, cit->second.getName(), lname, &logo_w, &logo_h)) {
-			if(logo_h > PIC_H) 
-				logo_h = PIC_H;
+		if(logo_h > toph){
+			if((toph/(logo_h-toph))>1){
+				logo_w -= (logo_w/(toph/(logo_h-toph)));
+			}
+			logo_h = toph;
+		}
 
 			g_PicViewer->DisplayImage(lname, sx+10, sy + (toph-logo_h)/2/*5*/, logo_w, logo_h);
 			pic_offx = logo_w + 10;

@@ -69,8 +69,7 @@
 #include <gui/customcolor.h>
 
 extern CPictureViewer * g_PicViewer;
-#define PIC_W 52
-#define PIC_H 39
+
 static CProgressBar *timescale;
 
 #define my_scandir scandir64
@@ -592,7 +591,8 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameTitleRel.iWidth = 		m_cBoxFrame.iWidth;
 	m_cBoxFrameTitleRel.iHeight = 		m_pcFontTitle->getHeight();
 
-	if(m_cBoxFrameTitleRel.iHeight < PIC_H) m_cBoxFrameTitleRel.iHeight = PIC_H;
+	const int pic_h = 39;
+	m_cBoxFrameTitleRel.iHeight = std::max(m_cBoxFrameTitleRel.iHeight, pic_h);
 
 	m_cBoxFrameBrowserList.iX = 		m_cBoxFrame.iX;
 	m_cBoxFrameBrowserList.iY = 		m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
@@ -1195,8 +1195,12 @@ void CMovieBrowser::refreshMovieInfo(void)
         	//g_PicViewer->DisplayLogo(m_movieSelectionHandler->epgEpgId >>16, lx, ly, PIC_W, PIC_H);
         	std::string lname;
 		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname, &logo_w, &logo_h)){
-			  if(logo_h > PIC_H) 
-				  logo_h = PIC_H;
+			if(logo_h > m_cBoxFrameTitleRel.iHeight){
+				if((m_cBoxFrameTitleRel.iHeight/(logo_h-m_cBoxFrameTitleRel.iHeight))>1){
+					logo_w -= (logo_w/(m_cBoxFrameTitleRel.iHeight/(logo_h-m_cBoxFrameTitleRel.iHeight)));
+				}
+				logo_h = m_cBoxFrameTitleRel.iHeight;
+			}
 			  lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 			  ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
 			  g_PicViewer->DisplayImage(lname, lx, ly, logo_w, logo_h);

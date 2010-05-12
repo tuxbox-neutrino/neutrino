@@ -60,8 +60,6 @@ extern t_channel_id live_channel_id;
 
 #include <algorithm>
 extern CPictureViewer * g_PicViewer;
-#define PIC_W 52
-#define PIC_H 39
 
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
@@ -228,24 +226,24 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 		iheight = fh;
 
 	int icol_w, icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	if(iheight < icol_h)
-		iheight = icol_h;
+	const int pic_h = 39;
 
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+
+	iheight = std::max(iheight, icol_h);
 	theight  = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
 
-	if(theight < PIC_H) theight = PIC_H;
+	theight = std::max(theight, pic_h);
 
 	int iw, ih;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw, &ih);
-	if(theight < ih)
-		theight = ih;
+	theight = std::max(theight, ih);
 
 	fheight1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->getHeight();
 	{
 		int h1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getHeight();
 		int h2 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getHeight();
-		fheight2 = (h1 > h2) ? h1 : h2;
+		fheight2 = std::max( h1, h2 );
 	}
 	fheight = fheight1 + fheight2 + 2;
 	fwidth1 = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->getRenderWidth("DDD, 00:00,  ");
@@ -695,8 +693,12 @@ void EventList::paintHead(t_channel_id channel_id, std::string channelname)
 	int logo_w = 0;
 	int logo_h = 0;
 	if(g_PicViewer->GetLogoName(channel_id, channelname, lname, &logo_w, &logo_h)){
-		if(logo_h > PIC_H) 
-			logo_h = PIC_H;
+		if(logo_h > theight){
+			if((theight/(logo_h-theight))>1){
+				logo_w -= (logo_w/(theight/(logo_h-theight)));
+			}
+			logo_h = theight;
+		}
 		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-logo_h)/2, logo_w, logo_h);
 	}
         //logo_ok = g_PicViewer->DisplayLogo(channel_id, x+10, y+(theight-PIC_H)/2, PIC_W, PIC_H);

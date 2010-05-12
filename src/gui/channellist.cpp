@@ -81,8 +81,6 @@ extern CBouquetList   * RADIOfavList;
 extern CBouquetList   * RADIOallList;
 extern tallchans allchans;
 
-#define PIC_W 52
-#define PIC_H 39
 
 extern t_channel_id rec_channel_id;
 extern bool autoshift;
@@ -458,7 +456,7 @@ int CChannelList::show()
 	neutrino_msg_data_t data;
 	bool actzap = 0;
 	int res = -1;
-
+	const int pic_h = 39;
 	if (chanlist.empty()) {
 		return res;
 	}
@@ -479,7 +477,7 @@ int CChannelList::show()
 
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 
-	theight = std::max(theight, PIC_H);
+	theight = std::max(theight, pic_h);
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
@@ -1542,9 +1540,12 @@ void CChannelList::showChannelLogo()
 
 	std::string lname;
 	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)){
-		if(logo_h > PIC_H) 
-			  logo_h = PIC_H;
-		
+		if(logo_h > theight){
+			if((theight/(logo_h-theight))>1){
+				logo_w -= (logo_w/(theight/(logo_h-theight)));
+			}
+			logo_h = theight;
+		}
 		g_PicViewer->DisplayImage(lname, x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h);
 	}
 }
