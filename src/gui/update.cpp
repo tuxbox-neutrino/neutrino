@@ -83,6 +83,8 @@ CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()
 {
 	setTitle(LOCALE_FLASHUPDATE_HEAD);
+	sysfs = CMTDInfo::getInstance()->findMTDsystem();
+	printf("Mtd partition to update: %s\n", sysfs.c_str());
 }
 
 
@@ -358,6 +360,11 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 
 	paint();
 
+	if(sysfs.size() < 8) {
+		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_CANTOPENMTD));
+		hide();
+		return menu_return::RETURN_REPAINT;
+	}
 	if(!checkVersion4Update()) {
 		hide();
 		return menu_return::RETURN_REPAINT;
@@ -389,7 +396,8 @@ int CFlashUpdate::exec(CMenuTarget* parent, const std::string &)
 	showGlobalStatus(40);
 
 	CFlashTool ft;
-	ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
+	//ft.setMTDDevice(MTD_DEVICE_OF_UPDATE_PART);
+	ft.setMTDDevice(sysfs);
 	ft.setStatusViewer(this);
 
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_MD5CHECK)); // UTF-8

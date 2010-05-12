@@ -539,3 +539,16 @@ int CMTDInfo::getMTDEraseSize( const std::string & filename )
 {
 	return getMTDEraseSize( findMTDNumber(filename) );
 }
+
+std::string CMTDInfo::findMTDsystem()
+{
+	std::string sysfs = "systemFS";
+
+	for(int i = 0; i < getMTDCount(); i++) {
+		if(getMTDName(i) == sysfs) {
+printf("systemFS: %d dev %s\n", i, getMTDFileName(i).c_str());
+			return getMTDFileName(i);
+		}
+	}
+	return "";
+}

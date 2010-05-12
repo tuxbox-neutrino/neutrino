@@ -46,6 +46,7 @@ class CFlashUpdate : public CProgressWindow
  private:
 	std::string filename;
 	std::string file_md5;
+	std::string sysfs;
 	char	fileType;
 	
 	std::string installedVersion;

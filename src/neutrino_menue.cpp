@@ -461,6 +461,7 @@ public:
 #include <net/if.h>
 #include <arpa/inet.h>
 
+extern int cs_test_card(int unit, char * str);
 int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	if (parent)
@@ -527,7 +528,43 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		close(fd);
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 	}
-	else if (actionKey == "card") {
+	else if (actionKey == "card0") {
+		char str[255];
+		int ret = cs_test_card(0, str);
+		switch(ret) {
+			case 0:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+				break;
+			case -1:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				break;
+			case -2:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				break;
+			default:
+			case -3:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 1 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				break;
+		}
+	}
+	else if (actionKey == "card1") {
+		char str[255];
+		int ret = cs_test_card(1, str);
+		switch(ret) {
+			case 0:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, str, CMessageBox::mbrBack, CMessageBox::mbBack, "info.raw");
+				break;
+			case -1:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 ATR read failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				break;
+			case -2:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 reset failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				break;
+			default:
+			case -3:
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, "Smardcard 2 open failed", CMessageBox::mbrBack, CMessageBox::mbBack, "info");
+				break;
+		}
 	}
 	else if (actionKey == "hdd") {
 		char buffer[255];
@@ -643,7 +680,8 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	CTestMenu * testHandler = new CTestMenu();
 	TestMenu->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, testHandler, "vfd"));
 	TestMenu->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, testHandler, "network"));
-	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard", true, NULL, testHandler, "card"));
+	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, testHandler, "card0"));
+	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard 2", true, NULL, testHandler, "card1"));
 	TestMenu->addItem(new CMenuForwarderNonLocalized("HDD", true, NULL, testHandler, "hdd"));
 	TestMenu->addItem(new CMenuForwarderNonLocalized("Buttons", true, NULL, testHandler, "buttons"));
 	TestMenu->addItem(new CMenuForwarderNonLocalized("Scan 12538000", true, NULL, testHandler, "scan"));
