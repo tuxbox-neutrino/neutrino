@@ -124,6 +124,7 @@ class CInfoViewer
    	void showLcdPercentOver();
 	int showChannelLogo(const t_channel_id logo_channel_id);
 	void showSNR();
+	void showInfoFile();
 
  public:
 	bool chanready;

@@ -540,7 +540,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 			ChanNameX + 10 + ChanNumWidth, ChanNameY + time_height,
 			BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth,
 			ChannelName, COL_INFOBAR, 0, true);	// UTF-8
-
+        showInfoFile();
 //	int ChanInfoY = BoxStartY + ChanHeight + 10;
 	ButtonWidth = (BoxEndX - ChanInfoX - ICON_OFFSET) >> 2;
 
@@ -1526,6 +1526,40 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 }
 #endif
 }
+
+void CInfoViewer::showInfoFile()
+{
+	if (recordModeActive)
+		return;
+	char infotext[80];
+	int fd, xStart, xEnd, height, r;
+	ssize_t cnt;
+
+	fd = open("/tmp/infobar.txt", O_RDONLY); //Datei aus welcher der Text ausgelesen wird
+
+	if (fd < 0)
+		return;
+
+	cnt = read(fd, infotext, 79);
+	if (cnt < 0) {
+		fprintf(stderr, "CInfoViewer::showInfoFile: could not read from infobar.txt: %m");
+		close(fd);
+		return;
+	}
+	close(fd);
+	infotext[cnt] = '\0';
+
+	xStart = BoxStartX + ChanWidth + 140;	// Abstand rechst vom Aufnahmeicon
+	xEnd   = BoxEndX - 225;			// Abstand links von der Progressbar
+	height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
+	r = height / 3;
+	// background
+	frameBuffer->paintBox(xStart, BoxStartY, xEnd, BoxStartY + height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_ALL); //round
+
+	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
+		xStart + r, BoxStartY + height, xEnd - xStart - r*2, (std::string)infotext, COL_INFOBAR, height, false);
+}
+
 
 void CInfoViewer::showButton_Audio ()
 {
