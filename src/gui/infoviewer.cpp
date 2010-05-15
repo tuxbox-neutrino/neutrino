@@ -75,15 +75,6 @@ extern t_channel_id live_channel_id; //zapit
 #define COL_INFOBAR_BUTTONS            (COL_INFOBAR_SHADOW + 1)
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
 
-#define ICON_LARGE_WIDTH 26
-#define ICON_SMALL_WIDTH 16
-#define ICON_LARGE 30
-#define ICON_SMALL 18
-#define ICON_Y_1 18
-
-#define ICON_OFFSET (2 + ICON_LARGE_WIDTH + 2 + ICON_LARGE_WIDTH + 2 + ICON_SMALL_WIDTH + 2)
-
-#define borderwidth 4
 #define LEFT_OFFSET 5
 #define ASIZE 100
 
@@ -174,6 +165,16 @@ void CInfoViewer::Init()
 
 	channel_id = live_channel_id;
 	lcdUpdateTimer = 0;
+
+	int dummy_h;
+	frameBuffer->getIconSize(NEUTRINO_ICON_16_9_GREY, &icon_large_width, &dummy_h);
+	if(icon_large_width == 0)
+		icon_large_width = 26;
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_VTXT_GREY, &icon_small_width, &dummy_h);
+	if(icon_small_width == 0)
+		icon_small_width = 16;
+
 }
 
 /*
@@ -468,7 +469,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	/* assuming all color icons must have same size */
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 
-	asize = (BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102) - ChanInfoX;
+	asize = (BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2) - 102) - ChanInfoX;
 	asize = asize - (icol_w+6)*4;
 	asize = asize / 4;
 
@@ -542,7 +543,8 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 			ChannelName, COL_INFOBAR, 0, true);	// UTF-8
         showInfoFile();
 //	int ChanInfoY = BoxStartY + ChanHeight + 10;
-	ButtonWidth = (BoxEndX - ChanInfoX - ICON_OFFSET) >> 2;
+	int icons_offset = (2*(icon_large_width + 2)) + icon_small_width +2 +2;
+	ButtonWidth = (BoxEndX - ChanInfoX - icons_offset) >> 2;
 
 //	frameBuffer->paintBox (ChanInfoX, ChanInfoY, ChanNameX, BoxEndInfoY, COL_INFOBAR_PLUS_0);
 
@@ -795,6 +797,7 @@ void CInfoViewer::showSubchan ()
 
 	std::string subChannelName;	// holds the name of the subchannel/audio channel
 	int subchannel = 0;				// holds the channel index
+	const int borderwidth = 4;
 
 	if (!(g_RemoteControl->subChannels.empty ())) {
 		// get info for nvod/subchannel
@@ -898,7 +901,7 @@ void CInfoViewer::showIcon_16_9 ()
 	if ((aspectRatio == 0) || (aspectRatio != videoDecoder->getAspectRatio())) {
 		aspectRatio = videoDecoder->getAspectRatio();
 		frameBuffer->paintIcon((aspectRatio > 2) ? NEUTRINO_ICON_16_9 : NEUTRINO_ICON_16_9_GREY,
-				       BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2), BBarY,
+				       BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2), BBarY,
 				       InfoHeightY_Info);
 	}
 }
@@ -906,7 +909,7 @@ void CInfoViewer::showIcon_16_9 ()
 void CInfoViewer::showIcon_VTXT () const
 {
 	frameBuffer->paintIcon((g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? NEUTRINO_ICON_VTXT : NEUTRINO_ICON_VTXT_GREY,
-			       BoxEndX - (2*ICON_SMALL_WIDTH + 2*2), BBarY, InfoHeightY_Info);
+			       BoxEndX - (2*icon_small_width + 2*2), BBarY, InfoHeightY_Info);
 }
 
 void CInfoViewer::showIcon_SubT() const
@@ -916,7 +919,7 @@ void CInfoViewer::showIcon_SubT() const
 	if (cc && cc->getSubtitleCount())
 		have_sub = true;
 
-	frameBuffer->paintIcon(have_sub ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY, BoxEndX - (ICON_SMALL_WIDTH + 2),
+	frameBuffer->paintIcon(have_sub ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY, BoxEndX - (icon_small_width + 2),
 			       BBarY, InfoHeightY_Info);
 }
 
@@ -1179,7 +1182,7 @@ void CInfoViewer::showSNR ()
 	/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 	   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 	   the scales */
-		varscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
+		varscale->paintProgressBar(BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2) - 102,
 						BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
 		 per = 0;
 	//HD info
@@ -1202,7 +1205,7 @@ void CInfoViewer::showSNR ()
 			}
 		}
 
-		hddscale->paintProgressBar(BoxEndX - (2*ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 4*2) - 102,
+		hddscale->paintProgressBar(BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2) - 102,
 							BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
 	}
 }
@@ -1591,7 +1594,7 @@ void CInfoViewer::showButton_Audio ()
 	else
 		dd_icon = NEUTRINO_ICON_DD_GREY;
 
-	frameBuffer->paintIcon(dd_icon, BoxEndX - (ICON_LARGE_WIDTH + 2*ICON_SMALL_WIDTH + 3*2),
+	frameBuffer->paintIcon(dd_icon, BoxEndX - (icon_large_width + 2*icon_small_width + 3*2),
 			       BBarY, InfoHeightY_Info);
 }
 

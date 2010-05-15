@@ -81,7 +81,7 @@ class CInfoViewer
 
 	int		asize;
 	int		icol_w, icol_h;
-
+	int 		icon_large_width, icon_small_width;
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
         t_channel_id   channel_id;
 
