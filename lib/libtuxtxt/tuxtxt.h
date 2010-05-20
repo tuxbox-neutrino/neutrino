@@ -1727,7 +1727,7 @@ void RenderPage();
 void DecodePage();
 void UpdateLCD();
 int  Init();
-int  GetNationalSubset(char *country_code);
+int  GetNationalSubset(const char *country_code);
 int  GetTeletextPIDs();
 int  GetRCCode();
 int  eval_triplet(int iOData, tstCachedPage *pstCachedPage,

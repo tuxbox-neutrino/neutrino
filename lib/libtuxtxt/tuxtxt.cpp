@@ -1538,7 +1538,7 @@ void tuxtx_stop_subtitle()
 	ttx_paused = 0;
 }
 
-void tuxtx_set_pid(int pid, int page, char * cc)
+void tuxtx_set_pid(int pid, int page, const char * cc)
 {
 	if(reader_running)
 		tuxtx_stop_subtitle();
@@ -2471,7 +2471,7 @@ skip_pid:
 /******************************************************************************
  * GetNationalSubset                                                          *
  ******************************************************************************/
-int GetNationalSubset(char *cc)
+int GetNationalSubset(const char *cc)
 {
         if (memcmp(cc, "cze", 3) == 0 || memcmp(cc, "ces", 3) == 0 ||
             memcmp(cc, "slo", 3) == 0 || memcmp(cc, "slk", 3) == 0)
