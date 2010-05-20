@@ -80,7 +80,7 @@ int fh_jpeg_load_via_server(const char *filename,unsigned char *buffer,int x,int
 	port=atoi(g_settings.picviewer_decode_server_port);
 	printf("Server %s [%d]\n",g_settings.picviewer_decode_server_ip.c_str(),port);
 	
-	memset((char *) &si_other, sizeof(si_other), 0);
+	memset((char *) &si_other, 0, sizeof(si_other));
 	si_other.sin_family = AF_INET;
 	si_other.sin_port = htons(port);
 	if (inet_aton(g_settings.picviewer_decode_server_ip.c_str(), 
