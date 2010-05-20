@@ -52,7 +52,6 @@ class cDemux
 		DMX_CHANNEL_TYPE type;
 		CS_DMX_PDATA * privateData;
 	public:
-
 		bool Open(DMX_CHANNEL_TYPE pes_type, void * hVideoBuffer = NULL, int uBufferSize = 8192);
 		void Close(void);
 		bool Start(void);

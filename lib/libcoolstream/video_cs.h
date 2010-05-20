@@ -15,7 +15,7 @@ typedef enum {
 	ANALOG_SD_YPRPB_SCART,
 	ANALOG_HD_RGB_SCART,
 	ANALOG_HD_YPRPB_SCART,
-	ANALOG_SCART_MASK = 0x10
+	ANALOG_SCART_MASK = 0x10,
 } analog_mode_t;
 
 typedef enum {
@@ -53,7 +53,7 @@ typedef enum {
 	DISPLAY_AR_14_9,
 	DISPLAY_AR_16_9,
 	DISPLAY_AR_20_9,
-	DISPLAY_AR_RAW
+	DISPLAY_AR_RAW,
 } DISPLAY_AR;
 
 typedef enum {
@@ -100,16 +100,16 @@ typedef enum {
 class cVideo
 {
 	private:
-		CS_VIDEO_PDATA * privateData;
-		VIDEO_FORMAT	    StreamType;
-		VIDEO_DEFINITION       VideoDefinition;
-		DISPLAY_AR DisplayAR;
-		VIDEO_PLAY_MODE SyncMode;
-		DISPLAY_AR_MODE                ARMode;
-		VIDEO_DB_DR eDbDr;
-		DISPLAY_AR PictureAR;
-		VIDEO_FRAME_RATE FrameRate;
-		bool interlaced;
+		CS_VIDEO_PDATA		*privateData;
+		VIDEO_FORMAT		StreamType;
+		VIDEO_DEFINITION	VideoDefinition;
+		DISPLAY_AR		DisplayAR;
+		VIDEO_PLAY_MODE		SyncMode;
+		DISPLAY_AR_MODE		ARMode;
+		VIDEO_DB_DR		eDbDr;
+		DISPLAY_AR		PictureAR;
+		VIDEO_FRAME_RATE	FrameRate;
+		bool			Interlaced;
 
 		unsigned int uDRMDisplayDelay;
 		unsigned int uVideoPTSDelay;
@@ -120,9 +120,6 @@ class cVideo
 		bool playing;
 		bool auto_format;
 		int uFormatIndex;
-		int pic_width, pic_height;
-		int jpeg_width, jpeg_height;
-		int video_width, video_height;
 
 		bool receivedDRMDelay;
 		bool receivedVideoDelay;
@@ -166,11 +163,14 @@ class cVideo
 		int getPlayState(void);
 		void SetDRMDelay(unsigned int delay) { uDRMDisplayDelay = delay;};
 		void SetVideoDelay(unsigned int delay) { uVideoPTSDelay = delay;};
+		/* Notification handlers */
 		void HandleDRMMessage(int Event, void *pData);
 		void HandleVideoMessage(void * hHandle, int Event, void *pData);
+		void HandleEncoderMessage(void *hHandle, int Event, void *pData);
 		VIDEO_DEFINITION   GetVideoDef(void) { return VideoDefinition; }
 
 		/* change video play state */
+		int Prepare(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
 		int Start(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
 		int Stop(bool blank = true);
 		bool Pause(void);
@@ -179,7 +179,7 @@ class cVideo
 		int64_t GetPTS(void);
 
 		int Flush(void);
-
+		
 		/* set video_system */
 		int SetVideoSystem(int video_system, bool remember = true);
 		int SetStreamType(VIDEO_FORMAT type);
