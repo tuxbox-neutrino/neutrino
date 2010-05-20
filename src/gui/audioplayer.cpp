@@ -185,11 +185,11 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 // we borrow this from filebrowser
 extern size_t CurlWriteToString(void *ptr, size_t size, size_t nmemb, void *data);
 
-CAudioPlayerGui::CAudioPlayerGui(bool /*inetmode*/)
+CAudioPlayerGui::CAudioPlayerGui(bool inetmode)
 {
 	m_frameBuffer = CFrameBuffer::getInstance();
 	m_visible = false;
-	m_inetmode = false;  //inetmode;//FIXME
+	m_inetmode = inetmode;
 
 	Init();
 }
@@ -428,22 +428,7 @@ int CAudioPlayerGui::show()
 			}
 		}
 
-		if ( msg == CRCInput::RC_tv)
-		{
-			if (m_inetmode) {
-				m_inetmode = false;
-				m_radiolist = m_playlist;
-				m_playlist = m_filelist;
-			} else {
-				m_inetmode = true;
-				m_filelist = m_playlist;
-				m_playlist = m_radiolist;
-			}
-			Init();
-			clear_before_update = true;
-			update = true;
-		}
-		else if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop)
+		if (msg == CRCInput::RC_home || msg == CRCInput::RC_stop)
 		{
 			if (m_state != CAudioPlayerGui::STOP)
 				stop();
