@@ -43,9 +43,9 @@
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>
-//#include <cnxtfb.h>
 #include <video_cs.h>
-#include <init_cs.h>
+#include <cs_api.h>
+
 extern cVideo * videoDecoder;
 
 extern CPictureViewer * g_PicViewer;
@@ -296,12 +296,12 @@ printf("smem_start %x\n", smem_start);
 	}
 
 	if (-1 == ioctl(tty,VT_GETMODE, &vt_mode)) {
-      		perror("ioctl VT_GETMODE");
+		perror("ioctl VT_GETMODE");
 		goto nolfb;
 	}
 
 	if (-1 == ioctl(tty,VT_GETMODE, &mode)) {
-      		perror("ioctl VT_GETMODE");
+		perror("ioctl VT_GETMODE");
 		goto nolfb;
 	}
 
@@ -1251,7 +1251,7 @@ bool CFrameBuffer::savePictureFromMem(const std::string & filename, const fb_pix
 	header.height_hi = height >>    8;
 	header.transp    =              0;
 
-	lfd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT);
+	lfd = open((iconBasePath + filename).c_str(), O_WRONLY | O_CREAT, 0644);
 
 	if (lfd==-1)
 	{
