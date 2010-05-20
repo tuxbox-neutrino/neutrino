@@ -3982,7 +3982,7 @@ printf("\n");
 	find_new_part(npart, dpart);
 tt = time(0);
 printf("\n********* new file %s expected size %lld, start time %s", dpart, newsize, ctime (&tt));
-	dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE);
+	dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE, 0644);
 	if(dstfd < 0) {
 		perror(dpart);
 		return 0;
@@ -4217,7 +4217,7 @@ printf("\ncopy: processing bookmark %d at %lld len %lld\n", i, books[i].pos, boo
 		}
 		if(!dst_done || !onefile) {
 			find_new_part(npart, dpart);
-			dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE);
+			dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE, 0644);
 printf("copy: new file %s fd %d\n", dpart, dstfd);
 			if(dstfd < 0) {
 				printf("failed to open %s\n", dpart);

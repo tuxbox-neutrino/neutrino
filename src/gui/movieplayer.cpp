@@ -1126,7 +1126,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 				} else {
 					char temp_name[255];
-					char *slash = strrchr(filename, '/');
+					const char *slash = strrchr(filename, '/');
 					if (slash) {
 						slash++;
 						int len = strlen(slash);
