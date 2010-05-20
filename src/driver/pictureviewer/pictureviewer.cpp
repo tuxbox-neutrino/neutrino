@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include "init_cs.h"
+#include <cs_api.h>
 
 #ifdef FBV_SUPPORT_GIF
 extern int fh_gif_getsize (const char *, int *, int *, int, int);
