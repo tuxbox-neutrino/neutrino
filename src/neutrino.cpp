@@ -126,7 +126,7 @@
 #include <timerdclient/timerdmsg.h>
 #include <zapit/satconfig.h>
 
-#include <init_cs.h>
+#include <cs_api.h>
 #include <video_cs.h>
 #include <audio_cs.h>
 #include <zapit/frontend_c.h>
@@ -2345,16 +2345,18 @@ CPipSetup * g_Pip0;
 extern CVideoSettings * videoSettings;
 //extern CMenuOptionStringChooser* tzSelect;
 
-void CISendMessage(uint32_t msg, uint32_t data)
+static void CSSendMessage(uint32_t msg, uint32_t data)
 {
-	g_RCInput->postMsg(msg, data);
+	if (g_RCInput)
+		g_RCInput->postMsg(msg, data);
 }
 
 int CNeutrinoApp::run(int argc, char **argv)
 {
 	CmdParser(argc, argv);
 
-	init_cs_api();
+	cs_api_init();
+	cs_register_messenger(CSSendMessage);
 
 	CHintBox * hintBox;
 
@@ -2646,7 +2648,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hintBox->hide();
 	delete hintBox;
 
-	cDvbCi::getInstance()->SetHook(CISendMessage);
 	RealRun(mainMenu);
 
 	ExitRun(true);
@@ -4746,7 +4747,8 @@ void stop_daemons(bool stopall)
 			powerManager->Close();
 			delete powerManager;
 		}
-		shutdown_cs_api();
+		cs_deregister_messenger();
+		cs_api_exit();
 	}
 }
 
