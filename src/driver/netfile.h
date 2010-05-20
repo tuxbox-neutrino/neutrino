@@ -191,10 +191,10 @@ typedef struct
 
 typedef  struct
 {
-	char id[4];
+	char id[5];
 	uint32_t size;
 	char flags[3];
-	char base[1024];
+	char base[2048];
 } ID3_frame;
 
 #define CRLFCut(a) \
