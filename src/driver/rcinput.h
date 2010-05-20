@@ -117,11 +117,8 @@ class CRCInput
 		void open();
 		void close();
 		int translate(int code, int num);
-
 		void calculateMaxFd(void);
-
 		int checkTimers();
-
 	public:
 		//rc-code definitions
 		static const neutrino_msg_t RC_Repeat   = 0x0400;
@@ -133,53 +130,53 @@ class CRCInput
 		static const neutrino_msg_t RC_WithData = 0xA0000000;
 		enum
 		{
-			RC_0            = KEY_0,            /* /include/linux/input.h: #define KEY_0			11   */
-			RC_1            = KEY_1,            /* /include/linux/input.h: #define KEY_1			 2   */
-			RC_2            = KEY_2,            /* /include/linux/input.h: #define KEY_2			 3   */
-			RC_3            = KEY_3,            /* /include/linux/input.h: #define KEY_3			 4   */
-			RC_4            = KEY_4,            /* /include/linux/input.h: #define KEY_4			 5   */
-			RC_5            = KEY_5,            /* /include/linux/input.h: #define KEY_5			 6   */
-			RC_6            = KEY_6,            /* /include/linux/input.h: #define KEY_6			 7   */
-			RC_7            = KEY_7,            /* /include/linux/input.h: #define KEY_7			 8   */
-			RC_8            = KEY_8,            /* /include/linux/input.h: #define KEY_8			 9   */
-			RC_9            = KEY_9,            /* /include/linux/input.h: #define KEY_9			10   */
-			RC_backspace    = KEY_BACKSPACE,    /* /include/linux/input.h: #define KEY_BACKSPACE            14   */
-			RC_up           = KEY_UP,           /* /include/linux/input.h: #define KEY_UP                  103   */
-			RC_left         = KEY_LEFT,         /* /include/linux/input.h: #define KEY_LEFT                105   */
-			RC_right        = KEY_RIGHT,        /* /include/linux/input.h: #define KEY_RIGHT               106   */
-			RC_down         = KEY_DOWN,         /* /include/linux/input.h: #define KEY_DOWN                108   */
-			RC_spkr         = KEY_MUTE,         /* /include/linux/input.h: #define KEY_MUTE                113   */
-			RC_minus        = KEY_VOLUMEDOWN,   /* /include/linux/input.h: #define KEY_VOLUMEDOWN          114   */
-			RC_plus         = KEY_VOLUMEUP,     /* /include/linux/input.h: #define KEY_VOLUMEUP            115   */
-			RC_standby      = KEY_POWER,        /* /include/linux/input.h: #define KEY_POWER               116   */
-			RC_help         = KEY_HELP,         /* /include/linux/input.h: #define KEY_HELP                138   */
-			RC_home         = KEY_EXIT,         /* /include/linux/input.h: #define KEY_HOME                102   */
-			RC_setup        = KEY_MENU,        /* /include/linux/input.h: #define KEY_SETUP               141   */
-			RC_topleft	= KEY_TOPLEFT,
-			RC_topright	= KEY_TOPRIGHT,
-			RC_page_up      = KEY_PAGEUP,       /* /include/linux/input.h: #define KEY_PAGEUP              104   */
-			RC_page_down    = KEY_PAGEDOWN,     /* /include/linux/input.h: #define KEY_PAGEDOWN            109   */
-			RC_ok           = KEY_OK,           /* /include/linux/input.h: #define KEY_OK           0x160        */ /* in patched input.h */
-			RC_red          = KEY_RED,          /* /include/linux/input.h: #define KEY_RED          0x18e        */ /* in patched input.h */
-			RC_green        = KEY_GREEN,        /* /include/linux/input.h: #define KEY_GREEN        0x18f        */ /* in patched input.h */
-			RC_yellow       = KEY_YELLOW,       /* /include/linux/input.h: #define KEY_YELLOW       0x190        */ /* in patched input.h */
-			RC_blue         = KEY_BLUE,         /* /include/linux/input.h: #define KEY_BLUE         0x191        */ /* in patched input.h */
-			RC_top_left     = KEY_TOPLEFT,      /* /include/linux/input.h: #define KEY_TOPLEFT      0x1a2        */ /* in patched input.h */
-			RC_top_right    = KEY_TOPRIGHT,     /* /include/linux/input.h: #define KEY_TOPRIGHT     0x1a3        */ /* in patched input.h */
-			RC_bottom_left  = KEY_BOTTOMLEFT,   /* /include/linux/input.h: #define KEY_BOTTOMLEFT   0x1a4        */ /* in patched input.h */
-			RC_bottom_right = KEY_BOTTOMRIGHT,  /* /include/linux/input.h: #define KEY_BOTTOMRIGHT  0x1a5        */ /* in patched input.h */
+			RC_0		= KEY_0,	    /* /include/linux/input.h: #define KEY_0			 11   */
+			RC_1		= KEY_1,	    /* /include/linux/input.h: #define KEY_1			  2   */
+			RC_2		= KEY_2,	    /* /include/linux/input.h: #define KEY_2			  3   */
+			RC_3		= KEY_3,	    /* /include/linux/input.h: #define KEY_3			  4   */
+			RC_4		= KEY_4,	    /* /include/linux/input.h: #define KEY_4			  5   */
+			RC_5		= KEY_5,	    /* /include/linux/input.h: #define KEY_5			  6   */
+			RC_6		= KEY_6,	    /* /include/linux/input.h: #define KEY_6			  7   */
+			RC_7		= KEY_7,	    /* /include/linux/input.h: #define KEY_7			  8   */
+			RC_8		= KEY_8,	    /* /include/linux/input.h: #define KEY_8			  9   */
+			RC_9		= KEY_9,	    /* /include/linux/input.h: #define KEY_9			 10   */
+			RC_backspace	= KEY_BACKSPACE,    /* /include/linux/input.h: #define KEY_BACKSPACE		 14   */
+			RC_up		= KEY_UP,	    /* /include/linux/input.h: #define KEY_UP			103   */
+			RC_left		= KEY_LEFT,	    /* /include/linux/input.h: #define KEY_LEFT			105   */
+			RC_right	= KEY_RIGHT,	    /* /include/linux/input.h: #define KEY_RIGHT		106   */
+			RC_down		= KEY_DOWN,	    /* /include/linux/input.h: #define KEY_DOWN			108   */
+			RC_spkr		= KEY_MUTE,	    /* /include/linux/input.h: #define KEY_MUTE			113   */
+			RC_minus	= KEY_VOLUMEDOWN,   /* /include/linux/input.h: #define KEY_VOLUMEDOWN		114   */
+			RC_plus		= KEY_VOLUMEUP,     /* /include/linux/input.h: #define KEY_VOLUMEUP		115   */
+			RC_standby	= KEY_POWER,	    /* /include/linux/input.h: #define KEY_POWER		116   */
+			RC_help		= KEY_HELP,	    /* /include/linux/input.h: #define KEY_HELP			138   */
+			RC_home		= KEY_EXIT,	    /* /include/linux/input.h: #define KEY_HOME			102   */
+			RC_setup	= KEY_MENU,	    /* /include/linux/input.h: #define KEY_SETUP		141   */
+			RC_topleft	= KEY_TOPLEFT,	
+			RC_topright	= KEY_TOPRIGHT,	
+			RC_page_up	= KEY_PAGEUP,	    /* /include/linux/input.h: #define KEY_PAGEUP		104   */
+			RC_page_down	= KEY_PAGEDOWN,	    /* /include/linux/input.h: #define KEY_PAGEDOWN		109   */
+			RC_ok		= KEY_OK,	    /* /include/linux/input.h: #define KEY_OK			0x160 */ /* in patched input.h */
+			RC_red		= KEY_RED,	    /* /include/linux/input.h: #define KEY_RED			0x18e */ /* in patched input.h */
+			RC_green	= KEY_GREEN,	    /* /include/linux/input.h: #define KEY_GREEN		0x18f */ /* in patched input.h */
+			RC_yellow	= KEY_YELLOW,	    /* /include/linux/input.h: #define KEY_YELLOW		0x190 */ /* in patched input.h */
+			RC_blue		= KEY_BLUE,	    /* /include/linux/input.h: #define KEY_BLUE			0x191 */ /* in patched input.h */
+			RC_top_left	= KEY_TOPLEFT,	    /* /include/linux/input.h: #define KEY_TOPLEFT		0x1a2 */ /* in patched input.h */
+			RC_top_right	= KEY_TOPRIGHT,	    /* /include/linux/input.h: #define KEY_TOPRIGHT		0x1a3 */ /* in patched input.h */
+			RC_bottom_left	= KEY_BOTTOMLEFT,   /* /include/linux/input.h: #define KEY_BOTTOMLEFT		0x1a4 */ /* in patched input.h */
+			RC_bottom_right	= KEY_BOTTOMRIGHT,  /* /include/linux/input.h: #define KEY_BOTTOMRIGHT		0x1a5 */ /* in patched input.h */
 
-			RC_audio = KEY_AUDIO,
-			RC_video = KEY_VIDEO,
-			RC_tv = KEY_TV,
-			RC_radio = KEY_RADIO,
-			RC_text = KEY_TEXT,
-			RC_info = KEY_INFO,
-			RC_epg	= KEY_EPG,
-			RC_recall = KEY_LAST,
-			RC_favorites = KEY_FAVORITES,
-			RC_sat = KEY_SAT,
-			RC_sat2 = KEY_SAT2,
+			RC_audio	= KEY_AUDIO,
+			RC_video	= KEY_VIDEO,
+			RC_tv		= KEY_TV,
+			RC_radio	= KEY_RADIO,
+			RC_text		= KEY_TEXT,
+			RC_info		= KEY_INFO,
+			RC_epg		= KEY_EPG,
+			RC_recall	= KEY_LAST,
+			RC_favorites	= KEY_FAVORITES,
+			RC_sat		= KEY_SAT,
+			RC_sat2		= KEY_SAT2,
 			RC_record	= KEY_RECORD,
 			RC_play		= KEY_PLAY,
 			RC_pause	= KEY_PAUSE,
@@ -231,10 +228,10 @@ class CRCInput
 		static int64_t calcTimeoutEnd(const int timeout_in_seconds);
 
 		void getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t *TimeoutEnd, bool bAllowRepeatLR= false);
-		void getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);                  //get message, timeout in 1/10 secs :)
-		void getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);               //get message, timeout in msecs :)
+		void getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);        //get message, timeout in 1/10 secs :)
+		void getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR= false);     //get message, timeout in msecs :)
 		void getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR= false);//get message, timeout in µsecs :)
-		void postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority = true);  // push message back into buffer
+		void postMsg(const neutrino_msg_t msg, const neutrino_msg_data_t data, const bool Priority = true);            // push message back into buffer
 		void clearRCMsg();
 
 		int messageLoop( bool anyKeyCancels = false, int timeout= -1 );
