@@ -159,7 +159,6 @@ extern CFanControlNotifier * funNotifier;
 extern CRemoteControl * g_RemoteControl;
 extern CCAMMenuHandler * g_CamHandler;
 extern bool autoshift;
-extern unsigned int system_rev;
 
 //extern int sectionsd_scanning;
 
@@ -267,6 +266,8 @@ const CMenuOptionChooser::keyval VIDEOMENU_DBDR_OPTIONS[VIDEOMENU_DBDR_OPTION_CO
 };
 
 #include "videosettings.h"
+#include <cs_api.h>
+
 CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_ICON_VIDEO) /*, RGBCSyncControler(LOCALE_VIDEOMENU_RGB_CENTERING, &g_settings.video_csync)*/
 {
 	addItem(GenericMenuSeparator);
@@ -274,6 +275,7 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 
 	addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_VIDEOMENU_TV_SCART));
 
+	unsigned int system_rev = cs_get_revision();
 	if (system_rev == 0x06) {
 		addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT, true, this));
 	} else if (system_rev > 0x06) {
@@ -761,6 +763,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot",
 					    CRCInput::convertDigitToKey(shortcut++)));
 
+	unsigned int system_rev = cs_get_revision();
 	if(system_rev >= 8)
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER));
 
