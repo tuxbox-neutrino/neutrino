@@ -101,6 +101,7 @@ private:
 	void build_live_url(CyhookHandler *hh);
 	void logoCGI(CyhookHandler *hh);
 	void ConfigCGI(CyhookHandler *hh);
+	void FileCGI(CyhookHandler *hh);
 
 protected:
 	static const unsigned int PLUGIN_DIR_COUNT = 7;

@@ -5,12 +5,23 @@
 #include <config.h>
 // C
 #include <stdio.h>
+#include <stdint.h>
 #include <cctype>
+
 // C++
 #include <string>
 #include <fstream>
 #include <map>
 // system
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
+#include <time.h>
+#include <locale.h>
+#include <langinfo.h>
 #include <unistd.h>
 #include <dirent.h>
 // tuxbox
@@ -194,6 +205,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"get_logo",		&CControlAPI::logoCGI,	"text/plain"},
 	// settings
 	{"config",			&CControlAPI::ConfigCGI,	"text/plain"},
+	// filehandling
+	{"file",			&CControlAPI::FileCGI,	"+xml"},
+
 
 };
 //-----------------------------------------------------------------------------
@@ -1033,6 +1047,7 @@ void CControlAPI::channelEPGAsXML(CyhookHandler *hh, int bouquetnr, t_channel_id
 void CControlAPI::EpgCGI(CyhookHandler *hh)
 {
 	//hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
+	NeutrinoAPI->eList.clear();
 	if (hh->ParamList.empty())
 	{
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
@@ -1695,16 +1710,32 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 				hh->printf("\t\t\t<title>%s</title>\n",title.c_str());
 
 				// audio
-				if( timer->apids != TIMERD_APIDS_CONF){
+				if(timer->apids != TIMERD_APIDS_CONF){
 					hh->WriteLn("\t\t\t<audio>\n");
-					if( timer->apids & TIMERD_APIDS_STD )
-						hh->WriteLn("\t\t\t\t<apids>std</apids>\n");
-					if( timer->apids & TIMERD_APIDS_ALT )
-						hh->WriteLn("\t\t\t\t<apids>alt</apids>\n");
-					if( timer->apids & TIMERD_APIDS_AC3 )
-						hh->WriteLn("\t\t\t\t<apids>ac3</apids>\n");
+					hh->WriteLn("\t\t\t\t<apids_conf>false</apids_conf>\n");
+					if(timer->apids & TIMERD_APIDS_STD)
+						hh->WriteLn("\t\t\t\t<apids_std>true</apids_std>\n");
+					else
+						hh->WriteLn("\t\t\t\t<apids_std>false</apids_std>\n");
+					if(timer->apids & TIMERD_APIDS_ALT)
+						hh->WriteLn("\t\t\t\t<apids_alt>true</apids_alt>\n");
+					else
+						hh->WriteLn("\t\t\t\t<apids_alt>false</apids_alt>\n");
+					if(timer->apids & TIMERD_APIDS_AC3)
+						hh->WriteLn("\t\t\t\t<apids_ac3>true</apids_ac3>\n");
+					else
+						hh->WriteLn("\t\t\t\t<apids_ac3>false</apids_ac3>\n");
 					hh->WriteLn("\t\t\t</audio>\n");
 				}
+				else {
+					hh->WriteLn("\t\t\t<audio>\n");
+					hh->WriteLn("\t\t\t\t<apids_conf>true</apids_conf>\n");
+					hh->WriteLn("\t\t\t\t<apids_std>false</apids_std>\n");
+					hh->WriteLn("\t\t\t\t<apids_alt>false</apids_alt>\n");
+					hh->WriteLn("\t\t\t\t<apids_ac3>false</apids_ac3>\n");
+					hh->WriteLn("\t\t\t</audio>\n");
+				}
+
 				hh->printf("\t\t\t<recording_dir>%s</recording_dir>\n",timer->recordingDir);
 				hh->printf("\t\t\t<epg_id>%d</epg_id>\n",(int)timer->epgID);
 
@@ -2361,4 +2392,85 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh)
 	}
 
 	delete Config;
+}
+//-----------------------------------------------------------------------------
+// File handling
+// action=list|new_folder|delete|read_file|write_file|set_properties
+// path=<path>
+// TODO: development in progress!
+//-----------------------------------------------------------------------------
+void CControlAPI::FileCGI(CyhookHandler *hh)
+{
+
+	// directory list: action=list&path=<path>
+	if (hh->ParamList["action"] == "list"){
+		DIR *dirp;
+		struct dirent *entry;
+		struct stat statbuf;
+		struct passwd  *pwd;
+		struct group   *grp;
+		struct tm      *tm;
+		char            datestring[256];
+
+		hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
+		hh->WriteLn("<filelist>");
+		std::string path = hh->ParamList["path"];
+		if((dirp = opendir( path.c_str() )))
+		{
+			while((entry = readdir(dirp))){
+				hh->WriteLn("\t<item>");
+				hh->printf("\t\t<name>%s</name>\n", entry->d_name);
+				std::string ftype;
+				if(entry->d_type == DT_DIR)
+					ftype="dir";
+				else if(entry->d_type == DT_LNK)
+					ftype="lnk";
+				else if(entry->d_type == 8)
+					ftype="file";
+
+				hh->printf("\t\t<type_str>%s</type_str>", ftype.c_str() );
+				hh->printf("\t\t<type>%d</type>", (int)entry->d_type);
+				if(path[path.length() - 1] != '/')
+					path+="/";
+				std::string fullname = path + entry->d_name;
+				hh->printf("\t\t<fullname>%s</fullname>", fullname.c_str());
+//entry->d_name
+				if(stat(fullname.c_str(), &statbuf)!=-1){
+					hh->printf("\t\t<mode>%xld</mode>", (long)statbuf.st_mode);
+					/* Print out type, permissions, and number of links. */
+//					hh->printf("\t\t<permission>%10.10s</permission>\n", sperm (statbuf.st_mode));
+					hh->printf("\t\t<nlink>%d</nlink>\n", statbuf.st_nlink);
+					/* Print out owner's name if it is found using getpwuid(). */
+					if ((pwd = getpwuid(statbuf.st_uid)) != NULL)
+						hh->printf("\t\t<user>%s</user>\n", pwd->pw_name);
+					else
+						hh->printf("\t\t<user>%d</user>\n", statbuf.st_uid);
+					/* Print out group name if it is found using getgrgid(). */
+					if ((grp = getgrgid(statbuf.st_gid)) != NULL)
+						hh->printf("\t\t<group>%s</group>\n", grp->gr_name);
+					else
+						hh->printf("\t\t<group>%d</group>\n", statbuf.st_gid);
+					/* Print size of file. */
+					hh->printf("\t\t<size>%jd</size>\n", (intmax_t)statbuf.st_size);
+					tm = localtime(&statbuf.st_mtime);
+					/* Get localized date string. */
+					strftime(datestring, sizeof(datestring), nl_langinfo(D_T_FMT), tm);
+					hh->printf("\t\t<time>%s</time>\n", datestring);
+					hh->printf("\t\t<time_t>%ld</time_t>\n", (long)statbuf.st_mtime);
+				}
+				hh->WriteLn("\t</item>");
+			}
+			closedir(dirp);
+		}
+		hh->WriteLn("</filelist>");
+	}
+	// create new folder
+	else if (hh->ParamList["action"] == "new_folder"){
+		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
+		//TODO
+	}
+	else if (hh->ParamList["action"] == "delete"){
+		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
+		//TODO
+	}
 }
