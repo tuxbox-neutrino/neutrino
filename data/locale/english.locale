@@ -929,6 +929,8 @@ videomenu.hdmi_cec_mode HDMI-CEC mode
 videomenu.hdmi_cec_mode_off off
 videomenu.hdmi_cec_mode_tuner as Tuner
 videomenu.hdmi_cec_mode_recorder as Recorder
+videomenu.hdmi_cec_view_on Enable CEC View on
+videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.dbdr MPEG2 de-block/de-ring
 videomenu.dbdr_none none
 videomenu.dbdr_deblock de-block
