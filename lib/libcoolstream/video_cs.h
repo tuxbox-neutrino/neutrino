@@ -93,6 +93,12 @@ typedef enum {
 	VIDEO_STD_AUTO
 } VIDEO_STD;
 
+typedef enum {
+	VIDEO_HDMI_CEC_MODE_OFF	= 0,
+	VIDEO_HDMI_CEC_MODE_TUNER,
+	VIDEO_HDMI_CEC_MODE_RECORDER
+} VIDEO_HDMI_CEC_MODE;
+
 #ifndef CS_VIDEO_PDATA
 #define CS_VIDEO_PDATA void
 #endif
@@ -109,6 +115,7 @@ class cVideo
 		VIDEO_DB_DR		eDbDr;
 		DISPLAY_AR		PictureAR;
 		VIDEO_FRAME_RATE	FrameRate;
+		VIDEO_HDMI_CEC_MODE	hdmiCECMode;
 		bool			Interlaced;
 
 		unsigned int uDRMDisplayDelay;
@@ -184,6 +191,7 @@ class cVideo
 		int SetVideoSystem(int video_system, bool remember = true);
 		int SetStreamType(VIDEO_FORMAT type);
 		void SetSyncMode(AVSYNC_TYPE mode);
+		bool SetCEC(VIDEO_HDMI_CEC_MODE Mode);
 		void ShowPicture(const char * fname);
 		void StopPicture();
 		void Standby(unsigned int bOn);
