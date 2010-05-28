@@ -925,6 +925,10 @@ videomenu.analog_hd_yprpb_scart YPbPr on scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr on cinch (HD)
 videomenu.scart Scart
 videomenu.cinch Cinch
+videomenu.hdmi_cec_mode HDMI-CEC mode
+videomenu.hdmi_cec_mode_off off
+videomenu.hdmi_cec_mode_tuner as Tuner
+videomenu.hdmi_cec_mode_recorder as Recorder
 videomenu.dbdr MPEG2 de-block/de-ring
 videomenu.dbdr_none none
 videomenu.dbdr_deblock de-block
