@@ -191,7 +191,9 @@ class cVideo
 		int SetVideoSystem(int video_system, bool remember = true);
 		int SetStreamType(VIDEO_FORMAT type);
 		void SetSyncMode(AVSYNC_TYPE mode);
-		bool SetCEC(VIDEO_HDMI_CEC_MODE Mode);
+		bool SetCECMode(VIDEO_HDMI_CEC_MODE Mode);
+		void SetCECAutoView(bool OnOff);
+		void SetCECAutoStandby(bool OnOff);
 		void ShowPicture(const char * fname);
 		void StopPicture();
 		void Standby(unsigned int bOn);
