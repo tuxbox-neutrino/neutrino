@@ -754,6 +754,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	prev_video_mode = g_settings.video_Mode;
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", 0); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", 0); // default RGB
+	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0); // default off
 
 	g_settings.video_Format = configfile.getInt32("video_Format", 3);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", 0);
@@ -1292,6 +1293,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "analog_mode2", g_settings.analog_mode2 );
 	configfile.setInt32( "video_Format", g_settings.video_Format );
 	configfile.setInt32( "video_43mode", g_settings.video_43mode );
+	configfile.setInt32( "hdmi_cec_mode", g_settings.hdmi_cec_mode );
+
 	configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
 	configfile.setInt32( "channel_mode_radio", g_settings.channel_mode_radio );

@@ -84,7 +84,9 @@ struct SNeutrinoSettings
 	int hdmi_dd;
 	int spdif_dd;
 	int analog_out;
+	//video
 	int video_dbdr;
+	int hdmi_cec_mode;
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;
 	int standby_cpufreq;
