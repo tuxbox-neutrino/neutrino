@@ -437,18 +437,16 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *)
 	{
 		cec1->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
 		cec2->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
-		videoDecoder->SetCEC((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 	}
-#if 0
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_STANDBY))
 	{
-		videoDecoder->enableCECStandby(g_settings.hdmi_cec_standby);
+		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON))
 	{
-		videoDecoder->enableCECView(g_settings.hdmi_cec_view_on);
+		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
 	}
-#endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_DBDR))
 	{
 		videoDecoder->SetDBDR(g_settings.video_dbdr);

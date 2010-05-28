@@ -2412,6 +2412,10 @@ int CNeutrinoApp::run(int argc, char **argv)
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
+	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
+	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
+	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
 
 	if(display_language_selection)

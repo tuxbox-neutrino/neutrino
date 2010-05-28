@@ -2106,6 +2106,7 @@ int zapit_main_thread(void *data)
 	pcrDemux->Open(DMX_PCR_ONLY_CHANNEL, videoDemux->getBuffer());
 
 	videoDecoder = new cVideo(2, videoDemux->getChannel(), videoDemux->getBuffer());//PAL
+	videoDecoder->Standby(false);
 	videoDecoder->SetVideoSystem(video_mode);
 	//videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());//PAL
 
