@@ -164,8 +164,6 @@ extern bool autoshift;
 
 static CTimingSettingsNotifier timingsettingsnotifier;
 
-#define get_set CNeutrinoApp::getInstance()->getScanSettings()
-
 int safe_mkdir(char * path);
 
 #define OPTIONS_OFF0_ON1_OPTION_COUNT 2
@@ -297,6 +295,12 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this));
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this));
 
+	cec1 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON, &g_settings.hdmi_cec_view_on, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
+	cec2 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_STANDBY, &g_settings.hdmi_cec_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
+
+	addItem(cec1);
+	addItem(cec2);
+
 	CMenuWidget* menu = new CMenuWidget(LOCALE_VIDEOMENU_ENABLED_MODES, NEUTRINO_ICON_SETTINGS);
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 		menu->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -333,10 +337,11 @@ void CVideoSettings::nextMode(void)
 	text =  VIDEOMENU_VIDEOMODE_OPTIONS[curmode].valname;
 
 	while(1) {
+		CVFD::getInstance()->ShowText((char *)text);
 		int res = ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 
 		if(disp_cur && res != messages_return::handled)
-			return;
+			break;
 
 		disp_cur = 0;
 
@@ -349,21 +354,25 @@ void CVideoSettings::nextMode(void)
 				if (g_settings.enabled_video_modes[curmode])
 					break;
 				i++;
-				if (i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT)
+				if (i >= VIDEOMENU_VIDEOMODE_OPTION_COUNT) {
+					CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
 					return;
+				}
 			}
 
 			text =  VIDEOMENU_VIDEOMODE_OPTIONS[curmode].valname;
 		}
 		else if(res == messages_return::cancel_info) {
 			g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
-			CVFD::getInstance()->ShowText((char *)text);
+			//CVFD::getInstance()->ShowText((char *)text);
 			videoDecoder->SetVideoSystem(g_settings.video_Mode);
-			return;
+			//return;
+			disp_cur = 1;
 		}
 		else
-			return;
+			break;
 	}
+	CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
 	//ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 }
 
@@ -426,8 +435,20 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *)
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_MODE))
 	{
+		cec1->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
+		cec2->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
 		videoDecoder->SetCEC((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 	}
+#if 0
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_STANDBY))
+	{
+		videoDecoder->enableCECStandby(g_settings.hdmi_cec_standby);
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON))
+	{
+		videoDecoder->enableCECView(g_settings.hdmi_cec_view_on);
+	}
+#endif
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_DBDR))
 	{
 		videoDecoder->SetDBDR(g_settings.video_dbdr);
@@ -691,7 +712,10 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 {
 
 #ifdef TEST_MENU
-	TestMenu = new CMenuWidget("Test menu");
+	char rev[255];
+	sprintf(rev, "Test menu, System revision %d %s\n", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
+
+	TestMenu = new CMenuWidget(rev /*"Test menu"*/);
 	CTestMenu * testHandler = new CTestMenu();
 	TestMenu->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, testHandler, "vfd"));
 	TestMenu->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, testHandler, "network"));
@@ -793,6 +817,15 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
+	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_MANAGE, NEUTRINO_ICON_SETTINGS);
+	addMenueIntroItems(*mset);
+
+	mset->addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS    , true, NULL, resetNotifier, "settings"));
+	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig"));
+	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig"));
+
+	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, mset));
+
 	//mainSettings.addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS    , true, NULL, resetNotifier, "settings"));
 
 	mainSettings.addItem(GenericMenuSeparatorLine);
@@ -823,6 +856,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainSettings.addItem(new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, new CHDDMenuHandler()));
 	//mainSettings.addItem(new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler));
 
+#if 0
 	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_MANAGE, NEUTRINO_ICON_SETTINGS);
 	addMenueIntroItems(*mset);
 
@@ -832,6 +866,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig"));
 
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, mset));
+#endif
 #ifdef TEST_MENU
 	mainMenu.addItem(new CMenuForwarderNonLocalized("Test menu", true, NULL, TestMenu));
 #endif
@@ -976,6 +1011,7 @@ public:
 	int exec(CMenuTarget* parent,  const std::string &actionkey);
 };
 
+extern CZapitChannel *channel;
 extern std::map<transponder_id_t, transponder> select_transponders;
 int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
@@ -1030,7 +1066,14 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		case FE_ATSC:
 			break;
 		}
-		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), old_selected == i);
+		if(!old_selected && channel && channel->getSatellitePosition() == position) {
+			if(channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first)) {
+				old_selected = i;
+			}
+		}
+
+		//menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), old_selected == i);
+		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), false);
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
 	}
@@ -1040,6 +1083,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text, 450, 2);
 		return menu_return::RETURN_REPAINT;
 	}
+	menu->setSelected(old_selected);
 	int retval = menu->exec(NULL, "");
 	delete menu;
 	delete selector;

@@ -1105,8 +1105,6 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 	return info;
 }
 
-#define get_set CNeutrinoApp::getInstance()->getScanSettings()
-
 void CInfoViewer::showSNR ()
 {
 	char percent[10];

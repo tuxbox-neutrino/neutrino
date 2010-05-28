@@ -60,7 +60,6 @@ static int moving = 0;
 #define BAR_WIDTH 100
 #define BAR_HEIGHT 16 //(13 + BAR_BORDER*2)
 
-#define get_set CNeutrinoApp::getInstance()->getScanSettings()
 CMotorControl::CMotorControl()
 {
 	Init();

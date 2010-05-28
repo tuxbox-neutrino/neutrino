@@ -85,7 +85,6 @@ extern int scan_pids;
 extern int scan_fta_flag;//in zapit descriptors definiert
 extern int start_fast_scan(int scan_mode, int opid);
 
-#define get_set CNeutrinoApp::getInstance()->getScanSettings()
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
 	diseqc_t            diseqcType = NO_DISEQC;

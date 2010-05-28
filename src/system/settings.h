@@ -87,6 +87,8 @@ struct SNeutrinoSettings
 	//video
 	int video_dbdr;
 	int hdmi_cec_mode;
+	int hdmi_cec_view_on;
+	int hdmi_cec_standby;
 	int enabled_video_modes[VIDEOMENU_VIDEOMODE_OPTION_COUNT];
 	int cpufreq;
 	int standby_cpufreq;
@@ -532,6 +534,7 @@ const int PARENTALLOCK_PROMPT_CHANGETOLOCKED = 2;
 const int PARENTALLOCK_PROMPT_ONSIGNAL       = 3;
 
 #define MAX_SATELLITES 80
+#define get_set CNeutrinoApp::getInstance()->getScanSettings()
 
 class CScanSettings
 {
@@ -556,7 +559,6 @@ public:
 
 	CScanSettings();
 
-	void toSatList( CZapitClient::ScanSatelliteList& ) const;
 	void useDefaults(const delivery_system_t _delivery_system);
 	bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
 	bool saveSettings(const char * const fileName);

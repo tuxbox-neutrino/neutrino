@@ -1198,6 +1198,8 @@ const char *locale_real_names[] = {
 	"videomenu.hdmi_cec_mode_off",
 	"videomenu.hdmi_cec_mode_tuner",
 	"videomenu.hdmi_cec_mode_recorder",
+	"videomenu.hdmi_cec_standby",
+	"videomenu.hdmi_cec_view_on",
 	"videomenu.dbdr",
 	"videomenu.dbdr_none",
 	"videomenu.dbdr_deblock",

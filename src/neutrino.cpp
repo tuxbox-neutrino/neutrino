@@ -125,6 +125,7 @@
 
 #include <timerdclient/timerdmsg.h>
 #include <zapit/satconfig.h>
+#include <zapit/getservices.h>
 
 #include <cs_api.h>
 #include <video_cs.h>
@@ -176,6 +177,7 @@ extern int zapit_ready;
 static pthread_t zapit_thread ;
 void * zapit_main_thread(void *data);
 extern t_channel_id live_channel_id; //zapit
+extern CZapitChannel *channel;
 void setZapitConfig(Zapit_config * Cfg);
 void getZapitConfig(Zapit_config *Cfg);
 
@@ -191,6 +193,7 @@ extern bool timeset; // sectionsd
 
 extern cVideo * videoDecoder;
 extern cAudio * audioDecoder;
+extern CFrontend * frontend;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
@@ -755,6 +758,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", 0); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", 0); // default RGB
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0); // default off
+	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0); // default off
+	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0); // default off
 
 	g_settings.video_Format = configfile.getInt32("video_Format", 3);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", 0);
@@ -1294,6 +1299,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "video_Format", g_settings.video_Format );
 	configfile.setInt32( "video_43mode", g_settings.video_43mode );
 	configfile.setInt32( "hdmi_cec_mode", g_settings.hdmi_cec_mode );
+	configfile.setInt32( "hdmi_cec_view_on", g_settings.hdmi_cec_view_on );
+	configfile.setInt32( "hdmi_cec_standby", g_settings.hdmi_cec_standby );
 
 	configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
@@ -2988,6 +2995,7 @@ printf("[neutrino] direct record\n");
 	}
 }
 
+extern CZapitChannel *channel;
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	int res = 0;
@@ -3023,6 +3031,34 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		SelectSubtitles();
 		if(!g_InfoViewer->is_visible)
 			StartSubtitles();
+
+		/* update scan settings for manual scan to current channel */
+		if(channel) {
+			sat_iterator_t sit = satellitePositions.find(channel->getSatellitePosition());
+			if(sit != satellitePositions.end())
+				strncpy(get_set.satNameNoDiseqc, sit->second.name.c_str(), 50);
+
+			transponder_list_t::iterator tI;
+			tI = transponders.find(channel->getTransponderId());
+			if(tI != transponders.end()) {
+				sprintf(get_set.TP_freq, "%d", tI->second.feparams.frequency);
+				switch (frontend->getInfo()->type) {
+					case FE_QPSK:
+						sprintf(get_set.TP_rate, "%d", tI->second.feparams.u.qpsk.symbol_rate);
+						get_set.TP_fec = tI->second.feparams.u.qpsk.fec_inner;
+						get_set.TP_pol = tI->second.polarization;
+						break;
+					case FE_QAM:
+						sprintf(get_set.TP_rate, "%d", tI->second.feparams.u.qam.symbol_rate);
+						get_set.TP_fec = tI->second.feparams.u.qam.fec_inner;
+						get_set.TP_mod = tI->second.feparams.u.qam.modulation;
+						break;
+					case FE_OFDM:
+					case FE_ATSC:
+						break;
+				}
+			}
+		}
 	}
 	if ((msg == NeutrinoMessages::EVT_TIMER)) {
 		if(data == shift_timer) {
