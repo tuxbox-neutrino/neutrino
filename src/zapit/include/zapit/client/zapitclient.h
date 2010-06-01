@@ -180,6 +180,7 @@ class CZapitClient:public CBasicClient
 		uint32_t    pid;
 		char    desc[25];
 		int     is_ac3;
+		int     is_aac;
 		int     component_tag;
 	};
 

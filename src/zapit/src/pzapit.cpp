@@ -689,6 +689,11 @@ channel_found:
 			std::cout << " audio " << std::dec << count + 1 << ": 0x" << std::hex << pids.APIDs[count].pid << " (" << pids.APIDs[count].desc;
 			if (pids.APIDs[count].is_ac3)
 				std::cout << ", ac3";
+			else if (pids.APIDs[count].is_aac)
+				std::cout << ", aac";
+			else
+				std::cout << ", unknown";
+
 			std::cout << ")" << std::endl;
 		}
 	}

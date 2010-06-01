@@ -92,9 +92,18 @@ class CZapitAudioChannel
 {
 	public:
 		unsigned short		pid;
-		bool			isAc3;
 		std::string		description;
 		unsigned char		componentTag;
+
+	enum ZapitAudioChannelType {
+		MPEG,
+		AC3,
+		AAC,
+		AACPLUS, //?
+		DTS,
+		UNKNOWN,
+	};
+	ZapitAudioChannelType audioChannelType;
 };
 
 class CChannelList;
@@ -186,7 +195,7 @@ class CZapitChannel
 		unsigned short 		getAudioPid(unsigned char index = 0xFF);
 		unsigned char  		getAudioChannelIndex(void)	{ return currentAudioChannel; }
 
-		int addAudioChannel(const unsigned short pid, const bool isAc3, const std::string & description, const unsigned char componentTag);
+		int addAudioChannel(const unsigned short pid, const CZapitAudioChannel::ZapitAudioChannelType audioChannelType, const std::string & description, const unsigned char componentTag);
 
 		/* set methods */
 		void setServiceType(const unsigned char pserviceType)	{ serviceType = pserviceType; }

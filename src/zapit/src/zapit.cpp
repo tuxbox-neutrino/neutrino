@@ -450,7 +450,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 		printf("[zapit] channel have pids: vpid %X apid %X pcr %X\n", channel->getVideoPid(), channel->getPreAudioPid(), channel->getPcrPid());fflush(stdout);
 		if((channel->getAudioChannelCount() <= 0) && channel->getPreAudioPid() > 0) {
 			std::string desc = "Preset";
-			channel->addAudioChannel(channel->getPreAudioPid(), false, desc, 0xFF);
+			channel->addAudioChannel(channel->getPreAudioPid(), CZapitAudioChannel::MPEG, desc, 0xFF);
 		}
 		startPlayBack(channel);
 	}
@@ -502,7 +502,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
                           if (channel->getAudioChannel(i)->pid == audio_map_it->second.apid ) {
                             DBG("***** Setting audio!\n");
                             channel->setAudioChannel(i);
-                            if(we_playing && channel->getAudioChannel(i)->isAc3) change_audio_pid(i);
+                            if(we_playing && (channel->getAudioChannel(i)->audioChannelType != CZapitAudioChannel::MPEG)) change_audio_pid(i);
                           }
                         }
                 }
@@ -605,10 +605,26 @@ int change_audio_pid(uint8_t index)
 		return -1;
 	}
 
-	if (currentAudioChannel->isAc3)
-		audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
-	else
-		audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+	switch (currentAudioChannel->audioChannelType) {
+		case CZapitAudioChannel::AC3:
+			audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
+			break;
+		case CZapitAudioChannel::MPEG:
+			audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+			break;
+		case CZapitAudioChannel::AAC:
+			audioDecoder->SetStreamType(AUDIO_FMT_AAC);
+			break;
+		case CZapitAudioChannel::AACPLUS:
+			audioDecoder->SetStreamType(AUDIO_FMT_AAC_PLUS);
+			break;
+		case CZapitAudioChannel::DTS:
+			audioDecoder->SetStreamType(AUDIO_FMT_DTS);
+			break;
+		default:
+			printf("[zapit] unknown audio channel type 0x%x\n", currentAudioChannel->audioChannelType);
+			break;
+	}
 
 	printf("[zapit] change apid to 0x%x\n", channel->getAudioPid());
 	/* set demux filter */
@@ -1669,7 +1685,13 @@ void sendAPIDs(int connfd)
 		CZapitClient::responseGetAPIDs response;
 		response.pid = channel->getAudioPid(i);
 		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), 25);
-		response.is_ac3 = channel->getAudioChannel(i)->isAc3;
+		if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
+			response.is_ac3 = 1;
+			response.is_aac = 0;
+		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
+			response.is_ac3 = 0;
+			response.is_aac = 1;
+		}
 		response.component_tag = channel->getAudioChannel(i)->componentTag;
 
 		if (CBasicServer::send_data(connfd, &response, sizeof(response)) == false) {
@@ -1882,12 +1904,34 @@ int startPlayBack(CZapitChannel *thisChannel)
 
 	/* select audio output and start audio */
 	if (have_audio) {
-		if (thisChannel->getAudioChannel()->isAc3)
-			audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
-		else
-			audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+		const char *audioStr = "UNKNOWN";
+		switch (thisChannel->getAudioChannel()->audioChannelType) {
+			case CZapitAudioChannel::AC3:
+				audioStr = "AC3";
+				audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
+				break;
+			case CZapitAudioChannel::MPEG:
+				audioStr = "MPEG2";
+				audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+				break;
+			case CZapitAudioChannel::AAC:
+				audioStr = "AAC";
+				audioDecoder->SetStreamType(AUDIO_FMT_AAC);
+				break;
+			case CZapitAudioChannel::AACPLUS:
+				audioStr = "AAC-PLUS";
+				audioDecoder->SetStreamType(AUDIO_FMT_AAC_PLUS);
+				break;
+			case CZapitAudioChannel::DTS:
+				audioStr = "DTS";
+				audioDecoder->SetStreamType(AUDIO_FMT_DTS);
+				break;
+			default:
+				printf("[zapit] unknown audio channel type 0x%x\n", thisChannel->getAudioChannel()->audioChannelType);
+				break;
+		}
 
-		printf("[zapit] starting %s audio\n", thisChannel->getAudioChannel()->isAc3 ? "AC3" : "MPEG2");
+		printf("[zapit] starting %s audio\n", audioStr);
 		audioDemux->Start();
 		audioDecoder->Start();
 	}

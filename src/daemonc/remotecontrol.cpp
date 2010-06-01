@@ -427,13 +427,23 @@ void CRemoteControl::processAPIDnames()
 	int pref_idx = -1;
 	int pref_ac3_idx = -1;
 	int ac3_found = -1;
+	const char *desc;
+	char lang[4];
 
 	if(g_settings.auto_lang) {
 		/* first we check prefs to find pid according to pref index */
 		for(int i = 0; i < 3; i++) {
 			for(int j = 0; j < (int) current_PIDs.APIDs.size(); j++) {
+				desc = current_PIDs.APIDs[j].desc;
+				// In some cases AAC is the only audio system used
+				// so accept it here as a 'normal' sound track
+				if(strstr(desc, "(AAC)")) {
+					strncpy(lang, desc, 3);
+					lang[3] = 0;
+					desc = lang;
+				}
 				/* processAPIDnames called 2 times, TODO find better way to detect second call */
-				if(strlen( current_PIDs.APIDs[j].desc ) != 3)
+				if(strlen( desc ) != 3)
 					continue;
 				if(strlen(g_settings.pref_lang[i]) == 0)
 					continue;
@@ -441,7 +451,7 @@ void CRemoteControl::processAPIDnames()
 				std::string temp(g_settings.pref_lang[i]);
 				std::map<std::string, std::string>::const_iterator it;
 				for(it = iso639.begin(); it != iso639.end(); it++) {
-					if(temp == it->second && strcasecmp(current_PIDs.APIDs[j].desc, it->first.c_str()) == 0) {
+					if(temp == it->second && strcasecmp(desc, it->first.c_str()) == 0) {
 						/* remember first pref found index and pid*/
 						if(pref_found < 0) {
 							pref_found = j;
@@ -507,37 +517,14 @@ void CRemoteControl::processAPIDnames()
 								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), 25);
 								if (current_PIDs.APIDs[j].is_ac3)
 									strncat(current_PIDs.APIDs[j].desc, " (AC3)", 25);
+								else if (current_PIDs.APIDs[j].is_aac)
+									strncat(current_PIDs.APIDs[j].desc, " (AAC)", 25);
 							}
 							current_PIDs.APIDs[j].component_tag = -1;
 							break;
 						}
 					}
 				}
-#if 0 // old
-				CZapitClient::APIDList::iterator e = current_PIDs.APIDs.begin();
-				while ( e != current_PIDs.APIDs.end() )
-				{
-					if ( e->is_ac3 )
-					{
-						has_ac3 = true;
-					}
-					e++;
-				}
-
-				if ( /*( g_settings.audio_english == 0) &&*/ (g_settings.audio_DolbyDigital == 1))
-				{
-					for (unsigned int j=0; j< current_PIDs.APIDs.size(); j++)
-						if ( current_PIDs.APIDs[j].is_ac3 )
-						{
-							setAPID( j );
-							break;
-						}
-				}
-				if ( current_PIDs.PIDs.selected_apid >= current_PIDs.APIDs.size() )
-				{
-					setAPID( 0 );
-				}
-#endif
 			}
 		}
 	}

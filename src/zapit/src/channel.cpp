@@ -80,20 +80,20 @@ unsigned short CZapitChannel::getAudioPid(unsigned char index)
 	return retval;
 }
 
-int CZapitChannel::addAudioChannel(const unsigned short pid, const bool isAc3, const std::string & description, const unsigned char componentTag)
+int CZapitChannel::addAudioChannel(const unsigned short pid, const CZapitAudioChannel::ZapitAudioChannelType audioChannelType, const std::string & description, const unsigned char componentTag)
 {
 	std::vector <CZapitAudioChannel *>::iterator aI;
 
 	for (aI = audioChannels.begin(); aI != audioChannels.end(); aI++)
 		if ((* aI)->pid == pid) {
 			(* aI)->description = description;
-                        (* aI)->isAc3 = isAc3;
+                        (* aI)->audioChannelType = audioChannelType;
                         (* aI)->componentTag = componentTag;
 			return -1;
 		}
 	CZapitAudioChannel *tmp = new CZapitAudioChannel();
 	tmp->pid = pid;
-	tmp->isAc3 = isAc3;
+	tmp->audioChannelType = audioChannelType;
 	tmp->description = description;
 	tmp->componentTag = componentTag;
 	audioChannels.push_back(tmp);

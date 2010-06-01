@@ -66,6 +66,7 @@ unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel *
 
 	bool isAc3 = false;
 	bool isDts = false;
+	bool isAac = false;
 	bool descramble = false;
 	std::string description = "";
 	unsigned char componentTag = 0xFF;
@@ -208,6 +209,7 @@ printf("[pmt] teletext type %d mag %d page %d lang %s\n", teletext_type, teletex
 				break;
 
 			case 0x7C: //FIXME AAC
+				isAac = true;
 				break;
 
 			case 0x90: /* unknown, Astra 19.2E */
@@ -280,7 +282,7 @@ printf("[pmt] name %s\n", description.c_str());
 				if(channel->getPreAudioPid() == 0)
 					channel->setAudioPid(esInfo->elementary_PID);
 			} else
-				channel->addAudioChannel(esInfo->elementary_PID, false, description, componentTag);
+				channel->addAudioChannel(esInfo->elementary_PID, CZapitAudioChannel::MPEG, description, componentTag);
 			descramble = true;
 			printf("[pmt] apid %x: %s\n", esInfo->elementary_PID, description.c_str());
 			break;
@@ -323,23 +325,47 @@ printf("[pmt] name %s\n", description.c_str());
 			isAc3 = true;
 			descramble = true;
 			if(!scan_runs)
-				channel->addAudioChannel(esInfo->elementary_PID, true, description, componentTag);
+				channel->addAudioChannel(esInfo->elementary_PID, CZapitAudioChannel::AC3, description, componentTag);
 			break;
 		case 0x06:
-			if ((isAc3) || (isDts)) {
+			if ((isAc3) || (isDts) || (isAac)) {
 				if (description == "") {
 					description = esInfo->elementary_PID;
 					if (isAc3)
 						description += " (AC3)";
 					else if (isDts)
 						description += " (DTS)";
+					else if (isAac)
+						description += " (AAC)";
 				}
-				if(!scan_runs)
-					channel->addAudioChannel(esInfo->elementary_PID, true, description, componentTag);
+
+				if(!scan_runs) {
+					CZapitAudioChannel::ZapitAudioChannelType Type;
+					if (isAc3)
+						Type = CZapitAudioChannel::AC3;
+					else if (isDts)
+						Type = CZapitAudioChannel::DTS;
+					else if (isAac)
+						Type = CZapitAudioChannel::AAC;
+					else
+						Type = CZapitAudioChannel::UNKNOWN;
+					channel->addAudioChannel(esInfo->elementary_PID, Type, description, componentTag);
+				}
+
 				descramble = true;
 			}
 			break;
 
+		case 0x0F: // AAC ADTS
+		case 0x11: // AAC LATM
+			if (description == "")
+				description	= esInfo->elementary_PID;
+			description	+= " (AAC)";
+			isAac		= true;
+			descramble	= true;
+			if(!scan_runs)
+				channel->addAudioChannel(esInfo->elementary_PID, CZapitAudioChannel::AAC, description, componentTag);
+			break;
 		case 0x0B:
 			break;
 
