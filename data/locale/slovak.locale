@@ -38,7 +38,6 @@ EPGPlus.remind Plánovač
 EPGPlus.reset_settings Obnov pôvodné
 EPGPlus.save_settings Ulož nastavenia
 EPGPlus.scroll_mode pretáčanie
-EPGPlus.select_font_name Názov fontu
 EPGPlus.settings Nastavenia
 EPGPlus.slider_width Šírka posuvníka
 EPGPlus.stretch_mode rozšírenie
@@ -237,20 +236,22 @@ colorchooser.green Zelený
 colorchooser.red Červený
 colormenu.background Pozadie
 colormenu.fade Miznúce menu
-colormenu.font Veľkosť písma
+colormenu.font Výber písma
+colormenu.font_ttx Výber teletextového písma
 colormenu.gtx_alpha Priehladnosť (GTX)
 colormenu.head Nastavenia farieb
 colormenu.menucolors Farby menu
-colormenu.statusbar Stavový riadok
 colormenu.textcolor Farba textu
 colormenu.themeselect Výber tém
 colormenu.timing Čas zobrazenia na OSD
+colormenu.osd_preset Druh TV
+colormenu.hd_preset LCD
+colormenu.sd_preset CRT
 colormenusetup.head Farby menu
 colormenusetup.menucontent Obsahové okno
 colormenusetup.menucontent_inactive Neaktívne v obsahovom okne
 colormenusetup.menucontent_selected Vybrané v obsahovom okne
 colormenusetup.menuhead Hlavička
-colorstatusbar.head Stavový riadok
 colorstatusbar.text Text stavového riadku
 colorthememenu.classic_theme Klasika
 colorthememenu.dblue_theme DarkBlue
@@ -383,12 +384,14 @@ flashupdate.versioncheck Kontrola verzie
 flashupdate.writeflash Zapísanie celého IMAGE do pamäte FLASH
 flashupdate.writeflashmtd Zapísanie jednej partície
 flashupdate.wrongbase Vaša verzia je odlišná.\nPokračovať?
+fontmenu.menu Menu
 fontmenu.channellist Zoznam kanálov
 fontmenu.epg EPG
 fontmenu.eventlist Programový sprievodca
 fontmenu.gamelist Zoznam hier
 fontmenu.head Nastavenia veľkosti písma
 fontmenu.infobar Stavový riadok
+fontmenu.sizes Veľkosti písma
 fontsize.channel_num_zap priamy výber
 fontsize.channellist Zoznam kanálov
 fontsize.channellist_descr Popis
@@ -427,6 +430,7 @@ infoviewer.now Teraz
 infoviewer.selecttime Časy začatia
 infoviewer.streaminfo Informácia
 infoviewer.subchan_disp_pos Zobrazenie podkanálov
+infoviewer.subchan_infobar Celé info
 infoviewer.subservice Doplnkové služby
 infoviewer.waittime Načítavanie hodín...
 ipsetup.hint_1 Použi 0...9 alebo klávesy NAHOR/NADOL
@@ -484,6 +488,7 @@ mainmenu.audioplayer Prehrávač súborov
 mainmenu.clearsectionsd Vyčistenie EPG zachytávania
 mainmenu.games Hry
 mainmenu.head Hlavné menu
+mainmenu.media Multimédia
 mainmenu.movieplayer Prehrávač filmov
 mainmenu.pausesectionsd Načítavanie EPG
 mainmenu.pictureviewer Prehliadač obrázkov
@@ -506,6 +511,7 @@ mainsettings.keybinding Nastavenia kláves
 mainsettings.language Jazyk
 mainsettings.timezone Časová zóna
 mainsettings.lcd Zobrazovač VFD
+mainsettings.manage Správa nastavení
 mainsettings.misc Iné nastavenia
 mainsettings.network Sieť
 mainsettings.recording Nahrávanie
@@ -514,6 +520,7 @@ mainsettings.savesettingsnow_hint Zapisovanie nastavení,\nprosím čakaj...
 mainsettings.streaming Tvorenie filmov
 mainsettings.video Obraz
 menu.back späť
+menu.next ďaľej (MENU ukončí)
 messagebox.back späť
 messagebox.cancel zruš
 messagebox.discard Zruš zmeny?
@@ -538,6 +545,7 @@ miscsettings.infobar_disp_2 Logo 2
 miscsettings.infobar_disp_3 Logo 3
 miscsettings.infobar_disp_log Informačné okno
 miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
+miscsettings.infobar_show_var_hdd Zaplnenie (var & hdd)
 miscsettings.shutdown_count Vypnúť po
 miscsettings.shutdown_count_hint1 Čas (v minútach) pre prepnutie zo stavu spánku
 miscsettings.shutdown_count_hint2 do hlbokého spánku (0=vypnuté)
@@ -579,7 +587,7 @@ motorcontrol.pos_increase Zvýš pozíciu motora (a)
 motorcontrol.pos_decrease Zníž pozíciu motora (a)
 motorcontrol.step_drive Prepni spôsob Krok/Posuv (b)
 motorcontrol.store Ulož pozíciu motora (a)
-motorcontrol.step_increase Zvíš veľkosť kroku (c)
+motorcontrol.step_increase Zvýš veľkosť kroku (c)
 motorcontrol.step_decrease Zníž veľkosť kroku (c)
 motorcontrol.goto Choď na pozíciu motora (a)
 motorcontrol.notdef Nepoužité
@@ -597,6 +605,7 @@ motorcontrol.no_mode nepoužité
 motorcontrol.msec ms
 motorcontrol.status Stav
 motorcontrol.sat_pos Pozícia satelitu (krokovací mód):
+motorcontrol.override Nahradiť pozíciu určenú pre
 moviebrowser.option_browser Možnosti prehliadača
 moviebrowser.book_clear_all Vyčisti všetko
 moviebrowser.menu_save Ulož zmeny
@@ -760,6 +769,7 @@ networkmenu.broadcast Vysielanie
 networkmenu.dhcp Prevzatie z DHCP
 networkmenu.gateway Predvolená brána
 networkmenu.head Nastavenia siete
+networkmenu.hostname Pomenovanie
 networkmenu.ipaddress Adresa IP
 networkmenu.mount NFS/CIFS/FTPFS
 networkmenu.nameserver DNS
@@ -940,6 +950,15 @@ satsetup.use_fta_flag Len nekódované
 satsetup.use_nit Použitie NIT
 satsetup.use_usals Použitie USALS
 satsetup.usals_repeat Opakovanie USALS príkazu
+satsetup.fastscan_head Rýchle vyhľadávanie (Astra 19E, 12515 MHz)
+satsetup.fastscan_type Typ vyhľadávania
+satsetup.fastscan_sd len SD
+satsetup.fastscan_hd len HD
+satsetup.fastscan_all SD + HD
+satsetup.fastscan_prov Poskytovateľ
+satsetup.fastscan_prov_cd CanalDigitaal
+satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_prov_telesat TéléSAT
 scants.abort_body Skutočne prerušiť vyhľadávanie?
 scants.abort_header Prerušenie vyhľadávania
 scants.actcable Kábel:
@@ -1112,7 +1131,6 @@ timersettings.separator Nastavenie časovača
 timing.chanlist Zoznam kanálov
 timing.epg EPG
 timing.filebrowser Prehliadač súborov
-timing.head Čas zobrazenia OSD
 timing.hint_1 Čas zobrazenia OSD
 timing.hint_2 na obrazovke TV (v sekundách)
 timing.infobar Stavový riadok
@@ -1229,6 +1247,8 @@ extra.tp_pol Polarizácia
 extra.tp.pol_v V
 extra.tp_pol_h H
 extra.tp_fec FEC
+extra.fec_auto Auto DVB-S
+extra.fec_auto_s2 Auto DVB-S2
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
 extra.fec_3_4 3/4
@@ -1245,12 +1265,12 @@ extra.zapit_menu Možnosti prepínania
 extra.zapit_make_bouquet Wykonaj pozostałe listy kanałów
 extra.zapit_save_last_chan Ukladať posledný kanál
 extra.zapit_motor_speed Rýchlosť točenia (10 = 1st/sek)
-extra.zapit_fe_timeout Prekročený čas ladenia
+extra.zapit_fe_timeout Časový limit naladenia (1 = 10 msek)
 extra.zapit_fast_zap Rýchle prepínanie
 extra.zapit_sort_names Triedenie kanálov podľa názvu
 extra.zapit_scanpids Vyhľadávanie s PIDmi
 extra.zapit_rezap_time Prepnúť na EMU prepínacím časom
-extra.zapit_hvoltage Zvýšenie napájania (13.5/18.5)
+extra.zapit_hvoltage 18V pri točení motora
 reset_channels Zmazanie všetkych kanálov
 reset_settings Návrat k prednastavenému nastaveniu
 reset_all Továrenské nastavenie
@@ -1360,6 +1380,8 @@ cam.removed Odstránený modul zo šachty
 cam.init_ok Inicializácia modulu ukončená
 cam.waiting Čakám na odpoveď
 cam.timeout Čas čakania uplynul,\nvraciam sa do menu
+cam.reset Reset modulu
+cam.reset_standby Reštartovať po spustení
 subtitles.head Titulky
 subtitles.stop Vypnúť titulky
 fan_speed Rýchlosť CPU ventlátora
