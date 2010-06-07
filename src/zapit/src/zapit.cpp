@@ -1685,11 +1685,10 @@ void sendAPIDs(int connfd)
 		CZapitClient::responseGetAPIDs response;
 		response.pid = channel->getAudioPid(i);
 		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), 25);
+		response.is_ac3 = response.is_aac = 0;
 		if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
-			response.is_aac = 0;
 		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
-			response.is_ac3 = 0;
 			response.is_aac = 1;
 		}
 		response.component_tag = channel->getAudioChannel(i)->componentTag;
