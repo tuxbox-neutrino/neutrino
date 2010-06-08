@@ -422,10 +422,10 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 				// Unicode->UTF8 encoding
 		if (code < 0x80) // identity ascii <-> utf8 mapping
 			res[t++]=char(code);
-		else if (/*(table == 5) &&*/ (code == 0x8A)) // I don't think this is related to table 5 --seife
-			/* code for parsing text in OSD (event details etc) not support \n it seems,
- 			   as result all text after \n is missed. let it be space for now --focus */
-			res[t++]= 0x20;//'\n'; // 0x8a is vertical tab. Just use newline for now.
+		else if((table == 5) && (code == 0x8A))
+			 res[t++]= 0x20;
+		else if ((code == 0x8A))
+			res[t++]= '\n'; // 0x8a is vertical tab. Just use newline for now.
 		else if (code < 0x800) // two byte mapping
 		{
 			res[t++]=(code>>6)|0xC0;
