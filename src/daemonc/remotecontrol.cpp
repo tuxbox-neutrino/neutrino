@@ -503,7 +503,6 @@ void CRemoteControl::processAPIDnames()
 			if ( sectionsd_getComponentTagsUniqueKey( current_EPGid, tags ) )
 			{
 				has_unresolved_ctags = false;
-				has_ac3 = false;
 
 				for (unsigned int i=0; i< tags.size(); i++)
 				{
