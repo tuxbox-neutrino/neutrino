@@ -306,7 +306,7 @@ public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
 
-class CScreePresetNotifier : public CChangeObserver
+class CScreenPresetNotifier : public CChangeObserver
 {
 public:
         bool changeNotify(const neutrino_locale_t, void * data);

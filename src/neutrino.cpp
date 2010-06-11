@@ -753,7 +753,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	        checkParentallocked.close();
 	}
 	//video
-	g_settings.video_Mode = configfile.getInt32("video_Mode", 7); // default 720p/50HZ
+	g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
 	prev_video_mode = g_settings.video_Mode;
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", 0); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", 0); // default RGB
@@ -763,7 +763,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.video_Format = configfile.getInt32("video_Format", 3);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", 0);
-	g_settings.current_volume = configfile.getInt32("current_volume", 100);
+	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
 	g_settings.video_csync = configfile.getInt32( "video_csync", 0 );
@@ -784,8 +784,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	for(int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
 		sprintf(cfg_key, "enabled_video_mode_%d", i);
-		g_settings.enabled_video_modes[i] = configfile.getInt32(cfg_key, 1);
+		g_settings.enabled_video_modes[i] = configfile.getInt32(cfg_key, 0);
 	}
+	g_settings.enabled_video_modes[3] = 1; // 720p 50Hz
+	g_settings.enabled_video_modes[4] = 1; // 1080i 50Hz
+
 	g_settings.cpufreq = configfile.getInt32("cpufreq", 0);
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
@@ -834,7 +837,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		sprintf(cfg_key, "pref_subs_%d", i);
 		strncpy(g_settings.pref_subs[i], configfile.getString(cfg_key, "").c_str(), 30);
 	}
-	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 1 );
+	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
 	g_settings.sms_channel = configfile.getInt32( "sms_channel", 0 );
 	strcpy( g_settings.audio_PCMOffset, configfile.getString( "audio_PCMOffset", "0" ).c_str() );
 
@@ -1065,7 +1068,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.screen_StartY_lcd = configfile.getInt32( "screen_StartY_lcd", DEFAULT_Y_START_HD );
 	g_settings.screen_EndX_lcd = configfile.getInt32( "screen_EndX_lcd", DEFAULT_X_END_HD);
 	g_settings.screen_EndY_lcd = configfile.getInt32( "screen_EndY_lcd", DEFAULT_Y_END_HD);
-	g_settings.screen_preset = configfile.getInt32( "screen_preset", 0);
+	g_settings.screen_preset = configfile.getInt32( "screen_preset", 1);
 
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
 	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;

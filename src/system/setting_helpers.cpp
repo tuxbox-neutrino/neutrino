@@ -992,10 +992,10 @@ bool CCpuFreqNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return true;
 }
 
-bool CScreePresetNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
+bool CScreenPresetNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
 {
 	int preset = * (int *) data;
-printf("CScreePresetNotifier::changeNotify preset %d (setting %d)\n", preset, g_settings.screen_preset);
+printf("CScreenPresetNotifier::changeNotify preset %d (setting %d)\n", preset, g_settings.screen_preset);
 
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
 	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
