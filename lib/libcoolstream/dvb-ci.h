@@ -11,6 +11,7 @@ void CI_EnterMenu(unsigned char bSlotIndex);
 #ifdef  __cplusplus
 }
 #endif
+#include <cs_api.h>
 
 #define MAX_MMI_ITEMS 20
 #define MAX_MMI_TEXT_LEN 255
@@ -34,7 +35,6 @@ typedef struct
 	char enguiryText[MAX_MMI_TEXT_LEN];
 } MMI_ENGUIRY_INFO;
 
-typedef void (*SEND_MSG_HOOK) (unsigned int msg, unsigned int data);
 
 class cDvbCi {
 	private:
@@ -44,16 +44,14 @@ class cDvbCi {
 		unsigned char * pmtbuf;
 		void SendPMT();
 		pthread_mutex_t ciMutex;
+		cDvbCi(int Slots);
 	public:
 		bool Init(void);
 		bool SendPMT(unsigned char *data, int len);
 		bool SendDateTime(void);
 		//
-		cDvbCi(int Slots);
 		~cDvbCi();
 		static cDvbCi * getInstance();
-		SEND_MSG_HOOK SendMessage;
-		void SetHook(SEND_MSG_HOOK _SendMessage) { SendMessage = _SendMessage; };
 		bool CamPresent(int slot);
 		bool GetName(int slot, char * name);
 		bool Reset(int slot);

@@ -110,7 +110,8 @@ class cVideo
 		VIDEO_FORMAT		StreamType;
 		VIDEO_DEFINITION	VideoDefinition;
 		DISPLAY_AR		DisplayAR;
-		VIDEO_PLAY_MODE		SyncMode;
+		VIDEO_PLAY_MODE		playMode;
+		AVSYNC_TYPE		syncMode;
 		DISPLAY_AR_MODE		ARMode;
 		VIDEO_DB_DR		eDbDr;
 		DISPLAY_AR		PictureAR;
