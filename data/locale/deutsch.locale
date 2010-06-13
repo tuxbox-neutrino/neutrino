@@ -1098,7 +1098,7 @@ rfmod.finetune Feintuning
 rfmod.rfmod RF Modulator
 rfmod.standby Modulator aktivieren
 rfmod.test Testbild
-satsetup.auto_scan Satelliten/Kabelnetzbetreiber scannen
+satsetup.auto_scan Satelliten/Kabelnetz scannen
 satsetup.auto_scan_all Alle Satelliten scannen
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
