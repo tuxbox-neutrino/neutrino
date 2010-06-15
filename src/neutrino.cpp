@@ -729,10 +729,10 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 #define DEFAULT_X_END_SD	1220
 #define DEFAULT_Y_END_SD	560
 
-#define DEFAULT_X_START_HD	5
-#define DEFAULT_Y_START_HD	5
-#define DEFAULT_X_END_HD	1275
-#define DEFAULT_Y_END_HD	715
+#define DEFAULT_X_START_HD	40   //5
+#define DEFAULT_Y_START_HD	25   //5
+#define DEFAULT_X_END_HD	1235 //1275
+#define DEFAULT_Y_END_HD	690  //715
 
 std::string ttx_font_file = "";
 
@@ -761,8 +761,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0); // default off
 	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0); // default off
 
-	g_settings.video_Format = configfile.getInt32("video_Format", 3);
-	g_settings.video_43mode = configfile.getInt32("video_43mode", 0);
+	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
+	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
