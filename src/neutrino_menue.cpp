@@ -2762,9 +2762,9 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
 
 	addMenueIntroItems(keySettings);
-
-	keySettings.addItem(new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys"));
-	keySettings.addItem(new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys"));
+	int shortcut = 1;
+	keySettings.addItem(new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys", CRCInput::convertDigitToKey(shortcut++)));
+	keySettings.addItem(new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys", CRCInput::convertDigitToKey(shortcut++)));
 	//keySettings.addItem(GenericMenuSeparatorLine);
 
 	keySetupNotifier = new CKeySetupNotifier;
@@ -2860,16 +2860,15 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_AUDIO_RUN_PLAYER, &g_settings.audio_run_player, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	//bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_KEY_CLICK, &g_settings.key_click, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
-	keySettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_HEAD, true, NULL, bindSettings));
+	keySettings.addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_HEAD, true, NULL, bindSettings, NULL, CRCInput::convertDigitToKey(shortcut++)));
 	//mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, &keySettings      , NULL, CRCInput::RC_blue  , NEUTRINO_ICON_BUTTON_BLUE  ));
 
 	// USERMENU
 	keySettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_HEAD));
-	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_RED, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_RED,0)));
-	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_GREEN, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_GREEN,1)));
-	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_YELLOW, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_YELLOW,2)));
-	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_BLUE, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_BLUE,3)));
-
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_RED, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_RED,0), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_GREEN, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_GREEN,1), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_YELLOW, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_YELLOW,2), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	keySettings.addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_BLUE, true, NULL, new CUserMenuMenu(LOCALE_USERMENU_BUTTON_BLUE,3), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 }
 // USERMENU
