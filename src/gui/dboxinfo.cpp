@@ -197,7 +197,7 @@ void CDBoxInfoWidget::paint()
 
 		sysinfo(&info);
 
-		snprintf( ubuf,buf_size, "%2d:%02d%s  up ",
+		snprintf( ubuf,buf_size, "Uptime: %2d:%02d%s  up ",
 			  current_time->tm_hour%12 ? current_time->tm_hour%12 : 12,
 			  current_time->tm_min, current_time->tm_hour > 11 ? "pm" : "am");
 		strcat(sbuf, ubuf);
@@ -220,8 +220,8 @@ void CDBoxInfoWidget::paint()
 			 LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
 			 LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
 		strcat(sbuf, ubuf);
-		ypos+= mheight/2;
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, sbuf, COL_MENUCONTENT);
+		ypos+= mheight/2;
 		ypos+= mheight;
 		int headOffset=0;
 		int mpOffset=0;
