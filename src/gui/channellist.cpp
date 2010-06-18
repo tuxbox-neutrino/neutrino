@@ -762,7 +762,20 @@ int CChannelList::show()
 		}
 		else if ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help)) {
 			hide();
-			g_EpgData->show(chanlist[selected]->channel_id);
+			CChannelEvent *p_event=NULL;
+			if (displayNext)
+			{
+				p_event = &(chanlist[selected]->nextEvent);
+			}
+
+			if(p_event && p_event->eventID)
+			{
+				g_EpgData->show(chanlist[selected]->channel_id,p_event->eventID,&(p_event->startTime));
+			}
+			else
+			{
+				g_EpgData->show(chanlist[selected]->channel_id);
+			}
 			paintHead();
 			paint();
 		} else {
