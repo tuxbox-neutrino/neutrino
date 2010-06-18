@@ -623,21 +623,24 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	//show Content&Component for Dolby & 16:9
 	CSectionsdClient::ComponentTagList tags;
-	if ( sectionsd_getComponentTagsUniqueKey( epgData.eventID, tags ) )
-	{
-		for (unsigned int i=0; i< tags.size(); i++)
+	int dummy_h,dummy_w;
+	frameBuffer->getIconSize(NEUTRINO_ICON_16_9_GREY, &dummy_w, &dummy_h);
+	if (dummy_h == 16 && dummy_w == 26){ // show only standard icon size
+		if ( sectionsd_getComponentTagsUniqueKey( epgData.eventID, tags ) )
 		{
-			if ( tags[i].streamContent == 1 && (tags[i].componentType == 2 || tags[i].componentType == 3) )
+			for (unsigned int i=0; i< tags.size(); i++)
 			{
-				frameBuffer->paintIcon(NEUTRINO_ICON_16_9 ,ox+sx-(ICON_LARGE_WIDTH+2)-(ICON_LARGE_WIDTH+2),sy + oy+5 );
-			}
-			else if ( tags[i].streamContent == 2 && tags[i].componentType == 5 )
-			{
-				frameBuffer->paintIcon(NEUTRINO_ICON_DD, ox+sx-(ICON_LARGE_WIDTH+2), sy + oy+5);
+				if ( tags[i].streamContent == 1 && (tags[i].componentType == 2 || tags[i].componentType == 3) )
+				{
+					frameBuffer->paintIcon(NEUTRINO_ICON_16_9 ,ox+sx-(ICON_LARGE_WIDTH+2)-(ICON_LARGE_WIDTH+2),sy + oy+5 );
+				}
+				else if ( tags[i].streamContent == 2 && tags[i].componentType == 5 )
+				{
+					frameBuffer->paintIcon(NEUTRINO_ICON_DD, ox+sx-(ICON_LARGE_WIDTH+2), sy + oy+5);
+				}
 			}
 		}
 	}
-
 	//show progressbar
 	if ( epg_done!= -1 )
 	{
