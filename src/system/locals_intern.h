@@ -361,6 +361,8 @@ const char *locale_real_names[] = {
 	"flashupdate.msgbox",
 	"flashupdate.msgbox_manual",
 	"flashupdate.mtdselector",
+	"flashupdate.new_found",
+	"flashupdate.new_notfound",
 	"flashupdate.programmingflash",
 	"flashupdate.proxypassword",
 	"flashupdate.proxypassword_hint1",
@@ -532,6 +534,7 @@ const char *locale_real_names[] = {
 	"messagebox.error",
 	"messagebox.info",
 	"messagebox.no",
+	"messagebox.ok",
 	"messagebox.yes",
 	"miscsettings.bootinfo",
 	"miscsettings.bootmenu",
@@ -1405,7 +1408,9 @@ const char *locale_real_names[] = {
 	"cpu.freq",
 	"cpu.freq_normal",
 	"cpu.freq_standby",
-	"cpu.freq_default"
+	"cpu.freq_default",
+	"wizard.welcome_head",
+	"wizard.welcome_text"
 };
 
 #endif

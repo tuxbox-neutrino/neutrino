@@ -312,7 +312,7 @@ flashupdate.checkupdate search for new version
 flashupdate.currentreleasecycle Release cycle
 flashupdate.currentversion_sep Current version
 flashupdate.currentversiondate Date
-flashupdate.currentversionsnapshot ImageType
+flashupdate.currentversionsnapshot Image Type
 flashupdate.currentversiontime Time
 flashupdate.erasefailed erasure of flash failed
 flashupdate.erasing erasing flash
@@ -332,6 +332,8 @@ flashupdate.md5sumerror image has errors
 flashupdate.msgbox Found the following new file:\nDate: %s, %s\nBaseImage: %s\nType: %s\n\nDo you want to download and install this version now?
 flashupdate.msgbox_manual Found the following new image:\nDate: %s, %s\nBaseImage: %s\nImageType: %s\n\nDo you want to install this version now?
 flashupdate.mtdselector Partition-Selector
+flashupdate.new_found New image found !
+flashupdate.new_notfound No new images found
 flashupdate.programmingflash programming flash
 flashupdate.proxypassword Password
 flashupdate.proxypassword_hint1 enter the proxyserver password
@@ -498,6 +500,7 @@ messagebox.discard Discard changes?
 messagebox.error Error
 messagebox.info Information
 messagebox.no No
+messagebox.ok Ok
 messagebox.yes Yes
 miscsettings.bootinfo Show infos at start
 miscsettings.bootmenu Show boot menu
@@ -1401,3 +1404,5 @@ upnpbrowser.head UPnP Browser
 upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again
 upnpbrowser.scanning Scanning for UPnP servers
+wizard.welcome_head Welcome to the Setup Wizard
+wizard.welcome_text Next steps will guide you\nthrough initial installation of the device.\nDo you want to continue ?

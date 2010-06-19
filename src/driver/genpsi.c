@@ -46,7 +46,7 @@ typedef struct
 	 uint16_t	vpid;
 	 uint8_t	vtype;
 	 uint16_t	apid[10];
-	 short	isAC3[10];
+	 short		isAC3[10];
 } T_AV_PIDS;
 
 T_AV_PIDS avPids;

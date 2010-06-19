@@ -365,6 +365,7 @@ CFlashVersionInfo::CFlashVersionInfo(const std::string & versionString)
 		releaseCycle[4] = 0;
 	}
 
+	version = atoi(&releaseCycle[0]) * 100 + atoi(&releaseCycle[2]);
 	// recover date
 	date[0] = versionString[10];
 	date[1] = versionString[11];
@@ -425,6 +426,10 @@ const char *CFlashVersionInfo::getType(void) const
 	}
 }
 
+const int CFlashVersionInfo::getVersion(void) const
+{
+	return version;
+}
 
 //-----------------------------------------------------------------------------------------------------------------
 

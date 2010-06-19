@@ -191,7 +191,7 @@ void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream
 									)
 								)
 							);
-//printf("INS CHANNEL %s %x\n", name.c_str(), &ret.first->second);
+//printf("INS CHANNEL %s %x\n", name.c_str(), (int) &ret.first->second);
 					if(ret.second == false) {
 						printf("[zapit] duplicate channel %s id %llx freq %d (old %s at %d)\n",
 							name.c_str(), chid, freq, ret.first->second.getName().c_str(), ret.first->second.getFreqId());

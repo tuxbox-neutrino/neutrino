@@ -42,12 +42,12 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	pmtPid = 0;
 	resetPids();
 	ttx_language_code = "";
-//printf("NEW CHANNEL %s %x\n", name.c_str(), this);
+//printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
 
 CZapitChannel::~CZapitChannel(void)
 {
-//printf("DEL CHANNEL %s %x\n", name.c_str(), this);
+//printf("DEL CHANNEL %s %x subs %d\n", name.c_str(), (int) this, getSubtitleCount());
 	resetPids();
 
 	//if(currentEvent)

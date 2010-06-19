@@ -68,7 +68,8 @@
 
 extern int allow_flash;
 
-#define gTmpPath "/var/update/"
+//#define gTmpPath "/var/update/"
+#define gTmpPath "/tmp/"
 #define gUserAgent "neutrino/softupdater 1.0"
 
 #define LIST_OF_UPDATES_LOCAL_FILENAME "coolstream.list"
@@ -135,17 +136,33 @@ bool CFlashUpdate::selectHttpImage(void)
 	std::vector<std::string> updates_lists, urls, names, versions, descriptions, md5s;
 	char fileTypes[128];
 	int selected = -1;
+	int curVer, newVer, newfound = 0;
+
+	CConfigFile _configfile('\t');
+	const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
+	installedVersion = versionString;
+
+	CFlashVersionInfo curInfo(versionString);
+	printf("current flash-version: %s (%d)\n", installedVersion.c_str(), curInfo.getVersion());
+	curVer = curInfo.getVersion();
 
 	httpTool.setStatusViewer(this);
 	showStatusMessageUTF(g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILE)); // UTF-8
 
+	char current[200];
+	snprintf(current, 200, "%s: %s %s %s %s %s", g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP), curInfo.getReleaseCycle(), 
+		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONDATE), curInfo.getDate(), 
+		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONTIME), curInfo.getTime());
 	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE);
+
 	SelectionWidget.addItem(GenericMenuSeparator);
 	SelectionWidget.addItem(GenericMenuBack);
+	SelectionWidget.addItem(new CMenuSeparator(CMenuSeparator::LINE));
 
+	SelectionWidget.addItem(new CMenuForwarderNonLocalized(current, false));
 	std::ifstream urlFile(g_settings.softupdate_url_file);
 #ifdef DEBUG
-printf("[update] file %s\n", g_settings.softupdate_url_file);
+	printf("[update] file %s\n", g_settings.softupdate_url_file);
 #endif
 
 	unsigned int i = 0;
@@ -153,7 +170,7 @@ printf("[update] file %s\n", g_settings.softupdate_url_file);
 	{
 		std::string::size_type startpos, endpos;
 #ifdef DEBUG
-printf("[update] url %s\n", url.c_str());
+		printf("[update] url %s\n", url.c_str());
 #endif
 
 		/* extract domain name */
@@ -188,16 +205,21 @@ printf("[update] url %s\n", url.c_str());
 				//std::getline(in, md5);
 				md5s.push_back(md5);
 				enabled = true;
-#ifdef DEBUG
-printf("[update] url %s version %s md5 %s name %s\n", url.c_str(), version.c_str(), md5.c_str(), name.c_str());
-#endif
 
 				CFlashVersionInfo versionInfo(versions[i]);
-
+				newVer = versionInfo.getVersion();
+#ifdef DEBUG
+				printf("[update] url %s version %s (%d) md5 %s name %s\n", url.c_str(), version.c_str(), newVer, md5.c_str(), name.c_str());
+#endif
+				if(newVer > curVer)
+					newfound = 1;
 				if(!allow_flash && (versionInfo.snapshot < '3'))
 					enabled = false;
 				fileTypes[i] = versionInfo.snapshot;
-				std::string description = versionInfo.getType();
+				//std::string description = versionInfo.getType();
+				std::string description = versionInfo.getReleaseCycle();
+				description += ' ';
+				description += versionInfo.getType();
 				description += ' ';
 				description += versionInfo.getDate();
 				description += ' ';
@@ -205,7 +227,8 @@ printf("[update] url %s version %s md5 %s name %s\n", url.c_str(), version.c_str
 
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
 
-				SelectionWidget.addItem(new CMenuForwarderNonLocalized(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
+				//SelectionWidget.addItem(new CMenuForwarderNonLocalized(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
+				SelectionWidget.addItem(new CMenuForwarderNonLocalized(descriptions[i].c_str(), enabled, names[i].c_str(), new CUpdateMenuTarget(i, &selected)));
 				i++;
 			}
 		}
@@ -218,6 +241,10 @@ printf("[update] url %s version %s md5 %s name %s\n", url.c_str(), version.c_str
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR)); // UTF-8
 		return false;
 	}
+	if(newfound)
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_FOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
+	else
+		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 
 	SelectionWidget.exec(NULL, "");
 
@@ -229,7 +256,7 @@ printf("[update] url %s version %s md5 %s name %s\n", url.c_str(), version.c_str
 	file_md5 = md5s[selected];
 	fileType = fileTypes[selected];
 #ifdef DEBUG
-printf("[update] filename %s type %c newVersion %s md5 %s\n", filename.c_str(), fileType, newVersion.c_str(), file_md5.c_str());
+	printf("[update] filename %s type %c newVersion %s md5 %s\n", filename.c_str(), fileType, newVersion.c_str(), file_md5.c_str());
 #endif
 
 	return true;

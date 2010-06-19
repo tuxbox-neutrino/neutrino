@@ -57,7 +57,7 @@ CMessageBox::CMessageBox(const neutrino_locale_t Caption, const char * const Tex
 		num++;
 	if (showbuttons & mbNo)
 		num++;
-	if (showbuttons & (mbCancel | mbBack))
+	if (showbuttons & (mbCancel | mbBack | mbOk))
 		num++;
 	int new_width = 15 + num*ButtonWidth;
 	if(new_width > m_width)
@@ -80,7 +80,7 @@ CMessageBox::CMessageBox(const neutrino_locale_t Caption, ContentLines& Lines, c
 		num++;
 	if (showbuttons & mbNo)
 		num++;
-	if (showbuttons & (mbCancel | mbBack))
+	if (showbuttons & (mbCancel | mbBack | mbOk))
 		num++;
 	int new_width = 15 + num*ButtonWidth;
 	if(new_width > m_width)
@@ -152,7 +152,7 @@ void CMessageBox::paintButtons()
 	}
 
 
-	if (showbuttons & (mbCancel | mbBack))
+	if (showbuttons & (mbCancel | mbBack | mbOk))
 	{
 		if (result >= mbrCancel)
 		{
@@ -168,7 +168,9 @@ void CMessageBox::paintButtons()
 		m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
 		//m_window->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+10, m_height-m_fheight-19);
 		m_window->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+14, m_height-m_fheight - 20, m_fheight);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : LOCALE_MESSAGEBOX_BACK), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, 
+			g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK), 
+			(CFBWindow::color_t)color, 0, true); // UTF-8
 	}
 }
 
@@ -205,9 +207,9 @@ int CMessageBox::exec(int timeout)
 		}
 		else if (((msg == CRCInput::RC_timeout) ||
 			  (msg  == (neutrino_msg_t)g_settings.key_channelList_cancel)) &&
-			 (showbuttons & (mbCancel | mbBack)))
+			 (showbuttons & (mbCancel | mbBack | mbOk)))
 		{
-			result = (showbuttons & mbCancel) ? mbrCancel : mbrBack;
+			result = (showbuttons & mbCancel) ? mbrCancel : (showbuttons & mbOk) ? mbrOk: mbrBack;
 			loop   = false;
 		}
 		else if ((msg == CRCInput::RC_green) && (showbuttons & mbNo))
