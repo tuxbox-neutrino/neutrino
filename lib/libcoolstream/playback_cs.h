@@ -45,9 +45,9 @@ class cPlayback
 		void DMNotify(int Event, void *pTsBuf, void *Tag);
 		bool Open(playmode_t PlayMode);
 		void Close(void);
-		bool Start(char * filename, unsigned short vpid, int vtype, unsigned short apid, bool ac3);
+		bool Start(char * filename, unsigned short vpid, int vtype, unsigned short apid, int audio_flag);
 		bool Stop(void);
-		bool SetAPid(unsigned short pid, bool ac3);
+		bool SetAPid(unsigned short pid, int audio_flag);
 		bool SetSpeed(int speed);
 		bool GetSpeed(int &speed) const;
 		bool GetPosition(int &position, int &duration);

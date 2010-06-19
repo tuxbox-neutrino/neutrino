@@ -429,6 +429,8 @@ flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
 flashupdate.writeflashmtd einzelne Partition einspielen
 flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
+flashupdate.new_found Updates Verfuegbar !
+flashupdate.new_notfound Keine Updates Verfuegbar !
 fontmenu.menu Menü
 fontmenu.sizes Schriftgrössen
 fontmenu.channellist Kanalliste
@@ -1396,3 +1398,6 @@ zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
 zaptotimer.announce In einer Minute wird umgeschaltet.
+
+
+
