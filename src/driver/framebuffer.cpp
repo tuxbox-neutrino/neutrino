@@ -81,10 +81,13 @@ extern CPictureViewer * g_PicViewer;
 #define GXA_CMD_REG		0x001C
 #define GXA_FG_COLOR_REG	0x0020
 #define GXA_BG_COLOR_REG        0x0024
+#define GXA_CFG_REG		0x0030
 #define GXA_LINE_CONTROL_REG    0x0038
+#define GXA_BLEND_CFG_REG	0x003C
 #define GXA_BMP2_TYPE_REG       0x0050
 #define GXA_BMP2_ADDR_REG       0x0054
 #define GXA_DEPTH_REG		0x00F4
+#define GXA_CFG2_REG		0x00FC
 #define GXA_CONTENT_ID_REG      0x0144
 
 #define GXA_CMD_BLT             0x00010800
@@ -106,8 +109,8 @@ static unsigned int _mark = 0;
 
 static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, unsigned int value)
 {
-    while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000)
-    {};
+    while( (*(volatile unsigned int *)(base_addr + GXA_DEPTH_REG)) & 0x40000000);
+
     *(volatile unsigned int *)(base_addr + offset) = value;
 }
 
@@ -115,11 +118,11 @@ static void _write_gxa(volatile unsigned char *base_addr, unsigned int offset, u
    of the other end of the queue, all commands before it are finished */
 void CFrameBuffer::add_gxa_sync_marker(void)
 {
-	unsigned int cmd = GXA_CMD_QMARK | GXA_PARAM_COUNT(1);
+	unsigned int cmd = GXA_CMD_QMARK; /* | GXA_PARAM_COUNT(1)*/;
 	// TODO: locking?
 	_mark++;
-	_mark &= 0x0000001F; /* bit 0x20 crashes the kernel, if set */
-	_write_gxa(gxa_base, cmd, _mark);
+	_mark &= 0x1f; /* bit 0x20 crashes the kernel, if set */
+	_write_gxa(gxa_base, cmd, _mark /*| 0x100*/);
 	//fprintf(stderr, "%s: wrote %02x\n", __FUNCTION__, _mark);
 }
 
@@ -130,7 +133,7 @@ void CFrameBuffer::waitForIdle(void)
 	do {
 		cfg = *(volatile unsigned int *)(gxa_base + GXA_CMD_REG);
 		cfg >>= 24;	/* the token is stored in bits 31...24 */
-		if (cfg == _mark)
+		if (cfg >= _mark)
 			break;
 		/* usleep is too coarse, because of CONFIG_HZ=100 in kernel
 		   so use sched_yield to at least give other threads a chance to run */
@@ -193,6 +196,18 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	return frameBuffer;
 }
 
+void CFrameBuffer::setupGXA(void)
+{
+	// We (re)store the GXA regs here in case DFB override them and was not
+	// able to restore them.
+        _write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
+	_write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
+//	_write_gxa(gxa_base, GXA_CONTENT_ID_REG, 0);
+	_write_gxa(gxa_base, GXA_BLEND_CFG_REG, 0x00089064);
+	_write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
+	_write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
+}
+
 void CFrameBuffer::init(const char * const fbDevice)
 {
         int tr = 0xFF;
@@ -212,7 +227,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	memcpy(&oldscreen, &screeninfo, sizeof(screeninfo));
 
-	fb_fix_screeninfo fix;
+	//fb_fix_screeninfo fix;
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &fix)<0) {
 		perror("FBIOGET_FSCREENINFO");
 		goto nolfb;
@@ -244,10 +259,9 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	/* tell the GXA where the framebuffer to draw on starts */
 	smem_start = (unsigned int) fix.smem_start;
-printf("smem_start %x\n", smem_start);
-        _write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
-	_write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
-	_write_gxa(gxa_base, GXA_CONTENT_ID_REG, 0);
+	printf("smem_start %x\n", smem_start);
+
+	setupGXA();
 #endif
 	cache_size = 0;
 
@@ -482,6 +496,7 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 
 	//memset(getFrameBufferPointer(), 0, stride * yRes);
 	paintBackground();
+
         if (ioctl(fd, FBIOBLANK, FB_BLANK_UNBLANK) < 0) {
                 printf("screen unblanking failed\n");
         }
@@ -633,10 +648,13 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 
     int line = 0;
 #ifdef USE_NEVIS_GXA
-    unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
+	setupGXA();
 
-    _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);		/* setup the drawing color */
-    _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 		/* X is major axis, skip last pixel */
+	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
+
+	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);		/* setup the drawing color */
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);	/* setup the drawing color */
+	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 		/* X is major axis, skip last pixel */
 #endif
 
     if ((type) && (radius))
@@ -699,8 +717,8 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	while (line < dy)
 	{
 #ifdef USE_NEVIS_GXA
-    	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y + line));		/* endig point */
-    	    _write_gxa(gxa_base, cmd, GXA_POINT(x,      y + line));		/* start point */
+	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y + line));		/* endig point */
+	    _write_gxa(gxa_base, cmd, GXA_POINT(x,      y + line));		/* start point */
 #else
 	    for (int pos = x; pos < x + dx; pos++)
 	    {
@@ -724,10 +742,13 @@ void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
 		return;
 
 #ifdef USE_NEVIS_GXA
+	setupGXA();
+
     /* draw a single vertical line from point x/ya to x/yb */
     unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
     _write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
+    _write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);	/* setup the drawing color */
     _write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
     _write_gxa(gxa_base, cmd, GXA_POINT(x, ya + (yb - ya)));	/* end point */
     _write_gxa(gxa_base, cmd, GXA_POINT(x, ya));		/* start point */
@@ -749,10 +770,13 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 		return;
 
 #ifdef USE_NEVIS_GXA
+	setupGXA();
+
 	/* draw a single vertical line from point x/y with hight dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
 	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);	/* setup the drawing color */
 	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
 	_write_gxa(gxa_base, cmd, GXA_POINT(x, y + dy));		/* end point */
 	_write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */
@@ -772,10 +796,13 @@ void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
 		return;
 
 #ifdef USE_NEVIS_GXA
+	setupGXA();
+
 	/* draw a single horizontal line from point xa/y to xb/y */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
 	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);	/* setup the drawing color */
 	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
 	_write_gxa(gxa_base, cmd, GXA_POINT(xa + (xb - xa), y));	/* end point */
 	_write_gxa(gxa_base, cmd, GXA_POINT(xa, y));		/* start point */
@@ -796,10 +823,13 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 		return;
 
 #ifdef USE_NEVIS_GXA
+	setupGXA();
+
 	/* draw a single horizontal line from point x/y with width dx */
 	unsigned int cmd = GXA_CMD_NOT_TEXT | GXA_SRC_BMP_SEL(2) | GXA_DST_BMP_SEL(2) | GXA_PARAM_COUNT(2) | GXA_CMD_NOT_ALPHA;
 
 	_write_gxa(gxa_base, GXA_FG_COLOR_REG, (unsigned int) col);	/* setup the drawing color */
+	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);	/* setup the drawing color */
 	_write_gxa(gxa_base, GXA_LINE_CONTROL_REG, 0x00000404); 	/* X is major axis, skip last pixel */
 	_write_gxa(gxa_base, cmd, GXA_POINT(x + dx, y));		/* end point */
 	_write_gxa(gxa_base, cmd, GXA_POINT(x, y));			/* start point */

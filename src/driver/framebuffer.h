@@ -105,16 +105,17 @@ class CFrameBuffer
 		struct	vt_mode vt_mode;
 		bool	active;
 		static	void switch_signal (int);
-
+		fb_fix_screeninfo fix;
 		#ifdef USE_NEVIS_GXA
 		int		  devmem_fd;		/* to access the GXA register we use /dev/mem */
 		unsigned int	  smem_start;		/* as aquired from the fbdev, the framebuffers physical start address */
 		volatile uint8_t *gxa_base;		/* base address for the GXA's register access */
+
+		void setupGXA(void);
 		#endif /* USE_NEVIS_GXA */
 		bool locked;
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
-
 	public:
 		fb_pixel_t realcolor[256];
 
