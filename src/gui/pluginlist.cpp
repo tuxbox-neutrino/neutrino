@@ -136,6 +136,16 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		}
 	}
 
+	bool fadeIn = g_settings.widget_fade;
+	bool fadeOut = false;
+	int fadeValue = g_settings.menu_Content_alpha;
+	uint32_t fadeTimer = 0;
+	if ( fadeIn ) {
+		fadeValue = 100;
+		frameBuffer->setBlendLevel(fadeValue, fadeValue);
+		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+	}
+
 	paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
@@ -148,10 +158,43 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-		if ( ( msg == CRCInput::RC_timeout ) ||
-			 ( msg == (neutrino_msg_t)g_settings.key_channelList_cancel ) )
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
+			if (fadeOut) { // disappear
+				fadeValue += FADE_STEP;
+				if (fadeValue >= 100) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					loop = false;
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			} else { // appears
+				fadeValue -= FADE_STEP;
+				if (fadeValue <= g_settings.menu_Content_alpha) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					fadeIn = false;
+					frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			}
+		}
+		else if ( ( msg == CRCInput::RC_timeout ) ||
+				( msg == (neutrino_msg_t)g_settings.key_channelList_cancel ) )
 		{
-			loop=false;
+			if ( fadeIn ) {
+				g_RCInput->killTimer(fadeTimer);
+				fadeTimer = 0;
+				fadeIn = false;
+			}
+			if ((!fadeOut) && g_settings.widget_fade) {
+				fadeOut = true;
+				fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				msg = 0;
+			} else
+				loop=false;
 		}
 		else if ( msg == (neutrino_msg_t)g_settings.key_channelList_pageup )
 		{
@@ -222,10 +265,10 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 			}
 		}
 		else if( (msg== CRCInput::RC_red) ||
-				 (msg==CRCInput::RC_green) ||
-				 (msg==CRCInput::RC_yellow) ||
-				 (msg==CRCInput::RC_blue)  ||
-		         (CRCInput::isNumeric(msg)) )
+				(msg==CRCInput::RC_green) ||
+				(msg==CRCInput::RC_yellow) ||
+				(msg==CRCInput::RC_blue)  ||
+				(CRCInput::isNumeric(msg)) )
 		{
 			g_RCInput->postMsg(msg, data);
 			loop=false;
@@ -237,6 +280,11 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		}
 	}
 	hide();
+	if ( fadeIn || fadeOut ) {
+		g_RCInput->killTimer(fadeTimer);
+		fadeTimer = 0;
+		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+	}
 	return res;
 }
 
@@ -252,6 +300,7 @@ void CPluginList::paintItem(int pos)
 
 	uint8_t    color   = COL_MENUCONTENT;
 	fb_pixel_t bgcolor = COL_MENUCONTENT_PLUS_0;
+
 	if (liststart+pos==selected)
 	{
 		color   = COL_MENUCONTENTSELECTED;
@@ -268,15 +317,15 @@ void CPluginList::paintItem(int pos)
 	else if(liststart==0)
 	{
 		ypos -= (fheight / 2) - 15;
-		if(pos==(int)listmaxshow-1)
-			frameBuffer->paintBoxRel(x,ypos+itemheight, width, (fheight / 2)-15, COL_MENUCONTENT_PLUS_0);
+		//if(pos==(int)listmaxshow-1)
+		//	frameBuffer->paintBoxRel(x,ypos+itemheight, width, (fheight / 2)-15, COL_MENUCONTENT_PLUS_0);
 
 	}
-	frameBuffer->paintBoxRel(x, ypos, width, itemheight, bgcolor);
+	//frameBuffer->paintBoxRel(x, ypos, width, itemheight, bgcolor);
 
-
-	if(liststart+pos<pluginlist.size())
+	if(liststart+pos < pluginlist.size())
 	{
+		frameBuffer->paintBoxRel(x, ypos, width, itemheight, bgcolor, RADIUS_LARGE);
 		pluginitem* actplugin = pluginlist[liststart+pos];
 		g_Font[SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE]->RenderString(x+10, ypos+fheight1+3, width-20, actplugin->name, color, 0, true); // UTF-8
 		g_Font[SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL]->RenderString(x+20, ypos+fheight,    width-20, actplugin->desc, color, 0, true); // UTF-8
@@ -286,9 +335,9 @@ void CPluginList::paintItem(int pos)
 void CPluginList::paintHead()
 {
 	if(listmaxshow > pluginlist.size()+1)
-		frameBuffer->paintBoxRel(x,y, width,theight, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBoxRel(x,y, width,theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	else
-		frameBuffer->paintBoxRel(x,y, width+15,theight, COL_MENUHEAD_PLUS_0);
+		frameBuffer->paintBoxRel(x,y, width+15,theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 
 	if(pluginlisttype == CPlugins::P_TYPE_GAME)
 	{
@@ -314,7 +363,7 @@ void CPluginList::paint()
 	x=getScreenStartX( width );
 	y=getScreenStartY( height );
 
-   liststart = (selected/listmaxshow)*listmaxshow;
+	liststart = (selected/listmaxshow)*listmaxshow;
 
 	paintHead();
 	paintItems();
@@ -327,12 +376,16 @@ void CPluginList::paintItems()
 		// Scrollbar
 		int nrOfPages = ((pluginlist.size()-1) / listmaxshow)+1;
 		int currPage  = (liststart/listmaxshow) +1;
-		float blockHeight = (height-theight-4)/nrOfPages;
-		frameBuffer->paintBoxRel(x+width, y+theight, 15, height-theight,  COL_MENUCONTENT_PLUS_1);
-		frameBuffer->paintBoxRel(x+ width +2, y+theight+2+int((currPage-1)*blockHeight) , 11, int(blockHeight), COL_MENUCONTENT_PLUS_3);
-	}
+		float blockHeight = (height-theight-4-RADIUS_LARGE)/nrOfPages;
 
-   for(unsigned int count=0;count<listmaxshow;count++)
+		frameBuffer->paintBoxRel(x, y+theight, width+15, height-theight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+
+		frameBuffer->paintBoxRel(x+width, y+theight, 15, height-theight-RADIUS_LARGE,  COL_MENUCONTENT_PLUS_1);
+		frameBuffer->paintBoxRel(x+ width +2, y+theight+2+int((currPage-1)*blockHeight) , 11, int(blockHeight), COL_MENUCONTENT_PLUS_3);
+	} else
+		frameBuffer->paintBoxRel(x, y+theight, width, height-theight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+
+	for(unsigned int count=0;count<listmaxshow;count++)
 	{
 		paintItem(count);
 	}

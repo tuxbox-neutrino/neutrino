@@ -257,7 +257,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 
 	int res = menu_return::RETURN_REPAINT;
-//printf("EventList::exec: channel_id %llx\n", channel_id);
+	//printf("EventList::exec: channel_id %llx\n", channel_id);
 	if(m_search_list == SEARCH_LIST_NONE) // init globals once only
 	{
 		m_search_epg_item = SEARCH_EPG_TITLE;
@@ -272,6 +272,17 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 
 	name = channelname;
 	sort_mode=0;
+
+	bool fadeIn = g_settings.widget_fade;
+	bool fadeOut = false;
+	int fadeValue = g_settings.menu_Content_alpha;
+	uint32_t fadeTimer = 0;
+	if ( fadeIn ) {
+		fadeValue = 100;
+		frameBuffer->setBlendLevel(fadeValue, fadeValue);
+		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+	}
+
 	paintHead(channel_id, name);
 	readEvents(channel_id);
 	paint(channel_id);
@@ -289,6 +300,44 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
+			if (fadeOut) { // disappear
+				fadeValue += FADE_STEP;
+				if (fadeValue >= 100) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					loop = false;
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			} else { // appears
+				fadeValue -= FADE_STEP;
+				if (fadeValue <= g_settings.menu_Content_alpha) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					fadeIn = false;
+					frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			}
+		}
+		else if (msg == CRCInput::RC_timeout)
+		{
+			selected = oldselected;
+			if ( fadeIn ) {
+				g_RCInput->killTimer(fadeTimer);
+				fadeTimer = 0;
+				fadeIn = false;
+			}
+			if ((!fadeOut) && g_settings.widget_fade) {
+				fadeOut = true;
+				fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				msg = 0;
+			} else
+				loop = false;
+		}
 		if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
 			int step = 0;
@@ -485,12 +534,6 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			paint(channel_id);
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
-
-		else if (msg == CRCInput::RC_timeout)
-		{
-			selected = oldselected;
-			loop = false;
-		}
 		else if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel)
 		{
 			if(in_search) {
@@ -502,7 +545,18 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				showFunctionBar(true);
 			} else {
 				selected = oldselected;
-				loop = false;
+				if ( fadeIn ) {
+					g_RCInput->killTimer(fadeTimer);
+					fadeTimer = 0;
+					fadeIn = false;
+				}
+				if ((!fadeOut) && g_settings.widget_fade) {
+					fadeOut = true;
+					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					msg = 0;
+				} else
+					loop = false;
 			}
 		}
 		else if ( msg==CRCInput::RC_left || msg==CRCInput::RC_red )
@@ -570,6 +624,11 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	}
 
 	hide();
+	if ( fadeIn || fadeOut ) {
+		g_RCInput->killTimer(fadeTimer);
+		fadeTimer = 0;
+		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+	}
 
 	return res;
 }

@@ -158,7 +158,6 @@ bool CMenuWidget::hasItem()
 	return !items.empty();
 }
 
-#define FADE_TIME 40000
 int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 {
 	neutrino_msg_t      msg;
@@ -180,14 +179,13 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 	bool fadeIn = g_settings.widget_fade;
 	bool fadeOut = false;
-	int fadeValue;
 	uint32_t fadeTimer = 0;
+	int fadeValue = g_settings.menu_Content_alpha;
         if ( fadeIn ) {
-		fadeValue = 0x10;
+		fadeValue = 100;
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
+		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
         }
-        else
-		fadeValue = g_settings.gtx_alpha1;
 
 	if(from_wizard) {
 		for (unsigned int count = 0; count < items.size(); count++) {
@@ -201,8 +199,6 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
-	if ( fadeIn )
-		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 	do {
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
 
@@ -232,20 +228,22 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				case (NeutrinoMessages::EVT_TIMER):
 					if(data == fadeTimer) {
 						if (fadeOut) { // disappear
-							fadeValue -= 0x10;
-							if (fadeValue <= 0x10) {
-								fadeValue = g_settings.gtx_alpha1;
+							fadeValue += FADE_STEP;
+							if (fadeValue >= 100) {
+								fadeValue = g_settings.menu_Content_alpha;
 								g_RCInput->killTimer (fadeTimer);
+								fadeTimer = 0;
 								msg = CRCInput::RC_timeout;
 							} else
 								frameBuffer->setBlendLevel(fadeValue, fadeValue);
 						} else { // appears
-							fadeValue += 0x10;
-							if (fadeValue >= g_settings.gtx_alpha1) {
-								fadeValue = g_settings.gtx_alpha1;
+							fadeValue -= FADE_STEP;
+							if (fadeValue <= g_settings.menu_Content_alpha) {
+								fadeValue = g_settings.menu_Content_alpha;
 								g_RCInput->killTimer (fadeTimer);
+								fadeTimer = 0;
 								fadeIn = false;
-								frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
+								frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 							} else
 								frameBuffer->setBlendLevel(fadeValue, fadeValue);
 						}
@@ -365,8 +363,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 							item->msg = msg;
 							if ( fadeIn ) {
 								g_RCInput->killTimer(fadeTimer);
-								frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
+								fadeTimer = 0;
 								fadeIn = false;
+								frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 							}
 							int rv = item->exec( this );
 							switch ( rv ) {
@@ -411,6 +410,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			if(msg == CRCInput::RC_timeout) {
 				if ( fadeIn ) {
 					g_RCInput->killTimer(fadeTimer);
+					fadeTimer = 0;
 					fadeIn = false;
 				}
 				if ((!fadeOut) && g_settings.widget_fade) {
@@ -434,7 +434,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-		frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
+		fadeTimer = 0;
+		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 	}
 
 	if(!parent)

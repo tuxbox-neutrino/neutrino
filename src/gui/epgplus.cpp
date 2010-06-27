@@ -774,6 +774,8 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 	int res = menu_return::RETURN_REPAINT;
 
 	do {
+		bool fadeIn = g_settings.widget_fade && !this->refreshAll;//FIXME ?
+
 		this->refreshAll = false;
 		this->refreshFooterButtons = false;
 		time_t currentTime = time (NULL);
@@ -795,6 +797,15 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 		this->createChannelEntries (selectedChannelIndex);
 
+		bool fadeOut = false;
+		int fadeValue = g_settings.menu_Content_alpha;
+		uint32_t fadeTimer = 0;
+		if ( fadeIn ) {
+			fadeValue = 100;
+			frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+		}
+
 		this->header->paint ();
 
 		this->footer->paintButtons (buttonLabels, sizeof (buttonLabels) / sizeof (button_label));
@@ -809,6 +820,43 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			if (msg <= CRCInput::RC_MaxRC)
 				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
+
+			if((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
+				if (fadeOut) { // disappear
+					fadeValue += FADE_STEP;
+					if (fadeValue >= 100) {
+						fadeValue = g_settings.menu_Content_alpha;
+						g_RCInput->killTimer (fadeTimer);
+						fadeTimer = 0;
+						loop = false;
+					} else
+						frameBuffer->setBlendLevel(fadeValue, fadeValue);
+				} else { // appears
+					fadeValue -= FADE_STEP;
+					if (fadeValue <= g_settings.menu_Content_alpha) {
+						fadeValue = g_settings.menu_Content_alpha;
+						g_RCInput->killTimer (fadeTimer);
+						fadeTimer = 0;
+						fadeIn = false;
+						frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+					} else
+						frameBuffer->setBlendLevel(fadeValue, fadeValue);
+				}
+			}
+			else if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t) g_settings.key_channelList_cancel)) {
+				if ( fadeIn ) {
+					g_RCInput->killTimer(fadeTimer);
+					fadeTimer = 0;
+					fadeIn = false;
+				}
+				if ((!fadeOut) && g_settings.widget_fade) {
+					fadeOut = true;
+					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					msg = 0;
+				} else
+					loop = false;
+			}
 			if (msg == CRCInput::RC_epg) {
 				//fprintf(stderr, "RC_Epg, bigfont = %d\n", bigfont);
 				hide();
@@ -820,83 +868,83 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			}
 			if ((msg == CRCInput::RC_page_down) || (msg == CRCInput::RC_yellow)) {
 				switch (this->currentSwapMode) {
-				case SwapMode_ByPage:
-				{
-					int selectedChannelEntryIndex = this->selectedChannelEntry->index;
-					selectedChannelEntryIndex += this->maxNumberOfDisplayableEntries;
+					case SwapMode_ByPage:
+						{
+							int selectedChannelEntryIndex = this->selectedChannelEntry->index;
+							selectedChannelEntryIndex += this->maxNumberOfDisplayableEntries;
 
-					if (selectedChannelEntryIndex > this->channelList->getSize () - 1)
-						selectedChannelEntryIndex = 0;
+							if (selectedChannelEntryIndex > this->channelList->getSize () - 1)
+								selectedChannelEntryIndex = 0;
 
-					this->createChannelEntries (selectedChannelEntryIndex);
+							this->createChannelEntries (selectedChannelEntryIndex);
 
-					this->paint ();
-				}
-				break;
-				case SwapMode_ByBouquet:
-				{
-					unsigned int currentBouquetNumber = pbouquetList->getActiveBouquetNumber ();
+							this->paint ();
+						}
+						break;
+					case SwapMode_ByBouquet:
+						{
+							unsigned int currentBouquetNumber = pbouquetList->getActiveBouquetNumber ();
 
-					++currentBouquetNumber;
+							++currentBouquetNumber;
 
-					if (currentBouquetNumber == pbouquetList->Bouquets.size ())
-						currentBouquetNumber = 0;
+							if (currentBouquetNumber == pbouquetList->Bouquets.size ())
+								currentBouquetNumber = 0;
 
-					CBouquet *bouquet = pbouquetList->Bouquets[currentBouquetNumber];
+							CBouquet *bouquet = pbouquetList->Bouquets[currentBouquetNumber];
 
-					if (bouquet->channelList->getSize () > 0) {
-						// select first channel of bouquet
+							if (bouquet->channelList->getSize () > 0) {
+								// select first channel of bouquet
 
-						pbouquetList->activateBouquet (currentBouquetNumber, false);
+								pbouquetList->activateBouquet (currentBouquetNumber, false);
 
-						this->channelListStartIndex = (*bouquet->channelList)[0]->number - 1;
-						this->createChannelEntries (this->channelListStartIndex);
+								this->channelListStartIndex = (*bouquet->channelList)[0]->number - 1;
+								this->createChannelEntries (this->channelListStartIndex);
 
-						this->paint ();
-					}
-				}
-				break;
+								this->paint ();
+							}
+						}
+						break;
 				}
 			}
 			//else if ( (msg == (neutrino_msg_t)g_settings.key_channelList_pageup)
 			else if ((msg == CRCInput::RC_page_up) || (msg == CRCInput::RC_green)) {
 				switch (this->currentSwapMode) {
-				case SwapMode_ByPage:
-				{
-					int selectedChannelEntryIndex = this->selectedChannelEntry->index;
-					selectedChannelEntryIndex -= this->maxNumberOfDisplayableEntries;
+					case SwapMode_ByPage:
+						{
+							int selectedChannelEntryIndex = this->selectedChannelEntry->index;
+							selectedChannelEntryIndex -= this->maxNumberOfDisplayableEntries;
 
-					if (selectedChannelEntryIndex < 0)
-						selectedChannelEntryIndex = this->channelList->getSize () - 1;
+							if (selectedChannelEntryIndex < 0)
+								selectedChannelEntryIndex = this->channelList->getSize () - 1;
 
-					this->createChannelEntries (selectedChannelEntryIndex);
+							this->createChannelEntries (selectedChannelEntryIndex);
 
-					this->paint ();
-				}
-				break;
-				case SwapMode_ByBouquet:
-				{
-					unsigned int currentBouquetNumber = pbouquetList->getActiveBouquetNumber ();
+							this->paint ();
+						}
+						break;
+					case SwapMode_ByBouquet:
+						{
+							unsigned int currentBouquetNumber = pbouquetList->getActiveBouquetNumber ();
 
-					--currentBouquetNumber;
+							--currentBouquetNumber;
 
-					if (currentBouquetNumber == unsigned (-1))
-						currentBouquetNumber = pbouquetList->Bouquets.size () - 1;
+							if (currentBouquetNumber == unsigned (-1))
+								currentBouquetNumber = pbouquetList->Bouquets.size () - 1;
 
-					CBouquet *bouquet = pbouquetList->Bouquets[currentBouquetNumber];
+							CBouquet *bouquet = pbouquetList->Bouquets[currentBouquetNumber];
 
-					if (bouquet->channelList->getSize () > 0) {
-						// select first channel of bouquet
+							if (bouquet->channelList->getSize () > 0) {
+								// select first channel of bouquet
 
-						pbouquetList->activateBouquet (currentBouquetNumber, false);
+								pbouquetList->activateBouquet (currentBouquetNumber, false);
 
-						this->channelListStartIndex = (*bouquet->channelList)[0]->number - 1;
-						this->createChannelEntries (this->channelListStartIndex);
+								this->channelListStartIndex = (*bouquet->channelList)[0]->number - 1;
+								this->createChannelEntries (this->channelListStartIndex);
 
-						this->paint ();
-					}
-				}
-				break;
+								this->paint ();
+							}
+						}
+						break;
 				}
 			} else if (msg == (neutrino_msg_t) CRCInput::RC_red) {
 				CMenuWidget menuWidgetActions(LOCALE_EPGPLUS_ACTIONS, NEUTRINO_ICON_FEATURES);
@@ -980,89 +1028,86 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 					this->paintChannelEntry (this->selectedChannelEntry->index - this->channelListStartIndex);
 				}
 
-			} else if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t) g_settings.key_channelList_cancel)) {
-				loop = false;
-			}
-
+			} 
 			else if (msg == CRCInput::RC_left) {
 				switch (this->currentViewMode) {
-				case ViewMode_Stretch:
-				{
-					if (this->duration - 30 * 60 > 30 * 60) {
-						this->duration -= 30 * 60;
-						this->hide ();
-						this->refreshAll = true;
-					}
-				}
-				break;
-				case ViewMode_Scroll:
-				{
-					TCChannelEventEntries::const_iterator It = this->getSelectedEvent ();
-
-					if ((It != this->selectedChannelEntry->channelEventEntries.begin ())
-							&& (It != this->selectedChannelEntry->channelEventEntries.end ())
-					   ) {
-						--It;
-						this->selectedTime = (*It)->channelEvent.startTime + (*It)->channelEvent.duration / 2;
-						if (this->selectedTime < this->startTime)
-							this->selectedTime = this->startTime;
-
-						this->selectedChannelEntry->paint (true, this->selectedTime);
-					} else {
-						if (this->startTime != this->firstStartTime) {
-
-							if (this->startTime - this->duration > this->firstStartTime) {
-								this->startTime -= this->duration;
-							} else {
-								this->startTime = this->firstStartTime;
+					case ViewMode_Stretch:
+						{
+							if (this->duration - 30 * 60 > 30 * 60) {
+								this->duration -= 30 * 60;
+								this->hide ();
+								this->refreshAll = true;
 							}
-
-							this->selectedTime = this->startTime + this->duration - 1;	// select last event
-							this->createChannelEntries (this->selectedChannelEntry->index);
-
-							this->paint ();
 						}
-					}
-				}
-				break;
+						break;
+					case ViewMode_Scroll:
+						{
+							TCChannelEventEntries::const_iterator It = this->getSelectedEvent ();
+
+							if ((It != this->selectedChannelEntry->channelEventEntries.begin ())
+									&& (It != this->selectedChannelEntry->channelEventEntries.end ())
+							   ) {
+								--It;
+								this->selectedTime = (*It)->channelEvent.startTime + (*It)->channelEvent.duration / 2;
+								if (this->selectedTime < this->startTime)
+									this->selectedTime = this->startTime;
+
+								this->selectedChannelEntry->paint (true, this->selectedTime);
+							} else {
+								if (this->startTime != this->firstStartTime) {
+
+									if (this->startTime - this->duration > this->firstStartTime) {
+										this->startTime -= this->duration;
+									} else {
+										this->startTime = this->firstStartTime;
+									}
+
+									this->selectedTime = this->startTime + this->duration - 1;	// select last event
+									this->createChannelEntries (this->selectedChannelEntry->index);
+
+									this->paint ();
+								}
+							}
+						}
+						break;
 				}
 			} else if (msg == CRCInput::RC_right) {
 				switch (this->currentViewMode) {
-				case ViewMode_Stretch:
-				{
-					if (this->duration + 30 * 60 < 4 * 60 * 60) {
-						this->duration += 60 * 60;
-						this->hide ();
-						this->refreshAll = true;
-					}
-				}
-				break;
+					case ViewMode_Stretch:
+						{
+							if (this->duration + 30 * 60 < 4 * 60 * 60) {
+								this->duration += 60 * 60;
+								this->hide ();
+								this->refreshAll = true;
+							}
+						}
+						break;
 
-				case ViewMode_Scroll:
-				{
-					TCChannelEventEntries::const_iterator It = this->getSelectedEvent ();
+					case ViewMode_Scroll:
+						{
+							TCChannelEventEntries::const_iterator It = this->getSelectedEvent ();
 
-					if ((It != this->selectedChannelEntry->channelEventEntries.end () - 1)
-							&& (It != this->selectedChannelEntry->channelEventEntries.end ())) {
-						++It;
+							if ((It != this->selectedChannelEntry->channelEventEntries.end () - 1)
+									&& (It != this->selectedChannelEntry->channelEventEntries.end ())) {
+								++It;
 
-						this->selectedTime = (*It)->channelEvent.startTime + (*It)->channelEvent.duration / 2;
+								this->selectedTime = (*It)->channelEvent.startTime + (*It)->channelEvent.duration / 2;
 
-						if (this->selectedTime > this->startTime + time_t (this->duration))
-							this->selectedTime = this->startTime + this->duration;
+								if (this->selectedTime > this->startTime + time_t (this->duration))
+									this->selectedTime = this->startTime + this->duration;
 
-						this->selectedChannelEntry->paint (true, this->selectedTime);
-					} else {
-						this->startTime += this->duration;
-						/*this->createChannelEntries (this->selectedChannelEntry->index);*/
+								this->selectedChannelEntry->paint (true, this->selectedTime);
+							} else {
+								this->startTime += this->duration;
+								/*this->createChannelEntries (this->selectedChannelEntry->index);*/
 
-						this->selectedTime = this->startTime;
-						this->createChannelEntries (this->selectedChannelEntry->index);
+								this->selectedTime = this->startTime;
+								this->createChannelEntries (this->selectedChannelEntry->index);
 
-						this->paint ();
-					}
-				}
-				break;
+								this->paint ();
+							}
+						}
+						break;
 				}
 			} else if (msg == CRCInput::RC_ok) {
 				this->channelList->zapTo (this->selectedChannelEntry->index);
@@ -1114,6 +1159,11 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 		}
 
 		this->hide ();
+		if ( fadeIn || fadeOut ) {
+			g_RCInput->killTimer(fadeTimer);
+			fadeTimer = 0;
+			frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		}
 #if 0
 		for (TChannelEntries::iterator It = this->displayedChannelEntries.begin ();
 				It != this->displayedChannelEntries.end (); It++) {

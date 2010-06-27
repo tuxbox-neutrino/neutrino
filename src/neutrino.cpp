@@ -861,8 +861,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 
 	//widget settings
-	//FIXME not work yet g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
 	g_settings.widget_fade = false;
+	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );//FIXME not work yet
 
 	//colors (neutrino defaultcolors)
 	g_settings.menu_Head_alpha = configfile.getInt32( "menu_Head_alpha", 0x00 );

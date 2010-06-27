@@ -465,8 +465,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	/* the GXA seems to do it's job asynchonously, so we need to wait until
 	   it's ready, otherwise the font will sometimes "be overwritten" with
 	   background color */
+#ifndef USE_NEVIS_GXA
 	frameBuffer->waitForIdle();
-
+#endif
 	for (; *text; text++)
 	{
 		FTC_SBit glyph;

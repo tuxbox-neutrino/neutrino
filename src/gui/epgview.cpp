@@ -569,6 +569,16 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		FollowScreenings(channel_id, epgData.title);
 	}
 
+        bool fadeIn = g_settings.widget_fade && doLoop;
+        bool fadeOut = false;
+        int fadeValue = g_settings.menu_Content_alpha;
+        uint32_t fadeTimer = 0;
+        if ( fadeIn ) {
+                fadeValue = 100;
+                frameBuffer->setBlendLevel(fadeValue, fadeValue);
+                fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+        }
+
 	//show the epg
 	frameBuffer->paintBoxRel(sx, sy, ox, toph, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 
@@ -692,7 +702,30 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
 					}
 				}
-				CNeutrinoApp::getInstance()->handleMsg(msg, data);
+				if(data == fadeTimer) {
+					if (fadeOut) { // disappear
+						fadeValue += FADE_STEP;
+						if (fadeValue >= 100) {
+							fadeValue = g_settings.menu_Content_alpha;
+							g_RCInput->killTimer (fadeTimer);
+							fadeTimer = 0;
+							loop = false;
+						} else
+							frameBuffer->setBlendLevel(fadeValue, fadeValue);
+					} else { // appears
+						fadeValue -= FADE_STEP;
+						if (fadeValue <= g_settings.menu_Content_alpha) {
+							fadeValue = g_settings.menu_Content_alpha;
+							g_RCInput->killTimer (fadeTimer);
+							fadeTimer = 0;
+							fadeIn = false;
+							frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+						} else
+							frameBuffer->setBlendLevel(fadeValue, fadeValue);
+					}
+				}
+				else
+					CNeutrinoApp::getInstance()->handleMsg(msg, data);
 				break;
 			case NeutrinoMessages::EVT_CURRENTNEXT_EPG:
 				if (/*!id && */ ((*(t_channel_id *) data) == (channel_id & 0xFFFFFFFFFFFFULL))) {
@@ -854,7 +887,18 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 			case CRCInput::RC_ok:
 			case CRCInput::RC_timeout:
-				loop = false;
+				if ( fadeIn ) {
+					g_RCInput->killTimer(fadeTimer);
+					fadeTimer = 0;
+					fadeIn = false;
+				}
+				if ((!fadeOut) && g_settings.widget_fade) {
+					fadeOut = true;
+					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					msg = 0;
+				} else
+					loop = false;
 				break;
 			case CRCInput::RC_favorites:
 			case CRCInput::RC_sat:
@@ -877,6 +921,11 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			}
 		}
 		hide();
+		if ( fadeIn || fadeOut ) {
+			g_RCInput->killTimer(fadeTimer);
+			fadeTimer = 0;
+			frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		}
 	}
 	return res;
 }

@@ -43,6 +43,7 @@
 #include <gui/widget/progressbar.h>
 
 #include <global.h>
+#include <neutrino.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
@@ -76,11 +77,103 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	{
 		parent->hide();
 	}
+
+	bool fadeIn = g_settings.widget_fade;
+	bool fadeOut = false;
+	int fadeValue = g_settings.menu_Content_alpha;
+	uint32_t fadeTimer = 0;
+	if ( fadeIn ) {
+		fadeValue = 100;
+		frameBuffer->setBlendLevel(fadeValue, fadeValue);
+		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+	}
+
 	paint();
 
-	int res = g_RCInput->messageLoop();
+	//int res = g_RCInput->messageLoop();
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
+
+	int res = menu_return::RETURN_REPAINT;
+
+	bool doLoop = true;
+
+	int timeout = g_settings.timing[SNeutrinoSettings::TIMING_MENU];
+
+	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd( timeout == 0 ? 0xFFFF : timeout);
+
+	while (doLoop)
+	{
+		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
+
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
+			if (fadeOut) { // disappear
+				fadeValue += FADE_STEP;
+				if (fadeValue >= 100) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					doLoop = false;
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			} else { // appears
+				fadeValue -= FADE_STEP;
+				if (fadeValue <= g_settings.menu_Content_alpha) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					fadeIn = false;
+					frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			}
+		}
+		else if ( ( msg == CRCInput::RC_timeout ) ||
+				( msg == CRCInput::RC_home ) ||
+				( msg == CRCInput::RC_ok ) ) {
+			if ( fadeIn ) {
+				g_RCInput->killTimer(fadeTimer);
+				fadeTimer = 0;
+				fadeIn = false;
+			}
+			if ((!fadeOut) && g_settings.widget_fade) {
+				fadeOut = true;
+				fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				msg = 0;
+			} else
+				doLoop = false;
+		}
+		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+		}
+		else
+		{
+			int mr = CNeutrinoApp::getInstance()->handleMsg( msg, data );
+
+			if ( mr & messages_return::cancel_all )
+			{
+				res = menu_return::RETURN_EXIT_ALL;
+				doLoop = false;
+			}
+			else if ( mr & messages_return::unhandled )
+			{
+				if ((msg <= CRCInput::RC_MaxRC) &&
+						(data == 0))                     /* <- button pressed */
+				{
+					timeoutEnd = CRCInput::calcTimeoutEnd( timeout );
+				}
+			}
+		}
+
+
+	}
 
 	hide();
+	if ( fadeIn || fadeOut ) {
+		g_RCInput->killTimer(fadeTimer);
+		fadeTimer = 0;
+		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+	}
 	return res;
 }
 

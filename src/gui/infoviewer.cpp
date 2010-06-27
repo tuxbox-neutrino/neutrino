@@ -78,9 +78,6 @@ extern t_channel_id live_channel_id; //zapit
 #define LEFT_OFFSET 5
 #define ASIZE 100
 
-// in us
-#define FADE_TIME 40000
-
 #define LCD_UPDATE_TIME_TV_MODE (60 * 1000 * 1000)
 
 
@@ -426,10 +423,10 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		gotTime = timeset;
 
 	if (fadeIn) {
-		fadeValue = 0x10;
+		fadeValue = 100;
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
 	} else
-		fadeValue = g_settings.gtx_alpha1;
+		fadeValue = g_settings.infobar_alpha;
 
 #if 0
 	// kill linke seite
@@ -695,26 +692,29 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 				res = messages_return::cancel_info;
 			} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
 				if (fadeOut) { // disappear
-					fadeValue -= 0x10;
-					if (fadeValue <= 0x10) {
-						fadeValue = g_settings.gtx_alpha1;
+					fadeValue += FADE_STEP;
+					if (fadeValue >= 100) {
+						fadeValue = g_settings.infobar_alpha;
 						g_RCInput->killTimer (fadeTimer);
+						fadeTimer = 0;
 						res = messages_return::cancel_info;
 					} else
 						frameBuffer->setBlendLevel(fadeValue, fadeValue);
 				} else { // appears
-					fadeValue += 0x10;
-					if (fadeValue >= g_settings.gtx_alpha1) {
-						fadeValue = g_settings.gtx_alpha1;
+					fadeValue -= FADE_STEP;
+					if (fadeValue <= g_settings.infobar_alpha) {
+						fadeValue = g_settings.infobar_alpha;
 						g_RCInput->killTimer (fadeTimer);
+						fadeTimer = 0;
 						fadeIn = false;
-						frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
+						frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 					} else
 						frameBuffer->setBlendLevel(fadeValue, fadeValue);
 				}
 			} else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
 				if (fadeIn) {
 					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
 					fadeIn = false;
 				}
 				if ((!fadeOut) && g_settings.widget_fade) {
@@ -775,7 +775,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 		sec_timer_id = 0;
 		if (fadeIn || fadeOut) {
 			g_RCInput->killTimer (fadeTimer);
-			frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
+			frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 		}
 		if (virtual_zap_mode) {
 			/* if bouquet cycle set, do virtual over current bouquet */

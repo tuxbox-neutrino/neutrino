@@ -196,6 +196,7 @@ CFrameBuffer* CFrameBuffer::getInstance()
 	return frameBuffer;
 }
 
+#ifdef USE_NEVIS_GXA
 void CFrameBuffer::setupGXA(void)
 {
 	// We (re)store the GXA regs here in case DFB override them and was not
@@ -207,6 +208,7 @@ void CFrameBuffer::setupGXA(void)
 	_write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
 	_write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
 }
+#endif
 
 void CFrameBuffer::init(const char * const fbDevice)
 {
@@ -507,12 +509,19 @@ void CFrameBuffer::setTransparency( int /*tr*/ )
 {
 }
 
-void CFrameBuffer::setBlendLevel(int /*blev1*/, int /*blev2*/)
+#define FBIO_CHANGEOPACITY        0x4624
+void CFrameBuffer::setBlendLevel(int blev1, int /*blev2*/)
 {
-#if 0
-	unsigned short value = blev1;
+#if 1
+	//printf("CFrameBuffer::setBlendLevel %d\n", blev1);
+	unsigned short value = 0xFFFF;
+	if((blev1 >= 0) && (blev1 <= 100))
+		value = convertSetupAlpha2Alpha(blev1);
+
 	if (ioctl(fd, FBIO_CHANGEOPACITY, &value) < 0)
 		printf("FBIO_CHANGEOPACITY failed.\n");
+	if(blev1 == 100) // sucks
+		usleep(20000);
 #endif
 }
 

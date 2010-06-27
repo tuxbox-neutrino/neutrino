@@ -316,6 +316,16 @@ int CBouquetList::show(bool bShowChannelList)
 	while ((i= i/10)!=0)
 		lmaxpos++;
 
+	bool fadeIn = g_settings.widget_fade;
+	bool fadeOut = false;
+	uint32_t fadeTimer = 0;
+	int fadeValue = g_settings.menu_Content_alpha;
+	if ( fadeIn ) {
+		fadeValue = 100;
+		frameBuffer->setBlendLevel(fadeValue, fadeValue);
+		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+	}
+
 	paintHead();
 	paint();
 
@@ -335,11 +345,44 @@ int CBouquetList::show(bool bShowChannelList)
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
-		if ((msg == CRCInput::RC_timeout                             ) ||
+		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
+			if (fadeOut) { // disappear
+				fadeValue += FADE_STEP;
+				if (fadeValue >= 100) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					loop = false;
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			} else { // appears
+				fadeValue -= FADE_STEP;
+				if (fadeValue <= g_settings.menu_Content_alpha) {
+					fadeValue = g_settings.menu_Content_alpha;
+					g_RCInput->killTimer (fadeTimer);
+					fadeTimer = 0;
+					fadeIn = false;
+					frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+				} else
+					frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			}
+		}
+		else if ((msg == CRCInput::RC_timeout                             ) ||
 				(msg == (neutrino_msg_t)g_settings.key_channelList_cancel))
 		{
 			selected = oldselected;
-			loop=false;
+			if ( fadeIn ) {
+				g_RCInput->killTimer(fadeTimer);
+				fadeTimer = 0;
+				fadeIn = false;
+			}
+			if ((!fadeOut) && g_settings.widget_fade) {
+				fadeOut = true;
+				fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				msg = 0;
+			} else
+				loop=false;
 		}
 		else if(msg == CRCInput::RC_red || msg == CRCInput::RC_favorites) {
 			CNeutrinoApp::getInstance()->SetChannelMode(LIST_MODE_FAV);
@@ -424,14 +467,14 @@ int CBouquetList::show(bool bShowChannelList)
 					selected = ((step == listmaxshow) && (selected < (((Bouquets.size() / listmaxshow) + 1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
 			}
 #endif
-                        if(selected >= Bouquets.size()) {
-                                if((Bouquets.size() - listmaxshow -1 < prev_selected) && (prev_selected != (Bouquets.size() - 1)) && (step != 1))
-                                        selected = Bouquets.size() - 1;
-                                else if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
-                                        selected = 0;
-                                else
-                                        selected = ((step == listmaxshow) && (selected < (((Bouquets.size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
-                        }
+			if(selected >= Bouquets.size()) {
+				if((Bouquets.size() - listmaxshow -1 < prev_selected) && (prev_selected != (Bouquets.size() - 1)) && (step != 1))
+					selected = Bouquets.size() - 1;
+				else if (((Bouquets.size() / listmaxshow) + 1) * listmaxshow == Bouquets.size() + listmaxshow) // last page has full entries
+					selected = 0;
+				else
+					selected = ((step == listmaxshow) && (selected < (((Bouquets.size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets.size() - 1) : 0;
+			}
 
 			paintItem(prev_selected - liststart);
 			unsigned int oldliststart = liststart;
@@ -486,6 +529,11 @@ int CBouquetList::show(bool bShowChannelList)
 		};
 	}
 	hide();
+        if ( fadeIn || fadeOut ) {
+                g_RCInput->killTimer(fadeTimer);
+                fadeTimer = 0;
+                frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+        }
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	if(zapOnExit) {
 		return (selected);

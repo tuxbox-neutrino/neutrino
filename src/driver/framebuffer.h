@@ -53,6 +53,10 @@ typedef struct fb_var_screeninfo t_fb_var_screeninfo;
 #define CORNER_BOTH	0x3
 #endif
 
+#define FADE_TIME 10000
+#define FADE_STEP 5
+#define FADE_RESET 0xFFFF
+
 /** Ausfuehrung als Singleton */
 class CFrameBuffer
 {
