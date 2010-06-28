@@ -1042,9 +1042,11 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 	}
 	if(!new_mode_active) {
 		selected = pos;
+#if 0
 		/* TODO lastChList.store also called in adjustToChannelID, which is called
 		   only from "whole" channel list. Why here too ? */
 		lastChList.store (selected, chan->channel_id, forceStoreToLastChannels);
+#endif
 		/* remove recordModeActive from infobar */
 		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
@@ -1135,7 +1137,7 @@ int CChannelList::numericZap(int key)
 		if (this->lastChList.size() > 1) {
 			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_HISTORY), true, true);
 
-			for(unsigned int i = 1 ; i < this->lastChList.size() ; ++i) {
+			for(unsigned int i = 1; i < this->lastChList.size() ; ++i) {
 				t_channel_id channel_id = this->lastChList.getlast(i);
 				if(channel_id) {
 					CZapitChannel* channel = getChannel(channel_id);

@@ -2765,6 +2765,9 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 {
 	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
 
+	bindSettings->addItem(GenericMenuSeparator);
+	bindSettings->addItem(GenericMenuBack);
+
 	addMenueIntroItems(keySettings);
 	int shortcut = 1;
 	keySettings.addItem(new CMenuForwarder(LOCALE_EXTRA_LOADKEYS, true, NULL, this, "loadkeys", CRCInput::convertDigitToKey(shortcut++)));
@@ -2845,7 +2848,7 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 		bindSettings->addItem(new CMenuForwarder(keydescription[i], true, NULL, keychooser[i]));
 
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SMS_CHANNEL, &g_settings.sms_channel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-// Zapping keys
+	// Zapping keys
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_QUICKZAP));
 
 	for (int i = KEY_CHANNEL_UP; i <= KEY_LASTCHANNEL; i++)
