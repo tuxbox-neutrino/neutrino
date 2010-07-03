@@ -84,6 +84,7 @@ CMenuWidget::CMenuWidget()
         iconOffset = 0;
 	offx = offy = 0;
 	from_wizard = false;
+	fade = true;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const int mheight)
@@ -125,6 +126,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*m
         current_page=0;
 	offx = offy = 0;
 	from_wizard = false;
+	fade = true;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -177,7 +179,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	height = frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
 	wanted_height = height;
 
-	bool fadeIn = g_settings.widget_fade;
+	bool fadeIn = g_settings.widget_fade && fade;
 	bool fadeOut = false;
 	uint32_t fadeTimer = 0;
 	int fadeValue = g_settings.menu_Content_alpha;
@@ -375,6 +377,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 									msg = CRCInput::RC_timeout;
 									break;
 								case menu_return::RETURN_REPAINT:
+								case menu_return::RETURN_EXIT_REPAINT:
 									paint();
 									break;
 							}
@@ -413,7 +416,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					fadeTimer = 0;
 					fadeIn = false;
 				}
-				if ((!fadeOut) && g_settings.widget_fade) {
+				if ((!fadeOut) && g_settings.widget_fade && fade) {
 					fadeOut = true;
 					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
@@ -455,7 +458,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 void CMenuWidget::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width+15,height+10 );
+	frameBuffer->paintBackgroundBoxRel(x, y, width+15+SHADOW_OFFSET,height+10+SHADOW_OFFSET);
 }
 
 void CMenuWidget::paint()
@@ -557,6 +560,7 @@ void CMenuWidget::paint()
 	}
 
 	//frameBuffer->paintBoxRel(x,y, width+sb_width,hheight, COL_MENUHEAD_PLUS_0);
+	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y+SHADOW_OFFSET, width+sb_width, height, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE); //FIXME rounded
 	frameBuffer->paintBoxRel(x, y, width+sb_width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //FIXME rounded
 
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+38,y+hheight+1, width-40, l_name, COL_MENUHEAD, 0, true); // UTF-8

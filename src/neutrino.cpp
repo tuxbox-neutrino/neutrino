@@ -4722,6 +4722,41 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 	{
 		g_Sectionsd->freeMemory();
 	}
+	else if(actionKey == "backup") {
+		if(parent)
+			parent->hide();
+		CFileBrowser fileBrowser;
+		fileBrowser.Dir_Mode = true;
+		if (fileBrowser.exec("/media") == true) {
+			char  fname[256];
+			struct statfs s;
+			int ret = ::statfs(fileBrowser.getSelectedFile()->Name.c_str(), &s);
+			if(ret == 0 && s.f_type != 0x72b6L) { /*jffs2*/
+				sprintf(fname, "/bin/backup.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
+				printf("backup: executing [%s]\n", fname);
+				system(fname);
+			} else
+				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),
+						CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
+		}
+	}
+	else if(actionKey == "restore") {
+		if(parent)
+			parent->hide();
+		CFileBrowser fileBrowser;
+		CFileFilter fileFilter;
+		fileFilter.addFilter("tar");
+		fileBrowser.Filter = &fileFilter;
+		if (fileBrowser.exec("/media") == true) {
+			int result = ShowMsgUTF(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
+			if(result == CMessageBox::mbrYes) {
+				char  fname[256];
+				sprintf(fname, "/bin/restore.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
+				printf("restore: executing [%s]\n", fname);
+				system(fname);
+			}
+		}
+	}
 
 	return returnval;
 }

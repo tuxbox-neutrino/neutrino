@@ -1010,8 +1010,10 @@ extra.zapit_write_names Write channel names
 extra.update_dir Directory for updates
 extra.zapit_fast_zap fast zap
 extra.zapit_sort_names Sort ch. by name
-extra.zapit_backup Backup channels to /tmp
-extra.zapit_restore Restore channels from /tmp
+settings.backup Backup all settings
+settings.backup_failed Backup failed!
+settings.restore Restore all settings
+settings.restore_warn This will replace all settings and reboot\nContinue ?
 pictureviewer.decode_server_ip decode server ip
 pictureviewer.decode_server_port decode server port
 scants.abort_body Should the search really be aborted?
@@ -1134,7 +1136,7 @@ moviebrowser.head_playlist Last played:
 moviebrowser.head_recordlist Last recorded:
 moviebrowser.hint_jumpbackward Jump back in 5 s\n '0' to cancel
 moviebrowser.hint_jumpforward Jump forward in 5 s\n '0' to cancel
-moviebrowser.hint_movieend Filmende in 5 s\n '0' zum weitersehen
+moviebrowser.hint_movieend Film end in 5 s\n '0' to cancel
 moviebrowser.hint_newbook_backward New jump back\n 'blue' for endposition
 moviebrowser.hint_newbook_forward New jump forward\n 'blue' for endposition
 moviebrowser.info_audio Audio
@@ -1142,7 +1144,7 @@ moviebrowser.info_channel Channel
 moviebrowser.info_filename Name
 moviebrowser.info_genre_major Genre
 moviebrowser.info_genre_minor Genre
-moviebrowser.info_head Film Informationen
+moviebrowser.info_head Film Information
 moviebrowser.info_info1 Info 1
 moviebrowser.info_length Length (Min)
 moviebrowser.info_parental_lockage Parental Lock age

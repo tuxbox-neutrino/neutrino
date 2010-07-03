@@ -47,7 +47,8 @@ struct menu_return
 			RETURN_NONE	= 0,
 			RETURN_REPAINT 	= 1,
 			RETURN_EXIT 	= 2,
-			RETURN_EXIT_ALL = 4
+			RETURN_EXIT_ALL = 4,
+			RETURN_EXIT_REPAINT = 5
 		};
 };
 
@@ -64,13 +65,11 @@ class CChangeObserver
 class CMenuTarget
 {
 	public:
-
 		CMenuTarget(){}
 		virtual ~CMenuTarget(){}
 		virtual void hide(){}
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey) = 0;
 };
-
 
 class CMenuItem
 {
@@ -347,9 +346,10 @@ class CMenuWidget : public CMenuTarget
 		unsigned int         total_pages;
 		bool		     exit_pressed;
 		bool		     from_wizard;
+		bool		     fade;
+
 		void Init(const std::string & Icon, const int mwidth, const int mheight);
 		virtual void paintItems();
-
 	public:
 		CMenuWidget();
 		/* TODO: mheight is not used anymore. remove if nobody misses it */
@@ -368,6 +368,7 @@ class CMenuWidget : public CMenuTarget
 		void move(int xoff, int yoff);
 		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
 		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};
+		void enableFade(bool _enable) { fade = _enable; };
 };
 
 class CPINProtection

@@ -50,7 +50,7 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &)
 {
-	int    res = menu_return::RETURN_EXIT_ALL;
+	int    res = menu_return::RETURN_REPAINT;
 	int    shutdown_min = 0;
 	char   value[16];
 	CStringInput  *inbox;
@@ -72,10 +72,14 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &)
   	}
 
 	inbox = new CStringInput(LOCALE_SLEEPTIMERBOX_TITLE, value, 3, LOCALE_SLEEPTIMERBOX_HINT1, LOCALE_SLEEPTIMERBOX_HINT2, "0123456789 ");
-	inbox->exec (NULL, "");
-	inbox->hide ();
+	int ret = inbox->exec (NULL, "");
 
+	inbox->hide ();
 	delete inbox;
+
+	/* exit pressed, cancel timer setup */
+	if(ret == menu_return::RETURN_EXIT_REPAINT)
+		return res;
 
 	int new_val = atoi(value);
 	if(shutdown_min != new_val) {

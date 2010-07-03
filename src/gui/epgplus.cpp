@@ -114,7 +114,7 @@ void EpgPlus::Header::init ()
 
 void EpgPlus::Header::paint ()
 {
-	this->frameBuffer->paintBoxRel (this->x, this->y, this->width, this->font->getHeight (), COL_MENUHEAD_PLUS_0);
+	this->frameBuffer->paintBoxRel (this->x, this->y, this->width, this->font->getHeight (), COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	this->font->RenderString (this->x + 10, this->y + this->font->getHeight ()
 				  , this->width - 20, g_Locale->getText (LOCALE_EPGPLUS_HEAD) , COL_MENUHEAD, 0, true);
 }
@@ -491,7 +491,7 @@ void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfBu
 	int buttonWidth = (this->width - 20) / 4;
 	int yPos = this->y + this->getUsedHeight ();
 
-	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, buttonHeight, COL_MENUHEAD_PLUS_0);
+	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, buttonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	::paintButtons (this->frameBuffer, this->fontButtons, g_Locale, this->x + 10,
 		yPos, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels);
@@ -948,6 +948,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				}
 			} else if (msg == (neutrino_msg_t) CRCInput::RC_red) {
 				CMenuWidget menuWidgetActions(LOCALE_EPGPLUS_ACTIONS, NEUTRINO_ICON_FEATURES);
+				menuWidgetActions.enableFade(false);
 				if (!g_settings.minimode)
 					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, new MenuTargetAddRecordTimer (this), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
 				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, new MenuTargetRefreshEpg (this), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
@@ -959,6 +960,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			} else if (msg == (neutrino_msg_t) CRCInput::RC_blue) {
 
 				CMenuWidget menuWidgetOptions(LOCALE_EPGPLUS_OPTIONS, NEUTRINO_ICON_FEATURES);
+				menuWidgetOptions.enableFade(false);
 				menuWidgetOptions.addItem (new MenuOptionChooserSwitchSwapMode (this));
 				menuWidgetOptions.addItem (new MenuOptionChooserSwitchViewMode (this));
 
@@ -1222,7 +1224,8 @@ std::string EpgPlus::getTimeString (const time_t & time, const std::string & for
 void EpgPlus::paint ()
 {
 	// clear
-	this->frameBuffer->paintBackgroundBoxRel (this->channelsTableX, this->channelsTableY, this->usableScreenWidth, this->channelsTableHeight);
+	//this->frameBuffer->paintBackgroundBoxRel (this->channelsTableX, this->channelsTableY, this->usableScreenWidth, this->channelsTableHeight);
+	this->frameBuffer->paintBoxRel (this->channelsTableX, this->channelsTableY, this->usableScreenWidth, this->channelsTableHeight, COL_MENUCONTENT_PLUS_0);
 
 	// paint the gaps
 	this->frameBuffer->paintBoxRel (this->horGap1X, this->horGap1Y, this->horGap1Width, horGap1Height, horGap1Color);

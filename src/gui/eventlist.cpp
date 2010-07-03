@@ -563,6 +563,20 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 		{
 			loop= false;
 		}
+		else if (msg == CRCInput::RC_0) {
+			hide();
+
+			CTimerList *Timerlist = new CTimerList;
+			Timerlist->exec(NULL, "");
+			delete Timerlist;
+			timerlist.clear();
+			g_Timerd->getTimerList (timerlist);
+
+			paintHead(channel_id, name);
+			paint(channel_id);
+			showFunctionBar(true);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
+		}
 		else if (msg == CRCInput::RC_epg)
 		{
 			hide();

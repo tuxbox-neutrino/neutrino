@@ -412,6 +412,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 
 			strncpy(value, oldval, size);
 			loop=false;
+			res = menu_return::RETURN_EXIT_REPAINT;
 		}
 		else if ((msg ==CRCInput::RC_sat) || (msg == CRCInput::RC_favorites))
 		{
