@@ -870,14 +870,23 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				switch (this->currentSwapMode) {
 					case SwapMode_ByPage:
 						{
-							int selectedChannelEntryIndex = this->selectedChannelEntry->index;
-							selectedChannelEntryIndex += this->maxNumberOfDisplayableEntries;
 
-							if (selectedChannelEntryIndex > this->channelList->getSize () - 1)
-								selectedChannelEntryIndex = 0;
+							int selected = this->selectedChannelEntry->index;
+							int prev_selected = selected;
+							int step = this->maxNumberOfDisplayableEntries;
+							int listSize = this->channelList->getSize();
 
-							this->createChannelEntries (selectedChannelEntryIndex);
+							selected += step;
+							if(selected >= listSize) {
+								if((listSize - step -1 < prev_selected) && (prev_selected != (listSize - 1)))
+									selected = listSize - 1;
+								else if (((listSize / step) + 1) * step == listSize + step) // last page has full entries
+									selected = 0;
+								else
+									selected = ((selected < (((listSize / step)+1) * step))) ? (listSize - 1) : 0;
+							}
 
+							this->createChannelEntries (selected);
 							this->paint ();
 						}
 						break;
@@ -911,14 +920,19 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				switch (this->currentSwapMode) {
 					case SwapMode_ByPage:
 						{
-							int selectedChannelEntryIndex = this->selectedChannelEntry->index;
-							selectedChannelEntryIndex -= this->maxNumberOfDisplayableEntries;
+							int selected = this->selectedChannelEntry->index;
+							int prev_selected = selected;
+							int step = this->maxNumberOfDisplayableEntries;
 
-							if (selectedChannelEntryIndex < 0)
-								selectedChannelEntryIndex = this->channelList->getSize () - 1;
+							selected -= step;
+							if((prev_selected-step) < 0) {
+								if(prev_selected != 0 && step != 1)
+									selected = 0;
+								else
+									selected = this->channelList->getSize() - 1;
+							}
 
-							this->createChannelEntries (selectedChannelEntryIndex);
-
+							this->createChannelEntries (selected);
 							this->paint ();
 						}
 						break;
