@@ -328,14 +328,12 @@ extra.use_gotoxx Benutze gotoXX
 extra.use_log Logge nach /tmp/log
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
-extra.zapit_backup Sichere Kanalliste nach /tmp
 extra.zapit_fast_zap Schnellumschaltung
 extra.zapit_fe_timeout Tuning Timeout (1=10ms)
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_menu Zapit-Einstellungen
 extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
-extra.zapit_restore Stelle Kanalliste wieder von /tmp wieder her
 extra.zapit_rezap_time ReZap-Intervall
 extra.zapit_save_last_chan Letzten Kanal merken
 extra.zapit_scan_sdt Scanne SDT für Aktualisierungen
@@ -684,6 +682,7 @@ messagebox.discard Wollen Sie die Änderungen verwerfen?
 messagebox.error Fehler
 messagebox.info Information
 messagebox.no Nein
+messagebox.ok OK
 messagebox.yes Ja
 miscsettings.bootinfo Infos beim Booten anzeigen
 miscsettings.bootmenu Bootmenü anzeigen
@@ -1182,7 +1181,10 @@ servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.ucodecheck UCodes überprüfen
 servicemenu.update Software-Aktualisierung
+settings.backup Alle Settings sichern
+settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
+settings.menu_pos Menüposition
 settings.missingoptionsconffile Die Neutrino-Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
 settings.noconffile Die Neutrino-Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
 settings.pos_bottom_left unten links
@@ -1191,7 +1193,8 @@ settings.pos_default_center oben Mitte
 settings.pos_higher_center unten Mitte
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
-settings.menu_pos Menüposition
+settings.restore Wiederherstellen aller Settings
+settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 min runtergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Sleeptimer in 1 min
@@ -1392,6 +1395,8 @@ videomenu.videomode Videosystem
 videomenu.videomode_ntsc NTSC
 videomenu.videomode_pal PAL
 videomenu.videomode_palm PAL-M
+wizard.welcome_head Willkommen beim Setup Assistenten!
+wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer Coolstream. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wuenschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nNächster Schritt?
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
