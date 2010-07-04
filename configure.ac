@@ -1,5 +1,5 @@
 AC_INIT(tuxbox-neutrino,1.0.1)
-AM_INIT_AUTOMAKE(tuxbox-neutrino,1.0.1) 
+AM_INIT_AUTOMAKE(tuxbox-neutrino,1.0.1)
 
 TUXBOX_APPS
 TUXBOX_APPS_DIRECTORY
@@ -99,6 +99,7 @@ src/system/Makefile
 data/Makefile
 data/fonts/Makefile
 data/icons/Makefile
+data/inetradio/Makefile
 data/iso-codes/Makefile
 data/lcd/Makefile
 data/lcd/icons/Makefile

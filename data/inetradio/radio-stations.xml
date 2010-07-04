@@ -10,8 +10,13 @@
 		/>
 
 	<station
-		url="http://www.dradio.de/streaming/dlr.m3u"
+		url="http://www.dradio.de/streaming/dkultur.m3u"
 		name="DeutschlandRadio Kultur"
+		/>
+
+	<station
+		url="http://www.dradio.de/streaming/dradiowissen.m3u"
+		name="DRadio Wissen"
 		/>
 
 	<station
@@ -62,6 +67,46 @@
 	<station
 		url="http://streams.br-online.de/jugend-radio_2.m3u"
 		name="Bayern on3radio"
+		/>
+		
+	<station
+		url="http://4broadcast.de/radioin.m3u"
+		name="Radio Ingolstadt"
+		/>
+
+	<station
+		url="http://9011.live.mp3.mdn.newmedia.nacamar.net:8000/9011/90elf_basis_noxon.mp3"
+		name="90elf-Konferenz"
+		/>
+
+	<station
+		url="http://9011.live.mp3.mdn.newmedia.nacamar.net:8000/9011/90elf_rp01_noxon.mp3"
+		name="90elf-Livespiel 1"
+		/>
+
+	<station
+		url="http://9011.live.mp3.mdn.newmedia.nacamar.net:8000/9011/90elf_rp02_noxon.mp3"
+		name="90elf-Livespiel 2"
+		/>
+
+	<station
+		url="http://9011.live.mp3.mdn.newmedia.nacamar.net:8000/9011/90elf_rp03_noxon.mp3"
+		name="90elf-Livespiel 3"
+		/>
+
+	<station
+		url="http://9011.live.mp3.mdn.newmedia.nacamar.net:8000/9011/90elf_rp04_noxon.mp3"
+		name="90elf-Livespiel 4"
+		/>
+
+	<station
+		url="http://9011.live.mp3.mdn.newmedia.nacamar.net:8000/9011/90elf_rp05_noxon.mp3"
+		name="90elf-Livespiel 5"
+		/>
+
+	<station
+		url="http://9011.live.mp3.mdn.newmedia.nacamar.net:8000/9011/90elf_rp06_noxon.mp3"
+		name="90elf-Livespiel 6"
 		/>
 
 	<station
@@ -150,6 +195,11 @@
 		/>
 
 	<station
+		name="NDR 2 Rock"
+		url="http://ndr.ic.llnwd.net/stream/ndr_ndrloop21_hi_mp3"
+		/>
+
+	<station
 		url="http://avw.mdr.de/livestreams/mdr1_radio_sachsen_live_128.m3u"
 		name="MDR 1 Sachsen"
 		/>
@@ -220,6 +270,11 @@
 		/>
 
 	<station
+		url="http://stream.srg-ssr.ch/rsc_de/mp3_128.m3u"
+		name="Radio Swiss Classic"
+		/>
+
+	<station
 		url="http://sc9.ams.llnw.net:80/stream/gffstream_w20a.m3u"
 		name="Nordwestradio"
 		/>
@@ -265,42 +320,47 @@
 		/>
 
 	<station
-		url="http://213.200.97.110/swr1rplive/livestream.mp3.m3u"
+		name="SR UserDing"
+		url="http://streaming01.sr-online.de/unserding_2.m3u"
+		/>
+
+	<station
+		url="http://mp3-live.swr.de/swr1rp_m.m3u"
 		name="SWR1 RP"
 		/>
 
 	<station
-		url="http://213.200.97.110/swr1bwlive/livestream.mp3.m3u"
+		url="http://mp3-live.swr.de/swr1bw_m.m3u"
 		name="SWR1 BW"
 		/>
 
 	<station
-		url="http://213.200.97.110/swr2live/livestream.mp3.m3u"
+		url="http://mp3-live.swr.de/swr2_m.m3u"
 		name="SWR2"
 		/>
 
 	<station
-		url="http://213.200.97.110/swr3live/livestream.mp3.m3u"
+		url="http://mp3-live.swr3.de/swr3_m.m3u"
 		name="SWR3"
 		/>
 
 	<station
-		url="http://213.200.97.110/swr4rplive/livestream.mp3.m3u"
+		url="http://mp3-live.swr.de/swr4rp_m.m3u"
 		name="SWR4 RP"
 		/>
 
 	<station
-		url="http://213.200.97.110/swr4bwlive/livestream.mp3.m3u"
+		url="http://mp3-live.swr.de/swr4bw_m.m3u"
 		name="SWR4 BW"
 		/>
 
 	<station
-		url="http://213.200.97.110/swrcontralive/livestream.mp3.m3u"
+		url="http://mp3-live.swr.de/contra_m.m3u"
 		name="SWR cont.ra"
 		/>
 
 	<station
-		url="http://213.200.97.110/swrdasdinglive/livestream.mp3.m3u"
+		url="http://mp3-live.dasding.de/dasding_m.m3u"
 		name="SWR DasDing"
 		/>
 
@@ -885,7 +945,7 @@
 		/>
 
 	<station
-		url="http://stream.npr.org:8002/listen.pls"
+		url="http://www.npr.org/streams/mp3/nprlive24.pls"
 		name="NPR National Public Radio (USA)"
 		/>
 
