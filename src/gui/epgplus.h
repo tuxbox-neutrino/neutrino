@@ -121,7 +121,7 @@ public:
   public:
     static void init();
 
-    void paint();
+    void paint(const char * Name = NULL);
 
     static int getUsedHeight();
 
