@@ -209,7 +209,7 @@ bouqueteditor.move presuň
 bouqueteditor.name Úprava buketov
 bouqueteditor.newbouquetname Nový názov buketu
 bouqueteditor.rename premenuj
-bouqueteditor.return hotovo
+bouqueteditor.return naspäť
 bouqueteditor.savechanges? Uloženie týchto zmien?
 bouqueteditor.savingchanges Ukladám zmeny. Prosim čakaj ...
 bouqueteditor.switch pridaj/odstráň
@@ -306,7 +306,7 @@ favorites.chadded Aktuálny kanál bol pridaný do obľúbených...\n
 favorites.chalreadyinbq Aktuálny kanál sa už nachádza v obľúbených...\n
 favorites.finalhint \nPouži editor buketov pre dokonačenie\nzmien v obľúbených.\n
 favorites.menueadd Pridaj kanál do obľúbených
-favorites.nobouquets Obľúbené sú dostupné iba pri použití Buketov.
+favorites.nobouquets Obľúbené sú dostupné len pri použití Buketov.
 favorites.copy Kopíruj buket do Obľúbených
 filebrowser.delete zmaž
 filebrowser.denydirectoryleave Hlavný adresár
@@ -356,6 +356,8 @@ flashupdate.md5sumerror IMAGE má chyby
 flashupdate.msgbox Zistený nový súbor:\nDátum: %s, %s\nBaseImage: %s\nTyp: %s\n\nNaozaj prevziať a nainštalovať\ntento súbor?
 flashupdate.msgbox_manual Zistený nový súbor:\nDátum: %s, %s\nBaseImage: %s\nTyp IMAGE: %s\n\nNaozaj nainštalovať\ntento súbor?
 flashupdate.mtdselector Výber partície
+flashupdate.new_found Nájdený nový IMAGE !
+flashupdate.new_notfound Žiadny nový IMAGE
 flashupdate.programmingflash Programovanie pamäte FLASH
 flashupdate.proxypassword Heslo
 flashupdate.proxypassword_hint1 Vloženie hesla servera proxy
@@ -389,7 +391,7 @@ fontmenu.channellist Zoznam kanálov
 fontmenu.epg EPG
 fontmenu.eventlist Programový sprievodca
 fontmenu.gamelist Zoznam hier
-fontmenu.head Nastavenia veľkosti písma
+fontmenu.head Nastavenia písma
 fontmenu.infobar Stavový riadok
 fontmenu.sizes Veľkosti písma
 fontsize.channel_num_zap priamy výber
@@ -488,7 +490,7 @@ mainmenu.audioplayer Prehrávač súborov
 mainmenu.clearsectionsd Vyčistenie EPG zachytávania
 mainmenu.games Hry
 mainmenu.head Hlavné menu
-mainmenu.media Multimédia
+mainmenu.media Média
 mainmenu.movieplayer Prehrávač filmov
 mainmenu.pausesectionsd Načítavanie EPG
 mainmenu.pictureviewer Prehliadač obrázkov
@@ -511,7 +513,7 @@ mainsettings.keybinding Nastavenia kláves
 mainsettings.language Jazyk
 mainsettings.timezone Časová zóna
 mainsettings.lcd Zobrazovač VFD
-mainsettings.manage Správa nastavení
+mainsettings.manage Spravovanie nastavení
 mainsettings.misc Iné nastavenia
 mainsettings.network Sieť
 mainsettings.recording Nahrávanie
@@ -527,6 +529,7 @@ messagebox.discard Zruš zmeny?
 messagebox.error Chyba
 messagebox.info Správa
 messagebox.no nie
+messagebox.ok ok
 messagebox.yes áno
 miscsettings.bootinfo Zobrazovanie štartovacej informácie
 miscsettings.bootmenu Zobrazenie BOOT Menu
@@ -545,7 +548,7 @@ miscsettings.infobar_disp_2 Logo 2
 miscsettings.infobar_disp_3 Logo 3
 miscsettings.infobar_disp_log Informačné okno
 miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
-miscsettings.infobar_show_var_hdd Zaplnenie (var & hdd)
+miscsettings.infobar_show_var_hdd Zobrazenie zaplnenia (var a hdd)
 miscsettings.shutdown_count Vypnúť po
 miscsettings.shutdown_count_hint1 Čas (v minútach) pre prepnutie zo stavu spánku
 miscsettings.shutdown_count_hint2 do hlbokého spánku (0=vypnuté)
@@ -596,11 +599,11 @@ motorcontrol.settings Nastavenia ovládania motora
 motorcontrol.movement (b) Presun:
 motorcontrol.step_mode mód kroku
 motorcontrol.drive_mode mód pohybu
-motorcontrol.drive_mode_auto Zastavenie pohybu Ručné/Automatické
+motorcontrol.drive_mode_auto Zastavenie pohybu Ručne/Auto
 motorcontrol.timed_mode čas pre mód kroku
 motorcontrol.step_size (c) Veľkosť kroku:
-motorcontrol.stop_moving Zastav na dobrom signále (pohybovanie)
-motorcontrol.stop_stopped Zastav na dobrom signále (zastavenie)
+motorcontrol.stop_moving Zastav na signále (pohybovanie)
+motorcontrol.stop_stopped Zastav na signále (zastavenie)
 motorcontrol.no_mode nepoužité
 motorcontrol.msec ms
 motorcontrol.status Stav
@@ -769,7 +772,7 @@ networkmenu.broadcast Vysielanie
 networkmenu.dhcp Prevzatie z DHCP
 networkmenu.gateway Predvolená brána
 networkmenu.head Nastavenia siete
-networkmenu.hostname Pomenovanie
+networkmenu.hostname Názov hostiteľa
 networkmenu.ipaddress Adresa IP
 networkmenu.mount NFS/CIFS/FTPFS
 networkmenu.nameserver DNS
@@ -950,11 +953,11 @@ satsetup.use_fta_flag Len nekódované
 satsetup.use_nit Použitie NIT
 satsetup.use_usals Použitie USALS
 satsetup.usals_repeat Opakovanie USALS príkazu
-satsetup.fastscan_head Rýchle vyhľadávanie (Astra 19E, 12515 MHz)
-satsetup.fastscan_type Typ vyhľadávania
+satsetup.fastscan_head Rýchle prehľadanie (Astra 1 - 12515 MHz)
+satsetup.fastscan_type Typ prehľadania
 satsetup.fastscan_sd len SD
 satsetup.fastscan_hd len HD
-satsetup.fastscan_all SD + HD
+satsetup.fastscan_all SD a HD
 satsetup.fastscan_prov Poskytovateľ
 satsetup.fastscan_prov_cd CanalDigitaal
 satsetup.fastscan_prov_tvv TV Vlaanderen
@@ -1003,7 +1006,7 @@ settings.noconffile Nenájdené nastavenia Neutrino.\nPoužité budú prednastav
 settings.pos_bottom_left ľavý spodok
 settings.pos_bottom_right pravý spodok
 settings.pos_default_center vrchný stred
-settings.pos_higher_center vyšší stred
+settings.pos_higher_center spodný stred
 settings.pos_top_left ľavý vrch
 settings.pos_top_right pravý vrch
 settings.menu_pos Umiestnenie ponuky
@@ -1064,7 +1067,7 @@ timerbar.channelswitch prepni
 timerbar.recordevent nahraj
 timerlist.alarmtime Čas spustenia
 timerlist.apids PIDy zvuku
-timerlist.apids_dflt nahrávanie normálnzch zvukových stôp
+timerlist.apids_dflt nahrávanie normálnych zvukových stôp
 timerlist.bouquetselect Výber buketu
 timerlist.channel Kanál
 timerlist.channelselect Výber kanálu
@@ -1189,6 +1192,12 @@ videomenu.analog_hd_yprpb_scart YPbPr na SCART (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr na CINCH (HD)
 videomenu.scart SCART
 videomenu.cinch CINCH
+videomenu.hdmi_cec_mode HDMI-CEC mód
+videomenu.hdmi_cec_mode_off vyp
+videomenu.hdmi_cec_mode_tuner ako Tuner
+videomenu.hdmi_cec_mode_recorder ako Rekordér
+videomenu.hdmi_cec_standby Použiť CEC v pohotovosti
+videomenu.hdmi_cec_view_on Použiť CEC pri sledovaní
 videomenu.dbdr MPEG2 deblock/dering
 videomenu.dbdr_none nič
 videomenu.dbdr_deblock deblock
@@ -1196,8 +1205,8 @@ videomenu.dbdr_both deblock+dering
 videomenu.enabled_modes Nastavenie módov pre VF klávesu
 zapit.scantype Vyhľadávanie kanálov
 zapit.scantype.all všetkých
-zapit.scantype.radio iba Radio
-zapit.scantype.tv iba TV
+zapit.scantype.radio len Radio
+zapit.scantype.tv len TV
 zapit.scantype.tvradio TV a Radio
 zaptotimer.announce Minúta do zmeny kanálu.
 extra.dboxinfo Informácie o systéme
@@ -1213,11 +1222,11 @@ extra.hw_sect Sekcia hardwéru
 extra.logo Čislo loga(Štartovacie logo?)
 extra.scan_full Úplné prehľádávanie (XML+NIT)
 extra.scan_fast Rýchle prehľadávanie (XML)
-hdd_slow pomalo
+hdd_slow maximálne
 hdd_middle stredne
-hdd_fast rýchlo
+hdd_fast minimálne
 hdd_ext3 Súborový systém Ext3
-hdd_reiser Reiserfs
+hdd_reiser ReiserFS
 hdd_1min 1 minúta
 hdd_5min 5 minút
 hdd_10min 10 minút
@@ -1275,8 +1284,10 @@ reset_channels Zmazanie všetkych kanálov
 reset_settings Návrat k prednastavenému nastaveniu
 reset_all Továrenské nastavenie
 reset_confirm Skutočne?
-extra.zapit_backup Záloha kanálov do /tmp
-extra.zapit_restore Obnova kanálov z /tmp
+settings.backup Záloha nastavení
+settings.backup_failed Chybná záloha!
+settings.restore Obnovenie nastavení
+settings.restore_warn Budú nahradené všetky nastavenia a reštartujem sa\nPokračovať ?
 extra.add_to_bouquet Pridanie do buketu
 extra.key_list_start Na začiatok
 extra.key_list_end Na koniec
@@ -1380,11 +1391,11 @@ cam.removed Odstránený modul zo šachty
 cam.init_ok Inicializácia modulu ukončená
 cam.waiting Čakám na odpoveď
 cam.timeout Čas čakania uplynul,\nvraciam sa do menu
-cam.reset Reset modulu
-cam.reset_standby Reštartovať po spustení
+cam.reset Resetnúť
+cam.reset_standby Resetovať po spustení
 subtitles.head Titulky
 subtitles.stop Vypnúť titulky
-fan_speed Rýchlosť CPU ventlátora
+fan_speed Rýchlosť CPU ventilátora
 audio.srs_iq SRS TruVolume
 audio.srs_algo Mód
 audio.srs_algo_light Jemný
@@ -1395,3 +1406,5 @@ cpu.freq Cpu kmitočet
 cpu.freq_normal Normal kmitočet
 cpu.freq_standby Standby kmitočet
 cpu.freq_default default kmitočet
+wizard.welcome_head Vitajte v Sprievodcovi nastavenia
+wizard.welcome_text Ďaľšie kroky prevedú základnú inštaláciu tohto zariadenia.\nChceš pokračovať?\nBlahoželáme k zakúpeniu Coolstream. Nasledujúce \nkroky ťa prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme ti veľa radosti s týmto príjmačom!\nĎaľší krok ?
