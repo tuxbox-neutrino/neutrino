@@ -142,7 +142,7 @@ int CAudioSelectMenuHandler::doMenu ()
 					sep_added = true;
 					AudioSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SUBTITLES_HEAD));
 				}
-				char spid[10];
+				char spid[64];
 				int page = ((sd->teletext_magazine_number & 0xFF) << 8) | sd->teletext_page_number;
 				int pid = sd->pId;
 				sprintf(spid, "TTX:%d:%03X:%s", sd->pId, page, sd->ISO639_language_code.c_str()); 
