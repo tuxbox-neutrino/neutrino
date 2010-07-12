@@ -90,7 +90,7 @@ int CAudioSelectMenuHandler::doMenu ()
 
 	for(count=0; count < g_RemoteControl->current_PIDs.APIDs.size(); count++ ) {
 		char apid[5];
-		sprintf(apid, "%d", count);
+		snprintf(apid,sizeof(apid), "%d", count);
 		AudioSelector.addItem(new CMenuForwarderNonLocalized(
 					g_RemoteControl->current_PIDs.APIDs[count].desc, true, NULL,
 					APIDChanger, apid, CRCInput::convertDigitToKey(count + 1)),
@@ -129,9 +129,9 @@ int CAudioSelectMenuHandler::doMenu ()
 					AudioSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SUBTITLES_HEAD));
 				}
 				char spid[10];
-				sprintf(spid, "DVB:%d", sd->pId);
+				snprintf(spid,sizeof(spid), "DVB:%d", sd->pId);
 				char item[64];
-				sprintf(item, "DVB: %s (pid %x)", sd->ISO639_language_code.c_str(), sd->pId);
+				snprintf(item,sizeof(item), "DVB: %s (pid %x)", sd->ISO639_language_code.c_str(), sd->pId);
 				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
 							sd->pId != dvbsub_getpid(), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
 			}
@@ -145,9 +145,9 @@ int CAudioSelectMenuHandler::doMenu ()
 				char spid[64];
 				int page = ((sd->teletext_magazine_number & 0xFF) << 8) | sd->teletext_page_number;
 				int pid = sd->pId;
-				sprintf(spid, "TTX:%d:%03X:%s", sd->pId, page, sd->ISO639_language_code.c_str()); 
+				snprintf(spid,sizeof(spid), "TTX:%d:%03X:%s", sd->pId, page, sd->ISO639_language_code.c_str()); 
 				char item[64];
-				sprintf(item, "TTX: %s (pid %x page %03X)", sd->ISO639_language_code.c_str(), sd->pId, page);
+				snprintf(item,sizeof(item), "TTX: %s (pid %x page %03X)", sd->ISO639_language_code.c_str(), sd->pId, page);
 				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
 							!tuxtx_subtitle_running(&pid, &page, NULL), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
 			}
