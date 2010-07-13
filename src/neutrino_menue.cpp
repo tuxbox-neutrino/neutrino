@@ -2466,9 +2466,6 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	colorSettings.addItem(new CMenuForwarder(LOCALE_COLORMENU_TIMING, true, NULL, colorSettings_timing, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	colorSettings.addItem(new CMenuForwarder(LOCALE_VIDEOMENU_SCREENSETUP, true, NULL, ScreenSetup, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
-	CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
-	colorSettings.addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify, CRCInput::RC_1));
-
 	//infobar
 	CMenuWidget *miscSettingsInfobar = new CMenuWidget(LOCALE_MISCSETTINGS_INFOBAR, NEUTRINO_ICON_SETTINGS);
 	addMenueIntroItems(*miscSettingsInfobar);
@@ -2479,8 +2476,10 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	miscSettingsInfobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	miscSettingsInfobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_VAR_HDD, &g_settings.infobar_show_var_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
-	colorSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, miscSettingsInfobar, NULL, CRCInput::RC_2));
+	colorSettings.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, miscSettingsInfobar, NULL, CRCInput::RC_1));
 
+	CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
+	colorSettings.addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify));
 	colorSettings.addItem(GenericMenuSeparatorLine);
 	colorSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true));
 	colorSettings.addItem(new CMenuOptionChooser(LOCALE_EXTRA_SCRAMBLED_MESSAGE, &g_settings.scrambled_message, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));

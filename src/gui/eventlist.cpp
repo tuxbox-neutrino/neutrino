@@ -216,8 +216,8 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	neutrino_msg_data_t data;
 	bool in_search = 0;
 
-	width  = w_max (580, 20);
-	height = h_max (480, 20);
+	width  = w_max (680, 20);
+	height = h_max (560, 20);
 
 	iheight = 30;	// info bar height (see below, hard coded at this time)
 
@@ -724,7 +724,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_id)
 				datetime2_str += g_Zapit->getChannelName(channel);
 			}
 
-			sprintf(tmpstr, "[%d min]", evtlist[liststart+pos].duration / 60 );
+			snprintf(tmpstr,sizeof(tmpstr), "[%d min]", evtlist[liststart+pos].duration / 60 );
 			duration_str = tmpstr;
 		}
 
@@ -739,7 +739,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_id)
 		if ( (seit> 0) && (seit<100) && (duration_str.length()!=0) )
 		{
 			char beginnt[100];
-			sprintf((char*) &beginnt, "in %d min", seit);
+			snprintf((char*) &beginnt,sizeof(beginnt), "in %d min", seit);
 			int w = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->getRenderWidth(beginnt) + 10;
 
 			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20- w, ypos+ fheight1+3, fwidth2, beginnt, color);
@@ -749,7 +749,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_id)
 		if(icontype != 0) {
 			frameBuffer->getIconSize(icontype, &iw, &ih);
 			//frameBuffer->paintIcon(icontype, x+5, ypos + fheight - 16 - (fheight1 - 16)/2);
-			frameBuffer->paintIcon(icontype, x+5, ypos + fheight - ih - (fheight1 - ih)/2, fheight1);
+			frameBuffer->paintIcon(icontype, x+5, ypos + fheight1+3 - (fheight1 - ih)/2, fheight1);
 		}
 		// 2nd line
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+10+iw, ypos+ fheight, width- 25- 20, evtlist[liststart+pos].description, color, 0, true);
