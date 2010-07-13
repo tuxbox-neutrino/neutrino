@@ -109,6 +109,7 @@ void CMessageBox::paintButtons()
 
 	int xpos = 10;
 	int iw, ih;
+	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
 	if (showbuttons & mbYes)
 	{
@@ -127,7 +128,7 @@ void CMessageBox::paintButtons()
 		//m_window->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14, m_height - m_fheight - 15);
 		//m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
 		m_window->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14, m_height - m_fheight - 20, m_fheight);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, (m_height - 20)-(m_fheight-fh)/2, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
 		xpos += ButtonWidth + ButtonSpacing;
 	}
 
@@ -147,7 +148,7 @@ void CMessageBox::paintButtons()
 		m_window->paintBoxRel(xpos, m_height-m_fheight-20, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
 		//m_window->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos+14, m_height-m_fheight-15);
 		m_window->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos+14, m_height-m_fheight - 20, m_fheight);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_NO), (CFBWindow::color_t)color, 0, true); // UTF-8
+		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, (m_height - 20)-(m_fheight-fh)/2, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_NO), (CFBWindow::color_t)color, 0, true); // UTF-8
 		xpos += ButtonWidth + ButtonSpacing;
 	}
 
