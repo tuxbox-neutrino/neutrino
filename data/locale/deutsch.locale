@@ -83,7 +83,7 @@ bookmarkmanager.select Auswählen
 bouqueteditor.add Zufügen
 bouqueteditor.bouquetname Name des Bouquets
 bouqueteditor.delete Löschen
-bouqueteditor.delete_question Soll der Kanal aus diesem Bouquet gelöschet werden?
+bouqueteditor.delete_question Soll der Kanal aus diesem Bouquet gelöscht werden?
 bouqueteditor.discardingchanges Änderungen werden verworfen. Bitte warten ...
 bouqueteditor.hide Verstecken
 bouqueteditor.lock Sperren
