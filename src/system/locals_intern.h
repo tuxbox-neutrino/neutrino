@@ -207,6 +207,7 @@ const char *locale_real_names[] = {
 	"bouqueteditor.add",
 	"bouqueteditor.bouquetname",
 	"bouqueteditor.delete",
+	"bouqueteditor.delete_question",	
 	"bouqueteditor.discardingchanges",
 	"bouqueteditor.hide",
 	"bouqueteditor.lock",

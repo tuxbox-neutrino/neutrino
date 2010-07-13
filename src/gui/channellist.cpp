@@ -351,7 +351,7 @@ int CChannelList::doChannelMenu(void)
 		switch(select) {
 			case 0:
 				hide();
-				result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, "Delete channel from bouquet?", CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+				result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 
 				if(result == CMessageBox::mbrYes) {
 					bouquet_id = bouquetList->getActiveBouquetNumber();
@@ -1025,7 +1025,7 @@ printf("**************************** CChannelList::zapTo_ChannelID %llx\n", chan
 
 /* forceStoreToLastChannels defaults to false */
 /* TODO make this private to call only from "current" list, where selected/pos not means channel number */
-void CChannelList::zapTo(int pos, bool forceStoreToLastChannels)
+void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 {
 	if (chanlist.empty()) {
 		DisplayErrorMessage(g_Locale->getText(LOCALE_CHANNELLIST_NONEFOUND)); // UTF-8

@@ -194,6 +194,7 @@ bookmarkmanager.select select
 bouqueteditor.add Add
 bouqueteditor.bouquetname Name of bouquets
 bouqueteditor.delete Delete
+bouqueteditor.delete_question Delete channel from bouquet?
 bouqueteditor.discardingchanges Discarding changes. Please be patient.
 bouqueteditor.hide Hide
 bouqueteditor.lock Lock
