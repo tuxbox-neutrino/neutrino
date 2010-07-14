@@ -202,7 +202,8 @@ bookmarkmanager.select vyber
 bouqueteditor.add pridaj
 bouqueteditor.bouquetname Názov buketu
 bouqueteditor.delete zmaž
-bouqueteditor.discardingchanges Zrušenie zmien. Prosim čakajte.
+bouqueteditor.delete_question Vymazať kanál z buketu?
+bouqueteditor.discardingchanges Zrušenie zmien. Prosím čakaj...
 bouqueteditor.hide skry
 bouqueteditor.lock zamkni
 bouqueteditor.move presuň
@@ -211,7 +212,7 @@ bouqueteditor.newbouquetname Nový názov buketu
 bouqueteditor.rename premenuj
 bouqueteditor.return naspäť
 bouqueteditor.savechanges? Uloženie týchto zmien?
-bouqueteditor.savingchanges Ukladám zmeny. Prosim čakaj ...
+bouqueteditor.savingchanges Ukladám zmeny. Prosím čakaj...
 bouqueteditor.switch pridaj/odstráň
 bouqueteditor.switchmode TV/Rádio
 bouquetlist.head Bukety
@@ -989,13 +990,13 @@ scants.select_tp Vyber transpondér
 screensetup.lowerright zelený = dolný, pravý okraj
 screensetup.upperleft červený = horný, ľavý oraj
 servicemenu.getplugins Načítanie PLUGINov
-servicemenu.getplugins_hint Načítavanie PLUGINov,\nprosím čakajte.
+servicemenu.getplugins_hint Načítavanie PLUGINov,\nprosím čakaj...
 servicemenu.head Služby
 servicemenu.reload Načítanie zoznamu kanálov
-servicemenu.reload_hint Načítavania zoznamu kanálov,\nprosím počkajte.
+servicemenu.reload_hint Načítavania zoznamu kanálov,\nprosím čakaj...
 servicemenu.restart Reštart software
 servicemenu.restart_failed Chyba počas reštartu
-servicemenu.restart_hint Reštartovanie, prosím čakajte
+servicemenu.restart_hint Reštartovanie, prosím čakaj...
 servicemenu.restart_refused_recording Neumožnené reštartovanie, prebieha nahrávanie
 servicemenu.scants Hľadanie kanálov
 servicemenu.ucodecheck Kontrola verzie uCodes
