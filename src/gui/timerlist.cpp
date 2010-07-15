@@ -403,8 +403,7 @@ void CTimerList::updateEvents(void)
 		}
 	}
 	sort(timerlist.begin(), timerlist.end());
-
-	width = w_max(720, 0);
+	width = w_max(g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth()*56, 20);
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 
 	int icol_w, icol_h;
