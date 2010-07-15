@@ -1419,18 +1419,18 @@ void CFileBrowser::paintFoot()
 		//OK-Button
 		if( (filelist[selected].getType() != CFile::FILE_UNKNOWN) || (S_ISDIR(filelist[selected].Mode)) )
 		{
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x +3 , by2 - 3);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x +10 , by2 - 3);
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + noname, ty2, dx - noname, g_Locale->getText(LOCALE_FILEBROWSER_SELECT), COL_INFOBAR /*_SHADOW_PLUS_1*/, 0, true); // UTF-8
 
 		}
 
 		//?-Button
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x + (1 * dx), by2 - 3);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x + 10 +(1 * dx), by2 - 3);
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + noname + (1 * dx), ty2, dx - noname, g_Locale->getText(sortByNames[g_settings.filebrowser_sortmethod]), COL_INFOBAR /*_SHADOW_PLUS_1*/, 0, true); // UTF-8
 
 		//Mute-Button
 		if (strncmp(Path.c_str(), VLC_URI, strlen(VLC_URI)) != 0) { //Not in vlc mode
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, x + (2 * dx), by2 - 3);
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, x + 10 + (2 * dx), by2 - 3);
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + noname + (2 * dx), ty2, dx - noname, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), COL_INFOBAR /*_SHADOW_PLUS_1*/, 0, true); // UTF-8
 		}
 

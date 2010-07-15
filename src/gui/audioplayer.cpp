@@ -1680,6 +1680,12 @@ const struct button_label AudioPlayerButtons[][4] =
 void CAudioPlayerGui::paintFoot()
 {
 	//	printf("paintFoot{\n");
+const struct button_label ScondLineButtons[2] =
+{
+	{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_AUDIOPLAYER_PLAY        },
+	{ NEUTRINO_ICON_BUTTON_HELP , LOCALE_AUDIOPLAYER_KEYLEVEL        },
+};
+
 	int top;
 	int c_rad_mid = RADIUS_MID;
 	if (m_show_playlist)
@@ -1688,22 +1694,14 @@ void CAudioPlayerGui::paintFoot()
 		top = m_y + (m_height - 2 * m_buttonHeight);
 
 	int ButtonWidth = (m_width - 20) / 4;
-	int ButtonWidth2 = (m_width - 50) / 2;
+	//int ButtonWidth2 = (m_width - 50) / 2;
 	m_frameBuffer->paintBoxRel(m_x, top, m_width, 2 * m_buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, CORNER_BOTTOM);
 	m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_1);
 
 	if (!m_playlist.empty())
 	{
-		// play
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, m_x + 1 * ButtonWidth2 + 25, top + m_buttonHeight - 3);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
-		->RenderString(m_x + 1 * ButtonWidth2 + 53, top + m_buttonHeight + 24 - 4, ButtonWidth2 - 28,
-			       g_Locale->getText(LOCALE_AUDIOPLAYER_PLAY), COL_INFOBAR /*_SHADOW_PLUS_1*/, 0, true); // UTF-8
-		// keylevel switch
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, m_x + 0 * ButtonWidth + 25, top + m_buttonHeight - 3);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
-		->RenderString(m_x + 0 * ButtonWidth + 53 , top + m_buttonHeight + 24 - 4, ButtonWidth2 - 28,
-			       g_Locale->getText(LOCALE_AUDIOPLAYER_KEYLEVEL), COL_INFOBAR /*_SHADOW_PLUS_1*/, 0, true); // UTF-8
+	  		::paintButtons(m_frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, m_x + 10, top+m_buttonHeight, ButtonWidth, 2, ScondLineButtons);
+
 	}
 
 	if (m_key_level == 0)

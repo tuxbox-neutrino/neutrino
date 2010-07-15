@@ -875,7 +875,6 @@ const char *locale_real_names[] = {
 	"pictureviewer.show",
 	"pictureviewer.slide_time",
 	"pictureviewer.slideshow",
-	"pictureviewer.sortorder",
 	"pictureviewer.sortorder.date",
 	"pictureviewer.sortorder.filename",
 	"ping.ok",
