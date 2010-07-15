@@ -1034,9 +1034,8 @@ pictureviewer.scaling Skalierung
 pictureviewer.show Anzeigen
 pictureviewer.slide_time Diaschau-Anzeigedauer
 pictureviewer.slideshow Diaschau
-pictureviewer.sortorder Sort.reihenf. ändern
-pictureviewer.sortorder.date (Datum)
-pictureviewer.sortorder.filename (Dateiname)
+pictureviewer.sortorder.date Sort.reihenf. ändern (Datum)
+pictureviewer.sortorder.filename Sort.reihenf. ändern (Dateiname)
 ping.ok ist erreichbar (ping)
 ping.protocol ist nicht erreichbar (Host- oder Protokoll-Fehler)
 ping.socket ist nicht erreichbar (Socket-Fehler)

@@ -674,9 +674,8 @@ pictureviewer.scaling scaling
 pictureviewer.show show
 pictureviewer.slide_time slideshow display time
 pictureviewer.slideshow slideshow
-pictureviewer.sortorder change sort order
-pictureviewer.sortorder.date (date)
-pictureviewer.sortorder.filename (filename)
+pictureviewer.sortorder.date change sort order (date)
+pictureviewer.sortorder.filename change sort order (filename)
 ping.ok is reachable (ping)
 ping.protocol is unreachable (host or protocol error)
 ping.socket is unreachable (socket error)

@@ -633,9 +633,8 @@ pictureviewer.scaling Rodzaj skalowania
 pictureviewer.show Wyświetl
 pictureviewer.slide_time Czas wyświetlania pokazu slajdów
 pictureviewer.slideshow Pokaz slajdów
-pictureviewer.sortorder Zmień kolejność sortowania
-pictureviewer.sortorder.date (data)
-pictureviewer.sortorder.filename (nazwa pliku)
+pictureviewer.sortorder.date Zmień kolejność sortowania (data)
+pictureviewer.sortorder.filename Zmień kolejność sortowania (nazwa pliku)
 ping.ok jest dostępny (ping)
 ping.protocol jest niedostępny (błąd hosta lub protokołu)
 ping.socket jest niedostępny (błąd gniazda)

@@ -870,9 +870,8 @@ pictureviewer.scaling Prispôsobenie
 pictureviewer.show zobraz
 pictureviewer.slide_time Čas zobrazenia pri prezentácii
 pictureviewer.slideshow Prezentácia
-pictureviewer.sortorder Zmena poradia triedenia
-pictureviewer.sortorder.date (dátum)
-pictureviewer.sortorder.filename (názov súboru)
+pictureviewer.sortorder.date Zmena poradia triedenia (dátum)
+pictureviewer.sortorder.filename Zmena poradia triedenia (názov súboru)
 ping.ok odpovedal (ping)
 ping.protocol je nedosiahnutý (chyba hostu alebo protokolu)
 ping.socket je nedosiahnutý (chyba soketu)
