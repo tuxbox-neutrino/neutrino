@@ -294,9 +294,10 @@ int CBouquetList::show(bool bShowChannelList)
 	//	return res;
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
+	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 
-	width  = w_max (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*55, 20);//500
-	height = h_max (440, 40);
+	width  = w_max (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*53, 20);//500
+	height = h_max (16 * fheight, 40);
 
 	/* assuming all color icons must have same size */
 	int icol_w, icol_h;
@@ -305,7 +306,6 @@ int CBouquetList::show(bool bShowChannelList)
 	//buttonHeight = 7 + std::max(icol_h+2, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
 	buttonHeight = std::max(icol_h+4, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
 	listmaxshow = (height - theight - buttonHeight)/fheight;
 	height      = theight + buttonHeight + listmaxshow * fheight; // recalc height
 
