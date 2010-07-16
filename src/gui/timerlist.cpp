@@ -680,6 +680,7 @@ void CTimerList::paintItem(int pos)
 		char zStopTime[25] = {0};
 		struct tm *stopTime = localtime(&(timer.stopTime));
 		strftime(zStopTime,20,"%d.%m. %H:%M",stopTime);
+		int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+10,ypos+fheight, fw*12, zAlarmTime, color, fheight, true); // UTF-8
 		if (timer.stopTime != 0)
 		{
