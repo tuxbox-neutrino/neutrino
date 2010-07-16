@@ -181,8 +181,8 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	if (parent)
 		parent->hide();
 
-
-        width  = w_max (500, 0);
+	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
+	width  = w_max (52 * fw, 20);
         height = h_max (440, 50);
 	listmaxshow = (height-theight-0)/iheight;
 	height = theight+0+listmaxshow*iheight; // recalc height
