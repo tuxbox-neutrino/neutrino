@@ -203,8 +203,9 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		parent->hide();
 
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
+	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 	width  = w_max (52 * fw, 20);
-	height = h_max (440, 50);
+	height = h_max (20 * fh, 50);
 	listmaxshow = (height-theight-0)/iheight;
 	height = theight+0+listmaxshow*iheight; // recalc height
         x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
