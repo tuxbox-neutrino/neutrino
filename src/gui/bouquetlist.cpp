@@ -295,7 +295,7 @@ int CBouquetList::show(bool bShowChannelList)
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, "");
 
-	width  = w_max (500, 0);
+	width  = w_max (g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*55, 20);//500
 	height = h_max (440, 40);
 
 	/* assuming all color icons must have same size */
