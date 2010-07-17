@@ -48,6 +48,7 @@ class CScanTs : public CMenuTarget
 		int width;
 		int height;
 		int hheight, mheight; // head/menu font height
+		int fw;
 		int xpos1; //x position for first column
 		int xpos2; //x position for second column
 		int radar; 
