@@ -428,8 +428,8 @@ flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
 flashupdate.writeflashmtd einzelne Partition einspielen
 flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
-flashupdate.new_found Updates Verfügbar !
-flashupdate.new_notfound Keine Updates Verfügbar !
+flashupdate.new_found Updates verfügbar !
+flashupdate.new_notfound Keine Updates verfügbar !
 fontmenu.menu Menü
 fontmenu.sizes Schriftgrössen
 fontmenu.channellist Kanalliste
