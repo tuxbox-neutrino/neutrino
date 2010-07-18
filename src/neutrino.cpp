@@ -3733,7 +3733,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 printf("now: %ld, timer %ld, FP timer %ld\n", mtime/60, timer_minutes/60, fp_timer);fflush(stdout);
 
 				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS];
-				standby.flags               = 0;
+				standby.flags               = 0x40;
 				standby.current_hour        = tmtime->tm_hour;
 				standby.current_minute      = tmtime->tm_min;
 				standby.timer_minutes_hi    = fp_timer >> 8;;
