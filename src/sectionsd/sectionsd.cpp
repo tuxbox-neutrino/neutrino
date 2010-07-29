@@ -809,7 +809,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 					(si->second->linkage_descs[i].transportStreamId !=
 						evt.linkage_descs[i].transportStreamId) ||
 					(strcmp(si->second->linkage_descs[i].name.c_str(),
-						evt.linkage_descs[i].name.c_str()) != 0)){
+						evt.linkage_descs[i].name.c_str()) != 0)) {
 					already_exists = false;
 					break;
 				}
@@ -817,7 +817,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		}
 	}
  
-	if ((already_exists) && (evt.linkage_descs.size() > 0)) {
+	if ((already_exists) && (evt.ratings.size() > 0)) {
 		if (si->second->ratings.size() != evt.ratings.size())
 			already_exists = false;
 		else {
@@ -825,7 +825,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 			SIparentalRatings::iterator p2 = evt.ratings.begin();
 			while ((p1 != si->second->ratings.end()) && (p2 != evt.ratings.end())) {
 				if ((p1->rating != p2->rating) ||
-					(strcmp(p1->countryCode.c_str(),p2->countryCode.c_str()) != 0)){
+					(strcmp(p1->countryCode.c_str(),p2->countryCode.c_str()) != 0)) {
 					already_exists = false;
 					break;
 				}
@@ -843,8 +843,10 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 			SItimes::iterator t2 = evt.times.begin();
 			while ((t1 != si->second->times.end()) && (t2 != evt.times.end())) {
 				if ((t1->startzeit != t2->startzeit) ||
-					(t1->dauer != t2->dauer))
+					(t1->dauer != t2->dauer)) {
 					already_exists = false;
+					break;
+				}
 				t1++;
 				t2++;
 			}
@@ -890,7 +892,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		if (mySIeventsOrderUniqueKey.size() >= max_events) {
 			//FIXME: Set Old Events to 0 if limit is reached...
 			MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
-										mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
+				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
 			lastEvent--;
 
 			//preserve events of current channel
@@ -2184,6 +2186,28 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 #ifdef ENABLE_PPT
 		dmxPPT.request_unpause();
 #endif
+		writeLockEvents();
+		if (myCurrentEvent) {
+			delete myCurrentEvent;
+			myCurrentEvent = NULL;
+		}
+		if (myNextEvent) {
+			delete myNextEvent;
+			myNextEvent = NULL;
+		}
+		unlockEvents();
+		writeLockMessaging();
+		messaging_have_CN = 0x00;
+		messaging_got_CN = 0x00;
+		unlockMessaging();
+		scanning = 1;
+		if (!bTimeCorrect && !ntpenable)
+		{
+			pthread_mutex_lock(&timeThreadSleepMutex);
+			pthread_cond_broadcast(&timeThreadSleepCond);
+			pthread_mutex_unlock(&timeThreadSleepMutex);
+		}
+
 		scanning = 1;
 		dmxCN.change(0);
 		dmxEIT.change(0);
@@ -3026,7 +3050,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 		dmxCN.setCurrentService(messaging_current_servicekey & 0xffff);
 		dmxEIT.setCurrentService(messaging_current_servicekey & 0xffff);
 #ifdef ENABLE_FREESATEPG
-		dmxFSEIT.change( 0 );
+		dmxFSEIT.setCurrentService(messaging_current_servicekey & 0xffff);
 #endif
 	}
 	else
@@ -6914,7 +6938,7 @@ static void *fseitThread(void *)
 	bool sendToSleepNow = false;
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 
-	dmxFSEIT.addfilter(0x60, 0xff); //other TS, scheduled, freesat epg is only broadcast using table_ids 0x60 (scheduled) and 0x61 (scheduled later)
+	dmxFSEIT.addfilter(0x60, 0xfe); //other TS, scheduled, freesat epg is only broadcast using table_ids 0x60 (scheduled) and 0x61 (scheduled later)
 
 	if (debug) {
 		int policy;
@@ -7476,6 +7500,7 @@ static void *eitThread(void *)
 							//fprintf(stderr, "%02x ", header.table_id);
 							if(sectionsd_stop)
 								break;
+//printf("Adding event 0x%llx table %x version %x running %d\n", e->uniqueKey(), header->table_id, header->version_number, e->runningStatus());
 							addEvent(*e, header->table_id, zeit);
 						}
 					}

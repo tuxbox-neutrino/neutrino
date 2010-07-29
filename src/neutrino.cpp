@@ -2612,24 +2612,22 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	if (display_language_selection) {
 		hintBox->hide();
-		if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes) {
-			languageSettings.setWizardMode(true);
-			int ret = languageSettings.exec(NULL, "");
-			languageSettings.setWizardMode(false);
+		languageSettings.setWizardMode(true);
+		languageSettings.exec(NULL, "");
+		languageSettings.setWizardMode(false);
 
-			if(ret != menu_return::RETURN_EXIT_ALL) {
-				videoSettings->setWizardMode(true);
-				videoSettings->exec(NULL, "");
-				videoSettings->setWizardMode(false);
-			}
+		if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes) {
+			videoSettings->setWizardMode(true);
+			ret = videoSettings->exec(NULL, "");
+			videoSettings->setWizardMode(false);
 			if(ret != menu_return::RETURN_EXIT_ALL) {
 				colorSettings.setWizardMode(true);
-				colorSettings.exec(NULL, "");
+				ret = colorSettings.exec(NULL, "");
 				colorSettings.setWizardMode(false);
 			}
 			if(ret != menu_return::RETURN_EXIT_ALL) {
 				networkSettings.setWizardMode(true);
-				networkSettings.exec(NULL, "");
+				ret = networkSettings.exec(NULL, "");
 				networkSettings.setWizardMode(false);
 			}
 			if(ret != menu_return::RETURN_EXIT_ALL) {

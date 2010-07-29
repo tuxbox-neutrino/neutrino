@@ -1147,7 +1147,7 @@ int CTimerList::newTimer()
 				mwtv->addItem(new CMenuForwarderNonLocalized((*channels)[j]->getName().c_str(), true, NULL, this, (std::string(cChannelId) + (*channels)[j]->getName()).c_str()));
 			}
 			if (!channels->empty())
-				mctv.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->Name.c_str(), true, NULL, mwtv));
+				mctv.addItem(new CMenuForwarderNonLocalized(g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str() /*g_bouquetManager->Bouquets[i]->Name.c_str()*/, true, NULL, mwtv));
 
 
 			channels = &(g_bouquetManager->Bouquets[i]->radioChannels);

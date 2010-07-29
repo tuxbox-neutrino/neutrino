@@ -900,13 +900,30 @@ static cDemux * dmx;
 
 int CStreamInfo2::ts_setup ()
 {
+#if 0
 	if (g_RemoteControl->current_PIDs.PIDs.vpid == 0)
+		return -1;
+#endif
+	unsigned short vpid, apid = 0;
+
+	vpid = g_RemoteControl->current_PIDs.PIDs.vpid;
+	if(g_RemoteControl->current_PIDs.APIDs.size() > 0)
+		apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;
+	
+	if(vpid == 0 && apid == 0)
 		return -1;
 
 	dmx = new cDemux(1);
 
-	dmx->Open(DMX_TP_CHANNEL, NULL, 3008 * 62);
-	dmx->pesFilter(g_RemoteControl->current_PIDs.PIDs.vpid);
+	dmx->Open(DMX_TP_CHANNEL, NULL, 3 * 3008 * 62);
+
+	if(vpid > 0) {
+		dmx->pesFilter(vpid);
+		if(apid > 0)
+			dmx->addPid(apid);
+	} else
+		dmx->pesFilter(apid);
+
 	dmx->Start();
 
 	gettimeofday (&first_tv, NULL);

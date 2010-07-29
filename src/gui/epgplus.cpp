@@ -42,6 +42,7 @@
 #include <zapit/client/zapittools.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <zapit/satconfig.h>
 
 #include <algorithm>
 #include <sstream>
@@ -369,6 +370,7 @@ void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
 			this->width - 4, this->displayName, isSelected ? COL_MENUCONTENTSELECTED : COL_MENUCONTENT, 0, true);
 
 	if (isSelected) {
+#if 0
 		for (uint32_t i = 0; i < this->bouquetList->Bouquets.size(); ++i) {
 			CBouquet *bouquet = this->bouquetList->Bouquets[i];
 			for (int j = 0; j < bouquet->channelList->getSize(); ++j) {
@@ -384,6 +386,15 @@ void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
 			}
 			if (bouquet == NULL)
 				break;
+		}
+#endif
+		if(this->channel->pname) {
+			this->footer->setBouquetChannelName(this->channel->pname, this->channel->getName());
+		} else {
+			sat_iterator_t sit = satellitePositions.find(this->channel->getSatellitePosition());
+			if(sit != satellitePositions.end()) {
+				this->footer->setBouquetChannelName(sit->second.name, this->channel->getName());
+			}
 		}
 	}
 	// paint the separation line
