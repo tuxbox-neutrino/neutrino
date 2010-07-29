@@ -359,7 +359,18 @@ void CInfoViewer::paintBackground(int col_NumBox)
 				 ChanWidth, ChanHeight,
 				 col_NumBox, c_rad_mid);
 }
-
+void CInfoViewer::paintCA_bar()
+{
+ 	frameBuffer->paintBox(ChanInfoX, BoxEndY, BoxEndX, BoxEndY + bottom_bar_offset, COL_BLACK);
+	int xcnt = (BoxEndX - ChanInfoX) / 4;
+	int ycnt = bottom_bar_offset / 4;
+	for (int i = 0; i < xcnt; i++) {
+		for (int j = 0; j < ycnt; j++){
+			/* BoxEndY + 2 is the magic number that also appears in paint_ca_icons */
+			frameBuffer->paintBoxRel((ChanInfoX + 2) + i*4, BoxEndY + 2 + j*4, 2, 2, COL_INFOBAR_PLUS_1);
+		}
+	}
+}
 void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id, const bool calledFromNumZap, int epgpos)
 {
 	last_curr_id = last_next_id = 0;
@@ -550,14 +561,9 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 
 		if (g_settings.casystem_display)
 		{ // FIXME
-			frameBuffer->paintBox(ChanInfoX, BoxEndY, BoxEndX, BoxEndY + bottom_bar_offset, COL_BLACK);
-			int xcnt = (BoxEndX - ChanInfoX) / 4;
-			int ycnt = bottom_bar_offset / 4;
-			for (int i = 0; i < xcnt; i++) {
-				for (int j = 0; j < ycnt; j++)
-					/* BoxEndY + 2 is the magic number that also appears in paint_ca_icons */
-					frameBuffer->paintBoxRel((ChanInfoX + 2) + i*4, BoxEndY + 2 + j*4, 2, 2, COL_INFOBAR_PLUS_1);
-			}
+#ifndef SKIP_CA_STATUS
+			paintCA_bar();
+#endif
 		}
 		frameBuffer->paintBoxRel(ChanInfoX, BBarY, BoxEndX - ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
 
@@ -1802,106 +1808,108 @@ int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*action
 	return res;
 }
 
-void CInfoViewer::paint_ca_icons(int caid, char * icon)
+void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 {
 	char buf[20];
 	int endx = BoxEndX -3;
 	int py = BoxEndY + 2; /* hand-crafted, should be automatic */
 	int px = 0;
-	const char *icon_name[10] = {"powervu","d","biss","ird","seca","via","nagra","conax","cw","nds"};
-	static int icon_offset[10] = {0,0,0,0,0,0,0,0,0,0};
+	static map<int, std::pair<int,const char*> > icon_map;
+	const int icon_space = 10, icon_number = 10;
+
+	static int icon_offset[icon_number] = {0,0,0,0,0,0,0,0,0,0};
+	static int icon_sizeW [icon_number] = {0,0,0,0,0,0,0,0,0,0};
 	static bool init_flag = false;
 
 	if(!init_flag){
 		init_flag = true;
-		int icon_sizeH = 0;
-		int icon_sizeW [10] = {0,0,0,0,0,0,0,0,0,0};
+		int icon_sizeH = 0, index = 0;
+		map<int, std::pair<int,const char*> >::const_iterator it;
 
-		for(int i = 0; i < 10; i++){
-			sprintf(buf, "%s_%s", icon_name[i], icon);//2 biss
-			frameBuffer->getIconSize(buf, &icon_sizeW[i], &icon_sizeH);
+		icon_map[0x0E00] = std::make_pair(index++,"powervu");
+		icon_map[0x4A00] = std::make_pair(index++,"d");
+		icon_map[0x2600] = std::make_pair(index++,"biss");
+		icon_map[0x0600] = std::make_pair(index++,"ird");
+		icon_map[0x0100] = std::make_pair(index++,"seca");
+		icon_map[0x0500] = std::make_pair(index++,"via");
+		icon_map[0x1800] = std::make_pair(index++,"nagra");
+		icon_map[0x0B00] = std::make_pair(index++,"conax");
+		icon_map[0x0D00] = std::make_pair(index++,"cw");
+		icon_map[0x0900] = std::make_pair(index  ,"nds");
+
+		for(it=icon_map.begin(); it!=icon_map.end(); it++){
+			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, icon);
+			frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
 		}
 
-		for(int j = 0; j < 10; j++){
-			for(int i = j; i < 10; i++){
-				icon_offset[j] += icon_sizeW[i]+ 10;
+		for(int j = 0; j < icon_number; j++){
+			for(int i = j; i < icon_number; i++){
+				icon_offset[j] += icon_sizeW[i] + icon_space;
 		      }
 		}
 	}
+	if(( caid & 0xFF00 ) == 0x1700)
+		caid = 0x0600;
 
-	switch ( caid & 0xFF00 ) {
-	case 0x0E00:
-		px = endx - (icon_offset[0] - 10);
-		sprintf(buf, "%s_%s", icon_name[0], icon);//0 powervu
-		break;
-	case 0x4A00:
-		px = endx - (icon_offset[1] - 10);
-		sprintf(buf, "%s_%s", icon_name[1], icon);// 1 d
-		break;
-	case 0x2600:
-		px = endx - (icon_offset[2] - 10);
-		sprintf(buf, "%s_%s", icon_name[2], icon);//2 biss
-		break;
-	case 0x600:
-	case 0x1700:
-		px = endx - (icon_offset[3] - 10);
-		sprintf(buf, "%s_%s", icon_name[3], icon);//3 icon
-		break;
-	case 0x100:
-		px = endx - (icon_offset[4] - 10);
-		sprintf(buf, "%s_%s", icon_name[4], icon);//4 seca
-		break;
-	case 0x500:
-		px = endx - (icon_offset[5] - 10);
-		sprintf(buf, "%s_%s", icon_name[5], icon);//5 via 
-		break;
-	case 0x1800:
-		px = endx - (icon_offset[6] - 10);
-		sprintf(buf, "%s_%s", icon_name[6], icon);//6 nagra
-		break;
-	case 0xB00:
-		px = endx - (icon_offset[7] - 10);
-		sprintf(buf, "%s_%s", icon_name[7], icon);//7 conax
-		break;
-	case 0xD00:
-		px = endx - (icon_offset[8] - 10);
-		sprintf(buf, "%s_%s", icon_name[8], icon);//8 cw
-		break;
-	case 0x900:
-		px = endx - (icon_offset[9] - 10);
-		sprintf(buf, "%s_%s", icon_name[9], icon);//9 nds
-		break;
-	default:
-		break;
-	}/*case*/
+	if(g_settings.casystem_mode == 0){
+		px = endx - (icon_offset[icon_map[( caid & 0xFF00 )].first] - icon_space );
+	}else{
+		icon_space_offset += icon_sizeW[icon_map[( caid & 0xFF00 )].first];
+		px = endx - icon_space_offset;
+		icon_space_offset += 4;
+	}
+
 	if (px) {
+		snprintf(buf, sizeof(buf), "%s_%s", icon_map[( caid & 0xFF00 )].second, icon);
 		frameBuffer->paintIcon(buf, px, py );
 	}
 }
 
+void CInfoViewer::showOne_CAIcon(bool /*fta*/)
+{
+#if 0
+	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_16_9_GREY : NEUTRINO_ICON_16_9,BoxEndX - (3*icon_large_width + 2*icon_small_width + 5*2), BBarY,
+				       InfoHeightY_Info);
+#endif
+}
+
 void CInfoViewer::showIcon_CA_Status (int notfirst)
 {
-	if (!g_settings.casystem_display)
-		return;
-
-#if 0
-	FILE *f;
-	char input[256];
-	char buf[256];
-	int acaid = 0;
-	int py = BoxEndY - InfoHeightY_Info;
-	static char * green = (char *) "green";
-#endif
-	static char * gray = (char *) "white";
-	static char * white = (char *) "yellow";
-
 	extern int pmt_caids[4][11];
-	int i;
 	int caids[] = { 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
-	if (!notfirst) {
+	int i = 0;
+	if (!g_settings.casystem_display){
+		bool fta = true;
 		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
-			if(!(i == 1 && pmt_caids[0][0] != 0 && pmt_caids[0][1] == 0 ))
-				paint_ca_icons(caids[i], (char *) (pmt_caids[0][i] ? white : gray));
+			if(pmt_caids[0][i]){
+				fta = false;
+				break;
+			} 
+		}
+		showOne_CAIcon(fta);
+		return;
+	}
+	char * white = (char *) "white";
+	char * yellow = (char *) "yellow";
+	int icon_space_offset = 0;
+	bool paintIconFlag = false;
+
+	if(pmt_caids[0][0] != 0 && pmt_caids[0][1] != 0)
+		pmt_caids[0][1] = 0;
+
+	if (!notfirst) {
+		paintCA_bar();
+		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
+			if(!(i == 1 && pmt_caids[0][0] != 0 && pmt_caids[0][1] == 0 )){
+				if(g_settings.casystem_mode  && pmt_caids[0][i]){
+					paintIconFlag = true;
+				}else if(g_settings.casystem_mode == 0)
+					paintIconFlag = true;
+			}
+			if(paintIconFlag){
+				paint_ca_icons(caids[i], (char *) (pmt_caids[0][i] ? yellow : white),icon_space_offset);
+				paintIconFlag = false;
+			}
 		}
 	}
 }
