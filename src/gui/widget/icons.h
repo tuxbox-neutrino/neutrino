@@ -109,6 +109,8 @@
 #define NEUTRINO_ICON_AUTO_SHIFT	"ats"
 #define NEUTRINO_ICON_NUMERIC_PAD	"numericpad"
 #define NEUTRINO_ICON_SCRAMBLED		"ca"
+#define NEUTRINO_ICON_SCRAMBLED2	"ca2"
+#define NEUTRINO_ICON_SCRAMBLED2_GREY	"ca2_gray"
 #define NEUTRINO_ICON_BOOKMARK_MANAGER	"bookmarkmanager"
 #define NEUTRINO_ICON_BORDER_UL		"border_ul"
 #define NEUTRINO_ICON_BORDER_LR		"border_lr"

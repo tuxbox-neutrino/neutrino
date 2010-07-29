@@ -8,7 +8,7 @@ install_DATA = \
 	polski.png portugues.png romania.png russkij.png nederlands.png slovak.png suomi.png svenska.png \
 	blau.png gelb.png gruen.png rot.png \
 	bookmarkmanager.png border_lr.png border_ul.png \
-	ca.png colors.png dbox.png dbox_small.png \
+	ca.png ca2.png ca2_gray.png colors.png dbox.png dbox_small.png \
 	dd.png dd_avail.png dd_gray.png ddfill.png \
 	down.png up.png right.png left.png \
 	error.png features.png file.png folder.png games.png \

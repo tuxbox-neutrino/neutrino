@@ -1186,7 +1186,7 @@ void CInfoViewer::showSNR ()
 	/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 	   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 	   the scales */
-		varscale->paintProgressBar(BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2) - 102,
+		varscale->paintProgressBar(BoxEndX - ((g_settings.casystem_display ? 2:3)*icon_large_width + 2*icon_small_width + (g_settings.casystem_display ?4:5)*2) - 102,
 						BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
 		 per = 0;
 	//HD info
@@ -1209,7 +1209,7 @@ void CInfoViewer::showSNR ()
 			}
 		}
 
-		hddscale->paintProgressBar(BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2) - 102,
+		hddscale->paintProgressBar(BoxEndX - ((g_settings.casystem_display ? 2:3)*icon_large_width + 2*icon_small_width + (g_settings.casystem_display ?4:5)*2) - 102,
 							BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
 	}
 }
@@ -1865,12 +1865,10 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 	}
 }
 
-void CInfoViewer::showOne_CAIcon(bool /*fta*/)
+void CInfoViewer::showOne_CAIcon(bool fta)
 {
-#if 0
-	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_16_9_GREY : NEUTRINO_ICON_16_9,BoxEndX - (3*icon_large_width + 2*icon_small_width + 5*2), BBarY,
+	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (3*icon_large_width + 2*icon_small_width + 5*2), BBarY,
 				       InfoHeightY_Info);
-#endif
 }
 
 void CInfoViewer::showIcon_CA_Status (int notfirst)
