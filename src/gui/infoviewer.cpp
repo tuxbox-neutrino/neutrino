@@ -147,7 +147,7 @@ void CInfoViewer::Init()
 	fileplay = 0;
 
 	/* maybe we should not tie this to the blinkenlights settings? */
-	if (g_settings.casystem_display)
+	if (g_settings.casystem_display != 2)
 		bottom_bar_offset = 22;
 	else
 		bottom_bar_offset = 0;
@@ -390,7 +390,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		casysChange = g_settings.casystem_display;
 		channellogoChange = g_settings.infobar_show_channellogo;
 
-		if (g_settings.casystem_display)
+		if (g_settings.casystem_display != 2)
 			  bottom_bar_offset = 22;
 		else
 			bottom_bar_offset = 0;
@@ -559,7 +559,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 	if (showButtonBar) {
 		sec_timer_id = g_RCInput->addTimer (1*1000*1000, false);
 
-		if (g_settings.casystem_display)
+		if (g_settings.casystem_display != 2)
 		{ // FIXME
 #ifndef SKIP_CA_STATUS
 			paintCA_bar();
@@ -1186,7 +1186,7 @@ void CInfoViewer::showSNR ()
 	/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 	   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 	   the scales */
-		varscale->paintProgressBar(BoxEndX - ((g_settings.casystem_display ? 2:3)*icon_large_width + 2*icon_small_width + (g_settings.casystem_display ?4:5)*2) - 102,
+		varscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 2:3)*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?4:5)*2) - 102,
 						BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
 		 per = 0;
 	//HD info
@@ -1209,7 +1209,7 @@ void CInfoViewer::showSNR ()
 			}
 		}
 
-		hddscale->paintProgressBar(BoxEndX - ((g_settings.casystem_display ? 2:3)*icon_large_width + 2*icon_small_width + (g_settings.casystem_display ?4:5)*2) - 102,
+		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 2:3)*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?4:5)*2) - 102,
 							BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
 	}
 }
@@ -1851,7 +1851,7 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 	if(( caid & 0xFF00 ) == 0x1700)
 		caid = 0x0600;
 
-	if(g_settings.casystem_mode == 0){
+	if(g_settings.casystem_display == 0){
 		px = endx - (icon_offset[icon_map[( caid & 0xFF00 )].first] - icon_space );
 	}else{
 		icon_space_offset += icon_sizeW[icon_map[( caid & 0xFF00 )].first];
@@ -1876,7 +1876,7 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 	extern int pmt_caids[4][11];
 	int caids[] = { 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
 	int i = 0;
-	if (!g_settings.casystem_display){
+	if (g_settings.casystem_display == 2){
 		bool fta = true;
 		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
 			if(pmt_caids[0][i]){
@@ -1899,9 +1899,9 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 		paintCA_bar();
 		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
 			if(!(i == 1 && pmt_caids[0][0] != 0 && pmt_caids[0][1] == 0 )){
-				if(g_settings.casystem_mode  && pmt_caids[0][i]){
+				if((g_settings.casystem_display == 1 )  && pmt_caids[0][i]){
 					paintIconFlag = true;
-				}else if(g_settings.casystem_mode == 0)
+				}else if(g_settings.casystem_display == 0 )
 					paintIconFlag = true;
 			}
 			if(paintIconFlag){

@@ -711,7 +711,7 @@ miscsettings.head Diverse Einstellungen
 miscsettings.hwsections EPG Daten per Hardware filtern
 miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Anzeige
-miscsettings.infobar_casystem_mode CA-System small Mode
+miscsettings.infobar_casystem_mode Diskret
 miscsettings.infobar_disp_0 Kein Logo
 miscsettings.infobar_disp_1 Logo in der Nummernbox
 miscsettings.infobar_disp_2 Logo Infobar / Kanalnummer

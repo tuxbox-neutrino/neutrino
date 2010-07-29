@@ -1884,7 +1884,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTIO
 	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
 };
 
-#define AUDIOMENU_CLOCKREC_OPTION_COUNT 3
+#define AUDIOMENU_CLOCKREC_OPTION_COUNT 2
 const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_OPTION_COUNT] =
 {
 	{ 0, LOCALE_OPTIONS_OFF },
@@ -2447,6 +2447,14 @@ const CMenuOptionChooser::keyval OSD_PRESET_OPTIONS[OSD_PRESET_OPTIONS_COUNT] =
 	{ 1, LOCALE_COLORMENU_HD_PRESET }
 };
 
+#define INFOBAR_CASYSTEM_MODE_OPTION_COUNT 3
+const CMenuOptionChooser::keyval INFOBAR_CASYSTEM_MODE_OPTIONS[INFOBAR_CASYSTEM_MODE_OPTION_COUNT] =
+{
+	{ 0, LOCALE_OPTIONS_ON },
+	{ 1, LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_MODE },
+	{ 2, LOCALE_OPTIONS_OFF  },
+};
+
 void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fontSettings )
 {
 	CScreenSetup  * ScreenSetup = new CScreenSetup();
@@ -2471,10 +2479,7 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	addMenueIntroItems(*miscSettingsInfobar);
 	miscSettingsInfobar->addItem(new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
-	CMenuOptionChooser *ca_mode  = new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_MODE, &g_settings.casystem_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.casystem_display);
-	CAModeNotifier* camodeNotifier = new CAModeNotifier( ca_mode );
-	miscSettingsInfobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, &g_settings.casystem_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, camodeNotifier));
-	miscSettingsInfobar->addItem(ca_mode);
+	miscSettingsInfobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, &g_settings.casystem_display, INFOBAR_CASYSTEM_MODE_OPTIONS, INFOBAR_CASYSTEM_MODE_OPTION_COUNT, true));
 
 	miscSettingsInfobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DISP_LOG, &g_settings.infobar_show_channellogo, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT, true));
 	miscSettingsInfobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_VIRTUAL_ZAP_MODE, &g_settings.virtual_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));

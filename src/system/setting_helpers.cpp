@@ -1017,15 +1017,3 @@ printf("CAllUsalsNotifier::changeNotify: %s\n", onoff ? "ON" : "OFF");
 	}
 	return true;
 }
-
-CAModeNotifier::CAModeNotifier(CMenuOptionChooser* i1)
-{
-	toDisable=i1;
-}
-
-bool CAModeNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	toDisable->setActive(g_settings.casystem_display);
-	return true;
-}
- 

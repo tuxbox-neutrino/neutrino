@@ -318,14 +318,4 @@ public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
 
-class CAModeNotifier : public CChangeObserver
-{
-	private:
-		CMenuOptionChooser* toDisable;
-	public:
-		CAModeNotifier( CMenuOptionChooser* );
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-
 #endif
