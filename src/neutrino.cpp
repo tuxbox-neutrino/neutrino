@@ -2620,7 +2620,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 		if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes) {
 			videoSettings->setWizardMode(true);
-			ret = videoSettings->exec(NULL, "");
+			bool ret = videoSettings->exec(NULL, "");
 			videoSettings->setWizardMode(false);
 			if(ret != menu_return::RETURN_EXIT_ALL) {
 				colorSettings.setWizardMode(true);
