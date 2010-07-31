@@ -448,7 +448,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 {
 	char buf[100];
 	//, buf2[100];
-	int xres, yres, aspectRatio, framerate;
+	int xres = 0, yres = 0, aspectRatio = 0, framerate;
 	// paint labels
 	int spaceoffset = 0,i = 0;
 	int array[5]={g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION)),
@@ -462,9 +462,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			spaceoffset = array[i];
 	}
 	average_bitrate_offset = spaceoffset+=4;
-
-	videoDecoder->getPictureInfo(xres, yres, framerate);
-	aspectRatio = videoDecoder->getAspectRatio();
+	if(!(videoDecoder->getBlank())){
+		  videoDecoder->getPictureInfo(xres, yres, framerate);
+		  aspectRatio = videoDecoder->getAspectRatio();
+	}
 	//Video RESOLUTION
 	ypos += iheight;
 	sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_STREAMINFO_RESOLUTION));
@@ -483,6 +484,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_STREAMINFO_ARATIO));
 	g_Font[font_info]->RenderString (xpos, ypos, width*2/3 - 10, buf, COL_MENUCONTENTDARK, 0, true);	// UTF-8
 	switch (aspectRatio) {
+		case 0:
+			sprintf ((char *) buf, "N/A");
+		break;
 		case 1:
 			sprintf ((char *) buf, "4:3");
 		break;

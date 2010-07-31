@@ -81,7 +81,7 @@ class CInfoViewer
 
 	int		asize;
 	int		icol_w, icol_h;
-	int 		icon_large_width, icon_small_width;
+	int 		icon_large_width, icon_small_width, icon_xres_width, icon_crypt_width;
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
         t_channel_id   channel_id;
 
@@ -120,7 +120,8 @@ class CInfoViewer
 	void showIcon_VTXT()      const;
 	void showRecordIcon(const bool show);
 	void showIcon_SubT() const;
-	
+	void showIcon_Resolution() const;
+
 	void showFailure();
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();

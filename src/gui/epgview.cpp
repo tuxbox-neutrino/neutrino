@@ -121,9 +121,6 @@ CEpgData::CEpgData()
 	frameBuffer = CFrameBuffer::getInstance();
 }
 
-#define MAX_W 540
-#define MAX_H 320
-
 void CEpgData::start()
 {
 	/* if you want usably sized epg windows, compile with "-DUSE_SPACE_EFFICIENTLY" */

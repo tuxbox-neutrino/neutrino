@@ -172,6 +172,13 @@ void CInfoViewer::Init()
 	if(icon_small_width == 0)
 		icon_small_width = 16;
 
+	frameBuffer->getIconSize(NEUTRINO_ICON_RESOLUTION_000, &icon_xres_width, &dummy_h);
+	if(icon_xres_width == 0)
+		icon_xres_width = 28;
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED2_GREY, &icon_crypt_width, &dummy_h);
+	if(icon_crypt_width == 0)
+		icon_crypt_width = 24;
 }
 
 /*
@@ -272,6 +279,8 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 		return;
 
 //	int ChanNameY = BoxStartY + (ChanHeight >> 1) + 5;	//oberkante schatten?
+	if (is_visible && showButtonBar)
+		  showIcon_Resolution();
 
 	char timestr[10];
 	struct timeb tm;
@@ -586,6 +595,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 		showIcon_16_9 ();
 		showIcon_VTXT ();
 		showIcon_SubT();
+		showIcon_Resolution();
 	}
 
 	if (fileplay) {
@@ -904,8 +914,13 @@ void CInfoViewer::showSubchan ()
 
 void CInfoViewer::showIcon_16_9 ()
 {
-	if ((aspectRatio == 0) || (aspectRatio != videoDecoder->getAspectRatio())) {
-		aspectRatio = videoDecoder->getAspectRatio();
+	if ((aspectRatio == 0) || ( g_RemoteControl->current_PIDs.PIDs.vpid == 0 ) || (aspectRatio != videoDecoder->getAspectRatio())) {
+		if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ){
+			  aspectRatio = videoDecoder->getAspectRatio();
+		}
+		else{
+			aspectRatio = 0;
+		}
 		frameBuffer->paintIcon((aspectRatio > 2) ? NEUTRINO_ICON_16_9 : NEUTRINO_ICON_16_9_GREY,
 				       BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2), BBarY,
 				       InfoHeightY_Info);
@@ -918,6 +933,55 @@ void CInfoViewer::showIcon_VTXT () const
 			       BoxEndX - (2*icon_small_width + 2*2), BBarY, InfoHeightY_Info);
 }
 
+void CInfoViewer::showIcon_Resolution() const
+{
+	int xres, yres, framerate;
+	const char *icon_name = NULL;
+	if(videoDecoder->getBlank()){
+		icon_name = NEUTRINO_ICON_RESOLUTION_000;
+	}
+	else{
+		videoDecoder->getPictureInfo(xres, yres, framerate);
+		switch(xres){
+			case 1920:
+			icon_name = NEUTRINO_ICON_RESOLUTION_1920;
+			break;
+			case 1440:
+			icon_name = NEUTRINO_ICON_RESOLUTION_1440;
+			break;
+			case 1280:
+			icon_name = NEUTRINO_ICON_RESOLUTION_1280;
+			break;
+			case 720:
+			icon_name = NEUTRINO_ICON_RESOLUTION_720;
+			break;
+			case 704:
+			icon_name = NEUTRINO_ICON_RESOLUTION_704;
+			break;
+			case 544:
+			icon_name = NEUTRINO_ICON_RESOLUTION_544;
+			break;
+			case 528:
+			icon_name = NEUTRINO_ICON_RESOLUTION_528;
+			break;
+			case 480:
+			icon_name = NEUTRINO_ICON_RESOLUTION_480;
+			break;
+			case 382:
+			icon_name = NEUTRINO_ICON_RESOLUTION_382;
+			break;
+			case 352:
+			icon_name = NEUTRINO_ICON_RESOLUTION_352;
+			break;
+			default:
+			icon_name = NEUTRINO_ICON_RESOLUTION_000;
+			break;
+		}
+	}
+
+	frameBuffer->paintBoxRel(BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, icon_large_width, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM);
+	frameBuffer->paintIcon(icon_name, BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, InfoHeightY_Info);
+}
 void CInfoViewer::showIcon_SubT() const
 {
 	bool have_sub = false;
@@ -966,6 +1030,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				showIcon_VTXT ();
 				showIcon_SubT();
 				showIcon_CA_Status (0);
+				showIcon_Resolution();
 			}
 		}
 		return messages_return::handled;
@@ -1186,7 +1251,7 @@ void CInfoViewer::showSNR ()
 	/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 	   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 	   the scales */
-		varscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 2:3)*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?4:5)*2) - 102,
+		varscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - 102,
 						BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
 		 per = 0;
 	//HD info
@@ -1209,7 +1274,7 @@ void CInfoViewer::showSNR ()
 			}
 		}
 
-		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 2:3)*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?4:5)*2) - 102,
+		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - 102,
 							BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
 	}
 }
@@ -1867,7 +1932,7 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 
 void CInfoViewer::showOne_CAIcon(bool fta)
 {
-	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (3*icon_large_width + 2*icon_small_width + 5*2), BBarY,
+	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (icon_xres_width + icon_crypt_width + 2*icon_large_width + 2*icon_small_width + 6*2), BBarY,
 				       InfoHeightY_Info);
 }
 

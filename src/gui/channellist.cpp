@@ -465,7 +465,8 @@ int CChannelList::show()
 	new_mode_active = 0;
 	pipzap = 0;
 
-	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * 15):(frameBuffer->getScreenWidth() / 20 * 14)), 0);
+	int  fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
+	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * (fw+6)):(frameBuffer->getScreenWidth() / 20 * (fw+5))), 0);
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
