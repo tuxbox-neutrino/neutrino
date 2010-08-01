@@ -942,9 +942,12 @@ void CInfoViewer::showIcon_Resolution() const
 	}
 	else{
 		videoDecoder->getPictureInfo(xres, yres, framerate);
-		switch(xres){
+		switch(yres){
 			case 1920:
 			icon_name = NEUTRINO_ICON_RESOLUTION_1920;
+			break;
+			case 1088:
+			icon_name = NEUTRINO_ICON_RESOLUTION_1080;
 			break;
 			case 1440:
 			icon_name = NEUTRINO_ICON_RESOLUTION_1440;
@@ -957,6 +960,9 @@ void CInfoViewer::showIcon_Resolution() const
 			break;
 			case 704:
 			icon_name = NEUTRINO_ICON_RESOLUTION_704;
+			break;
+			case 576:
+			icon_name = NEUTRINO_ICON_RESOLUTION_576;
 			break;
 			case 544:
 			icon_name = NEUTRINO_ICON_RESOLUTION_544;
