@@ -979,6 +979,9 @@ void CInfoViewer::showIcon_Resolution() const
 			case 352:
 			icon_name = NEUTRINO_ICON_RESOLUTION_352;
 			break;
+			case 288:
+			icon_name = NEUTRINO_ICON_RESOLUTION_288;
+			break;
 			default:
 			icon_name = NEUTRINO_ICON_RESOLUTION_000;
 			break;

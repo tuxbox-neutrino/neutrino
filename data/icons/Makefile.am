@@ -19,8 +19,8 @@ install_DATA = \
 	network.png not_mounted.png notyet.png numericpad.png ok.png power.png \
 	radar_red.pal radar.pal radar0.raw radar1.raw radar2.raw radar3.raw radar4.raw \
 	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw movieplayer.raw recording.png \
-	res_1280.png res_1920.png res_382.png res_528.png res_576.png res_720.png res_000.png \
-	res_1440.png res_352.png res_480.png res_544.png res_704.png res_1080.png \
+	res_1920.png res_1280.png res_1440.png res_1080.png res_720.png res_704.png res_576.png \
+	res_528.png res_544.png res_480.png res_382.png res_352.png res_288.png res_000.png \
 	settings.png shell.png softupdate.png streaming.png \
 	subt.png subt_gray.png timer.png video.png \
 	volume.png volumebody.png volumeslider2.png volumeslider2alpha.png \
