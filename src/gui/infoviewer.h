@@ -116,7 +116,6 @@ class CInfoViewer
 	void paint_ca_icons(int, char*, int&);
 	void paintCA_bar(int,int);
 	void showOne_CAIcon(bool);
-	void paintEmuIcons(int);
 #endif
 	void showIcon_VTXT()      const;
 	void showRecordIcon(const bool show);
