@@ -378,7 +378,10 @@ void CInfoViewer::paintCA_bar(int left, int right)
 		left =  xcnt - ((left/4)-1);
 
 	frameBuffer->paintBox(ChanInfoX + (right*4), BoxEndY, BoxEndX - (left*4), BoxEndY + bottom_bar_offset, COL_BLACK);
-	  
+
+	if(left)
+		left -= 1;
+
 	for (int i = 0  + right; i < xcnt - left; i++) {
 		for (int j = 0; j < ycnt; j++){
 			/* BoxEndY + 2 is the magic number that also appears in paint_ca_icons */
