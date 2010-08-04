@@ -509,22 +509,37 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	sprintf ((char *) buf, "%s:", g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE));
 	g_Font[font_info]->RenderString (xpos, ypos, width*2/3 - 10, buf, COL_MENUCONTENTDARK, 0, true);	// UTF-8
 	switch (framerate) {
+		case 0:
+			snprintf ((char *) buf,sizeof(buf), "23.976fps");
+		break;
+		case 1:
+			snprintf ((char *) buf,sizeof(buf), "24fps");
+		break;
 		case 2:
-			sprintf ((char *) buf, "25fps");
+			snprintf ((char *) buf,sizeof(buf), "25fps");
 		break;
 		case 3:
-			sprintf ((char *) buf, "30fps");
+			snprintf ((char *) buf,sizeof(buf), "29,976fps");
+		break;
+		case 4:
+			snprintf ((char *) buf,sizeof(buf), "30fps");
 		break;
 		case 5:
-			sprintf ((char *) buf, "50fps");
+			snprintf ((char *) buf,sizeof(buf), "50fps");
+		break;
+		case 6:
+			snprintf ((char *) buf,sizeof(buf), "50,94fps");
+		break;
+		case 7:
+			snprintf ((char *) buf,sizeof(buf), "60fps");
 		break;
 		default:
 			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf));
+		break;
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, width*2/3 - 10, buf, COL_MENUCONTENTDARK, 0, true);	// UTF-8
 	// place for average bitrate
 	average_bitrate_pos = ypos += iheight;
-
 	//AUDIOTYPE
 	ypos += iheight;
 	int type, layer, freq, mode, lbitrate;
