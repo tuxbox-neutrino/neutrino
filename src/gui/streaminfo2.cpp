@@ -512,6 +512,9 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		case 2:
 			sprintf ((char *) buf, "25fps");
 		break;
+		case 3:
+			sprintf ((char *) buf, "30fps");
+		break;
 		case 5:
 			sprintf ((char *) buf, "50fps");
 		break;

@@ -114,8 +114,9 @@ class CInfoViewer
 #ifndef SKIP_CA_STATUS
 	void showIcon_CA_Status(int);
 	void paint_ca_icons(int, char*, int&);
-	void paintCA_bar();
+	void paintCA_bar(int,int);
 	void showOne_CAIcon(bool);
+	void paintEmuIcons(int);
 #endif
 	void showIcon_VTXT()      const;
 	void showRecordIcon(const bool show);

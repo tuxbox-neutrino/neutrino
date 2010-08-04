@@ -279,8 +279,6 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 		return;
 
 //	int ChanNameY = BoxStartY + (ChanHeight >> 1) + 5;	//oberkante schatten?
-	if (is_visible && showButtonBar)
-		  showIcon_Resolution();
 
 	char timestr[10];
 	struct timeb tm;
@@ -316,16 +314,18 @@ void CInfoViewer::showRecordIcon (const bool show)
 	if (recordModeActive) {
 		int ChanName_X = BoxStartX + ChanWidth + 20;
 		if (show) {
+			int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
 			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_BUTTON_RED, ChanName_X, BoxStartY + 12);
 			if (!autoshift && !shift_timer) {
-				int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
-				frameBuffer->paintBoxRel (ChanName_X + 28 + SHADOW_OFFSET, BoxStartY + 12 + SHADOW_OFFSET, 300, 20, COL_INFOBAR_SHADOW_PLUS_0);
-				frameBuffer->paintBoxRel (ChanName_X + 28, BoxStartY + 12, 300, 20, COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel (ChanName_X + 28 + SHADOW_OFFSET, BoxStartY + 12 + SHADOW_OFFSET, 300, chanH, COL_INFOBAR_SHADOW_PLUS_0);
+				frameBuffer->paintBoxRel (ChanName_X + 28, BoxStartY + 12, 300, chanH, COL_INFOBAR_PLUS_0);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X + 30, BoxStartY + 12 + chanH, 300, ext_channel_name.c_str (), COL_INFOBAR, 0, true);
 			} else
-				frameBuffer->paintBackgroundBoxRel (ChanName_X + 28, BoxStartY + 12, 300 + SHADOW_OFFSET, 20 + SHADOW_OFFSET);
+				frameBuffer->paintBackgroundBoxRel (ChanName_X + 28, BoxStartY + 12, 300 + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
 		} else {
-			frameBuffer->paintBackgroundBoxRel (ChanName_X, BoxStartY + 10, 20, 20);
+			int icon_w = 0,icon_h = 0;
+		  	frameBuffer->getIconSize(autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_BUTTON_RED, &icon_w, &icon_h);
+			frameBuffer->paintBackgroundBoxRel (ChanName_X, BoxStartY + 12, icon_w, icon_h);
 		}
 	}
 }
@@ -368,12 +368,18 @@ void CInfoViewer::paintBackground(int col_NumBox)
 				 ChanWidth, ChanHeight,
 				 col_NumBox, c_rad_mid);
 }
-void CInfoViewer::paintCA_bar()
+void CInfoViewer::paintCA_bar(int left, int right)
 {
- 	frameBuffer->paintBox(ChanInfoX, BoxEndY, BoxEndX, BoxEndY + bottom_bar_offset, COL_BLACK);
 	int xcnt = (BoxEndX - ChanInfoX) / 4;
 	int ycnt = bottom_bar_offset / 4;
-	for (int i = 0; i < xcnt; i++) {
+	if(right)
+		right = xcnt - ((right/4)+1);
+	if(left)
+		left =  xcnt - ((left/4)-1);
+
+	frameBuffer->paintBox(ChanInfoX + (right*4), BoxEndY, BoxEndX - (left*4), BoxEndY + bottom_bar_offset, COL_BLACK);
+	  
+	for (int i = 0  + right; i < xcnt - left; i++) {
 		for (int j = 0; j < ycnt; j++){
 			/* BoxEndY + 2 is the magic number that also appears in paint_ca_icons */
 			frameBuffer->paintBoxRel((ChanInfoX + 2) + i*4, BoxEndY + 2 + j*4, 2, 2, COL_INFOBAR_PLUS_1);
@@ -571,7 +577,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 		if (g_settings.casystem_display != 2)
 		{ // FIXME
 #ifndef SKIP_CA_STATUS
-			paintCA_bar();
+			paintCA_bar(0,0);
 #endif
 		}
 		frameBuffer->paintBoxRel(ChanInfoX, BBarY, BoxEndX - ChanInfoX, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM); //round
@@ -752,6 +758,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 				show_dot = !show_dot;
 
 				showIcon_16_9();
+				showIcon_Resolution();
 			} else if ( g_settings.virtual_zap_mode && ((msg == CRCInput::RC_right) || msg == CRCInput::RC_left )) {
 				virtual_zap_mode = true;
 				res = messages_return::cancel_all;
@@ -1963,14 +1970,17 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 	}
 	char * white = (char *) "white";
 	char * yellow = (char *) "yellow";
-	int icon_space_offset = 0;
+	static int icon_space_offset = 0;
 	bool paintIconFlag = false;
 
 	if(pmt_caids[0][0] != 0 && pmt_caids[0][1] != 0)
 		pmt_caids[0][1] = 0;
 
 	if (!notfirst) {
-		paintCA_bar();
+		if((g_settings.casystem_display == 1) && (icon_space_offset)){
+			paintCA_bar(0,icon_space_offset);
+			icon_space_offset = 0;
+		}
 		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
 			if(!(i == 1 && pmt_caids[0][0] != 0 && pmt_caids[0][1] == 0 )){
 				if((g_settings.casystem_display == 1 )  && pmt_caids[0][i]){
