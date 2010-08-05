@@ -162,7 +162,7 @@ void CImageInfo::paint_pig(int px, int py, int w, int h)
 void CImageInfo::paintLine(int xpos, int font, const char* text)
 {
 	char buf[100];
-	sprintf((char*) buf, "%s", text);
+	snprintf((char*) buf,sizeof(buf), "%s", text);
 	//g_Font[font]->RenderString(xpos, ypos, width-10, buf, COL_MENUCONTENT, 0, true);
 	g_Font[font]->RenderString(xpos, ypos, width-10, buf, COL_INFOBAR, 0, true);
 }
@@ -197,7 +197,7 @@ void CImageInfo::paint()
 	
 	static CFlashVersionInfo versionInfo(version);
 	const char * releaseCycle = versionInfo.getReleaseCycle();
-	sprintf((char*) imagedate, "%s  %s", versionInfo.getDate(), versionInfo.getTime());
+	snprintf((char*) imagedate,sizeof(imagedate), "%s  %s", versionInfo.getDate(), versionInfo.getTime());
 
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_IMAGE));

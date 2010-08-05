@@ -88,6 +88,7 @@
 #define NEUTRINO_ICON_QUESTION		"question"
 #define NEUTRINO_ICON_RADIOMODE		"radiomode"
 #define NEUTRINO_ICON_RECORDING		"recording"
+#define NEUTRINO_ICON_REC		"rec"
 #define NEUTRINO_ICON_SETTINGS		"settings"
 #define NEUTRINO_ICON_SHELL		"shell"
 #define NEUTRINO_ICON_STREAMING		"streaming"

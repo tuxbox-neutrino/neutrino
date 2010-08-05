@@ -312,20 +312,23 @@ void CInfoViewer::showRecordIcon (const bool show)
 {
 	recordModeActive = CNeutrinoApp::getInstance ()->recordingstatus || shift_timer;
 	if (recordModeActive) {
-		int ChanName_X = BoxStartX + ChanWidth + 20;
+		int icon_w = 0,icon_h = 0;
+	  	frameBuffer->getIconSize(autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, &icon_w, &icon_h);
+		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
+		int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
+		const int icon_space = 3, box_len = 300, box_pos= 12;
 		if (show) {
-			int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
-			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_BUTTON_RED, ChanName_X, BoxStartY + 12);
 			if (!autoshift && !shift_timer) {
-				frameBuffer->paintBoxRel (ChanName_X + 28 + SHADOW_OFFSET, BoxStartY + 12 + SHADOW_OFFSET, 300, chanH, COL_INFOBAR_SHADOW_PLUS_0);
-				frameBuffer->paintBoxRel (ChanName_X + 28, BoxStartY + 12, 300, chanH, COL_INFOBAR_PLUS_0);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X + 30, BoxStartY + 12 + chanH, 300, ext_channel_name.c_str (), COL_INFOBAR, 0, true);
-			} else
-				frameBuffer->paintBackgroundBoxRel (ChanName_X + 28, BoxStartY + 12, 300 + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
+				frameBuffer->paintBoxRel (ChanName_X + SHADOW_OFFSET, BoxStartY + box_pos + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0);
+				frameBuffer->paintBoxRel (ChanName_X , BoxStartY + box_pos , box_len, chanH, COL_INFOBAR_PLUS_0);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X +icon_w + (icon_space*2), BoxStartY + box_pos + chanH, box_len, ext_channel_name.c_str (), COL_INFOBAR, 0, true);
+			} else{
+				frameBuffer->paintBackgroundBoxRel (ChanName_X , BoxStartY + box_pos, box_len + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
+			}
+			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2);
+
 		} else {
-			int icon_w = 0,icon_h = 0;
-		  	frameBuffer->getIconSize(autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_BUTTON_RED, &icon_w, &icon_h);
-			frameBuffer->paintBackgroundBoxRel (ChanName_X, BoxStartY + 12, icon_w, icon_h);
+			frameBuffer->paintBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h,COL_INFOBAR_PLUS_0);
 		}
 	}
 }
