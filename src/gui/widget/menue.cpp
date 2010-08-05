@@ -488,6 +488,7 @@ void CMenuWidget::paint()
 		width= neededWidth+ 49;
 	}
 	int hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
 	int itemHeightTotal=0;
 	int heightCurrPage=0;
 	page_start.clear();
@@ -563,8 +564,8 @@ void CMenuWidget::paint()
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y+SHADOW_OFFSET, width+sb_width, height, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE); //FIXME rounded
 	frameBuffer->paintBoxRel(x, y, width+sb_width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //FIXME rounded
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+38,y+hheight+1, width-40, l_name, COL_MENUHEAD, 0, true); // UTF-8
-	frameBuffer->paintIcon(iconfile, x + 8, y, hheight);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+iconOffset,y+hheight+1, width-((fw/3)+iconOffset), l_name, COL_MENUHEAD, 0, true); // UTF-8
+	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
 
 	item_start_y = y+hheight;
 	paintItems();
