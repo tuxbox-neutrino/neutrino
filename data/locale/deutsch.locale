@@ -1367,6 +1367,7 @@ videomenu.dbdr_deblock deBlock
 videomenu.dbdr_none aus
 videomenu.enabled_modes Videosysteme auf der VF-Taste
 videomenu.fullscreen Vollbild
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode HDMI-CEC Modus
 videomenu.hdmi_cec_mode_off aus
 videomenu.hdmi_cec_mode_recorder als Recorder

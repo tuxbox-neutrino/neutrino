@@ -1192,6 +1192,7 @@ videomenu.analog_hd_yprpb_scart YPbPr na SCART (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr na CINCH (HD)
 videomenu.scart SCART
 videomenu.cinch CINCH
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode HDMI-CEC mód
 videomenu.hdmi_cec_mode_off vyp
 videomenu.hdmi_cec_mode_tuner ako Tuner

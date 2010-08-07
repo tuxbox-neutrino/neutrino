@@ -908,6 +908,7 @@ videomenu.analog_hd_yprpb_scart YPbPr scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr cinch (HD)
 videomenu.scart Scart
 videomenu.cinch Cinch
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode HDMI-CEC
 videomenu.hdmi_cec_mode_off wyłączone
 videomenu.hdmi_cec_mode_tuner odbiornik

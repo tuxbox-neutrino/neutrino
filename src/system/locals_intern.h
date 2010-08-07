@@ -1198,6 +1198,7 @@ const char *locale_real_names[] = {
 	"videomenu.analog_hd_yprpb_cinch",
 	"videomenu.scart",
 	"videomenu.cinch",
+	"videomenu.hdmi_cec",
 	"videomenu.hdmi_cec_mode",
 	"videomenu.hdmi_cec_mode_off",
 	"videomenu.hdmi_cec_mode_tuner",

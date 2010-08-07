@@ -293,19 +293,21 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_43MODE, &g_settings.video_43mode, VIDEOMENU_43MODE_OPTIONS, VIDEOMENU_43MODE_OPTION_COUNT, true, this));
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOMODE, &g_settings.video_Mode, VIDEOMENU_VIDEOMODE_OPTIONS, VIDEOMENU_VIDEOMODE_OPTION_COUNT, true, this, CRCInput::RC_nokey, "", true));
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this));
-	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this));
 
+	CMenuWidget* menu = new CMenuWidget(LOCALE_VIDEOMENU_ENABLED_MODES, NEUTRINO_ICON_SETTINGS);
+	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+		menu->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
+	addItem(new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, menu, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ));
+
+	addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_VIDEOMENU_HDMI_CEC));
+	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this));
 	cec1 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON, &g_settings.hdmi_cec_view_on, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
 	cec2 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_STANDBY, &g_settings.hdmi_cec_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
 
 	addItem(cec1);
 	addItem(cec2);
 
-	CMenuWidget* menu = new CMenuWidget(LOCALE_VIDEOMENU_ENABLED_MODES, NEUTRINO_ICON_SETTINGS);
-	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
-		menu->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-
-	addItem(new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, menu));
 #if 0
 	addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_VIDEOMENU_VCR_SCART));
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_VCRSWITCH, &g_settings.vcr_AutoSwitch, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -746,7 +748,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, moviePlayerGui, "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 #if 1
-	CMenuWidget *media = new CMenuWidget(LOCALE_MAINMENU_MEDIA);
+	CMenuWidget *media = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA);
 	addMenueIntroItems(*media);
 	audioPlayer = new CAudioPlayerGui();
 	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, audioPlayer, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
@@ -2425,7 +2427,7 @@ void CNeutrinoApp::InitFontSettings(CMenuWidget &fontSettings)
 	//fontSettings.addItem( new CMenuForwarder(LOCALE_EPGPLUS_SELECT_FONT_NAME, true, NULL, this, "select_font"));
 	for (int i = 0; i < 6; i++)
 	{
-		CMenuWidget * fontSettingsSubMenu = new CMenuWidget(font_sizes_groups[i].groupname, NEUTRINO_ICON_COLORS);
+		CMenuWidget * fontSettingsSubMenu = new CMenuWidget(font_sizes_groups[i].groupname, NEUTRINO_ICON_KEYBINDING);
 		addMenueIntroItems(*fontSettingsSubMenu);
 		for (unsigned int j = 0; j < font_sizes_groups[i].count; j++)
 		{
@@ -2461,7 +2463,7 @@ void CNeutrinoApp::InitColorSettings(CMenuWidget &colorSettings, CMenuWidget &fo
 	CScreenSetup  * ScreenSetup = new CScreenSetup();
 	addMenueIntroItems(colorSettings);
 
-	CMenuWidget *colorSettings_menuColors = new CMenuWidget(LOCALE_COLORMENUSETUP_HEAD, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget *colorSettings_menuColors = new CMenuWidget(LOCALE_COLORMENUSETUP_HEAD, NEUTRINO_ICON_COLORS);
 
 	InitColorSettingsMenuColors(*colorSettings_menuColors);
 	colorSettings.addItem( new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, colorSettings_menuColors, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));

@@ -2522,7 +2522,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    recordingSettings   (LOCALE_RECORDINGMENU_HEAD            , NEUTRINO_ICON_RECORDING);
 	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
 	CMenuWidget    colorSettings       (LOCALE_MAINSETTINGS_OSD              , NEUTRINO_ICON_COLORS);
-	CMenuWidget    fontSettings        (LOCALE_FONTMENU_HEAD                 , NEUTRINO_ICON_COLORS);
+	CMenuWidget    fontSettings        (LOCALE_FONTMENU_HEAD                 , NEUTRINO_ICON_KEYBINDING);
 	CMenuWidget    lcdSettings         (LOCALE_LCDMENU_HEAD                  , NEUTRINO_ICON_LCD);
 	CMenuWidget    keySettings         (LOCALE_MAINSETTINGS_KEYBINDING       , NEUTRINO_ICON_KEYBINDING);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);

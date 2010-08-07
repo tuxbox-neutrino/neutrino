@@ -81,6 +81,7 @@
 #define NEUTRINO_ICON_HIDDEN		"hidden"
 #define NEUTRINO_ICON_MOUNTED		"mounted"
 #define NEUTRINO_ICON_MP3		"mp3"
+#define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
 #define NEUTRINO_ICON_NOT_MOUNTED	"not_mounted"
 #define NEUTRINO_ICON_PAUSE		"pause"
 #define NEUTRINO_ICON_PLAY		"play"
