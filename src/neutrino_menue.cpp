@@ -295,6 +295,8 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 	addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this));
 
 	CMenuWidget* menu = new CMenuWidget(LOCALE_VIDEOMENU_ENABLED_MODES, NEUTRINO_ICON_SETTINGS);
+	menu->addItem(GenericMenuBack);
+	menu->addItem(GenericMenuSeparatorLine);
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 		menu->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
