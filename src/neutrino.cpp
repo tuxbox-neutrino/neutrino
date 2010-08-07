@@ -293,10 +293,17 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
+#if HAVE_TRIPLEDRAGON
+#define DEFAULT_X_START_SD	32
+#define DEFAULT_Y_START_SD	26
+#define DEFAULT_X_END_SD	694
+#define DEFAULT_Y_END_SD	570
+#else
 #define DEFAULT_X_START_SD	60
 #define DEFAULT_Y_START_SD	20
 #define DEFAULT_X_END_SD	1220
 #define DEFAULT_Y_END_SD	560
+#endif
 
 #define DEFAULT_X_START_HD	40   //5
 #define DEFAULT_Y_START_HD	25   //5
@@ -622,8 +629,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_StartY_lcd = configfile.getInt32( "screen_StartY_lcd", DEFAULT_Y_START_HD );
 	g_settings.screen_EndX_lcd = configfile.getInt32( "screen_EndX_lcd", DEFAULT_X_END_HD);
 	g_settings.screen_EndY_lcd = configfile.getInt32( "screen_EndY_lcd", DEFAULT_Y_END_HD);
+#if HAVE_TRIPLEDRAGON
+	/* does not make sense to have two configurations for that... */
+	g_settings.screen_preset = 0;
+#else
 	g_settings.screen_preset = configfile.getInt32( "screen_preset", 1);
-
+#endif
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
 	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
 	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;

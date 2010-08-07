@@ -56,6 +56,7 @@
 #include <driver/volume.h>
 
 #include <system/debug.h>
+#include "cs_api.h"
 
 static CTimingSettingsNotifier timingsettingsnotifier;
 
@@ -428,7 +429,8 @@ int COsdSetup::showOsdSetup()
 	//monitor
  	//CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
 	//osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify));
-	osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this));
+	if (cs_get_revision() != 1) /* 1 == Tripledragon */
+		osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this));
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 	//options
