@@ -124,27 +124,27 @@ int CCAMMenuHandler::doMainMenu ()
 	CMenuWidget * tempMenu;
 	if(ci->CamPresent(0)) {
 		ci->GetName(0, name1);
-printf("CCAMMenuHandler::doMenu cam1 name %s\n", name1);
+		printf("CCAMMenuHandler::doMenu cam1 name %s\n", name1);
 		cammenu->addItem(new CMenuForwarderNonLocalized(name1, true, NULL, this, "cam1", CRCInput::RC_1));
 		cammenu->addItem(new CMenuForwarder(LOCALE_CAM_RESET, true, NULL, this, "reset1"));
-		cammenu->addItem( GenericMenuSeparatorLine );
 	} else {
-		sprintf(str1, "%s 1", g_Locale->getText(LOCALE_CAM_EMPTY));
+		snprintf(str1, sizeof(str1), "%s 1", g_Locale->getText(LOCALE_CAM_EMPTY));
 		tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
 		cammenu->addItem(new CMenuForwarderNonLocalized(str1, false, NULL, tempMenu));
 	}
-
-	if(ci->CamPresent(1)) {
+	if(cs_get_revision() < 8){
+		cammenu->addItem( GenericMenuSeparatorLine );
+		if(ci->CamPresent(1)) {
 		ci->GetName(1, name2);
-printf("CCAMMenuHandler::doMenu cam2 name %s\n", name2);
-		cammenu->addItem(new CMenuForwarderNonLocalized(name2, true, NULL, this, "cam2", CRCInput::RC_2));
-		cammenu->addItem(new CMenuForwarder(LOCALE_CAM_RESET, true, NULL, this, "reset2"));
-	} else {
-		sprintf(str2, "%s 2", g_Locale->getText(LOCALE_CAM_EMPTY));
-		tempMenu = new CMenuWidget(str2, NEUTRINO_ICON_SETTINGS);
-		cammenu->addItem(new CMenuForwarderNonLocalized(str2, false, NULL, tempMenu));
+			printf("CCAMMenuHandler::doMenu cam2 name %s\n", name2);
+			cammenu->addItem(new CMenuForwarderNonLocalized(name2, true, NULL, this, "cam2", CRCInput::RC_2));
+			cammenu->addItem(new CMenuForwarder(LOCALE_CAM_RESET, true, NULL, this, "reset2"));
+		} else {
+			 snprintf(str2, sizeof(str2), "%s 2", g_Locale->getText(LOCALE_CAM_EMPTY));
+			 tempMenu = new CMenuWidget(str2, NEUTRINO_ICON_SETTINGS);
+			 cammenu->addItem(new CMenuForwarderNonLocalized(str2, false, NULL, tempMenu));
+		}
 	}
-
 	ret = cammenu->exec(NULL, "");
 	delete cammenu;
 	return ret;
@@ -181,7 +181,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 			hintBox->hide();
 			delete hintBox;
 		}
-		sprintf(str, "%s %d", g_Locale->getText(LOCACE_CAM_INSERTED), (int) data+1);
+		snprintf(str, sizeof(str), "%s %d", g_Locale->getText(LOCACE_CAM_INSERTED), (int) data+1);
 
 		printf("CCAMMenuHandler::handleMsg: %s\n", str);
 		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, str);
@@ -197,7 +197,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 			hintBox->hide();
 			delete hintBox;
 		}
-		sprintf(str, "%s %d", g_Locale->getText(LOCALE_CAM_REMOVED), (int) data+1);
+		snprintf(str, sizeof(str), "%s %d", g_Locale->getText(LOCALE_CAM_REMOVED), (int) data+1);
 
 		printf("CCAMMenuHandler::handleMsg: %s\n", str);
 		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, str);
@@ -218,7 +218,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		//if(slot)
 		//	slot->GetName(name);
 		ci->GetName((int) data, name);
-		sprintf(str, "%s %d: %s", g_Locale->getText(LOCALE_CAM_INIT_OK), (int) data+1, name);
+		snprintf(str, sizeof(str), "%s %d: %s", g_Locale->getText(LOCALE_CAM_INIT_OK), (int) data+1, name);
 
 		printf("CCAMMenuHandler::handleMsg: %s\n", str);
 		hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, str);
@@ -269,7 +269,7 @@ printf("CCAMMenuHandler::handleCamMsg: subtitle: %s\n", sptr);
 				}
 			}
 			for(i = 0; i < pMenu->choice_nb; i++) {
-				sprintf(cnt, "%d", i);
+				snprintf(cnt, sizeof(cnt), "%d", i);
 				if(sublevel)
 					menu->addItem(new CMenuForwarderNonLocalized(convertDVBUTF8(pMenu->choice_item[i], strlen(pMenu->choice_item[i]), 0).c_str(), true, NULL, selector, cnt));
 				else
