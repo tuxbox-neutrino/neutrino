@@ -416,8 +416,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					fadeTimer = 0;
 					fadeIn = false;
 				}
-				if ((!fadeOut) && g_settings.widget_fade && fade) {
+				if (!fadeOut)
 					fadeOut = true;
+				if ((!fadeOut) && g_settings.widget_fade && fade) {
 					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
 					msg = 0;
