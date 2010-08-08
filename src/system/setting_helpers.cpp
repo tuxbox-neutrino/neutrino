@@ -655,6 +655,7 @@ int CStreamFeaturesChangeExec::exec(CMenuTarget* parent, const std::string & act
 	//	StreamInfo.exec(NULL, "");
 	// } else
 	if(actionKey == "teletext") {
+		g_RCInput->postMsg(CRCInput::RC_timeout, 0);
 		g_RCInput->postMsg(CRCInput::RC_text, 0);
 #if 0
 		g_RCInput->clearRCMsg();

@@ -929,6 +929,7 @@ videomenu.analog_hd_yprpb_scart YPbPr on scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr on cinch (HD)
 videomenu.scart Scart
 videomenu.cinch Cinch
+videomenu.hdmi_cec HDMI-CEC
 videomenu.hdmi_cec_mode HDMI-CEC mode
 videomenu.hdmi_cec_mode_off off
 videomenu.hdmi_cec_mode_tuner as Tuner
