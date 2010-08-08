@@ -39,6 +39,7 @@
 #include "video_td.h"
 #include <hardware/tddevices.h>
 #define VIDEO_DEVICE "/dev/" DEVICE_NAME_VIDEO
+#include "lt_debug.h"
 
 cVideo * videoDecoder = NULL;
 int system_rev = 0;
@@ -458,7 +459,7 @@ void cVideo::Standby(unsigned int bOn)
 
 int cVideo::getBlank(void)
 {
-	fprintf(stderr, "cVideo::getBlank\n");
+	lt_debug("cVideo::getBlank\n");
 	return 0;
 }
 
@@ -586,7 +587,7 @@ void cVideo::getPictureInfo(int &width, int &height, int &rate)
 
 void cVideo::SetSyncMode(AVSYNC_TYPE /*Mode*/)
 {
-	fprintf(stderr, "cVideo::%s\n", __FUNCTION__);
+	lt_debug("cVideo::%s\n", __FUNCTION__);
 };
 
 int cVideo::SetStreamType(VIDEO_FORMAT type)

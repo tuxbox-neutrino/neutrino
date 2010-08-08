@@ -48,7 +48,7 @@ cDemux::cDemux(int n)
 
 cDemux::~cDemux()
 {
-	fprintf(stderr, "cDemux::%s #%d fd: %d\n", __FUNCTION__, num, fd);
+	lt_debug("cDemux::%s #%d fd: %d\n", __FUNCTION__, num, fd);
 	Close();
 }
 
@@ -102,7 +102,7 @@ void cDemux::Close(void)
 
 	for (std::vector<int>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		fprintf(stderr, "iterator: stopping and closing demux fd %d\n", *i);
+		lt_debug("cDemux::Close: stopping and closing demux fd %d\n", *i);
 		if (ioctl(*i, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
 		if (close(*i) < 0)
@@ -124,7 +124,7 @@ bool cDemux::Start(void)
 
 	for (std::vector<int>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		fprintf(stderr, "iterator: starting demux fd %d\n", *i);
+		lt_debug("cDemux::Start: starting demux fd %d\n", *i);
 		if (ioctl(*i, DEMUX_START) < 0)
 			perror("DEMUX_START");
 	}
@@ -141,7 +141,7 @@ bool cDemux::Stop(void)
 	}
 	for (std::vector<int>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		fprintf(stderr, "iterator: stopping demux fd %d\n", *i);
+		lt_debug("cDemux::Stop: stopping demux fd %d\n", *i);
 		if (ioctl(*i, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
 	}
@@ -325,7 +325,7 @@ bool cDemux::pesFilter(const unsigned short pid)
 	if ((pid >= 0x0002 && pid <= 0x000f) || pid >= 0x1fff)
 		return false;
 
-fprintf(stderr, "cDemux::%s #%d pid: 0x%04hx fd: %d type: %s\n", __FUNCTION__, num, pid, fd, DMX_T[dmx_type]);
+	lt_debug("cDemux::%s #%d pid: 0x%04hx fd: %d type: %s\n", __FUNCTION__, num, pid, fd, DMX_T[dmx_type]);
 
 	if (dmx_type == DMX_TP_CHANNEL)
 	{
@@ -360,18 +360,18 @@ fprintf(stderr, "cDemux::%s #%d pid: 0x%04hx fd: %d type: %s\n", __FUNCTION__, n
 
 void cDemux::SetSyncMode(AVSYNC_TYPE /*mode*/)
 {
-	fprintf(stderr, "cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
 }
 
 void *cDemux::getBuffer()
 {
-	fprintf(stderr, "cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
 	return NULL;
 }
 
 void *cDemux::getChannel()
 {
-	fprintf(stderr, "cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
 	return NULL;
 }
 
@@ -393,7 +393,7 @@ void cDemux::addPid(unsigned short Pid)
 		fprintf(stderr, "cDemux::%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
 		return;
 	}
-	fprintf(stderr, "cDemux::%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd);
+	lt_debug("cDemux::%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd);
 
 	p.pid = Pid;
 	p.pesType = DMX_PES_OTHER;

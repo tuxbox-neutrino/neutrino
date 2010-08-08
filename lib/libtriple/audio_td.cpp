@@ -8,6 +8,7 @@
 #include <hardware/tddevices.h>
 #define AUDIO_DEVICE "/dev/" DEVICE_NAME_AUDIO
 #include "audio_td.h"
+#include "lt_debug.h"
 
 cAudio * audioDecoder = NULL;
 
@@ -124,7 +125,7 @@ bool cAudio::Pause(bool /*Pcm*/)
 
 void cAudio::SetSyncMode(AVSYNC_TYPE /*Mode*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 };
 
 void cAudio::SetStreamType(AUDIO_FORMAT type)
@@ -147,25 +148,25 @@ void cAudio::SetStreamType(AUDIO_FORMAT type)
 
 int cAudio::setChannel(int /*channel*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 	return 0;
 };
 
 int cAudio::PrepareClipPlay(int /*uNoOfChannels*/, int /*uSampleRate*/, int /*uBitsPerSample*/, int /*bLittleEndian*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 	return 0;
 };
 
 int cAudio::WriteClip(unsigned char * /*buffer*/, int /*size*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 	return 0;
 };
 
 int cAudio::StopClip()
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 	return 0;
 };
 
@@ -213,22 +214,22 @@ void cAudio::getAudioInfo(int &type, int &layer, int &freq, int &bitrate, int &m
 
 void cAudio::SetSRS(int /*iq_enable*/, int /*nmgr_enable*/, int /*iq_mode*/, int /*iq_level*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 };
 
 void cAudio::SetSpdifDD(bool /*enable*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 };
 
 void cAudio::ScheduleMute(bool /*On*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 };
 
 void cAudio::EnableAnalogOut(bool /*enable*/)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 };
 
 void cAudio::setBypassMode(bool disable)
