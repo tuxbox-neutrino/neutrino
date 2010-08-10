@@ -518,6 +518,8 @@ miscsettings.head Ustawienia różne
 miscsettings.hwsections użyj sekcji hardware
 miscsettings.infobar Belka informacyjna
 miscsettings.infobar_casystem_display Ikony systemów kodowania
+miscsettings.infobar_casystem_mini mini
+miscsettings.infobar_casystem_mode dyskretne
 miscsettings.infobar_disp_0 brak
 miscsettings.infobar_disp_1 pozycja pierwsza
 miscsettings.infobar_disp_2 pozycja druga

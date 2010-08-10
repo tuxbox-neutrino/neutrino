@@ -1974,6 +1974,10 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 		showOne_CAIcon(fta);
 		return;
 	}
+	else if(g_settings.casystem_display == 3){
+		return;
+	}
+
 	char * white = (char *) "white";
 	char * yellow = (char *) "yellow";
 	static int icon_space_offset = 0;
