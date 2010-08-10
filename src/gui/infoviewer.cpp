@@ -147,7 +147,7 @@ void CInfoViewer::Init()
 	fileplay = 0;
 
 	/* maybe we should not tie this to the blinkenlights settings? */
-	if (g_settings.casystem_display != 2)
+	if (g_settings.casystem_display < 2)
 		bottom_bar_offset = 22;
 	else
 		bottom_bar_offset = 0;
@@ -411,7 +411,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		casysChange = g_settings.casystem_display;
 		channellogoChange = g_settings.infobar_show_channellogo;
 
-		if (g_settings.casystem_display != 2)
+		if (g_settings.casystem_display < 2)
 			  bottom_bar_offset = 22;
 		else
 			bottom_bar_offset = 0;
@@ -580,7 +580,7 @@ fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_set
 	if (showButtonBar) {
 		sec_timer_id = g_RCInput->addTimer (1*1000*1000, false);
 
-		if (g_settings.casystem_display != 2)
+		if (g_settings.casystem_display < 2)
 		{ // FIXME
 #ifndef SKIP_CA_STATUS
 			paintCA_bar(0,0);
