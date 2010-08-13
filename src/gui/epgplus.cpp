@@ -125,6 +125,10 @@ void EpgPlus::Header::paint(const char * Name)
 	this->font->RenderString (this->x + 10, this->y + this->font->getHeight(), 
 			this->width - 20, head, COL_MENUHEAD, 0, true);
 			//this->width - 20, g_Locale->getText (LOCALE_EPGPLUS_HEAD) , COL_MENUHEAD, 0, true);
+        int icol_w, icol_h;
+        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
+	this->frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_HELP, this->x + this->width - icol_w - RADIUS_LARGE - 10, this->y, icol_h);
+
 }
 
 int EpgPlus::Header::getUsedHeight()
@@ -501,7 +505,7 @@ struct button_label buttonLabels[] = {
 
 void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfButtons)
 {
-	int buttonWidth = (this->width - 20) / 4;
+	int buttonWidth = (this->width - RADIUS_LARGE) / 4;
 	int yPos = this->y + this->getUsedHeight();
 
 	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, buttonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
@@ -509,9 +513,6 @@ void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfBu
 	::paintButtons (this->frameBuffer, this->fontButtons, g_Locale, this->x + 10,
 		yPos, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels);
 
-        int icol_w, icol_h;
-        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
-	this->frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_HELP, this->x + this->width - icol_w - 10, yPos, buttonHeight);
 }
 
 EpgPlus::EpgPlus()
@@ -652,8 +653,8 @@ void EpgPlus::init()
 	currentViewMode = ViewMode_Scroll;
 	currentSwapMode = SwapMode_ByPage;
 #endif
-	usableScreenWidth = w_max (g_settings.screen_EndX, 4);
-	usableScreenHeight = h_max (g_settings.screen_EndY, 4);
+	usableScreenWidth = w_max (g_settings.screen_EndX, 0);
+	usableScreenHeight = h_max (g_settings.screen_EndY, 0);
 	std::string FileName = std::string (g_settings.font_file);
 	for (size_t i = 0; i < NumberOfFontSettings; ++i) {
 		int size = fontSettingTable[i].size;

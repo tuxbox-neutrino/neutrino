@@ -43,7 +43,8 @@ CProgressWindow::CProgressWindow()
 	frameBuffer = CFrameBuffer::getInstance();
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	width       = w_max (420, 0);
+	int fw      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
+	width       = w_max (32*fw, 0);
 	height      = h_max(hheight+5*mheight, 20);
 
 	global_progress = local_progress = 101;
@@ -145,7 +146,7 @@ void CProgressWindow::paint()
 	int ypos=y;
 	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	if (caption != NONEXISTANT_LOCALE)
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight, width- 10, g_Locale->getText(caption), COL_MENUHEAD, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10, ypos+ hheight, width - 10, g_Locale->getText(caption), COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintBoxRel(x, ypos+ hheight, width, height- hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos+= hheight + (mheight >>1);

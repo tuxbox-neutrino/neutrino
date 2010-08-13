@@ -2667,7 +2667,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	RealRun(mainMenu);
 
-	ExitRun(true);
+	ExitRun(true, (cs_get_revision() > 7));
 
 	return 0;
 }
@@ -3515,7 +3515,7 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
 		if(g_settings.shutdown_real)
-			ExitRun(true);
+			ExitRun(true, (cs_get_revision() > 7));
 		else
 			standbyMode( true );
 		return messages_return::handled;
@@ -3545,7 +3545,7 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
-			ExitRun(true);
+			ExitRun(true, (cs_get_revision() > 7));
 		}
 		else {
 			skipShutdownTimer=false;

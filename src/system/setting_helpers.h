@@ -133,9 +133,9 @@ class CRecordingNotifier2 : public CChangeObserver
 class CMiscNotifier : public CChangeObserver
 {
 	private:
-		CMenuItem* toDisable[1];
+		CMenuItem* toDisable[2];
 	public:
-		CMiscNotifier( CMenuItem* );
+		CMiscNotifier( CMenuItem*, CMenuItem* );
 		bool changeNotify(const neutrino_locale_t, void *);
 };
 
