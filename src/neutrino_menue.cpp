@@ -1661,9 +1661,11 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	//don't show rotor and fan speed settings on cable box and NEO
 	funNotifier = new CFanControlNotifier();
 	if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
-		miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTORSWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		miscSettingsGeneral->addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, funNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
 		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+	}
+	if (g_info.delivery_system == DVB_S) {
+		miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTORSWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	}
 	if(cs_get_revision() > 7){
 		miscSettingsGeneral->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_SHUTDOWN));

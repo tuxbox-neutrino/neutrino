@@ -1510,7 +1510,7 @@ void CMovieBrowser::refreshTitle(void)
 void CMovieBrowser::refreshFoot(void)
 {
 	//TRACE("[mb]->refreshButtonLine \r\n");
-	int	color   = (CFBWindow::color_t) COL_MENUHEAD;
+	int	color   = (CFBWindow::color_t) COL_MENUCONTENT;
 	int iw = 0, ih;
 
 	std::string filter_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FILTER);
@@ -1549,7 +1549,7 @@ void CMovieBrowser::refreshFoot(void)
 	//std::string ok_text;
 	if(m_settings.gui == MB_GUI_FILTER && m_windowFocus == MB_FOCUS_FILTER)
 	{
-		ok_text = "select";
+		ok_text = g_Locale->getText(LOCALE_BOOKMARKMANAGER_SELECT);
 	}
 	else
 	{
