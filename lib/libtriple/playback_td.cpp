@@ -329,14 +329,29 @@ bool cPlayback::SetAPid(unsigned short pid, bool _ac3)
 bool cPlayback::SetSpeed(int speed)
 {
 	INFO("speed = %d\n", speed);
-	if (speed != 0 && playback_speed == 0)
+	if (speed < 0)
+		speed = 1; /* fast rewind not yet implemented... */
+	if (speed == 1 && playback_speed != 1)
 	{
-		videoDemux->Stop();
-		videoDemux->Start();
-		audioDemux->Start();
+		if (playback_speed == 0)
+		{
+			videoDemux->Stop();
+			videoDemux->Start();
+			audioDemux->Start();
+		}
+		else
+		{
+			audioDecoder->Stop();
+			videoDecoder->Stop();
+		}
 		audioDecoder->Start();
 		videoDecoder->Start();
 		playstate = STATE_PLAY;
+	}
+	if (playback_speed == 1 && speed > 1)
+	{
+		audioDecoder->mute(false);
+		videoDecoder->FastForwardMode();
 	}
 	playback_speed = speed;
 	if (playback_speed == 0)
@@ -698,46 +713,135 @@ ssize_t cPlayback::read_ts()
 	ssize_t toread, ret = 0, sync, off;
 	toread = INBUF_SIZE - inbuf_pos;
 	bool retry = true;
+	uint8_t *buf;
 	/* fprintf(stderr, "%s:%d curr_pos %lld, inbuf_pos: %ld, toread: %ld\n",
 		__FUNCTION__, __LINE__, (long long)curr_pos, (long)inbuf_pos, (long)toread); */
 
-	while(true)
+	if (playback_speed > 1)
 	{
-		ret = read(in_fd, inbuf + inbuf_pos, toread);
-		if (ret == 0 && retry) /* EOF */
+		sync = 0;
+		ssize_t tmpread = PESBUF_SIZE / 188 * 188;
+		int n, skipped = 0;
+		bool skip = false;
+		bool eof = true;
+		while (toread > 0)
 		{
-			mf_lseek(curr_pos);
-			retry = false;
-			continue;
+			ssize_t done = 0;
+			while (done < tmpread)
+			{
+				ret = read(in_fd, pesbuf, tmpread - done);
+				if (ret == 0 && retry) /* EOF */
+				{
+					mf_lseek(curr_pos);
+					retry = false;
+					continue;
+				}
+				if (ret < 0)
+				{
+					INFO("failed: %m\n");
+					return ret;
+				}
+				if (ret == 0 && eof)
+					goto out;
+				eof = false;
+				done += ret;
+				curr_pos += ret;
+			}
+			sync = sync_ts(pesbuf, ret);
+			if (sync != 0)
+			{
+				INFO("out of sync: %d\n", sync);
+				if (sync < 0)
+				{
+					return -1;
+				}
+				memmove(pesbuf, pesbuf + sync, ret - sync);
+				if (pesbuf[0] != 0x47)
+					INFO("??????????????????????????????\n");
+			}
+			for (n = 0; n < done / 188 * 188; n += 188)
+			{
+				buf = pesbuf + n;
+				if (buf[1] & 0x40) // PUSI
+				{
+					/* only video packets... */
+					int of = 4;
+					if (buf[3] & 0x20) // adaptation field
+						of += buf[4] + 1;
+					if ((buf[of + 3] & 0xF0) == 0xE0 && // Video stream
+					    buf[of + 2] == 0x01 && buf[of + 1] == 0x00 && buf[of] == 0x00) // PES
+					{
+						skip = true;
+						skipped++;
+						if (skipped >= playback_speed)
+						{
+							skipped = 0;
+							skip = false;
+						}
+					}
+				}
+				if (! skip)
+				{
+					memcpy(inbuf + inbuf_pos, buf, 188);
+					inbuf_pos += 188;
+					toread -= 188;
+					if (toread <= 0)
+					{
+						/* the output buffer is full, discard the input :-( */
+						if (done - n > 0)
+						{
+							DBG("not done: %d, resetting filepos\n", done - n);
+							mf_lseek(curr_pos - (done - n));
+						}
+						break;
+					}
+				}
+			}
 		}
-		break;
+ out:
+		if (eof)
+			return 0;
 	}
-	if (ret < 0)
+	else
 	{
-		INFO("failed: %m\n");
-		return ret;
-	}
-	if (ret == 0)
-		return ret;
-	inbuf_pos += ret;
-	curr_pos += ret;
+		while(true)
+		{
+			ret = read(in_fd, inbuf + inbuf_pos, toread);
+			if (ret == 0 && retry) /* EOF */
+			{
+				mf_lseek(curr_pos);
+				retry = false;
+				continue;
+			}
+			break;
+		}
+		if (ret < 0)
+		{
+			INFO("failed: %m\n");
+			return ret;
+		}
+		if (ret == 0)
+			return ret;
+		inbuf_pos += ret;
+		curr_pos += ret;
 
-	sync = sync_ts(inbuf + inbuf_sync, INBUF_SIZE - inbuf_sync);
-	if (sync < 0)
-	{
-		INFO("cannot sync\n");
-		return ret;
+		sync = sync_ts(inbuf + inbuf_sync, INBUF_SIZE - inbuf_sync);
+		if (sync < 0)
+		{
+			INFO("cannot sync\n");
+			return ret;
+		}
+		inbuf_sync += sync;
 	}
-	inbuf_sync += sync;
 	/* check for A/V PIDs */
 	uint16_t pid;
 	int i, j;
 	bool pid_new;
 	int64_t pts;
-	// fprintf(stderr, "inbuf_pos: %ld - sync: %ld\n", (long)inbuf_pos, (long)sync);
+	//fprintf(stderr, "inbuf_pos: %ld - sync: %ld, inbuf_syc: %ld\n", (long)inbuf_pos, (long)sync, (long)inbuf_sync);
 	int synccnt = 0;
 	for (i = 0; i < inbuf_pos - inbuf_sync - 13;) {
-		uint8_t *buf = inbuf + inbuf_sync + i;
+		buf = inbuf + inbuf_sync + i;
 		if (*buf != 0x47)
 		{
 			synccnt++;

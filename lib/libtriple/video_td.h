@@ -179,6 +179,7 @@ class cVideo
 		void SetVideoMode(analog_mode_t mode);
 		void SetDBDR(int) { return; };
 		void SetAudioHandle(void *) { return; };
+		void FastForwardMode(int mode = 0);
 		void SetAutoModes(int [VIDEO_STD_MAX]) { return; };
 		int  OpenVBI(int) { return 0; };
 		int  CloseVBI(void) { return 0; };

@@ -644,3 +644,9 @@ void cVideo::routeVideo(int standby)
 		perror("IOC_AVS_ROUTE_ENC2TV");
 	close(avsfd);
 }
+
+void cVideo::FastForwardMode(int mode)
+{
+	lt_debug("cVideo::%s\n", __FUNCTION__);
+	fop(ioctl, MPEG_VID_FASTFORWARD, mode);
+}
