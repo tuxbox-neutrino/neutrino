@@ -755,9 +755,9 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	audioPlayer = new CAudioPlayerGui();
 	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, audioPlayer, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	audioPlayer = new CAudioPlayerGui(true);
-	media->addItem(new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, audioPlayer, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, &moviePlayer, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	media->addItem(new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, audioPlayer, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, &moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	media->addItem(new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::convertDigitToKey(0)));
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_MEDIA, true, NULL, media, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 #else
@@ -853,9 +853,9 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	if (CVFD::getInstance()->has_lcd)
 		mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_LCD       , true, NULL, &lcdSettings      , NULL, CRCInput::convertDigitToKey(sett_count++)));
 
-	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, &keySettings      , NULL, CRCInput::RC_blue  , NEUTRINO_ICON_BUTTON_BLUE  ));
+	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, &keySettings      , NULL, CRCInput::RC_green  , NEUTRINO_ICON_BUTTON_GREEN  ));
 	mainSettings.addItem(new CMenuForwarder(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL , true, NULL, &audiopl_picSettings   , NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MISC      , true, NULL, &miscSettings     , NULL, CRCInput::RC_green , NEUTRINO_ICON_BUTTON_GREEN ));
+	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MISC      , true, NULL, &miscSettings     , NULL, CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE ));
 
 	mainSettings.addItem(new CMenuForwarder(LOCALE_HDD_SETTINGS, true, NULL, new CHDDMenuHandler()));
 	//mainSettings.addItem(new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler));
@@ -1425,11 +1425,11 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &_scanS
 	addMenueIntroItems(service);
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, &_scanSettings, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 	// service.addItem(new CMenuForwarder(LOCALE_EXTRA_ZAPIT_MENU      , true, NULL, zapit_menu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, this, "reloadchannels", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	service.addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE ));
+	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, this, "reloadchannels", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
+	service.addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
 
 	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
-	service.addItem(new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
+	service.addItem(new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE ));
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_GETPLUGINS, true, NULL, this, "reloadplugins"));
 
 	service.addItem(GenericMenuSeparatorLine);

@@ -115,7 +115,7 @@ int CHDDMenuHandler::doMenu ()
 		int removable = 0;
 
 		printf("HDD: checking /sys/block/%s\n", namelist[i]->d_name);
-		sprintf(str, "/dev/%s", namelist[i]->d_name);
+		snprintf(str, sizeof(str), "/dev/%s", namelist[i]->d_name);
 		fd = open(str, O_RDONLY);
 		if(fd < 0) {
 			printf("Cant open %s\n", str);
@@ -127,7 +127,7 @@ int CHDDMenuHandler::doMenu ()
 
 		megabytes = bytes/1000000;
 
-		sprintf(str, "/sys/block/%s/device/vendor", namelist[i]->d_name);
+		snprintf(str, sizeof(str), "/sys/block/%s/device/vendor", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if(!f) {
 			printf("Cant open %s\n", str);
@@ -136,7 +136,7 @@ int CHDDMenuHandler::doMenu ()
 		fscanf(f, "%s", vendor);
 		fclose(f);
 
-		sprintf(str, "/sys/block/%s/device/model", namelist[i]->d_name);
+		snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if(!f) {
 			printf("Cant open %s\n", str);
@@ -145,7 +145,7 @@ int CHDDMenuHandler::doMenu ()
 		fscanf(f, "%s", model);
 		fclose(f);
 
-		sprintf(str, "/sys/block/%s/removable", namelist[i]->d_name);
+		snprintf(str, sizeof(str), "/sys/block/%s/removable", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if(!f) {
 			printf("Cant open %s\n", str);
@@ -154,7 +154,7 @@ int CHDDMenuHandler::doMenu ()
 		fscanf(f, "%d", &removable);
 		fclose(f);
 
-		sprintf(str, "%s %s (%s-%s %lld %s)\n", g_Locale->getText(LOCALE_HDD_MANAGE), namelist[i]->d_name, vendor, model, megabytes < 10000 ? megabytes : megabytes/1000, megabytes < 10000 ? "MB" : "GB");
+		snprintf(str, sizeof(str), "%s %s (%s-%s %lld %s)\n", g_Locale->getText(LOCALE_HDD_MANAGE), namelist[i]->d_name, vendor, model, megabytes < 10000 ? megabytes : megabytes/1000, megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
 		CMenuWidget * tempMenu = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
 		tempMenu->addItem( GenericMenuBack );
@@ -179,17 +179,17 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 
 	printf("CHDDDestExec: noise %d sleep %d\n", g_settings.hdd_noise, g_settings.hdd_sleep);
 	//FIXME: atm we can have 2 hdd, sata and usb
-	sprintf(cmd, "hdparm -S%d /dev/sda >/dev/null 2>/dev/null", g_settings.hdd_sleep);
+	snprintf(cmd, sizeof(cmd), "hdparm -S%d /dev/sda >/dev/null 2>/dev/null", g_settings.hdd_sleep);
 	system(cmd);
-	sprintf(cmd, "hdparm -M%d /dev/sda >/dev/null 2>/dev/null", g_settings.hdd_noise);
+	snprintf(cmd, sizeof(cmd), "hdparm -M%d /dev/sda >/dev/null 2>/dev/null", g_settings.hdd_noise);
 	system(cmd);
-	sprintf(cmd, "hdparm -S%d /dev/sdb >/dev/null 2>/dev/null", g_settings.hdd_sleep);
+	snprintf(cmd, sizeof(cmd), "hdparm -S%d /dev/sdb >/dev/null 2>/dev/null", g_settings.hdd_sleep);
 	system(cmd);
-	sprintf(cmd, "hdparm -M%d /dev/sdb >/dev/null 2>/dev/null", g_settings.hdd_noise);
+	snprintf(cmd, sizeof(cmd), "hdparm -M%d /dev/sdb >/dev/null 2>/dev/null", g_settings.hdd_noise);
 	system(cmd);
-	sprintf(cmd, "hdparm -K /dev/sda >/dev/null 2>/dev/null");
+	snprintf(cmd, sizeof(cmd), "hdparm -K /dev/sda >/dev/null 2>/dev/null");
 	system(cmd);
-	sprintf(cmd, "hdparm -K /dev/sdb >/dev/null 2>/dev/null");
+	snprintf(cmd, sizeof(cmd), "hdparm -K /dev/sdb >/dev/null 2>/dev/null");
 	system(cmd);
 	return 1;
 }
@@ -222,8 +222,8 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	CProgressWindow * progress;
 	bool idone;
 
-	sprintf(src, "/dev/%s1", key.c_str());
-	sprintf(dst, "/media/%s1", key.c_str());
+	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
+	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
 
 	printf("CHDDFmtExec: key %s\n", key.c_str());
 
@@ -257,7 +257,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	progress->showStatusMessageUTF("Executing fdisk");
 	progress->showGlobalStatus(0);
 
-	sprintf(cmd, "/sbin/sfdisk -f -uM /dev/%s", key.c_str());
+	snprintf(cmd, sizeof(cmd), "/sbin/sfdisk -f -uM /dev/%s", key.c_str());
 	printf("CHDDFmtExec: executing %s\n", cmd);
 	f=popen(cmd, "w");
 	if (!f) {
@@ -274,10 +274,10 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 
 	switch(g_settings.hdd_fs) {
 		case 0:
-			sprintf(cmd, "/sbin/mkfs.ext3 -T largefile -m0 %s", src);
+			snprintf(cmd, sizeof(cmd), "/sbin/mkfs.ext3 -T largefile -m0 %s", src);
 			break;
 		case 1:
-			sprintf(cmd, "/sbin/mkreiserfs -f -f %s", src);
+			snprintf(cmd, sizeof(cmd), "/sbin/mkreiserfs -f -f %s", src);
 			break;
 		default:
 			return 0;
@@ -318,7 +318,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	progress->showGlobalStatus(100);
 	sleep(2);
 
-	sprintf(cmd, "/sbin/tune2fs -r 0 -c 0 -i 0 %s", src);
+	snprintf(cmd, sizeof(cmd), "/sbin/tune2fs -r 0 -c 0 -i 0 %s", src);
 	printf("CHDDFmtExec: executing %s\n", cmd);
 	system(cmd);
 
@@ -343,13 +343,13 @@ _remount:
 	}
 
 	if(!res) {
-		sprintf(cmd, "%s/movies", dst);
+		snprintf(cmd, sizeof(cmd), "%s/movies", dst);
 		safe_mkdir((char *) cmd);
-		sprintf(cmd, "%s/pictures", dst);
+		snprintf(cmd, sizeof(cmd), "%s/pictures", dst);
 		safe_mkdir((char *) cmd);
-		sprintf(cmd, "%s/epg", dst);
+		snprintf(cmd, sizeof(cmd), "%s/epg", dst);
 		safe_mkdir((char *) cmd);
-		sprintf(cmd, "%s/music", dst);
+		snprintf(cmd, sizeof(cmd), "%s/music", dst);
 		safe_mkdir((char *) cmd);
 		sync();
 	}
@@ -369,8 +369,8 @@ int CHDDChkExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	int oldpass = 0, pass, step, total;
 	int percent = 0, opercent = 0;
 
-	sprintf(src, "/dev/%s1", key.c_str());
-	sprintf(dst, "/media/%s1", key.c_str());
+	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
+	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
 
 printf("CHDDChkExec: key %s\n", key.c_str());
 
@@ -389,10 +389,10 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 
 	switch(g_settings.hdd_fs) {
 		case 0:
-			sprintf(cmd, "/sbin/fsck.ext3 -C 1 -f -y %s", src);
+			snprintf(cmd, sizeof(cmd), "/sbin/fsck.ext3 -C 1 -f -y %s", src);
 			break;
 		case 1:
-			sprintf(cmd, "/sbin/reiserfsck --fix-fixable %s", src);
+			snprintf(cmd, sizeof(cmd), "/sbin/reiserfsck --fix-fixable %s", src);
 			break;
 		default:
 			return 0;

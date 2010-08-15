@@ -715,9 +715,9 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 		char cfg_key[81];
 		for(int i = 0; i < MB_MAX_DIRS; i++)
 		{
-			sprintf(cfg_key, "mb_dir_%d", i);
+			snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
 			settings->storageDir[i] = configfile.getString( cfg_key, "" );
-			sprintf(cfg_key, "mb_dir_used%d", i);
+			snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
 			settings->storageDirUsed[i] = configfile.getInt32( cfg_key,false );
 		}
 		/* these variables are used for the listframes */
@@ -725,9 +725,9 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 		settings->browserRowNr  = configfile.getInt32("mb_browserRowNr", 0);
 		for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 		{
-			sprintf(cfg_key, "mb_browserRowItem_%d", i);
+			snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
 			settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32(cfg_key, MB_INFO_MAX_NUMBER);
-			sprintf(cfg_key, "mb_browserRowWidth_%d", i);
+			snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
 			settings->browserRowWidth[i] = configfile.getInt32(cfg_key, 50);
 		}
 	}
@@ -771,9 +771,9 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	char cfg_key[81];
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
-		sprintf(cfg_key, "mb_dir_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
 		configfile.setString( cfg_key, settings->storageDir[i] );
-        sprintf(cfg_key, "mb_dir_used%d", i);
+        snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
         configfile.setInt32( cfg_key, settings->storageDirUsed[i] ); // do not save this so far
 	}
 	/* these variables are used for the listframes */
@@ -781,9 +781,9 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	configfile.setInt32("mb_browserRowNr",settings->browserRowNr);
 	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 	{
-		sprintf(cfg_key, "mb_browserRowItem_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
 		configfile.setInt32(cfg_key, settings->browserRowItem[i]);
-		sprintf(cfg_key, "mb_browserRowWidth_%d", i);
+		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
 		configfile.setInt32(cfg_key, settings->browserRowWidth[i]);
 	}
 
@@ -2000,7 +2000,7 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
                         int i = 1;
                         char newpath[1024];
                         do {
-                                sprintf(newpath, "%s.%03d", movieSelectionHandler.file.Name.c_str(), i);
+                                snprintf(newpath, sizeof(newpath), "%s.%03d", movieSelectionHandler.file.Name.c_str(), i);
                                 if(access(newpath, R_OK)) {
                                         break;
                                 } else {
@@ -3651,7 +3651,7 @@ void CDirMenu::show(void)
     updateDirState();
     for(unsigned int i = 0; i < dirList->size() && i < MAX_DIR; i++)
     {
-        sprintf(tmp,"%d",i);
+        snprintf(tmp, sizeof(tmp),"%d",i);
         tmp[1]=0;
         dirMenu.addItem( new CMenuForwarderNonLocalized ( (*dirList)[i].name.c_str(),       (dirState[i] != DIR_STATE_UNKNOWN), dirOptionText[i],       this,tmp));
     }
@@ -3670,7 +3670,7 @@ off64_t get_full_len(char * startname)
         stat64(startname, &s);
         do {
                 fulllength +=s.st_size;
-                sprintf(spart, "%s.%03d", startname, ++part);
+                snprintf(spart, sizeof(spart), "%s.%03d", startname, ++part);
         } while (!stat64(spart, &s));
         return fulllength;
 }
@@ -3707,7 +3707,7 @@ static off64_t truncate_movie(MI_MOVIE_INFO * minfo)
 	off64_t newsize = secoffset;
 
 //printf("truncate: name %s size %lld len %d sec truncate to %d sec, new size %lld\n", name, size, len, seconds, secoffset);
-	sprintf(spart, "%s", name);
+	snprintf(spart, sizeof(spart), "%s", name);
 	while (!stat64(spart, &s)) {
 		if(found) {
 //printf("truncate: check part %d file %s - TO REMOVE\n", part, spart);
@@ -3720,13 +3720,13 @@ static off64_t truncate_movie(MI_MOVIE_INFO * minfo)
 			} else
 				secoffset -= s.st_size;
 		}
-		sprintf(spart, "%s.%03d", name, ++part);
+		snprintf(spart, sizeof(spart), "%s.%03d", name, ++part);
 	}
 	if(found) {
 		if(tpart)
-			sprintf(spart, "%s.%03d", name, tpart);
+			snprintf(spart, sizeof(spart), "%s.%03d", name, tpart);
 		else
-			sprintf(spart, "%s", name);
+			snprintf(spart, sizeof(spart), "%s", name);
 printf("truncate: part %s to size %lld\n", spart, secoffset);
 		truncate(spart, secoffset);
 		minfo->file.Size = newsize;
@@ -3834,9 +3834,9 @@ static void find_new_part(char * npart, char * dpart)
 {
 	struct stat64 s;
 	int dp = 0;
-	sprintf(dpart, "%s_%d.ts", npart, dp);
+	snprintf(dpart, sizeof(dpart), "%s_%d.ts", npart, dp);
 	while (!stat64(dpart, &s)) {
-		sprintf(dpart, "%s_%d.ts", npart, ++dp);
+		snprintf(dpart, sizeof(dpart), "%s_%d.ts", npart, ++dp);
 	}
 }
 
@@ -3976,7 +3976,7 @@ printf("\n");
 			}
 		}
 	}
-	sprintf(npart, "%s", name);
+	snprintf(npart, sizeof(npart), "%s", name);
 	char * ptr = strstr(npart, ".ts");
 	if(ptr)
 		*ptr = 0;
@@ -3992,7 +3992,7 @@ printf("\n********* new file %s expected size %lld, start time %s", dpart, newsi
 	i = 0;
 	off64_t offset = 0;
 	spos = 0;
-	sprintf(spart, "%s", name);
+	snprintf(spart, sizeof(spart), "%s", name);
 	if(read_psi(spart, &psi[0])) {
 		perror(spart);
 		goto ret_err;
@@ -4104,7 +4104,7 @@ printf("cut: next bookmark pos: %lld abs %lld relative next file pos %lld cur fi
 next_file:
 		tdone += s.st_size;
 		close(srcfd);
-		sprintf(spart, "%s.%03d", name, ++part);
+		snprintf(spart, sizeof(spart), "%s.%03d", name, ++part);
 	}
 	 tt1 = time(0);
 printf("********* total written %lld tooks %ld secs end time %s", spos, tt1-tt, ctime (&tt1));
@@ -4186,11 +4186,11 @@ printf("copy: jump bookmark %d at %lld len %lld\n", bcount, books[bcount].pos, b
 
 tt = time(0);
 printf("********* %d boormarks, to %s file(s), expected size to copy %lld, start time %s", bcount, onefile ? "one" : "many", newsize, ctime (&tt));
-	sprintf(npart, "%s", name);
+	snprintf(npart, sizeof(npart), "%s", name);
 	char * ptr = strstr(npart, ".ts");
 	if(ptr)
 		*ptr = 0;
-	sprintf(spart, "%s", name);
+	snprintf(spart, sizeof(spart), "%s", name);
 	srcfd = open (spart, O_RDONLY | O_LARGEFILE);
 	if(read_psi(spart, &psi[0])) {
 		perror(spart);
@@ -4201,12 +4201,12 @@ printf("\ncopy: processing bookmark %d at %lld len %lld\n", i, books[i].pos, boo
 		off64_t bpos = books[i].pos;
 		off64_t bskip = books[i].len;
 		part = 0;
-		sprintf(spart, "%s", name);
+		snprintf(spart, sizeof(spart), "%s", name);
 		int sres;
 		while (!(sres = stat64(spart, &s))) {
 			if(bpos >= s.st_size) {
 				bpos -= s.st_size;
-				sprintf(spart, "%s.%03d", name, ++part);
+				snprintf(spart, sizeof(spart), "%s.%03d", name, ++part);
 //printf("copy: check src part %s\n", spart);
 				continue;
 			}
@@ -4303,7 +4303,7 @@ if(buf[0] != 0x47) printf("copy: buffer not aligned at %lld\n", sdone);
 printf("copy: -> next file, file pos %lld written %lld left %lld\n", sdone, spos, bskip);
 				bpos = 0;
 				close(srcfd);
-				sprintf(spart, "%s.%03d", name, ++part);
+				snprintf(spart, sizeof(spart), "%s.%03d", name, ++part);
 				goto next_file;
 			}
 		} /* while(sdone < until) */

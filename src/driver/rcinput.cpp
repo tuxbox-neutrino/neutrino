@@ -58,6 +58,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <cs_api.h>
 
 //const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir"};
@@ -1143,12 +1144,11 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 					if (ev.code == rc_last_key) {
 						/* only allow selected keys to be repeated */
 						/* (why?)                                  */
-						if((trkey == RC_up) || (trkey == RC_down   ) ||
+						if( 	(trkey == RC_up) || (trkey == RC_down   ) ||
 							(trkey == RC_plus   ) || (trkey == RC_minus  ) ||
 							(trkey == RC_page_down   ) || (trkey == RC_page_up  ) ||
-							//(trkey == RC_standby) ||
-							((bAllowRepeatLR) && ((trkey == RC_left ) ||
-								(trkey == RC_right))))
+							((bAllowRepeatLR) && ((trkey == RC_left ) || (trkey == RC_right))) ||
+							((trkey == RC_standby) && (cs_get_revision() > 7)) )
 						{
 #ifdef ENABLE_REPEAT_CHECK
 							if (rc_last_repeat_key != ev.code) {
