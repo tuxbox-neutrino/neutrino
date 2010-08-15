@@ -100,11 +100,15 @@ void CMoviePlayerGui::Init(void)
 	bookmarkmanager = new CBookmarkManager();
 
 	tsfilefilter.addFilter("ts");
+#if HAVE_TRIPLEDRAGON
+	tsfilefilter.addFilter("vdr");
+#else
 	tsfilefilter.addFilter("avi");
 	tsfilefilter.addFilter("mkv");
 	tsfilefilter.addFilter("wav");
 	tsfilefilter.addFilter("asf");
 	tsfilefilter.addFilter("aiff");
+#endif
 	tsfilefilter.addFilter("mpg");
 	tsfilefilter.addFilter("mpeg");
 	tsfilefilter.addFilter("m2p");
