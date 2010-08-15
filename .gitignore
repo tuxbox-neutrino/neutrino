@@ -20,6 +20,7 @@ INSTALL
 .libs
 .deps
 *.o
+*.so
 *.lo
 *.a
 *.la
