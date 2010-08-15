@@ -21,7 +21,7 @@
 #define DBG(args...)
 #endif
 
-static int mp_syncPES(uint8_t *, int);
+static int mp_syncPES(uint8_t *, int, bool quiet = false);
 static int sync_ts(uint8_t *, int);
 static inline uint16_t get_pid(uint8_t *buf);
 static void *start_playthread(void *c);
@@ -36,6 +36,13 @@ extern cDemux *videoDemux;
 extern cDemux *audioDemux;
 extern cVideo *videoDecoder;
 extern cAudio *audioDecoder;
+
+static const char *FILETYPE[] = {
+	"FILETYPE_UNKNOWN",
+	"FILETYPE_TS",
+	"FILETYPE_MPG",
+	"FILETYPE_VDR"
+};
 
 cPlayback::cPlayback(int)
 {
@@ -135,11 +142,43 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 	filelist_t file;
 	file.Name = std::string(filename);
 	file.Size = s.st_size;
+	if (file.Name.rfind(".ts") == file.Name.length() - 3 ||
+	    file.Name.rfind(".TS") == file.Name.length() - 3)
+		filetype = FILETYPE_TS;
+	else
+	{
+		if (file.Name.rfind(".vdr") == file.Name.length() - 4)
+		{
+			filetype = FILETYPE_VDR;
+			std::string::size_type p = file.Name.rfind("info.vdr");
+			if (p == std::string::npos)
+				p = file.Name.rfind("index.vdr");
+			if (p != std::string::npos)
+			{
+				file.Name.replace(p, std::string::npos, "001.vdr");
+				INFO("replaced filename with '%s'\n", file.Name.c_str());
+				if (stat(file.Name.c_str(), &s))
+				{
+					INFO("filename does not exist? (%m)\n");
+					return false;
+				}
+				file.Size = s.st_size;
+			}
+		}
+		else
+			filetype = FILETYPE_MPG;
+		vpid = 0x40;
+	}
+
+	INFO("detected (ok, guessed) filetype: %s\n", FILETYPE[filetype]);
+
 	filelist.push_back(file);
 	filelist_auto_add();
 	if (mf_open(0) < 0)
 		return false;
 
+	pts_start = pts_end = pts_curr = -1;
+	pesbuf_pos = 0;
 	curr_pos = 0;
 	inbuf_pos = 0;
 	inbuf_sync = 0;
@@ -149,13 +188,21 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 	{
 		if (mp_seekSync(r - INBUF_SIZE) < 0)
 			return false;
-		inbuf_read();	/* assume that we fill the buffer with one read() */
-		for (r = (inbuf_pos / 188) * 188; r > 0; r -= 188)
-		{
-			pts_end = get_pts(inbuf + r, false);
-			if (pts_end > -1)
+		while(true) {
+			if (inbuf_read() <= 0)
+				break; // EOF
+			if (curr_pos >= r) //just to make sure...
 				break;
 		}
+		if (filetype == FILETYPE_TS)
+			for (r = (inbuf_pos / 188) * 188; r > 0; r -= 188)
+			{
+				pts_end = get_pts(inbuf + r, false);
+				if (pts_end > -1)
+					break;
+			}
+		else
+			pts_end = pts_curr;
 	}
 	else
 		pts_end = -1; /* unknown */
@@ -449,7 +496,7 @@ bool cPlayback::SetPosition(int position, bool absolute)
 	}
 
 	oldspeed = playback_speed;
-	if (oldspeed != 0)
+//	if (oldspeed != 0)
 		SetSpeed(0);		/* request pause */
 
 	while (playstate == STATE_PLAY)	/* playthread did not acknowledge pause */
@@ -515,7 +562,10 @@ off_t cPlayback::seek_to_pts(int64_t pts)
 			return newpos;
 		inbuf_pos = 0;
 		inbuf_sync = 0;
-		inbuf_read(); /* also updates current pts */
+		while (inbuf_pos < INBUF_SIZE * 8 / 10) {
+			if (inbuf_read() <= 0)
+				break; // EOF
+		}
 		if (pts_curr < pts_start)
 			tmppts = pts_curr + 0x200000000ULL - pts_start;
 		else
@@ -929,9 +979,17 @@ ssize_t cPlayback::read_ts()
 ssize_t cPlayback::read_mpeg()
 {
 	ssize_t toread, ret, sync;
-	toread = PESBUF_SIZE - pesbuf_pos;
+	//toread = PESBUF_SIZE - pesbuf_pos;
+	/* experiments found, that 80kB is the best buffer size, otherwise a/v sync seems
+	   to suffer and / or audio stutters */
+	toread = 80 * 1024 - pesbuf_pos;
 	bool retry = true;
 
+	if (INBUF_SIZE - inbuf_pos < toread)
+	{
+		INFO("adjusting toread to %d due to inbuf full (old: %ld)\n", INBUF_SIZE - inbuf_pos, toread);
+		toread = INBUF_SIZE - inbuf_pos;
+	}
 	while(true)
 	{
 		ret = read(in_fd, pesbuf + pesbuf_pos, toread);
@@ -945,7 +1003,7 @@ ssize_t cPlayback::read_mpeg()
 	}
 	if (ret < 0)
 	{
-		INFO("failed: %m\n");
+		INFO("failed: %m, pesbuf_pos: %ld, toread: %ld\n", pesbuf_pos, toread);
 		return ret;
 	}
 	pesbuf_pos += ret;
@@ -954,17 +1012,22 @@ ssize_t cPlayback::read_mpeg()
 	int i;
 	int count = 0;
 	uint16_t pid = 0;
+	bool resync = true;
 	while (count < pesbuf_pos - 10)
 	{
-		sync = mp_syncPES(pesbuf + count, pesbuf_pos - count - 10);
-		if (sync < 0)
+		if (resync)
 		{
-			INFO("cannot sync\n");
-			break;
+			sync = mp_syncPES(pesbuf + count, pesbuf_pos - count - 10);
+			if (sync < 0)
+			{
+				if (pesbuf_pos - count - 10 > 4)
+					INFO("cannot sync (count = %d, pesbuf_pos = %ld)\n", count, pesbuf_pos);
+				break;
+			}
+			if (sync)
+				INFO("needed sync %ld\n", sync);
+			count += sync;
 		}
-		if (sync)
-			INFO("needed sync\n");
-		count += sync;
 		uint8_t *ppes = pesbuf + count;
 		int av = 0; // 1 = video, 2 = audio
 		int64_t pts;
@@ -979,6 +1042,7 @@ ssize_t cPlayback::read_mpeg()
 				}
 				else
 					count += 14;
+				resync = true;
 				continue;
 				break;
 			case 0xbd: // AC3
@@ -1066,6 +1130,7 @@ ssize_t cPlayback::read_mpeg()
 				//if (! resync)
 				//	DBG("Unknown stream id: 0x%X.\n", ppes[3]);
 				count++;
+				resync = true;
 				continue;
 				break;
 		}
@@ -1073,7 +1138,19 @@ ssize_t cPlayback::read_mpeg()
 		int pesPacketLen = ((ppes[4] << 8) | ppes[5]) + 6;
 		if (count + pesPacketLen >= pesbuf_pos)
 		{
-			INFO("buffer len: %d, pesPacketLen: %d :-(\n", pesbuf_pos - count, pesPacketLen);
+			DBG("buffer len: %ld, pesPacketLen: %d :-(\n", pesbuf_pos - count, pesPacketLen);
+			if (count != 0)
+			{
+				memmove(pesbuf, ppes, pesbuf_pos - count);
+				pesbuf_pos -= count;
+			}
+			break;
+		}
+
+		int tsPacksCount = pesPacketLen / 184;
+		if ((tsPacksCount + 1) * 188 > INBUF_SIZE - inbuf_pos)
+		{
+			INFO("not enough size in inbuf (needed %d, got %d)\n", (tsPacksCount + 1) * 188, INBUF_SIZE - inbuf_pos);
 			memmove(pesbuf, ppes, pesbuf_pos - count);
 			pesbuf_pos -= count;
 			break;
@@ -1081,7 +1158,6 @@ ssize_t cPlayback::read_mpeg()
 
 		if (av)
 		{
-			int tsPacksCount = pesPacketLen / 184;
 			int rest = pesPacketLen % 184;
 
 			// divide PES packet into small TS packets
@@ -1134,12 +1210,65 @@ off_t cPlayback::mp_seekSync(off_t pos)
 {
 	off_t npos = pos;
 	off_t ret;
-	uint8_t pkt[188];
+	uint8_t pkt[1024];
 
 	ret = mf_lseek(npos);
 	if (ret < 0)
 		INFO("lseek ret < 0 (%m)\n");
 
+	if (filetype != FILETYPE_TS)
+	{
+		int offset = 0;
+		int s;
+		ssize_t r;
+		bool retry = false;
+		while (true)
+		{
+			r = read(in_fd, &pkt[offset], 1024 - offset);
+			if (r < 0)
+			{
+				INFO("read failed: %m\n");
+				break;
+			}
+			if (r == 0) // EOF?
+			{
+				if (retry)
+					break;
+				if (mf_lseek(npos) < 0) /* next file in list? */
+				{
+					INFO("lseek ret < 0 (%m)\n");
+					break;
+				}
+				retry = true;
+				continue;
+			}
+			s = mp_syncPES(pkt, r + offset, true);
+			if (s < 0)
+			{
+				/* if the last 3 bytes of the buffer were 00 00 01, then
+				   mp_sync_PES would not find it. So keep them and check
+				   again in the next iteration */
+				memmove(pkt, &pkt[r + offset - 3], 3);
+				npos += r;
+				offset = 3;
+			}
+			else
+			{
+				npos += s;
+				INFO("sync after %lld\n", npos - pos);
+				ret = mf_lseek(npos);
+				if (ret < 0)
+					INFO("lseek ret < 0 (%m)\n");
+				return ret;
+			}
+			if (npos > (pos + 0x20000)) /* 128k enough? */
+				break;
+		}
+		INFO("could not sync to PES offset: %d r: %zd\n", offset, r);
+		return mf_lseek(pos);
+	}
+
+	/* TODO: use bigger buffer here, too and handle EOF / next splitfile */
 	while (read(in_fd, pkt, 1) > 0)
 	{
 		//-- check every byte until sync word reached --
@@ -1241,10 +1370,10 @@ int64_t cPlayback::get_pts(uint8_t *p, bool pes)
 }
 
 /* returns: 0 == was already synchronous, > 0 == is now synchronous, -1 == could not sync */
-static int mp_syncPES(uint8_t *buf, int len)
+static int mp_syncPES(uint8_t *buf, int len, bool quiet)
 {
 	int ret = 0;
-	while (ret < len - 3)
+	while (ret < len - 4)
 	{
 		if (buf[ret + 2] != 0x01)
 		{
@@ -1261,10 +1390,19 @@ static int mp_syncPES(uint8_t *buf, int len)
 			ret += 3;
 			continue;
 		}
+		/* all stream IDs are > 0x80 */
+		if ((buf[ret + 3] & 0x80) != 0x80)
+		{
+			/* we already checked for 00 00 01, if the stream ID
+			   is not valid, we can skip those 3 bytes */
+			ret += 3;
+			continue;
+		}
 		return ret;
 	}
 
-	INFO("No valid PES signature found. %d Bytes deleted.\n", ret);
+	if (!quiet && len > 5) /* only warn if enough space was available... */
+		INFO("No valid PES signature found. %d Bytes deleted.\n", ret);
 	return -1;
 }
 
