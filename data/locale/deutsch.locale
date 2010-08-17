@@ -627,6 +627,7 @@ languagesetup.head Spracheinstellungen
 languagesetup.osd Menüsprache
 languagesetup.select Sprache
 lcdcontroler.brightness normale Helligkeit
+lcdcontroler.brightnessdeepstandby DeepStandby Helligkeit
 lcdcontroler.brightnessstandby Standby Helligkeit
 lcdcontroler.contrast Kontrast
 lcdmenu.autodimm Automatisch dimmen

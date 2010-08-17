@@ -449,6 +449,7 @@ languagesetup.head International settings
 languagesetup.osd OSD Language
 languagesetup.select OSD Language
 lcdcontroler.brightness normal Brightness
+lcdcontroler.brightnessdeepstandby DeepStandby Brightness
 lcdcontroler.brightnessstandby Standby Brightness
 lcdcontroler.contrast Contrast
 lcdmenu.autodimm Auto dimm

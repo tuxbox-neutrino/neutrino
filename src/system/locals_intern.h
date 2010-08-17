@@ -479,6 +479,7 @@ const char *locale_real_names[] = {
 	"languagesetup.osd",
 	"languagesetup.select",
 	"lcdcontroler.brightness",
+	"lcdcontroler.brightnessdeepstandby",
 	"lcdcontroler.brightnessstandby",
 	"lcdcontroler.contrast",
 	"lcdmenu.autodimm",

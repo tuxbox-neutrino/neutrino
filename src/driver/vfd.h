@@ -123,6 +123,8 @@ class CVFD
 
 		void setBrightnessStandby(int);
 		int getBrightnessStandby();
+		void setBrightnessDeepStandby(int);
+		int getBrightnessDeepStandby();
 
 		void setPower(int);
 		int getPower();

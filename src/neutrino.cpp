@@ -77,7 +77,6 @@
 #include "gui/widget/messagebox.h"
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"
-#include "gui/widget/lcdcontroler.h"
 #include "gui/widget/vfdcontroler.h"
 #include "gui/widget/progressbar.h"
 #include "gui/widget/rgbcsynccontroler.h"
@@ -718,7 +717,8 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 	{"lcd_power"            , DEFAULT_LCD_POWER            },
 	{"lcd_inverse"          , DEFAULT_LCD_INVERSE          },
 	{"lcd_show_volume"      , DEFAULT_LCD_SHOW_VOLUME      },
-	{"lcd_autodimm"         , DEFAULT_LCD_AUTODIMM         }
+	{"lcd_autodimm"         , DEFAULT_LCD_AUTODIMM         },
+	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS }
 };
 
 /**************************************************************************************
@@ -3730,7 +3730,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 					fp_timer = (timer_minutes - mtime)/60;
 printf("now: %ld, timer %ld, FP timer %ld\n", mtime/60, timer_minutes/60, fp_timer);fflush(stdout);
 
-				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS];
+				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
 				standby.flags               = 0x40;
 				standby.current_hour        = tmtime->tm_hour;
 				standby.current_minute      = tmtime->tm_min;
