@@ -97,12 +97,13 @@ class CVFD
 
 		static void* TimeThread(void*);
 		void setlcdparameter(int dimm, int power);
+		void setled(int led1, int led2);
 	public:
 
 		~CVFD();
 		bool has_lcd;
 		void setlcdparameter(void);
-
+		void setled(void);
 		static CVFD* getInstance();
 		void init(const char * fontfile, const char * fontname);
 

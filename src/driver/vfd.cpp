@@ -164,6 +164,38 @@ void CVFD::setlcdparameter(void)
 	setlcdparameter((mode == MODE_STANDBY) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] : (mode == MODE_SHUTDOWN) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS] : g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS],
 			last_toggle_state_power);
 }
+void CVFD::setled(int led1, int led2){
+	int ret = ioctl(fd, IOC_VFD_LED_CTRL, led1);
+	if(ret < 0)
+		perror("IOC_VFD_LED_CTRL");
+	ret = ioctl(fd, IOC_VFD_LED_CTRL, led2);
+	if(ret < 0)
+		perror("IOC_VFD_LED_CTRL");
+}
+void CVFD::setled(void)
+{
+	if(!has_lcd) return;
+
+	int led1 = 0, led2 = 0;
+	int select = 0;
+
+	if(mode == MODE_MENU_UTF8 || mode == MODE_TVRADIO  )
+		  select = g_settings.led_tv_mode;
+	else if(mode == MODE_STANDBY)
+		  select = g_settings.led_standby_mode;
+
+	switch(select){
+		case 0:
+		led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_OFF;
+		break;
+		case 1:
+		led1 = VFD_LED_1_ON; led2 = VFD_LED_2_ON;
+		break;
+		default:
+		break;
+	}
+	setled(led1, led2);
+}
 
 void CVFD::showServicename(const std::string & name) // UTF-8
 {
@@ -445,6 +477,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 #endif // VFD_UPDATE
 	}
 	wake_up();
+	setled();
 }
 
 void CVFD::setBrightness(int bright)

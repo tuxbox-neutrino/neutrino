@@ -461,6 +461,9 @@ lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
+ledcontroler.mode.tv Led
+ledcontroler.mode.deepstandby Led DeepStandby
+ledcontroler.mode.standby Led Standby
 mainmenu.audioplayer Audioplayer
 mainmenu.games Games
 mainmenu.head Main Menu

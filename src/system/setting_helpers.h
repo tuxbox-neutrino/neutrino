@@ -294,6 +294,12 @@ public:
         int exec(CMenuTarget* parent, const std::string& actionKey);
 };
 
+class CLedControlNotifier : public CChangeObserver
+{
+public:
+        bool changeNotify(const neutrino_locale_t, void * data);
+};
+
 class CFanControlNotifier : public CChangeObserver
 {
 public:

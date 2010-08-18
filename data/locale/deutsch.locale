@@ -641,6 +641,9 @@ lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/ Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
+ledcontroler.mode.tv Led
+ledcontroler.mode.deepstandby Led DeepStandby
+ledcontroler.mode.standby Led Standby
 mainmenu.audioplayer Audioplayer
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele

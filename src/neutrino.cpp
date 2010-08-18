@@ -808,6 +808,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.rotor_swap = configfile.getInt32( "rotor_swap", 0);
 	g_settings.emlog = configfile.getInt32( "emlog", 0);
 
+	//led
+	g_settings.led_tv_mode = configfile.getInt32( "led_tv_mode", 1);
+	g_settings.led_standby_mode = configfile.getInt32( "led_standby_mode", 1);
+	g_settings.led_deep_mode = configfile.getInt32( "led_deep_mode", 1);
+
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
 	g_settings.hdd_noise = configfile.getInt32( "hdd_noise", 254);
@@ -1335,6 +1340,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//fb-alpha values for gtx
 	configfile.setInt32( "gtx_alpha1", g_settings.gtx_alpha1 );
 	configfile.setInt32( "gtx_alpha2", g_settings.gtx_alpha2 );
+	//led
+	configfile.setInt32( "led_tv_mode", g_settings.led_tv_mode);
+	configfile.setInt32( "led_standby_mode", g_settings.led_standby_mode);
+	configfile.setInt32( "led_deep_mode", g_settings.led_deep_mode);
 
 	//misc
 	configfile.setInt32( "power_standby", g_settings.power_standby);
@@ -3731,7 +3740,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 printf("now: %ld, timer %ld, FP timer %ld\n", mtime/60, timer_minutes/60, fp_timer);fflush(stdout);
 
 				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
-				standby.flags               = 0x40;
+				standby.flags               = g_settings.led_deep_mode ? 0x40:0;
 				standby.current_hour        = tmtime->tm_hour;
 				standby.current_minute      = tmtime->tm_min;
 				standby.timer_minutes_hi    = fp_timer >> 8;;

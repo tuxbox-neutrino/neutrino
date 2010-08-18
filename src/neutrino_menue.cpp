@@ -2660,7 +2660,16 @@ void CNeutrinoApp::InitLcdSettings(CMenuWidget &lcdSettings)
 	lcdSettings.addItem(GenericMenuSeparatorLine);
 	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, true, NULL, lcdsliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
+	CMenuWidget * ledMenu = new CMenuWidget(LOCALE_LEDCONTROLER_MODE_TV, NEUTRINO_ICON_SETTINGS);
+	addMenueIntroItems(*ledMenu);
+	ledMenu->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_TV, &g_settings.led_tv_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, new CLedControlNotifier()));
+	ledMenu->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_STANDBY, &g_settings.led_standby_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	if(cs_get_revision() > 7)
+		ledMenu->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_DEEPSTANDBY, &g_settings.led_deep_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
+	lcdSettings.addItem(new CMenuForwarder(LOCALE_LEDCONTROLER_MODE_TV, true, NULL, ledMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	lcdSettings.addItem(GenericMenuSeparatorLine);
+
 	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_LCDMENU_STATUSLINE, &g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME], LCDMENU_STATUSLINE_OPTIONS, LCDMENU_STATUSLINE_OPTION_COUNT, true);
 	lcdSettings.addItem(oj);
 }
