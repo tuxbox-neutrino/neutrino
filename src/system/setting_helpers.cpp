@@ -1026,8 +1026,17 @@ printf("CAllUsalsNotifier::changeNotify: %s\n", onoff ? "ON" : "OFF");
 	return true;
 }
 
+extern CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[];
 bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * /* data */)
 {
-	videoDecoder->SetAutoModes(g_settings.enabled_video_modes);
+	int i;
+	int modes[VIDEO_STD_MAX+1];
+
+	memset(modes, 0, sizeof(int)*VIDEO_STD_MAX+1);
+
+	for(i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++) {
+		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
+	}
+	videoDecoder->SetAutoModes(modes);
 	return true;
 }

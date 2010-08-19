@@ -244,7 +244,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_
 };
 
 /* numbers corresponding to video.cpp from zapit */
-const CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
+CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
 	{ VIDEO_STD_SECAM,   NONEXISTANT_LOCALE, "SECAM"	},
 	{ VIDEO_STD_PAL,     NONEXISTANT_LOCALE, "PAL"		},
@@ -300,6 +300,8 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
 		menu->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, anotify));
 
+	anotify->changeNotify(NONEXISTANT_LOCALE, 0);
+
 	addItem(new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, menu, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ));
 
 	addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_VIDEOMENU_HDMI_CEC));
@@ -323,6 +325,16 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 		changeNotify(LOCALE_VIDEOMENU_SCART, NULL);
 		changeNotify(LOCALE_VIDEOMENU_CINCH, NULL);
 	}
+#if 0 /* Analog output only. suspended. */
+	menu = new CMenuWidget(LOCALE_VIDEOMENU_ADJUST, NEUTRINO_ICON_SETTINGS);
+	static int tmp1 = 0, tmp2 = 0, tmp3 = 0, tmp4 = 0, tmp5 = 0;
+	menu->addItem(new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_BRIGHTNESS, &tmp2, true, -128, 127, this));
+	menu->addItem(new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_CONTRAST, &tmp1, true, -128, 127, this));
+	menu->addItem(new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_SHARPNESS, &tmp3, true, -128, 127, this));
+	menu->addItem(new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_SATURATION, &tmp4, true, -128, 127, this));
+	menu->addItem(new CMenuOptionNumberChooser(LOCALE_VIDEOMENU_HUE, &tmp5, true, -128, 127, this));
+	addItem(new CMenuForwarder(LOCALE_VIDEOMENU_ADJUST, true, NULL, menu, NULL));	
+#endif
 }
 
 void CVideoSettings::nextMode(void)
@@ -423,8 +435,12 @@ void CVideoSettings::SwitchFormat(void)
 	ShowHintUTF(LOCALE_VIDEOMENU_VIDEOFORMAT, g_Locale->getText(text), 450, 2);
 }
 
-bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *)
+bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * data)
 {
+	int val = 0;
+	if(data)
+		val = * (int *) data;
+
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_ANALOG_MODE))
 	{
 		videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
@@ -479,7 +495,28 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *)
 				prev_video_mode = g_settings.video_Mode;
 		}
 	}
-
+#if 1
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
+	{
+		videoDecoder->SetControl(VIDEO_CONTROL_CONTRAST, val);
+	}
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_BRIGHTNESS))
+	{
+		videoDecoder->SetControl(VIDEO_CONTROL_BRIGHTNESS, val);
+	}
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SHARPNESS))
+	{
+		videoDecoder->SetControl(VIDEO_CONTROL_SHARPNESS, val);
+	}
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_SATURATION))
+	{
+		videoDecoder->SetControl(VIDEO_CONTROL_SATURATION, val);
+	}
+        else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HUE))
+	{
+		videoDecoder->SetControl(VIDEO_CONTROL_HUE, val);
+	}
+#endif
 	return true;
 }
 

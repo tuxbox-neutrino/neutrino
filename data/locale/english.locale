@@ -951,6 +951,12 @@ videomenu.dbdr_none none
 videomenu.dbdr_deblock de-block
 videomenu.dbdr_both de-block+de-ring
 videomenu.enabled_modes VF key enabled modes
+videomenu.adjust Adjust video settings
+videomenu.contrast Contrast
+videomenu.brightness Brightness
+videomenu.sharpness Sharpness
+videomenu.saturation Saturation
+videomenu.hue Hue
 zaptotimer.announce Zapto timer in one minute
 extra.dboxinfo Box Info
 extra.scan_mode Scan mode

@@ -38,7 +38,7 @@
 
 #include <string>
 
-#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 12 /* warning, must be same as VIDEO_STD_MAX */
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 12
 
 struct SNeutrinoSettings
 {

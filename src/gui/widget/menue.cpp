@@ -164,6 +164,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
+	bool bAllowRepeatLR = false;
 
 	int pos = 0;
 	exit_pressed = false;
@@ -201,8 +202,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
+
 	do {
-		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
+		if(hasItem() && selected >= 0)
+			bAllowRepeatLR = items[selected]->can_arrow;
+
+		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, bAllowRepeatLR);
 
 		if ( msg <= CRCInput::RC_MaxRC ) {
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings

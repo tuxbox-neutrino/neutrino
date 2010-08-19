@@ -100,6 +100,16 @@ typedef enum {
 	VIDEO_HDMI_CEC_MODE_RECORDER
 } VIDEO_HDMI_CEC_MODE;
 
+typedef enum
+{
+   VIDEO_CONTROL_BRIGHTNESS = 0,
+   VIDEO_CONTROL_CONTRAST,
+   VIDEO_CONTROL_SATURATION,
+   VIDEO_CONTROL_HUE,
+   VIDEO_CONTROL_SHARPNESS,
+   VIDEO_CONTROL_MAX = VIDEO_CONTROL_SHARPNESS
+} VIDEO_CONTROL;
+
 #ifndef CS_VIDEO_PDATA
 #define CS_VIDEO_PDATA void
 #endif
@@ -200,7 +210,7 @@ class cVideo
 		void StopPicture();
 		void Standby(unsigned int bOn);
 		void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);
-		void SetContrast(int val);
+		void SetControl(int num, int val);
 		bool ReceivedDRMDelay(void) { return receivedDRMDelay; }
 		bool ReceivedVideoDelay(void) { return receivedVideoDelay; }
 		void SetReceivedDRMDelay(bool Received) { receivedDRMDelay = Received; }
