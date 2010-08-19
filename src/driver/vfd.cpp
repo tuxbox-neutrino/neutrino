@@ -191,6 +191,12 @@ void CVFD::setled(void)
 		case 1:
 		led1 = VFD_LED_1_ON; led2 = VFD_LED_2_ON;
 		break;
+		case 2:
+		led1 = VFD_LED_1_ON; led2 = VFD_LED_2_OFF;
+		break;
+		case 3:
+		led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_ON;
+		break;
 		default:
 		break;
 	}

@@ -70,7 +70,7 @@ int EpgPlus::sliderWidth = 0;
 int EpgPlus::channelsTableWidth = 0;
 
 static EpgPlus::FontSetting fontSettingTable[] = {
-	{ EpgPlus::EPGPlus_header_font,				"Bold",		20 },
+	{ EpgPlus::EPGPlus_header_font,				"Regular",	27 },
 	{ EpgPlus::EPGPlus_timeline_fonttime,			"Bold",		16 },
 	{ EpgPlus::EPGPlus_timeline_fontdate,			"Bold",		14 },
 	{ EpgPlus::EPGPlus_channelentry_font,			"Bold",		16 },
@@ -127,7 +127,7 @@ void EpgPlus::Header::paint(const char * Name)
 			//this->width - 20, g_Locale->getText (LOCALE_EPGPLUS_HEAD) , COL_MENUHEAD, 0, true);
         int icol_w, icol_h;
         frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
-	this->frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_HELP, this->x + this->width - icol_w - RADIUS_LARGE - 10, this->y, icol_h);
+	this->frameBuffer->paintIcon (NEUTRINO_ICON_BUTTON_HELP, this->x + this->width - icol_w - RADIUS_LARGE - 10, this->y+ ((this->font->getHeight()-icol_h)/2), icol_h);
 
 }
 
@@ -656,7 +656,6 @@ void EpgPlus::init()
 	usableScreenWidth = w_max (g_settings.screen_EndX, 0);
 	usableScreenHeight = h_max (g_settings.screen_EndY, 0);
 	std::string FileName = std::string (g_settings.font_file);
-	fontSettingTable[0].size = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	for (size_t i = 0; i < NumberOfFontSettings; ++i) {
 		int size = fontSettingTable[i].size;
 		if (bigfont && (fontSettingTable[i].settingID == EpgPlus::EPGPlus_channelentry_font ||
