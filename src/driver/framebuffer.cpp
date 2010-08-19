@@ -149,6 +149,27 @@ void CFrameBuffer::waitForIdle(void)
 }
 #endif /* USE_NEVIS_GXA */
 
+#if HAVE_TRIPLEDRAGON
+#include <directfb.h>
+#include <tdgfx/stb04gfx.h>
+extern IDirectFB *dfb;
+extern IDirectFBSurface *dfbdest;
+extern int gfxfd;
+void CFrameBuffer::waitForIdle(void)
+{
+#if 0
+	struct timeval ts, te;
+	gettimeofday(&ts, NULL);
+#endif
+	/* does not work: DFBResult r = dfb->WaitForSync(dfb); */
+	ioctl(gfxfd, STB04GFX_ENGINE_SYNC);
+#if 0
+	gettimeofday(&te, NULL);
+	printf("STB04GFX_ENGINE_SYNC took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
+#endif
+}
+#endif
+
 /*******************************************************************************/
 
 static uint8_t * virtual_fb = NULL;
@@ -632,9 +653,14 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
     int corner_bl = (type & CORNER_BOTTOM_LEFT)  ? 1 : 0;
     int corner_br = (type & CORNER_BOTTOM_RIGHT) ? 1 : 0;
 
+#if HAVE_TRIPLEDRAGON
+    char *c = (char *)&col;
+    dfbdest->SetColor(dfbdest, c[1], c[2], c[3], c[0]);
+#else
 #ifndef USE_NEVIS_GXA
     int swidth = stride / sizeof(fb_pixel_t);
     fb_pixel_t *fbp = getFrameBufferPointer() + (swidth * y);
+#endif
 #endif
 
     /* this table contains the x coordinates for a quarter circle (the bottom right quarter) with fixed
@@ -720,6 +746,16 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 		ofl = corner_bl ? ofs : 0;
 		ofr = corner_br ? ofs : 0;
 	    }
+#if HAVE_TRIPLEDRAGON
+	    else
+	    {
+		int height = dy - ((corner_tl|corner_tr) + (corner_bl|corner_br)) * radius;
+		dfbdest->FillRectangle(dfbdest, x, y + line, dx, height);
+		line += height;
+		continue;
+	    }
+	    dfbdest->DrawLine(dfbdest, x + ofl, y + line, x + dx - ofr - 1, y + line);
+#else
 #ifdef USE_NEVIS_GXA
 	    _write_gxa(gxa_base, cmd, GXA_POINT(x + dx - ofr, y + line));		/* endig point */
 	    _write_gxa(gxa_base, cmd, GXA_POINT(x      + ofl, y + line));		/* start point */
@@ -730,11 +766,13 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 	    }
 	    fbp += swidth;
 #endif
+#endif
 	    line++;
 	}
     }
     else
     {
+#if !HAVE_TRIPLEDRAGON
 	while (line < dy)
 	{
 #ifdef USE_NEVIS_GXA
@@ -749,6 +787,9 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 #endif
 	    line++;
 	}
+#else
+	dfbdest->FillRectangle(dfbdest, x, y + line, dx, dy - line);
+#endif
     }
 #ifdef USE_NEVIS_GXA
     /* the GXA seems to do asynchronous rendering, so we add a sync marker
@@ -757,6 +798,7 @@ void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int
 #endif
 }
 
+#if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
 {
 	if (!getActive())
@@ -850,6 +892,43 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 		*(dest++) = col;
 #endif /* USE_NEVIS_GXA */
 }
+#else /* TRIPLEDRAGON */
+void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
+{
+	paintLine(x, y, x, y, col);
+}
+
+void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
+{
+	if (!getActive())
+		return;
+
+	char *c = (char *)&col;
+	dfbdest->SetColor(dfbdest, c[1], c[2], c[3], c[0]);
+	dfbdest->DrawLine(dfbdest, xa, ya, xb, yb);
+	return;
+}
+
+void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
+{
+	paintLine(x, ya, x, yb, col);
+}
+
+void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
+{
+	paintLine(x, y, x, y + dy, col);
+}
+
+void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
+{
+	paintLine(xa, y, xb, y, col);
+}
+
+void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
+{
+	paintLine(x, y, x + dx, y, col);
+}
+#endif /* TRIPLEDRAGON */
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 {
@@ -1127,6 +1206,7 @@ void CFrameBuffer::loadPal(const std::string & filename, const unsigned char off
 	close(lfd);
 }
 
+#if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 {
 	if (!getActive())
@@ -1142,6 +1222,7 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 	*pos = col;
 	#endif
 }
+#endif
 
 void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad)
 {
@@ -1204,6 +1285,7 @@ void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const
 
 }
 
+#if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 {
 	if (!getActive())
@@ -1291,6 +1373,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 		}
 	}
 }
+#endif
 
 void CFrameBuffer::setBackgroundColor(const fb_pixel_t color)
 {
@@ -1677,6 +1760,7 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
+#if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	int  xc, yc;
@@ -1729,6 +1813,41 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	}
 #endif
 }
+#else
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+{
+	DFBRectangle src;
+	DFBResult err;
+	IDirectFBSurface *surf;
+	DFBSurfaceDescription dsc;
+
+	src.x = xp;
+	src.y = yp;
+	src.w = width - xp;
+	src.h = height - yp;
+
+	dsc.flags  = (DFBSurfaceDescriptionFlags)(DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PREALLOCATED);
+	dsc.caps   = DSCAPS_NONE;
+	dsc.width  = width;
+	dsc.height = height;
+	dsc.preallocated[0].data  = fbbuff;
+	dsc.preallocated[0].pitch = width * sizeof(fb_pixel_t);
+	err = dfb->CreateSurface(dfb, &dsc, &surf);
+	/* TODO: maybe we should not die if this fails? */
+	if (err != DFB_OK) {
+		fprintf(stderr, "CFrameBuffer::blit2FB: ");
+		DirectFBErrorFatal("dfb->CreateSurface(dfb, &dsc, &surf)", err);
+	}
+
+	if (transp)
+		surf->SetSrcColorKey(surf, 0, 0, 0);
+
+	dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
+	dfbdest->Blit(dfbdest, surf, &src, xoff, yoff);
+	surf->Release(surf);
+	return;
+}
+#endif
 
 void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb, int transp)
 {

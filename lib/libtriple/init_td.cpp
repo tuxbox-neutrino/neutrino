@@ -21,11 +21,12 @@ static const char * FILENAME = "init_td.cpp";
 static bool initialized = false;
 
 /* the super interface */
-static IDirectFB *dfb;
+IDirectFB *dfb;
 /* the primary surface */
 static IDirectFBSurface *primary;
-static IDirectFBSurface *dest;
+IDirectFBSurface *dfbdest;
 static IDirectFBDisplayLayer *layer;
+int gfxfd = -1;
 
 #define DFBCHECK(x...)                                                \
 	err = x;                                                      \
@@ -74,13 +75,13 @@ static void dfb_init()
 	primary->GetPixelFormat(primary, &pixelformat);
 	primary->GetSize(primary, &SW, &SH);
 	primary->Clear(primary, 0, 0, 0, 0);
-	primary->GetSubSurface(primary, NULL, &dest);
-	dest->Clear(dest, 0, 0, 0, 0);
+	primary->GetSubSurface(primary, NULL, &dfbdest);
+	dfbdest->Clear(dfbdest, 0, 0, 0, 0);
 }
 
 static void dfb_deinit()
 {
-	dest->Release(dest);
+	dfbdest->Release(dfbdest);
 	primary->Release(primary);
 	layer->Release(layer);
 	dfb->Release(dfb);
@@ -119,6 +120,9 @@ void init_td_api()
 		if (setpgid(0, pid))
 			perror("setpgid");
 		rc_init();
+		gfxfd = open("/dev/stb/tdgfx", O_RDWR);
+		if (gfxfd < 0)
+			perror("open /dev/stb/tdgfx");
 	}
 	initialized = true;
 	fprintf(stderr, "%s:%s end\n", FILENAME, __FUNCTION__);
@@ -129,5 +133,8 @@ void shutdown_td_api()
 	fprintf(stderr, "%s:%s, initialized = %d\n", FILENAME, __FUNCTION__, (int)initialized);
 	if (initialized)
 		dfb_deinit();
+	if (gfxfd > -1)
+		close(gfxfd);
+	gfxfd = -1;
 	initialized = false;
 }

@@ -50,7 +50,8 @@ libneutrino_driver_a_SOURCES += \
 	lcdd.cpp
 
 INCLUDES += \
-	-I$(top_srcdir)/lib/libtriple
+	-I$(top_srcdir)/lib/libtriple \
+	@DIRECTFB_CFLAGS@
 endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp

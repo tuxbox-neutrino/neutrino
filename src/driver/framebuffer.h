@@ -215,7 +215,11 @@ class CFrameBuffer
 		void add_gxa_sync_marker(void);
 		void waitForIdle(void);
 #else
+#if HAVE_TRIPLEDRAGON
+		void waitForIdle(void);
+#else
 		inline void waitForIdle(void) {};
+#endif
 #endif
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
 		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
