@@ -90,7 +90,8 @@ typedef enum {
 	VIDEO_STD_1080P30,
 	VIDEO_STD_1080P24,
 	VIDEO_STD_1080P25,
-	VIDEO_STD_AUTO
+	VIDEO_STD_AUTO,
+	VIDEO_STD_MAX = VIDEO_STD_AUTO
 } VIDEO_STD;
 
 typedef enum {
@@ -199,7 +200,7 @@ class cVideo
 		void StopPicture();
 		void Standby(unsigned int bOn);
 		void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);
-		void setContrast(int val);
+		void SetContrast(int val);
 		bool ReceivedDRMDelay(void) { return receivedDRMDelay; }
 		bool ReceivedVideoDelay(void) { return receivedVideoDelay; }
 		void SetReceivedDRMDelay(bool Received) { receivedDRMDelay = Received; }
@@ -209,6 +210,7 @@ class cVideo
 		void SetWideScreen(bool onoff);
 		void SetVideoMode(analog_mode_t mode);
 		void SetDBDR(int dbdr);
+		void SetAutoModes(int modes[VIDEO_STD_MAX]);
 };
 
 #endif

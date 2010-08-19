@@ -204,6 +204,7 @@ void CFrameBuffer::setupGXA(void)
         _write_gxa(gxa_base, GXA_BMP2_TYPE_REG, (3 << 16) | screeninfo.xres);
         _write_gxa(gxa_base, GXA_BMP2_ADDR_REG, (unsigned int) fix.smem_start);
         _write_gxa(gxa_base, GXA_BLEND_CFG_REG, 0x00089064);
+	// TODO check mono-flip, bit 8
         _write_gxa(gxa_base, GXA_CFG_REG, 0x100 | (1 << 12) | (1 << 29));
         _write_gxa(gxa_base, GXA_CFG2_REG, 0x1FF);
 	_write_gxa(gxa_base, GXA_BG_COLOR_REG, (unsigned int) backgroundColor);
@@ -228,7 +229,6 @@ void CFrameBuffer::init(const char * const fbDevice)
 
 	memcpy(&oldscreen, &screeninfo, sizeof(screeninfo));
 
-	//fb_fix_screeninfo fix;
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &fix)<0) {
 		perror("FBIOGET_FSCREENINFO");
 		goto nolfb;

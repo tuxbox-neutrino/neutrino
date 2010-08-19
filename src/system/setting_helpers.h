@@ -324,4 +324,10 @@ public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
 
+class CAutoModeNotifier : public CChangeObserver
+{
+public:
+        bool changeNotify(const neutrino_locale_t, void * data);
+};
+
 #endif

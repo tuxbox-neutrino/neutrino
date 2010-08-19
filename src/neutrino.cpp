@@ -2427,6 +2427,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
 	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+	videoDecoder->SetAutoModes(g_settings.enabled_video_modes);
+
 	// trigger a change
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
 

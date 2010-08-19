@@ -221,7 +221,7 @@ void CFrontend::reset(void)
 fe_code_rate_t CFrontend::getCFEC()
 {
 	if (info.type == FE_QPSK) {
-		 return curfe.u.qpsk.fec_inner;
+		return curfe.u.qpsk.fec_inner;
 	} else {
 		return curfe.u.qam.fec_inner;
 	}

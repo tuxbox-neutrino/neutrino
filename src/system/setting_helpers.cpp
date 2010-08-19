@@ -1025,3 +1025,9 @@ printf("CAllUsalsNotifier::changeNotify: %s\n", onoff ? "ON" : "OFF");
 	}
 	return true;
 }
+
+bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * /* data */)
+{
+	videoDecoder->SetAutoModes(g_settings.enabled_video_modes);
+	return true;
+}
