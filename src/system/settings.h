@@ -251,7 +251,7 @@ struct SNeutrinoSettings
 	// default plugin for ts-movieplayer (red button)
 	std::string movieplayer_plugin;
 	std::string onekey_plugin;
-
+	std::string plugin_hdd_dir;
 	//key configuration
 	int key_tvradio_mode;
 

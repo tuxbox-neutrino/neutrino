@@ -894,6 +894,7 @@ const char *locale_real_names[] = {
 	"ping.unreachable",
 	"pinprotection.head",
 	"pinprotection.wrongcode",
+	"plugins.hdd_dir",
 	"plugins.result",
 	"progressbar.color",
 	"rclock.lockmsg",

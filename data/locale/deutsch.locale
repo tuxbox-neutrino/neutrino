@@ -1053,6 +1053,7 @@ ping.socket ist nicht erreichbar (Socket-Fehler)
 ping.unreachable ist nicht erreichbar (unerreichbar)
 pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
+plugins.hdd_dir Plugin HDD Verz.
 plugins.result Pluginausgabe
 progressbar.color Fortschrittsbalken farbe
 rclock.lockmsg Die Fernbedienung der Coolstream wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.

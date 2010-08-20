@@ -1012,6 +1012,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	// default plugin for movieplayer
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
+	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
 
 	//rc-key configuration
 	g_settings.key_tvradio_mode = configfile.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
@@ -1525,6 +1526,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	// default plugin for movieplayer
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
 	configfile.setString ( "onekey_plugin", g_settings.onekey_plugin );
+	configfile.setString ( "plugin_hdd_dir", g_settings.plugin_hdd_dir );
 
 	configfile.setInt32 ( "streaming_resolution", g_settings.streaming_resolution );
 
@@ -4574,6 +4576,23 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 			else {
 				g_settings.epg_dir = b.getSelectedFile()->Name;
 				SendSectionsdConfig();
+			}
+		}
+
+		return menu_return::RETURN_REPAINT;
+	}
+	else if(actionKey == "pluginhdddir") {
+		parent->hide();
+		CFileBrowser b;
+		b.Dir_Mode=true;
+		if (b.exec(g_settings.plugin_hdd_dir.c_str())) {
+			const char * newdir = b.getSelectedFile()->Name.c_str();
+			if(check_dir(newdir))
+				printf("Wrong/unsupported plugin dir %s\n", newdir);
+			else {
+				g_settings.plugin_hdd_dir = b.getSelectedFile()->Name;
+				SendSectionsdConfig();
+				g_PluginList->loadPlugins();
 			}
 		}
 

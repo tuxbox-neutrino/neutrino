@@ -66,7 +66,6 @@ extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 #define PLUGINDIR_VAR "/var/tuxbox/plugins"
-#define PLUGINDIR_HDD "/hdd/tuxbox/plugins"
 #define PLUGINDIR_USB "/mnt/usb/tuxbox/plugins"
 
 bool CPlugins::plugin_exists(const std::string & filename)
@@ -152,7 +151,7 @@ void CPlugins::loadPlugins()
 	number_of_plugins = 0;
 	plugin_list.clear();
 
-	scanDir(PLUGINDIR_HDD);
+	scanDir(g_settings.plugin_hdd_dir.c_str());
 	scanDir(PLUGINDIR_USB);
 	scanDir(PLUGINDIR_VAR);
 	scanDir(PLUGINDIR);
