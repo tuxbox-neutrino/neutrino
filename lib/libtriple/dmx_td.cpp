@@ -88,6 +88,7 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 		if (ioctl(fd, DEMUX_SET_BUFFER_SIZE, uBufferSize) < 0)
 			fprintf(stderr, "cDemux::Open DEMUX_SET_BUFFER_SIZE failed (%m)\n");
 	}
+	buffersize = uBufferSize;
 
 	return true;
 }
@@ -348,13 +349,15 @@ bool cDemux::pesFilter(const unsigned short pid)
 		break;
 	case DMX_PES_CHANNEL:
 		flt.unloader.unloader_type = UNLOADER_TYPE_PAYLOAD;
-		flt.unloader.threshold     = 64;
+		if (buffersize <= 0x10000) // dvbsubtitle, instant delivery...
+			flt.unloader.threshold = 1;
+		else
+			flt.unloader.threshold = 8; // 1k, teletext
 		flt.pesType = DMX_PES_OTHER;
 		flt.output  = OUT_MEMORY;
 	default:
 		flt.pesType = DMX_PES_OTHER;
 	}
-
 	return (ioctl(fd, DEMUX_FILTER_PES_SET, &flt) >= 0);
 }
 

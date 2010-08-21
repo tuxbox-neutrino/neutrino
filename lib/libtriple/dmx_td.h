@@ -28,6 +28,7 @@ class cDemux
 	private:
 		int num;
 		int fd;
+		int buffersize;
 		DMX_CHANNEL_TYPE dmx_type;
 		std::vector<int> pesfds;
 	public:
