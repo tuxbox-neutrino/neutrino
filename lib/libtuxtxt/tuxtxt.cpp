@@ -2125,8 +2125,10 @@ int Init()
 		getpidsdone = -1;						 /* don't kill thread */
 		if (GetTeletextPIDs() == 0)
 		{
+#if 0
 			FTC_Manager_Done(manager);
 			FT_Done_FreeType(library);
+#endif
 			return 0;
 		}
 

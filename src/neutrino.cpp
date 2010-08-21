@@ -3698,9 +3698,15 @@ extern time_t timer_minutes;
 
 void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 {
-	if (!recordingstatus ||
-            ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes)
-	{
+	bool do_shutdown = true;
+
+	if(recordingstatus && !autoshift) {
+		do_shutdown =
+			(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY, CMessageBox::mbrNo, 
+					CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
+	}
+
+	if(do_shutdown) {
 		if(recordingstatus) {
 			CVCRControl::getInstance()->Stop();
 			g_Timerd->stopTimerEvent(recording_id);
