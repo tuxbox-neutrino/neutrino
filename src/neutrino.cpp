@@ -822,6 +822,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
+	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
 	g_settings.casystem_display = configfile.getInt32("casystem_display", 0 );
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );                                                                                                  
@@ -1361,6 +1362,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
+	configfile.setInt32("infobar_show", g_settings.infobar_show);
 	configfile.setInt32("infobar_show_channellogo"  , g_settings.infobar_show_channellogo  );
 	configfile.setInt32("casystem_display"  , g_settings.casystem_display  );
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );

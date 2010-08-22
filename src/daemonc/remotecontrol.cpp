@@ -199,12 +199,12 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				if ( current_EPGid != 0 )
 				{
 					// ist nur ein neues Programm, kein neuer Kanal
-
 					// PIDs neu holen
 					g_Zapit->getPIDS( current_PIDs );
-
 					// APID Bearbeitung neu anstossen
 					has_unresolved_ctags = true;
+					// infobar indicate on epg change
+					g_InfoViewer->showEpgInfo();
 				}
 
 				current_EPGid= info_CN->current_uniqueKey;

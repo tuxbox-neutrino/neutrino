@@ -129,6 +129,8 @@ class CInfoViewer
 	void showSNR();
 	void showInfoFile();
 
+	std::string eventname;
+
  public:
 	bool chanready;
 	bool	is_visible;
@@ -137,7 +139,7 @@ class CInfoViewer
 	CInfoViewer();
 
 	void	start();
-
+	void	showEpgInfo();
 	void	showTitle(const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false, int epgpos = 0); // Channel must be UTF-8 encoded
 	void lookAheadEPG(const int ChanNum, const std::string & Channel, const t_channel_id new_channel_id = 0, const bool calledFromNumZap = false); //alpha: fix for nvod subchannel update
 	void	killTitle();

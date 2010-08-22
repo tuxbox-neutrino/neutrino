@@ -1875,6 +1875,27 @@ void CInfoViewer::showLcdPercentOver ()
 	}
 }
 
+void CInfoViewer::showEpgInfo()   //message on event change
+{
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	/* show epg info only if we in TV- or Radio mode and current event is not the same like before */
+	if ((eventname != info_CurrentNext.current_name) && (mode == 2 /*mode_radio*/ || mode == 1 /*mode_tv*/))
+	{
+		eventname = info_CurrentNext.current_name;
+		if (g_settings.infobar_show)
+			g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR , 0);
+#if 0
+/* let's check if this is still needed */
+		else
+			/* don't show anything, but update the LCD
+			   TODO: we should not have to update the LCD from the _infoviewer_.
+				 they have nothing to do with each other */
+			showLcdPercentOver();
+#endif
+	}
+}
+
+
 int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*actionkey*/)
 {
 	int res = menu_return::RETURN_EXIT_ALL;
