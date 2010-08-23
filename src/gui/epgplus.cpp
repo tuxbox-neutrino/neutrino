@@ -121,8 +121,8 @@ void EpgPlus::Header::paint(const char * Name)
 		head += " ";
 		head += Name;
 	}
-	this->frameBuffer->paintBoxRel (this->x, this->y-2, this->width, this->font->getHeight()+2, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	this->font->RenderString (this->x + 10, this->y + this->font->getHeight(), 
+	this->frameBuffer->paintBoxRel (this->x, this->y, this->width, this->font->getHeight()+4, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
+	this->font->RenderString (this->x + 10, this->y + this->font->getHeight() + 2, 
 			this->width - 20, head, COL_MENUHEAD, 0, true);
 			//this->width - 20, g_Locale->getText (LOCALE_EPGPLUS_HEAD) , COL_MENUHEAD, 0, true);
         int icol_w, icol_h;
@@ -133,7 +133,7 @@ void EpgPlus::Header::paint(const char * Name)
 
 int EpgPlus::Header::getUsedHeight()
 {
-	return font->getHeight();
+	return font->getHeight() + 4 ;
 }
 
 Font *EpgPlus::TimeLine::fontTime = NULL;
