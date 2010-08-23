@@ -565,6 +565,7 @@ const char *locale_real_names[] = {
 	"miscsettings.infobar_disp_3",
 	"miscsettings.infobar_disp_log",
 	"miscsettings.infobar_sat_display",
+	"miscsettings.infobar_show",
 	"miscsettings.infobar_show_var_hdd",
 	"miscsettings.shutdown_count",
 	"miscsettings.shutdown_count_hint1",
