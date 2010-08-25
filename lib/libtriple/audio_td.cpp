@@ -131,7 +131,7 @@ void cAudio::SetSyncMode(AVSYNC_TYPE /*Mode*/)
 void cAudio::SetStreamType(AUDIO_FORMAT type)
 {
 	int bypass_disable;
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 	StreamType = type;
 
 	if (StreamType != AUDIO_FMT_DOLBY_DIGITAL && StreamType != AUDIO_FMT_MPEG && StreamType != AUDIO_FMT_MPG1)
@@ -172,7 +172,7 @@ int cAudio::StopClip()
 
 void cAudio::getAudioInfo(int &type, int &layer, int &freq, int &bitrate, int &mode)
 {
-	fprintf(stderr, "cAudio::%s\n", __FUNCTION__);
+	lt_debug("cAudio::%s\n", __FUNCTION__);
 	unsigned int atype;
 	static const int freq_mpg[] = {44100, 48000, 32000, 0};
 	static const int freq_ac3[] = {48000, 44100, 32000, 0};

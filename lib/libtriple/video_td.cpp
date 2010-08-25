@@ -620,26 +620,22 @@ void cVideo::routeVideo(int standby)
 	   to configure this, we can think more about this... */
 	if (standby)
 	{
-		printf("[routeVideo] setting FASTBLANK to follow VCR SCART\n");
+		printf("[%s] setting fastblank and pin8 to follow VCR SCART, route VCR to TV\n", __FUNCTION__);
 		if (ioctl(avsfd, IOC_AVS_FASTBLANK_SET, (unsigned char)3) < 0)
 			perror("IOC_AVS_FASTBLANK_SET, 3");
 		/* TODO: should probably depend on aspect ratio setting */
-		printf("[routeVideo] setting SCART_PIN_8 to follow VCR SCART\n");
 		if (ioctl(avsfd, IOC_AVS_SCART_PIN8_FOLLOW_VCR) < 0)
 			perror("IOC_AVS_SCART_PIN8_FOLLOW_VCR");
-		printf("[routeVideo] routing VCR to TV SCART\n");
 		if (ioctl(avsfd, IOC_AVS_ROUTE_VCR2TV) < 0)
 			perror("IOC_AVS_ROUTE_VCR2TV");
 		return;
 	}
 	unsigned char fblk = 1;
-	printf("[routeVideo] setting FASTBLANK to %d\n", fblk);
+	printf("[%s] setting fastblank to %d, pin8 to %dV, routing encoder to TV\n", __FUNCTION__, fblk, scartvoltage);
 	if (ioctl(avsfd, IOC_AVS_FASTBLANK_SET, fblk) < 0)
 		perror("IOC_AVS_FASTBLANK_SET, fblk");
-	printf("[routeVideo] setting SCART_PIN_8 to %dV\n", scartvoltage);
 	if (ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
 		perror("IOC_AVS_SCART_PIN8_SET");
-	printf("[routeVideo] routing TV encoder to TV SCART\n");
 	if (ioctl(avsfd, IOC_AVS_ROUTE_ENC2TV) < 0)
 		perror("IOC_AVS_ROUTE_ENC2TV");
 	close(avsfd);
