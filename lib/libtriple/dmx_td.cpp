@@ -95,6 +95,7 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 
 void cDemux::Close(void)
 {
+	lt_debug("cDemux::%s #%d, fd = %d\n", __FUNCTION__, num, fd);
 	if (fd < 0)
 	{
 		fprintf(stderr, "cDemux::%s #%d: not open!\n", __FUNCTION__, num);

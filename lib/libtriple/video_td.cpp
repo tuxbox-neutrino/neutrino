@@ -251,6 +251,7 @@ int cVideo::setCroppingMode(vidDispMode_t format)
 
 int cVideo::Start(void * /*PcrChannel*/, unsigned short /*PcrPid*/, unsigned short /*VideoPid*/, void * /*hChannel*/)
 {
+	lt_debug("cVideo::Start playstate =  %d\n", playstate);
 	if (playstate == VIDEO_PLAYING)
 		return 0;
 	if (playstate == VIDEO_FREEZED)  /* in theory better, but not in practice :-) */
@@ -262,7 +263,7 @@ int cVideo::Start(void * /*PcrChannel*/, unsigned short /*PcrPid*/, unsigned sho
 
 int cVideo::Stop(bool blank)
 {
-	//fprintf(stderr, "cVideo::Stop %d\n", blank);
+	lt_debug("cVideo::Stop %d\n", blank);
 	if (blank)
 	{
 		playstate = VIDEO_STOPPED;
