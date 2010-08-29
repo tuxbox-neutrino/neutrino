@@ -197,7 +197,7 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 		if (filetype == FILETYPE_TS)
 			for (r = (inbuf_pos / 188) * 188; r > 0; r -= 188)
 			{
-				pts_end = get_pts(inbuf + r, false);
+				pts_end = get_pts(inbuf + r, false, inbuf_pos - r);
 				if (pts_end > -1)
 					break;
 			}
@@ -216,7 +216,7 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 	while (inbuf_pos < INBUF_SIZE / 2 && inbuf_read() > 0) {};
 	for (r = 0; r < inbuf_pos - 188; r += 188)
 	{
-		pts_start = get_pts(inbuf + r, false);
+		pts_start = get_pts(inbuf + r, false, inbuf_pos - r);
 		if (pts_start > -1)
 			break;
 	}
@@ -445,7 +445,7 @@ bool cPlayback::GetPosition(int &position, int &duration)
 				n -= s;
 				for (r = (n / 188) * 188; r > 0; r -= 188)
 				{
-					tmppts = get_pts(pesbuf + r + s, false);
+					tmppts = get_pts(pesbuf + r + s, false, n - r);
 					if (tmppts > -1)
 					{
 						DBG("n: %d s: %d endpts %lld size: %lld\n", n, s, tmppts, currsize);
@@ -723,7 +723,7 @@ int64_t cPlayback::get_PES_PTS(uint8_t *buf, int len, bool last)
 		{
 			int64_t tmppts;
 			case 0xe0 ... 0xef:	// video!
-				tmppts = get_pts(p, true);
+				tmppts = get_pts(p, true, len - off);
 				if (tmppts >= 0)
 					pts = tmppts;
 				break;
@@ -917,7 +917,7 @@ ssize_t cPlayback::read_ts()
 		case 0xe0 ... 0xef:	/* video stream */
 			if (vpid == 0)
 				vpid = pid;
-			pts = get_pts(buf + 4 + off, true);
+			pts = get_pts(buf + 4 + off, true, inbuf_pos - inbuf_sync - i - off - 4);
 			if (pts < 0)
 				break;
 			pts_curr = pts;
@@ -1114,7 +1114,7 @@ ssize_t cPlayback::read_mpeg()
 				// fprintf(stderr, "video stream 0x%02x, %02x %02x \n", ppes[3], ppes[4], ppes[5]);
 				pid = 0x40;
 				av = 1;
-				pts = get_pts(ppes, true);
+				pts = get_pts(ppes, true, pesbuf_pos - count);
 				if (pts < 0)
 					break;
 				pts_curr = pts;
@@ -1322,11 +1322,13 @@ static int sync_ts(uint8_t *p, int len)
 
 /* get the pts value from a TS or PES packet
    pes == true selects PES mode. */
-int64_t cPlayback::get_pts(uint8_t *p, bool pes)
+int64_t cPlayback::get_pts(uint8_t *p, bool pes, int bufsize)
 {
+	const uint8_t *end = p + bufsize; /* check for overflow */
+	if (bufsize < 14)
+		return -1;
 	if (!pes)
 	{
-		const uint8_t *end = p + 188;
 		if (p[0] != 0x47)
 			return -1;
 		if (!(p[1] & 0x40))
@@ -1348,12 +1350,32 @@ int64_t cPlayback::get_pts(uint8_t *p, bool pes)
 			return -1;
 	}
 
-	if ((p[7] & 0x80) == 0) // packets with both pts, don't care for dts
-	// if ((p[7] & 0xC0) != 0x80) // packets with only pts
-	// if ((p[7] & 0xC0) != 0xC0) // packets with pts and dts
-		return -1;
-	if (p[8] < 5)
-		return -1;
+	if ((p[6] & 0xC0) != 0x80) // MPEG1
+	{
+		p += 6;
+		while (*p == 0xff)
+		{
+			p++;
+			if (p > end)
+				return -1;
+		}
+		if ((*p & 0xc0) == 0x40)
+			p += 2;
+		p -= 9; /* so that the p[9]...p[13] matches the below */
+		if (p + 13 > end)
+			return -1;
+	}
+	else
+	{
+		/* MPEG2 */
+		if ((p[7] & 0x80) == 0) // packets with both pts, don't care for dts
+		// if ((p[7] & 0xC0) != 0x80) // packets with only pts
+		// if ((p[7] & 0xC0) != 0xC0) // packets with pts and dts
+			return -1;
+		if (p[8] < 5)
+			return -1;
+	}
+
 	if (!(p[9] & 0x20))
 		return -1;
 

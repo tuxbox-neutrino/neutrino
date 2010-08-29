@@ -78,7 +78,7 @@ class cPlayback
 		int64_t pts_start;
 		int64_t pts_end;
 		int64_t pts_curr;
-		int64_t get_pts(uint8_t *p, bool pes);
+		int64_t get_pts(uint8_t *p, bool pes, int bufsize);
 
 		filetype_t filetype;
 		playstate_t playstate;
