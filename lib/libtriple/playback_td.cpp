@@ -31,6 +31,7 @@ static pthread_cond_t playback_ready_cond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t playback_ready_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int dvrfd = -1;
+static int streamtype;
 
 extern cDemux *videoDemux;
 extern cDemux *audioDemux;
@@ -53,6 +54,7 @@ cPlayback::cPlayback(int)
 	filelist.clear();
 	curr_fileno = -1;
 	in_fd = -1;
+	streamtype = 0;
 }
 
 cPlayback::~cPlayback()
@@ -265,7 +267,12 @@ void cPlayback::playthread(void)
 	if (ac3)
 		audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
 	else
-		audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+	{
+		if (streamtype == 1) /* mpeg 1 */
+			audioDecoder->SetStreamType(AUDIO_FMT_MPG1);
+		else /* default */
+			audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+	}
 
 	audioDemux->pesFilter(apid);
 	videoDemux->pesFilter(vpid);
@@ -363,7 +370,12 @@ bool cPlayback::SetAPid(unsigned short pid, bool _ac3)
 	if (ac3)
 		audioDecoder->SetStreamType(AUDIO_FMT_DOLBY_DIGITAL);
 	else
-		audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+	{
+		if (streamtype == 1) /* mpeg 1 */
+			audioDecoder->SetStreamType(AUDIO_FMT_MPG1);
+		else /* default */
+			audioDecoder->SetStreamType(AUDIO_FMT_MPEG);
+	}
 	audioDemux->pesFilter(apid);
 
 	videoDemux->Start();
@@ -1033,15 +1045,23 @@ ssize_t cPlayback::read_mpeg()
 		int64_t pts;
 		switch(ppes[3])
 		{
-			case 0xba:
+			case 0xba: //pack header;
 				// fprintf(stderr, "pack start code, 0x%02x\n", ppes[4]);
-				if ((ppes[4] & 0x3) == 1) // ??
+				if ((ppes[4] & 0xf0) == 0x20)		/* mpeg 1 */
 				{
-					//type = 1; // mpeg1
+					streamtype = 1;	/* for audio setup */
 					count += 12;
 				}
+				else if ((ppes[4] & 0xc0) == 0x40)	/* mpeg 2 */
+				{
+					streamtype = 0;
+					count += 14; /* correct: 14 + (ppes[13] & 0x07) */
+				}
 				else
-					count += 14;
+				{
+					INFO("weird pack header: 0x%2x\n", ppes[4]);
+					count++;
+				}
 				resync = true;
 				continue;
 				break;
