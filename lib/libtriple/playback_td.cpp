@@ -987,7 +987,7 @@ ssize_t cPlayback::read_mpeg()
 
 	if (INBUF_SIZE - inbuf_pos < toread)
 	{
-		INFO("adjusting toread to %d due to inbuf full (old: %ld)\n", INBUF_SIZE - inbuf_pos, toread);
+		INFO("adjusting toread to %d due to inbuf full (old: %zd)\n", INBUF_SIZE - inbuf_pos, toread);
 		toread = INBUF_SIZE - inbuf_pos;
 	}
 	while(true)
@@ -1003,7 +1003,7 @@ ssize_t cPlayback::read_mpeg()
 	}
 	if (ret < 0)
 	{
-		INFO("failed: %m, pesbuf_pos: %ld, toread: %ld\n", pesbuf_pos, toread);
+		INFO("failed: %m, pesbuf_pos: %zd, toread: %zd\n", pesbuf_pos, toread);
 		return ret;
 	}
 	pesbuf_pos += ret;
@@ -1021,11 +1021,11 @@ ssize_t cPlayback::read_mpeg()
 			if (sync < 0)
 			{
 				if (pesbuf_pos - count - 10 > 4)
-					INFO("cannot sync (count = %d, pesbuf_pos = %ld)\n", count, pesbuf_pos);
+					INFO("cannot sync (count = %d, pesbuf_pos = %zd)\n", count, pesbuf_pos);
 				break;
 			}
 			if (sync)
-				INFO("needed sync %ld\n", sync);
+				INFO("needed sync %zd\n", sync);
 			count += sync;
 		}
 		uint8_t *ppes = pesbuf + count;
