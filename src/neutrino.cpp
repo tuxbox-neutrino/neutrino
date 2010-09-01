@@ -3746,25 +3746,28 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				struct tm *tmtime = localtime(&mtime);
 				time_t fp_timer = 0;
 
-				if(timer_minutes)
-					fp_timer = (timer_minutes - mtime)/60;
-printf("now: %ld, timer %ld, FP timer %ld\n", mtime/60, timer_minutes/60, fp_timer);fflush(stdout);
+				if(timer_minutes) {
+					fp_timer = timer_minutes - mtime/60;
+					if(fp_timer < 1)
+						fp_timer = 1;
+				}
+				printf("now: %ld, timer %ld, FP timer %ldmin\n", mtime/60, timer_minutes, fp_timer);fflush(stdout);
 				int leds = 0x40;
 				switch(g_settings.led_deep_mode){
 					case 0:
-					leds = 0x0;//off  leds
-					break;
+						leds = 0x0;//off  leds
+						break;
 					case 1:
-					leds = 0x60;//on led1 & 2
-					break;
+						leds = 0x60;//on led1 & 2
+						break;
 					case 2:
-					leds = 0x20;//led1 on , 2 off
-					break;
+						leds = 0x20;//led1 on , 2 off
+						break;
 					case 3:
-					leds = 0x40;//led2 off, 2 on
-					break;
+						leds = 0x40;//led2 off, 2 on
+						break;
 					default:
-					break;
+						break;
 				}
 
 				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];

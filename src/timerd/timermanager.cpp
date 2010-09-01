@@ -35,6 +35,7 @@
 #include <timerdclient/timerdmsg.h>
 #include <debug.h>
 #include <sectionsdclient/sectionsdclient.h>
+#include <coolstream/cs_vfd.h>
 
 #include <vector>
 
@@ -62,7 +63,19 @@ void CTimerManager::Init(void)
 	m_saveEvents = false;
 	m_isTimeSet = false;
 	wakeup = 0;
-printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
+
+	int fd = open("/dev/display", O_RDONLY);
+
+	if (fd < 0) {
+		perror("/dev/display");
+	} else {
+		wakeup_data_t wk;
+		memset(&wk, 0, sizeof(wk));
+		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
+		if(ret >= 0)
+			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
+	}
+	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(wakeup)
 		creat("/tmp/.wakeup", 0);
 
@@ -664,7 +677,7 @@ void CTimerManager::saveEventsToConfig()
 //------------------------------------------------------------
 bool CTimerManager::shutdown()
 {
-timerd_debug = 1;
+	timerd_debug = 1; //FIXME
 	time_t nextAnnounceTime=0;
 	bool status=false;
 	dprintf("stopping timermanager thread ...\n");
@@ -690,10 +703,10 @@ timerd_debug = 1;
 	for(;pos != events.end();pos++)
 	{
 		CTimerEvent *event = pos->second;
-dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType, event->eventState, event->announceTime);
+		dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType, event->eventState, event->announceTime);
 		if((event->eventType == CTimerd::TIMER_RECORD ||
 			 event->eventType == CTimerd::TIMER_ZAPTO ) &&
-			event->eventState == CTimerd::TIMERSTATE_SCHEDULED)
+			event->eventState < CTimerd::TIMERSTATE_ISRUNNING)
 		{
 			// Wir wachen nur für Records und Zaptos wieder auf
 			if(event->announceTime < nextAnnounceTime || nextAnnounceTime==0)
@@ -705,9 +718,9 @@ dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType
 	}
 
 	timer_minutes = 0;
-	if(nextAnnounceTime!=0)
+	if(nextAnnounceTime != 0)
 	{
-		timer_minutes = nextAnnounceTime-3*60;
+		timer_minutes = (nextAnnounceTime - 3*60)/60;
 	}
 	dprintf("shutdown: timeset: %d timer_minutes %ld\n", timeset, timer_minutes);
 
