@@ -52,6 +52,7 @@ typedef enum
     VFD_FLAG_SCROLL_DELAY	= 0x08,	/* delayed scroll start */
     VFD_FLAG_ALIGN_LEFT		= 0x10,	/* align the text in display from the left (default) */
     VFD_FLAG_ALIGN_RIGHT	= 0x20,	/* align the text in display from the right (arabic) */
+    VFD_FLAG_UPDATE_SCROLL_POS	= 0x40,	/* update the current position for scrolling */
 } vfd_flag;
 
 typedef struct {
@@ -72,6 +73,21 @@ typedef enum {
 	VFD_LED_3_OFF		= 0x03,
 } vfd_led_ctrl_t;
 
+typedef struct {
+	unsigned char		source;
+	unsigned char		time_minutes_hi;
+	unsigned char		time_minutes_lo;
+} wakeup_data_t;
+
+typedef enum
+{
+	WAKEUP_SOURCE_TIMER	= 0x01,
+	WAKEUP_SOURCE_BUTTON	= 0x02,
+	WAKEUP_SOURCE_REMOTE	= 0x04,
+	WAKEUP_SOURCE_PWLOST	= 0x7F,
+	WAKEUP_SOURCE_POWER	= 0xFF
+} wakeup_source;
+
 #define IOC_VFD_SET_BRIGHT	_IOW(0xDE,  1, unsigned char)	/* set the display brighness in 16 steps between 0 to 15 */
 #define IOC_VFD_CLEAR_ALL	_IOW(0xDE,  2, unsigned int)	/* clear the entire display (both text and icons) */
 #define IOC_VFD_SET_TEXT	_IOW(0xDE,  3, char*)		/* set a text to be displayed on the display. If arg == NULL, the text is cleared */
@@ -79,7 +95,8 @@ typedef enum {
 #define IOC_VFD_CLEAR_ICON	_IOW(0xDE,  5, vfd_icon)	/* switch the given icon off */
 #define IOC_VFD_SET_OUTPUT	_IOW(0xDE,  6, unsigned char)	/* switch the given output on (supported by the controller, but not used in the hardware) */
 #define IOC_VFD_CLEAR_OUTPUT	_IOW(0xDE,  7, unsigned char)	/* switch the given output off (supported by the controller, but not used in the hardware) */
-#define IOC_VFD_STANDBY		_IOW(0xDE,  8, standby_data_t *)/* switch the vfd/psu in standby */
-#define IOC_VFD_LED_CTRL	_IOW(0xDE,  9, unsigned char)/* switch the vfd/psu in standby */
+#define IOC_VFD_STANDBY         _IOW(0xDE,  8, standby_data_t *)/* switch the vfd/psu in standby (NEO and above only) */
+#define IOC_VFD_LED_CTRL        _IOW(0xDE,  9, unsigned char)   /* control the Frontpanles LED's (NEO and above only) */
+#define IOC_VFD_GET_WAKEUP	_IOW(0xDE,  10,wakeup_data_t *) /* get wakeup data (NEO and above only) */
 
 #endif /* __CS_VFD__ */
