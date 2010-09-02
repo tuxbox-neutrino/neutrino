@@ -463,12 +463,13 @@ lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
 ledcontroler.menu Power Button LED´s
 ledcontroler.mode.tv TV Mode
-ledcontroler.mode.deepstandby DeepStandby
+ledcontroler.mode.deepstandby Deep Standby
 ledcontroler.mode.standby Standby
 ledcontroler.off Led1 & Led2 off
 ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
+ledcontroler.blink Blink in deep standby, if timer set
 mainmenu.audioplayer Audioplayer
 mainmenu.games Games
 mainmenu.head Main Menu

@@ -812,6 +812,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.led_tv_mode = configfile.getInt32( "led_tv_mode", 1);
 	g_settings.led_standby_mode = configfile.getInt32( "led_standby_mode", 1);
 	g_settings.led_deep_mode = configfile.getInt32( "led_deep_mode", 1);
+	g_settings.led_blink = configfile.getInt32( "led_blink", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
@@ -1346,6 +1347,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "led_tv_mode", g_settings.led_tv_mode);
 	configfile.setInt32( "led_standby_mode", g_settings.led_standby_mode);
 	configfile.setInt32( "led_deep_mode", g_settings.led_deep_mode);
+	configfile.setInt32( "led_blink", g_settings.led_blink);
 
 	//misc
 	configfile.setInt32( "power_standby", g_settings.power_standby);
@@ -3769,6 +3771,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 					default:
 						break;
 				}
+				if(leds && g_settings.led_blink && fp_timer)
+					leds |= 0x80;
 
 				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
 				standby.flags               = leds;
