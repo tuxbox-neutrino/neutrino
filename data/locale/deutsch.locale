@@ -649,6 +649,7 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
+ledcontroler.blink Blinke im Deep standby, wenn Timer aktiv
 mainmenu.audioplayer Audioplayer
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
