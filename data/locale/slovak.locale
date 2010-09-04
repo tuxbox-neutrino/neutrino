@@ -474,6 +474,7 @@ languagesetup.head Nastavenie jazyka
 languagesetup.osd Jazyk OSD
 languagesetup.select Jazyk
 lcdcontroler.brightness Jas
+lcdcontroler.brightnessdeepstandby Jas v hlbokom spánku
 lcdcontroler.brightnessstandby Jas v spánku
 lcdcontroler.contrast Kontrast
 lcdmenu.autodimm Automatické stmievanie
@@ -487,6 +488,14 @@ lcdmenu.statusline Stavový riadok
 lcdmenu.statusline.both hlasitosť/hraný čas
 lcdmenu.statusline.playtime odohratý čas
 lcdmenu.statusline.volume hlasitosť
+ledcontroler.menu Podsvietenie Power tlačítka
+ledcontroler.mode.tv TV mód
+ledcontroler.mode.deepstandby Hlboký spánok
+ledcontroler.mode.standby Pripravenosť
+ledcontroler.off Led1 a Led2 vyp.
+ledcontroler.on.all Led1 a Led2 zap.
+ledcontroler.on.led1 Led1 zap.
+ledcontroler.on.led2 Led2 zap.
 mainmenu.audioplayer Prehrávač súborov
 mainmenu.clearsectionsd Vyčistenie EPG zachytávania
 mainmenu.games Hry
@@ -543,6 +552,8 @@ miscsettings.head Iné nastavenia
 miscsettings.hwsections Použitie sekcie HW
 miscsettings.infobar Inforiadok
 miscsettings.infobar_casystem_display Zobrazenie CA-Systému
+miscsettings.infobar_casystem_mini CA mini
+miscsettings.infobar_casystem_mode CA mód
 miscsettings.infobar_disp_0 bez Loga
 miscsettings.infobar_disp_1 Logo 1
 miscsettings.infobar_disp_2 Logo 2
@@ -878,6 +889,7 @@ ping.socket je nedosiahnutý (chyba soketu)
 ping.unreachable neodpovedal
 pinprotection.head Zadanie PIN kódu
 pinprotection.wrongcode Nespávny PIN kód! Skúste znova.
+plugins.hdd_dir Plugin adresár na HDD
 plugins.result Výstup PLUGINu
 progressbar.color Farba stavového riadku
 rclock.lockmsg Váš ovládač boxu bude zablokovaný.\n\nPre odblokovanie stlačte [ČERVENÝ] \na [MENU] na Vašom ovládači.
@@ -1192,8 +1204,8 @@ videomenu.analog_hd_yprpb_scart YPbPr na SCART (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr na CINCH (HD)
 videomenu.scart SCART
 videomenu.cinch CINCH
-videomenu.hdmi_cec HDMI-CEC
-videomenu.hdmi_cec_mode HDMI-CEC mód
+videomenu.hdmi_cec Uživateľské ovládanie (HDMI-CEC)
+videomenu.hdmi_cec_mode Mód HDMI-CEC
 videomenu.hdmi_cec_mode_off vyp
 videomenu.hdmi_cec_mode_tuner ako Tuner
 videomenu.hdmi_cec_mode_recorder ako Rekordér
@@ -1204,6 +1216,12 @@ videomenu.dbdr_none nič
 videomenu.dbdr_deblock deblock
 videomenu.dbdr_both deblock+dering
 videomenu.enabled_modes Nastavenie módov pre VF klávesu
+videomenu.adjust Nastavenie videa
+videomenu.contrast Kontrast
+videomenu.brightness Jas
+videomenu.sharpness Ostrosť
+videomenu.saturation Farebnosť
+videomenu.hue Nasýtenie
 zapit.scantype Vyhľadávanie kanálov
 zapit.scantype.all všetkých
 zapit.scantype.radio len Radio
