@@ -77,6 +77,9 @@ class CScanTs : public CMenuTarget
 		int greater_xpos(int xpos, const neutrino_locale_t txt);
 		bool freqready;
 		void showSNR();
+		void testFunc();
+		void prev_next_TP(bool);
+		TP_params TP;
 
 	public:
 		CScanTs();

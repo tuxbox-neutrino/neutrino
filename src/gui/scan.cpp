@@ -64,7 +64,6 @@ extern CFrontend * frontend;
 #define NEUTRINO_SCAN_START_SCRIPT	CONFIGDIR "/scan.start"
 #define NEUTRINO_SCAN_STOP_SCRIPT	CONFIGDIR "/scan.stop"
 #define NEUTRINO_SCAN_SETTINGS_FILE	CONFIGDIR "/scan.conf"
-TP_params TP;
 
 #define BAR_BORDER 2
 #define BAR_WIDTH 150
@@ -84,7 +83,81 @@ CScanTs::CScanTs()
 extern int scan_pids;
 extern int scan_fta_flag;//in zapit descriptors definiert
 extern int start_fast_scan(int scan_mode, int opid);
+#include <zapit/getservices.h>
 
+void CScanTs::prev_next_TP( bool up)
+{
+	t_satellite_position position = 0;
+
+	for (sat_iterator_t sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		if (!strcmp(sit->second.name.c_str(), CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc)) {
+			position = sit->first;
+			break;
+		}
+	}
+
+	extern std::map<transponder_id_t, transponder> select_transponders;
+	transponder_list_t::iterator tI;
+	bool next_tp = false;
+
+	if(up){
+		for (tI = select_transponders.begin(); tI != select_transponders.end(); tI++) {
+			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
+			if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
+				satpos = -satpos;
+			if (satpos != position)
+				continue;
+			if(tI->second.feparams.frequency > TP.feparams.frequency){
+				next_tp = true;
+				break;
+			}
+		}
+	}else{
+		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); tI-- ){
+			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
+			if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
+				satpos = -satpos;
+			if (satpos != position)
+				continue;
+			if(tI->second.feparams.frequency < TP.feparams.frequency){
+				next_tp = true;
+				break;
+			}
+		}
+	}
+
+	if(next_tp){
+		TP.feparams.frequency = tI->second.feparams.frequency;
+		if(g_info.delivery_system == DVB_S) {
+			TP.feparams.u.qpsk.symbol_rate = tI->second.feparams.u.qpsk.symbol_rate;
+			TP.feparams.u.qpsk.fec_inner =   tI->second.feparams.u.qpsk.fec_inner;
+			TP.polarization = tI->second.polarization;
+		} else {
+			TP.feparams.u.qam.symbol_rate	= tI->second.feparams.u.qam.symbol_rate;
+			TP.feparams.u.qam.fec_inner	= tI->second.feparams.u.qam.fec_inner;
+			TP.feparams.u.qam.modulation	= tI->second.feparams.u.qam.modulation;
+		}
+		testFunc();
+	}
+}
+
+void CScanTs::testFunc()
+{
+	int w = x + width - xpos2;
+	char buffer[128];
+	char * f, *s, *m;
+	if(frontend->getInfo()->type == FE_QPSK) {
+		frontend->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, TP.polarization == 0 ? 'H' : 'V', TP.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+	} else if(frontend->getInfo()->type == FE_QAM) {
+		frontend->getDelSys(get_set.TP_fec, get_set.TP_mod, f, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(get_set.TP_freq)/1000, atoi(get_set.TP_rate)/1000, f, s, m);
+	}
+	paintLine(xpos2, ypos_cur_satellite, w - 95, get_set.satNameNoDiseqc);
+	paintLine(xpos2, ypos_frequency, w, buffer);
+	success = g_Zapit->tune_TP(TP);
+
+}
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
 	diseqc_t            diseqcType = NO_DISEQC;
@@ -197,19 +270,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	paint(test);
 	/* go */
 	if(test) {
-		int w = x + width - xpos2;
-		char buffer[128];
-		char * f, *s, *m;
-		if(frontend->getInfo()->type == FE_QPSK) {
-			frontend->getDelSys(get_set.TP_fec, dvbs_get_modulation((fe_code_rate_t)get_set.TP_fec), f, s, m);
-			snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", atoi(get_set.TP_freq)/1000, get_set.TP_pol == 0 ? 'H' : 'V', atoi(get_set.TP_rate)/1000, f, s, m);
-		} else if(frontend->getInfo()->type == FE_QAM) {
-			frontend->getDelSys(get_set.TP_fec, get_set.TP_mod, f, s, m);
-			snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(get_set.TP_freq)/1000, atoi(get_set.TP_rate)/1000, f, s, m);
-		}
-		paintLine(xpos2, ypos_cur_satellite, w - 95, get_set.satNameNoDiseqc);
-		paintLine(xpos2, ypos_frequency, w, buffer);
-		success = g_Zapit->tune_TP(TP);
+	  testFunc();
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
@@ -227,10 +288,19 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
-			if (test && (msg <= CRCInput::RC_MaxRC)) {
+			if (test && (msg == CRCInput::RC_down)) {
+				prev_next_TP(false);
+				continue;
+			}
+			else if (test && (msg == CRCInput::RC_up)) {
+				prev_next_TP(true);
+				continue;
+			}
+			else if (test && (msg <= CRCInput::RC_MaxRC)) {
 				istheend = true;
 				msg = CRCInput::RC_timeout;
 			}
+			
 			else if(msg == CRCInput::RC_home) {
 				if(manual && get_set.scan_mode)
 					continue;
