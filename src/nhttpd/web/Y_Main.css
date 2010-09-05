@@ -500,7 +500,7 @@ tr {
 .channel_logos
 {
 	max-width:  44px;
-	max-height: 21px;
+	max-height: 40px;
 }
 #epg_plus {
 	border-top : #BBBBBB solid 1px;
@@ -515,6 +515,7 @@ tr {
 	padding: 0px;
 	position:relative;
 	border-bottom : #BBBBBB solid 1px;
+	min-height: 40px;
 }
 .ep_bouquet_name {
 	border-right : #BBBBBB solid 1px;
@@ -525,7 +526,7 @@ tr {
 	padding-right: 1px;
 	font-size:8pt;
 	text-align: center;
-	min-height: 20px;
+	min-height: 40px;
 }
 .ep_bouquet_item {
 	border-right : #BBBBBB solid 1px;
@@ -534,7 +535,7 @@ tr {
 	padding-left: 1px;
 	padding-right: 1px;
 	height: 100%;
-	font-size:10pt;
+	font-size:8pt;
 }
 .ep_bouquet_rec {
 	border-right : #BBBBBB solid 1px;
