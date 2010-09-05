@@ -388,6 +388,15 @@ uint8_t fix_service_type(uint8_t type)
 			return 1;
 	return type;
 }
+bool check_blacklisted_digital_plus(const t_original_network_id onid, const t_transport_stream_id tsid)
+{
+	if ( (onid == 0x0001) &&
+		((tsid == 0x03F0) || (tsid == 0x03F8) || (tsid == 0x0404) || (tsid == 0x0408) || (tsid == 0x040A) || (tsid == 0x040E) ||
+		(tsid == 0x0412) || (tsid == 0x0416) || (tsid == 0x041A) || (tsid == 0x041E) || (tsid == 0x0420) || (tsid == 0x0422) || (tsid == 0x0424)) )
+		return true;
+	else
+		return false;
+}
 
 int parse_pat();
 int pat_get_pmt_pid (CZapitChannel * const channel);
@@ -472,6 +481,11 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	else if (providerName == "BetaDigital")
 	{
 		in_blacklist = true;
+	}
+	else if((check_blacklisted_digital_plus(original_network_id, transport_stream_id)))
+	{
+		providerName = "Digital+";
+	        in_blacklist = true;
 	}
 
 	if (in_blacklist) {
