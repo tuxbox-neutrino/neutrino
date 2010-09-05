@@ -25,7 +25,7 @@
 //-----------------------------------------------------------------------------
 // General central Definitions <configure!>
 //-----------------------------------------------------------------------------
-#define HTTPD_VERSION 		"3.3.2"				// Webserver version  (can be overloaded)
+#define HTTPD_VERSION 		"3.3.3"				// Webserver version  (can be overloaded)
 #define YHTTPD_VERSION 		"1.3.1"				// Webserver version  (Version of yhttpd-core!)
 #define IADDR_LOCAL 		"127.0.0.1"			// local IP
 #define HTTPD_NAME 			"yhttpd"			// Webserver name (can be overloaded)
@@ -95,7 +95,7 @@
 #define UPLOAD_TMP_FILE 				"/tmp/upload.tmp"
 #define CACHE_DIR						"/tmp/.cache"
 #define HTTPD_ERRORPAGE					"/Y_ErrorPage.yhtm"
-#define HTTPD_SENDFILE_EXT				"htm:text/html,html:text/html,xml:text/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/bmp,css:text/css,js:text/plain,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:application/octet-stream,tar:application/octet-stream,gz:text/x-gzip"
+#define HTTPD_SENDFILE_EXT				"htm:text/html,html:text/html,xml:text/xml,txt:text/plain,jpg:image/jpeg,jpeg:image/jpeg,gif:image/gif,png:image/png,bmp:image/bmp,css:text/css,js:text/plain,yjs:text/plain,img:application/octet-stream,ico:image/x-icon,m3u:application/octet-stream,tar:application/octet-stream,gz:text/x-gzip,ts:application/octet-stream"
 #define HTTPD_SENDFILE_ALL				"false"
 #define HTTPD_LANGUAGEDIR 				"languages"
 #define HTTPD_DEFAULT_LANGUAGE 			"English"
