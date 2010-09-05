@@ -199,6 +199,9 @@ function do_play_state(_state, _options){
 	V2.play();
 	V2.next();
 	set_controls("play");
+	if(isDeinterlace && V2.plugin=="moz2"){
+		V2.vlc.video.deinterlace.enable("bob");
+	}
 	if(Mode == "tv" && isUDP)
 		window.setTimeout("start_udp_server()",1000);
 }
