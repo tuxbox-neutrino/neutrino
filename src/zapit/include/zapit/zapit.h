@@ -24,7 +24,7 @@ void internalSendChannels(int connfd, ZapitChannelList* channels, bool nonames);
 void sendBouquetChannels (int connfd, const unsigned int bouquet, CZapitClient::channelsMode mode = CZapitClient::MODE_CURRENT, bool nonames = false);
 void sendChannels        (int connfd, const CZapitClient::channelsMode mode = CZapitClient::MODE_CURRENT, const CZapitClient::channelsOrder order = CZapitClient::SORT_BOUQUET);
 int startPlayBack(CZapitChannel *);
-int stopPlayBack(bool stopemu);
+int stopPlayBack(bool stop_camd);
 unsigned int zapTo(const unsigned int channel);
 unsigned int zapTo(const unsigned int bouquet, const unsigned int channel);
 unsigned int zapTo_ChannelID(const t_channel_id channel_id, const bool isSubService);

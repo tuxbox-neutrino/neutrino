@@ -41,6 +41,7 @@
 #include "gui/widget/menue.h"
 #include "gui/moviebrowser.h"
 #include "gui/movieinfo.h"
+#include <gui/widget/hintbox.h>
 
 extern "C" {
            	#include <driver/ringbuffer.h>
@@ -78,6 +79,18 @@ class CMoviePlayerGui : public CMenuTarget
 	int            m_LastMode;	
 	const char     *filename;
 	bool		stopped;
+	CMoviePlayerGui::state playstate;
+	bool isBookmark;
+	bool isMovieBrowser;
+	int speed;
+	int slow;
+	off64_t fullposition;
+	int startposition;
+	int jumpseconds;
+	bool showaudioselectdialog;
+	off64_t minuteoffset;
+	off64_t secondoffset;
+	std::string startfilename;
 
 	std::string Path_local;
 	std::string Path_vlc;
@@ -85,6 +98,7 @@ class CMoviePlayerGui : public CMenuTarget
 
 	CFileBrowser * filebrowser;
 	CMovieBrowser* moviebrowser;
+	CHintBox *hintBox;
 
 	CBookmarkManager * bookmarkmanager;
 
@@ -103,6 +117,8 @@ class CMoviePlayerGui : public CMenuTarget
 	CMoviePlayerGui();
 	~CMoviePlayerGui();
 	int exec(CMenuTarget* parent, const std::string & actionKey);
+	void updateLcd(const std::string & sel_filename);
+	bool Playing();
 };
 
 

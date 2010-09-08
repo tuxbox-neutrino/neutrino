@@ -78,8 +78,9 @@ extern bool autoshift_delete;
 extern "C" {
 #include <driver/genpsi.h>
 }
-CMovieInfo * g_cMovieInfo;
-MI_MOVIE_INFO * g_movieInfo;
+
+static CMovieInfo * g_cMovieInfo;
+static MI_MOVIE_INFO * g_movieInfo;
 t_channel_id rec_channel_id;
 int safe_mkdir(char * path);
 
@@ -118,6 +119,8 @@ void CVCRControl::registerDevice(CDevice * const device)
 	unregisterDevice();
 
 	Device = device;
+	if(CNeutrinoApp::getInstance()->recordingstatus)
+		Device->deviceState = CMD_VCR_RECORD;
 }
 
 //-------------------------------------------------------------------------
@@ -322,7 +325,8 @@ void CVCRControl::CFileAndServerDevice::RestoreNeutrino(void)
 	if(CNeutrinoApp::getInstance()->getMode() != last_mode &&
 	   CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby &&
 	   last_mode != NeutrinoMessages::mode_standby)
-		if(!autoshift) g_RCInput->postMsg( NeutrinoMessages::CHANGEMODE , last_mode);
+		if(!autoshift) 
+			g_RCInput->postMsg( NeutrinoMessages::CHANGEMODE , last_mode);
 
 	if(last_mode == NeutrinoMessages::mode_standby &&
 		CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby )
@@ -495,7 +499,7 @@ bool CVCRControl::CFileDevice::Stop()
 //printf("[direct] Stop recording, g_movieInfo %lx\n", g_movieInfo); fflush(stdout);
 //FIXME why not save info if shift ?
 	//if(!autoshift || autoshift_delete)
-	{
+	if(g_movieInfo && g_cMovieInfo) {
 		// g_movieInfo->length = (end_time - start_time) / 60;
 		g_movieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
 //printf("[direct] stop recording 1\n"); fflush(stdout);
@@ -509,11 +513,15 @@ bool CVCRControl::CFileDevice::Stop()
 
 	deviceState = CMD_VCR_STOP;
 
-	g_movieInfo->audioPids.clear();
-	delete g_movieInfo;
-	g_movieInfo = NULL;
-	delete g_cMovieInfo;
-	g_cMovieInfo = NULL;
+	if(g_movieInfo) {
+		g_movieInfo->audioPids.clear();
+		delete g_movieInfo;
+		g_movieInfo = NULL;
+	}
+	if(g_cMovieInfo) {
+		delete g_cMovieInfo;
+		g_cMovieInfo = NULL;
+	}
 
 	return return_value;
 }
@@ -832,12 +840,12 @@ bool CVCRControl::CServerDevice::serverConnect()
 	return true;
 }
 
-extern unsigned short g_vpid;
-extern unsigned short g_vtype;
-extern unsigned short g_apids[10];
-extern unsigned short g_ac3flags[10];
-extern unsigned short g_numpida;
-extern unsigned int g_currentapid, g_currentac3;
+unsigned short rec_vpid;
+unsigned short rec_vtype;
+unsigned short rec_apids[10];
+unsigned short rec_ac3flags[10];
+unsigned short rec_numpida;
+unsigned int rec_currentapid, rec_currentac3;
 
 //-------------------------------------------------------------------------
 std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRCommand /*command*/, const t_channel_id channel_id, const event_id_t epgid, const std::string& epgTitle, APIDList apid_list, const time_t epg_time)
@@ -891,12 +899,12 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 	g_movieInfo->epgVideoPid	= si.vpid;
 	g_movieInfo->VideoType		= si.vtype;
 
-	g_vpid = si.vpid;
-	g_vtype = si.vtype;
-	g_currentapid = si.apid;
-	memset(g_apids, 0, sizeof(unsigned short)*10);
-	memset(g_ac3flags, 0, sizeof(unsigned short)*10);
-	g_numpida = 0;
+	rec_vpid = si.vpid;
+	rec_vtype = si.vtype;
+	rec_currentapid = si.apid;
+	memset(rec_apids, 0, sizeof(unsigned short)*10);
+	memset(rec_ac3flags, 0, sizeof(unsigned short)*10);
+	rec_numpida = 0;
 
 	EPG_AUDIO_PIDS audio_pids;
 	// super hack :-), der einfachste weg an die apid descriptions ranzukommen
@@ -910,18 +918,18 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 				audio_pids.epgAudioPid = pids.APIDs[i].pid;
 				audio_pids.epgAudioPidName = ZapitTools::UTF8_to_UTF8XML(g_RemoteControl->current_PIDs.APIDs[i].desc);
 				audio_pids.atype = pids.APIDs[i].is_ac3 ? 1 : pids.APIDs[i].is_aac ? 5 : 0;
-				audio_pids.selected = (audio_pids.epgAudioPid == (int) g_currentapid) ? 1 : 0;
+				audio_pids.selected = (audio_pids.epgAudioPid == (int) rec_currentapid) ? 1 : 0;
 				g_movieInfo->audioPids.push_back(audio_pids);
 
 				if(pids.APIDs[i].is_ac3)
-					g_ac3flags[i] = 1;
+					rec_ac3flags[i] = 1;
 				if(pids.APIDs[i].is_aac)
-					g_ac3flags[i] = 5;
+					rec_ac3flags[i] = 5;
 
-				g_apids[i] = pids.APIDs[i].pid;
-				if(g_apids[i] == g_currentapid)
-					g_currentac3 = pids.APIDs[i].is_ac3 ? 1 : pids.APIDs[i].is_aac ? 5 : 0;
-				g_numpida++;
+				rec_apids[i] = pids.APIDs[i].pid;
+				if(rec_apids[i] == rec_currentapid)
+					rec_currentac3 = pids.APIDs[i].is_ac3 ? 1 : pids.APIDs[i].is_aac ? 5 : 0;
+				rec_numpida++;
 			}
 		}
 	}

@@ -322,13 +322,16 @@ void CInfoViewer::showRecordIcon (const bool show)
 				frameBuffer->paintBoxRel (ChanName_X + SHADOW_OFFSET, BoxStartY + box_pos + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0);
 				frameBuffer->paintBoxRel (ChanName_X , BoxStartY + box_pos , box_len, chanH, COL_INFOBAR_PLUS_0);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X +icon_w + (icon_space*2), BoxStartY + box_pos + chanH, box_len, ext_channel_name.c_str (), COL_INFOBAR, 0, true);
-			} else{
+			} else {
 				frameBuffer->paintBackgroundBoxRel (ChanName_X , BoxStartY + box_pos, box_len + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
 			}
 			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2);
 
 		} else {
-			frameBuffer->paintBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h,COL_INFOBAR_PLUS_0);
+			if (!autoshift && !shift_timer)
+				frameBuffer->paintBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h,COL_INFOBAR_PLUS_0);
+			else
+				frameBuffer->paintBackgroundBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h);
 		}
 	}
 }

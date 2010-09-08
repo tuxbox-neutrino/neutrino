@@ -24,6 +24,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -95,43 +96,30 @@ extern char rec_filename[512];
 extern off64_t glob_limit;
 extern int glob_splits;
 
-static CMoviePlayerGui::state playstate;
-static bool isBookmark;
-static bool isMovieBrowser = false;
-int speed = 1;
-int slow = 0;
-static off64_t fullposition;	// cur. position including all parts played
-//static off64_t fulllength = 0;	// len of all parts
-int startposition;
-int timeshift;
-off64_t minuteoffset;
-off64_t secondoffset;
-
-int file_prozent;
-
 #ifndef __USE_FILE_OFFSET64
 #error not using 64 bit file offsets
 #endif /* __USE_FILE__OFFSET64 */
 
-int streamingrunning;
-CHintBox *hintBox;
-std::string startfilename;
-std::string skipvalue;
+static unsigned short g_apids[10];
+static unsigned short g_ac3flags[10];
+static unsigned short g_numpida = 0;
+static unsigned short g_vpid = 0;
+static unsigned short g_vtype = 0;
+static std::string    g_language[10];
 
-int jumpminutes = 1;
-static int g_jumpseconds = 0;
-int buffer_time = 0;
-unsigned short g_apids[10];
-unsigned short g_ac3flags[10];
-unsigned short g_numpida = 0;
-unsigned short g_vpid = 0;
-unsigned short g_vtype = 0;
-std::string    g_language[10];
+extern unsigned short rec_vpid;
+extern unsigned short rec_vtype;
+extern unsigned short rec_apids[10];
+extern unsigned short rec_ac3flags[10];
+extern unsigned short rec_numpida;
+extern unsigned int rec_currentapid, rec_currentac3;
 
-unsigned int g_currentapid = 0, g_currentac3 = 0, apidchanged = 0;
+static unsigned int g_currentapid = 0, g_currentac3 = 0, apidchanged = 0;
+
 std::string g_file_epg;
 std::string g_file_epg1;
-bool showaudioselectdialog = false;
+int file_prozent;
+int timeshift;
 
 bool get_movie_info_apid_name(int apid, MI_MOVIE_INFO * movie_info, std::string * apidtitle)
 {
@@ -214,6 +202,10 @@ void CMoviePlayerGui::Init(void)
 	pesfilefilter.addFilter("mpv");
 	filebrowser->Filter = &tsfilefilter;
 	rct = 0;
+	speed = 1;
+	slow = 0;
+	jumpseconds = 0;
+	showaudioselectdialog = false;
 }
 
 CMoviePlayerGui::~CMoviePlayerGui()
@@ -231,18 +223,23 @@ CMoviePlayerGui::~CMoviePlayerGui()
 	delete playback;
 }
 
+bool CMoviePlayerGui::Playing(void)
+{
+	return stopped;
+}
+
 void CMoviePlayerGui::cutNeutrino()
 {
 	if (stopped)
 		return;
 
-	g_Zapit->setStandby(true);
+	stopped = true;
+	//g_Zapit->setStandby(true);
+	g_Zapit->lockPlayBack();
 	g_Sectionsd->setPauseScanning(true);
 
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, NeutrinoMessages::mode_ts);
 	m_LastMode = (CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
-
-	stopped = true;
 }
 
 void CMoviePlayerGui::restoreNeutrino()
@@ -250,13 +247,14 @@ void CMoviePlayerGui::restoreNeutrino()
 	if (!stopped)
 		return;
 
-	g_Zapit->setStandby(false);
+	stopped = false;
+
+	//g_Zapit->setStandby(false);
+	g_Zapit->unlockPlayBack();
 	g_Sectionsd->setPauseScanning(false);
 
 	CNeutrinoApp::getInstance()->handleMsg(NeutrinoMessages::CHANGEMODE, m_LastMode);
 	//CVFD::getInstance()->showServicename(g_RemoteControl->getCurrentChannelName());
-
-	stopped = false;
 }
 
 int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
@@ -315,12 +313,11 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	} else
 #endif
 	if (actionKey == "tsmoviebrowser") {
-		isMovieBrowser = true;// TESTTTTTTTTTTTTTTT
+		isMovieBrowser = true;
 		timeshift = 0;
 		PlayFile();
 	}
 	else if (actionKey == "fileplayback") {
-		isMovieBrowser = false;
 		timeshift = 0;
 		PlayFile();
 	}
@@ -380,7 +377,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	//return menu_return::RETURN_EXIT_ALL;
 }
 
-void updateLcd(const std::string & sel_filename)
+void CMoviePlayerGui::updateLcd(const std::string & sel_filename)
 {
 	char tmp[20];
 	std::string lcd;
@@ -439,12 +436,21 @@ void CMoviePlayerGui::PlayFile(void)
 	bool time_forced = false;
 	playstate = CMoviePlayerGui::STOPPED;
 	bool is_file_player = false;
-	//unsigned short apid = 0, vpid = 0;
-	//int vtype = 0, atype = 0;
 
 	if (has_hdd)
 		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
 
+	if (timeshift) {
+		g_vpid = rec_vpid;
+		g_vtype = rec_vtype;
+		g_numpida = rec_numpida;
+		g_currentapid = rec_currentapid;
+		g_currentac3 = rec_currentac3;
+		for (int i = 0; i < g_numpida; i++) {
+			g_apids[i] = rec_apids[i];
+			g_ac3flags[i] = rec_ac3flags[i];
+		}
+	}
 	timeb current_time;
 	CMovieInfo cMovieInfo;	// funktions to save and load movie info
 	MI_MOVIE_INFO *p_movie_info = NULL;	// movie info handle which comes from the MovieBrowser, if not NULL MoviePla yer is able to save new bookmarks
@@ -589,27 +595,27 @@ void CMoviePlayerGui::PlayFile(void)
 								if (play_sec >= p_movie_info->bookmarks.user[book_nr].pos && play_sec <= p_movie_info->bookmarks.user[book_nr].pos + 2 && play_sec > jump_not_until)	//
 								{
 									//for plain bookmark, the following calc shall result in 0 (no jump)
-									g_jumpseconds = p_movie_info->bookmarks.user[book_nr].length;
+									jumpseconds = p_movie_info->bookmarks.user[book_nr].length;
 
 									// we are close behind the bookmark, do bookmark activity (if any)
 									if (p_movie_info->bookmarks.user[book_nr].length < 0) {
 										// if the jump back time is to less, it does sometimes cause problems (it does probably jump only 5 sec which will cause the next jump, and so on)
-										if (g_jumpseconds > -15)
-											g_jumpseconds = -15;
+										if (jumpseconds > -15)
+											jumpseconds = -15;
 
-										g_jumpseconds = g_jumpseconds + p_movie_info->bookmarks.user[book_nr].pos;
+										jumpseconds = jumpseconds + p_movie_info->bookmarks.user[book_nr].pos;
 										//playstate = CMoviePlayerGui::JPOS;	// bookmark  is of type loop, jump backward
-										playback->SetPosition(g_jumpseconds * 1000);
+										playback->SetPosition(jumpseconds * 1000);
 									} else if (p_movie_info->bookmarks.user[book_nr].length > 0) {
 										// jump at least 15 seconds
-										if (g_jumpseconds < 15)
-											g_jumpseconds = 15;
-										g_jumpseconds = g_jumpseconds + p_movie_info->bookmarks.user[book_nr].pos;
+										if (jumpseconds < 15)
+											jumpseconds = 15;
+										jumpseconds = jumpseconds + p_movie_info->bookmarks.user[book_nr].pos;
 
 										//playstate = CMoviePlayerGui::JPOS;	// bookmark  is of type loop, jump backward
-										playback->SetPosition(g_jumpseconds * 1000);
+										playback->SetPosition(jumpseconds * 1000);
 									}
-									TRACE("[mp]  do jump %d sec\r\n", g_jumpseconds);
+									TRACE("[mp]  do jump %d sec\r\n", jumpseconds);
 									update_lcd = true;
 									loop = false;	// do no further bookmark checks
 								}
@@ -1218,7 +1224,13 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 		else if (msg == CRCInput::RC_timeout) {
 			// nothing
-		} else if ((msg == NeutrinoMessages::ANNOUNCE_RECORD) || msg == NeutrinoMessages::RECORD_START || msg == NeutrinoMessages::ZAPTO || msg == NeutrinoMessages::STANDBY_ON || msg == NeutrinoMessages::SHUTDOWN || msg == NeutrinoMessages::SLEEPTIMER) {	// Exit for Record/Zapto Timers
+		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||
+				msg == NeutrinoMessages::RECORD_START) {
+				CNeutrinoApp::getInstance()->handleMsg(msg, data);
+		} else if ( msg == NeutrinoMessages::ZAPTO ||
+				msg == NeutrinoMessages::STANDBY_ON ||
+				msg == NeutrinoMessages::SHUTDOWN ||
+				msg == NeutrinoMessages::SLEEPTIMER) {	// Exit for Record/Zapto Timers
 			exit = true;
 			g_RCInput->postMsg(msg, data);
 		} else {
@@ -1231,7 +1243,7 @@ void CMoviePlayerGui::PlayFile(void)
 		}
 
 		if (exit) {
-//printf("Exit, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, p_movie_info);
+printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %x\n", isMovieBrowser, (int) p_movie_info);
 			if (isMovieBrowser == true && p_movie_info != NULL) {
 				// if we have a movie information, try to save the stop position
 				ftime(&current_time);

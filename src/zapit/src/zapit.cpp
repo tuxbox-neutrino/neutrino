@@ -329,19 +329,29 @@ CZapitClient::responseGetLastChannel load_settings(void)
 	return lastchannel;
 }
 
+static int camask = 1; // demux 0
+void start_camd(bool forupdate = false)
+{
+	if(currentMode & RECORD_MODE) {
+		if(rec_channel_id != live_channel_id) {
+			/* zap from rec. channel */
+			camask = 1;
+			cam1->setCaPmt(channel->getCaPmt(), 0, 1); // demux 0
+		} else if(forupdate) { //FIXME broken!
+			/* forupdate means pmt update  for live channel, using old camask */
+			cam0->setCaPmt(channel->getCaPmt(), 0, camask, true);// update
+		} else {
+			/* zap back to rec. channel */
+			camask =  5; // demux 0 + 2
+			cam0->setCaPmt(channel->getCaPmt(), 0, camask, true); // update
+			cam1->sendMessage(0,0); // stop/close
+		}
+	} else {
+		camask = 1;
+		cam0->setCaPmt(channel->getCaPmt(), 0, camask);
+	}
+}
 
-/*
- * - find transponder
- * - stop teletext, video, audio, pcr
- * - tune
- * - set up pids
- * - start pcr, audio, video, teletext
- * - start descrambler
- *
- * return 0 on success
- * return -1 otherwise
- *
- */
 static int pmt_update_fd = -1;
 static bool update_pmt = true;
 
@@ -554,6 +564,8 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 	 * if to recording channel, we must stop cam1 and update cam0 with live+rec camask.
 	 */
 
+	start_camd(forupdate);
+#if 0
 	static int camask = 1; // demux 0
 	if(currentMode & RECORD_MODE) {
 		if(rec_channel_id != live_channel_id) {
@@ -573,6 +585,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 		camask = 1;
 		cam0->setCaPmt(channel->getCaPmt(), 0, camask);
 	}
+#endif
 //play:
 	send_ca_id(1);
         if (update_pmt)
@@ -657,6 +670,9 @@ void setTVMode(void)
 
 int getMode(void)
 {
+	int mode = currentMode & (~RECORD_MODE);
+	return mode;
+
 	if (currentMode & TV_MODE)
 		return CZapitClient::MODE_TV;
 	if (currentMode & RADIO_MODE)
@@ -734,10 +750,6 @@ void parseScanInputXml(void)
 	}
 }
 
-/*
- * return 0 on success
- * return -1 otherwise
- */
 int start_scan(int scan_mode)
 {
 	if (!scanInputParser) {
@@ -760,7 +772,6 @@ int start_scan(int scan_mode)
 		scan_runs = 0;
 		return -1;
 	}
-	//pthread_detach(scan_thread);
 	return 0;
 }
 
@@ -787,6 +798,7 @@ int start_fast_scan(int scan_mode, int opid)
 
 bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 {
+	CZapitMessages::responseCmd response;
 	DBG("cmd %d (version %d) received\n", rmsg.cmd, rmsg.version);
 
 	if ((standby) && ((rmsg.cmd != CZapitMessages::CMD_SET_VOLUME)
@@ -998,7 +1010,6 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
        }
 
 	case CZapitMessages::CMD_BQ_RESTORE: {
-		CZapitMessages::responseCmd response;
 		//2004.08.02 g_bouquetManager->restoreBouquets();
 		if(g_list_changed) {
 			prepare_channels(frontend->getInfo()->type, diseqcType);
@@ -1013,7 +1024,6 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	}
 
 	case CZapitMessages::CMD_REINIT_CHANNELS: {
-		CZapitMessages::responseCmd response;
 		// Houdini: save actual channel to restore it later, old version's channel was set to scans.conf initial channel
   		t_channel_id cid= channel ? channel->getChannelID() : 0;
 
@@ -1030,7 +1040,6 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	}
 
 	case CZapitMessages::CMD_RELOAD_CURRENTSERVICES: {
-  	        CZapitMessages::responseCmd response;
   	        response.cmd = CZapitMessages::CMD_READY;
   	        CBasicServer::send_data(connfd, &response, sizeof(response));
 DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
@@ -1391,7 +1400,6 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		CZapitMessages::commandBoolean msgBoolean;
 		CBasicServer::receive_data(connfd, &msgBoolean, sizeof(msgBoolean));
 
-		CZapitMessages::responseCmd response;
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 #if 0
@@ -1432,7 +1440,6 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 
 	case CZapitMessages::CMD_SB_STOP_PLAYBACK:
 		stopPlayBack(false);
-		CZapitMessages::responseCmd response;
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
@@ -1440,10 +1447,15 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
 		stopPlayBack(true);
 		playbackStopForced = true;
+		response.cmd = CZapitMessages::CMD_READY;
+		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	case CZapitMessages::CMD_SB_UNLOCK_PLAYBACK:
 		playbackStopForced = false;
 		startPlayBack(channel);
+		start_camd();
+		response.cmd = CZapitMessages::CMD_READY;
+		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	case CZapitMessages::CMD_SET_DISPLAY_FORMAT: {
 		CZapitMessages::commandInt msg;
@@ -1611,9 +1623,8 @@ DBG("NVOD insert %llx\n", CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPO
 		if (msgBoolean.truefalse) {
 			// if(videoDecoder && (currentMode & RECORD_MODE)) videoDecoder->freeze();
 			enterStandby();
-			CZapitMessages::responseCmd presponse;
-			presponse.cmd = CZapitMessages::CMD_READY;
-			CBasicServer::send_data(connfd, &presponse, sizeof(presponse));
+			response.cmd = CZapitMessages::CMD_READY;
+			CBasicServer::send_data(connfd, &response, sizeof(response));
 		} else
 			leaveStandby();
 		break;
@@ -1946,25 +1957,22 @@ int startPlayBack(CZapitChannel *thisChannel)
 	return 0;
 }
 
-int stopPlayBack(bool stopemu)
+int stopPlayBack(bool stop_camd)
 {
 /*
 in record mode we stop onle cam1, while cam continue to decrypt recording channel
 */
-	if(stopemu) {
+	if(stop_camd) {
 		if(currentMode & RECORD_MODE) {
 			/* if we recording and rec == live, only update camask on cam0,
-			 * else stop cam1
-			 */
+			 * else stop cam1 */
 			if(live_channel_id == rec_channel_id)
 				cam0->setCaPmt(channel->getCaPmt(), 0, 4, true); // demux 2, update
 			else
 				cam1->sendMessage(0,0);
 		} else {
 			cam0->sendMessage(0,0);
-
 			unlink("/tmp/pmt.tmp");
-
 		}
 	}
 
@@ -1997,7 +2005,6 @@ in record mode we stop onle cam1, while cam continue to decrypt recording channe
 		dvbsub_pause();
 	else
 		dvbsub_stop();
-
 
 	return 0;
 }

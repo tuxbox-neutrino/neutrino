@@ -3023,7 +3023,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	int res = 0;
 	neutrino_msg_t msg = _msg;
-//printf("[neutrino] handleMsg %X data %X\n", msg, data); fflush(stdout);
 
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
 		g_Zapit->getAudioMode(&g_settings.audio_AnalogMode);
@@ -3103,7 +3102,6 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	res = res | g_InfoViewer->handleMsg(msg, data);
 	res = res | channelList->handleMsg(msg, data);
 
-	//printf("[neutrino] handleMsg %X unhandled by others\n", msg); fflush(stdout);
 	if( res != messages_return::unhandled ) {
 		if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
 			delete (unsigned char*) data;
@@ -3383,15 +3381,16 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		{ // passendes stop zur Aufnahme
 			//CVCRControl * vcr_control = CVCRControl::getInstance();
 			if (CVCRControl::getInstance()->isDeviceRegistered()) {
-				if ((CVCRControl::getInstance()->getDeviceState() == CVCRControl::CMD_VCR_RECORD) ||
-						(CVCRControl::getInstance()->getDeviceState() == CVCRControl::CMD_VCR_PAUSE ))
+				CVCRControl::CVCRStates state = CVCRControl::getInstance()->getDeviceState();
+				if ((state == CVCRControl::CMD_VCR_RECORD) ||
+						(state == CVCRControl::CMD_VCR_PAUSE ))
 				{
 					CVCRControl::getInstance()->Stop();
 					recordingstatus = 0;
 					autoshift = 0;
 				}
 				else
-					printf("falscher state\n");
+					printf("NeutrinoMessages::RECORD_STOP: false state %d\n", state);
 			}
 			else
 				puts("[neutrino.cpp] no recording devices");
@@ -3633,33 +3632,39 @@ skip_message:
 
 		if((data & mode_mask)== mode_radio) {
 			if( mode != mode_radio ) {
-				if((data & norezap)==norezap)
+				radioMode((data & norezap) != norezap);
+#if 0
+				if((data & norezap) == norezap)
 					radioMode(false);
 				else
 					radioMode(true);
+#endif
 			}
 		}
 		if((data & mode_mask)== mode_tv) {
 			if( mode != mode_tv ) {
-				if((data & norezap)==norezap)
+				tvMode((data & norezap) != norezap);
+#if 0
+				if((data & norezap) == norezap)
 					tvMode(false);
 				else
 					tvMode(true);
+#endif
 			}
 		}
-		if((data &mode_mask)== mode_standby) {
+		if((data & mode_mask)== mode_standby) {
 			if(mode != mode_standby)
 				standbyMode( true );
 		}
-		if((data &mode_mask)== mode_audio) {
+		if((data & mode_mask)== mode_audio) {
 			lastMode=mode;
 			mode=mode_audio;
 		}
-		if((data &mode_mask)== mode_pic) {
+		if((data & mode_mask)== mode_pic) {
 			lastMode=mode;
 			mode=mode_pic;
 		}
-		if((data &mode_mask)== mode_ts) {
+		if((data & mode_mask)== mode_ts && moviePlayerGui->Playing()) {
 			if(mode == mode_radio)
 				videoDecoder->StopPicture();
 			lastMode=mode;

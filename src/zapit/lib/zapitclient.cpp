@@ -935,11 +935,15 @@ void CZapitClient::stopPlayBack()
 void CZapitClient::lockPlayBack()
 {
 	send(CZapitMessages::CMD_SB_LOCK_PLAYBACK);
+	CZapitMessages::responseCmd response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
 }
 void CZapitClient::unlockPlayBack()
 {
 	send(CZapitMessages::CMD_SB_UNLOCK_PLAYBACK);
+	CZapitMessages::responseCmd response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
 }
 bool CZapitClient::isPlayBackActive()
