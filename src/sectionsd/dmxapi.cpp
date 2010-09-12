@@ -32,6 +32,7 @@
 
 #include <dmx_cs.h>
 
+#ifndef DO_NOT_INCLUDE_STUFF_NOT_NEEDED_FOR_SECTIONSD
 bool setfilter(const int fd, const uint16_t pid, const uint8_t filter, const uint8_t mask, const uint32_t  flags)
 {
 	struct dmx_sct_filter_params flt;
@@ -51,6 +52,7 @@ bool setfilter(const int fd, const uint16_t pid, const uint8_t filter, const uin
 	}
 	return true;
 }
+#endif
 
 struct SI_section_TOT_header
 {
@@ -80,7 +82,9 @@ __attribute__ ((packed)); /* 8 bytes */
 cDemux * dmxUTC;
 bool getUTC(UTC_t * const UTC, const bool TDT)
 {
-	struct dmx_sct_filter_params flt;
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
+	int timeout;
 	struct SI_section_TDT_header tdt_tot_header;
 	char cUTC[5];
 	bool ret = true;
@@ -90,15 +94,15 @@ bool getUTC(UTC_t * const UTC, const bool TDT)
 		dmxUTC->Open(DMX_PSI_CHANNEL);
 	}
 
-	memset(&flt, 0, sizeof(struct dmx_sct_filter_params));
+	memset(&filter, 0, DMX_FILTER_SIZE);
+	memset(&mask,   0, DMX_FILTER_SIZE);
 
-	flt.pid              = 0x0014;
-	flt.filter.filter[0] = TDT ? 0x70 : 0x73;
-	flt.filter.mask  [0] = 0xFF;
-	flt.timeout          = 31000;
-	flt.flags            = TDT ? (DMX_ONESHOT | DMX_IMMEDIATE_START) : (DMX_ONESHOT | DMX_CHECK_CRC | DMX_IMMEDIATE_START);
+	filter[0] = TDT ? 0x70 : 0x73;
+	mask  [0] = 0xFF;
+	timeout   = 31000;
+//	flags     = TDT ? (DMX_ONESHOT | DMX_IMMEDIATE_START) : (DMX_ONESHOT | DMX_CHECK_CRC | DMX_IMMEDIATE_START);
 
-	dmxUTC->sectionFilter(flt.pid, flt.filter.filter, flt.filter.mask, 5, flt.timeout);
+	dmxUTC->sectionFilter(0x0014, filter, mask, 5, timeout);
 
 	if(dmxUTC->Read((unsigned char *) &tdt_tot_header, sizeof(tdt_tot_header)) != sizeof(tdt_tot_header)) {
 		perror("[sectionsd] getUTC: read");

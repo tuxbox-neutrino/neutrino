@@ -6861,11 +6861,7 @@ static void *timeThread(void *)
 static cDemux * eitDmx;
 int eit_set_update_filter(int *fd)
 {
-        struct dmx_sct_filter_params dsfp;
-        memset((void*)&dsfp, 0, sizeof(dsfp));
-
         dprintf("eit_set_update_filter\n");
-        bzero(&dsfp, sizeof(struct dmx_sct_filter_params));
 
         unsigned char cur_eit = dmxCN.get_eit_version();
         /* tone down to dprintf later */
@@ -6886,26 +6882,31 @@ int eit_set_update_filter(int *fd)
                 eitDmx->Open(DMX_PSI_CHANNEL);
         }
 
-        dsfp.filter.filter[0] = 0x4e;   /* table_id */
-        dsfp.filter.filter[1] = (unsigned char)(messaging_current_servicekey >> 8);
-        dsfp.filter.filter[2] = (unsigned char)messaging_current_servicekey;
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
+	unsigned char mode[DMX_FILTER_SIZE];
+	memset(&filter, 0, DMX_FILTER_SIZE);
+	memset(&mask, 0, DMX_FILTER_SIZE);
+	memset(&mode, 0, DMX_FILTER_SIZE);
 
-        dsfp.filter.mask[0] = 0xFF;
-        dsfp.filter.mask[1] = 0xFF;
-        dsfp.filter.mask[2] = 0xFF;
+	filter[0] = 0x4e;   /* table_id */
+	filter[1] = (unsigned char)(messaging_current_servicekey >> 8);
+	filter[2] = (unsigned char)messaging_current_servicekey;
 
-        dsfp.flags = DMX_CHECK_CRC | DMX_IMMEDIATE_START;
-        dsfp.pid = 0x12;
-        dsfp.timeout = 0;
+	mask[0] = 0xFF;
+	mask[1] = 0xFF;
+	mask[2] = 0xFF;
+
+	int timeout = 0;
 #if 0
-        dsfp.filter.filter[3] = (cur_eit << 1) | 0x01;
-        dsfp.filter.mask[3] = (0x1F << 1) | 0x01;
-        dsfp.filter.mode[3] = 0x1F << 1;
-        eitDmx->sectionFilter(dsfp.pid, dsfp.filter.filter, dsfp.filter.mask, 4, dsfp.timeout, dsfp.filter.mode);
+	filter[3] = (cur_eit << 1) | 0x01;
+	mask[3] = (0x1F << 1) | 0x01;
+	mode[3] = 0x1F << 1;
+	eitDmx->sectionFilter(0x12, filter, mask, 4, timeout, mode);
 #else
-        dsfp.filter.filter[3] = (((cur_eit + 1) & 0x01) << 1) | 0x01;
-        dsfp.filter.mask[3] = (0x01 << 1) | 0x01;
-        eitDmx->sectionFilter(dsfp.pid, dsfp.filter.filter, dsfp.filter.mask, 4, dsfp.timeout, NULL);
+	filter[3] = (((cur_eit + 1) & 0x01) << 1) | 0x01;
+	mask[3] = (0x01 << 1) | 0x01;
+	eitDmx->sectionFilter(0x12, filter, mask, 4, timeout, NULL);
 #endif
 
         //printf("[sectionsd] start EIT update filter: current version %02X, filter %02X %02X %02X %02X, mask %02X mode %02X \n", cur_eit, dsfp.filter.filter[0], dsfp.filter.filter[1], dsfp.filter.filter[2], dsfp.filter.filter[3], dsfp.filter.mask[3], dsfp.filter.mode[3]);
