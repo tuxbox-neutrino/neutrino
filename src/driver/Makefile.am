@@ -18,7 +18,6 @@ INCLUDES = \
 noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
 
 libneutrino_driver_a_SOURCES = \
-	ringbuffer.c \
 	encoding.cpp \
 	fontrenderer.cpp \
 	framebuffer.cpp \
