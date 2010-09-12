@@ -9,7 +9,6 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
-	-I$(top_srcdir)/lib/libcoolstream \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
 	@FREETYPE_CFLAGS@ \
@@ -25,7 +24,6 @@ libneutrino_driver_a_SOURCES = \
 	rcinput.cpp \
 	vcrcontrol.cpp \
 	audioplay.cpp \
-	vfd.cpp \
 	stream2file.cpp \
 	screen_max.cpp \
 	slotbuffer.c \
@@ -36,6 +34,13 @@ libneutrino_driver_a_SOURCES = \
 	genpsi.c \
 	streamts.cpp \
 	rfmod.cpp
+
+if BOXTYPE_COOL
+libneutrino_driver_a_SOURCES += \
+	vfd.cpp
+INCLUDES += \
+	-I$(top_srcdir)/lib/libcoolstream
+endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp
 

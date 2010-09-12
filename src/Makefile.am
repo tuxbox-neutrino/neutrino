@@ -12,10 +12,13 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libmd5sum \
-	-I$(top_srcdir)/lib/libcoolstream \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@FREETYPE_CFLAGS@ \
 	@LIBCS_CFLAGS@
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
 
 bin_PROGRAMS = neutrino
 
@@ -65,6 +68,11 @@ neutrino_LDADD = \
 	-lvorbisfile -lvorbis -logg \
 	-lungif \
 	-ljpeg \
-	-lcoolstream \
-	-lnxp \
 	-lrt -lpthread
+
+if BOXTYPE_COOL
+neutrino_LDADD += \
+	-lcoolstream \
+	-lnxp
+endif
+

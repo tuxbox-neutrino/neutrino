@@ -7,8 +7,11 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
-	-I$(top_srcdir)/lib/xmltree \
-	-I$(top_srcdir)/lib/libcoolstream
+	-I$(top_srcdir)/lib/xmltree
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
 
 noinst_LIBRARIES = libzapit.a
 

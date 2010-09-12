@@ -22,11 +22,14 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
-	-I$(top_srcdir)/lib/libcoolstream \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@CURL_CFLAGS@ \
 	@FREETYPE_CFLAGS@ \
 	-I$(top_srcdir)/lib 
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
 
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 

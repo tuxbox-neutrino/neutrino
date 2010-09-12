@@ -382,6 +382,96 @@ AC_SUBST(DUMMYPOFILES)
 AC_SUBST(CATALOGS)
 ])
 
+AC_DEFUN([TUXBOX_BOXTYPE],[
+AC_ARG_WITH(boxtype,
+	[  --with-boxtype          valid values: dbox2,tripledragon,dreambox,ipbox,coolstream,generic],
+	[case "${withval}" in
+		dbox2|dreambox|ipbox|tripledragon|coolstream|generic)
+			BOXTYPE="$withval"
+			;;
+		dm*)
+			BOXTYPE="dreambox"
+			BOXMODEL="$withval"
+			;;
+		*)
+			AC_MSG_ERROR([bad value $withval for --with-boxtype]) ;;
+	esac], [BOXTYPE="coolstream"])
+
+AC_ARG_WITH(boxmodel,
+	[  --with-boxmodel         valid for dreambox: dm500, dm500plus, dm600pvr, dm56x0, dm7000, dm7020, dm7025
+                          valid for ipbox: ip200, ip250, ip350, ip400],
+	[case "${withval}" in
+		dm500|dm500plus|dm600pvr|dm56x0|dm7000|dm7020|dm7025)
+			if test "$BOXTYPE" = "dreambox"; then
+				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
+		ip200|ip250|ip350|ip400)
+			if test "$BOXTYPE" = "ipbox"; then
+				BOXMODEL="$withval"
+			else
+				AC_MSG_ERROR([unknown model $withval for boxtype $BOXTYPE])
+			fi
+			;;
+		*)
+			AC_MSG_ERROR([unsupported value $withval for --with-boxmodel])
+			;;
+	esac],
+	[if test "$BOXTYPE" = "dreambox" -o "$BOXTYPE" = "ipbox" && test -z "$BOXMODEL"; then
+		AC_MSG_ERROR([Dreambox/IPBox needs --with-boxmodel])
+	fi])
+
+AC_SUBST(BOXTYPE)
+AC_SUBST(BOXMODEL)
+
+AM_CONDITIONAL(BOXTYPE_DBOX2, test "$BOXTYPE" = "dbox2")
+AM_CONDITIONAL(BOXTYPE_TRIPLE, test "$BOXTYPE" = "tripledragon")
+AM_CONDITIONAL(BOXTYPE_DREAMBOX, test "$BOXTYPE" = "dreambox")
+AM_CONDITIONAL(BOXTYPE_IPBOX, test "$BOXTYPE" = "ipbox")
+AM_CONDITIONAL(BOXTYPE_COOL, test "$BOXTYPE" = "coolstream")
+AM_CONDITIONAL(BOXTYPE_GENERIC, test "$BOXTYPE" = "generic")
+
+AM_CONDITIONAL(BOXMODEL_DM500,test "$BOXMODEL" = "dm500")
+AM_CONDITIONAL(BOXMODEL_DM500PLUS,test "$BOXMODEL" = "dm500plus")
+AM_CONDITIONAL(BOXMODEL_DM600PVR,test "$BOXMODEL" = "dm600pvr")
+AM_CONDITIONAL(BOXMODEL_DM56x0,test "$BOXMODEL" = "dm56x0")
+AM_CONDITIONAL(BOXMODEL_DM7000,test "$BOXMODEL" = "dm7000" -o "$BOXMODEL" = "dm7020" -o "$BOXMODEL" = "dm7025")
+
+AM_CONDITIONAL(BOXMODEL_IP200,test "$BOXMODEL" = "ip200")
+AM_CONDITIONAL(BOXMODEL_IP250,test "$BOXMODEL" = "ip250")
+AM_CONDITIONAL(BOXMODEL_IP350,test "$BOXMODEL" = "ip350")
+AM_CONDITIONAL(BOXMODEL_IP400,test "$BOXMODEL" = "ip400")
+
+if test "$BOXTYPE" = "dbox2"; then
+	AC_DEFINE(HAVE_DBOX_HARDWARE, 1, [building for a dbox2])
+elif test "$BOXTYPE" = "tripledragon"; then
+	AC_DEFINE(HAVE_TRIPLEDRAGON, 1, [building for a tripledragon])
+elif test "$BOXTYPE" = "dreambox"; then
+	AC_DEFINE(HAVE_DREAMBOX_HARDWARE, 1, [building for a dreambox])
+elif test "$BOXTYPE" = "ipbox"; then
+	AC_DEFINE(HAVE_IPBOX_HARDWARE, 1, [building for an ipbox])
+elif test "$BOXTYPE" = "coolstream"; then
+	AC_DEFINE(HAVE_COOL_HARDWARE, 1, [building for a coolstream])
+elif test "$BOXTYPE" = "generic"; then
+	AC_DEFINE(HAVE_GENERIC_HARDWARE, 1, [building for a generic device like a standard PC])
+fi
+
+# TODO: do we need more defines?
+if test "$BOXMODEL" = "dm500"; then
+	AC_DEFINE(BOXMODEL_DM500, 1, [dreambox 500])
+elif test "$BOXMODEL" = "ip200"; then
+	AC_DEFINE(BOXMODEL_IP200, 1, [ipbox 200])
+elif test "$BOXMODEL" = "ip250"; then
+	AC_DEFINE(BOXMODEL_IP250, 1, [ipbox 250])
+elif test "$BOXMODEL" = "ip350"; then
+	AC_DEFINE(BOXMODEL_IP350, 1, [ipbox 350])
+elif test "$BOXMODEL" = "ip400"; then
+	AC_DEFINE(BOXMODEL_IP400, 1, [ipbox 400])
+fi
+])
+
 dnl backward compatiblity
 AC_DEFUN([AC_GNU_SOURCE],
 [AH_VERBATIM([_GNU_SOURCE],
