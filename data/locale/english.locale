@@ -455,7 +455,7 @@ lcdcontroler.contrast Contrast
 lcdmenu.autodimm Auto dimm
 lcdmenu.head VFD Settings
 lcdmenu.inverse Invert
-lcdmenu.lcdcontroler Contrast / Brightness
+lcdmenu.lcdcontroler Brightness
 lcdmenu.power Power
 lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime

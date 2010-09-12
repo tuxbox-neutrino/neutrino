@@ -635,7 +635,7 @@ lcdmenu.dim_brightness Helligkeit nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
 lcdmenu.head VFD Einstellungen
 lcdmenu.inverse Invertieren
-lcdmenu.lcdcontroler Kontrast/ Helligkeit
+lcdmenu.lcdcontroler Helligkeit
 lcdmenu.power Power
 lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/ Fortschritt

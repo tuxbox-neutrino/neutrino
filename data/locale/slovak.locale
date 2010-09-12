@@ -482,7 +482,7 @@ lcdmenu.dim_brightness Jas po zhasnutí
 lcdmenu.dim_time Čas zhasnutia
 lcdmenu.head Nastavenie VFD
 lcdmenu.inverse Invertovať
-lcdmenu.lcdcontroler Kontrast/Jas
+lcdmenu.lcdcontroler Jas
 lcdmenu.power Zapnutie
 lcdmenu.statusline Stavový riadok
 lcdmenu.statusline.both hlasitosť/hraný čas

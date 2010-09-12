@@ -461,7 +461,7 @@ lcdcontroler.brightness Jasność
 lcdcontroler.brightnessstandby Jasność w trybie got.
 lcdcontroler.contrast Kontrast
 lcdmenu.head Ustawienia wyświtlacza
-lcdmenu.lcdcontroler Kontrast/Jasność
+lcdmenu.lcdcontroler Jasność
 lcdmenu.statusline Pasek stanu
 lcdmenu.statusline.playtime czas
 lcdmenu.statusline.volume głośność
