@@ -5576,12 +5576,13 @@ void CopyBB2FB()
 		unsigned char *topdst = dst;
 
 		screenwidth = ( TV43STARTX ) * 4;
+		size_t width = ex * sizeof(fb_pixel_t) - screenwidth;
 
 		topsrc += screenwidth;
 		topdst += screenwidth;
 		for (i=0; i < 24*fontheight; i++)
 		{
-			memcpy(topdst, topsrc,ex-screenwidth);
+			memcpy(topdst, topsrc, width);
 			topdst += fix_screeninfo.line_length;
 			topsrc += fix_screeninfo.line_length;
 		}
