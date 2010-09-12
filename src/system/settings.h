@@ -64,6 +64,7 @@ struct SNeutrinoSettings
 	int misc_spts;
 	int fan_speed;
 	int infobar_show;
+	int show_infomenu;
 	int infobar_show_channellogo;
 	int progressbar_color;
 	int casystem_display;

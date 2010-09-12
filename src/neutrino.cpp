@@ -830,6 +830,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );                                                                                                                  
 	g_settings.menu_pos = configfile.getInt32("menu_pos", 0 );
 	g_settings.infobar_show_var_hdd   = configfile.getBool("infobar_show_var_hdd"  , true );
+	g_settings.show_infomenu = configfile.getInt32("show_infomenu", 0 );
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
@@ -1371,6 +1372,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 	configfile.setInt32("infobar_show_var_hdd"  , g_settings.infobar_show_var_hdd  );
+	configfile.setInt32("show_infomenu"  , g_settings.show_infomenu  );
 
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
