@@ -77,46 +77,45 @@ class EventList
         t_bouquet_id    m_search_bouquet_id;
         bool m_showChannel;
 
-        private:
-                int findEvents(void);
+	bool findEvents(void);
     // Eventfinder end
 
-	private:
-		CFrameBuffer	*frameBuffer;
-        	CChannelEventList	evtlist;
-		CTimerd::TimerList timerlist;
-		void readEvents(const t_channel_id channel_id);
-		unsigned int	selected;
-		unsigned int	current_event;
-		unsigned int	liststart;
-		unsigned int	listmaxshow;
-		unsigned int	numwidth;
-		int		fheight; // Fonthoehe Channellist-Inhalt
-		int		fheight1,fheight2;
-		int		fwidth1,fwidth2;
-		int		theight; // Fonthoehe Channellist-Titel
-		int		iheight; // Height info bar
+	CFrameBuffer	*frameBuffer;
+	CChannelEventList	evtlist;
+	CTimerd::TimerList timerlist;
+	void readEvents(const t_channel_id channel_id);
+	unsigned int	selected;
+	unsigned int	current_event;
+	unsigned int	liststart;
+	unsigned int	listmaxshow;
+	unsigned int	numwidth;
+	int		fheight; // Fonthoehe Channellist-Inhalt
+	int		fheight1,fheight2;
+	int		fwidth1,fwidth2;
+	int		theight; // Fonthoehe Channellist-Titel
+	int		iheight; // Height info bar
 
-		int		key;
-		std::string	name;
+	int		key;
+	std::string	search_head_name;
 
-		int 		width;
-		int 		height;
-		int 		x;
-		int 		y;
-		int      sort_mode;
+	int 		width;
+	int 		height;
+	int 		x;
+	int 		y;
+	int      sort_mode;
 
-		void paintItem(unsigned pos, t_channel_id channel_id = 0);
-		void paint(t_channel_id channel_id = 0);
-		void paintHead(t_channel_id channel_id, std::string name);
-		void hide();
-		void showFunctionBar(bool show);
-		CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
+	void paintItem(unsigned pos, t_channel_id channel_id = 0);
+	void paint(t_channel_id channel_id = 0);
+	void paintHead(t_channel_id channel_id, std::string name);
+	void paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev, std::string _channelname_next);
+	void hide();
+	void showFunctionBar(bool show);
+	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
 
 	public:
 		EventList();
 		~EventList();
-		int exec(const t_channel_id channel_id, const std::string& channelname); // UTF-8
+		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = ""); // UTF-8
 };
 
 class CEventListHandler : public CMenuTarget
