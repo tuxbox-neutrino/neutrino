@@ -79,6 +79,9 @@ class CChannelList
 		bool vlist; // "virtual" list, not bouquet
 		bool displayNext;
 
+		int info_height;
+		bool new_mode_active;
+
 		void paintDetails(int index);
 		void clearItem2DetailsLine ();
 		void paintItem2DetailsLine (int pos, int ch_index);
@@ -89,7 +92,7 @@ class CChannelList
 		void showChannelLogo();
 
 	public:
-		CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false );
+		CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
 		~CChannelList();
 
 		void SetChannelList(ZapitChannelList* channels);
@@ -114,7 +117,7 @@ class CChannelList
 		bool zapTo_ChannelID(const t_channel_id channel_id);
 		bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
 		bool showInfo(int pos, int epgpos = 0);
-		void updateEvents(void);
+		void updateEvents(unsigned int from, unsigned int to);
 		int 	numericZap(int key);
 		int  	show();
 		int	exec();

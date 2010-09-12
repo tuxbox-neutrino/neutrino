@@ -54,7 +54,6 @@
 #include <system/settings.h>
 #include <system/lastchannel.h>
 #include <gui/customcolor.h>
-#include "gui/filebrowser.h"
 
 #include <gui/bouquetlist.h>
 #include <daemonc/remotecontrol.h>
@@ -84,10 +83,6 @@ extern tallchans allchans;
 
 extern t_channel_id rec_channel_id;
 extern bool autoshift;
-int info_height = 0;
-bool new_mode_active = 0;
-//int list_changed = 0;
-static bool pipzap;
 extern int g_channel_list_changed;
 
 extern CBouquetManager *g_bouquetManager;
@@ -97,7 +92,7 @@ void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_
 
 extern int old_b_id;
 
-CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist)
+CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vlist, bool )
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	name = pName;
@@ -108,6 +103,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	this->historyMode = phistoryMode;
 	vlist = _vlist;
 	selected_chid = 0;
+	this->new_mode_active = false;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 }
 
@@ -157,53 +153,58 @@ void CChannelList::putChannel(CZapitChannel* channel)
 //printf("************ %s : me %x putChannel: %d: %s %x -> %x [0] %x\n", name.c_str(), this, num, channel->getName().c_str(), channel, chanlist[num], chanlist[0]);fflush(stdout);
 }
 
-void CChannelList::updateEvents(void)
+/* uodate the events for the visible channel list entries
+   from = start entry, to = end entry. If both = zero, update all */
+void CChannelList::updateEvents(unsigned int from, unsigned int to)
 {
 	CChannelEventList events;
 
+	if (to == 0 || to > chanlist.size())
+		to = chanlist.size();
+
+	size_t chanlist_size = to - from;
+	if (chanlist_size <= 0) // WTF???
+		return;
+
 	if (displayNext) {
-		size_t chanlist_size = chanlist.size();
-		if (chanlist_size) {
-			time_t atime = time(NULL);
-			unsigned int count;
-			for (count=0; count < chanlist_size; count++){
-				//CChannelEventList events = g_Sectionsd->getEventsServiceKey(chanlist[liststart+count]->channel_id &0xFFFFFFFFFFFFULL);
-				events.clear();
-				sectionsd_getEventsServiceKey(chanlist[count]->channel_id &0xFFFFFFFFFFFFULL, events);
-				chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
-				for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
-					if (((long)(e->startTime) > atime) &&
-							((e->startTime) < (long)(chanlist[count]->nextEvent.startTime)))
-					{
-						chanlist[count]->nextEvent= *e;
-						break; //max: FIXME no sense to continue ?
-					}
+		time_t atime = time(NULL);
+		unsigned int count;
+		for (count = from; count < to; count++){
+			events.clear();
+			sectionsd_getEventsServiceKey(chanlist[count]->channel_id &0xFFFFFFFFFFFFULL, events);
+			chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
+			for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
+				if ((long)e->startTime > atime &&
+				    (e->startTime < (long)chanlist[count]->nextEvent.startTime))
+				{
+					chanlist[count]->nextEvent = *e;
+					break; //max: FIXME no sense to continue ?
 				}
 			}
 		}
 	} else {
-		t_channel_id *p_requested_channels = NULL;
-		int size_requested_channels = 0;
-		size_t chanlist_size = chanlist.size();
-		if (chanlist_size) {
-			size_requested_channels = chanlist_size*sizeof(t_channel_id);
-			p_requested_channels    = new t_channel_id[size_requested_channels];
-			for (uint32_t count = 0; count < chanlist_size; count++){
-				p_requested_channels[count] = chanlist[count]->channel_id&0xFFFFFFFFFFFFULL;
-			}
-			//CChannelEventList events = g_Sectionsd->getChannelEvents((CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
-			CChannelEventList levents;
-			sectionsd_getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
-			for (uint32_t count=0; count < chanlist_size; count++) {
-				chanlist[count]->currentEvent = CChannelEvent();
-				for ( CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e )
-					if ((chanlist[count]->channel_id&0xFFFFFFFFFFFFULL) == e->get_channel_id()){
-						chanlist[count]->currentEvent= *e;
-						break;
-					}
-			}
-			if (p_requested_channels != NULL) delete[] p_requested_channels;
+		t_channel_id *p_requested_channels;
+		int size_requested_channels = chanlist_size * sizeof(t_channel_id);
+		p_requested_channels = new t_channel_id[size_requested_channels];
+		if (! p_requested_channels) {
+			fprintf(stderr,"%s:%d allocation failed!\n", __FUNCTION__, __LINE__);
+			return;
 		}
+		for (uint32_t count = 0; count < chanlist_size; count++) {
+			p_requested_channels[count] = chanlist[count + from]->channel_id&0xFFFFFFFFFFFFULL;
+		}
+		CChannelEventList levents;
+		sectionsd_getChannelEvents(levents, (CNeutrinoApp::getInstance()->getMode()) != NeutrinoMessages::mode_radio, p_requested_channels, size_requested_channels);
+		for (uint32_t count=0; count < chanlist_size; count++) {
+			chanlist[count]->currentEvent = CChannelEvent();
+			for (CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e) {
+				if ((chanlist[count + from]->channel_id&0xFFFFFFFFFFFFULL) == e->get_channel_id()) {
+					chanlist[count + from]->currentEvent = *e;
+					break;
+				}
+			}
+		}
+		delete[] p_requested_channels;
 	}
 	events.clear();
 }
@@ -312,9 +313,6 @@ int CChannelList::doChannelMenu(void)
 	int i = 0;
 	int select = -1;
 	static int old_selected = 0;
-	int ret = menu_return::RETURN_NONE;
-	signed int bouquet_id, old_bouquet_id, new_bouquet_id;
-	int result;
 	char cnt[5];
 	t_channel_id channel_id;
 	bool enabled = true;
@@ -333,25 +331,26 @@ int CChannelList::doChannelMenu(void)
 	menu->enableFade(false);
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
-	sprintf(cnt, "%d", i);
+	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, enabled, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i++);
-	sprintf(cnt, "%d", i);
+	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_MOVE, enabled, NULL, selector, cnt, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), old_selected == i++);
-	sprintf(cnt, "%d", i);
+	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ADD_TO_BOUQUET, true, NULL, selector, cnt, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), old_selected == i++);
-	sprintf(cnt, "%d", i);
+	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i++);
-	ret = menu->exec(NULL, "");
+	menu->exec(NULL, "");
 	delete menu;
 	delete selector;
 
 	if(select >= 0) {
+		signed int bouquet_id = 0, old_bouquet_id = 0, new_bouquet_id = 0;
 		old_selected = select;
 		channel_id = chanlist[selected]->channel_id;
 		switch(select) {
-			case 0:
+			case 0:{
 				hide();
-				result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+				int result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 
 				if(result == CMessageBox::mbrYes) {
 					bouquet_id = bouquetList->getActiveBouquetNumber();
@@ -368,6 +367,7 @@ int CChannelList::doChannelMenu(void)
 					}
 				}
 				break;
+			}
 			case 1: // move
 				old_bouquet_id = bouquetList->getActiveBouquetNumber();
 				old_bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[old_bouquet_id]->channelList->getName());
@@ -462,9 +462,7 @@ int CChannelList::show()
 		return res;
 	}
 
-	new_mode_active = 0;
-	pipzap = 0;
-
+	this->new_mode_active = 0;
 	int  fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
 	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * (fw+6)):(frameBuffer->getScreenWidth() / 20 * (fw+5))), 100);
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
@@ -513,7 +511,6 @@ int CChannelList::show()
 	}
 
 	paintHead();
-	updateEvents();
 	paint();
 
 	gettimeofday(&t2, NULL);
@@ -609,13 +606,13 @@ int CChannelList::show()
 			selected=0;
 			liststart = (selected/listmaxshow)*listmaxshow;
 			paint();
-			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
 		}
 		else if (msg == (neutrino_msg_t) g_settings.key_list_end) {
 			selected=chanlist.size()-1;
 			liststart = (selected/listmaxshow)*listmaxshow;
 			paint();
-			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
 		}
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
@@ -641,7 +638,7 @@ int CChannelList::show()
 				showChannelLogo();
 			}
 
-			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
 			//paintHead();
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
@@ -670,7 +667,7 @@ int CChannelList::show()
 				showChannelLogo();
 			}
 
-			if(new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
 			//paintHead();
 		}
 
@@ -725,7 +722,7 @@ int CChannelList::show()
 			}
 		}
 		else if ( msg == CRCInput::RC_spkr ) {
-			new_mode_active = (new_mode_active ? 0 : 1);
+			this->new_mode_active = (this->new_mode_active ? 0 : 1);
 			paintHead();
 			showChannelLogo();
 		}
@@ -801,9 +798,8 @@ int CChannelList::show()
 		else if ( msg == CRCInput::RC_yellow )
 		{
 			displayNext = !displayNext;
-			paintHead(); // update button bar
-			updateEvents();
 			paint();
+			paintHead(); // update button bar
 		}
 		else if ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help)) {
 			hide();
@@ -841,7 +837,7 @@ int CChannelList::show()
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-	new_mode_active = 0;
+	this->new_mode_active = 0;
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
 		return -1;
@@ -1042,7 +1038,7 @@ printf("**************************** CChannelList::zapTo me %x %s tuned %d new %
 		tuned = pos;
 		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
 	}
-	if(!new_mode_active) {
+	if(!this->new_mode_active) {
 		selected = pos;
 #if 0
 		/* TODO lastChList.store also called in adjustToChannelID, which is called
@@ -1172,7 +1168,7 @@ int CChannelList::numericZap(int key)
 
 	while(1) {
 		if (lastchan != chn) {
-			sprintf((char*) &valstr, "%d", chn);
+			snprintf((char*) &valstr, sizeof(valstr), "%d", chn);
 			while(strlen(valstr)<4)
 				strcat(valstr,"-");   //"_"
 
@@ -1468,14 +1464,14 @@ void CChannelList::paintDetails(int index)
 			struct		tm *pStartZeit = localtime(&p_event->startTime);
 			unsigned 	seit = ( time(NULL) - p_event->startTime ) / 60;
 			if (displayNext) {
-				sprintf(cNoch, "(%d min)", p_event->duration / 60);
-				sprintf(cSeit, g_Locale->getText(LOCALE_CHANNELLIST_START), pStartZeit->tm_hour, pStartZeit->tm_min);
+				snprintf(cNoch, sizeof(cNoch), "(%d min)", p_event->duration / 60);
+				snprintf(cSeit, sizeof(cSeit), g_Locale->getText(LOCALE_CHANNELLIST_START), pStartZeit->tm_hour, pStartZeit->tm_min);
 			} else {
-				sprintf(cSeit, g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
+				snprintf(cSeit, sizeof(cSeit), g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
 				int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
 				if ((noch< 0) || (noch>=10000))
 					noch= 0;
-				sprintf(cNoch, "(%d / %d min)", seit, noch);
+				snprintf(cNoch, sizeof(cNoch), "(%d / %d min)", seit, noch);
 			}
 			int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit, true); // UTF-8
 			int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(cNoch, true); // UTF-8
@@ -1653,7 +1649,7 @@ void CChannelList::paintItem(int pos)
 			title_offset=6;
 		}
 
-		sprintf((char*) tmp, "%d", this->historyMode ? pos : chan->number);
+		snprintf((char*) tmp, sizeof(tmp), "%d", this->historyMode ? pos : chan->number);
 
 		CChannelEvent *p_event=NULL;
 		if (displayNext) {
@@ -1695,7 +1691,7 @@ void CChannelList::paintItem(int pos)
 				{
 					struct		tm *pStartZeit = localtime(&p_event->startTime);
 
-					sprintf((char*) tmp, "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
+					snprintf((char*) tmp, sizeof(tmp), "%02d:%02d", pStartZeit->tm_hour, pStartZeit->tm_min);
 //					g_Font[SNeutrinoSettings::FONT_TYPE_IMAGEINFO_SMALL]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -poffs, tmp, COL_MENUCONTENT, 0, true);
 					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x+ 5+ numwidth+ 6, ypos+ xtheight, width- numwidth- 20- 15 -prg_offset, tmp, tcolor, 0, true);
 				}
@@ -1795,7 +1791,7 @@ void CChannelList::paintHead()
 	
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x + width - iw1 - 4, y, theight); //y+ 5 );
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - iw1 - iw2 - 8, y, theight);//y + 5); // icon for bouquet list button
-	frameBuffer->paintIcon(new_mode_active ? 
+	frameBuffer->paintIcon(this->new_mode_active ? 
 		NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE, 
 		x + width - iw1 - iw2 - iw3 - 12, y, theight);
 
@@ -1828,20 +1824,19 @@ void CChannelList::paint()
 	liststart = (selected/listmaxshow)*listmaxshow;
 	//FIXME do we need to find biggest chan number in list ?
 	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0000");
-	//updateEvents();
+
+	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height-buttonHeight-theight, COL_MENUCONTENT_PLUS_0, 0, CORNER_BOTTOM);
-
 	for(unsigned int count = 0; count < listmaxshow; count++) {
 		paintItem(count);
 	}
-
-	int ypos = y+ theight;
-	int sb = fheight* listmaxshow;
+	const int ypos = y+ theight;
+	const int sb = fheight* listmaxshow;
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
 
-	int sbc= ((chanlist.size()- 1)/ listmaxshow)+ 1;
-	int sbs= (selected/listmaxshow);
+	const int sbc= ((chanlist.size()- 1)/ listmaxshow)+ 1;
+	const int sbs= (selected/listmaxshow);
 
 	frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ sbs*(sb-4)/sbc, 11, (sb-4)/sbc, COL_MENUCONTENT_PLUS_3);
 	showChannelLogo();
