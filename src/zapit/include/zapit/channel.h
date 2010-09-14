@@ -101,7 +101,7 @@ class CZapitAudioChannel
 		AAC,
 		AACPLUS, //?
 		DTS,
-		UNKNOWN,
+		UNKNOWN
 	};
 	ZapitAudioChannelType audioChannelType;
 };
