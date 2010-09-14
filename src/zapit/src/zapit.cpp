@@ -919,23 +919,23 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	}
 
 	case CZapitMessages::CMD_GET_DELIVERY_SYSTEM: {
-		CZapitMessages::responseDeliverySystem response;
+		CZapitMessages::responseDeliverySystem _response;
 		switch (frontend->getInfo()->type) {
 		case FE_QAM:
-			response.system = DVB_C;
+			_response.system = DVB_C;
 			break;
 		case FE_QPSK:
-			response.system = DVB_S;
+			_response.system = DVB_S;
 			break;
 		case FE_OFDM:
-			response.system = DVB_T;
+			_response.system = DVB_T;
 			break;
 		default:
 			WARN("Unknown type %d", frontend->getInfo()->type);
 			return false;
 
 		}
-		CBasicServer::send_data(connfd, &response, sizeof(response));
+		CBasicServer::send_data(connfd, &_response, sizeof(_response));
 		break;
 	}
 
@@ -967,45 +967,45 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	}
 
         case CZapitMessages::CMD_GET_CHANNEL_NAME: {
-                t_channel_id                           requested_channel_id;
-                CZapitMessages::responseGetChannelName response;
+                t_channel_id requested_channel_id;
+                CZapitMessages::responseGetChannelName _response;
                 CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
 		if(requested_channel_id == 0) {
 			if(channel) {
-				strncpy(response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE);
-				response.name[CHANNEL_NAME_SIZE-1] = 0;
+				strncpy(_response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE);
+				_response.name[CHANNEL_NAME_SIZE-1] = 0;
 			} else
-				response.name[0] = 0;
+				_response.name[0] = 0;
 		} else {
                 tallchans_iterator it = allchans.find(requested_channel_id);
                 if (it == allchans.end())
-                        response.name[0] = 0;
+                        _response.name[0] = 0;
                 else
-                        strncpy(response.name, it->second.getName().c_str(), CHANNEL_NAME_SIZE);
-			response.name[CHANNEL_NAME_SIZE-1] = 0;
+                        strncpy(_response.name, it->second.getName().c_str(), CHANNEL_NAME_SIZE);
+			_response.name[CHANNEL_NAME_SIZE-1] = 0;
 		}
-                CBasicServer::send_data(connfd, &response, sizeof(response));
+                CBasicServer::send_data(connfd, &_response, sizeof(_response));
                 break;
         }
 
        case CZapitMessages::CMD_IS_TV_CHANNEL: {
                t_channel_id                             requested_channel_id;
-               CZapitMessages::responseGeneralTrueFalse response;
+               CZapitMessages::responseGeneralTrueFalse _response;
                CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
                tallchans_iterator it = allchans.find(requested_channel_id);
                if (it == allchans.end()) {
 		       it = nvodchannels.find(requested_channel_id);
                        /* if in doubt (i.e. unknown channel) answer yes */
                	       if (it == nvodchannels.end())
-                              response.status = true;
+                              _response.status = true;
                        else
                        /* FIXME: the following check is no even remotely accurate */
-                              response.status = (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
+                              _response.status = (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
 		} else
                 /* FIXME: the following check is no even remotely accurate */
-                      response.status = (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
+                      _response.status = (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
 
-               CBasicServer::send_data(connfd, &response, sizeof(response));
+               CBasicServer::send_data(connfd, &_response, sizeof(_response));
                break;
        }
 

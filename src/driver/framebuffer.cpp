@@ -479,14 +479,14 @@ int CFrameBuffer::setMode(unsigned int /*nxRes*/, unsigned int /*nyRes*/, unsign
 	xRes = screeninfo.xres;
 	yRes = screeninfo.yres;
 	bpp  = screeninfo.bits_per_pixel;
-	fb_fix_screeninfo fix;
+	fb_fix_screeninfo _fix;
 
-	if (ioctl(fd, FBIOGET_FSCREENINFO, &fix)<0) {
+	if (ioctl(fd, FBIOGET_FSCREENINFO, &_fix)<0) {
 		perror("FBIOGET_FSCREENINFO");
 		return -1;
 	}
 
-	stride = fix.line_length;
+	stride = _fix.line_length;
 	printf("FB: %dx%dx%d line length %d. %s nevis GXA accelerator.\n", xRes, yRes, bpp, stride,
 #ifdef USE_NEVIS_GXA
 		"Using"

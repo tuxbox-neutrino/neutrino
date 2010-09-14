@@ -211,7 +211,6 @@ int CBouquetList::doMenu()
 	int i = 0;
 	int select = -1;
 	static int old_selected = 0;
-	int ret = menu_return::RETURN_NONE;
 	signed int bouquet_id;
 	char cnt[5];
 	CZapitBouquet * tmp, * zapitBouquet;
@@ -232,7 +231,7 @@ int CBouquetList::doMenu()
 	sprintf(cnt, "%d", i);
 	if(!zapitBouquet->bUser) {
 		menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_COPY, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i ++);
-		ret = menu->exec(NULL, "");
+		menu->exec(NULL, "");
 		delete menu;
 		delete selector;
 		printf("CBouquetList::doMenu: %d selected\n", select);
@@ -259,7 +258,7 @@ int CBouquetList::doMenu()
 		return -1;
 	} else {
 		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i ++);
-		ret = menu->exec(NULL, "");
+		menu->exec(NULL, "");
 		delete menu;
 		delete selector;
 		printf("CBouquetList::doMenu: %d selected\n", select);
