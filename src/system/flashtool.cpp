@@ -426,7 +426,7 @@ const char *CFlashVersionInfo::getType(void) const
 	}
 }
 
-const int CFlashVersionInfo::getVersion(void) const
+int CFlashVersionInfo::getVersion(void) const
 {
 	return version;
 }

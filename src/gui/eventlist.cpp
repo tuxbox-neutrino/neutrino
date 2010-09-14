@@ -284,7 +284,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	if(channelname_prev.empty(), channelname_next.empty()){
 		paintHead(channel_id, channelname);
 	}else{
-		paintHead(channel_id, channelname, channelname_prev, channelname_next);
+		paintHead(channelname, channelname_prev, channelname_next);
 
 	}
 	paint(channel_id);
@@ -788,7 +788,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+10+iw, ypos+ fheight, width- 25- 20, evtlist[liststart+pos].description, color, 0, true);
 	}
 }
-void EventList::paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
+void EventList::paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {
 	const short font_h = 8;
 	int iw = 0, ih = 0;

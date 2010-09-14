@@ -107,7 +107,7 @@ class EventList
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
 	void paint(t_channel_id channel_id = 0);
 	void paintHead(t_channel_id channel_id, std::string name);
-	void paintHead(t_channel_id _channel_id, std::string _channelname, std::string _channelname_prev, std::string _channelname_next);
+	void paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next);
 	void hide();
 	void showFunctionBar(bool show);
 	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);

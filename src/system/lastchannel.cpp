@@ -37,7 +37,7 @@ void CLastChannel::clear (void)
 // -- Store only if channel != last channel and time store delay is large enough
 // forceStoreToLastChannels default to false
 
-void CLastChannel::store (int channel, t_channel_id channel_id, bool forceStoreToLastChannels)
+void CLastChannel::store (int channel, t_channel_id channel_id, bool /* forceStoreToLastChannels */)
 {
 	struct timeval  tv;
 	unsigned long lastTimestamp(0);
