@@ -566,7 +566,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 		else if ( msg==CRCInput::RC_rewind ||  msg==CRCInput::RC_forward) {
 
 		  	t_bouquet_id current_bouquet_id= bouquetList->getActiveBouquetNumber();
-			t_channel_id	channel_id_tmp, _channel_id;
+			t_channel_id	channel_id_tmp, _channel_id = channel_id;
 			const unsigned int channel_nr = bouquetList->Bouquets[current_bouquet_id]->channelList->getSize();
 			std::string next_channel_name;
 			std::string prev_channel_name ;
