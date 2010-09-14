@@ -86,7 +86,7 @@ class CFlashVersionInfo
 	const char *getTime(void) const;
 	const char *getReleaseCycle(void) const;
 	const char *getType(void) const;
-	const int   getVersion(void) const;
+	int   getVersion(void) const;
 };
 
 
