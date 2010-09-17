@@ -258,24 +258,24 @@ extra.fec_5_6 5/6 S1_Q
 extra.fec_7_8 7/8 S1_Q
 extra.fec_auto Auto DVB-S
 extra.fec_auto_s2 Auto DVB-S2
-extra.fec_s2_8psk_1_2 1/2 S2_8
-extra.fec_s2_8psk_2_3 2/3 S2_8
-extra.fec_s2_8psk_3_4 3/4 S2_8
-extra.fec_s2_8psk_3_5 3/5 S2_8
-extra.fec_s2_8psk_4_5 4/5 S2_8
-extra.fec_s2_8psk_5_6 5/6 S2_8
-extra.fec_s2_8psk_7_8 7/8 S2_8
-extra.fec_s2_8psk_8_9 8/9 S2_8
-extra.fec_s2_8psk_9_10 9/10 S2_8
-extra.fec_s2_qpsk_1_2 1/2 S2_Q
-extra.fec_s2_qpsk_2_3 2/3 S2_Q
-extra.fec_s2_qpsk_3_4 3/4 S2_Q
-extra.fec_s2_qpsk_3_5 3/5 S2_Q
-extra.fec_s2_qpsk_4_5 4/5 S2_Q
-extra.fec_s2_qpsk_5_6 5/6 S2_Q
-extra.fec_s2_qpsk_7_8 7/8 S2_Q
-extra.fec_s2_qpsk_8_9 8/9 S2_Q
-extra.fec_s2_qpsk_9_10 9/10 S2_Q
+extra.fec_s2_8psk_1_2 1/2 S2_8PSK
+extra.fec_s2_8psk_2_3 2/3 S2_8PSK
+extra.fec_s2_8psk_3_4 3/4 S2_8PSK
+extra.fec_s2_8psk_3_5 3/5 S2_8PSK
+extra.fec_s2_8psk_4_5 4/5 S2_8PSK
+extra.fec_s2_8psk_5_6 5/6 S2_8PSK
+extra.fec_s2_8psk_7_8 7/8 S2_8PSK
+extra.fec_s2_8psk_8_9 8/9 S2_8PSK
+extra.fec_s2_8psk_9_10 9/10 S2_8PSK
+extra.fec_s2_qpsk_1_2 1/2 S2_QPSK
+extra.fec_s2_qpsk_2_3 2/3 S2_QPSK
+extra.fec_s2_qpsk_3_4 3/4 S2_QPSK
+extra.fec_s2_qpsk_3_5 3/5 S2_QPSK
+extra.fec_s2_qpsk_4_5 4/5 S2_QPSK
+extra.fec_s2_qpsk_5_6 5/6 S2_QPSK
+extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
+extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
+extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
 extra.hw_sect Hardware Sektionen
 extra.key_click Tastendruck
 extra.key_list_end Listenende
@@ -608,6 +608,7 @@ keybindingmenu.lastchannel Letzter Kanal
 keybindingmenu.modechange Moduswechsel
 keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
+keybindingmenu.poweroff Umschalter
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.RC Fernbedienung
 keybindingmenu.repeatblock Wiederholungsverzögerung
