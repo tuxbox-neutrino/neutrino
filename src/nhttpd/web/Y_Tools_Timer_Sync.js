@@ -1,6 +1,6 @@
 function wiki_url(_page)
 {
-	return "<a href=\"http://wiki.dbox2-tuning.net/"+_page+"\"' target=\"_blank\"><b>[Help]<\/b><\/a>"
+	return "<a href=\"http://wiki.dbox2-tuning.net/"+_page+"\"' target=\"_blank\"><b>[Help]<\/b><\/a>";
 }
 /*timer_list*/
 var timer_body;
@@ -152,7 +152,7 @@ function processReqChange()
 					var Ausdruck = /Ende (.*):(.*) Uhr.*$/;
 					Ausdruck.exec(description);
 					stTime = RegExp.$1+":"+RegExp.$2;
-					timer_list_addRow(timer_body, i, alDate, alTime, stDate, stTime, sender, progName, "Klack")
+					timer_list_addRow(timer_body, i, alDate, alTime, stDate, stTime, sender, progName, "Klack");
 					if(document.f.debug.checked == true)
 						sLog_addRow(sLog_body, "green", "- Timer "+i+": "+alDate+" "+alTime+" "+sender+" "+progName, "analyzed");
 				}

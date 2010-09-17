@@ -151,7 +151,7 @@ function do_set_updates2(){
 	var extfile=ext.build_extension_file();
 	document.f.extentions.value=extfile;
 	show_waitbox(false);
-	alert("Update finished. Menue reload.")
+	alert("Update finished. Menue reload.");
 	do_submit();
 }
 var avaiable=0;
@@ -214,7 +214,7 @@ function do_uninstall2(tag){
 	var extfile=ext.build_extension_file();
 	document.f.extentions.value=extfile;
 	show_waitbox(false);
-	alert("Update finished. Menue reload.")
+	alert("Update finished. Menue reload.");
 	do_submit();
 }
 function uninstall_build_list(){
@@ -230,7 +230,7 @@ function uninstall_build_list2(){
 
 	/*build_list*/
 	i=0;
-	ext.installed_extensions.sortBy(function(e){return e.get('tag')}).each(function(e){
+	ext.installed_extensions.sortBy(function(e){return e.get('tag');}).each(function(e){
 		res=loadSyncURL("/y/cgi?execute=if-file-exists:/var/tuxbox/config/ext/"+e.get('tag')+"_uninstall.inc~1~0");
 		uninstall_list_addRow(update_body,++i,e,res=="1");
 	});

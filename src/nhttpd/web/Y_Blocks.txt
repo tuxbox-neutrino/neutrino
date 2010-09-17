@@ -383,12 +383,12 @@ start-block~frame_main
 	<frameset rows="60,*" frameborder="0" framespacing="0">
 	<frame name="prim_menu" src="Y_Menue.yhtm" scrolling="no"  marginwidth="0" marginheight="0" frameborder="0" noresize="noresize" />
 	<frame name="base" src="Y_Dyn_Pages.yhtm?page=frame_boxcontrol"  marginwidth="0" marginheight="0" frameborder="0" style="height:100%"; />
-	<noframes>
-		<body>
-		<p>Your Browser does not support Frames.</p>
-		</body>
-	</noframes>
 </frameset>
+<noframes>
+	<body>
+	<p>Your Browser does not support Frames.</p>
+	</body>
+</noframes>
 </html>
 =}
 
@@ -410,12 +410,12 @@ start-block~frame_secondary
 <frameset cols="157,*" frameborder="0" framespacing="0">
 	<frame name="sec_menu" src="{=var-get:sec_menu=}" scrolling="no" noresize="noresize" frameborder="0" />
 	<frame name="work" src="{=var-get:work=}" scrolling="auto" frameborder="0" />
-	<noframes>
-		<body>
-		<p>Your Browser does not support Frames.</p>
-		</body>
-	</noframes>
 </frameset>
+<noframes>
+	<body>
+	<p>Your Browser does not support Frames.</p>
+	</body>
+</noframes>
 </html>
 end-block~frame_secondary
 
@@ -481,12 +481,12 @@ start-block~frame_live_epg
 <frameset rows="100,*" frameborder="0" framespacing="0">
 	<frame name="epg_info" src="Y_Live_EPG_Info.yhtm" scrolling="auto" frameborder="0" />
 	<frame name="epg_list" src="Y_Live_EPG.yhtm?channel={=channel=}&logoid={=logoid=}" scrolling="auto" frameborder="0" style="height:100%" />
-	<noframes>
-		<body>
-		<p>Your Browser does not support Frames.</p>
-		</body>
-	</noframes>
 </frameset>
+<noframes>
+	<body>
+	<p>Your Browser does not support Frames.</p>
+	</body>
+</noframes>
 </html>
 end-block~frame_live_epg
 

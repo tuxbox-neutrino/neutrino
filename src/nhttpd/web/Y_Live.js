@@ -208,7 +208,7 @@ function do_play_state(_state, _options){
 function do_play_or_pause(){
 	if(V2.is_playing()) {
 		change_button_img('PlayOrPause',"play");
-		V2.pause()
+		V2.pause();
 		set_controls("stop");
 	} else {
 		change_button_img('PlayOrPause',"pause");
@@ -265,7 +265,7 @@ function build_subchannels(){
 			var sc=split_one(list[i], " ");
 			optlist+="<option value=\""+sc[0]+"\">"+sc[1]+"</option>\n";
 		}
-		optlist="<select id='subs' class='y_live_channels'>"+optlist+"</select>" 
+		optlist="<select id='subs' class='y_live_channels'>"+optlist+"</select>";
 		id('subs_div').innerHTML = optlist;
 		display_obj("subsRow", true);
 		isSubs=true;

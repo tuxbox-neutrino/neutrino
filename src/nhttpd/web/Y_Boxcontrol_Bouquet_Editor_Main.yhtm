@@ -120,8 +120,8 @@ function do_rename(){
 	<div class="work_box_body">
 		<div id="add" class="fly_form">
 			<form name="add" accept-charset="UTF-8" action="">
-				<p><b>{=L:bouquet_add=}</b><br/>
-				{=L:name_of_bouquet=}:
+				<p><b>{=L:bou.bouquet_add=}</b><br/>
+				{=L:bou.name_of_bouquet=}:
 				<input type="text" size="30" name="bouquet_name" />
 				<br/>
 				<button type="button" ytype="save" onclick="do_add()">{=L:save=}</button>
@@ -131,8 +131,8 @@ function do_rename(){
 		</div>
 		<div id="rename" class="fly_form">
 			<form name="rename" accept-charset="UTF-8" action="">
-				<p><b>{=L:rename_bouquet=}</b><br/>
-				{=L:name_of_bouquet=}:
+				<p><b>{=L:bou.rename_bouquet=}</b><br/>
+				{=L:bou.name_of_bouquet=}:
 				<input type="text" size="30" name="bouquet_name" />
 				<input type="hidden" name="bouquetnr" value="" />
 				<br/>

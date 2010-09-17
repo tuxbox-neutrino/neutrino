@@ -17,7 +17,7 @@ Object.extend(Y.yweb.prototype, {
 	baselib_version:  $H({major:'1', minor:'0', patch:'0', pre:'0'}),
 
 	initialize: function(){
-		this.ver_file_get()
+		this.ver_file_get();
 		split_version(this.ver_file_prop.get('version'),this.yweb_version);
 		split_version(Prototype.Version,this.prototype_version);
 		if(typeof(baselib_version)!="undefined")
@@ -98,7 +98,7 @@ Object.extend(Y.extension.prototype, {
 		if(this.file!=""){
 			var list = this.file.split("\n");
 			list.each(function(line){
-				var p=str_to_hash(line)
+				var p=str_to_hash(line);
 				switch(p.get('type')){
 					case "m": case "n": case "p": case "x": case "s": case "o":
 						this.installed_extensions.push(p);
@@ -131,7 +131,7 @@ Object.extend(Y.extension.prototype, {
 						this.upd_version=p.get('version');
 						break;
 				}
-			},this)
+			},this);
 		},this);
 		this.upd_extensions = this.upd_extensions.sortBy(function(e){return e.get('tag');});
 	},
