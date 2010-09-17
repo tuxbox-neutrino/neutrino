@@ -1448,6 +1448,22 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "prev";
 			case RC_nokey:
 				return "none";
+			case RC_power_on:
+				return "power on";
+			case RC_power_off:
+				return "power off";
+			case RC_standby_on:
+				return "standby on";
+			case RC_standby_off:
+				return "standby off";
+			case RC_mute_on:
+				return "mute on";
+			case RC_mute_off:
+				return "mute off";
+			case RC_analog_on:
+				return "analog on";
+			case RC_analog_off:
+				return "analog off";
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";

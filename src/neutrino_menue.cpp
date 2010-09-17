@@ -2761,6 +2761,7 @@ const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS[KEYBINDI
 
 enum keynames {
 	KEY_TV_RADIO_MODE,
+	KEY_POWER_OFF,
 	KEY_PAGE_UP,
 	KEY_PAGE_DOWN,
 	KEY_LIST_START,
@@ -2791,10 +2792,11 @@ enum keynames {
 	KEY_UNLOCK
 };
 
-#define KEYBINDS_COUNT 29
+#define KEYBINDS_COUNT 30
 const neutrino_locale_t keydescription_head[KEYBINDS_COUNT] =
 {
 	LOCALE_KEYBINDINGMENU_TVRADIOMODE,
+	LOCALE_KEYBINDINGMENU_POWEROFF,
 	LOCALE_KEYBINDINGMENU_PAGEUP,
 	LOCALE_KEYBINDINGMENU_PAGEDOWN,
 	LOCALE_EXTRA_KEY_LIST_START,
@@ -2828,6 +2830,7 @@ const neutrino_locale_t keydescription_head[KEYBINDS_COUNT] =
 const neutrino_locale_t keydescription[KEYBINDS_COUNT] =
 {
 	LOCALE_KEYBINDINGMENU_TVRADIOMODE,
+	LOCALE_KEYBINDINGMENU_POWEROFF,
 	LOCALE_KEYBINDINGMENU_PAGEUP,
 	LOCALE_KEYBINDINGMENU_PAGEDOWN,
 	LOCALE_EXTRA_KEY_LIST_START,
@@ -2882,6 +2885,7 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 	int * keyvalue_p[KEYBINDS_COUNT] =
 	{
 		&g_settings.key_tvradio_mode,
+		&g_settings.key_power_off,
 		&g_settings.key_channelList_pageup,
 		&g_settings.key_channelList_pagedown,
 		&g_settings.key_list_start,
@@ -2926,6 +2930,7 @@ void CNeutrinoApp::InitKeySettings(CMenuWidget &keySettings)
 
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_MODECHANGE));
 	bindSettings->addItem(new CMenuForwarder(keydescription[KEY_TV_RADIO_MODE], true, NULL, keychooser[KEY_TV_RADIO_MODE]));
+	bindSettings->addItem(new CMenuForwarder(keydescription[KEY_POWER_OFF], true, NULL, keychooser[KEY_POWER_OFF]));
 
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_CHANNELLIST));
 

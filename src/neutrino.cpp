@@ -1019,6 +1019,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 
 	//rc-key configuration
 	g_settings.key_tvradio_mode = configfile.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
+	g_settings.key_power_off = configfile.getInt32( "key_power_off", CRCInput::RC_standby );
 
 	g_settings.key_channelList_pageup = configfile.getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
 	g_settings.key_channelList_pagedown = configfile.getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
@@ -1544,6 +1545,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//rc-key configuration
 	configfile.setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
+	configfile.setInt32( "key_power_off", g_settings.key_power_off );
 
 	configfile.setInt32( "key_channelList_pageup", g_settings.key_channelList_pageup );
 	configfile.setInt32( "key_channelList_pagedown", g_settings.key_channelList_pagedown );
@@ -3187,7 +3189,21 @@ _repeat:
 			return messages_return::handled;
 		}
 	}
-	else if (msg == CRCInput::RC_standby) {
+	else if (msg == CRCInput::RC_standby_on) {
+		if (data == 0)
+			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
+		return messages_return::handled;
+	}
+	else if (msg == CRCInput::RC_standby_off) {
+		if (data == 0)
+			g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, 0);
+		return messages_return::handled;
+	}
+	else if (msg == CRCInput::RC_power_off) {
+		g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
+		return messages_return::handled;
+	}
+	else if (msg == (neutrino_msg_t) g_settings.key_power_off /*CRCInput::RC_standby*/) {
 		if (data == 0) {
 			neutrino_msg_t new_msg;
 
@@ -3242,6 +3258,7 @@ _repeat:
 			g_RCInput->postMsg(new_msg, 0);
 			return messages_return::cancel_all | messages_return::handled;
 		}
+		return messages_return::handled;
 #if 0
 		else  /* data == 1: KEY_POWER released                         */
 			if (standby_pressed_at.tv_sec != 0) /* check if we received a KEY_POWER pressed event before */
@@ -3264,13 +3281,6 @@ _repeat:
 		setVolume(msg, (mode != mode_scart));
 		return messages_return::handled;
 	}
-#if 0
-	else if ((msg == CRCInput::RC_left) || (msg == CRCInput::RC_right)) // FIXME temp, until new remote
-	{
-		setVolume(msg, (mode != mode_scart));
-		return messages_return::handled;
-	}
-#endif
 	else if( msg == CRCInput::RC_spkr ) {
 		if( mode == mode_standby ) {
 			//switch lcd off/on
@@ -3280,6 +3290,24 @@ _repeat:
 			//mute
 			AudioMute( !current_muted, true);
 		}
+		return messages_return::handled;
+	}
+	else if( msg == CRCInput::RC_mute_on ) {
+		AudioMute( true, true);
+		return messages_return::handled;
+	}
+	else if( msg == CRCInput::RC_mute_off ) {
+		AudioMute( false, true);
+		return messages_return::handled;
+	}
+	else if( msg == CRCInput::RC_analog_on ) {
+		g_settings.analog_out = 1;
+		audioDecoder->EnableAnalogOut(true);
+		return messages_return::handled;
+	}
+	else if( msg == CRCInput::RC_analog_off ) {
+		g_settings.analog_out = 0;
+		audioDecoder->EnableAnalogOut(false);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mode ) {
@@ -5072,6 +5100,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	if(!res) return;
 	//rc-key configuration
 	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
+	g_settings.key_power_off = tconfig.getInt32( "power_off", CRCInput::RC_standby );
 
 	g_settings.key_channelList_pageup = tconfig.getInt32( "key_channelList_pageup",  CRCInput::RC_minus );
 	g_settings.key_channelList_pagedown = tconfig.getInt32( "key_channelList_pagedown", CRCInput::RC_plus );
@@ -5116,6 +5145,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	CConfigFile tconfig(',', true);
 	//rc-key configuration
 	tconfig.setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
+	tconfig.setInt32( "key_power_off", g_settings.key_power_off );
 
 	tconfig.setInt32( "key_channelList_pageup", g_settings.key_channelList_pageup );
 	tconfig.setInt32( "key_channelList_pagedown", g_settings.key_channelList_pagedown );

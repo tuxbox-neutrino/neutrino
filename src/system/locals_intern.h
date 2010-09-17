@@ -461,6 +461,7 @@ const char *locale_real_names[] = {
 	"keybindingmenu.modechange",
 	"keybindingmenu.pagedown",
 	"keybindingmenu.pageup",
+	"keybindingmenu.poweroff",
 	"keybindingmenu.quickzap",
 	"keybindingmenu.repeatblock",
 	"keybindingmenu.repeatblockgeneric",

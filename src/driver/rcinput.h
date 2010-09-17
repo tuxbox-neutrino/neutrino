@@ -75,6 +75,15 @@
 #define KEY_BOTTOMRIGHT  0x1a5
 #endif
 
+#define KEY_POWERON	KEY_FN_F1
+#define KEY_POWEROFF	KEY_FN_F2
+#define KEY_STANDBYON	KEY_FN_F3
+#define KEY_STANDBYOFF	KEY_FN_F4
+#define KEY_MUTEON	KEY_FN_F5
+#define KEY_MUTEOFF	KEY_FN_F6
+#define KEY_ANALOGON	KEY_FN_F7
+#define KEY_ANALOGOFF	KEY_FN_F8
+
 typedef uint32_t neutrino_msg_t;
 typedef uint32_t neutrino_msg_data_t;
 
@@ -188,7 +197,16 @@ class CRCInput
 			RC_games	= KEY_GAMES,
 			RC_next		= KEY_NEXT,
 			RC_prev		= KEY_PREVIOUS,
+			RC_www		= KEY_WWW,
 
+			RC_power_on	= KEY_POWERON,
+			RC_power_off	= KEY_POWEROFF,
+			RC_standby_on	= KEY_STANDBYON,
+			RC_standby_off	= KEY_STANDBYOFF,
+			RC_mute_on	= KEY_MUTEON,
+			RC_mute_off	= KEY_MUTEOFF,
+			RC_analog_on	= KEY_ANALOGON,
+			RC_analog_off	= KEY_ANALOGOFF,
 			RC_timeout	= 0xFFFFFFFF,
 			RC_nokey	= 0xFFFFFFFE
 		};

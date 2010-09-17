@@ -274,6 +274,7 @@ struct SNeutrinoSettings
 	int key_lastchannel;
 	int key_list_start;
 	int key_list_end;
+	int key_power_off;
 	int menu_left_exit;
 	int audio_run_player;
 	int key_click;
