@@ -414,10 +414,10 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		return;
 	}
 
-	service_type = fix_service_type(service_type);
+	service_type = fix_service_type(service_type);//  add 0xd3(Sky  Germany Feeds19,2°E),0x82(BBC Feeds 28,5°E)and 0x11 (Turk TV-Provider 7°E)
 	uint8_t real_type = service_type;
 
-	if(service_type == 0x11 || service_type == 0x19)
+	if(service_type == 0x11 || service_type == 0x19 || service_type == 0xd3 || service_type == 0x82 || service_type == 0x82 || service_type == 0x11)
 		service_type = 1;
 
 	switch ( scanType ) {
@@ -505,21 +505,33 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	found_channels++;
 	eventServer->sendEvent ( CZapitClient::EVT_SCAN_NUM_CHANNELS, CEventServer::INITID_ZAPIT, &found_channels, sizeof(found_channels));
 
-	t_channel_id channel_id = CREATE_CHANNEL_ID64;
-	tallchans_iterator I = allchans.find(channel_id);
-	if (I != allchans.end()) {
+	t_channel_id channel_id;
+	tallchans_iterator I;
+	int i = 0;
+	freq_id_t freq_tmp = freq;
+	freq -= 2;
+	for(i = 0;i < 6;i++){
+		channel_id = CREATE_CHANNEL_ID64;
+		I = allchans.find(channel_id);
+		if (I != allchans.end()) {
 		//if(strcmp(serviceName.c_str(), I->second.getName().c_str()))
-		{
+			{
 //printf("[scan] ******************************* channel %s (%llx at %d) exist with name %s at %d !!\n", serviceName.c_str(), channel_id, freq, I->second.getName().c_str(), I->second.getFreqId());//FIXME
-			service_wr = 0;
+			service_wr = false;
 			I->second.setName(serviceName);
 			I->second.setServiceType(real_type);
 			I->second.scrambled = free_ca;
 			channel = &I->second;
+			break;
+			}
 		}
+		freq++;
 	}
+
 	transponder_id_t tpid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID( freq, satellitePosition, original_network_id, transport_stream_id);
 	if(service_wr) {
+		freq = freq_tmp;
+		channel_id = CREATE_CHANNEL_ID64;
 		pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
 		DBG("New channel ===== %llx:::%llx %s\n", channel_id, tpid, serviceName.c_str());
 		//if(freq == 11758 || freq == 11778) printf("New channel ===== %llx:::%llx %s\n", channel_id, tpid, serviceName.c_str()); //FIXME debug
@@ -683,10 +695,10 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 	bool service_wr = false;
 	uint8_t service_type = buffer[2];
 
-	service_type = fix_service_type(service_type);
+	service_type = fix_service_type(service_type); //  add 0xd3(Sky  Germany Feeds19,2°E),0x82(BBC Feeds 28,5°E)and 0x11 (Turk TV-Provider 7°E)
 	uint8_t real_type = service_type;
 
-	if(service_type == 0x11 || service_type == 0x19)
+	if(service_type == 0x11 || service_type == 0x19 || service_type == 0xd3 || service_type == 0x82 || service_type == 0x82 || service_type == 0x11)
 		service_type = 1;
 #if 0
         switch ( scanType ) {
