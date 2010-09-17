@@ -251,11 +251,11 @@ extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet....\n
 extra.clear_log Logdatei löschen
 extra.dboxinfo Box-Info
 extra.east Osten
-extra.fec_1_2 1/2 S1_Q
-extra.fec_2_3 2/3 S1_Q
-extra.fec_3_4 3/4 S1_Q
-extra.fec_5_6 5/6 S1_Q
-extra.fec_7_8 7/8 S1_Q
+extra.fec_1_2 1/2 S1_QPSK
+extra.fec_2_3 2/3 S1_QPSK
+extra.fec_3_4 3/4 S1_QPSK
+extra.fec_5_6 5/6 S1_QPSK
+extra.fec_7_8 7/8 S1_QPSK
 extra.fec_auto Auto DVB-S
 extra.fec_auto_s2 Auto DVB-S2
 extra.fec_s2_8psk_1_2 1/2 S2_8PSK
