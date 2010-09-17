@@ -239,8 +239,10 @@ std::string  CNeutrinoYParser::func_get_bouquets_as_templatelist(CyhookHandler *
 
 	ySplitString(para,"~",ytemplate, do_show_hidden);
 	//ytemplate += "\n"; //FIXME add newline to printf
+	int mode = NeutrinoAPI->Zapit->getMode();
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
-		if(!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true") {
+		ZapitChannelList * channels = mode == CZapitClient::MODE_RADIO ? &g_bouquetManager->Bouquets[i]->radioChannels : &g_bouquetManager->Bouquets[i]->tvChannels;
+		if(!channels->empty() && (!g_bouquetManager->Bouquets[i]->bHidden || do_show_hidden == "true")) {
 			yresult += string_printf(ytemplate.c_str(), i + 1, g_bouquetManager->Bouquets[i]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : g_bouquetManager->Bouquets[i]->Name.c_str());
 			yresult += "\r\n";
 		}
@@ -964,35 +966,38 @@ std::string  CNeutrinoYParser::func_bouquet_editor_main(CyhookHandler *hh, std::
 		selected = atoi(hh->ParamList["selected"].c_str());
 
 	int bouquetSize = (int) g_bouquetManager->Bouquets.size();
+	int mode = NeutrinoAPI->Zapit->getMode();
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
+		ZapitChannelList * channels = mode == CZapitClient::MODE_RADIO ? &g_bouquetManager->Bouquets[i]->radioChannels : &g_bouquetManager->Bouquets[i]->tvChannels;
+		if(!channels->empty()){
+			CZapitBouquet * bouquet = g_bouquetManager->Bouquets[i];
 
-		CZapitBouquet * bouquet = g_bouquetManager->Bouquets[i];
+			char classname = ((i & 1) == 0) ? 'a' : 'b';
+			classname = (selected == (int) i + 1)?'c':classname;
 
-		char classname = ((i & 1) == 0) ? 'a' : 'b';
-		classname = (selected == (int) i + 1)?'c':classname;
-
-		std::string akt = (selected == (int) (i + 1)) ? "<a name=\"akt\"></a>" : "";
-		// lock/unlock
-		std::string lock_action = (bouquet->bLocked) ? "unlock" : "lock";
-		std::string lock_img 	= (bouquet->bLocked) ? "lock" : "unlock";
-		std::string lock_alt 	= (bouquet->bLocked) ? "unlock" : "lock";
-		// hide/show
-		std::string hidden_action= (bouquet->bHidden) ? "show" : "hide";
-		std::string hidden_img 	= (bouquet->bHidden) ? "hidden" : "visible";
-		std::string hidden_alt 	= (bouquet->bHidden) ? "hide" : "show";
-		// move down
-		std::string down_show 	= (i + 1 < bouquetSize) ? "visible" : "hidden";
-		//move up
-		std::string up_show 	= (i > 0) ? "visible" : "hidden";
-		// build from template
-		yresult += string_printf(para.c_str(), classname, akt.c_str(),
-			i + 1, lock_action.c_str(), lock_img.c_str(), lock_alt.c_str(), //lock
-			i + 1, hidden_action.c_str(), hidden_img.c_str(), hidden_alt.c_str(), //hhidden
-			i + 1, bouquet->Name.c_str(), bouquet->Name.c_str(), //link
-			i + 1, bouquet->Name.c_str(), //rename
-			i + 1, bouquet->Name.c_str(), //delete
-			down_show.c_str(), i + 1, //down arrow
-			up_show.c_str(), i + 1); //up arrow
+			std::string akt = (selected == (int) (i + 1)) ? "<a name=\"akt\"></a>" : "";
+			// lock/unlock
+			std::string lock_action = (bouquet->bLocked) ? "unlock" : "lock";
+			std::string lock_img 	= (bouquet->bLocked) ? "lock" : "unlock";
+			std::string lock_alt 	= (bouquet->bLocked) ? "unlock" : "lock";
+			// hide/show
+			std::string hidden_action= (bouquet->bHidden) ? "show" : "hide";
+			std::string hidden_img 	= (bouquet->bHidden) ? "hidden" : "visible";
+			std::string hidden_alt 	= (bouquet->bHidden) ? "hide" : "show";
+			// move down
+			std::string down_show 	= (i + 1 < bouquetSize) ? "visible" : "hidden";
+			//move up
+			std::string up_show 	= (i > 0) ? "visible" : "hidden";
+			// build from template
+			yresult += string_printf(para.c_str(), classname, akt.c_str(),
+				i + 1, lock_action.c_str(), lock_img.c_str(), lock_alt.c_str(), //lock
+				i + 1, hidden_action.c_str(), hidden_img.c_str(), hidden_alt.c_str(), //hhidden
+				i + 1, bouquet->Name.c_str(), bouquet->Name.c_str(), //link
+				i + 1, bouquet->Name.c_str(), //rename
+				i + 1, bouquet->Name.c_str(), //delete
+				down_show.c_str(), i + 1, //down arrow
+				up_show.c_str(), i + 1); //up arrow
+		}
 	}
 	return yresult;
 }
