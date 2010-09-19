@@ -2840,6 +2840,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						StartSubtitles();
 				}
 			}
+			else if (msg == CRCInput::RC_games){
+					StopSubtitles();
+					int res = channelList->numericZap( msg );
+					if(res < 0)
+						StartSubtitles();
+			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
 				StopSubtitles();

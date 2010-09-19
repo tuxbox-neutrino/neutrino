@@ -1104,13 +1104,14 @@ int CChannelList::numericZap(int key)
 		}
 		return res;
 	}
-
-	if (key == g_settings.key_zaphistory) {
-		if(!autoshift && CNeutrinoApp::getInstance()->recordingstatus) {
+	if ((key == g_settings.key_zaphistory) || (key == CRCInput::RC_games)) {
+		if((!autoshift && CNeutrinoApp::getInstance()->recordingstatus) || (key == CRCInput::RC_games)) {
 			//CChannelList * orgList = bouquetList->orgChannelList;
 			CChannelList * orgList = CNeutrinoApp::getInstance()->channelList;
 			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
 			t_channel_id recid = rec_channel_id >> 16;
+			if(key == CRCInput::RC_games)
+				recid = chanlist[selected]->channel_id >> 16;
 			for ( unsigned int i = 0 ; i < orgList->chanlist.size(); i++) {
 				if((orgList->chanlist[i]->channel_id >> 16) == recid) {
 					channelList->addChannel(orgList->chanlist[i]);
