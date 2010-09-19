@@ -2154,6 +2154,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				CTimerList Timerlist;
 				Timerlist.exec(NULL, "");
 			}
+			else if (msg == CRCInput::RC_aux)
+				scartMode(true);
 			else {
 				if (msg == CRCInput::RC_home) {
 					if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
@@ -2167,7 +2169,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 		}
 		else {
 			// mode == mode_scart
-			if( msg == CRCInput::RC_home ) {
+			if (msg == CRCInput::RC_home || msg == CRCInput::RC_aux) {
 				if( mode == mode_scart ) {
 					// Scart-Mode verlassen
 					scartMode( false );
@@ -3126,13 +3128,22 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 		frameBuffer->paintBackground();
 
 		//g_Controld->setScartMode( 1 );
+#if HAVE_TRIPLEDRAGON
+		/* would this hurt on Coolstream? */
+		videoDecoder->Stop(true);
+		videoDecoder->Standby(true);
+#endif
 		CVFD::getInstance()->setMode(CVFD::MODE_SCART);
 		lastMode = mode;
 		mode = mode_scart;
 	} else {
 		// SCART AUS
 		//g_Controld->setScartMode( 0 );
-
+#if HAVE_TRIPLEDRAGON
+		/* could actually go into radioMode() and tvMode()? */
+		videoDecoder->Standby(false);
+		videoDecoder->Start();
+#endif
 		mode = mode_unknown;
 		//re-set mode
 		if( lastMode == mode_radio ) {
