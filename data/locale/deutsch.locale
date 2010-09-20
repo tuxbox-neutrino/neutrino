@@ -151,6 +151,10 @@ colorthememenu.gray Grau
 colorthememenu.head Theme auswählen
 colorthememenu.neutrino_theme Neutrino Theme
 colorthememenu.red_theme Simply Red
+cpu.freq CPU Frequenz
+cpu.freq_normal Normale Frequenz
+cpu.freq_standby Standby Frequenz
+cpu.freq_default Standard Frequenz
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dez

@@ -3200,7 +3200,7 @@ _repeat:
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_ON, 0);
 		return messages_return::handled;
 	}
-	else if (msg == CRCInput::RC_standby_off) {
+	else if ((msg == CRCInput::RC_standby_off) || (msg == CRCInput::RC_power_on)) {
 		if (data == 0)
 			g_RCInput->postMsg(NeutrinoMessages::STANDBY_OFF, 0);
 		return messages_return::handled;
