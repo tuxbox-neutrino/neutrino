@@ -93,12 +93,16 @@ function do_check(){
 	~
 		sLog_addRow(sLog_body, "green", "Programs: dboxshot is installed at: {=var-get:dboxshot=}. Remote &amp; OSD is enabled.", "ok");
 	=}
-	{=var-set:fcp={=if-file-exists:/sbin/fcp~/sbin/fcp~{=if-file-exists:/var/bin/fcp~/var/bin/fcp~{=if-file-exists:/bin/fcp~/bin/fcp~false=}=}=}=}
-	{=if-equal:{=var-get:fcp=}~false~
-		sLog_addRow(sLog_body, "red", "Programs: fcp is not installed. Image flashing is disabled. "+y_url("Help-Tools-Image"), "failed");
-	~
-		sLog_addRow(sLog_body, "green", "Programs: fcp is installed at: {=var-get:fcp=}. Image flashing is enabled.", "ok");
-	=}
+
+	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+		{=var-set:fcp={=if-file-exists:/sbin/fcp~/sbin/fcp~{=if-file-exists:/var/bin/fcp~/var/bin/fcp~{=if-file-exists:/bin/fcp~/bin/fcp~false=}=}=}=}
+		{=if-equal:{=var-get:fcp=}~false~
+			sLog_addRow(sLog_body, "red", "Programs: fcp is not installed. Image flashing is disabled. "+y_url("Help-Tools-Image"), "failed");
+		~
+			sLog_addRow(sLog_body, "green", "Programs: fcp is installed at: {=var-get:fcp=}. Image flashing is enabled.", "ok");
+		=}
+	~=}
+	
 	{=var-set:etherwake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/etherwake~/bin/etherwake~{=if-file-exists:/var/bin/etherwake~/var/bin/etherwake~=}=}=}=}
 	{=if-equal:{=var-get:etherwake=}~false~
 		sLog_addRow(sLog_body, "red", "Programs: etherwake is not installed. Wake on LAN is disabled. "+y_url("Help-Tools-Wake_on_LAN"), "failed");
