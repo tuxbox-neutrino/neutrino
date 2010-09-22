@@ -16,8 +16,25 @@
 			<td valign="top"><a href="http://www.yjogol.com" class="exlink" target="_blank">www.yjogol.com</a></td>
 			<td valign="top">
 				{=ini-get:{=var-get:vf=};version=} - {=ini-get:{=var-get:vf=};date=} - {=ini-get:{=var-get:vf=};type=}<br/><br/>
-				{=ini-get:{=var-get:vf=};info=}<br/>
+				{=ini-get:{=var-get:vf=};info=}<br/><br/><br/>
 			</td>
+		</tr>
+		<tr>
+		<td valign="top">COPYRIGHTS</td>
+		<td>
+			yWeb (this Web interface) is licensed under the terms of the Open Source GPL 2 license.<br/>
+			<a href="http://www.gnu.org/licenses/gpl.html" target="_new" class="exlink">http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</a>
+			<br/><br/>
+			yWeb uses Icons from famfamfam (<a href="http://www.famfamfam.com" target="_new" class="exlink">http://www.famfamfam.com</a>) which are
+			licensed under Creative Common Attribution License 2.5
+		</td>
+		</tr>
+		<tr>
+		<td valign="top">IMPORTANT</td>
+		<td>
+			Do not make yWeb accessible to untrusted networks!<br/>
+			Otherwise someone else can access your Box.
+		</td>
 		</tr>
 		</table>
 	</div>
