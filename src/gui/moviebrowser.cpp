@@ -3830,13 +3830,13 @@ static void save_info(CMovieInfo * cmovie, MI_MOVIE_INFO * minfo, char * dpart, 
 	reset_atime(dpart, minfo->file.Time);
 }
 
-static void find_new_part(char * npart, char * dpart)
+static void find_new_part(char * npart, char * dpart,size_t npart_len, size_t dpart_len)
 {
 	struct stat64 s;
 	int dp = 0;
-	snprintf(dpart, sizeof(dpart), "%s_%d.ts", npart, dp);
+	snprintf(dpart, dpart_len, "%s_%d.ts", npart, dp);
 	while (!stat64(dpart, &s)) {
-		snprintf(dpart, sizeof(dpart), "%s_%d.ts", npart, ++dp);
+		snprintf(dpart, npart_len, "%s_%d.ts", npart, ++dp);
 	}
 }
 
@@ -3980,7 +3980,7 @@ printf("\n");
 	char * ptr = strstr(npart, ".ts");
 	if(ptr)
 		*ptr = 0;
-	find_new_part(npart, dpart);
+	find_new_part(npart, dpart,sizeof(npart), sizeof(dpart) );
 tt = time(0);
 printf("\n********* new file %s expected size %lld, start time %s", dpart, newsize, ctime (&tt));
 	dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE, 0644);
@@ -4217,7 +4217,7 @@ printf("\ncopy: processing bookmark %d at %lld len %lld\n", i, books[i].pos, boo
 			continue;
 		}
 		if(!dst_done || !onefile) {
-			find_new_part(npart, dpart);
+			find_new_part(npart, dpart,sizeof(npart), sizeof(dpart) );
 			dstfd = open (dpart, O_CREAT|O_WRONLY|O_TRUNC| O_LARGEFILE, 0644);
 printf("copy: new file %s fd %d\n", dpart, dstfd);
 			if(dstfd < 0) {
