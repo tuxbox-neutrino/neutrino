@@ -1448,7 +1448,10 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		break;
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
+		/* hack. if standby true, dont blank video */
+		standby = true;
 		stopPlayBack(true);
+		standby = false;
 		playbackStopForced = true;
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
@@ -2001,6 +2004,7 @@ in record mode we stop onle cam1, while cam continue to decrypt recording channe
 	}
 
 	if (videoDecoder) {
+		/* hack. if standby, dont blank video -> for paused timeshift */
 		videoDecoder->Stop(standby ? false : true);
 		videoDecoder->StopVBI();
 	}
