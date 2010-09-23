@@ -825,7 +825,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
 	g_settings.infobar_show  = configfile.getInt32("infobar_show", 1);
 	g_settings.infobar_show_channellogo   = configfile.getInt32("infobar_show_channellogo"  , 3 );
-	g_settings.casystem_display = configfile.getInt32("casystem_display", 0 );
+	g_settings.casystem_display = configfile.getInt32("casystem_display", 2 );//mini ca mode default
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );                                                                                                  
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );                                                                                                                  
 	g_settings.menu_pos = configfile.getInt32("menu_pos", 0 );
