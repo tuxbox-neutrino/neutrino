@@ -139,6 +139,7 @@ class cVideo
 		bool playing;
 		bool auto_format;
 		int uFormatIndex;
+		bool vbi_started;
 
 		bool receivedDRMDelay;
 		bool receivedVideoDelay;
@@ -221,6 +222,10 @@ class cVideo
 		void SetVideoMode(analog_mode_t mode);
 		void SetDBDR(int dbdr);
 		void SetAutoModes(int modes[VIDEO_STD_MAX]);
+		int  OpenVBI(int num);
+		int  CloseVBI(void);
+		int  StartVBI(unsigned short pid);
+		int  StopVBI(void);
 };
 
 #endif

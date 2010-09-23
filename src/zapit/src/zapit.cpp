@@ -332,6 +332,9 @@ CZapitClient::responseGetLastChannel load_settings(void)
 static int camask = 1; // demux 0
 void start_camd(bool forupdate = false)
 {
+	if(!channel)
+		return;
+
 	if(currentMode & RECORD_MODE) {
 		if(rec_channel_id != live_channel_id) {
 			/* zap from rec. channel */
@@ -1951,6 +1954,8 @@ int startPlayBack(CZapitChannel *thisChannel)
 		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
 		videoDemux->Start();
 	}
+	if(have_teletext)
+		videoDecoder->StartVBI(thisChannel->getTeletextPid());
 
 	playing = true;
 
@@ -1995,8 +2000,10 @@ in record mode we stop onle cam1, while cam continue to decrypt recording channe
 		audioDecoder->Stop();
 	}
 
-	if (videoDecoder)
+	if (videoDecoder) {
 		videoDecoder->Stop(standby ? false : true);
+		videoDecoder->StopVBI();
+	}
 
 	playing = false;
 
@@ -2166,6 +2173,8 @@ int zapit_main_thread(void *data)
 	audioDecoder = new cAudio(audioDemux->getBuffer(), videoDecoder->GetTVEnc(), videoDecoder->GetTVEncSD());
 	videoDecoder->SetAudioHandle(audioDecoder->GetHandle());
 
+	videoDecoder->OpenVBI(1);
+
 	ci = cDvbCi::getInstance();
 	ci->Init();
 
@@ -2252,6 +2261,8 @@ int zapit_main_thread(void *data)
 	zapit_ready = 0;
 	pthread_join (tsdt, NULL);
 	INFO("shutdown started");
+
+	videoDecoder->CloseVBI();
 
 	if (pcrDemux)
 		delete pcrDemux;

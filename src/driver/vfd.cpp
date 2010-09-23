@@ -220,7 +220,10 @@ void CVFD::showTime(bool force)
 {
 	if(!has_lcd)
 		return;
-
+	if(mode == MODE_SHUTDOWN) {
+		ShowIcon(VFD_ICON_CAM1, false);
+		return;
+	}
 	if (showclock) {
 		if (mode == MODE_STANDBY) {
 			char timestr[21];
@@ -450,6 +453,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		break;
 	case MODE_SHUTDOWN:
 		showclock = false;
+		Clear();
 		break;
 	case MODE_STANDBY:
 #if 0

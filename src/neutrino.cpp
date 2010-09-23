@@ -769,11 +769,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.video_csync = configfile.getInt32( "video_csync", 0 );
 
 	g_settings.fan_speed = configfile.getInt32( "fan_speed", 1);
-	if(g_settings.fan_speed < 1) g_settings.fan_speed = 1;//FIXME disable OFF
+	if(g_settings.fan_speed < 1) g_settings.fan_speed = 1;
 
 	g_settings.srs_enable = configfile.getInt32( "srs_enable", 0);
 	g_settings.srs_algo = configfile.getInt32( "srs_algo", 1);
-	g_settings.srs_ref_volume = configfile.getInt32( "srs_ref_volume", 40);//FIXME
+	g_settings.srs_ref_volume = configfile.getInt32( "srs_ref_volume", 40);
 	g_settings.srs_nmgr_enable = configfile.getInt32( "srs_nmgr_enable", 0);
 	g_settings.hdmi_dd = configfile.getInt32( "hdmi_dd", 0);
 	g_settings.spdif_dd = configfile.getInt32( "spdif_dd", 1);
@@ -870,7 +870,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//widget settings
 	g_settings.widget_fade = false;
-	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );//FIXME not work yet
+	g_settings.widget_fade           = configfile.getBool("widget_fade"          , false );
 
 	//colors (neutrino defaultcolors)
 	g_settings.menu_Head_alpha = configfile.getInt32( "menu_Head_alpha", 0x00 );
@@ -3776,6 +3776,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		if(retcode) {
 			printf("entering off state\n");
 			mode = mode_off;
+			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
 			stop_daemons(true);
 
@@ -3877,7 +3878,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			int fspeed = 0;
 			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
-			CVFD::getInstance()->ShowText((char *) "Rebooting...");
+			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 
 			delete frameBuffer;
 			stop_daemons();
