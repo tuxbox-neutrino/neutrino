@@ -969,7 +969,7 @@ std::string  CNeutrinoYParser::func_bouquet_editor_main(CyhookHandler *hh, std::
 	int mode = NeutrinoAPI->Zapit->getMode();
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
 		ZapitChannelList * channels = mode == CZapitClient::MODE_RADIO ? &g_bouquetManager->Bouquets[i]->radioChannels : &g_bouquetManager->Bouquets[i]->tvChannels;
-		if(!channels->empty()){
+		if(!channels->empty() || g_bouquetManager->Bouquets[i]->bUser){
 			CZapitBouquet * bouquet = g_bouquetManager->Bouquets[i];
 
 			char classname = ((i & 1) == 0) ? 'a' : 'b';
