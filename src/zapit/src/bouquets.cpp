@@ -530,7 +530,6 @@ void CBouquetManager::deleteBouquet(const CZapitBouquet* bouquet)
 		}
 	}
 }
-
 // -- Find Bouquet-Name, if BQ exists   (2002-04-02 rasc)
 // -- Return: Bouqet-ID (found: 0..n)  or -1 (Bouquet does not exist)
 int CBouquetManager::existsBouquet(char const * const name)
@@ -538,9 +537,38 @@ int CBouquetManager::existsBouquet(char const * const name)
 	unsigned int i;
 
 	for (i = 0; i < Bouquets.size(); i++) {
-		//if (strncasecmp(Bouquets[i]->Name.c_str(), name,Bouquets[i]->Name.length())==0)
 		if (Bouquets[i]->Name == name)
 			return (int)i;
+		else if (strcasecmp(Bouquets[i]->Name.c_str(), name)==0){
+			int lower1 = 0, lower2 =  0;
+			int upper1 = 0 ,upper2 = 0;
+			std::string str2 = name;
+			size_t  pos=0;
+			size_t pos2 = Bouquets[i]->Name.find("] "); 
+			if(pos != std::string::npos){
+				pos += pos2;
+			}
+
+			while (Bouquets[i]->Name[pos]){
+				if(islower(Bouquets[i]->Name[pos])){
+					++lower1;
+				}
+				if(isupper(Bouquets[i]->Name[pos])){
+					++upper1;
+				}
+				if(islower(str2[pos])){
+					++lower2;
+				}
+				if(isupper(str2[pos])){
+					++upper2;
+				}
+				pos++;  
+			}
+			if ( ( upper2 && (lower1 < lower2)) || (lower2==0 && upper1==0 && upper2==lower1) ){
+				Bouquets[i]->Name = str2;
+			}
+			return (int)i;
+		}
 	}
 	return -1;
 }
