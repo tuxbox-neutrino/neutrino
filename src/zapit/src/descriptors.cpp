@@ -384,7 +384,9 @@ void bouquet_name_descriptor(const unsigned char * const)
 uint8_t fix_service_type(uint8_t type)
 {
 	if((type == 0x9A) || (type == 0x86) || (type==0xc3)
-		|| (type==0xc5) || (type==0xc6))
+		|| (type==0xc5) || (type==0xc6)  ||
+		(type == 0x11) || (type == 0x19) || (type == 0x82) |
+		(type == 0x87) || (type == 0xd3) || (type == 0xd4) )
 			return 1;
 	return type;
 }
@@ -397,7 +399,29 @@ bool check_blacklisted_digital_plus(const t_original_network_id onid, const t_tr
 	else
 		return false;
 }
+bool check_blacklisted(std::string& providerName)
+{
+	bool in_blacklist = false;
+	const char *Cyfrowy_Polsat="Cyfrowy Polsat";
 
+	if (providerName == "CanalSat\xE9lite") {
+		providerName = "CanalSat\xC3\xA9lite";
+		in_blacklist = true;
+	} else if (providerName == "Chambre des D\xE9" "put\xE9" "es") {
+		providerName = "Chambre des D\xC3\xA9" "put\xC3\xA9" "es";
+		in_blacklist = true;
+	} else if (providerName == "SKY") {
+		providerName = "Sky"; // well the name PREMIERE itself is not a problem
+		in_blacklist = true;
+	} else if(strncasecmp(providerName.c_str(),"TVN ",4)==0) {
+		providerName = "TVN";
+		in_blacklist = true;
+	} else if(strncasecmp(providerName.c_str(),Cyfrowy_Polsat,14)==0){
+		providerName = Cyfrowy_Polsat;
+		in_blacklist = true;
+	}
+	return in_blacklist;
+}
 int parse_pat();
 int pat_get_pmt_pid (CZapitChannel * const channel);
 int parse_pmt(CZapitChannel * const channel);
@@ -414,11 +438,8 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		return;
 	}
 
-	service_type = fix_service_type(service_type);//  add 0xd3(Sky  Germany Feeds19,2°E),0x82(BBC Feeds 28,5°E)and 0x11 (Turk TV-Provider 7°E)
+	service_type = fix_service_type(service_type);
 	uint8_t real_type = service_type;
-
-	if(service_type == 0x11 || service_type == 0x19 || service_type == 0xd3 || service_type == 0x82 || service_type == 0x82 || service_type == 0x11)
-		service_type = 1;
 
 	switch ( scanType ) {
 		case CZapitClient::ST_TVRADIO:
@@ -446,44 +467,11 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	std::string providerName((const char*)&(buffer[4]), service_provider_name_length);
 	std::string serviceName;
 	std::string satelliteName = "unknown";
-
 	bool in_blacklist = false;
 
-	if (providerName == "CanalSat\xE9lite") {
-		providerName = "CanalSat\xC3\xA9lite";
+	if (check_blacklisted(providerName)) {
 		in_blacklist = true;
-	} else if (providerName == "Chambre des D\xE9" "put\xE9" "es") {
-		providerName = "Chambre des D\xC3\xA9" "put\xC3\xA9" "es";
-		in_blacklist = true;
-	} else if (providerName == "SKY") {
-		providerName = "Sky"; // well the name PREMIERE itself is not a problem
-		in_blacklist = true;
-	} else if( (strncasecmp("POLSAT",providerName.c_str(),6)==0) ||
-			(strncmp("D1",providerName.c_str(),2)==0)  || (strncmp("OTV",providerName.c_str(),3)==0)  ||
-			(providerName=="REALITY TV")  || (providerName=="PL Media")  ||
-			(providerName=="ANIMAL PL")  || (providerName=="DISCOVERY") )
-	{
-		providerName = "Polsat";
-		in_blacklist = true;
-	} else if(strncasecmp("TVN ",providerName.c_str(),4)==0) {
-		providerName = "TVN";
-		in_blacklist = true;
-	} else if (providerName == "bt" || providerName == "BT") {
-		providerName = "BT Broadcast Services";
-		in_blacklist = true;
-	} else if (strncasecmp("FT GLOBECAST",providerName.c_str(),12)==0) {
-		providerName = "GlobeCast";
-		in_blacklist = true;
-	} else if(strncasecmp("RR Sat",providerName.c_str(),6)==0) {
-		providerName = "RRSat";
-		in_blacklist = true;
-	}
-	else if (providerName == "BetaDigital")
-	{
-		in_blacklist = true;
-	}
-	else if((check_blacklisted_digital_plus(original_network_id, transport_stream_id)))
-	{
+	}else if((check_blacklisted_digital_plus(original_network_id, transport_stream_id))){
 		providerName = "Digital+";
 	        in_blacklist = true;
 	}
@@ -553,7 +541,6 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		channel = &ret.first->second;
 	}
 
-#define UNKNOWN_PROVIDER_NAME "Unknown Provider"
 
 #if 0
 	static unsigned int last_transport_stream_id=0;
@@ -567,7 +554,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		last_tpid = tpid;
 		tpchange = true;
 	}
-	if (providerName == "") {
+	if ( providerName.empty() ) {
 		unsigned char buff[1024];
 		unsigned short network_descriptors_length=0;
 		unsigned short pos=0;
@@ -607,15 +594,25 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		} else {
 			providerName=lastProviderName;
 		}
-		if (providerName == "")
-			providerName = CDVBString(UNKNOWN_PROVIDER_NAME, strlen(UNKNOWN_PROVIDER_NAME)).getContent();
 	}
 
-	//if (lastProviderName != providerName)
-	{
-		lastProviderName = providerName;
-		eventServer->sendEvent(CZapitClient::EVT_SCAN_PROVIDER, CEventServer::INITID_ZAPIT, (void *) lastProviderName.c_str(), lastProviderName.length() + 1);
+	// remove space at ende providerName
+	if(!providerName.empty()){
+		i = 1;
+		while (isspace(providerName[providerName.size()-i])){
+			i++;
+		}
+		i--;
+		if(i > 0){
+			providerName.resize(providerName.size()-i);
+		}
+	}else{
+		const char *unknown_provider_name = "Unknown Provider";
+		providerName = CDVBString(unknown_provider_name, strlen(unknown_provider_name)).getContent();
 	}
+
+	lastProviderName = providerName;
+	eventServer->sendEvent(CZapitClient::EVT_SCAN_PROVIDER, CEventServer::INITID_ZAPIT, (void *) lastProviderName.c_str(), lastProviderName.length() + 1);
 
 	switch (service_type) {
 		case ST_DIGITAL_TELEVISION_SERVICE:
@@ -695,11 +692,9 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 	bool service_wr = false;
 	uint8_t service_type = buffer[2];
 
-	service_type = fix_service_type(service_type); //  add 0xd3(Sky  Germany Feeds19,2°E),0x82(BBC Feeds 28,5°E)and 0x11 (Turk TV-Provider 7°E)
+	service_type = fix_service_type(service_type); 
 	uint8_t real_type = service_type;
 
-	if(service_type == 0x11 || service_type == 0x19 || service_type == 0xd3 || service_type == 0x82 || service_type == 0x82 || service_type == 0x11)
-		service_type = 1;
 #if 0
         switch ( scanType ) {
             case CZapitClient::ST_TVRADIO:
@@ -738,28 +733,12 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 
 	bool in_blacklist = false;
 
-	if (providerName == "CanalSat\xE9lite") {
+	if (check_blacklisted(providerName)) {
 		in_blacklist = true;
-	} else if (providerName == "Chambre des D\xE9" "put\xE9" "es") {
-		in_blacklist = true;
-	} else if (providerName == "PREMIERE") {
-		in_blacklist = true;
+	}else if((check_blacklisted_digital_plus(original_network_id, transport_stream_id))){
+		providerName = "Digital+";
+	        in_blacklist = true;
 	}
-        else if( (strncasecmp("POLSAT",providerName.c_str(),6)==0) ||
-        (strncmp("D1",providerName.c_str(),2)==0)  || (strncmp("OTV",providerName.c_str(),3)==0)  ||
-        (providerName=="REALITY TV")  || (providerName=="PL Media")  ||
-        (providerName=="ANIMAL PL")  || (providerName=="DISCOVERY") )
-        {
-                in_blacklist = true;
-        } else if(strncasecmp("TVN ",providerName.c_str(),4)==0) {
-                in_blacklist = true;
-        } else if (providerName == "bt" || providerName == "BT") {
-                in_blacklist = true;
-        } else if (strncasecmp("FT GLOBECAST",providerName.c_str(),12)==0) {
-                in_blacklist = true;
-        } else if(strncasecmp("RR Sat",providerName.c_str(),6)==0) {
-                in_blacklist = true;
-        }
 
 	if (in_blacklist) {
 		if (((unsigned char)buffer[4 + service_provider_name_length + 1]) >= 0x20) // no encoding info
