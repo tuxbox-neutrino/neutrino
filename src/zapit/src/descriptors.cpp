@@ -416,6 +416,11 @@ bool check_blacklisted(std::string& providerName)
 	} else if(strncasecmp(providerName.c_str(),"TVN ",4)==0) {
 		providerName = "TVN";
 		in_blacklist = true;
+	}else if (providerName == "BetaDigital"){
+		in_blacklist = true;
+	}else if (providerName == "Radio Maria Österreich"){
+		providerName="Radio Maria \xc3\x96sterreich";
+		in_blacklist = true;
 	} else if(strncasecmp(providerName.c_str(),Cyfrowy_Polsat,14)==0){
 		providerName = Cyfrowy_Polsat;
 		in_blacklist = true;
