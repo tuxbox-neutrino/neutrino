@@ -873,6 +873,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig"));
 	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_BACKUP,  true, NULL, this, "backup"));
 	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore"));
+	mset->addItem(new CMenuForwarder(LOCALE_RESET_ALL,   true, NULL, resetNotifier, "all"));
 
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, mset));
 

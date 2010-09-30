@@ -3603,6 +3603,11 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		}
 		return messages_return::handled;
 	}
+	else if( msg == NeutrinoMessages::REBOOT ) {
+		FILE *f = fopen("/tmp/.reboot", "w");
+		fclose(f);
+		ExitRun(true);
+	}
 	else if (msg == NeutrinoMessages::EVT_POPUP) {
 		if (mode != mode_scart)
 			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, (const char *) data); // UTF-8

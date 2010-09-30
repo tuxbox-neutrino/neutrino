@@ -936,6 +936,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	bool delete_chan = (actionKey == "channels") || delete_all;
 	bool delete_set = (actionKey == "settings") || delete_all;
 	neutrino_locale_t msg = delete_all ? LOCALE_RESET_ALL : delete_chan ? LOCALE_RESET_CHANNELS : LOCALE_RESET_SETTINGS;
+	int ret = menu_return::RETURN_REPAINT;
 
 	int result = ShowMsgUTF(msg, g_Locale->getText(LOCALE_RESET_CONFIRM), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
 	if(result != CMessageBox::mbrYes)
@@ -945,6 +946,8 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		system("rm -f /var/tuxbox/config/zapit/*.conf");
 		loadZapitSettings();
 		getZapitConfig(&zapitCfg);
+		g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
+		ret = menu_return::RETURN_EXIT_ALL;
 	}
 	if(delete_set) {
 		unlink(NEUTRINO_SETTINGS_FILE);
@@ -959,8 +962,9 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		system("rm -f /var/tuxbox/config/zapit/*.xml");
 		g_Zapit->reinitChannels();
 	}
-	return true;
+	return ret;
 }
+
 bool CLedControlNotifier::changeNotify(const neutrino_locale_t, void* /*data*/)
 {
 	CVFD::getInstance()->setled();

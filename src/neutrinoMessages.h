@@ -71,6 +71,7 @@ struct NeutrinoMessages {
 		REMIND			=	CRCInput::RC_Messages + 18,
 		LOCK_RC                 =       CRCInput::RC_Messages + 19,
 		UNLOCK_RC               =       CRCInput::RC_Messages + 20,
+		REBOOT                  =       CRCInput::RC_Messages + 21,
 
 		EVT_VOLCHANGED                           = CRCInput::RC_Events + 1,
 		EVT_MUTECHANGED                          = CRCInput::RC_Events + 2,

@@ -387,7 +387,7 @@ void init_sat(t_satellite_position position)
 int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_current)
 {
 	xmlDocPtr parser;
-	bool satcleared = 0;
+	static bool satcleared = 0;//clear only once, because menu is static
 	scnt = 0;
 	printf("[zapit] Loading services, channel size %d ..\n", sizeof(CZapitChannel));
 

@@ -1393,7 +1393,7 @@ scrambled_channel Scrambled channel
 neutrino_starting Neutrino starting...
 reset_channels Delete all channels
 reset_settings Reset settings to defaults
-reset_all Factory reset
+reset_all Factory reset and reboot
 reset_confirm Are you sure ?
 cam.settings CI Cam
 cam.empty No CAM in slot
