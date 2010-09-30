@@ -784,7 +784,7 @@ settings.pos_higher_center higher center
 settings.pos_top_left top left
 settings.pos_top_right top right
 settings.menu_pos Menu position
-shutdowntimer.announce Box will shutdown in 1 min.\nCancel Sutdown ?
+shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Shutdown time in min. (000=off)
 sleeptimerbox.hint2 The STB will shutdown after this time.
@@ -1429,4 +1429,4 @@ upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again
 upnpbrowser.scanning Scanning for UPnP servers
 wizard.welcome_head Welcome to the Setup Wizard
-wizard.welcome_text Next steps will guide you through initial installation of the device.\nDo you want to continue?\nWir gratulieren Ihnen zum Kauf Ihrer Coolstream.In den nun folgenden \nSchritten begleiten wir Sie durch die Erstinstallation des Geraetes.\nWir wuenschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nNaechster Schritt ?
+wizard.welcome_text Next steps will guide you through initial installation of the device.\nDo you want to continue?
