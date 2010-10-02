@@ -44,6 +44,7 @@ extern uint32_t  found_radio_chans;
 extern uint32_t  found_data_chans;
 extern int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool nowait = 0);
 extern t_channel_id live_channel_id;
+extern CZapitChannel *g_current_channel;
 
 int process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition);
 void process_service_list_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
@@ -219,6 +220,7 @@ int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 		return -1;
 	}
 
+	g_current_channel = 0;
 	g_bouquetManager->clearAll();
 	allchans.clear();
 
@@ -320,11 +322,11 @@ int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 						eventServer->sendEvent(CZapitClient::EVT_SCAN_SERVICENAME, CEventServer::INITID_ZAPIT, (void *) serviceName.c_str(), serviceName.length() + 1);
 						channel_id = CREATE_CHANNEL_ID64;
 
-						CZapitChannel * channel;
+						CZapitChannel * newchannel;
 
 						tallchans_iterator I = allchans.find(channel_id);
 						if (I != allchans.end()) {
-							channel = &I->second;
+							newchannel = &I->second;
 
 						} else {
 							pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
@@ -342,15 +344,15 @@ int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 											)
 										)
 									);
-							channel = &ret.first->second;
+							newchannel = &ret.first->second;
 						}
-						channel->setName(serviceName);
-						channel->setServiceType(service_type);
-						channel->setVideoPid(video_pid);
-						channel->setAudioPid(audio_pid);
-						channel->setPcrPid(pcr_pid);
-						channel->setPidsFlag();
-						channel->number = num;
+						newchannel->setName(serviceName);
+						newchannel->setServiceType(service_type);
+						newchannel->setVideoPid(video_pid);
+						newchannel->setAudioPid(audio_pid);
+						newchannel->setPcrPid(pcr_pid);
+						newchannel->setPidsFlag();
+						newchannel->number = num;
 
 						char pname[100];
 						if (frontend->getInfo()->type == FE_QPSK)
@@ -365,10 +367,10 @@ int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 						}
 						else
 							bouquet = scanBouquetManager->Bouquets[bouquetId];
-						bouquet->addService(channel);
+						bouquet->addService(newchannel);
 
-						if(channel->getServiceType() == 1)
-							live_channel_id = channel->getChannelID();
+						if(newchannel->getServiceType() == 1)
+							live_channel_id = newchannel->getChannelID();
 
 						bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						if (bouquetId == -1) {
@@ -376,7 +378,7 @@ int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 						}
 						else
 							bouquet = g_bouquetManager->Bouquets[bouquetId];
-						bouquet->addService(channel);
+						bouquet->addService(newchannel);
 					}
 					break;
 				default:

@@ -176,7 +176,7 @@ extern int zapit_ready;
 static pthread_t zapit_thread ;
 void * zapit_main_thread(void *data);
 extern t_channel_id live_channel_id; //zapit
-extern CZapitChannel *channel;
+extern CZapitChannel *g_current_channel;
 void setZapitConfig(Zapit_config * Cfg);
 void getZapitConfig(Zapit_config *Cfg);
 
@@ -3065,13 +3065,13 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			StartSubtitles();
 
 		/* update scan settings for manual scan to current channel */
-		if(channel) {
-			sat_iterator_t sit = satellitePositions.find(channel->getSatellitePosition());
+		if(g_current_channel) {
+			sat_iterator_t sit = satellitePositions.find(g_current_channel->getSatellitePosition());
 			if(sit != satellitePositions.end())
 				strncpy(get_set.satNameNoDiseqc, sit->second.name.c_str(), 50);
 
 			transponder_list_t::iterator tI;
-			tI = transponders.find(channel->getTransponderId());
+			tI = transponders.find(g_current_channel->getTransponderId());
 			if(tI != transponders.end()) {
 				sprintf(get_set.TP_freq, "%d", tI->second.feparams.frequency);
 				switch (frontend->getInfo()->type) {

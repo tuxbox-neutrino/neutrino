@@ -64,7 +64,7 @@ extern "C" {
 }
 
 static cRecord * record = NULL;
-extern CZapitChannel *channel;
+extern CZapitChannel *g_current_channel;
 extern CCam *cam0;
 
 extern bool autoshift;
@@ -132,8 +132,8 @@ stream2file_error_msg_t start_recording(const char * const filename,
 		return STREAM2FILE_INVALID_DIRECTORY;
 	}
 
-        if(channel)
-                cam0->setCaPmt(channel->getCaPmt(), 0, 5, true); // demux 0 + 2, update
+        if(g_current_channel)
+                cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 5, true); // demux 0 + 2, update
 
 	CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
 

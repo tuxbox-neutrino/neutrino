@@ -127,7 +127,7 @@ CEventServer *eventServer = NULL;
 /* the dvb frontend device */
 CFrontend *frontend = NULL;
 /* the current channel */
-CZapitChannel *channel = NULL;
+CZapitChannel *g_current_channel = NULL;
 /* the transponder scan xml input */
 xmlDocPtr scanInputParser = NULL;
 /* the bouquet manager */
@@ -192,9 +192,9 @@ void sendConfig(int connfd);
 
 void saveZapitSettings(bool write, bool write_a)
 {
-	if (channel) {
+	if (g_current_channel) {
 		// now save the lowest channel number with the current channel_id
-		int c = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).getLowestChannelNumberWithChannelID(channel->getChannelID());
+		int c = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).getLowestChannelNumberWithChannelID(g_current_channel->getChannelID());
 //printf("LAST CHAN %d !!!!!!!!!!!\n\n\n", c);
 		if (c >= 0) {
 			if ((currentMode & RADIO_MODE))
@@ -332,26 +332,26 @@ CZapitClient::responseGetLastChannel load_settings(void)
 static int camask = 1; // demux 0
 void start_camd(bool forupdate = false)
 {
-	if(!channel)
+	if(!g_current_channel)
 		return;
 
 	if(currentMode & RECORD_MODE) {
 		if(rec_channel_id != live_channel_id) {
 			/* zap from rec. channel */
 			camask = 1;
-			cam1->setCaPmt(channel->getCaPmt(), 0, 1); // demux 0
+			cam1->setCaPmt(g_current_channel->getCaPmt(), 0, 1); // demux 0
 		} else if(forupdate) { //FIXME broken!
 			/* forupdate means pmt update  for live channel, using old camask */
-			cam0->setCaPmt(channel->getCaPmt(), 0, camask, true);// update
+			cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true);// update
 		} else {
 			/* zap back to rec. channel */
 			camask =  5; // demux 0 + 2
-			cam0->setCaPmt(channel->getCaPmt(), 0, camask, true); // update
+			cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true); // update
 			cam1->sendMessage(0,0); // stop/close
 		}
 	} else {
 		camask = 1;
-		cam0->setCaPmt(channel->getCaPmt(), 0, camask);
+		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask);
 	}
 }
 
@@ -367,14 +367,14 @@ int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool 
 DBG("[zapit] zapto channel id %llx diseqcType %d nvod %d\n", channel_id, diseqcType, in_nvod);
 
 	sig_delay = 2;
-        if (!firstzap && channel) {
+        if (!firstzap && g_current_channel) {
                 //DBG("*** Remembering apid = %d for channel = %llx\n",  channel->getAudioPid(), channel->getChannelID());
-printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel->getAudioPid(), dvbsub_getpid(), audio_mode, volume_right);
-                audio_map[channel->getChannelID()].apid = channel->getAudioPid();
-                audio_map[channel->getChannelID()].mode = audio_mode;
-                audio_map[channel->getChannelID()].volume = audioDecoder->getVolume();
-                audio_map[channel->getChannelID()].subpid = dvbsub_getpid();
-		tuxtx_subtitle_running(&audio_map[channel->getChannelID()].ttxpid, &audio_map[channel->getChannelID()].ttxpage, NULL);
+printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_current_channel->getAudioPid(), dvbsub_getpid(), audio_mode, volume_right);
+                audio_map[g_current_channel->getChannelID()].apid = g_current_channel->getAudioPid();
+                audio_map[g_current_channel->getChannelID()].mode = audio_mode;
+                audio_map[g_current_channel->getChannelID()].volume = audioDecoder->getVolume();
+                audio_map[g_current_channel->getChannelID()].subpid = dvbsub_getpid();
+		tuxtx_subtitle_running(&audio_map[g_current_channel->getChannelID()].ttxpid, &audio_map[g_current_channel->getChannelID()].ttxpage, NULL);
         }
 
 	if (in_nvod) {
@@ -416,19 +416,19 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 	ci->SendPMT((unsigned char*) "", 0);
 
 	/* store the new channel */
-	if ((!channel) || (channel_id != channel->getChannelID()))
-		channel = &(cit->second);
+	if ((!g_current_channel) || (channel_id != g_current_channel->getChannelID()))
+		g_current_channel = &(cit->second);
 
-	live_channel_id = channel->getChannelID();
+	live_channel_id = g_current_channel->getChannelID();
 	saveZapitSettings(false, false);
 
-	printf("[zapit] zap to %s(%llx)\n", channel->getName().c_str(), live_channel_id);
+	printf("[zapit] zap to %s(%llx)\n", g_current_channel->getName().c_str(), live_channel_id);
 
         /* have motor move satellite dish to satellite's position if necessary */
 	if (!(currentMode & RECORD_MODE)) {
-		transponder_change = frontend->setInput(channel, current_is_nvod);
+		transponder_change = frontend->setInput(g_current_channel, current_is_nvod);
 		if(transponder_change && !current_is_nvod) {
-			waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
+			waitForMotor = frontend->driveToSatellitePosition(g_current_channel->getSatellitePosition());
 			if(waitForMotor > 0) {
 				printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
 				eventServer->sendEvent(CZapitClient::EVT_ZAP_MOTOR, CEventServer::INITID_ZAPIT, &waitForMotor, sizeof(waitForMotor));
@@ -444,13 +444,13 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 
 		/* if channel's transponder does not match frontend's tuned transponder ... */
 		if (transponder_change || current_is_nvod) {
-			if (frontend->tuneChannel(channel, current_is_nvod) == false) {
+			if (frontend->tuneChannel(g_current_channel, current_is_nvod) == false) {
 				return -1;
 			}
 		}
 	}
 
-	if (channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
+	if (g_current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
 		current_is_nvod = true;
 		//saveZapitSettings(false);
 		return 0;
@@ -460,39 +460,39 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 	//bool we_playing = channel->getPidsFlag();
 
 	if (we_playing) {
-		printf("[zapit] channel have pids: vpid %X apid %X pcr %X\n", channel->getVideoPid(), channel->getPreAudioPid(), channel->getPcrPid());fflush(stdout);
-		if((channel->getAudioChannelCount() <= 0) && channel->getPreAudioPid() > 0) {
+		printf("[zapit] channel have pids: vpid %X apid %X pcr %X\n", g_current_channel->getVideoPid(), g_current_channel->getPreAudioPid(), g_current_channel->getPcrPid());fflush(stdout);
+		if((g_current_channel->getAudioChannelCount() <= 0) && g_current_channel->getPreAudioPid() > 0) {
 			std::string desc = "Preset";
-			channel->addAudioChannel(channel->getPreAudioPid(), CZapitAudioChannel::MPEG, desc, 0xFF);
+			g_current_channel->addAudioChannel(g_current_channel->getPreAudioPid(), CZapitAudioChannel::MPEG, desc, 0xFF);
 		}
-		startPlayBack(channel);
+		startPlayBack(g_current_channel);
 	}
 
-	DBG("looking up pids for channel_id " PRINTF_CHANNEL_ID_TYPE "\n", channel->getChannelID());
+	DBG("looking up pids for channel_id " PRINTF_CHANNEL_ID_TYPE "\n", g_current_channel->getChannelID());
 
 	/* get program map table pid from program association table */
-	if (channel->getPmtPid() == 0) {
+	if (g_current_channel->getPmtPid() == 0) {
 		printf("[zapit] no pmt pid, going to parse pat\n");
-		if (parse_pat(channel) < 0) {
+		if (parse_pat(g_current_channel) < 0) {
 			printf("[zapit] pat parsing failed\n");
 			failed = true;
 		}
 	}
 
 	/* parse program map table and store pids */
-	if ((!failed) && (parse_pmt(channel) < 0)) {
+	if ((!failed) && (parse_pmt(g_current_channel) < 0)) {
 		printf("[zapit] pmt parsing failed\n");
-		if (parse_pat(channel) < 0) {
+		if (parse_pat(g_current_channel) < 0) {
 			printf("pat parsing failed\n");
 			failed = true;
 		}
-		else if (parse_pmt(channel) < 0) {
+		else if (parse_pmt(g_current_channel) < 0) {
 			printf("[zapit] pmt parsing failed\n");
 			failed = true;
 		}
 	}
 
-	if ((!failed) && (channel->getAudioPid() == 0) && (channel->getVideoPid() == 0)) {
+	if ((!failed) && (g_current_channel->getAudioPid() == 0) && (g_current_channel->getVideoPid() == 0)) {
 		printf("[zapit] neither audio nor video pid found\n");
 		failed = true;
 	}
@@ -501,21 +501,21 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 
 	if (transponder_change == true) {
 		sdt_wakeup = 1;
-		channel->getCaPmt()->ca_pmt_list_management = 0x03;
+		g_current_channel->getCaPmt()->ca_pmt_list_management = 0x03;
 	} else {
-		channel->getCaPmt()->ca_pmt_list_management = 0x04;
+		g_current_channel->getCaPmt()->ca_pmt_list_management = 0x04;
 	}
 
         audio_map_it = audio_map.find(live_channel_id);
         if((audio_map_it != audio_map.end()) ) {
 		printf("[zapit] channel found, audio pid %x, subtitle pid %x mode %d volume %d\n",
 			audio_map_it->second.apid, audio_map_it->second.subpid, audio_map_it->second.mode, audio_map_it->second.volume);
-                if(channel->getAudioChannelCount() > 1) {
-                        for (int i = 0; i < channel->getAudioChannelCount(); i++) {
-                          if (channel->getAudioChannel(i)->pid == audio_map_it->second.apid ) {
+                if(g_current_channel->getAudioChannelCount() > 1) {
+                        for (int i = 0; i < g_current_channel->getAudioChannelCount(); i++) {
+                          if (g_current_channel->getAudioChannel(i)->pid == audio_map_it->second.apid ) {
                             DBG("***** Setting audio!\n");
-                            channel->setAudioChannel(i);
-                            if(we_playing && (channel->getAudioChannel(i)->audioChannelType != CZapitAudioChannel::MPEG)) change_audio_pid(i);
+                            g_current_channel->setAudioChannel(i);
+                            if(we_playing && (g_current_channel->getAudioChannel(i)->audioChannelType != CZapitAudioChannel::MPEG)) change_audio_pid(i);
                           }
                         }
                 }
@@ -534,21 +534,21 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 		dvbsub_setpid(audio_map_it->second.subpid);
 
 		std::string tmplang;
-		for (int i = 0 ; i < (int)channel->getSubtitleCount() ; ++i) {
-			CZapitAbsSub* s = channel->getChannelSub(i);
+		for (int i = 0 ; i < (int)g_current_channel->getSubtitleCount() ; ++i) {
+			CZapitAbsSub* s = g_current_channel->getChannelSub(i);
 			if(s->pId == audio_map_it->second.ttxpid) {
 				tmplang = s->ISO639_language_code;
 				break;
 			}
 		}
 		if(tmplang.empty())
-			tuxtx_set_pid(audio_map_it->second.ttxpid, audio_map_it->second.ttxpage, (char *) channel->getTeletextLang());
+			tuxtx_set_pid(audio_map_it->second.ttxpid, audio_map_it->second.ttxpage, (char *) g_current_channel->getTeletextLang());
 		else
 			tuxtx_set_pid(audio_map_it->second.ttxpid, audio_map_it->second.ttxpage, (char *) tmplang.c_str());
         } else {
                 volume_left = volume_right = def_volume_left;
                 audio_mode = def_audio_mode;
-		tuxtx_set_pid(0, 0, (char *) channel->getTeletextLang());
+		tuxtx_set_pid(0, 0, (char *) g_current_channel->getTeletextLang());
         }
         if(audioDecoder) {
                 //audioDecoder->setVolume(volume_left, volume_right);
@@ -556,7 +556,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
         }
 
 	if (!we_playing)
-		startPlayBack(channel);
+		startPlayBack(g_current_channel);
 
 	printf("[zapit] sending capmt....\n");
 
@@ -574,32 +574,32 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", channel
 		if(rec_channel_id != live_channel_id) {
 			/* zap from rec. channel */
 			camask = 1;
-			cam1->setCaPmt(channel->getCaPmt(), 0, 1); // demux 0
+			cam1->setCaPmt(g_current_channel->getCaPmt(), 0, 1); // demux 0
                 } else if(forupdate) { //FIXME broken!
 			/* forupdate means pmt update  for live channel, using old camask */
-                        cam0->setCaPmt(channel->getCaPmt(), 0, camask, true);// update
+                        cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true);// update
 		} else {
 			/* zap back to rec. channel */
 			camask =  5; // demux 0 + 2
-			cam0->setCaPmt(channel->getCaPmt(), 0, camask, true); // update
+			cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true); // update
 			cam1->sendMessage(0,0); // stop/close
 		}
 	} else {
 		camask = 1;
-		cam0->setCaPmt(channel->getCaPmt(), 0, camask);
+		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask);
 	}
 #endif
 //play:
 	send_ca_id(1);
         if (update_pmt)
-                pmt_set_update_filter(channel, &pmt_update_fd);
+                pmt_set_update_filter(g_current_channel, &pmt_update_fd);
 
 	return 0;
 }
 
 int change_audio_pid(uint8_t index)
 {
-	if ((!audioDemux) || (!audioDecoder) || (!channel))
+	if ((!audioDemux) || (!audioDecoder) || (!g_current_channel))
 		return -1;
 
 	/* stop demux filter */
@@ -611,10 +611,10 @@ int change_audio_pid(uint8_t index)
 		return -1;
 
 	/* update current channel */
-	channel->setAudioChannel(index);
+	g_current_channel->setAudioChannel(index);
 
 	/* set bypass mode */
-	CZapitAudioChannel *currentAudioChannel = channel->getAudioChannel();
+	CZapitAudioChannel *currentAudioChannel = g_current_channel->getAudioChannel();
 
 	if (!currentAudioChannel) {
 		WARN("No current audio channel");
@@ -642,9 +642,9 @@ int change_audio_pid(uint8_t index)
 			break;
 	}
 
-	printf("[zapit] change apid to 0x%x\n", channel->getAudioPid());
+	printf("[zapit] change apid to 0x%x\n", g_current_channel->getAudioPid());
 	/* set demux filter */
-	if (audioDemux->pesFilter(channel->getAudioPid()) < 0)
+	if (audioDemux->pesFilter(g_current_channel->getAudioPid()) < 0)
 		return -1;
 
 	/* start demux filter */
@@ -690,8 +690,8 @@ void setRecordMode(void)
 	if(event_mode) eventServer->sendEvent(CZapitClient::EVT_RECORDMODE_ACTIVATED, CEventServer::INITID_ZAPIT );
 	rec_channel_id = live_channel_id;
 #if 0
-	if(channel)
-		cam0->setCaPmt(channel->getCaPmt(), 0, 5, true); // demux 0 + 2, update
+	if(g_current_channel)
+		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 5, true); // demux 0 + 2, update
 #endif
 }
 
@@ -708,17 +708,17 @@ void unsetRecordMode(void)
 	if(standby)
 		cam0->sendMessage(0,0); // stop
 	else if(live_channel_id == rec_channel_id) {
-		cam0->setCaPmt(channel->getCaPmt(), 0, 1, true); // demux 0, update
+		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 1, true); // demux 0, update
 	} else {
 		cam1->sendMessage(0,0); // stop
-		cam0->setCaPmt(channel->getCaPmt(), 0, 1); // start
+		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 1); // start
 	}
 	rec_channel_id = 0;
 }
 
 int prepare_channels(fe_type_t frontendType, diseqc_t pdiseqcType)
 {
-	channel = 0;
+	g_current_channel = 0;
 	transponders.clear();
 	g_bouquetManager->clearAll();
 	allchans.clear();  // <- this invalidates all bouquets, too!
@@ -857,7 +857,7 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	}
 
 	case CZapitMessages::CMD_GET_CURRENT_SATELLITE_POSITION: {
-		int32_t currentSatellitePosition = channel ? channel->getSatellitePosition() : frontend->getCurrentSatellitePosition();
+		int32_t currentSatellitePosition = g_current_channel ? g_current_channel->getSatellitePosition() : frontend->getCurrentSatellitePosition();
 		CBasicServer::send_data(connfd, &currentSatellitePosition, sizeof(currentSatellitePosition));
 		break;
 	}
@@ -888,7 +888,7 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_CURRENT_SERVICEID: {
 		CZapitMessages::responseGetCurrentServiceID msgCurrentSID;
-		msgCurrentSID.channel_id = (channel != 0) ? channel->getChannelID() : 0;
+		msgCurrentSID.channel_id = (g_current_channel != 0) ? g_current_channel->getChannelID() : 0;
 		CBasicServer::send_data(connfd, &msgCurrentSID, sizeof(msgCurrentSID));
 		break;
 	}
@@ -896,20 +896,20 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_GET_CURRENT_SERVICEINFO: {
 		CZapitClient::CCurrentServiceInfo msgCurrentServiceInfo;
 		memset(&msgCurrentServiceInfo, 0, sizeof(CZapitClient::CCurrentServiceInfo));
-		if(channel) {
-			msgCurrentServiceInfo.onid = channel->getOriginalNetworkId();
-			msgCurrentServiceInfo.sid = channel->getServiceId();
-			msgCurrentServiceInfo.tsid = channel->getTransportStreamId();
-			msgCurrentServiceInfo.vpid = channel->getVideoPid();
-			msgCurrentServiceInfo.apid = channel->getAudioPid();
-			msgCurrentServiceInfo.vtxtpid = channel->getTeletextPid();
-			msgCurrentServiceInfo.pmtpid = channel->getPmtPid();
-			msgCurrentServiceInfo.pcrpid = channel->getPcrPid();
+		if(g_current_channel) {
+			msgCurrentServiceInfo.onid = g_current_channel->getOriginalNetworkId();
+			msgCurrentServiceInfo.sid = g_current_channel->getServiceId();
+			msgCurrentServiceInfo.tsid = g_current_channel->getTransportStreamId();
+			msgCurrentServiceInfo.vpid = g_current_channel->getVideoPid();
+			msgCurrentServiceInfo.apid = g_current_channel->getAudioPid();
+			msgCurrentServiceInfo.vtxtpid = g_current_channel->getTeletextPid();
+			msgCurrentServiceInfo.pmtpid = g_current_channel->getPmtPid();
+			msgCurrentServiceInfo.pcrpid = g_current_channel->getPcrPid();
 			msgCurrentServiceInfo.tsfrequency = frontend->getFrequency();
 			msgCurrentServiceInfo.rate = frontend->getRate();
 			msgCurrentServiceInfo.fec = frontend->getCFEC();
-			msgCurrentServiceInfo.vtype = channel->type;
-			//msgCurrentServiceInfo.diseqc = channel->getDiSEqC();
+			msgCurrentServiceInfo.vtype = g_current_channel->type;
+			//msgCurrentServiceInfo.diseqc = g_current_channel->getDiSEqC();
 		}
 		if(!msgCurrentServiceInfo.fec)
 			msgCurrentServiceInfo.fec = (fe_code_rate)3;
@@ -974,8 +974,8 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
                 CZapitMessages::responseGetChannelName _response;
                 CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
 		if(requested_channel_id == 0) {
-			if(channel) {
-				strncpy(_response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE);
+			if(g_current_channel) {
+				strncpy(_response.name, g_current_channel->getName().c_str(), CHANNEL_NAME_SIZE);
 				_response.name[CHANNEL_NAME_SIZE-1] = 0;
 			} else
 				_response.name[0] = 0;
@@ -1028,13 +1028,13 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_REINIT_CHANNELS: {
 		// Houdini: save actual channel to restore it later, old version's channel was set to scans.conf initial channel
-  		t_channel_id cid= channel ? channel->getChannelID() : 0;
+  		t_channel_id cid= g_current_channel ? g_current_channel->getChannelID() : 0;
 
    		prepare_channels(frontend->getInfo()->type, diseqcType);
 
  		tallchans_iterator cit = allchans.find(cid);
   		if (cit != allchans.end())
-  			channel = &(cit->second);
+  			g_current_channel = &(cit->second);
 
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
@@ -1084,8 +1084,8 @@ DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
 			break;
 		if(rezapTimeout > 0)
 			sleep(rezapTimeout);
-		if(channel)
-			zapit(channel->getChannelID(), current_is_nvod);
+		if(g_current_channel)
+			zapit(g_current_channel->getChannelID(), current_is_nvod);
 		break;
         case CZapitMessages::CMD_TUNE_TP: {
 			CBasicServer::receive_data(connfd, &TP, sizeof(TP));
@@ -1118,8 +1118,8 @@ DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
 #if 0
 printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
 #endif
-		if(!(TP.feparams.frequency > 0) && channel) {
-			transponder_list_t::iterator transponder = transponders.find(channel->getTransponderId());
+		if(!(TP.feparams.frequency > 0) && g_current_channel) {
+			transponder_list_t::iterator transponder = transponders.find(g_current_channel->getTransponderId());
 			TP.feparams.frequency = transponder->second.feparams.frequency;
 			switch (frontend->getInfo()->type) {
 			case FE_QPSK:
@@ -1143,12 +1143,12 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 #if 0
 			std::map<string, t_satellite_position>::iterator spos_it;
 			for (spos_it = satellitePositions.begin(); spos_it != satellitePositions.end(); spos_it++)
-				if(spos_it->second == channel->getSatellitePosition())
+				if(spos_it->second == g_current_channel->getSatellitePosition())
 					scanProviders[transponder->second.DiSEqC] = spos_it->first.c_str();
 #endif
 			//FIXME not ready
-			//if(satellitePositions.find(channel->getSatellitePosition()) != satellitePositions.end())
-			channel = 0;
+			//if(satellitePositions.find(g_current_channel->getSatellitePosition()) != satellitePositions.end())
+			g_current_channel = 0;
 		}
 		stopPlayBack(true);
         	pmt_stop_update_filter(&pmt_update_fd);
@@ -1361,7 +1361,7 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		}
 		if(!status) {
 			allchans.erase(msgRemoveChannelFromBouquet.channel_id);
-			channel = 0;
+			g_current_channel = 0;
 			g_list_changed = 1;
 		}
 #endif
@@ -1438,7 +1438,7 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 
 	case CZapitMessages::CMD_SB_START_PLAYBACK:
 		//playbackStopForced = false;
-		startPlayBack(channel);
+		startPlayBack(g_current_channel);
 		break;
 
 	case CZapitMessages::CMD_SB_STOP_PLAYBACK:
@@ -1458,7 +1458,7 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		break;
 	case CZapitMessages::CMD_SB_UNLOCK_PLAYBACK:
 		playbackStopForced = false;
-		startPlayBack(channel);
+		startPlayBack(g_current_channel);
 		start_camd();
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
@@ -1524,15 +1524,15 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 #endif
 
 	case CZapitMessages::CMD_GETPIDS: {
-		if (channel) {
+		if (g_current_channel) {
 			CZapitClient::responseGetOtherPIDs responseGetOtherPIDs;
-			responseGetOtherPIDs.vpid = channel->getVideoPid();
+			responseGetOtherPIDs.vpid = g_current_channel->getVideoPid();
 			responseGetOtherPIDs.ecmpid = 0; // TODO: remove
-			responseGetOtherPIDs.vtxtpid = channel->getTeletextPid();
-			responseGetOtherPIDs.pmtpid = channel->getPmtPid();
-			responseGetOtherPIDs.pcrpid = channel->getPcrPid();
-			responseGetOtherPIDs.selected_apid = channel->getAudioChannelIndex();
-			responseGetOtherPIDs.privatepid = channel->getPrivatePid();
+			responseGetOtherPIDs.vtxtpid = g_current_channel->getTeletextPid();
+			responseGetOtherPIDs.pmtpid = g_current_channel->getPmtPid();
+			responseGetOtherPIDs.pcrpid = g_current_channel->getPcrPid();
+			responseGetOtherPIDs.selected_apid = g_current_channel->getAudioChannelIndex();
+			responseGetOtherPIDs.privatepid = g_current_channel->getPrivatePid();
 			CBasicServer::send_data(connfd, &responseGetOtherPIDs, sizeof(responseGetOtherPIDs));
 			sendAPIDs(connfd);
 		}
@@ -1567,7 +1567,7 @@ DBG("NVOD insert %llx\n", CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPO
 				    msgAddSubService.transport_stream_id,
 				    original_network_id,
 				    1,
-				    channel ? channel->getSatellitePosition() : 0,
+				    g_current_channel ? g_current_channel->getSatellitePosition() : 0,
 				    0
 				)
 			    )
@@ -1648,8 +1648,8 @@ DBG("NVOD insert %llx\n", CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPO
 		if(msgMotor.cmdtype > 0x20)
 		frontend->sendMotorCommand(msgMotor.cmdtype, msgMotor.address, msgMotor.cmd, msgMotor.num_parameters, msgMotor.param1, msgMotor.param2);
 		// TODO !!
-		//else if(channel)
-		//  frontend->satFind(msgMotor.cmdtype, channel);
+		//else if(g_current_channel)
+		//  frontend->satFind(msgMotor.cmdtype, g_current_channel);
 		break;
 	}
 
@@ -1696,19 +1696,19 @@ bool send_data_count(int connfd, int data_count)
 
 void sendAPIDs(int connfd)
 {
-	if (!send_data_count(connfd, channel->getAudioChannelCount()))
+	if (!send_data_count(connfd, g_current_channel->getAudioChannelCount()))
 		return;
-	for (uint32_t  i = 0; i < channel->getAudioChannelCount(); i++) {
+	for (uint32_t  i = 0; i < g_current_channel->getAudioChannelCount(); i++) {
 		CZapitClient::responseGetAPIDs response;
-		response.pid = channel->getAudioPid(i);
-		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), 25);
+		response.pid = g_current_channel->getAudioPid(i);
+		strncpy(response.desc, g_current_channel->getAudioChannel(i)->description.c_str(), 25);
 		response.is_ac3 = response.is_aac = 0;
-		if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
+		if (g_current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
-		} else if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
+		} else if (g_current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AAC) {
 			response.is_aac = 1;
 		}
-		response.component_tag = channel->getAudioChannel(i)->componentTag;
+		response.component_tag = g_current_channel->getAudioChannel(i)->componentTag;
 
 		if (CBasicServer::send_data(connfd, &response, sizeof(response)) == false) {
 			ERROR("could not send any return");
@@ -1865,7 +1865,7 @@ int startPlayBack(CZapitChannel *thisChannel)
 	bool have_teletext = false;
 
 	if(!thisChannel)
-		thisChannel = channel;
+		thisChannel = g_current_channel;
 	if ((playbackStopForced == true) || (!thisChannel) || playing)
 		return -1;
 
@@ -1975,7 +1975,7 @@ in record mode we stop onle cam1, while cam continue to decrypt recording channe
 			/* if we recording and rec == live, only update camask on cam0,
 			 * else stop cam1 */
 			if(live_channel_id == rec_channel_id)
-				cam0->setCaPmt(channel->getCaPmt(), 0, 4, true); // demux 2, update
+				cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 4, true); // demux 2, update
 			else
 				cam1->sendMessage(0,0);
 		} else {
@@ -2074,7 +2074,7 @@ void leaveStandby(void)
 	}
 
 	standby = false;
-	if (channel)
+	if (g_current_channel)
 		zapit(live_channel_id, current_is_nvod, false, true);
 }
 
@@ -2166,9 +2166,14 @@ int zapit_main_thread(void *data)
 
 	pcrDemux->Open(DMX_PCR_ONLY_CHANNEL, videoDemux->getBuffer());
 
-	videoDecoder = new cVideo(2, videoDemux->getChannel(), videoDemux->getBuffer());//PAL
+#if 0
+	videoDecoder = new cVideo(VIDEO_STD_PAL, videoDemux->getChannel(), videoDemux->getBuffer());//PAL
 	videoDecoder->Standby(false);
 	videoDecoder->SetVideoSystem(video_mode);
+#else
+	videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());//PAL
+	videoDecoder->Standby(false);
+#endif
 	//videoDecoder = new cVideo(video_mode, videoDemux->getChannel(), videoDemux->getBuffer());//PAL
 
 	audioDemux = new cDemux();
@@ -2215,7 +2220,7 @@ int zapit_main_thread(void *data)
 	tallchans_iterator cit;
 	cit = allchans.find(live_channel_id);
 	if(cit != allchans.end())
-		channel = &(cit->second);
+		g_current_channel = &(cit->second);
 
 	zapit_ready = 1;
 	sleep(2);
@@ -2229,14 +2234,14 @@ int zapit_main_thread(void *data)
 			int ret = pmtDemux->Read(buf, 4095, 10);
 			if (ret > 0) {
 				printf("[zapit] pmt updated, sid 0x%x new version 0x%x\n", (buf[3] << 8) + buf[4], (buf[5] >> 1) & 0x1F);
-				zapit(channel->getChannelID(), current_is_nvod, true);
+				zapit(g_current_channel->getChannelID(), current_is_nvod, true);
 			}
 		}
 
 		/* yuck, don't waste that much cpu time :) */
 		usleep(0);
 #if 0
-		if(!standby && !scan_runs &&channel) {
+		if(!standby && !scan_runs &&g_current_channel) {
 			curtime = time(0);
 			if(sig_delay && (curtime - stime) > sig_delay) {
 				stime = curtime;
@@ -2251,10 +2256,10 @@ int zapit_main_thread(void *data)
 #endif
 	}
 
-	if (channel) {
-		audio_map[channel->getChannelID()].apid = channel->getAudioPid();
-		audio_map[channel->getChannelID()].mode = audio_mode;
-		audio_map[channel->getChannelID()].volume = volume_right;
+	if (g_current_channel) {
+		audio_map[g_current_channel->getChannelID()].apid = g_current_channel->getAudioPid();
+		audio_map[g_current_channel->getChannelID()].mode = audio_mode;
+		audio_map[g_current_channel->getChannelID()].volume = volume_right;
 	}
 
 	stopPlaying();
@@ -2390,13 +2395,13 @@ printf("[zapit] sdt monitor started\n");
 		sleep(1);
 		if(sdt_wakeup) {
 			sdt_wakeup = 0;
-			if(channel) {
+			if(g_current_channel) {
 				wtime = time(0);
-				transport_stream_id = channel->getTransportStreamId();
-				original_network_id = channel->getOriginalNetworkId();
-				satellitePosition = channel->getSatellitePosition();
-				freq = channel->getFreqId();
-				tpid = channel->getTransponderId();
+				transport_stream_id = g_current_channel->getTransportStreamId();
+				original_network_id = g_current_channel->getOriginalNetworkId();
+				satellitePosition = g_current_channel->getSatellitePosition();
+				freq = g_current_channel->getFreqId();
+				tpid = g_current_channel->getTransponderId();
 			}
 		}
 		if(!scanSDT)

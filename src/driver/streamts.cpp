@@ -24,7 +24,7 @@
 #include <zapit/cam.h>
 #include <zapit/channel.h>
 
-extern CZapitChannel *channel;
+extern CZapitChannel *g_current_channel;
 extern CCam *cam0;
 
 #define TS_SIZE 188
@@ -342,8 +342,8 @@ void * streamts_live_thread(void *data)
 
 	dmx->Start();
 
-        if(channel)
-                cam0->setCaPmt(channel->getCaPmt(), 0, 3, true); // demux 0 + 1, update
+        if(g_current_channel)
+                cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 3, true); // demux 0 + 1, update
 
 	size_t pos;
 	ssize_t r;
@@ -376,8 +376,8 @@ void * streamts_live_thread(void *data)
 	}
 
 	printf("Exiting LIVE STREAM thread, fd %d\n", fd);
-        if(channel)
-		cam0->setCaPmt(channel->getCaPmt(), 0, 1, true); // demux 0, update
+        if(g_current_channel)
+		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 1, true); // demux 0, update
 
 	delete dmx;
 	free(buf);

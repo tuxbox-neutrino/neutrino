@@ -1051,7 +1051,7 @@ public:
 	int exec(CMenuTarget* parent,  const std::string &actionkey);
 };
 
-extern CZapitChannel *channel;
+extern CZapitChannel *g_current_channel;
 extern std::map<transponder_id_t, transponder> select_transponders;
 int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
@@ -1106,8 +1106,8 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		case FE_ATSC:
 			break;
 		}
-		if(!old_selected && channel && channel->getSatellitePosition() == position) {
-			if(channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first)) {
+		if(!old_selected && g_current_channel && g_current_channel->getSatellitePosition() == position) {
+			if(g_current_channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first)) {
 				old_selected = i;
 			}
 		}

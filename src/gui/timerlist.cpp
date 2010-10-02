@@ -155,20 +155,26 @@ private:
 	CMenuForwarder* m2;
 
 	int* iRepeat;
+	char * weekdays;
 public:
-	CTimerListRepeatNotifier( int* repeat, CMenuForwarder* a1, CMenuForwarder *a2)
+	CTimerListRepeatNotifier( int* repeat, CMenuForwarder* a1, CMenuForwarder *a2, char * wstr)
 	{
 		m1 = a1;
 		m2 = a2;
 		iRepeat=repeat;
+		weekdays = wstr;
 	}
 
 	bool changeNotify(const neutrino_locale_t /*OptionName*/, void *)
 	{
-		if (*iRepeat >= (int)CTimerd::TIMERREPEAT_WEEKDAYS)
+		if (*iRepeat >= (int)CTimerd::TIMERREPEAT_WEEKDAYS) {
 			m1->setActive (true);
-		else
+			strcpy(weekdays, "XXXXX--");
+		}
+		else {
 			m1->setActive (false);
+			strcpy(weekdays, "-------");
+		}
 		if (*iRepeat != (int)CTimerd::TIMERREPEAT_ONCE)
 			m2->setActive(true);
 		else
@@ -1041,7 +1047,7 @@ int CTimerList::modifyTimer()
 
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, timer->eventRepeat != (int)CTimerd::TIMERREPEAT_ONCE ,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
-	CTimerListRepeatNotifier notifier((int *)&timer->eventRepeat,m4,m5);
+	CTimerListRepeatNotifier notifier((int *)&timer->eventRepeat,m4,m5, m_weekdaysStr);
 	CMenuOptionChooser* m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timer->eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
 
 //printf("TIMER: rec dir %s len %s\n", timer->recordingDir, strlen(timer->recordingDir));
@@ -1125,8 +1131,8 @@ int CTimerList::newTimer()
 	CIntInput timerSettings_repeatCount(LOCALE_TIMERLIST_REPEATCOUNT, (int&)timerNew.repeatCount,3, LOCALE_TIMERLIST_REPEATCOUNT_HELP1, LOCALE_TIMERLIST_REPEATCOUNT_HELP2);
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_TIMERLIST_REPEATCOUNT, false,timerSettings_repeatCount.getValue() , &timerSettings_repeatCount);
 
-	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat,m4,m5);
-	strcpy(m_weekdaysStr,"-------");
+	CTimerListRepeatNotifier notifier((int *)&timerNew.eventRepeat,m4,m5, m_weekdaysStr);
+	strcpy(m_weekdaysStr,"XXXXX--");
 	CMenuOptionChooser* m3 = new CMenuOptionChooser(LOCALE_TIMERLIST_REPEAT, (int *)&timerNew.eventRepeat, TIMERLIST_REPEAT_OPTIONS, TIMERLIST_REPEAT_OPTION_COUNT, true, &notifier);
 
 
