@@ -63,7 +63,7 @@ audioplayer.playlist_name Dateiname der Playlist
 audioplayer.playlist_name_hint1 Geben Sie den Dateinamen der Playlist ein
 audioplayer.playlist_name_hint2 Die Erweiterung .m3u wird automatisch angehängt
 audioplayer.reading_files Lese die Dateien ein
-audioplayer.receiving_list Liste wird empfangen, bitte warten..
+audioplayer.receiving_list Liste wird empfangen, bitte warten...
 audioplayer.repeat_on Repeatmodus aktivieren
 audioplayer.rewind schneller Rückl.
 audioplayer.save_playlist Playlist speichern
@@ -74,13 +74,13 @@ audioplayer.shuffle Zufällig
 audioplayer.spectrum LCD Skala
 audioplayer.stop Stopp
 audioplayer.title_artist Titel, Interpret
-audioplayerpicsettings.general Audioplayer/ Bildbetrachter
+audioplayerpicsettings.general Audioplayer/Bildbetrachter
 AUDIOSelectMenue.head Auswahl der Tonspur
 bookmarkmanager.delete Löschen
 bookmarkmanager.name Bookmarks
 bookmarkmanager.rename Umbenennen
 bookmarkmanager.select Auswählen
-bouqueteditor.add Zufügen
+bouqueteditor.add Hinzufügen
 bouqueteditor.bouquetname Name des Bouquets
 bouqueteditor.delete Löschen
 bouqueteditor.delete_question Soll der Kanal aus diesem Bouquet gelöscht werden?
@@ -94,8 +94,8 @@ bouqueteditor.rename Umbenennen
 bouqueteditor.return Fertig
 bouqueteditor.savechanges? Sollen die Änderungen gespeichert werden?
 bouqueteditor.savingchanges Änderungen werden gespeichert. Bitte warten ...
-bouqueteditor.switch Kanal aufnehmen/ entfernen
-bouqueteditor.switchmode TV/ Radio
+bouqueteditor.switch Kanal aufnehmen/entfernen
+bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
 cablesetup.provider Kabelanbieter
 cam.empty Kein CAM im Slot
@@ -105,7 +105,7 @@ cam.removed CAM entfernt -> Slot
 cam.settings CI-Module
 cam.timeout CAM antwortet nicht
 cam.reset Reset
-cam.reset_standby Reset nach standby
+cam.reset_standby Reset nach Standby
 cam.waiting Warte auf CAM-Antwort
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
@@ -250,8 +250,8 @@ extra.auto_to_record Timeshift zu den Aufnahmen hinzufügen
 extra.cache_txt Teletext zwischenspeichern
 extra.scrambled_message Verschlüsselung melden
 extra.volume_pos Lautstärkeanzeige
-extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt....\n
-extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet....\n
+extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
+extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
 extra.clear_log Logdatei löschen
 extra.dboxinfo Box-Info
 extra.east Osten
@@ -299,7 +299,7 @@ extra.manual_scan Manueller Scan
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
 extra.record_time Timeshift Aufnahmezeit in Stunden
-extra.rotor_swap Rotor dreht Ost/ West
+extra.rotor_swap Rotor dreht Ost/West
 extra.savecolors Speichere Farben als
 extra.saveconfig Speichere Einstellungen als
 extra.savekeys Speichere Tastenbelegung als
@@ -342,7 +342,7 @@ extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
 extra.zapit_rezap_time ReZap-Intervall
 extra.zapit_save_last_chan Letzten Kanal merken
 extra.zapit_scan_sdt Scanne SDT für Aktualisierungen
-extra.zapit_scanpids PIDs scannen/ nutzen
+extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
 extra.zapit_sort_names Kanäle nach Namen sortieren
 extra.zapit_write_names Schreibe Kanalname
@@ -384,7 +384,7 @@ flashupdate.checkupdate nach neuer Version suchen
 flashupdate.currentreleasecycle Releasezyklus
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot ImageTyp
+flashupdate.currentversionsnapshot Image-Typ
 flashupdate.currentversiontime Uhrzeit
 flashupdate.erasefailed Flash löschen fehlgeschlagen
 flashupdate.erasing lösche Flash
@@ -401,7 +401,7 @@ flashupdate.globalprogress Gesamtstatus:
 flashupdate.head Aktualisierung
 flashupdate.md5check Imageprüfung
 flashupdate.md5sumerror Das Image ist fehlerhaft
-flashupdate.msgbox Es wurde folgendes neues file gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
+flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
 flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
 flashupdate.mtdselector Partitions-Auswahl
 flashupdate.programmingflash programmiere Flash
@@ -418,22 +418,22 @@ flashupdate.proxyusername_hint2 Ein leerer Eintrag bedeutet keine Authentifizier
 flashupdate.readflash ganzes Flashimage auslesen
 flashupdate.readflashmtd einzelne Partition auslesen
 flashupdate.ready fertig
-flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\nFalls ein Fehler auftritt oder das Image nicht\nfunktionfähig ist, wird Ihre box nicht mehr booten.\n\nImagename: %s\nZiel: %s
+flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\nFalls ein Fehler auftritt oder das Image nicht\nfunktionfähig ist, wird Ihre Box nicht mehr booten.\n\nImagename: %s\nZiel: %s
 flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
-flashupdate.selectimage Verfügbare Images/ Files
-flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur bei Web-Updates unterstützt.\nWollen Sie das ausgewählt Image wirklich installieren?
+flashupdate.selectimage Verfügbare Images/Files
+flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
 flashupdate.updatemode Updatemodus
-flashupdate.updatemode_internet internet
+flashupdate.updatemode_internet Internet
 flashupdate.updatemode_manual manuell (ftp)
 flashupdate.url_file Konfigfile
 flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
 flashupdate.writeflashmtd einzelne Partition einspielen
 flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
-flashupdate.new_found Updates verfügbar !
-flashupdate.new_notfound Keine Updates verfügbar !
+flashupdate.new_found Updates verfügbar!
+flashupdate.new_notfound Keine Updates verfügbar!
 fontmenu.menu Menü
 fontmenu.sizes Schriftgrössen
 fontmenu.channellist Kanalliste
@@ -450,14 +450,14 @@ fontsize.epg_date EPG Datum
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Titel
-fontsize.eventlist_datetime Eventliste: Datum/ Zeit
+fontsize.eventlist_datetime Eventliste: Datum/Zeit
 fontsize.eventlist_itemlarge Eventliste: groß
 fontsize.eventlist_itemsmall Eventliste: klein
 fontsize.eventlist_title Eventliste: Titel
 fontsize.filebrowser_item Dateibrowser: Eintrag
 fontsize.gamelist_itemlarge groß
 fontsize.gamelist_itemsmall klein
-fontsize.hint Font wird initialisiert,\nbitte warten...
+fontsize.hint Schriftart wird initialisiert,\nbitte warten...
 fontsize.infobar_channame Infobar: Kanalname
 fontsize.infobar_info Infobar: Info
 fontsize.infobar_number Infobar: Nummer
@@ -465,59 +465,59 @@ fontsize.infobar_small Infobar klein
 fontsize.menu Menütext
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
-GENRE.ARTS.0 Kunst/ Kultur
+GENRE.ARTS.0 Kunst/Kultur
 GENRE.ARTS.1 Darstellende Künste
-GENRE.ARTS.10 Kunst-/ Kultur-Magazin
+GENRE.ARTS.10 Kunst-/Kultur-Magazin
 GENRE.ARTS.11 Mode
 GENRE.ARTS.2 Kunstwissenschaft
 GENRE.ARTS.3 Religion
 GENRE.ARTS.4 Volkskunst
 GENRE.ARTS.5 Literatur
 GENRE.ARTS.6 Film/ Kino
-GENRE.ARTS.7 Experimental Film/ Video
-GENRE.ARTS.8 Rundfunk/ Presse
+GENRE.ARTS.7 Experimental Film/Video
+GENRE.ARTS.8 Rundfunk/Presse
 GENRE.ARTS.9 Neue Medien
-GENRE.CHILDRENs_PROGRAMMES.0 Kinder/ Jugendprogramm
+GENRE.CHILDRENs_PROGRAMMES.0 Kinder/Jugendprogramm
 GENRE.CHILDRENs_PROGRAMMES.1 Programm für Vorschulkinder
 GENRE.CHILDRENs_PROGRAMMES.2 Unterhaltungsprogramm für 6 bis 14-Jährige
 GENRE.CHILDRENs_PROGRAMMES.3 Unterhaltungsprogramm für 10 bis 16-Jährige
 GENRE.CHILDRENs_PROGRAMMES.4 Informations- und Bildungsprogramm
 GENRE.CHILDRENs_PROGRAMMES.5 Trickfilm
-GENRE.DOCUS_MAGAZINES.0 Doku/ Magazin
-GENRE.DOCUS_MAGAZINES.1 Natur/ Tiere/ Umwelt
+GENRE.DOCUS_MAGAZINES.0 Doku/Magazin
+GENRE.DOCUS_MAGAZINES.1 Natur/Tiere/Umwelt
 GENRE.DOCUS_MAGAZINES.2 Naturwissenschaft und Technik
-GENRE.DOCUS_MAGAZINES.3 Medizin/ Physiologie/ Psychologie
-GENRE.DOCUS_MAGAZINES.4 Ausland/ Expeditions
+GENRE.DOCUS_MAGAZINES.3 Medizin/Physiologie/Psychologie
+GENRE.DOCUS_MAGAZINES.4 Ausland/Expeditions
 GENRE.DOCUS_MAGAZINES.5 Sozial- und Geisteswissenschaften
 GENRE.DOCUS_MAGAZINES.6 Weiterbildung
 GENRE.DOCUS_MAGAZINES.7 Sprachen
-GENRE.MOVIE.0 Spielfilm/ Drama
-GENRE.MOVIE.1 Kriminalfilm/ Thriller
-GENRE.MOVIE.2 Abenteuerfilm/ Western/ Kriegsfilm
-GENRE.MOVIE.3 Science-Fiction/ Fantasy/ Horror
+GENRE.MOVIE.0 Spielfilm/Drama
+GENRE.MOVIE.1 Kriminalfilm/Thriller
+GENRE.MOVIE.2 Abenteuerfilm/Western/Kriegsfilm
+GENRE.MOVIE.3 Science-Fiction/Fantasy/Horror
 GENRE.MOVIE.4 Comedy
-GENRE.MOVIE.5 Soap/ Melodram/ Folklore
+GENRE.MOVIE.5 Soap/Melodram/Folklore
 GENRE.MOVIE.6 Romantik
-GENRE.MOVIE.7 klassischer/ religiöser/ historischer Film/ Drama
-GENRE.MOVIE.8 Erwachsenen Film/ Drama
-GENRE.MUSIC_DANCE.0 Musik/ Ballet/ Tanz
-GENRE.MUSIC_DANCE.1 Rock/ Pop
+GENRE.MOVIE.7 klassischer/religiöser/historischer Film/Drama
+GENRE.MOVIE.8 Erwachsenen Film/Drama
+GENRE.MUSIC_DANCE.0 Musik/Ballet/Tanz
+GENRE.MUSIC_DANCE.1 Rock/Pop
 GENRE.MUSIC_DANCE.2 Klassik
 GENRE.MUSIC_DANCE.3 Volksmusik
 GENRE.MUSIC_DANCE.4 Jazz
-GENRE.MUSIC_DANCE.5 Musical/ Oper
+GENRE.MUSIC_DANCE.5 Musical/Oper
 GENRE.MUSIC_DANCE.6 Ballet
 GENRE.NEWS.0 Nachrichten
-GENRE.NEWS.1 Nachrichten/ Wetter
+GENRE.NEWS.1 Nachrichten/Wetter
 GENRE.NEWS.2 Nachrichtenmagazin
 GENRE.NEWS.3 Dokumantation
-GENRE.NEWS.4 Diskussion/ Interview/ Debatte
+GENRE.NEWS.4 Diskussion/Interview/Debatte
 GENRE.SHOW.0 Show/ Gameshow
-GENRE.SHOW.1 Gameshow/ Quiz
+GENRE.SHOW.1 Gameshow/Quiz
 GENRE.SHOW.2 Varietee
 GENRE.SHOW.3 Talkshow
-GENRE.SOCIAL_POLITICAL.0 Sozial & Politikereignisse/ Wirtschaft
-GENRE.SOCIAL_POLITICAL.1 Magazin/ Report/ Dokumentation
+GENRE.SOCIAL_POLITICAL.0 Sozial & Politikereignisse/Wirtschaft
+GENRE.SOCIAL_POLITICAL.1 Magazin/Report/Dokumentation
 GENRE.SOCIAL_POLITICAL.2 Wirtschaft und Soziales
 GENRE.SOCIAL_POLITICAL.3 Besondere Menschen
 GENRE.SPORTS.0 Sport
@@ -555,14 +555,14 @@ hdd_check_failed Festplattenprüfung fehlgeschlagen
 hdd_ext3 Ext3fs
 hdd_fast Schnell
 hdd_format Formatiere Festplatte
-hdd_format_failed Formatieren fehlgeschlagen
+hdd_format_failed Formatierung fehlgeschlagen
 hdd_format_warn Formatierung wird gestartet
 hdd_fs Dateisystem
 hdd_manage Festplattenverwaltung
 hdd_middle Mittel
 hdd_noise Akustik-Einstellung
 hdd_not_found Keine Festplatte
-hdd_reiser Reiserfs
+hdd_reiser ReiserFS
 hdd_settings Festplatteneinstellungen
 hdd_sleep Motorstopp nach
 hdd_slow Langsam
@@ -579,13 +579,13 @@ imageinfo.version Version:
 inetradio.name Internetradio
 infoviewer.epgnotload Informationen noch nicht geladen...
 infoviewer.epgwait Warte auf EPG-Informationen...
-infoviewer.eventlist EPG/ Vorschau
+infoviewer.eventlist EPG/Vorschau
 infoviewer.languages Tonwahl
 infoviewer.motor_moving Antennenpositionierung
 infoviewer.next später
 infoviewer.nocurrent Keine Info zu laufendem Programm
 infoviewer.noepg Keine EPG-Information verfügbar
-infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar.
+infoviewer.notavailable Kanal (zur Zeit) nicht verfügbar
 infoviewer.now jetzt
 infoviewer.selecttime Startzeiten
 infoviewer.streaminfo Erweiterungen
@@ -593,7 +593,7 @@ infoviewer.subchan_disp_pos Unterkanalanzeige
 infoviewer.subchan_infobar Infobar
 infoviewer.subservice Bildregie
 infoviewer.waittime Warte auf Uhrzeit...
-ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/ runter
+ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
 keybindingmenu.addremind Umschalt-Timer hinzufügen
@@ -620,11 +620,11 @@ keybindingmenu.repeatblockgeneric Anfangsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter
-keybindingmenu.tvradiomode Fernseh-/ Radio-Modus
+keybindingmenu.tvradiomode Fernseh-/Radio-Modus
 keybindingmenu.zaphistory Zapping-History Bouquet
 keychooser.head Neue Taste einstellen
 keychooser.text1 Bitte Taste drücken
-keychooser.text2 Zum Abbrechen warten..
+keychooser.text2 Zum Abbrechen warten...
 keychoosermenu.currentkey Derzeitige Taste
 keychoosermenu.setnew Neue Taste einstellen
 keychoosermenu.setnone Keine Taste
@@ -632,7 +632,7 @@ languagesetup.head Spracheinstellungen
 languagesetup.osd Menüsprache
 languagesetup.select Sprache
 lcdcontroler.brightness normale Helligkeit
-lcdcontroler.brightnessdeepstandby DeepStandby Helligkeit
+lcdcontroler.brightnessdeepstandby Deep-Standby Helligkeit
 lcdcontroler.brightnessstandby Standby Helligkeit
 lcdcontroler.contrast Kontrast
 lcdmenu.autodimm Automatisch dimmen
@@ -643,18 +643,18 @@ lcdmenu.inverse Invertieren
 lcdmenu.lcdcontroler Helligkeit
 lcdmenu.power Power
 lcdmenu.statusline Statuszeile
-lcdmenu.statusline.both Lautstärke/ Fortschritt
+lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
 ledcontroler.menu Power Button LEDs
 ledcontroler.mode.tv TV Betrieb
-ledcontroler.mode.deepstandby DeepStandby
+ledcontroler.mode.deepstandby Deep-Standby
 ledcontroler.mode.standby Standby
 ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
-ledcontroler.blink Blinke im Deep standby, wenn Timer aktiv
+ledcontroler.blink Blinke im Deep-Standby, wenn Timer aktiv
 mainmenu.audioplayer Audioplayer
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
@@ -674,7 +674,7 @@ mainmenu.service Service
 mainmenu.settings Einstellungen
 mainmenu.shutdown Ausschalten
 mainmenu.sleeptimer SleepTimer
-mainmenu.tvmode TV-Modus/ Uhr
+mainmenu.tvmode TV-Modus/Uhr
 mainsettings.audio Audio
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten Einstellungen
@@ -735,21 +735,21 @@ miscsettings.infobar_disp_3 Logo Infobar / Signalbalken
 miscsettings.infobar_disp_log Infobar Dis.
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
-miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd )
+miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
 miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
 miscsettings.noenxwatchdog eNX-Watchdog aktivieren
 miscsettings.pmtupdate PMT Aktualisierung verwenden
 miscsettings.shutdown_count Komplett ausschalten nach
-miscsettings.shutdown_count_hint1 Bitte warten ...
+miscsettings.shutdown_count_hint1 Bitte warten...
 miscsettings.shutdown_count_hint2 Sie können die Box jetzt ausschalten!
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sptsmode SPTS-Mode Treiber laden
 miscsettings.virtual_zap_mode Virtual Zap
-motorcontrol.calc_positions (Neu)-Berechne(n)) Positionen
+motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
 motorcontrol.drive_mode Fahr-Modus
-motorcontrol.drive_mode_auto Fahrmodus/ automatischer Stopp
+motorcontrol.drive_mode_auto Fahrmodus/automatischer Stopp
 motorcontrol.east_limit Setze östliches (soft) Limit
 motorcontrol.enable_limit Aktiviere (soft) Limit
 motorcontrol.goto Gehe zu Motorposition (a)
@@ -761,7 +761,7 @@ motorcontrol.movement (b) Bewegung:
 motorcontrol.msec Millisekunden
 motorcontrol.no_mode keine Sorge (wasn das?)
 motorcontrol.notdef nicht benutzt
-motorcontrol.override 
+motorcontrol.override übersteuern
 motorcontrol.pos_decrease Motorposition runter (a)
 motorcontrol.pos_increase Motorposition rauf (a)
 motorcontrol.ref_position Gehe zu Referenzposition
@@ -789,7 +789,7 @@ moviebrowser.book_moviestart Filmstart:
 moviebrowser.book_name Name:
 moviebrowser.book_new Neue Markierung
 moviebrowser.book_position Position:
-moviebrowser.book_type Sprung (<0 zurück , >0 vor):
+moviebrowser.book_type Sprung (<0 zurück, >0 vor):
 moviebrowser.book_type_backward Wiederholung
 moviebrowser.book_type_forward Überspringen
 moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [Punkte]
@@ -801,7 +801,7 @@ moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern
 moviebrowser.edit_book_name_info1 Neuer Markierungsname
-moviebrowser.edit_book_name_info2 book name info2
+moviebrowser.edit_book_name_info2 Markierungsname info2
 moviebrowser.edit_book_pos_info1 Neue Position (s)
 moviebrowser.edit_book_pos_info2 
 moviebrowser.edit_book_type_info1 Neue Sprunglänge (s)
@@ -898,21 +898,21 @@ moviebrowser.use_movie_dir Wiedergabeverzeichnis verwenden
 moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
-movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Bookmark ein
-movieplayer.bookmarkname_hint2 
+movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
+movieplayer.bookmarkname_hint2 Geben Sie den Namen für das nächste Lesezeichen ein
 movieplayer.buffering Puffern...
 movieplayer.defdir Start-Verz.
 movieplayer.defplugin Start-Plugin
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Abspielen (Multiformat)
-movieplayer.goto Springe zu ...
+movieplayer.goto Springe zu...
 movieplayer.goto.h1 = -> absoluter Sprung
 movieplayer.goto.h2 +,- -> relativer Sprung
 movieplayer.head Movieplayer
 movieplayer.nostreamingserver Es konnte keine Verbindung\nzum Streamingserver hergestellt werden.
 movieplayer.pesplayback PES Abspielen (experimentell)
 movieplayer.pleasewait Bitte warten Sie.\nDie Verbindung zum Streamingserver wird hergestellt.
-movieplayer.toomanybookmarks Sie haben bereits zu viele Bookmarks angelegt.\nEs muß erst ein anderes gelöscht werden.
+movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ca. 10 Minuten zurück
 movieplayer.tshelp11 ca. 10 Minuten vor
@@ -941,7 +941,7 @@ movieplayer.vlchelp8 ca. 5 Minuten zurück
 movieplayer.vlchelp9 ca. 5 Minuten vor
 movieplayer.wrongvlcversion Funktion ist mit der benutzten Version des VLC nicht möglich
 mpkey.audio Audiotrack
-mpkey.bookmark Speichere Bookmark
+mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
 mpkey.pause Pause
 mpkey.play Play
@@ -955,12 +955,12 @@ networkmenu.gateway Standard Gateway
 networkmenu.head Netzwerk Einstellungen
 networkmenu.hostname Hostname
 networkmenu.ipaddress IP-Adresse
-networkmenu.mount NFS/ CIFS/ FTPFS
+networkmenu.mount NFS/CIFS/FTPFS
 networkmenu.nameserver Nameserver
 networkmenu.netmask Netzmaske
 networkmenu.ntpenable Zeit per INet synchronisieren
-networkmenu.ntprefresh NTP/ DVB-Aktualisierung [s]
-networkmenu.ntprefresh_hint1 NTP/ DVB-Time-Sync [min]
+networkmenu.ntprefresh NTP/DVB-Aktualisierung [s]
+networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync [min]
 networkmenu.ntprefresh_hint2 braucht Reboot oder EPG-Reset
 networkmenu.ntpserver NTP-URL (Zeitserver)
 networkmenu.ntpserver_hint1 NTP-URL Beispiel: ntp1.ptb.de
@@ -973,7 +973,7 @@ networkmenu.test Netzwerk testen
 neutrino_starting Neutrino wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
 nfs.automount Beim Start mounten
-nfs.dir Verzeichnis/ Freigabe
+nfs.dir Verzeichnis/Freigabe
 nfs.ip Server IP
 nfs.localdir lokales Verzeichnis
 nfs.mount Netzwerk Verzeichnis mounten
@@ -992,7 +992,7 @@ nfs.type_nfs NFS
 nfs.umount Netzwerk Verzeichnis unmounten
 nfs.umounterror Umount-Fehler
 nfs.username Benutzername
-nfsmenu.head NFS/ CIFS/ FTPFS Einstellungen
+nfsmenu.head NFS/CIFS/FTPFS Einstellungen
 nvod.percentage (%d%% vorbei)
 nvod.starting (Beginn in %d min)
 nvodselector.directormode Bildregie-Modus
@@ -1052,8 +1052,8 @@ pictureviewer.scaling Skalierung
 pictureviewer.show Anzeigen
 pictureviewer.slide_time Diaschau-Anzeigedauer
 pictureviewer.slideshow Diaschau
-pictureviewer.sortorder.date Sort.reihenf. ändern (Datum)
-pictureviewer.sortorder.filename Sort.reihenf. ändern (Dateiname)
+pictureviewer.sortorder.date Sortierreihenf. ändern (Datum)
+pictureviewer.sortorder.filename Sortierreihenf. ändern (Dateiname)
 ping.ok ist erreichbar (ping)
 ping.protocol ist nicht erreichbar (Host- oder Protokoll-Fehler)
 ping.socket ist nicht erreichbar (Socket-Fehler)
@@ -1062,7 +1062,7 @@ pinprotection.head PIN-Abfrage
 pinprotection.wrongcode Geben Sie den Code nocheinmal ein!
 plugins.hdd_dir Plugin HDD Verz.
 plugins.result Pluginausgabe
-progressbar.color Fortschrittsbalken farbe
+progressbar.color Fortschrittsbalken Farbe
 rclock.lockmsg Die Fernbedienung der Coolstream wird gesperrt.\n Um die Sperre aufzuheben, bitte\n <ROT> und <MENU> auf der Fernbedienung\n drücken.
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
@@ -1103,10 +1103,10 @@ recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
 repeatblocker.hint_1 Mindestzeit (in ms) zwischen 2 Tastendrücken
 repeatblocker.hint_2 0 schaltet den Blocker aus (Rot ist " ")
-reset_all Werkseinstellungen zurücksetzen
+reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
-reset_settings Zurück auf Werkseinstellungen
+reset_settings Einstellungen auf Standardwerte
 rfmod.carrier Unterträger-Frequenz
 rfmod.carrier4500 4.5
 rfmod.carrier5500 5.5
@@ -1123,10 +1123,10 @@ satsetup.auto_scan_all Alle Satelliten scannen
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
 satsetup.diseqc_advanced Erweiterte Auswahl
-satsetup.diseqc_com_uncom Committed/ Uncommitted
+satsetup.diseqc_com_uncom Committed/Uncommitted
 satsetup.diseqc_input Diseqc Einspeisung
 satsetup.diseqc_order Einspeisungsfolge
-satsetup.diseqc_uncom_com Uncommitted/ Committed
+satsetup.diseqc_uncom_com Uncommitted/Committed
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
@@ -1194,7 +1194,7 @@ servicemenu.imageinfo Imageinfo
 servicemenu.reload Kanallisten neu laden
 servicemenu.reload_hint Kanallisten werden neu geladen,\nbitte warten...
 servicemenu.restart Neutrino neu starten
-servicemenu.restart_failed Neustart von Neutrino schlug fehl
+servicemenu.restart_failed Neustart von Neutrino fehlgeschlagen
 servicemenu.restart_hint Neutrino wird neu gestartet...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
@@ -1215,7 +1215,7 @@ settings.pos_top_right oben rechts
 settings.restore Wiederherstellen aller Settings
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
-shutdowntimer.announce Die Box wird in 1 min runtergefahren.\nShutdown abbrechen?
+shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Ausschaltzeit in Min. (000=aus)
 sleeptimerbox.hint2 Die Box schaltet sich nach dieser Zeit aus.
@@ -1252,11 +1252,11 @@ streamingmenu.server_ip Streamingserver IP
 streamingmenu.server_port Streamingserver Port
 streamingmenu.streaming_audiorate Datenrate Audio
 streamingmenu.streaming_force_avi_rawaudio Erzwinge AC3 bei avi
-streamingmenu.streaming_force_transcode_video Transcod. auch mpg/ vcd Video
+streamingmenu.streaming_force_transcode_video Transcod. auch MPG/VCD Video
 streamingmenu.streaming_resolution Auflösung
 streamingmenu.streaming_server_cddrive DVD Laufwerk
 streamingmenu.streaming_server_startdir Verzeichnis (VLC)
-streamingmenu.streaming_transcode_audio Transcod. Audio (dvd/ vcd/ mpg)
+streamingmenu.streaming_transcode_audio Transcod. Audio (DVD/VCD/MPG)
 streamingmenu.streaming_transcode_video_codec MPEG Video Codec
 streamingmenu.streaming_type Streamingserver
 streamingmenu.streaming_videorate Datenrate Video
@@ -1315,7 +1315,7 @@ timerlist.repeatcount.help2 0 für unbegrenzte Anzahl
 timerlist.save Timer speichern
 timerlist.standby SB Modus
 timerlist.standby.off Aufwachen aus Standby
-timerlist.standby.on Auf Standby gehen
+timerlist.standby.on In Standby gehen
 timerlist.stoptime Stoppzeit
 timerlist.type Timertyp
 timerlist.type.execplugin Plugin ausführen
@@ -1350,7 +1350,7 @@ ucodecheck.avia600 Avia 600
 ucodecheck.cam-alpha Cam-Alpha
 ucodecheck.head UCode Überprüfung
 ucodecheck.ucode UCode
-ucodes.failure Achtung, die µCodes wurden NICHT gefunden!\n\nBitte per FTP (oder DBox-BootManager)\nuploaden, und die box neu starten!
+ucodes.failure Achtung, die µCodes wurden nicht gefunden!\n\nBitte per FTP (oder DBox-BootManager)\nuploaden, und die box neu starten!
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Kein UPnP-Server gefunden
 upnpbrowser.rescan Neue Suche
@@ -1365,7 +1365,7 @@ usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none  
 usermenu.item_vtxt Teletext
 usermenu.name Name
-video_mode_ok Video-Einstellungen ok ?
+video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
 videomenu.analog_hd_rgb_cinch RGB -> Cinch (HD)
 videomenu.analog_hd_rgb_scart RGB -> Scart (HD)
