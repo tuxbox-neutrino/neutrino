@@ -899,7 +899,7 @@ moviebrowser.use_rec_dir Aufnahmeverzeichnis verwenden
 movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
-movieplayer.bookmarkname_hint2 Geben Sie den Namen für das nächste Lesezeichen ein
+movieplayer.bookmarkname_hint2 
 movieplayer.buffering Puffern...
 movieplayer.defdir Start-Verz.
 movieplayer.defplugin Start-Plugin
@@ -1423,6 +1423,3 @@ zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
 zaptotimer.announce In einer Minute wird umgeschaltet.
-
-
-
