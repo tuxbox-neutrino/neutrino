@@ -441,8 +441,8 @@ keybindingmenu.modechange Zmiana trybu
 keybindingmenu.pagedown Następna strona
 keybindingmenu.pageup Poprzednia strona
 keybindingmenu.quickzap Zmiana kanałów
-keybindingmenu.repeatblock Opóźnienie powtarzania
-keybindingmenu.repeatblockgeneric Opóźnienie początkowe
+keybindingmenu.repeatblock Opóźnienie początkowe
+keybindingmenu.repeatblockgeneric Opóźnienie powtarzania
 keybindingmenu.sort Zmień kolejność sortowania
 keybindingmenu.subchanneldown Poprzedni podkanał
 keybindingmenu.subchannelup Następny podkanał

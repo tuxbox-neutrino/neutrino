@@ -457,8 +457,8 @@ keybindingmenu.modechange Zmena spôsobu
 keybindingmenu.pagedown Nasledujúca strana
 keybindingmenu.pageup Predchádzajúca strana
 keybindingmenu.quickzap Rýchle prepnutie kanálov
-keybindingmenu.repeatblock Oneskorenie opakovania
-keybindingmenu.repeatblockgeneric Základné oneskorenie
+keybindingmenu.repeatblock Základné oneskorenie
+keybindingmenu.repeatblockgeneric Oneskorenie opakovania
 keybindingmenu.sort Zmena poradia triedenia
 keybindingmenu.subchanneldown Predchádzajúci podkanál
 keybindingmenu.subchannelup Nasledujúci podkanál

@@ -403,8 +403,8 @@ keybindingmenu.modechange Módválasztás
 keybindingmenu.pagedown Oldalt le
 keybindingmenu.pageup Oldalt fel
 keybindingmenu.quickzap Gyorsváltás
-keybindingmenu.repeatblock Ismétlési késleltetés
-keybindingmenu.repeatblockgeneric Általános késleltetés
+keybindingmenu.repeatblock Általános késleltetés
+keybindingmenu.repeatblockgeneric Ismétlési késleltetés
 keybindingmenu.sort Rendezési sorrend
 keybindingmenu.subchanneldown Alcsatornát le
 keybindingmenu.subchannelup Alcsatornát fel

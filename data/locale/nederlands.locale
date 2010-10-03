@@ -384,8 +384,8 @@ keybindingmenu.pagedown_head Keysetup page down
 keybindingmenu.pageup Vorige pagina
 keybindingmenu.pageup_head Keysetup page up
 keybindingmenu.quickzap Quickzap
-keybindingmenu.repeatblock Herhaal delay
-keybindingmenu.repeatblockgeneric generic delay
+keybindingmenu.repeatblock generic delay
+keybindingmenu.repeatblockgeneric Herhaal delay
 keybindingmenu.sort Verander sorteervolgorde
 keybindingmenu.sort_head Verander sorteervolgorde
 keybindingmenu.subchanneldown subchannel omlaag

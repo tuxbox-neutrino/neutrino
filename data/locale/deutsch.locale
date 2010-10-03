@@ -615,8 +615,8 @@ keybindingmenu.pageup Seite zurück
 keybindingmenu.poweroff Umschalter
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.RC Fernbedienung
-keybindingmenu.repeatblock Wiederholungsverzögerung
-keybindingmenu.repeatblockgeneric Anfangsverzögerung
+keybindingmenu.repeatblock Anfangsverzögerung
+keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
 keybindingmenu.subchanneldown Unterkanal zurück
 keybindingmenu.subchannelup Unterkanal weiter

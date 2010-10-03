@@ -433,8 +433,8 @@ keybindingmenu.pagedown page down
 keybindingmenu.pageup page up
 keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
-keybindingmenu.repeatblock repeat delay
-keybindingmenu.repeatblockgeneric generic delay
+keybindingmenu.repeatblock generic delay
+keybindingmenu.repeatblockgeneric repeat delay
 keybindingmenu.sort change sort order
 keybindingmenu.subchanneldown subchannel down
 keybindingmenu.subchannelup subchannel up
