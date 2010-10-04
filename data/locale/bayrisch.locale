@@ -342,8 +342,8 @@ keybindingmenu.pagedown_head Seitn obiblatln
 keybindingmenu.pageup seitn aufiblatln
 keybindingmenu.pageup_head Seitn aufiblatln
 keybindingmenu.quickzap Schneiumschoitung
-keybindingmenu.repeatblock Wiederholungsverzögerung
-keybindingmenu.repeatblockgeneric Ofangsverzögerung
+keybindingmenu.repeatblock Ofangsverzögerung
+keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierfoige ändan
 keybindingmenu.sort_head Sortierfoige ändan
 keybindingmenu.subchanneldown Untersenda zruck

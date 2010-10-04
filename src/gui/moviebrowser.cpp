@@ -142,21 +142,13 @@ const CMenuOptionChooser::keyval MESSAGEBOX_PARENTAL_LOCKAGE_OPTIONS[MESSAGEBOX_
 	{ 99, LOCALE_MOVIEBROWSER_INFO_PARENTAL_LOCKAGE_ALWAYS }
 };
 
-#define MAX_WINDOW_WIDTH  (g_settings.screen_EndX - g_settings.screen_StartX - 40)
-#define MAX_WINDOW_HEIGHT (g_settings.screen_EndY - g_settings.screen_StartY - 40)
-
-#define MIN_WINDOW_WIDTH  ((g_settings.screen_EndX - g_settings.screen_StartX)>>1)
-#define MIN_WINDOW_HEIGHT 200
-
 #define TITLE_BACKGROUND_COLOR ((CFBWindow::color_t)COL_MENUHEAD_PLUS_0)
 #define TITLE_FONT_COLOR ((CFBWindow::color_t)COL_MENUHEAD)
 
-#define TEXT_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MENU]
 #define TITLE_FONT g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]
 #define FOOT_FONT g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
 
 #define INTER_FRAME_SPACE 4  // space between e.g. upper and lower window
-#define TEXT_BORDER_WIDTH 8
 
 const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 {
@@ -1080,7 +1072,6 @@ int CMovieBrowser::paint(void)
 
 	//CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_MOVIEBROWSER_HEAD));
 
-	//Font* font = TEXT_FONT;
 	Font* font = NULL;
 
 	m_pcBrowser = new CListFrame(&m_browserListLines, font, CListFrame::SCROLL | CListFrame::HEADER_LINE,
@@ -1142,6 +1133,7 @@ void CMovieBrowser::refresh(void)
 
 	refreshFoot();
 	refreshLCD();
+	info_hdd_level();
 }
 
 std::string CMovieBrowser::getCurrentDir(void)
@@ -1221,7 +1213,22 @@ void CMovieBrowser::refreshMovieInfo(void)
 		}
 	}
 }
+void CMovieBrowser::info_hdd_level()
+{
+	struct statfs s;
+	long	blocks_percent_used =0;
+	if(getSelectedFile() != NULL){
+		if (::statfs(getSelectedFile()->Name.c_str(), &s) == 0) {
+			long blocks_used = s.f_blocks - s.f_bfree;
+			blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
+		}
+	}
+	CProgressBar pb(true, -1, -1, 30, 100, 70, true);
+	const short pbw = 100;
+	const short border = m_cBoxFrameTitleRel.iHeight/4;
+	pb.paintProgressBarDefault(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw,  m_cBoxFrameTitleRel.iHeight/2, blocks_percent_used, 100);
 
+}
 void CMovieBrowser::refreshLCD(void)
 {
 	if(m_vMovieInfo.size() <= 0) return;
@@ -1500,13 +1507,13 @@ void CMovieBrowser::refreshTitle(void)
 {
 	//Paint Text Background
 	//TRACE("[mb]->refreshTitle : %s\r\n",m_textTitle.c_str());
+	const short text_border_width = 8;
 	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX, m_cBoxFrame.iY+	m_cBoxFrameTitleRel.iY,
 				m_cBoxFrameTitleRel.iWidth, m_cBoxFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR, RADIUS_LARGE, CORNER_TOP);
 
-	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + TEXT_BORDER_WIDTH, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (TEXT_BORDER_WIDTH << 1), m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
+	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + text_border_width, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (text_border_width << 1), m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
 }
 
-#define ADD_FOOT_HEIGHT 4
 void CMovieBrowser::refreshFoot(void)
 {
 	//TRACE("[mb]->refreshButtonLine \r\n");
@@ -1534,7 +1541,6 @@ void CMovieBrowser::refreshFoot(void)
 	if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
 	{
 		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih);
-		//m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, m_cBoxFrame.iX+xpos1, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + 4 + (ADD_FOOT_HEIGHT>>1));
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_RED, m_cBoxFrame.iX+xpos1, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
 		m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1 + 10 + iw, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, sort_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
 	}
@@ -1542,7 +1548,6 @@ void CMovieBrowser::refreshFoot(void)
 	if (m_settings.gui != MB_GUI_LAST_PLAY && m_settings.gui != MB_GUI_LAST_RECORD)
 	{
 		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih);
-		//m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, m_cBoxFrame.iX+xpos1+width, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + 4 + (ADD_FOOT_HEIGHT>>1));
 		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, m_cBoxFrame.iX+xpos1+width, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
 		m_pcFontFoot->RenderString(m_cBoxFrame.iX+ xpos1+width + 10 + iw, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width -30, filter_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
 	}
@@ -1556,12 +1561,10 @@ void CMovieBrowser::refreshFoot(void)
 		ok_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_PLAY);
 	}
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &iw, &ih);
-	//m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, m_cBoxFrame.iX+xpos1+width*2, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1));
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, m_cBoxFrame.iX+xpos1+width*2, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
 	m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*2 + 10 + iw, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, ok_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
 	//delte icon
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
-	//m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, m_cBoxFrame.iX+xpos1+width*3, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + (ADD_FOOT_HEIGHT>>1));
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, m_cBoxFrame.iX+xpos1+width*3, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
 	m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*3 + 10 + iw , m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color, 0, true); // UTF-8
 
@@ -2541,8 +2544,10 @@ void CMovieBrowser::updateMovieSelection(void)
 			if(m_currentBrowserSelection != old_movie_selection)
 				new_selection = true;
 
-			if(m_currentBrowserSelection < m_vHandleBrowserList.size())
+			if(m_currentBrowserSelection < m_vHandleBrowserList.size()){
 				m_movieSelectionHandler = m_vHandleBrowserList[m_currentBrowserSelection];
+				info_hdd_level();
+			}
 		}
 	}
 	else if(m_windowFocus == MB_FOCUS_LAST_PLAY)
@@ -2562,8 +2567,10 @@ void CMovieBrowser::updateMovieSelection(void)
 			if(m_currentPlaySelection != old_movie_selection)
 				new_selection = true;
 
-			 if(m_currentPlaySelection < m_vHandlePlayList.size())
+			 if(m_currentPlaySelection < m_vHandlePlayList.size()){
 				m_movieSelectionHandler = m_vHandlePlayList[m_currentPlaySelection];
+				info_hdd_level();
+			 }
 		}
 	}
 	else if(m_windowFocus == MB_FOCUS_LAST_RECORD)
@@ -2583,8 +2590,10 @@ void CMovieBrowser::updateMovieSelection(void)
 			if(m_currentRecordSelection != old_movie_selection)
 				new_selection = true;
 
-			if(m_currentRecordSelection < m_vHandleRecordList.size())
+			if(m_currentRecordSelection < m_vHandleRecordList.size()){
 				m_movieSelectionHandler = m_vHandleRecordList[m_currentRecordSelection];
+				info_hdd_level();
+			}
 		}
 	}
 

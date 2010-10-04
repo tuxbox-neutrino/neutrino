@@ -391,6 +391,8 @@ class CMovieBrowser : public CMenuTarget
 		void updateFilterSelection(void);
 		void updateSerienames(void);
         void autoFindSerie(void);
+
+	void info_hdd_level();
 };
 
 // Class to show Moviebrowser Information, to be used by menu

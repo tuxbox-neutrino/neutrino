@@ -345,8 +345,8 @@ keybindingmenu.pagedown_head Sidde abe blÃ¤ttere
 keybindingmenu.pageup Sidde uffe blÃ¤ttere
 keybindingmenu.pageup_head Sidde uffe blÃ¤ttere
 keybindingmenu.quickzap SchnÃ¤llumschaldig
-keybindingmenu.repeatblock Wiederholigsverzögerig
-keybindingmenu.repeatblockgeneric Afangsverzögerig
+keybindingmenu.repeatblock Afangsverzögerig
+keybindingmenu.repeatblockgeneric Wiederholigsverzögerig
 keybindingmenu.sort Sortierreihefolg ändere
 keybindingmenu.sort_head  Sortierreihefolg ändere
 keybindingmenu.subchanneldown Underkanal z'ruck
