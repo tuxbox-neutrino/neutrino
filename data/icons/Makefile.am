@@ -26,6 +26,7 @@ install_DATA = \
 	volume.png volumebody.png volumeslider2.png volumeslider2alpha.png \
 	volumeslider2blue.png volumeslider2green.png volumeslider2red.png \
 	vtxt.png vtxt_gray.png upnp.png \
+	mp_play.png mp_b-skip.png mp_f-skip.png mp_pause.png \
 	mp3.jpg mp3-0.jpg mp3-1.jpg mp3-2.jpg mp3-3.jpg mp3-4.jpg mp3-5.jpg mp3-6.jpg mp3-7.jpg \
 	radiomode.jpg scan.jpg shutdown.jpg start.jpg \
 	x_green.png x_white.png x_yellow.png \
