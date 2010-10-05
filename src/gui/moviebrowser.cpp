@@ -1183,7 +1183,8 @@ void CMovieBrowser::refreshMovieInfo(void)
 //printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
 		int lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 		int ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-		m_pcWindow->paintBoxRel(lx, ly, logo_w, logo_h, TITLE_BACKGROUND_COLOR);
+		const short pb_hdd_offset = 104;
+		m_pcWindow->paintBoxRel(lx - pb_hdd_offset , ly, logo_w, logo_h, TITLE_BACKGROUND_COLOR);
         	//g_PicViewer->DisplayLogo(m_movieSelectionHandler->epgEpgId >>16, lx, ly, PIC_W, PIC_H);
         	std::string lname;
 		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname, &logo_w, &logo_h)){
@@ -1195,7 +1196,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 			}
 			  lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 			  ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-			  g_PicViewer->DisplayImage(lname, lx, ly, logo_w, logo_h);
+			  g_PicViewer->DisplayImage(lname, lx - pb_hdd_offset, ly, logo_w, logo_h);
 		}
 		if(logo_ok) {
 #if 0
