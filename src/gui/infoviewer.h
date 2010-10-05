@@ -90,6 +90,17 @@ class CInfoViewer
 	uint32_t           sec_timer_id;
 	uint32_t           fadeTimer;
 	bool           virtual_zap_mode;
+
+	int time_left_width;
+	int time_dot_width;
+	int time_width;
+	int time_height;
+	int info_time_width;
+	int bottom_bar_offset;
+
+	bool newfreq ;
+	char old_timestr[10];
+	static const short bar_width = 72;
 	CChannelEventList               evtlist;
 	CChannelEventList::iterator     eli;
 
@@ -111,12 +122,12 @@ class CInfoViewer
 	void showButton_SubServices();
 	
 	void showIcon_16_9();
-#ifndef SKIP_CA_STATUS
+	
 	void showIcon_CA_Status(int);
 	void paint_ca_icons(int, char*, int&);
 	void paintCA_bar(int,int);
 	void showOne_CAIcon(bool);
-#endif
+
 	void showIcon_VTXT()      const;
 	void showRecordIcon(const bool show);
 	void showIcon_SubT() const;
@@ -128,15 +139,19 @@ class CInfoViewer
 	int showChannelLogo(const t_channel_id logo_channel_id);
 	void showSNR();
 	void showInfoFile();
-
+	void loop(int fadeValue, bool show_dot ,bool fadeIn);
 	std::string eventname;
-
+	void paintshowButtonBar();
+	void show_current_next(bool new_chan, int  epgpos);
+	void reset_allScala();
+	void chack_channellogo_ca_SettingsChange();
  public:
 	bool chanready;
 	bool	is_visible;
 	uint32_t    lcdUpdateTimer;
 
 	CInfoViewer();
+	void showMovieTitle( const int playState, const std::string Channel, const std::string g_file_epg, const std::string g_file_epg1);
 
 	void	start();
 	void	showEpgInfo();
@@ -146,9 +161,7 @@ class CInfoViewer
 	CSectionsdClient::CurrentNextInfo getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info);
 	
 	void	showSubchan();
-#ifndef SKIP_CA_STATUS
 	void	Set_CA_Status(int Status);
-#endif
 	
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 	void    clearVirtualZapMode() {virtual_zap_mode = false;}

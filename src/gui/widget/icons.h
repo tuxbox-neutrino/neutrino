@@ -83,8 +83,10 @@
 #define NEUTRINO_ICON_MP3		"mp3"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
 #define NEUTRINO_ICON_NOT_MOUNTED	"not_mounted"
-#define NEUTRINO_ICON_PAUSE		"pause"
-#define NEUTRINO_ICON_PLAY		"play"
+#define NEUTRINO_ICON_PAUSE		"mp_pause"
+#define NEUTRINO_ICON_PLAY 		"mp_play"
+#define NEUTRINO_ICON_REW		"mp_b-skip"
+#define NEUTRINO_ICON_FF 		"mp_f-skip"
 #define NEUTRINO_ICON_PROTECTING	"protecting"
 #define NEUTRINO_ICON_QUESTION		"question"
 #define NEUTRINO_ICON_RADIOMODE		"radiomode"
@@ -135,19 +137,11 @@
 #define NEUTRINO_ICON_RESOLUTION_352	"res_352"
 #define NEUTRINO_ICON_RESOLUTION_288	"res_288"
 #define NEUTRINO_ICON_RESOLUTION_000	"res_000"
-
 #define DUMMY_ICON			"dummy"
 
 
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE "mute_zap_green"
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"
-
-/* icon widths */
-
-#define NEUTRINO_ICON_BUTTON_BLUE_WIDTH		16
-#define NEUTRINO_ICON_BUTTON_GREEN_WIDTH	16
-#define NEUTRINO_ICON_BUTTON_RED_WIDTH		16
-#define NEUTRINO_ICON_BUTTON_YELLOW_WIDTH	16
 
 
 /* misc */

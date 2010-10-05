@@ -1128,8 +1128,8 @@ void CMoviePlayerGui::PlayFile(void)
 				if (isMovieBrowser) {
 					g_file_epg = p_movie_info->epgTitle;
 					g_file_epg1 = p_movie_info->epgInfo1;
-					g_InfoViewer->showTitle(0, p_movie_info->epgChannel.c_str(), 0, 0);	// UTF-8
-
+					//g_InfoViewer->showTitle(0, p_movie_info->epgChannel.c_str(), 0, 0);	// UTF-8
+					g_InfoViewer->showMovieTitle(playstate, p_movie_info->epgChannel.c_str(), g_file_epg, g_file_epg1);
 				} else {
 					char temp_name[255];
 					const char *slash = strrchr(filename, '/');
@@ -1146,7 +1146,8 @@ void CMoviePlayerGui::PlayFile(void)
 					}
 					g_file_epg = "";
 					g_file_epg1 = "";
-					g_InfoViewer->showTitle(0, temp_name, 0, 0);	// UTF-8
+//					g_InfoViewer->showTitle(0, temp_name, 0, 0);	// UTF-8
+					g_InfoViewer->showMovieTitle(playstate, temp_name, g_file_epg, g_file_epg1);	// UTF-8
 				}
 				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
 				update_lcd = true;
