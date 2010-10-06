@@ -109,7 +109,7 @@ class CMoviePlayerGui : public CMenuTarget
 	CFileFilter vlcfilefilter;
 	void showHelpTS(void);
 	void showHelpVLC(void);
-
+	void callInfoViewer(const std::string & epg_title, const std::string & epg_info1, const std::string & epg_channel );
  public:
 	CMoviePlayerGui();
 	~CMoviePlayerGui();

@@ -826,6 +826,9 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 					res = messages_return::cancel_info;
 				}
 			}
+		} else if (fileplay && !timeshift && ( (msg == (neutrino_msg_t) g_settings.mpkey_pause) || (msg == (neutrino_msg_t) g_settings.mpkey_rewind) || (msg == (neutrino_msg_t) g_settings.mpkey_play) || (msg == (neutrino_msg_t) g_settings.mpkey_forward) || (msg == (neutrino_msg_t) g_settings.mpkey_stop)) ) {
+			g_RCInput->postMsg (msg, data);
+			res = messages_return::cancel_info;
 		}
 	}
 
@@ -1994,8 +1997,8 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 		return;
 	}
 
-	char * white = (char *) "white";
-	char * yellow = (char *) "yellow";
+	const char * white = (char *) "white";
+	const char * yellow = (char *) "yellow";
 	static int icon_space_offset = 0;
 	bool paintIconFlag = false;
 
