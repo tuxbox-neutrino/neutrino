@@ -1416,7 +1416,7 @@ videomenu.videomode_ntsc NTSC
 videomenu.videomode_pal PAL
 videomenu.videomode_palm PAL-M
 wizard.welcome_head Willkommen beim Setup Assistenten!
-wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer Coolstream. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nNächster Schritt?
+wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer Coolstream. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nWichtig: Ihre Coolstream Set-Top-Box lässt sich bequem per Webinterface\nsteuern fuer Zb Timer Verwaltung oder Live-TV im Web-Browser.\nStandard-Passwort(coolstream) und User(root)\nMachen Sie es jedoch nicht ueber Internet zugänglich, ansonsten kann man\nmit Zugriff von aussen rechnen!\nNächster Schritt?
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
