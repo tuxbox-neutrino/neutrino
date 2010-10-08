@@ -2217,7 +2217,6 @@ int zapit_main_thread(void *data)
 
 	eventServer = new CEventServer;
 
-	pthread_create (&tsdt, NULL, sdt_thread, (void *) NULL);
 	tallchans_iterator cit;
 	cit = allchans.find(live_channel_id);
 	if(cit != allchans.end())
@@ -2229,6 +2228,7 @@ int zapit_main_thread(void *data)
 	firstzap = false;
 	stime = time(0);
 	//time_t curtime;
+	pthread_create (&tsdt, NULL, sdt_thread, (void *) NULL);
 	while (zapit_server.run(zapit_parse_command, CZapitMessages::ACTVERSION, true)) {
 		if (pmt_update_fd != -1) {
 			unsigned char buf[4096];

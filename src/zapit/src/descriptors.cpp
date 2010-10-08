@@ -399,6 +399,19 @@ bool check_blacklisted_digital_plus(const t_original_network_id onid, const t_tr
 	else
 		return false;
 }
+
+void removeMultipleWhitespaces (std::string &str)
+{
+	size_t pos = str.find("  ");
+	if(pos != std::string::npos ){
+		std::string temp;
+		for ( unsigned short i = 0 ; i < str.length(); i++)
+			if (!(str[i] == ' ' && str[i+1] == ' '))
+				temp += str[i];
+		str = temp;
+	}
+}
+
 bool check_blacklisted(std::string& providerName)
 {
 	bool in_blacklist = false;
@@ -600,7 +613,8 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 			providerName=lastProviderName;
 		}
 	}
-
+	
+	removeMultipleWhitespaces( providerName );
 	// remove space at ende providerName
 	if(!providerName.empty()){
 		i = 1;
@@ -615,7 +629,6 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		const char *unknown_provider_name = "Unknown Provider";
 		providerName = CDVBString(unknown_provider_name, strlen(unknown_provider_name)).getContent();
 	}
-
 	lastProviderName = providerName;
 	eventServer->sendEvent(CZapitClient::EVT_SCAN_PROVIDER, CEventServer::INITID_ZAPIT, (void *) lastProviderName.c_str(), lastProviderName.length() + 1);
 
