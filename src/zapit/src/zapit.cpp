@@ -1957,7 +1957,7 @@ int startPlayBack(CZapitChannel *thisChannel)
 		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
 		videoDemux->Start();
 	}
-#if 0
+#if 1
 	if(have_teletext)
 		videoDecoder->StartVBI(thisChannel->getTeletextPid());
 #endif
