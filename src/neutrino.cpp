@@ -752,11 +752,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	        parentallocked = true;
 	        checkParentallocked.close();
 	}
-	//video
-	g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
-	prev_video_mode = g_settings.video_Mode;
-	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", 0); // default RGB
-	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", 0); // default RGB
+	// video
+	prev_video_mode = g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
+	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_SD_RGB_SCART); // default RGB
+	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_SD_YPRPB_CINCH); // default YPBPR
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0); // default off
 	g_settings.hdmi_cec_view_on = configfile.getInt32("hdmi_cec_view_on", 0); // default off
 	g_settings.hdmi_cec_standby = configfile.getInt32("hdmi_cec_standby", 0); // default off
