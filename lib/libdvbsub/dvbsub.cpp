@@ -1,3 +1,6 @@
+// Workaround for C++
+#define __STDC_CONSTANT_MACROS
+
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
