@@ -530,16 +530,32 @@ void CBouquetManager::deleteBouquet(const CZapitBouquet* bouquet)
 		}
 	}
 }
+
+int str_compare_withoutspace(char const *s1, char const *s2)
+{
+	int cmp_result = 0;
+	while(isspace(*s1)) ++s1;
+	while(isspace(*s2)) ++s2;
+
+	while(!cmp_result && *s1++ && *s2++){
+		while(isspace(*s1)) ++s1;
+		while(isspace(*s2)) ++s2;
+		cmp_result = tolower(*s1) - tolower(*s2);
+	}
+	return cmp_result;
+} 
 // -- Find Bouquet-Name, if BQ exists   (2002-04-02 rasc)
 // -- Return: Bouqet-ID (found: 0..n)  or -1 (Bouquet does not exist)
 int CBouquetManager::existsBouquet(char const * const name)
 {
 	unsigned int i;
-
 	for (i = 0; i < Bouquets.size(); i++) {
 		if (Bouquets[i]->Name == name)
+		{
 			return (int)i;
-		else if (strcasecmp(Bouquets[i]->Name.c_str(), name)==0){
+		}
+		else if (strcasecmp(Bouquets[i]->Name.c_str(), name)==0)
+		{
 			int lower1 = 0, lower2 =  0;
 			int upper1 = 0 ,upper2 = 0;
 			std::string str2 = name;
@@ -566,6 +582,12 @@ int CBouquetManager::existsBouquet(char const * const name)
 			}
 			if ( ( upper2 && (lower1 < lower2)) || (lower2==0 && upper1==0 && upper2==lower1) ){
 				Bouquets[i]->Name = str2;
+			}
+			return (int)i;
+		}else if(!(str_compare_withoutspace(Bouquets[i]->Name.c_str(), name)) )
+		{
+			if(strlen(name) > Bouquets[i]->Name.length()){
+				Bouquets[i]->Name = name;
 			}
 			return (int)i;
 		}
