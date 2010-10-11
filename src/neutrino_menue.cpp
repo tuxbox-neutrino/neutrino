@@ -283,7 +283,8 @@ CVideoSettings::CVideoSettings() : CMenuWidget(LOCALE_VIDEOMENU_HEAD, NEUTRINO_I
 	if (system_rev == 0x06) {
 		addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_ANALOG_MODE, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT, true, this));
 	} else if (system_rev > 0x06) {
-		addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this));
+		if(system_rev != 10)
+			addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this));
 		addItem(new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this));
 	}
 
@@ -856,7 +857,8 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, info, NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
 	}
 	// end of infomenu
-	mainMenu.addItem( new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler, NULL, CRCInput::convertDigitToKey(0)));
+	if(system_rev != 10)
+		mainMenu.addItem( new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler, NULL, CRCInput::convertDigitToKey(0)));
 
 	//settings menu
 	int sett_count =1;
@@ -2716,6 +2718,7 @@ void CNeutrinoApp::InitLcdSettings(CMenuWidget &lcdSettings)
 	addMenueIntroItems(lcdSettings);
 
 	CVfdControler* lcdsliders = new CVfdControler(LOCALE_LCDMENU_HEAD, NULL);
+	bool vfd_enabled = (cs_get_revision() != 10);
 
 #if 0
 	CLcdNotifier* lcdnotifier = new CLcdNotifier();
@@ -2728,14 +2731,14 @@ void CNeutrinoApp::InitLcdSettings(CMenuWidget &lcdSettings)
 #endif
 	CStringInput * dim_time = new CStringInput(LOCALE_LCDMENU_DIM_TIME, g_settings.lcd_setting_dim_time, 3,
 			NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
-	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_DIM_TIME,true, g_settings.lcd_setting_dim_time,dim_time));
+	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_DIM_TIME, vfd_enabled, g_settings.lcd_setting_dim_time,dim_time));
 
 	CStringInput * dim_brightness = new CStringInput(LOCALE_LCDMENU_DIM_BRIGHTNESS, g_settings.lcd_setting_dim_brightness, 3,
 			NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
-	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_DIM_BRIGHTNESS,true, g_settings.lcd_setting_dim_brightness,dim_brightness));
+	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_DIM_BRIGHTNESS, vfd_enabled, g_settings.lcd_setting_dim_brightness,dim_brightness));
 
 	lcdSettings.addItem(GenericMenuSeparatorLine);
-	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, true, NULL, lcdsliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, lcdsliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	if(cs_get_revision() > 7) {
 		CMenuWidget * ledMenu = new CMenuWidget(LOCALE_LEDCONTROLER_MENU, NEUTRINO_ICON_SETTINGS);
 		addMenueIntroItems(*ledMenu);
@@ -2748,7 +2751,7 @@ void CNeutrinoApp::InitLcdSettings(CMenuWidget &lcdSettings)
 
 	lcdSettings.addItem(GenericMenuSeparatorLine);
 
-	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_LCDMENU_STATUSLINE, &g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME], LCDMENU_STATUSLINE_OPTIONS, LCDMENU_STATUSLINE_OPTION_COUNT, true);
+	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_LCDMENU_STATUSLINE, &g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME], LCDMENU_STATUSLINE_OPTIONS, LCDMENU_STATUSLINE_OPTION_COUNT, vfd_enabled);
 	lcdSettings.addItem(oj);
 }
 

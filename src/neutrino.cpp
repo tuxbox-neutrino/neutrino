@@ -3820,7 +3820,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				if(leds && g_settings.led_blink && fp_timer)
 					leds |= 0x80;
 
-				standby.brightness          = g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
+				standby.brightness          = cs_get_revision() == 10 ? 0 : g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS];
 				standby.flags               = leds;
 				standby.current_hour        = tmtime->tm_hour;
 				standby.current_minute      = tmtime->tm_min;
