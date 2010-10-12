@@ -113,6 +113,7 @@ data/lcd/Makefile
 data/lcd/icons/Makefile
 data/lcd/clock/Makefile
 data/locale/Makefile
+data/scripts/Makefile
 src/sectionsd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile
