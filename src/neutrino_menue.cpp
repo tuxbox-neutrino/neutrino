@@ -750,6 +750,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 				CMenuWidget &keySettings, CMenuWidget &languageSettings, CMenuWidget &miscSettings,
 				CMenuWidget &service, CMenuWidget &/*fontSettings*/, CMenuWidget &audiopl_picSettings, CMenuWidget &/*streamingSettings*/, CMenuWidget &moviePlayer)
 {
+	unsigned int system_rev = cs_get_revision();
 
 #ifdef TEST_MENU
 	char rev[255];
@@ -842,7 +843,6 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot",
 					    CRCInput::convertDigitToKey(shortcut++)));
 
-	unsigned int system_rev = cs_get_revision();
 	if(system_rev >= 8)
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SHUTDOWN, true, NULL, this, "shutdown", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER));
 
