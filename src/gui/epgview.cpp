@@ -87,11 +87,11 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 		for (int nItem = 1; nItem < 11; nItem++) {
 			sprintf(index, "%d", nItem);
 			// Look for matching items
-			int nPos = findItem(std::string(strItem) + std::string(index), vecDescriptions);
-			if (-1 != nPos) {
-				std::string item = std::string(vecItems[nPos]);
-				vecDescriptions.erase(vecDescriptions.begin() + nPos);
-				vecItems.erase(vecItems.begin() + nPos);
+			int pos2 = findItem(std::string(strItem) + std::string(index), vecDescriptions);
+			if (-1 != pos2) {
+				std::string item = std::string(vecItems[pos2]);
+				vecDescriptions.erase(vecDescriptions.begin() + pos2);
+				vecItems.erase(vecItems.begin() + pos2);
 				if (false == bHasItems) {
 					// First item added, so create new label item
 					vecDescriptions.push_back(strLabel);
@@ -108,9 +108,9 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 		}
 	} else {	// Single string event (e.g. Director)
 		// Look for matching items
-		int nPos = findItem(strItem, vecDescriptions);
-		if (-1 != nPos) {
-			vecDescriptions[nPos] = strLabel;
+		int pos2 = findItem(strItem, vecDescriptions);
+		if (-1 != pos2) {
+			vecDescriptions[pos2] = strLabel;
 		}
 	}
 }
@@ -152,7 +152,7 @@ void CEpgData::start()
 	toph = topboxheight;
 }
 
-void CEpgData::addTextToArray(const std::string & text) // UTF-8
+void CEpgData::addTextToArray(const std::string & text, bool screening) // UTF-8
 {
 	//printf("line: >%s<\n", text.c_str() );
 	if (text==" ")
@@ -160,17 +160,17 @@ void CEpgData::addTextToArray(const std::string & text) // UTF-8
 		emptyLineCount ++;
 		if (emptyLineCount<2)
 		{
-			epgText.push_back(text);
+			epgText.push_back(epg_pair(text,screening));
 		}
 	}
 	else
 	{
 		emptyLineCount = 0;
-		epgText.push_back(text);
+		epgText.push_back(epg_pair(text,screening));
 	}
 }
 
-void CEpgData::processTextToArray(std::string text) // UTF-8
+void CEpgData::processTextToArray(std::string text, bool screening) // UTF-8
 {
 	std::string	aktLine = "";
 	std::string	aktWord = "";
@@ -197,7 +197,7 @@ void CEpgData::processTextToArray(std::string text) // UTF-8
 
 				if (*text_=='\n')
 				{	//enter-handler
-					addTextToArray( aktLine );
+					addTextToArray( aktLine, screening );
 					aktLine = "";
 					aktWidth= 0;
 				}
@@ -205,7 +205,7 @@ void CEpgData::processTextToArray(std::string text) // UTF-8
 			}
 			else
 			{//new line needed
-				addTextToArray( aktLine );
+				addTextToArray( aktLine, screening);
 				aktLine = aktWord;
 				aktWidth = aktWordWidth;
 				aktWord = "";
@@ -222,7 +222,7 @@ void CEpgData::processTextToArray(std::string text) // UTF-8
 		text_++;
 	}
 	//add the rest
-	addTextToArray( aktLine + aktWord );
+	addTextToArray( aktLine + aktWord, screening );
 }
 
 void CEpgData::showText( int startPos, int ypos )
@@ -233,15 +233,45 @@ void CEpgData::showText( int startPos, int ypos )
 
 	int textSize = epgText.size();
 	int y=ypos;
-
+	const char tok = ' ';
+	int offset = 0, count = 0;
+	int max_mon_w = 0, max_wday_w = 0;
+	int digi = g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth("29..");
+	for(int i = 0; i < 12;i++){
+		max_mon_w = std::max(max_mon_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(g_Locale->getText(CLocaleManager::getMonth(i))));
+		if(i > 6)
+		      continue;
+		max_wday_w = std::max(max_wday_w ,g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getRenderWidth(g_Locale->getText(CLocaleManager::getWeekday(i))));
+	}
 	frameBuffer->paintBoxRel(sx, y, ox- 15, sb, COL_MENUCONTENT_PLUS_0); // background of the text box
-
 	for (int i = startPos; i < textSize && i < startPos + medlinecount; i++, y += medlineheight)
 	{
-		if ( i< info1_lines )
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(sx+10, y+medlineheight, ox- 15- 15, epgText[i], COL_MENUCONTENT, 0, true); // UTF-8
+		if(epgText[i].second){
+			std::string::size_type pos1 = epgText[i].first.find_first_not_of(tok, 0);
+			std::string::size_type pos2 = epgText[i].first.find_first_of(tok, pos1);
+ 
+			while( pos2 != string::npos || pos1 != string::npos ){
+				switch(count){
+					case 1:
+					offset += max_wday_w;
+					break;
+					case 3:
+					offset += max_mon_w;
+					break;
+					default:
+					offset += digi;
+					break;
+				}
+				g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10+offset, y+medlineheight, ox- 15- 15, epgText[i].first.substr(pos1, pos2 - pos1), COL_MENUCONTENT, 0, true); // UTF-8
+				count++;
+				pos1 = epgText[i].first.find_first_not_of(tok, pos2);
+				pos2 = epgText[i].first.find_first_of(tok, pos1);
+			}
+			offset = 0;
+			count = 0;
+		}
 		else
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10, y+medlineheight, ox- 15- 15, epgText[i], COL_MENUCONTENT, 0, true); // UTF-8
+			g_Font[( i< info1_lines ) ?SNeutrinoSettings::FONT_TYPE_EPG_INFO1:SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->RenderString(sx+10, y+medlineheight, ox- 15- 15, epgText[i].first, COL_MENUCONTENT, 0, true); // UTF-8
 	}
 
 	int sbc = ((textSize - 1)/ medlinecount) + 1;
@@ -500,17 +530,17 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		bool bHide = false;
 		if (false == epgData.info2.empty()) {
 			// Look for the first . in info1, usually this is the title of an episode.
-			std::string::size_type nPosDot = epgData.info1.find('.');
-			if (std::string::npos != nPosDot) {
-				nPosDot += 2; // Skip dot and first blank
+			std::string::size_type pos2Dot = epgData.info1.find('.');
+			if (std::string::npos != pos2Dot) {
+				pos2Dot += 2; // Skip dot and first blank
 				/*      Houdini: changed for safty reason (crashes with some events at WDR regional)
-				                        if (nPosDot < epgData.info2.length()) {   // Make sure we don't overrun the buffer
+				                        if (pos2Dot < epgData.info2.length()) {   // Make sure we don't overrun the buffer
 				*/
-				if (nPosDot < epgData.info2.length() && nPosDot < epgData.info1.length()) {   // Make sure we don't overrun the buffer
+				if (pos2Dot < epgData.info2.length() && pos2Dot < epgData.info1.length()) {   // Make sure we don't overrun the buffer
 
 					// Check if the stuff after the dot equals the beginning of info2
-					if (0 == epgData.info2.find(epgData.info1.substr(nPosDot, epgData.info1.length() - nPosDot))) {
-						strEpisode = epgData.info1.substr(0, nPosDot) + "\n";
+					if (0 == epgData.info2.find(epgData.info1.substr(pos2Dot, epgData.info1.length() - pos2Dot))) {
+						strEpisode = epgData.info1.substr(0, pos2Dot) + "\n";
 						bHide = true;
 					}
 				}
@@ -1048,11 +1078,9 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 	CChannelEventList::iterator e;
 	struct  tm		*tmStartZeit;
 	std::string		screening_dates,screening_nodual;
-	int				count;
+	int			count = 0;
 	char			tmpstr[256]={0};
 
-
-	count = 0;
 	screening_dates = screening_nodual = "";
 	// alredy read: evtlist = g_Sectionsd->getEventsServiceKey( channel_id&0xFFFFFFFFFFFFULL );
 
@@ -1064,21 +1092,19 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 			count++;
 			tmStartZeit = localtime(&(e->startTime));
 
-			screening_dates = "    ";
-
-			screening_dates += g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
+			screening_dates = g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
 			screening_dates += '.';
 
-			strftime(tmpstr, sizeof(tmpstr), "  %d.", tmStartZeit );
+			strftime(tmpstr, sizeof(tmpstr), " %d.", tmStartZeit );
 			screening_dates += tmpstr;
 
 			screening_dates += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
 
-			strftime(tmpstr, sizeof(tmpstr), ".  %H:%M ", tmStartZeit );
+			strftime(tmpstr, sizeof(tmpstr), ". %H:%M", tmStartZeit );
 			screening_dates += tmpstr;
 			if (screening_dates != screening_nodual) {
 				screening_nodual=screening_dates;
-				processTextToArray(screening_dates ); // UTF-8
+				processTextToArray(screening_dates, true ); // UTF-8
 			}
 		}
 	}

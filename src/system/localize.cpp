@@ -359,8 +359,23 @@ neutrino_locale_t CLocaleManager::getMonth(const struct tm * struct_tm_p)
 	return locale_month[struct_tm_p->tm_mon];
 }
 
+neutrino_locale_t CLocaleManager::getMonth(const int mon)
+{
+	if(mon > -1 && mon < 12)
+		return locale_month[mon];
+	else
+		return LOCALE_MESSAGEBOX_ERROR;
+}
+
 neutrino_locale_t CLocaleManager::getWeekday(const struct tm * struct_tm_p)
 {
 	return locale_weekday[struct_tm_p->tm_wday];
 }
 
+neutrino_locale_t CLocaleManager::getWeekday(const int wday)
+{
+	if(wday > -1 && wday < 7)
+		return locale_weekday[wday];
+	else
+		return LOCALE_MESSAGEBOX_ERROR;
+}
