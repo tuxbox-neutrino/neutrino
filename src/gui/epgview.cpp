@@ -87,11 +87,11 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 		for (int nItem = 1; nItem < 11; nItem++) {
 			sprintf(index, "%d", nItem);
 			// Look for matching items
-			int pos2 = findItem(std::string(strItem) + std::string(index), vecDescriptions);
-			if (-1 != pos2) {
-				std::string item = std::string(vecItems[pos2]);
-				vecDescriptions.erase(vecDescriptions.begin() + pos2);
-				vecItems.erase(vecItems.begin() + pos2);
+			int nPos = findItem(std::string(strItem) + std::string(index), vecDescriptions);
+			if (-1 != nPos) {
+				std::string item = std::string(vecItems[nPos]);
+				vecDescriptions.erase(vecDescriptions.begin() + nPos);
+				vecItems.erase(vecItems.begin() + nPos);
 				if (false == bHasItems) {
 					// First item added, so create new label item
 					vecDescriptions.push_back(strLabel);
@@ -108,9 +108,9 @@ void reformatExtendedEvents(std::string strItem, std::string strLabel, bool bUse
 		}
 	} else {	// Single string event (e.g. Director)
 		// Look for matching items
-		int pos2 = findItem(strItem, vecDescriptions);
-		if (-1 != pos2) {
-			vecDescriptions[pos2] = strLabel;
+		int nPos = findItem(strItem, vecDescriptions);
+		if (-1 != nPos) {
+			vecDescriptions[nPos] = strLabel;
 		}
 	}
 }
@@ -530,17 +530,17 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		bool bHide = false;
 		if (false == epgData.info2.empty()) {
 			// Look for the first . in info1, usually this is the title of an episode.
-			std::string::size_type pos2Dot = epgData.info1.find('.');
-			if (std::string::npos != pos2Dot) {
-				pos2Dot += 2; // Skip dot and first blank
+			std::string::size_type nPosDot = epgData.info1.find('.');
+			if (std::string::npos != nPosDot) {
+				nPosDot += 2; // Skip dot and first blank
 				/*      Houdini: changed for safty reason (crashes with some events at WDR regional)
-				                        if (pos2Dot < epgData.info2.length()) {   // Make sure we don't overrun the buffer
+				                        if (nPosDot < epgData.info2.length()) {   // Make sure we don't overrun the buffer
 				*/
-				if (pos2Dot < epgData.info2.length() && pos2Dot < epgData.info1.length()) {   // Make sure we don't overrun the buffer
+				if (nPosDot < epgData.info2.length() && nPosDot < epgData.info1.length()) {   // Make sure we don't overrun the buffer
 
 					// Check if the stuff after the dot equals the beginning of info2
-					if (0 == epgData.info2.find(epgData.info1.substr(pos2Dot, epgData.info1.length() - pos2Dot))) {
-						strEpisode = epgData.info1.substr(0, pos2Dot) + "\n";
+					if (0 == epgData.info2.find(epgData.info1.substr(nPosDot, epgData.info1.length() - nPosDot))) {
+						strEpisode = epgData.info1.substr(0, nPosDot) + "\n";
 						bHide = true;
 					}
 				}
