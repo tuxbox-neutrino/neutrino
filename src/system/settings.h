@@ -483,9 +483,12 @@ struct SNeutrinoSettings
 		ITEM_TECHINFO = 13,
 		ITEM_REMOTE = 14,
 		ITEM_PLUGIN = 15,
+		ITEM_IMAGEINFO,
+		ITEM_BOXINFO,
+		ITEM_CAM,
 #if 0
-		ITEM_MOVIEPLAYER_TS = 16,
-		ITEM_RESTART_CAMD = 17,
+		ITEM_MOVIEPLAYER_TS,
+		ITEM_RESTART_CAMD,
 #endif
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;

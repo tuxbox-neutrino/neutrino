@@ -3359,6 +3359,27 @@ bool CNeutrinoApp::showUserMenu(int button)
 			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, StreamFeaturesChanger, "teletext", key, icon);
 			menu->addItem(menu_item, 0);
 			break;
+		case SNeutrinoSettings::ITEM_IMAGEINFO:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_IMAGEINFO;
+			keyhelper.get(&key,&icon);
+			menu->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, key, icon ), false);
+			break;
+		case SNeutrinoSettings::ITEM_BOXINFO:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_BOXINFO;
+			keyhelper.get(&key,&icon);
+			menu->addItem( new CMenuForwarder(LOCALE_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, key, icon));
+			break;
+		case SNeutrinoSettings::ITEM_CAM:
+			if(cs_get_revision() != 10)
+			{
+				menu_items++;
+				menu_prev = SNeutrinoSettings::ITEM_CAM;
+				keyhelper.get(&key,&icon);
+				menu->addItem(new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler, NULL, key, icon));
+			}
+			break;
 
 #if 0 // FIXME not supported yet
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_TS:

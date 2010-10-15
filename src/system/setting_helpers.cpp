@@ -858,6 +858,10 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
         { SNeutrinoSettings::ITEM_TECHINFO,		LOCALE_EPGMENU_STREAMINFO },
         { SNeutrinoSettings::ITEM_PLUGIN,		LOCALE_TIMERLIST_PLUGIN },
         { SNeutrinoSettings::ITEM_VTXT,			LOCALE_USERMENU_ITEM_VTXT },
+        { SNeutrinoSettings::ITEM_IMAGEINFO,		LOCALE_SERVICEMENU_IMAGEINFO },
+        { SNeutrinoSettings::ITEM_BOXINFO,		LOCALE_DBOXINFO },
+        { SNeutrinoSettings::ITEM_CAM,			LOCALE_CAM_SETTINGS },
+
 #if 0
         { SNeutrinoSettings::ITEM_MOVIEPLAYER_TS,	LOCALE_MAINMENU_MOVIEPLAYER } ,
         { SNeutrinoSettings::ITEM_RESTART_CAMD,		LOCALE_EXTRA_RESTARTCAMD }

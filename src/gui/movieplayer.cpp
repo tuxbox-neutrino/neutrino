@@ -192,6 +192,7 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("mpv");
 	tsfilefilter.addFilter("vob");
 	tsfilefilter.addFilter("m2ts");
+	tsfilefilter.addFilter("mp4");
 
 
 	vlcfilefilter.addFilter("mpg");
