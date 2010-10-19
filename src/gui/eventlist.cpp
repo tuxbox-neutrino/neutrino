@@ -716,6 +716,9 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
+		if(RADIUS_LARGE)
+			frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
+
 	}
 	else if (liststart+pos == current_event )
 	{

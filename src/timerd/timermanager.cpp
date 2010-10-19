@@ -74,6 +74,7 @@ void CTimerManager::Init(void)
 		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
 		if(ret >= 0)
 			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
+		close(fd);
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(wakeup)
