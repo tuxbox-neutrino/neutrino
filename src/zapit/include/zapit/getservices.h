@@ -80,7 +80,7 @@ struct transponder
 		updated = 0;
 	}
 };
-typedef std::map<transponder_id_t, transponder> transponder_list_t;
+typedef std::map <transponder_id_t, transponder> transponder_list_t;
 typedef std::map <transponder_id_t, transponder>::iterator stiterator;
 typedef std::map<transponder_id_t, bool> sdt_tp_t;
 extern transponder_list_t scantransponders;

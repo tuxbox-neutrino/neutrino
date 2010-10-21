@@ -2509,11 +2509,11 @@ printf("[sdt monitor] wakeup...\n");
                                        		abs(cI->second.getSatellitePosition())/10, cI->second.getSatellitePosition() > 0 ? 'E' : 'W',
                                         	cI->second.getServiceType());
 #endif
-					fprintf(fd, "\t\t\t<S action=\"add\" i=\"%04x\" n=\"%s\" t=\"%x\"/>\n",
+					fprintf(fd, "\t\t\t<S action=\"add\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n",
                                         	cI->second.getServiceId(), convert_UTF8_To_UTF8_XML(cI->second.getName().c_str()).c_str(),
-                                        	cI->second.getServiceType());
+                                        	cI->second.getServiceType(), cI->second.scrambled);
 				} else {
-					if(strcmp(cI->second.getName().c_str(), ccI->second.getName().c_str())) {
+					if(strcmp(cI->second.getName().c_str(), ccI->second.getName().c_str()) || cI->second.scrambled != ccI->second.scrambled) {
 					   if(!tpdone) {
 						if(!satfound)
 							fprintf(fd, "%s", satstr);
@@ -2521,9 +2521,9 @@ printf("[sdt monitor] wakeup...\n");
 						tpdone = 1;
 					   }
 					   updated = 1;
-					   fprintf(fd, "\t\t\t<S action=\"replace\" i=\"%04x\" n=\"%s\" t=\"%x\"/>\n",
+					   fprintf(fd, "\t\t\t<S action=\"replace\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n",
                                         	cI->second.getServiceId(), convert_UTF8_To_UTF8_XML(cI->second.getName().c_str()).c_str(),
-                                        	cI->second.getServiceType());
+                                        	cI->second.getServiceType(), cI->second.scrambled);
 					}
 #if 0
 					char newname[128];

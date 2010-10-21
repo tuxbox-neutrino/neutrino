@@ -705,7 +705,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	}
 }
 
-void current_service_descriptor(const unsigned char * const buffer, const t_service_id service_id, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
+void current_service_descriptor(const unsigned char * const buffer, const t_service_id service_id, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, bool free_ca)
 {
 	bool service_wr = false;
 	uint8_t service_type = buffer[2];
@@ -767,20 +767,22 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 		serviceName  = CDVBString((const char*)&(buffer[4 + service_provider_name_length + 1]), (2 + buffer[1]) - (4 + service_provider_name_length + 1)).getContent();
 	}
 
-	curchans.insert (
-		std::pair <t_channel_id, CZapitChannel> (
-			CREATE_CHANNEL_ID64,
-			CZapitChannel (
-				serviceName,
-				service_id,
-				transport_stream_id,
-				original_network_id,
-				real_type,
-				satellitePosition,
-				freq
-			)
-		)
-	);
+	pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
+	ret = curchans.insert (
+			std::pair <t_channel_id, CZapitChannel> (
+				CREATE_CHANNEL_ID64,
+				CZapitChannel (
+					serviceName,
+					service_id,
+					transport_stream_id,
+					original_network_id,
+					real_type /*service_type*/,
+					satellitePosition,
+					freq
+					)
+				)
+			);
+	ret.first->second.scrambled = free_ca;
 }
 
 /* 0x49 */

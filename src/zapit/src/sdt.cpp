@@ -440,7 +440,7 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 //printf("[sdt] descriptor %X\n", buffer[pos2]);
 				switch (buffer[pos2]) {
 				case 0x48:
-					current_service_descriptor(buffer + pos2, service_id, transport_stream_id, original_network_id, satellitePosition, freq);
+					current_service_descriptor(buffer + pos2, service_id, transport_stream_id, original_network_id, satellitePosition, freq, free_CA_mode);
 					ret = 0;
 					break;
 

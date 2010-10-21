@@ -61,7 +61,7 @@ void VBI_data_descriptor(const unsigned char * const buffer);
 void VBI_teletext_descriptor(const unsigned char * const buffer);
 void bouquet_name_descriptor(const unsigned char * const buffer);
 void service_descriptor(const unsigned char * const buffer, const t_service_id service_id, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, bool free_ca);
-void current_service_descriptor(const unsigned char * const buffer, const t_service_id service_id, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
+void current_service_descriptor(const unsigned char * const buffer, const t_service_id service_id, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, bool free_ca);
 void country_availability_descriptor(const unsigned char * const buffer);
 void linkage_descriptor(const unsigned char * const buffer);
 int NVOD_reference_descriptor(const unsigned char * const buffer, const unsigned int num, t_transport_stream_id * const, t_original_network_id * const, t_service_id * const);
