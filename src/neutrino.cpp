@@ -3570,6 +3570,14 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 			standbyMode( true );
 		return messages_return::handled;
 	}
+	else if( msg == NeutrinoMessages::RELOAD_SETUP ) {
+		bool tmp = g_settings.make_hd_list;
+		loadSetup(NEUTRINO_SETTINGS_FILE);
+		if(tmp != g_settings.make_hd_list)
+			g_Zapit->reinitChannels();
+
+		return messages_return::handled;
+	}
 	else if( msg == NeutrinoMessages::STANDBY_TOGGLE ) {
 		standbyMode( !(mode & mode_standby) );
 		g_RCInput->clearRCMsg();

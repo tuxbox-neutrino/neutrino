@@ -77,6 +77,7 @@ private:
 	void GetBouquetsCGI(CyhookHandler *hh);
 	void EpgCGI(CyhookHandler *hh);
 	void VersionCGI(CyhookHandler *hh);
+	void ReloadNutrinoSetupfCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
 	void StartPluginCGI(CyhookHandler *hh);
 	void LCDAction(CyhookHandler *hh);
