@@ -34,17 +34,43 @@ endif
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 
 libneutrino_gui_a_SOURCES = \
-	imageinfo.cpp bouquetlist.cpp channellist.cpp eventlist.cpp pluginlist.cpp \
-	favorites.cpp sleeptimer.cpp screensetup.cpp \
-	epgview.cpp infoviewer.cpp scan.cpp update.cpp \
-	filebrowser.cpp audioplayer.cpp nfs.cpp pictureviewer.cpp \
-	movieplayer.cpp rc_lock.cpp bookmarkmanager.cpp \
-	timeosd.cpp epgplus.cpp epg_menu.cpp \
-	streaminfo2.cpp dboxinfo.cpp \
-	plugins.cpp audio_select.cpp moviebrowser.cpp movieinfo.cpp
+	audio_select.cpp \
+	audioplayer.cpp \
+	bookmarkmanager.cpp \
+	bouquetlist.cpp \
+	channellist.cpp \
+	dboxinfo.cpp \
+	epg_menu.cpp \
+	epgplus.cpp \
+	epgview.cpp \
+	eventlist.cpp \
+	favorites.cpp \
+	filebrowser.cpp \
+	imageinfo.cpp \
+	infoviewer.cpp \
+	moviebrowser.cpp \
+	movieinfo.cpp \
+	movieplayer.cpp \
+	nfs.cpp \
+	pictureviewer.cpp \
+	pluginlist.cpp \
+	plugins.cpp \
+	rc_lock.cpp \
+	scan.cpp \
+	update.cpp \
+	screensetup.cpp \
+	sleeptimer.cpp \
+	streaminfo2.cpp \
+	timeosd.cpp
 
 libneutrino_gui2_a_SOURCES = \
-	color.cpp alphasetup.cpp motorcontrol.cpp hdd_menu.cpp cam_menu.cpp infoclock.cpp upnpbrowser.cpp
+	alphasetup.cpp \
+	cam_menu.cpp \
+	color.cpp \
+	hdd_menu.cpp \
+	infoclock.cpp \
+	motorcontrol.cpp \
+	upnpbrowser.cpp
 
 libtimerlist_a_SOURCES = \
 	timerlist.cpp
