@@ -2740,7 +2740,7 @@ void CNeutrinoApp::InitLcdSettings(CMenuWidget &lcdSettings)
 	lcdSettings.addItem(GenericMenuSeparatorLine);
 	lcdSettings.addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, lcdsliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	if(cs_get_revision() > 7) {
-		CMenuWidget * ledMenu = new CMenuWidget(LOCALE_LEDCONTROLER_MENU, NEUTRINO_ICON_SETTINGS);
+		CMenuWidget * ledMenu = new CMenuWidget(LOCALE_LEDCONTROLER_MENU, NEUTRINO_ICON_LCD);
 		addMenueIntroItems(*ledMenu);
 		ledMenu->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_TV, &g_settings.led_tv_mode, LEDMENU_OPTIONS, LEDMENU_OPTION_COUNT, true, new CLedControlNotifier()));
 		ledMenu->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_STANDBY, &g_settings.led_standby_mode, LEDMENU_OPTIONS, LEDMENU_OPTION_COUNT, true));
