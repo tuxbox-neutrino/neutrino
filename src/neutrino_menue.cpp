@@ -165,20 +165,6 @@ static CTimingSettingsNotifier timingsettingsnotifier;
 
 int safe_mkdir(char * path);
 
-#define OPTIONS_OFF0_ON1_OPTION_COUNT 2
-const CMenuOptionChooser::keyval OPTIONS_OFF0_ON1_OPTIONS[OPTIONS_OFF0_ON1_OPTION_COUNT] =
-{
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_OPTIONS_ON  }
-};
-
-#define OPTIONS_OFF1_ON0_OPTION_COUNT 2
-const CMenuOptionChooser::keyval OPTIONS_OFF1_ON0_OPTIONS[OPTIONS_OFF1_ON0_OPTION_COUNT] =
-{
-	{ 1, LOCALE_OPTIONS_OFF },
-	{ 0, LOCALE_OPTIONS_ON  }
-};
-
 #define VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT 8
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1_OPTIONS[VIDEOMENU_VIDEOSIGNAL_HD1_OPTION_COUNT] =
 {

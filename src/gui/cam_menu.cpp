@@ -96,13 +96,6 @@ printf("CCAMMenuHandler::exec: actionkey %s\n", actionkey.c_str());
 	return doMainMenu ();
 }
 
-#define OPTIONS_OFF0_ON1_OPTION_COUNT 2
-const CMenuOptionChooser::keyval OPTIONS_OFF0_ON1_OPTIONS[OPTIONS_OFF0_ON1_OPTION_COUNT] =
-{
-        { 0, LOCALE_OPTIONS_OFF },
-        { 1, LOCALE_OPTIONS_ON  }
-};
-
 int CCAMMenuHandler::doMainMenu ()
 {
 	int ret;
