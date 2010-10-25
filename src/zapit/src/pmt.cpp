@@ -592,7 +592,7 @@ int parse_pmt(CZapitChannel * const channel)
 
 int scan_parse_pmt(int pmtpid, int service_id )
 {
-	if(pmtpid < 1 ) || (curpmtpid == pmtpid && service_id != curservice_id)
+	if((pmtpid < 1 ) || (curpmtpid == pmtpid && service_id != curservice_id))
 		return -1;
 	if(curpmtpid == pmtpid && service_id == curservice_id){
 		 for(int i=0;i<11;i++){
