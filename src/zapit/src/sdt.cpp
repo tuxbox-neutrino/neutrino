@@ -439,7 +439,7 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 			EIT_present_following_flag = buffer[pos + 2] & 0x01;
 			running_status = buffer [pos + 3] & 0xE0;
 			for (unsigned short i=0; i<sidpmt.size(); i++){
-				if(sidpmt[i].first == service_id && running_status == 128 ){
+				if(sidpmt[i].first == service_id && running_status != 32 ){
 					tmp_free_CA_mode = scan_parse_pmt( sidpmt[i].second, sidpmt[i].first );
 				}
 			}
