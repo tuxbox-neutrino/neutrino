@@ -76,6 +76,47 @@ if(buffer[7]) printf("[PAT] ****************************************************
 	return -1;
 }
 
+int scan_parse_pat( std::vector<std::pair<int,int> > &sidpmt )
+{
+
+        cDemux * dmx = new cDemux();
+	dmx->Open(DMX_PSI_CHANNEL);
+
+	/* buffer for program association table */
+	unsigned char buffer[PAT_SIZE];
+
+	/* current positon in buffer */
+	unsigned short i;
+
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
+
+	memset(filter, 0x00, DMX_FILTER_SIZE);
+	memset(mask, 0x00, DMX_FILTER_SIZE);
+
+	mask[0] = 0xFF;
+	mask[4] = 0xFF;
+
+	do {
+		/* set filter for program association section */
+		/* read section */
+		if ((dmx->sectionFilter(0, filter, mask, 5) < 0) || (i = dmx->Read(buffer, PAT_SIZE) < 0))
+		{
+			delete dmx;
+			printf("[%s] dmx read failed\n",__FILE__);
+			return -1;
+		}
+		dmx->Stop();
+		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3; i += 4) {
+			int service_id = ((buffer[i] << 8) | buffer[i+1]);
+			if (service_id != 0)
+				sidpmt.push_back(std::make_pair( service_id , (((buffer[i+2] & 0x1F) << 8) | buffer[i+3]) ) ); 
+		}
+	} while (filter[4]++ != buffer[7]);
+	delete dmx;
+	return -1;
+}
+
 static unsigned char pbuffer[PAT_SIZE];
 int parse_pat()
 {

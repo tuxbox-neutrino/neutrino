@@ -28,5 +28,6 @@
 int parse_pmt(CZapitChannel * const channel);
 int pmt_set_update_filter(CZapitChannel * const channel, int * fd);
 int pmt_stop_update_filter(int * fd);
+int scan_parse_pmt(int pmtpid, int service_id );
 
 #endif /* __zapit_pmt_h__ */

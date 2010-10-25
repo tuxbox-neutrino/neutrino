@@ -589,6 +589,83 @@ int parse_pmt(CZapitChannel * const channel)
 
 	return 0;
 }
+
+int scan_parse_pmt(int pmtpid, int service_id )
+{
+	if(pmtpid < 1 )
+		return -1;
+	if(curpmtpid == pmtpid ){
+		 for(int i=0;i<11;i++){
+			if(pmt_caids[0][i] > 0)
+			  return 1;
+		 }
+		 return 0;
+	}
+
+	int pmtlen;
+	int ia, dpmtlen, pos;
+	unsigned char descriptor_length=0;
+	const short pmt_size = 1024;
+
+	unsigned char buffer[pmt_size];
+
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
+
+	cDemux * dmx = new cDemux();
+	dmx->Open(DMX_PSI_CHANNEL);
+
+	memset(filter, 0x00, DMX_FILTER_SIZE);
+	memset(mask, 0x00, DMX_FILTER_SIZE);
+
+	filter[0] = 0x02;	/* table_id */
+	filter[1] = service_id >> 8;
+	filter[2] = service_id;
+	filter[3] = 0x01;	/* current_next_indicator */
+	filter[4] = 0x00;	/* section_number */
+	mask[0] = 0xFF;
+	mask[1] = 0xFF;
+	mask[2] = 0xFF;
+	mask[3] = 0x01;
+	mask[4] = 0xFF;
+
+	if ((dmx->sectionFilter(pmtpid, filter, mask, 5) < 0) || (dmx->Read(buffer, pmt_size) < 0)) {
+		delete dmx;
+		return -1;
+	}
+	delete dmx;
+	pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] +3;
+
+	dpmtlen=0;
+	pos=10;
+
+		while(pos+2<pmtlen) {
+			dpmtlen=((buffer[pos] & 0x0f) << 8) | buffer[pos+1];
+			for ( ia=pos+2;ia<(dpmtlen+pos+2);ia +=descriptor_length+2 ) {
+				descriptor_length = buffer[ia+1];
+				if ( ia < pmtlen - 4 )
+					if(buffer[ia]==0x09 && buffer[ia+1]>0) {
+						switch(buffer[ia+2]) {
+							case 0x06: 
+							case 0x17: 
+							case 0x01: 
+							case 0x05: 
+							case 0x18: 
+							case 0x0B: 
+							case 0x0D: 
+							case 0x09: 
+							case 0x26: 
+							case 0x4a: 
+							case 0x0E: 
+					 		return 1;
+						} //switch
+					} // if
+			} // for
+			pos+=dpmtlen+5;
+		} // while
+		return 0;
+
+}
 #ifndef DMX_SET_NEGFILTER_MASK
         #define DMX_SET_NEGFILTER_MASK   _IOW('o',48,uint8_t *)
 #endif

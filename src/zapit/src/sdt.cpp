@@ -26,6 +26,9 @@
 #include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/sdt.h>
+#include <zapit/pmt.h>
+#include <zapit/pat.h>
+
 #include <zapit/settings.h>  // DEMUX_DEVICE
 #include <zapit/types.h>
 #include <zapit/bouquets.h>
@@ -367,7 +370,6 @@ _repeat:
 	return 0;
 }
 
-extern tallchans curchans;
 int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id,
 	t_satellite_position satellitePosition, freq_id_t freq)
 {
@@ -392,11 +394,10 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	bool EIT_schedule_flag;
 	bool EIT_present_following_flag;
 	bool free_CA_mode;
-
+	int tmp_free_CA_mode = -1;
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
-	curchans.clear();
 	filter[0] = 0x42;
 	filter[1] = (p_transport_stream_id >> 8) & 0xff;
 	filter[2] = p_transport_stream_id & 0xff;
@@ -417,6 +418,9 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	mask[7] = 0xFF;
 	memset(&mask[8], 0x00, 8);
 
+	std::vector<std::pair<int,int> > sidpmt;
+	scan_parse_pat( sidpmt );
+	
 	do {
 		if ((dmx->sectionFilter(0x11, filter, mask, 8) < 0) || (dmx->Read(buffer, SDT_SIZE) < 0)) {
 			delete dmx;
@@ -433,7 +437,16 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 			EIT_schedule_flag = buffer[pos + 2] & 0x02;
 			EIT_present_following_flag = buffer[pos + 2] & 0x01;
 			running_status = buffer [pos + 3] & 0xE0;
-			free_CA_mode = buffer [pos + 3] & 0x10;
+			for (unsigned short i=0; i<sidpmt.size(); i++){
+				if(sidpmt[i].first == service_id){
+					tmp_free_CA_mode = scan_parse_pmt( sidpmt[i].second, sidpmt[i].first );
+				}
+			}
+			if(tmp_free_CA_mode == -1)
+				free_CA_mode = buffer [pos + 3] & 0x10;
+			else
+				free_CA_mode = tmp_free_CA_mode;
+
 			descriptors_loop_length = ((buffer[pos + 3] & 0x0F) << 8) | buffer[pos + 4];
 
 			for (pos2 = pos + 5; pos2 < pos + descriptors_loop_length + 5; pos2 += buffer[pos2 + 1] + 2) {
@@ -452,6 +465,7 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 					break;
 				}
 			}
+			free_CA_mode = -1;
 		}
 	}
 	while (filter[4]++ != buffer[7]);

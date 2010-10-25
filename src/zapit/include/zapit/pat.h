@@ -21,9 +21,8 @@
 
 #ifndef __zapit_pat_h__
 #define __zapit_pat_h__
-
 #include "channel.h"
-
 int parse_pat(CZapitChannel * const channel);
+int scan_parse_pat( std::vector<std::pair<int,int> > &sidpmt );
 
 #endif /* __zapit_pat_h__ */

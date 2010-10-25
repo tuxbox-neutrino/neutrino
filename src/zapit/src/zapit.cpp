@@ -2413,7 +2413,7 @@ printf("[zapit] sdt monitor started\n");
 printf("[sdt monitor] wakeup...\n");
 			wtime = 0;
 
-			if(scan_runs)
+			if(scan_runs || (currentMode & RECORD_MODE))
 				continue;
 
 			updated = 0;
@@ -2437,6 +2437,7 @@ printf("[sdt monitor] wakeup...\n");
 				printf("[sdt monitor] TP already updated.\n");
 				continue;
 			}
+			curchans.clear();
 			ret = parse_current_sdt(transport_stream_id, original_network_id, satellitePosition, freq);
 			if(ret)
 				continue;
