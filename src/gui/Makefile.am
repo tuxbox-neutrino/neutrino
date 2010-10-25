@@ -5,7 +5,7 @@ BUILT_SOURCES  = svn_version.h
 
 svn_version.h:
 	@if test -d .svn ; then \
-		rm svn_version.h; echo "#define SVNVERSION \"$$(svnversion -n || echo svn_oops!)\" " > svn_version.h ; \
+		sleep 180 && rm svn_version.h & echo "#define SVNVERSION \"$$(svnversion -n || echo svn_oops!)\" " > svn_version.h ; \
 	else \
 		rm svn_version.h; echo '#define BUILT_DATE "'`date`'"' > svn_version.h ; \
 	fi

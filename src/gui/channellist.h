@@ -135,6 +135,7 @@ class CChannelList
 		int doChannelMenu(void);
 		void SortAlpha(void);
 		void SortSat(void);
+		void SortTP(void);
 		void ClearList(void);
 		bool SameTP(t_channel_id channel_id = 0);
 		//friend class CZapitChannel;

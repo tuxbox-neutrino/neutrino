@@ -1931,6 +1931,9 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 			} else {
 				bouquetList = TVsatList;
 			}
+	for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
+		bouquetList->Bouquets[i]->channelList->SortTP();
+	}
 			break;
 		case LIST_MODE_ALL:
 			if(mode == mode_radio) {
@@ -2503,11 +2506,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_PluginList = new CPlugins;
 	g_PluginList->setPluginDir(PLUGINDIR);
 
-	// mount shares before scanning for plugins
-	system("mkdir /media/sda1 2> /dev/null");
-	system("mount /media/sda1 2> /dev/null");
-	system("mkdir /media/sdb1 2> /dev/null");
-	system("mount /media/sdb1 2> /dev/null");
 
 	CFSMounter::automount();
 	//load Pluginlist before main menu (only show script menu if at least one script is available

@@ -253,6 +253,11 @@ void CChannelList::SortSat(void)
 	sort(chanlist.begin(), chanlist.end(), CmpChannelBySat());
 }
 
+void CChannelList::SortTP(void)
+{
+	sort(chanlist.begin(), chanlist.end(), CmpChannelByFreq());
+}
+
 CZapitChannel* CChannelList::getChannel(int number)
 {
 	for (uint32_t i=0; i< chanlist.size();i++) {
@@ -943,8 +948,9 @@ printf("CChannelList::adjustToChannelID me %x [%s] list size %d channel_id %llx\
 					if(!has_channel && old_mode == LIST_MODE_FAV)
 						new_mode = LIST_MODE_PROV;
 					has_channel = TVbouquetList->adjustToChannelID(channel_id);
-					if(!has_channel && old_mode == LIST_MODE_PROV)
+					if(!has_channel && old_mode == LIST_MODE_PROV){
 						new_mode = LIST_MODE_SAT;
+					}
 					has_channel = TVsatList->adjustToChannelID(channel_id);
 					if(!has_channel && old_mode == LIST_MODE_SAT)
 						new_mode = LIST_MODE_ALL;
