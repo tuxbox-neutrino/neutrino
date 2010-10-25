@@ -1931,9 +1931,11 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 			} else {
 				bouquetList = TVsatList;
 			}
+#if 0 
 	for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
 		bouquetList->Bouquets[i]->channelList->SortTP();
 	}
+#endif 
 			break;
 		case LIST_MODE_ALL:
 			if(mode == mode_radio) {
