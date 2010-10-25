@@ -397,7 +397,7 @@ printf("[pmt] name %s\n", description.c_str());
 	return ES_info_length;
 }
 
-int curpmtpid;
+int curpmtpid,curservice_id;
 int pmt_caids[4][11] = {{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0}};
 
 int parse_pmt(CZapitChannel * const channel)
@@ -455,7 +455,7 @@ int parse_pmt(CZapitChannel * const channel)
 	delete dmx;
 
 	extern cDvbCi *ci;
-
+	curservice_id = channel->getServiceId();
 	curpmtpid = channel->getPmtPid();
 	pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] +3;
 
@@ -592,9 +592,9 @@ int parse_pmt(CZapitChannel * const channel)
 
 int scan_parse_pmt(int pmtpid, int service_id )
 {
-	if(pmtpid < 1 )
+	if(pmtpid < 1 ) || (curpmtpid == pmtpid && service_id != curservice_id)
 		return -1;
-	if(curpmtpid == pmtpid ){
+	if(curpmtpid == pmtpid && service_id == curservice_id){
 		 for(int i=0;i<11;i++){
 			if(pmt_caids[0][i] > 0)
 			  return 1;
@@ -638,7 +638,7 @@ int scan_parse_pmt(int pmtpid, int service_id )
 
 	dpmtlen=0;
 	pos=10;
-
+	if(service_id == ((buffer[3] << 8) | buffer[4]) ){
 		while(pos+2<pmtlen) {
 			dpmtlen=((buffer[pos] & 0x0f) << 8) | buffer[pos+1];
 			for ( ia=pos+2;ia<(dpmtlen+pos+2);ia +=descriptor_length+2 ) {
@@ -664,6 +664,8 @@ int scan_parse_pmt(int pmtpid, int service_id )
 			pos+=dpmtlen+5;
 		} // while
 		return 0;
+	}
+	return -1;
 
 }
 #ifndef DMX_SET_NEGFILTER_MASK
