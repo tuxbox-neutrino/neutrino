@@ -513,10 +513,12 @@ void CDateInput::onAfterExec()
 	sscanf( value, "%02d.%02d.%04d %02d:%02d", &tmTime.tm_mday, &tmTime.tm_mon,
 			&tmTime.tm_year,
 			&tmTime.tm_hour, &tmTime.tm_min);
-	tmTime.tm_mon-=1;
-	tmTime.tm_year-=1900;
-	tmTime.tm_sec=0;
-	tmTime.tm_isdst=dst;
+	tmTime.tm_mon -= 1;
+	tmTime.tm_year -= 1900;
+	tmTime.tm_sec = 0;
+
+	//tmTime.tm_isdst = dst;
+	tmTime.tm_isdst = -1;
 
 	if(tmTime.tm_year>129)
 		tmTime.tm_year=129;
@@ -542,6 +544,7 @@ void CDateInput::onAfterExec()
 		tmTime.tm_sec=59;
 	if(tmTime.tm_sec<0)
 		tmTime.tm_sec=0;
+
 	*time=mktime(&tmTime);
 	struct tm *tmTime2 = localtime(time);
 	sprintf( value, "%02d.%02d.%04d %02d:%02d", tmTime2->tm_mday, tmTime2->tm_mon+1,
