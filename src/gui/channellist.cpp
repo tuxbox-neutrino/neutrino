@@ -1543,12 +1543,12 @@ void CChannelList::paintDetails(int index)
 		}
 
 		if(chanlist[index]->pname)
-			snprintf(&buf[len], sizeof(buf) - len, "(%s)\n", chanlist[index]->pname);
+			snprintf(&buf[len], sizeof(buf) - len, "(%s)", chanlist[index]->pname);
 		else {
 			sat_iterator_t sit = satellitePositions.find(chanlist[index]->getSatellitePosition());
 			if(sit != satellitePositions.end()) {
 				//int satNameWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth (sit->second.name);
-				snprintf(&buf[len], sizeof(buf) - len, "(%s)\n", sit->second.name.c_str());
+				snprintf(&buf[len], sizeof(buf) - len, "(%s)", sit->second.name.c_str());
 			}
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
