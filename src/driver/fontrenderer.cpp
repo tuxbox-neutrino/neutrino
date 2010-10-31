@@ -471,16 +471,24 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	for (; *text; text++)
 	{
 		FTC_SBit glyph;
-		if (*text=='\n')
-		{
-			x  = left;
-			y += step_y;
-		}
 
 		int unicode_value = UTF8ToUnicode(text, utf8_encoded);
 
 		if (unicode_value == -1)
 			break;
+
+		if (*text=='\n')
+		{
+			/* a '\n' in the text is basically an error, it should not have come
+			   until here. To find the offenders, we replace it with a paragraph
+			   marker */
+			unicode_value = 0x00b6; /* &para;  PILCROW SIGN */
+			/* this did not work anyway - pen1 overrides x value down below :-)
+			   and there are no checks that we don't leave our assigned box
+			x  = left;
+			y += step_y;
+			 */
+		}
 
 		int index = FT_Get_Char_Index(face, unicode_value);
 
