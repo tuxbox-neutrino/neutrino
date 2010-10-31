@@ -220,7 +220,6 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	FILE * f;
 	char src[128], dst[128];
 	CProgressWindow * progress;
-	bool idone;
 
 	snprintf(src, sizeof(src), "/dev/%s1", key.c_str());
 	snprintf(dst, sizeof(dst), "/media/%s1", key.c_str());
@@ -295,25 +294,66 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	}
 
 	char buf[256];
-	idone = false;
-	while(fgets(buf, 255, f) != NULL)
+	setbuf(f, NULL);
+	int n, t, in, pos, stage;
+	pos = 0;
+	stage = 0;
+	while (true)
 	{
-		printf("%s", buf);
-                if(!idone && strncmp(buf, "Writing inode", 13)) {
-			idone = true;
-			buf[21] = 0;
-			progress->showGlobalStatus(20);
-                        progress->showStatusMessageUTF(buf);
-                }
-		else if(strncmp(buf, "Creating", 8)) {
-			progress->showGlobalStatus(40);
-                        progress->showStatusMessageUTF(buf);
-		}
-		else if(strncmp(buf, "Writing superblocks", 19)) {
-			progress->showGlobalStatus(60);
-                        progress->showStatusMessageUTF(buf);
+		in = fgetc(f);
+		if (in == EOF)
+			break;
+
+		buf[pos] = (char)in;
+		pos++;
+		buf[pos] = 0;
+		if (in == '\b' || in == '\n')
+			pos = 0; /* start a new line */
+		//printf("%s", buf);
+		switch (stage) {
+			case 0:
+				if (strcmp(buf, "Writing inode tables:") == 0) {
+					stage++;
+					progress->showGlobalStatus(20);
+					progress->showStatusMessageUTF(buf);
+				}
+				break;
+			case 1:
+				if (in == '\b' && sscanf(buf, "%d/%d\b", &n, &t) == 2) {
+					int percent = 100 * n / t;
+					progress->showLocalStatus(percent);
+					progress->showGlobalStatus(20 + percent / 5);
+				}
+				if (strstr(buf, "done")) {
+					stage++;
+					pos = 0;
+				}
+				break;
+			case 2:
+				if (strstr(buf, "blocks):") && sscanf(buf, "Creating journal (%d blocks):", &n) == 1) {
+					progress->showLocalStatus(0);
+					progress->showGlobalStatus(60);
+					progress->showStatusMessageUTF(buf);
+					pos = 0;
+				}
+				if (strstr(buf, "done")) {
+					stage++;
+					pos = 0;
+				}
+				break;
+			case 3:
+				if (strcmp(buf, "Writing superblocks and filesystem accounting information:") == 0) {
+					progress->showGlobalStatus(80);
+					progress->showStatusMessageUTF(buf);
+					pos = 0;
+				}
+				break;
+			default:
+				// printf("unknown stage! %d \n\t", stage);
+				break;
 		}
 	}
+	progress->showLocalStatus(100);
 	pclose(f);
 	progress->showGlobalStatus(100);
 	sleep(2);
