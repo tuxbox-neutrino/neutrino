@@ -154,7 +154,7 @@ int CHDDMenuHandler::doMenu ()
 		fscanf(f, "%d", &removable);
 		fclose(f);
 
-		snprintf(str, sizeof(str), "%s %s (%s-%s %lld %s)\n", g_Locale->getText(LOCALE_HDD_MANAGE), namelist[i]->d_name, vendor, model, megabytes < 10000 ? megabytes : megabytes/1000, megabytes < 10000 ? "MB" : "GB");
+		snprintf(str, sizeof(str), "%s %s (%s-%s %lld %s)", g_Locale->getText(LOCALE_HDD_MANAGE), namelist[i]->d_name, vendor, model, megabytes < 10000 ? megabytes : megabytes/1000, megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
 		CMenuWidget * tempMenu = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
 		tempMenu->addItem( GenericMenuBack );
@@ -430,8 +430,12 @@ printf("CHDDChkExec: key %s\n", key.c_str());
 				progress->showLocalStatus(percent);
 			}
 		}
-		else if(!strncmp(buf, "Pass", 4))
+		else if(!strncmp(buf, "Pass", 4)) {
+			char *t = strrchr(buf, '\n');
+			if (t)
+				*t = 0;
 			progress->showStatusMessageUTF(buf);
+		}
 	}
 //printf("CHDDChkExec: %s\n", buf);
 	pclose(f);
