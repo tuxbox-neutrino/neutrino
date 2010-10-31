@@ -267,6 +267,8 @@ void CDBoxInfoWidget::paint()
 			i++;
 			if (i > 2)
 				continue;
+			if (read > 0 && buffer[read-1] == '\n')
+				buffer[read-1] = '\0';
 			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+ 10, ypos+ mheight, width - 10, buffer, COL_MENUCONTENT);
 			ypos+= mheight;
 		}
@@ -308,7 +310,7 @@ void CDBoxInfoWidget::paint()
 			snprintf(ubuf,buf_size,"%d min, ", upminutes);
 		strcat(sbuf, ubuf);
 
-		snprintf(ubuf,buf_size, "load: %ld.%02ld, %ld.%02ld, %ld.%02ld\n",
+		snprintf(ubuf,buf_size, "load: %ld.%02ld, %ld.%02ld, %ld.%02ld",
 			 LOAD_INT(info.loads[0]), LOAD_FRAC(info.loads[0]),
 			 LOAD_INT(info.loads[1]), LOAD_FRAC(info.loads[1]),
 			 LOAD_INT(info.loads[2]), LOAD_FRAC(info.loads[2]));
