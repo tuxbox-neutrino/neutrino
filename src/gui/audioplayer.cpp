@@ -237,7 +237,7 @@ CAudioPlayerGui::~CAudioPlayerGui()
 	m_radiolist.clear();
 	m_filelist.clear();
 	m_title2Pos.clear();
-	g_Zapit->setStandby (false);
+//	g_Zapit->setStandby (false);
 	g_Sectionsd->setPauseScanning (false);
 }
 
@@ -298,8 +298,8 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 	if (usedBackground)
 		m_frameBuffer->saveBackgroundImage();
 
-	// set zapit in standby mode
-	g_Zapit->stopPlayBack();
+	// set zapit in lock mode
+	g_Zapit->lockPlayBack();
 
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 
@@ -327,10 +327,10 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 	if (system(AUDIOPLAYER_END_SCRIPT) != 0)
 		perror("Datei " AUDIOPLAYER_END_SCRIPT " fehlt. Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_END_SCRIPT " not found. Please create if needed.\n");
 
+	g_Zapit->unlockPlayBack();
 	// Start Sectionsd
 	g_Sectionsd->setPauseScanning(false);
 	videoDecoder->StopPicture();
-
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
 	g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 
