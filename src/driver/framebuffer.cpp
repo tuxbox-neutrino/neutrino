@@ -1117,6 +1117,67 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 	#endif
 }
 
+void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int rad)
+{
+	if (!getActive())
+		return;
+
+	int radius = rad;
+	int c_radius = rad << 1;
+
+	paintBoxRel(sx + rad    , sy          ,     dx - c_radius, px, col); // upper horizontal
+	paintBoxRel(sx + rad    , sy + dy - px,     dx - c_radius, px, col); // lower horizontal
+	paintBoxRel(sx          , sy + rad    , px, dy - c_radius    , col); // left vertical
+	paintBoxRel(sx + dx - px, sy + rad    , px, dy - c_radius    , col); // right vertical
+
+	if (!radius)
+	{
+		return;
+	}
+
+	int x1 = sx + radius;
+	int y1 = sy + radius;
+	int x2 = sx + dx - radius -1;
+	int y2 = sy + dy - radius -1;
+
+	int f = 1 - radius;
+	int ddF_x = 1;
+	int ddF_y = - c_radius;
+	int x = 0;
+	int y = radius;
+
+	while(x < y)
+	{
+		// ddF_x == 2 * x + 1;
+		// ddF_y == -2 * y;
+		// f == x*x + y*y - radius*radius + 2*x - y + 1;
+		if(f >= 0)
+		{
+			y--;
+			ddF_y += 2;
+			f += ddF_y;
+	    }
+		x++;
+		ddF_x += 2;
+		f += ddF_x;
+
+		int width = 0;
+		while (width <= px)
+		{
+			paintPixel(x2 + x        , y1 - y + width, col); // 1. oct
+			paintPixel(x2 + y - width, y1 - x        , col); // 2. oct
+			paintPixel(x2 + y - width, y2 + x        , col); // 3. oct
+			paintPixel(x2 + x        , y2 + y - width, col); // 4. oct
+			paintPixel(x1 - x        , y2 + y - width, col); // 5. oct
+			paintPixel(x1 - y + width, y2 + x        , col); // 6. oct
+			paintPixel(x1 - y + width, y1 - x        , col); // 7. oct
+			paintPixel(x1 - x        , y1 - y + width, col); // 8. oct
+			width++;
+		}
+	}
+
+}
+
 void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t col)
 {
 	if (!getActive())

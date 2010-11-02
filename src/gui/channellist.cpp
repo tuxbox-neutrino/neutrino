@@ -1595,7 +1595,9 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,4, col1);
 			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,1, col2);
 
-			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, RADIUS_LARGE);
+//			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, RADIUS_LARGE);
+			frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
+
 		}
 	}
 }
