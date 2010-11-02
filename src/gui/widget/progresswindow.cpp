@@ -44,7 +44,7 @@ CProgressWindow::CProgressWindow()
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	int fw      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getWidth();
-	width       = w_max (32*fw, 0);
+	width       = w_max (50*fw, 0);
 	height      = h_max(hheight+5*mheight, 20);
 
 	global_progress = local_progress = 101;

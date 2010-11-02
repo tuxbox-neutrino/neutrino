@@ -95,7 +95,7 @@ int CHDDMenuHandler::doMenu ()
 	}
 #endif
 
-	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_HDD_SETTINGS, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_HDD_SETTINGS, NEUTRINO_ICON_SETTINGS, 48);
 	hddmenu->addItem( GenericMenuBack );
 	hddmenu->addItem( GenericMenuSeparatorLine );
 
