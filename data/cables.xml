@@ -137,7 +137,8 @@
 		<transponder frequency="370000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="378000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="386000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
-		<transponder frequency="394000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="394000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+                <transponder frequency="396000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="402000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="410000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="418000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
