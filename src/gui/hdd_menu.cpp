@@ -180,21 +180,21 @@ int CHDDMenuHandler::doMenu ()
 int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 {
 	char cmd[100];
+	struct dirent **namelist;
+	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
 
-	printf("CHDDDestExec: noise %d sleep %d\n", g_settings.hdd_noise, g_settings.hdd_sleep);
-	//FIXME: atm we can have 2 hdd, sata and usb
-	snprintf(cmd, sizeof(cmd), "hdparm -S%d /dev/sda >/dev/null 2>/dev/null", g_settings.hdd_sleep);
-	system(cmd);
-	snprintf(cmd, sizeof(cmd), "hdparm -M%d /dev/sda >/dev/null 2>/dev/null", g_settings.hdd_noise);
-	system(cmd);
-	snprintf(cmd, sizeof(cmd), "hdparm -S%d /dev/sdb >/dev/null 2>/dev/null", g_settings.hdd_sleep);
-	system(cmd);
-	snprintf(cmd, sizeof(cmd), "hdparm -M%d /dev/sdb >/dev/null 2>/dev/null", g_settings.hdd_noise);
-	system(cmd);
-	snprintf(cmd, sizeof(cmd), "hdparm -K /dev/sda >/dev/null 2>/dev/null");
-	system(cmd);
-	snprintf(cmd, sizeof(cmd), "hdparm -K /dev/sdb >/dev/null 2>/dev/null");
-	system(cmd);
+	if (n < 0)
+		return 0;
+
+	for (int i = 0; i < n; i++) {
+		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
+			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+		snprintf(cmd, sizeof(cmd), "hdparm -M%d -S%d /dev/%s >/dev/null 2>/dev/null",
+			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+		system(cmd);
+		free(namelist[i]);
+	}
+	free(namelist);
 	return 1;
 }
 
