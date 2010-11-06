@@ -64,9 +64,9 @@
 #include <driver/screen_max.h>
 
 
-static int my_filter(const struct dirent * dent)
+static int my_filter(const struct dirent *d)
 {
-	if(dent->d_name[0] == 's' && dent->d_name[1] == 'd')
+	if ((d->d_name[0] == 's' || d->d_name[0] == 'h') && d->d_name[1] == 'd')
 		return 1;
 	return 0;
 }
@@ -138,6 +138,7 @@ int CHDDMenuHandler::doMenu ()
 		int64_t bytes;
 		int64_t megabytes;
 		int removable = 0;
+		bool oldkernel = false;
 		bool isroot = false;
 
 		printf("HDD: checking /sys/block/%s\n", namelist[i]->d_name);
@@ -164,13 +165,19 @@ int CHDDMenuHandler::doMenu ()
 		snprintf(str, sizeof(str), "/sys/block/%s/device/vendor", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if(!f) {
-			printf("Cant open %s\n", str);
-			continue;
+			oldkernel = true;
+			strcpy(vendor, "");
+		} else {
+			fscanf(f, "%s", vendor);
+			fclose(f);
+			strcat(vendor, "-");
 		}
-		fscanf(f, "%s", vendor);
-		fclose(f);
 
-		snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
+		/* the Tripledragon only has kernel 2.6.12 available.... :-( */
+		if (oldkernel)
+			snprintf(str, sizeof(str), "/proc/ide/%s/model", namelist[i]->d_name);
+		else
+			snprintf(str, sizeof(str), "/sys/block/%s/device/model", namelist[i]->d_name);
 		f = fopen(str, "r");
 		if(!f) {
 			printf("Cant open %s\n", str);
@@ -451,6 +458,39 @@ _remount:
 		snprintf(cmd, sizeof(cmd), "%s/music", dst);
 		safe_mkdir((char *) cmd);
 		sync();
+#if HAVE_TRIPLEDRAGON
+		/* on the tripledragon, we mount via fstab, so we need to add an
+		   fstab entry for dst */
+		FILE *g;
+		char *line = NULL;
+		unlink("/etc/fstab.new");
+		g = fopen("/etc/fstab.new", "w");
+		f = fopen("/etc/fstab", "r");
+		if (!g)
+			perror("open /etc/fstab.new");
+		else {
+			if (f) {
+				int ret;
+				while (true) {
+					size_t dummy;
+					ret = getline(&line, &dummy, f);
+					if (ret < 0)
+						break;
+					/* remove lines that start with the same disk we formatted
+					   src is "/dev/xda1", we only compare "/dev/xda" */
+					if (strncmp(line, src, strlen(src)-1) != 0)
+						fprintf(g, "%s", line);
+				}
+				free(line);
+				fclose(f);
+			}
+			/* now add our new entry */
+			fprintf(g, "%s %s auto defaults 0 0\n", src, dst);
+			fclose(g);
+			rename("/etc/fstab", "/etc/fstab.old");
+			rename("/etc/fstab.new", "/etc/fstab");
+		}
+#endif
 	}
 _return:
 	if(!srun) system("smbd");
