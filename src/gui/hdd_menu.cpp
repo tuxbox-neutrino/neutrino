@@ -164,7 +164,11 @@ int CHDDMenuHandler::doMenu ()
 		tempMenu->addItem(new CMenuForwarder(LOCALE_HDD_CHECK, true, "", new CHDDChkExec, namelist[i]->d_name));
 		hddmenu->addItem(new CMenuForwarderNonLocalized(str, removable ? false : true, NULL, tempMenu));
 		hdd_found = 1;
+		free(namelist[i]);
 	}
+	if (n >= 0)
+		free(namelist);
+
 	if(!hdd_found)
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
 
