@@ -364,6 +364,9 @@ flashupdate.writeflash Write whole image
 flashupdate.writeflashmtd Write one partition
 flashupdate.wrongbase Your Release cycle differs.\nTo continue?
 fontmenu.menu Menu
+fontmenu.scaling Global Font Zoom Factor
+fontmenu.scaling_x Horizontal (in %)
+fontmenu.scaling_y Vertical (in %)
 fontmenu.sizes Font sizes
 fontmenu.channellist Channellist
 fontmenu.epg EPG

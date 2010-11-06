@@ -435,6 +435,9 @@ flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
 flashupdate.new_found Updates verfügbar!
 flashupdate.new_notfound Keine Updates verfügbar!
 fontmenu.menu Menü
+fontmenu.scaling Schriftgrössenfaktor
+fontmenu.scaling_x Horizontal (in %)
+fontmenu.scaling_y Vertikal (in %)
 fontmenu.sizes Schriftgrössen
 fontmenu.channellist Kanalliste
 fontmenu.epg EPG (Programmführer)

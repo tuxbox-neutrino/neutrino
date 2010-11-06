@@ -198,9 +198,6 @@ cCpuFreqManager * cpuFreq;
 
 int prev_video_mode;
 
-int xres = 72;
-int yres = 72; // TODO: no globals for that.
-
 int g_channel_list_changed;
 
 void stop_daemons(bool stopall = true);
@@ -1069,6 +1066,8 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	//screen configuration
+	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
+	g_settings.screen_yres = configfile.getInt32("screen_yres", 100);
 	g_settings.screen_StartX_crt = configfile.getInt32( "screen_StartX_crt", DEFAULT_X_START_SD);
 	g_settings.screen_StartY_crt = configfile.getInt32( "screen_StartY_crt", DEFAULT_Y_START_SD );
 	g_settings.screen_EndX_crt = configfile.getInt32( "screen_EndX_crt", DEFAULT_X_END_SD);
@@ -2001,11 +2000,12 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			zapit_debug = 1;
 		}
 		else if (!strcmp(argv[x], "-r")) {
+			printf("[neutrino] WARNING: parameter -r ignored\n");
 			x++;
 			if (x < argc)
-				xres = atoi(argv[x++]);
+				x++;
 			if (x < argc)
-				yres = atoi(argv[x++]);
+				x++;
 		}
 		else {
 			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] [-f | --enable-flash] "
@@ -2051,7 +2051,7 @@ void CNeutrinoApp::SetupFonts()
 	if (g_fontRenderer != NULL)
 		delete g_fontRenderer;
 
-	g_fontRenderer = new FBFontRenderClass(xres, yres);
+	g_fontRenderer = new FBFontRenderClass(72 * g_settings.screen_xres / 100, 72 * g_settings.screen_yres / 100);
 
 	if(font.filename != NULL)
 		free((void *)font.filename);
@@ -4690,6 +4690,22 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 			strcpy(g_settings.ttx_font_file, fileBrowser.getSelectedFile()->Name.c_str());
 			ttx_font_file = fileBrowser.getSelectedFile()->Name;
 			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+			SetupFonts();
+		}
+		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "font_scaling") {
+		int xre = g_settings.screen_xres;
+		int yre = g_settings.screen_yres;
+		parent->hide();
+		CMenuWidget fontscale(LOCALE_FONTMENU_SCALING, NEUTRINO_ICON_COLORS);
+		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &xre, true, 50, 200));
+		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &yre, true, 50, 200));
+		fontscale.exec(NULL, "");
+		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
+			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", xre, yre);
+			g_settings.screen_xres = xre;
+			g_settings.screen_yres = yre;
 			SetupFonts();
 		}
 		return menu_return::RETURN_REPAINT;
