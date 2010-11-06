@@ -219,6 +219,7 @@ static int check_and_umount(char * dev, char * path)
 int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 {
 	char cmd[100];
+	char cmd2[100];
 	CHintBox * hintbox;
 	int res;
 	FILE * f;
@@ -260,7 +261,14 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 	progress->showStatusMessageUTF("Executing fdisk");
 	progress->showGlobalStatus(0);
 
-	snprintf(cmd, sizeof(cmd), "/sbin/sfdisk -f -uM /dev/%s", key.c_str());
+	if (access("/sbin/sfdisk", X_OK) == 0) {
+		snprintf(cmd, sizeof(cmd), "/sbin/sfdisk -f -uM /dev/%s", key.c_str());
+		strcpy(cmd2, "0,\n;\n;\n;\ny\n");
+	} else {
+		snprintf(cmd, sizeof(cmd), "/sbin/fdisk /dev/%s", key.c_str());
+		strcpy(cmd2, "o\nn\np\n1\n\n\nw\n");
+	}
+
 	printf("CHDDFmtExec: executing %s\n", cmd);
 	f=popen(cmd, "w");
 	if (!f) {
@@ -271,7 +279,7 @@ int CHDDFmtExec::exec(CMenuTarget* /*parent*/, const std::string& key)
 		goto _remount;
 	}
 
-	fprintf(f, "0,\n;\n;\n;\ny\n");
+	fprintf(f, "%s", cmd2);
 	pclose(f);
 	//sleep(1);
 
