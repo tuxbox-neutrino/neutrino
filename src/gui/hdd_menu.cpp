@@ -85,6 +85,8 @@ int CHDDMenuHandler::doMenu ()
 	int fd;
 	struct dirent **namelist;
 	int ret;
+	struct stat s;
+	int root_dev = -1;
 
 	bool hdd_found = 0;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
@@ -107,12 +109,18 @@ int CHDDMenuHandler::doMenu ()
 	//if(n > 0)
 	hddmenu->addItem( GenericMenuSeparatorLine );
 
+	ret = stat("/", &s);
+	if (ret != -1)
+		root_dev = (s.st_dev & 0x0ffc0); /* hda = 0x0300, hdb = 0x0340 */
+	printf("HDD: root_dev: 0x%04x\n", root_dev);
+
 	for(int i = 0; i < n;i++) {
 		char str[256];
 		char vendor[128], model[128];
 		int64_t bytes;
 		int64_t megabytes;
 		int removable = 0;
+		bool isroot = false;
 
 		printf("HDD: checking /sys/block/%s\n", namelist[i]->d_name);
 		snprintf(str, sizeof(str), "/dev/%s", namelist[i]->d_name);
@@ -123,6 +131,14 @@ int CHDDMenuHandler::doMenu ()
 		}
 		if (ioctl(fd, BLKGETSIZE64, &bytes))
 			perror("BLKGETSIZE64");
+
+		ret = fstat(fd, &s);
+		if (ret != -1) {
+			if ((int)(s.st_rdev & 0x0ffc0) == root_dev) {
+				isroot = true;
+				printf("-> root device is on this disk, skipping\n");
+			}
+		}
 		close(fd);
 
 		megabytes = bytes/1000000;
@@ -162,7 +178,7 @@ int CHDDMenuHandler::doMenu ()
 		//tempMenu->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
 		tempMenu->addItem(new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", new CHDDFmtExec, namelist[i]->d_name));
 		tempMenu->addItem(new CMenuForwarder(LOCALE_HDD_CHECK, true, "", new CHDDChkExec, namelist[i]->d_name));
-		hddmenu->addItem(new CMenuForwarderNonLocalized(str, removable ? false : true, NULL, tempMenu));
+		hddmenu->addItem(new CMenuForwarderNonLocalized(str, (removable || isroot) ? false : true, NULL, tempMenu));
 		hdd_found = 1;
 		free(namelist[i]);
 	}
