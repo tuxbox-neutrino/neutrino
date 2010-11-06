@@ -38,6 +38,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
+#include <cs_api.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -121,6 +122,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_HDMI_DD_OPTIONS[AUDIOMENU_HDMI_DD_OPT
 /* audio settings menu */
 int CAudioSetup::showAudioSetup()
 {
+	unsigned int system_rev = cs_get_revision();
 	//menue init
 	CMenuWidget* audioSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	audioSettings->setSelected(selected);
@@ -133,7 +135,11 @@ int CAudioSetup::showAudioSetup()
 	CMenuOptionChooser * as_oj_ddsubchn 	= new CMenuOptionChooser(LOCALE_AUDIOMENU_DOLBYDIGITAL, &g_settings.audio_DolbyDigital, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier);
 	
 	//dd via hdmi
-	CMenuOptionChooser * as_oj_dd_hdmi 	= new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, AUDIOMENU_HDMI_DD_OPTIONS, AUDIOMENU_HDMI_DD_OPTION_COUNT, true, audioSetupNotifier);
+	CMenuOptionChooser *as_oj_dd_hdmi = NULL;
+	/* system_rev == 0x01 is a hack: no Coolstream box has this value, but libtriple
+	   defines it for the Tripledragon, so 0x01 identifies the TD. */
+	if (system_rev != 0x01)
+		as_oj_dd_hdmi = new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, AUDIOMENU_HDMI_DD_OPTIONS, AUDIOMENU_HDMI_DD_OPTION_COUNT, true, audioSetupNotifier);
 	
 	//dd via spdif
 	CMenuOptionChooser * as_oj_dd_spdif 	= new CMenuOptionChooser(LOCALE_AUDIOMENU_SPDIF_DD, &g_settings.spdif_dd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier);
@@ -172,7 +178,8 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_analogmode);
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------------------------
-	audioSettings->addItem(as_oj_dd_hdmi);
+	if (system_rev != 0x01)
+		audioSettings->addItem(as_oj_dd_hdmi);
 	audioSettings->addItem(as_oj_dd_spdif);
 	audioSettings->addItem(as_oj_ddsubchn);
 	audioSettings->addItem(GenericMenuSeparatorLine);
@@ -181,11 +188,19 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_vsteps);
 //	audioSettings->addItem(as_clockrec);
 	//---------------------------------------------------------
-	audioSettings->addItem(GenericMenuSeparatorLine);
-	audioSettings->addItem(as_oj_srsonoff);
-	audioSettings->addItem(as_oj_algo);
-	audioSettings->addItem(as_oj_noise);
-	audioSettings->addItem(as_oj_volrev);
+	if (system_rev != 0x01) {
+		audioSettings->addItem(GenericMenuSeparatorLine);
+		audioSettings->addItem(as_oj_srsonoff);
+		audioSettings->addItem(as_oj_algo);
+		audioSettings->addItem(as_oj_noise);
+		audioSettings->addItem(as_oj_volrev);
+	} else {
+		/* if it's not added, we need to delete it manually */
+		delete as_oj_srsonoff;
+		delete as_oj_algo;
+		delete as_oj_noise;
+		delete as_oj_volrev;
+	}
 #if 0
 	audioSettings->addItem(mf);
 #endif
