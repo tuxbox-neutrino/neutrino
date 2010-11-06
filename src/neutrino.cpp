@@ -1596,6 +1596,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 
 	//screen configuration
+	configfile.setInt32( "screen_xres", g_settings.screen_xres);
+	configfile.setInt32( "screen_yres", g_settings.screen_yres);
 	configfile.setInt32( "screen_StartX_lcd", g_settings.screen_StartX_lcd );
 	configfile.setInt32( "screen_StartY_lcd", g_settings.screen_StartY_lcd );
 	configfile.setInt32( "screen_EndX_lcd", g_settings.screen_EndX_lcd );
