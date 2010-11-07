@@ -28,6 +28,8 @@
 #include <cstring>
 #include <cstdlib>
 
+#include <pthread.h>
+
 //#include <zapit/zapit.h>
 #include <zapit/debug.h>
 //#include <zapit/settings.h>
@@ -41,7 +43,16 @@
 cVideo * videoDecoder = NULL;
 int system_rev = 0;
 
+#if 0
+/* this would be necessary for the DirectFB implementation of ShowPicture */
+#include <directfb.h>
+#include <tdgfx/stb04gfx.h>
+extern IDirectFB *dfb;
+extern IDirectFBSurface *dfbdest;
+#endif
+
 extern struct Ssettings settings;
+static pthread_mutex_t stillp_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 cVideo::cVideo(int, void *, void *)
 {
@@ -263,14 +274,17 @@ int cVideo::Stop(bool blank)
 
 int cVideo::setBlank(int)
 {
+	lt_debug("cVideo::setBlank\n");
 	/* The TripleDragon has no VIDEO_SET_BLANK ioctl.
 	   instead, you write a black still-MPEG Iframe into the decoder.
 	   The original software uses different files for 4:3 and 16:9 and
 	   for PAL and NTSC. I optimized that a little bit
 	 */
 	int index = 0; /* default PAL */
+	int ret = 0;
 	VIDEOINFO v;
 	BUFINFO buf;
+	pthread_mutex_lock(&stillp_mutex);
 	memset(&v, 0, sizeof(v));
 	quiet_fop(ioctl, MPEG_VID_GET_V_INFO, &v);
 
@@ -281,8 +295,10 @@ int cVideo::setBlank(int)
 	}
 
 	if (blank_data[index] == NULL) /* no MPEG found */
-		return -1;
-
+	{
+		ret = -1;
+		goto out;
+	}
 	/* hack: this might work only on those two still-MPEG files!
 	   I diff'ed the 4:3 and the 16:9 still mpeg from the original
 	   soft and spotted the single bit difference, so there is no
@@ -299,7 +315,10 @@ int cVideo::setBlank(int)
 	buf.ulLen = blank_size[index];
 	buf.ulStartAdrOff = (int)blank_data[index];
 	fop(ioctl, MPEG_VID_STILLP_WRITE, &buf);
-	return fop(ioctl, MPEG_VID_SELECT_SOURCE, VID_SOURCE_DEMUX);
+	ret = fop(ioctl, MPEG_VID_SELECT_SOURCE, VID_SOURCE_DEMUX);
+ out:
+	pthread_mutex_unlock(&stillp_mutex);
+	return ret;
 }
 
 int cVideo::SetVideoSystem(int video_system, bool remember)
@@ -335,7 +354,88 @@ void cVideo::SetVideoMode(analog_mode_t mode)
 
 void cVideo::ShowPicture(const char * fname)
 {
-	fprintf(stderr, "cVideo::ShowPicture: %s\n", fname);
+	lt_debug("cVideo::ShowPicture: %s\n", fname);
+	char destname[512];
+	char cmd[512];
+	char *p;
+	void *data;
+	int mfd;
+	struct stat st;
+	strcpy(destname, "/var/cache");
+	mkdir(destname, 0755);
+	/* the cache filename is (example for /share/tuxbox/neutrino/icons/radiomode.jpg):
+	   /var/cache/share.tuxbox.neutrino.icons.radiomode.jpg.m2v
+	   build that filename first...
+	   TODO: this could cause name clashes, use a hashing function instead... */
+	strcat(destname, fname);
+	p = &destname[strlen("/var/cache/")];
+	while ((p = strchr(p, '/')) != NULL)
+		*p = '.';
+	strcat(destname, ".m2v");
+	/* ...then check if it exists already...
+	   TODO: check if the cache file is older than the jpeg file... */
+	if (access(destname, R_OK))
+	{
+		/* it does not exist, so call ffmpeg to create it... */
+		sprintf(cmd, "ffmpeg -y -f mjpeg -i '%s' -s 704x576 '%s' </dev/null",
+							fname, destname);
+		system(cmd); /* TODO: use libavcodec to directly convert it */
+	}
+	/* the mutex is a workaround: setBlank is apparently called from
+	   a differnt thread and takes slightly longer, so that the decoder
+	   was blanked immediately after displaying the image, which is not
+	   what we want. the mutex ensures proper ordering. */
+	pthread_mutex_lock(&stillp_mutex);
+	mfd = open(destname, O_RDONLY);
+	if (mfd < 0)
+	{
+		WARN("cannot open %s: %m", destname);
+		goto out;
+	}
+	if (fstat(mfd, &st) != -1 && st.st_size > 0)
+	{
+		data = malloc(st.st_size);
+		if (! data)
+			ERROR("cannot malloc memory");
+		else if (read(mfd, data, st.st_size) != st.st_size)
+			ERROR("short read");
+		else
+		{
+			BUFINFO buf;
+			buf.ulLen = st.st_size;
+			buf.ulStartAdrOff = (int)data;
+			Stop(false);
+			fop(ioctl, MPEG_VID_STILLP_WRITE, &buf);
+		}
+		free(data);
+	}
+	close(mfd);
+ out:
+	pthread_mutex_unlock(&stillp_mutex);
+	return;
+#if 0
+	/* DirectFB based picviewer: works, but is slow and the infobar
+	   draws in the same plane */
+	int width;
+	int height;
+	if (!fname)
+		return;
+
+	IDirectFBImageProvider *provider;
+	DFBResult err = dfb->CreateImageProvider(dfb, fname, &provider);
+	if (err)
+	{
+		fprintf(stderr, "cVideo::ShowPicture: CreateImageProvider error!\n");
+		return;
+	}
+
+	DFBSurfaceDescription desc;
+	provider->GetSurfaceDescription (provider, &desc);
+	width = desc.width;
+	height = desc.height;
+	provider->RenderTo(provider, dfbdest, NULL);
+	provider->Release(provider);
+#endif
 }
 
 void cVideo::StopPicture()
