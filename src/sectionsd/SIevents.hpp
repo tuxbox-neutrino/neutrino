@@ -90,6 +90,14 @@ struct descr_linkage_header {
 	unsigned linkage_type			: 8;
 } __attribute__ ((packed)) ;
 
+struct descr_pdc_header {
+	unsigned descriptor_tag			: 8;
+	unsigned descriptor_length		: 8;
+	unsigned pil0				: 8;
+	unsigned pil1				: 8;
+	unsigned pil2				: 8;
+} __attribute__ ((packed)) ;
+
 class SIlinkage {
 public:
 	SIlinkage(const struct descr_linkage_header *link) {
@@ -344,6 +352,7 @@ public:
 		original_network_id = 0;
 		transport_stream_id = 0;
 		eventID    = 0;
+		vps = 0;
 //      dauer=0;
 //      startzeit=0;
 	}
@@ -383,6 +392,7 @@ public:
     SIparentalRatings ratings;
     SIlinkage_descs linkage_descs;
     SItimes times;
+    time_t vps;
     // Der Operator zum sortieren
     bool operator < (const SIevent& e) const {
       return uniqueKey()<e.uniqueKey();
