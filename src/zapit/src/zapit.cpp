@@ -103,6 +103,10 @@ char pipzap = 0;
 bool g_list_changed = false; // flag to indicate, allchans was changed
 int sig_delay = 2; // seconds between signal check
 
+/* variables for EN 50494 (a.k.a Unicable) */
+int uni_scr = -1;	/* the unicable SCR address,     -1 == no unicable */
+int uni_qrg = 0;	/* the unicable frequency in MHz, 0 == from spec */
+
 double gotoXXLatitude, gotoXXLongitude;
 int gotoXXLaDirection, gotoXXLoDirection, useGotoXX;
 int scanSDT;
@@ -232,6 +236,9 @@ void saveZapitSettings(bool write, bool write_a)
 		//config.setInt32("useGotoXX", useGotoXX);
 		config.setInt32("repeatUsals", repeatUsals);
 
+		config.setInt32("uni_scr", uni_scr);
+		config.setInt32("uni_qrg", uni_qrg);
+
 		config.setInt32("scanSDT", scanSDT);
 		if (config.getModifiedFlag())
 			config.saveConfig(CONFIGFILE);
@@ -301,6 +308,9 @@ void loadZapitSettings()
 	repeatUsals = config.getInt32("repeatUsals", 0);
 
 	scanSDT = config.getInt32("scanSDT", 0);
+
+	uni_scr = config.getInt32("uni_scr", -1);
+	uni_qrg = config.getInt32("uni_qrg", 0);
 
 	diseqcType = (diseqc_t)config.getInt32("diseqcType", NO_DISEQC);
 	motorRotationSpeed = config.getInt32("motorRotationSpeed", 18); // default: 1.8 degrees per second

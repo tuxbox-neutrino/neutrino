@@ -47,6 +47,9 @@ extern bool playing;
 extern int motorRotationSpeed;
 extern CEventServer *eventServer;
 
+extern int uni_scr;
+extern int uni_qrg;
+
 #define SOUTH	0
 #define NORTH	1
 #define EAST	0
@@ -708,7 +711,13 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		}
 		//TIMER_STOP("[fe0] clear events took");
 	}
-	printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
+	if (uni_scr >= 0)
+		p->props[FREQUENCY].u.data = sendEN50494TuningCommand(feparams->frequency,
+							currentToneMode == SEC_TONE_ON,
+							currentVoltage == SEC_VOLTAGE_18,
+							0); /* bank 0/1, like mini-diseqc a/b, not impl.*/
+
+	printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s, freq %d\n", f, s, m, pilot == PILOT_ON ? "on" : "off", p->props[FREQUENCY].u.data);
 
 	{
 		TIMER_INIT();
@@ -740,6 +749,16 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 	if (currentToneMode == toneMode)
 		return;
 
+	if (uni_scr >= 0) {
+		/* this is too ugly for words. the "currentToneMode" is the only place
+		   where the global "highband" state is saved. So we need to fake it for
+		   unicable and still set the tone on... */
+		currentToneMode = toneMode; /* need to know polarization for unicable */
+		fop(ioctl, FE_SET_TONE, SEC_TONE_OFF); /* tone must be off except for the time
+							  of sending commands */
+		return;
+	}
+
 	printf("[fe%d] tone %s\n", fenumber, toneMode == SEC_TONE_ON ? "on" : "off");
 	TIMER_INIT();
 	TIMER_START();
@@ -762,6 +781,13 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 
 	//TIMER_INIT();
 	//TIMER_START();
+	if (uni_scr >= 0) {
+		/* see my comment in secSetTone... */
+		currentVoltage = voltage; /* need to know polarization for unicable */
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13); /* voltage must not be 18V */
+		return;
+	}
+
 	if (fop(ioctl, FE_SET_VOLTAGE, voltage) == 0) {
 		currentVoltage = voltage;
 		//TIMER_STOP("[fe0] FE_SET_VOLTAGE took");
@@ -956,6 +982,42 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 			diseqc = -1;
 		setDiseqcSimple(sit->second.commited, polarization, frequency);
 	}
+}
+
+/* frequency is the IF-frequency (950-2100), what a stupid spec...
+   high_band, horizontal, bank are actually bool (0/1)
+   bank specifies the "switch bank" (as in Mini-DiSEqC A/B) */
+uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
+					     const int horizontal, const int bank)
+{
+	uint32_t uni_qrgs[] = { 1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096 };
+	uint32_t bpf;
+	if (uni_qrg == 0)
+		bpf = uni_qrgs[uni_scr];
+	else
+		bpf = uni_qrg;
+
+	struct dvb_diseqc_master_cmd cmd = {
+		{0xe0, 0x10, 0x5a, 0x00, 0x00, 0x00}, 5
+	};
+	unsigned int t = (frequency / 1000 + bpf + 2) / 4 - 350;
+	if (t < 1024 && uni_scr >= 0 && uni_scr < 8)
+	{
+fprintf(stderr, "VOLT18=%d TONE_ON=%d, freq=%d bpf=%d ret=%d\n", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, (t + 350) * 4000 - frequency);
+		cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
+			     (uni_scr << 5)	|	/* adress */
+			     (bank << 4)	|	/* not implemented yet */
+			     (horizontal << 3)	|	/* horizontal == 0x08 */
+			     (high_band) << 2;		/* high_band  == 0x04 */
+		cmd.msg[4] = t & 0xFF;
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
+		usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
+		sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
+		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
+		return (t + 350) * 4000 - frequency;
+	}
+	WARN("ooops. t > 1024? (%d) or uni_scr out of range? (%d)", t, uni_scr);
+	return 0;
 }
 
 bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
