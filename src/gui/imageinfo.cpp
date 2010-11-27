@@ -192,9 +192,13 @@ void CImageInfo::paint()
 	const char * homepage  = config.getString("homepage",  "n/a").c_str();
 	const char * creator   = config.getString("creator",   "n/a").c_str();
 	const char * version   = config.getString("version",   "no version").c_str();
-	const char * docs      = config.getString("docs",      "man neutrino").c_str();
+	const char * docs      = config.getString("docs",      "http://wiki.neutrino-hd.de").c_str();
 	const char * forum     = config.getString("forum",     "http://forum.tuxbox.org").c_str();
-	
+#ifdef SVNVERSION
+	const char * builddate     = config.getString("builddate",     SVNVERSION).c_str();
+#else
+	const char * builddate     = config.getString("builddate",     BUILT_DATE).c_str();
+#endif
 	static CFlashVersionInfo versionInfo(version);
 	const char * releaseCycle = versionInfo.getReleaseCycle();
 	snprintf((char*) imagedate,sizeof(imagedate), "%s  %s", versionInfo.getDate(), versionInfo.getTime());
@@ -214,11 +218,11 @@ void CImageInfo::paint()
 	ypos += iheight;
 #ifdef SVNVERSION
 	paintLine(xpos    , font_info, SVN_REV);
-	paintLine(xpos+offset, font_info, SVNVERSION );
 #else
 	paintLine(xpos    , font_info, GIT_REV);
-	paintLine(xpos+offset, font_info, BUILT_DATE );
 #endif
+	paintLine(xpos+offset, font_info, builddate );
+	
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_CREATOR));
 	paintLine(xpos+offset, font_info, creator);
