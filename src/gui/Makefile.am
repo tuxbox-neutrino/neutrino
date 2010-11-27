@@ -48,20 +48,29 @@ libneutrino_gui_a_SOURCES = \
 	filebrowser.cpp \
 	imageinfo.cpp \
 	infoviewer.cpp \
+	keybind_setup.cpp \
 	moviebrowser.cpp \
 	movieinfo.cpp \
 	movieplayer.cpp \
 	nfs.cpp \
+	osd_setup.cpp \
+	osdlang_setup.cpp \
+	parentallock_setup.cpp \
 	pictureviewer.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
+	proxyserver_setup.cpp \
 	rc_lock.cpp \
 	scan.cpp \
-	update.cpp \
 	screensetup.cpp \
 	sleeptimer.cpp \
 	streaminfo2.cpp \
-	timeosd.cpp
+	themes.cpp \
+	timeosd.cpp \
+	update.cpp \
+	user_menue_setup.cpp \
+	vfd_setup.cpp \
+	videosettings.cpp
 
 libneutrino_gui2_a_SOURCES = \
 	alphasetup.cpp \

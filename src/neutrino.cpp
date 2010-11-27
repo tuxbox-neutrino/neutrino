@@ -84,7 +84,9 @@
 #include "gui/widget/stringinput.h"
 #include "gui/widget/stringinput_ext.h"
 #include "gui/widget/mountchooser.h"
-
+#include "gui/videosettings.h"
+#include "gui/osdlang_setup.h"
+#include "gui/osd_setup.h"
 #include "gui/color.h"
 #include "gui/customcolor.h"
 
@@ -196,8 +198,6 @@ extern CFrontend * frontend;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
-int prev_video_mode;
-
 int g_channel_list_changed;
 
 void stop_daemons(bool stopall = true);
@@ -306,6 +306,7 @@ static void initGlobals(void)
 	g_EpgData       = NULL;
 	g_InfoViewer    = NULL;
 	g_EventList     = NULL;
+	g_videoSettings = NULL;
 
 	g_Locale        = new CLocaleManager;
 	g_PluginList    = NULL;
@@ -355,341 +356,6 @@ CNeutrinoApp* CNeutrinoApp::getInstance()
 	return neutrinoApp;
 }
 
-
-/**************************************************************************************
-*          CNeutrinoApp -  setup Color Sheme (Neutrino)                               *
-**************************************************************************************/
-void CNeutrinoApp::setupColors_neutrino()
-{
-	g_settings.menu_Head_alpha = 0x00;
-	g_settings.menu_Head_red   = 0x00;
-	g_settings.menu_Head_green = 0x0A;
-	g_settings.menu_Head_blue  = 0x19;
-
-	g_settings.menu_Head_Text_alpha = 0x00;
-	g_settings.menu_Head_Text_red   = 0x5f;
-	g_settings.menu_Head_Text_green = 0x46;
-	g_settings.menu_Head_Text_blue  = 0x00;
-
-	g_settings.menu_Content_alpha = 0x14;
-	g_settings.menu_Content_red   = 0x00;
-	g_settings.menu_Content_green = 0x0f;
-	g_settings.menu_Content_blue  = 0x23;
-
-	g_settings.menu_Content_Text_alpha = 0x00;
-	g_settings.menu_Content_Text_red   = 0x64;
-	g_settings.menu_Content_Text_green = 0x64;
-	g_settings.menu_Content_Text_blue  = 0x64;
-
-	g_settings.menu_Content_Selected_alpha = 0x14;
-	g_settings.menu_Content_Selected_red   = 0x19;
-	g_settings.menu_Content_Selected_green = 0x37;
-	g_settings.menu_Content_Selected_blue  = 0x64;
-
-	g_settings.menu_Content_Selected_Text_alpha  = 0x00;
-	g_settings.menu_Content_Selected_Text_red    = 0x00;
-	g_settings.menu_Content_Selected_Text_green  = 0x00;
-	g_settings.menu_Content_Selected_Text_blue   = 0x00;
-
-	g_settings.menu_Content_inactive_alpha = 0x14;
-	g_settings.menu_Content_inactive_red   = 0x00;
-	g_settings.menu_Content_inactive_green = 0x0f;
-	g_settings.menu_Content_inactive_blue  = 0x23;
-
-	g_settings.menu_Content_inactive_Text_alpha  = 0x00;
-	g_settings.menu_Content_inactive_Text_red    = 55;
-	g_settings.menu_Content_inactive_Text_green  = 70;
-	g_settings.menu_Content_inactive_Text_blue   = 85;
-
-	g_settings.infobar_alpha = 0x14;
-	g_settings.infobar_red   = 0x00;
-	g_settings.infobar_green = 0x0e;
-	g_settings.infobar_blue  = 0x23;
-
-	g_settings.infobar_Text_alpha = 0x00;
-	g_settings.infobar_Text_red   = 0x64;
-	g_settings.infobar_Text_green = 0x64;
-	g_settings.infobar_Text_blue  = 0x64;
-}
-
-/**************************************************************************************
-*                                                                                     *
-*          CNeutrinoApp -  setup Color Sheme (classic)                                *
-*                                                                                     *
-**************************************************************************************/
-void CNeutrinoApp::setupColors_classic()
-{
-	g_settings.menu_Head_alpha = 20;
-	g_settings.menu_Head_red   =  5;
-	g_settings.menu_Head_green = 10;
-	g_settings.menu_Head_blue  = 60;
-
-	g_settings.menu_Head_Text_alpha = 0;
-	g_settings.menu_Head_Text_red   = 100;
-	g_settings.menu_Head_Text_green = 100;
-	g_settings.menu_Head_Text_blue  = 100;
-
-	g_settings.menu_Content_alpha = 20;
-	g_settings.menu_Content_red   = 50;
-	g_settings.menu_Content_green = 50;
-	g_settings.menu_Content_blue  = 50;
-
-	g_settings.menu_Content_Text_alpha = 0;
-	g_settings.menu_Content_Text_red   = 100;
-	g_settings.menu_Content_Text_green = 100;
-	g_settings.menu_Content_Text_blue  = 100;
-
-	g_settings.menu_Content_Selected_alpha = 20;
-	g_settings.menu_Content_Selected_red   = 5;
-	g_settings.menu_Content_Selected_green = 10;
-	g_settings.menu_Content_Selected_blue  = 60;
-
-	g_settings.menu_Content_Selected_Text_alpha  = 0;
-	g_settings.menu_Content_Selected_Text_red    = 100;
-	g_settings.menu_Content_Selected_Text_green  = 100;
-	g_settings.menu_Content_Selected_Text_blue   = 100;
-
-	g_settings.menu_Content_inactive_alpha = 20;
-	g_settings.menu_Content_inactive_red   = 50;
-	g_settings.menu_Content_inactive_green = 50;
-	g_settings.menu_Content_inactive_blue  = 50;
-
-	g_settings.menu_Content_inactive_Text_alpha  = 0;
-	g_settings.menu_Content_inactive_Text_red    = 80;
-	g_settings.menu_Content_inactive_Text_green  = 80;
-	g_settings.menu_Content_inactive_Text_blue   = 80;
-
-	g_settings.infobar_alpha = 20;
-	g_settings.infobar_red   = 5;
-	g_settings.infobar_green = 10;
-	g_settings.infobar_blue  = 60;
-
-	g_settings.infobar_Text_alpha = 0;
-	g_settings.infobar_Text_red   = 100;
-	g_settings.infobar_Text_green = 100;
-	g_settings.infobar_Text_blue  = 100;
-}
-void CNeutrinoApp::setupColors_ru()
-{
-
-	g_settings.infobar_Text_alpha=0;
-	g_settings.infobar_Text_blue=100;
-	g_settings.infobar_Text_green=100;
-	g_settings.infobar_Text_red=100;
-
-	g_settings.infobar_alpha=0;
-	g_settings.infobar_blue=40;
-	g_settings.infobar_green=29;
-	g_settings.infobar_red=25;
-
-	g_settings.menu_Content_Selected_Text_alpha=0;
-	g_settings.menu_Content_Selected_Text_blue=0;
-	g_settings.menu_Content_Selected_Text_green=0;
-	g_settings.menu_Content_Selected_Text_red=0;
-
-	g_settings.menu_Content_Selected_alpha=0;
-	g_settings.menu_Content_Selected_blue=70;
-	g_settings.menu_Content_Selected_green=65;
-	g_settings.menu_Content_Selected_red=65;
-
-	g_settings.menu_Content_Text_alpha=0;
-	g_settings.menu_Content_Text_blue=100;
-	g_settings.menu_Content_Text_green=100;
-	g_settings.menu_Content_Text_red=100;
-
-	g_settings.menu_Content_alpha=0;
-	g_settings.menu_Content_blue=40;
-	g_settings.menu_Content_green=30;
-	g_settings.menu_Content_red=25;
-;
-	g_settings.menu_Content_inactive_Text_alpha=0;
-	g_settings.menu_Content_inactive_Text_blue=100;
-	g_settings.menu_Content_inactive_Text_green=100;
-	g_settings.menu_Content_inactive_Text_red=100;
-
-	g_settings.menu_Content_inactive_alpha=0;
-	g_settings.menu_Content_inactive_blue=40;
-	g_settings.menu_Content_inactive_green=30;
-	g_settings.menu_Content_inactive_red=25;
-
-	g_settings.menu_Head_Text_alpha=0;
-	g_settings.menu_Head_Text_blue=0;
-	g_settings.menu_Head_Text_green=70;
-	g_settings.menu_Head_Text_red=95;
-
-	g_settings.menu_Head_alpha=0;
-	g_settings.menu_Head_blue=30;
-	g_settings.menu_Head_green=20;
-	g_settings.menu_Head_red=15;
-}
-void CNeutrinoApp::setupColors_red()
-{
-	g_settings.infobar_Text_alpha=0;
-	g_settings.infobar_Text_blue=100;
-	g_settings.infobar_Text_green=100;
-	g_settings.infobar_Text_red=100;
-
-	g_settings.infobar_alpha=20;
-	g_settings.infobar_blue=0;
-	g_settings.infobar_green=14;
-	g_settings.infobar_red=40;
-
-	g_settings.menu_Content_Selected_Text_alpha=0;
-	g_settings.menu_Content_Selected_Text_blue=0;
-	g_settings.menu_Content_Selected_Text_green=0;
-	g_settings.menu_Content_Selected_Text_red=0;
-
-	g_settings.menu_Content_Selected_alpha=20;
-	g_settings.menu_Content_Selected_blue=100;
-	g_settings.menu_Content_Selected_green=100;
-	g_settings.menu_Content_Selected_red=100;
-
-	g_settings.menu_Content_Text_alpha=0;
-	g_settings.menu_Content_Text_blue=100;
-	g_settings.menu_Content_Text_green=100;
-	g_settings.menu_Content_Text_red=100;
-
-	g_settings.menu_Content_inactive_Text_alpha=0;
-	g_settings.menu_Content_inactive_Text_blue=35;
-	g_settings.menu_Content_inactive_Text_green=85;
-	g_settings.menu_Content_inactive_Text_red=85;
-
-	g_settings.menu_Content_inactive_alpha=20;
-	g_settings.menu_Content_inactive_blue=0;
-	g_settings.menu_Content_inactive_green=15;
-	g_settings.menu_Content_inactive_red=35;
-
-	g_settings.menu_Content_alpha=20;
-	g_settings.menu_Content_blue=0;
-	g_settings.menu_Content_green=15;
-	g_settings.menu_Content_red=40;
-
-	g_settings.menu_Head_Text_alpha=0;
-	g_settings.menu_Head_Text_blue=0;
-	g_settings.menu_Head_Text_green=70;
-	g_settings.menu_Head_Text_red=95;
-
-	g_settings.menu_Head_alpha=0;
-	g_settings.menu_Head_blue=0;
-	g_settings.menu_Head_green=10;
-	g_settings.menu_Head_red=40;
-}
-
-/**************************************************************************************
-*                                                                                     *
-*          CNeutrinoApp -  setup Color Sheme (darkblue)                               *
-*                                                                                     *
-**************************************************************************************/
-void CNeutrinoApp::setupColors_dblue()
-{
-	g_settings.menu_Head_alpha = 0;
-	g_settings.menu_Head_red   = 0;
-	g_settings.menu_Head_green = 0;
-	g_settings.menu_Head_blue  = 50;
-
-	g_settings.menu_Head_Text_alpha = 0;
-	g_settings.menu_Head_Text_red   = 95;
-	g_settings.menu_Head_Text_green = 100;
-	g_settings.menu_Head_Text_blue  = 100;
-
-	g_settings.menu_Content_alpha = 20;
-	g_settings.menu_Content_red   = 0;
-	g_settings.menu_Content_green = 0;
-	g_settings.menu_Content_blue  = 20;
-
-	g_settings.menu_Content_Text_alpha = 0;
-	g_settings.menu_Content_Text_red   = 100;
-	g_settings.menu_Content_Text_green = 100;
-	g_settings.menu_Content_Text_blue  = 100;
-
-	g_settings.menu_Content_Selected_alpha = 15;
-	g_settings.menu_Content_Selected_red   = 0;
-	g_settings.menu_Content_Selected_green = 65;
-	g_settings.menu_Content_Selected_blue  = 0;
-
-	g_settings.menu_Content_Selected_Text_alpha  = 0;
-	g_settings.menu_Content_Selected_Text_red    = 0;
-	g_settings.menu_Content_Selected_Text_green  = 0;
-	g_settings.menu_Content_Selected_Text_blue   = 0;
-
-	g_settings.menu_Content_inactive_alpha = 20;
-	g_settings.menu_Content_inactive_red   = 0;
-	g_settings.menu_Content_inactive_green = 0;
-	g_settings.menu_Content_inactive_blue  = 15;
-
-	g_settings.menu_Content_inactive_Text_alpha  = 0;
-	g_settings.menu_Content_inactive_Text_red    = 55;
-	g_settings.menu_Content_inactive_Text_green  = 70;
-	g_settings.menu_Content_inactive_Text_blue   = 85;
-
-	g_settings.infobar_alpha = 20;
-	g_settings.infobar_red   = 0;
-	g_settings.infobar_green = 0;
-	g_settings.infobar_blue  = 20;
-
-	g_settings.infobar_Text_alpha = 0;
-	g_settings.infobar_Text_red   = 100;
-	g_settings.infobar_Text_green = 100;
-	g_settings.infobar_Text_blue  = 100;
-}
-
-/**************************************************************************************
-*                                                                                     *
-*          CNeutrinoApp -  setup Color Sheme (dvb2000)                                *
-*                                                                                     *
-**************************************************************************************/
-void CNeutrinoApp::setupColors_dvb2k()
-{
-	g_settings.menu_Head_alpha = 0;
-	g_settings.menu_Head_red   = 25;
-	g_settings.menu_Head_green = 25;
-	g_settings.menu_Head_blue  = 25;
-
-	g_settings.menu_Head_Text_alpha = 0;
-	g_settings.menu_Head_Text_red   = 100;
-	g_settings.menu_Head_Text_green = 100;
-	g_settings.menu_Head_Text_blue  = 0;
-
-	g_settings.menu_Content_alpha = 0;
-	g_settings.menu_Content_red   = 0;
-	g_settings.menu_Content_green = 20;
-	g_settings.menu_Content_blue  = 0;
-
-	g_settings.menu_Content_Text_alpha = 0;
-	g_settings.menu_Content_Text_red   = 100;
-	g_settings.menu_Content_Text_green = 100;
-	g_settings.menu_Content_Text_blue  = 100;
-
-	g_settings.menu_Content_Selected_alpha = 0;
-	g_settings.menu_Content_Selected_red   = 100;
-	g_settings.menu_Content_Selected_green = 100;
-	g_settings.menu_Content_Selected_blue  = 100;
-
-	g_settings.menu_Content_Selected_Text_alpha  = 0;
-	g_settings.menu_Content_Selected_Text_red    = 0;
-	g_settings.menu_Content_Selected_Text_green  = 0;
-	g_settings.menu_Content_Selected_Text_blue   = 0;
-
-	g_settings.menu_Content_inactive_alpha = 20;
-	g_settings.menu_Content_inactive_red   = 0;
-	g_settings.menu_Content_inactive_green = 25;
-	g_settings.menu_Content_inactive_blue  = 0;
-
-	g_settings.menu_Content_inactive_Text_alpha  = 0;
-	g_settings.menu_Content_inactive_Text_red    = 100;
-	g_settings.menu_Content_inactive_Text_green  = 100;
-	g_settings.menu_Content_inactive_Text_blue   = 0;
-
-	g_settings.infobar_alpha = 5;
-	g_settings.infobar_red   = 0;
-	g_settings.infobar_green = 19;
-	g_settings.infobar_blue  = 0;
-
-	g_settings.infobar_Text_alpha = 0;
-	g_settings.infobar_Text_red   = 100;
-	g_settings.infobar_Text_green = 100;
-	g_settings.infobar_Text_blue  = 100;
-}
 
 #define FONT_STYLE_REGULAR 0
 #define FONT_STYLE_BOLD    1
@@ -750,7 +416,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	        checkParentallocked.close();
 	}
 	// video
-	prev_video_mode = g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
+	g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_SD_RGB_SCART); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_SD_YPRPB_CINCH); // default YPBPR
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0); // default off
@@ -1104,7 +770,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 //
 	strcpy( g_settings.font_file, configfile.getString( "font_file", FONTDIR"/neutrino.ttf" ).c_str() );
 	strcpy( g_settings.ttx_font_file, configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf" ).c_str() );
-	ttx_font_file = g_settings.ttx_font_file;
+  	ttx_font_file = g_settings.ttx_font_file;
 	strcpy( g_settings.update_dir, configfile.getString( "update_dir", "/tmp" ).c_str() );
 	//BouquetHandling
 	g_settings.bouquetlist_mode = configfile.getInt32( "bouquetlist_mode", 0 );
@@ -2379,8 +2045,7 @@ CMenuWidget * gmoviePlayer;
 #if 0
 CPipSetup * g_Pip0;
 #endif
-#include "videosettings.h"
-extern CVideoSettings * videoSettings;
+
 //extern CMenuOptionStringChooser* tzSelect;
 
 static void CSSendMessage(uint32_t msg, uint32_t data)
@@ -2439,10 +2104,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 
-	videoDecoder->SetDBDR(g_settings.video_dbdr);
-	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
-	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
+	//init video and CEC Settings
+	g_videoSettings->setVideoCECSettings();
 
 	// trigger a change
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
@@ -2497,6 +2160,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
+	g_videoSettings = new CVideoSettings;
 
 	int dx = 0;
 	int dy = 0;
@@ -2536,16 +2200,10 @@ int CNeutrinoApp::run(int argc, char **argv)
 	//Main settings
 	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    languageSettings    (LOCALE_LANGUAGESETUP_HEAD            , NEUTRINO_ICON_LANGUAGE);
 	CMenuWidget    audioSettings       (LOCALE_AUDIOMENU_HEAD                , NEUTRINO_ICON_AUDIO);
-	CMenuWidget    parentallockSettings(LOCALE_PARENTALLOCK_PARENTALLOCK     , NEUTRINO_ICON_LOCK);
 	CMenuWidget    networkSettings     (LOCALE_NETWORKMENU_HEAD              , NEUTRINO_ICON_NETWORK);
 	CMenuWidget    recordingSettings   (LOCALE_RECORDINGMENU_HEAD            , NEUTRINO_ICON_RECORDING);
 	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
-	CMenuWidget    colorSettings       (LOCALE_MAINSETTINGS_OSD              , NEUTRINO_ICON_COLORS);
-	CMenuWidget    fontSettings        (LOCALE_FONTMENU_HEAD                 , NEUTRINO_ICON_KEYBINDING);
-	CMenuWidget    lcdSettings         (LOCALE_LCDMENU_HEAD                  , NEUTRINO_ICON_LCD);
-	CMenuWidget    keySettings         (LOCALE_MAINSETTINGS_KEYBINDING       , NEUTRINO_ICON_KEYBINDING);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    _scanSettings       (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
@@ -2553,16 +2211,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , NEUTRINO_ICON_STREAMING);
 	gmoviePlayer = &moviePlayer;
 
-	InitMainMenu(mainMenu, mainSettings, audioSettings, parentallockSettings, networkSettings, recordingSettings,
-			colorSettings, lcdSettings, keySettings, languageSettings, miscSettings,
-			service, fontSettings, audioplPicSettings, streamingSettings, moviePlayer);
+	InitMainMenu(mainMenu, mainSettings, audioSettings, networkSettings, recordingSettings, miscSettings,
+			service, audioplPicSettings, streamingSettings, moviePlayer);
 
 	InitServiceSettings(service, _scanSettings);
-	InitLanguageSettings(languageSettings);
 	InitAudioplPicSettings(audioplPicSettings);
 	InitMiscSettings(miscSettings);
 	InitAudioSettings(audioSettings, audioSetupNotifier);
-	InitParentalLockSettings(parentallockSettings);
 	InitScanSettings(_scanSettings);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
@@ -2627,36 +2282,41 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Timerd->registerEvent(CTimerdClient::EVT_EXEC_PLUGIN, 222, NEUTRINO_UDS_NAME);
 
 	InitNetworkSettings(networkSettings);
-	InitKeySettings(keySettings);
-	InitFontSettings(fontSettings);
-	InitColorSettings(colorSettings, fontSettings);
 
-	if (display_language_selection) {
+	if (display_language_selection) 
+	{
+		COsdLangSetup languageSettings(COsdLangSetup::OSDLANG_SETUP_MODE_WIZARD);
 		hintBox->hide();
-		languageSettings.setWizardMode(true);
-		languageSettings.exec(NULL, "");
-		languageSettings.setWizardMode(false);
 
-		if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes) {
-			videoSettings->setWizardMode(true);
-			bool ret = videoSettings->exec(NULL, "");
-			videoSettings->setWizardMode(false);
-			if(ret != menu_return::RETURN_EXIT_ALL) {
-				colorSettings.setWizardMode(true);
-				ret = colorSettings.exec(NULL, "");
-				colorSettings.setWizardMode(false);
+		languageSettings.exec(NULL, "");
+
+		if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes) 
+		{
+			//open video settings in wizardmode
+			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD);
+			
+			COsdSetup osdSettings(true);
+			
+			bool ret = g_videoSettings->exec(NULL, "");
+			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD_NO);
+
+			if(ret != menu_return::RETURN_EXIT_ALL) 
+			{
+				ret = osdSettings.exec(NULL, "");
 			}
-			if(ret != menu_return::RETURN_EXIT_ALL) {
+			if(ret != menu_return::RETURN_EXIT_ALL) 
+			{
 				networkSettings.setWizardMode(true);
 				ret = networkSettings.exec(NULL, "");
 				networkSettings.setWizardMode(false);
 			}
-			if(ret != menu_return::RETURN_EXIT_ALL) {
+			if(ret != menu_return::RETURN_EXIT_ALL) 
+			{
 				_scanSettings.setWizardMode(true);
 				_scanSettings.exec(NULL, "");
 				_scanSettings.setWizardMode(false);
 			}
-
+			
 			videoDecoder->StopPicture();
 		}
 	}
@@ -2677,7 +2337,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	InitZapper();
 	InitRecordingSettings(recordingSettings);
 	InitStreamingSettings(streamingSettings);
-	InitLcdSettings(lcdSettings);
 
 	AudioMute( current_muted, true);
 
@@ -3318,15 +2977,15 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mode ) {
-		videoSettings->nextMode();
+		g_videoSettings->nextMode();
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_next ) {
-		videoSettings->next43Mode();
+		g_videoSettings->next43Mode();
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_prev ) {
-		videoSettings->SwitchFormat();
+		g_videoSettings->SwitchFormat();
 		return messages_return::handled;
 	}
 	/* ================================== MESSAGES ================================================ */
@@ -3749,7 +3408,7 @@ skip_message:
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 		delete [] (unsigned char*) data;
-
+	
 	return messages_return::unhandled;
 }
 
@@ -4430,30 +4089,30 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		dprintf(DEBUG_INFO, "showing current network settings...\n");
 		showCurrentNetworkSettings();
 	}
-	else if (actionKey=="theme_neutrino") {
-		setupColors_neutrino();
-		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
-	else if (actionKey=="theme_classic") {
-		setupColors_classic();
-		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
-	else if (actionKey=="theme_dblue") {
-		setupColors_dblue();
-		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
-	else if (actionKey=="theme_dvb2k") {
-		setupColors_dvb2k();
-		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
-	else if(actionKey=="theme_ru") {
-		setupColors_ru();
-		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
-	else if(actionKey=="theme_red") {
-		setupColors_red();
-		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
+// 	else if (actionKey=="theme_neutrino") {
+// 		setupColors_neutrino();
+// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+// 	}
+// 	else if (actionKey=="theme_classic") {
+// 		setupColors_classic();
+// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+// 	}
+// 	else if (actionKey=="theme_dblue") {
+// 		setupColors_dblue();
+// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+// 	}
+// 	else if (actionKey=="theme_dvb2k") {
+// 		setupColors_dvb2k();
+// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+// 	}
+// 	else if(actionKey=="theme_ru") {
+// 		setupColors_ru();
+// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+// 	}
+// 	else if(actionKey=="theme_red") {
+// 		setupColors_red();
+// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+// 	}
 	else if(actionKey=="savescansettings") {
 		SaveMotorPositions();
 	}
@@ -4544,12 +4203,12 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		fontsizenotifier.changeNotify(NONEXISTANT_LOCALE, NULL);
 	}
-	else if(actionKey=="osd.def") {
-		for (int i = 0; i < TIMING_SETTING_COUNT; i++)
-			g_settings.timing[i] = default_timing[i];
-
-		SetupTiming();
-	}
+// 	else if(actionKey=="osd.def") {
+// 		for (int i = 0; i < TIMING_SETTING_COUNT; i++)
+// 			g_settings.timing[i] = default_timing[i];
+// 
+// 		SetupTiming();
+// 	}
 	else if(actionKey == "audioplayerdir") {
 		parent->hide();
 		CFileBrowser b;
@@ -4669,49 +4328,49 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "select_font") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		CFileFilter fileFilter;
-		fileFilter.addFilter("ttf");
-		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(FONTDIR) == true) {
-			strcpy(g_settings.font_file, fileBrowser.getSelectedFile()->Name.c_str());
-			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-			SetupFonts();
-		}
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "ttx_font") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		CFileFilter fileFilter;
-		fileFilter.addFilter("ttf");
-		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec(FONTDIR) == true) {
-			strcpy(g_settings.ttx_font_file, fileBrowser.getSelectedFile()->Name.c_str());
-			ttx_font_file = fileBrowser.getSelectedFile()->Name;
-			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-			SetupFonts();
-		}
-		return menu_return::RETURN_REPAINT;
-	}
-	else if (actionKey == "font_scaling") {
-		int xre = g_settings.screen_xres;
-		int yre = g_settings.screen_yres;
-		parent->hide();
-		CMenuWidget fontscale(LOCALE_FONTMENU_SCALING, NEUTRINO_ICON_COLORS);
-		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &xre, true, 50, 200));
-		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &yre, true, 50, 200));
-		fontscale.exec(NULL, "");
-		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
-			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", xre, yre);
-			g_settings.screen_xres = xre;
-			g_settings.screen_yres = yre;
-			SetupFonts();
-		}
-		return menu_return::RETURN_REPAINT;
-	}
+// 	else if(actionKey == "select_font") {
+// 		parent->hide();
+// 		CFileBrowser fileBrowser;
+// 		CFileFilter fileFilter;
+// 		fileFilter.addFilter("ttf");
+// 		fileBrowser.Filter = &fileFilter;
+// 		if (fileBrowser.exec(FONTDIR) == true) {
+// 			strcpy(g_settings.font_file, fileBrowser.getSelectedFile()->Name.c_str());
+// 			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+// 			SetupFonts();
+// 		}
+// 		return menu_return::RETURN_REPAINT;
+// 	}
+// 	else if(actionKey == "ttx_font") {
+// 		parent->hide();
+// 		CFileBrowser fileBrowser;
+// 		CFileFilter fileFilter;
+// 		fileFilter.addFilter("ttf");
+// 		fileBrowser.Filter = &fileFilter;
+// 		if (fileBrowser.exec(FONTDIR) == true) {
+// 			strcpy(g_settings.ttx_font_file, fileBrowser.getSelectedFile()->Name.c_str());
+// 			ttx_font_file = fileBrowser.getSelectedFile()->Name;
+// 			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+// 			SetupFonts();
+// 		}
+// 		return menu_return::RETURN_REPAINT;
+// 	}
+// 	else if (actionKey == "font_scaling") {
+// 		int xre = g_settings.screen_xres;
+// 		int yre = g_settings.screen_yres;
+// 		parent->hide();
+// 		CMenuWidget fontscale(LOCALE_FONTMENU_SCALING, NEUTRINO_ICON_COLORS);
+// 		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &xre, true, 50, 200));
+// 		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &yre, true, 50, 200));
+// 		fontscale.exec(NULL, "");
+// 		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
+// 			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", xre, yre);
+// 			g_settings.screen_xres = xre;
+// 			g_settings.screen_yres = yre;
+// 			SetupFonts();
+// 		}
+// 		return menu_return::RETURN_REPAINT;
+// 	}
 	else if(actionKey == "movieplugin") {
 		parent->hide();
 		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
@@ -4810,33 +4469,33 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "loadkeys") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		CFileFilter fileFilter;
-		fileFilter.addFilter("conf");
-		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/var/tuxbox/config") == true) {
-			loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
-			printf("[neutrino] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-		}
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "savekeys") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/var/tuxbox") == true) {
-			char  fname[256] = "keys.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
-			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino] save keys: %s\n", sname);
-			saveKeys(sname);
-			delete sms;
-		}
-		return menu_return::RETURN_REPAINT;
-	}
+// 	else if(actionKey == "loadkeys") {
+// 		parent->hide();
+// 		CFileBrowser fileBrowser;
+// 		CFileFilter fileFilter;
+// 		fileFilter.addFilter("conf");
+// 		fileBrowser.Filter = &fileFilter;
+// 		if (fileBrowser.exec("/var/tuxbox/config") == true) {
+// 			loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
+// 			printf("[neutrino] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
+// 		}
+// 		return menu_return::RETURN_REPAINT;
+// 	}
+// 	else if(actionKey == "savekeys") {
+// 		parent->hide();
+// 		CFileBrowser fileBrowser;
+// 		fileBrowser.Dir_Mode = true;
+// 		if (fileBrowser.exec("/var/tuxbox") == true) {
+// 			char  fname[256] = "keys.conf", sname[256];
+// 			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
+// 			sms->exec(NULL, "");
+// 			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
+// 			printf("[neutrino] save keys: %s\n", sname);
+// 			saveKeys(sname);
+// 			delete sms;
+// 		}
+// 		return menu_return::RETURN_REPAINT;
+// 	}
 	else if(actionKey == "autolink") {
 		if(autoshift) {
 			char buf[512];

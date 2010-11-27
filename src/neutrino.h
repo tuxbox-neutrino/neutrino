@@ -137,7 +137,6 @@ private:
 	bool				skipShutdownTimer;
 	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
-	CKeySetupNotifier       	*keySetupNotifier;
 	CNVODChangeExec         	*NVODChanger;
 	CStreamFeaturesChangeExec	*StreamFeaturesChanger;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
@@ -153,13 +152,6 @@ private:
 	bool getNVODMenu(CMenuWidget* menu);
 
 	void firstChannel();
-	void setupColors_red();
-	void setupColors_ru();
-	void setupColors_dvb2000();
-	void setupColors_classic();
-	void setupColors_neutrino();
-	void setupColors_dblue();
-	void setupColors_dvb2k();
 	void setupNetwork( bool force= false );
 	void setupNFS();
 	void setupRecordingDevice(void);
@@ -177,51 +169,37 @@ private:
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
-	void InitKeySettings(CMenuWidget &);
 	void InitServiceSettings(CMenuWidget &, CMenuWidget &);
-	void InitColorSettingsMenuColors(CMenuWidget &);
 	void InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier);
-	void InitColorSettings(CMenuWidget &, CMenuWidget &);
-	void InitLanguageSettings(CMenuWidget &);
-	void InitColorThemesSettings(CMenuWidget &);
-	void InitColorSettingsStatusBarColors(CMenuWidget &colorSettings_menuColors);
-	void InitColorSettingsTiming(CMenuWidget &colorSettings_timing);
-	void InitLcdSettings(CMenuWidget &lcdSettings);
 	void InitNetworkSettings(CMenuWidget &networkSettings);
-	void AddFontSettingItem(CMenuWidget &fontSettings, const SNeutrinoSettings::FONT_TYPES number_of_fontsize_entry);
-	void InitFontSettings(CMenuWidget &fontSettings);
 	void InitRecordingSettings(CMenuWidget &recordingSettings);
 	void InitStreamingSettings(CMenuWidget &streamingSettings);
 	void InitScreenSettings(CMenuWidget &);
 	void InitAudioplPicSettings(CMenuWidget &);
 	void InitMiscSettings(CMenuWidget &);
 	void InitScanSettings(CMenuWidget &);
-	void InitParentalLockSettings(CMenuWidget &);
 	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &audioSettings,
-			  CMenuWidget &parentallockSettings, CMenuWidget &networkSettings1, CMenuWidget &networkSettings2,
-			  CMenuWidget &colorSettings, CMenuWidget &lcdSettings, CMenuWidget &keySettings,
-			  CMenuWidget &languageSettings, CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &fontSettings,
-			  CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings, CMenuWidget &moviePlayer);
-	void addMenueIntroItems(CMenuWidget &item);
+			  CMenuWidget &networkSettings1, CMenuWidget &networkSettings2,
+			  CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings, CMenuWidget &moviePlayer);
+
 	void SetupFrameBuffer();
 	void SelectAPID();
 	void SelectNVOD();
 	void CmdParser(int argc, char **argv);
-	void ShowStreamFeatures();
 	void InitSCSettings(CMenuWidget &);
 	bool doGuiRecord(char * preselectedDir, bool addTimer = false);
 	void saveColors(const char * fname);
-	void loadKeys(const char * fname);
-	void saveKeys(const char * fname);
 	CNeutrinoApp();
 
 public:
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
 	void loadColors(const char * fname);
+	void loadKeys(const char * fname);
+	void saveKeys(const char * fname);
 	void SetupTiming();
 	void SetupFonts();
-
+	
 	void setVolume(const neutrino_msg_t key, const bool bDoPaint = true, bool nowait = false);
 	~CNeutrinoApp();
 	CScanSettings& getScanSettings() {
@@ -267,5 +245,6 @@ public:
 	void StartSubtitles();
 	void SelectSubtitles();
 	void showInfo(void);
+	CConfigFile* getConfigFile() {return &configfile;};
 };
 #endif
