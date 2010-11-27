@@ -243,7 +243,12 @@ void CDBoxInfoWidget::paint()
 		size_t len = 0;
 		ssize_t read;
 		while ((read = getline(&buffer, &len, fd)) != -1) {
-			if (!(strncmp(const_cast<char *>("Hardware"),buffer,8))) {
+#if HAVE_TRIPLEDRAGON
+			if (!(strncmp(const_cast<char *>("machine"),buffer,7)))
+#else
+			if (!(strncmp(const_cast<char *>("Hardware"),buffer,8)))
+#endif
+			{
 				char *t=rindex(buffer,'\n');
 				if (t)
 					*t='\0';
@@ -257,7 +262,11 @@ void CDBoxInfoWidget::paint()
 				break;
 			}
 			i++;
+#if HAVE_TRIPLEDRAGON
+			if (i == 1 || i > 3)
+#else
 			if (i > 2)
+#endif
 				continue;
 			if (read > 0 && buffer[read-1] == '\n')
 				buffer[read-1] = '\0';
