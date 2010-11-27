@@ -472,7 +472,9 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 	}
 }
 
-void CInfoViewer::showMovieTitle( const int playState, const std::string Channel, const std::string g_file_epg, const std::string g_file_epg1)
+void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
+				 const std::string g_file_epg, const std::string g_file_epg1,
+				 const int duration, const int curr_pos)
 {
 	chack_channellogo_ca_SettingsChange();
 	aspectRatio = 0;
@@ -517,7 +519,10 @@ void CInfoViewer::showMovieTitle( const int playState, const std::string Channel
 	char runningPercent = file_prozent;
 	if (runningPercent > 100)
 		runningPercent = 100;
-	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, runningPercent);
+
+	char runningRest[32]; // %d can be 10 digits max...
+	sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
+	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, runningPercent, NULL, runningRest);
 
 	const char *playicon = NULL;
 	switch (playState) {

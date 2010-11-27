@@ -945,7 +945,7 @@ void CMoviePlayerGui::PlayFile(void)
 				speed = 1;
 				playback->SetSpeed(speed);
 				if (!timeshift)
-					callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel );
+					callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, duration, position);
 			} else if (!timeshift) {
 				open_filebrowser = true;
 			}
@@ -962,17 +962,15 @@ void CMoviePlayerGui::PlayFile(void)
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, false);
 				speed = 1;
 				playback->SetSpeed(speed);
-				if (!timeshift )
-					callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel );
 			} else {
 				playstate = CMoviePlayerGui::PAUSE;
 				//CVFD::getInstance()->ShowIcon(VFD_ICON_PAUSE, true);
 				speed = 0;
 				playback->SetSpeed(speed);
-				if (!timeshift)
-					callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel );
-
 			}
+			if (!timeshift)
+				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, position, duration);
+
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
 			// is there already a bookmark activity?
 			if (isMovieBrowser != true) {
@@ -1103,7 +1101,7 @@ void CMoviePlayerGui::PlayFile(void)
 			update_lcd = true;
 
 			if (!timeshift)
-				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel );
+				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, position, duration);
 
 			if (!FileTime.IsVisible()) {
 				if (g_settings.mode_clock)
@@ -1125,7 +1123,7 @@ void CMoviePlayerGui::PlayFile(void)
 			playstate = CMoviePlayerGui::FF;
 
 			if (!timeshift)
-				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel );
+				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, duration, position);
 
 			if (!FileTime.IsVisible()) {
 				if (g_settings.mode_clock)
@@ -1140,7 +1138,7 @@ void CMoviePlayerGui::PlayFile(void)
 				g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(), CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());	// UTF-8
 
 			else {
-				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel );
+				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, duration, position);
 				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
 				update_lcd = true;
 				//showHelpTS();
@@ -1268,10 +1266,10 @@ printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %x\n", i
 	if (g_settings.mode_clock)
 		InfoClock->StartClock();
 }
-void CMoviePlayerGui::callInfoViewer(const std::string & epg_title, const std::string & epg_info1, const std::string & epg_channel )
+void CMoviePlayerGui::callInfoViewer(const std::string & epg_title, const std::string & epg_info1, const std::string & epg_channel, const int duration, const int curr_pos)
 {
   				if (isMovieBrowser) {
-					g_InfoViewer->showMovieTitle(playstate, epg_channel.c_str(), epg_title, epg_info1);
+					g_InfoViewer->showMovieTitle(playstate, epg_channel.c_str(), epg_title, epg_info1, duration, curr_pos);
 				} else {
 					char temp_name[255];
 					const char *slash = strrchr(filename, '/');
@@ -1287,7 +1285,7 @@ void CMoviePlayerGui::callInfoViewer(const std::string & epg_title, const std::s
 						temp_name[len] = 0;
 					}
 				//	g_InfoViewer->showTitle(0, temp_name, 0, 0);	// UTF-8
-					g_InfoViewer->showMovieTitle(playstate, temp_name, "", "");	// UTF-8
+					g_InfoViewer->showMovieTitle(playstate, temp_name, "", "", duration, curr_pos);
 				}
 }
 void CMoviePlayerGui::showHelpTS()
