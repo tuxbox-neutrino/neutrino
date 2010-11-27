@@ -1266,28 +1266,35 @@ printf("CMoviePlayerGui::PlayFile: exit, isMovieBrowser %d p_movie_info %x\n", i
 	if (g_settings.mode_clock)
 		InfoClock->StartClock();
 }
-void CMoviePlayerGui::callInfoViewer(const std::string & epg_title, const std::string & epg_info1, const std::string & epg_channel, const int duration, const int curr_pos)
+
+void CMoviePlayerGui::callInfoViewer(const std::string & epg_title, const std::string & epg_info1,
+				     const std::string & epg_channel, const int duration, const int curr_pos)
 {
-  				if (isMovieBrowser) {
-					g_InfoViewer->showMovieTitle(playstate, epg_channel.c_str(), epg_title, epg_info1, duration, curr_pos);
-				} else {
-					char temp_name[255];
-					const char *slash = strrchr(filename, '/');
-					if (slash) {
-						slash++;
-						int len = strlen(slash);
-						for (int i = 0; i < len; i++) {
-							if (slash[i] == '_')
-								temp_name[i] = ' ';
-							else
-								temp_name[i] = slash[i];
-						}
-						temp_name[len] = 0;
-					}
-				//	g_InfoViewer->showTitle(0, temp_name, 0, 0);	// UTF-8
-					g_InfoViewer->showMovieTitle(playstate, temp_name, "", "", duration, curr_pos);
-				}
+	if (isMovieBrowser) {
+		g_InfoViewer->showMovieTitle(playstate, epg_channel.c_str(), epg_title, epg_info1,
+					     duration, curr_pos);
+		return;
+	}
+
+	/* not moviebrowser => use the filename as title */
+	char temp_name[255] = { 0 };
+	const char *slash = strrchr(filename, '/');
+	if (slash) {
+		slash++;
+		int len = strlen(slash);
+		if (len > 254)
+			len = 254;
+		for (int i = 0; i < len; i++) {
+			if (slash[i] == '_')
+				temp_name[i] = ' ';
+			else
+				temp_name[i] = slash[i];
+		}
+		temp_name[len] = 0;
+	}
+	g_InfoViewer->showMovieTitle(playstate, temp_name, "", "", duration, curr_pos);
 }
+
 void CMoviePlayerGui::showHelpTS()
 {
 	Helpbox helpbox;
