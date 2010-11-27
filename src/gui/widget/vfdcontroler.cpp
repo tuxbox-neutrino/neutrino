@@ -41,7 +41,8 @@
 
 #include <gui/color.h>
 #include <gui/widget/messagebox.h>
-#include "gui/widget/icons.h"
+#include <gui/widget/icons.h>
+#include <gui/widget/vfdcontroler.h>
 
 #include <global.h>
 #include <neutrino.h>
