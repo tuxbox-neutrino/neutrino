@@ -7,6 +7,7 @@
 #include <csignal>
 
 // system
+#include <stdio.h>
 #include <arpa/inet.h>
 #include <netinet/tcp.h>
 #include <sys/socket.h>

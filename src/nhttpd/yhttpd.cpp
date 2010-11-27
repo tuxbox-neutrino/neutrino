@@ -10,6 +10,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <syscall.h>
+#include <stdio.h>
 
 // yhttpd
 #include "yconfig.h"
