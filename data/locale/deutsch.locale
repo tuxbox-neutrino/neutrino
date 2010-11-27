@@ -144,13 +144,14 @@ colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
 colormenusetup.menuhead Titelleiste
 colorstatusbar.text Statusbalken
-colorthememenu.classic_theme Klassik
-colorthememenu.dblue_theme DarkBlue Theme
-colorthememenu.dvb2k_theme DVB2000 Theme
-colorthememenu.gray Grau
 colorthememenu.head Theme auswählen
+colorthememenu.head2 Themes laden
+colorthememenu.name Themename
 colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.red_theme Simply Red
+colorthememenu.question Aktuelles Theme beibehalten?
+colorthememenu.save aktuelles Theme speichern
+colorthememenu.select1 Benutzer Theme
+colorthememenu.select2 Standard Theme
 cpu.freq CPU Frequenz
 cpu.freq_normal Normale Frequenz
 cpu.freq_standby Standby Frequenz
@@ -610,14 +611,15 @@ keybindingmenu.cancel Kanalliste schließen
 keybindingmenu.channeldown Kanal runter
 keybindingmenu.channellist Kanalliste
 keybindingmenu.channelup Kanal hoch
-keybindingmenu.head Tasten-Einstellungen
+keybindingmenu.head Tasten-Belegungen bearbeiten
 keybindingmenu.lastchannel Letzter Kanal
+keybindingmenu.misc Sonstige
 keybindingmenu.modechange Moduswechsel
 keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
 keybindingmenu.poweroff Umschalter
 keybindingmenu.quickzap Schnellumschaltung
-keybindingmenu.RC Fernbedienung
+keybindingmenu.RC Fernbedienung abstimmen
 keybindingmenu.repeatblock Anfangsverzögerung
 keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
@@ -631,7 +633,7 @@ keychooser.text2 Zum Abbrechen warten...
 keychoosermenu.currentkey Derzeitige Taste
 keychoosermenu.setnew Neue Taste einstellen
 keychoosermenu.setnone Keine Taste
-languagesetup.head Spracheinstellungen
+languagesetup.head Sprache und Zeitzonen
 languagesetup.osd Menüsprache
 languagesetup.select Sprache
 lcdcontroler.brightness normale Helligkeit
@@ -680,13 +682,13 @@ mainmenu.sleeptimer SleepTimer
 mainmenu.tvmode TV-Modus/Uhr
 mainsettings.audio Audio
 mainsettings.head Einstellungen
-mainsettings.keybinding Tasten Einstellungen
+mainsettings.keybinding Tasten
 mainsettings.language Sprache
 mainsettings.lcd VFD-Display
 mainsettings.misc Diverse Einstellungen
 mainsettings.manage Einstellungen verwalten
 mainsettings.network Netzwerk
-mainsettings.osd OSD Einstellungen
+mainsettings.osd OSD
 mainsettings.recording Aufnahme
 mainsettings.savesettingsnow Einstellungen jetzt speichern
 mainsettings.savesettingsnow_hint Einstellungen werden jetzt gespeichert,\nbitte warten...

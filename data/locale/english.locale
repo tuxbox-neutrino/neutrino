@@ -238,12 +238,14 @@ colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
 colormenusetup.menuhead Header
 colorstatusbar.text Infobar
-colorthememenu.classic_theme Classic Theme
-colorthememenu.dblue_theme DarkBlue Theme
-colorthememenu.dvb2k_theme DVB2000 Theme
-colorthememenu.head Theme Selector
+colorthememenu.head Theme auswÃ¤hlen
+colorthememenu.head2 Themes laden
+colorthememenu.name Themename
 colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.gray Gray Theme
+colorthememenu.question Aktuelles Theme beibehalten?
+colorthememenu.save aktuelles Theme speichern
+colorthememenu.select1 Benutzer Theme
+colorthememenu.select2 Standard Theme
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dec
@@ -429,13 +431,15 @@ keybindingmenu.cancel close channellist
 keybindingmenu.channeldown channel down
 keybindingmenu.channellist Channellist
 keybindingmenu.channelup channel up
-keybindingmenu.head Keybinding Setup
+keybindingmenu.head Edit Keybindings
 keybindingmenu.lastchannel Quick Zap
+keybindingmenu.misc Misc
 keybindingmenu.modechange Modechange
 keybindingmenu.pagedown page down
 keybindingmenu.pageup page up
 keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
+keybindingmenu.RC Tune Remote-Control
 keybindingmenu.repeatblock generic delay
 keybindingmenu.repeatblockgeneric repeat delay
 keybindingmenu.sort change sort order
@@ -465,7 +469,7 @@ lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
-ledcontroler.menu Power Button LED´s
+ledcontroler.menu Power Button LEDï¿½s
 ledcontroler.mode.tv TV Mode
 ledcontroler.mode.deepstandby Deep Standby
 ledcontroler.mode.standby Standby
@@ -494,7 +498,7 @@ mainmenu.shutdown Shutdown
 mainmenu.sleeptimer SleepTimer
 mainmenu.tvmode TV-Mode
 mainsettings.audio Audio
-mainsettings.osd OSD settings
+mainsettings.osd OSD
 mainsettings.head Settings
 mainsettings.keybinding Key Setup
 mainsettings.language International settings
