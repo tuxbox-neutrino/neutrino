@@ -574,7 +574,7 @@ void CMenuWidget::paint()
 	if(!(iconfile.empty())){
 		int w, h;
 		frameBuffer->getIconSize(iconfile.c_str(), &w, &h);
-		HeadiconOffset = w;
+		HeadiconOffset = w+6;
 	}
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1, width-((fw/3)+HeadiconOffset), l_name, COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
@@ -626,6 +626,19 @@ void CMenuWidget::paintItems()
 			item->init(-1, 0, 0, 0);
 		}
 	}
+}
+
+/*adds the typical menu intro with optional subhead, separator, back button and separatorline to menu*/
+void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_t section_text)
+{
+	if (subhead_text != NONEXISTANT_LOCALE)
+		addItem(new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, subhead_text));
+	addItem(GenericMenuSeparator);
+	addItem(GenericMenuBack);
+	if (section_text != NONEXISTANT_LOCALE)
+		addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, section_text));
+	else
+		addItem(GenericMenuSeparatorLine);
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -1400,8 +1413,21 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 	int height;
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	height = getHeight();
+	uint8_t    color;
+	fb_pixel_t bgcolor0;
+	
+	if ((type & SUB_HEAD))
+	{
+		color = COL_MENUHEAD;
+		bgcolor0 = COL_MENUHEAD_PLUS_0;
+	}
+	else
+	{
+		color = COL_MENUCONTENTINACTIVE;
+		bgcolor0 = COL_MENUCONTENT_PLUS_0;
+	}
 
-	frameBuffer->paintBoxRel(x,y, dx, height, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x,y, dx, height, bgcolor0);
 	if ((type & LINE))
 	{
 		frameBuffer->paintHLineRel(x+10,dx-20,y+(height>>1), COL_MENUCONTENT_PLUS_3);
@@ -1409,25 +1435,26 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 	}
 	if ((type & STRING))
 	{
-
-		if (text != NONEXISTANT_LOCALE)
+		const char * l_text;
+		l_text = getString();
+	
+		if (text != NONEXISTANT_LOCALE || strlen(l_text) != 0)
 		{
 			int stringstartposX;
-
-			const char *l_text = getString();
+			
 			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true); // UTF-8
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				stringstartposX = x + 20;
+				stringstartposX = x + (!SUB_HEAD ?  20 : 20 +18);
 			else if (type & ALIGN_RIGHT)
 				stringstartposX = x + dx - stringwidth - 20;
 			else /* ALIGN_CENTER */
 				stringstartposX = x + (dx >> 1) - (stringwidth >> 1);
 
-			frameBuffer->paintBoxRel(stringstartposX-5, y, stringwidth+10, height, COL_MENUCONTENT_PLUS_0);
+			frameBuffer->paintBoxRel(stringstartposX-5, y, stringwidth+10, height, bgcolor0);
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+height,dx- (stringstartposX- x) , l_text, COL_MENUCONTENTINACTIVE, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+height,dx- (stringstartposX- x) , l_text, color, 0, true); // UTF-8
 
 			if (selected)
 			{

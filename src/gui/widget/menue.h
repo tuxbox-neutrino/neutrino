@@ -122,12 +122,13 @@ class CMenuSeparator : public CMenuItem
 
 		enum
 		{
-		    EMPTY =	0,
-		    LINE =	1,
-		    STRING =	2,
-		    ALIGN_CENTER = 4,
-		    ALIGN_LEFT =   8,
-		    ALIGN_RIGHT = 16
+			EMPTY =	0,
+			LINE =	1,
+			STRING =	2,
+			ALIGN_CENTER = 4,
+			ALIGN_LEFT =   8,
+			ALIGN_RIGHT = 16,
+			SUB_HEAD = 32
 		};
 
 
@@ -359,6 +360,7 @@ class CMenuWidget : public CMenuTarget
 		~CMenuWidget();
 
 		virtual void addItem(CMenuItem* menuItem, const bool defaultselected = false);
+		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE);
 		bool hasItem();
 		virtual void paint();
 		virtual void hide();
