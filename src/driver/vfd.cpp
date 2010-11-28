@@ -37,6 +37,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
+#include <sys/stat.h> 
 
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
