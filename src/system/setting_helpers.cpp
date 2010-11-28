@@ -609,13 +609,13 @@ printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
 		return menu_return::RETURN_EXIT;
 	}
 	if(!strncmp(actionKey.c_str(), "DVB", 3)) {
-		const char *pidptr = strchr(actionKey.c_str(), ':');
+		char const * pidptr = strchr(actionKey.c_str(), ':');
 		int pid = atoi(pidptr+1);
 		tuxtx_stop_subtitle();
 		dvbsub_pause();
 		dvbsub_start(pid);
 	} else {
-		const char *ptr = strchr(actionKey.c_str(), ':');
+		char const * ptr = strchr(actionKey.c_str(), ':');
 		ptr++;
 		int pid = atoi(ptr);
 		ptr = strchr(ptr, ':');
