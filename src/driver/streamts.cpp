@@ -13,6 +13,11 @@
 #include <poll.h>
 #include <syscall.h>
 
+/* work around for building with old kernel headers */
+#ifndef POLLRDHUP
+#define POLLRDHUP 0
+#endif
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
