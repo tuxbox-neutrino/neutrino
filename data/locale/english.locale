@@ -128,6 +128,7 @@ audiomenu.analog_mode Analog mode
 audiomenu.analog_out Analog output
 audiomenu.avs avs
 audiomenu.avs_control Volume Control avs/ost
+audiomenu.clockrec 
 audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.head Audio Settings
 audiomenu.lirc lirc
@@ -545,6 +546,7 @@ miscsettings.infobar_show_var_hdd Fill level (var & hdd )
 miscsettings.noaviawatchdog enable AVIA watchdog
 miscsettings.noenxwatchdog enable eNX watchdog
 miscsettings.pmtupdate enable pmt update
+miscsettings.show_infomenu 
 miscsettings.shutdown_count switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
 miscsettings.shutdown_count_hint2 to deep standby (0 = off).
@@ -1055,7 +1057,6 @@ zapit.scantype.all all services
 zapit.scantype.radio only radio
 zapit.scantype.tv only tv
 zapit.scantype.tvradio tv & radio
-colorthememenu.red_theme Simply Red
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 timerlist.overlapping_timer Timer conflict. Create the timer anyway?

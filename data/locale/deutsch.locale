@@ -13,6 +13,7 @@ audiomenu.avs avs
 audiomenu.avs_control Volume Steuerung avs/ost
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
+audiomenu.clockrec 
 audiomenu.dolbydigital DD-Unterkanal automatisch
 audiomenu.hdmi_dd DolbyDigital über HDMI
 audiomenu.head Audio-Einstellungen
@@ -744,6 +745,7 @@ miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
 miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
 miscsettings.noenxwatchdog eNX-Watchdog aktivieren
 miscsettings.pmtupdate PMT Aktualisierung verwenden
+miscsettings.show_infomenu 
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Bitte warten...
 miscsettings.shutdown_count_hint2 Sie können die Box jetzt ausschalten!
@@ -1372,6 +1374,7 @@ usermenu.item_vtxt Teletext
 usermenu.name Name
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
+videomenu.adjust Video Einstellungen anpassen
 videomenu.analog_hd_rgb_cinch RGB -> Cinch (HD)
 videomenu.analog_hd_rgb_scart RGB -> Scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr -> Cinch (HD)
@@ -1382,7 +1385,9 @@ videomenu.analog_sd_rgb_scart RGB -> Scart (SD)
 videomenu.analog_sd_yprpb_cinch YPbPr -> Cinch (SD)
 videomenu.analog_sd_yprpb_scart YPbPr -> Scart (SD)
 videomenu.auto Automatisch
+videomenu.brightness Helligkeit
 videomenu.cinch Cinch
+videomenu.contrast Kontrast
 videomenu.csync Sync.-Korrektur
 videomenu.dbdr MPEG2 Filter
 videomenu.dbdr_both deBlock & deRing
@@ -1398,13 +1403,16 @@ videomenu.hdmi_cec_mode_tuner als Tuner
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
 videomenu.head Video-Einstellungen
+videomenu.hue Farbton
 videomenu.letterbox Letterbox
 videomenu.osd OSD
 videomenu.panscan Pan & Scan
 videomenu.panscan2 14:9 Pan & Scan
 videomenu.rgb_centering RGB-Zentrierung
+videomenu.saturation Sättigung
 videomenu.scart Scart
 videomenu.screensetup Bildbereich
+videomenu.sharpness Schärfe
 videomenu.tv-scart TV Scart
 videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR-Ausgang Signalart
