@@ -1,4 +1,7 @@
-#include "../../../config.h"
+// first includes global, second local config.h
+// it should either be merged or get
+// separate names
+#include <config.h>
 #include "config.h"
 #ifdef FBV_SUPPORT_JPEG
 	
