@@ -4089,30 +4089,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		dprintf(DEBUG_INFO, "showing current network settings...\n");
 		showCurrentNetworkSettings();
 	}
-// 	else if (actionKey=="theme_neutrino") {
-// 		setupColors_neutrino();
-// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-// 	}
-// 	else if (actionKey=="theme_classic") {
-// 		setupColors_classic();
-// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-// 	}
-// 	else if (actionKey=="theme_dblue") {
-// 		setupColors_dblue();
-// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-// 	}
-// 	else if (actionKey=="theme_dvb2k") {
-// 		setupColors_dvb2k();
-// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-// 	}
-// 	else if(actionKey=="theme_ru") {
-// 		setupColors_ru();
-// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-// 	}
-// 	else if(actionKey=="theme_red") {
-// 		setupColors_red();
-// 		colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-// 	}
 	else if(actionKey=="savescansettings") {
 		SaveMotorPositions();
 	}
@@ -4328,49 +4304,6 @@ printf("New timeshift dir: %s\n", timeshiftDir);
 
 		return menu_return::RETURN_REPAINT;
 	}
-// 	else if(actionKey == "select_font") {
-// 		parent->hide();
-// 		CFileBrowser fileBrowser;
-// 		CFileFilter fileFilter;
-// 		fileFilter.addFilter("ttf");
-// 		fileBrowser.Filter = &fileFilter;
-// 		if (fileBrowser.exec(FONTDIR) == true) {
-// 			strcpy(g_settings.font_file, fileBrowser.getSelectedFile()->Name.c_str());
-// 			printf("[neutrino] new font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-// 			SetupFonts();
-// 		}
-// 		return menu_return::RETURN_REPAINT;
-// 	}
-// 	else if(actionKey == "ttx_font") {
-// 		parent->hide();
-// 		CFileBrowser fileBrowser;
-// 		CFileFilter fileFilter;
-// 		fileFilter.addFilter("ttf");
-// 		fileBrowser.Filter = &fileFilter;
-// 		if (fileBrowser.exec(FONTDIR) == true) {
-// 			strcpy(g_settings.ttx_font_file, fileBrowser.getSelectedFile()->Name.c_str());
-// 			ttx_font_file = fileBrowser.getSelectedFile()->Name;
-// 			printf("[neutrino] ttx font file %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-// 			SetupFonts();
-// 		}
-// 		return menu_return::RETURN_REPAINT;
-// 	}
-// 	else if (actionKey == "font_scaling") {
-// 		int xre = g_settings.screen_xres;
-// 		int yre = g_settings.screen_yres;
-// 		parent->hide();
-// 		CMenuWidget fontscale(LOCALE_FONTMENU_SCALING, NEUTRINO_ICON_COLORS);
-// 		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &xre, true, 50, 200));
-// 		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &yre, true, 50, 200));
-// 		fontscale.exec(NULL, "");
-// 		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
-// 			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", xre, yre);
-// 			g_settings.screen_xres = xre;
-// 			g_settings.screen_yres = yre;
-// 			SetupFonts();
-// 		}
-// 		return menu_return::RETURN_REPAINT;
-// 	}
 	else if(actionKey == "movieplugin") {
 		parent->hide();
 		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
