@@ -928,7 +928,7 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 	unsigned int i;
 
 	selected_chid = channel_id;
-printf("CChannelList::adjustToChannelID me %x [%s] list size %d channel_id %llx\n", (int) this, getName(), chanlist.size(), channel_id);fflush(stdout);
+printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %llx\n", this, getName(), chanlist.size(), channel_id);fflush(stdout);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
 			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
@@ -1039,7 +1039,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 	}
 
 	CZapitChannel* chan = chanlist[pos];
-printf("**************************** CChannelList::zapTo me %x %s tuned %d new %d %s -> %llx\n", (int) this, name.c_str(), tuned, pos, chan->name.c_str(), chan->channel_id);
+printf("**************************** CChannelList::zapTo me %p %s tuned %d new %d %s -> %llx\n", this, name.c_str(), tuned, pos, chan->name.c_str(), chan->channel_id);
 	if ( pos!=(int)tuned ) {
 		tuned = pos;
 		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
@@ -1073,7 +1073,7 @@ void CChannelList::NewZap(t_channel_id channel_id)
 		return;
 
 	CZapitChannel* chan = &it->second;
-printf("**************************** CChannelList::NewZap me %x %s tuned %d new %s -> %llx\n", (int) this, name.c_str(), tuned, chan->name.c_str(), chan->channel_id);
+printf("**************************** CChannelList::NewZap me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, chan->name.c_str(), chan->channel_id);
 
 	if(selected_chid != chan->channel_id) {
 		selected_chid = chan->channel_id;
