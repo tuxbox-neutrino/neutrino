@@ -143,6 +143,14 @@ const CMenuOptionChooser::keyval VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS[VID
 	{ ANALOG_HD_YPRPB_CINCH, LOCALE_VIDEOMENU_ANALOG_HD_YPRPB_CINCH }
 };
 
+#if HAVE_TRIPLEDRAGON
+CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
+{
+	{ VID_DISPFMT_PAL,   NONEXISTANT_LOCALE, "PAL"		},
+	{ VID_DISPFMT_SECAM, NONEXISTANT_LOCALE, "SECAM"	},
+	{ VID_DISPFMT_NTSC,  NONEXISTANT_LOCALE, "NTSC"		}
+};
+#else
 /* numbers corresponding to video.cpp from zapit */
 CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_OPTION_COUNT] =
 {
@@ -160,13 +168,20 @@ CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[VIDEOMENU_VIDEOMODE_O
 	{ VIDEO_STD_1080I60, NONEXISTANT_LOCALE, "1080i 60Hz"	},
 	{ VIDEO_STD_AUTO,    NONEXISTANT_LOCALE, "Auto"         }
 };
+#endif
 
+#if HAVE_TRIPLEDRAGON
+#define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 2
+#else
 #define VIDEOMENU_VIDEOFORMAT_OPTION_COUNT 3//2
+#endif
 const CMenuOptionChooser::keyval VIDEOMENU_VIDEOFORMAT_OPTIONS[VIDEOMENU_VIDEOFORMAT_OPTION_COUNT] =
 {
 	{ DISPLAY_AR_4_3, LOCALE_VIDEOMENU_VIDEOFORMAT_43         },
 	{ DISPLAY_AR_16_9, LOCALE_VIDEOMENU_VIDEOFORMAT_169        },
+#if !HAVE_TRIPLEDRAGON
 	{ DISPLAY_AR_14_9, LOCALE_VIDEOMENU_VIDEOFORMAT_149        }
+#endif
 };
 
 #define VIDEOMENU_DBDR_OPTION_COUNT 3
@@ -213,8 +228,12 @@ int CVideoSettings::showVideoSetup()
 	//dbdr options
 	CMenuOptionChooser * vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
 	
-		//video system modes submenue
-		CMenuWidget* videomodes = new CMenuWidget(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
+	//video system modes submenue
+	CMenuWidget *videomodes = NULL;
+	CMenuForwarder *vs_videomodes_fw = NULL;
+	if (system_rev != 0x01) /* Tripledragon */
+	{
+		videomodes = new CMenuWidget(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
 		videomodes->addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
 		
 		CAutoModeNotifier * anotify = new CAutoModeNotifier();
@@ -222,8 +241,9 @@ int CVideoSettings::showVideoSetup()
 			videomodes->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, anotify));
 		anotify->changeNotify(NONEXISTANT_LOCALE, 0);
 
-	CMenuForwarder * vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
-	
+		vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
+	}
+
 	//---------------------------------------
 	videosetup->addIntroItems(LOCALE_MAINSETTINGS_VIDEO, LOCALE_VIDEOMENU_TV_SCART);
 	//---------------------------------------
@@ -239,8 +259,11 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(vs_43mode_ch);	  //4:3 mode
 	videosetup->addItem(vs_dispformat_ch);	  //display format
 	videosetup->addItem(vs_videomodes_ch);	  //video system
-	videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
-	videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
+	if (system_rev != 0x01)	/* TRIPLEDRAGON hack... :-) */
+	{
+		videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
+		videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
+	}
 
  	int res = videosetup->exec(NULL, "");
  	videosetup->hide();

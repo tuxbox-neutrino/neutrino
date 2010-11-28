@@ -32,6 +32,7 @@
 #ifndef __settings__
 #define __settings__
 
+#include "config.h"
 #include <system/localize.h>
 #include <configfile.h>
 #include <zapit/client/zapitclient.h>
@@ -39,7 +40,11 @@
 
 #include <string>
 
+#if !HAVE_TRIPLEDRAGON
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 12
+#else
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 3
+#endif
 
 struct SNeutrinoSettings
 {
