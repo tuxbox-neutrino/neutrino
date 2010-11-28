@@ -48,7 +48,6 @@ struct SNeutrinoSettings
 	int analog_mode1;
 	int analog_mode2;
 	int video_43mode;
-	unsigned char video_csync;
 	char current_volume;
 	int channel_mode;
 	int channel_mode_radio;

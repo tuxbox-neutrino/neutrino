@@ -77,7 +77,6 @@
 #include "gui/widget/icons.h"
 // #include "gui/widget/vfdcontroler.h"
 #include "gui/proxyserver_setup.h"
-#include "gui/widget/rgbcsynccontroler.h"
 #include "gui/keybind_setup.h"
 #include "gui/widget/keychooser.h"
 #include "gui/widget/stringinput.h"

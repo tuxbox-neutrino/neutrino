@@ -79,7 +79,6 @@
 #include "gui/widget/icons.h"
 #include "gui/widget/vfdcontroler.h"
 #include "gui/widget/progressbar.h"
-#include "gui/widget/rgbcsynccontroler.h"
 #include "gui/widget/keychooser.h"
 #include "gui/widget/stringinput.h"
 #include "gui/widget/stringinput_ext.h"
@@ -428,7 +427,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
-	g_settings.video_csync = configfile.getInt32( "video_csync", 0 );
 
 	g_settings.fan_speed = configfile.getInt32( "fan_speed", 1);
 	if(g_settings.fan_speed < 1) g_settings.fan_speed = 1;
@@ -982,7 +980,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "current_volume", g_settings.current_volume );
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
 	configfile.setInt32( "channel_mode_radio", g_settings.channel_mode_radio );
-	configfile.setInt32( "video_csync", g_settings.video_csync );
 
 	configfile.setInt32( "fan_speed", g_settings.fan_speed);
 
