@@ -35,8 +35,6 @@
 #include <zapit/frontend_c.h>
 #include <zapit/satconfig.h>
 
-#include "driver/vfd.h"
-
 extern double gotoXXLatitude, gotoXXLongitude;
 extern int gotoXXLaDirection, gotoXXLoDirection;
 extern int repeatUsals;
