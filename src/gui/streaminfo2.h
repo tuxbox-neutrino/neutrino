@@ -26,7 +26,6 @@
 #include <gui/widget/menue.h>
 
 #include <driver/framebuffer.h>
-#include <driver/pig.h>
 #include <gui/widget/progressbar.h>
 
 

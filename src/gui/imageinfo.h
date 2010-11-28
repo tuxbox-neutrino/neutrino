@@ -28,7 +28,6 @@
 #include <gui/widget/menue.h>
 #include <system/localize.h>
 #include <driver/framebuffer.h>
-#include <driver/pig.h>
 
 class CImageInfo : public CMenuTarget
 {
@@ -52,8 +51,6 @@ class CImageInfo : public CMenuTarget
 		int font_head;
 		int font_info;
 		int font_small;
-
-		CPIG *pig;
 
 		void paint();
 		void paint_pig(int x, int y, int w, int h);
