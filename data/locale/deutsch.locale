@@ -966,7 +966,7 @@ networkmenu.mount NFS/CIFS/FTPFS
 networkmenu.nameserver Nameserver
 networkmenu.netmask Netzmaske
 networkmenu.ntpenable Zeit per INet synchronisieren
-networkmenu.ntprefresh NTP/DVB-Aktualisierung [s]
+networkmenu.ntprefresh NTP/DVB-Aktualisierung
 networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync [min]
 networkmenu.ntprefresh_hint2 braucht Reboot oder EPG-Reset
 networkmenu.ntpserver NTP-URL (Zeitserver)
