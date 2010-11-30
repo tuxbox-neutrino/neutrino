@@ -3855,7 +3855,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		if(recordingstatus) was_record = 1;
 		if(!was_record) {
 			g_Zapit->setStandby(true);
-			system("hdparm -y /dev/ide/host0/bus0/target0/lun0/disc >/dev/null 2>/dev/null");
 		} else
 			g_Zapit->stopPlayBack();
 
