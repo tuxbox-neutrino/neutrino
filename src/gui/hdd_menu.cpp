@@ -97,7 +97,7 @@ int CHDDMenuHandler::doMenu ()
 	}
 #endif
 
-	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_HDD_SETTINGS, NEUTRINO_ICON_SETTINGS, 48);
+	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_HDD_SETTINGS, NEUTRINO_ICON_SETTINGS, 58);
 	hddmenu->addItem( GenericMenuBack );
 	hddmenu->addItem( GenericMenuSeparatorLine );
 
@@ -205,6 +205,8 @@ int CHDDDestExec::exec(CMenuTarget* /*parent*/, const std::string&)
 	for (int i = 0; i < n; i++) {
 		printf("CHDDDestExec: noise %d sleep %d /dev/%s\n",
 			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
+		//hdparm -M is not included in busybox hdparm!
+		//we need full version of hdparm or should remove -M parameter here
 		snprintf(cmd, sizeof(cmd), "hdparm -M%d -S%d /dev/%s >/dev/null 2>/dev/null",
 			 g_settings.hdd_noise, g_settings.hdd_sleep, namelist[i]->d_name);
 		system(cmd);
