@@ -36,6 +36,7 @@
 		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
 	<cable name="Kabel Deutschland (626/Q64)" satfeed="true" flags="9">
+		<transponder frequency="73000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="121000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="322000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -68,6 +69,7 @@
 		<transponder frequency="642000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 	</cable>
 	<cable name="Kabel Deutschland (626/Q256)" satfeed="true" flags="9">
+		<transponder frequency="73000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="121000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="322000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
