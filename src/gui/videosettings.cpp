@@ -73,7 +73,7 @@ CVideoSettings::CVideoSettings(bool wizard_mode)
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
 	
-	prev_video_mode == g_settings.video_Mode;
+	prev_video_mode = g_settings.video_Mode;
 	
 	setupVideoSystem(false);
 }
