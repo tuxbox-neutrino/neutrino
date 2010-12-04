@@ -639,7 +639,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	//recording (server + vcr)
 	g_settings.recording_type = configfile.getInt32("recording_type", RECORDING_FILE);
 	g_settings.recording_stopplayback          = configfile.getBool("recording_stopplayback"             , false);
-	g_settings.recording_stopsectionsd         = configfile.getBool("recording_stopsectionsd"            , true );
+	g_settings.recording_stopsectionsd         = configfile.getBool("recording_stopsectionsd"            , false );
 	g_settings.recording_server_ip = configfile.getString("recording_server_ip", "127.0.0.1");
 	strcpy( g_settings.recording_server_port, configfile.getString( "recording_server_port", "4000").c_str() );
 	g_settings.recording_server_wakeup = configfile.getInt32( "recording_server_wakeup", 0 );
