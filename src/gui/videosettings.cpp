@@ -230,10 +230,9 @@ void CVideoSettings::showVideoSetup()
 	//dbdr options
 	CMenuOptionChooser * vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
 	
-		//video modes submenue
-		CMenuWidget* videomodes = new CMenuWidget(LOCALE_VIDEOMENU_ENABLED_MODES, NEUTRINO_ICON_SETTINGS);
-		videomodes->addItem(GenericMenuBack);
-		videomodes->addItem(GenericMenuSeparatorLine);
+		//video system modes submenue
+		CMenuWidget* videomodes = new CMenuWidget(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
+		videomodes->addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
 		
 		CAutoModeNotifier * anotify = new CAutoModeNotifier();
 		for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
