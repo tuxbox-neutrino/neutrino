@@ -1389,7 +1389,7 @@ void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 void CControlAPI::SendChannelList(CyhookHandler *hh)
 {
 	int mode = NeutrinoAPI->Zapit->getMode();
-	hh->SetHeader(HTTP_OK, "text/html; charset=UTF-8");
+	hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
 	CBouquetManager::ChannelIterator cit = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin();
 	for (; !(cit.EndOfChannels()); cit++) {
 		CZapitChannel * channel = *cit;
