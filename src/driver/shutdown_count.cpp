@@ -63,6 +63,8 @@ void* SHTDCNT::TimeThread(void *)
 
 void SHTDCNT::init()
 {
+	shutdown_cnt = atoi(g_settings.shutdown_count) * 60;
+	sleep_cnt = g_settings.shutdown_min*60;
 	if (pthread_create (&thrTime, NULL, TimeThread, NULL) != 0 )
 	{
 		perror("[SHTDCNT]: pthread_create(TimeThread)");
@@ -72,6 +74,7 @@ void SHTDCNT::init()
 
 void SHTDCNT::shutdown_counter()
 {
+	static bool sleeptimer_active = true;
 	if (atoi(g_settings.shutdown_count) > 0)
 	{
 		if ((CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_standby) && (!CNeutrinoApp::getInstance ()->recordingstatus))
@@ -79,13 +82,14 @@ void SHTDCNT::shutdown_counter()
 			if (shutdown_cnt > 0 )
 			{
 				shutdown_cnt = shutdown_cnt - 1;
-				printf("[SHTDCNT] shutdown counter: %d sec to shutdown\n", shutdown_cnt);
+				//printf("[SHTDCNT] shutdown counter: %d sec to shutdown\n", shutdown_cnt);
 			}
 			else
 			{
-			// send shutdown message
-			printf("[SHTDCNT] shutdown counter send NeutrinoMessages::SHUTDOWN\n");
-			CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::SHUTDOWN, 0);
+				// send shutdown message
+				printf("[SHTDCNT] shutdown counter send NeutrinoMessages::SHUTDOWN\n");
+				//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::SHUTDOWN, 0);
+				g_RCInput->postMsg(NeutrinoMessages::SHUTDOWN, 0);
 			}
 		}
 		else
@@ -94,4 +98,20 @@ void SHTDCNT::shutdown_counter()
 			shutdown_cnt = atoi(g_settings.shutdown_count) * 60;
 		}
 	}
+
+	if(g_settings.shutdown_min > 0) {
+		if(sleep_cnt > 0) {
+			sleeptimer_active = true;
+			sleep_cnt--;
+		} else if(sleeptimer_active && !CNeutrinoApp::getInstance ()->recordingstatus) {
+			sleeptimer_active = false;
+			printf("[SHTDCNT] sleep-timer send NeutrinoMessages::SLEEPTIMER\n");
+			g_RCInput->postMsg(NeutrinoMessages::SLEEPTIMER, 1);
+		}
+	}
+}
+
+void SHTDCNT::resetSleepTimer()
+{
+	sleep_cnt = g_settings.shutdown_min*60;
 }

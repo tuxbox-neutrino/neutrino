@@ -1,10 +1,22 @@
-#ifndef _VIDEO_CS_H
-#define _VIDEO_CS_H
+/*******************************************************************************/
+/*                                                                             */
+/* libcoolstream/video_cs.h                                                    */
+/*   Public header file for video API                                          */
+/*                                                                             */
+/* (C) 2008 CoolStream International                                           */
+/*                                                                             */
+/*******************************************************************************/
+#ifndef __VIDEO_CS_H_
+#define __VIDEO_CS_H_
 
 #include <coolstream/cs_vfd.h>
 #include <coolstream/control.h>
 
 #include "cs_types.h"
+
+#ifndef CS_VIDEO_PDATA
+#define CS_VIDEO_PDATA void
+#endif
 
 typedef enum {
 	ANALOG_SD_RGB_CINCH = 0x00,
@@ -110,122 +122,114 @@ typedef enum
    VIDEO_CONTROL_MAX = VIDEO_CONTROL_SHARPNESS
 } VIDEO_CONTROL;
 
-#ifndef CS_VIDEO_PDATA
-#define CS_VIDEO_PDATA void
-#endif
+class cVideo {
+private:
+	CS_VIDEO_PDATA		*privateData;
+	VIDEO_FORMAT		StreamType;
+	VIDEO_DEFINITION	VideoDefinition;
+	DISPLAY_AR		DisplayAR;
+	VIDEO_PLAY_MODE		playMode;
+	AVSYNC_TYPE		syncMode;
+	DISPLAY_AR_MODE		ARMode;
+	VIDEO_DB_DR		eDbDr;
+	DISPLAY_AR		PictureAR;
+	VIDEO_FRAME_RATE	FrameRate;
+	VIDEO_HDMI_CEC_MODE	hdmiCECMode;
+	bool			Interlaced;
+	unsigned int		uDRMDisplayDelay;
+	unsigned int		uVideoPTSDelay;
+	int			StcPts;
+	bool			started;
+	unsigned int		bStandby;
+	bool			blank;
+	bool			playing;
+	bool			auto_format;
+	int			uFormatIndex;
+	bool			vbi_started;
+	bool			receivedDRMDelay;
+	bool			receivedVideoDelay;
+	int			cfd; // control driver fd
+	analog_mode_t		analog_mode_cinch;
+	analog_mode_t		analog_mode_scart;
+	vfd_icon		mode_icon;
+	//
+	int SelectAutoFormat();
+	void ScalePic();
+public:
+	/* constructor & destructor */
+	cVideo(int mode, void * hChannel, void * hBuffer);
+	~cVideo(void);
 
-class cVideo
-{
-	private:
-		CS_VIDEO_PDATA		*privateData;
-		VIDEO_FORMAT		StreamType;
-		VIDEO_DEFINITION	VideoDefinition;
-		DISPLAY_AR		DisplayAR;
-		VIDEO_PLAY_MODE		playMode;
-		AVSYNC_TYPE		syncMode;
-		DISPLAY_AR_MODE		ARMode;
-		VIDEO_DB_DR		eDbDr;
-		DISPLAY_AR		PictureAR;
-		VIDEO_FRAME_RATE	FrameRate;
-		VIDEO_HDMI_CEC_MODE	hdmiCECMode;
-		bool			Interlaced;
+	void * GetDRM(void);
+	void * GetTVEnc();
+	void * GetTVEncSD();
+	void * GetHandle();
 
-		unsigned int uDRMDisplayDelay;
-		unsigned int uVideoPTSDelay;
-		int StcPts;
-		bool started;
-		unsigned int bStandby;
-		bool blank;
-		bool playing;
-		bool auto_format;
-		int uFormatIndex;
-		bool vbi_started;
+	void SetAudioHandle(void * handle);
+	/* aspect ratio */
+	int getAspectRatio(void);
+	void getPictureInfo(int &width, int &height, int &rate);
+	int setAspectRatio(int aspect, int mode);
 
-		bool receivedDRMDelay;
-		bool receivedVideoDelay;
-		int cfd; // control driver fd
-		analog_mode_t analog_mode_cinch;
-		analog_mode_t analog_mode_scart;
+	/* cropping mode */
+	int getCroppingMode(void);
+	int setCroppingMode(void);
 
-		vfd_icon mode_icon;
-		int SelectAutoFormat();
-		void ScalePic();
-	public:
-		/* constructor & destructor */
-		cVideo(int mode, void * hChannel, void * hBuffer);
-		~cVideo(void);
+	/* stream source */
+	int getSource(void);
+	int setSource(void);
+	int GetStreamType(void) { return StreamType; };
 
-		void * GetDRM(void);
-		void * GetTVEnc();
-		void * GetTVEncSD();
-		void * GetHandle();
+	/* blank on freeze */
+	int getBlank(void);
+	int setBlank(int enable);
 
-		void SetAudioHandle(void * handle);
-		/* aspect ratio */
-		int getAspectRatio(void);
-		void getPictureInfo(int &width, int &height, int &rate);
-		int setAspectRatio(int aspect, int mode);
+	/* get play state */
+	int getPlayState(void);
+	void SetDRMDelay(unsigned int delay) { uDRMDisplayDelay = delay;};
+	void SetVideoDelay(unsigned int delay) { uVideoPTSDelay = delay;};
+	/* Notification handlers */
+	void HandleDRMMessage(int Event, void *pData);
+	void HandleVideoMessage(void * hHandle, int Event, void *pData);
+	void HandleEncoderMessage(void *hHandle, int Event, void *pData);
+	VIDEO_DEFINITION   GetVideoDef(void) { return VideoDefinition; }
 
-		/* cropping mode */
-		int getCroppingMode(void);
-		int setCroppingMode(void);
+	/* change video play state */
+	int Prepare(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
+	int Start(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
+	int Stop(bool Blank = true);
+	bool Pause(void);
+	bool Resume(void);
+	int LipsyncAdjust();
+	int64_t GetPTS(void);
+	int Flush(void);
 
-		/* stream source */
-		int getSource(void);
-		int setSource(void);
-		int GetStreamType(void) { return StreamType; };
-
-		/* blank on freeze */
-		int getBlank(void);
-		int setBlank(int enable);
-
-		/* get play state */
-		int getPlayState(void);
-		void SetDRMDelay(unsigned int delay) { uDRMDisplayDelay = delay;};
-		void SetVideoDelay(unsigned int delay) { uVideoPTSDelay = delay;};
-		/* Notification handlers */
-		void HandleDRMMessage(int Event, void *pData);
-		void HandleVideoMessage(void * hHandle, int Event, void *pData);
-		void HandleEncoderMessage(void *hHandle, int Event, void *pData);
-		VIDEO_DEFINITION   GetVideoDef(void) { return VideoDefinition; }
-
-		/* change video play state */
-		int Prepare(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
-		int Start(void * PcrChannel, unsigned short PcrPid, unsigned short VideoPid, void * hChannel = NULL);
-		int Stop(bool blank = true);
-		bool Pause(void);
-		bool Resume(void);
-		int LipsyncAdjust();
-		int64_t GetPTS(void);
-
-		int Flush(void);
-		
-		/* set video_system */
-		int SetVideoSystem(int video_system, bool remember = true);
-		int SetStreamType(VIDEO_FORMAT type);
-		void SetSyncMode(AVSYNC_TYPE mode);
-		bool SetCECMode(VIDEO_HDMI_CEC_MODE Mode);
-		void SetCECAutoView(bool OnOff);
-		void SetCECAutoStandby(bool OnOff);
-		void ShowPicture(const char * fname);
-		void StopPicture();
-		void Standby(unsigned int bOn);
-		void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);
-		void SetControl(int num, int val);
-		bool ReceivedDRMDelay(void) { return receivedDRMDelay; }
-		bool ReceivedVideoDelay(void) { return receivedVideoDelay; }
-		void SetReceivedDRMDelay(bool Received) { receivedDRMDelay = Received; }
-		void SetReceivedVideoDelay(bool Received) { receivedVideoDelay = Received; }
-		void SetFastBlank(bool onoff);
-		void SetTVAV(bool onoff);
-		void SetWideScreen(bool onoff);
-		void SetVideoMode(analog_mode_t mode);
-		void SetDBDR(int dbdr);
-		void SetAutoModes(int modes[VIDEO_STD_MAX]);
-		int  OpenVBI(int num);
-		int  CloseVBI(void);
-		int  StartVBI(unsigned short pid);
-		int  StopVBI(void);
+	/* set video_system */
+	int SetVideoSystem(int video_system, bool remember = true);
+	int SetStreamType(VIDEO_FORMAT type);
+	void SetSyncMode(AVSYNC_TYPE mode);
+	bool SetCECMode(VIDEO_HDMI_CEC_MODE Mode);
+	void SetCECAutoView(bool OnOff);
+	void SetCECAutoStandby(bool OnOff);
+	void ShowPicture(const char * fname);
+	void StopPicture();
+	void Standby(unsigned int bOn);
+	void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);
+	void SetControl(int num, int val);
+	bool ReceivedDRMDelay(void) { return receivedDRMDelay; }
+	bool ReceivedVideoDelay(void) { return receivedVideoDelay; }
+	void SetReceivedDRMDelay(bool Received) { receivedDRMDelay = Received; }
+	void SetReceivedVideoDelay(bool Received) { receivedVideoDelay = Received; }
+	void SetFastBlank(bool onoff);
+	void SetTVAV(bool onoff);
+	void SetWideScreen(bool onoff);
+	void SetVideoMode(analog_mode_t mode);
+	void SetDBDR(int dbdr);
+	void SetAutoModes(int modes[VIDEO_STD_MAX]);
+	int  OpenVBI(int num);
+	int  CloseVBI(void);
+	int  StartVBI(unsigned short pid);
+	int  StopVBI(void);
 };
 
-#endif
+#endif // __VIDEO_CS_H_

@@ -1,5 +1,16 @@
+/*******************************************************************************/
+/*                                                                             */
+/* libcoolstream/cs_api.h                                                      */
+/*   Public header file for CoolStream Public API                              */
+/*                                                                             */
+/* (C) 2010 CoolStream International                                           */
+/*                                                                             */
+/*******************************************************************************/
 #ifndef __CS_API_H_
 #define __CS_API_H_
+
+#include <coolstream/control.h>
+#include <sys/types.h>
 
 typedef void (*cs_messenger) (unsigned int msg, unsigned int data);
 
@@ -14,10 +25,12 @@ enum CS_LOG_MODULE {
 	CS_LOG_DENC,
 	CS_LOG_PVR_RECORD,
 	CS_LOG_PVR_PLAY,
+	CS_LOG_FILEPLAYER,
 	CS_LOG_POWER_CTRL,
 	CS_LOG_POWER_CLK,
 	CS_LOG_MEM,
 	CS_LOG_API,
+	CS_LOG_CA,
 };
 
 // Initialization
@@ -45,9 +58,12 @@ void cs_log_module_message(enum CS_LOG_MODULE module, const char *fmt, ...);
 // TS Routing
 unsigned int cs_get_ts_output(void);
 int cs_set_ts_output(unsigned int port);
+int cs_set_ts_config(unsigned int port, tsrouter_hsdp_config_t *hsdp_config);
+int cs_get_ts_config(unsigned int port, tsrouter_hsdp_config_t *hsdp_config);
 
 // Serial nr and revision accessors
 unsigned long long cs_get_serial(void);
 unsigned int cs_get_revision(void);
+
 
 #endif //__CS_API_H_

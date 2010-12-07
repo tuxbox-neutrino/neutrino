@@ -57,6 +57,7 @@
 #include <eventserver.h>
 
 #include <global.h>
+#include <driver/shutdown_count.h>
 #include <neutrino.h>
 #include <cs_api.h>
 
@@ -1143,6 +1144,8 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 
 				if(ret != sizeof(t_input_event))
 					continue;
+
+				SHTDCNT::getInstance()->resetSleepTimer();
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, translate(ev.code, i), getKeyName(translate(ev.code, i)).c_str());
 				uint32_t trkey = translate(ev.code, i);
 

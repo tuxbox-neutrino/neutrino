@@ -1375,6 +1375,11 @@ CMenuForwarderNonLocalized::CMenuForwarderNonLocalized(const char * const Text, 
     the_text = Text;
 }
 
+int CMenuForwarderNonLocalized::getWidth(void)
+{
+	int tw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(the_text, true);
+	return tw;
+}
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text)
 {

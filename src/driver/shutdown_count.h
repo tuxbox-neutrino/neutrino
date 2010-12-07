@@ -33,9 +33,10 @@ class SHTDCNT
 {
 	private:
 
-		pthread_t			thrTime;
+		pthread_t	thrTime;
 		unsigned int	shutdown_cnt;
-		CConfigFile			configfile;
+		unsigned int	sleep_cnt;
+		CConfigFile	configfile;
 
 		void shutdown_counter();
 		SHTDCNT();
@@ -48,6 +49,7 @@ class SHTDCNT
 
 		static SHTDCNT* getInstance();
 		void init();
+		void resetSleepTimer();
 };
 
 #endif

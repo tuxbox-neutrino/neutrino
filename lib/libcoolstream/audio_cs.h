@@ -1,7 +1,19 @@
-/* public header file */
+/*******************************************************************************/
+/*                                                                             */
+/* libcoolstream/audio_cs.h                                                    */
+/*   Public header file for audio API                                          */
+/*                                                                             */
+/* (C) 2008 CoolStream International                                           */
+/*                                                                             */
+/*******************************************************************************/
+#ifndef __AUDIO_CS_H_
+#define __AUDIO_CS_H_
 
-#ifndef _AUDIO_CS_H_
-#define _AUDIO_CS_H_
+#ifndef CS_AUDIO_PDATA
+#define CS_AUDIO_PDATA void
+#endif
+
+#include "cs_types.h"
 
 typedef enum {
 	AUDIO_SYNC_WITH_PTS,
@@ -24,12 +36,6 @@ typedef enum {
 	AUDIO_FMT_WMA,
 	AUDIO_FMT_ADVANCED = AUDIO_FMT_MLP
 } AUDIO_FORMAT;
-
-#ifndef CS_AUDIO_PDATA
-#define CS_AUDIO_PDATA void
-#endif
-
-#include "cs_types.h"
 
 class cAudio {
 private:
@@ -110,5 +116,4 @@ public:
 	void EnableAnalogOut(bool Enable);
 };
 
-#endif
-
+#endif //__AUDIO_CS_H_

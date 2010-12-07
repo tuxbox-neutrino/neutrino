@@ -177,6 +177,7 @@ class CMenuForwarderNonLocalized : public CMenuForwarder
 	// Text must be UTF-8 encoded:
 	CMenuForwarderNonLocalized(const char * const Text, const bool Active=true, const char * const Option=NULL, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
 	CMenuForwarderNonLocalized(const char * const Text, const bool Active, const std::string &Option, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
+	int getWidth(void);
 
 };
 

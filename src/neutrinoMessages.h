@@ -106,14 +106,7 @@ struct NeutrinoMessages {
 		EVT_SI_FINISHED                          = CRCInput::RC_Events + 39,
 
 		/* NEVER CHANGE THIS */
-		EVT_CI_INSERTED				 = CRCInput::RC_Events + 60, /* data = slot num */
-		EVT_CI_REMOVED				 = CRCInput::RC_Events + 61, /* data = slot num */
-		EVT_CI_INIT_OK				 = CRCInput::RC_Events + 62, /* data = slot num */
-		EVT_CI_MMI_MENU				 = CRCInput::RC_Events + 63,
-		EVT_CI_MMI_LIST				 = CRCInput::RC_Events + 64,
-		EVT_CI_MMI_TEXT				 = CRCInput::RC_Events + 65,
-		EVT_CI_MMI_REQUEST_INPUT		 = CRCInput::RC_Events + 66,
-		EVT_CI_MMI_CLOSE			 = CRCInput::RC_Events + 67,
+		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
 		/* END */
 
 		EVT_CURRENTEPG                           = CRCInput::RC_WithData +  1,

@@ -46,6 +46,17 @@
 
 CHintBox::CHintBox(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon)
 {
+	const char * caption = g_Locale->getText(Caption);
+	init(caption, Text, Width, Icon);
+}
+
+CHintBox::CHintBox(const char * const Caption, const char * const Text, const int Width, const char * const Icon)
+{
+	init(Caption, Text, Width, Icon);
+}
+
+void CHintBox::init(const char * const Caption, const char * const Text, const int Width, const char * const Icon)
+{
 	char * begin;
 	char * pos;
 	int    nw;
@@ -99,7 +110,8 @@ CHintBox::CHintBox(const neutrino_locale_t Caption, const char * const Text, con
 	else
 		iconfile = "";
 
-	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(caption), true); // UTF-8
+	//nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(g_Locale->getText(caption), true); // UTF-8
+	nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(caption, true); // UTF-8
 
 	if (nw > width)
 		width = nw;
@@ -165,10 +177,11 @@ void CHintBox::refresh(void)
 		CFrameBuffer::getInstance()->getIconSize(iconfile.c_str(), &iw, &ih);
 		//window->paintIcon(iconfile.c_str(), 8, 5);
 		window->paintIcon(iconfile.c_str(), 10, 0, theight);
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
+		//window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], iw+20, theight, width - 20-iw, caption, (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
 	}
 	else
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, g_Locale->getText(caption), (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE], 10, theight, width - 10, caption, (CFBWindow::color_t)COL_MENUHEAD, 0, true); // UTF-8
 
 	//window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0);
 	window->paintBoxRel(0, theight, width, (entries_per_page + 1) * fheight, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
@@ -221,6 +234,13 @@ void CHintBox::hide(void)
 }
 
 int ShowHintUTF(const neutrino_locale_t Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
+{
+	const char * caption = g_Locale->getText(Caption);
+
+	return ShowHintUTF(caption, Text, Width, timeout, Icon);
+}
+
+int ShowHintUTF(const char * const Caption, const char * const Text, const int Width, int timeout, const char * const Icon)
 {
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;

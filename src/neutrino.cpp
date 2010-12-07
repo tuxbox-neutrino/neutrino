@@ -132,6 +132,7 @@
 #include <audio_cs.h>
 #include <zapit/frontend_c.h>
 #include <pwrmngr.h>
+#include <ca_cs.h>
 
 #include <string.h>
 #include <linux/reboot.h>
@@ -184,7 +185,7 @@ void getZapitConfig(Zapit_config *Cfg);
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
 
-//#define DISABLE_SECTIONSD //FIXME
+//#define DISABLE_SECTIONSD
 extern int sectionsd_stop;
 static pthread_t sections_thread;
 void * sectionsd_main_thread(void *data);
@@ -477,9 +478,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
 	g_settings.hdd_sleep = configfile.getInt32( "hdd_sleep", 120);
 	g_settings.hdd_noise = configfile.getInt32( "hdd_noise", 254);
+
 	g_settings.shutdown_real         = configfile.getBool("shutdown_real"        , false );
 	g_settings.shutdown_real_rcdelay = configfile.getBool("shutdown_real_rcdelay", false );
         strcpy(g_settings.shutdown_count, configfile.getString("shutdown_count","0").c_str());
+
+	g_settings.shutdown_min = 0;
+	if(cs_get_revision() > 7)
+		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180 );
+
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
 	g_settings.progressbar_color = configfile.getBool("progressbar_color", true );
@@ -1024,6 +1031,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("shutdown_real"        , g_settings.shutdown_real        );
 	configfile.setBool("shutdown_real_rcdelay", g_settings.shutdown_real_rcdelay);
 	configfile.setString("shutdown_count"           , g_settings.shutdown_count);
+	configfile.setInt32("shutdown_min"  , g_settings.shutdown_min  );
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
@@ -1276,11 +1284,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//Software-update
 	configfile.setInt32 ("softupdate_mode"          , g_settings.softupdate_mode          );
 	configfile.setString("softupdate_url_file"      , g_settings.softupdate_url_file      );
-#if 1 //FIXME why was commented ??
+
 	configfile.setString("softupdate_proxyserver"   , g_settings.softupdate_proxyserver   );
 	configfile.setString("softupdate_proxyusername" , g_settings.softupdate_proxyusername );
 	configfile.setString("softupdate_proxypassword" , g_settings.softupdate_proxypassword );
-#endif
+
 	configfile.setString("update_dir", g_settings.update_dir);
 	configfile.setString("font_file", g_settings.font_file);
 	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
@@ -2102,6 +2110,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 
 	//init video and CEC Settings
+	g_videoSettings = new CVideoSettings;
 	g_videoSettings->setVideoCECSettings();
 
 	// trigger a change
@@ -2157,7 +2166,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
-	g_videoSettings = new CVideoSettings;
 
 	int dx = 0;
 	int dy = 0;
@@ -2387,6 +2395,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	g_RCInput->clearRCMsg();
 	if(g_settings.power_standby)
 		standbyMode(true);
+
+	cCA::GetInstance()->Ready(true);
 
 	while( true ) {
 		g_RCInput->getMsg(&msg, &data, 100);	// 10 secs..
@@ -3222,6 +3232,20 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::SLEEPTIMER) {
+		if(data) {
+			skipShutdownTimer = 
+				(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWNTIMER_ANNOUNCE, 
+				      CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);//FIXME
+			if(skipShutdownTimer) {
+				printf("NeutrinoMessages::SLEEPTIMER: skiping\n");
+				skipShutdownTimer = false;
+				return messages_return::handled;
+			} 
+			else {
+				printf("NeutrinoMessages::SLEEPTIMER: shutdown\n");
+				ExitRun(true, (cs_get_revision() > 7));
+			}
+		}
 		if(g_settings.shutdown_real)
 			ExitRun(true, (cs_get_revision() > 7));
 		else

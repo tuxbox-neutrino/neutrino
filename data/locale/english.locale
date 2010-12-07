@@ -546,11 +546,12 @@ miscsettings.noaviawatchdog enable AVIA watchdog
 miscsettings.noenxwatchdog enable eNX watchdog
 miscsettings.pmtupdate enable pmt update
 miscsettings.show_infomenu 
-miscsettings.shutdown_count switch off after
+miscsettings.shutdown_count In stabdby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
 miscsettings.shutdown_count_hint2 to deep standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
+miscsettings.sleeptimer Inactivity shutdown timer
 miscsettings.sptsmode use spts mode
 motorcontrol.head Satellite finder
 movieplayer.bookmark Bookmarks
@@ -795,8 +796,10 @@ settings.menu_pos Menu position
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
 sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Shutdown time in min. (000=off)
-sleeptimerbox.hint2 The STB will shutdown after this time.
+sleeptimerbox.hint2 The STB will shutdown after this time in standby.
+sleeptimerbox.hint3 The STB will shutdown, if remote not used.
 sleeptimerbox.title Sleeptimer
+sleeptimerbox.title2 Inactivity shutdown timer
 streamfeatures.head Features
 streaminfo.aratio Aspect Ratio
 streaminfo.aratio_unknown Aspect Ratio: unknown
@@ -1402,15 +1405,24 @@ reset_channels Delete all channels
 reset_settings Reset settings to defaults
 reset_all Factory reset and reboot
 reset_confirm Are you sure ?
-cam.settings CI Cam
-cam.empty No CAM in slot
-cam.inserted CAM inserted in slot
-cam.removed CAM removed from slot
-cam.init_ok CAM init complete
-cam.waiting Waiting for CI answer
-cam.timeout Timeout waiting CI menu ready
-cam.reset Reset
-cam.reset_standby Reset after standby
+ci.settings Conditional access
+ci.empty No CAM in slot
+ci.inserted CAM inserted in slot
+ci.removed CAM removed from slot
+ci.init_ok CAM init complete
+ci.init_failed CAM init failed
+ci.waiting Waiting for CI answer
+ci.timeout Timeout waiting CI menu ready
+ci.reset Reset
+ci.reset_standby Reset after standby
+sc.empty No card in slot
+sc.inserted Card inserted in slot
+sc.removed Card removed from slot
+sc.init_ok Card init complete
+sc.init_failed Card init failed
+sc.waiting Waing for card answer
+sc.timeout Timeout waiting card menu
+sc.reset Reset card
 subtitles.head Subtitles
 subtitles.stop Stop subtitles
 favorites.copy Copy bouquet to Favorites

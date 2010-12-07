@@ -143,6 +143,7 @@
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
 #include <zapit/fastscan.h>
+#include <cs_api.h>
 
 //#define TEST_MENU
 
@@ -481,7 +482,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 			 CRCInput::convertDigitToKey(shortcut++)));
 	mainMenu.addItem(GenericMenuSeparatorLine);
 
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget, NULL,
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget, "",
 					    CRCInput::convertDigitToKey(shortcut++)));
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_REBOOT, true, NULL, this, "reboot",
 					    CRCInput::convertDigitToKey(shortcut++)));
@@ -500,8 +501,8 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, info, NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
 	}
 	// end of infomenu
-	if(system_rev != 10)
-		mainMenu.addItem( new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler, NULL, CRCInput::convertDigitToKey(0)));
+	/*if(system_rev != 10)*/
+		mainMenu.addItem( new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler, NULL, CRCInput::convertDigitToKey(0)));
 
 	//settings menu
 	int sett_count =1;
@@ -1343,8 +1344,7 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 		miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier));
 		miscSettingsGeneral->addItem(m1);
 		miscSettingsGeneral->addItem(m2);
-
-
+		miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget, "permanent"));
 	}
 
 #if 0
@@ -2201,12 +2201,12 @@ bool CNeutrinoApp::showUserMenu(int button)
 			menu->addItem( new CMenuForwarder(LOCALE_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, key, icon));
 			break;
 		case SNeutrinoSettings::ITEM_CAM:
-			if(cs_get_revision() != 10)
+			//if(cs_get_revision() != 10)
 			{
 				menu_items++;
 				menu_prev = SNeutrinoSettings::ITEM_CAM;
 				keyhelper.get(&key,&icon);
-				menu->addItem(new CMenuForwarder(LOCALE_CAM_SETTINGS, true, NULL, g_CamHandler, NULL, key, icon));
+				menu->addItem(new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler, NULL, key, icon));
 			}
 			break;
 

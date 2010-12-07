@@ -284,14 +284,27 @@ void CVideoSettings::setVideoCECSettings()
 void CVideoSettings::setVideoSettings()
 {
 	printf("[neutrino VideoSettings] %s init video settings...\n", __FUNCTION__);
+	unsigned int system_rev = cs_get_revision();
+#if 0
+	//FIXME focus: ?? this is different for different boxes
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
 	videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode2);
-	
-	setupVideoSystem(false/*don't ask*/);
+#endif
+	if (system_rev == 0x06) {
+		changeNotify(LOCALE_VIDEOMENU_ANALOG_MODE, NULL);
+	} else {
+		changeNotify(LOCALE_VIDEOMENU_SCART, NULL);
+		changeNotify(LOCALE_VIDEOMENU_CINCH, NULL);
+	}
 
+	//setupVideoSystem(false/*don't ask*/);// focus: CVideoSettings constructor do this already ?
+
+#if 0
 	videoDecoder->setAspectRatio(-1, g_settings.video_43mode);
 	videoDecoder->setAspectRatio(g_settings.video_Format, -1);
-	
+#endif
+	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
+
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
 }
 

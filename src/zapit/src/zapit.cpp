@@ -57,7 +57,7 @@
 #include <pwrmngr.h>
 #include <xmlinterface.h>
 
-#include <dvb-ci.h>
+#include <ca_cs.h>
 
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
@@ -72,7 +72,7 @@ int zapit_ready;
 int abort_zapit;
 
 extern void send_ca_id(int);
-cDvbCi * ci;
+cCA *ca = NULL;
 //cDvbCiSlot *one, *two;
 extern cDemux * pmtDemux;
 
@@ -423,7 +423,11 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 
 	pmt_stop_update_filter(&pmt_update_fd);
 	stopPlayBack(true);
-	ci->SendPMT((unsigned char*) "", 0);
+	ca->SendPMT(0, (unsigned char*) "", 0);
+	if(g_current_channel && g_current_channel->getCaPmt()) {
+		delete g_current_channel->getCaPmt();
+		g_current_channel->setCaPmt(NULL);
+	}
 
 	/* store the new channel */
 	if ((!g_current_channel) || (channel_id != g_current_channel->getChannelID()))
@@ -2195,8 +2199,10 @@ int zapit_main_thread(void *data)
 
 	videoDecoder->OpenVBI(1);
 
-	ci = cDvbCi::getInstance();
-	ci->Init();
+	ca = cCA::GetInstance();
+	/* CA_INIT_CI or CA_INIT_SC or CA_INIT_BOTH */
+	ca->SetInitMask(CA_INIT_BOTH);
+	ca->Start();
 
 	scan_runs = 0;
 	found_channels = 0;
@@ -2304,6 +2310,11 @@ int zapit_main_thread(void *data)
 		delete frontend;
 	}
 	INFO("frontend deleted");
+	if (ca) {
+		INFO("stopping CA");
+		ca->Stop();
+		delete ca;
+	}
 	INFO("shutdown complete");
 	return 0;
 }

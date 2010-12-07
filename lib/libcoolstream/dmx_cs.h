@@ -1,18 +1,18 @@
 /*******************************************************************************/
 /*                                                                             */
-/* libcoolstream/cszapper/demux.h                                              */
-/*   ZAP interface for neutrino frontend                                       */
+/* libcoolstream/dmx_cs.h                                                      */
+/*   Public header for demux API                                               */
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
 /*******************************************************************************/
-#ifndef __DEMUX_CS_H
-#define __DEMUX_CS_H
+#ifndef __DEMUX_CS_H_
+#define __DEMUX_CS_H_
 
 #include <string>
 
 #define DEMUX_POLL_TIMEOUT		0  // timeout in ms
-#define MAX_FILTER_LENGTH		16    // maximum number of filters
+#define MAX_FILTER_LENGTH		12    // maximum number of filters
 #ifndef DMX_FILTER_SIZE
 #define DMX_FILTER_SIZE			MAX_FILTER_LENGTH
 #endif
@@ -38,7 +38,6 @@ class cDemux {
 private:
 	int timeout;
 	unsigned short pid;
-	unsigned char tid[MAX_FILTER_LENGTH], mask[MAX_FILTER_LENGTH];
 	bool nb; // non block
 	pthread_cond_t read_cond;
 	pthread_mutex_t mutex;
@@ -48,7 +47,7 @@ private:
 	int unit;
 
 	DMX_CHANNEL_TYPE type;
-	CS_DMX_PDATA * privateData;
+	CS_DMX_PDATA *privateData;
 public:
 	cDemux(int num = 0);
 	~cDemux();
@@ -60,8 +59,10 @@ public:
 	int Read(unsigned char *buff, int len, int Timeout = 0);
 	void SignalRead(int len);
 	unsigned short GetPID(void) { return pid; }
-	const unsigned char *GetFilterTID(void) { return tid; }
-	const unsigned char *GetFilterMask(void) { return mask; }
+	const unsigned char *GetFilterTID(u8 FilterIndex = 0);
+	const unsigned char *GetFilterMask(u8 FilterIndex = 0);
+	const unsigned int GetFilterLength(u8 FilterIndex = 0);
+	bool AddSectionFilter(unsigned short Pid, const unsigned char * const Filter, const unsigned char * const Mask, int len, const unsigned char * const nMask = NULL);
 	bool sectionFilter(unsigned short Pid, const unsigned char * const Tid, const unsigned char * const Mask, int len, int Timeout = DEMUX_POLL_TIMEOUT, const unsigned char * const nMask = NULL);
 	bool pesFilter(const unsigned short Pid);
 	void SetSyncMode(AVSYNC_TYPE SyncMode);
@@ -70,6 +71,7 @@ public:
 	DMX_CHANNEL_TYPE getChannelType(void);
 	void addPid(unsigned short Pid);
 	void getSTC(int64_t *STC);
+	int getUnit(void);
 	//
 };
-#endif //__DEMUX_H
+#endif //__DMX_CS_H_

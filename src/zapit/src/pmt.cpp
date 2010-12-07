@@ -31,7 +31,7 @@
 #include <sectionsd/edvbstring.h>
 #include <dmx_cs.h>
 
-#include <dvb-ci.h>
+#include <ca_cs.h>
 #include <linux/dvb/dmx.h>
 
 #define PMT_SIZE 1024
@@ -452,15 +452,17 @@ int parse_pmt(CZapitChannel * const channel)
 		delete dmx;
 		return -1;
 	}
+	unsigned int dmxUnit = dmx->getUnit();
+
 	delete dmx;
 
-	extern cDvbCi *ci;
+	cCA *ca = cCA::GetInstance();
 	curservice_id = channel->getServiceId();
 	curpmtpid = channel->getPmtPid();
 	pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] +3;
 
 	if(!(currentMode & RECORD_MODE) && !scan_runs) {
-		ci->SendPMT(buffer, pmtlen);
+		ca->SendPMT(dmxUnit, buffer, pmtlen);
 		fout = fopen("/tmp/pmt.tmp","wb");
 		if(fout != NULL) {
 			if ((int) fwrite(buffer, sizeof(unsigned char), pmtlen, fout) != pmtlen) {

@@ -1,5 +1,13 @@
-#ifndef __PWRMNGR_H__
-#define __PWRMNGR_H__
+/*******************************************************************************/
+/*                                                                             */
+/* libcoolstream/pwrmngr.h                                                     */
+/*   Private header of the Powermanager API                                    */
+/*                                                                             */
+/* (C) 2010 CoolStream International                                           */
+/*                                                                             */
+/*******************************************************************************/
+#ifndef __PWRMNGR_H_
+#define __PWRMNGR_H_
 
 // -- cCpuFreqManager ----------------------------------------------------------
 
@@ -23,8 +31,7 @@ public:
 
 // -- cPowerManageger ----------------------------------------------------------
 
-typedef enum
-{
+typedef enum {
 	PWR_INIT = 1,
 	PWR_FULL_ACTIVE, /* all devices/clocks up */
 	PWR_ACTIVE_STANDBY,
@@ -38,7 +45,7 @@ private:
 	bool			opened;
 	PWR_STATE		powerState;
 	//
-//	static void ApplicationCallback(void *hHandle, void *pUserData, signed long eEvent, void *pEventData, void *pTag) {}
+	static void ApplicationCallback(void *hHandle, void *pUserData, signed long eEvent, void *pEventData, void *pTag) {}
 	bool SetState(PWR_STATE PowerState);
 public:
 	bool Open(void);

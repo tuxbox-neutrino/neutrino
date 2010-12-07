@@ -1,13 +1,13 @@
 /*******************************************************************************/
 /*                                                                             */
-/* libcoolstream/cszapper/demux.h                                              */
-/*   ZAP interface for neutrino frontend                                       */
+/* libcoolstream/playback_cs.h                                                 */
+/*   Public header file for playback API                                       */
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
 /*******************************************************************************/
-#ifndef __PLAYBACK_CS_H
-#define __PLAYBACK_CS_H
+#ifndef __PLAYBACK_CS_H_
+#define __PLAYBACK_CS_H_
 
 #include <string>
 
@@ -20,49 +20,47 @@ typedef enum {
 	PLAYMODE_FILE
 } playmode_t;
 
-class cPlayback
-{
-	private:
-		int timeout;
-		pthread_cond_t read_cond;
-		pthread_mutex_t mutex;
-		CS_PLAYBACK_PDATA * privateData;
-		bool enabled;
-		bool paused;
-		bool playing;
-		int unit;
-		int nPlaybackFD;
-		int video_type;
-		int nPlaybackSpeed;
-		int mSpeed;
-		playmode_t playMode;
-		//
-		void Attach(void);
-		void Detach(void);
-		bool SetAVDemuxChannel(bool On, bool Video = true, bool Audio = true);
-	public:
-		void PlaybackNotify (int  Event, void *pData, void *pTag);
-		void DMNotify(int Event, void *pTsBuf, void *Tag);
-		bool Open(playmode_t PlayMode);
-		void Close(void);
-		bool Start(char * filename, unsigned short vpid, int vtype, unsigned short apid, int audio_flag);
-		bool Stop(void);
-		bool SetAPid(unsigned short pid, int audio_flag);
-		bool SetSpeed(int speed);
-		bool GetSpeed(int &speed) const;
-		bool GetPosition(int &position, int &duration);
-		bool GetOffset(off64_t &offset);
-		bool SetPosition(int position, bool absolute = false);
-		bool IsPlaying(void) const { return playing; }
-		bool IsEnabled(void) const { return enabled; }
-		void * GetHandle(void);
-		void * GetDmHandle(void);
-		int GetCurrPlaybackSpeed(void) const { return nPlaybackSpeed; }
-		void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language);
-		//
-		cPlayback(int num = 0);
-		~cPlayback();
-
+class cPlayback {
+private:
+	int timeout;
+	pthread_cond_t read_cond;
+	pthread_mutex_t mutex;
+	CS_PLAYBACK_PDATA * privateData;
+	bool enabled;
+	bool paused;
+	bool playing;
+	int unit;
+	int nPlaybackFD;
+	int video_type;
+	int nPlaybackSpeed;
+	int mSpeed;
+	playmode_t playMode;
+	//
+	void Attach(void);
+	void Detach(void);
+	bool SetAVDemuxChannel(bool On, bool Video = true, bool Audio = true);
+public:
+	void PlaybackNotify (int  Event, void *pData, void *pTag);
+	void DMNotify(int Event, void *pTsBuf, void *Tag);
+	bool Open(playmode_t PlayMode);
+	void Close(void);
+	bool Start(char * filename, unsigned short vpid, int vtype, unsigned short apid, int audio_flag);
+	bool Stop(void);
+	bool SetAPid(unsigned short pid, int audio_flag);
+	bool SetSpeed(int speed);
+	bool GetSpeed(int &speed) const;
+	bool GetPosition(int &position, int &duration);
+	bool GetOffset(off64_t &offset);
+	bool SetPosition(int position, bool absolute = false);
+	bool IsPlaying(void) const { return playing; }
+	bool IsEnabled(void) const { return enabled; }
+	void * GetHandle(void);
+	void * GetDmHandle(void);
+	int GetCurrPlaybackSpeed(void) const { return nPlaybackSpeed; }
+	void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language);
+	//
+	cPlayback(int num = 0);
+	~cPlayback();
 };
 
-#endif
+#endif // __PLAYBACK_CS_H_

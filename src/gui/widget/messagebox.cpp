@@ -199,7 +199,6 @@ int CMessageBox::exec(int timeout)
 	bool loop=true;
 	while (loop)
 	{
-
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 		if (msg == CRCInput::RC_timeout && returnDefaultOnTimeout)
 		{

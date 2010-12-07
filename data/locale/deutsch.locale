@@ -99,15 +99,15 @@ bouqueteditor.switch Kanal aufnehmen/entfernen
 bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
 cablesetup.provider Kabelanbieter
-cam.empty Kein CAM im Slot
-cam.init_ok CAM-Init beendet ->
-cam.inserted CAM im Slot
-cam.removed CAM entfernt -> Slot
-cam.settings CI-Module
-cam.timeout CAM antwortet nicht
-cam.reset Reset
-cam.reset_standby Reset nach Standby
-cam.waiting Warte auf CAM-Antwort
+ci.empty Kein CAM im Slot
+ci.init_ok CAM-Init beendet ->
+ci.inserted CAM im Slot
+ci.removed CAM entfernt -> Slot
+ci.settings CI-Module
+ci.timeout CAM antwortet nicht
+ci.reset Reset
+ci.reset_standby Reset nach Standby
+ci.waiting Warte auf CAM-Antwort
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
 channellist.epgtext_align_left links

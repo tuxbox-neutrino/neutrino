@@ -25,7 +25,9 @@
 
 
 #include "widget/menue.h"
-#include <libcoolstream/dvb-ci.h>
+#include <libcoolstream/mmi.h>
+#include <libcoolstream/ca_cs.h>
+
 
 using namespace std;
 
@@ -33,12 +35,14 @@ class CCAMMenuHandler : public CMenuTarget
 {
 	private:
 		CHintBox * hintBox;
-		cDvbCi * ci;
+		cCA *ca;
 		uint64_t timeoutEnd;
 		//int slot;
-		int doMenu(int slot);
+		int doMenu(int slot, CA_SLOT_TYPE slotType);
 		int doMainMenu();
 		int handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t data, bool from_menu = false);
+		void hideHintBox(void);
+		void showHintBox(const neutrino_locale_t Caption, const char * const Text, uint32_t timeout = 0);
 	public:
 		void init(void);
 		int exec(CMenuTarget* parent,  const std::string &actionkey);
