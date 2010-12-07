@@ -103,7 +103,7 @@ ci.empty Kein CAM im Slot
 ci.init_ok CAM-Init beendet ->
 ci.inserted CAM im Slot
 ci.removed CAM entfernt -> Slot
-ci.settings CI-Module
+ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.reset Reset
 ci.reset_standby Reset nach Standby
@@ -751,6 +751,7 @@ miscsettings.shutdown_count_hint1 Bitte warten...
 miscsettings.shutdown_count_hint2 Sie können die Box jetzt ausschalten!
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
+miscsettings.sleeptimer Ausschalten bei Inaktivität (min)
 miscsettings.sptsmode SPTS-Mode Treiber laden
 miscsettings.virtual_zap_mode Virtual Zap
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
