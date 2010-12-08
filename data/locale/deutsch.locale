@@ -100,7 +100,8 @@ bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
 cablesetup.provider Kabelanbieter
 ci.empty Kein CAM im Slot
-ci.init_ok CAM-Init beendet ->
+ci.init_failed CAM-Init fehlgeschlagen
+ci.init_ok CAM-Init beendet
 ci.inserted CAM im Slot
 ci.removed CAM entfernt -> Slot
 ci.settings Zugangskontrolle
@@ -1168,6 +1169,14 @@ satsetup.usals_repeat USALS wiederholen
 satsetup.use_fta_flag nur FTA Kanäle
 satsetup.use_nit Auswertung NIT
 satsetup.use_usals Benutze USALS
+sc.empty Keine Karte im Slot
+sc.init_failed Karteninitialisierung fehlgeschlagen
+sc.init_ok Karteninitialisierung erfolgreich
+sc.inserted Karte in Slot eingesteckt
+sc.removed Karte aus Slot entfernt
+sc.reset Kartenreset
+sc.timeout Kartenmenü Timeout
+sc.waiting Warte auf Antwort
 scants.abort_body Scanvorgang wirklich abbrechen?
 scants.abort_header breche Scan ab...
 scants.actcable Kabelnetz:
@@ -1226,8 +1235,10 @@ shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?
 sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Ausschaltzeit in Min. (000=aus)
-sleeptimerbox.hint2 Die Box schaltet sich nach dieser Zeit aus.
+sleeptimerbox.hint2 Die Box schaltet sich nach dieser Standby-Zeit aus.
+sleeptimerbox.hint3 Die Box schaltet sich bei Nichtbenutzen der FB aus.
 sleeptimerbox.title Sleeptimer
+sleeptimerbox.title2 Inaktivitätstimer
 streamfeatures.head Erweiterungen
 streaminfo.aratio Verhältnis
 streaminfo.aratio_unknown Verhältnis: unbekannt
