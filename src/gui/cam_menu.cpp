@@ -107,8 +107,8 @@ int CCAMMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 int CCAMMenuHandler::doMainMenu()
 {
 	int ret, cnt;
-	char name1[255];
-	char str1[255];
+	char name1[255]={0};
+	char str1[255]={0};
 
 	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
 	cammenu->addItem( GenericMenuBack );
@@ -133,10 +133,12 @@ int CCAMMenuHandler::doMainMenu()
 			cammenu->addItem(new CMenuForwarderNonLocalized(name1, true, NULL, this, tmp, CRCInput::RC_1 + cnt++));
 			snprintf(tmp, sizeof(tmp), "ca_ci_reset%d", i);
 			cammenu->addItem(new CMenuForwarder(LOCALE_CI_RESET, true, NULL, this, tmp));
+			memset(name1,0,sizeof(name1));
 		} else {
 			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_CI_EMPTY), i);
 			tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
 			cammenu->addItem(new CMenuForwarderNonLocalized(str1, false, NULL, tempMenu));
+			memset(str1,0,sizeof(str1));
 		}
 		if (i < (CiSlots - 1))
 			cammenu->addItem( GenericMenuSeparatorLine );
@@ -161,11 +163,13 @@ int CCAMMenuHandler::doMainMenu()
 #if 0 // FIXME not implemented yet
 			snprintf(tmp, sizeof(tmp), "ca_sc_reset%d", i);
 			cammenu->addItem(new CMenuForwarder(LOCALE_SC_RESET, true, NULL, this, tmp));
+			memset(name1,0,sizeof(name1));
 #endif
 		} else {
 			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_SC_EMPTY), i);
 			tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
 			cammenu->addItem(new CMenuForwarderNonLocalized(str1, false, NULL, tempMenu));
+			memset(str1,0,sizeof(str1));
 		}
 		if (i < (ScNum - 1))
 			cammenu->addItem( GenericMenuSeparatorLine );
