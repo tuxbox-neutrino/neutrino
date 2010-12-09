@@ -163,8 +163,8 @@ int CCAMMenuHandler::doMainMenu()
 #if 0 // FIXME not implemented yet
 			snprintf(tmp, sizeof(tmp), "ca_sc_reset%d", i);
 			cammenu->addItem(new CMenuForwarder(LOCALE_SC_RESET, true, NULL, this, tmp));
-			memset(name1,0,sizeof(name1));
 #endif
+			memset(name1,0,sizeof(name1));
 		} else {
 			snprintf(str1, sizeof(str1), "%s %d", g_Locale->getText(LOCALE_SC_EMPTY), i);
 			tempMenu = new CMenuWidget(str1, NEUTRINO_ICON_SETTINGS);
