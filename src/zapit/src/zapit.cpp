@@ -106,6 +106,7 @@ int sig_delay = 2; // seconds between signal check
 /* variables for EN 50494 (a.k.a Unicable) */
 int uni_scr = -1;	/* the unicable SCR address,     -1 == no unicable */
 int uni_qrg = 0;	/* the unicable frequency in MHz, 0 == from spec */
+int cam_ci = 2; //  CA_INIT_SC 0 or CA_INIT_CI 1 or CA_INIT_BOTH 2
 
 double gotoXXLatitude, gotoXXLongitude;
 int gotoXXLaDirection, gotoXXLoDirection, useGotoXX;
@@ -239,6 +240,8 @@ void saveZapitSettings(bool write, bool write_a)
 		config.setInt32("uni_scr", uni_scr);
 		config.setInt32("uni_qrg", uni_qrg);
 
+		config.setInt32("cam_ci", cam_ci);
+
 		config.setInt32("scanSDT", scanSDT);
 		if (config.getModifiedFlag())
 			config.saveConfig(CONFIGFILE);
@@ -311,6 +314,8 @@ void loadZapitSettings()
 
 	uni_scr = config.getInt32("uni_scr", -1);
 	uni_qrg = config.getInt32("uni_qrg", 0);
+
+	cam_ci = config.getInt32("cam_ci", 2);
 
 	diseqcType = (diseqc_t)config.getInt32("diseqcType", NO_DISEQC);
 	motorRotationSpeed = config.getInt32("motorRotationSpeed", 18); // default: 1.8 degrees per second
@@ -2200,9 +2205,6 @@ int zapit_main_thread(void *data)
 	videoDecoder->OpenVBI(1);
 
 	ca = cCA::GetInstance();
-	/* CA_INIT_CI or CA_INIT_SC or CA_INIT_BOTH */
-	ca->SetInitMask(CA_INIT_BOTH);
-	ca->Start();
 
 	scan_runs = 0;
 	found_channels = 0;
@@ -2212,6 +2214,23 @@ int zapit_main_thread(void *data)
 
 	/* load configuration or set defaults if no configuration file exists */
 	loadZapitSettings();
+
+	/* CA_INIT_CI or CA_INIT_SC or CA_INIT_BOTH */
+	switch(cam_ci){
+	  case 2:
+		ca->SetInitMask(CA_INIT_BOTH);
+	    break;
+	  case 1:
+		ca->SetInitMask(CA_INIT_CI);
+	    break;
+	  case 0:
+		ca->SetInitMask(CA_INIT_SC);
+	    break;
+	  default:
+		ca->SetInitMask(CA_INIT_BOTH);
+	  break;
+	}
+	ca->Start();
 
 	/* create bouquet manager */
 	g_bouquetManager = new CBouquetManager();
