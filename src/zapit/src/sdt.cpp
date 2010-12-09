@@ -373,9 +373,6 @@ _repeat:
 int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id,
 	t_satellite_position satellitePosition, freq_id_t freq)
 {
-	cDemux * dmx = new cDemux();
-	dmx->Open(DMX_PSI_CHANNEL);
-	int ret = -1;
 
 	unsigned char buffer[SDT_SIZE];
 
@@ -397,30 +394,36 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	int tmp_free_CA_mode = -1;
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
+	memset(filter, 0x00, DMX_FILTER_SIZE);
+	memset(mask, 0x00, DMX_FILTER_SIZE);
 
 	filter[0] = 0x42;
 	filter[1] = (p_transport_stream_id >> 8) & 0xff;
 	filter[2] = p_transport_stream_id & 0xff;
-	filter[3] = 0x00;
+//	filter[3] = 0x00;
 	filter[4] = 0x00;
 	filter[5] = 0x00;
 	filter[6] = (p_original_network_id >> 8) & 0xff;
 	filter[7] = p_original_network_id & 0xff;
-	memset(&filter[8], 0x00, 8);
+	//memset(&filter[8], 0x00, 8);
 
 	mask[0] = 0xFF;
 	mask[1] = 0xFF;
 	mask[2] = 0xFF;
-	mask[3] = 0x00;
+//	mask[3] = 0x00;
 	mask[4] = 0xFF;
-	mask[5] = 0x00;
+	mask[5] = 0xFF;
 	mask[6] = 0xFF;
 	mask[7] = 0xFF;
-	memset(&mask[8], 0x00, 8);
+//	memset(&mask[8], 0x00, 8);
 
 	std::vector<std::pair<int,int> > sidpmt;
-	scan_parse_pat( sidpmt );
-	
+	int pat_ok = scan_parse_pat( sidpmt );
+
+	cDemux * dmx = new cDemux();
+	dmx->Open(DMX_PSI_CHANNEL);
+	int ret = -1;
+
 	do {
 		if ((dmx->sectionFilter(0x11, filter, mask, 8) < 0) || (dmx->Read(buffer, SDT_SIZE) < 0)) {
 			delete dmx;
@@ -438,7 +441,7 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 			EIT_schedule_flag = buffer[pos + 2] & 0x02;
 			EIT_present_following_flag = buffer[pos + 2] & 0x01;
 			running_status = buffer [pos + 3] & 0xE0;
-			for (unsigned short i=0; i<sidpmt.size(); i++){
+			for (unsigned short i=0; i<sidpmt.size() && pat_ok == 1; i++){
 				if(sidpmt[i].first == service_id && running_status != 32 ){
 					tmp_free_CA_mode = scan_parse_pmt( sidpmt[i].second, sidpmt[i].first );
 				}

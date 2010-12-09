@@ -114,7 +114,7 @@ int scan_parse_pat( std::vector<std::pair<int,int> > &sidpmt )
 		}
 	} while (filter[4]++ != buffer[7]);
 	delete dmx;
-	return -1;
+	return 1;
 }
 
 static unsigned char pbuffer[PAT_SIZE];

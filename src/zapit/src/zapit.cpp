@@ -2477,7 +2477,9 @@ printf("[sdt monitor] wakeup...\n");
 				printf("[sdt monitor] TP already updated.\n");
 				continue;
 			}
-			curchans.clear();
+			if(!curchans.empty())
+				curchans.clear();
+
 			ret = parse_current_sdt(transport_stream_id, original_network_id, satellitePosition, freq);
 			if(ret)
 				continue;
