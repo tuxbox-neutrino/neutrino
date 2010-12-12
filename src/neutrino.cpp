@@ -3055,8 +3055,8 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		if( mode == mode_standby ) {//FIXME better at announce ?
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 			if(g_settings.ci_standby_reset) {
-				g_CamHandler->exec(NULL, "reset1");
-				g_CamHandler->exec(NULL, "reset2");
+				g_CamHandler->exec(NULL, "ca_ci_reset0");
+				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
 		}
 
@@ -3912,8 +3912,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		powerManager->SetStandby(false, false);
 
 		if(g_settings.ci_standby_reset) {
-			g_CamHandler->exec(NULL, "reset1");
-			g_CamHandler->exec(NULL, "reset2");
+			g_CamHandler->exec(NULL, "ca_ci_reset0");
+			g_CamHandler->exec(NULL, "ca_ci_reset1");
 		}
 		frameBuffer->setActive(true);
 

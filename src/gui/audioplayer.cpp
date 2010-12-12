@@ -300,7 +300,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 
 	// set zapit in lock mode
 	g_Zapit->lockPlayBack();
-
+	videoDecoder->setBlank(true);
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/mp3.jpg");
 
 	// tell neutrino we're in audio mode
