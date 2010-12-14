@@ -22,6 +22,7 @@
  */
 
 #include <zapit/client/zapittools.h>
+#include <string.h>
 
 namespace ZapitTools {
 
@@ -120,4 +121,16 @@ namespace ZapitTools {
 		}
 		return r;
 	}
+	
+	void replace_char(char * p_act)
+	{
+		const char repchars[]="/ \"%&-\t`'~<>!,:;?^°$\\=*#@¤|";
+		do {
+			p_act +=  strcspn(p_act, repchars );
+			if (*p_act) {
+				*p_act++ = '_';
+			}
+		} while (*p_act);
+	}
+
 }

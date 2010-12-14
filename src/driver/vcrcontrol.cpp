@@ -586,13 +586,8 @@ printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx
 	if (!(ext_channel_name.empty()))
 	{
 		strcpy(&(filename[pos]), UTF8_TO_FILESYSTEM_ENCODING(ext_channel_name.c_str()));
-		char * p_act = &(filename[pos]);
-		do {
-			p_act += strcspn(p_act, "/ \"%&-\t`'´!,:;");
-			if (*p_act) {
-				*p_act++ = '_';
-			}
-		} while (*p_act);
+		ZapitTools::replace_char(&filename[pos]);
+
 		if (!autoshift && g_settings.recording_save_in_channeldir) {
 			struct stat statInfo;
 			int res = stat(filename,&statInfo);
@@ -628,24 +623,12 @@ printf("Record channel_id: " PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS " epg: %llx
 				if (!(epgdata.title.empty()))
 				{
 					strcpy(&(filename[pos]), epgdata.title.c_str());
-					char * p_act = &(filename[pos]);
-					do {
-						p_act +=  strcspn(p_act, "/ \"%&-\t`'~<>!,:;?^°$\\=*#@¤|");
-						if (*p_act) {
-							*p_act++ = '_';
-						}
-					} while (*p_act);
+					ZapitTools::replace_char(&filename[pos]);
 				}
 			}
 		} else if (!epgTitle.empty()) {
 			strcpy(&(filename[pos]), epgTitle.c_str());
-			char * p_act = &(filename[pos]);
-			do {
-				p_act +=  strcspn(p_act, "/ \"%&-\t`'~<>!,:;?^°$\\=*#@¤|");
-				if (*p_act) {
-					*p_act++ = '_';
-				}
-			} while (*p_act);
+			ZapitTools::replace_char(&filename[pos]);
 		}
 	}
 #if 1
@@ -700,13 +683,7 @@ void CVCRControl::Screenshot(const t_channel_id channel_id, char * fname)
 		channel_name = g_Zapit->getChannelName(channel_id);
 		if (!(channel_name.empty())) {
 			strcpy(&(filename[pos]), UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
-			char * p_act = &(filename[pos]);
-			do {
-				p_act += strcspn(p_act, "/ \"%&-\t`'´!,:;");
-				if (*p_act) {
-					*p_act++ = '_';
-				}
-			} while (*p_act);
+			ZapitTools::replace_char(&filename[pos]);
 			strcat(filename, "_");
 		}
 		pos = strlen(filename);
@@ -721,13 +698,7 @@ void CVCRControl::Screenshot(const t_channel_id channel_id, char * fname)
 			if(sectionsd_getEPGidShort(epgid, &epgdata)) {
 				if (!(epgdata.title.empty())) {
 					strcpy(&(filename[pos]), epgdata.title.c_str());
-					char * p_act = &(filename[pos]);
-					do {
-						p_act +=  strcspn(p_act, "/ \"%&-\t`'~<>!,:;?^°$\\=*#@¤|");
-						if (*p_act) {
-							*p_act++ = '_';
-						}
-					} while (*p_act);
+					ZapitTools::replace_char(&filename[pos]);
 				}
 			}
 		}
