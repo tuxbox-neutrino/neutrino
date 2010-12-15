@@ -400,7 +400,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 
 #ifdef TEST_MENU
 	char rev[255];
-	sprintf(rev, "Test menu, System revision %d %s\n", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
+	sprintf(rev, "Test menu, System revision %d %s", system_rev, system_rev == 0 ? "WARNING - INVALID" : "");
 
 	TestMenu = new CMenuWidget(rev /*"Test menu"*/);
 	CTestMenu * testHandler = new CTestMenu();
