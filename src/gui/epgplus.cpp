@@ -563,7 +563,7 @@ void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 //printf("Going to get getEventsServiceKey for %llx\n", (channel->channel_id & 0xFFFFFFFFFFFFULL));
 			//CChannelEventList channelEventList = g_Sectionsd->getEventsServiceKey (channel->channel->channel_id & 0xFFFFFFFFFFFFULL);
 			CChannelEventList channelEventList;
-			sectionsd_getEventsServiceKey(channel->channel_id & 0xFFFFFFFFFFFFULL, channelEventList);
+			sectionsd_getEventsServiceKey(channel->channel_id, channelEventList);
 //printf("channelEventList size %d\n", channelEventList.size());
 
 			int xPosEventEntry = this->eventsTableX;

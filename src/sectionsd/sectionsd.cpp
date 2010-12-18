@@ -8767,7 +8767,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
 
-	if (serviceUniqueKey != 0) {
+	if ((serviceUniqueKey& 0xFFFFFFFFFFFFULL) != 0) { //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
 		// service Found
 		readLockEvents();
 		int serviceIDfound = 0;
@@ -8775,7 +8775,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 		if (search_text.length()) std::transform(search_text.begin(), search_text.end(), search_text.begin(), tolower);
 		for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 		{
-			if ((*e)->get_channel_id() == serviceUniqueKey) {
+			if ((*e)->get_channel_id() == (serviceUniqueKey& 0xFFFFFFFFFFFFULL)) { //0xFFFFFFFFFFFFULL for CREATE_CHANNEL_ID64
 				serviceIDfound = 1;
 
 				bool copy = true;
@@ -8811,6 +8811,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 							aEvent.text = (*e)->getExtendedText().substr(0, 40);
 						else
 							aEvent.text = (*e)->getText();
+						aEvent.channelID = serviceUniqueKey;
 						eList.push_back(aEvent);
 					}
 				} // if = serviceID

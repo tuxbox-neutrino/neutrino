@@ -56,6 +56,7 @@ class CChannelEvent
 	std::string        text;
 	time_t             startTime;
 	unsigned           duration;
+	t_channel_id 	   channelID; 
 };
 
 typedef std::vector<CChannelEvent> CChannelEventList;

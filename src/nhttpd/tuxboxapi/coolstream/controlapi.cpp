@@ -993,7 +993,7 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 void CControlAPI::channelEPGAsXML(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime)
 {
-	sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
+	sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 	hh->printf("<channel_id>"
 			PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 			"</channel_id>\r\n", channel_id);
@@ -1127,7 +1127,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh)
 			sscanf(hh->ParamList["id"].c_str(),
 				SCANF_CHANNEL_ID_TYPE,
 				&channel_id);
-			sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
+			sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 			CChannelEventList::iterator eventIterator;
 			for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++)
 			{
@@ -1378,7 +1378,7 @@ void CControlAPI::LCDAction(CyhookHandler *hh)
 void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 {
 	int pos;
-	sectionsd_getEventsServiceKey(channel_id&0xFFFFFFFFFFFFULL, NeutrinoAPI->eList);
+	sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 	CChannelEventList::iterator eventIterator;
 
 	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, pos++)

@@ -107,7 +107,7 @@ void EventList::readEvents(const t_channel_id channel_id)
 {
 	//evtlist = g_Sectionsd->getEventsServiceKey(channel_id &0xFFFFFFFFFFFFULL);
 	evtlist.clear();
-	sectionsd_getEventsServiceKey(channel_id &0xFFFFFFFFFFFFULL, evtlist);
+	sectionsd_getEventsServiceKey(channel_id , evtlist);
 	time_t azeit=time(NULL);
 
 	CChannelEventList::iterator e;
@@ -149,7 +149,7 @@ void EventList::readEvents(const t_channel_id channel_id)
 						if (channel_id != channel_id2) {
 							//evtlist2 = g_Sectionsd->getEventsServiceKey(channel_id2);
 							evtlist2.clear();
-							sectionsd_getEventsServiceKey(channel_id2 &0xFFFFFFFFFFFFULL, evtlist2);
+							sectionsd_getEventsServiceKey(channel_id2 , evtlist2);
 
 							for (unsigned int loop=0 ; loop<evtlist2.size(); loop++ )
 							{
@@ -625,7 +625,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				hide();
 
 				//FIXME res = g_EpgData->show(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id, evtlist[selected].eventID, &evtlist[selected].startTime);
-				res = g_EpgData->show(channel_id, evtlist[selected].eventID, &evtlist[selected].startTime);
+				res = g_EpgData->show(evtlist[selected].channelID, evtlist[selected].eventID, &evtlist[selected].startTime);
 				if ( res == menu_return::RETURN_EXIT_ALL )
 				{
 					loop = false;
@@ -755,7 +755,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 
 			if ( m_showChannel ) // show the channel if we made a event search only (which could be made through all channels ).
 			{
-				t_channel_id channel = evtlist[liststart+pos].get_channel_id();
+				t_channel_id channel = evtlist[liststart+pos].channelID;
 				datetime2_str += "      ";
 				datetime2_str += g_Zapit->getChannelName(channel);
 			}
@@ -980,7 +980,7 @@ bool EventList::findEvents(void)
 		if(m_search_list == SEARCH_LIST_CHANNEL)
 		{
 			//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,m_search_channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-			sectionsd_getEventsServiceKey(m_search_channel_id & 0xFFFFFFFFFFFFULL, evtlist, m_search_epg_item,m_search_keyword);
+			sectionsd_getEventsServiceKey(m_search_channel_id, evtlist, m_search_epg_item,m_search_keyword);
 		}
 		else if(m_search_list == SEARCH_LIST_BOUQUET)
 		{
@@ -989,7 +989,7 @@ bool EventList::findEvents(void)
 			{
 				channel_id = bouquetList->Bouquets[m_search_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
 				//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-				sectionsd_getEventsServiceKey(channel_id & 0xFFFFFFFFFFFFULL, evtlist, m_search_epg_item,m_search_keyword);
+				sectionsd_getEventsServiceKey(channel_id, evtlist, m_search_epg_item,m_search_keyword);
 			}
 		}
 		else if(m_search_list == SEARCH_LIST_ALL)
@@ -1004,7 +1004,7 @@ bool EventList::findEvents(void)
 				{
 				    channel_id = bouquetList->Bouquets[bouquet]->channelList->getChannelFromIndex(channel)->channel_id;
 					//g_Sectionsd->getEventsServiceKeySearchAdd(evtlist,channel_id & 0xFFFFFFFFFFFFULL,m_search_epg_item,m_search_keyword);
-					sectionsd_getEventsServiceKey(channel_id & 0xFFFFFFFFFFFFULL,evtlist, m_search_epg_item,m_search_keyword);
+					sectionsd_getEventsServiceKey(channel_id,evtlist, m_search_epg_item,m_search_keyword);
 				}
 			}
 			box.hide();
