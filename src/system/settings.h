@@ -49,6 +49,7 @@ struct SNeutrinoSettings
 	int analog_mode2;
 	int video_43mode;
 	char current_volume;
+	int current_volume_step;
 	int channel_mode;
 	int channel_mode_radio;
 

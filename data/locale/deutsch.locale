@@ -29,6 +29,7 @@ audiomenu.pref_subs_head Untertitelwahl
 audiomenu.pref_subs Sprache
 audiomenu.spdif_dd DolbyDigital über S/PDIF
 audiomenu.stereo stereo
+audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokale Radioliste

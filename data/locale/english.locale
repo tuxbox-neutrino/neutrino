@@ -147,6 +147,7 @@ audiomenu.pref_lang_head Audio/EPG language preferences
 audiomenu.pref_lang Prefered language
 audiomenu.pref_subs_head Subtitle language preferences
 audiomenu.pref_subs Prefered subtitle language
+audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.artist_title Artist, Title
 audioplayer.building_search_index building search index

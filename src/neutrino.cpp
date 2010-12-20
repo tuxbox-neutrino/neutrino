@@ -426,6 +426,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.video_Format = configfile.getInt32("video_Format", DISPLAY_AR_16_9);
 	g_settings.video_43mode = configfile.getInt32("video_43mode", DISPLAY_AR_MODE_LETTERBOX);
 	g_settings.current_volume = configfile.getInt32("current_volume", 50);
+	g_settings.current_volume_step = configfile.getInt32("current_volume_step", 2);
 	g_settings.channel_mode = configfile.getInt32("channel_mode", LIST_MODE_PROV);
 	g_settings.channel_mode_radio = configfile.getInt32("channel_mode_radio", LIST_MODE_PROV);
 
@@ -985,6 +986,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "hdmi_cec_standby", g_settings.hdmi_cec_standby );
 
 	configfile.setInt32( "current_volume", g_settings.current_volume );
+	configfile.setInt32( "current_volume_step", g_settings.current_volume_step );
 	configfile.setInt32( "channel_mode", g_settings.channel_mode );
 	configfile.setInt32( "channel_mode_radio", g_settings.channel_mode_radio );
 
@@ -3718,14 +3720,14 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 	do {
 		if (msg <= CRCInput::RC_MaxRC) {
 			if (msg == CRCInput::RC_plus || msg == CRCInput::RC_right) { //FIXME
-				if (g_settings.current_volume < 100 - 2)
-					g_settings.current_volume += 2;
+				if (g_settings.current_volume < 100 - g_settings.current_volume_step)
+					g_settings.current_volume += g_settings.current_volume_step;
 				else
 					g_settings.current_volume = 100;
 			}
 			else if (msg == CRCInput::RC_minus || msg == CRCInput::RC_left) { //FIXME
-				if (g_settings.current_volume > 2)
-					g_settings.current_volume -= 2;
+				if (g_settings.current_volume > g_settings.current_volume_step)
+					g_settings.current_volume -= g_settings.current_volume_step;
 				else
 					g_settings.current_volume = 0;
 			}

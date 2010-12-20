@@ -153,6 +153,7 @@ const char *locale_real_names[] = {
 	"audiomenu.pref_lang",
 	"audiomenu.pref_subs_head",
 	"audiomenu.pref_subs",
+	"audiomenu.volume_step",
 	"audioplayer.add",
 	"audioplayer.add_ic",
 	"audioplayer.add_loc",
