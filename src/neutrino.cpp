@@ -3474,9 +3474,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			stop_daemons(true);
 
+			system("/etc/init.d/rcK");
 			system("/bin/sync");
 			system("/bin/umount -a");
-			system("/etc/init.d/rcK");
 			sleep(1);
 			{
 				standby_data_t standby;
