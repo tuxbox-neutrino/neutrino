@@ -430,6 +430,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 	stopPlayBack(true);
 	ca->SendPMT(0, (unsigned char*) "", 0);
 	if(!forupdate && g_current_channel && g_current_channel->getCaPmt()) {
+		g_current_channel->resetPids();
 		delete g_current_channel->getCaPmt();
 		g_current_channel->setCaPmt(NULL);
 	}
