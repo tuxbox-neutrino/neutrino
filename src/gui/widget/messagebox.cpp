@@ -99,7 +99,7 @@ void CMessageBox::paintButtons()
 
 	m_window->paintBoxRel(0, m_height - (m_fheight << 1), m_width, (m_fheight << 1), (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
-	//irgendwann alle vergleichen - aber cancel ist sicher der längste
+	//irgendwann alle vergleichen - aber cancel ist sicher der lï¿½ngste
 	int MaxButtonTextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL), true); // UTF-8
 
 	int ButtonWidth = 20 + 33 + MaxButtonTextWidth;
@@ -296,4 +296,9 @@ int ShowMsgUTF(const neutrino_locale_t Caption, const std::string & Text, const 
 void DisplayErrorMessage(const char * const ErrorMsg)
 {
 	ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, ErrorMsg, CMessageBox::mbrCancel, CMessageBox::mbCancel, NEUTRINO_ICON_ERROR);
+}
+
+void DisplayInfoMessage(const char * const ErrorMsg)
+{
+	ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, ErrorMsg, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 }

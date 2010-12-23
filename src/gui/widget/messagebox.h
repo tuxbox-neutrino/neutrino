@@ -83,5 +83,6 @@ int ShowMsgUTF(const neutrino_locale_t Caption, const char * const Text, const C
 int ShowMsgUTF(const neutrino_locale_t Caption, const std::string & Text, const CMessageBox::result_ Default, const uint32_t ShowButtons, const char * const Icon = NULL, const int Width = 450, const int timeout = -1, bool returnDefaultOnTimeout = false); // UTF-8
 
 void DisplayErrorMessage(const char * const ErrorMsg); // UTF-8
+void DisplayInfoMessage(const char * const InfoMsg); // UTF-8
 
 #endif
