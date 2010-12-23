@@ -1,5 +1,5 @@
 /*
- * $Header: /cvsroot/tuxbox/apps/tuxbox/neutrino/src/system/configure_network.cpp,v 1.6 2003/03/26 17:53:12 thegoodguy Exp $
+ * $port: configure_network.cpp,v 1.7 2009/11/20 22:44:19 tuxbox-cvs Exp $
  *
  * (C) 2003 by thegoodguy <thegoodguy@berlios.de>
  *
@@ -38,6 +38,24 @@ CNetworkConfig::CNetworkConfig(void)
 	copy_to_orig();
 }
 
+CNetworkConfig* CNetworkConfig::getInstance()
+{
+	static CNetworkConfig* network_config = NULL;
+
+	if(!network_config)
+	{
+		network_config = new CNetworkConfig();
+		printf("[network config] Instance created\n");
+	}
+	return network_config;
+}
+
+CNetworkConfig::~CNetworkConfig()
+{
+	
+}
+
+
 void CNetworkConfig::init_vars(void)
 {
 	char mask[16];
@@ -74,7 +92,7 @@ bool CNetworkConfig::modified_from_orig(void)
 		(orig_netmask         != netmask        ) ||
 		(orig_broadcast       != broadcast      ) ||
 		(orig_gateway         != gateway        ) ||
-		(orig_hostname        != hostname        ) ||
+		(orig_hostname        != hostname       ) ||
 		(orig_inet_static     != inet_static    )
 		);
 }
