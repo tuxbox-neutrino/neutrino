@@ -97,8 +97,7 @@ int CHDDMenuHandler::doMenu ()
 #endif
 
 	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_HDD_SETTINGS, NEUTRINO_ICON_SETTINGS, 58);
-	hddmenu->addItem( GenericMenuBack );
-	hddmenu->addItem( GenericMenuSeparatorLine );
+	hddmenu->addIntroItems();
 
 	hddmenu->addItem( new CMenuOptionChooser(LOCALE_HDD_SLEEP, &g_settings.hdd_sleep, HDD_SLEEP_OPTIONS, HDD_SLEEP_OPTION_COUNT, true));
 	hddmenu->addItem( new CMenuOptionChooser(LOCALE_HDD_NOISE, &g_settings.hdd_noise, HDD_NOISE_OPTIONS, HDD_NOISE_OPTION_COUNT, true));
