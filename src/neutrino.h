@@ -40,6 +40,7 @@
 #include <system/setting_helpers.h>
 #include <system/configure_network.h>
 #include <gui/timerlist.h>
+#include <gui/network_setup.h>
 #include <timerdclient/timerdtypes.h>
 #include <gui/channellist.h>          /* CChannelList */
 #include <gui/rc_lock.h>
@@ -137,6 +138,7 @@ private:
 	bool				skipShutdownTimer;
 	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
+	CNetworkSetup			*networksetup;
 	CNVODChangeExec         	*NVODChanger;
 	CStreamFeaturesChangeExec	*StreamFeaturesChanger;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
@@ -144,7 +146,7 @@ private:
 	CIPChangeNotifier		*MyIPChanger;
 //		CVCRControl			*vcrControl;
 	CConsoleDestChangeNotifier	*ConsoleDestinationChanger;
-	CRCLock                         *rcLock;
+	CRCLock				*rcLock;
 	// USERMENU
 	CTimerList                      *Timerlist;
 
@@ -154,7 +156,6 @@ private:
 	void firstChannel();
 	void setupNetwork( bool force= false );
 	void setupNFS();
-	void setupRecordingDevice(void);
 
 	void startNextRecording();
 
@@ -171,15 +172,12 @@ private:
 	void InitZapper();
 	void InitServiceSettings(CMenuWidget &, CMenuWidget &);
 	void InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier);
-	void InitNetworkSettings(CMenuWidget &networkSettings);
-	void InitRecordingSettings(CMenuWidget &recordingSettings);
 	void InitStreamingSettings(CMenuWidget &streamingSettings);
 	void InitScreenSettings(CMenuWidget &);
 	void InitAudioplPicSettings(CMenuWidget &);
 	void InitMiscSettings(CMenuWidget &);
 	void InitScanSettings(CMenuWidget &);
 	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &audioSettings,
-			  CMenuWidget &networkSettings1, CMenuWidget &networkSettings2,
 			  CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings, CMenuWidget &moviePlayer);
 
 	void SetupFrameBuffer();
@@ -199,6 +197,7 @@ public:
 	void saveKeys(const char * fname);
 	void SetupTiming();
 	void SetupFonts();
+	void setupRecordingDevice(void);
 	
 	void setVolume(const neutrino_msg_t key, const bool bDoPaint = true, bool nowait = false);
 	~CNeutrinoApp();
@@ -209,7 +208,6 @@ public:
 	CChannelList			*TVchannelList;
 	CChannelList			*RADIOchannelList;
 	CChannelList			*channelList;
-	CNetworkConfig                  networkConfig;
 
 	static CNeutrinoApp* getInstance();
 

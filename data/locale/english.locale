@@ -599,13 +599,17 @@ movieplayer.vlchelp7 skip approx. 1 minute
 movieplayer.vlchelp8 approx. 5 minutes back
 movieplayer.vlchelp9 skip approx. 5 minutes
 movieplayer.wrongvlcversion This feature is not support by your current version of VLC
+networkmenu.apply_settings Changes are applied...
+networkmenu.apply_settings_now Do you want to apply settings now?
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
+networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway default gateway
 networkmenu.head Network Settings
 networkmenu.hostname Hostname
+networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
-networkmenu.mount NFS/CIFS/FTPFS
+networkmenu.mount Edit network shares
 networkmenu.nameserver name server
 networkmenu.netmask netmask
 networkmenu.ntpenable Syncronisation via
@@ -616,6 +620,7 @@ networkmenu.ntpserver NTP-Server
 networkmenu.ntpserver_hint1 NTP-Server example: ntp1.ptb.de
 networkmenu.ntpserver_hint2 need reboot or epg-reset
 networkmenu.ntptitle Time-Syncronisation
+networkmenu.reset_settings_now Do you want restore the previous settings?
 networkmenu.setupnow setup network now
 networkmenu.setuponstartup setup network on startup
 networkmenu.show show active network settings
@@ -649,6 +654,8 @@ nvodselector.head Select starting-time
 nvodselector.subservice Select Subservice
 options.default Reset to defaults
 options.fb framebuffer
+options.ntp_off DVB
+options.ntp_on NTP
 options.null null
 options.off off
 options.on on
@@ -723,6 +730,7 @@ recordingmenu.head Recording Settings
 recordingmenu.help Recording devices:\n--------------------------\nserver:\nusing streaming software on a PC\n\n(analog) vcr:\nusing the vcr outlet\n\ndirect (file):\ndirectly into an NFS mounted directory\nor onto an internal hard drive\nTS: use spts mode(dbox2)\nPES: do not use spts mode(dbox2)\n\n\nMax. file size:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: almost unlimited (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.no_scart do not switch to scart mode
 recordingmenu.off off
+recordingmenu.record_is_running Record is running!
 recordingmenu.recording_type recording device
 recordingmenu.ringbuffers no. of ringbuffers
 recordingmenu.server server
@@ -735,6 +743,7 @@ recordingmenu.splitsize Max. file size (MB)
 recordingmenu.stopplayback stop playback
 recordingmenu.stopsectionsd stop sectionsd
 recordingmenu.stream_vtxt_pid record videotext
+recordingmenu.timeshift Timeshift
 recordingmenu.use_fdatasync write synchronous (fdatasync)
 recordingmenu.use_o_sync write synchronous (O_SYNC)
 recordingmenu.vcr vcr
@@ -913,7 +922,7 @@ timersettings.record_safety_time_after.hint_2 will added to stop time of every r
 timersettings.record_safety_time_before Record start time correction
 timersettings.record_safety_time_before.hint_1 Correction time in min. (00=off). This time
 timersettings.record_safety_time_before.hint_2 will be deducted of every record timer.
-timersettings.separator Timer settings
+timersettings.separator Timer
 timing.chanlist Channellist
 timing.epg Epg
 timing.filebrowser Filebrowser
@@ -1253,7 +1262,7 @@ miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
 miscsettings.virtual_zap_mode Virtual zap
 shutdown.recoding_query You really want to to stop record ?
-recordingmenu.apids default audio streams
+recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream

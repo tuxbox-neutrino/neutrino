@@ -52,6 +52,7 @@ libneutrino_gui_a_SOURCES = \
 	moviebrowser.cpp \
 	movieinfo.cpp \
 	movieplayer.cpp \
+	network_setup.cpp \
 	nfs.cpp \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
@@ -61,6 +62,7 @@ libneutrino_gui_a_SOURCES = \
 	plugins.cpp \
 	proxyserver_setup.cpp \
 	rc_lock.cpp \
+	record_setup.cpp \
 	scan.cpp \
 	screensetup.cpp \
 	sleeptimer.cpp \

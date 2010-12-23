@@ -38,6 +38,7 @@
 
 #include <gui/movieinfo.h>
 
+
 #include <driver/encoding.h>
 #include <driver/stream2file.h>
 
@@ -82,7 +83,6 @@ extern "C" {
 static CMovieInfo * g_cMovieInfo;
 static MI_MOVIE_INFO * g_movieInfo;
 t_channel_id rec_channel_id;
-int safe_mkdir(char * path);
 
 static CVCRControl vcrControl;
 
@@ -291,8 +291,8 @@ bool CVCRControl::CVCRDevice::Record(const t_channel_id channel_id, int mode, co
 	{
 		// Auf Scart schalten
 		CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::VCR_ON, 0 );
-		// Das ganze nochmal in die queue, da obiges RC_timeout erst in der naechsten ev. loop ausgeführt wird
-		// und dann das menu widget das display falsch rücksetzt
+		// Das ganze nochmal in die queue, da obiges RC_timeout erst in der naechsten ev. loop ausgefÃ¼hrt wird
+		// und dann das menu widget das display falsch rÃ¼cksetzt
 		g_RCInput->postMsg( NeutrinoMessages::VCR_ON, 0 );
 	}
 
@@ -350,7 +350,7 @@ void CVCRControl::CFileAndServerDevice::CutBackNeutrino(const t_channel_id chann
 	if (channel_id != 0) {
 		if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 			CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
-			// Wenn wir im Standby waren, dann brauchen wir fürs streamen nicht aufwachen...
+			// Wenn wir im Standby waren, dann brauchen wir fÃ¼rs streamen nicht aufwachen...
 			if(last_mode == NeutrinoMessages::mode_standby)
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
 		}

@@ -271,30 +271,6 @@ CVCRControl::CDevice * recordingdevice = NULL;
 #define NEUTRINO_SCAN_START_SCRIPT CONFIGDIR "/recording.start"
 #endif
 
-int safe_mkdir(char * path)
-{
-	struct statfs s;
-	int ret = 0;
-	if(!strncmp(path, "/hdd", 4)) {
-		ret = statfs("/hdd", &s);
-		if((ret != 0) || (s.f_type == 0x72b6))
-			ret = -1;
-		else
-			mkdir(path, 0755);
-	} else
-		mkdir(path, 0755);
-	return ret;
-}
-
-static int check_dir(const char * newdir)
-{
-	if(strncmp(newdir, "/media/sda1/", 12) && strncmp(newdir, "/media/sdb1/", 12) && strncmp(newdir, "/mnt/", 5) && strncmp(newdir, "/tmp/", 5) && strncmp(newdir, "/media/", 7)) {
-		return 1;
-	}
-
-	return 0;
-}
-
 static void initGlobals(void)
 {
 	g_fontRenderer  = NULL;
@@ -328,10 +304,11 @@ CNeutrinoApp::CNeutrinoApp()
 	SetupFrameBuffer();
 
 	mode = mode_unknown;
-	channelList       = NULL;
-	TVchannelList       = NULL;
-	RADIOchannelList       = NULL;
-	nextRecordingInfo = NULL;
+	channelList		= NULL;
+	TVchannelList		= NULL;
+	RADIOchannelList	= NULL;
+	nextRecordingInfo	= NULL;
+	networksetup		= NULL;
 	skipShutdownTimer=false;
 	current_muted = 0;
 }
@@ -2208,8 +2185,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    audioSettings       (LOCALE_AUDIOMENU_HEAD                , NEUTRINO_ICON_AUDIO);
-	CMenuWidget    networkSettings     (LOCALE_NETWORKMENU_HEAD              , NEUTRINO_ICON_NETWORK);
-	CMenuWidget    recordingSettings   (LOCALE_RECORDINGMENU_HEAD            , NEUTRINO_ICON_RECORDING);
 	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
@@ -2218,8 +2193,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , NEUTRINO_ICON_STREAMING);
 	gmoviePlayer = &moviePlayer;
 
-	InitMainMenu(mainMenu, mainSettings, audioSettings, networkSettings, recordingSettings, miscSettings,
-			service, audioplPicSettings, streamingSettings, moviePlayer);
+	InitMainMenu(mainMenu, mainSettings, audioSettings, miscSettings, service, audioplPicSettings, streamingSettings, moviePlayer);
 
 	InitServiceSettings(service, _scanSettings);
 	InitAudioplPicSettings(audioplPicSettings);
@@ -2288,7 +2262,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Timerd->registerEvent(CTimerdClient::EVT_REMIND, 222, NEUTRINO_UDS_NAME);
 	g_Timerd->registerEvent(CTimerdClient::EVT_EXEC_PLUGIN, 222, NEUTRINO_UDS_NAME);
 
-	InitNetworkSettings(networkSettings);
 
 	if (display_language_selection) 
 	{
@@ -2313,9 +2286,9 @@ int CNeutrinoApp::run(int argc, char **argv)
 			}
 			if(ret != menu_return::RETURN_EXIT_ALL) 
 			{
-				networkSettings.setWizardMode(true);
-				ret = networkSettings.exec(NULL, "");
-				networkSettings.setWizardMode(false);
+				networksetup->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD);
+				ret = networksetup->exec(NULL, "");
+				networksetup->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD_NO);
 			}
 			if(ret != menu_return::RETURN_EXIT_ALL) 
 			{
@@ -2342,7 +2315,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	delete hdd;
 
 	InitZapper();
-	InitRecordingSettings(recordingSettings);
 	InitStreamingSettings(streamingSettings);
 
 	AudioMute( current_muted, true);
@@ -3461,8 +3433,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		frameBuffer->paintBackground();
 		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/shutdown.jpg");
 
-		networkConfig.automatic_start = (network_automatic_start == 1);
-		networkConfig.commitConfig();
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
 		if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/) {
@@ -4097,20 +4067,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_RCInput->postMsg( NeutrinoMessages::VCR_ON, 0 );
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
-	else if(actionKey=="network") {
-		networkConfig.automatic_start = (network_automatic_start == 1);
-		networkConfig.stopNetwork();
-		networkConfig.commitConfig();
-		networkConfig.startNetwork();
-	}
-	else if(actionKey=="networktest") {
-		dprintf(DEBUG_INFO, "doing network test...\n");
-		testNetworkSettings(networkConfig.address.c_str(), networkConfig.netmask.c_str(), networkConfig.broadcast.c_str(), networkConfig.gateway.c_str(), networkConfig.nameserver.c_str(), networkConfig.inet_static);
-	}
-	else if(actionKey=="networkshow") {
-		dprintf(DEBUG_INFO, "showing current network settings...\n");
-		showCurrentNetworkSettings();
-	}
 	else if(actionKey=="savescansettings") {
 		SaveMotorPositions();
 	}
@@ -4118,8 +4074,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
 		hintBox->paint();
 
-		networkConfig.automatic_start = (network_automatic_start == 1);
-		networkConfig.commitConfig();
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 		SaveMotorPositions();
 
@@ -4168,8 +4122,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RESTART_HINT));
 			hintBox->paint();
 
-			networkConfig.automatic_start = (network_automatic_start == 1);
-			networkConfig.commitConfig();
 			saveSetup(NEUTRINO_SETTINGS_FILE);
 
 			/* this is an ugly mess :-( */
@@ -4229,53 +4181,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		b.Dir_Mode=true;
 		if (b.exec(g_settings.network_nfs_moviedir))
 			strncpy(g_settings.network_nfs_moviedir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_moviedir)-1);
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "recordingdir") {
-		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_recordingdir)) {
-			const char * newdir = b.getSelectedFile()->Name.c_str();
-printf("New recordingdir: selected %s\n", newdir);
-			if(check_dir(newdir))
-				printf("Wrong/unsupported recording dir %s\n", newdir);
-			else {
-				strncpy(g_settings.network_nfs_recordingdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_recordingdir)-1);
-printf("New recordingdir: %s (timeshift %s)\n", g_settings.network_nfs_recordingdir, g_settings.timeshiftdir);
-				if(strlen(g_settings.timeshiftdir) == 0) {
-					sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
-					safe_mkdir(timeshiftDir);
-printf("New timeshift dir: %s\n", timeshiftDir);
-				}
-			}
-		}
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "timeshiftdir") {
-		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.timeshiftdir)) {
-			const char * newdir = b.getSelectedFile()->Name.c_str();
-printf("New timeshift: selected %s\n", newdir);
-			if(check_dir(newdir))
-				printf("Wrong/unsupported recording dir %s\n", newdir);
-			else {
-printf("New timeshift dir: old %s (record %s)\n", g_settings.timeshiftdir, g_settings.network_nfs_recordingdir);
-				if(strcmp(newdir, g_settings.network_nfs_recordingdir)) {
-printf("New timeshift != rec dir\n");
-					strncpy(g_settings.timeshiftdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.timeshiftdir)-1);
-					strcpy(timeshiftDir, g_settings.timeshiftdir);
-				} else {
-					sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
-					strcpy(g_settings.timeshiftdir, newdir);
-					safe_mkdir(timeshiftDir);
-printf("New timeshift == rec dir\n");
-				}
-printf("New timeshift dir: %s\n", timeshiftDir);
-			}
-		}
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "update_dir") {

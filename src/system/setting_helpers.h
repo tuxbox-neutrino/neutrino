@@ -270,17 +270,9 @@ class CUCodeCheckExec : public CMenuTarget
 
 void testNetworkSettings(const char* ip, const char* netmask, const char* broadcast, const char* gateway, const char* nameserver, bool dhcp);
 void showCurrentNetworkSettings();
+int safe_mkdir(char * path);
+int check_dir(const char * newdir);
 
-// // USERMENU
-// class CUserMenuMenu : public CMenuTarget
-// {
-//         private:
-//                 int button;
-//                 neutrino_locale_t local;
-//         public:
-//                 CUserMenuMenu(neutrino_locale_t _local, int _button){local = _local;button = _button;};
-//                 int exec(CMenuTarget* parent, const std::string & actionKey);
-// };
 
 class CTZChangeNotifier : public CChangeObserver
 {

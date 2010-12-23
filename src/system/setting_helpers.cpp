@@ -30,16 +30,26 @@
 */
 
 #include <system/setting_helpers.h>
-
+#include "configure_network.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 #include <unistd.h>
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <libnet.h>
+#include <linux/if.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/wait.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <signal.h>
-#include "libnet.h"
+#include <sys/vfs.h>
 
 #include <coolstream/control.h>
 
@@ -60,6 +70,7 @@
 #include <audio_cs.h>
 #include <video_cs.h>
 #include <dmx_cs.h>
+#include <cs_api.h>
 #include <pwrmngr.h>
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"
@@ -220,11 +231,11 @@ CDHCPNotifier::CDHCPNotifier( CMenuForwarder* a1, CMenuForwarder* a2, CMenuForwa
 
 bool CDHCPNotifier::changeNotify(const neutrino_locale_t, void * data)
 {
-	CNeutrinoApp::getInstance()->networkConfig.inet_static = ((*(int*)(data)) == 0);
+	CNetworkConfig::getInstance()->inet_static = ((*(int*)(data)) == 0);
 	for(int x=0;x<5;x++)
-		toDisable[x]->setActive(CNeutrinoApp::getInstance()->networkConfig.inet_static);
+		toDisable[x]->setActive(CNetworkConfig::getInstance()->inet_static);
 
-	toEnable[0]->setActive(!CNeutrinoApp::getInstance()->networkConfig.inet_static);
+	toEnable[0]->setActive(!CNetworkConfig::getInstance()->inet_static);
 	return true;
 }
 
@@ -538,13 +549,13 @@ bool CIPChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 	sscanf((char*) Data, "%hhu.%hhu.%hhu.%hhu", &_ip[0], &_ip[1], &_ip[2], &_ip[3]);
 
 	sprintf(ip, "%hhu.%hhu.%hhu.255", _ip[0], _ip[1], _ip[2]);
-	CNeutrinoApp::getInstance()->networkConfig.broadcast = ip;
+	CNetworkConfig::getInstance()->broadcast = ip;
 
-	CNeutrinoApp::getInstance()->networkConfig.netmask = (_ip[0] == 10) ? "255.0.0.0" : "255.255.255.0";
+	CNetworkConfig::getInstance()->netmask = (_ip[0] == 10) ? "255.0.0.0" : "255.255.255.0";
 
 	sprintf(ip, "%hhu.%hhu.%hhu.1", _ip[0], _ip[1], _ip[2]);
-	CNeutrinoApp::getInstance()->networkConfig.nameserver = ip;
-	CNeutrinoApp::getInstance()->networkConfig.gateway = ip;
+	CNetworkConfig::getInstance()->nameserver = ip;
+	CNetworkConfig::getInstance()->gateway = ip;
 
 	return true;
 }
@@ -731,6 +742,70 @@ int CUCodeCheckExec::exec(CMenuTarget* /*parent*/, const std::string & /*actionK
 	return 1;
 }
 
+long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
+{
+	struct ifreq ifr;
+	struct ifreq *IFR;
+	struct ifconf ifc;
+	char buf[1024];
+	int s, i;
+	int ok = 0;
+	s = socket(AF_INET, SOCK_DGRAM, 0);
+	if (s==-1) 
+	{
+		return -1;
+	}
+
+	ifc.ifc_len = sizeof(buf);
+	ifc.ifc_buf = buf;
+	ioctl(s, SIOCGIFCONF, &ifc);
+	IFR = ifc.ifc_req;
+	for (i = ifc.ifc_len / sizeof(struct ifreq); --i >= 0; IFR++)
+	{
+		strcpy(ifr.ifr_name, IFR->ifr_name);
+		if (ioctl(s, SIOCGIFFLAGS, &ifr) == 0) 
+		{
+			if (! (ifr.ifr_flags & IFF_LOOPBACK)) 
+			{
+				if (ioctl(s, SIOCGIFHWADDR, &ifr) == 0) 
+				{
+					ok = 1;
+					break;
+				}
+			}
+		}
+	}
+	close(s);
+	if (ok)
+	{
+		memmove(addr, ifr.ifr_hwaddr.sa_data, 6);
+	}
+	else
+	{
+		return -1;
+	}
+	return 0;
+}
+
+std::string CNetAdapter::getMacAddr(void)
+{
+	long stat;
+	u_char addr[6];
+	stat = mac_addr_sys( addr);
+	if (0 == stat)
+	{
+		std::stringstream mac_tmp;
+		for(int i=0;i<6;++i)
+		mac_tmp<<std::hex<<std::setfill('0')<<std::setw(2)<<(int)addr[i]<<':';
+		return mac_tmp.str().substr(0,17);
+	}
+	else
+	{
+		printf("[neutrino] eth-id not detected...\n");
+		return "";
+	}
+}
+
 const char * mypinghost(const char * const host)
 {
 	int retvalue = pinghost(host);
@@ -744,6 +819,7 @@ const char * mypinghost(const char * const host)
 	return "";
 }
 
+
 void testNetworkSettings(const char* ip, const char* netmask, const char* broadcast, const char* gateway, const char* nameserver, bool ip_static)
 {
 	char our_ip[16];
@@ -751,45 +827,74 @@ void testNetworkSettings(const char* ip, const char* netmask, const char* broadc
 	char our_broadcast[16];
 	char our_gateway[16];
 	char our_nameserver[16];
-	std::string text;
+	std::string text, ethID, testsite;
+	//set default testdomain and wiki-IP
+	std::string defaultsite = "www.google.de", wiki_IP = "89.31.143.1";
+	
+	//set physical adress
+	static CNetAdapter netadapter; ethID=netadapter.getMacAddr();
+	
+	//get www-domain testsite from /.version 	
+	CConfigFile config('\t');
+	config.loadConfig("/.version");
+	testsite = config.getString("homepage",defaultsite);	
+	testsite.replace( 0, testsite.find("www",0), "" );
+	
+	//use default testdomain if testsite missing
+	if (testsite.length()==0) testsite = defaultsite; 
 
-	if (ip_static) {
-		strcpy(our_ip,ip);
-		strcpy(our_mask,netmask);
-		strcpy(our_broadcast,broadcast);
-		strcpy(our_gateway,gateway);
-		strcpy(our_nameserver,nameserver);
+	if (ip_static) 
+	{
+		strcpy(our_ip, ip);
+		strcpy(our_mask, netmask);
+		strcpy(our_broadcast, broadcast);
+		strcpy(our_gateway, gateway);
+		strcpy(our_nameserver, nameserver);
 	}
-	else {
-		netGetIP((char *) "eth0",our_ip,our_mask,our_broadcast);
+	else 
+	{
+		netGetIP("eth0", our_ip, our_mask, our_broadcast);
 		netGetDefaultRoute(our_gateway);
 		netGetNameserver(our_nameserver);
 	}
-
-	printf("testNw IP       : %s\n", our_ip);
-	printf("testNw Netmask  : %s\n", our_mask);
+	
+	printf("testNw IP: %s\n", our_ip);
+	printf("testNw MAC-address: %s\n", ethID.c_str());
+	printf("testNw Netmask: %s\n", our_mask);
 	printf("testNw Broadcast: %s\n", our_broadcast);
 	printf("testNw Gateway: %s\n", our_gateway);
 	printf("testNw Nameserver: %s\n", our_nameserver);
-
-	text = our_ip;
-	text += ": ";
-	text += mypinghost(our_ip);
-	text += '\n';
-	text += g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY);
-	text += ": ";
-	text += our_gateway;
-	text += ' ';
-	text += mypinghost(our_gateway);
-	text += '\n';
-	text += g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER);
-	text += ": ";
-	text += our_nameserver;
-	text += ' ';
-	text += mypinghost(our_nameserver);
-	text += "\ndboxupdate.berlios.de: ";
-	text += mypinghost("195.37.77.138");
-
+	printf("testNw Testsite %s\n", testsite.c_str());
+ 
+	if (our_ip[0] == 0) 
+	{
+		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE);
+	}
+	else
+	{
+		text = "Box: " + ethID + "\n    ";
+			text += (std::string)our_ip + " " + (std::string)mypinghost(our_ip);
+			text += "\n";
+		text += g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY);
+			text += " (Router)\n    ";
+			text += (std::string)our_gateway + " " +(std::string)mypinghost(our_gateway);
+			text += "\n";
+ 		text += g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER);
+			text += "\n    ";
+			text += (std::string)our_nameserver + " " + (std::string)mypinghost(our_nameserver);
+			text += "\n";
+		text += "wiki.neutrino-hd.de:\n    ";
+			text += "via IP (" + wiki_IP + "): " + (std::string)mypinghost(wiki_IP.c_str());
+			text += ":\n    ";
+		if (1 == pinghost(our_nameserver))
+		{
+			text += "via DNS: " + (std::string)mypinghost("wiki.neutrino-hd.de");
+			text += "\n";
+			text += testsite + ":\n    ";
+			text += "via DNS: " +  (std::string)mypinghost(testsite.c_str()) + ":\n";
+		}
+	}
+	
 	ShowMsgUTF(LOCALE_NETWORKMENU_TEST, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 }
 
@@ -801,33 +906,23 @@ void showCurrentNetworkSettings()
 	char router[16];
 	char nameserver[16];
 	std::string text;
-
-	netGetIP((char *) "eth0",ip,mask,broadcast);
+	
+	netGetIP("eth0", ip, mask, broadcast);
 	if (ip[0] == 0) {
-		text = "Network inactive\n";
+		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE);
 	}
 	else {
 		netGetNameserver(nameserver);
 		netGetDefaultRoute(router);
-		text  = g_Locale->getText(LOCALE_NETWORKMENU_IPADDRESS );
-		text += ": ";
-		text += ip;
-		text += '\n';
-		text += g_Locale->getText(LOCALE_NETWORKMENU_NETMASK   );
-		text += ": ";
-		text += mask;
-		text += '\n';
-		text += g_Locale->getText(LOCALE_NETWORKMENU_BROADCAST );
-		text += ": ";
-		text += broadcast;
-		text += '\n';
-		text += g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER);
-		text += ": ";
-		text += nameserver;
-		text += '\n';
-		text += g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY   );
-		text += ": ";
-		text += router;
+		CNetworkConfig  networkConfig;
+		std::string dhcp = networkConfig.inet_static ? g_Locale->getText(LOCALE_OPTIONS_OFF) : g_Locale->getText(LOCALE_OPTIONS_ON);
+
+		text = (std::string)g_Locale->getText(LOCALE_NETWORKMENU_DHCP) + ": " + dhcp + '\n'
+				  + g_Locale->getText(LOCALE_NETWORKMENU_IPADDRESS ) + ": " + ip + '\n'
+				  + g_Locale->getText(LOCALE_NETWORKMENU_NETMASK   ) + ": " + mask + '\n'
+				  + g_Locale->getText(LOCALE_NETWORKMENU_BROADCAST ) + ": " + broadcast + '\n'
+				  + g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ": " + nameserver + '\n'
+				  + g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY   ) + ": " + router;
 	}
 	ShowMsgUTF(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 }
@@ -992,3 +1087,29 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 	videoDecoder->SetAutoModes(modes);
 	return true;
 }
+
+int safe_mkdir(char * path)
+{
+	struct statfs s;
+	int ret = 0;
+	if(!strncmp(path, "/hdd", 4)) {
+		ret = statfs("/hdd", &s);
+		if((ret != 0) || (s.f_type == 0x72b6))
+			ret = -1;
+		else
+			mkdir(path, 0755);
+	} else
+		mkdir(path, 0755);
+	return ret;
+}
+
+int check_dir(const char * newdir)
+{
+	if(strncmp(newdir, "/media/sda1/", 12) && strncmp(newdir, "/media/sdb1/", 12) && strncmp(newdir, "/mnt/", 5) && strncmp(newdir, "/tmp/", 5) && strncmp(newdir, "/media/", 7)) {
+		return 1;
+	}
+
+	return 0;
+}
+
+

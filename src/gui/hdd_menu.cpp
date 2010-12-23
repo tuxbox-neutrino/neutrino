@@ -62,7 +62,6 @@
 #include <gui/hdd_menu.h>
 #include <mymenu.h>
 
-int safe_mkdir(char * path);
 
 static int my_filter(const struct dirent * dent)
 {
