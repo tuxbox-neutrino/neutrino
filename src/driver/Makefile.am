@@ -40,6 +40,10 @@ libneutrino_driver_a_SOURCES += \
 INCLUDES += \
 	-I$(top_srcdir)/lib/libcoolstream
 endif
+if BOXTYPE_TRIPLE
+INCLUDES += \
+	-I$(top_srcdir)/lib/libtriple
+endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp
 

@@ -10,3 +10,8 @@ SUBDIRS = \
 	libtuxtxt \
 	libdvbsub \
 	libupnpclient
+
+if BOXTYPE_TRIPLE
+SUBDIRS += \
+	libtriple
+endif

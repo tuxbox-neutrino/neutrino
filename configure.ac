@@ -83,6 +83,7 @@ lib/xmltree/Makefile
 lib/controldclient/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
+lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile

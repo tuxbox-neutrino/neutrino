@@ -15,6 +15,9 @@ INCLUDES = \
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
+if BOXTYPE_TRIPLE
+INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 
 noinst_LIBRARIES = libneutrino_system.a
 
