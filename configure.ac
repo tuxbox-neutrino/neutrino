@@ -19,6 +19,9 @@ echo "BOXTYPE: $BOXTYPE"
 		TUXBOX_APPS_LIB_PKGCONFIG(TUXBOX,tuxbox)
 	fi
 fi
+if test "$BOXTYPE" = "tripledragon"; then
+	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
+fi
 TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
