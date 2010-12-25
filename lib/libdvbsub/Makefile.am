@@ -1,7 +1,13 @@
 INCLUDES = \
 	-I$(top_srcdir)/src/zapit/include \
-	-I$(top_srcdir)/src \
-	-I$(top_srcdir)/lib/libcoolstream
+	-I$(top_srcdir)/src
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
+if BOXTYPE_TRIPLE
+INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 

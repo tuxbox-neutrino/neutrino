@@ -57,7 +57,7 @@
 
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
-#include <video_cs.h>
+#include <video.h>
 extern cVideo * videoDecoder;
 extern CFrontend * frontend;
 

@@ -37,7 +37,7 @@
 #include <sstream>
 #include <driver/netfile.h>
 
-#include <audio_cs.h>
+#include <zapit/include/audio.h>
 
 extern cAudio * audioDecoder;
 

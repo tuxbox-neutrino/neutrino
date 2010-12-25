@@ -15,7 +15,7 @@
 #include <zapit/satconfig.h>
 #include <zapit/scan.h>
 #include <zapit/frontend_c.h>
-#include <dmx_cs.h>
+#include <dmx.h>
 #include <math.h>
 #include <sectionsd/edvbstring.h>
 

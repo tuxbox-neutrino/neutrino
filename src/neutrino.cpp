@@ -128,8 +128,8 @@
 #include <zapit/getservices.h>
 
 #include <cs_api.h>
-#include <video_cs.h>
-#include <audio_cs.h>
+#include <video.h>
+#include <audio.h>
 #include <zapit/frontend_c.h>
 #include <pwrmngr.h>
 #include <ca_cs.h>

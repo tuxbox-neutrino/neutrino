@@ -35,7 +35,7 @@
 #include <zapit/scan.h>
 #include <zapit/sdt.h>
 #include <zapit/debug.h>
-#include <dmx_cs.h>
+#include <dmx.h>
 #include <math.h>
 
 extern CBouquetManager *g_bouquetManager;

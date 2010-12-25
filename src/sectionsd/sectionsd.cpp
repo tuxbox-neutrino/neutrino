@@ -27,9 +27,10 @@
 //
 //
 
+#include <config.h>
 #include <malloc.h>
-#include <dmx.h>
 #include <dmxapi.h>
+#include <dmx.h>
 #include <debug.h>
 
 #include <sys/socket.h>

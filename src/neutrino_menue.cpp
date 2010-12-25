@@ -125,8 +125,8 @@
 #include <system/fsmounter.h>
 
 #include <timerdclient/timerdmsg.h>
-#include <video_cs.h>
-#include <audio_cs.h>
+#include <video.h>
+#include <audio.h>
 #include <zapit/frontend_c.h>
 // #include <xmlinterface.h>
 #include <zapit/getservices.h>

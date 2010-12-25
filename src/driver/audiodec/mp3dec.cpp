@@ -53,7 +53,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <driver/netfile.h>
-#include <audio_cs.h>
+#include <zapit/include/audio.h>
 
 extern cAudio * audioDecoder;
 

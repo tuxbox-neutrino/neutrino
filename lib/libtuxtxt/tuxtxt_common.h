@@ -11,7 +11,7 @@
 #include <zlib.h>
 #endif
 
-#include <dmx_cs.h>
+#include <zapit/include/dmx.h>
 
 tuxtxt_cache_struct tuxtxt_cache;
 static pthread_mutex_t tuxtxt_cache_lock = PTHREAD_MUTEX_INITIALIZER;

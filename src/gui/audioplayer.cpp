@@ -95,7 +95,7 @@
 #endif
 #endif
 
-#include <video_cs.h>
+#include <video.h>
 extern cVideo * videoDecoder;
 
 #ifdef ConnectLineBox_Width

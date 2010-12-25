@@ -74,8 +74,8 @@
 #include <poll.h>
 #include <sys/timeb.h>
 
-#include <video_cs.h>
-#include <playback_cs.h>
+#include <video.h>
+#include <playback.h>
 
 int dvbsub_start(int pid);
 int dvbsub_pause();

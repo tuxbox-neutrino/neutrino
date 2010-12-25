@@ -26,7 +26,7 @@
 #include <zapit/debug.h>
 #include <zapit/descriptors.h>
 #include <zapit/getservices.h>
-#include <dmx_cs.h>
+#include <dmx.h>
 #include <zapit/nit.h>
 #include <zapit/scan.h>
 

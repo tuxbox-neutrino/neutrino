@@ -59,7 +59,7 @@
 #include <sys/param.h>
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
-#include <video_cs.h>
+#include <video.h>
 
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
 void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );

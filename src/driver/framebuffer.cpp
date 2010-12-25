@@ -43,7 +43,7 @@
 #include <gui/color.h>
 #include <gui/pictureviewer.h>
 #include <global.h>
-#include <video_cs.h>
+#include <video.h>
 #include <cs_api.h>
 
 extern cVideo * videoDecoder;

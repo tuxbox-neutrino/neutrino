@@ -11,8 +11,14 @@ INCLUDES = \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
-	-I$(top_srcdir)/lib/libcoolstream \
 	@FREETYPE_CFLAGS@
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
+if BOXTYPE_TRIPLE
+INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 
 noinst_LIBRARIES = libnhttpd_tuxboxapi.a
 

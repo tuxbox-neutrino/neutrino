@@ -28,7 +28,13 @@
 #include <stdint.h>
 #include <sys/types.h>
 #include <vector>
+#include <config.h>
+#if HAVE_COOL_HARDWARE
 #include <dmx_cs.h>
+#endif
+#if HAVE_TRIPLEDRAGON
+#include <dmx_td.h>
+#endif
 
 typedef uint64_t sections_id_t;
 typedef unsigned char version_number_t;

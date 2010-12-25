@@ -51,18 +51,24 @@
 #include <zapit/fastscan.h>
 #include <zapit/settings.h>
 #include <zapit/zapit.h>
-#include <dmx_cs.h>
-#include <record_cs.h>
-#include <playback_cs.h>
-#include <pwrmngr.h>
 #include <xmlinterface.h>
 
 #include <ca_cs.h>
 
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
+#include <dmx.h>
+#if HAVE_COOL_HARDWARE
+#include <record_cs.h>
+#include <playback_cs.h>
+#include <pwrmngr.h>
 #include <audio_cs.h>
 #include <video_cs.h>
+#endif
+#if HAVE_TRIPLEDRAGON
+#include <video_td.h>
+#include <audio_td.h>
+#endif
 
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"

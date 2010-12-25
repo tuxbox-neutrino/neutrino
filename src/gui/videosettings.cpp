@@ -51,7 +51,7 @@
 #include <system/debug.h>
 
 #include <cs_api.h>
-#include <video_cs.h>
+#include <video.h>
 
 extern cVideo *videoDecoder;
 extern int prev_video_mode;

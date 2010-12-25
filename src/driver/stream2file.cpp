@@ -54,8 +54,13 @@
 #include <signal.h>
 #include <libgen.h>
 
-#include <record_cs.h>
 #include <driver/vfd.h>
+#if HAVE_COOL_HARDWARE
+#include <record_cs.h>
+#endif
+#if HAVE_TRIPLEDRAGON
+#include <record_td.h>
+#endif
 #include <zapit/cam.h>
 #include <zapit/channel.h>
 

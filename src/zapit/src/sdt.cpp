@@ -34,7 +34,7 @@
 #include <zapit/bouquets.h>
 #include <zapit/frontend_c.h>
 #include <zapit/satconfig.h>
-#include <dmx_cs.h>
+#include <dmx.h>
 
 #define SDT_SIZE 1026
 

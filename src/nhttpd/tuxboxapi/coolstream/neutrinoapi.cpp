@@ -30,9 +30,9 @@
 #include <gui/customcolor.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/frontend_c.h>
-#include <video_cs.h>
-#include <audio_cs.h>
-#include <dmx_cs.h>
+#include <video.h>
+#include <audio.h>
+#include <dmx.h>
 #include <zapit/satconfig.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/channel.h>

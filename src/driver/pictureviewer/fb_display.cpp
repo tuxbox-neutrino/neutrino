@@ -2,6 +2,7 @@
  * (c) smoku/2000 
  */
 
+#include <stdint.h>
 #include <linux/fb.h>
 #include <config.h>
 

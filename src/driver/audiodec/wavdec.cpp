@@ -37,7 +37,7 @@
 #include <sstream>
 #include <driver/audioplay.h>
 #include <linux/soundcard.h>
-#include <audio_cs.h>
+#include <zapit/include/audio.h>
 
 extern cAudio * audioDecoder;
 

@@ -21,7 +21,7 @@
 
 #include <zapit/debug.h>
 #include <zapit/pat.h>
-#include <dmx_cs.h>
+#include <dmx.h>
 
 #define PAT_SIZE 1024
 

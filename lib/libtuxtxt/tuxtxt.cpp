@@ -16,8 +16,8 @@
 #include "tuxtxt.h"
 #include "driver/framebuffer.h"
 #include "teletext.h"
-#include <dmx_cs.h>
-#include <video_cs.h>
+#include <dmx.h>
+#include <video.h>
 
 extern cVideo * videoDecoder;
 
