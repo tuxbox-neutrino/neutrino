@@ -6307,7 +6307,7 @@ void DecodePage()
 /******************************************************************************
  * GetRCCode                                                                  *
  ******************************************************************************/
-
+#if !HAVE_TRIPLEDRAGON
 int GetRCCode()
 {
 	struct input_event ev;
@@ -6372,6 +6372,64 @@ printf("[tuxtxt] new key, code %X\n", RCCode);
 
 	return 0;
 }
+#else
+int GetRCCode()
+{
+	static unsigned short LastKey = -1;
+	int count;
+	if ((count = read(rc, &RCCode, 2)) != 2)
+	{
+		RCCode = -1;
+		usleep(1000000/100);
+		return 0;
+	}
+
+	fprintf(stderr, "rccode: %04x\n", RCCode);
+	if (RCCode == LastKey)
+	{
+		RCCode = -1;
+		return 1;
+	}
+
+	LastKey = RCCode;
+	if ((RCCode & 0xFF00) == 0x0000)
+	{
+		switch (RCCode)
+		{
+		case 0x18:	RCCode = RC_UP;		break;
+		case 0x1c:	RCCode = RC_DOWN;	break;
+		case 0x19:	RCCode = RC_LEFT;	break;
+		case 0x1b:	RCCode = RC_RIGHT;	break;
+		case 0x1a:	RCCode = RC_OK;		break;
+		case 0x0e:	RCCode = RC_0;		break;
+		case 0x02:	RCCode = RC_1;		break;
+		case 0x03:	RCCode = RC_2;		break;
+		case 0x04:	RCCode = RC_3;		break;
+		case 0x05:	RCCode = RC_4;		break;
+		case 0x06:	RCCode = RC_5;		break;
+		case 0x07:	RCCode = RC_6;		break;
+		case 0x09:	RCCode = RC_7;		break;
+		case 0x0a:	RCCode = RC_8;		break;
+		case 0x0b:	RCCode = RC_9;		break;
+		case 0x1f:	RCCode = RC_RED;	break;
+		case 0x20:	RCCode = RC_GREEN;	break;
+		case 0x21:	RCCode = RC_YELLOW;	break;
+		case 0x22:	RCCode = RC_BLUE;	break;
+		case 0x29:	RCCode = RC_PLUS;	break; // [=X=] key -> double height
+		case 0x27:	RCCode = RC_MINUS;	break; // [txt] key -> split mode
+		case 0x11:	RCCode = RC_MUTE;	break;
+		case 0x28:	RCCode = RC_MUTE;	break; // [ /=] key
+		case 0x14:	RCCode = RC_HELP;	break;
+		case 0x2a:	RCCode = RC_HELP;	break; // [==?] key
+		case 0x12:	RCCode = RC_DBOX;	break;
+		case 0x15:	RCCode = RC_HOME;	break;
+		case 0x01:	RCCode = RC_STANDBY;	break;
+		}
+		return 1;
+	}
+	return 1;
+}
+#endif
 /* Local Variables: */
 /* indent-tabs-mode:t */
 /* tab-width:3 */
