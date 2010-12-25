@@ -68,7 +68,10 @@
 #include <driver/stream2file.h>
 #include <driver/vcrcontrol.h>
 #include <driver/shutdown_count.h>
-
+#if HAVE_TRIPLEDRAGON
+#include <driver/lcdd.h>
+#include "gui/widget/lcdcontroler.h"
+#endif
 #include <gui/epgplus.h>
 #include <gui/streaminfo2.h>
 
@@ -77,8 +80,10 @@
 #include "gui/widget/messagebox.h"
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"
+#if HAVE_COOL_HARDWARE
 #include "gui/widget/vfdcontroler.h"
 #include "gui/widget/progressbar.h"
+#endif
 #include "gui/widget/keychooser.h"
 #include "gui/widget/stringinput.h"
 #include "gui/widget/stringinput_ext.h"
@@ -349,7 +354,7 @@ typedef struct lcd_setting_t
 	const unsigned int default_value;
 } lcd_setting_struct_t;
 
-const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
+const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 {
 	{"lcd_brightness"       , DEFAULT_VFD_BRIGHTNESS       },
 	{"lcd_standbybrightness", DEFAULT_VFD_STANDBYBRIGHTNESS},
@@ -359,6 +364,9 @@ const lcd_setting_struct_t lcd_setting[LCD_SETTING_COUNT] =
 	{"lcd_show_volume"      , DEFAULT_LCD_SHOW_VOLUME      },
 	{"lcd_autodimm"         , DEFAULT_LCD_AUTODIMM         },
 	{"lcd_deepbrightness"   , DEFAULT_VFD_STANDBYBRIGHTNESS }
+#if HAVE_TRIPLEDRAGON
+	,{ "lcd_epgmode"        , 0 /*DEFAULT_LCD_EPGMODE*/ }
+#endif
 };
 
 /**************************************************************************************
@@ -771,7 +779,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	for (int i = 0; i < TIMING_SETTING_COUNT; i++)
 		g_settings.timing[i] = configfile.getInt32(locale_real_names[timing_setting_name[i]], default_timing[i]);
 
-	for (int i = 0; i < LCD_SETTING_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	strcpy(g_settings.lcd_setting_dim_time, configfile.getString("lcd_dim_time","0").c_str());
 	strcpy(g_settings.lcd_setting_dim_brightness, configfile.getString("lcd_dim_brightness","0").c_str());
@@ -1283,7 +1291,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	for (int i = 0; i < TIMING_SETTING_COUNT; i++)
 		configfile.setInt32(locale_real_names[timing_setting_name[i]], g_settings.timing[i]);
 
-	for (int i = 0; i < LCD_SETTING_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
 	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 	configfile.setString("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
@@ -4572,7 +4580,7 @@ void CNeutrinoApp::loadColors(const char * fname)
 	g_settings.infobar_Text_red = tconfig.getInt32( "infobar_Text_red", 0x64 );
 	g_settings.infobar_Text_green = tconfig.getInt32( "infobar_Text_green", 0x64 );
 	g_settings.infobar_Text_blue = tconfig.getInt32( "infobar_Text_blue", 0x64 );
-	for (int i = 0; i < LCD_SETTING_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = tconfig.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	strcpy(g_settings.lcd_setting_dim_time, tconfig.getString("lcd_dim_time","0").c_str());
 	strcpy(g_settings.lcd_setting_dim_brightness, tconfig.getString("lcd_dim_brightness","0").c_str());
@@ -4638,7 +4646,7 @@ void CNeutrinoApp::saveColors(const char * fname)
 	tconfig.setInt32( "infobar_Text_red", g_settings.infobar_Text_red );
 	tconfig.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
 	tconfig.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
-	for (int i = 0; i < LCD_SETTING_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		tconfig.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
 	tconfig.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 	tconfig.setString("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);

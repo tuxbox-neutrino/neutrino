@@ -90,6 +90,7 @@ lib/libtriple/Makefile
 lib/libtuxtxt/Makefile
 lib/libdvbsub/Makefile
 lib/libupnpclient/Makefile
+src/lcddisplay/Makefile
 src/nhttpd/Makefile
 src/nhttpd/web/Makefile
 src/nhttpd/web/images/Makefile

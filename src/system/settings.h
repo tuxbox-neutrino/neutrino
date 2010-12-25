@@ -384,16 +384,19 @@ struct SNeutrinoSettings
 	};
 
 	// lcdd
-#define LCD_SETTING_COUNT 8
 	enum LCD_SETTINGS {
 		LCD_BRIGHTNESS         = 0,
-		LCD_STANDBY_BRIGHTNESS = 1,
-		LCD_CONTRAST           = 2,
-		LCD_POWER              = 3,
-		LCD_INVERSE            = 4,
-		LCD_SHOW_VOLUME        = 5,
-		LCD_AUTODIMM           = 6,
-		LCD_DEEPSTANDBY_BRIGHTNESS  = 7
+		LCD_STANDBY_BRIGHTNESS ,
+		LCD_CONTRAST           ,
+		LCD_POWER              ,
+		LCD_INVERSE            ,
+		LCD_SHOW_VOLUME        ,
+		LCD_AUTODIMM           ,
+		LCD_DEEPSTANDBY_BRIGHTNESS,
+#if HAVE_TRIPLEDRAGON
+		LCD_EPGMODE            ,
+#endif
+		LCD_SETTING_COUNT
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
 
