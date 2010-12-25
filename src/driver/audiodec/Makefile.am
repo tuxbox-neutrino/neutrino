@@ -5,9 +5,15 @@ INCLUDES = \
         -I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libconfigfile \
-	-I$(top_srcdir)/lib/libcoolstream \
         @FREETYPE_CFLAGS@ \
         @VORBISIDEC_CFLAGS@
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
+if BOXTYPE_TRIPLE
+INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 
 noinst_LIBRARIES = libneutrino_driver_audiodec.a
 

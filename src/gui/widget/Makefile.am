@@ -6,8 +6,14 @@ INCLUDES = \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
-	-I$(top_srcdir)/lib/libcoolstream \
 	@FREETYPE_CFLAGS@
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
+if BOXTYPE_TRIPLE
+INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 
 noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a 
 
