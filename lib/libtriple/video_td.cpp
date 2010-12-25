@@ -492,8 +492,9 @@ int cVideo::setZoom(int zoom)
 	memset(&s, 0, sizeof(s));
 	if (zoom > 100)
 	{
-		vidDispSize_t x = (vidDispSize_t)getAspectRatio();
-		if (x == VID_DISPSIZE_4x3 && croppingMode == VID_DISPMODE_NORM)
+		/* 1 = 4:3, 3 = 16:9, 4 = 2.21:1, 0 = unknown */
+		int x = getAspectRatio();
+		if (x < 3 && croppingMode == VID_DISPMODE_NORM)
 		{
 			s.src.hori_size = 720;
 			s.des.hori_size = 720 * 3/4 * zoom / 100;
@@ -549,6 +550,23 @@ void cVideo::setZoomAspect(int index)
 		zoomvalue = &z[index];
 }
 #endif
+
+/* this function is regularly called, checks if video parameters
+   changed and triggers appropriate actions */
+void cVideo::VideoParamWatchdog(void)
+{
+	static unsigned int _v_info = (unsigned int) -1;
+	unsigned int v_info;
+	if (fd == -1)
+		return;
+	fop(ioctl, MPEG_VID_GET_V_INFO_RAW, &v_info);
+	if (_v_info != v_info)
+	{
+		lt_debug("cVideo::VPWdog: params changed. old: %08x new: %08x\n", _v_info, v_info);
+		setAspectRatio(-1, -1);
+	}
+	_v_info = v_info;
+}
 
 void cVideo::Pig(int x, int y, int w, int h, int /*osd_w*/, int /*osd_h*/)
 {

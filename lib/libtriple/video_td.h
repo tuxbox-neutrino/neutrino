@@ -175,6 +175,7 @@ class cVideo
 		void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);
 		void SetControl(int, int) { return; };
 		int setZoom(int);
+		void VideoParamWatchdog(void);
 		void setContrast(int val);
 		void SetVideoMode(analog_mode_t mode);
 		void SetDBDR(int) { return; };
