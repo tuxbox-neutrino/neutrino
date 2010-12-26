@@ -2009,14 +2009,8 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 
 void CInfoViewer::showOne_CAIcon(bool fta)
 {
-if (g_settings.infobar_show_res < 2){
 	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (icon_xres_width + icon_crypt_width + 2*icon_large_width + 2*icon_small_width + 6*2), BBarY,
 			       InfoHeightY_Info);
-         }
-else if (g_settings.infobar_show_res == 2){
-	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (icon_crypt_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY,
-				       InfoHeightY_Info);
-        }
 }
 
 void CInfoViewer::showIcon_CA_Status (int notfirst)
