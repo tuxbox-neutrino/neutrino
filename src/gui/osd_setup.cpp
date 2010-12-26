@@ -220,6 +220,14 @@ const CMenuOptionChooser::keyval  MENU_DISP_POS_OPTIONS[MENU_DISP_POS_OPTIONS_CO
         { 4 , LOCALE_SETTINGS_POS_BOTTOM_RIGHT }
 };
 
+#define INFOBAR_SHOW_RES_MODE_OPTION_COUNT 3
+const CMenuOptionChooser::keyval INFOBAR_SHOW_RES_MODE_OPTIONS[INFOBAR_SHOW_RES_MODE_OPTION_COUNT] =
+{
+	{ 0, LOCALE_OPTIONS_ON },
+	{ 1, LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES_SIMPLE },
+	{ 2, LOCALE_OPTIONS_OFF }
+};
+
 
 //show osd setup
 void COsdSetup::showOsdSetup()
@@ -522,6 +530,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_VIRTUAL_ZAP_MODE, &g_settings.virtual_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_VAR_HDD, &g_settings.infobar_show_var_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 }
 

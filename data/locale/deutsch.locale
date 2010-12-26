@@ -744,6 +744,8 @@ miscsettings.infobar_disp_3 Logo Infobar / Signalbalken
 miscsettings.infobar_disp_log Infobar Dis.
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
+miscsettings.infobar_show_res Auflösung anzeigen
+miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
 miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
 miscsettings.noenxwatchdog eNX-Watchdog aktivieren

@@ -148,6 +148,9 @@ void CInfoViewer::Init()
 	if (icon_xres_width == 0)
 		icon_xres_width = 28;
 
+	if (g_settings.infobar_show_res >= 2)
+		icon_xres_width = 0;
+
 	frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED2_GREY, &icon_crypt_width, &dummy_h);
 	if (icon_crypt_width == 0)
 		icon_crypt_width = 24;
@@ -988,58 +991,86 @@ void CInfoViewer::showIcon_Resolution() const
 	const char *icon_name = NULL;
 	if (videoDecoder->getBlank()) {
 		icon_name = NEUTRINO_ICON_RESOLUTION_000;
-	}
-	else {
-		videoDecoder->getPictureInfo(xres, yres, framerate);
-		switch (yres) {
-		case 1920:
-			icon_name = NEUTRINO_ICON_RESOLUTION_1920;
-			break;
-		case 1088:
-			icon_name = NEUTRINO_ICON_RESOLUTION_1080;
-			break;
-		case 1440:
-			icon_name = NEUTRINO_ICON_RESOLUTION_1440;
-			break;
-		case 1280:
-			icon_name = NEUTRINO_ICON_RESOLUTION_1280;
-			break;
-		case 720:
-			icon_name = NEUTRINO_ICON_RESOLUTION_720;
-			break;
-		case 704:
-			icon_name = NEUTRINO_ICON_RESOLUTION_704;
-			break;
-		case 576:
-			icon_name = NEUTRINO_ICON_RESOLUTION_576;
-			break;
-		case 544:
-			icon_name = NEUTRINO_ICON_RESOLUTION_544;
-			break;
-		case 528:
-			icon_name = NEUTRINO_ICON_RESOLUTION_528;
-			break;
-		case 480:
-			icon_name = NEUTRINO_ICON_RESOLUTION_480;
-			break;
-		case 382:
-			icon_name = NEUTRINO_ICON_RESOLUTION_382;
-			break;
-		case 352:
-			icon_name = NEUTRINO_ICON_RESOLUTION_352;
-			break;
-		case 288:
-			icon_name = NEUTRINO_ICON_RESOLUTION_288;
-			break;
-		default:
-			icon_name = NEUTRINO_ICON_RESOLUTION_000;
-			break;
+	} else {
+		if (g_settings.infobar_show_res == 0) {//show resolution icon on infobar
+			videoDecoder->getPictureInfo(xres, yres, framerate);
+			switch (yres) {
+			case 1920:
+				icon_name = NEUTRINO_ICON_RESOLUTION_1920;
+				break;
+			case 1088:
+				icon_name = NEUTRINO_ICON_RESOLUTION_1080;
+				break;
+			case 1440:
+				icon_name = NEUTRINO_ICON_RESOLUTION_1440;
+				break;
+			case 1280:
+				icon_name = NEUTRINO_ICON_RESOLUTION_1280;
+				break;
+			case 720:
+				icon_name = NEUTRINO_ICON_RESOLUTION_720;
+				break;
+			case 704:
+				icon_name = NEUTRINO_ICON_RESOLUTION_704;
+				break;
+			case 576:
+				icon_name = NEUTRINO_ICON_RESOLUTION_576;
+				break;
+			case 544:
+				icon_name = NEUTRINO_ICON_RESOLUTION_544;
+				break;
+			case 528:
+				icon_name = NEUTRINO_ICON_RESOLUTION_528;
+				break;
+			case 480:
+				icon_name = NEUTRINO_ICON_RESOLUTION_480;
+				break;
+			case 382:
+				icon_name = NEUTRINO_ICON_RESOLUTION_382;
+				break;
+			case 352:
+				icon_name = NEUTRINO_ICON_RESOLUTION_352;
+				break;
+			case 288:
+				icon_name = NEUTRINO_ICON_RESOLUTION_288;
+				break;
+			default:
+				icon_name = NEUTRINO_ICON_RESOLUTION_000;
+				break;
+			}
+		}
+		if (g_settings.infobar_show_res == 1) {//show simple resolution icon on infobar
+			videoDecoder->getPictureInfo(xres, yres, framerate);
+			switch (yres) {
+			case 1920:
+			case 1440:
+			case 1280:
+			case 1088:
+			case 720:
+				icon_name = NEUTRINO_ICON_RESOLUTION_HD;
+				break;
+			case 704:
+			case 576:
+			case 544:
+			case 528:
+			case 480:
+			case 382:
+			case 352:
+			case 288:
+				icon_name = NEUTRINO_ICON_RESOLUTION_SD;
+				break;
+			default:
+				icon_name = NEUTRINO_ICON_RESOLUTION_000;
+				break;
+			}
 		}
 	}
-
-	frameBuffer->paintBoxRel(BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, icon_large_width, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM);
-	frameBuffer->paintIcon(icon_name, BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, InfoHeightY_Info);
+	if (g_settings.infobar_show_res < 2) {
+		frameBuffer->paintBoxRel(BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, icon_large_width, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM);
+		frameBuffer->paintIcon(icon_name, BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, InfoHeightY_Info);
+        }
 }
+
 void CInfoViewer::showIcon_SubT() const
 {
 	bool have_sub = false;
@@ -1978,8 +2009,14 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 
 void CInfoViewer::showOne_CAIcon(bool fta)
 {
+if (g_settings.infobar_show_res < 2){
 	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (icon_xres_width + icon_crypt_width + 2*icon_large_width + 2*icon_small_width + 6*2), BBarY,
 			       InfoHeightY_Info);
+         }
+else if (g_settings.infobar_show_res == 2){
+	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (icon_crypt_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY,
+				       InfoHeightY_Info);
+        }
 }
 
 void CInfoViewer::showIcon_CA_Status (int notfirst)
