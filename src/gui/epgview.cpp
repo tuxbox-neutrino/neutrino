@@ -123,17 +123,15 @@ CEpgData::CEpgData()
 
 void CEpgData::start()
 {
-	/* if you want usably sized epg windows, compile with "-DUSE_SPACE_EFFICIENTLY" */
-#ifndef USE_SPACE_EFFICIENTLY
-#define EPGWIN_SCALE_FACTOR	BIG_FONT_FAKTOR
-#else
-#define EPGWIN_SCALE_FACTOR	1
-#endif
 	/* This defines the size of the EPG window. We use 90% of the screen width and
 	 * 90% of the screen height. It adjusts itself to the "visible screen" settings
 	 */
-	ox = (frameBuffer->getScreenWidth() / 20 * 18)  / (bigFonts ? 1 : EPGWIN_SCALE_FACTOR);
-	oy = (frameBuffer->getScreenHeight() / 20 * 18) / (bigFonts ? 1 : EPGWIN_SCALE_FACTOR);
+	float epgwin_scale_factor = BIG_FONT_FAKTOR; /* stupid useless use of float */
+	if (g_settings.big_windows)
+		epgwin_scale_factor = 1;
+
+	ox = (frameBuffer->getScreenWidth()  / 20 * 18) / (bigFonts ? 1 : epgwin_scale_factor);
+	oy = (frameBuffer->getScreenHeight() / 20 * 18) / (bigFonts ? 1 : epgwin_scale_factor);
 	sx = getScreenStartX(ox);
 	sy = getScreenStartY(oy);
 

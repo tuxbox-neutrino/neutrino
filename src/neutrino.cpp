@@ -744,6 +744,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.screen_height = configfile.getInt32("screen_height", 0);
 
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
+	g_settings.big_windows = configfile.getInt32("big_windows", 0);
 
 	strcpy(g_settings.repeat_blocker, configfile.getString("repeat_blocker", "150").c_str());
 	strcpy(g_settings.repeat_genericblocker, configfile.getString("repeat_genericblocker", "100").c_str());
@@ -1339,6 +1340,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
         }
 
 	configfile.setInt32("bigFonts", g_settings.bigFonts);
+	configfile.setInt32("big_windows", g_settings.big_windows);
 #if 0
 	configfile.setInt32("pip_x", g_settings.pip_x);
 	configfile.setInt32("pip_y", g_settings.pip_y);

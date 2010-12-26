@@ -257,6 +257,7 @@ extra.volume_pos Lautstärkeanzeige
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
 extra.clear_log Logdatei löschen
+extra.bigwindows Große Fenster
 extra.dboxinfo Box-Info
 extra.east Osten
 extra.fec_1_2 1/2 S1_QPSK

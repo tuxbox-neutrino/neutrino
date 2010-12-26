@@ -314,6 +314,7 @@ struct SNeutrinoSettings
 	int pip_x;
 	int pip_y;
 	int bigFonts;
+	int big_windows;
 	int channellist_epgtext_align_right;
 	int channellist_extended;
 

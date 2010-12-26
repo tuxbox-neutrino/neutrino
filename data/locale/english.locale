@@ -983,6 +983,7 @@ videomenu.sharpness Sharpness
 videomenu.saturation Saturation
 videomenu.hue Hue
 zaptotimer.announce Zapto timer in one minute
+extra.bigwindows Big Windows
 extra.dboxinfo Box Info
 extra.scan_mode Scan mode
 extra.start_tostandby Startup to standby

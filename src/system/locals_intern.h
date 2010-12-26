@@ -1255,6 +1255,7 @@ const char *locale_real_names[] = {
 	"zapit.scantype.tv",
 	"zapit.scantype.tvradio",
 	"zaptotimer.announce",
+	"extra.bigwindows",
 	"extra.dboxinfo",
 	"extra.scan_mode",
 	"extra.start_tostandby",
