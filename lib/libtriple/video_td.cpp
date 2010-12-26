@@ -147,20 +147,24 @@ int cVideo::setAspectRatio(int aspect, int mode)
 	}
 	if (_mode != -1)
 	{
+		int zoom = 100 * 16 / 14; /* 16:9 vs 14:9 */
 		switch(_mode)
 		{
-		case DISPLAY_AR_MODE_PANSCAN:
+		case DISPLAY_AR_MODE_NONE:
 			if (v_ar < 3)
 				dsize = VID_DISPSIZE_4x3;
+			else
+				dsize = VID_DISPSIZE_16x9;
 			break;
 		case DISPLAY_AR_MODE_LETTERBOX:
 			dmode = VID_DISPMODE_LETTERBOX;
 			break;
+		case DISPLAY_AR_MODE_PANSCAN:
+			zoom = 100 * 5 / 4;
 		case DISPLAY_AR_MODE_PANSCAN2:
 			if ((v_ar < 3 && _aspect == 3) || (v_ar >= 3 && _aspect == 1))
 			{
 				/* unfortunately, this partly reimplements the setZoom code... */
-				int zoom = 100 * 16 / 14; /* 16:9 vs 14:9 */
 				dsize = VID_DISPSIZE_UNKNOWN;
 				dmode = VID_DISPMODE_SCALE;
 				SCALEINFO s;
@@ -187,6 +191,8 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		default:
 			break;
 		}
+		if (dmode != VID_DISPMODE_SCALE)
+			fop(ioctl, MPEG_VID_SCALE_OFF);
 		setCroppingMode(dmode);
 	}
 	const char *ds[] = { "4x3", "16x9", "2.21", "unknown" };
@@ -574,6 +580,7 @@ void cVideo::Pig(int x, int y, int w, int h, int /*osd_w*/, int /*osd_h*/)
 	if (x == -1 && y == -1 && w == -1 && h == -1)
 	{
 		setZoom(-1);
+		setAspectRatio(-1, -1);
 		return;
 	}
 	SCALEINFO s;
