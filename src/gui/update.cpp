@@ -41,6 +41,7 @@
 #include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
+#include <driver/screen_max.h>
 
 #include <gui/color.h>
 #include <gui/filebrowser.h>
@@ -135,7 +136,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	std::string md5;
 	std::vector<std::string> updates_lists, urls, names, versions, descriptions, md5s;
 	char fileTypes[128];
-	int selected = -1;
+	int selected = -1, listWidth = w_max (80, 10);
 	int curVer, newVer, newfound = 0;
 
 	CConfigFile _configfile('\t');
@@ -153,7 +154,7 @@ bool CFlashUpdate::selectHttpImage(void)
 	snprintf(current, 200, "%s: %s %s %s %s %s", g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP), curInfo.getReleaseCycle(), 
 		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONDATE), curInfo.getDate(), 
 		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONTIME), curInfo.getTime());
-	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE);
+	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE, listWidth);
 
 	SelectionWidget.addItem(GenericMenuSeparator);
 	SelectionWidget.addItem(GenericMenuBack);
