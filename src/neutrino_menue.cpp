@@ -75,7 +75,6 @@
 #include "gui/widget/messagebox.h"
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"
-#include "gui/proxyserver_setup.h"
 #include "gui/record_setup.h"
 #include "gui/keybind_setup.h"
 #include "gui/widget/keychooser.h"
@@ -1188,12 +1187,6 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &_scanS
 #endif
 		updateSettings->addItem(GenericMenuSeparatorLine);
 		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, new CFlashUpdate(), "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-		
-		updateSettings->addItem(GenericMenuSeparatorLine);
-		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, new CProxySetup(LOCALE_SERVICEMENU_UPDATE)));
-
-
-
 		service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, updateSettings));
 	}
 }
