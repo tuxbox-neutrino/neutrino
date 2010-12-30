@@ -263,8 +263,10 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 {
 	int y1;
 	int xd = w/4;
-
-	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, g_Locale->getText(LOCALE_STREAMINFO_SIGNAL), COL_MENUCONTENTDARK, 0, true);
+	std::string tuner_name = g_Locale->getText(LOCALE_STREAMINFO_SIGNAL);
+	tuner_name += ": "; 
+	tuner_name += frontend->getInfo()->name;
+	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, tuner_name.c_str(), COL_MENUCONTENTDARK, 0, true);
 
 	sigBox_x = _x;
 	sigBox_y = _y+iheight+15;
