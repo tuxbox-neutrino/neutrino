@@ -42,15 +42,26 @@ class CAudioSetup : public CMenuTarget
 	private:
 		CFrameBuffer *frameBuffer;
 				
-		int x, y, width, height, menue_width, hheight, mheight, selected;
+		int x, y, width, height, hheight, mheight, selected;
 
 		void hide();
 		void showAudioSetup();
-
+		
+		bool is_wizard;
 
 	public:	
-		CAudioSetup();
+		enum AUDIO_SETUP_MODE
+		{
+			AUDIO_SETUP_MODE_WIZARD_NO   = 0,
+			AUDIO_SETUP_MODE_WIZARD   = 1
+		};
+		
+		CAudioSetup(bool wizard_mode = AUDIO_SETUP_MODE_WIZARD_NO);
 		~CAudioSetup();
+		
+		bool getWizardMode() {return is_wizard;};
+		void setWizardMode(bool mode);
+		
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 

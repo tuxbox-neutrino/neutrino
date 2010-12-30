@@ -48,10 +48,12 @@
 
 extern CAudioSetupNotifier	* audioSetupNotifier;
 
-CAudioSetup::CAudioSetup()
+CAudioSetup::CAudioSetup(bool wizard_mode)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 
+	is_wizard = wizard_mode;
+	
 	width = w_max (40, 10);
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
@@ -123,6 +125,7 @@ void CAudioSetup::showAudioSetup()
 	//menue init
 	CMenuWidget* audioSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	audioSettings->setSelected(selected);
+	audioSettings->setWizardMode(is_wizard);
 
 	//analog modes (stereo, mono l/r...)
 	CMenuOptionChooser * as_oj_analogmode 	= new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_MODE, &g_settings.audio_AnalogMode, AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT, true, audioSetupNotifier);
@@ -193,5 +196,12 @@ void CAudioSetup::showAudioSetup()
 	audioSettings->hide();
 	selected = audioSettings->getSelected();
 	delete audioSettings;
+}
+
+//sets menu mode to "wizard" or "default"
+void CAudioSetup::setWizardMode(bool mode)
+{
+	printf("[neutrino audio setup] %s set audio settings menu to mode %d...\n", __FUNCTION__, mode);
+	is_wizard = mode;
 }
 
