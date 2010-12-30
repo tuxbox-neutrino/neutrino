@@ -51,13 +51,16 @@ class CNFSMountGui : public CMenuTarget
 	CFSMounter::FS_Support m_nfs_sup;
 	CFSMounter::FS_Support m_cifs_sup;
 	CFSMounter::FS_Support m_lufs_sup;
+	
+ protected:
+	int width;
 
  public:
 	CNFSMountGui();
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-class CNFSUmountGui : public CMenuTarget
+class CNFSUmountGui : public CNFSMountGui
 {
 	private:
 
@@ -69,7 +72,7 @@ class CNFSUmountGui : public CMenuTarget
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-class CNFSSmallMenu : public CMenuTarget
+class CNFSSmallMenu : public CNFSMountGui
 {
 	private:
 

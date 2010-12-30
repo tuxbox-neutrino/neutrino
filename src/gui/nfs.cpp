@@ -41,6 +41,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
+#include <driver/screen_max.h>
 
 #include <fstream>
 
@@ -87,7 +88,8 @@ CNFSMountGui::CNFSMountGui()
 	m_nfs_sup = CFSMounter::FS_UNPROBED;
 	m_cifs_sup = CFSMounter::FS_UNPROBED;
 	m_lufs_sup = CFSMounter::FS_UNPROBED;
-
+	
+	width = w_max (50, 10); //%
 }
 
 
@@ -171,10 +173,8 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 
 int CNFSMountGui::menu()
 {
-	CMenuWidget mountMenuW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK);
-	mountMenuW.addItem(GenericMenuSeparator);
-	mountMenuW.addItem(GenericMenuBack);
-	mountMenuW.addItem(GenericMenuSeparatorLine);
+	CMenuWidget mountMenuW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK, width);
+	mountMenuW.addIntroItems();
 	char s2[12];
 
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
@@ -246,10 +246,8 @@ int CNFSMountGui::menuEntry(int nr)
 	   (m_nfs_sup != CFSMounter::FS_UNSUPPORTED && *type != (int)CFSMounter::NFS) ||
 	   (m_lufs_sup != CFSMounter::FS_UNSUPPORTED && *type != (int)CFSMounter::LUFS);
 
-	CMenuWidget mountMenuEntryW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK);
-	mountMenuEntryW.addItem(GenericMenuSeparator);
-	mountMenuEntryW.addItem(GenericMenuBack);
-	mountMenuEntryW.addItem(GenericMenuSeparatorLine);
+	CMenuWidget mountMenuEntryW(LOCALE_NFS_MOUNT, NEUTRINO_ICON_NETWORK, width);
+	mountMenuEntryW.addIntroItems();
 	CIPInput ipInput(LOCALE_NFS_IP, g_settings.network_nfs_ip[nr], LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
 	CStringInputSMS dirInput(LOCALE_NFS_DIR, dir, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"abcdefghijklmnopqrstuvwxyz0123456789-_.,:|!?/ ");
 	CMenuOptionChooser *automountInput= new CMenuOptionChooser(LOCALE_NFS_AUTOMOUNT, automount, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
@@ -306,10 +304,8 @@ int CNFSUmountGui::menu()
 {
 	int count = 0;
 	CFSMounter::MountInfos infos;
-	CMenuWidget umountMenu(LOCALE_NFS_UMOUNT, NEUTRINO_ICON_NETWORK);
-	umountMenu.addItem(GenericMenuSeparator);
-	umountMenu.addItem(GenericMenuBack);
-	umountMenu.addItem(GenericMenuSeparatorLine);
+	CMenuWidget umountMenu(LOCALE_NFS_UMOUNT, NEUTRINO_ICON_NETWORK, width);
+	umountMenu.addIntroItems();
 	CFSMounter::getMountedFS(infos);
 	for (CFSMounter::MountInfos::const_iterator it = infos.begin();
 	     it != infos.end();it++)
@@ -339,16 +335,14 @@ int CNFSSmallMenu::exec( CMenuTarget* parent, const std::string & actionKey )
 {
 	if (actionKey.empty())
 	{
-		CMenuWidget menu(LOCALE_NFSMENU_HEAD, NEUTRINO_ICON_NETWORK);
+		CMenuWidget sm_menu(LOCALE_NFSMENU_HEAD, NEUTRINO_ICON_NETWORK, width);
 		CNFSMountGui mountGui;
 		CNFSUmountGui umountGui;
-		menu.addItem(GenericMenuSeparator);
-		menu.addItem(GenericMenuBack);
-		menu.addItem(GenericMenuSeparatorLine);
-		menu.addItem(new CMenuForwarder(LOCALE_NFS_REMOUNT, true, NULL, this, "remount"));
-		menu.addItem(new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, & mountGui));
-		menu.addItem(new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, &umountGui));
-		return menu.exec(parent, actionKey);
+		sm_menu.addIntroItems();
+		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_REMOUNT, true, NULL, this, "remount"));
+		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_MOUNT , true, NULL, & mountGui));
+		sm_menu.addItem(new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, &umountGui));
+		return sm_menu.exec(parent, actionKey);
 	}
 	else if(actionKey.substr(0,7) == "remount")
 	{
