@@ -174,9 +174,9 @@ void CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_analogmode);
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------------------------
-	audioSettings->addItem(as_oj_ddsubchn);
 	audioSettings->addItem(as_oj_dd_hdmi);
 	audioSettings->addItem(as_oj_dd_spdif);
+	audioSettings->addItem(as_oj_ddsubchn);
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------------------------
 	audioSettings->addItem(as_oj_avsync);
