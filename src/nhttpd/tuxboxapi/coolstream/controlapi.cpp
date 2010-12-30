@@ -572,7 +572,7 @@ void CControlAPI::InfoCGI(CyhookHandler *hh)
 			hh->Write("3");
 		else if (hh->ParamList["1"] == "nhttpd_version")// print nhttpd version
 			hh->printf("%s\n", HTTPD_VERSION);
-		else if (hh->ParamList["1"] == "hwinfo")// print nhttpd version
+		else if (hh->ParamList["1"] == "hwinfo")// print hwinfo
 			HWInfoCGI(hh);
 		else
 			hh->SendError();
