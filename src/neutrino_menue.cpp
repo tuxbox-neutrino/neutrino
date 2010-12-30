@@ -87,6 +87,7 @@
 #include "gui/customcolor.h"
 
 #include "gui/bedit/bouqueteditor_bouquets.h"
+#include "gui/audio_setup.h"
 #include "gui/bouquetlist.h"
 #include "gui/eventlist.h"
 #include "gui/channellist.h"
@@ -388,7 +389,7 @@ CMenuWidget * TestMenu;
 /**************************************************************************************
 *          CNeutrinoApp -  init main menu                                             *
 **************************************************************************************/
-void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings,  CMenuWidget &audioSettings, /*CMenuWidget &recordingSettings,*/ CMenuWidget &miscSettings,
+void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings,
 				CMenuWidget &service, CMenuWidget &audiopl_picSettings, CMenuWidget &/*streamingSettings*/, CMenuWidget &moviePlayer)
 {
 	unsigned int system_rev = cs_get_revision();
@@ -523,7 +524,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainSettings.addItem(GenericMenuSeparatorLine);
 	
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_VIDEO     , true, NULL, g_videoSettings, NULL, CRCInput::convertDigitToKey(sett_count++)));
-	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO     , true, NULL, &audioSettings    , NULL, CRCInput::convertDigitToKey(sett_count++)));
+	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO     , true, NULL, new CAudioSetup() , NULL, CRCInput::convertDigitToKey(sett_count++)));
 	mainSettings.addItem(new CLockedMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, g_settings.parentallock_pincode, true, true, NULL, new CParentalSetup()/*&parentallockSettings*/, NULL, CRCInput::convertDigitToKey(sett_count++)));
 
 #if 0
@@ -1406,78 +1407,6 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 #endif
 }
 
-#define AUDIOMENU_ANALOGOUT_OPTION_COUNT 3
-const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT_OPTION_COUNT] =
-{
-	{ 0, LOCALE_AUDIOMENU_STEREO    },
-	{ 1, LOCALE_AUDIOMENU_MONOLEFT  },
-	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
-};
-
-#define AUDIOMENU_SRS_OPTION_COUNT 2
-const CMenuOptionChooser::keyval AUDIOMENU_SRS_OPTIONS[AUDIOMENU_SRS_OPTION_COUNT] =
-{
-	{ 0 , LOCALE_SRS_ALGO_LIGHT },
-	{ 1 , LOCALE_SRS_ALGO_NORMAL }
-};
-
-#define AUDIOMENU_AVSYNC_OPTION_COUNT 3
-const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTION_COUNT] =
-{
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_OPTIONS_ON  },
-	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
-};
-
-#define AUDIOMENU_CLOCKREC_OPTION_COUNT 2
-const CMenuOptionChooser::keyval AUDIOMENU_CLOCKREC_OPTIONS[AUDIOMENU_CLOCKREC_OPTION_COUNT] =
-{
-	{ 0, LOCALE_OPTIONS_OFF },
-	{ 1, LOCALE_OPTIONS_ON  },
-};
-
-void CNeutrinoApp::InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier)
-{
-	audioSettings.addIntroItems();
-
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_MODE, &g_settings.audio_AnalogMode, AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_SPDIF_DD, &g_settings.spdif_dd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AVSYNC, &g_settings.avsync, AUDIOMENU_AVSYNC_OPTIONS, AUDIOMENU_AVSYNC_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionNumberChooser(LOCALE_AUDIOMENU_VOLUME_STEP, (int *)&g_settings.current_volume_step, true, 1, 100, NULL));
-#if 0
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier));
-#endif
-	audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SRS_IQ));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_SRS_IQ, &g_settings.srs_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_SRS_ALGO, &g_settings.srs_algo, AUDIOMENU_SRS_OPTIONS, AUDIOMENU_SRS_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_SRS_NMGR, &g_settings.srs_nmgr_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
-	audioSettings.addItem(new CMenuOptionNumberChooser(LOCALE_SRS_VOLUME, &g_settings.srs_ref_volume, true, 1, 100, audioSetupNotifier));
-
-	//audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_PREF_LANG_HEAD));
-	audioSettings.addItem(new CMenuSeparator(CMenuSeparator::LINE));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_DOLBYDIGITAL, &g_settings.audio_DolbyDigital, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier));
-#if 0
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_LANG, &g_settings.auto_lang, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL));
-	audioSettings.addItem(new CMenuOptionChooser(LOCALE_AUDIOMENU_AUTO_SUBS, &g_settings.auto_subs, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL));
-
-	CLangSelectNotifier * langNotifier = new CLangSelectNotifier();
-	for(int i = 0; i < 3; i++) {
-		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_LANG, g_settings.pref_lang[i], true, langNotifier, CRCInput::convertDigitToKey(i+1), "", true);
-		std::map<std::string, std::string>::const_iterator it;
-		for(it = iso639rev.begin(); it != iso639rev.end(); it++) {
-			langSelect->addOption(it->first.c_str());
-		}
-		audioSettings.addItem(langSelect);
-	}
-	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-#endif
-#if 0
-	CStringInput * audio_PCMOffset = new CStringInput(LOCALE_AUDIOMENU_PCMOFFSET, g_settings.audio_PCMOffset, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ", audioSetupNotifier);
-	CMenuForwarder *mf = new CMenuForwarder(LOCALE_AUDIOMENU_PCMOFFSET, true, g_settings.audio_PCMOffset, audio_PCMOffset );
-	audioSettings.addItem(mf);
-#endif
-}
 
 #define STREAMINGMENU_STREAMING_TRANSCODE_VIDEO_CODEC_OPTION_COUNT 2
 const CMenuOptionChooser::keyval STREAMINGMENU_STREAMING_TRANSCODE_VIDEO_CODEC_OPTIONS[STREAMINGMENU_STREAMING_TRANSCODE_VIDEO_CODEC_OPTION_COUNT] =

@@ -38,6 +38,7 @@ noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a
 
 libneutrino_gui_a_SOURCES = \
 	audio_select.cpp \
+	audio_setup.cpp \
 	audioplayer.cpp \
 	bookmarkmanager.cpp \
 	bouquetlist.cpp \

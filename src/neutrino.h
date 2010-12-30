@@ -171,14 +171,12 @@ private:
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
 	void InitServiceSettings(CMenuWidget &, CMenuWidget &);
-	void InitAudioSettings(CMenuWidget &audioSettings, CAudioSetupNotifier* audioSetupNotifier);
 	void InitStreamingSettings(CMenuWidget &streamingSettings);
 	void InitScreenSettings(CMenuWidget &);
 	void InitAudioplPicSettings(CMenuWidget &);
 	void InitMiscSettings(CMenuWidget &);
 	void InitScanSettings(CMenuWidget &);
-	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &audioSettings,
-			  CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings, CMenuWidget &moviePlayer);
+	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings, CMenuWidget &moviePlayer);
 
 	void SetupFrameBuffer();
 	void SelectAPID();

@@ -2196,7 +2196,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	//Main settings
 	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    audioSettings       (LOCALE_AUDIOMENU_HEAD                , NEUTRINO_ICON_AUDIO);
 	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
@@ -2205,12 +2204,11 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , NEUTRINO_ICON_STREAMING);
 	gmoviePlayer = &moviePlayer;
 
-	InitMainMenu(mainMenu, mainSettings, audioSettings, miscSettings, service, audioplPicSettings, streamingSettings, moviePlayer);
+	InitMainMenu(mainMenu, mainSettings, miscSettings, service, audioplPicSettings, streamingSettings, moviePlayer);
 
 	InitServiceSettings(service, _scanSettings);
 	InitAudioplPicSettings(audioplPicSettings);
 	InitMiscSettings(miscSettings);
-	InitAudioSettings(audioSettings, audioSetupNotifier);
 	InitScanSettings(_scanSettings);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
