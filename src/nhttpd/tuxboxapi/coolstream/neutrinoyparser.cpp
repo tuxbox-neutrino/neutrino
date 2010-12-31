@@ -29,6 +29,7 @@
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 #include <cs_api.h>
+#include <system/configure_network.h>
 
 extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
@@ -655,11 +656,20 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
 	unsigned int system_rev = cs_get_revision();
 	std::string  boxname;
-	boxname = "Coolstream ";
+	static CNetAdapter netadapter; 
+	std::string eth_id = netadapter.getMacAddr();
+	std::transform(eth_id.begin(), eth_id.end(), eth_id.begin(), ::tolower);
+
+	if("00:c5:5c" == eth_id.substr(0, 8) )
+		boxname = "Coolstream ";
+	else if("ba:dd:ad"  == eth_id.substr(0, 8) )
+		boxname = "Armas ";
+
 	switch(system_rev)
 	{
 	case 1:
-		boxname = "TripleDragon";
+		if( boxname == "Armas ")
+			boxname += "TripleDragon";
 		break;
 	  case 6:
 		boxname += "HD1";
@@ -683,6 +693,7 @@ std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 	}
 	break;
 	}
+
 	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	return boxname;
 }
