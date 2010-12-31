@@ -61,7 +61,7 @@ public:
 	unsigned short GetPID(void) { return pid; }
 	const unsigned char *GetFilterTID(u8 FilterIndex = 0);
 	const unsigned char *GetFilterMask(u8 FilterIndex = 0);
-	const unsigned int GetFilterLength(u8 FilterIndex = 0);
+	unsigned int GetFilterLength(u8 FilterIndex = 0);
 	bool AddSectionFilter(unsigned short Pid, const unsigned char * const Filter, const unsigned char * const Mask, int len, const unsigned char * const nMask = NULL);
 	bool sectionFilter(unsigned short Pid, const unsigned char * const Tid, const unsigned char * const Mask, int len, int Timeout = DEMUX_POLL_TIMEOUT, const unsigned char * const nMask = NULL);
 	bool pesFilter(const unsigned short Pid);
