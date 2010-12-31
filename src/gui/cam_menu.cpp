@@ -193,7 +193,7 @@ int CCAMMenuHandler::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t da
 	return ret;
 }
 
-void CCAMMenuHandler::showHintBox (const neutrino_locale_t Caption, const char * const Text, uint32_t timeout)
+void CCAMMenuHandler::showHintBox (const neutrino_locale_t /*Caption*/, const char * const Text, uint32_t timeout)
 {
 	hideHintBox();
 	hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, Text);

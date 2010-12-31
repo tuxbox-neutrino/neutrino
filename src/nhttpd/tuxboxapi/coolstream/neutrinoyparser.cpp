@@ -28,6 +28,7 @@
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
+#include <cs_api.h>
 
 extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
@@ -652,7 +653,38 @@ std::string  CNeutrinoYParser::func_get_partition_list(CyhookHandler *, std::str
 //-------------------------------------------------------------------------
 std::string  CNeutrinoYParser::func_get_boxtype(CyhookHandler *, std::string)
 {
-	return "Coolstream";//FIXME
+	unsigned int system_rev = cs_get_revision();
+	std::string  boxname;
+	boxname = "Coolstream ";
+	switch(system_rev)
+	{
+	case 1:
+		boxname = "TripleDragon";
+		break;
+	  case 6:
+		boxname += "HD1";
+		break;
+	case 7:
+		boxname += "BSE";
+		break;
+	case 8:
+	case 9:
+		boxname += "Neo";
+		break;
+	case 10:
+		boxname += "Zee";
+		break;
+
+	default: {
+		char buffer[10];
+		snprintf(buffer, sizeof(buffer), "%u\n", system_rev);
+		boxname += "Unknown nr. ";
+		boxname += buffer;
+	}
+	break;
+	}
+	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
+	return boxname;
 }
 //-------------------------------------------------------------------------
 // y-func : get stream info

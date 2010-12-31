@@ -46,8 +46,8 @@
 
 CHintBox::CHintBox(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon)
 {
-	const char * caption = g_Locale->getText(Caption);
-	init(caption, Text, Width, Icon);
+	const char * caption_tmp = g_Locale->getText(Caption);
+	init(caption_tmp, Text, Width, Icon);
 }
 
 CHintBox::CHintBox(const char * const Caption, const char * const Text, const int Width, const char * const Icon)

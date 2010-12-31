@@ -586,7 +586,10 @@ void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 	boxname = "Coolstream ";
 	switch(system_rev)
 	{
-	case 6:
+	case 1:
+		boxname = "TripleDragon";
+		break;
+	  case 6:
 		boxname += "HD1";
 		break;
 	case 7:
@@ -608,7 +611,7 @@ void CControlAPI::HWInfoCGI(CyhookHandler *hh)
 	}
 	break;
 	}
-	boxname += (g_info.delivery_system == DVB_S) ? " SAT":" CABLE";
+	boxname += (g_info.delivery_system == DVB_S || (system_rev == 1)) ? " SAT":" CABLE";
 	hh->printf("%s\n", boxname.c_str());
 
 

@@ -855,7 +855,8 @@ void testNetworkSettings(const char* ip, const char* netmask, const char* broadc
 	}
 	else 
 	{
-		netGetIP("eth0", our_ip, our_mask, our_broadcast);
+	  	char eth[] = "eth0";
+		netGetIP(eth, our_ip, our_mask, our_broadcast);
 		netGetDefaultRoute(our_gateway);
 		netGetNameserver(our_nameserver);
 	}
@@ -908,8 +909,8 @@ void showCurrentNetworkSettings()
 	char router[16];
 	char nameserver[16];
 	std::string text;
-	
-	netGetIP("eth0", ip, mask, broadcast);
+	char eth[] = "eth0";
+	netGetIP(eth, ip, mask, broadcast);
 	if (ip[0] == 0) {
 		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE);
 	}
