@@ -1665,7 +1665,9 @@ int tuxtx_main(int _rc, int pid, int page)
 	int w = CFrameBuffer::getInstance()->getScreenWidth();
 	int h = CFrameBuffer::getInstance()->getScreenHeight();
 
-	int tx = (w - (h * 4 / 3)) / 2;
+	int tx = 0;
+	if (!screen_mode1)
+		tx = (w - (w * 3/4)) / 2;
 	sx = x + tx;
 	ex = x + w - tx;
 	sy = y;
@@ -2011,6 +2013,7 @@ int Init()
 	national_subset_secondary = NAT_DEFAULT;
 
 	fontwidth = 0;	/* initialize at first setting */
+	tv_pip_y = 0;
 
 	/* calculate font dimensions */
 	displaywidth = (ex-sx);
@@ -2018,7 +2021,7 @@ int Init()
 	fontwidth_normal = (ex-sx) / 40;
 	setfontwidth(fontwidth_normal);
 	fontwidth_topmenumain = (TV43STARTX-sx) / 40;
-	fontwidth_topmenusmall = (ex- TOPMENUSTARTX) / TOPMENUCHARS;
+	fontwidth_topmenusmall = (TVENDX - TOPMENUSTARTX) / TOPMENUCHARS;
 	//fontwidth_small = (TV169FULLSTARTX-sx)  / 40;
 	fontwidth_small = (CFrameBuffer::getInstance()->getScreenWidth()/2) / 40;
 	ymosaic[0] = 0; /* y-offsets for 2*3 mosaic */
@@ -3935,14 +3938,33 @@ void SwitchScreenMode(int newscreenmode)
 
 		if (screenmode==1) /* split with topmenu */
 		{
+			int x = CFrameBuffer::getInstance()->getScreenX();
+			int w = CFrameBuffer::getInstance()->getScreenWidth();
+			int h = CFrameBuffer::getInstance()->getScreenHeight();
 			fw = fontwidth_topmenumain;
 			fh = fontheight;
-			displaywidth= (TV43STARTX     -sx);
+
+			tx = 0; /* split means we start at the left edge */
+			sx = x;
+			/* width of the TTX display:
+			   the TTX display shall appear with 4:3 aspect ratio
+			   => width = h * 4/3
+			   => but the display might not have square pixels
+			   ==> correction factor w/h / (16/9) for a 16:9 display
+			   ===> width = h * 4/3 * w/h * 9/16;
+			              = h * w / h * 4*9/3/16
+			              = w * 3 / 4
+			 */
+			ex = x + w * 3/4;
+
+			displaywidth = (ex - sx);
+
 			StartX = sx; //+ (((ex-sx) - (40*fw+2+tw)) / 2); /* center screen */
-			tx = TV43STARTX;
-			ty = TV43STARTY;
-			tw = TV43WIDTH;
-			th = TV43HEIGHT;
+			tx = ex + 2;
+			tw = x + w - tx;
+			th = tw * h/w; /* hardcoded 16:9 PIP */
+			ty = StartY + 25 * fontheight - th;
+			tv_pip_y = ty;
 		}
 		else /* 2: split with full height tv picture */
 		{
@@ -3982,12 +4004,16 @@ void SwitchScreenMode(int newscreenmode)
 
 		int x = CFrameBuffer::getInstance()->getScreenX();
 		int w = CFrameBuffer::getInstance()->getScreenWidth();
-		int h = CFrameBuffer::getInstance()->getScreenHeight();
-
-		int tx = (w - (h * 4 / 3)) / 2;
+		//int h = CFrameBuffer::getInstance()->getScreenHeight();
+		int tx = 0;
+		/* see comment above on the TTX window dimensions */
+		if (!screen_mode1)
+			tx = (w - (w * 3/4)) / 2;
 		sx = x + tx;
 		ex = x + w - tx;
 
+		/* if screen_mode1 changed, then recalculate fontwidth */
+		fontwidth_normal = (ex-sx) / 40;
 		setfontwidth(fontwidth_normal);
 		displaywidth= (ex-sx);
 		StartX = sx; //+ (ex-sx - 40*fontwidth) / 2; /* center screen */
@@ -5176,15 +5202,18 @@ void RenderPage()
 		fontwidth_normal = (ex-sx) / (40-nofirst);
 		setfontwidth(fontwidth_normal);
 		fontwidth_topmenumain = (TV43STARTX-sx) / (40-nofirst);
-		fontwidth_topmenusmall = (ex- TOPMENUSTARTX) / TOPMENUCHARS;
+		fontwidth_topmenusmall = (TVENDX - TOPMENUSTARTX) / TOPMENUCHARS;
 		//fontwidth_small = (TV169FULLSTARTX-sx)  / (40-nofirst);
 		fontwidth_small = (CFrameBuffer::getInstance()->getScreenWidth()/2)  / (40-nofirst);
 		switch(screenmode)
 		{
-			case 0:	setfontwidth(fontwidth_normal)     ; displaywidth= (ex             -sx);break;
-			case 1:  setfontwidth(fontwidth_topmenumain); displaywidth= (TV43STARTX     -sx);break;
-			//case 2:  setfontwidth(fontwidth_small)      ; displaywidth= (TV169FULLSTARTX-sx);break;
-			case 2:  setfontwidth(fontwidth_small)      ; displaywidth= (CFrameBuffer::getInstance()->getScreenWidth()/2);break;
+			case 0:
+			case 1: setfontwidth(fontwidth_normal);
+				displaywidth = ex - sx;
+				break;
+			case 2: setfontwidth(fontwidth_small);
+				displaywidth = CFrameBuffer::getInstance()->getScreenWidth() / 2;
+				break;
 		}
 		if (transpmode || (boxed && !screenmode))
 		{
@@ -5454,21 +5483,21 @@ void CreateLine25()
 #endif
 
 		prev10done = next10done = next100done = 0;
-		while (PosY <= (TOPMENUENDY-fontheight))
+		while (PosY <= (tv_pip_y - fontheight))
 		{
 			attr = 0;
 			attrcol = &atrtable[ATR_WB];
-			if (!next100done && (PosY > (TOPMENUENDY - 2*fontheight))) /* last line */
+			if (!next100done && (PosY > (tv_pip_y - 2*fontheight))) /* last line */
 			{
 				attrcol = &atrtable[ATR_L253];
 				current = next_100;
 			}
-			else if (!next10done && (PosY > (TOPMENUENDY - 3*fontheight))) /* line before */
+			else if (!next10done && (PosY > (tv_pip_y - 3*fontheight))) /* line before */
 			{
 				attrcol = &atrtable[ATR_L252];
 				current = next_10;
 			}
-			else if (!prev10done && (PosY > (TOPMENUENDY - 4*fontheight))) /* line before */
+			else if (!prev10done && (PosY > (tv_pip_y - 4*fontheight))) /* line before */
 			{
 				attrcol = &atrtable[ATR_L251];
 				current = prev_10;

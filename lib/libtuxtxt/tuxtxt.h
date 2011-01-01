@@ -81,14 +81,15 @@ int TTFWidthFactor16, TTFHeightFactor16, TTFShiftX, TTFShiftY; /* parameters for
 int fontheight, fontwidth, fontwidth_normal, fontwidth_small, fontwidth_topmenumain, fontwidth_topmenusmall, ascender;
 int ymosaic[4];
 int displaywidth;
+int tv_pip_y;
 #define fontwidth_small_lcd 8
 
-#define TV43STARTX (ex - 146) //(StartX + 2 + (40-nofirst)*fontwidth_topmenumain + (40*fontwidth_topmenumain/abx))
-#define TVENDX ex
-#define TVENDY (StartY + 25*fontheight)
-#define TV43WIDTH 144 /* 120 */
-#define TV43HEIGHT 116 /* 96 */
-#define TV43STARTY (TVENDY - TV43HEIGHT)
+#define TV43STARTX (ex)
+#define TVENDX (CFrameBuffer::getInstance()->getScreenX() + CFrameBuffer::getInstance()->getScreenWidth()) //ex
+// #define TVENDY (StartY + 25*fontheight)
+// #define TV43WIDTH  (TVENDX - TV43STARTX)
+// #define TV43HEIGHT (TV43WIDTH *9/16)
+// #define TV43STARTY (TVENDY - TV43HEIGHT)
 
 //#define TV169FULLSTARTX (sx+ 8*40) //(sx +(ex +1 - sx)/2)
 #define TV169FULLSTARTX (CFrameBuffer::getInstance()->getScreenX() + CFrameBuffer::getInstance()->getScreenWidth()/2)
@@ -98,11 +99,11 @@ int displaywidth;
 #define TV169FULLHEIGHT (ey - sy)
 
 #define TOPMENUSTARTX TV43STARTX+2
-#define TOPMENUENDX TVENDX
+//#define TOPMENUENDX TVENDX
 #define TOPMENUSTARTY StartY
 #define TOPMENUENDY TV43STARTY
 
-#define TOPMENULINEWIDTH ((TOPMENUENDX-TOPMENU43STARTX+fontwidth_topmenusmall-1)/fontwidth_topmenusmall)
+//#define TOPMENULINEWIDTH ((TOPMENUENDX-TOPMENU43STARTX+fontwidth_topmenusmall-1)/fontwidth_topmenusmall)
 #define TOPMENUINDENTBLK 0
 #define TOPMENUINDENTGRP 1
 #define TOPMENUINDENTDEF 2
