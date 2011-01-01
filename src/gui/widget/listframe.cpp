@@ -461,12 +461,8 @@ void CListFrame::refreshLine(int line)
 	y += m_nFontListHeight;
 	for(int row = 0; row < m_pLines->rows; row++)
 	{
-		width = m_pLines->rowWidth[row] ;
-		if(width > m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - 2*TEXT_BORDER_WIDTH)
-		{
-			width = m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - 2*TEXT_BORDER_WIDTH;
-			//TRACE("   normalize to %d,x:%d\r\n",width,x);
-		}
+		width = std::min(m_pLines->rowWidth[row],
+				 m_cFrameListRel.iWidth - x + m_cFrameListRel.iX - TEXT_BORDER_WIDTH);
 		m_pcFontList->RenderString(x+m_cFrame.iX, y+m_cFrame.iY,
 				width, m_pLines->lineArray[row][line].c_str(),
 				color, 0, true); // UTF-8
@@ -490,9 +486,9 @@ void CListFrame::refreshHeaderList(void)
 	for(int row = 0; row < m_pLines->rows && loop == true; row++)
 	{
 		width = m_pLines->rowWidth[row] ;
-		if(width > m_cFrameHeaderListRel.iWidth - x + m_cFrameHeaderListRel.iX - 2*TEXT_BORDER_WIDTH)
+		if(width > m_cFrameHeaderListRel.iWidth - x + m_cFrameHeaderListRel.iX - TEXT_BORDER_WIDTH)
 		{
-			width = m_cFrameHeaderListRel.iWidth - x + m_cFrameHeaderListRel.iX - 2*TEXT_BORDER_WIDTH;
+			width = m_cFrameHeaderListRel.iWidth - x + m_cFrameHeaderListRel.iX - TEXT_BORDER_WIDTH;
 			//TRACE("   normalize width to %d , x:%d \r\n",width,x);
 			loop = false;
 		}
