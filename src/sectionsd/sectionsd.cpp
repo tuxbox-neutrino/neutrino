@@ -8809,7 +8809,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 						aEvent.duration = t->dauer;
 						aEvent.description = (*e)->getName();
 						if (((*e)->getText()).empty())
-							aEvent.text = (*e)->getExtendedText().substr(0, 40);
+							aEvent.text = (*e)->getExtendedText().substr(0, 120);
 						else
 							aEvent.text = (*e)->getText();
 						aEvent.channelID = serviceUniqueKey;
@@ -9260,7 +9260,7 @@ void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = t
                                         aEvent.duration = t->dauer;
                                         aEvent.description = (*e)->getName();
                                         if (((*e)->getText()).empty())
-                                                aEvent.text = (*e)->getExtendedText().substr(0, 40);
+						aEvent.text = (*e)->getExtendedText().substr(0, 120);
                                         else
                                                 aEvent.text = (*e)->getText();
                                         eList.push_back(aEvent);
