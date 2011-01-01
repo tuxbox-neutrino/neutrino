@@ -1780,11 +1780,11 @@ bool CMovieBrowser::onButtonPressBrowserList(neutrino_msg_t msg)
 	{
 		m_pcBrowser->scrollLineDown(1);
 	}
-	else if (msg == g_settings.key_channelList_pageup)
+	else if (msg == (neutrino_msg_t)g_settings.key_channelList_pageup)
 	{
 		m_pcBrowser->scrollPageUp(1);
 	}
-	else if (msg == g_settings.key_channelList_pagedown)
+	else if (msg == (neutrino_msg_t)g_settings.key_channelList_pagedown)
 	{
 		m_pcBrowser->scrollPageDown(1);
 	}
@@ -1894,11 +1894,11 @@ bool CMovieBrowser::onButtonPressFilterList(neutrino_msg_t msg)
 	{
 		m_pcFilter->scrollLineDown(1);
 	}
-	else if (msg == g_settings.key_channelList_pageup)
+	else if (msg == (neutrino_msg_t)g_settings.key_channelList_pageup)
 	{
 		m_pcFilter->scrollPageUp(1);
 	}
-	else if (msg == g_settings.key_channelList_pagedown)
+	else if (msg == (neutrino_msg_t)g_settings.key_channelList_pagedown)
 	{
 		m_pcFilter->scrollPageDown(1);
 	}
