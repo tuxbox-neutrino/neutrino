@@ -765,7 +765,7 @@ FILE *f_open(const char *filename, const char *acctype)
 	URL url;
 	FILE *fd;
 	int /*i,*/ compatibility_mode = 0;
-	char *ptr = NULL, buf[4096], type[10];
+	char *ptr = NULL, buf[4096] = {0}, type[10] = {0};
 
 	if(acctype)
 		strcpy(type, acctype);
@@ -1776,15 +1776,16 @@ STREAM_FILTER *ShoutCAST_InitFilter(int meta_int)
 
 void ShoutCAST_MetaFilter(STREAM_FILTER *arg)
 {
+
+	/* bug trap */
+	if(!arg)
+		return;
+
 	FILTERDATA *filterdata = (FILTERDATA*)arg->user;
 	int meta_int = filterdata->meta_int;
 	int len = *arg->len;
 	char*buf = (char*)arg->buf;
 	int meta_start;
-
-	/* bug trap */
-	if(!arg)
-		return;
 
 #if 0
 	dprintf(stderr, "filter : cnt      : %d\n", filterdata->cnt);

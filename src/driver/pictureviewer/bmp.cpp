@@ -190,6 +190,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 			if(tbuffer==NULL)
 			{
 				printf("Error: malloc\n");
+				close(fd);
 				return (FH_ERROR_MALLOC);
 			}
 			for (i=0; i<y; i++)
