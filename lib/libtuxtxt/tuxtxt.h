@@ -557,7 +557,7 @@ int zoommode, screenmode, transpmode, hintmode, boxed, nofirst, savedscreenmode,
 char dumpl25;
 int catch_row, catch_col, catched_page, pagecatching;
 int prev_100, prev_10, next_10, next_100;
-int screen_mode1, screen_mode2, color_mode, trans_mode, national_subset, national_subset_secondary, auto_national, swapupdown, showhex, menulanguage;
+int screen_mode1, color_mode, trans_mode, national_subset, national_subset_secondary, auto_national, swapupdown, showhex, menulanguage;
 int pids_found, current_service, getpidsdone;
 int SDT_ready;
 int pc_old_row, pc_old_col;     /* for page catching */
@@ -600,13 +600,13 @@ unsigned char restoreaudio = 0;
 const int menusubset[] =   { NAT_DE   , NAT_UK    , NAT_FR       , NAT_UK          , NAT_GR      , NAT_IT       , NAT_PL    , NAT_SW      , NAT_SW ,   NAT_SP,      NAT_RB};//FIXME
 
 #define Menu_StartX (StartX + fontwidth*9/2)
-#define Menu_StartY (StartY + fontheight)
-#define Menu_Height 24
+#define Menu_StartY (StartY + (25 - Menu_Height) * fontheight / 2)
+#define Menu_Height 23
 #define Menu_Width 31
 
 const char MenuLine[] =
 {
-	3,8,11,12,15,17,19,20,21
+	3,8,11,14,16,18,19,20
 };
 
 enum
@@ -614,7 +614,6 @@ enum
 	M_HOT=0,
 	M_PID,
 	M_SC1,
-	M_SC2,
 	M_COL,
 	M_TRA,
 	M_AUN,
@@ -677,7 +676,6 @@ const char menuatr[Menu_Height*(Menu_Width+1)] =
 	"3333333333333333333333333333332"
 	"3444444444444444444444444444432"
 	"3155555555555555555555555555532"
-	"3155555555555555555555555555532"
 	"3333333333333333333333333333332"
 	"3144444444444444444444444444432"
 	"3555555555555555555555555555532"
@@ -706,7 +704,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד      Bildschirmformat      הי"
                 "ד3  Standard-Modus 16:9      הי"
-                "ד4  TextBild-Modus 16:9      הי"
                 "ד                            הי"
                 "ד5        Helligkeit         הי"
                 "דם                          מהי"
@@ -734,7 +731,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד        Screen format       הי"
                 "ד3 Standard mode 16:9        הי"
-                "ד4 Text/TV mode  16:9        הי"
                 "ד                            הי"
                 "ד5        Brightness         הי"
                 "דם                          מהי"
@@ -762,7 +758,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד      Format de l'#cran     הי"
                 "ד3 Mode standard 16:9        הי"
-                "ד4 Texte/TV      16:9        הי"
                 "ד                            הי"
                 "ד5          Clarte           הי"
                 "דם                          מהי"
@@ -790,7 +785,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד     Beeldschermformaat     הי"
                 "ד3   Standaardmode 16:9      הי"
-                "ד4   Tekst/TV mode 16:9      הי"
                 "ד                            הי"
                 "ד5        Helderheid         הי"
                 "דם                          מהי"
@@ -818,7 +812,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד       Loqv^ oh|mgr         הי"
                 "ד3 Tq|por pq|tupor   16:9    הי"
-                "ד4 Tq|por eij. jeil. 16:9    הי"
                 "ד                            הי"
                 "ד5       Kalpq|tgta          הי"
                 "דם                          מהי"
@@ -846,7 +839,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד      Formato schermo       הי"
                 "ד3  Modo standard 16:9       הי"
-                "ד4  Text/Mod.TV 16:9         הי"
                 "ד                            הי"
                 "ד5        Luminosit{         הי"
                 "דם                          מהי"
@@ -874,7 +866,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד       Format obrazu        הי"
                 "ד3 Tryb standard 16:9        הי"
-                "ד4 Telegazeta/TV 16:9        הי"
                 "ד                            הי"
                 "ד5          Jasno|^          הי"
                 "דם                          מהי"
@@ -902,7 +893,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד        TV- format          הי"
                 "ד3 Standard l{ge 16:9        הי"
-                "ד4 Text/Bild l{ge  16:9      הי"
                 "ד                            הי"
                 "ד5        Ljusstyrka         הי"
                 "דם                          מהי"
@@ -930,7 +920,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד         N{ytt|tila         הי"
                 "ד3 Vakiotila     16:9        הי"
-                "ד4 Teksti/TV     16:9        הי"
                 "ד                            הי"
                 "ד5         Kirkkaus          הי"
                 "דם                          מהי"
@@ -958,7 +947,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד       formato ecran        הי"
                 "ד3 Standard mode 16:9        הי"
-                "ד4 Text/TV mode  16:9        הי"
                 "ד                            הי"
                 "ד5          Brilho           הי"
                 "דם                          מהי"
@@ -986,7 +974,6 @@ const char configmenu[][Menu_Height*(Menu_Width+1)] =
                 "ד                            הי"
                 "ד       Format kartinki      הי"
                 "ד3 Stand. revim  16:9        הי"
-                "ד4 Tekst/TW rev. 16:9        הי"
                 "ד                            הי"
                 "ד5          Qrkostx          הי"
                 "דם                          מהי"

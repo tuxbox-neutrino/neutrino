@@ -1918,7 +1918,6 @@ int Init()
 	/* config defaults */
 	screenmode = 0;
 	screen_mode1 = 0;
-	screen_mode2 = 0;
 	color_mode   = 10;
 	trans_mode   = 10;
 	menulanguage = 1;	/* english */
@@ -1953,8 +1952,6 @@ int Init()
 
 			if (1 == sscanf(line, "ScreenMode16x9Normal %i", &ival))
 				screen_mode1 = ival & 1;
-			else if (1 == sscanf(line, "ScreenMode16x9Divided %i", &ival))
-				screen_mode2 = ival & 1;
 			else if (1 == sscanf(line, "Brightness %i", &ival))
 				color_mode = ival;
 			else if (1 == sscanf(line, "AutoNational %i", &ival))
@@ -2252,7 +2249,6 @@ void CleanUp()
 		{
 			printf("TuxTxt <saving config>\n");
 			fprintf(conf, "ScreenMode16x9Normal %d\n", screen_mode1);
-			fprintf(conf, "ScreenMode16x9Divided %d\n", screen_mode2);
 			fprintf(conf, "Brightness %d\n", color_mode);
 			fprintf(conf, "MenuLanguage %d\n", menulanguage);
 			fprintf(conf, "AutoNational %d\n", auto_national);
@@ -2737,7 +2733,6 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 
 	/* set 16:9 modi, colors & national subset */
 	memcpy(&menu[Menu_Width*MenuLine[M_SC1] + Menu_Width - 5], &configonoff[menulanguage][screen_mode1  ? 3 : 0], 3);
-	memcpy(&menu[Menu_Width*MenuLine[M_SC2] + Menu_Width - 5], &configonoff[menulanguage][screen_mode2  ? 3 : 0], 3);
 
 	menu[MenuLine[M_COL]*Menu_Width +  1] = (color_mode == 1  ? ' ' : 'í');
 	menu[MenuLine[M_COL]*Menu_Width + 28] = (color_mode == 24 ? ' ' : 'î');
@@ -3334,16 +3329,6 @@ void ConfigMenu(int Init)
 					Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 
 					break;
-
-				case M_SC2:
-					saveconfig = 1;
-					screen_mode2++;
-					screen_mode2 &= 1;
-
-					memcpy(&menu[Menu_Width*MenuLine[M_SC2] + Menu_Width - 5], &configonoff[menulanguage][screen_mode2  ? 3 : 0], 3);
-					Menu_HighlightLine(menu, MenuLine[menuitem], 1);
-					break;
-
 
 				case M_AUN:
 					saveconfig = 1;
