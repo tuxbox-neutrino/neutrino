@@ -1175,8 +1175,7 @@ void CMoviePlayerGui::PlayFile(void)
 					newComHintBox.hide();
 				}
 				jump_not_until = (position / 1000) + 10;	// avoid bookmark jumping for the next 10 seconds, , TODO:  might be moved to another key
-			} else if (playstate != CMoviePlayerGui::PAUSE)
-				playstate = CMoviePlayerGui::SOFTRESET;
+			}
 		} else if (msg == CRCInput::RC_up || msg == CRCInput::RC_down) {
 			if (msg == CRCInput::RC_up) {
 				if (slow == 2)
