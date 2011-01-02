@@ -654,16 +654,16 @@ void cVideo::routeVideo(int standby)
 			perror("IOC_AVS_SCART_PIN8_FOLLOW_VCR");
 		if (ioctl(avsfd, IOC_AVS_ROUTE_VCR2TV) < 0)
 			perror("IOC_AVS_ROUTE_VCR2TV");
-		return;
+	} else {
+		unsigned char fblk = 1;
+		printf("[%s] setting fastblank to %d, pin8 to %dV, routing encoder to TV\n", __FUNCTION__, fblk, scartvoltage);
+		if (ioctl(avsfd, IOC_AVS_FASTBLANK_SET, fblk) < 0)
+			perror("IOC_AVS_FASTBLANK_SET, fblk");
+		if (ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
+			perror("IOC_AVS_SCART_PIN8_SET");
+		if (ioctl(avsfd, IOC_AVS_ROUTE_ENC2TV) < 0)
+			perror("IOC_AVS_ROUTE_ENC2TV");
 	}
-	unsigned char fblk = 1;
-	printf("[%s] setting fastblank to %d, pin8 to %dV, routing encoder to TV\n", __FUNCTION__, fblk, scartvoltage);
-	if (ioctl(avsfd, IOC_AVS_FASTBLANK_SET, fblk) < 0)
-		perror("IOC_AVS_FASTBLANK_SET, fblk");
-	if (ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
-		perror("IOC_AVS_SCART_PIN8_SET");
-	if (ioctl(avsfd, IOC_AVS_ROUTE_ENC2TV) < 0)
-		perror("IOC_AVS_ROUTE_ENC2TV");
 	close(avsfd);
 }
 
