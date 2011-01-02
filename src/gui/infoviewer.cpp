@@ -529,19 +529,21 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
 
 	const char *playicon = NULL;
 	switch (playState) {
-	  case 3: //PLAY
+	case 3: //PLAY
 		playicon = NEUTRINO_ICON_PLAY;
 		break;
-	  case 4: //PAUSE
+	case 4: //PAUSE
 		playicon = NEUTRINO_ICON_PAUSE;
 		break;
-	  case 6: //REW
+	case 6: //REW
 		playicon = NEUTRINO_ICON_REW;
 		break;
 	case 5: //FF
 		playicon = NEUTRINO_ICON_FF;
 		break;
-	default: 
+	default:
+		/* NULL crashes in getIconSize, just use something */
+		playicon = NEUTRINO_ICON_BUTTON_HELP;
 		break;
 	}
 	int icon_w = 0,icon_h = 0;
