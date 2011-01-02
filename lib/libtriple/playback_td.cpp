@@ -10,6 +10,7 @@
 #include "dmx_td.h"
 #include "audio_td.h"
 #include "video_td.h"
+#include "lt_debug.h"
 
 #include <tddevices.h>
 #define DVR	"/dev/" DEVICE_NAME_PVR
@@ -29,6 +30,8 @@ static void playthread_cleanup_handler(void *);
 
 static pthread_cond_t playback_ready_cond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t playback_ready_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static pthread_mutex_t currpos_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int dvrfd = -1;
 static int streamtype;
@@ -77,6 +80,7 @@ bool cPlayback::Open(playmode_t mode)
 	filetype = FILETYPE_TS;
 	playback_speed = 0;
 	last_size = 0;
+	_pts_end = 0;
 	numpida = 0;
 	memset(&apids, 0, sizeof(apids));
 	memset(&ac3flags, 0, sizeof(ac3flags));
@@ -441,11 +445,16 @@ bool cPlayback::GetPosition(int &position, int &duration)
 	if (filetype == FILETYPE_TS && filelist.size() == 1)
 	{
 		off_t tmppos = currsize - PESBUF_SIZE;
-		if (currsize != last_size && tmppos > 0)
+		if (currsize > last_size && (currsize - last_size) < 10485760 &&
+		    bytes_per_second > 0 && _pts_end > 0)
 		{
-			update = true;
-			/* file size has changed => update endpts */
-			last_size = currsize;
+			/* guess the current endpts... */
+			tmppts = (currsize - last_size) * 90000 / bytes_per_second;
+			pts_end = _pts_end + tmppts;
+		}
+		else if (currsize != last_size && tmppos > 0)
+		{
+			pthread_mutex_lock(&currpos_mutex);
 			off_t oldpos = curr_pos;
 			ssize_t n, r;
 			int s;
@@ -462,11 +471,16 @@ bool cPlayback::GetPosition(int &position, int &duration)
 					{
 						DBG("n: %d s: %d endpts %lld size: %lld\n", n, s, tmppts, currsize);
 						pts_end = tmppts;
+						_pts_end = tmppts;
+						update = true;
+						/* file size has changed => update endpts */
+						last_size = currsize;
 						break;
 					}
 				}
 			}
 			mf_lseek(oldpos);
+			pthread_mutex_unlock(&currpos_mutex);
 		}
 	}
 	if (pts_end != -1 && pts_start > pts_end) /* should trigger only once ;) */
@@ -480,10 +494,11 @@ bool cPlayback::GetPosition(int &position, int &duration)
 	{
 		position = tmppts / 90;
 		duration = (pts_end - pts_start) / 90;
-		if (update && duration >= 1000)
+		if (update && duration >= 4000)
 		{
 			bytes_per_second = currsize / (duration / 1000);
-			INFO("updated bps: %lld size: %lld duration %d\n", bytes_per_second, currsize, duration);
+			lt_debug("cPlayback:%s: updated bps: %lld size: %lld duration %d\n",
+					__FUNCTION__, bytes_per_second, currsize, duration);
 		}
 		return true;
 	}
@@ -786,6 +801,7 @@ ssize_t cPlayback::read_ts()
 		int n, skipped = 0;
 		bool skip = false;
 		bool eof = true;
+		pthread_mutex_lock(&currpos_mutex);
 		while (toread > 0)
 		{
 			ssize_t done = 0;
@@ -801,6 +817,7 @@ ssize_t cPlayback::read_ts()
 				if (ret < 0)
 				{
 					INFO("failed: %m\n");
+					pthread_mutex_unlock(&currpos_mutex);
 					return ret;
 				}
 				if (ret == 0 && eof)
@@ -815,6 +832,7 @@ ssize_t cPlayback::read_ts()
 				INFO("out of sync: %d\n", sync);
 				if (sync < 0)
 				{
+					pthread_mutex_unlock(&currpos_mutex);
 					return -1;
 				}
 				memmove(pesbuf, pesbuf + sync, ret - sync);
@@ -861,11 +879,13 @@ ssize_t cPlayback::read_ts()
 			}
 		}
  out:
+		pthread_mutex_unlock(&currpos_mutex);
 		if (eof)
 			return 0;
 	}
 	else
 	{
+		pthread_mutex_lock(&currpos_mutex);
 		while(true)
 		{
 			ret = read(in_fd, inbuf + inbuf_pos, toread);
@@ -877,15 +897,16 @@ ssize_t cPlayback::read_ts()
 			}
 			break;
 		}
-		if (ret < 0)
+		if (ret <= 0)
 		{
-			INFO("failed: %m\n");
+			pthread_mutex_unlock(&currpos_mutex);
+			if (ret < 0)
+				INFO("failed: %m\n");
 			return ret;
 		}
-		if (ret == 0)
-			return ret;
 		inbuf_pos += ret;
 		curr_pos += ret;
+		pthread_mutex_unlock(&currpos_mutex);
 
 		sync = sync_ts(inbuf + inbuf_sync, INBUF_SIZE - inbuf_sync);
 		if (sync < 0)
@@ -1002,6 +1023,7 @@ ssize_t cPlayback::read_mpeg()
 		INFO("adjusting toread to %d due to inbuf full (old: %zd)\n", INBUF_SIZE - inbuf_pos, toread);
 		toread = INBUF_SIZE - inbuf_pos;
 	}
+	pthread_mutex_lock(&currpos_mutex);
 	while(true)
 	{
 		ret = read(in_fd, pesbuf + pesbuf_pos, toread);
@@ -1015,11 +1037,13 @@ ssize_t cPlayback::read_mpeg()
 	}
 	if (ret < 0)
 	{
+		pthread_mutex_unlock(&currpos_mutex);
 		INFO("failed: %m, pesbuf_pos: %zd, toread: %zd\n", pesbuf_pos, toread);
 		return ret;
 	}
 	pesbuf_pos += ret;
 	curr_pos += ret;
+	pthread_mutex_unlock(&currpos_mutex);
 
 	int i;
 	int count = 0;
@@ -1232,6 +1256,7 @@ off_t cPlayback::mp_seekSync(off_t pos)
 	off_t ret;
 	uint8_t pkt[1024];
 
+	pthread_mutex_lock(&currpos_mutex);
 	ret = mf_lseek(npos);
 	if (ret < 0)
 		INFO("lseek ret < 0 (%m)\n");
@@ -1277,6 +1302,7 @@ off_t cPlayback::mp_seekSync(off_t pos)
 				npos += s;
 				INFO("sync after %lld\n", npos - pos);
 				ret = mf_lseek(npos);
+				pthread_mutex_unlock(&currpos_mutex);
 				if (ret < 0)
 					INFO("lseek ret < 0 (%m)\n");
 				return ret;
@@ -1285,7 +1311,9 @@ off_t cPlayback::mp_seekSync(off_t pos)
 				break;
 		}
 		INFO("could not sync to PES offset: %d r: %zd\n", offset, r);
-		return mf_lseek(pos);
+		ret = mf_lseek(pos);
+		pthread_mutex_unlock(&currpos_mutex);
+		return ret;
 	}
 
 	/* TODO: use bigger buffer here, too and handle EOF / next splitfile */
@@ -1301,6 +1329,7 @@ off_t cPlayback::mp_seekSync(off_t pos)
 				if(pkt[188-1] == 0x47)
 				{
 					ret = mf_lseek(npos - 1); // assume sync ok
+					pthread_mutex_unlock(&currpos_mutex);
 					if (ret < 0)
 						INFO("lseek ret < 0 (%m)\n");
 					return ret;
@@ -1320,7 +1349,9 @@ off_t cPlayback::mp_seekSync(off_t pos)
 	}
 
 	//-- on error stay on actual position --
-	return mf_lseek(pos);
+	ret = mf_lseek(pos);
+	pthread_mutex_unlock(&currpos_mutex);
+	return ret;
 }
 
 static int sync_ts(uint8_t *p, int len)
