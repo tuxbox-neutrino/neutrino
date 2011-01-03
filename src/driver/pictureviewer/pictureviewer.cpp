@@ -439,7 +439,6 @@ void CPictureViewer::getSize(const char* name, int* width, int *height)
 }
 
 #define LOGO_DIR1 "/share/tuxbox/neutrino/icons/logo"
-#define LOGO_DIR2 "/var/share/icons/logo"
 #define LOGO_FMT ".jpg"
 
 bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, std::string & name, int *width, int *height)
@@ -457,7 +456,7 @@ bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, s
 	{
 		for (j = 0; j < 2; j++)
 		{
-			std::string tmp(LOGO_DIR2 "/" + strLogoName[i] + strLogoExt[j]);
+			std::string tmp(g_settings.logo_hdd_dir + "/" + strLogoName[i] + strLogoExt[j]);
 			if (access(tmp.c_str(), R_OK) != -1)
 			{
 				if(width && height)
@@ -489,10 +488,10 @@ bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int w
 	char fname[255];
 	bool ret = false;
 
-	sprintf(fname, "%s/%llx.jpg", LOGO_DIR2, channel_id & 0xFFFFFFFFFFFFULL);
+	sprintf(fname, "%s/%llx.jpg", g_settings.logo_hdd_dir.c_str(), channel_id & 0xFFFFFFFFFFFFULL);
 	printf("logo file: %s\n", fname);
 	if(access(fname, F_OK))
-		sprintf(fname, "%s/%llx.gif", LOGO_DIR2, channel_id & 0xFFFFFFFFFFFFULL);
+		sprintf(fname, "%s/%llx.gif", g_settings.logo_hdd_dir.c_str(), channel_id & 0xFFFFFFFFFFFFULL);
 
 	if(!access(fname, F_OK)) {
 		ret = DisplayImage(fname, posx, posy, width, height);

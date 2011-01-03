@@ -1321,7 +1321,8 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	if (g_info.delivery_system == DVB_S) {
 		miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTORSWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	}
-	miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "pluginhdddir"));
+	miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir"));
+	miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_LOGO_HDD_DIR, true, g_settings.logo_hdd_dir, this, "logo_dir"));
 
 
 	if(cs_get_revision() > 7){

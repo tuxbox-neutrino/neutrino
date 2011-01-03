@@ -256,6 +256,9 @@ struct SNeutrinoSettings
 	std::string movieplayer_plugin;
 	std::string onekey_plugin;
 	std::string plugin_hdd_dir;
+	
+	std::string logo_hdd_dir;
+
 	//key configuration
 	int key_tvradio_mode;
 

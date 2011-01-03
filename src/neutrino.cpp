@@ -670,7 +670,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
-
+	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
 	//rc-key configuration
 	g_settings.key_tvradio_mode = configfile.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
 	g_settings.key_power_off = configfile.getInt32( "key_power_off", CRCInput::RC_standby );
@@ -1193,7 +1193,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
 	configfile.setString ( "onekey_plugin", g_settings.onekey_plugin );
 	configfile.setString ( "plugin_hdd_dir", g_settings.plugin_hdd_dir );
-
+	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
 	configfile.setInt32 ( "streaming_resolution", g_settings.streaming_resolution );
 
 	configfile.setInt32( "rf_subcarrier", g_settings.rf_subcarrier);
@@ -4050,6 +4050,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	//	printf("ac: %s\n", actionKey.c_str());
 	int returnval = menu_return::RETURN_REPAINT;
+	const char *wrong_str = "Wrong/unsupported";
 
 	if(actionKey == "help_recording") {
 		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
@@ -4200,7 +4201,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (fileBrowser.exec(g_settings.update_dir) == true) {
 			const char * newdir = fileBrowser.getSelectedFile()->Name.c_str();
 			if(check_dir(newdir))
-				printf("Wrong/unsupported recording dir %s\n", newdir);
+				printf("%s recording dir %s\n",wrong_str , newdir);
 			else {
 				strcpy(g_settings.update_dir, fileBrowser.getSelectedFile()->Name.c_str());
 				printf("[neutrino] new update dir %s\n", fileBrowser.getSelectedFile()->Name.c_str());
@@ -4215,7 +4216,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		if (b.exec(g_settings.epg_dir.c_str())) {
 			const char * newdir = b.getSelectedFile()->Name.c_str();
 			if(check_dir(newdir))
-				printf("Wrong/unsupported epg dir %s\n", newdir);
+				printf("%s epg dir %s\n",wrong_str , newdir);
 			else {
 				g_settings.epg_dir = b.getSelectedFile()->Name;
 				SendSectionsdConfig();
@@ -4224,18 +4225,32 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "pluginhdddir") {
+	else if(actionKey == "plugin_dir") {
 		parent->hide();
 		CFileBrowser b;
 		b.Dir_Mode=true;
 		if (b.exec(g_settings.plugin_hdd_dir.c_str())) {
 			const char * newdir = b.getSelectedFile()->Name.c_str();
 			if(check_dir(newdir))
-				printf("Wrong/unsupported plugin dir %s\n", newdir);
+				printf("%s plugin dir %s\n",wrong_str , newdir);
 			else {
 				g_settings.plugin_hdd_dir = b.getSelectedFile()->Name;
-				SendSectionsdConfig();
 				g_PluginList->loadPlugins();
+			}
+		}
+
+		return menu_return::RETURN_REPAINT;
+	}
+	else if(actionKey == "logo_dir") {
+		parent->hide();
+		CFileBrowser b;
+		b.Dir_Mode=true;
+		if (b.exec(g_settings.logo_hdd_dir.c_str())) {
+			const char * newdir = b.getSelectedFile()->Name.c_str();
+			if(check_dir(newdir))
+				printf("%s logo dir %s\n",wrong_str , newdir);
+			else {
+				g_settings.logo_hdd_dir = b.getSelectedFile()->Name;
 			}
 		}
 

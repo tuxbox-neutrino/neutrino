@@ -479,6 +479,7 @@ ledcontroler.on.all Led1 & Led2 on
 ledcontroler.on.led1 Led1 on
 ledcontroler.on.led2 Led2 on
 ledcontroler.blink Blink in deep standby, if timer set
+logo_hdd_dir Logo dir
 mainmenu.audioplayer Audioplayer
 mainmenu.games Games
 mainmenu.head Main Menu

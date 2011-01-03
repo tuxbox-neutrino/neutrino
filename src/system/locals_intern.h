@@ -509,6 +509,7 @@ const char *locale_real_names[] = {
 	"ledcontroler.on.led1",
 	"ledcontroler.on.led2",
 	"ledcontroler.blink",
+	"logo_hdd_dir",
 	"mainmenu.audioplayer",
 	"mainmenu.clearsectionsd",
 	"mainmenu.games",
