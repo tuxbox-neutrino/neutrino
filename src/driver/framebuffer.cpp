@@ -841,10 +841,14 @@ void CFrameBuffer::setIconBasePath(const std::string & iconPath)
 
 void CFrameBuffer::getIconSize(const char * const filename, int* width, int *height)
 {
-	std::map<std::string, rawIcon>::iterator it;
-
 	*width = 0;
 	*height = 0;
+
+	if(filename == NULL)
+		return;
+
+	std::map<std::string, rawIcon>::iterator it;
+
 
 	/* if code ask for size, lets cache it. assume we have enough ram for cache */
 	/* FIXME offset seems never used in code, always default = 1 ? */
