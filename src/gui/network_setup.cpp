@@ -62,6 +62,7 @@ CNetworkSetup::CNetworkSetup(bool wizard_mode)
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height = hheight+13*mheight+ 10;
+	selected = -1;
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
 	
@@ -168,6 +169,7 @@ void CNetworkSetup::showNetworkSetup()
 	//menue init
 	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	networkSettings->setWizardMode(is_wizard);
+	networkSettings->setSelected(selected);
 
 	//apply button
 	CMenuForwarder *m0 = new CMenuForwarder(LOCALE_NETWORKMENU_SETUPNOW, true, NULL, this, "networkapply", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
@@ -246,6 +248,7 @@ void CNetworkSetup::showNetworkSetup()
 	
 	networkSettings->exec(NULL, "");
 	networkSettings->hide();
+	selected = networkSettings->getSelected();
 	delete networkSettings;
 				
 	// Check for changes

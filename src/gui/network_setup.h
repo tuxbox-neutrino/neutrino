@@ -48,7 +48,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		CFrameBuffer *frameBuffer;
  		CNetworkConfig  *networkConfig;
 						
-		int x, y, width, height, hheight, mheight;
+		int x, y, width, height, hheight, mheight, selected;
 		
 		bool is_wizard;
 
