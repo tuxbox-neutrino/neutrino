@@ -1,4 +1,6 @@
 /*
+	$port: menue.h,v 1.91 2010/12/08 19:49:30 tuxbox-cvs Exp $
+
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
@@ -36,6 +38,7 @@
 #include <driver/framebuffer.h>
 #include <driver/rcinput.h>
 #include <system/localize.h>
+#include <gui/widget/icons.h>
 
 #include <string>
 #include <vector>
@@ -75,12 +78,15 @@ class CMenuItem
 {
 	protected:
 		int x, y, dx, offx;
+		bool used;
 	public:
 		bool           active;
 		neutrino_msg_t directKey;
 		neutrino_msg_t msg;
 		bool		can_arrow;
 		std::string    iconName;
+		std::string    selected_iconName;
+		bool		show_marker;
 
 		CMenuItem()
 		{
@@ -88,8 +94,14 @@ class CMenuItem
 			directKey = CRCInput::RC_nokey;
 			iconName = "";
 			can_arrow = false;
+			used = false;
 		}
 		virtual ~CMenuItem(){}
+		
+		virtual void isUsed(void)
+		{
+			used = true;
+		}
 
 		virtual void init(const int X, const int Y, const int DX, const int OFFX);
 
@@ -111,11 +123,16 @@ class CMenuItem
 			return 0;
 		}
 		virtual void setActive(const bool Active);
+
+		virtual void paintItemButton(const int startX, const int frame_height, const bool select_mode, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT);
+
+		virtual void setItemButton(const std::string& icon_Name, const bool is_select_button = false);
 };
 
 class CMenuSeparator : public CMenuItem
 {
 		int               type;
+		std::string	  separator_text;
 
 	public:
 		neutrino_locale_t text;
@@ -133,12 +150,14 @@ class CMenuSeparator : public CMenuItem
 
 
 		CMenuSeparator(const int Type = 0, const neutrino_locale_t Text = NONEXISTANT_LOCALE);
+		virtual ~CMenuSeparator(){}
 
 		int paint(bool selected=false, bool last = false);
 		int getHeight(void) const;
 		int getWidth(void);
 
 		virtual const char * getString(void);
+		virtual void setString(const std::string& text);
 };
 
 class CMenuForwarder : public CMenuItem
@@ -158,9 +177,17 @@ class CMenuForwarder : public CMenuItem
 
 	CMenuForwarder(const neutrino_locale_t Text, const bool Active=true, const char * const Option=NULL, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
 	CMenuForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
+	virtual ~CMenuForwarder(){}
+
 	int paint(bool selected=false, bool last = false);
 	int getHeight(void) const;
 	int getWidth(void);
+	void setOption(const char *Option);
+	void setTextLocale(const neutrino_locale_t Text);
+	neutrino_locale_t getTextLocale(){return text;};
+	CMenuTarget* getTarget(){return jumpTarget;};
+	std::string getActionKey(){return actionKey;};
+
 	int exec(CMenuTarget* parent);
 	bool isSelectable(void) const
 		{
@@ -177,8 +204,11 @@ class CMenuForwarderNonLocalized : public CMenuForwarder
 	// Text must be UTF-8 encoded:
 	CMenuForwarderNonLocalized(const char * const Text, const bool Active=true, const char * const Option=NULL, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
 	CMenuForwarderNonLocalized(const char * const Text, const bool Active, const std::string &Option, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL);
+	virtual ~CMenuForwarderNonLocalized(){}
+
 	int getWidth(void);
 
+	void setText(const char * const Text);
 };
 
 class CAbstractMenuOptionChooser : public CMenuItem
@@ -268,6 +298,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 	int getWidth(void);
 
 	int paint(bool selected, bool last = 0);
+	std::string getOptionName() {return optionNameString;};
 
 	int exec(CMenuTarget* parent);
 };
@@ -286,6 +317,7 @@ class CMenuOptionStringChooser : public CMenuItem
 		~CMenuOptionStringChooser();
 
 		void addOption(const char * value);
+		void removeOptions(void);
 		int paint(bool selected, bool last = 0);
 		int getHeight(void) const
 		{
@@ -337,10 +369,11 @@ class CMenuWidget : public CMenuTarget
 		int			min_width;
 		int			width;
 		int			height;
-		int         wanted_height;
+		int         		wanted_height;
 		int			x;
 		int			y;
 		int			offx, offy;
+		int			preselected;
 		int			selected;
 		int 			iconOffset;
 		unsigned int         item_start_y;
@@ -361,13 +394,22 @@ class CMenuWidget : public CMenuTarget
 		~CMenuWidget();
 
 		virtual void addItem(CMenuItem* menuItem, const bool defaultselected = false);
-		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE);
+		
+		enum 
+		{
+			BTN_TYPE_BACK =		0,
+			BTN_TYPE_CANCEL =	1,
+			BTN_TYPE_NEXT =		3,
+			BTN_TYPE_NO =		-1,
+		};
+		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK );
 		bool hasItem();
 		virtual void paint();
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
-		void setSelected(unsigned int _new) { if(_new <= items.size()) selected = _new; };
-		int getSelected() { return selected; };
+		virtual std::string getName(){ return nameString;};
+		virtual void setSelected(const int &Preselected){ preselected = Preselected; };
+		virtual int getSelected(){ return selected; };
 		void move(int xoff, int yoff);
 		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
 		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};
@@ -382,6 +424,7 @@ class CPINProtection
 		virtual CMenuTarget* getParent() = 0;
 	public:
 		CPINProtection( char* validpin){ validPIN = validpin;};
+		virtual ~CPINProtection(){}
 };
 
 class CZapProtection : public CPINProtection
@@ -398,17 +441,17 @@ class CZapProtection : public CPINProtection
 class CLockedMenuForwarder : public CMenuForwarder, public CPINProtection
 {
 	CMenuTarget* Parent;
-	bool AlwaysAsk;
+	bool Ask;
 
 	protected:
 		virtual CMenuTarget* getParent(){ return Parent;};
 	public:
-		CLockedMenuForwarder(const neutrino_locale_t Text, char* pvalidPIN, bool alwaysAsk=false, const bool Active=true, char *Option=NULL,
+		CLockedMenuForwarder(const neutrino_locale_t Text, char* _validPIN, bool ask=true, const bool Active=true, char *Option=NULL,
 		                     CMenuTarget* Target=NULL, const char * const ActionKey = NULL,
 		                     neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL)
 
 		                     : CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName) ,
-		                       CPINProtection( pvalidPIN){AlwaysAsk = alwaysAsk;};
+		                       CPINProtection(_validPIN){Ask = ask;};
 
 		virtual int exec(CMenuTarget* parent);
 };
@@ -426,5 +469,8 @@ class CMenuSelectorTarget : public CMenuTarget
 extern CMenuSeparator * const GenericMenuSeparator;
 extern CMenuSeparator * const GenericMenuSeparatorLine;
 extern CMenuForwarder * const GenericMenuBack;
+extern CMenuForwarder * const GenericMenuCancel;
+
+
 
 #endif
