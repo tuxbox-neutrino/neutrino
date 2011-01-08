@@ -235,6 +235,7 @@ void COsdSetup::showOsdSetup()
 	//osd main menu
 	CMenuWidget *osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width);
 	osd_menu->setWizardMode(is_wizard);
+	osd_menu->setSelected(selected);
 	
 	//menu colors
 	CMenuWidget *osd_menu_colors = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width);
@@ -280,6 +281,7 @@ void COsdSetup::showOsdSetup()
 
 	osd_menu->exec(NULL, "");
 	osd_menu->hide();
+	selected = osd_menu->getSelected();
 	delete osd_menu;
 }
 	
