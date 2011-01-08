@@ -373,8 +373,8 @@ const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
 
 const SNeutrinoSettings::FONT_TYPES other_font_sizes[4] =
 {
-	SNeutrinoSettings::FONT_TYPE_MENU,
 	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
+	SNeutrinoSettings::FONT_TYPE_MENU,
 	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
 };
