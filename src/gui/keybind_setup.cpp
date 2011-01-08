@@ -62,6 +62,7 @@ CKeybindSetup::CKeybindSetup()
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height 	= hheight+13*mheight+ 10;
+	selected = -1;
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
 }
@@ -174,7 +175,7 @@ void CKeybindSetup::showKeySetup()
 	
 	//keybindings menu
 	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width);
-
+	keySettings->setSelected(selected);
 	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING);
 	
 	//keybindings
@@ -204,6 +205,7 @@ void CKeybindSetup::showKeySetup()
 	
 	keySettings->exec(NULL, "");
 	keySettings->hide();
+	selected = keySettings->getSelected();
 	delete keySettings;
 }
 

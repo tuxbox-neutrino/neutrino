@@ -85,7 +85,7 @@ class CKeybindSetup : public CMenuTarget
 		CKeySetupNotifier      *keySetupNotifier;
 		CKeyChooser * keychooser[KEYBINDS_COUNT];
 		
-		int x, y, width, height, hheight, mheight;
+		int x, y, width, height, hheight, mheight, selected;
 
 		void hide();
 		void showKeySetup();
