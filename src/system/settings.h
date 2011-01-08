@@ -525,9 +525,9 @@ extern const neutrino_locale_t timing_setting_name[TIMING_SETTING_COUNT];
 #define DEFAULT_LCD_AUTODIMM			0x00
 #define DEFAULT_LCD_SHOW_VOLUME			0x01
 
-#define CORNER_RADIUS_LARGE             9
-#define CORNER_RADIUS_MID               8
-#define CORNER_RADIUS_SMALL             7
+#define CORNER_RADIUS_LARGE             11
+#define CORNER_RADIUS_MID               7
+#define CORNER_RADIUS_SMALL             5
 #define CORNER_RADIUS_MIN	        3
 
 #define RADIUS_LARGE    (g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
