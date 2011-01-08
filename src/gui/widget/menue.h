@@ -39,6 +39,7 @@
 #include <driver/rcinput.h>
 #include <system/localize.h>
 #include <gui/widget/icons.h>
+#include <gui/color.h>
 
 #include <string>
 #include <vector>
@@ -79,14 +80,18 @@ class CMenuItem
 	protected:
 		int x, y, dx, offx;
 		bool used;
+		unsigned char 	item_color   ;
+		fb_pixel_t    	item_bgcolor ;
+		
 	public:
-		bool           active;
-		neutrino_msg_t directKey;
-		neutrino_msg_t msg;
+		bool           	active;
+		neutrino_msg_t 	directKey;
+		neutrino_msg_t 	msg;
 		bool		can_arrow;
-		std::string    iconName;
-		std::string    selected_iconName;
+		std::string    	iconName;
+		std::string    	selected_iconName;
 		bool		show_marker;
+
 
 		CMenuItem()
 		{
@@ -124,8 +129,20 @@ class CMenuItem
 		}
 		virtual void setActive(const bool Active);
 
-		virtual void paintItemButton(const int startX, const int frame_height, const bool select_mode, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT);
+		virtual void paintItemButton(const int startX, const int frame_height, const bool select_mode, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT, const bool icon_centered = false);
+		
+		virtual void setItemColors(const bool select_mode, 	const fb_pixel_t &def_color = COL_MENUCONTENT, 			const fb_pixel_t &def_bgcolor = COL_MENUCONTENT_PLUS_0, 
+									const fb_pixel_t &def_sel_color = COL_MENUCONTENTSELECTED, 	const fb_pixel_t &def_sel_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0, 
+									const fb_pixel_t &def_inactiv_color = COL_MENUCONTENTINACTIVE,	const fb_pixel_t &def_inactiv_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0);
+									
+		virtual void paintItemBackground (const bool select_mode, const int &x, const int &y, const int &width, const int &height);
+		
+		virtual void paintItem(const bool select_mode, 		int &x, int &y, int &width, int &height ,  
+									const fb_pixel_t &def_color = COL_MENUCONTENT, 			const fb_pixel_t &def_bgcolor = COL_MENUCONTENT_PLUS_0, 
+									const fb_pixel_t &def_sel_color = COL_MENUCONTENTSELECTED, 	const fb_pixel_t &def_sel_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0, 
+									const fb_pixel_t &def_inactiv_color = COL_MENUCONTENTINACTIVE,	const fb_pixel_t &def_inactiv_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0);
 
+		
 		virtual void setItemButton(const std::string& icon_Name, const bool is_select_button = false);
 };
 

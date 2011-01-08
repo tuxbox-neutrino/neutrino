@@ -43,8 +43,6 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 
-#include <gui/color.h>
-
 #include <gui/widget/stringinput.h>
 
 #include <global.h>
@@ -94,12 +92,62 @@ void CMenuItem::setItemButton(const std::string& icon_Name, const bool is_select
 		iconName = icon_Name;
 }
 
-void CMenuItem::paintItemButton(const int startX, const int frame_height, const bool select_mode, const std::string &icon_Name)
+void CMenuItem::setItemColors(const bool select_mode, 	const fb_pixel_t &def_color, const fb_pixel_t &def_bgcolor, 
+							const fb_pixel_t &def_sel_color, const fb_pixel_t &def_sel_bgcolor, 
+							const fb_pixel_t &def_inactiv_color, const fb_pixel_t &def_inactiv_bgcolor)
+{
+	if (select_mode)
+	{
+		item_color   = def_sel_color;
+		item_bgcolor = def_sel_bgcolor;
+	}
+	else if (!active)
+	{
+		item_color   = def_inactiv_color;
+		item_bgcolor = def_inactiv_bgcolor;
+	}
+	else
+	{
+		item_color   = def_color;
+		item_bgcolor = def_bgcolor;
+	}
+}
+
+void CMenuItem::paintItemBackground (const bool select_mode, const int &item_x, const int &item_y, const int &width, const int &height)
+{
+	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
+	
+	if(select_mode)
+		frameBuffer->paintBoxRel(item_x, item_y, width, height, item_bgcolor, RADIUS_LARGE);
+	//else if(last)
+		//frameBuffer->paintBoxRel(item_x, item_y, width, height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
+	else
+		frameBuffer->paintBoxRel(item_x, item_y, width, height, item_bgcolor);
+}
+
+
+void CMenuItem::paintItem(const bool select_mode, int &start_x, int &start_y, int &width, int &height, 
+						const fb_pixel_t &def_color, const fb_pixel_t &def_bgcolor, 
+						const fb_pixel_t &def_sel_color, const fb_pixel_t &def_sel_bgcolor, 
+						const fb_pixel_t &def_inactiv_color, const fb_pixel_t &def_inactiv_bgcolor)
+{
+	//set colors
+	setItemColors(select_mode, def_color, def_bgcolor, 
+					def_sel_color, def_sel_bgcolor, 
+						def_inactiv_color, def_inactiv_bgcolor);
+
+	//paint item background
+	paintItemBackground(select_mode, start_x, start_y, width, height);
+}
+
+
+void CMenuItem::paintItemButton(const int startX, const int frame_height, const bool select_mode, const std::string &icon_Name, const bool icon_centered)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	bool selected = select_mode;
 	int height = frame_height;
 	bool icon_painted = false;
+	bool centered = icon_centered;
 	
 	int w = 0;
 	int h = 0;
@@ -143,8 +191,12 @@ void CMenuItem::paintItemButton(const int startX, const int frame_height, const 
 		
 		if (active  && icon_w>0 && icon_h>0)
 		{
-			if (icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME)
-				icon_x = x+ ((icon_start_x-x)/2) - (icon_w/2);
+			//paint icon centered, if we using one of these icons. Note: overwrites  parameter 'icon_centered'
+			if (!centered)
+				centered = (icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME);
+			
+			if (centered/* || icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME*/)
+				icon_x = x+ ((icon_start_x-x)/2) - (icon_w/2); //centered
 			else
 				icon_x = icon_start_x - ((icon_w+m_icon_w)/*/2*/);
 			
@@ -156,32 +208,35 @@ void CMenuItem::paintItemButton(const int startX, const int frame_height, const 
 	int number_w = 0;
 	int number_x = 0;
 	
-	//paint only number if no icon was painted
+	//paint only number if no icon was painted and keyval is numeric
 	if (CRCInput::isNumeric(directKey) && !icon_painted)
 	{
-		unsigned char color   = COL_MENUCONTENT;
-		if (selected)
-			color   = COL_MENUCONTENTSELECTED;
-		if (!active)
-			color   = COL_MENUCONTENTINACTIVE;
+// 		unsigned char i_color   = COL_MENUCONTENT;
+// 		if (selected)
+// 			i_color   = COL_MENUCONTENTSELECTED;
+// 		if (!active)
+// 			i_color   = COL_MENUCONTENTINACTIVE;
 
 		number_w = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(CRCInput::getKeyName(directKey));
 		
 		number_x = icon_start_x - ((number_w+m_icon_w)/*/2*/);
 		
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(number_x/*x + 15*/, y+ height, height, CRCInput::getKeyName(directKey), color, height);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(number_x/*x + 15*/, y+ height, height, CRCInput::getKeyName(directKey), item_color, height);
 	}
 	
-	//paint marker icon
-	if  (selected && directKey != CRCInput::RC_nokey && selected_iconName.empty())
+	//paint marker icon, do not paint, if we have a centered icon
+	if (!centered)
 	{
-		int icon_offset = 2;
-		if (icon_painted)
-			icon_offset += icon_x+icon_w;
-		else
-			icon_offset += number_x + number_w;
-		
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, icon_offset, y+ ((height/2- m_icon_h/2)) );
+		if  (selected && directKey != CRCInput::RC_nokey && selected_iconName.empty())
+		{
+			int icon_offset = 2;
+			if (icon_painted)
+				icon_offset += icon_x+icon_w;
+			else
+				icon_offset += number_x + number_w;
+			
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, icon_offset, y+ ((height/2- m_icon_h/2)) );
+		}
 	}
 }
 
@@ -225,7 +280,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*m
 	if (mwidth > 100) 
 	{
 		/* warn about abuse until we found all offenders... */
-		fprintf(stderr, "Warning: %s (%s) (%s) mwidth over 100%%: %d, current sreen width= %d\n", __FUNCTION__, nameString.c_str(), Icon.c_str(), mwidth);
+		fprintf(stderr, "Warning: %s (%s) (%s) mwidth over 100%%: %d\n", __FUNCTION__, nameString.c_str(), Icon.c_str(), mwidth);
 		
 	}
 	else 
@@ -696,10 +751,13 @@ void CMenuWidget::paint()
 			break;
 	}
 
-	//frameBuffer->paintBoxRel(x,y, width+sb_width,hheight, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y+SHADOW_OFFSET, width+sb_width, height, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE); //FIXME rounded
-	frameBuffer->paintBoxRel(x, y, width+sb_width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //FIXME rounded
+	//paint shadow and backround
+	int rad = RADIUS_LARGE-2;
+	frameBuffer->paintBoxRel(x+SHADOW_OFFSET ,y + SHADOW_OFFSET ,width + sb_width ,height + rad ,COL_MENUCONTENTDARK_PLUS_0 ,rad);
+	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,height + rad ,COL_MENUCONTENT_PLUS_0 ,rad);
+	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,hheight ,COL_MENUHEAD_PLUS_0 ,rad, CORNER_TOP);
 
+	//paint menu head
 	int HeadiconOffset = 0;
 	if(!(iconfile.empty())){
 		int w, h;
@@ -729,29 +787,31 @@ void CMenuWidget::paintItems()
 	// Scrollbar
 	if(total_pages>1)
 	{
-		int sbh= ((item_height-4) / total_pages);
-		// items box
-		frameBuffer->paintBoxRel(x, item_start_y, width+15, item_height+10, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-		// scrollbar
-		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1);
-		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page* sbh, 11, sbh, COL_MENUCONTENT_PLUS_3);
-	} else
-		frameBuffer->paintBoxRel(x, item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//FIXME round
-
+		frameBuffer->paintBoxRel(x+ width,item_start_y, 15, item_height, COL_MENUCONTENT_PLUS_1, RADIUS_MIN);
+		frameBuffer->paintBoxRel(x+ width +2, item_start_y+ 2+ current_page*(item_height-4)/total_pages, 11, (item_height-4)/total_pages, COL_MENUCONTENT_PLUS_3, RADIUS_MIN);
+	}
+	frameBuffer->paintBoxRel(x,item_start_y, width,item_height, COL_MENUCONTENT_PLUS_0);
 	int ypos=item_start_y;
-	for (unsigned int count = 0; count < items.size(); count++) {
+	for (unsigned int count = 0; count < items.size(); count++)
+	{
 		CMenuItem* item = items[count];
 
-		if ((count >= page_start[current_page]) && (count < page_start[current_page + 1])) {
+		if ((count >= page_start[current_page]) &&
+		    (count < page_start[current_page + 1]))
+		{
 			item->init(x, ypos, width, iconOffset);
-			if( (item->isSelectable()) && (selected==-1) ) {
+			if( (item->isSelectable()) && (selected==-1) )
+			{
 				ypos = item->paint(true);
 				selected = count;
-			} else {
-				//ypos = item->paint(selected==((signed int) count), (count == items.size()-1));
-				ypos = item->paint(selected==((signed int) count), (count == (page_start[current_page + 1]-1)));
 			}
-		} else {
+			else
+			{
+				ypos = item->paint(selected==((signed int) count) );
+			}
+		}
+		else
+		{
 			/* x = -1 is a marker which prevents the item from being painted on setActive changes */
 			item->init(-1, 0, 0, 0);
 		}
@@ -828,30 +888,8 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 	return menu_return::RETURN_NONE;
 }
 
-int CMenuOptionNumberChooser::paint(bool selected, bool last)
+int CMenuOptionNumberChooser::paint(bool selected, bool /*last*/)
 {
-	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-
-	unsigned char color   = COL_MENUCONTENT;
-	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
-	if (selected)
-	{
-		color   = COL_MENUCONTENTSELECTED;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	if (!active)
-	{
-		color   = COL_MENUCONTENTINACTIVE;
-		bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
-	}
-
-	if(selected)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
-	else if(last)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
-	else
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor);
-
 	const char * l_option;
 	char option_value[11];
 
@@ -866,13 +904,17 @@ int CMenuOptionNumberChooser::paint(bool selected, bool last)
 	int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_option, true); // UTF-8
 	int stringstartposName = x + offx + 10;
 	int stringstartposOption = x + dx - stringwidth - 10; //+ offx
+	
+	//paint item
+	paintItem(selected, x, y, dx, height);
 
+	//paint item icon
 	paintItemButton(stringstartposName, height, selected, NEUTRINO_ICON_BUTTON_OKAY);
 
 	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), l_optionName, color, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), l_option, color, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), l_optionName, item_color, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), l_option, item_color, 0, true); // UTF-8
 	
 	if (selected)
 	{
@@ -1046,32 +1088,10 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 	return ret;
 }
 
-int CMenuOptionChooser::paint( bool selected , bool last)
+int CMenuOptionChooser::paint( bool selected , bool /*last*/)
 {
-	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
-
 	if(optionName != NONEXISTANT_LOCALE)
 		optionNameString  = g_Locale->getText(optionName);
-
-	unsigned char color   = COL_MENUCONTENT;
-	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
-	if (selected)
-	{
-		color   = COL_MENUCONTENTSELECTED;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	if (!active)
-	{
-		color   = COL_MENUCONTENTINACTIVE;
-		bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
-	}
-
-	if(selected)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
-	else if(last)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
-	else
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor);
 
 	neutrino_locale_t option = NONEXISTANT_LOCALE;
 	const char * l_option = NULL;
@@ -1099,10 +1119,14 @@ int CMenuOptionChooser::paint( bool selected , bool last)
 	int stringstartposName = x + offx + 10;
 	int stringstartposOption = x + dx - stringwidth - 10; //+ offx
 	
+	//paint item
+	paintItem(selected, x, y, dx, height);
+	
+	//paint item icon
 	paintItemButton(stringstartposName, height, selected, NEUTRINO_ICON_BUTTON_OKAY);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), optionNameString.c_str(), color, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), l_option, color, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), optionNameString.c_str(), item_color, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), l_option, item_color, 0, true); // UTF-8
 	
 	if (selected)
 	{
@@ -1225,39 +1249,23 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 	return ret;
 }
 
-int CMenuOptionStringChooser::paint( bool selected, bool last )
+int CMenuOptionStringChooser::paint( bool selected, bool /*last*/ )
 {
-	CFrameBuffer *fb = CFrameBuffer::getInstance();
-	unsigned char color   = COL_MENUCONTENT;
-	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
-	if (selected) {
-		color   = COL_MENUCONTENTSELECTED;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	if (!active) {
-		color   = COL_MENUCONTENTINACTIVE;
-		bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
-	}
-
-	if(selected)
-		fb->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
-	else if(last)
-		fb->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
-	else
-		fb->paintBoxRel(x, y, dx, height, bgcolor);
-
-
 	const char * l_optionName = g_Locale->getText(optionName);
 	int optionwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_optionName, true);
 	//int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(optionValue, true);
 	int stringstartposName = x + offx + 10;
 	//int stringstartposOption = x + dx - stringwidth - 10; //+ offx
 	int stringstartposOption = x + offx + 10 + 10 + optionwidth;
+	
+	//paint item
+	paintItem(selected, x, y, dx, height);
 
+	//paint item icon
 	paintItemButton(stringstartposName, height, selected, NEUTRINO_ICON_BUTTON_OKAY);
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height, dx- (stringstartposName - x),  l_optionName, color, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height, dx- (stringstartposOption - x), optionValue, color, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height, dx- (stringstartposName - x),  l_optionName, item_color, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height, dx- (stringstartposOption - x), optionValue, item_color, 0, true);
 
 	if (selected)
 	{
@@ -1320,36 +1328,30 @@ int CMenuOptionLanguageChooser::exec(CMenuTarget*)
 		return menu_return::RETURN_NONE;
 }
 
-int CMenuOptionLanguageChooser::paint( bool selected, bool last )
+int CMenuOptionLanguageChooser::paint( bool selected, bool /*last*/ )
 {
-	unsigned char color   = COL_MENUCONTENT;
-	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
-	if (selected)
-	{
-		color   = COL_MENUCONTENTSELECTED;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
+	active = true;
+	
+	//paint item
+	paintItem(selected, x, y, dx, height);
 
-	if(selected)
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
-	else if(last)
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
-	else
-		CFrameBuffer::getInstance()->paintBoxRel(x, y, dx, height, bgcolor);
-
-	if (!(iconName.empty()))
-	{
-		CFrameBuffer::getInstance()->paintIcon(iconName, x + 10, y, height);
-	}
-
-	//int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(optionValue);
 	int stringstartposOption = x + offx + 10;
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), optionValue, color);
 
+	paintItemButton(stringstartposOption, height, selected, iconName, true);
+	
+	//convert first letter to large
+	string s_optionValue = static_cast<std::string> (optionValue);
+	string ts = s_optionValue.substr(0, 1);
+	string s(ts);
+	s = toupper(s_optionValue[0]);
+	s_optionValue.replace(0, 1, s);
+
+	//paint item string
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), s_optionValue, item_color);
+
+	//show in vfd
 	if (selected)
-	{
-		CVFD::getInstance()->showMenuText(1, optionValue);
-	}
+		CVFD::getInstance()->showMenuText(1, s_optionValue.c_str());
 
 	return y+height;
 }
@@ -1451,9 +1453,8 @@ const char * CMenuForwarder::getName(void)
 	return g_Locale->getText(text);
 }
 
-int CMenuForwarder::paint(bool selected, bool last)
+int CMenuForwarder::paint(bool selected, bool /*last*/)
 {
-	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	int height = getHeight();
 	const char * l_text = getName();
 	int stringstartposX = x + offx + 10;
@@ -1471,36 +1472,22 @@ int CMenuForwarder::paint(bool selected, bool last)
 			CVFD::getInstance()->showMenuText(0, l_text, -1, true);
 	}
 
-	unsigned char color   = COL_MENUCONTENT;
-	fb_pixel_t    bgcolor = COL_MENUCONTENT_PLUS_0;
-	if (selected)
-	{
-		color   = COL_MENUCONTENTSELECTED;
-		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-	else if (!active)
-	{
-		color   = COL_MENUCONTENTINACTIVE;
-		bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
-	}
-
-	if(selected)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE); //FIXME
-	else if(last)
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
-	else
-		frameBuffer->paintBoxRel(x, y, dx, height, bgcolor);
-
+	//paint item
+	paintItem(selected, x, y, dx, height);
+	
+	//paint icon
 	paintItemButton(stringstartposX, height, selected);
 	
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+ height, dx- (stringstartposX - x), l_text, color, 0, true); // UTF-8
+	//caption
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+ height, dx- (stringstartposX - x), l_text, item_color, 0, true); // UTF-8
 
+	//option text
 	if (option_text != NULL)
 	{
 		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
 		int stringstartposOption = std::max(stringstartposX + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true) + 10,
 											x + dx - stringwidth - 10); //+ offx
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption- x),  option_text, color, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption- x),  option_text, item_color, 0, true);
 	}
 
 	return y+ height;
@@ -1581,21 +1568,19 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 	int height;
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 	height = getHeight();
-	uint8_t    color;
-	fb_pixel_t bgcolor0;
 	
 	if ((type & SUB_HEAD))
 	{
-		color = COL_MENUHEAD;
-		bgcolor0 = COL_MENUHEAD_PLUS_0;
+		item_color = COL_MENUHEAD;
+		item_bgcolor = COL_MENUHEAD_PLUS_0;
 	}
 	else
 	{
-		color = COL_MENUCONTENTINACTIVE;
-		bgcolor0 = COL_MENUCONTENT_PLUS_0;
+		item_color = COL_MENUCONTENTINACTIVE;
+		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 
-	frameBuffer->paintBoxRel(x,y, dx, height, bgcolor0);
+	frameBuffer->paintBoxRel(x,y, dx, height, item_bgcolor);
 	if ((type & LINE))
 	{
 		frameBuffer->paintHLineRel(x+10,dx-20,y+(height>>1), COL_MENUCONTENT_PLUS_3);
@@ -1620,9 +1605,9 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 			else /* ALIGN_CENTER */
 				stringstartposX = x + (dx >> 1) - (stringwidth >> 1);
 
-			frameBuffer->paintBoxRel(stringstartposX-5, y, stringwidth+10, height, bgcolor0);
+			frameBuffer->paintBoxRel(stringstartposX-5, y, stringwidth+10, height, item_bgcolor);
 
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+height,dx- (stringstartposX- x) , l_text, color, 0, true); // UTF-8
+			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+height,dx- (stringstartposX- x) , l_text, item_color, 0, true); // UTF-8
 
 			if (selected)
 			{
