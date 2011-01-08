@@ -830,6 +830,7 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 		switch (buttontype)
 		{
 			case BTN_TYPE_BACK:
+				GenericMenuBack->setItemButton(!g_settings.menu_left_exit ? NEUTRINO_ICON_BUTTON_HOME : NEUTRINO_ICON_BUTTON_LEFT); 
 				addItem(GenericMenuBack);
 				break;
 			case BTN_TYPE_CANCEL:
