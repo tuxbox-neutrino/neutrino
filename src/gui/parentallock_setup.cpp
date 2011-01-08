@@ -55,6 +55,7 @@ CParentalSetup::CParentalSetup()
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height 	= hheight+13*mheight+ 10;
+	selected = -1;
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
 }
@@ -113,6 +114,7 @@ void CParentalSetup::showParentalSetup()
 {
 	//menue init
 	CMenuWidget* plock = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_LOCK, width);
+	plock->setSelected(selected);
 
 	//subhead
 	plock->addItem( new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, LOCALE_PARENTALLOCK_PARENTALLOCK));
@@ -129,5 +131,6 @@ void CParentalSetup::showParentalSetup()
 
 	plock->exec(NULL, "");
 	plock->hide();
+	selected = plock->getSelected();
 	delete plock;
 }
