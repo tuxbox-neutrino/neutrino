@@ -25,8 +25,8 @@
 
 
 #include "widget/menue.h"
-#include <libcoolstream/mmi.h>
-#include <libcoolstream/ca_cs.h>
+#include <mmi.h>
+#include <ca_cs.h>
 
 
 using namespace std;
