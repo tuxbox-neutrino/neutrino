@@ -725,8 +725,8 @@ rclock.menueadd Lock RC
 rclock.title Lock Remote Control
 rclock.unlockmsg Remote control reactivated.
 recordingmenu.choose_direct_rec_dir choose dir on imm. recording
-recordingmenu.defdir recording directory
-recordingmenu.tsdir timeshift directory
+recordingmenu.defdir Recording directory
+recordingmenu.tsdir Timeshift directory
 recordingmenu.epg_for_filename long filenames (with EPG data)
 recordingmenu.file direct (file)
 recordingmenu.filesettings direct recording settings

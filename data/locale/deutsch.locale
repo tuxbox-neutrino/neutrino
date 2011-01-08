@@ -1119,7 +1119,7 @@ recordingmenu.stopsectionsd "sectionsd" anhalten
 recordingmenu.stream_pmt_pid PMT aufzeichnen
 recordingmenu.stream_vtxt_pid Teletext aufzeichnen
 recordingmenu.timeshift Timeshift
-recordingmenu.tsdir TS Aufnahmeverzeichnis
+recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
 recordingmenu.use_fdatasync Synchrones Schreiben (fdatasync)
 recordingmenu.use_o_sync Synchrones Schreiben (O_SYNC)
 recordingmenu.vcr Videorekorder
