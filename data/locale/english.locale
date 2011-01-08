@@ -386,18 +386,18 @@ fontsize.epg_date EPG Date
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Title
-fontsize.eventlist_datetime date / time
-fontsize.eventlist_itemlarge large
-fontsize.eventlist_itemsmall small
+fontsize.eventlist_datetime Date / Dime
+fontsize.eventlist_itemlarge Large
+fontsize.eventlist_itemsmall Small
 fontsize.eventlist_title Title
-fontsize.filebrowser_item filebrowser item
-fontsize.gamelist_itemlarge large
-fontsize.gamelist_itemsmall small
+fontsize.filebrowser_item Filebrowser items
+fontsize.gamelist_itemlarge Large
+fontsize.gamelist_itemsmall Small
 fontsize.hint Initialising font,\nplease wait...
 fontsize.infobar_channame Channel name
 fontsize.infobar_info info
 fontsize.infobar_number Number
-fontsize.infobar_small small
+fontsize.infobar_small Small
 fontsize.menu Menutext
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title

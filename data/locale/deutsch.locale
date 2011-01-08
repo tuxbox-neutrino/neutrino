@@ -458,18 +458,18 @@ fontsize.epg_date EPG Datum
 fontsize.epg_info1 EPG Info 1
 fontsize.epg_info2 EPG Info 2
 fontsize.epg_title EPG Titel
-fontsize.eventlist_datetime Eventliste: Datum/Zeit
-fontsize.eventlist_itemlarge Eventliste: groß
-fontsize.eventlist_itemsmall Eventliste: klein
-fontsize.eventlist_title Eventliste: Titel
-fontsize.filebrowser_item Dateibrowser: Eintrag
-fontsize.gamelist_itemlarge groß
-fontsize.gamelist_itemsmall klein
+fontsize.eventlist_datetime Datum/Zeit
+fontsize.eventlist_itemlarge Groß
+fontsize.eventlist_itemsmall Klein
+fontsize.eventlist_title Titel
+fontsize.filebrowser_item Dateibrowsereinträge
+fontsize.gamelist_itemlarge Groß
+fontsize.gamelist_itemsmall Klein
 fontsize.hint Schriftart wird initialisiert,\nbitte warten...
-fontsize.infobar_channame Infobar: Kanalname
-fontsize.infobar_info Infobar: Info
-fontsize.infobar_number Infobar: Nummer
-fontsize.infobar_small Infobar klein
+fontsize.infobar_channame Kanalname
+fontsize.infobar_info Info
+fontsize.infobar_number Nummer
+fontsize.infobar_small Klein
 fontsize.menu Menütext
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
