@@ -48,7 +48,7 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 		
 		bool is_wizard;
 		
-		int x, y, width, height, hheight, mheight;
+		int x, y, width, height, hheight, mheight, selected;
 		void showVideoSetup();
 
 public:

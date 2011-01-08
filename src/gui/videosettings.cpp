@@ -70,6 +70,7 @@ CVideoSettings::CVideoSettings(bool wizard_mode)
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height = hheight+13*mheight+ 10;
+	selected = -1;
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
 	
@@ -199,6 +200,7 @@ void CVideoSettings::showVideoSetup()
 {
 	//init
 	CMenuWidget * videosetup = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
+	videosetup->setSelected(selected);
 	videosetup->setWizardMode(is_wizard);
 	
 	//analog options
@@ -272,6 +274,7 @@ void CVideoSettings::showVideoSetup()
 
  	videosetup->exec(NULL, "");
  	videosetup->hide();
+	selected = videosetup->getSelected();
  	delete videosetup;
 }
 
