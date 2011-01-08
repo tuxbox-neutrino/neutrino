@@ -513,7 +513,8 @@ mainsettings.savesettingsnow save settings now
 mainsettings.savesettingsnow_hint Saving settings,\nplease wait...
 mainsettings.streaming Movieplayer
 mainsettings.video Video
-menu.back back
+menu.back Back
+menu.cancel Cancel
 menu.next Next (press Menu to quit)
 messagebox.back Back
 messagebox.cancel Cancel

@@ -701,6 +701,7 @@ mainsettings.streaming Movieplayer
 mainsettings.timezone Zeitzone
 mainsettings.video Video
 menu.back Zurück
+menu.cancel Abbrechen
 menu.next Weiter (Menü zum Beenden)
 messagebox.back Zurück
 messagebox.cancel Abbruch
