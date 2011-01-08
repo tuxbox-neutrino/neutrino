@@ -57,7 +57,7 @@ CRecordSetup::CRecordSetup()
 {
 	frameBuffer = CFrameBuffer::getInstance();
 
-	width = w_max (35, 10); //%
+	width = w_max (50, 10); //%
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height = hheight+13*mheight+ 10;
