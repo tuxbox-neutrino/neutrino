@@ -1,7 +1,8 @@
+#include "config.h"
 #include <global.h>
 #include <neutrino.h>
 #include "pictureviewer.h"
-#include "config.h"
+#include "pv_config.h"
 #include "driver/framebuffer.h"
 
 
