@@ -57,6 +57,7 @@ CVfdSetup::CVfdSetup()
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height 	= hheight+13*mheight+ 10;
+	selected = -1;
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
 }
@@ -105,6 +106,7 @@ void CVfdSetup::showSetup()
 {
 	CMenuWidget *vfds = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_LCD, width);
 	vfds->addIntroItems(LOCALE_LCDMENU_HEAD);
+	vfds->setSelected(selected);
 
 	CVfdControler* lcdsliders = new CVfdControler(LOCALE_LCDMENU_HEAD, NULL);
 	bool vfd_enabled = (cs_get_revision() != 10);
@@ -136,6 +138,7 @@ void CVfdSetup::showSetup()
 	
 	vfds->exec(NULL, "");
 	vfds->hide();
+	selected = vfds->getSelected();
 	delete vfds;
 }
 
