@@ -528,10 +528,12 @@ extern const neutrino_locale_t timing_setting_name[TIMING_SETTING_COUNT];
 #define CORNER_RADIUS_LARGE             9
 #define CORNER_RADIUS_MID               8
 #define CORNER_RADIUS_SMALL             7
+#define CORNER_RADIUS_MIN	        3
 
 #define RADIUS_LARGE    (g_settings.rounded_corners ? CORNER_RADIUS_LARGE : 0)
 #define RADIUS_MID      (g_settings.rounded_corners ? CORNER_RADIUS_MID : 0)
 #define RADIUS_SMALL    (g_settings.rounded_corners ? CORNER_RADIUS_SMALL : 0)
+#define RADIUS_MIN      (g_settings.rounded_corners ? CORNER_RADIUS_MIN : 0)
 
 // shadow
 #define SHADOW_OFFSET                   6
