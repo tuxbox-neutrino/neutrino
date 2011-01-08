@@ -114,6 +114,7 @@ int CHDDMenuHandler::doMenu ()
 		root_dev = (s.st_dev & 0x0ffc0); /* hda = 0x0300, hdb = 0x0340 */
 	printf("HDD: root_dev: 0x%04x\n", root_dev);
 	std::string tmp_str[n];
+	CMenuWidget * tempMenu[n];
 	for(int i = 0; i < n;i++) {
 		char str[256];
 		char sstr[256];
@@ -174,14 +175,14 @@ int CHDDMenuHandler::doMenu ()
  		snprintf(str, sizeof(str), "%s %s %lld %s", vendor, model, megabytes < 10000 ? megabytes : megabytes/1000, megabytes < 10000 ? "MB" : "GB");
 		printf("HDD: %s\n", str);
 		tmp_str[i]=str;
-		CMenuWidget * tempMenu = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
-		tempMenu->addIntroItems();
+		tempMenu[i] = new CMenuWidget(str, NEUTRINO_ICON_SETTINGS);
+		tempMenu[i]->addIntroItems();
 		//tempMenu->addItem( new CMenuOptionChooser(LOCALE_HDD_FS, &g_settings.hdd_fs, HDD_FILESYS_OPTIONS, HDD_FILESYS_OPTION_COUNT, true));
-		tempMenu->addItem(new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", new CHDDFmtExec, namelist[i]->d_name));
-		tempMenu->addItem(new CMenuForwarder(LOCALE_HDD_CHECK, true, "", new CHDDChkExec, namelist[i]->d_name));
+		tempMenu[i]->addItem(new CMenuForwarder(LOCALE_HDD_FORMAT, true, "", new CHDDFmtExec, namelist[i]->d_name));
+		tempMenu[i]->addItem(new CMenuForwarder(LOCALE_HDD_CHECK, true, "", new CHDDChkExec, namelist[i]->d_name));
 		
 		snprintf(sstr, sizeof(sstr), "%s (%s)", g_Locale->getText(LOCALE_HDD_REMOVABLE_DEVICE),  namelist[i]->d_name);	
-		hddmenu->addItem(new CMenuForwarderNonLocalized((removable ? sstr : namelist[i]->d_name), (removable || isroot) ? false : true, tmp_str[i], tempMenu));
+		hddmenu->addItem(new CMenuForwarderNonLocalized((removable ? sstr : namelist[i]->d_name), (removable || isroot) ? false : true, tmp_str[i], tempMenu[i]));
 		
 		hdd_found = 1;
 		free(namelist[i]);
@@ -193,6 +194,12 @@ int CHDDMenuHandler::doMenu ()
 		hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_NOT_FOUND, false));
 
 	ret = hddmenu->exec(NULL, "");
+	for(int i = 0; i < n;i++) {	
+		if( hdd_found && tempMenu[i] != NULL ){
+			delete tempMenu[i];
+		}
+	}
+
 	delete hddmenu;
 	return ret;
 }
