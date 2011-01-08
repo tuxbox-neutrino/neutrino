@@ -557,24 +557,26 @@ hdd_20min 20 min.
 hdd_30min 30 min.
 hdd_5min 5 min.
 hdd_60min 60 min.
-hdd_activate Einstellungen aktivieren
+hdd_activate Übernehmen
 hdd_check Dateisystemprüfung
 hdd_check_failed Festplattenprüfung fehlgeschlagen
 hdd_ext3 Ext3fs
+hdd_extended_settings Erweiterte Festplatteneinstellungen
 hdd_fast Schnell
 hdd_format Formatiere Festplatte
 hdd_format_failed Formatierung fehlgeschlagen
 hdd_format_warn Formatierung wird gestartet
 hdd_fs Dateisystem
-hdd_manage Festplattenverwaltung
+hdd_manage Laufwerke verwalten
 hdd_middle Mittel
-hdd_noise Akustik-Einstellung
+hdd_noise Akustikkontrolle (AAM)
 hdd_not_found Keine Festplatte
 hdd_reiser ReiserFS
-hdd_settings Festplatteneinstellungen
-hdd_sleep Motorstopp nach
+hdd_removable_device Wechseldatenträger
+hdd_settings Laufwerke
+hdd_sleep Ausschalten nach...
 hdd_slow Langsam
-hdd_umount_warn unmout des Laufwerks
+hdd_umount_warn Laufwerk aushängen
 imageinfo.creator Ersteller:
 imageinfo.date Datum:
 imageinfo.dokumentation Dokus:

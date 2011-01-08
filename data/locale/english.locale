@@ -188,7 +188,7 @@ audioplayer.show_playlist Show Playlist
 audioplayer.shuffle shuffle
 audioplayer.stop Stop
 audioplayer.title_artist Title, Artist
-audioplayerpicsettings.general audioplayer / picviewer
+audioplayerpicsettings.general Audioplayer / Picviewer
 bookmarkmanager.delete delete
 bookmarkmanager.name bookmarks
 bookmarkmanager.rename rename
@@ -403,6 +403,32 @@ fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
 gtxalpha.alpha1 Alpha 1
 gtxalpha.alpha2 Alpha 2
+hdd_10min 10 min.
+hdd_1min 1 min.
+hdd_20min 20 min.
+hdd_30min 30 min.
+hdd_5min 5 min.
+hdd_60min 60 min.
+hdd_activate Apply settings
+hdd_check Check filesystem
+hdd_check_failed HDD-check failed!
+hdd_ext3 Ext3fs
+hdd_extended_settings Extended HDD-Settings
+hdd_fast Fast
+hdd_format Formating drive...
+hdd_format_failed Formating failed!
+hdd_format_warn Start format...
+hdd_fs Filesystem
+hdd_manage Manage drives
+hdd_middle Mid
+hdd_noise Acoustic-control (AAM)
+hdd_not_found No HDD found
+hdd_reiser ReiserFS
+hdd_removable_device Removable device
+hdd_settings Hard Disk Drive/USB
+hdd_sleep Switch off after...
+hdd_slow Slow
+hdd_umount_warn unmount device
 infoviewer.epgnotload EPG not loaded....
 infoviewer.epgwait waiting for EPG...
 infoviewer.eventlist Event-List
@@ -454,7 +480,7 @@ keychooser.text2 wait a few seconds for abort
 keychoosermenu.currentkey current key
 keychoosermenu.setnew setup new key
 keychoosermenu.setnone no key
-languagesetup.head International settings
+languagesetup.head Language / Timezone
 languagesetup.osd OSD Language
 languagesetup.select OSD Language
 lcdcontroler.brightness normal Brightness
@@ -503,13 +529,13 @@ mainsettings.audio Audio
 mainsettings.osd OSD
 mainsettings.head Settings
 mainsettings.keybinding Key Setup
-mainsettings.language International settings
+mainsettings.language Language / Timezone
 mainsettings.lcd VFD-Display
 mainsettings.misc Misc settings
 mainsettings.manage Manage settings
 mainsettings.network Network
 mainsettings.recording Recording
-mainsettings.savesettingsnow save settings now
+mainsettings.savesettingsnow Save settings now
 mainsettings.savesettingsnow_hint Saving settings,\nplease wait...
 mainsettings.streaming Movieplayer
 mainsettings.video Video
@@ -614,8 +640,8 @@ networkmenu.hostname Hostname
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
 networkmenu.mount Edit network shares
-networkmenu.nameserver name server
-networkmenu.netmask netmask
+networkmenu.nameserver Name server
+networkmenu.netmask Netmask
 networkmenu.ntpenable Syncronisation via
 networkmenu.ntprefresh NTP/DVB-Refresh
 networkmenu.ntprefresh_hint1 NTP/DVB-Time-Sync in minutes
@@ -625,12 +651,12 @@ networkmenu.ntpserver_hint1 NTP-Server example: ntp1.ptb.de
 networkmenu.ntpserver_hint2 need reboot or epg-reset
 networkmenu.ntptitle Time-Syncronisation
 networkmenu.reset_settings_now Do you want restore the previous settings?
-networkmenu.setupnow setup network now
-networkmenu.setuponstartup setup network on startup
-networkmenu.show show active network settings
-networkmenu.test test network now
+networkmenu.setupnow Apply network settings now
+networkmenu.setuponstartup Setup network on startup
+networkmenu.show Show active Network settings
+networkmenu.test Test network now
 nfs.alreadymounted directory already mounted
-nfs.automount mount on startup
+nfs.automount Mount on startup
 nfs.dir directory/share
 nfs.ip Server IP
 nfs.localdir local dir
@@ -1001,30 +1027,6 @@ extra.hw_sect Hardware Sections
 extra.logo Logo number
 extra.scan_full Full
 extra.scan_fast Fast
-hdd_slow Slow
-hdd_middle Middle
-hdd_fast Fast
-hdd_ext3 Ext3fs
-hdd_reiser Reiserfs
-hdd_1min 1 min.
-hdd_5min 5 min.
-hdd_10min 10 min.
-hdd_20min 20 min.
-hdd_30min 30 min.
-hdd_60min 60 min.
-hdd_sleep Sleep time
-hdd_noise Noise
-hdd_activate Activate settings
-hdd_fs Filesystem
-hdd_format Format HDD
-hdd_check Check filesystem
-hdd_settings HDD Settings
-hdd_format_warn Are you sure to format ? You will lost all data !
-hdd_umount_warn HDD unmount failed !
-hdd_check_failed HDD check failed !
-hdd_format_failed HDD format failed !
-hdd_manage Manage
-hdd_not_found No HDD found
 extra.clear_log Clear Log
 extra.zap_cycle Zap cycle
 extra.sms_channel sms-mode channel
