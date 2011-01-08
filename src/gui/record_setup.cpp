@@ -61,6 +61,7 @@ CRecordSetup::CRecordSetup()
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height = hheight+13*mheight+ 10;
+	selected = -1;
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
 
@@ -193,7 +194,7 @@ void CRecordSetup::showRecordSetup()
 {
 	//menue init
 	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
-// 	recordingSettings->setPreselected(selected);
+ 	recordingSettings->setSelected(selected);
 	
 	//apply settings
 	recordingSettings->addIntroItems(LOCALE_MAINSETTINGS_RECORDING);
@@ -227,7 +228,7 @@ void CRecordSetup::showRecordSetup()
 	
 	recordingSettings->exec(NULL, "");
 	recordingSettings->hide();
-// 	selected = recordingSettings->getSelected();
+ 	selected = recordingSettings->getSelected();
 	delete recordingSettings;
 }
 
