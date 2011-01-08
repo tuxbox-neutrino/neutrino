@@ -40,6 +40,7 @@ install_DATA =	accept.png \
 		ftype_folder.gif \
 		ftype_link.gif \
 		fullscreen.png \
+		hd1.jpg \
 		head-blue-l.gif \
 		head-blue-r.gif \
 		head-orange-l.gif \
@@ -63,6 +64,7 @@ install_DATA =	accept.png \
 		lock.gif \
 		lock.png \
 		modify.png \
+		neo.jpg \
 		new.gif \
 		new.png \
 		ok.gif \
@@ -72,7 +74,6 @@ install_DATA =	accept.png \
 		properties.gif \
 		properties.png \
 		radio.png \
-		rcd.jpg \
 		rc.gif \
 		rc.jpg \
 		rc_sagem.jpg \
@@ -112,5 +113,5 @@ install_DATA =	accept.png \
 		x_red.gif \
 		yjogol.gif \
 		y.png \
-		zap.png 
-		
+		zap.png \
+		zee.jpg
