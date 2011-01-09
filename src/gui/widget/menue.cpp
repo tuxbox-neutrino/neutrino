@@ -113,28 +113,24 @@ void CMenuItem::setItemColors(const bool select_mode, 	const fb_pixel_t &def_col
 	}
 }
 
+
 void CMenuItem::paintItemBackground (const bool select_mode, const int &item_x, const int &item_y, const int &width, const int &height)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	
 	if(select_mode)
 		frameBuffer->paintBoxRel(item_x, item_y, width, height, item_bgcolor, RADIUS_LARGE);
-	//else if(last)
-		//frameBuffer->paintBoxRel(item_x, item_y, width, height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME
+	//else if(last) ?? Why do we need this?
+		//frameBuffer->paintBoxRel(item_x, item_y, width, height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME 
 	else
 		frameBuffer->paintBoxRel(item_x, item_y, width, height, item_bgcolor);
 }
 
 
-void CMenuItem::paintItem(const bool select_mode, int &start_x, int &start_y, int &width, int &height, 
-						const fb_pixel_t &def_color, const fb_pixel_t &def_bgcolor, 
-						const fb_pixel_t &def_sel_color, const fb_pixel_t &def_sel_bgcolor, 
-						const fb_pixel_t &def_inactiv_color, const fb_pixel_t &def_inactiv_bgcolor)
+void CMenuItem::paintItem(const bool select_mode, int &start_x, int &start_y, int &width, int &height)
 {
-	//set colors
-	setItemColors(select_mode, def_color, def_bgcolor, 
-					def_sel_color, def_sel_bgcolor, 
-						def_inactiv_color, def_inactiv_bgcolor);
+// 	//set colors
+// 	setItemColors(select_mode);
 
 	//paint item background
 	paintItemBackground(select_mode, start_x, start_y, width, height);
@@ -801,13 +797,16 @@ void CMenuWidget::paintItems()
 		{
 			item->init(x, ypos, width, iconOffset);
 			if( (item->isSelectable()) && (selected==-1) )
-			{
+			{		
+				item->setItemColors(true);
 				ypos = item->paint(true);
 				selected = count;
 			}
 			else
 			{
-				ypos = item->paint(selected==((signed int) count) );
+				bool sel = selected==((signed int) count) ;
+				item->setItemColors(sel);
+				ypos = item->paint(sel);
 			}
 		}
 		else
@@ -906,6 +905,9 @@ int CMenuOptionNumberChooser::paint(bool selected, bool /*last*/)
 	int stringstartposName = x + offx + 10;
 	int stringstartposOption = x + dx - stringwidth - 10; //+ offx
 	
+	//set colors
+	setItemColors(selected);
+		
 	//paint item
 	paintItem(selected, x, y, dx, height);
 
@@ -1120,6 +1122,9 @@ int CMenuOptionChooser::paint( bool selected , bool /*last*/)
 	int stringstartposName = x + offx + 10;
 	int stringstartposOption = x + dx - stringwidth - 10; //+ offx
 	
+	//set colors
+	setItemColors(selected);
+	
 	//paint item
 	paintItem(selected, x, y, dx, height);
 	
@@ -1259,6 +1264,9 @@ int CMenuOptionStringChooser::paint( bool selected, bool /*last*/ )
 	//int stringstartposOption = x + dx - stringwidth - 10; //+ offx
 	int stringstartposOption = x + offx + 10 + 10 + optionwidth;
 	
+	//set colors
+	setItemColors(selected);
+	
 	//paint item
 	paintItem(selected, x, y, dx, height);
 
@@ -1332,7 +1340,10 @@ int CMenuOptionLanguageChooser::exec(CMenuTarget*)
 int CMenuOptionLanguageChooser::paint( bool selected, bool /*last*/ )
 {
 	active = true;
-	
+		
+	//set colors
+	setItemColors(selected);
+
 	//paint item
 	paintItem(selected, x, y, dx, height);
 
@@ -1472,7 +1483,10 @@ int CMenuForwarder::paint(bool selected, bool /*last*/)
 		} else
 			CVFD::getInstance()->showMenuText(0, l_text, -1, true);
 	}
-
+	
+	//set colors
+	setItemColors(selected);
+	
 	//paint item
 	paintItem(selected, x, y, dx, height);
 	

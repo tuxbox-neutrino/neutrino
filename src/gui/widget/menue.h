@@ -80,8 +80,6 @@ class CMenuItem
 	protected:
 		int x, y, dx, offx;
 		bool used;
-		unsigned char 	item_color   ;
-		fb_pixel_t    	item_bgcolor ;
 		
 	public:
 		bool           	active;
@@ -91,6 +89,8 @@ class CMenuItem
 		std::string    	iconName;
 		std::string    	selected_iconName;
 		bool		show_marker;
+		fb_pixel_t	item_color;
+		fb_pixel_t	item_bgcolor;
 
 
 		CMenuItem()
@@ -131,18 +131,14 @@ class CMenuItem
 
 		virtual void paintItemButton(const int startX, const int frame_height, const bool select_mode, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT, const bool icon_centered = false);
 		
-		virtual void setItemColors(const bool select_mode, 	const fb_pixel_t &def_color = COL_MENUCONTENT, 			const fb_pixel_t &def_bgcolor = COL_MENUCONTENT_PLUS_0, 
+		virtual void setItemColors(const bool select_mode , 	const fb_pixel_t &def_color = COL_MENUCONTENT, 			const fb_pixel_t &def_bgcolor = COL_MENUCONTENT_PLUS_0, 
 									const fb_pixel_t &def_sel_color = COL_MENUCONTENTSELECTED, 	const fb_pixel_t &def_sel_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0, 
 									const fb_pixel_t &def_inactiv_color = COL_MENUCONTENTINACTIVE,	const fb_pixel_t &def_inactiv_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0);
 									
 		virtual void paintItemBackground (const bool select_mode, const int &x, const int &y, const int &width, const int &height);
 		
-		virtual void paintItem(const bool select_mode, 		int &x, int &y, int &width, int &height ,  
-									const fb_pixel_t &def_color = COL_MENUCONTENT, 			const fb_pixel_t &def_bgcolor = COL_MENUCONTENT_PLUS_0, 
-									const fb_pixel_t &def_sel_color = COL_MENUCONTENTSELECTED, 	const fb_pixel_t &def_sel_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0, 
-									const fb_pixel_t &def_inactiv_color = COL_MENUCONTENTINACTIVE,	const fb_pixel_t &def_inactiv_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0);
+		virtual void paintItem(const bool select_mode, int &start_x, int &start_y, int &width, int &height);
 
-		
 		virtual void setItemButton(const std::string& icon_Name, const bool is_select_button = false);
 };
 
