@@ -2162,7 +2162,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	int dx = 0;
 	int dy = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME,&dx,&dy);
-	g_volscale = new CProgressBar(true, dy*12.5, dy, 50, 100, 80, true);
+	g_volscale = new CProgressBar(true, dy * 125 / 10, dy, 50, 100, 80, true);
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
@@ -3686,8 +3686,8 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
 
 		frameBuffer->paintBoxRel(x , y , dx, dy, COL_MENUCONTENT_PLUS_0, g_settings.rounded_corners ? dy/2 : 0);
-		frameBuffer->paintBoxRel (x + dy + (dy/4)-2, y+(dy/4)-2, ((dy/2)*12.5) +4, dy/2+4, COL_MENUCONTENT_PLUS_3);
-		frameBuffer->paintBoxRel (x + dy + (dy/4),   y+(dy/4), (dy/2)*12.5, dy/2, COL_MENUCONTENT_PLUS_1);
+		frameBuffer->paintBoxRel(x+dy+dy/4-2, y+dy/4-2, dy*25/4+4, dy/2+4, COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+dy+dy/4,   y+dy/4,   dy*25/4,   dy/2,   COL_MENUCONTENT_PLUS_1);
 		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x+dy/2,y+(dy/4), 0, COL_MENUCONTENT_PLUS_0);
 
 		g_volscale->reset();
