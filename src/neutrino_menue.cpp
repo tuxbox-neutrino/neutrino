@@ -827,6 +827,28 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	int dmode = scanSettings.diseqcMode;
 	int shortcut = 1;
 	static int all_usals = 1;
+	
+	//scale to max sat/cable name lenght
+	unsigned int sat_txt_w = 0, max_txt_w = 0;
+	sat_iterator_t sit;
+	if (g_info.delivery_system == DVB_S) {
+		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+			sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(sit->second.name.c_str(), true);
+			max_txt_w = std::max(max_txt_w,sat_txt_w);
+		}
+	} else if (g_info.delivery_system == DVB_C) {
+		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+			sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(sit->second.name.c_str(), true);
+			max_txt_w = std::max(max_txt_w,sat_txt_w);
+		}
+	}
+	int w, h;
+	const unsigned int mini_w = 30;//mini width 30%
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &w, &h);
+	max_txt_w += (w*2) +30;
+	max_txt_w = std::min(max_txt_w, frameBuffer->getScreenWidth());
+	max_txt_w = max_txt_w*100/frameBuffer->getScreenWidth();
+	max_txt_w = std::max(max_txt_w,mini_w);
 
 	CTPSelectHandler * tpSelect = new CTPSelectHandler();
 
@@ -855,7 +877,6 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 	CMenuOptionStringChooser *satSelect = NULL;
 	CMenuWidget* satOnOff = NULL;
-	sat_iterator_t sit;
 
 	//t_satellite_position currentSatellitePosition = frontend->getCurrentSatellitePosition();
 	if (g_info.delivery_system == DVB_S) {
@@ -905,6 +926,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 			tempsat->addItem(new CMenuForwarder(LOCALE_SATSETUP_LOFH, true, lofH->getValue(), lofH));
 			tempsat->addItem(new CMenuForwarder(LOCALE_SATSETUP_LOFS, true, lofS->getValue(), lofS));
 			satSetup->addItem(new CMenuForwarderNonLocalized(sit->second.name.c_str(), true, NULL, tempsat));
+
 		}
 	} else if (g_info.delivery_system == DVB_C) {
 		satSelect = new CMenuOptionStringChooser(LOCALE_CABLESETUP_PROVIDER, (char*)scanSettings.satNameNoDiseqc, true);
@@ -980,7 +1002,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
 	}
 
-	CMenuWidget* manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget* manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, max_txt_w);
 
 	CScanTs * scanTs = new CScanTs();
 
@@ -998,7 +1020,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_TEST, true, NULL, scanTs, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	manualScan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, scanTs, "manual", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
-	CMenuWidget* autoScan = new CMenuWidget(LOCALE_SATSETUP_AUTO_SCAN, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget* autoScan = new CMenuWidget(LOCALE_SATSETUP_AUTO_SCAN, NEUTRINO_ICON_SETTINGS, max_txt_w);
 	autoScan->addIntroItems();
 	autoScan->addItem(satSelect);
 	autoScan->addItem(useNit);
