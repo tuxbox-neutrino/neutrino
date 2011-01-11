@@ -758,14 +758,14 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		}
 
 		//menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), old_selected == i);
-		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), false);
+		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, NULL, CRCInput::RC_nokey, NULL), false);
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
 	}
 	if (i == 0) {
-		char text[255];
-		sprintf(text, "No transponders found for %s\n", CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc);
-		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text, 450, 2);
+		std::string text = "No transponders found for ";
+		text += CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc;
+		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text.c_str(), 450, 2);
 		return menu_return::RETURN_REPAINT;
 	}
 	menu->setSelected(old_selected);

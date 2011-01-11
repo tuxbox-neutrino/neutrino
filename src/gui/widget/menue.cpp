@@ -189,7 +189,7 @@ void CMenuItem::paintItemButton(const int startX, const int frame_height, const 
 		{
 			//paint icon centered, if we using one of these icons. Note: overwrites  parameter 'icon_centered'
 			if (!centered)
-				centered = (icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME);
+				centered = (icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME ||  icon_name == NEUTRINO_ICON_BUTTON_RIGHT);
 			
 			if (centered/* || icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME*/)
 				icon_x = x+ ((icon_start_x-x)/2) - (icon_w/2); //centered
