@@ -379,8 +379,9 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 			}
 			break;
 		}
-		case 0x11:
-			{} //eDebug("unsup. Basic Multilingual Plane of ISO/IEC 10646-1 enc.");
+		case 0x11:// Basic Multilingual Plane of ISO/IEC 10646-1 enc (UTF-16... Unicode) 
+			table = 65;
+			tsidonid = 0; 
 			++i;
 			break;
 		case 0x12:
@@ -415,8 +416,16 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 //dprintf("recode:::: doVideoTexSuppl code %lX\n", code);
 		}
 
-		if (!code)
-			code=recode(data[i++], table);
+		if (!code) {
+			if (table == 65) { // unicode
+				if (i+1 < len) {
+					code=(data[i] << 8) | data[i+1];
+					i += 2;
+				}
+			}
+			else
+				code=recode(data[i++], table);
+		}
 		if (!code)
 			continue;
 				// Unicode->UTF8 encoding
