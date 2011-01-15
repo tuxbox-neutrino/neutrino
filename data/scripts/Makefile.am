@@ -1,4 +1,4 @@
-installdir = $(DESTDIR)$(bindir)
+installdir = $(bindir)
 
 install_DATA = \
 	backup.sh \

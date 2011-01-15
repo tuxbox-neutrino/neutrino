@@ -256,10 +256,10 @@ fi
 AC_DEFUN([_TUXBOX_APPS_LIB_PKGCONFIG],[
 AC_REQUIRE([TUXBOX_APPS_PKGCONFIG])
 AC_MSG_CHECKING(for package $2)
-if PKG_CONFIG_PATH="${prefix}/lib/pkgconfig" $PKG_CONFIG --exists "$2" ; then
+if $PKG_CONFIG --exists "$2" ; then
 	AC_MSG_RESULT(yes)
-	$1_CFLAGS=$(PKG_CONFIG_PATH="${prefix}/lib/pkgconfig" $PKG_CONFIG --cflags "$2")
-	$1_LIBS=$(PKG_CONFIG_PATH="${prefix}/lib/pkgconfig" $PKG_CONFIG --libs "$2")
+	$1_CFLAGS=$($PKG_CONFIG --cflags "$2")
+	$1_LIBS=$($PKG_CONFIG --libs "$2")
 else
 	AC_MSG_RESULT(no)
 fi
