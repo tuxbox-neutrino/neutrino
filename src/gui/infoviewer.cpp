@@ -608,14 +608,15 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	} else
 		fadeValue = g_settings.infobar_alpha;
 
-	int col_NumBoxText;
-	int col_NumBox;
+	int col_NumBoxText = COL_INFOBAR;
+	int col_NumBox = COL_INFOBAR_PLUS_0;
 	ChannelName = Channel;
 	bool new_chan = false;
 
 	if (virtual_zap_mode) {
-		col_NumBoxText = COL_MENUHEAD;
-		col_NumBox = COL_MENUHEAD_PLUS_0;
+		if (g_RemoteControl->current_channel_id != new_channel_id) {
+			col_NumBoxText = COL_MENUHEAD;
+		}
 		if ((channel_id != new_channel_id) || (evtlist.empty())) {
 			evtlist.clear();
 			//evtlist = g_Sectionsd->getEventsServiceKey(new_channel_id & 0xFFFFFFFFFFFFULL);
@@ -624,9 +625,6 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 				sort(evtlist.begin(),evtlist.end(), sortByDateTime);
 			new_chan = true;
 		}
-	} else {
-		col_NumBoxText = COL_INFOBAR;
-		col_NumBox = COL_INFOBAR_PLUS_0;
 	}
 	if (! calledFromNumZap && !(g_RemoteControl->subChannels.empty()) && (g_RemoteControl->selected_subchannel > 0))
 	{

@@ -535,7 +535,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					}
 					break;
 				case (CRCInput::RC_left):
-					if(!(items[selected]->can_arrow) || g_settings.menu_left_exit) {
+					if(( hasItem() && !(items[selected]->can_arrow)) || g_settings.menu_left_exit) {
 						msg = CRCInput::RC_timeout;
 						break;
 					}
