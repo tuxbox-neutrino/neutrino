@@ -102,24 +102,14 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey == "recordingdir") 
 	{
 		//parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_recordingdir)) 
-		{
-			const char * newdir = b.getSelectedFile()->Name.c_str();
-			printf("New recordingdir: selected %s\n", newdir);
-			if(check_dir(newdir))
-				printf("Wrong/unsupported recording dir %s\n", newdir);
-			else 
+		const char *action_str = "recordingdir";
+		if(chooserDir(g_settings.network_nfs_recordingdir, true, action_str, sizeof(g_settings.network_nfs_recordingdir)-1)){
+			printf("New recordingdir: %s (timeshift %s)\n", g_settings.network_nfs_recordingdir, g_settings.timeshiftdir);
+			if(strlen(g_settings.timeshiftdir) == 0) 
 			{
-				strncpy(g_settings.network_nfs_recordingdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_recordingdir)-1);
-				printf("New recordingdir: %s (timeshift %s)\n", g_settings.network_nfs_recordingdir, g_settings.timeshiftdir);
-				if(strlen(g_settings.timeshiftdir) == 0) 
-				{
-					sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
-					safe_mkdir(timeshiftDir);
-					printf("New timeshift dir: %s\n", timeshiftDir);
-				}
+				sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
+				safe_mkdir(timeshiftDir);
+				printf("New timeshift dir: %s\n", timeshiftDir);
 			}
 		}
 		return res;
