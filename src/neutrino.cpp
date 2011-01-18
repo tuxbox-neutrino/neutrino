@@ -4051,7 +4051,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	//	printf("ac: %s\n", actionKey.c_str());
 	int returnval = menu_return::RETURN_REPAINT;
-	const char *wrong_str = "Wrong/unsupported";
 
 	if(actionKey == "help_recording") {
 		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
@@ -4173,87 +4172,58 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 // 	}
 	else if(actionKey == "audioplayerdir") {
 		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_audioplayerdir))
-			strncpy(g_settings.network_nfs_audioplayerdir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_audioplayerdir)-1);
-		return menu_return::RETURN_REPAINT;
+
+		chooserDir(g_settings.network_nfs_audioplayerdir, false, NULL, sizeof(g_settings.network_nfs_audioplayerdir)-1);
+
 	}
 	else if(actionKey == "picturedir") {
 		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_picturedir))
-			strncpy(g_settings.network_nfs_picturedir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_picturedir)-1);
+
+		chooserDir(g_settings.network_nfs_picturedir, false, NULL, sizeof(g_settings.network_nfs_picturedir)-1);
+
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "moviedir") {
 		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.network_nfs_moviedir))
-			strncpy(g_settings.network_nfs_moviedir, b.getSelectedFile()->Name.c_str(), sizeof(g_settings.network_nfs_moviedir)-1);
+
+		chooserDir(g_settings.network_nfs_moviedir, false, NULL, sizeof(g_settings.network_nfs_moviedir)-1);
+
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "update_dir") {
 		parent->hide();
-		CFileBrowser fileBrowser;
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec(g_settings.update_dir) == true) {
-			const char * newdir = fileBrowser.getSelectedFile()->Name.c_str();
-			if(check_dir(newdir))
-				printf("%s recording dir %s\n",wrong_str , newdir);
-			else {
-				strcpy(g_settings.update_dir, fileBrowser.getSelectedFile()->Name.c_str());
-				printf("[neutrino] new update dir %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-			}
+
+		const char *action_str = "update";
+		if(chooserDir(g_settings.update_dir, true, NULL, sizeof(g_settings.update_dir)-1)){
+				printf("[neutrino] new %s dir %s\n", action_str, g_settings.update_dir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "epgdir") {
 		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.epg_dir.c_str())) {
-			const char * newdir = b.getSelectedFile()->Name.c_str();
-			if(check_dir(newdir))
-				printf("%s epg dir %s\n",wrong_str , newdir);
-			else {
-				g_settings.epg_dir = b.getSelectedFile()->Name;
-				SendSectionsdConfig();
-			}
+
+		const char *action_str = "epg";
+		if(chooserDir(g_settings.epg_dir, true, action_str)){
+			SendSectionsdConfig();
 		}
 
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "plugin_dir") {
 		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.plugin_hdd_dir.c_str())) {
-			const char * newdir = b.getSelectedFile()->Name.c_str();
-			if(check_dir(newdir))
-				printf("%s plugin dir %s\n",wrong_str , newdir);
-			else {
-				g_settings.plugin_hdd_dir = b.getSelectedFile()->Name;
-				g_PluginList->loadPlugins();
-			}
+
+		const char *action_str = "plugin";
+		if(chooserDir(g_settings.plugin_hdd_dir, true, action_str)){
+			g_PluginList->loadPlugins();
 		}
 
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "logo_dir") {
 		parent->hide();
-		CFileBrowser b;
-		b.Dir_Mode=true;
-		if (b.exec(g_settings.logo_hdd_dir.c_str())) {
-			const char * newdir = b.getSelectedFile()->Name.c_str();
-			if(check_dir(newdir))
-				printf("%s logo dir %s\n",wrong_str , newdir);
-			else {
-				g_settings.logo_hdd_dir = b.getSelectedFile()->Name;
-			}
-		}
+
+		const char *action_str = "logo";
+		chooserDir(g_settings.logo_hdd_dir, true, action_str);
 
 		return menu_return::RETURN_REPAINT;
 	}

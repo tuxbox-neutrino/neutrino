@@ -1379,6 +1379,33 @@ void CFileBrowser::paintHead()
 	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+10,y+theight+1, width-11, l_name, COL_MENUHEAD, 0, true); // UTF-8
 }
 
+bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t str_leng)
+{
+	std::string tmp_setting_dir = setting_dir;
+	if(chooserDir(tmp_setting_dir, test_dir, action_str)){
+		strncpy(setting_dir,tmp_setting_dir.c_str(), str_leng);
+		return true;
+	}
+	return false;
+}
+bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str)
+{
+	const char *wrong_str = "Wrong/unsupported";
+		CFileBrowser b;
+		b.Dir_Mode=true;
+		if (b.exec(setting_dir.c_str())) {
+			const char * newdir = b.getSelectedFile()->Name.c_str();
+			if(test_dir && check_dir(newdir)){
+				printf("%s %s dir %s\n",wrong_str ,action_str, newdir);
+				return false;
+			}else {
+				setting_dir = b.getSelectedFile()->Name;
+				return true;
+			}
+		}
+	return false;
+}
+
 //------------------------------------------------------------------------
 
 const struct button_label FileBrowserButtons[3] =

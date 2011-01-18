@@ -56,6 +56,9 @@
 #define ENABLE_INTERNETRADIO
 #define VLC_URI "vlc://"
 
+bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str);
+bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t str_leng);
+
 /**
  * Converts input of numeric keys to SMS style char input.
  */
