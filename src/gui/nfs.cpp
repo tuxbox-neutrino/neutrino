@@ -160,12 +160,7 @@ int CNFSMountGui::exec( CMenuTarget* parent, const std::string & actionKey )
 	{
 		parent->hide();
 		int nr=atoi(actionKey.substr(3,1).c_str());
-		CFileBrowser b;
-		b.Dir_Mode=true;
-
-		if (b.exec(g_settings.network_nfs_local_dir[nr]))
-			strcpy(g_settings.network_nfs_local_dir[nr], b.getSelectedFile()->Name.c_str());
-
+		chooserDir(g_settings.network_nfs_local_dir[nr], false, NULL, sizeof(g_settings.network_nfs_local_dir[nr])-1);
 		returnval = menu_return::RETURN_REPAINT;
 	}
 	return returnval;

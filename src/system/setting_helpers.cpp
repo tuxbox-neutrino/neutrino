@@ -1108,11 +1108,26 @@ int safe_mkdir(char * path)
 
 int check_dir(const char * newdir)
 {
-	if(strncmp(newdir, "/media/sda1/", 12) && strncmp(newdir, "/media/sdb1/", 12) && strncmp(newdir, "/mnt/", 5) && strncmp(newdir, "/tmp/", 5) && strncmp(newdir, "/media/", 7)) {
-		return 1;
+  
+  	struct statfs s;
+	if (::statfs(newdir, &s) == 0) {
+		switch (s.f_type)	/* f_type is long */
+		{
+			case 0xEF53L:		/*EXT2 & EXT3*/
+			case 0x6969L:		/*NFS*/
+			case 0xFF534D42L:	/*CIFS*/
+			case 0x517BL:		/*SMB*/
+			case 0x52654973L:	/*REISERFS*/
+			case 0x65735546L:	/*fuse for ntfs*/
+			case 0x58465342L:	/*xfs*/
+			case 0x4d44L:		/*msdos*/
+				return 0;//ok
+			default:
+				fprintf( stderr,"%s Unknow File system type: %i\n",newdir ,s.f_type);
+			  break;
+		}
 	}
-
-	return 0;
+		return 1;//error			  
 }
 
 

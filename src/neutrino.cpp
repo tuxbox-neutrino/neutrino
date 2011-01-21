@@ -1882,7 +1882,6 @@ bool CNeutrinoApp::doGuiRecord(char * preselectedDir, bool addTimer)
 				}
 				else if(preselectedDir == NULL && (g_settings.recording_choose_direct_rec_dir == 1)) {
 					int userDecision = -1;
-
 					CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&userDecision,NULL,g_settings.network_nfs_recordingdir);
 					if (recDirs.hasItem()) {
 						recDirs.exec(NULL,"");
@@ -4213,7 +4212,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		parent->hide();
 
 		const char *action_str = "plugin";
-		if(chooserDir(g_settings.plugin_hdd_dir, true, action_str)){
+		if(chooserDir(g_settings.plugin_hdd_dir, false, action_str)){
 			g_PluginList->loadPlugins();
 		}
 
@@ -4223,7 +4222,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		parent->hide();
 
 		const char *action_str = "logo";
-		chooserDir(g_settings.logo_hdd_dir, true, action_str);
+		chooserDir(g_settings.logo_hdd_dir, false, action_str);
 
 		return menu_return::RETURN_REPAINT;
 	}

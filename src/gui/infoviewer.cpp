@@ -1342,25 +1342,9 @@ void CInfoViewer::showSNR ()
 					   BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
 		per = 0;
 		//HD info
-		if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0) {
-			switch (s.f_type)
-			{
-			case (int) 0xEF53:      /*EXT2 & EXT3*/
-			case (int) 0x6969:      /*NFS*/
-			case (int) 0xFF534D42:  /*CIFS*/
-			case (int) 0x517B:      /*SMB*/
-			case (int) 0x52654973:  /*REISERFS*/
-			case (int) 0x65735546:  /*fuse for ntfs*/
-			case (int) 0x58465342:  /*xfs*/
-			case (int) 0x4d44:      /*msdos*/
-				per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
-				break;
-			default:
-				fprintf( stderr,"%s Unknow File system type: %i\n",g_settings.network_nfs_recordingdir ,s.f_type);
-				break;
-			}
+		if(!check_dir(g_settings.network_nfs_recordingdir)){
+		  	per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
 		}
-
 		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - 102,
 					   BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
 	}
