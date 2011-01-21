@@ -758,7 +758,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		}
 
 		//menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), old_selected == i);
-		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, NULL, CRCInput::RC_nokey, NULL), false);
+		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt, CRCInput::RC_nokey, NULL), false);
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
 	}
