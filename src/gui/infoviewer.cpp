@@ -1343,7 +1343,9 @@ void CInfoViewer::showSNR ()
 		per = 0;
 		//HD info
 		if(!check_dir(g_settings.network_nfs_recordingdir)){
-		  	per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
+			if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0) {
+				per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
+			}
 		}
 		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - 102,
 					   BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
