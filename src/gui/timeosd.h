@@ -42,7 +42,7 @@ class CTimeOSD
 		time_t m_time_dis;
 		time_t m_time_show;
 		bool visible;
-		int m_xstart,m_xend,m_y,m_height, m_width, twidth;
+		int m_xstart,m_xend,m_y,m_height, m_width, t1;
 		mode m_mode;
 		void GetDimensions();
 

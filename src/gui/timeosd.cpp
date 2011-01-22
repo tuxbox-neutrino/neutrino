@@ -34,7 +34,6 @@
 static CProgressBar *timescale;
 
 #define TIMEOSD_FONT SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME
-#define TIMEBARH 38
 #define BARLEN 200
 CTimeOSD::CTimeOSD()
 {
@@ -43,7 +42,7 @@ CTimeOSD::CTimeOSD()
 	m_mode=MODE_ASC;
 	GetDimensions();
 	if (! timescale)
-		timescale = new CProgressBar(true, 200, 32, 40, 100, 70, true);
+		timescale = new CProgressBar(true, BARLEN, 32, 40, 100, 70, true);
 }
 
 CTimeOSD::~CTimeOSD()
@@ -61,7 +60,7 @@ void CTimeOSD::show(time_t time_show)
 	visible = true;
 	m_time_dis  = time(NULL);
 	m_time_show = time_show;
-	frameBuffer->paintBoxRel(m_xstart-2, m_y, 2+BARLEN+2, TIMEBARH, COL_INFOBAR_SHADOW_PLUS_0); //border
+	frameBuffer->paintBoxRel(m_xend - m_width - t1, m_y, m_width, m_height, COL_INFOBAR_SHADOW_PLUS_0,RADIUS_SMALL);//border
 	timescale->reset();
 	update();
 }
@@ -73,11 +72,10 @@ void CTimeOSD::GetDimensions()
 	m_height = g_Font[TIMEOSD_FONT]->getHeight();
 	m_y = frameBuffer->getScreenY();
 	m_width = g_Font[TIMEOSD_FONT]->getRenderWidth("00:00:00");
+	t1 = g_Font[TIMEOSD_FONT]->getRenderWidth(widest_number);
+	m_width += t1;
 	if(g_settings.mode_clock) {
-		int x1 = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
-		int x2 = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
-		twidth = x1*6 + x2*2;
-		m_xend = m_xend - twidth - 45;
+		m_xend = m_xend - m_width - (m_width/4);
 	}
 }
 
@@ -114,8 +112,8 @@ void CTimeOSD::update(time_t time_show)
 	if(tDisplayTime != oldDisplayTime) {
 		oldDisplayTime = tDisplayTime;
 		strftime(cDisplayTime, 9, "%T", gmtime(&tDisplayTime));
-		frameBuffer->paintBoxRel(m_xend - m_width - 10, m_y,            m_width + 10, m_height, color1);
-		g_Font[TIMEOSD_FONT]->RenderString(m_xend - m_width - 5,  m_y + m_height, m_width +5,    cDisplayTime, color2);
+		frameBuffer->paintBoxRel(m_xend - m_width - t1, m_y, m_width, m_height, color1,RADIUS_SMALL);
+		g_Font[TIMEOSD_FONT]->RenderString(m_xend - m_width - (t1/2),  m_y + m_height, m_width,    cDisplayTime, color2);
 	}
 }
 
@@ -127,11 +125,11 @@ void CTimeOSD::updatePos(short runningPercent)
 void CTimeOSD::hide()
 {
 	GetDimensions();
-printf("CTimeOSD::hide: x %d y %d xend %d yend %d\n", m_xstart, m_y , m_xend - (g_settings.mode_clock ? m_width-5 : 0), m_height + 15);
 	if(!visible)
 		return;
-	//frameBuffer->paintBackgroundBoxRel(m_xstart-10, m_y - 10 , m_xend - (g_settings.mode_clock ? 35 : 0), m_height + 15);
-	frameBuffer->paintBackgroundBoxRel(m_xstart-2, m_y , m_xend - (g_settings.mode_clock ? m_width-5 : 0), m_height + 15);
+	frameBuffer->paintBackgroundBoxRel(m_xend - m_width - t1, m_y, m_width, m_height);
 	visible=false;
 	timescale->reset();
+	frameBuffer->paintBackgroundBoxRel(m_xstart, m_y, BARLEN, m_height);
+
 }

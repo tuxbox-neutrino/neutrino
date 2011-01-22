@@ -36,16 +36,13 @@ CInfoClock::~CInfoClock()
 
 void CInfoClock::paintTime( bool show_dot)
 {
-	char timestr[10];
-	time_t tm;
+	char timestr[20];
+	time_t tm = time(0);
+	strftime((char*) &timestr, sizeof(timestr), "%H:%M:%S", localtime(&tm));
+	timestr[2] = show_dot ? ':':'.';
 
-	tm = time(0);
-	if(show_dot)
-		strftime((char*) &timestr, 20, "%H:%M:%S", localtime(&tm));
-	else
-		strftime((char*) &timestr, 20, "%H.%M:%S", localtime(&tm));
-	frameBuffer->paintBoxRel(x - time_width - 15, y, time_width, time_height, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(x - time_width- 10, y+ time_height, time_width, timestr, COL_MENUCONTENT);
+	frameBuffer->paintBoxRel(x - time_width - 10, y, time_width, time_height, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
+	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(x - time_width- 5, y+ time_height, time_width, timestr, COL_MENUCONTENT);
 }
 
 void* CInfoClock::TimerProc(void *arg)
@@ -79,6 +76,6 @@ void CInfoClock::StopClock()
 	if(thrTimer) {
 		pthread_cancel(thrTimer);
 		thrTimer = 0;
-		frameBuffer->paintBackgroundBoxRel(x - time_width - 15, y, time_width, time_height);
+		frameBuffer->paintBackgroundBoxRel(x - time_width - 10, y, time_width, time_height);
 	}
 }
