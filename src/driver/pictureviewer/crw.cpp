@@ -1,19 +1,21 @@
 #include "pv_config.h"
 #include <cstring>
 #include <cstdlib>
+
 #ifdef FBV_SUPPORT_CRW
-	#include <stdio.h>
-	#include <sys/types.h>
-	#include <sys/stat.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 
+#include <setjmp.h>
+#include "pictureviewer.h"
+
+#undef HAVE_STDLIB_H // -Werror complain
 extern "C" {
 #include <jpeglib.h>
 }
-	#include <setjmp.h>
-	#include "pictureviewer.h"
-
 /*
    Get a 2-byte integer, making no assumptions about CPU byte order.
    Nor should we assume that the compiler evaluates left-to-right.

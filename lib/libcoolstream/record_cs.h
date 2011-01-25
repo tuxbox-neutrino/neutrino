@@ -29,9 +29,11 @@ public:
 
 	bool Open(int numpids);
 	void Close(void);
-	bool Start(int fd, unsigned short vpid, unsigned short * apids, int numpids);
+	bool Start(int fd, unsigned short vpid, unsigned short * apids, int numapids);
 	bool Stop(void);
 	void RecordNotify(int Event, void *pData);
+	/* not tested */
+	bool ChangePids(unsigned short vpid, unsigned short * apids, int numapids);
 };
 
 #endif // __RECORD_CS_H_

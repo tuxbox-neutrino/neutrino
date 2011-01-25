@@ -17,16 +17,17 @@
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-
-extern "C" {
-#include <jpeglib.h>
-}
 	
 #include <setjmp.h>
 
 #include <global.h>
 #include "pictureviewer.h"
 #include "picv_client_server.h"
+
+#undef HAVE_STDLIB_H // -Werror complain
+extern "C" {
+#include <jpeglib.h>
+}
 
 #define MIN(a,b) ((a)>(b)?(b):(a))
 

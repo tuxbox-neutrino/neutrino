@@ -57,6 +57,7 @@
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
 #include <driver/vfd.h>
+#include <ca_cs.h>
 #endif
 #if HAVE_TRIPLEDRAGON
 #include <record_td.h>
@@ -137,9 +138,14 @@ stream2file_error_msg_t start_recording(const char * const filename,
 		record = NULL;
 		return STREAM2FILE_INVALID_DIRECTORY;
 	}
+        if(g_current_channel) {
+                cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_2 /*5*/, true); // demux 0 + 2, update
 
-        if(g_current_channel)
-                cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 5, true); // demux 0 + 2, update
+		int len;
+		unsigned char * pmt = g_current_channel->getRawPmt(len);
+		cCA * ca = cCA::GetInstance();
+		ca->SendPMT(DEMUX_SOURCE_2, pmt, len);
+	}
 
 	CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
 

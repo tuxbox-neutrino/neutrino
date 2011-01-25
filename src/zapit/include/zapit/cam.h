@@ -26,15 +26,27 @@
 #include "ci.h"
 #include <basicclient.h>
 
+#define DEMUX_DECODE_0 1
+#define DEMUX_DECODE_1 2
+#define DEMUX_DECODE_2 4
+
+#define DEMUX_SOURCE_0 0
+#define DEMUX_SOURCE_1 1
+#define DEMUX_SOURCE_2 2
+
 class CCam : public CBasicClient
 {
 	private:
 		virtual unsigned char getVersion(void) const;
 		virtual const char *getSocketName(void) const;
+		int camask, demux;
 
 	public:
+		CCam();
 		bool sendMessage(const char * const data, const size_t length, bool update = false);
-		bool setCaPmt(CCaPmt * const caPmt, int demux = 0, int camask = 1, bool update = false);
+		bool setCaPmt(CCaPmt * const caPmt, int _demux = 0, int _camask = 1, bool update = false);
+		int  getCaMask(void) { return camask; };
+		int  getDemux(void) { return demux; };
 };
 
 #endif /* __cam_h__ */

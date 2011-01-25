@@ -39,7 +39,9 @@
 #include <timerdclient/timerdclient.h>
 
 #include <neutrinoMessages.h>
+#include <gui/movieinfo.h>
 
+#define REC_MAX_APIDS 10
 
 class CVCRControl
 {
@@ -74,7 +76,7 @@ class CVCRControl
 			virtual bool Pause() = 0;
 			virtual bool Resume() = 0;
 			virtual bool IsAvailable() = 0;
-			CDevice() { deviceState = CMD_VCR_STOP; };
+			CDevice() { deviceState = CMD_VCR_STOP; cMovieInfo = NULL; recMovieInfo = NULL; rec_numpida = 0; rec_vpid = 0;};
 			virtual ~CDevice(){};
                         typedef struct {
                                 unsigned short apid;
@@ -83,6 +85,14 @@ class CVCRControl
                         } APIDDesc;
                         typedef std::list<APIDDesc> APIDList;
                         virtual void getAPIDs(const unsigned char apids, APIDList & apid_list);
+			CMovieInfo * cMovieInfo;
+			MI_MOVIE_INFO * recMovieInfo;
+			unsigned short rec_vpid;
+			unsigned short rec_vtype;
+			unsigned short rec_apids[REC_MAX_APIDS];
+			unsigned short rec_ac3flags[REC_MAX_APIDS];
+			unsigned short rec_numpida;
+			unsigned short rec_currentapid, rec_currentac3;
 		};
 
 	class CVCRDevice : public CDevice		// VCR per IR
@@ -215,6 +225,8 @@ class CVCRControl
 	bool Pause(){return Device->Pause();};
 	bool Resume(){return Device->Resume();};
 	void Screenshot(const t_channel_id channel_id, char * fname = NULL);
+	MI_MOVIE_INFO * GetMovieInfo(void);
+	bool GetPids(unsigned short *vpid, unsigned short *vtype, unsigned short *apid, unsigned short *atype, unsigned short * apidnum, unsigned short * apids, unsigned short * atypes);
 };
 
 

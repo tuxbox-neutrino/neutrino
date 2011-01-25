@@ -350,6 +350,12 @@ CZapitClient::responseGetLastChannel load_settings(void)
 	return lastchannel;
 }
 
+/* currently, recording always starts after zap to channel.
+ * if we not in record mode, we just send new pmt over cam0,
+ * if mode is recording, we zapping from or back to recording channel.
+ * if we zap from, we start cam1  for new live and update cam0 with camask for rec.
+ * if to recording channel, we must stop cam1 and update cam0 with live+rec camask.
+ */
 static int camask = 1; // demux 0
 void start_camd(bool forupdate = false)
 {
@@ -360,20 +366,25 @@ void start_camd(bool forupdate = false)
 		if(rec_channel_id != live_channel_id) {
 			/* zap from rec. channel */
 			camask = 1;
-			cam1->setCaPmt(g_current_channel->getCaPmt(), 0, 1); // demux 0
+			cam1->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, DEMUX_DECODE_0 /*1*/); // demux 0
 		} else if(forupdate) { //FIXME broken!
-			/* forupdate means pmt update  for live channel, using old camask */
-			cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true);// update
+			/* forupdate means pmt update  for live channel, using old camask.
+			 *  TODO what if forupdate comes while live == rec ?
+			 */
+			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask(), true);// update
 		} else {
 			/* zap back to rec. channel */
 			camask =  5; // demux 0 + 2
-			cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true); // update
+			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_2 /*camask*/, true); // update
 			cam1->sendMessage(0,0); // stop/close
 		}
 	} else {
 		camask = 1;
-		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask);
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, DEMUX_DECODE_0 /*camask*/);
 	}
+	int len;
+	unsigned char * pmt = g_current_channel->getRawPmt(len);
+	ca->SendPMT(DEMUX_SOURCE_0, pmt, len);
 }
 
 static int pmt_update_fd = -1;
@@ -434,11 +445,11 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 
 	pmt_stop_update_filter(&pmt_update_fd);
 	stopPlayBack(true);
-	ca->SendPMT(0, (unsigned char*) "", 0);
+
 	if(!forupdate && g_current_channel && g_current_channel->getCaPmt()) {
 		g_current_channel->resetPids();
-		delete g_current_channel->getCaPmt();
 		g_current_channel->setCaPmt(NULL);
+		g_current_channel->setRawPmt(NULL);
 	}
 
 	/* store the new channel */
@@ -586,37 +597,10 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 
 	printf("[zapit] sending capmt....\n");
 
-	/* currently, recording always starts after zap to channel.
-	 * if we not in record mode, we just send new pmt over cam0,
-	 * if mode is recording, we zapping from or back to recording channel.
-	 * if we zap from, we start cam1  for new live and update cam0 with camask for rec.
-	 * if to recording channel, we must stop cam1 and update cam0 with live+rec camask.
-	 */
-
 	start_camd(forupdate);
-#if 0
-	static int camask = 1; // demux 0
-	if(currentMode & RECORD_MODE) {
-		if(rec_channel_id != live_channel_id) {
-			/* zap from rec. channel */
-			camask = 1;
-			cam1->setCaPmt(g_current_channel->getCaPmt(), 0, 1); // demux 0
-                } else if(forupdate) { //FIXME broken!
-			/* forupdate means pmt update  for live channel, using old camask */
-                        cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true);// update
-		} else {
-			/* zap back to rec. channel */
-			camask =  5; // demux 0 + 2
-			cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask, true); // update
-			cam1->sendMessage(0,0); // stop/close
-		}
-	} else {
-		camask = 1;
-		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, camask);
-	}
-#endif
 //play:
 	send_ca_id(1);
+
         if (update_pmt)
                 pmt_set_update_filter(g_current_channel, &pmt_update_fd);
 
@@ -715,9 +699,9 @@ void setRecordMode(void)
 	currentMode |= RECORD_MODE;
 	if(event_mode) eventServer->sendEvent(CZapitClient::EVT_RECORDMODE_ACTIVATED, CEventServer::INITID_ZAPIT );
 	rec_channel_id = live_channel_id;
-#if 0
+#if 0 // this is done in stream2file.cpp
 	if(g_current_channel)
-		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 5, true); // demux 0 + 2, update
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, 5, true); // demux 0 + 2, update
 #endif
 }
 
@@ -727,18 +711,19 @@ void unsetRecordMode(void)
 	currentMode &= ~RECORD_MODE;
 	if(event_mode) eventServer->sendEvent(CZapitClient::EVT_RECORDMODE_DEACTIVATED, CEventServer::INITID_ZAPIT );
 
-/* if we on rec. channel, just update pmt with new camask,
- * else we must stop cam1 and start cam0 for current live channel
- * in standby should be no cam1 running.
- */
+	/* if we on rec. channel, just update pmt with new camask,
+	 * else we must stop cam1 and start cam0 for current live channel
+	 * in standby should be no cam1 running.
+	 */
 	if(standby)
 		cam0->sendMessage(0,0); // stop
 	else if(live_channel_id == rec_channel_id) {
-		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 1, true); // demux 0, update
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() & ~DEMUX_DECODE_2 /*1*/, true); // demux 0, update
 	} else {
 		cam1->sendMessage(0,0); // stop
-		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 1); // start
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() & ~DEMUX_DECODE_2 /*1*/); // start
 	}
+	ca->SendPMT(DEMUX_SOURCE_2, (unsigned char*) "", 0);
 	rec_channel_id = 0;
 }
 
@@ -1994,21 +1979,19 @@ int startPlayBack(CZapitChannel *thisChannel)
 
 int stopPlayBack(bool stop_camd)
 {
-/*
-in record mode we stop onle cam1, while cam continue to decrypt recording channel
-*/
 	if(stop_camd) {
 		if(currentMode & RECORD_MODE) {
 			/* if we recording and rec == live, only update camask on cam0,
 			 * else stop cam1 */
-			if(live_channel_id == rec_channel_id)
-				cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 4, true); // demux 2, update
-			else
+			if(live_channel_id == rec_channel_id) {
+				cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, DEMUX_DECODE_2 /*4*/, true); // demux 2, update
+			} else
 				cam1->sendMessage(0,0);
 		} else {
 			cam0->sendMessage(0,0);
 			unlink("/tmp/pmt.tmp");
 		}
+		ca->SendPMT(0, (unsigned char*) "", 0);
 	}
 
 	printf("stopPlayBack: standby %d forced %d\n", standby, playbackStopForced);

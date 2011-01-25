@@ -28,32 +28,13 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-#include <config.h>
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include <driver/vcrcontrol.h>
-
-#include <gui/movieinfo.h>
-
-
-#include <driver/encoding.h>
-#include <driver/stream2file.h>
-
-#include <gui/widget/messagebox.h>
-#include <global.h>
-#include <neutrino.h>
-#include <gui/widget/hintbox.h>
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
-
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
 #include <stdio.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
@@ -62,9 +43,21 @@
 #include <sys/stat.h>
 #include <sys/stat.h>
 #include <sys/vfs.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include <errno.h>
 #include <math.h>
+
+#include <global.h>
+#include <neutrino.h>
+#include <gui/widget/hintbox.h>
+#include <gui/widget/messagebox.h>
+
+#include <driver/vcrcontrol.h>
+//#include <gui/movieinfo.h>
+#include <driver/encoding.h>
+#include <driver/stream2file.h>
 
 #include <daemonc/remotecontrol.h>
 #include <zapit/client/zapittools.h>
@@ -80,8 +73,6 @@ extern "C" {
 #include <driver/genpsi.h>
 }
 
-static CMovieInfo * g_cMovieInfo;
-static MI_MOVIE_INFO * g_movieInfo;
 t_channel_id rec_channel_id;
 
 static CVCRControl vcrControl;
@@ -129,6 +120,30 @@ bool CVCRControl::Record(const CTimerd::RecordingInfo * const eventinfo)
 	int mode = g_Zapit->isChannelTVChannel(eventinfo->channel_id) ? NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
 
 	return Device->Record(eventinfo->channel_id, mode, eventinfo->epgID, eventinfo->epgTitle, eventinfo->apids, eventinfo->epg_starttime);
+}
+
+MI_MOVIE_INFO * CVCRControl::GetMovieInfo(void)
+{
+	if(Device)
+		return Device->recMovieInfo;
+	return NULL;
+}
+
+bool CVCRControl::GetPids(unsigned short *vpid, unsigned short *vtype, unsigned short *apid, unsigned short *atype, unsigned short * apidnum, unsigned short * apids, unsigned short * atypes)
+{
+	if(Device) {
+		*vpid = Device->rec_vpid;
+		*vtype = Device->rec_vtype;
+		*apid = Device->rec_currentapid;
+		*atype = Device->rec_currentac3;
+		*apidnum = Device->rec_numpida;
+		for(int i = 0; i < Device->rec_numpida; i++) {
+			apids[i] = Device->rec_apids[i];
+			atypes[i] = Device->rec_ac3flags[i];
+		}
+		return true;
+	}
+	return false;
 }
 
 //-------------------------------------------------------------------------
@@ -496,14 +511,14 @@ bool CVCRControl::CFileDevice::Stop()
 {
 	std::string extMessage = " ";
 	time_t end_time = time(0);
-//printf("[direct] Stop recording, g_movieInfo %lx\n", g_movieInfo); fflush(stdout);
+//printf("[direct] Stop recording, recMovieInfo %lx\n", recMovieInfo); fflush(stdout);
 //FIXME why not save info if shift ?
 	//if(!autoshift || autoshift_delete)
-	if(g_movieInfo && g_cMovieInfo) {
-		// g_movieInfo->length = (end_time - start_time) / 60;
-		g_movieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
+	if(recMovieInfo && cMovieInfo) {
+		// recMovieInfo->length = (end_time - start_time) / 60;
+		recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
 //printf("[direct] stop recording 1\n"); fflush(stdout);
-		g_cMovieInfo->encodeMovieInfoXml(&extMessage, g_movieInfo);
+		cMovieInfo->encodeMovieInfoXml(&extMessage, recMovieInfo);
 //printf("[direct] stop recording 2\n"); fflush(stdout);
 	}
 	bool return_value = (::stop_recording(extMessage.c_str()) == STREAM2FILE_OK);
@@ -513,14 +528,14 @@ bool CVCRControl::CFileDevice::Stop()
 
 	deviceState = CMD_VCR_STOP;
 
-	if(g_movieInfo) {
-		g_movieInfo->audioPids.clear();
-		delete g_movieInfo;
-		g_movieInfo = NULL;
+	if(recMovieInfo) {
+		recMovieInfo->audioPids.clear();
+		delete recMovieInfo;
+		recMovieInfo = NULL;
 	}
-	if(g_cMovieInfo) {
-		delete g_cMovieInfo;
-		g_cMovieInfo = NULL;
+	if(cMovieInfo) {
+		delete cMovieInfo;
+		cMovieInfo = NULL;
 	}
 
 	return return_value;
@@ -811,25 +826,18 @@ bool CVCRControl::CServerDevice::serverConnect()
 	return true;
 }
 
-unsigned short rec_vpid;
-unsigned short rec_vtype;
-unsigned short rec_apids[10];
-unsigned short rec_ac3flags[10];
-unsigned short rec_numpida;
-unsigned int rec_currentapid, rec_currentac3;
-
 //-------------------------------------------------------------------------
 std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRCommand /*command*/, const t_channel_id channel_id, const event_id_t epgid, const std::string& epgTitle, APIDList apid_list, const time_t epg_time)
 {
 	std::string extMessage;
 	std::string apids10;
 	std::string info1, info2;
-	if(!g_cMovieInfo)
-		g_cMovieInfo = new CMovieInfo();
-	if(!g_movieInfo)
-		g_movieInfo = new MI_MOVIE_INFO();
+	if(!cMovieInfo)
+		cMovieInfo = new CMovieInfo();
+	if(!recMovieInfo)
+		recMovieInfo = new MI_MOVIE_INFO();
 
-	g_cMovieInfo->clearMovieInfo(g_movieInfo);
+	cMovieInfo->clearMovieInfo(recMovieInfo);
 
 	CZapitClient::responseGetPIDs pids;
 	g_Zapit->getPIDS (pids);
@@ -837,9 +845,9 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 
 	std::string tmpstring = g_Zapit->getChannelName(channel_id);
 	if (tmpstring.empty())
-		g_movieInfo->epgChannel = "unknown";
+		recMovieInfo->epgChannel = "unknown";
 	else
-		g_movieInfo->epgChannel = ZapitTools::UTF8_to_UTF8XML(tmpstring.c_str());
+		recMovieInfo->epgChannel = ZapitTools::UTF8_to_UTF8XML(tmpstring.c_str());
 
 	tmpstring = "not available";
 	if (epgid != 0) {
@@ -850,31 +858,31 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 			info1 = epgdata.info1;
 			info2 = epgdata.info2;
 
-			g_movieInfo->parentalLockAge = epgdata.fsk;
+			recMovieInfo->parentalLockAge = epgdata.fsk;
 			if(epgdata.contentClassification.size() > 0 )
-				g_movieInfo->genreMajor = epgdata.contentClassification[0];
+				recMovieInfo->genreMajor = epgdata.contentClassification[0];
 
-			g_movieInfo->length = epgdata.epg_times.dauer	/ 60;
+			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
 
-			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",g_movieInfo->parentalLockAge,g_movieInfo->genreMajor,g_movieInfo->length);
+			printf("fsk:%d, Genre:%d, Dauer: %d\r\n",recMovieInfo->parentalLockAge,recMovieInfo->genreMajor,recMovieInfo->length);
 		}
 	} else if (!epgTitle.empty()) {
 		tmpstring = epgTitle;
 	}
-	g_movieInfo->epgTitle		= ZapitTools::UTF8_to_UTF8XML(tmpstring.c_str());
-	g_movieInfo->epgId		= channel_id;
-	g_movieInfo->epgInfo1		= ZapitTools::UTF8_to_UTF8XML(info1.c_str());
-	g_movieInfo->epgInfo2		= ZapitTools::UTF8_to_UTF8XML(info2.c_str());
-	g_movieInfo->epgEpgId		= epgid ;
-	g_movieInfo->epgMode		= g_Zapit->getMode();
-	g_movieInfo->epgVideoPid	= si.vpid;
-	g_movieInfo->VideoType		= si.vtype;
+	recMovieInfo->epgTitle		= ZapitTools::UTF8_to_UTF8XML(tmpstring.c_str());
+	recMovieInfo->epgId		= channel_id;
+	recMovieInfo->epgInfo1		= ZapitTools::UTF8_to_UTF8XML(info1.c_str());
+	recMovieInfo->epgInfo2		= ZapitTools::UTF8_to_UTF8XML(info2.c_str());
+	recMovieInfo->epgEpgId		= epgid ;
+	recMovieInfo->epgMode		= g_Zapit->getMode();
+	recMovieInfo->epgVideoPid	= si.vpid;
+	recMovieInfo->VideoType		= si.vtype;
 
 	rec_vpid = si.vpid;
 	rec_vtype = si.vtype;
 	rec_currentapid = si.apid;
-	memset(rec_apids, 0, sizeof(unsigned short)*10);
-	memset(rec_ac3flags, 0, sizeof(unsigned short)*10);
+	memset(rec_apids, 0, sizeof(unsigned short)*REC_MAX_APIDS);
+	memset(rec_ac3flags, 0, sizeof(unsigned short)*REC_MAX_APIDS);
 	rec_numpida = 0;
 
 	EPG_AUDIO_PIDS audio_pids;
@@ -890,7 +898,7 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 				audio_pids.epgAudioPidName = ZapitTools::UTF8_to_UTF8XML(g_RemoteControl->current_PIDs.APIDs[i].desc);
 				audio_pids.atype = pids.APIDs[i].is_ac3 ? 1 : pids.APIDs[i].is_aac ? 5 : 0;
 				audio_pids.selected = (audio_pids.epgAudioPid == (int) rec_currentapid) ? 1 : 0;
-				g_movieInfo->audioPids.push_back(audio_pids);
+				recMovieInfo->audioPids.push_back(audio_pids);
 
 				if(pids.APIDs[i].is_ac3)
 					rec_ac3flags[i] = 1;
@@ -905,19 +913,19 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 		}
 	}
 	//FIXME sometimes no apid in xml ??
-	if(g_movieInfo->audioPids.empty() && pids.APIDs.size()) {
+	if(recMovieInfo->audioPids.empty() && pids.APIDs.size()) {
 		int i = 0;
 		audio_pids.epgAudioPid = pids.APIDs[i].pid;
 		audio_pids.epgAudioPidName = ZapitTools::UTF8_to_UTF8XML(g_RemoteControl->current_PIDs.APIDs[i].desc);
 		audio_pids.atype = pids.APIDs[i].is_ac3 ? 1 : pids.APIDs[i].is_aac ? 5 : 0;
 		audio_pids.selected = 1;
-		g_movieInfo->audioPids.push_back(audio_pids);
+		recMovieInfo->audioPids.push_back(audio_pids);
 	}
-	g_movieInfo->epgVTXPID = si.vtxtpid;
+	recMovieInfo->epgVTXPID = si.vtxtpid;
 
-	g_cMovieInfo->encodeMovieInfoXml(&extMessage, g_movieInfo);
+	cMovieInfo->encodeMovieInfoXml(&extMessage, recMovieInfo);
 
-	//g_movieInfo->audioPids.clear();
+	//recMovieInfo->audioPids.clear();
 
 	return extMessage;
 }

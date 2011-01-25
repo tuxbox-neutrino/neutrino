@@ -76,6 +76,7 @@
 
 #include <video.h>
 #include <playback.h>
+#include "libtuxtxt/teletext.h"
 
 int dvbsub_start(int pid);
 int dvbsub_pause();
@@ -100,21 +101,13 @@ extern int glob_splits;
 #error not using 64 bit file offsets
 #endif /* __USE_FILE__OFFSET64 */
 
-static unsigned short g_apids[10];
-static unsigned short g_ac3flags[10];
+static unsigned short g_apids[REC_MAX_APIDS];
+static unsigned short g_ac3flags[REC_MAX_APIDS];
 static unsigned short g_numpida = 0;
 static unsigned short g_vpid = 0;
 static unsigned short g_vtype = 0;
-static std::string    g_language[10];
-
-extern unsigned short rec_vpid;
-extern unsigned short rec_vtype;
-extern unsigned short rec_apids[10];
-extern unsigned short rec_ac3flags[10];
-extern unsigned short rec_numpida;
-extern unsigned int rec_currentapid, rec_currentac3;
-
-static unsigned int g_currentapid = 0, g_currentac3 = 0, apidchanged = 0;
+static std::string    g_language[REC_MAX_APIDS];
+static unsigned short g_currentapid = 0, g_currentac3 = 0, apidchanged = 0;
 
 std::string g_file_epg;
 std::string g_file_epg1;
@@ -437,24 +430,17 @@ void CMoviePlayerGui::PlayFile(void)
 	bool time_forced = false;
 	playstate = CMoviePlayerGui::STOPPED;
 	bool is_file_player = false;
+	timeb current_time;
+	CMovieInfo cMovieInfo;	// funktions to save and load movie info
+	MI_MOVIE_INFO *p_movie_info = NULL;	// movie info handle which comes from the MovieBrowser, if not NULL MoviePla yer is able to save new bookmarks
 
 	if (has_hdd)
 		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
 
 	if (timeshift) {
-		g_vpid = rec_vpid;
-		g_vtype = rec_vtype;
-		g_numpida = rec_numpida;
-		g_currentapid = rec_currentapid;
-		g_currentac3 = rec_currentac3;
-		for (int i = 0; i < g_numpida; i++) {
-			g_apids[i] = rec_apids[i];
-			g_ac3flags[i] = rec_ac3flags[i];
-		}
+		CVCRControl::getInstance()->GetPids(&g_vpid, &g_vtype, &g_currentapid, &g_currentac3, &g_numpida, g_apids, g_ac3flags);
+		p_movie_info = CVCRControl::getInstance()->GetMovieInfo();
 	}
-	timeb current_time;
-	CMovieInfo cMovieInfo;	// funktions to save and load movie info
-	MI_MOVIE_INFO *p_movie_info = NULL;	// movie info handle which comes from the MovieBrowser, if not NULL MoviePla yer is able to save new bookmarks
 
 	int width = 280;
 	int height = 65;
@@ -1211,6 +1197,27 @@ void CMoviePlayerGui::PlayFile(void)
 #endif
 		else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
 			//FIXME do nothing ?
+		}
+		else if(timeshift && (msg == CRCInput::RC_text || msg == CRCInput::RC_epg)) {
+			bool restore = FileTime.IsVisible();
+			FileTime.hide();
+			if (g_settings.mode_clock)
+				InfoClock->StopClock();
+
+			if( msg == CRCInput::RC_epg )
+				g_EventList->exec(CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID(), CNeutrinoApp::getInstance()->channelList->getActiveChannelName());
+			else {
+				if(g_settings.cacheTXT)
+					tuxtxt_stop();
+				tuxtx_main(g_RCInput->getFileHandle(), g_RemoteControl->current_PIDs.PIDs.vtxtpid, 0, 2);
+				frameBuffer->paintBackground();
+			}
+			if (g_settings.mode_clock)
+				InfoClock->StartClock();
+			if(restore) {
+				FileTime.show(position / 1000);
+				FileTime.updatePos(file_prozent);
+			}
 		}
 		else if (msg == CRCInput::RC_timeout) {
 			// nothing

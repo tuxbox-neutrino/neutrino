@@ -452,17 +452,13 @@ int parse_pmt(CZapitChannel * const channel)
 		delete dmx;
 		return -1;
 	}
-	unsigned int dmxUnit = dmx->getUnit();
-
 	delete dmx;
 
-	cCA *ca = cCA::GetInstance();
 	curservice_id = channel->getServiceId();
 	curpmtpid = channel->getPmtPid();
 	pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] +3;
 
 	if(!(currentMode & RECORD_MODE) && !scan_runs) {
-		ca->SendPMT(dmxUnit, buffer, pmtlen);
 		fout = fopen("/tmp/pmt.tmp","wb");
 		if(fout != NULL) {
 			if ((int) fwrite(buffer, sizeof(unsigned char), pmtlen, fout) != pmtlen) {
@@ -569,14 +565,14 @@ int parse_pmt(CZapitChannel * const channel)
 		ES_info_length = parse_ES_info(buffer + i, channel, caPmt);
 
 	if(scan_runs) {
-		if(channel->getCaPmt() != 0)
-			delete channel->getCaPmt();
 		channel->setCaPmt(NULL);
+		channel->setRawPmt(NULL);
 		delete caPmt;
 	} else {
-		if(channel->getCaPmt() != 0)
-			delete channel->getCaPmt();
 		channel->setCaPmt(caPmt);
+		unsigned char * p = new unsigned char[pmtlen];
+		memcpy(p, buffer, pmtlen);
+		channel->setRawPmt(p, pmtlen);
 	}
 #if 0
 	//Quick&Dirty Hack to support Premiere's EPG not only on the portal but on the subchannels as well
@@ -722,7 +718,7 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 
 int pmt_stop_update_filter(int * fd)
 {
-printf("[pmt] stop update filter\n");
+	printf("[pmt] stop update filter\n");
 	if(pmtDemux)
 		pmtDemux->Stop();
 

@@ -55,7 +55,7 @@ int tuxtxt_stop()
 	return tuxtxt_stop_thread();
 }
 
-void tuxtxt_start(int tpid)
+void tuxtxt_start(int tpid, int source)
 {
 	if (tuxtxt_cache.vtxtpid != tpid)
 	{
@@ -63,11 +63,11 @@ void tuxtxt_start(int tpid)
 		tuxtxt_clear_cache();
 		tuxtxt_cache.page = 0x100;
 		tuxtxt_cache.vtxtpid = tpid;
-		tuxtxt_start_thread();
+		tuxtxt_start_thread(source);
 	}
 	else if (!tuxtxt_cache.thread_starting && !tuxtxt_cache.receiving)
 	{
-		tuxtxt_start_thread();
+		tuxtxt_start_thread(source);
 	}
 }
 

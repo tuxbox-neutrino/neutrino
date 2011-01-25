@@ -40,6 +40,7 @@
 #include <sys/stat.h> 
 
 #include <daemonc/remotecontrol.h>
+#include <cs_api.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 CVFD::CVFD()
@@ -165,6 +166,7 @@ void CVFD::setlcdparameter(void)
 	setlcdparameter((mode == MODE_STANDBY) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_STANDBY_BRIGHTNESS] : (mode == MODE_SHUTDOWN) ? g_settings.lcd_setting[SNeutrinoSettings::LCD_DEEPSTANDBY_BRIGHTNESS] : g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS],
 			last_toggle_state_power);
 }
+
 void CVFD::setled(int led1, int led2){
 	int ret = ioctl(fd, IOC_VFD_LED_CTRL, led1);
 	if(ret < 0)
@@ -173,6 +175,7 @@ void CVFD::setled(int led1, int led2){
 	if(ret < 0)
 		perror("IOC_VFD_LED_CTRL");
 }
+
 void CVFD::setled(void)
 {
 	if(!has_lcd) return;
@@ -219,13 +222,17 @@ printf("CVFD::showServicename: %s\n", name.c_str());
 
 void CVFD::showTime(bool force)
 {
+	//unsigned int system_rev = cs_get_revision();
+	static int recstatus = 0;
+#if 0
 	if(!has_lcd)
 		return;
-	if(mode == MODE_SHUTDOWN) {
+#endif
+	if(has_lcd && mode == MODE_SHUTDOWN) {
 		ShowIcon(VFD_ICON_CAM1, false);
 		return;
 	}
-	if (showclock) {
+	if (has_lcd && showclock) {
 		if (mode == MODE_STANDBY) {
 			char timestr[21];
 			struct timeb tm;
@@ -246,15 +253,22 @@ void CVFD::showTime(bool force)
 	if (CNeutrinoApp::getInstance ()->recordingstatus) {
 		if(clearClock) {
 			clearClock = 0;
-			ShowIcon(VFD_ICON_CAM1, false);
+			if(has_lcd)
+				ShowIcon(VFD_ICON_CAM1, false);
+			setled(VFD_LED_1_OFF, VFD_LED_2_OFF);
 		} else {
 			clearClock = 1;
-			ShowIcon(VFD_ICON_CAM1, true);
+			if(has_lcd)
+				ShowIcon(VFD_ICON_CAM1, true);
+			setled(VFD_LED_1_ON, VFD_LED_2_ON);
 		}
-	} else if(clearClock) { // in case icon ON after record stopped
+	} else if(recstatus != CNeutrinoApp::getInstance ()->recordingstatus) { // in case icon ON after record stopped
 		clearClock = 0;
-		ShowIcon(VFD_ICON_CAM1, false);
+		if(has_lcd)
+			ShowIcon(VFD_ICON_CAM1, false);
+		setled();
 	}
+	recstatus = CNeutrinoApp::getInstance ()->recordingstatus;
 }
 
 void CVFD::showRCLock(int /*duration*/)
@@ -601,6 +615,7 @@ void CVFD::Clear()
 
 void CVFD::ShowIcon(vfd_icon icon, bool show)
 {
+	if(!has_lcd) return;
 //printf("CVFD::ShowIcon %s %x\n", show ? "show" : "hide", (int) icon);
 	int ret = ioctl(fd, show ? IOC_VFD_SET_ICON : IOC_VFD_CLEAR_ICON, icon);
 	if(ret < 0)

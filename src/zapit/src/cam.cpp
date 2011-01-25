@@ -20,11 +20,17 @@
  *
  */
 
+#include <stdio.h>
 /* zapit */
 #include <zapit/cam.h>
 #include <zapit/settings.h> /* CAMD_UDS_NAME         */
 #include <messagetools.h>   /* get_length_field_size */
 
+CCam::CCam()
+{
+	camask = 1;
+	demux = 0;
+}
 
 unsigned char CCam::getVersion(void) const
 {
@@ -50,22 +56,29 @@ bool CCam::sendMessage(const char * const data, const size_t length, bool update
 
 	close_connection();
 
-	if(!length) return false;
+	if(!data || !length) {
+		camask = 1;
+		demux = 0;
+		return false;
+	}
 	if (!open_connection())
 		return false;
 
 	return send_data(data, length);
 }
 
-bool CCam::setCaPmt(CCaPmt * const caPmt, int demux, int camask, bool update)
+bool CCam::setCaPmt(CCaPmt * const caPmt, int _demux, int _camask, bool update)
 {
+	camask = _camask;
+	demux = _demux;
+
 	if (!caPmt)
 		return true;
-//printf("CCam::setCaPmt cam %x dmx %d camask %d update %s\n", this, demux, camask, update ? "yes" : "no" );
+
+	printf("CCam::setCaPmt cam %x source %d camask %d update %s\n", (int) this, demux, camask, update ? "yes" : "no" );
 	unsigned int size = caPmt->getLength();
 	unsigned char buffer[3 + get_length_field_size(size) + size];
 	size_t pos = caPmt->writeToBuffer(buffer, demux, camask);
 
 	return sendMessage((char *)buffer, pos, update);
 }
-

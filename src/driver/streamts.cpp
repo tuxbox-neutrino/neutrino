@@ -29,14 +29,12 @@
 #include <zapit/cam.h>
 #include <zapit/channel.h>
 
-extern CZapitChannel *g_current_channel;
-extern CCam *cam0;
 
 #define TS_SIZE 188
-//#define IN_SIZE		(2048 * TS_SIZE)
-#define IN_SIZE         (TS_SIZE * 362)
+#define IN_SIZE		(2048 * TS_SIZE)
+//#define IN_SIZE         (TS_SIZE * 362)
 
-#define DMX_BUFFER_SIZE (3008 * 62)
+#define DMX_BUFFER_SIZE (2 * 3008 * 62)
 
 /* maximum number of pes pids */
 #define MAXPIDS		64
@@ -47,14 +45,17 @@ extern CCam *cam0;
 
 //unsigned char * buf;
 
-int demuxfd[MAXPIDS];
+extern CZapitChannel *g_current_channel;
+extern CCam *cam0;
+
+//int demuxfd[MAXPIDS];
 
 static unsigned char exit_flag = 0;
 static unsigned int writebuf_size = 0;
 static unsigned char writebuf[PACKET_SIZE];
 
-static int
-sync_byte_offset (const unsigned char * buf, const unsigned int len)
+#ifdef SYNC_TS
+static int sync_byte_offset (const unsigned char * buf, const unsigned int len)
 {
 
 	unsigned int i;
@@ -65,6 +66,7 @@ sync_byte_offset (const unsigned char * buf, const unsigned int len)
 
 	return -1;
 }
+#endif
 
 void packet_stdout (int fd, unsigned char * buf, int count, void * /*p*/)
 {
@@ -178,7 +180,7 @@ int open_incoming_port (int port)
 void * streamts_live_thread(void *data);
 int streamts_stop;
 
-void streamts_main_thread(void */*data*/)
+void streamts_main_thread(void * /*data*/)
 {
 	struct sockaddr_in servaddr;
 	int clilen;
@@ -348,14 +350,22 @@ void * streamts_live_thread(void *data)
 	dmx->Start();
 
         if(g_current_channel)
-                cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 3, true); // demux 0 + 1, update
+                cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_1 /*3*/, true); // demux 0 + 1, update
 
-	size_t pos;
 	ssize_t r;
+#if 0
+	size_t pos;
 	ssize_t todo;
-	int offset;
+#endif
+#ifdef SYNC_TS
+	int offset = 0;
+#endif
 
 	while (!exit_flag) {
+		r = dmx->Read(buf, IN_SIZE, 100);
+		if(r > 0)
+			packet_stdout(fd, buf, r, NULL);
+#if 0
 		todo = IN_SIZE;
 		pos = 0;
 
@@ -369,7 +379,9 @@ void * streamts_live_thread(void *data)
 				usleep(1000);
 		}
 		if(!exit_flag) {
-			//packet_stdout(fd, buf, IN_SIZE, NULL);
+#ifndef SYNC_TS
+			packet_stdout(fd, buf, IN_SIZE, NULL);
+#else
 			/* make sure to start with a ts header */
 			offset = sync_byte_offset(buf, IN_SIZE);
 
@@ -377,12 +389,14 @@ void * streamts_live_thread(void *data)
 				continue;
 
 			packet_stdout(fd, buf + offset, IN_SIZE - offset, NULL);
+#endif
 		}
+#endif
 	}
 
 	printf("Exiting LIVE STREAM thread, fd %d\n", fd);
         if(g_current_channel)
-		cam0->setCaPmt(g_current_channel->getCaPmt(), 0, 1, true); // demux 0, update
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() & ~DEMUX_DECODE_1 /* 1 */, true); // demux 0, update
 
 	delete dmx;
 	free(buf);

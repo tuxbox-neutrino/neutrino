@@ -50,10 +50,6 @@
 #else
 /* variables and functions from libtuxtxt */
 extern tuxtxt_cache_struct tuxtxt_cache;
-extern int tuxtxt_init();
-extern void tuxtxt_close();
-extern void tuxtxt_start(int tpid);  // Start caching
-extern int  tuxtxt_stop(); // Stop caching
 extern void tuxtxt_next_dec(int *i); /* skip to next decimal */
 extern void tuxtxt_prev_dec(int *i); /* counting down */
 extern int tuxtxt_is_dec(int i);
@@ -1729,7 +1725,7 @@ void RenderMessage(int Message);
 void RenderPage();
 void DecodePage();
 void UpdateLCD();
-int  Init();
+int  Init(int source);
 int  GetNationalSubset(const char *country_code);
 int  GetTeletextPIDs();
 int  GetRCCode();

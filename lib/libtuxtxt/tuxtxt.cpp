@@ -13,9 +13,9 @@
  *                                                                            *
  ******************************************************************************/
 
+#include "teletext.h"
 #include "tuxtxt.h"
 #include "driver/framebuffer.h"
-#include "teletext.h"
 #include <dmx.h>
 #include <video.h>
 
@@ -1596,7 +1596,7 @@ int tuxtx_subtitle_running(int *pid, int *page, int *running)
 	return ret;
 }
 
-int tuxtx_main(int _rc, int pid, int page)
+int tuxtx_main(int _rc, int pid, int page, int source)
 {
 	char cvs_revision[] = "$Revision: 1.95 $";
 
@@ -1677,7 +1677,7 @@ int tuxtx_main(int _rc, int pid, int page)
 	/* initialisations */
 	transpmode = 0;
 
-	if (Init() == 0)
+	if (Init(source) == 0)
 		return 0;
 
 	if(!use_gui) {
@@ -1860,7 +1860,7 @@ FT_Error MyFaceRequester(FTC_FaceID face_id, FT_Library plibrary, FT_Pointer /*r
  ******************************************************************************/
 extern std::string ttx_font_file;
 static bool ft_init_done = false;
-int Init()
+int Init(int source)
 {
 	int error, i;
 	unsigned char magazine;
@@ -2182,7 +2182,7 @@ int Init()
 	tuxtxt_init_demuxer();
 	tuxtxt_start_thread();
 #else
-	tuxtxt_start(tuxtxt_cache.vtxtpid);
+	tuxtxt_start(tuxtxt_cache.vtxtpid, source);
 #endif
 	fcntl(rc, F_SETFL, O_NONBLOCK);
 	gethotlist();

@@ -417,12 +417,15 @@ void tuxtxt_clear_cache()
  * init_demuxer                                                               *
  ******************************************************************************/
 static cDemux * dmx = NULL;
-int tuxtxt_init_demuxer()
+int tuxtxt_init_demuxer(int source = 0);
+
+int tuxtxt_init_demuxer(int source)
 {
 
 	if(dmx == NULL) {
-		dmx = new cDemux(0);
+		dmx = new cDemux(source);
 		dmx->Open(DMX_PES_CHANNEL, NULL, 2* 3008 * 62 /*64*1024*/);
+		printf("TuxTxt: source demux %d\n", source);
 	}
 #if TUXTXT_DEBUG
 	printf("TuxTxt: initialized\n");
@@ -1029,13 +1032,14 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 /******************************************************************************
  * start_thread                                                               *
  ******************************************************************************/
-int tuxtxt_start_thread()
+int tuxtxt_start_thread(int source = 0);
+int tuxtxt_start_thread(int source)
 {
 	if (tuxtxt_cache.vtxtpid == -1) return 0;
 
 
 	tuxtxt_cache.thread_starting = 1;
-	tuxtxt_init_demuxer();
+	tuxtxt_init_demuxer(source);
 
 	dmx->pesFilter(tuxtxt_cache.vtxtpid);
 	dmx->Start();
