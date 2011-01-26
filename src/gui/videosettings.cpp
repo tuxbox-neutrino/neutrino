@@ -188,14 +188,6 @@ const CMenuOptionChooser::keyval VIDEOMENU_DBDR_OPTIONS[VIDEOMENU_DBDR_OPTION_CO
 	{ 2, LOCALE_VIDEOMENU_DBDR_BOTH }
 };
 
-#define VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT 3
-const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT] =
-{
-	{ VIDEO_HDMI_CEC_MODE_OFF	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_OFF      },
-	{ VIDEO_HDMI_CEC_MODE_TUNER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_TUNER    },
-	{ VIDEO_HDMI_CEC_MODE_RECORDER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_RECORDER },
-};
-
 void CVideoSettings::showVideoSetup()
 {
 	//init
@@ -243,12 +235,6 @@ void CVideoSettings::showVideoSetup()
 
 	CMenuForwarder * vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
 	
-	//cec
-	CMenuSeparator *vs_cec_sep = new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_VIDEOMENU_HDMI_CEC);
-	CMenuOptionChooser *vs_cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
-	cec1 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON, &g_settings.hdmi_cec_view_on, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
-	cec2 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_STANDBY, &g_settings.hdmi_cec_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
-	
 	//---------------------------------------
 	videosetup->addIntroItems(LOCALE_MAINSETTINGS_VIDEO, LOCALE_VIDEOMENU_TV_SCART);
 	//---------------------------------------
@@ -266,11 +252,6 @@ void CVideoSettings::showVideoSetup()
 	videosetup->addItem(vs_videomodes_ch);	  //video system
 	videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
 	videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
-	//---------------------------------------
-	videosetup->addItem(vs_cec_sep);	  //cec
-	videosetup->addItem(vs_cec_ch);
-	videosetup->addItem(cec1);
-	videosetup->addItem(cec2);
 
  	videosetup->exec(NULL, "");
  	videosetup->hide();
@@ -278,11 +259,6 @@ void CVideoSettings::showVideoSetup()
  	delete videosetup;
 }
 
-void CVideoSettings::setVideoCECSettings()
-{
-	setVideoSettings();
-	setCECSettings();
-}
 
 void CVideoSettings::setVideoSettings()
 {
@@ -309,14 +285,6 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
-}
-
-void CVideoSettings::setCECSettings()	
-{	
-	printf("[neutrino VideoSettings] %s init CEC settings...\n", __FUNCTION__);
-	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
-	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
-	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 }
 
 void CVideoSettings::setupVideoSystem(bool do_ask)
@@ -357,20 +325,6 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *data
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CINCH))
 	{
 		videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode2);
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_MODE))
-	{
-		cec1->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
-		cec2->setActive(g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF);
-		videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_STANDBY))
-	{
-		videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON))
-	{
-		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
 	}
 	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_DBDR))
 	{

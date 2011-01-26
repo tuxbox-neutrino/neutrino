@@ -75,6 +75,7 @@
 #include <gui/epgplus.h>
 #include <gui/streaminfo2.h>
 
+#include "gui/cec_setup.h"
 #include "gui/widget/colorchooser.h"
 #include "gui/widget/menue.h"
 #include "gui/widget/messagebox.h"
@@ -291,8 +292,8 @@ static void initGlobals(void)
 
 	g_Locale        = new CLocaleManager;
 	g_PluginList    = NULL;
-	InfoClock =  NULL;
-	g_CamHandler = NULL;
+	InfoClock 	= NULL;
+	g_CamHandler 	= NULL;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -2099,9 +2100,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 
-	//init video and CEC Settings
+	//init video settings
 	g_videoSettings = new CVideoSettings;
-	g_videoSettings->setVideoCECSettings();
+	g_videoSettings->setVideoSettings();
+	
+	//init cec settings
+	CCECSetup cecsetup;
+	cecsetup.setCECSettings();
 
 	// trigger a change
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);

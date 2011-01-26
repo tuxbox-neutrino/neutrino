@@ -1,13 +1,11 @@
 /*
-	$port: video_setup.cpp,v 1.6 2010/08/28 23:06:59 tuxbox-cvs Exp $
-
-	video setup implementation - Neutrino-GUI
+	Mediaplayer selection menu - Neutrino-GUI
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Copyright (C) 2009 T. Graf 'dbt'
+	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
 	License: GPL
@@ -27,54 +25,35 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 */
-#ifndef __video_setup__
-#define __video_setup__
+
+#ifndef __CEC_SETUP__
+#define __CEC_SETUP__
 
 #include <gui/widget/menue.h>
+
 #include <driver/framebuffer.h>
 
 #include <string>
 
-class CVideoSettings : public CMenuWidget, CChangeObserver
+class CCECSetup : public CMenuTarget, CChangeObserver
 {
 	private:
-		CFrameBuffer 		*frameBuffer;
-		CMenuForwarder 		*SyncControlerForwarder;
-		CMenuOptionChooser 	*VcrVideoOutSignalOptionChooser;
-
-		int			vcr_video_out_signal;
-		int			prev_video_mode;
-		
-		bool is_wizard;
-		
+		CFrameBuffer *frameBuffer;
+		CMenuOptionChooser 	*cec1, *cec2;
+				
 		int x, y, width, height, hheight, mheight, selected;
-		void showVideoSetup();
 
-public:
-		enum VIDEO_SETUP_MODE
-		{
-			V_SETUP_MODE_WIZARD_NO   = 0,
-			V_SETUP_MODE_WIZARD   = 1
-		};
-		
-		CVideoSettings(bool wizard_mode = V_SETUP_MODE_WIZARD_NO);
-		~CVideoSettings();
-		
-		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
-		//virtual void paint();
-		void nextMode();
-		void next43Mode();
-		void SwitchFormat();
-		
-		void setVideoSettings();
-		void setupVideoSystem(bool do_ask);
-		
-		bool getWizardMode() {return is_wizard;};
-		void setWizardMode(bool mode);
-		
 		void hide();
-		
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
-#endif
+		void showMenu();
+ 		
 
+	public:	
+		CCECSetup();
+		~CCECSetup();
+		void setCECSettings();
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
+};
+
+
+#endif

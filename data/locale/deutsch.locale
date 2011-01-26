@@ -1424,11 +1424,11 @@ videomenu.dbdr_deblock deBlock
 videomenu.dbdr_none aus
 videomenu.enabled_modes Videosysteme auf der VF-Taste
 videomenu.fullscreen Vollbild
-videomenu.hdmi_cec HDMI-CEC
-videomenu.hdmi_cec_mode HDMI-CEC Modus
-videomenu.hdmi_cec_mode_off aus
-videomenu.hdmi_cec_mode_recorder als Recorder
-videomenu.hdmi_cec_mode_tuner als Tuner
+videomenu.hdmi_cec CSTLink (HDMI-CEC)
+videomenu.hdmi_cec_mode Receiver verwenden
+videomenu.hdmi_cec_mode_off nein
+videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR
+videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
 videomenu.head Video-Einstellungen
