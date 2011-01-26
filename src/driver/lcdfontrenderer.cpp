@@ -36,7 +36,7 @@
 #include FT_FREETYPE_H
 
 FT_Error LcdFontRenderClass::myFTC_Face_Requester(FTC_FaceID  face_id,
-                            FT_Library  library,
+                            FT_Library  /*library*/,
                             FT_Pointer  request_data,
                             FT_Face*    aface)
 {
@@ -94,13 +94,13 @@ void LcdFontRenderClass::InitFontCache()
 FT_Error LcdFontRenderClass::FTC_Face_Requester(FTC_FaceID  face_id,
                             FT_Face*    aface)
 {
-	fontListEntry *font=(fontListEntry *)face_id;
-	if (!font)
+	fontListEntry *f = (fontListEntry *)face_id;
+	if (!f)
 		return -1;
-	printf("[LCDFONT] FTC_Face_Requester (%s/%s)\n", font->family, font->style);
+	printf("[LCDFONT] FTC_Face_Requester (%s/%s)\n", f->family, f->style);
 
 	int error;
-	if ((error=FT_New_Face(library, font->filename, 0, aface)))
+	if ((error = FT_New_Face(library, f->filename, 0, aface)))
 	{
 		printf(" failed: %i\n", error);
 		return error;
@@ -118,9 +118,9 @@ FTC_FaceID LcdFontRenderClass::getFaceID(const char *family, const char *style)
 	return 0;
 }
 
-FT_Error LcdFontRenderClass::getGlyphBitmap(FTC_ImageType font, FT_ULong glyph_index, FTC_SBit *sbit)
+FT_Error LcdFontRenderClass::getGlyphBitmap(FTC_ImageType f, FT_ULong glyph_index, FTC_SBit *sbit)
 {
-	return FTC_SBitCache_Lookup(sbitsCache, font, glyph_index, sbit, NULL);
+	return FTC_SBitCache_Lookup(sbitsCache, f, glyph_index, sbit, NULL);
 }
 
 const char * LcdFontRenderClass::AddFont(const char * const filename)
