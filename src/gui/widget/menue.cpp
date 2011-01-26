@@ -71,6 +71,7 @@ CMenuItem::CMenuItem()
 	iconName = "";
 	can_arrow = false;
 	used = false;
+	icon_frame_w = 10;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -79,7 +80,9 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 	y    = Y;
 	dx   = DX;
 	offx = OFFX;
-	name_start_x = x + offx + 15;
+	name_start_x = x + offx + icon_frame_w;
+	item_color   = COL_MENUCONTENT;
+	item_bgcolor = COL_MENUCONTENT_PLUS_0;
 }
 
 void CMenuItem::setActive(const bool Active)
@@ -100,24 +103,22 @@ void CMenuItem::setItemButton(const std::string& icon_Name, const bool is_select
 		iconName = icon_Name;
 }
 
-void CMenuItem::setItemColors(const bool select_mode, 	const fb_pixel_t &def_color, const fb_pixel_t &def_bgcolor, 
-							const fb_pixel_t &def_sel_color, const fb_pixel_t &def_sel_bgcolor, 
-							const fb_pixel_t &def_inactiv_color, const fb_pixel_t &def_inactiv_bgcolor)
+void CMenuItem::initItemColors(const bool select_mode)
 {
 	if (select_mode)
 	{
-		item_color   = def_sel_color;
-		item_bgcolor = def_sel_bgcolor;
+		item_color   = COL_MENUCONTENTSELECTED;
+		item_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 	}
 	else if (!active)
 	{
-		item_color   = def_inactiv_color;
-		item_bgcolor = def_inactiv_bgcolor;
+		item_color   = COL_MENUCONTENTINACTIVE;
+		item_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0;
 	}
 	else
 	{
-		item_color   = def_color;
-		item_bgcolor = def_bgcolor;
+		item_color   = COL_MENUCONTENT;
+		item_bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
 }
 
@@ -156,27 +157,26 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height,
 	if (right_text != NULL)
 	{
 		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
-		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + 10, x + dx - stringwidth - 10); //+ offx
+		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + icon_frame_w, x + dx - stringwidth - icon_frame_w); //+ offx
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
 	}
 }
 
-void CMenuItem::paintItem(const bool select_mode, const int &item_height)
+void CMenuItem::prepareItem(const bool select_mode, const int &item_height)
 {
-// 	//set colors
-// 	setItemColors(select_mode);
+ 	//set colors
+ 	initItemColors(select_mode);
 
 	//paint item background
 	paintItemBackground(select_mode, item_height);
 }
 
 
-void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, const std::string &icon_Name, const bool icon_centered)
+void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, const std::string &icon_Name)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	bool selected = select_mode;
 	bool icon_painted = false;
-	bool centered = icon_centered;
 	
 	int w = 0;
 	int h = 0;
@@ -203,13 +203,10 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 			icon_name = icon_Name;
 	}
 	
-	//get data of marker icon, required for calculation of icon space
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RIGHT, &w, &h);
-	int m_icon_w = w;
-	int m_icon_h = h;
-	
 	int icon_x = 0;
-	int icon_start_x = x+10 /*x+(name_start_x-x)*/; 
+	int icon_start_x = x+icon_frame_w; //start of icon space
+	int icon_space_x = name_start_x - icon_frame_w - icon_start_x; //size of space where to paint icon
+	int icon_space_mid = icon_start_x + icon_space_x/2;
 
 	//get data of number icon and paint
 	if (!icon_name.empty())
@@ -220,46 +217,20 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 		
 		if (active  && icon_w>0 && icon_h>0)
 		{
-			//paint icon centered, if we using one of these icons. Note: overwrites  parameter 'icon_centered'
-			if (!centered)
-				centered = (icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME ||  icon_name == NEUTRINO_ICON_BUTTON_RIGHT);
-			
-			if (centered)
-				icon_x = x+ ((icon_start_x-x)/2) - (icon_w/2); //centered
-			else
-				icon_x = icon_start_x/* - ((icon_w+m_icon_w))*/;
-			
-			icon_painted = 	frameBuffer->paintIcon(icon_name, icon_x, y+ ((item_height/2- icon_h/2)) );
+			icon_x = icon_space_mid - (icon_w/2); 
+
+			icon_painted = frameBuffer->paintIcon(icon_name, icon_x, y+ ((item_height/2- icon_h/2)) );
 		}
 	}
 
-	//number 
-	int number_w = 0;
-	int number_x = 0;
-	
 	//paint only number if no icon was painted and keyval is numeric
 	if (CRCInput::isNumeric(directKey) && !icon_painted)
-	{
-		number_w = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(CRCInput::getKeyName(directKey));
+	{			
+		int number_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(CRCInput::getKeyName(directKey));
 		
-		number_x = icon_start_x - ((number_w+m_icon_w)/*/2*/);
+		int number_x = icon_space_mid - (number_w/2);
 		
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(number_x/*x + 15*/, y+ item_height, item_height, CRCInput::getKeyName(directKey), item_color, item_height);
-	}
-	
-	//paint marker icon, do not paint, if we have a centered icon
-	if (!centered)
-	{
-		if  (selected && directKey != CRCInput::RC_nokey && selected_iconName.empty())
-		{
-			int icon_offset = 2;
-			if (icon_painted)
-				icon_offset += icon_x+icon_w;
-			else
-				icon_offset += number_x + number_w;
-			
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, icon_offset, y+ ((item_height/2- m_icon_h/2)) );
-		}
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(number_x, y+ item_height, item_height, CRCInput::getKeyName(directKey), item_color, item_height);
 	}
 }
 
@@ -660,7 +631,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		if(items[count] == GenericMenuNext) 
 			items[count] = GenericMenuBack;
 		else if (items[count] == GenericMenuCancel)
-			items[count] = GenericMenuCancel;
+			items[count] = GenericMenuBack;
 			
 		CMenuItem* item = items[count];
 		item->init(-1, 0, 0, 0);
@@ -826,14 +797,12 @@ void CMenuWidget::paintItems()
 			item->init(x, ypos, width, iconOffset);
 			if( (item->isSelectable()) && (selected==-1) )
 			{		
-				item->setItemColors(true);
 				ypos = item->paint(true);
 				selected = count;
 			}
 			else
 			{
 				bool sel = selected==((signed int) count) ;
-				item->setItemColors(sel);
 				ypos = item->paint(sel);
 			}
 		}
@@ -931,12 +900,8 @@ int CMenuOptionNumberChooser::paint(bool selected, bool /*last*/)
 	
 	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
 
-
-	//set colors
-	setItemColors(selected);
-		
 	//paint item
-	paintItem(selected, height);
+	prepareItem(selected, height);
 
 	//paint item icon
 	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
@@ -1136,11 +1101,8 @@ int CMenuOptionChooser::paint( bool selected , bool /*last*/)
 			l_option = g_Locale->getText(option);
 	}
 
-	//set colors
-	setItemColors(selected);
-	
 	//paint item
-	paintItem(selected, height);
+	prepareItem(selected, height);
 	
 	//paint item icon
 	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
@@ -1264,11 +1226,8 @@ int CMenuOptionStringChooser::paint( bool selected, bool /*last*/ )
 {
 	const char * l_optionName = g_Locale->getText(optionName);
 	
-	//set colors
-	setItemColors(selected);
-	
 	//paint item
-	paintItem(selected, height);
+	prepareItem(selected, height);
 
 	//paint item icon
 	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
@@ -1332,13 +1291,10 @@ int CMenuOptionLanguageChooser::paint( bool selected, bool /*last*/ )
 {
 	active = true;
 		
-	//set colors
-	setItemColors(selected);
-
 	//paint item
-	paintItem(selected, height);
+	prepareItem(selected, height);
 
-	paintItemButton(selected, height, iconName, true);
+	paintItemButton(selected, height, iconName);
 	
 	//convert first letter to large
 	string s_optionValue = static_cast<std::string> (optionValue);
@@ -1456,12 +1412,9 @@ int CMenuForwarder::paint(bool selected, bool /*last*/)
  	const char * l_text = getName();
  
  	const char * option_text = getOption();
-
-	//set colors
-	setItemColors(selected);
 	
 	//paint item
-	paintItem(selected, height);
+	prepareItem(selected, height);
 	
 	//paint icon
 	paintItemButton(selected, height);
@@ -1572,27 +1525,19 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 	
 		if (text != NONEXISTANT_LOCALE || strlen(l_text) != 0)
 		{
-			int stringstartposX;
-			
 			int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true); // UTF-8
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				stringstartposX = x + (!SUB_HEAD ?  name_start_x : 20 +18);
+				name_start_x = x + (!SUB_HEAD ?  name_start_x : 20 +18);
 			else if (type & ALIGN_RIGHT)
-				stringstartposX = x + dx - stringwidth - 20;
+				name_start_x = x + dx - stringwidth - 20;
 			else /* ALIGN_CENTER */
-				stringstartposX = x + (dx >> 1) - (stringwidth >> 1);
-
-			frameBuffer->paintBoxRel(stringstartposX-5, y, stringwidth+10, height, item_bgcolor);
-
-			g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+height,dx- (stringstartposX- x) , l_text, item_color, 0, true); // UTF-8
-
-			if (selected)
-			{
-				CVFD::getInstance()->showMenuText(0, l_text, -1, true); // UTF-8
-				//CVFD::getInstance()->showMenuText(1, "", -1, true); // UTF-8
-			}
+				name_start_x = x + (dx >> 1) - (stringwidth >> 1);
+			
+ 			frameBuffer->paintBoxRel(name_start_x-5, y, stringwidth+10, height, item_bgcolor);
+			
+			paintItemCaption(selected, height, l_text);
 		}
 	}
 	return y+ height;
