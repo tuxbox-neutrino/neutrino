@@ -20,22 +20,22 @@ noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a
 libneutrino_gui_widget_a_SOURCES = \
 	buttons.cpp \
 	colorchooser.cpp \
-	keychooser.cpp \
-	menue.cpp \
-	stringinput.cpp \
-	stringinput_ext.cpp \
-	messagebox.cpp \
+	drawable.cpp \
+	helpbox.cpp \
 	hintbox.cpp \
+	hintboxext.cpp \
+	keychooser.cpp \
 	listbox.cpp \
 	listbox_legacy.cpp \
-	drawable.cpp \
-	hintboxext.cpp \
-	helpbox.cpp \
-	mountchooser.cpp \
 	listframe.cpp \
+	menue.cpp \
+	messagebox.cpp \
+	mountchooser.cpp \
 	msgbox.cpp \
-	textbox.cpp \
-	progressbar.cpp
+	progressbar.cpp \
+	stringinput.cpp \
+	stringinput_ext.cpp \
+	textbox.cpp
 
 libneutrino_gui_widget2_a_SOURCES = \
 	progresswindow.cpp vfdcontroler.cpp
