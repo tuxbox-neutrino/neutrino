@@ -132,7 +132,7 @@ void CMenuItem::paintItemBackground (const bool select_mode, const int &item_hei
 	//else if(last) ?? Why do we need this?
 		//frameBuffer->paintBoxRel(x, y, dx, item_height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME 
 	else
-		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor);
+		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
 }
 
 void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height, const char * left_text, const char * right_text)
