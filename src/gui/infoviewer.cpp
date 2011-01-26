@@ -53,6 +53,7 @@
 #include <neutrino.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
+#include <gui/movieplayer.h>
 
 #include <sys/timeb.h>
 #include <time.h>
@@ -86,12 +87,10 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 	return a.startTime < b.startTime;
 }
 
-extern int timeshift;
 extern bool autoshift;
 extern uint32_t shift_timer;
 extern std::string ext_channel_name;
 extern bool timeset;
-extern unsigned char file_prozent;
 
 CInfoViewer::CInfoViewer ()
 {
@@ -519,13 +518,12 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(ChanNameX + 10 , ChanNameY + time_height,BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 ,ChannelName, COL_INFOBAR, 0, true);	// UTF-8
 
 	// show_Data
-	char runningPercent = file_prozent;
-	if (runningPercent > 100)
-		runningPercent = 100;
+	if (CMoviePlayerGui::getInstance().file_prozent > 100)
+		CMoviePlayerGui::getInstance().file_prozent = 100;
 
 	char runningRest[32]; // %d can be 10 digits max...
 	sprintf(runningRest, "%d / %d min", (curr_pos + 30000) / 60000, (duration + 30000) / 60000);
-	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, runningPercent, NULL, runningRest);
+	display_Info(g_file_epg.c_str(), g_file_epg1.c_str(), true, false, CMoviePlayerGui::getInstance().file_prozent, NULL, runningRest);
 
 	const char *playicon = NULL;
 	switch (playState) {
@@ -791,7 +789,7 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 			} else {
 #if 0
 				if ((msg != CRCInput::RC_timeout) && (msg != CRCInput::RC_ok))
-					if (!fileplay && !timeshift)
+					if (!fileplay && !CMoviePlayerGui::getInstance().timeshift)
 						g_RCInput->postMsg (msg, data);
 #endif
 				res = messages_return::cancel_info;
@@ -808,7 +806,7 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 			virtual_zap_mode = true;
 			res = messages_return::cancel_all;
 			hideIt = true;
-		} else if (!fileplay && !timeshift) {
+		} else if (!fileplay && !CMoviePlayerGui::getInstance().timeshift) {
 			CNeutrinoApp *neutrino = CNeutrinoApp::getInstance ();
 			if ((msg == (neutrino_msg_t) g_settings.key_quickzap_up) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down) || (msg == CRCInput::RC_0) || (msg == NeutrinoMessages::SHOW_INFOBAR)) {
 				hideIt = false;
@@ -834,7 +832,7 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 					res = messages_return::cancel_info;
 				}
 			}
-		} else if (fileplay && !timeshift && ( (msg == (neutrino_msg_t) g_settings.mpkey_pause) || (msg == (neutrino_msg_t) g_settings.mpkey_rewind) || (msg == (neutrino_msg_t) g_settings.mpkey_play) || (msg == (neutrino_msg_t) g_settings.mpkey_forward) || (msg == (neutrino_msg_t) g_settings.mpkey_stop)) ) {
+		} else if (fileplay && !CMoviePlayerGui::getInstance().timeshift && ( (msg == (neutrino_msg_t) g_settings.mpkey_pause) || (msg == (neutrino_msg_t) g_settings.mpkey_rewind) || (msg == (neutrino_msg_t) g_settings.mpkey_play) || (msg == (neutrino_msg_t) g_settings.mpkey_forward) || (msg == (neutrino_msg_t) g_settings.mpkey_stop)) ) {
 			g_RCInput->postMsg (msg, data);
 			res = messages_return::cancel_info;
 		}
@@ -1875,7 +1873,7 @@ void CInfoViewer::showLcdPercentOver ()
 {
 	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] != 1) {
 		if (fileplay || (NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())) {
-			CVFD::getInstance ()->showPercentOver (file_prozent);
+			CVFD::getInstance ()->showPercentOver (CMoviePlayerGui::getInstance().file_prozent);
 			return;
 		}
 		int runningPercent = -1;

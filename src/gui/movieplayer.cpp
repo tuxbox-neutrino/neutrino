@@ -110,11 +110,6 @@ static unsigned short g_vtype = 0;
 static std::string    g_language[REC_MAX_APIDS];
 static unsigned short g_currentapid = 0, g_currentac3 = 0, apidchanged = 0;
 
-std::string g_file_epg;
-std::string g_file_epg1;
-int file_prozent;
-int timeshift;
-
 bool get_movie_info_apid_name(int apid, MI_MOVIE_INFO * movie_info, std::string * apidtitle)
 {
 	if (movie_info == NULL || apidtitle == NULL)
@@ -1250,6 +1245,20 @@ void CMoviePlayerGui::PlayFile(void)
 		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||
 				msg == NeutrinoMessages::RECORD_START) {
 				CNeutrinoApp::getInstance()->handleMsg(msg, data);
+		} else if (timeshift && msg == NeutrinoMessages::SHOW_EPG ) {
+			bool restore = FileTime.IsVisible();
+			FileTime.hide();
+			if (g_settings.mode_clock)
+				InfoClock->StopClock();
+
+				g_EpgData->show(CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
+
+			if(restore) {
+				FileTime.show(position / 1000);
+				FileTime.updatePos(file_prozent);
+			}
+
+
 		} else if ( msg == NeutrinoMessages::ZAPTO ||
 				msg == NeutrinoMessages::STANDBY_ON ||
 				msg == NeutrinoMessages::SHUTDOWN ||

@@ -92,6 +92,8 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string Path_local;
 	std::string Path_vlc;
 	std::string Path_vlc_settings;
+	std::string g_file_epg;
+	std::string g_file_epg1;
 
 	CFileBrowser * filebrowser;
 	CMovieBrowser* moviebrowser;
@@ -125,6 +127,8 @@ class CMoviePlayerGui : public CMenuTarget
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	void updateLcd(const std::string & sel_filename);
 	bool Playing();
+	int timeshift;
+	int file_prozent;
 };
 
 
