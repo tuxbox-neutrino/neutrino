@@ -176,7 +176,7 @@ private:
 	void InitAudioplPicSettings(CMenuWidget &);
 	void InitMiscSettings(CMenuWidget &);
 	void InitScanSettings(CMenuWidget &);
-	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings, CMenuWidget &moviePlayer);
+	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings);
 
 	void SetupFrameBuffer();
 	void SelectAPID();

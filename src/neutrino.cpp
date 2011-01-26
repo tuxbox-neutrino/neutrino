@@ -2037,7 +2037,6 @@ void CNeutrinoApp::setupRecordingDevice(void)
 	}
 }
 
-CMenuWidget * gmoviePlayer;
 #if 0
 CPipSetup * g_Pip0;
 #endif
@@ -2201,10 +2200,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    _scanSettings       (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    service             (LOCALE_SERVICEMENU_HEAD              , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    moviePlayer         (LOCALE_MOVIEPLAYER_HEAD              , NEUTRINO_ICON_STREAMING);
-	gmoviePlayer = &moviePlayer;
 
-	InitMainMenu(mainMenu, mainSettings, miscSettings, service, audioplPicSettings, streamingSettings, moviePlayer);
+	InitMainMenu(mainMenu, mainSettings, miscSettings, service, audioplPicSettings, streamingSettings);
 
 	InitServiceSettings(service, _scanSettings);
 	InitAudioplPicSettings(audioplPicSettings);

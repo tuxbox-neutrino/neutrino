@@ -53,6 +53,7 @@ libneutrino_gui_a_SOURCES = \
 	imageinfo.cpp \
 	infoviewer.cpp \
 	keybind_setup.cpp \
+	mediaplayer.cpp \
 	moviebrowser.cpp \
 	movieinfo.cpp \
 	movieplayer.cpp \

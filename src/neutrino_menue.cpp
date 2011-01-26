@@ -88,6 +88,7 @@
 #include "gui/imageinfo.h"
 #include "gui/infoviewer.h"
 #include "gui/keybind_setup.h"
+#include "gui/mediaplayer.h"
 #include "gui/motorcontrol.h"
 #include "gui/movieplayer.h"
 #include "gui/network_setup.h"
@@ -106,7 +107,6 @@
 #endif /*TEST_MENU*/
 #include "gui/timerlist.h"
 #include "gui/update.h"
-#include "gui/upnpbrowser.h"
 #include "gui/user_menue_setup.h"
 #include "gui/user_menue_setup.h"
 #include "gui/vfd_setup.h"
@@ -151,7 +151,6 @@
 
 extern CFrontend * frontend;
 extern CAudioPlayerGui * audioPlayer;
-extern CMoviePlayerGui* moviePlayerGui;
 extern CPlugins       * g_PluginList;
 extern bool has_hdd;
 extern CZapitClient::SatelliteList satList;
@@ -178,7 +177,7 @@ extern bool autoshift;
 *          CNeutrinoApp -  init main menu                                             *
 **************************************************************************************/
 void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings,
-				CMenuWidget &service, CMenuWidget &audiopl_picSettings, CMenuWidget &/*streamingSettings*/, CMenuWidget &moviePlayer)
+				CMenuWidget &service, CMenuWidget &audiopl_picSettings, CMenuWidget &/*streamingSettings*/)
 {
 	unsigned int system_rev = cs_get_revision();
 
@@ -193,52 +192,10 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	if (g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME))
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_GAMES, true, NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME), "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
-	audioPlayer = new CAudioPlayerGui();
-	moviePlayerGui = new CMoviePlayerGui();
+	//multimedia menu
+ 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_MEDIA, true, NULL, new CMediaPlayerMenu(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
-	moviePlayer.addIntroItems();
-	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, moviePlayerGui, "tsmoviebrowser", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, moviePlayerGui, "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
-#if 1
-	CMenuWidget *media = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA);
-	media->addIntroItems();
-	audioPlayer = new CAudioPlayerGui();
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, audioPlayer, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	audioPlayer = new CAudioPlayerGui(true);
-	media->addItem(new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, audioPlayer, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, &moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-	media->addItem(new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::convertDigitToKey(0)));
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_MEDIA, true, NULL, media, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-#else
-	mainMenu.addItem(GenericMenuSeparatorLine);
-	mainMenu.addItem(new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, audioPlayer, NULL, CRCInput::convertDigitToKey(shortcut++)));
-
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, &moviePlayer, NULL, CRCInput::convertDigitToKey(shortcut++)));
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::convertDigitToKey(shortcut++)));
-#endif
-
-#if 0
-	moviePlayer.addItem(GenericMenuSeparator);
-	moviePlayer.addItem(GenericMenuBack);
-	moviePlayer.addItem(GenericMenuSeparatorLine);
-
-	//moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_PESPLAYBACK, true, NULL, moviePlayerGui, "pesplayback"));
-	//moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK_PC, true, NULL, moviePlayerGui, "tsplayback_pc"));
-	moviePlayer.addItem(new CLockedMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, g_settings.parentallock_pincode, false, true, NULL, moviePlayerGui, "tsmoviebrowser"));
-	moviePlayer.addItem(new CLockedMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK, g_settings.parentallock_pincode, false, true, NULL, moviePlayerGui, "tsplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-
-	moviePlayer.addItem(new CLockedMenuForwarder(LOCALE_MOVIEPLAYER_BOOKMARK, g_settings.parentallock_pincode, false, true, NULL, moviePlayerGui, "bookmarkplayback"));
-	moviePlayer.addItem(GenericMenuSeparator);
-	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, moviePlayerGui, "fileplayback", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_DVDPLAYBACK, true, NULL, moviePlayerGui, "dvdplayback", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	moviePlayer.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_VCDPLAYBACK, true, NULL, moviePlayerGui, "vcdplayback", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-	moviePlayer.addItem(GenericMenuSeparatorLine);
-	moviePlayer.addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &streamingSettings, NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL));
-	moviePlayer.addItem(new CMenuForwarder(LOCALE_NFSMENU_HEAD, true, NULL, new CNFSSmallMenu(), NULL, CRCInput::RC_setup, NEUTRINO_ICON_BUTTON_DBOX_SMALL));
-#endif
 	if (g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT))
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SCRIPTS, true, NULL, new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT), "",
 						    CRCInput::convertDigitToKey(shortcut++)));
@@ -246,8 +203,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, &mainSettings, NULL,
 					    CRCInput::convertDigitToKey(shortcut++)));
-	mainMenu.addItem(new CLockedMenuForwarder(LOCALE_MAINMENU_SERVICE, g_settings.parentallock_pincode, false, true, NULL, &service, NULL,
-			 CRCInput::convertDigitToKey(shortcut++)));
+	mainMenu.addItem(new CLockedMenuForwarder(LOCALE_MAINMENU_SERVICE, g_settings.parentallock_pincode, false, true, NULL, &service, NULL, CRCInput::convertDigitToKey(shortcut++)));
 	mainMenu.addItem(GenericMenuSeparatorLine);
 
 	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_SLEEPTIMER, true, NULL, new CSleepTimerWidget, "",
@@ -1541,7 +1497,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_MOVIEPLAYER_MB;
 			keyhelper.get(&key,&icon,CRCInput::RC_green);
-			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, moviePlayerGui, "tsmoviebrowser", key, icon);
+			menu_item = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, new CMoviePlayerGui(), "tsmoviebrowser", key, icon);
 			menu->addItem(menu_item, false);
 			break;
 
