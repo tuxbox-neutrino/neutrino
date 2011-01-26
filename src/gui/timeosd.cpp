@@ -31,7 +31,7 @@
 #include <system/settings.h>
 #include <gui/widget/progressbar.h>
 
-static CProgressBar *timescale;
+static CProgressBar *timescale = 0;
 
 #define TIMEOSD_FONT SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME
 #define BARLEN 200
@@ -41,8 +41,11 @@ CTimeOSD::CTimeOSD()
 	visible=false;
 	m_mode=MODE_ASC;
 	GetDimensions();
-	if (! timescale)
+	if (! timescale ){
+		if(m_height < 5)
+			m_height = 10;
 		timescale = new CProgressBar(true, BARLEN, m_height -5, 40, 100, 70, true);
+	}
 }
 
 CTimeOSD::~CTimeOSD()
@@ -61,7 +64,8 @@ void CTimeOSD::show(time_t time_show)
 	m_time_dis  = time(NULL);
 	m_time_show = time_show;
 	frameBuffer->paintBoxRel(m_xstart-2, m_y, 2+BARLEN+2, m_height, COL_INFOBAR_SHADOW_PLUS_0); //border
-	timescale->reset();
+	if(timescale)
+		timescale->reset();
 	update();
 }
 
@@ -119,7 +123,12 @@ void CTimeOSD::update(time_t time_show)
 
 void CTimeOSD::updatePos(short runningPercent)
 {
-	timescale->paintProgressBar2(m_xstart, m_y, runningPercent);
+  	if(timescale){
+		if(runningPercent > 100 || runningPercent < 0){
+			runningPercent = 0;
+		}
+		timescale->paintProgressBar2(m_xstart, m_y, runningPercent);
+	}
 }
 
 void CTimeOSD::hide()
@@ -129,7 +138,8 @@ void CTimeOSD::hide()
 		return;
 	frameBuffer->paintBackgroundBoxRel(m_xend - m_width - t1, m_y, m_width, m_height);
 	visible=false;
-	timescale->reset();
+	if(timescale)
+		timescale->reset();
 	frameBuffer->paintBackgroundBoxRel(m_xstart-2, m_y, 2+BARLEN+2, m_height); //clear border
 
 }
