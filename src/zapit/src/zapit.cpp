@@ -375,7 +375,7 @@ void start_camd(bool forupdate = false)
 		} else {
 			/* zap back to rec. channel */
 			camask =  5; // demux 0 + 2
-			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_2 /*camask*/, true); // update
+			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_0 | DEMUX_DECODE_2 /*camask*/, true); // update
 			cam1->sendMessage(0,0); // stop/close
 		}
 	} else {
@@ -718,7 +718,7 @@ void unsetRecordMode(void)
 	if(standby)
 		cam0->sendMessage(0,0); // stop
 	else if(live_channel_id == rec_channel_id) {
-		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() & ~DEMUX_DECODE_2 /*1*/, true); // demux 0, update
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, (cam0->getCaMask() | DEMUX_DECODE_0) & ~DEMUX_DECODE_2 /*1*/, true); // demux 0, update
 	} else {
 		cam1->sendMessage(0,0); // stop
 		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() & ~DEMUX_DECODE_2 /*1*/); // start
