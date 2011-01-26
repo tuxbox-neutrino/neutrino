@@ -55,7 +55,7 @@ CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 	local = menue_title;
 	button = menue_button;
 
-	width = w_max (35, 10);
+	width = w_max (40, 10);
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height 	= hheight+13*mheight+ 10;
