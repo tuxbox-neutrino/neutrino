@@ -57,12 +57,12 @@
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
 #include <driver/vfd.h>
-#include <ca_cs.h>
 #endif
 #if HAVE_TRIPLEDRAGON
 #include <record_td.h>
 #include <driver/lcdd.h>
 #endif
+#include <ca_cs.h>
 #include <zapit/cam.h>
 #include <zapit/channel.h>
 
