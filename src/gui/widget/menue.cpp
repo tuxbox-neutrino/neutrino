@@ -171,11 +171,10 @@ void CMenuItem::paintItem(const bool select_mode, const int &item_height)
 }
 
 
-void CMenuItem::paintItemButton(const bool select_mode, const std::string &icon_Name, const bool icon_centered)
+void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, const std::string &icon_Name, const bool icon_centered)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	bool selected = select_mode;
-	int item_height = getHeight();/*item_height;*/
 	bool icon_painted = false;
 	bool centered = icon_centered;
 	
@@ -940,7 +939,7 @@ int CMenuOptionNumberChooser::paint(bool selected, bool /*last*/)
 	paintItem(selected, height);
 
 	//paint item icon
-	paintItemButton(selected, NEUTRINO_ICON_BUTTON_OKAY);
+	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
 
 	//paint text
 	paintItemCaption(selected, height , l_optionName, l_option);
@@ -1144,7 +1143,7 @@ int CMenuOptionChooser::paint( bool selected , bool /*last*/)
 	paintItem(selected, height);
 	
 	//paint item icon
-	paintItemButton(selected, NEUTRINO_ICON_BUTTON_OKAY);
+	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
 	
 	//paint text
 	paintItemCaption(selected, height , optionNameString.c_str(), l_option);
@@ -1272,7 +1271,7 @@ int CMenuOptionStringChooser::paint( bool selected, bool /*last*/ )
 	paintItem(selected, height);
 
 	//paint item icon
-	paintItemButton(selected, NEUTRINO_ICON_BUTTON_OKAY);
+	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
 	
 	//paint text
 	paintItemCaption(selected, height , l_optionName, optionValue);
@@ -1339,7 +1338,7 @@ int CMenuOptionLanguageChooser::paint( bool selected, bool /*last*/ )
 	//paint item
 	paintItem(selected, height);
 
-	paintItemButton( selected, iconName, true);
+	paintItemButton(selected, height, iconName, true);
 	
 	//convert first letter to large
 	string s_optionValue = static_cast<std::string> (optionValue);
@@ -1465,7 +1464,7 @@ int CMenuForwarder::paint(bool selected, bool /*last*/)
 	paintItem(selected, height);
 	
 	//paint icon
-	paintItemButton(selected);
+	paintItemButton(selected, height);
 	
 	//caption
 	paintItemCaption(selected, height, l_text, option_text);

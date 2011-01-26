@@ -122,7 +122,7 @@ class CMenuItem
 		}
 		virtual void setActive(const bool Active);
 
-		virtual void paintItemButton(const bool select_mode, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT, const bool icon_centered = false);
+		virtual void paintItemButton(const bool select_mode, const int &item_height, const std::string& icon_Name = NEUTRINO_ICON_BUTTON_RIGHT, const bool icon_centered = false);
 		
 		virtual void setItemColors(const bool select_mode , 	const fb_pixel_t &def_color = COL_MENUCONTENT, 			const fb_pixel_t &def_bgcolor = COL_MENUCONTENT_PLUS_0, 
 									const fb_pixel_t &def_sel_color = COL_MENUCONTENTSELECTED, 	const fb_pixel_t &def_sel_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0, 
