@@ -122,7 +122,7 @@ void CMenuItem::setItemColors(const bool select_mode, 	const fb_pixel_t &def_col
 }
 
 
-void CMenuItem::paintItemBackground (const bool select_mode, /*const int &item_x, const int &item_y, const int &width,*/ const int &height)
+void CMenuItem::paintItemBackground (const bool select_mode, const int &height)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	
@@ -161,21 +161,21 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &height, cons
 	}
 }
 
-void CMenuItem::paintItem(const bool select_mode, /*int &start_x, int &start_y, int &width,*/ int &height)
+void CMenuItem::paintItem(const bool select_mode, const int &height)
 {
 // 	//set colors
 // 	setItemColors(select_mode);
 
 	//paint item background
-	paintItemBackground(select_mode, /*start_x, start_y, width,*/ height);
+	paintItemBackground(select_mode, height);
 }
 
 
-void CMenuItem::paintItemButton(/*const int frame_height, */const bool select_mode, const std::string &icon_Name, const bool icon_centered)
+void CMenuItem::paintItemButton(const bool select_mode, const std::string &icon_Name, const bool icon_centered)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	bool selected = select_mode;
-	int height = getHeight();/*frame_height;*/
+	int height = getHeight();/*item_height;*/
 	bool icon_painted = false;
 	bool centered = icon_centered;
 	
@@ -1141,10 +1141,10 @@ int CMenuOptionChooser::paint( bool selected , bool /*last*/)
 	setItemColors(selected);
 	
 	//paint item
-	paintItem(selected, /*x, y, dx,*/ height);
+	paintItem(selected, height);
 	
 	//paint item icon
-	paintItemButton(/*height, */selected, NEUTRINO_ICON_BUTTON_OKAY);
+	paintItemButton(selected, NEUTRINO_ICON_BUTTON_OKAY);
 	
 	//paint text
 	paintItemCaption(selected, height , optionNameString.c_str(), l_option);
