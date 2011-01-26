@@ -58,7 +58,7 @@ CKeybindSetup::CKeybindSetup()
 	keySetupNotifier = new CKeySetupNotifier;
 	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
-	width = w_max (30, 10);
+	width = w_max (40, 10);
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height 	= hheight+13*mheight+ 10;
