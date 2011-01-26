@@ -54,20 +54,24 @@ void loadSkin(char * const filename, char * const backup_filename, const unsigne
 	unsigned char BMPWidth;
 	unsigned char BMPHeight;
 	char line_buffer[4];
-
 	file = filename;
 	digit_pos = modify_char_filename;
 
 	for (i = 0; i < count; i++)
 	{
+		bool retried = false;
 	retry:
 		if ((fd = fopen(file, "rb")) == 0)
 		{
-			printf("[lcdd] %s-skin not found -> using default...\n", name);
+			printf("[lcdd] %s-skin not found (%s) -> using default...\n", name, file);
 			file = backup_filename;
 			digit_pos = modify_char_backup_filename;
 			i = 0;
-			goto retry;
+			if (!retried) {
+				retried = true;
+				goto retry;
+			}
+			break;
 		}
 
 		fseek(fd, 0x12, SEEK_SET);
@@ -82,7 +86,10 @@ void loadSkin(char * const filename, char * const backup_filename, const unsigne
 			file = backup_filename;
 			digit_pos = modify_char_backup_filename;
 			i = 0;
-			goto retry;
+			if (!retried) {
+				retried = true;
+				goto retry;
+			}
 		}
 
 		fseek(fd, 0x3E, SEEK_SET);
