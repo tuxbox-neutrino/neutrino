@@ -1189,6 +1189,8 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 		}
 
 		tuned = pos;
+		CVFD::getInstance()->setEPGTitle("");
+		CVFD::getInstance()->showServicename(chan->name);
 		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
 		// TODO check is it possible bouquetList is NULL ?
 		if (bouquetList != NULL) {
@@ -1226,6 +1228,8 @@ void CChannelList::NewZap(t_channel_id channel_id)
 	printf("**************************** CChannelList::NewZap me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, chan->name.c_str(), chan->channel_id);
 
 	if(selected_chid != chan->getChannelID()) {
+		CVFD::getInstance()->setEPGTitle("");
+		CVFD::getInstance()->showServicename(chan->name);
 		selected_chid = chan->getChannelID();
 		g_RemoteControl->zapTo_ChannelID(chan->getChannelID(), chan->name, !chan->bAlwaysLocked);
 		/* remove recordModeActive from infobar */

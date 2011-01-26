@@ -1425,6 +1425,8 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				show_Data (true);
 		}
 		showLcdPercentOver ();
+		eventname = info_CurrentNext.current_name;
+		CVFD::getInstance()->setEPGTitle(eventname);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED) {
 		chanready = 1;
@@ -2133,6 +2135,46 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	return res;
 }
 
+#if HAVE_TRIPLEDRAGON
+/* the cheap COOLSTREAM display cannot do this, so keep the routines separate */
+void CInfoViewer::showLcdPercentOver()
+{
+	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] != 1)
+	{
+		if (fileplay || NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode()) {
+			CVFD::getInstance()->showPercentOver(CMoviePlayerGui::getInstance().file_prozent);
+			return;
+		}
+		static long long old_interval = 0;
+		int runningPercent = -1;
+		time_t jetzt = time(NULL);
+		long long interval = 60000000; /* 60 seconds default update time */
+		if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
+			if (jetzt < info_CurrentNext.current_zeit.startzeit)
+				runningPercent = 0;
+			else if (jetzt > (int)(info_CurrentNext.current_zeit.startzeit +
+					       info_CurrentNext.current_zeit.dauer))
+				runningPercent = -2; /* overtime */
+			else {
+				runningPercent = MIN((jetzt-info_CurrentNext.current_zeit.startzeit) * 100 /
+					              info_CurrentNext.current_zeit.dauer, 100);
+				interval = info_CurrentNext.current_zeit.dauer * 1000LL * (1000/100); // update every percent
+				if (is_visible && interval > 60000000)	// if infobar visible, update at
+					interval = 60000000;		// least once per minute (radio mode)
+				if (interval < 5000000)
+					interval = 5000000;		// but update only every 5 seconds
+			}
+		}
+		if (interval != old_interval) {
+			g_RCInput->killTimer(lcdUpdateTimer);
+			lcdUpdateTimer = g_RCInput->addTimer(interval, false);
+			//printf("lcdUpdateTimer: interval %lld old %lld\n",interval/1000000,old_interval/1000000);
+			old_interval = interval;
+		}
+		CLCD::getInstance()->showPercentOver(runningPercent);
+	}
+}
+#else
 void CInfoViewer::showLcdPercentOver ()
 {
 	if (g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] != 1) {
@@ -2156,6 +2198,7 @@ void CInfoViewer::showLcdPercentOver ()
 		CVFD::getInstance ()->showPercentOver (runningPercent);
 	}
 }
+#endif
 
 void CInfoViewer::showEpgInfo()   //message on event change
 {

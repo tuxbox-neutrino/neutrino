@@ -203,7 +203,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 		{
 //printf("[neutrino] channel match\n");
 			//CURRENT-EPG für den aktuellen Kanal bekommen!;
-
+			CVFD::getInstance()->setEPGTitle(info_CN->current_name);
 			if ( info_CN->current_uniqueKey != current_EPGid )
 			{
 //printf("[neutrino] info_CN->current_uniqueKey != current_EPGid\n");
