@@ -727,6 +727,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 
 	CMenuWidget* menu = new CMenuWidget(LOCALE_SCANTS_SELECT_TP, NEUTRINO_ICON_SETTINGS);
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
+	menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL); //add cancel button, ensures that we have enought space left from item caption
 	i = 0;
 	for (tI = select_transponders.begin(); tI != select_transponders.end(); tI++) {
 		t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
@@ -758,7 +759,11 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		}
 
 		//menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), old_selected == i);
-		menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt, CRCInput::RC_nokey, NULL), false);
+
+		CMenuForwarderNonLocalized * ts_item = new CMenuForwarderNonLocalized(buf, true, NULL, selector, NULL, CRCInput::RC_nokey, NULL)/*, false*/;
+		ts_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+		menu->addItem(ts_item);
+
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
 	}

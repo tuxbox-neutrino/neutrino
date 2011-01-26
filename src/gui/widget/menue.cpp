@@ -64,7 +64,14 @@ CMenuForwarder * const GenericMenuCancel = &CGenericMenuCancel;
 CMenuForwarder * const GenericMenuNext = &CGenericMenuNext;
 
 
-
+CMenuItem::CMenuItem()
+{
+	x = -1;
+	directKey = CRCInput::RC_nokey;
+	iconName = "";
+	can_arrow = false;
+	used = false;
+}
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 {
@@ -72,6 +79,7 @@ void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
 	y    = Y;
 	dx   = DX;
 	offx = OFFX;
+	name_start_x = x + offx + 15;
 }
 
 void CMenuItem::setActive(const bool Active)
@@ -114,34 +122,60 @@ void CMenuItem::setItemColors(const bool select_mode, 	const fb_pixel_t &def_col
 }
 
 
-void CMenuItem::paintItemBackground (const bool select_mode, const int &item_x, const int &item_y, const int &width, const int &height)
+void CMenuItem::paintItemBackground (const bool select_mode, /*const int &item_x, const int &item_y, const int &width,*/ const int &height)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	
 	if(select_mode)
-		frameBuffer->paintBoxRel(item_x, item_y, width, height, item_bgcolor, RADIUS_LARGE);
+		frameBuffer->paintBoxRel(x, y, dx, height, item_bgcolor, RADIUS_LARGE);
 	//else if(last) ?? Why do we need this?
-		//frameBuffer->paintBoxRel(item_x, item_y, width, height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME 
+		//frameBuffer->paintBoxRel(x, y, dx, height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME 
 	else
-		frameBuffer->paintBoxRel(item_x, item_y, width, height, item_bgcolor);
+		frameBuffer->paintBoxRel(x, y, dx, height, item_bgcolor);
 }
 
+void CMenuItem::paintItemCaption(const bool select_mode, const int &height, const char * left_text, const char * right_text)
+{
+	if (select_mode)
+	{
+		char str[256];
 
-void CMenuItem::paintItem(const bool select_mode, int &start_x, int &start_y, int &width, int &height)
+		if (right_text != NULL) 
+		{
+			snprintf(str, 255, "%s %s", left_text, right_text);
+			CVFD::getInstance()->showMenuText(0, str, -1, true);
+		} 
+		else
+			CVFD::getInstance()->showMenuText(0, left_text, -1, true);
+	}
+	
+	//left text
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ height, dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
+
+	//right text
+	if (right_text != NULL)
+	{
+		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
+		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + 10, x + dx - stringwidth - 10); //+ offx
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
+	}
+}
+
+void CMenuItem::paintItem(const bool select_mode, /*int &start_x, int &start_y, int &width,*/ int &height)
 {
 // 	//set colors
 // 	setItemColors(select_mode);
 
 	//paint item background
-	paintItemBackground(select_mode, start_x, start_y, width, height);
+	paintItemBackground(select_mode, /*start_x, start_y, width,*/ height);
 }
 
 
-void CMenuItem::paintItemButton(const int startX, const int frame_height, const bool select_mode, const std::string &icon_Name, const bool icon_centered)
+void CMenuItem::paintItemButton(/*const int frame_height, */const bool select_mode, const std::string &icon_Name, const bool icon_centered)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	bool selected = select_mode;
-	int height = frame_height;
+	int height = getHeight();/*frame_height;*/
 	bool icon_painted = false;
 	bool centered = icon_centered;
 	
@@ -176,7 +210,7 @@ void CMenuItem::paintItemButton(const int startX, const int frame_height, const 
 	int m_icon_h = h;
 	
 	int icon_x = 0;
-	int icon_start_x = (x+(startX-x)/*/2*/); //here starts the left part of caption itemtext, we need the the left space to paint the icon in it
+	int icon_start_x = x+10 /*x+(name_start_x-x)*/; 
 
 	//get data of number icon and paint
 	if (!icon_name.empty())
@@ -191,10 +225,10 @@ void CMenuItem::paintItemButton(const int startX, const int frame_height, const 
 			if (!centered)
 				centered = (icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME ||  icon_name == NEUTRINO_ICON_BUTTON_RIGHT);
 			
-			if (centered/* || icon_name == NEUTRINO_ICON_BUTTON_OKAY || icon_name == NEUTRINO_ICON_BUTTON_HELP || icon_name == NEUTRINO_ICON_BUTTON_HOME*/)
+			if (centered)
 				icon_x = x+ ((icon_start_x-x)/2) - (icon_w/2); //centered
 			else
-				icon_x = icon_start_x - ((icon_w+m_icon_w)/*/2*/);
+				icon_x = icon_start_x/* - ((icon_w+m_icon_w))*/;
 			
 			icon_painted = 	frameBuffer->paintIcon(icon_name, icon_x, y+ ((height/2- icon_h/2)) );
 		}
@@ -207,12 +241,6 @@ void CMenuItem::paintItemButton(const int startX, const int frame_height, const 
 	//paint only number if no icon was painted and keyval is numeric
 	if (CRCInput::isNumeric(directKey) && !icon_painted)
 	{
-// 		unsigned char i_color   = COL_MENUCONTENT;
-// 		if (selected)
-// 			i_color   = COL_MENUCONTENTSELECTED;
-// 		if (!active)
-// 			i_color   = COL_MENUCONTENTINACTIVE;
-
 		number_w = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(CRCInput::getKeyName(directKey));
 		
 		number_x = icon_start_x - ((number_w+m_icon_w)/*/2*/);
@@ -901,33 +929,21 @@ int CMenuOptionNumberChooser::paint(bool selected, bool /*last*/)
 	}
 	else
 		l_option = g_Locale->getText(localized_value_name);
-
-	int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_option, true); // UTF-8
-	int stringstartposName = x + offx + 10;
-	int stringstartposOption = x + dx - stringwidth - 10; //+ offx
 	
+	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
+
+
 	//set colors
 	setItemColors(selected);
 		
 	//paint item
-	paintItem(selected, x, y, dx, height);
+	paintItem(selected, height);
 
 	//paint item icon
-	paintItemButton(stringstartposName, height, selected, NEUTRINO_ICON_BUTTON_OKAY);
+	paintItemButton(selected, NEUTRINO_ICON_BUTTON_OKAY);
 
-	const char * l_optionName = (optionString != NULL) ? optionString : g_Locale->getText(optionName);
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), l_optionName, item_color, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), l_option, item_color, 0, true); // UTF-8
-	
-	if (selected)
-	{
-		char str[256];
-		snprintf(str, 255, "%s %s", l_optionName, l_option);
-		CVFD::getInstance()->showMenuText(0, str, -1, true);
-		//CVFD::getInstance()->showMenuText(0, l_optionName, -1, true); // UTF-8
-		//CVFD::getInstance()->showMenuText(1, l_option, -1, true); // UTF-8
-	}
+	//paint text
+	paintItemCaption(selected, height , l_optionName, l_option);
 
 	return y+height;
 }
@@ -1110,7 +1126,9 @@ int CMenuOptionChooser::paint( bool selected , bool /*last*/)
 			break;
 		}
 	}
-	if(l_option == NULL) {
+	
+	if(l_option == NULL) 
+	{
 		*optionValue = options[0].key;
 		option = options[0].value;
 		if(options[0].valname != 0)
@@ -1119,30 +1137,17 @@ int CMenuOptionChooser::paint( bool selected , bool /*last*/)
 			l_option = g_Locale->getText(option);
 	}
 
-	int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_option, true); // UTF-8
-	int stringstartposName = x + offx + 10;
-	int stringstartposOption = x + dx - stringwidth - 10; //+ offx
-	
 	//set colors
 	setItemColors(selected);
 	
 	//paint item
-	paintItem(selected, x, y, dx, height);
+	paintItem(selected, /*x, y, dx,*/ height);
 	
 	//paint item icon
-	paintItemButton(stringstartposName, height, selected, NEUTRINO_ICON_BUTTON_OKAY);
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height,dx- (stringstartposName - x), optionNameString.c_str(), item_color, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), l_option, item_color, 0, true); // UTF-8
+	paintItemButton(/*height, */selected, NEUTRINO_ICON_BUTTON_OKAY);
 	
-	if (selected)
-	{
-		char str[256];
-		snprintf(str, 255, "%s %s", optionNameString.c_str(), l_option);
-		CVFD::getInstance()->showMenuText(0, str, -1, true);
-		//CVFD::getInstance()->showMenuText(0, optionNameString.c_str(), -1, true); // UTF-8
-		//CVFD::getInstance()->showMenuText(1, l_option, -1, true); // UTF-8
-	}
+	//paint text
+	paintItemCaption(selected, height , optionNameString.c_str(), l_option);
 
 	return y+height;
 }
@@ -1259,32 +1264,18 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 int CMenuOptionStringChooser::paint( bool selected, bool /*last*/ )
 {
 	const char * l_optionName = g_Locale->getText(optionName);
-	int optionwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_optionName, true);
-	//int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(optionValue, true);
-	int stringstartposName = x + offx + 10;
-	//int stringstartposOption = x + dx - stringwidth - 10; //+ offx
-	int stringstartposOption = x + offx + 10 + 10 + optionwidth;
 	
 	//set colors
 	setItemColors(selected);
 	
 	//paint item
-	paintItem(selected, x, y, dx, height);
+	paintItem(selected, height);
 
 	//paint item icon
-	paintItemButton(stringstartposName, height, selected, NEUTRINO_ICON_BUTTON_OKAY);
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposName,   y+height, dx- (stringstartposName - x),  l_optionName, item_color, 0, true); // UTF-8
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height, dx- (stringstartposOption - x), optionValue, item_color, 0, true);
-
-	if (selected)
-	{
-		char str[256];
-		snprintf(str, 255, "%s %s", l_optionName, optionValue);
-		CVFD::getInstance()->showMenuText(0, str, -1, true);
-		//CVFD::getInstance()->showMenuText(0, l_optionName, -1, true); // UTF-8
-		//CVFD::getInstance()->showMenuText(1, optionValue);
-	}
+	paintItemButton(selected, NEUTRINO_ICON_BUTTON_OKAY);
+	
+	//paint text
+	paintItemCaption(selected, height , l_optionName, optionValue);
 
 	return y+height;
 }
@@ -1346,11 +1337,9 @@ int CMenuOptionLanguageChooser::paint( bool selected, bool /*last*/ )
 	setItemColors(selected);
 
 	//paint item
-	paintItem(selected, x, y, dx, height);
+	paintItem(selected, height);
 
-	int stringstartposOption = x + offx + 10;
-
-	paintItemButton(stringstartposOption, height, selected, iconName, true);
+	paintItemButton( selected, iconName, true);
 	
 	//convert first letter to large
 	string s_optionValue = static_cast<std::string> (optionValue);
@@ -1358,13 +1347,9 @@ int CMenuOptionLanguageChooser::paint( bool selected, bool /*last*/ )
 	string s(ts);
 	s = toupper(s_optionValue[0]);
 	s_optionValue.replace(0, 1, s);
-
-	//paint item string
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption - x), s_optionValue, item_color);
-
-	//show in vfd
-	if (selected)
-		CVFD::getInstance()->showMenuText(1, s_optionValue.c_str());
+	
+	//paint text
+	paintItemCaption(selected, height , s_optionValue.c_str());
 
 	return y+height;
 }
@@ -1469,43 +1454,22 @@ const char * CMenuForwarder::getName(void)
 int CMenuForwarder::paint(bool selected, bool /*last*/)
 {
 	int height = getHeight();
-	const char * l_text = getName();
-	int stringstartposX = x + offx + 10;
+ 	const char * l_text = getName();
+ 
+ 	const char * option_text = getOption();
 
-	const char * option_text = getOption();
-
-	if (selected)
-	{
-		char str[256];
-
-		if (option_text != NULL) {
-			snprintf(str, 255, "%s %s", l_text, option_text);
-			CVFD::getInstance()->showMenuText(0, str, -1, true);
-		} else
-			CVFD::getInstance()->showMenuText(0, l_text, -1, true);
-	}
-	
 	//set colors
 	setItemColors(selected);
 	
 	//paint item
-	paintItem(selected, x, y, dx, height);
+	paintItem(selected, height);
 	
 	//paint icon
-	paintItemButton(stringstartposX, height, selected);
+	paintItemButton(selected);
 	
 	//caption
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposX, y+ height, dx- (stringstartposX - x), l_text, item_color, 0, true); // UTF-8
-
-	//option text
-	if (option_text != NULL)
-	{
-		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(option_text, true);
-		int stringstartposOption = std::max(stringstartposX + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(l_text, true) + 10,
-											x + dx - stringwidth - 10); //+ offx
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption- x),  option_text, item_color, 0, true);
-	}
-
+	paintItemCaption(selected, height, l_text, option_text);
+	
 	return y+ height;
 }
 
@@ -1615,7 +1579,7 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 
 			/* if no alignment is specified, align centered */
 			if (type & ALIGN_LEFT)
-				stringstartposX = x + (!SUB_HEAD ?  20 : 20 +18);
+				stringstartposX = x + (!SUB_HEAD ?  name_start_x : 20 +18);
 			else if (type & ALIGN_RIGHT)
 				stringstartposX = x + dx - stringwidth - 20;
 			else /* ALIGN_CENTER */
