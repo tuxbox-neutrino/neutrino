@@ -236,7 +236,6 @@ CBouquetList   * RADIOallList;
 CPlugins       * g_PluginList;
 CRemoteControl * g_RemoteControl;
 SMSKeyInput * c_SMSKeyInput;
-CMoviePlayerGui* moviePlayerGui;
 CAudioSelectMenuHandler  *audio_menu;
 CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
@@ -2523,7 +2522,7 @@ printf("[neutrino] timeshift try, recordingstatus %d, rec dir %s, timeshift dir 
 				if(g_RemoteControl->is_video_started) {
 					if(recordingstatus) {
 						//StopSubtitles();
-						moviePlayerGui->exec(NULL, tmode);
+						CMoviePlayerGui::getInstance().exec(NULL, tmode);
 						//StartSubtitles();
 					} else if(msg != CRCInput::RC_rewind) {
 						//StopSubtitles();
@@ -2535,7 +2534,7 @@ printf("[neutrino] timeshift try, recordingstatus %d, rec dir %s, timeshift dir 
 						}
 						if(recordingstatus) {
 							//StopSubtitles();
-							moviePlayerGui->exec(NULL, tmode);
+							CMoviePlayerGui::getInstance().exec(NULL, tmode);
 							//StartSubtitles();
 						}
 					}
@@ -2590,7 +2589,7 @@ printf("[neutrino] direct record\n");
 					//StopSubtitles();
 					if( mode == mode_radio )
 						videoDecoder->StopPicture();
-					moviePlayerGui->exec(NULL, "tsmoviebrowser");
+					CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
 					if( mode == mode_radio )
 						videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
 					//StartSubtitles();
@@ -3380,7 +3379,7 @@ skip_message:
 			lastMode=mode;
 			mode=mode_pic;
 		}
-		if((data & mode_mask)== mode_ts && moviePlayerGui->Playing()) {
+		if((data & mode_mask)== mode_ts && CMoviePlayerGui::getInstance().Playing()) {
 			if(mode == mode_radio)
 				videoDecoder->StopPicture();
 			lastMode=mode;
@@ -3529,7 +3528,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				delete powerManager;
 			}
 
-			delete moviePlayerGui;
+			delete &CMoviePlayerGui::getInstance();
 			shutdown_cs_api();
 
 			system("/etc/init.d/rcK");
@@ -4465,7 +4464,7 @@ void stop_daemons(bool stopall)
 	printf("zapit shutdown done\n");
 	CVFD::getInstance()->Clear();
 	if(stopall) {
-		delete moviePlayerGui;
+		CMoviePlayerGui::Delete(); //remove instance
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		if (powerManager) {

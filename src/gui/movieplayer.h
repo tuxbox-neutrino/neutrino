@@ -111,9 +111,17 @@ class CMoviePlayerGui : public CMenuTarget
 	void showHelpVLC(void);
 	void callInfoViewer(const std::string & epg_title, const std::string & epg_info1,
 			    const std::string & epg_channel, const int duration, const int pos);
+			    
+	static CMoviePlayerGui* instance_mp;
+	CMoviePlayerGui(const CMoviePlayerGui&) {};
+
  public:
 	CMoviePlayerGui();
 	~CMoviePlayerGui();
+
+	static CMoviePlayerGui& getInstance();
+	static void Delete();
+	
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 	void updateLcd(const std::string & sel_filename);
 	bool Playing();

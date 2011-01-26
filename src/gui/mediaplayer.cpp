@@ -101,7 +101,7 @@ void CMediaPlayerMenu::showMenu()
 	media->addItem(new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, new CAudioPlayerGui(true), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	
 	//movieplayer
-	CMenuWidget *moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MOVIEPLAYER, NEUTRINO_ICON_MULTIMEDIA, width);
+	CMenuWidget *moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width);
 	showMoviePlayer(moviePlayer);
 	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	
@@ -120,12 +120,12 @@ void CMediaPlayerMenu::showMenu()
 //show movieplayer submenu with selectable items for moviebrowser or filebrowser
 void CMediaPlayerMenu::showMoviePlayer(CMenuWidget *moviePlayer)
 { 
-	CMoviePlayerGui *movieplayer_gui = new CMoviePlayerGui();
-		
-	moviePlayer->addIntroItems();
+	CMoviePlayerGui *movieplayer_gui = &CMoviePlayerGui::getInstance();
+
+	moviePlayer->addIntroItems(LOCALE_MAINMENU_MOVIEPLAYER);
 	moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, movieplayer_gui, "tsmoviebrowser", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, movieplayer_gui, "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	
+
 // #if 0
 // 	//moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_PESPLAYBACK, true, NULL, moviePlayerGui, "pesplayback"));
 // 	//moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_TSPLAYBACK_PC, true, NULL, moviePlayerGui, "tsplayback_pc"));

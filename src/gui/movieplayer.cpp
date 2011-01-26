@@ -78,6 +78,7 @@
 #include <playback.h>
 #include "libtuxtxt/teletext.h"
 
+
 int dvbsub_start(int pid);
 int dvbsub_pause();
 
@@ -140,6 +141,31 @@ int CAPIDSelectExec::exec(CMenuTarget * /*parent*/, const std::string & actionKe
 	}
 	return menu_return::RETURN_EXIT;
 }
+
+CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
+
+CMoviePlayerGui& CMoviePlayerGui::getInstance()
+{
+	if ( !instance_mp )
+	{
+		instance_mp = new CMoviePlayerGui();
+		printf("[neutrino CMoviePlayerGui] Instance created...\n");
+	}
+	
+	return *instance_mp;
+}
+ 
+void CMoviePlayerGui::Delete()
+{
+	if ( instance_mp )
+	{
+		delete instance_mp;
+		printf("[neutrino CMoviePlayerGui] Instance removed...\n");
+	}
+	
+	instance_mp = NULL;
+}
+
 
 CMoviePlayerGui::CMoviePlayerGui()
 {
