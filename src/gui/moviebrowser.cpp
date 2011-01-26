@@ -1518,7 +1518,7 @@ void CMovieBrowser::refreshTitle(void)
 void CMovieBrowser::refreshFoot(void)
 {
 	//TRACE("[mb]->refreshButtonLine \r\n");
-	int	color   = (CFBWindow::color_t) COL_MENUCONTENT;
+	int	color   = (CFBWindow::color_t) COL_INFOBAR_SHADOW;
 	int iw = 0, ih;
 
 	std::string filter_text = g_Locale->getText(LOCALE_MOVIEBROWSER_FOOT_FILTER);
@@ -1530,7 +1530,7 @@ void CMovieBrowser::refreshFoot(void)
 	// draw the background first
 	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameFootRel.iX, m_cBoxFrame.iY+	m_cBoxFrameFootRel.iY,
 				m_cBoxFrameFootRel.iWidth, m_cBoxFrameFootRel.iHeight+ 6,
-				(CFBWindow::color_t)COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+				(CFBWindow::color_t)COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 //	int width = m_cBoxFrameFootRel.iWidth>>2;
 
