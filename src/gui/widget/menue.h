@@ -128,13 +128,13 @@ class CMenuItem
 									const fb_pixel_t &def_sel_color = COL_MENUCONTENTSELECTED, 	const fb_pixel_t &def_sel_bgcolor = COL_MENUCONTENTSELECTED_PLUS_0, 
 									const fb_pixel_t &def_inactiv_color = COL_MENUCONTENTINACTIVE,	const fb_pixel_t &def_inactiv_bgcolor = COL_MENUCONTENTINACTIVE_PLUS_0);
 									
-		virtual void paintItemBackground (const bool select_mode, const int &height);
+		virtual void paintItemBackground (const bool select_mode, const int &item_height);
 		
-		virtual void paintItem(const bool select_mode, const int &height);
+		virtual void paintItem(const bool select_mode, const int &item_height);
 
 		virtual void setItemButton(const std::string& icon_Name, const bool is_select_button = false);
 		
-		virtual void paintItemCaption(const bool select_mode, const int &height, const char * left_text=NULL, const char * right_text=NULL);
+		virtual void paintItemCaption(const bool select_mode, const int &item_height, const char * left_text=NULL, const char * right_text=NULL);
 };
 
 class CMenuSeparator : public CMenuItem

@@ -122,19 +122,19 @@ void CMenuItem::setItemColors(const bool select_mode, 	const fb_pixel_t &def_col
 }
 
 
-void CMenuItem::paintItemBackground (const bool select_mode, const int &height)
+void CMenuItem::paintItemBackground (const bool select_mode, const int &item_height)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	
 	if(select_mode)
-		frameBuffer->paintBoxRel(x, y, dx, height, item_bgcolor, RADIUS_LARGE);
+		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
 	//else if(last) ?? Why do we need this?
-		//frameBuffer->paintBoxRel(x, y, dx, height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME 
+		//frameBuffer->paintBoxRel(x, y, dx, item_height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME 
 	else
-		frameBuffer->paintBoxRel(x, y, dx, height, item_bgcolor);
+		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor);
 }
 
-void CMenuItem::paintItemCaption(const bool select_mode, const int &height, const char * left_text, const char * right_text)
+void CMenuItem::paintItemCaption(const bool select_mode, const int &item_height, const char * left_text, const char * right_text)
 {
 	if (select_mode)
 	{
@@ -150,24 +150,24 @@ void CMenuItem::paintItemCaption(const bool select_mode, const int &height, cons
 	}
 	
 	//left text
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ height, dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(name_start_x, y+ item_height, dx- (name_start_x - x), left_text, item_color, 0, true); // UTF-8
 
 	//right text
 	if (right_text != NULL)
 	{
 		int stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(right_text, true);
 		int stringstartposOption = std::max(name_start_x + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true) + 10, x + dx - stringwidth - 10); //+ offx
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(stringstartposOption, y+item_height,dx- (stringstartposOption- x),  right_text, item_color, 0, true);
 	}
 }
 
-void CMenuItem::paintItem(const bool select_mode, const int &height)
+void CMenuItem::paintItem(const bool select_mode, const int &item_height)
 {
 // 	//set colors
 // 	setItemColors(select_mode);
 
 	//paint item background
-	paintItemBackground(select_mode, height);
+	paintItemBackground(select_mode, item_height);
 }
 
 
@@ -175,7 +175,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const std::string &icon_
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	bool selected = select_mode;
-	int height = getHeight();/*item_height;*/
+	int item_height = getHeight();/*item_height;*/
 	bool icon_painted = false;
 	bool centered = icon_centered;
 	
@@ -230,7 +230,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const std::string &icon_
 			else
 				icon_x = icon_start_x/* - ((icon_w+m_icon_w))*/;
 			
-			icon_painted = 	frameBuffer->paintIcon(icon_name, icon_x, y+ ((height/2- icon_h/2)) );
+			icon_painted = 	frameBuffer->paintIcon(icon_name, icon_x, y+ ((item_height/2- icon_h/2)) );
 		}
 	}
 
@@ -245,7 +245,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const std::string &icon_
 		
 		number_x = icon_start_x - ((number_w+m_icon_w)/*/2*/);
 		
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(number_x/*x + 15*/, y+ height, height, CRCInput::getKeyName(directKey), item_color, height);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(number_x/*x + 15*/, y+ item_height, item_height, CRCInput::getKeyName(directKey), item_color, item_height);
 	}
 	
 	//paint marker icon, do not paint, if we have a centered icon
@@ -259,7 +259,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const std::string &icon_
 			else
 				icon_offset += number_x + number_w;
 			
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, icon_offset, y+ ((height/2- m_icon_h/2)) );
+			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_RIGHT, icon_offset, y+ ((item_height/2- m_icon_h/2)) );
 		}
 	}
 }
