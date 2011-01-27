@@ -221,6 +221,7 @@ void CMoviePlayerGui::Init(void)
 	slow = 0;
 	jumpseconds = 0;
 	showaudioselectdialog = false;
+	timeshift = 0;
 }
 
 CMoviePlayerGui::~CMoviePlayerGui()
