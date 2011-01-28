@@ -237,20 +237,6 @@ struct SNeutrinoSettings
 	int recording_in_spts_mode;
 	int  recording_zap_on_announce;
 
-	//streaming
-	int  streaming_type;
-	std::string streaming_server_ip;
-	char streaming_server_port[10];
-	char streaming_server_cddrive[21];
-	char streaming_videorate[6];
-	char streaming_audiorate[6];
-	char streaming_server_startdir[40];
-	int streaming_transcode_audio;
-	int streaming_force_avi_rawaudio;
-	int streaming_force_transcode_video;
-	int streaming_transcode_video_codec;
-	int streaming_resolution;
-
 	int filesystem_is_utf8;
 	// default plugin for ts-movieplayer (red button)
 	std::string movieplayer_plugin;

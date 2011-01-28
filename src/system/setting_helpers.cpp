@@ -241,36 +241,6 @@ bool CDHCPNotifier::changeNotify(const neutrino_locale_t, void * data)
 	return true;
 }
 
-CStreamingNotifier::CStreamingNotifier( CMenuItem* i1, CMenuItem* i2, CMenuItem* i3, CMenuItem* i4, CMenuItem* i5, CMenuItem* i6, CMenuItem* i7, CMenuItem* i8, CMenuItem* i9, CMenuItem* i10, CMenuItem* i11)
-{
-   toDisable[0]=i1;
-   toDisable[1]=i2;
-   toDisable[2]=i3;
-   toDisable[3]=i4;
-   toDisable[4]=i5;
-   toDisable[5]=i6;
-   toDisable[6]=i7;
-   toDisable[7]=i8;
-   toDisable[8]=i9;
-   toDisable[9]=i10;
-   toDisable[10]=i11;
-}
-
-bool CStreamingNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-   if(g_settings.streaming_type==0)
-   {
-      for (int i=0; i<=10; i++)
-        toDisable[i]->setActive(false);
-   }
-   else if(g_settings.streaming_type==1)
-   {
-      for (int i=0; i<=10; i++)
-        toDisable[i]->setActive(true);
-   }
-   return true;
-}
-
 COnOffNotifier::COnOffNotifier( CMenuItem* a1,CMenuItem* a2,CMenuItem* a3,CMenuItem* a4,CMenuItem* a5)
 {
         number = 0;

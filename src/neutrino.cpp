@@ -653,19 +653,6 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
 	g_settings.recording_save_in_channeldir      = configfile.getBool("recording_save_in_channeldir"         , false);
 	g_settings.recording_in_spts_mode          = true;
-	//streaming (server)
-	g_settings.streaming_type = configfile.getInt32( "streaming_type", 0 );
-	g_settings.streaming_server_ip = configfile.getString("streaming_server_ip", "10.10.10.10");
-	strcpy( g_settings.streaming_server_port, configfile.getString( "streaming_server_port", "8080").c_str() );
-	strcpy( g_settings.streaming_server_cddrive, configfile.getString("streaming_server_cddrive", "D:").c_str() );
-	strcpy( g_settings.streaming_videorate,  configfile.getString("streaming_videorate", "1000").c_str() );
-	strcpy( g_settings.streaming_audiorate, configfile.getString("streaming_audiorate", "192").c_str() );
-	strcpy( g_settings.streaming_server_startdir, configfile.getString("streaming_server_startdir", "C:/Movies").c_str() );
-	g_settings.streaming_transcode_audio = configfile.getInt32( "streaming_transcode_audio", 0 );
-	g_settings.streaming_force_transcode_video = configfile.getInt32( "streaming_force_transcode_video", 0 );
-	g_settings.streaming_transcode_video_codec = configfile.getInt32( "streaming_transcode_video_codec", 0 );
-	g_settings.streaming_force_avi_rawaudio = configfile.getInt32( "streaming_force_avi_rawaudio", 0 );
-	g_settings.streaming_resolution = configfile.getInt32( "streaming_resolution", 0 );
 
 	// default plugin for movieplayer
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
@@ -1176,26 +1163,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir     );
 	configfile.setBool  ("recording_in_spts_mode"             , g_settings.recording_in_spts_mode         );
 
-	//streaming
-	configfile.setInt32 ( "streaming_type", g_settings.streaming_type );
-	configfile.setString( "streaming_server_ip", g_settings.streaming_server_ip );
-	configfile.setString( "streaming_server_port", g_settings.streaming_server_port );
-	configfile.setString( "streaming_server_cddrive", g_settings.streaming_server_cddrive );
-	configfile.setString ( "streaming_videorate", g_settings.streaming_videorate );
-	configfile.setString ( "streaming_audiorate", g_settings.streaming_audiorate );
-	configfile.setString( "streaming_server_startdir", g_settings.streaming_server_startdir );
-	configfile.setInt32 ( "streaming_transcode_audio", g_settings.streaming_transcode_audio );
-	configfile.setInt32 ( "streaming_force_avi_rawaudio", g_settings.streaming_force_avi_rawaudio );
-	configfile.setInt32 ( "streaming_force_transcode_video", g_settings.streaming_force_transcode_video );
-	configfile.setInt32 ( "streaming_transcode_video_codec", g_settings.streaming_transcode_video_codec );
-	configfile.setInt32 ( "streaming_resolution", g_settings.streaming_resolution );
-
 	// default plugin for movieplayer
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
 	configfile.setString ( "onekey_plugin", g_settings.onekey_plugin );
 	configfile.setString ( "plugin_hdd_dir", g_settings.plugin_hdd_dir );
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
-	configfile.setInt32 ( "streaming_resolution", g_settings.streaming_resolution );
 
 	configfile.setInt32( "rf_subcarrier", g_settings.rf_subcarrier);
 	configfile.setInt32( "rf_soundenable", g_settings.rf_soundenable);
@@ -2326,7 +2298,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	delete hdd;
 
 	InitZapper();
-	InitStreamingSettings(streamingSettings);
 
 	AudioMute( current_muted, true);
 

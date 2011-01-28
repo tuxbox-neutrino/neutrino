@@ -88,14 +88,6 @@ class CDHCPNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t, void * data);
 };
 
-class CStreamingNotifier : public CChangeObserver
-{
-	private:
-		CMenuItem* toDisable[11];
-	public:
-		CStreamingNotifier( CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*);
-		bool changeNotify(const neutrino_locale_t, void *);
-};
 class COnOffNotifier : public CChangeObserver
 {
         private:

@@ -569,7 +569,6 @@ const char *locale_real_names[] = {
 	"mainsettings.recording",
 	"mainsettings.savesettingsnow",
 	"mainsettings.savesettingsnow_hint",
-	"mainsettings.streaming",
 	"mainsettings.video",
 	"menu.back",
 	"menu.cancel",

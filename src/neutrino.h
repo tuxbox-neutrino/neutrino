@@ -171,7 +171,6 @@ private:
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
 	void InitServiceSettings(CMenuWidget &, CMenuWidget &);
-	void InitStreamingSettings(CMenuWidget &streamingSettings);
 	void InitScreenSettings(CMenuWidget &);
 	void InitAudioplPicSettings(CMenuWidget &);
 	void InitMiscSettings(CMenuWidget &);
