@@ -42,6 +42,8 @@
 #include "gui/moviebrowser.h"
 #include "gui/movieinfo.h"
 #include <gui/widget/hintbox.h>
+#include <driver/vcrcontrol.h>
+#include <playback.h>
 
 #include <stdio.h>
 
@@ -94,6 +96,10 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string Path_vlc_settings;
 	std::string g_file_epg;
 	std::string g_file_epg1;
+	static  unsigned short g_numpida;
+	static unsigned short g_vtype;
+	static unsigned short g_vpid;
+	static std::string    g_language[REC_MAX_APIDS];
 
 	CFileBrowser * filebrowser;
 	CMovieBrowser* moviebrowser;
@@ -113,9 +119,11 @@ class CMoviePlayerGui : public CMenuTarget
 	void showHelpVLC(void);
 	void callInfoViewer(const std::string & epg_title, const std::string & epg_info1,
 			    const std::string & epg_channel, const int duration, const int pos);
-			    
+
 	static CMoviePlayerGui* instance_mp;
+	static cPlayback *playback;
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
+	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
  public:
 	CMoviePlayerGui();
@@ -136,6 +144,9 @@ class CAPIDSelectExec : public CMenuTarget
 {
 	public:
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		static unsigned short g_apids[REC_MAX_APIDS];
+		static unsigned short g_ac3flags[REC_MAX_APIDS];
+		static unsigned short g_currentapid, g_currentac3, apidchanged;
 };
 
 #endif
