@@ -38,6 +38,7 @@
 #include <coolstream/cs_vfd.h>
 
 #include <vector>
+#include <cstdlib>
 
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
 #define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
@@ -77,9 +78,15 @@ void CTimerManager::Init(void)
 		close(fd);
 	}
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
-	if(wakeup)
+	if(wakeup){
 		creat("/tmp/.wakeup", 0);
 
+	}else{
+		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
+		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
+		if (system(neutrino_leave_deepstandby_script) != 0)
+			perror( neutrino_leave_deepstandby_script );
+	}
 	loadRecordingSafety();
 
 	//thread starten

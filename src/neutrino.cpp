@@ -3422,6 +3422,11 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		}
 
 		if(retcode) {
+			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
+			printf("[%s] executing %s\n",__FILE__ ,neutrino_enter_deepstandby_script);
+			if (system(neutrino_enter_deepstandby_script) != 0)
+				perror(neutrino_enter_deepstandby_script );
+
 			printf("entering off state\n");
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
