@@ -78,7 +78,7 @@ extern t_channel_id live_channel_id; //zapit
 #define LEFT_OFFSET 5
 
 
-static event_id_t last_curr_id = 0, last_next_id = 0;
+event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
 
 
 extern CZapitClient::SatelliteList satList;

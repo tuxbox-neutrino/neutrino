@@ -101,6 +101,8 @@ class CInfoViewer
 	bool newfreq ;
 	char old_timestr[10];
 	static const short bar_width = 72;
+	static event_id_t last_curr_id, last_next_id;
+
 	CChannelEventList               evtlist;
 	CChannelEventList::iterator     eli;
 

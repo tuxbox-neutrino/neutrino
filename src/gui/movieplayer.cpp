@@ -36,7 +36,6 @@
 
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
-#include <driver/vcrcontrol.h>
 #include <daemonc/remotecontrol.h>
 #include <system/settings.h>
 
@@ -46,6 +45,7 @@
 #include <gui/nfs.h>
 #include <gui/bookmarkmanager.h>
 #include <gui/timeosd.h>
+#include <gui/moviebrowser.h>
 
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
@@ -75,40 +75,35 @@
 #include <sys/timeb.h>
 
 #include <video.h>
-#include <playback.h>
 #include "libtuxtxt/teletext.h"
 
 
-int dvbsub_start(int pid);
-int dvbsub_pause();
+//int dvbsub_start(int pid);//???
+//int dvbsub_pause(); //???
+//extern CPlugins *g_PluginList;
 
 extern cVideo * videoDecoder;
-static cPlayback *playback;
-
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
-void strReplace(std::string & orig, const char *fstr, const std::string rstr);
-#define MOVIE_HINT_BOX_TIMER 5	// time to show bookmark hints in seconds
-extern CPlugins *g_PluginList;
 extern CInfoClock *InfoClock;
 
 #define MINUTEOFFSET 117*262072
 #define MP_TS_SIZE 262072	// ~0.5 sec
 
 extern char rec_filename[512];
-extern off64_t glob_limit;
-extern int glob_splits;
 
 #ifndef __USE_FILE_OFFSET64
 #error not using 64 bit file offsets
 #endif /* __USE_FILE__OFFSET64 */
 
-static unsigned short g_apids[REC_MAX_APIDS];
-static unsigned short g_ac3flags[REC_MAX_APIDS];
-static unsigned short g_numpida = 0;
-static unsigned short g_vpid = 0;
-static unsigned short g_vtype = 0;
-static std::string    g_language[REC_MAX_APIDS];
-static unsigned short g_currentapid = 0, g_currentac3 = 0, apidchanged = 0;
+
+unsigned short CMoviePlayerGui::g_numpida = 0;
+unsigned short CMoviePlayerGui::g_vtype = 0;
+unsigned short CMoviePlayerGui::g_vpid = 0;
+std::string    CMoviePlayerGui::g_language[REC_MAX_APIDS];
+
+unsigned short CAPIDSelectExec::g_apids[REC_MAX_APIDS];
+unsigned short CAPIDSelectExec::g_ac3flags[REC_MAX_APIDS];
+unsigned short CAPIDSelectExec::g_currentapid = 0, CAPIDSelectExec::g_currentac3 = 0, CAPIDSelectExec::apidchanged = 0;
 
 bool get_movie_info_apid_name(int apid, MI_MOVIE_INFO * movie_info, std::string * apidtitle)
 {
@@ -138,6 +133,7 @@ int CAPIDSelectExec::exec(CMenuTarget * /*parent*/, const std::string & actionKe
 }
 
 CMoviePlayerGui* CMoviePlayerGui::instance_mp = NULL;
+cPlayback *CMoviePlayerGui::playback = NULL;
 
 CMoviePlayerGui& CMoviePlayerGui::getInstance()
 {
@@ -276,7 +272,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	bookmarkmanager = new CBookmarkManager();
 
-	dvbsub_pause();
+//	dvbsub_pause();
 
 	if (parent) {
 		parent->hide();
@@ -452,7 +448,7 @@ void CMoviePlayerGui::PlayFile(void)
 		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
 
 	if (timeshift) {
-		CVCRControl::getInstance()->GetPids(&g_vpid, &g_vtype, &g_currentapid, &g_currentac3, &g_numpida, g_apids, g_ac3flags);
+		CVCRControl::getInstance()->GetPids(&g_vpid, &g_vtype, &CAPIDSelectExec::g_currentapid, &CAPIDSelectExec::g_currentac3, &g_numpida, CAPIDSelectExec::g_apids, CAPIDSelectExec::g_ac3flags);
 		p_movie_info = CVCRControl::getInstance()->GetMovieInfo();
 	}
 
@@ -646,11 +642,11 @@ void CMoviePlayerGui::PlayFile(void)
 			FileTime.hide();
 			/*clear audipopids */
 			for (int i = 0; i < g_numpida; i++) {
-				g_apids[i] = 0;
-				g_ac3flags[i] = 0;
+				CAPIDSelectExec::g_apids[i] = 0;
+				CAPIDSelectExec::g_ac3flags[i] = 0;
 				g_language[i].clear();
 			}
-			g_numpida = 0; g_currentapid = 0;
+			g_numpida = 0; CAPIDSelectExec::g_currentapid = 0;
 
 			if (isMovieBrowser == true) {
 				// start the moviebrowser instead of the filebrowser
@@ -683,22 +679,22 @@ void CMoviePlayerGui::PlayFile(void)
 						}
 
 						if(!p_movie_info->audioPids.empty()) {
-							g_currentapid = p_movie_info->audioPids[0].epgAudioPid;	//FIXME
-							g_currentac3 = p_movie_info->audioPids[0].atype;
+							CAPIDSelectExec::g_currentapid = p_movie_info->audioPids[0].epgAudioPid;	//FIXME
+							CAPIDSelectExec::g_currentac3 = p_movie_info->audioPids[0].atype;
 						}
 						for (int i = 0; i < (int)p_movie_info->audioPids.size(); i++) {
-							g_apids[i] = p_movie_info->audioPids[i].epgAudioPid;
-							g_ac3flags[i] = p_movie_info->audioPids[i].atype;
+							CAPIDSelectExec::g_apids[i] = p_movie_info->audioPids[i].epgAudioPid;
+							CAPIDSelectExec::g_ac3flags[i] = p_movie_info->audioPids[i].atype;
 							g_numpida++;
 							if (p_movie_info->audioPids[i].selected) {
-								g_currentapid = p_movie_info->audioPids[i].epgAudioPid;	//FIXME
-								g_currentac3 = p_movie_info->audioPids[i].atype;
+								CAPIDSelectExec::g_currentapid = p_movie_info->audioPids[i].epgAudioPid;	//FIXME
+								CAPIDSelectExec::g_currentac3 = p_movie_info->audioPids[i].atype;
 								//break;
 							}
 						}
 						g_vpid = p_movie_info->epgVideoPid;
 						g_vtype = p_movie_info->VideoType;
-						printf("CMoviePlayerGui::PlayFile: file %s apid %X atype %d vpid %x vtype %d\n", filename, g_currentapid, g_currentac3, g_vpid, g_vtype);
+						printf("CMoviePlayerGui::PlayFile: file %s apid %X atype %d vpid %x vtype %d\n", filename, CAPIDSelectExec::g_currentapid, CAPIDSelectExec::g_currentac3, g_vpid, g_vtype);
 						printf("Bytes per minute: %lld\n", minuteoffset);
 						// get the start position for the movie
 						startposition = 1000 * moviebrowser->getCurrentStartPos();
@@ -766,17 +762,17 @@ void CMoviePlayerGui::PlayFile(void)
 			bool enabled;
 			bool defpid;
 			if(is_file_player && !g_numpida){
-				playback->FindAllPids(g_apids, g_ac3flags, &g_numpida, g_language);
+				playback->FindAllPids(CAPIDSelectExec::g_apids, CAPIDSelectExec::g_ac3flags, &g_numpida, g_language);
 			}
 			for (unsigned int count = 0; count < g_numpida; count++) {
 				bool name_ok = false;
 				char apidnumber[10];
-				sprintf(apidnumber, "%d %X", count + 1, g_apids[count]);
+				sprintf(apidnumber, "%d %X", count + 1, CAPIDSelectExec::g_apids[count]);
 				enabled = true;
-				defpid = g_currentapid ? (g_currentapid == g_apids[count]) : (count == 0);
+				defpid = CAPIDSelectExec::g_currentapid ? (CAPIDSelectExec::g_currentapid == CAPIDSelectExec::g_apids[count]) : (count == 0);
 				std::string apidtitle = "Stream ";
 				if(!is_file_player){
-					name_ok = get_movie_info_apid_name(g_apids[count], p_movie_info, &apidtitle);
+					name_ok = get_movie_info_apid_name(CAPIDSelectExec::g_apids[count], p_movie_info, &apidtitle);
 				}
 				else if (!g_language[count].empty()){
 					apidtitle = g_language[count];
@@ -785,7 +781,7 @@ void CMoviePlayerGui::PlayFile(void)
 				if (!name_ok)
 					apidtitle = "Stream ";
 
-				switch(g_ac3flags[count])
+				switch(CAPIDSelectExec::g_ac3flags[count])
 				{
 					case 1: /*AC3,EAC3*/
 						if (apidtitle.find("AC3") == std::numeric_limits<size_t>::max() || is_file_player)
@@ -820,15 +816,15 @@ void CMoviePlayerGui::PlayFile(void)
 				APIDSelector.addItem(new CMenuForwarderNonLocalized(apidtitle.c_str(), enabled, NULL, APIDChanger, apidnumber, CRCInput::convertDigitToKey(count + 1)), defpid);
 			}
 
-			apidchanged = 0;
+			CAPIDSelectExec::apidchanged = 0;
 			APIDSelector.exec(NULL, "");
-			if (apidchanged) {
-				if (g_currentapid == 0) {
-					g_currentapid = g_apids[0];
-					g_currentac3 = g_ac3flags[0];
+			if (CAPIDSelectExec::apidchanged) {
+				if (CAPIDSelectExec::g_currentapid == 0) {
+					CAPIDSelectExec::g_currentapid = CAPIDSelectExec::g_apids[0];
+					CAPIDSelectExec::g_currentac3 = CAPIDSelectExec::g_ac3flags[0];
 				}
-				playback->SetAPid(g_currentapid, g_currentac3);
-				apidchanged = 0;
+				playback->SetAPid(CAPIDSelectExec::g_currentapid, CAPIDSelectExec::g_currentac3);
+				CAPIDSelectExec::apidchanged = 0;
 			}
 			delete APIDChanger;
 			showaudioselectdialog = false;
@@ -858,7 +854,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 			printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 
-			if(!playback->Start((char *)filename, g_vpid, g_vtype, g_currentapid, g_currentac3)) {
+			if(!playback->Start((char *)filename, g_vpid, g_vtype, CAPIDSelectExec::g_currentapid, CAPIDSelectExec::g_currentac3)) {
 				playback->Close();
 				restoreNeutrino();
 			} else {

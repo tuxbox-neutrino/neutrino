@@ -86,6 +86,8 @@
 
 #define MIN_BROWSER_FRAME_HEIGHT 100
 #define MAX_BROWSER_FRAME_HEIGHT 400
+void strReplace(std::string& orig, const char* fstr, const std::string rstr);
+
 /* !!!! Do NOT change the order of the enum, just add items at the end !!!! */
 typedef enum
 {
