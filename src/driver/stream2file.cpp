@@ -157,7 +157,7 @@ stream2file_error_msg_t stop_recording(const char * const info)
 	char buf[FILENAMEBUFFERSIZE];
 	char buf1[FILENAMEBUFFERSIZE];
 	int fd;
-	stream2file_error_msg_t ret;
+	stream2file_error_msg_t ret = STREAM2FILE_RECORDING_THREADS_FAILED;
 
 	//if(!autoshift || autoshift_delete) 
 	{
@@ -198,7 +198,7 @@ stream2file_error_msg_t stop_recording(const char * const info)
 stream2file_error_msg_t update_recording(const char * const info, const unsigned short vpid,
 		const unsigned short * const pids, const unsigned int numpids)
 {
-	stream2file_error_msg_t ret;
+//	stream2file_error_msg_t ret;
 	char buf[FILENAMEBUFFERSIZE];
 	int fd;
 
@@ -214,5 +214,5 @@ stream2file_error_msg_t update_recording(const char * const info, const unsigned
 	if(g_current_channel)
 		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_0 | DEMUX_DECODE_2, true);
 
-	return ret;
+	return STREAM2FILE_OK /*ret*/;
 }
