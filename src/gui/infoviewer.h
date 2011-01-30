@@ -108,6 +108,7 @@ class CInfoViewer
 
 	int lastsnr, lastsig, lasthdd, lastvar, lasttime;
 	CProgressBar *snrscale, *sigscale, *hddscale, *varscale, *timescale;
+	int hddwidth;
 	void changePB();
 	bool casysChange;
 	bool channellogoChange;

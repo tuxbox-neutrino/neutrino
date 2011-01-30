@@ -237,6 +237,7 @@ void CInfoViewer::changePB()
 	const short yellow_bar = 70;
 	const short green_bar = 100;
 
+	hddwidth = frameBuffer->getScreenWidth(true) * 10 / 128; /* 100 pix if screen is 1280 wide */
 	if (sigscale != NULL)
 		delete sigscale;
 	sigscale = new CProgressBar(true, bar_width, 10, red_bar, green_bar, yellow_bar);
@@ -245,10 +246,10 @@ void CInfoViewer::changePB()
 	snrscale = new CProgressBar(true, bar_width, 10, red_bar, green_bar, yellow_bar);
 	if (hddscale != NULL)
 		delete hddscale;
-	hddscale = new CProgressBar(true, 100,        6, 50,      green_bar, 75, true);
+	hddscale = new CProgressBar(true, hddwidth,   6, 50,      green_bar, 75, true);
 	if (varscale != NULL)
 		delete varscale;
-	varscale = new CProgressBar(true, 100,        6, 50,      green_bar, 75, true);
+	varscale = new CProgressBar(true, hddwidth,   6, 50,      green_bar, 75, true);
 	if (timescale != NULL)
 		delete timescale;
 	timescale = new CProgressBar(true, -1,       -1, 30,      green_bar, yellow_bar, true);
@@ -1336,8 +1337,8 @@ void CInfoViewer::showSNR ()
 		/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 		   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 		   the scales */
-		varscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - 102,
-					   BBarY + InfoHeightY_Info / 2 - 2 - 6, 100, 6, per, 100);
+		varscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - hddwidth - 2,
+					   BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth , 6, per, 100);
 		per = 0;
 		//HD info
 		if(!check_dir(g_settings.network_nfs_recordingdir)){
@@ -1345,8 +1346,8 @@ void CInfoViewer::showSNR ()
 				per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
 			}
 		}
-		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - 102,
-					   BBarY + InfoHeightY_Info / 2 + 2, 100, 6, per, 100);
+		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - hddwidth - 2,
+					   BBarY + InfoHeightY_Info / 2 + 2, hddwidth, 6, per, 100);
 	}
 }
 
