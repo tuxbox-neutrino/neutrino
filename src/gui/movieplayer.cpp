@@ -444,6 +444,7 @@ void CMoviePlayerGui::PlayFile(void)
 	timeb current_time;
 	CMovieInfo cMovieInfo;	// funktions to save and load movie info
 	MI_MOVIE_INFO *p_movie_info = NULL;	// movie info handle which comes from the MovieBrowser, if not NULL MoviePla yer is able to save new bookmarks
+	int eof = 0;
 
 	if (has_hdd)
 		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
@@ -914,6 +915,14 @@ void CMoviePlayerGui::PlayFile(void)
 					file_prozent = (unsigned char) (position / (duration / 100));
 				playback->GetSpeed(speed);
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+				if (duration - position < 1000 && !timeshift)
+				{
+					/* 10 seconds after end-of-file, exit */
+					if (++eof > 10)
+						g_RCInput->postMsg((neutrino_msg_t) g_settings.mpkey_stop, 0);
+				}
+				else
+					eof = 0;
 			}
 		}
 
