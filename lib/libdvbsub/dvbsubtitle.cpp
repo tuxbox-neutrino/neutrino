@@ -188,9 +188,9 @@ cDvbSubtitleConverter::cDvbSubtitleConverter(void)
 	if (avcodec_open(avctx, avcodec) < 0)
 		dbgconverter("cDvbSubtitleConverter: unable to open codec !\n");
 
-	av_log_set_level(99);
-	if(DebugConverter)
-		av_log_set_level(AV_LOG_INFO);
+	av_log_set_level(AV_LOG_PANIC);
+	//if(DebugConverter)
+	//	av_log_set_level(AV_LOG_INFO);
 
 	min_x = CFrameBuffer::getInstance()->getScreenWidth();
 	min_y = CFrameBuffer::getInstance()->getScreenHeight();
@@ -318,7 +318,7 @@ int cDvbSubtitleConverter::Action(void)
 
 		Delta = LimitTo32Bit(sb->Pts()) - LimitTo32Bit(STC);
 		Delta /= 90; // STC and PTS are in 1/90000s
-		dbgconverter("cDvbSubtitleConverter::Action: PTS: %lld  STC: %lld (%lld) timeout: %d\n", sb->Pts(), STC, Delta, sb->Timeout());
+		dbgconverter("cDvbSubtitleConverter::Action: PTS: %016llx STC: %016llx (%lld) timeout: %d\n", sb->Pts(), STC, Delta, sb->Timeout());
 
 		if (Delta <= MAXDELTA) {
 			if (Delta <= SHOW_DELTA) {

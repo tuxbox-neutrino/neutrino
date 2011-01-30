@@ -320,7 +320,7 @@ static void* reader_thread(void * /*arg*/)
 #endif
 
 		if(!dvbsub_stopped /*!dvbsub_paused*/) {
-			sub_debug.print(Debug::VERBOSE, "[subtitles] ******************* new packet, len %d buf 0x%x pts-stc diff %lld *******************\n", count, buf, get_pts_stc_delta(get_pts(buf)));
+			sub_debug.print(Debug::VERBOSE, "[subtitles] *** new packet, len %d buf 0x%x pts-stc diff %lld ***\n", count, buf, get_pts_stc_delta(get_pts(buf)));
 			/* Packet now in memory */
 			packet_queue.push(buf);
 			/* TODO: allocation exception */
