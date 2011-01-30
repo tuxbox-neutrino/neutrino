@@ -35,7 +35,9 @@
 #include <timerdclient/timerdmsg.h>
 #include <debug.h>
 #include <sectionsdclient/sectionsdclient.h>
+#if HAVE_COOL_HARDWARE
 #include <coolstream/cs_vfd.h>
+#endif
 
 #include <vector>
 #include <cstdlib>
@@ -65,6 +67,7 @@ void CTimerManager::Init(void)
 	m_isTimeSet = false;
 	wakeup = 0;
 
+#if HAVE_COOL_HARDWARE
 	int fd = open("/dev/display", O_RDONLY);
 
 	if (fd < 0) {
@@ -80,6 +83,7 @@ void CTimerManager::Init(void)
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(wakeup){
 		creat("/tmp/.wakeup", 0);
+#endif
 
 	}else{
 		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
