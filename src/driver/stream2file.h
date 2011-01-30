@@ -55,5 +55,9 @@ stream2file_error_msg_t start_recording(const char * const filename,
 					const unsigned short * const apids,
 					const unsigned int numpids);
 stream2file_error_msg_t stop_recording(const char * const info);
+stream2file_error_msg_t update_recording(const char * const info,
+					const unsigned short vpid,
+					const unsigned short * const apids,
+					const unsigned int numpids);
 
 #endif

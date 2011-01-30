@@ -42,6 +42,7 @@
 #include <gui/movieinfo.h>
 
 #define REC_MAX_APIDS 10
+#define REC_MAX_PIDS 13
 
 class CVCRControl
 {
@@ -72,9 +73,10 @@ class CVCRControl
 			virtual CVCRDevices getDeviceType(void) const = 0;
 			CVCRStates  deviceState;
 			virtual bool Stop() = 0;
-			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apids = 0, const time_t epg_time=0) = 0; // epg_time added for .xml (MovieBrowser)
+			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apidmode = 0, const time_t epg_time=0) = 0; // epg_time added for .xml (MovieBrowser)
 			virtual bool Pause() = 0;
 			virtual bool Resume() = 0;
+			virtual bool Update() = 0;
 			virtual bool IsAvailable() = 0;
 			CDevice() { deviceState = CMD_VCR_STOP; cMovieInfo = NULL; recMovieInfo = NULL; rec_numpida = 0; rec_vpid = 0;};
 			virtual ~CDevice(){};
@@ -84,7 +86,7 @@ class CVCRControl
                                 bool ac3;
                         } APIDDesc;
                         typedef std::list<APIDDesc> APIDList;
-                        virtual void getAPIDs(const unsigned char apids, APIDList & apid_list);
+                        virtual void getAPIDs(const unsigned char apidmode, APIDList & apid_list);
 			CMovieInfo * cMovieInfo;
 			MI_MOVIE_INFO * recMovieInfo;
 			unsigned short rec_vpid;
@@ -93,6 +95,8 @@ class CVCRControl
 			unsigned short rec_ac3flags[REC_MAX_APIDS];
 			unsigned short rec_numpida;
 			unsigned short rec_currentapid, rec_currentac3;
+			unsigned char  apids_mode;
+			CZapitClient::responseGetPIDs allpids;
 		};
 
 	class CVCRDevice : public CDevice		// VCR per IR
@@ -105,9 +109,10 @@ class CVCRControl
 					return DEVICE_VCR;
 				};
 			virtual bool Stop(); 
-			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apids = 0, const time_t epg_time=0); // epg_time added for .xml (MovieBrowser)
-			virtual bool Pause();
-			virtual bool Resume();
+			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apidmode = 0, const time_t epg_time=0); // epg_time added for .xml (MovieBrowser)
+			virtual bool Pause() { return false; };
+			virtual bool Resume() { return false; };
+			virtual bool Update() { return false; };
 			virtual bool IsAvailable() { return true; };
 			CVCRDevice(bool switchtoscart) { SwitchToScart = switchtoscart; };
 			virtual ~CVCRDevice(){};
@@ -118,27 +123,17 @@ class CVCRControl
 		protected:
 			void RestoreNeutrino(void);
 			void CutBackNeutrino(const t_channel_id channel_id, const int mode);
-			std::string getCommandString(const CVCRCommand command, const t_channel_id channel_id, const event_id_t epgid, const std::string& epgTitle, unsigned char apids);
+			std::string getCommandString(const CVCRCommand command, const t_channel_id channel_id, const event_id_t epgid, const std::string& epgTitle, unsigned char apidmode);
 			std::string getMovieInfoString(const CVCRCommand command, const t_channel_id channel_id,const event_id_t epgid, const std::string& epgTitle, APIDList apid_list, const time_t epg_time);
 
 		public:
 			bool	StopPlayBack;
 			bool	StopSectionsd;
 
-			virtual bool Pause()
-				{
-					return false;
-				};
-
-			virtual bool Resume()
-				{
-					return false;
-				};
-
-			virtual bool IsAvailable()
-				{
-					return true;
-				};
+			virtual bool Pause() { return false; };
+			virtual bool Resume() { return false; };
+			virtual bool Update() { return false; };
+			virtual bool IsAvailable() { return true; };
 		};
 
 	class CFileDevice : public CFileAndServerDevice
@@ -158,7 +153,8 @@ class CVCRControl
 				};
 				
 			virtual bool Stop(); 
-			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apids = 0, const time_t epg_time=0); // epg_time added for .xml (MovieBrowser)
+			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apidmode = 0, const time_t epg_time=0); // epg_time added for .xml (MovieBrowser)
+			virtual bool Update(void);
 
 			CFileDevice(const bool stopplayback, const bool stopsectionsd, const char * const directory, const unsigned int splitsize, const bool use_o_sync, const bool use_fdatasync, const bool stream_vtxt_pid, const bool stream_pmt_pid, const unsigned int ringbuffers)
 				{
@@ -183,7 +179,7 @@ class CVCRControl
 			bool serverConnect();
 			void serverDisconnect();
 
-			bool sendCommand(CVCRCommand command, const t_channel_id channel_id = 0, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apids = 0);
+			bool sendCommand(CVCRCommand command, const t_channel_id channel_id = 0, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apidmode = 0);
 
 		public:
 			std::string  ServerAddress;
@@ -195,7 +191,7 @@ class CVCRControl
 				};
 
 			virtual bool Stop();
-			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apids = 0, const time_t epg_time=0); // epg_time added for .xml (MovieBrowser)
+			virtual bool Record(const t_channel_id channel_id = 0, int mode=1, const event_id_t epgid = 0, const std::string& epgTitle = "", unsigned char apidmode = 0, const time_t epg_time=0); // epg_time added for .xml (MovieBrowser)
 
 			CServerDevice(const bool stopplayback, const bool stopsectionsd, const char * const serveraddress, const unsigned int serverport)
 				{
@@ -224,6 +220,7 @@ class CVCRControl
 	bool Record(const CTimerd::RecordingInfo * const eventinfo);
 	bool Pause(){return Device->Pause();};
 	bool Resume(){return Device->Resume();};
+	bool Update() {return Device->Update();};
 	void Screenshot(const t_channel_id channel_id, char * fname = NULL);
 	MI_MOVIE_INFO * GetMovieInfo(void);
 	bool GetPids(unsigned short *vpid, unsigned short *vtype, unsigned short *apid, unsigned short *atype, unsigned short * apidnum, unsigned short * apids, unsigned short * atypes);

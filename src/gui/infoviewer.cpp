@@ -71,6 +71,7 @@ extern CPictureViewer * g_PicViewer;
 extern CFrontend * frontend;
 extern cVideo * videoDecoder;
 extern t_channel_id live_channel_id; //zapit
+extern t_channel_id rec_channel_id; //zapit
 
 #define COL_INFOBAR_BUTTONS            (COL_INFOBAR_SHADOW + 1)
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
@@ -89,7 +90,7 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 
 extern bool autoshift;
 extern uint32_t shift_timer;
-extern std::string ext_channel_name;
+//extern std::string ext_channel_name;
 extern bool timeset;
 
 CInfoViewer::CInfoViewer ()
@@ -299,7 +300,8 @@ void CInfoViewer::showRecordIcon (const bool show)
 			if (!autoshift && !shift_timer) {
 				frameBuffer->paintBoxRel (ChanName_X + SHADOW_OFFSET, BoxStartY + box_pos + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0);
 				frameBuffer->paintBoxRel (ChanName_X , BoxStartY + box_pos , box_len, chanH, COL_INFOBAR_PLUS_0);
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X +icon_w + (icon_space*2), BoxStartY + box_pos + chanH, box_len, ext_channel_name.c_str (), COL_INFOBAR, 0, true);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X +icon_w + (icon_space*2), BoxStartY + box_pos + chanH, box_len, 
+						g_Zapit->getChannelName(rec_channel_id)/*ext_channel_name.c_str()*/, COL_INFOBAR, 0, true);
 			} else {
 				frameBuffer->paintBackgroundBoxRel (ChanName_X , BoxStartY + box_pos, box_len + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
 			}

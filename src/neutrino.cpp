@@ -184,6 +184,7 @@ extern int zapit_ready;
 static pthread_t zapit_thread ;
 void * zapit_main_thread(void *data);
 extern t_channel_id live_channel_id; //zapit
+extern t_channel_id rec_channel_id; //zapit
 extern CZapitChannel *g_current_channel;
 void setZapitConfig(Zapit_config * Cfg);
 void getZapitConfig(Zapit_config *Cfg);
@@ -2192,7 +2193,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_BOUQUETS_UPDATE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 
-#define ZAPIT_EVENT_COUNT 29
+#define ZAPIT_EVENT_COUNT 30
 	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
 	{
 		CZapitClient::EVT_ZAP_COMPLETE,
@@ -2223,7 +2224,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 		CZapitClient::EVT_SCAN_FOUND_TV_CHAN,
 		CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN,
 		CZapitClient::EVT_SCAN_FOUND_DATA_CHAN,
-		CZapitClient::EVT_SDT_CHANGED
+		CZapitClient::EVT_SDT_CHANGED,
+		CZapitClient::EVT_PMT_CHANGED
 	};
 
 	for (int i = 0; i < ZAPIT_EVENT_COUNT; i++)
@@ -3074,6 +3076,37 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		}
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
+	}
+	else if( msg == NeutrinoMessages::EVT_PMT_CHANGED) {
+		res = messages_return::handled;
+#if 1 // debug
+		printf("NeutrinoMessages::EVT_PMT_CHANGED: vpid %x apids(%d): ", g_RemoteControl->current_PIDs.PIDs.vpid, g_RemoteControl->current_PIDs.APIDs.size());
+		for(unsigned int i = 0; i < g_RemoteControl->current_PIDs.APIDs.size(); i++)
+			printf("%x ", g_RemoteControl->current_PIDs.APIDs[i].pid);
+		printf("\n");
+#endif
+
+		if(!autoshift && recordingstatus && (rec_channel_id == live_channel_id)) {
+#if 1 // debug
+			unsigned short vpid, apid, apidnum;
+			unsigned short apids[REC_MAX_APIDS];
+			CVCRControl::getInstance()->GetPids(&vpid, NULL, &apid, NULL, &apidnum, apids, NULL);
+			printf("NeutrinoMessages::EVT_PMT_CHANGED: old vpid %x apids(%d): ", vpid, apidnum);
+			for(unsigned int i = 0; i < apidnum; i++)
+				printf("%x ", apids[i]);
+			printf("\n");
+#endif
+
+			if((g_RemoteControl->current_PIDs.PIDs.vpid != vpid)) {
+				CVCRControl::getInstance()->Stop();
+				/* FIXME CVCRControl::getInstance()->Directory ? */
+				doGuiRecord(g_settings.network_nfs_recordingdir, false);
+				if(CMoviePlayerGui::getInstance().timeshift)
+					res |= messages_return::cancel_all;
+			} else
+				CVCRControl::getInstance()->Update();
+		}
+		return res;
 	}
 	else if( msg == NeutrinoMessages::ZAPTO) {
 		CTimerd::EventInfo * eventinfo;
@@ -4011,8 +4044,7 @@ printf("CNeutrinoApp::startNextRecording: start to dir %s\n", recordingDir);
 
 		/* Note: CTimerd::RecordingInfo is a class!
 		 * What a brilliant idea to send classes via the eventserver!
-		 * => typecast to avoid destructor call
-		 */
+		 * => typecast to avoid destructor call */
 		delete [](unsigned char *)nextRecordingInfo;
 
 		nextRecordingInfo = NULL;

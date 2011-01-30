@@ -262,7 +262,7 @@ void CVFD::showTime(bool force)
 				ShowIcon(VFD_ICON_CAM1, true);
 			setled(VFD_LED_1_ON, VFD_LED_2_ON);
 		}
-	} else if(recstatus != CNeutrinoApp::getInstance ()->recordingstatus) { // in case icon ON after record stopped
+	} else if(clearClock || (recstatus != CNeutrinoApp::getInstance ()->recordingstatus)) { // in case icon ON after record stopped
 		clearClock = 0;
 		if(has_lcd)
 			ShowIcon(VFD_ICON_CAM1, false);

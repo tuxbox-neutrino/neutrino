@@ -80,15 +80,17 @@ struct NeutrinoMessages {
 		EVT_MODECHANGED                          = CRCInput::RC_Events + 4,
 		EVT_BOUQUETSCHANGED                      = CRCInput::RC_Events + 6,
 		EVT_SERVICESCHANGED                      = CRCInput::RC_Events + 7,
+
 		EVT_SCAN_COMPLETE                        = CRCInput::RC_Events + 16,
 		EVT_SCAN_NUM_TRANSPONDERS                = CRCInput::RC_Events + 17,
 		EVT_SCAN_NUM_CHANNELS                    = CRCInput::RC_Events + 18,
 		EVT_SHUTDOWN                             = CRCInput::RC_Events + 19,
 		EVT_TIMER                                = CRCInput::RC_Events + 20,
+
 		EVT_PROGRAMLOCKSTATUS                    = CRCInput::RC_Events + 22,
 		EVT_RECORDMODE                           = CRCInput::RC_Events + 24,
 #ifndef SKIP_CA_STATUS
-		EVT_ZAP_CA_ID				= CRCInput::RC_Events + 50,
+		EVT_ZAP_CA_ID				 = CRCInput::RC_Events + 25,
 		EVT_ZAP_CA_CLEAR                         = CRCInput::RC_Events + 26,
 		EVT_ZAP_CA_LOCK                          = CRCInput::RC_Events + 27,
 		EVT_ZAP_CA_FTA                           = CRCInput::RC_Events + 28,
@@ -105,6 +107,7 @@ struct NeutrinoMessages {
 		EVT_SERVICES_UPD                         = CRCInput::RC_Events + 38,
 		EVT_SI_FINISHED                          = CRCInput::RC_Events + 39,
 
+		EVT_PMT_CHANGED				 = CRCInput::RC_Events + 40,
 		/* NEVER CHANGE THIS */
 		EVT_CA_MESSAGE                           = CRCInput::RC_Events + 60, /* data = CA_MESSAGE pointer */
 		/* END */

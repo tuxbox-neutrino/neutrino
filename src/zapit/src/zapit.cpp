@@ -92,7 +92,7 @@ int aspectratio=0;
 int mode43=0;
 int def_audio_mode = 0;
 t_channel_id live_channel_id;
-static t_channel_id rec_channel_id;
+t_channel_id rec_channel_id;
 int rezapTimeout;
 int feTimeout = 40;
 bool fastZap;
@@ -356,7 +356,7 @@ CZapitClient::responseGetLastChannel load_settings(void)
  * if we zap from, we start cam1  for new live and update cam0 with camask for rec.
  * if to recording channel, we must stop cam1 and update cam0 with live+rec camask.
  */
-static int camask = 1; // demux 0
+
 void start_camd(bool forupdate = false)
 {
 	if(!g_current_channel)
@@ -365,22 +365,19 @@ void start_camd(bool forupdate = false)
 	if(currentMode & RECORD_MODE) {
 		if(rec_channel_id != live_channel_id) {
 			/* zap from rec. channel */
-			camask = 1;
 			cam1->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, DEMUX_DECODE_0 /*1*/); // demux 0
 		} else if(forupdate) { //FIXME broken!
-			/* forupdate means pmt update  for live channel, using old camask.
-			 *  TODO what if forupdate comes while live == rec ?
-			 */
-			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask(), true);// update
+#if 0 // moved to stream2file.cpp
+			/* forupdate means pmt update  for live channel, using old camask. */
+			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_0 | DEMUX_DECODE_2, true);// update
+#endif
 		} else {
 			/* zap back to rec. channel */
-			camask =  5; // demux 0 + 2
-			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_0 | DEMUX_DECODE_2 /*camask*/, true); // update
+			cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_0 | DEMUX_DECODE_2 /*5*/, true); // update
 			cam1->sendMessage(0,0); // stop/close
 		}
 	} else {
-		camask = 1;
-		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, DEMUX_DECODE_0 /*camask*/);
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_0 /*1*/, forupdate);
 	}
 	int len;
 	unsigned char * pmt = g_current_channel->getRawPmt(len);
@@ -444,7 +441,8 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 	}
 
 	pmt_stop_update_filter(&pmt_update_fd);
-	stopPlayBack(true);
+
+	stopPlayBack(!forupdate);
 
 	if(!forupdate && g_current_channel && g_current_channel->getCaPmt()) {
 		g_current_channel->resetPids();
@@ -597,6 +595,10 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 
 	printf("[zapit] sending capmt....\n");
 
+	if(forupdate) {
+		if(event_mode) 
+			eventServer->sendEvent(CZapitClient::EVT_PMT_CHANGED, CEventServer::INITID_ZAPIT, &channel_id, sizeof(channel_id));
+	}
 	start_camd(forupdate);
 //play:
 	send_ca_id(1);

@@ -195,3 +195,24 @@ stream2file_error_msg_t stop_recording(const char * const info)
 	return ret;
 }
 
+stream2file_error_msg_t update_recording(const char * const info, const unsigned short vpid,
+		const unsigned short * const pids, const unsigned int numpids)
+{
+	stream2file_error_msg_t ret;
+	char buf[FILENAMEBUFFERSIZE];
+	int fd;
+
+	sprintf(buf, "%s.xml", rec_filename);
+	if ((fd = open(buf, O_SYNC | O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) >= 0) {
+		write(fd, info, strlen(info));
+		fdatasync(fd);
+		close(fd);
+	}
+	if(record)
+		record->ChangePids((unsigned short) vpid, (unsigned short *) pids, numpids);
+
+	if(g_current_channel)
+		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_0 | DEMUX_DECODE_2, true);
+
+	return ret;
+}

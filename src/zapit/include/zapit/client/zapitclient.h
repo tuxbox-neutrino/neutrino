@@ -70,6 +70,7 @@ class CZapitClient:public CBasicClient
 			EVT_ZAP_CA_ID,
 			EVT_SDT_CHANGED,
 			EVT_SERVICES_CHANGED,
+			EVT_PMT_CHANGED,
 			LAST_EVENT_MARKER             // <- no actual event, needed by pzapit
 		};
 

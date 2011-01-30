@@ -296,6 +296,11 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 		}
 	    return messages_return::handled;
 	}
+	else if (msg == NeutrinoMessages::EVT_PMT_CHANGED) {
+		g_Zapit->getPIDS(current_PIDs);
+		processAPIDnames();
+		return messages_return::unhandled;
+	}
 	else if (msg == NeutrinoMessages::EVT_ZAP_ISNVOD)
 	{
 		if ((*(t_channel_id *)data) == current_channel_id)
