@@ -83,14 +83,13 @@ void CTimerManager::Init(void)
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(wakeup){
 		creat("/tmp/.wakeup", 0);
-#endif
-
 	}else{
 		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
 		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
 		if (system(neutrino_leave_deepstandby_script) != 0)
 			perror( neutrino_leave_deepstandby_script );
 	}
+#endif
 	loadRecordingSafety();
 
 	//thread starten
