@@ -403,10 +403,13 @@ void CNetworkSetup::saveNetworkSettings()
 void CNetworkSetup::applyNetworkSettings()
 {
 	printf("[network setup] apply network settings...\n");
+	
+	if (!checkForIP())
+		return;
 
 	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS)); // UTF-8
 	hintBox->paint();
-
+	
  	networkConfig->stopNetwork();
 	saveNetworkSettings();
  	networkConfig->startNetwork();
