@@ -299,7 +299,7 @@ static void* reader_thread(void * /*arg*/)
 
 		memcpy(buf, tmp, 6);
 		/* read rest of the packet */
-		while((count < packlen) /* && !dvbsub_paused*/) {
+		while((count < packlen) && !dvbsub_stopped) {
 			len = dmx->Read(buf+count, packlen-count, 1000);
 			if (len < 0) {
 				continue;
