@@ -6899,12 +6899,13 @@ int eit_set_update_filter(int *fd)
 	mask[2] = 0xFF;
 
 	int timeout = 0;
-#if 0
+#if !HAVE_COOL_HARDWARE
 	filter[3] = (cur_eit << 1) | 0x01;
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
 	eitDmx->sectionFilter(0x12, filter, mask, 4, timeout, mode);
 #else
+	/* coolstream drivers broken? */
 	filter[3] = (((cur_eit + 1) & 0x01) << 1) | 0x01;
 	mask[3] = (0x01 << 1) | 0x01;
 	eitDmx->sectionFilter(0x12, filter, mask, 4, timeout, NULL);
