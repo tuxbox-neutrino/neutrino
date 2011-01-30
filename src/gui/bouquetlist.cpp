@@ -140,16 +140,16 @@ bool CBouquetList::hasChannelID(t_channel_id channel_id)
 extern CBouquetList   * TVfavList;
 bool CBouquetList::adjustToChannelID(t_channel_id channel_id)
 {
-printf("CBouquetList::adjustToChannelID [%s] to %llx, selected %d size %d\n", name.c_str(), channel_id, selected, Bouquets.size());
+//printf("CBouquetList::adjustToChannelID [%s] to %llx, selected %d size %d\n", name.c_str(), channel_id, selected, Bouquets.size());
 	if(selected < Bouquets.size()) {
 		int nChannelPos = Bouquets[selected]->channelList->hasChannelID(channel_id);
 		if(nChannelPos > -1) {
-printf("CBouquetList::adjustToChannelID [%s] to %llx -> not needed\n", name.c_str(), channel_id);
+//printf("CBouquetList::adjustToChannelID [%s] to %llx -> not needed\n", name.c_str(), channel_id);
 			Bouquets[selected]->channelList->setSelected(nChannelPos);
 			return true;
 		}
 	}
-printf("CBouquetList::adjustToChannelID [%s] to %llx\n", name.c_str(), channel_id);
+//printf("CBouquetList::adjustToChannelID [%s] to %llx\n", name.c_str(), channel_id);
 	for (uint32_t i=0; i < Bouquets.size(); i++) {
 		if(i == selected)
 			continue;
