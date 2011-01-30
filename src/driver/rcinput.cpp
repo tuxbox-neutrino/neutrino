@@ -62,7 +62,14 @@
 #include <cs_api.h>
 
 //const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
+#if !HAVE_TRIPLEDRAGON
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir"};
+#else
+#include <tdpanel/ir_ruwido.h>
+#include <hardware/avs/avs_inf.h>
+#include <hardware/avs/bios_system_config.h>
+const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/stb/tdremote"};
+#endif
 typedef struct input_event t_input_event;
 
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
@@ -488,7 +495,9 @@ void CRCInput::getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int T
 	getMsg_us(msg, data, (uint64_t) Timeout * 1000, bAllowRepeatLR);
 }
 
+#if !HAVE_TRIPLEDRAGON
 #define ENABLE_REPEAT_CHECK
+#endif
 void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR)
 {
 	static uint64_t last_keypress = 0ULL;
@@ -1140,14 +1149,26 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 		for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++) {
 			if ((fd_rc[i] != -1) && (FD_ISSET(fd_rc[i], &rfds))) {
 				int ret;
+#ifdef HAVE_TRIPLEDRAGON
+				int count = 0;
+				/* clear the input queue and process only the latest event
+				   hack to improve the behaviour of the TD remote
+				   otherwise we lose key_up events due to CRCInput::clearRCMsg() */
+				while (read(fd_rc[i], &ev.code, sizeof(ev.code)) == sizeof(ev.code))
+					count++;
+				if (!count)
+					continue;
+				ev.value = ((ev.code & 0xff00) != 0x8000);	/* 0x8000 is release bit */
+				ev.code &= 0x00FF;				/* clear release bit */
+#else
 				ret = read(fd_rc[i], &ev, sizeof(t_input_event));
 
 				if(ret != sizeof(t_input_event))
 					continue;
-
+#endif
 				SHTDCNT::getInstance()->resetSleepTimer();
-				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, translate(ev.code, i), getKeyName(translate(ev.code, i)).c_str());
 				uint32_t trkey = translate(ev.code, i);
+//				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 
 				if (trkey == RC_nokey)
 					continue;
@@ -1495,6 +1516,7 @@ std::string CRCInput::getKeyName(const unsigned int key)
 *	transforms the rc-key to generic - internal use only!
 *
 **************************************************************************/
+#if !HAVE_TRIPLEDRAGON
 int CRCInput::translate(int code, int /*num*/)
 {
 	if(code == 0x100) code = RC_up;
@@ -1504,6 +1526,68 @@ int CRCInput::translate(int code, int /*num*/)
 	else
 		return RC_nokey;
 }
+#else
+int CRCInput::translate(int code, int)
+{
+	switch (code&0xFF)
+	{
+		case 0x01: return RC_standby;
+		case 0x02: return RC_1;
+		case 0x03: return RC_2;
+		case 0x04: return RC_3;
+		case 0x05: return RC_4;
+		case 0x06: return RC_5;
+		case 0x07: return RC_6;
+		case 0x08: return RC_timer;
+		case 0x09: return RC_7;
+		case 0x0a: return RC_8;
+		case 0x0b: return RC_9;
+		case 0x0c: return RC_zoomin;
+		case 0x0d: return RC_favorites;	// blue heart
+		case 0x0e: return RC_0;
+//		case 0x0f: return RC_recall;	// red hand
+		case 0x0f: return RC_next;	// red hand. RC_next is used by neutrino for
+						//           switching Panscan / letterbox
+		case 0x10: return RC_zoomout;
+		case 0x11: return RC_spkr;	// MUTE
+		case 0x12: return RC_setup;	// menu
+		case 0x13: return RC_epg;
+		case 0x14: return RC_help;	// INFO
+		case 0x15: return RC_home;	// EXIT
+		case 0x16: return RC_page_down;	// vv
+		case 0x17: return RC_page_up;	// ^^
+		case 0x18: return RC_up;
+		case 0x19: return RC_left;
+		case 0x1a: return RC_ok;
+		case 0x1b: return RC_right;
+		case 0x1c: return RC_down;
+		case 0x1d: return RC_minus;
+		case 0x1e: return RC_plus;
+		case 0x1f: return RC_red;
+		case 0x20: return RC_green;
+		case 0x21: return RC_yellow;
+		case 0x22: return RC_blue;
+		case 0x23: return RC_tv;	// TV/RADIO
+		case 0x24: return RC_video;	// MP3/PVR
+		case 0x25: return RC_audio;	// CD/DVD
+		case 0x26: return RC_aux;	// AUX
+		case 0x27: return RC_text;	// [=]
+		case 0x28: return RC_tttv;	// [ /=]
+		case 0x29: return RC_ttzoom;	// [=x=]
+		case 0x2a: return RC_ttreveal;	// [=?]
+		case 0x2b: return RC_rewind;	// <<
+		case 0x2c: return RC_stop;	// X
+		case 0x2d: return RC_pause;	// ||>
+		case 0x2e: return RC_forward;	// >>
+//		case 0x2f: return RC_prev;	// |<<
+		case 0x30: return RC_eject;
+		case 0x31: return RC_record;
+//		case 0x32: return RC_next;	// >>|
+						// RC_prev/next are abused by neutrino for videomode switch
+	}
+	return RC_nokey;
+}
+#endif
 
 void CRCInput::close_click()
 {

@@ -57,6 +57,9 @@
 #define KEY_BLUE         0x191
 #endif
 
+#ifndef KEY_GAMES
+#define KEY_GAMES        0x1a1   /* Media Select Games */
+#endif
 /* SAGEM remote controls have the following additional keys */
 
 #ifndef KEY_TOPLEFT
@@ -83,6 +86,22 @@
 #define KEY_MUTEOFF	KEY_FN_F6
 #define KEY_ANALOGON	KEY_FN_F7
 #define KEY_ANALOGOFF	KEY_FN_F8
+
+#define KEY_TTTV	KEY_FN_1
+#define KEY_TTZOOM	KEY_FN_2
+#define KEY_REVEAL	KEY_FN_D
+/* only defined in newer kernels / headers... */
+#ifndef KEY_ZOOMIN
+#define KEY_ZOOMIN	KEY_FN_E
+#endif
+#ifndef KEY_ZOOMOUT
+#define KEY_ZOOMOUT	KEY_FN_F
+#endif
+/* still available, even in 2.6.12:
+	#define KEY_FN_S
+	#define KEY_FN_B
+*/
+
 
 typedef uint32_t neutrino_msg_t;
 typedef uint32_t neutrino_msg_data_t;
@@ -207,6 +226,17 @@ class CRCInput
 			RC_mute_off	= KEY_MUTEOFF,
 			RC_analog_on	= KEY_ANALOGON,
 			RC_analog_off	= KEY_ANALOGOFF,
+
+			/* tripledragon keys */
+			RC_eject	= KEY_EJECTCD,
+			RC_aux		= KEY_AUX,          /* 0x186 */
+			RC_timer	= KEY_TIME,
+			RC_tttv		= KEY_TTTV,
+			RC_ttzoom	= KEY_TTZOOM,
+			RC_ttreveal	= KEY_REVEAL,
+			RC_zoomin	= KEY_ZOOMIN,
+			RC_zoomout	= KEY_ZOOMOUT,
+
 			RC_timeout	= 0xFFFFFFFF,
 			RC_nokey	= 0xFFFFFFFE
 		};
