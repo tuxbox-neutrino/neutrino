@@ -2259,6 +2259,9 @@ int zapit_main_thread(void *data)
 			unsigned char buf[4096];
 			int ret = pmtDemux->Read(buf, 4095, 10);
 			if (ret > 0) {
+#if HAVE_TRIPLEDRAGON
+				pmt_stop_update_filter(&pmt_update_fd);
+#endif
 				printf("[zapit] pmt updated, sid 0x%x new version 0x%x\n", (buf[3] << 8) + buf[4], (buf[5] >> 1) & 0x1F);
 				zapit(g_current_channel->getChannelID(), current_is_nvod, true);
 			}
