@@ -88,7 +88,9 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	if(actionKey=="networkapply")
 	{
 		applyNetworkSettings();
-		return res;
+		readNetworkSettings();
+		showNetworkSetup();
+		return menu_return::RETURN_EXIT;
 	}
 	else if(actionKey=="networktest")
 	{
