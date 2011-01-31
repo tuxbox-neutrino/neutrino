@@ -64,6 +64,9 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
+#include <video.h>
+extern cVideo * videoDecoder;
+
 //------------------------------------------------------------------------
 bool comparePictureByDate (const CPicture& a, const CPicture& b)
 {
@@ -155,15 +158,39 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	// remember last mode
 	m_LastMode=(CNeutrinoApp::getInstance()->getLastMode() | NeutrinoMessages::norezap);
 
+	//g_Zapit->setStandby(true);
+	g_Zapit->lockPlayBack();
+
+	// blank background screen
+	videoDecoder->setBlank(true);
+
+	// Stop Sectionsd
 	g_Sectionsd->setPauseScanning(true);
+
+	// Save and Clear background
+	bool usedBackground = frameBuffer->getuseBackground();
+	if (usedBackground) {
+		frameBuffer->saveBackgroundImage();
+		frameBuffer->Clear();
+	}
 
 	show();
 
 	// free picviewer mem
 	m_viewer->Cleanup();
 
+	//g_Zapit->setStandby(false);
+	g_Zapit->unlockPlayBack();
+
 	// Start Sectionsd
 	g_Sectionsd->setPauseScanning(false);
+
+	// Restore previous background
+	if (usedBackground) {
+		frameBuffer->restoreBackgroundImage();
+		frameBuffer->useBackground(true);
+		frameBuffer->paintBackground();
+	}
 
 	// Restore last mode
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
