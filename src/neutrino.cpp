@@ -2548,7 +2548,8 @@ printf("[neutrino] direct record\n");
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
 				StopSubtitles();
-				audioPlayer->exec(NULL, "");
+				fprintf(stderr, "dbt broke the audioplayershortcut! :-)\n");
+				//audioPlayer->exec(NULL, "");
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play ) {
