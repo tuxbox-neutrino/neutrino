@@ -681,11 +681,11 @@ int CAudioPlayerGui::show()
 								      LOCALE_AUDIOPLAYER_ADD_LOC, true, NULL, InetRadioInputChanger,
 								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 
-					sprintf(cnt, "%d", ++count);
+/*					sprintf(cnt, "%d", ++count);
 					InputSelector.addItem(new CMenuForwarder(
 								      LOCALE_AUDIOPLAYER_ADD_SC, true, NULL, InetRadioInputChanger,
 								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
-
+*/
 					sprintf(cnt, "%d", ++count);
 					InputSelector.addItem(new CMenuForwarder(
 								      LOCALE_AUDIOPLAYER_ADD_IC, true, NULL, InetRadioInputChanger,
@@ -703,9 +703,9 @@ int CAudioPlayerGui::show()
 						paintLCD();
 						break;
 					case 1:
-						openSCbrowser();
+/*						openSCbrowser();
 						break;
-					case 2:
+					case 2:*/
 						readDir_ic();
 						CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 						paintLCD();
@@ -1392,8 +1392,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 }
 
 //------------------------------------------------------------------------
-#define SC_BASE_DIR	"http://www.shoutcast.com"
-#define SC_INIT_DIR	"/sbin/newxml.phtml"
+
 bool CAudioPlayerGui::openSCbrowser(void)
 {
 	bool result = false;

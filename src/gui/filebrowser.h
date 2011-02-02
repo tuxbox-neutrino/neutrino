@@ -56,6 +56,18 @@
 #define ENABLE_INTERNETRADIO
 #define VLC_URI "vlc://"
 
+#if 0
+#define SC_BASE_DIR   "http://www.shoutcast.com"
+#define SC_INIT_DIR   "/sbin/newxml.phtml"
+#else
+#define SC_DEV_ID	"XXXXXXXXXXXXXXXX"
+#define SC_BASE_DIR	"http://api.shoutcast.com"
+#define SC_TUNE_IN_BASE	"http://yp.shoutcast.com"
+#define SC_INIT_DIR	"/legacy/genrelist?k="SC_DEV_ID
+#define SC_GET_GENRE	"/legacy/stationsearch?k="SC_DEV_ID"&search="
+#define SC_GET_TOP500	"/legacy/Top500?k="SC_DEV_ID
+#endif
+
 bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str);
 bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t str_leng);
 

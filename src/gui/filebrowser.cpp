@@ -708,7 +708,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 					CFile file;
 					file.Mode = S_IFDIR + 0777 ;
 					file.Name = " Top500"; // use space to have it at the beginning of the list
-					file.Url = "/sbin/newxml.phtml?genre=Top500";
+					file.Url = SC_GET_TOP500;
 					file.Size = 0;
 					file.Time = 0;
 					flist->push_back(file);
@@ -716,7 +716,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 					CFile file2;
 					file2.Mode = S_IFDIR + 0777 ;
 					file2.Name = "..";
-					file2.Url = "/sbin/newxml.phtml";
+					file2.Url = SC_INIT_DIR;
 					file2.Size = 0;
 					file2.Time = 0;
 					flist->push_back(file2);
@@ -726,7 +726,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 					if (xml_decode == 1) {
 						file.Mode = S_IFDIR + 0777 ;
 						file.Name = xmlGetAttribute(element, "name");
-						file.Url = "/sbin/newxml.phtml?genre=" + file.Name;
+						file.Url = (std::string)SC_GET_GENRE + file.Name;
 						file.Size = 0;
 						file.Time = 0;
 						flist->push_back(file);
@@ -743,7 +743,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 								if (ptr && (strcmp(ptr, "audio/mpeg")==0)) {
 									file.Mode = S_IFREG + 0777 ;
 									file.Name = xmlGetAttribute(element, "name");
-									file.Url = base + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, "id");
+									file.Url = (std::string)SC_TUNE_IN_BASE + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, "id") + (std::string)"&k=" + SC_DEV_ID;
 									//printf("adding %s (%s)\n", file.Name.c_str(), file.Url.c_str());
 									ptr = xmlGetAttribute(element, "br");
 									if (ptr) {
