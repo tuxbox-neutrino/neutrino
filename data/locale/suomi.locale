@@ -206,7 +206,7 @@ bouquetlist.head Kanavaniput
 cablesetup.provider Verkko
 channellist.head Kaikki palvelut
 channellist.nonefound Kanavia ei löytynyt!\nTee kanavahaku\n(dbox-näppäin -> asetukset)
-channellist.since alkaen %02d:%02d
+channellist.since alkaen
 colorchooser.alpha alpha
 colorchooser.blue sininen
 colorchooser.green vihreä

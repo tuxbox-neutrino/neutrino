@@ -227,11 +227,15 @@ const char *locale_real_names[] = {
 	"channellist.epgtext_align_left",
 	"channellist.epgtext_align_right",
 	"channellist.extended",
+	"channellist.favs",
+	"channellist.foot",
+	"channellist.foot_off",
+	"channellist.foot_freq",
+	"channellist.foot_next",
 	"channellist.head",
 	"channellist.nonefound",
 	"channellist.since",
 	"channellist.start",
-	"channellist.favs",
 	"channellist.provs",
 	"channellist.sats",
 	"channellist.history",
@@ -1468,7 +1472,8 @@ const char *locale_real_names[] = {
 	"cpu.freq_standby",
 	"cpu.freq_default",
 	"wizard.welcome_head",
-	"wizard.welcome_text"
+	"wizard.welcome_text",
+	"word.from"
 };
 
 #endif

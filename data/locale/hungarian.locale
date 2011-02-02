@@ -203,7 +203,7 @@ bouquetlist.head Csomagok
 cablesetup.provider Kábelszolgáltató
 channellist.head Összes csat
 channellist.nonefound A cstornalista üres.\nKérem futtasson egy keresést!
-channellist.since %02d:%02d óta
+channellist.since óta
 colorchooser.alpha alpha
 colorchooser.blue kék
 colorchooser.green zöld

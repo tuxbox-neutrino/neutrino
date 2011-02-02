@@ -140,7 +140,7 @@ bouquetlist.head Bouquets
 cablesetup.provider Kabelabieder
 channellist.head Alle Kanäle
 channellist.nonefound M'r hänn keine Kanäl g'funde!\nMach e Kanalsüchi\n(dbox-Taste -> Service)
-channellist.since sidd %02d:%02d
+channellist.since sidd
 colorchooser.alpha alpha
 colorchooser.blue blau
 colorchooser.green grien

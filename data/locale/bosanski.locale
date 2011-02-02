@@ -140,7 +140,7 @@ bouquetlist.head buketi
 cablesetup.provider snabdjevač
 channellist.head svi kanali
 channellist.nonefound Nije nađen nijedan kanal!\nNapravite traženje kanala\n(dbox2-tipka -> servis)
-channellist.since od %02d:%02d
+channellist.since od
 colorchooser.alpha alfa
 colorchooser.blue plavo
 colorchooser.green zeleno

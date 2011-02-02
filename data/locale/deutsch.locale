@@ -116,13 +116,17 @@ channellist.epgtext_align_left links
 channellist.epgtext_align_right rechts
 channellist.extended erweiterte Kanalliste
 channellist.favs Favoriten
+channellist.foot Kanalinformationen
+channellist.foot_off aus
+channellist.foot_freq Tuning-Parameter
+channellist.foot_next Nachfolgesendung
 channellist.head Alle Kanäle
 channellist.history Verlauf
 channellist.make_hdlist Erzeuge "HD"- Bouquet
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
 channellist.sats Satelliten
-channellist.since seit %02d:%02d
+channellist.since seit
 channellist.start Start
 colorchooser.alpha alpha
 colorchooser.blue blau
@@ -1050,7 +1054,7 @@ pictureviewer.help1 Menü-Modus
 pictureviewer.help10 Anzeige-Modus
 pictureviewer.help11 Bild neu einlesen
 pictureviewer.help12 vorheriges Bild
-pictureviewer.help13 nachstes Bild
+pictureviewer.help13 nächstes Bild
 pictureviewer.help14 Zoom out
 pictureviewer.help15 Zoom in
 pictureviewer.help16 Scroll hoch
@@ -1464,3 +1468,4 @@ zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
 zaptotimer.announce In einer Minute wird umgeschaltet.
+word.from ab

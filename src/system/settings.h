@@ -307,6 +307,7 @@ struct SNeutrinoSettings
 	int big_windows;
 	int channellist_epgtext_align_right;
 	int channellist_extended;
+	int channellist_foot;
 
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];

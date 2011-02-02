@@ -218,8 +218,8 @@ channellist.epgtext_align_left do lewej
 channellist.epgtext_align_right do prawej
 channellist.head Wszystkie kanały
 channellist.nonefound Brak listy kanałów! Uruchom\nwyszukiwanie kanałów (Menu główne -> Usługi)
-channellist.since od %02d:%02d
-channellist.start początek %02d:%02d
+channellist.since od
+channellist.start początek
 colorchooser.alpha Alfa
 colorchooser.blue Niebieski
 colorchooser.green Zielony

@@ -176,7 +176,7 @@ bouquetlist.head Boeket
 cablesetup.provider Kabelprovider
 channellist.head Alle Services
 channellist.nonefound Geen kanalen gevonden!\nVoer aub een scan uit\n(dbox-toets -> service)
-channellist.since sinds %02d:%02d
+channellist.since sinds
 colorchooser.alpha alpha
 colorchooser.blue blauw
 colorchooser.green groen

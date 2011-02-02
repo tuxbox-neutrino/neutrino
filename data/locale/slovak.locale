@@ -223,8 +223,8 @@ channellist.epgtext_align_right do prava
 channellist.extended Grafické EPG v zozname
 channellist.head Všetky kanály
 channellist.nonefound Nenájdený zoznam kanálov!\nVykonaj vyhľadanie kanálov\n(MENU -> Služby)
-channellist.since od %02d:%02d
-channellist.start spúšťa %02d:%02d
+channellist.since od
+channellist.start spúšťa
 channellist.favs Obľúbené
 channellist.provs Poskytovatelia
 channellist.sats Satelity

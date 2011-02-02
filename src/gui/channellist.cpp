@@ -89,6 +89,7 @@ extern CBouquetManager *g_bouquetManager;
 void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen);
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
 void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
+void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 
 extern int old_b_id;
 
@@ -1449,7 +1450,7 @@ printf("CChannelList::quickZap: new selected %d total %d active bouquet %d total
 
 void CChannelList::paintDetails(int index)
 {
-	CChannelEvent *p_event;
+	CChannelEvent *p_event = NULL;
 	if (displayNext) {
 		p_event = &chanlist[index]->nextEvent;
 	} else {
@@ -1465,16 +1466,15 @@ void CChannelList::paintDetails(int index)
 		frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
 
 		if (!p_event->description.empty()) {
-			char cNoch[50]; // UTF-8
-			char cSeit[50]; // UTF-8
+			char cNoch[50] = {0}; // UTF-8
+			char cSeit[50] = {0}; // UTF-8
 
 			struct		tm *pStartZeit = localtime(&p_event->startTime);
 			unsigned 	seit = ( time(NULL) - p_event->startTime ) / 60;
+			snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayNext) ? g_Locale->getText(LOCALE_CHANNELLIST_START):g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
 			if (displayNext) {
 				snprintf(cNoch, sizeof(cNoch), "(%d min)", p_event->duration / 60);
-				snprintf(cSeit, sizeof(cSeit), g_Locale->getText(LOCALE_CHANNELLIST_START), pStartZeit->tm_hour, pStartZeit->tm_min);
 			} else {
-				snprintf(cSeit, sizeof(cSeit), g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
 				int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
 				if ((noch< 0) || (noch>=10000))
 					noch= 0;
@@ -1512,6 +1512,13 @@ void CChannelList::paintDetails(int index)
 				while ( text2.find_first_of("[ -.+*#?=!$%&/]+") == 0 )
 					text2 = text2.substr( 1 );
 				text2 = text2.substr( 0, text2.find('\n') );
+				int pos = 0;
+				 while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (width - 20 - noch_len) ) ) {
+					pos = text2.find_last_of(" ");
+					if ( pos!=-1 )
+						text2 = text2.substr( 0, pos );
+				}
+
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ 2* fheight, width- xstart- 20- noch_len, text2, COL_MENUCONTENTDARK, 0, true);
 			}
 
@@ -1519,39 +1526,52 @@ void CChannelList::paintDetails(int index)
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString (x+ width- 10- seit_len, y+ height+ 5+    fheight   , seit_len, cSeit, COL_MENUCONTENTDARK, 0, true); // UTF-8
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(x+ width- 10- noch_len, y+ height+ 5+ 2* fheight- 2, noch_len, cNoch, COL_MENUCONTENTDARK, 0, true); // UTF-8
 		}
+		char buf[128] = {0};
+		int len = 0;
+		if(g_settings.channellist_foot == 0){
+			transponder_id_t ct = chanlist[index]->getTransponderId();
+			transponder_list_t::iterator tpI = transponders.find(ct);
+			len = snprintf(buf, sizeof(buf), "%d ", chanlist[index]->getFreqId());
 
-		char buf[128];
-		transponder_id_t ct = chanlist[index]->getTransponderId();
-		transponder_list_t::iterator tpI = transponders.find(ct);
-		int len = snprintf(buf, sizeof(buf), "%d ", chanlist[index]->getFreqId());
+			if(tpI != transponders.end()) {
+				char * f, *s, *m;
+				switch(frontend->getInfo()->type) {
+				case FE_QPSK:
+					frontend->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
+					len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+					break;
+				case FE_QAM:
+					frontend->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
+					len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
+					break;
+				case FE_OFDM:
+				case FE_ATSC:
+					break;
+				}
+			}
 
-		if(tpI != transponders.end()) {
-			char * f, *s, *m;
-			switch(frontend->getInfo()->type) {
-			case FE_QPSK:
-				frontend->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
-				len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-				break;
-			case FE_QAM:
-				frontend->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
-				len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
+			if(chanlist[index]->pname)
+				snprintf(&buf[len], sizeof(buf) - len, "(%s)", chanlist[index]->pname);
+			else {
+				sat_iterator_t sit = satellitePositions.find(chanlist[index]->getSatellitePosition());
+				if(sit != satellitePositions.end()) {
+					//int satNameWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth (sit->second.name);
+					snprintf(&buf[len], sizeof(buf) - len, "(%s)", sit->second.name.c_str());
+				}
+			}
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
+		}
+		else if( !displayNext && g_settings.channellist_foot == 1){ // next Event
+		  	CSectionsdClient::CurrentNextInfo CurrentNext;
+		  	sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
+			if (!CurrentNext.next_name.empty()){
+				struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
+			  	len = snprintf(buf, sizeof(buf), "%s %02d:%02d ",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
+				len += snprintf(&buf[len], sizeof(buf) - len, "%s", CurrentNext.next_name.c_str());
+
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
 			}
 		}
-
-		if(chanlist[index]->pname)
-			snprintf(&buf[len], sizeof(buf) - len, "(%s)", chanlist[index]->pname);
-		else {
-			sat_iterator_t sit = satellitePositions.find(chanlist[index]->getSatellitePosition());
-			if(sit != satellitePositions.end()) {
-				//int satNameWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth (sit->second.name);
-				snprintf(&buf[len], sizeof(buf) - len, "(%s)", sit->second.name.c_str());
-			}
-		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
 	}
 }
 

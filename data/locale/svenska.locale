@@ -206,7 +206,7 @@ bouquetlist.head Bouquets
 cablesetup.provider kabel operatör
 channellist.head Alla tjänster
 channellist.nonefound Inga kanaler hittades!\nVänligen gör en sökning\n(dbox-knapp -> tjänster)
-channellist.since sedan %02d:%02d
+channellist.since sedan
 colorchooser.alpha alpha
 colorchooser.blue blå
 colorchooser.green grön

@@ -215,8 +215,8 @@ channellist.epgtext_align_left left
 channellist.epgtext_align_right right
 channellist.head All Services
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
-channellist.since since %02d:%02d
-channellist.start starts %02d:%02d
+channellist.since since
+channellist.start starts
 colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
@@ -1343,7 +1343,12 @@ extra.fec_s2_8psk_4_5 4/5 s2 8psk
 extra.fec_s2_8psk_9_10 9/10 s2 8psk
 channellist.edit Edit
 channellist.extended Extended channel list
-channellist.favs Favorites
+channellist.favs Favoriten
+channellist.foot Channel Information
+channellist.foot_off off
+channellist.foot_freq Sat/Freq Info
+channellist.foot_next next Event
+channellist.head Alle Kanäle
 channellist.provs Providers
 channellist.sats Satellites
 channellist.history History
@@ -1465,3 +1470,4 @@ upnpbrowser.rescan Scan again
 upnpbrowser.scanning Scanning for UPnP servers
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
+word.from from

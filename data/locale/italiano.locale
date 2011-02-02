@@ -205,8 +205,8 @@ channellist.epgtext_align_left sinistra
 channellist.epgtext_align_right destra
 channellist.head Tutti i canali
 channellist.nonefound Non ci sono canali!\n\nEseguire una Scansione\n(Tasto-DBOX -> Servizio)
-channellist.since fino %02d:%02d
-channellist.start inizio %02d:%02d
+channellist.since fino
+channellist.start inizio
 colorchooser.alpha alpha
 colorchooser.blue blu
 colorchooser.green verde

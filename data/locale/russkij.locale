@@ -203,7 +203,7 @@ bouquetlist.head Пакеты
 cablesetup.provider кабельный провайдер
 channellist.head Все сервисы
 channellist.nonefound Нет ни одного канала! \nПожалуйста выполните сканирование\n(кнопка DREAM -> Сервисы)
-channellist.since начало в %02d:%02d
+channellist.since начало в
 colorchooser.alpha alpha
 colorchooser.blue синий
 colorchooser.green зеленый

@@ -203,7 +203,7 @@ bouquetlist.head Bouquets
 cablesetup.provider Kabuabiäter
 channellist.head Aui Kanäu
 channellist.nonefound äs si kei Kanäu gfungä wordä!\nBitte füär ä Kanausuächi dürä\n(dbox-Taschtä -> Service)
-channellist.since sit %02d:%02d
+channellist.since sit
 colorchooser.alpha alpha
 colorchooser.blue blau
 colorchooser.green grüän

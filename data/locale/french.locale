@@ -203,7 +203,7 @@ bouquetlist.head Bouquets
 cablesetup.provider Fournisseur de service
 channellist.head tout les services
 channellist.nonefound Aucune chaines trouvée!\néxecuter un scan\n(DBOX-key -> service)
-channellist.since depuis %02d:%02d
+channellist.since depuis
 colorchooser.alpha alpha
 colorchooser.blue bleu
 colorchooser.green vert

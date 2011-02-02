@@ -203,7 +203,7 @@ bouquetlist.head Bouquets
 cablesetup.provider operador de cabo
 channellist.head Todos os serviços
 channellist.nonefound Não foram encontrados canais!\nPor favor realize uma busca\n(tecla-DBOX -> serviços)
-channellist.since desde %02d:%02d
+channellist.since desde
 colorchooser.alpha alpha
 colorchooser.blue azul
 colorchooser.green verde

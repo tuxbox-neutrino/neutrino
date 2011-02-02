@@ -712,6 +712,8 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
+	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
+
 	//screen configuration
 	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
 	g_settings.screen_yres = configfile.getInt32("screen_yres", 100);
@@ -1226,6 +1228,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("spectrum", g_settings.spectrum);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setBool("channellist_extended"                 , g_settings.channellist_extended);
+	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
 	configfile.setString( "repeat_blocker", g_settings.repeat_blocker );
 	configfile.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );

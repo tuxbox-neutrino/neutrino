@@ -141,7 +141,7 @@ bouquetlist.head Bouquets
 cablesetup.provider Kabiobieta
 channellist.head Olle Senda
 channellist.nonefound Es san koane Senda gfundn worn!\nMachas bittschön a Sendersuach\n(dbox-Taste -> Service)
-channellist.since seid %02d:%02d
+channellist.since seid
 colorchooser.alpha alpha
 colorchooser.blue blau
 colorchooser.green grea

@@ -221,7 +221,7 @@ channellist.make_hdlist HD-kanalen als favoriet tonen
 channellist.nonefound Geen kanalen gevonden!\nVoer aub een scan uit\n(DBOX-key -> onderhoud)
 channellist.provs providers
 channellist.sats Satellieten
-channellist.since start tijd %02d:%02d
+channellist.since start tijd
 colorchooser.alpha alpha
 colorchooser.blue blauw
 colorchooser.green groen
