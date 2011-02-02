@@ -40,17 +40,27 @@ class CMediaPlayerMenu : public CMenuTarget
 	private:
 		CFrameBuffer *frameBuffer;
 				
-		int x, y, width, height, hheight, mheight, selected;
+		int x, y, width, height, hheight, mheight, selected, usage_mode;
+		neutrino_locale_t menu_title;
 
 		void hide();
 		void showMenu();
 		void showMoviePlayer(CMenuWidget *menu_movieplayer);
 
-
 	public:	
+		enum MM_MENU_MODES
+		{
+			MODE_DEFAULT,
+			MODE_AUDIO,
+		};
+		
 		CMediaPlayerMenu();
 		~CMediaPlayerMenu();
+		static CMediaPlayerMenu* getInstance();
+		
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void setMenuTitel(const neutrino_locale_t title = LOCALE_MAINMENU_MEDIA){menu_title = title;};
+		void setUsageMode(const int& mm_mode = MODE_DEFAULT){usage_mode = mm_mode;};
 };
 
 

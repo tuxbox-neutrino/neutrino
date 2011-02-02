@@ -52,14 +52,29 @@
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
 	frameBuffer = CFrameBuffer::getInstance();
+	
+	setMenuTitel();
+	setUsageMode();
 
 	width = w_max (40, 10); //%
 	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height 	= hheight+13*mheight+ 10;
 	selected = -1;
+
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
+}
+
+CMediaPlayerMenu* CMediaPlayerMenu::getInstance()
+{
+	static CMediaPlayerMenu* mpm = NULL;
+
+	if(!mpm) {
+		mpm = new CMediaPlayerMenu();
+		printf("[neutrino] mediaplayer menu instance created\n");
+	}
+	return mpm;
 }
 
 CMediaPlayerMenu::~CMediaPlayerMenu()
@@ -69,13 +84,13 @@ CMediaPlayerMenu::~CMediaPlayerMenu()
 
 int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 {
-	dprintf(DEBUG_DEBUG, "init mediaplayer menu\n");
+	printf("init mediaplayer menu in usage mode %d\n", usage_mode);
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 		parent->hide();
 	
-	showMenu();
+	showMenu(); 
 	
 	return res;
 }
@@ -89,32 +104,63 @@ void CMediaPlayerMenu::hide()
 void CMediaPlayerMenu::showMenu()
 {
 	//menue init
-	CMenuWidget *media = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width);
-
+	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width);
 	media->setSelected(selected);
-	media->addIntroItems();
 	
 	//audio player
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, new CAudioPlayerGui(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	neutrino_msg_t audio_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_audio:CRCInput::RC_red;
+	const char* audio_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_RED;
+	CMenuForwarder * fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, new CAudioPlayerGui(), NULL, audio_rc, audio_btn);
 
 	//internet player
-	media->addItem(new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, new CAudioPlayerGui(true), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	
+	neutrino_msg_t inet_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_www : CRCInput::RC_green;
+	const char* inet_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_GREEN;
+	CMenuForwarder * fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, new CAudioPlayerGui(true), NULL, inet_rc, inet_btn);
+
 	//movieplayer
 	CMenuWidget *moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width);
-	showMoviePlayer(moviePlayer);
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	CMenuForwarder * fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	
 	//pictureviewer
-	media->addItem(new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-	
+	CMenuForwarder * fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+
 	//upnp browser
-	media->addItem(new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0));
+	CMenuForwarder * fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
+
+	media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);	
+	
+	if (usage_mode == MODE_AUDIO)
+	{
+		//audio player	
+		media->addItem(fw_audio);
+		
+		//internet player
+		media->addItem(fw_inet);
+	}
+	else
+	{
+		//audio player
+		media->addItem(fw_audio);
+		
+		//internet player
+		media->addItem(fw_inet);
+		
+		//movieplayer
+		showMoviePlayer(moviePlayer);
+		media->addItem(fw_mp);
+		
+		//pictureviewer
+		media->addItem(fw_pviewer);
+		
+		//upnp browser
+		media->addItem(fw_upnp);
+	}
 	
 	media->exec(NULL, "");
 	media->hide();
 	selected = media->getSelected();
 	delete media;
+	setUsageMode();//set default usage_mode
 }
 
 //show movieplayer submenu with selectable items for moviebrowser or filebrowser

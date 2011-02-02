@@ -94,6 +94,7 @@
 #include "gui/osd_setup.h"
 #include "gui/color.h"
 #include "gui/customcolor.h"
+#include "gui/mediaplayer.h"
 
 #include "gui/bedit/bouqueteditor_bouquets.h"
 #include "gui/bouquetlist.h"
@@ -1747,7 +1748,6 @@ void CNeutrinoApp::SetupTiming()
 		sprintf(g_settings.timing_string[i], "%d", g_settings.timing[i]);
 }
 
-CAudioPlayerGui * audioPlayer;
 
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
@@ -2550,10 +2550,11 @@ printf("[neutrino] direct record\n");
 				StartSubtitles();
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
-				StopSubtitles();
-				fprintf(stderr, "dbt broke the audioplayershortcut! :-)\n");
-				//audioPlayer->exec(NULL, "");
-				StartSubtitles();
+				//open mediaplayer menu in audio mode, user can select between audioplayer and internetradio
+				CMediaPlayerMenu * media = CMediaPlayerMenu::getInstance();
+				media->setMenuTitel(LOCALE_MAINMENU_AUDIOPLAYER);
+				media->setUsageMode(CMediaPlayerMenu::MODE_AUDIO);
+				media->exec(NULL, "");
 			}
 			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play ) {
 				bool show = true;
@@ -4752,6 +4753,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 
 void CNeutrinoApp::StopSubtitles()
 {
+	printf("[neutrino] %s\n", __FUNCTION__);
 	int ttx, dvbpid, ttxpid, ttxpage;
 
 	dvbpid = dvbsub_getpid();
@@ -4767,6 +4769,7 @@ void CNeutrinoApp::StopSubtitles()
 
 void CNeutrinoApp::StartSubtitles()
 {
+	printf("[neutrino] %s\n", __FUNCTION__);
 	dvbsub_start(0);
 	tuxtx_pause_subtitle(false);
 }

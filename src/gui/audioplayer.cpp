@@ -244,6 +244,8 @@ CAudioPlayerGui::~CAudioPlayerGui()
 //------------------------------------------------------------------------
 int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 {
+	CNeutrinoApp::getInstance()->StopSubtitles();
+
 	CAudioPlayer::getInstance()->init();
 	m_state = CAudioPlayerGui::STOP;
 
@@ -334,6 +336,8 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
 	g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 
+	CNeutrinoApp::getInstance()->StartSubtitles();
+	
 	// always exit all
 	return menu_return::RETURN_EXIT_ALL;
 }
