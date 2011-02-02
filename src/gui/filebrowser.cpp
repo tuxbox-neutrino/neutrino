@@ -835,7 +835,7 @@ bool CFileBrowser::exec(const char * const dirname)
 #ifdef ENABLE_INTERNETRADIO
 	if (m_Mode == ModeSC) {
 		m_baseurl = base;
-	} else
+	}
 #endif
 
 	name = dirname;
