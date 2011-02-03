@@ -285,6 +285,9 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
+	CAutoModeNotifier * anotify = new CAutoModeNotifier();
+	anotify->changeNotify(NONEXISTANT_LOCALE, 0);
+	delete anotify;
 }
 
 void CVideoSettings::setupVideoSystem(bool do_ask)
