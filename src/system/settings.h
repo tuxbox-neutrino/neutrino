@@ -429,7 +429,7 @@ struct SNeutrinoSettings
 	int   audioplayer_repeat_on;
 	int   audioplayer_show_playlist;
 	int   audioplayer_enable_sc_metadata;
-
+	std::string shoutcast_dev_id;
 	//Filebrowser
 	int filebrowser_showrights;
 	int filebrowser_sortmethod;

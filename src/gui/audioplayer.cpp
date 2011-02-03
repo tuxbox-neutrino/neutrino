@@ -244,8 +244,6 @@ CAudioPlayerGui::~CAudioPlayerGui()
 //------------------------------------------------------------------------
 int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 {
-	CNeutrinoApp::getInstance()->StopSubtitles();
-
 	CAudioPlayer::getInstance()->init();
 	m_state = CAudioPlayerGui::STOP;
 
@@ -336,8 +334,6 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
 	CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , m_LastMode );
 	g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 
-	CNeutrinoApp::getInstance()->StartSubtitles();
-	
 	// always exit all
 	return menu_return::RETURN_EXIT_ALL;
 }
@@ -684,12 +680,12 @@ int CAudioPlayerGui::show()
 					InputSelector.addItem(new CMenuForwarder(
 								      LOCALE_AUDIOPLAYER_ADD_LOC, true, NULL, InetRadioInputChanger,
 								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
-
-/*					sprintf(cnt, "%d", ++count);
-					InputSelector.addItem(new CMenuForwarder(
+					if(g_settings.shoutcast_dev_id != "XXXXXXXXXXXXXXXX"){
+						sprintf(cnt, "%d", ++count);
+						InputSelector.addItem(new CMenuForwarder(
 								      LOCALE_AUDIOPLAYER_ADD_SC, true, NULL, InetRadioInputChanger,
 								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
-*/
+					}
 					sprintf(cnt, "%d", ++count);
 					InputSelector.addItem(new CMenuForwarder(
 								      LOCALE_AUDIOPLAYER_ADD_IC, true, NULL, InetRadioInputChanger,
@@ -707,9 +703,10 @@ int CAudioPlayerGui::show()
 						paintLCD();
 						break;
 					case 1:
-/*						openSCbrowser();
+					  if(g_settings.shoutcast_dev_id != "XXXXXXXXXXXXXXXX")
+						openSCbrowser();
 						break;
-					case 2:*/
+					case 2:
 						readDir_ic();
 						CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 						paintLCD();
@@ -1400,7 +1397,10 @@ bool CAudioPlayerGui::openFilebrowser(void)
 bool CAudioPlayerGui::openSCbrowser(void)
 {
 	bool result = false;
-	CFileBrowser filebrowser(SC_BASE_DIR, CFileBrowser::ModeSC);
+	//shoutcast
+	const char *sc_base_dir	= "http://api.shoutcast.com";
+
+	CFileBrowser filebrowser(sc_base_dir, CFileBrowser::ModeSC);
 
 	filebrowser.Multi_Select    = true;
 	filebrowser.Dirs_Selectable = true;
@@ -1408,7 +1408,7 @@ bool CAudioPlayerGui::openSCbrowser(void)
 
 	hide();
 
-	if (filebrowser.exec(SC_INIT_DIR))
+	if (filebrowser.exec(filebrowser.sc_init_dir.c_str()))
 	{
 #ifdef AUDIOPLAYER_TIME_DEBUG
 		timeval start;

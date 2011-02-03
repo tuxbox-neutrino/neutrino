@@ -368,6 +368,8 @@ CFileBrowser::CFileBrowser(const char * const _base, const tFileBrowserMode mode
 void CFileBrowser::commonInit()
 {
 	frameBuffer = CFrameBuffer::getInstance();
+	//shoutcast
+	sc_init_dir = "/legacy/genrelist?k="  + g_settings.shoutcast_dev_id;
 
 	Filter = NULL;
 	use_filter = true;
@@ -397,6 +399,7 @@ void CFileBrowser::commonInit()
 	height = theight + listmaxshow * fheight + 2 * foheight;
 
 	m_SMSKeyInput.setTimeout(SMSKEY_TIMEOUT);
+
 }
 
 //------------------------------------------------------------------------
@@ -643,6 +646,10 @@ and add to neutrino playlist
 
 4th step: play from neutrio playlist
 */
+	//shoutcast
+	const std::string sc_get_top500 = "/legacy/Top500?k=" + g_settings.shoutcast_dev_id;
+	const std::string sc_get_genre = "/legacy/stationsearch?k=" + g_settings.shoutcast_dev_id + "&search=";
+	const std::string sc_tune_in_base = "http://yp.shoutcast.com";
 
 //	printf("readDir_sc %s\n",dirname.c_str());
 	std::string answer="";
@@ -708,7 +715,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 					CFile file;
 					file.Mode = S_IFDIR + 0777 ;
 					file.Name = " Top500"; // use space to have it at the beginning of the list
-					file.Url = SC_GET_TOP500;
+					file.Url = sc_get_top500;
 					file.Size = 0;
 					file.Time = 0;
 					flist->push_back(file);
@@ -716,7 +723,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 					CFile file2;
 					file2.Mode = S_IFDIR + 0777 ;
 					file2.Name = "..";
-					file2.Url = SC_INIT_DIR;
+					file2.Url = sc_init_dir;
 					file2.Size = 0;
 					file2.Time = 0;
 					flist->push_back(file2);
@@ -726,7 +733,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 					if (xml_decode == 1) {
 						file.Mode = S_IFDIR + 0777 ;
 						file.Name = xmlGetAttribute(element, "name");
-						file.Url = (std::string)SC_GET_GENRE + file.Name;
+						file.Url = sc_get_genre + file.Name;
 						file.Size = 0;
 						file.Time = 0;
 						flist->push_back(file);
@@ -743,7 +750,7 @@ printf("CFileBrowser::readDir_sc: read done, size %d\n", answer.size());
 								if (ptr && (strcmp(ptr, "audio/mpeg")==0)) {
 									file.Mode = S_IFREG + 0777 ;
 									file.Name = xmlGetAttribute(element, "name");
-									file.Url = (std::string)SC_TUNE_IN_BASE + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, "id") + (std::string)"&k=" + SC_DEV_ID;
+									file.Url = sc_tune_in_base + tunein_base + (std::string)"?id=" + xmlGetAttribute(element, "id") + (std::string)"&k=" + g_settings.shoutcast_dev_id;
 									//printf("adding %s (%s)\n", file.Name.c_str(), file.Url.c_str());
 									ptr = xmlGetAttribute(element, "br");
 									if (ptr) {
