@@ -89,12 +89,12 @@ int CHDDMenuHandler::doMenu ()
 
 	bool hdd_found = 0;
 	int n = scandir("/sys/block", &namelist, my_filter, alphasort);
-#if 0
-	if(n <= 0) {
-		//FIXME no hdd found message
-		return 0;
+
+	if (n < 0) {
+		perror("CHDDMenuHandler::doMenu: scandir(\"/sys/block\") failed");
+		return menu_return::RETURN_REPAINT;
 	}
-#endif
+
 
 	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, 58);
 	hddmenu->addIntroItems(LOCALE_HDD_SETTINGS);
