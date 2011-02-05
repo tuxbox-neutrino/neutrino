@@ -10,11 +10,14 @@
 #include "audio_td.h"
 #include "lt_debug.h"
 
+#include <linux/soundcard.h>
+
 cAudio * audioDecoder = NULL;
 
 cAudio::cAudio(void *, void *, void *)
 {
 	fd = -1;
+	clipfd = -1;
 	openDevice();
 	Muted = false;
 }
@@ -40,6 +43,9 @@ void cAudio::closeDevice(void)
 	if (fd >= 0)
 		close(fd);
 	fd = -1;
+	if (clipfd >= 0)
+		close(clipfd);
+	clipfd = -1;
 }
 
 int cAudio::do_mute(bool enable, bool remember)
@@ -152,21 +158,62 @@ int cAudio::setChannel(int /*channel*/)
 	return 0;
 };
 
-int cAudio::PrepareClipPlay(int /*uNoOfChannels*/, int /*uSampleRate*/, int /*uBitsPerSample*/, int /*bLittleEndian*/)
+int cAudio::PrepareClipPlay(int ch, int srate, int bits, int little_endian)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	int fmt;
+	lt_debug("cAudio::%s ch %d srate %d bits %d le %d\n", __FUNCTION__, ch, srate, bits, little_endian);
+	if (clipfd >= 0) {
+		fprintf(stderr, "cAudio::%s: clipfd already opened (%d)\n", __FUNCTION__, clipfd);
+		return -1;
+	}
+	/* the dsp driver seems to work only on the second open(). really. */
+	clipfd = open("/dev/sound/dsp", O_WRONLY);
+	close(clipfd);
+	clipfd = open("/dev/sound/dsp", O_WRONLY);
+	if (clipfd < 0) {
+		perror("cAudio::PrepareClipPlay open /dev/sound/dsp");
+		return -1;
+	}
+	/* no idea if we ever get little_endian == 0 */
+	if (little_endian)
+		fmt = AFMT_S16_BE;
+	else
+		fmt = AFMT_S16_LE;
+	if (ioctl(clipfd, SNDCTL_DSP_SETFMT, &fmt))
+		perror("SNDCTL_DSP_SETFMT");
+	if (ioctl(clipfd, SNDCTL_DSP_CHANNELS, &ch))
+		perror("SNDCTL_DSP_CHANNELS");
+	if (ioctl(clipfd, SNDCTL_DSP_SPEED, &srate))
+		perror("SNDCTL_DSP_SPEED");
+	if (ioctl(clipfd, SNDCTL_DSP_RESET))
+		perror("SNDCTL_DSP_RESET");
+
 	return 0;
 };
 
-int cAudio::WriteClip(unsigned char * /*buffer*/, int /*size*/)
+int cAudio::WriteClip(unsigned char *buffer, int size)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
-	return 0;
+	int ret;
+	// lt_debug("cAudio::%s\n", __FUNCTION__);
+	if (clipfd <= 0) {
+		fprintf(stderr, "cAudio::%s: clipfd not yet opened\n", __FUNCTION__);
+		return -1;
+	}
+	ret = write(clipfd, buffer, size);
+	if (ret < 0)
+		fprintf(stderr, "cAudio::%s: write error (%m)\n", __FUNCTION__);
+	return ret;
 };
 
 int cAudio::StopClip()
 {
 	lt_debug("cAudio::%s\n", __FUNCTION__);
+	if (clipfd <= 0) {
+		fprintf(stderr, "cAudio::%s: clipfd not yet opened\n", __FUNCTION__);
+		return -1;
+	}
+	close(clipfd);
+	clipfd = -1;
 	return 0;
 };
 

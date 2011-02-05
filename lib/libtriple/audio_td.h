@@ -36,6 +36,8 @@ class cAudio
 		int fd;
 		bool Muted;
 
+		int clipfd; /* for pcm playback */
+
 		AUDIO_FORMAT	StreamType;
 		AUDIO_SYNC_MODE    SyncMode;
 		bool started;
