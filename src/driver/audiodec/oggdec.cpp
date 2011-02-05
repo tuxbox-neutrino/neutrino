@@ -30,6 +30,7 @@
 #include <config.h>
 #endif
 
+#include <endian.h>
 #include <errno.h>
 #include <oggdec.h>
 #include <linux/soundcard.h>
@@ -90,7 +91,11 @@ CBaseDec::RetCode COggDec::Decoder(FILE *in, const int OutputFd, State* const st
 
   SetMetaData(&vf, meta_data);
 
+#if __BYTE_ORDER == __LITTLE_ENDIAN || USE_TREMOR
   audioDecoder->PrepareClipPlay(ov_info(&vf,0)->channels, ov_info(&vf,0)->rate, 16, 1);
+#else
+  audioDecoder->PrepareClipPlay(ov_info(&vf,0)->channels, ov_info(&vf,0)->rate, 16, 0);
+#endif
 
   /* up and away ... */
   mSlotSize = MAX_OUTPUT_SAMPLES * 2 * ov_info(&vf,0)->channels;
