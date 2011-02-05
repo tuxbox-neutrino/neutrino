@@ -871,7 +871,7 @@ void CMoviePlayerGui::PlayFile(void)
 						playback->GetPosition(position, duration);
 						startposition = (duration - position);
 
-						//printf("CMoviePlayerGui::PlayFile: waiting for data, position %d duration %d (%d)\n", position, duration, towait);
+						//printf("CMoviePlayerGui::PlayFile: waiting for data, position %d duration %d (%d), start %d\n", position, duration, towait, startposition);
 						if(startposition > towait*1000)
 							break;
 						//sleep(1);
@@ -914,7 +914,7 @@ void CMoviePlayerGui::PlayFile(void)
 				if(duration > 100)
 					file_prozent = (unsigned char) (position / (duration / 100));
 				playback->GetSpeed(speed);
-				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+//				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
 				if (duration - position < 1000 && !timeshift)
 				{
 					/* 10 seconds after end-of-file, exit */
