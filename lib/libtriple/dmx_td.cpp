@@ -426,6 +426,28 @@ void cDemux::addPid(unsigned short Pid)
 	return;
 }
 
+void cDemux::removePid(unsigned short Pid)
+{
+	if (dmx_type != DMX_TP_CHANNEL)
+	{
+		fprintf(stderr, "cDemux::%s pes_type!=DMX_TP_CHANNEL (%s) not implemented yet! pid=%hx\n", __FUNCTION__, DMX_T[dmx_type], Pid);
+		return;
+	}
+	for (std::vector<pes_pids>::iterator i = pesfds.begin(); i != pesfds.end(); ++i)
+	{
+		if ((*i).pid == Pid) {
+			lt_debug("cDemux::removePid: removing demux fd %d pid 0x%04x\n", (*i).fd, Pid);
+			if (ioctl((*i).fd, DEMUX_STOP) < 0)
+				perror("DEMUX_STOP");
+			if (close((*i).fd) < 0)
+				perror("close");
+			pesfds.erase(i);
+			return; /* TODO: what if the same PID is there multiple times */
+		}
+	}
+	fprintf(stderr, "cDemux::removePid: pid 0x%04x not found\n", Pid);
+}
+
 void cDemux::getSTC(int64_t * STC)
 {
 	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
