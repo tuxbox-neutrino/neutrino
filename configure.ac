@@ -11,6 +11,11 @@ AC_PROG_CXX
 AC_DISABLE_STATIC
 AM_PROG_LIBTOOL
 
+AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
+	[use libvorbisidec instead of libogg/libvorbis])],
+	[TREMOR="$withval"],
+	[TREMOR=no])
+
 if test "$BOXTYPE" != "tripledragon"; then
 echo "BOXTYPE: $BOXTYPE"
 	TUXBOX_APPS_DVB
@@ -22,12 +27,18 @@ fi
 if test "$BOXTYPE" = "tripledragon"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
 fi
+
+if test "$TREMOR" = "yes"; then
+	TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,vorbisidec)
+	AC_DEFINE(USE_TREMOR,1,use libvorbisidec/tremor library)
+fi
+AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
+
 TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
 # TUXBOX_APPS_LIB_PKGCONFIG(OPENSSL,openssl)
 TUXBOX_APPS_LIB_PKGCONFIG(ID3TAG,libid3tag)
 TUXBOX_APPS_LIB_PKGCONFIG(MAD,libmad)
-#TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,tremor)
 TUXBOX_APPS_LIB_PKGCONFIG(PNG,libpng)
 TUXBOX_APPS_LIB_PKGCONFIG(AVFORMAT,libavformat)
 TUXBOX_APPS_LIB_PKGCONFIG(AVCODEC,libavcodec)

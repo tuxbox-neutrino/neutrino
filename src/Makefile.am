@@ -24,6 +24,12 @@ SUBDIRS += lcddisplay
 INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 
+if USE_TREMOR
+VORBISLIBS = @VORBISIDEC_LIBS@
+else
+VORBISLIBS = -lvorbisfile -lvorbis -logg
+endif
+
 bin_PROGRAMS = neutrino
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
@@ -69,7 +75,7 @@ neutrino_LDADD = \
 	@LIBCS_LIBS@ \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
-	-lvorbisfile -lvorbis -logg \
+	$(VORBISLIBS) \
 	-lungif \
 	-ljpeg \
 	-lrt -lpthread

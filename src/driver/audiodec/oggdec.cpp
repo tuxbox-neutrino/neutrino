@@ -137,14 +137,14 @@ CBaseDec::RetCode COggDec::Decoder(FILE *in, const int OutputFd, State* const st
 	  }
 	  bytes=0;
 	  if(mSeekable)
-#ifdef DBOX
+#ifdef USE_TREMOR
 		  mSlotTime[mWriteSlot] = ov_time_tell(&vf);
 #else
 		  mSlotTime[mWriteSlot] = (ogg_int64_t)(1000 * ov_time_tell(&vf));
 #endif
 	  do
 	  {
-#ifdef DBOX
+#ifdef USE_TREMOR
 		  rval = ov_read(&vf, mPcmSlots[mWriteSlot]+bytes, mSlotSize-bytes, &bitstream);
 #else
 		  rval = ov_read(&vf, mPcmSlots[mWriteSlot]+bytes, mSlotSize-bytes, 0, 2, 1, &bitstream);
@@ -286,7 +286,7 @@ void COggDec::SetMetaData(OggVorbis_File* vf, CAudioMetaData* m)
 	m->bitrate = ov_info(vf,0)->bitrate_nominal;
 	m->samplerate = ov_info(vf,0)->rate;
 	if(mSeekable)
-#ifdef DBOX
+#ifdef USE_TREMOR
 		m->total_time = (time_t) ov_time_total(vf, 0) / 1000;
 #else
 		m->total_time = (time_t) ov_time_total(vf, 0);

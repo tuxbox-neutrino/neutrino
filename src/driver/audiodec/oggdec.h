@@ -38,7 +38,7 @@
 #include <pthread.h>
 #include <basedec.h>
 #include <driver/audiometadata.h>
-#ifdef DBOX
+#ifdef USE_TREMOR
 #include <tremor/ogg.h>
 #include <tremor/ivorbisfile.h>
 #else
