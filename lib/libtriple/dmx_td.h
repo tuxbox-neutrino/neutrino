@@ -23,6 +23,12 @@ typedef enum
 	DMX_PCR_ONLY_CHANNEL
 } DMX_CHANNEL_TYPE;
 
+typedef struct
+{
+	int fd;
+	unsigned short pid;
+} pes_pids;
+
 class cDemux
 {
 	private:
@@ -30,7 +36,7 @@ class cDemux
 		int fd;
 		int buffersize;
 		DMX_CHANNEL_TYPE dmx_type;
-		std::vector<int> pesfds;
+		std::vector<pes_pids> pesfds;
 	public:
 
 		bool Open(DMX_CHANNEL_TYPE pes_type, void * x = NULL, int y = 0);

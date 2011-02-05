@@ -102,12 +102,12 @@ void cDemux::Close(void)
 		return;
 	}
 
-	for (std::vector<int>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
+	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("cDemux::Close: stopping and closing demux fd %d\n", *i);
-		if (ioctl(*i, DEMUX_STOP) < 0)
+		lt_debug("cDemux::Close: stopping and closing demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		if (ioctl((*i).fd, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
-		if (close(*i) < 0)
+		if (close((*i).fd) < 0)
 			perror("close");
 	}
 	pesfds.clear();
@@ -124,10 +124,10 @@ bool cDemux::Start(void)
 		return false;
 	}
 
-	for (std::vector<int>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
+	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("cDemux::Start: starting demux fd %d\n", *i);
-		if (ioctl(*i, DEMUX_START) < 0)
+		lt_debug("cDemux::Start: starting demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		if (ioctl((*i).fd, DEMUX_START) < 0)
 			perror("DEMUX_START");
 	}
 	ioctl(fd, DEMUX_START);
@@ -141,10 +141,10 @@ bool cDemux::Stop(void)
 		fprintf(stderr, "cDemux::%s #%d: not open!\n", __FUNCTION__, num);
 		return false;
 	}
-	for (std::vector<int>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
+	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("cDemux::Stop: stopping demux fd %d\n", *i);
-		if (ioctl(*i, DEMUX_STOP) < 0)
+		lt_debug("cDemux::Stop: stopping demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		if (ioctl((*i).fd, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
 	}
 	ioctl(fd, DEMUX_STOP);
@@ -381,7 +381,7 @@ void *cDemux::getChannel()
 
 void cDemux::addPid(unsigned short Pid)
 {
-	int pfd;
+	pes_pids pfd;
 	int ret;
 	struct demux_pes_para p;
 	if (dmx_type != DMX_TP_CHANNEL)
@@ -391,8 +391,8 @@ void cDemux::addPid(unsigned short Pid)
 	}
 	if (fd == -1)
 		fprintf(stderr, "cDemux::%s bucketfd not yet opened? pid=%hx\n", __FUNCTION__, Pid);
-	pfd = open(devname[num], O_RDWR);
-	if (pfd < 0)
+	pfd.fd = open(devname[num], O_RDWR);
+	if (pfd.fd < 0)
 	{
 		fprintf(stderr, "cDemux::%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
 		return;
@@ -406,22 +406,23 @@ void cDemux::addPid(unsigned short Pid)
 	p.unloader.unloader_type = UNLOADER_TYPE_BUCKET;
 	p.unloader.threshold     = 128;
 
-	ioctl(pfd, DEMUX_SELECT_SOURCE, INPUT_FROM_CHANNEL0);
-	ret = ioctl(pfd, DEMUX_SET_BUFFER_SIZE, 0x10000); // 64k
+	ioctl(pfd.fd, DEMUX_SELECT_SOURCE, INPUT_FROM_CHANNEL0);
+	ret = ioctl(pfd.fd, DEMUX_SET_BUFFER_SIZE, 0x10000); // 64k
 	if (ret == -1)
 		perror("DEMUX_SET_BUFFER_SIZE");
 	else
 	{
-		ret = ioctl(pfd, DEMUX_FILTER_PES_SET, &p);
+		ret = ioctl(pfd.fd, DEMUX_FILTER_PES_SET, &p);
 		if (ret == -1)
 			perror("DEMUX_FILTER_PES_SET");
 	}
+	pfd.pid = Pid;
 	if (ret != -1)
 		/* success! */
 		pesfds.push_back(pfd);
 	else
 		/* error! */
-		close(pfd);
+		close(pfd.fd);
 	return;
 }
 
