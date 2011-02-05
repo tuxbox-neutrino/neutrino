@@ -119,6 +119,45 @@ bool cRecord::Stop(void)
 	return true;
 }
 
+bool cRecord::ChangePids(unsigned short /*vpid*/, unsigned short *apids, int numapids)
+{
+	std::vector<pes_pids> pids;
+	int j;
+	bool found;
+	unsigned short pid;
+	INFO("\n");
+	if (!dmx) {
+		INFO("DMX = NULL\n");
+		return false;
+	}
+	pids = dmx->getPesPids();
+	/* the first PID is the video pid, so start with the second PID... */
+	for (std::vector<pes_pids>::const_iterator i = pids.begin() + 1; i != pids.end(); ++i) {
+		found = false;
+		pid = (*i).pid;
+		for (j = 0; j < numapids; j++) {
+			if (pid == apids[j]) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			dmx->removePid(pid);
+	}
+	for (j = 0; j < numapids; j++) {
+		found = false;
+		for (std::vector<pes_pids>::const_iterator i = pids.begin() + 1; i != pids.end(); ++i) {
+			if ((*i).pid == apids[j]) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			dmx->addPid(apids[j]);
+	}
+	return true;
+}
+
 void cRecord::RecordThread()
 {
 	INFO("begin\n");
