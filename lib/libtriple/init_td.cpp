@@ -16,7 +16,9 @@ extern "C" {
 #include <hardware/avs/bios_system_config.h>
 }
 
-static const char * FILENAME = "init_td.cpp";
+#include "lt_debug.h"
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_INIT, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_INIT, args)
 
 static bool initialized = false;
 
@@ -105,12 +107,14 @@ static void rc_init()
 	   "key up" events during zapping */
 	//ioctl(fd, IOC_IR_SET_DELAY, 1);  TODO: needs more work in rcinput
 	close(fd);
-	printf("%s: rc_addr=0x%02hx\n", __FUNCTION__, rc_addr);
+	lt_info("%s rc_addr=0x%02hx\n", __FUNCTION__, rc_addr);
 }
 
 void init_td_api()
 {
-	fprintf(stderr, "%s:%s begin, initialized = %d\n", FILENAME, __FUNCTION__, (int)initialized);
+	if (!initialized)
+		lt_debug_init();
+	lt_info("%s begin, initialized=%d, debug=0x%02x\n", __FUNCTION__, (int)initialized, debuglevel);
 	if (!initialized)
 	{
 		/* DirectFB does setpgid(0,0), which disconnects us from controlling terminal
@@ -125,12 +129,12 @@ void init_td_api()
 			perror("open /dev/stb/tdgfx");
 	}
 	initialized = true;
-	fprintf(stderr, "%s:%s end\n", FILENAME, __FUNCTION__);
+	lt_info("%s end\n", __FUNCTION__);
 }
 
 void shutdown_td_api()
 {
-	fprintf(stderr, "%s:%s, initialized = %d\n", FILENAME, __FUNCTION__, (int)initialized);
+	lt_info("%s, initialized = %d\n", __FUNCTION__, (int)initialized);
 	if (initialized)
 		dfb_deinit();
 	if (gfxfd > -1)

@@ -10,26 +10,25 @@
 
 #include <avs/avs_inf.h>
 
-static const char * FILENAME = "pwrmngr.cpp";
-
-void cCpuFreqManager::Up(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); }
-void cCpuFreqManager::Down(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); }
-void cCpuFreqManager::Reset(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); }
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_PWRMNGR, args)
+void cCpuFreqManager::Up(void) { lt_debug("%s\n", __FUNCTION__); }
+void cCpuFreqManager::Down(void) { lt_debug("%s\n", __FUNCTION__); }
+void cCpuFreqManager::Reset(void) { lt_debug("%s\n", __FUNCTION__); }
 /* those function dummies return true or "harmless" values */
-bool cCpuFreqManager::SetDelta(unsigned long) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); return true; }
-unsigned long cCpuFreqManager::GetCpuFreq(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); return 0; }
-unsigned long cCpuFreqManager::GetDelta(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); return 0; }
+bool cCpuFreqManager::SetDelta(unsigned long) { lt_debug("%s\n", __FUNCTION__); return true; }
+unsigned long cCpuFreqManager::GetCpuFreq(void) { lt_debug("%s\n", __FUNCTION__); return 0; }
+unsigned long cCpuFreqManager::GetDelta(void) { lt_debug("%s\n", __FUNCTION__); return 0; }
 //
-cCpuFreqManager::cCpuFreqManager(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); }
+cCpuFreqManager::cCpuFreqManager(void) { lt_debug("%s\n", __FUNCTION__); }
 
-bool cPowerManager::SetState(PWR_STATE) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); return true; }
+bool cPowerManager::SetState(PWR_STATE) { lt_debug("%s\n", __FUNCTION__); return true; }
 
-bool cPowerManager::Open(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); return true; }
-void cPowerManager::Close(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); }
+bool cPowerManager::Open(void) { lt_debug("%s\n", __FUNCTION__); return true; }
+void cPowerManager::Close(void) { lt_debug("%s\n", __FUNCTION__); }
 //
 bool cPowerManager::SetStandby(bool Active, bool Passive)
 {
-	lt_debug("%s:%s(%d, %d)\n", FILENAME, __FUNCTION__, Active, Passive);
+	lt_debug("%s(%d, %d)\n", __FUNCTION__, Active, Passive);
 	return true;
 }
 
@@ -45,7 +44,7 @@ bool cCpuFreqManager::SetCpuFreq(unsigned long f)
 	   * f == 0        => max => not standby
 	   * f == 50000000 => min => standby
 	 */
-	lt_debug("%s:%s(%lu)\n", FILENAME, __FUNCTION__, f);
+	lt_debug("%s(%lu) => set standby = %s\n", __FUNCTION__, f, f?"true":"false");
 	int fd = open("/dev/stb/tdsystem", O_RDONLY);
 	if (fd < 0)
 	{
@@ -62,6 +61,6 @@ bool cCpuFreqManager::SetCpuFreq(unsigned long f)
 }
 
 //
-cPowerManager::cPowerManager(void) { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); }
-cPowerManager::~cPowerManager() { lt_debug("%s:%s\n", FILENAME, __FUNCTION__); }
+cPowerManager::cPowerManager(void) { lt_debug("%s\n", __FUNCTION__); }
+cPowerManager::~cPowerManager() { lt_debug("%s\n", __FUNCTION__); }
 

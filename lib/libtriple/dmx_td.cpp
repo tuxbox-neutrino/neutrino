@@ -12,6 +12,8 @@
 #include "dmx_td.h"
 #include "lt_debug.h"
 
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_DEMUX, args)
+
 cDemux *videoDemux = NULL;
 cDemux *audioDemux = NULL;
 //cDemux *pcrDemux = NULL;
@@ -48,7 +50,7 @@ cDemux::cDemux(int n)
 
 cDemux::~cDemux()
 {
-	lt_debug("cDemux::%s #%d fd: %d\n", __FUNCTION__, num, fd);
+	lt_debug("%s #%d fd: %d\n", __FUNCTION__, num, fd);
 	Close();
 }
 
@@ -62,7 +64,7 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 		fprintf(stderr, "cDemux::Open %s: %m", devname[num]);
 		return false;
 	}
-	lt_debug("cDemux::Open #%d pes_type: %s (%d), uBufferSize: %d devname: %s fd: %d\n",
+	lt_debug("Open #%d pes_type: %s (%d), uBufferSize: %d devname: %s fd: %d\n",
 			num, DMX_T[pes_type], pes_type, uBufferSize, devname[num], fd);
 
 	dmx_type = pes_type;
@@ -95,7 +97,7 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 
 void cDemux::Close(void)
 {
-	lt_debug("cDemux::%s #%d, fd = %d\n", __FUNCTION__, num, fd);
+	lt_debug("%s #%d, fd = %d\n", __FUNCTION__, num, fd);
 	if (fd < 0)
 	{
 		fprintf(stderr, "cDemux::%s #%d: not open!\n", __FUNCTION__, num);
@@ -104,7 +106,7 @@ void cDemux::Close(void)
 
 	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("cDemux::Close: stopping and closing demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		lt_debug("Close: stopping and closing demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
 		if (ioctl((*i).fd, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
 		if (close((*i).fd) < 0)
@@ -126,7 +128,7 @@ bool cDemux::Start(void)
 
 	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("cDemux::Start: starting demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		lt_debug("Start: starting demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
 		if (ioctl((*i).fd, DEMUX_START) < 0)
 			perror("DEMUX_START");
 	}
@@ -143,7 +145,7 @@ bool cDemux::Stop(void)
 	}
 	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("cDemux::Stop: stopping demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		lt_debug("Stop: stopping demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
 		if (ioctl((*i).fd, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
 	}
@@ -327,7 +329,7 @@ bool cDemux::pesFilter(const unsigned short pid)
 	if ((pid >= 0x0002 && pid <= 0x000f) || pid >= 0x1fff)
 		return false;
 
-	lt_debug("cDemux::%s #%d pid: 0x%04hx fd: %d type: %s\n", __FUNCTION__, num, pid, fd, DMX_T[dmx_type]);
+	lt_debug("%s #%d pid: 0x%04hx fd: %d type: %s\n", __FUNCTION__, num, pid, fd, DMX_T[dmx_type]);
 
 	if (dmx_type == DMX_TP_CHANNEL)
 	{
@@ -364,18 +366,18 @@ bool cDemux::pesFilter(const unsigned short pid)
 
 void cDemux::SetSyncMode(AVSYNC_TYPE /*mode*/)
 {
-	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("%s #%d\n", __FUNCTION__, num);
 }
 
 void *cDemux::getBuffer()
 {
-	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("%s #%d\n", __FUNCTION__, num);
 	return NULL;
 }
 
 void *cDemux::getChannel()
 {
-	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("%s #%d\n", __FUNCTION__, num);
 	return NULL;
 }
 
@@ -397,7 +399,7 @@ void cDemux::addPid(unsigned short Pid)
 		fprintf(stderr, "cDemux::%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
 		return;
 	}
-	lt_debug("cDemux::%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd);
+	lt_debug("%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd);
 
 	p.pid = Pid;
 	p.pesType = DMX_PES_OTHER;
@@ -436,7 +438,7 @@ void cDemux::removePid(unsigned short Pid)
 	for (std::vector<pes_pids>::iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
 		if ((*i).pid == Pid) {
-			lt_debug("cDemux::removePid: removing demux fd %d pid 0x%04x\n", (*i).fd, Pid);
+			lt_debug("removePid: removing demux fd %d pid 0x%04x\n", (*i).fd, Pid);
 			if (ioctl((*i).fd, DEMUX_STOP) < 0)
 				perror("DEMUX_STOP");
 			if (close((*i).fd) < 0)
@@ -450,7 +452,7 @@ void cDemux::removePid(unsigned short Pid)
 
 void cDemux::getSTC(int64_t * STC)
 {
-	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("%s #%d\n", __FUNCTION__, num);
 	/* this is a guess, but seems to work... int32_t gives errno 515... */
 #define STC_TYPE uint64_t
 	STC_TYPE stc;
@@ -461,7 +463,7 @@ void cDemux::getSTC(int64_t * STC)
 
 int cDemux::getUnit(void)
 {
-	lt_debug("cDemux::%s #%d\n", __FUNCTION__, num);
+	lt_debug("%s #%d\n", __FUNCTION__, num);
 	/* just guessed that this is the right thing to do.
 	   right now this is only used by the CA code which is stubbed out
 	   anyway */

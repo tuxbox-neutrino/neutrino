@@ -9,6 +9,7 @@
 #define AUDIO_DEVICE "/dev/" DEVICE_NAME_AUDIO
 #include "audio_td.h"
 #include "lt_debug.h"
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_AUDIO, args)
 
 #include <linux/soundcard.h>
 
@@ -50,7 +51,7 @@ void cAudio::closeDevice(void)
 
 int cAudio::do_mute(bool enable, bool remember)
 {
-	lt_debug("cAudio::%s(%d, %d)\n", __FUNCTION__, enable, remember);
+	lt_debug("%s(%d, %d)\n", __FUNCTION__, enable, remember);
 	int ret;
 	if (remember)
 		Muted = enable;
@@ -131,13 +132,13 @@ bool cAudio::Pause(bool /*Pcm*/)
 
 void cAudio::SetSyncMode(AVSYNC_TYPE /*Mode*/)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 };
 
 void cAudio::SetStreamType(AUDIO_FORMAT type)
 {
 	int bypass_disable;
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 	StreamType = type;
 
 	if (StreamType != AUDIO_FMT_DOLBY_DIGITAL && StreamType != AUDIO_FMT_MPEG && StreamType != AUDIO_FMT_MPG1)
@@ -154,14 +155,14 @@ void cAudio::SetStreamType(AUDIO_FORMAT type)
 
 int cAudio::setChannel(int /*channel*/)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 	return 0;
 };
 
 int cAudio::PrepareClipPlay(int ch, int srate, int bits, int little_endian)
 {
 	int fmt;
-	lt_debug("cAudio::%s ch %d srate %d bits %d le %d\n", __FUNCTION__, ch, srate, bits, little_endian);
+	lt_debug("%s ch %d srate %d bits %d le %d\n", __FUNCTION__, ch, srate, bits, little_endian);
 	if (clipfd >= 0) {
 		fprintf(stderr, "cAudio::%s: clipfd already opened (%d)\n", __FUNCTION__, clipfd);
 		return -1;
@@ -207,7 +208,7 @@ int cAudio::WriteClip(unsigned char *buffer, int size)
 
 int cAudio::StopClip()
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 	if (clipfd <= 0) {
 		fprintf(stderr, "cAudio::%s: clipfd not yet opened\n", __FUNCTION__);
 		return -1;
@@ -219,7 +220,7 @@ int cAudio::StopClip()
 
 void cAudio::getAudioInfo(int &type, int &layer, int &freq, int &bitrate, int &mode)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 	unsigned int atype;
 	static const int freq_mpg[] = {44100, 48000, 32000, 0};
 	static const int freq_ac3[] = {48000, 44100, 32000, 0};
@@ -261,26 +262,27 @@ void cAudio::getAudioInfo(int &type, int &layer, int &freq, int &bitrate, int &m
 
 void cAudio::SetSRS(int /*iq_enable*/, int /*nmgr_enable*/, int /*iq_mode*/, int /*iq_level*/)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 };
 
 void cAudio::SetSpdifDD(bool /*enable*/)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 };
 
 void cAudio::ScheduleMute(bool /*On*/)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 };
 
 void cAudio::EnableAnalogOut(bool /*enable*/)
 {
-	lt_debug("cAudio::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 };
 
 void cAudio::setBypassMode(bool disable)
 {
+	lt_debug("%s %d\n", __FUNCTION__, disable);
 	/* disable = true: audio is MPEG, disable = false: audio is AC3 */
 	if (disable)
 	{

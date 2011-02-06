@@ -40,6 +40,7 @@
 #include <hardware/tddevices.h>
 #define VIDEO_DEVICE "/dev/" DEVICE_NAME_VIDEO
 #include "lt_debug.h"
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_VIDEO, args)
 
 cVideo * videoDecoder = NULL;
 int system_rev = 0;
@@ -201,7 +202,7 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		d = ds[dsize];
 	else
 		d = "invalid!";
-	lt_debug("cVideo::setAspectRatio:dispsize(%d) (%s)\n", dsize, d);
+	lt_debug("setAspectRatio:dispsize(%d) (%s)\n", dsize, d);
 	fop(ioctl, MPEG_VID_SET_DISPSIZE, dsize);
 
 	int avsfd = open("/dev/stb/tdsystem", O_RDONLY);
@@ -210,7 +211,7 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		perror("open tdsystem");
 		return 0;
 	}
-	lt_debug("cVideo::setAspectRatio: setting SCART_PIN_8 to %dV\n", scartvoltage);
+	lt_debug("setAspectRatio: setting SCART_PIN_8 to %dV\n", scartvoltage);
 	if (scartvoltage > 0 && ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
 		perror("IOC_AVS_SCART_PIN8_SET");
 	close(avsfd);
@@ -251,13 +252,13 @@ int cVideo::setCroppingMode(vidDispMode_t format)
 		f = format_string[format];
 	else
 		f = "ILLEGAL format!";
-	lt_debug("cVideo::setCroppingMode(%d) => %s\n", format, f);
+	lt_debug("setCroppingMode(%d) => %s\n", format, f);
 	return fop(ioctl, MPEG_VID_SET_DISPMODE, format);
 }
 
 int cVideo::Start(void * /*PcrChannel*/, unsigned short /*PcrPid*/, unsigned short /*VideoPid*/, void * /*hChannel*/)
 {
-	lt_debug("cVideo::Start playstate =  %d\n", playstate);
+	lt_debug("Start playstate =  %d\n", playstate);
 	if (playstate == VIDEO_PLAYING)
 		return 0;
 	if (playstate == VIDEO_FREEZED)  /* in theory better, but not in practice :-) */
@@ -269,7 +270,7 @@ int cVideo::Start(void * /*PcrChannel*/, unsigned short /*PcrPid*/, unsigned sho
 
 int cVideo::Stop(bool blank)
 {
-	lt_debug("cVideo::Stop %d\n", blank);
+	lt_debug("Stop %d\n", blank);
 	if (blank)
 	{
 		playstate = VIDEO_STOPPED;
@@ -282,7 +283,7 @@ int cVideo::Stop(bool blank)
 
 int cVideo::setBlank(int)
 {
-	lt_debug("cVideo::setBlank\n");
+	lt_debug("setBlank\n");
 	/* The TripleDragon has no VIDEO_SET_BLANK ioctl.
 	   instead, you write a black still-MPEG Iframe into the decoder.
 	   The original software uses different files for 4:3 and 16:9 and
@@ -344,7 +345,7 @@ int cVideo::getPlayState(void)
 
 void cVideo::SetVideoMode(analog_mode_t mode)
 {
-	lt_debug("cVideo::setVideoMode(%d)\n", mode);
+	lt_debug("setVideoMode(%d)\n", mode);
 	switch(mode)
 	{
 		case ANALOG_SD_YPRPB_SCART:
@@ -362,7 +363,7 @@ void cVideo::SetVideoMode(analog_mode_t mode)
 
 void cVideo::ShowPicture(const char * fname)
 {
-	lt_debug("cVideo::ShowPicture: %s\n", fname);
+	lt_debug("ShowPicture: %s\n", fname);
 	char destname[512];
 	char cmd[512];
 	char *p;
@@ -448,13 +449,13 @@ void cVideo::ShowPicture(const char * fname)
 
 void cVideo::StopPicture()
 {
-	lt_debug("cVideo::StopPicture()\n");
+	lt_debug("StopPicture()\n");
 	fop(ioctl, MPEG_VID_SELECT_SOURCE, VID_SOURCE_DEMUX);
 }
 
 void cVideo::Standby(unsigned int bOn)
 {
-	lt_debug("cVideo::Standby: %d\n", bOn);
+	lt_debug("Standby: %d\n", bOn);
 	if (bOn)
 	{
 		setBlank(1);
@@ -466,7 +467,7 @@ void cVideo::Standby(unsigned int bOn)
 
 int cVideo::getBlank(void)
 {
-	lt_debug("cVideo::getBlank\n");
+	lt_debug("getBlank\n");
 	return 0;
 }
 
@@ -534,7 +535,7 @@ int cVideo::setZoom(int zoom)
 		s.des.vert_off = (576 - s.des.vert_size) / 2;
 	}
  */
-	DBG("setZoom: %d%% src: %d:%d:%d:%d dst: %d:%d:%d:%d", zoom,
+	lt_debug("setZoom: %d%% src: %d:%d:%d:%d dst: %d:%d:%d:%d\n", zoom,
 		s.src.hori_off,s.src.vert_off,s.src.hori_size,s.src.vert_size,
 		s.des.hori_off,s.des.vert_off,s.des.hori_size,s.des.vert_size);
 	fop(ioctl, MPEG_VID_SET_DISPMODE, VID_DISPMODE_SCALE);
@@ -568,7 +569,7 @@ void cVideo::VideoParamWatchdog(void)
 	fop(ioctl, MPEG_VID_GET_V_INFO_RAW, &v_info);
 	if (_v_info != v_info)
 	{
-		lt_debug("cVideo::VPWdog: params changed. old: %08x new: %08x\n", _v_info, v_info);
+		lt_debug("VPWdog: params changed. old: %08x new: %08x\n", _v_info, v_info);
 		setAspectRatio(-1, -1);
 	}
 	_v_info = v_info;
@@ -591,7 +592,7 @@ void cVideo::Pig(int x, int y, int w, int h, int /*osd_w*/, int /*osd_h*/)
 	s.des.vert_off = y;
 	s.des.hori_size = w;
 	s.des.vert_size = h;
-	DBG("setPig src: %d:%d:%d:%d dst: %d:%d:%d:%d",
+	lt_debug("setPig src: %d:%d:%d:%d dst: %d:%d:%d:%d",
 		s.src.hori_off,s.src.vert_off,s.src.hori_size,s.src.vert_size,
 		s.des.hori_off,s.des.vert_off,s.des.hori_size,s.des.vert_size);
 	fop(ioctl, MPEG_VID_SET_DISPMODE, VID_DISPMODE_SCALE);
@@ -613,7 +614,7 @@ void cVideo::getPictureInfo(int &width, int &height, int &rate)
 
 void cVideo::SetSyncMode(AVSYNC_TYPE /*Mode*/)
 {
-	lt_debug("cVideo::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 };
 
 int cVideo::SetStreamType(VIDEO_FORMAT type)
@@ -627,13 +628,13 @@ int cVideo::SetStreamType(VIDEO_FORMAT type)
 		"VIDEO_FORMAT_PNG"
 	};
 
-	lt_debug("cVideo::SetStreamType - type=%s\n", VF[type]);
+	lt_debug("SetStreamType - type=%s\n", VF[type]);
 	return 0;
 }
 
 void cVideo::routeVideo(int standby)
 {
-	lt_debug("cVideo::routeVideo(%d)\n", standby);
+	lt_debug("routeVideo(%d)\n", standby);
 
 	int avsfd = open("/dev/stb/tdsystem", O_RDONLY);
 	if (avsfd < 0)
@@ -669,6 +670,6 @@ void cVideo::routeVideo(int standby)
 
 void cVideo::FastForwardMode(int mode)
 {
-	lt_debug("cVideo::%s\n", __FUNCTION__);
+	lt_debug("%s\n", __FUNCTION__);
 	fop(ioctl, MPEG_VID_FASTFORWARD, mode);
 }

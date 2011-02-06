@@ -11,6 +11,8 @@
 #include "audio_td.h"
 #include "video_td.h"
 #include "lt_debug.h"
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_PLAYBACK, args)
+#define lt_info(args...)  _lt_info(TRIPLE_DEBUG_PLAYBACK, args)
 
 #include <tddevices.h>
 #define DVR	"/dev/" DEVICE_NAME_PVR
@@ -497,7 +499,7 @@ bool cPlayback::GetPosition(int &position, int &duration)
 		if (update && duration >= 4000)
 		{
 			bytes_per_second = currsize / (duration / 1000);
-			lt_debug("cPlayback:%s: updated bps: %lld size: %lld duration %d\n",
+			lt_debug("%s: updated bps: %lld size: %lld duration %d\n",
 					__FUNCTION__, bytes_per_second, currsize, duration);
 		}
 		return true;
