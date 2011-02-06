@@ -212,13 +212,17 @@ bool cDemux::sectionFilter(unsigned short pid, const unsigned char * const filte
 			   const unsigned char * const negmask)
 {
 	struct demux_filter_para flt;
+	int length;
 	memset(&flt, 0, sizeof(flt));
 
 	if (len > FILTER_LENGTH - 2)
 		fprintf(stderr, "cDemux::sectionFilter #%d: len too long: %d, FILTER_LENGTH: %d\n", num, len, FILTER_LENGTH);
 
+	length = (len + 2 + 1) & 0xfe;	/* reportedly, the TD drivers don't handle odd filter  */
+	if (length > FILTER_LENGTH)	/* lengths well. So make sure the length is a multiple */
+		length = FILTER_LENGTH;	/* of 2. The unused mask is zeroed anyway.             */
 	flt.pid = pid;
-	flt.filter_length = len + 2 * (len > 1); /* only add the two bytes if required */
+	flt.filter_length = length;
 	flt.filter[0] = filter[0];
 	flt.mask[0] = mask[0];
 	flt.timeout = timeout;
