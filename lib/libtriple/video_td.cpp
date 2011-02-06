@@ -26,13 +26,10 @@
 #include <unistd.h>
 
 #include <cstring>
+#include <cstdio>
 #include <cstdlib>
 
 #include <pthread.h>
-
-//#include <zapit/zapit.h>
-#include <zapit/debug.h>
-//#include <zapit/settings.h>
 
 #include <avs/avs_inf.h>
 #include <clip/clipinfo.h>
@@ -41,6 +38,19 @@
 #define VIDEO_DEVICE "/dev/" DEVICE_NAME_VIDEO
 #include "lt_debug.h"
 #define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_VIDEO, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_VIDEO, args)
+
+#define fop(cmd, args...) ({				\
+	int _r;						\
+	if (fd >= 0) { 					\
+		if ((_r = ::cmd(fd, args)) < 0)		\
+			lt_info(#cmd"(fd, "#args")\n");	\
+		else					\
+			lt_debug(#cmd"(fd, "#args")\n");\
+	}						\
+	else { _r = fd; } 				\
+	_r;						\
+})
 
 cVideo * videoDecoder = NULL;
 int system_rev = 0;
@@ -58,8 +68,9 @@ static pthread_mutex_t stillp_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 cVideo::cVideo(int, void *, void *)
 {
+	lt_debug("%s\n", __FUNCTION__);
 	if ((fd = open(VIDEO_DEVICE, O_RDWR)) < 0)
-		ERROR(VIDEO_DEVICE);
+		lt_info("%s cannot open %s: %m\n", __FUNCTION__, VIDEO_DEVICE);
 
 	playstate = VIDEO_STOPPED;
 	croppingMode = VID_DISPMODE_NORM;
@@ -79,7 +90,7 @@ cVideo::cVideo(int, void *, void *)
 		blankfd = open(blanknames[i], O_RDONLY);
 		if (blankfd < 0)
 		{
-			WARN("cannot open %s: %m", blanknames[i]);
+			lt_info("%s cannot open %s: %m", __FUNCTION__, blanknames[i]);
 			continue;
 		}
 		if (fstat(blankfd, &st) != -1 && st.st_size > 0)
@@ -87,10 +98,10 @@ cVideo::cVideo(int, void *, void *)
 			blank_size[i] = st.st_size;
 			blank_data[i] = malloc(blank_size[i]);
 			if (! blank_data[i])
-				ERROR("cannot malloc memory");
+				lt_info("%s malloc failed (%m)\n", __FUNCTION__);
 			else if (read(blankfd, blank_data[i], blank_size[i]) != blank_size[i])
 			{
-				ERROR("short read");
+				lt_info("%s short read (%m)\n", __FUNCTION__);
 				free(blank_data[i]); /* don't leak... */
 				blank_data[i] = NULL;
 			}
@@ -127,7 +138,7 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		_aspect = aspect;
 	if (mode != -1)
 		_mode = mode;
-	fprintf(stderr, "cVideo::setAspectRatio(%d, %d)_(%d, %d) v_ar %d\n", aspect, mode, _aspect, _mode, v_ar);
+	lt_info("%s(%d, %d)_(%d, %d) v_ar %d\n", __FUNCTION__, aspect, mode, _aspect, _mode, v_ar);
 
 	/* values are hardcoded in neutrino_menue.cpp, "2" is 14:9 -> not used */
 	if (_aspect != -1)
@@ -202,7 +213,7 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		d = ds[dsize];
 	else
 		d = "invalid!";
-	lt_debug("setAspectRatio:dispsize(%d) (%s)\n", dsize, d);
+	lt_debug("%s dispsize(%d) (%s)\n", __FUNCTION__, dsize, d);
 	fop(ioctl, MPEG_VID_SET_DISPSIZE, dsize);
 
 	int avsfd = open("/dev/stb/tdsystem", O_RDONLY);
@@ -211,7 +222,7 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		perror("open tdsystem");
 		return 0;
 	}
-	lt_debug("setAspectRatio: setting SCART_PIN_8 to %dV\n", scartvoltage);
+	lt_debug("%s set SCART_PIN_8 to %dV\n", __FUNCTION__, scartvoltage);
 	if (scartvoltage > 0 && ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
 		perror("IOC_AVS_SCART_PIN8_SET");
 	close(avsfd);
@@ -223,10 +234,10 @@ int cVideo::getAspectRatio(void)
 	VIDEOINFO v;
 	/* this memset silences *TONS* of valgrind warnings */
 	memset(&v, 0, sizeof(v));
-	quiet_fop(ioctl, MPEG_VID_GET_V_INFO, &v);
+	ioctl(fd, MPEG_VID_GET_V_INFO, &v);
 	if (v.pel_aspect_ratio < VID_DISPSIZE_4x3 || v.pel_aspect_ratio > VID_DISPSIZE_UNKNOWN)
 	{
-		WARN("invalid value %d, returning 0 for 'unknown' fd: %d", v.pel_aspect_ratio, fd);
+		lt_info("%s invalid value %d, returning 0/unknown fd: %d", __FUNCTION__, v.pel_aspect_ratio, fd);
 		return 0;
 	}
 	/* convert to Coolstream api values. Taken from streaminfo2.cpp */
@@ -252,13 +263,13 @@ int cVideo::setCroppingMode(vidDispMode_t format)
 		f = format_string[format];
 	else
 		f = "ILLEGAL format!";
-	lt_debug("setCroppingMode(%d) => %s\n", format, f);
+	lt_debug("%s(%d) => %s\n", __FUNCTION__, format, f);
 	return fop(ioctl, MPEG_VID_SET_DISPMODE, format);
 }
 
 int cVideo::Start(void * /*PcrChannel*/, unsigned short /*PcrPid*/, unsigned short /*VideoPid*/, void * /*hChannel*/)
 {
-	lt_debug("Start playstate =  %d\n", playstate);
+	lt_debug("%s playstate=%d\n", __FUNCTION__, playstate);
 	if (playstate == VIDEO_PLAYING)
 		return 0;
 	if (playstate == VIDEO_FREEZED)  /* in theory better, but not in practice :-) */
@@ -270,7 +281,7 @@ int cVideo::Start(void * /*PcrChannel*/, unsigned short /*PcrPid*/, unsigned sho
 
 int cVideo::Stop(bool blank)
 {
-	lt_debug("Stop %d\n", blank);
+	lt_debug("%s(%d)\n", __FUNCTION__, blank);
 	if (blank)
 	{
 		playstate = VIDEO_STOPPED;
@@ -283,7 +294,7 @@ int cVideo::Stop(bool blank)
 
 int cVideo::setBlank(int)
 {
-	lt_debug("setBlank\n");
+	lt_debug("%s\n", __FUNCTION__);
 	/* The TripleDragon has no VIDEO_SET_BLANK ioctl.
 	   instead, you write a black still-MPEG Iframe into the decoder.
 	   The original software uses different files for 4:3 and 16:9 and
@@ -295,11 +306,11 @@ int cVideo::setBlank(int)
 	BUFINFO buf;
 	pthread_mutex_lock(&stillp_mutex);
 	memset(&v, 0, sizeof(v));
-	quiet_fop(ioctl, MPEG_VID_GET_V_INFO, &v);
+	ioctl(fd, MPEG_VID_GET_V_INFO, &v);
 
 	if ((v.v_size % 240) == 0) /* NTSC */
 	{
-		INFO("NTSC format detected");
+		lt_info("%s NTSC format detected", __FUNCTION__);
 		index = 1;
 	}
 
@@ -332,7 +343,7 @@ int cVideo::setBlank(int)
 
 int cVideo::SetVideoSystem(int video_system, bool remember)
 {
-	fprintf(stderr, "cVideo::setVideoSystem(%d, %d)\n", video_system, remember);
+	lt_info("%s(%d, %d)\n", __FUNCTION__, video_system, remember);
 	if (video_system > VID_DISPFMT_SECAM || video_system < 0)
 		video_system = VID_DISPFMT_PAL;
         return fop(ioctl, MPEG_VID_SET_DISPFMT, video_system);
@@ -345,7 +356,7 @@ int cVideo::getPlayState(void)
 
 void cVideo::SetVideoMode(analog_mode_t mode)
 {
-	lt_debug("setVideoMode(%d)\n", mode);
+	lt_debug("%s(%d)\n", __FUNCTION__, mode);
 	switch(mode)
 	{
 		case ANALOG_SD_YPRPB_SCART:
@@ -355,7 +366,7 @@ void cVideo::SetVideoMode(analog_mode_t mode)
 			outputformat = VID_OUTFMT_RGBC_SVIDEO;
 			break;
 		default:
-			fprintf(stderr, "cVideo::setVideoMode: unknown mode %d\n", mode);
+			lt_info("%s unknown mode %d\n", __FUNCTION__, mode);
 			return;
 	}
 	fop(ioctl, MPEG_VID_SET_OUTFMT, outputformat);
@@ -363,7 +374,7 @@ void cVideo::SetVideoMode(analog_mode_t mode)
 
 void cVideo::ShowPicture(const char * fname)
 {
-	lt_debug("ShowPicture: %s\n", fname);
+	lt_debug("%s(%s)\n", __FUNCTION__, fname);
 	char destname[512];
 	char cmd[512];
 	char *p;
@@ -398,16 +409,16 @@ void cVideo::ShowPicture(const char * fname)
 	mfd = open(destname, O_RDONLY);
 	if (mfd < 0)
 	{
-		WARN("cannot open %s: %m", destname);
+		lt_info("%s cannot open %s: %m", __FUNCTION__, destname);
 		goto out;
 	}
 	if (fstat(mfd, &st) != -1 && st.st_size > 0)
 	{
 		data = malloc(st.st_size);
 		if (! data)
-			ERROR("cannot malloc memory");
+			lt_info("%s malloc failed (%m)\n", __FUNCTION__);
 		else if (read(mfd, data, st.st_size) != st.st_size)
-			ERROR("short read");
+			lt_info("%s short read (%m)\n", __FUNCTION__);
 		else
 		{
 			BUFINFO buf;
@@ -449,13 +460,13 @@ void cVideo::ShowPicture(const char * fname)
 
 void cVideo::StopPicture()
 {
-	lt_debug("StopPicture()\n");
+	lt_debug("%s\n", __FUNCTION__);
 	fop(ioctl, MPEG_VID_SELECT_SOURCE, VID_SOURCE_DEMUX);
 }
 
 void cVideo::Standby(unsigned int bOn)
 {
-	lt_debug("Standby: %d\n", bOn);
+	lt_debug("%s(%d)\n", __FUNCTION__, bOn);
 	if (bOn)
 	{
 		setBlank(1);
@@ -467,7 +478,7 @@ void cVideo::Standby(unsigned int bOn)
 
 int cVideo::getBlank(void)
 {
-	lt_debug("getBlank\n");
+	lt_debug("%s\n", __FUNCTION__);
 	return 0;
 }
 
@@ -535,7 +546,7 @@ int cVideo::setZoom(int zoom)
 		s.des.vert_off = (576 - s.des.vert_size) / 2;
 	}
  */
-	lt_debug("setZoom: %d%% src: %d:%d:%d:%d dst: %d:%d:%d:%d\n", zoom,
+	lt_debug("%s %d%% src: %d:%d:%d:%d dst: %d:%d:%d:%d\n", __FUNCTION__, zoom,
 		s.src.hori_off,s.src.vert_off,s.src.hori_size,s.src.vert_size,
 		s.des.hori_off,s.des.vert_off,s.des.hori_size,s.des.vert_size);
 	fop(ioctl, MPEG_VID_SET_DISPMODE, VID_DISPMODE_SCALE);
@@ -566,10 +577,10 @@ void cVideo::VideoParamWatchdog(void)
 	unsigned int v_info;
 	if (fd == -1)
 		return;
-	fop(ioctl, MPEG_VID_GET_V_INFO_RAW, &v_info);
+	ioctl(fd, MPEG_VID_GET_V_INFO_RAW, &v_info);
 	if (_v_info != v_info)
 	{
-		lt_debug("VPWdog: params changed. old: %08x new: %08x\n", _v_info, v_info);
+		lt_debug("%s params changed. old: %08x new: %08x\n", __FUNCTION__, _v_info, v_info);
 		setAspectRatio(-1, -1);
 	}
 	_v_info = v_info;
@@ -592,7 +603,7 @@ void cVideo::Pig(int x, int y, int w, int h, int /*osd_w*/, int /*osd_h*/)
 	s.des.vert_off = y;
 	s.des.hori_size = w;
 	s.des.vert_size = h;
-	lt_debug("setPig src: %d:%d:%d:%d dst: %d:%d:%d:%d",
+	lt_debug("%s src: %d:%d:%d:%d dst: %d:%d:%d:%d", __FUNCTION__,
 		s.src.hori_off,s.src.vert_off,s.src.hori_size,s.src.vert_size,
 		s.des.hori_off,s.des.vert_off,s.des.hori_size,s.des.vert_size);
 	fop(ioctl, MPEG_VID_SET_DISPMODE, VID_DISPMODE_SCALE);
@@ -605,7 +616,7 @@ void cVideo::getPictureInfo(int &width, int &height, int &rate)
 	VIDEOINFO v;
 	/* this memset silences *TONS* of valgrind warnings */
 	memset(&v, 0, sizeof(v));
-	quiet_fop(ioctl, MPEG_VID_GET_V_INFO, &v);
+	ioctl(fd, MPEG_VID_GET_V_INFO, &v);
 	/* convert to Coolstream API */
 	rate = (int)v.frame_rate - 1;
 	width = (int)v.h_size;
@@ -628,13 +639,13 @@ int cVideo::SetStreamType(VIDEO_FORMAT type)
 		"VIDEO_FORMAT_PNG"
 	};
 
-	lt_debug("SetStreamType - type=%s\n", VF[type]);
+	lt_debug("%s type=%s\n", __FUNCTION__, VF[type]);
 	return 0;
 }
 
 void cVideo::routeVideo(int standby)
 {
-	lt_debug("routeVideo(%d)\n", standby);
+	lt_debug("%s(%d)\n", __FUNCTION__, standby);
 
 	int avsfd = open("/dev/stb/tdsystem", O_RDONLY);
 	if (avsfd < 0)
@@ -647,7 +658,7 @@ void cVideo::routeVideo(int standby)
 	   to configure this, we can think more about this... */
 	if (standby)
 	{
-		printf("[%s] setting fastblank and pin8 to follow VCR SCART, route VCR to TV\n", __FUNCTION__);
+		lt_info("%s set fastblank and pin8 to follow VCR SCART, route VCR to TV\n", __FUNCTION__);
 		if (ioctl(avsfd, IOC_AVS_FASTBLANK_SET, (unsigned char)3) < 0)
 			perror("IOC_AVS_FASTBLANK_SET, 3");
 		/* TODO: should probably depend on aspect ratio setting */
@@ -657,7 +668,7 @@ void cVideo::routeVideo(int standby)
 			perror("IOC_AVS_ROUTE_VCR2TV");
 	} else {
 		unsigned char fblk = 1;
-		printf("[%s] setting fastblank to %d, pin8 to %dV, routing encoder to TV\n", __FUNCTION__, fblk, scartvoltage);
+		lt_info("%s set fastblank=%d pin8=%dV, route encoder to TV\n", __FUNCTION__, fblk, scartvoltage);
 		if (ioctl(avsfd, IOC_AVS_FASTBLANK_SET, fblk) < 0)
 			perror("IOC_AVS_FASTBLANK_SET, fblk");
 		if (ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)

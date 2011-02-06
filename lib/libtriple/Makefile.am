@@ -1,7 +1,6 @@
 INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/lib \
-	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
 	@DIRECTFB_CFLAGS@
