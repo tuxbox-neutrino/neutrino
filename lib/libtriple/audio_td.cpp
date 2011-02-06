@@ -10,6 +10,7 @@
 #include "audio_td.h"
 #include "lt_debug.h"
 #define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_AUDIO, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_AUDIO, args)
 
 #include <linux/soundcard.h>
 
@@ -33,10 +34,10 @@ void cAudio::openDevice(void)
 	if (fd < 0)
 	{
 		if ((fd = open(AUDIO_DEVICE, O_RDWR)) < 0)
-			fprintf(stderr, "cAudio::openDevice: open failed (%m)\n");
+			lt_info("openDevice: open failed (%m)\n");
 	}
 	else
-		fprintf(stderr, "cAudio::openDevice: already open (fd = %d)\n", fd);
+		lt_info("openDevice: already open (fd = %d)\n", fd);
 }
 
 void cAudio::closeDevice(void)
@@ -57,7 +58,7 @@ int cAudio::do_mute(bool enable, bool remember)
 		Muted = enable;
 	ret = ioctl(fd, MPEG_AUD_SET_MUTE, enable);
 	if (ret < 0)
-		fprintf(stderr, "cAudio::%s(%d) failed (%m)\n", __FUNCTION__, (int)enable);
+		lt_info("%s(%d) failed (%m)\n", __FUNCTION__, (int)enable);
 	return ret;
 }
 
@@ -90,7 +91,7 @@ int cAudio::setVolume(unsigned int left, unsigned int right)
 		vol.lfe        = v;
 		ret = ioctl(fd, MPEG_AUD_SET_VOL, &vol);
 		if (ret < 0)
-			fprintf(stderr, "cAudio::setVolume MPEG_AUD_SET_VOL failed (%m)\n");
+			lt_info("setVolume MPEG_AUD_SET_VOL failed (%m)\n");
 		return ret;
 	}
 #if 0
@@ -138,11 +139,11 @@ void cAudio::SetSyncMode(AVSYNC_TYPE /*Mode*/)
 void cAudio::SetStreamType(AUDIO_FORMAT type)
 {
 	int bypass_disable;
-	lt_debug("%s\n", __FUNCTION__);
+	lt_debug("%s %d\n", __FUNCTION__, type);
 	StreamType = type;
 
 	if (StreamType != AUDIO_FMT_DOLBY_DIGITAL && StreamType != AUDIO_FMT_MPEG && StreamType != AUDIO_FMT_MPG1)
-		fprintf(stderr, "cAudio::%s unhandled AUDIO_FORMAT %d\n", __FUNCTION__, StreamType);
+		lt_info("%s unhandled AUDIO_FORMAT %d\n", __FUNCTION__, StreamType);
 
 	bypass_disable = (StreamType != AUDIO_FMT_DOLBY_DIGITAL);
 	setBypassMode(bypass_disable);
@@ -153,9 +154,9 @@ void cAudio::SetStreamType(AUDIO_FORMAT type)
 		ioctl(fd, MPEG_AUD_SET_STREAM_TYPE, AUD_STREAM_TYPE_MPEG1);
 };
 
-int cAudio::setChannel(int /*channel*/)
+int cAudio::setChannel(int channel)
 {
-	lt_debug("%s\n", __FUNCTION__);
+	lt_debug("%s %d\n", __FUNCTION__, channel);
 	return 0;
 };
 
@@ -164,7 +165,7 @@ int cAudio::PrepareClipPlay(int ch, int srate, int bits, int little_endian)
 	int fmt;
 	lt_debug("%s ch %d srate %d bits %d le %d\n", __FUNCTION__, ch, srate, bits, little_endian);
 	if (clipfd >= 0) {
-		fprintf(stderr, "cAudio::%s: clipfd already opened (%d)\n", __FUNCTION__, clipfd);
+		lt_info("%s: clipfd already opened (%d)\n", __FUNCTION__, clipfd);
 		return -1;
 	}
 	/* the dsp driver seems to work only on the second open(). really. */
@@ -172,7 +173,7 @@ int cAudio::PrepareClipPlay(int ch, int srate, int bits, int little_endian)
 	close(clipfd);
 	clipfd = open("/dev/sound/dsp", O_WRONLY);
 	if (clipfd < 0) {
-		perror("cAudio::PrepareClipPlay open /dev/sound/dsp");
+		lt_info("%s open /dev/sound/dsp: %m\n", __FUNCTION__);
 		return -1;
 	}
 	/* no idea if we ever get little_endian == 0 */
@@ -197,12 +198,12 @@ int cAudio::WriteClip(unsigned char *buffer, int size)
 	int ret;
 	// lt_debug("cAudio::%s\n", __FUNCTION__);
 	if (clipfd <= 0) {
-		fprintf(stderr, "cAudio::%s: clipfd not yet opened\n", __FUNCTION__);
+		lt_info("%s: clipfd not yet opened\n", __FUNCTION__);
 		return -1;
 	}
 	ret = write(clipfd, buffer, size);
 	if (ret < 0)
-		fprintf(stderr, "cAudio::%s: write error (%m)\n", __FUNCTION__);
+		lt_info("%s: write error (%m)\n", __FUNCTION__);
 	return ret;
 };
 
@@ -210,7 +211,7 @@ int cAudio::StopClip()
 {
 	lt_debug("%s\n", __FUNCTION__);
 	if (clipfd <= 0) {
-		fprintf(stderr, "cAudio::%s: clipfd not yet opened\n", __FUNCTION__);
+		lt_info("%s: clipfd not yet opened\n", __FUNCTION__);
 		return -1;
 	}
 	close(clipfd);
@@ -265,19 +266,19 @@ void cAudio::SetSRS(int /*iq_enable*/, int /*nmgr_enable*/, int /*iq_mode*/, int
 	lt_debug("%s\n", __FUNCTION__);
 };
 
-void cAudio::SetSpdifDD(bool /*enable*/)
+void cAudio::SetSpdifDD(bool enable)
 {
-	lt_debug("%s\n", __FUNCTION__);
+	lt_debug("%s %d\n", __FUNCTION__, enable);
 };
 
-void cAudio::ScheduleMute(bool /*On*/)
+void cAudio::ScheduleMute(bool On)
 {
-	lt_debug("%s\n", __FUNCTION__);
+	lt_debug("%s %d\n", __FUNCTION__, On);
 };
 
-void cAudio::EnableAnalogOut(bool /*enable*/)
+void cAudio::EnableAnalogOut(bool enable)
 {
-	lt_debug("%s\n", __FUNCTION__);
+	lt_debug("%s %d\n", __FUNCTION__, enable);
 };
 
 void cAudio::setBypassMode(bool disable)
