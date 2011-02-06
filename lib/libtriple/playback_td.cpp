@@ -17,13 +17,6 @@
 #include <tddevices.h>
 #define DVR	"/dev/" DEVICE_NAME_PVR
 
-#define INFO(fmt, args...) fprintf(stderr, "[cPlayback:%s:%d] " fmt, __FUNCTION__, __LINE__, ##args)
-#if 0	// change for verbose debug output
-#define DBG INFO
-#else
-#define DBG(args...)
-#endif
-
 static int mp_syncPES(uint8_t *, int, bool quiet = false);
 static int sync_ts(uint8_t *, int);
 static inline uint16_t get_pid(uint8_t *buf);
@@ -52,7 +45,7 @@ static const char *FILETYPE[] = {
 
 cPlayback::cPlayback(int)
 {
-	INFO("\n");
+	lt_debug("%s\n", __FUNCTION__);
 	thread_started = false;
 	inbuf = NULL;
 	pesbuf = NULL;
@@ -64,7 +57,7 @@ cPlayback::cPlayback(int)
 
 cPlayback::~cPlayback()
 {
-	INFO("\n");
+	lt_debug("%s\n", __FUNCTION__);
 	Close();
 }
 
@@ -76,7 +69,7 @@ bool cPlayback::Open(playmode_t mode)
 		"PLAYMODE_FILE"
 	};
 
-	INFO("PlayMode = %s\n", PMODE[mode]);
+	lt_debug("%s: PlayMode = %s\n", __FUNCTION__, PMODE[mode]);
 	thread_started = false;
 	playMode = mode;
 	filetype = FILETYPE_TS;
@@ -93,15 +86,15 @@ bool cPlayback::Open(playmode_t mode)
 //Used by Fileplay
 void cPlayback::Close(void)
 {
-	INFO("\n");
+	lt_info("%s\n", __FUNCTION__);
 	playstate = STATE_STOP;
 	if (thread_started)
 	{
-		INFO("before pthread_join\n");
+		lt_info("%s: before pthread_join\n", __FUNCTION__);
 		pthread_join(thread, NULL);
 	}
 	thread_started = false;
-	INFO("after pthread_join\n");
+	lt_info("%s: after pthread_join\n", __FUNCTION__);
 	mf_close();
 	filelist.clear();
 
@@ -121,30 +114,30 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 	vpid = vp;
 	apid = ap;
 	ac3 = _ac3;
-	INFO("name = '%s' vpid 0x%04hx vtype %d apid 0x%04hx ac3 %d filelist.size: %u\n",
-		filename, vpid, vtype, apid, ac3, filelist.size());
+	lt_info("%s name = '%s' vpid 0x%04hx vtype %d apid 0x%04hx ac3 %d filelist.size: %u\n",
+		__FUNCTION__, filename, vpid, vtype, apid, ac3, filelist.size());
 	if (!filelist.empty())
 	{
-		INFO("filelist not empty?\n");
+		lt_info("filelist not empty?\n");
 		return false;
 	}
 	if (stat(filename, &s))
 	{
-		INFO("filename does not exist? (%m)\n");
+		lt_info("filename does not exist? (%m)\n");
 		return false;
 	}
 	if (!inbuf)
 		inbuf = (uint8_t *)malloc(INBUF_SIZE); /* 256 k */
 	if (!inbuf)
 	{
-		INFO("allocating input buffer failed (%m)\n");
+		lt_info("allocating input buffer failed (%m)\n");
 		return false;
 	}
 	if (!pesbuf)
 		pesbuf = (uint8_t *)malloc(PESBUF_SIZE); /* 128 k */
 	if (!pesbuf)
 	{
-		INFO("allocating PES buffer failed (%m)\n");
+		lt_info("allocating PES buffer failed (%m)\n");
 		return false;
 	}
 	filelist_t file;
@@ -164,10 +157,10 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 			if (p != std::string::npos)
 			{
 				file.Name.replace(p, std::string::npos, "001.vdr");
-				INFO("replaced filename with '%s'\n", file.Name.c_str());
+				lt_info("replaced filename with '%s'\n", file.Name.c_str());
 				if (stat(file.Name.c_str(), &s))
 				{
-					INFO("filename does not exist? (%m)\n");
+					lt_info("filename does not exist? (%m)\n");
 					return false;
 				}
 				file.Size = s.st_size;
@@ -178,7 +171,7 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 		vpid = 0x40;
 	}
 
-	INFO("detected (ok, guessed) filetype: %s\n", FILETYPE[filetype]);
+	lt_info("detected (ok, guessed) filetype: %s\n", FILETYPE[filetype]);
 
 	filelist.push_back(file);
 	filelist_auto_add();
@@ -233,7 +226,7 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 	int duration = (pts_end - pts_start) / 90000;
 	if (duration > 0)
 		bytes_per_second = mf_getsize() / duration;
-	INFO("start: %lld end %lld duration %d bps %lld\n", pts_start, pts_end, duration, bytes_per_second);
+	lt_info("start: %lld end %lld duration %d bps %lld\n", pts_start, pts_end, duration, bytes_per_second);
 	/* yes, we start in pause mode... */
 	playback_speed = 0;
 	if (pts_start == -1)
@@ -242,7 +235,7 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 		playstate = STATE_PAUSE;
 	pthread_mutex_lock(&playback_ready_mutex);
 	if (pthread_create(&thread, 0, start_playthread, this) != 0)
-		INFO("pthread_create failed\n");
+		lt_info("pthread_create failed\n");
 	else
 		pthread_cond_wait(&playback_ready_cond, &playback_ready_mutex);
 	pthread_mutex_unlock(&playback_ready_mutex);
@@ -263,7 +256,7 @@ void cPlayback::playthread(void)
 	dvrfd = open(DVR, O_WRONLY);
 	if (dvrfd < 0)
 	{
-		INFO("open tdpvr failed: %m\n");
+		lt_info("%s open tdpvr failed: %m\n", __FUNCTION__);
 		pthread_exit(NULL);
 	}
 
@@ -323,7 +316,7 @@ void cPlayback::playthread(void)
 				if (ac3flags[i] == 0)
 				{
 					apid = apids[i];
-					INFO("setting Audio pid to 0x%04hx\n", apid);
+					lt_info("%s setting Audio pid to 0x%04hx\n", __FUNCTION__, apid);
 					SetAPid(apid, 0);
 					break;
 				}
@@ -339,7 +332,7 @@ void cPlayback::playthread(void)
 		{
 			if (errno == EAGAIN && playstate != STATE_STOP)
 				goto retry;
-			INFO("write dvr failed: %m\n");
+			lt_info("%s write dvr failed: %m\n", __FUNCTION__);
 			break;
 		}
 		memmove(inbuf, inbuf + ret, inbuf_pos - ret);
@@ -352,7 +345,7 @@ void cPlayback::playthread(void)
 
 static void playthread_cleanup_handler(void *)
 {
-	INFO("\n");
+	lt_info("%s\n", __FUNCTION__);
 	ioctl(audioDemux->getFD(), DEMUX_SELECT_SOURCE, INPUT_FROM_CHANNEL0);
 	audioDemux->Stop();
 	videoDemux->Stop();
@@ -364,7 +357,7 @@ static void playthread_cleanup_handler(void *)
 
 bool cPlayback::SetAPid(unsigned short pid, bool _ac3)
 {
-	INFO("pid: 0x%04hx ac3: %d\n", pid, _ac3);
+	lt_info("%s pid: 0x%04hx ac3: %d\n", __FUNCTION__, pid, _ac3);
 	apid = pid;
 	ac3 = _ac3;
 
@@ -393,7 +386,7 @@ bool cPlayback::SetAPid(unsigned short pid, bool _ac3)
 
 bool cPlayback::SetSpeed(int speed)
 {
-	INFO("speed = %d\n", speed);
+	lt_info("%s speed = %d\n", __FUNCTION__, speed);
 	if (speed < 0)
 		speed = 1; /* fast rewind not yet implemented... */
 	if (speed == 1 && playback_speed != 1)
@@ -430,7 +423,7 @@ bool cPlayback::SetSpeed(int speed)
 
 bool cPlayback::GetSpeed(int &speed) const
 {
-	DBG("\n");
+	lt_debug("%s\n", __FUNCTION__);
 	speed = playback_speed;
 	return true;
 }
@@ -439,7 +432,7 @@ bool cPlayback::GetSpeed(int &speed) const
 bool cPlayback::GetPosition(int &position, int &duration)
 {
 	int64_t tmppts;
-	DBG("\n");
+	lt_debug("%s\n", __FUNCTION__);
 	off_t currsize = mf_getsize();
 	bool update = false;
 	/* handle a growing file, e.g. for timeshift.
@@ -471,7 +464,7 @@ bool cPlayback::GetPosition(int &position, int &duration)
 					tmppts = get_pts(pesbuf + r + s, false, n - r);
 					if (tmppts > -1)
 					{
-						DBG("n: %d s: %d endpts %lld size: %lld\n", n, s, tmppts, currsize);
+						lt_debug("n: %d s: %d endpts %lld size: %lld\n", n, s, tmppts, currsize);
 						pts_end = tmppts;
 						_pts_end = tmppts;
 						update = true;
@@ -511,7 +504,7 @@ bool cPlayback::GetPosition(int &position, int &duration)
 
 bool cPlayback::SetPosition(int position, bool absolute)
 {
-	INFO("pos = %d abs = %d\n", position, absolute);
+	lt_info("%s pos = %d abs = %d\n", __FUNCTION__, position, absolute);
 	int currpos, target, duration, oldspeed;
 	bool ret;
 
@@ -521,7 +514,7 @@ bool cPlayback::SetPosition(int position, bool absolute)
 	{
 		GetPosition(currpos, duration);
 		target = currpos + position;
-		INFO("current position %d target %d\n", currpos, target);
+		lt_info("current position %d target %d\n", currpos, target);
 	}
 
 	oldspeed = playback_speed;
@@ -547,7 +540,7 @@ bool cPlayback::SetPosition(int position, bool absolute)
 
 void cPlayback::FindAllPids(uint16_t *_apids, unsigned short *_ac3flags, uint16_t *_numpida, std::string *language)
 {
-	INFO("\n");
+	lt_info("%s\n", __FUNCTION__);
 	memcpy(_apids, &apids, sizeof(apids));
 	memcpy(_ac3flags, &ac3flags, sizeof(&ac3flags));
 	language = alang; /* TODO: language */
@@ -561,14 +554,14 @@ off_t cPlayback::seek_to_pts(int64_t pts)
 	int count = 0;
 	if (pts_start < 0 || pts_end < 0 || bytes_per_second < 0)
 	{
-		INFO("pts_start (%lld) or pts_end (%lld) or bytes_per_second (%lld) not initialized\n",
-			pts_start, pts_end, bytes_per_second);
+		lt_info("%s pts_start (%lld) or pts_end (%lld) or bytes_per_second (%lld) not initialized\n",
+			__FUNCTION__, pts_start, pts_end, bytes_per_second);
 		return -1;
 	}
 	/* sanity check: buffer is without locking, so we must only seek while in pause mode */
 	if (playstate != STATE_PAUSE)
 	{
-		INFO("playstate (%d) != STATE_PAUSE, not seeking\n", playstate);
+		lt_info("%s playstate (%d) != STATE_PAUSE, not seeking\n", __FUNCTION__, playstate);
 		return -1;
 	}
 
@@ -582,8 +575,8 @@ off_t cPlayback::seek_to_pts(int64_t pts)
 		count++;
 		ptsdiff = pts - tmppts;
 		newpos += ptsdiff * bytes_per_second / 90000;
-		INFO("try #%d seek from %lldms to %lldms dt %lldms pos %lldk newpos %lldk kB/s %lld\n",
-			count, tmppts / 90, pts / 90, ptsdiff / 90, curr_pos / 1024, newpos / 1024, bytes_per_second / 1024);
+		lt_info("%s try #%d seek from %lldms to %lldms dt %lldms pos %lldk newpos %lldk kB/s %lld\n",
+			__FUNCTION__, count, tmppts / 90, pts / 90, ptsdiff / 90, curr_pos / 1024, newpos / 1024, bytes_per_second / 1024);
 		if (newpos < 0)
 			newpos = 0;
 		newpos = mp_seekSync(newpos);
@@ -600,7 +593,7 @@ off_t cPlayback::seek_to_pts(int64_t pts)
 		else
 			tmppts = pts_curr - pts_start;
 	}
-	INFO("end after %d tries, ptsdiff now %lld sec\n", count, (pts - tmppts) / 90000);
+	lt_info("%s end after %d tries, ptsdiff now %lld sec\n", __FUNCTION__, count, (pts - tmppts) / 90000);
 	return newpos;
 }
 
@@ -634,7 +627,7 @@ bool cPlayback::filelist_auto_add()
 		filelist_t file;
 		file.Name = std::string(nextfile);
 		file.Size = s.st_size;
-		INFO("auto-adding '%s' to playlist\n", nextfile);
+		lt_info("%s auto-adding '%s' to playlist\n", __FUNCTION__, nextfile);
 		filelist.push_back(file);
 	} while (true && num < 999);
 
@@ -662,7 +655,7 @@ int cPlayback::mf_open(int fileno)
 int cPlayback::mf_close(void)
 {
 	int ret = 0;
-INFO("in_fd = %d curr_fileno = %d\n", in_fd, curr_fileno);
+	lt_info("%s in_fd = %d curr_fileno = %d\n", __FUNCTION__, in_fd, curr_fileno);
 	if (in_fd != -1)
 		ret = close(in_fd);
 	in_fd = curr_fileno = -1;
@@ -713,11 +706,11 @@ off_t cPlayback::mf_lseek(off_t pos)
 
 	if ((int)fileno != curr_fileno)
 	{
-		INFO("old fileno: %d new fileno: %d, offset: %lld\n", curr_fileno, fileno, (long long)lpos);
+		lt_info("%s old fileno: %d new fileno: %d, offset: %lld\n", __FUNCTION__, curr_fileno, fileno, (long long)lpos);
 		in_fd = mf_open(fileno);
 		if (in_fd < 0)
 		{
-			INFO("cannot open file %d:%s (%m)\n", fileno, filelist[fileno].Name.c_str());
+			lt_info("cannot open file %d:%s (%m)\n", fileno, filelist[fileno].Name.c_str());
 			return -1;
 		}
 	}
@@ -818,7 +811,7 @@ ssize_t cPlayback::read_ts()
 				}
 				if (ret < 0)
 				{
-					INFO("failed: %m\n");
+					lt_info("%s failed1: %m\n", __FUNCTION__);
 					pthread_mutex_unlock(&currpos_mutex);
 					return ret;
 				}
@@ -831,7 +824,7 @@ ssize_t cPlayback::read_ts()
 			sync = sync_ts(pesbuf, ret);
 			if (sync != 0)
 			{
-				INFO("out of sync: %d\n", sync);
+				lt_info("%s out of sync: %d\n", __FUNCTION__, sync);
 				if (sync < 0)
 				{
 					pthread_mutex_unlock(&currpos_mutex);
@@ -839,7 +832,7 @@ ssize_t cPlayback::read_ts()
 				}
 				memmove(pesbuf, pesbuf + sync, ret - sync);
 				if (pesbuf[0] != 0x47)
-					INFO("??????????????????????????????\n");
+					lt_info("%s:%d??????????????????????????????\n", __FUNCTION__, __LINE__);
 			}
 			for (n = 0; n < done / 188 * 188; n += 188)
 			{
@@ -872,7 +865,8 @@ ssize_t cPlayback::read_ts()
 						/* the output buffer is full, discard the input :-( */
 						if (done - n > 0)
 						{
-							DBG("not done: %d, resetting filepos\n", done - n);
+							lt_debug("%s not done: %d, resetting filepos\n",
+								__FUNCTION__, done - n);
 							mf_lseek(curr_pos - (done - n));
 						}
 						break;
@@ -903,7 +897,7 @@ ssize_t cPlayback::read_ts()
 		{
 			pthread_mutex_unlock(&currpos_mutex);
 			if (ret < 0)
-				INFO("failed: %m\n");
+				lt_info("%s failed2: %m\n", __FUNCTION__);
 			return ret;
 		}
 		inbuf_pos += ret;
@@ -913,7 +907,7 @@ ssize_t cPlayback::read_ts()
 		sync = sync_ts(inbuf + inbuf_sync, INBUF_SIZE - inbuf_sync);
 		if (sync < 0)
 		{
-			INFO("cannot sync\n");
+			lt_info("%s cannot sync\n", __FUNCTION__);
 			return ret;
 		}
 		inbuf_sync += sync;
@@ -934,7 +928,7 @@ ssize_t cPlayback::read_ts()
 			continue;
 		}
 		if (synccnt)
-			INFO("TS went out of sync %d\n", synccnt);
+			lt_info("%s TS went out of sync %d\n", __FUNCTION__, synccnt);
 		synccnt = 0;
 		if (!(buf[1] & 0x40))	/* PUSI */
 		{
@@ -958,7 +952,7 @@ ssize_t cPlayback::read_ts()
 			pts_curr = pts;
 			if (pts_start < 0)
 			{
-				INFO("updating pts_start to %lld ", pts);
+				lt_info("%s updating pts_start to %lld ", __FUNCTION__, pts);
 				pts_start = pts;
 				if (pts_end > -1)
 				{
@@ -1000,7 +994,7 @@ ssize_t cPlayback::read_ts()
 			else
 				ac3flags[numpida] = 0;
 			apids[numpida] = pid;
-			INFO("found apid #%d 0x%04hx ac3:%d\n", numpida, pid, ac3flags[numpida]);
+			lt_info("%s found apid #%d 0x%04hx ac3:%d\n", __FUNCTION__, numpida, pid, ac3flags[numpida]);
 			numpida++;
 			break;
 		}
@@ -1022,7 +1016,7 @@ ssize_t cPlayback::read_mpeg()
 
 	if (INBUF_SIZE - inbuf_pos < toread)
 	{
-		INFO("adjusting toread to %d due to inbuf full (old: %zd)\n", INBUF_SIZE - inbuf_pos, toread);
+		lt_info("%s inbuf full, setting toread to %d (old: %zd)\n", __FUNCTION__, INBUF_SIZE - inbuf_pos, toread);
 		toread = INBUF_SIZE - inbuf_pos;
 	}
 	pthread_mutex_lock(&currpos_mutex);
@@ -1040,7 +1034,7 @@ ssize_t cPlayback::read_mpeg()
 	if (ret < 0)
 	{
 		pthread_mutex_unlock(&currpos_mutex);
-		INFO("failed: %m, pesbuf_pos: %zd, toread: %zd\n", pesbuf_pos, toread);
+		lt_info("%s failed: %m, pesbuf_pos: %zd, toread: %zd\n", __FUNCTION__, pesbuf_pos, toread);
 		return ret;
 	}
 	pesbuf_pos += ret;
@@ -1059,11 +1053,12 @@ ssize_t cPlayback::read_mpeg()
 			if (sync < 0)
 			{
 				if (pesbuf_pos - count - 10 > 4)
-					INFO("cannot sync (count = %d, pesbuf_pos = %zd)\n", count, pesbuf_pos);
+					lt_info("%s cannot sync (count=%d, pesbuf_pos=%zd)\n",
+						__FUNCTION__, count, pesbuf_pos);
 				break;
 			}
 			if (sync)
-				INFO("needed sync %zd\n", sync);
+				lt_info("%s needed sync %zd\n", __FUNCTION__, sync);
 			count += sync;
 		}
 		uint8_t *ppes = pesbuf + count;
@@ -1085,7 +1080,7 @@ ssize_t cPlayback::read_mpeg()
 				}
 				else
 				{
-					INFO("weird pack header: 0x%2x\n", ppes[4]);
+					lt_info("%s weird pack header: 0x%2x\n", __FUNCTION__, ppes[4]);
 					count++;
 				}
 				resync = true;
@@ -1100,7 +1095,7 @@ ssize_t cPlayback::read_mpeg()
 				// if (offset == 0x24 && subid == 0x10 ) // TTX?
 				if (subid < 0x80 || subid > 0x87)
 					break;
-				DBG("AC3: ofs 0x%02x subid 0x%02x\n", off, subid);
+				lt_debug("AC3: ofs 0x%02x subid 0x%02x\n", off, subid);
 				//subid -= 0x60; // normalize to 32...39 (hex 0x20..0x27)
 
 				if (numpida > 9)
@@ -1118,7 +1113,7 @@ ssize_t cPlayback::read_mpeg()
 					apids[numpida] = subid;
 					ac3flags[numpida] = 1;
 					numpida++;
-					INFO("found aid: %02x\n", subid);
+					lt_info("%s found aid: %02x\n", __FUNCTION__, subid);
 				}
 				pid = subid;
 				av = 2;
@@ -1150,7 +1145,7 @@ ssize_t cPlayback::read_mpeg()
 					apids[numpida] = id;
 					ac3flags[numpida] = 0;
 					numpida++;
-					INFO("found aid: %02x\n", id);
+					lt_info("%s found aid: %02x\n", __FUNCTION__, id);
 				}
 				pid = id;
 				av = 2;
@@ -1169,7 +1164,8 @@ ssize_t cPlayback::read_mpeg()
 				break;
 			case 0xb9:
 			case 0xbc:
-				DBG("%s\n", (ppes[3] == 0xb9) ? "program_end_code" : "program_stream_map");
+				lt_debug("%s:%d %s\n", __FUNCTION__, __LINE__,
+					(ppes[3] == 0xb9) ? "program_end_code" : "program_stream_map");
 				//resync = true;
 				// fallthrough. TODO: implement properly.
 			default:
@@ -1184,7 +1180,7 @@ ssize_t cPlayback::read_mpeg()
 		int pesPacketLen = ((ppes[4] << 8) | ppes[5]) + 6;
 		if (count + pesPacketLen >= pesbuf_pos)
 		{
-			DBG("buffer len: %ld, pesPacketLen: %d :-(\n", pesbuf_pos - count, pesPacketLen);
+			lt_debug("buffer len: %ld, pesPacketLen: %d :-(\n", pesbuf_pos - count, pesPacketLen);
 			if (count != 0)
 			{
 				memmove(pesbuf, ppes, pesbuf_pos - count);
@@ -1196,7 +1192,7 @@ ssize_t cPlayback::read_mpeg()
 		int tsPacksCount = pesPacketLen / 184;
 		if ((tsPacksCount + 1) * 188 > INBUF_SIZE - inbuf_pos)
 		{
-			INFO("not enough size in inbuf (needed %d, got %d)\n", (tsPacksCount + 1) * 188, INBUF_SIZE - inbuf_pos);
+			lt_info("not enough size in inbuf (needed %d, got %d)\n", (tsPacksCount + 1) * 188, INBUF_SIZE - inbuf_pos);
 			memmove(pesbuf, ppes, pesbuf_pos - count);
 			pesbuf_pos -= count;
 			break;
@@ -1261,7 +1257,7 @@ off_t cPlayback::mp_seekSync(off_t pos)
 	pthread_mutex_lock(&currpos_mutex);
 	ret = mf_lseek(npos);
 	if (ret < 0)
-		INFO("lseek ret < 0 (%m)\n");
+		lt_info("%s:%d lseek ret < 0 (%m)\n", __FUNCTION__, __LINE__);
 
 	if (filetype != FILETYPE_TS)
 	{
@@ -1274,7 +1270,7 @@ off_t cPlayback::mp_seekSync(off_t pos)
 			r = read(in_fd, &pkt[offset], 1024 - offset);
 			if (r < 0)
 			{
-				INFO("read failed: %m\n");
+				lt_info("%s read failed: %m\n", __FUNCTION__);
 				break;
 			}
 			if (r == 0) // EOF?
@@ -1283,7 +1279,7 @@ off_t cPlayback::mp_seekSync(off_t pos)
 					break;
 				if (mf_lseek(npos) < 0) /* next file in list? */
 				{
-					INFO("lseek ret < 0 (%m)\n");
+					lt_info("%s:%d lseek ret < 0 (%m)\n", __FUNCTION__, __LINE__);
 					break;
 				}
 				retry = true;
@@ -1302,17 +1298,17 @@ off_t cPlayback::mp_seekSync(off_t pos)
 			else
 			{
 				npos += s;
-				INFO("sync after %lld\n", npos - pos);
+				lt_info("%s sync after %lld\n", __FUNCTION__, npos - pos);
 				ret = mf_lseek(npos);
 				pthread_mutex_unlock(&currpos_mutex);
 				if (ret < 0)
-					INFO("lseek ret < 0 (%m)\n");
+					lt_info("%s:%d lseek ret < 0 (%m)\n", __FUNCTION__, __LINE__);
 				return ret;
 			}
 			if (npos > (pos + 0x20000)) /* 128k enough? */
 				break;
 		}
-		INFO("could not sync to PES offset: %d r: %zd\n", offset, r);
+		lt_info("%s could not sync to PES offset: %d r: %zd\n", __FUNCTION__, offset, r);
 		ret = mf_lseek(pos);
 		pthread_mutex_unlock(&currpos_mutex);
 		return ret;
@@ -1333,14 +1329,14 @@ off_t cPlayback::mp_seekSync(off_t pos)
 					ret = mf_lseek(npos - 1); // assume sync ok
 					pthread_mutex_unlock(&currpos_mutex);
 					if (ret < 0)
-						INFO("lseek ret < 0 (%m)\n");
+						lt_info("%s:%d lseek ret < 0 (%m)\n", __FUNCTION__, __LINE__);
 					return ret;
 				}
 				else
 				{
 					ret = mf_lseek(npos); // oops, next pkt doesn't start with sync
 					if (ret < 0)
-						INFO("lseek ret < 0 (%m)\n");
+						lt_info("%s:%d lseek ret < 0 (%m)\n", __FUNCTION__, __LINE__);
 				}
 			}
 		}
@@ -1477,7 +1473,7 @@ static int mp_syncPES(uint8_t *buf, int len, bool quiet)
 	}
 
 	if (!quiet && len > 5) /* only warn if enough space was available... */
-		INFO("No valid PES signature found. %d Bytes deleted.\n", ret);
+		lt_info("%s No valid PES signature found. %d Bytes deleted.\n", __FUNCTION__, ret);
 	return -1;
 }
 
