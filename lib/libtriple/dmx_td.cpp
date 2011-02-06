@@ -13,6 +13,7 @@
 #include "lt_debug.h"
 
 #define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_DEMUX, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_DEMUX, args)
 
 cDemux *videoDemux = NULL;
 cDemux *audioDemux = NULL;
@@ -40,7 +41,7 @@ cDemux::cDemux(int n)
 {
 	if (n < 0 || n > 2)
 	{
-		fprintf(stderr, "ERROR: cDemux::cDemux, n invalid (%d)\n", n);
+		lt_info("%s ERROR: n invalid (%d)\n", __FUNCTION__, n);
 		num = 0;
 	}
 	else
@@ -57,21 +58,21 @@ cDemux::~cDemux()
 bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBufferSize)
 {
 	if (fd > -1)
-		fprintf(stderr, "cDemux::Open FD ALREADY OPENED? fd = %d\n", fd);
+		lt_info("%s FD ALREADY OPENED? fd = %d\n", __FUNCTION__, fd);
 	fd = open(devname[num], O_RDWR);
 	if (fd < 0)
 	{
-		fprintf(stderr, "cDemux::Open %s: %m", devname[num]);
+		lt_info("%s %s: %m\n", __FUNCTION__, devname[num]);
 		return false;
 	}
-	lt_debug("Open #%d pes_type: %s (%d), uBufferSize: %d devname: %s fd: %d\n",
+	lt_debug("%s #%d pes_type: %s (%d), uBufferSize: %d devname: %s fd: %d\n", __FUNCTION__,
 			num, DMX_T[pes_type], pes_type, uBufferSize, devname[num], fd);
 
 	dmx_type = pes_type;
 
 	if (!pesfds.empty())
 	{
-		fprintf(stderr, "ERROR! pesfds not empty!\n"); /* TODO: error handling */
+		lt_info("%s ERROR! pesfds not empty!\n", __FUNCTION__); /* TODO: error handling */
 		return false;
 	}
 	if (pes_type == DMX_TP_CHANNEL)
@@ -88,7 +89,7 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 	{
 		/* probably uBufferSize == 0 means "use default size". TODO: find a reasonable default */
 		if (ioctl(fd, DEMUX_SET_BUFFER_SIZE, uBufferSize) < 0)
-			fprintf(stderr, "cDemux::Open DEMUX_SET_BUFFER_SIZE failed (%m)\n");
+			lt_info("%s DEMUX_SET_BUFFER_SIZE failed (%m)\n", __FUNCTION__);
 	}
 	buffersize = uBufferSize;
 
@@ -100,13 +101,13 @@ void cDemux::Close(void)
 	lt_debug("%s #%d, fd = %d\n", __FUNCTION__, num, fd);
 	if (fd < 0)
 	{
-		fprintf(stderr, "cDemux::%s #%d: not open!\n", __FUNCTION__, num);
+		lt_info("%s #%d: not open!\n", __FUNCTION__, num);
 		return;
 	}
 
 	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("Close: stopping and closing demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		lt_debug("%s stopping and closing demux fd %d pid 0x%04x\n", __FUNCTION__, (*i).fd, (*i).pid);
 		if (ioctl((*i).fd, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
 		if (close((*i).fd) < 0)
@@ -122,13 +123,13 @@ bool cDemux::Start(void)
 {
 	if (fd < 0)
 	{
-		fprintf(stderr, "cDemux::%s #%d: not open!\n", __FUNCTION__, num);
+		lt_info("%s #%d: not open!\n", __FUNCTION__, num);
 		return false;
 	}
 
 	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("Start: starting demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		lt_debug("%s starting demux fd %d pid 0x%04x\n", __FUNCTION__, (*i).fd, (*i).pid);
 		if (ioctl((*i).fd, DEMUX_START) < 0)
 			perror("DEMUX_START");
 	}
@@ -140,12 +141,12 @@ bool cDemux::Stop(void)
 {
 	if (fd < 0)
 	{
-		fprintf(stderr, "cDemux::%s #%d: not open!\n", __FUNCTION__, num);
+		lt_info("%s #%d: not open!\n", __FUNCTION__, num);
 		return false;
 	}
 	for (std::vector<pes_pids>::const_iterator i = pesfds.begin(); i != pesfds.end(); ++i)
 	{
-		lt_debug("Stop: stopping demux fd %d pid 0x%04x\n", (*i).fd, (*i).pid);
+		lt_debug("%s stopping demux fd %d pid 0x%04x\n", __FUNCTION__, (*i).fd, (*i).pid);
 		if (ioctl((*i).fd, DEMUX_STOP) < 0)
 			perror("DEMUX_STOP");
 	}
@@ -174,7 +175,7 @@ int cDemux::Read(unsigned char *buff, int len, int timeout)
 			return 0; // timeout
 		else if (rc < 0)
 		{
-			perror("[cDemux::Read] poll");
+			lt_info("%s poll: %m\n", __FUNCTION__);
 			/* happens, when running under gdb... */
 			if (errno == EINTR)
 				goto retry;
@@ -182,19 +183,19 @@ int cDemux::Read(unsigned char *buff, int len, int timeout)
 		}
 		if (ufds.revents & POLLERR) /* POLLERR means buffer error, i.e. buffer overflow */
 		{
-			fprintf(stderr, "[cDemux::Read] received POLLERR, fd %d, revents 0x%x\n", fd, ufds.revents);
+			lt_info("%s received POLLERR, fd %d, revents 0x%x\n", __FUNCTION__, fd, ufds.revents);
 			/* this seems to happen sometimes at recording start, without bad effects */
 			return 0;
 		}
 		if (ufds.revents & POLLHUP) /* we get POLLHUP if e.g. a too big DMX_BUFFER_SIZE was set */
 		{
-			fprintf(stderr, "[cDemux::Read] received POLLHUP, fd %d\n", fd);
+			lt_info("%s received POLLHUP, fd %d\n", __FUNCTION__, fd);
 			return -1;
 		}
 		if (!(ufds.revents & POLLIN)) /* we requested POLLIN but did not get it? */
 		{
-			fprintf(stderr, "cDemux::%s: not ufds.revents&POLLIN, please report! "
-					"revents: 0x%x fd: %d rc: %d '%m'\n", __FUNCTION__, ufds.revents, fd, rc);
+			lt_info("%s not ufds.revents&POLLIN, please report! "
+				"revents: 0x%x fd: %d rc: %d '%m'\n", __FUNCTION__, ufds.revents, fd, rc);
 			return 0;
 		}
 	}
@@ -202,7 +203,7 @@ int cDemux::Read(unsigned char *buff, int len, int timeout)
 	rc = ::read(fd, buff, len);
 	//fprintf(stderr, "fd %d ret: %d\n", fd, rc);
 	if (rc < 0)
-		perror ("[cDemux::Read] read");
+		lt_info("%s read(): %m\n", __FUNCTION__);
 
 	return rc;
 }
@@ -216,7 +217,7 @@ bool cDemux::sectionFilter(unsigned short pid, const unsigned char * const filte
 	memset(&flt, 0, sizeof(flt));
 
 	if (len > FILTER_LENGTH - 2)
-		fprintf(stderr, "cDemux::sectionFilter #%d: len too long: %d, FILTER_LENGTH: %d\n", num, len, FILTER_LENGTH);
+		lt_info("%s #%d: len too long: %d, FILTER_LENGTH: %d\n", __FUNCTION__, num, len, FILTER_LENGTH);
 
 	length = (len + 2 + 1) & 0xfe;	/* reportedly, the TD drivers don't handle odd filter  */
 	if (length > FILTER_LENGTH)	/* lengths well. So make sure the length is a multiple */
@@ -392,15 +393,15 @@ void cDemux::addPid(unsigned short Pid)
 	struct demux_pes_para p;
 	if (dmx_type != DMX_TP_CHANNEL)
 	{
-		fprintf(stderr, "cDemux::%s pes_type!=DMX_TP_CHANNEL (%s) not implemented yet! pid=%hx\n", __FUNCTION__, DMX_T[dmx_type], Pid);
+		lt_info("%s pes_type %s not implemented yet! pid=%hx\n", __FUNCTION__, DMX_T[dmx_type], Pid);
 		return;
 	}
 	if (fd == -1)
-		fprintf(stderr, "cDemux::%s bucketfd not yet opened? pid=%hx\n", __FUNCTION__, Pid);
+		lt_info("%s bucketfd not yet opened? pid=%hx\n", __FUNCTION__, Pid);
 	pfd.fd = open(devname[num], O_RDWR);
 	if (pfd.fd < 0)
 	{
-		fprintf(stderr, "cDemux::%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
+		lt_info("%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
 		return;
 	}
 	lt_debug("%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd);
@@ -436,7 +437,7 @@ void cDemux::removePid(unsigned short Pid)
 {
 	if (dmx_type != DMX_TP_CHANNEL)
 	{
-		fprintf(stderr, "cDemux::%s pes_type!=DMX_TP_CHANNEL (%s) not implemented yet! pid=%hx\n", __FUNCTION__, DMX_T[dmx_type], Pid);
+		lt_info("%s pes_type %s not implemented yet! pid=%hx\n", __FUNCTION__, DMX_T[dmx_type], Pid);
 		return;
 	}
 	for (std::vector<pes_pids>::iterator i = pesfds.begin(); i != pesfds.end(); ++i)
@@ -451,7 +452,7 @@ void cDemux::removePid(unsigned short Pid)
 			return; /* TODO: what if the same PID is there multiple times */
 		}
 	}
-	fprintf(stderr, "cDemux::removePid: pid 0x%04x not found\n", Pid);
+	lt_info("%s pid 0x%04x not found\n", __FUNCTION__, Pid);
 }
 
 void cDemux::getSTC(int64_t * STC)
