@@ -1,13 +1,9 @@
 INCLUDES = \
-	-I$(top_srcdir)/src \
-	-I$(top_srcdir)/lib \
-	-I$(top_srcdir)/lib/connection \
-	-I$(top_srcdir)/lib/libeventserver \
 	@DIRECTFB_CFLAGS@
 
 noinst_LIBRARIES = libtriple.a
 
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CPPFLAGS = -fno-rtti -fno-exceptions -fno-strict-aliasing
 
 libtriple_a_SOURCES = \
 	lt_debug.cpp \
@@ -19,5 +15,3 @@ libtriple_a_SOURCES = \
 	playback_td.cpp \
 	pwrmngr.cpp \
 	record_td.cpp
-
-#libtriple_a_LIBADD = $(top_builddir)/src/driver/libneutrino_driver.a
