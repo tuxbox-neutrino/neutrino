@@ -66,6 +66,9 @@ extern IDirectFBSurface *dfbdest;
 extern struct Ssettings settings;
 static pthread_mutex_t stillp_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/* debugging hacks */
+static bool noscart = false;
+
 cVideo::cVideo(int, void *, void *)
 {
 	lt_debug("%s\n", __FUNCTION__);
@@ -108,6 +111,9 @@ cVideo::cVideo(int, void *, void *)
 		}
 		close(blankfd);
 	}
+	noscart = (getenv("TRIPLE_NOSCART") != NULL);
+	if (noscart)
+		lt_info("%s TRIPLE_NOSCART variable prevents SCART switching\n", __FUNCTION__);
 }
 
 cVideo::~cVideo(void)
@@ -223,7 +229,7 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		return 0;
 	}
 	lt_debug("%s set SCART_PIN_8 to %dV\n", __FUNCTION__, scartvoltage);
-	if (scartvoltage > 0 && ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
+	if (!noscart && scartvoltage > 0 && ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
 		perror("IOC_AVS_SCART_PIN8_SET");
 	close(avsfd);
 	return 0;
@@ -671,7 +677,7 @@ void cVideo::routeVideo(int standby)
 		lt_info("%s set fastblank=%d pin8=%dV, route encoder to TV\n", __FUNCTION__, fblk, scartvoltage);
 		if (ioctl(avsfd, IOC_AVS_FASTBLANK_SET, fblk) < 0)
 			perror("IOC_AVS_FASTBLANK_SET, fblk");
-		if (ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
+		if (!noscart && ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
 			perror("IOC_AVS_SCART_PIN8_SET");
 		if (ioctl(avsfd, IOC_AVS_ROUTE_ENC2TV) < 0)
 			perror("IOC_AVS_ROUTE_ENC2TV");
