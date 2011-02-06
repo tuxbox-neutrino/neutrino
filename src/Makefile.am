@@ -30,9 +30,11 @@ else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif
 
-bin_PROGRAMS = neutrino
+bin_PROGRAMS = neutrino rcsim
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
+
+rcsim_SOURCES = rcsim.c rcsim.h
 
 AM_CPPFLAGS =
 
