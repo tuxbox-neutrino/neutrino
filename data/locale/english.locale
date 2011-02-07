@@ -499,6 +499,7 @@ lcdmenu.statusline.volume volume
 ledcontroler.menu Power Button LED�s
 ledcontroler.mode.tv TV Mode
 ledcontroler.mode.deepstandby Deep Standby
+ledcontroler.mode.record Blinke in Record
 ledcontroler.mode.standby Standby
 ledcontroler.off Led1 & Led2 off
 ledcontroler.on.all Led1 & Led2 on

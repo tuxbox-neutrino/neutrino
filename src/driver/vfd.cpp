@@ -176,11 +176,38 @@ void CVFD::setled(int led1, int led2){
 		perror("IOC_VFD_LED_CTRL");
 }
 
+void CVFD::setled(bool on_off)
+{
+  if(g_settings.led_rec_mode == 0)
+	return;
+
+	int led1 = VFD_LED_1_OFF, led2 = VFD_LED_2_OFF;
+	if(on_off){//on
+		switch(g_settings.led_rec_mode){
+			case 1:
+			led1 = VFD_LED_1_ON; led2 = VFD_LED_2_ON;
+			break;
+			case 2:
+			led1 = VFD_LED_1_ON; led2 = VFD_LED_2_OFF;
+			break;
+			case 3:
+			led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_ON;
+			break;
+			default:
+			break;
+	      }
+	}
+	else {//off
+		led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_OFF;
+	}
+	setled(led1, led2);
+}
+
 void CVFD::setled(void)
 {
 	if(!has_lcd) return;
 
-	int led1 = 0, led2 = 0;
+	int led1 = VFD_LED_1_OFF, led2 = VFD_LED_2_OFF;
 	int select = 0;
 
 	if(mode == MODE_MENU_UTF8 || mode == MODE_TVRADIO  )
@@ -255,12 +282,12 @@ void CVFD::showTime(bool force)
 			clearClock = 0;
 			if(has_lcd)
 				ShowIcon(VFD_ICON_CAM1, false);
-			setled(VFD_LED_1_OFF, VFD_LED_2_OFF);
+			setled(false);//off
 		} else {
 			clearClock = 1;
 			if(has_lcd)
 				ShowIcon(VFD_ICON_CAM1, true);
-			setled(VFD_LED_1_ON, VFD_LED_2_ON);
+			setled(true);//on
 		}
 	} else if(clearClock || (recstatus != CNeutrinoApp::getInstance ()->recordingstatus)) { // in case icon ON after record stopped
 		clearClock = 0;

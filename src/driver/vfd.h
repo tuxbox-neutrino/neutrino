@@ -104,6 +104,7 @@ class CVFD
 		bool has_lcd;
 		void setlcdparameter(void);
 		void setled(void);
+		void setled(bool on_off);
 		static CVFD* getInstance();
 		void init(const char * fontfile, const char * fontname);
 

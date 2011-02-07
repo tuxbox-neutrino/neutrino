@@ -533,6 +533,7 @@ const char *locale_real_names[] = {
 	"ledcontroler.menu",
 	"ledcontroler.mode.tv",
 	"ledcontroler.mode.deepstandby",
+	"ledcontroler.mode.record",
 	"ledcontroler.mode.standby",
 	"ledcontroler.off",
 	"ledcontroler.on.all",

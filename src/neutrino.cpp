@@ -462,6 +462,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.led_tv_mode = configfile.getInt32( "led_tv_mode", 1);
 	g_settings.led_standby_mode = configfile.getInt32( "led_standby_mode", 1);
 	g_settings.led_deep_mode = configfile.getInt32( "led_deep_mode", 1);
+	g_settings.led_rec_mode = configfile.getInt32( "led_rec_mode", 1);
 	g_settings.led_blink = configfile.getInt32( "led_blink", 1);
 
 	g_settings.hdd_fs = configfile.getInt32( "hdd_fs", 0);
@@ -999,6 +1000,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "led_tv_mode", g_settings.led_tv_mode);
 	configfile.setInt32( "led_standby_mode", g_settings.led_standby_mode);
 	configfile.setInt32( "led_deep_mode", g_settings.led_deep_mode);
+	configfile.setInt32( "led_rec_mode", g_settings.led_rec_mode);
 	configfile.setInt32( "led_blink", g_settings.led_blink);
 
 	//misc
