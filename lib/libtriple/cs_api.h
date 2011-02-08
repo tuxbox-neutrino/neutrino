@@ -61,6 +61,6 @@ int cs_set_ts_output(unsigned int port);
 unsigned long long cs_get_serial(void);
 #endif
 /* compat... HD1 seems to be version 6. everything newer ist > 6... */
-static unsigned int cs_get_revision(void) { return 1; };
+static inline unsigned int cs_get_revision(void) { return 1; };
 extern int cnxt_debug;
 #endif //__CS_API_H_
