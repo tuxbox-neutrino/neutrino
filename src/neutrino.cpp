@@ -2302,10 +2302,12 @@ int CNeutrinoApp::run(int argc, char **argv)
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 	}
 
+#ifdef IGNORE_COMMUNITY_EFFORTS_COMPLETELY
         system("mkdir /media/sda1 2> /dev/null");
         system("mount /media/sda1 2> /dev/null");
         system("mkdir /media/sdb1 2> /dev/null");
         system("mount /media/sdb1 2> /dev/null");
+#endif
 
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
