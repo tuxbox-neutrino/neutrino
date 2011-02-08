@@ -442,6 +442,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 
 	pmt_stop_update_filter(&pmt_update_fd);
 
+	ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_CI);
 	stopPlayBack(!forupdate);
 
 	if(!forupdate && g_current_channel && g_current_channel->getCaPmt()) {
@@ -725,7 +726,7 @@ void unsetRecordMode(void)
 		cam1->sendMessage(0,0); // stop
 		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() & ~DEMUX_DECODE_2 /*1*/); // start
 	}
-	ca->SendPMT(DEMUX_SOURCE_2, (unsigned char*) "", 0);
+	ca->SendPMT(DEMUX_SOURCE_2, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
 	rec_channel_id = 0;
 }
 
@@ -1993,7 +1994,7 @@ int stopPlayBack(bool stop_camd)
 			cam0->sendMessage(0,0);
 			unlink("/tmp/pmt.tmp");
 		}
-		ca->SendPMT(0, (unsigned char*) "", 0);
+		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
 	}
 
 	printf("stopPlayBack: standby %d forced %d\n", standby, playbackStopForced);

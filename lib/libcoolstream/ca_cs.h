@@ -100,7 +100,7 @@ public:
 	u32 GetNumberCISlots(void);
 	u32 GetNumberSmartCardSlots(void);	//
 	static cCA *GetInstance(void);
-	bool SendPMT(int Unit, unsigned char *Data, int Len);
+	bool SendPMT(int Unit, unsigned char *Data, int Len, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
 	bool SendMessage(const CA_MESSAGE *Msg);
 	void SetInitMask(enum CA_INIT_MASK InitMask);
 	bool Start(void);
