@@ -485,11 +485,10 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 			}
 		}
 
-		//menu->addItem(new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt), old_selected == i);
-
 		CMenuForwarderNonLocalized * ts_item = new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt, CRCInput::RC_nokey, NULL)/*, false*/;
+
 		ts_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
-		menu->addItem(ts_item);
+		menu->addItem(ts_item, old_selected == i);
 
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
