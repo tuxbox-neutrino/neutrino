@@ -63,6 +63,10 @@ AC_ARG_ENABLE(restore-prev-mode,
          [  --enable-restore-prev-mode          enable return from graphics mode],
          [AC_DEFINE(RETURN_FROM_GRAPHICS_MODE,1,[enable return from graphics mode])])
 
+AC_ARG_ENABLE(broken-neutrino-mount-hack,
+	[  --enable-broken-neutrino-mount-hack enable broken neutrino mount hack, don't use with mdev],
+	[AC_DEFINE(ASSUME_NO_MDEV,1,[enable broken neutrino mount hack, don't use with mdev])])
+
 #
 # Check for libtdservicedb - the new one - for testing only
 #
