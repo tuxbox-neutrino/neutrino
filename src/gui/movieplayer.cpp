@@ -481,7 +481,7 @@ void CMoviePlayerGui::PlayFile(void)
 	CSelectedMenu cSelectedMenuBookStart[BOOKMARK_START_MENU_MAX_ITEMS];
 
 	CMenuWidget bookStartMenu(LOCALE_MOVIEBROWSER_BOOK_NEW, NEUTRINO_ICON_STREAMING);
-	bookStartMenu.addItem(GenericMenuSeparator);
+	bookStartMenu.addIntroItems();
 	bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_HEAD, true, NULL, &cSelectedMenuBookStart[0]));
 	bookStartMenu.addItem(GenericMenuSeparatorLine);
 	bookStartMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, &cSelectedMenuBookStart[1]));
@@ -759,7 +759,7 @@ void CMoviePlayerGui::PlayFile(void)
 
 		if (showaudioselectdialog) {
 			CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
-			APIDSelector.addItem(GenericMenuSeparator);
+			APIDSelector.addIntroItems();
 			CAPIDSelectExec *APIDChanger = new CAPIDSelectExec;
 			bool enabled;
 			bool defpid;
