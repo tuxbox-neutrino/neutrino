@@ -36,7 +36,7 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include "gui/audioplayer.h"
+
 #include "gui/movieplayer.h"
 #include "gui/pictureviewer.h"
 #include "gui/upnpbrowser.h"
@@ -46,7 +46,6 @@
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
-
 
 
 CMediaPlayerMenu::CMediaPlayerMenu()
@@ -64,6 +63,9 @@ CMediaPlayerMenu::CMediaPlayerMenu()
 
 	x	= getScreenStartX (width);
 	y	= getScreenStartY (height);
+	
+	audioPlayer 	= NULL;
+	inetPlayer 	= NULL;
 }
 
 CMediaPlayerMenu* CMediaPlayerMenu::getInstance()
@@ -79,16 +81,34 @@ CMediaPlayerMenu* CMediaPlayerMenu::getInstance()
 
 CMediaPlayerMenu::~CMediaPlayerMenu()
 {
-
+	delete audioPlayer ;
+	delete inetPlayer ;
 }
 
-int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
+int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	printf("init mediaplayer menu in usage mode %d\n", usage_mode);
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 		parent->hide();
+	
+	if (actionKey == "audioplayer")
+	{
+		if (audioPlayer == NULL)
+			audioPlayer = new CAudioPlayerGui();
+		audioPlayer->exec(NULL, "init");
+		
+		return res;
+	}
+	else if	(actionKey == "inetplayer")
+	{
+		if (inetPlayer == NULL)
+			inetPlayer = new CAudioPlayerGui(true);
+		inetPlayer->exec(NULL, "init");
+		
+		return res;
+	}
 	
 	showMenu(); 
 	
@@ -110,12 +130,12 @@ void CMediaPlayerMenu::showMenu()
 	//audio player
 	neutrino_msg_t audio_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_audio:CRCInput::RC_red;
 	const char* audio_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_RED;
-	CMenuForwarder * fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, new CAudioPlayerGui(), NULL, audio_rc, audio_btn);
+	CMenuForwarder * fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, this, "audioplayer", audio_rc, audio_btn);
 
 	//internet player
 	neutrino_msg_t inet_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_www : CRCInput::RC_green;
 	const char* inet_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_GREEN;
-	CMenuForwarder * fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, new CAudioPlayerGui(true), NULL, inet_rc, inet_btn);
+	CMenuForwarder * fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, this, "inetplayer", inet_rc, inet_btn);
 
 	//movieplayer
 	CMenuWidget *moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width);

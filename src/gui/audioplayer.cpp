@@ -242,8 +242,12 @@ CAudioPlayerGui::~CAudioPlayerGui()
 }
 
 //------------------------------------------------------------------------
-int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &)
+int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 {
+	
+	if (actionKey == "init")
+		Init();
+	
 	CNeutrinoApp::getInstance()->StopSubtitles();
 	
 	CAudioPlayer::getInstance()->init();

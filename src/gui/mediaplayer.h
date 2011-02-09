@@ -30,7 +30,7 @@
 #define __MEDIAPLAYER__
 
 #include <gui/widget/menue.h>
-
+#include "gui/audioplayer.h"
 #include <driver/framebuffer.h>
 
 #include <string>
@@ -39,6 +39,8 @@ class CMediaPlayerMenu : public CMenuTarget
 {
 	private:
 		CFrameBuffer *frameBuffer;
+		CAudioPlayerGui *audioPlayer;
+		CAudioPlayerGui *inetPlayer;
 				
 		int x, y, width, height, hheight, mheight, selected, usage_mode;
 		neutrino_locale_t menu_title;
