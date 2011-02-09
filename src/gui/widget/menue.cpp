@@ -541,7 +541,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				case (CRCInput::RC_right):
 				case (CRCInput::RC_ok):
 					{
-						if(hasItem()) {
+						if(hasItem() && selected > -1) {
 							//exec this item...
 							CMenuItem* item = items[selected];
 							item->msg = msg;
