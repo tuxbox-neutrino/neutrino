@@ -114,11 +114,7 @@ extern cVideo * videoDecoder;
 #define AUDIOPLAYER_END_SCRIPT CONFIGDIR "/audioplayer.end"
 #define DEFAULT_RADIOSTATIONS_XMLFILE CONFIGDIR "/radio-stations.xml"
 
-const long int GET_PLAYLIST_TIMEOUT = 10;
 const char RADIO_STATION_XML_FILE[] = {DEFAULT_RADIOSTATIONS_XMLFILE};
-
-const std::string icecasturl = "http://dir.xiph.org/yp.xml";
-const long int GET_ICECAST_TIMEOUT = 90; // list is about 500kB!
 
 CAudiofileExt::CAudiofileExt()
 		: CAudiofile(), firstChar('\0')
@@ -988,6 +984,7 @@ void CAudioPlayerGui::addUrl2Playlist(const char *url, const char *name, const t
 void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, const time_t tim) {
 	CURL *curl_handle;
 	struct MemoryStruct chunk;
+	const long int GET_PLAYLIST_TIMEOUT = 10;
 
 	printf("CAudioPlayerGui::processPlaylistUrl (%s, %s)\n", url, name);
 	chunk.memory=NULL; /* we expect realloc(NULL, size) to work */
@@ -1073,6 +1070,9 @@ void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, cons
 
 void CAudioPlayerGui::readDir_ic(void)
 {
+	const std::string icecasturl = "http://dir.xiph.org/yp.xml";
+	const long int GET_ICECAST_TIMEOUT = 90; // list is about 500kB!
+
 	std::string answer="";
 	std::cout << "[readDir_ic] IC URL: " << icecasturl << std::endl;
 	CURL *curl_handle;
