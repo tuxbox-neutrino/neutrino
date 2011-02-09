@@ -856,7 +856,11 @@ void CMoviePlayerGui::PlayFile(void)
 
 			printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 
-			if(!playback->Start((char *)filename, g_vpid, g_vtype, CAPIDSelectExec::g_currentapid, CAPIDSelectExec::g_currentac3)) {
+			duration = 0;
+			if(p_movie_info != NULL)
+				duration = p_movie_info->length * 60 * 1000;
+
+			if(!playback->Start((char *)filename, g_vpid, g_vtype, CAPIDSelectExec::g_currentapid, CAPIDSelectExec::g_currentac3, duration)) {
 				playback->Close();
 				restoreNeutrino();
 			} else {
@@ -914,7 +918,9 @@ void CMoviePlayerGui::PlayFile(void)
 				if(duration > 100)
 					file_prozent = (unsigned char) (position / (duration / 100));
 				playback->GetSpeed(speed);
-//				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+#ifdef DEBUG
+				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
+#endif
 				if (duration - position < 1000 && !timeshift)
 				{
 					/* 10 seconds after end-of-file, exit */
