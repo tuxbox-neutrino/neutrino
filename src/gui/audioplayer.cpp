@@ -688,16 +688,16 @@ int CAudioPlayerGui::show()
 					InputSelector.addItem(new CMenuForwarder(
 								      LOCALE_AUDIOPLAYER_ADD_LOC, true, NULL, InetRadioInputChanger,
 								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
+					sprintf(cnt, "%d", ++count);
+					InputSelector.addItem(new CMenuForwarder(
+								      LOCALE_AUDIOPLAYER_ADD_IC, true, NULL, InetRadioInputChanger,
+								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 					if(g_settings.shoutcast_dev_id != "XXXXXXXXXXXXXXXX"){
 						sprintf(cnt, "%d", ++count);
 						InputSelector.addItem(new CMenuForwarder(
 								      LOCALE_AUDIOPLAYER_ADD_SC, true, NULL, InetRadioInputChanger,
 								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 					}
-					sprintf(cnt, "%d", ++count);
-					InputSelector.addItem(new CMenuForwarder(
-								      LOCALE_AUDIOPLAYER_ADD_IC, true, NULL, InetRadioInputChanger,
-								      cnt, CRCInput::convertDigitToKey(count + 1)), old_select == count);
 
 					//InputSelector.addItem(GenericMenuSeparator);
 					hide();
@@ -711,13 +711,12 @@ int CAudioPlayerGui::show()
 						paintLCD();
 						break;
 					case 1:
-					  if(g_settings.shoutcast_dev_id != "XXXXXXXXXXXXXXXX")
-						openSCbrowser();
-						break;
-					case 2:
 						readDir_ic();
 						CVFD::getInstance()->setMode(CVFD::MODE_AUDIO);
 						paintLCD();
+						break;
+					case 2:
+						openSCbrowser();
 						break;
 					default:
 						break;
