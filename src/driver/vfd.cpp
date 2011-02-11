@@ -168,12 +168,18 @@ void CVFD::setlcdparameter(void)
 }
 
 void CVFD::setled(int led1, int led2){
-	int ret = ioctl(fd, IOC_VFD_LED_CTRL, led1);
-	if(ret < 0)
-		perror("IOC_VFD_LED_CTRL");
-	ret = ioctl(fd, IOC_VFD_LED_CTRL, led2);
-	if(ret < 0)
-		perror("IOC_VFD_LED_CTRL");
+	int ret = -1;
+
+	if(led1 != -1){
+		ret = ioctl(fd, IOC_VFD_LED_CTRL, led1);
+		if(ret < 0)
+			perror("IOC_VFD_LED_CTRL");
+	}
+	if(led2 != -1){
+		ret = ioctl(fd, IOC_VFD_LED_CTRL, led2);
+		if(ret < 0)
+			perror("IOC_VFD_LED_CTRL");
+	}
 }
 
 void CVFD::setled(bool on_off)
@@ -181,24 +187,35 @@ void CVFD::setled(bool on_off)
   if(g_settings.led_rec_mode == 0)
 	return;
 
-	int led1 = VFD_LED_1_OFF, led2 = VFD_LED_2_OFF;
+	int led1 = -1, led2 = -1;
 	if(on_off){//on
 		switch(g_settings.led_rec_mode){
 			case 1:
 			led1 = VFD_LED_1_ON; led2 = VFD_LED_2_ON;
 			break;
 			case 2:
-			led1 = VFD_LED_1_ON; led2 = VFD_LED_2_OFF;
+			led1 = VFD_LED_1_ON;
 			break;
 			case 3:
-			led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_ON;
+			led2 = VFD_LED_2_ON;
 			break;
 			default:
 			break;
 	      }
 	}
 	else {//off
-		led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_OFF;
+		switch(g_settings.led_rec_mode){
+			break;
+			case 2:
+			led1 = VFD_LED_1_OFF;
+			break;
+			case 3:
+			led2 = VFD_LED_2_OFF;
+			break;
+			default:
+			led1 = VFD_LED_1_OFF; led2 = VFD_LED_2_OFF;
+			break;
+	      }
 	}
 	setled(led1, led2);
 }
@@ -207,7 +224,7 @@ void CVFD::setled(void)
 {
 	if(!has_lcd) return;
 
-	int led1 = VFD_LED_1_OFF, led2 = VFD_LED_2_OFF;
+	int led1 = -1, led2 = -1;
 	int select = 0;
 
 	if(mode == MODE_MENU_UTF8 || mode == MODE_TVRADIO  )
