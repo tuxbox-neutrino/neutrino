@@ -984,7 +984,7 @@ void CAudioPlayerGui::addUrl2Playlist(const char *url, const char *name, const t
 void CAudioPlayerGui::processPlaylistUrl(const char *url, const char *name, const time_t tim) {
 	CURL *curl_handle;
 	struct MemoryStruct chunk;
-	const long int GET_PLAYLIST_TIMEOUT = 10;
+	const long int GET_PLAYLIST_TIMEOUT = 2;
 
 	printf("CAudioPlayerGui::processPlaylistUrl (%s, %s)\n", url, name);
 	chunk.memory=NULL; /* we expect realloc(NULL, size) to work */
