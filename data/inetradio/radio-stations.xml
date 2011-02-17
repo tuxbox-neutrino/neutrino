@@ -193,6 +193,47 @@
 		url="http://mp3-live.dasding.de/dasding_m.m3u"
 		name="SWR DasDing"
 		/>
+
+ 	<station
+		name="NDR 90,3"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr903_hi_mp3"
+ 		/>
+
+ 	<station
+		name="NDR 1 Niedersachsen"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1niedersachsen_hi_mp3"
+ 		/>
+
+ 	<station
+		name="NDR 1 Radio MV"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1radiomv_hi_mp3"
+ 		/>
+
+ 	<station
+		name="NDR 1 Welle Nord"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr1wellenord_hi_mp3"
+ 		/>
+
+ 	<station
+		name="NDR 2"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_ndr2_hi_mp3"
+ 		/>
+
+ 	<station
+		name="NDR Kultur"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrkultur_hi_mp3"
+ 		/>
+
+ 	<station
+		name="NDR Info"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_ndrinfo_hi_mp3"
+ 		/>
+
+ 	<station
+		name="N-Joy Radio"
+                url="http://ndrstream.ic.llnwd.net/stream/ndrstream_n-joy_hi_mp3"
+ 		/>
+
 	<station
 		name="NDR 2 Rock"
 		url="http://ndr.ic.llnwd.net/stream/ndr_ndrloop21_hi_mp3"
@@ -567,9 +608,39 @@
 		name="RadioAktiv"
 		url="http://stream.radioaktiv.org:8000/ra128.m3u"
 		/>
+
+ 	<station
+		name="Radio Arabella Deutschland"
+		url="http://stream01.arabella-de.vss.kapper.net:8000/;stream.mp3"
+		/>
 	
+ 	<station
+		name="Radio Arabella Austropop"
+		url="http://stream02.arabella-de.vss.kapper.net:8000/;stream.mp3"
+		/>
+	
+ 	<station
+		name="Radio Arabella Herzflimmern"
+		url="http://stream03.arabella-de.vss.kapper.net:8000/;stream.mp3"
+		/>
+	
+ 	<station
+		name="Radio Arabella Kultschlager"
+		url="http://stream04.arabella-de.vss.kapper.net:8000/;stream.mp3"
+		/>
+	
+ 	<station
+		name="Radio Arabella Classic Rock"
+		url="http://stream05.arabella-de.vss.kapper.net:8000/;stream.mp3"
+		/>
+	
+ 	<station
+		name="Radio Arabella party"
+		url="http://stream06.arabella-de.vss.kapper.net:8000/;stream.mp3"
+		/>
+
 	<station
-		name="Radio Bonn/Rhein-Sieg - 128 KBit/s"
+		name="Radio Bonn/Rhein-Sieg"
 		url="http://ga-stream01.ga-bonn.de/live128.m3u"
 		/>
 	
@@ -628,6 +699,11 @@
 		url="http://www.4broadcast.de/galaxy/galaxyhigh.m3u"
 		/>
 	
+	<station
+		url="http://4broadcast.de/radioin.m3u"
+		name="Radio Ingolstadt"
+		/>
+
 	<station
 		name="Radio Gong 96,3"
 		url="http://www.radiogong.de/live/live.m3u"
@@ -692,7 +768,12 @@
 		name="Radio Salü Schlager Party"
 		url="http://salue.inlimedia.com/schlager/schlager_playlist96.m3u"
 		/>
-		
+
+	<station
+		name="Radio Siegen"
+		url="http://web.radio-siegen.de:8000/live"
+		/>
+
 	<station
 		name="Radio StHörfunk"
 		url="http://stream.sthoerfunk.de:7000/sthoerfunk.ogg.m3u"
@@ -718,6 +799,11 @@
 		url="http://stream.radio-rum.de:8000/rum.ogg.m3u"
 		/>
 	
+        <station
+		url="http://85.214.107.84:10224"
+		name="Radio Westerwald"
+		/>
+
 	<station
 		name="Radio Z"
 		url="http://www.distler-tontechnik.de/Radio-Z-Live.m3u"
@@ -816,6 +902,11 @@
 	<station
 		url="http://kassel145.server4free.de:8000/listen.pls"
 		name="Tiger-Radio Stuttgart (112 Kbits)"
+		/>
+
+	<station
+		name="WebRadio Troisdorf"
+		url="http://80.237.152.110:9000"
 		/>
 
 	<station
