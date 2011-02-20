@@ -328,6 +328,16 @@ void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
 	delScriptOutput();
+	/* export neutrino settings to the environment */
+	char tmp[32];
+	sprintf(tmp, "%d", g_settings.screen_StartX);
+	setenv("SCREEN_OFF_X", tmp, 1);
+	sprintf(tmp, "%d", g_settings.screen_StartY);
+	setenv("SCREEN_OFF_Y", tmp, 1);
+	sprintf(tmp, "%d", g_settings.screen_EndX);
+	setenv("SCREEN_END_X", tmp, 1);
+	sprintf(tmp, "%d", g_settings.screen_EndY);
+	setenv("SCREEN_END_Y", tmp, 1);
 
 	//bool ispip = strncmp(plugin_list[number].pluginfile.c_str(), "pip", 3) ? false : true;
 	bool ispip  = strstr(plugin_list[number].pluginfile.c_str(), "pip") != 0;
