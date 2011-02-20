@@ -98,8 +98,9 @@ class cPlayback
 
 		bool Open(playmode_t PlayMode);
 		void Close(void);
-		bool Start(char *filename, unsigned short vpid, int vtype, unsigned short apid, bool ac3);
-		bool SetAPid(unsigned short pid, bool ac3);
+		bool Start(char *filename, unsigned short vpid, int vtype, unsigned short apid,
+			   int ac3, unsigned int duration);
+		bool SetAPid(unsigned short pid, int ac3);
 		bool SetSpeed(int speed);
 		bool GetSpeed(int &speed) const;
 		bool GetPosition(int &position, int &duration);	/* pos: current time in ms, dur: file length in ms */

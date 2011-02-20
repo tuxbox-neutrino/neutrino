@@ -107,7 +107,7 @@ void cPlayback::Close(void)
 	//Stop();
 }
 
-bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned short ap, bool _ac3)
+bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned short ap, int _ac3, unsigned int)
 {
 	struct stat s;
 	off_t r;
@@ -355,7 +355,7 @@ static void playthread_cleanup_handler(void *)
 	dvrfd = -1;
 }
 
-bool cPlayback::SetAPid(unsigned short pid, bool _ac3)
+bool cPlayback::SetAPid(unsigned short pid, int _ac3)
 {
 	lt_info("%s pid: 0x%04hx ac3: %d\n", __FUNCTION__, pid, _ac3);
 	apid = pid;
