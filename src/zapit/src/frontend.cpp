@@ -45,6 +45,7 @@ extern bool playing;
 extern int motorRotationSpeed;
 extern CEventServer *eventServer;
 
+extern int zapit_debug;
 extern int uni_scr;
 extern int uni_qrg;
 
@@ -261,7 +262,8 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, int system)
 		case f7_8:
 			return FEC_7_8;
 		default:
-			printf("no valid fec for DVB-S set.. assume auto\n");
+			if (zapit_debug)
+				printf("no valid fec for DVB-S set.. assume auto\n");
 		case fAuto:
 			return FEC_AUTO;
 		}
@@ -286,7 +288,8 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, int system)
 		case f9_10:
 			return FEC_S2_QPSK_9_10;
 		default:
-			printf("no valid fec for DVB-S2 set.. !!\n");
+			if (zapit_debug)
+				printf("no valid fec for DVB-S2 set.. !!\n");
 			return FEC_AUTO;
 		}
 	}
