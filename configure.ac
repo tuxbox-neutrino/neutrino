@@ -1,5 +1,6 @@
 AC_INIT(tuxbox-neutrino,1.0.1)
 AM_INIT_AUTOMAKE(tuxbox-neutrino,1.0.1)
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
 TUXBOX_APPS
 TUXBOX_APPS_DIRECTORY
