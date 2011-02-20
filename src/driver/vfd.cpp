@@ -366,7 +366,7 @@ void CVFD::showPercentOver(const unsigned char perc, const bool /*perform_update
 				pp = 0;
 			else
 				pp = (int) round((double) perc * (double) 8 / (double) 100);
-printf("CVFD::showPercentOver: %d, bar %d\n", (int) perc, pp);
+//printf("CVFD::showPercentOver: %d, bar %d\n", (int) perc, pp);
 			if(pp > 8) pp = 8;
 			if(pp != percentOver) {
 			int i;
