@@ -2251,7 +2251,6 @@ int zapit_main_thread(void *data)
 		g_current_channel = &(cit->second);
 
 	zapit_ready = 1;
-	sleep(2);
 	leaveStandby();
 	firstzap = false;
 	stime = time(0);
