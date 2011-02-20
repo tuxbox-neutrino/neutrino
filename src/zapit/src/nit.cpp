@@ -31,6 +31,7 @@
 #include <zapit/scan.h>
 
 #define NIT_SIZE 1024
+extern short abort_scan;
 
 void *nit_thread(void * data)
 {
@@ -93,6 +94,10 @@ int parse_nit(t_satellite_position satellitePosition, freq_id_t freq)
 		if (dmx->Read(buffer, NIT_SIZE) < 0) {
 			delete dmx;
 			return -1;
+		}
+		if (abort_scan) {
+			ret = -1;
+			goto _return;
 		}
 if(buffer[0] != 0x40)
 	printf("[NIT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
