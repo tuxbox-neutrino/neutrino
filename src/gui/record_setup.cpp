@@ -155,14 +155,6 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	return res;
 }
 
-#define MESSAGEBOX_NO_YES_OPTION_COUNT 2
-const CMenuOptionChooser::keyval MESSAGEBOX_NO_YES_OPTIONS[MESSAGEBOX_NO_YES_OPTION_COUNT] =
-{
-	{ 0, LOCALE_MESSAGEBOX_NO  },
-	{ 1, LOCALE_MESSAGEBOX_YES }
-};
-
-
 #define RECORDINGMENU_RECORDING_TYPE_OPTION_COUNT 4
 const CMenuOptionChooser::keyval RECORDINGMENU_RECORDING_TYPE_OPTIONS[RECORDINGMENU_RECORDING_TYPE_OPTION_COUNT] =
 {
