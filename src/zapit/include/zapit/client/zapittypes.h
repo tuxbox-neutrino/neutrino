@@ -138,6 +138,17 @@ typedef struct Channel_parameter
 	uint32_t TP_id;					/* diseqc<<24 | feparams->frequency>>8 */
 } CH_params;
 
+/* complete zapit start thread-parameters in a struct */
+typedef struct ZAPIT_start_arg
+{
+	t_channel_id startchanneltv_id;
+	t_channel_id startchannelradio_id;
+	int startchanneltv_nr;
+	int startchannelradio_nr;
+	int uselastchannel;
+	int video_mode;
+} Z_start_arg;
+
 typedef struct TP_map
 {
 	TP_params TP;

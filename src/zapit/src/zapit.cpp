@@ -2167,7 +2167,8 @@ void signal_handler(int signum)
 
 int zapit_main_thread(void *data)
 {
-	int			video_mode = (int) data;
+	Z_start_arg *ZapStart_arg = (Z_start_arg *) data;
+	int	video_mode = ZapStart_arg->video_mode;
 
 	time_t stime;
 	printf("[zapit] starting... tid %ld\n", syscall(__NR_gettid));
@@ -2228,10 +2229,20 @@ int zapit_main_thread(void *data)
 	/* create bouquet manager */
 	g_bouquetManager = new CBouquetManager();
 
-	if (config.getInt32("lastChannelMode", 0))
+	bool tv_mode = true;
+	if (config.getInt32("lastChannelMode", 0)){
 		setRadioMode();
-	else
+		tv_mode = false;
+	}
+	else{
 		setTVMode();
+		tv_mode = true;
+	}
+	if(ZapStart_arg->uselastchannel == 0){
+		live_channel_id = tv_mode ? ZapStart_arg->startchanneltv_id : ZapStart_arg->startchannelradio_id;
+		lastChannelRadio = ZapStart_arg->startchannelradio_nr;
+		lastChannelTV    = ZapStart_arg->startchanneltv_nr;
+	}
 
 	if (prepare_channels(frontend->getInfo()->type, diseqcType) < 0)
 		WARN("error parsing services");

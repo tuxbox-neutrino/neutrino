@@ -75,6 +75,7 @@
 #endif /*TEST_MENU*/
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
+#include "gui/zapit_setup.h"
 
 #include "gui/widget/stringinput.h"
 #include "gui/widget/stringinput_ext.h"
@@ -1030,6 +1031,7 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	miscSettingsFilebrowser->addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_DENYDIRECTORYLEAVE, &g_settings.filebrowser_denydirectoryleave, MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true ));
 	miscSettings.addItem( new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, miscSettingsFilebrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE) );
 	miscSettings.addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, new CCECSetup() , NULL, CRCInput::RC_0));
+	miscSettings.addItem(new CMenuForwarder(LOCALE_ZAPITSETUP_HEAD, true, NULL, new CZapitSetup() , NULL, CRCInput::RC_1));
 
 #if 0
 	//infobar

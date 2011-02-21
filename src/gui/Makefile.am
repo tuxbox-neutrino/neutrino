@@ -82,7 +82,8 @@ libneutrino_gui_a_SOURCES = \
 	update.cpp \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
-	videosettings.cpp
+	videosettings.cpp \
+	zapit_setup.cpp
 
 libneutrino_gui2_a_SOURCES = \
 	alphasetup.cpp \

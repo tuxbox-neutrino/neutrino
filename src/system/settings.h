@@ -436,6 +436,15 @@ struct SNeutrinoSettings
 	int filebrowser_sortmethod;
 	int filebrowser_denydirectoryleave;
 
+	//zapit setup
+	std::string StartChannelTV;
+	std::string StartChannelRadio;
+	t_channel_id startchanneltv_id;
+	t_channel_id startchannelradio_id;
+	int startchanneltv_nr;
+	int startchannelradio_nr;
+	int uselastchannel;
+
 	//uboot
 	int	uboot_lcd_inverse;
 	int	uboot_lcd_contrast;

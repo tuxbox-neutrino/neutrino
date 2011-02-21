@@ -801,6 +801,15 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	if ((g_settings.filebrowser_sortmethod < 0) || (g_settings.filebrowser_sortmethod >= FILEBROWSER_NUMBER_OF_SORT_VARIANTS))
 		g_settings.filebrowser_sortmethod = 0;
 	g_settings.filebrowser_denydirectoryleave = configfile.getBool("filebrowser_denydirectoryleave", false);
+	//zapit setup
+	g_settings.StartChannelTV = configfile.getString("startchanneltv","");
+	g_settings.StartChannelRadio = configfile.getString("startchannelradio","");
+	g_settings.startchanneltv_id =  configfile.getInt64("startchanneltv_id", 0);
+	g_settings.startchannelradio_id =  configfile.getInt64("startchannelradio_id", 0);
+	g_settings.startchanneltv_nr =  configfile.getInt32("startchanneltv_nr", 0);
+	g_settings.startchannelradio_nr =  configfile.getInt32("startchannelradio_nr", 0);
+	g_settings.uselastchannel         = configfile.getInt32("uselastchannel" , 1);
+
 
         // USERMENU -> in system/settings.h
         //-------------------------------------------
@@ -1301,6 +1310,15 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("filebrowser_showrights", g_settings.filebrowser_showrights);
 	configfile.setInt32("filebrowser_sortmethod", g_settings.filebrowser_sortmethod);
 	configfile.setBool("filebrowser_denydirectoryleave", g_settings.filebrowser_denydirectoryleave);
+
+	//zapit setup
+	configfile.setString( "startchanneltv", g_settings.StartChannelTV );
+	configfile.setString( "startchannelradio", g_settings.StartChannelRadio );
+	configfile.setInt64("startchanneltv_id", g_settings.startchanneltv_id);
+	configfile.setInt64("startchannelradio_id", g_settings.startchannelradio_id);
+	configfile.setInt32("startchanneltv_nr", g_settings.startchanneltv_nr);
+	configfile.setInt32("startchannelradio_nr", g_settings.startchannelradio_nr);
+	configfile.setInt32("uselastchannel", g_settings.uselastchannel);
 
         // USERMENU
         //---------------------------------------
@@ -2066,7 +2084,16 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 
-	pthread_create (&zapit_thread, NULL, zapit_main_thread, (void *) g_settings.video_Mode);
+	//zapit start parameters
+	Z_start_arg ZapStart_arg;
+	ZapStart_arg.startchanneltv_id = g_settings.startchanneltv_id;
+	ZapStart_arg.startchannelradio_id = g_settings.startchannelradio_id;
+	ZapStart_arg.startchanneltv_nr = g_settings.startchanneltv_nr;
+	ZapStart_arg.startchannelradio_nr = g_settings.startchannelradio_nr;
+	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
+	ZapStart_arg.video_mode = g_settings.video_Mode;
+
+	pthread_create (&zapit_thread, NULL, zapit_main_thread, (void *) &ZapStart_arg);
 	audioSetupNotifier        = new CAudioSetupNotifier;
 
 	while(!zapit_ready)

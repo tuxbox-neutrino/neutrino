@@ -1474,7 +1474,12 @@ const char *locale_real_names[] = {
 	"cpu.freq_default",
 	"wizard.welcome_head",
 	"wizard.welcome_text",
-	"word.from"
+	"word.from",
+	"zapitsetup.head",
+	"zapitsetup.info",
+	"zapitsetup.last_radio",
+	"zapitsetup.last_use",
+	"zapitsetup.last_tv"
 };
 
 #endif
