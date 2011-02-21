@@ -2,7 +2,7 @@
 #define __gui_widget_buttons_h__
 
 /*
- * $Header: /cvs/tuxbox/apps/tuxbox/neutrino/src/gui/widget/buttons.h,v 1.2 2004/05/25 07:44:16 thegoodguy Exp $
+ * $Id: buttons.h,v 1.6 2010/07/12 08:24:55 dbt Exp $
  *
  * (C) 2003 by thegoodguy <thegoodguy@berlios.de>
  *
@@ -21,10 +21,11 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
+ 
 #include <driver/fontrenderer.h>
 #include <driver/framebuffer.h>
 #include <system/localize.h>
+#include <gui/color.h>
 
 typedef struct button_label
 {
@@ -32,7 +33,17 @@ typedef struct button_label
 	neutrino_locale_t locale;
 } button_label_struct;
 
-void paintButtons(CFrameBuffer * const frameBuffer, Font * const font, const CLocaleManager * const localemanager, const int x, const int y, const unsigned int buttonwidth, const unsigned int count, const struct button_label * const content);
-void paintButtons(CFrameBuffer * const frameBuffer, Font * const font, const CLocaleManager * const localemanager, const int x, const int y, const unsigned int buttonwidth, const unsigned int height, const unsigned int count, const struct button_label * const content);
-
+int paintButtons(	const int &x, 
+			const int &y, 
+			const int &footerwidth, 
+			const uint &count, 
+			const struct button_label * const content,
+			const int &footerheight = 0,
+			const int &buttonwidth = 0,
+			bool vertical_paint = false,
+			const unsigned char fcolor = COL_INFOBAR_SHADOW,
+			const char * alt_buttontext = NULL,
+			const uint &buttontext_id = 0);
+											
+					
 #endif /* __gui_widget_buttons_h__ */

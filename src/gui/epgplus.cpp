@@ -133,7 +133,7 @@ void EpgPlus::Header::paint(const char * Name)
 
 int EpgPlus::Header::getUsedHeight()
 {
-	return font->getHeight() + 4 ;
+	return font->getHeight() + 8 ;
 }
 
 Font *EpgPlus::TimeLine::fontTime = NULL;
@@ -434,7 +434,7 @@ EpgPlus::Footer::Footer (CFrameBuffer * pframeBuffer, int px, int py, int pwidth
 	this->x = px;
 	this->y = py;
 	this->width = pwidth;
-	this->buttonHeight = height;
+ 	this->buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //TODO get height from buttons
 }
 
 EpgPlus::Footer::~Footer()
@@ -505,14 +505,9 @@ struct button_label buttonLabels[] = {
 
 void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfButtons)
 {
-	int buttonWidth = (this->width - RADIUS_LARGE) / 4;
+	int buttonWidth = (this->width);
 	int yPos = this->y + this->getUsedHeight();
-
-	this->frameBuffer->paintBoxRel (this->x, yPos, this->width, buttonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-
-	::paintButtons (this->frameBuffer, this->fontButtons, g_Locale, this->x + 10,
-		yPos, buttonWidth, buttonHeight, numberOfButtons, pbuttonLabels);
-
+	::paintButtons (this->x, yPos, buttonWidth, numberOfButtons, pbuttonLabels, buttonHeight);
 }
 
 EpgPlus::EpgPlus()
@@ -703,8 +698,7 @@ void EpgPlus::init()
 	if(icol_h < h2)
 		icol_h = h2;
 
-	//int buttonHeight = 6 + std::max (icol_h+2, fonts[EPGPlus_footer_fontbuttons]->getHeight());
-	int buttonHeight = std::max (icol_h+4, fonts[EPGPlus_footer_fontbuttons]->getHeight());
+	int buttonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //TODO get height from buttons/*std::max (icol_h+8, fonts[EPGPlus_footer_fontbuttons]->getHeight());*/
 	int footerHeight = Footer::getUsedHeight() + buttonHeight;
 
 	this->maxNumberOfDisplayableEntries = (this->usableScreenHeight - headerHeight - timeLineHeight - horGap1Height - horGap2Height - footerHeight) / this->entryHeight;

@@ -133,7 +133,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	theight = std::max(theight, icol_h);
 
         frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-        buttonHeight = 8 + std::max(icol_h+2, sheight);
+        buttonHeight = 8 + std::max(icol_h+2, sheight); //TODO get value from buttonbar
 
 	fheight      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	listmaxshow = (height-theight-2*buttonHeight)/(fheight);
@@ -648,30 +648,17 @@ const struct button_label PictureViewerButtons2[][2] =
 void CPictureViewerGui::paintFoot()
 {
 //	printf("paintFoot{\n");
-	int ButtonWidth = (width-20) / 4;
-//	int ButtonWidth2 = (width-50) / 2;
 
-	frameBuffer->paintBoxRel(x, y+(height-2*buttonHeight), width, 2*buttonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-	frameBuffer->paintHLine(x, x+width,  y+(height-2*buttonHeight), COL_INFOBAR_SHADOW_PLUS_0);
+	frameBuffer->paintBoxRel(x, y+(height-2*buttonHeight), width, 2*buttonHeight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
 
 	if (!playlist.empty())
 	{
-		//::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - 2 * buttonHeight) + 4, ButtonWidth, 4, PictureViewerButtons);
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, 
-			x + 10, y + (height - 2 * buttonHeight), ButtonWidth, buttonHeight,
-			4, PictureViewerButtons);
+		::paintButtons(x, y + (height - 2 * buttonHeight), 0, 4, PictureViewerButtons);
 
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, 
-			x + 10, y + (height - buttonHeight), ButtonWidth*2, buttonHeight,
-			2, (m_sort==FILENAME)?PictureViewerButtons2[0]:PictureViewerButtons2[1]);
-
-
+		::paintButtons(x, y + (height - buttonHeight), 0, 2, (m_sort==FILENAME)?PictureViewerButtons2[0]:PictureViewerButtons2[1]);
 	}
 	else
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, 
-			/*x + ButtonWidth + 10, y + (height - 2 * buttonHeight) + 4, ButtonWidth,*/
-			x + ButtonWidth + 10, y + (height - 2 * buttonHeight), ButtonWidth, buttonHeight,
-			1, &(PictureViewerButtons[1]));
+		::paintButtons(x , y + (height - 2 * buttonHeight), 0, 1, &(PictureViewerButtons[1]));
 //	printf("paintFoot}\n");
 }
 //------------------------------------------------------------------------

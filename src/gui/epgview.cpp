@@ -1133,7 +1133,6 @@ void CEpgData::showTimerEventBar (bool pshow)
 	w = ox - 20;
 	x = sx + 10;
 	y = sy + oy;
-	cellwidth = w / 4;
 
 	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
@@ -1145,14 +1144,12 @@ void CEpgData::showTimerEventBar (bool pshow)
 	if (! pshow) 
 		return;
 
-	frameBuffer->paintBoxRel(sx,y,ox,h, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale,
-				x, y, cellwidth*2, h, 2, EpgButtons);
+		::paintButtons(x, y, 0, 2, EpgButtons, h);
 	else
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale,
-				x + cellwidth*2, y, cellwidth, h, 1, &EpgButtons[1]);
+		::paintButtons(x, y, 0, 1, &EpgButtons[1], h);
 
 #if 0
 	// Button: Timer Record & Channelswitch

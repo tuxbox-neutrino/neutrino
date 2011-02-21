@@ -302,11 +302,10 @@ int CBouquetList::show(bool bShowChannelList)
 	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 
-	//buttonHeight = 7 + std::max(icol_h+2, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
-	buttonHeight = std::max(icol_h+4, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
+	footerHeight = std::max(icol_h+8, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8); //TODO get footerHeight from buttons
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	listmaxshow = (height - theight - buttonHeight)/fheight;
-	height      = theight + buttonHeight + listmaxshow * fheight; // recalc height
+	listmaxshow = (height - theight - footerHeight)/fheight;
+	height      = theight + footerHeight + listmaxshow * fheight; // recalc height
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
@@ -616,16 +615,9 @@ void CBouquetList::paint()
 	else // if(lastnum<100000)
 		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("00000");
 
-	//frameBuffer->paintBoxRel(x, y+theight, width, height-theight+10, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - buttonHeight, COL_MENUCONTENT_PLUS_0);
+	frameBuffer->paintBoxRel(x, y+theight, width, height - theight - footerHeight, COL_MENUCONTENT_PLUS_0);
 
-	int ButtonWidth = (width - 20) / 4;
-
-	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, 
-			/*y + (height - buttonHeight) + 3, ButtonWidth, */
-			y + (height - buttonHeight), ButtonWidth, buttonHeight,
-			sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons);
+	::paintButtons(x, y + (height - footerHeight), width, sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons, footerHeight);
 
 	if(Bouquets.size())
 	{

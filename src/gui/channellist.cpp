@@ -105,6 +105,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	vlist = _vlist;
 	selected_chid = 0;
 	this->new_mode_active = false;
+	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
 //printf("************ NEW LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 }
 
@@ -478,8 +479,6 @@ int CChannelList::show()
 	/* assuming all color icons must have same size */
 	int icol_w, icol_h;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	//buttonHeight = 7 + std::max(icol_h+2, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
-	buttonHeight = std::max(icol_h+4, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
 
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 
@@ -498,8 +497,8 @@ int CChannelList::show()
 	if (fheight == 0)
 		fheight = 1; /* avoid crash on invalid font */
 
-	listmaxshow = (height - theight - buttonHeight -0)/fheight;
-	height = theight + buttonHeight + listmaxshow * fheight;
+	listmaxshow = (height - theight - footerHeight -0)/fheight;
+	height = theight + footerHeight + listmaxshow * fheight;
 	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
@@ -1833,19 +1832,16 @@ void CChannelList::paintHead()
 	logo_off = timestr_len + 4;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
 
-	// foot
-	int ButtonWidth = (width - 20) / NUM_LIST_BUTTONS;
-
+	//foot/buttonbar
+	
 	if (displayNext) {
 		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NOW;
 	} else {
 		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
 	}
-
-	frameBuffer->paintBoxRel(x, y + (height - buttonHeight), width, buttonHeight - 1, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM); //round
-	//::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight) + 3, ButtonWidth,
-	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + (height - buttonHeight), ButtonWidth, buttonHeight,
-			NUM_LIST_BUTTONS, CChannelListButtons);
+	
+	int y_foot = y + (height - footerHeight);
+	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, CChannelListButtons, footerHeight/*, (width - 20) / NUM_LIST_BUTTONS*/); //buttonwidth will set automaticly
 }
 
 void CChannelList::paint()
@@ -1856,7 +1852,7 @@ void CChannelList::paint()
 
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
-	frameBuffer->paintBoxRel(x, y+theight, width, height-buttonHeight-theight, COL_MENUCONTENT_PLUS_0, 0, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0, 0, CORNER_BOTTOM);
 	for(unsigned int count = 0; count < listmaxshow; count++) {
 		paintItem(count);
 	}

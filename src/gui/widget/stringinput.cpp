@@ -142,15 +142,16 @@ void CStringInput::init()
 	}
 	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	iheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getHeight();
-
-	height = hheight+ mheight+ 50;
+	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8; //initial height value for buttonbar
+	height = hheight+ mheight + 50;
 	if (hint_1 != NONEXISTANT_LOCALE)
 	{
 		height += iheight;
 		if (hint_2 != NONEXISTANT_LOCALE)
 			height += iheight;
 	}
-
+	height += g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //buttonbar;
+	
 	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width)>>1);
 	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight()-height)>>1);
 	selected = 0;
@@ -470,7 +471,7 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 
 void CStringInput::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width, height);
+	frameBuffer->paintBackgroundBoxRel(x, y, width, height + footerHeight);
 }
 
 const char * CStringInput::getHint1(void)
@@ -484,7 +485,7 @@ void CStringInput::paint()
 	int icol_w, icol_h;
 
 	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //round
-	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);//round
+	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0);
 
 	if (!(iconfile.empty()))
 	{
@@ -561,15 +562,15 @@ CStringInputSMS::CStringInputSMS(const neutrino_locale_t Name, char* Value, int 
 void CStringInputSMS::initSMS(const char * const Valid_Chars)
 {
 	last_digit = -1;				// no key pressed yet
-	const char CharList[10][11] = { "0 -_/()<>=",	// 9 characters
+	const char CharList[10][11] = { "0 -_/()<>=",	// 10 characters
 					"1+.,:!?\\",
-					"abc2ä",
+					"abc2Ã¤",
 					"def3",
 					"ghi4",
 					"jkl5",
-					"mno6ö",
-					"pqrs7ß",
-					"tuv8ü",
+					"mno6Ã¶",
+					"pqrs7ÃŸ",
+					"tuv8Ã¼",
 					"wxyz9" };
 
 	for (int i = 0; i < 10; i++)
@@ -686,30 +687,17 @@ void CStringInputSMS::keyRightPressed()
 const struct button_label CStringInputSMSButtons[2] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_STRINGINPUT_CAPS  },
-//	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_XXX               },
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_STRINGINPUT_CLEAR }
-//	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_XXX               }
 };
 
 void CStringInputSMS::paint()
 {
-	int icol_w, icol_h;
-	int bh, bw, fh;
-
 	CStringInput::paint();
-
-	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	bh = std::max(fh, icol_h+4);
-	bw = (width - 20) / 2;
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x+20+140, y+ hheight+ mheight+ iheight* 3+ 30, 0, COL_MENUCONTENT);
 
-	frameBuffer->paintBoxRel(x, y+height-bh, width, bh, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-	//frameBuffer->paintHLine(x, x+width,  y+height-25, COL_INFOBAR_SHADOW_PLUS_0);
-
-	//::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 8, y+height-25+1, 230, 2, CStringInputSMSButtons);
-	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y+height-bh, bw, bh, 2, CStringInputSMSButtons);
+	//buttonbar
+	::paintButtons(x, y + height, width, 2, CStringInputSMSButtons);
 }
 
 void CPINInput::paintChar(int pos)

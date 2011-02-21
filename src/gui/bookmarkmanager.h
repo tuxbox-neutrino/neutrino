@@ -73,10 +73,10 @@ class CBookmarkManager
 	unsigned int		selected;
 	unsigned int		liststart;
 	unsigned int		listmaxshow;
-	int					fheight; // Fonthoehe Timerlist-Inhalt
-	int					theight; // Fonthoehe Timerlist-Titel
-	int                 buttonHeight;
-	bool				visible;			
+	int			fheight; // Fonthoehe Timerlist-Inhalt
+	int			theight; // Fonthoehe Timerlist-Titel
+	int			footerHeight;
+	bool			visible;			
 	int 			width;
 	int 			height;
 	int 			x;

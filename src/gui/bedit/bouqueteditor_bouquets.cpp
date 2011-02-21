@@ -57,7 +57,7 @@ CBEBouquetWidget::CBEBouquetWidget()
 	frameBuffer = CFrameBuffer::getInstance();
 	iconoffset = 0;
 
-	ButtonHeight = 25;
+	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8;
 
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
@@ -163,11 +163,11 @@ void CBEBouquetWidget::paintFoot()
 	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-	ButtonHeight = std::max(fh, icol_h+4);
+/*	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8*//*std::max(fh, icol_h+4)*/;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &icol_w, &h2);
-	ButtonHeight = std::max(ButtonHeight, h2+4);
+// 	ButtonHeight = std::max(ButtonHeight, h2+4);
 
-	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+// 	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
 	switch( blueFunction)
@@ -182,8 +182,7 @@ void CBEBouquetWidget::paintFoot()
 			Button[3].locale = LOCALE_BOUQUETEDITOR_LOCK;
 		break;
 	}
-	//::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 5, y + height + 4, (width - 28 - 10) / 4, 4, Button);
-	::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, y + height, (width - icol_w - 20) / 4, ButtonHeight, 4, Button);
+	::paintButtons(x, y+height, width, 4, Button, ButtonHeight);
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - 10 - icol_w, y + height, ButtonHeight);
 }
 

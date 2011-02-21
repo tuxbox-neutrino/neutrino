@@ -63,7 +63,7 @@ class CChannelList
 		unsigned int		numwidth;
 		int			fheight; // Fonthoehe Channellist-Inhalt
 		int			theight; // Fonthoehe Channellist-Titel
-		int			buttonHeight;
+		int			footerHeight;
 
 		std::string             name;
 		ZapitChannelList	chanlist;

@@ -390,7 +390,7 @@ void CFileBrowser::commonInit()
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->getHeight();
 	if (fheight == 0)
 		fheight = 1; /* avoid div by zero on invalid font */
-	foheight = 30;
+	foheight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar; TODO get value from buttonbar
 
 	liststart = 0;
 	listmaxshow = std::max(1,(int)(height - theight - 2 * foheight)/fheight);
@@ -1433,38 +1433,37 @@ void CFileBrowser::paintFoot()
 	{ NEUTRINO_ICON_BUTTON_MUTE_SMALL, LOCALE_FILEBROWSER_DELETE            },
 };
 
-	int dx = (width-20) / 4;
-	//Second Line (bottom, top)
-	int by2 = y + height - (foheight - 4);
-	int iw = 0, ih = 0; 
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih); 
+ 	int dx = (width-20) / 4;
+// 	int iw = 0, ih = 0; 
+// 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih); 
 
 	//Background
-	frameBuffer->paintBoxRel(x, y + height - (2 * foheight ), width, (2 * foheight ), COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
+	int by0 = y + height - (2 * foheight );
+	frameBuffer->paintBoxRel(x, by0, width, (2 * foheight ), COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
+	
+	//Second Line (bottom, top)
+	int by2 = by0 + foheight;
 
 	if (!(filelist.empty()))
 	{
-		int by = y + height - 2 * (foheight - 4);
+		//red, green, yellow button
+		::paintButtons(x, by0, 0, Multi_Select ? 3 : 2, FileBrowserButtons, foheight);
 
-		::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10, by, dx, Multi_Select ? 3 : 2, FileBrowserButtons);
-
+		//blue filter
 		if(Filter != NULL)
-			::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10 + (3 * dx), by, dx, 1, &(FileBrowserFilterButton[use_filter?0:1]));
+			::paintButtons(x + 10 + (3 * dx), by0, 0, 1, &(FileBrowserFilterButton[use_filter?0:1]), foheight);
 
 		//OK-Button
 		if( (filelist[selected].getType() != CFile::FILE_UNKNOWN) || (S_ISDIR(filelist[selected].Mode)) )
-		{
-			::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10 , by2, dx, 1,&(FileBrowserButtons2[0]));
+			::paintButtons(x, by2, 0, 1,&(FileBrowserButtons2[0]), foheight);
 
-		}
-
-		//?-Button
-			::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10 + dx , by2, dx, 1,&(FileBrowserButtons2[1]));
+		//help-Button
+			::paintButtons(x + 10 + dx , by2, 0, 1,&(FileBrowserButtons2[1]), foheight);
 
 
 		//Mute-Button
 		if (strncmp(Path.c_str(), VLC_URI, strlen(VLC_URI)) != 0) { //Not in vlc mode
-			::paintButtons(frameBuffer, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], g_Locale, x + 10 + (dx * 2) , by2, dx, 1,&(FileBrowserButtons2[2]));
+			::paintButtons(x + 10 + (dx * 2) , by2, 0, 1,&(FileBrowserButtons2[2]));
 
 		}
 

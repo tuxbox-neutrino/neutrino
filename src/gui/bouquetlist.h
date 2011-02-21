@@ -87,7 +87,7 @@ class CBouquetList
 		unsigned int		maxpos;
 		int			fheight; // Fonthoehe Bouquetlist-Inhalt
 		int			theight; // Fonthoehe Bouquetlist-Titel
-		int			buttonHeight;
+		int			footerHeight;
 
 		int		width;
 		int		height;
