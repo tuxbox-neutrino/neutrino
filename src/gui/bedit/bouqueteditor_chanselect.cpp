@@ -184,8 +184,8 @@ const struct button_label CBEChannelSelectButtons[] =
 
 void CBEChannelSelectWidget::paintFoot()
 {
-	int ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8;
-	::paintButtons(x, y+height, width, 2, CBEChannelSelectButtons, ButtonHeight);
+	int _ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8;
+	::paintButtons(x, y+height, width, 2, CBEChannelSelectButtons, _ButtonHeight);
 
 #if 0
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);
