@@ -1471,8 +1471,8 @@ upnpbrowser.scanning Scanning for UPnP servers
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from
-zapitsetup.head Zapit Settings
-zapitsetup.info Zapit
-zapitsetup.last_radio Start Radio Channel
-zapitsetup.last_use Start from last Channel
-zapitsetup.last_tv Start TV Channel
+zapitsetup.head Start Channel Settings
+zapitsetup.info Start Channel
+zapitsetup.last_radio Radio Channel
+zapitsetup.last_use from last Channel
+zapitsetup.last_tv TV Channel

@@ -147,11 +147,13 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 extern CBouquetManager *g_bouquetManager;
 void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode)
 {
+	std::vector<CMenuWidget *> toDelete;
 	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS, width, height);
 	mctv.addIntroItems();
 
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
 		CMenuWidget* mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS, width, height);
+		toDelete.push_back(mwtv);
 		mwtv->addIntroItems();
 		ZapitChannelList channels = (mode == CZapitClient::MODE_RADIO) ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
 		for(int j = 0; j < (int) channels.size(); j++) {
@@ -171,4 +173,11 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 	}
 	mctv.exec (NULL, "");
 	mctv.hide ();
+
+	// delete dynamic created objects
+	for(unsigned int count=0;count<toDelete.size();count++)
+	{
+		delete toDelete[count];
+	}
+	toDelete.clear();
 }
