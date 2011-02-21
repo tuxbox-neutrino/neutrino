@@ -1470,7 +1470,7 @@ zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
 zaptotimer.announce In einer Minute wird umgeschaltet.
 word.from ab
-zapitsetup.head  Start Kanal Einstellungen
+zapitsetup.head Startkanal-Verwaltung
 zapitsetup.info Start Kanal
 zapitsetup.last_radio Radio Kanal
 zapitsetup.last_use Kanal beim Runterfahren speichern
