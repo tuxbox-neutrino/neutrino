@@ -428,7 +428,7 @@ Font *EpgPlus::Footer::fontEventShortDescription = NULL;
 Font *EpgPlus::Footer::fontButtons = NULL;
 int EpgPlus::Footer::color = 0;
 
-EpgPlus::Footer::Footer (CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int height)
+EpgPlus::Footer::Footer (CFrameBuffer * pframeBuffer, int px, int py, int pwidth, int /*height*/)
 {
 	this->frameBuffer = pframeBuffer;
 	this->x = px;
