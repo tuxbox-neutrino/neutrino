@@ -2181,14 +2181,12 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    audioplPicSettings  (LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    _scanSettings       (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    service             (LOCALE_SERVICEMENU_HEAD              , NEUTRINO_ICON_SETTINGS);
 
-	InitMainMenu(mainMenu, mainSettings, miscSettings, service, audioplPicSettings, streamingSettings);
+	InitMainMenu(mainMenu, mainSettings, miscSettings, service, streamingSettings);
 
 	InitServiceSettings(service, _scanSettings);
-	InitAudioplPicSettings(audioplPicSettings);
 	InitMiscSettings(miscSettings);
 	InitScanSettings(_scanSettings);
 
@@ -4187,25 +4185,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 				}
 		}
 		fontsizenotifier.changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
-// 	else if(actionKey=="osd.def") {
-// 		for (int i = 0; i < TIMING_SETTING_COUNT; i++)
-// 			g_settings.timing[i] = default_timing[i];
-// 
-// 		SetupTiming();
-// 	}
-	else if(actionKey == "audioplayerdir") {
-		parent->hide();
-
-		chooserDir(g_settings.network_nfs_audioplayerdir, false, NULL, sizeof(g_settings.network_nfs_audioplayerdir)-1);
-
-	}
-	else if(actionKey == "picturedir") {
-		parent->hide();
-
-		chooserDir(g_settings.network_nfs_picturedir, false, NULL, sizeof(g_settings.network_nfs_picturedir)-1);
-
-		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "moviedir") {
 		parent->hide();

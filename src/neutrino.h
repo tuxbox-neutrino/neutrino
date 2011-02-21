@@ -172,10 +172,9 @@ private:
 	void InitZapper();
 	void InitServiceSettings(CMenuWidget &, CMenuWidget &);
 	void InitScreenSettings(CMenuWidget &);
-	void InitAudioplPicSettings(CMenuWidget &);
 	void InitMiscSettings(CMenuWidget &);
 	void InitScanSettings(CMenuWidget &);
-	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &audioplPicSettings, CMenuWidget &streamingSettings);
+	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &streamingSettings);
 
 	void SetupFrameBuffer();
 	void SelectAPID();

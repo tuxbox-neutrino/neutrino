@@ -40,6 +40,7 @@ libneutrino_gui_a_SOURCES = \
 	audio_select.cpp \
 	audio_setup.cpp \
 	audioplayer.cpp \
+	audioplayer_setup.cpp\
 	bookmarkmanager.cpp \
 	bouquetlist.cpp \
 	channellist.cpp \
@@ -55,6 +56,7 @@ libneutrino_gui_a_SOURCES = \
 	infoviewer.cpp \
 	keybind_setup.cpp \
 	mediaplayer.cpp \
+	mediaplayer_setup.cpp \
 	moviebrowser.cpp \
 	movieinfo.cpp \
 	movieplayer.cpp \
@@ -64,6 +66,7 @@ libneutrino_gui_a_SOURCES = \
 	osdlang_setup.cpp \
 	parentallock_setup.cpp \
 	pictureviewer.cpp \
+	pictureviewer_setup.cpp \
 	pluginlist.cpp \
 	plugins.cpp \
 	proxyserver_setup.cpp \
