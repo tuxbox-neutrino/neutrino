@@ -50,15 +50,8 @@ extern cVideo *videoDecoder;
 
 CCECSetup::CCECSetup()
 {
-	frameBuffer = CFrameBuffer::getInstance();
-
 	width = w_max (40, 10); //%
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	height 	= hheight+13*mheight+ 10;
 	selected = -1;
-	x	= getScreenStartX (width);
-	y	= getScreenStartY (height);
 }
 
 CCECSetup::~CCECSetup()
@@ -77,11 +70,6 @@ int CCECSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	showMenu();
 	
 	return res;
-}
-
-void CCECSetup::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x,y, width, height);
 }
 
 

@@ -36,8 +36,6 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
 #include <system/setting_helpers.h>
 
 #include <string>
@@ -52,15 +50,11 @@ class CLangSelectNotifier : public CChangeObserver
 
 class COsdLangSetup : public CMenuTarget, CChangeObserver
 {	
-	private:
-
-		CFrameBuffer *frameBuffer;
-				
-		int x, y, width, height, menue_width, hheight, mheight, selected;
+	private:				
+		int  width, selected;
 
 		bool is_wizard;
 		
-		void hide();
 		void showLocalSetup();
 		void showLanguageSetup(CMenuWidget *osdl_setup);
 		void showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *langNotifier);

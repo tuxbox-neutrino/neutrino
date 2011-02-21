@@ -38,12 +38,10 @@
 class CCECSetup : public CMenuTarget, CChangeObserver
 {
 	private:
-		CFrameBuffer *frameBuffer;
 		CMenuOptionChooser 	*cec1, *cec2;
 				
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 
-		void hide();
 		void showMenu();
  		
 

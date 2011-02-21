@@ -53,18 +53,11 @@
 
 CKeybindSetup::CKeybindSetup()
 {
-	frameBuffer = CFrameBuffer::getInstance();
-	
 	keySetupNotifier = new CKeySetupNotifier;
 	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
 	width = w_max (40, 10);
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	height 	= hheight+13*mheight+ 10;
 	selected = -1;
-	x	= getScreenStartX (width);
-	y	= getScreenStartY (height);
 }
 
 CKeybindSetup::~CKeybindSetup()
@@ -113,10 +106,6 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	return res;
 }
 
-void CKeybindSetup::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
-}
 
 #define KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT 3
 const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS[KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT] =

@@ -34,23 +34,17 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
 
-#include <driver/framebuffer.h>
-
 #include <string>
 
 class CProxySetup : public CMenuTarget
 {
 	private:
-		CFrameBuffer *frameBuffer;
-
-		int x, y, width, height, hheight, mheight;
+		int width;
 
 		neutrino_locale_t menue_title;
 		std::string menue_icon;
 
-		void hide();
 		void showProxySetup();
-
 
 	public:	
 		CProxySetup(const neutrino_locale_t title = LOCALE_FLASHUPDATE_PROXYSERVER_SEP, const char * const IconName = NEUTRINO_ICON_SETTINGS);

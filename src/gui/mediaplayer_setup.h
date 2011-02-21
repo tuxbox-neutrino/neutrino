@@ -35,16 +35,11 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
-
 #include <string>
 
 class CMediaPlayerSetup : public CMenuTarget
 {
 	private:
-		CFrameBuffer *frameBuffer;
-		
 		int width, selected;
 
 		void showMediaPlayerSetup();

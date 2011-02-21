@@ -36,119 +36,53 @@
 
 //#define TEST_MENU
 
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#include <dlfcn.h>
-#include <signal.h>
-#include <sys/wait.h>
-#include <sys/statvfs.h>
-#include <sys/vfs.h>
-
-#include <sys/socket.h>
-
-#include <iostream>
-#include <fstream>
-#include <string>
-
-
 #include "global.h"
 #include "neutrino.h"
+#include "mymenu.h"
 
-#include <daemonc/remotecontrol.h>
+#include <system/debug.h>
 
-#include <driver/encoding.h>
-#include <driver/framebuffer.h>
-#include <driver/fontrenderer.h>
-#include <driver/rcinput.h>
-#include <driver/stream2file.h>
-#include <driver/vcrcontrol.h>
-#include <driver/shutdown_count.h>
+#include <cs_api.h>
 
-#include <gui/epgplus.h>
-#include <gui/streaminfo2.h>
-
-#include "gui/alphasetup.h"
 #include "gui/audio_setup.h"
-#include "gui/audioplayer.h"
+#include "gui/audio_select.h"
 #include "gui/bedit/bouqueteditor_bouquets.h"
 #include "gui/bouquetlist.h"
-#include "gui/channellist.h"
+#include "gui/cam_menu.h"
 #include "gui/cec_setup.h"
-#include "gui/color.h"
-#include "gui/customcolor.h"
+#include "gui/dboxinfo.h"
 #include "gui/epg_menu.h"
-#include "gui/epgview.h"
-#include "gui/eventlist.h"
+#include <gui/epgplus.h>
 #include "gui/favorites.h"
-#include "gui/filebrowser.h"
+#include "gui/hdd_menu.h"
 #include "gui/imageinfo.h"
-#include "gui/infoviewer.h"
 #include "gui/keybind_setup.h"
 #include "gui/mediaplayer.h"
 #include "gui/mediaplayer_setup.h"
 #include "gui/motorcontrol.h"
 #include "gui/movieplayer.h"
-#include "gui/network_setup.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
 #include "gui/parentallock_setup.h"
-#include "gui/pictureviewer.h"
 #include "gui/pluginlist.h"
 #include "gui/plugins.h"
-#include "gui/rc_lock.h"
 #include "gui/record_setup.h"
 #include "gui/scan.h"
 #include "gui/sleeptimer.h"
+#include <gui/streaminfo2.h>
 #ifdef TEST_MENU
 #include "gui/test_menu.h"
 #endif /*TEST_MENU*/
-#include "gui/timerlist.h"
 #include "gui/update.h"
-#include "gui/user_menue_setup.h"
-#include "gui/user_menue_setup.h"
 #include "gui/vfd_setup.h"
-#include "gui/videosettings.h"
 
-#include "gui/widget/colorchooser.h"
-#include "gui/widget/hintbox.h"
-#include "gui/widget/icons.h"
-#include "gui/widget/keychooser.h"
-#include "gui/widget/menue.h"
-#include "gui/widget/messagebox.h"
-#include "gui/widget/mountchooser.h"
 #include "gui/widget/stringinput.h"
 #include "gui/widget/stringinput_ext.h"
 
-#include <system/setting_helpers.h>
-#include <system/settings.h>
-#include <system/debug.h>
-#include <system/flashtool.h>
-#include <system/fsmounter.h>
-
-#include <timerdclient/timerdmsg.h>
-#include <video.h>
-#include <audio.h>
+#include <zapit/fastscan.h>
 #include <zapit/frontend_c.h>
 #include <zapit/getservices.h>
-
-#include <string.h>
-#include "gui/infoclock.h"
-#include "mymenu.h"
-#include "gui/dboxinfo.h"
-#include "gui/hdd_menu.h"
-#include "gui/audio_select.h"
-#include "gui/cam_menu.h"
-
-#include <zapit/getservices.h>
 #include <zapit/satconfig.h>
-#include <zapit/fastscan.h>
-#include <cs_api.h>
-
 
 
 extern CFrontend * frontend;
@@ -160,11 +94,6 @@ extern Zapit_config zapitCfg;
 extern char zapit_lat[20];
 extern char zapit_long[20];
 extern char current_timezone[50];
-extern cVideo *videoDecoder;
-extern cAudio *audioDecoder;
-// extern bool parentallocked;
-//extern const char * locale_real_names[];
-//extern CFontSizeNotifier fontsizenotifier;
 extern CFanControlNotifier * funNotifier;
 extern CRemoteControl * g_RemoteControl;
 extern CCAMMenuHandler * g_CamHandler;

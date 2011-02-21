@@ -47,7 +47,7 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 		
 		bool is_wizard;
 		
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 		void showVideoSetup();
 
 public:
@@ -71,8 +71,6 @@ public:
 		
 		bool getWizardMode() {return is_wizard;};
 		void setWizardMode(bool mode);
-		
-		void hide();
 		
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };

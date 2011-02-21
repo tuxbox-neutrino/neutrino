@@ -33,19 +33,13 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
 #include <string>
 
  class CVfdSetup : public CMenuTarget
 {	
 	private:
+		int width, selected;
 
-		CFrameBuffer *frameBuffer;
-		
-		int x, y, width, height, hheight, mheight, selected;
-
-		void hide();
 		void showSetup();
 
 	public:

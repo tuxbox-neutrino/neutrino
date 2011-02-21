@@ -46,18 +46,10 @@
 
 CProxySetup::CProxySetup(const neutrino_locale_t title, const char * const IconName )
 {
-	frameBuffer = CFrameBuffer::getInstance();
-
 	menue_title = title;
 	menue_icon = IconName;
 
 	width = w_max (40, 10);
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	height = hheight+13*mheight+ 10;
-	x	= getScreenStartX (width);
-	y	= getScreenStartY (height);
-
 }
 
 CProxySetup::~CProxySetup()
@@ -78,11 +70,6 @@ int CProxySetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 
 	
 	return res;
-}
-
-void CProxySetup::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
 }
 
 /* shows entries for proxy settings */

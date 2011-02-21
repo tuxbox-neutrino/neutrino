@@ -41,8 +41,6 @@
 class CPictureViewerSetup : public CMenuTarget
 {
 	private:
-		CFrameBuffer *frameBuffer;
-		
 		int width, selected;
 
 		void showPictureViewerSetup();

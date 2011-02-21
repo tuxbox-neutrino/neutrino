@@ -67,12 +67,7 @@ CVideoSettings::CVideoSettings(bool wizard_mode)
 	VcrVideoOutSignalOptionChooser = NULL;
 
 	width = w_max (35, 20);
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	height = hheight+13*mheight+ 10;
 	selected = -1;
-	x	= getScreenStartX (width);
-	y	= getScreenStartY (height);
 	
 	prev_video_mode = g_settings.video_Mode;
 	
@@ -98,11 +93,6 @@ int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 
 	
 	return res;
-}
-
-void CVideoSettings::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
 }
 
 #define VIDEOMENU_43MODE_OPTION_COUNT 4

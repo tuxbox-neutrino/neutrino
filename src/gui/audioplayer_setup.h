@@ -33,16 +33,12 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
 
 #include <string>
 
 class CAudioPlayerSetup : public CMenuTarget
 {
 	private:
-		CFrameBuffer *frameBuffer;
-		
 		int width, selected;
 
 		void showAudioPlayerSetup();

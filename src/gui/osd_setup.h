@@ -43,16 +43,13 @@
  class COsdSetup : public CMenuTarget
 {	
 	private:
-
-		CFrameBuffer *frameBuffer;
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
 		
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 		
 		bool is_wizard;
 
-		void hide();
 		void showOsdSetup();
  		void showOsdMenueColorSetup(CMenuWidget *menu_colors);
 		void showOsdFontSizeSetup(CMenuWidget *menu_fonts);

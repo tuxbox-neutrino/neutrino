@@ -56,8 +56,6 @@
 
 CMediaPlayerSetup::CMediaPlayerSetup()
 {
-	frameBuffer = CFrameBuffer::getInstance();
-
 	width = w_max (40, 10);
 	selected = -1;
 }

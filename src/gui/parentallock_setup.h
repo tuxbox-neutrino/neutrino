@@ -33,20 +33,14 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
 #include <string>
 
 class CParentalSetup : public CMenuTarget
 {
 	private:
-		CFrameBuffer *frameBuffer;
-				
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 
-		void hide();
 		void showParentalSetup();
-
 
 	public:	
 		CParentalSetup();

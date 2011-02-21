@@ -25,6 +25,7 @@
 
 
 #include "widget/menue.h"
+#include "widget/hintbox.h"
 #include <mmi.h>
 #include <ca_cs.h>
 

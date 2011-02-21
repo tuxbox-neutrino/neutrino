@@ -34,19 +34,13 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
-
 #include <string>
 
 class CRecordSetup : public CMenuTarget
 {
 	private:
-		CFrameBuffer *frameBuffer;
-		
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 
-		void hide();
 		void showRecordSetup();
 		void showRecordTimerSetup(CMenuWidget *menu_timersettings);
 		void showRecordAudioSetup(CMenuWidget *menu_audiosettings);

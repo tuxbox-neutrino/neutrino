@@ -35,8 +35,6 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/keychooser.h>
 
-#include <driver/framebuffer.h>
-
 #include <system/setting_helpers.h>
 
 #include <string>
@@ -85,9 +83,8 @@ class CKeybindSetup : public CMenuTarget
 		CKeySetupNotifier      *keySetupNotifier;
 		CKeyChooser * keychooser[KEYBINDS_COUNT];
 		
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 
-		void hide();
 		void showKeySetup();
 		void showKeyBindSetup(CMenuWidget *bindSettings);
 		void showKeyBindModeSetup(CMenuWidget *bindSettings_modes);

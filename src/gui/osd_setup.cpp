@@ -61,8 +61,6 @@ extern std::string ttx_font_file;
 
 COsdSetup::COsdSetup(bool wizard_mode)
 {
-	frameBuffer = CFrameBuffer::getInstance();
-
 	colorSetupNotifier = new CColorSetupNotifier();
 	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
@@ -71,23 +69,12 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	is_wizard = wizard_mode;
 	
 	width = w_max (40, 10); //%
-	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	mheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	height 	= hheight+13*mheight+ 10;
-	x	= getScreenStartX (width);
-	y	= getScreenStartY (height);
-	
 }
 
 COsdSetup::~COsdSetup()
 {
 	delete colorSetupNotifier;
 	delete fontsizenotifier;
-}
-
-void COsdSetup::hide()
-{
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
 }
 
 

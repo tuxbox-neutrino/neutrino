@@ -34,8 +34,6 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 
-#include <driver/framebuffer.h>
-
 #include <system/setting_helpers.h>
 #include <system/configure_network.h>
 
@@ -45,10 +43,9 @@
 class CNetworkSetup : public CMenuTarget, CChangeObserver
 {
 	private:
-		CFrameBuffer *frameBuffer;
  		CNetworkConfig  *networkConfig;
 						
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 		
 		bool is_wizard;
 
@@ -70,7 +67,6 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		std::string old_network_gateway;
 		std::string old_network_hostname;
 			
-		void hide();
 		void restoreNetworkSettings();
 		void prepareSettings();
 		void readNetworkSettings();
