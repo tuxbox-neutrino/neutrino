@@ -1127,7 +1127,6 @@ void CEpgData::showTimerEventBar (bool pshow)
 
 {
 	int  x,y,w,h,fh;
-	int  cellwidth;		// 4 cells
         int icol_w, icol_h;
 
 	w = ox - 20;
