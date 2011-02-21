@@ -3063,7 +3063,6 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL));
 	position[menu_nr++] = 0;
 
-	startPosSelectionMenu.addItem(GenericMenuSeparatorLine);
 	int sep_pos = menu_nr;
 
 	for(int i =0 ; i < MI_MOVIE_BOOK_USER_MAX && menu_nr < MAX_NUMBER_OF_BOOKMARK_ITEMS; i++ )
