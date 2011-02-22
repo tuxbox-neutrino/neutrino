@@ -78,8 +78,9 @@ int paintButtons(	const int &x,
 	int w_footer = footerwidth;
 	int h_footer = 0;
 	
-	int w_space 	= 4; //minimal space between caption to icon and between buttons and between border to caption
-	int x_icon 	= x_footer+20;
+	int w_space 	= 10; //minimal space between buttons
+	int h_space	= 4; //minimal space between caption and/or icon and border
+	int x_icon 	= x_footer + w_space;
 	int x_caption 	= 0;
 	
 	int x_button = x_icon;
@@ -119,7 +120,7 @@ int paintButtons(	const int &x,
 	h_button = std::max(h_max_icon, h_max_text); //calculate optimal button height
 	
 	//calculate footer heigth
-	h_footer = footerheight == 0 ? (h_button + 2*w_space) : footerheight;
+	h_footer = footerheight == 0 ? (h_button + 2*h_space) : footerheight;
 
 	//paint footer
 	if (w_footer > 0)
@@ -150,7 +151,7 @@ int paintButtons(	const int &x,
 		
 		// paint icon and text
 		frameBuffer->paintIcon(icon, x_button , y_base-iconh/2);
-		x_caption = x_button + iconw + w_space;
+		x_caption = x_button + iconw + h_space;
 		font->RenderString(x_caption, y_caption, w_max_text, caption, fcolor, 0, true); // UTF-8
  		
  		/* 	set next startposition x, if text is length=0 then offset is =renderwidth of icon, 
@@ -174,7 +175,7 @@ int paintButtons(	const int &x,
 		else
 		{
 			//set x_icon for painting buttons with horizontal arrangement as default
-			x_button = lentext !=0 ? (x_button + w_button + 2*w_space) : x_button;
+			x_button = lentext !=0 ? (x_button + w_button + w_space) : x_button;
 		}	
 	}
 
