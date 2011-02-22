@@ -2262,6 +2262,10 @@ int zapit_main_thread(void *data)
 		g_current_channel = &(cit->second);
 
 	zapit_ready = 1;
+	// some older? hw needs this sleep. e.g. my hd-1c.
+	// if sleep is not set -> blackscreen after boot.
+	// sleep(1) is ok here. (striper)
+	sleep(1);
 	leaveStandby();
 	firstzap = false;
 	stime = time(0);
