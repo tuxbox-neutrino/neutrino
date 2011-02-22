@@ -1,194 +1,4 @@
-apidselector.head Sprachauswahl
-audio.srs_algo Art
-audio.srs_algo_light einfach
-audio.srs_algo_normal normal
-audio.srs_iq SRS TruVolume Technologie
-audio.srs_nmgr Noise-Manager
-audio.srs_volume Referenzlautstärke
-audiomenu.analog_mode Analog Modus
-audiomenu.analog_out Analog-Ausgang
-audiomenu.auto_lang Tonwahl automatisch
-audiomenu.auto_subs Untertitel automatisch
-audiomenu.avs avs
-audiomenu.avs_control Volume Steuerung avs/ost
-audiomenu.avsync A/V sync
-audiomenu.avsync_am Audio master
-audiomenu.clockrec 
-audiomenu.dolbydigital DD-Unterkanal automatisch
-audiomenu.hdmi_dd DolbyDigital über HDMI
-audiomenu.head Audio-Einstellungen
-audiomenu.lirc lirc
-audiomenu.monoleft mono links
-audiomenu.monoright mono rechts
-audiomenu.ost ost
-audiomenu.PCMOffset Lautstärkeabsenkung PCM
-audiomenu.pref_lang Sprache
-audiomenu.pref_lang_head Tonwahl
-audiomenu.pref_languages Bevorzugte Sprachen
-audiomenu.pref_subs_head Untertitelwahl
-audiomenu.pref_subs Sprache
-audiomenu.spdif_dd DolbyDigital über S/PDIF
-audiomenu.stereo stereo
-audiomenu.volume_step Lautstärke Schrittweite
-audioplayer.add Hinzufügen
-audioplayer.add_ic Icecast
-audioplayer.add_loc Lokale Radioliste
-audioplayer.add_sc Shoutcast
-audioplayer.artist_title Interpret, Titel
-audioplayer.building_search_index Erstelle Suchindex
-audioplayer.button_select_title_by_id Suche n. ID
-audioplayer.button_select_title_by_name Suche n. Name
-audioplayer.defdir Start-Verz.
-audioplayer.delete Löschen
-audioplayer.deleteall Alle löschen
-audioplayer.display_order Anzeige
-audioplayer.enable_sc_metadata Aktiviere Shoutcast Meta-Daten Parsing
-audioplayer.fastforward schneller Vorl.
-audioplayer.follow Selektiere akt. Track
-audioplayer.head Audio Playlist
-audioplayer.highprio Hohe Decodier-Priorität
-audioplayer.jump_backwards rückw. springen
-audioplayer.jump_dialog_hint1 Bitte Sprungziel eingeben
-audioplayer.jump_dialog_hint2 (relativ, in Sekunden)
-audioplayer.jump_dialog_title Sprungziel eingeben
-audioplayer.jump_forwards vorw. springen
-audioplayer.keylevel Tasten-Umschaltung
-audioplayer.load_radio_stations Lade Radiosender
-audioplayer.name Audioplayer
-audioplayer.pause Pause
-audioplayer.play Abspielen
-audioplayer.playing Aktueller Track
-audioplayer.playlist_fileerror_msg Datei kann nicht erstellt werden:
-audioplayer.playlist_fileoverwrite_msg Soll diese Datei überschrieben werden:
-audioplayer.playlist_fileoverwrite_title Überschreiben?
-audioplayer.playlist_name Dateiname der Playlist
-audioplayer.playlist_name_hint1 Geben Sie den Dateinamen der Playlist ein
-audioplayer.playlist_name_hint2 Die Erweiterung .m3u wird automatisch angehängt
-audioplayer.reading_files Lese die Dateien ein
-audioplayer.receiving_list Liste wird empfangen, bitte warten...
-audioplayer.repeat_on Repeatmodus aktivieren
-audioplayer.rewind schneller Rückl.
-audioplayer.save_playlist Playlist speichern
-audioplayer.screensaver_timeout Bildschirmschoner (min, 0=aus)
-audioplayer.select_title_by_name Titelsuche nach Name (SMS)
-audioplayer.show_playlist Playlist anzeigen
-audioplayer.shuffle Zufällig
-audioplayer.spectrum LCD Skala
-audioplayer.stop Stopp
-audioplayer.title_artist Titel, Interpret
-audioplayerpicsettings.general Audioplayer/Bildbetrachter
 AUDIOSelectMenue.head Auswahl der Tonspur
-bookmarkmanager.delete Löschen
-bookmarkmanager.name Bookmarks
-bookmarkmanager.rename Umbenennen
-bookmarkmanager.select Auswählen
-bouqueteditor.add Hinzufügen
-bouqueteditor.bouquetname Name des Bouquets
-bouqueteditor.delete Löschen
-bouqueteditor.delete_question Soll der Kanal aus diesem Bouquet gelöscht werden?
-bouqueteditor.discardingchanges Änderungen werden verworfen. Bitte warten ...
-bouqueteditor.hide Verstecken
-bouqueteditor.lock Sperren
-bouqueteditor.move Bewegen
-bouqueteditor.name Bouquet-Verwaltung
-bouqueteditor.newbouquetname Neuer Name des Bouquets
-bouqueteditor.rename Umbenennen
-bouqueteditor.return Fertig
-bouqueteditor.savechanges? Sollen die Änderungen gespeichert werden?
-bouqueteditor.savingchanges Änderungen werden gespeichert. Bitte warten ...
-bouqueteditor.switch Kanal aufnehmen/entfernen
-bouqueteditor.switchmode TV/Radio
-bouquetlist.head Bouquets
-cablesetup.provider Kabelanbieter
-ci.empty Kein CAM im Slot
-ci.init_failed CAM-Init fehlgeschlagen
-ci.init_ok CAM-Init beendet
-ci.inserted CAM im Slot
-ci.removed CAM entfernt -> Slot
-ci.settings Zugangskontrolle
-ci.timeout CAM antwortet nicht
-ci.reset Reset
-ci.reset_standby Reset nach Standby
-ci.waiting Warte auf CAM-Antwort
-channellist.current_tp Aktueller Transponder
-channellist.edit Bearbeiten
-channellist.epgtext_align_left links
-channellist.epgtext_align_right rechts
-channellist.extended erweiterte Kanalliste
-channellist.favs Favoriten
-channellist.foot Kanalinformationen
-channellist.foot_off aus
-channellist.foot_freq Tuning-Parameter
-channellist.foot_next Nachfolgesendung
-channellist.head Alle Kanäle
-channellist.history Verlauf
-channellist.make_hdlist Erzeuge "HD"- Bouquet
-channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
-channellist.provs Anbieter
-channellist.sats Satelliten
-channellist.since seit
-channellist.start Start
-colorchooser.alpha alpha
-colorchooser.blue blau
-colorchooser.green grün
-colorchooser.red rot
-colormenu.background Hintergrundfarbe
-colormenu.fade Menüs faden
-colormenu.font Neutrino Schriftart
-colormenu.font_ttx Teletext Schriftart
-colormenu.gtx_alpha Transparenz (GTX)
-colormenu.head Farb-Einstellungen
-colormenu.menucolors Menüfarben
-colormenu.textcolor Textfarbe
-colormenu.themeselect Theme auswählen
-colormenu.timing OSD Timeouts
-colormenu.osd_preset Monitor Auswahl
-colormenu.hd_preset LCD
-colormenu.sd_preset CRT
-colormenusetup.head Menüfarben
-colormenusetup.menucontent Fensterinhalt
-colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
-colormenusetup.menucontent_selected Fensterinhalt selektiert
-colormenusetup.menuhead Titelleiste
-colorstatusbar.text Statusbalken
-colorthememenu.head Theme auswählen
-colorthememenu.head2 Themes laden
-colorthememenu.name Themename
-colorthememenu.neutrino_theme Neutrino Theme
-colorthememenu.question Aktuelles Theme beibehalten?
-colorthememenu.save aktuelles Theme speichern
-colorthememenu.select1 Benutzer Theme
-colorthememenu.select2 Standard Theme
-cpu.freq CPU Frequenz
-cpu.freq_normal Normale Frequenz
-cpu.freq_standby Standby Frequenz
-cpu.freq_default Standard Frequenz
-date.Apr  Apr
-date.Aug  Aug
-date.Dec  Dez
-date.Feb  Feb
-date.Fri  Fr
-date.Jan  Jan
-date.Jul  Jul
-date.Jun  Jun
-date.Mar  Mär
-date.May  Mai
-date.Mon  Mo
-date.Nov  Nov
-date.Oct  Okt
-date.Sat  Sa
-date.Sep  Sep
-date.Sun  So
-date.Thu  Do
-date.Tue  Di
-date.Wed  Mi
-epgextended.actors Darsteller
-epgextended.director Regie
-epgextended.guests Gäste
-epgextended.original_title Originaltitel
-epgextended.presenter Moderator
-epgextended.year_of_production Produktionsjahr
-epglist.noevents Keine EPG-Information verfügbar.
 EPGMenu.epgplus Vorschauübersicht
 EPGMenu.eventinfo Info zur Sendung
 EPGMenu.eventlist Vorschau aktuelles Programm
@@ -237,246 +47,6 @@ EPGPlus.timeline_fonttime Zeitscala Zeit
 EPGPlus.vergap1_width Breite ver. Lücke 1
 EPGPlus.vergap2_width Breite ver. Lücke 2
 EPGPlus.view_mode Modus
-epgviewer.More_Screenings Weitere Termine auf diesem Kanal
-epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
-epgviewer.notfound Keine Programminformationen (EPG) gefunden
-eventfinder.head EPG-Suche
-eventfinder.keyword Suche nach Textpassage
-eventfinder.search Suche
-eventfinder.search_within_epg Suche innerhalb EPG-Daten
-eventfinder.search_within_list Suche innerhalb Text
-eventfinder.searching Suche...
-eventfinder.start_search Suche starten
-eventlistbar.channelswitch Umschalten
-eventlistbar.eventsort Sortieren
-eventlistbar.recordevent Aufnehmen
-extra.add_to_bouquet dem Bouquet zufügen
-extra.audio_run_player Audiotaste startet Player
-extra.auto_delete Automatisch löschen
-extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
-extra.auto_to_record Timeshift zu den Aufnahmen hinzufügen
-extra.cache_txt Teletext zwischenspeichern
-extra.scrambled_message Verschlüsselung melden
-extra.volume_pos Lautstärkeanzeige
-extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
-extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
-extra.clear_log Logdatei löschen
-extra.bigwindows Große Fenster
-extra.dboxinfo Box-Info
-extra.east Osten
-extra.fec_1_2 1/2 S1_QPSK
-extra.fec_2_3 2/3 S1_QPSK
-extra.fec_3_4 3/4 S1_QPSK
-extra.fec_5_6 5/6 S1_QPSK
-extra.fec_7_8 7/8 S1_QPSK
-extra.fec_auto Auto DVB-S
-extra.fec_auto_s2 Auto DVB-S2
-extra.fec_s2_8psk_1_2 1/2 S2_8PSK
-extra.fec_s2_8psk_2_3 2/3 S2_8PSK
-extra.fec_s2_8psk_3_4 3/4 S2_8PSK
-extra.fec_s2_8psk_3_5 3/5 S2_8PSK
-extra.fec_s2_8psk_4_5 4/5 S2_8PSK
-extra.fec_s2_8psk_5_6 5/6 S2_8PSK
-extra.fec_s2_8psk_7_8 7/8 S2_8PSK
-extra.fec_s2_8psk_8_9 8/9 S2_8PSK
-extra.fec_s2_8psk_9_10 9/10 S2_8PSK
-extra.fec_s2_qpsk_1_2 1/2 S2_QPSK
-extra.fec_s2_qpsk_2_3 2/3 S2_QPSK
-extra.fec_s2_qpsk_3_4 3/4 S2_QPSK
-extra.fec_s2_qpsk_3_5 3/5 S2_QPSK
-extra.fec_s2_qpsk_4_5 4/5 S2_QPSK
-extra.fec_s2_qpsk_5_6 5/6 S2_QPSK
-extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
-extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
-extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
-extra.hw_sect Hardware Sektionen
-extra.key_click Tastendruck
-extra.key_list_end Listenende
-extra.key_list_start Listenanfang
-extra.key_plugin One-touch-Plugin
-extra.key_timeshift Timeshift
-extra.key_unlock Entsperrtaste
-extra.ladirection Breitengrad-Ausrichtung
-extra.latitude Breitengrad
-extra.loadcolors Lade Farben von
-extra.loadconfig Lade Einstellungen von
-extra.loadkeys Lade Tastenbelegung von
-extra.lodirection Längengrad-Ausrichtung
-extra.logo Logonummer
-extra.longitude Längengrad
-extra.manual_scan Manueller Scan
-extra.menu_left_exit "links" = Menü zurück
-extra.north Norden
-extra.record_time Timeshift Aufnahmezeit in Stunden
-extra.rotor_swap Rotor dreht Ost/West
-extra.savecolors Speichere Farben als
-extra.saveconfig Speichere Einstellungen als
-extra.savekeys Speichere Tastenbelegung als
-extra.scan_fast Schnell
-extra.scan_full Total
-extra.scan_mode Scan-Modus
-extra.sms_channel SMS-Modus Kanal
-extra.south Süden
-extra.spts_mode SPTS-Modus
-extra.start_tostandby Standby nach Boxstart
-extra.rounded_corners Eckendarstellung
-extra.rounded_corners_off eckig
-extra.rounded_corners_on abgerundet
-extra.temp_timeshift Temporäres Timeshift
-extra.timeshift_pause Timeshift Pause
-extra.timezone Zeitzone
-extra.tp.pol_v V
-extra.tp_fec FEC
-extra.tp_freq Frequenz
-extra.tp_mod Modulation
-extra.tp_mod_128 QAM/128
-extra.tp_mod_16 QAM/16
-extra.tp_mod_256 QAM/256
-extra.tp_mod_32 QAM/32
-extra.tp_mod_64 QAM/64
-extra.tp_pol Polarisation
-extra.tp_pol_h H
-extra.tp_rate Symbolrate
-extra.update_dir Update-Verzeichnis
-extra.use_gotoxx Benutze gotoXX
-extra.use_log Logge nach /tmp/log
-extra.west Westen
-extra.zap_cycle Zap nur in Bouquet
-extra.zapit_fast_zap Schnellumschaltung
-extra.zapit_fe_timeout Tuning Timeout (1=10ms)
-extra.zapit_hvoltage High (13.5/ 18.5) Voltage
-extra.zapit_make_bouquet Kanalliste auffüllen
-extra.zapit_menu Zapit-Einstellungen
-extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
-extra.zapit_rezap_time ReZap-Intervall
-extra.zapit_save_last_chan Letzten Kanal merken
-extra.zapit_scan_sdt Scanne SDT für Aktualisierungen
-extra.zapit_scanpids PIDs scannen/nutzen
-extra.zapit_sdt_changed Kanalliste wird neu geladen.
-extra.zapit_sort_names Kanäle nach Namen sortieren
-extra.zapit_write_names Schreibe Kanalname
-fan_speed CPU-Lüftergeschwindigkeit
-favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment...
-favorites.bouquetname Meine Favoriten
-favorites.bqcreated Bouquet "Meine Favoriten" wurde angelegt...\n
-favorites.chadded Der aktuelle Kanal wurde Ihren Favoriten hinzugefügt...\n
-favorites.chalreadyinbq Der aktuelle Kanal ist bereits in Ihren Favoriten...\n
-favorites.copy Kopiere Bouquet zu Favoriten
-favorites.finalhint \nVersehentlich hinzugefügte Kanäle können mit\nder Bouquetverwaltung korrigiert werden.\n
-favorites.menueadd Kanal Favoriten hinzufügen
-favorites.nobouquets Favoriten sind nur mit aktivierten Bouquets möglich.
-filebrowser.delete Löschen
-filebrowser.denydirectoryleave Startverzeichnis absolut
-filebrowser.dodelete1 Soll
-filebrowser.dodelete2 gelöscht werden ?
-filebrowser.filter.active Filter an
-filebrowser.filter.inactive Filter aus
-filebrowser.head Dateibrowser
-filebrowser.mark Markieren
-filebrowser.nextpage Seite vor
-filebrowser.prevpage Seite zurück
-filebrowser.scan Durchsuche Verzeichnisse
-filebrowser.select Auswählen
-filebrowser.showrights Dateirechte anzeigen
-filebrowser.sort.date (Datum)
-filebrowser.sort.name (Dateiname)
-filebrowser.sort.namedirsfirst (Dateiname2)
-filebrowser.sort.size (Größe)
-filebrowser.sort.type (Typ)
-filesystem.is.utf8 Dateisystem
-filesystem.is.utf8.option.iso8859.1 ISO-8859-1
-filesystem.is.utf8.option.utf8 UTF-8
-flashupdate.actionreadflash lese Flash
-flashupdate.cantopenfile kann Datei nicht öffnen
-flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
-flashupdate.checkupdate nach neuer Version suchen
-flashupdate.currentreleasecycle Releasezyklus
-flashupdate.currentversion_sep Installierte Version
-flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot Image-Typ
-flashupdate.currentversiontime Uhrzeit
-flashupdate.erasefailed Flash löschen fehlgeschlagen
-flashupdate.erasing lösche Flash
-flashupdate.experimentalimage Sie haben einen Snapshot ausgewählt, bitte beachten Sie,\ndass diese Version ungetestet ist und u.U. Ihre Box\nnach dem Update nicht mehr funktionsfähig ist.\n\nSoll diese Version wirklich installiert werden?
-flashupdate.expertfunctions Experten-Funktionen
-flashupdate.fileis0bytes die Dateigröße ist 0 Byte
-flashupdate.fileselector Datei-Auswahl
-flashupdate.flashreadyreboot Das Image wurde erfolgreich geflasht.\nIhre Box wird jetzt neu gestartet.
-flashupdate.getinfofile lade Versioninfo
-flashupdate.getinfofileerror kann Info nicht laden
-flashupdate.getupdatefile lade Update
-flashupdate.getupdatefileerror kann Update nicht laden
-flashupdate.globalprogress Gesamtstatus:
-flashupdate.head Aktualisierung
-flashupdate.md5check Imageprüfung
-flashupdate.md5sumerror Das Image ist fehlerhaft
-flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
-flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
-flashupdate.mtdselector Partitions-Auswahl
-flashupdate.programmingflash programmiere Flash
-flashupdate.proxypassword Passwort
-flashupdate.proxypassword_hint1 Geben sie das Proxy-Passwort ein
-flashupdate.proxypassword_hint2 Ein leerer Eintrag bedeutet keine Authentifizierung
-flashupdate.proxyserver Proxyname
-flashupdate.proxyserver_hint1 Geben Sie den Proxynamen oder IP ein (Host:Port)
-flashupdate.proxyserver_hint2 Ein leerer Eintrag bedeutet kein Proxy
-flashupdate.proxyserver_sep Proxyserver
-flashupdate.proxyusername Benutzername
-flashupdate.proxyusername_hint1 Geben Sie den Proxy-Benutzernamen ein
-flashupdate.proxyusername_hint2 Ein leerer Eintrag bedeutet keine Authentifizierung
-flashupdate.readflash ganzes Flashimage auslesen
-flashupdate.readflashmtd einzelne Partition auslesen
-flashupdate.ready fertig
-flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\nFalls ein Fehler auftritt oder das Image nicht\nfunktionfähig ist, wird Ihre Box nicht mehr booten.\n\nImagename: %s\nZiel: %s
-flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
-flashupdate.selectimage Verfügbare Images/Files
-flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
-flashupdate.titlereadflash Flash auslesen
-flashupdate.titlewriteflash Flash schreiben
-flashupdate.updatemode Updatemodus
-flashupdate.updatemode_internet Internet
-flashupdate.updatemode_manual manuell (ftp)
-flashupdate.url_file Konfigfile
-flashupdate.versioncheck Versionsüberprüfung
-flashupdate.writeflash ganzes Flashimage einspielen
-flashupdate.writeflashmtd einzelne Partition einspielen
-flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
-flashupdate.new_found Updates verfügbar!
-flashupdate.new_notfound Keine Updates verfügbar!
-fontmenu.menu Menü
-fontmenu.scaling Schriftgrössenfaktor
-fontmenu.scaling_x Horizontal (in %)
-fontmenu.scaling_y Vertikal (in %)
-fontmenu.sizes Schriftgrössen
-fontmenu.channellist Kanalliste
-fontmenu.epg EPG (Programmführer)
-fontmenu.eventlist Event-Liste
-fontmenu.gamelist Spiele-Liste
-fontmenu.head Schrift
-fontmenu.infobar Infobar
-fontsize.channel_num_zap Direktauswahl
-fontsize.channellist Kanalliste
-fontsize.channellist_descr Beschreibung
-fontsize.channellist_number Nummer
-fontsize.epg_date EPG Datum
-fontsize.epg_info1 EPG Info 1
-fontsize.epg_info2 EPG Info 2
-fontsize.epg_title EPG Titel
-fontsize.eventlist_datetime Datum/Zeit
-fontsize.eventlist_itemlarge Groß
-fontsize.eventlist_itemsmall Klein
-fontsize.eventlist_title Titel
-fontsize.filebrowser_item Dateibrowsereinträge
-fontsize.gamelist_itemlarge Groß
-fontsize.gamelist_itemsmall Klein
-fontsize.hint Schriftart wird initialisiert,\nbitte warten...
-fontsize.infobar_channame Kanalname
-fontsize.infobar_info Info
-fontsize.infobar_number Nummer
-fontsize.infobar_small Klein
-fontsize.menu Menütext
-fontsize.menu_info Menüinfo
-fontsize.menu_title Menütitel
 GENRE.ARTS.0 Kunst/Kultur
 GENRE.ARTS.1 Darstellende Künste
 GENRE.ARTS.10 Kunst-/Kultur-Magazin
@@ -553,6 +123,436 @@ GENRE.TRAVEL_HOBBIES.5 Kochen
 GENRE.TRAVEL_HOBBIES.6 Einkauf
 GENRE.TRAVEL_HOBBIES.7 Garten
 GENRE.UNKNOWN Unbekannt
+apidselector.head Sprachauswahl
+audio.srs_algo Art
+audio.srs_algo_light einfach
+audio.srs_algo_normal normal
+audio.srs_iq SRS TruVolume Technologie
+audio.srs_nmgr Noise-Manager
+audio.srs_volume Referenzlautstärke
+audiomenu.PCMOffset Lautstärkeabsenkung PCM
+audiomenu.analog_mode Analog Modus
+audiomenu.analog_out Analog-Ausgang
+audiomenu.auto_lang Tonwahl automatisch
+audiomenu.auto_subs Untertitel automatisch
+audiomenu.avs avs
+audiomenu.avs_control Volume Steuerung avs/ost
+audiomenu.avsync A/V sync
+audiomenu.avsync_am Audio master
+audiomenu.clockrec 
+audiomenu.dolbydigital DD-Unterkanal automatisch
+audiomenu.hdmi_dd DolbyDigital über HDMI
+audiomenu.head Audio-Einstellungen
+audiomenu.lirc lirc
+audiomenu.monoleft mono links
+audiomenu.monoright mono rechts
+audiomenu.ost ost
+audiomenu.pref_lang Sprache
+audiomenu.pref_lang_head Tonwahl
+audiomenu.pref_languages Bevorzugte Sprachen
+audiomenu.pref_subs Sprache
+audiomenu.pref_subs_head Untertitelwahl
+audiomenu.spdif_dd DolbyDigital über S/PDIF
+audiomenu.stereo stereo
+audiomenu.volume_step Lautstärke Schrittweite
+audioplayer.add Hinzufügen
+audioplayer.add_ic Icecast
+audioplayer.add_loc Lokale Radioliste
+audioplayer.add_sc Shoutcast
+audioplayer.artist_title Interpret, Titel
+audioplayer.building_search_index Erstelle Suchindex
+audioplayer.button_select_title_by_id Suche n. ID
+audioplayer.button_select_title_by_name Suche n. Name
+audioplayer.defdir Start-Verz.
+audioplayer.delete Löschen
+audioplayer.deleteall Alle löschen
+audioplayer.display_order Anzeige
+audioplayer.enable_sc_metadata Aktiviere Shoutcast Meta-Daten Parsing
+audioplayer.fastforward schneller Vorl.
+audioplayer.follow Selektiere akt. Track
+audioplayer.head Audio Playlist
+audioplayer.highprio Hohe Decodier-Priorität
+audioplayer.jump_backwards rückw. springen
+audioplayer.jump_dialog_hint1 Bitte Sprungziel eingeben
+audioplayer.jump_dialog_hint2 (relativ, in Sekunden)
+audioplayer.jump_dialog_title Sprungziel eingeben
+audioplayer.jump_forwards vorw. springen
+audioplayer.keylevel Tasten-Umschaltung
+audioplayer.load_radio_stations Lade Radiosender
+audioplayer.name Audioplayer
+audioplayer.pause Pause
+audioplayer.play Abspielen
+audioplayer.playing Aktueller Track
+audioplayer.playlist_fileerror_msg Datei kann nicht erstellt werden:
+audioplayer.playlist_fileoverwrite_msg Soll diese Datei überschrieben werden:
+audioplayer.playlist_fileoverwrite_title Überschreiben?
+audioplayer.playlist_name Dateiname der Playlist
+audioplayer.playlist_name_hint1 Geben Sie den Dateinamen der Playlist ein
+audioplayer.playlist_name_hint2 Die Erweiterung .m3u wird automatisch angehängt
+audioplayer.reading_files Lese die Dateien ein
+audioplayer.receiving_list Liste wird empfangen, bitte warten...
+audioplayer.repeat_on Repeatmodus aktivieren
+audioplayer.rewind schneller Rückl.
+audioplayer.save_playlist Playlist speichern
+audioplayer.screensaver_timeout Bildschirmschoner (min, 0=aus)
+audioplayer.select_title_by_name Titelsuche nach Name (SMS)
+audioplayer.show_playlist Playlist anzeigen
+audioplayer.shuffle Zufällig
+audioplayer.spectrum LCD Skala
+audioplayer.stop Stopp
+audioplayer.title_artist Titel, Interpret
+audioplayerpicsettings.general Audioplayer/Bildbetrachter
+bookmarkmanager.delete Löschen
+bookmarkmanager.name Bookmarks
+bookmarkmanager.rename Umbenennen
+bookmarkmanager.select Auswählen
+bouqueteditor.add Hinzufügen
+bouqueteditor.bouquetname Name des Bouquets
+bouqueteditor.delete Löschen
+bouqueteditor.delete_question Soll der Kanal aus diesem Bouquet gelöscht werden?
+bouqueteditor.discardingchanges Änderungen werden verworfen. Bitte warten ...
+bouqueteditor.hide Verstecken
+bouqueteditor.lock Sperren
+bouqueteditor.move Bewegen
+bouqueteditor.name Bouquet-Verwaltung
+bouqueteditor.newbouquetname Neuer Name des Bouquets
+bouqueteditor.rename Umbenennen
+bouqueteditor.return Fertig
+bouqueteditor.savechanges? Sollen die Änderungen gespeichert werden?
+bouqueteditor.savingchanges Änderungen werden gespeichert. Bitte warten ...
+bouqueteditor.switch Kanal aufnehmen/entfernen
+bouqueteditor.switchmode TV/Radio
+bouquetlist.head Bouquets
+cablesetup.provider Kabelanbieter
+channellist.current_tp Aktueller Transponder
+channellist.edit Bearbeiten
+channellist.epgtext_align_left links
+channellist.epgtext_align_right rechts
+channellist.extended erweiterte Kanalliste
+channellist.favs Favoriten
+channellist.foot Kanalinformationen
+channellist.foot_freq Tuning-Parameter
+channellist.foot_next Nachfolgesendung
+channellist.foot_off aus
+channellist.head Alle Kanäle
+channellist.history Verlauf
+channellist.make_hdlist Erzeuge "HD"- Bouquet
+channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
+channellist.provs Anbieter
+channellist.sats Satelliten
+channellist.since seit
+channellist.start Start
+ci.empty Kein CAM im Slot
+ci.init_failed CAM-Init fehlgeschlagen
+ci.init_ok CAM-Init beendet
+ci.inserted CAM im Slot
+ci.removed CAM entfernt -> Slot
+ci.reset Reset
+ci.reset_standby Reset nach Standby
+ci.settings Zugangskontrolle
+ci.timeout CAM antwortet nicht
+ci.waiting Warte auf CAM-Antwort
+colorchooser.alpha alpha
+colorchooser.blue blau
+colorchooser.green grün
+colorchooser.red rot
+colormenu.background Hintergrundfarbe
+colormenu.fade Menüs faden
+colormenu.font Neutrino Schriftart
+colormenu.font_ttx Teletext Schriftart
+colormenu.gtx_alpha Transparenz (GTX)
+colormenu.hd_preset LCD
+colormenu.head Farb-Einstellungen
+colormenu.menucolors Menüfarben
+colormenu.osd_preset Monitor Auswahl
+colormenu.sd_preset CRT
+colormenu.textcolor Textfarbe
+colormenu.themeselect Theme auswählen
+colormenu.timing OSD Timeouts
+colormenusetup.head Menüfarben
+colormenusetup.menucontent Fensterinhalt
+colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
+colormenusetup.menucontent_selected Fensterinhalt selektiert
+colormenusetup.menuhead Titelleiste
+colorstatusbar.text Statusbalken
+colorthememenu.head Theme auswählen
+colorthememenu.head2 Themes laden
+colorthememenu.name Themename
+colorthememenu.neutrino_theme Neutrino Theme
+colorthememenu.question Aktuelles Theme beibehalten?
+colorthememenu.save aktuelles Theme speichern
+colorthememenu.select1 Benutzer Theme
+colorthememenu.select2 Standard Theme
+cpu.freq CPU Frequenz
+cpu.freq_default Standard Frequenz
+cpu.freq_normal Normale Frequenz
+cpu.freq_standby Standby Frequenz
+date.Apr  Apr
+date.Aug  Aug
+date.Dec  Dez
+date.Feb  Feb
+date.Fri  Fr
+date.Jan  Jan
+date.Jul  Jul
+date.Jun  Jun
+date.Mar  Mär
+date.May  Mai
+date.Mon  Mo
+date.Nov  Nov
+date.Oct  Okt
+date.Sat  Sa
+date.Sep  Sep
+date.Sun  So
+date.Thu  Do
+date.Tue  Di
+date.Wed  Mi
+epgextended.actors Darsteller
+epgextended.director Regie
+epgextended.guests Gäste
+epgextended.original_title Originaltitel
+epgextended.presenter Moderator
+epgextended.year_of_production Produktionsjahr
+epglist.noevents Keine EPG-Information verfügbar.
+epgviewer.More_Screenings Weitere Termine auf diesem Kanal
+epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
+epgviewer.notfound Keine Programminformationen (EPG) gefunden
+eventfinder.head EPG-Suche
+eventfinder.keyword Suche nach Textpassage
+eventfinder.search Suche
+eventfinder.search_within_epg Suche innerhalb EPG-Daten
+eventfinder.search_within_list Suche innerhalb Text
+eventfinder.searching Suche...
+eventfinder.start_search Suche starten
+eventlistbar.channelswitch Umschalten
+eventlistbar.eventsort Sortieren
+eventlistbar.recordevent Aufnehmen
+extra.add_to_bouquet dem Bouquet zufügen
+extra.audio_run_player Audiotaste startet Player
+extra.auto_delete Automatisch löschen
+extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
+extra.auto_to_record Timeshift zu den Aufnahmen hinzufügen
+extra.bigwindows Große Fenster
+extra.cache_txt Teletext zwischenspeichern
+extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
+extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
+extra.clear_log Logdatei löschen
+extra.dboxinfo Box-Info
+extra.east Osten
+extra.fec_1_2 1/2 S1_QPSK
+extra.fec_2_3 2/3 S1_QPSK
+extra.fec_3_4 3/4 S1_QPSK
+extra.fec_5_6 5/6 S1_QPSK
+extra.fec_7_8 7/8 S1_QPSK
+extra.fec_auto Auto DVB-S
+extra.fec_auto_s2 Auto DVB-S2
+extra.fec_s2_8psk_1_2 1/2 S2_8PSK
+extra.fec_s2_8psk_2_3 2/3 S2_8PSK
+extra.fec_s2_8psk_3_4 3/4 S2_8PSK
+extra.fec_s2_8psk_3_5 3/5 S2_8PSK
+extra.fec_s2_8psk_4_5 4/5 S2_8PSK
+extra.fec_s2_8psk_5_6 5/6 S2_8PSK
+extra.fec_s2_8psk_7_8 7/8 S2_8PSK
+extra.fec_s2_8psk_8_9 8/9 S2_8PSK
+extra.fec_s2_8psk_9_10 9/10 S2_8PSK
+extra.fec_s2_qpsk_1_2 1/2 S2_QPSK
+extra.fec_s2_qpsk_2_3 2/3 S2_QPSK
+extra.fec_s2_qpsk_3_4 3/4 S2_QPSK
+extra.fec_s2_qpsk_3_5 3/5 S2_QPSK
+extra.fec_s2_qpsk_4_5 4/5 S2_QPSK
+extra.fec_s2_qpsk_5_6 5/6 S2_QPSK
+extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
+extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
+extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
+extra.hw_sect Hardware Sektionen
+extra.key_click Tastendruck
+extra.key_list_end Listenende
+extra.key_list_start Listenanfang
+extra.key_plugin One-touch-Plugin
+extra.key_timeshift Timeshift
+extra.key_unlock Entsperrtaste
+extra.ladirection Breitengrad-Ausrichtung
+extra.latitude Breitengrad
+extra.loadcolors Lade Farben von
+extra.loadconfig Lade Einstellungen von
+extra.loadkeys Lade Tastenbelegung von
+extra.lodirection Längengrad-Ausrichtung
+extra.logo Logonummer
+extra.longitude Längengrad
+extra.manual_scan Manueller Scan
+extra.menu_left_exit "links" = Menü zurück
+extra.north Norden
+extra.record_time Timeshift Aufnahmezeit in Stunden
+extra.rotor_swap Rotor dreht Ost/West
+extra.rounded_corners Eckendarstellung
+extra.rounded_corners_off eckig
+extra.rounded_corners_on abgerundet
+extra.savecolors Speichere Farben als
+extra.saveconfig Speichere Einstellungen als
+extra.savekeys Speichere Tastenbelegung als
+extra.scan_fast Schnell
+extra.scan_full Total
+extra.scan_mode Scan-Modus
+extra.scrambled_message Verschlüsselung melden
+extra.sms_channel SMS-Modus Kanal
+extra.south Süden
+extra.spts_mode SPTS-Modus
+extra.start_tostandby Standby nach Boxstart
+extra.temp_timeshift Temporäres Timeshift
+extra.timeshift_pause Timeshift Pause
+extra.timezone Zeitzone
+extra.tp.pol_v V
+extra.tp_fec FEC
+extra.tp_freq Frequenz
+extra.tp_mod Modulation
+extra.tp_mod_128 QAM/128
+extra.tp_mod_16 QAM/16
+extra.tp_mod_256 QAM/256
+extra.tp_mod_32 QAM/32
+extra.tp_mod_64 QAM/64
+extra.tp_pol Polarisation
+extra.tp_pol_h H
+extra.tp_rate Symbolrate
+extra.update_dir Update-Verzeichnis
+extra.use_gotoxx Benutze gotoXX
+extra.use_log Logge nach /tmp/log
+extra.volume_pos Lautstärkeanzeige
+extra.west Westen
+extra.zap_cycle Zap nur in Bouquet
+extra.zapit_fast_zap Schnellumschaltung
+extra.zapit_fe_timeout Tuning Timeout (1=10ms)
+extra.zapit_hvoltage High (13.5/ 18.5) Voltage
+extra.zapit_make_bouquet Kanalliste auffüllen
+extra.zapit_menu Zapit-Einstellungen
+extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
+extra.zapit_rezap_time ReZap-Intervall
+extra.zapit_save_last_chan Letzten Kanal merken
+extra.zapit_scan_sdt Scanne SDT für Aktualisierungen
+extra.zapit_scanpids PIDs scannen/nutzen
+extra.zapit_sdt_changed Kanalliste wird neu geladen.
+extra.zapit_sort_names Kanäle nach Namen sortieren
+extra.zapit_write_names Schreibe Kanalname
+fan_speed CPU-Lüftergeschwindigkeit
+favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment...
+favorites.bouquetname Meine Favoriten
+favorites.bqcreated Bouquet "Meine Favoriten" wurde angelegt...\n
+favorites.chadded Der aktuelle Kanal wurde Ihren Favoriten hinzugefügt...\n
+favorites.chalreadyinbq Der aktuelle Kanal ist bereits in Ihren Favoriten...\n
+favorites.copy Kopiere Bouquet zu Favoriten
+favorites.finalhint \nVersehentlich hinzugefügte Kanäle können mit\nder Bouquetverwaltung korrigiert werden.\n
+favorites.menueadd Kanal Favoriten hinzufügen
+favorites.nobouquets Favoriten sind nur mit aktivierten Bouquets möglich.
+filebrowser.delete Löschen
+filebrowser.denydirectoryleave Startverzeichnis absolut
+filebrowser.dodelete1 Soll
+filebrowser.dodelete2 gelöscht werden ?
+filebrowser.filter.active Filter an
+filebrowser.filter.inactive Filter aus
+filebrowser.head Dateibrowser
+filebrowser.mark Markieren
+filebrowser.nextpage Seite vor
+filebrowser.prevpage Seite zurück
+filebrowser.scan Durchsuche Verzeichnisse
+filebrowser.select Auswählen
+filebrowser.showrights Dateirechte anzeigen
+filebrowser.sort.date (Datum)
+filebrowser.sort.name (Dateiname)
+filebrowser.sort.namedirsfirst (Dateiname2)
+filebrowser.sort.size (Größe)
+filebrowser.sort.type (Typ)
+filesystem.is.utf8 Dateisystem
+filesystem.is.utf8.option.iso8859.1 ISO-8859-1
+filesystem.is.utf8.option.utf8 UTF-8
+flashupdate.actionreadflash lese Flash
+flashupdate.cantopenfile kann Datei nicht öffnen
+flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
+flashupdate.checkupdate nach neuer Version suchen
+flashupdate.currentreleasecycle Releasezyklus
+flashupdate.currentversion_sep Installierte Version
+flashupdate.currentversiondate Datum
+flashupdate.currentversionsnapshot Image-Typ
+flashupdate.currentversiontime Uhrzeit
+flashupdate.erasefailed Flash löschen fehlgeschlagen
+flashupdate.erasing lösche Flash
+flashupdate.experimentalimage Sie haben einen Snapshot ausgewählt, bitte beachten Sie,\ndass diese Version ungetestet ist und u.U. Ihre Box\nnach dem Update nicht mehr funktionsfähig ist.\n\nSoll diese Version wirklich installiert werden?
+flashupdate.expertfunctions Experten-Funktionen
+flashupdate.fileis0bytes die Dateigröße ist 0 Byte
+flashupdate.fileselector Datei-Auswahl
+flashupdate.flashreadyreboot Das Image wurde erfolgreich geflasht.\nIhre Box wird jetzt neu gestartet.
+flashupdate.getinfofile lade Versioninfo
+flashupdate.getinfofileerror kann Info nicht laden
+flashupdate.getupdatefile lade Update
+flashupdate.getupdatefileerror kann Update nicht laden
+flashupdate.globalprogress Gesamtstatus:
+flashupdate.head Aktualisierung
+flashupdate.md5check Imageprüfung
+flashupdate.md5sumerror Das Image ist fehlerhaft
+flashupdate.msgbox Es wurde folgendes neues File gefunden:\nDatum: %s, %s\nBasisImage: %s\nTyp: %s\n\nWollen Sie diese Version jetzt herunterladen\nund installieren?
+flashupdate.msgbox_manual Es wurde ein neues Image gefunden:\nDatum: %s, %s\nBasisImage: %s\nImageTyp: %s\n\nWollen Sie diese Version jetzt installieren?
+flashupdate.mtdselector Partitions-Auswahl
+flashupdate.new_found Updates verfügbar!
+flashupdate.new_notfound Keine Updates verfügbar!
+flashupdate.programmingflash programmiere Flash
+flashupdate.proxypassword Passwort
+flashupdate.proxypassword_hint1 Geben sie das Proxy-Passwort ein
+flashupdate.proxypassword_hint2 Ein leerer Eintrag bedeutet keine Authentifizierung
+flashupdate.proxyserver Proxyname
+flashupdate.proxyserver_hint1 Geben Sie den Proxynamen oder IP ein (Host:Port)
+flashupdate.proxyserver_hint2 Ein leerer Eintrag bedeutet kein Proxy
+flashupdate.proxyserver_sep Proxyserver
+flashupdate.proxyusername Benutzername
+flashupdate.proxyusername_hint1 Geben Sie den Proxy-Benutzernamen ein
+flashupdate.proxyusername_hint2 Ein leerer Eintrag bedeutet keine Authentifizierung
+flashupdate.readflash ganzes Flashimage auslesen
+flashupdate.readflashmtd einzelne Partition auslesen
+flashupdate.ready fertig
+flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\nFalls ein Fehler auftritt oder das Image nicht\nfunktionfähig ist, wird Ihre Box nicht mehr booten.\n\nImagename: %s\nZiel: %s
+flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
+flashupdate.selectimage Verfügbare Images/Files
+flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
+flashupdate.titlereadflash Flash auslesen
+flashupdate.titlewriteflash Flash schreiben
+flashupdate.updatemode Updatemodus
+flashupdate.updatemode_internet Internet
+flashupdate.updatemode_manual manuell (ftp)
+flashupdate.url_file Konfigfile
+flashupdate.versioncheck Versionsüberprüfung
+flashupdate.writeflash ganzes Flashimage einspielen
+flashupdate.writeflashmtd einzelne Partition einspielen
+flashupdate.wrongbase Abweichende Release-Information\nFortfahren?
+fontmenu.channellist Kanalliste
+fontmenu.epg EPG (Programmführer)
+fontmenu.eventlist Event-Liste
+fontmenu.gamelist Spiele-Liste
+fontmenu.head Schrift
+fontmenu.infobar Infobar
+fontmenu.menu Menü
+fontmenu.scaling Schriftgrössenfaktor
+fontmenu.scaling_x Horizontal (in %)
+fontmenu.scaling_y Vertikal (in %)
+fontmenu.sizes Schriftgrössen
+fontsize.channel_num_zap Direktauswahl
+fontsize.channellist Kanalliste
+fontsize.channellist_descr Beschreibung
+fontsize.channellist_number Nummer
+fontsize.epg_date EPG Datum
+fontsize.epg_info1 EPG Info 1
+fontsize.epg_info2 EPG Info 2
+fontsize.epg_title EPG Titel
+fontsize.eventlist_datetime Datum/Zeit
+fontsize.eventlist_itemlarge Groß
+fontsize.eventlist_itemsmall Klein
+fontsize.eventlist_title Titel
+fontsize.filebrowser_item Dateibrowsereinträge
+fontsize.gamelist_itemlarge Groß
+fontsize.gamelist_itemsmall Klein
+fontsize.hint Schriftart wird initialisiert,\nbitte warten...
+fontsize.infobar_channame Kanalname
+fontsize.infobar_info Info
+fontsize.infobar_number Nummer
+fontsize.infobar_small Klein
+fontsize.menu Menütext
+fontsize.menu_info Menüinfo
+fontsize.menu_title Menütitel
 gtxalpha.alpha1 Alpha 1
 gtxalpha.alpha2 Alpha 2
 hdd_10min 10 min.
@@ -609,6 +609,7 @@ infoviewer.subservice Bildregie
 infoviewer.waittime Warte auf Uhrzeit...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
+keybindingmenu.RC Fernbedienung abstimmen
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
 keybindingmenu.addremind Umschalt-Timer hinzufügen
 keybindingmenu.allchannels_on_ok Kanalliste
@@ -629,7 +630,6 @@ keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
 keybindingmenu.poweroff Umschalter
 keybindingmenu.quickzap Schnellumschaltung
-keybindingmenu.RC Fernbedienung abstimmen
 keybindingmenu.repeatblock Anfangsverzögerung
 keybindingmenu.repeatblockgeneric Wiederholungsverzögerung
 keybindingmenu.sort Sortierreihenfolge ändern
@@ -661,16 +661,16 @@ lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
 lcdmenu.statusline.volume Lautstärke
+ledcontroler.blink Blinke im Deep-Standby, wenn Timer aktiv
 ledcontroler.menu Power Button LEDs
-ledcontroler.mode.tv TV Betrieb
 ledcontroler.mode.deepstandby Deep-Standby
 ledcontroler.mode.record Blinke bei Aufnahme
 ledcontroler.mode.standby Standby
+ledcontroler.mode.tv TV Betrieb
 ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
-ledcontroler.blink Blinke im Deep-Standby, wenn Timer aktiv
 logo_hdd_dir Logo Verz.
 mainmenu.audioplayer Audioplayer
 mainmenu.clearsectionsd Lösche EPG Cache
@@ -697,8 +697,8 @@ mainsettings.head Einstellungen
 mainsettings.keybinding Tasten
 mainsettings.language Sprache
 mainsettings.lcd VFD-Display
-mainsettings.misc Diverse Einstellungen
 mainsettings.manage Einstellungen verwalten
+mainsettings.misc Diverse Einstellungen
 mainsettings.network Netzwerk
 mainsettings.osd OSD
 mainsettings.recording Aufnahme
@@ -1152,27 +1152,27 @@ satsetup.auto_scan Satelliten/Kabelnetz scannen
 satsetup.auto_scan_all Alle Satelliten scannen
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
+satsetup.diseqc10 DiSEqC 1.0
+satsetup.diseqc11 DiSEqC 1.1
+satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Erweiterte Auswahl
 satsetup.diseqc_com_uncom Committed/Uncommitted
 satsetup.diseqc_input Diseqc Einspeisung
 satsetup.diseqc_order Einspeisungsfolge
 satsetup.diseqc_uncom_com Uncommitted/Committed
-satsetup.diseqc10 DiSEqC 1.0
-satsetup.diseqc11 DiSEqC 1.1
-satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqcrepeat DiSEqC-Wiederholungen
 satsetup.do_scan Satelliten scannen
 satsetup.extended DiSEqC-Einstellungen
 satsetup.extended_motor Motor-Einstellungen
-satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
-satsetup.fastscan_type Scantyp
-satsetup.fastscan_sd nur SD
-satsetup.fastscan_hd nur HD
 satsetup.fastscan_all SD und HD
+satsetup.fastscan_hd nur HD
+satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
 satsetup.fastscan_prov Anbieter
 satsetup.fastscan_prov_cd CanalDigitaal
-satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_prov_telesat TéléSAT
+satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_sd nur SD
+satsetup.fastscan_type Scantyp
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
@@ -1463,16 +1463,15 @@ videomenu.videomode_pal PAL
 videomenu.videomode_palm PAL-M
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
 wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer Coolstream. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nBeachten Sie: Ihre Coolstream Set-Top-Box lässt sich bequem per Webinterface\nsteuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nZugriff erhalten Sie mit dem Benutzernamen: root und dem Passwort: coolstream\nAchten Sie darauf, dass Ihre Gerät nicht von aussen zugänglich ist, da sonst ein Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
+word.from ab
 zapit.scantype Service-Auswahl
 zapit.scantype.all Alle Services
 zapit.scantype.radio Nur Radio
 zapit.scantype.tv Nur TV
 zapit.scantype.tvradio Nur TV & Radio
-zaptotimer.announce In einer Minute wird umgeschaltet.
-word.from ab
 zapitsetup.head Startkanal-Verwaltung
 zapitsetup.info Start Kanal
 zapitsetup.last_radio Radio Kanal
-zapitsetup.last_use Kanal beim Runterfahren speichern
 zapitsetup.last_tv TV Kanal
-
+zapitsetup.last_use Kanal beim Runterfahren speichern
+zaptotimer.announce In einer Minute wird umgeschaltet.

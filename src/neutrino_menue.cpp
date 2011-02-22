@@ -151,7 +151,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 		CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO);
 		info->addIntroItems();
 		info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
-		info->addItem( new CMenuForwarder(LOCALE_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+		info->addItem( new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 		info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, true, NULL, new CStreamInfo2Handler(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 		mainMenu.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, info, NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
 	}
@@ -265,7 +265,7 @@ const CMenuOptionChooser::keyval SATSETUP_DISEQC_OPTIONS[SATSETUP_DISEQC_OPTION_
 	{ DISEQC_1_0,		LOCALE_SATSETUP_DISEQC10 },
 	{ DISEQC_1_1,		LOCALE_SATSETUP_DISEQC11 },
 	/*{ DISEQC_1_2,	LOCALE_SATSETUP_DISEQC12 },*/
-	{ DISEQC_ADVANCED,	LOCALE_SATSETUP_DISEQ_ADVANCED },
+	{ DISEQC_ADVANCED,	LOCALE_SATSETUP_DISEQC_ADVANCED },
 	{ SMATV_REMOTE_TUNING,	LOCALE_SATSETUP_SMATVREMOTE }
 };
 
@@ -273,50 +273,50 @@ const CMenuOptionChooser::keyval SATSETUP_DISEQC_OPTIONS[SATSETUP_DISEQC_OPTION_
 #define CABLESETUP_SCANTP_FEC_COUNT 5
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_FEC[SATSETUP_SCANTP_FEC_COUNT] =
 {
-	{ FEC_AUTO, LOCALE_SCANTP_FEC_AUTO },
-	{ FEC_S2_AUTO, LOCALE_SCANTP_FEC_AUTO_S2 },
+	{ FEC_AUTO, LOCALE_EXTRA_FEC_AUTO },
+	{ FEC_S2_AUTO, LOCALE_EXTRA_FEC_AUTO_S2 },
 
-	{ FEC_1_2, LOCALE_SCANTP_FEC_1_2 },
-	{ FEC_2_3, LOCALE_SCANTP_FEC_2_3 },
-	{ FEC_3_4, LOCALE_SCANTP_FEC_3_4 },
-	{ FEC_5_6, LOCALE_SCANTP_FEC_5_6 },
-	{ FEC_7_8, LOCALE_SCANTP_FEC_7_8 },
+	{ FEC_1_2, LOCALE_EXTRA_FEC_1_2 },
+	{ FEC_2_3, LOCALE_EXTRA_FEC_2_3 },
+	{ FEC_3_4, LOCALE_EXTRA_FEC_3_4 },
+	{ FEC_5_6, LOCALE_EXTRA_FEC_5_6 },
+	{ FEC_7_8, LOCALE_EXTRA_FEC_7_8 },
 
-	{ FEC_S2_QPSK_1_2, LOCALE_FEC_S2_QPSK_1_2 },
-	{ FEC_S2_QPSK_2_3, LOCALE_FEC_S2_QPSK_2_3 },
-	{ FEC_S2_QPSK_3_4, LOCALE_FEC_S2_QPSK_3_4 },
-	{ FEC_S2_QPSK_5_6, LOCALE_FEC_S2_QPSK_5_6 },
-	//{ FEC_S2_QPSK_7_8, LOCALE_FEC_S2_QPSK_7_8 },
-	{ FEC_S2_QPSK_8_9, LOCALE_FEC_S2_QPSK_8_9 },
-	{ FEC_S2_QPSK_3_5, LOCALE_FEC_S2_QPSK_3_5 },
-	{ FEC_S2_QPSK_4_5, LOCALE_FEC_S2_QPSK_4_5 },
-	{ FEC_S2_QPSK_9_10, LOCALE_FEC_S2_QPSK_9_10 },
+	{ FEC_S2_QPSK_1_2, LOCALE_EXTRA_FEC_S2_QPSK_1_2 },
+	{ FEC_S2_QPSK_2_3, LOCALE_EXTRA_FEC_S2_QPSK_2_3 },
+	{ FEC_S2_QPSK_3_4, LOCALE_EXTRA_FEC_S2_QPSK_3_4 },
+	{ FEC_S2_QPSK_5_6, LOCALE_EXTRA_FEC_S2_QPSK_5_6 },
+	//{ FEC_S2_QPSK_7_8, LOCALE_EXTRA_FEC_S2_QPSK_7_8 },
+	{ FEC_S2_QPSK_8_9, LOCALE_EXTRA_FEC_S2_QPSK_8_9 },
+	{ FEC_S2_QPSK_3_5, LOCALE_EXTRA_FEC_S2_QPSK_3_5 },
+	{ FEC_S2_QPSK_4_5, LOCALE_EXTRA_FEC_S2_QPSK_4_5 },
+	{ FEC_S2_QPSK_9_10, LOCALE_EXTRA_FEC_S2_QPSK_9_10 },
 
-	//{ FEC_S2_8PSK_1_2, LOCALE_FEC_S2_8PSK_1_2 },
-	{ FEC_S2_8PSK_2_3, LOCALE_FEC_S2_8PSK_2_3 },
-	{ FEC_S2_8PSK_3_4, LOCALE_FEC_S2_8PSK_3_4 },
-	{ FEC_S2_8PSK_3_5, LOCALE_FEC_S2_8PSK_3_5 },
-	{ FEC_S2_8PSK_5_6, LOCALE_FEC_S2_8PSK_5_6 },
-	//{ FEC_S2_8PSK_7_8, LOCALE_FEC_S2_8PSK_7_8 },
-	{ FEC_S2_8PSK_8_9, LOCALE_FEC_S2_8PSK_8_9 },
-	//{ FEC_S2_8PSK_4_5, LOCALE_FEC_S2_8PSK_4_5 },
-	{ FEC_S2_8PSK_9_10, LOCALE_FEC_S2_8PSK_9_10 }
+	//{ FEC_S2_8PSK_1_2, LOCALE_EXTRA_FEC_S2_8PSK_1_2 },
+	{ FEC_S2_8PSK_2_3, LOCALE_EXTRA_FEC_S2_8PSK_2_3 },
+	{ FEC_S2_8PSK_3_4, LOCALE_EXTRA_FEC_S2_8PSK_3_4 },
+	{ FEC_S2_8PSK_3_5, LOCALE_EXTRA_FEC_S2_8PSK_3_5 },
+	{ FEC_S2_8PSK_5_6, LOCALE_EXTRA_FEC_S2_8PSK_5_6 },
+	//{ FEC_S2_8PSK_7_8, LOCALE_EXTRA_FEC_S2_8PSK_7_8 },
+	{ FEC_S2_8PSK_8_9, LOCALE_EXTRA_FEC_S2_8PSK_8_9 },
+	//{ FEC_S2_8PSK_4_5, LOCALE_EXTRA_FEC_S2_8PSK_4_5 },
+	{ FEC_S2_8PSK_9_10, LOCALE_EXTRA_FEC_S2_8PSK_9_10 }
 };
 
 #define SATSETUP_SCANTP_MOD_COUNT 5
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_MOD[SATSETUP_SCANTP_MOD_COUNT] =
 {
-	{ 1, LOCALE_SCANTP_MOD_16 },
-	{ 2, LOCALE_SCANTP_MOD_32 },
-	{ 3, LOCALE_SCANTP_MOD_64 },
-	{ 4, LOCALE_SCANTP_MOD_128},
-	{ 5, LOCALE_SCANTP_MOD_256}
+	{ 1, LOCALE_EXTRA_TP_MOD_16 },
+	{ 2, LOCALE_EXTRA_TP_MOD_32 },
+	{ 3, LOCALE_EXTRA_TP_MOD_64 },
+	{ 4, LOCALE_EXTRA_TP_MOD_128},
+	{ 5, LOCALE_EXTRA_TP_MOD_256}
 };
 #define SATSETUP_SCANTP_POL_COUNT 2
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_POL[SATSETUP_SCANTP_POL_COUNT] =
 {
-	{ 0, LOCALE_EXTRA_POL_H },
-	{ 1, LOCALE_EXTRA_POL_V }
+	{ 0, LOCALE_EXTRA_TP_POL_H },
+	{ 1, LOCALE_EXTRA_TP_POL_V }
 };
 
 #if 0
@@ -324,13 +324,13 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_POL[SATSETUP_SCANTP_POL_COUNT] 
 #define CABLESETUP_SCANTP_MOD_COUNT 7
 const CMenuOptionChooser::keyval CABLESETUP_SCANTP_MOD[CABLESETUP_SCANTP_MOD_COUNT] =
 {
-	{0, LOCALE_SCANTP_MOD_QPSK     } ,
-	{1, LOCALE_SCANTP_MOD_QAM_16   } ,
-	{2, LOCALE_SCANTP_MOD_QAM_32   } ,
-	{3, LOCALE_SCANTP_MOD_QAM_64   } ,
-	{4, LOCALE_SCANTP_MOD_QAM_128  } ,
-	{5, LOCALE_SCANTP_MOD_QAM_256  } ,
-	{6, LOCALE_SCANTP_MOD_QAM_AUTO }
+	{0, LOCALE_EXTRA_TP_MOD_QPSK     } ,
+	{1, LOCALE_EXTRA_TP_MOD_QAM_16   } ,
+	{2, LOCALE_EXTRA_TP_MOD_QAM_32   } ,
+	{3, LOCALE_EXTRA_TP_MOD_QAM_64   } ,
+	{4, LOCALE_EXTRA_TP_MOD_QAM_128  } ,
+	{5, LOCALE_EXTRA_TP_MOD_QAM_256  } ,
+	{6, LOCALE_EXTRA_TP_MOD_QAM_AUTO }
 };
 #endif
 
@@ -606,20 +606,20 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 	int freq_length = (g_info.delivery_system == DVB_S) ? 8 : 6;
 
-	CStringInput*		freq = new CStringInput(LOCALE_EXTRA_FREQ, (char *) scanSettings.TP_freq, freq_length, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
-	CStringInput*		rate = new CStringInput(LOCALE_EXTRA_RATE, (char *) scanSettings.TP_rate, 8, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
-	CMenuForwarder *	Freq = new CMenuForwarder(LOCALE_EXTRA_FREQ, true, scanSettings.TP_freq, freq, "", CRCInput::convertDigitToKey(1));
-	CMenuForwarder *	Rate = new CMenuForwarder(LOCALE_EXTRA_RATE, true, scanSettings.TP_rate, rate, "", CRCInput::convertDigitToKey(2));
+	CStringInput*		freq = new CStringInput(LOCALE_EXTRA_TP_FREQ, (char *) scanSettings.TP_freq, freq_length, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+	CStringInput*		rate = new CStringInput(LOCALE_EXTRA_TP_RATE, (char *) scanSettings.TP_rate, 8, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+	CMenuForwarder *	Freq = new CMenuForwarder(LOCALE_EXTRA_TP_FREQ, true, scanSettings.TP_freq, freq, "", CRCInput::convertDigitToKey(1));
+	CMenuForwarder *	Rate = new CMenuForwarder(LOCALE_EXTRA_TP_RATE, true, scanSettings.TP_rate, rate, "", CRCInput::convertDigitToKey(2));
 
 	int fec_count = (g_info.delivery_system == DVB_S) ? SATSETUP_SCANTP_FEC_COUNT : CABLESETUP_SCANTP_FEC_COUNT;
 
-	CMenuOptionChooser*	fec = new CMenuOptionChooser(LOCALE_EXTRA_FEC, (int *)&scanSettings.TP_fec, SATSETUP_SCANTP_FEC, fec_count, true, NULL, CRCInput::convertDigitToKey(3), "", true);
+	CMenuOptionChooser*	fec = new CMenuOptionChooser(LOCALE_EXTRA_TP_FEC, (int *)&scanSettings.TP_fec, SATSETUP_SCANTP_FEC, fec_count, true, NULL, CRCInput::convertDigitToKey(3), "", true);
 	CMenuOptionChooser*	mod_pol = NULL;
 
 	if (g_info.delivery_system == DVB_S)
-		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_POL, (int *)&scanSettings.TP_pol, SATSETUP_SCANTP_POL, SATSETUP_SCANTP_POL_COUNT, true, NULL, CRCInput::convertDigitToKey(4));
+		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_POL, (int *)&scanSettings.TP_pol, SATSETUP_SCANTP_POL, SATSETUP_SCANTP_POL_COUNT, true, NULL, CRCInput::convertDigitToKey(4));
 	else if (g_info.delivery_system == DVB_C)
-		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_MOD, (int *)&scanSettings.TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(4));
+		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scanSettings.TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(4));
 
 	satfindMenu->addItem(Freq);
 	satfindMenu->addItem(Rate);
@@ -638,7 +638,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		motorMenu->addItem(new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, true, NULL, satfindMenu, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 		motorMenu->addItem(GenericMenuSeparatorLine);
 
-		motorMenu->addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_ROTATION_SPEED, (int *)&zapitCfg.motorRotationSpeed, true, 0, 64, NULL) );
+		motorMenu->addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_MOTOR_SPEED, (int *)&zapitCfg.motorRotationSpeed, true, 0, 64, NULL) );
 		motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_HVOLTAGE,  (int *)&zapitCfg.highVoltage, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		//motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  (int *)&zapitCfg.useGotoXX, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
@@ -646,13 +646,13 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		sprintf(zapit_lat, "%02.6f", zapitCfg.gotoXXLatitude);
 		sprintf(zapit_long, "%02.6f", zapitCfg.gotoXXLongitude);
 
-		motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_LADIR,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true));
-		toff = new CStringInput(LOCALE_EXTRA_LAT, (char *) zapit_lat, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
-		motorMenu->addItem(new CMenuForwarder(LOCALE_EXTRA_LAT, true, zapit_lat, toff));
+		motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_LADIRECTION,  (int *)&zapitCfg.gotoXXLaDirection, OPTIONS_SOUTH0_NORTH1_OPTIONS, OPTIONS_SOUTH0_NORTH1_OPTION_COUNT, true));
+		toff = new CStringInput(LOCALE_EXTRA_LATITUDE, (char *) zapit_lat, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		motorMenu->addItem(new CMenuForwarder(LOCALE_EXTRA_LATITUDE, true, zapit_lat, toff));
 
-		motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_LODIR,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true));
-		toff = new CStringInput(LOCALE_EXTRA_LONG, (char *) zapit_long, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
-		motorMenu->addItem(new CMenuForwarder(LOCALE_EXTRA_LONG, true, zapit_long, toff));
+		motorMenu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_LODIRECTION,  (int *)&zapitCfg.gotoXXLoDirection, OPTIONS_EAST0_WEST1_OPTIONS, OPTIONS_EAST0_WEST1_OPTION_COUNT, true));
+		toff = new CStringInput(LOCALE_EXTRA_LONGITUDE, (char *) zapit_long, 10, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789.");
+		motorMenu->addItem(new CMenuForwarder(LOCALE_EXTRA_LONGITUDE, true, zapit_long, toff));
 		motorMenu->addItem(new CMenuOptionNumberChooser(LOCALE_SATSETUP_USALS_REPEAT, (int *)&zapitCfg.repeatUsals, true, 0, 10, NULL, 0, 0, LOCALE_OPTIONS_OFF) );
 		CAllUsalsNotifier * usalsNotify = new CAllUsalsNotifier();
 		CMenuOptionChooser * allusals = new CMenuOptionChooser(LOCALE_SATSETUP_USE_USALS,  &all_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, usalsNotify);
@@ -734,7 +734,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 		settings.addItem(fsatSetup);
 		settings.addItem(fmotorMenu);
 	}
-	settings.addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100) );
+	settings.addItem(new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100) );
 
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_MANUAL_SCAN, true, NULL, manualScan, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	settings.addItem(new CMenuForwarder(LOCALE_SATSETUP_AUTO_SCAN, true, NULL, autoScan, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
@@ -816,7 +816,7 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &_scanS
 		CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO);
 		info->addIntroItems();
 		info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
-		info->addItem( new CMenuForwarder(LOCALE_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+		info->addItem( new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 		info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, true, NULL, new CStreamInfo2Handler(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 		service.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, info, NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
 	}
@@ -948,7 +948,7 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	CMiscNotifier* miscNotifier = new CMiscNotifier( m1 );
 	miscSettings.addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier));
 #endif
-	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_STARTSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_START_TOSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	//miscSettings.addItem(new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin,this,"onekeyplugin"));
 	
@@ -960,7 +960,7 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 	}
 	//don't show rotor settings on cable box
 	if (g_info.delivery_system == DVB_S) {
-		miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTORSWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+		miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	}
 	miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir"));
 	miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_LOGO_HDD_DIR, true, g_settings.logo_hdd_dir, this, "logo_dir"));
@@ -1446,7 +1446,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_BOXINFO;
 			keyhelper.get(&key,&icon);
-			menu->addItem( new CMenuForwarder(LOCALE_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, key, icon));
+			menu->addItem( new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, key, icon));
 			break;
 		case SNeutrinoSettings::ITEM_CAM:
 			//if(cs_get_revision() != 10)

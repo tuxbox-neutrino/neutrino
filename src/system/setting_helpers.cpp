@@ -365,20 +365,20 @@ int CRfExec::exec(CMenuTarget* /*parent*/, const std::string& /*actionKey*/)
 bool CRfNotifier::changeNotify(const neutrino_locale_t OptionName, void * val)
 {
 //printf("CRfNotifier: Option %d val %d\n", OptionName, *((int *)val));
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RF_CARRIER)) {
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_CARRIER)) {
 		g_RFmod->setSoundSubCarrier(*((int *)val));
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RF_ENABLE)) {
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_ENABLE)) {
 		g_RFmod->setSoundEnable(*((int *)val));
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RF_CHANNEL)) {
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_CHANNEL)) {
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RF_FINETUNE)) {
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_FINETUNE)) {
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RF_STANDBY)) {
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_STANDBY)) {
 		g_RFmod->setStandby(*((int *)val));
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RF_TEST)) {
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_TEST)) {
 		g_RFmod->setTestPattern(*((int *)val));
 	}
 	return true;
@@ -841,7 +841,7 @@ void testNetworkSettings(const char* ip, const char* netmask, const char* broadc
  
 	if (our_ip[0] == 0) 
 	{
-		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE);
+		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE_NETWORK);
 	}
 	else
 	{
@@ -882,7 +882,7 @@ void showCurrentNetworkSettings()
 	char eth[] = "eth0";
 	netGetIP(eth, ip, mask, broadcast);
 	if (ip[0] == 0) {
-		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE);
+		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE_NETWORK);
 	}
 	else {
 		netGetNameserver(nameserver);
