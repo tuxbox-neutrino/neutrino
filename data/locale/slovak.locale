@@ -124,30 +124,36 @@ GENRE.TRAVEL_HOBBIES.6 inzertovanie/nakupovanie
 GENRE.TRAVEL_HOBBIES.7 záhradkárstvo
 GENRE.UNKNOWN neznáme
 apidselector.head Výber jazyka
+audio.srs_algo Mód
+audio.srs_algo_light Jemný
+audio.srs_algo_normal Normálny
+audio.srs_iq SRS TruVolume
+audio.srs_nmgr Potlačovač šumu
+audio.srs_volume Východzia hlasitosť
 audiomenu.PCMOffset Zníženie hlasitosti PCM
 audiomenu.analog_mode Analógový mód
 audiomenu.analog_out Analógový výstup
+audiomenu.auto_lang Automatický výber zvuku
+audiomenu.auto_subs Automatický výber titulkov
 audiomenu.avs avs
 audiomenu.avs_control Ovládanie hlasitosti avs/ost
+audiomenu.avsync A/V synch
+audiomenu.avsync_am Hlavný zvuk
+audiomenu.clockrec Vzorkovanie
 audiomenu.dolbydigital Zvuk Dolby Digital
+audiomenu.hdmi_dd Zvuk DD na HDMI
 audiomenu.head Nastavenia zvuku
 audiomenu.lirc lirc
 audiomenu.monoleft mono ľavý kanál
 audiomenu.monoright mono pravý kanál
 audiomenu.ost ost
-audiomenu.stereo stereo
-audiomenu.hdmi_dd Zvuk DD na HDMI
-audiomenu.spdif_dd Zvuk DD na SPDIF
-audiomenu.avsync A/V synch
-audiomenu.avsync_am Hlavný zvuk
-audiomenu.clockrec Vzorkovanie
-audiomenu.auto_lang Automatický výber zvuku
-audiomenu.auto_subs Automatický výber titulkov
-audiomenu.pref_languages Jazykové nastavenia
-audiomenu.pref_lang_head Nastavenie jazyku zvuku/EPG
 audiomenu.pref_lang Preferovaný jazyk
-audiomenu.pref_subs_head Nastavenie jazyku vybraných titulkov
+audiomenu.pref_lang_head Nastavenie jazyku zvuku/EPG
+audiomenu.pref_languages Jazykové nastavenia
 audiomenu.pref_subs Preferované titulky
+audiomenu.pref_subs_head Nastavenie jazyku vybraných titulkov
+audiomenu.spdif_dd Zvuk DD na SPDIF
+audiomenu.stereo stereo
 audioplayer.add pridaj
 audioplayer.add_ic Icecast
 audioplayer.add_loc Zoznam lokálnych radií
@@ -165,7 +171,6 @@ audioplayer.fastforward pretoč dopredu
 audioplayer.follow Urob výber hraného
 audioplayer.head Zoznam prehrávania
 audioplayer.highprio Veľká priorita dekódovania
-audioplayer.spectrum lcd a-spektrum
 audioplayer.jump_backwards skoč dozadu
 audioplayer.jump_dialog_hint1 čas skoku
 audioplayer.jump_dialog_hint2 v sekundách.
@@ -192,6 +197,7 @@ audioplayer.screensaver_timeout Vypnutie obrazu (minúta, 0=vypnuté)
 audioplayer.select_title_by_name Vyber titul podľa názvu (SMS)
 audioplayer.show_playlist Zobraz zoznam
 audioplayer.shuffle náhodne
+audioplayer.spectrum lcd a-spektrum
 audioplayer.stop zastav
 audioplayer.title_artist Titul, Umelec
 audioplayerpicsettings.general Nastavenia prehrávača
@@ -217,20 +223,29 @@ bouqueteditor.switch pridaj/odstráň
 bouqueteditor.switchmode TV/Rádio
 bouquetlist.head Bukety
 cablesetup.provider Káblový poskytovateľ
+cam.empty Žiadny modul v šachte
+cam.init_ok Inicializácia modulu ukončená
+cam.inserted Vložený modul do šachty
+cam.removed Odstránený modul zo šachty
+cam.reset Resetnúť
+cam.reset_standby Resetovať po spustení
+cam.settings Podmienený prístup
+cam.timeout Čas čakania uplynul,\nvraciam sa do menu
+cam.waiting Čakám na odpoveď
+channellist.current_tp Aktuálny transpondér
 channellist.edit Uprav
 channellist.epgtext_align_left do ľava
 channellist.epgtext_align_right do prava
 channellist.extended Grafické EPG v zozname
-channellist.head Všetky kanály
-channellist.nonefound Nenájdený zoznam kanálov!\nVykonaj vyhľadanie kanálov\n(MENU -> Služby)
-channellist.since od
-channellist.start spúšťa
 channellist.favs Obľúbené
+channellist.head Všetky kanály
+channellist.history História
+channellist.make_hdlist Vytvor zoznam pre HD kanály
+channellist.nonefound Nenájdený zoznam kanálov!\nVykonaj vyhľadanie kanálov\n(MENU -> Služby)
 channellist.provs Poskytovatelia
 channellist.sats Satelity
-channellist.history História
-channellist.current_tp Aktuálny transpondér
-channellist.make_hdlist Vytvor zoznam pre HD kanály
+channellist.since od
+channellist.start spúšťa
 colorchooser.alpha Priehľadnosť
 colorchooser.blue Modrý
 colorchooser.green Zelený
@@ -240,14 +255,14 @@ colormenu.fade Miznúce menu
 colormenu.font Výber písma
 colormenu.font_ttx Výber teletextového písma
 colormenu.gtx_alpha Priehladnosť (GTX)
+colormenu.hd_preset LCD
 colormenu.head Nastavenia farieb
 colormenu.menucolors Farby menu
+colormenu.osd_preset Druh TV
+colormenu.sd_preset CRT
 colormenu.textcolor Farba textu
 colormenu.themeselect Výber tém
 colormenu.timing Čas zobrazenia na OSD
-colormenu.osd_preset Druh TV
-colormenu.hd_preset LCD
-colormenu.sd_preset CRT
 colormenusetup.head Farby menu
 colormenusetup.menucontent Obsahové okno
 colormenusetup.menucontent_inactive Neaktívne v obsahovom okne
@@ -257,10 +272,14 @@ colorstatusbar.text Text stavového riadku
 colorthememenu.classic_theme Klasika
 colorthememenu.dblue_theme DarkBlue
 colorthememenu.dvb2k_theme DVB2000
-colorthememenu.red_theme Jednoduchý červený
+colorthememenu.gray Sivá
 colorthememenu.head Výber tém
 colorthememenu.neutrino_theme Neutrino
-colorthememenu.gray Sivá
+colorthememenu.red_theme Jednoduchý červený
+cpu.freq Cpu kmitočet
+cpu.freq_default default kmitočet
+cpu.freq_normal Normal kmitočet
+cpu.freq_standby Standby kmitočet
 date.Apr  Apr
 date.Aug  Aug
 date.Dec  Dec
@@ -300,15 +319,120 @@ eventfinder.start_search Spusti hľadanie
 eventlistbar.channelswitch prejdi
 eventlistbar.eventsort triedenie
 eventlistbar.recordevent nahraj
+extra.add_to_bouquet Pridanie do buketu
+extra.audio_run_player Stlačenie AUDIO spustí prehrávač
+extra.auto_delete Auto-mazanie
+extra.auto_timeshift Auto-nahrávanie, sec (0=vypnuté)
+extra.auto_to_record Presun časového posuvu do nahrávok
+extra.cache_txt Zachytávanie teletextu
+extra.chadded Aktuálny kanál bol pridaný do vybraného buketu....\n
+extra.chalreadyinbq Aktuálny kanál sa už nachádza vo vybranom bukete....\n
+extra.clear_log Vyčisti Log
+extra.dboxinfo Informácie o systéme
+extra.east Východne
+extra.fec_1_2 1/2
+extra.fec_2_3 2/3
+extra.fec_3_4 3/4
+extra.fec_5_6 5/6
+extra.fec_7_8 7/8
+extra.fec_auto Auto DVB-S
+extra.fec_auto_s2 Auto DVB-S2
+extra.fec_s2_8psk_1_2 1/2 s2 8psk
+extra.fec_s2_8psk_2_3 2/3 s2 8psk
+extra.fec_s2_8psk_3_4 3/4 s2 8psk
+extra.fec_s2_8psk_3_5 3/5 s2 8psk
+extra.fec_s2_8psk_4_5 4/5 s2 8psk
+extra.fec_s2_8psk_5_6 5/6 s2 8psk
+extra.fec_s2_8psk_7_8 7/8 s2 8psk
+extra.fec_s2_8psk_8_9 8/9 s2 8psk
+extra.fec_s2_8psk_9_10 9/10 s2 8psk
+extra.fec_s2_qpsk_1_2 1/2 s2 qpsk
+extra.fec_s2_qpsk_2_3 2/3 s2 qpsk
+extra.fec_s2_qpsk_3_4 3/4 s2 qpsk
+extra.fec_s2_qpsk_3_5 3/5 s2 qpsk
+extra.fec_s2_qpsk_4_5 4/5 s2 qpsk
+extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
+extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
+extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
+extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
+extra.hw_sect Sekcia hardwéru
+extra.key_click Stlač tlačítko
+extra.key_list_end Na koniec
+extra.key_list_start Na začiatok
+extra.key_plugin Tlačítko zobrazujúce PLUGIN
+extra.key_timeshift Časový posuv
+extra.key_unlock Odblokuj
+extra.ladirection Umiestnenie zem.šírky
+extra.latitude Zem.šírka
+extra.loadcolors Nahraj farby z ...
+extra.loadconfig Nahraj nastavenia z ...
+extra.loadkeys Nahraj nastavenia kláves
+extra.lodirection Umiestnenie zem.dľžky
+extra.logo Čislo loga(Štartovacie logo?)
+extra.longitude Zem.dľžka
+extra.manual_scan Ručné prehľadanie
+extra.menu_left_exit "Ľavý" = návrat menu
+extra.north Severne
+extra.record_time Rýchly čas nahrávania (hodiny)
+extra.rotor_swap Vymeniť východ/západ motoru
+extra.rounded_corners Vzhľad rohov
+extra.rounded_corners_off hranatý
+extra.rounded_corners_on zaoblený
+extra.savecolors Ulož farby ako ...
+extra.saveconfig Ulož nastavenia ako ...
+extra.savekeys Ulož nastavenia kláves
+extra.scan_fast Rýchle prehľadávanie (XML)
+extra.scan_full Úplné prehľádávanie (XML+NIT)
+extra.scan_mode Spôsob prehľadávania
+extra.scrambled_message Správa kódovania
+extra.sms_channel Mód SMS pre kanál
+extra.south Južne
+extra.spts_mode SPTS mód
+extra.start_tostandby Spustenie do stavu pripravenosti
+extra.temp_timeshift Dočasný časový posuv
+extra.timeshift_pause Pozastavenie časového posuvu
+extra.timezone Časová zóna
+extra.tp.pol_v V
+extra.tp_fec FEC
+extra.tp_freq Kmitočet
+extra.tp_mod Modulácia
+extra.tp_mod_128 QAM/128
+extra.tp_mod_16 QAM/16
+extra.tp_mod_256 QAM/256
+extra.tp_mod_32 QAM/32
+extra.tp_mod_64 QAM/64
+extra.tp_pol Polarizácia
+extra.tp_pol_h H
+extra.tp_rate SymbolRate
+extra.update_dir Adresár aktualizácie
+extra.use_gotoxx Použi gotoXX
+extra.use_log Logovanie do /tmp/log
+extra.volume_pos Ukazovateľ hlasitosti
+extra.west Západne
+extra.zap_cycle Vypnúť históriu kanálov
+extra.zapit_fast_zap Rýchle prepínanie
+extra.zapit_fe_timeout Časový limit naladenia (1 = 10 msek)
+extra.zapit_hvoltage 18V pri točení motora
+extra.zapit_make_bouquet Wykonaj pozostałe listy kanałów
+extra.zapit_menu Možnosti prepínania
+extra.zapit_motor_speed Rýchlosť točenia (10 = 1st/sek)
+extra.zapit_rezap_time Prepnúť na EMU prepínacím časom
+extra.zapit_save_last_chan Ukladať posledný kanál
+extra.zapit_scan_sdt Prehľadávanie SDT pre aktualizáciu
+extra.zapit_scanpids Vyhľadávanie s PIDmi
+extra.zapit_sdt_changed Zmenené kanály, načítanie nastavenia.
+extra.zapit_sort_names Triedenie kanálov podľa názvu
+extra.zapit_write_names Zapísanie názvov kanálov
+fan_speed Rýchlosť CPU ventilátora
 favorites.addchannel Aktuálny kanál bude pridaný \ndo buketu "Obľúbené". \nTo potrvá niekoľko sekúnd...
 favorites.bouquetname Obľúbené
 favorites.bqcreated Buket "Obľúbené" bol vytvorený...\n
 favorites.chadded Aktuálny kanál bol pridaný do obľúbených...\n
 favorites.chalreadyinbq Aktuálny kanál sa už nachádza v obľúbených...\n
+favorites.copy Kopíruj buket do Obľúbených
 favorites.finalhint \nPouži editor buketov pre dokonačenie\nzmien v obľúbených.\n
 favorites.menueadd Pridaj kanál do obľúbených
 favorites.nobouquets Obľúbené sú dostupné len pri použití Buketov.
-favorites.copy Kopíruj buket do Obľúbených
 filebrowser.delete zmaž
 filebrowser.denydirectoryleave Hlavný adresár
 filebrowser.dodelete1 zmaž
@@ -387,13 +511,13 @@ flashupdate.versioncheck Kontrola verzie
 flashupdate.writeflash Zapísanie celého IMAGE do pamäte FLASH
 flashupdate.writeflashmtd Zapísanie jednej partície
 flashupdate.wrongbase Vaša verzia je odlišná.\nPokračovať?
-fontmenu.menu Menu
 fontmenu.channellist Zoznam kanálov
 fontmenu.epg EPG
 fontmenu.eventlist Programový sprievodca
 fontmenu.gamelist Zoznam hier
 fontmenu.head Nastavenia písma
 fontmenu.infobar Stavový riadok
+fontmenu.menu Menu
 fontmenu.sizes Veľkosti písma
 fontsize.channel_num_zap priamy výber
 fontsize.channellist Zoznam kanálov
@@ -420,6 +544,40 @@ fontsize.menu_info Informačné menu
 fontsize.menu_title Titulok menu
 gtxalpha.alpha1 Alfa 1
 gtxalpha.alpha2 Alfa 2
+hdd_10min 10 minút
+hdd_1min 1 minúta
+hdd_20min 20 minút
+hdd_30min 30 minút
+hdd_5min 5 minút
+hdd_60min 60 minút
+hdd_activate Použi nastavenia
+hdd_check Kontrola súborového systému
+hdd_check_failed Chyba kontroly disku !
+hdd_ext3 Súborový systém Ext3
+hdd_fast minimálne
+hdd_format Formátovanie HDD
+hdd_format_failed Chyba počas formátovania disku !
+hdd_format_warn Naozaj formátovať? Všetky dáta budú stratené!
+hdd_fs Súborový systém
+hdd_manage Spravovanie HDD
+hdd_middle stredne
+hdd_noise Hlučnosť
+hdd_not_found Nenájdený disk
+hdd_reiser ReiserFS
+hdd_settings Nastavenia HDD
+hdd_sleep Čas uspania
+hdd_slow maximálne
+hdd_umount_warn Chyba počas odpojenia disku !
+imageinfo.creator Vytvoril:
+imageinfo.date Dátum:
+imageinfo.dokumentation Dokumentácia:
+imageinfo.forum Fórum:
+imageinfo.head Informácia o IMAGE
+imageinfo.homepage Domov:
+imageinfo.image Image:
+imageinfo.license Licencia:
+imageinfo.version Verzia:
+inetradio.name Internetové radio
 infoviewer.epgnotload EPG informácie nie sú načítané...
 infoviewer.epgwait čakám na informácie EPG...
 infoviewer.eventlist Prehľad EPG
@@ -489,9 +647,9 @@ lcdmenu.statusline.both hlasitosť/hraný čas
 lcdmenu.statusline.playtime odohratý čas
 lcdmenu.statusline.volume hlasitosť
 ledcontroler.menu Podsvietenie Power tlačítka
-ledcontroler.mode.tv TV mód
 ledcontroler.mode.deepstandby Hlboký spánok
 ledcontroler.mode.standby Pripravenosť
+ledcontroler.mode.tv TV mód
 ledcontroler.off Led1 a Led2 vyp.
 ledcontroler.on.all Led1 a Led2 zap.
 ledcontroler.on.led1 Led1 zap.
@@ -517,18 +675,18 @@ mainmenu.shutdown Vypnúť
 mainmenu.sleeptimer Časovač vypnutia
 mainmenu.tvmode TV
 mainsettings.audio Zvuk
-mainsettings.osd Nastavenia OSD
 mainsettings.head Nastavenia
 mainsettings.keybinding Nastavenia kláves
 mainsettings.language Jazyk
-mainsettings.timezone Časová zóna
 mainsettings.lcd Zobrazovač VFD
 mainsettings.manage Spravovanie nastavení
 mainsettings.misc Iné nastavenia
 mainsettings.network Sieť
+mainsettings.osd Nastavenia OSD
 mainsettings.recording Nahrávanie
 mainsettings.savesettingsnow Uloženie nastavenia
 mainsettings.savesettingsnow_hint Zapisovanie nastavení,\nprosím čakaj...
+mainsettings.timezone Časová zóna
 mainsettings.video Obraz
 menu.back späť
 menu.next ďaľej (MENU ukončí)
@@ -545,31 +703,6 @@ miscsettings.bootmenu Zobrazenie BOOT Menu
 miscsettings.channellist Nastavenia zoznamu kanálov
 miscsettings.channellist_epgtext_align Zarovnaj EPG text
 miscsettings.driver_boot Pokročilé možnosti
-miscsettings.fb_destination Štartovacia konzola (Expert)
-miscsettings.general Hlavné nastavenia
-miscsettings.head Iné nastavenia
-miscsettings.hwsections Použitie sekcie HW
-miscsettings.infobar Inforiadok
-miscsettings.infobar_casystem_display Zobrazenie CA-Systému
-miscsettings.infobar_casystem_mini CA mini
-miscsettings.infobar_casystem_mode CA mód
-miscsettings.infobar_disp_0 bez Loga
-miscsettings.infobar_disp_1 Logo 1
-miscsettings.infobar_disp_2 Logo 2
-miscsettings.infobar_disp_3 Logo 3
-miscsettings.infobar_disp_log Informačné okno
-miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
-miscsettings.infobar_show_var_hdd Zobrazenie zaplnenia (var a hdd)
-miscsettings.shutdown_count Vypnúť po
-miscsettings.shutdown_count_hint1 Čas (v minútach) pre prepnutie zo stavu spánku
-miscsettings.shutdown_count_hint2 do hlbokého spánku (0=vypnuté)
-miscsettings.noaviawatchdog použitie AVIA sledovača
-miscsettings.noenxwatchdog použitie ENX sledovača
-miscsettings.pmtupdate použitie aktualizácie PMT
-miscsettings.shutdown_real Umožnenie spánku
-miscsettings.shutdown_real_rcdelay Oneskorenie vypnutia
-miscsettings.sptsmode použitie SPTS spôsobu
-miscsettings.virtual_zap_mode Virtuálne prepínanie
 miscsettings.epg_cache Zachytávanie EPG (dni)
 miscsettings.epg_cache_hint1 Ako dlho uchovávať dáta EPG v budúcnosti?
 miscsettings.epg_cache_hint2 Nastavenie v dňoch.
@@ -585,64 +718,67 @@ miscsettings.epg_old_events Odstráň neaktuálne EPG
 miscsettings.epg_old_events_hint1 Ako dlho zapisovať dáta EPG po uplinutí doby?
 miscsettings.epg_old_events_hint2 Nastavenie v hodinách.
 miscsettings.epg_save Ulož/Obnov EPG po reštarte
-motorcontrol.head Satelitný vyhľadávač
-motorcontrol.user_menu Uživateľské menu
-motorcontrol.install_menu Inštalačné menu
-motorcontrol.step_west Krok/Posuv motora na Západ (b,c)
-motorcontrol.step_east Krok/Posuv motora na Východ (b,c)
-motorcontrol.halt Zastav motor
-motorcontrol.west_limit Nastav západný (soft) limit
-motorcontrol.east_limit Nastav východný (soft) limit
-motorcontrol.enable_limit Zapni (soft) limity
-motorcontrol.disable_limit Vypni (soft) limity
-motorcontrol.ref_position Choď na referenčnú pozíciu
+miscsettings.fb_destination Štartovacia konzola (Expert)
+miscsettings.general Hlavné nastavenia
+miscsettings.head Iné nastavenia
+miscsettings.hwsections Použitie sekcie HW
+miscsettings.infobar Inforiadok
+miscsettings.infobar_casystem_display Zobrazenie CA-Systému
+miscsettings.infobar_casystem_mini CA mini
+miscsettings.infobar_casystem_mode CA mód
+miscsettings.infobar_disp_0 bez Loga
+miscsettings.infobar_disp_1 Logo 1
+miscsettings.infobar_disp_2 Logo 2
+miscsettings.infobar_disp_3 Logo 3
+miscsettings.infobar_disp_log Informačné okno
+miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
+miscsettings.infobar_show_var_hdd Zobrazenie zaplnenia (var a hdd)
+miscsettings.noaviawatchdog použitie AVIA sledovača
+miscsettings.noenxwatchdog použitie ENX sledovača
+miscsettings.pmtupdate použitie aktualizácie PMT
+miscsettings.shutdown_count Vypnúť po
+miscsettings.shutdown_count_hint1 Čas (v minútach) pre prepnutie zo stavu spánku
+miscsettings.shutdown_count_hint2 do hlbokého spánku (0=vypnuté)
+miscsettings.shutdown_real Umožnenie spánku
+miscsettings.shutdown_real_rcdelay Oneskorenie vypnutia
+miscsettings.sptsmode použitie SPTS spôsobu
+miscsettings.virtual_zap_mode Virtuálne prepínanie
 motorcontrol.calc_positions Prepočítaj pozície
-motorcontrol.pos_increase Zvýš pozíciu motora (a)
-motorcontrol.pos_decrease Zníž pozíciu motora (a)
-motorcontrol.step_drive Prepni spôsob Krok/Posuv (b)
-motorcontrol.store Ulož pozíciu motora (a)
-motorcontrol.step_increase Zvýš veľkosť kroku (c)
-motorcontrol.step_decrease Zníž veľkosť kroku (c)
-motorcontrol.goto Choď na pozíciu motora (a)
-motorcontrol.notdef Nepoužité
-motorcontrol.motor_pos (a) Pozícia motora:
-motorcontrol.settings Nastavenia ovládania motora
-motorcontrol.movement (b) Presun:
-motorcontrol.step_mode mód kroku
+motorcontrol.disable_limit Vypni (soft) limity
 motorcontrol.drive_mode mód pohybu
 motorcontrol.drive_mode_auto Zastavenie pohybu Ručne/Auto
-motorcontrol.timed_mode čas pre mód kroku
+motorcontrol.east_limit Nastav východný (soft) limit
+motorcontrol.enable_limit Zapni (soft) limity
+motorcontrol.goto Choď na pozíciu motora (a)
+motorcontrol.halt Zastav motor
+motorcontrol.head Satelitný vyhľadávač
+motorcontrol.install_menu Inštalačné menu
+motorcontrol.motor_pos (a) Pozícia motora:
+motorcontrol.movement (b) Presun:
+motorcontrol.msec ms
+motorcontrol.no_mode nepoužité
+motorcontrol.notdef Nepoužité
+motorcontrol.override Nahradiť pozíciu určenú pre
+motorcontrol.pos_decrease Zníž pozíciu motora (a)
+motorcontrol.pos_increase Zvýš pozíciu motora (a)
+motorcontrol.ref_position Choď na referenčnú pozíciu
+motorcontrol.sat_pos Pozícia satelitu (krokovací mód):
+motorcontrol.settings Nastavenia ovládania motora
+motorcontrol.status Stav
+motorcontrol.step_decrease Zníž veľkosť kroku (c)
+motorcontrol.step_drive Prepni spôsob Krok/Posuv (b)
+motorcontrol.step_east Krok/Posuv motora na Východ (b,c)
+motorcontrol.step_increase Zvýš veľkosť kroku (c)
+motorcontrol.step_mode mód kroku
 motorcontrol.step_size (c) Veľkosť kroku:
+motorcontrol.step_west Krok/Posuv motora na Západ (b,c)
 motorcontrol.stop_moving Zastav na signále (pohybovanie)
 motorcontrol.stop_stopped Zastav na signále (zastavenie)
-motorcontrol.no_mode nepoužité
-motorcontrol.msec ms
-motorcontrol.status Stav
-motorcontrol.sat_pos Pozícia satelitu (krokovací mód):
-motorcontrol.override Nahradiť pozíciu určenú pre
-moviebrowser.option_browser Možnosti prehliadača
+motorcontrol.store Ulož pozíciu motora (a)
+motorcontrol.timed_mode čas pre mód kroku
+motorcontrol.user_menu Uživateľské menu
+motorcontrol.west_limit Nastav západný (soft) limit
 moviebrowser.book_clear_all Vyčisti všetko
-moviebrowser.menu_save Ulož zmeny
-moviebrowser.menu_save_all Spusti aktualizáciu informácií o súbore
-moviebrowser.info_head_update Ulož zmeny vo všetkých informačných súboroch filmu
-moviebrowser.update_if_dest_empty_only Kopírovať len ak je cieľové miesto prázdne
-moviebrowser.serie_auto_create Automaticky vytvor serial
-moviebrowser.load_default Nahrať prednastavené nastavenia
-moviebrowser.browser_row_head Nastavenia riadku
-moviebrowser.browser_row_nr Počet stĺpcov
-moviebrowser.browser_row_item Položka stĺpca
-moviebrowser.browser_row_width Šírka stĺpca
-moviebrowser.reload_at_start Načítanie informácie o filme pri štarte
-moviebrowser.remount_at_start Pripoj pri štarte
-moviebrowser.dir_head Doplnkové adresáre
-moviebrowser.dir Adresár
-moviebrowser.use_dir Použi adresár
-moviebrowser.use_rec_dir Použi adresár nahrávania
-moviebrowser.use_movie_dir Použi adresár filmov
-moviebrowser.hide_series Skryť serialy
-moviebrowser.last_record_max_items Počet liniek posledného nahrávania
-moviebrowser.last_play_max_items Počet liniek posledného prehrávania
-moviebrowser.browser_frame_high Výška prehliadača [pixel]
 moviebrowser.book_head Záložky
 moviebrowser.book_lastmoviestop Posledné prerušenie:
 moviebrowser.book_movieend Koniec filmu:
@@ -653,6 +789,13 @@ moviebrowser.book_position Pozícia:
 moviebrowser.book_type Skok (<0 vzad , >0 vpred):
 moviebrowser.book_type_backward Opakovať
 moviebrowser.book_type_forward Skok za
+moviebrowser.browser_frame_high Výška prehliadača [pixel]
+moviebrowser.browser_row_head Nastavenia riadku
+moviebrowser.browser_row_item Položka stĺpca
+moviebrowser.browser_row_nr Počet stĺpcov
+moviebrowser.browser_row_width Šírka stĺpca
+moviebrowser.dir Adresár
+moviebrowser.dir_head Doplnkové adresáre
 moviebrowser.edit_book Zmeň záložku
 moviebrowser.edit_book_name_info1 Zadanie nového názovu záložky
 moviebrowser.edit_book_name_info2 názov knihy
@@ -669,6 +812,7 @@ moviebrowser.head TS prehrávač filmov
 moviebrowser.head_filter Filtrovanie filmov podľa kategórie:
 moviebrowser.head_playlist Posledné pustený:
 moviebrowser.head_recordlist Posledne nahraný:
+moviebrowser.hide_series Skryť serialy
 moviebrowser.hint_jumpbackward Skok vzad o 5s\n '0' zruš
 moviebrowser.hint_jumpforward Skok vpred o 5s\n '0' zruš
 moviebrowser.hint_movieend Ukončenie sledovania za 5 s\n '0' zruš
@@ -680,6 +824,7 @@ moviebrowser.info_filename Názov
 moviebrowser.info_genre_major Žáner
 moviebrowser.info_genre_minor Vedľajší žáner
 moviebrowser.info_head Informácia o filme
+moviebrowser.info_head_update Ulož zmeny vo všetkých informačných súboroch filmu
 moviebrowser.info_info1 Info 1
 moviebrowser.info_length Dĺžka (Min)
 moviebrowser.info_parental_lockage Rodičovský zámok
@@ -699,6 +844,9 @@ moviebrowser.info_serie Serial
 moviebrowser.info_size Veľkosť (MB)
 moviebrowser.info_title Titul
 moviebrowser.info_videoformat Obraz
+moviebrowser.last_play_max_items Počet liniek posledného prehrávania
+moviebrowser.last_record_max_items Počet liniek posledného nahrávania
+moviebrowser.load_default Nahrať prednastavené nastavenia
 moviebrowser.menu_directories_head Adresáre
 moviebrowser.menu_help_head Nápoveda
 moviebrowser.menu_main_bookmarks Záložky
@@ -706,11 +854,17 @@ moviebrowser.menu_main_head Nastavenia
 moviebrowser.menu_nfs_head Nastavenia NFS
 moviebrowser.menu_parental_lock_activated Aktívácia
 moviebrowser.menu_parental_lock_activated_no nie
-moviebrowser.menu_parental_lock_activated_yes áno
 moviebrowser.menu_parental_lock_activated_no_temp nie (dočasne)
+moviebrowser.menu_parental_lock_activated_yes áno
 moviebrowser.menu_parental_lock_head Blokovanie
 moviebrowser.menu_parental_lock_rate_head Blokovať film z ...
+moviebrowser.menu_save Ulož zmeny
+moviebrowser.menu_save_all Spusti aktualizáciu informácií o súbore
+moviebrowser.option_browser Možnosti prehliadača
+moviebrowser.reload_at_start Načítanie informácie o filme pri štarte
+moviebrowser.remount_at_start Pripoj pri štarte
 moviebrowser.scan_for_movies Hľadaj pre film ...
+moviebrowser.serie_auto_create Automaticky vytvor serial
 moviebrowser.serie_head Serialy
 moviebrowser.serie_name Zmena názvu
 moviebrowser.short_audio Zvuk
@@ -735,6 +889,10 @@ moviebrowser.short_size Veľkosť
 moviebrowser.short_title Titul
 moviebrowser.start_head Pozerať film od:
 moviebrowser.start_record_start Začiatok filmu
+moviebrowser.update_if_dest_empty_only Kopírovať len ak je cieľové miesto prázdne
+moviebrowser.use_dir Použi adresár
+moviebrowser.use_movie_dir Použi adresár filmov
+moviebrowser.use_rec_dir Použi adresár nahrávania
 movieplayer.bookmark Záložky
 movieplayer.bookmarkname Názov záložky
 movieplayer.bookmarkname_hint1 Vložienie názvu
@@ -779,6 +937,15 @@ movieplayer.vlchelp7 asi 1 min dopredu
 movieplayer.vlchelp8 asi 5 min dozadu
 movieplayer.vlchelp9 asi 5 min dopredu
 movieplayer.wrongvlcversion Vlastnosť nie je podporovaná Vašou aktuálnou verziou VLC
+mpkey.audio Zvuková stpopa
+mpkey.bookmark Ulož záložku
+mpkey.forward Dopredu
+mpkey.pause Preruš
+mpkey.play Prehraj
+mpkey.plugin Spusti PLUGIN
+mpkey.rewind Dozadu
+mpkey.stop Zastav
+mpkey.time Zobrazenie času
 networkmenu.broadcast Vysielanie
 networkmenu.dhcp Prevzatie z DHCP
 networkmenu.gateway Predvolená brána
@@ -800,6 +967,7 @@ networkmenu.setupnow Použi nastavenia siete
 networkmenu.setuponstartup Nastavenie siete pri štarte
 networkmenu.show Zobrazenie sieťového nastavenia
 networkmenu.test Otestovanie siete
+neutrino_starting Spustenie Neutrina...
 nfs.alreadymounted Adresár je už pripojený
 nfs.automount Pripoj pri spustení
 nfs.dir Adresár/zdielanie
@@ -832,6 +1000,7 @@ options.fb FRAMEBUFFER
 options.null nič
 options.off nie
 options.on áno
+options.on.without_messages Bez správ
 options.serial SERIAL
 parentallock.changepin Zmena PIN kódu
 parentallock.changepin_hint1 Zadanie Vášho nového bezpečnostného PIN kódu!
@@ -901,7 +1070,6 @@ recordingmenu.apids_alt Nahraj ostatné zvukové stopy
 recordingmenu.apids_std Nahraj štandartný zvuk
 recordingmenu.choose_direct_rec_dir Výber adresára pre nahrávanie
 recordingmenu.defdir Adresár nahrávania
-recordingmenu.tsdir Adresár časového posuvu
 recordingmenu.epg_for_filename dlhé názvy (z dát EPG)
 recordingmenu.file disk (súbor)
 recordingmenu.filesettings Nastavenia priameho nahrávania
@@ -922,8 +1090,9 @@ recordingmenu.setupnow Použi nastavenia
 recordingmenu.splitsize Max. veľkosť súboru (MB)
 recordingmenu.stopplayback Zastav prehrávanie
 recordingmenu.stopsectionsd Zastav SEKCIE
-recordingmenu.stream_vtxt_pid Nahrávanie teletextu
 recordingmenu.stream_pmt_pid nahrávanie PMT
+recordingmenu.stream_vtxt_pid Nahrávanie teletextu
+recordingmenu.tsdir Adresár časového posuvu
 recordingmenu.use_fdatasync Synchronizovaný zápis (ftdatasync)
 recordingmenu.use_o_sync Synchronizovaný zápis (O_SYNC)
 recordingmenu.vcr videomagnetofón
@@ -931,48 +1100,63 @@ recordingmenu.zap_on_announce Informuj o zapnutí nahrávania
 recordtimer.announce Začatie nahrávania za pár minút.
 repeatblocker.hint_1 Doba spozdenia (ms) medzi dvoma stlačeniami klávesy
 repeatblocker.hint_2 0 = vypnutie blokovania (červené tlačítko)
+reset_all Továrenské nastavenie
+reset_channels Zmazanie všetkych kanálov
+reset_confirm Skutočne?
+reset_settings Návrat k prednastavenému nastaveniu
+rfmod.carrier Nosný kmitočet
+rfmod.carrier4500 4.5
+rfmod.carrier5500 5.5
+rfmod.carrier6000 6.0
+rfmod.carrier6500 6.5
+rfmod.channel Kanál
+rfmod.enable Použi zvuk
+rfmod.finetune Jemné ladenie
+rfmod.rfmod Modulátor RF
+rfmod.standby Použi modlátor
+rfmod.test Testovacie pruhy
+satsetup.auto_scan Automatické prehľadanie vybraného satelitu
+satsetup.auto_scan_all Automatické prehľadanie vybraných satelitov
+satsetup.comm_input Potvrdený vstup
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Rozšírené
-satsetup.diseqc_order Poradie vstupu
 satsetup.diseqc_com_uncom Potvrdený/Nepotvrdený
+satsetup.diseqc_input DiSEqC vstup
+satsetup.diseqc_order Poradie vstupu
 satsetup.diseqc_uncom_com Nepotvrdený/Potvrdený
 satsetup.diseqcrepeat DiSEqC opakovania
+satsetup.do_scan Zahrnúť všetky do vyhľadávania
 satsetup.extended Nastavenia DiSEqC
 satsetup.extended_motor Nastavenia motora
+satsetup.fastscan_all SD a HD
+satsetup.fastscan_hd len HD
+satsetup.fastscan_head Rýchle prehľadanie (Astra 1 - 12515 MHz)
+satsetup.fastscan_prov Poskytovateľ
+satsetup.fastscan_prov_cd CanalDigitaal
+satsetup.fastscan_prov_telesat TéléSAT
+satsetup.fastscan_prov_tvv TV Vlaanderen
+satsetup.fastscan_sd len SD
+satsetup.fastscan_type Typ prehľadania
+satsetup.lofh LNB horné pásmo
+satsetup.lofl LNB spodné pásmo
+satsetup.lofs LNB prepnutie pásma
+satsetup.manual_scan Ručné prehľadávanie
 satsetup.minidiseqc Mini-DiSEqC
+satsetup.motor_pos Pozícia v motore
 satsetup.motorcontrol Ručné nastavenie motora
 satsetup.nodiseqc bez DiSEqC
+satsetup.sat_setup Nastavenia vstupov a LNB pre satelity
 satsetup.satellite Satelit
 satsetup.savesettingsnow Uloženie nastavení
 satsetup.smatvremote SMATV ladenie
-satsetup.sat_setup Nastavenia vstupov a LNB pre satelity
-satsetup.do_scan Zahrnúť všetky do vyhľadávania
-satsetup.lofl LNB spodné pásmo
-satsetup.lofh LNB horné pásmo
-satsetup.lofs LNB prepnutie pásma
-satsetup.diseqc_input DiSEqC vstup
 satsetup.uncomm_input Nepotvrdený vstup
-satsetup.comm_input Potvrdený vstup
-satsetup.motor_pos Pozícia v motore
-satsetup.auto_scan Automatické prehľadanie vybraného satelitu
-satsetup.auto_scan_all Automatické prehľadanie vybraných satelitov
-satsetup.manual_scan Ručné prehľadávanie
+satsetup.usals_repeat Opakovanie USALS príkazu
 satsetup.use_fta_flag Len nekódované
 satsetup.use_nit Použitie NIT
 satsetup.use_usals Použitie USALS
-satsetup.usals_repeat Opakovanie USALS príkazu
-satsetup.fastscan_head Rýchle prehľadanie (Astra 1 - 12515 MHz)
-satsetup.fastscan_type Typ prehľadania
-satsetup.fastscan_sd len SD
-satsetup.fastscan_hd len HD
-satsetup.fastscan_all SD a HD
-satsetup.fastscan_prov Poskytovateľ
-satsetup.fastscan_prov_cd CanalDigitaal
-satsetup.fastscan_prov_tvv TV Vlaanderen
-satsetup.fastscan_prov_telesat TéléSAT
 scants.abort_body Skutočne prerušiť vyhľadávanie?
 scants.abort_header Prerušenie vyhľadávania
 scants.actcable Kábel:
@@ -993,15 +1177,17 @@ scants.numberofradioservices Radio
 scants.numberoftotalservices Celkom
 scants.numberoftvservices TV
 scants.provider Poskytovateľ:
+scants.select_tp Vyber transpondér
 scants.startnow Spusti prehľadávanie
 scants.test Otestovanie signálu
 scants.transponders Transpondéry:
-scants.select_tp Vyber transpondér
+scrambled_channel Kódovaný kanál
 screensetup.lowerright zelený = dolný, pravý okraj
 screensetup.upperleft červený = horný, ľavý oraj
 servicemenu.getplugins Načítanie PLUGINov
 servicemenu.getplugins_hint Načítavanie PLUGINov,\nprosím čakaj...
 servicemenu.head Služby
+servicemenu.imageinfo Informácia o IMAGE
 servicemenu.reload Načítanie zoznamu kanálov
 servicemenu.reload_hint Načítavania zoznamu kanálov,\nprosím čakaj...
 servicemenu.restart Reštart software
@@ -1011,7 +1197,10 @@ servicemenu.restart_refused_recording Neumožnené reštartovanie, prebieha nahr
 servicemenu.scants Hľadanie kanálov
 servicemenu.ucodecheck Kontrola verzie uCodes
 servicemenu.update Aktualizácia software
+settings.backup Záloha nastavení
+settings.backup_failed Chybná záloha!
 settings.help Nápoveda
+settings.menu_pos Umiestnenie ponuky
 settings.missingoptionsconffile Nastavenia Neutrino boli aktualizované.\nNové možosti budú mať prednastavené hodnoty.
 settings.noconffile Nenájdené nastavenia Neutrino.\nPoužité budú prednastavené hodnoty.
 settings.pos_bottom_left ľavý spodok
@@ -1020,9 +1209,10 @@ settings.pos_default_center vrchný stred
 settings.pos_higher_center spodný stred
 settings.pos_top_left ľavý vrch
 settings.pos_top_right pravý vrch
-settings.menu_pos Umiestnenie ponuky
-shutdowntimer.announce Vypnutie boxu za minútu.\nZrušiť vypnutie?
+settings.restore Obnovenie nastavení
+settings.restore_warn Budú nahradené všetky nastavenia a reštartujem sa\nPokračovať ?
 shutdown.recoding_query Skutočne prerušiť nahrávanie?
+shutdowntimer.announce Vypnutie boxu za minútu.\nZrušiť vypnutie?
 sleeptimerbox.announce Do vypnutia ostáva minúta.
 sleeptimerbox.hint1 Čas do vypnutia v minútach (000=vypnuté)
 sleeptimerbox.hint2 Po uplinutí tohto času sa vypnem.
@@ -1070,6 +1260,8 @@ streamingmenu.streaming_videorate Prenosová rýchlosť obrazu
 streamingserver.noconnect Nepripojenie streamovacieho servera.\nNahrávanie bude prerušené.
 stringinput.caps veľké/malé znaky
 stringinput.clear všetko zmaž
+subtitles.head Titulky
+subtitles.stop Vypnúť titulky
 timer.eventrecord.msg  ... Ukončené, alebo neukončené
 timer.eventrecord.title Plánovač nahrávania
 timer.eventtimed.msg Táto program je naplánovaný.\nBox bude zapnutý a \nprepnutý na tento kanál v stanovenom čase.
@@ -1170,11 +1362,47 @@ usermenu.item_epg_misc Funkcie EPG
 usermenu.item_none Nič
 usermenu.item_vtxt Teletext
 usermenu.name Názov
+video_mode_ok Video mód pracuje správne?
+videomenu.43mode Zobrazenie formátu 4:3
+videomenu.adjust Nastavenie videa
+videomenu.analog_hd_rgb_cinch RGB na CINCH (HD)
+videomenu.analog_hd_rgb_scart RGB na SCART (HD)
+videomenu.analog_hd_yprpb_cinch YPbPr na CINCH (HD)
+videomenu.analog_hd_yprpb_scart YPbPr na SCART (HD)
+videomenu.analog_mode Analógový výstup
+videomenu.analog_sd_rgb_cinch RGB na CINCH (SD)
+videomenu.analog_sd_rgb_scart RGB na SCART (SD)
+videomenu.analog_sd_yprpb_cinch YPbPr na CINCH (SD)
+videomenu.analog_sd_yprpb_scart YPbPr na SCART (SD)
+videomenu.auto Automaticky
+videomenu.brightness Jas
+videomenu.cinch CINCH
+videomenu.contrast Kontrast
 videomenu.csync korekcia synchronizácie
+videomenu.dbdr MPEG2 deblock/dering
+videomenu.dbdr_both deblock+dering
+videomenu.dbdr_deblock deblock
+videomenu.dbdr_none nič
+videomenu.enabled_modes Nastavenie módov pre VF klávesu
+videomenu.fullscreen Celý obraz
+videomenu.hdmi_cec Uživateľské ovládanie (HDMI-CEC)
+videomenu.hdmi_cec_mode Mód HDMI-CEC
+videomenu.hdmi_cec_mode_off vyp
+videomenu.hdmi_cec_mode_recorder ako Rekordér
+videomenu.hdmi_cec_mode_tuner ako Tuner
+videomenu.hdmi_cec_standby Použiť CEC v pohotovosti
+videomenu.hdmi_cec_view_on Použiť CEC pri sledovaní
 videomenu.head Nastavenia obrazu
+videomenu.hue Nasýtenie
+videomenu.letterbox Letterbox
 videomenu.osd OSD
+videomenu.panscan Pan&Scan
+videomenu.panscan2 14:9 Pan&Scan
 videomenu.rgb_centering centrovanie RGB
+videomenu.saturation Farebnosť
+videomenu.scart SCART
 videomenu.screensetup Nastavenie zobrazenia OSD
+videomenu.sharpness Ostrosť
 videomenu.tv-scart TV SCART
 videomenu.vcr-scart VCR SCART
 videomenu.vcrsignal Typ signálu VCR výstupu
@@ -1182,247 +1410,19 @@ videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
 videomenu.vcrswitch Automatické prepnutie SCARTu
 videomenu.videoformat Formát obrazu
+videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
-videomenu.videoformat_149 14:9
 videomenu.videoformat_autodetect automatický
-videomenu.43mode Zobrazenie formátu 4:3
-videomenu.panscan Pan&Scan
-videomenu.panscan2 14:9 Pan&Scan
-videomenu.letterbox Letterbox
-videomenu.fullscreen Celý obraz
-videomenu.auto Automaticky
-videomenu.analog_mode Analógový výstup
-videomenu.analog_sd_rgb_scart RGB na SCART (SD)
-videomenu.analog_sd_rgb_cinch RGB na CINCH (SD)
-videomenu.analog_sd_yprpb_scart YPbPr na SCART (SD)
-videomenu.analog_sd_yprpb_cinch YPbPr na CINCH (SD)
-videomenu.analog_hd_rgb_scart RGB na SCART (HD)
-videomenu.analog_hd_rgb_cinch RGB na CINCH (HD)
-videomenu.analog_hd_yprpb_scart YPbPr na SCART (HD)
-videomenu.analog_hd_yprpb_cinch YPbPr na CINCH (HD)
-videomenu.scart SCART
-videomenu.cinch CINCH
-videomenu.hdmi_cec Uživateľské ovládanie (HDMI-CEC)
-videomenu.hdmi_cec_mode Mód HDMI-CEC
-videomenu.hdmi_cec_mode_off vyp
-videomenu.hdmi_cec_mode_tuner ako Tuner
-videomenu.hdmi_cec_mode_recorder ako Rekordér
-videomenu.hdmi_cec_standby Použiť CEC v pohotovosti
-videomenu.hdmi_cec_view_on Použiť CEC pri sledovaní
-videomenu.dbdr MPEG2 deblock/dering
-videomenu.dbdr_none nič
-videomenu.dbdr_deblock deblock
-videomenu.dbdr_both deblock+dering
-videomenu.enabled_modes Nastavenie módov pre VF klávesu
-videomenu.adjust Nastavenie videa
-videomenu.contrast Kontrast
-videomenu.brightness Jas
-videomenu.sharpness Ostrosť
-videomenu.saturation Farebnosť
-videomenu.hue Nasýtenie
+videomenu.videomode Obrazový mód
+videomenu.videomode_ntsc NTSC
+videomenu.videomode_pal PAL
+videomenu.videomode_palm PAL-M
+wizard.welcome_head Vitajte v Sprievodcovi nastavenia
+wizard.welcome_text Ďaľšie kroky prevedú základnú inštaláciu tohto zariadenia.\nChceš pokračovať?\nBlahoželáme k zakúpeniu Coolstream. Nasledujúce \nkroky ťa prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme ti veľa radosti s týmto príjmačom!\nĎaľší krok ?
 zapit.scantype Vyhľadávanie kanálov
 zapit.scantype.all všetkých
 zapit.scantype.radio len Radio
 zapit.scantype.tv len TV
 zapit.scantype.tvradio TV a Radio
 zaptotimer.announce Minúta do zmeny kanálu.
-extra.dboxinfo Informácie o systéme
-extra.scan_mode Spôsob prehľadávania
-extra.start_tostandby Spustenie do stavu pripravenosti
-extra.rounded_corners Vzhľad rohov
-extra.rounded_corners_off hranatý
-extra.rounded_corners_on zaoblený
-extra.rotor_swap Vymeniť východ/západ motoru
-extra.use_log Logovanie do /tmp/log
-extra.spts_mode SPTS mód
-extra.hw_sect Sekcia hardwéru
-extra.logo Čislo loga(Štartovacie logo?)
-extra.scan_full Úplné prehľádávanie (XML+NIT)
-extra.scan_fast Rýchle prehľadávanie (XML)
-hdd_slow maximálne
-hdd_middle stredne
-hdd_fast minimálne
-hdd_ext3 Súborový systém Ext3
-hdd_reiser ReiserFS
-hdd_1min 1 minúta
-hdd_5min 5 minút
-hdd_10min 10 minút
-hdd_20min 20 minút
-hdd_30min 30 minút
-hdd_60min 60 minút
-hdd_sleep Čas uspania
-hdd_noise Hlučnosť
-hdd_activate Použi nastavenia
-hdd_fs Súborový systém
-hdd_format Formátovanie HDD
-hdd_format_warn Naozaj formátovať? Všetky dáta budú stratené!
-hdd_format_failed Chyba počas formátovania disku !
-hdd_umount_warn Chyba počas odpojenia disku !
-hdd_check Kontrola súborového systému
-hdd_check_failed Chyba kontroly disku !
-hdd_settings Nastavenia HDD
-hdd_manage Spravovanie HDD
-hdd_not_found Nenájdený disk
-extra.clear_log Vyčisti Log
-extra.zap_cycle Vypnúť históriu kanálov
-extra.sms_channel Mód SMS pre kanál
-extra.manual_scan Ručné prehľadanie
-extra.tp_freq Kmitočet
-extra.tp_rate SymbolRate
-extra.tp_pol Polarizácia
-extra.tp.pol_v V
-extra.tp_pol_h H
-extra.tp_fec FEC
-extra.fec_auto Auto DVB-S
-extra.fec_auto_s2 Auto DVB-S2
-extra.fec_1_2 1/2
-extra.fec_2_3 2/3
-extra.fec_3_4 3/4
-extra.fec_5_6 5/6
-extra.fec_7_8 7/8
-extra.tp_mod Modulácia
-extra.tp_mod_16 QAM/16
-extra.tp_mod_32 QAM/32
-extra.tp_mod_64 QAM/64
-extra.tp_mod_128 QAM/128
-extra.tp_mod_256 QAM/256
-extra.timezone Časová zóna
-extra.zapit_menu Možnosti prepínania
-extra.zapit_make_bouquet Wykonaj pozostałe listy kanałów
-extra.zapit_save_last_chan Ukladať posledný kanál
-extra.zapit_motor_speed Rýchlosť točenia (10 = 1st/sek)
-extra.zapit_fe_timeout Časový limit naladenia (1 = 10 msek)
-extra.zapit_fast_zap Rýchle prepínanie
-extra.zapit_sort_names Triedenie kanálov podľa názvu
-extra.zapit_scanpids Vyhľadávanie s PIDmi
-extra.zapit_rezap_time Prepnúť na EMU prepínacím časom
-extra.zapit_hvoltage 18V pri točení motora
-reset_channels Zmazanie všetkych kanálov
-reset_settings Návrat k prednastavenému nastaveniu
-reset_all Továrenské nastavenie
-reset_confirm Skutočne?
-settings.backup Záloha nastavení
-settings.backup_failed Chybná záloha!
-settings.restore Obnovenie nastavení
-settings.restore_warn Budú nahradené všetky nastavenia a reštartujem sa\nPokračovať ?
-extra.add_to_bouquet Pridanie do buketu
-extra.key_list_start Na začiatok
-extra.key_list_end Na koniec
-extra.chadded Aktuálny kanál bol pridaný do vybraného buketu....\n
-extra.chalreadyinbq Aktuálny kanál sa už nachádza vo vybranom bukete....\n
-extra.menu_left_exit "Ľavý" = návrat menu
-extra.zapit_write_names Zapísanie názvov kanálov
-extra.update_dir Adresár aktualizácie
-extra.audio_run_player Stlačenie AUDIO spustí prehrávač
-mpkey.rewind Dozadu
-mpkey.forward Dopredu
-mpkey.pause Preruš
-mpkey.stop Zastav
-mpkey.play Prehraj
-mpkey.audio Zvuková stpopa
-mpkey.time Zobrazenie času
-mpkey.bookmark Ulož záložku
-mpkey.plugin Spusti PLUGIN
-extra.loadcolors Nahraj farby z ...
-extra.savecolors Ulož farby ako ...
-extra.loadkeys Nahraj nastavenia kláves
-extra.savekeys Ulož nastavenia kláves
-extra.loadconfig Nahraj nastavenia z ...
-extra.saveconfig Ulož nastavenia ako ...
-extra.key_click Stlač tlačítko
-videomenu.videomode Obrazový mód
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
-extra.key_timeshift Časový posuv
-extra.key_plugin Tlačítko zobrazujúce PLUGIN
-extra.timeshift_pause Pozastavenie časového posuvu
-rfmod.rfmod Modulátor RF
-rfmod.carrier Nosný kmitočet
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.enable Použi zvuk
-rfmod.channel Kanál
-rfmod.finetune Jemné ladenie
-rfmod.standby Použi modlátor
-rfmod.test Testovacie pruhy
-extra.key_unlock Odblokuj
-servicemenu.imageinfo Informácia o IMAGE
-imageinfo.creator Vytvoril:
-imageinfo.date Dátum:
-imageinfo.dokumentation Dokumentácia:
-imageinfo.forum Fórum:
-imageinfo.head Informácia o IMAGE
-imageinfo.homepage Domov:
-imageinfo.image Image:
-imageinfo.license Licencia:
-imageinfo.version Verzia:
-inetradio.name Internetové radio
-extra.cache_txt Zachytávanie teletextu
-extra.scrambled_message Správa kódovania
-extra.volume_pos Ukazovateľ hlasitosti
-extra.use_gotoxx Použi gotoXX
-extra.latitude Zem.šírka
-extra.longitude Zem.dľžka
-extra.ladirection Umiestnenie zem.šírky
-extra.lodirection Umiestnenie zem.dľžky
-extra.south Južne
-extra.north Severne
-extra.east Východne
-extra.west Západne
-options.on.without_messages Bez správ
-extra.zapit_scan_sdt Prehľadávanie SDT pre aktualizáciu
-extra.zapit_sdt_changed Zmenené kanály, načítanie nastavenia.
-extra.auto_timeshift Auto-nahrávanie, sec (0=vypnuté)
-extra.temp_timeshift Dočasný časový posuv
-extra.auto_delete Auto-mazanie
-extra.auto_to_record Presun časového posuvu do nahrávok
-extra.record_time Rýchly čas nahrávania (hodiny)
-extra.fec_s2_qpsk_1_2 1/2 s2 qpsk
-extra.fec_s2_qpsk_2_3 2/3 s2 qpsk
-extra.fec_s2_qpsk_3_4 3/4 s2 qpsk
-extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
-extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
-extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
-extra.fec_s2_qpsk_3_5 3/5 s2 qpsk
-extra.fec_s2_qpsk_4_5 4/5 s2 qpsk
-extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
-extra.fec_s2_8psk_1_2 1/2 s2 8psk
-extra.fec_s2_8psk_2_3 2/3 s2 8psk
-extra.fec_s2_8psk_3_4 3/4 s2 8psk
-extra.fec_s2_8psk_5_6 5/6 s2 8psk
-extra.fec_s2_8psk_7_8 7/8 s2 8psk
-extra.fec_s2_8psk_8_9 8/9 s2 8psk
-extra.fec_s2_8psk_3_5 3/5 s2 8psk
-extra.fec_s2_8psk_4_5 4/5 s2 8psk
-extra.fec_s2_8psk_9_10 9/10 s2 8psk
-video_mode_ok Video mód pracuje správne?
-scrambled_channel Kódovaný kanál
-neutrino_starting Spustenie Neutrina...
-cam.settings Podmienený prístup
-cam.empty Žiadny modul v šachte
-cam.inserted Vložený modul do šachty
-cam.removed Odstránený modul zo šachty
-cam.init_ok Inicializácia modulu ukončená
-cam.waiting Čakám na odpoveď
-cam.timeout Čas čakania uplynul,\nvraciam sa do menu
-cam.reset Resetnúť
-cam.reset_standby Resetovať po spustení
-subtitles.head Titulky
-subtitles.stop Vypnúť titulky
-fan_speed Rýchlosť CPU ventilátora
-audio.srs_iq SRS TruVolume
-audio.srs_algo Mód
-audio.srs_algo_light Jemný
-audio.srs_algo_normal Normálny
-audio.srs_volume Východzia hlasitosť
-audio.srs_nmgr Potlačovač šumu
-cpu.freq Cpu kmitočet
-cpu.freq_normal Normal kmitočet
-cpu.freq_standby Standby kmitočet
-cpu.freq_default default kmitočet
-wizard.welcome_head Vitajte v Sprievodcovi nastavenia
-wizard.welcome_text Ďaľšie kroky prevedú základnú inštaláciu tohto zariadenia.\nChceš pokračovať?\nBlahoželáme k zakúpeniu Coolstream. Nasledujúce \nkroky ťa prevedú počiatočnou inštaláciou nastavenia prístroja.\nPrajeme ti veľa radosti s týmto príjmačom!\nĎaľší krok ?
