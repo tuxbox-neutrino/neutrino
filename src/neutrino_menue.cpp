@@ -1266,6 +1266,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 	CMenuWidget *menu = new CMenuWidget(txt.c_str() , NEUTRINO_ICON_FEATURES);
 	if (menu == NULL)
 		return 0;
+	menu->setSelected(selected[button]);
 	menu->addItem(GenericMenuSeparator);
 
 	// go through any postition number
@@ -1514,7 +1515,6 @@ bool CNeutrinoApp::showUserMenu(int button)
 	// show menu if there are more than 2 items only
 	// otherwise, we start the item directly (must be the last one)
 	if (menu_items > 1 ) {
-		menu->setSelected(selected[button]);
 		menu->exec(NULL,"");
 		selected[button] = menu->getSelected();
 	}
