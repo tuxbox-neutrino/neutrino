@@ -2489,7 +2489,8 @@ printf("[sdt monitor] wakeup...\n");
 
 			ret = parse_current_sdt(transport_stream_id, original_network_id, satellitePosition, freq);
 			if(ret){
-				printf("[sdt monitor] scanSDT broken ?\n");
+				if(ret == -1)
+					printf("[sdt monitor] scanSDT broken ?\n");
 				continue;
 			}
 			sdt_tp.insert(std::pair <transponder_id_t, bool> (tpid, true) );

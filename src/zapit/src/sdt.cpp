@@ -373,7 +373,7 @@ _repeat:
 int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id,
 	t_satellite_position satellitePosition, freq_id_t freq)
 {
-
+	extern bool sdt_wakeup;//zapit.cpp
 	unsigned char buffer[SDT_SIZE];
 
 	/* position in buffer */
@@ -437,6 +437,7 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 			EIT_schedule_flag = buffer[pos + 2] & 0x02;
 			EIT_present_following_flag = buffer[pos + 2] & 0x01;
 			running_status = buffer [pos + 3] & 0xE0;
+
 			for (unsigned short i=0; i<sidpmt.size() && pat_ok == 1; i++){
 				if(sidpmt[i].first == service_id && running_status != 32 ){
 					tmp_free_CA_mode = scan_parse_pmt( sidpmt[i].second, sidpmt[i].first );
@@ -466,6 +467,9 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 				}
 			}
 			free_CA_mode = -1;
+			if(sdt_wakeup){
+				return -2;//break scan , transponder change
+			}
 		}
 	}
 	while (filter[4]++ != buffer[7]);
