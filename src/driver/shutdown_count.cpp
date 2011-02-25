@@ -64,7 +64,7 @@ void* SHTDCNT::TimeThread(void *)
 void SHTDCNT::init()
 {
 	shutdown_cnt = atoi(g_settings.shutdown_count) * 60;
-	sleep_cnt = g_settings.shutdown_min*60;
+	sleep_cnt = atoi(g_settings.shutdown_min)*60;
 	if (pthread_create (&thrTime, NULL, TimeThread, NULL) != 0 )
 	{
 		perror("[SHTDCNT]: pthread_create(TimeThread)");
@@ -99,7 +99,7 @@ void SHTDCNT::shutdown_counter()
 		}
 	}
 
-	if(g_settings.shutdown_min > 0) {
+	if(atoi(g_settings.shutdown_min) > 0) {
 		if(sleep_cnt > 0) {
 			sleeptimer_active = true;
 			sleep_cnt--;
@@ -113,5 +113,5 @@ void SHTDCNT::shutdown_counter()
 
 void SHTDCNT::resetSleepTimer()
 {
-	sleep_cnt = g_settings.shutdown_min*60;
+	sleep_cnt = atoi(g_settings.shutdown_min)*60;
 }

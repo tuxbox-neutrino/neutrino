@@ -978,7 +978,7 @@ void CNeutrinoApp::InitMiscSettings(CMenuWidget &miscSettings)
 		miscSettingsGeneral->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier));
 		miscSettingsGeneral->addItem(m1);
 		miscSettingsGeneral->addItem(m2);
-		miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, NULL, new CSleepTimerWidget, "permanent"));
+		miscSettingsGeneral->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent"));
 	}
 
 #if 0

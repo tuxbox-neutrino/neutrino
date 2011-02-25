@@ -60,7 +60,7 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 		parent->hide();
 
 	if(permanent) {
-		sprintf(value,"%03d", g_settings.shutdown_min);
+		strcpy(value,g_settings.shutdown_min);
 	} else {
 		shutdown_min = g_Timerd->getSleepTimerRemaining();  // remaining shutdown time?
 		sprintf(value,"%03d", shutdown_min);
@@ -93,8 +93,8 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 
 	int new_val = atoi(value);
 	if(permanent) {
-		g_settings.shutdown_min = new_val;
-		printf("permanent sleeptimer min: %d\n", g_settings.shutdown_min);
+		sprintf(g_settings.shutdown_min,"%03d", new_val);
+		printf("permanent sleeptimer min: %s\n", g_settings.shutdown_min);
 	}
 	else if(shutdown_min != new_val) {
 		shutdown_min = new_val;

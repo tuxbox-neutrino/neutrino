@@ -473,9 +473,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.shutdown_real_rcdelay = configfile.getBool("shutdown_real_rcdelay", false );
         strcpy(g_settings.shutdown_count, configfile.getString("shutdown_count","0").c_str());
 
-	g_settings.shutdown_min = 0;
+	strcpy(g_settings.shutdown_min, "000");
 	if(cs_get_revision() > 7)
-		g_settings.shutdown_min = configfile.getInt32("shutdown_min", 180 );
+		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
 	g_settings.infobar_subchan_disp_pos = configfile.getInt32("infobar_subchan_disp_pos"  , 0 );
@@ -1024,7 +1024,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("shutdown_real"        , g_settings.shutdown_real        );
 	configfile.setBool("shutdown_real_rcdelay", g_settings.shutdown_real_rcdelay);
 	configfile.setString("shutdown_count"           , g_settings.shutdown_count);
-	configfile.setInt32("shutdown_min"  , g_settings.shutdown_min  );
+	configfile.setString("shutdown_min"  , g_settings.shutdown_min  );
 	configfile.setBool("infobar_sat_display"  , g_settings.infobar_sat_display  );
 	configfile.setInt32("infobar_subchan_disp_pos"  , g_settings.infobar_subchan_disp_pos  );
 	configfile.setBool("progressbar_color"  , g_settings.progressbar_color  );
