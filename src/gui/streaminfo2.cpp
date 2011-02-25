@@ -601,7 +601,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		frontend->getDelSys((fe_code_rate_t)si.fec, dvbs_get_modulation((fe_code_rate_t)si.fec), f, s, m);
 		if (!strncmp(s,const_cast<char *>("DVB-S2"),6)){
 			s=const_cast<char *>("S2");
-			scaling = 20000;
+			scaling = 27000;
 		}
 		else{
 			s=const_cast<char *>("S1");
