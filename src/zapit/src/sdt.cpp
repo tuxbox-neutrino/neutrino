@@ -397,25 +397,21 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	memset(mask, 0x00, DMX_FILTER_SIZE);
 
+	memset(filter, 0x00, DMX_FILTER_SIZE);
 	filter[0] = 0x42;
 	filter[1] = (p_transport_stream_id >> 8) & 0xff;
 	filter[2] = p_transport_stream_id & 0xff;
-//	filter[3] = 0x00;
-	filter[4] = 0x00;
-	filter[5] = 0x00;
+	filter[4] = 0x00; 
 	filter[6] = (p_original_network_id >> 8) & 0xff;
 	filter[7] = p_original_network_id & 0xff;
-	//memset(&filter[8], 0x00, 8);
 
+	memset(mask, 0x00, DMX_FILTER_SIZE);
 	mask[0] = 0xFF;
 	mask[1] = 0xFF;
 	mask[2] = 0xFF;
-//	mask[3] = 0x00;
-	mask[4] = 0xFF;
-	mask[5] = 0xFF;
+	mask[4] = 0xFF; 
 	mask[6] = 0xFF;
 	mask[7] = 0xFF;
-//	memset(&mask[8], 0x00, 8);
 
 	std::vector<std::pair<int,int> > sidpmt;
 	int pat_ok = scan_parse_pat( sidpmt );

@@ -2229,17 +2229,14 @@ int zapit_main_thread(void *data)
 	/* create bouquet manager */
 	g_bouquetManager = new CBouquetManager();
 
-	bool tv_mode = true;
 	if (config.getInt32("lastChannelMode", 0)){
 		setRadioMode();
-		tv_mode = false;
 	}
 	else{
 		setTVMode();
-		tv_mode = true;
 	}
 	if(ZapStart_arg->uselastchannel == 0){
-		live_channel_id = tv_mode ? ZapStart_arg->startchanneltv_id : ZapStart_arg->startchannelradio_id;
+		live_channel_id = (currentMode & RADIO_MODE) ? ZapStart_arg->startchannelradio_id : ZapStart_arg->startchanneltv_id ;
 		lastChannelRadio = ZapStart_arg->startchannelradio_nr;
 		lastChannelTV    = ZapStart_arg->startchanneltv_nr;
 	}
@@ -2491,8 +2488,10 @@ printf("[sdt monitor] wakeup...\n");
 				curchans.clear();
 
 			ret = parse_current_sdt(transport_stream_id, original_network_id, satellitePosition, freq);
-			if(ret)
+			if(ret){
+				printf("[sdt monitor] scanSDT broken ?\n");
 				continue;
+			}
 			sdt_tp.insert(std::pair <transponder_id_t, bool> (tpid, true) );
 
 			char buffer[256];
