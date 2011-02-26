@@ -55,9 +55,6 @@
 
 extern CPlugins       * g_PluginList;
 
-/* this is ugly, but at least it does not crash */
-CFanControlNotifier *fanNotifier;
-
 CMiscMenue::CMiscMenue()
 {
 	width = w_max (40, 10);

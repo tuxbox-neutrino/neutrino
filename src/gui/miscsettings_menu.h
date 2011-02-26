@@ -39,6 +39,7 @@
 class CMiscMenue : public CMenuTarget
 {	
 	private:
+		CFanControlNotifier *fanNotifier;
 		int width, selected;
 
 		void showMiscSettingsMenu();
@@ -53,7 +54,6 @@ class CMiscMenue : public CMenuTarget
 #if 0
 		void showMiscSettingsMenuEmLog(CMenuWidget *ms_emlog);
 #endif
-
 	public:
 		CMiscMenue();
 		~CMiscMenue();
