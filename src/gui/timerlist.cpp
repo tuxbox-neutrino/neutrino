@@ -689,7 +689,7 @@ void CTimerList::paintItem(int pos)
 		real_width-=15; //scrollbar
 	}
 
-	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor);
+	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor, RADIUS_MID);
 	if (liststart+pos<timerlist.size())
 	{
 		CTimerd::responseGetTimer & timer = timerlist[liststart+pos];
@@ -879,7 +879,7 @@ void CTimerList::paint()
 		int sbc= ((timerlist.size()- 1)/ listmaxshow)+ 1;
 		float sbh= (sb- 4)/ sbc;
 
-		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(page_nr * sbh) , 11, int(sbh), COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+ width- 13, ypos+ 2+ int(page_nr * sbh) , 11, int(sbh), COL_MENUCONTENT_PLUS_3, RADIUS_SMALL);
 	}
 
 	paintFoot();
