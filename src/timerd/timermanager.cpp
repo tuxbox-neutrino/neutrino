@@ -355,7 +355,6 @@ int CTimerManager::modifyEvent(int peventID, time_t announceTime, time_t alarmTi
 		{
 			case CTimerd::TIMER_SHUTDOWN:
 			case CTimerd::TIMER_NEXTPROGRAM:
-			case CTimerd::TIMER_ZAPTO:
 			case CTimerd::TIMER_STANDBY:
 			case CTimerd::TIMER_REMIND:
 			case CTimerd::TIMER_SLEEPTIMER:
@@ -366,6 +365,11 @@ int CTimerManager::modifyEvent(int peventID, time_t announceTime, time_t alarmTi
 			{
 				(static_cast<CTimerEvent_Record*>(event))->recordingDir = data.recordingDir;
 				(static_cast<CTimerEvent_Record*>(event))->getEpgId();
+				break;
+			}
+			case CTimerd::TIMER_ZAPTO:
+			{
+				(static_cast<CTimerEvent_Zapto*>(event))->getEpgId(); 
 				break;
 			}
 			default:
@@ -970,8 +974,9 @@ void CTimerEvent::printEvent(void)
 		case CTimerd::TIMER_ZAPTO :
 			dprintf(" Zapto: "
 				PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				" epg: %llx\n",
+				" epg: %s (%llx)\n",
 				static_cast<CTimerEvent_Zapto*>(this)->eventInfo.channel_id,
+				static_cast<CTimerEvent_Zapto*>(this)->epgTitle.c_str(),
 				static_cast<CTimerEvent_Zapto*>(this)->eventInfo.epgID);
 			break;
 
@@ -1295,6 +1300,12 @@ void CTimerEvent_Zapto::getEpgId()
 			eventInfo.epg_starttime = e->startTime;
 			break;
 		}
+	}
+	if(eventInfo.epgID != 0)
+	{
+		CShortEPGData epgdata;
+		if (sdc.getEPGidShort(eventInfo.epgID, &epgdata))
+			epgTitle=epgdata.title; 
 	}
 }
 //=============================================================

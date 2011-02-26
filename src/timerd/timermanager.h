@@ -132,7 +132,7 @@ class CTimerEvent_Record : public CTimerEvent
 	virtual void stopEvent();
 	virtual void saveToConfig(CConfigFile *config);
 	virtual void Reschedule();
-	void getEpgId();
+	virtual void getEpgId();
 	virtual void Refresh();
 };
 
@@ -154,7 +154,7 @@ class CTimerEvent_Zapto : public CTimerEvent_Record
 	virtual void fireEvent();
 	virtual void announceEvent();
 	virtual void stopEvent(){};
-	void getEpgId();
+	virtual void getEpgId();
 };
 
 class CTimerEvent_NextProgram : public CTimerEvent
