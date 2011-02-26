@@ -234,7 +234,7 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 	//fan speed
-	if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) 
+	if (g_info.has_fan)
 	{
 		CFanControlNotifier *fanNotifier = new CFanControlNotifier();
 		//don't show fan speed settings on cable box and NEO

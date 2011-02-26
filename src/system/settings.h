@@ -541,6 +541,7 @@ struct SglobalInfo
 {
 	unsigned char     box_Type;
 	delivery_system_t delivery_system;
+	bool has_fan;
 };
 
 const int RECORDING_OFF    = 0;

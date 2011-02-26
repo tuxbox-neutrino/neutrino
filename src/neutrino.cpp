@@ -2145,9 +2145,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 #endif
 	g_Zapit         = new CZapitClient;
 
-	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE, (g_info.delivery_system = g_Zapit->getDeliverySystem()))) {
+	g_info.delivery_system = g_Zapit->getDeliverySystem();
+	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE, g_info.delivery_system)) {
 		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
 	}
+	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
+	g_info.has_fan = (cs_get_revision() > 1 && cs_get_revision() < 8 && g_info.delivery_system == DVB_S);
+	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
 
 
 	CVFD::getInstance()->showVolume(g_settings.current_volume);
@@ -3602,7 +3606,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			if (g_RCInput != NULL)
 				delete g_RCInput;
 			//fan speed
-			if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+			if (g_info.has_fan) {
 				int fspeed = 0;
 				CFanControlNotifier * funNotifier= new CFanControlNotifier();
 				funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
@@ -3935,7 +3939,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		lastMode = mode;
 		mode = mode_standby;
 		//fan speed
-		if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+		if (g_info.has_fan) {
 			int fspeed = 1;
 			CFanControlNotifier * funNotifier= new CFanControlNotifier();
 			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
@@ -3958,7 +3962,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		}
 		frameBuffer->setActive(true);
 		//fan speed
-		if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+		if (g_info.has_fan) {
 			CFanControlNotifier * funNotifier= new CFanControlNotifier();
 			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
 			delete funNotifier;
