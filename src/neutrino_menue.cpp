@@ -75,7 +75,6 @@
 #endif /*TEST_MENU*/
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
-#include "gui/zapit_setup.h"
 
 #include "gui/widget/stringinput.h"
 #include "gui/widget/stringinput_ext.h"
@@ -802,10 +801,9 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service, CMenuWidget &_scanS
 	// service.addItem(new CMenuForwarder(LOCALE_EXTRA_ZAPIT_MENU      , true, NULL, zapit_menu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, this, "reloadchannels", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
 	service.addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
-	service.addItem(new CMenuForwarder(LOCALE_ZAPITSETUP_HEAD, true, NULL, new CZapitSetup() , NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE ));
 
 	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
-	service.addItem(new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_1));
+	service.addItem(new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 	service.addItem(GenericMenuSeparatorLine);
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, this, "restart", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER));

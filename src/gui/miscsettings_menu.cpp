@@ -40,6 +40,7 @@
 #include "gui/keybind_setup.h"
 #include "gui/plugins.h"
 #include "gui/sleeptimer.h"
+#include "gui/zapit_setup.h"
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -197,13 +198,18 @@ void CMiscMenue::showMiscSettingsMenu()
 	showMiscSettingsMenuFBrowser(misc_menue_fbrowser);
 	misc_menue->addItem( new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, misc_menue_fbrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	
+	misc_menue->addItem(GenericMenuSeparatorLine);
+	
 	//cec settings
-	misc_menue->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, new CCECSetup() , NULL, CRCInput::RC_0));
+	misc_menue->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, new CCECSetup() , NULL, CRCInput::RC_1));
 	
 	//channellist
 	CMenuWidget *misc_menue_chanlist = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	showMiscSettingsMenuChanlist(misc_menue_chanlist);
-	misc_menue->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, misc_menue_chanlist, NULL, CRCInput::RC_1));
+	misc_menue->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, misc_menue_chanlist, NULL, CRCInput::RC_2));
+	
+	//start channels
+	misc_menue->addItem(new CMenuForwarder(LOCALE_ZAPITSETUP_HEAD, true, NULL, new CZapitSetup() , NULL, CRCInput::RC_3));
 
 #ifdef CPU_FREQ
 	//CPU
