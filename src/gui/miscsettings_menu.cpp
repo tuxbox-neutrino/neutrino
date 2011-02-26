@@ -55,6 +55,9 @@
 
 extern CPlugins       * g_PluginList;
 
+/* this is ugly, but at least it does not crash */
+CFanControlNotifier *fanNotifier;
+
 CMiscMenue::CMiscMenue()
 {
 	width = w_max (40, 10);
@@ -170,6 +173,7 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 void CMiscMenue::showMiscSettingsMenu()
 {
 	//misc settings
+	fanNotifier = new CFanControlNotifier();
 	CMenuWidget *misc_menue 		= new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	misc_menue->setSelected(selected);
 
@@ -221,6 +225,7 @@ void CMiscMenue::showMiscSettingsMenu()
 	misc_menue->exec(NULL, "");
 	misc_menue->hide();
 	selected = misc_menue->getSelected();
+	delete fanNotifier;
 	delete misc_menue;
 }
 
@@ -236,11 +241,8 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//fan speed
 	if (g_info.has_fan)
 	{
-		CFanControlNotifier *fanNotifier = new CFanControlNotifier();
-		//don't show fan speed settings on cable box and NEO
 		ms_general->addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
 		fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-		delete fanNotifier;
 	}
 	
 	//rotor
