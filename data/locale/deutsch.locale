@@ -228,7 +228,7 @@ channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
 channellist.epgtext_align_left links
 channellist.epgtext_align_right rechts
-channellist.extended erweiterte Kanalliste
+channellist.extended Sendungsfortschritt anzeigen
 channellist.favs Favoriten
 channellist.foot Kanalinformationen
 channellist.foot_freq Tuning-Parameter
