@@ -69,6 +69,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	is_wizard = wizard_mode;
 	
 	width = w_max (40, 10); //%
+	selected = -1;
 }
 
 COsdSetup::~COsdSetup()
