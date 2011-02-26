@@ -2189,7 +2189,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	NVODChanger               = new CNVODChangeExec;
 	StreamFeaturesChanger     = new CStreamFeaturesChangeExec;
 	MoviePluginChanger        = new CMoviePluginChangeExec;
-	OnekeyPluginChanger       = new COnekeyPluginChangeExec;
 	MyIPChanger               = new CIPChangeNotifier;
 	ConsoleDestinationChanger = new CConsoleDestChangeNotifier;
 	rcLock                    = new CRCLock();
@@ -2206,15 +2205,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 	//Main settings
 	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    streamingSettings   (LOCALE_STREAMINGMENU_HEAD            , NEUTRINO_ICON_STREAMING);
 	CMenuWidget    miscSettings        (LOCALE_MISCSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    _scanSettings       (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    service             (LOCALE_SERVICEMENU_HEAD              , NEUTRINO_ICON_SETTINGS);
 
-	InitMainMenu(mainMenu, mainSettings, miscSettings, service, streamingSettings);
+	InitMainMenu(mainMenu, mainSettings, service);
 
 	InitServiceSettings(service, _scanSettings);
-	InitMiscSettings(miscSettings);
 	InitScanSettings(_scanSettings);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
@@ -4229,34 +4226,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "epgdir") {
-		parent->hide();
-
-		const char *action_str = "epg";
-		if(chooserDir(g_settings.epg_dir, true, action_str)){
-			SendSectionsdConfig();
-		}
-
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "plugin_dir") {
-		parent->hide();
-
-		const char *action_str = "plugin";
-		if(chooserDir(g_settings.plugin_hdd_dir, false, action_str)){
-			g_PluginList->loadPlugins();
-		}
-
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "logo_dir") {
-		parent->hide();
-
-		const char *action_str = "logo";
-		chooserDir(g_settings.logo_hdd_dir, false, action_str);
-
-		return menu_return::RETURN_REPAINT;
-	}
 	else if(actionKey == "movieplugin") {
 		parent->hide();
 		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);
@@ -4271,27 +4240,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 				sprintf(id, "%d", count);
 				enabled_count++;
 				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, MoviePluginChanger, id, CRCInput::convertDigitToKey(count)), (cnt == 0));
-				cnt++;
-			}
-		}
-
-		MoviePluginSelector.exec(NULL, "");
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "onekeyplugin") {
-		parent->hide();
-		CMenuWidget MoviePluginSelector(LOCALE_EXTRA_KEY_PLUGIN, NEUTRINO_ICON_FEATURES);
-		MoviePluginSelector.addItem(GenericMenuSeparator);
-
-		char id[5];
-		int cnt = 0;
-		int enabled_count = 0;
-		for(unsigned int count=0;count < (unsigned int) g_PluginList->getNumberOfPlugins();count++) {
-			if (g_PluginList->getType(count)== CPlugins::P_TYPE_TOOL && !g_PluginList->isHidden(count)) {
-				// zB vtxt-plugins
-				sprintf(id, "%d", count);
-				enabled_count++;
-				MoviePluginSelector.addItem(new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, OnekeyPluginChanger, id, CRCInput::convertDigitToKey(count)), (cnt == 0));
 				cnt++;
 			}
 		}

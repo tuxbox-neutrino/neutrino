@@ -174,7 +174,7 @@ private:
 	void InitScreenSettings(CMenuWidget &);
 	void InitMiscSettings(CMenuWidget &);
 	void InitScanSettings(CMenuWidget &);
-	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &miscSettings, CMenuWidget &service, CMenuWidget &streamingSettings);
+	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &service);
 
 	void SetupFrameBuffer();
 	void SelectAPID();

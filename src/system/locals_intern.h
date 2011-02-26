@@ -749,6 +749,7 @@ const char * locale_real_names[] =
 	"miscsettings.channellist",
 	"miscsettings.channellist_epgtext_align",
 	"miscsettings.driver_boot",
+	"miscsettings.energy",
 	"miscsettings.epg_cache",
 	"miscsettings.epg_cache_hint1",
 	"miscsettings.epg_cache_hint2",

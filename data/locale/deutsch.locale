@@ -698,7 +698,7 @@ mainsettings.keybinding Tasten
 mainsettings.language Sprache
 mainsettings.lcd VFD-Display
 mainsettings.manage Einstellungen verwalten
-mainsettings.misc Diverse Einstellungen
+mainsettings.misc Erweiterte Einstellungen
 mainsettings.network Netzwerk
 mainsettings.osd OSD
 mainsettings.recording Aufnahme
@@ -722,6 +722,7 @@ miscsettings.bootmenu Bootmenü anzeigen
 miscsettings.channellist Kanalliste
 miscsettings.channellist_epgtext_align Event-Text ausrichten
 miscsettings.driver_boot Treiber- und Bootoptionen
+miscsettings.energy Energieverbrauch
 miscsettings.epg_cache EPG-Cache (Tage)
 miscsettings.epg_cache_hint1 EPG-Daten im Voraus zwischenspeichern?
 miscsettings.epg_cache_hint2 (Angabe in Tagen)
@@ -729,7 +730,7 @@ miscsettings.epg_dir EPG Speicherverzeichnis
 miscsettings.epg_extendedcache Sendungsbeschr. behalten (Std.)
 miscsettings.epg_extendedcache_hint1 Dauer für die Zwischenspeicherung der
 miscsettings.epg_extendedcache_hint2 Sendungsbeschreibung (Angabe in Stunden)
-miscsettings.epg_head EPG Einstellungen
+miscsettings.epg_head EPG
 miscsettings.epg_max_events Max. Events
 miscsettings.epg_max_events_hint1 Wieviele Events sollen max. gespeichert werden?
 miscsettings.epg_max_events_hint2 Standard 6000, 0 (ohne Limit)
@@ -739,7 +740,7 @@ miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.fb_destination EXPERT! Boot-Konsole
 miscsettings.general Allgemein
-miscsettings.head Diverse Einstellungen
+miscsettings.head Erweitert
 miscsettings.hwsections EPG Daten per Hardware filtern
 miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Anzeige
