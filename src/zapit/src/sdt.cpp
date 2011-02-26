@@ -467,8 +467,10 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 				}
 			}
 			free_CA_mode = -1;
-			if(sdt_wakeup){
-				return -2;//break scan , transponder change
+
+			if(sdt_wakeup){//break scan , transponder change
+				ret = -2;
+				break; 
 			}
 		}
 	}
