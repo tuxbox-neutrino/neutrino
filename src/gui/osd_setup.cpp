@@ -215,6 +215,21 @@ const CMenuOptionChooser::keyval INFOBAR_SHOW_RES_MODE_OPTIONS[INFOBAR_SHOW_RES_
 //	{ 2, LOCALE_OPTIONS_OFF } // OFF does not really work correctly yet (var/hdd bars not shifted etc)
 };
 
+#define CHANNELLIST_FOOT_OPTIONS_COUNT 3
+const CMenuOptionChooser::keyval  CHANNELLIST_FOOT_OPTIONS[CHANNELLIST_FOOT_OPTIONS_COUNT]=
+{
+	{ 0 , LOCALE_CHANNELLIST_FOOT_FREQ },
+	{ 1 , LOCALE_CHANNELLIST_FOOT_NEXT },
+	{ 2 , LOCALE_CHANNELLIST_FOOT_OFF }
+};
+
+#define CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT 2
+const CMenuOptionChooser::keyval  CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS[CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT]=
+{
+	{ 0 , LOCALE_CHANNELLIST_EPGTEXT_ALIGN_LEFT },
+	{ 1 , LOCALE_CHANNELLIST_EPGTEXT_ALIGN_RIGHT }
+};
+
 
 //show osd setup
 void COsdSetup::showOsdSetup()
@@ -250,7 +265,12 @@ void COsdSetup::showOsdSetup()
 	//infobar
 	CMenuWidget *osd_menu_infobar = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	showOsdInfobarSetup(osd_menu_infobar);
-	osd_menu->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, osd_menu_infobar, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1));
+	osd_menu->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, osd_menu_infobar, NULL, CRCInput::RC_1));
+	
+	//channellist
+	CMenuWidget *osd_menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	showOsdChanlistSetup(osd_menu_chanlist);
+	osd_menu->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, osd_menu_chanlist, NULL, CRCInput::RC_2));
 	
 	//monitor
  	CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
@@ -507,6 +527,7 @@ const CMenuOptionChooser::keyval  LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS[LOCAL
    { 3 , LOCALE_MISCSETTINGS_INFOBAR_DISP_3 }
 };
 
+//infobar
 void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 {
 	menu_infobar->addIntroItems(LOCALE_MISCSETTINGS_INFOBAR);
@@ -523,6 +544,15 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 }
 
+//channellist
+void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
+{
+	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
+	
+ 	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
+ 	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+ 	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true));
+}
 
 
 
