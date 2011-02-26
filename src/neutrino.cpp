@@ -254,7 +254,6 @@ static char **global_argv;
 
 //static CTimingSettingsNotifier timingsettingsnotifier;
 CFontSizeNotifier fontsizenotifier;
-CFanControlNotifier * funNotifier;
 
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 // USERMENU
@@ -3567,9 +3566,12 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 			powerManager->SetStandby(true, true);
-			int fspeed = 0;
-			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
-
+			if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+				int fspeed = 0;
+				CFanControlNotifier * funNotifier= new CFanControlNotifier();
+				funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+				delete funNotifier;
+			}
 			if (powerManager) {
 				powerManager->Close();
 				delete powerManager;
@@ -3599,9 +3601,13 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		} else {
 			if (g_RCInput != NULL)
 				delete g_RCInput;
-
-			int fspeed = 0;
-			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+			//fan speed
+			if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+				int fspeed = 0;
+				CFanControlNotifier * funNotifier= new CFanControlNotifier();
+				funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+				delete funNotifier;
+			}
 			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 
 			delete frameBuffer;
@@ -3887,6 +3893,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 	static bool wasshift = false;
 //printf("********* CNeutrinoApp::standbyMode, was_record %d bOnOff %d\n", was_record, bOnOff);
 	//printf( ( bOnOff ) ? "mode: standby on\n" : "mode: standby off\n" );
+	
 	if( bOnOff ) {
 
 		if(autoshift) {
@@ -3927,9 +3934,13 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		lastMode = mode;
 		mode = mode_standby;
-		int fspeed = 1;
-		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
-
+		//fan speed
+		if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+			int fspeed = 1;
+			CFanControlNotifier * funNotifier= new CFanControlNotifier();
+			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
+			delete funNotifier;
+		}
 		frameBuffer->setActive(false);
 		// Active standby on
 		powerManager->SetStandby(true, false);
@@ -3946,8 +3957,12 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 			g_CamHandler->exec(NULL, "ca_ci_reset1");
 		}
 		frameBuffer->setActive(true);
-
-		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+		//fan speed
+		if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+			CFanControlNotifier * funNotifier= new CFanControlNotifier();
+			funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+			delete funNotifier;
+		}
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
 		if (system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
@@ -3979,6 +3994,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		wasshift = false;
 		StartSubtitles();
 	}
+	
 }
 
 void CNeutrinoApp::radioMode( bool rezap)

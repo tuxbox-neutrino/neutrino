@@ -215,7 +215,7 @@ void CMiscMenue::showMiscSettingsMenu()
 	//CPU
 	CMenuWidget *misc_menue_cpu = new CMenuWidget("CPU", NEUTRINO_ICON_SETTINGS, width);
 	showMiscSettingsMenuCPUFreq(misc_menue_cpu);
-	misc_menue->addItem( new CMenuForwarderNonLocalized("CPU", true, NULL, misc_menue_cpu, NULL));
+	misc_menue->addItem( new CMenuForwarderNonLocalized("CPU", true, NULL, misc_menue_cpu, NULL, CRCInput::RC_4));
 #endif /*CPU_FREQ*/
 
 	misc_menue->exec(NULL, "");
@@ -232,15 +232,15 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//standby after boot
 	ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_START_TOSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	
-	
+
 	//fan speed
-	CFanControlNotifier *fanNotifier = new CFanControlNotifier();
-	
-	//don't show fan speed settings on cable box and NEO
-	if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
+	if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) 
+	{
+		CFanControlNotifier *fanNotifier = new CFanControlNotifier();
+		//don't show fan speed settings on cable box and NEO
 		ms_general->addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
 		fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+		delete fanNotifier;
 	}
 	
 	//rotor
