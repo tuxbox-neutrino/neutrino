@@ -53,8 +53,7 @@
 
 //#define ONE_KEY_PLUGIN
 
-extern CFanControlNotifier * funNotifier;
-extern CPlugins * g_PluginList;
+extern CPlugins       * g_PluginList;
 
 CMiscMenue::CMiscMenue()
 {
@@ -236,7 +235,7 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	
 	
 	//fan speed
-	funNotifier = new CFanControlNotifier();
+	CFanControlNotifier *fanNotifier = new CFanControlNotifier();
 	
 	//don't show fan speed settings on cable box and NEO
 	if (g_info.delivery_system == DVB_S && (cs_get_revision() < 8)) {
