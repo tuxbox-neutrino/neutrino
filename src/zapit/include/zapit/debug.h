@@ -48,14 +48,14 @@ extern int zapit_debug;
 	do {							\
 		if (zapit_debug)					\
 			fprintf(stdout, "[%s:%s:%d] " fmt,	\
-				__FILE__, __FUNCTION__,		\
+				strrchr(__FILE__, '/'), __FUNCTION__,		\
 				__LINE__ , ## args);		\
 	} while (0)
 
 #define ERROR(str)						\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] %s: %s\n",		\
-			__FILE__, __FUNCTION__,			\
+			strrchr(__FILE__, '/'), __FUNCTION__,		\
 			__LINE__, str, strerror(errno));	\
 	} while (0)
 
@@ -64,14 +64,14 @@ extern int zapit_debug;
 #define INFO(fmt, args...)					\
 	do {							\
 		fprintf(stdout, "[%s:%s:%d] " fmt "\n",		\
-			__FILE__, __FUNCTION__,			\
+			strrchr(__FILE__, '/'), __FUNCTION__,		\
 			__LINE__ , ## args);			\
 	} while (0)
 
 #define WARN(fmt, args...)					\
 	do {							\
 		fprintf(stderr, "[%s:%s:%d] " fmt "\n",		\
-			__FILE__, __FUNCTION__,			\
+			strrchr(__FILE__, '/'), __FUNCTION__,		\
 			__LINE__ , ## args);			\
 	} while (0)
 
