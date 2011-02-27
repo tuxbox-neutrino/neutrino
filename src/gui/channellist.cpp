@@ -98,6 +98,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	frameBuffer = CFrameBuffer::getInstance();
 	name = pName;
 	selected = 0;
+	selected_in_new_mode = 0;
 	liststart = 0;
 	tuned=0xfffffff;
 	zapProtection = NULL;
@@ -557,9 +558,15 @@ int CChannelList::show()
 			}
 		}
 		else if ( ( msg == CRCInput::RC_timeout ) || ( msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ) {
-			if(!actzap)
-				selected = oldselected;
 			res = -1;
+			if(!actzap){
+				selected = oldselected;
+			}
+			else{
+				res = -4;
+				selected = selected_in_new_mode;
+			}
+
 			if ( fadeIn ) {
 				g_RCInput->killTimer(fadeTimer);
 				fadeTimer = 0;
@@ -1054,6 +1061,13 @@ printf("**************************** CChannelList::zapTo me %p %s tuned %d new %
 	if ( pos!=(int)tuned ) {
 		tuned = pos;
 		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
+		// TODO check is it possible bouquetList is NULL ?
+		if (bouquetList != NULL) {
+			CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
+		}
+		if(this->new_mode_active)
+			selected_in_new_mode = pos;
+
 	}
 	if(!this->new_mode_active) {
 		selected = pos;
@@ -1067,10 +1081,6 @@ printf("**************************** CChannelList::zapTo me %p %s tuned %d new %
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
 		}
 
-		// TODO check is it possible bouquetList is NULL ?
-		if (bouquetList != NULL) {
-			CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
-		}
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 	}
 }

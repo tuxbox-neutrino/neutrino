@@ -55,7 +55,7 @@ class CChannelList
 {
 	private:
 		CFrameBuffer		*frameBuffer;
-		unsigned int		selected;
+		unsigned int		selected, selected_in_new_mode;
 		t_channel_id		selected_chid;
 		CLastChannel		lastChList;
 		unsigned int		liststart;
