@@ -1622,7 +1622,7 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 *          CNeutrinoApp -  run, the main runloop                                      *
 **************************************************************************************/
 extern int cnxt_debug;
-extern int sections_debug;
+extern bool sections_debug;
 extern int zapit_debug;
 
 void CNeutrinoApp::CmdParser(int argc, char **argv)
@@ -1632,6 +1632,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
                 global_argv[i] = argv[i];
         global_argv[argc] = NULL;
 
+	sections_debug = false;
 	softupdate = false;
 	fromflash = false;
 
@@ -1657,7 +1658,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			cnxt_debug = 1;
 		}
 		else if ((!strcmp(argv[x], "-sd"))) {
-			sections_debug = 1;
+			sections_debug = true;
 		}
 		else if ((!strcmp(argv[x], "-zd"))) {
 			zapit_debug = 1;
