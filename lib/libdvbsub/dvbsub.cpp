@@ -249,7 +249,7 @@ static void* reader_thread(void * /*arg*/)
 	uint8_t* buf;
 
         dmx = new cDemux(0);
-        dmx->Open(DMX_PES_CHANNEL, NULL, 64*1024);
+        dmx->Open(DMX_PES_CHANNEL, NULL, 16*1024);
 
 	while (reader_running) {
 		if(dvbsub_stopped /*dvbsub_paused*/) {
@@ -377,7 +377,7 @@ static void* dvbsub_thread(void* /*arg*/)
 		if(packet_queue.size() == 0) {
 			continue;
 		}
-		sub_debug.print(Debug::VERBOSE, "PES: Wakeup, queue size %d\n\n", packet_queue.size());
+		sub_debug.print(Debug::VERBOSE, "PES: Wakeup, queue size %d\n", packet_queue.size());
 		if(dvbsub_stopped /*dvbsub_paused*/) {
 			clear_queue();
 			continue;
