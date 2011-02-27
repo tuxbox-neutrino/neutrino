@@ -17,6 +17,11 @@ AC_ARG_WITH([tremor], [AS_HELP_STRING([--with-tremor],
 	[TREMOR="$withval"],
 	[TREMOR=no])
 
+AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
+	[use statically linked libvorbisidec instead of libogg/libvorbis])],
+	[TREMOR_STATIC="$withval"],
+	[TREMOR_STATIC=no])
+
 if test "$BOXTYPE" != "tripledragon"; then
 echo "BOXTYPE: $BOXTYPE"
 	TUXBOX_APPS_DVB
@@ -29,11 +34,16 @@ if test "$BOXTYPE" = "tripledragon"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
 fi
 
+if test "$TREMOR_STATIC" = "yes"; then
+	TREMOR=yes
+fi
+
 if test "$TREMOR" = "yes"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,vorbisidec)
 	AC_DEFINE(USE_TREMOR,1,use libvorbisidec/tremor library)
 fi
 AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
+AM_CONDITIONAL(USE_TREMOR_STATIC, test "$TREMOR_STATIC" = "yes")
 
 TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
