@@ -153,6 +153,7 @@ audiomenu.pref_subs Preferowany język napisów
 audiomenu.pref_subs_head Preferencje napisów
 audiomenu.spdif_dd Dolby Digital przez SPDIF
 audiomenu.stereo stereo
+audiomenu.volume_step Reguluj głośność co: 
 audioplayer.add Dodaj
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokalna
@@ -221,21 +222,16 @@ bouqueteditor.switch dodaj/usuń kanał
 bouqueteditor.switchmode TV / Radio
 bouquetlist.head Bukiety
 cablesetup.provider Dostawca telewizji kablowej
-cam.empty Brak modułu w gnieździe
-cam.init_ok Pomyślna inicjalizacja modułu
-cam.inserted Moduł w gnieździe
-cam.removed Usunięto moduł
-cam.reset Reset
-cam.reset_standby Reset po wyjścu ze stanu gotowości
-cam.settings Moduły CA
-cam.timeout Przekroczony czas inicjalizacji
-cam.waiting Oczekiwanie na inicjalizację
 channellist.current_tp Bieżący transponder
 channellist.edit Edycja
 channellist.epgtext_align_left do lewej
 channellist.epgtext_align_right do prawej
 channellist.extended Pasek postępu
 channellist.favs Ulubione
+channellist.foot Informacje o kanale
+channellist.foot_freq Info o Sat/Częst.
+channellist.foot_next nast. audycja
+channellist.foot_off wyłączone
 channellist.head Wszystkie kanały
 channellist.history Historia
 channellist.make_hdlist Bukiet z kanałami HD
@@ -244,6 +240,16 @@ channellist.provs Dostawcy
 channellist.sats Satelity
 channellist.since od
 channellist.start początek
+ci.empty Brak modułu w gnieździe
+ci.init_failed Błąd podczas inicjalizacji
+ci.init_ok Pomyślna inicjalizacja modułu
+ci.inserted Moduł w gnieździe
+ci.removed Usunięto moduł
+ci.reset Reset
+ci.reset_standby Reset po wyjścu ze stanu gotowości
+ci.settings Dostęp warunkowy
+ci.timeout Przekroczony czas oczekiwania
+ci.waiting Oczekiwanie na inicjalizację
 colorchooser.alpha Alfa
 colorchooser.blue Niebieski
 colorchooser.green Zielony
@@ -258,7 +264,6 @@ colormenu.head Ustawienia kolorów
 colormenu.menucolors Kolory menu
 colormenu.osd_preset Rodzaj TV
 colormenu.sd_preset SD (CRT)
-colormenu.statusbar Pasek stanu
 colormenu.textcolor Kolor tekstu
 colormenu.themeselect Wybór tematów
 colormenu.timing Czasy wyświetlania OSD
@@ -267,15 +272,9 @@ colormenusetup.menucontent Zawartość okna
 colormenusetup.menucontent_inactive Nieaktywna zawartość okna
 colormenusetup.menucontent_selected Wybrana zawartość okna
 colormenusetup.menuhead Pasek tytułu
-colorstatusbar.head Kolory belki informacyjnej
 colorstatusbar.text Belka informacyjna
-colorthememenu.classic_theme klasyczny
-colorthememenu.dblue_theme DarkBlue
-colorthememenu.dvb2k_theme DVB2000
-colorthememenu.gray szary
 colorthememenu.head Wybór tematów
 colorthememenu.neutrino_theme Neutrino
-colorthememenu.red_theme czerwony
 date.Apr  Kwi
 date.Aug  Sie
 date.Dec  Gru
@@ -316,34 +315,17 @@ eventlistbar.channelswitch Przełącz
 eventlistbar.eventsort Sortuj
 eventlistbar.recordevent Nagraj 
 extra.add_to_bouquet Dodaj do bukietu
-extra.algo znanych algorytmów
 extra.audio_run_player Przycisk audio rozpoczyna odtwarzanie 
 extra.auto_delete Kasowanie plików tymczasowych
 extra.auto_timeshift Timeshift po (s, 0-wył)
 extra.auto_to_record Przesuń timeshift do ngrań
-extra.cache Bufor
+extra.bigwindows Duże okna
 extra.cache_txt Buforowanie teletekstu
 extra.chadded Obecny kanał został dodany do wybranego bukietu....\n
 extra.chalreadyinbq The current channel is already in selected bouquet....\n
 extra.clear_log Wyczyść Log 
 extra.dboxinfo Informacje o systemie
-extra.debug Debug
-extra.dvbsnoop Informacje o strumieniu DVB
-extra.dvbsnoop_band Pokaż szybkość przesyłu danych
-extra.dvbsnoop_cat Pokaż CAT
-extra.dvbsnoop_eit Pokaż EIT
-extra.dvbsnoop_nit Pokaż NIT
-extra.dvbsnoop_pat Pokaż PAT
-extra.dvbsnoop_pid Wybierz PID
-extra.dvbsnoop_rst Pokaż RST
-extra.dvbsnoop_scan Skanuj PIDy
-extra.dvbsnoop_sdt Pokaż SDT
-extra.dvbsnoop_sit Pokaż SIT
-extra.dvbsnoop_tdt Pokaż TDT
-extra.dvbsnoop_tsdt Pokaż TSDT
 extra.east wschód
-extra.english Wybór angielskiej ścieżki audio
-extra.extra_menu Dodatki
 extra.fec_1_2 1/2
 extra.fec_2_3 2/3
 extra.fec_3_4 3/4
@@ -381,7 +363,6 @@ extra.loadconfig Wczytaj...
 extra.loadkeys Wczytaj ustawienia pilota
 extra.lodirection Kierunek długości geogr.
 extra.logo Logo startowe
-extra.logview Pokaż /tmp/log
 extra.longitude Długość geograficzna
 extra.manual_scan Ręczne skanowanie
 extra.menu_left_exit "Lewy" - powrót do poprzedniego menu
@@ -391,8 +372,6 @@ extra.rotor_swap Zamiana kierunków obrotnicy
 extra.rounded_corners Kształt narożników menu
 extra.rounded_corners_off proste
 extra.rounded_corners_on zaokrąglone 
-extra.ru ruDREAM
-extra.save_settings zapisz ustawienia
 extra.savecolors Zapisz jako...
 extra.saveconfig Zapisz jako...
 extra.savekeys Zapisz ustawienia pilota
@@ -400,9 +379,6 @@ extra.scan_fast szybkie
 extra.scan_full pełne
 extra.scan_mode Tryb wyszukiwania
 extra.scrambled_message Informacja o braku uprawnień
-extra.sep_extra Inne
-extra.show_cat Pokazuj CAT
-extra.show_pmt Pokazuj PMT
 extra.sms_channel Tryb sms dla kanału 
 extra.south południe
 extra.spts_mode Tryb SPTS
@@ -428,14 +404,12 @@ extra.use_log Loguj do /tmp/log
 extra.volume_pos Poz. wskaźnika głośności
 extra.west zachód
 extra.zap_cycle Wyłącz historię programów
-extra.zapit_backup Zapisz kopię listy do /tmp
 extra.zapit_fast_zap Szybkie przełączenie
 extra.zapit_fe_timeout Przekroczony czas
 extra.zapit_hvoltage Podwyższone napięcie (13.5/18.5)
 extra.zapit_make_bouquet Wykonaj pozostałe listy kanałów 
 extra.zapit_menu Opcje przełączania
 extra.zapit_motor_speed Prędkość obrotnicy (10=1°/sec)
-extra.zapit_restore Przywróć listę z /tmp
 extra.zapit_save_last_chan Zapisz ostatni kanał
 extra.zapit_scan_sdt Szukaj SDT dla aktualizacji
 extra.zapit_scanpids PID
@@ -522,10 +496,6 @@ flashupdate.selectimage Dostępne aktualizacje i dodatki
 flashupdate.squashfs.noversion Kontrola zgodności przeprowadzana jest tylko\npodczas aktualizacji poprzez Internet.\nKontynouwać instalację?
 flashupdate.titlereadflash Odczyt pamięci flash
 flashupdate.titlewriteflash Zapis pamięci flash
-flashupdate.uninstall Pokaż zainstalowane dodatki
-flashupdate.uninstall_confirm Na pewno usunąć wybraną pozycję?
-flashupdate.uninstall_empty Brak dodatków do usunięcia
-flashupdate.uninstall_head Usuwanie dodatków
 flashupdate.updatemode Rodzaj aktualizacji
 flashupdate.updatemode_internet automatyczna (Internet)
 flashupdate.updatemode_manual ręczna (ftp)
@@ -540,6 +510,9 @@ fontmenu.eventlist Lista programów
 fontmenu.gamelist Lista gier
 fontmenu.head Ustawienia fontów
 fontmenu.infobar Belka informacyjna
+fontmenu.scaling Powiększ rozmiar czcionki o:
+fontmenu.scaling_x W poziomie (in %)
+fontmenu.scaling_y W pionie (in %)
 fontmenu.sizes Rozmiary fontu
 fontsize.channel_num_zap Bez funkcji
 fontsize.channellist Lista kanałów
@@ -581,11 +554,6 @@ hdd_format Tworzenie systemu plików (ext3)
 hdd_format_failed Błąd podczas tworzenia systemu plików!
 hdd_format_warn Na pewno utworzyć nowy system plików?\nWszystkie dane zostaną utracone!
 hdd_fs System plików
-hdd_label Etykieta woluminu
-hdd_label_change Nadaj/zmień etykietę
-hdd_label_failed Błąd, zmiana etykiety nie powiodła się!
-hdd_label_hint1 Maksymalnie 16 znaków.
-hdd_label_hint2 Znaki alfanumeryczne, bez spacji.
 hdd_manage Zarządzanie
 hdd_middle średnie
 hdd_noise Wyciszenie
@@ -658,6 +626,7 @@ languagesetup.head Ustawienia językowe
 languagesetup.osd Język menu
 languagesetup.select Język
 lcdcontroler.brightness Jasność 
+lcdcontroler.brightnessdeepstandby Jasność w głębokim czuwaniu
 lcdcontroler.brightnessstandby Jasność w trybie got.
 lcdcontroler.contrast Kontrast
 lcdmenu.dim_brightness Jasność po wygaszeniu 
@@ -667,6 +636,17 @@ lcdmenu.lcdcontroler Jasność
 lcdmenu.statusline Pasek stanu
 lcdmenu.statusline.playtime czas
 lcdmenu.statusline.volume głośność
+ledcontroler.blink Świeć gdy ustawiony timer ?
+ledcontroler.menu Przycisk zasilania
+ledcontroler.mode.deepstandby Głebokie czuwanie
+ledcontroler.mode.record Świecenie podczas nagrywania
+ledcontroler.mode.standby Czuwanie
+ledcontroler.mode.tv Tryb TV
+ledcontroler.off Led1 & Led2 wył.
+ledcontroler.on.all Led1 & Led2 wł.
+ledcontroler.on.led1 Led1 wł.
+ledcontroler.on.led2 Led2 wł.
+logo_hdd_dir Katalog dla logo kanałow.
 mainmenu.audioplayer Odtwarzacz audio
 mainmenu.clearsectionsd Czyść bufor EPG
 mainmenu.games Gry
@@ -687,7 +667,6 @@ mainmenu.shutdown Wyłącz
 mainmenu.sleeptimer Wyłącznik czasowy
 mainmenu.tvmode Telewizja
 mainsettings.audio Dźwięk
-mainsettings.colors Kolory/tematy/fonty
 mainsettings.head Ustawienia
 mainsettings.keybinding Pilot
 mainsettings.language Język
@@ -715,6 +694,7 @@ miscsettings.bootmenu Pokaż boot menu
 miscsettings.channellist Lista kanałów
 miscsettings.channellist_epgtext_align Wyrównywanie informacji EPG
 miscsettings.driver_boot Ustawienia zaawansowane 
+miscsettings.energy Zarządzanie energią
 miscsettings.epg_cache Bufor EPG (dni)
 miscsettings.epg_cache_hint1 Wpisz na ile dni do przodu
 miscsettings.epg_cache_hint2 buforować informacje EPG.
@@ -744,6 +724,8 @@ miscsettings.infobar_disp_2 pozycja druga
 miscsettings.infobar_disp_3 pozycja trzecia
 miscsettings.infobar_disp_log Logo kanału
 miscsettings.infobar_sat_display Wyświetlanie nazwy satelity
+miscsettings.infobar_show Pokaż pasek po zmianie epg
+miscsettings.infobar_show_res Pokaż rozdzielczość
 miscsettings.infobar_show_var_hdd Paski zapełnienia pamięci flash i dysku
 miscsettings.noaviawatchdog włącz AVIA watchdog
 miscsettings.noenxwatchdog włącz eNX watchdog
@@ -753,8 +735,8 @@ miscsettings.shutdown_count_hint1 Czas w minutach, po którym odbiornik w trybie
 miscsettings.shutdown_count_hint2 gotowości wyłączy się całkowicie (0-wył).
 miscsettings.shutdown_real Tryb gotowości
 miscsettings.shutdown_real_rcdelay Wyłączenie po przytrzymaniu
+miscsettings.sleeptimer Deaktywuj wył. timera po:
 miscsettings.sptsmode użyj trybu SPTS
-miscsettings.startbhdriver załaduj sterowniki BH
 miscsettings.virtual_zap_mode Wirtualne przełączanie
 motorcontrol.calc_positions Wyliczenie pozycji
 motorcontrol.disable_limit Wyłączenie limitów 
@@ -810,8 +792,6 @@ moviebrowser.dir Ścieżka
 moviebrowser.dir_head Dodatkowe ściezki
 moviebrowser.edit_book Zmień zakładkę
 moviebrowser.edit_book_name_info1 Wprowadź nową nazwę zakładki 
-moviebrowser.edit_book_name_info2
-moviebrowser.edit_book_name_info2
 moviebrowser.edit_book_name_info2 nazwa zakładki
 moviebrowser.edit_book_pos_info1 Wprowadź nową pozycję 
 moviebrowser.edit_book_pos_info2 
@@ -1050,15 +1030,15 @@ pictureviewer.scaling Rodzaj skalowania
 pictureviewer.show Wyświetl
 pictureviewer.slide_time Czas wyświetlania slajdu
 pictureviewer.slideshow Pokaz slajdów
-pictureviewer.sortorder Sortuj wg
-pictureviewer.sortorder.date daty
-pictureviewer.sortorder.filename nazwy pliku
+pictureviewer.sortorder.date Sortuj wg daty
+pictureviewer.sortorder.filename Sortuj wg nazwy pliku
 ping.ok jest dostępny (ping)
 ping.protocol jest niedostępny (błąd hosta lub protokołu)
 ping.socket jest niedostępny (błąd gniazda)
 ping.unreachable jest niedostępny
 pinprotection.head Wpisz kod PIN
 pinprotection.wrongcode Wpisz ponownie kod PIN!
+plugins.hdd_dir Katalog na hdd dla pluginów.
 plugins.result Wynik działania skryptu
 progressbar.color Kolorowe paski postępu
 rclock.lockmsg Sterowanie odbiornikiem zostanie zablokowane, aby je\nprzywrócić naciśnij [Czerwony], a następnie [Menu]. 
@@ -1153,6 +1133,14 @@ satsetup.usals_repeat Powtarzanie USALS
 satsetup.use_fta_flag Tylko kanały FTA
 satsetup.use_nit NIT
 satsetup.use_usals Użyj USALS
+sc.empty Brak karty w slocie
+sc.init_failed Błąd podczas odczytu karty
+sc.init_ok Odczyt karty prawidłowy
+sc.inserted Włożono kartę do slotu
+sc.removed Usunięto kartę ze slotu
+sc.reset Reset karty
+sc.timeout Przekroczony czas odpowiedzi z karty
+sc.waiting Oczekuję na odpowiedź z karty
 scants.abort_body Czy napewno przerwać wyszukiwanie?
 scants.abort_header Przerwij skanowanie
 scants.actcable Kabel:
@@ -1192,6 +1180,8 @@ servicemenu.restart_hint Zatrzymywanie Neutrino, proszę czekać...
 servicemenu.restart_refused_recording Nie można wykonać restartu, trwa nagrywanie.
 servicemenu.scants Wyszukiwanie kanałów
 servicemenu.update Aktualizacja oprogramowania
+settings.backup Zapisz wszystkie ustawienia
+settings.backup_failed Błąd podczas zapisu ustawień !
 settings.help Pomoc
 settings.menu_pos Pozycja menu
 settings.missingoptionsconffile Ustawienia Neutrino zostały rozszerzone.\nDla nowych opcji zostaną użyte wartości domyślne.
@@ -1202,13 +1192,14 @@ settings.pos_default_center środek, dół ekranu
 settings.pos_higher_center środek, góra ekranu
 settings.pos_top_left lewy, górny róg
 settings.pos_top_right prawy, górny róg
+settings.restore Przywróć wszystkie ustawienia
+settings.restore_warn Czy chcesz zamienić obecne ustawienia ? 
 shutdown.recoding_query Czy naprawdę chcesz przerwać nagranie ?
 shutdowntimer.announce Odbiornik zostanie wyłączony za minutę.\nCzy chcesz anulować proces?
 sleeptimerbox.announce Odbiornik zostanie wyłączony za minutę.
 sleeptimerbox.hint1 Czas do wyłączenia w minutach (000-wył)
 sleeptimerbox.hint2 Po upływie tego czasu, odbiornik zostanie wyłączony.
 sleeptimerbox.title Wyłącznik czasowy
-standby_fan_speed Wentylator w trybie gotowości
 streamfeatures.head Funkcje
 streaminfo.aratio Proporcje
 streaminfo.aratio_unknown Proporcje: nieznane
@@ -1273,7 +1264,7 @@ timerlist.moderadio Kanały radiowe
 timerlist.modeselect Wybór trybu
 timerlist.modetv Kanały telewizyjne
 timerlist.modify Edytuj
-timerlist.name Programator
+timerlist.name Planowanie nagrywania
 timerlist.new Dodaj
 timerlist.overlapping_timer Konflikt timer'a. Utworzyć mimo wszystko?
 timerlist.plugin Plugin
@@ -1398,4 +1389,9 @@ zapit.scantype.all wszystkie
 zapit.scantype.radio tylko radiowe
 zapit.scantype.tv tylko telewizyjne
 zapit.scantype.tvradio telewizyjne i radiowe
+zapitsetup.head Ustawienia kanału startowego
+zapitsetup.info Kanał startowy
+zapitsetup.last_radio Kanał radiowy
+zapitsetup.last_tv Kanał TV
+zapitsetup.last_use Ostatnio oglądany
 zaptotimer.announce Za minutę zostanie zmieniony kanał.
