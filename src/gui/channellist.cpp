@@ -874,53 +874,64 @@ bool CChannelList::showInfo(int pos, int epgpos)
 
 int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
-	if ( msg == NeutrinoMessages::EVT_PROGRAMLOCKSTATUS) {
-		// 0x100 als FSK-Status zeigt an, dass (noch) kein EPG zu einem Kanal der NICHT angezeigt
-		// werden sollte (vorgesperrt) da ist
-		// oder das bouquet des Kanals ist vorgesperrt
+	bool startvideo = true;
 
-//printf("program-lock-status: %d\n", data);
-
-		if ((g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_ONSIGNAL) || (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
-		{
-			if ( zapProtection != NULL )
-				zapProtection->fsk = data;
-			else {
-				// require password if either
-				// CHANGETOLOCK mode and channel/bouquet is pre locked (0x100)
-				// ONSIGNAL mode and fsk(data) is beyond configured value
-				// if programm has already been unlocked, dont require pin
-#if 1
-				if ((data >= (neutrino_msg_data_t)g_settings.parentallock_lockage) &&
-					 ((chanlist[selected]->last_unlocked_EPGid != g_RemoteControl->current_EPGid) || (g_RemoteControl->current_EPGid == 0)) &&
-					 ((g_settings.parentallock_prompt != PARENTALLOCK_PROMPT_CHANGETOLOCKED) || (data >= 0x100)))
-				{
-					g_RemoteControl->stopvideo();
-					zapProtection = new CZapProtection( g_settings.parentallock_pincode, data );
-
-					if ( zapProtection->check() )
-					{
-						g_RemoteControl->startvideo();
-
-						// remember it for the next time
-						chanlist[selected]->last_unlocked_EPGid= g_RemoteControl->current_EPGid;
-					}
-					delete zapProtection;
-					zapProtection = NULL;
-				}
-				else
-					g_RemoteControl->startvideo();
-#endif
-			}
-		}
-		else
-			g_RemoteControl->startvideo();
-
-		return messages_return::handled;
-	}
-	else
+	if (msg != NeutrinoMessages::EVT_PROGRAMLOCKSTATUS) // right now the only message handled here.
 		return messages_return::unhandled;
+
+	//printf("===> program-lock-status: %d zp: %d\n", data, zapProtection != NULL);
+
+	if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_NEVER)
+		goto out;
+
+	// 0x100 als FSK-Status zeigt an, dass (noch) kein EPG zu einem Kanal der NICHT angezeigt
+	// werden sollte (vorgesperrt) da ist
+	// oder das bouquet des Kanals ist vorgesperrt
+
+	if (zapProtection != NULL) {
+		zapProtection->fsk = data;
+		startvideo = false;
+		goto out;
+	}
+
+	// require password if either
+	// CHANGETOLOCK mode and channel/bouquet is pre locked (0x100)
+	// ONSIGNAL mode and fsk(data) is beyond configured value
+	// if program has already been unlocked, dont require pin
+	if (data < (neutrino_msg_data_t)g_settings.parentallock_lockage)
+		goto out;
+
+	/* already unlocked */
+	if (chanlist[selected]->last_unlocked_EPGid == g_RemoteControl->current_EPGid && g_RemoteControl->current_EPGid != 0)
+		goto out;
+
+	/* PARENTALLOCK_PROMPT_CHANGETOLOCKED: only pre-locked channels, don't care for fsk sent in SI */
+	if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED && data < 0x100)
+		goto out;
+
+	/* OK, let's ask for a PIN */
+	g_RemoteControl->stopvideo();
+	//printf("stopped video\n");
+	startvideo = false;
+	zapProtection = new CZapProtection(g_settings.parentallock_pincode, data);
+
+	if (zapProtection->check())
+	{
+		//printf("checked true\n");
+		// remember it for the next time
+		chanlist[selected]->last_unlocked_EPGid= g_RemoteControl->current_EPGid;
+		startvideo = true;
+	}
+	delete zapProtection;
+	zapProtection = NULL;
+
+ out:
+	if (startvideo)
+		g_RemoteControl->startvideo();
+
+	return messages_return::handled;
 }
+
 /* bToo default to true */
 /* TODO make this member of CNeutrinoApp, because this only called from "whole" list ? */
 bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
