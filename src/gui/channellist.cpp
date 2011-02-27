@@ -172,13 +172,13 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 	if (displayNext) {
 		time_t atime = time(NULL);
 		unsigned int count;
-		for (count = from; count < to; count++){
+		for (count = from; count < to; count++) {
 			events.clear();
 			sectionsd_getEventsServiceKey(chanlist[count]->channel_id, events);
 			chanlist[count]->nextEvent.startTime = (long)0x7fffffff;
 			for ( CChannelEventList::iterator e= events.begin(); e != events.end(); ++e ) {
 				if ((long)e->startTime > atime &&
-				    (e->startTime < (long)chanlist[count]->nextEvent.startTime))
+						(e->startTime < (long)chanlist[count]->nextEvent.startTime))
 				{
 					chanlist[count]->nextEvent = *e;
 					break; //max: FIXME no sense to continue ?
@@ -214,36 +214,36 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 
 struct CmpChannelBySat: public binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
 {
-        static bool comparetolower(const char a, const char b)
-                {
-                        return tolower(a) < tolower(b);
-                };
+	static bool comparetolower(const char a, const char b)
+	{
+		return tolower(a) < tolower(b);
+	};
 
-        bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
-                {
-			if(c1->getSatellitePosition() == c2->getSatellitePosition())
-				return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
-			else
-				return c1->getSatellitePosition() < c2->getSatellitePosition();
-;
-                };
+	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+	{
+		if(c1->getSatellitePosition() == c2->getSatellitePosition())
+			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
+		else
+			return c1->getSatellitePosition() < c2->getSatellitePosition();
+		;
+	};
 };
 
 struct CmpChannelByFreq: public binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
 {
-        static bool comparetolower(const char a, const char b)
-                {
-                        return tolower(a) < tolower(b);
-                };
+	static bool comparetolower(const char a, const char b)
+	{
+		return tolower(a) < tolower(b);
+	};
 
-        bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
-                {
-			if(c1->getFreqId() == c2->getFreqId())
-				return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
-			else
-				return c1->getFreqId() < c2->getFreqId();
-;
-                };
+	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+	{
+		if(c1->getFreqId() == c2->getFreqId())
+			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
+		else
+			return c1->getFreqId() < c2->getFreqId();
+		;
+	};
 };
 
 void CChannelList::SortAlpha(void)
@@ -263,7 +263,7 @@ void CChannelList::SortTP(void)
 
 CZapitChannel* CChannelList::getChannel(int number)
 {
-	for (uint32_t i=0; i< chanlist.size();i++) {
+	for (uint32_t i=0; i< chanlist.size(); i++) {
 		if (chanlist[i]->number == number)
 			return chanlist[i];
 	}
@@ -272,7 +272,7 @@ CZapitChannel* CChannelList::getChannel(int number)
 
 CZapitChannel* CChannelList::getChannel(t_channel_id channel_id)
 {
-	for (uint32_t i=0; i< chanlist.size();i++) {
+	for (uint32_t i=0; i< chanlist.size(); i++) {
 		if (chanlist[i]->channel_id == channel_id)
 			return chanlist[i];
 	}
@@ -356,57 +356,12 @@ int CChannelList::doChannelMenu(void)
 		old_selected = select;
 		channel_id = chanlist[selected]->channel_id;
 		switch(select) {
-			case 0:{
-				hide();
-				int result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
+		case 0: {
+			hide();
+			int result = ShowMsgUTF ( LOCALE_BOUQUETEDITOR_DELETE, g_Locale->getText(LOCALE_BOUQUETEDITOR_DELETE_QUESTION), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo );
 
-				if(result == CMessageBox::mbrYes) {
-					bouquet_id = bouquetList->getActiveBouquetNumber();
-					if(!strcmp(bouquetList->Bouquets[bouquet_id]->channelList->getName(), g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME)))
-						bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
-					else
-						bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[bouquet_id]->channelList->getName());
-
-					if (bouquet_id == -1)
-						return 0;
-					if(g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
-						g_bouquetManager->Bouquets[bouquet_id]->removeService(channel_id);
-						return 1;
-					}
-				}
-				break;
-			}
-			case 1: // move
-				old_bouquet_id = bouquetList->getActiveBouquetNumber();
-				old_bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[old_bouquet_id]->channelList->getName());
-				do {
-					new_bouquet_id = bouquetList->exec(false);
-				} while(new_bouquet_id == -3);
-
-				hide();
-				if(new_bouquet_id < 0)
-					return 0;
-				new_bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[new_bouquet_id]->channelList->getName());
-				if ((new_bouquet_id == -1) || (new_bouquet_id == old_bouquet_id))
-					return 0;
-
-				if(!g_bouquetManager->existsChannelInBouquet(new_bouquet_id, channel_id)) {
-					addChannelToBouquet(new_bouquet_id, channel_id);
-				}
-				if(g_bouquetManager->existsChannelInBouquet(old_bouquet_id, channel_id)) {
-					g_bouquetManager->Bouquets[old_bouquet_id]->removeService(channel_id);
-				}
-				return 1;
-
-				break;
-			case 2: // add to
-				do {
-					bouquet_id = bouquetList->exec(false);
-				} while(bouquet_id == -3);
-				hide();
-				if(bouquet_id < 0)
-					return 0;
-
+			if(result == CMessageBox::mbrYes) {
+				bouquet_id = bouquetList->getActiveBouquetNumber();
 				if(!strcmp(bouquetList->Bouquets[bouquet_id]->channelList->getName(), g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME)))
 					bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
 				else
@@ -414,25 +369,70 @@ int CChannelList::doChannelMenu(void)
 
 				if (bouquet_id == -1)
 					return 0;
-				if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
-					addChannelToBouquet(bouquet_id, channel_id);
+				if(g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
+					g_bouquetManager->Bouquets[bouquet_id]->removeService(channel_id);
 					return 1;
 				}
-				break;
-			case 3: // add to my favorites
-				bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
-				if(bouquet_id == -1) {
-					g_bouquetManager->addBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
-					bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
-				}
-				if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
-					addChannelToBouquet(bouquet_id, channel_id);
-					return 1;
-				}
+			}
+			break;
+		}
+		case 1: // move
+			old_bouquet_id = bouquetList->getActiveBouquetNumber();
+			old_bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[old_bouquet_id]->channelList->getName());
+			do {
+				new_bouquet_id = bouquetList->exec(false);
+			} while(new_bouquet_id == -3);
 
-				break;
-			default:
-				break;
+			hide();
+			if(new_bouquet_id < 0)
+				return 0;
+			new_bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[new_bouquet_id]->channelList->getName());
+			if ((new_bouquet_id == -1) || (new_bouquet_id == old_bouquet_id))
+				return 0;
+
+			if(!g_bouquetManager->existsChannelInBouquet(new_bouquet_id, channel_id)) {
+				addChannelToBouquet(new_bouquet_id, channel_id);
+			}
+			if(g_bouquetManager->existsChannelInBouquet(old_bouquet_id, channel_id)) {
+				g_bouquetManager->Bouquets[old_bouquet_id]->removeService(channel_id);
+			}
+			return 1;
+
+			break;
+		case 2: // add to
+			do {
+				bouquet_id = bouquetList->exec(false);
+			} while(bouquet_id == -3);
+			hide();
+			if(bouquet_id < 0)
+				return 0;
+
+			if(!strcmp(bouquetList->Bouquets[bouquet_id]->channelList->getName(), g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME)))
+				bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+			else
+				bouquet_id = g_bouquetManager->existsBouquet(bouquetList->Bouquets[bouquet_id]->channelList->getName());
+
+			if (bouquet_id == -1)
+				return 0;
+			if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
+				addChannelToBouquet(bouquet_id, channel_id);
+				return 1;
+			}
+			break;
+		case 3: // add to my favorites
+			bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+			if(bouquet_id == -1) {
+				g_bouquetManager->addBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+				bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
+			}
+			if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
+				addChannelToBouquet(bouquet_id, channel_id);
+				return 1;
+			}
+
+			break;
+		default:
+			break;
 		}
 	}
 	return 0;
@@ -440,7 +440,7 @@ int CChannelList::doChannelMenu(void)
 
 int CChannelList::exec()
 {
-  	displayNext = 0; // always start with current events
+	displayNext = 0; // always start with current events
 	int nNewChannel = show();
 	if ( nNewChannel > -1) {
 #if 1
@@ -521,7 +521,7 @@ int CChannelList::show()
 
 	gettimeofday(&t2, NULL);
 	fprintf(stderr, "CChannelList::show(): %llu ms to paint channellist\n",
-			((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL);
+		((t2.tv_sec * 1000000ULL + t2.tv_usec) - (t1.tv_sec * 1000000ULL + t1.tv_usec)) / 1000ULL);
 
 	int oldselected = selected;
 	int zapOnExit = false;
@@ -559,10 +559,10 @@ int CChannelList::show()
 		}
 		else if ( ( msg == CRCInput::RC_timeout ) || ( msg == (neutrino_msg_t)g_settings.key_channelList_cancel) ) {
 			res = -1;
-			if(!actzap){
+			if(!actzap) {
 				selected = oldselected;
 			}
-			else{
+			else {
 				res = -4;
 				selected = selected_in_new_mode;
 			}
@@ -618,13 +618,19 @@ int CChannelList::show()
 			selected=0;
 			liststart = (selected/listmaxshow)*listmaxshow;
 			paint();
-			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) {
+				actzap = true;
+				zapTo(selected);
+			}
 		}
 		else if (msg == (neutrino_msg_t) g_settings.key_list_end) {
 			selected=chanlist.size()-1;
 			liststart = (selected/listmaxshow)*listmaxshow;
 			paint();
-			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) {
+				actzap = true;
+				zapTo(selected);
+			}
 		}
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
@@ -650,7 +656,10 @@ int CChannelList::show()
 				showChannelLogo();
 			}
 
-			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) {
+				actzap = true;
+				zapTo(selected);
+			}
 			//paintHead();
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
@@ -679,7 +688,10 @@ int CChannelList::show()
 				showChannelLogo();
 			}
 
-			if(this->new_mode_active && SameTP()) { actzap = true; zapTo(selected); }
+			if(this->new_mode_active && SameTP()) {
+				actzap = true;
+				zapTo(selected);
+			}
 			//paintHead();
 		}
 
@@ -741,16 +753,36 @@ int CChannelList::show()
 		else if (CRCInput::isNumeric(msg) && (this->historyMode || g_settings.sms_channel)) {
 			if (this->historyMode) { //numeric zap
 				switch (msg) {
-					case CRCInput::RC_0:selected = 0;break;
-					case CRCInput::RC_1:selected = 1;break;
-					case CRCInput::RC_2:selected = 2;break;
-					case CRCInput::RC_3:selected = 3;break;
-					case CRCInput::RC_4:selected = 4;break;
-					case CRCInput::RC_5:selected = 5;break;
-					case CRCInput::RC_6:selected = 6;break;
-					case CRCInput::RC_7:selected = 7;break;
-					case CRCInput::RC_8:selected = 8;break;
-					case CRCInput::RC_9:selected = 9;break;
+				case CRCInput::RC_0:
+					selected = 0;
+					break;
+				case CRCInput::RC_1:
+					selected = 1;
+					break;
+				case CRCInput::RC_2:
+					selected = 2;
+					break;
+				case CRCInput::RC_3:
+					selected = 3;
+					break;
+				case CRCInput::RC_4:
+					selected = 4;
+					break;
+				case CRCInput::RC_5:
+					selected = 5;
+					break;
+				case CRCInput::RC_6:
+					selected = 6;
+					break;
+				case CRCInput::RC_7:
+					selected = 7;
+					break;
+				case CRCInput::RC_8:
+					selected = 8;
+					break;
+				case CRCInput::RC_9:
+					selected = 9;
+					break;
 				};
 				zapOnExit = true;
 				loop = false;
@@ -839,11 +871,11 @@ int CChannelList::show()
 		}
 	}
 	hide();
-        if ( fadeIn || fadeOut ) {
-                g_RCInput->killTimer(fadeTimer);
-                fadeTimer = 0;
-                frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
-        }
+	if ( fadeIn || fadeOut ) {
+		g_RCInput->killTimer(fadeTimer);
+		fadeTimer = 0;
+		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+	}
 	if (bShowBouquetList) {
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
@@ -866,7 +898,7 @@ int CChannelList::show()
 void CChannelList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
-        clearItem2DetailsLine ();
+	clearItem2DetailsLine ();
 }
 
 bool CChannelList::showInfo(int pos, int epgpos)
@@ -932,7 +964,7 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	delete zapProtection;
 	zapProtection = NULL;
 
- out:
+out:
 	if (startvideo)
 		g_RemoteControl->startvideo();
 
@@ -946,7 +978,8 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 	unsigned int i;
 
 	selected_chid = channel_id;
-printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %llx\n", this, getName(), chanlist.size(), channel_id);fflush(stdout);
+	printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %llx\n", this, getName(), chanlist.size(), channel_id);
+	fflush(stdout);
 	for (i = 0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
 			printf("CChannelList::adjustToChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
@@ -966,7 +999,7 @@ printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %llx\
 					if(!has_channel && old_mode == LIST_MODE_FAV)
 						new_mode = LIST_MODE_PROV;
 					has_channel = TVbouquetList->adjustToChannelID(channel_id);
-					if(!has_channel && old_mode == LIST_MODE_PROV){
+					if(!has_channel && old_mode == LIST_MODE_PROV) {
 						new_mode = LIST_MODE_SAT;
 					}
 					has_channel = TVsatList->adjustToChannelID(channel_id);
@@ -1001,7 +1034,7 @@ printf("CChannelList::adjustToChannelID me %p [%s] list size %d channel_id %llx\
 #if 0
 int CChannelList::hasChannel(int nChannelNr)
 {
-	for (uint32_t i=0;i<chanlist.size();i++) {
+	for (uint32_t i=0; i<chanlist.size(); i++) {
 		if (getKey(i) == nChannelNr)
 			return(i);
 	}
@@ -1011,7 +1044,7 @@ int CChannelList::hasChannel(int nChannelNr)
 
 int CChannelList::hasChannelID(t_channel_id channel_id)
 {
-	for (uint32_t i=0; i < chanlist.size();i++) {
+	for (uint32_t i=0; i < chanlist.size(); i++) {
 		if(chanlist[i] == NULL) {
 			printf("CChannelList::hasChannelID REPORT BUG !! ******************************** %d is NULL !!\n", i);
 			continue;
@@ -1034,7 +1067,7 @@ void CChannelList::setSelected( int nChannelNr)
 // -- Zap to channel with channel_id
 bool CChannelList::zapTo_ChannelID(const t_channel_id channel_id)
 {
-printf("**************************** CChannelList::zapTo_ChannelID %llx\n", channel_id);
+	printf("**************************** CChannelList::zapTo_ChannelID %llx\n", channel_id);
 	for (unsigned int i=0; i<chanlist.size(); i++) {
 		if (chanlist[i]->channel_id == channel_id) {
 			zapTo (i);
@@ -1057,7 +1090,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 	}
 
 	CZapitChannel* chan = chanlist[pos];
-printf("**************************** CChannelList::zapTo me %p %s tuned %d new %d %s -> %llx\n", this, name.c_str(), tuned, pos, chan->name.c_str(), chan->channel_id);
+	printf("**************************** CChannelList::zapTo me %p %s tuned %d new %d %s -> %llx\n", this, name.c_str(), tuned, pos, chan->name.c_str(), chan->channel_id);
 	if ( pos!=(int)tuned ) {
 		tuned = pos;
 		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
@@ -1094,7 +1127,7 @@ void CChannelList::NewZap(t_channel_id channel_id)
 		return;
 
 	CZapitChannel* chan = &it->second;
-printf("**************************** CChannelList::NewZap me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, chan->name.c_str(), chan->channel_id);
+	printf("**************************** CChannelList::NewZap me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, chan->name.c_str(), chan->channel_id);
 
 	if(selected_chid != chan->channel_id) {
 		selected_chid = chan->channel_id;
@@ -1294,114 +1327,114 @@ int CChannelList::numericZap(int key)
 
 void CChannelList::virtual_zap_mode(bool up)
 {
-        neutrino_msg_t      msg;
-        neutrino_msg_data_t data;
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
 
-        if (chanlist.empty()) {
-                DisplayErrorMessage(g_Locale->getText(LOCALE_CHANNELLIST_NONEFOUND)); // UTF-8
-                return;
-        }
+	if (chanlist.empty()) {
+		DisplayErrorMessage(g_Locale->getText(LOCALE_CHANNELLIST_NONEFOUND)); // UTF-8
+		return;
+	}
 
-        int chn = getActiveChannelNumber() + (up ? 1 : -1);
-        if (chn > (int)chanlist.size())
-          chn = 1;
-        if (chn == 0)
-          chn = (int)chanlist.size();
+	int chn = getActiveChannelNumber() + (up ? 1 : -1);
+	if (chn > (int)chanlist.size())
+		chn = 1;
+	if (chn == 0)
+		chn = (int)chanlist.size();
 
-        int lastchan= -1;
-        bool doZap = true;
-        bool showEPG = false;
+	int lastchan= -1;
+	bool doZap = true;
+	bool showEPG = false;
 	int epgpos = 0;
 
-        while(1)
-        {
-                if (lastchan != chn || (epgpos != 0))
-                {
-                        showInfo(chn- 1, epgpos);
-                        lastchan= chn;
-                }
+	while(1)
+	{
+		if (lastchan != chn || (epgpos != 0))
+		{
+			showInfo(chn- 1, epgpos);
+			lastchan= chn;
+		}
 		epgpos = 0;
-                g_RCInput->getMsg( &msg, &data, 15*10 ); // 15 seconds, not user changable
-                //printf("########### %u ### %u #### %u #######\n", msg, NeutrinoMessages::EVT_TIMER, CRCInput::RC_timeout);
+		g_RCInput->getMsg( &msg, &data, 15*10 ); // 15 seconds, not user changable
+		//printf("########### %u ### %u #### %u #######\n", msg, NeutrinoMessages::EVT_TIMER, CRCInput::RC_timeout);
 
-                if ( msg == CRCInput::RC_ok )
-                {
-                        if ( ( chn > (signed int) chanlist.size() ) || ( chn == 0 ) )
-                        {
-                                chn = tuned + 1;
-                        }
-                        break;
-                }
-                else if ( msg == CRCInput::RC_left )
-                {
-                        if ( chn == 1 )
-                                chn = chanlist.size();
-                        else
-                        {
-                                chn--;
+		if ( msg == CRCInput::RC_ok )
+		{
+			if ( ( chn > (signed int) chanlist.size() ) || ( chn == 0 ) )
+			{
+				chn = tuned + 1;
+			}
+			break;
+		}
+		else if ( msg == CRCInput::RC_left )
+		{
+			if ( chn == 1 )
+				chn = chanlist.size();
+			else
+			{
+				chn--;
 
-                                if (chn > (int)chanlist.size())
-                                        chn = (int)chanlist.size();
-                        }
-                }
-                else if ( msg == CRCInput::RC_right )
-                {
-                        chn++;
+				if (chn > (int)chanlist.size())
+					chn = (int)chanlist.size();
+			}
+		}
+		else if ( msg == CRCInput::RC_right )
+		{
+			chn++;
 
-                        if (chn > (int)chanlist.size())
-                                chn = 1;
-                }
-                else if ( msg == CRCInput::RC_up )
-                {
-                        epgpos = -1;
-                }
-                else if ( msg == CRCInput::RC_down )
-                {
-                        epgpos = 1;
-                }
-                else if ( ( msg == CRCInput::RC_home ) || ( msg == CRCInput::RC_timeout ) )
-                {
-                        // Abbruch ohne Channel zu wechseln
-                        doZap = false;
-                        break;
-                }
-                else if ( msg == CRCInput::RC_red )
-                {
-                        // Rote Taste zeigt EPG fuer gewaehlten Kanal an
-                        if ( ( chn <= (signed int) chanlist.size() ) && ( chn != 0 ) )
-                        {
-                                doZap = false;
-                                showEPG = true;
-                                break;
-                        }
-                }
-                else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
-                {
-                        doZap = false;
-                        break;
-                }
-        }
+			if (chn > (int)chanlist.size())
+				chn = 1;
+		}
+		else if ( msg == CRCInput::RC_up )
+		{
+			epgpos = -1;
+		}
+		else if ( msg == CRCInput::RC_down )
+		{
+			epgpos = 1;
+		}
+		else if ( ( msg == CRCInput::RC_home ) || ( msg == CRCInput::RC_timeout ) )
+		{
+			// Abbruch ohne Channel zu wechseln
+			doZap = false;
+			break;
+		}
+		else if ( msg == CRCInput::RC_red )
+		{
+			// Rote Taste zeigt EPG fuer gewaehlten Kanal an
+			if ( ( chn <= (signed int) chanlist.size() ) && ( chn != 0 ) )
+			{
+				doZap = false;
+				showEPG = true;
+				break;
+			}
+		}
+		else if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
+		{
+			doZap = false;
+			break;
+		}
+	}
 	g_InfoViewer->clearVirtualZapMode();
 
-        chn--;
-        if (chn<0)
-                chn=0;
-        if ( doZap )
-        {
+	chn--;
+	if (chn<0)
+		chn=0;
+	if ( doZap )
+	{
 		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)
 			g_InfoViewer->killTitle();
 		if(SameTP(chanlist[chn]->channel_id))
 			zapTo( chn );
-        }
-        else
-        {
-                showInfo(tuned);
-                g_InfoViewer->killTitle();
+	}
+	else
+	{
+		showInfo(tuned);
+		g_InfoViewer->killTitle();
 
-                // Rote Taste zeigt EPG fuer gewaehlten Kanal an
-                if ( showEPG )
-                        g_EventList->exec(chanlist[chn]->channel_id, chanlist[chn]->name);
-        }
+		// Rote Taste zeigt EPG fuer gewaehlten Kanal an
+		if ( showEPG )
+			g_EventList->exec(chanlist[chn]->channel_id, chanlist[chn]->name);
+	}
 }
 
 void CChannelList::quickZap(int key, bool cycle)
@@ -1414,7 +1447,7 @@ void CChannelList::quickZap(int key, bool cycle)
 		int bactive = bouquetList->getActiveBouquetNumber();
 		size_t cactive = selected;
 
-printf("CChannelList::quickZap: selected %d total %d active bouquet %d total %d\n", cactive, chanlist.size(), bactive, bsize);
+		printf("CChannelList::quickZap: selected %d total %d active bouquet %d total %d\n", cactive, chanlist.size(), bactive, bsize);
 		if ( (key==g_settings.key_quickzap_down) || (key == CRCInput::RC_left))
 		{
 			if(cactive == 0)
@@ -1441,7 +1474,7 @@ printf("CChannelList::quickZap: selected %d total %d active bouquet %d total %d\
 			} else
 				selected = cactive;
 		}
-printf("CChannelList::quickZap: new selected %d total %d active bouquet %d total %d\n", cactive, bouquetList->Bouquets[bactive]->channelList->getSize(), bactive, bsize);
+		printf("CChannelList::quickZap: new selected %d total %d active bouquet %d total %d\n", cactive, bouquetList->Bouquets[bactive]->channelList->getSize(), bactive, bsize);
 #if 1
 		CNeutrinoApp::getInstance()->channelList->zapTo(bouquetList->Bouquets[bactive]->channelList->getKey(cactive)-1);
 #else
@@ -1533,9 +1566,9 @@ void CChannelList::paintDetails(int index)
 					text2 = text2.substr( 1 );
 				text2 = text2.substr( 0, text2.find('\n') );
 				int pos = 0;
-				 while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (width - 30 - noch_len) ) ) {
+				while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (width - 30 - noch_len) ) ) {
 					pos = text2.find_last_of(" ");
-					
+
 					if ( pos!=-1 )
 						text2 = text2.substr( 0, pos );
 				}
@@ -1548,7 +1581,7 @@ void CChannelList::paintDetails(int index)
 		}
 		char buf[128] = {0};
 		int len = 0;
-		if(g_settings.channellist_foot == 0){
+		if(g_settings.channellist_foot == 0) {
 			transponder_id_t ct = chanlist[index]->getTransponderId();
 			transponder_list_t::iterator tpI = transponders.find(ct);
 			len = snprintf(buf, sizeof(buf), "%d ", chanlist[index]->getFreqId());
@@ -1581,12 +1614,12 @@ void CChannelList::paintDetails(int index)
 			}
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
 		}
-		else if( !displayNext && g_settings.channellist_foot == 1){ // next Event
-		  	CSectionsdClient::CurrentNextInfo CurrentNext;
-		  	sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
-			if (!CurrentNext.next_name.empty()){
+		else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
+			CSectionsdClient::CurrentNextInfo CurrentNext;
+			sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
+			if (!CurrentNext.next_name.empty()) {
 				struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
-			  	len = snprintf(buf, sizeof(buf), "%s %02d:%02d ",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
+				len = snprintf(buf, sizeof(buf), "%s %02d:%02d ",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
 				len += snprintf(&buf[len], sizeof(buf) - len, "%s", CurrentNext.next_name.c_str());
 
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
@@ -1597,12 +1630,12 @@ void CChannelList::paintDetails(int index)
 
 void CChannelList::clearItem2DetailsLine ()
 {
-	  paintItem2DetailsLine (-1, 0);
+	paintItem2DetailsLine (-1, 0);
 }
 
 void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 {
-	#define ConnectLineBox_Width	16
+#define ConnectLineBox_Width	16
 
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
@@ -1617,7 +1650,7 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
-  		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
+		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
 		{
 			int fh = fheight > 10 ? fheight - 10: 5;
 			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 4, fh,     col1);
@@ -1649,9 +1682,9 @@ void CChannelList::showChannelLogo()
 	frameBuffer->paintBoxRel(x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
 
 	std::string lname;
-	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)){
-		if(logo_h > theight){
-			if((theight/(logo_h-theight))>1){
+	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)) {
+		if(logo_h > theight) {
+			if((theight/(logo_h-theight))>1) {
 				logo_w -= (logo_w/(theight/(logo_h-theight)));
 			}
 			logo_h = theight;
@@ -1735,7 +1768,7 @@ void CChannelList::paintItem(int pos)
 			if ((int) ch_desc_len > max_desc_len)
 				ch_desc_len = max_desc_len;
 
-			if(g_settings.channellist_extended){
+			if(g_settings.channellist_extended) {
 				if(displayNext)
 				{
 					struct		tm *pStartZeit = localtime(&p_event->startTime);
@@ -1773,17 +1806,17 @@ void CChannelList::paintItem(int pos)
 			}
 
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color, 0, true);
-			if (g_settings.channellist_epgtext_align_right){
+			if (g_settings.channellist_epgtext_align_right) {
 				// align right
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - 20 - ch_desc_len - 28, ypos + fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED:(!displayNext ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE) , 0, true);
 			}
-			else{
+			else {
 				// align left
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ 5+ numwidth+ 10+ ch_name_len+ 5+prg_offset, ypos+ fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED:(!displayNext ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE) , 0, true);
 			}
 		}
 		else {
-			if(g_settings.channellist_extended){
+			if(g_settings.channellist_extended) {
 				int pbz_activeCol, pbz_passiveCol;
 				if (liststart + pos != selected) {
 					pbz_activeCol = COL_MENUCONTENT_PLUS_1;
@@ -1800,7 +1833,7 @@ void CChannelList::paintItem(int pos)
 		if (curr == selected) {
 			if (!(chan->currentEvent.description.empty())) {
 				snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s",
-						chan->name.c_str(), p_event->description.c_str());
+					 chan->name.c_str(), p_event->description.c_str());
 				CVFD::getInstance()->showMenuText(0, nameAndDescription, -1, true); // UTF-8
 			} else
 				CVFD::getInstance()->showMenuText(0, chan->name.c_str(), -1, true); // UTF-8
@@ -1825,7 +1858,7 @@ void CChannelList::paintHead()
 
 	bool gotTime = g_Sectionsd->getIsTimeSet();
 
-	if(gotTime){
+	if(gotTime) {
 		strftime(timestr, 10, "%H:%M", tm);
 		timestr_len = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(timestr, true); // UTF-8
 	}
@@ -1837,30 +1870,30 @@ void CChannelList::paintHead()
 
 	// head
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
-	
+
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x + width - iw1 - 4, y, theight); //y+ 5 );
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - iw1 - iw2 - 8, y, theight);//y + 5); // icon for bouquet list button
-	frameBuffer->paintIcon(this->new_mode_active ? 
-		NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE, 
-		x + width - iw1 - iw2 - iw3 - 12, y, theight);
+	frameBuffer->paintIcon(this->new_mode_active ?
+			       NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE,
+			       x + width - iw1 - iw2 - iw3 - 12, y, theight);
 
 	if (gotTime) {
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + width - iw1 - iw2 - iw3 - 16 -timestr_len, 
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + width - iw1 - iw2 - iw3 - 16 -timestr_len,
 				y+theight, timestr_len+1, timestr, COL_MENUHEAD, 0, true); // UTF-8
 		timestr_len += 4;
-	}  
+	}
 	timestr_len += iw1 + iw2 + iw3 + 16;
 	logo_off = timestr_len + 4;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
 
 	//foot/buttonbar
-	
+
 	if (displayNext) {
 		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NOW;
 	} else {
 		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
 	}
-	
+
 	int y_foot = y + (height - footerHeight);
 	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, CChannelListButtons, footerHeight/*, (width - 20) / NUM_LIST_BUTTONS*/); //buttonwidth will set automaticly
 }

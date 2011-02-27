@@ -53,91 +53,99 @@ enum {
 
 class CChannelList
 {
-	private:
-		CFrameBuffer		*frameBuffer;
-		unsigned int		selected, selected_in_new_mode;
-		t_channel_id		selected_chid;
-		CLastChannel		lastChList;
-		unsigned int		liststart;
-		unsigned int		listmaxshow;
-		unsigned int		numwidth;
-		int			fheight; // Fonthoehe Channellist-Inhalt
-		int			theight; // Fonthoehe Channellist-Titel
-		int			footerHeight;
+private:
+	CFrameBuffer		*frameBuffer;
+	unsigned int		selected, selected_in_new_mode;
+	t_channel_id		selected_chid;
+	CLastChannel		lastChList;
+	unsigned int		liststart;
+	unsigned int		listmaxshow;
+	unsigned int		numwidth;
+	int			fheight; // Fonthoehe Channellist-Inhalt
+	int			theight; // Fonthoehe Channellist-Titel
+	int			footerHeight;
 
-		std::string             name;
-		ZapitChannelList	chanlist;
-		CZapProtection* 	zapProtection;
+	std::string             name;
+	ZapitChannelList	chanlist;
+	CZapProtection* 	zapProtection;
 
-		int 			width;
-		int 			height;
-		int 			x;
-		int 			y;
-		int			logo_off;
+	int 			width;
+	int 			height;
+	int 			x;
+	int 			y;
+	int			logo_off;
 
-		bool historyMode;
-		bool vlist; // "virtual" list, not bouquet
-		bool displayNext;
+	bool historyMode;
+	bool vlist; // "virtual" list, not bouquet
+	bool displayNext;
 
-		int info_height;
-		bool new_mode_active;
+	int info_height;
+	bool new_mode_active;
 
-		void paintDetails(int index);
-		void clearItem2DetailsLine ();
-		void paintItem2DetailsLine (int pos, int ch_index);
-		void paintItem(int pos);
-		void paint();
-		void paintHead();
-		void hide();
-		void showChannelLogo();
+	void paintDetails(int index);
+	void clearItem2DetailsLine ();
+	void paintItem2DetailsLine (int pos, int ch_index);
+	void paintItem(int pos);
+	void paint();
+	void paintHead();
+	void hide();
+	void showChannelLogo();
 
-	public:
-		CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
-		~CChannelList();
+public:
+	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
+	~CChannelList();
 
-		void SetChannelList(ZapitChannelList* channels);
-		void addChannel(CZapitChannel* chan, int num = 0);
-		void putChannel(CZapitChannel* chan);
+	void SetChannelList(ZapitChannelList* channels);
+	void addChannel(CZapitChannel* chan, int num = 0);
+	void putChannel(CZapitChannel* chan);
 
-		CZapitChannel* getChannel(int number);
-		CZapitChannel* getChannel(t_channel_id channel_id);
-		CZapitChannel* getChannelFromIndex( uint32_t index) { if (chanlist.size() > index) return chanlist[index]; else return NULL;};
-		CZapitChannel* operator[]( uint32_t index) { if (chanlist.size() > index) return chanlist[index]; else return NULL;};
-		int getKey(int);
+	CZapitChannel* getChannel(int number);
+	CZapitChannel* getChannel(t_channel_id channel_id);
+	CZapitChannel* getChannelFromIndex( uint32_t index) {
+		if (chanlist.size() > index) return chanlist[index];
+		else return NULL;
+	};
+	CZapitChannel* operator[]( uint32_t index) {
+		if (chanlist.size() > index) return chanlist[index];
+		else return NULL;
+	};
+	int getKey(int);
 
-		const char         * getName                   (void) const { return name.c_str(); };
-		const std::string &  getActiveChannelName      (void) const; // UTF-8
-		t_satellite_position getActiveSatellitePosition(void) const;
-		int                  getActiveChannelNumber    (void) const;
-		t_channel_id         getActiveChannel_ChannelID(void) const;
+	const char         * getName                   (void) const {
+		return name.c_str();
+	};
+	const std::string &  getActiveChannelName      (void) const; // UTF-8
+	t_satellite_position getActiveSatellitePosition(void) const;
+	int                  getActiveChannelNumber    (void) const;
+	t_channel_id         getActiveChannel_ChannelID(void) const;
 
-		void zapTo(int pos, bool forceStoreToLastChannels = false);
-		void NewZap(t_channel_id channel_id);
-		void virtual_zap_mode(bool up);
-		bool zapTo_ChannelID(const t_channel_id channel_id);
-		bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
-		bool showInfo(int pos, int epgpos = 0);
-		void updateEvents(unsigned int from, unsigned int to);
-		int 	numericZap(int key);
-		int  	show();
-		int	exec();
-		void quickZap(int key, bool cycle = false);
-		//int  hasChannel(int nChannelNr);
-		int  hasChannelID(t_channel_id channel_id);
-		void setSelected( int nChannelNr); // for adjusting bouquet's channel list after numzap or quickzap
+	void zapTo(int pos, bool forceStoreToLastChannels = false);
+	void NewZap(t_channel_id channel_id);
+	void virtual_zap_mode(bool up);
+	bool zapTo_ChannelID(const t_channel_id channel_id);
+	bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
+	bool showInfo(int pos, int epgpos = 0);
+	void updateEvents(unsigned int from, unsigned int to);
+	int 	numericZap(int key);
+	int  	show();
+	int	exec();
+	void quickZap(int key, bool cycle = false);
+	//int  hasChannel(int nChannelNr);
+	int  hasChannelID(t_channel_id channel_id);
+	void setSelected( int nChannelNr); // for adjusting bouquet's channel list after numzap or quickzap
 
-		int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
+	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 
-		int getSize() const;
-		int getSelectedChannelIndex() const;
-		void setSize(int newsize);
-		unsigned int		tuned;
-		int doChannelMenu(void);
-		void SortAlpha(void);
-		void SortSat(void);
-		void SortTP(void);
-		void ClearList(void);
-		bool SameTP(t_channel_id channel_id = 0);
-		//friend class CZapitChannel;
+	int getSize() const;
+	int getSelectedChannelIndex() const;
+	void setSize(int newsize);
+	unsigned int		tuned;
+	int doChannelMenu(void);
+	void SortAlpha(void);
+	void SortSat(void);
+	void SortTP(void);
+	void ClearList(void);
+	bool SameTP(t_channel_id channel_id = 0);
+	//friend class CZapitChannel;
 };
 #endif
