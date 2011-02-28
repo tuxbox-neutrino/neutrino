@@ -528,7 +528,9 @@ fontmenu.infobar Infobar
 fontmenu.menu Menu
 fontmenu.scaling Global Font Zoom Factor
 fontmenu.scaling_x Horizontal (in %)
+fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertical (in %)
+fontmenu.scaling_y_hint2 Vertical (in %) min 50 / max 200
 fontmenu.sizes Font sizes
 fontsize.channel_num_zap direct selection
 fontsize.channellist Channellist

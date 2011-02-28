@@ -528,7 +528,9 @@ fontmenu.infobar Infobar
 fontmenu.menu Menü
 fontmenu.scaling Schriftgrössenfaktor
 fontmenu.scaling_x Horizontal (in %)
+fontmenu.scaling_x_hint2 Horizontal (in %) min 50 / max 200
 fontmenu.scaling_y Vertikal (in %)
+fontmenu.scaling_y_hint2 Vertikal (in %) min 50 / max 200
 fontmenu.sizes Schriftgrössen
 fontsize.channel_num_zap Direktauswahl
 fontsize.channellist Kanalliste
@@ -765,7 +767,7 @@ miscsettings.shutdown_count_hint1 Bitte warten...
 miscsettings.shutdown_count_hint2 Sie können die Box jetzt ausschalten!
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
-miscsettings.sleeptimer Ausschalten bei Inaktivität (min)
+miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sptsmode SPTS-Mode Treiber laden
 miscsettings.virtual_zap_mode Virtual Zap
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))

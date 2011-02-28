@@ -118,13 +118,35 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if (actionKey == "font_scaling") {
 		int xre = g_settings.screen_xres;
 		int yre = g_settings.screen_yres;
-		
+		char val_x[4] = {0};
+		char val_y[4] = {0};
+		snprintf(val_x,sizeof(val_x), "%03d",g_settings.screen_xres);
+		snprintf(val_y,sizeof(val_y), "%03d",g_settings.screen_yres);
+
 		CMenuWidget fontscale(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_COLORS);
 		fontscale.addIntroItems(LOCALE_FONTMENU_SCALING);
-		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_X, &xre, true, 50, 200));
-		fontscale.addItem(new CMenuOptionNumberChooser(LOCALE_FONTMENU_SCALING_Y, &yre, true, 50, 200));
-		fontscale.exec(NULL, "");
 		
+		CStringInput * xres_count = new CStringInput(LOCALE_FONTMENU_SCALING_X, val_x,50,200, 3, LOCALE_FONTMENU_SCALING, LOCALE_FONTMENU_SCALING_X_HINT2, "0123456789 ");
+		CMenuForwarder *m_x = new CMenuForwarder(LOCALE_FONTMENU_SCALING_X, true, val_x, xres_count);               
+	
+		CStringInput * yres_count = new CStringInput(LOCALE_FONTMENU_SCALING_Y, val_y,50,200, 3, LOCALE_FONTMENU_SCALING, LOCALE_FONTMENU_SCALING_Y_HINT2, "0123456789 ");
+		CMenuForwarder *m_y = new CMenuForwarder(LOCALE_FONTMENU_SCALING_Y, true, val_y, yres_count);                
+
+		fontscale.addItem(m_x);
+		fontscale.addItem(m_y);
+		fontscale.exec(NULL, "");
+		xre = atoi(val_x);
+		yre = atoi(val_y);
+		//fallback for min/max bugs ;)
+		if( xre < 50 || xre > 200 ){
+			xre = g_settings.screen_xres;
+			snprintf(val_x,sizeof(val_x), "%03d",g_settings.screen_xres);
+		}
+		if( yre < 50 || yre > 200 ){
+			yre = g_settings.screen_yres;
+			snprintf(val_y,sizeof(val_y), "%03d",g_settings.screen_yres);
+		}
+
 		if (xre != g_settings.screen_xres || yre != g_settings.screen_yres) {
 			printf("[neutrino] new font scale settings x: %d%% y: %d%%\n", xre, yre);
 			g_settings.screen_xres = xre;
