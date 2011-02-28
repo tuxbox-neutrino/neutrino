@@ -48,6 +48,26 @@
 #include <global.h>
 #include <neutrino.h>
 
+CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, const int min_value, const int max_value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
+{
+	frameBuffer = CFrameBuffer::getInstance();
+	name =  Name;
+	head = NULL;
+	value = Value;
+	valueString = NULL;
+	lower_bound = min_value - 1;
+	upper_bound = max_value + 1;
+	size =  Size;
+
+	hint_1 = Hint_1;
+	hint_2 = Hint_2;
+	validchars = Valid_Chars;
+	iconfile = Icon ? Icon : "";
+
+	observ = Observ;
+	init();
+}
+
 CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, int Size, const neutrino_locale_t Hint_1, const neutrino_locale_t Hint_2, const char * const Valid_Chars, CChangeObserver* Observ, const char * const Icon)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -55,6 +75,9 @@ CStringInput::CStringInput(const neutrino_locale_t Name, char* Value, int Size, 
 	head = NULL;
 	value = Value;
 	valueString = NULL;
+	lower_bound = -1;
+	upper_bound = -1;
+
 	size =  Size;
 
 	hint_1 = Hint_1;
@@ -75,6 +98,8 @@ CStringInput::CStringInput(const neutrino_locale_t Name, std::string* Value, int
         value[Size] = '\0';
         strncpy(value,Value->c_str(),Size);
         valueString = Value;
+	lower_bound = -1;
+	upper_bound = -1;
         size = Size;
 
         hint_1 = Hint_1;
@@ -92,6 +117,8 @@ CStringInput::CStringInput(char * Head, char* Value, int Size, const neutrino_lo
         head = strdup(Head);
         value = Value;
         valueString = NULL;
+	lower_bound = -1;
+	upper_bound = -1;
         size =  Size;
 
         hint_1 = Hint_1;
@@ -160,16 +187,20 @@ void CStringInput::init()
 void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 {
 	if (CRCInput::isNumeric(key))
-	{
+	{	
+		std::string tmp_value = value;
 		value[selected] = validchars[CRCInput::getNumericValue(key)];
-
-		if (selected < (size - 1))
-		{
-			selected++;
-			paintChar(selected - 1);
+		int current_value = atoi(value);
+		if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
+			if (selected < (size - 1))
+			{
+				selected++;
+				paintChar(selected - 1);
+			}
+			paintChar(selected);
+		}else{
+			snprintf(value, sizeof(value),"%s",tmp_value.c_str());
 		}
-
-		paintChar(selected);
 	}
 }
 
@@ -191,27 +222,31 @@ void CStringInput::keyBackspacePressed(void)
 
 void CStringInput::keyRedPressed()
 {
-	if (index(validchars, ' ') != NULL)
-	{
-		value[selected] = ' ';
-
-		if (selected < (size - 1))
+	if(lower_bound == -1 || upper_bound == -1){
+		if (index(validchars, ' ') != NULL)
 		{
-			selected++;
-			paintChar(selected - 1);
-		}
+			value[selected] = ' ';
 
-		paintChar(selected);
+			if (selected < (size - 1))
+			{
+				selected++;
+				paintChar(selected - 1);
+			}
+
+			paintChar(selected);
+		}
 	}
 }
 
 void CStringInput::keyYellowPressed()
 {
-	selected=0;
-	for(int i=0 ; i < size ; i++)
-	{
-		value[i]=' ';
-		paintChar(i);
+	if(lower_bound == -1 || upper_bound == -1){
+		selected=0;
+		for(int i=0 ; i < size ; i++)
+		{
+			value[i]=' ';
+			paintChar(i);
+		}
 	}
 }
 
@@ -231,6 +266,7 @@ void CStringInput::keyBluePressed()
 void CStringInput::keyUpPressed()
 {
 	int npos = 0;
+	std::string tmp_value = value;
 	for(int count=0;count<(int)strlen(validchars);count++)
 		if(value[selected]==validchars[count])
 			npos = count;
@@ -238,12 +274,19 @@ void CStringInput::keyUpPressed()
 	if(npos>=(int)strlen(validchars))
 		npos = 0;
 	value[selected]=validchars[npos];
-	paintChar(selected);
+
+	int current_value = atoi(value);
+	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
+		paintChar(selected);
+	}else{
+		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+	}
 }
 
 void CStringInput::keyDownPressed()
 {
 	int npos = 0;
+	std::string tmp_value = value;
 	for(int count=0;count<(int)strlen(validchars);count++)
 		if(value[selected]==validchars[count])
 			npos = count;
@@ -251,7 +294,13 @@ void CStringInput::keyDownPressed()
 	if(npos<0)
 		npos = strlen(validchars)-1;
 	value[selected]=validchars[npos];
-	paintChar(selected);
+
+	int current_value = atoi(value);
+	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
+		paintChar(selected);
+	}else{
+		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
+	}
 }
 
 void CStringInput::keyLeftPressed()
@@ -279,28 +328,32 @@ void CStringInput::keyRightPressed()
 
 void CStringInput::keyMinusPressed()
 {
-	int item = selected;
-	while (item < (size -1))
-	{
-		value[item] = value[item+1];
+	if(lower_bound == -1 || upper_bound == -1){
+		int item = selected;
+		while (item < (size -1))
+		{
+			value[item] = value[item+1];
+			paintChar(item);
+			item++;
+		}
+		value[item] = ' ';
 		paintChar(item);
-		item++;
 	}
-	value[item] = ' ';
-	paintChar(item);
 }
 
 void CStringInput::keyPlusPressed()
 {
-	int item = size -1;
-	while (item > selected)
-	{
-		value[item] = value[item-1];
+	if(lower_bound == -1 || upper_bound == -1){
+		int item = size -1;
+		while (item > selected)
+		{
+			value[item] = value[item-1];
+			paintChar(item);
+			item--;
+		}
+		value[item] = ' ';
 		paintChar(item);
-		item--;
 	}
-	value[item] = ' ';
-	paintChar(item);
 }
 
 int CStringInput::exec( CMenuTarget* parent, const std::string & )
