@@ -25,7 +25,6 @@ export LDFLAGS="-L"$PREFIX"/lib -lcurl -lssl -lcrypto -ldl"
 export DVB_API_VERSION=3
 export FREETYPE_CONFIG=$PREFIX/bin/freetype-config
 export CURL_CONFIG=$PREFIX/bin/curl-config
-export PKG_CONFIG_PATH==$PREFIX/lib/pkgconfig
 
 ./autogen.sh
 ./configure --prefix=${PREFIX} --build=i386-pc-linux-gnu --host=$HOST --without-driver --with-target=cdk --with-targetprefix="" "$*"
