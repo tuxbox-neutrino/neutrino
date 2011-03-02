@@ -648,6 +648,9 @@ keychoosermenu.setnone Keine Taste
 languagesetup.head Sprache und Zeitzonen
 languagesetup.osd Menüsprache
 languagesetup.select Sprache
+lcd_info_line Zeige in Infozeile 
+lcd_info_line_channel Kanalname
+lcd_info_line_clock Uhrzeit
 lcdcontroler.brightness normale Helligkeit
 lcdcontroler.brightnessdeepstandby Deep-Standby Helligkeit
 lcdcontroler.brightnessstandby Standby Helligkeit

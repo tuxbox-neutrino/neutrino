@@ -89,6 +89,12 @@ const CMenuOptionChooser::keyval LEDMENU_OPTIONS[LEDMENU_OPTION_COUNT] =
 	{ 3, LOCALE_LEDCONTROLER_ON_LED2   }
 };
 
+#define LCD_INFO_OPTION_COUNT 2
+const CMenuOptionChooser::keyval LCD_INFO_OPTIONS[LCD_INFO_OPTION_COUNT] =
+{
+	{ 0, LOCALE_LCD_INFO_LINE_CHANNEL },
+	{ 1, LOCALE_LCD_INFO_LINE_CLOCK }
+};
 
 void CVfdSetup::showSetup()
 {
@@ -123,7 +129,10 @@ void CVfdSetup::showSetup()
 	vfds->addItem(GenericMenuSeparatorLine);
 
 	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_LCDMENU_STATUSLINE, &g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME], LCDMENU_STATUSLINE_OPTIONS, LCDMENU_STATUSLINE_OPTION_COUNT, vfd_enabled);
+	CMenuOptionChooser* lcd_clock_channelname_menu = new CMenuOptionChooser(LOCALE_LCD_INFO_LINE, &g_settings.lcd_info_line, LCD_INFO_OPTIONS, LCD_INFO_OPTION_COUNT, vfd_enabled);
+
 	vfds->addItem(oj);
+	vfds->addItem(lcd_clock_channelname_menu);
 	
 	vfds->exec(NULL, "");
 	vfds->hide();

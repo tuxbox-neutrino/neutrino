@@ -777,6 +777,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	strcpy(g_settings.lcd_setting_dim_time, configfile.getString("lcd_dim_time","0").c_str());
 	strcpy(g_settings.lcd_setting_dim_brightness, configfile.getString("lcd_dim_brightness","0").c_str());
+	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
 
 	//Picture-Viewer
 	strcpy( g_settings.picviewer_slide_time, configfile.getString( "picviewer_slide_time", "10" ).c_str() );
@@ -1287,6 +1288,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
 	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
 	configfile.setString("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
+	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
 
 	//Picture-Viewer
 	configfile.setString( "picviewer_slide_time", g_settings.picviewer_slide_time );

@@ -277,7 +277,7 @@ void CVFD::showTime(bool force)
 		return;
 	}
 	if (has_lcd && showclock) {
-		if (mode == MODE_STANDBY) {
+		if (mode == MODE_STANDBY || ( g_settings.lcd_info_line && (MODE_TVRADIO == mode))) {
 			char timestr[21];
 			struct timeb tm;
 			struct tm * t;
@@ -490,7 +490,8 @@ void CVFD::setMode(const MODES m, const char * const title)
 		}
 		showServicename(servicename);
 		showclock = true;
-		//showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
+		if(g_settings.lcd_info_line)
+			showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
 		break;
 	case MODE_AUDIO:
 	{

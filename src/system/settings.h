@@ -391,7 +391,7 @@ struct SNeutrinoSettings
 		LCD_SETTING_COUNT
 	};
 	int lcd_setting[LCD_SETTING_COUNT];
-
+	int lcd_info_line;
 	char lcd_setting_dim_time[4];
 	char lcd_setting_dim_brightness[4];
 	int led_tv_mode;
