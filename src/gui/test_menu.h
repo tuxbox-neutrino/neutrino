@@ -41,9 +41,8 @@ class CTestMenu : public CMenuTarget
 	private:
 		CFrameBuffer *frameBuffer;
 
-		int x, y, width, height, hheight, mheight, selected;
+		int width, selected;
 
-		void hide();
 		void showTestMenu();
 
 	public:	
