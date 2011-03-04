@@ -32,15 +32,12 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
 
-#include <driver/framebuffer.h>
 
 #include <string>
 
 class CTestMenu : public CMenuTarget
 {
 	private:
-		CFrameBuffer *frameBuffer;
-
 		int width, selected;
 
 		void showTestMenu();
