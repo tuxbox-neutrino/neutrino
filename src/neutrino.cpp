@@ -4498,9 +4498,11 @@ void sighandler (int signum)
 int main(int argc, char **argv)
 {
 	setDebugLevel(DEBUG_NORMAL);
-        signal(SIGTERM, sighandler);
-        signal(SIGINT, sighandler);
-        signal(SIGHUP, SIG_IGN);
+	signal(SIGTERM, sighandler);	// TODO: consider the following
+	signal(SIGINT, sighandler);	// NOTES: The effects of signal() in a multithreaded
+	signal(SIGHUP, SIG_IGN);	//        process are unspecified (signal(2))
+	/* don't die in streamts.cpp from a SIGPIPE if client disconnects */
+	signal(SIGPIPE, SIG_IGN);
 
 	for(int i = 3; i < 256; i++)
 		close(i);
