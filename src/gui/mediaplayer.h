@@ -51,6 +51,7 @@ class CMediaPlayerMenu : public CMenuTarget
 		{
 			MODE_DEFAULT,
 			MODE_AUDIO,
+			MODE_VIDEO
 		};
 		
 		CMediaPlayerMenu();

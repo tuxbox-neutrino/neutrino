@@ -110,32 +110,45 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //show selectable mediaplayer items
 void CMediaPlayerMenu::showMenu()
 {
-	//menue init
 	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width);
-	media->setSelected(selected);
-	
-	//audio player
-	neutrino_msg_t audio_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_audio:CRCInput::RC_red;
-	const char* audio_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_RED;
-	CMenuForwarder * fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, this, "audioplayer", audio_rc, audio_btn);
 
-	//internet player
-	neutrino_msg_t inet_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_www : CRCInput::RC_green;
-	const char* inet_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_GREEN;
-	CMenuForwarder * fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, this, "inetplayer", inet_rc, inet_btn);
+	CMenuForwarder *fw_audio = NULL;
+	CMenuForwarder *fw_inet = NULL;
+	CMenuForwarder *fw_mp = NULL;
+	CMenuForwarder *fw_pviewer = NULL;
+	CMenuForwarder *fw_upnp = NULL;
+	CMenuWidget *moviePlayer = NULL;
 
-	//movieplayer
-	CMenuWidget *moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width);
-	CMenuForwarder * fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	
-	//pictureviewer
-	CMenuForwarder * fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	if (usage_mode != MODE_VIDEO)
+	{
+		//menue init
+		media->setSelected(selected);
 
-	//upnp browser
-	CMenuForwarder * fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
+		//audio player
+		neutrino_msg_t audio_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_audio:CRCInput::RC_red;
+		const char* audio_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_RED;
+		fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, this, "audioplayer", audio_rc, audio_btn);
+		//internet player
+		neutrino_msg_t inet_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_www : CRCInput::RC_green;
+		const char* inet_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_GREEN;
+		fw_inet = new CMenuForwarder(LOCALE_INETRADIO_NAME, true, NULL, this, "inetplayer", inet_rc, inet_btn);
+	}
 
-	media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);	
-	
+	if (usage_mode == MODE_DEFAULT)
+	{
+		//movieplayer
+		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width);
+		fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+
+		//pictureviewer
+		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+
+		//upnp browser
+		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
+
+		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
+	}
+
 	if (usage_mode == MODE_AUDIO)
 	{
 		//audio player	
@@ -143,6 +156,10 @@ void CMediaPlayerMenu::showMenu()
 		
 		//internet player
 		media->addItem(fw_inet);
+	}
+	else if (usage_mode == MODE_VIDEO)
+	{
+		showMoviePlayer(media);
 	}
 	else
 	{
