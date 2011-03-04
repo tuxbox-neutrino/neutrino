@@ -94,16 +94,11 @@ extern Zapit_config zapitCfg;
 extern char zapit_lat[20];
 extern char zapit_long[20];
 extern char current_timezone[50];
-// extern CFanControlNotifier * funNotifier;
 extern CRemoteControl * g_RemoteControl;
 extern CCAMMenuHandler * g_CamHandler;
 extern bool autoshift;
 
-//extern int sectionsd_scanning;
 
-//static CTimingSettingsNotifier timingsettingsnotifier;
-
-//CMenuOptionStringChooser* tzSelect;
 /**************************************************************************************
 *          CNeutrinoApp -  init main menu                                             *
 **************************************************************************************/
