@@ -1,4 +1,4 @@
-AM_CPPFLAGS = -fno-rtti -fno-exceptions
+AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
 SUBDIRS = zapit gui daemonc driver system sectionsd timerd nhttpd
 
