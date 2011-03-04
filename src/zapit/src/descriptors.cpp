@@ -505,8 +505,11 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		providerName = CDVBString((const char*)&(buffer[4]), service_provider_name_length).getContent();
 		serviceName  = CDVBString((const char*)&(buffer[4 + service_provider_name_length + 1]), (2 + buffer[1]) - (4 + service_provider_name_length + 1)).getContent();
 	}
-	if(serviceName.empty())
-		return;
+	if(serviceName.empty() || serviceName == "."){
+		char buf_tmp[16]={0};
+		snprintf(buf_tmp,sizeof(buf_tmp),"(0x%04X_0x%04X)",transport_stream_id, service_id);
+		serviceName = buf_tmp;
+	}
 
 	found_channels++;
 	eventServer->sendEvent ( CZapitClient::EVT_SCAN_NUM_CHANNELS, CEventServer::INITID_ZAPIT, &found_channels, sizeof(found_channels));
@@ -541,6 +544,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
 		DBG("New channel ===== %llx:::%llx %s\n", channel_id, tpid, serviceName.c_str());
 		//if(freq == 11758 || freq == 11778) printf("New channel ===== %llx:::%llx %s\n", channel_id, tpid, serviceName.c_str()); //FIXME debug
+
 		ret = allchans.insert (
 				std::pair <t_channel_id, CZapitChannel> (
 					channel_id,
@@ -629,6 +633,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		const char *unknown_provider_name = "Unknown Provider";
 		providerName = CDVBString(unknown_provider_name, strlen(unknown_provider_name)).getContent();
 	}
+
 	lastProviderName = providerName;
 	eventServer->sendEvent(CZapitClient::EVT_SCAN_PROVIDER, CEventServer::INITID_ZAPIT, (void *) lastProviderName.c_str(), lastProviderName.length() + 1);
 
@@ -766,7 +771,11 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 	} else {
 		serviceName  = CDVBString((const char*)&(buffer[4 + service_provider_name_length + 1]), (2 + buffer[1]) - (4 + service_provider_name_length + 1)).getContent();
 	}
-
+	if(serviceName.empty() || serviceName == "." ){
+		char buf_tmp[16]={0};
+		snprintf(buf_tmp,sizeof(buf_tmp),"(0x%04X_0x%04X)",transport_stream_id, service_id);
+		serviceName = buf_tmp;
+	}
 	pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
 	ret = curchans.insert (
 			std::pair <t_channel_id, CZapitChannel> (
