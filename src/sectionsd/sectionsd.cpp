@@ -4897,6 +4897,7 @@ static void commandGetLanguageMode(int connfd, char* /* data */, const unsigned 
 	}
 }
 
+#if 0
 #define SETENVI(var) { \
 	sprintf(val,"%d",var); \
 	if (setenv("SD_"#var, val, 1)<0) \
@@ -4957,6 +4958,7 @@ static void commandRestart(int connfd, char * /*data*/, const unsigned /*dataLen
 	fprintf(stderr, "[sectionsd] ERROR! This is impossible!\n\n");
 	free(buf);
 }
+#endif
 
 struct s_cmd_table
 {
@@ -5018,7 +5020,11 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 {	commandSetLanguageMode,                 "commandSetLanguageMode"		},
 {	commandGetLanguageMode,                 "commandGetLanguageMode"		},
 {	commandSetConfig,			"commandSetConfig"			},
+#if 0
 {	commandRestart,				"commandRestart"			},
+#else
+{	commandDummy1,				"commandRestart"			},
+#endif
 {	commandDummy1,				"commandPing"				}
 };
 
@@ -8503,7 +8509,7 @@ static void signalHandler(int signum)
 		exit(0);
 	}
 }
-#endif
+
 #define GETENVI(var) \
 	env = getenv("SD_"#var); \
 	if (env) { \
@@ -8528,7 +8534,7 @@ static void signalHandler(int signum)
 		var = env; \
 		fprintf(stderr, "GETENVS("#var") = %s\n",env); \
 	} else	fprintf(stderr, "GETENVS("#var") failed\n");
-
+#endif
 //int main(int argc, char **argv)
 extern cDemux * dmxUTC;
 
