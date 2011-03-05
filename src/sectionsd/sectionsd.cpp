@@ -179,7 +179,7 @@ static int scanning = 1;
 std::string epg_filter_dir = "/var/tuxbox/config/zapit/epgfilter.xml";
 static bool epg_filter_is_whitelist = false;
 static bool epg_filter_except_current_next = false;
-static bool bouquet_filter_is_whitelist = false;
+// static bool bouquet_filter_is_whitelist = false;
 static bool messaging_zap_detected = false;
 
 std::string dvbtime_filter_dir = "/var/tuxbox/config/zapit/dvbtimefilter.xml";
@@ -589,7 +589,6 @@ static void removeEPGFilter(t_original_network_id onid, t_transport_stream_id ts
 {
 
 }
-#endif
 
 struct ExceptService
 {
@@ -647,6 +646,7 @@ static void addBouquetFilter(t_bouquet_id bid)
         	CurrentBouquetFilter = node;
 	}
 }
+#endif
 
 // Loescht ein Event aus allen Mengen
 static bool deleteEvent(const event_id_t uniqueKey)
@@ -8397,6 +8397,7 @@ static void readDVBTimeFilter(void)
 	}
 }
 
+#if 0
 static void readBouquetFilter(void)
 {
 	xmlDocPtr filter_parser = parseXmlFile("/var/tuxbox/config/mybouquets.xml");
@@ -8490,7 +8491,7 @@ static void readBouquetFilter(void)
 	}
 	xmlFreeDoc(filter_parser);
 }
-#if 0
+
 static void printHelp(void)
 {
 	printf("\nUsage: sectionsd [-d][-nu]\n\n");
@@ -8587,7 +8588,9 @@ void sectionsd_main_thread(void */*data*/)
 
 	readEPGFilter();
 	readDVBTimeFilter();
+#if 0
 	readBouquetFilter();
+#endif
 	readEncodingFile();
 
 	if (!sectionsd_server.prepare(SECTIONSD_UDS_NAME)) {
