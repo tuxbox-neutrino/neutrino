@@ -233,8 +233,8 @@ static DMX dmxEIT(0x12, 3000 /*320*/);
 static DMX dmxFSEIT(3842, 320);
 #endif
 static DMX dmxCN(0x12, 512, false, 1);
-static DMX dmxSDT(0x11, 512, true, 1);
 #ifdef UPDATE_NETWORKS
+static DMX dmxSDT(0x11, 512, true, 1);
 static DMX dmxNIT(0x10, 128);
 #endif
 #ifdef ENABLE_PPT
@@ -1562,7 +1562,7 @@ static bool AddServiceToAutoBouquets(const char *provname, const t_original_netw
 
 	return returnvalue;
 }
-#endif
+
 // Fuegt ein Service in alle Mengen ein
 static bool addService(const SIservice &s, const int is_actual)
 {
@@ -1624,7 +1624,7 @@ static bool addService(const SIservice &s, const int is_actual)
 
 	return is_new;
 }
-#ifdef UPDATE_NETWORKS
+
  //  SIsPtr;
 typedef boost::shared_ptr<class SIbouquet>
 SIbouquetPtr;
@@ -2172,8 +2172,8 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 #endif
 #ifdef UPDATE_NETWORKS
 		dmxNIT.request_pause();
-#endif
 		dmxSDT.request_pause();
+#endif
 #ifdef ENABLE_PPT
 		dmxPPT.request_pause();
 #endif
@@ -2184,8 +2184,8 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		dmxCN.request_unpause();
 #ifdef UPDATE_NETWORKS
 		dmxNIT.request_unpause();
-#endif
 		dmxSDT.request_unpause();
+#endif
 		dmxEIT.request_unpause();
 #ifdef ENABLE_FREESATEPG
 		dmxFSEIT.request_unpause();
@@ -2961,8 +2961,8 @@ static t_network_id	messaging_nit_other_nid [MAX_CONCURRENT_OTHER_NIT];				// 0x
 static t_network_id 	messaging_nit_nid[MAX_NIDs];							// 0x40,0x41
 /* nessaging_sdt_tid does not need locking, because it is only used in one thread (sdt thread). */
 static t_transponder_id messaging_sdt_tid[MAX_SDTs];							// 0x42,0x46
-#endif
 static int		auto_scanning = 0;
+#endif
 std::string		epg_dir("");
 
 static void commandserviceChanged(int connfd, char *data, const unsigned dataLength)
@@ -2985,8 +2985,8 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 			dmxEIT.request_pause();
 #ifdef UPDATE_NETWORKS
 			dmxNIT.request_pause();
-#endif
 			dmxSDT.request_pause();
+#endif
 #ifdef ENABLE_PPT
 			dmxPPT.request_pause();
 #endif
@@ -3001,8 +3001,8 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 			dmxEIT.request_unpause();
 #ifdef UPDATE_NETWORKS
 			dmxNIT.request_unpause();
-#endif
 			dmxSDT.request_unpause();
+#endif
 #ifdef ENABLE_PPT
 			dmxPPT.request_unpause();
 #endif
@@ -4238,6 +4238,7 @@ static void commandSetPrivatePid(int connfd, char *data, const unsigned dataLeng
 }
 #endif
 
+#ifdef UPDATE_NETWORKS
 static void commandSetSectionsdScanMode(int connfd, char *data, const unsigned dataLength)
 {
 	if (dataLength != 4)
@@ -4255,6 +4256,7 @@ static void commandSetSectionsdScanMode(int connfd, char *data, const unsigned d
 	return ;
 
 }
+#endif
 
 static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength*/)
 {
@@ -4262,12 +4264,14 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 	struct sectionsd::commandSetConfig *pmsg;
 
 	pmsg = (struct sectionsd::commandSetConfig *)data;
+#ifdef UPDATE_NETWORKS
 	if (pmsg->scanMode != auto_scanning) {
 		dprintf("new scanMode = %d\n", pmsg->scanMode);
 		writeLockMessaging();
 		auto_scanning = pmsg->scanMode;
 		unlockMessaging();
 	}
+#endif
 
 	if (secondsToCache != (long)(pmsg->epg_cache)*24*60L*60L) {
 		dprintf("new epg_cache = %d\n", pmsg->epg_cache);
@@ -4347,8 +4351,8 @@ static void deleteSIexceptEPG()
 	mySIbouquetsOrderUniqueKey.clear();
 	unlockBouquets();
 	dmxNIT.dropCachedSectionIDs();
-#endif
 	dmxSDT.dropCachedSectionIDs();
+#endif
 	dmxEIT.dropCachedSectionIDs();
 }
 
@@ -4930,7 +4934,9 @@ static void commandRestart(int connfd, char * /*data*/, const unsigned /*dataLen
 	for (int i = 3; i < 256; i++)
 		close(i);
 	 */
+#ifdef UPDATE_NETWORKS
 	SETENVI(auto_scanning);
+#endif
 	SETENVL(secondsToCache);
 	SETENVL(oldEventsAre);
 	SETENVL(secondsExtendedTextCache);
@@ -4997,7 +5003,11 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 #else
 {	commandDummy2,                          "commandSetPrivatePid"			},
 #endif
+#ifdef UPDATE_NETWORKS
 {	commandSetSectionsdScanMode,            "commandSetSectionsdScanMode"		},
+#else
+{	commandDummy2,				"commandSetSectionsdScanMode"		},
+#endif
 {	commandFreeMemory,			"commandFreeMemory"			},
 {	commandReadSIfromXML,			"commandReadSIfromXML"			},
 {	commandWriteSI2XML,			"commandWriteSI2XML"			},
@@ -6395,7 +6405,7 @@ static int get_bat_slot( t_bouquet_id bouquet_id, int last_section)
 	}
 	return -1;
 }
-#endif //UPDATE_NETWORKS
+
 //---------------------------------------------------------------------
 // sdt-thread
 // reads sdt for service list
@@ -6409,12 +6419,10 @@ static void *sdtThread(void *)
 	time_t lastData = 0;
 	time_t zeit = 0;
 	int rs = 0;
-#ifdef UPDATE_NETWORKS
 	int i = 0;
 	int j = 0;
 	int scanType = 3;	//default scan all
 	bool bouquet_filtered = false;
-#endif
 	int is_actual = 0;
 
 	dmxSDT.addfilter(0x42, 0xf3 );		//SDT actual = 0x42 + SDT other = 0x46 + BAT = 0x4A
@@ -6431,7 +6439,6 @@ static void *sdtThread(void *)
 		pthread_exit(NULL);
 		//throw std::bad_alloc();
 	}
-#ifdef UPDATE_NETWORKS
 	for ( i = 0; i < MAX_SDTs; i++)
 		messaging_sdt_tid[i] = 0;
 	writeLockMessaging();
@@ -6443,7 +6450,6 @@ static void *sdtThread(void *)
 	}
 	unlockMessaging();
 	scanType = getscanType();
-#endif
 	dmxSDT.start(); // -> unlock
 	if (!scanning)
 		dmxSDT.request_pause();
@@ -6481,7 +6487,6 @@ static void *sdtThread(void *)
 			/* this is the "last" thread. Means: if this one goes to sleep, sectionsd
 			   sleeps mostly. Worth printing. */
 			printdate_ms(stdout);printf("dmxSDT: going to sleep...\n");
-#ifdef UPDATE_NETWORKS
 			if ((auto_scanning > 0) && (!startup)) {
 				if ((auto_scanning == 1) || (auto_scanning == 3)) {
 					if (updateTP(scanType)) {
@@ -6510,16 +6515,13 @@ static void *sdtThread(void *)
 
 			for ( i = 0; i < MAX_SDTs; i++)
 				messaging_sdt_tid[i] = 0;
-#endif
 			writeLockMessaging();
-#ifdef UPDATE_NETWORKS
 			for ( i = 0; i < MAX_BAT; i++) {
 				messaging_bat_bouquet_id[i] = 0;
 				messaging_bat_last_section[i] = 0;
 				for ( j= 0; j < MAX_SECTIONS; j++)
 					messaging_bat_sections_so_far[i][j] = 0;
 			}
-#endif
 			messaging_zap_detected = false;
 			unlockMessaging();
 
@@ -6599,16 +6601,13 @@ static void *sdtThread(void *)
 
 					dprintf("[sdtThread] added %d services [table 0x%x TID: %08x]\n",
 							sdt.services().size(), header->table_id, tid);
-#ifdef UPDATE_NETWORKS
 					i = 0;
 					while ((i < MAX_SDTs) && (messaging_sdt_tid[i] != 0) && (messaging_sdt_tid[i] != tid))
 						i++;
 					if (i < MAX_SDTs)
 						messaging_sdt_tid[i] = tid;
-#endif
 				}
 			}
-#ifdef UPDATE_NETWORKS
 			else if (header->table_id == 0x4a) {
 				t_bouquet_id bid = header->table_id_extension_hi << 8 | header->table_id_extension_lo;
 
@@ -6657,7 +6656,6 @@ static void *sdtThread(void *)
 					}
 				}
 			}
-#endif
 		} // if
 	} // for
 
@@ -6667,6 +6665,7 @@ static void *sdtThread(void *)
 
 	pthread_exit(NULL);
 }
+#endif
 
 //---------------------------------------------------------------------
 //			Time-thread
@@ -8535,9 +8534,9 @@ extern cDemux * dmxUTC;
 
 void sectionsd_main_thread(void */*data*/)
 {
-	pthread_t threadTOT, threadEIT, threadCN, threadSDT, threadHouseKeeping;
+	pthread_t threadTOT, threadEIT, threadCN, threadHouseKeeping;
 #ifdef UPDATE_NETWORKS
-	pthread_t threadNIT;
+	pthread_t threadSDT, threadNIT;
 #endif
 #ifdef ENABLE_FREESATEPG
 	pthread_t threadFSEIT;
@@ -8644,7 +8643,6 @@ void sectionsd_main_thread(void */*data*/)
 		fprintf(stderr, "[sectionsd] failed to create nit-thread (rc=%d)\n", rc);
 		return;
 	}
-#endif
 	// SDT-Thread starten
 	rc = pthread_create(&threadSDT, 0, sdtThread, 0);
 
@@ -8652,6 +8650,7 @@ void sectionsd_main_thread(void */*data*/)
 		fprintf(stderr, "[sectionsd] failed to create sdt-thread (rc=%d)\n", rc);
 		return;
 	}
+#endif
 
 	// housekeeping-Thread starten
 	rc = pthread_create(&threadHouseKeeping, 0, houseKeepingThread, 0);
@@ -8720,14 +8719,14 @@ printf("broadcasting...\n");
 	pthread_cond_broadcast(&dmxPPT.change_cond);
 	pthread_mutex_unlock(&dmxPPT.start_stop_mutex);
 #endif
+#ifdef UPDATE_NETWORKS
 	pthread_mutex_lock(&dmxSDT.start_stop_mutex);
 	pthread_cond_broadcast(&dmxSDT.change_cond);
 	pthread_mutex_unlock(&dmxSDT.start_stop_mutex);
-
+#endif
 printf("pausing...\n");
         dmxEIT.request_pause();
 	dmxCN.request_pause();
-        dmxSDT.request_pause();
 #ifdef ENABLE_PPT
         dmxPPT.request_pause();
 #endif
@@ -8735,7 +8734,8 @@ printf("pausing...\n");
         dmxFSEIT.request_pause();
 #endif
 #ifdef UPDATE_NETWORKS
-        dmxNIT.request_pause();
+	dmxSDT.request_pause();
+	dmxNIT.request_pause();
 #endif
         pthread_cancel(threadHouseKeeping);
 
@@ -8754,8 +8754,10 @@ printf("join 3\n");
 printf("join 3\n");
         pthread_join(threadPPT, NULL);
 #endif
+#ifdef UPDATE_NETWORKS
 printf("join 4\n");
         pthread_join(threadSDT, NULL);
+#endif
 
 	eit_stop_update_filter(&eit_update_fd);
 	if(eitDmx)
@@ -8763,8 +8765,6 @@ printf("join 4\n");
 
 printf("close 1\n");
         dmxEIT.close();
-printf("close 2\n");
-        dmxSDT.close();
 printf("close 3\n");
         dmxCN.close();
 #ifdef ENABLE_FREESATEPG
@@ -8774,6 +8774,7 @@ printf("close 3\n");
         dmxPPT.close();
 #endif
 #ifdef UPDATE_NETWORKS
+	dmxSDT.close();
         dmxNIT.close();
 #endif
 
