@@ -9082,6 +9082,7 @@ bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 	return ret;
 }
 
+#if 0
 char * parseExtendedEvents(char * dp, CEPGData * epgdata) {
         char * pItemDescriptions = dp, * pItemDescriptionStart;
         dp+=strlen(dp)+1;
@@ -9119,6 +9120,7 @@ char * parseExtendedEvents(char * dp, CEPGData * epgdata) {
         }
         return dp;
 }
+#endif
 
 /*was getEPGid commandEPGepgID(int connfd, char *data, const unsigned dataLength) */
 bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata)
