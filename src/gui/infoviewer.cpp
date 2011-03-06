@@ -1245,6 +1245,16 @@ CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_ch
 	sectionsd_getCurrentNextServiceKey(for_channel_id & 0xFFFFFFFFFFFFULL, info);
 
 //printf("CInfoViewer::getEPG: old uniqueKey %llx new %llx\n", oldinfo.current_uniqueKey, info.current_uniqueKey);
+
+	/* of there is no EPG, send an event so that parental lock can work */
+	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
+		oldinfo = info;
+		t_channel_id *p = new t_channel_id;
+		*p = for_channel_id;
+		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
+		return info;
+	}
+
 	if (info.current_uniqueKey != oldinfo.current_uniqueKey || info.next_uniqueKey != oldinfo.next_uniqueKey) {
 		if (info.flags & (CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::has_next)) {
 			CSectionsdClient::CurrentNextInfo * _info = new CSectionsdClient::CurrentNextInfo;

@@ -125,8 +125,10 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				zap_completion_timeout = 0;
 				g_InfoViewer->chanready = 1;
 			}
+#if 0
 			if ((!is_video_started) && (g_settings.parentallock_prompt != PARENTALLOCK_PROMPT_NEVER))
 				g_RCInput->postMsg( NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false );
+#endif
 		}
 	} else {
 		if ((msg == NeutrinoMessages::EVT_ZAP_COMPLETE) || (msg == NeutrinoMessages::EVT_ZAP_FAILED  ) ||
@@ -138,12 +140,14 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			if ((*(t_channel_id *)data) != current_channel_id) {
 				t_channel_id new_id = *(t_channel_id *)data;
 				tallchans_iterator cit = allchans.find(new_id);
-				if ( cit != allchans.end() )
+				is_video_started = true;
+				if (cit != allchans.end()) {
 					current_channel_name = cit->second.getName();
-
+					if (cit->second.bAlwaysLocked)
+						stopvideo();
+				}
 				CVFD::getInstance()->showServicename(current_channel_name); // UTF-8
 				current_channel_id = new_id;
-				is_video_started= true;
 
 				current_EPGid = 0;
 				next_EPGid = 0;
@@ -163,8 +167,10 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				if ( g_InfoViewer->is_visible )
 					g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR , 0 );
 			}
+#if 0
 			if ((!is_video_started) && (g_settings.parentallock_prompt != PARENTALLOCK_PROMPT_NEVER))
 				g_RCInput->postMsg( NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false );
+#endif
 		}
 		else
 			if ((msg == NeutrinoMessages::EVT_ZAP_SUB_COMPLETE) || (msg == NeutrinoMessages:: EVT_ZAP_SUB_FAILED )) {
@@ -708,7 +714,11 @@ void CRemoteControl::stopvideo()
 	if ( is_video_started )
 	{
 		is_video_started= false;
-		//g_Zapit->stopPlayBack();
+#if HAVE_TRIPLEDRAGON
+		/* we need stopPlayback to blank video,
+		   lockPlayback prevents it from being inadvertently starting */
+		g_Zapit->stopPlayBack();
+#endif
 		g_Zapit->lockPlayBack();
 	}
 }
