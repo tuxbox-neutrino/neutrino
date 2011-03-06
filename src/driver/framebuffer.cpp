@@ -911,9 +911,9 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 	return true;
 }
 
+#ifdef USE_NEVIS_GXA
 bool CFrameBuffer::blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh)
 {
-#ifdef USE_NEVIS_GXA
 	u32 cmd;
 	void * uKva;
 
@@ -932,10 +932,13 @@ printf("CFrameBuffer::blitToPrimary: data %x Kva %x\n", (int) data, (int) uKva);
 	_write_gxa(gxa_base, cmd, GXA_POINT(0, 0));   /* source pos */
 
 	return true;
-#else
-	return false;
-#endif
 }
+#else
+bool CFrameBuffer::blitToPrimary(unsigned int *, int, int, int, int)
+{
+	return false;
+}
+#endif
 
 /* paint icon at position x/y,
    if height h is given, center vertically between y and y+h
