@@ -7573,6 +7573,7 @@ static void *cnThread(void *)
 	dmxCN.addfilter(0x4e, 0xff); //0  current TS, current/next
 
 	dprintf("[%sThread] pid %d (%lu) start\n", "cn", getpid(), pthread_self());
+	t_channel_id time_trigger_last = 0;
 	int timeoutsDMX = 0;
 	char *static_buf = new char[MAX_SECTION_LENGTH];
 	int rc;
@@ -7736,6 +7737,22 @@ static void *cnThread(void *)
 			writeLockMessaging();
 			messaging_eit_is_busy = false;
 			unlockMessaging();
+
+			/* re-fetch time if transponder changed
+			   Why I'm doing this here and not from commandserviceChanged?
+			   commandserviceChanged is called on zap *start*, not after zap finished
+			   this would lead to often actually fetching the time on the transponder
+			   you are switching away from, not the one you are switching onto.
+			   Doing it here at least gives us a good chance to have actually tuned
+			   to the channel we want to get the time from...
+			 */
+			if (time_trigger_last != (messaging_current_servicekey & 0xFFFFFFFF0000ULL))
+			{
+				time_trigger_last = messaging_current_servicekey & 0xFFFFFFFF0000ULL;
+				pthread_mutex_lock(&timeThreadSleepMutex);
+				pthread_cond_broadcast(&timeThreadSleepCond);
+				pthread_mutex_unlock(&timeThreadSleepMutex);
+			}
 
 			int rs;
 			do {
