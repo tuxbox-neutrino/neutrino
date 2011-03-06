@@ -105,7 +105,11 @@ void DMX::closefd(void)
 	if (isOpen())
 	{
 		//close(fd);
+#if HAVE_TRIPLEDRAGON
+		dmx->Close();
+#else
 		dmx->Stop();
+#endif
 		fd = -1;
 	}
 }
@@ -495,8 +499,13 @@ xprintf(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>DMX::imediate_start: isOpen()<<<<<<<<<<<<
 #endif
         if(dmx == NULL) {
                 dmx = new cDemux(dmx_num);
+#if !HAVE_TRIPLEDRAGON
                 dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
+#endif
         }
+#if HAVE_TRIPLEDRAGON
+	dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
+#endif
 	fd = 1;
 
 	/* setfilter() only if this is no dummy filter... */
