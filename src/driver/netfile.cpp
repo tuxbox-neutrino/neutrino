@@ -539,7 +539,7 @@ int request_file(URL *url)
   if(_ptr) \
   { \
     _ptr = strchr(_ptr, ':'); \
-    for(; !isalnum(*_ptr); _ptr++); \
+    for(; !isalnum(*_ptr); _ptr++) {}; \
     b = atoi(_ptr); \
   } else b = -1; }
 
@@ -550,7 +550,7 @@ int request_file(URL *url)
   { \
     unsigned int i; \
     _ptr = strchr(_ptr, ':'); \
-    for(_ptr++; isspace(*_ptr); _ptr++); \
+    for(_ptr++; isspace(*_ptr); _ptr++) {}; \
     for (i=0; (_ptr[i]!='\n') && (_ptr[i]!='\r') && (_ptr[i]!='\0') && (i<sizeof(b)); i++) b[i] = _ptr[i]; \
     b[i] = 0; \
   } }
@@ -1693,7 +1693,7 @@ int f_status(FILE *stream, void (*cb)(void*))
 /* information into the CSTATE structure */
 void ShoutCAST_ParseMetaData(char *md, CSTATE *state)
 {
-	#define SKIP(a) for(;(a && !isalnum(*a)); ++a);
+	#define SKIP(a) for(;(a && !isalnum(*a)); ++a) {};
 	char *ptr;
 
 	/* abort if we were submitted a NULL pointer */
