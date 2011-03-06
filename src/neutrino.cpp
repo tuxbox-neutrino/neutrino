@@ -2152,8 +2152,13 @@ int CNeutrinoApp::run(int argc, char **argv)
 	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE, g_info.delivery_system)) {
 		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
 	}
+#if HAVE_TRIPLEDRAGON
 	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
 	g_info.has_fan = (cs_get_revision() > 1 && cs_get_revision() < 8 && g_info.delivery_system == DVB_S);
+#else
+	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);
+#endif
+
 	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
 	//fan speed
 	if (g_info.has_fan) {
