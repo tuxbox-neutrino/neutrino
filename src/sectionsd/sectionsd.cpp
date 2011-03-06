@@ -7789,6 +7789,13 @@ static void *cnThread(void *)
 		{
 			xprintf("zeit > dmxCN.lastChanged + TIME_EIT_VERSION_WAIT\n");
 			sendToSleepNow = true;
+			/* we can get here if we got the EIT version but no events */
+			/* send a "no epg" event anyway before going to sleep */
+			if (messaging_have_CN == 0x00)
+				eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG,
+						CEventServer::INITID_SECTIONSD,
+						&messaging_current_servicekey,
+						sizeof(messaging_current_servicekey));
 			continue;
 		}
 
