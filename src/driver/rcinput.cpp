@@ -1152,7 +1152,6 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 
 		for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++) {
 			if ((fd_rc[i] != -1) && (FD_ISSET(fd_rc[i], &rfds))) {
-				int ret;
 #ifdef HAVE_TRIPLEDRAGON
 				int count = 0;
 				/* clear the input queue and process only the latest event
@@ -1165,6 +1164,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 				ev.value = ((ev.code & 0xff00) != 0x8000);	/* 0x8000 is release bit */
 				ev.code &= 0x00FF;				/* clear release bit */
 #else
+				int ret;
 				ret = read(fd_rc[i], &ev, sizeof(t_input_event));
 
 				if(ret != sizeof(t_input_event))
