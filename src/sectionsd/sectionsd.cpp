@@ -6750,6 +6750,7 @@ static void *timeThread(void *)
 	struct timespec restartWait;
 	struct timeval now;
 	bool time_ntp = false;
+	bool success = true;
 
 	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
 
@@ -6789,7 +6790,8 @@ static void *timeThread(void *)
 			eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &actTime, sizeof(actTime) );
 		} else {
 			if (dvb_time_update) {
-				if (getUTC(&UTC, true)) // always use TDT, a lot of transponders don't provide a TOT
+				success = getUTC(&UTC, first_time); // for first time, get TDT, then TOT
+				if (success)
 				{
 					tim = changeUTCtoCtime((const unsigned char *) &UTC);
 
@@ -6810,7 +6812,6 @@ static void *timeThread(void *)
 					actTime=time(NULL);
 					tmTime = localtime(&actTime);
 					xprintf("[%sThread] - %02d.%02d.%04d %02d:%02d:%02d, tim: %s", "time", tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
-					first_time = false;
 					pthread_mutex_lock(&timeIsSetMutex);
 					timeset = true;
 					time_ntp= false;
@@ -6822,15 +6823,19 @@ static void *timeThread(void *)
 		}
 
 		if (timeset && dvb_time_update) {
-			first_time = false;
-			seconds = ntprefresh * 60;
+			if (first_time)
+				seconds = 5; /* retry a second time immediately */
+			else
+				seconds = ntprefresh * 60;
 
 			if(time_ntp){
 				xprintf("[%sThread] Time set via NTP, going to sleep for %d seconds.\n", "time", seconds);
 			}
 			else {
-				xprintf("[%sThread] Time set via DVB, going to sleep for %d seconds.\n", "time", seconds);
+				xprintf("[%sThread] Time %sset via DVB(%s), going to sleep for %d seconds.\n",
+					"time", success?"":"not ", first_time?"TDT":"TOT", seconds);
 			}
+			first_time = false;
 		}
 		else {
 			if (!first_time){
