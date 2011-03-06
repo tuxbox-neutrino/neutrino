@@ -7606,9 +7606,8 @@ static void *cnThread(void *)
 		if(sectionsd_stop)
 			break;
 
-		time_t zeit = time_monotonic();
-
 		rc = dmxCN.getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
+		time_t zeit = time_monotonic();
 		if (update_eit) {
 			if (dmxCN.get_eit_version() != 0xff) {
 				writeLockMessaging();
