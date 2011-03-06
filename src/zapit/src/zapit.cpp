@@ -404,6 +404,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
                 audio_map[g_current_channel->getChannelID()].volume = audioDecoder->getVolume();
                 audio_map[g_current_channel->getChannelID()].subpid = dvbsub_getpid();
 		tuxtx_subtitle_running(&audio_map[g_current_channel->getChannelID()].ttxpid, &audio_map[g_current_channel->getChannelID()].ttxpage, NULL);
+		firstzap = false;
         }
 
 	if (in_nvod) {
@@ -2087,8 +2088,10 @@ void leaveStandby(void)
 	}
 
 	standby = false;
+#if 0
 	if (g_current_channel)
 		zapit(live_channel_id, current_is_nvod, false, true);
+#endif
 }
 
 unsigned zapTo(const unsigned int bouquet, const unsigned int pchannel)
@@ -2264,7 +2267,7 @@ int zapit_main_thread(void *data)
 	// sleep(1) is ok here. (striper)
 	sleep(1);
 	leaveStandby();
-	firstzap = false;
+	//firstzap = false;
 	stime = time(0);
 	//time_t curtime;
 	pthread_create (&tsdt, NULL, sdt_thread, (void *) NULL);

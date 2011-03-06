@@ -1980,11 +1980,11 @@ void CNeutrinoApp::InitZapper()
 	channelsInit();
 
 	if(firstchannel.mode == 't') {
-		tvMode(false);
+		tvMode(true);
 	} else {
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_RADIO_MODE, false );
-		radioMode(false);
+		radioMode(true);
 	}
 	if(g_settings.cacheTXT)
 		tuxtxt_init();
@@ -3985,6 +3985,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		g_Zapit->setStandby(false);
 		if(was_record)
 			g_Zapit->startPlayBack();
+		else {
+			channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
+			channelList->zapTo_ChannelID(live_channel_id);
+		}
 		if(recordingstatus) was_record = 0;
 
 		videoDecoder->Standby(false);
