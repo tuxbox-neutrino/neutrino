@@ -500,17 +500,17 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 			continue;
 		}
 
+		//kerning
+		if (use_kerning)
+		{
+			FT_Get_Kerning(face, lastindex, index, 0, &kerning);
+			//x+=(kerning.x+32)>>6; // kerning!
+			x += (kerning.x) >> 6; // kerning!
+		}
+
 		// width clip
 		if (x + glyph->xadvance + spread_by > left + width)
 			break;
-
-		//kerning
-		if(use_kerning)
-		{
-			FT_Get_Kerning(face,lastindex,index,0,&kerning);
-			//x+=(kerning.x+32)>>6; // kerning!
-			x+=(kerning.x)>>6; // kerning!
-		}
 
 		#ifndef USE_NEVIS_GXA
 		int stride  = frameBuffer->getStride();
@@ -638,10 +638,10 @@ int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 			continue;
 		}
 		//kerning
-		if(use_kerning)
+		if (use_kerning)
 		{
-			FT_Get_Kerning(face,lastindex,index,0,&kerning);
-			x+=(kerning.x+32)>>6; // kerning!
+			FT_Get_Kerning(face, lastindex, index, 0, &kerning);
+			x += (kerning.x) >> 6; // kerning!
 		}
 
 		x+=glyph->xadvance+1;
