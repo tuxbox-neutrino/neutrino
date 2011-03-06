@@ -55,12 +55,14 @@ extern int uni_qrg;
 #define WEST	1
 #define USALS
 
+// Common properties
 #define FREQUENCY	1
 #define MODULATION	2
 #define INVERSION	3
 #define SYMBOL_RATE	4
-#define INNER_FEC	5
-#define DELIVERY_SYSTEM 6
+#define DELIVERY_SYSTEM 5
+#define INNER_FEC	6
+// DVB-S/S2 specific
 #define PILOTS		7
 #define ROLLOFF		8
 
@@ -79,8 +81,8 @@ static struct dtv_property dvbs_cmdargs[] = {
 	{ DTV_MODULATION,	{0,0,0}, { QPSK			},0 },
 	{ DTV_INVERSION,	{0,0,0}, { INVERSION_AUTO	},0 },
 	{ DTV_SYMBOL_RATE,	{0,0,0}, { 27500000		},0 },
-	{ DTV_INNER_FEC,	{0,0,0}, { FEC_AUTO		},0 },
 	{ DTV_DELIVERY_SYSTEM,	{0,0,0}, { SYS_DVBS		},0 },
+	{ DTV_INNER_FEC,	{0,0,0}, { FEC_AUTO		},0 },
 	{ DTV_TUNE,		{0,0,0}, { 0			},0 },
 };
 
@@ -94,8 +96,8 @@ static struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_MODULATION,	{}, { PSK_8		} ,0},
 	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
 	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
-	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
 	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBS2		} ,0},
+	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
 	{ DTV_PILOT,		{}, { PILOT_AUTO	} ,0},
 	{ DTV_ROLLOFF,		{}, { ROLLOFF_AUTO	} ,0},
 	{ DTV_TUNE,		{}, { 0			} ,0 },
@@ -112,7 +114,8 @@ static struct dtv_property dvbc_cmdargs[] = {
 	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
 	{ DTV_SYMBOL_RATE,	{}, { 27500000		} ,0},
 	{ DTV_DELIVERY_SYSTEM,	{}, { SYS_DVBC_ANNEX_AC	} ,0},
-	{ DTV_TUNE,	{}, { 0			},0	  },
+	{ DTV_INNER_FEC,	{}, { FEC_AUTO		} ,0},
+	{ DTV_TUNE,		{}, { 0			}, 0},
 };
 
 static struct dtv_properties dvbc_cmdseq = {
@@ -680,10 +683,6 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		} else {
 			p = &dvbs_cmdseq;
 		}
-#if 0 // we set this before
-		p->props[VOLTAGE].u.data	= currentVoltage;
-		p->props[TONE].u.data		= currentToneMode;
-#endif
 		p->props[FREQUENCY].u.data	= feparams->frequency;
 		p->props[SYMBOL_RATE].u.data	= feparams->u.qpsk.symbol_rate;
 		p->props[INNER_FEC].u.data	= fec; /*_inner*/ ;
@@ -692,8 +691,8 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		p = &dvbc_cmdseq;
 		p->props[FREQUENCY].u.data	= feparams->frequency;
 		p->props[MODULATION].u.data	= modulation;
-		p->props[INNER_FEC].u.data	= fec_inner;
 		p->props[SYMBOL_RATE].u.data	= feparams->u.qam.symbol_rate;
+		p->props[INNER_FEC].u.data	= fec_inner;
 		break;
 	default:
 		printf("frontend: unknown frontend type, exiting\n");
