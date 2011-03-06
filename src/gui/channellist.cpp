@@ -1879,7 +1879,7 @@ void CChannelList::paintHead()
 
 	if (gotTime) {
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + width - iw1 - iw2 - iw3 - 16 -timestr_len,
-				y+theight, timestr_len+1, timestr, COL_MENUHEAD, 0, true); // UTF-8
+				y+theight, timestr_len, timestr, COL_MENUHEAD, 0, true); // UTF-8
 		timestr_len += 4;
 	}
 	timestr_len += iw1 + iw2 + iw3 + 16;
