@@ -58,6 +58,11 @@ DMX::DMX(const unsigned short p, const unsigned short bufferSizeInKB, const bool
 	filter_index = 0;
 	pID = p;
 	dmxBufferSizeInKB = bufferSizeInKB;
+#if HAVE_TRIPLEDRAGON
+	/* hack, to keep the TD changes in one place. */
+	dmxBufferSizeInKB = 128;	/* 128kB is enough on TD */
+	dmx_num = 0;			/* always use demux 0 */
+#endif
 	pthread_mutex_init(&pauselock, NULL);        // default = fast mutex
 #ifdef DEBUG_MUTEX
 	pthread_mutexattr_t start_stop_mutex_attr;
