@@ -28,6 +28,7 @@
 #include <sys/ioctl.h>     /* ioctl       */
 #include <fcntl.h>         /* open        */
 #include <unistd.h>        /* close, read */
+#include <arpa/inet.h>     /* htons */
 #include <dmxapi.h>
 
 #if HAVE_TRIPLEDRAGON
@@ -35,6 +36,9 @@
 #else
 #include <dmx_cs.h>
 #endif
+
+#include "SIutils.hpp"
+#include "debug.h"
 
 #ifndef DO_NOT_INCLUDE_STUFF_NOT_NEEDED_FOR_SECTIONSD
 bool setfilter(const int fd, const uint16_t pid, const uint8_t filter, const uint8_t mask, const uint32_t  flags)
@@ -65,9 +69,15 @@ struct SI_section_TOT_header
 	unsigned char      reserved_future_use      :  1;
 	unsigned char      reserved1                :  2;
 	unsigned short     section_length           : 12;
-	uint64_t UTC_time                 : 40;
+	UTC_t              UTC_time; /* :40 */
+#if __BYTE_ORDER == __BIG_ENDIAN
 	unsigned char      reserved2                :  4;
-	unsigned short     descriptors_loop_length  : 12;
+	unsigned char      descr_loop_length_hi     :  4;
+#else
+	unsigned char      descr_loop_length_hi     :  4;
+	unsigned char      reserved2                :  4;
+#endif
+	unsigned short     descr_loop_length_lo     :  8;
 }
 __attribute__ ((packed)); /* 10 bytes */
 
@@ -83,15 +93,36 @@ struct SI_section_TDT_header
 }
 __attribute__ ((packed)); /* 8 bytes */
 
+struct descrLocalTimeOffset
+{
+	unsigned char      country_code[3];
+#if __BYTE_ORDER == __BIG_ENDIAN
+	unsigned char      country_region_id          :  6;
+	unsigned char      reserved_1                 :  1;
+	unsigned char      local_time_offset_polarity :  1;
+#else
+	unsigned char      local_time_offset_polarity :  1;
+	unsigned char      reserved_1                 :  1;
+	unsigned char      country_region_id          :  6;
+#endif
+	unsigned int       local_time_offset          : 16;
+	unsigned int       time_of_change_MJD         : 16;
+	unsigned int       time_of_change_UTC         : 24;
+	unsigned int       next_time_offset           : 16;
+} __attribute__ ((packed)); /* 13 bytes */;
+
+
 cDemux * dmxUTC;
 bool getUTC(UTC_t * const UTC, const bool TDT)
 {
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 	int timeout;
-	struct SI_section_TDT_header tdt_tot_header;
+	struct SI_section_TOT_header tdt_tot_header;
 	char cUTC[5];
 	bool ret = true;
+
+	unsigned char buf[1023+3];
 
 	if(dmxUTC == NULL) {
 		dmxUTC = new cDemux();
@@ -108,20 +139,67 @@ bool getUTC(UTC_t * const UTC, const bool TDT)
 
 	dmxUTC->sectionFilter(0x0014, filter, mask, 5, timeout);
 
-	if(dmxUTC->Read((unsigned char *) &tdt_tot_header, sizeof(tdt_tot_header)) != sizeof(tdt_tot_header)) {
-		perror("[sectionsd] getUTC: read");
-		ret = false;
-	} else {
-		memcpy(cUTC, &tdt_tot_header.UTC_time, 5);
-		if ((cUTC[2] > 0x23) || (cUTC[3] > 0x59) || (cUTC[4] > 0x59)) // no valid time
-		{
-			printf("[sectionsd] getUTC: invalid %s section received: %02x %02x %02x %02x %02x\n",
-					TDT ? "TDT" : "TOT", cUTC[0], cUTC[1], cUTC[2], cUTC[3], cUTC[4]);
-			ret = false;
-		}
-
-		(*UTC) = tdt_tot_header.UTC_time;
+	int size = TDT ? sizeof(struct SI_section_TDT_header) : sizeof(tdt_tot_header);
+	int r = dmxUTC->Read(buf, TDT ? size : sizeof(buf));
+	if (r < size) {
+		if (TDT || sections_debug) /* not having TOT is common, no need to log */
+			perror("[sectionsd] getUTC: read");
+		dmxUTC->Stop();
+		return false;
 	}
+	memset(&tdt_tot_header, 0, sizeof(tdt_tot_header));
+	memcpy(&tdt_tot_header, buf, size);
+
+	int64_t tmp = tdt_tot_header.UTC_time.time;
+	memcpy(cUTC, (&tdt_tot_header.UTC_time), 5);
+	if ((cUTC[2] > 0x23) || (cUTC[3] > 0x59) || (cUTC[4] > 0x59)) // no valid time
+	{
+		printf("[sectionsd] getUTC: invalid %s section received: %02x %02x %02x %02x %02x\n",
+				TDT ? "TDT" : "TOT", cUTC[0], cUTC[1], cUTC[2], cUTC[3], cUTC[4]);
+		ret = false;
+	}
+
+	(*UTC).time = tmp;
+
+#if 1
+	short loop_length = tdt_tot_header.descr_loop_length_hi << 8 | tdt_tot_header.descr_loop_length_lo;
+	if (loop_length >= 15) {
+		int off = sizeof(tdt_tot_header);
+		int rem = loop_length;
+		while (rem >= 15)
+		{
+			unsigned char *b2 = &buf[off];
+			if (b2[0] == 0x58) {
+				struct descrLocalTimeOffset *to;
+				to = (struct descrLocalTimeOffset *)&b2[2];
+				unsigned char cc[4];
+				cc[3] = 0;
+				memcpy(cc, to->country_code, 3);
+				time_t t = changeUTCtoCtime(&b2[2+6],0);
+				xprintf("getUTC(TOT): len=%d cc=%s reg_id=%d "
+					"pol=%d offs=%04x new=%04x when=%s",
+					b2[1], cc, to->country_region_id,
+					to->local_time_offset_polarity, htons(to->local_time_offset),
+					htons(to->next_time_offset), ctime(&t));
+			} else {
+				xprintf("getUTC(TOT): descriptor != 0x58: 0x%02x\n", b2[0]);
+			}
+			off += b2[1] + 2;
+			rem -= b2[1] + 2;
+			if (off + rem > (int)sizeof(buf))
+			{
+				xprintf("getUTC(TOT): not enough buffer space? (%d/%d)\n", off+rem, sizeof(buf));
+				break;
+			}
+		}
+	}
+#endif
+
+	/* TOT without descriptors seems to be not better than a plain TDT, such TOT's are */
+	/* found on transponders which also have wrong time in TDT etc, so don't trust it. */
+	if (loop_length < 15 && !TDT)
+		ret = false;
+
 	//delete dmxUTC;
 	dmxUTC->Stop();
 
