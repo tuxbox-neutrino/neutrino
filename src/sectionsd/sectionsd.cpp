@@ -75,6 +75,7 @@
 #include <sectionsdclient/sectionsdMsg.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <eventserver.h>
+#include <driver/abstime.h>
 
 #include "SIutils.hpp"
 #include "SIservices.hpp"
@@ -356,7 +357,7 @@ pthread_mutex_t timeIsSetMutex = PTHREAD_MUTEX_INITIALIZER;
 //static bool	messaging_got_next = false;
 static int	messaging_have_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
 static int	messaging_got_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
-static time_t	messaging_last_requested = time(NULL);
+static time_t	messaging_last_requested = time_monotonic();
 static bool	messaging_neutrino_sets_time = false;
 //static bool 	messaging_WaitForServiceDesc = false;
 
@@ -372,7 +373,7 @@ inline bool waitForTimeset(void)
 	   with this sleep */
 	sleep(1);
 	writeLockMessaging();
-	messaging_last_requested = time(NULL);
+	messaging_last_requested = time_monotonic();
 	unlockMessaging();
 	return true;
 }
@@ -2975,7 +2976,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 
 	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", *uniqueServiceKey);
 
-	messaging_last_requested = time(NULL);
+	messaging_last_requested = time_monotonic();
 
 	if(checkBlacklist(*uniqueServiceKey))
 	{
@@ -3312,8 +3313,8 @@ static void commandCurrentNextInfoChannelID(int connfd, char *data, const unsign
 
 	unlockEvents();
 
-	//dprintf("change: %s, messaging_eit_busy: %s, last_request: %d\n", change?"true":"false", messaging_eit_is_busy?"true":"false",(time(NULL) - messaging_last_requested));
-	if (change && !messaging_eit_is_busy && (time(NULL) - messaging_last_requested) < 11) {
+	//dprintf("change: %s, messaging_eit_busy: %s, last_request: %d\n", change?"true":"false", messaging_eit_is_busy?"true":"false",(time_monotonic() - messaging_last_requested));
+	if (change && !messaging_eit_is_busy && (time_monotonic() - messaging_last_requested) < 11) {
 		/* restart dmxCN, but only if it is not already running, and only for 10 seconds */
 		dprintf("change && !messaging_eit_is_busy => dmxCN.change(0)\n");
 		dmxCN.change(0);
@@ -6277,7 +6278,7 @@ static void *nitThread(void *)
 			}
 			if(sectionsd_stop)
 				break;
-			zeit = time(NULL);
+			zeit = time_monotonic();
 
 			readLockMessaging();
 			if (messaging_zap_detected)
@@ -6325,7 +6326,7 @@ static void *nitThread(void *)
 				}
 				// update zeit after sleep
 				startup = false;
-				zeit = time(NULL);
+				zeit = time_monotonic();
 				timeoutsDMX = 0;
 				lastData = zeit;
 			}
@@ -6369,7 +6370,7 @@ static void *nitThread(void *)
 
 					if (is_new) {
 						nid = header->table_id_extension_hi << 8 | header->table_id_extension_lo;
-						lastData = time(NULL);
+						lastData = time_monotonic();
 						dprintf("[nitThread] adding %d transponders [table 0x%x]\n",
 								nit.networks().size(), header->table_id);
 						i = 0;
@@ -6470,7 +6471,7 @@ static void *sdtThread(void *)
 				break;
 			sleep(1);
 		}
-		zeit = time(NULL);
+		zeit = time_monotonic();
 
 		if(sectionsd_stop)
 			break;
@@ -6553,7 +6554,7 @@ static void *sdtThread(void *)
 			}
 			// update zeit after sleep
 			startup = false;
-			zeit = time(NULL);
+			zeit = time_monotonic();
 			timeoutsDMX = 0;
 			lastData = zeit;
 		}
@@ -6603,7 +6604,7 @@ static void *sdtThread(void *)
 					}
 
 				if (is_new) {
-					lastData = time(NULL);
+					lastData = time_monotonic();
 
 					dprintf("[sdtThread] added %d services [table 0x%x TID: %08x]\n",
 							sdt.services().size(), header->table_id, tid);
@@ -6651,7 +6652,7 @@ static void *sdtThread(void *)
 						writeLockMessaging();
 
 						if (is_new) {
-							lastData = time(NULL);
+							lastData = time_monotonic();
 							messaging_bat_sections_so_far[current_bouquet][header->section_number] = 1;
 						} else
 							messaging_bat_sections_so_far[current_bouquet][header->section_number] = 2;
@@ -6974,7 +6975,7 @@ static void *fseitThread(void *)
 		dmxFSEIT.request_pause();
 
 	waitForTimeset();
-	dmxFSEIT.lastChanged = time(NULL);
+	dmxFSEIT.lastChanged = time_monotonic();
 
 	while(!sectionsd_stop) {
 		while (!scanning) {
@@ -6984,7 +6985,7 @@ static void *fseitThread(void *)
 		}
 		if(sectionsd_stop)
 			break;
-		time_t zeit = time(NULL);
+		time_t zeit = time_monotonic();
 
 		rc = dmxFSEIT.getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
 
@@ -7114,7 +7115,7 @@ static void *fseitThread(void *)
 				dprintf("dmxFSEIT:  waking up again - unknown reason %d\n",rs);
 			}
 			// update zeit after sleep
-			zeit = time(NULL);
+			zeit = time_monotonic();
 		}
 		else if (zeit > dmxFSEIT.lastChanged + TIME_FSEIT_SKIPPING )
 		{
@@ -7262,7 +7263,7 @@ static void *eitThread(void *)
 		dmxEIT.request_pause();
 
 	waitForTimeset();
-	dmxEIT.lastChanged = time(NULL);
+	dmxEIT.lastChanged = time_monotonic();
 
 	while (!sectionsd_stop) {
 		while (!scanning) {
@@ -7272,7 +7273,7 @@ static void *eitThread(void *)
 		}
 		if(sectionsd_stop)
 			break;
-		time_t zeit = time(NULL);
+		time_t zeit = time_monotonic();
 
 		rc = dmxEIT.getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
 		if(sectionsd_stop)
@@ -7457,7 +7458,7 @@ static void *eitThread(void *)
 				dmxEIT.real_unpause();
 			}
 			// update zeit after sleep
-			zeit = time(NULL);
+			zeit = time_monotonic();
 		}
 		else if (zeit > dmxEIT.lastChanged + TIME_EIT_SKIPPING )
 		{
@@ -7592,7 +7593,7 @@ static void *cnThread(void *)
 
 	waitForTimeset();
 
-	time_t eit_waiting_since = time(NULL);
+	time_t eit_waiting_since = time_monotonic();
 	dmxCN.lastChanged = eit_waiting_since;
 
 	while(!sectionsd_stop)
@@ -7605,7 +7606,7 @@ static void *cnThread(void *)
 		if(sectionsd_stop)
 			break;
 
-		time_t zeit = time(NULL);
+		time_t zeit = time_monotonic();
 
 		rc = dmxCN.getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
 		if (update_eit) {
@@ -7618,7 +7619,7 @@ static void *cnThread(void *)
 				if (!messaging_need_eit_version) {
 					unlockMessaging();
 					dprintf("waiting for eit_version...\n");
-					zeit = time(NULL);        /* reset so that we don't get negative */
+					zeit = time_monotonic();  /* reset so that we don't get negative */
 					eit_waiting_since = zeit; /* and still compensate for getSection */
 					dmxCN.lastChanged = zeit; /* this is ugly - needs somehting better */
 					sendToSleepNow = false;   /* reset after channel change */
@@ -7764,7 +7765,7 @@ static void *cnThread(void *)
 				printf("dmxCN:  waking up again - unknown reason %d\n",rs);
 				dmxCN.real_unpause();
 			}
-			zeit = time(NULL);
+			zeit = time_monotonic();
 		}
 		else if (zeit > dmxCN.lastChanged + TIME_EIT_VERSION_WAIT && !messaging_need_eit_version)
 		{
@@ -7870,18 +7871,18 @@ static void *pptThread(void *)
 	if (static_buf == NULL)
 		throw std::bad_alloc();
 
-	time_t lastRestarted = time(NULL);
-	time_t lastData = time(NULL);
+	time_t lastRestarted = time_monotonic();
+	time_t lastData = time_monotonic();
 
 	dmxPPT.start(); // -> unlock
 	if (!scanning)
 		dmxPPT.request_pause();
 
 	waitForTimeset();
-	dmxPPT.lastChanged = time(NULL);
+	dmxPPT.lastChanged = time_monotonic();
 
 	while (!sectionsd_stop) {
-		time_t zeit = time(NULL);
+		time_t zeit = time_monotonic();
 
 		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS && scanning && !channel_is_blacklisted)
 		{
@@ -7975,7 +7976,7 @@ static void *pptThread(void *)
 				dmxPPT.real_unpause();
 			}
 			// after sleeping get current time
-			zeit = time(NULL);
+			zeit = time_monotonic();
 			start_section = 0; // fetch new? events
 			lastData = zeit; // restart timer
 			first_content_id = 0;
@@ -8691,7 +8692,7 @@ void sectionsd_main_thread(void */*data*/)
 				//						messaging_sections_got_all[0] = false;
 				messaging_have_CN = 0x00;
 				messaging_got_CN = 0x00;
-				messaging_last_requested = time(NULL);
+				messaging_last_requested = time_monotonic();
 				unlockMessaging();
 				sched_yield();
 				dmxCN.change(0);
@@ -9051,8 +9052,8 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 
 	unlockEvents();
 
-	//dprintf("change: %s, messaging_eit_busy: %s, last_request: %d\n", change?"true":"false", messaging_eit_is_busy?"true":"false",(time(NULL) - messaging_last_requested));
-	if (change && !messaging_eit_is_busy && (time(NULL) - messaging_last_requested) < 11) {
+	//dprintf("change: %s, messaging_eit_busy: %s, last_request: %d\n", change?"true":"false", messaging_eit_is_busy?"true":"false",(time_monotonic() - messaging_last_requested));
+	if (change && !messaging_eit_is_busy && (time_monotonic() - messaging_last_requested) < 11) {
 		/* restart dmxCN, but only if it is not already running, and only for 10 seconds */
 		dprintf("change && !messaging_eit_is_busy => dmxCN.change(0)\n");
 		dmxCN.change(0);

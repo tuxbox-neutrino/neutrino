@@ -50,12 +50,12 @@ neutrino_LDADD = \
 	gui/widget/libneutrino_gui_widget2.a \
 	driver/pictureviewer/libneutrino_pictureviewer.a \
 	system/libneutrino_system.a \
-	driver/libneutrino_driver.a \
 	gui/movieinfo.o \
-	driver/audiodec/libneutrino_driver_audiodec.a \
-	driver/libneutrino_driver_netfile.a \
 	gui/libneutrino_gui2.a \
 	sectionsd/libsectionsd.a \
+	driver/libneutrino_driver.a \
+	driver/audiodec/libneutrino_driver_audiodec.a \
+	driver/libneutrino_driver_netfile.a \
 	timerd/libtimerd.a \
 	zapit/src/libzapit.a \
 	nhttpd/libnhttpd.a \

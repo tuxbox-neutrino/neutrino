@@ -38,6 +38,8 @@
 #include <cstring>
 #include <map>
 
+#include <driver/abstime.h>
+
 /*
 #define DEBUG_MUTEX 1
 #define DEBUG_CACHED_SECTIONS 1
@@ -47,14 +49,12 @@ typedef std::map<sections_id_t, version_number_t, std::less<sections_id_t> > MyD
 static MyDMXOrderUniqueKey myDMXOrderUniqueKey;
 
 extern void showProfiling(std::string text);
-extern bool timeset;
-
 
 DMX::DMX(const unsigned short p, const unsigned short bufferSizeInKB, const bool c, int dmx_source)
 {
 	dmx_num = dmx_source;
 	fd = -1;
-	lastChanged = time(NULL);
+	lastChanged = time_monotonic();
 	filter_index = 0;
 	pID = p;
 	dmxBufferSizeInKB = bufferSizeInKB;
@@ -677,12 +677,12 @@ int DMX::change(const int new_filter_index, const int new_current_service)
 			fprintf(stderr, "changeDMX [EIT]-> %d (0x%x/0x%x) %s (%ld seconds)\n",
 				new_filter_index, filters[new_filter_index].filter,
 				filters[new_filter_index].mask, dmx_filter_types[new_filter_index],
-				time(NULL)-lastChanged);
+				time_monotonic()-lastChanged);
 		} else {
 			printdate_ms(stderr);
 			fprintf(stderr, "changeDMX [%x]-> %d (0x%x/0x%x) (%ld seconds)\n", pID,
 				new_filter_index, filters[new_filter_index].filter,
-				filters[new_filter_index].mask, time(NULL)-lastChanged);
+				filters[new_filter_index].mask, time_monotonic()-lastChanged);
 		}
 	}
 
@@ -701,8 +701,7 @@ int DMX::change(const int new_filter_index, const int new_current_service)
 
         pthread_cond_signal(&change_cond);
 
-	if (timeset)
-		lastChanged = time(NULL);
+	lastChanged = time_monotonic();
 
 	unlock();
 
@@ -794,8 +793,7 @@ int DMX::setPid(const unsigned short new_pid)
 
         pthread_cond_signal(&change_cond);
 
-	if (timeset)
-		lastChanged = time(NULL);
+	lastChanged = time_monotonic();
 
 	unlock();
 
