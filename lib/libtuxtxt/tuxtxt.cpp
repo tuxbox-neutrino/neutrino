@@ -6360,7 +6360,9 @@ int GetRCCode()
 	{
 		if (ev.value)
 		{
-			if (ev.code != rc_last_key)
+			if (ev.code != rc_last_key ||
+			    ev.code == KEY_DOWN || ev.code == KEY_UP ||  /* allow direction keys */
+			    ev.code == KEY_LEFT || ev.code == KEY_RIGHT) /* to autorepeat...     */
 			{
 				rc_last_key = ev.code;
 				switch (ev.code)
@@ -6423,7 +6425,9 @@ int GetRCCode()
 	}
 
 	fprintf(stderr, "rccode: %04x\n", RCCode);
-	if (RCCode == LastKey)
+	if (RCCode == LastKey &&
+	    RCCode != 0x18 && RCCode != 0x19 && /* allow direction keys */
+	    RCCode != 0x1b && RCCode != 0x1c)   /* to autorepeat...     */
 	{
 		RCCode = -1;
 		return 1;
