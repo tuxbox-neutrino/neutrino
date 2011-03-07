@@ -648,7 +648,7 @@ keychoosermenu.setnone no key
 languagesetup.head Language / Timezone
 languagesetup.osd OSD Language
 languagesetup.select OSD Language
-lcd_info_line Zeige in Infoline
+lcd_info_line show in infoline
 lcd_info_line_channel Channelname
 lcd_info_line_clock clock
 lcdcontroler.brightness normal Brightness
