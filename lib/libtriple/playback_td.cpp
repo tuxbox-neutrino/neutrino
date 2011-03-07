@@ -223,6 +223,8 @@ bool cPlayback::Start(char *filename, unsigned short vp, int vtype, unsigned sho
 	}
 	pts_curr = pts_start;
 	bytes_per_second = -1;
+	if (pts_end != -1 && pts_start > pts_end) /* PTS overflow during this file */
+		pts_end += 0x200000000ULL;
 	int duration = (pts_end - pts_start) / 90000;
 	if (duration > 0)
 		bytes_per_second = mf_getsize() / duration;
@@ -479,7 +481,10 @@ bool cPlayback::GetPosition(int &position, int &duration)
 		}
 	}
 	if (pts_end != -1 && pts_start > pts_end) /* should trigger only once ;) */
+	{
 		pts_end += 0x200000000ULL;
+		update = true;
+	}
 
 	if (pts_curr != -1 && pts_curr < pts_start)
 		tmppts = pts_curr + 0x200000000ULL - pts_start;
