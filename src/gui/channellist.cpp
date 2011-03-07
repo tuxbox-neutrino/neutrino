@@ -41,6 +41,7 @@
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
+#include <driver/abstime.h>
 
 #include <gui/color.h>
 #include <gui/eventlist.h>
@@ -948,18 +949,41 @@ int CChannelList::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 	if (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED && data < 0x100)
 		goto out;
 
+	/* if a pre-locked channel is inside the zap time, open it. Hardcoded to one hour for now. */
+	if (data >= 0x100 && chanlist[selected]->last_unlocked_time + 3600 > time_monotonic())
+		goto out;
+
 	/* OK, let's ask for a PIN */
 	g_RemoteControl->stopvideo();
 	//printf("stopped video\n");
-	startvideo = false;
 	zapProtection = new CZapProtection(g_settings.parentallock_pincode, data);
 
 	if (zapProtection->check())
 	{
-		//printf("checked true\n");
 		// remember it for the next time
-		chanlist[selected]->last_unlocked_EPGid= g_RemoteControl->current_EPGid;
-		startvideo = true;
+		/* data < 0x100: lock age -> remember EPG ID */
+		if (data < 0x100)
+			chanlist[selected]->last_unlocked_EPGid = g_RemoteControl->current_EPGid;
+		else
+		{
+			/* data >= 0x100: pre locked bouquet -> remember unlock time */
+			chanlist[selected]->last_unlocked_time = time_monotonic();
+			int bnum = bouquetList->getActiveBouquetNumber();
+			if (bnum >= 0)
+			{
+				/* unlock the whole bouquet */
+				int i;
+				for (i = 0; i < bouquetList->Bouquets[bnum]->channelList->getSize(); i++)
+					bouquetList->Bouquets[bnum]->channelList->getChannelFromIndex(i)->last_unlocked_time = chanlist[selected]->last_unlocked_time;
+			}
+		}
+	}
+	else
+	{
+		/* last_unlocked_time == 0 is the magic to tell zapTo() to not record the time.
+		   Without that, zapping to a locked channel twice would open it without the PIN */
+		chanlist[selected]->last_unlocked_time = 0;
+		startvideo = false;
 	}
 	delete zapProtection;
 	zapProtection = NULL;
@@ -1088,6 +1112,12 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 	if ( (pos >= (signed int) chanlist.size()) || (pos< 0) ) {
 		pos = 0;
 	}
+
+	/* we record when we switched away from a channel, so that the parental-PIN code can
+	   check for timeout. last_unlocked_time == 0 means: the PIN was not entered
+	   "tuned" is the *old* channel, before zap */
+	if (tuned < chanlist.size() && chanlist[tuned]->last_unlocked_time != 0)
+		chanlist[tuned]->last_unlocked_time = time_monotonic();
 
 	CZapitChannel* chan = chanlist[pos];
 	printf("**************************** CChannelList::zapTo me %p %s tuned %d new %d %s -> %llx\n", this, name.c_str(), tuned, pos, chan->name.c_str(), chan->channel_id);

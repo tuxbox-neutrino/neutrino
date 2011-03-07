@@ -43,6 +43,8 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	pmtPid = 0;
 	resetPids();
 	ttx_language_code = "";
+	last_unlocked_EPGid = 0;
+	last_unlocked_time = 0;
 //printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
 
