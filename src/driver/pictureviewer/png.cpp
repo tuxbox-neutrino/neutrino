@@ -52,7 +52,11 @@ int fh_png_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 		return(FH_ERROR_FORMAT);
 	}
 
-	if(setjmp(png_ptr->jmpbuf))
+#if (PNG_LIBPNG_VER < 10500)
+	if (setjmp(png_ptr->jmpbuf))
+#else
+	if (setjmp(png_jmpbuf(png_ptr)))
+#endif
 	{
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 		fclose(fh);
@@ -145,7 +149,11 @@ int fh_png_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*w
 		return(FH_ERROR_FORMAT);
 	}
 
-	if(setjmp(png_ptr->jmpbuf))
+#if (PNG_LIBPNG_VER < 10500)
+	if (setjmp(png_ptr->jmpbuf))
+#else
+	if (setjmp(png_jmpbuf(png_ptr)))
+#endif
 	{
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
 		fclose(fh);
