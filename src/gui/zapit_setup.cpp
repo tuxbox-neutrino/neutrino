@@ -161,7 +161,7 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 			char cChannelId[60] = {0};
 			snprintf(cChannelId,sizeof(cChannelId),"ZC%c:%d|%llx#",(mode==CZapitClient::MODE_TV)?'T':'R',channel->number,channel->channel_id);
 
-			CMenuForwarderNonLocalized * chan_item = new CMenuForwarderNonLocalized(channel->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str());
+			CMenuForwarderNonLocalized * chan_item = new CMenuForwarderNonLocalized(channel->getName().c_str(), true, NULL, this, (std::string(cChannelId) + channel->getName()).c_str(), NULL, NULL, channel->scrambled ?NEUTRINO_ICON_SCRAMBLED:NULL);
 			chan_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			mwtv->addItem(chan_item);
 

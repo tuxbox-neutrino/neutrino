@@ -102,6 +102,9 @@ void CBEChannelWidget::paintItem(int pos)
 		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10, ypos+ fheight, width- numwidth- 20- 15, (*Channels)[current]->getName(), color, 0, true);
 		//FIXME numwidth ? we not show chan numbers
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 20 + iconoffset, ypos + iheight - (iheight-fheight)/2, width- iconoffset- 20, (*Channels)[current]->getName(), color, 0, true);
+		if((*Channels)[current]->scrambled)
+			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
+
 	}
 }
 
