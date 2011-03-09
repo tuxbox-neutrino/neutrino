@@ -1,6 +1,6 @@
 #include "libmd5sum.h"
 #include <sys/types.h>
-
+#include <error.h>
 
 #ifdef HAVE_CONFIG_H
 # include <config.h>
