@@ -9,7 +9,6 @@
 #include "md5.h"
 #include "getline.h"
 #include <errno.h>
-#include "error.h"
 #include <string.h>
 
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
