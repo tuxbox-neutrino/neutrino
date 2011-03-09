@@ -1072,7 +1072,7 @@ void CControlAPI::channelEPGAsXML(CyhookHandler *hh, int bouquetnr, t_channel_id
 		struct tm *mtime = localtime(&eventIterator->startTime);
 		strftime(zbuffer,20,"%H:%M",mtime);
 		hh->printf("\t<start_t>%s</start_t>\r\n", zbuffer);
-		bzero(zbuffer,25);
+		memset(zbuffer,0,sizeof(zbuffer));
 		strftime(zbuffer,20,"%d.%m.%Y",mtime);
 		hh->printf("\t<date>%s</date>\r\n", zbuffer);
 		hh->printf("\t<stop_sec>%ld</stop_sec>\r\n", eventIterator->startTime+eventIterator->duration);

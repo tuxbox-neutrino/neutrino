@@ -53,10 +53,10 @@ int	netSetIP( char *dev, char *ip, char *mask, char *brdcast )
 	scanip( brdcast, adr_brdcast );
 
 	/* init structures */
-	bzero(&req,sizeof(req));
+	memset(&req,0,sizeof(req));
 	strcpy(req.ifr_name,dev);
 
-	bzero(&addr,sizeof(addr));
+	memset(&addr,0,sizeof(addr));
 	addr.sin_family = AF_INET;
 
 	addr.sin_addr.s_addr = *((unsigned long *) adr_ip);
@@ -97,7 +97,7 @@ void	netGetIP( char *dev, char *ip, char *mask, char *brdcast )
 		return;
 
 
-	bzero(&req,sizeof(req));
+	memset(&req,0,sizeof(req));
 	strcpy(req.ifr_name,dev);
 	saddr = (struct sockaddr_in *) &req.ifr_addr;
 	addr= (unsigned char*) &saddr->sin_addr.s_addr;
