@@ -3407,12 +3407,12 @@ static void sendEPG(int connfd, const SIevent& e, const SItime& t, int shortepg 
 		// add length
 		*p = (unsigned char)e.contentClassification.length();
 		p++;
-		memcpy(p, e.contentClassification.data(), e.contentClassification.length());
+		memmove(p, e.contentClassification.data(), e.contentClassification.length());
 		p += e.contentClassification.length();
 
 		*p = (unsigned char)e.userClassification.length();
 		p++;
-		memcpy(p, e.userClassification.data(), e.userClassification.length());
+		memmove(p, e.userClassification.data(), e.userClassification.length());
 		p += e.userClassification.length();
 
 		*p = e.getFSK();
@@ -5049,7 +5049,7 @@ bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 
 		struct sectionsd::msgRequestHeader header;
 
-		memcpy(&header, &rmsg, sizeof(CBasicMessage::Header));
+		memmove(&header, &rmsg, sizeof(CBasicMessage::Header));
 		memset(((char *)&header) + sizeof(CBasicMessage::Header), 0, sizeof(header) - sizeof(CBasicMessage::Header));
 
 		bool readbytes = readNbytes(connfd, ((char *)&header) + sizeof(CBasicMessage::Header), sizeof(header) - sizeof(CBasicMessage::Header), READ_TIMEOUT_IN_SECONDS);

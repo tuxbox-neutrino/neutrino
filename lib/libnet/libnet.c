@@ -60,17 +60,17 @@ int	netSetIP( char *dev, char *ip, char *mask, char *brdcast )
 	addr.sin_family = AF_INET;
 
 	addr.sin_addr.s_addr = *((unsigned long *) adr_ip);
-	memcpy(&req.ifr_addr,&addr,sizeof(addr));
+	memmove(&req.ifr_addr,&addr,sizeof(addr));
 	if( ioctl(fd,SIOCSIFADDR,&req) < 0 )
 		goto abbruch;
 
 	addr.sin_addr.s_addr = *((unsigned long *) adr_mask);
-	memcpy(&req.ifr_addr,&addr,sizeof(addr));
+	memmove(&req.ifr_addr,&addr,sizeof(addr));
 	if( ioctl(fd,SIOCSIFNETMASK,&req) < 0 )
 		goto abbruch;
 
 	addr.sin_addr.s_addr = *((unsigned long *) adr_brdcast);
-	memcpy(&req.ifr_addr,&addr,sizeof(addr));
+	memmove(&req.ifr_addr,&addr,sizeof(addr));
 	if( ioctl(fd,SIOCSIFBRDADDR,&req) < 0 )
 		goto abbruch;
 
@@ -142,7 +142,7 @@ void	netSetDefaultRoute( char *gw )
 		return;
 
 	re.rt_flags = RTF_GATEWAY | RTF_UP;
-	memcpy(addr,adr_gw,4);
+	memmove(addr,adr_gw,4);
 
 	ioctl(fd,SIOCADDRT,&re);
 

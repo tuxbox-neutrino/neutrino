@@ -422,7 +422,7 @@ std::string CUPnPDevice::HTTP(std::string url, std::string post, std::string act
 	memset(&socktcp, 0, sizeof(struct sockaddr_in));
 	socktcp.sin_family = AF_INET;
 	socktcp.sin_port = htons(port);
-	memcpy((char *)&socktcp.sin_addr, hp->h_addr, hp->h_length);
+	memmove((char *)&socktcp.sin_addr, hp->h_addr, hp->h_length);
 
 	if (connect(t_socket, (struct sockaddr*) &socktcp, sizeof(struct sockaddr_in)))
 	{

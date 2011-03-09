@@ -86,7 +86,7 @@ void packet_stdout (int fd, unsigned char * buf, int count, void * /*p*/)
 		/* send buffer is not empty, so copy from
 		   input buffer to get a complete packet */
 		if (writebuf_size) {
-			memcpy(writebuf + writebuf_size, buf, size);
+			memmove(writebuf + writebuf_size, buf, size);
 			bp = writebuf;
 		}
 
@@ -127,7 +127,7 @@ void packet_stdout (int fd, unsigned char * buf, int count, void * /*p*/)
 	 * then store them in the send buffer and increase send
 	 * buffer size */
 	if (count) {
-		memcpy(writebuf + writebuf_size, buf, count);
+		memmove(writebuf + writebuf_size, buf, count);
 		writebuf_size += count;
 	}
 }

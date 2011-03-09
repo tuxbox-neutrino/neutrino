@@ -1047,8 +1047,8 @@ int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization
 	TP_params TP;
 	printf("[fe%d] tune to frequency %d pol %s srate %d\n", fenumber, feparams->frequency, polarization ? "Vertical/Right" : "Horizontal/Left", feparams->u.qpsk.symbol_rate);
 
-	memcpy(&curfe, feparams, sizeof(struct dvb_frontend_parameters));
-	memcpy(&TP.feparams, feparams, sizeof(struct dvb_frontend_parameters));
+	memmove(&curfe, feparams, sizeof(struct dvb_frontend_parameters));
+	memmove(&TP.feparams, feparams, sizeof(struct dvb_frontend_parameters));
 
 	TP.polarization = polarization;
 	return setParameters(&TP, nowait);
@@ -1103,7 +1103,7 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 		/* if everything went ok, then it is a good idea to copy the real
 		 * frontend parameters, so we can update the service list, if it differs.
 		 * TODO: set a flag to indicate a change in the service list */
-		memcpy(&currentTransponder.feparams, &event.parameters, sizeof(struct dvb_frontend_parameters));
+		memmove(&currentTransponder.feparams, &event.parameters, sizeof(struct dvb_frontend_parameters));
 	}
 #endif
 

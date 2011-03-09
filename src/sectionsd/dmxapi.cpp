@@ -148,10 +148,10 @@ bool getUTC(UTC_t * const UTC, const bool TDT)
 		return false;
 	}
 	memset(&tdt_tot_header, 0, sizeof(tdt_tot_header));
-	memcpy(&tdt_tot_header, buf, size);
+	memmove(&tdt_tot_header, buf, size);
 
 	int64_t tmp = tdt_tot_header.UTC_time.time;
-	memcpy(cUTC, (&tdt_tot_header.UTC_time), 5);
+	memmove(cUTC, (&tdt_tot_header.UTC_time), 5);
 	if ((cUTC[2] > 0x23) || (cUTC[3] > 0x59) || (cUTC[4] > 0x59)) // no valid time
 	{
 		printf("[sectionsd] getUTC: invalid %s section received: %02x %02x %02x %02x %02x\n",
@@ -174,7 +174,7 @@ bool getUTC(UTC_t * const UTC, const bool TDT)
 				to = (struct descrLocalTimeOffset *)&b2[2];
 				unsigned char cc[4];
 				cc[3] = 0;
-				memcpy(cc, to->country_code, 3);
+				memmove(cc, to->country_code, 3);
 				time_t t = changeUTCtoCtime(&b2[2+6],0);
 				xprintf("getUTC(TOT): len=%d cc=%s reg_id=%d "
 					"pol=%d offs=%04x new=%04x when=%s",

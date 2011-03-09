@@ -125,7 +125,7 @@ unsigned int CCaPmt::writeToBuffer(unsigned char * const buffer, int demux, int 
 {
 	unsigned int i;
 
-	memcpy(buffer, "\x9f\x80\x32\x82\x00\x00", 6);
+	memmove(buffer, "\x9f\x80\x32\x82\x00\x00", 6);
 
 	buffer[6] = ca_pmt_list_management; //6
 	buffer[7] = program_number >> 8; //7 

@@ -95,7 +95,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		for (int i = 0; i < 12; i++) 
 		{
-			memcpy(&text[i*len], buf, len);
+			memmove(&text[i*len], buf, len);
 		}
 		text[12*len] = 0;
 

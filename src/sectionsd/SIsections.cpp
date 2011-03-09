@@ -1215,7 +1215,7 @@ void SIsectionNIT::copyDeliveryDescriptor(const char *buf, SInetwork &s)
 {
   //struct descr_generic_header *sv=(struct descr_generic_header *)buf;
   buf+=sizeof(struct descr_generic_header);
-  memcpy(s.delivery_descriptor, buf, sizeof(struct satellite_delivery_descriptor));  //same size as cable...
+  memmove(s.delivery_descriptor, buf, sizeof(struct satellite_delivery_descriptor));  //same size as cable...
   //printf("Bouquet-Name: %s\n", s.bouquetName.c_str());
 }
 
@@ -1390,7 +1390,7 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 		}
 
 		// Den Header kopieren
-		memcpy(buf, &header, sizeof(header));
+		memmove(buf, &header, sizeof(header));
 
 		rc = readNbytes(fd, &buf[sizeof(header)], section_length - 5, timeoutInSeconds);
 
@@ -1459,7 +1459,7 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 		}
 
 		// Den Header kopieren (evtl. malloc und realloc nehmen)
-		memcpy(buf, &header, sizeof(header));
+		memmove(buf, &header, sizeof(header));
 
 		// den Rest der Section einlesen
 		rc = readNbytes(fd, &buf[sizeof(header)], section_length - 5, timeoutInSeconds);
@@ -1513,7 +1513,7 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 				//printf("Debug: t: 0x%02x s: %u nr: %u last: %u max: %u l: %u\n", actualTableID, actualTableIDextension, k->sectionNumber(), lastNr, maxNr, l);
 
 				struct SI_section_header h;
-				memcpy(&h, k->header(), sizeof(struct SI_section_header));
+				memmove(&h, k->header(), sizeof(struct SI_section_header));
 				h.section_number = l;
 				missingSections.insert(SIsection(&h));
 			}
@@ -1578,7 +1578,7 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 		}
 
 		// Den Header kopieren (evtl. malloc und realloc nehmen)
-		memcpy(buf, &header, sizeof(header));
+		memmove(buf, &header, sizeof(header));
 		// den Rest der Section einlesen
 		rc = readNbytes(fd, &buf[sizeof(header)], section_length - 5, timeoutInSeconds);
 

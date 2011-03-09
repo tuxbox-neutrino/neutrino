@@ -423,11 +423,11 @@ bool CLCDDisplay::paintIcon(std::string filename, int x, int y, bool invert)
 }
 
 void CLCDDisplay::dump_screen(raw_display_t *screen) {
-	memcpy(screen, raw, sizeof(raw_display_t));
+	memmove(screen, raw, sizeof(raw_display_t));
 }
 
 void CLCDDisplay::load_screen(const raw_display_t * const screen) {
-	memcpy(raw, screen, sizeof(raw_display_t));
+	memmove(raw, screen, sizeof(raw_display_t));
 }
 
 bool CLCDDisplay::load_png(const char * const filename)

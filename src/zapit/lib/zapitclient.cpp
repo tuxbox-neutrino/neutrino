@@ -522,7 +522,7 @@ bool CZapitClient::get_current_TP(TP_params* TP)
 	TP_params TP_temp;
 	send(CZapitMessages::CMD_GET_CURRENT_TP);
 	bool reply = CBasicClient::receive_data((char*)&TP_temp, sizeof(TP_temp));
-	memcpy(TP, &TP_temp, sizeof(TP_temp));
+	memmove(TP, &TP_temp, sizeof(TP_temp));
 	close_connection();
 	return reply;
 }

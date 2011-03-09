@@ -1537,7 +1537,7 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 		display_Info(NULL, g_Locale->getText(gotTime ? LOCALE_INFOVIEWER_NOEPG : LOCALE_INFOVIEWER_WAITTIME));
 		/* send message. Parental pin check gets triggered on EPG events... */
 		char *p = new char[sizeof(t_channel_id)];
-		memcpy(p, &channel_id, sizeof(t_channel_id));
+		memmove(p, &channel_id, sizeof(t_channel_id));
 		/* clear old info in getEPG */
 		CSectionsdClient::CurrentNextInfo dummy;
 		getEPG(0, dummy);

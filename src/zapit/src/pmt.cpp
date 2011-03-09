@@ -148,7 +148,7 @@ printf("descr 0x0A: %02X %02X %02X\n", buffer[pos+2], buffer[pos+3], buffer[pos+
 				//printf("[pmt] teletext pid %x: %s\n", esInfo->elementary_PID, tmp_Lang);
 				printf("[pmt] teletext pid %x\n", esInfo->elementary_PID);
 				for (unsigned char fIdx = 0; fIdx < fieldCount; fIdx++) {
-					memcpy(tmp_Lang, &buffer[pos + 5*fIdx + 2], 3);
+					memmove(tmp_Lang, &buffer[pos + 5*fIdx + 2], 3);
 					tmp_Lang[3] = '\0';
 					unsigned char teletext_type=buffer[pos + 5*fIdx + 5]>> 3;
 					unsigned char teletext_magazine_number = buffer[pos + 5*fIdx + 5] & 7;
@@ -174,7 +174,7 @@ printf("[pmt] teletext type %d mag %d page %d lang %s\n", teletext_type, teletex
 					unsigned char fieldCount1=descriptor_length/8;
 					for (unsigned char fIdx=0;fIdx<fieldCount1;fIdx++){
 						char tmpLang[4];
-						memcpy(tmpLang,&buffer[pos + 8*fIdx + 2],3);
+						memmove(tmpLang,&buffer[pos + 8*fIdx + 2],3);
 						tmpLang[3] = '\0';
 						unsigned char subtitling_type=buffer[pos+8*fIdx+5];
 						unsigned short composition_page_id=
@@ -571,7 +571,7 @@ int parse_pmt(CZapitChannel * const channel)
 	} else {
 		channel->setCaPmt(caPmt);
 		unsigned char * p = new unsigned char[pmtlen];
-		memcpy(p, buffer, pmtlen);
+		memmove(p, buffer, pmtlen);
 		channel->setRawPmt(p, pmtlen);
 	}
 #if 0

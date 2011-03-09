@@ -305,7 +305,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		if (!(Msg.Flags & CA_MESSAGE_HAS_PARAM1_DATA))
 			return -1;
 
-		memcpy(pMenu, (MMI_MENU_LIST_INFO*)Msg.Msg.Data[0], sizeof(MMI_MENU_LIST_INFO));
+		memmove(pMenu, (MMI_MENU_LIST_INFO*)Msg.Msg.Data[0], sizeof(MMI_MENU_LIST_INFO));
 		free((void *)Msg.Msg.Data[0]);
 
 		printf("CCAMMenuHandler::handleCamMsg: slot %d menu ready, title %s choices %d\n", curslot, convertDVBUTF8(pMenu->title, strlen(pMenu->title), 0).c_str(), pMenu->choice_nb);
@@ -402,7 +402,7 @@ int CCAMMenuHandler::handleCamMsg (const neutrino_msg_t msg, neutrino_msg_data_t
 		if (!(Msg.Flags & CA_MESSAGE_HAS_PARAM1_DATA))
 			return -1;
 
-		memcpy(pMmiEnquiry, (MMI_ENGUIRY_INFO *)Msg.Msg.Data[0], sizeof(MMI_ENGUIRY_INFO));
+		memmove(pMmiEnquiry, (MMI_ENGUIRY_INFO *)Msg.Msg.Data[0], sizeof(MMI_ENGUIRY_INFO));
 		free((void *)Msg.Msg.Data[0]);
 		printf("CCAMMenuHandler::handleCamMsg: slot %d input request, text %s\n", curslot, convertDVBUTF8(pMmiEnquiry->enguiryText, strlen(pMmiEnquiry->enguiryText), 0).c_str());
 		hideHintBox();

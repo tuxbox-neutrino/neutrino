@@ -171,7 +171,7 @@ WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data)
 
 	mem->memory = (char *)myrealloc(mem->memory, mem->size + realsize + 1);
 	if (mem->memory) {
-		memcpy(&(mem->memory[mem->size]), ptr, realsize);
+		memmove(&(mem->memory[mem->size]), ptr, realsize);
 		mem->size += realsize;
 		mem->memory[mem->size] = 0;
 	}

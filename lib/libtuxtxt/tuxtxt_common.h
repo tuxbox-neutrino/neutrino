@@ -57,7 +57,7 @@ void tuxtxt_compress_page(int p, int sp, unsigned char* buffer)
 		if (pg->pData)
 		{
 			pg->ziplen = comprlen;
-			memcpy(pg->pData,pagecompressed,comprlen);
+			memmove(pg->pData,pagecompressed,comprlen);
 		}
 	}
 #elif TUXTXT_COMPRESS == 2
@@ -75,14 +75,14 @@ void tuxtxt_compress_page(int p, int sp, unsigned char* buffer)
     pg->pData = (unsigned char*)malloc(j);
 	if (pg->pData)
 	{
-	    memcpy(pg->pData,cbuf,j);
+	    memmove(pg->pData,cbuf,j);
   	}
   	else
   	    memset(pg->bitmask,0,sizeof(pg->bitmask));
 
 #else
 	//if (pg->pData)
-		memcpy(pg->data,buffer,23*40);
+		memmove(pg->data,buffer,23*40);
 #endif
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
 
@@ -120,7 +120,7 @@ void tuxtxt_decompress_page(int p, int sp, unsigned char* buffer)
 		}
 #else
 	{
-		memcpy(buffer,pg->data,23*40);
+		memmove(buffer,pg->data,23*40);
 #endif
 	}
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
@@ -772,7 +772,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 								for (byte = 2; byte < 42; byte++)
 									*p++ = dehamming[vtxt_row[byte]]; /* decode hamming 8/4 */
 							else /* other hex page: no parity check, just copy */
-								memcpy(p, &vtxt_row[2], 40);
+								memmove(p, &vtxt_row[2], 40);
 						}
 					}
 					else if (packet_number == 27)
@@ -927,7 +927,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 						if (!(pageinfo_thread->ext->p26[descode]))
 							pageinfo_thread->ext->p26[descode] = (unsigned char*) malloc(13 * 3);
 						if (pageinfo_thread->ext->p26[descode])
-							memcpy(pageinfo_thread->ext->p26[descode], &vtxt_row[3], 13 * 3);
+							memmove(pageinfo_thread->ext->p26[descode], &vtxt_row[3], 13 * 3);
 #if 0//TUXTXT_DEBUG
 						int i, t, m;
 

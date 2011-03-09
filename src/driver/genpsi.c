@@ -188,7 +188,7 @@ static int copy_template(uint8_t *dst, uint8_t *src, int len)
 //-- reset buffer --
 	memset(dst, 0xFF, SIZE_TS_PKT);
 //-- copy PMT template --
-	memcpy(dst, src, len);
+	memmove(dst, src, len);
 	
 	return len;
 }

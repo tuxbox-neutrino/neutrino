@@ -78,7 +78,7 @@ void blit2FB(void *fbbuff,
 	unsigned int stride = CFrameBuffer::getInstance()->getStride();
 
 	for(i = 0; i < yc; i++){
-		memcpy(lfb+(i+yoffs)*stride+xoffs*4, ip + (i+yp)*pic_xs+xp, xc*4);
+		memmove(lfb+(i+yoffs)*stride+xoffs*4, ip + (i+yp)*pic_xs+xp, xc*4);
 	}
 }
 

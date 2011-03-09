@@ -445,7 +445,7 @@ SIevent SIevent::readActualEvent(t_service_id serviceID, unsigned timeoutInSecon
 		}
 
 		// Den Header kopieren
-		memcpy(buf, &header, sizeof(header));
+		memmove(buf, &header, sizeof(header));
 		rc = readNbytes(fd, &buf[sizeof(header)], section_length - 5, timeoutInSeconds);
 
 		if(!rc) {

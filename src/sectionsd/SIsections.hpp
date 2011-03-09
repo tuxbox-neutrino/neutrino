@@ -263,7 +263,7 @@ public:
 			buffer = new char[bufLength];
 			if (buffer) {
 				bufferLength = bufLength;
-				memcpy(buffer, buf, bufLength);
+				memmove(buffer, buf, bufLength);
 			}
 		}
 	}
@@ -285,7 +285,7 @@ public:
 		bufferLength = 0;
 		buffer = new char[sizeof(struct SI_section_header)];
 		if (buffer) {
-			memcpy(buffer, header, sizeof(struct SI_section_header));
+			memmove(buffer, header, sizeof(struct SI_section_header));
 			bufferLength = sizeof(struct SI_section_header);
 		}
 	}
@@ -297,7 +297,7 @@ public:
 			buffer = new char[s.bufferLength];
 			if (buffer) {
 				bufferLength = s.bufferLength;
-				memcpy(buffer, s.buffer, bufferLength);
+				memmove(buffer, s.buffer, bufferLength);
 			}
 		}
 	}

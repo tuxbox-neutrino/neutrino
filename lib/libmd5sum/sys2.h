@@ -167,7 +167,7 @@ off_t lseek ();
 
 #if ! defined HAVE_MEMPCPY && ! defined mempcpy
 /* Be CAREFUL that there are no side effects in N.  */
-# define mempcpy(D, S, N) ((void *) ((char *) memcpy (D, S, N) + (N)))
+# define mempcpy(D, S, N) ((void *) ((char *) memmove (D, S, N) + (N)))
 #endif
 
 /* These are wrappers for functions/macros from GNU libc.

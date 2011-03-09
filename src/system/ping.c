@@ -84,7 +84,7 @@ send_ping( const char *host, struct sockaddr_in *taddr )
   }
   
   if(( hp = gethostbyname( host )) != NULL ){
-    memcpy( &taddr->sin_addr, hp->h_addr_list[0], sizeof( taddr->sin_addr ));
+    memmove( &taddr->sin_addr, hp->h_addr_list[0], sizeof( taddr->sin_addr ));
     taddr->sin_port = 0;
     taddr->sin_family = AF_INET;
   }

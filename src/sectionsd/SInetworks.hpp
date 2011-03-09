@@ -144,7 +144,7 @@ public:
 		transport_stream_id 	= s.transport_stream_id;
 		delivery_type		= s.delivery_type;
 		is_actual		= s.is_actual;
-		memcpy(delivery_descriptor, s.delivery_descriptor, sizeof(struct satellite_delivery_descriptor));
+		memmove(delivery_descriptor, s.delivery_descriptor, sizeof(struct satellite_delivery_descriptor));
 	}
 	
 	t_network_id network_id;

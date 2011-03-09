@@ -215,7 +215,7 @@ int fh_crw_load(const char *filename,unsigned char **buffer,int* xp,int* /*yp*/)
 		while(ciptr->output_scanline < ciptr->output_height)
 		{
 			jpeg_read_scanlines(ciptr, &lb, 1);
-			memcpy(bp,lb,px*c);
+			memmove(bp,lb,px*c);
 			bp+=px*c;
 		}
 

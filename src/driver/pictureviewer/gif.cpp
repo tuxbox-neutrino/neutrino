@@ -87,7 +87,7 @@ int fh_gif_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 						{
 							if(DGifGetLine(gft,slb,px)==GIF_ERROR)	mgrflush;
 							m_rend_gif_decodecolormap(slb,lb,cmap,cmaps,px);
-							memcpy(fbptr,lb,px*3);
+							memmove(fbptr,lb,px*3);
 						}
 					}
 					else
@@ -99,7 +99,7 @@ int fh_gif_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 							{
 								if(DGifGetLine(gft,slb,px)==GIF_ERROR)	mgrflush;
 								m_rend_gif_decodecolormap(slb,lb,cmap,cmaps,px);
-								memcpy(fbptr,lb,px*3);
+								memmove(fbptr,lb,px*3);
 							}
 						}
 					}

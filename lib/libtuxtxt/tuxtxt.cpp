@@ -50,7 +50,7 @@ void FillRect(int x, int y, int w, int h, int color)
 		{
 			for (xtmp=0; xtmp<=w; xtmp++)
 			{
-				memcpy(p+xtmp*4,bgra[color],4);
+				memmove(p+xtmp*4,bgra[color],4);
 			}
 			p += fix_screeninfo.line_length;
 		}
@@ -2584,7 +2584,7 @@ void charpage()
 		RenderCharFB(cachefill[col], &atrtable[ATR_WB]);
 	}
 	tstPageAttr atr;
-	memcpy(&atr,&atrtable[ATR_WB],sizeof(tstPageAttr));
+	memmove(&atr,&atrtable[ATR_WB],sizeof(tstPageAttr));
 	int row;
 	atr.charset = C_G0P;
 	PosY = StartY+fontheight;
@@ -2702,7 +2702,7 @@ void Menu_UpdateHotlist(char *menu, int hotindex, int menuitem)
 	}
 
 	hex2str(&menu[Menu_Width*MenuLine[M_HOT] + hotlistpagecolumn[menulanguage]], (hotindex >= 0) ? hotlist[hotindex] : tuxtxt_cache.page);
-	memcpy(&menu[Menu_Width*MenuLine[M_HOT] + hotlisttextcolumn[menulanguage]], &hotlisttext[menulanguage][(hotindex >= 0) ? 5 : 0], 5);
+	memmove(&menu[Menu_Width*MenuLine[M_HOT] + hotlisttextcolumn[menulanguage]], &hotlisttext[menulanguage][(hotindex >= 0) ? 5 : 0], 5);
 	PosX = Menu_StartX + 20*fontwidth;
 	PosY = Menu_StartY + MenuLine[M_HOT]*fontheight;
 
@@ -2714,13 +2714,13 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 	int byte, line;
 	int national_subset_bak = national_subset;
 
-	memcpy(menu, configmenu[menulanguage], Menu_Height*Menu_Width);
+	memmove(menu, configmenu[menulanguage], Menu_Height*Menu_Width);
 
 	if (getpidsdone)
 	{
 		memset(&menu[MenuLine[M_PID]*Menu_Width+3], 0x20,24);
 		if (SDT_ready)
-			memcpy(&menu[MenuLine[M_PID]*Menu_Width+3+(24-pid_table[current_pid].service_name_len)/2], &pid_table[current_pid].service_name, pid_table[current_pid].service_name_len);
+			memmove(&menu[MenuLine[M_PID]*Menu_Width+3+(24-pid_table[current_pid].service_name_len)/2], &pid_table[current_pid].service_name, pid_table[current_pid].service_name_len);
 		else
 			hex2str(&menu[MenuLine[M_PID]*Menu_Width + 13 + 3], tuxtxt_cache.vtxtpid);
 	}
@@ -2732,21 +2732,21 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 
 
 	/* set 16:9 modi, colors & national subset */
-	memcpy(&menu[Menu_Width*MenuLine[M_SC1] + Menu_Width - 5], &configonoff[menulanguage][screen_mode1  ? 3 : 0], 3);
+	memmove(&menu[Menu_Width*MenuLine[M_SC1] + Menu_Width - 5], &configonoff[menulanguage][screen_mode1  ? 3 : 0], 3);
 
 	menu[MenuLine[M_COL]*Menu_Width +  1] = (color_mode == 1  ? ' ' : 'ν');
 	menu[MenuLine[M_COL]*Menu_Width + 28] = (color_mode == 24 ? ' ' : 'ξ');
 	memset(&menu[Menu_Width*MenuLine[M_COL] + 3             ], 0x7f,color_mode);
 	memset(&menu[Menu_Width*MenuLine[M_COL] + 3+color_mode  ], 0x20,24-color_mode);
-//	memcpy(&menu[Menu_Width*MenuLine[M_COL] + Menu_Width - 5], &configonoff[menulanguage][color_mode    ? 3 : 0], 3);
+//	memmove(&menu[Menu_Width*MenuLine[M_COL] + Menu_Width - 5], &configonoff[menulanguage][color_mode    ? 3 : 0], 3);
 	menu[MenuLine[M_TRA]*Menu_Width +  1] = (trans_mode == 1  ? ' ' : 'ν');
 	menu[MenuLine[M_TRA]*Menu_Width + 28] = (trans_mode == 24 ? ' ' : 'ξ');
 	memset(&menu[Menu_Width*MenuLine[M_TRA] + 3             ], 0x7f,trans_mode);
 	memset(&menu[Menu_Width*MenuLine[M_TRA] + 3+trans_mode  ], 0x20,24-trans_mode);
 
-	memcpy(&menu[Menu_Width*MenuLine[M_AUN] + Menu_Width - 5], &configonoff[menulanguage][auto_national ? 3 : 0], 3);
+	memmove(&menu[Menu_Width*MenuLine[M_AUN] + Menu_Width - 5], &configonoff[menulanguage][auto_national ? 3 : 0], 3);
 	/*if (national_subset != NAT_DE)*/
-		memcpy(&menu[Menu_Width*MenuLine[M_NAT] + 2], &countrystring[national_subset*COUNTRYSTRING_WIDTH], COUNTRYSTRING_WIDTH);
+		memmove(&menu[Menu_Width*MenuLine[M_NAT] + 2], &countrystring[national_subset*COUNTRYSTRING_WIDTH], COUNTRYSTRING_WIDTH);
 	if (national_subset == 0  || auto_national)
 		menu[MenuLine[M_NAT]*Menu_Width +  1] = ' ';
 	if (national_subset == MAX_NATIONAL_SUBSET || auto_national)
@@ -2764,7 +2764,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 			national_subset = menusubset[menulanguage];
 
 		if (line == Menu_Height-2)
-			memcpy(&menu[line*Menu_Width + 21], versioninfo, 4);
+			memmove(&menu[line*Menu_Width + 21], versioninfo, 4);
 
 		for (byte = 0; byte < Menu_Width; byte++)
 			RenderCharFB(menu[line*Menu_Width + byte], &atrtable[menuatr[line*Menu_Width + byte] - '0' + ATR_MENU0]);
@@ -2924,7 +2924,7 @@ void ConfigMenu(int Init)
 
 						if (SDT_ready)
 						{
-							memcpy(&menu[MenuLine[M_PID]*Menu_Width+3+(24-pid_table[current_pid].service_name_len)/2],
+							memmove(&menu[MenuLine[M_PID]*Menu_Width+3+(24-pid_table[current_pid].service_name_len)/2],
 							       &pid_table[current_pid].service_name,
 							       pid_table[current_pid].service_name_len);
 						}
@@ -2951,7 +2951,7 @@ void ConfigMenu(int Init)
 						{
 							national_subset = pid_table[current_pid].national_subset;
 
-							memcpy(&menu[Menu_Width*MenuLine[M_NAT] + 2], &countrystring[national_subset*COUNTRYSTRING_WIDTH], COUNTRYSTRING_WIDTH);
+							memmove(&menu[Menu_Width*MenuLine[M_NAT] + 2], &countrystring[national_subset*COUNTRYSTRING_WIDTH], COUNTRYSTRING_WIDTH);
 							Menu_HighlightLine(menu, MenuLine[M_NAT], 0);
 						}
 					}
@@ -3043,7 +3043,7 @@ void ConfigMenu(int Init)
 						memset(&menu[MenuLine[M_PID]*Menu_Width + 3], ' ', 24);
 
 						if (SDT_ready)
-							memcpy(&menu[MenuLine[M_PID]*Menu_Width + 3 +
+							memmove(&menu[MenuLine[M_PID]*Menu_Width + 3 +
 											 (24-pid_table[current_pid].service_name_len)/2],
 									 &pid_table[current_pid].service_name,
 									 pid_table[current_pid].service_name_len);
@@ -3070,7 +3070,7 @@ void ConfigMenu(int Init)
 						{
 							if (getpidsdone)
 								national_subset = pid_table[current_pid].national_subset;
-							memcpy(&menu[Menu_Width*MenuLine[M_NAT] + 2], &countrystring[national_subset*COUNTRYSTRING_WIDTH], COUNTRYSTRING_WIDTH);
+							memmove(&menu[Menu_Width*MenuLine[M_NAT] + 2], &countrystring[national_subset*COUNTRYSTRING_WIDTH], COUNTRYSTRING_WIDTH);
 							Menu_HighlightLine(menu, MenuLine[M_NAT], 0);
 						}
 					}
@@ -3325,7 +3325,7 @@ void ConfigMenu(int Init)
 					screen_mode1++;
 					screen_mode1 &= 1;
 
-					memcpy(&menu[Menu_Width*MenuLine[M_SC1] + Menu_Width - 5], &configonoff[menulanguage][screen_mode1  ? 3 : 0], 3);
+					memmove(&menu[Menu_Width*MenuLine[M_SC1] + Menu_Width - 5], &configonoff[menulanguage][screen_mode1  ? 3 : 0], 3);
 					Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 
 					break;
@@ -4108,7 +4108,7 @@ void RenderDRCS( //FIX ME
 //					memset(d + ax[x], f1, ax[x+1] - ax[x]);
 					for (ltmp=0 ; ltmp <= (ax[x+1]-ax[x]); ltmp++)
 					{
-						memcpy(d + ax[x]*4 +ltmp*4,bgra[f1],4);
+						memmove(d + ax[x]*4 +ltmp*4,bgra[f1],4);
 					}
 				}
 				if (ax[x+7] > ax[x+6])
@@ -4116,7 +4116,7 @@ void RenderDRCS( //FIX ME
 //					memset(d + ax[x+6], f2, ax[x+7] - ax[x+6]); /* 2nd byte 6 pixels to the right */
 					for (ltmp=0 ; ltmp <= (ax[x+7]-ax[x+6]); ltmp++)
 					{
-						memcpy(d + ax[x+6]*4 +ltmp*4,bgra[f2],4);
+						memmove(d + ax[x+6]*4 +ltmp*4,bgra[f2],4);
 					}
 
 				}
@@ -4135,7 +4135,7 @@ void DrawVLine(int x, int y, int l, int color)
 
 	for ( ; l > 0 ; l--)
 	{
-		memcpy(p,bgra[color],4);
+		memmove(p,bgra[color],4);
 		p += fix_screeninfo.line_length;
 	}
 }
@@ -4147,7 +4147,7 @@ void DrawHLine(int x, int y, int l, int color)
 	{
 		for (ltmp=0; ltmp <= l; ltmp++)
 		{
-			memcpy(lfb + x*4 + ltmp*4 + y * fix_screeninfo.line_length, bgra[color], 4);
+			memmove(lfb + x*4 + ltmp*4 + y * fix_screeninfo.line_length, bgra[color], 4);
 		}
 	}
 }
@@ -4176,7 +4176,7 @@ void FillTrapez(int x0, int y0, int l0, int xoffset1, int h, int l1, int color)
 		{
 			for (ltmp=0; ltmp <= l; ltmp++)
 			{
-				memcpy(p + xoffset*4 +ltmp*4, bgra[color], 4);
+				memmove(p + xoffset*4 +ltmp*4, bgra[color], 4);
 			}
 		}
 		p += fix_screeninfo.line_length;
@@ -4190,10 +4190,10 @@ void FlipHorz(int x, int y, int w, int h)
 	if(buf != NULL){
 		for (h1 = 0 ; h1 < h ; h1++)
 		{
-			memcpy(buf,p,w*4);
+			memmove(buf,p,w*4);
 			for (w1 = 0 ; w1 < w ; w1++)
 			{
-				memcpy(p+w1*4,buf+((w-w1)*4)-4,4);
+				memmove(p+w1*4,buf+((w-w1)*4)-4,4);
 			}
 			p += fix_screeninfo.line_length;
 		}
@@ -4210,9 +4210,9 @@ void FlipVert(int x, int y, int w, int h)
 		{
 			p1 = (p+(h1*fix_screeninfo.line_length));
 			p2 = (p+(h-(h1+1))*fix_screeninfo.line_length);
-			memcpy(buf,p1,w*4);
-			memcpy(p1,p2,w*4);
-			memcpy(p2,buf,w*4);
+			memmove(buf,p1,w*4);
+			memmove(p1,p2,w*4);
+			memmove(p2,buf,w*4);
 		}
 		delete [] buf;
 	}
@@ -4472,7 +4472,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 						for (x=0; x<curfontwidth*xfactor;x++)
 						{
 							c = (y&4 ? (x/3)&1 :((x+3)/3)&1);
-							memcpy((p+x*4),bgra[(c ? fgcolor : bgcolor)],4);
+							memmove((p+x*4),bgra[(c ? fgcolor : bgcolor)],4);
 						}
 						p += fix_screeninfo.line_length;
 					}
@@ -4760,7 +4760,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 
 			{
 				sbitbuffer = (unsigned char*) localbuffer;
-				memcpy(sbitbuffer,sbit->buffer,sbit->pitch*sbit->height);
+				memmove(sbitbuffer,sbit->buffer,sbit->pitch*sbit->height);
 
 				for (Row = 0; Row < sbit->height; Row++)
 				{
@@ -4793,7 +4793,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 		for (Bit = xfactor * (sbit->left + TTFShiftX); Bit > 0; Bit--) /* fill left margin */
 		{
 			for (f = factor-1; f >= 0; f--)
-				memcpy((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);/*bgcolor*/
+				memmove((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);/*bgcolor*/
 			p+=4;
 			if (!usettf)
 				pixtodo--;
@@ -4814,13 +4814,13 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 					color = bgcolor;
 
 				for (f = factor-1; f >= 0; f--)
-					memcpy((p + f*fix_screeninfo.line_length),bgra[color],4);
+					memmove((p + f*fix_screeninfo.line_length),bgra[color],4);
 				p+=4;
 
 				if (xfactor > 1) /* double width */
 				{
 					for (f = factor-1; f >= 0; f--)
-						memcpy((p + f*fix_screeninfo.line_length),bgra[color],4);
+						memmove((p + f*fix_screeninfo.line_length),bgra[color],4);
 					p+=4;
 
 					if (!usettf)
@@ -4833,7 +4833,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 				Bit > 0; Bit--) /* fill rest of char width */
 		{
 			for (f = factor-1; f >= 0; f--)
-				memcpy((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);
+				memmove((p + f*fix_screeninfo.line_length),bgra[bgcolor],4);
 			p+=4;
 		}
 
@@ -4928,7 +4928,7 @@ void RenderMessage(int Message)
 /* 	char message_8[] = "γ  warte auf Empfang von Seite 100  δι"; */
 /* 	char message_9[] = "γ     Seite 100 existiert nicht!    δι"; */
 
-	memcpy(&message_1[24], versioninfo, 4);
+	memmove(&message_1[24], versioninfo, 4);
 	/* reset zoom */
 	zoommode = 0;
 
@@ -4950,11 +4950,11 @@ void RenderMessage(int Message)
 	{
 		pagecolumn = message8pagecolumn[menulanguage];
 		msg = message_8[menulanguage];
-		memcpy(&message_4, msg, sizeof(message_4));
+		memmove(&message_4, msg, sizeof(message_4));
 		hex2str(message_4+pagecolumn, tuxtxt_cache.page);
 
 		if (SDT_ready)
-			memcpy(&message_2[2 + (35 - pid_table[current_service].service_name_len)/2],
+			memmove(&message_2[2 + (35 - pid_table[current_service].service_name_len)/2],
 					 &pid_table[current_service].service_name, pid_table[current_service].service_name_len);
 		else if (Message == ShowServiceName)
 			hex2str(&message_2[17+3], tuxtxt_cache.vtxtpid);
@@ -5053,7 +5053,7 @@ void DoFlashing(int startrow)
 				SetPosX(col);
 				flashchar = page_char[index + col];
 				int doflash = 0;
-				memcpy(&flashattr,&page_atrb[index + col],sizeof(tstPageAttr));
+				memmove(&flashattr,&page_atrb[index + col],sizeof(tstPageAttr));
 				switch (flashattr.flashing &0x1c) // Flash Rate
 				{
 					case 0x00 :	// 1 Hz
@@ -5285,7 +5285,7 @@ void RenderPage()
 						else
 							SetPosX(8);
 
-						memcpy(&page_char[8], pCachedPage->p0, 24); /* header line without timestring */
+						memmove(&page_char[8], pCachedPage->p0, 24); /* header line without timestring */
 						for (col = 0; col < 24; col++)
 						{
 							RenderCharFB(pCachedPage->p0[col], &page_atrb[32]);
@@ -5455,7 +5455,7 @@ void CreateLine25()
 		PosY = TOPMENUSTARTY;
 		memset(line, ' ', TOPMENUCHARS); /* init with spaces */
 
-		memcpy(line+TOPMENUINDENTBLK, tuxtxt_cache.adip[prev_100], 12);
+		memmove(line+TOPMENUINDENTBLK, tuxtxt_cache.adip[prev_100], 12);
 		hex2str(&line[TOPMENUINDENTDEF+12+TOPMENUSPC+2], prev_100);
 		RenderClearMenuLineBB(line, &atrtable[ATR_L250], &atrtable[ATR_TOPMENU2]);
 
@@ -5533,7 +5533,7 @@ void CreateLine25()
 				if (!attr)
 					attr = &atrtable[ATR_WB];
 			}
-			memcpy(line+indent, tuxtxt_cache.adip[current], 12);
+			memmove(line+indent, tuxtxt_cache.adip[current], 12);
 			hex2str(&line[TOPMENUINDENTDEF+12+TOPMENUSPC+2], current);
 			RenderClearMenuLineBB(line, attrcol, attr);
 		}
@@ -5570,7 +5570,7 @@ void CopyBB2FB()
 		if (ioctl(fb, FBIOPAN_DISPLAY, &var_screeninfo) == -1)
 			perror("TuxTxt <FBIOPAN_DISPLAY>");
 #else
-		memcpy(lfb, lfb+fix_screeninfo.line_length * var_screeninfo.yres, fix_screeninfo.line_length*var_screeninfo.yres);
+		memmove(lfb, lfb+fix_screeninfo.line_length * var_screeninfo.yres, fix_screeninfo.line_length*var_screeninfo.yres);
 #endif
 
 		/* adapt background of backbuffer if changed */
@@ -5598,7 +5598,7 @@ void CopyBB2FB()
 	}
 	/* copy line25 in normal height */
 	if (!pagecatching )
-		memcpy(dst+(24*fontheight)*fix_screeninfo.line_length, src + (24*fontheight)*fix_screeninfo.line_length, fix_screeninfo.line_length*fontheight);
+		memmove(dst+(24*fontheight)*fix_screeninfo.line_length, src + (24*fontheight)*fix_screeninfo.line_length, fix_screeninfo.line_length*fontheight);
 
 	if (transpmode)
 		fillcolor = transp;
@@ -5620,7 +5620,7 @@ void CopyBB2FB()
 		topdst += screenwidth;
 		for (i=0; i < 24*fontheight; i++)
 		{
-			memcpy(topdst, topsrc, width);
+			memmove(topdst, topsrc, width);
 			topdst += fix_screeninfo.line_length;
 			topsrc += fix_screeninfo.line_length;
 		}
@@ -5634,15 +5634,15 @@ void CopyBB2FB()
 	{
 		for (swtmp=0; swtmp<=screenwidth; swtmp++)
 		{
-			memcpy(dst - i*fix_screeninfo.line_length+swtmp*4, bgra[fillcolor], 4);
+			memmove(dst - i*fix_screeninfo.line_length+swtmp*4, bgra[fillcolor], 4);
 		}
 	}
 
 	for (i = 12*fontheight; i; i--)
 	{
-		memcpy(dst, src, screenwidth);
+		memmove(dst, src, screenwidth);
 		dst += fix_screeninfo.line_length;
-		memcpy(dst, src, screenwidth);
+		memmove(dst, src, screenwidth);
 		dst += fix_screeninfo.line_length;
 		src += fix_screeninfo.line_length;
 	}
@@ -5651,7 +5651,7 @@ void CopyBB2FB()
 	{
 		for (swtmp=0; swtmp<= screenwidth;swtmp++)
 		{
-			memcpy(dst + fix_screeninfo.line_length*(fontheight+i)+swtmp*4, bgra[fillcolor], 4);
+			memmove(dst + fix_screeninfo.line_length*(fontheight+i)+swtmp*4, bgra[fillcolor], 4);
 		}
 	}
 }
@@ -5848,14 +5848,14 @@ void DecodePage()
 
 	tuxtxt_decompress_page(tuxtxt_cache.page,tuxtxt_cache.subpage,&page_char[40]);
 
-	memcpy(&page_char[8], pCachedPage->p0, 24); /* header line without timestring */
+	memmove(&page_char[8], pCachedPage->p0, 24); /* header line without timestring */
 
 	pageinfo = &(pCachedPage->pageinfo);
 	if (pageinfo->p24)
-		memcpy(&page_char[24*40], pageinfo->p24, 40); /* line 25 for FLOF */
+		memmove(&page_char[24*40], pageinfo->p24, 40); /* line 25 for FLOF */
 
 	/* copy timestring */
-	memcpy(&page_char[32], &tuxtxt_cache.timestring, 8);
+	memmove(&page_char[32], &tuxtxt_cache.timestring, 8);
 
 	/* check for newsflash & subtitle */
 	if (pageinfo->boxed && tuxtxt_is_dec(tuxtxt_cache.page))
@@ -5912,7 +5912,7 @@ void DecodePage()
 					int d = deh24(p);
 					if (d < 0)
 					{
-						memcpy(p, "???", 3);
+						memmove(p, "???", 3);
 					p += 3;
 					}
 					else

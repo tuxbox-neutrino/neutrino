@@ -227,7 +227,7 @@ void CFrameBuffer::init(const char * const fbDevice)
 		goto nolfb;
 	}
 
-	memcpy(&oldscreen, &screeninfo, sizeof(screeninfo));
+	memmove(&oldscreen, &screeninfo, sizeof(screeninfo));
 
 	if (ioctl(fd, FBIOGET_FSCREENINFO, &fix)<0) {
 		perror("FBIOGET_FSCREENINFO");
@@ -1484,7 +1484,7 @@ void CFrameBuffer::paintBackgroundBoxRel(int x, int y, int dx, int dy)
 		fb_pixel_t * bkpos = background + x + BACKGROUNDIMAGEWIDTH * y;
 		for(int count = 0;count < dy; count++)
 		{
-			memcpy(fbpos, bkpos, dx * sizeof(fb_pixel_t));
+			memmove(fbpos, bkpos, dx * sizeof(fb_pixel_t));
 			fbpos += stride;
 			bkpos += BACKGROUNDIMAGEWIDTH;
 		}
@@ -1499,7 +1499,7 @@ void CFrameBuffer::paintBackground()
 	if (useBackgroundPaint && (background != NULL))
 	{
 		for (int i = 0; i < 576; i++)
-			memcpy(((uint8_t *)getFrameBufferPointer()) + i * stride, (background + i * BACKGROUNDIMAGEWIDTH), BACKGROUNDIMAGEWIDTH * sizeof(fb_pixel_t));
+			memmove(((uint8_t *)getFrameBufferPointer()) + i * stride, (background + i * BACKGROUNDIMAGEWIDTH), BACKGROUNDIMAGEWIDTH * sizeof(fb_pixel_t));
 	}
 	else
 	{
@@ -1530,7 +1530,7 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++)
 	{
-		memcpy(bkpos, fbpos, dx * sizeof(fb_pixel_t));
+		memmove(bkpos, fbpos, dx * sizeof(fb_pixel_t));
 		fbpos += stride;
 		bkpos += dx;
 	}
@@ -1547,7 +1547,7 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 	fb_pixel_t * bkpos = memp;
 	for (int count = 0; count < dy; count++)
 	{
-		memcpy(fbpos, bkpos, dx * sizeof(fb_pixel_t));
+		memmove(fbpos, bkpos, dx * sizeof(fb_pixel_t));
 		fbpos += stride;
 		bkpos += dx;
 	}
@@ -1562,7 +1562,7 @@ void CFrameBuffer::switch_signal (int signal)
 		virtual_fb = new uint8_t[thiz->stride * thiz->yRes];
 		thiz->active = false;
 		if (virtual_fb != NULL)
-			memcpy(virtual_fb, thiz->lfb, thiz->stride * thiz->yRes);
+			memmove(virtual_fb, thiz->lfb, thiz->stride * thiz->yRes);
 		ioctl(thiz->tty, VT_RELDISP, 1);
 		printf ("release display\n");
 	}
@@ -1572,7 +1572,7 @@ void CFrameBuffer::switch_signal (int signal)
 		printf ("acquire display\n");
 		thiz->paletteSet(NULL);
 		if (virtual_fb != NULL)
-			memcpy(thiz->lfb, virtual_fb, thiz->stride * thiz->yRes);
+			memmove(thiz->lfb, virtual_fb, thiz->stride * thiz->yRes);
 		else
 			memset(thiz->lfb, 0, thiz->stride * thiz->yRes);
 	}
@@ -1674,7 +1674,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	}
 #if 0
 	for(int i = 0; i < yc; i++){
-		memcpy(clfb + (i + yoff)*stride + xoff*4, ip + (i + yp)*width + xp, xc*4);
+		memmove(clfb + (i + yoff)*stride + xoff*4, ip + (i + yp)*width + xp, xc*4);
 	}
 #endif
 }

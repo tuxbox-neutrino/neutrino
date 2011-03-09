@@ -297,7 +297,7 @@ static void* reader_thread(void * /*arg*/)
 
 		buf = (uint8_t*) malloc(packlen);
 
-		memcpy(buf, tmp, 6);
+		memmove(buf, tmp, 6);
 		/* read rest of the packet */
 		while((count < packlen) && !dvbsub_stopped) {
 			len = dmx->Read(buf+count, packlen-count, 1000);

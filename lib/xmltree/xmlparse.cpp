@@ -288,7 +288,7 @@ int XML_Parser::Parse(const char *s, int len, int isFinal)
 				bufferLim=buffer+len*2;
 			};
 
-			memcpy(buffer, end, nLeftOver);
+			memmove(buffer, end, nLeftOver);
 
 			bufferPtr=buffer;
 			bufferEnd=buffer+nLeftOver;
@@ -298,7 +298,7 @@ int XML_Parser::Parse(const char *s, int len, int isFinal)
 	}
 	else
 	{
-		memcpy(GetBuffer(len), s, len);
+		memmove(GetBuffer(len), s, len);
 		return ParseBuffer(len, isFinal);
 	};
 }
@@ -365,7 +365,7 @@ void *XML_Parser::GetBuffer(int len)
 
 			if (bufferPtr)
 			{
-				memcpy(newBuf, bufferPtr, bufferEnd-bufferPtr);
+				memmove(newBuf, bufferPtr, bufferEnd-bufferPtr);
 				free(buffer);
 			};
 
@@ -783,7 +783,7 @@ enum XML_Error XML_Parser::doContent(int startTagLevel, const ENCODING *enc, con
 					tag->bufEnd=tag->buf+bufSize;
 				};
 
-				memcpy(tag->buf, tag->rawName, tag->rawNameLength);
+				memmove(tag->buf, tag->rawName, tag->rawNameLength);
 				tag->rawName=tag->buf;
 			};
 
@@ -2686,7 +2686,7 @@ static int poolGrow(STRING_POOL *pool)
 			pool->blocks=pool->freeBlocks;
 			pool->freeBlocks=tem;
 
-			memcpy(pool->blocks->s, pool->start, (pool->end-pool->start)*sizeof(XML_Char));
+			memmove(pool->blocks->s, pool->start, (pool->end-pool->start)*sizeof(XML_Char));
 
 			pool->ptr=pool->blocks->s+(pool->ptr-pool->start);
 			pool->start=pool->blocks->s;
@@ -2728,7 +2728,7 @@ static int poolGrow(STRING_POOL *pool)
 
 		pool->blocks=tem;
 
-		memcpy(tem->s, pool->start, (pool->ptr-pool->start)*sizeof(XML_Char));
+		memmove(tem->s, pool->start, (pool->ptr-pool->start)*sizeof(XML_Char));
 
 		pool->ptr=tem->s+(pool->ptr-pool->start);
 		pool->start=tem->s;

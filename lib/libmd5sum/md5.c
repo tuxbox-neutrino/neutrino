@@ -104,7 +104,7 @@ md5_finish_ctx (ctx, resbuf)
     ++ctx->total[1];
 
   pad = bytes >= 56 ? 64 + 56 - bytes : 56 - bytes;
-  memcpy (&ctx->buffer[bytes], fillbuf, pad);
+  memmove (&ctx->buffer[bytes], fillbuf, pad);
 
   /* Put the 64-bit file length in *bits* at the end of the buffer.  */
   *(md5_uint32 *) &ctx->buffer[bytes + pad] = SWAP (ctx->total[0] << 3);
@@ -209,14 +209,14 @@ md5_process_bytes (buffer, len, ctx)
       size_t left_over = ctx->buflen;
       size_t add = 128 - left_over > len ? len : 128 - left_over;
 
-      memcpy (&ctx->buffer[left_over], buffer, add);
+      memmove (&ctx->buffer[left_over], buffer, add);
       ctx->buflen += add;
 
       if (left_over + add > 64)
 	{
 	  md5_process_block (ctx->buffer, (left_over + add) & ~63, ctx);
 	  /* The regions in the following copy operation cannot overlap.  */
-	  memcpy (ctx->buffer, &ctx->buffer[(left_over + add) & ~63],
+	  memmove (ctx->buffer, &ctx->buffer[(left_over + add) & ~63],
 		  (left_over + add) & 63);
 	  ctx->buflen = (left_over + add) & 63;
 	}
@@ -236,7 +236,7 @@ md5_process_bytes (buffer, len, ctx)
   /* Move remaining bytes in internal buffer.  */
   if (len > 0)
     {
-      memcpy (ctx->buffer, buffer, len);
+      memmove (ctx->buffer, buffer, len);
       ctx->buflen = len;
     }
 }

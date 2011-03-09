@@ -380,9 +380,9 @@ void CPictureViewer::showBusy (int sx, int sy, int width, char r, char g, char b
 
 	for (int y = sy; y < sy + width; y++) {
 		for (int x = sx; x < sx + width; x++) {
-			memcpy (busy_buffer_wrk, fb + y * stride + x * cpp, cpp);
+			memmove (busy_buffer_wrk, fb + y * stride + x * cpp, cpp);
 			busy_buffer_wrk += cpp;
-			memcpy (fb + y * stride + x * cpp, fb_buffer, cpp);
+			memmove (fb + y * stride + x * cpp, fb_buffer, cpp);
 		}
 	}
 	m_busy_x = sx;
@@ -403,7 +403,7 @@ void CPictureViewer::hideBusy ()
 
 		for (int y = m_busy_y; y < m_busy_y + m_busy_width; y++) {
 			for (int x = m_busy_x; x < m_busy_x + m_busy_width; x++) {
-				memcpy (fb + y * stride + x * m_busy_cpp, busy_buffer_wrk, m_busy_cpp);
+				memmove (fb + y * stride + x * m_busy_cpp, busy_buffer_wrk, m_busy_cpp);
 				busy_buffer_wrk += m_busy_cpp;
 			}
 		}
@@ -624,7 +624,7 @@ unsigned char * CPictureViewer::Resize(unsigned char *orgin, int ox, int oy, int
 			for(i=0,k=0;i<dx;i++,k+=3)
 			{
 				ip=i*ox/dx*3;
-				memcpy(l+k, p+ip, 3);
+				memmove(l+k, p+ip, 3);
 			}
 		}
 	} else {

@@ -779,7 +779,7 @@ int main ()
             for (v=0; v<SPKT_BUF_PACKET_NUM; v++) {
                if ( SPkt.ReSend[u][v] ) {
                   ReadPtr = SPkt.Buf[u] + v * DATA_PER_PACKET;
-                  memcpy ( WritePtr, ReadPtr, DATA_PER_PACKET );
+                  memmove ( WritePtr, ReadPtr, DATA_PER_PACKET );
                   PacketHeader = (PacketHeaderType*)WritePtr;
                   PacketHeader->Packet = SPkt.WritePkt++;
                   PacketHeader->Status = 0;
@@ -811,7 +811,7 @@ int main ()
                   PacketHeader->Stream = u;
                   PacketHeader->StreamPacket = Stream[u].ReadPkt++;
                   WritePtr += sizeof(PacketHeaderType);
-                  memcpy ( WritePtr, ReadPtr, NET_DATA_PER_PACKET );
+                  memmove ( WritePtr, ReadPtr, NET_DATA_PER_PACKET );
                   ReadPtr += NET_DATA_PER_PACKET;
                   WritePtr += NET_DATA_PER_PACKET;
                   CheckNextSPktWriteBuf( );

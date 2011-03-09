@@ -21,7 +21,7 @@ unsigned char * simple_resize(unsigned char * orgin,int ox,int oy,int dx,int dy)
 		for(i=0,k=0;i<dx;i++,k+=3)
 		{
 			ip=i*ox/dx*3;
-			memcpy(l+k, p+ip, 3);
+			memmove(l+k, p+ip, 3);
 		}
 	}
 	free(orgin);
