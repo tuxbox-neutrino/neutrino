@@ -60,6 +60,7 @@ struct SNeutrinoSettings
 	char shutdown_min[4];
 	char record_safety_time_before[3];
 	char record_safety_time_after[3];
+	int zapto_pre_time;
 	int infobar_sat_display;
 	int infobar_subchan_disp_pos;
 	int misc_spts;

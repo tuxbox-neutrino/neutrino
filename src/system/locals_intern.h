@@ -800,6 +800,7 @@ const char * locale_real_names[] =
 	"miscsettings.sleeptimer",
 	"miscsettings.sptsmode",
 	"miscsettings.virtual_zap_mode",
+	"miscsettings.zapto_pre_time",
 	"motorcontrol.calc_positions",
 	"motorcontrol.disable_limit",
 	"motorcontrol.drive_mode",

@@ -1319,7 +1319,7 @@ int EpgPlus::MenuTargetAddReminder::exec (CMenuTarget * /*parent*/, const std::s
 			&& (!(*It)->channelEvent.description.empty())
 	   ) {
 		if (g_Timerd->isTimerdAvailable()) {
-			g_Timerd->addZaptoTimerEvent (this->epgPlus->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.startTime, (*It)->channelEvent.startTime - ANNOUNCETIME, 0, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, 0);
+			g_Timerd->addZaptoTimerEvent (this->epgPlus->selectedChannelEntry->channel->channel_id, (*It)->channelEvent.startTime - (g_settings.zapto_pre_time * 60), (*It)->channelEvent.startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0, (*It)->channelEvent.eventID, (*It)->channelEvent.startTime, 0);
 
 			ShowMsgUTF (LOCALE_TIMER_EVENTTIMED_TITLE, g_Locale->getText (LOCALE_TIMER_EVENTTIMED_MSG)
 				    , CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);	// UTF-8

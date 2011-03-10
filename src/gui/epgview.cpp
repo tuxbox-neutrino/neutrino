@@ -877,8 +877,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 				if (g_Timerd->isTimerdAvailable())
 				{
 					g_Timerd->addZaptoTimerEvent(channel_id,
-								     epgData.epg_times.startzeit,
-								     epgData.epg_times.startzeit - ANNOUNCETIME, 0,
+								     epgData.epg_times.startzeit - (g_settings.zapto_pre_time * 60),
+								     epgData.epg_times.startzeit - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 								     epgData.eventID, epgData.epg_times.startzeit, 0);
 					ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 					timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);

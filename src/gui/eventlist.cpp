@@ -526,9 +526,10 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				continue;
 			}
 			// FIXME g_Timerd->addZaptoTimerEvent(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id,
+			
 			g_Timerd->addZaptoTimerEvent(channel_id,
-					evtlist[selected].startTime,
-					evtlist[selected].startTime - ANNOUNCETIME, 0,
+					evtlist[selected].startTime - (g_settings.zapto_pre_time * 60),
+					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
 			ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 			timerlist.clear();

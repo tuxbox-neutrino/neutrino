@@ -773,6 +773,7 @@ miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
 miscsettings.sptsmode use spts mode
 miscsettings.virtual_zap_mode Virtual zap
+miscsettings.zapto_pre_time Zapto Start Time Correction
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
 motorcontrol.drive_mode Drive Mode
