@@ -3730,7 +3730,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 			if(g_settings.mode_clock){
 				clock_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
 			}
-			x = sw - dx;
+			x = sw - dx - 6;
 			y += clock_height;
 			break;
 		case 1:// upper left
@@ -3778,6 +3778,9 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 					g_settings.current_volume += g_settings.current_volume_step;
 				else
 					g_settings.current_volume = 100;
+				if(current_muted){
+					AudioMute( false, true);
+				}
 			}
 			else if (msg == CRCInput::RC_minus || msg == CRCInput::RC_left) { //FIXME
 				if (g_settings.current_volume > g_settings.current_volume_step)
