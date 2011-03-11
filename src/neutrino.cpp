@@ -3667,8 +3667,6 @@ void CNeutrinoApp::saveEpg()
 
 void CNeutrinoApp::AudioMute( int newValue, bool isEvent )
 {
-	if(g_settings.current_volume == 0)
-		return;
 	//printf("MUTE: val %d current %d event %d\n", newValue, current_muted, isEvent);
 	int dx = 0;
 	int dy = 0;
@@ -3787,11 +3785,8 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 			else if (msg == CRCInput::RC_minus || msg == CRCInput::RC_left) { //FIXME
 				if (g_settings.current_volume > g_settings.current_volume_step)
 					g_settings.current_volume -= g_settings.current_volume_step;
-				else{
-					g_settings.current_volume = 1;
-					AudioMute( true, true); 
+				else
 					g_settings.current_volume = 0;
-				}
 			}
 			else {
 				g_RCInput->postMsg(msg, data);
