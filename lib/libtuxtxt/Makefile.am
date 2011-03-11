@@ -1,6 +1,7 @@
 INCLUDES = \
         -I$(top_srcdir)/src/zapit/include \
-	-I$(top_srcdir)/src
+	-I$(top_srcdir)/src \
+	$(FREETYPE_CFLAGS)
 
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
