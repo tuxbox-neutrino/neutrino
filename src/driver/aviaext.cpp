@@ -30,7 +30,7 @@
 #include <sys/fcntl.h>
 #include <sys/ioctl.h>
 #include <errno.h>
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 #include <dbox/aviaEXT.h>
 #include <driver/aviaext.h>
 

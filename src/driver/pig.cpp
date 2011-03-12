@@ -139,7 +139,7 @@ void CPIG::pigclose ()
 
 void CPIG::_set_window (int x, int y, int w, int h)
 {
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
   // -- Modul interne Routine
         struct v4l2_crop crop;
         struct v4l2_format coord;
@@ -273,7 +273,7 @@ void CPIG::show (int x, int y, int w, int h)
 void CPIG::show (void)
 {
 	if ( fd >= 0 ) {
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 		int pigmode = 1;
 		int err;
 		err = ioctl(fd, VIDIOC_OVERLAY, &pigmode);
@@ -288,7 +288,7 @@ void CPIG::show (void)
 void CPIG::hide (void)
 {
 	if ( fd >= 0 ) {
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 		int pigmode = 0;
 		int err;
 		err = ioctl(fd, VIDIOC_OVERLAY, &pigmode);

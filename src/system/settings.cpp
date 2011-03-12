@@ -105,7 +105,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	TP_mod = configfile.getInt32("TP_mod", 3);
 	strcpy(TP_freq, configfile.getString("TP_freq", "10100000").c_str());
 	strcpy(TP_rate, configfile.getString("TP_rate", "27500000").c_str());
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 	if(TP_fec == 4) TP_fec = 5;
 #endif
 	scanSectionsd = configfile.getInt32("scanSectionsd", 0);

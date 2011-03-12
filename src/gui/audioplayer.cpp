@@ -83,7 +83,7 @@
 #include <irsend/irsend.h>
 #endif
 
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 #include <linux/dvb/audio.h>
 #include <linux/dvb/dmx.h>
 #include <linux/dvb/video.h>

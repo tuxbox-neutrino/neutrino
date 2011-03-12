@@ -218,7 +218,7 @@ int fh_jpeg_load_local(const char *filename,unsigned char **buffer,int* x,int* y
 int fh_jpeg_load(const char *filename,unsigned char **buffer,int* x,int* y)
 {
 	int ret=FH_ERROR_FILE;
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 	if(!g_settings.picviewer_decode_server_ip.empty())
 		ret=fh_jpeg_load_via_server(filename, *buffer, *x, *y);
 	if(ret!=FH_ERROR_OK)
@@ -270,7 +270,7 @@ int fh_jpeg_getsize(const char *filename,int *x,int *y, int wanted_width, int wa
 	jpeg_start_decompress(ciptr);
 	px=ciptr->output_width; py=ciptr->output_height;
 	c=ciptr->output_components;
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 	if(!g_settings.picviewer_decode_server_ip.empty())
 	{
 		// jpeg server resizes pic to desired size

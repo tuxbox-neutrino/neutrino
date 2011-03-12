@@ -405,7 +405,7 @@ struct SNeutrinoSettings
 #define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : Latin1_to_UTF8(a))
 
 
-#if HAVE_DVB_API_VERSION == 1
+#if 0
 #define MISC_SETTING_FILES_COUNT 7
 #else
 #define MISC_SETTING_FILES_COUNT 4

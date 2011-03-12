@@ -5688,7 +5688,7 @@ fe_modulation_t getModulation(const uint8_t modulation)
 	case 0x05:
 		return QAM_256;
 	default:
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 		return QAM_AUTO;
 #else
 		// i do not know how to do it correctly for old API -- seife

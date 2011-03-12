@@ -22,14 +22,6 @@ AC_ARG_WITH([tremor-static], [AS_HELP_STRING([--with-tremor-static],
 	[TREMOR_STATIC="$withval"],
 	[TREMOR_STATIC=no])
 
-if test "$BOXTYPE" != "tripledragon"; then
-echo "BOXTYPE: $BOXTYPE"
-	TUXBOX_APPS_DVB
-	if test "$BOXTYPE" != "coolstream"; then
-		TUXBOX_APPS_DRIVER
-		TUXBOX_APPS_LIB_PKGCONFIG(TUXBOX,tuxbox)
-	fi
-fi
 if test "$BOXTYPE" = "tripledragon"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(DIRECTFB, directfb)
 fi

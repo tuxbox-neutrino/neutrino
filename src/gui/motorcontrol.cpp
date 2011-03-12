@@ -668,12 +668,7 @@ void CMotorControl::startSatFind(void)
 			break;
 		case 0:
 			printf("[motorcontrol] starting satfind...\n");
-#if HAVE_DVB_API_VERSION >= 3
 			if (execlp("/bin/satfind", "satfind", NULL) < 0)
-#else
-			//if (execlp("/bin/satfind", "satfind", "--tune", NULL) < 0)
-			if (execlp("/bin/satfind", "satfind", NULL) < 0)
-#endif
 				printf("[motorcontrol] execlp satfind failed.\n");
 			break;
 	} /* switch */

@@ -1373,17 +1373,9 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 			case RC_standby:
 				return "standby";
 			case RC_home:
-#if HAVE_DVB_API_VERSION == 1
-				return "lame";
-#else
 				return "home";
-#endif
 			case RC_setup:
-#if HAVE_DVB_API_VERSION == 1
-				return "dream";
-#else
 				return "setup";
-#endif
 			case RC_red:
 				return "red button";
 			case RC_green:

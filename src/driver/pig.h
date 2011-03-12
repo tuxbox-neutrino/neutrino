@@ -34,7 +34,7 @@ using namespace std;
 
 
 
-#if HAVE_DVB_API_VERSION >= 3
+#if 1
 #include <linux/videodev.h>
 
 #define PIG_DEV "/dev/v4l/video"		// PigNr will be appended!

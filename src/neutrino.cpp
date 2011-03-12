@@ -211,10 +211,7 @@ int g_channel_list_changed;
 void stop_daemons(bool stopall = true);
 // uncomment if you want to have a "test" menue entry  (rasc)
 
-#if HAVE_DVB_API_VERSION >= 3
 //#define __EXPERIMENTAL_CODE__
-#endif
-
 #ifdef __EXPERIMENTAL_CODE__
 #include "gui/ch_mosaic.h"
 #endif

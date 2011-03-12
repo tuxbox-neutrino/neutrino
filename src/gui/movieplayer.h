@@ -34,7 +34,6 @@
 
 #include <config.h>
 #include <configfile.h>
-#if HAVE_DVB_API_VERSION >= 1
 #include "driver/framebuffer.h"
 #include "gui/filebrowser.h"
 #include "gui/bookmarkmanager.h"
@@ -148,7 +147,5 @@ class CAPIDSelectExec : public CMenuTarget
 		static unsigned short g_ac3flags[REC_MAX_APIDS];
 		static unsigned short g_currentapid, g_currentac3, apidchanged;
 };
-
-#endif
 
 #endif
