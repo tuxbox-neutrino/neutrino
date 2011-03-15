@@ -817,11 +817,8 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 				g_RCInput->postMsg (msg, data);
 				res = messages_return::cancel_info;
 			} else if (msg == NeutrinoMessages::EVT_TIMESET) {
-				// Handle anyway!
-				neutrino->handleMsg (msg, data);
-				g_RCInput->postMsg (NeutrinoMessages::SHOW_INFOBAR, 0);
-				hideIt = false;
-				res = messages_return::cancel_all;
+				/* handle timeset event in upper layer, ignore here */
+				res = neutrino->handleMsg (msg, data);
 			} else {
 				if (msg == CRCInput::RC_standby) {
 					g_RCInput->killTimer (sec_timer_id);
