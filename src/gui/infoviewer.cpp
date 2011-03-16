@@ -1666,13 +1666,12 @@ void CInfoViewer::showInfoFile()
 		return;
 
 	cnt = read(fd, infotext, 79);
-	if (cnt < 0) {
+	close(fd);
+	if (cnt < 1) { //EOF == 0
 		fprintf(stderr, "CInfoViewer::showInfoFile: could not read from infobar.txt: %m");
-		close(fd);
 		return;
 	}
-	close(fd);
-	infotext[cnt] = '\0';
+	infotext[cnt-1] = '\0';
 
 	xStart = BoxStartX + ChanWidth + 140;	// Abstand rechst vom Aufnahmeicon
 	xEnd   = BoxEndX - 225;			// Abstand links von der Progressbar
