@@ -57,6 +57,9 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		std::string network_nameserver;
 		std::string network_gateway;
 		std::string network_hostname;
+		std::string network_ssid;
+		std::string network_key;
+		std::string mac_addr;
 
 		int old_network_dhcp;
 		int old_network_automatic_start;
@@ -66,14 +69,24 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		std::string old_network_nameserver;
 		std::string old_network_gateway;
 		std::string old_network_hostname;
+		std::string old_ifname;
+		std::string old_network_ssid;
+		std::string old_network_key;
+		std::string old_mac_addr;
+
+
+		CMenuForwarder* dhcpDisable[5];
+		CMenuForwarder* dhcpEnable[1];
+		CMenuForwarder* wlanEnable[2];
 			
 		void restoreNetworkSettings();
 		void prepareSettings();
 		void readNetworkSettings();
+		void backupNetworkSettings();
 		void showNetworkSetup();
 		void showNetworkNTPSetup(CMenuWidget *menu_ntp);
 		void showNetworkNFSMounts(CMenuWidget *menu_nfs);
-		void saveChangesDialog();
+		int saveChangesDialog();
 		void applyNetworkSettings();
 		void saveNetworkSettings();
 		
@@ -81,6 +94,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		bool checkStringSettings();
 		bool checkForIP();
 		bool settingsChanged();
+		const char * mypinghost(const char * const host);
 				
 	public:	
 		enum NETWORK_DHCP_MODE
@@ -115,6 +129,8 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		
 		int exec(CMenuTarget* parent, const std::string & actionKey);
  		virtual bool changeNotify(const neutrino_locale_t, void * Data);
+		void showCurrentNetworkSettings();
+		void testNetworkSettings();
 };
 
 

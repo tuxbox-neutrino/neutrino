@@ -32,6 +32,7 @@
 #include <config.h>
 #endif
 
+#include <dirent.h>
 
 #include "gui/network_setup.h"
 #include "gui/proxyserver_setup.h"
@@ -50,17 +51,20 @@
 
 #include <system/debug.h>
 
+#include <libnet.h>
+
+extern "C" int pinghost( const char *hostname );
 
 CNetworkSetup::CNetworkSetup(bool wizard_mode)
 {
 	networkConfig = CNetworkConfig::getInstance();
-	
+
 	is_wizard = wizard_mode;
-	
+
 	width = w_max (40, 10);
 	selected = -1;
-	
-	readNetworkSettings();
+
+	//readNetworkSettings();
 }
 
 CNetworkSetup::~CNetworkSetup()
@@ -68,33 +72,32 @@ CNetworkSetup::~CNetworkSetup()
 	//delete networkConfig;
 }
 
-
 int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
-	{
 		parent->hide();
-	}
-	
 
 	if(actionKey=="networkapply")
 	{
 		applyNetworkSettings();
 		readNetworkSettings();
-		showNetworkSetup();
-		return menu_return::RETURN_EXIT;
+		backupNetworkSettings();
+		return res;
 	}
 	else if(actionKey=="networktest")
 	{
 		printf("[network setup] doing network test...\n");
+#if 0
 		testNetworkSettings(	networkConfig->address.c_str(), 
 					networkConfig->netmask.c_str(), 
 					networkConfig->broadcast.c_str(), 
 					networkConfig->gateway.c_str(), 
 					networkConfig->nameserver.c_str(), 
 					networkConfig->inet_static);
+#endif
+		testNetworkSettings();
 		return res;
 	}
 	else if(actionKey=="networkshow")
@@ -111,17 +114,17 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				NEUTRINO_ICON_QUESTION, 
 				width);
 
-		if (result == 0) //yes
+		if (result ==  CMessageBox::mbrYes) {
 			restoreNetworkSettings();
+		}
+		return res;
 	}
-	
 
 	printf("[neutrino] init network setup...\n");
 	showNetworkSetup();
 	
 	return res;
 }
-
 
 void CNetworkSetup::readNetworkSettings()
 {
@@ -134,16 +137,26 @@ void CNetworkSetup::readNetworkSettings()
 	network_nameserver	= networkConfig->nameserver;
 	network_gateway		= networkConfig->gateway;
 	network_hostname	= networkConfig->hostname;
+	mac_addr		= networkConfig->mac_addr;
+	network_ssid		= networkConfig->ssid;
+	network_key		= networkConfig->key;
+}
 
+void CNetworkSetup::backupNetworkSettings()
+{
 	old_network_automatic_start 	= networkConfig->automatic_start;
 	old_network_dhcp 		= networkConfig->inet_static ? NETWORK_DHCP_OFF : NETWORK_DHCP_ON;
-	
+
 	old_network_address		= networkConfig->address;
 	old_network_netmask		= networkConfig->netmask;
 	old_network_broadcast		= networkConfig->broadcast;
 	old_network_nameserver		= networkConfig->nameserver;
 	old_network_gateway		= networkConfig->gateway;
 	old_network_hostname		= networkConfig->hostname;
+	old_network_ssid		= networkConfig->ssid;
+	old_network_key			= networkConfig->key;
+	old_ifname 			= g_settings.ifname;
+	old_mac_addr			= mac_addr;
 }
 
 #define OPTIONS_NTPENABLE_OPTION_COUNT 2
@@ -153,10 +166,19 @@ const CMenuOptionChooser::keyval OPTIONS_NTPENABLE_OPTIONS[OPTIONS_NTPENABLE_OPT
 	{ CNetworkSetup::NETWORK_NTP_ON, LOCALE_OPTIONS_NTP_ON }
 };
 
-
+static int my_filter(const struct dirent * dent)
+{
+	if(dent->d_name[0] == 'l' && dent->d_name[1] == 'o')
+		return 0;
+	if(dent->d_name[0] == '.')
+		return 0;
+	return 1;
+}
 
 void CNetworkSetup::showNetworkSetup()
 {
+	struct dirent **namelist;
+
 	//menue init
 	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	networkSettings->setWizardMode(is_wizard);
@@ -164,11 +186,13 @@ void CNetworkSetup::showNetworkSetup()
 
 	//apply button
 	CMenuForwarder *m0 = new CMenuForwarder(LOCALE_NETWORKMENU_SETUPNOW, true, NULL, this, "networkapply", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	
+
+	networkConfig->readConfig(g_settings.ifname);
+	readNetworkSettings();
+	backupNetworkSettings();
+
 	//eth id
-	static CNetAdapter netadapter; 
-	std::string eth_id = netadapter.getMacAddr();
-	CMenuForwarder *mac = new CMenuForwarderNonLocalized("MAC", false, eth_id.c_str());
+	CMenuForwarder *mac = new CMenuForwarderNonLocalized("MAC", false, mac_addr);
 
 	//prepare input entries
 	CIPInput * networkSettings_NetworkIP  = new CIPInput(LOCALE_NETWORKMENU_IPADDRESS , network_address   , LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2, this);
@@ -180,8 +204,21 @@ void CNetworkSetup::showNetworkSetup()
 	//hostname
 	CStringInputSMS * networkSettings_Hostname = new CStringInputSMS(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 30, LOCALE_NETWORKMENU_NTPSERVER_HINT1, LOCALE_NETWORKMENU_NTPSERVER_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
 
+	//if select
+	int ifcount = scandir("/sys/class/net", &namelist, my_filter, alphasort);
+	CMenuOptionStringChooser * ifSelect = new CMenuOptionStringChooser(LOCALE_NETWORKMENU_SELECT_IF, g_settings.ifname, ifcount > 1, this, CRCInput::RC_nokey, "", true);
+	for(int i = 0; i < ifcount; i++) {
+		ifSelect->addOption(namelist[i]->d_name);
+		free(namelist[i]);
+	}
+	if (ifcount >= 0)
+		free(namelist);
+
 	//auto start
 	CMenuOptionChooser* o1 = new CMenuOptionChooser(LOCALE_NETWORKMENU_SETUPONSTARTUP, &network_automatic_start, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+
+	CStringInputSMS * networkSettings_ssid = new CStringInputSMS(LOCALE_NETWORKMENU_SSID, &network_ssid, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
+	CStringInputSMS * networkSettings_key = new CStringInputSMS(LOCALE_NETWORKMENU_PASSWORD, &network_key, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
 
 	//dhcp
 	network_dhcp 	= networkConfig->inet_static ? NETWORK_DHCP_OFF : NETWORK_DHCP_ON;
@@ -192,10 +229,22 @@ void CNetworkSetup::showNetworkSetup()
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_NETWORKMENU_GATEWAY   , networkConfig->inet_static, network_gateway   , networkSettings_Gateway   );
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_NETWORKMENU_NAMESERVER, networkConfig->inet_static, network_nameserver, networkSettings_NameServer);
 	CMenuForwarder *m8 = new CMenuForwarder(LOCALE_NETWORKMENU_HOSTNAME  , !networkConfig->inet_static, network_hostname , networkSettings_Hostname  );
-	
-	CDHCPNotifier* dhcpNotifier = new CDHCPNotifier(m1,m2,m3,m4,m5,m8);
-	CMenuOptionChooser* o2 = new CMenuOptionChooser(LOCALE_NETWORKMENU_DHCP, &network_dhcp, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, dhcpNotifier);		
-	
+
+	dhcpDisable[0] = m1;
+	dhcpDisable[1] = m2;
+	dhcpDisable[2] = m3;
+	dhcpDisable[3] = m4;
+	dhcpDisable[4] = m5;
+	dhcpEnable[0] = m8;
+
+	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID      , networkConfig->wireless, network_ssid , networkSettings_ssid );
+	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_NETWORKMENU_PASSWORD , networkConfig->wireless, network_key , networkSettings_key );
+
+	wlanEnable[0] = m9;
+	wlanEnable[1] = m10;
+
+	CMenuOptionChooser* o2 = new CMenuOptionChooser(LOCALE_NETWORKMENU_DHCP, &network_dhcp, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+
 	//paint menu items
 	networkSettings->addIntroItems(LOCALE_MAINSETTINGS_NETWORK); //intros
 	//-------------------------------------------------
@@ -203,7 +252,9 @@ void CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_TEST, true, NULL, this, "networktest", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN)); //test
 	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_SHOW, true, NULL, this, "networkshow", CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP));	//show settings
 	networkSettings->addItem(GenericMenuSeparatorLine);
-	//-------------------------------------------------
+	//------------------------------------------------
+	if(ifcount)
+		networkSettings->addItem(ifSelect);	//if select
 	networkSettings->addItem(o1);	//set on start
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
@@ -223,6 +274,12 @@ void CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem( m5);	//nameserver
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
+	if(ifcount > 1) { // if there is only one, its probably wired
+		networkSettings->addItem( m9);	//ssid
+		networkSettings->addItem( m10);	//key
+		networkSettings->addItem(GenericMenuSeparatorLine);
+	}
+	//------------------------------------------------
 	//ntp submenu
 	CMenuWidget* ntp = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
 	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
@@ -236,16 +293,18 @@ void CNetworkSetup::showNetworkSetup()
 	//proxyserver submenu
 	networkSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, new CProxySetup(LOCALE_MAINSETTINGS_NETWORK), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0));
 
-	
-	networkSettings->exec(NULL, "");
-	networkSettings->hide();
+	while(true) {
+		int res = menu_return::RETURN_EXIT; 
+		networkSettings->exec(NULL, "");
+		networkSettings->hide();
+
+		if (settingsChanged())
+			res = saveChangesDialog();
+		if(res == menu_return::RETURN_EXIT)
+			break;
+	}
 	selected = networkSettings->getSelected();
 	delete networkSettings;
-				
-	// Check for changes
-	if (settingsChanged())
-		saveChangesDialog();
-
 }
 
 void CNetworkSetup::showNetworkNTPSetup(CMenuWidget *menu_ntp)
@@ -273,7 +332,6 @@ void CNetworkSetup::showNetworkNFSMounts(CMenuWidget *menu_nfs)
 	menu_nfs->addItem(new CMenuForwarder(LOCALE_NFS_UMOUNT, true, NULL, new CNFSUmountGui(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 }
 
-
 typedef struct n_isettings_t
 {
 	int old_network_setting;
@@ -289,12 +347,15 @@ bool CNetworkSetup::checkIntSettings()
 		{old_network_dhcp, 		network_dhcp		}
 	};
 	for (uint i = 0; i < (sizeof(n_isettings) / sizeof(n_isettings[0])); i++)
-		if (n_isettings[i].old_network_setting != n_isettings[i].network_setting)
+		if (n_isettings[i].old_network_setting != n_isettings[i].network_setting) {
+#ifdef DEBUG
+			printf("CNetworkSetup::checkIntSettings: %d %d -> %d\n", i, n_isettings[i].old_network_setting, n_isettings[i].network_setting);
+#endif
 			return true;
-	
+	}
+
 	return false;
 }
-
 
 typedef struct n_ssettings_t
 {
@@ -312,12 +373,21 @@ bool CNetworkSetup::checkStringSettings()
 		{old_network_broadcast, 	network_broadcast	},
 		{old_network_gateway, 		network_gateway		},
 		{old_network_nameserver, 	network_nameserver	},
-		{old_network_hostname, 		network_hostname	}
+		{old_network_hostname, 		network_hostname	},
+		{old_ifname, 			g_settings.ifname	}
 	};
 	for (uint i = 0; i < (sizeof(n_ssettings) / sizeof(n_ssettings[0])); i++)
-		if (n_ssettings[i].old_network_setting != n_ssettings[i].network_setting)
-			return true; 
-		
+		if (n_ssettings[i].old_network_setting != n_ssettings[i].network_setting) {
+#ifdef DEBUG
+			printf("CNetworkSetup::checkStringSettings: %d: %s -> %s\n", i, n_ssettings[i].old_network_setting.c_str(), n_ssettings[i].network_setting.c_str());
+#endif
+			return true;
+	}
+	if(CNetworkConfig::getInstance()->wireless) {
+		if((old_network_ssid != network_ssid) || (old_network_key != network_key))
+			return true;
+	}
+
 	return false;
 }
 
@@ -340,8 +410,12 @@ void CNetworkSetup::prepareSettings()
 	networkConfig->broadcast 	= network_broadcast;
 	networkConfig->gateway 		= network_gateway;
 	networkConfig->nameserver 	= network_nameserver;
-	
+	networkConfig->hostname 	= network_hostname;
+	networkConfig->ssid 		= network_ssid;
+	networkConfig->key 		= network_key;
+
 	readNetworkSettings();
+	backupNetworkSettings();
 }
 
 typedef struct n_settings_t
@@ -368,10 +442,9 @@ bool CNetworkSetup::checkForIP()
 		{
 			if (n_settings[i].network_settings.empty()) //no definied setting
 			{	
-				printf("[network setup] empty address ...\n");
+				printf("[network setup] empty address %s\n", g_Locale->getText(n_settings[i].addr_name));
 				char msg[64]; 
 				snprintf(msg, 64, g_Locale->getText(LOCALE_NETWORKMENU_ERROR_NO_ADDRESS), g_Locale->getText(n_settings[i].addr_name));
-				
 				ShowMsgUTF(LOCALE_MAINSETTINGS_NETWORK, msg, CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_ERROR, width);
 				return false;
 			}
@@ -411,8 +484,8 @@ void CNetworkSetup::applyNetworkSettings()
 
 //open a message dialog with buttons,
 //yes:		applies networksettings and exit network setup
-//no:		saves networksettings and exit network setup
-void  CNetworkSetup::saveChangesDialog()
+//no:		ask to restore networksettings, and return to menu
+int  CNetworkSetup::saveChangesDialog()
 {
 	// Save the settings after changes, if user wants to!
 	int result = 	ShowMsgUTF(LOCALE_MAINSETTINGS_NETWORK, g_Locale->getText(LOCALE_NETWORKMENU_APPLY_SETTINGS_NOW), CMessageBox::mbrYes, 
@@ -420,26 +493,30 @@ void  CNetworkSetup::saveChangesDialog()
 			CMessageBox::mbNo , 
 			NEUTRINO_ICON_QUESTION, 
 			width);
-			
-	//check for missing ip settings
-	if (!checkForIP())
-		result = CMessageBox::mbrNo; //restore
-	
+
 	switch(result)
 	{
 		case CMessageBox::mbrYes:
-			exec(NULL, "networkapply");
+			if (!checkForIP())
+				return menu_return::RETURN_REPAINT;
+			return exec(NULL, "networkapply");
 			break;
 	
 		case CMessageBox::mbrNo: //no
-			exec(NULL, "restore");
+			return exec(NULL, "restore");
 			break;
 	}
+	return menu_return::RETURN_REPAINT;
 }
 
 //restores settings 
 void CNetworkSetup::restoreNetworkSettings()
 {
+	snprintf(g_settings.ifname, sizeof(g_settings.ifname), "%s", old_ifname.c_str());
+	networkConfig->readConfig(g_settings.ifname);//FIXME ?
+
+	mac_addr			= networkConfig->mac_addr;
+
 	network_automatic_start		= old_network_automatic_start;
 	network_dhcp			= old_network_dhcp;
 	network_address			= old_network_address;
@@ -447,6 +524,9 @@ void CNetworkSetup::restoreNetworkSettings()
 	network_broadcast		= old_network_broadcast;
 	network_nameserver		= old_network_nameserver;
 	network_gateway			= old_network_gateway;
+	network_hostname		= old_network_hostname;
+	network_ssid			= old_network_ssid;
+	network_key			= old_network_key;
 
 	networkConfig->automatic_start 	= network_automatic_start;
 	networkConfig->inet_static 	= (network_dhcp ? false : true);
@@ -455,23 +535,49 @@ void CNetworkSetup::restoreNetworkSettings()
 	networkConfig->broadcast 	= network_broadcast;
 	networkConfig->gateway 		= network_gateway;
 	networkConfig->nameserver 	= network_nameserver;
+	networkConfig->hostname 	= network_hostname;
+	networkConfig->ssid 		= network_ssid;
+	networkConfig->key 		= network_key;
 
 	networkConfig->commitConfig();
 }
 
-bool CNetworkSetup::changeNotify(const neutrino_locale_t, void * Data)
+bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * Data)
 {
-	char ip[16];
-	unsigned char _ip[4];
-	sscanf((char*) Data, "%hhu.%hhu.%hhu.%hhu", &_ip[0], &_ip[1], &_ip[2], &_ip[3]);
+	if(locale == LOCALE_NETWORKMENU_IPADDRESS) {
+		char ip[16];
+		unsigned char _ip[4];
+		sscanf((char*) Data, "%hhu.%hhu.%hhu.%hhu", &_ip[0], &_ip[1], &_ip[2], &_ip[3]);
 
-	sprintf(ip, "%hhu.%hhu.%hhu.255", _ip[0], _ip[1], _ip[2]);
-	networkConfig->broadcast = ip;
-	network_broadcast = networkConfig->broadcast;
+		sprintf(ip, "%hhu.%hhu.%hhu.255", _ip[0], _ip[1], _ip[2]);
+		networkConfig->broadcast = ip;
+		network_broadcast = networkConfig->broadcast;
 
-	networkConfig->netmask = (_ip[0] == 10) ? "255.0.0.0" : "255.255.255.0";
-	network_netmask = networkConfig->netmask;
-	
+		networkConfig->netmask = (_ip[0] == 10) ? "255.0.0.0" : "255.255.255.0";
+		network_netmask = networkConfig->netmask;
+
+	} else if(locale == LOCALE_NETWORKMENU_SELECT_IF) {
+		networkConfig->readConfig(g_settings.ifname);
+		readNetworkSettings();
+		printf("CNetworkSetup::changeNotify: using %s, static %d\n", g_settings.ifname, CNetworkConfig::getInstance()->inet_static);
+
+		changeNotify(LOCALE_NETWORKMENU_DHCP, &CNetworkConfig::getInstance()->inet_static);
+
+		int ecnt = sizeof(wlanEnable) / sizeof(CMenuForwarder*);
+		for(int i = 0; i < ecnt; i++)
+			wlanEnable[i]->setActive(CNetworkConfig::getInstance()->wireless);
+
+	} else if(locale == LOCALE_NETWORKMENU_DHCP) {
+		CNetworkConfig::getInstance()->inet_static = (network_dhcp == NETWORK_DHCP_OFF);
+		int ecnt = sizeof(dhcpDisable) / sizeof(CMenuForwarder*);
+
+		for(int i = 0; i < ecnt; i++)
+			dhcpDisable[i]->setActive(CNetworkConfig::getInstance()->inet_static);
+		ecnt = sizeof(dhcpEnable) / sizeof(CMenuForwarder*);
+
+		for(int i = 0; i < ecnt; i++)
+			dhcpEnable[i]->setActive(!CNetworkConfig::getInstance()->inet_static);
+	}
 	return true;
 }
 
@@ -480,4 +586,125 @@ void CNetworkSetup::setWizardMode(bool mode)
 {
 	printf("[neutrino network setup] %s set network settings menu to mode %d...\n", __FUNCTION__, mode);
 	is_wizard = mode;
+}
+
+void CNetworkSetup::showCurrentNetworkSettings()
+{
+	char ip[16];
+	char mask[16];
+	char broadcast[16];
+	char router[16];
+	char nameserver[16];
+	std::string text;
+
+	netGetIP(g_settings.ifname, ip, mask, broadcast);
+	if (ip[0] == 0) {
+		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE_NETWORK);
+	}
+	else {
+		netGetNameserver(nameserver);
+		netGetDefaultRoute(router);
+		CNetworkConfig  networkConfig;
+		std::string dhcp = networkConfig.inet_static ? g_Locale->getText(LOCALE_OPTIONS_OFF) : g_Locale->getText(LOCALE_OPTIONS_ON);
+
+		text = (std::string)g_Locale->getText(LOCALE_NETWORKMENU_DHCP) + ": " + dhcp + '\n'
+			+ g_Locale->getText(LOCALE_NETWORKMENU_IPADDRESS ) + ": " + ip + '\n'
+			+ g_Locale->getText(LOCALE_NETWORKMENU_NETMASK   ) + ": " + mask + '\n'
+			+ g_Locale->getText(LOCALE_NETWORKMENU_BROADCAST ) + ": " + broadcast + '\n'
+			+ g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ": " + nameserver + '\n'
+			+ g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY   ) + ": " + router;
+	}
+	ShowMsgUTF(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
+}
+
+const char * CNetworkSetup::mypinghost(const char * const host)
+{
+        int retvalue = pinghost(host);
+        switch (retvalue)
+        {
+                case 1: return (g_Locale->getText(LOCALE_PING_OK));
+                case 0: return (g_Locale->getText(LOCALE_PING_UNREACHABLE));
+                case -1: return (g_Locale->getText(LOCALE_PING_PROTOCOL));
+                case -2: return (g_Locale->getText(LOCALE_PING_SOCKET));
+        }
+        return "";
+}
+
+void CNetworkSetup::testNetworkSettings()
+{
+	char our_ip[16];
+	char our_mask[16];
+	char our_broadcast[16];
+	char our_gateway[16];
+	char our_nameserver[16];
+
+	std::string text, testsite;
+
+	//set default testdomain and wiki-IP
+	std::string defaultsite = "www.google.de", wiki_IP = "89.31.143.1";
+
+	//get www-domain testsite from /.version
+	CConfigFile config('\t');
+	config.loadConfig("/.version");
+	testsite = config.getString("homepage",defaultsite);
+	testsite.replace( 0, testsite.find("www",0), "" );
+
+	//use default testdomain if testsite missing
+	if (testsite.length()==0)
+		testsite = defaultsite;
+
+	if (networkConfig->inet_static)
+	{
+		strcpy(our_ip, networkConfig->address.c_str());
+		strcpy(our_mask, networkConfig->netmask.c_str());
+		strcpy(our_broadcast, networkConfig->broadcast.c_str());
+		strcpy(our_gateway, networkConfig->gateway.c_str());
+		strcpy(our_nameserver, networkConfig->nameserver.c_str());
+	}
+	else
+	{
+		// FIXME test with current, not changed ifname ?
+		netGetIP((char *) old_ifname.c_str(), our_ip, our_mask, our_broadcast);
+		netGetDefaultRoute(our_gateway);
+		netGetNameserver(our_nameserver);
+	}
+
+	printf("testNw IP: %s\n", our_ip);
+	printf("testNw MAC-address: %s\n", old_mac_addr.c_str());
+	printf("testNw Netmask: %s\n", our_mask);
+	printf("testNw Broadcast: %s\n", our_broadcast);
+	printf("testNw Gateway: %s\n", our_gateway);
+	printf("testNw Nameserver: %s\n", our_nameserver);
+	printf("testNw Testsite %s\n", testsite.c_str());
+
+	if (our_ip[0] == 0)
+	{
+		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE_NETWORK);
+	}
+	else
+	{
+		text = "Box: " + old_mac_addr + "\n    ";
+		text += (std::string)our_ip + " " + (std::string)mypinghost(our_ip);
+		text += "\n";
+		text += g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY);
+		text += " (Router)\n    ";
+		text += (std::string)our_gateway + " " +(std::string)mypinghost(our_gateway);
+		text += "\n";
+		text += g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER);
+		text += "\n    ";
+		text += (std::string)our_nameserver + " " + (std::string)mypinghost(our_nameserver);
+		text += "\n";
+		text += "wiki.neutrino-hd.de:\n    ";
+		text += "via IP (" + wiki_IP + "): " + (std::string)mypinghost(wiki_IP.c_str());
+		text += ":\n    ";
+		if (1 == pinghost(our_nameserver))
+		{
+			text += "via DNS: " + (std::string)mypinghost("wiki.neutrino-hd.de");
+			text += "\n";
+			text += testsite + ":\n    ";
+			text += "via DNS: " +  (std::string)mypinghost(testsite.c_str()) + ":\n";
+		}
+	}
+
+	ShowMsgUTF(LOCALE_NETWORKMENU_TEST, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 }

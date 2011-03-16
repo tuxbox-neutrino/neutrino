@@ -220,6 +220,8 @@ bool CTP_scanNotifier::changeNotify(const neutrino_locale_t, void * Data)
 	}
 	return true;
 }
+
+#if 0 // not used
 CDHCPNotifier::CDHCPNotifier( CMenuForwarder* a1, CMenuForwarder* a2, CMenuForwarder* a3, CMenuForwarder* a4, CMenuForwarder* a5, CMenuForwarder* a6)
 {
 	toDisable[0] = a1;
@@ -240,7 +242,7 @@ bool CDHCPNotifier::changeNotify(const neutrino_locale_t, void * data)
 	toEnable[0]->setActive(!CNetworkConfig::getInstance()->inet_static);
 	return true;
 }
-
+#endif
 COnOffNotifier::COnOffNotifier( CMenuItem* a1,CMenuItem* a2,CMenuItem* a3,CMenuItem* a4,CMenuItem* a5)
 {
         number = 0;
@@ -514,6 +516,7 @@ bool CKeySetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	return false;
 }
 
+#if 0 // not used
 bool CIPChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 {
 	char ip[16];
@@ -531,6 +534,7 @@ bool CIPChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 
 	return true;
 }
+#endif
 
 bool CConsoleDestChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 {
@@ -778,6 +782,7 @@ std::string CNetAdapter::getMacAddr(void)
 	}
 }
 
+#if 0 // not used, moved to gui/network_setup.cpp
 const char * mypinghost(const char * const host)
 {
 	int retvalue = pinghost(host);
@@ -899,6 +904,7 @@ void showCurrentNetworkSettings()
 	}
 	ShowMsgUTF(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
 }
+#endif
 
 uint64_t getcurrenttime()
 {
