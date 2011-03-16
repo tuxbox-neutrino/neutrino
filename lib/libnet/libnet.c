@@ -265,3 +265,23 @@ void	netGetNameserver( char *ip )
 	}
 	fclose(fp);
 }
+
+void netGetMacAddr(char * ifname, unsigned char * mac)
+{
+	int fd;
+	struct ifreq ifr;
+
+
+	memset(mac, 0, 6);
+	fd = socket(AF_INET, SOCK_DGRAM, 0);
+	if(fd < 0)
+		return;
+
+	ifr.ifr_addr.sa_family = AF_INET;
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ-1);
+
+	if(ioctl(fd, SIOCGIFHWADDR, &ifr) < 0)
+		return;
+
+	memmove(mac, ifr.ifr_hwaddr.sa_data, 6);
+}

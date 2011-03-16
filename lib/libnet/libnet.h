@@ -17,6 +17,7 @@ extern	char	*netGetHostname( void );
 extern	void	netSetHostname( char *host );
 extern	void	netSetNameserver(const char *ip);
 extern  void	netGetNameserver( char *ip );
+extern  void 	netGetMacAddr(char * ifname, unsigned char * mac);
 
 
 #ifdef __cplusplus
