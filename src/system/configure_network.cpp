@@ -220,9 +220,9 @@ void CNetworkConfig::startNetwork(void)
 	std::string cmd = "/sbin/ifup " + ifname;
 #ifdef DEBUG
 	printf("CNetworkConfig::startNetwork: %s\n", cmd.c_str());
-#else
-	system(cmd.c_str());
 #endif
+	system(cmd.c_str());
+
 	if (!inet_static) {
 		init_vars();
 	}
@@ -234,9 +234,9 @@ void CNetworkConfig::stopNetwork(void)
 	std::string cmd = "/sbin/ifdown " + ifname;
 #ifdef DEBUG
 	printf("CNetworkConfig::stopNetwork: %s\n", cmd.c_str());
-#else
-	system(cmd.c_str());
 #endif
+	system(cmd.c_str());
+
 }
 
 void CNetworkConfig::readWpaConfig()

@@ -604,8 +604,8 @@ void CNetworkSetup::showCurrentNetworkSettings()
 	else {
 		netGetNameserver(nameserver);
 		netGetDefaultRoute(router);
-		CNetworkConfig  networkConfig;
-		std::string dhcp = networkConfig.inet_static ? g_Locale->getText(LOCALE_OPTIONS_OFF) : g_Locale->getText(LOCALE_OPTIONS_ON);
+		CNetworkConfig  _networkConfig;
+		std::string dhcp = _networkConfig.inet_static ? g_Locale->getText(LOCALE_OPTIONS_OFF) : g_Locale->getText(LOCALE_OPTIONS_ON);
 
 		text = (std::string)g_Locale->getText(LOCALE_NETWORKMENU_DHCP) + ": " + dhcp + '\n'
 			+ g_Locale->getText(LOCALE_NETWORKMENU_IPADDRESS ) + ": " + ip + '\n'
