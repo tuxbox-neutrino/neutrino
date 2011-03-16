@@ -520,6 +520,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
         g_settings.network_ntprefresh   = configfile.getString("network_ntprefresh", "30" );
         g_settings.network_ntpenable    = configfile.getBool("network_ntpenable", false);
 
+        snprintf(g_settings.ifname, sizeof(g_settings.ifname), "%s", configfile.getString("ifname", "eth0").c_str());;
+
 	g_settings.epg_save = configfile.getBool("epg_save", false);
 
 	//widget settings
@@ -1068,6 +1070,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
         configfile.setString( "network_ntpserver", g_settings.network_ntpserver);
         configfile.setString( "network_ntprefresh", g_settings.network_ntprefresh);
         configfile.setBool( "network_ntpenable", g_settings.network_ntpenable);
+
+        configfile.setString("ifname", g_settings.ifname);
 
 	//widget settings
 	configfile.setBool("widget_fade"          , g_settings.widget_fade          );
@@ -2205,7 +2209,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	NVODChanger               = new CNVODChangeExec;
 	StreamFeaturesChanger     = new CStreamFeaturesChangeExec;
 	MoviePluginChanger        = new CMoviePluginChangeExec;
-	MyIPChanger               = new CIPChangeNotifier;
 	ConsoleDestinationChanger = new CConsoleDestChangeNotifier;
 	rcLock                    = new CRCLock();
 	//USERMENU
