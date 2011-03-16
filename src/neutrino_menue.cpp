@@ -654,7 +654,7 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 
 	if (!sfound && satellitePositions.size()) {
 		sit = satellitePositions.begin();
-		strcpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str());
+		snprintf(scanSettings.satNameNoDiseqc, sizeof(scanSettings.satNameNoDiseqc), "%s", sit->second.name.c_str());
 	}
 
 	CMenuWidget* manualScan = new CMenuWidget(LOCALE_SATSETUP_MANUAL_SCAN, NEUTRINO_ICON_SETTINGS, max_txt_w);
