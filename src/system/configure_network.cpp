@@ -146,6 +146,23 @@ bool CNetworkConfig::modified_from_orig(void)
 		if((ssid != orig_ssid) || (key != orig_key))
 			return 1;
 	}
+	/* check for following changes with dhcp enabled trigger apply question on menu quit, 
+	 * even if apply already done */
+	if (inet_static) {
+		if ((orig_address         != address        ) ||
+		    (orig_netmask         != netmask        ) ||
+		    (orig_broadcast       != broadcast      ) ||
+		    (orig_gateway         != gateway        ))
+			return 1;
+	}
+	return (
+		(orig_automatic_start != automatic_start) ||
+		(orig_hostname        != hostname       ) ||
+		(orig_inet_static     != inet_static    ) ||
+		(orig_ifname	      != ifname)
+		);
+
+#if 0
 	return (
 		(orig_automatic_start != automatic_start) ||
 		(orig_address         != address        ) ||
@@ -156,6 +173,7 @@ bool CNetworkConfig::modified_from_orig(void)
 		(orig_inet_static     != inet_static    ) ||
 		(orig_ifname	      != ifname)
 		);
+#endif
 }
 
 void CNetworkConfig::commitConfig(void)
