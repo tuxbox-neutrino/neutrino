@@ -179,6 +179,30 @@ void CNetworkSetup::showNetworkSetup()
 {
 	struct dirent **namelist;
 
+	//if select
+
+	int ifcount = scandir("/sys/class/net", &namelist, my_filter, alphasort);
+
+	CMenuOptionStringChooser * ifSelect = new CMenuOptionStringChooser(LOCALE_NETWORKMENU_SELECT_IF, g_settings.ifname, ifcount > 1, this, CRCInput::RC_nokey, "", true);
+
+	bool found = false;
+	for(int i = 0; i < ifcount; i++) {
+		ifSelect->addOption(namelist[i]->d_name);
+		if(strcmp(g_settings.ifname, namelist[i]->d_name) == 0)
+			found = true;
+		free(namelist[i]);
+	}
+
+	if (ifcount >= 0)
+		free(namelist);
+
+	if(!found)
+		strcpy(g_settings.ifname, "eth0");
+
+	networkConfig->readConfig(g_settings.ifname);
+	readNetworkSettings();
+	backupNetworkSettings();
+
 	//menue init
 	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	networkSettings->setWizardMode(is_wizard);
@@ -186,10 +210,6 @@ void CNetworkSetup::showNetworkSetup()
 
 	//apply button
 	CMenuForwarder *m0 = new CMenuForwarder(LOCALE_NETWORKMENU_SETUPNOW, true, NULL, this, "networkapply", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-
-	networkConfig->readConfig(g_settings.ifname);
-	readNetworkSettings();
-	backupNetworkSettings();
 
 	//eth id
 	CMenuForwarder *mac = new CMenuForwarderNonLocalized("MAC", false, mac_addr);
@@ -203,16 +223,6 @@ void CNetworkSetup::showNetworkSetup()
 	
 	//hostname
 	CStringInputSMS * networkSettings_Hostname = new CStringInputSMS(LOCALE_NETWORKMENU_HOSTNAME, &network_hostname, 30, LOCALE_NETWORKMENU_NTPSERVER_HINT1, LOCALE_NETWORKMENU_NTPSERVER_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
-
-	//if select
-	int ifcount = scandir("/sys/class/net", &namelist, my_filter, alphasort);
-	CMenuOptionStringChooser * ifSelect = new CMenuOptionStringChooser(LOCALE_NETWORKMENU_SELECT_IF, g_settings.ifname, ifcount > 1, this, CRCInput::RC_nokey, "", true);
-	for(int i = 0; i < ifcount; i++) {
-		ifSelect->addOption(namelist[i]->d_name);
-		free(namelist[i]);
-	}
-	if (ifcount >= 0)
-		free(namelist);
 
 	//auto start
 	CMenuOptionChooser* o1 = new CMenuOptionChooser(LOCALE_NETWORKMENU_SETUPONSTARTUP, &network_automatic_start, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
@@ -604,8 +614,11 @@ void CNetworkSetup::showCurrentNetworkSettings()
 	else {
 		netGetNameserver(nameserver);
 		netGetDefaultRoute(router);
+#if 0 // i think we can use current networkConfig instance for that
 		CNetworkConfig  _networkConfig;
 		std::string dhcp = _networkConfig.inet_static ? g_Locale->getText(LOCALE_OPTIONS_OFF) : g_Locale->getText(LOCALE_OPTIONS_ON);
+#endif
+		std::string dhcp = networkConfig->inet_static ? g_Locale->getText(LOCALE_OPTIONS_OFF) : g_Locale->getText(LOCALE_OPTIONS_ON);
 
 		text = (std::string)g_Locale->getText(LOCALE_NETWORKMENU_DHCP) + ": " + dhcp + '\n'
 			+ g_Locale->getText(LOCALE_NETWORKMENU_IPADDRESS ) + ": " + ip + '\n'
