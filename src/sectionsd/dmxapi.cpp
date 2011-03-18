@@ -29,6 +29,7 @@
 #include <fcntl.h>         /* open        */
 #include <unistd.h>        /* close, read */
 #include <arpa/inet.h>     /* htons */
+#include <time.h>          /* ctime */
 #include <dmxapi.h>
 
 #if HAVE_TRIPLEDRAGON
