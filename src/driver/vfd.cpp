@@ -656,6 +656,8 @@ void CVFD::Clear()
 	int ret = ioctl(fd, IOC_VFD_CLEAR_ALL, 0);
 	if(ret < 0)
 		perror("IOC_VFD_SET_TEXT");
+	else
+		text[0] = 0;
 }
 
 void CVFD::ShowIcon(vfd_icon icon, bool show)
