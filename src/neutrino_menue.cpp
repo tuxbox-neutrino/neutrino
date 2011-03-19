@@ -486,17 +486,12 @@ void CNeutrinoApp::InitScanSettings(CMenuWidget &settings)
 	//scale to max sat/cable name lenght
 	unsigned int sat_txt_w = 0, max_txt_w = 0;
 	sat_iterator_t sit;
-	if (g_info.delivery_system == DVB_S) {
-		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-			sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(sit->second.name.c_str(), true);
-			max_txt_w = std::max(max_txt_w,sat_txt_w);
-		}
-	} else if (g_info.delivery_system == DVB_C) {
-		for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-			sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(sit->second.name.c_str(), true);
-			max_txt_w = std::max(max_txt_w,sat_txt_w);
-		}
+
+	for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		sat_txt_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(sit->second.name.c_str(), true);
+		max_txt_w = std::max(max_txt_w,sat_txt_w);
 	}
+
 	int w, h;
 	const unsigned int mini_w = 30;//mini width 30%
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &w, &h);
