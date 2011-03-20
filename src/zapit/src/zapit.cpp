@@ -387,7 +387,7 @@ void start_camd(bool forupdate = false)
 static int pmt_update_fd = -1;
 static bool update_pmt = true;
 
-int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool /*nowait*/ = 0)
+int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool startplayback = true)
 {
 	bool transponder_change = false;
 	tallchans_iterator cit;
@@ -592,7 +592,7 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
                 audioDecoder->setChannel(audio_mode);
         }
 
-	if (!we_playing)
+	if (!we_playing && startplayback)
 		startPlayBack(g_current_channel);
 
 	printf("[zapit] sending capmt....\n");
@@ -2088,10 +2088,9 @@ void leaveStandby(void)
 	}
 
 	standby = false;
-#if 0
 	if (g_current_channel)
-		zapit(live_channel_id, current_is_nvod, false, true);
-#endif
+		/* tune channel, with stopped playback to not bypass the parental PIN check */
+		zapit(live_channel_id, current_is_nvod, false, false);
 }
 
 unsigned zapTo(const unsigned int bouquet, const unsigned int pchannel)

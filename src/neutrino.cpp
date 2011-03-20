@@ -3993,12 +3993,18 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		g_Zapit->setStandby(false);
-		if(was_record)
-			g_Zapit->startPlayBack();
-		else {
-			channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
-			channelList->zapTo_ChannelID(live_channel_id);
-		}
+		/* the old code did:
+		   if(was_record) g_Zapit->startPlayBack()
+		   unfortunately this bypasses the parental PIN code check if a record timer
+		   was set on a locked channel, then the box put in standby and after the
+		   recording started, the box was woken up.
+		   The channelList->setSelected(); channelList->zapTo_ChannelID() sequence
+		   does trigger the PIN check
+		   If the channel is the same (as during a recording), then it will only
+		   check PIN and not zap, so we should be fine here
+		 */
+		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
+		channelList->zapTo_ChannelID(live_channel_id);
 		if(recordingstatus) was_record = 0;
 
 		videoDecoder->Standby(false);
