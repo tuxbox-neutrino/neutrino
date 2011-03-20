@@ -111,6 +111,7 @@ cVideo::cVideo(int, void *, void *)
 		}
 		close(blankfd);
 	}
+	video_standby = 0;
 	noscart = (getenv("TRIPLE_NOSCART") != NULL);
 	if (noscart)
 		lt_info("%s TRIPLE_NOSCART variable prevents SCART switching\n", __FUNCTION__);
@@ -228,9 +229,12 @@ int cVideo::setAspectRatio(int aspect, int mode)
 		perror("open tdsystem");
 		return 0;
 	}
-	lt_debug("%s set SCART_PIN_8 to %dV\n", __FUNCTION__, scartvoltage);
-	if (!noscart && scartvoltage > 0 && ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
-		perror("IOC_AVS_SCART_PIN8_SET");
+	if (!noscart && scartvoltage > 0 && video_standby == 0)
+	{
+		lt_info("%s set SCART_PIN_8 to %dV\n", __FUNCTION__, scartvoltage);
+		if (ioctl(avsfd, IOC_AVS_SCART_PIN8_SET, scartvoltage) < 0)
+			perror("IOC_AVS_SCART_PIN8_SET");
+	}
 	close(avsfd);
 	return 0;
 }
@@ -480,6 +484,7 @@ void cVideo::Standby(unsigned int bOn)
 	} else
 		fop(ioctl, MPEG_VID_SET_OUTFMT, outputformat);
 	routeVideo(bOn);
+	video_standby = bOn;
 }
 
 int cVideo::getBlank(void)

@@ -133,6 +133,7 @@ class cVideo
 		DISPLAY_AR PictureAR;
 		VIDEO_FRAME_RATE FrameRate;
 		void routeVideo(int standby);
+		int video_standby;
 	public:
 		/* constructor & destructor */
 		cVideo(int mode, void *, void *);
