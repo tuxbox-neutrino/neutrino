@@ -186,6 +186,7 @@ void CNetworkSetup::showNetworkSetup()
 	CMenuOptionStringChooser * ifSelect = new CMenuOptionStringChooser(LOCALE_NETWORKMENU_SELECT_IF, g_settings.ifname, ifcount > 1, this, CRCInput::RC_nokey, "", true);
 
 	bool found = false;
+
 	for(int i = 0; i < ifcount; i++) {
 		ifSelect->addOption(namelist[i]->d_name);
 		if(strcmp(g_settings.ifname, namelist[i]->d_name) == 0)
@@ -227,8 +228,6 @@ void CNetworkSetup::showNetworkSetup()
 	//auto start
 	CMenuOptionChooser* o1 = new CMenuOptionChooser(LOCALE_NETWORKMENU_SETUPONSTARTUP, &network_automatic_start, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 
-	CStringInputSMS * networkSettings_ssid = new CStringInputSMS(LOCALE_NETWORKMENU_SSID, &network_ssid, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
-	CStringInputSMS * networkSettings_key = new CStringInputSMS(LOCALE_NETWORKMENU_PASSWORD, &network_key, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.! ");
 	//dhcp
 	network_dhcp 	= networkConfig->inet_static ? NETWORK_DHCP_OFF : NETWORK_DHCP_ON;
 
@@ -246,12 +245,6 @@ void CNetworkSetup::showNetworkSetup()
 	dhcpDisable[4] = m5;
 	dhcpEnable[0] = m8;
 
-	CMenuForwarder *m9 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID      , networkConfig->wireless, network_ssid , networkSettings_ssid );
-	CMenuForwarder *m10 = new CMenuForwarder(LOCALE_NETWORKMENU_PASSWORD , networkConfig->wireless, network_key , networkSettings_key );
-
-	wlanEnable[0] = m9;
-	wlanEnable[1] = m10;
-
 	CMenuOptionChooser* o2 = new CMenuOptionChooser(LOCALE_NETWORKMENU_DHCP, &network_dhcp, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 
 	//paint menu items
@@ -264,6 +257,9 @@ void CNetworkSetup::showNetworkSetup()
 	//------------------------------------------------
 	if(ifcount)
 		networkSettings->addItem(ifSelect);	//if select
+	else
+		delete ifSelect;
+
 	networkSettings->addItem(o1);	//set on start
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
@@ -283,7 +279,18 @@ void CNetworkSetup::showNetworkSetup()
 	networkSettings->addItem( m5);	//nameserver
 	networkSettings->addItem(GenericMenuSeparatorLine);
 	//------------------------------------------------
-	if(ifcount > 1) { // if there is only one, its probably wired
+	if(ifcount > 1) // if there is only one, its probably wired
+	{
+		//ssid
+		CStringInputSMS *networkSettings_ssid = new CStringInputSMS(LOCALE_NETWORKMENU_SSID, &network_ssid, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
+		CMenuForwarder *m9 = new CMenuForwarder(LOCALE_NETWORKMENU_SSID      , networkConfig->wireless, network_ssid , networkSettings_ssid );
+		//key
+		CStringInputSMS *networkSettings_key = new CStringInputSMS(LOCALE_NETWORKMENU_PASSWORD, &network_key, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-. ");
+		CMenuForwarder *m10 = new CMenuForwarder(LOCALE_NETWORKMENU_PASSWORD , networkConfig->wireless, network_key , networkSettings_key );
+
+		wlanEnable[0] = m9;
+		wlanEnable[1] = m10;
+
 		networkSettings->addItem( m9);	//ssid
 		networkSettings->addItem( m10);	//key
 		networkSettings->addItem(GenericMenuSeparatorLine);
