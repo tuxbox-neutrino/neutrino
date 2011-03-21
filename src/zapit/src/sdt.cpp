@@ -394,8 +394,6 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	int tmp_free_CA_mode = -1;
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
-	memset(filter, 0x00, DMX_FILTER_SIZE);
-	memset(mask, 0x00, DMX_FILTER_SIZE);
 
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	filter[0] = 0x42;
