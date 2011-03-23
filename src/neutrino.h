@@ -172,7 +172,6 @@ private:
 	void InitZapper();
 	void InitServiceSettings(CMenuWidget &, CMenuWidget &);
 	void InitScreenSettings(CMenuWidget &);
-	void InitMiscSettings(CMenuWidget &);
 	void InitScanSettings(CMenuWidget &);
 	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &service);
 
