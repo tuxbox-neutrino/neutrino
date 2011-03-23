@@ -182,9 +182,9 @@ void CMiscMenue::showMiscSettingsMenu()
 	misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
 	//energy, shutdown
-	CMenuWidget *misc_menue_energy 	= new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	if(cs_get_revision() > 7)
 	{
+		CMenuWidget *misc_menue_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 		showMiscSettingsMenuEnergy(misc_menue_energy);
 		misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, misc_menue_energy, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	}
