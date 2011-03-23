@@ -55,6 +55,7 @@
 #include "gui/favorites.h"
 #include "gui/hdd_menu.h"
 #include "gui/imageinfo.h"
+#include "gui/info_menue.h"
 #include "gui/keybind_setup.h"
 #include "gui/mediaplayer.h"
 #include "gui/mediaplayer_setup.h"
@@ -140,14 +141,9 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 
 	mainMenu.addItem( new CMenuSeparator(CMenuSeparator::LINE) );
 	// start of infomenu
-	if (g_settings.show_infomenu == 0) {
-		CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO);
-		info->addIntroItems();
-		info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
-		info->addItem( new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-		info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, true, NULL, new CStreamInfo2Handler(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, info, NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
-	}
+	if (g_settings.show_infomenu == 0)
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
+	
 	// end of infomenu
 	/*if(system_rev != 10)*/
 		mainMenu.addItem( new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler, NULL, CRCInput::convertDigitToKey(0)));
@@ -287,15 +283,11 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service/*, CMenuWidget &_sca
 	service.addItem(GenericMenuSeparatorLine);
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, this, "restart", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER));
 	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_GETPLUGINS, true, NULL, this, "reloadplugins"));
+	
 	// start infomenu in service
-	if (g_settings.show_infomenu == 1) {
-		CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO);
-		info->addIntroItems();
-		info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
-		info->addItem( new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-		info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, true, NULL, new CStreamInfo2Handler(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-		service.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, info, NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
-	}
+	if (g_settings.show_infomenu == 1) 
+		service.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
+	
 	// end of infomenu in service
 	//softupdate
 	//if(softupdate)
