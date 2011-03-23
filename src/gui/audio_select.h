@@ -36,7 +36,13 @@ using namespace std;
 
 class CAudioSelectMenuHandler : public CMenuTarget
 {
+	private:
+		int width;
+		
 	public:
+		CAudioSelectMenuHandler();
+		~CAudioSelectMenuHandler();
+		
 		int  exec( CMenuTarget* parent,  const std::string &actionkey);
 		int  doMenu();
 

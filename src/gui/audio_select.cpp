@@ -36,8 +36,10 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <mymenu.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/menue.h>
+#include <driver/screen_max.h>
 
 extern CRemoteControl		* g_RemoteControl; /* neutrino.cpp */
 extern CAPIDChangeExec		* APIDChanger;
@@ -51,7 +53,16 @@ extern CAudioSetupNotifier	* audioSetupNotifier;
 //  -- AUDIO Selector Menue Handler Class
 //  -- to be used for calls from Menue
 //  -- (2005-08-31 rasc)
-//
+
+CAudioSelectMenuHandler::CAudioSelectMenuHandler()
+{
+	width = w_max (40, 10);
+}
+
+CAudioSelectMenuHandler::~CAudioSelectMenuHandler()
+{
+
+}
 
 // -- this is a copy from neutrino.cpp!!
 #define AUDIOMENU_ANALOGOUT_OPTION_COUNT 3
@@ -62,47 +73,50 @@ const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT
 	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
 
-int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
+
+
+int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &)
 {
 	int           res = menu_return::RETURN_EXIT_ALL;
 
 
-	if (parent) {
+	if (parent) 
 		parent->hide();
-	}
 
 	doMenu ();
 	return res;
 }
 
-#define OPTIONS_OFF0_ON1_OPTION_COUNT 2
-const CMenuOptionChooser::keyval OPTIONS_OFF0_ON1_OPTIONS[OPTIONS_OFF0_ON1_OPTION_COUNT] =
-{
-        { 0, LOCALE_OPTIONS_OFF },
-        { 1, LOCALE_OPTIONS_ON  }
-};
 
 int CAudioSelectMenuHandler::doMenu ()
 {
-	CMenuWidget AudioSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
-	unsigned int count;
+	CMenuWidget AudioSelector(LOCALE_AUDIOSELECTMENUE_HEAD, NEUTRINO_ICON_AUDIO, width);
+
 	CSubtitleChangeExec SubtitleChanger;
+	
+	AudioSelector.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL); 
 
-	for(count=0; count < g_RemoteControl->current_PIDs.APIDs.size(); count++ ) {
-		char apid[5];
-		snprintf(apid,sizeof(apid), "%d", count);
-		AudioSelector.addItem(new CMenuForwarderNonLocalized(
-					g_RemoteControl->current_PIDs.APIDs[count].desc, true, NULL,
-					APIDChanger, apid, CRCInput::convertDigitToKey(count + 1)),
-				(count == g_RemoteControl->current_PIDs.PIDs.selected_apid));
+	// -- setup menue due to Audio PIDs
+	if (g_RemoteControl->current_PIDs.APIDs.size() > 1) 
+	{
+		uint p_count = g_RemoteControl->current_PIDs.APIDs.size();
+		CMenuForwarderNonLocalized* fw[p_count];
+
+	  	for( uint i=0; i < p_count; i++ ) 
+		{
+			char apid[5];
+			sprintf(apid, "%d", i);
+			fw[i] = new CMenuForwarderNonLocalized(g_RemoteControl->current_PIDs.APIDs[i].desc, true, NULL, APIDChanger, apid, CRCInput::convertDigitToKey(i + 1));
+			fw[i]->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+			AudioSelector.addItem(fw[i], (i == g_RemoteControl->current_PIDs.PIDs.selected_apid));
+	   	}
+	   	AudioSelector.addItem(GenericMenuSeparatorLine);
 	}
-
+		
 	// -- setup menue for to Dual Channel Stereo
-	AudioSelector.addItem(GenericMenuSeparatorLine);
-
 	CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_AUDIOMENU_ANALOG_MODE,
-			&g_settings.audio_AnalogMode,
-			AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT,
+				&g_settings.audio_AnalogMode,
+				AUDIOMENU_ANALOGOUT_OPTIONS, AUDIOMENU_ANALOGOUT_OPTION_COUNT,
 			true, audioSetupNotifier, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 
 	AudioSelector.addItem( oj );
@@ -117,14 +131,18 @@ int CAudioSelectMenuHandler::doMenu ()
 	int curnum = channelList->getActiveChannelNumber();
 	CZapitChannel * cc = channelList->getChannel(curnum);
 
+	unsigned int shortcut_num = 1;
 	bool sep_added = false;
-	if(cc) {
-		for (int i = 0 ; i < (int)cc->getSubtitleCount() ; ++i) {
+	if(cc) 
+	{
+		for (int i = 0 ; i < (int)cc->getSubtitleCount() ; ++i) 
+		{
 			CZapitAbsSub* s = cc->getChannelSub(i);
 			if (s->thisSubType == CZapitAbsSub::DVB) {
 				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
 				printf("[neutrino] adding DVB subtitle %s pid %x\n", sd->ISO639_language_code.c_str(), sd->pId);
-				if(!sep_added) {
+				if(!sep_added) 
+				{
 					sep_added = true;
 					AudioSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SUBTITLES_HEAD));
 				}
@@ -133,12 +151,14 @@ int CAudioSelectMenuHandler::doMenu ()
 				char item[64];
 				snprintf(item,sizeof(item), "DVB: %s (pid %x)", sd->ISO639_language_code.c_str(), sd->pId);
 				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
-							sd->pId != dvbsub_getpid(), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
+							sd->pId != dvbsub_getpid(), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++shortcut_num)));
 			}
-			if (s->thisSubType == CZapitAbsSub::TTX) {
+			if (s->thisSubType == CZapitAbsSub::TTX) 
+			{
 				CZapitTTXSub* sd = reinterpret_cast<CZapitTTXSub*>(s);
 				printf("[neutrino] adding TTX subtitle %s pid %x mag %X page %x\n", sd->ISO639_language_code.c_str(), sd->pId, sd->teletext_magazine_number, sd->teletext_page_number);
-				if(!sep_added) {
+				if(!sep_added) 
+				{
 					sep_added = true;
 					AudioSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SUBTITLES_HEAD));
 				}
@@ -149,14 +169,16 @@ int CAudioSelectMenuHandler::doMenu ()
 				char item[64];
 				snprintf(item,sizeof(item), "TTX: %s (pid %x page %03X)", sd->ISO639_language_code.c_str(), sd->pId, page);
 				AudioSelector.addItem(new CMenuForwarderNonLocalized(item /*sd->ISO639_language_code.c_str()*/,
-							!tuxtx_subtitle_running(&pid, &page, NULL), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++count)));
+							!tuxtx_subtitle_running(&pid, &page, NULL), NULL, &SubtitleChanger, spid, CRCInput::convertDigitToKey(++shortcut_num)));
 			}
 		}
-		if(sep_added) {
+		
+		if(sep_added) 
 			AudioSelector.addItem(new CMenuForwarder(LOCALE_SUBTITLES_STOP, true, NULL, &SubtitleChanger, "off", CRCInput::RC_stop));
-		}
-
 	}
 
 	return AudioSelector.exec(NULL, "");
 }
+
+
+
