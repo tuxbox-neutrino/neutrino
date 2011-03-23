@@ -38,6 +38,7 @@
 #include <fcntl.h>
 
 #include <gui/scan.h>
+#include "gui/scan_setup.h"
 
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -90,7 +91,7 @@ void CScanTs::prev_next_TP( bool up)
 	t_satellite_position position = 0;
 
 	for (sat_iterator_t sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		if (!strcmp(sit->second.name.c_str(), CNeutrinoApp::getInstance()->getScanSettings().satNameNoDiseqc)) {
+		if (!strcmp(sit->second.name.c_str(), scansettings.satNameNoDiseqc)) {
 			position = sit->first;
 			break;
 		}
@@ -150,10 +151,10 @@ void CScanTs::testFunc()
 		frontend->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, TP.polarization == 0 ? 'H' : 'V', TP.feparams.u.qpsk.symbol_rate/1000, f, s, m);
 	} else if(frontend->getInfo()->type == FE_QAM) {
-		frontend->getDelSys(get_set.TP_fec, get_set.TP_mod, f, s, m);
-		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(get_set.TP_freq)/1000, atoi(get_set.TP_rate)/1000, f, s, m);
+		frontend->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(scansettings.TP_freq)/1000, atoi(scansettings.TP_rate)/1000, f, s, m);
 	}
-	paintLine(xpos2, ypos_cur_satellite, w - 95, get_set.satNameNoDiseqc);
+	paintLine(xpos2, ypos_cur_satellite, w - 95, scansettings.satNameNoDiseqc);
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	success = g_Zapit->tune_TP(TP);
 
@@ -163,9 +164,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	diseqc_t            diseqcType = NO_DISEQC;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
-	//bool manual = (get_set.scan_mode == 2);
-	int scan_mode = get_set.scan_mode;
-	scan_fta_flag = get_set.scan_fta_flag;
+	//bool manual = (scansettings.scan_mode == 2);
+	int scan_mode = scansettings.scan_mode;
+	scan_fta_flag = scansettings.scan_fta_flag;
 
 	sat_iterator_t sit;
 	bool scan_all = actionKey == "all";
@@ -205,20 +206,20 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
 
-//printf("[neutrino] scan_mode %d TP_freq %s TP_rate %s TP_fec %d TP_pol %d\n", get_set.scan_mode, get_set.TP_freq, get_set.TP_rate, get_set.TP_fec, get_set.TP_pol);
+//printf("[neutrino] scan_mode %d TP_freq %s TP_rate %s TP_fec %d TP_pol %d\n", scansettings.scan_mode, scansettings.TP_freq, scansettings.TP_rate, scansettings.TP_fec, scansettings.TP_pol);
 
 	if(manual) {
 		scan_pids = true;
-		TP.scan_mode = get_set.scan_mode;
-		TP.feparams.frequency = atoi(get_set.TP_freq);
+		TP.scan_mode = scansettings.scan_mode;
+		TP.feparams.frequency = atoi(scansettings.TP_freq);
 		if(g_info.delivery_system == DVB_S) {
-			TP.feparams.u.qpsk.symbol_rate = atoi(get_set.TP_rate);
-			TP.feparams.u.qpsk.fec_inner = (fe_code_rate_t) get_set.TP_fec;
-			TP.polarization = get_set.TP_pol;
+			TP.feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
+			TP.feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.TP_fec;
+			TP.polarization = scansettings.TP_pol;
 		} else {
-			TP.feparams.u.qam.symbol_rate	= atoi(get_set.TP_rate);
-			TP.feparams.u.qam.fec_inner	= (fe_code_rate_t)get_set.TP_fec;
-			TP.feparams.u.qam.modulation	= (fe_modulation_t) get_set.TP_mod;
+			TP.feparams.u.qam.symbol_rate	= atoi(scansettings.TP_rate);
+			TP.feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.TP_fec;
+			TP.feparams.u.qam.modulation	= (fe_modulation_t) scansettings.TP_mod;
 		}
 		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
 	}
@@ -227,9 +228,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	}
 	else if(manual || !scan_all) {
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-			if(!strcmp(sit->second.name.c_str(),get_set.satNameNoDiseqc)) {
+			if(!strcmp(sit->second.name.c_str(),scansettings.satNameNoDiseqc)) {
 				sat.position = sit->first;
-				strncpy(sat.satName, get_set.satNameNoDiseqc, 50);
+				strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
 				satList.push_back(sat);
 				break;
 			}
@@ -252,19 +253,19 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	}
 
 	/* send diseqc type to zapit */
-	diseqcType = (diseqc_t) CNeutrinoApp::getInstance()->getScanSettings().diseqcMode;
+	diseqcType = (diseqc_t) scansettings.diseqcMode;
 	g_Zapit->setDiseqcType(diseqcType);
 
 	/* send diseqc repeat to zapit */
-	g_Zapit->setDiseqcRepeat( CNeutrinoApp::getInstance()->getScanSettings().diseqcRepeat);
-	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)CNeutrinoApp::getInstance()->getScanSettings().bouquetMode);
+	g_Zapit->setDiseqcRepeat( scansettings.diseqcRepeat);
+	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)scansettings.bouquetMode);
 
 	/* send satellite list to zapit */
 	if(satList.size())
 		g_Zapit->setScanSatelliteList( satList);
 
         /* send scantype to zapit */
-        g_Zapit->setScanType((CZapitClient::scanType) CNeutrinoApp::getInstance()->getScanSettings().scanType );
+        g_Zapit->setScanType((CZapitClient::scanType) scansettings.scanType );
 
 	tuned = frontend->getStatus();
 	paint(test);
@@ -274,7 +275,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
-		success = !start_fast_scan(get_set.fast_type, get_set.fast_op);
+		success = !start_fast_scan(scansettings.fast_type, scansettings.fast_op);
 	}
 	else
 		success = g_Zapit->startScan(scan_mode);
@@ -302,7 +303,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			}
 			
 			else if(msg == CRCInput::RC_home) {
-				if(manual && get_set.scan_mode)
+				if(manual && scansettings.scan_mode)
 					continue;
 				if (ShowLocalizedMessage(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 					g_Zapit->stopScan();

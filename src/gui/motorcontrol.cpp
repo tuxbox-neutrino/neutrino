@@ -36,6 +36,7 @@
 #include <gui/customcolor.h>
 #include <driver/rcinput.h>
 #include <gui/motorcontrol.h>
+#include "gui/scan_setup.h"
 #include <gui/color.h>
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
@@ -123,9 +124,9 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 
        	/* send satellite list to zapit */
 	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		if(!strcmp(sit->second.name.c_str(),get_set.satNameNoDiseqc)) {
+		if(!strcmp(sit->second.name.c_str(),scansettings.satNameNoDiseqc)) {
 			sat.position = sit->first;
-			strncpy(sat.satName, get_set.satNameNoDiseqc, 50);
+			strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
 			satList.push_back(sat);
 			if(sit->second.motor_position)
 				motorPosition = sit->second.motor_position;
@@ -136,10 +137,10 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 
        	g_Zapit->setScanSatelliteList( satList);
 
-	TP.feparams.frequency = atoi(get_set.TP_freq);
-	TP.feparams.u.qpsk.symbol_rate = atoi(get_set.TP_rate);
-	TP.feparams.u.qpsk.fec_inner = (fe_code_rate_t)get_set.TP_fec;
-	TP.polarization = get_set.TP_pol;
+	TP.feparams.frequency = atoi(scansettings.TP_freq);
+	TP.feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
+	TP.feparams.u.qpsk.fec_inner = (fe_code_rate_t)scansettings.TP_fec;
+	TP.polarization = scansettings.TP_pol;
 #if 0
 	CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo ();
 	TP.feparams.frequency = si.tsfrequency;

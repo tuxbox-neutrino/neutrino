@@ -1158,8 +1158,8 @@ rfmod.finetune Feintuning
 rfmod.rfmod RF Modulator
 rfmod.standby Modulator aktivieren
 rfmod.test Testbild
-satsetup.auto_scan Satelliten/Kabelnetz scannen
-satsetup.auto_scan_all Alle Satelliten scannen
+satsetup.auto_scan Automatisch einen gewählten %s
+satsetup.auto_scan_all Automatisch alle Satelliten
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
@@ -1177,7 +1177,7 @@ satsetup.extended_motor Motor-Einstellungen
 satsetup.fastscan_all SD und HD
 satsetup.fastscan_hd nur HD
 satsetup.fastscan_head Schnellscan (Astra 1, 19.2E, 12.515Mhz)
-satsetup.fastscan_prov Anbieter
+satsetup.fastscan_prov Anbieter:
 satsetup.fastscan_prov_cd CanalDigitaal
 satsetup.fastscan_prov_telesat TéléSAT
 satsetup.fastscan_prov_tvv TV Vlaanderen
@@ -1191,7 +1191,7 @@ satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor-Position
 satsetup.motorcontrol Manuelle Motor-Einstellung
 satsetup.nodiseqc Kein DiSEqC
-satsetup.sat_setup Setup LNB-Konfiguration
+satsetup.sat_setup LNB-Konfiguration
 satsetup.satellite Satellit
 satsetup.savesettingsnow Einstellungen jetzt speichern
 satsetup.smatvremote SMATV Remote Tuning
@@ -1227,7 +1227,9 @@ scants.numberofdataservices Daten
 scants.numberofradioservices Radio
 scants.numberoftotalservices Alle
 scants.numberoftvservices TV
-scants.provider Anbieter:
+scants.preverences_receiving_system Grundeinstellungen
+scants.preverences_scan Suchmethode
+scants.provider Anbieter
 scants.select_tp Wählen Sie einen Transponder
 scants.startnow Kanalsuche starten
 scants.test Empfangstest

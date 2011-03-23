@@ -62,84 +62,86 @@
 #include <daemonc/remotecontrol.h>
 
 #include <driver/encoding.h>
-#include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
+#include <driver/framebuffer.h>
 #include <driver/rcinput.h>
+#include <driver/shutdown_count.h>
 #include <driver/stream2file.h>
 #include <driver/vcrcontrol.h>
-#include <driver/shutdown_count.h>
+
 #if HAVE_TRIPLEDRAGON
 #include <driver/lcdd.h>
 #include "gui/widget/lcdcontroler.h"
 #endif
-#include <gui/epgplus.h>
-#include <gui/streaminfo2.h>
 
+#include "gui/alphasetup.h"
+#include "gui/audioplayer.h"
+#include "gui/bouquetlist.h"
+#include "gui/cam_menu.h"
 #include "gui/cec_setup.h"
+#include "gui/channellist.h"
+#include "gui/color.h"
+#include "gui/customcolor.h"
+#include "gui/epg_menu.h"
+#include "gui/epgview.h"
+#include "gui/eventlist.h"
+#include "gui/favorites.h"
+#include "gui/filebrowser.h"
+#include "gui/hdd_menu.h"
+#include "gui/imageinfo.h"
+#include "gui/infoviewer.h"
+#include "gui/mediaplayer.h"
+#include "gui/motorcontrol.h"
+#include "gui/movieplayer.h"
+#include "gui/nfs.h"
+#include "gui/osd_setup.h"
+#include "gui/osdlang_setup.h"
+#include "gui/pictureviewer.h"
+#include "gui/pluginlist.h"
+#include "gui/plugins.h"
+#include "gui/rc_lock.h"
+#include "gui/scan.h"
+#include "gui/scan_setup.h"
+#include "gui/screensetup.h"
+#include "gui/sleeptimer.h"
+#include "gui/timerlist.h"
+#include "gui/update.h"
+#include "gui/upnpbrowser.h"
+#include "gui/videosettings.h"
 #include "gui/widget/colorchooser.h"
-#include "gui/widget/menue.h"
-#include "gui/widget/messagebox.h"
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"
+#include "gui/widget/keychooser.h"
+#include "gui/widget/menue.h"
+#include "gui/widget/messagebox.h"
+#include "gui/widget/mountchooser.h"
+#include "gui/widget/stringinput.h"
+#include "gui/widget/stringinput_ext.h"
+#include "gui/epgplus.h"
+#include "gui/streaminfo2.h"
+
 #if HAVE_COOL_HARDWARE
 #include "gui/widget/vfdcontroler.h"
 #include "gui/widget/progressbar.h"
 #endif
-#include "gui/widget/keychooser.h"
-#include "gui/widget/stringinput.h"
-#include "gui/widget/stringinput_ext.h"
-#include "gui/widget/mountchooser.h"
-#include "gui/videosettings.h"
-#include "gui/osdlang_setup.h"
-#include "gui/osd_setup.h"
-#include "gui/color.h"
-#include "gui/customcolor.h"
-#include "gui/mediaplayer.h"
 
-#include "gui/bedit/bouqueteditor_bouquets.h"
-#include "gui/bouquetlist.h"
-#include "gui/eventlist.h"
-#include "gui/channellist.h"
-#include "gui/screensetup.h"
-#include "gui/pluginlist.h"
-#include "gui/plugins.h"
-#include "gui/infoviewer.h"
-#include "gui/epgview.h"
-#include "gui/epg_menu.h"
-#include "gui/update.h"
-#include "gui/scan.h"
-#include "gui/favorites.h"
-#include "gui/sleeptimer.h"
-#include "gui/rc_lock.h"
-#include "gui/timerlist.h"
-#include "gui/alphasetup.h"
-#include "gui/audioplayer.h"
-#include "gui/imageinfo.h"
-#include "gui/movieplayer.h"
-#include "gui/nfs.h"
-#include "gui/pictureviewer.h"
-#include "gui/motorcontrol.h"
-#include "gui/filebrowser.h"
-#include "gui/cam_menu.h"
-#include "gui/hdd_menu.h"
-#include "gui/upnpbrowser.h"
+#include <audio.h>
+#include <ca_cs.h>
+#include <cs_api.h>
+#include <video.h>
+#include <pwrmngr.h>
 
-#include <system/setting_helpers.h>
-#include <system/settings.h>
 #include <system/debug.h>
 #include <system/flashtool.h>
 #include <system/fsmounter.h>
+#include <system/setting_helpers.h>
+#include <system/settings.h>
 
 #include <timerdclient/timerdmsg.h>
-#include <zapit/satconfig.h>
-#include <zapit/getservices.h>
 
-#include <cs_api.h>
-#include <video.h>
-#include <audio.h>
 #include <zapit/frontend_c.h>
-#include <pwrmngr.h>
-#include <ca_cs.h>
+#include <zapit/getservices.h>
+#include <zapit/satconfig.h>
 
 #include <string.h>
 #include <linux/reboot.h>
@@ -187,7 +189,7 @@ void * zapit_main_thread(void *data);
 extern t_channel_id live_channel_id; //zapit
 extern t_channel_id rec_channel_id; //zapit
 extern CZapitChannel *g_current_channel;
-void setZapitConfig(Zapit_config * Cfg);
+// void setZapitConfig(Zapit_config * Cfg);
 void getZapitConfig(Zapit_config *Cfg);
 
 void * nhttpd_main_thread(void *data);
@@ -2224,13 +2226,12 @@ int CNeutrinoApp::run(int argc, char **argv)
 	//Main settings
 	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    _scanSettings       (LOCALE_SERVICEMENU_SCANTS            , NEUTRINO_ICON_SETTINGS);
 	CMenuWidget    service             (LOCALE_SERVICEMENU_HEAD              , NEUTRINO_ICON_SETTINGS);
 
 	InitMainMenu(mainMenu, mainSettings, service);
 
-	InitServiceSettings(service, _scanSettings);
-	InitScanSettings(_scanSettings);
+	InitServiceSettings(service);
+
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
@@ -2324,9 +2325,9 @@ int CNeutrinoApp::run(int argc, char **argv)
 			}
 			if(ret != menu_return::RETURN_EXIT_ALL) 
 			{
-				_scanSettings.setWizardMode(true);
-				_scanSettings.exec(NULL, "");
-				_scanSettings.setWizardMode(false);
+				CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD);
+				ret = CScanSetup::getInstance()->exec(NULL, "");
+				CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD_NO);
 			}
 			
 			videoDecoder->StopPicture();
@@ -2749,22 +2750,22 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		if(g_current_channel) {
 			sat_iterator_t sit = satellitePositions.find(g_current_channel->getSatellitePosition());
 			if(sit != satellitePositions.end())
-				strncpy(get_set.satNameNoDiseqc, sit->second.name.c_str(), 50);
+				strncpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str(), 50);
 
 			transponder_list_t::iterator tI;
 			tI = transponders.find(g_current_channel->getTransponderId());
 			if(tI != transponders.end()) {
-				sprintf(get_set.TP_freq, "%d", tI->second.feparams.frequency);
+				sprintf(scanSettings.TP_freq, "%d", tI->second.feparams.frequency);
 				switch (frontend->getInfo()->type) {
 					case FE_QPSK:
-						sprintf(get_set.TP_rate, "%d", tI->second.feparams.u.qpsk.symbol_rate);
-						get_set.TP_fec = tI->second.feparams.u.qpsk.fec_inner;
-						get_set.TP_pol = tI->second.polarization;
+						sprintf(scanSettings.TP_rate, "%d", tI->second.feparams.u.qpsk.symbol_rate);
+						scanSettings.TP_fec = tI->second.feparams.u.qpsk.fec_inner;
+						scanSettings.TP_pol = tI->second.polarization;
 						break;
 					case FE_QAM:
-						sprintf(get_set.TP_rate, "%d", tI->second.feparams.u.qam.symbol_rate);
-						get_set.TP_fec = tI->second.feparams.u.qam.fec_inner;
-						get_set.TP_mod = tI->second.feparams.u.qam.modulation;
+						sprintf(scanSettings.TP_rate, "%d", tI->second.feparams.u.qam.symbol_rate);
+						scanSettings.TP_fec = tI->second.feparams.u.qam.fec_inner;
+						scanSettings.TP_mod = tI->second.feparams.u.qam.modulation;
 						break;
 					case FE_OFDM:
 					case FE_ATSC:
@@ -4172,24 +4173,18 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_RCInput->postMsg( NeutrinoMessages::VCR_ON, 0 );
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
-	else if(actionKey=="savescansettings") {
-		SaveMotorPositions();
-	}
 	else if(actionKey=="savesettings") {
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_MAINSETTINGS_SAVESETTINGSNOW_HINT)); // UTF-8
 		hintBox->paint();
 
 		saveSetup(NEUTRINO_SETTINGS_FILE);
-		SaveMotorPositions();
 
-		zapitCfg.gotoXXLatitude = strtod(zapit_lat, NULL);
-		zapitCfg.gotoXXLongitude = strtod(zapit_long, NULL);
-
-		setZapitConfig(&zapitCfg);
 		if(g_settings.cacheTXT) {
 			tuxtxt_init();
 		} else
 			tuxtxt_close();
+		
+		CScanSetup::getInstance()->exec(NULL, "save_scansettings");
 
 		//g_Sectionsd->setEventsAreOldInMinutes((unsigned short) (g_settings.epg_old_hours*60));
 		//g_Sectionsd->setHoursToCache((unsigned short) (g_settings.epg_cache_days*24));
@@ -4199,17 +4194,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if(actionKey=="recording") {
 		setupRecordingDevice();
-	}
-	else if(actionKey=="reloadchannels") {
-		//reloadhintBox->paint();
-		g_Zapit->reinitChannels();
-#if 0
-		system(mode == mode_radio
-				? "wget -q -O /dev/null http://127.0.0.1/control/setmode?radio > /dev/null 2>&1"
-				: "wget -q -O /dev/null http://127.0.0.1/control/setmode?tv > /dev/null 2>&1");
-#endif
-		//reloadhintBox->hide();
-
 	}
 	else if(actionKey=="reloadplugins") {
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_GETPLUGINS_HINT));

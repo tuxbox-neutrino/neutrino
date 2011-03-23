@@ -2354,6 +2354,7 @@ void send_ca_id(int caid)
 
 void setZapitConfig(Zapit_config * Cfg)
 {
+	printf("[zapit] %s...\n", __FUNCTION__);
 	motorRotationSpeed = Cfg->motorRotationSpeed;
 	config.setInt32("motorRotationSpeed", motorRotationSpeed);
 	config.setBool("writeChannelsNames", Cfg->writeChannelsNames);
@@ -2380,7 +2381,7 @@ void setZapitConfig(Zapit_config * Cfg)
 void sendConfig(int connfd)
 {
 	Zapit_config Cfg;
-
+	printf("[zapit] %s...\n", __FUNCTION__);
 	Cfg.motorRotationSpeed = motorRotationSpeed;
 	Cfg.writeChannelsNames = config.getBool("writeChannelsNames", true);
 	Cfg.makeRemainingChannelsBouquet = config.getBool("makeRemainingChannelsBouquet", true);
@@ -2404,6 +2405,7 @@ void sendConfig(int connfd)
 
 void getZapitConfig(Zapit_config *Cfg)
 {
+	printf("[zapit] %s...\n", __FUNCTION__);
         Cfg->motorRotationSpeed = motorRotationSpeed;
         Cfg->writeChannelsNames = config.getBool("writeChannelsNames", true);
         Cfg->makeRemainingChannelsBouquet = config.getBool("makeRemainingChannelsBouquet", true);

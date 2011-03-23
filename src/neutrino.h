@@ -170,9 +170,8 @@ private:
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
-	void InitServiceSettings(CMenuWidget &, CMenuWidget &);
+	void InitServiceSettings(CMenuWidget &);
 	void InitScreenSettings(CMenuWidget &);
-	void InitScanSettings(CMenuWidget &);
 	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &service);
 
 	void SetupFrameBuffer();

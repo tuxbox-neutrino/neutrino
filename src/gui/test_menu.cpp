@@ -47,6 +47,7 @@
 
 #include "gui/widget/hintbox.h"
 #include "gui/scan.h"
+#include "gui/scan_setup.h"
 
 extern int cs_test_card(int unit, char * str);
 
@@ -253,19 +254,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		int freq = (actionKey == "22kon") ? 12000*1000: 11000*1000;
 
-		sprintf(get_set.TP_freq, "%d", freq);
+		sprintf(scansettings.TP_freq, "%d", freq);
 #if 0 // not needed ?
 		switch (frontend->getInfo()->type) 
 		{
 		case FE_QPSK:
-			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
-			get_set.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
-			get_set.TP_pol = tmpI->second.polarization;
+			sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
+			scansettings.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
+			scansettings.TP_pol = tmpI->second.polarization;
 			break;
 		case FE_QAM:
-			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-			get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-			get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
+			sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
+			scansettings.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
+			scansettings.TP_mod = tmpI->second.feparams.u.qam.modulation;
 			break;
 		}
 #endif
@@ -279,19 +280,19 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		CScanTs * scanTs = new CScanTs();
 
 		int freq = 12538000;
-		sprintf(get_set.TP_freq, "%d", freq);
+		sprintf(scansettings.TP_freq, "%d", freq);
 		switch (frontend->getInfo()->type) 
 		{
 			case FE_QPSK:
-				sprintf(get_set.TP_rate, "%d", 41250*1000);
-				get_set.TP_fec = 1;
-				get_set.TP_pol = 1;
+				sprintf(scansettings.TP_rate, "%d", 41250*1000);
+				scansettings.TP_fec = 1;
+				scansettings.TP_pol = 1;
 				break;
 			case FE_QAM:
 #if 0
-			sprintf(get_set.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-			get_set.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-			get_set.TP_mod = tmpI->second.feparams.u.qam.modulation;
+			sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
+			scansettings.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
+			scansettings.TP_mod = tmpI->second.feparams.u.qam.modulation;
 #endif
 				break;
 			case FE_OFDM:

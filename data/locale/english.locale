@@ -1158,7 +1158,7 @@ rfmod.finetune Fine tune
 rfmod.rfmod RF modulator
 rfmod.standby Enable modulator
 rfmod.test Test pattern
-satsetup.auto_scan Auto-Scan selected Satellite
+satsetup.auto_scan Auto-Scan selected %s
 satsetup.auto_scan_all Auto-Scan multiple Satellites
 satsetup.comm_input Commited input
 satsetup.diseqc DiSEqC
@@ -1227,6 +1227,8 @@ scants.numberofdataservices Data
 scants.numberofradioservices Radio
 scants.numberoftotalservices Total
 scants.numberoftvservices TV
+scants.preverences_receiving_system Preferences
+scants.preverences_scan Scanmode
 scants.provider Provider:
 scants.select_tp Select transponder
 scants.startnow start scan
