@@ -331,7 +331,7 @@ class CMenuOptionStringChooser : public CMenuItem
 		{
 			return active;
 		}
-
+		void sortOptions();
 		int exec(CMenuTarget* parent);
 };
 

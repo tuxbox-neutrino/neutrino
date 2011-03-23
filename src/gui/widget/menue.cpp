@@ -1176,6 +1176,11 @@ void CMenuOptionStringChooser::addOption(const char * const value)
 	options.push_back(std::string(value));
 }
 
+void CMenuOptionStringChooser::sortOptions()
+{
+	sort(options.begin(), options.end());
+}
+
 int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 {
 	bool wantsRepaint = false;
