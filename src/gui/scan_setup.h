@@ -45,6 +45,9 @@
 
 class CScanSetup : public CMenuTarget
 {
+	protected:
+		int width;
+	
 	private:
 		CSatelliteSetupNotifier 	*satNotify;
 		CAllUsalsNotifier 		*usalsNotify;
@@ -53,7 +56,7 @@ class CScanSetup : public CMenuTarget
 		
 		bool is_wizard;
 		
-		int width, selected;
+		int selected;
 		int dmode;
 		int sfound;
 		int fec_count;
@@ -100,7 +103,7 @@ class CScanSetup : public CMenuTarget
 		int exec(CMenuTarget* parent, const std::string & actionKey = "");
 };
 
-class CTPSelectHandler : public CMenuTarget
+class CTPSelectHandler : public CScanSetup
 {
 	public:
 		int exec(CMenuTarget* parent,  const std::string &actionkey);

@@ -790,7 +790,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		old_position = position;
 	}
 
-	CMenuWidget menu(LOCALE_SCANTS_SELECT_TP, NEUTRINO_ICON_SETTINGS);
+	CMenuWidget menu(LOCALE_SCANTS_SELECT_TP, NEUTRINO_ICON_SETTINGS, width);
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL); //add cancel button, ensures that we have enought space left from item caption
 	
