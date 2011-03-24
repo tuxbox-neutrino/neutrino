@@ -2899,7 +2899,7 @@ _repeat:
 			/*       shuts down the system even if !g_settings.shutdown_real_rcdelay (see below)  */
 			gettimeofday(&standby_pressed_at, NULL);
 
-			if ((mode != mode_standby) && (g_settings.shutdown_real)) {
+			if ((mode != mode_standby) && (g_settings.shutdown_real) && !recordingstatus) {
 				new_msg = NeutrinoMessages::SHUTDOWN;
 			}
 			else {
