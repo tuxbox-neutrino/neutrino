@@ -138,7 +138,7 @@ audiomenu.auto_subs Automatyczny wybór napisów
 audiomenu.avs avs
 audiomenu.avs_control Tryb sterowania głośnością
 audiomenu.avsync Synchronizacja audio-wideo
-audiomenu.avsync_am gółwne audio
+audiomenu.avsync_am główne audio
 audiomenu.dolbydigital Preferowanie ścieżki Dolby Digital
 audiomenu.hdmi_dd Dolby Digital przez HDMI
 audiomenu.head Ustawienia dźwięku
@@ -153,7 +153,7 @@ audiomenu.pref_subs Preferowany język napisów
 audiomenu.pref_subs_head Preferencje napisów
 audiomenu.spdif_dd Dolby Digital przez SPDIF
 audiomenu.stereo stereo
-audiomenu.volume_step Reguluj głośność co: 
+audiomenu.volume_step Skok regulacji głośności
 audioplayer.add Dodaj
 audioplayer.add_ic Icecast
 audioplayer.add_loc Lokalna
@@ -208,6 +208,7 @@ bookmarkmanager.select Wybierz
 bouqueteditor.add Dodaj
 bouqueteditor.bouquetname Nazwa bukietu
 bouqueteditor.delete Usuń
+bouqueteditor.delete_question Usunąć kanał z bukietu?
 bouqueteditor.discardingchanges Zmiany zostaną odrzucone. Proszę czekać...
 bouqueteditor.hide Ukryj
 bouqueteditor.lock Blokuj
@@ -229,7 +230,7 @@ channellist.epgtext_align_right do prawej
 channellist.extended Pasek postępu
 channellist.favs Ulubione
 channellist.foot Informacje o kanale
-channellist.foot_freq Info o Sat/Częst.
+channellist.foot_freq parametry
 channellist.foot_next nast. audycja
 channellist.foot_off wyłączone
 channellist.head Wszystkie kanały
@@ -274,7 +275,13 @@ colormenusetup.menucontent_selected Wybrana zawartość okna
 colormenusetup.menuhead Pasek tytułu
 colorstatusbar.text Belka informacyjna
 colorthememenu.head Wybór tematów
-colorthememenu.neutrino_theme Neutrino
+colorthememenu.head2 Wybór motywu
+colorthememenu.name Nazwa motywu
+colorthememenu.neutrino_theme Motyw Neutrino
+colorthememenu.question Zapisać aktualny motyw?
+colorthememenu.save Zapis aktualnego motywu
+colorthememenu.select1 Motywy użytkownika
+colorthememenu.select2 Motywy standardowe
 date.Apr  Kwi
 date.Aug  Sie
 date.Dec  Gru
@@ -549,6 +556,7 @@ hdd_activate Aktywacja ustawień
 hdd_check Test systemu plików
 hdd_check_failed Błąd, sprawdzanie dysku nie powiodło się!
 hdd_ext3 ext3
+hdd_extended_settings Ustawienia dysku
 hdd_fast minimalne
 hdd_format Tworzenie systemu plików (ext3)
 hdd_format_failed Błąd podczas tworzenia systemu plików!
@@ -559,6 +567,7 @@ hdd_middle średnie
 hdd_noise Wyciszenie
 hdd_not_found Brak dysku twardego
 hdd_reiser ReiserFS
+hdd_removable_device Przenośna pamięć flash
 hdd_settings Dysk twardy
 hdd_sleep Stan gotowości
 hdd_slow maksymalne
@@ -608,6 +617,7 @@ keybindingmenu.lastchannel Szybkie przełączanie
 keybindingmenu.modechange Zmiana trybu
 keybindingmenu.pagedown Następna strona
 keybindingmenu.pageup Poprzednia strona
+keybindingmenu.poweroff Wyłącznik
 keybindingmenu.quickzap Zmiana kanałów
 keybindingmenu.repeatblock Opóźnienie początkowe
 keybindingmenu.repeatblockgeneric Opóźnienie powtarzania
@@ -726,10 +736,12 @@ miscsettings.infobar_disp_log Logo kanału
 miscsettings.infobar_sat_display Wyświetlanie nazwy satelity
 miscsettings.infobar_show Pokaż pasek po zmianie epg
 miscsettings.infobar_show_res Pokaż rozdzielczość
+miscsettings.infobar_show_res_simple prosta
 miscsettings.infobar_show_var_hdd Paski zapełnienia pamięci flash i dysku
 miscsettings.noaviawatchdog włącz AVIA watchdog
 miscsettings.noenxwatchdog włącz eNX watchdog
-miscsettings.pmtupdate włącz aktualizację pmt 
+miscsettings.pmtupdate włącz aktualizację pmt
+miscsettings.show_infomenu Menu informacyjne
 miscsettings.shutdown_count Całkowite wyłączenie po (min, 0-wył)
 miscsettings.shutdown_count_hint1 Czas w minutach, po którym odbiornik w trybie 
 miscsettings.shutdown_count_hint2 gotowości wyłączy się całkowicie (0-wył).
@@ -927,11 +939,15 @@ mpkey.plugin Uruchom plugin
 mpkey.rewind Wstecz
 mpkey.stop Stop
 mpkey.time Pokaż czas
+networkmenu.apply_settings Wprowadzanie zmian, proszę czekać...
+networkmenu.apply_settings_now Zastosować wprowadzone zmiany?
 networkmenu.broadcast Adres rozgłoszenia
 networkmenu.dhcp DHCP
+networkmenu.error_no_address %s nie został(a) wprowadzony!
 networkmenu.gateway Adres bramy
 networkmenu.head Ustawienia sieciowe
 networkmenu.hostname Nazwa hosta
+networkmenu.inactive_network Sieć nieaktywna!
 networkmenu.ipaddress Adres IP
 networkmenu.mount Zasoby sieciowe
 networkmenu.nameserver Adres serwera DNS
@@ -944,9 +960,13 @@ networkmenu.ntpserver Adres serwera NTP
 networkmenu.ntpserver_hint1 Podaj adres serwera NTP
 networkmenu.ntpserver_hint2 
 networkmenu.ntptitle Aktualizacja czasu
+networkmenu.password Hasło/Klucz
+networkmenu.reset_settings_now Przywrócić poprzednie ustawienia?
+networkmenu.select_if Interfejs sieciowy
 networkmenu.setupnow Zastosuj
 networkmenu.setuponstartup Aktywne po uruchomieniu
 networkmenu.show Bieżące ustawienia
+networkmenu.ssid SSID
 networkmenu.test Test ustawień
 neutrino_starting Uruchamianie Neutrino...
 nfs.alreadymounted Zasób jest już podłączony.
@@ -1319,7 +1339,6 @@ timersettings.separator Korekta czasu nagrania
 timing.chanlist Lista kanałów
 timing.epg EPG
 timing.filebrowser Przeglądarka plików
-timing.head Czasy wyświetlania
 timing.hint_1 Czas wyświetlania OSD
 timing.hint_2 na ekranie TV (s)
 timing.infobar Belka informacyjna
@@ -1341,6 +1360,7 @@ usermenu.item_vtxt Teletekst
 usermenu.name Nazwa
 video_mode_ok Czy ten tryb wideo działa poprawnie?
 videomenu.43mode Tryb 4:3
+videomenu.adjust Dostrajanie obrazu
 videomenu.analog_hd_rgb_cinch RGB cinch (HD)
 videomenu.analog_hd_rgb_scart RGB scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr cinch (HD)
@@ -1351,7 +1371,9 @@ videomenu.analog_sd_rgb_scart RGB scart (SD)
 videomenu.analog_sd_yprpb_cinch YPbPr cinch (SD)
 videomenu.analog_sd_yprpb_scart YPbPr scart (SD)
 videomenu.auto automatycznie
+videomenu.brightness Jasność
 videomenu.cinch Cinch
+videomenu.contrast Kontrast
 videomenu.csync Korekcja synchronizacji
 videomenu.dbdr Przetwarzanie MPEG2
 videomenu.dbdr_both deblock + dering
@@ -1367,13 +1389,16 @@ videomenu.hdmi_cec_mode_tuner odbiornik
 videomenu.hdmi_cec_standby Stan gotowości po wył. TV
 videomenu.hdmi_cec_view_on Włączanie TV
 videomenu.head Ustawienia obrazu
+videomenu.hue Odcień
 videomenu.letterbox letterbox
 videomenu.osd Grafika ekranowa
 videomenu.panscan Pan&Scan
 videomenu.panscan2 Pan&Scan 14:9
 videomenu.rgb_centering Wyśrodkowanie RGB
+videomenu.saturation Nasycenie
 videomenu.scart Scart
 videomenu.screensetup Widoczna część obrazu
+videomenu.sharpness Ostrość
 videomenu.tv-scart Opcje wyświetlania obrazu
 videomenu.videoformat Proporcje obrazu
 videomenu.videoformat_149 14:9
@@ -1384,6 +1409,7 @@ videomenu.videomode Sygnał cyfrowy
 videomenu.videomode_ntsc NTSC
 videomenu.videomode_pal PAL
 videomenu.videomode_palm PAL-M
+word.from Od
 zapit.scantype Wyszukaj kanały
 zapit.scantype.all wszystkie
 zapit.scantype.radio tylko radiowe
