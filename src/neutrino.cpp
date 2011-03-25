@@ -47,7 +47,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/statvfs.h>
-#include <sys/vfs.h>
+
 
 #include <sys/socket.h>
 
@@ -4279,35 +4279,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		MoviePluginSelector.exec(NULL, "");
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "loadconfig") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		CFileFilter fileFilter;
-		fileFilter.addFilter("conf");
-		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/var/tuxbox/config") == true) {
-			loadSetup(fileBrowser.getSelectedFile()->Name.c_str());
-			colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-			CVFD::getInstance()->setlcdparameter();
-			printf("[neutrino] new settings: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-		}
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "saveconfig") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/var/tuxbox") == true) {
-			char  fname[256] = "neutrino.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
-			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino] save settings: %s\n", sname);
-			saveSetup(sname);
-			delete sms;
-		}
-		return menu_return::RETURN_REPAINT;
-	}
 	else if(actionKey == "loadcolors") {
 		parent->hide();
 		CFileBrowser fileBrowser;
@@ -4335,33 +4306,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return menu_return::RETURN_REPAINT;
 	}
-// 	else if(actionKey == "loadkeys") {
-// 		parent->hide();
-// 		CFileBrowser fileBrowser;
-// 		CFileFilter fileFilter;
-// 		fileFilter.addFilter("conf");
-// 		fileBrowser.Filter = &fileFilter;
-// 		if (fileBrowser.exec("/var/tuxbox/config") == true) {
-// 			loadKeys(fileBrowser.getSelectedFile()->Name.c_str());
-// 			printf("[neutrino] new keys: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-// 		}
-// 		return menu_return::RETURN_REPAINT;
-// 	}
-// 	else if(actionKey == "savekeys") {
-// 		parent->hide();
-// 		CFileBrowser fileBrowser;
-// 		fileBrowser.Dir_Mode = true;
-// 		if (fileBrowser.exec("/var/tuxbox") == true) {
-// 			char  fname[256] = "keys.conf", sname[256];
-// 			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVEKEYS, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
-// 			sms->exec(NULL, "");
-// 			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-// 			printf("[neutrino] save keys: %s\n", sname);
-// 			saveKeys(sname);
-// 			delete sms;
-// 		}
-// 		return menu_return::RETURN_REPAINT;
-// 	}
 	else if(actionKey == "autolink") {
 		if(autoshift) {
 			char buf[512];
@@ -4378,41 +4322,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	{
 		g_Sectionsd->freeMemory();
 	}
-	else if(actionKey == "backup") {
-		if(parent)
-			parent->hide();
-		CFileBrowser fileBrowser;
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/media") == true) {
-			char  fname[256];
-			struct statfs s;
-			int ret = ::statfs(fileBrowser.getSelectedFile()->Name.c_str(), &s);
-			if(ret == 0 && s.f_type != 0x72b6L) { /*jffs2*/
-				sprintf(fname, "/bin/backup.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
-				printf("backup: executing [%s]\n", fname);
-				system(fname);
-			} else
-				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),
-						CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
-		}
-	}
-	else if(actionKey == "restore") {
-		if(parent)
-			parent->hide();
-		CFileBrowser fileBrowser;
-		CFileFilter fileFilter;
-		fileFilter.addFilter("tar");
-		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/media") == true) {
-			int result = ShowMsgUTF(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-			if(result == CMessageBox::mbrYes) {
-				char  fname[256];
-				sprintf(fname, "/bin/restore.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
-				printf("restore: executing [%s]\n", fname);
-				system(fname);
-			}
-		}
-	}
+
 
 	return returnval;
 }

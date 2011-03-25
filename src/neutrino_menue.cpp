@@ -69,6 +69,7 @@
 #include "gui/plugins.h"
 #include "gui/record_setup.h"
 #include "gui/scan_setup.h"
+#include "gui/settings_manager.h"
 #include "gui/sleeptimer.h"
 #include <gui/streaminfo2.h>
 #ifdef TEST_MENU
@@ -154,20 +155,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 
 	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
-	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
-	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_MANAGE, NEUTRINO_ICON_SETTINGS);
-	mset->addIntroItems();
-
-	mset->addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier, "settings"));
-	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig"));
-	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig"));
-	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_BACKUP,  true, NULL, this, "backup"));
-	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore"));
-	mset->addItem(new CMenuForwarder(LOCALE_RESET_ALL,   true, NULL, resetNotifier, "all"));
-
-	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, mset));
-
-	//mainSettings.addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS    , true, NULL, resetNotifier, "settings"));
+	mainSettings.addItem(new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager()));
 
 	mainSettings.addItem(GenericMenuSeparatorLine);
 	

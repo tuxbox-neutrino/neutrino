@@ -77,6 +77,7 @@ libneutrino_gui_a_SOURCES = \
 	scan.cpp \
 	scan_setup.cpp \
 	screensetup.cpp \
+	settings_manager.cpp \
 	sleeptimer.cpp \
 	streaminfo2.cpp \
 	test_menu.cpp \
