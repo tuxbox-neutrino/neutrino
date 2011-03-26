@@ -1216,6 +1216,7 @@ int CTimerList::newTimer()
 	timerSettings.addItem( m9);
 	timerSettings.addItem( m10);
 
+	notifier2.changeNotify(NONEXISTANT_LOCALE, NULL);
 	int ret=timerSettings.exec(this,"");
 
 	// delete dynamic created objects
