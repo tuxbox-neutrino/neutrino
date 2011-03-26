@@ -145,6 +145,7 @@ class CVFD
 		void Clear();
 		void ShowIcon(vfd_icon icon, bool show);
 		void ShowText(char * str);
+		MODES getMode(void) { return mode; };
 #ifdef LCD_UPDATE
         private:
                 CFileList* m_fileList;
@@ -162,7 +163,6 @@ class CVFD
                 int m_progressGlobal;
                 int m_progressLocal;
         public:
-                MODES getMode(void){return mode;};
 
                 void showFilelist(int flist_pos = -1,CFileList* flist = NULL,const char * const mainDir=NULL);
                 void showInfoBox(const char * const title = NULL,const char * const text = NULL,int autoNewline = -1,int timer = -1);
