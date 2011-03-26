@@ -80,6 +80,8 @@ class CTimerList : public CMenuTarget
 		void hide();
 		int modifyTimer();
 		int newTimer();
+		/* todo: properly import the enum CVFD::MODES */
+		int saved_dispmode;
 
 	public:
 		CTimerList();

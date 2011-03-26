@@ -258,6 +258,8 @@ CTimerList::CTimerList()
 
 	//buttonHeight = 7 + std::max(icol_h+2, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
 	buttonHeight = std::max(icol_h+4, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
+	/* most probable default */
+	saved_dispmode = (int)CVFD::MODE_TVRADIO;
 }
 
 CTimerList::~CTimerList()
@@ -375,6 +377,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 
 	int ret = show();
+	CVFD::getInstance()->setMode((CVFD::MODES)saved_dispmode);
 
 	return ret;
 	/*
@@ -862,6 +865,7 @@ void CTimerList::paint()
 	unsigned int page_nr = (listmaxshow == 0) ? 0 : (selected / listmaxshow);
 	liststart = page_nr * listmaxshow;
 
+	saved_dispmode = (int)CVFD::getInstance()->getMode();
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, g_Locale->getText(LOCALE_TIMERLIST_NAME));
 
 	paintHead();
