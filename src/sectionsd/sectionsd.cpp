@@ -8583,7 +8583,7 @@ void sectionsd_main_thread(void */*data*/)
 
 	printf("$Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $\n");
 
-	/* SIlanguage::loadLanguages(); */
+	SIlanguage::loadLanguages();
 
 	tzset(); // TZ auswerten
 
@@ -9445,5 +9445,5 @@ void sectionsd_setPrivatePid(unsigned short /*pid*/)
 void sectionsd_set_languages(const std::vector<std::string>& newLanguages)
 {
 	SIlanguage::setLanguages(newLanguages);
-	SIlanguage::saveLanguages();//FIXME for debug
+	SIlanguage::saveLanguages();
 }
