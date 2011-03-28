@@ -1542,7 +1542,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 	TIMER_STOP("[neutrino] tv took");
 
-	if(g_settings.make_hd_list)
+	if(g_settings.make_hd_list && hi)
 		TVfavList->Bouquets.push_back(hdBouquet);
 
 	bnum = 0;
