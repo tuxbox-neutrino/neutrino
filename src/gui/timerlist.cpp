@@ -251,10 +251,10 @@ CTimerList::CTimerList()
 	Timer = new CTimerdClient();
 	skipEventID=0;
 
-        /* assuming all color icons must have same size */
-        int icol_w, icol_h, ih2;
-        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-        frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &icol_w, &ih2);
+	/* assuming all color icons must have same size */
+	int icol_w, icol_h, ih2;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &icol_w, &ih2);
 	icol_h = std::max(icol_h, ih2);
 
 	//buttonHeight = 7 + std::max(icol_h+2, g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight());
@@ -372,18 +372,18 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		return menu_return::RETURN_EXIT;
 	}
 	else if(actionKey == "rec_dir1") {
-		parent->hide(); 
+		parent->hide();
 		const char *action_str = "RecDir1";
-		if(chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1)){
-				printf("[%s] new %s dir %s\n",__FILE__, action_str, timerlist[selected].recordingDir);
+		if(chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1)) {
+			printf("[%s] new %s dir %s\n",__FILE__, action_str, timerlist[selected].recordingDir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey == "rec_dir2") {
-		parent->hide(); 
+		parent->hide();
 		const char *action_str = "RecDir2";
-		if(chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1)){
-				printf("[%s] new %s dir %s\n",__FILE__, action_str, timerNew.recordingDir);
+		if(chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1)) {
+			printf("[%s] new %s dir %s\n",__FILE__, action_str, timerNew.recordingDir);
 		}
 		return menu_return::RETURN_REPAINT;
 	}
@@ -495,7 +495,7 @@ int CTimerList::show()
 
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-					::TIMING_MENU]);
+							      ::TIMING_MENU]);
 
 		if((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
 			if (fadeOut) { // disappear
@@ -521,7 +521,7 @@ int CTimerList::show()
 		}
 		else if ( ( msg == CRCInput::RC_timeout ) ||
 				( msg == CRCInput::RC_home)  || (msg == CRCInput::RC_left) )
-		{ //Exit after timeout or cancel key
+		{	//Exit after timeout or cancel key
 			if ( fadeIn ) {
 				g_RCInput->killTimer(fadeTimer);
 				fadeTimer = 0;
@@ -806,7 +806,8 @@ void CTimerList::paintItem(int pos)
 			zAddData = timer.pluginName;
 		}
 		break;
-		default: {}
+		default:
+		{}
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+fw*13,ypos+2*fheight, real_width-(fw*13+5), zAddData, color, fheight, true); // UTF-8
 		// LCD Display
@@ -851,7 +852,7 @@ void CTimerList::paintHead()
 
 	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	frameBuffer->paintIcon(NEUTRINO_ICON_TIMER, x+5, y, theight);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+icol_w+15, y+theight+0, width - 45, 
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+icol_w+15, y+theight+0, width - 45,
 			g_Locale->getText(LOCALE_TIMERLIST_NAME), COL_MENUHEAD, 0, true); // UTF-8
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_TIMER, &icol_w, &icol_h);
@@ -873,7 +874,7 @@ void CTimerList::paintFoot()
 		::paintButtons(	x, y + height, width, 2, &(TimerListButtons[1]));
 	else
 		::paintButtons(	x, y + height, width, 4, TimerListButtons);
-	
+
 }
 
 void CTimerList::paint()
