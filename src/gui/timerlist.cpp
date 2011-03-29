@@ -45,10 +45,12 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 
+#include <gui/channellist.h>
 #include <gui/color.h>
 #include <gui/eventlist.h>
+#include <gui/filebrowser.h>
 #include <gui/infoviewer.h>
-#include <gui/channellist.h>
+
 
 #include <gui/widget/buttons.h>
 #include <gui/widget/hintbox.h>
@@ -57,7 +59,6 @@
 #include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
-#include <gui/widget/mountchooser.h>
 
 #include <system/settings.h>
 #include <system/fsmounter.h>
@@ -370,7 +371,22 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_RCInput->postMsg(CRCInput::RC_timeout, 0); // leave underlying menu also
 		return menu_return::RETURN_EXIT;
 	}
-
+	else if(actionKey == "rec_dir1") {
+		parent->hide(); 
+		const char *action_str = "RecDir1";
+		if(chooserDir(timerlist[selected].recordingDir, true, action_str, sizeof(timerlist[selected].recordingDir)-1)){
+				printf("[%s] new %s dir %s\n",__FILE__, action_str, timerlist[selected].recordingDir);
+		}
+		return menu_return::RETURN_REPAINT;
+	}
+	else if(actionKey == "rec_dir2") {
+		parent->hide(); 
+		const char *action_str = "RecDir2";
+		if(chooserDir(timerNew.recordingDir, true, action_str, sizeof(timerNew.recordingDir)-1)){
+				printf("[%s] new %s dir %s\n",__FILE__, action_str, timerNew.recordingDir);
+		}
+		return menu_return::RETURN_REPAINT;
+	}
 	if (parent)
 	{
 		parent->hide();
@@ -1062,14 +1078,8 @@ int CTimerList::modifyTimer()
 	if (!strlen(timer->recordingDir))
 		strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir,sizeof(timer->recordingDir));
 
-	CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,NULL,
-			      timer->recordingDir, g_settings.network_nfs_recordingdir);
-	if (!recDirs.hasItem())
-	{
-		printf("[CTimerList] warning: no network devices available\n");
-	}
-	bool recDirEnabled = recDirs.hasItem() && (timer->eventType == CTimerd::TIMER_RECORD) && (g_settings.recording_type == RECORDING_FILE);
-	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR,recDirEnabled,timer->recordingDir, &recDirs);
+	bool recDirEnabled = (timer->eventType == CTimerd::TIMER_RECORD) && (g_settings.recording_type == RECORDING_FILE);
+	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer->recordingDir, this, "rec_dir1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
 	timerSettings.addItem(GenericMenuSeparatorLine);
 	timerSettings.addItem(m3);
@@ -1180,12 +1190,7 @@ int CTimerList::newTimer()
 	strcpy(timerNew_channel_name,"---");
 	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_CHANNEL, true, timerNew_channel_name, &mm);
 
-	CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,NULL,timerNew.recordingDir,g_settings.network_nfs_recordingdir);
-	if (!recDirs.hasItem())
-	{
-		printf("[CTimerList] warning: no network devices available\n");
-	}
-	CMenuForwarder* m7 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirs.hasItem(),timerNew.recordingDir, &recDirs);
+	CMenuForwarder* m7 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, true,timerNew.recordingDir, this, "rec_dir2", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
 	CMenuOptionChooser* m8 = new CMenuOptionChooser(LOCALE_TIMERLIST_STANDBY, &timerNew_standby_on, TIMERLIST_STANDBY_OPTIONS, TIMERLIST_STANDBY_OPTION_COUNT, false);
 

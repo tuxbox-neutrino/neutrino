@@ -4079,12 +4079,13 @@ printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 void CNeutrinoApp::startNextRecording()
 {
 	if ((recordingstatus == 0) && (nextRecordingInfo != NULL)) {
-		bool doRecord = true;
+		bool doRecord = false;
 		if (CVCRControl::getInstance()->isDeviceRegistered()) {
 			recording_id = nextRecordingInfo->eventID;
 			if (g_settings.recording_type == RECORDING_FILE) {
 				char *recordingDir = strlen(nextRecordingInfo->recordingDir) > 0 ?
 					nextRecordingInfo->recordingDir : g_settings.network_nfs_recordingdir;
+#if 0
 				if (!CFSMounter::isMounted(recordingDir)) {
 					doRecord = false;
 					for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -4110,14 +4111,19 @@ void CNeutrinoApp::startNextRecording()
 							break;
 						}
 					}
-					if (!doRecord) {
+				}
+#endif
+				if(!check_dir(recordingDir)){
+					    doRecord = true;
+				}
+				if (!doRecord) {
 						// recording dir does not seem to exist in config anymore
 						// or an error occured while mounting
 						// -> try default dir
-						recordingDir = g_settings.network_nfs_recordingdir;
-						doRecord = true;
-					}
+					recordingDir = g_settings.network_nfs_recordingdir;
+					doRecord = true;
 				}
+
 				(static_cast<CVCRControl::CFileDevice*>(recordingdevice))->Directory = std::string(recordingDir);
 printf("CNeutrinoApp::startNextRecording: start to dir %s\n", recordingDir);
 			}
