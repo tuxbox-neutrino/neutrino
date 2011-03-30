@@ -51,6 +51,8 @@
 
 extern bool timeset;
 time_t timer_minutes;
+bool timer_is_rec;
+bool timer_wakeup;
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
 //------------------------------------------------------------
@@ -66,7 +68,7 @@ void CTimerManager::Init(void)
 	m_saveEvents = false;
 	m_isTimeSet = false;
 	wakeup = 0;
-
+	timer_wakeup = false;
 #if HAVE_COOL_HARDWARE
 	int fd = open("/dev/display", O_RDONLY);
 
@@ -83,6 +85,7 @@ void CTimerManager::Init(void)
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(wakeup){
 		creat("/tmp/.wakeup", 0);
+		timer_wakeup = true;
 	}else{
 		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
 		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
@@ -695,6 +698,8 @@ bool CTimerManager::shutdown()
 	timerd_debug = 1; //FIXME
 	time_t nextAnnounceTime=0;
 	bool status=false;
+	timer_is_rec = false;
+
 	dprintf("stopping timermanager thread ...\n");
 
 	dprintf("Waiting for timermanager thread to terminate ...\n");
@@ -728,6 +733,8 @@ bool CTimerManager::shutdown()
 			{
 				nextAnnounceTime=event->announceTime;
 				dprintf("shutdown: nextAnnounceTime %ld\n", nextAnnounceTime);
+				if ( event->eventType == CTimerd::TIMER_RECORD )
+					timer_is_rec = true;
 			}
 		}
 	}

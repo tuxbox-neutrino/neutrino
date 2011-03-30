@@ -648,6 +648,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	g_settings.recording_use_fdatasync         = configfile.getBool("recordingmenu.use_fdatasync"        , false);
 	g_settings.recording_audio_pids_default    = configfile.getInt32("recording_audio_pids_default", TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
 	g_settings.recording_zap_on_announce       = configfile.getBool("recording_zap_on_announce"      , false);
+	g_settings.shutdown_timer_record_type       = configfile.getBool("shutdown_timer_record_type"      , false);
 
 	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , false);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
@@ -1174,6 +1175,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setInt32 ("recording_audio_pids_default"       , g_settings.recording_audio_pids_default);
 	configfile.setBool  ("recording_zap_on_announce"          , g_settings.recording_zap_on_announce      );
+	configfile.setBool  ("shutdown_timer_record_type"          , g_settings.shutdown_timer_record_type      );
 
 	configfile.setBool  ("recordingmenu.stream_vtxt_pid"      , g_settings.recording_stream_vtxt_pid      );
 	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid      );
@@ -2053,7 +2055,7 @@ static void CSSendMessage(uint32_t msg, uint32_t data)
 	if (g_RCInput)
 		g_RCInput->postMsg(msg, data);
 }
-
+extern bool timer_wakeup;//timermanager.cpp
 int CNeutrinoApp::run(int argc, char **argv)
 {
 	CmdParser(argc, argv);
@@ -2102,6 +2104,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	pthread_create (&zapit_thread, NULL, zapit_main_thread, (void *) &ZapStart_arg);
 	audioSetupNotifier        = new CAudioSetupNotifier;
+	//timer start
+	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
 
 	while(!zapit_ready)
 		usleep(0);
@@ -2116,10 +2120,16 @@ int CNeutrinoApp::run(int argc, char **argv)
 	//init video settings
 	g_videoSettings = new CVideoSettings;
 	g_videoSettings->setVideoSettings();
-	
-	//init cec settings
-	CCECSetup cecsetup;
-	cecsetup.setCECSettings();
+
+	init_cec_setting = true;
+	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
+		//init cec settings
+		CCECSetup cecsetup;
+		cecsetup.setCECSettings();
+		init_cec_setting = false;
+	}
+	g_settings.shutdown_timer_record_type = false;
+	timer_wakeup = false;	  
 
 	// trigger a change
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
@@ -2140,7 +2150,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	dvbsub_init();
 
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
 
 	pthread_create (&stream_thread, NULL, streamts_main_thread, (void *) NULL);
@@ -2406,7 +2415,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 		ShowMsgUTF(LOCALE_PLUGINS_RESULT, g_PluginList->getScriptOutput(), CMessageBox::mbrBack,CMessageBox::mbBack,NEUTRINO_ICON_SHELL);
 	}
 	g_RCInput->clearRCMsg();
-	if(g_settings.power_standby)
+	if(g_settings.power_standby || init_cec_setting)
 		standbyMode(true);
 
 	cCA::GetInstance()->Ready(true);
@@ -3479,7 +3488,8 @@ skip_message:
 	return messages_return::unhandled;
 }
 
-extern time_t timer_minutes;
+extern time_t timer_minutes;//timermanager.cpp
+extern bool timer_is_rec;//timermanager.cpp
 
 void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 {
@@ -3505,11 +3515,13 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		frameBuffer->paintBackground();
 		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/shutdown.jpg");
 
-		saveSetup(NEUTRINO_SETTINGS_FILE);
-
 		if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/) {
 			saveEpg();
 		}
+
+		stop_daemons(retcode);//need here for timer_is_rec before saveSetup
+		g_settings.shutdown_timer_record_type = timer_is_rec;
+		saveSetup(NEUTRINO_SETTINGS_FILE);
 
 		if(retcode) {
 			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
@@ -3520,8 +3532,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			printf("entering off state\n");
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
-
-			stop_daemons(true);
 
 			system("/etc/init.d/rcK");
 			system("/bin/sync");
@@ -3629,9 +3639,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				delete funNotifier;
 			}
 			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_REBOOT));
-
 			delete frameBuffer;
-			stop_daemons();
 
 #if 0 /* FIXME this next hack to test, until we find real crash on exit reason */
 			system("/etc/init.d/rcK");
@@ -3971,6 +3979,14 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 	} else {
 		// Active standby off
+
+		if(init_cec_setting){
+			//init cec settings
+			CCECSetup cecsetup;
+			cecsetup.setCECSettings();
+			init_cec_setting = false;
+		}
+
 		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 
 		powerManager->SetStandby(false, false);
