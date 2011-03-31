@@ -217,20 +217,23 @@ class CMenuForwarderNonLocalized : public CMenuForwarder
 
 class CAbstractMenuOptionChooser : public CMenuItem
 {
- protected:
-	neutrino_locale_t optionName;
-	int               height;
-	int *             optionValue;
+	protected:
+		neutrino_locale_t optionName;
+		int               height;
+		int *             optionValue;
 
-	int getHeight(void) const
-		{
-			return height;
-		}
+		int getHeight(void) const{return height;}
 
-	bool isSelectable(void) const
+		bool isSelectable(void) const{return active;}
+	public:
+		CAbstractMenuOptionChooser()
 		{
-			return active;
-		}
+			optionName = NONEXISTANT_LOCALE;
+			height = 0;
+			optionValue = NULL;
+		};
+		~CAbstractMenuOptionChooser(){}
+		
 };
 
 class CMenuOptionNumberChooser : public CAbstractMenuOptionChooser
