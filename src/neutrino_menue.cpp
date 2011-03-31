@@ -81,24 +81,12 @@
 #include "gui/widget/stringinput.h"
 #include "gui/widget/stringinput_ext.h"
 
-#include <zapit/fastscan.h>
-#include <zapit/frontend_c.h>
-#include <zapit/getservices.h>
-#include <zapit/satconfig.h>
-
-
-extern CFrontend * frontend;
-extern CAudioPlayerGui * audioPlayer;
 extern CPlugins       * g_PluginList;
-extern bool has_hdd;
-extern CZapitClient::SatelliteList satList;
-extern Zapit_config zapitCfg;
-extern char zapit_lat[20];
-extern char zapit_long[20];
-extern char current_timezone[50];
 extern CRemoteControl * g_RemoteControl;
 extern CCAMMenuHandler * g_CamHandler;
-extern bool autoshift;
+// extern bool has_hdd;
+// extern char current_timezone[50];
+// extern bool autoshift;
 
 
 /**************************************************************************************
@@ -222,11 +210,11 @@ const CMenuOptionChooser::keyval FLASHUPDATE_UPDATEMODE_OPTIONS[FLASHUPDATE_UPDA
 	{ 1, LOCALE_FLASHUPDATE_UPDATEMODE_INTERNET }
 };
 
-void getZapitConfig(Zapit_config *Cfg);
-void CNeutrinoApp::InitServiceSettings(CMenuWidget &service/*, CMenuWidget &_scanSettings*/)
+
+void CNeutrinoApp::InitServiceSettings(CMenuWidget &service)
 {
 	dprintf(DEBUG_DEBUG, "init serviceSettings\n");
- 	getZapitConfig(&zapitCfg);
+
 
 #if 0
 	CZapitDestExec * zexec = new CZapitDestExec();

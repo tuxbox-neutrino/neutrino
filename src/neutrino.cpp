@@ -152,15 +152,12 @@
 
 int old_b_id = -1;
 CHintBox * reloadhintBox = 0;
-uint32_t sec_timer;
-int rf_dummy;
+// int rf_dummy; 
 bool has_hdd;
 #include "gui/infoclock.h"
-#include "gui/dboxinfo.h"
 CInfoClock      *InfoClock;
 int allow_flash = 1;
 extern int was_record;
-extern char current_timezone[50];
 Zapit_config zapitCfg;
 char zapit_lat[20];
 char zapit_long[20];
@@ -189,8 +186,6 @@ void * zapit_main_thread(void *data);
 extern t_channel_id live_channel_id; //zapit
 extern t_channel_id rec_channel_id; //zapit
 extern CZapitChannel *g_current_channel;
-// void setZapitConfig(Zapit_config * Cfg);
-void getZapitConfig(Zapit_config *Cfg);
 
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
@@ -963,8 +958,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 		}
 	}
 #endif
-	//scan settings
-	if(!scanSettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
+	//scansettings
+	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 	}
 
@@ -4206,8 +4201,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		} else
 			tuxtxt_close();
 		
-		CScanSetup::getInstance()->exec(NULL, "save_scansettings");
-
 		//g_Sectionsd->setEventsAreOldInMinutes((unsigned short) (g_settings.epg_old_hours*60));
 		//g_Sectionsd->setHoursToCache((unsigned short) (g_settings.epg_cache_days*24));
 
