@@ -37,9 +37,9 @@ typedef struct _cnxtfb_resolution
 
 typedef enum
 {
-  CNXTFB_BLEND_MODE_GLOBAL_ALPHA = 0,
-  CNXTFB_BLEND_MODE_PIXEL_ALPHA,
-  CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED,
+  CNXTFB_BLEND_MODE_GLOBAL_ALPHA = 0, /* Global / Region Alpha */
+  CNXTFB_BLEND_MODE_PIXEL_ALPHA,      /* Alpha from pixel */
+  CNXTFB_BLEND_MODE_ALPHA_MULTIPLIED, /* Global alpha multiplied with pixel alpha */
 } CNXTFB_BLEND_MODE;
 
 #define CNXTFB_IO(type)            _IO('F', type)
@@ -50,7 +50,7 @@ typedef enum
 #define FBIO_WAITFORVSYNC       _IOW('F', 0x20, u_int32_t)
 #endif
 
-#define FBIO_GETCNXTFBHANDLE      CNXTFB_IOR(0x21, cnxtfb_handle) // 0x4620
+#define FBIO_GETCNXTFBHANDLE      CNXTFB_IOR(0x21, cnxtfb_handle)
 #define FBIO_STARTDISPLAY         CNXTFB_IO(0x22)
 #define FBIO_STOPDISPLAY          CNXTFB_IO(0x23)
 #define FBIO_SETOPACITY           CNXTFB_IOW(0x24, u_int8_t)
