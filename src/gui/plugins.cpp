@@ -68,6 +68,11 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 #define PLUGINDIR_VAR "/var/tuxbox/plugins"
 #define PLUGINDIR_USB "/mnt/usb/tuxbox/plugins"
 
+CPlugins::CPlugins()
+{
+	
+}
+
 bool CPlugins::plugin_exists(const std::string & filename)
 {
 	return (find_plugin(filename) >= 0);

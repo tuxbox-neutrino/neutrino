@@ -99,7 +99,7 @@ class CPlugins
 		bool pluginfile_exists(const std::string & filename);
 		CPlugins::p_type_t getPluginType(int type);
 	public:
-
+		CPlugins();
 		~CPlugins();
 
 		void loadPlugins();
