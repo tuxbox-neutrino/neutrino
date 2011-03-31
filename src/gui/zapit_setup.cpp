@@ -39,6 +39,7 @@
 CZapitSetup::CZapitSetup()
 {
 	width = w_max (40, 10); //%
+	selected = -1;
 }
 
 CZapitSetup::~CZapitSetup()
@@ -63,6 +64,7 @@ void CZapitSetup::showMenu()
 {
 	//menue init
 	CMenuWidget *zapit = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	zapit->setSelected(selected);
 	zapit->addIntroItems(LOCALE_ZAPITSETUP_INFO);
 
 	//zapit
@@ -73,6 +75,7 @@ void CZapitSetup::showMenu()
 
 	zapit->exec(NULL, "");
 	zapit->hide();
+	selected = zapit->getSelected();
 	delete zapit;
 }
 
