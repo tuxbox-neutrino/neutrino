@@ -67,7 +67,8 @@ extern int scan_pids;
 static int all_usals = 1;
 sat_iterator_t sit;
 
-void setZapitConfig(Zapit_config * Cfg);
+void setZapitConfig(Zapit_config *Cfg);
+void getZapitConfig(Zapit_config *Cfg);
 
 #define SCANTS_BOUQUET_OPTION_COUNT 3
 const CMenuOptionChooser::keyval SCANTS_BOUQUET_OPTIONS[SCANTS_BOUQUET_OPTION_COUNT] =
@@ -257,6 +258,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	
 	
 	printf("[neutrino] CScanSetup %s: init scan setup (Mode: %d)...\n",__FUNCTION__ , is_wizard);
+	getZapitConfig(&zapitCfg);
 	showScanMenu();
 
 	return res;
@@ -751,6 +753,9 @@ void CScanSetup::setWizardMode(bool mode)
 void CScanSetup::saveScanSetup()
 {
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
+	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) 
+		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
+
 	SaveMotorPositions();
 	zapitCfg.gotoXXLatitude = strtod(zapit_lat, NULL);
 	zapitCfg.gotoXXLongitude = strtod(zapit_long, NULL);
