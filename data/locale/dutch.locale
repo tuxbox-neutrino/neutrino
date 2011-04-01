@@ -1275,7 +1275,7 @@ moviebrowser.load_default Laadt standaard instellingen
 moviebrowser.browser_row_head Kolom instellingen
 moviebrowser.browser_row_nr Aantal kolommen
 moviebrowser.browser_row_item Kolom item
-moviebrowser.browser_row_width Kolom breedte
+moviebrowser.browser_row_width Kolom breedte [%]
 moviebrowser.reload_at_start Opnieuw inladen van film info na starten
 moviebrowser.remount_at_start Hermount na opstarten
 moviebrowser.dir_head Additional paths
@@ -1286,7 +1286,7 @@ moviebrowser.use_movie_dir Gebruik movie directory
 moviebrowser.hide_series Verberg series
 moviebrowser.last_record_max_items Aantal regels van laatste opname
 moviebrowser.last_play_max_items Aantal regels van laatst gespeelde video
-moviebrowser.browser_frame_high Browser hoogte [Pixel]
+moviebrowser.browser_frame_high Browser hoogte [%]
 extra.auto_timeshift Auto-record, sec (0 = uit)
 extra.auto_delete Automatiisch wissen
 extra.auto_to_record Verplaats timeshift naar opnames

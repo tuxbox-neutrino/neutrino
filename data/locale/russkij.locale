@@ -645,11 +645,11 @@ moviebrowser.book_position Position:
 moviebrowser.book_type Jump (<0 back , >0 for):
 moviebrowser.book_type_backward Repeat
 moviebrowser.book_type_forward jump over
-moviebrowser.browser_frame_high Browser hight [Pixel]
+moviebrowser.browser_frame_high Browser hight [%]
 moviebrowser.browser_row_head Row settings
 moviebrowser.browser_row_item Row item
 moviebrowser.browser_row_nr Number of rows
-moviebrowser.browser_row_width Row width
+moviebrowser.browser_row_width Row width [%]
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark change

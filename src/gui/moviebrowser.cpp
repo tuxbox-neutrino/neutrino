@@ -173,27 +173,27 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 	NONEXISTANT_LOCALE
 };
 
-// default row size in pixel for any element
-#define	MB_ROW_WIDTH_FILENAME 		150
-#define	MB_ROW_WIDTH_FILEPATH		150
-#define	MB_ROW_WIDTH_TITLE			300
-#define	MB_ROW_WIDTH_SERIE			100
-#define	MB_ROW_WIDTH_INFO1			100
-#define	MB_ROW_WIDTH_MAJOR_GENRE 	100
-#define	MB_ROW_WIDTH_MINOR_GENRE 	30
-#define	MB_ROW_WIDTH_INFO2 			30
-#define	MB_ROW_WIDTH_PARENTAL_LOCKAGE 25
-#define	MB_ROW_WIDTH_CHANNEL		80
-#define	MB_ROW_WIDTH_BOOKMARK		50
-#define	MB_ROW_WIDTH_QUALITY 		25
-#define	MB_ROW_WIDTH_PREVPLAYDATE	80
-#define	MB_ROW_WIDTH_RECORDDATE 	80
-#define	MB_ROW_WIDTH_PRODDATE 		50
-#define	MB_ROW_WIDTH_COUNTRY 		50
-#define	MB_ROW_WIDTH_GEOMETRIE		50
-#define	MB_ROW_WIDTH_AUDIO			50
-#define	MB_ROW_WIDTH_LENGTH			40
-#define	MB_ROW_WIDTH_SIZE 			45
+/* default row size in percent for any element */
+#define	MB_ROW_WIDTH_FILENAME		22
+#define	MB_ROW_WIDTH_FILEPATH		22
+#define	MB_ROW_WIDTH_TITLE		45
+#define	MB_ROW_WIDTH_SERIE		15
+#define	MB_ROW_WIDTH_INFO1		25
+#define	MB_ROW_WIDTH_MAJOR_GENRE	15
+#define	MB_ROW_WIDTH_MINOR_GENRE	8
+#define	MB_ROW_WIDTH_INFO2		25
+#define	MB_ROW_WIDTH_PARENTAL_LOCKAGE	4
+#define	MB_ROW_WIDTH_CHANNEL		12
+#define	MB_ROW_WIDTH_BOOKMARK		4
+#define	MB_ROW_WIDTH_QUALITY		4
+#define	MB_ROW_WIDTH_PREVPLAYDATE	12
+#define	MB_ROW_WIDTH_RECORDDATE		12
+#define	MB_ROW_WIDTH_PRODDATE		8
+#define	MB_ROW_WIDTH_COUNTRY		8
+#define	MB_ROW_WIDTH_GEOMETRIE		8
+#define	MB_ROW_WIDTH_AUDIO		8
+#define	MB_ROW_WIDTH_LENGTH		6
+#define	MB_ROW_WIDTH_SIZE 		10
 
 const int m_defaultRowWidth[MB_INFO_MAX_NUMBER+1] =
 {
@@ -407,6 +407,9 @@ void CMovieBrowser::fileInfoStale(void)
 
 void CMovieBrowser::init(void)
 {
+	bool reinit_rows = false;
+	int i;
+
 	//TRACE("[mb]->init\r\n");
 	initGlobalSettings();
 	loadSettings(&m_settings);
@@ -456,10 +459,27 @@ void CMovieBrowser::init(void)
 	if(m_settings.parentalLock >= MB_PARENTAL_LOCK_MAX_NUMBER)
 		m_settings.parentalLock = MB_PARENTAL_LOCK_OFF;
 
+	/* convert from old pixel-based to new percent values */
+	if (m_settings.browserFrameHeight > 100)
+		m_settings.browserFrameHeight = 50;
+
 	if(m_settings.browserFrameHeight < MIN_BROWSER_FRAME_HEIGHT )
-       		m_settings.browserFrameHeight = MIN_BROWSER_FRAME_HEIGHT;
+		m_settings.browserFrameHeight = MIN_BROWSER_FRAME_HEIGHT;
 	if(m_settings.browserFrameHeight > MAX_BROWSER_FRAME_HEIGHT)
-        	m_settings.browserFrameHeight = MAX_BROWSER_FRAME_HEIGHT;
+		m_settings.browserFrameHeight = MAX_BROWSER_FRAME_HEIGHT;
+
+	/* the old code had row widths in pixels, not percent. Check if we have
+	 * an old configuration (one of the rows hopefully was larger than 100 pixels... */
+	for (i = 0; i < m_settings.browserRowNr; i++)
+	{
+		if (m_settings.browserRowWidth[i] > 100)
+		{
+			printf("[moviebrowser] old row config detected - converting...\n");
+			reinit_rows = true;
+			break;
+		}
+	}
+
 	/***** Browser List **************/
 	if(m_settings.browserRowNr == 0)
 	{
@@ -472,17 +492,22 @@ void CMovieBrowser::init(void)
 		m_settings.browserRowItem[3] = MB_INFO_SIZE;
 		m_settings.browserRowItem[4] = MB_INFO_PARENTAL_LOCKAGE;
 		m_settings.browserRowItem[5] = MB_INFO_QUALITY;
-		m_settings.browserRowWidth[0] = m_defaultRowWidth[m_settings.browserRowItem[0]];		//300;
-		m_settings.browserRowWidth[1] = m_defaultRowWidth[m_settings.browserRowItem[1]]; 		//100;
-		m_settings.browserRowWidth[2] = m_defaultRowWidth[m_settings.browserRowItem[2]]; 		//80;
-		m_settings.browserRowWidth[3] = m_defaultRowWidth[m_settings.browserRowItem[3]]; 		//50;
-		m_settings.browserRowWidth[4] = m_defaultRowWidth[m_settings.browserRowItem[4]]; 		//30;
-		m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]]; 		//30;
+		reinit_rows = true;
+	}
+
+	if (reinit_rows)
+	{
+		for (i = 0; i < m_settings.browserRowNr; i++)
+			m_settings.browserRowWidth[i] = m_defaultRowWidth[m_settings.browserRowItem[i]];
 	}
 
 	initFrames();
 	initRows();
 	//initDevelopment();
+
+	/* save settings here, because ::exec() will load them again... */
+	if (reinit_rows)
+		saveSettings(&m_settings);
 
 	refreshLastPlayList();
 	refreshLastRecordList();
@@ -541,7 +566,7 @@ void CMovieBrowser::initGlobalSettings(void)
 	}
 
 	/***** Browser List **************/
-	m_settings.browserFrameHeight = g_settings.screen_EndY - g_settings.screen_StartY - 20 - ((g_settings.screen_EndY - g_settings.screen_StartY - 20)>>1) - (INTER_FRAME_SPACE>>1);
+	m_settings.browserFrameHeight = 50; /* percent */
 
 	m_settings.browserRowNr = 6;
 	m_settings.browserRowItem[0] = MB_INFO_TITLE;
@@ -587,8 +612,9 @@ void CMovieBrowser::initFrames(void)
 	m_cBoxFrameBrowserList.iX = 		m_cBoxFrame.iX;
 	m_cBoxFrameBrowserList.iY = 		m_cBoxFrame.iY + m_cBoxFrameTitleRel.iHeight;
 	m_cBoxFrameBrowserList.iWidth = 	m_cBoxFrame.iWidth;
-	m_cBoxFrameBrowserList.iHeight = 	m_settings.browserFrameHeight; //m_cBoxFrame.iHeight - (m_cBoxFrame.iHeight>>1) - (INTER_FRAME_SPACE>>1);
+	m_cBoxFrameBrowserList.iHeight = 	m_cBoxFrame.iHeight * m_settings.browserFrameHeight / 100;
 
+fprintf(stderr, "m_cBoxFrame.iHeight %d m_cBoxFrameBrowserList.iHeight %d m_settings.browserFrameHeight %d\n",m_cBoxFrame.iHeight, m_cBoxFrameBrowserList.iHeight, m_settings.browserFrameHeight);
 	m_cBoxFrameFootRel.iX = 		0;
 	m_cBoxFrameFootRel.iY = 		m_cBoxFrame.iHeight - m_pcFontFoot->getHeight();
 	m_cBoxFrameFootRel.iWidth = 		m_cBoxFrameBrowserList.iWidth;
@@ -627,8 +653,10 @@ void CMovieBrowser::initRows(void)
 	m_settings.lastPlayRow[3] = MB_INFO_MAX_NUMBER;
 	m_settings.lastPlayRow[4] = MB_INFO_MAX_NUMBER;
 	m_settings.lastPlayRow[5] = MB_INFO_MAX_NUMBER;
-	m_settings.lastPlayRowWidth[0] = 190;
-	m_settings.lastPlayRowWidth[1]  = m_defaultRowWidth[m_settings.lastPlayRow[1]];
+	/* the "last played" / "last recorded" windows have only half the width, so
+	   multiply the relative width with 2 and add some fixed value for slack */
+	m_settings.lastPlayRowWidth[1] = m_defaultRowWidth[m_settings.lastPlayRow[1]] * 2 + 1;
+	m_settings.lastPlayRowWidth[0] = 100 - m_settings.lastPlayRowWidth[1];
 	m_settings.lastPlayRowWidth[2] = m_defaultRowWidth[m_settings.lastPlayRow[2]];
 	m_settings.lastPlayRowWidth[3] = m_defaultRowWidth[m_settings.lastPlayRow[3]];
 	m_settings.lastPlayRowWidth[4] = m_defaultRowWidth[m_settings.lastPlayRow[4]];
@@ -642,8 +670,8 @@ void CMovieBrowser::initRows(void)
 	m_settings.lastRecordRow[3] = MB_INFO_MAX_NUMBER;
 	m_settings.lastRecordRow[4] = MB_INFO_MAX_NUMBER;
 	m_settings.lastRecordRow[5] = MB_INFO_MAX_NUMBER;
-	m_settings.lastRecordRowWidth[0] = 190;
-	m_settings.lastRecordRowWidth[1] = m_defaultRowWidth[m_settings.lastRecordRow[1]];
+	m_settings.lastRecordRowWidth[1] = m_defaultRowWidth[m_settings.lastRecordRow[1]] * 2 + 1;
+	m_settings.lastRecordRowWidth[0] = 100 - m_settings.lastRecordRowWidth[1];
 	m_settings.lastRecordRowWidth[2] = m_defaultRowWidth[m_settings.lastRecordRow[2]];
 	m_settings.lastRecordRowWidth[3] = m_defaultRowWidth[m_settings.lastRecordRow[3]];
 	m_settings.lastRecordRowWidth[4] = m_defaultRowWidth[m_settings.lastRecordRow[4]];
@@ -711,7 +739,7 @@ bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 			settings->storageDirUsed[i] = configfile.getInt32( cfg_key,false );
 		}
 		/* these variables are used for the listframes */
-		settings->browserFrameHeight  = configfile.getInt32("mb_browserFrameHeight", 250);
+		settings->browserFrameHeight  = configfile.getInt32("mb_browserFrameHeight", 50);
 		settings->browserRowNr  = configfile.getInt32("mb_browserRowNr", 0);
 		for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
 		{
@@ -1254,7 +1282,7 @@ void CMovieBrowser::refreshFilterList(void)
 
 	m_FilterLines.rows = 1;
 	m_FilterLines.lineArray[0].clear();
-	m_FilterLines.rowWidth[0] = 400;
+	m_FilterLines.rowWidth[0] = 100;
 	m_FilterLines.lineHeader[0]= "";
 
 	if(m_vMovieInfo.size() <= 0)
@@ -2921,7 +2949,7 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
 /**  optionsMenuBrowser  **************************************************/
     CIntInput playMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_PLAY_MAX_ITEMS,      (int&) m_settings.lastPlayMaxItems,    3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
     CIntInput recMaxUserIntInput(LOCALE_MOVIEBROWSER_LAST_RECORD_MAX_ITEMS,     (int&) m_settings.lastRecordMaxItems,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
-    CIntInput browserFrameUserIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int&) m_settings.browserFrameHeight,  4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+    CIntInput browserFrameUserIntInput(LOCALE_MOVIEBROWSER_BROWSER_FRAME_HIGH,  (int&) m_settings.browserFrameHeight,  3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
     CIntInput browserRowNrIntInput(LOCALE_MOVIEBROWSER_BROWSER_ROW_NR,          (int&) m_settings.browserRowNr,        1, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
     CIntInput* browserRowWidthIntInput[MB_MAX_ROWS];
     for(i=0; i<MB_MAX_ROWS ;i++)
@@ -2996,10 +3024,10 @@ bool CMovieBrowser::showMenu(MI_MOVIE_INFO* /*movie_info*/)
         m_settings.browserRowNr = 1;
     for(i = 0; i < m_settings.browserRowNr; i++)
     {
-        if( m_settings.browserRowWidth[i] >500)
-            m_settings.browserRowWidth[i] = 500;
-        if( m_settings.browserRowWidth[i] < 10)
-            m_settings.browserRowWidth[i] = 10;
+        if( m_settings.browserRowWidth[i] > 100)
+            m_settings.browserRowWidth[i] = 100;
+        if( m_settings.browserRowWidth[i] < 1)
+            m_settings.browserRowWidth[i] = 1;
     }
 
     if(dirMenu.isChanged())

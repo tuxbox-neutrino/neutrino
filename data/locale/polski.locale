@@ -795,11 +795,11 @@ moviebrowser.book_position Pozycja:
 moviebrowser.book_type Skocz (<0 w tył , >0 do przodu):
 moviebrowser.book_type_backward Powtórz
 moviebrowser.book_type_forward skocz poza
-moviebrowser.browser_frame_high Wysokość przeglądarki [Piksele]
+moviebrowser.browser_frame_high Wysokość przeglądarki [%]
 moviebrowser.browser_row_head Ustawienia wierszy
 moviebrowser.browser_row_item Ustęp wiersza
 moviebrowser.browser_row_nr Ilość wierszy
-moviebrowser.browser_row_width Szerokośc wiersza
+moviebrowser.browser_row_width Szerokośc wiersza [%]
 moviebrowser.dir Ścieżka
 moviebrowser.dir_head Dodatkowe ściezki
 moviebrowser.edit_book Zmień zakładkę

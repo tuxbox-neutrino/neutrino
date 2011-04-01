@@ -820,11 +820,11 @@ moviebrowser.book_position Position:
 moviebrowser.book_type Sprung (<0 zurück, >0 vor):
 moviebrowser.book_type_backward Wiederholung
 moviebrowser.book_type_forward Überspringen
-moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [Punkte]
+moviebrowser.browser_frame_high Anzeigehöhe oberes Fenster [%]
 moviebrowser.browser_row_head Spalten Einstellungen
 moviebrowser.browser_row_item Spalteninfo
 moviebrowser.browser_row_nr Anzahl Spalten
-moviebrowser.browser_row_width Spaltenbreite [Punkte]
+moviebrowser.browser_row_width Spaltenbreite [% der Gesamtbreite]
 moviebrowser.dir Pfad
 moviebrowser.dir_head Zusätzliche Verzeichnisse
 moviebrowser.edit_book Bookmark Ändern

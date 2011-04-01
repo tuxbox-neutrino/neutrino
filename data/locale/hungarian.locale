@@ -800,11 +800,11 @@ moviebrowser.book_position Pozíció:
 moviebrowser.book_type Ugrás (<0 back , >0 for):
 moviebrowser.book_type_backward Ismétlés
 moviebrowser.book_type_forward jump over
-moviebrowser.browser_frame_high Böngésző magassága (px)
+moviebrowser.browser_frame_high Böngésző magassága (%)
 moviebrowser.browser_row_head Sor beállítások
 moviebrowser.browser_row_item Elem
 moviebrowser.browser_row_nr Sorok száma
-moviebrowser.browser_row_width Szélesség
+moviebrowser.browser_row_width Szélesség [%]
 moviebrowser.dir Útvonal
 moviebrowser.dir_head További útvonalak
 moviebrowser.edit_book Bookmark change

@@ -789,11 +789,11 @@ moviebrowser.book_position Pozícia:
 moviebrowser.book_type Skok (<0 vzad , >0 vpred):
 moviebrowser.book_type_backward Opakovať
 moviebrowser.book_type_forward Skok za
-moviebrowser.browser_frame_high Výška prehliadača [pixel]
+moviebrowser.browser_frame_high Výška prehliadača [%]
 moviebrowser.browser_row_head Nastavenia riadku
 moviebrowser.browser_row_item Položka stĺpca
 moviebrowser.browser_row_nr Počet stĺpcov
-moviebrowser.browser_row_width Šírka stĺpca
+moviebrowser.browser_row_width Šírka stĺpca [%]
 moviebrowser.dir Adresár
 moviebrowser.dir_head Doplnkové adresáre
 moviebrowser.edit_book Zmeň záložku

@@ -742,11 +742,11 @@ moviebrowser.book_position Posizione:
 moviebrowser.book_type Salta (<0 indietro , >0 avanti):
 moviebrowser.book_type_backward Ripeti
 moviebrowser.book_type_forward salta oltre
-moviebrowser.browser_frame_high Browser altezza [Pixel]
+moviebrowser.browser_frame_high Browser altezza [%]
 moviebrowser.browser_row_head Impostazioni righe
 moviebrowser.browser_row_item Indice riga
 moviebrowser.browser_row_nr Numero di righe
-moviebrowser.browser_row_width Larghezza riga
+moviebrowser.browser_row_width Larghezza riga [%]
 moviebrowser.dir Path
 moviebrowser.dir_head Additional paths
 moviebrowser.edit_book Bookmark cambia
