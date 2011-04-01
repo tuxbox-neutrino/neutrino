@@ -1566,7 +1566,7 @@ int CMenuSeparator::paint(bool selected, bool /*last*/)
 
 bool CPINProtection::check()
 {
-	char cPIN[4];
+	char cPIN[5];
 	neutrino_locale_t hint = NONEXISTANT_LOCALE;
 	do
 	{
