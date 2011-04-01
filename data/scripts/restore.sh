@@ -1,6 +1,6 @@
 #!/bin/sh
 echo Restore settings from $1
-cd /var/tuxbox
+cd /
 tar xf $1
 sync
 sync
