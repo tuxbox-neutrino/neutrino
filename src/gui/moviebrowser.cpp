@@ -3063,7 +3063,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	int pos = -1;
 	int result = 0;
 	int menu_nr= 0;
-	int position[MAX_NUMBER_OF_BOOKMARK_ITEMS];
+	int position[MAX_NUMBER_OF_BOOKMARK_ITEMS] ={0};
 
 	if(m_movieSelectionHandler == NULL) return(result);
 
@@ -3077,7 +3077,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 
 	startPosSelectionMenu.addIntroItems();
 	//startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL));
-	//position[menu_nr++] = 0;
+
 	if(m_movieSelectionHandler->bookmarks.start != 0)
 	{
 		startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART, true, start_pos));
@@ -3089,8 +3089,6 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.lastPlayStop;
 	}
 	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL));
-	position[menu_nr++] = 0;
-
 	int sep_pos = menu_nr;
 
 	for(int i =0 ; i < MI_MOVIE_BOOK_USER_MAX && menu_nr < MAX_NUMBER_OF_BOOKMARK_ITEMS; i++ )
@@ -3114,13 +3112,14 @@ TRACE("[mb] adding boomark menu N %d, position %d\n", menu_nr, position[menu_nr]
 	//result = startPosSelectionMenu.getSelected();
 	result = startPosSelectionMenu.getSelectedLine();
 printf("startPosSelectionMenu result %d\n", result);
-	if(result < 2)// select 2 for startPosSelectionMenu.addIntroItems();
+	if(result < 3)// select 2 for startPosSelectionMenu.addIntroItems();
 		return -1;
+
 	//TRACE("[mb] selected bookmark %d\n", result);
 	if(result != 0 && result <= MAX_NUMBER_OF_BOOKMARK_ITEMS)
 	{
-		result-=3;// select -2 for startPosSelectionMenu.addIntroItems();
-		if(result > sep_pos) result--;
+		result -= 3;
+		if(result > sep_pos) result--;	  
 		pos = position[result];
 	}
 	TRACE("[mb] selected bookmark %d position %d \n", result, pos);
