@@ -205,6 +205,8 @@ void CDBoxInfoWidget::paint()
 		perror("/proc/mounts");
 	} else {
 		while ((mnt = getmntent(mountFile)) != NULL) {
+			if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
+				continue;
 			if (::statfs(mnt->mnt_dir, &s) == 0) {
 				switch (s.f_type)	/* f_type is long */
 				{
@@ -218,8 +220,6 @@ void CDBoxInfoWidget::paint()
 				case 0x4d44L:		/*msdos*/
 					break;
 				case 0x72b6L:		/*jffs2*/
-					if (strcmp(mnt->mnt_fsname, "rootfs") == 0)
-						continue;
 					height += mheight;
 					break;
 				default:
@@ -354,6 +354,11 @@ void CDBoxInfoWidget::paint()
 			char c=' ';
 			while ((mnt = getmntent(mountFile)) != 0) {
 				if (::statfs(mnt->mnt_dir, &s) == 0) {
+					if (strcmp(mnt->mnt_fsname, "rootfs") == 0) {
+						strcpy(mnt->mnt_fsname, "memory");
+						memory_flag = true;
+					}
+
 					switch (s.f_type)
 					{
 					case (int) 0xEF53:      /*EXT2 & EXT3*/
@@ -368,11 +373,6 @@ void CDBoxInfoWidget::paint()
 						c = 'G';
 						break;
 					case (int) 0x72b6:	/*jffs2*/
-						if (strcmp(mnt->mnt_fsname, "rootfs") == 0){
-						  strcpy(mnt->mnt_fsname,"memory");
-						  memory_flag = true;
-						}
-
 						gb = 1024.0;
 						c = 'M';
 						break;
@@ -385,6 +385,8 @@ void CDBoxInfoWidget::paint()
 						blocks_used = s.f_blocks - s.f_bfree;
 						if(memory_flag){
 							blocks_percent_used = (info.totalram/1024 - info.freeram/1024)*100/(info.totalram/1024);
+							gb = 1024.0;
+							c = 'M';
 						}else
 							blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
 						//paint mountpoints
