@@ -182,6 +182,29 @@ void CDBoxInfoWidget::hide()
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
 }
 
+static void bytes2string(uint64_t bytes, char *result, size_t len)
+{
+	static const char units[] = " kMGT";
+	unsigned int magnitude = 0;
+	uint64_t factor = 1;
+	uint64_t b = bytes;
+
+	while ((b > 1024) && (magnitude < strlen(units) - 1))
+	{
+		magnitude++;
+		b /= 1024;
+		factor *= 1024;
+	}
+	if (b < 1024) /* no need for fractions for big numbers */
+		snprintf(result, len, "%3d.%02d%c", (int)b,
+			(int)((bytes - b * factor) * 100 / factor), units[magnitude]);
+	else
+		snprintf(result, len, "%d%c", (int)bytes, units[magnitude]);
+
+	result[len - 1] = '\0';
+	//printf("b2s: b:%lld r:'%s' mag:%d u:%d\n", bytes, result, magnitude, (int)strlen(units));
+}
+
 void CDBoxInfoWidget::paint()
 {
 	const int headSize = 5;
@@ -350,8 +373,6 @@ void CDBoxInfoWidget::paint()
 			perror("/proc/mounts");
 		}
 		else {
-			float gb=0;
-			char c=' ';
 			while ((mnt = getmntent(mountFile)) != 0) {
 				if (::statfs(mnt->mnt_dir, &s) == 0) {
 					if (strcmp(mnt->mnt_fsname, "rootfs") == 0) {
@@ -369,26 +390,28 @@ void CDBoxInfoWidget::paint()
 					case (int) 0x65735546:  /*fuse for ntfs*/
 					case (int) 0x58465342:  /*xfs*/
 					case (int) 0x4d44:      /*msdos*/
-						gb = 1024.0*1024.0;
-						c = 'G';
-						break;
 					case (int) 0x72b6:	/*jffs2*/
-						gb = 1024.0;
-						c = 'M';
 						break;
 					default:
 						continue;
 					}
 					if ( s.f_blocks > 0 || memory_flag ) {
-						long	blocks_used;
-						long	blocks_percent_used;
-						blocks_used = s.f_blocks - s.f_bfree;
-						if(memory_flag){
-							blocks_percent_used = (info.totalram/1024 - info.freeram/1024)*100/(info.totalram/1024);
-							gb = 1024.0;
-							c = 'M';
-						}else
-							blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
+						int percent_used;
+						uint64_t bytes_total;
+						uint64_t bytes_used;
+						uint64_t bytes_free;
+						if (memory_flag)
+						{
+							bytes_total = info.totalram;
+							bytes_free  = info.freeram;
+						}
+						else
+						{
+							bytes_total = s.f_blocks * s.f_bsize;
+							bytes_free  = s.f_bfree  * s.f_bsize;
+						}
+						bytes_used = bytes_total - bytes_free;
+						percent_used = (bytes_used * 200 + bytes_total) / 2 / bytes_total;
 						//paint mountpoints
 						for (int j = 0; j < headSize; j++) {
 							switch (j)
@@ -417,29 +440,19 @@ void CDBoxInfoWidget::paint()
 							break;
 							case 1:
 								mpOffset = nameOffset + 10;
-								if(memory_flag)
-									snprintf(ubuf,buf_size,"%7.2f%c", info.totalram/1024.0 / gb, c);
-								else
-									snprintf(ubuf,buf_size,"%7.2f%c", (s.f_blocks * (s.f_bsize / 1024.0)) / gb, c);
-
+								bytes2string(bytes_total, ubuf, buf_size);
 								break;
 							case 2:
 								mpOffset = nameOffset+ (sizeOffset+10)*1+10;
-								if(memory_flag)
-									snprintf(ubuf,buf_size,"%7.2f%c", (info.totalram/1024.0 - info.freeram/1024.0) / gb, c);
-								else
-									snprintf(ubuf,buf_size,"%7.2f%c", ((s.f_blocks - s.f_bfree)  * (s.f_bsize / 1024.0)) / gb, c);
+								bytes2string(bytes_used, ubuf, buf_size);
 								break;
 							case 3:
 								mpOffset = nameOffset+ (sizeOffset+10)*2+10;
-								if(memory_flag)
-									snprintf(ubuf,buf_size,"%7.2f%c", info.freeram / 1024.0 / gb, c);
-								else
-									snprintf(ubuf,buf_size,"%7.2f%c", s.f_bavail * (s.f_bsize / 1024.0) / gb, c);
+								bytes2string(bytes_free, ubuf, buf_size);
 								break;
 							case 4:
 								mpOffset = nameOffset+ (sizeOffset+10)*3+10;
-								snprintf(ubuf,buf_size,"%4ld%c", blocks_percent_used,'%');
+								snprintf(ubuf, buf_size, "%4d%%", percent_used);
 								break;
 							}
 							g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset, ypos+ mheight, width - 10, ubuf, rec_mp ? COL_MENUHEAD+2:COL_MENUCONTENT);
@@ -451,7 +464,7 @@ void CDBoxInfoWidget::paint()
 						if (pbw > 8) /* smaller progressbar is not useful ;) */
 						{
 							CProgressBar pb(true, -1, -1, 30, 100, 70, true);
-							pb.paintProgressBarDefault(x+offsetw, ypos+3, pbw, mheight-10, blocks_percent_used, 100);
+							pb.paintProgressBarDefault(x+offsetw, ypos+3, pbw, mheight-10, percent_used, 100);
 						}
 						ypos+= mheight;
 					}
