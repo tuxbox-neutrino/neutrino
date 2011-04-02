@@ -5839,14 +5839,12 @@ void DecodePage()
 	/* copy page to decode buffer */
 	if (tuxtxt_cache.subpagetable[tuxtxt_cache.page] == 0xff) /* not cached: do nothing */
 		return;
-	if (tuxtxt_cache.zap_subpage_manual)
-		pCachedPage = tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage];
-	else
-		pCachedPage = tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpagetable[tuxtxt_cache.page]];
+	int tmp_subpage = tuxtxt_cache.zap_subpage_manual ? tuxtxt_cache.subpage : tuxtxt_cache.subpagetable[tuxtxt_cache.page];
+	pCachedPage = tuxtxt_cache.astCachetable[tuxtxt_cache.page][tmp_subpage];
 	if (!pCachedPage)	/* not cached: do nothing */
 		return;
 
-	tuxtxt_decompress_page(tuxtxt_cache.page,tuxtxt_cache.subpage,&page_char[40]);
+	tuxtxt_decompress_page(tuxtxt_cache.page,tmp_subpage,&page_char[40]);
 
 	memmove(&page_char[8], pCachedPage->p0, 24); /* header line without timestring */
 
