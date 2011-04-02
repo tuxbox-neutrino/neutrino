@@ -190,8 +190,10 @@ int CMiscMenue::showMiscSettingsMenu()
 	
 	misc_menue->addItem(GenericMenuSeparatorLine);
 	
+#if !HAVE_TRIPLEDRAGON
 	//cec settings
 	misc_menue->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, new CCECSetup() , NULL, CRCInput::RC_1));
+#endif
 	
 	//channellist
 	CMenuWidget *misc_menue_chanlist = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
