@@ -634,9 +634,26 @@ void cVideo::getPictureInfo(int &width, int &height, int &rate)
 	height = (int)v.v_size;
 }
 
-void cVideo::SetSyncMode(AVSYNC_TYPE /*Mode*/)
+void cVideo::SetSyncMode(AVSYNC_TYPE Mode)
 {
-	lt_debug("%s\n", __FUNCTION__);
+	lt_debug("%s %d\n", __FUNCTION__, Mode);
+	/*
+	 * { 0, LOCALE_OPTIONS_OFF },
+	 * { 1, LOCALE_OPTIONS_ON  },
+	 * { 2, LOCALE_AUDIOMENU_AVSYNC_AM }
+	 */
+	switch(Mode)
+	{
+		case 0:
+			ioctl(fd, MPEG_VID_SYNC_OFF);
+			break;
+		case 1:
+			ioctl(fd, MPEG_VID_SYNC_ON, VID_SYNC_VID);
+			break;
+		default:
+			ioctl(fd, MPEG_VID_SYNC_ON, VID_SYNC_AUD);
+			break;
+	}
 };
 
 int cVideo::SetStreamType(VIDEO_FORMAT type)
