@@ -131,9 +131,18 @@ bool cAudio::Pause(bool /*Pcm*/)
 	return true;
 };
 
-void cAudio::SetSyncMode(AVSYNC_TYPE /*Mode*/)
+void cAudio::SetSyncMode(AVSYNC_TYPE Mode)
 {
-	lt_debug("%s\n", __FUNCTION__);
+	lt_debug("%s %d\n", __FUNCTION__, Mode);
+	switch (Mode)
+	{
+		case 0:
+			ioctl(fd, MPEG_AUD_SYNC_OFF);
+			break;
+		default:
+			ioctl(fd, MPEG_AUD_SYNC_ON);
+			break;
+	}
 };
 
 void cAudio::SetStreamType(AUDIO_FORMAT type)
