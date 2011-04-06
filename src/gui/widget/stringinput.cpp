@@ -379,6 +379,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	for(int count=strlen(value)-1;count<size-1;count++)
 		strcat(value, " ");
 	strncpy(oldval, value, size);
+	strncpy(dispval, value, size);
 
 	paint();
 
@@ -388,11 +389,11 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	bool loop=true;
 	while (loop)
 	{
-		if ( strncmp(value, dispval, size) != 0)
-		{
-			CVFD::getInstance()->showMenuText(1, value, selected+1);
-			strncpy(dispval, value, size);
-		}
+// 		if ( strncmp(value, dispval, size) != 0)
+// 		{
+// 			CVFD::getInstance()->showMenuText(1, value, selected+1);
+// 			strncpy(dispval, value, size);
+// 		}
 
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
 
