@@ -70,7 +70,7 @@ class CStringInput : public CMenuTarget
 		virtual void init();
 		virtual const char * getHint1(void);
 
-		virtual void paint();
+		virtual void paint(bool buttons = false);
 		virtual void paintChar(int pos, char c);
 		virtual void paintChar(int pos);
 
@@ -121,7 +121,7 @@ class CStringInputSMS : public CStringInput
 		virtual void keyLeftPressed();
 		virtual void keyRightPressed();
 
-		virtual void paint();
+		virtual void paint(bool dummy = false);
 		void initSMS(const char * const Valid_Chars);
 
 	public:

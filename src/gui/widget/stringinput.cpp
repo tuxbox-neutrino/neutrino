@@ -532,13 +532,20 @@ const char * CStringInput::getHint1(void)
 	return g_Locale->getText(hint_1);
 }
 
-void CStringInput::paint()
+void CStringInput::paint(bool buttons)
 {
 	int iconoffset;
 	int icol_w, icol_h;
+	int radius;
+
+	/* if there's a button bar below the stringinput (SMS), no rounded corners */
+	if (buttons)
+		radius = 0;
+	else
+		radius = RADIUS_LARGE;
 
 	frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP); //round
-	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, y + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, radius, CORNER_BOTTOM);
 
 	if (!(iconfile.empty()))
 	{
@@ -743,9 +750,9 @@ const struct button_label CStringInputSMSButtons[2] =
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_STRINGINPUT_CLEAR }
 };
 
-void CStringInputSMS::paint()
+void CStringInputSMS::paint(bool /*unused*/)
 {
-	CStringInput::paint();
+	CStringInput::paint(true);
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x+20+140, y+ hheight+ mheight+ iheight* 3+ 30, 0, COL_MENUCONTENT);
 
