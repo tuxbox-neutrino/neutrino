@@ -151,6 +151,7 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	}
 
 	strcpy(oldval, value);
+	strcpy(dispval, value);
 	paint();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
@@ -161,7 +162,8 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 	{
 		if ( strcmp(value, dispval) != 0)
 		{
-			CVFD::getInstance()->showMenuText(1, value, selectedChar+1);
+			std::string tmp = value;
+			CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
 			strcpy(dispval, value);
 		}
 
@@ -190,7 +192,8 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 			if(found) {
 				inputFields[oldSelectedChar]->paint( x+20, y+hheight +20, false );
 				inputFields[selectedChar]->paint( x+20, y+hheight +20, true );
-				CVFD::getInstance()->showMenuText(1, value, selectedChar+1);
+				std::string tmp = value;
+				CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
 			}
 		} else if (msg==CRCInput::RC_right) {
 			bool found = false;
@@ -217,7 +220,8 @@ int CExtendedInput::exec( CMenuTarget* parent, const std::string & )
 			if(found) {
 				inputFields[oldSelectedChar]->paint( x+20, y+hheight +20, false );
 				inputFields[selectedChar]->paint( x+20, y+hheight +20, true );
-				CVFD::getInstance()->showMenuText(1, value, selectedChar+1);
+				std::string tmp = value;
+				CVFD::getInstance()->showMenuText(1, tmp.c_str(), selectedChar+1);
 			}
 		}
 		else if ( (CRCInput::getUnicodeValue(msg) != -1) || (msg == CRCInput::RC_red) || (msg == CRCInput::RC_green) || (msg == CRCInput::RC_blue) || (msg == CRCInput::RC_yellow)
