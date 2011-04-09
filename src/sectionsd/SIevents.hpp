@@ -353,6 +353,7 @@ public:
 		transport_stream_id = 0;
 		eventID    = 0;
 		vps = 0;
+		table_id = 0xFF; /* 0xFF means "not set" */
 //      dauer=0;
 //      startzeit=0;
 	}
@@ -393,6 +394,7 @@ public:
     SIlinkage_descs linkage_descs;
     SItimes times;
     time_t vps;
+    unsigned char table_id;
     // Der Operator zum sortieren
     bool operator < (const SIevent& e) const {
       return uniqueKey()<e.uniqueKey();

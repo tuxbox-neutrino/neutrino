@@ -9179,6 +9179,7 @@ bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData
 			epgdata->contentClassification = std::string(evt.contentClassification.data(), evt.contentClassification.length());
 			epgdata->userClassification = std::string(evt.userClassification.data(), evt.userClassification.length());
 			epgdata->fsk = evt.getFSK();
+			epgdata->table_id = evt.table_id;
 
 			epgdata->epg_times.startzeit = t->startzeit;
 			epgdata->epg_times.dauer = t->dauer;
@@ -9236,6 +9237,7 @@ bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGD
                 epgdata->contentClassification = std::string(evt.contentClassification.data(), evt.contentClassification.length());
                 epgdata->userClassification = std::string(evt.userClassification.data(), evt.userClassification.length());
                 epgdata->fsk = evt.getFSK();
+		epgdata->table_id = evt.table_id;
 
                 epgdata->epg_times.startzeit = zeit.startzeit;
                 epgdata->epg_times.dauer = zeit.dauer;

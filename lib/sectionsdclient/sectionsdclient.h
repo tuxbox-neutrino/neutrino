@@ -233,6 +233,7 @@ class CEPGData
 	std::vector<std::string>		itemDescriptions;
 	std::vector<std::string>		items;
 	char                            fsk;
+	unsigned char                   table_id;
 	std::string                     contentClassification;
 	std::string                     userClassification;
 
@@ -243,6 +244,7 @@ class CEPGData
 			info1                 = "";
 			info2                 = "";
 			fsk                   =  0;
+			table_id              = 0xff;
 			contentClassification = "";
 			userClassification    = "";
 		};
