@@ -780,6 +780,14 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 	MySIeventsOrderUniqueKey::iterator si = mySIeventsOrderUniqueKey.find(evt.uniqueKey());
 	bool already_exists = (si != mySIeventsOrderUniqueKey.end());
 
+	if (already_exists && (evt.table_id < si->second->table_id))
+	{
+		/* if the new event has a lower (== more recent) table ID, replace the old one */
+		already_exists = false;
+		dprintf("replacing event %016llx:%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
+			si->second->table_id, evt.eventID, evt.table_id, evt.getName().c_str());
+	}
+
 	/* Check size of some descriptors of the new event before comparing
 	   them with the old ones, because the same event can be complete
 	   on one German Sky channel and incomplete on another one. So we
