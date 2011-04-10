@@ -420,17 +420,6 @@ const neutrino_locale_t * genre_sub_classes_list[10] =
 	genre_travel_hobbies
 };
 
-bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std::string & title) {
-	time_t curtime = time(NULL);
-
-	for (CChannelEventList::iterator e = evtlist.begin(); e != evtlist.end(); ++e )
-	{
-		if (e->startTime > curtime && e->eventID && e->description == title)
-			return true;
-	}
-	return false;
-}
-
 const char * GetGenre(const unsigned char contentClassification) // UTF-8
 {
 	neutrino_locale_t res;
@@ -1070,8 +1059,24 @@ void CEpgData::GetPrevNextEPGData( uint64_t id, time_t* startzeit )
 // -- 2002-05-03 rasc
 //
 
-int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::string & title)
+bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std::string &title)
+{
+	CChannelEventList::iterator e;
+	followlist.clear();
+	for (e = evtlist.begin(); e != evtlist.end(); ++e)
+	{
+		if (e->startTime <= tmp_curent_zeit)
+			continue;
+		if (! e->eventID)
+			continue;
+		if (e->description != title)
+			continue;
+		followlist.push_back(*e);
+	}
+	return !followlist.empty();
+}
 
+int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::string & title)
 {
 	CChannelEventList::iterator e;
 	struct  tm		*tmStartZeit;
@@ -1082,32 +1087,26 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 	screening_dates = screening_nodual = "";
 	// alredy read: evtlist = g_Sectionsd->getEventsServiceKey( channel_id&0xFFFFFFFFFFFFULL );
 
-	for ( e= evtlist.begin(); e != evtlist.end(); ++e )
+	for (e = followlist.begin(); e != followlist.end(); ++e)
 	{
-		if (e->startTime <= tmp_curent_zeit) continue;
-		if (! e->eventID) continue;
-		if (e->description == title) {
-			count++;
-			tmStartZeit = localtime(&(e->startTime));
+		count++;
+		tmStartZeit = localtime(&(e->startTime));
 
-			screening_dates = g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
-			screening_dates += '.';
+		screening_dates = g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
+		screening_dates += '.';
 
-			strftime(tmpstr, sizeof(tmpstr), " %d.", tmStartZeit );
-			screening_dates += tmpstr;
+		strftime(tmpstr, sizeof(tmpstr), " %d.", tmStartZeit );
+		screening_dates += tmpstr;
 
-			screening_dates += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
+		screening_dates += g_Locale->getText(CLocaleManager::getMonth(tmStartZeit));
 
-			strftime(tmpstr, sizeof(tmpstr), ". %H:%M", tmStartZeit );
-			screening_dates += tmpstr;
-			if (screening_dates != screening_nodual) {
-				screening_nodual=screening_dates;
-				processTextToArray(screening_dates, true ); // UTF-8
-			}
+		strftime(tmpstr, sizeof(tmpstr), ". %H:%M", tmStartZeit );
+		screening_dates += tmpstr;
+		if (screening_dates != screening_nodual) {
+			screening_nodual=screening_dates;
+			processTextToArray(screening_dates, true ); // UTF-8
 		}
 	}
-	if (count == 0)
-		processTextToArray("---\n"); // UTF-8
 	return count;
 }
 

@@ -54,6 +54,7 @@ class CEpgData
 	private:
 		CFrameBuffer		*frameBuffer;
 		CChannelEventList	evtlist;
+		CChannelEventList	followlist;
 		CEPGData		epgData;
 
 		std::string 		epg_date;
