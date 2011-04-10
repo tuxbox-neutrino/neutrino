@@ -1211,16 +1211,16 @@ static void removeOldEvents(const long seconds)
  */
 static void removeDupEvents(void)
 {
-	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e1, e2, del;
+	MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e1, e2, del;
 
 	readLockEvents();
-	e1 = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
+	e1 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
 
-	while ((e1 != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end()) && !messaging_zap_detected)
+	while ((e1 != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) && !messaging_zap_detected)
 	{
 		e2 = e1;
 		e1++;
-		if (e1 == mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end())
+		if (e1 == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
 			break;
 
 		/* check for the same service */
@@ -1238,14 +1238,14 @@ static void removeDupEvents(void)
 			continue;
 		}
 
-		del = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
+		del = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end();
 		if ((*e1)->table_id > (*e2)->table_id)
 			del = e1;
 		if ((*e1)->table_id < (*e2)->table_id)
 			del = e2;
 
 		/* can not happen. This check is pure paranoia :) */
-		if (del == mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end())
+		if (del == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
 			continue;
 
 		xprintf("%s: removing event %llx.%02x '%s'\n", __func__,
