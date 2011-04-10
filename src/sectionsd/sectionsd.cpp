@@ -1203,6 +1203,61 @@ static void removeOldEvents(const long seconds)
 
 	return;
 }
+
+/* Remove duplicate events (same Service, same start and endtime)
+ * with different eventID. Use the one from the lower table_id.
+ * This routine could be extended to remove overlapping events also,
+ * but let's keep that for later
+ */
+static void removeDupEvents(void)
+{
+	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e1, e2, del;
+
+	readLockEvents();
+	e1 = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
+
+	while ((e1 != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end()) && !messaging_zap_detected)
+	{
+		e2 = e1;
+		e1++;
+		if (e1 == mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end())
+			break;
+
+		/* check for the same service */
+		if ((*e1)->get_channel_id() != (*e2)->get_channel_id())
+			continue;
+		/* check for same time */
+		if (((*e1)->times.begin()->startzeit != (*e2)->times.begin()->startzeit) ||
+		    ((*e1)->times.begin()->dauer     != (*e2)->times.begin()->dauer))
+			continue;
+
+		if ((*e1)->table_id == (*e2)->table_id)
+		{
+			xprintf("%s: not removing events %llx %llx, t:%02x '%s'\n", __func__,
+				(*e1)->uniqueKey(), (*e2)->uniqueKey(), (*e1)->table_id, (*e1)->getName().c_str());
+			continue;
+		}
+
+		del = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
+		if ((*e1)->table_id > (*e2)->table_id)
+			del = e1;
+		if ((*e1)->table_id < (*e2)->table_id)
+			del = e2;
+
+		/* can not happen. This check is pure paranoia :) */
+		if (del == mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end())
+			continue;
+
+		xprintf("%s: removing event %llx.%02x '%s'\n", __func__,
+			(*del)->uniqueKey(), (*del)->table_id, (*del)->getName().c_str());
+		unlockEvents();
+		deleteEvent((*del)->uniqueKey());
+		readLockEvents();
+	}
+	unlockEvents();
+	return;
+}
+
 #ifdef UPDATE_NETWORKS
 static void removeWasteEvents()
 {
@@ -8234,10 +8289,15 @@ printf("[sectionsd] Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUni
 			print_meminfo();
 			dprintf("Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		}
+		anzEventsAlt = mySIeventsOrderUniqueKey.size();
 		unlockEvents();
 		//			usleep(100);
 		//			lockEvents();
+		removeDupEvents();
+		readLockEvents();
+printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
+		unlockEvents();
 		dprintf("before removewasteepg\n");
 #ifdef UPDATE_NETWORKS
 		removeWasteEvents(); // Events for channels not in services.xml
