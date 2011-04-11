@@ -1212,6 +1212,8 @@ static void removeOldEvents(const long seconds)
 static void removeDupEvents(void)
 {
 	MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e1, e2, del;
+	/* list of event IDs to delete */
+	std::vector<event_id_t>to_delete;
 
 	readLockEvents();
 	e1 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
@@ -1238,23 +1240,23 @@ static void removeDupEvents(void)
 			continue;
 		}
 
-		del = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end();
 		if ((*e1)->table_id > (*e2)->table_id)
 			del = e1;
 		if ((*e1)->table_id < (*e2)->table_id)
 			del = e2;
 
-		/* can not happen. This check is pure paranoia :) */
-		if (del == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
-			continue;
-
 		xprintf("%s: removing event %llx.%02x '%s'\n", __func__,
 			(*del)->uniqueKey(), (*del)->table_id, (*del)->getName().c_str());
-		unlockEvents();
-		deleteEvent((*del)->uniqueKey());
-		readLockEvents();
+		/* remember the unique ID for later deletion */
+		to_delete.push_back((*del)->uniqueKey());
 	}
 	unlockEvents();
+
+	/* clean up outside of the iterator loop */
+	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); i++)
+		deleteEvent(*i);
+	to_delete.clear(); /* needed? can't hurt... */
+
 	return;
 }
 
@@ -8293,14 +8295,11 @@ printf("[sectionsd] Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUni
 		unlockEvents();
 		//			usleep(100);
 		//			lockEvents();
-#ifdef USE_BROKEN_REMOVE_DUP_EVENTS
-		/* this is currently broken */
 		removeDupEvents();
 		readLockEvents();
 printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
 		unlockEvents();
-#endif
 		dprintf("before removewasteepg\n");
 #ifdef UPDATE_NETWORKS
 		removeWasteEvents(); // Events for channels not in services.xml
