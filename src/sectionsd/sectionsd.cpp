@@ -1215,7 +1215,6 @@ static void removeDupEvents(void)
 
 	readLockEvents();
 	e1 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
-
 	while ((e1 != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) && !messaging_zap_detected)
 	{
 		e2 = e1;
@@ -1227,28 +1226,27 @@ static void removeDupEvents(void)
 		if ((*e1)->get_channel_id() != (*e2)->get_channel_id())
 			continue;
 		/* check for same time */
-		if (((*e1)->times.begin()->startzeit != (*e2)->times.begin()->startzeit) ||
-		    ((*e1)->times.begin()->dauer     != (*e2)->times.begin()->dauer))
+		if ((*e1)->times.begin()->startzeit != (*e2)->times.begin()->startzeit)
 			continue;
 
-		if ((*e1)->table_id == (*e2)->table_id)
-		{
-			xprintf("%s: not removing events %llx %llx, t:%02x '%s'\n", __func__,
-				(*e1)->uniqueKey(), (*e2)->uniqueKey(), (*e1)->table_id, (*e1)->getName().c_str());
-			continue;
-		}
 
 		del = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end();
-		if ((*e1)->table_id > (*e2)->table_id)
+		if ((*e1)->table_id > (*e2)->table_id){
 			del = e1;
-		if ((*e1)->table_id < (*e2)->table_id)
+		}
+		else if ((*e1)->table_id < (*e2)->table_id){
 			del = e2;
+		}
+		else // ((*e1)->table_id == (*e2)->table_id)
+		{
+			del = e1;
+		}
 
 		/* can not happen. This check is pure paranoia :) */
 		if (del == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
 			continue;
 
-		xprintf("%s: removing event %llx.%02x '%s'\n", __func__,
+		xprintf("%s: --------  %llx.%02x '%s'\n", __func__,
 			(*del)->uniqueKey(), (*del)->table_id, (*del)->getName().c_str());
 		unlockEvents();
 		deleteEvent((*del)->uniqueKey());
@@ -8293,14 +8291,12 @@ printf("[sectionsd] Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUni
 		unlockEvents();
 		//			usleep(100);
 		//			lockEvents();
-#ifdef USE_BROKEN_REMOVE_DUP_EVENTS
 		/* this is currently broken */
 		removeDupEvents();
 		readLockEvents();
 printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
 		unlockEvents();
-#endif
 		dprintf("before removewasteepg\n");
 #ifdef UPDATE_NETWORKS
 		removeWasteEvents(); // Events for channels not in services.xml
