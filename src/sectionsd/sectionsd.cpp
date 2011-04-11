@@ -652,21 +652,17 @@ static void addBouquetFilter(t_bouquet_id bid)
 // Loescht ein Event aus allen Mengen
 static bool deleteEvent(const event_id_t uniqueKey)
 {
-	readLockEvents();
+	writeLockEvents();
 	MySIeventsOrderUniqueKey::iterator e = mySIeventsOrderUniqueKey.find(uniqueKey);
 
 	if (e != mySIeventsOrderUniqueKey.end())
 	{
 		if (e->second->times.size())
 		{
-			unlockEvents();
-			writeLockEvents();
 			mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.erase(e->second);
 			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.erase(e->second);
 		}
 
-		unlockEvents();
-		writeLockEvents();
 		mySIeventsOrderUniqueKey.erase(uniqueKey);
 		mySIeventsNVODorderUniqueKey.erase(uniqueKey);
 
