@@ -1076,7 +1076,7 @@ bool CEpgData::hasFollowScreenings(const t_channel_id /*channel_id*/, const std:
 	return !followlist.empty();
 }
 
-int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::string & title)
+int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::string & /*title*/)
 {
 	CChannelEventList::iterator e;
 	struct  tm		*tmStartZeit;
