@@ -36,6 +36,9 @@ void FillRect(int x, int y, int w, int h, int color)
 	unsigned char *p = lfb + x*4 + y * fix_screeninfo.line_length;
 #if !HAVE_TRIPLEDRAGON
 	unsigned int col = bgra[color][3] << 24 | bgra[color][2] << 16 | bgra[color][1] << 8 | bgra[color][0];
+#else
+	unsigned int col = *((unsigned int*)bgra[color]);
+#endif
 	if (w > 0)
 		for (int count = 0; count < h; count++) {
 			unsigned int * dest0 = (unsigned int *)p;
@@ -43,18 +46,6 @@ void FillRect(int x, int y, int w, int h, int color)
 				*(dest0++) = col;
 			p += fix_screeninfo.line_length;
 		}
-#else
-	int xtmp;
-	if (w > 0)
-		for ( ; h > 0 ; h--)
-		{
-			for (xtmp=0; xtmp<=w; xtmp++)
-			{
-				memmove(p+xtmp*4,bgra[color],4);
-			}
-			p += fix_screeninfo.line_length;
-		}
-#endif
 }
 
 void FillBorder(int color)
