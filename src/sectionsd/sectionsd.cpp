@@ -8293,11 +8293,14 @@ printf("[sectionsd] Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUni
 		unlockEvents();
 		//			usleep(100);
 		//			lockEvents();
+#ifdef USE_BROKEN_REMOVE_DUP_EVENTS
+		/* this is currently broken */
 		removeDupEvents();
 		readLockEvents();
 printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
 		unlockEvents();
+#endif
 		dprintf("before removewasteepg\n");
 #ifdef UPDATE_NETWORKS
 		removeWasteEvents(); // Events for channels not in services.xml
