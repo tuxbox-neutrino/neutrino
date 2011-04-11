@@ -1247,7 +1247,7 @@ static void removeDupEvents(void)
 			continue;
 
 		xprintf("%s: --------  %llx.%02x '%s'\n", __func__,
-			(*del)->uniqueKey(), (*del)->table_id, (*del)->getName().c_str());
+			(*del)->uniqueKey(), (*del)->table_id, (*del)->getName().empty() ? "NULL":(*del)->getName().c_str());
 		unlockEvents();
 		deleteEvent((*del)->uniqueKey());
 		readLockEvents();
