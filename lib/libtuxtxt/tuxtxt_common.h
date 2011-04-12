@@ -38,16 +38,16 @@ int tuxtxt_get_zipsize(int p,int sp)
 void tuxtxt_compress_page(int p, int sp, unsigned char* buffer)
 {
 	pthread_mutex_lock(&tuxtxt_cache_lock);
-    tstCachedPage* pg = tuxtxt_cache.astCachetable[p][sp];
-    if (!pg)
-    {
+	tstCachedPage* pg = tuxtxt_cache.astCachetable[p][sp];
+	if (!pg)
+	{
 		printf("tuxtxt: trying to compress a not allocated page!!\n");
 		pthread_mutex_unlock(&tuxtxt_cache_lock);
 		return;
-    }
+	}
 
 #if TUXTXT_COMPRESS == 1
-    unsigned char pagecompressed[23*40];
+	unsigned char pagecompressed[23*40];
 	uLongf comprlen = 23*40;
 	if (compress2(pagecompressed,&comprlen,buffer,23*40,Z_BEST_SPEED) == Z_OK)
 	{
@@ -61,43 +61,44 @@ void tuxtxt_compress_page(int p, int sp, unsigned char* buffer)
 		}
 	}
 #elif TUXTXT_COMPRESS == 2
-    int i,j=0;
-    unsigned char cbuf[23*40];
-    memset(pg->bitmask,0,sizeof(pg->bitmask));
-    for (i = 0; i < 23*40; i++)
-    {
+	int i,j=0;
+	unsigned char cbuf[23*40];
+	memset(pg->bitmask,0,sizeof(pg->bitmask));
+	for (i = 0; i < 23*40; i++)
+	{
 		if (i && buffer[i] == buffer[i-1])
 		    continue;
 		pg->bitmask[i>>3] |= 0x80>>(i&0x07);
 		cbuf[j++]=buffer[i];
-    }
-    if (pg->pData) free(pg->pData);//realloc(pg->pData,j); realloc scheint nicht richtig zu funktionieren?
-    pg->pData = (unsigned char*)malloc(j);
+	}
+	if (pg->pData)
+		free(pg->pData);//realloc(pg->pData,j); realloc scheint nicht richtig zu funktionieren?
+	pg->pData = (unsigned char*)malloc(j);
 	if (pg->pData)
 	{
-	    memmove(pg->pData,cbuf,j);
-  	}
-  	else
-  	    memset(pg->bitmask,0,sizeof(pg->bitmask));
-
+		memmove(pg->pData,cbuf,j);
+	}
+	else
+		memset(pg->bitmask,0,sizeof(pg->bitmask));
 #else
 	//if (pg->pData)
 		memmove(pg->data,buffer,23*40);
 #endif
 	pthread_mutex_unlock(&tuxtxt_cache_lock);
-
 }
+
 void tuxtxt_decompress_page(int p, int sp, unsigned char* buffer)
 {
 	pthread_mutex_lock(&tuxtxt_cache_lock);
-    tstCachedPage* pg = tuxtxt_cache.astCachetable[p][sp];
+	tstCachedPage* pg = tuxtxt_cache.astCachetable[p][sp];
+
 	memset(buffer,' ',23*40);
-    if (!pg)
-    {
+	if (!pg)
+	{
 		printf("tuxtxt: trying to decompress a not allocated page!!\n");
 		pthread_mutex_unlock(&tuxtxt_cache_lock);
 		return;
-    }
+	}
 #if TUXTXT_COMPRESS == 1
 	if (pg->pData)
 	{
@@ -347,7 +348,7 @@ int tuxtxt_GetSubPage(int page, int subpage, int offset)
  * clear_cache                                                                *
  ******************************************************************************/
 
-void tuxtxt_clear_cache()
+void tuxtxt_clear_cache(void)
 {
 	pthread_mutex_lock(&tuxtxt_cache_lock);
 	int clear_page, clear_subpage, d26;
@@ -361,7 +362,7 @@ void tuxtxt_clear_cache()
 	memset(&tuxtxt_cache.adip, 0, sizeof(tuxtxt_cache.adip));
 	memset(&tuxtxt_cache.flofpages, 0 , sizeof(tuxtxt_cache.flofpages));
 	memset(&tuxtxt_cache.timestring, 0x20, 8);
- 	unsigned char magazine;
+	unsigned char magazine;
 	for (magazine = 1; magazine < 9; magazine++)
 	{
 		tuxtxt_cache.current_page  [magazine] = -1;
@@ -501,29 +502,34 @@ void tuxtxt_decode_p2829(unsigned char *vtxt_row, tstExtData **ptExtData)
 
 void tuxtxt_erase_page(int magazine)
 {
-	pthread_mutex_lock(&tuxtxt_cache_lock);
-    tstCachedPage* pg = tuxtxt_cache.astCachetable[tuxtxt_cache.current_page[magazine]][tuxtxt_cache.current_subpage[magazine]];
+	tstCachedPage* pg = tuxtxt_cache.astCachetable[tuxtxt_cache.current_page[magazine]][tuxtxt_cache.current_subpage[magazine]];
 	if (pg)
 	{
 		memset(&(pg->pageinfo), 0, sizeof(tstPageinfo));	/* struct pageinfo */
 		memset(pg->p0, ' ', 24);
 #if TUXTXT_COMPRESS == 1
-    	if (pg->pData) {free(pg->pData); pg->pData = NULL;}
+		if (pg->pData) {
+			free(pg->pData);
+			pg->pData = NULL;
+		}
 #elif TUXTXT_COMPRESS == 2
 		memset(pg->bitmask, 0, 23*5);
 #else
 		memset(pg->data, ' ', 23*40);
 #endif
 	}
-	pthread_mutex_unlock(&tuxtxt_cache_lock);
 }
 
 void tuxtxt_allocate_cache(int magazine)
 {
+	// Lock here as we have a possible race here with
+	// tuxtxt_clear_cache(). We should not be allocating and
+	// freeing at the same time.
+	pthread_mutex_lock(&tuxtxt_cache_lock);
+
 	/* check cachetable and allocate memory if needed */
 	if (tuxtxt_cache.astCachetable[tuxtxt_cache.current_page[magazine]][tuxtxt_cache.current_subpage[magazine]] == 0)
 	{
-
 		tuxtxt_cache.astCachetable[tuxtxt_cache.current_page[magazine]][tuxtxt_cache.current_subpage[magazine]] = (tstCachedPage*) malloc(sizeof(tstCachedPage));
 		if (tuxtxt_cache.astCachetable[tuxtxt_cache.current_page[magazine]][tuxtxt_cache.current_subpage[magazine]] )
 		{
@@ -533,12 +539,17 @@ void tuxtxt_allocate_cache(int magazine)
 			tuxtxt_erase_page(magazine);
 			tuxtxt_cache.cached_pages++;
 		}
+		else // Be a little verbose in case a crash is going to happen.
+		{
+			printf("tuxtxt: memory allocation failed!!! expect a crash\n");
+		}
 	}
+	pthread_mutex_unlock(&tuxtxt_cache_lock);
 }
+
 /******************************************************************************
  * CacheThread                                                                *
  ******************************************************************************/
-//#define TUXTXT_DEBUG 1 //FIXME
 static int stop_cache = 0;
 void *tuxtxt_CacheThread(void * /*arg*/)
 {
@@ -561,7 +572,7 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 	unsigned char pagedata[9][23*40];
 	tstPageinfo *pageinfo_thread;
 
-	printf("TuxTxt running thread...(%03x)\n",tuxtxt_cache.vtxtpid);
+	printf("TuxTxt running thread...(%04x)\n",tuxtxt_cache.vtxtpid);
 	tuxtxt_cache.receiving = 1;
 	nice(3);
 	while (!stop_cache)
@@ -569,7 +580,8 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 		/* check stopsignal */
 		pthread_testcancel();
 
-		if (!tuxtxt_cache.receiving) continue;
+		if (!tuxtxt_cache.receiving)
+			continue;
 
 		/* read packet */
 		ssize_t readcnt;
@@ -622,14 +634,14 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 				if (!magazine) magazine = 8;
 
 				if (packet_number == 0 && tuxtxt_cache.current_page[magazine] != -1 && tuxtxt_cache.current_subpage[magazine] != -1)
- 				    tuxtxt_compress_page(tuxtxt_cache.current_page[magazine],tuxtxt_cache.current_subpage[magazine],pagedata[magazine]);
+					tuxtxt_compress_page(tuxtxt_cache.current_page[magazine],tuxtxt_cache.current_subpage[magazine],pagedata[magazine]);
 
-//printf("********************** receiving packet %d page %03x subpage %02x\n",packet_number, tuxtxt_cache.current_page[magazine],tuxtxt_cache.current_subpage[magazine]);//FIXME
+				//printf("********************** receiving packet %d page %03x subpage %02x\n",packet_number, tuxtxt_cache.current_page[magazine],tuxtxt_cache.current_subpage[magazine]);//FIXME
 
 				/* analyze row */
 				if (packet_number == 0)
 				{
-    					/* get pagenumber */
+					/* get pagenumber */
 					b2 = dehamming[vtxt_row[3]];
 					b3 = dehamming[vtxt_row[2]];
 
@@ -1027,7 +1039,8 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 #endif
 		}
 	}
-	return 0;
+
+	pthread_exit(NULL);
 }
 /******************************************************************************
  * start_thread                                                               *
@@ -1035,8 +1048,8 @@ void *tuxtxt_CacheThread(void * /*arg*/)
 int tuxtxt_start_thread(int source = 0);
 int tuxtxt_start_thread(int source)
 {
-	if (tuxtxt_cache.vtxtpid == -1) return 0;
-
+	if (tuxtxt_cache.vtxtpid == -1)
+		return 0;
 
 	tuxtxt_cache.thread_starting = 1;
 	tuxtxt_init_demuxer(source);
