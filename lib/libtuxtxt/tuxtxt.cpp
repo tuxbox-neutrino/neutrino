@@ -3241,25 +3241,22 @@ void ConfigMenu(int Init)
 					}
 					else if (pids_found > 1)
 					{
-							if (hotlistchanged)
-								savehotlist();
+						if (hotlistchanged)
+							savehotlist();
 
 						if (Init || tuxtxt_cache.vtxtpid != pid_table[current_pid].vtxt_pid)
-							{
+						{
 #if TUXTXT_CFG_STANDALONE
-								tuxtxt_stop_thread();
-								tuxtxt_clear_cache();
+							tuxtxt_stop_thread();
+							tuxtxt_clear_cache();
 #else
-								tuxtxt_stop();
+							tuxtxt_stop();
 							if (Init)
 								tuxtxt_cache.vtxtpid = 0; // force clear cache
 #endif
 								/* reset data */
-
-
 								//page_atrb[32] = transp<<4 | transp;
 								inputcounter = 2;
-
 
 								tuxtxt_cache.page     = 0x100;
 								lastpage = 0x100;
