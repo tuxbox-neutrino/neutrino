@@ -57,6 +57,12 @@ int tuxtxt_stop()
 
 void tuxtxt_start(int tpid, int source)
 {
+	if (tpid == -1)
+	{
+		printf("tuxtxt: invalid PID!\n");
+		return;
+	}
+
 	if (tuxtxt_cache.vtxtpid != tpid)
 	{
 		tuxtxt_stop();
@@ -79,7 +85,7 @@ void tuxtxt_close()
 	tuxtxt_stop();
 #if 0
 	if (tuxtxt_cache.dmx != -1)
-    	    close(tuxtxt_cache.dmx);
+		close(tuxtxt_cache.dmx);
 #endif
 	tuxtxt_cache.dmx = -1;
 	tuxtxt_clear_cache();
