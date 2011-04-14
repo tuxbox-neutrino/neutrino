@@ -28,7 +28,7 @@ function goUrl(_url){
 		<tr><td class="y_form_header">{=L:bc.control.box=}</td><td class="y_form_header">{=L:bc.control.standby_mode=}</td></tr>
 		<tr>
 			<td>
-			<input type="button" value="{=L:bc.control.reboot=}" onclick='goConfirmUrl("{=L:bc.control.reboot.ask=}","/control/reboot");'/>
+			<input type="button" value="{=L:bc.control.reboot=}" onclick='goUrl("/control/exec?Y_Tools&amp;yreboot");'/>
 			<input type="button" value="{=L:bc.control.shutdown=}" onclick='goConfirmUrl("{=L:bc.control.shutdown.ask=}","/control/shutdown");'/>
 			</td>
 			<td>

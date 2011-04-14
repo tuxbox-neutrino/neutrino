@@ -555,7 +555,7 @@ case "$1" in
 	ps)						msg=`ps`; y_format_message_html ;;
 	free)					f=`free`; p=`df -h`; msg="RAM Memory use\n-------------------\n$f\n\nPartitions\n-------------------\n$p"
 							y_format_message_html ;;
-	yreboot)				yreboot; echo "Reboot..." ;;
+	yreboot)				reboot; echo "Reboot..." ;;
 	check_yWeb_conf) 		check_Y_Web_conf ;;
 	rcsim)					rcsim $2 >/dev/null ;;
 	domount)				shift 1; do_mount $* ;;
