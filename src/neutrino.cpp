@@ -4014,6 +4014,12 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		   If the channel is the same (as during a recording), then it will only
 		   check PIN and not zap, so we should be fine here
 		 */
+		mode = mode_unknown;
+		if( lastMode == mode_radio ) {
+			radioMode( false );
+		} else {
+			tvMode( false );
+		}
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		channelList->zapTo_ChannelID(live_channel_id);
 		if(recordingstatus) was_record = 0;
@@ -4025,12 +4031,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
                 if(g_settings.mode_clock)
                         InfoClock->StartClock();
 
-		mode = mode_unknown;
-		if( lastMode == mode_radio ) {
-			radioMode( false );
-		} else {
-			tvMode( false );
-		}
 		AudioMute(current_muted, true);
 		if((mode == mode_tv) && wasshift) {
 			startAutoRecord(true);
@@ -4038,7 +4038,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		wasshift = false;
 		StartSubtitles();
 	}
-	
 }
 
 void CNeutrinoApp::radioMode( bool rezap)
