@@ -4263,15 +4263,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "update_dir") {
-		parent->hide();
-
-		const char *action_str = "update";
-		if(chooserDir(g_settings.update_dir, true, action_str, sizeof(g_settings.update_dir)-1)){
-				printf("[neutrino] new %s dir %s\n", action_str, g_settings.update_dir);
-		}
-		return menu_return::RETURN_REPAINT;
-	}
 	else if(actionKey == "movieplugin") {
 		parent->hide();
 		CMenuWidget MoviePluginSelector(LOCALE_MOVIEPLAYER_DEFPLUGIN, NEUTRINO_ICON_FEATURES);

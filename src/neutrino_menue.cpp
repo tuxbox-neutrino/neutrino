@@ -71,6 +71,7 @@
 #include "gui/scan_setup.h"
 #include "gui/settings_manager.h"
 #include "gui/sleeptimer.h"
+#include "gui/software_update.h"
 #include <gui/streaminfo2.h>
 #ifdef TEST_MENU
 #include "gui/test_menu.h"
@@ -266,59 +267,7 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service)
 	
 	// end of infomenu in service
 	//softupdate
-	//if(softupdate)
-	{
-		dprintf(DEBUG_DEBUG, "init soft-update-stuff\n");
-		CMenuWidget* updateSettings = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE);
-		updateSettings->addIntroItems();
-
-		// expert-functions to read/write mtd
-		CMenuWidget* mtdexpert = new CMenuWidget(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE);
-		mtdexpert->addIntroItems();
-		CFlashExpert* fe = new CFlashExpert();
-
-		//mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_READFLASH    , true, NULL, fe, "readflash"    ));
-		//if(softupdate)
-		//	mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_WRITEFLASH   , true, NULL, fe, "writeflash"   ));
-		//mtdexpert->addItem(GenericMenuSeparatorLine);
-		mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_READFLASHMTD , true, NULL, fe, "readflashmtd" ));
-		if (softupdate)
-			mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_WRITEFLASHMTD, true, NULL, fe, "writeflashmtd"));
-		mtdexpert->addItem(GenericMenuSeparatorLine);
-
-		CStringInputSMS * updateSettings_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""�$%&/()=?-. ");
-		mtdexpert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, updateSettings_url_file));
-
-		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, mtdexpert, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-
-		updateSettings->addItem(GenericMenuSeparatorLine);
-		CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_FLASHUPDATE_UPDATEMODE, &g_settings.softupdate_mode, FLASHUPDATE_UPDATEMODE_OPTIONS, FLASHUPDATE_UPDATEMODE_OPTION_COUNT, true, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
-		updateSettings->addItem( oj );
-		updateSettings->addItem( new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW) );
-
-#if 0 // image info and update list show current version, probably ehough
-		/* show current version */
-		updateSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FLASHUPDATE_CURRENTVERSION_SEP));
-
-		/* get current version SBBBYYYYMMTTHHMM -- formatsting */
-		CConfigFile _configfile('\t');
-
-		const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
-
-		dprintf(DEBUG_INFO, "current flash-version: %s\n", versionString);
-
-		static CFlashVersionInfo versionInfo(versionString);
-
-		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CURRENTVERSIONDATE    , false, versionInfo.getDate()));
-		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CURRENTVERSIONTIME    , false, versionInfo.getTime()));
-		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CURRENTRELEASECYCLE   , false, versionInfo.getReleaseCycle()));
-		/* versionInfo.getType() returns const char * which is never deallocated */
-		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CURRENTVERSIONSNAPSHOT, false, versionInfo.getType()));
-#endif
-		updateSettings->addItem(GenericMenuSeparatorLine);
-		updateSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, new CFlashUpdate(), "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-		service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, updateSettings));
-	}
+	service.addItem(new CMenuForwarder(LOCALE_SERVICEMENU_UPDATE, true, NULL, new CSoftwareUpdate()));
 }
 
 
