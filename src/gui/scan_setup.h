@@ -77,7 +77,9 @@ class CScanSetup : public CMenuTarget
  		void addScanMenuMotorMenu(CMenuWidget *motor_Menu);
  		void addScanMenuManualScan(CMenuWidget *manual_Scan);
  		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);
+#ifdef ENABLE_FASTSCAN
  		void addScanMenuFastScan(CMenuWidget *fast_ScanMenu);
+#endif
  		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
