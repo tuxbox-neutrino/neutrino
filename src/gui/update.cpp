@@ -84,6 +84,7 @@ extern int allow_flash;
 CFlashUpdate::CFlashUpdate()
 	:CProgressWindow()
 {
+	width = w_max (40, 10); 
 	setTitle(LOCALE_FLASHUPDATE_HEAD);
 	sysfs = CMTDInfo::getInstance()->findMTDsystem();
 	printf("Mtd partition to update: %s\n", sysfs.c_str());
@@ -518,6 +519,7 @@ CFlashExpert::CFlashExpert()
 	:CProgressWindow()
 {
 	selectedMTD = -1;
+	width = w_max (40, 10);
 }
 
 void CFlashExpert::readmtd(int preadmtd)
@@ -592,10 +594,9 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 void CFlashExpert::showMTDSelector(const std::string & actionkey)
 {
 	//mtd-selector erzeugen
-	CMenuWidget* mtdselector = new CMenuWidget(LOCALE_FLASHUPDATE_MTDSELECTOR, NEUTRINO_ICON_UPDATE);
-	mtdselector->addItem(GenericMenuSeparator);
-	mtdselector->addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_CANCEL));
-	mtdselector->addItem(GenericMenuSeparatorLine);
+	CMenuWidget* mtdselector = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width);
+	mtdselector->addIntroItems(LOCALE_FLASHUPDATE_MTDSELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+
 	CMTDInfo* mtdInfo =CMTDInfo::getInstance();
 	for(int lx=0;lx<mtdInfo->getMTDCount();lx++) {
 		char sActionKey[20];
@@ -608,10 +609,9 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 
 void CFlashExpert::showFileSelector(const std::string & actionkey)
 {
-	CMenuWidget* fileselector = new CMenuWidget(LOCALE_FLASHUPDATE_FILESELECTOR, NEUTRINO_ICON_UPDATE);
-	fileselector->addItem(GenericMenuSeparator);
-	fileselector->addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_CANCEL));
-	fileselector->addItem(GenericMenuSeparatorLine);
+	CMenuWidget* fileselector = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width);
+	fileselector->addIntroItems(LOCALE_FLASHUPDATE_FILESELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+
 	struct dirent **namelist;
 	int n = scandir("/tmp", &namelist, 0, alphasort);
 	if (n < 0)

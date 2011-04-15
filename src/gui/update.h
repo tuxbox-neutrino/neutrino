@@ -48,6 +48,7 @@ class CFlashUpdate : public CProgressWindow
 	std::string file_md5;
 	std::string sysfs;
 	char	fileType;
+	int 	width;
 	
 	std::string installedVersion;
 	std::string newVersion;
@@ -66,6 +67,7 @@ class CFlashExpert : public CProgressWindow
 {
 	private:
 		int selectedMTD;
+		int width;
 
 		void showMTDSelector(const std::string & actionkey);
 		void showFileSelector(const std::string & actionkey);
