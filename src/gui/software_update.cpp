@@ -37,30 +37,13 @@
 
 #include <global.h>
 #include <neutrino.h>
-
-#include "gui/info_menue.h"
-#include "gui/imageinfo.h"
-#include "gui/dboxinfo.h"
-#include <gui/streaminfo2.h>
-#include <gui/filebrowser.h>
-#include <driver/screen_max.h>
-
-
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
-#include <global.h>
-#include <neutrino.h>
-
 #include "software_update.h"
 
 #include "gui/imageinfo.h"
-
-#include <gui/widget/icons.h>
-
+#include <gui/filebrowser.h>
 #include <driver/screen_max.h>
-
+#include <gui/widget/icons.h>
+#include <driver/screen_max.h>
 #include <system/debug.h>
 #include <system/flashtool.h>
 

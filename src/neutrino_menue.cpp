@@ -79,8 +79,8 @@
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
 
-#include "gui/widget/stringinput.h"
-#include "gui/widget/stringinput_ext.h"
+//#include "gui/widget/stringinput.h"
+//#include "gui/widget/stringinput_ext.h"
 
 extern CPlugins       * g_PluginList;
 extern CRemoteControl * g_RemoteControl;
