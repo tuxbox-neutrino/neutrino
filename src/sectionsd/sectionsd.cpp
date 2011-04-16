@@ -1978,12 +1978,12 @@ static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 			}
 		}
 
-		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator eNext;
+		MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator eNext;
 
 		//if ((nextnvodtimes != eFirst->second->times.begin()) && (nextnvodtimes != eFirst->second->times.end())) {
 			//Startzeit not first - we can't use the ordered list...
-			for ( MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin(); e !=
-			 	mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end(); ++e ) {
+			for (MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin(); e !=
+				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end(); ++e ) {
 				if ((*e)->get_channel_id() == eFirst->second->get_channel_id()) {
 					for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t) {
 						if (t->startzeit > zeit.startzeit) {
