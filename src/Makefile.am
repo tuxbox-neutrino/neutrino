@@ -92,6 +92,10 @@ neutrino_LDADD += \
 	-lcoolstream \
 	-lOpenThreads \
 	-lnxp
+
+bin_PROGRAMS += drivertool
+
+drivertool_SOURCES = drivertool.c
 endif
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
