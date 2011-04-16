@@ -4494,10 +4494,12 @@ static void *insertEventsfromFile(void *)
 
 	indexname = epg_dir + "index.xml";
 
-	printdate_ms(stdout); printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
 	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
 
 	if (index_parser != NULL) {
+		time_t now = time_monotonic_ms();
+		printdate_ms(stdout);
+		printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
 
 		eventfile = xmlDocGetRootElement(index_parser)->xmlChildrenNode;
 
@@ -4623,8 +4625,10 @@ static void *insertEventsfromFile(void *)
 			eventfile = eventfile->xmlNextNode;
 		}
 
-		printdate_ms(stdout); printf("[sectionsd] Reading Information finished\n");
 		xmlFreeDoc(index_parser);
+		printdate_ms(stdout);
+		printf("[sectionsd] Reading Information finished after %ld miliseconds\n",
+				time_monotonic_ms()-now);
 	}
 
 	pthread_exit(NULL);
