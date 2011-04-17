@@ -4491,6 +4491,7 @@ static void *insertEventsfromFile(void *)
 	std::string indexname;
 	std::string filename;
 	std::string epgname;
+	int ev_count = 0;
 
 	indexname = epg_dir + "index.xml";
 
@@ -4612,6 +4613,7 @@ static void *insertEventsfromFile(void *)
 						//lockEvents();
 						//writeLockEvents();
 						addEvent(e, 0, 0);
+						ev_count++;
 						//unlockEvents();
 
 						event = event->xmlNextNode;
@@ -4627,8 +4629,8 @@ static void *insertEventsfromFile(void *)
 
 		xmlFreeDoc(index_parser);
 		printdate_ms(stdout);
-		printf("[sectionsd] Reading Information finished after %ld miliseconds\n",
-				time_monotonic_ms()-now);
+		printf("[sectionsd] Reading Information finished after %ld miliseconds (%d events)\n",
+				time_monotonic_ms()-now, ev_count);
 	}
 
 	pthread_exit(NULL);
