@@ -245,6 +245,8 @@ unsigned int privatePid=0;
 #endif
 int sectionsd_stop = 0;
 
+static bool slow_addevent = false;
+
 inline void readLockServices(void)
 {
 	pthread_rwlock_rdlock(&servicesLock);
@@ -896,9 +898,59 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		   (SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF) && (zeit != 0))
 			e->setExtendedText("OFF","");
 
+/*
+ * this is test code, so indentation is deliberately wrong :-)
+ * we'll hopefully remove this if clause after testing is done
+ */
+if (slow_addevent)
+{
+		std::vector<event_id_t> to_delete;
+		event_id_t e_key = e->uniqueKey();
+		t_channel_id e_chid = e->get_channel_id();
+		time_t start_time = e->times.begin()->startzeit;
+		bool found = false;
+		/* experiments have shown that iterating backwards here is much faster */
+		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator x =
+			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end();
+
+		while (x != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin())
+		{
+			x--;
+			if ((*x)->get_channel_id() != e_chid)
+			{
+				/* sorted by service id first */
+				if (found)
+					break;
+			}
+			else
+			{
+				event_id_t x_key = (*x)->uniqueKey();
+				found = true;
+				/* do we need this check? */
+				if (x_key == e_key)
+					continue;
+				if ((*x)->table_id < e->table_id)
+					continue;
+				if ((*x)->times.begin()->startzeit != start_time)
+					continue;
+
+				dprintf("%s: delete 0x%016llx.%02x time = 0x%016llx.%02x\n", __func__,
+					x_key, (*x)->table_id, e_key, e->table_id);
+				to_delete.push_back(x_key);
+			}
+		}
+		unlockEvents();
+
+		while (! to_delete.empty())
+		{
+			deleteEvent(to_delete.back());
+			to_delete.pop_back();
+		}
+} else {
 		// Damit in den nicht nach Event-ID sortierten Mengen
 		// Mehrere Events mit gleicher ID sind, diese vorher loeschen
 		unlockEvents();
+}
 		deleteEvent(e->uniqueKey());
 		readLockEvents();
 		if (mySIeventsOrderUniqueKey.size() >= max_events) {
@@ -8654,6 +8706,10 @@ void sectionsd_main_thread(void */*data*/)
 	struct sched_param parm;
 
 	printf("$Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $\n");
+	/* "export TEST_ADDEVENT=true" to enable this */
+	slow_addevent = (getenv("TEST_ADDEVENT") != NULL);
+	if (slow_addevent)
+		printf("====================> USING SLOW ADDEVENT <=========================\n");
 
 	SIlanguage::loadLanguages();
 
