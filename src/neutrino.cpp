@@ -167,6 +167,7 @@ uint32_t shift_timer;
 uint32_t scrambled_timer;
 char recDir[255];
 char timeshiftDir[255];
+t_channel_id standby_channel_id;
 
 //char current_volume;
 extern int list_changed;
@@ -3952,7 +3953,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		}
                 if(g_settings.mode_clock)
                         InfoClock->StopClock();
-
+		
+		//remember tuned channel-id
+		standby_channel_id = live_channel_id;
 
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
 		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
@@ -4019,6 +4022,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 			radioMode( false );
 		} else {
 			tvMode( false );
+		}
+		if(!recordingstatus) { //only switch to standby_channel_id when not recording
+			live_channel_id = standby_channel_id;
 		}
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		channelList->zapTo_ChannelID(live_channel_id);
