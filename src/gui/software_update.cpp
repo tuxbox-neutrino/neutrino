@@ -39,10 +39,9 @@
 #include <neutrino.h>
 #include "software_update.h"
 
-#include "gui/imageinfo.h"
-#include <gui/filebrowser.h>
-#include <driver/screen_max.h>
+#include "gui/filebrowser.h"
 #include <gui/widget/icons.h>
+#include <driver/screen_max.h>
 #include <driver/screen_max.h>
 #include <system/debug.h>
 #include <system/flashtool.h>
@@ -113,7 +112,6 @@ void CSoftwareUpdate::showSoftwareUpdate()
  
 	softUpdate->addItem(GenericMenuSeparatorLine);
 	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, new CFlashUpdate(), "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
-	softUpdate->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 	softUpdate->exec (NULL, "");
 	softUpdate->hide ();
