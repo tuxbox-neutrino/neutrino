@@ -589,7 +589,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
         uint32_t fadeTimer = 0;
         if ( fadeIn ) {
                 fadeValue = 100;
-                frameBuffer->setBlendLevel(fadeValue, fadeValue);
+		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
+		frameBuffer->setBlendLevel(fadeValue, fadeValue);
                 fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
         }
 
@@ -733,7 +734,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							g_RCInput->killTimer (fadeTimer);
 							fadeTimer = 0;
 							fadeIn = false;
-							frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+							//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+							frameBuffer->setBlendMode(1); // set back to per pixel alpha only
 						} else
 							frameBuffer->setBlendLevel(fadeValue, fadeValue);
 					}
@@ -910,6 +912,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					fadeOut = true;
 					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 					msg = 0;
 				} else
 					loop = false;
@@ -922,8 +925,21 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 			default:
 				// konfigurierbare Keys handlen...
-				if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel)
-					loop = false;
+				if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel) {
+					if ( fadeIn ) {
+						g_RCInput->killTimer(fadeTimer);
+						fadeTimer = 0;
+						fadeIn = false;
+					}
+					if ((!fadeOut) && g_settings.widget_fade) {
+						fadeOut = true;
+						fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+						timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+						frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
+						msg = 0;
+					} else
+						loop = false;
+				} 
 				else
 				{
 					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
@@ -938,7 +954,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		if ( fadeIn || fadeOut ) {
 			g_RCInput->killTimer(fadeTimer);
 			fadeTimer = 0;
-			frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+			//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+			frameBuffer->setBlendMode(1); // set back to per pixel alpha only
 		}
 	}
 	return res;

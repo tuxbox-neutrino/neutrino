@@ -376,6 +376,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	int fadeValue = g_settings.menu_Content_alpha;
         if ( fadeIn ) {
 		fadeValue = 100;
+		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
 		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
         }
@@ -440,7 +441,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								g_RCInput->killTimer (fadeTimer);
 								fadeTimer = 0;
 								fadeIn = false;
-								frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+								//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+								frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 							} else
 								frameBuffer->setBlendLevel(fadeValue, fadeValue);
 						}
@@ -563,7 +565,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								g_RCInput->killTimer(fadeTimer);
 								fadeTimer = 0;
 								fadeIn = false;
-								frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+								//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+								frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 							}
 							int rv = item->exec( this );
 							switch ( rv ) {
@@ -616,6 +619,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					fadeOut = true;
 					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+					frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 					msg = 0;
 					continue;
 				}
@@ -634,7 +638,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
 		fadeTimer = 0;
-		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 	}
 
 	if(!parent)

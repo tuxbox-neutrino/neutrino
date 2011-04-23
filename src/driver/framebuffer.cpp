@@ -45,6 +45,9 @@
 #include <global.h>
 #include <video.h>
 #include <cs_api.h>
+#ifdef HAVE_COOL_HARDWARE
+#include <cnxtfb.h>
+#endif
 
 extern cVideo * videoDecoder;
 
@@ -507,19 +510,28 @@ void CFrameBuffer::setTransparency( int /*tr*/ )
 {
 }
 
-#define FBIO_CHANGEOPACITY        0x4624
+void CFrameBuffer::setBlendMode(uint8_t mode)
+{
+#ifdef HAVE_COOL_HARDWARE
+	if (ioctl(fd, FBIO_SETBLENDMODE, mode))
+		printf("FBIO_SETBLENDMODE failed.\n");
+#endif
+}
+
 void CFrameBuffer::setBlendLevel(int blev1, int /*blev2*/)
 {
-#if 1
 	//printf("CFrameBuffer::setBlendLevel %d\n", blev1);
-	unsigned short value = 0xFFFF;
+	unsigned char value = 0xFF;
 	if((blev1 >= 0) && (blev1 <= 100))
 		value = convertSetupAlpha2Alpha(blev1);
 
-	if (ioctl(fd, FBIO_CHANGEOPACITY, &value) < 0)
-		printf("FBIO_CHANGEOPACITY failed.\n");
-	if(blev1 == 100) // sucks
-		usleep(20000);
+#ifdef HAVE_COOL_HARDWARE
+	if (ioctl(fd, FBIO_SETOPACITY, value))
+		printf("FBIO_SETOPACITY failed.\n");
+#if 1
+       if(blev1 == 100) // TODO: sucks.
+               usleep(20000);
+#endif
 #endif
 }
 

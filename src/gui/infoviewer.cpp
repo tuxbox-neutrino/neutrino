@@ -499,6 +499,7 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
 	int fadeValue;
 	if (fadeIn) {
 		fadeValue = 100;
+		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
 	} else
 		fadeValue = g_settings.infobar_alpha;
@@ -605,6 +606,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	int fadeValue;
 	if (fadeIn) {
 		fadeValue = 100;
+		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
 	} else
 		fadeValue = g_settings.infobar_alpha;
@@ -775,7 +777,9 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 					g_RCInput->killTimer (fadeTimer);
 					fadeTimer = 0;
 					fadeIn = false;
-					frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
+					frameBuffer->setBlendLevel(100, 100);//FIXME
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
 			}
@@ -789,6 +793,7 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 				fadeOut = true;
 				fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
 				timeoutEnd = CRCInput::calcTimeoutEnd (1);
+				frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 			} else {
 #if 0
 				if ((msg != CRCInput::RC_timeout) && (msg != CRCInput::RC_ok))
@@ -845,7 +850,9 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 	sec_timer_id = 0;
 	if (fadeIn || fadeOut) {
 		g_RCInput->killTimer (fadeTimer);
-		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
+		frameBuffer->setBlendLevel(100, 100);//FIXME
 	}
 	if (virtual_zap_mode) {
 		/* if bouquet cycle set, do virtual over current bouquet */

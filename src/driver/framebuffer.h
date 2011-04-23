@@ -139,6 +139,7 @@ class CFrameBuffer
 		void setActive(bool enable);                     // is framebuffer active?
 
 		void setTransparency( int tr = 0 );
+		void setBlendMode(uint8_t mode = 1);
 		void setBlendLevel(int blev1, int blev2);
 
 		//Palette stuff

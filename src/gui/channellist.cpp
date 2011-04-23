@@ -513,6 +513,7 @@ int CChannelList::show()
 	uint32_t fadeTimer = 0;
 	if ( fadeIn ) {
 		fadeValue = 100;
+		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
 		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 	}
@@ -553,7 +554,8 @@ int CChannelList::show()
 					g_RCInput->killTimer (fadeTimer);
 					fadeTimer = 0;
 					fadeIn = false;
-					frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
 			}
@@ -577,6 +579,7 @@ int CChannelList::show()
 				fadeOut = true;
 				fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 				msg = 0;
 			} else
 				loop=false;
@@ -875,7 +878,8 @@ int CChannelList::show()
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
 		fadeTimer = 0;
-		frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
+		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 	}
 	if (bShowBouquetList) {
 		res = bouquetList->exec(true);
