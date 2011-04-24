@@ -451,11 +451,11 @@ bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, s
 	/* first the channel-id, then the channelname */
 	std::string strLogoName[2] = { (std::string)strChanId, ChannelName };
 	/* first jpg, then gif */
-	std::string strLogoExt[2] = { ".jpg", ".gif" };
+	std::string strLogoExt[3] = { ".jpg", ".gif" , ".png" };
 
 	for (i = 0; i < 2; i++)
 	{
-		for (j = 0; j < 2; j++)
+		for (j = 0; j < 3; j++)
 		{
 			std::string tmp(g_settings.logo_hdd_dir + "/" + strLogoName[i] + strLogoExt[j]);
 			if (access(tmp.c_str(), R_OK) != -1)
@@ -469,7 +469,7 @@ bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, s
 	}
         for (i = 0; i < 2; i++)
         {
-                for (j = 0; j < 2; j++)
+                for (j = 0; j < 3; j++)
                 {
 			std::string tmp(LOGO_DIR1 "/" + strLogoName[i] + strLogoExt[j]);
                         if (access(tmp.c_str(), R_OK) != -1)
