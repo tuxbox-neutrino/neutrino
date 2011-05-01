@@ -536,6 +536,7 @@ void CFrameBuffer::setTransparency( int /*tr*/ )
 {
 }
 
+#if !HAVE_TRIPLEDRAGON
 void CFrameBuffer::setBlendMode(uint8_t mode)
 {
 #ifdef HAVE_COOL_HARDWARE
@@ -560,6 +561,34 @@ void CFrameBuffer::setBlendLevel(int level)
 #endif
 #endif
 }
+#else
+/* TRIPLEDRAGON */
+void CFrameBuffer::setBlendMode(uint8_t mode)
+{
+	Stb04GFXOsdControl g;
+	ioctl(gfxfd, STB04GFX_OSD_GETCONTROL, &g);
+	g.use_global_alpha = (mode == 2); /* 1 == pixel alpha, 2 == global alpha */
+	ioctl(gfxfd, STB04GFX_OSD_SETCONTROL, &g);
+}
+
+void CFrameBuffer::setBlendLevel(int blev1, int /*blev2*/)
+{
+	/* this is bypassing directfb, but faster and easier */
+	Stb04GFXOsdControl g;
+	ioctl(gfxfd, STB04GFX_OSD_GETCONTROL, &g);
+	if (g.use_global_alpha == 0)
+		return;
+
+	if (blev1 < 0 || blev1 > 100)
+		return;
+
+	/* this is the same as convertSetupAlpha2Alpha(), but non-float */
+	g.global_alpha = 255 - (255 * blev1 / 100);
+	ioctl(gfxfd, STB04GFX_OSD_SETCONTROL, &g);
+	if (blev1 == 100) // sucks
+		usleep(20000);
+}
+#endif
 
 void CFrameBuffer::setAlphaFade(int in, int num, int tr)
 {
