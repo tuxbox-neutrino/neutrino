@@ -1840,9 +1840,12 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	}
 
 	if (transp)
+	{
 		surf->SetSrcColorKey(surf, 0, 0, 0);
-
-	dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
+		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_SRC_COLORKEY);
+	}
+	else
+		dfbdest->SetBlittingFlags(dfbdest, DSBLIT_NOFX);
 	dfbdest->Blit(dfbdest, surf, &src, xoff, yoff);
 	surf->Release(surf);
 	return;
