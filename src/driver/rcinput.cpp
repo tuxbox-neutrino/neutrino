@@ -1157,7 +1157,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 					continue;
 				SHTDCNT::getInstance()->resetSleepTimer();
 				uint32_t trkey = translate(ev.code, i);
-#ifdef DEBUG
+#ifdef _DEBUG
 				printf("key: %04x value %d, translate: %04x -%s-\n", ev.code, ev.value, trkey, getKeyName(trkey).c_str());
 #endif
 				if (trkey == RC_nokey)
