@@ -129,6 +129,8 @@ class CMenuItem
 		virtual void setItemButton(const std::string& icon_Name, const bool is_select_button = false);
 		
 		virtual void paintItemCaption(const bool select_mode, const int &item_height, const char * left_text=NULL, const char * right_text=NULL);
+
+		virtual void paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text=NULL, const char * right_text=NULL);
 };
 
 class CMenuSeparator : public CMenuItem
@@ -238,6 +240,7 @@ class CAbstractMenuOptionChooser : public CMenuItem
 
 class CMenuOptionNumberChooser : public CAbstractMenuOptionChooser
 {
+private:
 	const char *       optionString;
 
 	int                lower_bound;
@@ -247,11 +250,11 @@ class CMenuOptionNumberChooser : public CAbstractMenuOptionChooser
 
 	int                localized_value;
 	neutrino_locale_t  localized_value_name;
- private:
+	bool  		slider_on;
 	CChangeObserver *     observ;
 
  public:
-	CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ = NULL, const int print_offset = 0, const int special_value = 0, const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE, const char * non_localized_name = NULL);
+	CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ = NULL, const int print_offset = 0, const int special_value = 0, const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE, const char * non_localized_name = NULL, bool sliderOn = false );
 
 	int paint(bool selected, bool last = false);
 

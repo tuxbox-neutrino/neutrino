@@ -173,6 +173,31 @@ void CMenuItem::prepareItem(const bool select_mode, const int &item_height)
 }
 
 
+void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text, const char * right_text)
+{
+	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
+	int slider_lenght = 0, h = 0;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUMEBODY, &slider_lenght, &h);
+	if(slider_lenght == 0)
+		return;
+	int stringwidth = 0;
+	if (right_text != NULL) {
+		stringwidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth("U999", true) ;
+	}
+	int stringwidth2 = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(left_text, true);
+
+	int maxspace = dx - stringwidth - icon_frame_w - stringwidth2 - 10;
+	if(maxspace < slider_lenght){
+		return ;
+	}
+
+	int stringstartposOption = x + dx - stringwidth - slider_lenght;
+	int optionV = (optionvalue < 0) ? 0 : optionvalue;
+	frameBuffer->paintBoxRel(stringstartposOption, y, slider_lenght, item_height, item_bgcolor);
+	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY, stringstartposOption, y+2+item_height/4);
+	frameBuffer->paintIcon(select_mode ? NEUTRINO_ICON_VOLUMESLIDER2BLUE : NEUTRINO_ICON_VOLUMESLIDER2, (stringstartposOption + (optionV * 100 / factor)), y+item_height/4);
+}
+
 void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, const std::string &icon_Name)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
@@ -864,7 +889,7 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
-CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ, const int print_offset, const int special_value, const neutrino_locale_t special_value_name, const char * non_localized_name)
+CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ, const int print_offset, const int special_value, const neutrino_locale_t special_value_name, const char * non_localized_name, bool sliderOn)
 {
 	height               = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	optionName           = name;
@@ -878,10 +903,11 @@ CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name,
 
 	localized_value      = special_value;
 	localized_value_name = special_value_name;
-
+	
 	optionString         = non_localized_name;
 	can_arrow	= true;
 	observ = Observ;
+	slider_on = sliderOn;
 }
 
 int CMenuOptionNumberChooser::exec(CMenuTarget*)
@@ -924,7 +950,8 @@ int CMenuOptionNumberChooser::paint(bool selected, bool /*last*/)
 
 	//paint item icon
 	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
-
+	if(slider_on)
+		paintItemSlider( selected, height, *optionValue, (upper_bound - lower_bound) , l_optionName, l_option);
 	//paint text
 	paintItemCaption(selected, height , l_optionName, l_option);
 
