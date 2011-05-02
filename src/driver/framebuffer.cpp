@@ -1633,7 +1633,7 @@ void * CFrameBuffer::convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsi
 	}
 
 	for(i = 0; i < count ; i++) {
-		int transp = 0;
+		transp = 0;
 
 		if(rgbbuff[i*3] || rgbbuff[i*3+1] || rgbbuff[i*3+2])
 			transp = 0xFF;
