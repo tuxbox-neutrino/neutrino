@@ -335,7 +335,7 @@ void CLCD::setlcdparameter(void)
 {
 	last_toggle_state_power = g_settings.lcd_setting[SNeutrinoSettings::LCD_POWER];
 	int dim_time = atoi(g_settings.lcd_setting_dim_time);
-	int dim_brightness = atoi(g_settings.lcd_setting_dim_brightness);
+	int dim_brightness = g_settings.lcd_setting_dim_brightness;
 	bool timeouted = (dim_time > 0) && (timeout_cnt == 0);
 	int brightness, power = 0;
 
