@@ -132,7 +132,7 @@ class CMenuItem
 
 		virtual void paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text=NULL, const char * right_text=NULL);
 
-		virtual int isNumberChooser(void) const{return 0;}
+		virtual int isMenueOptionChooser(void) const{return 0;}
 };
 
 class CMenuSeparator : public CMenuItem
@@ -261,7 +261,7 @@ private:
 	int paint(bool selected, bool last = false);
 
 	int exec(CMenuTarget* parent);
-	int isNumberChooser(void) const{return 1;}
+	int isMenueOptionChooser(void) const{return 1;}
 };
 
 class CMenuOptionChooser : public CAbstractMenuOptionChooser
@@ -314,6 +314,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 	std::string getOptionName() {return optionNameString;};
 
 	int exec(CMenuTarget* parent);
+	int isMenueOptionChooser(void) const{return 1;}
 };
 
 class CMenuOptionStringChooser : public CMenuItem
@@ -342,6 +343,7 @@ class CMenuOptionStringChooser : public CMenuItem
 		}
 		void sortOptions();
 		int exec(CMenuTarget* parent);
+		int isMenueOptionChooser(void) const{return 1;}
 };
 
 class CMenuOptionLanguageChooser : public CMenuItem
