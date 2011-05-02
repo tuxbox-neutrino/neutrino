@@ -29,7 +29,8 @@
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-
+#if 0
+/** ready to delete, deprecated **/
 #ifndef __vfdcontroler__
 #define __vfdcontroler__
 
@@ -74,4 +75,5 @@ class CVfdControler : public CMenuTarget
 };
 
 
+#endif
 #endif

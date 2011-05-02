@@ -775,7 +775,7 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	strcpy(g_settings.lcd_setting_dim_time, configfile.getString("lcd_dim_time","0").c_str());
-	strcpy(g_settings.lcd_setting_dim_brightness, configfile.getString("lcd_dim_brightness","0").c_str());
+	g_settings.lcd_setting_dim_brightness = configfile.getInt32("lcd_dim_brightness", 0);
 	g_settings.lcd_info_line = configfile.getInt32("lcd_info_line", 0);//channel name or clock
 
 	//Picture-Viewer
@@ -1290,7 +1290,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
 	configfile.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
-	configfile.setString("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
+	configfile.setInt32("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
 	configfile.setInt32("lcd_info_line", g_settings.lcd_info_line);//channel name or clock
 
 	//Picture-Viewer
@@ -4504,7 +4504,7 @@ void CNeutrinoApp::loadColors(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = tconfig.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	strcpy(g_settings.lcd_setting_dim_time, tconfig.getString("lcd_dim_time","0").c_str());
-	strcpy(g_settings.lcd_setting_dim_brightness, tconfig.getString("lcd_dim_brightness","0").c_str());
+	g_settings.lcd_setting_dim_brightness = tconfig.getInt32( "lcd_dim_brightness", 0 );
 
 	strcpy( g_settings.font_file, configfile.getString( "font_file", "/share/fonts/neutrino.ttf" ).c_str() );
 	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
@@ -4570,7 +4570,7 @@ void CNeutrinoApp::saveColors(const char * fname)
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		tconfig.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
 	tconfig.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
-	tconfig.setString("lcd_dim_brightness", g_settings.lcd_setting_dim_brightness);
+	tconfig.setInt32( "lcd_dim_brightness", g_settings.lcd_setting_dim_brightness );
 
 	tconfig.setString("font_file", g_settings.font_file);
 	tconfig.saveConfig(fname);

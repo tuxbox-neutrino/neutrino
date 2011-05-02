@@ -28,7 +28,7 @@
 	along with this program; if not, write to the Free Software
 	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-
+#if 0
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -315,7 +315,6 @@ void CVfdControler::paintSlider(int px, int py, unsigned int spos, float factor,
 {
 	int startx = lwidth + 15;
 	char wert[5];
-
 	frameBuffer->paintBoxRel(px + startx, py, 120, mheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintIcon(NEUTRINO_ICON_VOLUMEBODY, px + startx, py+2+mheight/4);
 	frameBuffer->paintIcon(selected ? NEUTRINO_ICON_VOLUMESLIDER2BLUE : NEUTRINO_ICON_VOLUMESLIDER2, (int)(px + (startx+3)+(spos / factor)), py+mheight/4);
@@ -325,3 +324,4 @@ void CVfdControler::paintSlider(int px, int py, unsigned int spos, float factor,
 	frameBuffer->paintBoxRel(px + startx + 120 + 10, py, 50, mheight, COL_MENUCONTENT_PLUS_0);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px + startx + 120 + 10, py+mheight, width, wert, COL_MENUCONTENT, 0, true); // UTF-8
 }
+#endif

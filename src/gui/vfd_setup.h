@@ -35,12 +35,16 @@
 
 #include <string>
 
- class CVfdSetup : public CMenuTarget
+ class CVfdSetup : public CMenuTarget, CChangeObserver
 {	
 	private:
 		int width, selected;
 
 		void showSetup();
+		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
+		int brightness;
+		int brightnessstandby;
+		int brightnessdeepstandby;
 
 	public:
 		CVfdSetup();

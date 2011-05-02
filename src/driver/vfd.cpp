@@ -87,10 +87,10 @@ void CVFD::count_down() {
 	if (timeout_cnt > 0) {
 		timeout_cnt--;
 		if (timeout_cnt == 0) {
-			if (atoi(g_settings.lcd_setting_dim_brightness) > 0) {
+			if (g_settings.lcd_setting_dim_brightness > -1) {
 				// save lcd brightness, setBrightness() changes global setting
 				int b = g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS];
-				setBrightness(atoi(g_settings.lcd_setting_dim_brightness));
+				setBrightness(g_settings.lcd_setting_dim_brightness);
 				g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS] = b;
 			} else {
 				setPower(0);
@@ -102,7 +102,7 @@ void CVFD::count_down() {
 void CVFD::wake_up() {
 	if (atoi(g_settings.lcd_setting_dim_time) > 0) {
 		timeout_cnt = atoi(g_settings.lcd_setting_dim_time);
-		atoi(g_settings.lcd_setting_dim_brightness) > 0 ?
+		g_settings.lcd_setting_dim_brightness > -1 ?
 			setBrightness(g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS]) : setPower(1);
 	}
 	else
