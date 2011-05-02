@@ -66,6 +66,7 @@ SIevent::SIevent(const struct eit_event *e)
 	running = (int)e->running_status;
 
 	table_id = 0xFF; /* not set */
+	version = 0xFF;
 	service_id = 0;
 	original_network_id = 0;
 	transport_stream_id = 0;
@@ -79,6 +80,7 @@ SIevent::SIevent(const t_original_network_id _original_network_id, const t_trans
 	service_id          = _service_id;
 	eventID		    = _event_id;
 	table_id            = 0xFF; /* not set */
+	version 	    = 0xFF;
 /*	contentClassification = "";
 	userClassification = "";
 	itemDescription = "";
@@ -109,6 +111,7 @@ SIevent::SIevent(const SIevent &e)
 	running=e.running;
 	vps = e.vps;
 	table_id = e.table_id;
+	version =  e.version;
 }
 
 int SIevent::saveXML(FILE *file, const char *serviceName) const

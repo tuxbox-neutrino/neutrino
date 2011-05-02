@@ -354,6 +354,7 @@ public:
 		eventID    = 0;
 		vps = 0;
 		table_id = 0xFF; /* 0xFF means "not set" */
+		version = 0xFF;
 //      dauer=0;
 //      startzeit=0;
 	}
@@ -395,6 +396,7 @@ public:
     SItimes times;
     time_t vps;
     unsigned char table_id;
+    unsigned char version;
     // Der Operator zum sortieren
     bool operator < (const SIevent& e) const {
       return uniqueKey()<e.uniqueKey();

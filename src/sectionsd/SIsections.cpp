@@ -504,7 +504,7 @@ void SIsectionEIT::parse(void)
 	}
 
 	unsigned char table_id = header()->table_id;
-
+	unsigned char version_number = header()->version_number;
 	actPos = buffer + sizeof(SI_section_EIT_header);
 	bufEnd = buffer + bufferLength;
 
@@ -515,6 +515,7 @@ void SIsectionEIT::parse(void)
 		e.original_network_id = original_network_id();
 		e.transport_stream_id = transport_stream_id();
 		e.table_id = table_id;
+		e.version = version_number;
 		descriptors_loop_length = sizeof(struct eit_event) + ((evt->descriptors_loop_length_hi << 8) | evt->descriptors_loop_length_lo);
 		parseDescriptors(actPos, min((unsigned)(bufEnd - actPos), descriptors_loop_length), e);
 		evts.insert(e);
