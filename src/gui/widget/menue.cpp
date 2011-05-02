@@ -178,7 +178,7 @@ void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height,
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	int slider_lenght = 0, h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUMEBODY, &slider_lenght, &h);
-	if(slider_lenght == 0)
+	if(slider_lenght == 0 || factor < optionvalue )
 		return;
 	int stringwidth = 0;
 	if (right_text != NULL) {
