@@ -777,7 +777,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 	readLockEvents();
 	MySIeventsOrderUniqueKey::iterator si = mySIeventsOrderUniqueKey.find(evt.uniqueKey());
 	bool already_exists = (si != mySIeventsOrderUniqueKey.end());
-	if (already_exists && ( (evt.table_id == si->second->table_id && evt.version > si->second->version ) || si->second->version == 0xFF ) )
+	if (already_exists && ( evt.table_id == si->second->table_id && evt.version != si->second->version  ) )
 	{
 		//replace event if new version
 		dprintf("replacing event version old 0x%02x new 0x%02x'\n", si->second->version, evt.version );
