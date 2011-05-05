@@ -41,7 +41,6 @@
 #include <mymenu.h>
 
 #include <gui/widget/icons.h>
-#include <gui/widget/vfdcontroler.h>
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>

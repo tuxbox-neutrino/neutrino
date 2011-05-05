@@ -121,7 +121,6 @@
 #include "gui/streaminfo2.h"
 
 #if HAVE_COOL_HARDWARE
-#include "gui/widget/vfdcontroler.h"
 #include "gui/widget/progressbar.h"
 #endif
 
