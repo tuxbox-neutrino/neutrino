@@ -163,7 +163,7 @@ class CMenuSeparator : public CMenuItem
 		int getWidth(void);
 
 		virtual const char * getString(void);
-		virtual void setString(const std::string& text);
+		void setString(const std::string& text);
 };
 
 class CMenuForwarder : public CMenuItem
@@ -423,7 +423,7 @@ class CMenuWidget : public CMenuTarget
 		virtual void paint();
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
-		virtual std::string getName(){ return nameString;};
+		virtual std::string getName();
 		virtual void setSelected(const int &Preselected){ preselected = Preselected; };
 		virtual int getSelected(){ return selected; };
 		void move(int xoff, int yoff);

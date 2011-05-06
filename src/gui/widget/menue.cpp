@@ -288,7 +288,7 @@ CMenuWidget::CMenuWidget()
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const int mheight)
 {
 	name = Name;
-        nameString = g_Locale->getText(NONEXISTANT_LOCALE);
+        nameString = g_Locale->getText(Name);
 
 	Init(Icon, mwidth, mheight);
 }
@@ -380,6 +380,13 @@ void CMenuWidget::resetWidget()
 bool CMenuWidget::hasItem()
 {
 	return !items.empty();
+}
+
+std::string CMenuWidget::getName()
+{
+	if (name != NONEXISTANT_LOCALE)
+		nameString = g_Locale->getText(name);
+	return nameString;
 }
 
 int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
@@ -703,13 +710,10 @@ void CMenuWidget::hide()
 
 void CMenuWidget::paint()
 {
-	const char * l_name;
-	if(name == NONEXISTANT_LOCALE)
-		l_name = nameString.c_str();
-	else
-        	l_name = g_Locale->getText(name);
-
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, l_name*/); //FIXME menu name
+	if (name != NONEXISTANT_LOCALE)
+		nameString = g_Locale->getText(name);
+	
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
 
 	height = wanted_height;
 	width = min_width;
@@ -723,7 +727,7 @@ void CMenuWidget::paint()
 	if(height > ((int)frameBuffer->getScreenHeight() - 10))
 		height = frameBuffer->getScreenHeight() - 10;
 
-	int neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(l_name, true); // UTF-8
+	int neededWidth = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(nameString.c_str(), true); // UTF-8
 	if (neededWidth > width-48) {
 		width= neededWidth+ 49;
 	}
@@ -814,7 +818,7 @@ void CMenuWidget::paint()
 		frameBuffer->getIconSize(iconfile.c_str(), &w, &h);
 		HeadiconOffset = w+6;
 	}
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1, width-((fw/3)+HeadiconOffset), l_name, COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1, width-((fw/3)+HeadiconOffset), nameString.c_str(), COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
 
 	item_start_y = y+hheight;
@@ -1533,12 +1537,18 @@ CMenuSeparator::CMenuSeparator(const int Type, const neutrino_locale_t Text)
 
 int CMenuSeparator::getHeight(void) const
 {
-	return (text == NONEXISTANT_LOCALE) ? 10 : g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	if (separator_text.empty() && text == NONEXISTANT_LOCALE)
+		return 10;
+	else
+		return  g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 
 const char * CMenuSeparator::getString(void)
 {
-	return g_Locale->getText(text);
+	if (!separator_text.empty())
+		return separator_text.c_str();
+	else	
+		return g_Locale->getText(text);
 }
 
 void CMenuSeparator::setString(const std::string& s_text)
