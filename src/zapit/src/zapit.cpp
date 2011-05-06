@@ -2274,15 +2274,27 @@ int zapit_main_thread(void *data)
 		if (pmt_update_fd != -1) {
 			unsigned char buf[4096];
 			int ret = pmtDemux->Read(buf, 4095, 10);
-			if (ret > 0) {
+				if (ret > 0) {
 #if HAVE_TRIPLEDRAGON
-				pmt_stop_update_filter(&pmt_update_fd);
+					pmt_stop_update_filter(&pmt_update_fd);
 #endif
-				printf("[zapit] pmt updated, sid 0x%x new version 0x%x\n", (buf[3] << 8) + buf[4], (buf[5] >> 1) & 0x1F);
-				zapit(g_current_channel->getChannelID(), current_is_nvod, true);
+					printf("[zapit] pmt updated, sid 0x%x new version 0x%x\n", (buf[3] << 8) + buf[4], (buf[5] >> 1) & 0x1F);
+					if(g_current_channel) {
+						int vpid = g_current_channel->getVideoPid();
+						parse_pmt(g_current_channel);
+						if(vpid != g_current_channel->getVideoPid()) {
+							zapit(g_current_channel->getChannelID(), current_is_nvod, true);
+						} else {
+							if(event_mode)  {
+								t_channel_id channel_id = g_current_channel->getChannelID();
+								eventServer->sendEvent(CZapitClient::EVT_PMT_CHANGED, CEventServer::INITID_ZAPIT, &channel_id, sizeof(channel_id));
+							}
+							start_camd(true);
+							pmt_set_update_filter(g_current_channel, &pmt_update_fd);
+						}
+					}
+				}
 			}
-		}
-
 		/* yuck, don't waste that much cpu time :) */
 		usleep(0);
 #if 0
