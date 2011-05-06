@@ -469,10 +469,19 @@ class CLockedMenuForwarder : public CMenuForwarder, public CPINProtection
 	public:
 		CLockedMenuForwarder(const neutrino_locale_t Text, char* _validPIN, bool ask=true, const bool Active=true, char *Option=NULL,
 		                     CMenuTarget* Target=NULL, const char * const ActionKey = NULL,
-		                     neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL)
+		                     neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL)
 
-		                     : CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName) ,
-		                       CPINProtection(_validPIN){Ask = ask;};
+					: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right) ,CPINProtection(_validPIN)
+					{
+						Ask = ask;
+						
+						//if we in ask mode then show NEUTRINO_ICON_SCRAMBLED as default info icon or no icon, 
+						//but use always an info icon if defined in parameter 'IconName_Info_right'
+						if (IconName_Info_right || ask)
+							iconName_Info_right = IconName_Info_right ? IconName_Info_right : NEUTRINO_ICON_SCRAMBLED; 
+						else
+							iconName_Info_right = "";
+				       };
 
 		virtual int exec(CMenuTarget* parent);
 };
