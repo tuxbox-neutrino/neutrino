@@ -377,9 +377,41 @@ void CMenuWidget::resetWidget()
 	selected=-1;
 }
 
+void CMenuWidget::insertItem(const uint& item_id, CMenuItem* menuItem)
+{
+	items.insert(items.begin()+item_id, menuItem);
+}
+
+void CMenuWidget::removeItem(const uint& item_id)
+{
+	items.erase(items.begin()+item_id);
+}
+
 bool CMenuWidget::hasItem()
 {
 	return !items.empty();
+}
+
+int CMenuWidget::getItemId(CMenuItem* menuItem)
+{
+	for (uint i= 0; i< items.size(); i++)
+	{
+		if (items[i] == menuItem)
+			return i;
+	}
+	
+	return -1;
+}
+
+CMenuItem* CMenuWidget::getItem(const uint& item_id)
+{
+	for (uint i= 0; i< items.size(); i++)
+	{
+		if (i == item_id)
+			return items[i];
+	}
+	
+	return NULL;
 }
 
 std::string CMenuWidget::getName()
