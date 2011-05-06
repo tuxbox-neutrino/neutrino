@@ -71,7 +71,7 @@ class COsdLangSetup : public CMenuTarget, CChangeObserver
 			OSDLANG_SETUP_MODE_WIZARD   = 1
 		};
 		
-		COsdLangSetup(bool wizard_mode = false);
+		COsdLangSetup(bool wizard_mode = OSDLANG_SETUP_MODE_WIZARD_NO);
 		~COsdLangSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
