@@ -370,6 +370,13 @@ void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
 	items.push_back(menuItem);
 }
 
+void CMenuWidget::resetWidget()
+{
+	items.clear();
+	page_start.clear();
+	selected=-1;
+}
+
 bool CMenuWidget::hasItem()
 {
 	return !items.empty();
