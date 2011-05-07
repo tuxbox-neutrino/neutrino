@@ -1548,7 +1548,7 @@ void tuxtx_stop_subtitle()
 	reader_running = 0;
 	if(ttx_sub_thread)
 		pthread_join(ttx_sub_thread, NULL);
-	ttx_sub_thread = NULL;
+	ttx_sub_thread = 0;
 	sub_pid = sub_page = 0;
 	ttx_paused = 0;
 }

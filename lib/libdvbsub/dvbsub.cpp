@@ -174,7 +174,7 @@ int dvbsub_close()
 		pthread_mutex_unlock(&readerMutex);
 
 		pthread_join(threadReader, NULL);
-		threadReader = NULL;
+		threadReader = 0;
 	}
 	if(threadDvbsub) {
 		dvbsub_running = false;
@@ -184,7 +184,7 @@ int dvbsub_close()
 		pthread_mutex_unlock(&packetMutex);
 
 		pthread_join(threadDvbsub, NULL);
-		threadDvbsub = NULL;
+		threadDvbsub = 0;
 	}
 	printf("[dvb-sub] stopped\n");
 
