@@ -595,7 +595,9 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		return 0;
 	}
 
-	switch (fec_inner) {
+	/* the ugly cast avoids a compiler warning, because the Coolstream
+	 * private values are *not* fe_code_rate_t values */
+	switch ((int)fec_inner) {
 	case FEC_1_2:
 	case FEC_S2_QPSK_1_2:
 	case FEC_S2_8PSK_1_2:
