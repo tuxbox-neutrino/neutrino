@@ -1170,7 +1170,7 @@ int f_close(FILE *stream)
 		if(cache[i].fill_thread)
 			pthread_join(cache[i].fill_thread, NULL);
 
-		cache[i].fill_thread = NULL;
+		cache[i].fill_thread = 0;
 
 		dprintf(stderr, "f_close: closing cache\n");
 		rval = fclose(cache[i].fd);	/* close the stream */
