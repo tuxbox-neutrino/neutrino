@@ -221,7 +221,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 			if(snrscale)
 				snrscale->reset();
 			lastsnr = lastsig = -1;
-			paint_mode = ++paint_mode % 2;
+			paint_mode = !paint_mode;
 			paint (paint_mode);
 			continue;
 		}
@@ -325,7 +325,8 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 	int   yt = sig_text_y + (sheight *2)+4;
 	int   yd;
 	static int old_x=0,old_y=0;
-	sigBox_pos = (++sigBox_pos) % sigBox_w;
+	sigBox_pos++;
+	sigBox_pos %= sigBox_w;
 
 	frameBuffer->paintVLine(sigBox_x+sigBox_pos, sigBox_y, sigBox_y+sigBox_h, COL_WHITE);
 	frameBuffer->paintVLine(sigBox_x+x_now, sigBox_y, sigBox_y+sigBox_h+1, COL_BLACK);
