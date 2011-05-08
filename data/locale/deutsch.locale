@@ -1274,13 +1274,13 @@ sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inaktivitätstimer
 streamfeatures.head Erweiterungen
 streaminfo.aratio Verhältnis
-streaminfo.aratio_unknown Verhältnis: unbekannt
+streaminfo.aratio_unknown unbekannt
 streaminfo.audiotype Audiotyp
-streaminfo.audiotype_unknown Audiotyp: unbekannt
+streaminfo.audiotype_unknown unbekannt
 streaminfo.average_bitrate Durchschnitt
 streaminfo.bitrate Bitrate
 streaminfo.framerate Bildrate
-streaminfo.framerate_unknown Bildrate: unbekannt
+streaminfo.framerate_unknown unbekannt
 streaminfo.head Tech. Information
 streaminfo.not_available nicht verfügbar
 streaminfo.resolution Auflösung

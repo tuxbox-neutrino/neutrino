@@ -1274,13 +1274,13 @@ sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inactivity shutdown timer
 streamfeatures.head Features
 streaminfo.aratio Aspect Ratio
-streaminfo.aratio_unknown Aspect Ratio: unknown
+streaminfo.aratio_unknown unknown
 streaminfo.audiotype Audiotype
-streaminfo.audiotype_unknown Audiotype: unknown
+streaminfo.audiotype_unknown unknown
 streaminfo.average_bitrate Average
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
-streaminfo.framerate_unknown Framerate: unknown
+streaminfo.framerate_unknown unknown
 streaminfo.head Stream-Information
 streaminfo.not_available not available
 streaminfo.resolution Resolution
