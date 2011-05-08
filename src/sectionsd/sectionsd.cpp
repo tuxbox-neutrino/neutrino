@@ -245,7 +245,7 @@ unsigned int privatePid=0;
 #endif
 int sectionsd_stop = 0;
 
-static bool slow_addevent = false;
+static bool slow_addevent = true;
 
 inline void readLockServices(void)
 {
@@ -8711,10 +8711,10 @@ void sectionsd_main_thread(void */*data*/)
 	struct sched_param parm;
 
 	printf("$Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $\n");
-	/* "export TEST_ADDEVENT=true" to enable this */
-	slow_addevent = (getenv("TEST_ADDEVENT") != NULL);
+	/* "export NO_SLOW_ADDEVENT=true" to disable this */
+	slow_addevent = (getenv("NO_SLOW_ADDEVENT") == NULL);
 	if (slow_addevent)
-		printf("====================> USING SLOW ADDEVENT <=========================\n");
+		printf("====> USING SLOW ADDEVENT. export 'NO_SLOW_ADDEVENT=1' to avoid <===\n");
 
 	SIlanguage::loadLanguages();
 
