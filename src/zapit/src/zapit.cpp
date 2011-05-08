@@ -70,6 +70,7 @@
 #include <audio_td.h>
 #endif
 
+#include <driver/abstime.h>
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"
 
@@ -534,11 +535,16 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
 		printf("[zapit] neither audio nor video pid found\n");
 		failed = true;
 	}
+
+	/* start sdt scan even if the service was not found in pat or pmt
+	 * if the frontend did not tune, we don't get here, so this is fine */
+	if (transponder_change)
+		sdt_wakeup = true;
+
 	if (failed)
 		return -1;
 
 	if (transponder_change == true) {
-		sdt_wakeup = 1;
 		g_current_channel->getCaPmt()->ca_pmt_list_management = 0x03;
 	} else {
 		g_current_channel->getCaPmt()->ca_pmt_list_management = 0x04;
@@ -2497,8 +2503,8 @@ printf("[sdt monitor] wakeup...\n");
 			}
 			stI = sdt_tp.find(tpid);
 
-			if((stI != sdt_tp.end()) && stI->second) {
-				printf("[sdt monitor] TP already updated.\n");
+			if ((stI != sdt_tp.end()) && ((time_monotonic() - stI->second) < 3600)) {
+				printf("[sdt monitor] TP already updated less than an hour ago.\n");
 				continue;
 			}
 			if(!curchans.empty())
@@ -2510,7 +2516,7 @@ printf("[sdt monitor] wakeup...\n");
 					printf("[sdt monitor] scanSDT broken ?\n");
 				continue;
 			}
-			sdt_tp.insert(std::pair <transponder_id_t, bool> (tpid, true) );
+			sdt_tp.insert(std::pair <transponder_id_t, time_t> (tpid, time_monotonic()));
 
 			char buffer[256];
 			fd = fopen(CURRENTSERVICES_TMP, "w");
