@@ -404,8 +404,9 @@ printf("[zapit] saving channel, apid %x sub pid %x mode %d volume %d\n", g_curre
                 audio_map[g_current_channel->getChannelID()].volume = audioDecoder->getVolume();
                 audio_map[g_current_channel->getChannelID()].subpid = dvbsub_getpid();
 		tuxtx_subtitle_running(&audio_map[g_current_channel->getChannelID()].ttxpid, &audio_map[g_current_channel->getChannelID()].ttxpage, NULL);
-		firstzap = false;
         }
+	/* firstzap right now does nothing but control saving the audio channel */
+	firstzap = false;
 
 	if (in_nvod) {
 		current_is_nvod = true;
