@@ -70,6 +70,7 @@ int CVfdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		brightness		= DEFAULT_VFD_BRIGHTNESS;
 		brightnessstandby	= DEFAULT_VFD_STANDBYBRIGHTNESS;
 		brightnessdeepstandby   = DEFAULT_VFD_STANDBYBRIGHTNESS;
+		g_settings.lcd_setting_dim_brightness = 3;
 		CVFD::getInstance()->setBrightness(brightness);
 		CVFD::getInstance()->setBrightnessStandby(brightnessstandby);
 		CVFD::getInstance()->setBrightnessDeepStandby(brightnessdeepstandby);
@@ -125,12 +126,12 @@ void CVfdSetup::showSetup()
 	lcdsliders->addItem(new CMenuOptionNumberChooser(LOCALE_LCDCONTROLER_BRIGHTNESSSTANDBY, &brightnessstandby, true, 0, 15, this, 0, 0, NONEXISTANT_LOCALE, NULL, true));
 	if(cs_get_revision() > 7)
 		lcdsliders->addItem(new CMenuOptionNumberChooser(LOCALE_LCDCONTROLER_BRIGHTNESSDEEPSTANDBY, &brightnessdeepstandby, true, 0, 15, this, 0, 0, NONEXISTANT_LOCALE, NULL, true));
-	lcdsliders->addItem(GenericMenuSeparatorLine);
- 	lcdsliders->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "def", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	lcdsliders->addItem(GenericMenuSeparatorLine);
 	lcdsliders->addItem(new CMenuOptionNumberChooser(LOCALE_LCDMENU_DIM_BRIGHTNESS, &g_settings.lcd_setting_dim_brightness, vfd_enabled, -1, 15, NULL, 0, -1, LOCALE_OPTIONS_OFF, NULL, true));
+	lcdsliders->addItem(GenericMenuSeparatorLine);
 	CStringInput * dim_time = new CStringInput(LOCALE_LCDMENU_DIM_TIME, g_settings.lcd_setting_dim_time, 3, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE,"0123456789 ");
 	lcdsliders->addItem(new CMenuForwarder(LOCALE_LCDMENU_DIM_TIME, vfd_enabled, g_settings.lcd_setting_dim_time,dim_time));
+	lcdsliders->addItem(GenericMenuSeparatorLine);
+	lcdsliders->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, "def", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	vfds->addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, lcdsliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	

@@ -651,12 +651,12 @@ languagesetup.select Sprache
 lcd_info_line Zeige in Infozeile 
 lcd_info_line_channel Kanalname
 lcd_info_line_clock Uhrzeit
-lcdcontroler.brightness normale Helligkeit
-lcdcontroler.brightnessdeepstandby Deep-Standby Helligkeit
-lcdcontroler.brightnessstandby Standby Helligkeit
+lcdcontroler.brightness normale
+lcdcontroler.brightnessdeepstandby Deep-Standby
+lcdcontroler.brightnessstandby Standby
 lcdcontroler.contrast Kontrast
 lcdmenu.autodimm Automatisch dimmen
-lcdmenu.dim_brightness Helligkeit nach Dimm-Timeout
+lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
 lcdmenu.head VFD Einstellungen
 lcdmenu.inverse Invertieren
