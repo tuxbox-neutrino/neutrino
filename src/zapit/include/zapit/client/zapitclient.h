@@ -213,6 +213,7 @@ class CZapitClient:public CBasicClient
 			unsigned char	polarisation;
 			unsigned char	diseqc;
 			unsigned short  pmtpid;
+			unsigned short  pmt_version;
 			uint32_t	rate;
 			fe_code_rate	fec;
 		};
