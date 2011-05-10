@@ -68,6 +68,8 @@
 #define NEUTRINO_RECORDING_ENDED_SCRIPT CONFIGDIR "/recording.end"
 #define NEUTRINO_ENTER_STANDBY_SCRIPT   CONFIGDIR "/standby.on"
 #define NEUTRINO_LEAVE_STANDBY_SCRIPT   CONFIGDIR "/standby.off"
+#define MOVIEPLAYER_START_SCRIPT        CONFIGDIR "/movieplayer.start"
+#define MOVIEPLAYER_END_SCRIPT          CONFIGDIR "/movieplayer.end"
 
 #define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
 #define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"

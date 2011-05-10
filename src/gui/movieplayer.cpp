@@ -302,6 +302,11 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	isMovieBrowser = false;
 	minuteoffset = MINUTEOFFSET;
 	secondoffset = minuteoffset / 60;
+	
+	puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
+	if (system(MOVIEPLAYER_START_SCRIPT) != 0)
+		perror(MOVIEPLAYER_START_SCRIPT " failed");
+	
 #if 0
 	if (actionKey == "fileplayback") {
 		cutNeutrino();
@@ -366,6 +371,10 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 		frameBuffer->useBackground(true);
 		frameBuffer->paintBackground();
 	}
+	
+	puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
+	if (system(MOVIEPLAYER_END_SCRIPT) != 0)
+		perror(MOVIEPLAYER_END_SCRIPT " failed");
 
 	restoreNeutrino();
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);

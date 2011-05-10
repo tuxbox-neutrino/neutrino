@@ -257,20 +257,6 @@ CZapitClient::SatelliteList satList;
 
 CVCRControl::CDevice * recordingdevice = NULL;
 
-#if 0
-#define NEUTRINO_SETTINGS_FILE          CONFIGDIR "/neutrino.conf"
-
-#define NEUTRINO_RECORDING_TIMER_SCRIPT CONFIGDIR "/recording.timer"
-#define NEUTRINO_RECORDING_START_SCRIPT CONFIGDIR "/recording.start"
-#define NEUTRINO_RECORDING_ENDED_SCRIPT CONFIGDIR "/recording.end"
-#define NEUTRINO_ENTER_STANDBY_SCRIPT   CONFIGDIR "/standby.on"
-#define NEUTRINO_LEAVE_STANDBY_SCRIPT   CONFIGDIR "/standby.off"
-
-#define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
-#define NEUTRINO_PARENTALLOCKED_FILE    DATADIR   "/neutrino/.plocked"
-#define NEUTRINO_SCAN_START_SCRIPT CONFIGDIR "/recording.start"
-#endif
-
 static void initGlobals(void)
 {
 	g_fontRenderer  = NULL;
