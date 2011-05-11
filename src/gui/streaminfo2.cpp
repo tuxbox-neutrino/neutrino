@@ -101,6 +101,7 @@ CStreamInfo2::CStreamInfo2 ()
 	rate.max_short_average = 0;
 	rate.min_short_average = 0;
 	box_h = 0;
+	box_h2 = 0;
 }
 
 CStreamInfo2::~CStreamInfo2 ()
@@ -726,7 +727,13 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 void CStreamInfo2::paintCASystem(int xpos, int ypos)
 {
 	extern int pmt_caids[4][11];
-	unsigned short i,j;
+	unsigned short i,j, ypos1 = 0;
+	int box_width = width*2/3-10;
+	if(box_h2 > 0)
+	{
+		frameBuffer->paintBoxRel (0, ypos, box_width, box_h2, COL_MENUHEAD_PLUS_0);
+	}
+
 	std::string casys[11]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
 	bool caids[11] ={ false, false, false, false, false, false, false, false, false, false, false };
 	char tmp[100] = {0};
@@ -897,7 +904,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		if(caids[ca_id] == true){
 			if(cryptsysteme){
 				ypos += iheight;
-				g_Font[font_info]->RenderString(xpos , ypos, width*2/3-10, "Cryptsysteme:" , COL_INFOBAR, 0, false);
+				g_Font[font_info]->RenderString(xpos , ypos, box_width, "Cryptsysteme:" , COL_INFOBAR, 0, false);
 				cryptsysteme = false;
 			}
 			ypos += sheight;
@@ -906,7 +913,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			std::string::size_type last_pos = casys[ca_id].find_first_not_of(tok, 0);
 			std::string::size_type pos = casys[ca_id].find_first_of(tok, last_pos);
 			while (std::string::npos != pos || std::string::npos != last_pos){
-				g_Font[font_small]->RenderString(xpos + width_txt, ypos, width*2/3-10, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , COL_INFOBAR, 0, false);
+				g_Font[font_small]->RenderString(xpos + width_txt, ypos, box_width, casys[ca_id].substr(last_pos, pos - last_pos).c_str() , COL_INFOBAR, 0, false);
 				if(index == 0)
 					width_txt = spaceoffset;
 				else
@@ -919,7 +926,8 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 			}
 		}
 	}
-
+	if(box_h2 == 0)
+		box_h2 = ypos - ypos1;
 }
 int CStreamInfo2Handler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
