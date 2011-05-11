@@ -926,7 +926,7 @@ bool zapit_parse_command(CBasicMessage::Header &rmsg, int connfd)
 			msgCurrentServiceInfo.apid = g_current_channel->getAudioPid();
 			msgCurrentServiceInfo.vtxtpid = g_current_channel->getTeletextPid();
 			msgCurrentServiceInfo.pmtpid = g_current_channel->getPmtPid();
-			msgCurrentServiceInfo.pmt_version = g_current_channel->getCaPmt()->version_number;
+			msgCurrentServiceInfo.pmt_version = (msgCurrentServiceInfo.pmtpid != 0) ? g_current_channel->getCaPmt()->version_number : 0;
 			msgCurrentServiceInfo.pcrpid = g_current_channel->getPcrPid();
 			msgCurrentServiceInfo.tsfrequency = frontend->getFrequency();
 			msgCurrentServiceInfo.rate = frontend->getRate();
