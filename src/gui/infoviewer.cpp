@@ -187,7 +187,7 @@ void CInfoViewer::start ()
 		      25;
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+ 5;
 
-	if ( g_settings.infobar_show_channellogo != 3) /* 3 is "old default" with sigscales etc. */
+	if ( g_settings.infobar_show_channellogo != 3 || g_settings.infobar_show_channellogo != 5 ) /* 3 & 5 is "default" with sigscales etc. */
 	{
 		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(widest_number) + 10;
 		ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
@@ -714,11 +714,14 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		}
 	}
 
-	if (ChannelLogoMode != 2)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
-			ChanNameX + 10 + ChanNumWidth, ChanNameY + time_height,
-			BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth,
-			ChannelName, COL_INFOBAR, 0, true);	// UTF-8
+	if (g_settings.infobar_show_channellogo != 5) {
+		if (ChannelLogoMode != 2) {
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
+				ChanNameX + 10 + ChanNumWidth, ChanNameY + time_height,
+				BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth,
+				ChannelName, COL_INFOBAR, 0, true);	// UTF-8
+		}
+	}
 
 	if (fileplay) {
 		show_Data ();
@@ -1289,7 +1292,7 @@ void CInfoViewer::showSNR ()
 
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
-	if (! fileplay && g_settings.infobar_show_channellogo == 3) {
+	if ((! fileplay && g_settings.infobar_show_channellogo == 3) || (! fileplay && g_settings.infobar_show_channellogo == 5)) {
 		int chanH = g_SignalFont->getHeight();
 		int freqStartY = BoxStartY + 2 * chanH - 3;
 		if (newfreq && chanready) {
@@ -1824,7 +1827,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 		logo_y = y_mid - logo_h / 2;
 		res = 1;
 	}
-	else if (g_settings.infobar_show_channellogo == 2) // paint logo in place of channel name
+	else if (g_settings.infobar_show_channellogo == 2 || g_settings.infobar_show_channellogo == 5) // paint logo in place of channel name
 	{
 		// check logo dimensions
 		resize_logo(&logo_w, &logo_h, chan_w, time_height);
@@ -1834,9 +1837,12 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 		y_mid = ChanNameY + time_height / 2;
 		logo_x = start_x + 10;
 		logo_y = y_mid - logo_h / 2;
-		res = 2;
+		if (g_settings.infobar_show_channellogo == 2)
+			res = 2;
+		else
+			res = 5;
 	}
-	else if (g_settings.infobar_show_channellogo == 3) // paint logo beside channel name
+	else if (g_settings.infobar_show_channellogo == 3 || g_settings.infobar_show_channellogo == 4) // paint logo beside channel name
 	{
 		// check logo dimensions
 		int Logo_max_width = chan_w - logo_w - 10;
@@ -1847,7 +1853,10 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id)
 		logo_y = y_mid - logo_h / 2;
 		// set channel name x pos right of the logo
 		ChanNameX = start_x + logo_w + 10;
-		res = 3;
+		if (g_settings.infobar_show_channellogo == 3)
+			res = 3;
+		else
+			res = 4;
 	}
 	else
 	{

@@ -753,9 +753,11 @@ miscsettings.infobar_casystem_mini Mini
 miscsettings.infobar_casystem_mode Diskret
 miscsettings.infobar_disp_0 Kein Logo
 miscsettings.infobar_disp_1 Logo in der Nummernbox
-miscsettings.infobar_disp_2 Logo Infobar / Kanalnummer
-miscsettings.infobar_disp_3 Logo Infobar / Signalbalken
-miscsettings.infobar_disp_log Infobar Dis.
+miscsettings.infobar_disp_2 Logo/Kanalnummer
+miscsettings.infobar_disp_3 Logo+Kanalname/Signalbalken
+miscsettings.infobar_disp_4 Logo+Kanalname/Kanalnummer
+miscsettings.infobar_disp_5 Logo/Signalbalken
+miscsettings.infobar_disp_log Logo
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_res Auflösung anzeigen
