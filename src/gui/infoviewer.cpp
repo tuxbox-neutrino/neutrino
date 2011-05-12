@@ -200,7 +200,8 @@ void CInfoViewer::start ()
 		if (test > ChanWidth) {
 			ChanWidth = test;
 		}
-		test = (g_SignalFont->getHeight() * 2) + 36;
+		test = (g_SignalFont->getHeight() * 3) + (g_SignalFont->getHeight()/2);
+
 		if (test > ChanHeight) {
 			ChanHeight = test;
 		}
