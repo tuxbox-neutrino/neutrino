@@ -200,8 +200,7 @@ void CInfoViewer::start ()
 		if (test > ChanWidth) {
 			ChanWidth = test;
 		}
-		test = (g_SignalFont->getHeight() * 3) + (g_SignalFont->getHeight()/2);
-
+		test = (g_SignalFont->getHeight() * 2) + (36 * g_settings.screen_yres / 100);
 		if (test > ChanHeight) {
 			ChanHeight = test;
 		}
@@ -1291,6 +1290,8 @@ void CInfoViewer::showSNR ()
 	/* right now, infobar_show_channellogo == 3 is the trigger for signal bars etc.
 	   TODO: decouple this  */
 	if (! fileplay && g_settings.infobar_show_channellogo == 3) {
+		int chanH = g_SignalFont->getHeight();
+		int freqStartY = BoxStartY + 2 * chanH - 3;
 		if (newfreq && chanready) {
 			char freq[20];
 
@@ -1310,7 +1311,6 @@ void CInfoViewer::showSNR ()
 			get_set.TP_fec = si.fec;
 #endif
 
-			int chanH = g_SignalFont->getHeight ();
 			int satNameWidth = g_SignalFont->getRenderWidth (freq);
 			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2), BoxStartY + 2 * chanH - 3, satNameWidth, freq, COL_INFOBAR);
 		}
@@ -1327,8 +1327,8 @@ void CInfoViewer::showSNR ()
 		if (lastsig != sig) {
 			lastsig = sig;
 			posx = BoxStartX + (ChanWidth - (bar_width + 2 + (g_SignalFont->getWidth() * 4))) / 2;
-			posy = ChanNumYPos + 3;
-			sigscale->paintProgressBar(posx, posy+4, bar_width, 10, sig, 100);
+			posy = freqStartY;
+			sigscale->paintProgressBar(posx, posy+4, bar_width, 10 * g_settings.screen_yres / 100, sig, 100);
 			snprintf (percent, sizeof(percent), "%d%%S", sig);
 			posx = posx + bar_width + 2;
 			sw = BoxStartX + ChanWidth - posx;
@@ -1338,8 +1338,8 @@ void CInfoViewer::showSNR ()
 		if (lastsnr != snr) {
 			lastsnr = snr;
 			posx = BoxStartX + (ChanWidth - (bar_width + 2 + (g_SignalFont->getWidth() * 4))) / 2;
-			posy = ChanNumYPos + 3 + height - 2;
-			snrscale->paintProgressBar(posx, posy+4, bar_width, 10, snr, 100);
+			posy = freqStartY + height - (2 * g_settings.screen_yres / 100);
+			snrscale->paintProgressBar(posx, posy+4, bar_width, 10 * g_settings.screen_yres / 100, snr, 100);
 			snprintf (percent, sizeof(percent), "%d%%Q", snr);
 			posx = posx + bar_width + 2;
 			sw = BoxStartX + ChanWidth - posx -4;
