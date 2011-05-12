@@ -3,7 +3,7 @@ installdir = $(DATADIR)/neutrino/icons
 install_DATA = \
 	0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png \
 	audio.png 16_9.png 16_9_gray.png \
-	language.png bayrisch.png ch-baslerdeutsch.png ch-berndeutsch.png deutsch.png dutch.png bosanski.png \
+	language.png bayrisch.png ch-baslerdeutsch.png ch-berndeutsch.png czech.png deutsch.png dutch.png bosanski.png \
 	ellinika.png english.png francais.png french.png hungarian.png italiano.png norsk.png \
 	polski.png portugues.png romania.png russkij.png nederlands.png slovak.png suomi.png svenska.png \
 	blau.png gelb.png gruen.png rot.png \

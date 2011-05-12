@@ -5,6 +5,7 @@ install_DATA = \
 	bosanski.locale \
 	ch-baslerdeutsch.locale \
 	ch-berndeutsch.locale \
+	czech.locale \
 	deutsch.locale \
 	english.locale \
 	francais.locale \
