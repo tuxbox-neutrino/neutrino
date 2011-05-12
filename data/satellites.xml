@@ -1978,7 +1978,7 @@
 		<transponder frequency="12572000" symbol_rate="2854000" polarization="1" fec_inner="0" system="0" modulation="1"/>
 		<transponder frequency="12599000" symbol_rate="3250000" polarization="1" fec_inner="0" system="0" modulation="1"/>
 		<transponder frequency="12607000" symbol_rate="27500000" polarization="0" fec_inner="2" system="0" modulation="1"/>
-		<transponder frequency="12607000" symbol_rate="27500000" polarization="1" fec_inner="2" system="0" modulation="1"/>
+		<transponder frequency="12607000" symbol_rate="27500000" polarization="1" fec_inner="3" system="1" modulation="1"/>
 		<transponder frequency="12643000" symbol_rate="27500000" polarization="0" fec_inner="2" system="0" modulation="1"/>
 		<transponder frequency="12643000" symbol_rate="27500000" polarization="1" fec_inner="2" system="0" modulation="1"/>
 		<transponder frequency="12675000" symbol_rate="2963000" polarization="0" fec_inner="3" system="0" modulation="1"/>
