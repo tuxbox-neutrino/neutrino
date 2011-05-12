@@ -94,7 +94,9 @@ int CAudioSelectMenuHandler::doMenu ()
 
 	CSubtitleChangeExec SubtitleChanger;
 	
-	AudioSelector.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL); 
+	AudioSelector.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+
+	unsigned int shortcut_num = 1;
 
 	// -- setup menue due to Audio PIDs
 	if (g_RemoteControl->current_PIDs.APIDs.size() > 1) 
@@ -109,6 +111,7 @@ int CAudioSelectMenuHandler::doMenu ()
 			fw[i] = new CMenuForwarderNonLocalized(g_RemoteControl->current_PIDs.APIDs[i].desc, true, NULL, APIDChanger, apid, CRCInput::convertDigitToKey(i + 1));
 			fw[i]->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			AudioSelector.addItem(fw[i], (i == g_RemoteControl->current_PIDs.PIDs.selected_apid));
+			shortcut_num = i+1;
 	   	}
 	   	AudioSelector.addItem(GenericMenuSeparatorLine);
 	}
@@ -131,7 +134,6 @@ int CAudioSelectMenuHandler::doMenu ()
 	int curnum = channelList->getActiveChannelNumber();
 	CZapitChannel * cc = channelList->getChannel(curnum);
 
-	unsigned int shortcut_num = 1;
 	bool sep_added = false;
 	if(cc) 
 	{
