@@ -697,7 +697,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		snprintf (strChanNum, sizeof(strChanNum), "%d", ChanNum);
 
 		/* TODO: the logic will get much easier once we decouple channellogo and signal bars */
-		if ((!logo_ok && g_settings.infobar_show_channellogo < 2) || g_settings.infobar_show_channellogo == 2) // no logo in numberbox
+		if ((!logo_ok && g_settings.infobar_show_channellogo < 2) || g_settings.infobar_show_channellogo == 2 || g_settings.infobar_show_channellogo == 4) // no logo in numberbox
 		{
 			// show number in numberbox
 			int tmpwidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(strChanNum);
