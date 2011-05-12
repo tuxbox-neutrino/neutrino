@@ -196,11 +196,11 @@ void CInfoViewer::start ()
 	{	/* default mode, with signal bars etc. */
 		ChanWidth = 122;
 		ChanHeight = 74;
-		int test = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth()*12;
+		int test = g_SignalFont->getWidth() * 14;
 		if (test > ChanWidth) {
 			ChanWidth = test;
 		}
-		test = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
+		test = (g_SignalFont->getHeight() * 2) + 36;
 		if (test > ChanHeight) {
 			ChanHeight = test;
 		}
@@ -1295,7 +1295,12 @@ void CInfoViewer::showSNR ()
 
 			newfreq = false;
 			CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo ();
-			snprintf (freq, sizeof(freq), "%d.%d MHz %c", si.tsfrequency / 1000, si.tsfrequency % 1000, si.polarisation ? 'V' : 'H');
+			std::string polarisation;
+			if (g_info.delivery_system == DVB_S || (cs_get_revision() == 1))
+				polarisation = (si.polarisation) ? "V" : "H";
+			else
+				polarisation = "";
+			snprintf (freq, sizeof(freq), "%d.%d MHz %s", si.tsfrequency / 1000, si.tsfrequency % 1000, polarisation.c_str());
 #if 0
 //FIXME this sets default params for scan menu
 			sprintf (get_set.TP_freq, "%d", si.tsfrequency);
@@ -1320,10 +1325,9 @@ void CInfoViewer::showSNR ()
 
 		if (lastsig != sig) {
 			lastsig = sig;
-			posx = BoxStartX + 4;
+			posx = BoxStartX + (ChanWidth - (bar_width + 2 + (g_SignalFont->getWidth() * 4))) / 2;
 			posy = ChanNumYPos + 3;
 			sigscale->paintProgressBar(posx, posy+4, bar_width, 10, sig, 100);
-
 			snprintf (percent, sizeof(percent), "%d%%S", sig);
 			posx = posx + bar_width + 2;
 			sw = BoxStartX + ChanWidth - posx;
@@ -1332,11 +1336,9 @@ void CInfoViewer::showSNR ()
 		}
 		if (lastsnr != snr) {
 			lastsnr = snr;
-			posx = BoxStartX + 4;
+			posx = BoxStartX + (ChanWidth - (bar_width + 2 + (g_SignalFont->getWidth() * 4))) / 2;
 			posy = ChanNumYPos + 3 + height - 2;
-
 			snrscale->paintProgressBar(posx, posy+4, bar_width, 10, snr, 100);
-
 			snprintf (percent, sizeof(percent), "%d%%Q", snr);
 			posx = posx + bar_width + 2;
 			sw = BoxStartX + ChanWidth - posx -4;
