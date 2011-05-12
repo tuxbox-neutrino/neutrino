@@ -655,10 +655,11 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 	int ChanNumWidth = 0;
 	int ChannelLogoMode = 0;
+	bool logo_ok = false;
 	if (ChanNum) /* !fileplay */
 	{
 		ChannelLogoMode = showChannelLogo(channel_id); // get logo mode, paint channel logo if adjusted
-		bool logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
+		logo_ok = ( g_settings.infobar_show_channellogo != 0 && ChannelLogoMode != 0);
 		fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 		int ChanNumYPos = BoxStartY + ChanHeight;
@@ -714,7 +715,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		}
 	}
 
-	if (g_settings.infobar_show_channellogo != 5) {
+	if (g_settings.infobar_show_channellogo != 5 || !logo_ok) {
 		if (ChannelLogoMode != 2) {
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanNameX + 10 + ChanNumWidth, ChanNameY + time_height,
