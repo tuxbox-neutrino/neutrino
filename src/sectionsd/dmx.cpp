@@ -194,6 +194,7 @@ sections_id_t DMX::create_sections_id(const unsigned char table_id, const unsign
 					((sections_id_t) tsid));
 }
 
+#ifdef USE_CHECK_COMPLETE_EVEN_THOUGH_IT_SEEMS_BROKEN
 bool DMX::check_complete(const unsigned char table_id, const unsigned short extension_id, const unsigned short onid, const unsigned short tsid, const unsigned char last)
 {
 	int current_section_number = 0;
@@ -228,6 +229,18 @@ bool DMX::check_complete(const unsigned char table_id, const unsigned short exte
 	}
 	return false;
 }
+#else
+/* the above version does not seem to work well for table 0x5[0-f], signalling
+ * completeness before it is actually complete
+ * additionally it seems to have problems with table version updates
+ * finally, it saves only little compared to the "HAVE_ALL_SECTIONS" check,
+ * so it is probably cheaper to just skip it
+ */
+bool DMX::check_complete(const unsigned char, const unsigned short, const unsigned short, const unsigned short, const unsigned char)
+{
+	return false;
+}
+#endif
 
 int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 {
