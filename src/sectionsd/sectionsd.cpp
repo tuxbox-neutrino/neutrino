@@ -1288,7 +1288,7 @@ static void removeDupEvents(void)
 
 		if ((*e1)->table_id == (*e2)->table_id)
 		{
-			xprintf("%s: not removing events %llx %llx, t:%02x '%s'\n", __func__,
+			dprintf("%s: not removing events %llx %llx, t:%02x '%s'\n", __func__,
 				(*e1)->uniqueKey(), (*e2)->uniqueKey(), (*e1)->table_id, (*e1)->getName().c_str());
 			continue;
 		}
@@ -1298,7 +1298,7 @@ static void removeDupEvents(void)
 		if ((*e1)->table_id < (*e2)->table_id)
 			del = e2;
 
-		xprintf("%s: removing event %llx.%02x '%s'\n", __func__,
+		dprintf("%s: removing event %llx.%02x '%s'\n", __func__,
 			(*del)->uniqueKey(), (*del)->table_id, (*del)->getName().c_str());
 		/* remember the unique ID for later deletion */
 		to_delete.push_back((*del)->uniqueKey());
