@@ -187,7 +187,7 @@ void CInfoViewer::start ()
 		      25;
 	InfoHeightY_Info = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+ 5;
 
-	if ( g_settings.infobar_show_channellogo != 3 || g_settings.infobar_show_channellogo != 5 ) /* 3 & 5 is "default" with sigscales etc. */
+	if ( g_settings.infobar_show_channellogo != 3 && g_settings.infobar_show_channellogo != 5 ) /* 3 & 5 is "default" with sigscales etc. */
 	{
 		ChanWidth = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getRenderWidth(widest_number) + 10;
 		ChanHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER]->getHeight() * 9 / 8;
