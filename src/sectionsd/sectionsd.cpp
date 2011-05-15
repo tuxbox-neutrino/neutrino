@@ -934,11 +934,17 @@ if (slow_addevent)
 				/* do we need this check? */
 				if (x_key == e_key)
 					continue;
-				if ((*x)->table_id < e->table_id)
-					continue;
 				if ((*x)->times.begin()->startzeit != start_time)
 					continue;
-
+				if ((*x)->table_id < e->table_id)
+				{
+					/* if we already have an event with the same start time but a lower
+					 * table ID, there is no need to add this one - it would be removed
+					 * by removeDupEvents() anyway => just return here. */
+					//dprintf("%s: not added: time==,id!=, table_id %02x<%02x, 0x%016llx 0x%016llx %s\n", __func__, (*x)->table_id, e->table_id, x_key, e_key, (*x)->getName().c_str());
+					unlockEvents();
+					return;
+				}
 				dprintf("%s: delete 0x%016llx.%02x time = 0x%016llx.%02x\n", __func__,
 					x_key, (*x)->table_id, e_key, e->table_id);
 				to_delete.push_back(x_key);
