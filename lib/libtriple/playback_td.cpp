@@ -76,9 +76,7 @@ bool cPlayback::Open(playmode_t mode)
 	playback_speed = 0;
 	last_size = 0;
 	_pts_end = 0;
-	numpida = 0;
-	memset(&apids, 0, sizeof(apids));
-	memset(&ac3flags, 0, sizeof(ac3flags));
+	astreams.clear();
 	memset(&cc, 0, 256);
 	return true;
 }
@@ -311,13 +309,13 @@ void cPlayback::playthread(void)
 			break;
 
 		/* autoselect PID for PLAYMODE_FILE */
-		if (apid == 0 && numpida > 0)
+		if (apid == 0 && astreams.size() > 0)
 		{
-			for (int i = 0; i < numpida; i++)
+			for (std::map<uint16_t, AStream>::iterator aI = astreams.begin(); aI != astreams.end(); aI++)
 			{
-				if (ac3flags[i] == 0)
+				if (!aI->second.ac3)
 				{
-					apid = apids[i];
+					apid = aI->first;
 					lt_info("%s setting Audio pid to 0x%04hx\n", __FUNCTION__, apid);
 					SetAPid(apid, 0);
 					break;
@@ -543,13 +541,20 @@ bool cPlayback::SetPosition(int position, bool absolute)
 	return ret;
 }
 
-void cPlayback::FindAllPids(uint16_t *_apids, unsigned short *_ac3flags, uint16_t *_numpida, std::string *language)
+void cPlayback::FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language)
 {
 	lt_info("%s\n", __FUNCTION__);
-	memcpy(_apids, &apids, sizeof(apids));
-	memcpy(_ac3flags, &ac3flags, sizeof(&ac3flags));
-	language = alang; /* TODO: language */
-	*_numpida = numpida;
+	int i = 0;
+	for (std::map<uint16_t, AStream>::iterator aI = astreams.begin(); aI != astreams.end(); aI++)
+	{
+		apids[i] = aI->first;
+		ac3flags[i] = aI->second.ac3 ? 1 : 0;
+		language[i] = aI->second.lang;
+		i++;
+		if (i > 10)	/* REC_MAX_APIDS in vcrcontrol.h */
+			break;
+	}
+	*numpida = i;
 }
 
 off_t cPlayback::seek_to_pts(int64_t pts)
@@ -919,8 +924,7 @@ ssize_t cPlayback::read_ts()
 	}
 	/* check for A/V PIDs */
 	uint16_t pid;
-	int i, j;
-	bool pid_new;
+	int i;
 	int64_t pts;
 	//fprintf(stderr, "inbuf_pos: %ld - sync: %ld, inbuf_syc: %ld\n", (long)inbuf_pos, (long)sync, (long)inbuf_sync);
 	int synccnt = 0;
@@ -944,7 +948,6 @@ ssize_t cPlayback::read_ts()
 		if (buf[3] & 0x20)	/* adaptation field? */
 			off = buf[4] + 1;
 		pid = get_pid(buf + 1);
-		pid_new = true;
 		/* PES signature is at buf + 4, streamtype is after 00 00 01 */
 		switch (buf[4 + 3 + off])
 		{
@@ -979,28 +982,20 @@ ssize_t cPlayback::read_ts()
 			break;
 		case 0xbd:		/* private stream 1 - ac3 */
 		case 0xc0 ... 0xdf:	/* audio stream */
-			if (numpida > 9)
+			if (astreams.find(pid) != astreams.end())
 				break;
-			for (j = 0; j < numpida; j++) {
-				if (apids[j] == pid)
-				{
-					pid_new = false;
-					break;
-				}
-			}
-			if (!pid_new)
-				break;
+			AStream tmp;
 			if (buf[7 + off] == 0xbd)
 			{
 				if (buf[12 + off] == 0x24)	/* 0x24 == TTX */
 					break;
-				ac3flags[numpida] = 1;
+				tmp.ac3 = true;
 			}
 			else
-				ac3flags[numpida] = 0;
-			apids[numpida] = pid;
-			lt_info("%s found apid #%d 0x%04hx ac3:%d\n", __FUNCTION__, numpida, pid, ac3flags[numpida]);
-			numpida++;
+				tmp.ac3 = false;
+			tmp.lang = "";
+			astreams.insert(std::make_pair(pid, tmp));
+			lt_info("%s found apid #%d 0x%04hx ac3:%d\n", __func__, astreams.size(), pid, tmp.ac3);
 			break;
 		}
 		i += 188;
@@ -1046,7 +1041,6 @@ ssize_t cPlayback::read_mpeg()
 	curr_pos += ret;
 	pthread_mutex_unlock(&currpos_mutex);
 
-	int i;
 	int count = 0;
 	uint16_t pid = 0;
 	bool resync = true;
@@ -1096,28 +1090,19 @@ ssize_t cPlayback::read_mpeg()
 				int off = ppes[8] + 8 + 1; // ppes[8] is often 0
 				if (count + off >= pesbuf_pos)
 					break;
-				int subid = ppes[off];
+				uint16_t subid = ppes[off];
 				// if (offset == 0x24 && subid == 0x10 ) // TTX?
 				if (subid < 0x80 || subid > 0x87)
 					break;
 				lt_debug("AC3: ofs 0x%02x subid 0x%02x\n", off, subid);
 				//subid -= 0x60; // normalize to 32...39 (hex 0x20..0x27)
 
-				if (numpida > 9)
-					break;
-				bool found = false;
-				for (i = 0; i < numpida; i++) {
-					if (apids[i] == subid)
-					{
-						found = true;
-						break;
-					}
-				}
-				if (!found)
+				if (astreams.find(subid) == astreams.end())
 				{
-					apids[numpida] = subid;
-					ac3flags[numpida] = 1;
-					numpida++;
+					AStream tmp;
+					tmp.ac3 = true;
+					tmp.lang = "";
+					astreams.insert(std::make_pair(subid, tmp));
 					lt_info("%s found aid: %02x\n", __FUNCTION__, subid);
 				}
 				pid = subid;
@@ -1136,20 +1121,13 @@ ssize_t cPlayback::read_mpeg()
 			case 0xd0 ... 0xdf:
 			{
 				// fprintf(stderr, "audio stream 0x%02x\n", ppes[3]);
-				int id = ppes[3]; // - 0xC0; // normalize to 0...31 (hex 0x0...0x1f)
-				bool found = false;
-				for (i = 0; i < numpida; i++) {
-					if (apids[i] == id)
-					{
-						found = true;
-						break;
-					}
-				}
-				if (!found)
+				uint16_t id = ppes[3];
+				if (astreams.find(id) == astreams.end())
 				{
-					apids[numpida] = id;
-					ac3flags[numpida] = 0;
-					numpida++;
+					AStream tmp;
+					tmp.ac3 = false;
+					tmp.lang = "";
+					astreams.insert(std::make_pair(id, tmp));
 					lt_info("%s found aid: %02x\n", __FUNCTION__, id);
 				}
 				pid = id;

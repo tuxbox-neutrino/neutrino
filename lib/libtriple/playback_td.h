@@ -3,6 +3,7 @@
 
 #include <inttypes.h>
 #include <string>
+#include <map>
 #include <vector>
 
 /* almost 256kB */
@@ -70,10 +71,12 @@ class cPlayback
 		uint16_t vpid;
 		uint16_t apid;
 		bool ac3;
-		uint16_t apids[10];
-		unsigned short ac3flags[10];
-		std::string alang[10];
-		uint16_t numpida;
+		struct AStream {
+			// uint16_t pid;
+			bool ac3;
+			std::string lang; /* not yet really used */
+		};
+		std::map<uint16_t, AStream> astreams; /* stores AStream sorted by pid */
 
 		int64_t pts_start;
 		int64_t pts_end;
