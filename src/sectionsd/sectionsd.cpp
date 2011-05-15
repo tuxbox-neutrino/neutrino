@@ -913,24 +913,24 @@ if (slow_addevent)
 		event_id_t e_key = e->uniqueKey();
 		t_channel_id e_chid = e->get_channel_id();
 		time_t start_time = e->times.begin()->startzeit;
-		bool found = false;
-		/* experiments have shown that iterating backwards here is much faster */
+		/* create an event that's surely behind the one to check in the sort order */
+		SIevent *fptr = new SIevent(evt);
+		fptr->eventID = 0xFFFF; /* lowest order sort criteria is eventID */
+		SIeventPtr f(fptr);
+		/* returns an iterator that's behind 'f' */
 		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator x =
-			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end();
+			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.upper_bound(f);
 
+		/* the first decrement of the iterator gives us an event that's a potential
+		 * match *or* from a different channel, then no event for this channel is stored */
 		while (x != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin())
 		{
 			x--;
 			if ((*x)->get_channel_id() != e_chid)
-			{
-				/* sorted by service id first */
-				if (found)
-					break;
-			}
+				break;
 			else
 			{
 				event_id_t x_key = (*x)->uniqueKey();
-				found = true;
 				/* do we need this check? */
 				if (x_key == e_key)
 					continue;
