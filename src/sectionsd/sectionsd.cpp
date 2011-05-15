@@ -934,8 +934,14 @@ if (slow_addevent)
 				/* do we need this check? */
 				if (x_key == e_key)
 					continue;
-				if ((*x)->times.begin()->startzeit != start_time)
+				if ((*x)->times.begin()->startzeit > start_time)
 					continue;
+				/* iterating backwards: if the starttime of the stored events
+				 * is earlier than the new one, we'll never find an identical one
+				 * => bail out */
+				if ((*x)->times.begin()->startzeit < start_time)
+					break;
+				/* here we have (*x)->times.begin()->startzeit == start_time */
 				if ((*x)->table_id < e->table_id)
 				{
 					/* if we already have an event with the same start time but a lower
