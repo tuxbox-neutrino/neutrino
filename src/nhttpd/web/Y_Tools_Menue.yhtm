@@ -32,7 +32,7 @@ function init(){
 </head>
 {=var-set:automount={=if-file-exists:/sbin/automount~true~{=if-file-exists:/var/bin/automount~true~=}=}=}
 {=var-set:management={=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip;{=func:get_request_data client_addr=}=}~1~=}{=if-equal:{=func:get_request_data client_addr=}~{=ini-get:/var/tuxbox/config/Y-Web.conf;management_ip2=}~1~=}=}
-{=var-set:etherwake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/etherwake~/bin/etherwake~{=if-file-exists:/var/bin/etherwake~/var/bin/etherwake~=}=}=}=}
+{=var-set:ether-wake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}=}=}
 <body onload="init()">
 <div class="y_menu_sec_box">
 	<div class="y_menu_sec_box_head"><h2>{=L:main.tools=}</h2></div>
@@ -55,7 +55,7 @@ function init(){
 					=}
 				<li><a target="work" title="{=L:tools.mounts_desc=}" href="Y_Settings_mount_liste.yhtm">{=L:tools.mounts=}</a></li>
 				~=}
-				{=if-empty:{=var-get:etherwake=}~
+				{=if-empty:{=var-get:ether-wake=}~
 					<li class="disabled" title="{=L:tools.not_installed=}" >{=L:tools.wake_on_lan=}</li>
 				~
 					<li><a target="work" href="Y_Settings_wol.yhtm">{=L:tools.wake_on_lan=}</a></li>

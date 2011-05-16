@@ -103,11 +103,11 @@ function do_check(){
 		=}
 	~=}
 	
-	{=var-set:etherwake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/etherwake~/bin/etherwake~{=if-file-exists:/var/bin/etherwake~/var/bin/etherwake~=}=}=}=}
-	{=if-equal:{=var-get:etherwake=}~false~
-		sLog_addRow(sLog_body, "red", "Programs: etherwake is not installed. Wake on LAN is disabled. "+y_url("Help-Tools-Wake_on_LAN"), "failed");
+	{=var-set:ether-wake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}=}=}
+	{=if-equal:{=var-get:ether-wake=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: ether-wake is not installed. Wake on LAN is disabled. "+y_url("Help-Tools-Wake_on_LAN"), "failed");
 	~
-		sLog_addRow(sLog_body, "green", "Programs: etherwake is installed at: {=var-get:etherwake=}. Wake on LAN is enabled.", "ok");
+		sLog_addRow(sLog_body, "green", "Programs: ether-wake is installed at: {=var-get:ether-wake=}. Wake on LAN is enabled.", "ok");
 	=}
 	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 		/*automount*/
