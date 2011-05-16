@@ -777,18 +777,18 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 	readLockEvents();
 	MySIeventsOrderUniqueKey::iterator si = mySIeventsOrderUniqueKey.find(evt.uniqueKey());
 	bool already_exists = (si != mySIeventsOrderUniqueKey.end());
-	if (already_exists && ( (evt.table_id == si->second->table_id && evt.version != si->second->version ) || si->second->version == 0xFF ) )
-	{
-		//replace event if new version
-		dprintf("replacing event version old 0x%02x new 0x%02x'\n", si->second->version, evt.version );
-		already_exists = false;
-	}
-	else if (already_exists && (evt.table_id < si->second->table_id))
+	if (already_exists && (evt.table_id < si->second->table_id))
 	{
 		/* if the new event has a lower (== more recent) table ID, replace the old one */
 		already_exists = false;
 		dprintf("replacing event %016llx:%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
 			si->second->table_id, evt.eventID, evt.table_id, evt.getName().c_str());
+	}
+	else if (already_exists &&  (evt.table_id == si->second->table_id && evt.version != si->second->version ) )
+	{
+		//replace event if new version
+		dprintf("replacing event version old 0x%02x new 0x%02x'\n", si->second->version, evt.version );
+		already_exists = false;
 	}
 
 	/* Check size of some descriptors of the new event before comparing
@@ -913,35 +913,29 @@ if (slow_addevent)
 		event_id_t e_key = e->uniqueKey();
 		t_channel_id e_chid = e->get_channel_id();
 		time_t start_time = e->times.begin()->startzeit;
-		/* create an event that's surely behind the one to check in the sort order */
-		SIevent *fptr = new SIevent(evt);
-		fptr->eventID = 0xFFFF; /* lowest order sort criteria is eventID */
-		SIeventPtr f(fptr);
-		/* returns an iterator that's behind 'f' */
+		bool found = false;
+		/* experiments have shown that iterating backwards here is much faster */
 		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator x =
-			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.upper_bound(f);
+			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end();
 
-		/* the first decrement of the iterator gives us an event that's a potential
-		 * match *or* from a different channel, then no event for this channel is stored */
 		while (x != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin())
 		{
 			x--;
 			if ((*x)->get_channel_id() != e_chid)
-				break;
+			{
+				/* sorted by service id first */
+				if (found)
+					break;
+			}
 			else
 			{
 				event_id_t x_key = (*x)->uniqueKey();
+				found = true;
 				/* do we need this check? */
 				if (x_key == e_key)
 					continue;
-				if ((*x)->times.begin()->startzeit > start_time)
+				if ((*x)->times.begin()->startzeit != start_time)
 					continue;
-				/* iterating backwards: if the starttime of the stored events
-				 * is earlier than the new one, we'll never find an identical one
-				 * => bail out */
-				if ((*x)->times.begin()->startzeit < start_time)
-					break;
-				/* here we have (*x)->times.begin()->startzeit == start_time */
 				if ((*x)->table_id < e->table_id)
 				{
 					/* if we already have an event with the same start time but a lower
