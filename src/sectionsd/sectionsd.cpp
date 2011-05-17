@@ -910,16 +910,16 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 if (slow_addevent)
 {
 		std::vector<event_id_t> to_delete;
+		unsigned short eventID = e->eventID;
 		event_id_t e_key = e->uniqueKey();
 		t_channel_id e_chid = e->get_channel_id();
 		time_t start_time = e->times.begin()->startzeit;
 		/* create an event that's surely behind the one to check in the sort order */
-		SIevent *fptr = new SIevent(evt);
-		fptr->eventID = 0xFFFF; /* lowest order sort criteria is eventID */
-		SIeventPtr f(fptr);
-		/* returns an iterator that's behind 'f' */
+		e->eventID = 0xFFFF; /* lowest order sort criteria is eventID */
+		/* returns an iterator that's behind 'e' */
 		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator x =
-			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.upper_bound(f);
+			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.upper_bound(e);
+		e->eventID = eventID;
 
 		/* the first decrement of the iterator gives us an event that's a potential
 		 * match *or* from a different channel, then no event for this channel is stored */
