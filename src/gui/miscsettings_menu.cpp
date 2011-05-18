@@ -91,13 +91,6 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "logo_dir") 
-	{
-		const char *action_str = "logo";
-		chooserDir(g_settings.logo_hdd_dir, false, action_str);
-
-		return menu_return::RETURN_REPAINT;
-	}
 #ifdef ONE_KEY_PLUGIN
 	else if(actionKey == "onekeyplugin") 
 	{
@@ -248,7 +241,6 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 		ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 	ms_general->addItem(new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir"));
-	ms_general->addItem(new CMenuForwarder(LOCALE_LOGO_HDD_DIR, true, g_settings.logo_hdd_dir, this, "logo_dir"));
 #ifdef ONE_KEY_PLUGIN
 	ms_general->addItem(new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin,this,"onekeyplugin"));
 #endif /*ONE_KEY_PLUGIN*/

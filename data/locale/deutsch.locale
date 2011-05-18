@@ -676,7 +676,6 @@ ledcontroler.off LED1 & LED2 aus
 ledcontroler.on.all LED1 & LED2 an
 ledcontroler.on.led1 LED1 an
 ledcontroler.on.led2 LED2 an
-logo_hdd_dir Logo Verz.
 mainmenu.audioplayer Audioplayer
 mainmenu.clearsectionsd Lösche EPG Cache
 mainmenu.games Spiele
@@ -758,6 +757,7 @@ miscsettings.infobar_disp_3 Logo+Kanalname/Signalbalken
 miscsettings.infobar_disp_4 Logo+Kanalname/Kanalnummer
 miscsettings.infobar_disp_5 Logo/Signalbalken
 miscsettings.infobar_disp_log Logo
+miscsettings.infobar_logo_hdd_dir Logo Verz.
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_res Auflösung anzeigen
