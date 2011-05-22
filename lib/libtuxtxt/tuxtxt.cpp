@@ -1811,6 +1811,8 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 		/* update page or timestring and lcd */
 		RenderPage();
 	} while ((RCCode != RC_HOME) && (RCCode != RC_STANDBY));
+	/* if transparent mode was selected, remember the original mode */
+	screenmode = prevscreenmode;
 
 	/* exit */
 	CleanUp();
