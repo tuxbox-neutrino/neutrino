@@ -103,6 +103,7 @@
 #define TIME_FSEIT_SKIPPING 240
 #endif
 
+static bool reader_ready = true;
 //#define MAX_EVENTS 6000
 static unsigned int max_events;
 // sleep 5 minutes
@@ -4701,6 +4702,7 @@ static void *insertEventsfromFile(void *)
 		printf("[sectionsd] Reading Information finished after %ld miliseconds (%d events)\n",
 				time_monotonic_ms()-now, ev_count);
 	}
+	reader_ready = true;
 
 	pthread_exit(NULL);
 }
@@ -6894,7 +6896,7 @@ static void *timeThread(void *)
 
 	while(!sectionsd_stop)
 	{
-		while (!scanning) {
+		while (!scanning || !reader_ready) {
 			if(sectionsd_stop)
 				break;
 			sleep(1);
@@ -8727,6 +8729,13 @@ void sectionsd_main_thread(void */*data*/)
 	slow_addevent = (getenv("NO_SLOW_ADDEVENT") == NULL);
 	if (slow_addevent)
 		printf("====> USING SLOW ADDEVENT. export 'NO_SLOW_ADDEVENT=1' to avoid <===\n");
+
+	/* for debugging / benchmarking, "export STARTUP_WAIT=true" to wait with startup for
+	 * the EPG loading to finish
+	 * this wil fail badly if no EPG saving / loading is configured! */
+	reader_ready = (getenv("STARTUP_WAIT") == NULL);
+	if (!reader_ready)
+		printf("====> sectionsd waiting with startup until saved EPG is read <===\n");
 
 	SIlanguage::loadLanguages();
 
