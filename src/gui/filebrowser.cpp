@@ -1371,16 +1371,37 @@ void CFileBrowser::paintItem(unsigned int pos)
 
 void CFileBrowser::paintHead()
 {
-	char l_name[100];
+	char *l_name;
+	int i = 0;
+	int l;
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_MID, CORNER_TOP);
 #ifdef ENABLE_INTERNETRADIO
 	if(m_Mode == ModeSC)
-		snprintf(l_name, sizeof(l_name), "%s %s", g_Locale->getText(LOCALE_AUDIOPLAYER_ADD_SC), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str()); // UTF-8
+		l = asprintf(&l_name, "%s %s", g_Locale->getText(LOCALE_AUDIOPLAYER_ADD_SC), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
 	else
 #endif
-		snprintf(l_name, sizeof(l_name), "%s %s", g_Locale->getText(LOCALE_FILEBROWSER_HEAD), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str()); // UTF-8
+		l = asprintf(&l_name, "%s %s", g_Locale->getText(LOCALE_FILEBROWSER_HEAD), FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+10,y+theight+1, width-11, l_name, COL_MENUHEAD, 0, true); // UTF-8
+	if (l < 1) /* at least 1 for the " " space */
+	{
+		perror("CFileBrowser::paintHead asprintf");
+		return;
+	}
+
+	/* too long? Leave out the "Filebrowser" or "Shoutcast" prefix
+	 * the allocated space is sufficient since it is surely shorter than before */
+	if (g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(l_name) > width - 11)
+		l = sprintf(l_name, "%s", FILESYSTEM_ENCODING_TO_UTF8_STRING(name).c_str());
+	if (l_name[l - 1] == '/')
+		l_name[--l] = '\0';
+
+	/* still too long? the last part is probably more interesting than the first part... */
+	while ((g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(&l_name[i]) > width - 11)
+		&& (i < l))
+		i++;
+
+	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+10,y+theight+1, width-11, &l_name[i], COL_MENUHEAD, 0, true);
+	free(l_name);
 }
 
 bool chooserDir(char *setting_dir, bool test_dir, const char *action_str, size_t str_leng)
