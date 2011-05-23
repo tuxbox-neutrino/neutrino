@@ -2739,8 +2739,13 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		"Total size of memory occupied by chunks\n"
 		"handed out by malloc: %d (%dkb)\n"
 		"Total bytes memory allocated with `sbrk' by malloc,\n"
-		"in bytes: %d (%dkb)\n",
-		ctime(&zeit),
+   	 "in bytes: %d (%dkb)\n"
+#ifdef ENABLE_FREESATEPG
+   	 "FreeSat enabled\n"
+#else
+   	 ""
+#endif
+   	 ,
 		secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices,
 		//    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		speicherinfo.uordblks, speicherinfo.uordblks / 1024,
@@ -7095,7 +7100,7 @@ static void *fseitThread(void *)
 
 	dmxFSEIT.addfilter(0x60, 0xfe); //other TS, scheduled, freesat epg is only broadcast using table_ids 0x60 (scheduled) and 0x61 (scheduled later)
 
-	if (debug) {
+    if (sections_debug) {
 		int policy;
 		struct sched_param parm;
 		int rc = pthread_getschedparam(pthread_self(), &policy, &parm);
@@ -7221,11 +7226,12 @@ static void *fseitThread(void *)
 			messaging_zap_detected = false;
 			unlockMessaging();
 
+#ifdef UPDATE_NETWORKS
 			if (auto_scanning) {
 				pthread_mutex_unlock( &dmxNIT.start_stop_mutex );
 				dmxNIT.change( 0 );
 			}
-
+#endif
 			struct timespec abs_wait;
 			struct timeval now;
 			gettimeofday(&now, NULL);

@@ -390,7 +390,8 @@ std::string SIsectionEIT::freesatHuffmanDecode(std::string input)
                 return uncompressed;
             }
         } while (lastch != STOP && value != 0);
-				uncompressed.resize(p);
+		
+		uncompressed.resize(p);
         return uncompressed;
     }
     else return input;
@@ -421,8 +422,10 @@ void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsign
 #endif // 0
 {
 #ifdef ENABLE_FREESATEPG
-			// FIXME convertDVBUTF8
-			e.setName(language, buf[0] == 0x1f ? freesatHuffmanDecode(std::string(buf, evt->event_name_length)) : std::string(buf, evt->event_name_length));
+//			e.setName(language, buf[0] == 0x1f ? freesatHuffmanDecode(std::string(buf, evt->event_name_length)) : std::string(buf, evt->event_name_length));
+
+			std::string tmp_str = buf[0] == 0x1f ? freesatHuffmanDecode(std::string(buf, evt->event_name_length)) : std::string(buf, evt->event_name_length);
+			e.setName(language, convertDVBUTF8(tmp_str.c_str(), tmp_str.size(), table, tsidonid));
 #else
 			//e.setName(language, std::string(buf, evt->event_name_length));
 			e.setName(language, convertDVBUTF8(buf, evt->event_name_length, table, tsidonid));
@@ -443,7 +446,9 @@ void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsign
 #endif // 0
 {
 #ifdef ENABLE_FREESATEPG
-			e.setText(language, buf[1] == 0x1f ? freesatHuffmanDecode(std::string(++buf, textlength)) : std::string(++buf, textlength));
+//			e.setText(language, buf[1] == 0x1f ? freesatHuffmanDecode(std::string(++buf, textlength)) : std::string(++buf, textlength));
+			std::string tmp_str = buf[1] == 0x1f ? freesatHuffmanDecode(std::string(++buf, textlength)) : std::string(++buf, textlength);
+			e.setText(language, convertDVBUTF8(tmp_str.c_str(), tmp_str.size(), table, tsidonid));
 #else
 			//e.setText(language, std::string(++buf, textlength));
 			e.setText(language, convertDVBUTF8((++buf), textlength, table, tsidonid));
