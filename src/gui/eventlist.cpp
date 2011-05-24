@@ -834,7 +834,7 @@ void EventList::paintHead(t_channel_id _channel_id, std::string _channelname)
 	std::string lname;
 	int logo_w = 0;
 	int logo_h = 0;
-	if(g_PicViewer->GetLogoName(_channel_id, _channelname, lname, &logo_w, &logo_h)){
+	if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(_channel_id, _channelname, lname, &logo_w, &logo_h)){
 		if(logo_h > theight){
 			if((theight/(logo_h-theight))>1){
 				logo_w -= (logo_w/(theight/(logo_h-theight)));
@@ -843,7 +843,7 @@ void EventList::paintHead(t_channel_id _channel_id, std::string _channelname)
 		}
 		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-logo_h)/2, logo_w, logo_h);
 	}
-	else
+	else 
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+logo_w:0),y+theight+1, width, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
 }
 

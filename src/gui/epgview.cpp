@@ -605,14 +605,13 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		std::string lname;
 		int logo_w = 0;
 		int logo_h = 0;
-		if(g_PicViewer->GetLogoName(channel_id, cit->second.getName(), lname, &logo_w, &logo_h)) {
-		if(logo_h > toph){
-			if((toph/(logo_h-toph))>1){
-				logo_w -= (logo_w/(toph/(logo_h-toph)));
+		if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, cit->second.getName(), lname, &logo_w, &logo_h)) {
+			if(logo_h > toph){
+				if((toph/(logo_h-toph))>1){
+					logo_w -= (logo_w/(toph/(logo_h-toph)));
+				}
+				logo_h = toph;
 			}
-			logo_h = toph;
-		}
-
 			g_PicViewer->DisplayImage(lname, sx+10, sy + (toph-logo_h)/2/*5*/, logo_w, logo_h);
 			pic_offx = logo_w + 10;
 		}

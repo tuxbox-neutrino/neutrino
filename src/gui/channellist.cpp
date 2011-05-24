@@ -1711,19 +1711,21 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CChannelList::showChannelLogo()
 {
-	static int logo_w = 0;
-	static int logo_h = 0;
-	frameBuffer->paintBoxRel(x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
+	if(g_settings.infobar_show_channellogo){
+		static int logo_w = 0;
+		static int logo_h = 0;
+		frameBuffer->paintBoxRel(x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
 
-	std::string lname;
-	if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)) {
-		if(logo_h > theight) {
-			if((theight/(logo_h-theight))>1) {
-				logo_w -= (logo_w/(theight/(logo_h-theight)));
+		std::string lname;
+		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)) {
+			if(logo_h > theight) {
+				if((theight/(logo_h-theight))>1) {
+					logo_w -= (logo_w/(theight/(logo_h-theight)));
+				}
+				logo_h = theight;
 			}
-			logo_h = theight;
+			g_PicViewer->DisplayImage(lname, x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h);
 		}
-		g_PicViewer->DisplayImage(lname, x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h);
 	}
 }
 
