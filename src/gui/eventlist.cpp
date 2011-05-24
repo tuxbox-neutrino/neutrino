@@ -843,9 +843,8 @@ void EventList::paintHead(t_channel_id _channel_id, std::string _channelname)
 		}
 		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-logo_h)/2, logo_w, logo_h);
 	}
-        //logo_ok = g_PicViewer->DisplayLogo(_channel_id, x+10, y+(theight-PIC_H)/2, PIC_W, PIC_H);
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+logo_w:0),y+theight+1, width, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
+	else
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->RenderString(x+15+(logo_ok? 5+logo_w:0),y+theight+1, width, _channelname.c_str(), COL_MENUHEAD, 0, true); // UTF-8
 }
 
 void EventList::paint(t_channel_id channel_id)
