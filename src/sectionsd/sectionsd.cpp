@@ -2741,11 +2741,11 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		"Total bytes memory allocated with `sbrk' by malloc,\n"
    	 "in bytes: %d (%dkb)\n"
 #ifdef ENABLE_FREESATEPG
-   	 "FreeSat enabled\n"
+		"FreeSat enabled\n"
 #else
-   	 ""
+		""
 #endif
-   	 ,
+		,ctime(&zeit),
 		secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices,
 		//    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		speicherinfo.uordblks, speicherinfo.uordblks / 1024,
