@@ -785,7 +785,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		dprintf("replacing event %016llx:%02x with %04x:%02x '%.40s'\n", si->second->uniqueKey(),
 			si->second->table_id, evt.eventID, evt.table_id, evt.getName().c_str());
 	}
-	else if (already_exists && ( evt.table_id == si->second->table_id && evt.version != si->second->version ))
+	else if (already_exists && ( (evt.table_id == 0x51 || evt.table_id == 0x50 || evt.table_id == 0x4e) && evt.table_id == si->second->table_id && evt.version != si->second->version ))
 	{
 		//replace event if new version
 		dprintf("replacing event version old 0x%02x new 0x%02x'\n", si->second->version, evt.version );
