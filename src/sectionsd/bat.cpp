@@ -61,16 +61,16 @@
 
 int main(int /*argc*/, char** /*argv*/)
 {
-  time_t starttime, endtime;
-  SIsectionsBAT batset;
+	time_t starttime, endtime;
+	SIsectionsBAT batset;
 
-  starttime=time(NULL);
-  batset.readSections();
-  endtime=time(NULL);
-  printf("Sections read: %d\n", batset.size());
-  printf("Time needed: %ds\n", (int)difftime(endtime, starttime));
+	starttime=time(NULL);
+	batset.readSections();
+	endtime=time(NULL);
+	printf("Sections read: %d\n", batset.size());
+	printf("Time needed: %ds\n", (int)difftime(endtime, starttime));
 //  for_each(batset.begin(), batset.end(), printSmallSectionHeader());
 //  for_each(batset.begin(), batset.end(), printSIsection());
-  for_each(batset.begin(), batset.end(), printSIsectionBAT());
-  return 0;
+	for_each(batset.begin(), batset.end(), printSIsectionBAT());
+	return 0;
 }

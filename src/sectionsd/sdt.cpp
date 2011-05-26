@@ -70,16 +70,16 @@
 
 int main(int /*argc*/, char** /*argv*/)
 {
-  time_t starttime, endtime;
-  SIsectionsSDT sdtset;
+	time_t starttime, endtime;
+	SIsectionsSDT sdtset;
 
-  starttime=time(NULL);
-  sdtset.readSections();
-  endtime=time(NULL);
-  printf("Sections read: %d\n", sdtset.size());
-  printf("Time needed: %ds\n", (int)difftime(endtime, starttime));
+	starttime=time(NULL);
+	sdtset.readSections();
+	endtime=time(NULL);
+	printf("Sections read: %d\n", sdtset.size());
+	printf("Time needed: %ds\n", (int)difftime(endtime, starttime));
 //  for_each(sdtset.begin(), sdtset.end(), printSmallSectionHeader());
 //  for_each(sdtset.begin(), sdtset.end(), printSIsection());
-  for_each(sdtset.begin(), sdtset.end(), printSIsectionSDT());
-  return 0;
+	for_each(sdtset.begin(), sdtset.end(), printSIsectionSDT());
+	return 0;
 }

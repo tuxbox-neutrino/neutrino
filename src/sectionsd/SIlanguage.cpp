@@ -72,7 +72,7 @@ void SIlanguage::filter(const std::map<std::string, std::string>& s, int max, st
 
 	if (mode != CSectionsdClient::ALL) {
 		for (std::vector<std::string>::const_iterator it = languages.begin() ;
-				 it != languages.end() ; ++it) {
+				it != languages.end() ; ++it) {
 			std::map<std::string,std::string>::const_iterator text;
 			if ((text = s.find(*it)) != s.end()) {
 				if (count != max) {
@@ -92,7 +92,7 @@ void SIlanguage::filter(const std::map<std::string, std::string>& s, int max, st
 		// return all available languages
 		if (s.begin() != s.end()) {
 			for (std::map<std::string, std::string>::const_iterator it = s.begin() ;
-					 it != s.end() ; ++it) {
+					it != s.end() ; ++it) {
 				if (it != s.begin()) {
 					retval.append(" \n");
 				}
@@ -142,7 +142,7 @@ bool SIlanguage::loadLanguages()
 	pthread_mutex_unlock(&languages_lock);
 	return true;
 
- error:
+error:
 	tmpLang.push_back("OFF");
 	languages = tmpLang;
 	mode = tmpMode;
@@ -176,7 +176,7 @@ bool SIlanguage::saveLanguages()
 	}
 
 	for (std::vector<std::string>::iterator it = languages.begin() ;
-			 it != languages.end() ; ++it) {
+			it != languages.end() ; ++it) {
 		file << *it;
 		file << "\n";
 		if (file.fail()) goto error;
@@ -188,7 +188,7 @@ bool SIlanguage::saveLanguages()
 	pthread_mutex_unlock(&languages_lock);
 	return true;
 
- error:
+error:
 	pthread_mutex_unlock(&languages_lock);
 	return false;
 }

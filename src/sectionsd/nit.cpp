@@ -61,16 +61,16 @@
 
 int main(int /*argc*/, char** /*argv*/)
 {
-  time_t starttime, endtime;
-  SIsectionsNIT nitset;
+	time_t starttime, endtime;
+	SIsectionsNIT nitset;
 
-  starttime=time(NULL);
-  nitset.readSections();
-  endtime=time(NULL);
-  printf("Sections read: %d\n", nitset.size());
-  printf("Time needed: %ds\n", (int)difftime(endtime, starttime));
+	starttime=time(NULL);
+	nitset.readSections();
+	endtime=time(NULL);
+	printf("Sections read: %d\n", nitset.size());
+	printf("Time needed: %ds\n", (int)difftime(endtime, starttime));
 //  for_each(nitset.begin(), nitset.end(), printSmallSectionHeader());
 //  for_each(nitset.begin(), nitset.end(), printSIsection());
-  for_each(nitset.begin(), nitset.end(), printSIsectionNIT());
-  return 0;
+	for_each(nitset.begin(), nitset.end(), printSIsectionNIT());
+	return 0;
 }

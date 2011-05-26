@@ -47,40 +47,40 @@
 
 int main(int argc, char **argv)
 {
-  SIsectionsSDT sdtset;
+	SIsectionsSDT sdtset;
 
-  if(argc!=2) {
-    fprintf(stderr, "Aufruf: %s Sendername\n", argv[0]);
-    return 1;
-  }
+	if(argc!=2) {
+		fprintf(stderr, "Aufruf: %s Sendername\n", argv[0]);
+		return 1;
+	}
 
-  tzset(); // TZ auswerten
+	tzset(); // TZ auswerten
 
-  sdtset.readSections();
+	sdtset.readSections();
 
-  // Die for-Schleifen sind laestig,
-  // Evtl. sollte man aus den sets maps machen, damit man den key einfacher aendern
-  // kann und somit find() funktioniert
-  for(SIsectionsSDT::iterator k=sdtset.begin(); k!=sdtset.end(); k++)
-    for(SIservices::iterator ks=k->services().begin(); ks!=k->services().end(); ks++) {
-      // Erst mal die Controlcodes entfernen
+	// Die for-Schleifen sind laestig,
+	// Evtl. sollte man aus den sets maps machen, damit man den key einfacher aendern
+	// kann und somit find() funktioniert
+	for(SIsectionsSDT::iterator k=sdtset.begin(); k!=sdtset.end(); k++)
+		for(SIservices::iterator ks=k->services().begin(); ks!=k->services().end(); ks++) {
+			// Erst mal die Controlcodes entfernen
 //      printf("Servicename: '%s'\n", ks->serviceName.c_str());
-      char servicename[50];
-      strncpy(servicename, ks->serviceName.c_str(), sizeof(servicename)-1);
-      servicename[sizeof(servicename)-1]=0;
-      removeControlCodes(servicename);
-      // Jetz pruefen ob der Servicename der gewuenschte ist
+			char servicename[50];
+			strncpy(servicename, ks->serviceName.c_str(), sizeof(servicename)-1);
+			servicename[sizeof(servicename)-1]=0;
+			removeControlCodes(servicename);
+			// Jetz pruefen ob der Servicename der gewuenschte ist
 //      printf("Servicename: '%s'\n", servicename);
-      if(!strcmp(servicename, argv[1])) {
-        // Event (serviceid) suchen
-        SIevent evt=SIevent::readActualEvent(ks->service_id);
-	if(evt.service_id != 0)
-	  evt.saveXML(stdout); // gefunden
+			if(!strcmp(servicename, argv[1])) {
+				// Event (serviceid) suchen
+				SIevent evt=SIevent::readActualEvent(ks->service_id);
+				if(evt.service_id != 0)
+					evt.saveXML(stdout); // gefunden
 //	  evt.dump(); // gefunden
-        else
-	  printf("Kein aktuelles EPG fuer %s gefunden!\n", argv[1]);
-        return 0;
-      }
-    }
-  return 1;
+				else
+					printf("Kein aktuelles EPG fuer %s gefunden!\n", argv[1]);
+				return 0;
+			}
+		}
+	return 1;
 }

@@ -209,10 +209,10 @@ time_t changeUTCtoCtime(const unsigned char *buffer, int local_time)
 
 #if 0
 	printf ("Startzeit: GMT: %.2d.%.2d.%.4d  %.2x:%.2x:%.2x\n",
-	      day, month, year, hour, minutes, seconds);
+		day, month, year, hour, minutes, seconds);
 	printf ("Startzeit: GMT: %.2d.%.2d.%.4d  %.2d:%.2d:%.2d\n",
-	      time.tm_mday, time.tm_mon + 1, time.tm_year + 1900,
-	      time.tm_hour, time.tm_min, time.tm_sec);
+		time.tm_mday, time.tm_mon + 1, time.tm_year + 1900,
+		time.tm_hour, time.tm_min, time.tm_sec);
 #endif
 
 	return mktime(&time) + (local_time ? -timezone : 0);
@@ -221,80 +221,80 @@ time_t changeUTCtoCtime(const unsigned char *buffer, int local_time)
 // Thanks to tmbinc
 int saveStringToXMLfile(FILE *out, const char *c, int /*withControlCodes*/)
 {
-  if(!c)
-    return 1;
-  // Die Umlaute sind ISO-8859-9 [5]
-/*
-  char buf[6000];
-  int inlen=strlen(c);
-  int outlen=sizeof(buf);
-//  UTF8Toisolat1((unsigned char *)buf, &outlen, (const unsigned char *)c, &inlen);
-  isolat1ToUTF8((unsigned char *)buf, &outlen, (const unsigned char *)c, &inlen);
-  buf[outlen]=0;
-  c=buf;
-*/
-  for(;*c; c++) {
-    switch ((unsigned char)*c) {
-      case '<':
-        fprintf(out, "&lt;");
-        break;
-      case '>':
-        fprintf(out, "&gt;");
-        break;
-      case '&':
-        fprintf(out, "&amp;");
-        break;
-      case '\"':
-        fprintf(out, "&quot;");
-        break;
-      case '\'':
-        fprintf(out, "&apos;");
-        break;
+	if(!c)
+		return 1;
+	// Die Umlaute sind ISO-8859-9 [5]
+	/*
+	  char buf[6000];
+	  int inlen=strlen(c);
+	  int outlen=sizeof(buf);
+	//  UTF8Toisolat1((unsigned char *)buf, &outlen, (const unsigned char *)c, &inlen);
+	  isolat1ToUTF8((unsigned char *)buf, &outlen, (const unsigned char *)c, &inlen);
+	  buf[outlen]=0;
+	  c=buf;
+	*/
+	for(; *c; c++) {
+		switch ((unsigned char)*c) {
+		case '<':
+			fprintf(out, "&lt;");
+			break;
+		case '>':
+			fprintf(out, "&gt;");
+			break;
+		case '&':
+			fprintf(out, "&amp;");
+			break;
+		case '\"':
+			fprintf(out, "&quot;");
+			break;
+		case '\'':
+			fprintf(out, "&apos;");
+			break;
 #if 0
-      case 0x81:
-      case 0x82:
-        break;
-      case 0x86:
-        if(withControlCodes)
-          fprintf(out, "<b>");
-        break;
-      case 0x87:
-        if(withControlCodes)
-          fprintf(out, "</b>");
-        break;
-      case 0x8a:
-        if(withControlCodes)
-          fprintf(out, "<br/>");
-        break;
-      default:
-        if (*c<32)
-          break;
-        if ((*c>=32) && (((unsigned char)*c)<128))
-          fprintf(out, "%c", *c);
-        else
-          fprintf(out, "&#%d;", *c);
+		case 0x81:
+		case 0x82:
+			break;
+		case 0x86:
+			if(withControlCodes)
+				fprintf(out, "<b>");
+			break;
+		case 0x87:
+			if(withControlCodes)
+				fprintf(out, "</b>");
+			break;
+		case 0x8a:
+			if(withControlCodes)
+				fprintf(out, "<br/>");
+			break;
+		default:
+			if (*c<32)
+				break;
+			if ((*c>=32) && (((unsigned char)*c)<128))
+				fprintf(out, "%c", *c);
+			else
+				fprintf(out, "&#%d;", *c);
 #else
-      default:
-        if ((unsigned char)*c<32)
-          break;
-          fprintf(out, "%c", *c);
+		default:
+			if ((unsigned char)*c<32)
+				break;
+			fprintf(out, "%c", *c);
 #endif
-     } // case
+		} // case
 
-  } // for
-  return 0;
+	} // for
+	return 0;
 }
 
 // Entfernt die ControlCodes aus dem String (-> String wird evtl. kuerzer)
 void removeControlCodes(char *string)
 {
-  if(!string)
-    return;
-  for(;*string; )
-    if (!((*string>=32) && (((unsigned char)*string)<128)))
-      memmove(string, string+1, strlen(string+1)+1);
-    else
-      string++;
-  return ;
+	if(!string)
+		return;
+	for(; *string; )
+		if (!((*string>=32) && (((unsigned char)*string)<128)))
+			memmove(string, string+1, strlen(string+1)+1);
+		else
+			string++;
+	return ;
 }
 
