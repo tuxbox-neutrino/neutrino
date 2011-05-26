@@ -756,6 +756,7 @@ miscsettings.infobar_disp_2 Logo/Kanalnummer
 miscsettings.infobar_disp_3 Logo+Kanalname/Signalbalken
 miscsettings.infobar_disp_4 Logo+Kanalname/Kanalnummer
 miscsettings.infobar_disp_5 Logo/Signalbalken
+miscsettings.infobar_disp_6 Logo+Kanalnummer/Signalbalken
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo Verz.
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter

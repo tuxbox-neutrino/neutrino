@@ -139,7 +139,7 @@ class CInfoViewer
 	void showFailure();
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();
-	int showChannelLogo(const t_channel_id logo_channel_id);
+	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
 	void showSNR();
 	void showInfoFile();
 	void loop(int fadeValue, bool show_dot ,bool fadeIn);
