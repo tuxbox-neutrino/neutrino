@@ -642,6 +642,9 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 	CMenuWidget* satInUse = new CMenuWidget(satprov_locale, NEUTRINO_ICON_SETTINGS, width);
 	satInUse->addIntroItems();
 	
+	//ensure, that we have no double options in satlist
+	satSelect->removeOptions();
+	
 	for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) 
 	{
 		/* printf("Adding sat menu for %s position %d\n", sit->second.name.c_str(), sit->first); */
