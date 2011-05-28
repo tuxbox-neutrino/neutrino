@@ -331,7 +331,7 @@ class CMenuOptionStringChooser : public CMenuItem
 		~CMenuOptionStringChooser();
 
 		void addOption(const char * value);
-		void removeOptions(void);
+		void removeOptions(){options.clear();};
 		int paint(bool selected, bool last = 0);
 		int getHeight(void) const
 		{
