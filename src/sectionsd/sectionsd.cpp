@@ -27,6 +27,7 @@
 //
 //
 
+#define NOISY_MESSAGE xprintf("NOISY_MESSAGE: unexpected execution in %s:%d, pleae report!\n", __func__, __LINE__)
 #include <config.h>
 #include <malloc.h>
 #include <dmxapi.h>
@@ -1059,6 +1060,7 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.insert(e);
 			mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.insert(e);
 		}
+else NOISY_MESSAGE;
 	}
 	unlockEvents();
 }
@@ -1105,6 +1107,7 @@ static void addEventTimes(const SIevent &evt)
 #endif
 static void addNVODevent(const SIevent &evt)
 {
+NOISY_MESSAGE;
 	SIevent *eptr = new SIevent(evt);
 
 	if (!eptr)
@@ -1721,6 +1724,7 @@ static bool AddServiceToAutoBouquets(const char *provname, const t_original_netw
 // Fuegt ein Service in alle Mengen ein
 static bool addService(const SIservice &s, const int is_actual)
 {
+NOISY_MESSAGE;
 	bool already_exists;
 	bool is_new = false;
 
@@ -2421,6 +2425,7 @@ static void commandDumpAllServices(int connfd, char* /*data*/, const unsigned /*
 
 	for (MySIservicesOrderUniqueKey::iterator s = mySIservicesOrderUniqueKey.begin(); s != mySIservicesOrderUniqueKey.end(); ++s)
 	{
+NOISY_MESSAGE;
 		count += 1 + snprintf(daten, MAX_SIZE_DATEN,
 				      PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 				      " %hu %hhu %d %d %d %d %u ",
@@ -3331,6 +3336,7 @@ static void commandCurrentNextInfoChannelID(int connfd, char *data, const unsign
 
 			if (si != mySIservicesOrderUniqueKey.end())
 			{
+NOISY_MESSAGE;
 				dprintf("[sectionsd] current service has%s scheduled events, and has%s present/following events\n", si->second->eitScheduleFlag() ? "" : " no", si->second->eitPresentFollowingFlag() ? "" : " no" );
 
 				if ( /*( !si->second->eitScheduleFlag() ) || */
@@ -3700,6 +3706,7 @@ static void commandActualEPGchannelID(int connfd, char *data, const unsigned dat
 
 static void commandGetEPGPrevNext(int connfd, char *data, const unsigned dataLength)
 {
+NOISY_MESSAGE;
 	struct sectionsd::msgResponseHeader responseHeader;
 	responseHeader.dataLength = 0;
 	char* msgData = NULL;
@@ -3911,6 +3918,7 @@ static void sendEventList(int connfd, const unsigned char serviceTyp1, const uns
 
 			if (s != mySIservicesOrderUniqueKey.end())
 			{
+NOISY_MESSAGE;
 				if (s->second->serviceTyp == serviceTyp1 || (serviceTyp2 && s->second->serviceTyp == serviceTyp2))
 				{
 					sname = s->second->serviceName;
@@ -4239,6 +4247,7 @@ static void commandEPGepgIDshort(int connfd, char *data, const unsigned dataLeng
 
 static void commandTimesNVODservice(int connfd, char *data, const unsigned dataLength)
 {
+NOISY_MESSAGE;
 	MySIservicesNVODorderUniqueKey::iterator si;
 	char *msgData = 0;
 	struct sectionsd::msgResponseHeader responseHeader;
@@ -4259,6 +4268,7 @@ static void commandTimesNVODservice(int connfd, char *data, const unsigned dataL
 
 	if (si != mySIservicesNVODorderUniqueKey.end())
 	{
+NOISY_MESSAGE;
 		dprintf("NVODServices: %u\n", si->second->nvods.size());
 
 		if (si->second->nvods.size())
@@ -7542,6 +7552,7 @@ static void *eitThread(void *)
 
 			if (si != mySIservicesOrderUniqueKey.end())
 			{
+NOISY_MESSAGE;
 				/* I'm not 100% sure what this is good for... */
 				// 1 == scheduled
 				// 2 == current/next
@@ -7703,6 +7714,7 @@ static void *eitThread(void *)
 
 						if (si != mySIservicesNVODorderUniqueKey.end())
 						{
+NOISY_MESSAGE;
 							// Ist ein nvod-event
 							writeLockEvents();
 
@@ -9155,6 +9167,7 @@ static void *cnThread(void *)
 
 				if (si != mySIservicesOrderUniqueKey.end())
 				{
+NOISY_MESSAGE;
 					dprintf("[sectionsd] current service has%s scheduled events, and has%s present/following events\n", si->second->eitScheduleFlag() ? "" : " no", si->second->eitPresentFollowingFlag() ? "" : " no" );
 
 					if ( /*( !si->second->eitScheduleFlag() ) || */
@@ -9595,6 +9608,7 @@ static void *cnThread(void *)
 		MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(uniqueServiceKey);
 		if (si != mySIservicesNVODorderUniqueKey.end())
 		{
+NOISY_MESSAGE;
 			dprintf("NVODServices: %u\n", si->second->nvods.size());
 
 			if (si->second->nvods.size()) {
