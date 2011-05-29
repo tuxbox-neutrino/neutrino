@@ -649,7 +649,8 @@ const char *dmx_filter_types [] = {
 	"actual transport stream, scheduled",
 	"other transport stream, now/next",
 	"other transport stream, scheduled 1",
-	"other transport stream, scheduled 2"
+	"other transport stream, scheduled 2",
+	"dummy filter2"
 };
 
 int DMX::change(const int new_filter_index, const int new_current_service)
@@ -687,7 +688,7 @@ int DMX::change(const int new_filter_index, const int new_current_service)
 		   does nothing in that case), so we can just continue here. */
 	}
 
-	if (sections_debug) { // friendly debug output...
+	if (1 /*sections_debug*/) { // friendly debug output...
 		if(pID==0x12 && filters[0].filter != 0x4e) { // Only EIT
 			printdate_ms(stderr);
 			fprintf(stderr, "changeDMX [EIT]-> %d (0x%x/0x%x) %s (%ld seconds)\n",

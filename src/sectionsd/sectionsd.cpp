@@ -7426,6 +7426,7 @@ static void *eitThread(void *)
 #else
 	dmxEIT.addfilter(0x60, 0xf0); //3  other TS, scheduled
 #endif
+	dmxEIT.addfilter(0x00, 0x00); //0 dummy filter
 
 	if (sections_debug) {
 		int policy;
@@ -7525,11 +7526,11 @@ static void *eitThread(void *)
 #endif
 
 			if (timeoutsDMX == -1)
-				dprintf("[eitThread] skipping to next filter(%d) (> DMX_HAS_ALL_SECTIONS_SKIPPING)\n", dmxEIT.filter_index+1 );
+				xprintf("[eitThread] skipping to next filter(%d) (> DMX_HAS_ALL_SECTIONS_SKIPPING)\n", dmxEIT.filter_index+1 );
 			else if (timeoutsDMX == -2)
-				dprintf("[eitThread] skipping to next filter(%d) (> DMX_HAS_ALL_CURRENT_SECTIONS_SKIPPING)\n", dmxEIT.filter_index+1 );
+				xprintf("[eitThread] skipping to next filter(%d) (> DMX_HAS_ALL_CURRENT_SECTIONS_SKIPPING)\n", dmxEIT.filter_index+1 );
 			else
-				dprintf("[eitThread] skipping to next filter(%d) (timeouts %d)\n", dmxEIT.filter_index+1, timeoutsDMX);
+				xprintf("[eitThread] skipping to next filter(%d) (timeouts %d)\n", dmxEIT.filter_index+1, timeoutsDMX);
 			if ( dmxEIT.filter_index + 1 < (signed) dmxEIT.filters.size() )
 			{
 				timeoutsDMX = 0;
@@ -7588,7 +7589,7 @@ NOISY_MESSAGE;
 
 		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS && scanning && !channel_is_blacklisted)
 		{
-			dprintf("[eitThread] skipping to next filter(%d) (> DMX_TIMEOUT_SKIPPING %d)\n", dmxEIT.filter_index+1, timeoutsDMX);
+			xprintf("[eitThread] skipping to next filter(%d) (> DMX_TIMEOUT_SKIPPING %d)\n", dmxEIT.filter_index+1, timeoutsDMX);
 			if ( dmxEIT.filter_index + 1 < (signed) dmxEIT.filters.size() )
 			{
 				dmxEIT.change(dmxEIT.filter_index + 1);
@@ -7620,7 +7621,7 @@ NOISY_MESSAGE;
 				gettimeofday(&now, NULL);
 				TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
 				abs_wait.tv_sec += TIME_EIT_SCHEDULED_PAUSE;
-				dprintf("dmxEIT: going to sleep for %d seconds...\n", TIME_EIT_SCHEDULED_PAUSE);
+				xprintf("dmxEIT: going to sleep for %d seconds...\n", TIME_EIT_SCHEDULED_PAUSE);
 				if(sectionsd_stop)
 					break;
 
@@ -7651,7 +7652,7 @@ NOISY_MESSAGE;
 		{
 			readLockMessaging();
 
-			dprintf("[eitThread] skipping to next filter(%d) (> TIME_EIT_SKIPPING)\n", dmxEIT.filter_index+1 );
+			xprintf("[eitThread] skipping to next filter(%d) (> TIME_EIT_SKIPPING)\n", dmxEIT.filter_index+1 );
 			if ( dmxEIT.filter_index + 1 < (signed) dmxEIT.filters.size() )
 			{
 				dmxEIT.change(dmxEIT.filter_index + 1);
