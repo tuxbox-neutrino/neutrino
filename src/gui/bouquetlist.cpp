@@ -249,6 +249,9 @@ int CBouquetList::doMenu()
 					channels = &zapitBouquet->tvChannels;
 					for(int li = 0; li < (int) channels->size(); li++)
 						tmp->addService((*channels)[li]);
+					channels = &zapitBouquet->radioChannels;
+					for(int li = 0; li < (int) channels->size(); li++)
+						tmp->addService((*channels)[li]);
 					return 1;
 					break;
 				default:
@@ -257,7 +260,7 @@ int CBouquetList::doMenu()
 		}
 		return -1;
 	} else {
-		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i ++);
+		menu->addItem(new CMenuForwarder(LOCALE_BOUQUETEDITOR_DELETE, true, NULL, selector, cnt, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), old_selected == i ++);
 		menu->exec(NULL, "");
 		delete menu;
 		delete selector;
