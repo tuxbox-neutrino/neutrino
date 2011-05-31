@@ -521,9 +521,7 @@ void CListFrame::scrollLineDown(const int lines)
 			refreshLine(m_nSelectedLine);
 		}
 	} else {
-		m_nCurrentPage = 0;
-		m_nCurrentLine = m_nSelectedLine = 0;
-		refreshList();
+		setSelectedLine(0);
 	}
 
 }
@@ -546,9 +544,6 @@ void CListFrame::scrollLineUp(const int lines)
 			refreshLine(m_nSelectedLine);
 		}
 	} else if(m_nSelectedLine == 0) {
-		//m_nCurrentPage = m_nNrOfPages - 1;
-		//m_nCurrentLine = m_nSelectedLine = m_nNrOfLines - 1;
-		//refresh();
 		setSelectedLine(m_nNrOfLines - 1);
 	}
 }
