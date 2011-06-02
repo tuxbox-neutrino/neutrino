@@ -40,4 +40,5 @@ install_DATA = \
 	nds_green.png nds_white.png nds_yellow.png \
 	powervu_green.png powervu_white.png powervu_yellow.png \
 	seca_green.png seca_white.png seca_yellow.png \
-	via_green.png via_white.png via_yellow.png
+	via_green.png via_white.png via_yellow.png \
+	radiotextget.png radiotextoff.png radiotextwait.png
