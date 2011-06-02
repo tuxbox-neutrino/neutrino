@@ -274,6 +274,7 @@ static void initGlobals(void)
 	g_PluginList    = NULL;
 	InfoClock 	= NULL;
 	g_CamHandler 	= NULL;
+	g_Radiotext     = NULL;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -468,6 +469,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_show_var_hdd   = configfile.getBool("infobar_show_var_hdd"  , true );
 	g_settings.show_infomenu = configfile.getInt32("show_infomenu", 0 );
 	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 0 );
+	g_settings.radiotext_enable = configfile.getBool("radiotext_enable"          , false);
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
@@ -1021,7 +1023,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("infobar_show_var_hdd"  , g_settings.infobar_show_var_hdd  );
 	configfile.setInt32("show_infomenu"  , g_settings.show_infomenu  );
 	configfile.setInt32("infobar_show_res"  , g_settings.infobar_show_res  );
-
+	configfile.setBool("radiotext_enable"          , g_settings.radiotext_enable);
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
 	configfile.setBool("audio_DolbyDigital"   , g_settings.audio_DolbyDigital   );
@@ -3819,6 +3821,11 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 void CNeutrinoApp::tvMode( bool rezap )
 {
 	if(mode==mode_radio ) {
+		if (g_settings.radiotext_enable && g_Radiotext) {
+			delete g_Radiotext;
+			g_Radiotext = NULL;
+		}
+		
 		videoDecoder->StopPicture();
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_TV_MODE, false );
@@ -4075,6 +4082,11 @@ printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 		channelList->zapTo( firstchannel.channelNumber -1 );
 	}
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+
+	if (g_settings.radiotext_enable) {
+		g_Radiotext = new CRadioText;
+	}
+	
 }
 
 void CNeutrinoApp::startNextRecording()

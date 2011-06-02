@@ -794,6 +794,7 @@ const char * locale_real_names[] =
 	"miscsettings.noaviawatchdog",
 	"miscsettings.noenxwatchdog",
 	"miscsettings.pmtupdate",
+	"miscsettings.radiotext",
 	"miscsettings.show_infomenu",
 	"miscsettings.shutdown_count",
 	"miscsettings.shutdown_count_hint1",

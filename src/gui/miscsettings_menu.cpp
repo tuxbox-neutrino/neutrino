@@ -227,6 +227,9 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	//standby after boot
 	ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_START_TOSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	CRadiotextNotifier *radiotextNotifier = new CRadiotextNotifier;
+	ms_general->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, radiotextNotifier));
+
 	ms_general->addItem(new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_ZAPTO_PRE_TIME, &g_settings.zapto_pre_time, true, 0, 10));
 	//fan speed
 	if (g_info.has_fan)

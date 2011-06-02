@@ -767,6 +767,7 @@ miscsettings.infobar_show_var_hdd Fill level (var & hdd )
 miscsettings.noaviawatchdog enable AVIA watchdog
 miscsettings.noenxwatchdog enable eNX watchdog
 miscsettings.pmtupdate enable pmt update
+miscsettings.radiotext Radiotext
 miscsettings.show_infomenu 
 miscsettings.shutdown_count In stabdby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby

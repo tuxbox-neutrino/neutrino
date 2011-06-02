@@ -129,6 +129,8 @@ class CProgressBar
 						const int max_value);
 
 		void reset() { last_width = -1; } /* force update on next paint */
+		
+		void hide();
 };
 					
 #endif /* __gui_widget_progressbar_h__ */

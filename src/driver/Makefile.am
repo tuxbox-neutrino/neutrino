@@ -33,7 +33,10 @@ libneutrino_driver_a_SOURCES = \
 	shutdown_count.cpp \
 	genpsi.c \
 	streamts.cpp \
-	rfmod.cpp
+	rfmod.cpp \
+	radiotools.cpp \
+	radiotext.cpp \
+	ringbuffer.c
 
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \

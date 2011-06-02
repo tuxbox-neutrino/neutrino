@@ -1126,6 +1126,13 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 	CZapitChannel* chan = chanlist[pos];
 	printf("**************************** CChannelList::zapTo me %p %s tuned %d new %d %s -> %llx\n", this, name.c_str(), tuned, pos, chan->name.c_str(), chan->channel_id);
 	if ( pos!=(int)tuned ) {
+
+		if ((g_settings.radiotext_enable) && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio) && (g_Radiotext))
+		{
+			// stop radiotext PES decoding before zapping
+			g_Radiotext->radiotext_stop();
+		}
+
 		tuned = pos;
 		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
 		// TODO check is it possible bouquetList is NULL ?

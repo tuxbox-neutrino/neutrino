@@ -399,6 +399,27 @@ bool CSectionsdConfigNotifier::changeNotify(const neutrino_locale_t, void *)
         return true;
 }
 
+bool CRadiotextNotifier::changeNotify(const neutrino_locale_t, void *)
+{
+	if (g_settings.radiotext_enable)
+	{
+		if (g_Radiotext == NULL)
+			g_Radiotext = new CRadioText;
+		if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
+			g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
+	}
+	else
+	{
+		// stop radiotext PES decoding
+		if (g_Radiotext)
+			g_Radiotext->radiotext_stop();
+		delete g_Radiotext;
+		g_Radiotext = NULL;
+	}
+
+	return true;
+}
+
 bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
 {
 	if ((*(int *)data) != 0)

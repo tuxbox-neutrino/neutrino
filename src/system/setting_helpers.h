@@ -314,4 +314,10 @@ public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
 
+class CRadiotextNotifier : public CChangeObserver
+{
+	public:
+		 bool changeNotify(const neutrino_locale_t, void * Data);
+};
+
 #endif

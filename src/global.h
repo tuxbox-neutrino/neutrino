@@ -56,6 +56,7 @@
 #include "gui/infoviewer.h"
 #include "gui/eventlist.h"
 #include "gui/videosettings.h"
+#include "driver/radiotext.h"
 
 #ifndef NEUTRINO_CPP
   #define NEUTRINO_CPP extern
@@ -97,7 +98,7 @@ NEUTRINO_CPP CLocaleManager		*g_Locale;
 #if HAVE_COOL_HARDWARE
 NEUTRINO_CPP RFmod		*g_RFmod;
 #endif
-
 NEUTRINO_CPP CVideoSettings	*g_videoSettings;
+NEUTRINO_CPP CRadioText	*g_Radiotext;
 
 #endif /* __neutrino_global_h__ */

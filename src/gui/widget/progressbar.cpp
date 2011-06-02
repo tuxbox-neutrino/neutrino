@@ -82,12 +82,18 @@ void CProgressBar::paintProgressBar (	const int pos_x,
 		  upper_labeltext, uppertext_col, iconfile, paintZero);
 }
 
-void CProgressBar::paintProgressBar2(const int pos_x, const int pos_y,
-				     const int value, const int max_value,
-				     const fb_pixel_t activebar_col, const fb_pixel_t passivebar_col,
-				     const fb_pixel_t frame_col, const fb_pixel_t shadowbar_col,
-				     const char * upper_labeltext, const uint8_t uppertext_col,
-				     const char * iconfile, bool paintZero)
+void CProgressBar::paintProgressBar2(const int pos_x, 
+				     const int pos_y,
+				     const int value, 
+				     const int max_value,
+				     const fb_pixel_t activebar_col, 
+				     const fb_pixel_t passivebar_col,
+				     const fb_pixel_t frame_col, 
+				     const fb_pixel_t shadowbar_col,
+				     const char * upper_labeltext, 
+				     const uint8_t uppertext_col,
+				     const char * iconfile, 
+				     bool paintZero)
 {
 	if (height < 0 || width < 0)
 	{

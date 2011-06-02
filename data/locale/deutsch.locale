@@ -767,6 +767,7 @@ miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
 miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
 miscsettings.noenxwatchdog eNX-Watchdog aktivieren
 miscsettings.pmtupdate PMT Aktualisierung verwenden
+miscsettings.radiotext Radiotext
 miscsettings.show_infomenu 
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Bitte warten...

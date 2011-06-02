@@ -66,6 +66,14 @@ class CInfoViewer
 	int            BoxStartY;
 	int            ButtonWidth;
 
+        // dimensions of radiotext window
+        int             rt_dx;
+        int             rt_dy;
+        int             rt_x;
+        int             rt_y;
+        int             rt_h;
+        int             rt_w;
+	
 	std::string ChannelName;
 
 	int            ChanNameX;
@@ -125,7 +133,7 @@ class CInfoViewer
 	void showButton_SubServices();
 	
 	void showIcon_16_9();
-	
+	void showIcon_RadioText(bool rt_available) const;
 	void showIcon_CA_Status(int);
 	void paint_ca_icons(int, char*, int&);
 	void paintCA_bar(int,int);
@@ -141,6 +149,8 @@ class CInfoViewer
    	void showLcdPercentOver();
 	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
 	void showSNR();
+	void showRadiotext();
+	void killRadiotext();
 	void showInfoFile();
 	void loop(int fadeValue, bool show_dot ,bool fadeIn);
 	std::string eventname;
