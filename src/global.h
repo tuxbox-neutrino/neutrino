@@ -40,6 +40,7 @@
 
 #include "driver/fontrenderer.h"
 #include "driver/rcinput.h"
+#include "driver/radiotext.h"
 #if HAVE_COOL_HARDWARE
 #include "driver/vfd.h"
 #include "driver/rfmod.h"
@@ -56,7 +57,7 @@
 #include "gui/infoviewer.h"
 #include "gui/eventlist.h"
 #include "gui/videosettings.h"
-#include "driver/radiotext.h"
+
 
 #ifndef NEUTRINO_CPP
   #define NEUTRINO_CPP extern
@@ -94,11 +95,11 @@ NEUTRINO_CPP  CEpgData		*g_EpgData;
 NEUTRINO_CPP  CInfoViewer	*g_InfoViewer;
 NEUTRINO_CPP  EventList		*g_EventList;
 
-NEUTRINO_CPP CLocaleManager		*g_Locale;
+NEUTRINO_CPP CLocaleManager	*g_Locale;
 #if HAVE_COOL_HARDWARE
 NEUTRINO_CPP RFmod		*g_RFmod;
 #endif
 NEUTRINO_CPP CVideoSettings	*g_videoSettings;
-NEUTRINO_CPP CRadioText	*g_Radiotext;
+NEUTRINO_CPP CRadioText		*g_Radiotext;
 
 #endif /* __neutrino_global_h__ */
