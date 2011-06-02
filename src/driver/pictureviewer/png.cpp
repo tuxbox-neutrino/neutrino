@@ -107,7 +107,7 @@ int fh_png_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 	if (width * 3 != png_get_rowbytes(png_ptr, info_ptr))
 	{
 		printf("[png.cpp]: Error processing %s - please report (including image).\n", name);
-		printf("           width: %lu rowbytes: %lu\n", width, png_get_rowbytes(png_ptr, info_ptr));
+		printf("           width: %lu rowbytes: %lu\n", (unsigned long)width, (unsigned long)png_get_rowbytes(png_ptr, info_ptr));
 		fclose(fh);
 		return(FH_ERROR_FORMAT);
 	}
