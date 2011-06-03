@@ -44,9 +44,12 @@
 
 #include <driver/screen_max.h>
 
+#include <audio.h>
+
 #include <system/debug.h>
 
 extern CAudioSetupNotifier	* audioSetupNotifier;
+extern cAudio *audioDecoder;
 
 CAudioSetup::CAudioSetup(bool wizard_mode)
 {
@@ -136,21 +139,20 @@ void CAudioSetup::showAudioSetup()
 	//clock rec
 //	CMenuOptionChooser * as_oj_clockrec new CMenuOptionChooser(LOCALE_AUDIOMENU_CLOCKREC, &g_settings.clockrec, AUDIOMENU_CLOCKREC_OPTIONS, AUDIOMENU_CLOCKREC_OPTION_COUNT, true, audioSetupNotifier);
 
-	//SRS volumetech separator
-	CMenuSeparator * as_sep_srs 		= new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIO_SRS_IQ);
-	
-	//SRS on/off
-	CMenuOptionChooser * as_oj_srsonoff 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_IQ, &g_settings.srs_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier);
-	
+	//SRS
 	//SRS algo
-	CMenuOptionChooser * as_oj_algo 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_ALGO, &g_settings.srs_algo, AUDIOMENU_SRS_OPTIONS, AUDIOMENU_SRS_OPTION_COUNT, true, audioSetupNotifier);
+	CMenuOptionChooser * as_oj_algo 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_ALGO, &g_settings.srs_algo, AUDIOMENU_SRS_OPTIONS, AUDIOMENU_SRS_OPTION_COUNT, g_settings.srs_enable, audioSetupNotifier);
 	
 	//SRS noise manage
-	CMenuOptionChooser * as_oj_noise 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_NMGR, &g_settings.srs_nmgr_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, audioSetupNotifier);
+	CMenuOptionChooser * as_oj_noise 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_NMGR, &g_settings.srs_nmgr_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.srs_enable, audioSetupNotifier);
 	
 	//SRS reverence volume
-	CMenuOptionNumberChooser * as_oj_volrev = new CMenuOptionNumberChooser(LOCALE_AUDIO_SRS_VOLUME, &g_settings.srs_ref_volume, true, 1, 100, audioSetupNotifier);
-
+	CMenuOptionNumberChooser * as_oj_volrev = new CMenuOptionNumberChooser(LOCALE_AUDIO_SRS_VOLUME, &g_settings.srs_ref_volume, g_settings.srs_enable, 1, 100, audioSetupNotifier);
+	
+	//SRS on/off
+	CTruVolumeNotifier truevolSetupNotifier(as_oj_algo, as_oj_noise, as_oj_volrev);
+	CMenuOptionChooser * as_oj_srsonoff 	= new CMenuOptionChooser(LOCALE_AUDIO_SRS_IQ, &g_settings.srs_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &truevolSetupNotifier);
+	
 #if 0
 	CStringInput * audio_PCMOffset = new CStringInput(LOCALE_AUDIOMENU_PCMOFFSET, g_settings.audio_PCMOffset, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ", audioSetupNotifier);
 	CMenuForwarder *mf = new CMenuForwarder(LOCALE_AUDIOMENU_PCMOFFSET, true, g_settings.audio_PCMOffset, audio_PCMOffset );
@@ -171,7 +173,7 @@ void CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_vsteps);
 //	audioSettings->addItem(as_clockrec);
 	//---------------------------------------------------------
-	audioSettings->addItem(as_sep_srs);
+	audioSettings->addItem(GenericMenuSeparatorLine);
 	audioSettings->addItem(as_oj_srsonoff);
 	audioSettings->addItem(as_oj_algo);
 	audioSettings->addItem(as_oj_noise);
@@ -191,5 +193,27 @@ void CAudioSetup::setWizardMode(bool mode)
 {
 	printf("[neutrino audio setup] %s set audio settings menu to mode %d...\n", __FUNCTION__, mode);
 	is_wizard = mode;
+}
+
+
+CTruVolumeNotifier::CTruVolumeNotifier(CMenuOptionChooser* o1, CMenuOptionChooser* o2, CMenuOptionNumberChooser *n1)
+{
+   toDisable_oj[0]=o1;
+   toDisable_oj[1]=o2;
+   toDisable_nj=n1;
+}
+
+bool CTruVolumeNotifier::changeNotify(const neutrino_locale_t, void * data)
+{
+	int active = (*(int *)data);
+	
+	for (int i = 0; i < 2; i++)
+		toDisable_oj[i]->setActive(active);
+	
+	toDisable_nj->setActive(active);
+	
+	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
+  
+   return true;
 }
 
