@@ -876,6 +876,8 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 	if ((already_exists) && (SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF)) {
 		si->second->contentClassification = evt.contentClassification;
 		si->second->userClassification = evt.userClassification;
+		si->second->itemDescription = evt.itemDescription;
+		si->second->item = evt.item;
 		si->second->vps = evt.vps;
 		if ((evt.getExtendedText().length() > 0) &&
 				(evt.times.begin()->startzeit < zeit + secondsExtendedTextCache))
