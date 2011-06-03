@@ -756,8 +756,8 @@ printf("***************************** rec dir %s timeshift dir %s\n", g_settings
 	}
 	strcpy( g_settings.parentallock_pincode, configfile.getString( "parentallock_pincode", "0000" ).c_str() );
 
-	for (int i = 0; i < TIMING_SETTING_COUNT; i++)
-		g_settings.timing[i] = configfile.getInt32(locale_real_names[timing_setting_name[i]], default_timing[i]);
+	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
+		g_settings.timing[i] = configfile.getInt32(locale_real_names[timing_setting[i].name], timing_setting[i].default_timing);
 
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = configfile.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
@@ -1271,8 +1271,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString( "parentallock_pincode", g_settings.parentallock_pincode );
 
 	//timing
-	for (int i = 0; i < TIMING_SETTING_COUNT; i++)
-		configfile.setInt32(locale_real_names[timing_setting_name[i]], g_settings.timing[i]);
+	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
+		configfile.setInt32(locale_real_names[timing_setting[i].name], g_settings.timing[i]);
 
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		configfile.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
@@ -1758,7 +1758,7 @@ void CNeutrinoApp::SetupFonts()
 **************************************************************************************/
 void CNeutrinoApp::SetupTiming()
 {
-	for (int i = 0; i < TIMING_SETTING_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 		sprintf(g_settings.timing_string[i], "%d", g_settings.timing[i]);
 }
 

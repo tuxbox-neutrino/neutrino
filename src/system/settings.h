@@ -129,14 +129,18 @@ struct SNeutrinoSettings
 	char ifname[10];
 
 	//timing
-#define TIMING_SETTING_COUNT 6
 	enum TIMING_SETTINGS {
 		TIMING_MENU        = 0,
 		TIMING_CHANLIST    = 1,
 		TIMING_EPG         = 2,
 		TIMING_INFOBAR     = 3,
-		TIMING_FILEBROWSER = 4,
-		TIMING_NUMERICZAP  = 5
+		TIMING_INFOBAR_RADIO = 4,
+//		TIMING_INFOBAR_MOVIEPLAYER,
+//		TIMING_VOLUMEBAR,
+		TIMING_FILEBROWSER = 5,
+		TIMING_NUMERICZAP  = 6,
+		
+		TIMING_SETTING_COUNT
 	};
 
 	int  timing       [TIMING_SETTING_COUNT]   ;
@@ -513,8 +517,24 @@ struct SNeutrinoSettings
 
 /* some default Values */
 
-extern const int               default_timing     [TIMING_SETTING_COUNT];
-extern const neutrino_locale_t timing_setting_name[TIMING_SETTING_COUNT];
+typedef struct time_settings_t
+{
+	const int default_timing;
+	const neutrino_locale_t name;
+} time_settings_struct_t;
+
+const time_settings_struct_t timing_setting[SNeutrinoSettings::TIMING_SETTING_COUNT] =
+{
+	{ 0,	LOCALE_TIMING_MENU        },
+	{ 60,	LOCALE_TIMING_CHANLIST    },
+	{ 240,	LOCALE_TIMING_EPG         },
+	{ 6,	LOCALE_TIMING_INFOBAR     },
+ 	{ 0,	LOCALE_TIMING_INFOBAR_RADIO },
+// 	{ 6,	LOCALE_TIMING_INFOBAR_MOVIEPLAYER},
+// 	{ 3,	LOCALE_TIMING_VOLUMEBAR   },
+	{ 60,	LOCALE_TIMING_FILEBROWSER },
+	{ 3,	LOCALE_TIMING_NUMERICZAP  }
+};
 
 // lcdd
 #define DEFAULT_VFD_BRIGHTNESS			15
@@ -542,6 +562,7 @@ extern const neutrino_locale_t timing_setting_name[TIMING_SETTING_COUNT];
 #define SHADOW_OFFSET                   6
 
 /* end default values */
+
 
 struct SglobalInfo
 {

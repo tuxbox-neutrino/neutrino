@@ -156,8 +156,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	else if(actionKey=="osd.def") {
-		for (int i = 0; i < TIMING_SETTING_COUNT; i++)
-			g_settings.timing[i] = default_timing[i];
+		for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
+			g_settings.timing[i] = timing_setting[i].default_timing;
 
 		CNeutrinoApp::getInstance()->SetupTiming();
 		return menu_return::RETURN_REPAINT;
@@ -537,10 +537,10 @@ void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 {
 	menu_timeout->addIntroItems(LOCALE_COLORMENU_TIMING);
 	
-	for (int i = 0; i < TIMING_SETTING_COUNT; i++)
+	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
-		CStringInput * timing_item = new CStringInput(timing_setting_name[i], g_settings.timing_string[i], 3, LOCALE_TIMING_HINT_1, LOCALE_TIMING_HINT_2, "0123456789 ", &timingsettingsnotifier);
-		menu_timeout->addItem(new CMenuForwarder(timing_setting_name[i], true, g_settings.timing_string[i], timing_item));
+		CStringInput * timing_item = new CStringInput(timing_setting[i].name, g_settings.timing_string[i], 3, LOCALE_TIMING_HINT_1, LOCALE_TIMING_HINT_2, "0123456789 ", &timingsettingsnotifier);
+		menu_timeout->addItem(new CMenuForwarder(timing_setting[i].name, true, g_settings.timing_string[i], timing_item));
 	}
 
 	menu_timeout->addItem(GenericMenuSeparatorLine);
