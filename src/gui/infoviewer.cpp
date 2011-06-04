@@ -873,7 +873,7 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 					res = messages_return::cancel_info;
 				}
 			}
-		} else if (fileplay && !CMoviePlayerGui::getInstance().timeshift && ( (msg == (neutrino_msg_t) g_settings.mpkey_pause) || (msg == (neutrino_msg_t) g_settings.mpkey_rewind) || (msg == (neutrino_msg_t) g_settings.mpkey_play) || (msg == (neutrino_msg_t) g_settings.mpkey_forward) || (msg == (neutrino_msg_t) g_settings.mpkey_stop)) ) {
+		} else if (fileplay && !CMoviePlayerGui::getInstance().timeshift /* && ( (msg == (neutrino_msg_t) g_settings.mpkey_pause) || (msg == (neutrino_msg_t) g_settings.mpkey_rewind) || (msg == (neutrino_msg_t) g_settings.mpkey_play) || (msg == (neutrino_msg_t) g_settings.mpkey_forward) || (msg == (neutrino_msg_t) g_settings.mpkey_stop)) */ ) {
 			g_RCInput->postMsg (msg, data);
 			res = messages_return::cancel_info;
 		}
