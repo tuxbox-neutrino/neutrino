@@ -990,7 +990,7 @@ void CMoviePlayerGui::PlayFile(void)
 				playback->SetSpeed(speed);
 			}
 			if (!timeshift)
-				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, position, duration);
+				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, duration, position);
 
 		} else if (msg == (neutrino_msg_t) g_settings.mpkey_bookmark) {
 			// is there already a bookmark activity?
@@ -1122,7 +1122,7 @@ void CMoviePlayerGui::PlayFile(void)
 			update_lcd = true;
 
 			if (!timeshift)
-				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, position, duration);
+				callInfoViewer(p_movie_info->epgTitle, p_movie_info->epgInfo1, p_movie_info->epgChannel, duration, position);
 
 			if (!FileTime.IsVisible()) {
 				if (g_settings.mode_clock)
