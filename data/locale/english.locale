@@ -1399,6 +1399,7 @@ timing.filebrowser Filebrowser
 timing.hint_1 Time in sec. After this time the
 timing.hint_2 infobar will be faded out.
 timing.infobar Infobar
+timing.infobar_movieplayer Infobar (movie mode)
 timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap

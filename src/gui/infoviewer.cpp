@@ -772,6 +772,9 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 		case NeutrinoMessages::mode_radio:
 				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO]);
 				break;
+		case NeutrinoMessages::mode_ts:
+				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE]);
+				break;
 		default:
 				timeoutEnd = CRCInput::calcTimeoutEnd(6); 
 				break;
