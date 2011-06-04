@@ -221,10 +221,6 @@ int CStreamInfo2::doSignalStrengthLoop ()
 
 		paint_signal_fe(rate, signal);
 
-		signal.old_sig = signal.sig;
-		signal.old_snr = signal.snr;
-		signal.old_ber = signal.ber;
-
 		// switch paint mode
 		if (msg == CRCInput::RC_red || msg == CRCInput::RC_blue || msg == CRCInput::RC_green || msg == CRCInput::RC_yellow) {
 			hide ();
@@ -335,11 +331,11 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	g_Font[font_small]->RenderString(maxmin_x, y1 + (sheight * 3) +5, fw*3, "min", COL_INFOBAR, 0, true);
 
 
+	s_old.ber = s_old.max_ber = s_old.min_ber = -1;
+	s_old.sig = s_old.max_sig = s_old.min_sig = -1;
+	s_old.snr = s_old.max_snr = s_old.min_snr = -1;
+	br_old.short_average = br_old.max_short_average = br_old.min_short_average = -1000;
 	sigBox_pos = 0;
-
-	signal.old_sig = 1;
-	signal.old_snr = 1;
-	signal.old_ber = 1;
 
 //	feSignal s = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 //	paint_signal_fe(rate, signal);
@@ -359,9 +355,6 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 
 	long value = (long) (bit_s / 1000ULL);
 
-	SignalRenderStr(value,     sig_text_rate_x, yt + sheight);
-	SignalRenderStr(br.max_short_average/ 1000ULL, sig_text_rate_x, yt);
-	SignalRenderStr(br.min_short_average/ 1000ULL, sig_text_rate_x, yt + (sheight * 2));
 	if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ){
 		yd = y_signal_fe (value, scaling, sigBox_h);// Video + Audio
 	} else {
@@ -376,31 +369,43 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 		old_y = sigBox_y+sigBox_h-yd;
 	}
 
-	if (s.ber != s.old_ber) {
-		SignalRenderStr(s.ber,     sig_text_ber_x, yt + sheight);
-		SignalRenderStr(s.max_ber, sig_text_ber_x, yt);
-		SignalRenderStr(s.min_ber, sig_text_ber_x, yt + (sheight * 2));
-	}
 	yd = y_signal_fe (s.ber, 4000, sigBox_h);
 	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_RED); //red
 
-
-	if (s.sig != s.old_sig) {
-		SignalRenderStr(s.sig,     sig_text_sig_x, yt + sheight);
-		SignalRenderStr(s.max_sig, sig_text_sig_x, yt);
-		SignalRenderStr(s.min_sig, sig_text_sig_x, yt + (sheight * 2));
-	}
 	yd = y_signal_fe (s.sig, 65000, sigBox_h);
 	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_GREEN); //green
 
-
-	if (s.snr != s.old_snr) {
-		SignalRenderStr(s.snr,     sig_text_snr_x, yt + sheight);
-		SignalRenderStr(s.max_snr, sig_text_snr_x, yt);
-		SignalRenderStr(s.min_snr, sig_text_snr_x, yt + (sheight * 2));
-	}
 	yd = y_signal_fe (s.snr, 65000, sigBox_h);
 	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_BLUE); //blue
+
+	if (s.max_ber != s_old.max_ber)
+		SignalRenderStr(s_old.max_ber, s.max_ber, sig_text_ber_x, yt);
+	if (s.ber != s_old.ber)
+		SignalRenderStr(s_old.ber,     s.ber,     sig_text_ber_x, yt + sheight);
+	if (s.min_ber != s_old.min_ber)
+		SignalRenderStr(s_old.min_ber, s.min_ber, sig_text_ber_x, yt + (sheight * 2));
+
+	if (s.max_snr != s_old.max_snr)
+		SignalRenderStr(s_old.max_snr, s.max_snr, sig_text_snr_x, yt);
+	if (s.snr != s_old.snr)
+		SignalRenderStr(s_old.snr,     s.snr,     sig_text_snr_x, yt + sheight);
+	if (s.min_snr != s_old.min_snr)
+		SignalRenderStr(s_old.min_snr, s.min_snr, sig_text_snr_x, yt + (sheight * 2));
+
+	if (s.max_sig != s_old.max_sig)
+		SignalRenderStr(s_old.max_sig, s.max_sig, sig_text_sig_x, yt);
+	if (s.sig != s_old.sig)
+		SignalRenderStr(s_old.sig,     s.sig,     sig_text_sig_x, yt + sheight);
+	if (s.min_sig != s_old.min_sig)
+		SignalRenderStr(s_old.min_sig, s.min_sig, sig_text_sig_x, yt + (sheight * 2));
+
+	if (br.max_short_average / 1000 != br_old.max_short_average / 1000)
+		SignalRenderStr(br_old.max_short_average / 1000, br.max_short_average / 1000ULL, sig_text_rate_x, yt);
+	SignalRenderStr(222222,                          value,                          sig_text_rate_x, yt + sheight);
+	if (br.min_short_average / 1000 != br_old.min_short_average / 1000)
+		SignalRenderStr(br_old.min_short_average / 1000, br.min_short_average / 1000ULL, sig_text_rate_x, yt + (sheight * 2));
+	memcpy(&s_old, &s, sizeof(s));
+	memcpy(&br_old, &br, sizeof(br));
 }
 
 // -- calc y from max_range and max_y
@@ -418,14 +423,14 @@ int CStreamInfo2::y_signal_fe (unsigned long value, unsigned long max_value, int
 	return (int) l;
 }
 
-void CStreamInfo2::SignalRenderStr(unsigned int value, int _x, int _y)
+void CStreamInfo2::SignalRenderStr(unsigned int oldvalue, unsigned int value, int _x, int _y)
 {
 	char str[30];
-	int fw = g_Font[font_small]->getWidth();
-	fw *=(fw>17)?5:6;
+	sprintf(str,"%6u", oldvalue);
+	int fw = g_Font[font_small]->getRenderWidth(str);
 	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUHEAD_PLUS_0);
 	sprintf(str,"%6u",value);
-	g_Font[font_small]->RenderString(_x, _y + 5, fw, str, COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x, _y + 5, width - x, str, COL_INFOBAR, 0, true);
 }
 
 void CStreamInfo2::paint (int /*mode*/)
