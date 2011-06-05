@@ -71,6 +71,7 @@ CLCD::CLCD()
 	volume = 0;
 	timeout_cnt = 0;
 	has_lcd = true;
+	clearClock = 0;
 }
 
 CLCD* CLCD::getInstance()
