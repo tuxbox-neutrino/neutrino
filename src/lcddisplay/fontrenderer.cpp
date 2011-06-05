@@ -35,13 +35,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-/* tested with freetype 2.3.9, and 2.1.4 */
-#if FREETYPE_MAJOR >= 2 && FREETYPE_MINOR >= 3
-#define FT_NEW_CACHE_API
-#endif
-
 FT_Error LcdFontRenderClass::myFTC_Face_Requester(FTC_FaceID  face_id,
-                            FT_Library  library,
+                            FT_Library  /*library*/,
                             FT_Pointer  request_data,
                             FT_Face*    aface)
 {
@@ -99,13 +94,13 @@ void LcdFontRenderClass::InitFontCache()
 FT_Error LcdFontRenderClass::FTC_Face_Requester(FTC_FaceID  face_id,
                             FT_Face*    aface)
 {
-	fontListEntry *font=(fontListEntry *)face_id;
-	if (!font)
+	fontListEntry *f=(fontListEntry *)face_id;
+	if (!f)
 		return -1;
-	printf("[LCDFONT] FTC_Face_Requester (%s/%s)\n", font->family, font->style);
+	printf("[LCDFONT] FTC_Face_Requester (%s/%s)\n", f->family, f->style);
 
 	int error;
-	if ((error=FT_New_Face(library, font->filename, 0, aface)))
+	if ((error=FT_New_Face(library, f->filename, 0, aface)))
 	{
 		printf(" failed: %i\n", error);
 		return error;
@@ -128,17 +123,10 @@ FTC_FaceID LcdFontRenderClass::getFaceID(const char *family, const char *style)
 	return 0;
 }
 
-#ifdef FT_NEW_CACHE_API
-FT_Error LcdFontRenderClass::getGlyphBitmap(FTC_ImageType font, FT_ULong glyph_index, FTC_SBit *sbit)
+FT_Error LcdFontRenderClass::getGlyphBitmap(FTC_ImageType f, FT_ULong glyph_index, FTC_SBit *sbit)
 {
-	return FTC_SBitCache_Lookup(sbitsCache, font, glyph_index, sbit, NULL);
+	return FTC_SBitCache_Lookup(sbitsCache, f, glyph_index, sbit, NULL);
 }
-#else
-FT_Error LcdFontRenderClass::getGlyphBitmap(FTC_Image_Desc *font, FT_ULong glyph_index, FTC_SBit *sbit)
-{
-	return FTC_SBit_Cache_Lookup(sbitsCache, font, glyph_index, sbit);
-}
-#endif
 
 const char * LcdFontRenderClass::AddFont(const char * const filename)
 {
@@ -184,18 +172,10 @@ LcdFont::LcdFont(CLCDDisplay * fb, LcdFontRenderClass *render, FTC_FaceID faceid
 {
 	framebuffer=fb;
 	renderer=render;
-#ifdef FT_NEW_CACHE_API
 	font.face_id=faceid;
 	font.width  = isize;
 	font.height = isize;
 	font.flags  = FT_LOAD_FORCE_AUTOHINT | FT_LOAD_MONOCHROME;
-#else
-	font.font.face_id=faceid;
-	font.font.pix_width  = isize;
-	font.font.pix_height = isize;
-	font.image_type = ftc_image_mono;
-	font.image_type |= ftc_image_flag_autohinted;
-#endif
 }
 
 FT_Error LcdFont::getGlyphBitmap(FT_ULong glyph_index, FTC_SBit *sbit)
@@ -253,7 +233,6 @@ void LcdFont::RenderString(int x, int y, const int width, const char * text, con
 	int err;
 	pthread_mutex_lock(&renderer->render_mutex);
 
-#ifdef FT_NEW_CACHE_API
 	FTC_ScalerRec scaler;
 
 	scaler.face_id = font.face_id;
@@ -262,9 +241,6 @@ void LcdFont::RenderString(int x, int y, const int width, const char * text, con
 	scaler.pixel   = true;
 
 	if ((err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size)) != 0)
-#else
-	if ((err=FTC_Manager_Lookup_Size(renderer->cacheManager, &font.font, &face, &size))!=0)
-#endif
 	{ 
 		printf("FTC_Manager_Lookup_Size failed! (%d)\n",err);
 		pthread_mutex_unlock(&renderer->render_mutex);
@@ -293,11 +269,7 @@ void LcdFont::RenderString(int x, int y, const int width, const char * text, con
 		if (unicode_value == -1)
 			break;
 
-#ifdef FT_NEW_CACHE_API
 		int index = FT_Get_Char_Index(size->face, unicode_value);
-#else
-		int index = FT_Get_Char_Index(face, unicode_value);
-#endif
 
 		if (!index)
 		  continue;
@@ -338,7 +310,6 @@ int LcdFont::getRenderWidth(const char * text, const bool utf8_encoded)
 {
 	pthread_mutex_lock(&renderer->render_mutex);
 	FT_Error err;
-#ifdef FT_NEW_CACHE_API
 	FTC_ScalerRec scaler;
 	scaler.face_id = font.face_id;
 	scaler.width   = font.width;
@@ -346,9 +317,6 @@ int LcdFont::getRenderWidth(const char * text, const bool utf8_encoded)
 	scaler.pixel   = true;
 
 	err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
-#else
-	err = FTC_Manager_Lookup_Size(renderer->cacheManager, &font.font, &face, &size);
-#endif
 	if (err != 0)
 	{ 
 		printf("FTC_Manager_Lookup_Size failed! (0x%x)\n", err);
@@ -365,11 +333,7 @@ int LcdFont::getRenderWidth(const char * text, const bool utf8_encoded)
 		if (unicode_value == -1)
 			break;
 
-#ifdef FT_NEW_CACHE_API
 		int index = FT_Get_Char_Index(size->face, unicode_value);
-#else
-		int index=FT_Get_Char_Index(face, unicode_value);
-#endif
 
 		if (!index)
 			continue;
