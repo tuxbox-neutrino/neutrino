@@ -23,6 +23,7 @@
 
 
 #include <config.h>
+#include <cstdio>
 #include <driver/newclock.h>
 
 static bool	time_digits[24*32 * 10];

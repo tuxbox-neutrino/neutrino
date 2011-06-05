@@ -46,6 +46,8 @@
 #endif
 #include <fcntl.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include <daemonc/remotecontrol.h>
