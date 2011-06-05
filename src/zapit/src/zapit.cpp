@@ -109,7 +109,7 @@ bool playing = false;
 char pipzap = 0;
 bool g_list_changed = false; // flag to indicate, allchans was changed
 int sig_delay = 2; // seconds between signal check
-bool mute_true_false = false;
+
 /* variables for EN 50494 (a.k.a Unicable) */
 int uni_scr = -1;	/* the unicable SCR address,     -1 == no unicable */
 int uni_qrg = 0;	/* the unicable frequency in MHz, 0 == from spec */
@@ -1615,14 +1615,10 @@ DBG("NVOD insert %llx\n", CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPO
 		//if(!audioDecoder) audioDecoder = new CAudio();
 		if(!audioDecoder) break;
 //printf("[zapit] mute %d\n", msgBoolean.truefalse);
-		if (msgBoolean.truefalse){
+		if (msgBoolean.truefalse)
 			audioDecoder->mute();
-			mute_true_false = true;
-		}
-		else{
+		else
 			audioDecoder->unmute();
-			mute_true_false = false;
-		}
 		break;
 	}
 
@@ -1977,8 +1973,6 @@ int startPlayBack(CZapitChannel *thisChannel)
 		printf("[zapit] starting %s audio\n", audioStr);
 		audioDemux->Start();
 		audioDecoder->Start();
-		if(!mute_true_false)
-			audioDecoder->unmute();
 	}
 
 	/* start video */
@@ -2011,8 +2005,7 @@ int stopPlayBack(bool stop_camd)
 		}
 		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
 	}
-	if(!standby && !mute_true_false)
-		audioDecoder->mute();
+
 	printf("stopPlayBack: standby %d forced %d\n", standby, playbackStopForced);
 
 	//if(standby || !playing)
