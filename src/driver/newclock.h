@@ -27,4 +27,4 @@
 #include <lcddisplay/lcddisplay.h>
 
 void InitNewClock();
-void ShowNewClock(CLCDDisplay* display, int hour, int minute, int second, int day, int date, int month);
+void ShowNewClock(CLCDDisplay* display, int hour, int minute, int second, int day, int date, int month, bool record = false);
