@@ -72,7 +72,11 @@ CLCD::CLCD()
 	percentOver = 0;
 	volume = 0;
 	timeout_cnt = 0;
-	has_lcd = true;
+	/* this is a hack: the only place where this is checked is the menu to decide
+	 * if display settings are to be applied.
+	 * we have nothing to configure anyway, so setting has_lcd = false hides that menu.
+	 */
+	has_lcd = false;
 	clearClock = 0;
 }
 
