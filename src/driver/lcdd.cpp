@@ -80,6 +80,8 @@ CLCD* CLCD::getInstance()
 	{
 		lcdd = new CLCD();
 	}
+	/* HACK */
+	g_settings.lcd_setting[SNeutrinoSettings::LCD_SHOW_VOLUME] = 2;
 	return lcdd;
 }
 
@@ -511,6 +513,8 @@ void CLCD::showServicename(const std::string name, const bool perform_wakeup)
 	   4 = draw separator line between name and EPG
 	 */
 	int showmode = g_settings.lcd_setting[SNeutrinoSettings::LCD_EPGMODE];
+	/* HACK */
+	showmode = 7;
 
 	//printf("CLCD::showServicename '%s' epg: '%s'\n", name.c_str(), epg_title.c_str());
 
@@ -538,6 +542,7 @@ void CLCD::setEPGTitle(const std::string title)
 void CLCD::setMovieInfo(const AUDIOMODES playmode, const std::string big, const std::string small, const bool centered)
 {
 	int showmode = g_settings.lcd_setting[SNeutrinoSettings::LCD_EPGMODE];
+	showmode = 7;
 	showmode |= 3; // take only the separator line from the config
 
 	movie_playmode = playmode;
@@ -842,6 +847,7 @@ void CLCD::setMode(const MODES m, const char * const title)
 	mode = m;
 	menutitle = title;
 	setlcdparameter();
+	int x = 2;
 
 	switch (m)
 	{
