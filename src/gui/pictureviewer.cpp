@@ -343,6 +343,21 @@ int CPictureViewerGui::show()
 				}
 			}
 		}
+		else if (msg == CRCInput::RC_spkr)
+		{
+			if (!playlist.empty())
+			{
+				if (m_state == MENU)
+				{
+					deletePicFile(selected, false);
+					update = true;
+				}
+				else{
+					deletePicFile(selected, true);
+				}
+			}
+		}
+
 		else if (msg == CRCInput::RC_ok)
 		{
 			if (!playlist.empty())
@@ -627,12 +642,13 @@ void CPictureViewerGui::paintHead()
 }
 
 //------------------------------------------------------------------------
-const struct button_label PictureViewerButtons[4] =
+const struct button_label PictureViewerButtons[5] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_AUDIOPLAYER_DELETE        },
 	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_AUDIOPLAYER_ADD           },
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_AUDIOPLAYER_DELETEALL     },
-	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_PICTUREVIEWER_SLIDESHOW }
+	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_PICTUREVIEWER_SLIDESHOW },
+	{ NEUTRINO_ICON_BUTTON_MUTE_SMALL  , LOCALE_FILEBROWSER_DELETE }
 };
 const struct button_label PictureViewerButtons2[][2] =
 {
@@ -653,7 +669,7 @@ void CPictureViewerGui::paintFoot()
 
 	if (!playlist.empty())
 	{
-		::paintButtons(x, y + (height - 2 * buttonHeight), 0, 4, PictureViewerButtons);
+		::paintButtons(x, y + (height - 2 * buttonHeight), 0, 5, PictureViewerButtons);
 
 		::paintButtons(x, y + (height - buttonHeight), 0, 2, (m_sort==FILENAME)?PictureViewerButtons2[0]:PictureViewerButtons2[1]);
 	}
@@ -722,6 +738,22 @@ void CPictureViewerGui::endView()
 {
 	if (m_state != MENU)
 		m_state=MENU;
+}
+
+void CPictureViewerGui::deletePicFile(unsigned int index, bool mode)
+{
+	CVFD::getInstance()->showMenuText(0, playlist[index].Name.c_str());
+	if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, playlist[index].Filename, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)==CMessageBox::mbrYes)
+	{
+		unlink(playlist[index].Filename.c_str());
+		printf("[ %s ]  delete file: %s\r\n",__FUNCTION__,playlist[index].Filename.c_str());
+		CViewList::iterator p = playlist.begin()+index;
+		playlist.erase(p);
+		if(mode)
+			selected = selected-1;
+		if (selected >= playlist.size())
+			selected = playlist.size()-1;
+	}
 }
 
 void CPictureViewerGui::showHelp()

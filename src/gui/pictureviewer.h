@@ -107,6 +107,7 @@ class CPictureViewerGui : public CMenuTarget
 		int  show();
 
 		void showHelp();
+		void deletePicFile(unsigned int index, bool mode);
 
 	public:
 		CPictureViewerGui();

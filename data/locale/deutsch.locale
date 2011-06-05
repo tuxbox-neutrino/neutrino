@@ -164,8 +164,8 @@ audioplayer.building_search_index Erstelle Suchindex
 audioplayer.button_select_title_by_id Suche n. ID
 audioplayer.button_select_title_by_name Suche n. Name
 audioplayer.defdir Start-Verz.
-audioplayer.delete Löschen
-audioplayer.deleteall Alle löschen
+audioplayer.delete entfernen
+audioplayer.deleteall Alle entfernen
 audioplayer.display_order Anzeige
 audioplayer.enable_sc_metadata Aktiviere Shoutcast Meta-Daten Parsing
 audioplayer.fastforward schneller Vorl.

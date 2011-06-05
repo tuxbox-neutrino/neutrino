@@ -164,8 +164,8 @@ audioplayer.building_search_index building search index
 audioplayer.button_select_title_by_id search by ID
 audioplayer.button_select_title_by_name search by name
 audioplayer.defdir start dir.
-audioplayer.delete Delete
-audioplayer.deleteall delete all
+audioplayer.delete Remove
+audioplayer.deleteall remove all
 audioplayer.display_order display order
 audioplayer.enable_sc_metadata enable shoutcast meta data parsing
 audioplayer.fastforward fast forw.
