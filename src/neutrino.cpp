@@ -2639,6 +2639,9 @@ printf("[neutrino] direct record\n");
 					showInfo();
 				}
 			}
+			else if (msg == CRCInput::RC_timer) {
+				Timerlist->exec(NULL, "");
+			}
 #if 0
 			else if( msg == CRCInput::RC_shift_blue ) {
 				if(CVFD::getInstance()->has_lcd) {
