@@ -877,8 +877,16 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 				}
 			}
 		} else if (fileplay && !CMoviePlayerGui::getInstance().timeshift /* && ( (msg == (neutrino_msg_t) g_settings.mpkey_pause) || (msg == (neutrino_msg_t) g_settings.mpkey_rewind) || (msg == (neutrino_msg_t) g_settings.mpkey_play) || (msg == (neutrino_msg_t) g_settings.mpkey_forward) || (msg == (neutrino_msg_t) g_settings.mpkey_stop)) */ ) {
-			g_RCInput->postMsg (msg, data);
-			res = messages_return::cancel_info;
+			/* this debug message will only hit in movieplayer mode, where console is
+			 * spammed to death anyway... */
+			printf("%s:%d msg:%08lx, data: %08lx\n", __func__, __LINE__, (long)msg, (long)data);
+			if (msg < CRCInput::RC_Events) /* RC / Keyboard event */
+			{
+				g_RCInput->postMsg (msg, data);
+				res = messages_return::cancel_info;
+			}
+			else
+				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		}
 	}
 
@@ -1651,9 +1659,11 @@ printf("paintProgressBar(%d, %d, %d, %d)\n", BoxEndX - pb_w - SHADOW_OFFSET, Cha
 
 void CInfoViewer::show_Data (bool calledFromEvent)
 {
-
-
 	if (! is_visible)
+		return;
+
+	/* EPG data is not useful in movieplayer mode ;) */
+	if (fileplay && !CMoviePlayerGui::getInstance().timeshift)
 		return;
 
 	char runningStart[10];
