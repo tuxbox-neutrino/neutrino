@@ -4390,6 +4390,9 @@ void stop_daemons(bool stopall)
 #endif
 	tuxtx_stop_subtitle();
 	printf("zapit shutdown\n");
+	if(!stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
+	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
+	}
 	g_Zapit->shutdown();
 	pthread_join(zapit_thread, NULL);
 	printf("zapit shutdown done\n");
