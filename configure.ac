@@ -76,6 +76,10 @@ AC_ARG_ENABLE(mdev,
 	[  --enable-mdev disable broken neutrino mount hack, use with mdev],
 	[AC_DEFINE(ASSUME_MDEV,1,[disable broken neutrino mount hack, use with mdev])])
 
+AC_ARG_ENABLE(freesatepg,
+	[  --enable-freesatepg                 enable Freesat EPG code (experimental)],
+	AC_DEFINE(ENABLE_FREESATEPG, 1, [enable Freesat EPG code])])
+
 #
 # Check for libtdservicedb - the new one - for testing only
 #
