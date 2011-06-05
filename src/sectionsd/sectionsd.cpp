@@ -917,6 +917,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 			event_id_t e_key = e->uniqueKey();
 			t_channel_id e_chid = e->get_channel_id();
 			time_t start_time = e->times.begin()->startzeit;
+			time_t end_time = e->times.begin()->startzeit + (long)e->times.begin()->dauer;
 			/* create an event that's surely behind the one to check in the sort order */
 			e->eventID = 0xFFFF; /* lowest order sort criteria is eventID */
 			/* returns an iterator that's behind 'e' */
@@ -937,23 +938,14 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 					/* do we need this check? */
 					if (x_key == e_key)
 						continue;
-					if ((*x)->times.begin()->startzeit > start_time)
+					if ((*x)->times.begin()->startzeit >= end_time)
 						continue;
-					/* iterating backwards: if the starttime of the stored events
-					 * is earlier than the new one, we'll never find an identical one
-					 * => bail out */
-					if ((*x)->times.begin()->startzeit < start_time)
+					/* iterating backwards: if the endtime of the stored events
+					 * is earlier than the starttime of the new one, we'll never
+					 * find an identical one => bail out */
+					if ((*x)->times.begin()->startzeit + (long)(*x)->times.begin()->dauer <= start_time)
 						break;
-					/* here we have (*x)->times.begin()->startzeit == start_time */
-					if ((*x)->table_id < e->table_id)
-					{
-						/* if we already have an event with the same start time but a lower
-						 * table ID, there is no need to add this one - it would be removed
-						 * by removeDupEvents() anyway => just return here. */
-						//dprintf("%s: not added: time==,id!=, table_id %02x<%02x, 0x%016llx 0x%016llx %s\n", __func__, (*x)->table_id, e->table_id, x_key, e_key, (*x)->getName().c_str());
-						unlockEvents();
-						return;
-					}
+					/* here we have an overlapping event */
 					dprintf("%s: delete 0x%016llx.%02x time = 0x%016llx.%02x\n", __func__,
 						x_key, (*x)->table_id, e_key, e->table_id);
 					to_delete.push_back(x_key);
@@ -1272,6 +1264,7 @@ static void removeOldEvents(const long seconds)
 	return;
 }
 
+#if 0
 /* Remove duplicate events (same Service, same start and endtime)
  * with different eventID. Use the one from the lower table_id.
  * This routine could be extended to remove overlapping events also,
@@ -1342,6 +1335,7 @@ static void removeDupEvents(void)
 
 	return;
 }
+#endif
 
 #ifdef UPDATE_NETWORKS
 static void removeWasteEvents()
@@ -8391,11 +8385,13 @@ static void *cnThread(void *)
 			unlockEvents();
 			//			usleep(100);
 			//			lockEvents();
+#if 0
 			removeDupEvents();
 			readLockEvents();
 			printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 			anzEventsAlt = mySIeventsOrderUniqueKey.size();
 			unlockEvents();
+#endif
 			dprintf("before removewasteepg\n");
 #ifdef UPDATE_NETWORKS
 			removeWasteEvents(); // Events for channels not in services.xml
