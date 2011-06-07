@@ -1275,8 +1275,6 @@ static void removeDupEvents(void)
 	MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e1, e2, del;
 	/* list of event IDs to delete */
 	std::vector<event_id_t>to_delete;
-	unsigned int dauer_diff= 0;
-	unsigned int startzeit_diff = 0;
 
 	readLockEvents();
 	e1 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
@@ -1292,20 +1290,11 @@ static void removeDupEvents(void)
 		if ((*e1)->get_channel_id() != (*e2)->get_channel_id())
 			continue;
 		/* check for same time */
-		if( (*e1)->table_id != 0xFF && (*e2)->table_id != 0xFF ) {
-			if (((*e1)->times.begin()->startzeit != (*e2)->times.begin()->startzeit) ||
-					((*e1)->times.begin()->dauer     != (*e2)->times.begin()->dauer))
-				continue;
-		}
-		// remove servustv && sixx hd crap & co channels (only from save epg)
-		else {
-			startzeit_diff = abs((*e1)->times.begin()->startzeit - (*e2)->times.begin()->startzeit);
-			dauer_diff =  abs((*e1)->times.begin()->dauer - (*e2)->times.begin()->dauer);
-			if (( startzeit_diff > ((*e1)->times.begin()->dauer/2) && (*e1)->times.begin()->dauer > 360 ) ||
-					( dauer_diff > ((*e1)->times.begin()->dauer/2)))
-				continue;
-		}
-		if ((*e1)->table_id == (*e2)->table_id && ((*e1)->table_id != 0xFF ))
+		if (((*e1)->times.begin()->startzeit != (*e2)->times.begin()->startzeit) ||
+			((*e1)->times.begin()->dauer     != (*e2)->times.begin()->dauer))
+			continue;
+
+		if ((*e1)->table_id == (*e2)->table_id)
 		{
 			dprintf("%s: not removing events %llx %llx, t:%02x '%s'\n", __func__,
 				(*e1)->uniqueKey(), (*e2)->uniqueKey(), (*e1)->table_id, (*e1)->getName().c_str());
@@ -1314,11 +1303,7 @@ static void removeDupEvents(void)
 
 		if ((*e1)->table_id > (*e2)->table_id)
 			del = e1;
-		else if ((*e1)->table_id < (*e2)->table_id)
-			del = e2;
-		else if((*e1)->table_id == 0xFF )
-			del = e1;
-		else
+		if ((*e1)->table_id < (*e2)->table_id)
 			del = e2;
 
 		dprintf("%s: removing event %llx.%02x '%s'\n", __func__,
