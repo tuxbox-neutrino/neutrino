@@ -486,7 +486,8 @@ bool CNeutrinoApp::showUserMenu(int button)
 	if (menu == NULL)
 		return 0;
 	menu->setSelected(selected[button]);
-	menu->addItem(GenericMenuSeparator);
+	
+	menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	// go through any postition number
 	for (int pos = 0; pos < SNeutrinoSettings::ITEM_MAX ; pos++) {
