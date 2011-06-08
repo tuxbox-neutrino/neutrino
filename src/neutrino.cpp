@@ -4242,7 +4242,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete hintBox;
 			delete frameBuffer;
 
-			stop_daemons();
+			stop_daemons(false);
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
 			delete g_Zapit;
