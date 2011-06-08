@@ -439,6 +439,7 @@ public:
 };
 
 // USERMENU
+static int selected[SNeutrinoSettings::BUTTON_MAX] = {-1, -1, -1, -1};
 bool CNeutrinoApp::showUserMenu(int button)
 {
 	if (button < 0 || button >= SNeutrinoSettings::BUTTON_MAX)
@@ -452,7 +453,6 @@ bool CNeutrinoApp::showUserMenu(int button)
 
 	int menu_items = 0;
 	int menu_prev = -1;
-	static int selected[SNeutrinoSettings::BUTTON_MAX] = {-1, -1, -1, -1};
 
 	// define classes
 	CFavorites* tmpFavorites                                = NULL;
@@ -738,6 +738,8 @@ bool CNeutrinoApp::showUserMenu(int button)
 	}
 	else if (menu_item != NULL)
 		menu_item->exec( NULL );
+	
+	selected[button] = menu->getSelected();
 
 	// restore mute symbol
 	//AudioMute(current_muted, true);
