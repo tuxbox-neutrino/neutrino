@@ -1626,7 +1626,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 
 	sections_debug = false;
 	softupdate = false;
-	fromflash = false;
+	//fromflash = false;
 
 	font.name = NULL;
 
@@ -1636,11 +1636,11 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 			softupdate = true;
 			allow_flash = 1;
 		}
-		else if ((!strcmp(argv[x], "-f")) || (!strcmp(argv[x], "--enable-flash"))) {
+		/*else if ((!strcmp(argv[x], "-f")) || (!strcmp(argv[x], "--enable-flash"))) {
 			dprintf(DEBUG_NORMAL, "enable flash\n");
 			fromflash = true;
-		}
-		else if ((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) {
+		}*/
+		else if (((!strcmp(argv[x], "-v")) || (!strcmp(argv[x], "--verbose"))) && (x+1 < argc)) {
 			int dl = atoi(argv[x+ 1]);
 			dprintf(DEBUG_NORMAL, "set debuglevel: %d\n", dl);
 			setDebugLevel(dl);
@@ -1664,7 +1664,7 @@ void CNeutrinoApp::CmdParser(int argc, char **argv)
 				x++;
 		}
 		else {
-			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] [-f | --enable-flash] "
+			dprintf(DEBUG_NORMAL, "Usage: neutrino [-u | --enable-update] "
 					      "[-v | --verbose 0..3]\n");
 			exit(1);
 		}

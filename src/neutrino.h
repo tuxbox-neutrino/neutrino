@@ -123,7 +123,7 @@ private:
 	int				mode;
 	int				lastMode;
 	bool				softupdate;
-	bool				fromflash;
+//	bool				fromflash;
 	bool 				init_cec_setting;
 	CTimerd::RecordingInfo* nextRecordingInfo;
 	//bool				record_mode;
