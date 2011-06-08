@@ -13,6 +13,7 @@ install_DATA = \
 	down.png up.png right.png left.png \
 	error.png features.png file.png folder.png games.png \
 	help.png help_small.png hidden.png home.png info.png \
+	icon_green.png icon_red.png icon_yellow.png \
 	keybinding.png lcd.png local.png lock.png mainmenue.png \
 	mounted.png movie.png \
 	mp3.png mute.png mute_small.png mute_zap_gray.png mute_zap_green.png \

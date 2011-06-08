@@ -62,6 +62,10 @@
 #define NEUTRINO_ICON_BUTTON_PLUS	"plus"
 #define NEUTRINO_ICON_BUTTON_MINUS	"minus"
 
+#define NEUTRINO_ICON_GREEN		"icon_green"
+#define NEUTRINO_ICON_RED		"icon_red"
+#define NEUTRINO_ICON_YELLOW		"icon_yellow"
+
 #define NEUTRINO_ICON_16_9		"16_9"
 #define NEUTRINO_ICON_16_9_GREY		"16_9_gray"
 #define NEUTRINO_ICON_AUDIO		"audio"
