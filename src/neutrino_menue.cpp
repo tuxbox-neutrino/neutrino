@@ -370,10 +370,25 @@ const CMenuOptionChooser::keyval MAINMENU_RECORDING_OPTIONS[MAINMENU_RECORDING_O
 };
 
 // USERMENU
+typedef struct user_menu_data_t
+{
+	neutrino_locale_t caption;
+	const neutrino_msg_t key_helper_msg_def;
+	const char * key_helper_icon_def;
+	const char * menu_icon_def;
+	int selected;
+} user_menu_data_struct;
+
+#define BUTTONMAX SNeutrinoSettings::BUTTON_MAX
+static user_menu_data_t user_menu[BUTTONMAX]=
+{
+	{LOCALE_INFOVIEWER_EVENTLIST	, CRCInput::RC_red	, NEUTRINO_ICON_BUTTON_RED	, NEUTRINO_ICON_RED,	-1},
+	{LOCALE_INFOVIEWER_LANGUAGES	, CRCInput::RC_green	, NEUTRINO_ICON_BUTTON_GREEN	, NEUTRINO_ICON_GREEN, 	-1},
+	{NONEXISTANT_LOCALE		, CRCInput::RC_yellow	, NEUTRINO_ICON_BUTTON_YELLOW	, NEUTRINO_ICON_YELLOW,	-1},
+	{LOCALE_INFOVIEWER_STREAMINFO	, CRCInput::RC_blue	, NEUTRINO_ICON_BUTTON_BLUE	, NEUTRINO_ICON_FEATURES, -1}
+};
+
 // This is just a quick helper for the usermenu only. I already made it a class for future use.
-#define BUTTONMAX 4
-const neutrino_msg_t key_helper_msg_def[BUTTONMAX]={CRCInput::RC_red,CRCInput::RC_green,CRCInput::RC_yellow,CRCInput::RC_blue};
-const char * key_helper_icon_def[BUTTONMAX]={NEUTRINO_ICON_BUTTON_RED,NEUTRINO_ICON_BUTTON_GREEN,NEUTRINO_ICON_BUTTON_YELLOW,NEUTRINO_ICON_BUTTON_BLUE};
 class CKeyHelper
 {
 private:
@@ -415,8 +430,8 @@ public:
 			if ( color_key_used[button] == false)
 			{
 				color_key_used[button] = true;
-				*msg = key_helper_msg_def[button];
-				*icon = key_helper_icon_def[button];
+				*msg = user_menu[button].key_helper_msg_def;
+				*icon = user_menu[button].key_helper_icon_def;
 				result = true;
 			}
 		}
@@ -439,10 +454,9 @@ public:
 };
 
 // USERMENU
-static int selected[SNeutrinoSettings::BUTTON_MAX] = {-1, -1, -1, -1};
 bool CNeutrinoApp::showUserMenu(int button)
 {
-	if (button < 0 || button >= SNeutrinoSettings::BUTTON_MAX)
+	if (button < 0 || button >= BUTTONMAX)
 		return false;
 
 	CMenuItem* menu_item = NULL;
@@ -463,29 +477,22 @@ bool CNeutrinoApp::showUserMenu(int button)
 	CEventListHandler* tmpEventListHandler                  = NULL;
 	CEPGplusHandler* tmpEPGplusHandler                      = NULL;
 	CEPGDataHandler* tmpEPGDataHandler                      = NULL;
-
+	
 	std::string txt = g_settings.usermenu_text[button];
-	if (button == SNeutrinoSettings::BUTTON_RED) {
-		if ( txt.empty() )
-			txt = g_Locale->getText(LOCALE_INFOVIEWER_EVENTLIST);
-	}
-	else if ( button == SNeutrinoSettings::BUTTON_GREEN) {
-		if ( txt.empty() )
-			txt = g_Locale->getText(LOCALE_INFOVIEWER_LANGUAGES);
-	}
-	else if ( button == SNeutrinoSettings::BUTTON_YELLOW) {
-		if ( txt.empty() )
-			txt = g_Locale->getText((g_RemoteControl->are_subchannels) ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME);
-		//txt = g_Locale->getText(LOCALE_NVODSELECTOR_DIRECTORMODE);
-	}
-	else if ( button == SNeutrinoSettings::BUTTON_BLUE) {
-		if ( txt.empty() )
-			txt = g_Locale->getText(LOCALE_INFOVIEWER_STREAMINFO);
-	}
-	CMenuWidget *menu = new CMenuWidget(txt.c_str() , NEUTRINO_ICON_FEATURES);
+	neutrino_locale_t caption = user_menu[button].caption;
+	
+	//ensure correct caption for yellow menue
+	if ( button == SNeutrinoSettings::BUTTON_YELLOW) 
+		caption = g_RemoteControl->are_subchannels ? LOCALE_INFOVIEWER_SUBSERVICE : LOCALE_INFOVIEWER_SELECTTIME;
+	
+	if ( txt.empty() )
+		txt = g_Locale->getText(caption);
+	
+	CMenuWidget *menu = new CMenuWidget(txt.c_str() , user_menu[button].menu_icon_def, 35);
 	if (menu == NULL)
 		return 0;
-	menu->setSelected(selected[button]);
+	
+	menu->setSelected(user_menu[button].selected);
 	
 	menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
@@ -740,7 +747,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 	else if (menu_item != NULL)
 		menu_item->exec( NULL );
 	
-	selected[button] = menu->getSelected();
+	user_menu[button].selected = menu->getSelected();
 
 	// restore mute symbol
 	//AudioMute(current_muted, true);
