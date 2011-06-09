@@ -1264,7 +1264,7 @@ static void removeOldEvents(const long seconds)
 	return;
 }
 
-#ifndef NO_REMOVE_DUPS
+#ifdef REMOVE_DUPS
 /* Remove duplicate events (same Service, same start and endtime)
  * with different eventID. Use the one from the lower table_id.
  * This routine could be extended to remove overlapping events also,
@@ -8369,7 +8369,7 @@ static void *cnThread(void *)
 			unlockEvents();
 			//			usleep(100);
 			//			lockEvents();
-#ifndef NO_REMOVE_DUPS
+#ifdef REMOVE_DUPS
 			removeDupEvents();
 			readLockEvents();
 			printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
