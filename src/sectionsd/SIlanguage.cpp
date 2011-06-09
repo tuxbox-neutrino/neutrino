@@ -114,7 +114,7 @@ bool SIlanguage::loadLanguages()
 	pthread_mutex_lock(&languages_lock);
 	std::ifstream file(LANGUAGEFILE);
 	std::string word;
-	CSectionsdClient::SIlanguageMode_t tmpMode = CSectionsdClient::LANGUAGE_MODE_OFF;
+	CSectionsdClient::SIlanguageMode_t tmpMode = CSectionsdClient::FIRST_ALL;
 	std::vector<std::string> tmpLang;
 
 	if (!(file >> word)) goto error;
