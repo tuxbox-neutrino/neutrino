@@ -688,7 +688,7 @@ static bool deleteEvent(const event_id_t uniqueKey)
 
 // Fuegt ein Event in alle Mengen ein
 /* if cn == true (if called by cnThread), then myCurrentEvent and myNextEvent is updated, too */
-static void addEvent(const SIevent &evt, const unsigned table_id, const time_t zeit, bool cn = false)
+static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 {
 	bool EPG_filtered = checkEPGFilter(evt.original_network_id, evt.transport_stream_id, evt.service_id);
 
@@ -699,8 +699,8 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 		if epg filter is whitelist and filter did not match -> stop also.
 	   }
 	 */
-	if (!(epg_filter_except_current_next && (table_id == 0x4e || table_id == 0x4f)) &&
-			(table_id != 0)) {
+	if (!(epg_filter_except_current_next && (evt.table_id == 0x4e || evt.table_id == 0x4f)) &&
+			(evt.table_id != 0xFF)) {
 		if (!epg_filter_is_whitelist && EPG_filtered) {
 			//dprintf("addEvent: blacklist and filter did match\n");
 			return;
@@ -1037,7 +1037,7 @@ static void addEvent(const SIevent &evt, const unsigned table_id, const time_t z
 }
 #if 0
 // Fuegt zusaetzliche Zeiten in ein Event ein
-static void addEventTimes(const SIevent &evt, const unsigned table_id)
+static void addEventTimes(const SIevent &evt)
 {
 	if (evt.times.size())
 	{
@@ -1071,7 +1071,7 @@ static void addEventTimes(const SIevent &evt, const unsigned table_id)
 		{
 			unlockEvents();
 			// Event nicht vorhanden -> einfuegen
-			addEvent(evt, table_id, 0);
+			addEvent(evt, 0);
 		}
 	}
 }
@@ -4683,7 +4683,7 @@ static void *insertEventsfromFile(void *)
 						}
 						//lockEvents();
 						//writeLockEvents();
-						addEvent(e, 0, 0);
+						addEvent(e, 0);
 						ev_count++;
 						//unlockEvents();
 
@@ -7309,7 +7309,7 @@ static void *fseitThread(void *)
 								( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
 						{
 							//fprintf(stderr, "%02x ", header.table_id);
-							addEvent(*e, header->table_id, zeit);
+							addEvent(*e, zeit);
 						}
 					}
 					else
@@ -7657,7 +7657,7 @@ static void *eitThread(void *)
 							if(sectionsd_stop)
 								break;
 //printf("Adding event 0x%llx table %x version %x running %d\n", e->uniqueKey(), header->table_id, header->version_number, e->runningStatus());
-							addEvent(*e, header->table_id, zeit);
+							addEvent(*e, zeit);
 						}
 					}
 					else
@@ -7949,12 +7949,11 @@ static void *cnThread(void *)
 
 			header = (SI_section_header *)static_buf;
 			unsigned short section_length = (header->section_length_hi << 8) | header->section_length_lo;
-			unsigned table_id = header->table_id;
 
 			if (!header->current_next_indicator)
 			{
 				// Wir wollen nur aktuelle sections
-				//dprintf("[cnThread] skipped sections for table 0x%x\n", table_id);
+				//dprintf("[cnThread] skipped sections for table 0x%x\n", header->table_id);
 				continue;
 			}
 
@@ -7964,14 +7963,14 @@ static void *cnThread(void *)
 				continue;
 
 			// == 0 -> kein event
-			//dprintf("[cnThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), table_id);
+			//dprintf("[cnThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), header->table_id);
 			zeit = time(NULL);
 			// Nicht alle Events speichern
 			for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
 			{
 				if (!(e->times.empty()))
 				{
-					addEvent(*e, table_id, zeit, true); /* cn = true => fill in current / next event */
+					addEvent(*e, zeit, true); /* cn = true => fill in current / next event */
 				}
 #if 0
 				/* I don't think there are NVOD events in CN tables, so we can skip that */
@@ -8249,12 +8248,12 @@ static void *cnThread(void *)
 										if (already_exists)
 										{
 											// Zusaetzliche Zeiten in ein Event einfuegen
-											addEventTimes(*e, header->table_id);
+											addEventTimes(*e);
 										}
 										else
 										{
 											// Ein Event in alle Mengen einfuegen
-											addEvent(*e, header->table_id, zeit);
+											addEvent(*e, zeit);
 										}
 
 										//									unlockEvents();
