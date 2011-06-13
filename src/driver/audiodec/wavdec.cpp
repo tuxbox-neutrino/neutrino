@@ -108,8 +108,11 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int /*OutputFd*/, State* state, CAu
 		return Status;
 	}
 #endif
-	audioDecoder->PrepareClipPlay(mChannels, meta_data->samplerate, mBitsPerSample, fmt == AFMT_S16_LE ? 1 : 0);
-
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	audioDecoder->PrepareClipPlay(mChannels, meta_data->samplerate, mBitsPerSample, 1);
+#else
+	audioDecoder->PrepareClipPlay(mChannels, meta_data->samplerate, mBitsPerSample, 0);
+#endif
 	int actSecsToSkip = (*secondsToSkip != 0) ? *secondsToSkip : MSECS_TO_SKIP / 1000;
 	unsigned int oldSecsToSkip = *secondsToSkip;
 	int jumppos=0;
