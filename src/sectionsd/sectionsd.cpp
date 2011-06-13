@@ -8375,6 +8375,7 @@ static void *cnThread(void *)
 #endif
 		dprintf("housekeeping-thread started.\n");
 		pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+		unsigned removed = 0;
 
 		while (!sectionsd_stop)
 		{
@@ -8408,6 +8409,7 @@ static void *cnThread(void *)
 			dprintf("after removeoldevents\n");
 			readLockEvents();
 			printf("[sectionsd] Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
+			removed += (anzEventsAlt - mySIeventsOrderUniqueKey.size());
 			if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 			{
 				print_meminfo();
@@ -8421,6 +8423,7 @@ static void *cnThread(void *)
 			removeDupEvents();
 			readLockEvents();
 			printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
+			removed += (anzEventsAlt - mySIeventsOrderUniqueKey.size());
 			anzEventsAlt = mySIeventsOrderUniqueKey.size();
 			unlockEvents();
 #endif
@@ -8543,7 +8546,12 @@ static void *cnThread(void *)
 			print_meminfo();
 
 			count++;
-
+			if (removed > 1000 && scanning)
+			{
+				xprintf("sectionsd: triggering dmxEIT restart after %d removed events\n", removed);
+				removed = 0;
+				dmxEIT.change(0);
+			}
 		} // for endlos
 		dprintf("housekeeping-thread ended.\n");
 
