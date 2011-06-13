@@ -966,18 +966,38 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 		deleteEvent(e->uniqueKey());
 		readLockEvents();
 		if (mySIeventsOrderUniqueKey.size() >= max_events) {
-			//FIXME: Set Old Events to 0 if limit is reached...
 			MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
-				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
-			lastEvent--;
+				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
-			//preserve events of current channel
-			readLockMessaging();
-			while ((lastEvent != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin()) &&
-					((*lastEvent)->get_channel_id() == messaging_current_servicekey)) {
+/* if you don't want the new "delete old events first" method but
+ * the old-fashioned "delete future events always", invert this */
+#if 0
+			bool back = true;
+#else
+			time_t now = time(NULL);
+			bool back = false;
+			if ((*lastEvent)->times.size() == 1)
+			{
+				if ((*lastEvent)->times.begin()->startzeit + (long)(*lastEvent)->times.begin()->dauer >= now - oldEventsAre)
+					back = true;
+			} else
+				printf("[sectionsd] addevent: times.size != 1, please report\n");
+#endif
+			if (back)
+			{
+				// fprintf(stderr, "<");
+				lastEvent = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
 				lastEvent--;
+
+				//preserve events of current channel
+				readLockMessaging();
+				while ((lastEvent != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin()) &&
+					((*lastEvent)->get_channel_id() == messaging_current_servicekey)) {
+					lastEvent--;
+				}
+				unlockMessaging();
 			}
-			unlockMessaging();
+			// else fprintf(stderr, ">");
 			unlockEvents();
 			deleteEvent((*lastEvent)->uniqueKey());
 		}
@@ -1011,7 +1031,6 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 						// nicht vorhanden -> einfuegen
 						mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.insert(ie->second);
 						mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.insert(ie->second);
-
 					}
 
 					// Und die Zeiten im Event updaten
