@@ -41,6 +41,16 @@ bin_PROGRAMS = neutrino
 
 neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 
+AM_CPPFLAGS =
+
+if ENABLE_FLAC
+#FLACLIBS = -lFLAC
+FLACLIBS = $(DESTDIR)/lib/libFLAC.a
+AM_CPPFLAGS += -DENABLE_FLAC
+else
+FLACLIBS =
+endif
+
 neutrino_LDADD = \
 	daemonc/libneutrino_daemonc.a \
 	gui/bedit/libneutrino_gui_bedit.a \
@@ -82,6 +92,7 @@ neutrino_LDADD = \
 	@LIBCS_LIBS@ \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
+	$(FLACLIBS) \
 	$(VORBISLIBS) \
 	-lungif \
 	-ljpeg \

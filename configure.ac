@@ -80,6 +80,17 @@ AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
 
+# FLAC - Free Lossless Audio Codec
+AC_ARG_ENABLE(flac,
+	AS_HELP_STRING(--enable-flac,include FLAC support),
+	,[enable_flac=no])
+
+AM_CONDITIONAL(ENABLE_FLAC,test "$enable_flac" = "yes")
+if test "$enable_flac" = "yes"; then
+	AC_DEFINE(ENABLE_FLAC,1,[include FLAC support])
+fi
+
+
 #
 # Check for libtdservicedb - the new one - for testing only
 #

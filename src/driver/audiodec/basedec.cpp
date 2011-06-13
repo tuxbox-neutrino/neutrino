@@ -33,6 +33,9 @@
 #include <mp3dec.h>
 #include <oggdec.h>
 #include <wavdec.h>
+#ifdef ENABLE_FLAC
+#include <flacdec.h>
+#endif
 #include <linux/soundcard.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
@@ -120,6 +123,14 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 													  &in->MetaData, t,
 													  secondsToSkip );
 		}
+#ifdef ENABLE_FLAC
+		else if (in->FileType == CFile::FILE_FLAC)
+		{
+			Status = CFlacDec::getInstance()->Decoder(fp, OutputFd, state,
+								  &in->MetaData, t,
+								  secondsToSkip );
+		}
+#endif
 		else
 		{
 			fprintf( stderr, "DecoderBase: Supplied filetype is not " );
@@ -141,8 +152,12 @@ bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 {
 	bool Status = true;
 
-	if ( in->FileType == CFile::FILE_MP3 || in->FileType == CFile::FILE_OGG ||
-		 in->FileType == CFile::FILE_WAV || in->FileType == CFile::FILE_CDR )
+	if (in->FileType == CFile::FILE_MP3 || in->FileType == CFile::FILE_OGG
+	 || in->FileType == CFile::FILE_WAV || in->FileType == CFile::FILE_CDR
+#ifdef ENABLE_FLAC
+	 || in->FileType == CFile::FILE_FLAC
+#endif
+	   )
 	{
 		FILE* fp = fopen( in->Filename.c_str(), "r" );
 		if ( fp == NULL )
@@ -173,7 +188,12 @@ bool CBaseDec::GetMetaDataBase(CAudiofile* const in, const bool nice)
 				Status = CCdrDec::getInstance()->GetMetaData(fp, nice,
 															 &in->MetaData);
 			}
-
+#ifdef ENABLE_FLAC
+			else if (in->FileType == CFile::FILE_FLAC)
+			{
+				Status = CFlacDec::getInstance()->GetMetaData(fp, nice, &in->MetaData);
+			}
+#endif
 			if ( fclose( fp ) == EOF )
 			{
 				fprintf( stderr, "Could not close file %s.\n",

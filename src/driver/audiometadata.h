@@ -56,7 +56,8 @@ public:
 		CDR,
 		MP3,
 		OGG,
-		WAV
+		WAV,
+		FLAC
 	};
 	AudioType type;
 	std::string type_info;
