@@ -1058,7 +1058,8 @@ void CStreamInfo2::showSNR ()
 //	uint16_t ssig, ssnr;
 	int sig, snr;
 	int posx, posy;
-	int sw;
+	int sw = g_Font[font_info]->getRenderWidth ("100%");
+	int pw = g_Font[font_info]->getRenderWidth (" SNR");
 
 	snr = (signal.snr & 0xFFFF) * 100 / 65535;
 	sig = (signal.sig & 0xFFFF) * 100 / 65535;
@@ -1068,24 +1069,24 @@ void CStreamInfo2::showSNR ()
 		lastsig = sig;
 		posy = yypos + (mheight/2)-5;
 		posx = x + 10;
-		sprintf(percent, "%d%% SIG", sig);
-		sw = g_Font[font_info]->getRenderWidth (percent);
+		sprintf(percent, "%d%%", sig);
 		sigscale->paintProgressBar2(posx - 1, posy, sig);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy -1, sw, mheight-8, COL_MENUHEAD_PLUS_0);
-		g_Font[font_info]->RenderString (posx+2, posy + mheight-5, sw, percent, COL_INFOBAR);
+		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR);
+		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SIG", COL_INFOBAR);
 	}
 	if (lastsnr != snr) {
 		lastsnr = snr;
 		posy = yypos + mheight + 5;
 		posx = x + 10;
 		sprintf(percent, "%d%% SNR", snr);
-		sw = g_Font[font_info]->getRenderWidth (percent);
 		snrscale->paintProgressBar2(posx - 1, posy+2, snr);
 
 		posx = posx + barwidth + 3;
 		frameBuffer->paintBoxRel(posx, posy - 1, sw, mheight-8, COL_MENUHEAD_PLUS_0, 0, true);
 		g_Font[font_info]->RenderString (posx + 2, posy + mheight-5, sw, percent, COL_INFOBAR, 0, true);
+		g_Font[font_info]->RenderString (posx + 2 + sw, posy + mheight-5, pw, "SNR", COL_INFOBAR, 0, true);
 	}
 }
