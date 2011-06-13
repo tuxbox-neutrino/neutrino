@@ -44,8 +44,7 @@ neutrino_SOURCES = neutrino_menue.cpp neutrino.cpp
 AM_CPPFLAGS =
 
 if ENABLE_FLAC
-#FLACLIBS = -lFLAC
-FLACLIBS = $(DESTDIR)/lib/libFLAC.a
+FLACLIBS = -lFLAC
 AM_CPPFLAGS += -DENABLE_FLAC
 else
 FLACLIBS =
