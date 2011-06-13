@@ -423,6 +423,8 @@ CBaseDec::RetCode CFlacDec::Decoder(FILE *in, const int /*OutputFd*/, State* con
 	mTimePlayed = time_played;
 	mFrameCount = 0;
 	mSamplesProcessed = 0;
+	struct stat s;
+	FLAC__uint64 filesize = 0;
 
 	mFlacDec = FLAC__stream_decoder_new();
 
@@ -432,6 +434,14 @@ CBaseDec::RetCode CFlacDec::Decoder(FILE *in, const int /*OutputFd*/, State* con
 		return Status;
 	}
 
+	if (fstat(fileno(in), &s))
+	{
+		perror("CFlacDec::Decoder fstat");
+		*time_played = 0;
+	}
+	else
+		filesize = (FLAC__uint64)s.st_size;
+
 	/* up and away ... */
 	mSlotSize = MAX_OUTPUT_SAMPLES * 2 * FLAC__stream_decoder_get_channels(mFlacDec);
 //	State oldstate=*state;
@@ -440,7 +450,7 @@ CBaseDec::RetCode CFlacDec::Decoder(FILE *in, const int /*OutputFd*/, State* con
 	int bytes_to_skip = (int) (1.0 * actSecsToSkip * meta_data->bitrate / 8);
 	int bytes_to_play = (int) (1.0 * MSECS_TO_PLAY / 1000 * meta_data->bitrate / 8);
 	unsigned int oldSecsToSkip = *secondsToSkip;
-//	FLAC__uint64 position;
+	FLAC__uint64 position;
 
 	do
 	{
@@ -490,8 +500,10 @@ CBaseDec::RetCode CFlacDec::Decoder(FILE *in, const int /*OutputFd*/, State* con
 		}
 
 		rval = FLAC__stream_decoder_process_single(mFlacDec);
-		// TODO: calculate time_played from the actual file position so that REW/FF actions will be included
-		*time_played = (mSamplesProcessed * (mLengthInMsec/1000)) / mTotalSamples;
+
+		/* update playback position */
+		if (filesize > 0 && FLAC__stream_decoder_get_decode_position(mFlacDec, &position))
+			*time_played = position / 1000ULL * mLengthInMsec / filesize;
 
 	} while (rval && *state != STOP_REQ && Status == OK);
 
