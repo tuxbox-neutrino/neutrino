@@ -494,8 +494,8 @@ bool CNeutrinoApp::showUserMenu(int button)
 	
 	menu->setSelected(user_menu[button].selected);
 	
-	menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
-
+	//menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	menu->addItem(GenericMenuSeparator);
 	// go through any postition number
 	for (int pos = 0; pos < SNeutrinoSettings::ITEM_MAX ; pos++) {
 		// now compare pos with the position of any item. Add this item if position is the same
