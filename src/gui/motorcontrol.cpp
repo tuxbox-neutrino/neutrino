@@ -478,20 +478,20 @@ void CMotorControl::hide()
 	stopSatFind();
 }
 
-void CMotorControl::paintLine(int px, int * py, int pwidth, char * txt)
+void CMotorControl::paintLine(int px, int *py, int pwidth, const char *txt)
 {
 	*py += mheight;
 	frameBuffer->paintBoxRel(px, *py - mheight, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, *py, pwidth, txt, COL_MENUCONTENT, 0, true);
 }
 
-void CMotorControl::paintLine(int px, int py, int pwidth, char * txt)
+void CMotorControl::paintLine(int px, int py, int pwidth, const char *txt)
 {
 	//frameBuffer->paintBoxRel(px, py - mheight, pwidth, mheight, COL_MENUCONTENT_PLUS_0);
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(px, py, pwidth, txt, COL_MENUCONTENT, 0, true);
 }
 
-void CMotorControl::paintSeparator(int xpos, int * pypos, int pwidth, char * /*txt*/)
+void CMotorControl::paintSeparator(int xpos, int *pypos, int pwidth, const char * /*txt*/)
 {
 	//int stringwidth = 0;
 	//int stringstartposX = 0;
@@ -516,36 +516,36 @@ void CMotorControl::paintStatus()
 	char buf2[256];
 
 	int xpos1 = x + 10;
-	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth((char *) g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
+	int xpos2 = xpos1 + 10 + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
 	int width2 = width - (xpos2 - xpos1) - 10;
 	int width1 = width - 10;
 
 	ypos = ypos_status;
-	paintSeparator(xpos1, &ypos, width, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_SETTINGS));
+	paintSeparator(xpos1, &ypos, width, g_Locale->getText(LOCALE_MOTORCONTROL_SETTINGS));
 
-	paintLine(xpos1, &ypos, width1, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
+	paintLine(xpos1, &ypos, width1, g_Locale->getText(LOCALE_MOTORCONTROL_MOTOR_POS));
 	sprintf(buf, "%d", motorPosition);
 	paintLine(xpos2, ypos, width2 , buf);
 
-	paintLine(xpos1, &ypos, width1, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_MOVEMENT));
+	paintLine(xpos1, &ypos, width1, g_Locale->getText(LOCALE_MOTORCONTROL_MOVEMENT));
 	switch(stepMode)
 	{
 		case STEP_MODE_ON:
-			strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_MODE));
+			strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_MODE));
 			break;
 		case STEP_MODE_OFF:
-			strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_DRIVE_MODE));
+			strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_DRIVE_MODE));
 			break;
 		case STEP_MODE_AUTO:
-			strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_DRIVE_MODE_AUTO));
+			strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_DRIVE_MODE_AUTO));
 			break;
 		case STEP_MODE_TIMED:
-			strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_TIMED_MODE));
+			strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_TIMED_MODE));
 			break;
 	}
 	paintLine(xpos2, ypos, width2, buf);
 
-	paintLine(xpos1, &ypos, width1, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_SIZE));
+	paintLine(xpos1, &ypos, width1, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_SIZE));
 	switch(stepMode)
 	{
 		case STEP_MODE_ON:
@@ -553,33 +553,33 @@ void CMotorControl::paintStatus()
 			break;
 		case STEP_MODE_AUTO:
 			if(moving)
-				strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STOP_MOVING));
+				strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_STOP_MOVING));
 			else
-				strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STOP_STOPPED));
+				strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_STOP_STOPPED));
 			break;
 		case STEP_MODE_OFF:
-			strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_NO_MODE));
+			strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_NO_MODE));
 			break;
 		case STEP_MODE_TIMED:
 			sprintf(buf, "%d ", stepSize * stepDelay);
-			strcat(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_MSEC));
+			strcat(buf, g_Locale->getText(LOCALE_MOTORCONTROL_MSEC));
 			break;
 	}
 	paintLine(xpos2, ypos, width2, buf);
 
-	paintSeparator(xpos1, &ypos, width, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STATUS));
-	strcpy(buf, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_SAT_POS));
+	paintSeparator(xpos1, &ypos, width, g_Locale->getText(LOCALE_MOTORCONTROL_STATUS));
+	strcpy(buf, g_Locale->getText(LOCALE_MOTORCONTROL_SAT_POS));
 	sprintf(buf2, "%d", satellitePosition);
 	strcat(buf, buf2);
 	paintLine(xpos1, &ypos, width1, buf);
-	paintSeparator(xpos1, &ypos, width, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_SETTINGS));
+	paintSeparator(xpos1, &ypos, width, g_Locale->getText(LOCALE_MOTORCONTROL_SETTINGS));
 }
 
 void CMotorControl::paint()
 {
 	ypos = y;
 	frameBuffer->paintBoxRel(x, ypos, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
-	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + 10, ypos + hheight, width, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), COL_MENUHEAD, 0, true); // UTF-8
+	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x + 10, ypos + hheight, width, g_Locale->getText(LOCALE_MOTORCONTROL_HEAD), COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintBoxRel(x, ypos + hheight, width, height - hheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	ypos += hheight + (mheight >> 1) - 10;
@@ -595,60 +595,60 @@ void CMotorControl::paintMenu()
 	int width2 = width - (xpos2 - xpos1) - 10;
 	int width1 = width - 10;
 
-	paintLine(xpos1, &ypos, width1, (char *) "(0/OK)");
+	paintLine(xpos1, &ypos, width1, "(0/OK)");
 	if(installerMenue)
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_USER_MENU));
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_USER_MENU));
 	else
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_INSTALL_MENU));
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_INSTALL_MENU));
 
-	paintLine(xpos1, &ypos, width1, (char *) "(1/right)");
-	paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_WEST));
-	paintLine(xpos1, &ypos, width1, (char *) "(2/red)");
-	paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_HALT));
-	paintLine(xpos1, &ypos, width1, (char *) "(3/left)");
-	paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_EAST));
+	paintLine(xpos1, &ypos, width1, "(1/right)");
+	paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_WEST));
+	paintLine(xpos1, &ypos, width1, "(2/red)");
+	paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_HALT));
+	paintLine(xpos1, &ypos, width1, "(3/left)");
+	paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_EAST));
 
 	if (installerMenue)
 	{
-		paintLine(xpos1, &ypos, width1,(char *)  "(4)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_WEST_LIMIT));
-		paintLine(xpos1, &ypos, width1, (char *) "(5)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_DISABLE_LIMIT));
-		paintLine(xpos1, &ypos, width1, (char *) "(6)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_EAST_LIMIT));
-		paintLine(xpos1, &ypos, width1, (char *) "(7)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_REF_POSITION));
-		paintLine(xpos1, &ypos, width1, (char *) "(8)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_ENABLE_LIMIT));
-		paintLine(xpos1, &ypos, width1, (char *) "(9)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_CALC_POSITIONS));
-		paintLine(xpos1, &ypos, width1, (char *) "(+/up)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_POS_INCREASE));
-		paintLine(xpos1, &ypos, width1, (char *) "(-/down)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_POS_DECREASE));
-		paintLine(xpos1, &ypos, width1,(char *)  "(blue)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DRIVE));
+		paintLine(xpos1, &ypos, width1, "(4)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_WEST_LIMIT));
+		paintLine(xpos1, &ypos, width1, "(5)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_DISABLE_LIMIT));
+		paintLine(xpos1, &ypos, width1, "(6)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_EAST_LIMIT));
+		paintLine(xpos1, &ypos, width1, "(7)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_REF_POSITION));
+		paintLine(xpos1, &ypos, width1, "(8)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_ENABLE_LIMIT));
+		paintLine(xpos1, &ypos, width1, "(9)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_CALC_POSITIONS));
+		paintLine(xpos1, &ypos, width1, "(+/up)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_POS_INCREASE));
+		paintLine(xpos1, &ypos, width1, "(-/down)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_POS_DECREASE));
+		paintLine(xpos1, &ypos, width1, "(blue)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DRIVE));
 	}
 	else
 	{
-		paintLine(xpos1, &ypos, width1, (char *) "(4)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
-		paintLine(xpos1, &ypos, width1, (char *) "(5/green)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STORE));
-		paintLine(xpos1, &ypos, width1,(char *)  "(6)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_INCREASE));
-		paintLine(xpos1, &ypos, width1, (char *) "(7/yellow)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_GOTO));
-		paintLine(xpos1, &ypos, width1, (char *) "(8)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
-		paintLine(xpos1, &ypos, width1, (char *) "(9)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DECREASE));
-		paintLine(xpos1, &ypos, width1, (char *) "(+/up)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_POS_INCREASE));
-		paintLine(xpos1, &ypos, width1, (char *) "(-/down)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_POS_DECREASE));
-		paintLine(xpos1, &ypos, width1, (char *) "(blue)");
-		paintLine(xpos2, ypos, width2, (char *) g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DRIVE));
+		paintLine(xpos1, &ypos, width1, "(4)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
+		paintLine(xpos1, &ypos, width1, "(5/green)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STORE));
+		paintLine(xpos1, &ypos, width1, "(6)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_INCREASE));
+		paintLine(xpos1, &ypos, width1, "(7/yellow)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_GOTO));
+		paintLine(xpos1, &ypos, width1, "(8)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_NOTDEF));
+		paintLine(xpos1, &ypos, width1, "(9)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DECREASE));
+		paintLine(xpos1, &ypos, width1, "(+/up)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_POS_INCREASE));
+		paintLine(xpos1, &ypos, width1, "(-/down)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_POS_DECREASE));
+		paintLine(xpos1, &ypos, width1, "(blue)");
+		paintLine(xpos2, ypos, width2, g_Locale->getText(LOCALE_MOTORCONTROL_STEP_DRIVE));
 	}
 
 	ypos_status = ypos;

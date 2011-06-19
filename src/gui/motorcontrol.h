@@ -70,9 +70,9 @@ class CMotorControl : public CMenuTarget
 		void paint();
 		void paintMenu(void);
 		void paintStatus(void);
-		void paintLine(int x, int * y, int width, char * txt);
-		void paintLine(int x, int y, int width, char * txt);
-		void paintSeparator(int xpos, int * ypos, int width, char * txt);
+		void paintLine(int x, int *y, int width, const char *txt);
+		void paintLine(int x, int y, int width, const char *txt);
+		void paintSeparator(int xpos, int * ypos, int width, const char *txt);
 		void motorStepEast(void);
 		void motorStepWest(void);
 		void startSatFind(void);
