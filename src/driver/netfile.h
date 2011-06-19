@@ -83,7 +83,7 @@ extern long	f_tell(FILE *);
 extern void	f_rewind(FILE *);
 extern int		f_seek(FILE *, long, int);
 extern int		f_status(FILE *, void (*)(void*));
-extern char	*f_type(FILE*, char*);
+extern const char	*f_type(FILE*, const char*);
 
 extern char err_txt[2048];
 

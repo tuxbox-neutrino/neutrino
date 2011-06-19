@@ -86,7 +86,7 @@ CBaseDec::RetCode CBaseDec::DecoderBase(CAudiofile* const in,
 				fprintf( stderr, "Error adding shoutcast callback: %s",
 						 err_txt );
 			}
-			if(ftype(fp, (char *) "ogg"))
+			if (ftype(fp, "ogg"))
 			{
 				Status = COggDec::getInstance()->Decoder( fp, OutputFd, state,
 																		&in->MetaData, t,

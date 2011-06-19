@@ -210,7 +210,7 @@ static int  base64_encode(char *dest, const char *src);
 
 void getOpts()
 {
-	char *dirs[] = { (char *) "/var/etc", (char *) ".", NULL };
+	const char *dirs[] = { "/var/etc", ".", NULL };
 	char buf[4096], *ptr;
 	int i;
 	FILE *fd = NULL;
@@ -1103,7 +1103,7 @@ FILE *f_open(const char *filename, const char *acctype)
 				{
 					if (((*(uint32_t *)&(magic[0])) & *(uint32_t *)&(known_magic[i].mask[0])) == *(uint32_t *)&(known_magic[i].mode[0]))
 					{
-						f_type(fd, (char *)known_magic[i].type);
+						f_type(fd, known_magic[i].type);
 						goto magic_found;
 					}
 				}
@@ -1116,16 +1116,16 @@ FILE *f_open(const char *filename, const char *acctype)
 
 				if (ptr++)
 				{
-					if( strcasecmp(ptr, "cdr") == 0) 	f_type(fd, (char *) "audio/cdr");
-					if( strcasecmp(ptr, "wav") == 0) 	f_type(fd, (char *) "audio/wave");
-					if( strcasecmp(ptr, "aif") == 0) 	f_type(fd, (char *) "audio/aifc");
-					if( strcasecmp(ptr, "snd") == 0) 	f_type(fd, (char *) "audio/snd");
+					if (strcasecmp(ptr, "cdr") == 0)	f_type(fd, "audio/cdr");
+					if (strcasecmp(ptr, "wav") == 0)	f_type(fd, "audio/wave");
+					if (strcasecmp(ptr, "aif") == 0)	f_type(fd, "audio/aifc");
+					if (strcasecmp(ptr, "snd") == 0)	f_type(fd, "audio/snd");
 
 					/* they should be obsolete now due to the file magic detection */
-					if( strcasecmp(ptr, "ogg") == 0) 	f_type(fd, (char *) "audio/ogg");
-					if( strcasecmp(ptr, "mp3") == 0) 	f_type(fd, (char *) "audio/mpeg");
-					if( strcasecmp(ptr, "mp2") == 0) 	f_type(fd, (char *) "audio/mpeg");
-					if( strcasecmp(ptr, "mpa") == 0) 	f_type(fd, (char *) "audio/mpeg");
+					if (strcasecmp(ptr, "ogg") == 0)	f_type(fd, "audio/ogg");
+					if (strcasecmp(ptr, "mp3") == 0)	f_type(fd, "audio/mpeg");
+					if (strcasecmp(ptr, "mp2") == 0)	f_type(fd, "audio/mpeg");
+					if (strcasecmp(ptr, "mpa") == 0)	f_type(fd, "audio/mpeg");
 				}
 magic_found:
 			;
@@ -1279,7 +1279,7 @@ size_t f_read (void *ptr, size_t size, size_t nitems, FILE *stream)
 	return rval;
 }
 
-char *f_type(FILE *stream, char *type)
+const char *f_type(FILE *stream, const char *type)
 {
 	int i;
 
