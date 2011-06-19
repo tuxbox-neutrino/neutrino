@@ -260,7 +260,7 @@ printf("CVFD::showServicename: %s\n", name.c_str());
 	if (mode != MODE_TVRADIO)
 		return;
 
-	ShowText((char *) name.c_str());
+	ShowText(name.c_str());
 	wake_up();
 }
 
@@ -289,7 +289,7 @@ void CVFD::showTime(bool force)
 				hour = t->tm_hour;
 				minute = t->tm_min;
 				strftime(timestr, 20, "%H:%M", t);
-				ShowText((char *) timestr);
+				ShowText(timestr);
 			}
 		}
 	}
@@ -391,7 +391,7 @@ void CVFD::showMenuText(const int /*position*/, const char * ptext, const int /*
 	if (mode != MODE_MENU_UTF8)
 		return;
 
-	ShowText((char *) ptext);
+	ShowText(ptext);
 	wake_up();
 }
 
@@ -401,7 +401,7 @@ void CVFD::showAudioTrack(const std::string & /*artist*/, const std::string & ti
 	if (mode != MODE_AUDIO)
 		return;
 printf("CVFD::showAudioTrack: %s\n", title.c_str());
-	ShowText((char *) title.c_str());
+	ShowText(title.c_str());
 	wake_up();
 
 #ifdef HAVE_LCD
@@ -467,7 +467,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 #endif
 
 	if(strlen(title))
-		ShowText((char *) title);
+		ShowText(title);
 	mode = m;
 	setlcdparameter();
 
@@ -669,23 +669,25 @@ void CVFD::ShowIcon(vfd_icon icon, bool show)
 		perror(show ? "IOC_VFD_SET_ICON" : "IOC_VFD_CLEAR_ICON");
 }
 
-void CVFD::ShowText(char * str)
+void CVFD::ShowText(const char *str)
 {
 	int len = strlen(str);
-	int i, ret;
+	int i = 0, ret;
 
 printf("CVFD::ShowText: [%s]\n", str);
-	for(i = len-1; i > 0; i--) {
-		if(str[i] == ' ')
-			str[i] = 0;
-		else
-			break;
+	if (len > 0)
+	{
+		for (i = len; i > 0; i--) {
+			if (str[i - 1] != ' ')
+				break;
+		}
 	}
 
-	if(!strcmp(str, text) || len > 255)
+	if (((int)strlen(text) == i && !strncmp(str, text, i)) || len > 255)
 		return;
 
-	strcpy(text, str);
+	strncpy(text, str, i);
+	text[i] = '\0';
 
 //printf("****************************** CVFD::ShowText: %s\n", str);
 	//FIXME !!

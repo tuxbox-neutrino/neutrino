@@ -2074,7 +2074,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CVFD::getInstance()->init(font.filename, font.name);
 
 	CVFD::getInstance()->Clear();
-	CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 
 	//zapit start parameters
 	Z_start_arg ZapStart_arg;
@@ -3517,7 +3517,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			printf("entering off state\n");
 			mode = mode_off;
-			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
+			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
 			system("/etc/init.d/rcK");
 			system("/bin/sync");
@@ -3624,7 +3624,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				funNotifier->changeNotify(NONEXISTANT_LOCALE, (void *) &fspeed);
 				delete funNotifier;
 			}
-			//CVFD::getInstance()->ShowText((char *) g_Locale->getText(LOCALE_MAINMENU_REBOOT));
+			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 			delete frameBuffer;
 
 #if 0 /* FIXME this next hack to test, until we find real crash on exit reason */

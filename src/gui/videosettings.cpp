@@ -428,7 +428,7 @@ void CVideoSettings::nextMode(void)
 	text =  VIDEOMENU_VIDEOMODE_OPTIONS[curmode].valname;
 
 	while(1) {
-		CVFD::getInstance()->ShowText((char *)text);
+		CVFD::getInstance()->ShowText(text);
 		int res = ShowHintUTF(LOCALE_VIDEOMENU_VIDEOMODE, text, 450, 2);
 
 		if(disp_cur && res != messages_return::handled)
@@ -455,7 +455,7 @@ void CVideoSettings::nextMode(void)
 		}
 		else if(res == messages_return::cancel_info) {
 			g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
-			//CVFD::getInstance()->ShowText((char *)text);
+			//CVFD::getInstance()->ShowText(text);
 			videoDecoder->SetVideoSystem(g_settings.video_Mode);
 			//return;
 			disp_cur = 1;

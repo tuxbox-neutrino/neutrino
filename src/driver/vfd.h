@@ -144,7 +144,7 @@ class CVFD
 		void Unlock();
 		void Clear();
 		void ShowIcon(vfd_icon icon, bool show);
-		void ShowText(char * str);
+		void ShowText(const char *str);
 		MODES getMode(void) { return mode; };
 #ifdef LCD_UPDATE
         private:
