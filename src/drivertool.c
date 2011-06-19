@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -181,7 +182,7 @@ int main(int argc, char **argv)
 
 	if (argv[1][0] == '-')
 	{
-		ir_protocol_t p;
+		ir_protocol_t p = IR_PROTOCOL_UNKNOWN;
 
 		switch (argv[1][1])
 		{
