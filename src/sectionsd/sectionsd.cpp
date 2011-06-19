@@ -1396,7 +1396,7 @@ static void removeWasteEvents()
 						while (xmlGetNextOccurence(node, "channel") != NULL) {
 //						printf("here5\n");
 							if (e->second->service_id != xmlGetNumericAttribute(node,
-									(char*)"service_id", 16))
+									"service_id", 16))
 								node = node->xmlNextNode;
 							else break;
 						}
