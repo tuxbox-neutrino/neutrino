@@ -90,6 +90,7 @@ if test "$enable_flac" = "yes"; then
 	AC_DEFINE(ENABLE_FLAC,1,[include FLAC support])
 fi
 
+AC_CHECK_HEADERS(coolstream/nevis_ir.h)
 
 #
 # Check for libtdservicedb - the new one - for testing only

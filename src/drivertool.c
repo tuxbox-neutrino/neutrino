@@ -17,6 +17,7 @@
  * right now the frontpanel and the IR remote drivers are implemented
  */
 
+#include <config.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>
@@ -28,6 +29,10 @@
 #include <sys/stat.h>
 
 #include <coolstream/cs_vfd.h>
+
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+#include <coolstream/nevis_ir.h>
+#endif
 
 #ifndef IOC_IR_SET_PRI_PROTOCOL
 /* unfortunately, the shipped headers seem to be still incomplete...
@@ -115,6 +120,10 @@ static struct ioctl_list n[] = {
 	{ 1, "IR_SET_X_DELAY",		IOC_IR_SET_X_DELAY,		TYPE_UINT },
 	{ 1, "IR_SET_FP_MODE",		IOC_IR_SET_FP_MODE,		TYPE_UINT },
 	{ 1, "IR_GET_PROTOCOLS",	IOC_IR_GET_PROTOCOLS,		TYPE_UINT_GET },
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+	{ 1, "IOC_IR_SET_PRI_KEYMAP",	IOC_IR_SET_PRI_KEYMAP,		TYPE_UNSUPP },
+	{ 1, "IOC_IR_SET_SEC_KEYMAP",	IOC_IR_SET_SEC_KEYMAP,		TYPE_UNSUPP },
+#endif
 	{ -1, NULL, 0, TYPE_UNSUPP }
 };
 
@@ -154,6 +163,8 @@ void usage(void)
 		printf("\t%-20s %s\n", n[i++].text, arg);
 	}
 	printf("\n");
+	printf("shortcuts:\n\t-c\tswitch primary remote to coolstream\n"
+		"\t-t <n>\tswitch primary remote to Tripledragon addr <n>\n\n");
 	exit(0);
 }
 
@@ -167,6 +178,52 @@ int main(int argc, char **argv)
 
 	if (argc < 2 || (argc > 1 && strcmp(argv[1], "-h") == 0))
 		usage();
+
+	if (argv[1][0] == '-')
+	{
+		ir_protocol_t p;
+
+		switch (argv[1][1])
+		{
+			case 't':
+				if (argc < 3)
+					usage(); /* does not return */
+				p = IR_PROTOCOL_RMAP_E;
+				a = (unsigned int) strtoll(argv[2], NULL, 0);
+				a <<= 16;
+				a |= 0x0A;
+				break;
+			case 'c':
+				p = IR_PROTOCOL_NECE;
+				a = 0xFF80;
+				break;
+			default:
+				usage();
+		}
+
+		fd = open(devices[1], O_RDONLY);
+		if (fd < 0)
+		{
+			perror(devices[1]);
+			return 1;
+		}
+		ret = ioctl(fd, IOC_IR_SET_PRI_PROTOCOL, p);
+		if (ret)
+		{
+			perror("IOC_IR_SET_PRI_PROTOCOL");
+			ret = errno;
+			close(fd);
+			return ret;
+		}
+		ret = ioctl(fd, IOC_IR_SET_PRI_ADDRESS, a);
+		if (ret)
+		{
+			perror("IOC_IR_SET_PRI_ADDRESS");
+			ret = errno;
+		}
+		close(fd);
+		return ret;
+	}
 
 	ret = 0;
 	while (n[i].text != NULL && strcmp(n[i].text, argv[1]) != 0)
