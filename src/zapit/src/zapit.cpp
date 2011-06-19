@@ -2330,6 +2330,7 @@ int zapit_main_thread(void *data)
 
 	SaveMotorPositions();
 
+	pthread_cancel(tsdt);
 	zapit_ready = 0;
 	pthread_join (tsdt, NULL);
 	INFO("shutdown started");
