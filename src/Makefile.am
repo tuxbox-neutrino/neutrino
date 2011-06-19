@@ -25,14 +25,7 @@ INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 
 if USE_TREMOR
-if USE_TREMOR_STATIC
-# i feel a guilty pleasure for those ugly hacks...
-VORBISLIBS_TMP1 = $(subst -L,,@VORBISIDEC_LIBS@)
-VORBISLIBS_TMP2 = $(subst -lvorbisidec,,$(VORBISLIBS_TMP1))
-VORBISLIBS = $(strip $(VORBISLIBS_TMP2))/libvorbisidec.a
-else
 VORBISLIBS = @VORBISIDEC_LIBS@
-endif
 else
 VORBISLIBS = -lvorbisfile -lvorbis -logg
 endif

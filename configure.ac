@@ -34,8 +34,13 @@ if test "$TREMOR" = "yes"; then
 	TUXBOX_APPS_LIB_PKGCONFIG(VORBISIDEC,vorbisidec)
 	AC_DEFINE(USE_TREMOR,1,use libvorbisidec/tremor library)
 fi
+
+if test "$TREMOR_STATIC" = "yes"; then
+	# hack to get the static lib location from the pkg-config data
+	VORBISIDEC_LIBS="$(echo $VORBISIDEC_LIBS | sed 's@-L@@; s@ -l.*@/libvorbisidec.a@;')"
+fi
+
 AM_CONDITIONAL(USE_TREMOR, test "$TREMOR" = "yes")
-AM_CONDITIONAL(USE_TREMOR_STATIC, test "$TREMOR_STATIC" = "yes")
 
 TUXBOX_APPS_LIB_CONFIG(CURL,curl-config)
 TUXBOX_APPS_LIB_CONFIG(FREETYPE,freetype-config)
