@@ -689,6 +689,12 @@ void CTimerList::paintItem(int pos)
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 
+	int real_width=width;
+	if (timerlist.size() > listmaxshow)
+	{
+		real_width-=15; //scrollbar
+	}
+
 	if (pos & 1)
 	{
 		color   = COL_MENUCONTENTDARK;
@@ -699,17 +705,12 @@ void CTimerList::paintItem(int pos)
 		color   = COL_MENUCONTENT;
 		bgcolor = COL_MENUCONTENT_PLUS_0;
 	}
+	frameBuffer->paintBoxRel(x, ypos, real_width, 2*fheight, bgcolor);
 
 	if (liststart + pos == selected)
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-	}
-
-	int real_width=width;
-	if (timerlist.size()>listmaxshow)
-	{
-		real_width-=15; //scrollbar
 	}
 
 	frameBuffer->paintBoxRel(x,ypos, real_width, 2*fheight, bgcolor, RADIUS_MID);
