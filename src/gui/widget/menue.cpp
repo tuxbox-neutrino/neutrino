@@ -250,7 +250,7 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	}
 
 	//paint only number if no icon was painted and keyval is numeric
-	if (CRCInput::isNumeric(directKey) && !icon_painted)
+	if (active && CRCInput::isNumeric(directKey) && !icon_painted)
 	{			
 		int number_w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(CRCInput::getKeyName(directKey));
 		
