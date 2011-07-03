@@ -45,6 +45,8 @@
 	private:
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
+		CRadiotextNotifier *radiotextNotifier;
+
 		
 		int width, selected;
 		
