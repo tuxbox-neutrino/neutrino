@@ -267,7 +267,7 @@ class CRCInput
 		int addTimer(struct timeval Timeout);
 		int addTimer(const time_t *Timeout);
 
-		void killTimer(uint32_t id);
+		void killTimer(uint32_t &id);
 
 		static int64_t calcTimeoutEnd_MS(const int timeout_in_milliseconds);
 		static int64_t calcTimeoutEnd(const int timeout_in_seconds);

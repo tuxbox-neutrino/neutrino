@@ -165,7 +165,6 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 				if (fadeValue >= 100) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					loop = false;
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
@@ -174,7 +173,6 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 				if (fadeValue <= g_settings.menu_Content_alpha) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					fadeIn = false;
 					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
@@ -187,7 +185,6 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		{
 			if ( fadeIn ) {
 				g_RCInput->killTimer(fadeTimer);
-				fadeTimer = 0;
 				fadeIn = false;
 			}
 			if ((!fadeOut) && g_settings.widget_fade) {
@@ -285,7 +282,6 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 	hide();
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-		fadeTimer = 0;
 		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 	}

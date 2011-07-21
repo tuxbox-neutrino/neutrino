@@ -504,7 +504,6 @@ int CTimerList::show()
 				if (fadeValue >= 100) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					loop = false;
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
@@ -513,7 +512,6 @@ int CTimerList::show()
 				if (fadeValue <= g_settings.menu_Content_alpha) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					fadeIn = false;
 					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
@@ -526,7 +524,6 @@ int CTimerList::show()
 		{	//Exit after timeout or cancel key
 			if ( fadeIn ) {
 				g_RCInput->killTimer(fadeTimer);
-				fadeTimer = 0;
 				fadeIn = false;
 			}
 			if ((!fadeOut) && g_settings.widget_fade) {
@@ -663,7 +660,6 @@ int CTimerList::show()
 	}
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-		fadeTimer = 0;
 		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 	}

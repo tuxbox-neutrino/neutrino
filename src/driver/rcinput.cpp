@@ -380,9 +380,12 @@ int CRCInput::addTimer(const time_t *Timeout)
 	return addTimer( (uint64_t)*Timeout* (uint64_t) 1000000, true, false );
 }
 
-void CRCInput::killTimer(uint32_t id)
+void CRCInput::killTimer(uint32_t &id)
 {
 //printf("killing timer %d\n", id);
+	if(id == 0)
+		return;
+
 	std::vector<timer>::iterator e;
 	for ( e= timers.begin(); e!= timers.end(); ++e )
 		if ( e->id == id )
@@ -390,6 +393,7 @@ void CRCInput::killTimer(uint32_t id)
 			timers.erase(e);
 			break;
 		}
+	id = 0;
 }
 
 int CRCInput::checkTimers()
@@ -1017,7 +1021,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								break;
 							case CZapitClient::EVT_PMT_CHANGED:
 								*msg          = NeutrinoMessages::EVT_PMT_CHANGED;
-								*data         = 0;
+								*data = (neutrino_msg_data_t) p;
 								break;
 							default:
 								printf("[neutrino] event INITID_ZAPIT - unknown eventID 0x%x\n",  emsg.eventID );

@@ -300,7 +300,6 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				if (fadeValue >= 100) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					loop = false;
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
@@ -309,7 +308,6 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				if (fadeValue <= g_settings.menu_Content_alpha) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					fadeIn = false;
 					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
@@ -322,7 +320,6 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			selected = oldselected;
 			if ( fadeIn ) {
 				g_RCInput->killTimer(fadeTimer);
-				fadeTimer = 0;
 				fadeIn = false;
 			}
 			if ((!fadeOut) && g_settings.widget_fade) {
@@ -543,7 +540,6 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				selected = oldselected;
 				if ( fadeIn ) {
 					g_RCInput->killTimer(fadeTimer);
-					fadeTimer = 0;
 					fadeIn = false;
 				}
 				if ((!fadeOut) && g_settings.widget_fade) {
@@ -669,7 +665,6 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	hide();
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-		fadeTimer = 0;
 		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 	}

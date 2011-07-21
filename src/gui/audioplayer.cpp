@@ -2294,9 +2294,7 @@ void CAudioPlayerGui::screensaver(bool on)
 	}
 	else
 	{
-		if (stimer)
-			g_RCInput->killTimer(stimer);
-		stimer = 0;
+		g_RCInput->killTimer(stimer);
 		m_screensaver = false;
 #if 0
 		m_frameBuffer->loadPal("radiomode.pal", 18, COL_MAXFREE);
