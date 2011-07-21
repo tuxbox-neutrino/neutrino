@@ -38,15 +38,12 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/infoviewer.h>
-#include <driver/vcrcontrol.h>
 
 #include <driver/encoding.h>
+#include <driver/record.h>
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"
 
-//FIXME: auto-timeshift
-extern bool autoshift;
-extern uint32_t shift_timer;
 extern uint32_t scrambled_timer;
 extern t_channel_id live_channel_id; //zapit
 
@@ -226,8 +223,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				if ( needs_nvods )
 					getNVODs();
 
-				if ( current_programm_timer != 0 )
-					g_RCInput->killTimer( current_programm_timer );
+				g_RCInput->killTimer( current_programm_timer );
 
 				time_t end_program= info_CN->current_zeit.startzeit+ info_CN->current_zeit.dauer;
 				current_programm_timer = g_RCInput->addTimer( &end_program );
@@ -255,8 +251,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 
 				// timer setzen
 
-	        	if ( current_programm_timer != 0 )
-					g_RCInput->killTimer( current_programm_timer );
+			    g_RCInput->killTimer( current_programm_timer );
 
 				time_t end_program= info_CN->next_zeit.startzeit;
 				current_programm_timer = g_RCInput->addTimer( &end_program );
@@ -595,10 +590,7 @@ const std::string & CRemoteControl::setSubChannel(const int numSub, const bool f
 	selected_subchannel = numSub;
 	current_sub_channel_id = subChannels[numSub].getChannelID();
 	g_InfoViewer->chanready = 0;
-	if(scrambled_timer) {
-		g_RCInput->killTimer(scrambled_timer);
-		scrambled_timer = 0;
-	}
+	g_RCInput->killTimer(scrambled_timer);
 
 	g_Zapit->zapTo_subServiceID_NOWAIT( current_sub_channel_id );
 	// Houdini: to restart reading the private EPG when switching to a new option
@@ -676,14 +668,10 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 	if ( zap_completion_timeout < now )
 	{
 		g_InfoViewer->chanready = 0;
-		if(autoshift) {
-			stopAutoRecord();
-			CNeutrinoApp::getInstance ()->recordingstatus = 0;
-		}
-		if(scrambled_timer) {
-			g_RCInput->killTimer(scrambled_timer);
-			scrambled_timer = 0;
-		}
+
+		CRecordManager::getInstance()->StopAutoRecord();
+
+		g_RCInput->killTimer(scrambled_timer);
 		//dvbsub_pause(true);
 		abort_zapit = 1;
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
@@ -691,11 +679,7 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		abort_zapit = 0;
 
 		zap_completion_timeout = now + 2 * (int64_t) 1000000;
-		if ( current_programm_timer != 0 )
-		{
-			g_RCInput->killTimer( current_programm_timer );
-			current_programm_timer = 0;
-		}
+		g_RCInput->killTimer( current_programm_timer );
 	}
 }
 
