@@ -138,8 +138,8 @@ class CFrontend
 		void				set12V(bool enable);
 		void				reset(void);
 		/* Private constructor */
-	public:
 		CFrontend(int Number = 0, int Adapter = 0);
+	public:
 		~CFrontend(void);
 		static CFrontend *getInstance(int Number = 0, int Adapter = 0);
 		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, int system = 0);
