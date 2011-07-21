@@ -46,6 +46,7 @@
 //unsigned char * buf;
 
 extern CZapitChannel *g_current_channel;
+extern t_channel_id live_channel_id;
 extern CCam *cam0;
 
 //int demuxfd[MAXPIDS];
@@ -53,20 +54,6 @@ extern CCam *cam0;
 static unsigned char exit_flag = 0;
 static unsigned int writebuf_size = 0;
 static unsigned char writebuf[PACKET_SIZE];
-
-#ifdef SYNC_TS
-static int sync_byte_offset (const unsigned char * buf, const unsigned int len)
-{
-
-	unsigned int i;
-
-	for (i = 0; i < len; i++)
-		if (buf[i] == 0x47)
-			return i;
-
-	return -1;
-}
-#endif
 
 void packet_stdout (int fd, unsigned char * buf, int count, void * /*p*/)
 {
@@ -339,7 +326,7 @@ void * streamts_live_thread(void *data)
 		return 0;
 	}
 
-	cDemux * dmx = new cDemux(1);
+	cDemux * dmx = new cDemux(STREAM_DEMUX);//FIXME
 
 	dmx->Open(DMX_TP_CHANNEL, NULL, DMX_BUFFER_SIZE);
 
@@ -347,56 +334,20 @@ void * streamts_live_thread(void *data)
 	for(int i = 1; i < demuxfd_count; i++)
 		dmx->addPid(pids[i]);
 
-	dmx->Start();
+	dmx->Start(true);//FIXME
 
-        if(g_current_channel)
-                cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() | DEMUX_DECODE_1 /*3*/, true); // demux 0 + 1, update
-
+	CCamManager::getInstance()->Start(live_channel_id, CCamManager::STREAM);
 	ssize_t r;
-#if 0
-	size_t pos;
-	ssize_t todo;
-#endif
-#ifdef SYNC_TS
-	int offset = 0;
-#endif
 
 	while (!exit_flag) {
 		r = dmx->Read(buf, IN_SIZE, 100);
 		if(r > 0)
 			packet_stdout(fd, buf, r, NULL);
-#if 0
-		todo = IN_SIZE;
-		pos = 0;
-
-		while ((!exit_flag) && (todo)) {
-			r = dmx->Read(buf+pos, todo, 100);
-			if (r > 0) {
-//printf("Read: %d\n", r);
-				pos += r;
-				todo -= r;
-			} else
-				usleep(1000);
-		}
-		if(!exit_flag) {
-#ifndef SYNC_TS
-			packet_stdout(fd, buf, IN_SIZE, NULL);
-#else
-			/* make sure to start with a ts header */
-			offset = sync_byte_offset(buf, IN_SIZE);
-
-			if (offset == -1)
-				continue;
-
-			packet_stdout(fd, buf + offset, IN_SIZE - offset, NULL);
-#endif
-		}
-#endif
 	}
 
 	printf("Exiting LIVE STREAM thread, fd %d\n", fd);
-        if(g_current_channel)
-		cam0->setCaPmt(g_current_channel->getCaPmt(), DEMUX_SOURCE_0, cam0->getCaMask() & ~DEMUX_DECODE_1 /* 1 */, true); // demux 0, update
+
+	CCamManager::getInstance()->Stop(live_channel_id, CCamManager::STREAM);
 
 	delete dmx;
 	free(buf);
