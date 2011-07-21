@@ -34,13 +34,12 @@
 #endif
 
 
-#include "gui/record_setup.h"
-
 #include <global.h>
 #include <neutrino.h>
 
 #include <mymenu.h>
 
+#include "gui/record_setup.h"
 #include "gui/filebrowser.h"
 
 #include <gui/widget/icons.h>
@@ -49,6 +48,7 @@
 #include <gui/widget/stringinput_ext.h>
 
 #include <driver/screen_max.h>
+#include <driver/record.h>
 
 #include <system/debug.h>
 
@@ -97,6 +97,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 				safe_mkdir(timeshiftDir);
 				printf("New timeshift dir: %s\n", timeshiftDir);
 			}
+			CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 		}
 		return res;
 	}
@@ -128,6 +129,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 					printf("New timeshift == rec dir\n");
 				}
 				printf("New timeshift dir: %s\n", timeshiftDir);
+				CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 			}
 		}
 		return res;
