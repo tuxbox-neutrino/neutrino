@@ -187,6 +187,7 @@ class CZapitMessages
 	struct commandZaptoServiceID
 	{
 		t_channel_id channel_id;
+		bool record;
 	};
 
 	struct commandSetAudioChannel

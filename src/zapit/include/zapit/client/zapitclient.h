@@ -271,6 +271,7 @@ class CZapitClient:public CBasicClient
 
 	/* zaps to channel, returns the "zap-status" */
 	unsigned int zapTo_serviceID(const t_channel_id channel_id);
+	unsigned int zapTo_record(const t_channel_id channel_id);
 
 	/* zaps to subservice, returns the "zap-status" */
 	unsigned int zapTo_subServiceID(const t_channel_id channel_id);

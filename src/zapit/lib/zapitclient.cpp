@@ -146,6 +146,24 @@ unsigned int CZapitClient::zapTo_serviceID(const t_channel_id channel_id)
 	CZapitMessages::commandZaptoServiceID msg;
 
 	msg.channel_id = channel_id;
+	msg.record = false;
+
+	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
+
+	CZapitMessages::responseZapComplete response;
+	CBasicClient::receive_data((char* )&response, sizeof(response));
+
+	close_connection();
+
+	return response.zapStatus;
+}
+
+unsigned int CZapitClient::zapTo_record(const t_channel_id channel_id)
+{
+	CZapitMessages::commandZaptoServiceID msg;
+
+	msg.channel_id = channel_id;
+	msg.record = true;
 
 	send(CZapitMessages::CMD_ZAPTO_SERVICEID, (const char *) & msg, sizeof(msg));
 

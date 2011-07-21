@@ -64,6 +64,8 @@ typedef uint64_t t_channel_id;
 #define CREATE_CHANNEL_ID64 (((uint64_t)(satellitePosition+freq*4) << 48) | ((uint64_t) transport_stream_id << 32) | ((uint64_t)original_network_id << 16) | (uint64_t)service_id)
 //#define CREATE_CHANNEL_ID64 CREATE_CHANNEL_ID_FROM_64(satellitePosition, service_id, original_network_id, transport_stream_id)
 
+#define SAME_TRANSPONDER(id1, id2) ((id1 >> 16) == (id2 >> 16))
+
 /* diseqc types */
 typedef enum {
 	NO_DISEQC,
