@@ -35,7 +35,6 @@ extern transponder_list_t transponders;
 extern tallchans allchans;
 extern int scanSDT;
 static int newfound;
-extern CFrontend *frontend;
 
 satellite_map_t satellitePositions;
 std::map<transponder_id_t, transponder> select_transponders;
@@ -315,7 +314,7 @@ int LoadMotorPositions(void)
 	FILE *fd = NULL;
 	char buffer[256] = "";
 	t_satellite_position satellitePosition;
-	int spos = 0, mpos = 0, diseqc = 0, uncom = 0, com = 0, usals = 0, inuse;
+	int spos = 0, mpos = 0, diseqc = 0, uncom = 0, com = 0, usals = 0, inuse, input = 0;
 	int offH = 10600, offL = 9750, sw = 11700;
 
 	printf("[getservices] loading motor positions...\n");
@@ -323,7 +322,7 @@ int LoadMotorPositions(void)
 	if ((fd = fopen(SATCONFIG, "r"))) {
 		fgets(buffer, 255, fd);
 		while(!feof(fd)) {
-			sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d", &spos, &mpos, &diseqc, &com, &uncom, &offL, &offH, &sw, &inuse, &usals);
+			sscanf(buffer, "%d %d %d %d %d %d %d %d %d %d %d", &spos, &mpos, &diseqc, &com, &uncom, &offL, &offH, &sw, &inuse, &usals, &input);
 
 			satellitePosition = spos;
 			sat_iterator_t sit = satellitePositions.find(satellitePosition);
@@ -337,6 +336,7 @@ int LoadMotorPositions(void)
 				sit->second.lnbSwitch = sw;
 				sit->second.use_in_scan = inuse;
 				sit->second.use_usals = usals;
+				sit->second.input = input;
 			}
 			fgets(buffer, 255, fd);
 		}
@@ -359,11 +359,11 @@ void SaveMotorPositions()
 		printf("[zapit] cannot open %s\n", SATCONFIG);
 		return;
 	}
-	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals\n");
+	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals, input\n");
 	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
+		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
 				sit->second.diseqc, sit->second.commited, sit->second.uncommited, sit->second.lnbOffsetLow,
-				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals);
+				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals, sit->second.input);
 	}
 	fdatasync(fileno(fd));
 	fclose(fd);
@@ -382,6 +382,7 @@ void init_sat(t_satellite_position position)
 	satellitePositions[position].lnbSwitch = 11700;
 	satellitePositions[position].use_in_scan = 0;
 	satellitePositions[position].use_usals = 0;
+	satellitePositions[position].input = 0;
 }
 
 int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_current)
@@ -545,7 +546,7 @@ void SaveServices(bool tocopy)
 #endif
 				continue;
 			}
-			switch (frontend->getInfo()->type) {
+			switch (CFrontend::getInstance()->getInfo()->type) {
 				case FE_QPSK: /* satellite */
 					sprintf(tpstr, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
 							tI->second.transport_stream_id, tI->second.original_network_id,
@@ -569,7 +570,7 @@ void SaveServices(bool tocopy)
 			for (ccI = allchans.begin(); ccI != allchans.end(); ccI++) {
 				if(ccI->second.getTransponderId() == tpid) {
 					if(!satdone) {
-						switch (frontend->getInfo()->type) {
+						switch (CFrontend::getInstance()->getInfo()->type) {
 							case FE_QPSK: /* satellite */
 								fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
 										spos_it->second.name.c_str(), spos_it->first, spos_it->second.diseqc, spos_it->second.uncommited);
@@ -608,7 +609,7 @@ void SaveServices(bool tocopy)
 			if(tpdone) fprintf(fd, "\t\t</TS>\n");
 		}
 		if(satdone) {
-			switch (frontend->getInfo()->type) {
+			switch (CFrontend::getInstance()->getInfo()->type) {
 				case FE_QPSK:
 					fprintf(fd, "\t</sat>\n");
 					break;

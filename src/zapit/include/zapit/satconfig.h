@@ -15,6 +15,7 @@ typedef struct sat_config {
 	std::string name;
 	int have_channels;
 	t_satellite_position position;
+	int input;
 } sat_config_t;
 
 typedef enum diseqc_cmd_order {

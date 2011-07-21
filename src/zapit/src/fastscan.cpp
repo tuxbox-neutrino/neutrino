@@ -31,7 +31,6 @@ extern bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_
 extern void stop_scan(const bool success);
 extern CEventServer *eventServer;
 
-extern CFrontend *frontend;
 extern CBouquetManager *g_bouquetManager;
 extern CBouquetManager* scanBouquetManager;
 extern CZapitClient::bouquetMode bouquetMode;
@@ -150,7 +149,7 @@ void * start_fast_scan(void * arg)
 		myZapitClient.reloadCurrentServices();
 	} else {
 		stop_scan(false);
-		frontend->setTsidOnid(0);
+		CFrontend::getInstance()->setTsidOnid(0);
 		//zapit(live_channel_id, 0);
 	}
 	fast_services_sat.clear();
@@ -355,7 +354,7 @@ int parse_fst(unsigned short pid, fast_scan_operator_t * op)
 						newchannel->number = num;
 
 						char pname[100];
-						if (frontend->getInfo()->type == FE_QPSK)
+						if (CFrontend::getInstance()->getInfo()->type == FE_QPSK)
 							snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
 						else
 							snprintf(pname, 100, "%s", providerName.c_str());
