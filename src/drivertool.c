@@ -273,6 +273,6 @@ int main(int argc, char **argv)
 		perror("ioctl");
 		ret = errno;
 	}
-
+	close(fd);
 	return ret;
 }
