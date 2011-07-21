@@ -47,14 +47,11 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/statvfs.h>
-
-
 #include <sys/socket.h>
 
 #include <iostream>
 #include <fstream>
 #include <string>
-
 
 #include "global.h"
 #include "neutrino.h"
@@ -67,7 +64,7 @@
 #include <driver/rcinput.h>
 #include <driver/shutdown_count.h>
 #include <driver/stream2file.h>
-#include <driver/vcrcontrol.h>
+#include <driver/record.h>
 
 #if HAVE_TRIPLEDRAGON
 #include <driver/lcdd.h>
@@ -156,20 +153,13 @@ bool has_hdd;
 #include "gui/infoclock.h"
 CInfoClock      *InfoClock;
 int allow_flash = 1;
-extern int was_record;
+//int was_record;
 Zapit_config zapitCfg;
 char zapit_lat[20];
 char zapit_long[20];
 bool autoshift = false;
-bool autoshift_delete = false;
-uint32_t shift_timer;
 uint32_t scrambled_timer;
-char recDir[255];
-char timeshiftDir[255];
 t_channel_id standby_channel_id;
-
-//char current_volume;
-extern int list_changed;
 
 static CProgressBar *g_volscale;
 //NEW
@@ -199,7 +189,6 @@ extern bool timeset; // sectionsd
 
 extern cVideo * videoDecoder;
 extern cAudio * audioDecoder;
-extern CFrontend * frontend;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
@@ -255,8 +244,6 @@ const char* usermenu_button_def[SNeutrinoSettings::BUTTON_MAX]={"red","green","y
 
 CZapitClient::SatelliteList satList;
 
-CVCRControl::CDevice * recordingdevice = NULL;
-
 static void initGlobals(void)
 {
 	g_fontRenderer  = NULL;
@@ -294,7 +281,6 @@ CNeutrinoApp::CNeutrinoApp()
 	channelList		= NULL;
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
-	nextRecordingInfo	= NULL;
 	networksetup		= NULL;
 	skipShutdownTimer=false;
 	current_muted = 0;
@@ -596,6 +582,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.auto_timeshift = configfile.getInt32( "auto_timeshift", 0 );
 	g_settings.auto_delete = configfile.getInt32( "auto_delete", 1 );
 
+	char timeshiftDir[255];
 	if(strlen(g_settings.timeshiftdir) == 0) {
 		sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
 		safe_mkdir(timeshiftDir);
@@ -605,7 +592,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		else
 			sprintf(timeshiftDir, "%s/.timeshift", g_settings.network_nfs_recordingdir);
 	}
-printf("***************************** rec dir %s timeshift dir %s\n", g_settings.network_nfs_recordingdir, timeshiftDir);
+	printf("***************************** rec dir %s timeshift dir %s\n", g_settings.network_nfs_recordingdir, timeshiftDir);
+	CRecordManager::getInstance()->SetTimeshiftDirectory(timeshiftDir);
 
 	if(g_settings.auto_delete) {
 		if(strcmp(g_settings.timeshiftdir, g_settings.network_nfs_recordingdir)) {
@@ -1687,18 +1675,6 @@ void CNeutrinoApp::SetupFrameBuffer()
 /**************************************************************************************
 *          CNeutrinoApp -  setup fonts                                                *
 **************************************************************************************/
-#if 0
-const neutrino_font_descr_struct predefined_font[2] =
-{
-	{"Micron"            , {FONTDIR "/micron.ttf"        , FONTDIR "/micron_bold.ttf", FONTDIR "/micron_italic.ttf"}, 0},
-	{"MD King KhammuRabi", {FONTDIR "/md_khmurabi_10.ttf", NULL                      , NULL                        }, 0}
-};
-const char* predefined_lcd_font[2][6] =
-{
-	{FONTDIR "/12.pcf.gz", "Fix12", FONTDIR "/14B.pcf.gz", "Fix14", FONTDIR "/15B.pcf.gz", "Fix15"},
-	{FONTDIR "/md_khmurabi_10.ttf", "MD King KhammuRabi", NULL, NULL,  NULL, NULL}
-};
-#endif
 
 void CNeutrinoApp::SetupFonts()
 {
@@ -1763,179 +1739,7 @@ void CNeutrinoApp::SetupTiming()
 }
 
 
-bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
-
-int startAutoRecord(bool addTimer)
-{
-	CTimerd::RecordingInfo eventinfo;
-	if(CNeutrinoApp::getInstance()->recordingstatus || !CVCRControl::getInstance()->isDeviceRegistered() || (g_settings.recording_type != RECORDING_FILE))
-		return 0;
-
-	CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo();
-
-	//eventinfo.channel_id = g_Zapit->getCurrentServiceID();
-	eventinfo.channel_id = live_channel_id;
-	CEPGData		epgData;
-	//if (g_Sectionsd->getActualEPGServiceKey(g_RemoteControl->current_channel_id&0xFFFFFFFFFFFFULL, &epgData ))
-	if (sectionsd_getActualEPGServiceKey(live_channel_id&0xFFFFFFFFFFFFULL, &epgData ))
-	{
-		eventinfo.epgID = epgData.eventID;
-		eventinfo.epg_starttime = epgData.epg_times.startzeit;
-		strncpy(eventinfo.epgTitle, epgData.title.c_str(), EPG_TITLE_MAXLEN-1);
-		eventinfo.epgTitle[EPG_TITLE_MAXLEN-1]=0;
-	}
-	else {
-		eventinfo.epgID = 0;
-		eventinfo.epg_starttime = 0;
-		strcpy(eventinfo.epgTitle, "");
-	}
-	eventinfo.apids = TIMERD_APIDS_CONF;
-printf("*********************************** startAutoRecord: dir %s\n", timeshiftDir);
-	(static_cast<CVCRControl::CFileDevice*>(recordingdevice))->Directory = timeshiftDir;
-
-	autoshift = 1;
-	CNeutrinoApp::getInstance()->recordingstatus = 1;
-	if(CVCRControl::getInstance()->Record(&eventinfo)==false) {
-		CNeutrinoApp::getInstance()->recordingstatus = 0;
-		autoshift = 0;
-	}
-	else if (addTimer) {
-		time_t now = time(NULL);
-		CNeutrinoApp::getInstance()->recording_id = g_Timerd->addImmediateRecordTimerEvent(eventinfo.channel_id, now, now+g_settings.record_hours*60*60, eventinfo.epgID, eventinfo.epg_starttime, eventinfo.apids);
-	}
-//printf("startAutoRecord: recording_id = %d\n", CNeutrinoApp::getInstance()->recording_id);
-	return 0;
-}
-void stopAutoRecord()
-{
-	if(autoshift && CNeutrinoApp::getInstance()->recordingstatus) {
-printf("stopAutoRecord: autoshift, recordingstatus %d, stopping ...\n", CNeutrinoApp::getInstance()->recordingstatus);
-		CVCRControl::getInstance()->Stop();
-		autoshift = false;
-		if(CNeutrinoApp::getInstance()->recording_id) {
-//printf("stopAutoRecord: recording_id = %d\n", CNeutrinoApp::getInstance()->recording_id);
-			g_Timerd->stopTimerEvent(CNeutrinoApp::getInstance()->recording_id);
-			CNeutrinoApp::getInstance()->recording_id = 0;
-		}
-	} else if(shift_timer)  {
-		g_RCInput->killTimer (shift_timer);
-		shift_timer = 0;
-	}
-}
-
-bool CNeutrinoApp::doGuiRecord(char * preselectedDir, bool addTimer)
-{
-	CTimerd::RecordingInfo eventinfo;
-	bool refreshGui = false;
-	if(CVCRControl::getInstance()->isDeviceRegistered()) {
-		if(autoshift) {
-			stopAutoRecord();
-		}
-		if(recordingstatus == 1) {
-			puts("[neutrino.cpp] executing " NEUTRINO_RECORDING_START_SCRIPT ".");
-			if (system(NEUTRINO_RECORDING_START_SCRIPT) != 0)
-				perror(NEUTRINO_RECORDING_START_SCRIPT " failed");
-
-			CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo();
-
-			//eventinfo.channel_id = g_Zapit->getCurrentServiceID();
-			eventinfo.channel_id = live_channel_id;
-			CEPGData		epgData;
-			//if (g_Sectionsd->getActualEPGServiceKey(g_RemoteControl->current_channel_id&0xFFFFFFFFFFFFULL, &epgData ))
-			if (sectionsd_getActualEPGServiceKey(live_channel_id&0xFFFFFFFFFFFFULL, &epgData ))
-			{
-				eventinfo.epgID = epgData.eventID;
-				eventinfo.epg_starttime = epgData.epg_times.startzeit;
-				strncpy(eventinfo.epgTitle, epgData.title.c_str(), EPG_TITLE_MAXLEN-1);
-				eventinfo.epgTitle[EPG_TITLE_MAXLEN-1]=0;
-			}
-			else {
-				eventinfo.epgID = 0;
-				eventinfo.epg_starttime = 0;
-				strcpy(eventinfo.epgTitle, "");
-			}
-			eventinfo.apids = TIMERD_APIDS_CONF;
-			bool doRecord = true;
-			if (g_settings.recording_type == RECORDING_FILE) {
-				strcpy(recDir, (preselectedDir != NULL) ? preselectedDir : g_settings.network_nfs_recordingdir);
-				// data == NULL -> called after stream problem so do not show a dialog again
-				// but which dir has been chosen?
-				if(preselectedDir == NULL && (g_settings.recording_choose_direct_rec_dir == 2)) {
-					CFileBrowser b;
-					b.Dir_Mode=true;
-					refreshGui = true;
-					if (b.exec(g_settings.network_nfs_recordingdir)) {
-						strcpy(recDir, b.getSelectedFile()->Name.c_str());
-					}
-					else doRecord = false;
-				}
-				else if(preselectedDir == NULL && (g_settings.recording_choose_direct_rec_dir == 1)) {
-					int userDecision = -1;
-					CMountChooser recDirs(LOCALE_TIMERLIST_RECORDING_DIR,NEUTRINO_ICON_SETTINGS,&userDecision,NULL,g_settings.network_nfs_recordingdir);
-					if (recDirs.hasItem()) {
-						recDirs.exec(NULL,"");
-						refreshGui = true;
-						if (userDecision != -1) {
-							//recDir = g_settings.network_nfs_local_dir[userDecision];
-							strcpy(recDir, g_settings.network_nfs_local_dir[userDecision]);
-							if (!CFSMounter::isMounted(g_settings.network_nfs_local_dir[userDecision]))
-							{
-								CFSMounter::MountRes mres =
-									CFSMounter::mount(g_settings.network_nfs_ip[userDecision].c_str(),
-											  g_settings.network_nfs_dir[userDecision],
-											  g_settings.network_nfs_local_dir[userDecision],
-											  (CFSMounter::FSType) g_settings.network_nfs_type[userDecision],
-											  g_settings.network_nfs_username[userDecision],
-											  g_settings.network_nfs_password[userDecision],
-											  g_settings.network_nfs_mount_options1[userDecision],
-											  g_settings.network_nfs_mount_options2[userDecision]);
-								if (mres != CFSMounter::MRES_OK) {
-									//recDir = g_settings.network_nfs_local_dir[userDecision];
-									//strcpy(recDir, g_settings.network_nfs_local_dir[userDecision]);
-									doRecord = false;
-									const char * merr = mntRes2Str(mres);
-									int msglen = strlen(merr) + strlen(g_settings.network_nfs_local_dir[userDecision]) + 7;
-									char msg[msglen];
-									strcpy(msg,merr);
-									strcat(msg,"\nDir: ");
-									strcat(msg,g_settings.network_nfs_local_dir[userDecision]);
-
-									ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, msg,
-										   CMessageBox::mbrBack, CMessageBox::mbBack,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
-								}
-							}
-						} else {
-							doRecord = false;
-						}
-					} else {
-						printf("[neutrino.cpp] no network devices available\n");
-						doRecord = false;
-					}
-				}
-				(static_cast<CVCRControl::CFileDevice*>(recordingdevice))->Directory = recDir;
-printf("CNeutrinoApp::doGuiRecord: start to dir %s\n", recDir);
-			}
-			if(!doRecord || (CVCRControl::getInstance()->Record(&eventinfo)==false)) {
-				recordingstatus=0;
-				if(doRecord)
-					return true;// try to refresh gui if record was not ok ?
-				return refreshGui;
-			}
-			else if (addTimer) {
-				time_t now = time(NULL);
-				recording_id = g_Timerd->addImmediateRecordTimerEvent(eventinfo.channel_id, now, now+g_settings.record_hours*60*60, eventinfo.epgID, eventinfo.epg_starttime, eventinfo.apids);
-			}
-		} else {
-			g_Timerd->stopTimerEvent(recording_id);
-			startNextRecording();
-		}
-		return refreshGui;
-	}
-	else
-		puts("[neutrino.cpp] no recording devices");
-	return false;
-}
 
 #define LCD_UPDATE_TIME_RADIO_MODE (6 * 1000 * 1000)
 #define LCD_UPDATE_TIME_TV_MODE (60 * 1000 * 1000)
@@ -1996,48 +1800,16 @@ void CNeutrinoApp::InitZapper()
 
 void CNeutrinoApp::setupRecordingDevice(void)
 {
-	if (g_settings.recording_type == RECORDING_SERVER)
-	{
-		unsigned int port;
-		sscanf(g_settings.recording_server_port, "%u", &port);
-
-		recordingdevice = new CVCRControl::CServerDevice(g_settings.recording_stopplayback, g_settings.recording_stopsectionsd, g_settings.recording_server_ip.c_str(), port);
-		CVCRControl::getInstance()->registerDevice(recordingdevice);
-	}
-	else if (g_settings.recording_type == RECORDING_FILE)
-	{
-		unsigned int splitsize, ringbuffers;
-		sscanf(g_settings.recording_splitsize, "%u", &splitsize);
-		sscanf(g_settings.recording_ringbuffers, "%u", &ringbuffers);
-
-		recordingdevice = new CVCRControl::CFileDevice(g_settings.recording_stopplayback, g_settings.recording_stopsectionsd, g_settings.network_nfs_recordingdir, splitsize, g_settings.recording_use_o_sync, g_settings.recording_use_fdatasync, g_settings.recording_stream_vtxt_pid, g_settings.recording_stream_pmt_pid, ringbuffers);
-
-		CVCRControl::getInstance()->registerDevice(recordingdevice);
-	}
-	else if(g_settings.recording_type == RECORDING_VCR)
-	{
-		recordingdevice = new CVCRControl::CVCRDevice((g_settings.recording_vcr_no_scart == 0));
-
-		CVCRControl::getInstance()->registerDevice(recordingdevice);
-	}
-	else
-	{
-		if (CVCRControl::getInstance()->isDeviceRegistered())
-			CVCRControl::getInstance()->unregisterDevice();
-	}
+	CRecordManager::getInstance()->SetDirectory(g_settings.network_nfs_recordingdir);
+	CRecordManager::getInstance()->Config(g_settings.recording_stopsectionsd, g_settings.recording_stream_vtxt_pid, g_settings.recording_stream_pmt_pid);
 }
-
-#if 0
-CPipSetup * g_Pip0;
-#endif
-
-//extern CMenuOptionStringChooser* tzSelect;
 
 static void CSSendMessage(uint32_t msg, uint32_t data)
 {
 	if (g_RCInput)
 		g_RCInput->postMsg(msg, data);
 }
+
 extern bool timer_wakeup;//timermanager.cpp
 int CNeutrinoApp::run(int argc, char **argv)
 {
@@ -2209,8 +1981,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	Timerlist                 = new CTimerList;
 
 	// setup recording device
-	if (g_settings.recording_type != RECORDING_OFF)
-		setupRecordingDevice();
+	setupRecordingDevice();
 
 	dprintf( DEBUG_NORMAL, "menue setup\n");
 
@@ -2367,10 +2138,15 @@ void CNeutrinoApp::quickZap(int msg)
 	int res;
 
 	StopSubtitles();
-	if(recordingstatus && !autoshift) {
+#if 1
+	if(recordingstatus && !autoshift) 
+#else
+	CRecordManager::getInstance()->StopAutoRecord();
+	if(CRecordManager::getInstance()->RecordingStatus()) 
+#endif
+	{
 		res = channelList->numericZap(g_settings.key_zaphistory);
-		if(res < 0)
-			StartSubtitles();
+		StartSubtitles(res < 0);
 		return;
 	}
 	if((bouquetList != NULL) && !(bouquetList->Bouquets.empty()))
@@ -2508,69 +2284,62 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				} else {
 					StopSubtitles();
 					int res = channelList->numericZap( msg );
-					if(res < 0)
-						StartSubtitles();
+					StartSubtitles(res < 0);
 				}
 			}
 			else if (msg == CRCInput::RC_games){
 					StopSubtitles();
 					int res = channelList->numericZap( msg );
-					if(res < 0)
-						StartSubtitles();
+					StartSubtitles(res < 0);
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
 				StopSubtitles();
 				int res = channelList->numericZap( msg );
-				if(res < 0)
-					StartSubtitles();
+				StartSubtitles(res < 0);
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_plugin ) {
 				g_PluginList->start_plugin_by_name(g_settings.onekey_plugin.c_str(), 0);
 			}
-			else if( (msg == (neutrino_msg_t) g_settings.key_timeshift) || msg == CRCInput::RC_rewind) {
-			   if((g_settings.recording_type == RECORDING_FILE) && !g_settings.minimode) {
-printf("[neutrino] timeshift try, recordingstatus %d, rec dir %s, timeshift dir %s temp timeshift %d ...\n", recordingstatus, g_settings.network_nfs_recordingdir, timeshiftDir, g_settings.temp_timeshift);
-				std::string tmode;
-				if(msg == CRCInput::RC_rewind)
-					tmode = "rtimeshift"; // rewind
-				else if(recordingstatus && msg == (neutrino_msg_t) g_settings.key_timeshift)
-					tmode = "ptimeshift"; // already recording, pause
-				else
-					tmode = "timeshift"; // record just started
-
+			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
 				if(g_RemoteControl->is_video_started) {
-					if(recordingstatus) {
-						//StopSubtitles();
-						CMoviePlayerGui::getInstance().exec(NULL, tmode);
-						//StartSubtitles();
-					} else if(msg != CRCInput::RC_rewind) {
-						//StopSubtitles();
-						if(g_settings.temp_timeshift) {
-							startAutoRecord(true);
-						} else {
-							recordingstatus = 1;
-							doGuiRecord(g_settings.network_nfs_recordingdir, true);
-						}
-						if(recordingstatus) {
-							//StopSubtitles();
-							CMoviePlayerGui::getInstance().exec(NULL, tmode);
-							//StartSubtitles();
-						}
+					std::string tmode;
+					bool res = true;
+					if(CRecordManager::getInstance()->RecordingStatus(live_channel_id)) {
+						tmode = "ptimeshift"; // already recording, pause
+					} else {
+						if(g_settings.temp_timeshift)
+							res = CRecordManager::getInstance()->StartAutoRecord();
+						else
+							res = CRecordManager::getInstance()->Record(live_channel_id);
+						tmode = "timeshift"; // record just started
 					}
+					if(res)
+						CMoviePlayerGui::getInstance().exec(NULL, tmode);
 				}
-			   }
 			}
-			else if( msg == CRCInput::RC_record || msg == CRCInput::RC_stop ) {
-printf("[neutrino] direct record\n");
-				if(recordingstatus) {
-					if(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY,
-						CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
-							g_Timerd->stopTimerEvent(recording_id);
-				} else if(msg != CRCInput::RC_stop ) {
-					recordingstatus = 1;
-					doGuiRecord(g_settings.network_nfs_recordingdir, true);
+			else if(msg == CRCInput::RC_rewind) {
+				if(g_RemoteControl->is_video_started) {
+					if(CRecordManager::getInstance()->RecordingStatus(live_channel_id))
+						CMoviePlayerGui::getInstance().exec(NULL, "rtimeshift");
 				}
+			}
+			else if( msg == CRCInput::RC_record /* || msg == CRCInput::RC_stop*/ ) {
+				printf("[neutrino] direct record\n");
+				if(CRecordManager::getInstance()->RecordingStatus(live_channel_id)) {
+					CRecordManager::getInstance()->AskToStop(live_channel_id);
+				} else {
+#if 0 // uncomment, if ChooseRecDir and g_settings.recording_choose_direct_rec_dir ever used to select recording dir
+					CRecordManager::getInstance()->recordingstatus = 1;
+					CRecordManager::getInstance()->doGuiRecord();
+#else // direct record without any GUI
+					CRecordManager::getInstance()->Record(live_channel_id);
+#endif
+				}
+			}
+			else if( msg == CRCInput::RC_stop ) {
+				if(CRecordManager::getInstance()->RecordingStatus())
+					CRecordManager::getInstance()->ShowMenu();
 			}
 			else if( msg == CRCInput::RC_red ) {
 				StopSubtitles();
@@ -2624,8 +2393,7 @@ printf("[neutrino] direct record\n");
 			else if (CRCInput::isNumeric(msg)) {
 				StopSubtitles();
 				int res = channelList->numericZap( msg );
-				if(res < 0)
-					StartSubtitles();
+				StartSubtitles(res < 0);
 			}
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
@@ -2642,32 +2410,6 @@ printf("[neutrino] direct record\n");
 			else if (msg == CRCInput::RC_timer) {
 				Timerlist->exec(NULL, "");
 			}
-#if 0
-			else if( msg == CRCInput::RC_shift_blue ) {
-				if(CVFD::getInstance()->has_lcd) {
-					standbyMode( true );
-					//this->rcLock->exec(NULL,CRCLock::NO_USER_INPUT);
-					this->rcLock->lockBox();
-					standbyMode( false );
-				}
-			}
-			else if( msg == CRCInput::RC_shift_tv ) {
-				if(CVFD::getInstance()->has_lcd) { // FIXME hack for 5xxx dreams
-					scartMode( true );
-					//this->rcLock->exec(NULL,CRCLock::NO_USER_INPUT);
-					this->rcLock->lockBox();
-					scartMode( false );
-				}
-			}
-			else if( msg == CRCInput::RC_shift_red) {
-				if(CVFD::getInstance()->has_lcd) { // FIXME hack for 5xxx dreams
-					g_settings.minimode = !g_settings.minimode;
-					saveSetup(NEUTRINO_SETTINGS_FILE);
-				}
-			} else if( msg == CRCInput::RC_shift_radio) {
-				CVCRControl::getInstance()->Screenshot(g_RemoteControl->current_channel_id);
-			}
-#endif
 			else {
 				if (msg == CRCInput::RC_home) {
 					if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
@@ -2683,17 +2425,6 @@ printf("[neutrino] direct record\n");
 			// mode == mode_scart
 			if( msg == CRCInput::RC_home ) {
 				if( mode == mode_scart ) {
-					//wenn VCR Aufnahme dann stoppen
-					if(CVCRControl::getInstance()->isDeviceRegistered()) {
-						if ((CVCRControl::getInstance()->Device->getDeviceType() == CVCRControl::DEVICE_VCR) &&
-						    (CVCRControl::getInstance()->getDeviceState() == CVCRControl::CMD_VCR_RECORD ||
-						     CVCRControl::getInstance()->getDeviceState() == CVCRControl::CMD_VCR_PAUSE))
-						{
-							CVCRControl::getInstance()->Stop();
-							recordingstatus=0;
-							startNextRecording();
-						}
-					}
 					// Scart-Mode verlassen
 					scartMode( false );
 				}
@@ -2705,7 +2436,6 @@ printf("[neutrino] direct record\n");
 	}
 }
 
-extern CZapitChannel *channel;
 int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 {
 	int res = 0;
@@ -2715,6 +2445,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		g_Zapit->getAudioMode(&g_settings.audio_AnalogMode);
 		if(g_settings.audio_AnalogMode < 0 || g_settings.audio_AnalogMode > 2)
 			g_settings.audio_AnalogMode = 0;
+
 #if 0 // per-channel auto volume save/restore
 		unsigned int volume;
 		g_Zapit->getVolume(&volume, &volume);
@@ -2722,24 +2453,11 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		printf("zapit volume %d new current %d mode %d\n", volume, current_volume, g_settings.audio_AnalogMode);
 		setvol(current_volume,(g_settings.audio_avs_Control));
 #endif
-		if(shift_timer) {
-			g_RCInput->killTimer (shift_timer);
-			shift_timer = 0;
-		}
-		if (!recordingstatus && g_settings.auto_timeshift) {
-			int delay = g_settings.auto_timeshift;
-			shift_timer = g_RCInput->addTimer( delay*1000*1000, true );
-			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 1);
-		}
+		g_RCInput->killTimer(scrambled_timer);
 
-		if(scrambled_timer) {
-			g_RCInput->killTimer(scrambled_timer);
-			scrambled_timer = 0;
-		}
 		scrambled_timer = g_RCInput->addTimer(10*1000*1000, true);
 		SelectSubtitles();
-		if(!g_InfoViewer->is_visible)
-			StartSubtitles();
+		StartSubtitles(!g_InfoViewer->is_visible);
 
 		/* update scan settings for manual scan to current channel */
 		if(g_current_channel) {
@@ -2751,7 +2469,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			tI = transponders.find(g_current_channel->getTransponderId());
 			if(tI != transponders.end()) {
 				sprintf(scanSettings.TP_freq, "%d", tI->second.feparams.frequency);
-				switch (frontend->getInfo()->type) {
+				switch (CFrontend::getInstance()->getInfo()->type) {
 					case FE_QPSK:
 						sprintf(scanSettings.TP_rate, "%d", tI->second.feparams.u.qpsk.symbol_rate);
 						scanSettings.TP_fec = tI->second.feparams.u.qpsk.fec_inner;
@@ -2770,24 +2488,20 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		}
 	}
 	if ((msg == NeutrinoMessages::EVT_TIMER)) {
-		if(data == shift_timer) {
-			shift_timer = 0;
-			startAutoRecord(true);
-			return messages_return::handled;
-		} else if(data == scrambled_timer) {
+		if(data == scrambled_timer) {
 			scrambled_timer = 0;
 			if(g_settings.scrambled_message && videoDecoder->getBlank() && videoDecoder->getPlayState()) {
 				const char * text = g_Locale->getText(LOCALE_SCRAMBLED_CHANNEL);
 				ShowHintUTF (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text, true) + 10, 5);
 			}
 			return messages_return::handled;
-
 		}
 	}
 
 	res = res | g_RemoteControl->handleMsg(msg, data);
 	res = res | g_InfoViewer->handleMsg(msg, data);
 	res = res | channelList->handleMsg(msg, data);
+	res = res | CRecordManager::getInstance()->handleMsg(msg, data);
 
 	if( res != messages_return::unhandled ) {
 		if( ( msg>= CRCInput::RC_WithData ) && ( msg< CRCInput::RC_WithData+ 0x10000000 ) )
@@ -2840,8 +2554,7 @@ _repeat:
 				bouquetList->activateBouquet(old_b, false);
 				if(bouquetList->Bouquets.size())
 					bouquetList->Bouquets[old_b]->channelList->setSelected(old_num-1);
-				if(mode == mode_tv)
-					StartSubtitles();
+				StartSubtitles(mode == mode_tv);
 			}
 			else if(nNewChannel == -3) { // list mode changed
 				printf("************************* ZAP NEW MODE: bouquetList %p size %d\n", bouquetList, bouquetList->Bouquets.size());fflush(stdout);
@@ -3024,12 +2737,12 @@ _repeat:
 		CControldMsg::commandMute* cmd = (CControldMsg::commandMute*) data;
 		if(cmd->type == (CControld::volume_type)g_settings.audio_avs_Control)
 			AudioMute( cmd->mute, true );
-#endif
 		delete[] (unsigned char*) data;
+#endif
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::EVT_SERVICESCHANGED ) {
-printf("NeutrinoMessages::EVT_SERVICESCHANGED\n");fflush(stdout);
+		printf("NeutrinoMessages::EVT_SERVICESCHANGED\n");fflush(stdout);
 		channelsInit();
 		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		if(old_b_id >= 0) {
@@ -3039,125 +2752,70 @@ printf("NeutrinoMessages::EVT_SERVICESCHANGED\n");fflush(stdout);
 		}
 	}
 	else if( msg == NeutrinoMessages::EVT_BOUQUETSCHANGED ) {
-printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
+		printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		channelsInit();
 		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::EVT_RECORDMODE ) {
-		/* sent by rcinput, then got msg from zapit about record activated/deactivated */
-		dprintf(DEBUG_DEBUG, "neutrino - recordmode %s\n", ( data ) ? "on":"off" );
-		if(!recordingstatus && was_record && (!data)) {
-			g_Zapit->setStandby(true);
-			was_record = 0;
-			if( mode == mode_standby )
+		/* sent by rcinput, when got msg from zapit about record activated/deactivated */
+		/* should be sent when no record running */
+		printf("NeutrinoMessages::EVT_RECORDMODE: %s\n", ( data ) ? "on" : "off");
+		//if(!CRecordManager::getInstance()->RecordingStatus() && was_record && (!data)) 
+
+		/* no records left and record mode off FIXME check !*/
+		if(!CRecordManager::getInstance()->RecordingStatus() && (!data)) 
+		{
+			if(mode == mode_standby) {
+				g_Zapit->setStandby(true);
 				cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
+			}
 		}
-		if( mode == mode_standby && data )
-			was_record = 1;
 		recordingstatus = data;
+		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
+		CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, recordingstatus != 0);
+
 		if( ( !g_InfoViewer->is_visible ) && data && !autoshift)
 			g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::RECORD_START) {
-		if( mode == mode_standby ) {//FIXME better at announce ?
+		//FIXME better at announce ?
+		if( mode == mode_standby ) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 			if(g_settings.ci_standby_reset) {
 				g_CamHandler->exec(NULL, "ca_ci_reset0");
 				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
 		}
-
-		if(autoshift) {
-			stopAutoRecord();
-			recordingstatus = 0;
-		}
-		puts("[neutrino.cpp] executing " NEUTRINO_RECORDING_START_SCRIPT ".");
-		if (system(NEUTRINO_RECORDING_START_SCRIPT) != 0)
-			perror(NEUTRINO_RECORDING_START_SCRIPT " failed");
-		/* set nextRecordingInfo to current event (replace other scheduled recording if available) */
-		/* Note: CTimerd::RecordingInfo is a class!
-		 * => typecast to avoid destructor call */
-
-		if (nextRecordingInfo != NULL)
-			delete[] (unsigned char *) nextRecordingInfo;
-
-		nextRecordingInfo = (CTimerd::RecordingInfo *) data;
-		startNextRecording();
+		CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
+		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 
 		return messages_return::handled | messages_return::cancel_all;
 	}
 	else if( msg == NeutrinoMessages::RECORD_STOP) {
-		if(((CTimerd::RecordingStopInfo*)data)->eventID == recording_id)
-		{ // passendes stop zur Aufnahme
-			//CVCRControl * vcr_control = CVCRControl::getInstance();
-			if (CVCRControl::getInstance()->isDeviceRegistered()) {
-				CVCRControl::CVCRStates state = CVCRControl::getInstance()->getDeviceState();
-				if ((state == CVCRControl::CMD_VCR_RECORD) ||
-						(state == CVCRControl::CMD_VCR_PAUSE ))
-				{
-					CVCRControl::getInstance()->Stop();
-					recordingstatus = 0;
-					autoshift = 0;
-				}
-				else
-					printf("NeutrinoMessages::RECORD_STOP: false state %d\n", state);
-			}
-			else
-				puts("[neutrino.cpp] no recording devices");
-
-			startNextRecording();
-
-			if (recordingstatus == 0) {
-				puts("[neutrino.cpp] executing " NEUTRINO_RECORDING_ENDED_SCRIPT ".");
-				if (system(NEUTRINO_RECORDING_ENDED_SCRIPT) != 0)
-					perror(NEUTRINO_RECORDING_ENDED_SCRIPT " failed");
-				if( mode == mode_standby )
-					cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
-			}
-		}
-		else if(nextRecordingInfo!=NULL) {
-			if(((CTimerd::RecordingStopInfo*)data)->eventID == nextRecordingInfo->eventID) {
-				/* Note: CTimerd::RecordingInfo is a class!
-				 * => typecast to avoid destructor call */
-				delete[] (unsigned char *) nextRecordingInfo;
-				nextRecordingInfo=NULL;
-			}
-		}
+		CTimerd::RecordingStopInfo* recinfo = (CTimerd::RecordingStopInfo*)data;
+		printf("NeutrinoMessages::RECORD_STOP: eventID %d channel_id %llx\n", recinfo->eventID, recinfo->channel_id);
+		CRecordManager::getInstance()->Stop(recinfo);
+#if 0 // done when EVT_RECORDMODE received ?
+		if((mode == mode_standby) && !CRecordManager::getInstance()->RecordingStatus())
+			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
+#endif
+		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::EVT_PMT_CHANGED) {
 		res = messages_return::handled;
-#if 1 // debug
-		printf("NeutrinoMessages::EVT_PMT_CHANGED: vpid %x apids(%d): ", g_RemoteControl->current_PIDs.PIDs.vpid, g_RemoteControl->current_PIDs.APIDs.size());
-		for(unsigned int i = 0; i < g_RemoteControl->current_PIDs.APIDs.size(); i++)
-			printf("%x ", g_RemoteControl->current_PIDs.APIDs[i].pid);
-		printf("\n");
+		t_channel_id channel_id = *(t_channel_id*) data;
+		CRecordManager::getInstance()->Update(channel_id);
+#if 0 //TODO ?
+		/* if new vpid */
+		if(CMoviePlayerGui::getInstance().timeshift)
+			res |= messages_return::cancel_all;
+	}
 #endif
-
-		if(!autoshift && recordingstatus && (rec_channel_id == live_channel_id)) {
-#if 1 // debug
-			unsigned short vpid, apid, apidnum;
-			unsigned short apids[REC_MAX_APIDS];
-			CVCRControl::getInstance()->GetPids(&vpid, NULL, &apid, NULL, &apidnum, apids, NULL);
-			printf("NeutrinoMessages::EVT_PMT_CHANGED: old vpid %x apids(%d): ", vpid, apidnum);
-			for(unsigned int i = 0; i < apidnum; i++)
-				printf("%x ", apids[i]);
-			printf("\n");
-#endif
-
-			if((g_RemoteControl->current_PIDs.PIDs.vpid != vpid)) {
-				CVCRControl::getInstance()->Stop();
-				/* FIXME CVCRControl::getInstance()->Directory ? */
-				doGuiRecord(g_settings.network_nfs_recordingdir, false);
-				if(CMoviePlayerGui::getInstance().timeshift)
-					res |= messages_return::cancel_all;
-			} else
-				CVCRControl::getInstance()->Update();
-		}
 		return res;
 	}
 	else if( msg == NeutrinoMessages::ZAPTO) {
@@ -3229,12 +2887,14 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
 		system(NEUTRINO_RECORDING_TIMER_SCRIPT);
+#if 0 // FIXME: we dont have menu to config g_settings.recording_server_mac. Outdated code ?
 		if( g_settings.recording_server_wakeup ) {
 			std::string command = "ether-wake ";
 			command += g_settings.recording_server_mac;
 			if(system(command.c_str()) != 0)
 				perror("ether-wake failed");
 		}
+#endif
 		if (g_settings.recording_type == RECORDING_FILE) {
 			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -3247,16 +2907,14 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 					break;
 				}
 			}
-			if(autoshift) {
-				stopAutoRecord();
-				recordingstatus = 0;
-			}
 			if(has_hdd) {
 				system("(rm /media/sda1/.wakeup; touch /media/sda1/.wakeup; sync) > /dev/null  2> /dev/null &"); // wakeup hdd
 			}
 		}
 		if( g_settings.recording_zap_on_announce ) {
-			if(recordingstatus==0) {
+			//TODO check transponder ?
+			CRecordManager::getInstance()->StopAutoRecord();
+			if(!CRecordManager::getInstance()->RecordingStatus()) {
 				dvbsub_stop(); //FIXME if same channel ?
 				t_channel_id channel_id=((CTimerd::RecordingInfo*)data)->channel_id;
 				g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
@@ -3351,35 +3009,11 @@ printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_RECORDING_ENDED) {
-		if (mode != mode_scart) {
-			neutrino_locale_t msgbody;
-			if ((* (stream2file_status2_t *) data).status == STREAM2FILE_STATUS_BUFFER_OVERFLOW)
-				msgbody = LOCALE_STREAMING_BUFFER_OVERFLOW;
-			else if ((* (stream2file_status2_t *) data).status == STREAM2FILE_STATUS_WRITE_OPEN_FAILURE)
-				msgbody = LOCALE_STREAMING_WRITE_ERROR_OPEN;
-			else if ((* (stream2file_status2_t *) data).status == STREAM2FILE_STATUS_WRITE_FAILURE)
-				msgbody = LOCALE_STREAMING_WRITE_ERROR;
-			else
-				goto skip_message;
+		/* FIXME TODO, when/if needed, monitor record status somewhere
+		 * and report possible error to user if any with this message ? 
+		 * not used/not supported for now */
+		//delete[] (unsigned char*) data;
 
-			/* use a short timeout of only 5 seconds in case it was only a temporary network problem
-			 * in case of STREAM2FILE_STATUS_IDLE we might even have to immediately start the next recording */
-			ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, msgbody, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO, 450, 5);
-
-skip_message:
-			;
-		}
-		if ((* (stream2file_status2_t *) data).status != STREAM2FILE_STATUS_IDLE) {
-			/*
-			 * note that changeNotify does not distinguish between LOCALE_MAINMENU_RECORDING_START and LOCALE_MAINMENU_RECORDING_STOP
-			 * instead it checks the state of the variable recordingstatus
-			 */
-			/* restart recording */
-			//FIXME doGuiRecord((*(stream2file_status2_t *) data).dir);
-			//changeNotify(LOCALE_MAINMENU_RECORDING_START, data);
-		}
-
-		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::REMIND) {
@@ -3399,28 +3033,15 @@ skip_message:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
-//		int newmode = data & mode_mask;
 
 		if((data & mode_mask)== mode_radio) {
 			if( mode != mode_radio ) {
 				radioMode((data & norezap) != norezap);
-#if 0
-				if((data & norezap) == norezap)
-					radioMode(false);
-				else
-					radioMode(true);
-#endif
 			}
 		}
 		if((data & mode_mask)== mode_tv) {
 			if( mode != mode_tv ) {
 				tvMode((data & norezap) != norezap);
-#if 0
-				if((data & norezap) == norezap)
-					tvMode(false);
-				else
-					tvMode(true);
-#endif
 			}
 		}
 		if((data & mode_mask)== mode_standby) {
@@ -3481,18 +3102,17 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 {
 	bool do_shutdown = true;
 
-	if(recordingstatus && !autoshift) {
+	CRecordManager::getInstance()->StopAutoRecord();
+	if(CRecordManager::getInstance()->RecordingStatus()) {
 		do_shutdown =
 			(ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_SHUTDOWN_RECODING_QUERY, CMessageBox::mbrNo, 
 					CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, true) == CMessageBox::mbrYes);
 	}
 
 	if(do_shutdown) {
-		if(recordingstatus) {
-			CVCRControl::getInstance()->Stop();
-			g_Timerd->stopTimerEvent(recording_id);
-		}
 		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
+
+		delete CRecordManager::getInstance();
 
 		dprintf(DEBUG_INFO, "exit\n");
 		StopSubtitles();
@@ -3833,8 +3453,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_TV_MODE, false );
 		CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, false);
-		if(!rezap)
-			StartSubtitles();
+		StartSubtitles(!rezap);
 	}
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
@@ -3858,9 +3477,9 @@ void CNeutrinoApp::tvMode( bool rezap )
 
 	bool stopauto = (mode != mode_ts);
 	mode = mode_tv;
-	if(stopauto && autoshift) {
-//printf("standby on: autoshift ! stopping ...\n");
-		stopAutoRecord();
+	if(stopauto /*&& autoshift*/) {
+		//printf("standby on: autoshift ! stopping ...\n");
+		CRecordManager::getInstance()->StopAutoRecord();
 		recordingstatus = 0;
 	}
 
@@ -3913,16 +3532,9 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 void CNeutrinoApp::standbyMode( bool bOnOff )
 {
 	static bool wasshift = false;
-//printf("********* CNeutrinoApp::standbyMode, was_record %d bOnOff %d\n", was_record, bOnOff);
 	//printf( ( bOnOff ) ? "mode: standby on\n" : "mode: standby off\n" );
 	
 	if( bOnOff ) {
-
-		if(autoshift) {
-			stopAutoRecord();
-			wasshift = true;
-			recordingstatus = 0;
-		}
 		if( mode == mode_scart ) {
 			//g_Controld->setScartMode( 0 );
 		}
@@ -3934,12 +3546,15 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		CVFD::getInstance()->Clear();
 		CVFD::getInstance()->setMode(CVFD::MODE_STANDBY);
 
-		videoDecoder->Standby(true);
-		if(recordingstatus) was_record = 1;
-		if(!was_record) {
+		wasshift = CRecordManager::getInstance()->StopAutoRecord();
+
+		if(!CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
+			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 		} else
 			g_Zapit->stopPlayBack();
+
+		videoDecoder->Standby(true);
 
 		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(true);
@@ -3968,8 +3583,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		frameBuffer->setActive(false);
 		// Active standby on
 		powerManager->SetStandby(true, false);
-		if(!was_record)
-			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 	} else {
 		// Active standby off
 
@@ -4023,7 +3636,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		}
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		channelList->zapTo_ChannelID(live_channel_id);
-		if(recordingstatus) was_record = 0;
 
 		videoDecoder->Standby(false);
 		g_Sectionsd->setPauseScanning(false);
@@ -4034,7 +3646,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		AudioMute(current_muted, true);
 		if((mode == mode_tv) && wasshift) {
-			startAutoRecord(true);
+			//startAutoRecord();
+			CRecordManager::getInstance()->StartAutoRecord();
 		}
 		wasshift = false;
 		StartSubtitles();
@@ -4043,7 +3656,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 void CNeutrinoApp::radioMode( bool rezap)
 {
-printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
+	printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 	if(mode==mode_tv ) {
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_RADIO_MODE, false );
@@ -4071,11 +3684,8 @@ printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 		videoDecoder->Standby(false);
 	}
 	mode = mode_radio;
-	if(autoshift) {
-//printf("standby on: autoshift ! stopping ...\n");
-		stopAutoRecord();
-		recordingstatus = 0;
-	}
+
+	CRecordManager::getInstance()->StopAutoRecord();
 
 	g_RemoteControl->radioMode();
 	SetChannelMode(g_settings.channel_mode_radio);
@@ -4089,76 +3699,8 @@ printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
 	if (g_settings.radiotext_enable) {
 		g_Radiotext = new CRadioText;
 	}
-	
 }
 
-void CNeutrinoApp::startNextRecording()
-{
-	if ((recordingstatus == 0) && (nextRecordingInfo != NULL)) {
-		bool doRecord = false;
-		if (CVCRControl::getInstance()->isDeviceRegistered()) {
-			recording_id = nextRecordingInfo->eventID;
-			if (g_settings.recording_type == RECORDING_FILE) {
-				char *recordingDir = strlen(nextRecordingInfo->recordingDir) > 0 ?
-					nextRecordingInfo->recordingDir : g_settings.network_nfs_recordingdir;
-#if 0
-				if (!CFSMounter::isMounted(recordingDir)) {
-					doRecord = false;
-					for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
-						if (strcmp(g_settings.network_nfs_local_dir[i],recordingDir) == 0) {
-							CFSMounter::MountRes mres =
-								CFSMounter::mount(g_settings.network_nfs_ip[i].c_str(), g_settings.network_nfs_dir[i],
-										  g_settings.network_nfs_local_dir[i], (CFSMounter::FSType) g_settings.network_nfs_type[i],
-										  g_settings.network_nfs_username[i], g_settings.network_nfs_password[i],
-										  g_settings.network_nfs_mount_options1[i], g_settings.network_nfs_mount_options2[i]);
-							if (mres == CFSMounter::MRES_OK) {
-								doRecord = true;
-							} else {
-								const char * merr = mntRes2Str(mres);
-								int msglen = strlen(merr) + strlen(nextRecordingInfo->recordingDir) + 7;
-								char msg[msglen];
-								strcpy(msg,merr);
-								strcat(msg,"\nDir: ");
-								strcat(msg,nextRecordingInfo->recordingDir);
-
-								ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, msg); // UTF-8
-								doRecord = false;
-							}
-							break;
-						}
-					}
-				}
-#endif
-				if(!check_dir(recordingDir)){
-					    doRecord = true;
-				}
-				if (!doRecord) {
-						// recording dir does not seem to exist in config anymore
-						// or an error occured while mounting
-						// -> try default dir
-					recordingDir = g_settings.network_nfs_recordingdir;
-					doRecord = true;
-				}
-
-				(static_cast<CVCRControl::CFileDevice*>(recordingdevice))->Directory = std::string(recordingDir);
-printf("CNeutrinoApp::startNextRecording: start to dir %s\n", recordingDir);
-			}
-			if(doRecord && CVCRControl::getInstance()->Record(nextRecordingInfo))
-				recordingstatus = 1;
-			else
-				recordingstatus = 0;
-		}
-		else
-			puts("[neutrino.cpp] no recording devices");
-
-		/* Note: CTimerd::RecordingInfo is a class!
-		 * What a brilliant idea to send classes via the eventserver!
-		 * => typecast to avoid destructor call */
-		delete [](unsigned char *)nextRecordingInfo;
-
-		nextRecordingInfo = NULL;
-	}
-}
 /**************************************************************************************
 *          CNeutrinoApp -  exec, menuitem callback (shutdown)                         *
 **************************************************************************************/
@@ -4317,18 +3859,12 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return menu_return::RETURN_REPAINT;
 	}
+#if 0 // commented in menu, needed ?
 	else if(actionKey == "autolink") {
-		if(autoshift) {
-			char buf[512];
-			autoshift = false;
-			sprintf(buf, "ln %s/* %s", timeshiftDir, g_settings.network_nfs_recordingdir);
-			system(buf);
-			autoshift_delete = true;
-			//sprintf(buf, "rm -f %s/* &", timeshiftDir);
-			//system(buf);
-		}
+		CRecordManager::getInstance()->LinkTimeshift();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
+#endif
 	else if(actionKey == "clearSectionsd")
 	{
 		g_Sectionsd->freeMemory();
@@ -4343,18 +3879,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 **************************************************************************************/
 bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
 {
-	if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING_START)) || (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING)))
-	{
-		if(g_RemoteControl->is_video_started) {
-			bool res = doGuiRecord(NULL,ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_RECORDING));
-			return res;
-		}
-		else {
-			recordingstatus = 0;
-			return false;
-		}
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LANGUAGESETUP_SELECT)) {
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LANGUAGESETUP_SELECT)) {
 		g_Locale->loadLocale(g_settings.language);
 		return true;
 	}
@@ -4421,6 +3946,7 @@ void sighandler (int signum)
         switch (signum) {
           case SIGTERM:
           case SIGINT:
+		delete CRecordManager::getInstance();
 		stop_daemons();
                 _exit(0);
           default:
@@ -4690,9 +4216,11 @@ void CNeutrinoApp::StopSubtitles()
 	}
 }
 
-void CNeutrinoApp::StartSubtitles()
+void CNeutrinoApp::StartSubtitles(bool show)
 {
-	printf("[neutrino] %s\n", __FUNCTION__);
+	printf("%s: %s\n", __FUNCTION__, show ? "Show" : "Not show");
+	if(!show)
+		return;
 	dvbsub_start(0);
 	tuxtx_pause_subtitle(false);
 }

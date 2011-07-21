@@ -125,8 +125,6 @@ private:
 	bool				softupdate;
 //	bool				fromflash;
 	bool 				init_cec_setting;
-	CTimerd::RecordingInfo* nextRecordingInfo;
-	//bool				record_mode;
 	int				lastChannelMode;
 
 	struct timeval                  standby_pressed_at;
@@ -145,7 +143,6 @@ private:
 	CMoviePluginChangeExec 		*MoviePluginChanger;
 	COnekeyPluginChangeExec		*OnekeyPluginChanger;
 	CIPChangeNotifier		*MyIPChanger;
-//		CVCRControl			*vcrControl;
 	CConsoleDestChangeNotifier	*ConsoleDestinationChanger;
 	CRCLock				*rcLock;
 	// USERMENU
@@ -157,8 +154,6 @@ private:
 	void firstChannel();
 	void setupNetwork( bool force= false );
 	void setupNFS();
-
-	void startNextRecording();
 
 	void tvMode( bool rezap = true );
 	void radioMode( bool rezap = true );
@@ -179,8 +174,6 @@ private:
 	void SelectAPID();
 	void SelectNVOD();
 	void CmdParser(int argc, char **argv);
-	void InitSCSettings(CMenuWidget &);
-	bool doGuiRecord(char * preselectedDir, bool addTimer = false);
 	void saveColors(const char * fname);
 	CNeutrinoApp();
 
@@ -227,7 +220,6 @@ public:
 		return current_muted;
 	}
 	int recordingstatus;
-	int recording_id;
 	void SendSectionsdConfig(void);
 	int GetChannelMode(void) {
 		return lastChannelMode;
@@ -235,7 +227,7 @@ public:
 	void SetChannelMode(int mode);
 	void quickZap(int msg);
 	void StopSubtitles();
-	void StartSubtitles();
+	void StartSubtitles(bool show = true);
 	void SelectSubtitles();
 	void showInfo(void);
 	CConfigFile* getConfigFile() {return &configfile;};
