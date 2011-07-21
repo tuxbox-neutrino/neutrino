@@ -34,6 +34,8 @@
 #include <zapit/getservices.h>
 #include <zapit/scan.h>
 #include <zapit/sdt.h>
+#include <zapit/pat.h>
+#include <zapit/pmt.h>
 #include <zapit/debug.h>
 #include <dmx.h>
 #include <math.h>
@@ -52,7 +54,6 @@ uint32_t  found_data_chans;
 std::string lastServiceName;
 std::map <t_channel_id, uint8_t> service_types;
 
-extern CFrontend *frontend;
 extern CEventServer *eventServer;
 extern int scan_pids;
 extern t_channel_id live_channel_id;
@@ -258,7 +259,7 @@ int satellite_delivery_system_descriptor(const unsigned char * const buffer, t_t
 	transponder_id_t TsidOnid;
 	int modulationSystem, modulationType, rollOff, fec_inner;
 
-	if (frontend->getInfo()->type != FE_QPSK)
+	if (CFrontend::getInstance()->getInfo()->type != FE_QPSK)
 		return -1;
 
 	feparams.frequency =
@@ -322,7 +323,7 @@ int satellite_delivery_system_descriptor(const unsigned char * const buffer, t_t
 int cable_delivery_system_descriptor(const unsigned char * const buffer, t_transport_stream_id transport_stream_id, t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
 {
 	transponder_id_t TsidOnid;
-	if (frontend->getInfo()->type != FE_QAM)
+	if (CFrontend::getInstance()->getInfo()->type != FE_QAM)
 		return -1;
 
 	FrontendParameters feparams;
@@ -440,9 +441,7 @@ bool check_blacklisted(std::string& providerName)
 	}
 	return in_blacklist;
 }
-int parse_pat();
-int pat_get_pmt_pid (CZapitChannel * const channel);
-int parse_pmt(CZapitChannel * const channel);
+
 /* 0x48 */
 void service_descriptor(const unsigned char * const buffer, const t_service_id service_id, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, bool free_ca)
 {
@@ -665,7 +664,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 				CZapitBouquet* bouquet;
 				int bouquetId;
 				char pname[100];
-				if (frontend->getInfo()->type == FE_QPSK)
+				if (CFrontend::getInstance()->getInfo()->type == FE_QPSK)
 					snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
 				else
 					snprintf(pname, 100, "%s", providerName.c_str());
@@ -895,7 +894,7 @@ void subtitling_descriptor(const unsigned char * const)
 /* 0x5A */
 int terrestrial_delivery_system_descriptor(const unsigned char * const)
 {
-	if (frontend->getInfo()->type != FE_OFDM)
+	if (CFrontend::getInstance()->getInfo()->type != FE_OFDM)
 		return -1;
 
 	/* TODO */
