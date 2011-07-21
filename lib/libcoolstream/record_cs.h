@@ -11,13 +11,11 @@
 
 #include <string>
 
-#ifndef CS_RECORD_PDATA
-#define CS_RECORD_PDATA void
-#endif
+class cRecordData;
 
 class cRecord {
 private:
-	CS_RECORD_PDATA * privateData;
+	cRecordData * rd;
 	bool enabled;
 	int num_apids;
 	int unit;
@@ -27,11 +25,11 @@ public:
 	cRecord(int num = 0);
 	~cRecord();
 
-	bool Open(int numpids);
+	bool Open();
 	void Close(void);
 	bool Start(int fd, unsigned short vpid, unsigned short * apids, int numapids);
 	bool Stop(void);
-	void RecordNotify(int Event, void *pData);
+	bool AddPid(unsigned short pid);
 	/* not tested */
 	bool ChangePids(unsigned short vpid, unsigned short * apids, int numapids);
 };

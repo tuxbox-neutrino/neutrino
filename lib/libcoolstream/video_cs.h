@@ -213,7 +213,7 @@ public:
 	void SetCECAutoStandby(bool OnOff);
 	void ShowPicture(const char * fname);
 	void StopPicture();
-	void Standby(unsigned int bOn);
+	void Standby(bool bOn);
 	void Pig(int x, int y, int w, int h, int osd_w = 1064, int osd_h = 600);
 	void SetControl(int num, int val);
 	bool ReceivedDRMDelay(void) { return receivedDRMDelay; }

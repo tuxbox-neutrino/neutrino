@@ -11,28 +11,23 @@
 
 #include <string>
 
-#ifndef CS_PLAYBACK_PDATA
-#define CS_PLAYBACK_PDATA void
-#endif
-
 typedef enum {
 	PLAYMODE_TS = 0,
 	PLAYMODE_FILE
 } playmode_t;
 
+class cPlaybackData;
+
 class cPlayback {
 private:
-	int timeout;
-	pthread_cond_t read_cond;
-	pthread_mutex_t mutex;
-	CS_PLAYBACK_PDATA * privateData;
+	cPlaybackData * pd;
+
 	bool enabled;
 	bool paused;
 	bool playing;
 	int unit;
 	int nPlaybackFD;
 	int video_type;
-	int nPlaybackSpeed;
 	int mSpeed;
 	playmode_t playMode;
 	//
@@ -40,8 +35,9 @@ private:
 	void Detach(void);
 	bool SetAVDemuxChannel(bool On, bool Video = true, bool Audio = true);
 public:
-	void PlaybackNotify (int  Event, void *pData, void *pTag);
-	void DMNotify(int Event, void *pTsBuf, void *Tag);
+	cPlayback(int num = 0);
+	~cPlayback();
+
 	bool Open(playmode_t PlayMode);
 	void Close(void);
 	bool Start(char * filename, unsigned short vpid, int vtype, unsigned short apid, int audio_flag, unsigned int duration = 0);
@@ -54,13 +50,8 @@ public:
 	bool SetPosition(int position, bool absolute = false);
 	bool IsPlaying(void) const { return playing; }
 	bool IsEnabled(void) const { return enabled; }
-	void * GetHandle(void);
-	void * GetDmHandle(void);
-	int GetCurrPlaybackSpeed(void) const { return nPlaybackSpeed; }
 	void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language);
-	//
-	cPlayback(int num = 0);
-	~cPlayback();
+
 };
 
 #endif // __PLAYBACK_CS_H_

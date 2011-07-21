@@ -92,7 +92,7 @@ neutrino_LDADD = \
 
 if BOXTYPE_COOL
 neutrino_LDADD += \
-	-lcoolstream \
+	-lcoolstream-mt \
 	-lOpenThreads \
 	-lnxp
 
