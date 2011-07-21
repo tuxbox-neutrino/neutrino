@@ -124,7 +124,7 @@ bool CRecordInstance::SaveXml()
 	return false;
 }
 
-record_error_msg_t CRecordInstance::Start(CZapitChannel * channel, APIDList &apid_list)
+record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &apid_list*/)
 {
 	int fd;
 	std::string tsfile;
@@ -232,7 +232,7 @@ bool CRecordInstance::Update()
 		GetPids(channel);
 		FilterPids(apid_list);
 		FillMovieInfo(channel, apid_list);
-		record_error_msg_t ret =  Start(channel, apid_list);
+		record_error_msg_t ret =  Start(channel /*, apid_list*/);
 		if(ret == RECORD_OK) {
 			CCamManager::getInstance()->Start(channel_id, CCamManager::RECORD, true);
 			return true;
@@ -366,7 +366,7 @@ record_error_msg_t CRecordInstance::Record()
 	FilterPids(apid_list);
 	FillMovieInfo(channel, apid_list);
 
-	ret = Start(channel, apid_list);
+	ret = Start(channel /*, apid_list*/);
 	//FIXME recording_id (timerd eventID) is 0 means its user recording, in this case timer always added ?
 	if(ret == RECORD_OK && recording_id == 0) {
 		time_t now = time(NULL);
@@ -987,7 +987,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 	return messages_return::unhandled;
 }
 
-int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey)
+int CRecordManager::exec(CMenuTarget* parent, const std::string & /*actionKey */)
 {
 	if(parent)
 		parent->hide();
@@ -1126,7 +1126,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 	if(live_channel_id != channel_id) {
 		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
 			printf("%s zapTo_record channel_id %llx\n", __FUNCTION__, channel_id);
-			ret = g_Zapit->zapTo_record(channel_id) >= 0;
+			ret = g_Zapit->zapTo_record(channel_id) == 0;
 		} else {
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
@@ -1134,7 +1134,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 				if(last_mode == NeutrinoMessages::mode_standby)
 					CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
 			}
-			ret = g_Zapit->zapTo_serviceID(channel_id) >= 0;
+			ret = g_Zapit->zapTo_serviceID(channel_id) > 0;
 			printf("%s zapTo_serviceID channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
 
 			if(!ret)

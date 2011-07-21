@@ -98,7 +98,7 @@ class CRecordInstance
 		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis);
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
-		record_error_msg_t Start(CZapitChannel * channel, APIDList &apid_list);
+		record_error_msg_t Start(CZapitChannel * channel /*, APIDList &apid_list*/);
 	public:
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
 		~CRecordInstance();
