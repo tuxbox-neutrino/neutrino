@@ -22,9 +22,8 @@ libneutrino_driver_a_SOURCES = \
 	framebuffer.cpp \
 	fb_window.cpp \
 	rcinput.cpp \
-	vcrcontrol.cpp \
+	record.cpp \
 	audioplay.cpp \
-	stream2file.cpp \
 	screen_max.cpp \
 	slotbuffer.c \
 	file.cpp \

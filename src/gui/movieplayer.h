@@ -41,7 +41,7 @@
 #include "gui/moviebrowser.h"
 #include "gui/movieinfo.h"
 #include <gui/widget/hintbox.h>
-#include <driver/vcrcontrol.h>
+#include <driver/record.h>
 #include <playback.h>
 
 #include <stdio.h>
@@ -71,7 +71,6 @@ class CMoviePlayerGui : public CMenuTarget
 		};
 
  private:
-	void Init(void);
 	pthread_t      rct;
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
@@ -99,6 +98,7 @@ class CMoviePlayerGui : public CMenuTarget
 	static unsigned short g_vtype;
 	static unsigned short g_vpid;
 	static std::string    g_language[REC_MAX_APIDS];
+	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
 	CFileBrowser * filebrowser;
 	CMovieBrowser* moviebrowser;
@@ -106,23 +106,26 @@ class CMoviePlayerGui : public CMenuTarget
 
 	CBookmarkManager * bookmarkmanager;
 
+	CFileFilter tsfilefilter;
+	CFileFilter pesfilefilter;
+	CFileFilter vlcfilefilter;
+
+	static cPlayback *playback;
+	static CMoviePlayerGui* instance_mp;
+
+	void Init(void);
 	void PlayStream(int streamtype);
 	void PlayFile();
 	void cutNeutrino();
 	void restoreNeutrino();
 
-	CFileFilter tsfilefilter;
-	CFileFilter pesfilefilter;
-	CFileFilter vlcfilefilter;
 	void showHelpTS(void);
 	void showHelpVLC(void);
 	void callInfoViewer(const std::string & epg_title, const std::string & epg_info1,
 			    const std::string & epg_channel, const int duration, const int pos);
+	void fillPids(MI_MOVIE_INFO * p_movie_info);
 
-	static CMoviePlayerGui* instance_mp;
-	static cPlayback *playback;
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
-	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
  public:
 	CMoviePlayerGui();

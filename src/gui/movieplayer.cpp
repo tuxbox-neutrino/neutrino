@@ -85,11 +85,10 @@
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
+extern t_channel_id live_channel_id;
 
 #define MINUTEOFFSET 117*262072
 #define MP_TS_SIZE 262072	// ~0.5 sec
-
-extern char rec_filename[512];
 
 #ifndef __USE_FILE_OFFSET64
 #error not using 64 bit file offsets
@@ -156,7 +155,6 @@ void CMoviePlayerGui::Delete()
 	
 	instance_mp = NULL;
 }
-
 
 CMoviePlayerGui::CMoviePlayerGui()
 {
@@ -433,6 +431,29 @@ void CMoviePlayerGui::updateLcd(const std::string & sel_filename)
 	CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
 }
 
+void CMoviePlayerGui::fillPids(MI_MOVIE_INFO * p_movie_info)
+{
+	if(p_movie_info == NULL)
+		return;
+
+	g_numpida = 0; CAPIDSelectExec::g_currentapid = 0;
+	if(!p_movie_info->audioPids.empty()) {
+		CAPIDSelectExec::g_currentapid = p_movie_info->audioPids[0].epgAudioPid;	//FIXME
+		CAPIDSelectExec::g_currentac3 = p_movie_info->audioPids[0].atype;
+	}
+	for (int i = 0; i < (int)p_movie_info->audioPids.size(); i++) {
+		CAPIDSelectExec::g_apids[i] = p_movie_info->audioPids[i].epgAudioPid;
+		CAPIDSelectExec::g_ac3flags[i] = p_movie_info->audioPids[i].atype;
+		g_numpida++;
+		if (p_movie_info->audioPids[i].selected) {
+			CAPIDSelectExec::g_currentapid = p_movie_info->audioPids[i].epgAudioPid;	//FIXME
+			CAPIDSelectExec::g_currentac3 = p_movie_info->audioPids[i].atype;
+		}
+	}
+	g_vpid = p_movie_info->epgVideoPid;
+	g_vtype = p_movie_info->VideoType;
+}
+
 extern bool has_hdd;
 #define TIMESHIFT_SECONDS 3
 void CMoviePlayerGui::PlayFile(void)
@@ -454,13 +475,19 @@ void CMoviePlayerGui::PlayFile(void)
 	CMovieInfo cMovieInfo;	// funktions to save and load movie info
 	MI_MOVIE_INFO *p_movie_info = NULL;	// movie info handle which comes from the MovieBrowser, if not NULL MoviePla yer is able to save new bookmarks
 	int eof = 0;
+	std::string rec_filename;
 
 	if (has_hdd)
 		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
 
 	if (timeshift) {
+#if 0 //FIXME is this needed ? pids used from p_movie_info anyway ?
 		CVCRControl::getInstance()->GetPids(&g_vpid, &g_vtype, &CAPIDSelectExec::g_currentapid, &CAPIDSelectExec::g_currentac3, &g_numpida, CAPIDSelectExec::g_apids, CAPIDSelectExec::g_ac3flags);
 		p_movie_info = CVCRControl::getInstance()->GetMovieInfo();
+#endif
+		p_movie_info = CRecordManager::getInstance()->GetMovieInfo(live_channel_id);
+		rec_filename = CRecordManager::getInstance()->GetFileName(live_channel_id) + ".ts";
+		fillPids(p_movie_info);
 	}
 
 	int width = 280;
@@ -513,17 +540,8 @@ void CMoviePlayerGui::PlayFile(void)
 
 		if (timesh) {
 			char fname[255];
-			int cnt = 10 * 1000000;
-			while (!strlen(rec_filename)) {
-				usleep(1000);
-				cnt -= 1000;
-				if (!cnt)
-					break;
-			}
-			if (!strlen(rec_filename))
-				return;
 
-			sprintf(fname, "%s.ts", rec_filename);
+			sprintf(fname, "%s", rec_filename.c_str());
 			filename = fname;
 			sel_filename = std::string(rindex(filename, '/') + 1);
 			printf("Timeshift: %s\n", sel_filename.c_str());
@@ -680,7 +698,9 @@ void CMoviePlayerGui::PlayFile(void)
 
 						// get the movie info handle (to be used for e.g. bookmark handling)
 						p_movie_info = moviebrowser->getCurrentMovieInfo();
-						bool recfile = CNeutrinoApp::getInstance()->recordingstatus && !strncmp(rec_filename, filename, strlen(rec_filename));
+						//bool recfile = CNeutrinoApp::getInstance()->recordingstatus && !strncmp(rec_filename, filename, strlen(rec_filename));
+						bool recfile = CRecordManager::getInstance()->RecordingStatus(p_movie_info->epgId) &&
+							CRecordManager::getInstance()->GetFileName(p_movie_info->epgId) == file->Name;
 						if (!recfile && p_movie_info->length) {
 							minuteoffset = file->Size / p_movie_info->length;
 							minuteoffset = (minuteoffset / MP_TS_SIZE) * MP_TS_SIZE;
@@ -688,7 +708,7 @@ void CMoviePlayerGui::PlayFile(void)
 								minuteoffset = MINUTEOFFSET;
 							secondoffset = minuteoffset / 60;
 						}
-
+#if 0
 						if(!p_movie_info->audioPids.empty()) {
 							CAPIDSelectExec::g_currentapid = p_movie_info->audioPids[0].epgAudioPid;	//FIXME
 							CAPIDSelectExec::g_currentac3 = p_movie_info->audioPids[0].atype;
@@ -700,11 +720,12 @@ void CMoviePlayerGui::PlayFile(void)
 							if (p_movie_info->audioPids[i].selected) {
 								CAPIDSelectExec::g_currentapid = p_movie_info->audioPids[i].epgAudioPid;	//FIXME
 								CAPIDSelectExec::g_currentac3 = p_movie_info->audioPids[i].atype;
-								//break;
 							}
 						}
 						g_vpid = p_movie_info->epgVideoPid;
 						g_vtype = p_movie_info->VideoType;
+#endif
+						fillPids(p_movie_info);
 						printf("CMoviePlayerGui::PlayFile: file %s apid %X atype %d vpid %x vtype %d\n", filename, CAPIDSelectExec::g_currentapid, CAPIDSelectExec::g_currentac3, g_vpid, g_vtype);
 						printf("Bytes per minute: %lld\n", minuteoffset);
 						// get the start position for the movie
@@ -1214,7 +1235,7 @@ void CMoviePlayerGui::PlayFile(void)
 			if (isMovieBrowser == true && p_movie_info != NULL) {
 				std::string fname = p_movie_info->file.Name;
 				strReplace(fname, ".ts", ".bmp");
-				CVCRControl::getInstance()->Screenshot(0, (char *)fname.c_str());
+				//CVCRControl::getInstance()->Screenshot(0, (char *)fname.c_str());
 			}
 		}
 #if 0
