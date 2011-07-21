@@ -1053,7 +1053,7 @@ bool CRecordManager::ShowMenu(void)
 
 bool CRecordManager::AskToStop(const t_channel_id channel_id)
 {
-	int recording_id;
+	int recording_id = 0;
 	std::string title;
 
 	mutex.lock();
