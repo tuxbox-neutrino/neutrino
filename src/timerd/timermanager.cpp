@@ -1202,6 +1202,7 @@ void CTimerEvent_Record::stopEvent()
 	CTimerd::RecordingStopInfo stopinfo;
 	// Set EPG-ID if not set
 	stopinfo.eventID = eventID;
+	stopinfo.channel_id = eventInfo.channel_id;
 	CTimerManager::getInstance()->getEventServer()->sendEvent(CTimerdClient::EVT_RECORD_STOP,
 								  CEventServer::INITID_TIMERD,
 								  &stopinfo,

@@ -135,6 +135,7 @@ class CTimerd
 		struct RecordingStopInfo
 		{
 			int eventID;
+			t_channel_id  channel_id;
 		};
 
 		struct responseGetTimer
