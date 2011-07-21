@@ -46,7 +46,6 @@
 #include <dmx.h>
 #include <zapit/satconfig.h>
 #include <string>
-extern CFrontend * frontend;
 extern cVideo * videoDecoder;
 extern cAudio * audioDecoder;
 
@@ -107,6 +106,7 @@ CStreamInfo2::CStreamInfo2 ()
 CStreamInfo2::~CStreamInfo2 ()
 {
 	videoDecoder->Pig(-1, -1, -1, -1);
+	ts_close();
 }
 
 int CStreamInfo2::exec()
@@ -157,9 +157,9 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS (100);
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
-		ssig = frontend->getSignalStrength();
-		ssnr = frontend->getSignalNoiseRatio();
-		ber = frontend->getBitErrorRate();
+		ssig = CFrontend::getInstance()->getSignalStrength();
+		ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
+		ber = CFrontend::getInstance()->getBitErrorRate();
 
 		signal.sig = ssig & 0xFFFF;
 		signal.snr = ssnr & 0xFFFF;
@@ -283,7 +283,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	int xd = w/4;
 	std::string tuner_name = g_Locale->getText(LOCALE_STREAMINFO_SIGNAL);
 	tuner_name += ": "; 
-	tuner_name += frontend->getInfo()->name;
+	tuner_name += CFrontend::getInstance()->getInfo()->name;
 	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, tuner_name.c_str(), COL_INFOBAR, 0, true);
 
 	sigBox_x = _x;
@@ -601,10 +601,10 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	sat_iterator_t sit = satellitePositions.find(satellitePosition);
 	if(sit != satellitePositions.end()) {
 		ypos += iheight;
-		if(frontend->getInfo()->type == FE_QPSK) {
+		if(CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
 			sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_SATSETUP_SATELLITE));//swiped locale
 		}
-		else if(frontend->getInfo()->type == FE_QAM) {
+		else if(CFrontend::getInstance()->getInfo()->type == FE_QAM) {
 			sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
 		}
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
@@ -625,8 +625,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	//tsfrequenz
 	ypos += iheight;
 	char * f=NULL, *s=NULL, *m=NULL;
-	if(frontend->getInfo()->type == FE_QPSK) {
-		frontend->getDelSys((fe_code_rate_t)si.fec, dvbs_get_modulation((fe_code_rate_t)si.fec), f, s, m);
+	if(CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
+		CFrontend::getInstance()->getDelSys((fe_code_rate_t)si.fec, dvbs_get_modulation((fe_code_rate_t)si.fec), f, s, m);
 		if (!strncmp(s,const_cast<char *>("DVB-S2"),6)){
 			s=const_cast<char *>("S2");
 			scaling = 27000;
@@ -639,7 +639,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, "Tp. Freq.:" , COL_INFOBAR, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 	}
-	else if(frontend->getInfo()->type == FE_QAM) {
+	else if(CFrontend::getInstance()->getInfo()->type == FE_QAM) {
 		sprintf ((char *) buf, "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR, 0, true); // UTF-8
 		sprintf((char*) buf, "%d.%d MHz", si.tsfrequency/1000, si.tsfrequency%1000);
@@ -975,7 +975,7 @@ int CStreamInfo2::ts_setup ()
 	if(vpid == 0 && apid == 0)
 		return -1;
 
-	dmx = new cDemux(1);
+	dmx = new cDemux(0);//FIXME test
 
 	dmx->Open(DMX_TP_CHANNEL, NULL, 3 * 3008 * 62);
 
@@ -986,7 +986,7 @@ int CStreamInfo2::ts_setup ()
 	} else
 		dmx->pesFilter(apid);
 
-	dmx->Start();
+	dmx->Start(true);
 
 	gettimeofday (&first_tv, NULL);
 	last_tv.tv_sec = first_tv.tv_sec;
