@@ -140,7 +140,6 @@ int nvod_service_ids(
 	return -1;
 }
 
-extern CFrontend *frontend;
 int parse_sdt(
 	t_transport_stream_id *p_transport_stream_id,
 	t_original_network_id *p_original_network_id,
@@ -177,7 +176,7 @@ int parse_sdt(
 
 	int flen;
 	bool cable_hack_done = false;
-	bool cable = (frontend->getInfo()->type == FE_QAM);
+	bool cable = (CFrontend::getInstance()->getInfo()->type == FE_QAM);
 #if 1
 	flen = 5;
 	memset(filter, 0x00, DMX_FILTER_SIZE);

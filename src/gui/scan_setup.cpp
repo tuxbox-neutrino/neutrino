@@ -54,8 +54,6 @@
 #include <zapit/satconfig.h>
 #include <zapit/fastscan.h>
 
-
-extern CFrontend * frontend;
 extern int scan_pids;
 extern CZapitChannel *g_current_channel;
 extern std::map<transponder_id_t, transponder> select_transponders;
@@ -349,7 +347,7 @@ void CScanSetup::showScanMenu()
 	//bouquet generate mode
 	settings->addItem(new CMenuOptionChooser(LOCALE_SCANTS_BOUQUET, (int *)&scansettings.bouquetMode, SCANTS_BOUQUET_OPTIONS, SCANTS_BOUQUET_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortcut++), "", true));
 	
-	//t_satellite_position currentSatellitePosition = frontend->getCurrentSatellitePosition();
+	//t_satellite_position currentSatellitePosition = CFrontend::getInstance()->getCurrentSatellitePosition();
 	//sat/provider selector
 	satSelect = new CMenuOptionStringChooser(satprov_locale, scansettings.satNameNoDiseqc, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 	satSetup = new CMenuWidget(satprov_locale, NEUTRINO_ICON_SETTINGS, width);
@@ -647,7 +645,6 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 	
 	for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) 
 	{
-		/* printf("Adding sat menu for %s position %d\n", sit->second.name.c_str(), sit->first); */
 		satSelect->addOption(sit->second.name.c_str());
 		if (strcmp(scansettings.satNameNoDiseqc,sit->second.name.c_str()) == 0) 
 			sfound = 1;
@@ -814,14 +811,14 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		char buf[128];
 		sprintf(cnt, "%d", i);
 		char * f, *s, *m;
-		switch (frontend->getInfo()->type) 
+		switch (CFrontend::getInstance()->getInfo()->type) 
 		{
 			case FE_QPSK:
-				frontend->getDelSys(tI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tI->second.feparams.u.qpsk.fec_inner),  f, s, m);
+				CFrontend::getInstance()->getDelSys(tI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tI->second.feparams.u.qpsk.fec_inner),  f, s, m);
 				snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.polarization ? 'V' : 'H', tI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
 				break;
 			case FE_QAM:
-				frontend->getDelSys(tI->second.feparams.u.qam.fec_inner, tI->second.feparams.u.qam.modulation, f, s, m);
+				CFrontend::getInstance()->getDelSys(tI->second.feparams.u.qam.fec_inner, tI->second.feparams.u.qam.modulation, f, s, m);
 				snprintf(buf, sizeof(buf), "%d %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
 				break;
 			case FE_OFDM:
@@ -868,7 +865,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		       
 		sprintf(scansettings.TP_freq, "%d", tmpI->second.feparams.frequency);
 		
-		switch (frontend->getInfo()->type) 
+		switch (CFrontend::getInstance()->getInfo()->type) 
 		{
 			case FE_QPSK:
 				sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);

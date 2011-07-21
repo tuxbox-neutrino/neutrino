@@ -54,7 +54,6 @@ extern CEventServer *eventServer;
 extern diseqc_t diseqcType;
 extern int useGotoXX;
 extern int motorRotationSpeed;
-extern CFrontend *frontend;
 extern xmlDocPtr scanInputParser;
 
 void SaveServices(bool tocopy);
@@ -91,8 +90,8 @@ std::map <transponder_id_t, transponder> nittransponders;
 
 bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition)
 {
-	frontend->setInput(satellitePosition, feparams->frequency, polarization);
-	int ret = frontend->driveToSatellitePosition(satellitePosition, false); //true);
+	CFrontend::getInstance()->setInput(satellitePosition, feparams->frequency, polarization);
+	int ret = CFrontend::getInstance()->driveToSatellitePosition(satellitePosition, false); //true);
 	if(ret > 0) {
 		printf("[scan] waiting %d seconds for motor to turn satellite dish.\n", ret);
 		eventServer->sendEvent(CZapitClient::EVT_SCAN_PROVIDER, CEventServer::INITID_ZAPIT, (void *) "moving rotor", 13);
@@ -102,7 +101,7 @@ bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satelli
 				return false;
 		}
 	}
-	return frontend->tuneFrequency(feparams, polarization, false);
+	return CFrontend::getInstance()->tuneFrequency(feparams, polarization, false);
 }
 
 int add_to_scan(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t polarity, bool fromnit = 0)
@@ -363,7 +362,7 @@ int scan_transponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_pos
 		feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(transponder, "modulation", 0);
 		diseqc_pos = 0;
 	}
-	else if (frontend->getInfo()->type == FE_QPSK) {
+	else if (CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
 		feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(transponder, "symbol_rate", 0);
 		polarization = xmlGetNumericAttribute(transponder, "polarization", 0);
 		system = xmlGetNumericAttribute(transponder, "system", 0);
@@ -494,7 +493,7 @@ void *start_scanthread(void *scanmode)
 	scanedtransponders.clear();
 	nittransponders.clear();
 
-	cable = (frontend->getInfo()->type == FE_QAM);
+	cable = (CFrontend::getInstance()->getInfo()->type == FE_QAM);
 	if (cable)
 		frontendType = "cable";
 	else
@@ -577,7 +576,7 @@ void *start_scanthread(void *scanmode)
 		myZapitClient.reloadCurrentServices();
 	} else {
 		stop_scan(false);
-		frontend->setTsidOnid(0);
+		CFrontend::getInstance()->setTsidOnid(0);
 		zapit(live_channel_id, 0);
 	}
 
@@ -606,7 +605,7 @@ void * scan_transponder(void * arg)
 	scantransponders.clear();
 	scanedtransponders.clear();
 	nittransponders.clear();
-	cable = (frontend->getInfo()->type == FE_QAM);
+	cable = (CFrontend::getInstance()->getInfo()->type == FE_QAM);
 
 	strcpy(providerName, scanProviders.size() > 0 ? scanProviders.begin()->second.c_str() : "unknown provider");
 
@@ -657,7 +656,7 @@ void * scan_transponder(void * arg)
 		myZapitClient.reloadCurrentServices();
 	} else {
 		stop_scan(false);
-		frontend->setTsidOnid(0);
+		CFrontend::getInstance()->setTsidOnid(0);
 		zapit(live_channel_id, 0);
 	}
 	scantransponders.clear();

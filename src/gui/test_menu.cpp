@@ -48,11 +48,9 @@
 #include "gui/widget/hintbox.h"
 #include "gui/scan.h"
 #include "gui/scan_setup.h"
+#include <zapit/frontend_c.h>
 
 extern int cs_test_card(int unit, char * str);
-
-#include <zapit/frontend_c.h>
-extern CFrontend * frontend;
 
 CTestMenu::CTestMenu()
 {
@@ -256,7 +254,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		sprintf(scansettings.TP_freq, "%d", freq);
 #if 0 // not needed ?
-		switch (frontend->getInfo()->type) 
+		switch (CFrontend::getInstance()->getInfo()->type) 
 		{
 		case FE_QPSK:
 			sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
@@ -281,7 +279,7 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		int freq = 12538000;
 		sprintf(scansettings.TP_freq, "%d", freq);
-		switch (frontend->getInfo()->type) 
+		switch (CFrontend::getInstance()->getInfo()->type) 
 		{
 			case FE_QPSK:
 				sprintf(scansettings.TP_rate, "%d", 41250*1000);
@@ -322,7 +320,6 @@ void CTestMenu::showTestMenu()
 	CMenuWidget * TestMenu = new CMenuWidget(rev /*"Test menu"*/);
 	TestMenu->setSelected(selected);
 	TestMenu->addIntroItems();
-	
 	TestMenu->addItem(new CMenuForwarderNonLocalized("VFD", true, NULL, this, "vfd"));
 	TestMenu->addItem(new CMenuForwarderNonLocalized("Network", true, NULL, this, "network"));
 	TestMenu->addItem(new CMenuForwarderNonLocalized("Smartcard 1", true, NULL, this, "card0"));

@@ -59,14 +59,12 @@
 #include <gui/bouquetlist.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/client/zapittools.h>
-#include <driver/vcrcontrol.h>
 #include <gui/pictureviewer.h>
 #include <zapit/bouquets.h>
 #include <zapit/satconfig.h>
 #include <zapit/getservices.h>
 #include <zapit/frontend_c.h>
 
-extern CFrontend * frontend;
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern SMSKeyInput * c_SMSKeyInput;
@@ -543,7 +541,6 @@ int CChannelList::show()
 				if (fadeValue >= 100) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					loop = false;
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
@@ -552,7 +549,6 @@ int CChannelList::show()
 				if (fadeValue <= g_settings.menu_Content_alpha) {
 					fadeValue = g_settings.menu_Content_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					fadeIn = false;
 					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
@@ -572,7 +568,6 @@ int CChannelList::show()
 
 			if ( fadeIn ) {
 				g_RCInput->killTimer(fadeTimer);
-				fadeTimer = 0;
 				fadeIn = false;
 			}
 			if ((!fadeOut) && g_settings.widget_fade) {
@@ -877,7 +872,6 @@ int CChannelList::show()
 	hide();
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
-		fadeTimer = 0;
 		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 	}
@@ -1629,13 +1623,13 @@ void CChannelList::paintDetails(int index)
 
 			if(tpI != transponders.end()) {
 				char * f, *s, *m;
-				switch(frontend->getInfo()->type) {
+				switch(CFrontend::getInstance()->getInfo()->type) {
 				case FE_QPSK:
-					frontend->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
+					CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
 					len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
 					break;
 				case FE_QAM:
-					frontend->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
+					CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
 					len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
 					break;
 				case FE_OFDM:

@@ -60,7 +60,6 @@
 #include <zapit/frontend_c.h>
 #include <video.h>
 extern cVideo * videoDecoder;
-extern CFrontend * frontend;
 
 #define NEUTRINO_SCAN_START_SCRIPT	CONFIGDIR "/scan.start"
 #define NEUTRINO_SCAN_STOP_SCRIPT	CONFIGDIR "/scan.stop"
@@ -147,11 +146,11 @@ void CScanTs::testFunc()
 	int w = x + width - xpos2;
 	char buffer[128];
 	char * f, *s, *m;
-	if(frontend->getInfo()->type == FE_QPSK) {
-		frontend->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
+	if(CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
+		CFrontend::getInstance()->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, TP.polarization == 0 ? 'H' : 'V', TP.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-	} else if(frontend->getInfo()->type == FE_QAM) {
-		frontend->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
+	} else if(CFrontend::getInstance()->getInfo()->type == FE_QAM) {
+		CFrontend::getInstance()->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(scansettings.TP_freq)/1000, atoi(scansettings.TP_rate)/1000, f, s, m);
 	}
 	paintLine(xpos2, ypos_cur_satellite, w - 95, scansettings.satNameNoDiseqc);
@@ -267,7 +266,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
         /* send scantype to zapit */
         g_Zapit->setScanType((CZapitClient::scanType) scansettings.scanType );
 
-	tuned = frontend->getStatus();
+	tuned = CFrontend::getInstance()->getStatus();
 	paint(test);
 	/* go */
 	if(test) {
@@ -391,7 +390,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				int fec = (data >> 8) & 0xFF;
 				int rate = data >> 16;
 				char * f, *s, *m;
-				frontend->getDelSys(fec, (fe_modulation_t)0, f, s, m); // FIXME
+				CFrontend::getInstance()->getDelSys(fec, (fe_modulation_t)0, f, s, m); // FIXME
 				snprintf(buffer,sizeof(buffer), " %c %d %s %s %s", pol == 0 ? 'H' : 'V', rate, f, s, m);
 				//(pol == 0) ? sprintf(buffer, "-H") : sprintf(buffer, "-V");
 				paintLine(xpos2 + xpos_frequency, ypos_frequency, w - xpos_frequency - (7*fw), buffer);
@@ -450,8 +449,8 @@ void CScanTs::paintRadar(void)
 {
 	char filename[30];
 
-	if(tuned != frontend->getStatus()) {
-		tuned = frontend->getStatus();
+	if(tuned != CFrontend::getInstance()->getStatus()) {
+		tuned = CFrontend::getInstance()->getStatus();
 		frameBuffer->loadPal(tuned ? "radar.pal" : "radar_red.pal", 18, 38);
 	}
 
@@ -555,8 +554,8 @@ void CScanTs::showSNR ()
 	int posx, posy;
 	int sw;
 
-	ssig = frontend->getSignalStrength();
-	ssnr = frontend->getSignalNoiseRatio();
+	ssig = CFrontend::getInstance()->getSignalStrength();
+	ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
 	snr = (ssnr & 0xFFFF) * 100 / 65535;
 	sig = (ssig & 0xFFFF) * 100 / 65535;
 

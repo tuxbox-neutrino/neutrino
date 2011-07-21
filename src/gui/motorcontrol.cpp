@@ -46,8 +46,6 @@
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
 
-extern CFrontend * frontend;
-
 static int g_sig;
 static int g_snr;
 static int last_snr = 0;
@@ -416,7 +414,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	}
 
 	hide();
-	frontend->setTsidOnid(0);
+	CFrontend::getInstance()->setTsidOnid(0);
 
 	return menu_return::RETURN_REPAINT;
 }
@@ -703,8 +701,8 @@ void CMotorControl::showSNR()
 
 	int sw;
 
-	ssig = frontend->getSignalStrength();
-	ssnr = frontend->getSignalNoiseRatio();
+	ssig = CFrontend::getInstance()->getSignalStrength();
+	ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
 
 	snr = (ssnr & 0xFFFF) * 100 / 65535;
 	sig = (ssig & 0xFFFF) * 100 / 65535;
