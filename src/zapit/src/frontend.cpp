@@ -41,9 +41,8 @@ extern int repeatUsals;
 extern transponder_list_t transponders;
 extern bool highVoltage;
 extern bool voltageOff;
-extern bool playing;
 extern int motorRotationSpeed;
-extern CEventServer *eventServer;
+extern int feTimeout;
 
 extern int zapit_debug;
 extern int uni_scr;
@@ -55,6 +54,7 @@ extern int uni_qrg;
 #define WEST	1
 #define USALS
 
+#define CLEAR		0
 // Common properties
 #define FREQUENCY	1
 #define MODULATION	2
@@ -66,16 +66,13 @@ extern int uni_qrg;
 #define PILOTS		7
 #define ROLLOFF		8
 
-static struct dtv_property clr_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
-};
-
-static struct dtv_properties clr_cmdseq = {
-	sizeof(clr_cmdargs) / sizeof(struct dtv_property), clr_cmdargs,
-};
+#define FE_COMMON_PROPS	2
+#define FE_DVBS_PROPS	6
+#define FE_DVBS2_PROPS	8
+#define FE_DVBC_PROPS	6
 
 /* stolen from dvb.c from vlc */
-static struct dtv_property dvbs_cmdargs[] = {
+static const struct dtv_property dvbs_cmdargs[] = {
 	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
 	{ DTV_FREQUENCY,	{0,0,0}, { 0			},0 },
 	{ DTV_MODULATION,	{0,0,0}, { QPSK			},0 },
@@ -86,11 +83,7 @@ static struct dtv_property dvbs_cmdargs[] = {
 	{ DTV_TUNE,		{0,0,0}, { 0			},0 },
 };
 
-static struct dtv_properties dvbs_cmdseq = {
-	sizeof(dvbs_cmdargs) / sizeof(struct dtv_property), dvbs_cmdargs
-};
-
-static struct dtv_property dvbs2_cmdargs[] = {
+static const struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
 	{ DTV_FREQUENCY,	{}, { 0			},0 },
 	{ DTV_MODULATION,	{}, { PSK_8		} ,0},
@@ -103,12 +96,8 @@ static struct dtv_property dvbs2_cmdargs[] = {
 	{ DTV_TUNE,		{}, { 0			} ,0 },
 };
 
-static struct dtv_properties dvbs2_cmdseq = {
-	sizeof(dvbs2_cmdargs) / sizeof(struct dtv_property), dvbs2_cmdargs
-};
-
-static struct dtv_property dvbc_cmdargs[] = {
-	{ DTV_CLEAR,		{0,0,0}, { 0			},0 },
+static const struct dtv_property dvbc_cmdargs[] = {
+	{ DTV_CLEAR,		{0,0,0}, { 0		} ,0},
 	{ DTV_FREQUENCY,	{}, { 0			} ,0},
 	{ DTV_MODULATION,	{}, { QAM_AUTO		} ,0},
 	{ DTV_INVERSION,	{}, { INVERSION_AUTO	} ,0},
@@ -118,20 +107,8 @@ static struct dtv_property dvbc_cmdargs[] = {
 	{ DTV_TUNE,		{}, { 0			}, 0},
 };
 
-static struct dtv_properties dvbc_cmdseq = {
-	sizeof(dvbc_cmdargs) / sizeof(struct dtv_property), dvbc_cmdargs
-};
-
 
 #define diff(x,y)	(max(x,y) - min(x,y))
-
-extern bool current_is_nvod;
-extern t_channel_id live_channel_id;
-extern int useGotoXX;
-
-int stopPlayBack(bool stopemu);
-int startPlayBack(CZapitChannel * thisChannel);
-int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool nowait = 0);
 
 #define TIMER_INIT()					\
 	static unsigned int tmin = 2000, tmax = 0;	\
@@ -150,14 +127,41 @@ int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool 
 	 printf("%s: %u msec (min %u max %u)\n",	\
 		 label, timer_msec, tmin, tmax);
 
-CFrontend::CFrontend(int num)
-{
-	printf("[fe0] New frontend\n");
-	fd = -1;
+// Internal Inner FEC representation
+typedef enum dvb_fec {
+	fAuto,
+	f1_2,
+	f2_3,
+	f3_4,
+	f5_6,
+	f7_8,
+	f8_9,
+	f3_5,
+	f4_5,
+	f9_10,
+	fNone = 15
+} dvb_fec_t;
 
-	fenumber = num;
-	slave = fenumber;	// FIXME
-	diseqcType = NO_DISEQC;
+// Global fe instance
+CFrontend *CFrontend::currentFe = NULL;
+
+CFrontend *CFrontend::getInstance(int Number, int Adapter)
+{
+	if (!currentFe)
+		currentFe = new CFrontend(Number, Adapter);
+
+	return currentFe;
+}
+
+CFrontend::CFrontend(int Number, int Adapter)
+{
+	printf("[fe%d] New frontend on adapter %d\n", Number, Adapter);
+	fd		= -1;
+	fenumber	= Number;
+	adapter		= Adapter;
+	slave		= fenumber;	// FIXME
+	diseqcType	= NO_DISEQC;
+	standby		= true;
 
 	Open();
 
@@ -172,16 +176,20 @@ CFrontend::~CFrontend(void)
 	if (diseqcType > MINI_DISEQC)
 		sendDiseqcStandby();
 	close(fd);
+	currentFe = NULL;
 }
 
 void CFrontend::Open(void)
 {
-	printf("[fe0] open frontend\n");
+	if(!standby)
+		return;
+
+	printf("[fe%d] open frontend\n", fenumber);
 
 	char filename[128];
+	snprintf(filename, sizeof(filename), "/dev/dvb/adapter%d/frontend%d", adapter, fenumber);
+	printf("[fe%d] open %s\n", fenumber, filename);
 
-	sprintf(filename, "/dev/dvb/adapter0/frontend%d", fenumber);
-	printf("[fe0] open %s\n", filename);
 	if (fd < 0) {
 		if ((fd = open(filename, O_RDWR | O_NONBLOCK)) < 0) {
 			ERROR(filename);
@@ -189,27 +197,28 @@ void CFrontend::Open(void)
 		fop(ioctl, FE_GET_INFO, &info);
 		printf("[fe0] frontend fd %d type %d\n", fd, info.type);
 	}
-//FIXME info.type = FE_QAM;
 
+	//FIXME info.type = FE_QAM;
 	currentVoltage = SEC_VOLTAGE_OFF;
 	secSetVoltage(SEC_VOLTAGE_13, 15);
 	secSetTone(SEC_TONE_OFF, 15);
 	sendDiseqcPowerOn();
 
-	tuned = false;
-	uncommitedInput = 255;
-	diseqc = 255;
-	currentTransponder.polarization = 1;
-	currentTransponder.feparams.frequency = 0;
-	currentTransponder.TP_id = 0;
-	currentTransponder.diseqc = 255;
-	//diseqcType = NO_DISEQC;
-	//currentSatellitePosition = 0xFFFF;
-	standby = false;
+	tuned					= false;
+	uncommitedInput				= 255;
+	diseqc					= 255;
+	currentTransponder.polarization		= 1;
+	currentTransponder.feparams.frequency	= 0;
+	currentTransponder.TP_id		= 0;
+	currentTransponder.diseqc		= 255;
+	standby					= false;
 }
 
 void CFrontend::Close(void)
 {
+	if(standby)
+		return;
+
 	if (!slave && diseqcType > MINI_DISEQC)
 		sendDiseqcStandby();
 
@@ -221,6 +230,7 @@ void CFrontend::Close(void)
 
 void CFrontend::reset(void)
 {
+	// No-op
 }
 
 fe_code_rate_t CFrontend::getCFEC()
@@ -231,20 +241,6 @@ fe_code_rate_t CFrontend::getCFEC()
 		return curfe.u.qam.fec_inner;
 	}
 }
-
-typedef enum dvb_fec {
-	fAuto,
-	f1_2,
-	f2_3,
-	f3_4,
-	f5_6,
-	f7_8,
-	f8_9,
-	f3_5,
-	f4_5,
-	f9_10,
-	fNone = 15
-} dvb_fec_t;
 
 fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, int system)
 {
@@ -398,7 +394,6 @@ uint32_t CFrontend::getUncorrectedBlocks(void) const
 }
 
 #define TIME_STEP 200
-extern int feTimeout;
 #define TIMEOUT_MAX_MS (feTimeout*100)
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
@@ -566,7 +561,7 @@ void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
 	}
 }
 
-int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool /*nowait*/)
+bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, struct dtv_properties& cmdseq)
 {
 	fe_delivery_system delsys = SYS_DVBS;
 	fe_modulation_t modulation = QPSK;
@@ -574,8 +569,6 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 	fe_pilot_t pilot = PILOT_OFF;
 	int fec;
 	fe_code_rate_t fec_inner;
-
-	tuned = false;
 
 	/* Decode the needed settings */
 	switch (info.type) {
@@ -595,9 +588,7 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		return 0;
 	}
 
-	/* the ugly cast avoids a compiler warning, because the Coolstream
-	 * private values are *not* fe_code_rate_t values */
-	switch ((int)fec_inner) {
+	switch (fec_inner) {
 	case FEC_1_2:
 	case FEC_S2_QPSK_1_2:
 	case FEC_S2_8PSK_1_2:
@@ -660,71 +651,80 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		break;
 	}
 
-	char *f, *s, *m;
-	getDelSys(fec_inner, modulation, f, s, m);
-	//printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
+	int nrOfProps	= 0;
 
-	if(0) {
-		//TIMER_INIT();
-		//TIMER_START();
-		if ((ioctl(fd, FE_SET_PROPERTY, &clr_cmdseq)) == -1) {
-			perror("FE_SET_PROPERTY failed");
-			return 0;
-		}
-		//TIMER_STOP("[fe0] FE_SET_PROPERTY clear took");
-	}
-
-	struct dtv_properties *p;
 	switch (info.type) {
 	case FE_QPSK:
 		if (delsys == SYS_DVBS2) {
-			p = &dvbs2_cmdseq;
-			p->props[MODULATION].u.data	= modulation;
-			p->props[ROLLOFF].u.data	= rolloff;
-			p->props[PILOTS].u.data		= pilot;
+			nrOfProps	= FE_DVBS2_PROPS;
+			memcpy(cmdseq.props, dvbs2_cmdargs, sizeof(dvbs2_cmdargs));
+
+			cmdseq.props[MODULATION].u.data	= modulation;
+			cmdseq.props[ROLLOFF].u.data	= rolloff;
+			cmdseq.props[PILOTS].u.data	= pilot;
+			
 		} else {
-			p = &dvbs_cmdseq;
+			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
+			nrOfProps	= FE_DVBS_PROPS;
 		}
-		p->props[FREQUENCY].u.data	= feparams->frequency;
-		p->props[SYMBOL_RATE].u.data	= feparams->u.qpsk.symbol_rate;
-		p->props[INNER_FEC].u.data	= fec; /*_inner*/ ;
+		cmdseq.props[FREQUENCY].u.data	= feparams->frequency;
+		cmdseq.props[SYMBOL_RATE].u.data= feparams->u.qpsk.symbol_rate;
+		cmdseq.props[INNER_FEC].u.data	= fec; /*_inner*/ ;
 		break;
 	case FE_QAM:
-		p = &dvbc_cmdseq;
-		p->props[FREQUENCY].u.data	= feparams->frequency;
-		p->props[MODULATION].u.data	= modulation;
-		p->props[SYMBOL_RATE].u.data	= feparams->u.qam.symbol_rate;
-		p->props[INNER_FEC].u.data	= fec_inner;
+		memcpy(cmdseq.props, dvbc_cmdargs, sizeof(dvbc_cmdargs));
+		cmdseq.props[FREQUENCY].u.data	= feparams->frequency;
+		cmdseq.props[MODULATION].u.data	= modulation;
+		cmdseq.props[SYMBOL_RATE].u.data= feparams->u.qam.symbol_rate;
+		cmdseq.props[INNER_FEC].u.data	= fec_inner;
+		nrOfProps			= FE_DVBC_PROPS;
 		break;
 	default:
 		printf("frontend: unknown frontend type, exiting\n");
-		return 0;
+		return false;
 	}
 
-	struct dvb_frontend_event ev;
 
+	if (uni_scr >= 0)
+		cmdseq.props[FREQUENCY].u.data = sendEN50494TuningCommand(feparams->frequency,
+							currentToneMode == SEC_TONE_ON,
+							currentVoltage == SEC_VOLTAGE_18,
+							0); /* bank 0/1, like mini-diseqc a/b, not impl.*/
+
+	cmdseq.num	+= nrOfProps;
+
+	return true;
+}
+
+int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool /*nowait*/)
+{
+	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBS2_PROPS]; // WARNING: increase when needed more space
+	struct dtv_properties cmdseq;
+
+	cmdseq.num	= FE_COMMON_PROPS;
+	cmdseq.props	= cmdargs;
+
+	tuned = false;
+
+	//printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s\n", f, s, m, pilot == PILOT_ON ? "on" : "off");
+	struct dvb_frontend_event ev;
 	{
-		//TIMER_INIT();
-		//TIMER_START();
+		// Erase previous events
 		while (1) {
 			if (ioctl(fd, FE_GET_EVENT, &ev) < 0)
 				break;
 			printf("[fe0] DEMOD: event status %d\n", ev.status);
 		}
-		//TIMER_STOP("[fe0] clear events took");
 	}
-	if (uni_scr >= 0)
-		p->props[FREQUENCY].u.data = sendEN50494TuningCommand(feparams->frequency,
-							currentToneMode == SEC_TONE_ON,
-							currentVoltage == SEC_VOLTAGE_18,
-							0); /* bank 0/1, like mini-diseqc a/b, not impl.*/
 
-	printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s, freq %d\n", f, s, m, pilot == PILOT_ON ? "on" : "off", p->props[FREQUENCY].u.data);
+	//printf("[fe0] DEMOD: FEC %s system %s modulation %s pilot %s, freq %d\n", f, s, m, pilot == PILOT_ON ? "on" : "off", p->props[FREQUENCY].u.data);
+	if (!buildProperties(feparams, cmdseq))
+		return 0;
 
 	{
 		TIMER_INIT();
 		TIMER_START();
-		if ((ioctl(fd, FE_SET_PROPERTY, p)) < 0) {
+		if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
 			perror("FE_SET_PROPERTY failed");
 			return false;
 		}
@@ -1005,7 +1005,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 	unsigned int t = (frequency / 1000 + bpf + 2) / 4 - 350;
 	if (t < 1024 && uni_scr >= 0 && uni_scr < 8)
 	{
-fprintf(stderr, "VOLT18=%d TONE_ON=%d, freq=%d bpf=%d ret=%d\n", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, (t + 350) * 4000 - frequency);
+		fprintf(stderr, "VOLT18=%d TONE_ON=%d, freq=%d bpf=%d ret=%d\n", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, (t + 350) * 4000 - frequency);
 		cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
 			     (uni_scr << 5)	|	/* adress */
 			     (bank << 4)	|	/* not implemented yet */

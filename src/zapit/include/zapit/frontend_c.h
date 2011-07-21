@@ -25,6 +25,7 @@
 #include <inttypes.h>
 #include "types.h"
 #include "channel.h"
+#include <map>
 
 #define FEC_S2_QPSK_1_2 (fe_code_rate_t)(FEC_AUTO+1)		//10
 #define FEC_S2_QPSK_2_3 (fe_code_rate_t)(FEC_S2_QPSK_1_2+1)	//11
@@ -75,11 +76,22 @@ typedef struct dvb_frontend_parameters FrontendParameters;
 
 #define MAX_LNBS	64	/* due to Diseqc 1.1  (2003-01-10 rasc) */
 
+class CFrontend;
+typedef std::map<unsigned short, CFrontend*> fe_map_t;
+typedef fe_map_t::iterator fe_map_iterator_t;
+
 class CFrontend
 {
 	private:
+		/* frontend filedescriptor */
 		int fd;
-
+		/* use count for locking purposes */
+		int usecount;
+		/* current adapter where this frontend is on */
+		int adapter;
+		/* current frontend instance */
+		static CFrontend *currentFe;
+		fe_map_t femap;
 		/* tuning finished flag */
 		bool tuned;
 		/* information about the used frontend type */
@@ -106,9 +118,10 @@ class CFrontend
 		bool slave;
 		int fenumber;
 		bool standby;
+		bool buildProperties(const dvb_frontend_parameters*, struct dtv_properties &);
+
 		uint32_t			getDiseqcReply(const int timeout_ms) const;
 		struct dvb_frontend_parameters	getFrontend(void) const;
-
 		void				secResetOverload(void);
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
 		void				secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms);
@@ -124,12 +137,11 @@ class CFrontend
 		void				setSec(const uint8_t sat_no, const uint8_t pol, const bool high_band);
 		void				set12V(bool enable);
 		void				reset(void);
-
-
+		/* Private constructor */
 	public:
-		CFrontend(int fe = 0);
+		CFrontend(int Number = 0, int Adapter = 0);
 		~CFrontend(void);
-
+		static CFrontend *getInstance(int Number = 0, int Adapter = 0);
 		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, int system = 0);
 		uint8_t				getDiseqcPosition(void) const		{ return currentTransponder.diseqc; }
 		uint8_t				getDiseqcRepeats(void) const		{ return diseqcRepeats; }
@@ -151,14 +163,14 @@ class CFrontend
 		void				setDiseqcRepeats(const uint8_t repeats)	{ diseqcRepeats = repeats; }
 		void				setDiseqcType(const diseqc_t type);
 		int				setParameters(TP_params *TP, bool nowait = 0);
-		int				tuneFrequency (struct dvb_frontend_parameters * feparams, uint8_t polarization, bool nowait = 0);
+		int				tuneFrequency (struct dvb_frontend_parameters * feparams, uint8_t polarization, bool nowait = false);
 		const TP_params*		getParameters(void) const { return &currentTransponder; };
 		struct dvb_frontend_event*	setParametersResponse(TP_params *TP);
-		void 				setCurrentSatellitePosition(int32_t satellitePosition) {currentSatellitePosition = satellitePosition; }
+		void				setCurrentSatellitePosition(int32_t satellitePosition) {currentSatellitePosition = satellitePosition; }
 
-		void 				positionMotor(uint8_t motorPosition);
+		void				positionMotor(uint8_t motorPosition);
 		void				sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t command, uint8_t num_parameters, uint8_t parameter1, uint8_t parameter2, int repeat = 0);
-		void 				gotoXX(t_satellite_position pos);
+		void				gotoXX(t_satellite_position pos);
 		bool				tuneChannel(CZapitChannel *channel, bool nvod);
 		bool				retuneChannel(void);
 		bool				retuneTP(bool nowait = true);
@@ -167,8 +179,12 @@ class CFrontend
 		transponder_id_t		getTsidOnid() { return currentTransponder.TP_id; }
 		void 				setTsidOnid(transponder_id_t newid)  { currentTransponder.TP_id = newid; }
 		uint32_t 			getRate ();
-                void Close();
-                void Open();
+
+		void				Open();
+		void				Close();
+		bool				Lock();
+		void				Unlock();
+
 		bool sendUncommittedSwitchesCommand(int input);
 		bool setInput(CZapitChannel *channel, bool nvod);
 		void setInput(t_satellite_position satellitePosition, uint32_t frequency, uint8_t polarization);
