@@ -25,6 +25,8 @@
 
 #include "ci.h"
 #include <basicclient.h>
+#include "types.h"
+#include <OpenThreads/Mutex>
 
 #define DEMUX_DECODE_0 1
 #define DEMUX_DECODE_1 2
@@ -34,19 +36,48 @@
 #define DEMUX_SOURCE_1 1
 #define DEMUX_SOURCE_2 2
 
+#define LIVE_DEMUX	0
+#define STREAM_DEMUX	1
+#define RECORD_DEMUX	2
+
 class CCam : public CBasicClient
 {
 	private:
 		virtual unsigned char getVersion(void) const;
 		virtual const char *getSocketName(void) const;
-		int camask, demux;
+		int camask, demuxes[3];
 
 	public:
 		CCam();
 		bool sendMessage(const char * const data, const size_t length, bool update = false);
 		bool setCaPmt(CCaPmt * const caPmt, int _demux = 0, int _camask = 1, bool update = false);
 		int  getCaMask(void) { return camask; };
-		int  getDemux(void) { return demux; };
+		int  makeMask(int demux, bool add);
 };
 
+typedef std::map<t_channel_id, CCam*> cammap_t;
+typedef cammap_t::iterator cammap_iterator_t;
+
+class CCamManager
+{
+	public:
+		enum runmode {
+			PLAY,
+			RECORD,
+			STREAM
+		};
+	private:
+		cammap_t		channel_map;
+		OpenThreads::Mutex	mutex;
+		static CCamManager *	manager;
+		bool SetMode(t_channel_id id, enum runmode mode, bool enable, bool force_update = false);
+
+	public:
+		CCamManager();
+		~CCamManager();
+		static CCamManager * getInstance(void);
+		bool Start(t_channel_id id, enum runmode mode, bool force_update = false) { return SetMode(id, mode, true, force_update); };
+		bool Stop(t_channel_id id, enum runmode mode) { return SetMode(id, mode, false); };
+
+};
 #endif /* __cam_h__ */
