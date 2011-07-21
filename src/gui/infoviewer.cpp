@@ -39,25 +39,25 @@
 #include <sys/stat.h>
 #include <sys/sysinfo.h>
 #include <sys/vfs.h>
-
+#include <sys/timeb.h>
+#include <sys/param.h>
+#include <time.h>
 #include <fcntl.h>
+
+#include <global.h>
+#include <neutrino.h>
 
 #include <gui/infoviewer.h>
 #include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
-
-#include <daemonc/remotecontrol.h>
-
-#include <global.h>
-#include <neutrino.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
 #include <gui/movieplayer.h>
 
-#include <sys/timeb.h>
-#include <time.h>
-#include <sys/param.h>
+#include <daemonc/remotecontrol.h>
+#include <driver/record.h>
+
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
 #include <video.h>
@@ -68,7 +68,6 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
-extern CFrontend * frontend;
 extern cVideo * videoDecoder;
 extern t_channel_id live_channel_id; //zapit
 extern t_channel_id rec_channel_id; //zapit
@@ -289,15 +288,19 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 
 void CInfoViewer::showRecordIcon (const bool show)
 {
-	recordModeActive = CNeutrinoApp::getInstance ()->recordingstatus || shift_timer;
+	//recordModeActive = CNeutrinoApp::getInstance ()->recordingstatus || shift_timer;
+	recordModeActive = CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->Timeshift();
 	if (recordModeActive) {
+printf("CInfoViewer::showRecordIcon RecordingStatus() %d Timeshift() %d\n", CRecordManager::getInstance()->RecordingStatus(), CRecordManager::getInstance()->Timeshift());
 		int icon_w = 0,icon_h = 0;
 		frameBuffer->getIconSize(autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, &icon_w, &icon_h);
 		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
 		int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
 		const int icon_space = 3, box_len = 300, box_pos= 12;
 		if (show) {
-			if (!autoshift && !shift_timer) {
+			//if (!autoshift && !shift_timer) 
+			if(!CRecordManager::getInstance()->Timeshift())
+			{
 				frameBuffer->paintBoxRel (ChanName_X + SHADOW_OFFSET, BoxStartY + box_pos + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0);
 				frameBuffer->paintBoxRel (ChanName_X , BoxStartY + box_pos , box_len, chanH, COL_INFOBAR_PLUS_0);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X +icon_w + (icon_space*2), BoxStartY + box_pos + chanH, box_len, 
@@ -308,7 +311,8 @@ void CInfoViewer::showRecordIcon (const bool show)
 			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2);
 
 		} else {
-			if (!autoshift && !shift_timer)
+			//if (!autoshift && !shift_timer)
+			if(!CRecordManager::getInstance()->Timeshift())
 				frameBuffer->paintBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h,COL_INFOBAR_PLUS_0);
 			else
 				frameBuffer->paintBackgroundBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h);
@@ -800,7 +804,6 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 				if (fadeValue >= 100) {
 					fadeValue = g_settings.infobar_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					res = messages_return::cancel_info;
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
@@ -809,7 +812,6 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 				if (fadeValue <= g_settings.infobar_alpha) {
 					fadeValue = g_settings.infobar_alpha;
 					g_RCInput->killTimer (fadeTimer);
-					fadeTimer = 0;
 					fadeIn = false;
 					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
@@ -820,7 +822,6 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 		} else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
 			if (fadeIn) {
 				g_RCInput->killTimer (fadeTimer);
-				fadeTimer = 0;
 				fadeIn = false;
 			}
 			if ((!fadeOut) && g_settings.widget_fade) {
@@ -894,7 +895,6 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 		killTitle ();
 
 	g_RCInput->killTimer (sec_timer_id);
-	sec_timer_id = 0;
 	if (fadeIn || fadeOut) {
 		g_RCInput->killTimer (fadeTimer);
 		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
@@ -1523,8 +1523,8 @@ void CInfoViewer::showSNR ()
 		}
 		int sw, snr, sig, posx, posy;
 		int height, ChanNumYPos;
-		ssig = frontend->getSignalStrength();
-		ssnr = frontend->getSignalNoiseRatio();
+		ssig = CFrontend::getInstance()->getSignalStrength();
+		ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
 
 		sig = (ssig & 0xFFFF) * 100 / 65535;
 		snr = (ssnr & 0xFFFF) * 100 / 65535;
