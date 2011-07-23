@@ -121,7 +121,7 @@ void	netSetDefaultRoute( char *gw )
 	struct sockaddr_in	*in_addr;
 	unsigned char		*addr;
 	int					fd;
-	unsigned char		adr_gw[4];
+	unsigned char		adr_gw[4] = {0};
 
 	scanip( gw, adr_gw );
 

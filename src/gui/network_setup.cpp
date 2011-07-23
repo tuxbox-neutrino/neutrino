@@ -606,11 +606,11 @@ void CNetworkSetup::setWizardMode(bool mode)
 
 void CNetworkSetup::showCurrentNetworkSettings()
 {
-	char ip[16];
-	char mask[16];
-	char broadcast[16];
-	char router[16];
-	char nameserver[16];
+	char ip[16] = {0};
+	char mask[16] = {0};
+	char broadcast[16] = {0};
+	char router[16] = {0};
+	char nameserver[16] = {0};
 	std::string text;
 
 	netGetIP(g_settings.ifname, ip, mask, broadcast);

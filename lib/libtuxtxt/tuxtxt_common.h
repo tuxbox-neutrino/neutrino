@@ -184,7 +184,7 @@ void tuxtxt_decode_btt()
 {
 	/* basic top table */
 	int i, current, b1, b2, b3, b4;
-	unsigned char btt[23*40];
+	unsigned char btt[23*40] = {0};
 
 	if (tuxtxt_cache.subpagetable[0x1f0] == 0xff || 0 == tuxtxt_cache.astCachetable[0x1f0][tuxtxt_cache.subpagetable[0x1f0]]) /* not yet received */
 		return;
