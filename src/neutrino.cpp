@@ -2792,6 +2792,7 @@ _repeat:
 		CRecordManager::getInstance()->Record((CTimerd::RecordingInfo *) data);
 		autoshift = CRecordManager::getInstance()->TimeshiftOnly();
 
+		delete[] (unsigned char*) data;
 		return messages_return::handled | messages_return::cancel_all;
 	}
 	else if( msg == NeutrinoMessages::RECORD_STOP) {
