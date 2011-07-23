@@ -708,6 +708,9 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 {
 	CRecordInstance * inst;
 	record_error_msg_t error_msg = RECORD_OK;
+	/* for now, empty eventinfo.recordingDir means this is direct record, FIXME better way ?
+	 * neutrino check if this channel_id already recording, may be not needed */
+	bool direct_record = timeshift || strlen(eventinfo->recordingDir) == 0;
 
 	int mode = g_Zapit->isChannelTVChannel(eventinfo->channel_id) ? NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
 
@@ -717,24 +720,19 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	if(!CheckRecording(eventinfo))
 		return false;
 
-#if 0
-	if(!CutBackNeutrino(eventinfo->channel_id, mode)) {
-		printf("%s: failed to change channel\n", __FUNCTION__);
-		return false;
-	}
-#endif
 	RunStartScript();
 
 	mutex.lock();
 	recmap_iterator_t it = recmap.find(eventinfo->channel_id);
 	if(it != recmap.end()) {
-		inst = it->second;
-		/* for now, empty eventinfo.recordingDir means this is direct record, FIXME better way ?
-		 * neutrino check if this channel_id already recording, may be not needed */
-		if(timeshift || strlen(eventinfo->recordingDir) == 0) {
+		//inst = it->second;
+		if(direct_record) {
 			error_msg = RECORD_BUSY;
 		} else {
-			nextmap.push_back((CTimerd::RecordingInfo *)eventinfo);
+			//nextmap.push_back((CTimerd::RecordingInfo *)eventinfo);
+			CTimerd::RecordingInfo * evt = new CTimerd::RecordingInfo(*eventinfo);
+			printf("%s add %llx : %s to pending\n", __FUNCTION__, evt->channel_id, evt->epgTitle);
+			nextmap.push_back((CTimerd::RecordingInfo *)evt);
 		}
 	} else if(recmap.size() < RECORD_MAX_COUNT) {
 		if(CutBackNeutrino(eventinfo->channel_id, mode)) {
@@ -760,6 +758,10 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			} else {
 				delete inst;
 			}
+		} else if(!direct_record) {
+			CTimerd::RecordingInfo * evt = new CTimerd::RecordingInfo(*eventinfo);
+			printf("%s add %llx : %s to pending\n", __FUNCTION__, evt->channel_id, evt->epgTitle);
+			nextmap.push_back((CTimerd::RecordingInfo *)evt);
 		}
 	} else
 		error_msg = RECORD_BUSY;
@@ -948,9 +950,9 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 
 void CRecordManager::StopPostProcess()
 {
+	RestoreNeutrino();
 	StartNextRecording();
 	RunStopScript();
-	RestoreNeutrino();
 }
 
 bool CRecordManager::Update(const t_channel_id channel_id)
@@ -1127,6 +1129,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
 			printf("%s zapTo_record channel_id %llx\n", __FUNCTION__, channel_id);
 			ret = g_Zapit->zapTo_record(channel_id) == 0;
+		} else if(recmap.size()) {
+			ret = false;
 		} else {
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
