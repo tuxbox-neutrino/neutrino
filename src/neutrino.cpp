@@ -174,7 +174,6 @@ extern int zapit_ready;
 static pthread_t zapit_thread ;
 void * zapit_main_thread(void *data);
 extern t_channel_id live_channel_id; //zapit
-extern t_channel_id rec_channel_id; //zapit
 extern CZapitChannel *g_current_channel;
 
 void * nhttpd_main_thread(void *data);
@@ -3481,7 +3480,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 	if(stopauto /*&& autoshift*/) {
 		//printf("standby on: autoshift ! stopping ...\n");
 		CRecordManager::getInstance()->StopAutoRecord();
-		recordingstatus = 0;
+		//recordingstatus = 0;
 	}
 
 	frameBuffer->useBackground(false);
@@ -3550,6 +3549,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		wasshift = CRecordManager::getInstance()->StopAutoRecord();
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
+			if(g_settings.epg_save)
+				saveEpg();
+
 			g_Zapit->setStandby(true);
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 		} else
@@ -3559,9 +3561,11 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(true);
+#if 0
 		if(g_settings.epg_save) {
 			saveEpg();
 		}
+#endif
                 if(g_settings.mode_clock)
                         InfoClock->StopClock();
 		
