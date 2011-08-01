@@ -720,6 +720,11 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	if(!CheckRecording(eventinfo))
 		return false;
 
+#if 1 // FIXME test
+	StopSectionsd = false;
+	if(recmap.size())
+		StopSectionsd = true;
+#endif
 	RunStartScript();
 
 	mutex.lock();
@@ -882,6 +887,24 @@ bool CRecordManager::TimeshiftOnly()
 	int count = recmap.size();
 	mutex.unlock();
 	return (autoshift && (count == 1));
+}
+
+bool CRecordManager::SameTransponder(const t_channel_id channel_id)
+{
+	bool same = true;
+	mutex.lock();
+	int count = recmap.size();
+	if(count) {
+		if(autoshift && count == 1) 
+			same = true;
+		else {
+			recmap_iterator_t fit = recmap.begin();
+			t_channel_id id = fit->first;
+			same = (SAME_TRANSPONDER(channel_id, id));
+		}
+	}
+	mutex.unlock();
+	return same;
 }
 
 bool CRecordManager::Stop(const t_channel_id channel_id)
@@ -1151,8 +1174,10 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 	}
 
 	if(ret) {
-		if(StopSectionsd)
+		if(StopSectionsd) {
+			printf("%s: g_Sectionsd->setPauseScanning(true)\n", __FUNCTION__);
 			g_Sectionsd->setPauseScanning(true);
+		}
 
 		/* after this zapit send EVT_RECORDMODE_ACTIVATED, so neutrino getting NeutrinoMessages::EVT_RECORDMODE */
 		g_Zapit->setRecordMode( true );

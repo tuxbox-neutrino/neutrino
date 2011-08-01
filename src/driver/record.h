@@ -182,6 +182,7 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool RecordingStatus(const t_channel_id channel_id = 0);
 		bool TimeshiftOnly();
 		bool Timeshift() { return (autoshift || shift_timer); };
+		bool SameTransponder(const t_channel_id channel_id);
 		int  handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 		// old code
 		bool ChooseRecDir(std::string &dir);
