@@ -42,6 +42,7 @@
 #include <driver/screen_max.h>
 #include <driver/rcinput.h>
 #include <driver/abstime.h>
+#include <driver/record.h>
 
 #include <gui/color.h>
 #include <gui/eventlist.h>
@@ -80,7 +81,7 @@ extern CBouquetList   * RADIOallList;
 extern tallchans allchans;
 
 
-extern t_channel_id rec_channel_id;
+//extern t_channel_id rec_channel_id;
 extern bool autoshift;
 extern int g_channel_list_changed;
 
@@ -1204,12 +1205,26 @@ int CChannelList::numericZap(int key)
 			//CChannelList * orgList = bouquetList->orgChannelList;
 			CChannelList * orgList = CNeutrinoApp::getInstance()->channelList;
 			CChannelList * channelList = new CChannelList(g_Locale->getText(LOCALE_CHANNELLIST_CURRENT_TP), false, true);
+#if 0
 			t_channel_id recid = rec_channel_id >> 16;
 			if(key == CRCInput::RC_games)
 				recid = chanlist[selected]->channel_id >> 16;
 			for ( unsigned int i = 0 ; i < orgList->chanlist.size(); i++) {
 				if((orgList->chanlist[i]->channel_id >> 16) == recid) {
 					channelList->addChannel(orgList->chanlist[i]);
+				}
+			}
+#endif
+			if(key == CRCInput::RC_games) {
+				t_channel_id recid =chanlist[selected]->channel_id >> 16;
+				for ( unsigned int i = 0 ; i < orgList->chanlist.size(); i++) {
+					if((orgList->chanlist[i]->channel_id >> 16) == recid)
+						channelList->addChannel(orgList->chanlist[i]);
+				}
+			} else {
+				for ( unsigned int i = 0 ; i < orgList->chanlist.size(); i++) {
+					if(SameTP(orgList->chanlist[i]->channel_id))
+						channelList->addChannel(orgList->chanlist[i]);
 				}
 			}
 			if (channelList->getSize() != 0) {
@@ -1738,10 +1753,15 @@ void CChannelList::paintItem(int pos)
 	bool iscurrent = true;
 	unsigned int curr = liststart + pos;
 
+#if 0
 	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift && curr < chanlist.size()) {
 		iscurrent = (chanlist[curr]->channel_id >> 16) == (rec_channel_id >> 16);
-//printf("recording %llx current %llx current = %s\n", rec_channel_id, chanlist[liststart + pos]->channel->channel_id, iscurrent? "yes" : "no");
+		//printf("recording %llx current %llx current = %s\n", rec_channel_id, chanlist[liststart + pos]->channel_id, iscurrent? "yes" : "no");
 	}
+#endif
+	if(curr < chanlist.size())
+		iscurrent = SameTP(chanlist[curr]->channel_id);
+
 	if (curr == selected) {
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
@@ -1972,11 +1992,15 @@ bool CChannelList::SameTP(t_channel_id channel_id)
 {
 	bool iscurrent = true;
 
-	if(channel_id == 0)
-		channel_id = chanlist[selected]->channel_id;
-
+#if 0
 	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift)
 		iscurrent = (channel_id >> 16) == (rec_channel_id >> 16);
+#endif
+	if(CNeutrinoApp::getInstance()->recordingstatus) {
+		if(channel_id == 0)
+			channel_id = chanlist[selected]->channel_id;
+		iscurrent = CRecordManager::getInstance()->SameTransponder(channel_id);
+	}
 
 	return iscurrent;
 }
