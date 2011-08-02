@@ -3549,26 +3549,28 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		wasshift = CRecordManager::getInstance()->StopAutoRecord();
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
-			if(g_settings.epg_save)
-				saveEpg();
-
 			g_Zapit->setStandby(true);
 			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
-		} else
+		} else {
 			g_Zapit->stopPlayBack();
+		}
 
 		videoDecoder->Standby(true);
 
 		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(true);
-#if 0
-		if(g_settings.epg_save) {
-			saveEpg();
+
+		if(!CRecordManager::getInstance()->RecordingStatus()) {
+			//only save epg when not recording
+			if(g_settings.epg_save) {
+				saveEpg();
+			}
 		}
-#endif
-                if(g_settings.mode_clock)
-                        InfoClock->StopClock();
-		
+
+		if(g_settings.mode_clock) {
+			InfoClock->StopClock();
+		}
+
 		//remember tuned channel-id
 		standby_channel_id = live_channel_id;
 
