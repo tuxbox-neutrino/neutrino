@@ -62,6 +62,7 @@ class CScanSetup : public CMenuTarget
 		int fec_count;
 		int freq_length;
 		int r_system;
+		bool allow_start;
 		
 		neutrino_locale_t satprov_locale;
 		

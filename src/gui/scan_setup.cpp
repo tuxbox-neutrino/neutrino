@@ -47,6 +47,7 @@
 
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
+#include <driver/record.h>
 #include <system/debug.h>
 
 #include <zapit/frontend_c.h>
@@ -324,6 +325,8 @@ void CScanSetup::showScanMenu()
 	
 	CMenuOptionChooser 		*ojDiseqc 		= NULL;//diseqc modes
 	CMenuOptionNumberChooser 	*ojDiseqcRepeats 	= NULL;//diseqc repeats
+
+	allow_start = !CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->TimeshiftOnly();
 	 
 	satNotify 	= new CSatelliteSetupNotifier();
 	usalsNotify 	= new CAllUsalsNotifier();
@@ -627,8 +630,8 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
 	//----------------------------------------------------------------------
 	manual_Scan->addItem(GenericMenuSeparatorLine);
 
-	manual_Scan->addItem(new CMenuForwarder(LOCALE_SCANTS_TEST, true, NULL, this, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	manual_Scan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, this, "manual", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+	manual_Scan->addItem(new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	manual_Scan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "manual", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 }
 
 //init auto scan all menu
@@ -659,7 +662,7 @@ void CScanSetup::addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll)
 	addListFlagsItems(auto_ScanAll, 1);
 	//----------------------------------------------------------------------
 	auto_ScanAll->addItem(GenericMenuSeparatorLine);
-	auto_ScanAll->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, this, "all", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	auto_ScanAll->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "all", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 }
 
 #ifdef ENABLE_FASTSCAN
@@ -677,7 +680,7 @@ void CScanSetup::addScanMenuFastScan(CMenuWidget *fast_ScanMenu)
 	fast_ScanMenu->addItem(fastType);
 	//----------------------------------------------------------------------
 	fast_ScanMenu->addItem(GenericMenuSeparatorLine);
-	fast_ScanMenu->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, this, "fast", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	fast_ScanMenu->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "fast", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 }
 #endif /*ENABLE_FASTSCAN*/
 
@@ -693,7 +696,7 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 	addListFlagsItems(auto_Scan, 1);
 	//----------------------------------------------------------------------
 	auto_Scan->addItem(GenericMenuSeparatorLine);
-	auto_Scan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, true, NULL, this, "auto", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	auto_Scan->addItem(new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "auto", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	
 }
 
