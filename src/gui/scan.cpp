@@ -42,6 +42,7 @@
 
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <driver/record.h>
 
 #include <gui/color.h>
 
@@ -198,6 +199,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if (!frameBuffer->getActive())
 		return menu_return::RETURN_EXIT_ALL;
 
+	CRecordManager::getInstance()->StopAutoRecord();
         g_Zapit->stopPlayBack();
 	frameBuffer->paintBackground();
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/scan.jpg");
