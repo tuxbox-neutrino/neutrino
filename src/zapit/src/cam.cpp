@@ -29,6 +29,7 @@
 #include <zapit/satconfig.h>
 
 extern tallchans allchans;
+extern tallchans nvodchannels;
 
 CCam::CCam()
 {
@@ -137,8 +138,11 @@ bool CCamManager::SetMode(t_channel_id id, enum runmode mode, bool start, bool f
 
 	tallchans_iterator cit = allchans.find(id);
 	if(cit == allchans.end()) {
-		printf("CCamManager: channel %llx not found\n", id);
-		return false;
+		cit = nvodchannels.find(id);
+		if(cit == nvodchannels.end()) {
+			printf("CCamManager: channel %llx not found\n", id);
+			return false;
+		}
 	}
 
 	CZapitChannel * channel = &(cit->second);

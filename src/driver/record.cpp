@@ -64,6 +64,7 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern t_channel_id live_channel_id;
 extern t_channel_id rec_channel_id;
 extern tallchans allchans;
+extern tallchans nvodchannels;
 
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
@@ -221,8 +222,11 @@ bool CRecordInstance::Update()
 
 	tallchans_iterator cit = allchans.find(channel_id);
 	if(cit == allchans.end()) {
-		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
-		return false;
+		cit = nvodchannels.find(channel_id);
+		if(cit == nvodchannels.end()) {
+			printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+			return false;
+		}
 	}
 	CZapitChannel * channel = &(cit->second);
 
@@ -353,8 +357,11 @@ record_error_msg_t CRecordInstance::Record()
 	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
 	tallchans_iterator cit = allchans.find(channel_id);
 	if(cit == allchans.end()) {
-		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
-		return RECORD_INVALID_CHANNEL;
+		cit = nvodchannels.find(channel_id);
+		if(cit == nvodchannels.end()) {
+			printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+			return RECORD_INVALID_CHANNEL;
+		}
 	}
 	CZapitChannel * channel = &(cit->second);
 
@@ -602,10 +609,14 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 void CRecordInstance::GetRecordString(std::string &str)
 {
 	tallchans_iterator cit = allchans.find(channel_id);
-	if(cit == allchans.end())
-		str = "Unknown channel : " + GetEpgTitle();
-	else
-		str = cit->second.getName() + ": " + GetEpgTitle();
+	if(cit == allchans.end()) {
+		cit = nvodchannels.find(channel_id);
+		if(cit == nvodchannels.end()) {
+			str = "Unknown channel : " + GetEpgTitle();
+			return;
+		}
+	}
+	str = cit->second.getName() + ": " + GetEpgTitle();
 }
 
 //-------------------------------------------------------------------------
