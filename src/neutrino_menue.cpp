@@ -78,6 +78,7 @@
 #endif /*TEST_MENU*/
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
+#include <driver/record.h>
 
 //#include "gui/widget/stringinput.h"
 //#include "gui/widget/stringinput_ext.h"
@@ -300,6 +301,9 @@ bool CNeutrinoApp::getNVODMenu(CMenuWidget* menu)
 	{
 		sprintf(nvod_id, "%d", count);
 
+		t_channel_id subid = e->getChannelID();
+		bool enabled = CRecordManager::getInstance()->SameTransponder(subid);
+
 		if ( !g_RemoteControl->are_subchannels ) {
 			char nvod_time_a[50], nvod_time_e[50], nvod_time_x[50];
 			char nvod_s[100];
@@ -325,9 +329,9 @@ bool CNeutrinoApp::getNVODMenu(CMenuWidget* menu)
 				nvod_time_x[0]= 0;
 
 			sprintf(nvod_s, "%s - %s %s", nvod_time_a, nvod_time_e, nvod_time_x);
-			menu->addItem(new CMenuForwarderNonLocalized(nvod_s, true, NULL, NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
+			menu->addItem(new CMenuForwarderNonLocalized(nvod_s, enabled, NULL, NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
 		} else {
-			menu->addItem(new CMenuForwarderNonLocalized(e->subservice_name.c_str(), true, NULL, NVODChanger, nvod_id, CRCInput::convertDigitToKey(count)), (count == g_RemoteControl->selected_subchannel));
+			menu->addItem(new CMenuForwarderNonLocalized(e->subservice_name.c_str(), enabled, NULL, NVODChanger, nvod_id, CRCInput::convertDigitToKey(count)), (count == g_RemoteControl->selected_subchannel));
 		}
 
 		count++;
@@ -527,7 +531,13 @@ bool CNeutrinoApp::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_RECORD;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_RECORDING, &recordingstatus, MAINMENU_RECORDING_OPTIONS, MAINMENU_RECORDING_OPTION_COUNT, true, this, key, icon);
+#if 0 //NEW, show menu, how better ?
+			menu_item = new CMenuForwarder(LOCALE_MAINMENU_RECORDING, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
+#else //OLD, show start/stop chooser
+			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_RECORDING, &CRecordManager::getInstance()->recordingstatus, 
+					MAINMENU_RECORDING_OPTIONS, MAINMENU_RECORDING_OPTION_COUNT, true, 
+					CRecordManager::getInstance(), key, icon);
+#endif
 			menu->addItem(menu_item, false);
 			//if(has_hdd)
 			//	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_AUTO_TO_RECORD, autoshift, NULL, this, "autolink"), false);
