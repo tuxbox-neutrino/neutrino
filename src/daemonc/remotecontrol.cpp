@@ -44,6 +44,13 @@
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"
 
+#include <zapit/channel.h>
+#include <zapit/bouquets.h>
+
+extern tallchans allchans;
+extern CBouquetManager *g_bouquetManager;
+extern CZapitChannel *g_current_channel;
+
 extern uint32_t scrambled_timer;
 extern t_channel_id live_channel_id; //zapit
 
@@ -60,6 +67,7 @@ CSubService::CSubService(const t_original_network_id anoriginal_network_id, cons
 	startzeit                   = 0;
 	dauer                       = 0;
 	subservice_name             = asubservice_name;
+	satellitePosition = g_current_channel ? g_current_channel->getSatellitePosition() : 0;
 }
 
 CSubService::CSubService(const t_original_network_id anoriginal_network_id, const t_service_id aservice_id, const t_transport_stream_id atransport_stream_id, const time_t astartzeit, const unsigned adauer)
@@ -70,11 +78,13 @@ CSubService::CSubService(const t_original_network_id anoriginal_network_id, cons
 	startzeit                   = astartzeit;
 	dauer                       = adauer;
 	subservice_name             = "";
+	satellitePosition = g_current_channel ? g_current_channel->getSatellitePosition() : 0;
 }
 
 t_channel_id CSubService::getChannelID(void) const
 {
-	return CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service.service_id, service.original_network_id, service.transport_stream_id);
+	return ((uint64_t) ( satellitePosition > 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
+		(uint64_t) CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service.service_id, service.original_network_id, service.transport_stream_id);
 }
 
 
@@ -97,10 +107,6 @@ CRemoteControl::CRemoteControl()
 	is_video_started = true;
 }
 
-#include <zapit/channel.h>
-#include <zapit/bouquets.h>
-extern tallchans allchans;
-extern CBouquetManager *g_bouquetManager;
 
 int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data)
 {
@@ -358,7 +364,7 @@ void CRemoteControl::getSubChannels()
 								      linkedServices[i].serviceId,
 								      linkedServices[i].transportStreamId,
 								      linkedServices[i].name));
-					if (subChannels[i].getChannelID() == (current_channel_id&0xFFFFFFFFFFFFULL))
+					if ((subChannels[i].getChannelID()&0xFFFFFFFFFFFFULL) == (current_channel_id&0xFFFFFFFFFFFFULL))
 						selected_subchannel = i;
 				}
 				copySubChannelsToZapit();

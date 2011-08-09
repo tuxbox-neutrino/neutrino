@@ -53,6 +53,7 @@ class CSubService
 {
  private:
 	struct CZapitClient::commandAddSubServices service;
+	t_satellite_position satellitePosition;
 
  public:
 	time_t      startzeit;
@@ -62,7 +63,7 @@ class CSubService
 	CSubService(const t_original_network_id, const t_service_id, const t_transport_stream_id, const std::string &asubservice_name);
 	CSubService(const t_original_network_id, const t_service_id, const t_transport_stream_id, const time_t astartzeit, const unsigned adauer);
 
-	             t_channel_id                               getChannelID        (void) const;
+	t_channel_id                               getChannelID        (void) const;
 	inline const struct CZapitClient::commandAddSubServices getAsZapitSubService(void) const { return service;           }
 };
 

@@ -566,7 +566,7 @@ int zapit(const t_channel_id channel_id, bool in_nvod, bool forupdate = 0, bool 
 	live_channel_id = g_current_channel->getChannelID();
 	saveZapitSettings(false, false);
 
-	printf("[zapit] zap to %s(%llx)\n", g_current_channel->getName().c_str(), live_channel_id);
+	printf("[zapit] zap to %s (%llx)\n", g_current_channel->getName().c_str(), live_channel_id);
 
 	if(!tune_to_channel(newchannel, transponder_change))
 		return -1;
@@ -1595,17 +1595,22 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 		while (CBasicServer::receive_data(connfd, &msgAddSubService, sizeof(msgAddSubService))) {
 			t_original_network_id original_network_id = msgAddSubService.original_network_id;
 			t_service_id          service_id          = msgAddSubService.service_id;
-DBG("NVOD insert %llx\n", CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(msgAddSubService.service_id, msgAddSubService.original_network_id, msgAddSubService.transport_stream_id));
+
+			t_satellite_position satellitePosition = g_current_channel ? g_current_channel->getSatellitePosition() : 0;
+			t_channel_id sub_channel_id = 
+				((uint64_t) ( satellitePosition > 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
+				(uint64_t) CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(msgAddSubService.service_id, msgAddSubService.original_network_id, msgAddSubService.transport_stream_id);
+			DBG("NVOD insert %llx\n", sub_channel_id);
 			nvodchannels.insert (
 			    std::pair <t_channel_id, CZapitChannel> (
-				CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(msgAddSubService.service_id, msgAddSubService.original_network_id, msgAddSubService.transport_stream_id),
+				sub_channel_id,
 				CZapitChannel (
 				    "NVOD",
 				    service_id,
 				    msgAddSubService.transport_stream_id,
 				    original_network_id,
 				    1,
-				    g_current_channel ? g_current_channel->getSatellitePosition() : 0,
+				    satellitePosition,
 				    0
 				)
 			    )
