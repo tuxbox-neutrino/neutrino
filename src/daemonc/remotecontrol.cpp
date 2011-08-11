@@ -83,7 +83,7 @@ CSubService::CSubService(const t_original_network_id anoriginal_network_id, cons
 
 t_channel_id CSubService::getChannelID(void) const
 {
-	return ((uint64_t) ( satellitePosition > 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
+	return ((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
 		(uint64_t) CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service.service_id, service.original_network_id, service.transport_stream_id);
 }
 

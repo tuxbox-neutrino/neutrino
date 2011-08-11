@@ -1598,7 +1598,7 @@ printf("[zapit] recording mode: %d\n", msgSetRecordMode.activate);fflush(stdout)
 
 			t_satellite_position satellitePosition = g_current_channel ? g_current_channel->getSatellitePosition() : 0;
 			t_channel_id sub_channel_id = 
-				((uint64_t) ( satellitePosition > 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
+				((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
 				(uint64_t) CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(msgAddSubService.service_id, msgAddSubService.original_network_id, msgAddSubService.transport_stream_id);
 			DBG("NVOD insert %llx\n", sub_channel_id);
 			nvodchannels.insert (
