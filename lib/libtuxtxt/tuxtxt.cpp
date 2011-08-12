@@ -2498,7 +2498,7 @@ int GetNationalSubset(const char *cc)
                 return NAT_UK;
         if (memcmp(cc, "est", 3) == 0)
                 return NAT_ET;
-        if (memcmp(cc, "fre", 3) == 0 || memcmp(cc, "fra", 3) == 0)
+        if (memcmp(cc, "fre", 3) == 0 || memcmp(cc, "lb", 3) == 0 || memcmp(cc, "ltz", 3) == 0 || memcmp(cc, "fra", 3) == 0)
                 return NAT_FR;
         if (memcmp(cc, "ger", 3) == 0 || memcmp(cc, "deu", 3) == 0)
                 return NAT_DE;
