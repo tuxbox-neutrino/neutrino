@@ -393,6 +393,7 @@ extra.scan_fast Schnell
 extra.scan_full Total
 extra.scan_mode Scan-Modus
 extra.scrambled_message Verschlüsselung melden
+extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus Kanal
 extra.south Süden
 extra.spts_mode SPTS-Modus

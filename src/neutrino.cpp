@@ -453,6 +453,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.menu_pos = configfile.getInt32("menu_pos", 0 );
 	g_settings.infobar_show_var_hdd   = configfile.getBool("infobar_show_var_hdd"  , true );
 	g_settings.show_infomenu = configfile.getInt32("show_infomenu", 0 );
+	g_settings.show_mute_icon = configfile.getInt32("show_mute_icon" ,0);
 	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 0 );
 	g_settings.radiotext_enable = configfile.getBool("radiotext_enable"          , false);
 	//audio
@@ -1009,6 +1010,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 	configfile.setInt32("infobar_show_var_hdd"  , g_settings.infobar_show_var_hdd  );
 	configfile.setInt32("show_infomenu"  , g_settings.show_infomenu  );
+	configfile.setInt32("show_mute_icon"   , g_settings.show_mute_icon);
 	configfile.setInt32("infobar_show_res"  , g_settings.infobar_show_res  );
 	configfile.setBool("radiotext_enable"          , g_settings.radiotext_enable);
 	//audio
@@ -3281,6 +3283,8 @@ void CNeutrinoApp::saveEpg()
 
 void CNeutrinoApp::AudioMute( int newValue, bool isEvent )
 {
+	if((g_settings.current_volume == 0) && (g_settings.show_mute_icon == 1))
+		return;
 	//printf("MUTE: val %d current %d event %d\n", newValue, current_muted, isEvent);
 	int dx = 0;
 	int dy = 0;
@@ -3399,7 +3403,13 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 			else if (msg == CRCInput::RC_minus || msg == CRCInput::RC_left) { //FIXME
 				if (g_settings.current_volume > g_settings.current_volume_step)
 					g_settings.current_volume -= g_settings.current_volume_step;
-				else
+				else if ((g_settings.show_mute_icon == 1) && (g_settings.current_volume = 1))
+                                {
+					(g_settings.current_volume = 1);
+					AudioMute( true, true);
+					g_settings.current_volume = 0;
+				}
+				else if (g_settings.show_mute_icon == 0)
 					g_settings.current_volume = 0;
 			}
 			else {

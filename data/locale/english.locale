@@ -393,6 +393,7 @@ extra.scan_fast Fast
 extra.scan_full Full
 extra.scan_mode Scan mode
 extra.scrambled_message Scrambled Message
+extra.show_mute_icon mute-icon at volume 0
 extra.sms_channel sms-mode channel
 extra.south South
 extra.spts_mode SPTS mode
