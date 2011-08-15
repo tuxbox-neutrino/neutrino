@@ -420,6 +420,7 @@ const char * locale_real_names[] =
 	"extra.scan_full",
 	"extra.scan_mode",
 	"extra.scrambled_message",
+	"extra.show_mute_icon",
 	"extra.sms_channel",
 	"extra.south",
 	"extra.spts_mode",
