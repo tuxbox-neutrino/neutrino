@@ -283,6 +283,7 @@ CNeutrinoApp::CNeutrinoApp()
 	networksetup		= NULL;
 	skipShutdownTimer=false;
 	current_muted = 0;
+	recordingstatus = 0;
 	memset(&font, 0, sizeof(neutrino_font_descr_struct));
 }
 
