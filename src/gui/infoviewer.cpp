@@ -1877,7 +1877,7 @@ void CInfoViewer::showInfoFile()
 	if (recordModeActive)
 		return;
 	char infotext[80];
-	int fd, xStart, xEnd, height, r;
+	int fd, xStart, yStart, width, height, radius;
 	ssize_t cnt;
 
 	fd = open("/tmp/infobar.txt", O_RDONLY); //Datei aus welcher der Text ausgelesen wird
@@ -1893,15 +1893,18 @@ void CInfoViewer::showInfoFile()
 	}
 	infotext[cnt-1] = '\0';
 
-	xStart = BoxStartX + ChanWidth + 140;	// Abstand rechst vom Aufnahmeicon
-	xEnd   = BoxEndX - 225;			// Abstand links von der Progressbar
-	height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
-	r = height / 3;
-	// background
-	frameBuffer->paintBox(xStart, BoxStartY, xEnd, BoxStartY + height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_ALL); //round
-
+	xStart	= BoxStartX + ChanWidth + 140;	//Abstand rechts vom Aufnahmeicon
+	yStart	= BoxStartY;
+	width	= BoxEndX - xStart - 225;
+	height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
+	radius 	= height / 3;
+	//shadow
+	frameBuffer->paintBoxRel(xStart + SHADOW_OFFSET, yStart + SHADOW_OFFSET, width, height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL, CORNER_ALL);
+	//background
+	frameBuffer->paintBoxRel(xStart, yStart, width, height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_ALL);
+	//content
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
-		xStart + r, BoxStartY + height, xEnd - xStart - r*2, (std::string)infotext, COL_INFOBAR, height, false);
+		xStart + radius, yStart + height, width - radius, (std::string)infotext, COL_INFOBAR, height, false);
 }
 
 
