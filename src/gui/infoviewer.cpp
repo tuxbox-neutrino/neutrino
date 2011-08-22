@@ -1690,11 +1690,11 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 	time_t jetzt = time (NULL);
 
 	if (info_CurrentNext.flags & CSectionsdClient::epgflags::has_current) {
-		int seit = (jetzt - info_CurrentNext.current_zeit.startzeit + 30) / 60;
+		int seit = (abs(jetzt - info_CurrentNext.current_zeit.startzeit) + 30) / 60;
 		int rest = (info_CurrentNext.current_zeit.dauer / 60) - seit;
-		if (seit < 0) {
+		if (jetzt < info_CurrentNext.current_zeit.startzeit) {
 			runningPercent = 0;
-			snprintf (runningRest, sizeof(runningRest), "in %d min", -seit);
+			snprintf (runningRest, sizeof(runningRest), "in %d min", seit);
 		} else {
 			runningPercent = (jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer;
 			if (runningPercent > 100)
