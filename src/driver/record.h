@@ -191,5 +191,6 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		int recordingstatus;
 		bool doGuiRecord();
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
+		int GetRecmapSize() { return recmap.size(); };
 };
 #endif

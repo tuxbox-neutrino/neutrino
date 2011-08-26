@@ -531,7 +531,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_RECORD;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-#if 0 //NEW, show menu, how better ?
+#if 1 //NEW, show menu, how better ?
 			menu_item = new CMenuForwarder(LOCALE_MAINMENU_RECORDING, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
 #else //OLD, show start/stop chooser
 			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_RECORDING, &CRecordManager::getInstance()->recordingstatus, 
