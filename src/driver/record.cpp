@@ -40,6 +40,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/filebrowser.h>
+#include <gui/movieplayer.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
