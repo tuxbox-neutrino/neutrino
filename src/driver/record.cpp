@@ -40,7 +40,6 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/filebrowser.h>
-#include <gui/movieplayer.h>
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/mountchooser.h>
@@ -1032,13 +1031,16 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 	if(actionKey == "StopAll")
 	{
 		char rec_msg[256];
+		char rec_msg1[256];
 		int records = recmap.size();
 		int i = 0;
-		snprintf(rec_msg, sizeof(rec_msg)-1, "Wirklich alle %d Aufnahmen beenden?", records);
+		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
+		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
 		if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
 			CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
-			snprintf(rec_msg, sizeof(rec_msg)-1, "%d Aufnahmen werden beendet.", records);
+			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
+			snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, rec_msg);
 			hintBox->paint();
 			int recording_ids[RECORD_MAX_COUNT];
@@ -1121,6 +1123,7 @@ bool CRecordManager::ShowMenu(void)
 	int select = -1, i = 0, shortcut = 1, recmap_size = recmap.size();
 	char cnt[5];
 	CMenuForwarderNonLocalized * item;
+	CMenuForwarder * iteml;
 	t_channel_id channel_ids[RECORD_MAX_COUNT];
 	int recording_ids[RECORD_MAX_COUNT];
 
@@ -1130,12 +1133,12 @@ bool CRecordManager::ShowMenu(void)
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	// Record / Timeshift
-	item = new CMenuForwarderNonLocalized("Aufnahme aktueller Kanal", true, NULL, 
-		this, "Record", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	menu.addItem(item, false);
-	item = new CMenuForwarderNonLocalized("Timeshift", true, NULL, 
-		this, "Timeshift", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-	menu.addItem(item, false);
+	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true, NULL, 
+			this, "Record", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	menu.addItem(iteml, false);
+	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, true, NULL, 
+			this, "Timeshift", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	menu.addItem(iteml, false);
 
 	if(recmap_size > 0)
 	{
@@ -1161,22 +1164,14 @@ bool CRecordManager::ShowMenu(void)
 		if(i > 1) // Menüpunkt "alle Aufn. verenden"
 		{
 			menu.addItem(GenericMenuSeparatorLine);
-			item = new CMenuForwarderNonLocalized("Alle Aufnahmen beenden", true, NULL, 
-			this, "StopAll", CRCInput::convertDigitToKey(0));
-			item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
-			menu.addItem(item, false);
+			iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_STOP_ALL, true, NULL, 
+					this, "StopAll", CRCInput::convertDigitToKey(0));
+			iteml->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+			menu.addItem(iteml, false);
 		}
 		mutex.unlock();
 	}
-#if 0
-	if(i == 0)
-	{
-		// neutrino.cpp #2458 + #2449
-		ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, "Keine Aufnahme zum Anzeigen oder Stoppen.",
-				CMessageBox::mbrOk, CMessageBox::mbOk,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
-		return false;
-	}
-#endif
+
 	menu.exec(NULL, "");
 	delete selector;
 
@@ -1434,7 +1429,7 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 					strcat(msg,recordingDir);
 
 					ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, msg,
-							CMessageBox::mbrOk, CMessageBox::mbOk,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
+							CMessageBox::mbrBack, CMessageBox::mbBack,NEUTRINO_ICON_ERROR, 450, 10); // UTF-8
 					ret = false;
 				}
 				break;

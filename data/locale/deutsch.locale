@@ -1121,6 +1121,11 @@ recordingmenu.file Direkt (Datei)
 recordingmenu.filesettings Direktaufnahme Einstellungen
 recordingmenu.head Aufnahme Einstellungen
 recordingmenu.help Aufnahmegeräte:\n-----------------------\nServer:\nauf PC mit Hilfe eines Streaming-Programmes\n\n(analoger) Videorekorder:\nüber VCR-Ausgang\n\nDirekt (Datei):\nauf ein per NFS gemountetes Verzeichnis\noder eine interne Festplatte\nTS: SPTS-Mode Treiber laden(dbox2)\nPES: SPTS-Mode Treiber nicht laden(dbox2)\n\n\nMaximale Dateigröße:\n----------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: fast unendlich (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
+recordingmenu.multimenu.ask_stop_all Wirklich alle %d Aufnahmen beenden?
+recordingmenu.multimenu.info_stop_all %d Aufnahmen werden beendet.
+recordingmenu.multimenu.rec_akt Aufnahme aktueller Kanal
+recordingmenu.multimenu.stop_all Alle Aufnahmen beenden
+recordingmenu.multimenu.timeshift Timeshift
 recordingmenu.no_scart Unterdrücke Scart-Umschaltung
 recordingmenu.off aus
 recordingmenu.record_in_spts_mode in SPTS-Modus aufnehmen
