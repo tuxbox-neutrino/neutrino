@@ -1877,8 +1877,8 @@ void CInfoViewer::show_Data (bool calledFromEvent)
 
 void CInfoViewer::showInfoFile()
 {
-	if (recordModeActive)
-		return;
+	/*if (recordModeActive)
+		return;*/
 	char infotext[80];
 	int fd, xStart, yStart, width, height, radius;
 	ssize_t cnt;
