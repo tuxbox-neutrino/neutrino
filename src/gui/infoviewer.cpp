@@ -291,34 +291,35 @@ void CInfoViewer::showRecordIcon (const bool show)
 	//recordModeActive = CNeutrinoApp::getInstance ()->recordingstatus || shift_timer;
 	recordModeActive = CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->Timeshift();
 	if (recordModeActive) {
-//printf("CInfoViewer::showRecordIcon RecordingStatus() %d Timeshift() %d\n", CRecordManager::getInstance()->RecordingStatus(), CRecordManager::getInstance()->Timeshift());
-		int icon_w = 0,icon_h = 0;
+		//printf("CInfoViewer::showRecordIcon RecordingStatus() %d Timeshift() %d\n", CRecordManager::getInstance()->RecordingStatus(), CRecordManager::getInstance()->Timeshift());
+		int icon_w = 0,icon_h = 0, radius = RADIUS_MIN;
 		frameBuffer->getIconSize(autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, &icon_w, &icon_h);
 		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
 		int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
-		const int icon_space = 3, box_len = 34 + icon_w, box_pos = 12;
+		const int icon_space = 3, box_len = 34 + icon_w, box_posY = 12;
+		int box_posX = ChanName_X + SHADOW_OFFSET, icon_posX = box_posX + icon_space + SHADOW_OFFSET;
 		if (show) {
 			//if (!autoshift && !shift_timer) 
 			if(!CRecordManager::getInstance()->Timeshift())
 			{
-				frameBuffer->paintBoxRel (ChanName_X + SHADOW_OFFSET, BoxStartY + box_pos + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0);
-				frameBuffer->paintBoxRel (ChanName_X , BoxStartY + box_pos , box_len, chanH, COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel (box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
+				frameBuffer->paintBoxRel (box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
 				char records_msg[8];
 				int records = CRecordManager::getInstance()->GetRecmapSize();
 				snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (ChanName_X +icon_w + (icon_space*2), BoxStartY + box_pos + chanH, box_len, 
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (icon_posX + icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, 
 						records_msg, COL_INFOBAR, 0, true);
 			} else {
-				frameBuffer->paintBackgroundBoxRel (ChanName_X , BoxStartY + box_pos, box_len + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
+				frameBuffer->paintBackgroundBoxRel (box_posX, BoxStartY + box_posY, box_len + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
 			}
-			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2);
+			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, icon_posX, BoxStartY + box_posY + (chanH - icon_h)/2);
 
 		} else {
 			//if (!autoshift && !shift_timer)
 			if(!CRecordManager::getInstance()->Timeshift())
-				frameBuffer->paintBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h,COL_INFOBAR_PLUS_0);
+				frameBuffer->paintBoxRel (icon_posX, BoxStartY + box_posY + (chanH - icon_h)/2, icon_w, icon_h, COL_INFOBAR_PLUS_0);
 			else
-				frameBuffer->paintBackgroundBoxRel (ChanName_X + icon_space, BoxStartY + box_pos + (chanH - icon_h)/2, icon_w, icon_h);
+				frameBuffer->paintBackgroundBoxRel (icon_posX, BoxStartY + box_posY + (chanH - icon_h)/2, icon_w, icon_h);
 		}
 	}
 }
