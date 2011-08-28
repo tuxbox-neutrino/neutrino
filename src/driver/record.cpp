@@ -1162,7 +1162,7 @@ bool CRecordManager::ShowMenu(void)
 			menu.addItem(item, false);
 			i++;
 		}
-		if(i > 1) // Menüpunkt "alle Aufn. verenden"
+		if(i > 1) //menu item "stopp all records"
 		{
 			menu.addItem(GenericMenuSeparatorLine);
 			iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_STOP_ALL, true, NULL, 
