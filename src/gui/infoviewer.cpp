@@ -288,38 +288,75 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 
 void CInfoViewer::showRecordIcon (const bool show)
 {
-	//recordModeActive = CNeutrinoApp::getInstance ()->recordingstatus || shift_timer;
 	recordModeActive = CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->Timeshift();
 	if (recordModeActive) {
-		//printf("CInfoViewer::showRecordIcon RecordingStatus() %d Timeshift() %d\n", CRecordManager::getInstance()->RecordingStatus(), CRecordManager::getInstance()->Timeshift());
-		int icon_w = 0,icon_h = 0, radius = RADIUS_MIN;
-		frameBuffer->getIconSize(autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, &icon_w, &icon_h);
-		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight ();
-		int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
-		const int icon_space = 3, box_len = 34 + icon_w, box_posY = 12;
-		int box_posX = ChanName_X + SHADOW_OFFSET, icon_posX = box_posX + icon_space + SHADOW_OFFSET;
-		if (show) {
-			//if (!autoshift && !shift_timer) 
-			if(!CRecordManager::getInstance()->Timeshift())
+		CRecordManager * crm	= CRecordManager:: getInstance();
+		int records		= crm->GetRecmapSize();
+		bool modus_rec		= crm->RecordingStatus() && !crm->Timeshift();
+		bool modus_ts		= crm->Timeshift() && (records == 1);
+		bool modus_ts_rec	= crm->Timeshift() && (records > 1);
+//printf("\n##### ts %d - rec %d - ts_rec %d\n \n", modus_ts, modus_rec, modus_ts_rec);
+		int rec_icon_w = 0, rec_icon_h = 0, ts_icon_w = 0, ts_icon_h = 0;
+		const int radius = RADIUS_MIN;
+		const int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
+		const int icon_space = 3, box_posY = 12;
+		int box_len = 0, rec_icon_posX = 0, ts_icon_posX = 0;
+		frameBuffer->getIconSize(NEUTRINO_ICON_REC, &rec_icon_w, &rec_icon_h);
+		frameBuffer->getIconSize(NEUTRINO_ICON_AUTO_SHIFT, &ts_icon_w, &ts_icon_h);
+		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight () 
+					* (g_settings.screen_yres / 100);
+		if (chanH < rec_icon_h)
+			chanH = rec_icon_h;
+		const int box_posX = ChanName_X + SHADOW_OFFSET;
+		char records_msg[8];
+		snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
+		int TextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(records_msg) 
+					* (g_settings.screen_xres / 100);
+		if (modus_rec)
+		{
+			box_len = rec_icon_w + TextWidth + icon_space*5;
+			rec_icon_posX = box_posX + icon_space*2;
+		}else if (modus_ts)
+		{
+			box_len = ts_icon_w + icon_space*4;
+			ts_icon_posX = box_posX + icon_space*2;
+		}else if (modus_ts_rec)
+		{
+			box_len = ts_icon_w + rec_icon_w + TextWidth + icon_space*7;
+			ts_icon_posX = box_posX + icon_space*2;
+			rec_icon_posX = ts_icon_posX + ts_icon_w + icon_space*2;
+			records--;
+			snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
+		}
+		if (show)
+		{
+			if (modus_rec)
 			{
-				frameBuffer->paintBoxRel (box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
-				frameBuffer->paintBoxRel (box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
-				char records_msg[8];
-				int records = CRecordManager::getInstance()->GetRecmapSize();
-				snprintf(records_msg, sizeof(records_msg)-1, "%d%s", records, "x");
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (icon_posX + icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, 
-						records_msg, COL_INFOBAR, 0, true);
-			} else {
-				frameBuffer->paintBackgroundBoxRel (box_posX, BoxStartY + box_posY, box_len + SHADOW_OFFSET, chanH + SHADOW_OFFSET);
+				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
+				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR, 0, true);
+				frameBuffer->paintIcon (NEUTRINO_ICON_REC, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
+			}else if (modus_ts)
+			{
+				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
+				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
+				frameBuffer->paintIcon(NEUTRINO_ICON_AUTO_SHIFT, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
+			}else if (modus_ts_rec)
+			{
+				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
+				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR, 0, true);
+				frameBuffer->paintIcon(NEUTRINO_ICON_REC, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
+				frameBuffer->paintIcon(NEUTRINO_ICON_AUTO_SHIFT, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
 			}
-			frameBuffer->paintIcon (autoshift ? NEUTRINO_ICON_AUTO_SHIFT : NEUTRINO_ICON_REC, icon_posX, BoxStartY + box_posY + (chanH - icon_h)/2);
-
-		} else {
-			//if (!autoshift && !shift_timer)
-			if(!CRecordManager::getInstance()->Timeshift())
-				frameBuffer->paintBoxRel (icon_posX, BoxStartY + box_posY + (chanH - icon_h)/2, icon_w, icon_h, COL_INFOBAR_PLUS_0);
-			else
-				frameBuffer->paintBackgroundBoxRel (icon_posX, BoxStartY + box_posY + (chanH - icon_h)/2, icon_w, icon_h);
+		}else
+		{
+			if (modus_rec)
+				frameBuffer->paintBoxRel(rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2, rec_icon_w, rec_icon_h, COL_INFOBAR_PLUS_0);
+			else if (modus_ts)
+				frameBuffer->paintBoxRel(ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2, ts_icon_w, ts_icon_h, COL_INFOBAR_PLUS_0);
+			else if (modus_ts_rec)
+				frameBuffer->paintBoxRel(ts_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2, ts_icon_w + rec_icon_w + icon_space*2, rec_icon_h, COL_INFOBAR_PLUS_0);
 		}
 	}
 }
