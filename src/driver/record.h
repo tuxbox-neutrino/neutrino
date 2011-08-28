@@ -192,5 +192,6 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool doGuiRecord();
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 		int GetRecmapSize() { return recmap.size(); };
+		bool IsTimeshift(t_channel_id channel_id);
 };
 #endif

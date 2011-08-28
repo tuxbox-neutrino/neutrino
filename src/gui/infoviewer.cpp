@@ -288,9 +288,19 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 
 void CInfoViewer::showRecordIcon (const bool show)
 {
-	recordModeActive = CRecordManager::getInstance()->RecordingStatus() || CRecordManager::getInstance()->Timeshift();
-	if (recordModeActive) {
-		CRecordManager * crm	= CRecordManager:: getInstance();
+	CRecordManager * crm		= CRecordManager::getInstance();
+	recordModeActive		= crm->RecordingStatus() || crm->Timeshift();
+	if (recordModeActive)
+	{
+		std::string Icon_Rec = NEUTRINO_ICON_REC_GRAY, Icon_Ts = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
+		t_channel_id cci	= g_RemoteControl->current_channel_id;
+		bool status_ts		= crm->IsTimeshift(cci);
+		bool status_rec		= crm->RecordingStatus(cci) && !status_ts;
+		if (status_ts)
+			Icon_Ts		= NEUTRINO_ICON_AUTO_SHIFT;
+		if (status_rec)
+			Icon_Rec	= NEUTRINO_ICON_REC;
+
 		int records		= crm->GetRecmapSize();
 		bool modus_rec		= crm->RecordingStatus() && !crm->Timeshift();
 		bool modus_ts		= crm->Timeshift() && (records == 1);
@@ -301,8 +311,8 @@ void CInfoViewer::showRecordIcon (const bool show)
 		const int ChanName_X = BoxStartX + ChanWidth + SHADOW_OFFSET;
 		const int icon_space = 3, box_posY = 12;
 		int box_len = 0, rec_icon_posX = 0, ts_icon_posX = 0;
-		frameBuffer->getIconSize(NEUTRINO_ICON_REC, &rec_icon_w, &rec_icon_h);
-		frameBuffer->getIconSize(NEUTRINO_ICON_AUTO_SHIFT, &ts_icon_w, &ts_icon_h);
+		frameBuffer->getIconSize(Icon_Rec.c_str(), &rec_icon_w, &rec_icon_h);
+		frameBuffer->getIconSize(Icon_Ts.c_str(), &ts_icon_w, &ts_icon_h);
 		int chanH = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight () 
 					* (g_settings.screen_yres / 100);
 		if (chanH < rec_icon_h)
@@ -335,19 +345,19 @@ void CInfoViewer::showRecordIcon (const bool show)
 				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
 				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR, 0, true);
-				frameBuffer->paintIcon (NEUTRINO_ICON_REC, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
+				frameBuffer->paintIcon(Icon_Rec, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
 			}else if (modus_ts)
 			{
 				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
 				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
-				frameBuffer->paintIcon(NEUTRINO_ICON_AUTO_SHIFT, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
+				frameBuffer->paintIcon(Icon_Ts, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
 			}else if (modus_ts_rec)
 			{
 				frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
 				frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR, 0, true);
-				frameBuffer->paintIcon(NEUTRINO_ICON_REC, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
-				frameBuffer->paintIcon(NEUTRINO_ICON_AUTO_SHIFT, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
+				frameBuffer->paintIcon(Icon_Rec, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
+				frameBuffer->paintIcon(Icon_Ts, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
 			}
 		}else
 		{

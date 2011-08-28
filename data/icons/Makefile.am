@@ -2,7 +2,7 @@ installdir = $(DATADIR)/neutrino/icons
 
 install_DATA = \
 	0.png 1.png 2.png 3.png 4.png 5.png 6.png 7.png 8.png 9.png \
-	audio.png 16_9.png 16_9_gray.png ats.png \
+	audio.png 16_9.png 16_9_gray.png ats.png ats_gray.png \
 	language.png bayrisch.png ch-baslerdeutsch.png ch-berndeutsch.png czech.png deutsch.png dutch.png bosanski.png \
 	ellinika.png english.png francais.png french.png hungarian.png italiano.png norsk.png \
 	polski.png portugues.png romania.png russkij.png nederlands.png slovak.png suomi.png svenska.png \
@@ -19,7 +19,7 @@ install_DATA = \
 	mp3.png mute.png mute_small.png mute_zap_gray.png mute_zap_green.png \
 	network.png not_mounted.png notyet.png numericpad.png ok.png power.png \
 	radar_red.pal radar.pal radar0.raw radar1.raw radar2.raw radar3.raw radar4.raw \
-	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw movieplayer.raw rec.png recording.png \
+	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw movieplayer.raw rec.png rec_gray.png recording.png \
 	res_1920.png res_1280.png res_1440.png res_1080.png res_720.png res_704.png res_576.png \
 	res_528.png res_544.png res_480.png res_382.png res_352.png res_288.png res_000.png \
 	res_hd.png res_sd.png \

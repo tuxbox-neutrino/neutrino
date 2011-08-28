@@ -670,6 +670,19 @@ CRecordInstance * CRecordManager::FindInstance(t_channel_id channel_id)
 	return NULL;
 }
 
+bool CRecordManager::IsTimeshift(t_channel_id channel_id)
+{
+	bool ret;
+	mutex.lock();
+	CRecordInstance * inst = FindInstance(channel_id);
+	mutex.unlock();
+	if(inst && inst->Timeshift())
+		ret = true;
+	else
+		ret = false;
+	return ret;
+}
+
 MI_MOVIE_INFO * CRecordManager::GetMovieInfo(t_channel_id channel_id)
 {
 	//FIXME copy MI_MOVIE_INFO ?
