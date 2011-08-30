@@ -2304,21 +2304,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				g_PluginList->start_plugin_by_name(g_settings.onekey_plugin.c_str(), 0);
 			}
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
-				if(g_RemoteControl->is_video_started) {
-					std::string tmode;
-					bool res = true;
-					if(CRecordManager::getInstance()->RecordingStatus(live_channel_id)) {
-						tmode = "ptimeshift"; // already recording, pause
-					} else {
-						if(g_settings.temp_timeshift)
-							res = CRecordManager::getInstance()->StartAutoRecord();
-						else
-							res = CRecordManager::getInstance()->Record(live_channel_id);
-						tmode = "timeshift"; // record just started
-					}
-					if(res)
-						CMoviePlayerGui::getInstance().exec(NULL, tmode);
-				}
+				CRecordManager::getInstance()->StartTimeshift();
 			}
 			else if(msg == CRCInput::RC_rewind) {
 				if(g_RemoteControl->is_video_started) {
@@ -2328,9 +2314,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if( msg == CRCInput::RC_record /* || msg == CRCInput::RC_stop*/ ) {
 				printf("[neutrino] direct record\n");
-				if(CRecordManager::getInstance()->RecordingStatus(live_channel_id)) {
-					CRecordManager::getInstance()->AskToStop(live_channel_id);
-				} else {
+				if(!CRecordManager::getInstance()->RecordingStatus(live_channel_id)) {
 #if 0 // uncomment, if ChooseRecDir and g_settings.recording_choose_direct_rec_dir ever used to select recording dir
 					CRecordManager::getInstance()->recordingstatus = 1;
 					CRecordManager::getInstance()->doGuiRecord();

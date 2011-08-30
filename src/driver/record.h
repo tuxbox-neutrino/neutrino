@@ -51,6 +51,11 @@
 #define FILENAMEBUFFERSIZE 1024
 #define RECORD_MAX_COUNT 8
 
+#define TSHIFT_MODE_OFF 0
+#define TSHIFT_MODE_TEMPORAER 1
+#define TSHIFT_MODE_PERMANET 2
+#define TSHIFT_MODE_PAUSE 3
+
 //FIXME
 enum record_error_msg_t
 {
@@ -114,6 +119,7 @@ class CRecordInstance
 		void GetRecordString(std::string& str);
 		const char * GetFileName() { return filename; };
 		bool Timeshift() { return autoshift; };
+		int tshift_mode;
 };
 
 typedef std::map<t_channel_id, CRecordInstance*> recmap_t;
@@ -147,6 +153,7 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		void StartNextRecording();
 		void StopPostProcess();
 		CRecordInstance * FindInstance(t_channel_id);
+		void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
 		CRecordManager();
@@ -192,6 +199,7 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool doGuiRecord();
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 		int GetRecmapSize() { return recmap.size(); };
-		bool IsTimeshift(t_channel_id channel_id);
+		bool IsTimeshift(t_channel_id channel_id=0);
+		void StartTimeshift();
 };
 #endif
