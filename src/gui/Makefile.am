@@ -86,6 +86,7 @@ libneutrino_gui_a_SOURCES = \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
+	user_menue.cpp \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \

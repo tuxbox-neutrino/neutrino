@@ -1974,12 +1974,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_PluginList->loadPlugins();
 
 	APIDChanger               = new CAPIDChangeExec;
-	StreamFeaturesChanger     = new CStreamFeaturesChangeExec;
 	MoviePluginChanger        = new CMoviePluginChangeExec;
 	ConsoleDestinationChanger = new CConsoleDestChangeNotifier;
-	rcLock                    = new CRCLock();
-	//USERMENU
-	Timerlist                 = new CTimerList;
 
 	// setup recording device
 	setupRecordingDevice();
@@ -2167,7 +2163,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
-
+	
 	dprintf(DEBUG_NORMAL, "initialized everything\n");
 
 	g_PluginList->startPlugin("startup.cfg");
@@ -2326,25 +2322,26 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if(CRecordManager::getInstance()->RecordingStatus())
 					CRecordManager::getInstance()->ShowMenu();
 			}
+
 			else if( msg == CRCInput::RC_red ) {
 				StopSubtitles();
-				showUserMenu(SNeutrinoSettings::BUTTON_RED);
+				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_RED);
 				StartSubtitles();
 			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
 				StopSubtitles();
-				showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_yellow ) {       // NVODs
 				StopSubtitles();
-				showUserMenu(SNeutrinoSettings::BUTTON_YELLOW);
+				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_YELLOW);
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_blue ) {
 				StopSubtitles();
-				showUserMenu(SNeutrinoSettings::BUTTON_BLUE);
+				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_BLUE);
 				StartSubtitles();
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
@@ -2392,8 +2389,10 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					showInfo();
 				}
 			}
-			else if (msg == CRCInput::RC_timer) {
-				Timerlist->exec(NULL, "");
+			else if (msg == CRCInput::RC_timer) 
+			{
+				CTimerList Timerlist;
+				Timerlist.exec(NULL, "");
 			}
 			else {
 				if (msg == CRCInput::RC_home) {
@@ -3014,8 +3013,10 @@ _repeat:
 		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
-	else if (msg == NeutrinoMessages::LOCK_RC) {
-		this->rcLock->exec(NULL,CRCLock::NO_USER_INPUT);
+	else if (msg == NeutrinoMessages::LOCK_RC) 
+	{
+		CRCLock rcLock;
+		rcLock.exec(NULL,CRCLock::NO_USER_INPUT);
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::CHANGEMODE ) {
@@ -3711,7 +3712,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	//	printf("ac: %s\n", actionKey.c_str());
 	int returnval = menu_return::RETURN_REPAINT;
-
+	
 	if(actionKey == "help_recording") {
 		ShowLocalizedMessage(LOCALE_SETTINGS_HELP, LOCALE_RECORDINGMENU_HELP, CMessageBox::mbrBack, CMessageBox::mbBack);
 	}
@@ -3871,7 +3872,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		g_Sectionsd->freeMemory();
 	}
 
-
 	return returnval;
 }
 
@@ -3880,11 +3880,12 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 **************************************************************************************/
 bool CNeutrinoApp::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
 {
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LANGUAGESETUP_SELECT)) {
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LANGUAGESETUP_SELECT)) 
+	{
 		g_Locale->loadLocale(g_settings.language);
 		return true;
-	}
-	return false;
+ 	}
+ 	return false;
 }
 
 /**************************************************************************************

@@ -1,6 +1,4 @@
 /*
-	$id$
-
 	user_menue setup implementation - Neutrino-GUI
 	based up implementation by Günther
 
@@ -8,25 +6,29 @@
 	and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
+	Rework
 	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
 	License: GPL
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	This program is free software; you can redistribute it and/or modify it under the terms of the GNU
+	General Public License as published by the Free Software Foundation; either version 2 of the License, 
+	or (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	See the GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
+	You should have received a copy of the GNU General Public License along with this program; 
+	if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
+		
+		
+	NOTE for ignorant distributors:
+	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.
+	Please read it and understand it right!
+	This means for you: Hold it, if not, leave it! You could face legal action! 
+	Otherwise ask the copyright owners, anything else would be theft!
 */
 
 #ifndef __user_menue__
@@ -55,6 +57,22 @@ static user_menu_data_t user_menu[COL_BUTTONMAX]=
 	{LOCALE_INFOVIEWER_LANGUAGES	, CRCInput::RC_green	, NEUTRINO_ICON_BUTTON_GREEN	, NEUTRINO_ICON_GREEN, 	-1},
 	{NONEXISTANT_LOCALE		, CRCInput::RC_yellow	, NEUTRINO_ICON_BUTTON_YELLOW	, NEUTRINO_ICON_YELLOW,	-1},
 	{LOCALE_INFOVIEWER_STREAMINFO	, CRCInput::RC_blue	, NEUTRINO_ICON_BUTTON_BLUE	, NEUTRINO_ICON_FEATURES, -1}
+};
+
+// #define COL_BUTTONMAX SNeutrinoSettings::BUTTON_MAX
+// const neutrino_msg_t col_key_helper_msg_def[COL_BUTTONMAX]={CRCInput::RC_red,CRCInput::RC_green,CRCInput::RC_yellow,CRCInput::RC_blue};
+// const char * col_key_helper_icon_def[COL_BUTTONMAX]={NEUTRINO_ICON_BUTTON_RED,NEUTRINO_ICON_BUTTON_GREEN,NEUTRINO_ICON_BUTTON_YELLOW,NEUTRINO_ICON_BUTTON_BLUE};
+
+class CUserMenu : public CChangeObserver
+{	
+	private:		
+		int width;
+		bool changeNotify(const neutrino_locale_t OptionName, void *);
+				
+	public:
+		CUserMenu();
+		~CUserMenu();
+		bool showUserMenu(int button);
 };
 
 

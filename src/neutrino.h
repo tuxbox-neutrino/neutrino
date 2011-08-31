@@ -46,6 +46,7 @@
 #include <gui/rc_lock.h>
 #include <daemonc/remotecontrol.h>    /* st_rmsg      */
 
+#include <gui/user_menue.h>
 #include <zapit/client/zapitclient.h>
 
 #include <string>
@@ -115,6 +116,7 @@ private:
 
 	CConfigFile			configfile;
 	CScanSettings			scanSettings;
+	CUserMenu 			usermenu;
 	int                             network_dhcp;
 	int                             network_automatic_start;
 
@@ -138,16 +140,10 @@ private:
 	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
 	CNetworkSetup			*networksetup;
-	CStreamFeaturesChangeExec	*StreamFeaturesChanger;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
 	COnekeyPluginChangeExec		*OnekeyPluginChanger;
 	CIPChangeNotifier		*MyIPChanger;
 	CConsoleDestChangeNotifier	*ConsoleDestinationChanger;
-	CRCLock				*rcLock;
-	// USERMENU
-	CTimerList                      *Timerlist;
-
-	bool showUserMenu(int button);
 
 	void firstChannel();
 	void setupNetwork( bool force= false );
@@ -201,8 +197,8 @@ public:
 	//callback stuff only....
 	int exec(CMenuTarget* parent, const std::string & actionKey);
 
-	//onchange
-	bool changeNotify(const neutrino_locale_t OptionName, void *);
+// 	//onchange
+ 	bool changeNotify(const neutrino_locale_t OptionName, void *);
 
 	int handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 
