@@ -670,7 +670,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	{
 		int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
 		CProgressBar pb(true, -1, -1, 30, 100, 70, true);
-		pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
+		pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 100);
 	}
 
 	GetPrevNextEPGData( epgData.eventID, &epgData.epg_times.startzeit );
@@ -713,7 +713,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					if ( epg_done!= -1 ) {
 						CProgressBar pb(true, -1, -1, 30, 100, 70, true);
 						int pbx = sx + 10 + widthl + 10 + ((ox-104-widthr-widthl-10-10-20)>>1);
-						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 104);
+						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 100);
 					}
 				}
 				if(data == fadeTimer) {
