@@ -73,10 +73,12 @@
 #include "gui/sleeptimer.h"
 #include "gui/software_update.h"
 #include <gui/streaminfo2.h>
+#include "gui/subchannel_select.h"
 #ifdef TEST_MENU
 #include "gui/test_menu.h"
 #endif /*TEST_MENU*/
 #include "gui/update.h"
+#include "gui/user_menue.h"
 #include "gui/vfd_setup.h"
 #include <driver/record.h>
 
@@ -272,99 +274,6 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service)
 }
 
 
-// USERMENU
-// leave this functions, somebody might want to use it in the future again
-void CNeutrinoApp::SelectNVOD()
-{
-	if (!(g_RemoteControl->subChannels.empty()))
-	{
-		// NVOD/SubService- Kanal!
-		CMenuWidget NVODSelector(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, NEUTRINO_ICON_VIDEO);
-		if (getNVODMenu(&NVODSelector))
-			NVODSelector.exec(NULL, "");
-	}
-}
-
-bool CNeutrinoApp::getNVODMenu(CMenuWidget* menu)
-{
-	if (menu == NULL)
-		return false;
-	if (g_RemoteControl->subChannels.empty())
-		return false;
-
-	menu->addItem(GenericMenuSeparator);
-
-	int count = 0;
-	char nvod_id[5];
-
-	for ( CSubServiceListSorted::iterator e=g_RemoteControl->subChannels.begin(); e!=g_RemoteControl->subChannels.end(); ++e)
-	{
-		sprintf(nvod_id, "%d", count);
-
-		t_channel_id subid = e->getChannelID();
-		bool enabled = CRecordManager::getInstance()->SameTransponder(subid);
-
-		if ( !g_RemoteControl->are_subchannels ) {
-			char nvod_time_a[50], nvod_time_e[50], nvod_time_x[50];
-			char nvod_s[100];
-			struct  tm *tmZeit;
-
-			tmZeit= localtime(&e->startzeit);
-			sprintf(nvod_time_a, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
-
-			time_t endtime = e->startzeit+ e->dauer;
-			tmZeit= localtime(&endtime);
-			sprintf(nvod_time_e, "%02d:%02d", tmZeit->tm_hour, tmZeit->tm_min);
-
-			time_t jetzt=time(NULL);
-			if (e->startzeit > jetzt) {
-				int mins=(e->startzeit- jetzt)/ 60;
-				sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_STARTING), mins);
-			}
-			else if ( (e->startzeit<= jetzt) && (jetzt < endtime) ) {
-				int proz=(jetzt- e->startzeit)*100/ e->dauer;
-				sprintf(nvod_time_x, g_Locale->getText(LOCALE_NVOD_PERCENTAGE), proz);
-			}
-			else
-				nvod_time_x[0]= 0;
-
-			sprintf(nvod_s, "%s - %s %s", nvod_time_a, nvod_time_e, nvod_time_x);
-			menu->addItem(new CMenuForwarderNonLocalized(nvod_s, enabled, NULL, NVODChanger, nvod_id), (count == g_RemoteControl->selected_subchannel));
-		} else {
-			menu->addItem(new CMenuForwarderNonLocalized(e->subservice_name.c_str(), enabled, NULL, NVODChanger, nvod_id, CRCInput::convertDigitToKey(count)), (count == g_RemoteControl->selected_subchannel));
-		}
-
-		count++;
-	}
-
-	if ( g_RemoteControl->are_subchannels ) {
-		menu->addItem(GenericMenuSeparatorLine);
-		CMenuOptionChooser* oj = new CMenuOptionChooser(LOCALE_NVODSELECTOR_DIRECTORMODE, &g_RemoteControl->director_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
-		menu->addItem(oj);
-	}
-	return true;
-}
-
-void CNeutrinoApp::SelectAPID()
-{
-#if 0
-	if ( g_RemoteControl->current_PIDs.APIDs.size()> 1 )
-	{
-		// we have APIDs for this channel!
-
-		CMenuWidget APIDSelector(LOCALE_APIDSELECTOR_HEAD, NEUTRINO_ICON_AUDIO);
-		APIDSelector.addItem(GenericMenuSeparator);
-
-		for ( unsigned int count=0; count<g_RemoteControl->current_PIDs.APIDs.size(); count++ )
-		{
-			char apid[5];
-			sprintf(apid, "%d", count);
-			APIDSelector.addItem(new CMenuForwarderNonLocalized(g_RemoteControl->current_PIDs.APIDs[count].desc, true, NULL, APIDChanger, apid, CRCInput::convertDigitToKey(count + 1)), (count == g_RemoteControl->current_PIDs.PIDs.selected_apid));
-		}
-		APIDSelector.exec(NULL, "");
-	}
-#endif
-}
 
 #define MAINMENU_RECORDING_OPTION_COUNT 2
 const CMenuOptionChooser::keyval MAINMENU_RECORDING_OPTIONS[MAINMENU_RECORDING_OPTION_COUNT] =
@@ -373,98 +282,15 @@ const CMenuOptionChooser::keyval MAINMENU_RECORDING_OPTIONS[MAINMENU_RECORDING_O
 	{ 1, LOCALE_MAINMENU_RECORDING_STOP  }
 };
 
-// USERMENU
-typedef struct user_menu_data_t
-{
-	neutrino_locale_t caption;
-	const neutrino_msg_t key_helper_msg_def;
-	const char * key_helper_icon_def;
-	const char * menu_icon_def;
-	int selected;
-} user_menu_data_struct;
-
-#define BUTTONMAX SNeutrinoSettings::BUTTON_MAX
-static user_menu_data_t user_menu[BUTTONMAX]=
-{
-	{LOCALE_INFOVIEWER_EVENTLIST	, CRCInput::RC_red	, NEUTRINO_ICON_BUTTON_RED	, NEUTRINO_ICON_RED,	-1},
-	{LOCALE_INFOVIEWER_LANGUAGES	, CRCInput::RC_green	, NEUTRINO_ICON_BUTTON_GREEN	, NEUTRINO_ICON_GREEN, 	-1},
-	{NONEXISTANT_LOCALE		, CRCInput::RC_yellow	, NEUTRINO_ICON_BUTTON_YELLOW	, NEUTRINO_ICON_YELLOW,	-1},
-	{LOCALE_INFOVIEWER_STREAMINFO	, CRCInput::RC_blue	, NEUTRINO_ICON_BUTTON_BLUE	, NEUTRINO_ICON_FEATURES, -1}
-};
-
-// This is just a quick helper for the usermenu only. I already made it a class for future use.
-class CKeyHelper
-{
-private:
-	int number_key;
-	bool color_key_used[BUTTONMAX];
-public:
-	CKeyHelper() {
-		reset();
-	};
-	void reset(void)
-	{
-		number_key = 1;
-		for (int i= 0; i < BUTTONMAX; i++ )
-			color_key_used[i] = false;
-	};
-
-	/* Returns the next available button, to be used in menu as 'direct' keys. Appropriate
-	 * definitions are returnd in msp and icon
-	 * A color button could be requested as prefered button (other buttons are not supported yet).
-	 * If the appropriate button is already in used, the next number_key button is returned instead
-	 * (first 1-9 and than 0). */
-	bool get(neutrino_msg_t* msg, const char** icon, neutrino_msg_t prefered_key = CRCInput::RC_nokey)
-	{
-		bool result = false;
-		int button = -1;
-		if (prefered_key == CRCInput::RC_red)
-			button = 0;
-		if (prefered_key == CRCInput::RC_green)
-			button = 1;
-		if (prefered_key == CRCInput::RC_yellow)
-			button = 2;
-		if (prefered_key == CRCInput::RC_blue)
-			button = 3;
-
-		*msg = CRCInput::RC_nokey;
-		*icon = "";
-		if (button >= 0 && button < BUTTONMAX)
-		{ // try to get color button
-			if ( color_key_used[button] == false)
-			{
-				color_key_used[button] = true;
-				*msg = user_menu[button].key_helper_msg_def;
-				*icon = user_menu[button].key_helper_icon_def;
-				result = true;
-			}
-		}
-
-		if ( result == false && number_key < 10) // no key defined yet, at least try to get a numbered key
-		{
-			// there is still a available number_key
-			*msg = CRCInput::convertDigitToKey(number_key);
-			*icon = "";
-			if (number_key == 9)
-				number_key = 0;
-			else if (number_key == 0)
-				number_key = 10;
-			else
-				number_key++;
-			result = true;
-		}
-		return (result);
-	};
-};
 
 // USERMENU
 bool CNeutrinoApp::showUserMenu(int button)
 {
-	if (button < 0 || button >= BUTTONMAX)
+	if (button < 0 || button >= COL_BUTTONMAX)
 		return false;
 
 	CMenuItem* menu_item = NULL;
-	CKeyHelper keyhelper;
+	CColorKeyHelper keyhelper;
 	neutrino_msg_t key = CRCInput::RC_nokey;
 	const char * icon = NULL;
 	int dummy;
@@ -477,6 +303,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 	CPauseSectionsdNotifier* tmpPauseSectionsdNotifier      = NULL;
 	CAudioSelectMenuHandler* tmpAudioSelectMenuHandler      = NULL;
 	CMenuWidget* tmpNVODSelector                            = NULL;
+	CSubChannelSelectMenu subchanselect;
 	CStreamInfo2Handler*    tmpStreamInfo2Handler           = NULL;
 	CEventListHandler* tmpEventListHandler                  = NULL;
 	CEPGplusHandler* tmpEPGplusHandler                      = NULL;
@@ -625,7 +452,7 @@ bool CNeutrinoApp::showUserMenu(int button)
 			if (!(g_RemoteControl->subChannels.empty())) {
 				// NVOD/SubService- Kanal!
 				tmpNVODSelector = new CMenuWidget(g_RemoteControl->are_subchannels ? LOCALE_NVODSELECTOR_SUBSERVICE : LOCALE_NVODSELECTOR_HEAD, NEUTRINO_ICON_VIDEO);
-				if (getNVODMenu(tmpNVODSelector)) {
+				if (subchanselect.getNVODMenu(tmpNVODSelector)) {
 					menu_items++;
 					menu_prev = SNeutrinoSettings::ITEM_SUBCHANNEL;
 					keyhelper.get(&key,&icon);

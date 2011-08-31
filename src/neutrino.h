@@ -138,7 +138,6 @@ private:
 	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
 	CNetworkSetup			*networksetup;
-	CNVODChangeExec         	*NVODChanger;
 	CStreamFeaturesChangeExec	*StreamFeaturesChanger;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
 	COnekeyPluginChangeExec		*OnekeyPluginChanger;
@@ -149,7 +148,6 @@ private:
 	CTimerList                      *Timerlist;
 
 	bool showUserMenu(int button);
-	bool getNVODMenu(CMenuWidget* menu);
 
 	void firstChannel();
 	void setupNetwork( bool force= false );
@@ -171,8 +169,6 @@ private:
 	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &service);
 
 	void SetupFrameBuffer();
-	void SelectAPID();
-	void SelectNVOD();
 	void CmdParser(int argc, char **argv);
 	void saveColors(const char * fname);
 	CNeutrinoApp();

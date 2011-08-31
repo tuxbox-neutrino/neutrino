@@ -1974,7 +1974,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_PluginList->loadPlugins();
 
 	APIDChanger               = new CAPIDChangeExec;
-	NVODChanger               = new CNVODChangeExec;
 	StreamFeaturesChanger     = new CStreamFeaturesChangeExec;
 	MoviePluginChanger        = new CMoviePluginChangeExec;
 	ConsoleDestinationChanger = new CConsoleDestChangeNotifier;
