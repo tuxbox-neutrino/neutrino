@@ -37,28 +37,21 @@
 #include <zapit/pat.h>
 #include <zapit/pmt.h>
 #include <zapit/debug.h>
+#include <zapit/zapit.h>
 #include <dmx.h>
 #include <math.h>
 
 extern CBouquetManager *g_bouquetManager;
 extern CZapitClient::scanType scanType;
-extern tallchans allchans;   //  defined in zapit.cpp
-extern tallchans curchans;   //  defined in zapit.cpp
 std::string curr_chan_name;
-uint32_t  found_transponders;
-uint32_t  found_channels;
 std::string lastProviderName;
-uint32_t  found_tv_chans;
-uint32_t  found_radio_chans;
-uint32_t  found_data_chans;
-std::string lastServiceName;
-std::map <t_channel_id, uint8_t> service_types;
+//std::string lastServiceName;
+//std::map <t_channel_id, uint8_t> service_types;
 
 extern CEventServer *eventServer;
 extern int scan_pids;
 extern t_channel_id live_channel_id;
 int scan_fta_flag = 0;
-int add_to_scan(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t polarity, bool fromnit = 0);
 
 void generic_descriptor(const unsigned char * const)
 {
@@ -241,7 +234,8 @@ void service_list_descriptor(const unsigned char * const buffer, const t_transpo
 //printf("[service_list] type %X sid %X\n", service_type, service_id);
 		if(service_type == 0x9A) service_type = 1;
 		if(service_type == 0x86) service_type = 1;
-		service_types[channel_id] = service_type;
+		//service_types[channel_id] = service_type;
+		CServiceScan::getInstance()->AddServiceType(channel_id, service_type);
 	}
 }
 
@@ -314,7 +308,7 @@ int satellite_delivery_system_descriptor(const unsigned char * const buffer, t_t
 		return 0;
 	}
 	TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, original_network_id, transport_stream_id);
-	add_to_scan(TsidOnid, &feparams, polarization, true);
+	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, polarization, true);
 
 	return 0;
 }
@@ -363,7 +357,7 @@ int cable_delivery_system_descriptor(const unsigned char * const buffer, t_trans
         //feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
         freq = feparams.frequency / 100;
         TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, original_network_id, transport_stream_id);
-        add_to_scan(TsidOnid, &feparams, 0);
+        CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, 0);
 	return 0;
 }
 
@@ -510,28 +504,20 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		serviceName = buf_tmp;
 	}
 
-	found_channels++;
-	eventServer->sendEvent ( CZapitClient::EVT_SCAN_NUM_CHANNELS, CEventServer::INITID_ZAPIT, &found_channels, sizeof(found_channels));
 
 	t_channel_id channel_id;
-	tallchans_iterator I;
 	int i = 0;
 	freq_id_t freq_tmp = freq;
 	freq -= 2;
-	for(i = 0;i < 6;i++){
+	for(i = 0; i < 6; i++) {
 		channel_id = CREATE_CHANNEL_ID64;
-		I = allchans.find(channel_id);
-		if (I != allchans.end()) {
-		//if(strcmp(serviceName.c_str(), I->second.getName().c_str()))
-			{
-//printf("[scan] ******************************* channel %s (%llx at %d) exist with name %s at %d !!\n", serviceName.c_str(), channel_id, freq, I->second.getName().c_str(), I->second.getFreqId());//FIXME
+		channel = CServiceManager::getInstance()->FindChannel(channel_id);
+		if(channel) {
 			service_wr = false;
-			I->second.setName(serviceName);
-			I->second.setServiceType(real_type);
-			I->second.scrambled = free_ca;
-			channel = &I->second;
+			channel->setName(serviceName);
+			channel->setServiceType(real_type);
+			channel->scrambled = free_ca;
 			break;
-			}
 		}
 		freq++;
 	}
@@ -540,37 +526,30 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	if(service_wr) {
 		freq = freq_tmp;
 		channel_id = CREATE_CHANNEL_ID64;
-		pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
 		DBG("New channel ===== %llx:::%llx %s\n", channel_id, tpid, serviceName.c_str());
-		//if(freq == 11758 || freq == 11778) printf("New channel ===== %llx:::%llx %s\n", channel_id, tpid, serviceName.c_str()); //FIXME debug
 
-		ret = allchans.insert (
-				std::pair <t_channel_id, CZapitChannel> (
-					channel_id,
-					CZapitChannel (
-						serviceName,
-						service_id,
-						transport_stream_id,
-						original_network_id,
-						real_type /*service_type*/,
-						satellitePosition,
-						freq
-						)
-					)
+		channel = new CZapitChannel (
+				serviceName,
+				service_id,
+				transport_stream_id,
+				original_network_id,
+				real_type /*service_type*/,
+				satellitePosition,
+				freq
 				);
-		ret.first->second.scrambled = free_ca;
-		channel = &ret.first->second;
+		CServiceManager::getInstance()->AddChannel(channel);
+
+		channel->scrambled = free_ca;
+		//channel = &ret.first->second;
 	}
 
-
-#if 0
-	static unsigned int last_transport_stream_id=0;
-	if(last_transport_stream_id != transport_stream_id ) {
-		last_transport_stream_id=transport_stream_id;
-		tpchange = true;
+	//FIXME at this point channel never should be NULL
+	if(channel == NULL) {
+		printf("service_descriptor: BUG ? channel %llx:::%llx %s nor found neither created !\n", channel_id, tpid, serviceName.c_str());
+		return;
 	}
-#endif
-//printf("[scan] last tp %llx new %llx\n", last_tpid, tpid);
+
+	//printf("[scan] last tp %llx new %llx\n", last_tpid, tpid);
 	if(last_tpid != tpid) {
 		last_tpid = tpid;
 		tpchange = true;
@@ -634,27 +613,10 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	}
 
 	lastProviderName = providerName;
-	eventServer->sendEvent(CZapitClient::EVT_SCAN_PROVIDER, CEventServer::INITID_ZAPIT, (void *) lastProviderName.c_str(), lastProviderName.length() + 1);
 
-	switch (service_type) {
-		case ST_DIGITAL_TELEVISION_SERVICE:
-			found_tv_chans++;
-			eventServer->sendEvent(CZapitClient::EVT_SCAN_FOUND_TV_CHAN, CEventServer::INITID_ZAPIT, &found_tv_chans, sizeof(found_tv_chans));
-			break;
-		case ST_DIGITAL_RADIO_SOUND_SERVICE:
-			found_radio_chans++;
-			eventServer->sendEvent(CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN, CEventServer::INITID_ZAPIT, &found_radio_chans, sizeof(found_radio_chans));
-			break;
-		case ST_NVOD_REFERENCE_SERVICE:
-		case ST_NVOD_TIME_SHIFTED_SERVICE:
-		case ST_DATA_BROADCAST_SERVICE:
-		case ST_RCS_MAP:
-		case ST_RCS_FLS:
-		default:
-			found_data_chans++;
-			eventServer->sendEvent(CZapitClient::EVT_SCAN_FOUND_DATA_CHAN, CEventServer::INITID_ZAPIT, &found_data_chans, sizeof(found_data_chans));
-			break;
-	}
+	//CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) lastProviderName.c_str(), lastProviderName.length() + 1);
+	CServiceScan::getInstance()->ChannelFound(service_type, lastProviderName, serviceName);
+
 	switch (service_type) {
 		case ST_DIGITAL_TELEVISION_SERVICE:
 		case ST_DIGITAL_RADIO_SOUND_SERVICE:
@@ -676,21 +638,27 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 				else
 					bouquet = scanBouquetManager->Bouquets[bouquetId];
 
+#if 0
 				lastServiceName = serviceName;
-				eventServer->sendEvent(CZapitClient::EVT_SCAN_SERVICENAME, CEventServer::INITID_ZAPIT, (void *) lastServiceName.c_str(), lastServiceName.length() + 1);
-
+				CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) lastServiceName.c_str(), lastServiceName.length() + 1);
+				CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) serviceName.c_str(), serviceName.length() + 1);
+#endif
+#if 0
 				CZapitChannel* chan = scanBouquetManager->findChannelByChannelID(channel_id);
 				if(chan)
 					bouquet->addService(chan);
+#endif
+				bouquet->addService(channel);
 
 				break;
 			}
 		default:
 			break;
 	}
-	if(scan_pids && channel) {
+	if(scan_pids) {
 		if(tpchange)
 			parse_pat();
+
 		channel->resetPids();
 		if(!pat_get_pmt_pid(channel)) {
 			if(!parse_pmt(channel)) {
@@ -704,7 +672,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 			}
 		}
 	}
-	if(channel && service_type == ST_DIGITAL_TELEVISION_SERVICE /*(channel->getServiceType() == 1)*/ && !channel->scrambled) {
+	if(service_type == ST_DIGITAL_TELEVISION_SERVICE && !channel->scrambled) {
 		live_channel_id = channel->getChannelID();
 	}
 }
@@ -718,33 +686,31 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 	uint8_t real_type = service_type;
 
 #if 0
-        switch ( scanType ) {
-            case CZapitClient::ST_TVRADIO:
-                   if ( (service_type == 1 ) || (service_type == 2) )
-                           service_wr=true;
-                   break;
-            case CZapitClient::ST_TV:
-                   if ( service_type == 1 )
-                           service_wr=true;
-                   break;
-            case CZapitClient::ST_RADIO:
-                   if ( service_type == 2 )
-                           service_wr=true;
-                   break;
-            case CZapitClient::ST_ALL:
-                   service_wr=true;
-                   break;
-        }
+	switch ( scanType ) {
+		case CZapitClient::ST_TVRADIO:
+			if ( (service_type == 1 ) || (service_type == 2) )
+				service_wr=true;
+			break;
+		case CZapitClient::ST_TV:
+			if ( service_type == 1 )
+				service_wr=true;
+			break;
+		case CZapitClient::ST_RADIO:
+			if ( service_type == 2 )
+				service_wr=true;
+			break;
+		case CZapitClient::ST_ALL:
+			service_wr=true;
+			break;
+	}
 #endif
 	if ( (service_type == 1 ) || (service_type == 2) )
 		service_wr=true;
 
-        if ( !service_wr )
+	if ( !service_wr )
 		return;
 
-	tallchans_iterator I = curchans.find(CREATE_CHANNEL_ID64);
-
-	if (I != curchans.end())
+	if(CServiceManager::getInstance()->FindCurrentChannel(CREATE_CHANNEL_ID64))
 		return;
 
 	uint8_t service_provider_name_length = buffer[3];
@@ -759,7 +725,7 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 		in_blacklist = true;
 	}else if((check_blacklisted_digital_plus(original_network_id, transport_stream_id))){
 		providerName = "Digital+";
-	        in_blacklist = true;
+		in_blacklist = true;
 	}
 
 	if (in_blacklist) {
@@ -775,22 +741,17 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 		snprintf(buf_tmp,sizeof(buf_tmp),"(0x%04X_0x%04X)",transport_stream_id, service_id);
 		serviceName = buf_tmp;
 	}
-	pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
-	ret = curchans.insert (
-			std::pair <t_channel_id, CZapitChannel> (
-				CREATE_CHANNEL_ID64,
-				CZapitChannel (
-					serviceName,
-					service_id,
-					transport_stream_id,
-					original_network_id,
-					real_type /*service_type*/,
-					satellitePosition,
-					freq
-					)
-				)
+
+	CZapitChannel *	channel = new CZapitChannel(serviceName,
+			service_id,
+			transport_stream_id,
+			original_network_id,
+			real_type /*service_type*/,
+			satellitePosition,
+			freq
 			);
-	ret.first->second.scrambled = free_ca;
+	CServiceManager::getInstance()->AddCurrentChannel(channel);
+	channel->scrambled = free_ca;
 }
 
 /* 0x49 */
