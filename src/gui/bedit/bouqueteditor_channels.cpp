@@ -49,7 +49,6 @@
 #include <gui/widget/icons.h>
 
 #include <zapit/client/zapitclient.h>
-extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 
 CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bouquet)
