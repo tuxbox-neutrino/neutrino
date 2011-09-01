@@ -33,7 +33,6 @@
 #else
 #define DEBUG	1
 #endif
-//#define DEBUG	1
 
 /*
  * Suppress warnings when GCC is in -pedantic mode and not -std=c99
@@ -101,5 +100,20 @@ extern int zapit_debug;
 	else { _r = fd; } 					\
 	_r;							\
 })
+
+#define TIMER_START()						\
+	static struct timeval tv, tv2;				\
+	static unsigned int msec;				\
+	gettimeofday(&tv, NULL)
+
+#define TIMER_STOP(label)								\
+	gettimeofday(&tv2, NULL);							\
+	msec = ((tv2.tv_sec - tv.tv_sec) * 1000) + ((tv2.tv_usec - tv.tv_usec) / 1000);	\
+	printf("%s: %u msec\n", label, msec)
+
+#define TIMER_STOP_SEC(label)					\
+	gettimeofday(&tv2, NULL);				\
+	msec = tv2.tv_sec - tv.tv_sec;				\
+	printf("%s: %d sec\n", label, msec)
 
 #endif /* __zapit_debug_h__ */
