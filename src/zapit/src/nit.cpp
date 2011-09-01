@@ -95,7 +95,7 @@ int parse_nit(t_satellite_position satellitePosition, freq_id_t freq)
 			delete dmx;
 			return -1;
 		}
-		if (abort_scan) {
+		if (CServiceScan::getInstance()->Aborted()) {
 			ret = -1;
 			goto _return;
 		}

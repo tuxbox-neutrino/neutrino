@@ -28,6 +28,7 @@
 #include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/pmt.h>
+#include <zapit/scan.h>
 #include <sectionsd/edvbstring.h>
 #include <dmx.h>
 
@@ -36,8 +37,6 @@
 
 #define PMT_SIZE 1024
 #define RECORD_MODE 0x4
-extern int currentMode;
-extern short scan_runs;
 
 /*
  * Stream types
@@ -278,7 +277,7 @@ printf("[pmt] name %s\n", description.c_str());
 		case 0x04:
 			if (description == "")
 				description = esInfo->elementary_PID;
-			if(scan_runs) {
+			if(CServiceScan::getInstance()->Scanning()) {
 				if(channel->getPreAudioPid() == 0)
 					channel->setAudioPid(esInfo->elementary_PID);
 			} else
@@ -324,7 +323,7 @@ printf("[pmt] name %s\n", description.c_str());
 			description += " (AC3)";
 			isAc3 = true;
 			descramble = true;
-			if(!scan_runs)
+			if(!CServiceScan::getInstance()->Scanning())
 				channel->addAudioChannel(esInfo->elementary_PID, CZapitAudioChannel::AC3, description, componentTag);
 			break;
 		case 0x06:
@@ -339,7 +338,7 @@ printf("[pmt] name %s\n", description.c_str());
 						description += " (AAC)";
 				}
 
-				if(!scan_runs) {
+				if(!CServiceScan::getInstance()->Scanning()) {
 					CZapitAudioChannel::ZapitAudioChannelType Type;
 					if (isAc3)
 						Type = CZapitAudioChannel::AC3;
@@ -363,7 +362,7 @@ printf("[pmt] name %s\n", description.c_str());
 			description	+= " (AAC)";
 			isAac		= true;
 			descramble	= true;
-			if(!scan_runs)
+			if(!CServiceScan::getInstance()->Scanning())
 				channel->addAudioChannel(esInfo->elementary_PID, CZapitAudioChannel::AAC, description, componentTag);
 			break;
 		case 0x0B:
@@ -405,7 +404,6 @@ int parse_pmt(CZapitChannel * const channel)
 	int pmtlen;
 	int ia, dpmtlen, pos;
 	unsigned char descriptor_length=0;
-	FILE *fout;
 
 	unsigned char buffer[PMT_SIZE];
 
@@ -458,20 +456,10 @@ int parse_pmt(CZapitChannel * const channel)
 	curpmtpid = channel->getPmtPid();
 	pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] +3;
 
-	if(!(currentMode & RECORD_MODE) && !scan_runs) {
-		fout = fopen("/tmp/pmt.tmp","wb");
-		if(fout != NULL) {
-			if ((int) fwrite(buffer, sizeof(unsigned char), pmtlen, fout) != pmtlen) {
-				unlink("/tmp/pmt.tmp");
-			}
-			fclose(fout);
-		}
-	}
-
 	dpmtlen=0;
 	pos=10;
 	short int ci0 = 0, ci1 = 0, ci2 = 0, ci3 = 0, ci4 = 0, ci5 = 0, ci6 = 0, ci7 = 0, ci8 = 0, ci9 = 0, ci10 = 0;
-	if(!scan_runs) {
+	if(!CServiceScan::getInstance()->Scanning()) {
 		while(pos+2<pmtlen) {
 			dpmtlen=((buffer[pos] & 0x0f) << 8) | buffer[pos+1];
 			for ( ia=pos+2;ia<(dpmtlen+pos+2);ia +=descriptor_length+2 ) {
@@ -525,7 +513,7 @@ int parse_pmt(CZapitChannel * const channel)
 		}
 
 #endif
-	} /* if !scan_runs */
+	} /* if !CServiceScan::getInstance()->Scanning() */
 	CCaPmt *caPmt = new CCaPmt();
 
 	/* ca pmt */
@@ -564,7 +552,7 @@ int parse_pmt(CZapitChannel * const channel)
 	for (i = 12 + program_info_length; i < section_length - 1; i += ES_info_length + 5)
 		ES_info_length = parse_ES_info(buffer + i, channel, caPmt);
 
-	if(scan_runs) {
+	if(CServiceScan::getInstance()->Scanning()) {
 		channel->setCaPmt(NULL);
 		channel->setRawPmt(NULL);
 		delete caPmt;
