@@ -372,7 +372,7 @@ _repeat:
 int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id,
 	t_satellite_position satellitePosition, freq_id_t freq)
 {
-	extern bool sdt_wakeup;//zapit.cpp
+	//extern bool sdt_wakeup;//zapit.cpp
 	unsigned char buffer[SDT_SIZE];
 
 	/* position in buffer */
@@ -393,6 +393,8 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	int tmp_free_CA_mode = -1;
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
+
+	transponder_id_t current_tp_id = CFrontend::getInstance()->getTsidOnid();
 
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	filter[0] = 0x42;
@@ -464,16 +466,21 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 				}
 			}
 			free_CA_mode = -1;
-
+#if 0
 			if(sdt_wakeup){//break scan , transponder change
 				ret = -2;
 				break; 
 			}
+#endif
+			if(current_tp_id != CFrontend::getInstance()->getTsidOnid())
+				break; 
 		}
 	}
 	while (filter[4]++ != buffer[7]);
 	delete dmx;
 
+	if(current_tp_id != CFrontend::getInstance()->getTsidOnid())
+		ret = -2;
+
 	return ret;
 }
-
