@@ -91,7 +91,7 @@ class CFrontend
 		int adapter;
 		/* current frontend instance */
 		static CFrontend *currentFe;
-		fe_map_t femap;
+		static fe_map_t femap;
 		/* tuning finished flag */
 		bool tuned;
 		/* information about the used frontend type */
@@ -180,7 +180,7 @@ class CFrontend
 		void 				setTsidOnid(transponder_id_t newid)  { currentTransponder.TP_id = newid; }
 		uint32_t 			getRate ();
 
-		void				Open();
+		bool				Open();
 		void				Close();
 		bool				Lock();
 		void				Unlock();

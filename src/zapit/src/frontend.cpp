@@ -40,7 +40,6 @@ extern int gotoXXLaDirection, gotoXXLoDirection;
 extern int repeatUsals;
 extern transponder_list_t transponders;
 extern bool highVoltage;
-extern bool voltageOff;
 extern int motorRotationSpeed;
 extern int feTimeout;
 
@@ -110,15 +109,15 @@ static const struct dtv_property dvbc_cmdargs[] = {
 
 #define diff(x,y)	(max(x,y) - min(x,y))
 
-#define TIMER_INIT()					\
+#define FE_TIMER_INIT()					\
 	static unsigned int tmin = 2000, tmax = 0;	\
 	struct timeval tv, tv2;				\
 	unsigned int timer_msec = 0;
 
-#define TIMER_START()					\
+#define FE_TIMER_START()					\
 	gettimeofday(&tv, NULL);
 
-#define TIMER_STOP(label)				\
+#define FE_TIMER_STOP(label)				\
 	gettimeofday(&tv2, NULL);			\
 	timer_msec = ((tv2.tv_sec-tv.tv_sec) * 1000) +	\
 		     ((tv2.tv_usec-tv.tv_usec) / 1000); \
@@ -144,11 +143,14 @@ typedef enum dvb_fec {
 
 // Global fe instance
 CFrontend *CFrontend::currentFe = NULL;
+fe_map_t CFrontend::femap;
 
 CFrontend *CFrontend::getInstance(int Number, int Adapter)
 {
-	if (!currentFe)
+	if (!currentFe) {
 		currentFe = new CFrontend(Number, Adapter);
+		currentFe->Open();
+	}
 
 	return currentFe;
 }
@@ -163,7 +165,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	diseqcType	= NO_DISEQC;
 	standby		= true;
 
-	Open();
+	//Open();
 
 	memset(&curfe, 0, sizeof(curfe));
 	curfe.u.qpsk.fec_inner = FEC_3_4;
@@ -173,16 +175,18 @@ CFrontend::CFrontend(int Number, int Adapter)
 
 CFrontend::~CFrontend(void)
 {
-	if (diseqcType > MINI_DISEQC)
-		sendDiseqcStandby();
-	close(fd);
+	if(fd >= 0) {
+		if (diseqcType > MINI_DISEQC)
+			sendDiseqcStandby();
+		close(fd);
+	}
 	currentFe = NULL;
 }
 
-void CFrontend::Open(void)
+bool CFrontend::Open(void)
 {
 	if(!standby)
-		return;
+		return false;
 
 	printf("[fe%d] open frontend\n", fenumber);
 
@@ -193,6 +197,7 @@ void CFrontend::Open(void)
 	if (fd < 0) {
 		if ((fd = open(filename, O_RDWR | O_NONBLOCK)) < 0) {
 			ERROR(filename);
+			return false;
 		}
 		fop(ioctl, FE_GET_INFO, &info);
 		printf("[fe0] frontend fd %d type %d\n", fd, info.type);
@@ -212,6 +217,7 @@ void CFrontend::Open(void)
 	currentTransponder.TP_id		= 0;
 	currentTransponder.diseqc		= 255;
 	standby					= false;
+	return true;
 }
 
 void CFrontend::Close(void)
@@ -401,7 +407,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 	struct pollfd pfd;
 	static unsigned int timedout = 0;
 
-	TIMER_INIT();
+	FE_TIMER_INIT();
 
 	pfd.fd = fd;
 	pfd.events = POLLIN | POLLPRI;
@@ -410,7 +416,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 	memset(&event, 0, sizeof(struct dvb_frontend_event));
 
 	printf("[fe0] getEvent: max timeout: %d\n", TIMEOUT_MAX_MS);
-	TIMER_START();
+	FE_TIMER_START();
 
 	//while (msec <= TIMEOUT_MAX_MS ) {
 	while ((int) timer_msec < TIMEOUT_MAX_MS) {
@@ -421,12 +427,12 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 			continue;
 		}
 		if (ret == 0) {
-			TIMER_STOP("[fe0] ############################## poll timeout, time");
+			FE_TIMER_STOP("[fe0] ############################## poll timeout, time");
 			continue;
 		}
 
 		if (pfd.revents & (POLLIN | POLLPRI)) {
-			TIMER_STOP("[fe0] poll has event after");
+			FE_TIMER_STOP("[fe0] poll has event after");
 			memset(&event, 0, sizeof(struct dvb_frontend_event));
 
 			//fop(ioctl, FE_READ_STATUS, &event.status);
@@ -460,7 +466,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 				/* msec = TIME_STEP; */
 			}
 		} else if (pfd.revents & POLLHUP) {
-			TIMER_STOP("[fe0] poll hup after");
+			FE_TIMER_STOP("[fe0] poll hup after");
 			reset();
 		}
 	}
@@ -722,22 +728,22 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		return 0;
 
 	{
-		TIMER_INIT();
-		TIMER_START();
+		FE_TIMER_INIT();
+		FE_TIMER_START();
 		if ((ioctl(fd, FE_SET_PROPERTY, &cmdseq)) < 0) {
 			perror("FE_SET_PROPERTY failed");
 			return false;
 		}
-		TIMER_STOP("[fe0] FE_SET_PROPERTY took");
+		FE_TIMER_STOP("[fe0] FE_SET_PROPERTY took");
 	}
 	{
-		TIMER_INIT();
-		TIMER_START();
+		FE_TIMER_INIT();
+		FE_TIMER_START();
 
 		struct dvb_frontend_event event;
 		event = getEvent();
 
-		TIMER_STOP("[fe0] tuning took");
+		FE_TIMER_STOP("[fe0] tuning took");
 	}
 
 	return tuned;
@@ -762,11 +768,11 @@ void CFrontend::secSetTone(const fe_sec_tone_mode_t toneMode, const uint32_t ms)
 	}
 
 	printf("[fe%d] tone %s\n", fenumber, toneMode == SEC_TONE_ON ? "on" : "off");
-	TIMER_INIT();
-	TIMER_START();
+	FE_TIMER_INIT();
+	FE_TIMER_START();
 	if (fop(ioctl, FE_SET_TONE, toneMode) == 0) {
 		currentToneMode = toneMode;
-		TIMER_STOP("[fe0] FE_SET_TONE took");
+		FE_TIMER_STOP("[fe0] FE_SET_TONE took");
 		usleep(1000 * ms);
 	}
 }
@@ -781,8 +787,8 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 	//int val = highVoltage;
 	//fop(ioctl, FE_ENABLE_HIGH_LNB_VOLTAGE, val);
 
-	//TIMER_INIT();
-	//TIMER_START();
+	//FE_TIMER_INIT();
+	//FE_TIMER_START();
 	if (uni_scr >= 0) {
 		/* see my comment in secSetTone... */
 		currentVoltage = voltage; /* need to know polarization for unicable */
@@ -792,7 +798,7 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 
 	if (fop(ioctl, FE_SET_VOLTAGE, voltage) == 0) {
 		currentVoltage = voltage;
-		//TIMER_STOP("[fe0] FE_SET_VOLTAGE took");
+		//FE_TIMER_STOP("[fe0] FE_SET_VOLTAGE took");
 		usleep(1000 * ms);	// FIXME : is needed ?
 	}
 }
