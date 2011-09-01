@@ -59,6 +59,7 @@
 
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
+#include <zapit/zapit.h>
 #include <video.h>
 extern cVideo * videoDecoder;
 
@@ -200,7 +201,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 
 	CRecordManager::getInstance()->StopAutoRecord();
-        g_Zapit->stopPlayBack();
+	g_Zapit->stopPlayBack();
 	frameBuffer->paintBackground();
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/scan.jpg");
 	g_Sectionsd->setPauseScanning(true);
@@ -276,7 +277,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
-		success = !start_fast_scan(scansettings.fast_type, scansettings.fast_op);
+		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
 	}
 	else
 		success = g_Zapit->startScan(scan_mode);
@@ -316,6 +317,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		while (!(msg == CRCInput::RC_timeout));
 		showSNR(); // FIXME commented until scan slowdown will be solved
 	}
+	/* to join scan thread */
+	g_Zapit->stopScan();
 
 	if(!manual) {
                 if (system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
