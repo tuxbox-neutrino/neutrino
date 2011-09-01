@@ -54,6 +54,7 @@
 #include <gui/pictureviewer.h>
 
 #include <zapit/bouquets.h>
+#include <zapit/getservices.h>
 
 extern CPictureViewer * g_PicViewer;
 
@@ -447,7 +448,6 @@ static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 //extern char recDir[255];
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
-extern tallchans allchans;
 int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_startzeit, bool doLoop )
 {
 	int res = menu_return::RETURN_REPAINT;
@@ -600,12 +600,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	int pic_offx = 0;
 
 	//hack..
-	tallchans_iterator cit = allchans.find(channel_id);
-	if(cit != allchans.end()) {
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if(channel) {
 		std::string lname;
 		int logo_w = 0;
 		int logo_h = 0;
-		if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, cit->second.getName(), lname, &logo_w, &logo_h)) {
+		if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, channel->getName(), lname, &logo_w, &logo_h)) {
 			if(logo_h > toph){
 				if((toph/(logo_h-toph))>1){
 					logo_w -= (logo_w/(toph/(logo_h-toph)));

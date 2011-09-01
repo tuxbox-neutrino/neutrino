@@ -27,9 +27,7 @@
 #include <messagetools.h>   /* get_length_field_size */
 #include <zapit/bouquets.h>
 #include <zapit/satconfig.h>
-
-extern tallchans allchans;
-extern tallchans nvodchannels;
+#include <zapit/getservices.h>
 
 CCam::CCam()
 {
@@ -129,37 +127,33 @@ CCamManager * CCamManager::getInstance(void)
 	return manager;
 }
 
-bool CCamManager::SetMode(t_channel_id id, enum runmode mode, bool start, bool force_update)
+bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start, bool force_update)
 {
 	CCam * cam;
 	int oldmask, newmask;
 	int demux = DEMUX_SOURCE_0;
 	int source = DEMUX_SOURCE_0;
 
-	tallchans_iterator cit = allchans.find(id);
-	if(cit == allchans.end()) {
-		cit = nvodchannels.find(id);
-		if(cit == nvodchannels.end()) {
-			printf("CCamManager: channel %llx not found\n", id);
-			return false;
-		}
-	}
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 
-	CZapitChannel * channel = &(cit->second);
+	if(channel == NULL) {
+			printf("CCamManager: channel %llx not found\n", channel_id);
+			return false;
+	}
 
 	mutex.lock();
 	if(channel->getCaPmt() == NULL) {
-		printf("CCamManager: channel %llx dont have caPmt\n", id);
+		printf("CCamManager: channel %llx dont have caPmt\n", channel_id);
 		mutex.unlock();
 		return false;
 	}
 
 	sat_iterator_t sit = satellitePositions.find(channel->getSatellitePosition());
 
-	cammap_iterator_t it = channel_map.find(id);
+	cammap_iterator_t it = channel_map.find(channel_id);
 	if(it == channel_map.end()) {
 		cam = new CCam();
-		channel_map.insert(std::pair<t_channel_id, CCam*>(id, cam));
+		channel_map.insert(std::pair<t_channel_id, CCam*>(channel_id, cam));
 	} else
 		cam = it->second;
 
@@ -189,7 +183,7 @@ bool CCamManager::SetMode(t_channel_id id, enum runmode mode, bool start, bool f
 		 * (see CMD_SB_LOCK / UNLOCK PLAYBACK */
 		//channel->setCaPmt(NULL);
 		channel->setRawPmt(NULL);
-		channel_map.erase(id);
+		channel_map.erase(channel_id);
 		delete cam;
 	}
 	mutex.unlock();

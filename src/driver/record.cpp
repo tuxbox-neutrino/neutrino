@@ -53,6 +53,7 @@
 #include <ca_cs.h>
 #include <zapit/cam.h>
 #include <zapit/channel.h>
+#include <zapit/getservices.h>
 #include <zapit/client/zapittools.h>
 
 /* TODO:
@@ -64,8 +65,6 @@
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 extern t_channel_id live_channel_id;
 extern t_channel_id rec_channel_id;
-extern tallchans allchans;
-extern tallchans nvodchannels;
 
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
@@ -222,15 +221,11 @@ bool CRecordInstance::Update()
 	APIDList::iterator it;
 	bool update = false;
 
-	tallchans_iterator cit = allchans.find(channel_id);
-	if(cit == allchans.end()) {
-		cit = nvodchannels.find(channel_id);
-		if(cit == nvodchannels.end()) {
-			printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
-			return false;
-		}
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if(channel == NULL) {
+		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+		return false;
 	}
-	CZapitChannel * channel = &(cit->second);
 
 	if(channel->getVideoPid() != allpids.PIDs.vpid) {
 		Stop(false);
@@ -357,15 +352,11 @@ record_error_msg_t CRecordInstance::Record()
 	APIDList apid_list;
 
 	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
-	tallchans_iterator cit = allchans.find(channel_id);
-	if(cit == allchans.end()) {
-		cit = nvodchannels.find(channel_id);
-		if(cit == nvodchannels.end()) {
-			printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
-			return RECORD_INVALID_CHANNEL;
-		}
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if(channel == NULL) {
+		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+		return RECORD_INVALID_CHANNEL;
 	}
-	CZapitChannel * channel = &(cit->second);
 
 	record_error_msg_t ret = MakeFileName(channel);
 	if(ret != RECORD_OK)
@@ -610,15 +601,13 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 
 void CRecordInstance::GetRecordString(std::string &str)
 {
-	tallchans_iterator cit = allchans.find(channel_id);
-	if(cit == allchans.end()) {
-		cit = nvodchannels.find(channel_id);
-		if(cit == nvodchannels.end()) {
-			str = "Unknown channel : " + GetEpgTitle();
-			return;
-		}
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if(channel == NULL) {
+		printf("%s: channel %llx not found!\n", __FUNCTION__, channel_id);
+		str = "Unknown channel : " + GetEpgTitle();
+		return;
 	}
-	str = cit->second.getName() + ": " + GetEpgTitle();
+	str = channel->getName() + ": " + GetEpgTitle();
 }
 
 //-------------------------------------------------------------------------
@@ -1331,7 +1320,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 	if(live_channel_id != channel_id) {
 		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
 			printf("%s zapTo_record channel_id %llx\n", __FUNCTION__, channel_id);
-			ret = g_Zapit->zapTo_record(channel_id) == 0;
+			ret = g_Zapit->zapTo_record(channel_id) > 0;
 		} else if(recmap.size()) {
 			ret = false;
 		} else {

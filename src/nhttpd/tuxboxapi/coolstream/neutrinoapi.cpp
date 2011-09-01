@@ -37,8 +37,8 @@
 #include <zapit/client/zapitclient.h>
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
+#include <zapit/getservices.h>
 
-extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 extern CFrontend * frontend;
 extern cVideo * videoDecoder;
@@ -205,17 +205,12 @@ t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_nam
 	//int mode = Zapit->getMode();
 	t_channel_id channel_id = (t_channel_id)-1;
 	CStringArray channel_names = ySplitStringVector(search_channel_name, ",");
-	for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
-		std::string channel_name = it->second.getName();
-		for(unsigned int j=0;j<channel_names.size();j++)
-		{
-			if(channel_names[j].length() == channel_name.length() &&
-				equal(channel_names[j].begin(), channel_names[j].end(),
-				channel_name.begin(), nocase_compare)) //case insensitive  compare
-			{
-				channel_id = it->second.channel_id;
-				break;
-			}
+
+	for(unsigned int j=0;j<channel_names.size();j++) {
+		CZapitChannel * channel = CServiceManager::getInstance()->FindChannelByName(channel_names[j]);
+		if(channel) {
+			channel_id = channel->getChannelID();
+			break;
 		}
 	}
 	return channel_id;
@@ -281,11 +276,7 @@ bool CNeutrinoAPI::GetChannelEvents(void)
 
 std::string CNeutrinoAPI::GetServiceName(t_channel_id channel_id)
 {
-	tallchans_iterator it = allchans.find(channel_id);
-	if (it != allchans.end())
-		return it->second.getName();
-	else
-		return "";
+	return CServiceManager::getInstance()->GetServiceName(channel_id);
 }
 
 //-------------------------------------------------------------------------

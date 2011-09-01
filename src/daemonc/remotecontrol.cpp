@@ -46,8 +46,9 @@
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
+#include <zapit/zapit.h>
+#include <zapit/getservices.h>
 
-extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 extern CZapitChannel *g_current_channel;
 
@@ -142,11 +143,11 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			// warte auf keine Meldung vom ZAPIT -> jemand anderer hat das zappen ausgelöst...
 			if ((*(t_channel_id *)data) != current_channel_id) {
 				t_channel_id new_id = *(t_channel_id *)data;
-				tallchans_iterator cit = allchans.find(new_id);
+				CZapitChannel* channel = CServiceManager::getInstance()->FindChannel(new_id);
 				is_video_started = true;
-				if (cit != allchans.end()) {
-					current_channel_name = cit->second.getName();
-					if (cit->second.bAlwaysLocked)
+				if (channel) {
+					current_channel_name = channel->getName();
+					if (channel->bAlwaysLocked)
 						stopvideo();
 				}
 				CVFD::getInstance()->showServicename(current_channel_name); // UTF-8
@@ -645,7 +646,6 @@ const std::string & CRemoteControl::subChannelDown(void)
 }
 
 void stopAutoRecord();
-extern int abort_zapit;
 void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::string & channame, const bool start_video) // UTF-8
 {
 	current_channel_id = channel_id;
@@ -679,10 +679,9 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 
 		g_RCInput->killTimer(scrambled_timer);
 		//dvbsub_pause(true);
-		abort_zapit = 1;
+		CZapit::getInstance()->Abort();
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 		g_Sectionsd->setServiceChanged( current_channel_id&0xFFFFFFFFFFFFULL, false );
-		abort_zapit = 0;
 
 		zap_completion_timeout = now + 2 * (int64_t) 1000000;
 		g_RCInput->killTimer( current_programm_timer );

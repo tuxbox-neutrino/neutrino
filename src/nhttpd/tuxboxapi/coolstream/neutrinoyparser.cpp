@@ -28,10 +28,10 @@
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
+#include <zapit/getservices.h>
 #include <cs_api.h>
 #include <system/configure_network.h>
 
-extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 extern t_channel_id live_channel_id;
 
@@ -1065,15 +1065,11 @@ std::string  CNeutrinoYParser::func_set_bouquet_edit_form(CyhookHandler *hh, std
 		}
 		ZapitChannelList Channels;
 		Channels.clear();
-		if (mode == CZapitClient::MODE_RADIO) {
-			for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++)
-				if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE)
-					Channels.push_back(&(it->second));
-		} else {
-			for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++)
-				if (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE)
-					Channels.push_back(&(it->second));
-		}
+		if (mode == CZapitClient::MODE_RADIO)
+			CServiceManager::getInstance()->GetAllRadioChannels(Channels);
+		else
+			CServiceManager::getInstance()->GetAllTvChannels(Channels);
+
 		sort(Channels.begin(), Channels.end(), CmpChannelByChName());
 
 		for (int i = 0; i < (int) Channels.size(); i++) {
