@@ -77,6 +77,7 @@
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"
 #include <zapit/satconfig.h>
+#include <zapit/zapit.h>
 
 extern CPlugins       * g_PluginList;    /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -268,6 +269,7 @@ bool COnOffNotifier::changeNotify(const neutrino_locale_t, void *Data)
    return true;
 }
 
+#if 1 /* FIXME not used ? */
 CRecordingNotifier::CRecordingNotifier(CMenuItem* i1 , CMenuItem* i2 , CMenuItem* i3 ,
                                        CMenuItem* i4 , CMenuItem* i5 , CMenuItem* i6 ,
                                        CMenuItem* i7 , CMenuItem* i8 , CMenuItem* i9)
@@ -282,6 +284,7 @@ CRecordingNotifier::CRecordingNotifier(CMenuItem* i1 , CMenuItem* i2 , CMenuItem
 	toDisable[ 7] = i8;
 	toDisable[ 8] = i9;
 }
+
 bool CRecordingNotifier::changeNotify(const neutrino_locale_t, void *)
 {
    if ((g_settings.recording_type == CNeutrinoApp::RECORDING_OFF) ||
@@ -327,11 +330,13 @@ CRecordingNotifier2::CRecordingNotifier2( CMenuItem* i)
 {
    toDisable[0]=i;
 }
+
 bool CRecordingNotifier2::changeNotify(const neutrino_locale_t, void *)
 {
    toDisable[0]->setActive(g_settings.recording_server_wakeup==1);
    return true;
 }
+#endif // FIXME not used ?
 
 bool CRecordingSafetyNotifier::changeNotify(const neutrino_locale_t, void *)
 {
@@ -970,8 +975,6 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 }
 
 extern Zapit_config zapitCfg;
-void loadZapitSettings();
-void getZapitConfig(Zapit_config *Cfg);
 
 int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionKey)
 {
@@ -987,8 +990,8 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 	if(delete_all) {
 		system("rm -f /var/tuxbox/config/zapit/*.conf");
-		loadZapitSettings();
-		getZapitConfig(&zapitCfg);
+		CZapit::getInstance()->LoadSettings();
+		CZapit::getInstance()->GetConfig(zapitCfg);
 		g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
 		ret = menu_return::RETURN_EXIT_ALL;
 	}
@@ -1124,7 +1127,7 @@ int check_dir(const char * newdir)
 			  break;
 		}
 	}
-		return 1;//error			  
+	return 1;//error			  
 }
 
 
