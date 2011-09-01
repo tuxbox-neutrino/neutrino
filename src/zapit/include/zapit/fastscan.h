@@ -1,8 +1,6 @@
 #ifndef _FASTSCAN_H_
 #define _FASTSCAN_H_
 
-void * start_fast_scan(void * arg);
-
 typedef enum fs_operator {
 	OPERATOR_CD,
 	OPERATOR_TVV,
@@ -31,8 +29,5 @@ typedef struct fast_scan_type {
 } fast_scan_type_t;
 
 extern fast_scan_operator_t fast_scan_operators [OPERATOR_MAX];
-int parse_fst(unsigned short pid, fast_scan_operator_t * op);
-int parse_fnt(unsigned short pid, unsigned short operator_id);
-
 
 #endif
