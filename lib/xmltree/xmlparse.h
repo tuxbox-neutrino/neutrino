@@ -120,8 +120,8 @@ enum XML_Error {
 #define INIT_BLOCK_SIZE 1024
 #define INIT_BUFFER_SIZE 1024
 
-typedef struct tag {
-  struct tag *parent;
+typedef struct xml_tag {
+  struct xml_tag *parent;
   const char *rawName;
   int rawNameLength;
   const XML_Char *name;
