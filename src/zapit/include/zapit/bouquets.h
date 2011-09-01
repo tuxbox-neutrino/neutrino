@@ -24,6 +24,7 @@ typedef map<t_channel_id, CZapitChannel> tallchans;
 typedef tallchans::iterator tallchans_iterator;
 
 typedef vector<CZapitChannel*> ZapitChannelList;
+typedef ZapitChannelList::iterator zapit_list_it_t;
 
 class CZapitBouquet
 {
@@ -51,22 +52,26 @@ class CZapitBouquet
 	size_t recModeTVSize   (const transponder_id_t transponder_id);
 	CZapitChannel* getChannelByChannelID(const t_channel_id channel_id, const unsigned char serviceType = ST_RESERVED);
 	void sortBouquet(void);
+	void sortBouquetByNumber(void);
 };
 
 typedef vector<CZapitBouquet *> BouquetList;
 
 class CBouquetManager
 {
- private:
-	CZapitBouquet * remainChannels;
+	private:
+		CZapitBouquet * remainChannels;
 
-	void makeRemainingChannelsBouquet(void);
-	void parseBouquetsXml            (const char * fname, bool ub = false);
-	void writeBouquetHeader          (FILE * bouq_fd, uint32_t i, const char * bouquetName);
-	void writeBouquetFooter          (FILE * bouq_fd);
-	void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);
+		void renumChannels(ZapitChannelList &list, int &counter, char * pname = NULL);
+		void makeRemainingChannelsBouquet(void);
+		void parseBouquetsXml            (const char * fname, bool ub = false);
+		void writeBouquetHeader          (FILE * bouq_fd, uint32_t i, const char * bouquetName);
+		void writeBouquetFooter          (FILE * bouq_fd);
+		void writeBouquetChannels        (FILE * bouq_fd, uint32_t i, bool bUser = false);
+		void writeChannels(FILE * bouq_fd, ZapitChannelList &list);
+		void writeBouquet(FILE * bouq_fd, uint32_t i);
 
- public:
+	public:
 		CBouquetManager() { remainChannels = NULL; };
 		class ChannelIterator
 		{
@@ -107,9 +112,7 @@ class CBouquetManager
 
 		void clearAll();
 
-		CZapitChannel* findChannelByChannelID(const t_channel_id channel_id);
 		void sortBouquets(void);
-
 };
 
 /*
@@ -145,6 +148,15 @@ struct CmpBouquetByChName: public binary_function <const CZapitBouquet * const, 
 			return std::lexicographical_compare(c1->Name.begin(), c1->Name.end(), c2->Name.begin(), c2->Name.end(), comparetolower);
 			//return strcasecmp(c1->Name.c_str(), c2->Name.c_str());
 		};
+};
+
+struct CmpChannelByChNum: public binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+{
+	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+	{
+		return c1->number < c2->number;
+		;
+	};
 };
 
 #endif /* __bouquets_h__ */
