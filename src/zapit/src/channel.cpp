@@ -45,6 +45,7 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	ttx_language_code = "";
 	last_unlocked_EPGid = 0;
 	last_unlocked_time = 0;
+	has_bouquet = false;
 //printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
 
@@ -196,8 +197,6 @@ printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCod
 	tmpSub->teletext_magazine_number=mag_nr;
 	tmpSub->teletext_page_number=page_number;
 	tmpSub->hearingImpaired=impaired;
-
-	//setPidsUpdated();
 }
 
 void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string langCode, const unsigned char subtitling_type, const unsigned short composition_page_id, const unsigned short ancillary_page_id)                                                                                                                                                                                 
@@ -236,8 +235,6 @@ printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n
 	tmpSub->subtitling_type=subtitling_type;
 	tmpSub->composition_page_id=composition_page_id;
 	tmpSub->ancillary_page_id=ancillary_page_id;
-
-	//setPidsUpdated();
 }
 
 CZapitAbsSub* CZapitChannel::getChannelSub(int index)
@@ -279,4 +276,46 @@ void CZapitChannel::setRawPmt(unsigned char * pmt, int len)
 		delete[] rawPmt;
 	rawPmt = pmt;
 	pmtLen = len;
+}
+
+void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
+{
+	if(action) {
+		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n", action,
+				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceType(), scrambled);
+
+	} else if(getPidsFlag()) {
+		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\"/>\n",
+				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getVideoPid(), getPreAudioPid(),
+				getPcrPid(), getPmtPid(), getTeletextPid(),
+				getServiceType(true), type, scrambled);
+	} else {
+		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n",
+				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getServiceType(true), scrambled);
+	}
+}
+
+void CZapitChannel::dumpBouquetXml(FILE * fd)
+{
+	//bool write_names = bUser ? true : config.getBool("writeChannelsNames", true);
+	bool write_names = 1;
+
+	if(write_names) {
+		fprintf(fd, "\t\t<S i=\"%x\" n=\"%s\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
+				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
+				getTransportStreamId(),
+				getOriginalNetworkId(),
+				getSatellitePosition(),
+				getFreqId());
+	} else {
+		fprintf(fd, "\t\t<S i=\"%x\" t=\"%x\" on=\"%x\" s=\"%hd\" frq=\"%hd\"/>\n",
+				getServiceId(),
+				getTransportStreamId(),
+				getOriginalNetworkId(),
+				getSatellitePosition(),
+				getFreqId());
+	}
 }

@@ -27,7 +27,7 @@
 #include <string>
 #include <inttypes.h>
 #include <cstdlib>
-
+#include <xmltree/xmlinterface.h>
 #include <sectionsdclient/sectionsdclient.h>
 
 /* zapit */
@@ -117,6 +117,7 @@ class CZapitChannel
 		/* pids of this channel */
 		std::vector <CZapitAbsSub* > channelSubs;
 		std::vector <CZapitAudioChannel *> audioChannels;
+
 		unsigned short			pcrPid;
 		unsigned short			pmtPid;
 		unsigned short			teletextPid;
@@ -125,7 +126,7 @@ class CZapitChannel
 		unsigned short			privatePid;
 
 		/* set true when pids are set up */
-		bool pidsFlag;
+		bool				pidsFlag;
 
 		/* last selected audio channel */
 		unsigned char			currentAudioChannel;
@@ -149,21 +150,23 @@ class CZapitChannel
 		int				pmtLen;
 
 		/* from neutrino CChannel class */
-		uint64_t      last_unlocked_EPGid;
-		time_t        last_unlocked_time;
+		uint64_t			last_unlocked_EPGid;
+		time_t				last_unlocked_time;
 
-		std::string ttx_language_code;
+		std::string			ttx_language_code;
+
 		friend class CChannelList;
 
 	public:
-		bool bAlwaysLocked;
+		bool				bAlwaysLocked;
 
-		int             number;
-		CChannelEvent   currentEvent,nextEvent;
-		int type;
+		int				number;
+		CChannelEvent			currentEvent,nextEvent;
+		int				type;
 		t_channel_id			channel_id;
-		unsigned char scrambled;
-		char * pname;
+		unsigned char			scrambled;
+		char *				pname;
+		bool				has_bouquet;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
@@ -226,6 +229,9 @@ class CZapitChannel
 		CZapitAbsSub* getChannelSub(int index = -1);
 		int getChannelSubIndex(void);
 		void setChannelSub(int subIdx);
+
+		void dumpServiceXml(FILE * fd, const char * action = NULL);
+		void dumpBouquetXml(FILE * fd);
 };
 
 #endif /* __zapit_channel_h__ */
