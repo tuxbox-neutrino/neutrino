@@ -44,12 +44,10 @@
 #include <gui/widget/buttons.h>
 
 #include <zapit/client/zapitclient.h>
-#include <zapit/channel.h>
-#include <zapit/bouquets.h>
+#include <zapit/zapit.h>
+#include <zapit/getservices.h>
 
-extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
-void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
 
 CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsigned int Bouquet, CZapitClient::channelsMode Mode)
 	:CListBox(Caption.c_str())
@@ -141,7 +139,7 @@ void CBEChannelSelectWidget::onOkKeyPressed()
 	if (isChannelInBouquet(selected))
 		g_bouquetManager->Bouquets[bouquet]->removeService(Channels[selected]->channel_id);
 	else
-		addChannelToBouquet( bouquet, Channels[selected]->channel_id);
+		CZapit::getInstance()->addChannelToBouquet( bouquet, Channels[selected]->channel_id);
 
 	bouquetChannels = mode == CZapitClient::MODE_TV ? &(g_bouquetManager->Bouquets[bouquet]->tvChannels) : &(g_bouquetManager->Bouquets[bouquet]->radioChannels);
 
@@ -165,13 +163,9 @@ int CBEChannelSelectWidget::exec(CMenuTarget* parent, const std::string & action
 
 	Channels.clear();
 	if (mode == CZapitClient::MODE_RADIO) {
-		for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++)
-			if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE)
-				Channels.push_back(&(it->second));
+		CServiceManager::getInstance()->GetAllRadioChannels(Channels);
 	} else {
-		for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++)
-			if (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE)
-				Channels.push_back(&(it->second));
+		CServiceManager::getInstance()->GetAllTvChannels(Channels);
 	}
 	sort(Channels.begin(), Channels.end(), CmpChannelByChName());
 

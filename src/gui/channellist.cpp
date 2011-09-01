@@ -61,7 +61,8 @@
 #include <daemonc/remotecontrol.h>
 #include <zapit/client/zapittools.h>
 #include <gui/pictureviewer.h>
-#include <zapit/bouquets.h>
+
+#include <zapit/zapit.h>
 #include <zapit/satconfig.h>
 #include <zapit/getservices.h>
 #include <zapit/frontend_c.h>
@@ -78,7 +79,6 @@ extern CBouquetList   * RADIObouquetList;
 extern CBouquetList   * RADIOsatList;
 extern CBouquetList   * RADIOfavList;
 extern CBouquetList   * RADIOallList;
-extern tallchans allchans;
 
 
 //extern t_channel_id rec_channel_id;
@@ -88,7 +88,6 @@ extern int g_channel_list_changed;
 extern CBouquetManager *g_bouquetManager;
 void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen);
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
-void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
 void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 
 extern int old_b_id;
@@ -125,8 +124,8 @@ void CChannelList::ClearList(void)
 
 void CChannelList::setSize(int newsize)
 {
-	chanlist.reserve(newsize);
-	//chanlist.resize(newsize);
+	//chanlist.reserve(newsize);
+	chanlist.resize(newsize);
 }
 
 void CChannelList::SetChannelList(ZapitChannelList* channels)
@@ -391,7 +390,7 @@ int CChannelList::doChannelMenu(void)
 				return 0;
 
 			if(!g_bouquetManager->existsChannelInBouquet(new_bouquet_id, channel_id)) {
-				addChannelToBouquet(new_bouquet_id, channel_id);
+				CZapit::getInstance()->addChannelToBouquet(new_bouquet_id, channel_id);
 			}
 			if(g_bouquetManager->existsChannelInBouquet(old_bouquet_id, channel_id)) {
 				g_bouquetManager->Bouquets[old_bouquet_id]->removeService(channel_id);
@@ -415,7 +414,7 @@ int CChannelList::doChannelMenu(void)
 			if (bouquet_id == -1)
 				return 0;
 			if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
-				addChannelToBouquet(bouquet_id, channel_id);
+				CZapit::getInstance()->addChannelToBouquet(bouquet_id, channel_id);
 				return 1;
 			}
 			break;
@@ -426,7 +425,7 @@ int CChannelList::doChannelMenu(void)
 				bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
 			}
 			if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
-				addChannelToBouquet(bouquet_id, channel_id);
+				CZapit::getInstance()->addChannelToBouquet(bouquet_id, channel_id);
 				return 1;
 			}
 
@@ -1157,22 +1156,21 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 /* to replace zapTo_ChannelID and zapTo from "whole" list ? */
 void CChannelList::NewZap(t_channel_id channel_id)
 {
-	tallchans_iterator it = allchans.find(channel_id);
+	CZapitChannel * chan = CServiceManager::getInstance()->FindChannel(channel_id);
 
-	if(it == allchans.end())
+	if(chan == NULL)
 		return;
 
-	CZapitChannel* chan = &it->second;
 	printf("**************************** CChannelList::NewZap me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, chan->name.c_str(), chan->channel_id);
 
-	if(selected_chid != chan->channel_id) {
-		selected_chid = chan->channel_id;
-		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked);
+	if(selected_chid != chan->getChannelID()) {
+		selected_chid = chan->getChannelID();
+		g_RemoteControl->zapTo_ChannelID(chan->getChannelID(), chan->name, !chan->bAlwaysLocked);
 		/* remove recordModeActive from infobar */
 		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);
 		}
-		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
+		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->getChannelID());
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
 	}
 }
