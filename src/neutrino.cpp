@@ -135,9 +135,13 @@
 
 #include <timerdclient/timerdmsg.h>
 
+#include <zapit/debug.h>
 #include <zapit/frontend_c.h>
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
+#include <zapit/zapit.h>
+#include <zapit/channel.h>
+#include <zapit/bouquets.h>
 
 #include <string.h>
 #include <linux/reboot.h>
@@ -170,8 +174,8 @@ extern int streamts_stop;
 void * streamts_main_thread(void *data);
 static pthread_t stream_thread ;
 
-extern int zapit_ready;
-static pthread_t zapit_thread ;
+//extern int zapit_ready;
+//static pthread_t zapit_thread ;
 void * zapit_main_thread(void *data);
 extern t_channel_id live_channel_id; //zapit
 extern CZapitChannel *g_current_channel;
@@ -1351,20 +1355,6 @@ void CNeutrinoApp::firstChannel()
 /**************************************************************************************
 *          CNeutrinoApp -  channelsInit, get the Channellist from daemon              *
 **************************************************************************************/
-#include <zapit/channel.h>
-#include <zapit/bouquets.h>
-
-#define TIMER_START()                                                                   \
-        struct timeval tv, tv2;                                                         \
-        unsigned int msec;                                                              \
-        gettimeofday(&tv, NULL)
-
-#define TIMER_STOP(label)                                                               \
-        gettimeofday(&tv2, NULL);                                                       \
-        msec = ((tv2.tv_sec - tv.tv_sec) * 1000) + ((tv2.tv_usec - tv.tv_usec) / 1000); \
-        printf("%s: %u msec\n", label, msec)
-
-extern tallchans allchans;
 extern CBouquetManager *g_bouquetManager;
 
 void CNeutrinoApp::channelsInit(bool bOnly)
@@ -1375,11 +1365,9 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	printf("[neutrino] Creating channels lists...\n");
 	TIMER_START();
 
-#if 1
 	if(!reloadhintBox)
 		reloadhintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT));
 	reloadhintBox->paint();
-#endif
 
 	const char * fav_bouquetname = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
 	if(g_bouquetManager->existsUBouquet(fav_bouquetname, true) == -1)
@@ -1407,10 +1395,6 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	uint32_t i;
 	i = 1;
 
-	CBouquet* hdBouquet;
-	if(g_settings.make_hd_list)
-		hdBouquet = new CBouquet(0, (char *) "HD", false);
-
 	/* TODO: check, is really needed to have main "all channels" list sorted
  		according to channel number ? Anything besides 
 		channelList::zapTo(pos) using direct [number] access in list ?? 
@@ -1419,29 +1403,38 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		getActiveChannelNumber used to get index for direct access too ?
 	*/
 	int tvi = 0, ri = 0, hi = 0;
-	for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
-		if (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
-			TVchannelList->putChannel(&(it->second));
-			tvi++;
 
-			if(g_settings.make_hd_list)
-				if(it->second.isHD()) {
-					//printf("HD channel: %d %s sid %x\n", it->second.getSatellitePosition(), it->second.getName().c_str(), it->second.getServiceId());
-					hdBouquet->channelList->addChannel(&(it->second));
-					hi++;
-				}
-		}
-		else if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
-			RADIOchannelList->putChannel(&(it->second));
-			ri++;
-		}
+	ZapitChannelList zapitList;
+
+	/* all TV channels */
+	CServiceManager::getInstance()->GetAllTvChannels(zapitList);
+	tvi = zapitList.size();
+	TVchannelList->setSize(tvi);
+	for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++)
+		TVchannelList->putChannel(*it);
+
+	/* all RADIO channels */
+	CServiceManager::getInstance()->GetAllRadioChannels(zapitList);
+	ri = zapitList.size();
+	RADIOchannelList->setSize(ri);
+	for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++)
+		RADIOchannelList->putChannel(*it);
+
+	CBouquet* hdBouquet;
+	/* all HD channels */
+	if(g_settings.make_hd_list) {
+		hdBouquet = new CBouquet(0, (char *) "HD", false);
+
+		CServiceManager::getInstance()->GetAllHDChannels(zapitList);
+		hi = zapitList.size();
+		hdBouquet->channelList->SetChannelList(&zapitList);
+
+		if(hi)
+			hdBouquet->channelList->SortSat();
 	}
-	if(hi)
-		hdBouquet->channelList->SortSat();
-
-	TIMER_STOP("[neutrino] all channels took");
 
 	printf("[neutrino] got %d TV (%d is HD) and %d RADIO channels\n", tvi, hi, ri); fflush(stdout);
+	TIMER_STOP("[neutrino] all channels took");
 
 	/* unless we will do real channel delete from allchans, needed once ? */
 	if(!bOnly) {
@@ -1458,11 +1451,14 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		tmp->channelList = new CChannelList(*RADIOchannelList);
 		tmp->channelList->SortAlpha();
 
+		TIMER_STOP("[neutrino] sort took");
+
 		if(TVsatList) delete TVsatList;
 		TVsatList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_SATS));
 		if(RADIOsatList) delete RADIOsatList;
 		RADIOsatList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_SATS));
 
+		/* all TV / RADIO channels per satellite */
 		sat_iterator_t sit;
 		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 			if(!sit->second.have_channels)
@@ -1472,18 +1468,19 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 			CBouquet* tmp1 = TVsatList->addBouquet(sit->second.name.c_str());
 			CBouquet* tmp2 = RADIOsatList->addBouquet(sit->second.name.c_str());
 
-			for (tallchans_iterator it = allchans.begin(); it != allchans.end(); it++) {
-				if(it->second.getSatellitePosition() == sit->first) {
-					if (it->second.getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
-						tmp1->channelList->addChannel(&(it->second));
-						tvi++;
-					}
-					else if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
-						tmp2->channelList->addChannel(&(it->second));
-						ri++;
-					}
+			CServiceManager::getInstance()->GetAllSatelliteChannels(zapitList, sit->first);
+			for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++) {
+				if ((*it)->getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
+					tmp1->channelList->addChannel(*it);
+					tvi++;
+				}
+				else if ((*it)->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) {
+					tmp2->channelList->addChannel(*it);
+					ri++;
 				}
 			}
+			if(tvi || ri)
+				printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
 			if(tvi)
 				tmp1->channelList->SortAlpha();
 			else
@@ -1492,15 +1489,14 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp2->channelList->SortAlpha();
 			else
 				RADIOsatList->deleteBouquet(tmp2);
-			if(tvi || ri)
-				printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
+			TIMER_STOP("[neutrino] sat took");
 		}
 		TIMER_STOP("[neutrino] sats took");
 	}
 
+	/* Favorites and provides TV bouquets */
 	bnum = 0;
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
-		//if (!g_bouquetManager->Bouquets[i]->bHidden && (g_bouquetManager->Bouquets[i]->bUser || !g_bouquetManager->Bouquets[i]->tvChannels.empty() ))
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->tvChannels.empty())
 		{
 			if(g_bouquetManager->Bouquets[i]->bUser)
@@ -1520,9 +1516,9 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	if(g_settings.make_hd_list && hi)
 		TVfavList->Bouquets.push_back(hdBouquet);
 
+	/* Favorites and provides RADIO bouquets */
 	bnum = 0;
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
-		//if (!g_bouquetManager->Bouquets[i]->bHidden && (g_bouquetManager->Bouquets[i]->bUser || !g_bouquetManager->Bouquets[i]->radioChannels.empty() ))
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->radioChannels.empty() )
 		{
 			if(g_bouquetManager->Bouquets[i]->bUser)
@@ -1859,13 +1855,16 @@ int CNeutrinoApp::run(int argc, char **argv)
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 
-	pthread_create (&zapit_thread, NULL, zapit_main_thread, (void *) &ZapStart_arg);
+	//pthread_create (&zapit_thread, NULL, zapit_main_thread, (void *) &ZapStart_arg);
+	CZapit::getInstance()->Start(&ZapStart_arg);
+
 	audioSetupNotifier        = new CAudioSetupNotifier;
 	//timer start
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
-
+#if 0
 	while(!zapit_ready)
 		usleep(0);
+#endif
 	printf("zapit ready\n\n");
 
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
@@ -3920,8 +3919,11 @@ void stop_daemons(bool stopall)
 	if(!stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
+#if 0
 	g_Zapit->shutdown();
 	pthread_join(zapit_thread, NULL);
+#endif
+	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
 	CVFD::getInstance()->Clear();
 	if(stopall) {
