@@ -19,9 +19,8 @@
  *
  */
 
-#include <zapit/bouquets.h>
-#include <zapit/channel.h>
 #include <zapit/debug.h>
+#include <zapit/zapit.h>
 #include <zapit/frontend_c.h>
 #include <zapit/getservices.h>
 #include <zapit/settings.h>
@@ -29,41 +28,235 @@
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>
-#include <set>
-extern xmlDocPtr scanInputParser;
+
+//#define SAVE_DEBUG
+
 extern transponder_list_t transponders;
-extern tallchans allchans;
-extern int scanSDT;
-static int newfound;
 
 satellite_map_t satellitePositions;
 std::map<transponder_id_t, transponder> select_transponders;
 
-int newtpid;
-int tcnt = 0;
-int scnt = 0;
 extern int zapit_debug;
-extern map<t_channel_id, audio_map_set_t> audio_map;
-void save_services(bool tocopy);
 
-#define TIMER_START()                                                                   \
-        static struct timeval tv, tv2;                                                         \
-        static unsigned int msec;                                                              \
-        gettimeofday(&tv, NULL)
+CServiceManager * CServiceManager::manager = NULL;
 
-#define TIMER_STOP(label)                                                               \
-        gettimeofday(&tv2, NULL);                                                       \
-        msec = ((tv2.tv_sec - tv.tv_sec) * 1000) + ((tv2.tv_usec - tv.tv_usec) / 1000); \
-        printf("%s: %u msec\n", label, msec)
+CServiceManager::CServiceManager()
+{
+	scanInputParser = NULL;
+	service_count = 0;
+}
 
-void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable)
+CServiceManager::~CServiceManager()
+{
+	delete scanInputParser;
+}
+
+CServiceManager * CServiceManager::getInstance()
+{
+	if(manager == NULL)
+		manager = new CServiceManager();
+	return manager;
+}
+
+bool CServiceManager::ParseScanXml(void)
+{
+	if(scanInputParser) {
+		delete scanInputParser;
+		scanInputParser = NULL;
+	}
+	switch (CFrontend::getInstance()->getInfo()->type) {
+		case FE_QPSK:
+			scanInputParser = parseXmlFile(SATELLITES_XML);
+			break;
+
+		case FE_QAM:
+			scanInputParser = parseXmlFile(CABLES_XML);
+			break;
+
+		default:
+			WARN("Unknown type %d", CFrontend::getInstance()->getInfo()->type);
+			return false;
+	}
+	return (scanInputParser != NULL);
+}
+
+xmlDocPtr CServiceManager::ScanXml()
+{
+	if(!scanInputParser)
+		ParseScanXml();
+
+	return scanInputParser;
+}
+
+bool CServiceManager::AddChannel(CZapitChannel * &channel)
+{
+	channel_insert_res_t ret = allchans.insert (
+		channel_pair_t (channel->getChannelID(), *channel));
+	delete channel;
+	channel = &ret.first->second;
+	return ret.second;
+}
+
+bool CServiceManager::AddCurrentChannel(CZapitChannel * &channel)
+{
+	channel_insert_res_t ret = curchans.insert (
+			channel_pair_t (channel->getChannelID(), *channel));
+	delete channel;
+	channel = &ret.first->second;
+	return ret.second;
+}
+
+bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
+{
+	t_service_id          service_id = channel->getServiceId();
+	t_original_network_id original_network_id = channel->getOriginalNetworkId();
+	t_transport_stream_id transport_stream_id = channel->getTransportStreamId();
+
+	t_satellite_position satellitePosition = channel->getSatellitePosition();
+	t_channel_id sub_channel_id =
+		((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
+		(uint64_t) CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service_id, original_network_id, transport_stream_id);
+
+	channel_insert_res_t ret = nvodchannels.insert (
+			channel_pair_t (sub_channel_id, *channel));
+	delete channel;
+	channel = &ret.first->second;
+	return ret.second;
+}
+
+void CServiceManager::ResetChannelNumbers()
+{
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+		it->second.number = 0;
+		it->second.has_bouquet = 0;
+	}
+}
+
+void CServiceManager::RemoveChannel(const t_channel_id channel_id)
+{
+	allchans.erase(channel_id);
+}
+
+void CServiceManager::RemoveAllChannels()
+{
+	allchans.clear();
+}
+
+void CServiceManager::RemoveNVODChannels()
+{
+	nvodchannels.clear();
+}
+
+void CServiceManager::RemoveCurrentChannels()
+{
+	curchans.clear();
+}
+
+CZapitChannel * CServiceManager::FindChannel(const t_channel_id channel_id, bool * current_is_nvod)
+{
+	if(current_is_nvod)
+		*current_is_nvod = false;
+
+        channel_map_iterator_t cit = nvodchannels.find(channel_id);
+        if (cit == nvodchannels.end()) {
+                cit = allchans.find(channel_id);
+                if (cit == allchans.end()) {
+                        printf("%s: channel %llx not found\n", __FUNCTION__, channel_id);
+                        return NULL;
+                }
+        } else if(current_is_nvod)
+                *current_is_nvod = true;
+
+        return &cit->second;
+}
+
+CZapitChannel * CServiceManager::FindChannelByName(std::string name)
+{
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+		if(it->second.getName().length() == name.length() &&
+			!strcasecmp(it->second.getName().c_str(), name.c_str())) {
+			return &it->second;
+		}
+	}
+	return NULL;
+}
+
+CZapitChannel * CServiceManager::FindCurrentChannel(const t_channel_id channel_id)
+{
+	channel_map_iterator_t cit = curchans.find(channel_id);
+	if(cit != curchans.end())
+		return &cit->second;
+
+	return NULL;
+}
+
+bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+		if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE)
+			list.push_back(&(it->second));
+	}
+	return (list.size() != 0);
+}
+
+bool CServiceManager::GetAllTvChannels(ZapitChannelList &list)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+		if (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE)
+			list.push_back(&(it->second));
+	}
+	return (list.size() != 0);
+}
+
+bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+		if (it->second.isHD())
+			list.push_back(&(it->second));
+	}
+	return (list.size() != 0);
+}
+
+bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+		if (it->second.has_bouquet == false)
+			list.push_back(&(it->second));
+	}
+	return (list.size() != 0);
+}
+
+bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+		if(it->second.getSatellitePosition() == position)
+			list.push_back(&(it->second));
+	}
+	return (list.size() != 0);
+}
+
+std::string CServiceManager::GetServiceName(t_channel_id channel_id)
+{
+        channel_map_iterator_t it = allchans.find(channel_id);
+        if (it != allchans.end())
+                return it->second.getName();
+        else
+                return "";
+}
+
+void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable)
 {
 	t_transport_stream_id transport_stream_id;
 	t_original_network_id original_network_id;
 	FrontendParameters feparams;
 	uint8_t polarization = 0;
 	uint16_t freq;
-	tcnt =0;
+	tp_count = 0;
 
 	memset(&feparams, 0, sizeof(FrontendParameters));
 
@@ -122,7 +315,7 @@ void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, 
 	return;
 }
 
-void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
+void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
 {
 	t_service_id service_id;
 	std::string  name;
@@ -164,69 +357,46 @@ void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream
 			node = node->xmlNextNode;
 			continue;
 		}
-#if 0
-		switch (service_type) {
-			case ST_DIGITAL_TELEVISION_SERVICE:
-			case ST_NVOD_REFERENCE_SERVICE:
-			case ST_NVOD_TIME_SHIFTED_SERVICE:
-			case ST_DIGITAL_RADIO_SOUND_SERVICE:
-#endif
-				{
-					map<t_channel_id, audio_map_set_t>::iterator audio_map_it;
-					audio_map_it = audio_map.find(chid);
-					if((audio_map_it != audio_map.end()) && (audio_map_it->second.apid != 0)) {
-						apid = audio_map_it->second.apid;
-					}
+		audio_map_set_t * pidmap = CZapit::getInstance()->GetSavedPids(chid);
+		if(pidmap)
+			apid = pidmap->apid;
 
-					pair<map<t_channel_id, CZapitChannel>::iterator,bool> ret;
-					ret = allchans.insert (
-						std::pair <t_channel_id, CZapitChannel> (chid,
-							CZapitChannel ( name, service_id,
-									transport_stream_id,
-									original_network_id,
-									service_type,
-									satellitePosition,
-									freq
-									)
-								)
-							);
-//printf("INS CHANNEL %s %x\n", name.c_str(), (int) &ret.first->second);
-					if(ret.second == false) {
-						printf("[zapit] duplicate channel %s id %llx freq %d (old %s at %d)\n",
-							name.c_str(), chid, freq, ret.first->second.getName().c_str(), ret.first->second.getFreqId());
-					} else {
-						scnt++;
-						tallchans_iterator cit1 = ret.first;
-						cit1->second.scrambled = scrambled;
-						service_type = cit1->second.getServiceType();
-						if(pmtpid != 0 && (((service_type == 2) && (apid > 0)) || ( (service_type == 1)  && (vpid > 0) && (apid > 0))) ) {
-							DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);
-							cit1->second.setVideoPid(vpid);
-							cit1->second.setAudioPid(apid);
-							cit1->second.setPcrPid(pcrpid);
-							cit1->second.setPmtPid(pmtpid);
-							cit1->second.setTeletextPid(txpid);
-							cit1->second.setPidsFlag();
-							cit1->second.type = vtype;
-						}
-					}
-				}
-#if 0
-				break;
+		CZapitChannel * channel = new CZapitChannel ( name, service_id,
+				transport_stream_id,
+				original_network_id,
+				service_type,
+				satellitePosition,
+				freq);
 
-			default:
-				break;
+		bool ret = AddChannel(channel);
+
+		//printf("INS CHANNEL %s %x\n", name.c_str(), (int) &ret.first->second);
+		if(ret == false) {
+			printf("[zapit] duplicate channel %s id %llx freq %d (old %s at %d)\n",
+					name.c_str(), chid, freq, channel->getName().c_str(), channel->getFreqId());
+		} else {
+			service_count++;
+			channel->scrambled = scrambled;
+			service_type = channel->getServiceType();
+			if(pmtpid != 0 && (((service_type == 2) && (apid > 0)) || ( (service_type == 1)  && (vpid > 0) && (apid > 0))) ) {
+				DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);
+				channel->setVideoPid(vpid);
+				channel->setAudioPid(apid);
+				channel->setPcrPid(pcrpid);
+				channel->setPmtPid(pmtpid);
+				channel->setTeletextPid(txpid);
+				channel->setPidsFlag();
+				channel->type = vtype;
+			}
 		}
-#endif
 		node = node->xmlNextNode;
 	}
 	return;
 }
 
-void FindTransponder(xmlNodePtr search)
+void CServiceManager::FindTransponder(xmlNodePtr search)
 {
 	t_satellite_position satellitePosition = 0;
-	newtpid = 0xC000;
 	while (search) {
 		bool cable = false;
 
@@ -245,8 +415,7 @@ void FindTransponder(xmlNodePtr search)
 	}
 }
 
-static uint32_t fake_tid, fake_nid;
-void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition)
+void CServiceManager::ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition)
 {
 	uint8_t polarization = 0;
 	uint8_t system = 0, modulation = 1;
@@ -309,7 +478,7 @@ void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite
 	}
 }
 
-int LoadMotorPositions(void)
+int CServiceManager::LoadMotorPositions(void)
 {
 	FILE *fd = NULL;
 	char buffer[256] = "";
@@ -337,6 +506,7 @@ int LoadMotorPositions(void)
 				sit->second.use_in_scan = inuse;
 				sit->second.use_usals = usals;
 				sit->second.input = input;
+				sit->second.position = satellitePosition;
 			}
 			fgets(buffer, 255, fd);
 		}
@@ -348,7 +518,7 @@ int LoadMotorPositions(void)
 	return 0;
 }
 
-void SaveMotorPositions()
+void CServiceManager::SaveMotorPositions()
 {
 	FILE * fd;
 	sat_iterator_t sit;
@@ -369,7 +539,7 @@ void SaveMotorPositions()
 	fclose(fd);
 }
 
-void init_sat(t_satellite_position position)
+void CServiceManager::InitSatPosition(t_satellite_position position)
 {
 	satellitePositions[position].position = 0;
 	satellitePositions[position].diseqc = -1;
@@ -385,29 +555,25 @@ void init_sat(t_satellite_position position)
 	satellitePositions[position].input = 0;
 }
 
-int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_current)
+bool CServiceManager::LoadServices(bool only_current)
 {
 	xmlDocPtr parser;
 	static bool satcleared = 0;//clear only once, because menu is static
-	scnt = 0;
+	service_count = 0;
 	printf("[zapit] Loading services, channel size %d ..\n", sizeof(CZapitChannel));
+	fe_type_t frontendType = CFrontend::getInstance()->getInfo()->type;
 
 	if(only_current)
 		goto do_current;
 
+
 	TIMER_START();
+	allchans.clear();
+	transponders.clear();
 	select_transponders.clear();
 	fake_tid = fake_nid = 0;
 
-	if(!scanInputParser)  {
-		if(frontendType == FE_QPSK) {
-			scanInputParser = parseXmlFile(SATELLITES_XML);
-		} else if(frontendType == FE_QAM) {
-			scanInputParser = parseXmlFile(CABLES_XML);
-		}
-	}
-
-	if (scanInputParser != NULL) {
+	if (ParseScanXml()) {
 		t_satellite_position position = 0;
 		if(!satcleared)
 			satellitePositions.clear();
@@ -418,15 +584,15 @@ int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_curr
 			if (!(strcmp(xmlGetName(search), "sat"))) {
 				position = xmlGetSignedNumericAttribute(search, "position", 10);
 				char * name = xmlGetAttribute(search, "name");
-
+				/* FIXME reuse this */
 				if(satellitePositions.find(position) == satellitePositions.end()) {
-					init_sat(position);
+					InitSatPosition(position);
 				}
 				satellitePositions[position].name = name;
 			} else if(!(strcmp(xmlGetName(search), "cable"))) {
 				char * name = xmlGetAttribute(search, "name");
 				if(satellitePositions.find(position) == satellitePositions.end()) {
-					init_sat(position);
+					InitSatPosition(position);
 				}
 				satellitePositions[position].name = name;
 			}
@@ -444,7 +610,7 @@ int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_curr
 				t_satellite_position position = xmlGetSignedNumericAttribute(search, "position", 10);
 				char * name = xmlGetAttribute(search, "name");
 				if(satellitePositions.find(position) == satellitePositions.end()) {
-					init_sat(position);
+					InitSatPosition(position);
 					satellitePositions[position].name = name;
 				}
 			}
@@ -459,7 +625,7 @@ int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_curr
 		LoadMotorPositions();
 	}
 
-	printf("[zapit] %d services loaded (%d)...\n", scnt, allchans.size());
+	printf("[zapit] %d services loaded (%d)...\n", service_count, allchans.size());
 	TIMER_STOP("[zapit] service loading took");
 
 	if(zapit_debug) {//FIXME
@@ -469,7 +635,7 @@ int LoadServices(fe_type_t frontendType, diseqc_t /*diseqcType*/, bool only_curr
 	}
 do_current:
 	DBG("Loading current..\n");
-	if (scanSDT && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
+	if (CZapit::getInstance()->scanSDT() && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
 		newfound = 0;
 		printf("[getservices] " CURRENTSERVICES_XML "  found.\n");
 		FindTransponder(xmlDocGetRootElement(parser)->xmlChildrenNode);
@@ -487,11 +653,10 @@ do_current:
 		}
 	}
 
-	return 0;
+	return true;
 }
 
-//#define SAVE_DEBUG
-void zapit_cp(char * from, char * to)
+void CServiceManager::CopyFile(char * from, char * to)
 {
         char cmd[256] = "cp -f ";
         strcat(cmd, from);
@@ -501,16 +666,54 @@ void zapit_cp(char * from, char * to)
 	sync();
 }
 
-void SaveServices(bool tocopy)
+void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
+{
+	switch (CFrontend::getInstance()->getInfo()->type) {
+		case FE_QPSK: /* satellite */
+			fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
+					config.name.c_str(), config.position, config.diseqc, config.uncommited);
+			break;
+		case FE_QAM: /* cable */
+			fprintf(fd, "\t<cable name=\"%s\" position=\"%hd\">\n", config.name.c_str(), config.position);
+			break;
+		case FE_OFDM:
+		default:
+			break;
+	}
+}
+
+void CServiceManager::WriteTransponderHeader(FILE * fd, struct transponder &tp)
+{
+	switch (CFrontend::getInstance()->getInfo()->type) {
+		case FE_QPSK: /* satellite */
+			fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
+					tp.transport_stream_id, tp.original_network_id,
+					tp.feparams.frequency, tp.feparams.inversion,
+					tp.feparams.u.qpsk.symbol_rate, tp.feparams.u.qpsk.fec_inner,
+					tp.polarization);
+			break;
+		case FE_QAM: /* cable */
+			fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" mod=\"%hu\">\n",
+					tp.transport_stream_id, tp.original_network_id,
+					tp.feparams.frequency, tp.feparams.inversion,
+					tp.feparams.u.qam.symbol_rate, tp.feparams.u.qam.fec_inner,
+					tp.feparams.u.qam.modulation);
+			break;
+		case FE_OFDM:
+		default:
+			break;
+	}
+}
+
+void CServiceManager::SaveServices(bool tocopy)
 {
 	transponder_id_t 		tpid = 0;
 	FILE * fd = 0;
 	bool updated = 0;
 
-	tallchans_iterator ccI;
-	tallchans_iterator dI;
+	channel_map_iterator_t ccI;
+	channel_map_iterator_t dI;
 	transponder_list_t::iterator tI;
-	char tpstr[256];
 	bool tpdone = 0;
 	bool satdone = 0;
 	int processed = 0;
@@ -546,60 +749,19 @@ void SaveServices(bool tocopy)
 #endif
 				continue;
 			}
-			switch (CFrontend::getInstance()->getInfo()->type) {
-				case FE_QPSK: /* satellite */
-					sprintf(tpstr, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
-							tI->second.transport_stream_id, tI->second.original_network_id,
-							tI->second.feparams.frequency, tI->second.feparams.inversion,
-							tI->second.feparams.u.qpsk.symbol_rate, tI->second.feparams.u.qpsk.fec_inner,
-							tI->second.polarization);
-					break;
-				case FE_QAM: /* cable */
-					sprintf(tpstr, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" mod=\"%hu\">\n",
-							tI->second.transport_stream_id, tI->second.original_network_id,
-							tI->second.feparams.frequency, tI->second.feparams.inversion,
-							tI->second.feparams.u.qam.symbol_rate, tI->second.feparams.u.qam.fec_inner,
-							tI->second.feparams.u.qam.modulation);
-					break;
-				case FE_OFDM:
-				default:
-					break;
-			}
-
 			tpid = tI->first;
 			for (ccI = allchans.begin(); ccI != allchans.end(); ccI++) {
 				if(ccI->second.getTransponderId() == tpid) {
 					if(!satdone) {
-						switch (CFrontend::getInstance()->getInfo()->type) {
-							case FE_QPSK: /* satellite */
-								fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
-										spos_it->second.name.c_str(), spos_it->first, spos_it->second.diseqc, spos_it->second.uncommited);
-								break;
-							case FE_QAM: /* cable */
-								fprintf(fd, "\t<cable name=\"%s\" position=\"%hd\">\n", spos_it->second.name.c_str(), spos_it->first);
-								break;
-							case FE_OFDM:
-							default:
-								break;
-						}
-
+						WriteSatHeader(fd, spos_it->second);
 						satdone = 1;
 					}
 					if(!tpdone) {
-						fprintf(fd, "%s", tpstr);
+						WriteTransponderHeader(fd, tI->second);
 						tpdone = 1;
 					}
-					if(ccI->second.getPidsFlag()) {
-						fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\"/>\n",
-								ccI->second.getServiceId(), convert_UTF8_To_UTF8_XML(ccI->second.getName().c_str()).c_str(),
-								ccI->second.getVideoPid(), ccI->second.getPreAudioPid(),
-								ccI->second.getPcrPid(), ccI->second.getPmtPid(), ccI->second.getTeletextPid(),
-								ccI->second.getServiceType(true), ccI->second.type, ccI->second.scrambled);
-					} else {
-						fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n",
-								ccI->second.getServiceId(), convert_UTF8_To_UTF8_XML(ccI->second.getName().c_str()).c_str(),
-								ccI->second.getServiceType(true), ccI->second.scrambled);
-					}
+
+					ccI->second.dumpServiceXml(fd);
 					processed++;
 #ifdef SAVE_DEBUG
 					chans_processed.insert(ccI->second.getChannelID());
@@ -624,16 +786,128 @@ void SaveServices(bool tocopy)
 	fprintf(fd, "</zapit>\n");
 	fclose(fd);
 	if(tocopy) {
-		zapit_cp((char *) SERVICES_TMP, (char *) SERVICES_XML);
+		CopyFile((char *) SERVICES_TMP, (char *) SERVICES_XML);
 		unlink(SERVICES_TMP);
 	}
 #ifdef SAVE_DEBUG
 	printf("processed channels: %d\n", chans_processed.size());
 	int i = 0;
-	for (tallchans::iterator it = allchans.begin(); it != allchans.end(); it++)
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++)
 		if (chans_processed.find(it->first) == chans_processed.end())
 			printf("unused channel %d sat %d freq %d sid %04X: %s\n", ++i, it->second.getSatellitePosition(), it->second.getFreqId(), it->second.getServiceId(), it->second.getName().c_str());
 	chans_processed.clear();
 #endif
 	printf("processed channels: %d\n", processed);
+}
+
+/* helper for reused code */
+void CServiceManager::WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
+		bool &updated, char * satstr, struct transponder &tp, CZapitChannel &channel, const char * action)
+{
+	if(!tpdone) {
+		if(!satfound)
+			fprintf(fd, "%s", satstr);
+		WriteTransponderHeader(fd, tp);
+		tpdone = 1;
+	}
+	updated = 1;
+	channel.dumpServiceXml(fd, action);
+}
+
+bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
+{
+	channel_map_iterator_t ccI;
+	channel_map_iterator_t dI;
+	transponder_list_t::iterator tI;
+	char satstr[256];
+	char buffer[256];
+
+	FILE * fd = 0;
+	FILE * fd1 = 0;
+
+	bool updated = 0;
+	bool tpdone = 0;
+	bool satfound = 0;
+
+	tI = transponders.find(tpid);
+	if(tI == transponders.end()) {
+		printf("[sdt monitor] tp not found ?!\n");
+		return false;
+	}
+
+	t_satellite_position satellitePosition = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tpid) & 0xFFF;
+	if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tpid) & 0xF000)
+		satellitePosition = -satellitePosition;
+
+
+	fd = fopen(CURRENTSERVICES_TMP, "w");
+	if(!fd) {
+		printf("[sdt monitor] " CURRENTSERVICES_TMP ": cant open!\n");
+		return false;
+	}
+
+	sat_iterator_t spos_it = satellitePositions.find(satellitePosition);
+	if(spos_it == satellitePositions.end())
+		return false;
+
+	switch (CFrontend::getInstance()->getInfo()->type) {
+		case FE_QPSK: /* satellite */
+			sprintf(satstr, "\t<%s name=\"%s\" position=\"%hd\">\n", "sat", spos_it->second.name.c_str(), satellitePosition);
+			break;
+		case FE_QAM: /* cable */
+			sprintf(satstr, "\t<%s name=\"%s\"\n", "cable", spos_it->second.name.c_str());
+			break;
+		case FE_OFDM:
+		default:
+			break;
+	}
+	fd1 = fopen(CURRENTSERVICES_XML, "r");
+	if(!fd1) {
+		fprintf(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit>\n");
+	} else {
+		fgets(buffer, 255, fd1);
+		while(!feof(fd1) && !strstr(buffer, satfound ? "</sat>" : "</zapit>")) {
+			if(!satfound && !strcmp(buffer, satstr))
+				satfound = 1;
+			fputs(buffer, fd);
+			fgets(buffer, 255, fd1);
+		}
+	}
+	for (channel_map_iterator_t cI = curchans.begin(); cI != curchans.end(); cI++) {
+		ccI = allchans.find(cI->second.getChannelID());
+		if(ccI == allchans.end()) {
+			WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "add");
+		} else {
+			if(strcmp(cI->second.getName().c_str(), ccI->second.getName().c_str()) || cI->second.scrambled != ccI->second.scrambled) {
+				WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "replace");
+			}
+		}
+	}
+	for (ccI = allchans.begin(); ccI != allchans.end(); ccI++) {
+		if(ccI->second.getTransponderId() == tpid) {
+			dI = curchans.find(ccI->second.getChannelID());
+			if(dI == curchans.end())
+				WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, ccI->second, "remove");
+		}
+	}
+	if(tpdone) {
+		fprintf(fd, "\t\t</TS>\n");
+		fprintf(fd, "\t</sat>\n");
+	} else if(satfound)
+		fprintf(fd, "\t</sat>\n");
+	if(fd1) {
+		fgets(buffer, 255, fd1);
+		while(!feof(fd1)) {
+			fputs(buffer, fd);
+			fgets(buffer, 255, fd1);
+		}
+		if(!satfound) fprintf(fd, "</zapit>\n");
+		fclose(fd1);
+	} else
+		fprintf(fd, "</zapit>\n");
+
+	fclose(fd);
+	rename(CURRENTSERVICES_TMP, CURRENTSERVICES_XML);
+
+	return updated;
 }
