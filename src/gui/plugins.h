@@ -62,7 +62,9 @@ class CPlugins
 
 		struct plugin
 		{
+			int index;
 			std::string filename;
+			int key;
 			std::string cfgfile;
 			std::string pluginfile;
 			int version;
@@ -70,7 +72,7 @@ class CPlugins
 			std::string description;         // UTF-8 encoded
 			std::string depend;
 			CPlugins::p_type_t type;
-
+			
 			bool fb;
 			bool rc;
 			bool lcd;
@@ -81,7 +83,7 @@ class CPlugins
 			bool hide;
 			bool operator< (const plugin& a) const
 			{
-				return this->filename < a.filename ;
+				return this->index < a.index ;
 			}
 		};
 
@@ -116,6 +118,8 @@ class CPlugins
 		inline const std::string & getDescription      (const int number) const { return plugin_list[number].description       ; }
 		inline       int           getType             (const int number) const { return plugin_list[number].type              ; }
 		inline       bool          isHidden            (const int number) const { return plugin_list[number].hide              ; }
+		inline       int           getIndex            (const int number) const { return plugin_list[number].index             ; }
+		inline     neutrino_msg_t  getKey              (const int number) const { return (neutrino_msg_t)plugin_list[number].key; }
 
 		void startPlugin(int number,int param);
 		void start_plugin_by_name(const std::string & filename,int param);// start plugins by "name=" in .cfg

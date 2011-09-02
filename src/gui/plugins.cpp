@@ -160,7 +160,8 @@ void CPlugins::loadPlugins()
 	scanDir(PLUGINDIR_USB);
 	scanDir(PLUGINDIR_VAR);
 	scanDir(PLUGINDIR);
-	sort(plugin_list.begin(), plugin_list.end());
+
+	sort (plugin_list.begin(), plugin_list.end());
 }
 
 CPlugins::~CPlugins()
@@ -182,6 +183,8 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 	while (linecount < 20 && getline(inFile, line[linecount++]))
 	{};
 
+	plugin_data->index = 0;
+	plugin_data->key = 0; //CRCInput::RC_nokey
 	plugin_data->fb = false;
 	plugin_data->rc = false;
 	plugin_data->lcd = false;
@@ -200,7 +203,15 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		getline(iss, cmd, '=');
 		getline(iss, parm, '=');
 
-		if (cmd == "pluginversion")
+		if (cmd == "index")
+		{
+			plugin_data->index = atoi(parm.c_str());
+		}
+		else if (cmd == "key")
+		{
+			plugin_data->key = atoi(parm.c_str());
+		}
+		else if (cmd == "pluginversion")
 		{
 			plugin_data->version = atoi(parm.c_str());
 		}

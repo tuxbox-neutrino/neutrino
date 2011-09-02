@@ -300,10 +300,12 @@ bool CUserMenu::showUserMenu(int button)
 					sprintf(id, "%d", count);
 					menu_items++;
 					menu_prev = SNeutrinoSettings::ITEM_PLUGIN;
-										//keyhelper.get(&key,&icon,CRCInput::RC_blue);
-					keyhelper.get(&key,&icon);
+					neutrino_msg_t d_key = g_PluginList->getKey(count);
+					//printf("[neutrino usermenu] plugin %d, set key %d...\n", count, g_PluginList->getKey(count));
+					StreamFeaturesChanger     = new CStreamFeaturesChangeExec();
+					keyhelper.get(&key,&icon, d_key);
 					menu_item = new CMenuForwarderNonLocalized(g_PluginList->getName(count), true, NULL, StreamFeaturesChanger, id, key, icon);
-					//menu->addItem(menu_item, (cnt == 0));
+
 					menu->addItem(menu_item, 0);
 					cnt++;
 				}
