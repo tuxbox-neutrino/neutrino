@@ -414,9 +414,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
 
-//FIXME
+#ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
 	g_settings.standby_cpufreq = 50;
+#endif
 
 	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 1);
 	//fb-alpha values for gtx
