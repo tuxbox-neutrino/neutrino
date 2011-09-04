@@ -187,10 +187,15 @@ static bool messaging_zap_detected = false;
 std::string dvbtime_filter_dir = "/var/tuxbox/config/zapit/dvbtimefilter.xml";
 static bool dvb_time_update = false;
 
-//NTP- Config
+//NTP-Config
 #define CONF_FILE "/var/tuxbox/config/neutrino.conf"
-//const std::string ntp_system_cmd_prefix = "/sbin/rdate -s ";
+
+#ifdef USE_BB_NTPD
+const std::string ntp_system_cmd_prefix = "/sbin/ntpd -q -p ";
+#else
 const std::string ntp_system_cmd_prefix = "/sbin/ntpdate ";
+#endif
+
 std::string ntp_system_cmd;
 CConfigFile ntp_config(',');
 std::string ntpserver;
