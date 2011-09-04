@@ -1652,6 +1652,14 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	if (starttimes)
 		xStart += info_time_width + 10;
 
+	//colored_events init
+	bool colored_event_C = false;
+	bool colored_event_N = false;
+	if (g_settings.colored_events == 1)
+		colored_event_C = true;
+	if (g_settings.colored_events == 2)
+		colored_event_N = true;
+
 	if (pb_pos > -1)
 	{
 		int pb_w = 112;
@@ -1678,8 +1686,8 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	{
 		frameBuffer->paintBox(InfoX, CurrInfoY - height, currTimeX, CurrInfoY, COL_INFOBAR_PLUS_0);
 		if (runningStart != NULL)
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, CurrInfoY, info_time_width, runningStart, COL_INFOBAR, 0, UTF8);
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(xStart, CurrInfoY, currTimeX - xStart - 5, current, COL_INFOBAR, 0, UTF8);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, CurrInfoY, info_time_width, runningStart, colored_event_C ? COL_COLORED_EVENTS_INFOBAR : COL_INFOBAR, 0, UTF8);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(xStart, CurrInfoY, currTimeX - xStart - 5, current, colored_event_C ? COL_COLORED_EVENTS_INFOBAR : COL_INFOBAR, 0, UTF8);
 		oldCurrTimeX = currTimeX;
 	}
 
@@ -1688,19 +1696,19 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	frameBuffer->paintBox(oldCurrTimeX, CurrInfoY-height, BoxEndX, CurrInfoY, COL_INFOBAR_PLUS_0);
 	oldCurrTimeX = currTimeX;
 	if (currTimeW != 0)
-		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(currTimeX, CurrInfoY, currTimeW, runningRest, COL_INFOBAR, 0, UTF8);
+		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(currTimeX, CurrInfoY, currTimeW, runningRest, colored_event_C ? COL_COLORED_EVENTS_INFOBAR : COL_INFOBAR, 0, UTF8);
 
 	if (next != NULL && update_next)
 	{
 		frameBuffer->paintBox(InfoX, NextInfoY-height, BoxEndX, NextInfoY, COL_INFOBAR_PLUS_0);
 		if (nextStart != NULL)
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, NextInfoY, info_time_width, nextStart, COL_INFOBAR, 0, UTF8);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(InfoX, NextInfoY, info_time_width, nextStart, colored_event_N ? COL_COLORED_EVENTS_INFOBAR : COL_INFOBAR, 0, UTF8);
 		if (starttimes)
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(xStart, NextInfoY, nextTimeX - xStart - 5, next, COL_INFOBAR, 0, UTF8);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(xStart, NextInfoY, nextTimeX - xStart - 5, next, colored_event_N ? COL_COLORED_EVENTS_INFOBAR : COL_INFOBAR, 0, UTF8);
 		else
-			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(xStart, NextInfoY, nextTimeX - xStart - 5, next, COL_INFOBAR, 0, UTF8);
+			g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->RenderString(xStart, NextInfoY, nextTimeX - xStart - 5, next, colored_event_N ? COL_COLORED_EVENTS_INFOBAR : COL_INFOBAR, 0, UTF8);
 		if (nextTimeW != 0)
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(nextTimeX, NextInfoY, nextTimeW, nextDuration, COL_INFOBAR, 0, UTF8);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(nextTimeX, NextInfoY, nextTimeW, nextDuration, colored_event_N ? COL_COLORED_EVENTS_INFOBAR : COL_INFOBAR, 0, UTF8);
 	}
 }
 

@@ -555,6 +555,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );
 	g_settings.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
 
+	g_settings.colored_events = configfile.getInt32( "colored_events" , 0 );
+	g_settings.colored_events_alpha = configfile.getInt32( "colored_events_alpha", 0x00 );
+	g_settings.colored_events_red = configfile.getInt32( "colored_events_red", 95 );
+	g_settings.colored_events_green = configfile.getInt32( "colored_events_green", 70 );
+	g_settings.colored_events_blue = configfile.getInt32( "colored_events_blue", 0 );
+
 	//network
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
 		sprintf(cfg_key, "network_nfs_ip_%d", i);
@@ -1107,6 +1113,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "infobar_Text_red", g_settings.infobar_Text_red );
 	configfile.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
 	configfile.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
+
+	configfile.setInt32( "colored_events", g_settings.colored_events );
+	configfile.setInt32( "colored_events_alpha", g_settings.colored_events_alpha );
+	configfile.setInt32( "colored_events_red", g_settings.colored_events_red );
+	configfile.setInt32( "colored_events_green", g_settings.colored_events_green );
+	configfile.setInt32( "colored_events_blue", g_settings.colored_events_blue );
 
 	//network
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -4035,6 +4047,12 @@ void CNeutrinoApp::loadColors(const char * fname)
 	g_settings.infobar_Text_red = tconfig.getInt32( "infobar_Text_red", 0x64 );
 	g_settings.infobar_Text_green = tconfig.getInt32( "infobar_Text_green", 0x64 );
 	g_settings.infobar_Text_blue = tconfig.getInt32( "infobar_Text_blue", 0x64 );
+
+	g_settings.colored_events_alpha = tconfig.getInt32( "colored_events_alpha", 0x00 );
+	g_settings.colored_events_red = tconfig.getInt32( "colored_events_red", 95 );
+	g_settings.colored_events_green = tconfig.getInt32( "colored_events_green", 70 );
+	g_settings.colored_events_blue = tconfig.getInt32( "colored_events_blue", 0 );
+
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		g_settings.lcd_setting[i] = tconfig.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
 	strcpy(g_settings.lcd_setting_dim_time, tconfig.getString("lcd_dim_time","0").c_str());
@@ -4101,6 +4119,12 @@ void CNeutrinoApp::saveColors(const char * fname)
 	tconfig.setInt32( "infobar_Text_red", g_settings.infobar_Text_red );
 	tconfig.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
 	tconfig.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
+
+	tconfig.setInt32( "colored_events_alpha", g_settings.colored_events_alpha );
+	tconfig.setInt32( "colored_events_red", g_settings.colored_events_red );
+	tconfig.setInt32( "colored_events_green", g_settings.colored_events_green );
+	tconfig.setInt32( "colored_events_blue", g_settings.colored_events_blue );
+
 	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
 		tconfig.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
 	tconfig.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);

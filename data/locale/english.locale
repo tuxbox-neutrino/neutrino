@@ -336,6 +336,10 @@ extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet....\n
 extra.chalreadyinbq The current channel is already in selected bouquet....\n
 extra.clear_log Clear Log
+extra.colored_events Program colored
+extra.colored_events_0 none
+extra.colored_events_1 current
+extra.colored_events_2 next
 extra.dboxinfo Box Info
 extra.east East
 extra.fec_1_2 1/2

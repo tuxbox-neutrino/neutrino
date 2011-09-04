@@ -232,6 +232,10 @@ void CThemes::rememberOldTheme(bool remember)
 		oldThemeValues[37] = g_settings.infobar_Text_red;
 		oldThemeValues[38] = g_settings.infobar_Text_green;
 		oldThemeValues[39] = g_settings.infobar_Text_blue;
+		oldThemeValues[40] = g_settings.colored_events_alpha;
+		oldThemeValues[41] = g_settings.colored_events_red;
+		oldThemeValues[42] = g_settings.colored_events_green;
+		oldThemeValues[43] = g_settings.colored_events_blue;
 	} else {
 		g_settings.menu_Head_alpha 			= oldThemeValues[0];
 		g_settings.menu_Head_red 			= oldThemeValues[1];
@@ -273,6 +277,10 @@ void CThemes::rememberOldTheme(bool remember)
 		g_settings.infobar_Text_red 			= oldThemeValues[37];
 		g_settings.infobar_Text_green 			= oldThemeValues[38];
 		g_settings.infobar_Text_blue 			= oldThemeValues[39];
+		g_settings.colored_events_alpha			= oldThemeValues[40];
+		g_settings.colored_events_red 			= oldThemeValues[41];
+		g_settings.colored_events_green 		= oldThemeValues[42];
+		g_settings.colored_events_blue 			= oldThemeValues[43];
 
 		notifier = new CColorSetupNotifier;
 		notifier->changeNotify(NONEXISTANT_LOCALE, NULL);

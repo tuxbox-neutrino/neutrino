@@ -204,6 +204,12 @@ struct SNeutrinoSettings
 	unsigned char infobar_Text_green;
 	unsigned char infobar_Text_blue;
 
+	unsigned char colored_events_alpha;
+	unsigned char colored_events_red;
+	unsigned char colored_events_green;
+	unsigned char colored_events_blue;
+	int colored_events;
+
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8
 	std::string network_nfs_ip[NETWORK_NFS_NR_OF_ENTRIES];
