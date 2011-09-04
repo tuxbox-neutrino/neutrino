@@ -336,10 +336,6 @@ extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
 extra.clear_log Logdatei löschen
-extra.colored_events Sendung farbig
-extra.colored_events_0 keine
-extra.colored_events_1 aktuelle
-extra.colored_events_2 nächste
 extra.dboxinfo Box-Info
 extra.east Osten
 extra.fec_1_2 1/2 S1_QPSK
@@ -755,6 +751,10 @@ miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Anzeige
 miscsettings.infobar_casystem_mini Mini
 miscsettings.infobar_casystem_mode Diskret
+miscsettings.infobar_colored_events Sendung farbig
+miscsettings.infobar_colored_events_0 keine
+miscsettings.infobar_colored_events_1 aktuelle
+miscsettings.infobar_colored_events_2 nächste
 miscsettings.infobar_disp_0 Kein Logo
 miscsettings.infobar_disp_1 Logo in der Nummernbox
 miscsettings.infobar_disp_2 Logo/Kanalnummer

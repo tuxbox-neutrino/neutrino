@@ -336,10 +336,6 @@ extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet....\n
 extra.chalreadyinbq The current channel is already in selected bouquet....\n
 extra.clear_log Clear Log
-extra.colored_events Program colored
-extra.colored_events_0 none
-extra.colored_events_1 current
-extra.colored_events_2 next
 extra.dboxinfo Box Info
 extra.east East
 extra.fec_1_2 1/2
@@ -755,6 +751,10 @@ miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Display
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
+miscsettings.infobar_colored_events Program colored
+miscsettings.infobar_colored_events_0 none
+miscsettings.infobar_colored_events_1 current
+miscsettings.infobar_colored_events_2 next
 miscsettings.infobar_disp_0 without Logo
 miscsettings.infobar_disp_1 Logo 1
 miscsettings.infobar_disp_2 Logo 2

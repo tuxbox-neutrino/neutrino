@@ -264,9 +264,9 @@ const CMenuOptionChooser::keyval  CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS[CHANNE
 #define OPTIONS_COLORED_EVENTS_OPTION_COUNT 3
 const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_EVENTS_OPTION_COUNT] =
 {
-	{ 0, LOCALE_EXTRA_COLORED_EVENTS_0 },	//none
-	{ 1, LOCALE_EXTRA_COLORED_EVENTS_1 },	//current
-	{ 2, LOCALE_EXTRA_COLORED_EVENTS_2 },	//next
+	{ 0, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS_0 },	//none
+	{ 1, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS_1 },	//current
+	{ 2, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS_2 },	//next
 };
 
 
@@ -326,7 +326,6 @@ void COsdSetup::showOsdSetup()
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_FADE, &g_settings.widget_fade, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true ));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_BIGWINDOWS, &g_settings.big_windows, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	osd_menu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_COLORED_EVENTS, &g_settings.colored_events, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
 
 	osd_menu->exec(NULL, "");
 	osd_menu->hide();
@@ -383,7 +382,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	CColorChooser* chColored_Events = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR,	&g_settings.colored_events_red,
 			&g_settings.colored_events_green, &g_settings.colored_events_blue, NULL, colorSetupNotifier);
 
-	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_EXTRA_COLORED_EVENTS));
+	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS));
 	menu_colors->addItem( new CMenuForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chColored_Events ));
 }
 
@@ -592,6 +591,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_VAR_HDD, &g_settings.infobar_show_var_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS, &g_settings.colored_events, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
 // 	radiotextNotifier = new CRadiotextNotifier();
 // 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, radiotextNotifier));
 }
