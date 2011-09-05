@@ -1,5 +1,4 @@
 /*
-  $Id: audioplayer.cpp,v 1.80 2009/10/18 14:38:03 dbt Exp $
   Neutrino-GUI  -   DBoxII-Project
 
   AudioPlayer by Dirch,Zwen
@@ -242,12 +241,12 @@ CAudioPlayerGui::~CAudioPlayerGui()
 //------------------------------------------------------------------------
 int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 {
-	
+
 	if (actionKey == "init")
 		Init();
-	
+
 	CNeutrinoApp::getInstance()->StopSubtitles();
-	
+
 	CAudioPlayer::getInstance()->init();
 	m_state = CAudioPlayerGui::STOP;
 
@@ -365,10 +364,8 @@ int CAudioPlayerGui::show()
 
 	while (loop)
 	{
-		if (!m_screensaver)
-		{
-			updateMetaData();
-		}
+		updateMetaData(m_screensaver);
+
 		updateTimes();
 
 		if (CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_audio)
@@ -1716,13 +1713,13 @@ const struct button_label ScondLineButtons[2] =
 
 	if (m_key_level == 0)
 	{
-		if (m_playlist.empty()) 
+		if (m_playlist.empty())
 		{
 			if (m_inetmode)
 				::paintButtons(m_x, top, m_width, 2, AudioPlayerButtons[7], m_buttonHeight, ButtonWidth);
 			else
 				::paintButtons(m_x, top, m_width, 1, &(AudioPlayerButtons[7][0]), m_buttonHeight, ButtonWidth);
-		} 
+		}
 		else if (m_inetmode)
 			::paintButtons(m_x, top, m_width, 4, AudioPlayerButtons[8], m_buttonHeight, ButtonWidth);
 		else
@@ -2098,8 +2095,7 @@ int CAudioPlayerGui::getNext()
 	return ret;
 }
 //------------------------------------------------------------------------
-
-void CAudioPlayerGui::updateMetaData()
+void CAudioPlayerGui::updateMetaData(bool screen_saver)
 {
 	bool updateMeta = false;
 	bool updateLcd = false;
@@ -2121,36 +2117,35 @@ void CAudioPlayerGui::updateMetaData()
 		{
 			info << " / ";
 			if ( meta.vbr )
-			{
 				info << "VBR ";
-			}
 			info << meta.bitrate/1000 << "kbps";
 		}
 
 		if ( meta.samplerate > 0 )
-		{
 			info << " / " << meta.samplerate/1000 << "." << (meta.samplerate/100)%10 <<"kHz";
-		}
 
 		m_metainfo = meta.type_info + info.str();
-		updateMeta = true;
+		updateMeta = !screen_saver;
 
-		if (!meta.artist.empty()  &&
-				meta.artist != m_curr_audiofile.MetaData.artist)
+		if (!meta.artist.empty() && meta.artist != m_curr_audiofile.MetaData.artist)
 		{
 			m_curr_audiofile.MetaData.artist = meta.artist;
-			updateScreen = true;
+
+			if ( !screen_saver) 
+				updateScreen = true;
 			updateLcd = true;
 		}
-		if (!meta.title.empty() &&
-				meta.title != m_curr_audiofile.MetaData.title)
+		
+		if (!meta.title.empty() && meta.title != m_curr_audiofile.MetaData.title)
 		{
 			m_curr_audiofile.MetaData.title = meta.title;
-			updateScreen = true;
+
+			if ( !screen_saver) 
+				updateScreen = true;
 			updateLcd = true;
 		}
-		if (!meta.sc_station.empty()  &&
-				meta.sc_station != m_curr_audiofile.MetaData.album)
+		
+		if (!meta.sc_station.empty()  && meta.sc_station != m_curr_audiofile.MetaData.album)
 		{
 			m_curr_audiofile.MetaData.album = meta.sc_station;
 			updateLcd = true;
@@ -2158,14 +2153,15 @@ void CAudioPlayerGui::updateMetaData()
 	}
 	//if (CAudioPlayer::getInstance()->getScBuffered() != 0)
 	if (CAudioPlayer::getInstance()->hasMetaDataChanged() != 0)
-	{
 		updateLcd = true;
-	}
-//printf("CAudioPlayerGui::updateMetaData: updateLcd %d\n", updateLcd);
+
+	//printf("CAudioPlayerGui::updateMetaData: updateLcd %d\n", updateLcd);
 	if (updateLcd)
 		paintLCD();
+	
 	if (updateScreen)
 		paintInfo();
+	
 	if (updateMeta || updateScreen)
 	{
 		m_frameBuffer->paintBoxRel(m_x + 10, m_y + 4 + 2*m_fheight, m_width - 20,

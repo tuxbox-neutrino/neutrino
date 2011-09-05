@@ -164,7 +164,7 @@ class CAudioPlayerGui : public CMenuTarget
 	void rev(unsigned int seconds=0);
 	int getNext();
 	void GetMetaData(CAudiofileExt &File);
-	void updateMetaData();
+	void updateMetaData(bool screen_saver = false);
 	void updateTimes(const bool force = false);
 	void showMetaData();
 	void screensaver(bool on);
