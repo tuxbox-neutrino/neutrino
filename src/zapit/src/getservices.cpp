@@ -157,17 +157,17 @@ CZapitChannel * CServiceManager::FindChannel(const t_channel_id channel_id, bool
 	if(current_is_nvod)
 		*current_is_nvod = false;
 
-        channel_map_iterator_t cit = nvodchannels.find(channel_id);
-        if (cit == nvodchannels.end()) {
-                cit = allchans.find(channel_id);
-                if (cit == allchans.end()) {
-                        printf("%s: channel %llx not found\n", __FUNCTION__, channel_id);
-                        return NULL;
-                }
-        } else if(current_is_nvod)
-                *current_is_nvod = true;
+	channel_map_iterator_t cit = nvodchannels.find(channel_id);
+	if (cit == nvodchannels.end()) {
+		cit = allchans.find(channel_id);
+		if (cit == allchans.end()) {
+			//printf("%s: channel %llx not found\n", __FUNCTION__, channel_id);
+			return NULL;
+		}
+	} else if(current_is_nvod)
+		*current_is_nvod = true;
 
-        return &cit->second;
+	return &cit->second;
 }
 
 CZapitChannel * CServiceManager::FindChannelByName(std::string name)
@@ -541,7 +541,7 @@ void CServiceManager::SaveMotorPositions()
 
 void CServiceManager::InitSatPosition(t_satellite_position position)
 {
-	satellitePositions[position].position = 0;
+	satellitePositions[position].position = position;
 	satellitePositions[position].diseqc = -1;
 	satellitePositions[position].commited = -1;
 	satellitePositions[position].uncommited = -1;
