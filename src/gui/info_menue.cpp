@@ -59,7 +59,7 @@ int CInfoMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	printf("[neutrino] CInfoMenu %s: init...\n",__FUNCTION__);
 	int   res = menu_return::RETURN_REPAINT;
 		
-	if (parent)
+	if (parent != NULL)
 		parent->hide();
 	
 	showMenu();
