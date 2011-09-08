@@ -82,6 +82,17 @@ typedef enum
 typedef std::list<Cyhook *> THookList;
 
 //-----------------------------------------------------------------------------
+// Output Tyoe.
+//-----------------------------------------------------------------------------
+typedef enum
+{
+	plain	= 0,
+	html,
+	xml,
+	json
+} TOutType;
+
+//-----------------------------------------------------------------------------
 // An abstract Hook-Class. Custom Hook must be inherited.
 //-----------------------------------------------------------------------------
 class Cyhook
@@ -176,11 +187,23 @@ public:
 	void WriteLn(char const *text)				{WriteLn(std::string(text));}
 	void SendHTMLHeader(const std::string& Titel);
 	void SendHTMLFooter(void);
-	void SendOk(void)							{(ParamList["response"]=="json") ? Write("{\"success\": true}") : Write("ok");}
-	void SendError(void)						{(ParamList["response"]=="json") ? Write("{\"success\": false}") : Write("error");}
+	void SendOk(void)							{(ParamList["response"]=="json") ? Write("{\"success\": \"true\"}") : Write("ok");}
+	void SendError(void)						{(ParamList["response"]=="json") ? Write("{\"success\": \"false\"}") : Write("error");}
 	void SendFile(const std::string& url)		{NewURL = url; status = HANDLED_SENDFILE;}
 	void SendRedirect(const std::string& url)	{httpStatus=HTTP_MOVED_TEMPORARILY; NewURL = url; status = HANDLED_REDIRECTION;}
 	void SendRewrite(const std::string& url)	{NewURL = url; status = HANDLED_REWRITE;}
+
+	int _outIndent;
+	TOutType outType;			// Outputtpe = plain (default)|xml|json
+	TOutType outStart();
+	TOutType checkOutput();
+	std::string outIndent();
+	std::string outPair(std::string _key, std::string _content, bool _next);
+	std::string outArray(std::string _key, std::string _content);
+	std::string outArrayItem(std::string _key, std::string _content, bool _next);
+	std::string outCollection(std::string _key,std::string  _content);
+	std::string outValue(std::string _content);
+	std::string outNext();
 	friend class CyParser;
 };
 

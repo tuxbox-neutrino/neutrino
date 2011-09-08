@@ -40,4 +40,13 @@ bool nocase_compare (char c1, char c2);
 std::string timeString(time_t time);
 bool write_to_file(std::string filename, std::string content);
 
+//-----------------------------------------------------------------------------
+// JSON Helpers
+//-----------------------------------------------------------------------------
+std::string json_out_quote_convert(std::string _str);
+std::string json_out_pair(std::string _key, std::string _value);
+std::string json_out_success(std::string _result);
+std::string json_out_error(std::string _error);
+std::string json_convert_string(std::string s);
+
 #endif /* __yhttpd_helper_h__ */

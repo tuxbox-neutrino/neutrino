@@ -8,6 +8,8 @@
 #include <cstdlib> 		// calloc and free prototypes.
 #include <cstring>		// str* and memset prototypes.
 #include <cstdarg>
+#include <sstream>
+#include <iomanip>
 
 // yhttpd
 #include "yconfig.h"
@@ -261,3 +263,50 @@ bool write_to_file(std::string filename, std::string content) {
 	} else
 		return false;
 }
+
+//-----------------------------------------------------------------------------
+// JSON: create pair string "<_key>". "<_value>"
+// Handle wrong quotes
+//-----------------------------------------------------------------------------
+std::string json_out_quote_convert(std::string _str) {
+	replace(_str, "\"", "\'");
+	return _str;
+}
+//-----------------------------------------------------------------------------
+// JSON: create pair string "<_key>". "<_value>"
+// Handle wrong quotes
+//-----------------------------------------------------------------------------
+std::string json_out_pair(std::string _key, std::string _value) {
+	replace(_key, "\"", "");
+	replace(_value, "\"", "\'");
+	return "\"" + _key + "\": " + "\"" + _value + "\"";
+}
+//-----------------------------------------------------------------------------
+// JSON: create success return string
+//-----------------------------------------------------------------------------
+std::string json_out_success(std::string _result) {
+	return "{\"success\": \"true\", \"data\":{" + _result + "}}";
+}
+//-----------------------------------------------------------------------------
+// JSON: create success return string
+//-----------------------------------------------------------------------------
+std::string json_out_error(std::string _error) {
+	return "{\"success\": \"false\", \"error\":{\"text\": \"" + _error + "\"}}";
+}
+//-----------------------------------------------------------------------------
+// JSON: convert string to JSON-String
+//-----------------------------------------------------------------------------
+std::string json_convert_string(std::string s) {
+	std::stringstream ss;
+	for (size_t i = 0; i < s.length(); ++i) {
+		if (unsigned(s[i]) < '\x20' || s[i] == '\\' || s[i] == '"') {
+			ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex
+					<< unsigned(s[i]);
+		}
+		else {
+			ss << s[i];
+		}
+	}
+	return ss.str();
+}
+
