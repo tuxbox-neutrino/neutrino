@@ -259,7 +259,7 @@ _repeat:
 
 #ifdef NIT_THREAD
 		pthread_t nthread;
-		if(scan_nit)
+		if(!scan_nit)
 			if(pthread_create(&nthread, 0, nit_thread,  (void*)satellitePosition)) {
 				ERROR("pthread_create");
 				nthread = 0;
@@ -300,12 +300,12 @@ _repeat:
 			stI->second.feparams.u.qpsk.fec_inner = tI->second.feparams.u.qpsk.fec_inner;
 
 #ifdef NIT_THREAD
-		if(scan_nit && nthread) {
+		if(!scan_nit && nthread) {
 			if(pthread_join(nthread, NULL))
 				perror("pthread_join !!!!!!!!!");
 		}
 #else
-		if(scan_nit) {
+		if(!scan_nit) {
 			printf("[scan] trying to parse NIT\n");
 			int status = parse_nit(satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
 			if(status < 0)
@@ -314,7 +314,7 @@ _repeat:
 #endif
 		printf("[scan] tpid ready: %llx\n", TsidOnid);
 	}
-	if(scan_nit) {
+	if(!scan_nit) {
 		printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
 		scantransponders.clear();
 		for (tI = nittransponders.begin(); tI != nittransponders.end(); tI++) {
