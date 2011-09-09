@@ -482,8 +482,8 @@ std::string CyhookHandler::outValue(std::string _content) {
 		result = "<![CDATA[" + _content + "]]>";
 		break;
 	case json:
-//		result = json_convert_string(_content);
-		result = _content;
+		result = json_convert_string(_content);
+//		result = _content;
 		break;
 
 	default:
