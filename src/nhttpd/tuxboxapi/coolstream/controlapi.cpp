@@ -2582,16 +2582,19 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 
 		if (load) {	// get and output list
 			conf = Config->getConfigDataMap();
-			ConfigDataMap::iterator it, end;
-			for (it = conf.begin(), end = conf.end(); it != end; it++) {
+			ConfigDataMap::iterator it, end, start;
+			for (start = conf.begin(), it=start, end = conf.end(); it != end; it++) {
 				std::string key = it->first;
 				replace(key, ".", "_dot_");
 				replace(key, "-", "_bind_");
 				if (!(hh->ParamList["config"] == "nhttpd" && it->first == "mod_auth.password")) {
 					if(outType == plain)
 						result += key + "=" + it->second + "\n";
-					else
-						result += hh->outPair(key, it->second, true);
+					else {
+						if(it != start)
+							result += hh->outNext();
+						result += hh->outPair(key, it->second, false);
+					}
 				}
 			}
 		}
