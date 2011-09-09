@@ -2712,7 +2712,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 			while ((entry = readdir(dirp))) {
 				std::string item = "";
 				item += hh->outPair("name",
-						hh->outValue(encodeString(entry->d_name)), true);
+						hh->outValue(hh->outValue(entry->d_name)), true);
 				std::string ftype;
 				if (entry->d_type == DT_DIR)
 					ftype = "dir";
