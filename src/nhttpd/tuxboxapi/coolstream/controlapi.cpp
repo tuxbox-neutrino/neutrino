@@ -2708,6 +2708,7 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 
 		std::string path = hh->ParamList["path"];
 		if ((dirp = opendir(path.c_str()))) {
+			bool isFirstLine = true;
 			while ((entry = readdir(dirp))) {
 				std::string item = "";
 				item += hh->outPair("name",
@@ -2769,7 +2770,11 @@ void CControlAPI::FileCGI(CyhookHandler *hh) {
 							string_printf("%ld", (long) statbuf.st_mtime),
 							false);
 				}
-				result += hh->outArrayItem("item", item, true);
+				if(isFirstLine)
+					isFirstLine = false;
+				else
+					result += hh->outNext();
+				result += hh->outArrayItem("item", item, false);
 			}
 			closedir(dirp);
 		}
