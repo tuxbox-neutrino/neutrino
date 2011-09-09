@@ -299,7 +299,7 @@ std::string json_out_error(std::string _error) {
 std::string json_convert_string(std::string s) {
 	std::stringstream ss;
 	for (size_t i = 0; i < s.length(); ++i) {
-		if (unsigned(s[i]) < '\x20' || s[i] == '\\' || s[i] == '"') {
+		if (unsigned(s[i]) < '\x20' || s[i] == '\\' || s[i] == '"' || unsigned(s[i]) >= '\x80') {
 			ss << "\\u" << std::setfill('0') << std::setw(4) << std::hex
 					<< unsigned(s[i]);
 		}
