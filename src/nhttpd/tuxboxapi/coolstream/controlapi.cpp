@@ -878,21 +878,16 @@ void CControlAPI::ChannellistCGI(CyhookHandler *hh)
 std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel) {
 	std::string result, firstEPG, secondEPG = "";
 	t_channel_id current_channel = live_channel_id;
-	int percentage;
+	int percentage = 100;
 	std::string timestr;
 
-//	NeutrinoAPI->GetChannelEvents();
 	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
 	CChannelEvent *event;
 	event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
 
-	/* timer slider */
-	if (event && event->duration > 0)
-		percentage = 100 * (time(NULL) - event->startTime) / event->duration;
-	else
-		percentage = 100;
-
-	if ((event = NeutrinoAPI->ChannelListEvents[channel->channel_id])) {
+	if (event) {
+		if (event->duration > 0)
+			percentage = 100 * (time(NULL) - event->startTime) / event->duration;
 		sectionsd_getCurrentNextServiceKey(channel->channel_id & 0xFFFFFFFFFFFFULL, currentNextInfo);
 		timestr = timeString(event->startTime);
 
@@ -1050,36 +1045,23 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
 				startBouquet = BouquetNr;
 				bsize = BouquetNr+1;
 			}
-/*				channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[BouquetNr]->radioChannels : g_bouquetManager->Bouquets[BouquetNr]->tvChannels;
-				int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr)
-						: g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr));
-				for (int j = 0, size = (int) (channels.size()); j < size; j++) {
+			NeutrinoAPI->GetChannelEvents();
+			for (int i = startBouquet; i < bsize; i++) {
+				channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
+				int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(i)
+						: g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(i));
+				int size = (int) channels.size();
+				for (int j = 0; j < size; j++) {
 					CZapitChannel * channel = channels[j];
-					result += _GetBouquetWriteItem(hh, channel, BouquetNr, num + j);
+					result += _GetBouquetWriteItem(hh, channel, i, num + j);
 					if (j < (size - 1) && outType == json) {
 						result += ",\n";
 					}
 				}
-			}
-			else {
-*/				// list all
-				for (int i = startBouquet; i < bsize; i++) {
-					channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
-					int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(i)
-							: g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(i));
-					int size = (int) channels.size();
-					for (int j = 0; j < size; j++) {
-						CZapitChannel * channel = channels[j];
-						result += _GetBouquetWriteItem(hh, channel, i, num + j);
-						if (j < (size - 1) && outType == json) {
-							result += ",\n";
-						}
-					}
-					if (i < (bsize - 1) && outType == json && size > 0) {
-						result += ",\n";
-					}
+				if (i < (bsize - 1) && outType == json && size > 0) {
+					result += ",\n";
 				}
-//			}
+			}
 			result = hh->outArray("channels", result);
 			// write footer
 			if (outType == json) {
