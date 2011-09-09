@@ -48,6 +48,7 @@ private:
 	void _SendTime(CyhookHandler *hh, struct tm *Time, int digits);
 	std::string _GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int nr);
 	std::string channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime);
+	std::string _GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel);
 
 	//yweb
 	void YWeb_SendVideoStreamingPids(CyhookHandler *hh, int apid_no);

@@ -873,35 +873,68 @@ void CControlAPI::ChannellistCGI(CyhookHandler *hh)
 }
 
 //-----------------------------------------------------------------------------
+// get actual and next event data for given channel
+//-----------------------------------------------------------------------------
+std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel) {
+	std::string result, firstEPG, secondEPG = "";
+	t_channel_id current_channel = live_channel_id;
+	int percentage;
+	std::string timestr;
+
+//	NeutrinoAPI->GetChannelEvents();
+	CSectionsdClient::responseGetCurrentNextInfoChannelID currentNextInfo;
+	CChannelEvent *event;
+	event = NeutrinoAPI->ChannelListEvents[channel->channel_id];
+
+	/* timer slider */
+	if (event && event->duration > 0)
+		percentage = 100 * (time(NULL) - event->startTime) / event->duration;
+	else
+		percentage = 100;
+
+	if ((event = NeutrinoAPI->ChannelListEvents[channel->channel_id])) {
+		sectionsd_getCurrentNextServiceKey(channel->channel_id & 0xFFFFFFFFFFFFULL, currentNextInfo);
+		timestr = timeString(event->startTime);
+
+		firstEPG += hh->outPair("startTime", timestr, true);
+		firstEPG += hh->outPair("description", hh->outValue(event->description), true);
+		firstEPG += hh->outPair("timeElapsed", string_printf("%d", (time(NULL) - event->startTime) / 60), true);
+		firstEPG += hh->outPair("timeTotal", string_printf("%d", event->duration / 60), true);
+		firstEPG += hh->outPair("percentage", string_printf("%d", percentage), false);
+
+		if (currentNextInfo.flags & CSectionsdClient::epgflags::has_next) {
+			timestr = timeString(currentNextInfo.next_zeit.startzeit);
+			secondEPG += hh->outPair("startTime", timestr, true);
+			secondEPG += hh->outPair("description", hh->outValue(currentNextInfo.next_name), false);
+		}
+	}
+
+	result += hh->outPair("isActiveChannel", (channel->channel_id == current_channel) ? "true" : "false", (firstEPG != ""));
+	if(firstEPG != "") {
+		result += hh->outCollection("firstEPG", firstEPG);
+	}
+	if(secondEPG != "") {
+		result += hh->outNext();
+		result += hh->outCollection("secondEPG", secondEPG);
+	}
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// produce data (collection) for given channel
 std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel * channel, int bouquetNr, int nr) {
 	std::string result = "";
-	if (hh->ParamList["format"] == "json") {
-		result += string_printf("\t\t{\"number\": \"%u\", \"id\": \""
-			   PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-			   "\", \"short_id\": \""
-			   PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-			   "\", \"name\": \"%s\", \"logo\": \"%s\", \"bouquetnr\": \"%d\"}",
-			   nr,
-			   channel->channel_id,
-			   channel->channel_id&0xFFFFFFFFFFFFULL,
-			   channel->getName().c_str(),
-			   NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id).c_str(),
-			   bouquetNr
-			  );
-	}
-	else if((hh->ParamList["format"] == "xml") || !(hh->ParamList["xml"].empty()) ) {
-		result += string_printf("<channel>\n\t<number>%u</number>\n\t<bouquet>%d</bouquet>\n\t<id>"
-			   PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-			   "</id>\n\t<short_id>"
-			   PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-			   "</short_id>\n\t<name><![CDATA[%s]]></name>\n<logo><![CDATA[%s]]></logo>\n</channel>\n",
-			   nr,
-			   bouquetNr,
-			   channel->channel_id,
-			   channel->channel_id&0xFFFFFFFFFFFFULL,
-			   channel->getName().c_str(),
-			   NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id).c_str()
-			  );
+	bool isEPGdetails = !(hh->ParamList["epg"].empty());
+	if (hh->outType == json || hh->outType == xml) {
+		result += hh->outPair("number", string_printf("%u", nr), true);
+		result += hh->outPair("id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->channel_id), true);
+		result += hh->outPair("short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel->channel_id&0xFFFFFFFFFFFFULL), true);
+		result += hh->outPair("name", channel->getName(), true);
+		result += hh->outPair("logo", hh->outValue(NeutrinoAPI->getLogoFile(hh->WebserverConfigList["Tuxbox.LogosURL"], channel->channel_id)), true);
+		result += hh->outPair("bouquetnr", string_printf("%d", bouquetNr), isEPGdetails);
+		if(isEPGdetails)
+			result += _GetBouquetActualEPGItem(hh, channel);
+		result = hh->outArrayItem("channel", result, false);
 	}
 	else {
 		result += string_printf("%u "
@@ -919,8 +952,9 @@ std::string CControlAPI::_GetBouquetWriteItem(CyhookHandler *hh, CZapitChannel *
  *
  * @par nhttpd-usage
  * Get bouquet list (all) oder filtered to a given bouquet number
+ * Option epg=true for actual and next epg data for each channel
  * @code
- * /control/getbouquet?[bouquet=<bouquet number>][&mode=TV|RADIO]
+ * /control/getbouquet?[bouquet=<bouquet number>][&mode=TV|RADIO][&epg=true]
  * @endcode
  * Get the actual used bouquet number
  * @code
@@ -1005,12 +1039,18 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
 		}
 		else {
 			ZapitChannelList channels;
+			int BouquetNr = -1; // -1 = all bouquets
+			int startBouquet = 0;
+			int bsize = (int) g_bouquetManager->Bouquets.size();
 			if (hh->ParamList["bouquet"] != "") {
 				// list for given bouquet
-				int BouquetNr = atoi(hh->ParamList["bouquet"].c_str());
+				BouquetNr = atoi(hh->ParamList["bouquet"].c_str());
 				if (BouquetNr > 0)
 					BouquetNr--;
-				channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[BouquetNr]->radioChannels : g_bouquetManager->Bouquets[BouquetNr]->tvChannels;
+				startBouquet = BouquetNr;
+				bsize = BouquetNr+1;
+			}
+/*				channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[BouquetNr]->radioChannels : g_bouquetManager->Bouquets[BouquetNr]->tvChannels;
 				int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr)
 						: g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(BouquetNr));
 				for (int j = 0, size = (int) (channels.size()); j < size; j++) {
@@ -1022,8 +1062,8 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
 				}
 			}
 			else {
-				// list all
-				for (int i = 0, bsize = (int) g_bouquetManager->Bouquets.size(); i < bsize; i++) {
+*/				// list all
+				for (int i = startBouquet; i < bsize; i++) {
 					channels = mode == CZapitClient::MODE_RADIO ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;
 					int num = 1 + (mode == CZapitClient::MODE_RADIO ? g_bouquetManager->radioChannelsBegin().getNrofFirstChannelofBouquet(i)
 							: g_bouquetManager->tvChannelsBegin().getNrofFirstChannelofBouquet(i));
@@ -1039,7 +1079,7 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
 						result += ",\n";
 					}
 				}
-			}
+//			}
 			result = hh->outArray("channels", result);
 			// write footer
 			if (outType == json) {
@@ -1210,10 +1250,10 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 
 	return result;
 }
+
+//-----------------------------------------------------------------------------
 // Detailed EPG list in XML or JSON
-
-
-
+//-----------------------------------------------------------------------------
 void CControlAPI::epgDetailList(CyhookHandler *hh) {
 	// ------ get parameters -------
 	// max = maximal output items
