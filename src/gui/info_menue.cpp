@@ -58,10 +58,10 @@ int CInfoMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 {
 	printf("[neutrino] CInfoMenu %s: init...\n",__FUNCTION__);
 	int   res = menu_return::RETURN_REPAINT;
-		
+
 	if (parent != NULL)
 		parent->hide();
-	
+
 	showMenu();
 
 	return res;
@@ -79,8 +79,8 @@ void CInfoMenu::showMenu()
 	info->addIntroItems();
 	info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
 	info->addItem(new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, 	true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, 	true, NULL, new CStreamInfo2Handler(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-		
+	info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, 	true, NULL, new CStreamInfo2(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+
 	info->exec(NULL, "");
 	info->hide();
 	selected = info->getSelected();
