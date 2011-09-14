@@ -570,15 +570,20 @@ fb_pixel_t * CPictureViewer::getIcon (const std::string & name, int *width, int 
 	}
 	rgbbuff = (unsigned char *) malloc (x * y * 3);
 	if (rgbbuff == NULL) {
-		printf ("getIcon: Error: malloc\n");
+		printf ("getIcon: Error: rgbbuff malloc\n");
 		return NULL;
 	}
 	if (fh->get_pic (name.c_str (), &rgbbuff, &x, &y) == FH_ERROR_OK) {
 		int count = x*y;
 
-		//fbbuff = (fb_pixel_t *) malloc(count * sizeof(fb_pixel_t));
-		fbbuff = (fb_pixel_t *) cs_malloc_uncached(count * sizeof(fb_pixel_t));
+		//cs_malloc_uncached infrequently generates neutrino segfaults, so let's use malloc (striper)
+		fbbuff = (fb_pixel_t *) malloc(count * sizeof(fb_pixel_t));
+		//fbbuff = (fb_pixel_t *) cs_malloc_uncached(count * sizeof(fb_pixel_t));
 		//printf("getIcon: decoded %s, %d x %d buf %x\n", name.c_str (), x, y, fbbuff);
+		if (fbbuff == NULL) {
+			printf ("getIcon: Error: fbbuff malloc\n");
+			return NULL;
+		}
 
 		for(int i = 0; i < count ; i++) {
 			int transp = 0;
