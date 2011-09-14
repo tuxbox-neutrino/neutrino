@@ -1186,14 +1186,16 @@ void CControlAPI::GetBouquetsCGI(CyhookHandler *hh) {
 //-----------------------------------------------------------------------------
 std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_channel_id channel_id, int max, long stoptime) {
 	std::string result = "";
+	std::string channelData = "";
 	sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
-	result += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id), true);
-	result += hh->outPair("channel_short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id & 0xFFFFFFFFFFFFULL), true);
-	result += hh->outPair("channel_name", hh->outValue(NeutrinoAPI->GetServiceName(channel_id)), true);
+	channelData += hh->outPair("channel_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id), true);
+	channelData += hh->outPair("channel_short_id", string_printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, channel_id & 0xFFFFFFFFFFFFULL), true);
+	channelData += hh->outPair("channel_name", hh->outValue(NeutrinoAPI->GetServiceName(channel_id)), false);
 	if(hh->outType == json)
-		result = hh->outCollection("channelData", result);
+		channelData = hh->outCollection("channelData", channelData);
 	int i = 0;
 	CChannelEventList::iterator eventIterator;
+	bool isFirstLine = true;
 	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, i++) {
 		if ((max != -1 && i >= max) || (stoptime != -1 && eventIterator->startTime >= stoptime))
 			break;
@@ -1225,11 +1227,15 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 			}
 		}
 		prog += hh->outPair("description", hh->outValue(eventIterator->description), false);
-		result += hh->outArrayItem("prog", prog, true);
+		if(isFirstLine)
+			isFirstLine = false;
+		else
+			result += hh->outNext();
+		result += hh->outArrayItem("prog", prog, false);
 	}
 	if(hh->outType == json)
 		result = hh->outArray("progData", result);
-
+	result = channelData + hh->outNext() + result;
 	return result;
 }
 
@@ -1308,7 +1314,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
 		// list one channel, no bouquetnr given
 		result = channelEPGformated(hh, 0, channel_id, max, stoptime);
 
-	result = hh->outArray("epglist", result);
+	result = hh->outCollection("epglist", result);
 	// write footer
 	if (outType == json) {
 		hh->WriteLn(json_out_success(result));
