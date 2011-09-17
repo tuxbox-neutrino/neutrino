@@ -73,6 +73,7 @@ bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdC
 
 extern "C" {
 #include <driver/genpsi.h>
+#include "record.h"
 }
 
 //-------------------------------------------------------------------------
@@ -682,6 +683,24 @@ const std::string CRecordManager::GetFileName(t_channel_id channel_id)
 	return filename;
 }
 
+int CRecordManager::GetRecordMode()
+{
+	if (RecordingStatus() || IsTimeshift())
+	{
+		int records	= GetRecmapSize();
+		if (RecordingStatus() && !IsTimeshift())
+			return RECMODE_REC;
+		else if (IsTimeshift() && (records == 1))
+			return RECMODE_TSHIFT;
+		else if (IsTimeshift() && (records > 1))
+			return RECMODE_REC_TSHIFT;
+		else
+			return RECMODE_OFF;
+	}
+	else
+		return RECMODE_OFF;
+}
+
 bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, bool timeshift)
 {
 	CTimerd::RecordingInfo	eventinfo;
@@ -708,7 +727,7 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 
 bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, const char * dir, bool timeshift)
 {
-	CRecordInstance * inst;
+	CRecordInstance * inst = NULL;
 	record_error_msg_t error_msg = RECORD_OK;
 	/* for now, empty eventinfo.recordingDir means this is direct record, FIXME better way ?
 	 * neutrino check if this channel_id already recording, may be not needed */
@@ -751,7 +770,9 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			else
 				newdir = Directory;
 
-			inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid);
+			if (inst == NULL)
+				inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid);
+
 			error_msg = inst->Record();
 			if(error_msg == RECORD_OK) {
 				recmap.insert(std::pair<t_channel_id, CRecordInstance*>(eventinfo->channel_id, inst));
@@ -782,7 +803,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		RunStopScript();
 		RestoreNeutrino();
 
-		printf("%s: error code: %d\n", __FUNCTION__, error_msg);
+		printf("[recordmanager] %s: error code: %d\n", __FUNCTION__, error_msg);
 		//FIXME: Use better error message
 		DisplayErrorMessage(g_Locale->getText(
 				      error_msg == RECORD_BUSY ? LOCALE_STREAMING_BUSY :
@@ -1099,7 +1120,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		char rec_msg[256];
 		char rec_msg1[256];
 		int records = recmap.size();
-		int i = 0;
+		
 		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
 		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
 		if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
@@ -1109,6 +1130,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
 			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, rec_msg);
 			hintBox->paint();
+			int i = 0;
 			int recording_ids[RECORD_MAX_COUNT];
 			t_channel_id channel_ids[RECORD_MAX_COUNT];
 			t_channel_id channel_id;
@@ -1167,7 +1189,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 
 bool CRecordManager::ShowMenu(void)
 {
-	int select = -1, i = 0, shortcut = 1, recmap_size = recmap.size();
+	int select = -1, recmap_size = recmap.size();
 	char cnt[5];
 	CMenuForwarderNonLocalized * item;
 	CMenuForwarder * iteml;
@@ -1189,11 +1211,13 @@ bool CRecordManager::ShowMenu(void)
 	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !status_ts, NULL, 
 			this, "Timeshift", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	menu.addItem(iteml, false);
-
+	
 	if(recmap_size > 0)
 	{
 		menu.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_RECORDING_STOP));
 		mutex.lock();
+		
+		int i = 0 , shortcut = 1;
 		for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
 			t_channel_id channel_id = it->first;
 			CRecordInstance * inst = it->second;

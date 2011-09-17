@@ -104,7 +104,7 @@ class CRecordInstance
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
 		record_error_msg_t Start(CZapitChannel * channel /*, APIDList &apid_list*/);
-	public:
+	public:		
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
 		~CRecordInstance();
 
@@ -156,6 +156,14 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
+		enum record_modes_t
+		{
+			RECMODE_OFF = 0,
+			RECMODE_REC = 1,
+			RECMODE_TSHIFT = 2,
+			RECMODE_REC_TSHIFT = 3,
+		};
+		
 		CRecordManager();
 		~CRecordManager();
 
@@ -198,8 +206,9 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		int recordingstatus;
 		bool doGuiRecord();
 		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
-		int GetRecmapSize() { return recmap.size(); };
+		int GetRecordCount() { return recmap.size(); };
 		bool IsTimeshift(t_channel_id channel_id=0);
 		void StartTimeshift();
+		int GetRecordMode();
 };
 #endif
