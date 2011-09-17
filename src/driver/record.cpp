@@ -687,7 +687,7 @@ int CRecordManager::GetRecordMode()
 {
 	if (RecordingStatus() || IsTimeshift())
 	{
-		int records	= GetRecmapSize();
+		int records	= GetRecordCount();
 		if (RecordingStatus() && !IsTimeshift())
 			return RECMODE_REC;
 		else if (IsTimeshift() && (records == 1))
