@@ -73,7 +73,6 @@ bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdC
 
 extern "C" {
 #include <driver/genpsi.h>
-#include "record.h"
 }
 
 //-------------------------------------------------------------------------
