@@ -321,7 +321,6 @@ int CChannelList::doChannelMenu(void)
 	int select = -1;
 	static int old_selected = 0;
 	char cnt[5];
-	t_channel_id channel_id;
 	bool enabled = true;
 
 	if(!bouquetList || g_settings.minimode)
@@ -353,7 +352,7 @@ int CChannelList::doChannelMenu(void)
 	if(select >= 0) {
 		signed int bouquet_id = 0, old_bouquet_id = 0, new_bouquet_id = 0;
 		old_selected = select;
-		channel_id = chanlist[selected]->channel_id;
+		t_channel_id channel_id = chanlist[selected]->channel_id;
 		switch(select) {
 		case 0: {
 			hide();
@@ -786,8 +785,7 @@ int CChannelList::show()
 				zapOnExit = true;
 				loop = false;
 			}
-			else if(g_settings.sms_channel) {
-				uint32_t i;
+			else if(g_settings.sms_channel) { 				
 				unsigned char smsKey = 0;
 				c_SMSKeyInput->setTimeout(CHANNEL_SMSKEY_TIMEOUT);
 
@@ -798,6 +796,7 @@ int CChannelList::show()
 				} while ((msg >= CRCInput::RC_1) && (msg <= CRCInput::RC_9));
 
 				if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_nokey) {
+					uint32_t i;
 					for(i = selected+1; i < chanlist.size(); i++) {
 						char firstCharOfTitle = chanlist[i]->name.c_str()[0];
 						if(tolower(firstCharOfTitle) == smsKey) {
