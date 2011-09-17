@@ -951,7 +951,6 @@ int CMovieBrowser::exec(const char* path)
 		CFSMounter::automount();
 	}
 
-	refreshTitle();
 	if(m_file_info_stale == true)
 	{
 		TRACE("[mb] reload\r\n");
@@ -977,6 +976,7 @@ int CMovieBrowser::exec(const char* path)
 	updateMovieSelection();
 	//refreshMovieInfo();
 
+	refreshTitle();
 	onSetGUIWindow(m_settings.gui);
 
 	bool loop = true;
