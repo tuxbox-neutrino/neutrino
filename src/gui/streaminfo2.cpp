@@ -109,13 +109,11 @@ CStreamInfo2::~CStreamInfo2 ()
 	ts_close();
 }
 
-int CStreamInfo2::exec()
+void CStreamInfo2::exec()
 {
 	paint(paint_mode);
 	doSignalStrengthLoop();
 	hide();
-
-	return menu_return::RETURN_EXIT_ALL;
 }
 
 int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
@@ -127,7 +125,7 @@ int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 	paint (paint_mode);
 	doSignalStrengthLoop ();
 	hide ();
-	return menu_return::RETURN_EXIT_ALL;
+	return menu_return::RETURN_REPAINT;
 }
 
 int CStreamInfo2::doSignalStrengthLoop ()
@@ -199,7 +197,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 			if(snrscale && sigscale)
 				showSNR ();
 			if(pmt_version != current_pmt_version && delay_counter > delay){
-				current_pmt_version = pmt_version; 
+				current_pmt_version = pmt_version;
 				paint_techinfo (x + 10, y+ hheight +5);
 			}
 			delay_counter++;
@@ -282,7 +280,7 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 	int y1;
 	int xd = w/4;
 	std::string tuner_name = g_Locale->getText(LOCALE_STREAMINFO_SIGNAL);
-	tuner_name += ": "; 
+	tuner_name += ": ";
 	tuner_name += CFrontend::getInstance()->getInfo()->name;
 	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, tuner_name.c_str(), COL_INFOBAR, 0, true);
 
@@ -891,7 +889,7 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 		}
 	}
 	int spaceoffset = 0 ;
-	  
+
 	for(i=0 ; i<11; i++){
 		if(caids[i] == true)
 			if(spaceoffset < array[i])
@@ -971,7 +969,7 @@ int CStreamInfo2::ts_setup ()
 	vpid = g_RemoteControl->current_PIDs.PIDs.vpid;
 	if(g_RemoteControl->current_PIDs.APIDs.size() > 0)
 		apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;
-	
+
 	if(vpid == 0 && apid == 0)
 		return -1;
 
