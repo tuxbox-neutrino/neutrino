@@ -243,24 +243,25 @@ void CZapit::LoadSettings()
 
 	live_channel_id = configfile.getInt64("lastChannel", 0);
 	lastChannelRadio = configfile.getInt32("lastChannelRadio", 0);
-	lastChannelTV    = configfile.getInt32("lastChannelTV", 0);
+	lastChannelTV = configfile.getInt32("lastChannelTV", 0);
 
 #if 0 //unused
 	config.fastZap = configfile.getBool("fastZap", 1);
 	config.sortNames = configfile.getBool("sortNames", 0);
 	voltageOff = configfile.getBool("voltageOff", 0);
 #endif
-	config.saveLastChannel	= configfile.getBool("saveLastChannel", true);
-	config.rezapTimeout	= configfile.getInt32("rezapTimeout", 1);
-	config.feTimeout	= configfile.getInt32("feTimeout", 40);
-	config.scanPids		= configfile.getBool("scanPids", 0);
-	config.highVoltage	= configfile.getBool("highVoltage", 0);
+	config.saveLastChannel = configfile.getBool("saveLastChannel", true);
+	config.rezapTimeout = configfile.getInt32("rezapTimeout", 1);
+	config.feTimeout = configfile.getInt32("feTimeout", 40);
+	config.scanPids = configfile.getBool("scanPids", 0);
+	config.highVoltage = configfile.getBool("highVoltage", 0);
+	config.makeRemainingChannelsBouquet = configfile.getBool("makeRemainingChannelsBouquet", 1);
 
-	config.gotoXXLatitude	= strtod(configfile.getString("gotoXXLatitude", "0.0").c_str(), NULL);
-	config.gotoXXLongitude	= strtod(configfile.getString("gotoXXLongitude", "0.0").c_str(), NULL);
+	config.gotoXXLatitude = strtod(configfile.getString("gotoXXLatitude", "0.0").c_str(), NULL);
+	config.gotoXXLongitude = strtod(configfile.getString("gotoXXLongitude", "0.0").c_str(), NULL);
 	config.gotoXXLaDirection = configfile.getInt32("gotoXXLaDirection", 1);
 	config.gotoXXLoDirection = configfile.getInt32("gotoXXLoDirection", 0);
-	config.repeatUsals	= configfile.getInt32("repeatUsals", 0);
+	config.repeatUsals = configfile.getInt32("repeatUsals", 0);
 
 	config.scanSDT = configfile.getInt32("scanSDT", 0);
 
