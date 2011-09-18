@@ -27,7 +27,7 @@
 
 #include <dmx.h>
 #include <zapit/cam.h>
-#include <zapit/channel.h>
+#include <zapit/zapit.h>
 
 
 #define TS_SIZE 188
@@ -45,8 +45,6 @@
 
 //unsigned char * buf;
 
-extern CZapitChannel *g_current_channel;
-extern t_channel_id live_channel_id;
 extern CCam *cam0;
 
 //int demuxfd[MAXPIDS];
@@ -336,7 +334,7 @@ void * streamts_live_thread(void *data)
 
 	dmx->Start(true);//FIXME
 
-	CCamManager::getInstance()->Start(live_channel_id, CCamManager::STREAM);
+	CCamManager::getInstance()->Start(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::STREAM);
 	ssize_t r;
 
 	while (!exit_flag) {
@@ -347,7 +345,7 @@ void * streamts_live_thread(void *data)
 
 	printf("Exiting LIVE STREAM thread, fd %d\n", fd);
 
-	CCamManager::getInstance()->Stop(live_channel_id, CCamManager::STREAM);
+	CCamManager::getInstance()->Stop(CZapit::getInstance()->GetCurrentChannelID(), CCamManager::STREAM);
 
 	delete dmx;
 	free(buf);

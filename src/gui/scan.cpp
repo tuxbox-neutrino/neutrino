@@ -82,7 +82,6 @@ CScanTs::CScanTs()
 	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 }
 
-extern int scan_pids;
 extern int scan_fta_flag;//in zapit descriptors definiert
 extern int start_fast_scan(int scan_mode, int opid);
 #include <zapit/getservices.h>
@@ -177,7 +176,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	CZapitClient::ScanSatelliteList satList;
 	CZapitClient::commandSetScanSatelliteList sat;
-	int _scan_pids = scan_pids;
+	int _scan_pids = CZapit::getInstance()->scanPids();
 
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
@@ -211,7 +210,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 //printf("[neutrino] scan_mode %d TP_freq %s TP_rate %s TP_fec %d TP_pol %d\n", scansettings.scan_mode, scansettings.TP_freq, scansettings.TP_rate, scansettings.TP_fec, scansettings.TP_pol);
 
 	if(manual) {
-		scan_pids = true;
+		CZapit::getInstance()->scanPids(true);
 		TP.scan_mode = scansettings.scan_mode;
 		TP.feparams.frequency = atoi(scansettings.TP_freq);
 		if(g_info.delivery_system == DVB_S) {
@@ -344,7 +343,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	hide();
 
-	scan_pids = _scan_pids;
+	CZapit::getInstance()->scanPids(_scan_pids);
 	videoDecoder->StopPicture();
 	frameBuffer->Clear();
 	g_Sectionsd->setPauseScanning(false);

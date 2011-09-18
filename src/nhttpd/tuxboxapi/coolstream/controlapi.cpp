@@ -28,8 +28,7 @@
 #include <global.h>
 #include <neutrinoMessages.h>
 #include <zapit/client/zapittools.h>
-#include <zapit/channel.h>
-#include <zapit/bouquets.h>
+#include <zapit/zapit.h>
 #include <configfile.h>
 #include <system/configure_network.h>
 #include <cs_api.h>
@@ -51,7 +50,6 @@ bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSecti
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 
 extern CBouquetManager *g_bouquetManager;
-extern t_channel_id live_channel_id;
 #define EVENTDEV "/dev/input/input0"
 
 //-----------------------------------------------------------------------------
@@ -877,7 +875,7 @@ void CControlAPI::ChannellistCGI(CyhookHandler *hh)
 //-----------------------------------------------------------------------------
 std::string CControlAPI::_GetBouquetActualEPGItem(CyhookHandler *hh, CZapitChannel * channel) {
 	std::string result, firstEPG, secondEPG = "";
-	t_channel_id current_channel = live_channel_id;
+	t_channel_id current_channel = CZapit::getInstance()->GetCurrentChannelID();
 	int percentage = 100;
 	std::string timestr;
 
@@ -1025,7 +1023,7 @@ void CControlAPI::GetBouquetCGI(CyhookHandler *hh) {
 		if (hh->ParamList["1"] == "actual") {
 			int actual = 0;
 			for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
-				if (g_bouquetManager->existsChannelInBouquet(i, live_channel_id)) {
+				if (g_bouquetManager->existsChannelInBouquet(i, CZapit::getInstance()->GetCurrentChannelID())) {
 					actual = i + 1;
 					break;
 				}

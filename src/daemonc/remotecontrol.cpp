@@ -50,10 +50,8 @@
 #include <zapit/getservices.h>
 
 extern CBouquetManager *g_bouquetManager;
-extern CZapitChannel *g_current_channel;
 
 extern uint32_t scrambled_timer;
-extern t_channel_id live_channel_id; //zapit
 
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
@@ -68,7 +66,9 @@ CSubService::CSubService(const t_original_network_id anoriginal_network_id, cons
 	startzeit                   = 0;
 	dauer                       = 0;
 	subservice_name             = asubservice_name;
-	satellitePosition = g_current_channel ? g_current_channel->getSatellitePosition() : 0;
+
+	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+	satellitePosition = channel ? channel->getSatellitePosition() : 0;
 }
 
 CSubService::CSubService(const t_original_network_id anoriginal_network_id, const t_service_id aservice_id, const t_transport_stream_id atransport_stream_id, const time_t astartzeit, const unsigned adauer)
@@ -79,7 +79,9 @@ CSubService::CSubService(const t_original_network_id anoriginal_network_id, cons
 	startzeit                   = astartzeit;
 	dauer                       = adauer;
 	subservice_name             = "";
-	satellitePosition = g_current_channel ? g_current_channel->getSatellitePosition() : 0;
+
+	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+	satellitePosition = channel ? channel->getSatellitePosition() : 0;
 }
 
 t_channel_id CSubService::getChannelID(void) const
@@ -91,7 +93,7 @@ t_channel_id CSubService::getChannelID(void) const
 
 CRemoteControl::CRemoteControl()
 {
-	current_channel_id = 	live_channel_id;
+	current_channel_id = 	CZapit::getInstance()->GetCurrentChannelID();;
 	current_sub_channel_id = 0;
 	current_channel_name = 	"";
 

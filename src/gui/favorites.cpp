@@ -46,7 +46,6 @@
 #include <gui/bouquetlist.h>
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
-extern t_channel_id live_channel_id;
 extern CBouquetManager *g_bouquetManager;
 //
 // -- Add current channel to Favorites-Bouquet
@@ -88,8 +87,7 @@ int CFavorites::addChannelToFavorites(bool show_list)
 		}
 	}
 
-	//channel_id = g_Zapit->getCurrentServiceID();
-	channel_id = live_channel_id;
+	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 
 	if(!g_bouquetManager->existsChannelInBouquet(bouquet_id, channel_id)) {
 		CZapit::getInstance()->addChannelToBouquet(bouquet_id, channel_id);

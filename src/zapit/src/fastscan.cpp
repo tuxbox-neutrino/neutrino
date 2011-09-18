@@ -31,9 +31,6 @@ extern CBouquetManager* scanBouquetManager;
 extern CZapitClient::bouquetMode bouquetMode;
 extern transponder_list_t transponders; //  defined in zapit.cpp
 
-extern t_channel_id live_channel_id;
-extern CZapitChannel *g_current_channel;
-
 void CServiceScan::InitFastscanLnb(int id)
 {
 	CServiceManager::getInstance()->InitSatPosition(192);
@@ -115,7 +112,7 @@ bool CServiceScan::ScanFast()
 
 		printf("[fast scan] pid %d (HD) scan done, found %d transponders and %d services\n", op->hd_pid, found_transponders, found_channels);
 	}
-
+	//FIXME move to Cleanup() ?
 	if(found_channels) {
 		CZapitClient myZapitClient;
 		CServiceManager::getInstance()->SaveServices(true);
@@ -189,7 +186,6 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 		return false;
 	}
 
-	g_current_channel = 0;
 	g_bouquetManager->clearAll();
 	CServiceManager::getInstance()->RemoveAllChannels();
 
@@ -330,7 +326,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						bouquet->addService(newchannel);
 
 						if(newchannel->getServiceType() == 1)
-							live_channel_id = newchannel->getChannelID();
+							CZapit::getInstance()->SetCurrentChannelID(newchannel->getChannelID());
 
 						bouquetId = g_bouquetManager->existsUBouquet(op->name);
 						if (bouquetId == -1) {

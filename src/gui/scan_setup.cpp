@@ -56,13 +56,10 @@
 #include <zapit/fastscan.h>
 #include <zapit/zapit.h>
 
-extern int scan_pids;
-extern CZapitChannel *g_current_channel;
 extern std::map<transponder_id_t, transponder> select_transponders;
 extern Zapit_config zapitCfg;
 extern char zapit_lat[20];
 extern char zapit_long[20];
-extern int scan_pids;
 
 static int all_usals = 1;
 sat_iterator_t sit;
@@ -734,7 +731,7 @@ int CScanSetup::addListFlagsItems(CMenuWidget *listflags_menu, const int &shortc
 	
 	CMenuOptionChooser 	*useNit = new CMenuOptionChooser(LOCALE_SATSETUP_USE_NIT, (int *)&scansettings.scan_mode, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 	CMenuOptionChooser	*ftaFlag = new CMenuOptionChooser(LOCALE_SATSETUP_USE_FTA_FLAG, (int *)&scansettings.scan_fta_flag, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
-	CMenuOptionChooser	*scanPid = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_SCANPIDS,  &scan_pids, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+	CMenuOptionChooser	*scanPid = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_SCANPIDS,  &zapitCfg.scanPids, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 
 	listflags_menu->addItem(useNit);
 	listflags_menu->addItem(ftaFlag);
@@ -827,9 +824,10 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 				break;
 		}
 		
-		if(!old_selected && g_current_channel && g_current_channel->getSatellitePosition() == position) 
+		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+		if(!old_selected && channel && channel->getSatellitePosition() == position) 
 		{
-			if(g_current_channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first)) 
+			if(channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first)) 
 				old_selected = i;
 		}
 

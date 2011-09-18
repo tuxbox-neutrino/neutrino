@@ -49,8 +49,6 @@ std::string lastProviderName;
 //std::map <t_channel_id, uint8_t> service_types;
 
 extern CEventServer *eventServer;
-extern int scan_pids;
-extern t_channel_id live_channel_id;
 int scan_fta_flag = 0;
 
 void generic_descriptor(const unsigned char * const)
@@ -655,7 +653,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 		default:
 			break;
 	}
-	if(scan_pids) {
+	if(CZapit::getInstance()->scanPids()) {
 		if(tpchange)
 			parse_pat();
 
@@ -666,14 +664,12 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 				//	printf("[scan] Channel %s dont have A/V pids !\n", channel->getName().c_str());
 				if ((channel->getPreAudioPid() != 0) || (channel->getVideoPid() != 0)) {
 					channel->setPidsFlag();
-					//if(channel->getServiceType() == 1)
-					//	live_channel_id = channel->getChannelID();
 				}
 			}
 		}
 	}
 	if(service_type == ST_DIGITAL_TELEVISION_SERVICE && !channel->scrambled) {
-		live_channel_id = channel->getChannelID();
+		CZapit::getInstance()->SetCurrentChannelID(channel->getChannelID());
 	}
 }
 

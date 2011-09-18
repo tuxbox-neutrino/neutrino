@@ -54,6 +54,7 @@
 #include <zapit/cam.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
+#include <zapit/zapit.h>
 #include <zapit/client/zapittools.h>
 
 /* TODO:
@@ -63,8 +64,7 @@
  */
 
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
-extern t_channel_id live_channel_id;
-extern t_channel_id rec_channel_id;
+t_channel_id rec_channel_id;
 
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
@@ -778,6 +778,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 				if(timeshift)
 					autoshift = true;
 				// mimic old behavior for start/stop menu option chooser, still actual ?
+				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				if(eventinfo->channel_id == live_channel_id) {
 					recordingstatus = 1;
 					rec_channel_id = live_channel_id;//FIXME
@@ -817,6 +818,7 @@ bool CRecordManager::StartAutoRecord()
 {
 	printf("%s: starting to %s\n", __FUNCTION__, TimeshiftDirectory.c_str());
 	g_RCInput->killTimer (shift_timer);
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	return Record(live_channel_id, TimeshiftDirectory.c_str(), true);
 }
 
@@ -832,6 +834,7 @@ bool CRecordManager::StopAutoRecord()
 		return false;
 
 	mutex.lock();
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	CRecordInstance * inst = FindInstance(live_channel_id);
 	if(inst && inst->Timeshift())
 		found = true;
@@ -847,6 +850,7 @@ bool CRecordManager::StopAutoRecord()
 
 bool CRecordManager::CheckRecording(const CTimerd::RecordingInfo * const eventinfo)
 {
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if((eventinfo->channel_id == live_channel_id) || !SAME_TRANSPONDER(eventinfo->channel_id, live_channel_id))
 		StopAutoRecord();
 
@@ -941,6 +945,7 @@ bool CRecordManager::Stop(const t_channel_id channel_id)
 		if(inst->Timeshift())
 			autoshift = false;
 		delete inst;
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		if(channel_id == live_channel_id) {
 			recordingstatus = 0;
 			rec_channel_id = 0;//FIXME
@@ -969,6 +974,7 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 			autoshift = false;
 		delete inst;
 		ret = true;
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		if(recinfo->channel_id == live_channel_id)
 			recordingstatus = 0;
 	} else {
@@ -1083,6 +1089,7 @@ void CRecordManager::StartTimeshift()
 	{
 		std::string tmode;
 		bool res = true;
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		if(RecordingStatus(live_channel_id))
 		{
 			tmode = "ptimeshift"; // already recording, pause
@@ -1173,6 +1180,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 	}else if(actionKey == "Record")
 	{
 		printf("[neutrino] direct record\n");
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		if(!CRecordManager::getInstance()->RecordingStatus(live_channel_id))
 			CRecordManager::getInstance()->Record(live_channel_id);
 		return menu_return::RETURN_EXIT_ALL;
@@ -1201,6 +1209,7 @@ bool CRecordManager::ShowMenu(void)
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	// Record / Timeshift
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	bool status_ts		= IsTimeshift(live_channel_id);
 	bool status_rec		= RecordingStatus(live_channel_id) && !status_ts;
 	
@@ -1339,7 +1348,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 
 	if(last_mode == NeutrinoMessages::mode_standby && !recmap.size())
 		g_Zapit->setStandby(false); // this zap to live_channel_id
-	
+
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(live_channel_id != channel_id) {
 		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
 			printf("%s zapTo_record channel_id %llx\n", __FUNCTION__, channel_id);
@@ -1409,6 +1419,7 @@ bool CRecordManager::doGuiRecord()
 	bool refreshGui = false;
 	std::string recDir;
 
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(recordingstatus == 1) {
 		bool doRecord = true;
 #if 0 //FIXME unused ?

@@ -60,6 +60,7 @@
 
 #include <zapit/satconfig.h>
 #include <zapit/frontend_c.h>
+#include <zapit/zapit.h>
 #include <video.h>
 
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
@@ -69,8 +70,6 @@ extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CPictureViewer * g_PicViewer;
 extern cVideo * videoDecoder;
-extern t_channel_id live_channel_id; //zapit
-extern t_channel_id rec_channel_id; //zapit
 
 #define COL_INFOBAR_BUTTONS            (COL_INFOBAR_SHADOW + 1)
 #define COL_INFOBAR_BUTTONS_BACKGROUND (COL_INFOBAR_SHADOW_PLUS_1)
@@ -131,7 +130,7 @@ void CInfoViewer::Init()
 	/* we need to calculate this only once */
 	info_time_width = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth("22:22") + 10;
 
-	channel_id = live_channel_id;
+	channel_id = CZapit::getInstance()->GetCurrentChannelID();;
 	lcdUpdateTimer = 0;
 
 	int dummy_h;

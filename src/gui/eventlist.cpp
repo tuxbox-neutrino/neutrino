@@ -51,12 +51,12 @@
 #include <gui/widget/stringinput.h>
 
 extern CBouquetList        * bouquetList;
-extern t_channel_id live_channel_id;
 
 #include <zapit/client/zapitclient.h> /* CZapitClient::Utf8_to_Latin1 */
 #include <driver/screen_max.h>
 
 #include <zapit/client/zapittools.h>
+#include <zapit/zapit.h>
 
 #include <algorithm>
 extern CPictureViewer * g_PicViewer;
@@ -936,7 +936,7 @@ int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*
 	channelList = CNeutrinoApp::getInstance()->channelList;
 	//e->exec(channelList->getActiveChannel_ChannelID(), channelList->getActiveChannelName()); // UTF-8
 	//e->exec(g_Zapit->getCurrentServiceID(), channelList->getActiveChannelName()); // UTF-8
-	e->exec(live_channel_id, channelList->getActiveChannelName()); // UTF-8
+	e->exec(CZapit::getInstance()->GetCurrentChannelID(), channelList->getActiveChannelName()); // UTF-8
 	delete e;
 
 	return res;

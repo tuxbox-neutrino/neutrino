@@ -76,6 +76,7 @@
 
 #include <video.h>
 #include "libtuxtxt/teletext.h"
+#include <zapit/zapit.h>
 
 
 //int dvbsub_start(int pid);//???
@@ -85,7 +86,6 @@
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 extern CInfoClock *InfoClock;
-extern t_channel_id live_channel_id;
 
 #define MINUTEOFFSET 117*262072
 #define MP_TS_SIZE 262072	// ~0.5 sec
@@ -485,6 +485,7 @@ void CMoviePlayerGui::PlayFile(void)
 		CVCRControl::getInstance()->GetPids(&g_vpid, &g_vtype, &CAPIDSelectExec::g_currentapid, &CAPIDSelectExec::g_currentac3, &g_numpida, CAPIDSelectExec::g_apids, CAPIDSelectExec::g_ac3flags);
 		p_movie_info = CVCRControl::getInstance()->GetMovieInfo();
 #endif
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		p_movie_info = CRecordManager::getInstance()->GetMovieInfo(live_channel_id);
 		rec_filename = CRecordManager::getInstance()->GetFileName(live_channel_id) + ".ts";
 		fillPids(p_movie_info);

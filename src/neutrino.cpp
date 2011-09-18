@@ -177,8 +177,6 @@ static pthread_t stream_thread ;
 //extern int zapit_ready;
 //static pthread_t zapit_thread ;
 void * zapit_main_thread(void *data);
-extern t_channel_id live_channel_id; //zapit
-extern CZapitChannel *g_current_channel;
 
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
@@ -1793,6 +1791,8 @@ void CNeutrinoApp::InitZapper()
 	}
 	if(g_settings.cacheTXT)
 		tuxtxt_init();
+
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(channelList->getSize() && live_channel_id) {
 		channelList->adjustToChannelID(live_channel_id);
 		CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
@@ -2195,11 +2195,13 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
 				//g_EpgData->show( g_Zapit->getCurrentServiceID() );
 				StopSubtitles();
+				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EpgData->show(live_channel_id);
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_epg ) {
 				StopSubtitles();
+				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EventList->exec(live_channel_id, channelList->getActiveChannelName());
 				StartSubtitles();
 			}
@@ -2315,12 +2317,14 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if(msg == CRCInput::RC_rewind) {
 				if(g_RemoteControl->is_video_started) {
+					t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 					if(CRecordManager::getInstance()->RecordingStatus(live_channel_id))
 						CMoviePlayerGui::getInstance().exec(NULL, "rtimeshift");
 				}
 			}
 			else if( msg == CRCInput::RC_record /* || msg == CRCInput::RC_stop*/ ) {
 				printf("[neutrino] direct record\n");
+				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				if(!CRecordManager::getInstance()->RecordingStatus(live_channel_id)) {
 #if 0 // uncomment, if ChooseRecDir and g_settings.recording_choose_direct_rec_dir ever used to select recording dir
 					CRecordManager::getInstance()->recordingstatus = 1;
@@ -2456,13 +2460,14 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		StartSubtitles(!g_InfoViewer->is_visible);
 
 		/* update scan settings for manual scan to current channel */
-		if(g_current_channel) {
-			sat_iterator_t sit = satellitePositions.find(g_current_channel->getSatellitePosition());
+		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+		if(channel) {
+			sat_iterator_t sit = satellitePositions.find(channel->getSatellitePosition());
 			if(sit != satellitePositions.end())
 				strncpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str(), 50);
 
 			transponder_list_t::iterator tI;
-			tI = transponders.find(g_current_channel->getTransponderId());
+			tI = transponders.find(channel->getTransponderId());
 			if(tI != transponders.end()) {
 				sprintf(scanSettings.TP_freq, "%d", tI->second.feparams.frequency);
 				switch (CFrontend::getInstance()->getInfo()->type) {
@@ -2740,6 +2745,7 @@ _repeat:
 	else if( msg == NeutrinoMessages::EVT_SERVICESCHANGED ) {
 		printf("NeutrinoMessages::EVT_SERVICESCHANGED\n");fflush(stdout);
 		channelsInit();
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		if(old_b_id >= 0) {
 			bouquetList->activateBouquet(old_b_id, false);
@@ -2750,6 +2756,7 @@ _repeat:
 	else if( msg == NeutrinoMessages::EVT_BOUQUETSCHANGED ) {
 		printf("NeutrinoMessages::EVT_BOUQUETSCHANGED\n");fflush(stdout);
 		channelsInit();
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 		return messages_return::handled;
 	}
@@ -3579,7 +3586,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		}
 
 		//remember tuned channel-id
-		standby_channel_id = live_channel_id;
+		standby_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
 		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
@@ -3644,7 +3651,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 			radioMode( false );
 		} else {
 			tvMode( false );
-		}
+		} 
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		if(!recordingstatus) { //only switch to standby_channel_id when not recording
 			live_channel_id = standby_channel_id;
 		}

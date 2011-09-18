@@ -40,7 +40,6 @@
 
 extern CBouquetManager *g_bouquetManager;
 extern transponder_list_t transponders; //  defined in zapit.cpp
-extern t_channel_id live_channel_id;
 extern CZapitClient::bouquetMode bouquetMode;
 extern int motorRotationSpeed;
 
@@ -259,7 +258,7 @@ _repeat:
 
 #ifdef NIT_THREAD
 		pthread_t nthread;
-		if(!scan_nit)
+		if(scan_nit)
 			if(pthread_create(&nthread, 0, nit_thread,  (void*)satellitePosition)) {
 				ERROR("pthread_create");
 				nthread = 0;
@@ -300,12 +299,12 @@ _repeat:
 			stI->second.feparams.u.qpsk.fec_inner = tI->second.feparams.u.qpsk.fec_inner;
 
 #ifdef NIT_THREAD
-		if(!scan_nit && nthread) {
+		if(scan_nit && nthread) {
 			if(pthread_join(nthread, NULL))
 				perror("pthread_join !!!!!!!!!");
 		}
 #else
-		if(!scan_nit) {
+		if(scan_nit) {
 			printf("[scan] trying to parse NIT\n");
 			int status = parse_nit(satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
 			if(status < 0)
@@ -314,7 +313,7 @@ _repeat:
 #endif
 		printf("[scan] tpid ready: %llx\n", TsidOnid);
 	}
-	if(!scan_nit) {
+	if(scan_nit) {
 		printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
 		scantransponders.clear();
 		for (tI = nittransponders.begin(); tI != nittransponders.end(); tI++) {
@@ -552,7 +551,7 @@ bool CServiceScan::ScanProviders()
 
 	/* report status */
 	printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
-
+	//FIXME move to Cleanup() ?
 	if (found_channels) {
 		CServiceManager::getInstance()->SaveServices(true);
 		printf("[scan] save services done\n"); fflush(stdout);
@@ -567,6 +566,7 @@ bool CServiceScan::ScanProviders()
 	} else {
 		Cleanup(false);
 		CFrontend::getInstance()->setTsidOnid(0);
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
 	}
 
@@ -614,6 +614,7 @@ bool CServiceScan::ScanTransponder()
 		found_channels = 0;
 
 	CZapitClient myZapitClient;
+	//FIXME move to Cleanup() ?
 	if(found_channels) {
 		CServiceManager::getInstance()->SaveServices(true);
 		scanBouquetManager->saveBouquets(bouquetMode, providerName);
@@ -627,6 +628,7 @@ bool CServiceScan::ScanTransponder()
 	} else {
 		Cleanup(false);
 		CFrontend::getInstance()->setTsidOnid(0);
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
 	}
 	if(cable)
