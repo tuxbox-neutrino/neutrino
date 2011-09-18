@@ -35,17 +35,8 @@
 #include <zapit/frontend_c.h>
 #include <zapit/satconfig.h>
 
-extern double gotoXXLatitude, gotoXXLongitude;
-extern int gotoXXLaDirection, gotoXXLoDirection;
-extern int repeatUsals;
 extern transponder_list_t transponders;
-extern bool highVoltage;
-extern int motorRotationSpeed;
-extern int feTimeout;
-
 extern int zapit_debug;
-extern int uni_scr;
-extern int uni_qrg;
 
 #define SOUTH	0
 #define NORTH	1
@@ -143,7 +134,6 @@ typedef enum dvb_fec {
 
 // Global fe instance
 CFrontend *CFrontend::currentFe = NULL;
-fe_map_t CFrontend::femap;
 
 CFrontend *CFrontend::getInstance(int Number, int Adapter)
 {
@@ -151,7 +141,6 @@ CFrontend *CFrontend::getInstance(int Number, int Adapter)
 		currentFe = new CFrontend(Number, Adapter);
 		currentFe->Open();
 	}
-
 	return currentFe;
 }
 
@@ -164,13 +153,29 @@ CFrontend::CFrontend(int Number, int Adapter)
 	slave		= fenumber;	// FIXME
 	diseqcType	= NO_DISEQC;
 	standby		= true;
+	locked		= false;
 
-	//Open();
 
 	memset(&curfe, 0, sizeof(curfe));
 	curfe.u.qpsk.fec_inner = FEC_3_4;
 	curfe.u.qam.fec_inner = FEC_3_4;
 	curfe.u.qam.modulation = QAM_64;
+
+	tuned					= false;
+	uncommitedInput				= 255;
+	diseqc					= 255;
+	currentTransponder.polarization		= 1;
+	currentTransponder.feparams.frequency	= 0;
+	currentTransponder.TP_id		= 0;
+	currentTransponder.diseqc		= 255;
+
+	uni_scr = -1;       /* the unicable SCR address,     -1 == no unicable */
+	uni_qrg = 0;        /* the unicable frequency in MHz, 0 == from spec */
+
+	feTimeout = 40;
+	highVoltage = false;
+	motorRotationSpeed = 0; //in 0.1 degrees per second
+
 }
 
 CFrontend::~CFrontend(void)
@@ -208,15 +213,10 @@ bool CFrontend::Open(void)
 	secSetVoltage(SEC_VOLTAGE_13, 15);
 	secSetTone(SEC_TONE_OFF, 15);
 	sendDiseqcPowerOn();
+	currentTransponder.TP_id = 0;
 
-	tuned					= false;
-	uncommitedInput				= 255;
-	diseqc					= 255;
-	currentTransponder.polarization		= 1;
-	currentTransponder.feparams.frequency	= 0;
-	currentTransponder.TP_id		= 0;
-	currentTransponder.diseqc		= 255;
-	standby					= false;
+	standby = false;
+
 	return true;
 }
 

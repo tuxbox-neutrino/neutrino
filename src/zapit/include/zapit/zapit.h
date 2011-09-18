@@ -9,13 +9,14 @@
 #include <configfile.h>
 #include <eventserver.h>
 #include <connection/basicserver.h>
-#include <xmlinterface.h>
+#include <xmltree/xmlinterface.h>
 #include <ca_cs.h>
 
 #include "client/zapitclient.h"
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
+#include <zapit/frontend_c.h>
 
 #define PAL	0
 #define NTSC	1
@@ -54,6 +55,9 @@ class CZapit : public OpenThreads::Thread
 
 		bool started;
 		bool event_mode;
+		bool firstzap;
+		bool playing;
+		bool list_changed;
 
 		int audio_mode;
 		int def_audio_mode;
@@ -72,11 +76,10 @@ class CZapit : public OpenThreads::Thread
 		Zapit_config config;
 		CConfigFile configfile;
 		CEventServer *eventServer;
-		CZapitChannel * current_channel;
 
-#if 0 //FIXME still globals
+		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
-#endif
+
 		audio_map_t audio_map;
 		bool current_is_nvod;
 		bool standby;
@@ -89,6 +92,7 @@ class CZapit : public OpenThreads::Thread
 		void SaveSettings(bool write_conf, bool write_audio);
 		void SaveChannelPids(CZapitChannel* channel);
 		void RestoreChannelPids(CZapitChannel* channel);
+		void ConfigFrontend();
 
 		bool TuneChannel(CZapitChannel * channel, bool &transponder_change);
 		bool ParsePatPmt(CZapitChannel * channel);
@@ -151,5 +155,11 @@ class CZapit : public OpenThreads::Thread
 		bool Recording() { return currentMode & RECORD_MODE; };
 		bool makeRemainingChannelsBouquet() { return config.makeRemainingChannelsBouquet; };
 		bool scanSDT() { return config.scanSDT; };
+		bool scanPids() { return config.scanPids; };
+		void scanPids(bool enable) { config.scanPids = enable; };
+
+		CZapitChannel * GetCurrentChannel() { return current_channel; };
+		t_channel_id GetCurrentChannelID() { return live_channel_id; };
+		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 };
 #endif /* __zapit_h__ */

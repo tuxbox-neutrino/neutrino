@@ -91,7 +91,7 @@ class CFrontend
 		int adapter;
 		/* current frontend instance */
 		static CFrontend *currentFe;
-		static fe_map_t femap;
+		bool locked;
 		/* tuning finished flag */
 		bool tuned;
 		/* information about the used frontend type */
@@ -102,10 +102,25 @@ class CFrontend
 		fe_sec_voltage_t currentVoltage;
 		/* current satellite position */
 		int32_t currentSatellitePosition;
+
+		/* SETTINGS */
 		/* how often to repeat DiSEqC 1.1 commands */
 		uint8_t diseqcRepeats;
 		/* DiSEqC type of attached hardware */
 		diseqc_t diseqcType;
+
+		/* variables for EN 50494 (a.k.a Unicable) */
+		int uni_scr;       /* the unicable SCR address,     -1 == no unicable */
+		int uni_qrg;        /* the unicable frequency in MHz, 0 == from spec */
+
+		int motorRotationSpeed; //in 0.1 degrees per second
+		bool highVoltage;
+
+		double gotoXXLatitude, gotoXXLongitude;
+		int gotoXXLaDirection, gotoXXLoDirection;
+		int repeatUsals;
+		int feTimeout;
+
 		int diseqc;
 		uint8_t uncommitedInput;
 		/* lnb offsets */
@@ -139,9 +154,12 @@ class CFrontend
 		void				reset(void);
 		/* Private constructor */
 		CFrontend(int Number = 0, int Adapter = 0);
+
+		friend class CFEManager;
 	public:
 		~CFrontend(void);
 		static CFrontend *getInstance(int Number = 0, int Adapter = 0);
+
 		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, int system = 0);
 		uint8_t				getDiseqcPosition(void) const		{ return currentTransponder.diseqc; }
 		uint8_t				getDiseqcRepeats(void) const		{ return diseqcRepeats; }
@@ -162,6 +180,19 @@ class CFrontend
 
 		void				setDiseqcRepeats(const uint8_t repeats)	{ diseqcRepeats = repeats; }
 		void				setDiseqcType(const diseqc_t type);
+		void				setTimeout(int timeout) { feTimeout = timeout; };
+		void				configUsals(double Latitude, double Longitude, int LaDirection, int LoDirection, bool _repeatUsals)
+						{
+							gotoXXLatitude = Latitude;
+							gotoXXLongitude = Longitude;
+							gotoXXLaDirection = LaDirection;
+							gotoXXLoDirection = LoDirection;
+							repeatUsals = _repeatUsals;
+						};
+		void				configRotor(int _motorRotationSpeed, bool _highVoltage)
+							{ motorRotationSpeed = _motorRotationSpeed; highVoltage = _highVoltage; };
+		void				configUnicable(int scr, int qrg) { uni_scr = scr; uni_qrg = qrg; };
+
 		int				setParameters(TP_params *TP, bool nowait = 0);
 		int				tuneFrequency (struct dvb_frontend_parameters * feparams, uint8_t polarization, bool nowait = false);
 		const TP_params*		getParameters(void) const { return &currentTransponder; };
@@ -182,8 +213,8 @@ class CFrontend
 
 		bool				Open();
 		void				Close();
-		bool				Lock();
-		void				Unlock();
+		void				Lock() { locked = true; };
+		void				Unlock() { locked = false; };
 
 		bool sendUncommittedSwitchesCommand(int input);
 		bool setInput(CZapitChannel *channel, bool nvod);
@@ -194,6 +225,7 @@ class CFrontend
 		int driveToSatellitePosition(t_satellite_position satellitePosition, bool from_scan = false);
 		void setLnbOffsets(int32_t _lnbOffsetLow, int32_t _lnbOffsetHigh, int32_t _lnbSwitch);
 		struct dvb_frontend_event getEvent(void);
+		bool				Locked() { return locked; };
 };
 
 #endif /* __zapit_frontend_h__ */

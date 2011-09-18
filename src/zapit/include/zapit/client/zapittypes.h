@@ -179,6 +179,8 @@ typedef struct Zapit_config {
 	int repeatUsals;
 	double gotoXXLatitude;
 	double gotoXXLongitude;
+	int uni_scr;
+	int uni_qrg;
 } t_zapit_config;
 
 typedef std::map <uint32_t, TP_map> TP_map_t;
