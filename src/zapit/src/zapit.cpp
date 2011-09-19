@@ -119,6 +119,7 @@ CZapit::CZapit()
 	firstzap = true;
 	playing = false;
 	list_changed = false; // flag to indicate, allchans was changed
+	currentMode = 0;
 }
 
 CZapit::~CZapit()
