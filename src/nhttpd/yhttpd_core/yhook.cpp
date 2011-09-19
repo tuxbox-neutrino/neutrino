@@ -368,10 +368,14 @@ void CyhookHandler::printf(const char *fmt, ...) {
 TOutType CyhookHandler::checkOutput() {
 	// get outType
 	outType = plain; // plain
-	if (ParamList["format"] == "json" || !(ParamList["json"].empty()) )
-		outType = json;
-	else if (ParamList["format"] == "xml" || !(ParamList["xml"].empty()) )
-		outType = xml;
+	if(!(ParamList.empty())) {
+		if ((ParamList.find("format") != ParamList.end() && ParamList["format"] == "json")
+				|| (ParamList.find("json") != ParamList.end() && !(ParamList["json"].empty())) )
+			outType = json;
+		else if ((ParamList.find("format") != ParamList.end() && ParamList["format"] == "xml")
+				|| (ParamList.find("xml") != ParamList.end() && !(ParamList["xml"].empty())) )
+			outType = xml;
+	}
 	return outType;
 }
 //-----------------------------------------------------------------------------
