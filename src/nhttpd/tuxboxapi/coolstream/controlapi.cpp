@@ -1336,6 +1336,7 @@ void CControlAPI::epgDetailList(CyhookHandler *hh) {
  * /control/epg?xml=true&channelid=<channelid>|channelname=<channel name>[&details=true][&max=<max items>][&stoptime=<long:stop time>]
  *  	details=true : Show EPG Info1 and info2
  *		stoptime : show only items until stoptime reached
+ * @endcode
  */
 //-------------------------------------------------------------------------
 void CControlAPI::EpgCGI(CyhookHandler *hh) {
