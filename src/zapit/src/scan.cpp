@@ -589,7 +589,8 @@ bool CServiceScan::ScanTransponder()
 	printf("[scan_transponder] scanning sat %s position %d\n", providerName, satellitePosition);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, providerName, strlen(providerName) + 1);
 
-	scan_nit = TP->scan_mode;
+	//scan_nit = TP->scan_mode;
+	scan_nit = (TP->scan_mode & 0xFF) == 0; // NIT (0) or fast (1)
 
 	TP->feparams.inversion = INVERSION_AUTO;
 
