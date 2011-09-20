@@ -381,7 +381,7 @@ class CMovieBrowser : public CMenuTarget
         void defaultSettings(MB_SETTINGS* settings);
 
 		///// EPG_DATA /XML ///////////////////////////////
-		void loadMovies();
+		void loadMovies(bool doRefresh = true);
 		void loadAllMovieInfo(void); // P1
 		void saveMovieInfo(std::string* filename, MI_MOVIE_INFO* movie_info); // P2
 
