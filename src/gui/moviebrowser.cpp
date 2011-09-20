@@ -1534,10 +1534,16 @@ void CMovieBrowser::refreshTitle(void)
 	//Paint Text Background
 	TRACE("[mb]->refreshTitle : %s\r\n",m_textTitle.c_str());
 	const short text_border_width = 8;
-	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX, m_cBoxFrame.iY+	m_cBoxFrameTitleRel.iY,
+	int start_y = m_cBoxFrame.iY+	m_cBoxFrameTitleRel.iY;
+	
+	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX, start_y,
 				m_cBoxFrameTitleRel.iWidth, m_cBoxFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR, RADIUS_LARGE, CORNER_TOP);
+	
+	int iconw = 0, iconh = 0;
+	CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_MOVIEPLAYER_32, &iconw, &iconh);
+	m_pcWindow->paintIcon(NEUTRINO_ICON_MOVIEPLAYER_32, m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+6, start_y+ m_cBoxFrameTitleRel.iHeight/2 - iconh/2);
 
-	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + text_border_width, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (text_border_width << 1), m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
+	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + iconw + text_border_width, start_y + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (text_border_width << 1), m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
 	info_hdd_level();
 }
 
