@@ -1135,14 +1135,14 @@ int CMovieBrowser::paint(void)
 	//onSetGUIWindow(m_settings.gui);
 	//refreshTitle();
 	//refreshFoot();
-	refreshLCD();
-	//refresh();
+	//refreshLCD();
+	refresh();
 	return (true);
 }
 
 void CMovieBrowser::refresh(void)
 {
-	//TRACE("[mb]->refresh\r\n");
+	TRACE("[mb]->refresh\r\n");
 
 	refreshTitle();
 	if (m_pcBrowser != NULL && m_showBrowserFiles == true )
@@ -1159,7 +1159,6 @@ void CMovieBrowser::refresh(void)
 
 	refreshFoot();
 	refreshLCD();
-	info_hdd_level();
 }
 
 std::string CMovieBrowser::getCurrentDir(void)
@@ -1533,12 +1532,13 @@ void CMovieBrowser::refreshBookmarkList(void) // P3
 void CMovieBrowser::refreshTitle(void)
 {
 	//Paint Text Background
-	//TRACE("[mb]->refreshTitle : %s\r\n",m_textTitle.c_str());
+	TRACE("[mb]->refreshTitle : %s\r\n",m_textTitle.c_str());
 	const short text_border_width = 8;
 	m_pcWindow->paintBoxRel(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX, m_cBoxFrame.iY+	m_cBoxFrameTitleRel.iY,
 				m_cBoxFrameTitleRel.iWidth, m_cBoxFrameTitleRel.iHeight, TITLE_BACKGROUND_COLOR, RADIUS_LARGE, CORNER_TOP);
 
 	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + text_border_width, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (text_border_width << 1), m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
+	info_hdd_level();
 }
 
 void CMovieBrowser::refreshFoot(void)
@@ -2571,10 +2571,8 @@ void CMovieBrowser::updateMovieSelection(void)
 			if(m_currentBrowserSelection != old_movie_selection)
 				new_selection = true;
 
-			if(m_currentBrowserSelection < m_vHandleBrowserList.size()){
+			if(m_currentBrowserSelection < m_vHandleBrowserList.size())
 				m_movieSelectionHandler = m_vHandleBrowserList[m_currentBrowserSelection];
-				info_hdd_level();
-			}
 		}
 	}
 	else if(m_windowFocus == MB_FOCUS_LAST_PLAY)
@@ -2594,10 +2592,8 @@ void CMovieBrowser::updateMovieSelection(void)
 			if(m_currentPlaySelection != old_movie_selection)
 				new_selection = true;
 
-			 if(m_currentPlaySelection < m_vHandlePlayList.size()){
+			if(m_currentPlaySelection < m_vHandlePlayList.size())
 				m_movieSelectionHandler = m_vHandlePlayList[m_currentPlaySelection];
-				info_hdd_level();
-			 }
 		}
 	}
 	else if(m_windowFocus == MB_FOCUS_LAST_RECORD)
@@ -2617,10 +2613,8 @@ void CMovieBrowser::updateMovieSelection(void)
 			if(m_currentRecordSelection != old_movie_selection)
 				new_selection = true;
 
-			if(m_currentRecordSelection < m_vHandleRecordList.size()){
+			if(m_currentRecordSelection < m_vHandleRecordList.size())
 				m_movieSelectionHandler = m_vHandleRecordList[m_currentRecordSelection];
-				info_hdd_level();
-			}
 		}
 	}
 
