@@ -86,6 +86,7 @@
 #define NEUTRINO_ICON_MOUNTED		"mounted"
 #define NEUTRINO_ICON_MP3		"mp3"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
+#define NEUTRINO_ICON_MOVIEPLAYER_32	"icon_movieplayer_32x32"
 #define NEUTRINO_ICON_NOT_MOUNTED	"not_mounted"
 #define NEUTRINO_ICON_PAUSE		"mp_pause"
 #define NEUTRINO_ICON_PLAY 		"mp_play"

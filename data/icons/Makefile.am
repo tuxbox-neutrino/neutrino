@@ -42,4 +42,5 @@ install_DATA = \
 	powervu_green.png powervu_white.png powervu_yellow.png \
 	seca_green.png seca_white.png seca_yellow.png \
 	via_green.png via_white.png via_yellow.png \
-	radiotextget.png radiotextoff.png radiotextwait.png
+	radiotextget.png radiotextoff.png radiotextwait.png \
+	icon_movieplayer_32x32.png
