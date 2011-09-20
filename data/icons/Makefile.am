@@ -19,7 +19,7 @@ install_DATA = \
 	mp3.png mute.png mute_small.png mute_zap_gray.png mute_zap_green.png \
 	network.png not_mounted.png notyet.png numericpad.png ok.png power.png \
 	radar_red.pal radar.pal radar0.raw radar1.raw radar2.raw radar3.raw radar4.raw \
-	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw movieplayer.raw rec.png rec_gray.png recording.png \
+	radar5.raw radar6.raw radar7.raw radar8.raw radar9.raw rec.png rec_gray.png recording.png \
 	res_1920.png res_1280.png res_1440.png res_1080.png res_720.png res_704.png res_576.png \
 	res_528.png res_544.png res_480.png res_382.png res_352.png res_288.png res_000.png \
 	res_hd.png res_sd.png \
