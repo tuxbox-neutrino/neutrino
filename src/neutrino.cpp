@@ -3806,10 +3806,10 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete hintBox;
 			delete frameBuffer;
 
-			stop_daemons(false);
+			stop_daemons(true);
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
-			delete g_Zapit;
+			delete g_Zapit; //do we really need this?
 			delete CVFD::getInstance();
 
 			execvp(global_argv[0], global_argv); // no return if successful
