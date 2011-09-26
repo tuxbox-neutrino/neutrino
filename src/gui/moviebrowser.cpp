@@ -3117,13 +3117,13 @@ TRACE("[mb] adding boomark menu N %d, position %d\n", menu_nr, position[menu_nr]
 	//result = startPosSelectionMenu.getSelected();
 	result = startPosSelectionMenu.getSelectedLine();
 printf("startPosSelectionMenu result %d\n", result);
-	if(result < 3)// select 2 for startPosSelectionMenu.addIntroItems();
+	if(result < 4)// select 2 for startPosSelectionMenu.addIntroItems();
 		return -1;
 
 	//TRACE("[mb] selected bookmark %d\n", result);
 	if(result != 0 && result <= MAX_NUMBER_OF_BOOKMARK_ITEMS)
 	{
-		result -= 3;
+		result -= 4;
 		if(result > sep_pos) result--;	  
 		pos = position[result];
 	}
