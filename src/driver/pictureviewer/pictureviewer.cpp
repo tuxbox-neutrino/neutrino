@@ -25,6 +25,7 @@ extern int fh_jpeg_id (const char *);
 #ifdef FBV_SUPPORT_PNG
 extern int fh_png_getsize (const char *, int *, int *, int, int);
 extern int fh_png_load (const char *, unsigned char **, int *, int *);
+extern int png_load_ext (const char * name, unsigned char ** buffer, int * xp, int * yp, int * bpp);
 extern int fh_png_id (const char *);
 #endif
 #ifdef FBV_SUPPORT_BMP
@@ -450,8 +451,8 @@ bool CPictureViewer::GetLogoName(uint64_t channel_id, std::string ChannelName, s
 	sprintf(strChanId, "%llx", channel_id & 0xFFFFFFFFFFFFULL);
 	/* first the channel-id, then the channelname */
 	std::string strLogoName[2] = { (std::string)strChanId, ChannelName };
-	/* first jpg, then gif */
-	std::string strLogoExt[3] = { ".jpg", ".gif" , ".png" };
+	/* first png, then jpg, then gif */
+	std::string strLogoExt[3] = { ".png", ".jpg" , ".gif" };
 
 	for (i = 0; i < 2; i++)
 	{
@@ -522,37 +523,51 @@ bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy,
 	return false;
 }
 
-fb_pixel_t * CPictureViewer::getImage (const std::string & name, int width, int height)
+fb_pixel_t * CPictureViewer::getImage(const std::string & name, int width, int height)
 {
-	int x, y;
+	int x, y, bpp = 0;
 	CFormathandler *fh;
 	unsigned char * buffer;
 	fb_pixel_t * ret = NULL;
+	int load_ret;
 
-  	fh = fh_getsize (name.c_str (), &x, &y, INT_MAX, INT_MAX);
-  	if (fh) {
-
-		buffer = (unsigned char *) malloc (x * y * 3);
-		if (buffer == NULL) {
+  	fh = fh_getsize(name.c_str(), &x, &y, INT_MAX, INT_MAX);
+  	if (fh)
+  	{
+		buffer = (unsigned char *) malloc (x * y * 4);
+		if (buffer == NULL)
+		{
 		  	printf ("getImage: Error: malloc\n");
 		  	return false;
 		}
-		if (fh->get_pic (name.c_str (), &buffer, &x, &y) == FH_ERROR_OK) {
-printf("getImage: decoded %s, %d x %d \n", name.c_str (), x, y);
+#ifdef FBV_SUPPORT_PNG
+		if (name.find(".png")) // FIXME
+			load_ret = png_load_ext(name.c_str(), &buffer, &x, &y, &bpp);
+		else
+#endif
+			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
+		if (load_ret == FH_ERROR_OK)
+		{
+			printf("getImage: decoded %s, %d x %d \n", name.c_str(), x, y);
 			if(x != width || y != height)
 			{
-printf("getImage: resize %s to %d x %d \n", name.c_str (), width, height);
-				buffer = Resize(buffer, x, y, width, height, COLOR);
+				printf("getImage: resize  %s to %d x %d \n", name.c_str(), width, height);
+				if (bpp == 4)
+					buffer = ResizeA(buffer, x, y, width, height);
+				else
+					buffer = Resize(buffer, x, y, width, height, COLOR);
 				x = width;
 				y = height;
-			} 
-			ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.infobar_alpha));
-		} else {
-	  		printf ("Error decoding file %s\n", name.c_str ());
-		}
+			}
+			if (bpp == 4)
+				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGBA2FB(buffer, x, y);
+			else
+				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+		}else
+	  		printf ("getImage: Error decoding file %s\n", name.c_str ());
 		free(buffer);
-  	} else
-		printf("Error open file %s\n", name.c_str ());
+  	}else
+		printf("getImage: Error open file %s\n", name.c_str ());
 
 	return ret;
 }
@@ -599,21 +614,23 @@ fb_pixel_t * CPictureViewer::getIcon (const std::string & name, int *width, int 
 	return fbbuff;
 }
 
-unsigned char * CPictureViewer::Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst)
+unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst, bool alpha)
 {
 	unsigned char * cr;
-	if(dst == NULL) {
-		cr = (unsigned char*) malloc(dx*dy*3);
+	if(dst == NULL)
+	{
+		cr = (unsigned char*) malloc(dx * dy * ((alpha) ? 4 : 3));
 
-		if(cr==NULL)
+		if(cr == NULL)
 		{
-			printf("Error: malloc\n");
+			printf("Resize Error: malloc\n");
 			return(orgin);
 		}
-	} else
+	}else
 		cr = dst;
 
-	if(type == SIMPLE) {
+	if(type == SIMPLE)
+	{
 		unsigned char *p,*l;
 		int i,j,k,ip;
 		l=cr;
@@ -627,10 +644,11 @@ unsigned char * CPictureViewer::Resize(unsigned char *orgin, int ox, int oy, int
 				memmove(l+k, p+ip, 3);
 			}
 		}
-	} else {
+	}else
+	{
 		unsigned char *p,*q;
 		int i,j,k,l,ya,yb;
-		int sq,r,g,b;
+		int sq,r,g,b,a;
 
 		p=cr;
 
@@ -644,24 +662,57 @@ unsigned char * CPictureViewer::Resize(unsigned char *orgin, int ox, int oy, int
 			if(xb_v[i]>=ox)
 				xb_v[i]=ox-1;
 		}
-		for(j=0;j<dy;j++)
+
+		if (alpha)
 		{
-			ya= j*oy/dy;
-			yb= (j+1)*oy/dy; if(yb>=oy) yb=oy-1;
-			for(i=0;i<dx;i++,p+=3)
+			for(j=0;j<dy;j++)
 			{
-				for(l=ya,r=0,g=0,b=0,sq=0;l<=yb;l++)
+				ya= j*oy/dy;
+				yb= (j+1)*oy/dy; if(yb>=oy) yb=oy-1;
+				for(i=0;i<dx;i++,p+=4)
 				{
-					q=orgin+((l*ox+xa_v[i])*3);
-					for(k=xa_v[i];k<=xb_v[i];k++,q+=3,sq++)
+					for(l=ya,r=0,g=0,b=0,a=0,sq=0;l<=yb;l++)
 					{
-						r+=q[0]; g+=q[1]; b+=q[2];
+						q=orgin+((l*ox+xa_v[i])*4);
+						for(k=xa_v[i];k<=xb_v[i];k++,q+=4,sq++)
+						{
+							r+=q[0]; g+=q[1]; b+=q[2]; a+=q[3];
+						}
 					}
+					p[0]=r/sq; p[1]=g/sq; p[2]=b/sq; p[3]=a/sq;
 				}
-				p[0]=r/sq; p[1]=g/sq; p[2]=b/sq;
+			}
+		}else
+		{
+			for(j=0;j<dy;j++)
+			{
+				ya= j*oy/dy;
+				yb= (j+1)*oy/dy; if(yb>=oy) yb=oy-1;
+				for(i=0;i<dx;i++,p+=3)
+				{
+					for(l=ya,r=0,g=0,b=0,sq=0;l<=yb;l++)
+					{
+						q=orgin+((l*ox+xa_v[i])*3);
+						for(k=xa_v[i];k<=xb_v[i];k++,q+=3,sq++)
+						{
+							r+=q[0]; g+=q[1]; b+=q[2];
+						}
+					}
+					p[0]=r/sq; p[1]=g/sq; p[2]=b/sq;
+				}
 			}
 		}
 	}
 	free(orgin);
 	return(cr);
+}
+
+unsigned char * CPictureViewer::Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst)
+{
+	return int_Resize(orgin, ox, oy, dx, dy, type, dst, false);
+}
+
+unsigned char * CPictureViewer::ResizeA(unsigned char *orgin, int ox, int oy, int dx, int dy)
+{
+	return int_Resize(orgin, ox, oy, dx, dy, COLOR, NULL, true);
 }

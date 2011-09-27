@@ -1618,30 +1618,47 @@ void CFrameBuffer::Unlock()
 	locked = false;
 }
 
-void * CFrameBuffer::convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp)
+void * CFrameBuffer::int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha)
 {
 	unsigned long i;
 	unsigned int *fbbuff;
-	unsigned long count = x*y;
+	unsigned long count = x * y;
 
-	//fbbuff = (unsigned int *) malloc(count * sizeof(unsigned int));
 	fbbuff = (unsigned int *) cs_malloc_uncached(count * sizeof(unsigned int));
 	if(fbbuff == NULL)
 	{
-		printf("convertRGB2FB: Error: malloc\n");
+		printf("convertRGB2FB%s: Error: cs_malloc_uncached\n", ((alpha) ? " (Alpha)" : ""));
 		return NULL;
 	}
 
-	for(i = 0; i < count ; i++) {
-		transp = 0;
-
-		if(rgbbuff[i*3] || rgbbuff[i*3+1] || rgbbuff[i*3+2])
-			transp = 0xFF;
-
-		fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+	if (alpha)
+	{
+		for(i = 0; i < count ; i++)
+			fbbuff[i] = ((rgbbuff[i*4+3] << 24) & 0xFF000000) | 
+			            ((rgbbuff[i*4]   << 16) & 0x00FF0000) | 
+		        	    ((rgbbuff[i*4+1] <<  8) & 0x0000FF00) | 
+			            ((rgbbuff[i*4+2])       & 0x000000FF);
+	}else
+	{
+		for(i = 0; i < count ; i++)
+		{
+			transp = 0;
+			if(rgbbuff[i*3] || rgbbuff[i*3+1] || rgbbuff[i*3+2])
+				transp = 0xFF;
+			fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+		}
 	}
-
 	return (void *) fbbuff;
+}
+
+void * CFrameBuffer::convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp)
+{
+	return int_convertRGB2FB(rgbbuff, x, y, transp, false);
+}
+
+void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y)
+{
+	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
 void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)

@@ -114,6 +114,8 @@ class CFrameBuffer
 		bool locked;
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
+		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
+
 	public:
 		fb_pixel_t realcolor[256];
 
@@ -213,6 +215,7 @@ class CFrameBuffer
 		inline void waitForIdle(void) {};
 #endif
 		void* convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp = 0xFF);
+		void* convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y);
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);

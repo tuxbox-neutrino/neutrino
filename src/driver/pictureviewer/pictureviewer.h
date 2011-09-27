@@ -69,6 +69,7 @@ class CPictureViewer
 	fb_pixel_t * getIcon (const std::string & name, int *width, int *height);
 	void getSize(const char *name, int* width, int *height);
 	unsigned char * Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst = NULL);
+	unsigned char * ResizeA(unsigned char *orgin, int ox, int oy, int dx, int dy);
 
  private:
 	CFormathandler *fh_root;
@@ -105,6 +106,7 @@ class CPictureViewer
 	CFormathandler * fh_getsize(const char *name,int *x,int *y, int width_wanted, int height_wanted);
 	void init_handlers(void);
 	void add_format(int (*picsize)(const char *,int *,int*,int,int),int (*picread)(const char *,unsigned char **,int*,int*), int (*id)(const char*));
+	unsigned char * int_Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst, bool alpha);
 };
 
 

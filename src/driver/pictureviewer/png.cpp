@@ -126,6 +126,88 @@ int fh_png_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 	return(FH_ERROR_OK);
 }
 
+int png_load_ext(const char *name, unsigned char **buffer, int* xp, int* yp, int* bpp)
+{
+	png_structp png_ptr;
+	png_infop info_ptr;
+	png_uint_32 width, height;
+	unsigned int i;
+	int bit_depth, color_type, interlace_type;
+	int number_passes,pass;
+	png_byte * fbptr;
+	FILE     * fh;
+
+	if(!(fh=fopen(name,"rb")))	return(FH_ERROR_FILE);
+
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,NULL,NULL,NULL);
+	if(png_ptr == NULL) {
+		fclose(fh);
+		return(FH_ERROR_FORMAT);
+	}
+	info_ptr = png_create_info_struct(png_ptr);
+	if(info_ptr == NULL)
+	{
+		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		fclose(fh);
+		return(FH_ERROR_FORMAT);
+	}
+
+#if (PNG_LIBPNG_VER < 10500)
+	if (setjmp(png_ptr->jmpbuf))
+#else
+	if (setjmp(png_jmpbuf(png_ptr)))
+#endif
+	{
+		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+		fclose(fh);
+		return(FH_ERROR_FORMAT);
+	}
+
+	png_init_io(png_ptr, fh);
+
+	png_read_info(png_ptr, info_ptr);
+	png_get_IHDR(png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
+
+	*bpp = png_get_channels(png_ptr, info_ptr);
+	if ((*bpp != 4) || !(color_type & PNG_COLOR_MASK_ALPHA))
+	{
+		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+		fclose(fh);
+		return fh_png_load(name, buffer, xp, yp);
+	}
+
+	printf("##### [png.cpp]: Image: %s, bit_depth: %d, bpp: %d\n", name, bit_depth, *bpp);
+//	png_set_swap_alpha(png_ptr);
+	if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
+		png_set_tRNS_to_alpha(png_ptr);
+	if (bit_depth == 16)
+		png_set_strip_16(png_ptr);
+
+	number_passes = png_set_interlace_handling(png_ptr);
+	png_read_update_info(png_ptr,info_ptr);
+	unsigned long rowbytes = png_get_rowbytes(png_ptr, info_ptr);
+
+	if (width * 4 != rowbytes)
+	{
+		printf("[png.cpp]: Error processing %s - please report (including image).\n", name);
+		printf("           width: %lu rowbytes: %lu\n", (unsigned long)width, (unsigned long)rowbytes);
+		fclose(fh);
+		return(FH_ERROR_FORMAT);
+	}
+
+	for(pass = 0; pass < number_passes; pass++)
+	{
+		fbptr = (png_byte *)(*buffer);
+		for (i = 0; i < height; i++, fbptr += width * 4)
+			png_read_row(png_ptr, fbptr, NULL);
+	}
+	png_read_end(png_ptr, info_ptr);
+	png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+	fclose(fh);
+
+	return(FH_ERROR_OK);
+}
+
 int fh_png_getsize(const char *name,int *x,int *y, int /*wanted_width*/, int /*wanted_height*/)
 {
 	png_structp png_ptr;
