@@ -541,7 +541,7 @@ fb_pixel_t * CPictureViewer::getImage(const std::string & name, int width, int h
 		  	return false;
 		}
 #ifdef FBV_SUPPORT_PNG
-		if (name.find(".png")) // FIXME
+		if (name.find(".png") != std::string::npos)
 			load_ret = png_load_ext(name.c_str(), &buffer, &x, &y, &bpp);
 		else
 #endif
