@@ -584,7 +584,6 @@ int CChannelList::show()
 				printf("[neutrino channellist] start direct recording...\n");
 				CRecordManager::getInstance()->Record(chanlist[selected]->channel_id);
 				paint();
-				loop=false;
 			}		
 				
 		}
@@ -1773,7 +1772,7 @@ struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
 
 void CChannelList::paintButtonBar(bool is_current)
 {
-	printf("[neutrino channellist] %s...%d, liststart %d\n", __FUNCTION__, __LINE__, selected);
+	//printf("[neutrino channellist] %s...%d, selected %d\n", __FUNCTION__, __LINE__, selected);
 	
 	//manage now/next button
 	if (displayNext)
