@@ -44,7 +44,7 @@ cRecord::~cRecord()
 	INFO("end\n");
 }
 
-bool cRecord::Open(int /*numpids*/)
+bool cRecord::Open(void)
 {
 	INFO("\n");
 	exit_flag = RECORD_STOPPED;

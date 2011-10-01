@@ -25,16 +25,11 @@ class cRecord
 		cRecord(int num = 0);
 		~cRecord();
 
-		bool Open(int numpids);
-		bool Start(int fd, unsigned short vpid, unsigned short *apids, int numpids);
+		bool Open();
+		bool Start(int fd, unsigned short vpid, unsigned short *apids, int numapids);
 		bool Stop(void);
 		bool ChangePids(unsigned short vpid, unsigned short *apids, int numapids);
 
 		void RecordThread();
-#if 0
-		/* apparently unused */
-		void Close(void);
-		void RecordNotify(int Event, void *pData);
-#endif
 };
 #endif
