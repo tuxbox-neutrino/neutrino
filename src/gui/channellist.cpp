@@ -1761,6 +1761,22 @@ void CChannelList::showChannelLogo()
 	}
 }
 
+#define NUM_LIST_REC_BUTTON 1
+struct button_label SRecButton[NUM_LIST_REC_BUTTON] =
+{
+	{ NEUTRINO_ICON_BUTTON_RECORD_ACTIVE_16, LOCALE_MAINMENU_RECORDING}
+};
+#define NUM_LIST_REC_BUTTON_STOP 1
+struct button_label SRecButtonStop[NUM_LIST_REC_BUTTON_STOP] =
+{
+	{ NEUTRINO_ICON_BUTTON_STOP_16, LOCALE_MAINMENU_RECORDING_STOP}
+};
+#define NUM_LIST_REC_BUTTON_DISABLED 1
+struct button_label SRecButtonDisabled[NUM_LIST_REC_BUTTON_DISABLED] =
+{
+	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16, NONEXISTANT_LOCALE}
+};
+
 void CChannelList::paintItem(int pos)
 {
 	int ypos = y+ theight+0 + pos*fheight;
@@ -1826,8 +1842,22 @@ void CChannelList::paintItem(int pos)
 				r_icon_x = r_icon_x - s_icon_w;
 		
 		//paint recording icon
-		if (CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id))
+		bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
+		if (do_rec)
 			frameBuffer->paintIcon(NEUTRINO_ICON_REC, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
+		
+		//paint record and stop buttons
+		if (g_settings.recording_type != RECORDING_OFF)
+		{
+			int y_foot = y + (height - footerHeight);
+			int bb_w = width/2;
+			if (iscurrent && !do_rec)
+				::paintButtons(x+bb_w, y_foot, bb_w, NUM_LIST_REC_BUTTON, SRecButton, footerHeight);
+			else if (do_rec)
+				::paintButtons(x+bb_w, y_foot, bb_w, NUM_LIST_REC_BUTTON_STOP, SRecButtonStop, footerHeight);
+			else
+				::paintButtons(x+bb_w, y_foot, bb_w, NUM_LIST_REC_BUTTON_DISABLED, SRecButtonDisabled, footerHeight);
+		}
 		
 		int icon_space = r_icon_w+s_icon_w;
 
@@ -1977,15 +2007,15 @@ void CChannelList::paintHead()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
 
 	//foot/buttonbar
-
-	if (displayNext) {
+	if (displayNext)
 		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NOW;
-	} else {
+	else
 		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
-	}
 
+	//paint default buttons
 	int y_foot = y + (height - footerHeight);
 	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, CChannelListButtons, footerHeight/*, (width - 20) / NUM_LIST_BUTTONS*/); //buttonwidth will set automaticly
+	
 }
 
 void CChannelList::paint()
