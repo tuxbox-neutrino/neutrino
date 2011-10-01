@@ -702,6 +702,9 @@ int CRecordManager::GetRecordMode()
 
 bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, bool timeshift)
 {
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Start recording...please wait!");
+	hintBox.paint();
+	
 	CTimerd::RecordingInfo	eventinfo;
 	CEPGData		epgData;
 
@@ -720,7 +723,9 @@ bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, boo
 	}
 	eventinfo.apids = TIMERD_APIDS_CONF;
 	eventinfo.recordingDir[0] = 0;
-
+	
+	hintBox.hide();
+	
 	return Record(&eventinfo, dir, timeshift);
 }
 
@@ -739,6 +744,9 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 
 	if(!CheckRecording(eventinfo))
 		return false;
+	
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Start recording...please wait!");
+	hintBox.paint();
 
 #if 1 // FIXME test
 	StopSectionsd = false;
@@ -797,6 +805,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	mutex.unlock();
 
 	if (error_msg == RECORD_OK) {
+		hintBox.hide();
 		return true;
 	}
 	else if(!timeshift) {
@@ -805,12 +814,15 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 
 		printf("[recordmanager] %s: error code: %d\n", __FUNCTION__, error_msg);
 		//FIXME: Use better error message
+		hintBox.hide();
 		DisplayErrorMessage(g_Locale->getText(
 				      error_msg == RECORD_BUSY ? LOCALE_STREAMING_BUSY :
 				      error_msg == RECORD_INVALID_DIRECTORY ? LOCALE_STREAMING_DIR_NOT_WRITABLE :
 				      LOCALE_STREAMING_WRITE_ERROR )); // UTF-8
 		return false;
 	}
+	
+	hintBox.hide();
 	return true;
 }
 
@@ -933,8 +945,12 @@ bool CRecordManager::SameTransponder(const t_channel_id channel_id)
 	return same;
 }
 
+
 bool CRecordManager::Stop(const t_channel_id channel_id)
 {
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Stopp record...please wait!");
+	hintBox.paint();
+	
 	printf("%s: %llx\n", __FUNCTION__, channel_id);
 
 	mutex.lock();
@@ -956,12 +972,18 @@ bool CRecordManager::Stop(const t_channel_id channel_id)
 
 	StopPostProcess();
 
+	hintBox.hide();
+		
 	return (inst != NULL);
 }
 
 bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 {
 	bool ret = false;
+	
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, "Stopp record...please wait!");
+	hintBox.paint();
+	
 	printf("%s: eventID %d channel_id %llx\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id);
 
 	mutex.lock();
@@ -996,6 +1018,8 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 
 	StopPostProcess();
 
+	hintBox.hide();
+	
 	return ret;
 }
 
