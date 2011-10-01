@@ -59,6 +59,10 @@
 #define NEUTRINO_ICON_BUTTON_DOWN_SMALL	"down_small"
 #define NEUTRINO_ICON_BUTTON_LEFT	"left"
 
+#define NEUTRINO_ICON_BUTTON_RECORD_ACTIVE_16	"btn_record_active_16x16"
+#define NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16	"btn_record_inactive_16x16"
+#define NEUTRINO_ICON_BUTTON_STOP_16	"btn_stop_16x16"
+
 #define NEUTRINO_ICON_BUTTON_PLUS	"plus"
 #define NEUTRINO_ICON_BUTTON_MINUS	"minus"
 

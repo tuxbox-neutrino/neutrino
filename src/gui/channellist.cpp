@@ -578,6 +578,25 @@ int CChannelList::show()
 			} else
 				loop=false;
 		}
+		else if( msg == CRCInput::RC_record) { //start direct recording from channellist 
+			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
+			{
+				printf("[neutrino channellist] start direct recording...\n");
+				CRecordManager::getInstance()->Record(chanlist[selected]->channel_id);
+				loop = false;
+			}		
+				
+		}
+		else if( msg == CRCInput::RC_stop ) { //stopp recording
+			if(CRecordManager::getInstance()->RecordingStatus())
+			{
+				if (CRecordManager::getInstance()->AskToStop(chanlist[selected]->channel_id))
+				{
+					CRecordManager::getInstance()->Stop(chanlist[selected]->channel_id);
+					paint();
+				}
+			}
+		}
 		else if ((msg == CRCInput::RC_red) || (msg == CRCInput::RC_epg)) {
 			hide();
 
@@ -1793,10 +1812,26 @@ void CChannelList::paintItem(int pos)
 		} else {
 			p_event = &chan->currentEvent;
 		}
-
+	
+		//calculating icons
+		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
+		int r_icon_h=0; int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
+		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
+		frameBuffer->getIconSize(NEUTRINO_ICON_REC, &r_icon_w, &r_icon_h);
+		int r_icon_x = icon_x;
+		
+		//paint scramble icon
 		if(chan->scrambled)
-			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);//ypos + (fheight - 16)/2);
+			if (frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, icon_x - s_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
+				r_icon_x = r_icon_x - s_icon_w;
+		
+		//paint recording icon
+		if (CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id))
+			frameBuffer->paintIcon(NEUTRINO_ICON_REC, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
+		
+		int icon_space = r_icon_w+s_icon_w;
 
+		//number
 		int numpos = x+5+numwidth- g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(tmp);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->RenderString(numpos,ypos+fheight, numwidth+5, tmp, color, fheight);
 
@@ -1816,7 +1851,8 @@ void CChannelList::paintItem(int pos)
 
 			int max_desc_len = width - numwidth - prg_offset - ch_name_len - 15 - 20; // 15 = scrollbar, 20 = spaces
 			if (chan->scrambled || (g_settings.channellist_extended ||g_settings.channellist_epgtext_align_right))
-				max_desc_len -= 28; /* do we need space for the lock icon? */
+				max_desc_len -= icon_space; /* do we need space for the lock/rec icon? */
+				
 			if (max_desc_len < 0)
 				max_desc_len = 0;
 			if ((int) ch_desc_len > max_desc_len)

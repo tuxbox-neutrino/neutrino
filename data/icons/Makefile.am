@@ -25,6 +25,9 @@ install_DATA = \
 	border_lr.png \
 	border_ul.png \
 	bosanski.png \
+	btn_record_active_16x16.png \
+	btn_record_inactive_16x16.png \
+	btn_stop_16x16.png \
 	ca.png \
 	ca2.png \
 	ca2_gray.png \
@@ -84,6 +87,7 @@ install_DATA = \
 	mainmenue.png \
 	mounted.png \
 	movie.png \
+	movieplayer.raw \
 	mp_b-skip.png \
 	mp_f-skip.png \
 	mp_pause.png \
