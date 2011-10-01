@@ -290,17 +290,18 @@ void CInfoViewer::showRecordIcon (const bool show)
 	CRecordManager * crm		= CRecordManager::getInstance();
 	int rec_mode 			= crm->GetRecordMode();
 	
-	recordModeActive		= rec_mode != CRecordManager::RECMODE_OFF; /*crm->RecordingStatus() || crm->IsTimeshift();*/
+	recordModeActive		= rec_mode != CRecordManager::RECMODE_OFF; 
 	if (recordModeActive)
 	{
 		std::string Icon_Rec = NEUTRINO_ICON_REC_GRAY, Icon_Ts = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-						
-		if (rec_mode == CRecordManager::RECMODE_TSHIFT)
-			Icon_Ts	= NEUTRINO_ICON_AUTO_SHIFT;
-		
-		if (rec_mode == CRecordManager::RECMODE_REC)
-			Icon_Rec = NEUTRINO_ICON_REC;
 
+		t_channel_id cci	= g_RemoteControl->current_channel_id;
+		bool status_ts		= crm->GetRecordMode(cci) == CRecordManager::RECMODE_TSHIFT;
+		bool status_rec		= crm->GetRecordMode(cci) == CRecordManager::RECMODE_REC && !status_ts;
+		if (status_ts)
+			Icon_Ts		= NEUTRINO_ICON_AUTO_SHIFT;
+		if (status_rec)
+			Icon_Rec	= NEUTRINO_ICON_REC;
 		int records		= crm->GetRecordCount();
 		
 		const int radius = RADIUS_MIN;
@@ -346,9 +347,11 @@ void CInfoViewer::showRecordIcon (const bool show)
 			frameBuffer->paintBoxRel(box_posX + SHADOW_OFFSET, BoxStartY + box_posY + SHADOW_OFFSET, box_len, chanH, COL_INFOBAR_SHADOW_PLUS_0, radius);
 			frameBuffer->paintBoxRel(box_posX, BoxStartY + box_posY , box_len, chanH, COL_INFOBAR_PLUS_0, radius);
 			
+			if (rec_mode != CRecordManager::RECMODE_TSHIFT)
+				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR, 0, true);
+			
 			if (rec_mode == CRecordManager::RECMODE_REC)
 			{
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString (rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR, 0, true);
 				frameBuffer->paintIcon(Icon_Rec, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
 			}
 			else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
@@ -357,7 +360,6 @@ void CInfoViewer::showRecordIcon (const bool show)
 			}
 			else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
 			{
-				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rec_icon_posX + rec_icon_w + icon_space, BoxStartY + box_posY + chanH, box_len, records_msg, COL_INFOBAR, 0, true);
 				frameBuffer->paintIcon(Icon_Rec, rec_icon_posX, BoxStartY + box_posY + (chanH - rec_icon_h)/2);
 				frameBuffer->paintIcon(Icon_Ts, ts_icon_posX, BoxStartY + box_posY + (chanH - ts_icon_h)/2);
 			}
