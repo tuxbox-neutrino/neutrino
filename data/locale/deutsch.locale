@@ -1115,6 +1115,8 @@ rclock.lockmsg Die Fernbedienung der Coolstream wird gesperrt.\n Um die Sperre a
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert...
+recording.start Starte Aufzeichnung, bitte warten...!
+recording.stop Beende Aufzeichnung, bitte warten...!
 recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.

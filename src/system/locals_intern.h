@@ -1142,6 +1142,8 @@ const char * locale_real_names[] =
 	"rclock.menueadd",
 	"rclock.title",
 	"rclock.unlockmsg",
+	"recording.start",
+	"recording.stop",
 	"recordingmenu.apids",
 	"recordingmenu.apids_ac3",
 	"recordingmenu.apids_alt",
