@@ -2336,6 +2336,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						showInfo();
 #endif
 				}
+				else
+					DisplayInfoMessage(g_Locale->getText(LOCALE_RECORDING_IS_RUNNING));
 			}
 			else if( msg == CRCInput::RC_stop ) {
 				if(CRecordManager::getInstance()->RecordingStatus())
