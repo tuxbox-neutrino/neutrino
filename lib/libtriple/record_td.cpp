@@ -158,6 +158,22 @@ bool cRecord::ChangePids(unsigned short /*vpid*/, unsigned short *apids, int num
 	return true;
 }
 
+bool cRecord::AddPid(unsigned short pid)
+{
+	std::vector<pes_pids> pids;
+	INFO("\n");
+	if (!dmx) {
+		INFO("DMX = NULL\n");
+		return false;
+	}
+	pids = dmx->getPesPids();
+	for (std::vector<pes_pids>::const_iterator i = pids.begin(); i != pids.end(); ++i) {
+		if ((*i).pid == pid)
+			return true; /* or is it an error to try to add the same PID twice? */
+	}
+	return dmx->addPid(pid);
+}
+
 void cRecord::RecordThread()
 {
 	INFO("begin\n");

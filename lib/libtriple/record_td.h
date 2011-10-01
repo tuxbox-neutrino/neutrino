@@ -28,6 +28,7 @@ class cRecord
 		bool Open();
 		bool Start(int fd, unsigned short vpid, unsigned short *apids, int numapids);
 		bool Stop(void);
+		bool AddPid(unsigned short pid);
 		bool ChangePids(unsigned short vpid, unsigned short *apids, int numapids);
 
 		void RecordThread();
