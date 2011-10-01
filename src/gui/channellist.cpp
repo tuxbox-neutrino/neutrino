@@ -582,8 +582,17 @@ int CChannelList::show()
 			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
 			{
 				printf("[neutrino channellist] start direct recording...\n");
-				CRecordManager::getInstance()->Record(chanlist[selected]->channel_id);
-				paint();
+				if (CRecordManager::getInstance()->Record(chanlist[selected]->channel_id))
+				{
+					if(SameTP())
+					{
+						zapOnExit = true;
+						loop=false;
+					}
+					else
+						DisplayInfoMessage("Recording is not possible here!"); // UTF-8	
+				}
+					
 			}		
 				
 		}
