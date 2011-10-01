@@ -583,7 +583,8 @@ int CChannelList::show()
 			{
 				printf("[neutrino channellist] start direct recording...\n");
 				CRecordManager::getInstance()->Record(chanlist[selected]->channel_id);
-				loop = false;
+				paint();
+				loop=false;
 			}		
 				
 		}
@@ -1770,22 +1771,24 @@ struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
 	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16, NONEXISTANT_LOCALE}
 };
 
-void CChannelList::paintButtonBar(bool do_rec, bool is_current)
+void CChannelList::paintButtonBar(bool is_current)
 {
-	printf("[neutrino channellist] %s...%d\n", __FUNCTION__, __LINE__);
+	printf("[neutrino channellist] %s...%d, liststart %d\n", __FUNCTION__, __LINE__, selected);
 	
-	//default color buttons
+	//manage now/next button
 	if (displayNext)
 		SChannelListButtons[1].locale = LOCALE_INFOVIEWER_NOW;
 	else
 		SChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
 	
 	//manage record button
+	bool do_record = CRecordManager::getInstance()->RecordingStatus(getActiveChannel_ChannelID());
+	
 	if (g_settings.recording_type != RECORDING_OFF && !displayNext){
-		if (is_current && !do_rec){
+		if (is_current && !do_record){
 			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING;
 			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE_16;
-		}else if (do_rec){
+		}else if (do_record){
 			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING_STOP;
 			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_STOP_16;
 		}else{
@@ -1870,7 +1873,7 @@ void CChannelList::paintItem(int pos)
 			frameBuffer->paintIcon(NEUTRINO_ICON_REC, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		
 		//paint buttons
- 		paintButtonBar(do_rec, iscurrent);
+ 		paintButtonBar(iscurrent);
 		
 		int icon_space = r_icon_w+s_icon_w;
 

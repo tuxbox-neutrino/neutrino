@@ -88,7 +88,7 @@ private:
 	void paintItem(int pos);
 	void paint();
 	void paintHead();
-	void paintButtonBar(bool do_rec, bool is_current);
+	void paintButtonBar(bool is_current);
 	void hide();
 	void showChannelLogo();
 
