@@ -847,8 +847,10 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 	}
 
 	sat_iterator_t spos_it = satellitePositions.find(satellitePosition);
-	if(spos_it == satellitePositions.end())
+	if(spos_it == satellitePositions.end()){
+		fclose(fd);
 		return false;
+	}
 
 	switch (CFrontend::getInstance()->getInfo()->type) {
 		case FE_QPSK: /* satellite */
