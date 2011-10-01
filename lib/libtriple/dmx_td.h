@@ -51,7 +51,7 @@ class cDemux
 		void * getBuffer();
 		void * getChannel();
 		DMX_CHANNEL_TYPE getChannelType(void) { return dmx_type; };
-		void addPid(unsigned short pid);
+		bool addPid(unsigned short pid);
 		void getSTC(int64_t * STC);
 		int getUnit(void);
 		// TD only functions

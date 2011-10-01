@@ -386,7 +386,7 @@ void *cDemux::getChannel()
 	return NULL;
 }
 
-void cDemux::addPid(unsigned short Pid)
+bool cDemux::addPid(unsigned short Pid)
 {
 	pes_pids pfd;
 	int ret;
@@ -394,7 +394,7 @@ void cDemux::addPid(unsigned short Pid)
 	if (dmx_type != DMX_TP_CHANNEL)
 	{
 		lt_info("%s pes_type %s not implemented yet! pid=%hx\n", __FUNCTION__, DMX_T[dmx_type], Pid);
-		return;
+		return false;
 	}
 	if (fd == -1)
 		lt_info("%s bucketfd not yet opened? pid=%hx\n", __FUNCTION__, Pid);
@@ -402,7 +402,7 @@ void cDemux::addPid(unsigned short Pid)
 	if (pfd.fd < 0)
 	{
 		lt_info("%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
-		return;
+		return false;
 	}
 	lt_debug("%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd);
 
@@ -430,7 +430,7 @@ void cDemux::addPid(unsigned short Pid)
 	else
 		/* error! */
 		close(pfd.fd);
-	return;
+	return (ret != -1);
 }
 
 void cDemux::removePid(unsigned short Pid)
