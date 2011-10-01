@@ -1862,12 +1862,24 @@ void CChannelList::paintItem(int pos)
 		} else {
 			p_event = &chan->currentEvent;
 		}
+		
+		//record check
+		int rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[curr]->channel_id);
+		
+		//set recording icon
+		const char * rec_icon = "";
+		if (rec_mode == CRecordManager::RECMODE_REC)
+			rec_icon = NEUTRINO_ICON_REC;
+		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
+		else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
+			rec_icon = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
 	
 		//calculating icons
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
 		int r_icon_h=0; int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
 		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
-		frameBuffer->getIconSize(NEUTRINO_ICON_REC, &r_icon_w, &r_icon_h);
+		frameBuffer->getIconSize(rec_icon, &r_icon_w, &r_icon_h);
 		int r_icon_x = icon_x;
 		
 		//paint scramble icon
@@ -1876,9 +1888,9 @@ void CChannelList::paintItem(int pos)
 				r_icon_x = r_icon_x - s_icon_w;
 		
  		//paint recording icon
- 		bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
-		if (do_rec)
-			frameBuffer->paintIcon(NEUTRINO_ICON_REC, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
+ 		//bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
+		if (rec_mode != CRecordManager::RECMODE_OFF)
+			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		
 		//paint buttons
  		paintButtonBar(iscurrent);
