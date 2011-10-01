@@ -2331,6 +2331,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					CRecordManager::getInstance()->doGuiRecord();
 #else // direct record without any GUI
 					CRecordManager::getInstance()->Record(live_channel_id);
+					
+					if(!g_InfoViewer->is_visible) // show Infoviewer
+						showInfo();
 #endif
 				}
 			}
