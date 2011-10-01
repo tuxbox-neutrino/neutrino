@@ -119,7 +119,7 @@ void cDemux::Close(void)
 	fd = -1;
 }
 
-bool cDemux::Start(void)
+bool cDemux::Start(bool)
 {
 	if (fd < 0)
 	{

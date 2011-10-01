@@ -41,7 +41,7 @@ class cDemux
 
 		bool Open(DMX_CHANNEL_TYPE pes_type, void * x = NULL, int y = 0);
 		void Close(void);
-		bool Start(void);
+		bool Start(bool record = false);
 		bool Stop(void);
 		int Read(unsigned char *buff, int len, int Timeout = 0);
 		bool sectionFilter(unsigned short pid, const unsigned char * const filter, const unsigned char * const mask, int len, int Timeout = 0, const unsigned char * const negmask = NULL);
