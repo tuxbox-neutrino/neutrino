@@ -266,6 +266,7 @@ const char * locale_real_names[] =
 	"channellist.make_hdlist",
 	"channellist.nonefound",
 	"channellist.provs",
+	"channellist.recording_not_possible",
 	"channellist.sats",
 	"channellist.since",
 	"channellist.start",

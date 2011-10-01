@@ -239,6 +239,7 @@ channellist.history Verlauf
 channellist.make_hdlist Erzeuge "HD"- Bouquet
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
+channellist.recording_not_possible Aufnahme nicht möglich!
 channellist.sats Satelliten
 channellist.since seit
 channellist.start Start

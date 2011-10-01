@@ -590,7 +590,7 @@ int CChannelList::show()
 						loop=false;
 					}
 					else
-						DisplayInfoMessage("Recording is not possible here!"); // UTF-8	
+						DisplayInfoMessage(g_Locale->getText(LOCALE_CHANNELLIST_RECORDING_NOT_POSSIBLE)); // UTF-8	
 				}
 					
 			}		
