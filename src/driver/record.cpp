@@ -690,16 +690,16 @@ const std::string CRecordManager::GetFileName(t_channel_id channel_id)
 	return filename;
 }
 
-int CRecordManager::GetRecordMode()
+int CRecordManager::GetRecordMode(const t_channel_id channel_id)
 {
-	if (RecordingStatus() || IsTimeshift())
+	if (RecordingStatus(channel_id) || IsTimeshift(channel_id))
 	{
 		int records	= GetRecordCount();
-		if (RecordingStatus() && !IsTimeshift())
+		if (RecordingStatus(channel_id) && !IsTimeshift(channel_id))
 			return RECMODE_REC;
-		else if (IsTimeshift() && (records == 1))
+		else if (IsTimeshift(channel_id) && (records == 1))
 			return RECMODE_TSHIFT;
-		else if (IsTimeshift() && (records > 1))
+		else if (IsTimeshift(channel_id) && (records > 1))
 			return RECMODE_REC_TSHIFT;
 		else
 			return RECMODE_OFF;

@@ -209,6 +209,6 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		int GetRecordCount() { return recmap.size(); };
 		bool IsTimeshift(t_channel_id channel_id=0);
 		void StartTimeshift();
-		int GetRecordMode();
+		int GetRecordMode(const t_channel_id channel_id=0);
 };
 #endif
