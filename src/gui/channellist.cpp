@@ -1761,21 +1761,43 @@ void CChannelList::showChannelLogo()
 	}
 }
 
-#define NUM_LIST_REC_BUTTON 1
-struct button_label SRecButton[NUM_LIST_REC_BUTTON] =
+#define NUM_LIST_BUTTONS 4
+struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
 {
-	{ NEUTRINO_ICON_BUTTON_RECORD_ACTIVE_16, LOCALE_MAINMENU_RECORDING}
-};
-#define NUM_LIST_REC_BUTTON_STOP 1
-struct button_label SRecButtonStop[NUM_LIST_REC_BUTTON_STOP] =
-{
-	{ NEUTRINO_ICON_BUTTON_STOP_16, LOCALE_MAINMENU_RECORDING_STOP}
-};
-#define NUM_LIST_REC_BUTTON_DISABLED 1
-struct button_label SRecButtonDisabled[NUM_LIST_REC_BUTTON_DISABLED] =
-{
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_INFOVIEWER_NEXT},
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_BOUQUETLIST_HEAD},
 	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16, NONEXISTANT_LOCALE}
 };
+
+void CChannelList::paintButtonBar(bool do_rec, bool is_current)
+{
+	printf("[neutrino channellist] %s...%d\n", __FUNCTION__, __LINE__);
+	
+	//default color buttons
+	if (displayNext)
+		SChannelListButtons[1].locale = LOCALE_INFOVIEWER_NOW;
+	else
+		SChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
+	
+	//manage record button
+	if (g_settings.recording_type != RECORDING_OFF && !displayNext){
+		if (is_current && !do_rec){
+			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING;
+			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE_16;
+		}else if (do_rec){
+			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING_STOP;
+			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_STOP_16;
+		}else{
+			SChannelListButtons[3].locale = NONEXISTANT_LOCALE;
+			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16;
+		}
+	}
+	
+	//paint buttons
+	int y_foot = y + (height - footerHeight);
+	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, SChannelListButtons, footerHeight/*, (width - 20) / NUM_LIST_BUTTONS*/); //buttonwidth will set automaticly
+}
 
 void CChannelList::paintItem(int pos)
 {
@@ -1805,6 +1827,7 @@ void CChannelList::paintItem(int pos)
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, 0);
 	}
+	
 	if(curr < chanlist.size()) {
 		char nameAndDescription[255];
 		char tmp[10];
@@ -1841,23 +1864,13 @@ void CChannelList::paintItem(int pos)
 			if (frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, icon_x - s_icon_w, ypos, fheight))//ypos + (fheight - 16)/2);
 				r_icon_x = r_icon_x - s_icon_w;
 		
-		//paint recording icon
-		bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
+ 		//paint recording icon
+ 		bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
 		if (do_rec)
 			frameBuffer->paintIcon(NEUTRINO_ICON_REC, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		
-		//paint record and stop buttons
-		if (g_settings.recording_type != RECORDING_OFF)
-		{
-			int y_foot = y + (height - footerHeight);
-			int bb_w = width/2;
-			if (iscurrent && !do_rec)
-				::paintButtons(x+bb_w, y_foot, bb_w, NUM_LIST_REC_BUTTON, SRecButton, footerHeight);
-			else if (do_rec)
-				::paintButtons(x+bb_w, y_foot, bb_w, NUM_LIST_REC_BUTTON_STOP, SRecButtonStop, footerHeight);
-			else
-				::paintButtons(x+bb_w, y_foot, bb_w, NUM_LIST_REC_BUTTON_DISABLED, SRecButtonDisabled, footerHeight);
-		}
+		//paint buttons
+ 		paintButtonBar(do_rec, iscurrent);
 		
 		int icon_space = r_icon_w+s_icon_w;
 
@@ -1961,14 +1974,6 @@ void CChannelList::paintItem(int pos)
 	}
 }
 
-#define NUM_LIST_BUTTONS 3
-struct button_label CChannelListButtons[NUM_LIST_BUTTONS] =
-{
-	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_INFOVIEWER_NEXT},
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_BOUQUETLIST_HEAD}
-};
-
 void CChannelList::paintHead()
 {
 	int timestr_len = 0;
@@ -2005,17 +2010,6 @@ void CChannelList::paintHead()
 	timestr_len += iw1 + iw2 + iw3 + 16;
 	logo_off = timestr_len + 4;
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+10,y+theight+0, width - timestr_len, name, COL_MENUHEAD, 0, true); // UTF-8
-
-	//foot/buttonbar
-	if (displayNext)
-		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NOW;
-	else
-		CChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
-
-	//paint default buttons
-	int y_foot = y + (height - footerHeight);
-	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, CChannelListButtons, footerHeight/*, (width - 20) / NUM_LIST_BUTTONS*/); //buttonwidth will set automaticly
-	
 }
 
 void CChannelList::paint()

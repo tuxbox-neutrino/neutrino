@@ -87,7 +87,6 @@ install_DATA = \
 	mainmenue.png \
 	mounted.png \
 	movie.png \
-	movieplayer.raw \
 	mp_b-skip.png \
 	mp_f-skip.png \
 	mp_pause.png \
