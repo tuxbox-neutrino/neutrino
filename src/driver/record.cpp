@@ -694,18 +694,24 @@ int CRecordManager::GetRecordMode(const t_channel_id channel_id)
 {
 	if (RecordingStatus(channel_id) || IsTimeshift(channel_id))
 	{
-		int records	= GetRecordCount();
 		if (RecordingStatus(channel_id) && !IsTimeshift(channel_id))
 			return RECMODE_REC;
-		else if (IsTimeshift(channel_id) && (records == 1))
-			return RECMODE_TSHIFT;
-		else if (IsTimeshift(channel_id) && (records > 1))
-			return RECMODE_REC_TSHIFT;
-		else
-			return RECMODE_OFF;
+		if (channel_id == 0)
+		{
+			int records	= GetRecordCount();
+			if (IsTimeshift(channel_id) && (records == 1))
+				return RECMODE_TSHIFT;
+			else if (IsTimeshift(channel_id) && (records > 1))
+				return RECMODE_REC_TSHIFT;
+			else
+				return RECMODE_OFF;
+		}else
+		{
+			if (IsTimeshift(channel_id))
+				return RECMODE_TSHIFT;
+		}
 	}
-	else
-		return RECMODE_OFF;
+	return RECMODE_OFF;
 }
 
 bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, bool timeshift)
