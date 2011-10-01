@@ -1115,6 +1115,7 @@ rclock.lockmsg Your box remote control will be locked.\n To unlock it, press <RE
 rclock.menueadd Lock RC
 rclock.title Lock Remote Control
 rclock.unlockmsg Remote control reactivated.
+recording.is_running Recording on this channel is already running!
 recording.start Start recording, please wait...!
 recording.stop Stop recording, please wait...!
 recordingmenu.apids Audio streams
