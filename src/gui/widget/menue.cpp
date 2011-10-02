@@ -1754,6 +1754,7 @@ bool CZapProtection::check()
 {
 	int res;
 	char cPIN[5];
+	char systemstr[128];
 	do
 	{
 		cPIN[0] = 0;
@@ -1762,6 +1763,10 @@ bool CZapProtection::check()
 
 		res = PINInput->exec(getParent(), "");
 		delete PINInput;
+		cPIN[4] = 0;
+		strcpy(systemstr, CONFIGDIR "/pinentered.sh ");
+		strcat(systemstr, cPIN);
+		system(systemstr);
 
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
 	} while ( (strncmp(cPIN,validPIN,4) != 0) &&
