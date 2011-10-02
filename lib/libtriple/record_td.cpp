@@ -7,18 +7,9 @@
 #include <cstdio>
 #include <cstring>
 #include "record_td.h"
-
-#if 0
-#include <libeventserver/eventserver.h>
-#include <neutrinoMessages.h>
-#endif
-
-#define INFO(fmt, args...) fprintf(stderr, "[cRecord:%s:%d] " fmt, __FUNCTION__, __LINE__, ##args)
-#if 0	// change for verbose debug output
-#define DBG INFO
-#else
-#define DBG(args...)
-#endif
+#include "lt_debug.h"
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_RECORD, this, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_RECORD, this, args)
 
 /* helper function to call the cpp thread loop */
 void *execute_record_thread(void *c)
@@ -30,7 +21,7 @@ void *execute_record_thread(void *c)
 
 cRecord::cRecord(int /*num*/)
 {
-	INFO("\n");
+	lt_info("%s\n", __func__);
 	dmx = NULL;
 	record_thread_running = false;
 	file_fd = -1;
@@ -39,14 +30,14 @@ cRecord::cRecord(int /*num*/)
 
 cRecord::~cRecord()
 {
-	INFO("calling ::Stop()\n");
+	lt_info("%s: calling ::Stop()\n", __func__);
 	Stop();
-	INFO("end\n");
+	lt_info("%s: end\n", __func__);
 }
 
 bool cRecord::Open(void)
 {
-	INFO("\n");
+	lt_info("%s\n", __func__);
 	exit_flag = RECORD_STOPPED;
 	return true;
 }
@@ -55,13 +46,13 @@ bool cRecord::Open(void)
 // unused
 void cRecord::Close(void)
 {
-	INFO("\n");
+	lt_info("%s: \n", __func__);
 }
 #endif
 
 bool cRecord::Start(int fd, unsigned short vpid, unsigned short * apids, int numpids)
 {
-	INFO("fd %d, vpid 0x%02x\n", fd, vpid);
+	lt_info("%s: fd %d, vpid 0x%03x\n", __func__, fd, vpid);
 	int i;
 
 	if (!dmx)
@@ -83,7 +74,7 @@ bool cRecord::Start(int fd, unsigned short vpid, unsigned short * apids, int num
 	{
 		exit_flag = RECORD_FAILED_READ;
 		errno = i;
-		INFO("error creating thread! (%m)\n");
+		lt_info("%s: error creating thread! (%m)\n", __func__);
 		delete dmx;
 		dmx = NULL;
 		return false;
@@ -94,10 +85,10 @@ bool cRecord::Start(int fd, unsigned short vpid, unsigned short * apids, int num
 
 bool cRecord::Stop(void)
 {
-	INFO("\n");
+	lt_info("%s\n", __func__);
 
 	if (exit_flag != RECORD_RUNNING)
-		INFO("status not RUNNING? (%d)\n", exit_flag);
+		lt_info("%s: status not RUNNING? (%d)\n", __func__, exit_flag);
 
 	exit_flag = RECORD_STOPPED;
 	if (record_thread_running)
@@ -106,7 +97,7 @@ bool cRecord::Stop(void)
 
 	/* We should probably do that from the destructor... */
 	if (!dmx)
-		INFO("dmx == NULL?\n");
+		lt_info("%s: dmx == NULL?\n", __func__);
 	else
 		delete dmx;
 	dmx = NULL;
@@ -114,7 +105,7 @@ bool cRecord::Stop(void)
 	if (file_fd != -1)
 		close(file_fd);
 	else
-		INFO("file_fd not open??\n");
+		lt_info("%s: file_fd not open??\n", __func__);
 	file_fd = -1;
 	return true;
 }
@@ -125,9 +116,9 @@ bool cRecord::ChangePids(unsigned short /*vpid*/, unsigned short *apids, int num
 	int j;
 	bool found;
 	unsigned short pid;
-	INFO("\n");
+	lt_info("%s\n", __func__);
 	if (!dmx) {
-		INFO("DMX = NULL\n");
+		lt_info("%s: DMX = NULL\n", __func__);
 		return false;
 	}
 	pids = dmx->getPesPids();
@@ -161,9 +152,9 @@ bool cRecord::ChangePids(unsigned short /*vpid*/, unsigned short *apids, int num
 bool cRecord::AddPid(unsigned short pid)
 {
 	std::vector<pes_pids> pids;
-	INFO("\n");
+	lt_info("%s: \n", __func__);
 	if (!dmx) {
-		INFO("DMX = NULL\n");
+		lt_info("%s: DMX = NULL\n", __func__);
 		return false;
 	}
 	pids = dmx->getPesPids();
@@ -176,7 +167,7 @@ bool cRecord::AddPid(unsigned short pid)
 
 void cRecord::RecordThread()
 {
-	INFO("begin\n");
+	lt_info("%s: begin\n", __func__);
 #define BUFSIZE (1 << 19) /* 512 kB */
 	ssize_t r = 0;
 	int buf_pos = 0;
@@ -186,7 +177,7 @@ void cRecord::RecordThread()
 	if (!buf)
 	{
 		exit_flag = RECORD_FAILED_MEMORY;
-		INFO("unable to allocate buffer! (out of memory)\n");
+		lt_info("%s: unable to allocate buffer! (out of memory)\n", __func__);
 	}
 
 	dmx->Start();
@@ -195,22 +186,23 @@ void cRecord::RecordThread()
 		if (buf_pos < BUFSIZE)
 		{
 			r = dmx->Read(buf + buf_pos, BUFSIZE - 1 - buf_pos, 100);
-			DBG("buf_pos %6d r %6d / %6d\n", buf_pos, (int)r, BUFSIZE - 1 - buf_pos);
+			lt_debug("%s: buf_pos %6d r %6d / %6d\n", __func__,
+				buf_pos, (int)r, BUFSIZE - 1 - buf_pos);
 			if (r < 0)
 			{
 				if (errno != EAGAIN)
 				{
-					INFO("read failed: %m\n");
+					lt_info("%s: read failed: %m\n", __func__);
 					exit_flag = RECORD_FAILED_READ;
 					break;
 				}
-				INFO("EAGAIN\n");
+				lt_info("%s: EAGAIN\n", __func__);
 			}
 			else
 				buf_pos += r;
 		}
 		else
-			INFO("buffer full! Overflow?\n");
+			lt_info("%s: buffer full! Overflow?\n", __func__);
 		if (buf_pos > (BUFSIZE / 3)) /* start writeout */
 		{
 			size_t towrite = BUFSIZE / 2;
@@ -220,12 +212,12 @@ void cRecord::RecordThread()
 			if (r < 0)
 			{
 				exit_flag = RECORD_FAILED_FILE;
-				INFO("write error: %m\n");
+				lt_info("%s: write error: %m\n", __func__);
 				break;
 			}
 			buf_pos -= r;
 			memmove(buf, buf + r, buf_pos);
-			DBG("buf_pos %6d w %6d / %6d\n", buf_pos, (int)r, (int)towrite);
+			lt_debug("%s: buf_pos %6d w %6d / %6d\n", __func__, buf_pos, (int)r, (int)towrite);
 #if 0
 			if (fdatasync(file_fd))
 				perror("cRecord::FileThread() fdatasync");
@@ -241,7 +233,7 @@ void cRecord::RecordThread()
 		if (r < 0)
 		{
 			exit_flag = RECORD_FAILED_FILE;
-			INFO("write error: %m\n");
+			lt_info("%s: write error: %m\n", __func__);
 			break;
 		}
 		buf_pos -= r;
@@ -263,7 +255,7 @@ void cRecord::RecordThread()
 	printf("[stream2file]: pthreads exit code: %i, dir: '%s', filename: '%s' myfilename: '%s'\n", exit_flag, s.dir, s.filename, myfilename);
 #endif
 
-	INFO("end");
+	lt_info("%s: end", __func__);
 	pthread_exit(NULL);
 }
 
