@@ -845,7 +845,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	if (error_msg == RECORD_OK) {
 		return true;
 	}
-	else if(!timeshift) {
+	else /*if(!timeshift)*/ {
 		RunStopScript();
 		RestoreNeutrino();
 
