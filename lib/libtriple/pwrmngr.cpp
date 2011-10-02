@@ -10,7 +10,7 @@
 
 #include <avs/avs_inf.h>
 
-#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_PWRMNGR, args)
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_PWRMNGR, this, args)
 void cCpuFreqManager::Up(void) { lt_debug("%s\n", __FUNCTION__); }
 void cCpuFreqManager::Down(void) { lt_debug("%s\n", __FUNCTION__); }
 void cCpuFreqManager::Reset(void) { lt_debug("%s\n", __FUNCTION__); }

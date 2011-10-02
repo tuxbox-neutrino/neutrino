@@ -11,8 +11,9 @@
 #include "audio_td.h"
 #include "video_td.h"
 #include "lt_debug.h"
-#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_PLAYBACK, args)
-#define lt_info(args...)  _lt_info(TRIPLE_DEBUG_PLAYBACK, args)
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_PLAYBACK, this, args)
+#define lt_info(args...)  _lt_info(TRIPLE_DEBUG_PLAYBACK, this, args)
+#define lt_info_c(args...) _lt_info(TRIPLE_DEBUG_PLAYBACK, NULL, args)
 
 #include <tddevices.h>
 #define DVR	"/dev/" DEVICE_NAME_PVR
@@ -345,7 +346,7 @@ void cPlayback::playthread(void)
 
 static void playthread_cleanup_handler(void *)
 {
-	lt_info("%s\n", __FUNCTION__);
+	lt_info_c("%s\n", __FUNCTION__);
 	ioctl(audioDemux->getFD(), DEMUX_SELECT_SOURCE, INPUT_FROM_CHANNEL0);
 	audioDemux->Stop();
 	videoDemux->Stop();
@@ -1456,7 +1457,7 @@ static int mp_syncPES(uint8_t *buf, int len, bool quiet)
 	}
 
 	if (!quiet && len > 5) /* only warn if enough space was available... */
-		lt_info("%s No valid PES signature found. %d Bytes deleted.\n", __FUNCTION__, ret);
+		lt_info_c("%s No valid PES signature found. %d Bytes deleted.\n", __FUNCTION__, ret);
 	return -1;
 }
 

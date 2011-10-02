@@ -2,7 +2,7 @@
 
 #include "ca.h"
 #include "lt_debug.h"
-#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_CA, args)
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_CA, this, args)
 
 
 static cCA *inst = NULL;
@@ -20,7 +20,7 @@ cCA::~cCA()
 
 cCA *cCA::GetInstance()
 {
-	lt_debug("%s\n", __FUNCTION__);
+	_lt_debug(TRIPLE_DEBUG_CA, NULL, "%s\n", __FUNCTION__);
 	if (inst == NULL)
 		inst = new cCA();
 

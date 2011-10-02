@@ -12,8 +12,8 @@
 #include "dmx_td.h"
 #include "lt_debug.h"
 
-#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_DEMUX, args)
-#define lt_info(args...) _lt_info(TRIPLE_DEBUG_DEMUX, args)
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_DEMUX, this, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_DEMUX, this, args)
 
 cDemux *videoDemux = NULL;
 cDemux *audioDemux = NULL;

@@ -37,8 +37,8 @@
 #include <hardware/tddevices.h>
 #define VIDEO_DEVICE "/dev/" DEVICE_NAME_VIDEO
 #include "lt_debug.h"
-#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_VIDEO, args)
-#define lt_info(args...) _lt_info(TRIPLE_DEBUG_VIDEO, args)
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_VIDEO, this, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_VIDEO, this, args)
 
 #define fop(cmd, args...) ({				\
 	int _r;						\

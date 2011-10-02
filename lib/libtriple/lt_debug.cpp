@@ -12,17 +12,18 @@ static const char* lt_facility[] = {
 	"audio ",
 	"video ",
 	"demux ",
-	"record",
 	"play  ",
 	"power ",
 	"init  ",
 	"ca    ",
+	"record",
 	NULL
 };
 
-void _lt_info(int facility, const char *fmt, ...)
+void _lt_info(int facility, const void *func, const char *fmt, ...)
 {
-	fprintf(stderr, "[libtriple:%s] ", lt_facility[facility]);
+	/* %p does print "(nil)" instead of 0x00000000 for NULL */
+	fprintf(stderr, "[LT:%08lx:%s] ", (long) func, lt_facility[facility]);
 	va_list args;
 	va_start(args, fmt);
 	vfprintf(stderr, fmt, args);
@@ -30,7 +31,7 @@ void _lt_info(int facility, const char *fmt, ...)
 }
 
 
-void _lt_debug(int facility, const char *fmt, ...)
+void _lt_debug(int facility, const void *func, const char *fmt, ...)
 {
 	if (debuglevel < 0)
 		fprintf(stderr, "lt_debug: debuglevel not initialized!\n");
@@ -38,7 +39,7 @@ void _lt_debug(int facility, const char *fmt, ...)
 	if (! ((1 << facility) & debuglevel))
 		return;
 
-	fprintf(stderr, "[libtriple:%s] ", lt_facility[facility]);
+	fprintf(stderr, "[LT:%08lx:%s] ", (long)func, lt_facility[facility]);
 	va_list args;
 	va_start(args, fmt);
 	vfprintf(stderr, fmt, args);

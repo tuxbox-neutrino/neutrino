@@ -17,8 +17,8 @@ extern "C" {
 }
 
 #include "lt_debug.h"
-#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_INIT, args)
-#define lt_info(args...) _lt_info(TRIPLE_DEBUG_INIT, args)
+#define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_INIT, NULL, args)
+#define lt_info(args...) _lt_info(TRIPLE_DEBUG_INIT, NULL, args)
 
 static bool initialized = false;
 
