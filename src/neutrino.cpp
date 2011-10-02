@@ -1623,14 +1623,18 @@ static void CSSendMessage(uint32_t msg, uint32_t data)
 extern bool timer_wakeup;//timermanager.cpp
 int CNeutrinoApp::run(int argc, char **argv)
 {
+time_t starttime = time_monotonic_ms();
 	CmdParser(argc, argv);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	cs_api_init();
 	cs_register_messenger(CSSendMessage);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	CHintBox * hintBox;
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	initialize_iso639_map();
 
@@ -1642,18 +1646,25 @@ int CNeutrinoApp::run(int argc, char **argv)
 		loadLocale_ret = g_Locale->loadLocale(g_settings.language);
 		show_startwizard = true;
 	}
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	
 	SetupFonts();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	SetupTiming();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	g_PicViewer = new CPictureViewer();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	colorSetupNotifier        = new CColorSetupNotifier;
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 	hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 	hintBox->paint();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	CVFD::getInstance()->init(font.filename, font.name);
 
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	//zapit start parameters
 	Z_start_arg ZapStart_arg;
@@ -1667,21 +1678,27 @@ int CNeutrinoApp::run(int argc, char **argv)
 #ifndef DISABLE_SECTIONSD
 	pthread_create (&sections_thread, NULL, sectionsd_main_thread, (void *) NULL);
 #endif
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	CZapit::getInstance()->Start(&ZapStart_arg);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	audioSetupNotifier        = new CAudioSetupNotifier;
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	//timer start
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
 	audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE)g_settings.hdmi_dd);
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	//init video settings
 	g_videoSettings = new CVideoSettings;
 	g_videoSettings->setVideoSettings();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	init_cec_setting = true;
 	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
@@ -1695,6 +1712,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	// trigger a change
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	powerManager = new cPowerManager;
 
@@ -1702,19 +1720,25 @@ int CNeutrinoApp::run(int argc, char **argv)
 		if (!powerManager->Open())
 			printf("opening powermanager failed\n");
 	}
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	cpuFreq = new cCpuFreqManager();
 	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 
 	dvbsub_init();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	pthread_create (&stream_thread, NULL, streamts_main_thread, (void *) NULL);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	hintBox->hide(); //FIXME
 	hintBox->paint();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	g_Zapit         = new CZapitClient;
 
@@ -1722,6 +1746,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE, g_info.delivery_system)) {
 		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
 	}
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 #if HAVE_TRIPLEDRAGON
 	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
 	g_info.has_fan = (cs_get_revision() > 1 && cs_get_revision() < 8 && g_info.delivery_system == DVB_S);
@@ -1740,8 +1765,10 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	CVFD::getInstance()->showVolume(g_settings.current_volume);
 	CVFD::getInstance()->setMuted(current_muted);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	g_RCInput = new CRCInput;
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	g_Sectionsd = new CSectionsdClient;
 	g_Timerd = new CTimerdClient;
@@ -1750,6 +1777,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
 	g_EventList = new EventList;
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	int dx = 0;
 	int dy = 0;
@@ -1760,6 +1788,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	g_PluginList = new CPlugins;
 	g_PluginList->setPluginDir(PLUGINDIR);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 
 	CFSMounter::automount();
@@ -1770,16 +1799,19 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	// setup recording device
 	setupRecordingDevice();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	dprintf( DEBUG_NORMAL, "menue setup\n");
 	//init Menues
 	InitMenu();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	/* wait for sectionsd to be able to process our registration */
 	time_t t = time_monotonic_ms();
 	while (! sectionsd_isReady())
 		sleep(0);
 	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
@@ -1788,6 +1820,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_SERVICES_UPDATE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_BOUQUETS_UPDATE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 #define ZAPIT_EVENT_COUNT 30
 	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
@@ -1843,6 +1876,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Timerd->registerEvent(CTimerdClient::EVT_REMIND, 222, NEUTRINO_UDS_NAME);
 	g_Timerd->registerEvent(CTimerdClient::EVT_EXEC_PLUGIN, 222, NEUTRINO_UDS_NAME);
 
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	if (show_startwizard) {
 		hintBox->hide();
@@ -1865,10 +1899,12 @@ int CNeutrinoApp::run(int argc, char **argv)
         system("mkdir /media/sdb1 2> /dev/null");
         system("mount /media/sdb1 2> /dev/null");
 #endif
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
 	delete hdd;
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	hintBox->hide(); // InitZapper also displays a hintbox
 	delete hintBox;
@@ -1876,10 +1912,12 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_volume = CVolume::getInstance();
 	cCA::GetInstance()->Ready(true);
 	InitZapper();
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 
 	g_volume->AudioMute(current_muted, true);
 	SHTDCNT::getInstance()->init();
 
+fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	RealRun(personalize.getWidget(0)/**main**/);
 
 	ExitRun(true, (cs_get_revision() > 7));
