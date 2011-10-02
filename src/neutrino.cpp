@@ -1664,6 +1664,9 @@ int CNeutrinoApp::run(int argc, char **argv)
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 
+#ifndef DISABLE_SECTIONSD
+	pthread_create (&sections_thread, NULL, sectionsd_main_thread, (void *) NULL);
+#endif
 	CZapit::getInstance()->Start(&ZapStart_arg);
 
 	audioSetupNotifier        = new CAudioSetupNotifier;
@@ -1713,9 +1716,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hintBox->hide(); //FIXME
 	hintBox->paint();
 
-#ifndef DISABLE_SECTIONSD
-	pthread_create (&sections_thread, NULL, sectionsd_main_thread, (void *) NULL);
-#endif
 	g_Zapit         = new CZapitClient;
 
 	g_info.delivery_system = g_Zapit->getDeliverySystem();
