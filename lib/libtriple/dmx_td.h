@@ -14,6 +14,7 @@ extern "C" {
 
 typedef enum
 {
+	DMX_INVALID = 0,
 	DMX_VIDEO_CHANNEL = 1,
 	DMX_AUDIO_CHANNEL,
 	DMX_PES_CHANNEL,

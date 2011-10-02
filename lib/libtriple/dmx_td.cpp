@@ -20,7 +20,7 @@ cDemux *audioDemux = NULL;
 //cDemux *pcrDemux = NULL;
 
 static const char *DMX_T[] = {
-	"",
+	"DMX_INVALID",
 	"DMX_VIDEO_CHANNEL",
 	"DMX_AUDIO_CHANNEL",
 	"DMX_PES_CHANNEL",
@@ -36,6 +36,10 @@ static const char *devname[] = {
 	"/dev/" DEVICE_NAME_DEMUX "1",
 	"/dev/" DEVICE_NAME_DEMUX "2",
 };
+
+/* uuuugly */
+static int dmx_tp_count = 0;
+#define MAX_TS_COUNT 1
 
 cDemux::cDemux(int n)
 {
@@ -57,16 +61,30 @@ cDemux::~cDemux()
 
 bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBufferSize)
 {
+	int devnum = num;
 	if (fd > -1)
 		lt_info("%s FD ALREADY OPENED? fd = %d\n", __FUNCTION__, fd);
-	fd = open(devname[num], O_RDWR);
+	if (pes_type == DMX_TP_CHANNEL)
+	{
+		/* it looks like the drivers can only do one TS at a time */
+		if (dmx_tp_count >= MAX_TS_COUNT)
+		{
+			lt_info("%s too many DMX_TP_CHANNEL requests :-(\n", __FUNCTION__);
+			dmx_type = DMX_INVALID;
+			fd = -1;
+			return false;
+		}
+		dmx_tp_count++;
+		devnum = dmx_tp_count;
+	}
+	fd = open(devname[devnum], O_RDWR);
 	if (fd < 0)
 	{
-		lt_info("%s %s: %m\n", __FUNCTION__, devname[num]);
+		lt_info("%s %s: %m\n", __FUNCTION__, devname[devnum]);
 		return false;
 	}
 	lt_debug("%s #%d pes_type: %s (%d), uBufferSize: %d devname: %s fd: %d\n", __FUNCTION__,
-			num, DMX_T[pes_type], pes_type, uBufferSize, devname[num], fd);
+			num, DMX_T[pes_type], pes_type, uBufferSize, devname[devnum], fd);
 
 	dmx_type = pes_type;
 
@@ -117,6 +135,15 @@ void cDemux::Close(void)
 	ioctl(fd, DEMUX_STOP);
 	close(fd);
 	fd = -1;
+	if (dmx_type == DMX_TP_CHANNEL)
+	{
+		dmx_tp_count--;
+		if (dmx_tp_count < 0)
+		{
+			lt_info("%s dmx_tp_count < 0!!\n", __func__);
+			dmx_tp_count = 0;
+		}
+	}
 }
 
 bool cDemux::Start(bool)
@@ -404,7 +431,7 @@ bool cDemux::addPid(unsigned short Pid)
 		lt_info("%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
 		return false;
 	}
-	lt_debug("%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd);
+	lt_debug("%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd.fd);
 
 	p.pid = Pid;
 	p.pesType = DMX_PES_OTHER;
