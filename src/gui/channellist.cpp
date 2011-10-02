@@ -1872,14 +1872,13 @@ void CChannelList::paintItem(int pos)
 			rec_icon = NEUTRINO_ICON_REC;
 		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
 			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
-		else if (rec_mode == CRecordManager::RECMODE_REC_TSHIFT)
-			rec_icon = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
 	
 		//calculating icons
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
 		int r_icon_h=0; int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
 		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
-		frameBuffer->getIconSize(rec_icon, &r_icon_w, &r_icon_h);
+		if (rec_mode != CRecordManager::RECMODE_OFF)
+			frameBuffer->getIconSize(rec_icon, &r_icon_w, &r_icon_h);
 		int r_icon_x = icon_x;
 		
 		//paint scramble icon
@@ -1890,7 +1889,7 @@ void CChannelList::paintItem(int pos)
  		//paint recording icon
  		//bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
 		if (rec_mode != CRecordManager::RECMODE_OFF)
-			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
+			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w - 4, ypos, fheight);//ypos + (fheight - 16)/2);
 		
 		//paint buttons
  		paintButtonBar(iscurrent);
@@ -1964,7 +1963,7 @@ void CChannelList::paintItem(int pos)
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 5+ numwidth+ 10+prg_offset, ypos+ fheight, width- numwidth- 40- 15-prg_offset, nameAndDescription, color, 0, true);
 			if (g_settings.channellist_epgtext_align_right) {
 				// align right
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - 20 - ch_desc_len - 28, ypos + fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED:(!displayNext ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE) , 0, true);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x + width - 20 - ch_desc_len - icon_space - 4, ypos + fheight, ch_desc_len, p_event->description, (curr == selected)?COL_MENUCONTENTSELECTED:(!displayNext ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE) , 0, true);
 			}
 			else {
 				// align left
