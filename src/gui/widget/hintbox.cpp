@@ -291,7 +291,7 @@ int ShowHintUTF(const char * const Caption, const char * const Text, const int W
 			if (res & messages_return::unhandled)
 			{
 
-				// raus hier und darüber behandeln...
+				// leave here and handle above...
 				g_RCInput->postMsg(msg, data);
 				res = messages_return::cancel_all;
 			}
