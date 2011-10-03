@@ -60,6 +60,8 @@ extern std::map<transponder_id_t, transponder> select_transponders;
 extern Zapit_config zapitCfg;
 extern char zapit_lat[20];
 extern char zapit_long[20];
+/* ugly */
+extern CHintBox *reloadhintBox;
 
 static int all_usals = 1;
 sat_iterator_t sit;
@@ -229,7 +231,11 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	else if(actionKey=="reloadchannels") 
 	{
 		printf("[neutrino] CScanSetup::%s reloadchannels...\n", __FUNCTION__);
+		if (reloadhintBox)
+			reloadhintBox->paint();
 		g_Zapit->reinitChannels();
+		if (reloadhintBox)
+			reloadhintBox->hide();
 		return res;
 	}
 	
