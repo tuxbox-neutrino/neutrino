@@ -1816,6 +1816,7 @@ void CChannelList::paintItem(int pos)
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 	bool iscurrent = true;
+	bool paintbuttons = false;
 	unsigned int curr = liststart + pos;
 
 #if 0
@@ -1833,6 +1834,7 @@ void CChannelList::paintItem(int pos)
 		paintItem2DetailsLine (pos, curr);
 		paintDetails(curr);
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, RADIUS_LARGE);
+		paintbuttons = true;
 	} else {
 		color = iscurrent ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
@@ -1892,7 +1894,8 @@ void CChannelList::paintItem(int pos)
 			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w - 4, ypos, fheight);//ypos + (fheight - 16)/2);
 		
 		//paint buttons
- 		paintButtonBar(iscurrent);
+		if (paintbuttons)
+			paintButtonBar(iscurrent);
 		
 		int icon_space = r_icon_w+s_icon_w;
 
