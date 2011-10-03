@@ -58,6 +58,7 @@
 
 #include <daemonc/remotecontrol.h>
 
+#include <driver/abstime.h>
 #include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/framebuffer.h>
@@ -1749,6 +1750,7 @@ void CNeutrinoApp::SetupTiming()
 
 
 bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
+bool sectionsd_isReady(void);
 
 #define LCD_UPDATE_TIME_RADIO_MODE (6 * 1000 * 1000)
 #define LCD_UPDATE_TIME_TV_MODE (60 * 1000 * 1000)
@@ -2004,6 +2006,11 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	InitServiceSettings(service);
 
+	/* wait for sectionsd to be able to process our registration */
+	time_t t = time_monotonic_ms();
+	while (! sectionsd_isReady())
+		sleep(0);
+	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
