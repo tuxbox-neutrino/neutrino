@@ -199,7 +199,7 @@ void streamts_main_thread(void * /*data*/)
 //printf("polling, count= %d\n", poll_cnt);
 		pollres = poll (pfd, poll_cnt, 1000);
 		if (pollres < 0) {
-			perror("poll");
+			perror("streamts_main_thread poll");
 			continue;
 		}
 		if(pollres == 0)
