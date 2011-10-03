@@ -103,6 +103,7 @@
 #define TIME_FSEIT_SKIPPING 240
 #endif
 
+static bool sectionsd_ready = false;
 static bool reader_ready = true;
 //#define MAX_EVENTS 6000
 static unsigned int max_events;
@@ -8881,6 +8882,7 @@ static void *cnThread(void *)
 			rc = pthread_getschedparam(pthread_self(), &policy, &parm);
 			dprintf("mainloop getschedparam %d policy %d prio %d\n", rc, policy, parm.sched_priority);
 		}
+		sectionsd_ready = true;
 
 		while (sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
 			sched_yield();
@@ -9631,3 +9633,8 @@ static void *cnThread(void *)
 		SIlanguage::setLanguages(newLanguages);
 		SIlanguage::saveLanguages();
 	}
+
+bool sectionsd_isReady(void)
+{
+	return sectionsd_ready;
+}
