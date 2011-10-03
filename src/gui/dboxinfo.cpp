@@ -455,7 +455,7 @@ void CDBoxInfoWidget::paint()
 								snprintf(ubuf, buf_size, "%4d%%", percent_used);
 								break;
 							}
-							g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset, ypos+ mheight, width - 10, ubuf, rec_mp ? COL_MENUHEAD+2:COL_MENUCONTENT);
+							g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x + mpOffset, ypos+ mheight, width - 10, ubuf, rec_mp ? COL_MENUCONTENTINACTIVE:COL_MENUCONTENT);
 							rec_mp = false;
 						}
 						int pbw = width - offsetw - 10;
