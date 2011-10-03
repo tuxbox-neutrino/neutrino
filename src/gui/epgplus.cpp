@@ -509,7 +509,7 @@ void EpgPlus::Footer::paintButtons (button_label * pbuttonLabels, int numberOfBu
 {
 	int buttonWidth = (this->width);
 	int yPos = this->y + this->getUsedHeight();
-	::paintButtons (this->x, yPos, buttonWidth, numberOfButtons, pbuttonLabels, buttonHeight);
+	::paintButtons (this->x, yPos, buttonWidth, numberOfButtons, pbuttonLabels, buttonWidth, buttonHeight);
 }
 
 EpgPlus::EpgPlus()

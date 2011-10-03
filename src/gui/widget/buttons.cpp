@@ -2,6 +2,7 @@
  * $Id: buttons.cpp,v 1.10 2010/07/12 08:24:55 dbt Exp $
  *
  * (C) 2003 by thegoodguy <thegoodguy@berlios.de>
+ * (C) 2011 B1 Systems GmbH, Author: Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,20 +30,28 @@
 #include <gui/widget/buttons.h>
 #include <gui/customcolor.h>
 #include <system/settings.h>
+//#include <driver/stacktrace.h>
 
 
 
-/* paintButtons usage, 
-   use this fucntion for painting icons with captions in horizontal or vertical direction. 
+/* paintButtons usage,
+   use this function for painting icons with captions in horizontal or vertical direction.
+   Icons automatically use the available maxwidth.
+   If not enough space is available, captions are shortened.
+   If there is extra space, space between icons is increased.
 
- * x 			set horizontal startposition
- * y 			set vertical startposition
- * footerwidth		set width of buttonbar as similar to footer, value 0 (default) means: do nothing, then paint it extra
- * count		set count of buttons
- * content		set struct buttonlabel with iconfile and locales, for an empty text let locale constant empty, so you can paint icons without captions, 
- * width		width of footer, contains the buttons 
- * footerheigth		set height of buttonbar as similar to footer, value 0 (default) means: value calculates automaticly depends of maximal height of icon and caption
- * buttonwidth		set width of buttonlabel include icon, caption and offsets, value 0 (default), calculates automaticly the buttonwidth, buttons will be paint like a chain
+ * x 		set horizontal startposition
+ * y 		set vertical startposition
+ * footerwidth	set width of buttonbar as similar to footer, value 0 (default) means: do nothing,
+		then paint it extra
+ * count	set count of buttons
+ * content	set struct buttonlabel with iconfile and locales, for an empty text let locale
+		constant empty, so you can paint icons without captions,
+ * maxwidth	maximum horizontal space for the buttons
+ * footerheight	set height of buttonbar as similar to footer, value 0 (default) means:
+		value calculates automaticly depends of maximal height of icon and caption
+
+ * stuff below here was obviously not tested recently
  * vertical_paint	optional, default value is false (horizontal) sets direction of painted buttons
  * fcolor  		optional, default value is COL_INFOBAR_SHADOW, use it to render font with other color
  * alt_buttontext	optional, default NULL, overwrites button caption at definied buttonlabel id (see parameter alt_buttontext_id) with this text
@@ -50,28 +59,20 @@
  * show			optional, default value is true (show button), if false, then no show and return the height of the button.
  */
 
-// 		y-------+										+-----------+
-// 			|	ID0				 ID1					|
-// 			| +-----buttonwidth------+---------+-----buttonwidth------+			|
-// 			| [icon][w_space][caption][w_space][icon][w_space][caption]			|	footerheight
-// 			| 										|
-// 		rounded	+----------------------------------footerwidth----------------------------------+rounded----+								|
-// 			|
-// 			x
-// 	
 int paintButtons(	const int &x,	
 			const int &y, 
 			const int &footerwidth, 
 			const uint &count, 
 			const struct button_label * const content,
+			const int &maxwidth,
 			const int &footerheight,
-			const int &buttonwidth,
+			std::string /* just to make sure nobody uses anything below */,
 			bool vertical_paint,
 			const unsigned char fcolor,
 			const char * alt_buttontext,
 			const uint &buttontext_id,
 			bool show,
-			const std::vector<neutrino_locale_t>& all_buttontext_id)
+			const std::vector<neutrino_locale_t>& /*all_buttontext_id*/)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
@@ -87,55 +88,63 @@ int paintButtons(	const int &x,
 	int x_caption 	= 0;
 	
 	int x_button = x_icon;
-	int w_button = 0;
 	int h_button = 0;
 	
 	//calculate max of h + w
 	//icon
 	int h_max_icon = 0;
-	int w_max_icon = 0;
+	int w_icons = 0;
 	
 	//text
-	int w_max_text = 0;
+	int w_text = 0;
 	int h_max_text = font->getHeight();
 
-	for (uint i = 0; i < cnt; i++)
+	int count_items = 0;
+	/* more than 16 buttons? noooooo*/
+	int iconw[16];
+	int iconh[16];
+	int fwidth[16];
+	const char *buttontext[16];
+
+	/* sanity check... */
+	if (count > 16 || count == 0)
+	{
+		fprintf(stderr, "paintButtons does only support max 16 buttons yet (%d)\n", count);
+		//print_stacktrace();
+		return 0;
+	}
+	if (maxwidth < 200 && show)
+	{
+		fprintf(stderr, "paintButtons: maxwidth very small\n");
+		fprintf(stderr, "  x: %d y: %d footw: %d count: %d maxw: %d footh: %d\n ",
+				x, y, footerwidth, count, maxwidth, footerheight);
+		//print_stacktrace();
+	}
+
+	uint i;
+	for (i = 0; i < cnt; i++)
 	{
 		//icon
 		int w = 0;
 		int h = 0;
 		frameBuffer->getIconSize(content[i].button, &w, &h);
+		iconw[i] = w;
+		iconh[i] = h;
 		h_max_icon = std::max(h_max_icon, h);
-		w_max_icon = std::max(w_max_icon, w);
+		w_icons += w;
+		if (w)
+			count_items++;
 
 		//text
-		const char * buttontext =  content[i].locale ? g_Locale->getText(content[i].locale) : "";
+		buttontext[i] = (content[i].locale ? g_Locale->getText(content[i].locale) : "");
 		
 		//text width
-		int fwidth = font->getRenderWidth(buttontext, true);
-		w_max_text = std::max(w_max_text, fwidth);
+		fwidth[i] = font->getRenderWidth(buttontext[i], true);
+		w_text += fwidth[i];
+		if (fwidth[i])
+			count_items++;
 	}
-	if(!all_buttontext_id.empty())
-	{
-		for(vector<neutrino_locale_t>::const_iterator it = all_buttontext_id.begin(); it != all_buttontext_id.end(); ++it)
-		{
-			//text
-			const char * buttontext =   *it  ? g_Locale->getText( *it ) : "";
-		
-			//text width
-			int fwidth = font->getRenderWidth(buttontext, true);
-			w_max_text = std::max(w_max_text, fwidth);
-		}
-	}
-	//calculate button width
-	w_button = buttonwidth == 0 ? (w_max_icon + w_space + w_max_text) : buttonwidth;
 
-	//workaround for to small screen (1)
-	int skip_last_button_txt = false;
-	if( (w_footer > 0) && ( ((w_button*cnt) + ((cnt -1) * w_space)) > (uint) w_footer) ){
-		w_button= ((w_footer+w_max_icon)/(cnt));
-		skip_last_button_txt = true;
-	}
 	//calculate button heigth
 	h_button = std::max(h_max_icon, h_max_text); //calculate optimal button height
 	
@@ -152,8 +161,26 @@ int paintButtons(	const int &x,
 	
 	//baseline
 	int y_base = y_footer + h_footer/2;
-	
-	
+	int spacing = maxwidth - w_space * 2 - w_text - w_icons - (count_items - 1) * h_space;
+#if 0
+	/* debug */
+	fprintf(stderr, "PB: sp %d mw %d w_t %d w_i %d w_s %d c_i %d\n",
+		spacing, maxwidth, w_text, w_icons, w_space, count_items);
+#endif
+	if (spacing >= 0)
+	{				 /* add half of the inter-object space to the */
+		spacing /= (int)count;	 /* left and right (this might break vertical */
+		x_button += spacing / 2; /* alignment, but nobody is using this (yet) */
+	}				 /* and I'm don't know how it should work.    */
+	else
+	{
+		spacing /= (int)(count - 1); /* one space less than buttons */
+		/* shorten captions */
+		for (i = 0; i < cnt; i++)
+			fwidth[i] += spacing; /* spacing is negative...*/
+		spacing = 0;
+	}
+
 	for (uint j = 0; j < cnt; j++)
 	{
 		const char * caption = NULL;
@@ -161,25 +188,17 @@ int paintButtons(	const int &x,
 		if (alt_buttontext != NULL && j == buttontext_id) 
 			caption = alt_buttontext; //...with an alternate buttontext
 		else
-			caption =  content[j].locale ? g_Locale->getText(content[j].locale) : ""; 
-
-		//workaround for to small screen (2)
-		if(skip_last_button_txt && j == cnt-1)
-			caption="";
+			caption = buttontext[j];
 
 		const char * icon = content[j].button ? content[j].button : "";
 
-		//get height/width of icon
-		int iconw, iconh;
-		frameBuffer->getIconSize(content[j].button, &iconw, &iconh);
-					
 		// calculate baseline startposition of icon and text in y
  		int y_caption = y_base + h_max_text/2+1;
 		
 		// paint icon and text
-		frameBuffer->paintIcon(icon, x_button , y_base-iconh/2);
-		x_caption = x_button + iconw + h_space;
-		font->RenderString(x_caption, y_caption, w_max_text, caption, fcolor, 0, true); // UTF-8
+		frameBuffer->paintIcon(icon, x_button , y_base - iconh[j]/2);
+		x_caption = x_button + iconw[j] + h_space;
+		font->RenderString(x_caption, y_caption, fwidth[j], caption, fcolor, 0, true);
  		
  		/* 	set next startposition x, if text is length=0 then offset is =renderwidth of icon, 
   		* 	for generating buttons without captions, 
@@ -201,8 +220,8 @@ int paintButtons(	const int &x,
 		}
 		else
 		{
-			//set x_icon for painting buttons with horizontal arrangement as default
-			x_button = lentext !=0 ? (x_button + w_button + w_space) : x_button;
+			/* increase x position */
+			x_button = x_caption + fwidth[j] + spacing + h_space;
 		}	
 	}
 

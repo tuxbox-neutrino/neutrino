@@ -1795,7 +1795,7 @@ void CChannelList::paintButtonBar(bool is_current)
 
 	//paint buttons
 	int y_foot = y + (height - footerHeight);
-	::paintButtons(x, y_foot, full_width,num_buttons, Button, footerHeight,0,false,COL_INFOBAR_SHADOW,NULL,0,true, buttonID_rest);
+	::paintButtons(x, y_foot, width, num_buttons, Button, width, footerHeight);
 }
 
 void CChannelList::paintItem(int pos)

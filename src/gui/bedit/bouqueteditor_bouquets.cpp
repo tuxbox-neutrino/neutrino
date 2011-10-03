@@ -143,15 +143,17 @@ const struct button_label CBEBouquetWidgetButtons[3] =
 void CBEBouquetWidget::paintFoot()
 {
 	int icol_w, icol_h, h2;
-	struct button_label Button[4];
+	struct button_label Button[5];
 
 	Button[0] = CBEBouquetWidgetButtons[0];
 	Button[1] = CBEBouquetWidgetButtons[1];
 	Button[2] = CBEBouquetWidgetButtons[2];
 	Button[3].button = NEUTRINO_ICON_BUTTON_BLUE;
 
+/* I have a more elegant solution in buttons.cpp
 	const neutrino_locale_t button_ids[] = {LOCALE_BOUQUETEDITOR_RENAME,LOCALE_BOUQUETEDITOR_HIDE,LOCALE_BOUQUETEDITOR_LOCK};
 	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
+*/
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &h2);
@@ -168,8 +170,9 @@ void CBEBouquetWidget::paintFoot()
 			Button[3].locale = LOCALE_BOUQUETEDITOR_LOCK;
 		break;
 	}
-	::paintButtons(x, y+height, width, 4, Button, ButtonHeight,0,false,COL_INFOBAR_SHADOW,NULL,0,true, buttonID_rest);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + width - 10 - icol_w, y + height, ButtonHeight);
+	Button[4].button = NEUTRINO_ICON_BUTTON_MENU;
+	Button[4].locale = NONEXISTANT_LOCALE;
+	::paintButtons(x, y+height, width, 5, Button, width, ButtonHeight);
 }
 
 void CBEBouquetWidget::hide()

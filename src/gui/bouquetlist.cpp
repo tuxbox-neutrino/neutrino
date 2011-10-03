@@ -600,10 +600,9 @@ void CBouquetList::paint()
 	int numbuttons = sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]);
 	if (favonly) /* this actually shows favorites and providers button, but both are active anyway */
 		numbuttons = 2;
-	//::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
- 
-	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, footerHeight);
 
+	::paintButtons(x, y + (height - footerHeight), width, numbuttons, CBouquetListButtons, width, footerHeight);
+ 
 	if(!Bouquets.empty())
 	{
 		for(unsigned int count=0;count<listmaxshow;count++) {

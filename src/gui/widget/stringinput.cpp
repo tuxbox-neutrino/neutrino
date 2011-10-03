@@ -573,7 +573,8 @@ void CStringInput::paint(bool sms)
 		frameBuffer->paintIcon(NEUTRINO_ICON_NUMERIC_PAD, x + (width/2) - (icol_w/2), tmp_y, 0, COL_MENUCONTENT);
 
 		//buttonbar
-		::paintButtons(x, y+ hheight+ bheight, width, CStringInputSMSButtonsCount, CStringInputSMSButtons, fheight);
+		::paintButtons(x, y+ hheight+ bheight, width, CStringInputSMSButtonsCount, CStringInputSMSButtons, width, fheight);
+		//::paintButtons(x, y + height, width, 2, CStringInputSMSButtons, width);
 	}
 
 	for (int count=0;count<size;count++)

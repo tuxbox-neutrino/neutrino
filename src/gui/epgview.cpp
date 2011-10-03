@@ -1107,10 +1107,12 @@ void CEpgData::showTimerEventBar (bool pshow)
 
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
 
+	/* 2 * ICON_LARGE_WIDTH for potential 16:9 and DD icons */
+	int aw = ox - 20 - 2 * (ICON_LARGE_WIDTH + 2);
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 3:2, EpgButtons, h);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 3:2, EpgButtons, aw, h);
 	else
-		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], h);
+		::paintButtons(x, y, 0, (has_follow_screenings && !call_fromfollowlist) ? 2:1, &EpgButtons[1], aw, h);
 
 #if 0
 	// Button: Timer Record & Channelswitch

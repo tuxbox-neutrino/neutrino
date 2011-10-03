@@ -247,7 +247,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 	showfollow = false;
 	// Calculate iheight
 	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, NONEXISTANT_LOCALE } };
-	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, false, COL_INFOBAR_SHADOW, NULL, 0, false);
+	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, "", false, COL_INFOBAR_SHADOW, NULL, 0, false);
 	if(iheight < fh)
 		iheight = fh;
 
@@ -894,12 +894,12 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 	int bw = width - 16;
 	int bh = iheight;
 	int by = y + height-iheight;
-	int w_button = bw / 4 - border_space;// 4 cells
-	
+
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
 	const char * icon = NULL;
-//	std::string btncaption;	
+	struct button_label buttons[4];
+	int btn_cnt = 0;
 
 	bh = std::max(FunctionBarHeight, bh);
 	frameBuffer->paintBackgroundBoxRel(x,by,width,bh);
@@ -914,60 +914,51 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 	
 	int tID = -1; //any value, not NULL
 	CTimerd::CTimerEventTypes is_timer = isScheduled(channel_id, &evtlist[selected], &tID);
-	
+
 	// -- Button: Timer Record & Channelswitch
 	if ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) && ((uint) g_settings.key_channelList_addrecord != CRCInput::RC_nokey)) {	
 		if (!g_settings.minimode) {
 			// FIXME : display other icons depending on g_settings.key_channelList_addrecord
 			keyhelper.get(&dummy, &icon, g_settings.key_channelList_addrecord);
-			EventListFirstButton[0].button = icon;
-
-			if(is_timer == CTimerd::TIMER_RECORD ){
-//				btncaption = g_Locale->getText(LOCALE_TIMERLIST_DELETE);
-				EventListFirstButton[0].locale = LOCALE_TIMERLIST_DELETE;
-			} else {
-//				btncaption = g_Locale->getText(LOCALE_EVENTLISTBAR_RECORDEVENT);
-				EventListFirstButton[0].locale = LOCALE_EVENTLISTBAR_RECORDEVENT;
-			}
-			
-			FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_FIRST_BUTTON, EventListFirstButton), FunctionBarHeight);
-			bx+=w_button+4;
+			buttons[btn_cnt].button = icon;
+			if (is_timer == CTimerd::TIMER_RECORD)
+				buttons[btn_cnt].locale = LOCALE_TIMERLIST_DELETE;
+			else
+				buttons[btn_cnt].locale = LOCALE_EVENTLISTBAR_RECORDEVENT;
+			btn_cnt++;
 		}
 	}
 
 	if(!showfollow){
-		// Button: Search
-		FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_SECOND_BUTTON, EventListSecondButton), FunctionBarHeight);
-		bx+=w_button+4;
+		buttons[btn_cnt].button = NEUTRINO_ICON_BUTTON_GREEN;
+		buttons[btn_cnt].locale = LOCALE_EVENTFINDER_SEARCH; // search button
+		btn_cnt++;
 	}
 	// Button: Timer Channelswitch
 	if ((uint) g_settings.key_channelList_addremind != CRCInput::RC_nokey) {
 		if (!g_settings.minimode) {
 			// FIXME : display other icons depending on g_settings.key_channelList_addremind
 			keyhelper.get(&dummy, &icon, g_settings.key_channelList_addremind);
-			EventListThirdButton[0].button = icon;
-			if(is_timer == CTimerd::TIMER_ZAPTO) {
-//				btncaption =  g_Locale->getText(LOCALE_TIMERLIST_DELETE);
-				EventListThirdButton[0].locale = LOCALE_TIMERLIST_DELETE;
-			} else {
-//				btncaption =  g_Locale->getText(LOCALE_EVENTLISTBAR_CHANNELSWITCH);
-				EventListThirdButton[0].locale = LOCALE_EVENTLISTBAR_CHANNELSWITCH;
-			}
+			buttons[btn_cnt].button = icon;
+			if (is_timer == CTimerd::TIMER_ZAPTO)
+				buttons[btn_cnt].locale = LOCALE_TIMERLIST_DELETE;
+			else
+				buttons[btn_cnt].locale = LOCALE_EVENTLISTBAR_CHANNELSWITCH;
+			btn_cnt++;
 		}
-		
-		FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListThirdButton), FunctionBarHeight);
-		bx+=w_button+4;
 	}
+
 	if(!showfollow){
 		// Button: Event Re-Sort
 		if ((uint) g_settings.key_channelList_sort != CRCInput::RC_nokey) {
 			// FIXME : display other icons depending on g_settings.key_channelList_sort
 			keyhelper.get(&dummy, &icon, g_settings.key_channelList_sort);
-			EventListFourthButton[0].button = icon;
-			FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListFourthButton), FunctionBarHeight);
-// 			bx+=w_button+4;
+			buttons[btn_cnt].button = icon;
+			buttons[btn_cnt].locale = LOCALE_EVENTLISTBAR_EVENTSORT;
+			btn_cnt++;
 		}
 	}
+	FunctionBarHeight = std::max(::paintButtons(bx, by, bw, btn_cnt, buttons, bw), FunctionBarHeight);
 }
 
 int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
