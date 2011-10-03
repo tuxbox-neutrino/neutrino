@@ -186,7 +186,7 @@ const struct button_label CBEChannelSelectButtons[] =
 
 void CBEChannelSelectWidget::paintFoot()
 {
-	::paintButtons(x, y + (height-footerHeight), width, 2, CBEChannelSelectButtons, footerHeight);
+	::paintButtons(x, y + (height-footerHeight), width, 2, CBEChannelSelectButtons, width, footerHeight);
 
 #if 0
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);

@@ -167,7 +167,7 @@ const struct button_label CBEChannelWidgetButtons[4] =
 
 void CBEChannelWidget::paintFoot()
 {
-	::paintButtons(x, y + (height-footerHeight), width, 4, CBEChannelWidgetButtons, footerHeight);
+	::paintButtons(x, y + (height-footerHeight), width, 4, CBEChannelWidgetButtons, width, footerHeight);
 }
 
 void CBEChannelWidget::paintDetails(int index)

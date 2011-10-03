@@ -76,10 +76,13 @@ extern cVideo * videoDecoder;
 #define ConnectLineBox_Width    15
 
 const struct button_label RescanButton = {NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_UPNPBROWSER_RESCAN};
-const struct button_label StopButton   = {NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_AUDIOPLAYER_STOP};
-const struct button_label PUpButton    = {NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE};
-const struct button_label PDownButton  = {NEUTRINO_ICON_BUTTON_GREEN , LOCALE_FILEBROWSER_PREVPAGE};
-const struct button_label PPlayButton  = {NEUTRINO_ICON_BUTTON_OKAY  , LOCALE_AUDIOPLAYER_PLAY};
+const struct button_label BrowseButtons[4] =
+{
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_AUDIOPLAYER_STOP },
+	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE },
+	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_FILEBROWSER_PREVPAGE },
+	{ NEUTRINO_ICON_BUTTON_OKAY  , LOCALE_AUDIOPLAYER_PLAY }
+};
 
 //------------------------------------------------------------------------
 
@@ -1049,7 +1052,7 @@ void CUpnpBrowserGui::paintDevice()
 	//int ButtonWidth = (m_width - 20) / 4;
 	m_frameBuffer->paintBoxRel(m_x, top, m_width, m_buttonHeight+2, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, CORNER_BOTTOM);
 // 	m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_0);
-	::paintButtons(m_x, top, 0, 1, &RescanButton, m_buttonHeight);
+	::paintButtons(m_x, top, 0, 1, &RescanButton, m_width, m_buttonHeight);
 
 	clearItem2DetailsLine(); // clear it
 }
@@ -1170,14 +1173,8 @@ void CUpnpBrowserGui::paintItem(std::vector<UPnPEntry> *entry, unsigned int sele
 
 	// Foot buttons
 	top = m_y + (m_height - m_info_height - 2 * m_buttonHeight);
-	int ButtonWidth = (m_width - 20) / 4;
 	m_frameBuffer->paintBoxRel(m_x, top, m_width, m_buttonHeight+2, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);
-// 	m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_0);
-	
-	::paintButtons(m_x, top, 0, 1, &StopButton, m_buttonHeight);
-	::paintButtons(m_x + ButtonWidth, top, 0, 1, &PUpButton, m_buttonHeight);
-	::paintButtons(m_x + 2 * ButtonWidth, top, 0, 1, &PDownButton, m_buttonHeight);
-	::paintButtons(m_x + 3 * ButtonWidth, top, 0, 1, &PPlayButton, m_buttonHeight);
+	::paintButtons(m_x, top, 0, 4, BrowseButtons, m_width, m_buttonHeight);
 }
 
 

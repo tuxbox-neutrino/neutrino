@@ -1862,7 +1862,7 @@ void CChannelList::paintButtonBar(bool is_current)
 	
 	//paint buttons
 	int y_foot = y + (height - footerHeight);
-	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, SChannelListButtons, footerHeight/*, (width - 20) / NUM_LIST_BUTTONS*/); //buttonwidth will set automaticly
+	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, SChannelListButtons, width, footerHeight);
 }
 
 void CChannelList::paintItem(int pos)

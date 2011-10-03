@@ -1437,12 +1437,6 @@ bool chooserDir(std::string &setting_dir, bool test_dir, const char *action_str)
 
 //------------------------------------------------------------------------
 
-const struct button_label FileBrowserButtons[3] =
-{
-	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE        },
-	{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_FILEBROWSER_PREVPAGE        },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_FILEBROWSER_MARK            },
-};
 const struct button_label FileBrowserFilterButton[2] =
 {
 	{ NEUTRINO_ICON_BUTTON_BLUE  , LOCALE_FILEBROWSER_FILTER_INACTIVE },
@@ -1451,14 +1445,20 @@ const struct button_label FileBrowserFilterButton[2] =
 
 void CFileBrowser::paintFoot()
 {
- const struct button_label FileBrowserButtons2[3] =
-{
-	{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_FILEBROWSER_SELECT        },
-	{ NEUTRINO_ICON_BUTTON_HELP_SMALL , sortByNames[g_settings.filebrowser_sortmethod]        },
-	{ NEUTRINO_ICON_BUTTON_MUTE_SMALL, LOCALE_FILEBROWSER_DELETE            },
-};
+	struct button_label FileBrowserButtons[4] =
+	{
+		{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_FILEBROWSER_NEXTPAGE        },
+		{ NEUTRINO_ICON_BUTTON_GREEN , LOCALE_FILEBROWSER_PREVPAGE        },
+		{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_FILEBROWSER_MARK            },
+	};
 
- 	int dx = (width-20) / 4;
+	const struct button_label FileBrowserButtons2[3] =
+	{
+		{ NEUTRINO_ICON_BUTTON_OKAY   , LOCALE_FILEBROWSER_SELECT        },
+		{ NEUTRINO_ICON_BUTTON_HELP_SMALL , sortByNames[g_settings.filebrowser_sortmethod]        },
+		{ NEUTRINO_ICON_BUTTON_MUTE_SMALL, LOCALE_FILEBROWSER_DELETE            },
+	};
+
 // 	int iw = 0, ih = 0; 
 // 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih); 
 
@@ -1471,31 +1471,37 @@ void CFileBrowser::paintFoot()
 
 	if (!(filelist.empty()))
 	{
-		//red, green, yellow button
-		::paintButtons(x, by0, 0, Multi_Select ? 3 : 2, FileBrowserButtons, foheight);
-
-		//blue filter
-		if(Filter != NULL)
-			::paintButtons(x + 10 + (3 * dx), by0, 0, 1, &(FileBrowserFilterButton[use_filter?0:1]), foheight);
-
-		//OK-Button
-		if( (filelist[selected].getType() != CFile::FILE_UNKNOWN) || (S_ISDIR(filelist[selected].Mode)) )
-			::paintButtons(x, by2, 0, 1,&(FileBrowserButtons2[0]), foheight);
-
-		//help-Button
-			::paintButtons(x + 10 + dx , by2, 0, 1,&(FileBrowserButtons2[1]), foheight);
-
-
-		//Mute-Button
-		if (strncmp(Path.c_str(), VLC_URI, strlen(VLC_URI)) != 0) { //Not in vlc mode
-			::paintButtons(x + 10 + (dx * 2) , by2, 0, 1,&(FileBrowserButtons2[2]));
-
+		int idx = 1;
+		int num_buttons = Multi_Select ? 3 : 2;
+		if (Filter != NULL)
+		{
+			FileBrowserButtons[num_buttons].button = FileBrowserFilterButton[!use_filter].button;
+			FileBrowserButtons[num_buttons].locale = FileBrowserFilterButton[!use_filter].locale;
+			num_buttons++;
 		}
+		//red, green, yellow button
+		::paintButtons(x, by0, 0, num_buttons, FileBrowserButtons, width, foheight);
+
+		/* TODO: the changing existence of the OK button makes the sort button
+		 *       shift its place :-( */
+		num_buttons = 1;
+		//OK-Button
+		if ((filelist[selected].getType() != CFile::FILE_UNKNOWN) || S_ISDIR(filelist[selected].Mode))
+		{
+			idx = 0;
+			num_buttons++;
+		}
+		if (strncmp(Path.c_str(), VLC_URI, strlen(VLC_URI)) != 0) // No delete in vlc mode
+			num_buttons++;
+		/* width-26 to leave room for the SMSinput indicator */
+		::paintButtons(x, by2, 0, num_buttons, &(FileBrowserButtons2[idx]), width - 26, foheight);
 
 		if(m_SMSKeyInput.getOldKey()!=0)
 		{
 			char cKey[2]={m_SMSKeyInput.getOldKey(),0};
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + width - 16, by2 , 16, cKey, COL_MENUHEAD, 0, true); // UTF-8
+			cKey[0] = toupper(cKey[0]);
+			int len = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(cKey);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(x + width - 10 - len, by2 + foheight, len, cKey, COL_MENUHEAD, 0, true);
 		}
 	}
 }

@@ -669,12 +669,11 @@ void CPictureViewerGui::paintFoot()
 
 	if (!playlist.empty())
 	{
-		::paintButtons(x, y + (height - 2 * buttonHeight), 0, 5, PictureViewerButtons);
-
-		::paintButtons(x, y + (height - buttonHeight), 0, 2, (m_sort==FILENAME)?PictureViewerButtons2[0]:PictureViewerButtons2[1]);
+		::paintButtons(x, y + (height - 2 * buttonHeight), 0, 5, PictureViewerButtons, width);
+		::paintButtons(x, y + (height - buttonHeight), 0, 2, (m_sort==FILENAME)?PictureViewerButtons2[0]:PictureViewerButtons2[1], width);
 	}
 	else
-		::paintButtons(x , y + (height - 2 * buttonHeight), 0, 1, &(PictureViewerButtons[1]));
+		::paintButtons(x , y + (height - 2 * buttonHeight), 0, 1, &(PictureViewerButtons[1]), width);
 //	printf("paintFoot}\n");
 }
 //------------------------------------------------------------------------
