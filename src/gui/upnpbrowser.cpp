@@ -598,23 +598,18 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 	bool rchanged = true;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
-	std::vector<UPnPEntry> *entries;
+	std::vector<UPnPEntry> *entries = NULL;
 	unsigned int index, selected, dirnum;
 
 	index=0;
 	selected=0;
 	dirnum=0;
-	entries=NULL;
 
 	while (loop)
 	{
 		updateTimes();
 		if (rchanged)
 		{
-			if (entries)
-				delete entries;
-			entries=NULL;
-
 			std::list<UPnPAttribute>attribs;
 			std::list<UPnPAttribute>results;
 			std::list<UPnPAttribute>::iterator i;
