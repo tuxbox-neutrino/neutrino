@@ -604,7 +604,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 	index=0;
 	selected=0;
 	dirnum=0;
-
+	
 	while (loop)
 	{
 		updateTimes();
@@ -1207,9 +1207,9 @@ void CUpnpBrowserGui::paintDetails(std::vector<UPnPEntry> *entry, unsigned int i
 				m_playing_entry_is_shown = true;
 				g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
 						top + 1 * m_buttonHeight + 4, m_x + m_width - 8, m_playing_entry.title + " - " +
-						m_playing_entry.artist, COL_INFOBAR, 0, true); // UTF-8
+						m_playing_entry.artist, COL_MENUCONTENTDARK, 0, true); // UTF-8
 				g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
-						top + 2 * m_buttonHeight + 4, m_x + m_width - 8, m_playing_entry.album, COL_INFOBAR, 0, true); // UTF-8
+						top + 2 * m_buttonHeight + 4, m_x + m_width - 8, m_playing_entry.album, COL_MENUCONTENTDARK, 0, true); // UTF-8
 			}
 		} 
 		else 
@@ -1218,9 +1218,9 @@ void CUpnpBrowserGui::paintDetails(std::vector<UPnPEntry> *entry, unsigned int i
 			m_playing_entry_is_shown = false;
 			g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
 					top + 1 * m_buttonHeight + 4, m_x + m_width - 8, (*entry)[index].title + " - " +
-					(*entry)[index].artist, COL_INFOBAR, 0, true); // UTF-8
+					(*entry)[index].artist, COL_MENUCONTENTDARK, 0, true); // UTF-8
 			g_Font[SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM]->RenderString(text_start,
-					top + 2 * m_buttonHeight + 4, m_x + m_width - 8, (*entry)[index].album, COL_INFOBAR, 0, true); // UTF-8
+					top + 2 * m_buttonHeight + 4, m_x + m_width - 8, (*entry)[index].album, COL_MENUCONTENTDARK, 0, true); // UTF-8
 		}
 ////		printf("title = %s\n", (*entry)[selected].title.c_str());
 //		printf("artist = %s\n", (*entry)[selected].artist.c_str());
@@ -1362,7 +1362,7 @@ void CUpnpBrowserGui::updateTimes(const bool force)
 			paintDetails(NULL, 0, true);
 			top = m_y + (m_height - m_info_height - 1 * m_buttonHeight) + m_buttonHeight + 4;
 			m_frameBuffer->paintBoxRel(m_x + m_width - w - 15, top + 1, w + 4, m_buttonHeight, COL_MENUCONTENTDARK_PLUS_0);
-			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(m_x + m_width - w - 11, top + 1 + m_buttonHeight, w, play_time, COL_MENUHEAD);
+			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(m_x + m_width - w - 11, top + 1 + m_buttonHeight, w, play_time, COL_MENUCONTENTDARK);
 		}
 	}
 }
