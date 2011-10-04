@@ -1048,7 +1048,7 @@ void CUpnpBrowserGui::paintDevice()
 	top = m_y + (m_height - m_info_height - 2 * m_buttonHeight);
 
 	//int ButtonWidth = (m_width - 20) / 4;
-	m_frameBuffer->paintBoxRel(m_x, top, m_width, 1 * m_buttonHeight, COL_MENUHEAD_PLUS_0, c_rad_mid, CORNER_BOTTOM);
+	m_frameBuffer->paintBoxRel(m_x, top, m_width, m_buttonHeight+2, COL_INFOBAR_SHADOW_PLUS_1, c_rad_mid, CORNER_BOTTOM);
 // 	m_frameBuffer->paintHLine(m_x, m_x + m_width, top, COL_INFOBAR_SHADOW_PLUS_0);
 	::paintButtons(m_x, top, 0, 1, &RescanButton, m_buttonHeight);
 
