@@ -98,6 +98,7 @@ CRecordInstance::CRecordInstance(const CTimerd::RecordingInfo * const eventinfo,
 	recMovieInfo = new MI_MOVIE_INFO();
 	record = NULL;
 	tshift_mode = TSHIFT_MODE_OFF;
+	rec_stop_msg = g_Locale->getText(LOCALE_RECORDING_STOP);
 }
 
 CRecordInstance::~CRecordInstance()
@@ -126,11 +127,18 @@ bool CRecordInstance::SaveXml()
 	return false;
 }
 
+void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
+{
+	while (time(0) < StartTime + WaitTime)
+		usleep(100000);
+}
+
 record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &apid_list*/)
 {
 	int fd;
 	std::string tsfile;
 
+	time_t msg_start_time = time(0);
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_START));
 	hintBox.paint();
 	
@@ -187,6 +195,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &
 	ca->SendPMT(DEMUX_SOURCE_2, pmt, len);
 
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
+	WaitRecMsg(msg_start_time, 2);
 	hintBox.hide();
 	return RECORD_OK;
 }
@@ -198,7 +207,7 @@ bool CRecordInstance::Stop(bool remove_event)
 	time_t end_time = time(0);
 	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
 	
-	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_RECORDING_STOP));
+	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, rec_stop_msg.c_str());
 	hintBox.paint();
 
 	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
@@ -219,6 +228,7 @@ bool CRecordInstance::Stop(bool remove_event)
 		recording_id = 0;
 	}
         //CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, false);
+	WaitRecMsg(end_time, 2);
 	hintBox.hide();
 	return true;
 }
@@ -1151,19 +1161,20 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
 			snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
-			CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, rec_msg);
-			hintBox->paint();
+
 			int i = 0;
 			int recording_ids[RECORD_MAX_COUNT];
 			t_channel_id channel_ids[RECORD_MAX_COUNT];
 			t_channel_id channel_id;
 			recmap_iterator_t it;
+
 			mutex.lock();
 			for(it = recmap.begin(); it != recmap.end(); it++)
 			{
 				recording_ids[i] = 0;
 				channel_id = it->first;
 				CRecordInstance * inst = it->second;
+				inst-> SetStopMessage(rec_msg);
 				if(inst)
 				{
 					channel_ids[i] = channel_id;
@@ -1179,6 +1190,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 				{
 					mutex.lock();
 					CRecordInstance * inst = FindInstance(channel_ids[i2]);
+					inst-> SetStopMessage(rec_msg);
 					if(inst == NULL || recording_ids[i2] != inst->GetRecordingId())
 					{
 						printf("CRecordManager::exec(ExitAll) channel %llx event id %d not found\n", channel_ids[i2], recording_ids[i2]);
@@ -1190,8 +1202,6 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 					mutex.unlock();
 				}
 			}
-			hintBox->hide();
-			delete hintBox;
 		}
 		return menu_return::RETURN_EXIT_ALL;
 	}else if(actionKey == "Record")

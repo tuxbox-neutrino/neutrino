@@ -92,6 +92,7 @@ class CRecordInstance
 
 		std::string	Directory;
 		char		filename[FILENAMEBUFFERSIZE];
+		std::string	rec_stop_msg;
 
 		CMovieInfo *	cMovieInfo;
 		MI_MOVIE_INFO *	recMovieInfo;
@@ -104,6 +105,7 @@ class CRecordInstance
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
 		record_error_msg_t Start(CZapitChannel * channel /*, APIDList &apid_list*/);
+		void WaitRecMsg(time_t StartTime, time_t WaitTime);
 	public:		
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
 		~CRecordInstance();
@@ -120,6 +122,7 @@ class CRecordInstance
 		const char * GetFileName() { return filename; };
 		bool Timeshift() { return autoshift; };
 		int tshift_mode;
+		void SetStopMessage(const char* text) {rec_stop_msg = text;} ;
 };
 
 typedef std::map<t_channel_id, CRecordInstance*> recmap_t;
