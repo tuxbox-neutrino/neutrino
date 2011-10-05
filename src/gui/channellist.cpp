@@ -1818,6 +1818,7 @@ void CChannelList::paintItem(int pos)
 	bool iscurrent = true;
 	bool paintbuttons = false;
 	unsigned int curr = liststart + pos;
+	int rec_mode;
 
 #if 0
 	if(CNeutrinoApp::getInstance()->recordingstatus && !autoshift && curr < chanlist.size()) {
@@ -1864,9 +1865,36 @@ void CChannelList::paintItem(int pos)
 		} else {
 			p_event = &chan->currentEvent;
 		}
-		
+
+		if (pos == 0)
+		{
+			int w_max, w_min, h;
+			ChannelList_Rec = 0;
+			int recmode_icon_max = CRecordManager::RECMODE_REC, recmode_icon_min = CRecordManager::RECMODE_TSHIFT;
+			frameBuffer->getIconSize(NEUTRINO_ICON_REC, &w_max, &h);
+			frameBuffer->getIconSize(NEUTRINO_ICON_AUTO_SHIFT, &w_min, &h);
+			if (w_max < w_min)
+			{
+				recmode_icon_max = CRecordManager::RECMODE_TSHIFT;
+				recmode_icon_min = CRecordManager::RECMODE_REC;
+				h = w_max;
+				w_max = w_min;
+				w_min = h;
+			}
+			for (uint32_t i = 0; i < chanlist.size(); i++)
+			{
+				rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[i]->channel_id);
+				if (rec_mode == recmode_icon_max)
+				{
+					ChannelList_Rec = w_max;
+					break;
+				} else if (rec_mode == recmode_icon_min)
+					ChannelList_Rec = w_min;
+			}
+		}
+
 		//record check
-		int rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[curr]->channel_id);
+		rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[curr]->channel_id);
 		
 		//set recording icon
 		const char * rec_icon = "";
@@ -1877,10 +1905,9 @@ void CChannelList::paintItem(int pos)
 	
 		//calculating icons
 		int  icon_x = (x+width-15-2) - RADIUS_LARGE/2;
-		int r_icon_h=0; int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
+		int r_icon_w=0;  int s_icon_h=0; int s_icon_w=0;
 		frameBuffer->getIconSize(NEUTRINO_ICON_SCRAMBLED, &s_icon_w, &s_icon_h);
-		if (rec_mode != CRecordManager::RECMODE_OFF)
-			frameBuffer->getIconSize(rec_icon, &r_icon_w, &r_icon_h);
+		r_icon_w = ChannelList_Rec;
 		int r_icon_x = icon_x;
 		
 		//paint scramble icon
