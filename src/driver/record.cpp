@@ -1247,7 +1247,7 @@ bool CRecordManager::ShowMenu(void)
 			this, "Timeshift", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	menu.addItem(iteml, false);
 	
-	if(recmap_size > 0)
+	if(recmap_size > 0) 
 	{
 		menu.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_RECORDING_STOP));
 		mutex.lock();
@@ -1259,17 +1259,17 @@ bool CRecordManager::ShowMenu(void)
 
 			channel_ids[i] = channel_id;
 			recording_ids[i] = inst->GetRecordingId();
+			
 			std::string title;
+			inst->GetRecordString(title);
+			
+			const char* mode_icon = NULL;
 			if (inst->tshift_mode)
-			{
-				std::string tmp_title;
-				inst->GetRecordString(tmp_title);
-				title = "[TS] " + tmp_title;
-			}else
-				inst->GetRecordString(title);
+				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
+
 			sprintf(cnt, "%d", i);
 			item = new CMenuForwarderNonLocalized(title.c_str(), true, NULL, 
-				selector, cnt, CRCInput::convertDigitToKey((recmap_size == 1) ? 0 : shortcut++));
+				selector, cnt, CRCInput::convertDigitToKey((recmap_size == 1) ? 0 : shortcut++), NULL, mode_icon);
 			item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			menu.addItem(item, false);
 			i++;
