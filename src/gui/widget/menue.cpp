@@ -745,8 +745,17 @@ void CMenuWidget::paint()
 	height = wanted_height;
 	width = min_width;
 
+	int wi, hi;
 	for (unsigned int i= 0; i< items.size(); i++) {
-		int tmpw = items[i]->getWidth() + 10 + 10; /* 10 pixels to the left and right of the text */
+		wi = 0;
+		if (!items[i]->iconName_Info_right.empty()) {
+			frameBuffer->getIconSize(items[i]->iconName_Info_right.c_str(), &wi, &hi);
+			if ((wi > 0) && (hi > 0))
+				wi += 10;
+			else
+				wi = 0;
+		}
+		int tmpw = items[i]->getWidth() + 10 + 10 + wi; /* 10 pixels to the left and right of the text */
 		if (tmpw > width)
 			width = tmpw;
 	}
