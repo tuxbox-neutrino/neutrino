@@ -523,21 +523,26 @@ bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy,
 	return false;
 }
 
-fb_pixel_t * CPictureViewer::getImage(const std::string & name, int width, int height)
+fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, int *height, bool GetImage)
 {
-	int x, y, bpp = 0;
+	int x, y, load_ret, bpp = 0;
 	CFormathandler *fh;
 	unsigned char * buffer;
 	fb_pixel_t * ret = NULL;
-	int load_ret;
+	std::string mode_str;
+
+	if (GetImage)
+		mode_str = "getImage";
+	else
+		mode_str = "getIcon";
 
   	fh = fh_getsize(name.c_str(), &x, &y, INT_MAX, INT_MAX);
   	if (fh)
   	{
-		buffer = (unsigned char *) malloc (x * y * 4);
+		buffer = (unsigned char *) malloc(x * y * 4);
 		if (buffer == NULL)
 		{
-		  	printf ("getImage: Error: malloc\n");
+		  	printf("%s: Error: malloc\n", mode_str.c_str());
 		  	return false;
 		}
 #ifdef FBV_SUPPORT_PNG
@@ -548,70 +553,40 @@ fb_pixel_t * CPictureViewer::getImage(const std::string & name, int width, int h
 			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
 		if (load_ret == FH_ERROR_OK)
 		{
-			printf("getImage: decoded %s, %d x %d \n", name.c_str(), x, y);
-			if(x != width || y != height)
+			printf("%s: decoded %s, %d x %d \n", mode_str.c_str(), name.c_str(), x, y);
+			// resize only getImage
+			if ((GetImage) && (x != *width || y != *height))
 			{
-				printf("getImage: resize  %s to %d x %d \n", name.c_str(), width, height);
+				printf("%s: resize  %s to %d x %d \n", mode_str.c_str(), name.c_str(), *width, *height);
 				if (bpp == 4)
-					buffer = ResizeA(buffer, x, y, width, height);
+					buffer = ResizeA(buffer, x, y, *width, *height);
 				else
-					buffer = Resize(buffer, x, y, width, height, COLOR);
-				x = width;
-				y = height;
+					buffer = Resize(buffer, x, y, *width, *height, COLOR);
+				x = *width;
+				y = *height;
 			}
 			if (bpp == 4)
 				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGBA2FB(buffer, x, y);
 			else
 				ret = (fb_pixel_t *) CFrameBuffer::getInstance()->convertRGB2FB(buffer, x, y, convertSetupAlpha2Alpha(g_settings.infobar_alpha));
+			*width = x;
+			*height = y;
 		}else
-	  		printf ("getImage: Error decoding file %s\n", name.c_str ());
+	  		printf("%s: Error decoding file %s\n", mode_str.c_str(), name.c_str());
 		free(buffer);
   	}else
-		printf("getImage: Error open file %s\n", name.c_str ());
-
+		printf("%s: Error open file %s\n", mode_str.c_str(), name.c_str());
 	return ret;
 }
 
-fb_pixel_t * CPictureViewer::getIcon (const std::string & name, int *width, int *height)
+fb_pixel_t * CPictureViewer::getImage(const std::string & name, int width, int height)
 {
-	int x, y;
-	CFormathandler *fh;
-	unsigned char * rgbbuff;
-	fb_pixel_t * fbbuff = NULL;
+	return int_getImage(name, &width, &height, true);
+}
 
-  	fh = fh_getsize (name.c_str (), &x, &y, INT_MAX, INT_MAX);
-  	if (!fh) {
-		return NULL;
-	}
-	rgbbuff = (unsigned char *) malloc (x * y * 3);
-	if (rgbbuff == NULL) {
-		printf ("getIcon: Error: malloc\n");
-		return NULL;
-	}
-	if (fh->get_pic (name.c_str (), &rgbbuff, &x, &y) == FH_ERROR_OK) {
-		int count = x*y;
-
-		//fbbuff = (fb_pixel_t *) malloc(count * sizeof(fb_pixel_t));
-		fbbuff = (fb_pixel_t *) cs_malloc_uncached(count * sizeof(fb_pixel_t));
-		//printf("getIcon: decoded %s, %d x %d buf %x\n", name.c_str (), x, y, fbbuff);
-
-		for(int i = 0; i < count ; i++) {
-			int transp = 0;
-
-			if(rgbbuff[i*3] || rgbbuff[i*3+1] || rgbbuff[i*3+2])
-				transp = 0xFF;
-
-			fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
-		}
-
-		*width = x;
-		*height = y;
-	} else 
-		printf ("Error decoding file %s\n", name.c_str ());
-
-	free (rgbbuff);
-
-	return fbbuff;
+fb_pixel_t * CPictureViewer::getIcon(const std::string & name, int *width, int *height)
+{
+	return int_getImage(name, width, height, false);
 }
 
 unsigned char * CPictureViewer::int_Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst, bool alpha)
