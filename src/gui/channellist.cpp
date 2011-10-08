@@ -1891,6 +1891,8 @@ void CChannelList::paintItem(int pos)
 				} else if (rec_mode == recmode_icon_min)
 					ChannelList_Rec = w_min;
 			}
+			if (ChannelList_Rec > 0)
+				ChannelList_Rec += 8;
 		}
 
 		//record check
@@ -1918,7 +1920,7 @@ void CChannelList::paintItem(int pos)
  		//paint recording icon
  		//bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
 		if (rec_mode != CRecordManager::RECMODE_OFF)
-			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w - 4, ypos, fheight);//ypos + (fheight - 16)/2);
+			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		
 		//paint buttons
 		if (paintbuttons)
