@@ -1160,7 +1160,6 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
-			snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
 
 			int i = 0;
 			int recording_ids[RECORD_MAX_COUNT];
@@ -1174,12 +1173,15 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 				recording_ids[i] = 0;
 				channel_id = it->first;
 				CRecordInstance * inst = it->second;
+				
+				snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records-i, records);
 				inst-> SetStopMessage(rec_msg);
+				
 				if(inst)
 				{
 					channel_ids[i] = channel_id;
 					recording_ids[i] = inst->GetRecordingId();
-					printf("CRecordManager::exec(ExitAll) found channel %llx recording_id %d\n", channel_ids[i], recording_ids[i]);
+					printf("CRecordManager::exec(ExitAll line %d) found channel %llx recording_id %d\n", __LINE__, channel_ids[i], recording_ids[i]);
 					i++;
 				}
 			}
@@ -1190,10 +1192,13 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 				{
 					mutex.lock();
 					CRecordInstance * inst = FindInstance(channel_ids[i2]);
+					
+					snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records-i2, records);
 					inst-> SetStopMessage(rec_msg);
+					
 					if(inst == NULL || recording_ids[i2] != inst->GetRecordingId())
 					{
-						printf("CRecordManager::exec(ExitAll) channel %llx event id %d not found\n", channel_ids[i2], recording_ids[i2]);
+						printf("CRecordManager::exec(ExitAll line %d) channel %llx event id %d not found\n", __LINE__, channel_ids[i2], recording_ids[i2]);
 					}else
 					{
 						usleep(500000);
