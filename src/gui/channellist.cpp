@@ -1776,7 +1776,7 @@ struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_INFOVIEWER_NEXT},
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_BOUQUETLIST_HEAD},
-	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16, NONEXISTANT_LOCALE}
+	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE}
 };
 
 void CChannelList::paintButtonBar(bool is_current)
@@ -1795,13 +1795,13 @@ void CChannelList::paintButtonBar(bool is_current)
 	if (g_settings.recording_type != RECORDING_OFF && !displayNext){
 		if (is_current && !do_record){
 			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING;
-			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE_16;
+			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE;
 		}else if (do_record){
 			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING_STOP;
-			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_STOP_16;
+			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_STOP;
 		}else{
 			SChannelListButtons[3].locale = NONEXISTANT_LOCALE;
-			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16;
+			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE;
 		}
 	}
 	

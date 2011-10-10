@@ -59,9 +59,9 @@
 #define NEUTRINO_ICON_BUTTON_DOWN_SMALL	"down_small"
 #define NEUTRINO_ICON_BUTTON_LEFT	"left"
 
-#define NEUTRINO_ICON_BUTTON_RECORD_ACTIVE_16	"btn_record_active_16x16"
-#define NEUTRINO_ICON_BUTTON_RECORD_INACTIVE_16	"btn_record_inactive_16x16"
-#define NEUTRINO_ICON_BUTTON_STOP_16	"btn_stop_16x16"
+#define NEUTRINO_ICON_BUTTON_RECORD_ACTIVE	"btn_record_active"
+#define NEUTRINO_ICON_BUTTON_RECORD_INACTIVE	"btn_record_inactive"
+#define NEUTRINO_ICON_BUTTON_STOP	"btn_stop"
 
 #define NEUTRINO_ICON_BUTTON_PLUS	"plus"
 #define NEUTRINO_ICON_BUTTON_MINUS	"minus"
@@ -90,7 +90,7 @@
 #define NEUTRINO_ICON_MOUNTED		"mounted"
 #define NEUTRINO_ICON_MP3		"mp3"
 #define NEUTRINO_ICON_MULTIMEDIA	"multimedia"
-#define NEUTRINO_ICON_MOVIEPLAYER_32	"icon_movieplayer_32x32"
+#define NEUTRINO_ICON_MOVIEPLAYER	"icon_movieplayer"
 #define NEUTRINO_ICON_NOT_MOUNTED	"not_mounted"
 #define NEUTRINO_ICON_PAUSE		"mp_pause"
 #define NEUTRINO_ICON_PLAY 		"mp_play"

@@ -25,9 +25,9 @@ install_DATA = \
 	border_lr.png \
 	border_ul.png \
 	bosanski.png \
-	btn_record_active_16x16.png \
-	btn_record_inactive_16x16.png \
-	btn_stop_16x16.png \
+	btn_record_active.png \
+	btn_record_inactive.png \
+	btn_stop.png \
 	ca.png \
 	ca2.png \
 	ca2_gray.png \
@@ -70,7 +70,7 @@ install_DATA = \
 	home.png \
 	hungarian.png \
 	icon_green.png \
-	icon_movieplayer_32x32.png \
+	icon_movieplayer.png \
 	icon_red.png \
 	icon_yellow.png \
 	info.png \
