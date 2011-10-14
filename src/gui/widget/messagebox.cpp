@@ -97,7 +97,7 @@ void CMessageBox::paintButtons()
 	uint8_t    color;
 	fb_pixel_t bgcolor;
 
-	m_window->paintBoxRel(0, m_height - (m_fheight << 1), m_width, (m_fheight << 1), (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	m_window->paintBoxRel(0, m_height - (m_fheight << 1) - RADIUS_LARGE, m_width, (m_fheight << 1) + RADIUS_LARGE, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	//irgendwann alle vergleichen - aber cancel ist sicher der l�ngste
 	int MaxButtonTextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL), true); // UTF-8
@@ -169,8 +169,8 @@ void CMessageBox::paintButtons()
 		m_window->paintBoxRel(xpos, m_height-m_fheight-noname, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
 		//m_window->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+10, m_height-m_fheight-19);
 		m_window->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+14, m_height-m_fheight - noname, m_fheight);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, (m_height - noname)-(m_fheight-fh)/2, ButtonWidth- 53, 
-			g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK), 
+		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, (m_height - noname)-(m_fheight-fh)/2, ButtonWidth- 53,
+			g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK),
 			(CFBWindow::color_t)color, 0, true); // UTF-8
 	}
 }
@@ -236,9 +236,15 @@ int CMessageBox::exec(int timeout)
 		else if (has_scrollbar() && ((msg == CRCInput::RC_up) || (msg == CRCInput::RC_down)))
 		{
 			if (msg == CRCInput::RC_up)
+			{
 				scroll_up();
+				paintButtons();
+			}
 			else
+			{
 				scroll_down();
+				paintButtons();
+			}
 		}
 		else if(msg==CRCInput::RC_left)
 		{
