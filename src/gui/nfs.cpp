@@ -176,7 +176,7 @@ int CNFSMountGui::menu()
 	{
 		sprintf(s2,"mountentry%d",i);
 		sprintf(ISO_8859_1_entry[i],ZapitTools::UTF8_to_Latin1(m_entry[i]).c_str());
-		CMenuForwarderNonLocalized *forwarder = new CMenuForwarderNonLocalized("", true, ISO_8859_1_entry[i], this, s2);
+		CMenuForwarderNonLocalized *forwarder = new CMenuForwarderNonLocalized(ISO_8859_1_entry[i], true, NULL, this, s2);
 		if (CFSMounter::isMounted(g_settings.network_nfs_local_dir[i]))
 		{
 			forwarder->iconName = NEUTRINO_ICON_MOUNTED;
