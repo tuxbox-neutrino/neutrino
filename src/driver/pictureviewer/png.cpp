@@ -74,7 +74,6 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 		}
 		// 24bit PNGs with alpha-channel
 		int_bpp = 4;
-		printf("##### [png.cpp]: Image: %s, bit_depth: %d, bpp: %d\n", name, bit_depth, *bpp);
 //		png_set_swap_alpha(png_ptr);
 		if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS))
 			png_set_tRNS_to_alpha(png_ptr);
@@ -92,7 +91,6 @@ int int_png_load(const char *name, unsigned char **buffer, int* xp, int* yp, int
 			png_set_gray_to_rgb(png_ptr);
 			png_set_background(png_ptr, (png_color_16*)&my_background, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
 		}
-		printf("##### [png.cpp]: Image: %s, bit_depth: %d\n", name, bit_depth);
 		/* this test does not trigger for 8bit-paletted PNGs with newer libpng (1.2.36 at least),
 	   	   but the data delivered is with alpha channel anyway, so always strip alpha for now
 		 */

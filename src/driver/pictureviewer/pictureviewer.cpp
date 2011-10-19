@@ -491,7 +491,7 @@ bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int w
 	bool ret = false;
 
 	sprintf(fname, "%s/%llx.jpg", g_settings.logo_hdd_dir.c_str(), channel_id & 0xFFFFFFFFFFFFULL);
-	printf("logo file: %s\n", fname);
+//	printf("logo file: %s\n", fname);
 	if(access(fname, F_OK))
 		sprintf(fname, "%s/%llx.gif", g_settings.logo_hdd_dir.c_str(), channel_id & 0xFFFFFFFFFFFFULL);
 
@@ -553,7 +553,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 			load_ret = fh->get_pic(name.c_str (), &buffer, &x, &y);
 		if (load_ret == FH_ERROR_OK)
 		{
-			printf("%s: decoded %s, %d x %d \n", mode_str.c_str(), name.c_str(), x, y);
+//			printf("%s: decoded %s, %d x %d \n", mode_str.c_str(), name.c_str(), x, y);
 			// resize only getImage
 			if ((GetImage) && (x != *width || y != *height))
 			{
