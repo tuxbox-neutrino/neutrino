@@ -1251,6 +1251,8 @@ void CFileBrowser::paintItem(unsigned int pos)
 		bgcolor = COL_MENUCONTENT_PLUS_0;//DARK;
 		c_rad_small = 0;
 	}
+	
+	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 
 	if( (liststart + pos) < filelist.size() )
 	{
@@ -1272,8 +1274,6 @@ void CFileBrowser::paintItem(unsigned int pos)
 			colwidth3 = 90;
 		}
 		colwidth1 = width - 35 - colwidth2 - colwidth3 - 10;
-
-		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 
 		if ( actual_file->Name.length() > 0 )
 		{
@@ -1512,6 +1512,7 @@ void CFileBrowser::paint()
 	for(unsigned int count=0;count<listmaxshow;count++)
 		paintItem(count);
 
+	//scrollbar
 	int ypos = y+ theight;
 	int sb = fheight* listmaxshow;
 	frameBuffer->paintBoxRel(x+ width- 15,ypos, 15, sb,  COL_MENUCONTENT_PLUS_1);
