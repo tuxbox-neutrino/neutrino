@@ -726,6 +726,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	strcpy(g_settings.repeat_blocker, configfile.getString("repeat_blocker", "150").c_str());
 	strcpy(g_settings.repeat_genericblocker, configfile.getString("repeat_genericblocker", "100").c_str());
+	g_settings.remote_control_neo1 = configfile.getInt32( "remote_control_neo1",  0);
 	g_settings.key_bouquet_up = configfile.getInt32( "key_bouquet_up",  CRCInput::RC_right);
 	g_settings.key_bouquet_down = configfile.getInt32( "key_bouquet_down",  CRCInput::RC_left);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
@@ -1240,6 +1241,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
 	configfile.setString( "repeat_blocker", g_settings.repeat_blocker );
 	configfile.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
+	configfile.setInt32("remote_control_neo1", g_settings.remote_control_neo1);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 
 	//screen configuration
@@ -2274,7 +2276,10 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					showInfo();
 				}
 			    } else
-				quickZap( msg );
+				if (g_settings.remote_control_neo1 == 0)
+					quickZap( msg );
+				else
+					setVolume(CRCInput::RC_plus, (mode != mode_scart));
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
 			   if(g_RemoteControl->subChannels.size()> 0) {
@@ -2286,7 +2291,10 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					showInfo();
 				}
 			    } else
-				quickZap( msg );
+				if (g_settings.remote_control_neo1 == 0)
+					quickZap( msg );
+				else
+					setVolume(CRCInput::RC_minus, (mode != mode_scart));
 			}
 			/* in case key_subchannel_up/down redefined */
 			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
@@ -3407,7 +3415,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 
 	do {
 		if (msg <= CRCInput::RC_MaxRC) {
-			if (msg == CRCInput::RC_plus || msg == CRCInput::RC_right) { //FIXME
+			if (msg == CRCInput::RC_plus) {
 				if (g_settings.current_volume < 100 - g_settings.current_volume_step)
 					g_settings.current_volume += g_settings.current_volume_step;
 				else
@@ -3416,7 +3424,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 					AudioMute( false, true);
 				}
 			}
-			else if (msg == CRCInput::RC_minus || msg == CRCInput::RC_left) { //FIXME
+			else if (msg == CRCInput::RC_minus) {
 				if (g_settings.current_volume > g_settings.current_volume_step)
 					g_settings.current_volume -= g_settings.current_volume_step;
 				else if ((g_settings.show_mute_icon == 1) && (g_settings.current_volume = 1))

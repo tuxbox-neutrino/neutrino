@@ -641,6 +641,7 @@ const char * locale_real_names[] =
 	"ipsetup.hint_1",
 	"ipsetup.hint_2",
 	"keybindingmenu.RC",
+	"keybindingmenu.RC_NEO1",
 	"keybindingmenu.addrecord",
 	"keybindingmenu.addremind",
 	"keybindingmenu.allchannels_on_ok",

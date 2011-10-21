@@ -184,7 +184,8 @@ void CKeybindSetup::showKeySetup()
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCK, true, g_settings.repeat_blocker, keySettings_repeatBlocker));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
-	
+	keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_RC_NEO1, &g_settings.remote_control_neo1, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
 	//user menues
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_HEAD));
 	keySettings->addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_RED, true, NULL, new CUserMenuSetup(LOCALE_USERMENU_BUTTON_RED,0), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));

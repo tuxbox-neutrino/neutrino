@@ -614,6 +614,7 @@ infoviewer.waittime Warte auf Uhrzeit...
 ipsetup.hint_1 Benutzen Sie 0..9 oder hoch/runter
 ipsetup.hint_2 OK speichert, EXIT bricht ab
 keybindingmenu.RC Fernbedienung abstimmen
+keybindingmenu.RC_NEO1 Fernbedienung NEO1
 keybindingmenu.addrecord Aufnahme-Timer hinzufügen
 keybindingmenu.addremind Umschalt-Timer hinzufügen
 keybindingmenu.allchannels_on_ok Kanalliste

@@ -614,6 +614,7 @@ infoviewer.waittime Waiting for time...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
 ipsetup.hint_2 OK saves, LAME! aborts
 keybindingmenu.RC Tune Remote-Control
+keybindingmenu.RC_NEO1 Remote Control NEO1
 keybindingmenu.addrecord add record timer
 keybindingmenu.addremind add zapto timer
 keybindingmenu.allchannels_on_ok all-services

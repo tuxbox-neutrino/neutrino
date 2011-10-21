@@ -328,6 +328,7 @@ struct SNeutrinoSettings
 
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
+	int remote_control_neo1;
 	int audiochannel_up_down_enable;
 
 	//screen configuration
