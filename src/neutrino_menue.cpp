@@ -131,7 +131,7 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 	mainMenu.addItem( new CMenuSeparator(CMenuSeparator::LINE) );
 	// start of infomenu
 	if (g_settings.show_infomenu == 0)
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_info, NEUTRINO_ICON_BUTTON_INFO_SMALL ));
 	
 	// end of infomenu
 	/*if(system_rev != 10)*/
@@ -262,7 +262,7 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service)
 	
 // 	// start infomenu in service
  	if (g_settings.show_infomenu == 1) 
- 		service.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP_SMALL ));
+ 		service.addItem(new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_info, NEUTRINO_ICON_BUTTON_INFO_SMALL ));
 	
 	// end of infomenu in service
 	//softupdate

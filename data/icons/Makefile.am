@@ -74,6 +74,8 @@ install_DATA = \
 	icon_red.png \
 	icon_yellow.png \
 	info.png \
+	info_small.png \
+	information.png \
 	ird_green.png \
 	ird_white.png \
 	ird_yellow.png \
