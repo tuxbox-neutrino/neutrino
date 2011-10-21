@@ -97,7 +97,6 @@ class CInfoViewer
 
 	uint32_t           sec_timer_id;
 	uint32_t           fadeTimer;
-	bool           virtual_zap_mode;
 
 	int time_left_width;
 	int time_dot_width;
@@ -161,6 +160,7 @@ class CInfoViewer
  public:
 	bool chanready;
 	bool	is_visible;
+	bool	virtual_zap_mode;
 	uint32_t    lcdUpdateTimer;
 
 	CInfoViewer();
