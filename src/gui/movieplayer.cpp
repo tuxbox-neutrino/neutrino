@@ -553,9 +553,10 @@ void CMoviePlayerGui::PlayFile(void)
 			isBookmark = false;
 			timesh = false;
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-			FileTime.SetMode(CTimeOSD::MODE_DESC);
-			FileTime.show(position / 1000);
-			FileTime.updatePos(file_prozent);
+			g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), 
+						CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), 
+						CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(), 
+						CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 		}
 
 		if (isBookmark) {
