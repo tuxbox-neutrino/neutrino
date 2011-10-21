@@ -1252,6 +1252,7 @@ void CFileBrowser::paintItem(unsigned int pos)
 		c_rad_small = 0;
 	}
 	
+	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0);
 	frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, c_rad_small);
 
 	if( (liststart + pos) < filelist.size() )
