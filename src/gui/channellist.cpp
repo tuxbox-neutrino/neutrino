@@ -617,7 +617,7 @@ int CChannelList::show()
 			paint();
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 		}
-		else if (msg == CRCInput::RC_blue && ( bouquetList != NULL ) ) { //FIXME
+		else if (msg == CRCInput::RC_yellow && ( bouquetList != NULL ) ) { //FIXME
 			bShowBouquetList = true;
 			loop=false;
 		}
@@ -865,7 +865,7 @@ int CChannelList::show()
 			g_RCInput->postMsg( msg, data );
 			loop=false;
 		}
-		else if ( msg == CRCInput::RC_yellow )
+		else if ( msg == CRCInput::RC_blue )
 		{
 			displayNext = !displayNext;
 			paint();
@@ -1774,8 +1774,8 @@ void CChannelList::showChannelLogo()
 struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_INFOVIEWER_NEXT},
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_BOUQUETLIST_HEAD},
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_INFOVIEWER_NEXT},
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETLIST_HEAD},
 	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE}
 };
 
