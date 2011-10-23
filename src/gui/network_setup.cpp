@@ -236,14 +236,14 @@ void CNetworkSetup::showNetworkSetup()
 	CMenuForwarder *m3 = new CMenuForwarder(LOCALE_NETWORKMENU_BROADCAST , networkConfig->inet_static, network_broadcast , networkSettings_Broadcast );
 	CMenuForwarder *m4 = new CMenuForwarder(LOCALE_NETWORKMENU_GATEWAY   , networkConfig->inet_static, network_gateway   , networkSettings_Gateway   );
 	CMenuForwarder *m5 = new CMenuForwarder(LOCALE_NETWORKMENU_NAMESERVER, networkConfig->inet_static, network_nameserver, networkSettings_NameServer);
-	CMenuForwarder *m8 = new CMenuForwarder(LOCALE_NETWORKMENU_HOSTNAME  , !networkConfig->inet_static, network_hostname , networkSettings_Hostname  );
+	CMenuForwarder *m8 = new CMenuForwarder(LOCALE_NETWORKMENU_HOSTNAME  , networkConfig->inet_static, network_hostname , networkSettings_Hostname  );
 
 	dhcpDisable[0] = m1;
 	dhcpDisable[1] = m2;
 	dhcpDisable[2] = m3;
 	dhcpDisable[3] = m4;
 	dhcpDisable[4] = m5;
-	dhcpEnable[0] = m8;
+	dhcpDisable[5] = m8;
 
 	CMenuOptionChooser* o2 = new CMenuOptionChooser(LOCALE_NETWORKMENU_DHCP, &network_dhcp, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
 
@@ -589,10 +589,6 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * Data)
 
 		for(int i = 0; i < ecnt; i++)
 			dhcpDisable[i]->setActive(CNetworkConfig::getInstance()->inet_static);
-		ecnt = sizeof(dhcpEnable) / sizeof(CMenuForwarder*);
-
-		for(int i = 0; i < ecnt; i++)
-			dhcpEnable[i]->setActive(!CNetworkConfig::getInstance()->inet_static);
 	}
 	return true;
 }
