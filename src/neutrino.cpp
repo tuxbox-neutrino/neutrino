@@ -3443,6 +3443,8 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 				else if (g_settings.show_mute_icon == 0)
 					g_settings.current_volume = 0;
 			}
+			else if (msg == CRCInput::RC_home)
+				break;
 			else {
 				g_RCInput->postMsg(msg, data);
 				break;
