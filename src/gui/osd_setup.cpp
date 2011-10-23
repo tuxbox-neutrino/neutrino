@@ -49,6 +49,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
 #include <gui/widget/stringinput.h>
+#include <gui/keybind_setup.h>
 
 #include <driver/screen_max.h>
 
@@ -171,7 +172,14 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 
+	// Display virtual zap = off when RC neo1
+	tmp_virtual_zap_mode = (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_STANDARD) ? g_settings.virtual_zap_mode : false;
+
 	showOsdSetup();
+
+	// Restore g_settings.virtual_zap_mode
+	if (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_STANDARD)
+		g_settings.virtual_zap_mode = tmp_virtual_zap_mode;
 	
 	return menu_return::RETURN_REPAINT;	
 }
@@ -586,7 +594,10 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY, &g_settings.casystem_display, INFOBAR_CASYSTEM_MODE_OPTIONS, INFOBAR_CASYSTEM_MODE_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_DISP_LOG, &g_settings.infobar_show_channellogo, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS, LOCALE_MISCSETTINGS_INFOBAR_DISP_OPTIONS_COUNT, true));
 	menu_infobar->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR_LOGO_HDD_DIR, true, g_settings.logo_hdd_dir, this, "logo_dir"));
-	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_VIRTUAL_ZAP_MODE, &g_settings.virtual_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+
+	// Disable virtual zap when Neo1 remote control
+	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_VIRTUAL_ZAP_MODE, &tmp_virtual_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_STANDARD)));
+
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SAT_DISPLAY, &g_settings.infobar_sat_display, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_VAR_HDD, &g_settings.infobar_show_var_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true));

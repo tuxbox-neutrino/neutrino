@@ -88,6 +88,7 @@
 #include "gui/hdd_menu.h"
 #include "gui/imageinfo.h"
 #include "gui/infoviewer.h"
+#include "gui/keybind_setup.h"
 #include "gui/mediaplayer.h"
 #include "gui/motorcontrol.h"
 #include "gui/movieplayer.h"
@@ -726,7 +727,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	strcpy(g_settings.repeat_blocker, configfile.getString("repeat_blocker", "150").c_str());
 	strcpy(g_settings.repeat_genericblocker, configfile.getString("repeat_genericblocker", "100").c_str());
-	g_settings.remote_control_neo1 = configfile.getInt32( "remote_control_neo1",  0);
+	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CKeybindSetup::REMOTECONTROL_STANDARD);
 	g_settings.key_bouquet_up = configfile.getInt32( "key_bouquet_up",  CRCInput::RC_right);
 	g_settings.key_bouquet_down = configfile.getInt32( "key_bouquet_down",  CRCInput::RC_left);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
@@ -1241,7 +1242,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
 	configfile.setString( "repeat_blocker", g_settings.repeat_blocker );
 	configfile.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
-	configfile.setInt32("remote_control_neo1", g_settings.remote_control_neo1);
+	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 
 	//screen configuration
@@ -2198,7 +2199,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	cCA::GetInstance()->Ready(true);
 
 	while( true ) {
-		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.remote_control_neo1 == 1) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
+		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
@@ -2271,34 +2272,34 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				StopSubtitles();
 				g_RemoteControl->subChannelUp();
 				g_InfoViewer->showSubchan();
+			    } else if(g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) {
+				setVolume(msg, true);
 			    } else if(g_settings.virtual_zap_mode) {
 				if(channelList->getSize()) {
 					showInfo();
 				}
 			    } else
-				if (g_settings.remote_control_neo1 == 0)
-					quickZap( msg );
-				else
-					setVolume(msg, true);
+				quickZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
 			   if(g_RemoteControl->subChannels.size()> 0) {
 				StopSubtitles();
 				g_RemoteControl->subChannelDown();
 				g_InfoViewer->showSubchan();
+			    } else if(g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) {
+				setVolume(msg, true);
 			    } else if(g_settings.virtual_zap_mode) {
 				if(channelList->getSize()) {
 					showInfo();
 				}
 			    } else
-				if (g_settings.remote_control_neo1 == 0)
-					quickZap( msg );
-				else
-					setVolume(msg, true);
+				quickZap( msg );
 			}
 			/* in case key_subchannel_up/down redefined */
 			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
-				if(channelList->getSize()) {
+			    	if(g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) {
+					setVolume(msg, true);
+				} else if(channelList->getSize()) {
 					showInfo();
 				}
 			}

@@ -106,6 +106,12 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	return res;
 }
 
+#define KEYBINDINGMENU_REMOTECONTROL_OPTION_COUNT 2
+const CMenuOptionChooser::keyval KEYBINDINGMENU_REMOTECONTROL_OPTIONS[KEYBINDINGMENU_REMOTECONTROL_OPTION_COUNT] =
+{
+	{ CKeybindSetup::REMOTECONTROL_STANDARD, LOCALE_KEYBINDINGMENU_REMOTECONTROL_STANDARD },
+	{ CKeybindSetup::REMOTECONTROL_NEO1,     LOCALE_KEYBINDINGMENU_REMOTECONTROL_NEO1     }
+};
 
 #define KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT 3
 const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS[KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT] =
@@ -184,7 +190,7 @@ void CKeybindSetup::showKeySetup()
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCK, true, g_settings.repeat_blocker, keySettings_repeatBlocker));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
-	keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_RC_NEO1, &g_settings.remote_control_neo1, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL, &g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_OPTION_COUNT, true));
 
 	//user menues
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_HEAD));

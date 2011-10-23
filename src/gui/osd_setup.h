@@ -46,8 +46,8 @@
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
 		CRadiotextNotifier *radiotextNotifier;
+		int tmp_virtual_zap_mode;
 
-		
 		int width, selected;
 		
 		bool is_wizard;
