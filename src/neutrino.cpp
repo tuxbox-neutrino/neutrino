@@ -2198,7 +2198,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	cCA::GetInstance()->Ready(true);
 
 	while( true ) {
-		g_RCInput->getMsg(&msg, &data, 100);	// 10 secs..
+		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.remote_control_neo1 == 1) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
@@ -2279,7 +2279,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if (g_settings.remote_control_neo1 == 0)
 					quickZap( msg );
 				else
-					setVolume(CRCInput::RC_plus, (mode != mode_scart));
+					setVolume(msg, true);
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
 			   if(g_RemoteControl->subChannels.size()> 0) {
@@ -2294,7 +2294,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				if (g_settings.remote_control_neo1 == 0)
 					quickZap( msg );
 				else
-					setVolume(CRCInput::RC_minus, (mode != mode_scart));
+					setVolume(msg, true);
 			}
 			/* in case key_subchannel_up/down redefined */
 			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
@@ -3415,7 +3415,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 
 	do {
 		if (msg <= CRCInput::RC_MaxRC) {
-			if (msg == CRCInput::RC_plus) {
+			if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_right)) {
 				if (g_settings.current_volume < 100 - g_settings.current_volume_step)
 					g_settings.current_volume += g_settings.current_volume_step;
 				else
@@ -3424,7 +3424,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 					AudioMute( false, true);
 				}
 			}
-			else if (msg == CRCInput::RC_minus) {
+			else if ((msg == CRCInput::RC_minus) || (msg == CRCInput::RC_left)) {
 				if (g_settings.current_volume > g_settings.current_volume_step)
 					g_settings.current_volume -= g_settings.current_volume_step;
 				else if ((g_settings.show_mute_icon == 1) && (g_settings.current_volume = 1))
@@ -3463,7 +3463,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 
 		CVFD::getInstance()->showVolume(g_settings.current_volume);
 		if (msg != CRCInput::RC_timeout) {
-			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd );
+			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
 		}
 	} while (msg != CRCInput::RC_timeout);
 
