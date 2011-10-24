@@ -464,6 +464,40 @@
 		<transponder frequency="850000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="858000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
+	<cable name="Liwest (Austria)" satfeed="true" flags="9">
+		<transponder frequency="394000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="402000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="410000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="418000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="426000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="434000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="442000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="562000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="570000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="578000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="586000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="594000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="602000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="610000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="618000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="722000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="730000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="738000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="746000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="754000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="762000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="770000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="778000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="786000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="794000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="802000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="810000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="842000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+        </cable>
 	<cable name="All (SR6900)" satfeed="true" flags="9">
 		<transponder frequency="105000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
