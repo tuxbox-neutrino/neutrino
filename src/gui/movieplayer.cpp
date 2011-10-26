@@ -214,6 +214,7 @@ void CMoviePlayerGui::Init(void)
 	jumpseconds = 0;
 	showaudioselectdialog = false;
 	timeshift = 0;
+	start_timeshift = false;
 }
 
 CMoviePlayerGui::~CMoviePlayerGui()
@@ -552,6 +553,7 @@ void CMoviePlayerGui::PlayFile(void)
 			open_filebrowser = false;
 			isBookmark = false;
 			timesh = false;
+			start_timeshift = true;
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), 
 						CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), 

@@ -138,6 +138,7 @@ class CMoviePlayerGui : public CMenuTarget
 	void updateLcd(const std::string & sel_filename);
 	bool Playing();
 	int timeshift;
+	bool start_timeshift;
 	int file_prozent;
 };
 

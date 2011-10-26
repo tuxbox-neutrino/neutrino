@@ -944,6 +944,18 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 			}
 			else
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
+
+		} else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
+			CMoviePlayerGui::getInstance().start_timeshift = false;
+		} else if (CMoviePlayerGui::getInstance().timeshift && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind)  || \
+		   							(msg == (neutrino_msg_t) g_settings.mpkey_forward) || \
+		   							(msg == (neutrino_msg_t) g_settings.mpkey_pause)   || \
+		   							(msg == (neutrino_msg_t) g_settings.mpkey_stop)    || \
+		   							(msg == (neutrino_msg_t) g_settings.mpkey_play)    || \
+		   							(msg == (neutrino_msg_t) g_settings.mpkey_time)    || \
+		   							(msg == (neutrino_msg_t) g_settings.key_timeshift))) {
+			g_RCInput->postMsg (msg, data);
+			res = messages_return::cancel_info;
 		}
 	}
 
