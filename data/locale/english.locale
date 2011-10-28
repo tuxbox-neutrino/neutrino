@@ -729,7 +729,11 @@ messagebox.yes Yes
 miscsettings.bootinfo Show infos at start
 miscsettings.bootmenu Show boot menu
 miscsettings.channellist Channellist
+miscsettings.channellist.colored_events Program colored
 miscsettings.channellist_epgtext_align Programtext Align
+miscsettings.colored_events_0 none
+miscsettings.colored_events_1 current
+miscsettings.colored_events_2 next
 miscsettings.driver_boot driver and boot options
 miscsettings.energy Energy
 miscsettings.epg_cache EPG-Cache (Days)
@@ -756,9 +760,6 @@ miscsettings.infobar_casystem_display CA-System Display
 miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
 miscsettings.infobar_colored_events Program colored
-miscsettings.infobar_colored_events_0 none
-miscsettings.infobar_colored_events_1 current
-miscsettings.infobar_colored_events_2 next
 miscsettings.infobar_disp_0 without Logo
 miscsettings.infobar_disp_1 Logo 1
 miscsettings.infobar_disp_2 Logo 2
