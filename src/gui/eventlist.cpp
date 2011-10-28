@@ -344,9 +344,9 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			int step = 0;
 			int prev_selected = selected;
 			
-			if ((g_settings.key_channelList_addremind != CRCInput::RC_nokey) ||
+			if ((g_settings.key_channelList_addremind != (int)CRCInput::RC_nokey) ||
 					((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
-					 (g_settings.key_channelList_addrecord != CRCInput::RC_nokey)))
+					 (g_settings.key_channelList_addrecord != (int)CRCInput::RC_nokey)))
 			{
 				paint_buttonbar = true;
 			}
@@ -368,7 +368,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 					if (((evtlist.size() / listmaxshow) + 1) * listmaxshow == evtlist.size() + listmaxshow) // last page has full entries
 						selected = 0;
 					else
-						selected = ((step == listmaxshow) && (selected < (((evtlist.size() / listmaxshow) + 1) * listmaxshow))) ? (evtlist.size() - 1) : 0;
+						selected = ((step == (int)listmaxshow) && (selected < (((evtlist.size() / listmaxshow) + 1) * listmaxshow))) ? (evtlist.size() - 1) : 0;
 				}
 			}
 			paintItem(prev_selected - liststart, channel_id);
@@ -889,11 +889,12 @@ struct button_label EventListFourthButton[NUM_EVENTLIST_FOURTH_BUTTON] =
 
 void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 {
-	int bx = x + 8;
+	int border_space = 4;
+	int bx = x + 2*border_space;
 	int bw = width - 16;
 	int bh = iheight;
 	int by = y + height-iheight;
-	int w_button = bw / 4;// 4 cells
+	int w_button = bw / 4 - border_space;// 4 cells
 	
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
