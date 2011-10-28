@@ -86,6 +86,7 @@
 #define NEUTRINO_ICON_FOLDER		"folder"
 #define NEUTRINO_ICON_GAMES		"games"
 #define NEUTRINO_ICON_INFO		"information"
+#define NEUTRINO_ICON_IMPORTANT		"important"
 #define NEUTRINO_ICON_KEYBINDING	"keybinding"
 #define NEUTRINO_ICON_LOCK		"lock"
 #define NEUTRINO_ICON_HIDDEN		"hidden"
@@ -152,6 +153,7 @@
 #define NEUTRINO_ICON_RESOLUTION_000	"res_000"
 #define NEUTRINO_ICON_RESOLUTION_HD	"res_hd"
 #define NEUTRINO_ICON_RESOLUTION_SD	"res_sd"
+#define NEUTRINO_ICON_ZAP		"zap"
 
 #define DUMMY_ICON			"dummy"
 

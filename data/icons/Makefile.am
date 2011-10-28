@@ -73,6 +73,7 @@ install_DATA = \
 	icon_movieplayer.png \
 	icon_red.png \
 	icon_yellow.png \
+	important.png \
 	info.png \
 	info_small.png \
 	information.png \
@@ -198,5 +199,6 @@ install_DATA = \
 	vtxt_gray.png \
 	x_green.png \
 	x_white.png \
-	x_yellow.png
+	x_yellow.png \
+	zap.png
 
