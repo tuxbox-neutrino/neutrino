@@ -878,7 +878,7 @@ void  EventList::showFunctionBar (bool show)
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
-	frameBuffer->paintBoxRel(x,by,width,bh, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	frameBuffer->paintBoxRel(x, by, width, iheight, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_MID, CORNER_BOTTOM);
 
 	// -- Button: Timer Record & Channelswitch
 	if ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
