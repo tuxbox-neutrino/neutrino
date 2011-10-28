@@ -1205,13 +1205,12 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 		// get channel id / bouquet id
 		if(*m_search_list == EventList::SEARCH_LIST_CHANNEL)
 		{
-			int nNewChannel;
 			int nNewBouquet;
 			nNewBouquet = bouquetList->show();
 			//printf("new_bouquet_id %d\n",nNewBouquet);
 			if (nNewBouquet > -1)
 			{
-				nNewChannel = bouquetList->Bouquets[nNewBouquet]->channelList->show();
+				int nNewChannel = bouquetList->Bouquets[nNewBouquet]->channelList->show();
 				//printf("nNewChannel %d\n",nNewChannel);
 				if (nNewChannel > -1)
 				{
