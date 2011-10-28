@@ -964,8 +964,7 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 	
 	int tID = -1; //any value, not NULL
 	CTimerd::CTimerEventTypes is_timer = isScheduled(channel_id, &evtlist[selected], &tID);
-	printf("%s: <<<<<<<<%d<<<<<<<<<<isTimer = %d selected = %d ID = %d \n", __FUNCTION__, __LINE__, is_timer, selected, tID);
-
+	
 	// -- Button: Timer Record & Channelswitch
 	if ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) && ((uint) g_settings.key_channelList_addrecord != CRCInput::RC_nokey)) {	
 		if (!g_settings.minimode) {
