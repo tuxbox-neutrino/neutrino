@@ -555,7 +555,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );
 	g_settings.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
 
-	g_settings.colored_events = configfile.getInt32( "colored_events" , 0 );
+	g_settings.colored_events_channellist = configfile.getInt32( "colored_events_channellist" , 0 );
+	g_settings.colored_events_infobar = configfile.getInt32( "colored_events_infobar" , 0 );
 	g_settings.colored_events_alpha = configfile.getInt32( "colored_events_alpha", 0x00 );
 	g_settings.colored_events_red = configfile.getInt32( "colored_events_red", 95 );
 	g_settings.colored_events_green = configfile.getInt32( "colored_events_green", 70 );
@@ -1115,7 +1116,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
 	configfile.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
 
-	configfile.setInt32( "colored_events", g_settings.colored_events );
+	configfile.setInt32( "colored_events_channellist", g_settings.colored_events_channellist );
+	configfile.setInt32( "colored_events_infobar", g_settings.colored_events_infobar );
 	configfile.setInt32( "colored_events_alpha", g_settings.colored_events_alpha );
 	configfile.setInt32( "colored_events_red", g_settings.colored_events_red );
 	configfile.setInt32( "colored_events_green", g_settings.colored_events_green );

@@ -272,9 +272,9 @@ const CMenuOptionChooser::keyval  CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS[CHANNE
 #define OPTIONS_COLORED_EVENTS_OPTION_COUNT 3
 const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_EVENTS_OPTION_COUNT] =
 {
-	{ 0, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS_0 },	//none
-	{ 1, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS_1 },	//current
-	{ 2, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS_2 },	//next
+	{ 0, LOCALE_MISCSETTINGS_COLORED_EVENTS_0 },	//none
+	{ 1, LOCALE_MISCSETTINGS_COLORED_EVENTS_1 },	//current
+	{ 2, LOCALE_MISCSETTINGS_COLORED_EVENTS_2 },	//next
 };
 
 
@@ -602,7 +602,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_VAR_HDD, &g_settings.infobar_show_var_hdd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS, &g_settings.colored_events, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
+	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS, &g_settings.colored_events_infobar, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
 // 	radiotextNotifier = new CRadiotextNotifier();
 // 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, radiotextNotifier));
 }
@@ -615,6 +615,7 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true));
+	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
 }
 
 

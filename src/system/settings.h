@@ -208,7 +208,8 @@ struct SNeutrinoSettings
 	unsigned char colored_events_red;
 	unsigned char colored_events_green;
 	unsigned char colored_events_blue;
-	int colored_events;
+	int colored_events_channellist;
+	int colored_events_infobar;
 
 	//network
 #define NETWORK_NFS_NR_OF_ENTRIES 8

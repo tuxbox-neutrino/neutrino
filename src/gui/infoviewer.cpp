@@ -1676,9 +1676,9 @@ void CInfoViewer::display_Info(const char *current, const char *next,
 	//colored_events init
 	bool colored_event_C = false;
 	bool colored_event_N = false;
-	if (g_settings.colored_events == 1)
+	if (g_settings.colored_events_infobar == 1)
 		colored_event_C = true;
-	if (g_settings.colored_events == 2)
+	if (g_settings.colored_events_infobar == 2)
 		colored_event_N = true;
 
 	if (pb_pos > -1)

@@ -494,6 +494,11 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	                              convertSetupColor2RGB(g_settings.colored_events_red, g_settings.colored_events_green, g_settings.colored_events_blue),
 	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
 
+	frameBuffer->paletteGenFade(COL_COLORED_EVENTS_CHANNELLIST,
+	                              convertSetupColor2RGB(int(g_settings.menu_Content_red*0.6), int(g_settings.menu_Content_green*0.6), int(g_settings.menu_Content_blue*0.6)),
+	                              convertSetupColor2RGB(g_settings.colored_events_red, g_settings.colored_events_green, g_settings.colored_events_blue),
+	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
+
 	frameBuffer->paletteSet();
 	return false;
 }
