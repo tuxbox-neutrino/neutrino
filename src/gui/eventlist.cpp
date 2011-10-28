@@ -99,6 +99,14 @@ EventList::EventList()
 	m_search_epg_item = SEARCH_EPG_TITLE;
 	m_search_channel_id = 1;
 	m_search_bouquet_id= 1;
+	
+	fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth(); //font width
+	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight(); //font height
+	width  = w_max (62 * fw, 40);
+	height = h_max (23 * fh, 20);
+	
+	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
+	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 }
 
 EventList::~EventList()
@@ -209,10 +217,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool in_search = false;
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
-	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	width  = w_max (62 * fw, 40);
-	height = h_max (23 * fh, 20);
+
 	iheight = 30;	// info bar height (see below, hard coded at this time)
 
 	if(iheight < fh)
@@ -243,9 +248,6 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 
 	listmaxshow = (height-theight-iheight-0)/fheight;
 	height = theight+iheight+0+listmaxshow*fheight; // recalc height
-
-	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
-	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 
 	int res = menu_return::RETURN_REPAINT;
 	//printf("EventList::exec: channel_id %llx\n", channel_id);
@@ -805,8 +807,8 @@ void EventList::paintHead(std::string _channelname, std::string _channelname_pre
 	short middle_len = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getRenderWidth(_channelname.c_str(),true);
 	short middle_offset =  (width- next_len- prev_len- middle_len-iw-8)/2;
 	if(middle_offset < 0){
-		int fw = g_Font[font_h]->getWidth();
-		int newsize = abs(middle_offset / fw) + 1;
+		int fw_h = g_Font[font_h]->getWidth();
+		int newsize = abs(middle_offset / fw_h) + 1;
 		if(_channelname_prev.size() > _channelname_next.size() ){
 			_channelname_prev.resize( _channelname_prev.size() - newsize);
 		}else{

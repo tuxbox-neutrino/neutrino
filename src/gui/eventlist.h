@@ -98,8 +98,8 @@ class EventList
 	int		key;
 	std::string	search_head_name;
 
-	int 		width;
-	int 		height;
+	int 		width, fw;
+	int 		height, fh;
 	int 		x;
 	int 		y;
 	int      sort_mode;
