@@ -3023,16 +3023,25 @@ _repeat:
 		fclose(f);
 		ExitRun(true);
 	}
-	else if (msg == NeutrinoMessages::EVT_POPUP) {
-		if (mode != mode_scart)
-			ShowHintUTF(LOCALE_MESSAGEBOX_INFO, (const char *) data); // UTF-8
+	else if (msg == NeutrinoMessages::EVT_POPUP || msg == NeutrinoMessages::EVT_EXTMSG) {
+		if (mode != mode_scart) {
+			std::string timeout="-1";
+			std::string text = (char*)data;
+			std::string::size_type pos;
+
+			pos = text.find("&timeout=", 0);
+			if (pos != std::string::npos) {
+				timeout = text.substr( pos+9, text.length()+1 );
+				text[pos] = '\0';
+			}
+			
+			if (msg == NeutrinoMessages::EVT_POPUP)
+				ShowHintUTF(LOCALE_MESSAGEBOX_INFO, text.c_str(), NULL, atoi(timeout.c_str())); // UTF-8
+			else if (msg == NeutrinoMessages::EVT_EXTMSG)
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, text, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO, NULL, atoi(timeout.c_str())); // UTF-8
+				
+		}
 		delete (unsigned char*) data;
-		return messages_return::handled;
-	}
-	else if (msg == NeutrinoMessages::EVT_EXTMSG) {
-		if (mode != mode_scart)
-			ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, (const char *) data, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO); // UTF-8
-		delete[] (unsigned char*) data;
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_RECORDING_ENDED) {

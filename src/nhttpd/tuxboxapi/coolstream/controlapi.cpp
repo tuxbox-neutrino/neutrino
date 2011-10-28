@@ -546,6 +546,12 @@ void CControlAPI::MessageCGI(CyhookHandler *hh)
 		return;
 	}
 
+	if (!(hh->ParamList["timeout"].empty()))
+	{
+		message += "&timeout=";
+		message += hh->ParamList["timeout"];
+	}
+
 	if (event != 0)
 	{
 		message=decodeString(message);

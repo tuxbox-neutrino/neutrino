@@ -1048,11 +1048,15 @@ Neutrino opens a pop up (popup) or message (nmsg) window in which the<br>
 text part of the parameter is displayed. A pop up window closes<br>
 itself after a few seconds whereas a message window must be closed<br>
 using the remote control.<br>
+To change the time, after the window closes automaticly, use the parameter "timeout"<br>
 <div class="example">
 Examples:<br>
 <br>
 &gt;&gt;&gt;http://dbox/control/message?popup=Hello%20World<br>
 opens a popup window on the TV screen with content &quot;Hello World&quot;<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/message?popup=Hello%20World&timeout=30<br>
+opens a popup window on the TV screen with content &quot;Hello World&quot;. The window closes automaticly after 30 seconds.<br>
 <br>
 &gt;&gt;&gt;http://dbox/control/message?nmsg=Hello%20Welt<br>
 opens a message window on the TV screen with content &quot;Hello World&quot;<br>
@@ -1090,11 +1094,16 @@ Neutrino oeffnet ein Popup(popup)- oder Message(nmsg)-Fenster, in dem<br>
 der Text des Parameters dargestellt wird. Ein Popupfenster schliesst<br>
 sich nach wenigen Sekunden selbst, wohingegen ein Message-Fenster mit<br>
 der Fernbedienung geschlossen werden muss.<br>
+Um die Zeit zu ändern, wie lange das Fenster geöffnet bleiben soll,<br>
+kann der Parameter "timeout" angegeben werden.<br>
 <div class="example">
 Beispiele:<br>
 <br>
 &gt;&gt;&gt;http://dbox/control/message?popup=Hallo%20World<br>
 öffnet ein Popup-Fenster auf dem Fernseher, in dem &quot;Hallo World&quot; steht<br>
+<br>
+&gt;&gt;&gt;http://dbox/control/message?popup=Hallo%20World&timeout=30<br>
+öffnet ein Popup-Fenster auf dem Fernseher, in dem &quot;Hallo World&quot; steht und sich nach 30 Sekunden schließt.<br>
 <br>
 &gt;&gt;&gt;http://dbox/control/message?nmsg=Hallo%20Welt<br>
 öffnet ein Message-Fenster auf dem Fernseher, in dem &quot;Hallo Welt&quot; steht<br>
