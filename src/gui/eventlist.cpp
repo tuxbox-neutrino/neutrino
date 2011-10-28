@@ -59,6 +59,8 @@ extern CBouquetList        * bouquetList;
 
 #include <zapit/client/zapittools.h>
 #include <zapit/zapit.h>
+#include <daemonc/remotecontrol.h>
+extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
 
 #include <algorithm>
 extern CPictureViewer * g_PicViewer;
@@ -107,10 +109,38 @@ EventList::EventList()
 	
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
+	
+	item_event_ID = 0;
 }
 
 EventList::~EventList()
 {
+}
+
+void EventList::UpdateTimerList(void)
+{
+	timerlist.clear();
+	g_Timerd->getTimerList (timerlist);
+	g_Timerd->getRecordingSafety(timerPre,timerPost);
+}
+
+// Function: HasTimerConflicts
+// search for timer conflicts for given time 
+// return: true if found any conflict, you can watch with parameter epg_ID
+bool EventList::HasTimerConflicts(time_t starttime, time_t duration, event_id_t * epg_ID)
+{	
+	for(uint i= 0; i < timerlist.size(); i++)
+		
+	{			
+		if(timerlist[i].stopTime > starttime-timerPre && timerlist[i].alarmTime < starttime+duration+timerPost)
+		{
+			*epg_ID = timerlist[i].epgID;
+			return true;
+		}
+	}
+	
+	*epg_ID = 0;
+	return  false;
 }
 
 void EventList::readEvents(const t_channel_id channel_id)
@@ -276,6 +306,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 	}
 	readEvents(channel_id);
+	UpdateTimerList();
 
 	if(channelname_prev.empty(), channelname_next.empty()){
 		paintHead(channel_id, channelname);
@@ -690,7 +721,7 @@ CTimerd::CTimerEventTypes EventList::isScheduled(t_channel_id channel_id, CChann
 					if(tID)
 						*tID = timer->eventID;
 					return timer->eventType;
-				}
+				}		
 			}
 		}
 	}
@@ -703,9 +734,10 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 	fb_pixel_t bgcolor;
 	int ypos = y+ theight+0 + pos*fheight;
 	std::string datetime1_str, datetime2_str, duration_str;
+	unsigned int curpos = liststart + pos;
 	const char * icontype = 0;
 
-	if (liststart+pos==selected)
+	if (curpos==selected)
 	{
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
@@ -713,7 +745,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 			frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, COL_MENUCONTENT_PLUS_0, 0);
 
 	}
-	else if (liststart+pos == current_event )
+	else if (curpos == current_event )
 	{
 		color   = COL_MENUCONTENT + 1;
 		bgcolor = COL_MENUCONTENT_PLUS_1;
@@ -726,12 +758,12 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 
 	frameBuffer->paintBoxRel(x, ypos, width- 15, fheight, bgcolor, color == COL_MENUCONTENTSELECTED ? RADIUS_LARGE : 0);
 
-	if(liststart+pos<evtlist.size())
+	if(curpos<evtlist.size())
 	{
-		if ( evtlist[liststart+pos].eventID != 0 )
+		if ( evtlist[curpos].eventID != 0 )
 		{
 			char tmpstr[256];
-			struct tm *tmStartZeit = localtime(&evtlist[liststart+pos].startTime);
+			struct tm *tmStartZeit = localtime(&evtlist[curpos].startTime);
 
 
 			datetime1_str = g_Locale->getText(CLocaleManager::getWeekday(tmStartZeit));
@@ -748,23 +780,20 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 
 			if ( m_showChannel ) // show the channel if we made a event search only (which could be made through all channels ).
 			{
-				t_channel_id channel = evtlist[liststart+pos].channelID;
+				t_channel_id channel = evtlist[curpos].channelID;
 				datetime2_str += "      ";
 				datetime2_str += g_Zapit->getChannelName(channel);
 			}
 
-			snprintf(tmpstr,sizeof(tmpstr), "[%d min]", evtlist[liststart+pos].duration / 60 );
+			snprintf(tmpstr,sizeof(tmpstr), "[%d min]", evtlist[curpos].duration / 60 );
 			duration_str = tmpstr;
 		}
-
-		CTimerd::CTimerEventTypes etype = isScheduled(channel_idI, &evtlist[liststart+pos]);
-		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_BUTTON_YELLOW : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_BUTTON_RED : 0;
 
 		// 1st line
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->RenderString(x+5,         ypos+ fheight1+3, fwidth1+5,            datetime1_str, color, 0, true); // UTF-8
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME]->RenderString(x+5+fwidth1, ypos+ fheight1+3, width-fwidth1-10- 20, datetime2_str, color, 0, true); // UTF-8
 
-		int seit = ( evtlist[liststart+pos].startTime - time(NULL) ) / 60;
+		int seit = ( evtlist[curpos].startTime - time(NULL) ) / 60;
 		if ( (seit> 0) && (seit<100) && (duration_str.length()!=0) )
 		{
 			char beginnt[100];
@@ -774,14 +803,36 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 			g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20- w, ypos+ fheight1+3, fwidth2, beginnt, color);
 		}
 		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL]->RenderString(x+width-fwidth2-5- 20, ypos+ fheight1+3, fwidth2, duration_str, color, 0, true); // UTF-8
+		
+		// 2nd line
+		// set status icons
+		CTimerd::CTimerEventTypes etype = isScheduled(channel_idI, &evtlist[curpos]);
+		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_REC : 0;
+		
 		int iw = 0, ih;
 		if(icontype != 0) {
 			frameBuffer->getIconSize(icontype, &iw, &ih);
-			//frameBuffer->paintIcon(icontype, x+5, ypos + fheight - 16 - (fheight1 - 16)/2);
 			frameBuffer->paintIcon(icontype, x+5, ypos + fheight1+3 - (fheight1 - ih)/2, fheight1);
 		}
-		// 2nd line
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+10+iw, ypos+ fheight, width- 25- 20, evtlist[liststart+pos].description, color, 0, true);
+		
+		// detecting timer conflict and set start position of event text depending of possible painted icon
+		bool conflict = HasTimerConflicts(evtlist[curpos].startTime, evtlist[curpos].duration, &item_event_ID);
+		int i2w = 0, i2h;
+ 		//printf ("etype %d , conflicts %d -> %s, conflict event_ID %d -> current event_ID %d\n", etype, conflict, evtlist[curpos].description.c_str(), item_event_ID, evtlist[curpos].eventID);
+		
+		//TODO: solution for zapto timer events
+		if (conflict && item_event_ID != evtlist[curpos].eventID)
+		{	
+			//paint_warning = true;
+ 			frameBuffer->getIconSize(NEUTRINO_ICON_IMPORTANT, &i2w, &i2h);
+ 			frameBuffer->paintIcon(NEUTRINO_ICON_IMPORTANT, x+iw+7, ypos + fheight1+3 - (fheight1 - i2h)/2, fheight1);
+ 			iw += i2w+4;
+		}
+		
+		// paint 2nd line text
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+10+iw, ypos+ fheight, width- 25- 20, evtlist[curpos].description, color, 0, true);
+		
+		
 	}
 }
 void EventList::paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
@@ -1275,4 +1326,4 @@ int CEventFinderMenu::showMenu(void)
 	res = searchMenu.exec(NULL,"");
 	return(res);
 }
-
+			

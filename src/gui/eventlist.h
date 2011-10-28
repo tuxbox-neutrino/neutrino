@@ -102,7 +102,8 @@ class EventList
 	int 		height, fh;
 	int 		x;
 	int 		y;
-	int      sort_mode;
+	int      	sort_mode;
+	event_id_t 	item_event_ID;
 
 	void paintItem(unsigned pos, t_channel_id channel_id = 0);
 	void paint(t_channel_id channel_id = 0);
@@ -110,8 +111,14 @@ class EventList
 	void paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next);
 	void hide();
 	void showFunctionBar(bool show, t_channel_id channel_id);
+	
+	int timerPre;
+	int timerPost;
+	void UpdateTimerList(void);
+	bool HasTimerConflicts(time_t starttime, time_t duration, event_id_t * epg_ID);
+	
 	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
-
+	
 	public:
 		EventList();
 		~EventList();
