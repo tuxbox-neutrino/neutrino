@@ -3417,27 +3417,25 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 	uint64_t timeoutEnd;
 
 	do {
-		if (msg <= CRCInput::RC_MaxRC) {
-			if ((msg == CRCInput::RC_plus) || 
-			    ((g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) && 
- 			     (g_RemoteControl->subChannels.size() < 1) &&
-			     (msg == CRCInput::RC_right))) {
+		if (msg <= CRCInput::RC_MaxRC) 
+		{
+			int sub_chan_keybind = 0;
+			if (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1 && g_RemoteControl->subChannels.size() < 1)
+ 			     sub_chan_keybind = 1;
+			
+			if ((msg == CRCInput::RC_plus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_right))) {
 				if (g_settings.current_volume < 100 - g_settings.current_volume_step)
 					g_settings.current_volume += g_settings.current_volume_step;
 				else
 					g_settings.current_volume = 100;
-				if(current_muted){
+				
+				if(current_muted)
 					AudioMute( false, true);
-				}
 			}
-			else if ((msg == CRCInput::RC_minus) ||
-			    ((g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) && 
- 			     (g_RemoteControl->subChannels.size() < 1) &&
-			     (msg == CRCInput::RC_left))) {
+			else if ((msg == CRCInput::RC_minus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_left))) {
 				if (g_settings.current_volume > g_settings.current_volume_step)
 					g_settings.current_volume -= g_settings.current_volume_step;
-				else if ((g_settings.show_mute_icon == 1) && (g_settings.current_volume = 1))
-                                {
+				else if ((g_settings.show_mute_icon == 1) && (g_settings.current_volume = 1)) {
 					(g_settings.current_volume = 1);
 					AudioMute( true, true);
 					g_settings.current_volume = 0;
