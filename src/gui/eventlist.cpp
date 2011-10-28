@@ -217,7 +217,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool in_search = false;
-
+	
 	iheight = 30;	// info bar height (see below, hard coded at this time)
 
 	if(iheight < fh)
@@ -335,16 +335,42 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			} else
 				loop = false;
 		}
-		if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+		
+		//manage painting of function bar during scrolling, depends of timerevent types
+		if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup || 
+			msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
+			bool paint_buttonbar = false; //function bar
 			int step = 0;
 			int prev_selected = selected;
+			
+			if ((g_settings.key_channelList_addremind != CRCInput::RC_nokey) ||
+					((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
+					 (g_settings.key_channelList_addrecord != CRCInput::RC_nokey)))
+			{
+				paint_buttonbar = true;
+			}
+			
+			if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
+			{
+				step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+				selected -= step;
+				if((prev_selected-step) < 0)            // because of uint
+					selected = evtlist.size() - 1;
+			}
+			else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
+			{
+				step = ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+				selected += step;
 
-			step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-			selected -= step;
-			if((prev_selected-step) < 0)            // because of uint
-				selected = evtlist.size() - 1;
-
+				if(selected >= evtlist.size()) 
+				{
+					if (((evtlist.size() / listmaxshow) + 1) * listmaxshow == evtlist.size() + listmaxshow) // last page has full entries
+						selected = 0;
+					else
+						selected = ((step == listmaxshow) && (selected < (((evtlist.size() / listmaxshow) + 1) * listmaxshow))) ? (evtlist.size() - 1) : 0;
+				}
+			}
 			paintItem(prev_selected - liststart, channel_id);
 			unsigned int oldliststart = liststart;
 			liststart = (selected/listmaxshow)*listmaxshow;
@@ -354,45 +380,9 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			else
 				paintItem(selected - liststart, channel_id);
 
-			if ((g_settings.key_channelList_addremind != CRCInput::RC_nokey) ||
-					((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
-					 (g_settings.key_channelList_addrecord != CRCInput::RC_nokey)))
-			{
-				showFunctionBar(true, channel_id);
-			}
-
+			showFunctionBar(paint_buttonbar, channel_id);
 		}
-		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
-		{
-			unsigned int step = 0;
-			int prev_selected = selected;
-
-			step = ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-
-			if(selected >= evtlist.size()) {
-				if (((evtlist.size() / listmaxshow) + 1) * listmaxshow == evtlist.size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((evtlist.size() / listmaxshow) + 1) * listmaxshow))) ? (evtlist.size() - 1) : 0;
-			}
-
-			paintItem(prev_selected - liststart, channel_id);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-				paint(channel_id);
-			else
-				paintItem(selected - liststart, channel_id);
-
-			if ((g_settings.key_channelList_addremind != CRCInput::RC_nokey) ||
-					((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
-					 (g_settings.key_channelList_addrecord != CRCInput::RC_nokey)))
-			{
-				showFunctionBar(true, channel_id);
-			}
-		}
-
+		//sort
 		else if (msg == (neutrino_msg_t)g_settings.key_channelList_sort)
 		{
 			uint64_t selected_id = evtlist[selected].eventID;
