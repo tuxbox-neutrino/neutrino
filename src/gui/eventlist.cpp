@@ -839,7 +839,7 @@ void EventList::paintHead(std::string _channelname, std::string _channelname_pre
 {
 	const short font_h = 8;
 	int iw = 0, ih = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw, &ih);
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 	int name_width =((width-8-iw)/3);
 
@@ -891,8 +891,8 @@ void EventList::paint(t_channel_id channel_id)
 
 	int iw = 0, ih = 0;
 	if (evtlist[0].eventID != 0) {
-		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw, &ih);
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width - 4 - iw, y, theight);
+		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &iw, &ih);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x+ width - 4 - iw, y, theight);
 	}
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height-theight-iheight, COL_INFOBAR, 0, CORNER_TOP);
