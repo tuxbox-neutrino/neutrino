@@ -916,6 +916,9 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 					hideIt =  true;
 				else
 					hideIt = false;
+				int rec_mode = CRecordManager::getInstance()->GetRecordMode();
+				if ((rec_mode == CRecordManager::RECMODE_REC) || (rec_mode == CRecordManager::RECMODE_REC_TSHIFT))
+					hideIt = true;
 				//hideIt = (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0) ? true : false;
 				g_RCInput->postMsg (msg, data);
 				res = messages_return::cancel_info;
