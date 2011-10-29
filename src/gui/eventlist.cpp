@@ -111,6 +111,7 @@ EventList::EventList()
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 	
 	item_event_ID = 0;
+	FunctionBarHeight = 0;
 }
 
 EventList::~EventList()
@@ -952,6 +953,7 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 	const char * icon = NULL;
 	std::string btncaption;	
 
+	bh = std::max(FunctionBarHeight, bh);
 	frameBuffer->paintBackgroundBoxRel(x,by,width,bh);
 	// -- hide only?
 	if (! show) return;
@@ -980,13 +982,13 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 				EventListFirstButton[0].locale = LOCALE_EVENTLISTBAR_RECORDEVENT;
 			}
 			
-			::paintButtons(bx, by, w_button, NUM_EVENTLIST_FIRST_BUTTON, EventListFirstButton);
+			FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_FIRST_BUTTON, EventListFirstButton), FunctionBarHeight);
 			bx+=w_button+4;
 		}
 	}
 	
 	// Button: Search
-	::paintButtons(bx, by, w_button, NUM_EVENTLIST_SECOND_BUTTON, EventListSecondButton);
+	FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_SECOND_BUTTON, EventListSecondButton), FunctionBarHeight);
 	bx+=w_button+4;
 
 	// Button: Timer Channelswitch
@@ -1004,7 +1006,7 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 			}
 		}
 		
-		::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListThirdButton);
+		FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListThirdButton), FunctionBarHeight);
 		bx+=w_button+4;
 	}
 
@@ -1013,7 +1015,7 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 		// FIXME : display other icons depending on g_settings.key_channelList_sort
 		keyhelper.get(&dummy, &icon, g_settings.key_channelList_sort);
 		EventListFourthButton[0].button = icon;
-		::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListFourthButton);
+		FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListFourthButton), FunctionBarHeight);
 // 		bx+=w_button+4;
 	}
 }

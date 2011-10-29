@@ -76,6 +76,7 @@ class EventList
         t_channel_id    m_search_channel_id;
         t_bouquet_id    m_search_bouquet_id;
         bool m_showChannel;
+	int FunctionBarHeight;
 
 	bool findEvents(void);
     // Eventfinder end
