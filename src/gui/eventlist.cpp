@@ -375,13 +375,12 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 			bool paint_buttonbar = false; //function bar
 			int step = 0;
 			int prev_selected = selected;
-			
+			// TODO: do we need this at all? Search button is always painted IIUC...
 			if ((g_settings.key_channelList_addremind != (int)CRCInput::RC_nokey) ||
-					((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
-					 (g_settings.key_channelList_addrecord != (int)CRCInput::RC_nokey)))
-			{
+			    (g_settings.key_channelList_sort != (int)CRCInput::RC_nokey) ||
+			    ((g_settings.recording_type != CNeutrinoApp::RECORDING_OFF) &&
+			     (g_settings.key_channelList_addrecord != (int)CRCInput::RC_nokey)))
 				paint_buttonbar = true;
-			}
 			
 			if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 			{
