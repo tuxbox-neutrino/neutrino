@@ -1191,7 +1191,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 		tuned = pos;
 		CVFD::getInstance()->setEPGTitle("");
 		CVFD::getInstance()->showServicename(chan->name);
-		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, !chan->bAlwaysLocked); // UTF-8
+		g_RemoteControl->zapTo_ChannelID(chan->channel_id, chan->name, (chan->bAlwaysLocked == g_settings.parentallock_defaultlocked));
 		// TODO check is it possible bouquetList is NULL ?
 		if (bouquetList != NULL) {
 			CNeutrinoApp::getInstance()->channelList->adjustToChannelID(chan->channel_id);
@@ -1231,7 +1231,7 @@ void CChannelList::NewZap(t_channel_id channel_id)
 		CVFD::getInstance()->setEPGTitle("");
 		CVFD::getInstance()->showServicename(chan->name);
 		selected_chid = chan->getChannelID();
-		g_RemoteControl->zapTo_ChannelID(chan->getChannelID(), chan->name, !chan->bAlwaysLocked);
+		g_RemoteControl->zapTo_ChannelID(selected_chid, chan->name, (chan->bAlwaysLocked == g_settings.parentallock_defaultlocked));
 		/* remove recordModeActive from infobar */
 		if(g_settings.auto_timeshift && !CNeutrinoApp::getInstance()->recordingstatus) {
 			g_InfoViewer->handleMsg(NeutrinoMessages::EVT_RECORDMODE, 0);

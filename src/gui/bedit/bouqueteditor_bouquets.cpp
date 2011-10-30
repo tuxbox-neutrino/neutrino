@@ -106,7 +106,7 @@ void CBEBouquetWidget::paintItem(int pos)
 		if ((current == selected) && (state == beMoving))
 			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_YELLOW, x + 10, ypos, iheight);
 
-		if ((*Bouquets)[current]->bLocked)
+		if ((*Bouquets)[current]->bLocked != g_settings.parentallock_defaultlocked)
 			frameBuffer->paintIcon(NEUTRINO_ICON_LOCK, x + 10, ypos, iheight);
 
 		if ((*Bouquets)[current]->bHidden)

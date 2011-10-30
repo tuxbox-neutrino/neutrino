@@ -670,6 +670,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	        g_settings.parentallock_prompt = 3;
 	        g_settings.parentallock_lockage = 18;
 	}
+	g_settings.parentallock_defaultlocked = configfile.getInt32("parentallock_defaultlocked", 0);
 	strcpy( g_settings.parentallock_pincode, configfile.getString( "parentallock_pincode", "0000" ).c_str() );
 
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
@@ -1067,6 +1068,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "parentallock_prompt", g_settings.parentallock_prompt );
 	configfile.setInt32( "parentallock_lockage", g_settings.parentallock_lockage );
 	configfile.setString( "parentallock_pincode", g_settings.parentallock_pincode );
+	configfile.setInt32("parentallock_defaultlocked", g_settings.parentallock_defaultlocked);
 
 	//timing
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
