@@ -1433,9 +1433,12 @@ options.off off
 options.on on
 options.on.without_messages Without msg
 options.serial serial
+parentallock.bouquetmode Bouquets are default
 parentallock.changepin change PIN code
 parentallock.changepin_hint1 Enter your new youth protection pin code here!
 parentallock.changetolocked on locked bouquets
+parentallock.defaultlocked locked
+parentallock.defaultunlocked unlocked
 parentallock.head Enter Parental Lock PIN code
 parentallock.lockage lock program
 parentallock.lockage12 from 12 years up

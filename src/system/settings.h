@@ -475,6 +475,7 @@ struct SNeutrinoSettings
 	// parentallock
 	int parentallock_prompt;
 	int parentallock_lockage;
+	int parentallock_defaultlocked;
 	char parentallock_pincode[5];
 
 

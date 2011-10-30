@@ -88,6 +88,14 @@ const CMenuOptionChooser::keyval PARENTALLOCK_LOCKAGE_OPTIONS[PARENTALLOCK_LOCKA
 	{ 16, LOCALE_PARENTALLOCK_LOCKAGE16 },
 	{ 18, LOCALE_PARENTALLOCK_LOCKAGE18 }
 };
+
+#define PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT 2
+const CMenuOptionChooser::keyval PARENTALLOCK_DEFAULTLOCKED_OPTIONS[PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT] =
+{
+	{ false, LOCALE_PARENTALLOCK_DEFAULTUNLOCKED },
+	{ true,  LOCALE_PARENTALLOCK_DEFAULTLOCKED }
+};
+
 extern bool parentallocked;
 void CParentalSetup::showParentalSetup()
 {
@@ -108,6 +116,8 @@ void CParentalSetup::showParentalSetup()
 	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked);
 	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_LOCKAGE);
 	plock->addItem(mc);
+
+	plock->addItem(new CMenuOptionChooser(LOCALE_PARENTALLOCK_BOUQUETMODE, &g_settings.parentallock_defaultlocked, PARENTALLOCK_DEFAULTLOCKED_OPTIONS, PARENTALLOCK_DEFAULTLOCKED_OPTION_COUNT, !parentallocked));
 
 	CPINChangeWidget pinChangeWidget(LOCALE_PARENTALLOCK_CHANGEPIN, g_settings.parentallock_pincode, 4, LOCALE_PARENTALLOCK_CHANGEPIN_HINT1);
 	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget);
