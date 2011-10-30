@@ -312,7 +312,8 @@ void CNeutrinoApp::InitMenuService()
 	personalize.addItem(MENU_SERVICE, new CMenuForwarder(LOCALE_SERVICEMENU_RELOAD    , true, NULL, CScanSetup::getInstance(), "reloadchannels", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN) , &g_settings.personalize[SNeutrinoSettings::P_MSER_RELOAD_CHANNELS]);
 	
 	//bouquet edit
-	personalize.addItem(MENU_SERVICE, new CMenuForwarder(LOCALE_BOUQUETEDITOR_NAME    , true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW) , &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT]);
+	// TODO: this needs a neutrino restart after changing parentallock_prompt to activate :-(
+	personalize.addItem(MENU_SERVICE, new CLockedMenuForwarder(LOCALE_BOUQUETEDITOR_NAME, g_settings.parentallock_pincode, g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED, true, NULL, new CBEBouquetWidget(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW) , &g_settings.personalize[SNeutrinoSettings::P_MSER_BOUQUET_EDIT]);
 	
 	//channel reset
 	CDataResetNotifier *resetNotifier = new CDataResetNotifier();
