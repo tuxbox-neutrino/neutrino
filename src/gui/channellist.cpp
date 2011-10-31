@@ -1618,7 +1618,7 @@ void CChannelList::paintDetails(int index)
 				snprintf(cNoch, sizeof(cNoch), "(%d / %d min)", seit, noch);
 			}
 			int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit, true); // UTF-8
-			int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(cNoch, true); // UTF-8
+			int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cNoch, true); // UTF-8
 
 			std::string text1= p_event->description;
 			std::string text2= p_event->text;
