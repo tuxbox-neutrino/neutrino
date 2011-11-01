@@ -1213,9 +1213,18 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 	{
 		printf("[neutrino] direct record\n");
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		if(!CRecordManager::getInstance()->RecordingStatus(live_channel_id))
+		
+		if(!CRecordManager::getInstance()->RecordingStatus(live_channel_id)) 
+		{
 			CRecordManager::getInstance()->Record(live_channel_id);
-		return menu_return::RETURN_EXIT_ALL;
+			
+			if(!g_InfoViewer->is_visible) // show Infoviewer
+				CNeutrinoApp::getInstance()->showInfo();
+			
+			return menu_return::RETURN_EXIT_ALL;							
+		}
+		else
+			DisplayInfoMessage(g_Locale->getText(LOCALE_RECORDING_IS_RUNNING));
 	}else if(actionKey == "Timeshift")
 	{
 		StartTimeshift();

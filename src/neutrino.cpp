@@ -2340,22 +2340,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 						CMoviePlayerGui::getInstance().exec(NULL, "rtimeshift");
 				}
 			}
-			else if( msg == CRCInput::RC_record /* || msg == CRCInput::RC_stop*/ ) {
-				printf("[neutrino] direct record\n");
-				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-				if(!CRecordManager::getInstance()->RecordingStatus(live_channel_id)) {
-#if 0 // uncomment, if ChooseRecDir and g_settings.recording_choose_direct_rec_dir ever used to select recording dir
-					CRecordManager::getInstance()->recordingstatus = 1;
-					CRecordManager::getInstance()->doGuiRecord();
-#else // direct record without any GUI
-					CRecordManager::getInstance()->Record(live_channel_id);
-					
-					if(!g_InfoViewer->is_visible) // show Infoviewer
-						showInfo();
-#endif
-				}
-				else
-					DisplayInfoMessage(g_Locale->getText(LOCALE_RECORDING_IS_RUNNING));
+			else if( msg == CRCInput::RC_record) {
+				CRecordManager::getInstance()->exec(NULL, "Record");
 			}
 			else if( msg == CRCInput::RC_stop ) {
 				if(CRecordManager::getInstance()->RecordingStatus())
@@ -3816,7 +3802,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 	}
 	else if(actionKey=="recording") {
 		setupRecordingDevice();
-	}
+	}	
 	else if(actionKey=="reloadplugins") {
 		CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_GETPLUGINS_HINT));
 		hintBox->paint();

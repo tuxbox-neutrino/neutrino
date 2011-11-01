@@ -174,17 +174,8 @@ bool CUserMenu::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_RECORD;
 			keyhelper.get(&key,&icon,CRCInput::RC_red);
-#if 1 //NEW, show menu, how better ?
 			menu_item = new CMenuForwarder(LOCALE_MAINMENU_RECORDING, true, NULL, CRecordManager::getInstance(), "-1", key, icon);
-#else //OLD, show start/stop chooser
-			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_RECORDING, &CRecordManager::getInstance()->recordingstatus, 
-					MAINMENU_RECORDING_OPTIONS, MAINMENU_RECORDING_OPTION_COUNT, true, 
-					CRecordManager::getInstance(), key, icon);
-#endif
-			
 			menu->addItem(menu_item, false);
-			//if(has_hdd)
-			//	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_AUTO_TO_RECORD, autoshift, NULL, CNeutrinoApp::getInstance(), "autolink"), false);
 			break;
 		}
 		case SNeutrinoSettings::ITEM_MOVIEPLAYER_MB:
