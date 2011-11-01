@@ -1254,9 +1254,13 @@ bool CRecordManager::ShowMenu(void)
 	bool status_ts		= IsTimeshift(live_channel_id);
 	bool status_rec		= RecordingStatus(live_channel_id) && !status_ts;
 	
+	//record item
 	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, (!status_rec && !status_ts), NULL, 
 			this, "Record", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	menu.addItem(iteml, false);
+	//if no recordings are running, set the focus to the record menu item
+	menu.addItem(iteml, rec_count == 0 ? true: false);
+	
+	//timeshift item
 	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_TIMESHIFT, !status_ts, NULL, 
 			this, "Timeshift", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	menu.addItem(iteml, false);
