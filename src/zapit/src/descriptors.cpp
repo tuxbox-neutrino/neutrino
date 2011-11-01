@@ -355,7 +355,7 @@ int cable_delivery_system_descriptor(const unsigned char * const buffer, t_trans
         //feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
         freq = feparams.frequency / 100;
         TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, original_network_id, transport_stream_id);
-        CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, 0);
+        CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, 0, true);
 	return 0;
 }
 
