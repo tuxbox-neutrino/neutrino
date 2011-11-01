@@ -1289,7 +1289,9 @@ bool CRecordManager::ShowMenu(void)
 			item = new CMenuForwarderNonLocalized(title.c_str(), true, NULL, 
 				selector, cnt, CRCInput::convertDigitToKey((rec_count == 1) ? 0 : shortcut++), NULL, mode_icon);
 			item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
-			menu.addItem(item, false);
+			
+			//if only one recording is running, set the focus to this menu item
+			menu.addItem(item, rec_count == 1 ? true: false);
 			i++;
 		}
 		if(i > 1) //menu item "stopp all records"
