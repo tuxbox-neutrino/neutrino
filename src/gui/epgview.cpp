@@ -484,17 +484,35 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		return res;
 	}
 
+	// Calculate offset for the title when logo appears.
+	int pic_offx = 0;
+	std::string lname;
+	int logo_w = 0;
+	int logo_h = 0;
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if(channel) {
+		if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, channel->getName(), lname, &logo_w, &logo_h)) {
+			if(logo_h > toph){
+				if((toph/(logo_h-toph))>1){
+					logo_w -= (logo_w/(toph/(logo_h-toph)));
+				}
+				logo_h = toph;
+			}
+			pic_offx = logo_w + 10;
+		}
+	}
+
 	int pos;
 	std::string text1 = epgData.title;
 	std::string text2 = "";
-	if (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - 15) // 15 for the scroll bar...
+	if (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 18)
 	{
 		do
 		{
 			pos = text1.find_last_of("[ .]+");
 			if (pos != -1)
 				text1 = text1.substr(0, pos);
-		} while ((pos != -1) && (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - 15));
+		} while ((pos != -1) && (g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->getRenderWidth(text1) > ox - pic_offx - 18));
 		if (epgData.title.length() > text1.length()) // shold never be false in this place
 			text2 = epgData.title.substr(text1.length()+ 1, uint(-1) );
 	}
@@ -597,30 +615,11 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 	//show the epg
 	frameBuffer->paintBoxRel(sx, sy, ox, toph, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 
-	int pic_offx = 0;
+	//show the logo
+	if (pic_offx > 0)
+		g_PicViewer->DisplayImage(lname, sx+10, sy + (toph-logo_h)/2, logo_w, logo_h);
 
-	//hack..
-	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
-	if(channel) {
-		std::string lname;
-		int logo_w = 0;
-		int logo_h = 0;
-		if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(channel_id, channel->getName(), lname, &logo_w, &logo_h)) {
-			if(logo_h > toph){
-				if((toph/(logo_h-toph))>1){
-					logo_w -= (logo_w/(toph/(logo_h-toph)));
-				}
-				logo_h = toph;
-			}
-			g_PicViewer->DisplayImage(lname, sx+10, sy + (toph-logo_h)/2/*5*/, logo_w, logo_h);
-			pic_offx = logo_w + 10;
-		}
-
-	}
-
-	//if (g_PicViewer->DisplayLogo(channel_id, sx+10, sy + (toph-PIC_H)/2/*5*/, PIC_W, PIC_H))
-	//	pic_offx = PIC_W + 10;
-
+	//show the title
 	g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->RenderString(sx+15 + pic_offx, sy + topheight+ 3, ox-15- pic_offx, text1, COL_MENUHEAD, 0, true);
 	if (!(text2.empty()))
 		g_Font[SNeutrinoSettings::FONT_TYPE_EPG_TITLE]->RenderString(sx+15+ pic_offx, sy+ 2* topheight+ 3, ox-15 - pic_offx, text2, COL_MENUHEAD, 0, true);
