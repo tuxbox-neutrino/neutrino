@@ -2344,10 +2344,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				CRecordManager::getInstance()->exec(NULL, "Record");
 			}
 			else if( msg == CRCInput::RC_stop ) {
-				if(CRecordManager::getInstance()->RecordingStatus())
-					CRecordManager::getInstance()->ShowMenu();
+				CRecordManager::getInstance()->exec(NULL, "Stop_record");
 			}
-
 			else if( msg == CRCInput::RC_red ) {
 				StopSubtitles();
 				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_RED);

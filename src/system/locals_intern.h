@@ -1169,6 +1169,7 @@ const char * locale_real_names[] =
 	"recordingmenu.off",
 	"recordingmenu.record_in_spts_mode",
 	"recordingmenu.record_is_running",
+	"recordingmenu.record_is_not_running",
 	"recordingmenu.recording_type",
 	"recordingmenu.ringbuffers",
 	"recordingmenu.save_in_channeldir",
