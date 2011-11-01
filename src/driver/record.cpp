@@ -1300,7 +1300,9 @@ bool CRecordManager::ShowMenu(void)
 			iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_STOP_ALL, true, NULL, 
 					this, "StopAll", CRCInput::convertDigitToKey(0));
 			iteml->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
-			menu.addItem(iteml, false);
+			
+			//if more than one recording is running, set the focus to menu item 'stopp all records'
+			menu.addItem(iteml, rec_count > 1 ? true: false);
 		}
 		mutex.unlock();
 	}
