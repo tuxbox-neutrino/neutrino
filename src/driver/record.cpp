@@ -1237,7 +1237,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 
 bool CRecordManager::ShowMenu(void)
 {
-	int select = -1, recmap_size = recmap.size();
+	int select = -1, rec_count = recmap.size();
 	char cnt[5];
 	CMenuForwarderNonLocalized * item;
 	CMenuForwarder * iteml;
@@ -1261,7 +1261,7 @@ bool CRecordManager::ShowMenu(void)
 			this, "Timeshift", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 	menu.addItem(iteml, false);
 	
-	if(recmap_size > 0) 
+	if(rec_count > 0) 
 	{
 		menu.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MAINMENU_RECORDING_STOP));
 		mutex.lock();
@@ -1283,7 +1283,7 @@ bool CRecordManager::ShowMenu(void)
 
 			sprintf(cnt, "%d", i);
 			item = new CMenuForwarderNonLocalized(title.c_str(), true, NULL, 
-				selector, cnt, CRCInput::convertDigitToKey((recmap_size == 1) ? 0 : shortcut++), NULL, mode_icon);
+				selector, cnt, CRCInput::convertDigitToKey((rec_count == 1) ? 0 : shortcut++), NULL, mode_icon);
 			item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			menu.addItem(item, false);
 			i++;
