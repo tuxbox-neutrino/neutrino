@@ -1141,8 +1141,8 @@ recordingmenu.multimenu.timeshift Timeshift
 recordingmenu.no_scart Unterdrücke Scart-Umschaltung
 recordingmenu.off aus
 recordingmenu.record_in_spts_mode in SPTS-Modus aufnehmen
-recordingmenu.record_is_running Aufnahme läuft!
 recordingmenu.record_is_not_running Keine laufende Aufnahme verfügbar!
+recordingmenu.record_is_running Aufnahme läuft!
 recordingmenu.recording_type Aufnahme Gerät
 recordingmenu.ringbuffers Anz. Ringpuffer
 recordingmenu.save_in_channeldir Speichere im Kanalverzeichnis

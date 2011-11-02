@@ -1141,8 +1141,8 @@ recordingmenu.multimenu.timeshift Timeshift
 recordingmenu.no_scart do not switch to scart mode
 recordingmenu.off off
 recordingmenu.record_in_spts_mode switch to spts mode before recording
-recordingmenu.record_is_running Record is running!
 recordingmenu.record_is_not_running No record is running!
+recordingmenu.record_is_running Record is running!
 recordingmenu.recording_type recording device
 recordingmenu.ringbuffers no. of ringbuffers
 recordingmenu.save_in_channeldir Save in channel dir
