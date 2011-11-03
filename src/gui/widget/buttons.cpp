@@ -47,6 +47,7 @@
  * fcolor  		optional, default value is COL_INFOBAR_SHADOW, use it to render font with other color
  * alt_buttontext	optional, default NULL, overwrites button caption at definied buttonlabel id (see parameter alt_buttontext_id) with this text
  * alt_buttontext_id	optional, default 0, means id from buttonlable struct which text you will change 
+ * show			optional, default value is true (show button), if false, then no show and return the height of the button.
  */
 
 // 		y-------+										+-----------+
