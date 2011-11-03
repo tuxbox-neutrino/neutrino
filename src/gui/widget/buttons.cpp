@@ -68,7 +68,8 @@ int paintButtons(	const int &x,
 			bool vertical_paint,
 			const unsigned char fcolor,
 			const char * alt_buttontext,
-			const uint &buttontext_id)
+			const uint &buttontext_id,
+			bool show)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
@@ -121,6 +122,9 @@ int paintButtons(	const int &x,
 	
 	//calculate footer heigth
 	h_footer = footerheight == 0 ? (h_button + 2*h_space) : footerheight;
+
+	if (!show)
+		return h_footer;
 
 	//paint footer
 	if (w_footer > 0)

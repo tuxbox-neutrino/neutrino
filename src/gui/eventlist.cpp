@@ -248,21 +248,18 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool in_search = false;
-	
-	iheight = 30;	// info bar height (see below, hard coded at this time)
 
+	// Calculate iheight
+	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, NONEXISTANT_LOCALE } };
+	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, false, COL_INFOBAR_SHADOW, NULL, 0, false);
 	if(iheight < fh)
 		iheight = fh;
 
-	int icol_w = 0, icol_h = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-
-	iheight = std::max(iheight, icol_h);
+	// Calculate theight
 	theight  = g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE]->getHeight();
-
 	const int pic_h = 39;
 	theight = std::max(theight, pic_h);
-
+	int icol_w = 0, icol_h = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 

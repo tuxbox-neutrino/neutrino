@@ -43,7 +43,7 @@ int paintButtons(	const int &x,
 			bool vertical_paint = false,
 			const unsigned char fcolor = COL_INFOBAR_SHADOW,
 			const char * alt_buttontext = NULL,
-			const uint &buttontext_id = 0);
-											
-					
+			const uint &buttontext_id = 0,
+			bool show = true);
+
 #endif /* __gui_widget_buttons_h__ */
