@@ -3018,12 +3018,12 @@ _repeat:
 				timeout = text.substr( pos+9, text.length()+1 );
 				text[pos] = '\0';
 			}
-			
+
 			if (msg == NeutrinoMessages::EVT_POPUP)
-				ShowHintUTF(LOCALE_MESSAGEBOX_INFO, text.c_str(), NULL, atoi(timeout.c_str())); // UTF-8
+				ShowHintUTF(LOCALE_MESSAGEBOX_INFO, text.c_str(), 0, atoi(timeout.c_str()));
 			else if (msg == NeutrinoMessages::EVT_EXTMSG)
-				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, text, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO, NULL, atoi(timeout.c_str())); // UTF-8
-				
+				ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, text, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO, 0, atoi(timeout.c_str()));
+
 		}
 		delete (unsigned char*) data;
 		return messages_return::handled;
