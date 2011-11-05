@@ -88,12 +88,12 @@ neutrino_LDADD = \
 	$(VORBISLIBS) \
 	-lungif \
 	-ljpeg \
+	-lOpenThreads \
 	-lrt -lpthread
 
 if BOXTYPE_COOL
 neutrino_LDADD += \
 	-lcoolstream-mt \
-	-lOpenThreads \
 	-lnxp
 
 bin_PROGRAMS += drivertool
