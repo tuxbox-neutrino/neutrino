@@ -51,6 +51,9 @@ cDemux::cDemux(int n)
 	else
 		num = n;
 	fd = -1;
+	measure = false;
+	last_measure = 0;
+	last_data = 0;
 }
 
 cDemux::~cDemux()
@@ -62,22 +65,35 @@ cDemux::~cDemux()
 bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBufferSize)
 {
 	int devnum = num;
+	int flags = O_RDWR;
 	if (fd > -1)
 		lt_info("%s FD ALREADY OPENED? fd = %d\n", __FUNCTION__, fd);
 	if (pes_type == DMX_TP_CHANNEL)
 	{
-		/* it looks like the drivers can only do one TS at a time */
-		if (dmx_tp_count >= MAX_TS_COUNT)
+		if (num == 0) /* streaminfo measurement, let's cheat... */
 		{
-			lt_info("%s too many DMX_TP_CHANNEL requests :-(\n", __FUNCTION__);
-			dmx_type = DMX_INVALID;
-			fd = -1;
-			return false;
+			lt_info("%s num=0 and DMX_TP_CHANNEL => measurement demux\n", __func__);
+			devnum = 2; /* demux 0 is used for live, demux 1 for recording */
+			measure = true;
+			last_measure = 0;
+			last_data = 0;
+			flags |= O_NONBLOCK;
 		}
-		dmx_tp_count++;
-		devnum = dmx_tp_count;
+		else
+		{
+			/* it looks like the drivers can only do one TS at a time */
+			if (dmx_tp_count >= MAX_TS_COUNT)
+			{
+				lt_info("%s too many DMX_TP_CHANNEL requests :-(\n", __FUNCTION__);
+				dmx_type = DMX_INVALID;
+				fd = -1;
+				return false;
+			}
+			dmx_tp_count++;
+			devnum = dmx_tp_count;
+		}
 	}
-	fd = open(devname[devnum], O_RDWR);
+	fd = open(devname[devnum], flags);
 	if (fd < 0)
 	{
 		lt_info("%s %s: %m\n", __FUNCTION__, devname[devnum]);
@@ -95,6 +111,8 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 	}
 	if (pes_type == DMX_TP_CHANNEL)
 	{
+		if (measure)
+			return true;
 		struct demux_bucket_para bp;
 		bp.unloader.unloader_type = UNLOADER_TYPE_TRANSPORT;
 		bp.unloader.threshold     = 128;
@@ -135,6 +153,8 @@ void cDemux::Close(void)
 	ioctl(fd, DEMUX_STOP);
 	close(fd);
 	fd = -1;
+	if (measure)
+		return;
 	if (dmx_type == DMX_TP_CHANNEL)
 	{
 		dmx_tp_count--;
@@ -194,6 +214,51 @@ int cDemux::Read(unsigned char *buff, int len, int timeout)
 	ufds.events = POLLIN;
 	ufds.revents = 0;
 
+	if (measure)
+	{
+		uint64_t now;
+		struct timespec t;
+		clock_gettime(CLOCK_MONOTONIC, &t);
+		now = t.tv_sec * 1000;
+		now += t.tv_nsec / 1000000;
+		if (now - last_measure < 333)
+			return 0;
+		unsigned char dummy[12];
+		unsigned long long bit_s = 0;
+		S_STREAM_MEASURE m;
+		ioctl(fd, DEMUX_STOP);
+		rc = read(fd, dummy, 12);
+		lt_debug("%s measure read: %d\n", __func__, rc);
+		if (rc == 12)
+		{
+			ioctl(fd, DEMUX_GET_MEASURE_TIMING, &m);
+			if (m.rx_bytes > 0 && m.rx_time_us > 0)
+			{
+				// -- current bandwidth in kbit/sec
+				// --- cast to unsigned long long so it doesn't overflow as
+				// --- early, add time / 2 before division for correct rounding
+				/* the correction factor is found out like that:
+				   - with 8000 (guessed), a 256 kbit radio stream shows as 262kbit...
+				   - 8000*256/262 = 7816.793131
+				   BUT! this is only true for some Radio stations (DRS3 for example), for
+				        others (DLF) 8000 does just fine.
+				bit_s = (m.rx_bytes * 7816793ULL + (m.rx_time_us / 2ULL)) / m.rx_time_us;
+				 */
+				bit_s = (m.rx_bytes * 8000ULL + (m.rx_time_us / 2ULL)) / m.rx_time_us;
+				if (now - last_data < 5000)
+					rc = bit_s * (now - last_data) / 8ULL;
+				else
+					rc = 0;
+				lt_debug("%s measure bit_s: %llu rc: %d timediff: %lld\n",
+					  __func__, bit_s, rc, (now - last_data));
+				last_data = now;
+			} else
+				rc = 0;
+		}
+		last_measure = now;
+		ioctl(fd, DEMUX_START);
+		return rc;
+	}
 	if (timeout > 0)
 	{
  retry:
@@ -363,7 +428,7 @@ bool cDemux::pesFilter(const unsigned short pid)
 
 	lt_debug("%s #%d pid: 0x%04hx fd: %d type: %s\n", __FUNCTION__, num, pid, fd, DMX_T[dmx_type]);
 
-	if (dmx_type == DMX_TP_CHANNEL)
+	if (dmx_type == DMX_TP_CHANNEL && !measure)
 	{
 		unsigned int n = pesfds.size();
 		addPid(pid);
@@ -390,6 +455,13 @@ bool cDemux::pesFilter(const unsigned short pid)
 			flt.unloader.threshold = 8; // 1k, teletext
 		flt.pesType = DMX_PES_OTHER;
 		flt.output  = OUT_MEMORY;
+	case DMX_TP_CHANNEL:
+		/* must be measure == true or we would have returned above */
+		flt.output = OUT_MEMORY;
+		flt.pesType = DMX_PES_OTHER;
+		flt.unloader.threshold = 1;
+		flt.unloader.unloader_type = UNLOADER_TYPE_MEASURE_DUMMY;
+		ioctl(fd, DEMUX_SET_MEASURE_TIME, 250000);
 	default:
 		flt.pesType = DMX_PES_OTHER;
 	}
@@ -422,6 +494,11 @@ bool cDemux::addPid(unsigned short Pid)
 	{
 		lt_info("%s pes_type %s not implemented yet! pid=%hx\n", __FUNCTION__, DMX_T[dmx_type], Pid);
 		return false;
+	}
+	if (measure)
+	{
+		lt_info("%s measurement demux -> skipping\n", __func__);
+		return true;
 	}
 	if (fd == -1)
 		lt_info("%s bucketfd not yet opened? pid=%hx\n", __FUNCTION__, Pid);

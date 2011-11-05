@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <vector>
 extern "C" {
+#include <inttypes.h>
 #include <sys/ioctl.h>
 #include <hardware/xp/xp_osd_user.h>
 }
@@ -36,6 +37,8 @@ class cDemux
 		int num;
 		int fd;
 		int buffersize;
+		bool measure;
+		uint64_t last_measure, last_data;
 		DMX_CHANNEL_TYPE dmx_type;
 		std::vector<pes_pids> pesfds;
 	public:
