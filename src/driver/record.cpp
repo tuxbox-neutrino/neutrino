@@ -1184,9 +1184,11 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 					printf("CRecordManager::exec(ExitAll line %d) found channel %llx recording_id %d\n", __LINE__, channel_ids[i], recording_ids[i]);
 					i++;
 				}
+				if (i >= RECORD_MAX_COUNT)
+					break;
 			}
 			mutex.unlock();
-			if (i > 0)
+			if (i > 0 && i < RECORD_MAX_COUNT)
 			{
 				for(int i2 = 0; i2 < i; i2++)
 				{
@@ -1248,8 +1250,8 @@ bool CRecordManager::ShowMenu(void)
 	char cnt[5];
 	CMenuForwarderNonLocalized * item;
 	CMenuForwarder * iteml;
-	t_channel_id channel_ids[RECORD_MAX_COUNT];
-	int recording_ids[RECORD_MAX_COUNT];
+	t_channel_id channel_ids[RECORD_MAX_COUNT] = { 0 };	/* initialization avoids false "might */
+	int recording_ids[RECORD_MAX_COUNT] = { 0 };		/* be used uninitialized" warning */
 
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
@@ -1300,6 +1302,8 @@ bool CRecordManager::ShowMenu(void)
 			//if only one recording is running, set the focus to this menu item
 			menu.addItem(item, rec_count == 1 ? true: false);
 			i++;
+			if (i >= RECORD_MAX_COUNT)
+				break;
 		}
 		if(i > 1) //menu item "stopp all records"
 		{
@@ -1317,7 +1321,7 @@ bool CRecordManager::ShowMenu(void)
 	menu.exec(NULL, "");
 	delete selector;
 
-	if (select >= 0) {
+	if (select >= 0 && select < RECORD_MAX_COUNT) {
 		/* in theory, timer event can expire while we in menu ? lock and check again */
 		mutex.lock();
 		CRecordInstance * inst = FindInstance(channel_ids[select]);
