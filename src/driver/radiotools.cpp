@@ -41,7 +41,7 @@ unsigned short crc16_ccitt(unsigned char *daten, int len, bool skipfirst)
 	// with start 0xffff and result invers
 	register unsigned short crc = 0xffff;
 
-	if (skipfirst) *daten++;
+	if (skipfirst) daten++;
 	while (len--) {
 		crc = (crc >> 8) | (crc << 8);
 		crc ^= *daten++;
