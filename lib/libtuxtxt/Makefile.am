@@ -16,5 +16,7 @@ noinst_LIBRARIES = libtuxtxt.a
 
 libtuxtxt_a_SOURCES = libtuxtxt.cpp tuxtxt.cpp
 
-configdir = $(CONFIGDIR)/tuxtxt
-config_DATA = tuxtxt2.conf
+## not necessary - the defaults in the code are exactly like
+## what is in the config file
+#configdir = $(CONFIGDIR)/tuxtxt
+#config_DATA = tuxtxt2.conf

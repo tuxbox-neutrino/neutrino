@@ -1912,7 +1912,7 @@ int Init(int source)
 	screenmode = 0;
 	screen_mode1 = 0;
 	color_mode   = 10;
-	trans_mode   = 10;
+	trans_mode   = 1;
 	menulanguage = 1;	/* english */
 	/*national_subset = 0;*//* default */
 	auto_national   = 1;
@@ -1923,10 +1923,10 @@ int Init(int source)
 	showl25         = 1;
 	dumpl25         = 0;
 	usettf          = 1;
-	TTFWidthFactor16  = 28;
-	TTFHeightFactor16 = 16;
+	TTFWidthFactor16  = 22;
+	TTFHeightFactor16 = 14;
 	TTFShiftX         = 0;
-	TTFShiftY         = 0;
+	TTFShiftY         = -2;
 
 	/* load config */
 	if ((conf = fopen(TUXTXTCONF, "rt")) == 0)
