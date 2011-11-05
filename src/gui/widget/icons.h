@@ -153,6 +153,7 @@
 #define NEUTRINO_ICON_RESOLUTION_000	"res_000"
 #define NEUTRINO_ICON_RESOLUTION_HD	"res_hd"
 #define NEUTRINO_ICON_RESOLUTION_SD	"res_sd"
+#define NEUTRINO_ICON_RECORDING_EVENT_MARKER	"rec_event_marker"
 #define NEUTRINO_ICON_ZAP		"zap"
 
 #define DUMMY_ICON			"dummy"

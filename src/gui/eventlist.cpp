@@ -804,7 +804,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		// 2nd line
 		// set status icons
 		CTimerd::CTimerEventTypes etype = isScheduled(channel_idI, &evtlist[curpos]);
-		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_REC : 0;
+		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_RECORDING_EVENT_MARKER : 0;
 		
 		int iw = 0, ih;
 		if(icontype != 0) {

@@ -144,6 +144,7 @@ install_DATA = \
 	radiotextoff.png \
 	radiotextwait.png \
 	rec.png \
+	rec_event_marker.png \
 	rec_gray.png \
 	recording.png \
 	res_000.png \
