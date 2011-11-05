@@ -594,7 +594,9 @@ bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, 
 		return 0;
 	}
 
-	switch (fec_inner) {
+	/* cast to int is ncesessary because many of the FEC_S2 values are not
+	 * properly defined in the enum, thus the compiler complains... :-( */
+	switch ((int)fec_inner) {
 	case FEC_1_2:
 	case FEC_S2_QPSK_1_2:
 	case FEC_S2_8PSK_1_2:
