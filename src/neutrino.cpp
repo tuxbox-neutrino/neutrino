@@ -2731,6 +2731,7 @@ _repeat:
 		//setVolume(msg, false, true);
 		return messages_return::handled;
 	}
+#ifdef HAVE_CONTROLD
 	else if( msg == NeutrinoMessages::EVT_VCRCHANGED ) {
 		if (g_settings.vcr_AutoSwitch) {
 			if( data != VCR_STATUS_OFF )
@@ -2740,6 +2741,7 @@ _repeat:
 		}
 		return messages_return::handled | messages_return::cancel_info;
 	}
+#endif
 	else if( msg == NeutrinoMessages::EVT_MUTECHANGED ) {
 #if 0
 		CControldMsg::commandMute* cmd = (CControldMsg::commandMute*) data;

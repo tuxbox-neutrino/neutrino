@@ -34,7 +34,9 @@
 
 #include <zapit/client/zapitclient.h>
 
+#ifdef HAVE_CONTROLD
 #include <controldclient/controldclient.h>
+#endif
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 
@@ -79,7 +81,9 @@
 NEUTRINO_CPP  SNeutrinoSettings	g_settings;
 NEUTRINO_CPP  SglobalInfo	g_info;
 
+#ifdef HAVE_CONTROLD
 NEUTRINO_CPP  CControldClient	*g_Controld;
+#endif
 NEUTRINO_CPP  CZapitClient	*g_Zapit;
 NEUTRINO_CPP  CSectionsdClient	*g_Sectionsd;
 NEUTRINO_CPP  CTimerdClient	*g_Timerd;

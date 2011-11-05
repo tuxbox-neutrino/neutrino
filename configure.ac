@@ -128,7 +128,6 @@ lib/libeventserver/Makefile
 lib/libmd5sum/Makefile
 lib/libnet/Makefile
 lib/xmltree/Makefile
-lib/controldclient/Makefile
 lib/sectionsdclient/Makefile
 lib/timerdclient/Makefile
 lib/libtriple/Makefile
