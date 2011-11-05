@@ -718,7 +718,8 @@ std::string CyParser::func_do_reload_httpd_config(CyhookHandler *, std::string) 
 std::string CyParser::func_change_httpd(CyhookHandler *hh, std::string para) {
 	if (para != "" && access(para.c_str(), 4) == 0) {
 		hh->status = HANDLED_ABORT;
-		int err = execvp(para.c_str(), NULL); // no return if successful
+		char * argv[2] = { (char *)para.c_str(), NULL };
+		int err = execvp(argv[0], argv); // no return if successful
 		return "ERROR [change_httpd]: execvp returns error code: " + err;
 	} else
 		return "ERROR [change_httpd]: para has not path to a file";
