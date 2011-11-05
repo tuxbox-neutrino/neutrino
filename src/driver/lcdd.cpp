@@ -323,7 +323,7 @@ void CLCD::setlcdparameter(int dimm, const int contrast, const int power, const 
 #endif
 }
 #else
-void CLCD::setlcdparameter(int dimm, const int contrast, const int power, const int inverse, const int bias)
+void CLCD::setlcdparameter(int /*dimm*/, const int contrast, const int /*power*/, const int inverse, const int /*bias*/)
 {
 	int fd = open("/dev/" DEVICE_NAME_LCD, O_RDWR);
 	if (fd < 0)
@@ -853,7 +853,6 @@ void CLCD::setMode(const MODES m, const char * const title)
 	mode = m;
 	menutitle = title;
 	setlcdparameter();
-	int x = 2;
 
 	switch (m)
 	{
@@ -1016,9 +1015,9 @@ int CLCD::getInverse()
 	return g_settings.lcd_setting[SNeutrinoSettings::LCD_INVERSE];
 }
 
+#ifdef HAVE_DBOX_HARDWARE
 void CLCD::setAutoDimm(int autodimm)
 {
-#ifdef HAVE_DBOX_HARDWARE
 	int fd;
 	g_settings.lcd_setting[SNeutrinoSettings::LCD_AUTODIMM] = autodimm;
 
@@ -1035,8 +1034,12 @@ void CLCD::setAutoDimm(int autodimm)
 
 		close(fd);
 	}
-#endif
 }
+#else
+void CLCD::setAutoDimm(int /*autodimm*/)
+{
+}
+#endif
 
 int CLCD::getAutoDimm()
 {
