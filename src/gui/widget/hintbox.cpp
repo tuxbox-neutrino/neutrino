@@ -122,6 +122,11 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 		if (nw > width)
 			width = nw;
 	}
+
+	/* make sure we don't overflow the usable area */
+	if (nw > (int)CFrameBuffer::getInstance()->getScreenWidth())
+		width = CFrameBuffer::getInstance()->getScreenWidth();
+
 	window = NULL;
 }
 
