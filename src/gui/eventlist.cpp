@@ -892,7 +892,7 @@ void EventList::paint(t_channel_id channel_id)
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x+ width - 4 - iw, y, theight);
 	}
 
-	frameBuffer->paintBoxRel(x, y+theight, width, height-theight-iheight, COL_INFOBAR, 0, CORNER_TOP);
+
 	for(unsigned int count=0;count<listmaxshow;count++)
 	{
 		paintItem(count, channel_id);
