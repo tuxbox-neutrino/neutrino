@@ -5,12 +5,18 @@ INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libeventserver \
-	-I$(top_srcdir)/lib/libcoolstream \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/xmltree \
 	@FREETYPE_CFLAGS@ \
 	-I$(top_srcdir)/lib 
+
+if BOXTYPE_COOL
+INCLUDES += -I$(top_srcdir)/lib/libcoolstream
+endif
+if BOXTYPE_TRIPLE
+INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 
 noinst_LIBRARIES = libneutrino_daemonc.a
 
