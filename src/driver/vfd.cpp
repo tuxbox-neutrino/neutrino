@@ -31,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <system/settings.h>
+#include <driver/record.h>
 
 #include <fcntl.h>
 #include <sys/timeb.h>
@@ -294,7 +295,7 @@ void CVFD::showTime(bool force)
 		}
 	}
 
-	if (CNeutrinoApp::getInstance ()->recordingstatus) {
+	if (CRecordManager::getInstance()->RecordingStatus()) {
 		if(clearClock) {
 			clearClock = 0;
 			if(has_lcd)
@@ -306,13 +307,13 @@ void CVFD::showTime(bool force)
 				ShowIcon(VFD_ICON_CAM1, true);
 			setled(true);//on
 		}
-	} else if(clearClock || (recstatus != CNeutrinoApp::getInstance ()->recordingstatus)) { // in case icon ON after record stopped
+	} else if(clearClock || (recstatus != CRecordManager::getInstance()->RecordingStatus())) { // in case icon ON after record stopped
 		clearClock = 0;
 		if(has_lcd)
 			ShowIcon(VFD_ICON_CAM1, false);
 		setled();
 	}
-	recstatus = CNeutrinoApp::getInstance ()->recordingstatus;
+	recstatus = CRecordManager::getInstance()->RecordingStatus();
 }
 
 void CVFD::showRCLock(int /*duration*/)
