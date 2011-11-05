@@ -95,6 +95,16 @@ if test "$enable_flac" = "yes"; then
 	AC_DEFINE(ENABLE_FLAC,1,[include FLAC support])
 fi
 
+# UPNP - upnp browser (borken right now)
+AC_ARG_ENABLE(upnp,
+	AS_HELP_STRING(--disable-upnp,disable UPNP support),
+	,[enable_upnp=yes])
+
+AM_CONDITIONAL(ENABLE_UPNP,test "$enable_upnp" = "yes")
+if test "$enable_upnp" = "yes"; then
+	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
+fi
+
 AC_CHECK_HEADERS(coolstream/nevis_ir.h)
 
 #

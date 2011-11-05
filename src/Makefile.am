@@ -75,7 +75,6 @@ neutrino_LDADD = \
 	$(top_builddir)/lib/libmd5sum/libtuxbox-md5sum.a \
 	$(top_builddir)/lib/libtuxtxt/libtuxtxt.a \
 	$(top_builddir)/lib/libdvbsub/libdvbsub.a \
-	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a \
 	@CURL_LIBS@ \
 	@FREETYPE_LIBS@ \
 	@PNG_LIBS@ \
@@ -90,6 +89,11 @@ neutrino_LDADD = \
 	-ljpeg \
 	-lOpenThreads \
 	-lrt -lpthread
+
+if ENABLE_UPNP
+neutrino_LDADD += \
+	$(top_builddir)/lib/libupnpclient/libtuxbox-upnpclient.a
+endif
 
 if BOXTYPE_COOL
 neutrino_LDADD += \

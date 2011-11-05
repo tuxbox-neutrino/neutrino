@@ -8,8 +8,12 @@ SUBDIRS = \
 	libnet \
 	xmltree \
 	libtuxtxt \
-	libdvbsub \
+	libdvbsub
+
+if ENABLE_UPNP
+SUBDIRS += \
 	libupnpclient
+endif
 
 if BOXTYPE_TRIPLE
 SUBDIRS += \

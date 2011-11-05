@@ -39,7 +39,9 @@
 
 #include "gui/movieplayer.h"
 #include "gui/pictureviewer.h"
+#if ENABLE_UPNP
 #include "gui/upnpbrowser.h"
+#endif
 
 #include <gui/widget/icons.h>
 
@@ -116,7 +118,9 @@ void CMediaPlayerMenu::showMenu()
 	CMenuForwarder *fw_inet = NULL;
 	CMenuForwarder *fw_mp = NULL;
 	CMenuForwarder *fw_pviewer = NULL;
+#if ENABLE_UPNP
 	CMenuForwarder *fw_upnp = NULL;
+#endif
 	CMenuWidget *moviePlayer = NULL;
 
 	if (usage_mode != MODE_VIDEO)
@@ -143,9 +147,10 @@ void CMediaPlayerMenu::showMenu()
 		//pictureviewer
 		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 
+#if ENABLE_UPNP
 		//upnp browser
 		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
-
+#endif
 		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
 	}
 
@@ -175,9 +180,10 @@ void CMediaPlayerMenu::showMenu()
 		
 		//pictureviewer
 		media->addItem(fw_pviewer);
-		
+#if ENABLE_UPNP
 		//upnp browser
 		media->addItem(fw_upnp);
+#endif
 	}
 	
 	media->exec(NULL, "");

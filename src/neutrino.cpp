@@ -105,7 +105,9 @@
 #include "gui/sleeptimer.h"
 #include "gui/timerlist.h"
 #include "gui/update.h"
+#if ENABLE_UPNP
 #include "gui/upnpbrowser.h"
+#endif
 #include "gui/videosettings.h"
 #include "gui/widget/colorchooser.h"
 #include "gui/widget/hintbox.h"
