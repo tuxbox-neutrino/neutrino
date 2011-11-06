@@ -492,7 +492,7 @@ bool CServiceScan::ScanProviders()
 	int scan_sat_mode = mode & 0xFF00; // single = 0, all = 1
 
 	printf("[zapit] scan mode %s, satellites %s\n", scan_nit ? "fast" : "NIT", scan_sat_mode ? "all" : "single");
-	CZapitClient myZapitClient;
+	// CZapitClient myZapitClient;
 
 	/* get first child */
 	//xmlNodePtr search = xmlDocGetRootElement(scanInputParser)->xmlChildrenNode;
@@ -562,7 +562,16 @@ bool CServiceScan::ScanProviders()
 		g_bouquetManager->loadBouquets();
 		printf("[scan] save bouquets done\n");
 		Cleanup(true);
+		/* this can hang as the thread handling the connections
+		 * could already be in g_Zapit->stopScan(), waiting for
+		 * *this* thread to join().
 		myZapitClient.reloadCurrentServices();
+		 * so let's do another ugly, layer-violating hack...
+		 */
+		CFrontend::getInstance()->setTsidOnid(0);
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		CZapit::getInstance()->ZapIt(live_channel_id, false);
+		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 	} else {
 		Cleanup(false);
 		CFrontend::getInstance()->setTsidOnid(0);
@@ -614,7 +623,7 @@ bool CServiceScan::ScanTransponder()
 	if(abort_scan)
 		found_channels = 0;
 
-	CZapitClient myZapitClient;
+	// CZapitClient myZapitClient;
 	//FIXME move to Cleanup() ?
 	if(found_channels) {
 		CServiceManager::getInstance()->SaveServices(true);
@@ -625,7 +634,13 @@ bool CServiceScan::ScanTransponder()
 		//g_bouquetManager->clearAll();
 		g_bouquetManager->loadBouquets();
 		Cleanup(true);
+		/* see the explanation in CServiceScan::ScanProviders() in why this is a bad idea
 		myZapitClient.reloadCurrentServices();
+		 */
+		CFrontend::getInstance()->setTsidOnid(0);
+		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+		CZapit::getInstance()->ZapIt(live_channel_id, false);
+		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 	} else {
 		Cleanup(false);
 		CFrontend::getInstance()->setTsidOnid(0);
