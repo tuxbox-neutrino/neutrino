@@ -222,12 +222,14 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
  	CMenuForwarder *fTimerAfter = new CMenuForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, true, g_settings.record_safety_time_after, timerAfter);
 	
 	//announce
-	CMenuOptionChooser* zapAnnounce = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ZAP_ON_ANNOUNCE, &g_settings.recording_zap_on_announce, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionChooser* chzapAnnounce = new CMenuOptionChooser(LOCALE_RECORDINGMENU_ZAP_ON_ANNOUNCE, &g_settings.recording_zap_on_announce, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	CMenuOptionNumberChooser *chzapCorr = new CMenuOptionNumberChooser(LOCALE_MISCSETTINGS_ZAPTO_PRE_TIME, &g_settings.zapto_pre_time, true, 0, 10);
 	
 	menu_timersettings->addIntroItems(LOCALE_TIMERSETTINGS_SEPARATOR);
  	menu_timersettings->addItem(fTimerBefore);
  	menu_timersettings->addItem(fTimerAfter);
- 	menu_timersettings->addItem(zapAnnounce);
+ 	menu_timersettings->addItem(chzapAnnounce);
+	menu_timersettings->addItem(chzapCorr);
 }
 
 
