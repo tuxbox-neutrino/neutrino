@@ -455,6 +455,7 @@ bool cDemux::pesFilter(const unsigned short pid)
 			flt.unloader.threshold = 8; // 1k, teletext
 		flt.pesType = DMX_PES_OTHER;
 		flt.output  = OUT_MEMORY;
+		break;
 	case DMX_TP_CHANNEL:
 		/* must be measure == true or we would have returned above */
 		flt.output = OUT_MEMORY;
@@ -462,6 +463,7 @@ bool cDemux::pesFilter(const unsigned short pid)
 		flt.unloader.threshold = 1;
 		flt.unloader.unloader_type = UNLOADER_TYPE_MEASURE_DUMMY;
 		ioctl(fd, DEMUX_SET_MEASURE_TIME, 250000);
+		break;
 	default:
 		flt.pesType = DMX_PES_OTHER;
 	}
