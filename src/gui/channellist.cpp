@@ -486,7 +486,7 @@ int CChannelList::show()
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &icol_w, &icol_h);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &icol_w, &icol_h);
@@ -2056,14 +2056,14 @@ void CChannelList::paintHead()
 
 	int iw1, iw2, iw3, ih = 0;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw1, &ih);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &iw2, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw2, &ih);
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &iw3, &ih);
 
 	// head
 	frameBuffer->paintBoxRel(x,y, width,theight+0, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);//round
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x + width - iw1 - 4, y, theight); //y+ 5 );
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - iw1 - iw2 - 8, y, theight);//y + 5); // icon for bouquet list button
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + width - iw1 - iw2 - 8, y, theight);//y + 5); // icon for bouquet list button
 	frameBuffer->paintIcon(this->new_mode_active ?
 			       NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE : NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE,
 			       x + width - iw1 - iw2 - iw3 - 12, y, theight);

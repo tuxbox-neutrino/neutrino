@@ -129,7 +129,7 @@ int CPictureViewerGui::exec(CMenuTarget* parent, const std::string & /*actionKey
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &icol_w, &icol_h);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &icol_h);
 	theight = std::max(theight, icol_h);
 
         frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
@@ -629,7 +629,7 @@ void CPictureViewerGui::paintHead()
 	int iw1, iw2, iw3, ih;
 	frameBuffer->getIconSize(NEUTRINO_ICON_MP3, &iw1, &ih);
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &iw2, &ih);
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &iw3, &ih);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw3, &ih);
 
 	frameBuffer->paintBoxRel(x, y, width, theight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 
@@ -637,7 +637,7 @@ void CPictureViewerGui::paintHead()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+iw1+10, y+theight+0, width- iw1 - iw2 - iw3 - 5*5, strCaption, COL_MENUHEAD, 0, true); // UTF-8
 
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x+ width- iw2 - 5, y, theight);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x+ width- iw2 - iw3 - 10, y, theight );
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x+ width- iw2 - iw3 - 10, y, theight );
 //	printf("paintHead}\n");
 }
 

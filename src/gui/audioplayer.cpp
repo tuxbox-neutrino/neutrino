@@ -1616,11 +1616,11 @@ void CAudioPlayerGui::paintHead()
 
 #ifdef ENABLE_GUI_MOUNT
 	if (!m_inetmode) {
-		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &iw, &ih);
-		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, xpos - iw, ypos, m_theight);
+		m_frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &iw, &ih);
+		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, xpos - iw, ypos, m_theight);
 		xpos -= (iw + 10);
 	}
-		//m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, m_x + m_width - 30, ypos);
+		//m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, m_x + m_width - 30, ypos);
 #endif
 #if 1
 	if ( CNeutrinoApp::getInstance()->isMuted() )

@@ -164,7 +164,7 @@ void CBEBouquetWidget::paintFoot()
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
 /*	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8*//*std::max(fh, icol_h+4)*/;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_DBOX, &icol_w, &h2);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &h2);
 // 	ButtonHeight = std::max(ButtonHeight, h2+4);
 
 // 	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
@@ -183,7 +183,7 @@ void CBEBouquetWidget::paintFoot()
 		break;
 	}
 	::paintButtons(x, y+height, width, 4, Button, ButtonHeight);
-	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_DBOX, x + width - 10 - icol_w, y + height, ButtonHeight);
+	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + width - 10 - icol_w, y + height, ButtonHeight);
 }
 
 void CBEBouquetWidget::hide()

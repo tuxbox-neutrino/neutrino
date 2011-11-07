@@ -44,8 +44,6 @@ install_DATA = \
 	d_green.png \
 	d_white.png \
 	d_yellow.png \
-	dbox.png \
-	dbox_small.png \
 	dd.png \
 	dd_avail.png \
 	dd_gray.png \
@@ -88,6 +86,8 @@ install_DATA = \
 	local.png \
 	lock.png \
 	mainmenue.png \
+	menu.png \
+	menu_small.png \
 	mounted.png \
 	movie.png \
 	mp_b-skip.png \
