@@ -787,7 +787,7 @@ miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
 miscsettings.sptsmode SPTS-Mode Treiber laden
 miscsettings.virtual_zap_mode Virtual Zap
-miscsettings.zapto_pre_time Umschaltstart-Korrektur
+miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
 motorcontrol.disable_limit Deaktiviere (soft) Limit
 motorcontrol.drive_mode Fahr-Modus
