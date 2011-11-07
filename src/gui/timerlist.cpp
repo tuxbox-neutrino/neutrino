@@ -435,7 +435,7 @@ void CTimerList::updateEvents(void)
 	frameBuffer->getIconSize(NEUTRINO_ICON_TIMER, &icol_w, &icol_h);
 	if(theight < icol_h)
 		theight = icol_h;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &icol_w, &icol_h);
 	if(theight < icol_h)
 		theight = icol_h;
 
@@ -860,7 +860,7 @@ void CTimerList::paintHead()
 	
 	//don't show info button on empty timerlist
 	if (!timerlist.empty())
-		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_HELP, x + width - icol_w - 10, y, theight);
+		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + width - icol_w - 10, y, theight);
 }
 
 const struct button_label TimerListButtons[4] =
