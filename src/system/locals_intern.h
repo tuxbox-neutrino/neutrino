@@ -264,6 +264,7 @@ const char * locale_real_names[] =
 	"channellist.head",
 	"channellist.history",
 	"channellist.make_hdlist",
+	"channellist.new_zap_mode",
 	"channellist.nonefound",
 	"channellist.provs",
 	"channellist.recording_not_possible",

@@ -80,7 +80,6 @@ private:
 	bool displayNext;
 
 	int info_height;
-	bool new_mode_active;
 	int ChannelList_Rec;
 
 	void paintDetails(int index);

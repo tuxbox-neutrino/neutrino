@@ -703,6 +703,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
+	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 0);
 
 	//screen configuration
 	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
@@ -1244,6 +1245,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
 	configfile.setBool("channellist_extended"                 , g_settings.channellist_extended);
 	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
+	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
 	configfile.setString( "repeat_blocker", g_settings.repeat_blocker );
 	configfile.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);

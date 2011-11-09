@@ -326,6 +326,7 @@ struct SNeutrinoSettings
 	int channellist_epgtext_align_right;
 	int channellist_extended;
 	int channellist_foot;
+	int channellist_new_zap_mode;
 
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
