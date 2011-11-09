@@ -860,6 +860,7 @@ int CChannelList::show()
 			displayNext = !displayNext;
 			paint();
 			paintHead(); // update button bar
+			showChannelLogo();
 		}
 		else if ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help)) {
 			hide();
