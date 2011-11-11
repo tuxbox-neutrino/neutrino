@@ -780,7 +780,7 @@ miscsettings.noenxwatchdog enable eNX watchdog
 miscsettings.pmtupdate enable pmt update
 miscsettings.radiotext Radiotext
 miscsettings.show_infomenu 
-miscsettings.shutdown_count In stabdby, switch off after
+miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
 miscsettings.shutdown_count_hint2 to deep standby (0 = off).
 miscsettings.shutdown_real Enable standby

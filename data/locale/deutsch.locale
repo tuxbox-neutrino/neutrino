@@ -781,8 +781,8 @@ miscsettings.pmtupdate PMT Aktualisierung verwenden
 miscsettings.radiotext Radiotext
 miscsettings.show_infomenu 
 miscsettings.shutdown_count Komplett ausschalten nach
-miscsettings.shutdown_count_hint1 Bitte warten...
-miscsettings.shutdown_count_hint2 Sie können die Box jetzt ausschalten!
+miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
+miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
