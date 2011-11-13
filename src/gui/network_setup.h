@@ -75,7 +75,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		std::string old_mac_addr;
 
 
-		CMenuForwarder* dhcpDisable[6];
+		CMenuForwarder* dhcpDisable[5];
 		CMenuForwarder* wlanEnable[2];
 			
 		void restoreNetworkSettings();
