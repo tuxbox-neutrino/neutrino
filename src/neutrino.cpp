@@ -703,7 +703,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
-	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 0);
+	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
 
 	//screen configuration
 	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
