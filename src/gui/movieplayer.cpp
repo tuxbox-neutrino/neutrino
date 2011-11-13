@@ -459,6 +459,7 @@ extern bool has_hdd;
 #define TIMESHIFT_SECONDS 3
 void CMoviePlayerGui::PlayFile(void)
 {
+	bool first_start_timeshift = false;
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
 	int position = 0, duration = 0;
@@ -554,11 +555,8 @@ void CMoviePlayerGui::PlayFile(void)
 			isBookmark = false;
 			timesh = false;
 			start_timeshift = true;
+			first_start_timeshift = true;
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-			g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), 
-						CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), 
-						CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(), 
-						CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
 		}
 
 		if (isBookmark) {
@@ -1311,6 +1309,14 @@ void CMoviePlayerGui::PlayFile(void)
 				CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
 				update_lcd = true;
 			}
+		}
+
+		if (first_start_timeshift) {
+			g_InfoViewer->showTitle(CNeutrinoApp::getInstance()->channelList->getActiveChannelNumber(), 
+						CNeutrinoApp::getInstance()->channelList->getActiveChannelName(), 
+						CNeutrinoApp::getInstance()->channelList->getActiveSatellitePosition(), 
+						CNeutrinoApp::getInstance()->channelList->getActiveChannel_ChannelID());
+			first_start_timeshift = false;
 		}
 
 		if (exit) {
