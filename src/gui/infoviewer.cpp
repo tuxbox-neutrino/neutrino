@@ -909,6 +909,9 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 			virtual_zap_mode = true;
 			res = messages_return::cancel_all;
 			hideIt = true;
+		} else if ((msg == NeutrinoMessages::EVT_RECORDMODE) && 
+			   (CMoviePlayerGui::getInstance().timeshift) && (CRecordManager::getInstance()->GetRecordCount() == 1)) {
+			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 		} else if (!fileplay && !CMoviePlayerGui::getInstance().timeshift) {
 			CNeutrinoApp *neutrino = CNeutrinoApp::getInstance ();
 			if ((msg == (neutrino_msg_t) g_settings.key_quickzap_up) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down) || (msg == CRCInput::RC_0) || (msg == NeutrinoMessages::SHOW_INFOBAR)) {

@@ -295,7 +295,8 @@ void CVFD::showTime(bool force)
 		}
 	}
 
-	if (CRecordManager::getInstance()->RecordingStatus()) {
+	int tmp_recstatus = CNeutrinoApp::getInstance()->recordingstatus;
+	if (tmp_recstatus) {
 		if(clearClock) {
 			clearClock = 0;
 			if(has_lcd)
@@ -307,13 +308,13 @@ void CVFD::showTime(bool force)
 				ShowIcon(VFD_ICON_CAM1, true);
 			setled(true);//on
 		}
-	} else if(clearClock || (recstatus != CRecordManager::getInstance()->RecordingStatus())) { // in case icon ON after record stopped
+	} else if(clearClock || (recstatus != tmp_recstatus)) { // in case icon ON after record stopped
 		clearClock = 0;
 		if(has_lcd)
 			ShowIcon(VFD_ICON_CAM1, false);
 		setled();
 	}
-	recstatus = CRecordManager::getInstance()->RecordingStatus();
+	recstatus = tmp_recstatus;
 }
 
 void CVFD::showRCLock(int /*duration*/)
