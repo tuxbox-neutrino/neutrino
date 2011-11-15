@@ -730,7 +730,7 @@ messagebox.yes Yes
 miscsettings.bootinfo Show infos at start
 miscsettings.bootmenu Show boot menu
 miscsettings.channellist Channellist
-miscsettings.channellist.colored_events Program colored
+miscsettings.channellist_colored_events Program colored
 miscsettings.channellist_epgtext_align Programtext Align
 miscsettings.colored_events_0 none
 miscsettings.colored_events_1 current
