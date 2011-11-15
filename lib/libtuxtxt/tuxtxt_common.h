@@ -520,6 +520,21 @@ void tuxtxt_erase_page(int magazine)
 	}
 }
 
+void tuxtxt_clear_p26(tstExtData* extData)
+{
+	pthread_mutex_lock(&tuxtxt_cache_lock);
+
+	for(int i = 0; i < 16; ++i)
+	{
+		if(0 != extData->p26[i])
+		{
+			memset(extData->p26[i], 0x00, 13 * 3);
+		}
+	}
+
+	pthread_mutex_unlock(&tuxtxt_cache_lock);
+}
+
 void tuxtxt_allocate_cache(int magazine)
 {
 	// Lock here as we have a possible race here with

@@ -61,6 +61,7 @@ extern void tuxtxt_decode_btt();
 extern void tuxtxt_decode_adip(); /* additional information table */
 extern void tuxtxt_compress_page(int p, int sp, unsigned char* buffer);
 extern void tuxtxt_decompress_page(int p, int sp, unsigned char* buffer);
+extern void tuxtxt_clear_p26(tstExtData* extData);
 #if TUXTXT_DEBUG
 extern int tuxtxt_get_zipsize(int p, int sp);
 #endif

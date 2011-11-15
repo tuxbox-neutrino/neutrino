@@ -1444,6 +1444,7 @@ void eval_l25()
 #endif
 			APx0 = APy0 = APx = APy = tAPx = tAPy = 0;
 			eval_object(13 * (23-2 + 2), tuxtxt_cache.astCachetable[tuxtxt_cache.page][tuxtxt_cache.subpage], &APx, &APy, &APx0, &APy0, OBJ_ACTIVE, &page_char[40]); /* 1st triplet p26/0 */
+			tuxtxt_clear_p26(pi->ext);
 		}
 
 		{
