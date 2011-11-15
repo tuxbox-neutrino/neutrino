@@ -2142,6 +2142,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hdd->exec(NULL, "");
 	delete hdd;
 
+	cCA::GetInstance()->Ready(true);
 	InitZapper();
 
 	AudioMute( current_muted, true);
@@ -2202,7 +2203,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	if(g_settings.power_standby || init_cec_setting)
 		standbyMode(true);
 
-	cCA::GetInstance()->Ready(true);
+	//cCA::GetInstance()->Ready(true);
 
 	while( true ) {
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
