@@ -3845,6 +3845,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			exit(1);
 		}
 	}
+#if 0 // to remove
 	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
 		for (int i = 0; i < 6; i++) {
 			if (actionKey == font_sizes_groups[i].actionkey)
@@ -3855,6 +3856,7 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		fontsizenotifier.changeNotify(NONEXISTANT_LOCALE, NULL);
 	}
+#endif
 	else if(actionKey == "moviedir") {
 		parent->hide();
 
