@@ -160,6 +160,13 @@ const CMenuOptionChooser::keyval CHOOSE_DIRECT_REC_DIR[RECORDINGMENU_RECORDING_T
 	{2, LOCALE_NFS_LOCALDIR}
 };
 
+#define END_OF_RECORDING_COUNT 2
+const CMenuOptionChooser::keyval END_OF_RECORDING[END_OF_RECORDING_COUNT] =
+{
+	{0, LOCALE_RECORDINGMENU_END_OF_RECORDING_MAX},
+	{1, LOCALE_RECORDINGMENU_END_OF_RECORDING_EPG}
+};
+
 void CRecordSetup::showRecordSetup()
 {
 	//menue init
@@ -176,6 +183,10 @@ void CRecordSetup::showRecordSetup()
 	recordingSettings->addItem(fRecDir);
 	CMenuOptionChooser* channel_rec_dir = new CMenuOptionChooser(LOCALE_RECORDINGMENU_SAVE_IN_CHANNELDIR, &g_settings.recording_save_in_channeldir, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	recordingSettings->addItem(channel_rec_dir);
+
+	// end of recording
+	CMenuOptionChooser* end_of_recording = new CMenuOptionChooser(LOCALE_RECORDINGMENU_END_OF_RECORDING_NAME, &g_settings.recording_epg_for_end, END_OF_RECORDING, END_OF_RECORDING_COUNT, true);
+	recordingSettings->addItem(end_of_recording);
 
 // 	//template
 // 	CStringInput * recordingSettings_filenameTemplate = new CStringInput(LOCALE_RECORDINGMENU_FILENAME_TEMPLATE, &g_settings.recording_filename_template[0], 21, LOCALE_RECORDINGMENU_FILENAME_TEMPLATE_HINT, LOCALE_IPSETUP_HINT_2, "%/-_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ");

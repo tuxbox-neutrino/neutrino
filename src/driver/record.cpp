@@ -388,7 +388,20 @@ record_error_msg_t CRecordInstance::Record()
 	//FIXME recording_id (timerd eventID) is 0 means its user recording, in this case timer always added ?
 	if(ret == RECORD_OK && recording_id == 0) {
 		time_t now = time(NULL);
-		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, now+g_settings.record_hours*60*60, epgid, epg_time, apidmode);
+		int record_end = now+g_settings.record_hours*60*60;
+		if (g_settings.recording_epg_for_end)
+		{
+			int pre=0, post=0;
+			CEPGData epgData;
+			epgData.epg_times.startzeit = 0;
+			epgData.epg_times.dauer = 0;
+			if (sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epgData )) {
+				g_Timerd->getRecordingSafety(pre, post);
+				if (epgData.epg_times.startzeit > 0)
+					record_end = epgData.epg_times.startzeit + epgData.epg_times.dauer + post;
+			}
+		}
+		recording_id = g_Timerd->addImmediateRecordTimerEvent(channel_id, now, record_end, epgid, epg_time, apidmode);
 		printf("%s: channel %llx -> timer eventID %d\n", __FUNCTION__, channel_id, recording_id);
 	}
 	return ret;

@@ -1129,6 +1129,9 @@ recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream
 recordingmenu.choose_direct_rec_dir choose dir on imm. recording
 recordingmenu.defdir Recording directory
+recordingmenu.end_of_recording_epg EPG act. Event
+recordingmenu.end_of_recording_max max. Recordingtime
+recordingmenu.end_of_recording_name Endtime of Recording
 recordingmenu.epg_for_filename long filenames (with EPG data)
 recordingmenu.file direct (file)
 recordingmenu.filesettings direct recording settings

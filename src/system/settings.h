@@ -250,6 +250,7 @@ struct SNeutrinoSettings
 	char recording_ringbuffers[10];
 	int recording_choose_direct_rec_dir;
 	int recording_epg_for_filename;
+	int recording_epg_for_end;
 	int recording_save_in_channeldir;
 	int recording_in_spts_mode;
 	int  recording_zap_on_announce;

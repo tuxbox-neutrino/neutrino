@@ -1129,6 +1129,9 @@ recordingmenu.apids_alt Alternative Tonspuren aufn.
 recordingmenu.apids_std Standard Tonspur aufnehmen
 recordingmenu.choose_direct_rec_dir Bei Sofortaufn. Verzeichnisauswahl
 recordingmenu.defdir Aufnahmeverzeichnis
+recordingmenu.end_of_recording_epg EPG aktuelles Event
+recordingmenu.end_of_recording_max max. Aufnahmezeit
+recordingmenu.end_of_recording_name Ende der Sofortaufnahme
 recordingmenu.epg_for_filename lange Dateinamen (mit EPG-Daten)
 recordingmenu.file Direkt (Datei)
 recordingmenu.filesettings Direktaufnahme Einstellungen

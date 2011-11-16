@@ -641,6 +641,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	strcpy( g_settings.recording_ringbuffers, configfile.getString( "recordingmenu.ringbuffers", "20").c_str() );
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
+	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , false);
 	g_settings.recording_save_in_channeldir      = configfile.getBool("recording_save_in_channeldir"         , false);
 	g_settings.recording_in_spts_mode          = true;
 
@@ -1178,6 +1179,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("recordingmenu.ringbuffers"          , g_settings.recording_ringbuffers);
 	configfile.setInt32 ("recording_choose_direct_rec_dir"    , g_settings.recording_choose_direct_rec_dir);
 	configfile.setBool  ("recording_epg_for_filename"         , g_settings.recording_epg_for_filename     );
+	configfile.setBool  ("recording_epg_for_end"              , g_settings.recording_epg_for_end          );
 	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir     );
 	configfile.setBool  ("recording_in_spts_mode"             , g_settings.recording_in_spts_mode         );
 
