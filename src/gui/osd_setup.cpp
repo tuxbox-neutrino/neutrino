@@ -225,7 +225,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		fontscale.addItem(m_x);
 		fontscale.addItem(m_y);
-		fontscale.exec(NULL, "");
+		int res = fontscale.exec(NULL, "");
 		xre = atoi(val_x);
 		yre = atoi(val_y);
 		//fallback for min/max bugs ;)
@@ -244,7 +244,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 			g_settings.screen_yres = yre;
 			CNeutrinoApp::getInstance()->SetupFonts();
 		}
-		return menu_return::RETURN_REPAINT;
+		//return menu_return::RETURN_REPAINT;
+		return res;
 	}
 	else if(actionKey=="osd.def") {
 		for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
@@ -276,13 +277,14 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	// Display virtual zap = off when RC neo1
 	tmp_virtual_zap_mode = (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_STANDARD) ? g_settings.virtual_zap_mode : false;
 
-	showOsdSetup();
+	int res = showOsdSetup();
 
 	// Restore g_settings.virtual_zap_mode
 	if (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_STANDARD)
 		g_settings.virtual_zap_mode = tmp_virtual_zap_mode;
 	
-	return menu_return::RETURN_REPAINT;	
+	//return menu_return::RETURN_REPAINT;	
+	return res;
 }
 
 
@@ -380,7 +382,7 @@ const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_
 
 
 //show osd setup
-void COsdSetup::showOsdSetup()
+int COsdSetup::showOsdSetup()
 {
 	//osd main menu
 	CMenuWidget *osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width);
@@ -436,11 +438,12 @@ void COsdSetup::showOsdSetup()
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_BIGWINDOWS, &g_settings.big_windows, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
-	osd_menu->exec(NULL, "");
+	int res = osd_menu->exec(NULL, "");
 	osd_menu->hide();
 	selected = osd_menu->getSelected();
 	delete osd_menu;
 	delete radiotextNotifier;
+	return res;
 }
 	
 //menue colors

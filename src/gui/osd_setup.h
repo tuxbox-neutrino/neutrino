@@ -52,7 +52,7 @@
 		
 		bool is_wizard;
 
-		void showOsdSetup();
+		int showOsdSetup();
  		void showOsdMenueColorSetup(CMenuWidget *menu_colors);
 		void showOsdFontSizeSetup(CMenuWidget *menu_fonts);
 		void showOsdTimeoutSetup(CMenuWidget *menu_timeout);
