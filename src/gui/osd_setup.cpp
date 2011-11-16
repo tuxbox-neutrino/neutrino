@@ -82,11 +82,98 @@ COsdSetup::~COsdSetup()
 	delete radiotextNotifier;
 }
 
+//font settings
+const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[4] =
+{
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST,
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR,
+	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER,
+	SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP
+};
+
+const SNeutrinoSettings::FONT_TYPES eventlist_font_sizes[4] =
+{
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE,
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE,
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL,
+	SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME,
+};
+
+const SNeutrinoSettings::FONT_TYPES infobar_font_sizes[4] =
+{
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER,
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME,
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO,
+	SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL
+};
+
+const SNeutrinoSettings::FONT_TYPES epg_font_sizes[4] =
+{
+	SNeutrinoSettings::FONT_TYPE_EPG_TITLE,
+	SNeutrinoSettings::FONT_TYPE_EPG_INFO1,
+	SNeutrinoSettings::FONT_TYPE_EPG_INFO2,
+	SNeutrinoSettings::FONT_TYPE_EPG_DATE
+};
+
+const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
+{
+	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE,
+	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
+};
+
+const SNeutrinoSettings::FONT_TYPES other_font_sizes[4] =
+{
+	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
+	SNeutrinoSettings::FONT_TYPE_MENU,
+	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
+	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
+};
+
+font_sizes_groups font_sizes_groups[6] =
+{
+	{LOCALE_FONTMENU_MENU       , 4, other_font_sizes      , "fontsize.doth"},
+	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha"},
+	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve"},
+	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg"},
+	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf"},
+	{LOCALE_FONTMENU_GAMELIST   , 2, gamelist_font_sizes   , "fontsize.dgam"}
+};
+
+#define FONT_STYLE_REGULAR 0
+#define FONT_STYLE_BOLD    1
+#define FONT_STYLE_ITALIC  2
+
+font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
+{
+	{LOCALE_FONTSIZE_MENU               ,  20, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_MENU_TITLE         ,  30, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_MENU_INFO          ,  16, FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_EPG_TITLE          ,  25, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_EPG_INFO1          ,  17, FONT_STYLE_ITALIC , 2},
+	{LOCALE_FONTSIZE_EPG_INFO2          ,  17, FONT_STYLE_REGULAR, 2},
+	{LOCALE_FONTSIZE_EPG_DATE           ,  15, FONT_STYLE_REGULAR, 2},
+	{LOCALE_FONTSIZE_EVENTLIST_TITLE    ,  30, FONT_STYLE_REGULAR, 0},
+	{LOCALE_FONTSIZE_EVENTLIST_ITEMLARGE,  20, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_EVENTLIST_ITEMSMALL,  14, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_EVENTLIST_DATETIME ,  16, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_GAMELIST_ITEMLARGE ,  20, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_GAMELIST_ITEMSMALL ,  16, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_CHANNELLIST        ,  20, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
+	{LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  50, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
+	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1},
+	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1}
+};
 
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	dprintf(DEBUG_DEBUG, "init osd setup\n");
 
+	printf("COsdSetup::exec:: action  %s\n", actionKey.c_str());
 	if(parent != NULL)
 		parent->hide();
 	
@@ -171,6 +258,20 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		chooserDir(g_settings.logo_hdd_dir, false, action_str);
 		return menu_return::RETURN_REPAINT;
 	}
+	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
+		for (int i = 0; i < 6; i++) {
+			if (actionKey == font_sizes_groups[i].actionkey) {
+				for (unsigned int j = 0; j < font_sizes_groups[i].count; j++) {
+					SNeutrinoSettings::FONT_TYPES k = font_sizes_groups[i].content[j];
+					CNeutrinoApp::getInstance()->getConfigFile()->setInt32(locale_real_names[neutrino_font[k].name], neutrino_font[k].defaultsize);
+				}
+				break;
+			}
+		}
+		fontsizenotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+		return menu_return::RETURN_REPAINT;
+	}
+
 
 	// Display virtual zap = off when RC neo1
 	tmp_virtual_zap_mode = (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_STANDARD) ? g_settings.virtual_zap_mode : false;
@@ -393,94 +494,6 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS));
 	menu_colors->addItem( new CMenuForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chColored_Events ));
 }
-
-
-//font settings
-const SNeutrinoSettings::FONT_TYPES channellist_font_sizes[4] =
-{
-	SNeutrinoSettings::FONT_TYPE_CHANNELLIST,
-	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR,
-	SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER,
-	SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP
-};
-
-const SNeutrinoSettings::FONT_TYPES eventlist_font_sizes[4] =
-{
-	SNeutrinoSettings::FONT_TYPE_EVENTLIST_TITLE,
-	SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE,
-	SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMSMALL,
-	SNeutrinoSettings::FONT_TYPE_EVENTLIST_DATETIME,
-};
-
-const SNeutrinoSettings::FONT_TYPES infobar_font_sizes[4] =
-{
-	SNeutrinoSettings::FONT_TYPE_INFOBAR_NUMBER,
-	SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME,
-	SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO,
-	SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL
-};
-
-const SNeutrinoSettings::FONT_TYPES epg_font_sizes[4] =
-{
-	SNeutrinoSettings::FONT_TYPE_EPG_TITLE,
-	SNeutrinoSettings::FONT_TYPE_EPG_INFO1,
-	SNeutrinoSettings::FONT_TYPE_EPG_INFO2,
-	SNeutrinoSettings::FONT_TYPE_EPG_DATE
-};
-
-const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
-{
-	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMLARGE,
-	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
-};
-
-const SNeutrinoSettings::FONT_TYPES other_font_sizes[4] =
-{
-	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
-	SNeutrinoSettings::FONT_TYPE_MENU,
-	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
-	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
-};
-
-font_sizes_groups font_sizes_groups[6] =
-{
-	{LOCALE_FONTMENU_MENU       , 4, other_font_sizes      , "fontsize.doth"},
-	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha"},
-	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve"},
-	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg"},
-	{LOCALE_FONTMENU_INFOBAR    , 4, infobar_font_sizes    , "fontsize.dinf"},
-	{LOCALE_FONTMENU_GAMELIST   , 2, gamelist_font_sizes   , "fontsize.dgam"}
-};
-
-#define FONT_STYLE_REGULAR 0
-#define FONT_STYLE_BOLD    1
-#define FONT_STYLE_ITALIC  2
-
-font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
-{
-	{LOCALE_FONTSIZE_MENU               ,  20, FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_MENU_TITLE         ,  30, FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_MENU_INFO          ,  16, FONT_STYLE_REGULAR, 0},
-	{LOCALE_FONTSIZE_EPG_TITLE          ,  25, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_EPG_INFO1          ,  17, FONT_STYLE_ITALIC , 2},
-	{LOCALE_FONTSIZE_EPG_INFO2          ,  17, FONT_STYLE_REGULAR, 2},
-	{LOCALE_FONTSIZE_EPG_DATE           ,  15, FONT_STYLE_REGULAR, 2},
-	{LOCALE_FONTSIZE_EVENTLIST_TITLE    ,  30, FONT_STYLE_REGULAR, 0},
-	{LOCALE_FONTSIZE_EVENTLIST_ITEMLARGE,  20, FONT_STYLE_BOLD   , 1},
-	{LOCALE_FONTSIZE_EVENTLIST_ITEMSMALL,  14, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_EVENTLIST_DATETIME ,  16, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_GAMELIST_ITEMLARGE ,  20, FONT_STYLE_BOLD   , 1},
-	{LOCALE_FONTSIZE_GAMELIST_ITEMSMALL ,  16, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_CHANNELLIST        ,  20, FONT_STYLE_BOLD   , 1},
-	{LOCALE_FONTSIZE_CHANNELLIST_DESCR  ,  20, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_CHANNELLIST_NUMBER ,  14, FONT_STYLE_BOLD   , 2},
-	{LOCALE_FONTSIZE_CHANNEL_NUM_ZAP    ,  40, FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_INFOBAR_NUMBER     ,  50, FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
-	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1}
-};
 
 /* for font size setup */
 class CMenuNumberInput : public CMenuForwarder, CMenuTarget, CChangeObserver
