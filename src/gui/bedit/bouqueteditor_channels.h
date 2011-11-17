@@ -66,6 +66,8 @@ class CBEChannelWidget : public CMenuWidget
 		int			theight;
 		int			iconoffset;
 		int                     iheight; // item height
+		int			footerHeight;
+		int			info_height;
 
 		int 			ButtonHeight;
 		std::string		caption;
@@ -81,6 +83,9 @@ class CBEChannelWidget : public CMenuWidget
 		int		y;
 
 		void paintItem(int pos);
+		void paintDetails(int index);
+		void paintItem2DetailsLine (int pos, int ch_index);
+		void clearItem2DetailsLine ();
 		void paint();
 		void paintHead();
 		void paintFoot();

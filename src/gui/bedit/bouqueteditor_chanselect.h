@@ -51,8 +51,13 @@ class CBEChannelSelectWidget : public CListBox
 
 		uint	getItemCount();
 		void paintItem(uint32_t itemNr, int paintNr, bool selected);
+		void paintDetails(int index);
+		void paintItem2DetailsLine (int pos, int ch_index);
 		void paintFoot();
 		void onOkKeyPressed();
+
+		int	footerHeight;
+		int	info_height;
 
 	public:
 		//CZapitClient::BouquetChannelList	Channels;        // list of all channels
