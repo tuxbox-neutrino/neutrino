@@ -259,6 +259,7 @@ colorchooser.blue blau
 colorchooser.green grün
 colorchooser.red rot
 colormenu.background Hintergrundfarbe
+colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Menüs faden
 colormenu.font Neutrino Schriftart
 colormenu.font_ttx Teletext Schriftart
