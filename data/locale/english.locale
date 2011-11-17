@@ -259,6 +259,7 @@ colorchooser.blue blue
 colorchooser.green green
 colorchooser.red red
 colormenu.background Background
+colormenu.contrast_fonts Contrast fonts
 colormenu.fade Fade menus
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font

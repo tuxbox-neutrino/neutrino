@@ -69,7 +69,7 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	radiotextNotifier = NULL;
 
 	is_wizard = wizard_mode;
-	
+
 	width = w_max (40, 10); //%
 	selected = -1;
 }
@@ -176,7 +176,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	printf("COsdSetup::exec:: action  %s\n", actionKey.c_str());
 	if(parent != NULL)
 		parent->hide();
-	
+
 	if(actionKey == "select_font") 
 	{
 		CFileBrowser fileBrowser;
@@ -216,10 +216,10 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		CMenuWidget fontscale(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_COLORS);
 		fontscale.addIntroItems(LOCALE_FONTMENU_SCALING);
-		
+
 		CStringInput * xres_count = new CStringInput(LOCALE_FONTMENU_SCALING_X, val_x,50,200, 3, LOCALE_FONTMENU_SCALING, LOCALE_FONTMENU_SCALING_X_HINT2, "0123456789 ");
 		CMenuForwarder *m_x = new CMenuForwarder(LOCALE_FONTMENU_SCALING_X, true, val_x, xres_count);               
-	
+
 		CStringInput * yres_count = new CStringInput(LOCALE_FONTMENU_SCALING_Y, val_y,50,200, 3, LOCALE_FONTMENU_SCALING, LOCALE_FONTMENU_SCALING_Y_HINT2, "0123456789 ");
 		CMenuForwarder *m_y = new CMenuForwarder(LOCALE_FONTMENU_SCALING_Y, true, val_y, yres_count);                
 
@@ -282,8 +282,8 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	// Restore g_settings.virtual_zap_mode
 	if (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_STANDARD)
 		g_settings.virtual_zap_mode = tmp_virtual_zap_mode;
-	
-	//return menu_return::RETURN_REPAINT;	
+
+	//return menu_return::RETURN_REPAINT;
 	return res;
 }
 
@@ -388,44 +388,44 @@ int COsdSetup::showOsdSetup()
 	CMenuWidget *osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width);
 	osd_menu->setWizardMode(is_wizard);
 	osd_menu->setSelected(selected);
-	
+
 	//menu colors
 	CMenuWidget *osd_menu_colors = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width);
-	
+
 	//intro with subhead and back button
 	osd_menu->addIntroItems(LOCALE_MAINSETTINGS_OSD);
-	
+
 	//item menu colors
 	showOsdMenueColorSetup(osd_menu_colors);
 	osd_menu->addItem(new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, osd_menu_colors, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	
+
 	//fonts
 	CMenuWidget *osd_menu_fonts = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width);
 	showOsdFontSizeSetup(osd_menu_fonts);
 	osd_menu->addItem(new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, osd_menu_fonts, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	
+
 	//timeouts
 	CMenuWidget *osd_menu_timing = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	showOsdTimeoutSetup(osd_menu_timing);
 	osd_menu->addItem(new CMenuForwarder(LOCALE_COLORMENU_TIMING, true, NULL, osd_menu_timing, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	
+
 	//screen
 	osd_menu->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_SCREENSETUP, true, NULL, new CScreenSetup(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-	
+
 	//infobar
 	CMenuWidget *osd_menu_infobar = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	showOsdInfobarSetup(osd_menu_infobar);
 	osd_menu->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, osd_menu_infobar, NULL, CRCInput::RC_1));
-	
+
 	//channellist
 	CMenuWidget *osd_menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	showOsdChanlistSetup(osd_menu_chanlist);
 	osd_menu->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, osd_menu_chanlist, NULL, CRCInput::RC_2));
-	
+
 	//monitor
  	CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify));
-	
+
 	osd_menu->addItem(GenericMenuSeparatorLine);
 	//options
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true));
@@ -445,12 +445,12 @@ int COsdSetup::showOsdSetup()
 	delete radiotextNotifier;
 	return res;
 }
-	
+
 //menue colors
 void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 {
 	menu_colors->addIntroItems(LOCALE_COLORMENU_MENUCOLORS);
-	
+
 	menu_colors->addItem( new CMenuForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, new CThemes(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
 
 	CColorChooser* chHeadcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.menu_Head_red, &g_settings.menu_Head_green, &g_settings.menu_Head_blue,
@@ -552,18 +552,19 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 
 	fontSettings->addItem( new CMenuForwarder(LOCALE_COLORMENU_FONT, true, NULL, this, "select_font", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	fontSettings->addItem( new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, NULL, this, "ttx_font",  CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	fontSettings->addItem( new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	fontSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FONTMENU_SIZES));
-	
+
 	//submenu font scaling
-	fontSettings->addItem(new CMenuForwarder(LOCALE_FONTMENU_SCALING, true, NULL, this, "font_scaling",  CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	fontSettings->addItem(new CMenuForwarder(LOCALE_FONTMENU_SCALING, true, NULL, this, "font_scaling",  CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	//fontSettings->addItem( new CMenuForwarder(LOCALE_EPGPLUS_SELECT_FONT_NAME, true, NULL, this, "select_font"));
 	for (int i = 0; i < 6; i++)
 	{
 		CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
-		
+
 		fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname);
-		
+
 		for (unsigned int j = 0; j < font_sizes_groups[i].count; j++)
 		{
 			AddFontSettingItem(*fontSettingsSubMenu, font_sizes_groups[i].content[j]);
@@ -571,7 +572,7 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 		fontSettingsSubMenu->addItem(GenericMenuSeparatorLine);
 		fontSettingsSubMenu->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[i].actionkey));
 
-		fontSettings->addItem(new CMenuForwarder(font_sizes_groups[i].groupname, true, NULL, fontSettingsSubMenu));
+		fontSettings->addItem(new CMenuForwarder(font_sizes_groups[i].groupname, true, NULL, fontSettingsSubMenu, "", CRCInput::convertDigitToKey(i+1)));
 	}
 }
 
@@ -579,7 +580,7 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 void COsdSetup::showOsdTimeoutSetup(CMenuWidget* menu_timeout)
 {
 	menu_timeout->addIntroItems(LOCALE_COLORMENU_TIMING);
-	
+
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
 	{
 		CStringInput * timing_item = new CStringInput(timing_setting[i].name, g_settings.timing_string[i], 3, LOCALE_TIMING_HINT_1, LOCALE_TIMING_HINT_2, "0123456789 ", &timingsettingsnotifier);
@@ -627,12 +628,9 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 {
 	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
-	
+
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true));
 	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
 }
-
-
-

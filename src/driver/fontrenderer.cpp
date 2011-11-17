@@ -35,6 +35,7 @@
 #include <driver/fontrenderer.h>
 
 #include <system/debug.h>
+#include <global.h>
 
 /* Drawing pixels is actually faster without the GXA accelerator (wich OTOH is
    faster for drawing lines, so disable it here. */
@@ -451,6 +452,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 				 (((fgg + deltag * i / 255) & ((1 << gl) - 1)) << go) |
 				 (((fgb + deltab * i / 255) & ((1 << bl) - 1)) << bo) |
 				 (((fgt + deltat * i / 255) & ((1 << tl) - 1)) << to));
+			/* FIXME must be better solution */
+			if(g_settings.contrast_fonts && ((255-i) > 128))
+				colors[255 - i] |=  0xFF << to;
 		}
 	}
 
@@ -540,7 +544,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 						frameBuffer->paintPixel(x + glyph->left + ax, y - glyph->top + ay, colors[*s++]);
 						#else
 						/* do not paint the backgroundcolor, see below */
-						if (colors[*s] != bgcolor)
+						//if (colors[*s] != bgcolor)
+						// from code above bgcolor index should be always 0
+						if(*s != 0)
 							*td = colors[*s];
 						td++; s++;
 						#endif
@@ -570,7 +576,9 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 						   colored boxes are painted beneath the fonts anyway
 						   note that this is not totally correct, because of subpixel hinting etc,
 						   but that should be barely visible in reality ;) */
-						if (colors[lcolor] != bgcolor)
+						//if (colors[lcolor] != bgcolor)
+						// from code above bgcolor index should be always 0
+						if (lcolor != 0)
 							*td = colors[lcolor];
 						td++;
 						#endif

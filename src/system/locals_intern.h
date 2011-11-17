@@ -286,6 +286,7 @@ const char * locale_real_names[] =
 	"colorchooser.green",
 	"colorchooser.red",
 	"colormenu.background",
+	"colormenu.contrast_fonts",
 	"colormenu.fade",
 	"colormenu.font",
 	"colormenu.font_ttx",
