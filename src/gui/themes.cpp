@@ -62,7 +62,6 @@ CThemes::CThemes()
 int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 {
 	int res = menu_return::RETURN_REPAINT;
-	
 
 	if( !actionKey.empty() )
 	{
@@ -94,8 +93,7 @@ int CThemes::exec(CMenuTarget* parent, const std::string & actionKey)
 	if ( !hasThemeChanged )
 		rememberOldTheme( true );
 
-	Show();
-	return res;
+	return Show();
 }
 
 void CThemes::readThemes(CMenuWidget &themes)
@@ -142,7 +140,7 @@ void CThemes::readThemes(CMenuWidget &themes)
 	}
 }
 
-void CThemes::Show()
+int CThemes::Show()
 {
 	std::string file_name = "";
 
@@ -174,7 +172,7 @@ void CThemes::Show()
 		printf("[neutrino theme] error accessing %s\n", USERDIR);
 	}
 
-	themes.exec(NULL, "");
+	int res = themes.exec(NULL, "");
 	themes.hide();
 
 	if (file_name.length() > 1) {
@@ -187,6 +185,7 @@ void CThemes::Show()
 		else
 			hasThemeChanged = false;
 	}
+	return res;
 }
 
 void CThemes::rememberOldTheme(bool remember)

@@ -39,7 +39,7 @@ class CThemes : public CMenuTarget, CChangeObserver
 
 		bool hasThemeChanged;
 
-		void Show();
+		int Show();
 		void readFile(char* themename);
 		void saveFile(char* themename);
 		void readThemes(CMenuWidget &);
