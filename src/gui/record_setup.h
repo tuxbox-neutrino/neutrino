@@ -41,7 +41,7 @@ class CRecordSetup : public CMenuTarget
 	private:
 		int width, selected;
 
-		void showRecordSetup();
+		int showRecordSetup();
 		void showRecordTimerSetup(CMenuWidget *menu_timersettings);
 		void showRecordAudioSetup(CMenuWidget *menu_audiosettings);
 		void showRecordTimeShiftSetup(CMenuWidget *menu_ts);

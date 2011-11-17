@@ -136,7 +136,7 @@ int CRecordSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	if (!CNeutrinoApp::getInstance()->recordingstatus)
-		showRecordSetup();
+		res = showRecordSetup();
 	else
 		DisplayInfoMessage(g_Locale->getText(LOCALE_RECORDINGMENU_RECORD_IS_RUNNING));
 	
@@ -167,7 +167,7 @@ const CMenuOptionChooser::keyval END_OF_RECORDING[END_OF_RECORDING_COUNT] =
 	{1, LOCALE_RECORDINGMENU_END_OF_RECORDING_EPG}
 };
 
-void CRecordSetup::showRecordSetup()
+int CRecordSetup::showRecordSetup()
 {
 	//menue init
 	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
@@ -207,12 +207,12 @@ void CRecordSetup::showRecordSetup()
 	CMenuWidget* recordingaAudioSettings = new CMenuWidget(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width);
 	showRecordAudioSetup(recordingaAudioSettings);
 	recordingSettings->addItem(new CMenuForwarder(LOCALE_RECORDINGMENU_APIDS, true, NULL, recordingaAudioSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
-
 	
-	recordingSettings->exec(NULL, "");
+	int res = recordingSettings->exec(NULL, "");
 	recordingSettings->hide();
  	selected = recordingSettings->getSelected();
 	delete recordingSettings;
+	return res;
 }
 
 void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
