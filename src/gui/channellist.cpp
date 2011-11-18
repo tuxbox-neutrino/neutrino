@@ -1790,8 +1790,8 @@ void CChannelList::showChannelLogo()
 struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
-	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_INFOVIEWER_NEXT},
 	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETLIST_HEAD},
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_INFOVIEWER_NEXT},
 	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE}
 };
 
@@ -1801,9 +1801,9 @@ void CChannelList::paintButtonBar(bool is_current)
 	
 	//manage now/next button
 	if (displayNext)
-		SChannelListButtons[1].locale = LOCALE_INFOVIEWER_NOW;
+		SChannelListButtons[2].locale = LOCALE_INFOVIEWER_NOW;
 	else
-		SChannelListButtons[1].locale = LOCALE_INFOVIEWER_NEXT;
+		SChannelListButtons[2].locale = LOCALE_INFOVIEWER_NEXT;
 	
 	//manage record button
 	bool do_record = CRecordManager::getInstance()->RecordingStatus(getActiveChannel_ChannelID());
