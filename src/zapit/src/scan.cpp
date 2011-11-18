@@ -563,6 +563,7 @@ bool CServiceScan::ScanProviders()
 		printf("[scan] save bouquets done\n");
 		Cleanup(true);
 #if 1
+		CZapitClient myZapitClient;
 		myZapitClient.reloadCurrentServices();
 #else
 		/* this can hang as the thread handling the connections
@@ -639,6 +640,7 @@ bool CServiceScan::ScanTransponder()
 		g_bouquetManager->loadBouquets();
 		Cleanup(true);
 #if 1
+		CZapitClient myZapitClient;
 		myZapitClient.reloadCurrentServices();
 #else
 		/* see the explanation in CServiceScan::ScanProviders() in why this is a bad idea
