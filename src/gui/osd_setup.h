@@ -40,7 +40,7 @@
 
 #include <string>
 
- class COsdSetup : public CMenuTarget
+class COsdSetup : public CMenuTarget, public CChangeObserver
 {	
 	private:
 		CColorSetupNotifier *colorSetupNotifier;
@@ -86,8 +86,7 @@
 		COsdSetup(bool wizard_mode = OSD_SETUP_MODE_WIZARD_NO);
 		~COsdSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		
-		
+		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 
 

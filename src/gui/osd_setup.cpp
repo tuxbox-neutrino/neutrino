@@ -552,7 +552,7 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 
 	fontSettings->addItem( new CMenuForwarder(LOCALE_COLORMENU_FONT, true, NULL, this, "select_font", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	fontSettings->addItem( new CMenuForwarder(LOCALE_COLORMENU_FONT_TTX, true, NULL, this, "ttx_font",  CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	fontSettings->addItem( new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	fontSettings->addItem( new CMenuOptionChooser(LOCALE_COLORMENU_CONTRAST_FONTS, &g_settings.contrast_fonts, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	fontSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_FONTMENU_SIZES));
 
@@ -633,4 +633,12 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
  	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true));
 	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
+}
+
+bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
+{
+	if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_CONTRAST_FONTS)) {
+		return true;
+	}
+	return false;
 }
