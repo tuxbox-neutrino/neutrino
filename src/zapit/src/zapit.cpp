@@ -956,8 +956,10 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	}
 
 	case CZapitMessages::CMD_RELOAD_CURRENTSERVICES: {
+#if 0
   	        response.cmd = CZapitMessages::CMD_READY;
   	        CBasicServer::send_data(connfd, &response, sizeof(response));
+#endif
 		DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
 		CFrontend::getInstance()->setTsidOnid(0);
 		ZapIt(live_channel_id, current_is_nvod);

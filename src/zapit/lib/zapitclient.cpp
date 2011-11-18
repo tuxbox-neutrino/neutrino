@@ -469,9 +469,10 @@ void CZapitClient::reinitChannels()
 void CZapitClient::reloadCurrentServices()
 {
 	send(CZapitMessages::CMD_RELOAD_CURRENTSERVICES);
-
+#if 0
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response), true);
+#endif
 	close_connection();
 }
 

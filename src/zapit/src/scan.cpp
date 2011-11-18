@@ -562,6 +562,9 @@ bool CServiceScan::ScanProviders()
 		g_bouquetManager->loadBouquets();
 		printf("[scan] save bouquets done\n");
 		Cleanup(true);
+#if 1
+		myZapitClient.reloadCurrentServices();
+#else
 		/* this can hang as the thread handling the connections
 		 * could already be in g_Zapit->stopScan(), waiting for
 		 * *this* thread to join().
@@ -572,6 +575,7 @@ bool CServiceScan::ScanProviders()
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
+#endif
 	} else {
 		Cleanup(false);
 		CFrontend::getInstance()->setTsidOnid(0);
@@ -634,6 +638,9 @@ bool CServiceScan::ScanTransponder()
 		//g_bouquetManager->clearAll();
 		g_bouquetManager->loadBouquets();
 		Cleanup(true);
+#if 1
+		myZapitClient.reloadCurrentServices();
+#else
 		/* see the explanation in CServiceScan::ScanProviders() in why this is a bad idea
 		myZapitClient.reloadCurrentServices();
 		 */
@@ -641,6 +648,7 @@ bool CServiceScan::ScanTransponder()
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
+#endif
 	} else {
 		Cleanup(false);
 		CFrontend::getInstance()->setTsidOnid(0);
