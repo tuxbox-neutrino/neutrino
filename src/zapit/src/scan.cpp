@@ -491,7 +491,7 @@ bool CServiceScan::ScanProviders()
 	scan_nit = (mode & 0xFF) == 0; // NIT (0) or fast (1)
 	int scan_sat_mode = mode & 0xFF00; // single = 0, all = 1
 
-	printf("[zapit] scan mode %s, satellites %s\n", scan_nit ? "fast" : "NIT", scan_sat_mode ? "all" : "single");
+	printf("[zapit] scan mode %s, satellites %s\n", scan_nit ? "NIT" : "fast", scan_sat_mode ? "all" : "single");
 	// CZapitClient myZapitClient;
 
 	/* get first child */
