@@ -856,11 +856,12 @@ void CTimerList::paintHead()
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+icol_w+15, y+theight+0, width - 45,
 			g_Locale->getText(LOCALE_TIMERLIST_NAME), COL_MENUHEAD, 0, true); // UTF-8
 
-	frameBuffer->getIconSize(NEUTRINO_ICON_TIMER, &icol_w, &icol_h);
-	
 	//don't show info button on empty timerlist
 	if (!timerlist.empty())
+	{
+		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_INFO, &icol_w, &icol_h);
 		frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_INFO, x + width - icol_w - 10, y, theight);
+	}
 }
 
 const struct button_label TimerListButtons[4] =
