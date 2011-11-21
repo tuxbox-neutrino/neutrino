@@ -510,6 +510,23 @@ bool CPictureViewer::DisplayLogo (uint64_t channel_id, int posx, int posy, int w
 	return ret;
 }
 
+void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int max_width, const int max_height, bool upscale)
+{
+	float aspect;
+
+	if ((!upscale) && (*width <= max_width) && (*height <= max_height))
+		return;
+
+	aspect = (float)(*width) / (float)(*height);
+	if (((float)(*width) / (float)max_width) > ((float)(*height) / (float)max_height)) {
+		*width = max_width;
+		*height = (int)(max_width / aspect);
+	}else{
+		*height = max_height;
+		*width = (int)(max_height * aspect);
+	}
+}
+
 bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy, int width, int height)
 {
 	/* TODO: cache or check for same */

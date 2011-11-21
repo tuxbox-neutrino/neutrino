@@ -1204,24 +1204,20 @@ void CMovieBrowser::refreshMovieInfo(void)
 		m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-picw-20: 0);
 		static int logo_w = 0;
 		static int logo_h = 0;
+		int logo_w_max = m_cBoxFrameTitleRel.iWidth / 4;
 
 //printf("refreshMovieInfo: EpgId %llx id %llx y %d\n", m_movieSelectionHandler->epgEpgId, m_movieSelectionHandler->epgId, m_cBoxFrameTitleRel.iY);
 		int lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
 		int ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
 		const short pb_hdd_offset = 104;
 		m_pcWindow->paintBoxRel(lx - pb_hdd_offset , ly, logo_w, logo_h, TITLE_BACKGROUND_COLOR);
-        	//g_PicViewer->DisplayLogo(m_movieSelectionHandler->epgEpgId >>16, lx, ly, PIC_W, PIC_H);
         	std::string lname;
 		if(g_PicViewer->GetLogoName(m_movieSelectionHandler->epgEpgId >>16, m_movieSelectionHandler->epgChannel, lname, &logo_w, &logo_h)){
-			if(logo_h > m_cBoxFrameTitleRel.iHeight){
-				if((m_cBoxFrameTitleRel.iHeight/(logo_h-m_cBoxFrameTitleRel.iHeight))>1){
-					logo_w -= (logo_w/(m_cBoxFrameTitleRel.iHeight/(logo_h-m_cBoxFrameTitleRel.iHeight)));
-				}
-				logo_h = m_cBoxFrameTitleRel.iHeight;
-			}
-			  lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
-			  ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
-			  g_PicViewer->DisplayImage(lname, lx - pb_hdd_offset, ly, logo_w, logo_h);
+			if((logo_h > m_cBoxFrameTitleRel.iHeight) || (logo_w > logo_w_max))
+				g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, m_cBoxFrameTitleRel.iHeight);
+			lx = m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+m_cBoxFrameTitleRel.iWidth-logo_w-10;
+			ly = m_cBoxFrameTitleRel.iY+m_cBoxFrame.iY+ (m_cBoxFrameTitleRel.iHeight-logo_h)/2;
+			g_PicViewer->DisplayImage(lname, lx - pb_hdd_offset, ly, logo_w, logo_h);
 		}
 		if(logo_ok) {
 #if 0
@@ -1229,13 +1225,17 @@ void CMovieBrowser::refreshMovieInfo(void)
 			ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-pich)/2;
 			g_PicViewer->DisplayImage(fname, lx, ly, picw, pich);
 #endif
-			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - picw -10;
-			ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-pich)/2;
-			m_pcWindow->paintVLineRel(lx, ly, pich, COL_WHITE);
-			m_pcWindow->paintVLineRel(lx+picw, ly, pich, COL_WHITE);
-			m_pcWindow->paintHLineRel(lx, picw, ly, COL_WHITE);
-			m_pcWindow->paintHLineRel(lx, picw, ly+pich, COL_WHITE);
-			g_PicViewer->DisplayImage(fname, lx+3, ly+3, picw-3, pich-3);
+
+			int flogo_w = 0, flogo_h = 0;
+			g_PicViewer->getSize(fname.c_str(), &flogo_w, &flogo_h);
+			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw, pich);
+			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -10;
+			ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
+			m_pcWindow->paintVLineRel(lx, ly, flogo_h, COL_WHITE);
+			m_pcWindow->paintVLineRel(lx+flogo_w, ly, flogo_h, COL_WHITE);
+			m_pcWindow->paintHLineRel(lx, flogo_w, ly, COL_WHITE);
+			m_pcWindow->paintHLineRel(lx, flogo_w, ly+flogo_h, COL_WHITE);
+			g_PicViewer->DisplayImage(fname, lx+3, ly+3, flogo_w-3, flogo_h-3);
 		}
 	}
 }

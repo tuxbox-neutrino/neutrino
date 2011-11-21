@@ -70,6 +70,7 @@ class CPictureViewer
 	void getSize(const char *name, int* width, int *height);
 	unsigned char * Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst = NULL);
 	unsigned char * ResizeA(unsigned char *orgin, int ox, int oy, int dx, int dy);
+	void rescaleImageDimensions(int *width, int *height, const int max_width, const int max_height, bool upscale=false);
 
  private:
 	CFormathandler *fh_root;

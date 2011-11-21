@@ -2050,31 +2050,6 @@ void CInfoViewer::Set_CA_Status (int /*Status*/)
 		showIcon_CA_Status (1);
 }
 
-/* resize the logo, preserving the aspect ratio */
-static void resize_logo(int *w, int *h, const int width, const int height)
-{
-	//fprintf(stderr, "resize_logo(%d, %d, %d, %d)\n", *w, *h, width, height);
-	float aspect;
-
-	if (*w <= width && *h <= height) // should we also increase the size? Not yet.
-		return;
-
-	/* i hate floats ... :) */
-	aspect = (float)(*w) / (float)(*h);
-
-	if (((float)(*w) / (float)width) > ((float)(*h) / (float)height))
-	{
-		*w = width;
-		*h = (int)(width / aspect);
-	}
-	else
-	{
-		*h = height;
-		*w = (int)(height * aspect);
-	}
-	//fprintf(stderr, "resize_logo(%d, %d, %d, %d) aspect: %f\n", *w, *h, width, height, aspect);
-}
-
 /******************************************************************************
 returns mode of painted channel logo,
 0 = no logo painted
@@ -2118,7 +2093,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 		int x_mid = BoxStartX + ChanWidth / 2;
 		y_mid = BoxStartY + (satNameHeight + ChanHeight) / 2;
 
-		resize_logo(&logo_w, &logo_h, ChanWidth, ChanHeight - satNameHeight);
+		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, ChanWidth, ChanHeight - satNameHeight);
 		// channel name with number
 // this is too ugly...		ChannelName = (std::string)strChanNum + ". " + ChannelName;
 		// get position of channel logo, must be centered in number box
@@ -2129,7 +2104,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	else if (g_settings.infobar_show_channellogo == 2 || g_settings.infobar_show_channellogo == 5 || g_settings.infobar_show_channellogo == 6) // paint logo in place of channel name
 	{
 		// check logo dimensions
-		resize_logo(&logo_w, &logo_h, chan_w, time_height);
+		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, chan_w, time_height);
 		// hide channel name
 // this is too ugly...		ChannelName = "";
 		// calculate logo position
@@ -2145,7 +2120,7 @@ int CInfoViewer::showChannelLogo(const t_channel_id logo_channel_id, const int c
 	{
 		// check logo dimensions
 		int Logo_max_width = chan_w - logo_w - 10;
-		resize_logo(&logo_w, &logo_h, Logo_max_width, time_height);
+		g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, Logo_max_width, time_height);
 		// calculate logo position
 		y_mid = ChanNameY + time_height / 2;
 		logo_x = start_x + 10;
