@@ -693,5 +693,6 @@ int COsdSetup::showContextChanlistMenu()
 	int res = menu_chanlist->exec(NULL, "");
 	menu_chanlist->hide();
 	cselected = menu_chanlist->getSelected();
+	delete menu_chanlist;
 	return res;
 }
