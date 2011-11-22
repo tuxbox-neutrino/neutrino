@@ -77,9 +77,9 @@ int CVfdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;;
 	}
 
-	showSetup();
+	int res = showSetup();
 	
-	return menu_return::RETURN_REPAINT;	
+	return res;	
 }
 
 #define LCDMENU_STATUSLINE_OPTION_COUNT 2
@@ -106,7 +106,7 @@ const CMenuOptionChooser::keyval LCD_INFO_OPTIONS[LCD_INFO_OPTION_COUNT] =
 	{ 1, LOCALE_LCD_INFO_LINE_CLOCK }
 };
 
-void CVfdSetup::showSetup()
+int CVfdSetup::showSetup()
 {
 	CMenuWidget *vfds = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_LCD, width);
 	vfds->addIntroItems(LOCALE_LCDMENU_HEAD);
@@ -155,10 +155,11 @@ void CVfdSetup::showSetup()
 	vfds->addItem(oj);
 	vfds->addItem(lcd_clock_channelname_menu);
 	
-	vfds->exec(NULL, "");
+	int res = vfds->exec(NULL, "");
 	vfds->hide();
 	selected = vfds->getSelected();
 	delete vfds;
+	return res;
 }
 bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data */)
 {

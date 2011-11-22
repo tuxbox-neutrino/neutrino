@@ -40,7 +40,7 @@
 	private:
 		int width, selected;
 
-		void showSetup();
+		int showSetup();
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
 		int brightness;
 		int brightnessstandby;
