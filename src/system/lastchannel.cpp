@@ -58,8 +58,7 @@ void CLastChannel::store (int channel, t_channel_id channel_id, bool /* forceSto
 		this->lastChannels.pop_front();
 
 	/* push new channel to the head */
-	_LastCh newChannel = {channel, channel_id, tv.tv_sec};
-	newChannel.channel_mode = CNeutrinoApp::getInstance()->GetChannelMode();
+	_LastCh newChannel = {channel, channel_id, tv.tv_sec, CNeutrinoApp::getInstance()->GetChannelMode()};
 
 	this->lastChannels.push_front(newChannel);
 
