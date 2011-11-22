@@ -74,7 +74,7 @@ int CAudioSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 		parent->hide();
 	}
 
-	showAudioSetup();
+	res = showAudioSetup();
 	
 	return res;
 }
@@ -111,7 +111,7 @@ const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTIO
 // };
 
 /* audio settings menu */
-void CAudioSetup::showAudioSetup()
+int CAudioSetup::showAudioSetup()
 {
 	//menue init
 	CMenuWidget* audioSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
@@ -182,10 +182,11 @@ void CAudioSetup::showAudioSetup()
 	audioSettings->addItem(mf);
 #endif
 	
-	audioSettings->exec(NULL, "");
+	int res = audioSettings->exec(NULL, "");
 	audioSettings->hide();
 	selected = audioSettings->getSelected();
 	delete audioSettings;
+	return res;
 }
 
 //sets menu mode to "wizard" or "default"

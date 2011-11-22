@@ -41,7 +41,7 @@ class CAudioSetup : public CMenuTarget
 		int width, selected;
 		bool is_wizard;
 		
-		void showAudioSetup();
+		int showAudioSetup();
 
 	public:	
 		enum AUDIO_SETUP_MODE
