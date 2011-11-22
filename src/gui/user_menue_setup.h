@@ -44,7 +44,7 @@
 		int button;
 		neutrino_locale_t local;
 
-		void showSetup();
+		int showSetup();
 
 	public:
 		CUserMenuSetup(neutrino_locale_t menue_title, int menue_button);

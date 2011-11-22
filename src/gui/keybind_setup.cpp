@@ -101,7 +101,7 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 
-	showKeySetup();
+	res = showKeySetup();
 	
 	return res;
 }
@@ -163,7 +163,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 };
 
 
-void CKeybindSetup::showKeySetup()
+int CKeybindSetup::showKeySetup()
 {
 	//keysetup menu
 	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width);
@@ -199,10 +199,11 @@ void CKeybindSetup::showKeySetup()
 	keySettings->addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_YELLOW, true, NULL, new CUserMenuSetup(LOCALE_USERMENU_BUTTON_YELLOW,2), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	keySettings->addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_BLUE, true, NULL, new CUserMenuSetup(LOCALE_USERMENU_BUTTON_BLUE,3), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	
-	keySettings->exec(NULL, "");
+	int res = keySettings->exec(NULL, "");
 	keySettings->hide();
 	selected = keySettings->getSelected();
 	delete keySettings;
+	return res;
 }
 
 

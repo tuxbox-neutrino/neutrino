@@ -93,7 +93,7 @@ class CKeybindSetup : public CMenuTarget
 		
 		int width, selected;
 
-		void showKeySetup();
+		int showKeySetup();
 		void showKeyBindSetup(CMenuWidget *bindSettings);
 		void showKeyBindModeSetup(CMenuWidget *bindSettings_modes);
 		void showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist);

@@ -91,12 +91,10 @@ int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)
 	if(parent != NULL)
 		parent->hide();
 
-	showSetup();
-	
-	return menu_return::RETURN_REPAINT;	
+	return showSetup();
 }
 
-void CUserMenuSetup::showSetup()
+int CUserMenuSetup::showSetup()
 {
 	CMenuWidget * ums = new CMenuWidget(local, NEUTRINO_ICON_KEYBINDING, width);
 
@@ -120,9 +118,9 @@ void CUserMenuSetup::showSetup()
 		ums->addItem( new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, USERMENU_ITEM_OPTION_COUNT,true ));
 	}
 
-	ums->exec(NULL, "");
+	int res = ums->exec(NULL, "");
 	ums->hide();
 	delete ums;
-
+	return res;
 }
 
