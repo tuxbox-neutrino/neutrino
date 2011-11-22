@@ -46,6 +46,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
 		CRadiotextNotifier *radiotextNotifier;
+		CMenuWidget *osd_menu;
 		int tmp_virtual_zap_mode;
 
 		int width, selected;
