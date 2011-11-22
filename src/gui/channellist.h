@@ -148,6 +148,7 @@ public:
 	void SortTP(void);
 	void ClearList(void);
 	bool SameTP(t_channel_id channel_id = 0);
+	CLastChannel & getLastChannels() { return lastChList; }
 	//friend class CZapitChannel;
 };
 #endif

@@ -18,6 +18,8 @@ nicht gespeichert werden.
 #include <sys/time.h>
 #include <unistd.h>
 
+#include <global.h>
+#include <neutrino.h>
 #include "lastchannel.h"
 
 CLastChannel::CLastChannel (void)
@@ -57,6 +59,8 @@ void CLastChannel::store (int channel, t_channel_id channel_id, bool /* forceSto
 
 	/* push new channel to the head */
 	_LastCh newChannel = {channel, channel_id, tv.tv_sec};
+	newChannel.channel_mode = CNeutrinoApp::getInstance()->GetChannelMode();
+
 	this->lastChannels.push_front(newChannel);
 
 	/* this zap time was more than treshhold, it will stay, remove last in the list */
@@ -124,4 +128,28 @@ int CLastChannel::get_store_difftime (void) const
 
 {
 	return    secs_diff_before_store;
+}
+
+int CLastChannel::get_mode(t_channel_id channel_id)
+{
+	std::list<_LastCh>::iterator It;
+
+	for (It = this->lastChannels.begin(); It != this->lastChannels.end() ; ++It) {
+		if (channel_id == It->channel_id)
+			return It->channel_mode;
+	}
+	return -1;
+}
+
+bool CLastChannel::set_mode(t_channel_id channel_id)
+{
+	std::list<_LastCh>::iterator It;
+
+	for (It = this->lastChannels.begin(); It != this->lastChannels.end() ; ++It) {
+		if (channel_id == It->channel_id) {
+			It->channel_mode = CNeutrinoApp::getInstance()->GetChannelMode();
+			return true;
+		}
+	}
+	return false;
 }

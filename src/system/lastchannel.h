@@ -35,6 +35,7 @@ class CLastChannel
 			int             channel;
 			t_channel_id channel_id;
 			unsigned long   timestamp;
+			int channel_mode;
 		};
 
 		std::list<_LastCh> lastChannels;
@@ -52,6 +53,8 @@ class CLastChannel
 		void clear_storedelay (void);
 		void set_store_difftime (int secs);
 		int  get_store_difftime (void) const;
+		int get_mode(t_channel_id channel_id);
+		bool set_mode(t_channel_id channel_id);
 };
 
 

@@ -442,6 +442,11 @@ int CChannelList::exec()
 	int nNewChannel = show();
 	if ( nNewChannel > -1) {
 #if 1
+		if(this->historyMode && chanlist[nNewChannel]) {
+			int new_mode = CNeutrinoApp::getInstance ()->channelList->getLastChannels().get_mode(chanlist[nNewChannel]->channel_id);
+			if(new_mode >= 0)
+				CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
+		}
 		CNeutrinoApp::getInstance ()->channelList->zapTo(getKey(nNewChannel)-1);
 #else
 		CNeutrinoApp::getInstance ()->channelList->NewZap(chanlist[nNewChannel]->channel_id);
@@ -1181,6 +1186,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 		}
 
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
+		CNeutrinoApp::getInstance ()->channelList->getLastChannels().set_mode(chan->channel_id);
 	}
 }
 
@@ -1224,6 +1230,9 @@ int CChannelList::numericZap(int key)
 		t_channel_id channel_id = lastChList.getlast(1);
 		if(channel_id && SameTP(channel_id)) {
 			lastChList.clear_storedelay (); // ignore store delay
+			int new_mode = lastChList.get_mode(channel_id);
+			if(new_mode >= 0)
+				CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
 			zapTo_ChannelID(channel_id);
 			res = 0;
 		}
