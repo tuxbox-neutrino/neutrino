@@ -44,7 +44,7 @@ class CProxySetup : public CMenuTarget
 		neutrino_locale_t menue_title;
 		std::string menue_icon;
 
-		void showProxySetup();
+		int showProxySetup();
 
 	public:	
 		CProxySetup(const neutrino_locale_t title = LOCALE_FLASHUPDATE_PROXYSERVER_SEP, const char * const IconName = NEUTRINO_ICON_SETTINGS);

@@ -66,14 +66,13 @@ int CProxySetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 		parent->hide();
 	}
 
-	showProxySetup();
-
+	res = showProxySetup();
 	
 	return res;
 }
 
 /* shows entries for proxy settings */
-void CProxySetup::showProxySetup()
+int CProxySetup::showProxySetup()
 {
 	//init
 	CMenuWidget * mn = new CMenuWidget(menue_title, menue_icon, width);
@@ -90,8 +89,9 @@ void CProxySetup::showProxySetup()
 	CStringInputSMS * softUpdate_proxypass = new CStringInputSMS(LOCALE_FLASHUPDATE_PROXYPASSWORD, g_settings.softupdate_proxypassword, 20, LOCALE_FLASHUPDATE_PROXYPASSWORD_HINT1, LOCALE_FLASHUPDATE_PROXYPASSWORD_HINT2, "abcdefghijklmnopqrstuvwxyz0123456789!""§$%&/()=?-. ");
 	mn->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYPASSWORD, true, g_settings.softupdate_proxypassword, softUpdate_proxypass, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
-	mn->exec(NULL, "");
+	int res = mn->exec(NULL, "");
 	mn->hide();
 	delete mn;
+	return res;
 }
 

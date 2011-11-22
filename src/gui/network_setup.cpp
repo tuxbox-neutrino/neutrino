@@ -121,7 +121,7 @@ int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	printf("[neutrino] init network setup...\n");
-	showNetworkSetup();
+	res = showNetworkSetup();
 	
 	return res;
 }
@@ -175,7 +175,7 @@ static int my_filter(const struct dirent * dent)
 	return 1;
 }
 
-void CNetworkSetup::showNetworkSetup()
+int CNetworkSetup::showNetworkSetup()
 {
 	struct dirent **namelist;
 
@@ -308,9 +308,10 @@ void CNetworkSetup::showNetworkSetup()
 	//proxyserver submenu
 	networkSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, new CProxySetup(LOCALE_MAINSETTINGS_NETWORK), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0));
 
+	int ret = 0;
 	while(true) {
 		int res = menu_return::RETURN_EXIT; 
-		networkSettings->exec(NULL, "");
+		ret = networkSettings->exec(NULL, "");
 		networkSettings->hide();
 
 		if (settingsChanged())
@@ -320,6 +321,7 @@ void CNetworkSetup::showNetworkSetup()
 	}
 	selected = networkSettings->getSelected();
 	delete networkSettings;
+	return ret;
 }
 
 void CNetworkSetup::showNetworkNTPSetup(CMenuWidget *menu_ntp)

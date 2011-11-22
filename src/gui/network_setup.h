@@ -82,7 +82,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 		void prepareSettings();
 		void readNetworkSettings();
 		void backupNetworkSettings();
-		void showNetworkSetup();
+		int showNetworkSetup();
 		void showNetworkNTPSetup(CMenuWidget *menu_ntp);
 		void showNetworkNFSMounts(CMenuWidget *menu_nfs);
 		int saveChangesDialog();
