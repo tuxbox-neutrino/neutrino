@@ -296,12 +296,13 @@ public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
 
+#if 0
 class CScreenPresetNotifier : public CChangeObserver
 {
 public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
-
+#endif
 class CAllUsalsNotifier : public CChangeObserver
 {
 public:

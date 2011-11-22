@@ -423,8 +423,9 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, osd_menu_chanlist, NULL, CRCInput::RC_2));
 
 	//monitor
- 	CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
-	osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify));
+ 	//CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
+	//osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify));
+	osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this));
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 	//options
@@ -635,11 +636,22 @@ void COsdSetup::showOsdChanlistSetup(CMenuWidget *menu_chanlist)
 	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
 }
 
-bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
+bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 {
 	if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_CONTRAST_FONTS))
 		return true;
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_POS)) {
+		osd_menu->hide();
+		return true;
+	}
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_PRESET)) {
+		int preset = * (int *) data;
+		printf("preset %d (setting %d)\n", preset, g_settings.screen_preset);
+
+		g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
+		g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
+		g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
+		g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
 		osd_menu->hide();
 		return true;
 	}

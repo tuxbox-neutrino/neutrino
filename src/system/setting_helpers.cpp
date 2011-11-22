@@ -1060,6 +1060,7 @@ extern cCpuFreqManager * cpuFreq;
 	return true;
 }
 
+#if 0
 bool CScreenPresetNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
 {
 	int preset = * (int *) data;
@@ -1072,7 +1073,7 @@ printf("CScreenPresetNotifier::changeNotify preset %d (setting %d)\n", preset, g
 	CFrameBuffer::getInstance()->Clear();
 	return true;
 }
-
+#endif
 bool CAllUsalsNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
 {
 	int onoff = * (int *) data;
