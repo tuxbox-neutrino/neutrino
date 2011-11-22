@@ -742,7 +742,10 @@ void CMenuWidget::paint()
 	
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
 
-	height = wanted_height;
+	/* FIXME why wanted_height needed ? in ::exec it set to height,
+	 * here height set to wanted_height ?? */
+	//height = wanted_height;
+	height = frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
 	width = min_width;
 
 	int wi, hi;
