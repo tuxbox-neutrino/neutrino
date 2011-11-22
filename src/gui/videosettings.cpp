@@ -89,8 +89,7 @@ int CVideoSettings::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 		parent->hide();
 	}
 
-	showVideoSetup();
-
+	res = showVideoSetup();
 	
 	return res;
 }
@@ -178,7 +177,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_DBDR_OPTIONS[VIDEOMENU_DBDR_OPTION_CO
 	{ 2, LOCALE_VIDEOMENU_DBDR_BOTH }
 };
 
-void CVideoSettings::showVideoSetup()
+int CVideoSettings::showVideoSetup()
 {
 	//init
 	CMenuWidget * videosetup = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
@@ -243,10 +242,11 @@ void CVideoSettings::showVideoSetup()
 	videosetup->addItem(vs_dbdropt_ch);	  //dbdr options
 	videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
 
- 	videosetup->exec(NULL, "");
+ 	int res = videosetup->exec(NULL, "");
  	videosetup->hide();
 	selected = videosetup->getSelected();
  	delete videosetup;
+	return res;
 }
 
 

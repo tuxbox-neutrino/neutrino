@@ -48,7 +48,7 @@ class CVideoSettings : public CMenuWidget, CChangeObserver
 		bool is_wizard;
 		
 		int width, selected;
-		void showVideoSetup();
+		int showVideoSetup();
 
 public:
 		enum VIDEO_SETUP_MODE
