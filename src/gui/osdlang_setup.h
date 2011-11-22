@@ -55,7 +55,7 @@ class COsdLangSetup : public CMenuTarget, CChangeObserver
 
 		bool is_wizard;
 		
-		void showLocalSetup();
+		int showLocalSetup();
 		void showLanguageSetup(CMenuWidget *osdl_setup);
 		void showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *langNotifier);
 		
@@ -75,9 +75,5 @@ class COsdLangSetup : public CMenuTarget, CChangeObserver
 		~COsdLangSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
-
-
-
-
 
 #endif

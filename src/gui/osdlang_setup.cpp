@@ -71,13 +71,13 @@ int COsdLangSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	if(parent != NULL)
 		parent->hide();
 
-	showLocalSetup();
+	int res = showLocalSetup();
 	
-	return menu_return::RETURN_REPAINT;	
+	return res;	
 }
 
 //show international settings menu
-void COsdLangSetup::showLocalSetup()
+int COsdLangSetup::showLocalSetup()
 {
 	//main local setup
 	CMenuWidget *localSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_LANGUAGE, width);
@@ -105,10 +105,11 @@ void COsdLangSetup::showLocalSetup()
 	localSettings->addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 	
-	localSettings->exec(NULL, "");
+	int res = localSettings->exec(NULL, "");
 	localSettings->hide();
 	selected = localSettings->getSelected();
 	delete localSettings;
+	return res;
 }
 
 
@@ -263,7 +264,3 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 	
 	return true;
 }
-
-
-
-
