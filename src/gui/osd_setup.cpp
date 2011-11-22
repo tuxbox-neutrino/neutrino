@@ -642,3 +642,41 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/
 	}
 	return false;
 }
+
+int COsdSetup::showContextChanlistMenu()
+{
+	static int cselected = -1;
+
+	CMenuWidget * menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	menu_chanlist->setSelected(cselected);
+
+	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
+
+	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_EPGTEXT_ALIGN, &g_settings.channellist_epgtext_align_right, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS, CHANNELLIST_EPGTEXT_ALIGN_RIGHT_OPTIONS_COUNT, true));
+	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_EXTENDED, &g_settings.channellist_extended, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_FOOT, &g_settings.channellist_foot, CHANNELLIST_FOOT_OPTIONS, CHANNELLIST_FOOT_OPTIONS_COUNT, true));
+	menu_chanlist->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_CHANNELLIST_COLORED_EVENTS, &g_settings.colored_events_channellist, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
+
+	/* TODO ? problems:
+	 * 1. channel list not re-calc sizes after menu; 
+	 * 2. font menu smaller and make hole in channel list */
+#if 0
+	CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
+
+	int i = 1;
+	fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname);
+
+	for (unsigned int j = 0; j < font_sizes_groups[i].count; j++)
+	{
+		AddFontSettingItem(*fontSettingsSubMenu, font_sizes_groups[i].content[j]);
+	}
+	fontSettingsSubMenu->addItem(GenericMenuSeparatorLine);
+	fontSettingsSubMenu->addItem(new CMenuForwarder(LOCALE_OPTIONS_DEFAULT, true, NULL, this, font_sizes_groups[i].actionkey));
+	menu_chanlist->addItem(new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, fontSettingsSubMenu, "", CRCInput::convertDigitToKey(0)));
+#endif
+
+	int res = menu_chanlist->exec(NULL, "");
+	menu_chanlist->hide();
+	cselected = menu_chanlist->getSelected();
+	return res;
+}

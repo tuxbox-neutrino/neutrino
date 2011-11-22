@@ -52,6 +52,7 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/progressbar.h>
+#include <gui/osd_setup.h>
 
 #include <system/settings.h>
 #include <system/lastchannel.h>
@@ -345,6 +346,8 @@ int CChannelList::doChannelMenu(void)
 	menu->addItem(new CMenuForwarder(LOCALE_EXTRA_ADD_TO_BOUQUET, true, NULL, selector, cnt, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i++);
+	snprintf(cnt, sizeof(cnt), "%d", i);
+	menu->addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, selector, cnt, CRCInput::convertDigitToKey(0)), old_selected == i++);
 	menu->exec(NULL, "");
 	delete menu;
 	delete selector;
@@ -428,6 +431,12 @@ int CChannelList::doChannelMenu(void)
 				return 1;
 			}
 
+			break;
+		case 4: // settings
+			{
+				COsdSetup osd_setup;
+				osd_setup.showContextChanlistMenu();
+			}
 			break;
 		default:
 			break;
