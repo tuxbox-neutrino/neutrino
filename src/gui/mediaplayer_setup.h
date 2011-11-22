@@ -42,7 +42,7 @@ class CMediaPlayerSetup : public CMenuTarget
 	private:
 		int width, selected;
 
-		void showMediaPlayerSetup();
+		int showMediaPlayerSetup();
 
 
 	public:	

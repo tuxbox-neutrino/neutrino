@@ -82,7 +82,7 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
-	showAudioPlayerSetup();
+	res = showAudioPlayerSetup();
 	
 	return res;
 }
@@ -97,7 +97,7 @@ const CMenuOptionChooser::keyval AUDIOPLAYER_DISPLAY_ORDER_OPTIONS[AUDIOPLAYER_D
 
 
 /*shows the audio setup menue*/
-void CAudioPlayerSetup::showAudioPlayerSetup()
+int CAudioPlayerSetup::showAudioPlayerSetup()
 {
 	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	audioplayerSetup->setSelected(selected);
@@ -120,8 +120,9 @@ void CAudioPlayerSetup::showAudioPlayerSetup()
 	audioplayerSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_DEFDIR, true, g_settings.network_nfs_audioplayerdir, this, "audioplayerdir"));
 	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true ));
 
-	audioplayerSetup->exec (NULL, "");
+	int res = audioplayerSetup->exec (NULL, "");
 	audioplayerSetup->hide ();
 	selected = audioplayerSetup->getSelected();
 	delete audioplayerSetup;
+	return res;
 }

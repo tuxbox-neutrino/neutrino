@@ -74,13 +74,13 @@ int CMediaPlayerSetup::exec(CMenuTarget* parent, const std::string & /*actionKey
 		parent->hide();
 
 
-	showMediaPlayerSetup();
+	res = showMediaPlayerSetup();
 	
 	return res;
 }
 
 /*shows media setup menue entries*/
-void CMediaPlayerSetup::showMediaPlayerSetup()
+int CMediaPlayerSetup::showMediaPlayerSetup()
 {
 
 	CMenuWidget* mediaSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
@@ -92,9 +92,9 @@ void CMediaPlayerSetup::showMediaPlayerSetup()
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, new CPictureViewerSetup(), "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, new CAudioPlayerSetup(), "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
-	mediaSetup->exec (NULL, "");
+	int res = mediaSetup->exec (NULL, "");
 	mediaSetup->hide ();
 	selected = mediaSetup->getSelected();
 	delete mediaSetup;
-
+	return res;
 }

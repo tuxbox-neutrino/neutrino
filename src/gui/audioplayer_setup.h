@@ -41,7 +41,7 @@ class CAudioPlayerSetup : public CMenuTarget
 	private:
 		int width, selected;
 
-		void showAudioPlayerSetup();
+		int showAudioPlayerSetup();
 
 
 	public:	

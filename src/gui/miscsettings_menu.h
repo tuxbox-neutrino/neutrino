@@ -42,7 +42,7 @@ class CMiscMenue : public CMenuTarget
 		CFanControlNotifier *fanNotifier;
 		int width, selected;
 
-		void showMiscSettingsMenu();
+		int showMiscSettingsMenu();
 		void showMiscSettingsMenuGeneral(CMenuWidget *ms_general);
 		void showMiscSettingsMenuEnergy(CMenuWidget *ms_energy);
 		void showMiscSettingsMenuEpg(CMenuWidget *ms_epg);

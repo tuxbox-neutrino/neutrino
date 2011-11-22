@@ -117,9 +117,7 @@ int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 #endif /*ONE_KEY_PLUGIN*/
 
-	showMiscSettingsMenu();
-	
-	return menu_return::RETURN_REPAINT;	
+	return showMiscSettingsMenu();
 }
 
 
@@ -160,7 +158,7 @@ const CMenuOptionChooser::keyval_ext CPU_FREQ_OPTIONS[CPU_FREQ_OPTION_COUNT] =
 #endif /*CPU_FREQ*/
 
 //show misc settings menue
-void CMiscMenue::showMiscSettingsMenu()
+int CMiscMenue::showMiscSettingsMenu()
 {
 	//misc settings
 	fanNotifier = new CFanControlNotifier();
@@ -212,11 +210,12 @@ void CMiscMenue::showMiscSettingsMenu()
 	misc_menue->addItem( new CMenuForwarderNonLocalized("CPU", true, NULL, misc_menue_cpu, NULL, CRCInput::RC_4));
 #endif /*CPU_FREQ*/
 
-	misc_menue->exec(NULL, "");
+	int res = misc_menue->exec(NULL, "");
 	misc_menue->hide();
 	selected = misc_menue->getSelected();
 	delete fanNotifier;
 	delete misc_menue;
+	return res;
 }
 
 //general settings

@@ -43,7 +43,7 @@ class CPictureViewerSetup : public CMenuTarget
 	private:
 		int width, selected;
 
-		void showPictureViewerSetup();
+		int showPictureViewerSetup();
 
 
 	public:	

@@ -81,7 +81,7 @@ int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
-	showPictureViewerSetup();
+	res = showPictureViewerSetup();
 	
 	return res;
 }
@@ -97,7 +97,7 @@ const CMenuOptionChooser::keyval PICTUREVIEWER_SCALING_OPTIONS[PICTUREVIEWER_SCA
 
 
 /*shows the picviewer setup menue*/
-void CPictureViewerSetup::showPictureViewerSetup()
+int CPictureViewerSetup::showPictureViewerSetup()
 {
 
 	CMenuWidget* picviewsetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
@@ -111,8 +111,9 @@ void CPictureViewerSetup::showPictureViewerSetup()
 	picviewsetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_SLIDE_TIME, true, g_settings.picviewer_slide_time, pic_timeout));
 	picviewsetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_DEFDIR, true, g_settings.network_nfs_picturedir, this, "picturedir"));
 	
-	picviewsetup->exec(NULL, "");
+	int res = picviewsetup->exec(NULL, "");
 	picviewsetup->hide();
 	selected = picviewsetup->getSelected();
 	delete picviewsetup;
+	return res;
 }
