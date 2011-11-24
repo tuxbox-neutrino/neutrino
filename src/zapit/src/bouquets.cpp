@@ -331,7 +331,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 		int16_t satellitePosition;
 		freq_id_t freq = 0;
 
-		INFO("reading bouquets");
+		INFO("reading bouquets from %s", fname);
 
 		while ((search = xmlGetNextOccurence(search, "Bouquet")) != NULL) {
 			char * name = xmlGetAttribute(search, "name");
@@ -375,7 +375,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				newBouquet->sortBouquet();
 			search = search->xmlNextNode;
 		}
-		INFO("found %d bouquets", Bouquets.size());
+		INFO("total: %d bouquets", Bouquets.size());
 	}
 	xmlFreeDoc(parser);
 }
