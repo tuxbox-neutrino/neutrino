@@ -407,6 +407,20 @@ int CBouquetList::show(bool bShowChannelList)
 				return -3;
 			}
 		}
+		else if(msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
+			if(bShowChannelList) {
+				int mode = CNeutrinoApp::getInstance()->GetChannelMode();
+				mode += (msg == CRCInput::RC_left) ? -1 : 1;
+				if(mode < 0)
+					mode = LIST_MODE_LAST - 1;
+				else if(mode >= LIST_MODE_LAST)
+					mode = 0;
+				CNeutrinoApp::getInstance()->SetChannelMode(mode);
+				hide();
+				return -3;
+			}
+
+		}
 		else if(Bouquets.size() == 0)
 			continue; //FIXME msgs not forwarded to neutrino !!
 		else if ( msg == CRCInput::RC_setup) {
