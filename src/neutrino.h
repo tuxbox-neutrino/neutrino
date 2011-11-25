@@ -170,7 +170,6 @@ private:
 public:
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
-	void loadColors(const char * fname = NULL);
 	void loadKeys(const char * fname = NULL);
 	void saveKeys(const char * fname = NULL);
 	void SetupTiming();

@@ -3693,18 +3693,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			exit(1);
 		}
 	}
-#if 0 // to remove
-	else if(strncmp(actionKey.c_str(), "fontsize.d", 10) == 0) {
-		for (int i = 0; i < 6; i++) {
-			if (actionKey == font_sizes_groups[i].actionkey)
-				for (unsigned int j = 0; j < font_sizes_groups[i].count; j++) {
-					SNeutrinoSettings::FONT_TYPES k = font_sizes_groups[i].content[j];
-					configfile.setInt32(locale_real_names[neutrino_font[k].name], neutrino_font[k].defaultsize);
-				}
-		}
-		fontsizenotifier.changeNotify(NONEXISTANT_LOCALE, NULL);
-	}
-#endif
 	else if(actionKey == "moviedir") {
 		parent->hide();
 
@@ -3731,18 +3719,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 
 		MoviePluginSelector.exec(NULL, "");
-		return menu_return::RETURN_REPAINT;
-	}
-	else if(actionKey == "loadcolors") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		CFileFilter fileFilter;
-		fileFilter.addFilter("conf");
-		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/var/tuxbox/config") == true) {
-			loadColors(fileBrowser.getSelectedFile()->Name.c_str());
-			//printf("[neutrino] new colors: %s\n", fileBrowser.getSelectedFile()->Name.c_str());
-		}
 		return menu_return::RETURN_REPAINT;
 	}
 #if 0 // commented in menu, needed ?
@@ -3858,82 +3834,6 @@ int main(int argc, char **argv)
 	initGlobals();
 
 	return CNeutrinoApp::getInstance()->run(argc, argv);
-}
-
-void CNeutrinoApp::loadColors(const char * fname)
-{
-	bool res;
-	CConfigFile tconfig(',', true);
-
-	printf("CNeutrinoApp::loadColors: %s\n", fname);
-
-	res = tconfig.loadConfig(fname);
-	if(!res) return;
-	//colors (neutrino defaultcolors)
-	g_settings.menu_Head_alpha = tconfig.getInt32( "menu_Head_alpha", 0x00 );
-	g_settings.menu_Head_red = tconfig.getInt32( "menu_Head_red", 0x00 );
-	g_settings.menu_Head_green = tconfig.getInt32( "menu_Head_green", 0x0A );
-	g_settings.menu_Head_blue = tconfig.getInt32( "menu_Head_blue", 0x19 );
-
-	g_settings.menu_Head_Text_alpha = tconfig.getInt32( "menu_Head_Text_alpha", 0x00 );
-	g_settings.menu_Head_Text_red = tconfig.getInt32( "menu_Head_Text_red", 0x5f );
-	g_settings.menu_Head_Text_green = tconfig.getInt32( "menu_Head_Text_green", 0x46 );
-	g_settings.menu_Head_Text_blue = tconfig.getInt32( "menu_Head_Text_blue", 0x00 );
-
-	g_settings.menu_Content_alpha = tconfig.getInt32( "menu_Content_alpha", 0x14 );
-	g_settings.menu_Content_red = tconfig.getInt32( "menu_Content_red", 0x00 );
-	g_settings.menu_Content_green = tconfig.getInt32( "menu_Content_green", 0x0f );
-	g_settings.menu_Content_blue = tconfig.getInt32( "menu_Content_blue", 0x23 );
-
-	g_settings.menu_Content_Text_alpha = tconfig.getInt32( "menu_Content_Text_alpha", 0x00 );
-	g_settings.menu_Content_Text_red = tconfig.getInt32( "menu_Content_Text_red", 0x64 );
-	g_settings.menu_Content_Text_green = tconfig.getInt32( "menu_Content_Text_green", 0x64 );
-	g_settings.menu_Content_Text_blue = tconfig.getInt32( "menu_Content_Text_blue", 0x64 );
-
-	g_settings.menu_Content_Selected_alpha = tconfig.getInt32( "menu_Content_Selected_alpha", 0x14 );
-	g_settings.menu_Content_Selected_red = tconfig.getInt32( "menu_Content_Selected_red", 0x19 );
-	g_settings.menu_Content_Selected_green = tconfig.getInt32( "menu_Content_Selected_green", 0x37 );
-	g_settings.menu_Content_Selected_blue = tconfig.getInt32( "menu_Content_Selected_blue", 0x64 );
-
-	g_settings.menu_Content_Selected_Text_alpha = tconfig.getInt32( "menu_Content_Selected_Text_alpha", 0x00 );
-	g_settings.menu_Content_Selected_Text_red = tconfig.getInt32( "menu_Content_Selected_Text_red", 0x00 );
-	g_settings.menu_Content_Selected_Text_green = tconfig.getInt32( "menu_Content_Selected_Text_green", 0x00 );
-	g_settings.menu_Content_Selected_Text_blue = tconfig.getInt32( "menu_Content_Selected_Text_blue", 0x00 );
-
-	g_settings.menu_Content_inactive_alpha = tconfig.getInt32( "menu_Content_inactive_alpha", 0x14 );
-	g_settings.menu_Content_inactive_red = tconfig.getInt32( "menu_Content_inactive_red", 0x00 );
-	g_settings.menu_Content_inactive_green = tconfig.getInt32( "menu_Content_inactive_green", 0x0f );
-	g_settings.menu_Content_inactive_blue = tconfig.getInt32( "menu_Content_inactive_blue", 0x23 );
-
-	g_settings.menu_Content_inactive_Text_alpha = tconfig.getInt32( "menu_Content_inactive_Text_alpha", 0x00 );
-	g_settings.menu_Content_inactive_Text_red = tconfig.getInt32( "menu_Content_inactive_Text_red", 55 );
-	g_settings.menu_Content_inactive_Text_green = tconfig.getInt32( "menu_Content_inactive_Text_green", 70 );
-	g_settings.menu_Content_inactive_Text_blue = tconfig.getInt32( "menu_Content_inactive_Text_blue", 85 );
-
-	g_settings.infobar_alpha = tconfig.getInt32( "infobar_alpha", 0x14 );
-	g_settings.infobar_red = tconfig.getInt32( "infobar_red", 0x00 );
-	g_settings.infobar_green = tconfig.getInt32( "infobar_green", 0x0e );
-	g_settings.infobar_blue = tconfig.getInt32( "infobar_blue", 0x23 );
-
-	g_settings.infobar_Text_alpha = tconfig.getInt32( "infobar_Text_alpha", 0x00 );
-	g_settings.infobar_Text_red = tconfig.getInt32( "infobar_Text_red", 0x64 );
-	g_settings.infobar_Text_green = tconfig.getInt32( "infobar_Text_green", 0x64 );
-	g_settings.infobar_Text_blue = tconfig.getInt32( "infobar_Text_blue", 0x64 );
-
-	g_settings.colored_events_alpha = tconfig.getInt32( "colored_events_alpha", 0x00 );
-	g_settings.colored_events_red = tconfig.getInt32( "colored_events_red", 95 );
-	g_settings.colored_events_green = tconfig.getInt32( "colored_events_green", 70 );
-	g_settings.colored_events_blue = tconfig.getInt32( "colored_events_blue", 0 );
-
-	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
-		g_settings.lcd_setting[i] = tconfig.getInt32(lcd_setting[i].name, lcd_setting[i].default_value);
-	strcpy(g_settings.lcd_setting_dim_time, tconfig.getString("lcd_dim_time","0").c_str());
-	g_settings.lcd_setting_dim_brightness = tconfig.getInt32( "lcd_dim_brightness", 0 );
-
-	strcpy( g_settings.font_file, configfile.getString( "font_file", "/share/fonts/neutrino.ttf" ).c_str() );
-	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	SetupFonts();
-	CVFD::getInstance()->setlcdparameter();
 }
 
 void CNeutrinoApp::loadKeys(const char * fname)
