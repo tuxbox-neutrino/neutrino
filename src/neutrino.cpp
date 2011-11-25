@@ -3746,21 +3746,6 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		}
 		return menu_return::RETURN_REPAINT;
 	}
-	else if(actionKey == "savecolors") {
-		parent->hide();
-		CFileBrowser fileBrowser;
-		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/var/tuxbox") == true) {
-			char  fname[256] = "colors.conf", sname[256];
-			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECOLORS, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
-			sms->exec(NULL, "");
-			sprintf(sname, "%s/%s", fileBrowser.getSelectedFile()->Name.c_str(), fname);
-			printf("[neutrino] save colors: %s\n", sname);
-			saveColors(sname);
-			delete sms;
-		}
-		return menu_return::RETURN_REPAINT;
-	}
 #if 0 // commented in menu, needed ?
 	else if(actionKey == "autolink") {
 		CRecordManager::getInstance()->LinkTimeshift();
@@ -3950,76 +3935,6 @@ void CNeutrinoApp::loadColors(const char * fname)
 	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 	SetupFonts();
 	CVFD::getInstance()->setlcdparameter();
-}
-
-void CNeutrinoApp::saveColors(const char * fname)
-{
-	//bool res;
-	CConfigFile tconfig(',', true);
-
-	//colors
-	tconfig.setInt32( "menu_Head_alpha", g_settings.menu_Head_alpha );
-	tconfig.setInt32( "menu_Head_red", g_settings.menu_Head_red );
-	tconfig.setInt32( "menu_Head_green", g_settings.menu_Head_green );
-	tconfig.setInt32( "menu_Head_blue", g_settings.menu_Head_blue );
-
-	tconfig.setInt32( "menu_Head_Text_alpha", g_settings.menu_Head_Text_alpha );
-	tconfig.setInt32( "menu_Head_Text_red", g_settings.menu_Head_Text_red );
-	tconfig.setInt32( "menu_Head_Text_green", g_settings.menu_Head_Text_green );
-	tconfig.setInt32( "menu_Head_Text_blue", g_settings.menu_Head_Text_blue );
-
-	tconfig.setInt32( "menu_Content_alpha", g_settings.menu_Content_alpha );
-	tconfig.setInt32( "menu_Content_red", g_settings.menu_Content_red );
-	tconfig.setInt32( "menu_Content_green", g_settings.menu_Content_green );
-	tconfig.setInt32( "menu_Content_blue", g_settings.menu_Content_blue );
-
-	tconfig.setInt32( "menu_Content_Text_alpha", g_settings.menu_Content_Text_alpha );
-	tconfig.setInt32( "menu_Content_Text_red", g_settings.menu_Content_Text_red );
-	tconfig.setInt32( "menu_Content_Text_green", g_settings.menu_Content_Text_green );
-	tconfig.setInt32( "menu_Content_Text_blue", g_settings.menu_Content_Text_blue );
-
-	tconfig.setInt32( "menu_Content_Selected_alpha", g_settings.menu_Content_Selected_alpha );
-	tconfig.setInt32( "menu_Content_Selected_red", g_settings.menu_Content_Selected_red );
-	tconfig.setInt32( "menu_Content_Selected_green", g_settings.menu_Content_Selected_green );
-	tconfig.setInt32( "menu_Content_Selected_blue", g_settings.menu_Content_Selected_blue );
-
-	tconfig.setInt32( "menu_Content_Selected_Text_alpha", g_settings.menu_Content_Selected_Text_alpha );
-	tconfig.setInt32( "menu_Content_Selected_Text_red", g_settings.menu_Content_Selected_Text_red );
-	tconfig.setInt32( "menu_Content_Selected_Text_green", g_settings.menu_Content_Selected_Text_green );
-	tconfig.setInt32( "menu_Content_Selected_Text_blue", g_settings.menu_Content_Selected_Text_blue );
-
-	tconfig.setInt32( "menu_Content_inactive_alpha", g_settings.menu_Content_inactive_alpha );
-	tconfig.setInt32( "menu_Content_inactive_red", g_settings.menu_Content_inactive_red );
-	tconfig.setInt32( "menu_Content_inactive_green", g_settings.menu_Content_inactive_green );
-	tconfig.setInt32( "menu_Content_inactive_blue", g_settings.menu_Content_inactive_blue );
-
-	tconfig.setInt32( "menu_Content_inactive_Text_alpha", g_settings.menu_Content_inactive_Text_alpha );
-	tconfig.setInt32( "menu_Content_inactive_Text_red", g_settings.menu_Content_inactive_Text_red );
-	tconfig.setInt32( "menu_Content_inactive_Text_green", g_settings.menu_Content_inactive_Text_green );
-	tconfig.setInt32( "menu_Content_inactive_Text_blue", g_settings.menu_Content_inactive_Text_blue );
-
-	tconfig.setInt32( "infobar_alpha", g_settings.infobar_alpha );
-	tconfig.setInt32( "infobar_red", g_settings.infobar_red );
-	tconfig.setInt32( "infobar_green", g_settings.infobar_green );
-	tconfig.setInt32( "infobar_blue", g_settings.infobar_blue );
-
-	tconfig.setInt32( "infobar_Text_alpha", g_settings.infobar_Text_alpha );
-	tconfig.setInt32( "infobar_Text_red", g_settings.infobar_Text_red );
-	tconfig.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
-	tconfig.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
-
-	tconfig.setInt32( "colored_events_alpha", g_settings.colored_events_alpha );
-	tconfig.setInt32( "colored_events_red", g_settings.colored_events_red );
-	tconfig.setInt32( "colored_events_green", g_settings.colored_events_green );
-	tconfig.setInt32( "colored_events_blue", g_settings.colored_events_blue );
-
-	for (int i = 0; i < SNeutrinoSettings::LCD_SETTING_COUNT; i++)
-		tconfig.setInt32(lcd_setting[i].name, g_settings.lcd_setting[i]);
-	tconfig.setString("lcd_dim_time", g_settings.lcd_setting_dim_time);
-	tconfig.setInt32( "lcd_dim_brightness", g_settings.lcd_setting_dim_brightness );
-
-	tconfig.setString("font_file", g_settings.font_file);
-	tconfig.saveConfig(fname);
 }
 
 void CNeutrinoApp::loadKeys(const char * fname)
