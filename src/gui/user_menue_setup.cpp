@@ -115,7 +115,7 @@ int CUserMenuSetup::showSetup()
 	{
 		snprintf(text,10,"%d:",item);
 		text[9]=0;// terminate for sure
-		ums->addItem( new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, USERMENU_ITEM_OPTION_COUNT,true ));
+		ums->addItem( new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, USERMENU_ITEM_OPTION_COUNT, true, NULL, CRCInput::RC_nokey, "", true));
 	}
 
 	int res = ums->exec(NULL, "");
