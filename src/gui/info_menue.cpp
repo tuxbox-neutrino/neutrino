@@ -40,13 +40,11 @@
 
 #include <driver/screen_max.h>
 
-
 CInfoMenu::CInfoMenu()
 {
 	width = w_max (40, 10);
 	selected = -1;
 }
-
 
 CInfoMenu::~CInfoMenu()
 {
@@ -62,14 +60,12 @@ int CInfoMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	if (parent != NULL)
 		parent->hide();
 
-	showMenu();
+	res = showMenu();
 
 	return res;
 }
 
-
-
-void CInfoMenu::showMenu()
+int CInfoMenu::showMenu()
 {
 	printf("[neutrino] CInfoMenu call %s...\n", __FUNCTION__);
 
@@ -81,11 +77,10 @@ void CInfoMenu::showMenu()
 	info->addItem(new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, 	true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, 	true, NULL, new CStreamInfo2(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
-	info->exec(NULL, "");
+	int res = info->exec(NULL, "");
 	info->hide();
 	selected = info->getSelected();
 	delete info;
+	return res;
 }
-
-
 
