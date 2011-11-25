@@ -1966,9 +1966,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 				ret = CScanSetup::getInstance()->exec(NULL, "");
 				CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD_NO);
 			}
-			
-			videoDecoder->StopPicture();
 		}
+		videoDecoder->StopPicture();
 	}
 
 	if(loadSettingsErg) {
