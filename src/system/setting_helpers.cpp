@@ -572,13 +572,6 @@ bool CIPChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 }
 #endif
 
-bool CConsoleDestChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
-{
-	g_settings.uboot_console = *(int *)Data;
-
-	return true;
-}
-
 bool CTimingSettingsNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
 {
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
