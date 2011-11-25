@@ -1006,6 +1006,8 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		//CNeutrinoApp::getInstance()->loadColors(NEUTRINO_SETTINGS_FILE);
 		CNeutrinoApp::getInstance()->SetupFonts();
 		CNeutrinoApp::getInstance()->SetupTiming();
+		CColorSetupNotifier colorSetupNotifier;
+		colorSetupNotifier.changeNotify(NONEXISTANT_LOCALE, NULL);
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
