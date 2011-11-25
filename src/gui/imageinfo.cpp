@@ -108,6 +108,7 @@ CImageInfo::~CImageInfo()
 
 int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 {
+	int res = menu_return::RETURN_REPAINT;
 	if (parent)
 		parent->hide();
 
@@ -129,7 +130,16 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(100);
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 
-		if (msg <= CRCInput::RC_MaxRC)
+		if(msg == CRCInput::RC_setup) {
+			res = menu_return::RETURN_EXIT_ALL;
+			break;
+		}
+		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+			g_RCInput->postMsg (msg, 0);
+			res = menu_return::RETURN_EXIT_ALL;
+			break;
+		}
+		else if (msg <= CRCInput::RC_MaxRC)
 		{
 			break;
 		}
@@ -142,7 +152,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	hide();
 
-	return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 void CImageInfo::hide()
