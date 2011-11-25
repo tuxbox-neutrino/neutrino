@@ -144,7 +144,14 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 			} else
 				doLoop = false;
 		}
+		else if(msg == CRCInput::RC_setup) {
+			res = menu_return::RETURN_EXIT_ALL;
+			doLoop = false;
+		}
 		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+			g_RCInput->postMsg (msg, 0);
+			res = menu_return::RETURN_EXIT_ALL;
+			doLoop = false;
 		}
 		else
 		{
@@ -164,8 +171,6 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 				}
 			}
 		}
-
-
 	}
 
 	hide();
