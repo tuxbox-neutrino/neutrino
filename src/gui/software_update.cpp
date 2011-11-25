@@ -86,11 +86,11 @@ int CSoftwareUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 
-	showSoftwareUpdate();
+	res = showSoftwareUpdate();
 	return res;
 }
 
-void CSoftwareUpdate::showSoftwareUpdate()
+int CSoftwareUpdate::showSoftwareUpdate()
 /* shows the menue and options for software update */
 {
 	CMenuWidget* softUpdate = new CMenuWidget(LOCALE_MAINMENU_SERVICE, NEUTRINO_ICON_UPDATE, width);
@@ -113,10 +113,11 @@ void CSoftwareUpdate::showSoftwareUpdate()
 	softUpdate->addItem(GenericMenuSeparatorLine);
 	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, new CFlashUpdate(), "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
 
-	softUpdate->exec (NULL, "");
+	int res = softUpdate->exec (NULL, "");
 	softUpdate->hide ();
 	selected = softUpdate->getSelected();
 	delete softUpdate;
+	return res;
 }
 
 /* shows experts-functions to read/write to the mtd */
@@ -131,6 +132,3 @@ void CSoftwareUpdate::showSoftwareUpdateExpert(CMenuWidget *mtd_expert)
 
 	mtd_expert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, true, g_settings.softupdate_url_file, input_url_file));
 }
- 
-
-

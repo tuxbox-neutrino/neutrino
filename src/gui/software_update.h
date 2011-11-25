@@ -43,7 +43,7 @@ class CSoftwareUpdate : public CMenuTarget
 	private:
 		int width, selected;
 
-		void showSoftwareUpdate();
+		int showSoftwareUpdate();
  		void showSoftwareUpdateExpert(CMenuWidget *mtd_expert);
 		
 		CFlashExpert *fe;
