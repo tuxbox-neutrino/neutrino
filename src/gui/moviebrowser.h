@@ -97,14 +97,14 @@ typedef enum
 	MB_INFO_TITLE 			= 2,
 	MB_INFO_SERIE 			= 3,
 	MB_INFO_INFO1 			= 4,
-	MB_INFO_MAJOR_GENRE 	= 5,
-	MB_INFO_MINOR_GENRE 	= 6,
+	MB_INFO_MAJOR_GENRE	 	= 5,
+	MB_INFO_MINOR_GENRE	 	= 6,
 	MB_INFO_INFO2 			= 7,
 	MB_INFO_PARENTAL_LOCKAGE	= 8,
 	MB_INFO_CHANNEL 		= 9,
 	MB_INFO_BOOKMARK		= 10,
 	MB_INFO_QUALITY 		= 11,
-	MB_INFO_PREVPLAYDATE 	= 12,
+	MB_INFO_PREVPLAYDATE 		= 12,
 	MB_INFO_RECORDDATE 		= 13,
 	MB_INFO_PRODDATE 		= 14,
 	MB_INFO_COUNTRY 		= 15,
@@ -194,15 +194,15 @@ typedef struct
 	MB_PARENTAL_LOCK parentalLock;//MB_PARENTAL_LOCK
 
 	std::string storageDir[MB_MAX_DIRS];
-    int storageDirUsed[MB_MAX_DIRS];
-    int storageDirRecUsed;
-    int storageDirMovieUsed;
+	int storageDirUsed[MB_MAX_DIRS];
+	int storageDirRecUsed;
+	int storageDirMovieUsed;
 
-    int reload;
-    int remount;
+	int reload;
+	int remount;
 
-    int browser_serie_mode;
-    int serie_auto_create;
+	int browser_serie_mode;
+	int serie_auto_create;
 	/* these variables are used for the listframes */
 	int browserFrameHeight;
 	int browserRowNr;
@@ -210,16 +210,16 @@ typedef struct
 	int browserRowWidth[MB_MAX_ROWS];
 
 	// to be added to config later
-    int lastPlayMaxItems;
+	int lastPlayMaxItems;
 	int lastPlayRowNr;
 	MB_INFO_ITEM lastPlayRow[MB_MAX_ROWS];
 	int lastPlayRowWidth[MB_MAX_ROWS];
 
-    int lastRecordMaxItems;
+	int lastRecordMaxItems;
 	int lastRecordRowNr;
 	MB_INFO_ITEM lastRecordRow[MB_MAX_ROWS];
 	int lastRecordRowWidth[MB_MAX_ROWS];
-}MB_SETTINGS;
+} MB_SETTINGS;
 
 // Priorities for Developmemt: P1: critical feature, P2: important feature, P3: for next release, P4: looks nice, lets see
 class CMovieBrowser : public CMenuTarget
@@ -258,8 +258,7 @@ class CMovieBrowser : public CMenuTarget
 		std::vector<MI_MOVIE_INFO*> m_vHandleRecordList;
 		std::vector<MI_MOVIE_INFO*> m_vHandlePlayList;
 		std::vector<std::string> m_dirNames;
-//        std::vector<std::string> m_serienames;
-        std::vector<MI_MOVIE_INFO*> m_vHandleSerienames;
+		std::vector<MI_MOVIE_INFO*> m_vHandleSerienames;
 
 		unsigned int m_currentBrowserSelection;
 		unsigned int m_currentRecordSelection;
@@ -293,19 +292,19 @@ class CMovieBrowser : public CMenuTarget
 		CConfigFile	configfile;
 		CMovieInfo m_movieInfo;
 		MB_SETTINGS m_settings;
-        std::vector<MB_DIR> m_dir;
+		std::vector<MB_DIR> m_dir;
 
-        int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
-        int movieInfoUpdateAllIfDestEmptyOnly;
+		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
+		int movieInfoUpdateAllIfDestEmptyOnly;
 
-        //bool restart_mb_timeout;
+		//bool restart_mb_timeout;
 
 	public:  // Functions //////////////////////////////////////////////////////////7
 		CMovieBrowser(const char* path); //P1
 		CMovieBrowser(); //P1
 		~CMovieBrowser(); //P1
 		int exec(const char* path); //P1
-        int exec(CMenuTarget* parent, const std::string & actionKey);
+		int exec(CMenuTarget* parent, const std::string & actionKey);
 		std::string getCurrentDir(void); //P1 for FileBrowser compatibility
 		CFile* getSelectedFile(void); //P1 for FileBrowser compatibility
 		MI_MOVIE_BOOKMARKS* getCurrentMovieBookmark(void){if(m_movieSelectionHandler == NULL) return NULL; return(&(m_movieSelectionHandler->bookmarks));};
@@ -364,21 +363,21 @@ class CMovieBrowser : public CMenuTarget
 		bool onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& pv_handle_list, MB_INFO_ITEM sort_type, MB_DIRECTION direction);
 
 		///// parse Storage Directories /////////////
-        bool addDir(std::string& dirname, int* used);
-        void updateDir(void);
+		bool addDir(std::string& dirname, int* used);
+		void updateDir(void);
 		void loadAllTsFileNamesFromStorage(void); // P1
 		bool loadTsFileNamesFromDir(const std::string & dirname); // P1
 		void getStorageInfo(void); // P3
 
 		///// Menu ////////////////////////////////////
 		bool showMenu(MI_MOVIE_INFO* movie_info); // P2
-        void showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
+		void showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int  showStartPosSelectionMenu(void); // P2
 
 		///// settings ///////////////////////////////////
 		bool loadSettings(MB_SETTINGS* settings); // P2
 		bool saveSettings(MB_SETTINGS* settings); // P2
-        void defaultSettings(MB_SETTINGS* settings);
+		void defaultSettings(MB_SETTINGS* settings);
 
 		///// EPG_DATA /XML ///////////////////////////////
 		void loadMovies(bool doRefresh = true);
@@ -393,9 +392,9 @@ class CMovieBrowser : public CMenuTarget
 		void updateMovieSelection(void);
 		void updateFilterSelection(void);
 		void updateSerienames(void);
-        void autoFindSerie(void);
+		void autoFindSerie(void);
 
-	void info_hdd_level();
+		void info_hdd_level();
 };
 
 // Class to show Moviebrowser Information, to be used by menu
@@ -418,7 +417,7 @@ class CSelectedMenu : public CMenuTarget
 	public:
 		bool selected;
 		CSelectedMenu(void){selected = false;};
-inline	int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/){selected = true; return menu_return::RETURN_EXIT;};
+		inline	int exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/){selected = true; return menu_return::RETURN_EXIT;};
 };
 
 
@@ -431,14 +430,14 @@ class CMenuSelector : public CMenuItem
 	private:
 		const char * optionName;
 		char * optionValue;
-        std::string* optionValueString;
+		std::string* optionValueString;
 		int  returnIntValue;
 		int* returnInt;
 		int height;
-        char buffer[BUFFER_MAX];
+		char buffer[BUFFER_MAX];
 	public:
 		CMenuSelector(const char * OptionName, const bool Active = true, char * OptionValue = NULL, int* ReturnInt = NULL,int ReturnIntValue = 0);
-        CMenuSelector(const char * OptionName, const bool Active , std::string & OptionValue, int* ReturnInt = NULL,int ReturnIntValue = 0);
+		CMenuSelector(const char * OptionName, const bool Active , std::string & OptionValue, int* ReturnInt = NULL,int ReturnIntValue = 0);
 		int exec(CMenuTarget* parent);
 		int paint(bool selected, bool last = 0);
 		int getHeight(void) const{return height;};
@@ -449,48 +448,48 @@ class CMenuSelector : public CMenuItem
 class CMenuWidgetSelection : public CMenuWidget
 {
 	public:
-	CMenuWidgetSelection(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 400, const int mheight = 576) : CMenuWidget( Name,Icon,mwidth, mheight){;};
-	int getSelectedLine(void){return exit_pressed ? -1 : selected;};
+		CMenuWidgetSelection(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 400, const int mheight = 576) : CMenuWidget( Name,Icon,mwidth, mheight){;};
+		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
 };
 
 
 class CFileChooser : public CMenuWidget
 {
-    private:
-    std::string* dirPath;
+	private:
+		std::string* dirPath;
 
-    public:
-    CFileChooser(std::string* path){dirPath= path;};
-    int exec(CMenuTarget* parent, const std::string & actionKey);
- };
+	public:
+		CFileChooser(std::string* path){dirPath= path;};
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+};
 
 typedef enum
 {
-    DIR_STATE_UNKNOWN = 0,
-    DIR_STATE_SERVER_DOWN = 1,
-    DIR_STATE_NOT_MOUNTED = 2,
-    DIR_STATE_MOUNTED = 3,
-    DIR_STATE_DISABLED = 4
-}DIR_STATE;
+	DIR_STATE_UNKNOWN = 0,
+	DIR_STATE_SERVER_DOWN = 1,
+	DIR_STATE_NOT_MOUNTED = 2,
+	DIR_STATE_MOUNTED = 3,
+	DIR_STATE_DISABLED = 4
+} DIR_STATE;
 
 #define MAX_DIR 10
 class CDirMenu : public CMenuWidget
 {
-    private:
-    std::vector<MB_DIR>* dirList;
-    DIR_STATE dirState[MAX_DIR];
-    std::string dirOptionText[MAX_DIR];
-    int dirNfsMountNr[MAX_DIR];
-    bool changed;
+	private:
+		std::vector<MB_DIR>* dirList;
+		DIR_STATE dirState[MAX_DIR];
+		std::string dirOptionText[MAX_DIR];
+		int dirNfsMountNr[MAX_DIR];
+		bool changed;
 
-    void updateDirState(void);
+		void updateDirState(void);
 
-    public:
-    CDirMenu(std::vector<MB_DIR>* dir_list);
-    int exec(CMenuTarget* parent, const std::string & actionKey);
-    void show(void);
-    bool isChanged(){return changed;};
- };
+	public:
+		CDirMenu(std::vector<MB_DIR>* dir_list);
+		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void show(void);
+		bool isChanged(){return changed;};
+};
 
 
 // EPG Genre , taken from epgview, TODO: migth be splitted in major/minor to increase handling, might be moved to CMovieInfo
@@ -705,7 +704,6 @@ const CMenuOptionChooser::keyval genre_major[GENRE_MAJOR_COUNT] =
 	{ 9, LOCALE_GENRE_DOCUS_MAGAZINES_0 },
 	{ 10, LOCALE_GENRE_TRAVEL_HOBBIES_0}
 };
-
 
 #endif /*MOVIEBROWSER_H_*/
 
