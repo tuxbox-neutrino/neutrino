@@ -138,14 +138,12 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		return res;
 	}
 	
-	showMenu();
+	res = showMenu();
 
 	return res;
 }
 
-
-
-void CSettingsManager::showMenu()
+int CSettingsManager::showMenu()
 {
 	printf("[neutrino] CSettingsManager call %s...\n", __FUNCTION__);
 
@@ -166,13 +164,10 @@ void CSettingsManager::showMenu()
 	mset->addItem(GenericMenuSeparatorLine);
 	mset->addItem(new CMenuForwarder(LOCALE_RESET_ALL,   true, NULL, resetNotifier, 	"all", 		CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER));
 		
-	mset->exec(NULL, "");
+	int res = mset->exec(NULL, "");
 	mset->hide();
 	selected = mset->getSelected();
 	delete resetNotifier;
 	delete mset;
-	
+	return res;
 }
-
-
-

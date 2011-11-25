@@ -165,7 +165,6 @@ private:
 
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
-	void saveColors(const char * fname);
 	CNeutrinoApp();
 
 public:

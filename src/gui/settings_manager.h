@@ -40,7 +40,7 @@ class CSettingsManager : public CMenuTarget
 	private:
 		int width, selected;
 		
-		void showMenu();
+		int showMenu();
 		
 	public:	
 		CSettingsManager();
