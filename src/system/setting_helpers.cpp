@@ -1003,9 +1003,10 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		//unlink(NEUTRINO_SCAN_SETTINGS_FILE);
 		CNeutrinoApp::getInstance()->loadSetup(NEUTRINO_SETTINGS_FILE);
 		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
-		CNeutrinoApp::getInstance()->loadColors(NEUTRINO_SETTINGS_FILE);
-		//CNeutrinoApp::getInstance()->SetupFonts();
+		//CNeutrinoApp::getInstance()->loadColors(NEUTRINO_SETTINGS_FILE);
+		CNeutrinoApp::getInstance()->SetupFonts();
 		CNeutrinoApp::getInstance()->SetupTiming();
+		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
 		system("rm -f /var/tuxbox/config/zapit/*.xml");
