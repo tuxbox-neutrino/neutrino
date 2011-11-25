@@ -143,7 +143,6 @@ private:
 	CMoviePluginChangeExec 		*MoviePluginChanger;
 	COnekeyPluginChangeExec		*OnekeyPluginChanger;
 	CIPChangeNotifier		*MyIPChanger;
-	CConsoleDestChangeNotifier	*ConsoleDestinationChanger;
 
 	void firstChannel();
 	void setupNetwork( bool force= false );
@@ -172,9 +171,9 @@ private:
 public:
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
-	void loadColors(const char * fname);
-	void loadKeys(const char * fname);
-	void saveKeys(const char * fname);
+	void loadColors(const char * fname = NULL);
+	void loadKeys(const char * fname = NULL);
+	void saveKeys(const char * fname = NULL);
 	void SetupTiming();
 	void SetupFonts();
 	void setupRecordingDevice(void);

@@ -652,38 +652,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.onekey_plugin = configfile.getString( "onekey_plugin", "noplugin" );
 	g_settings.plugin_hdd_dir = configfile.getString( "plugin_hdd_dir", "/hdd/tuxbox/plugins" );
 	g_settings.logo_hdd_dir = configfile.getString( "logo_hdd_dir", "/var/share/icons/logo" );
-	//rc-key configuration
-	g_settings.key_tvradio_mode = configfile.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
-	g_settings.key_power_off = configfile.getInt32( "key_power_off", CRCInput::RC_standby );
 
-	g_settings.key_channelList_pageup = configfile.getInt32( "key_channelList_pageup",  CRCInput::RC_page_up );
-	g_settings.key_channelList_pagedown = configfile.getInt32( "key_channelList_pagedown", CRCInput::RC_page_down );
-	g_settings.key_channelList_cancel = configfile.getInt32( "key_channelList_cancel",  CRCInput::RC_home );
-	g_settings.key_channelList_sort = configfile.getInt32( "key_channelList_sort",  CRCInput::RC_blue );
-	g_settings.key_channelList_addrecord = configfile.getInt32( "key_channelList_addrecord",  CRCInput::RC_red );
-	g_settings.key_channelList_addremind = configfile.getInt32( "key_channelList_addremind",  CRCInput::RC_yellow );
+	loadKeys();
 
-	g_settings.key_list_start = configfile.getInt32( "key_list_start", CRCInput::RC_nokey );
-	g_settings.key_list_end = configfile.getInt32( "key_list_end", CRCInput::RC_nokey );
-	g_settings.menu_left_exit = configfile.getInt32( "menu_left_exit", 0 );
-
-	g_settings.audio_run_player = configfile.getInt32( "audio_run_player", 1 );
-	g_settings.key_click = configfile.getInt32( "key_click", 1 );
 	g_settings.timeshift_pause = configfile.getInt32( "timeshift_pause", 1 );
-	g_settings.mpkey_rewind = configfile.getInt32( "mpkey.rewind", CRCInput::RC_rewind );
-	g_settings.mpkey_forward = configfile.getInt32( "mpkey.forward", CRCInput::RC_forward );
-	g_settings.mpkey_pause = configfile.getInt32( "mpkey.pause", CRCInput::RC_pause );
-	g_settings.mpkey_stop = configfile.getInt32( "mpkey.stop", CRCInput::RC_stop );
-	g_settings.mpkey_play = configfile.getInt32( "mpkey.play", CRCInput::RC_play );
-	g_settings.mpkey_audio = configfile.getInt32( "mpkey.audio", CRCInput::RC_green );
-	g_settings.mpkey_time = configfile.getInt32( "mpkey.time", CRCInput::RC_setup );
-	g_settings.mpkey_bookmark = configfile.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
-	g_settings.mpkey_plugin = configfile.getInt32( "mpkey.plugin", CRCInput::RC_red );
-	g_settings.key_timeshift = configfile.getInt32( "key_timeshift", CRCInput::RC_pause );
-	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
-	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
-//printf("get: key_unlock =============== %d\n", g_settings.key_unlock);
-
 //rfmod
 	g_settings.rf_subcarrier = configfile.getInt32( "rf_subcarrier", 1);
 	g_settings.rf_soundenable = configfile.getInt32( "rf_soundenable", 0);
@@ -691,12 +663,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.rf_finetune = configfile.getInt32( "rf_finetune", 0);
 	g_settings.rf_standby = configfile.getInt32( "rf_standby", 0);
 
-	g_settings.key_quickzap_up = configfile.getInt32( "key_quickzap_up",  CRCInput::RC_up );
-	g_settings.key_quickzap_down = configfile.getInt32( "key_quickzap_down",  CRCInput::RC_down );
-	g_settings.key_subchannel_up = configfile.getInt32( "key_subchannel_up",  CRCInput::RC_right );
-	g_settings.key_subchannel_down = configfile.getInt32( "key_subchannel_down",  CRCInput::RC_left );
-	g_settings.key_zaphistory = configfile.getInt32( "key_zaphistory",  CRCInput::RC_home );
-	g_settings.key_lastchannel = configfile.getInt32( "key_lastchannel",  CRCInput::RC_0 );
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
@@ -732,11 +698,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 	g_settings.big_windows = configfile.getInt32("big_windows", 0);
 
-	strcpy(g_settings.repeat_blocker, configfile.getString("repeat_blocker", "150").c_str());
-	strcpy(g_settings.repeat_genericblocker, configfile.getString("repeat_genericblocker", "100").c_str());
 	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CKeybindSetup::REMOTECONTROL_STANDARD);
-	g_settings.key_bouquet_up = configfile.getInt32( "key_bouquet_up",  CRCInput::RC_right);
-	g_settings.key_bouquet_down = configfile.getInt32( "key_bouquet_down",  CRCInput::RC_left);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
 
 	//Software-update
@@ -1198,48 +1160,13 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "rf_finetune", g_settings.rf_finetune);
 	configfile.setInt32( "rf_standby", g_settings.rf_standby);
 
-	//rc-key configuration
-	configfile.setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
-	configfile.setInt32( "key_power_off", g_settings.key_power_off );
+	saveKeys();
 
-	configfile.setInt32( "key_channelList_pageup", g_settings.key_channelList_pageup );
-	configfile.setInt32( "key_channelList_pagedown", g_settings.key_channelList_pagedown );
-	configfile.setInt32( "key_channelList_cancel", g_settings.key_channelList_cancel );
-	configfile.setInt32( "key_channelList_sort", g_settings.key_channelList_sort );
-	configfile.setInt32( "key_channelList_addrecord", g_settings.key_channelList_addrecord );
-	configfile.setInt32( "key_channelList_addremind", g_settings.key_channelList_addremind );
-
-	configfile.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
-	configfile.setInt32( "key_quickzap_down", g_settings.key_quickzap_down );
-	configfile.setInt32( "key_bouquet_up", g_settings.key_bouquet_up );
-	configfile.setInt32( "key_bouquet_down", g_settings.key_bouquet_down );
-	configfile.setInt32( "key_subchannel_up", g_settings.key_subchannel_up );
-	configfile.setInt32( "key_subchannel_down", g_settings.key_subchannel_down );
-	configfile.setInt32( "key_zaphistory", g_settings.key_zaphistory );
-	configfile.setInt32( "key_lastchannel", g_settings.key_lastchannel );
-
-	configfile.setInt32( "key_list_start", g_settings.key_list_start );
-	configfile.setInt32( "key_list_end", g_settings.key_list_end );
-	configfile.setInt32( "menu_left_exit", g_settings.menu_left_exit );
-	configfile.setInt32( "audio_run_player", g_settings.audio_run_player );
-	configfile.setInt32( "key_click", g_settings.key_click );
 	configfile.setInt32( "timeshift_pause", g_settings.timeshift_pause );
 	configfile.setInt32( "temp_timeshift", g_settings.temp_timeshift );
 	configfile.setInt32( "auto_timeshift", g_settings.auto_timeshift );
 	configfile.setInt32( "auto_delete", g_settings.auto_delete );
 	configfile.setInt32( "record_hours", g_settings.record_hours );
-	configfile.setInt32( "mpkey.rewind", g_settings.mpkey_rewind );
-	configfile.setInt32( "mpkey.forward", g_settings.mpkey_forward );
-	configfile.setInt32( "mpkey.pause", g_settings.mpkey_pause );
-	configfile.setInt32( "mpkey.stop", g_settings.mpkey_stop );
-	configfile.setInt32( "mpkey.play", g_settings.mpkey_play );
-	configfile.setInt32( "mpkey.audio", g_settings.mpkey_audio );
-	configfile.setInt32( "mpkey.time", g_settings.mpkey_time );
-	configfile.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
-	configfile.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
-	configfile.setInt32( "key_timeshift", g_settings.key_timeshift );
-	configfile.setInt32( "key_plugin", g_settings.key_plugin );
-	configfile.setInt32( "key_unlock", g_settings.key_unlock );
 //printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
 	configfile.setInt32( "minimode", g_settings.minimode );
@@ -1251,8 +1178,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("channellist_extended"                 , g_settings.channellist_extended);
 	configfile.setInt32("channellist_foot"                 , g_settings.channellist_foot);
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
-	configfile.setString( "repeat_blocker", g_settings.repeat_blocker );
-	configfile.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
 
@@ -2003,7 +1928,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	APIDChanger               = new CAPIDChangeExec;
 	MoviePluginChanger        = new CMoviePluginChangeExec;
-	ConsoleDestinationChanger = new CConsoleDestChangeNotifier;
 
 	// setup recording device
 	setupRecordingDevice();
@@ -4181,13 +4105,19 @@ void CNeutrinoApp::saveColors(const char * fname)
 void CNeutrinoApp::loadKeys(const char * fname)
 {
 	bool res;
-	CConfigFile tconfig(',', true);
+	CConfigFile & tconfig = configfile;
 
-	res = tconfig.loadConfig(fname);
-	if(!res) return;
+	if(fname) {
+		CConfigFile newconfig(',', true);
+
+		res = newconfig.loadConfig(fname);
+		if(!res) return;
+		tconfig = newconfig;
+	}
+
 	//rc-key configuration
 	g_settings.key_tvradio_mode = tconfig.getInt32( "key_tvradio_mode", CRCInput::RC_nokey );
-	g_settings.key_power_off = tconfig.getInt32( "power_off", CRCInput::RC_standby );
+	g_settings.key_power_off = tconfig.getInt32( "key_power_off", CRCInput::RC_standby );
 
 	g_settings.key_channelList_pageup = tconfig.getInt32( "key_channelList_pageup",  CRCInput::RC_minus );
 	g_settings.key_channelList_pagedown = tconfig.getInt32( "key_channelList_pagedown", CRCInput::RC_plus );
@@ -4198,21 +4128,9 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig.getInt32( "key_list_start", CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig.getInt32( "key_list_end", CRCInput::RC_nokey );
-	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
-
-	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
-	g_settings.key_click = tconfig.getInt32( "key_click", 0 );
-	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_left );
-	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_right );
-	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_yellow );
-	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_home );
-	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_ok );
-	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
-	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
-	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
-	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
 	g_settings.key_timeshift = configfile.getInt32( "key_timeshift", CRCInput::RC_nokey );
 	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
+	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
 	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );
@@ -4223,13 +4141,32 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_bouquet_up = tconfig.getInt32( "key_bouquet_up",  CRCInput::RC_right);
 	g_settings.key_bouquet_down = tconfig.getInt32( "key_bouquet_down",  CRCInput::RC_left);
+
+	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_left );
+	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_right );
+	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_yellow );
+	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_home );
+	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_ok );
+	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
+	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
+	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
+	g_settings.mpkey_plugin = tconfig.getInt32( "mpkey.plugin", CRCInput::RC_red );
+
+	/* options */
+	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
+	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
+	g_settings.key_click = tconfig.getInt32( "key_click", 0 );
 	strcpy(g_settings.repeat_blocker, tconfig.getString("repeat_blocker", "300").c_str());
 	strcpy(g_settings.repeat_genericblocker, tconfig.getString("repeat_genericblocker", "100").c_str());
 }
 
 void CNeutrinoApp::saveKeys(const char * fname)
 {
-	CConfigFile tconfig(',', true);
+	CConfigFile & tconfig = configfile;
+	if(fname) {
+		CConfigFile newconfig(',', true);
+		tconfig = newconfig;
+	}
 	//rc-key configuration
 	tconfig.setInt32( "key_tvradio_mode", g_settings.key_tvradio_mode );
 	tconfig.setInt32( "key_power_off", g_settings.key_power_off );
@@ -4241,20 +4178,22 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_channelList_addrecord", g_settings.key_channelList_addrecord );
 	tconfig.setInt32( "key_channelList_addremind", g_settings.key_channelList_addremind );
 
+	tconfig.setInt32( "key_list_start", g_settings.key_list_start );
+	tconfig.setInt32( "key_list_end", g_settings.key_list_end );
+	tconfig.setInt32( "key_timeshift", g_settings.key_timeshift );
+	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
+	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
+
 	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
 	tconfig.setInt32( "key_quickzap_down", g_settings.key_quickzap_down );
-	tconfig.setInt32( "key_bouquet_up", g_settings.key_bouquet_up );
-	tconfig.setInt32( "key_bouquet_down", g_settings.key_bouquet_down );
 	tconfig.setInt32( "key_subchannel_up", g_settings.key_subchannel_up );
 	tconfig.setInt32( "key_subchannel_down", g_settings.key_subchannel_down );
 	tconfig.setInt32( "key_zaphistory", g_settings.key_zaphistory );
 	tconfig.setInt32( "key_lastchannel", g_settings.key_lastchannel );
 
-	tconfig.setInt32( "key_list_start", g_settings.key_list_start );
-	tconfig.setInt32( "key_list_end", g_settings.key_list_end );
-	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
-	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );
-	tconfig.setInt32( "key_click", g_settings.key_click );
+	tconfig.setInt32( "key_bouquet_up", g_settings.key_bouquet_up );
+	tconfig.setInt32( "key_bouquet_down", g_settings.key_bouquet_down );
+
 	tconfig.setInt32( "mpkey.rewind", g_settings.mpkey_rewind );
 	tconfig.setInt32( "mpkey.forward", g_settings.mpkey_forward );
 	tconfig.setInt32( "mpkey.pause", g_settings.mpkey_pause );
@@ -4264,13 +4203,15 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "mpkey.time", g_settings.mpkey_time );
 	tconfig.setInt32( "mpkey.bookmark", g_settings.mpkey_bookmark );
 	tconfig.setInt32( "mpkey.plugin", g_settings.mpkey_plugin );
-	tconfig.setInt32( "key_timeshift", g_settings.key_timeshift );
-	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
-	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
 
+	tconfig.setInt32( "menu_left_exit", g_settings.menu_left_exit );
+	tconfig.setInt32( "audio_run_player", g_settings.audio_run_player );
+	tconfig.setInt32( "key_click", g_settings.key_click );
 	tconfig.setString( "repeat_blocker", g_settings.repeat_blocker );
 	tconfig.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
-	tconfig.saveConfig(fname);
+
+	if(fname)
+		tconfig.saveConfig(fname);
 }
 
 void CNeutrinoApp::StopSubtitles()
