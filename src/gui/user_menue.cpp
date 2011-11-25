@@ -111,7 +111,7 @@ bool CUserMenu::showUserMenu(int button)
 	CAudioSelectMenuHandler* tmpAudioSelectMenuHandler      = NULL;
 	CMenuWidget* tmpNVODSelector                            = NULL;
 	CSubChannelSelectMenu subchanselect;
-	CStreamInfo2Handler*    tmpStreamInfo2Handler           = NULL;
+	CStreamInfo2 * streamInfo				= NULL;
 	CEventListHandler* tmpEventListHandler                  = NULL;
 	CEPGplusHandler* tmpEPGplusHandler                      = NULL;
 	CEPGDataHandler* tmpEPGDataHandler                      = NULL;
@@ -275,9 +275,9 @@ bool CUserMenu::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_TECHINFO:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_TECHINFO;
-			tmpStreamInfo2Handler = new CStreamInfo2Handler();
+			streamInfo = new CStreamInfo2();
 			keyhelper.get(&key,&icon,CRCInput::RC_blue);
-			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, true, NULL, tmpStreamInfo2Handler    , "-1", key, icon );
+			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, true, NULL, streamInfo, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
 		case SNeutrinoSettings::ITEM_PLUGIN:
@@ -407,7 +407,7 @@ bool CUserMenu::showUserMenu(int button)
 	if (tmpPauseSectionsdNotifier)   delete tmpPauseSectionsdNotifier;
 	if (tmpAudioSelectMenuHandler)   delete tmpAudioSelectMenuHandler;
 	if (tmpNVODSelector)             delete tmpNVODSelector;
-	if (tmpStreamInfo2Handler)       delete tmpStreamInfo2Handler;
+	if (streamInfo)                  delete streamInfo;
 	if (tmpEventListHandler)         delete tmpEventListHandler;
 	if (tmpEPGplusHandler)           delete tmpEPGplusHandler;
 	if (tmpEPGDataHandler)           delete tmpEPGDataHandler;

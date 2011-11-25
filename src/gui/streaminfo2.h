@@ -103,16 +103,10 @@ class CStreamInfo2 : public CMenuTarget
 
 		CStreamInfo2();
 		~CStreamInfo2();
-		void exec();
 
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 
-};
-class CStreamInfo2Handler : public CMenuTarget
-{
-        public:
-                int exec( CMenuTarget* parent,  const std::string &actionKey);
 };
 #endif
 

@@ -109,13 +109,6 @@ CStreamInfo2::~CStreamInfo2 ()
 	ts_close();
 }
 
-void CStreamInfo2::exec()
-{
-	paint(paint_mode);
-	doSignalStrengthLoop();
-	hide();
-}
-
 int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 {
 
@@ -939,17 +932,6 @@ void CStreamInfo2::paintCASystem(int xpos, int ypos)
 	}
 	if(box_h2 == 0)
 		box_h2 = ypos - ypos1;
-}
-int CStreamInfo2Handler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
-{
-	int res = menu_return::RETURN_EXIT_ALL;
-	if (parent){
-		parent->hide();
-	}
-	CStreamInfo2 *e = new CStreamInfo2;
-	e->exec();
-	delete e;
-	return res;
 }
 
 /*
