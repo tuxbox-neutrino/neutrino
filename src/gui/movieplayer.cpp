@@ -483,10 +483,6 @@ void CMoviePlayerGui::PlayFile(void)
 		system("(rm /hdd/.wakeup; touch /hdd/.wakeup; sync) > /dev/null  2> /dev/null &");
 
 	if (timeshift) {
-#if 0 //FIXME is this needed ? pids used from p_movie_info anyway ?
-		CVCRControl::getInstance()->GetPids(&g_vpid, &g_vtype, &CAPIDSelectExec::g_currentapid, &CAPIDSelectExec::g_currentac3, &g_numpida, CAPIDSelectExec::g_apids, CAPIDSelectExec::g_ac3flags);
-		p_movie_info = CVCRControl::getInstance()->GetMovieInfo();
-#endif
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		p_movie_info = CRecordManager::getInstance()->GetMovieInfo(live_channel_id);
 		rec_filename = CRecordManager::getInstance()->GetFileName(live_channel_id) + ".ts";

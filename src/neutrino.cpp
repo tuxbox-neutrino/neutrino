@@ -814,43 +814,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		erg = 2;
 	}
 
-#if 0
-	// uboot config file
-	if(fromflash) {
-		g_settings.uboot_console	= 0;
-		g_settings.uboot_lcd_inverse	= -1;
-		g_settings.uboot_lcd_contrast	= -1;
-
-		FILE* fd = fopen("/var/tuxbox/boot/boot.conf", "r");
-		if(fd) {
-			char buffer[100];
-
-			while(fgets(buffer, 99, fd) != NULL) {
-				if(strncmp(buffer,"console=",8) == 0) {
-					if(strncmp(&buffer[8], "null", 4)==0)
-						g_settings.uboot_console = 0;
-					else if(strncmp(&buffer[8], "ttyS0", 5)==0)
-						g_settings.uboot_console = 1;
-					else if(strncmp(&buffer[8], "ttyCPM0", 5)==0)
-						g_settings.uboot_console = 1;
-					else if(strncmp(&buffer[8], "tty", 3)==0)
-						g_settings.uboot_console = 2;
-				}
-				else if(strncmp(buffer,"lcd_inverse=", 12) == 0) {
-					g_settings.uboot_lcd_inverse = atoi(&buffer[12]);
-				}
-				else if(strncmp(buffer,"lcd_contrast=", 13) == 0) {
-					g_settings.uboot_lcd_contrast = atoi(&buffer[13]);
-				}
-				else
-					printf("unknown entry found in boot.conf\n");
-			}
-
-			fclose(fd);
-		}
-		g_settings.uboot_console_bak = g_settings.uboot_console;
-	}
-#endif
 	/* in case FB resolution changed */
 	if((g_settings.screen_width && g_settings.screen_width != (int) frameBuffer->getScreenWidth(true))
 			|| (g_settings.screen_height && g_settings.screen_height != (int) frameBuffer->getScreenHeight(true))) {
@@ -873,49 +836,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 void CNeutrinoApp::saveSetup(const char * fname)
 {
 	char cfg_key[81];
-	//uboot; write config only on changes
-#if 0
-	if (fromflash &&
-	    ((g_settings.uboot_console_bak != g_settings.uboot_console) ||
-	     (g_settings.uboot_lcd_inverse  != g_settings.lcd_setting[SNeutrinoSettings::LCD_INVERSE]) ||
-	     (g_settings.uboot_lcd_contrast != g_settings.lcd_setting[SNeutrinoSettings::LCD_CONTRAST])))
-	{
-		bool newkernel = 0;
-		FILE* fd = fopen("/proc/version", "r");
-		if(fd != NULL) {
-			char buf[128];
-			fgets(buf, 127, fd);
-			fclose(fd);
-			if(strstr(buf, "version 2.6"))
-				newkernel = 1;
-//printf("new: %d kernel:: %s\n", newkernel, buf);
-		}
-		fd = fopen("/var/tuxbox/boot/boot.conf", "w");
-
-		if(fd != NULL) {
-			const char * buffer;
-			g_settings.uboot_console_bak    = g_settings.uboot_console;
-			g_settings.uboot_lcd_inverse	= g_settings.lcd_setting[SNeutrinoSettings::LCD_INVERSE];
-			g_settings.uboot_lcd_contrast	= g_settings.lcd_setting[SNeutrinoSettings::LCD_CONTRAST];
-
-			switch(g_settings.uboot_console) {
-			case 1:
-				buffer = newkernel ? "ttyCPM0" : "ttyS0";
-				break;
-			case 2:
-				buffer = "tty";
-				break;
-			default:
-				buffer = "null";
-				break;
-			}
-			fprintf(fd, "console=%s\n" "lcd_inverse=%d\n" "lcd_contrast=%d\n", buffer, g_settings.uboot_lcd_inverse, g_settings.uboot_lcd_contrast);
-			fclose(fd);
-		} else {
-			dprintf(DEBUG_NORMAL, "unable to write file /var/tuxbox/boot/boot.conf\n");
-		}
-	}
-#endif
 	//scansettings
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE)) {
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
