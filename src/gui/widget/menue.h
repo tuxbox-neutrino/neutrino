@@ -44,6 +44,10 @@
 #include <string>
 #include <vector>
 
+#define NO_WIDGET_ID -1
+
+typedef int mn_widget_id_t;
+
 struct menu_return
 {
 	enum
@@ -371,8 +375,22 @@ class CMenuOptionLanguageChooser : public CMenuItem
 		int exec(CMenuTarget* parent);
 };
 
+class CMenuGlobal
+{
+	public:
+		std::vector<int> v_selected;
+		
+		CMenuGlobal();	
+		~CMenuGlobal();
+		
+		static CMenuGlobal* getInstance();
+};
+
 class CMenuWidget : public CMenuTarget
 {
+	private: 
+		mn_widget_id_t 		widget_index;
+		CMenuGlobal		*m;
 	protected:
 		std::string		nameString;
 		neutrino_locale_t       name;
@@ -391,6 +409,7 @@ class CMenuWidget : public CMenuTarget
 		int			preselected;
 		int			selected;
 		int 			iconOffset;
+		
 		unsigned int         item_start_y;
 		unsigned int         current_page;
 		unsigned int         total_pages;
@@ -398,16 +417,16 @@ class CMenuWidget : public CMenuTarget
 		bool		     from_wizard;
 		bool		     fade;
 
-		void Init(const std::string & Icon, const int mwidth, const int mheight);
+		void Init(const std::string & Icon, const int mwidth, const int mheight, const mn_widget_id_t &w_index);
 		virtual void paintItems();
 	public:
 		CMenuWidget();
 		/* TODO: mheight is not used anymore. remove if nobody misses it */
 		/* mwidth (minimum width) in percent of screen width */
-		CMenuWidget(const char* Name, const std::string & Icon = "", const int mwidth = 30, const int mheight = 576);
-		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30, const int mheight = 576);
+		CMenuWidget(const char* Name, const std::string & Icon = "", const int mwidth = 30, const int mheight = 576, const mn_widget_id_t &w_index = NO_WIDGET_ID);
+		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30, const int mheight = 576, const mn_widget_id_t &w_index = NO_WIDGET_ID);
 		~CMenuWidget();
-
+		
 		virtual void addItem(CMenuItem* menuItem, const bool defaultselected = false);
 		
 		enum 

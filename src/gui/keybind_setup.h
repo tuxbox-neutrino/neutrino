@@ -91,7 +91,7 @@ class CKeybindSetup : public CMenuTarget
 		CKeySetupNotifier      *keySetupNotifier;
 		CKeyChooser * keychooser[KEYBINDS_COUNT];
 		
-		int width, selected;
+		int width;
 
 		int showKeySetup();
 		void showKeyBindSetup(CMenuWidget *bindSettings);

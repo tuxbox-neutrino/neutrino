@@ -38,7 +38,7 @@
 class CParentalSetup : public CMenuTarget
 {
 	private:
-		int width, selected;
+		int width;
 
 		void showParentalSetup();
 

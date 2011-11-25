@@ -39,6 +39,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -51,11 +52,9 @@
 #include <system/debug.h>
 
 
-
 CAudioPlayerSetup::CAudioPlayerSetup()
 {
 	width = w_max (40, 10);
-	selected = -1;
 }
 
 CAudioPlayerSetup::~CAudioPlayerSetup()
@@ -99,8 +98,7 @@ const CMenuOptionChooser::keyval AUDIOPLAYER_DISPLAY_ORDER_OPTIONS[AUDIOPLAYER_D
 /*shows the audio setup menue*/
 int CAudioPlayerSetup::showAudioPlayerSetup()
 {
-	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
-	audioplayerSetup->setSelected(selected);
+	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_AUDIOSETUP);
 
 	audioplayerSetup->addIntroItems(LOCALE_AUDIOPLAYER_NAME);
 
@@ -122,7 +120,6 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 
 	int res = audioplayerSetup->exec (NULL, "");
 	audioplayerSetup->hide ();
-	selected = audioplayerSetup->getSelected();
 	delete audioplayerSetup;
 	return res;
 }

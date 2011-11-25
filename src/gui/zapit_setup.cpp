@@ -32,6 +32,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include <driver/screen_max.h>
 
@@ -63,7 +64,7 @@ int CZapitSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 void CZapitSetup::showMenu()
 {
 	//menue init
-	CMenuWidget *zapit = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget *zapit = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_ZAPIT);
 	zapit->setSelected(selected);
 	zapit->addIntroItems(LOCALE_ZAPITSETUP_INFO);
 

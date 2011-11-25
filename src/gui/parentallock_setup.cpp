@@ -37,6 +37,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -50,7 +51,6 @@
 CParentalSetup::CParentalSetup()
 {
 	width = w_max (40, 10); //%
-	selected = -1;
 }
 
 CParentalSetup::~CParentalSetup()
@@ -101,8 +101,7 @@ extern bool parentallocked;
 void CParentalSetup::showParentalSetup()
 {
 	//menue init
-	CMenuWidget* plock = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_LOCK, width);
-	plock->setSelected(selected);
+	CMenuWidget* plock = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_LOCK, width, 576, MN_WIDGET_ID_PLOCKSETUP);
 
 	//subhead
 	plock->addItem( new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING, LOCALE_PARENTALLOCK_PARENTALLOCK));
@@ -119,6 +118,5 @@ void CParentalSetup::showParentalSetup()
 
 	plock->exec(NULL, "");
 	plock->hide();
-	selected = plock->getSelected();
 	delete plock;
 }

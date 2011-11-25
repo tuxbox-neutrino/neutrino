@@ -45,7 +45,7 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 	private:
  		CNetworkConfig  *networkConfig;
 						
-		int width, selected;
+		int width;
 		
 		bool is_wizard;
 

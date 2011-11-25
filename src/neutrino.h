@@ -84,7 +84,6 @@ typedef struct font_sizes_groups
 	const char * const                          actionkey;
 } font_sizes_groups_struct;
 
-
 class CNeutrinoApp : public CMenuTarget, CChangeObserver
 {
 public:
@@ -95,6 +94,8 @@ public:
 		RECORDING_VCR    = 2,
 		RECORDING_FILE   = 3
 	};
+	
+	
 
 private:
 	CFrameBuffer * frameBuffer;
@@ -222,3 +223,5 @@ public:
 	CConfigFile* getConfigFile() {return &configfile;};
 };
 #endif
+
+

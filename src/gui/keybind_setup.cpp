@@ -40,6 +40,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -57,7 +58,6 @@ CKeybindSetup::CKeybindSetup()
 	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
 	width = w_max (40, 10);
-	selected = -1;
 }
 
 CKeybindSetup::~CKeybindSetup()
@@ -166,11 +166,10 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 int CKeybindSetup::showKeySetup()
 {
 	//keysetup menu
-	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width);
+	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, 576, MN_WIDGET_ID_KEYSETUP);
 	
 	//keybindings menu
-	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width);
-	keySettings->setSelected(selected);
+	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, 576, MN_WIDGET_ID_KEYSETUP_KEYBINDING);
 	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING);
 	
 	//keybindings
@@ -201,7 +200,6 @@ int CKeybindSetup::showKeySetup()
 	
 	int res = keySettings->exec(NULL, "");
 	keySettings->hide();
-	selected = keySettings->getSelected();
 	delete keySettings;
 	return res;
 }
@@ -215,22 +213,22 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 		keychooser[i] = new CKeyChooser(key_settings[i].keyvalue_p, key_settings[i].keydescription/*as head caption*/, NEUTRINO_ICON_SETTINGS);
 	
 	//modes
-	CMenuWidget* bindSettings_modes = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width);
+	CMenuWidget* bindSettings_modes = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, 576, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MODES);
 	showKeyBindModeSetup(bindSettings_modes);
 	bindSettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_MODECHANGE, true, NULL, bindSettings_modes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	// channellist keybindings
-	CMenuWidget* bindSettings_chlist = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width);
+	CMenuWidget* bindSettings_chlist = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, 576, MN_WIDGET_ID_KEYSETUP_KEYBINDING_CHANNELLIST);
 	showKeyBindChannellistSetup(bindSettings_chlist);
 	bindSettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_CHANNELLIST, true, NULL, bindSettings_chlist, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 	// Zapping keys quickzap
-	CMenuWidget* bindSettings_qzap = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width);
+	CMenuWidget* bindSettings_qzap = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, 576, MN_WIDGET_ID_KEYSETUP_KEYBINDING_QUICKZAP);
 	showKeyBindQuickzapSetup(bindSettings_qzap);
  	bindSettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_QUICKZAP, true, NULL, bindSettings_qzap, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	//movieplayer
-	CMenuWidget* bindSettings_mplayer = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width);
+	CMenuWidget* bindSettings_mplayer = new CMenuWidget(LOCALE_KEYBINDINGMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, 576, MN_WIDGET_ID_KEYSETUP_KEYBINDING_MOVIEPLAYER);
 	showKeyBindMovieplayerSetup(bindSettings_mplayer);
 	bindSettings->addItem(new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, bindSettings_mplayer, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 

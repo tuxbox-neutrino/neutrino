@@ -32,19 +32,26 @@
 #define __lcd_setup__
 
 #include <gui/widget/menue.h>
+#include <gui/widget/stringinput.h>
 
 #include <string>
 
  class CVfdSetup : public CMenuTarget, CChangeObserver
 {	
 	private:
-		int width, selected;
-
+		int width;
+		
 		int showSetup();
+		void showBrightnessSetup(CMenuWidget *mn_widget);
+		void showLedSetup(CMenuWidget *mn_led_widget);
 		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
 		int brightness;
 		int brightnessstandby;
 		int brightnessdeepstandby;
+		
+		bool vfd_enabled; 
+		
+		CStringInput * dim_time;
 
 	public:
 		CVfdSetup();

@@ -49,7 +49,7 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CMenuWidget *osd_menu;
 		int tmp_virtual_zap_mode;
 
-		int width, selected;
+		int width;
 		
 		bool is_wizard;
 

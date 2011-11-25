@@ -39,7 +39,7 @@
 class CRecordSetup : public CMenuTarget
 {
 	private:
-		int width, selected;
+		int width;
 
 		int showRecordSetup();
 		void showRecordTimerSetup(CMenuWidget *menu_timersettings);

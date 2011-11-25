@@ -47,8 +47,9 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
+
 #include <gui/widget/icons.h>
-#include "gui/widget/menue.h"
 #include "gui/widget/stringinput.h"
 #include "gui/widget/messagebox.h"
 #include "gui/widget/hintbox.h"
@@ -60,6 +61,7 @@
 
 #include <gui/hdd_menu.h>
 #include <mymenu.h>
+#include <driver/screen_max.h>
 
 
 static int my_filter(const struct dirent * dent)
@@ -67,6 +69,16 @@ static int my_filter(const struct dirent * dent)
 	if(dent->d_name[0] == 's' && dent->d_name[1] == 'd')
 		return 1;
 	return 0;
+}
+
+CHDDMenuHandler::CHDDMenuHandler()
+{
+	width = w_max (58, 10);
+}
+
+CHDDMenuHandler::~CHDDMenuHandler()
+{
+	
 }
 
 int CHDDMenuHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
@@ -95,7 +107,7 @@ int CHDDMenuHandler::doMenu ()
 	}
 
 
-	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, 58);
+	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_DRIVESETUP);
 	hddmenu->addIntroItems(LOCALE_HDD_SETTINGS);
 	
 	hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", new CHDDDestExec(), NULL, CRCInput::RC_red,NEUTRINO_ICON_BUTTON_RED));

@@ -36,6 +36,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 
@@ -84,7 +85,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_
 void CCECSetup::showMenu()
 {
 	//menue init
-	CMenuWidget *cec = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget *cec = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_CEC);
 	cec->setSelected(selected);
 	cec->addIntroItems(LOCALE_VIDEOMENU_HDMI_CEC);
 	

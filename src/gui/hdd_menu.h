@@ -46,7 +46,11 @@ public:
 
 class CHDDMenuHandler : public CMenuTarget
 {
+	private:
+		int width;
 	public:
+		CHDDMenuHandler();
+		~CHDDMenuHandler();
 		int  exec( CMenuTarget* parent,  const std::string &actionkey);
 		int  doMenu();
 };

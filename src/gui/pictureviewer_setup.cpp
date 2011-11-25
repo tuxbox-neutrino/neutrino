@@ -38,6 +38,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
@@ -54,7 +55,6 @@
 CPictureViewerSetup::CPictureViewerSetup()
 {
 	width = w_max (40, 10);
-	selected = -1;
 }
 
 CPictureViewerSetup::~CPictureViewerSetup()
@@ -100,8 +100,7 @@ const CMenuOptionChooser::keyval PICTUREVIEWER_SCALING_OPTIONS[PICTUREVIEWER_SCA
 int CPictureViewerSetup::showPictureViewerSetup()
 {
 
-	CMenuWidget* picviewsetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
-	picviewsetup->setSelected(selected);
+	CMenuWidget* picviewsetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_PVIEWERSETUP);
 
 	// intros: back ande save
 	picviewsetup->addIntroItems(LOCALE_PICTUREVIEWER_HEAD);
@@ -113,7 +112,6 @@ int CPictureViewerSetup::showPictureViewerSetup()
 	
 	int res = picviewsetup->exec(NULL, "");
 	picviewsetup->hide();
-	selected = picviewsetup->getSelected();
 	delete picviewsetup;
 	return res;
 }

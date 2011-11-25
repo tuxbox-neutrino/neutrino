@@ -46,6 +46,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include <driver/screen_max.h>
 
@@ -62,7 +63,6 @@ CNetworkSetup::CNetworkSetup(bool wizard_mode)
 	is_wizard = wizard_mode;
 
 	width = w_max (40, 10);
-	selected = -1;
 
 	//readNetworkSettings();
 }
@@ -205,9 +205,8 @@ int CNetworkSetup::showNetworkSetup()
 	backupNetworkSettings();
 
 	//menue init
-	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_NETWORKSETUP);
 	networkSettings->setWizardMode(is_wizard);
-	networkSettings->setSelected(selected);
 
 	//apply button
 	CMenuForwarder *m0 = new CMenuForwarder(LOCALE_NETWORKMENU_SETUPNOW, true, NULL, this, "networkapply", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
@@ -296,12 +295,12 @@ int CNetworkSetup::showNetworkSetup()
 	}
 	//------------------------------------------------
 	//ntp submenu
-	CMenuWidget* ntp = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget* ntp = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_NETWORKSETUP_NTP);
 	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	showNetworkNTPSetup(ntp);
 	
 	//nfs mount submenu
-	CMenuWidget* networkmounts = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width);
+	CMenuWidget* networkmounts = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
 	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, networkmounts, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	showNetworkNFSMounts(networkmounts);
 
@@ -319,7 +318,7 @@ int CNetworkSetup::showNetworkSetup()
 		if(res == menu_return::RETURN_EXIT)
 			break;
 	}
-	selected = networkSettings->getSelected();
+	
 	delete networkSettings;
 	return ret;
 }

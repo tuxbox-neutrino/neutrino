@@ -35,7 +35,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-
+#include <neutrino_menue.h>
 
 #include "gui/movieplayer.h"
 #include "gui/pictureviewer.h"
@@ -56,7 +56,6 @@ CMediaPlayerMenu::CMediaPlayerMenu()
 	setUsageMode();
 
 	width = w_max (40, 10); //%
-	selected = -1;
 	
 	audioPlayer 	= NULL;
 	inetPlayer 	= NULL;
@@ -112,7 +111,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //show selectable mediaplayer items
 void CMediaPlayerMenu::showMenu()
 {
-	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width);
+	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width, 576, MN_WIDGET_ID_MEDIA);
 
 	CMenuForwarder *fw_audio = NULL;
 	CMenuForwarder *fw_inet = NULL;
@@ -125,9 +124,6 @@ void CMediaPlayerMenu::showMenu()
 
 	if (usage_mode != MODE_VIDEO)
 	{
-		//menue init
-		media->setSelected(selected);
-
 		//audio player
 		neutrino_msg_t audio_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_audio:CRCInput::RC_red;
 		const char* audio_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_RED;
@@ -141,7 +137,7 @@ void CMediaPlayerMenu::showMenu()
 	if (usage_mode == MODE_DEFAULT)
 	{
 		//movieplayer
-		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width);
+		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width, 576, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
 		fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 
 		//pictureviewer
@@ -188,7 +184,6 @@ void CMediaPlayerMenu::showMenu()
 	
 	media->exec(NULL, "");
 	media->hide();
-	selected = media->getSelected();
 	delete media;
 	setUsageMode();//set default usage_mode
 }

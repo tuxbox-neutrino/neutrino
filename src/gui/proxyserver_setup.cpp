@@ -36,12 +36,12 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
 #include <system/debug.h>
-
 
 
 CProxySetup::CProxySetup(const neutrino_locale_t title, const char * const IconName )
@@ -75,7 +75,7 @@ int CProxySetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 int CProxySetup::showProxySetup()
 {
 	//init
-	CMenuWidget * mn = new CMenuWidget(menue_title, menue_icon, width);
+	CMenuWidget * mn = new CMenuWidget(menue_title, menue_icon, width, 576, MN_WIDGET_ID_PROXYSETUP);
 	
 	neutrino_locale_t subtitle = (menue_title == LOCALE_FLASHUPDATE_PROXYSERVER_SEP ? NONEXISTANT_LOCALE : LOCALE_FLASHUPDATE_PROXYSERVER_SEP);
 	mn->addIntroItems(subtitle);

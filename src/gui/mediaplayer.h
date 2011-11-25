@@ -40,7 +40,7 @@ class CMediaPlayerMenu : public CMenuTarget
 		CAudioPlayerGui *audioPlayer;
 		CAudioPlayerGui *inetPlayer;
 				
-		int width, selected, usage_mode;
+		int width, usage_mode;
 		neutrino_locale_t menu_title;
 
 		void showMenu();

@@ -47,7 +47,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-
+#include <neutrino_menue.h>
 
 #include <cctype>
 
@@ -273,6 +273,30 @@ void CMenuItem::paintItemButton(const bool select_mode, const int &item_height, 
 	}
 }
 
+//small helper class to manage values e.g.: handling needed but deallocated widget objects
+CMenuGlobal::CMenuGlobal()
+{
+	//creates needed select values with default value NO_WIDGET_ID = -1
+	for (uint i=0; i<MN_WIDGET_ID_MAX; ++i)
+		v_selected.push_back(NO_WIDGET_ID);
+}
+
+CMenuGlobal::~CMenuGlobal()
+{
+	v_selected.clear();
+};
+
+//Note: use only singleton to create an instance in the constructor or init handler of menu widget
+CMenuGlobal* CMenuGlobal::getInstance()
+{
+	static CMenuGlobal* m = NULL;
+
+	if(!m) 
+		m = new CMenuGlobal();
+	return m;
+}
+//****************************************************************************************
+
 CMenuWidget::CMenuWidget()
 {
         nameString 	= g_Locale->getText(NONEXISTANT_LOCALE);
@@ -285,31 +309,36 @@ CMenuWidget::CMenuWidget()
 	fade 		= true;
 }
 
-CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const int mheight)
+CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const int mheight, const mn_widget_id_t &w_index)
 {
 	name = Name;
         nameString = g_Locale->getText(Name);
-
-	Init(Icon, mwidth, mheight);
+	
+	Init(Icon, mwidth, mheight, w_index);
 }
 
-CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int mwidth, const int mheight)
+CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int mwidth, const int mheight, const mn_widget_id_t &w_index)
 {
 	name = NONEXISTANT_LOCALE;
         nameString = Name;
-
-	Init(Icon, mwidth, mheight);
+	
+	Init(Icon, mwidth, mheight, w_index);
 }
 
-void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*mheight*/)
+void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*mheight*/, const mn_widget_id_t &w_index)
 {
+	m = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
-        preselected = -1;
-	selected = preselected;
+	 
+	//handle select values
+	widget_index = w_index;
+	preselected = NO_WIDGET_ID;  
+	selected = (widget_index == NO_WIDGET_ID ? preselected : m->v_selected[widget_index]);
+	
 	min_width = 0;
 	width = 0; /* is set in paint() */
-
+	
 	if (mwidth > 100) 
 	{
 		/* warn about abuse until we found all offenders... */
@@ -426,7 +455,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool bAllowRepeatLR = false;
-
+	
 	int pos = 0;
 	exit_pressed = false;
 
@@ -463,8 +492,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	paint();
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
-
-
+		
 	do {
 		if(hasItem() && selected >= 0)
 			bAllowRepeatLR = items[selected]->can_arrow;
@@ -725,6 +753,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		CMenuItem* item = items[count];
 		item->init(-1, 0, 0, 0);
 	}
+	
+ 	if (widget_index > -1)
+ 		m->v_selected[widget_index] = selected;
 
 	frameBuffer->Unlock();
 	return retval;
@@ -867,7 +898,7 @@ void CMenuWidget::paint()
 void CMenuWidget::paintItems()
 {
 	int item_height=height-(item_start_y-y);
-
+	
 	//Item not currently on screen
 	if (selected >= 0)
 	{

@@ -51,7 +51,7 @@ class CLangSelectNotifier : public CChangeObserver
 class COsdLangSetup : public CMenuTarget, CChangeObserver
 {	
 	private:				
-		int  width, selected;
+		int  width;
 
 		bool is_wizard;
 		
