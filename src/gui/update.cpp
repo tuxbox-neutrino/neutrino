@@ -243,7 +243,7 @@ bool CFlashUpdate::selectHttpImage(void)
 
 	if (urls.empty())
 	{
-		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR)); // UTF-8
+		ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_FLASHUPDATE_GETINFOFILEERROR), CMessageBox::mbrOk, CMessageBox::mbOk); // UTF-8
 		return false;
 	}
 	if(newfound)
