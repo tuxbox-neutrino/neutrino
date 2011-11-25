@@ -123,15 +123,17 @@ int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 		parent->hide ();
 
 	paint (paint_mode);
-	doSignalStrengthLoop ();
+	int res = doSignalStrengthLoop ();
 	hide ();
-	return menu_return::RETURN_REPAINT;
+	//return menu_return::RETURN_REPAINT;
+	return res;
 }
 
 int CStreamInfo2::doSignalStrengthLoop ()
 {
 #define BAR_WIDTH 150
 #define BAR_HEIGHT 12
+	int res = menu_return::RETURN_REPAINT;
 	sigscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 	lastsnr = lastsig = -1;
@@ -185,13 +187,14 @@ int CStreamInfo2::doSignalStrengthLoop ()
 					rate.max_short_average = maxb = bit_s;
 				if ((cnt > 10) && ((minb == 0) || (minb > bit_s)))
 					rate.min_short_average = minb = bit_s;
-					sprintf(tmp_str, "%s:",g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
-					g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_INFOBAR, 0, true);
-					sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
-					frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
-					g_Font[font_info]->RenderString (dx1 + average_bitrate_offset , average_bitrate_pos, sw - 10, currate, COL_INFOBAR);
-					sprintf(tmp_str, "(%s)",g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE));
-					g_Font[font_info]->RenderString (dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, tmp_str, COL_INFOBAR);
+
+				sprintf(tmp_str, "%s:",g_Locale->getText(LOCALE_STREAMINFO_BITRATE));
+				g_Font[font_info]->RenderString(dx1 , average_bitrate_pos, offset+10, tmp_str, COL_INFOBAR, 0, true);
+				sprintf(currate, "%5llu.%02llu", rate.short_average / 1000ULL, rate.short_average % 1000ULL);
+				frameBuffer->paintBoxRel (dx1 + average_bitrate_offset , average_bitrate_pos -dheight, sw, dheight, COL_MENUHEAD_PLUS_0);
+				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset , average_bitrate_pos, sw - 10, currate, COL_INFOBAR);
+				sprintf(tmp_str, "(%s)",g_Locale->getText(LOCALE_STREAMINFO_AVERAGE_BITRATE));
+				g_Font[font_info]->RenderString (dx1 + average_bitrate_offset + sw , average_bitrate_pos, sw *2, tmp_str, COL_INFOBAR);
 
 			}
 			if(snrscale && sigscale)
@@ -241,6 +244,16 @@ int CStreamInfo2::doSignalStrengthLoop ()
 			paint (paint_mode);
 			continue;
 		}
+		else if(msg == CRCInput::RC_setup) {
+			res = menu_return::RETURN_EXIT_ALL;
+			break;
+		}
+		else if((msg == CRCInput::RC_sat) || (msg == CRCInput::RC_favorites)) {
+			g_RCInput->postMsg (msg, 0);
+			res = menu_return::RETURN_EXIT_ALL;
+			break;
+		}
+
 		// -- any key --> abort
 		if (msg <= CRCInput::RC_MaxRC) {
 			break;
@@ -259,7 +272,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		snrscale = NULL;
 	}
 	ts_close ();
-	return msg;
+	return res;
 }
 
 void CStreamInfo2::hide ()
