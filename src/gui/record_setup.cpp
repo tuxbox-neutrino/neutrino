@@ -169,7 +169,7 @@ const CMenuOptionChooser::keyval END_OF_RECORDING[END_OF_RECORDING_COUNT] =
 int CRecordSetup::showRecordSetup()
 {
 	//menue init
-	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_RECORDSETUP);
+	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP);
 	
 	//apply settings
 	recordingSettings->addIntroItems(LOCALE_MAINSETTINGS_RECORDING);
@@ -192,17 +192,17 @@ int CRecordSetup::showRecordSetup()
  	recordingSettings->addItem(GenericMenuSeparatorLine);
 	
 	//timeshift
-	CMenuWidget* recordingTsSettings = new CMenuWidget(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_RECORDSETUP_TIMESHIFT);
+	CMenuWidget* recordingTsSettings = new CMenuWidget(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_TIMESHIFT);
 	showRecordTimeShiftSetup(recordingTsSettings);
 	recordingSettings->addItem(new CMenuForwarder(LOCALE_RECORDINGMENU_TIMESHIFT, true, NULL, recordingTsSettings, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 	//timersettings
-	CMenuWidget* recordingTimerSettings = new CMenuWidget(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_RECORDSETUP_TIMERSETTINGS);
+	CMenuWidget* recordingTimerSettings = new CMenuWidget(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_TIMERSETTINGS);
 	showRecordTimerSetup(recordingTimerSettings);
 	recordingSettings->addItem(new CMenuForwarder(LOCALE_TIMERSETTINGS_SEPARATOR, true, NULL, recordingTimerSettings, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	
 	//audiosettings
-	CMenuWidget* recordingaAudioSettings = new CMenuWidget(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_RECORDSETUP_AUDIOSETTINGS);
+	CMenuWidget* recordingaAudioSettings = new CMenuWidget(LOCALE_MAINSETTINGS_RECORDING, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP_AUDIOSETTINGS);
 	showRecordAudioSetup(recordingaAudioSettings);
 	recordingSettings->addItem(new CMenuForwarder(LOCALE_RECORDINGMENU_APIDS, true, NULL, recordingaAudioSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	

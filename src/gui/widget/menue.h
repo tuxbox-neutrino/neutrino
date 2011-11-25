@@ -417,14 +417,13 @@ class CMenuWidget : public CMenuTarget
 		bool		     from_wizard;
 		bool		     fade;
 
-		void Init(const std::string & Icon, const int mwidth, const int mheight, const mn_widget_id_t &w_index);
+		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
 	public:
 		CMenuWidget();
-		/* TODO: mheight is not used anymore. remove if nobody misses it */
 		/* mwidth (minimum width) in percent of screen width */
-		CMenuWidget(const char* Name, const std::string & Icon = "", const int mwidth = 30, const int mheight = 576, const mn_widget_id_t &w_index = NO_WIDGET_ID);
-		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30, const int mheight = 576, const mn_widget_id_t &w_index = NO_WIDGET_ID);
+		CMenuWidget(const char* Name, const std::string & Icon = "", const int mwidth = 30, const mn_widget_id_t &w_index = NO_WIDGET_ID);
+		CMenuWidget(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30, const mn_widget_id_t &w_index = NO_WIDGET_ID);
 		~CMenuWidget();
 		
 		virtual void addItem(CMenuItem* menuItem, const bool defaultselected = false);

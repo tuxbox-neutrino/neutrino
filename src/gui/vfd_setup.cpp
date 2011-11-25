@@ -110,11 +110,11 @@ const CMenuOptionChooser::keyval LCD_INFO_OPTIONS[LCD_INFO_OPTION_COUNT] =
 
 int CVfdSetup::showSetup()
 {
-	CMenuWidget *vfds = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_LCD, width, 576, MN_WIDGET_ID_VFDSETUP);
+	CMenuWidget *vfds = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP);
 	vfds->addIntroItems(LOCALE_LCDMENU_HEAD);
 
 	//vfd brightness menu
-	CMenuWidget* lcd_sliders = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, 576, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
+	CMenuWidget* lcd_sliders = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
 	showBrightnessSetup(lcd_sliders);
 	vfds->addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, lcd_sliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
@@ -122,7 +122,7 @@ int CVfdSetup::showSetup()
 	CMenuWidget * ledMenu = NULL;
 	if(cs_get_revision() > 7) 
 	{
- 		ledMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, 576, MN_WIDGET_ID_VFDSETUP_LED_SETUP);
+ 		ledMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_LED_SETUP);
 		showLedSetup(ledMenu);
 		vfds->addItem(new CMenuForwarder(LOCALE_LEDCONTROLER_MENU, true, NULL, ledMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	}

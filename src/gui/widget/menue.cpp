@@ -309,23 +309,23 @@ CMenuWidget::CMenuWidget()
 	fade 		= true;
 }
 
-CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const int mheight, const mn_widget_id_t &w_index)
+CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
 {
 	name = Name;
         nameString = g_Locale->getText(Name);
 	
-	Init(Icon, mwidth, mheight, w_index);
+	Init(Icon, mwidth, w_index);
 }
 
-CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int mwidth, const int mheight, const mn_widget_id_t &w_index)
+CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
 {
 	name = NONEXISTANT_LOCALE;
         nameString = Name;
 	
-	Init(Icon, mwidth, mheight, w_index);
+	Init(Icon, mwidth, w_index);
 }
 
-void CMenuWidget::Init(const std::string & Icon, const int mwidth, const int /*mheight*/, const mn_widget_id_t &w_index)
+void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
 {
 	m = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();

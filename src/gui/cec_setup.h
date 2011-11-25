@@ -40,7 +40,7 @@ class CCECSetup : public CMenuTarget, CChangeObserver
 	private:
 		CMenuOptionChooser 	*cec1, *cec2;
 				
-		int width, selected;
+		int width;
 
 		void showMenu();
  		

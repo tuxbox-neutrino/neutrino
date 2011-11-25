@@ -107,7 +107,7 @@ int CHDDMenuHandler::doMenu ()
 	}
 
 
-	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_DRIVESETUP);
+	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_DRIVESETUP);
 	hddmenu->addIntroItems(LOCALE_HDD_SETTINGS);
 	
 	hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", new CHDDDestExec(), NULL, CRCInput::RC_red,NEUTRINO_ICON_BUTTON_RED));

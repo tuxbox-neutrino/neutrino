@@ -111,7 +111,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 //show selectable mediaplayer items
 void CMediaPlayerMenu::showMenu()
 {
-	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width, 576, MN_WIDGET_ID_MEDIA);
+	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA);
 
 	CMenuForwarder *fw_audio = NULL;
 	CMenuForwarder *fw_inet = NULL;
@@ -137,7 +137,7 @@ void CMediaPlayerMenu::showMenu()
 	if (usage_mode == MODE_DEFAULT)
 	{
 		//movieplayer
-		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width, 576, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
+		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
 		fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 
 		//pictureviewer

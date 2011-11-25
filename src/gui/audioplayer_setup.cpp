@@ -98,7 +98,7 @@ const CMenuOptionChooser::keyval AUDIOPLAYER_DISPLAY_ORDER_OPTIONS[AUDIOPLAYER_D
 /*shows the audio setup menue*/
 int CAudioPlayerSetup::showAudioPlayerSetup()
 {
-	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_AUDIOSETUP);
+	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_AUDIOSETUP);
 
 	audioplayerSetup->addIntroItems(LOCALE_AUDIOPLAYER_NAME);
 

@@ -214,7 +214,7 @@ int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		snprintf(val_x,sizeof(val_x), "%03d",g_settings.screen_xres);
 		snprintf(val_y,sizeof(val_y), "%03d",g_settings.screen_yres);
 
-		CMenuWidget fontscale(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_COLORS, width, 576, MN_WIDGET_ID_OSDSETUP_FONTSCALE);
+		CMenuWidget fontscale(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_FONTSCALE);
 		fontscale.addIntroItems(LOCALE_FONTMENU_SCALING);
 
 		CStringInput * xres_count = new CStringInput(LOCALE_FONTMENU_SCALING_X, val_x,50,200, 3, LOCALE_FONTMENU_SCALING, LOCALE_FONTMENU_SCALING_X_HINT2, "0123456789 ");
@@ -385,11 +385,11 @@ const CMenuOptionChooser::keyval OPTIONS_COLORED_EVENTS_OPTIONS[OPTIONS_COLORED_
 int COsdSetup::showOsdSetup()
 {
 	//osd main menu
-	osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, 576, MN_WIDGET_ID_OSDSETUP);
+	osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP);
 	osd_menu->setWizardMode(is_wizard);
 
 	//menu colors
-	CMenuWidget *osd_menu_colors = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, 576, MN_WIDGET_ID_OSDSETUP_MENUCOLORS);
+	CMenuWidget *osd_menu_colors = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_MENUCOLORS);
 
 	//intro with subhead and back button
 	osd_menu->addIntroItems(LOCALE_MAINSETTINGS_OSD);
@@ -399,12 +399,12 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, osd_menu_colors, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	//fonts
-	CMenuWidget *osd_menu_fonts = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, 576, MN_WIDGET_ID_OSDSETUP_FONT);
+	CMenuWidget *osd_menu_fonts = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_FONT);
 	showOsdFontSizeSetup(osd_menu_fonts);
 	osd_menu->addItem(new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, osd_menu_fonts, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 	//timeouts
-	CMenuWidget *osd_menu_timing = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_OSDSETUP_TIMEOUT);
+	CMenuWidget *osd_menu_timing = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_TIMEOUT);
 	showOsdTimeoutSetup(osd_menu_timing);
 	osd_menu->addItem(new CMenuForwarder(LOCALE_COLORMENU_TIMING, true, NULL, osd_menu_timing, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
@@ -412,12 +412,12 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_SCREENSETUP, true, NULL, new CScreenSetup(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 	//infobar
-	CMenuWidget *osd_menu_infobar = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_OSDSETUP_INFOBAR);
+	CMenuWidget *osd_menu_infobar = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_INFOBAR);
 	showOsdInfobarSetup(osd_menu_infobar);
 	osd_menu->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_INFOBAR, true, NULL, osd_menu_infobar, NULL, CRCInput::RC_1));
 
 	//channellist
-	CMenuWidget *osd_menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_OSDSETUP_CHANNELLIST);
+	CMenuWidget *osd_menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_CHANNELLIST);
 	showOsdChanlistSetup(osd_menu_chanlist);
 	osd_menu->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, osd_menu_chanlist, NULL, CRCInput::RC_2));
 
@@ -562,7 +562,7 @@ void COsdSetup::showOsdFontSizeSetup(CMenuWidget *menu_fonts)
 	mn_widget_id_t w_index = MN_WIDGET_ID_OSDSETUP_FONTSIZE_MENU;
 	for (int i = 0; i < 6; i++)
 	{
-		CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, 576, w_index);
+		CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING, width, w_index);
 
 		fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname);
 

@@ -161,30 +161,30 @@ int CMiscMenue::showMiscSettingsMenu()
 {
 	//misc settings
 	fanNotifier = new CFanControlNotifier();
-	CMenuWidget *misc_menue 		= new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_MISCSETUP);
+	CMenuWidget *misc_menue 		= new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP);
 
 	misc_menue->addIntroItems(LOCALE_MISCSETTINGS_HEAD);
 	
 	//general
-	CMenuWidget *misc_menue_general 	= new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_MISCSETUP_GENERAL);
+	CMenuWidget *misc_menue_general 	= new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_GENERAL);
 	showMiscSettingsMenuGeneral(misc_menue_general);
 	misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
 	//energy, shutdown
 	if(cs_get_revision() > 7)
 	{
-		CMenuWidget *misc_menue_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_MISCSETUP_ENERGY);
+		CMenuWidget *misc_menue_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ENERGY);
 		showMiscSettingsMenuEnergy(misc_menue_energy);
 		misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, misc_menue_energy, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	}
 	
 	//epg
-	CMenuWidget *misc_menue_epg = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_MISCSETUP_EPG);
+	CMenuWidget *misc_menue_epg = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_EPG);
 	showMiscSettingsMenuEpg(misc_menue_epg);
 	misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, misc_menue_epg, NULL, CRCInput::RC_yellow,NEUTRINO_ICON_BUTTON_YELLOW));
 	
 	//filebrowser settings
-	CMenuWidget *misc_menue_fbrowser = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_MISCSETUP_FILEBROWSER);
+	CMenuWidget *misc_menue_fbrowser = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_FILEBROWSER);
 	showMiscSettingsMenuFBrowser(misc_menue_fbrowser);
 	misc_menue->addItem( new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, misc_menue_fbrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	
@@ -194,7 +194,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	misc_menue->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, new CCECSetup() , NULL, CRCInput::RC_1));
 	
 	//channellist
-	CMenuWidget *misc_menue_chanlist = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
+	CMenuWidget *misc_menue_chanlist = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
 	showMiscSettingsMenuChanlist(misc_menue_chanlist);
 	misc_menue->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, misc_menue_chanlist, NULL, CRCInput::RC_2));
 	

@@ -52,7 +52,6 @@ extern cVideo *videoDecoder;
 CCECSetup::CCECSetup()
 {
 	width = w_max (40, 10); //%
-	selected = -1;
 }
 
 CCECSetup::~CCECSetup()
@@ -85,8 +84,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_
 void CCECSetup::showMenu()
 {
 	//menue init
-	CMenuWidget *cec = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_CEC);
-	cec->setSelected(selected);
+	CMenuWidget *cec = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_CEC);
 	cec->addIntroItems(LOCALE_VIDEOMENU_HDMI_CEC);
 	
 	//cec
@@ -102,7 +100,6 @@ void CCECSetup::showMenu()
 	
 	cec->exec(NULL, "");
 	cec->hide();
-	selected = cec->getSelected();
 	delete cec;
 }
 

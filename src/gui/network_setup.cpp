@@ -205,7 +205,7 @@ int CNetworkSetup::showNetworkSetup()
 	backupNetworkSettings();
 
 	//menue init
-	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_NETWORKSETUP);
+	CMenuWidget* networkSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP);
 	networkSettings->setWizardMode(is_wizard);
 
 	//apply button
@@ -295,12 +295,12 @@ int CNetworkSetup::showNetworkSetup()
 	}
 	//------------------------------------------------
 	//ntp submenu
-	CMenuWidget* ntp = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_NETWORKSETUP_NTP);
+	CMenuWidget* ntp = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_NTP);
 	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_NTPTITLE, true, NULL, ntp, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	showNetworkNTPSetup(ntp);
 	
 	//nfs mount submenu
-	CMenuWidget* networkmounts = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, 576, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
+	CMenuWidget* networkmounts = new CMenuWidget(LOCALE_MAINSETTINGS_NETWORK, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_NETWORKSETUP_MOUNTS);
 	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_MOUNT, true, NULL, networkmounts, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	showNetworkNFSMounts(networkmounts);
 
