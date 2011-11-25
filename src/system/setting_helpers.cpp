@@ -1008,6 +1008,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 		CNeutrinoApp::getInstance()->SetupTiming();
 		CColorSetupNotifier colorSetupNotifier;
 		colorSetupNotifier.changeNotify(NONEXISTANT_LOCALE, NULL);
+		CVFD::getInstance()->setlcdparameter();
 		CFrameBuffer::getInstance()->Clear();
 	}
 	if(delete_chan) {
