@@ -467,11 +467,6 @@ struct SNeutrinoSettings
 	int startchannelradio_nr;
 	int uselastchannel;
 
-	//uboot
-	int	uboot_lcd_inverse;
-	int	uboot_lcd_contrast;
-	int	uboot_console;
-	int	uboot_console_bak;
 	int	power_standby;
 	int	emlog;
 	int	rotor_swap;
