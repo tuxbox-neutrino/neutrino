@@ -390,7 +390,7 @@ class CMenuWidget : public CMenuTarget
 {
 	private: 
 		mn_widget_id_t 		widget_index;
-		CMenuGlobal		*m;
+		CMenuGlobal		*mglobal;
 	protected:
 		std::string		nameString;
 		neutrino_locale_t       name;

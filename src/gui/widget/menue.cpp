@@ -327,14 +327,14 @@ CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int m
 
 void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
 {
-	m = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
+	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
 	 
 	//handle select values
 	widget_index = w_index;
 	preselected = NO_WIDGET_ID;  
-	selected = (widget_index == NO_WIDGET_ID ? preselected : m->v_selected[widget_index]);
+	selected = (widget_index == NO_WIDGET_ID ? preselected : mglobal->v_selected[widget_index]);
 	
 	min_width = 0;
 	width = 0; /* is set in paint() */
@@ -755,7 +755,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	}
 	
  	if (widget_index > -1)
- 		m->v_selected[widget_index] = selected;
+ 		mglobal->v_selected[widget_index] = selected;
 
 	frameBuffer->Unlock();
 	return retval;
