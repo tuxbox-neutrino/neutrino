@@ -98,27 +98,9 @@ class COnOffNotifier : public CChangeObserver
                 bool changeNotify(const neutrino_locale_t, void *Data);
 };
 
-class CRecordingNotifier : public CChangeObserver
-{
-	private:
-		CMenuItem* toDisable[9];
-	public:
-		CRecordingNotifier(CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*, CMenuItem*);
-		bool changeNotify(const neutrino_locale_t OptionName, void*);
-};
-
 class CRecordingSafetyNotifier : public CChangeObserver
 {
 	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-class CRecordingNotifier2 : public CChangeObserver
-{
-	private:
-		CMenuItem* toDisable[1];
-	public:
-		CRecordingNotifier2( CMenuItem*);
 		bool changeNotify(const neutrino_locale_t, void *);
 };
 
