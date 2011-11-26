@@ -42,7 +42,6 @@
 #include <driver/screen_max.h>
 
 extern CRemoteControl		* g_RemoteControl; /* neutrino.cpp */
-extern CAPIDChangeExec		* APIDChanger;
 extern CAudioSetupNotifier	* audioSetupNotifier;
 
 #include <gui/audio_select.h>
@@ -73,20 +72,22 @@ const CMenuOptionChooser::keyval AUDIOMENU_ANALOGOUT_OPTIONS[AUDIOMENU_ANALOGOUT
 	{ 2, LOCALE_AUDIOMENU_MONORIGHT }
 };
 
-
-
-int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &)
+int CAudioSelectMenuHandler::exec(CMenuTarget* parent, const std::string &actionkey)
 {
-	int           res = menu_return::RETURN_EXIT_ALL;
-
+	int sel= atoi(actionkey.c_str());
+	if(sel >= 0) {
+		if (g_RemoteControl->current_PIDs.PIDs.selected_apid!= (unsigned int) sel )
+		{
+			g_RemoteControl->setAPID(sel);
+		}
+		return menu_return::RETURN_EXIT;
+	}
 
 	if (parent) 
 		parent->hide();
 
-	doMenu ();
-	return res;
+	return doMenu ();
 }
-
 
 int CAudioSelectMenuHandler::doMenu ()
 {
@@ -108,7 +109,7 @@ int CAudioSelectMenuHandler::doMenu ()
 		{
 			char apid[5];
 			sprintf(apid, "%d", i);
-			fw[i] = new CMenuForwarderNonLocalized(g_RemoteControl->current_PIDs.APIDs[i].desc, true, NULL, APIDChanger, apid, CRCInput::convertDigitToKey(i + 1));
+			fw[i] = new CMenuForwarderNonLocalized(g_RemoteControl->current_PIDs.APIDs[i].desc, true, NULL, this, apid, CRCInput::convertDigitToKey(i + 1));
 			fw[i]->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 			AudioSelector.addItem(fw[i], (i == g_RemoteControl->current_PIDs.PIDs.selected_apid));
 			shortcut_num = i+1;
@@ -181,6 +182,3 @@ int CAudioSelectMenuHandler::doMenu ()
 
 	return AudioSelector.exec(NULL, "");
 }
-
-
-
