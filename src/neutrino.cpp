@@ -3862,7 +3862,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 
 	g_settings.key_list_start = tconfig.getInt32( "key_list_start", CRCInput::RC_nokey );
 	g_settings.key_list_end = tconfig.getInt32( "key_list_end", CRCInput::RC_nokey );
-	g_settings.key_timeshift = configfile.getInt32( "key_timeshift", CRCInput::RC_nokey );
+	g_settings.key_timeshift = configfile.getInt32( "key_timeshift", CRCInput::RC_pause );
 	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
 
@@ -3876,11 +3876,11 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_bouquet_up = tconfig.getInt32( "key_bouquet_up",  CRCInput::RC_right);
 	g_settings.key_bouquet_down = tconfig.getInt32( "key_bouquet_down",  CRCInput::RC_left);
 
-	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_left );
-	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_right );
-	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_yellow );
-	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_home );
-	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_ok );
+	g_settings.mpkey_rewind = tconfig.getInt32( "mpkey.rewind", CRCInput::RC_rewind );
+	g_settings.mpkey_forward = tconfig.getInt32( "mpkey.forward", CRCInput::RC_forward );
+	g_settings.mpkey_pause = tconfig.getInt32( "mpkey.pause", CRCInput::RC_pause );
+	g_settings.mpkey_stop = tconfig.getInt32( "mpkey.stop", CRCInput::RC_stop );
+	g_settings.mpkey_play = tconfig.getInt32( "mpkey.play", CRCInput::RC_play );
 	g_settings.mpkey_audio = tconfig.getInt32( "mpkey.audio", CRCInput::RC_green );
 	g_settings.mpkey_time = tconfig.getInt32( "mpkey.time", CRCInput::RC_setup );
 	g_settings.mpkey_bookmark = tconfig.getInt32( "mpkey.bookmark", CRCInput::RC_blue );
@@ -3889,8 +3889,8 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	/* options */
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
 	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
-	g_settings.key_click = tconfig.getInt32( "key_click", 0 );
-	strcpy(g_settings.repeat_blocker, tconfig.getString("repeat_blocker", "300").c_str());
+	g_settings.key_click = tconfig.getInt32( "key_click", 1 );
+	strcpy(g_settings.repeat_blocker, tconfig.getString("repeat_blocker", "150").c_str());
 	strcpy(g_settings.repeat_genericblocker, tconfig.getString("repeat_genericblocker", "100").c_str());
 }
 
