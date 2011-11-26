@@ -870,7 +870,6 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 					fadeValue = g_settings.infobar_alpha;
 					g_RCInput->killTimer (fadeTimer);
 					fadeIn = false;
-					//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 					frameBuffer->setBlendLevel(100, 100);//FIXME
 				} else
@@ -973,7 +972,6 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 	g_RCInput->killTimer (sec_timer_id);
 	if (fadeIn || fadeOut) {
 		g_RCInput->killTimer (fadeTimer);
-		//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 		frameBuffer->setBlendLevel(100, 100);//FIXME
 	}
@@ -1422,7 +1420,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		if (data == fadeTimer) {
 			// hierher kann das event nur dann kommen, wenn ein anderes Fenster im Vordergrund ist!
 			g_RCInput->killTimer (fadeTimer);
-			frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
+			frameBuffer->setBlendMode(1);
 			return messages_return::handled;
 		} else if (data == lcdUpdateTimer) {
 //printf("CInfoViewer::handleMsg: lcdUpdateTimer\n");

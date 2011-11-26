@@ -419,9 +419,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 
 	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 1);
-	//fb-alpha values for gtx
-	g_settings.gtx_alpha1 = configfile.getInt32( "gtx_alpha1", 255);
-	g_settings.gtx_alpha2 = configfile.getInt32( "gtx_alpha2", 1);
 
 	//misc
 	g_settings.power_standby = configfile.getInt32( "power_standby", 0);
@@ -875,9 +872,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
-	//fb-alpha values for gtx
-	configfile.setInt32( "gtx_alpha1", g_settings.gtx_alpha1 );
-	configfile.setInt32( "gtx_alpha2", g_settings.gtx_alpha2 );
 	//led
 	configfile.setInt32( "led_tv_mode", g_settings.led_tv_mode);
 	configfile.setInt32( "led_standby_mode", g_settings.led_standby_mode);

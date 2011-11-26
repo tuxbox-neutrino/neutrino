@@ -727,7 +727,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 							fadeValue = g_settings.menu_Content_alpha;
 							g_RCInput->killTimer (fadeTimer);
 							fadeIn = false;
-							//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 							frameBuffer->setBlendMode(1); // set back to per pixel alpha only
 						} else
 							frameBuffer->setBlendLevel(fadeValue, fadeValue);
@@ -945,7 +944,6 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		hide();
 		if ( fadeIn || fadeOut ) {
 			g_RCInput->killTimer(fadeTimer);
-			//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 			frameBuffer->setBlendMode(1); // set back to per pixel alpha only
 		}
 	}

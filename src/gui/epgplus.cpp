@@ -846,7 +846,6 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 						fadeValue = g_settings.menu_Content_alpha;
 						g_RCInput->killTimer (fadeTimer);
 						fadeIn = false;
-						//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 						frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 					} else
 						frameBuffer->setBlendLevel(fadeValue, fadeValue);
@@ -1183,7 +1182,6 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 		this->hide();
 		if ( fadeIn || fadeOut ) {
 			g_RCInput->killTimer(fadeTimer);
-			//frameBuffer->setBlendLevel(FADE_RESET, g_settings.gtx_alpha2);
 			frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 		}
 #if 0

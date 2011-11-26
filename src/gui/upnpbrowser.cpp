@@ -814,7 +814,6 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 								loop=false;
 						}
 						m_frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
-						m_frameBuffer->setBlendLevel(g_settings.gtx_alpha1, g_settings.gtx_alpha2);
 						m_frameBuffer->Clear();
 						delete viewer;
 					}
