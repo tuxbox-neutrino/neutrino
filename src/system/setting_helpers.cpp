@@ -605,17 +605,6 @@ bool CRecAPIDSettingsNotifier::changeNotify(const neutrino_locale_t, void *)
 	return true;
 }
 
-int CAPIDChangeExec::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
-{
-	//    printf("CAPIDChangeExec exec: %s\n", actionKey.c_str());
-	unsigned int sel= atoi(actionKey.c_str());
-	if (g_RemoteControl->current_PIDs.PIDs.selected_apid!= sel )
-	{
-		g_RemoteControl->setAPID(sel);
-	}
-	return menu_return::RETURN_EXIT;
-}
-
 int CSubtitleChangeExec::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
 printf("CSubtitleChangeExec::exec: action %s\n", actionKey.c_str());
