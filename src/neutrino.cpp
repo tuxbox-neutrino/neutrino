@@ -209,7 +209,6 @@ void stop_daemons(bool stopall = true);
 
 #include "gui/audio_select.h"
 
-CAPIDChangeExec		* APIDChanger;
 CAudioSetupNotifier	* audioSetupNotifier;
 CBouquetList   * bouquetList; // current list
 
@@ -226,7 +225,6 @@ CBouquetList   * RADIOallList;
 CPlugins       * g_PluginList;
 CRemoteControl * g_RemoteControl;
 SMSKeyInput * c_SMSKeyInput;
-CAudioSelectMenuHandler  *audio_menu;
 CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
 
@@ -1836,8 +1834,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
-	audio_menu = new CAudioSelectMenuHandler;
-
 	g_PluginList = new CPlugins;
 	g_PluginList->setPluginDir(PLUGINDIR);
 
@@ -1846,7 +1842,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	//load Pluginlist before main menu (only show script menu if at least one script is available
 	g_PluginList->loadPlugins();
 
-	APIDChanger               = new CAPIDChangeExec;
 	MoviePluginChanger        = new CMoviePluginChangeExec;
 
 	// setup recording device
