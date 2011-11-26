@@ -149,11 +149,11 @@ extern CBouquetManager *g_bouquetManager;
 void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mode)
 {
 	std::vector<CMenuWidget *> toDelete;
-	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS, width, height);
+	CMenuWidget mctv(LOCALE_TIMERLIST_BOUQUETSELECT, NEUTRINO_ICON_SETTINGS, width);
 	mctv.addIntroItems();
 
 	for (int i = 0; i < (int) g_bouquetManager->Bouquets.size(); i++) {
-		CMenuWidget* mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS, width, height);
+		CMenuWidget* mwtv = new CMenuWidget(LOCALE_TIMERLIST_CHANNELSELECT, NEUTRINO_ICON_SETTINGS, width);
 		toDelete.push_back(mwtv);
 		mwtv->addIntroItems();
 		ZapitChannelList channels = (mode == CZapitClient::MODE_RADIO) ? g_bouquetManager->Bouquets[i]->radioChannels : g_bouquetManager->Bouquets[i]->tvChannels;

@@ -448,7 +448,7 @@ class CMenuSelector : public CMenuItem
 class CMenuWidgetSelection : public CMenuWidget
 {
 	public:
-		CMenuWidgetSelection(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 400, const int mheight = 576) : CMenuWidget( Name,Icon,mwidth, mheight){;};
+		CMenuWidgetSelection(const neutrino_locale_t Name, const std::string & Icon = "", const int mwidth = 30) : CMenuWidget(Name, Icon, mwidth){;};
 		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
 };
 
