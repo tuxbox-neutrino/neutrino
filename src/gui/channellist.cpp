@@ -70,7 +70,6 @@
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
-extern SMSKeyInput * c_SMSKeyInput;
 extern CPictureViewer * g_PicViewer;
 extern CBouquetList   * TVbouquetList;
 extern CBouquetList   * TVsatList;
@@ -832,10 +831,11 @@ int CChannelList::show()
 			}
 			else if(g_settings.sms_channel) { 				
 				unsigned char smsKey = 0;
-				c_SMSKeyInput->setTimeout(CHANNEL_SMSKEY_TIMEOUT);
+				SMSKeyInput smsInput;
+				smsInput.setTimeout(CHANNEL_SMSKEY_TIMEOUT);
 
 				do {
-					smsKey = c_SMSKeyInput->handleMsg(msg);
+					smsKey = smsInput.handleMsg(msg);
 					//printf("SMS new key: %c\n", smsKey);
 					g_RCInput->getMsg_ms(&msg, &data, CHANNEL_SMSKEY_TIMEOUT-100);
 				} while ((msg >= CRCInput::RC_1) && (msg <= CRCInput::RC_9));
@@ -872,7 +872,7 @@ int CChannelList::show()
 							showChannelLogo();
 						}
 					}
-					c_SMSKeyInput->resetOldKey();
+					smsInput.resetOldKey();
 				}
 			}
 		}

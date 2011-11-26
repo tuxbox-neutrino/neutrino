@@ -224,7 +224,6 @@ CBouquetList   * RADIOallList;
 
 CPlugins       * g_PluginList;
 CRemoteControl * g_RemoteControl;
-SMSKeyInput * c_SMSKeyInput;
 CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
 
@@ -1849,7 +1848,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	dprintf( DEBUG_NORMAL, "menue setup\n");
 
-	c_SMSKeyInput = new SMSKeyInput();
 	//Main settings
 	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
 	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
