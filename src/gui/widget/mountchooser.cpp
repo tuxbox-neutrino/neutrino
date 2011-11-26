@@ -42,7 +42,7 @@
 #include <driver/rcinput.h>
 
 CMountChooser::CMountChooser(const neutrino_locale_t Name, const std::string & Icon, int * chosenIndex, char * chosenLocalDir, const char * const selectedLocalDir, const int mwidth)
-	: CMenuWidget(Name, Icon,mwidth,mheight), index(chosenIndex), localDir(chosenLocalDir)
+	: CMenuWidget(Name, Icon, mwidth), index(chosenIndex), localDir(chosenLocalDir)
 {
 	char indexStr[2];
 	for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++)
