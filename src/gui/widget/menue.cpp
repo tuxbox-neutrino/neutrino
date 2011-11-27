@@ -494,7 +494,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 		
 	do {
-		if(hasItem() && selected >= 0)
+		if(hasItem() && selected >= 0 && (int)items.size() > selected )
 			bAllowRepeatLR = items[selected]->can_arrow;
 
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, bAllowRepeatLR);
@@ -657,7 +657,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				case (CRCInput::RC_right):
 				case (CRCInput::RC_ok):
 					{
-						if(hasItem() && selected > -1) {
+						if(hasItem() && selected > -1 && (int)items.size() > selected) {
 							//exec this item...
 							CMenuItem* item = items[selected];
 							item->msg = msg;
