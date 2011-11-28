@@ -50,6 +50,7 @@ class CKeyChooser : public CMenuWidget
 	private:
 		CFrameBuffer		*frameBuffer;
 		int*			key;
+		std::string		keyName;
 		CKeyChooserItem		*keyChooser;
 		CKeyChooserItemNoKey	*keyDeleter;
 
@@ -58,6 +59,7 @@ class CKeyChooser : public CMenuWidget
 		~CKeyChooser();
 
 		void paint();
+		const std::string & getKeyName(){return keyName;};
 };
 
 class CKeyChooserItem : public CMenuTarget

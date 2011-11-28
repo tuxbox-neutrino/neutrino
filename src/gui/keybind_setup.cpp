@@ -235,7 +235,7 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	//misc
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_MISC));
 	//bindSettings->addItem(new CMenuForwarder(keydescription[KEY_PLUGIN], true, NULL, keychooser[KEY_PLUGIN]));
-	bindSettings->addItem(new CMenuForwarder(key_settings[KEY_UNLOCK].keydescription, true, NULL, keychooser[KEY_UNLOCK]));
+	bindSettings->addItem(new CMenuForwarder(key_settings[KEY_UNLOCK].keydescription, true, keychooser[KEY_UNLOCK]->getKeyName(), keychooser[KEY_UNLOCK]));
 	//bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_MENU_LEFT_EXIT, &g_settings.menu_left_exit, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
@@ -246,8 +246,8 @@ void CKeybindSetup::showKeyBindModeSetup(CMenuWidget *bindSettings_modes)
 {
 	bindSettings_modes->addIntroItems(LOCALE_KEYBINDINGMENU_MODECHANGE);
 	
-	bindSettings_modes->addItem(new CMenuForwarder(key_settings[KEY_TV_RADIO_MODE].keydescription, true, NULL, keychooser[KEY_TV_RADIO_MODE], NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	bindSettings_modes->addItem(new CMenuForwarder(key_settings[KEY_POWER_OFF].keydescription, true, NULL, keychooser[KEY_POWER_OFF], NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	bindSettings_modes->addItem(new CMenuForwarder(key_settings[KEY_TV_RADIO_MODE].keydescription, true, keychooser[KEY_TV_RADIO_MODE]->getKeyName(), keychooser[KEY_TV_RADIO_MODE], NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	bindSettings_modes->addItem(new CMenuForwarder(key_settings[KEY_POWER_OFF].keydescription, true, keychooser[KEY_POWER_OFF]->getKeyName(), keychooser[KEY_POWER_OFF], NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 }
 
 void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist)
@@ -257,7 +257,7 @@ void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist
 	bindSettings_chlist->addItem(oj);
 
 	for (int i = KEY_PAGE_UP; i <= KEY_BOUQUET_DOWN; i++)
-		bindSettings_chlist->addItem(new CMenuForwarder(key_settings[i].keydescription, true, NULL, keychooser[i]));
+		bindSettings_chlist->addItem(new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]));
 
 	bindSettings_chlist->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SMS_CHANNEL, &g_settings.sms_channel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 }
@@ -267,7 +267,7 @@ void CKeybindSetup::showKeyBindQuickzapSetup(CMenuWidget *bindSettings_qzap)
 	bindSettings_qzap->addIntroItems(LOCALE_KEYBINDINGMENU_QUICKZAP);
 
 	for (int i = KEY_CHANNEL_UP; i <= KEY_LASTCHANNEL; i++)
-		bindSettings_qzap->addItem(new CMenuForwarder(key_settings[i].keydescription, true, NULL, keychooser[i]));
+		bindSettings_qzap->addItem(new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]));
 }
 
 void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplayer)
@@ -275,6 +275,6 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 	bindSettings_mplayer->addIntroItems(LOCALE_MAINMENU_MOVIEPLAYER);
 	
 	for (int i = MPKEY_REWIND; i <= MPKEY_PLUGIN; i++)
-		bindSettings_mplayer->addItem(new CMenuForwarder(key_settings[i].keydescription, true, NULL, keychooser[i]));
+		bindSettings_mplayer->addItem(new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]));
 }
 

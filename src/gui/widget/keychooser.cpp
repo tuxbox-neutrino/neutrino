@@ -68,6 +68,7 @@ CKeyChooser::CKeyChooser(int * const Key, const neutrino_locale_t title, const s
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	key = Key;
+	keyName = CRCInput::getKeyName(*key);
 	keyChooser = new CKeyChooserItem(LOCALE_KEYCHOOSER_HEAD, key);
 	keyDeleter = new CKeyChooserItemNoKey(key);
 
@@ -90,7 +91,7 @@ CKeyChooser::~CKeyChooser()
 void CKeyChooser::paint()
 {
 	(((CKeyValue *)(items[0]))->keyvalue) = *key;
-
+	keyName = CRCInput::getKeyName(*key);
 	CMenuWidget::paint();
 }
 
