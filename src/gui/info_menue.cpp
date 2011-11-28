@@ -32,6 +32,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 
 #include "gui/info_menue.h"
 #include "gui/imageinfo.h"
@@ -43,7 +44,6 @@
 CInfoMenu::CInfoMenu()
 {
 	width = w_max (40, 10);
-	selected = -1;
 }
 
 CInfoMenu::~CInfoMenu()
@@ -54,7 +54,6 @@ CInfoMenu::~CInfoMenu()
 
 int CInfoMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 {
-	printf("[neutrino] CInfoMenu %s: init...\n",__FUNCTION__);
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent != NULL)
@@ -67,10 +66,7 @@ int CInfoMenu::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 
 int CInfoMenu::showMenu()
 {
-	printf("[neutrino] CInfoMenu call %s...\n", __FUNCTION__);
-
-	CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO);
-	info->setSelected(selected);
+	CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_INFOMENUE);
 
 	info->addIntroItems();
 	info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
@@ -79,7 +75,6 @@ int CInfoMenu::showMenu()
 
 	int res = info->exec(NULL, "");
 	info->hide();
-	selected = info->getSelected();
 	delete info;
 	return res;
 }

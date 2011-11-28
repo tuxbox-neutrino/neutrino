@@ -119,6 +119,9 @@ enum MN_WIDGET_ID
 	//cec setup
 	MN_WIDGET_ID_CEC,
 	
+	//infomenue
+	MN_WIDGET_ID_INFOMENUE,
+	
 	MN_WIDGET_ID_MAX
 };
 

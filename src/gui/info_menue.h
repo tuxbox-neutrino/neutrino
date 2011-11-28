@@ -38,7 +38,7 @@
 class CInfoMenu : public CMenuTarget
 {
 	private:
-		int width, selected;
+		int width;
 		
 		int showMenu();
 		
