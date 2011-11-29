@@ -32,6 +32,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 
 #include "gui/settings_manager.h"
 
