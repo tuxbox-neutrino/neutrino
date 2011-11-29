@@ -332,7 +332,15 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
         iconfile = Icon;
 	 
 	//handle select values
-	widget_index = w_index;
+	if(w_index > MN_WIDGET_ID_MAX){
+		//error
+		fprintf(stderr, "Warning: %s Index ID value (%i) is bigger than MN_WIDGET_ID_MAX (%i)  \n", __FUNCTION__,w_index,MN_WIDGET_ID_MAX );
+		widget_index  = NO_WIDGET_ID;
+	}
+	else{
+		//ok
+		widget_index = w_index;
+	}
 	preselected = NO_WIDGET_ID;  
 	selected = (widget_index == NO_WIDGET_ID ? preselected : mglobal->v_selected[widget_index]);
 	
