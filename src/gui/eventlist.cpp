@@ -867,13 +867,10 @@ void EventList::paintHead(t_channel_id _channel_id, std::string _channelname)
 	std::string lname;
 	int logo_w = 0;
 	int logo_h = 0;
+	int logo_w_max = width / 4;
 	if(g_settings.infobar_show_channellogo && g_PicViewer->GetLogoName(_channel_id, _channelname, lname, &logo_w, &logo_h)){
-		if(logo_h > theight){
-			if((theight/(logo_h-theight))>1){
-				logo_w -= (logo_w/(theight/(logo_h-theight)));
-			}
-			logo_h = theight;
-		}
+			if((logo_h > theight) || (logo_w > logo_w_max))
+				g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, theight);
 		logo_ok = g_PicViewer->DisplayImage(lname, x+10, y+(theight-logo_h)/2, logo_w, logo_h);
 	}
 	else 
