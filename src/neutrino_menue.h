@@ -41,6 +41,9 @@
 //enums for menu widget indicies, 
 enum MN_WIDGET_ID
 {
+	//settings manager
+	MN_WIDGET_ID_SETTINGS_MNGR,
+
 	//network setup
 	MN_WIDGET_ID_NETWORKSETUP,
 	MN_WIDGET_ID_NETWORKSETUP_NTP,

@@ -50,14 +50,11 @@
 CSettingsManager::CSettingsManager()
 {
 	width = w_max (40, 10);
-	selected = -1;
 }
 
 
 CSettingsManager::~CSettingsManager()
 {
-
-
 }
 
 int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -149,9 +146,7 @@ int CSettingsManager::showMenu()
 
 	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
 
-	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_MANAGE, NEUTRINO_ICON_SETTINGS, width);
-	mset->setSelected(selected);
-	
+	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_MANAGE, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
 	mset->addIntroItems();
 
 	mset->addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier, 	"settings", 	CRCInput::RC_recall));// FIXME: RC-button RECALL is broken
@@ -166,7 +161,6 @@ int CSettingsManager::showMenu()
 		
 	int res = mset->exec(NULL, "");
 	mset->hide();
-	selected = mset->getSelected();
 	delete resetNotifier;
 	delete mset;
 	return res;
