@@ -731,7 +731,7 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 		int ChanNumYPos = BoxStartY + ChanHeight;
-		if (g_settings.infobar_sat_display && satellitePosition >= 0 && !satellitePositions.empty()) {
+		if (g_settings.infobar_sat_display && !satellitePositions.empty()) {
 			sat_iterator_t sit = satellitePositions.find(satellitePosition);
 
 			if (sit != satellitePositions.end()) {

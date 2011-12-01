@@ -625,7 +625,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 				int bouquetId;
 				char pname[100];
 				if (CFrontend::getInstance()->getInfo()->type == FE_QPSK)
-					snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition >= 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
+					snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
 				else
 					snprintf(pname, 100, "%s", providerName.c_str());
 
