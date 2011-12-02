@@ -137,8 +137,8 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 
 	if(channel == NULL) {
-			printf("CCamManager: channel %llx not found\n", channel_id);
-			return false;
+		printf("CCamManager: channel %llx not found\n", channel_id);
+		return false;
 	}
 
 	mutex.lock();
@@ -151,11 +151,15 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	sat_iterator_t sit = satellitePositions.find(channel->getSatellitePosition());
 
 	cammap_iterator_t it = channel_map.find(channel_id);
-	if(it == channel_map.end()) {
+	if(it != channel_map.end()) {
+		cam = it->second;
+	} else if(start) {
 		cam = new CCam();
 		channel_map.insert(std::pair<t_channel_id, CCam*>(channel_id, cam));
-	} else
-		cam = it->second;
+	} else {
+		mutex.unlock();
+		return false;
+	}
 
 	switch(mode) {
 		case PLAY:
@@ -173,7 +177,10 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	}
 
 	oldmask = cam->getCaMask();
-	newmask = cam->makeMask(demux, start);
+	if(force_update)
+		newmask = oldmask;
+	else
+		newmask = cam->makeMask(demux, start);
 
 	if((oldmask != newmask) || force_update)
 		cam->setCaPmt(channel->getCaPmt(), source, newmask, true);
