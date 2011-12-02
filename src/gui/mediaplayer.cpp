@@ -81,7 +81,6 @@ CMediaPlayerMenu::~CMediaPlayerMenu()
 int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	printf("init mediaplayer menu in usage mode %d\n", usage_mode);
-	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
 		parent->hide();
@@ -92,7 +91,7 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			audioPlayer = new CAudioPlayerGui();
 		audioPlayer->exec(NULL, "init");
 		
-		return res;
+		return menu_return::RETURN_REPAINT;
 	}
 	else if	(actionKey == "inetplayer")
 	{
@@ -100,16 +99,16 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 			inetPlayer = new CAudioPlayerGui(true);
 		inetPlayer->exec(NULL, "init");
 		
-		return res;
+		return menu_return::RETURN_REPAINT;
 	}
 	
-	showMenu(); 
+	int res = showMenu(); 
 	
 	return res;
 }
 
 //show selectable mediaplayer items
-void CMediaPlayerMenu::showMenu()
+int CMediaPlayerMenu::showMenu()
 {
 	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA);
 
@@ -182,10 +181,12 @@ void CMediaPlayerMenu::showMenu()
 #endif
 	}
 	
-	media->exec(NULL, "");
+	int res = media->exec(NULL, "");
 	media->hide();
 	delete media;
 	setUsageMode();//set default usage_mode
+	
+	return res;
 }
 
 //show movieplayer submenu with selectable items for moviebrowser or filebrowser

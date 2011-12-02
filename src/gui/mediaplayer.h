@@ -43,7 +43,7 @@ class CMediaPlayerMenu : public CMenuTarget
 		int width, usage_mode;
 		neutrino_locale_t menu_title;
 
-		void showMenu();
+		int showMenu();
 		void showMoviePlayer(CMenuWidget *menu_movieplayer);
 
 	public:	
