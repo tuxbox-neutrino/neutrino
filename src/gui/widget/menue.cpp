@@ -378,6 +378,7 @@ void CMenuWidget::move(int xoff, int yoff)
 
 CMenuWidget::~CMenuWidget()
 {
+#if 0
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
 		if ((item != GenericMenuSeparator) &&
@@ -388,6 +389,8 @@ CMenuWidget::~CMenuWidget()
 	}
 	items.clear();
 	page_start.clear();
+#endif
+	resetWidget();
 }
 
 void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
@@ -409,6 +412,14 @@ void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
 
 void CMenuWidget::resetWidget()
 {
+	for(unsigned int count=0;count<items.size();count++) {
+		CMenuItem * item = items[count];
+		if ((item != GenericMenuSeparator) &&
+		    (item != GenericMenuSeparatorLine) &&
+		    (item != GenericMenuBack) &&
+		    (item != GenericMenuCancel))
+			delete item;
+	}
 	items.clear();
 	page_start.clear();
 	selected=-1;
@@ -754,9 +765,10 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			items[count] = GenericMenuBack;
 		else if (items[count] == GenericMenuCancel)
 			items[count] = GenericMenuBack;
-			
+#if 0 // done in hide
 		CMenuItem* item = items[count];
 		item->init(-1, 0, 0, 0);
+#endif
 	}
 	
  	if (widget_index > -1)
@@ -769,6 +781,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 void CMenuWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width+15+SHADOW_OFFSET,height+10+SHADOW_OFFSET);
+	/* setActive() paints item for hidden parent menu, if called from child menu */
+	for (unsigned int count = 0; count < items.size(); count++) 
+		items[count]->init(-1, 0, 0, 0);
 }
 
 void CMenuWidget::paint()
@@ -1308,12 +1323,12 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 	bool wantsRepaint = false;
 	int ret = menu_return::RETURN_NONE;
 
-	if (parent)
-		parent->hide();
-
 	if((!parent || msg == CRCInput::RC_ok) && pulldown) {
 		int select = -1;
 		char cnt[5];
+
+		if (parent)
+			parent->hide();
 
 		CMenuWidget* menu = new CMenuWidget(optionName, NEUTRINO_ICON_SETTINGS);
 		menu->addIntroItems();
@@ -1346,14 +1361,13 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 						strcpy(optionValue, options[options.size() - 1].c_str());
 				} else
 					strcpy(optionValue, options[(count + 1) % options.size()].c_str());
-				wantsRepaint = true;
+				//wantsRepaint = true;
 				break;
 			}
 		}
-	}
 
-	if(parent)
 		paint(true);
+	}
 	if(observ) {
 		wantsRepaint = observ->changeNotify(optionName, optionValue);
 	}
@@ -1372,7 +1386,7 @@ int CMenuOptionStringChooser::paint( bool selected, bool /*last*/ )
 
 	//paint item icon
 	paintItemButton(selected, height, NEUTRINO_ICON_BUTTON_OKAY);
-	
+
 	//paint text
 	paintItemCaption(selected, height , l_optionName, optionValue);
 
