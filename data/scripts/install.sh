@@ -12,10 +12,13 @@ update_file()
 		MD5IMG=0
 	fi
 
-	if [ "$MD5NEW" = "$MD5IMG" ] 
-	then
+	if [ "$MD5NEW" = "$MD5IMG" ]; then
 		echo "New and old File $FILE_IMAGE identical"
 	else
+		DIR=$(dirname "$FILE_IMAGE")
+		if [ ! -d "${DIR}" ]; then
+			mkdir -p ${DIR}
+		fi
 		echo "update $FILE_IMAGE"
 		rm -f $FILE_IMAGE
 		cp $FILE_NEW $FILE_IMAGE
