@@ -1,11 +1,10 @@
 /*
- * $Id$
- *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
+ * (C) 2010-2011 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,8 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * Foundation, 51 Franklin Street, Suite 500 Boston, MA 02110-1335 USA
  */
 
 #include <fcntl.h>
@@ -74,6 +72,7 @@ cVideo::cVideo(int, void *, void *)
 	lt_debug("%s\n", __FUNCTION__);
 	if ((fd = open(VIDEO_DEVICE, O_RDWR)) < 0)
 		lt_info("%s cannot open %s: %m\n", __FUNCTION__, VIDEO_DEVICE);
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
 
 	playstate = VIDEO_STOPPED;
 	croppingMode = VID_DISPMODE_NORM;

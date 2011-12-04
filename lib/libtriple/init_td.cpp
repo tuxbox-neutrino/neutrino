@@ -127,6 +127,7 @@ void init_td_api()
 		gfxfd = open("/dev/stb/tdgfx", O_RDWR);
 		if (gfxfd < 0)
 			perror("open /dev/stb/tdgfx");
+		fcntl(gfxfd, F_SETFD, FD_CLOEXEC);
 	}
 	initialized = true;
 	lt_info("%s end\n", __FUNCTION__);

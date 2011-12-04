@@ -99,6 +99,7 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 		lt_info("%s %s: %m\n", __FUNCTION__, devname[devnum]);
 		return false;
 	}
+	fcntl(fd, F_SETFD, FD_CLOEXEC);
 	lt_debug("%s #%d pes_type: %s (%d), uBufferSize: %d devname: %s fd: %d\n", __FUNCTION__,
 			num, DMX_T[pes_type], pes_type, uBufferSize, devname[devnum], fd);
 
@@ -510,6 +511,7 @@ bool cDemux::addPid(unsigned short Pid)
 		lt_info("%s #%d Pid = %hx open failed (%m)\n", __FUNCTION__, num, Pid);
 		return false;
 	}
+	fcntl(pfd.fd, F_SETFD, FD_CLOEXEC);
 	lt_debug("%s #%d Pid = %hx pfd = %d\n", __FUNCTION__, num, Pid, pfd.fd);
 
 	p.pid = Pid;

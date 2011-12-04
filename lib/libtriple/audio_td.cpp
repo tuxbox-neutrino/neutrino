@@ -35,6 +35,7 @@ void cAudio::openDevice(void)
 	{
 		if ((fd = open(AUDIO_DEVICE, O_RDWR)) < 0)
 			lt_info("openDevice: open failed (%m)\n");
+		fcntl(fd, F_SETFD, FD_CLOEXEC);
 	}
 	else
 		lt_info("openDevice: already open (fd = %d)\n", fd);
@@ -185,6 +186,7 @@ int cAudio::PrepareClipPlay(int ch, int srate, int bits, int little_endian)
 		lt_info("%s open /dev/sound/dsp: %m\n", __FUNCTION__);
 		return -1;
 	}
+	fcntl(clipfd, F_SETFD, FD_CLOEXEC);
 	/* no idea if we ever get little_endian == 0 */
 	if (little_endian)
 		fmt = AFMT_S16_BE;

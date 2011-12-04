@@ -260,6 +260,7 @@ void cPlayback::playthread(void)
 		lt_info("%s open tdpvr failed: %m\n", __FUNCTION__);
 		pthread_exit(NULL);
 	}
+	fcntl(dvrfd, F_SETFD, FD_CLOEXEC);
 
 	pthread_cleanup_push(playthread_cleanup_handler, 0);
 
@@ -657,6 +658,7 @@ int cPlayback::mf_open(int fileno)
 	mf_close();
 
 	in_fd = open(filelist[fileno].Name.c_str(), O_RDONLY);
+	fcntl(in_fd, F_SETFD, FD_CLOEXEC);
 	if (in_fd != -1)
 		curr_fileno = fileno;
 
