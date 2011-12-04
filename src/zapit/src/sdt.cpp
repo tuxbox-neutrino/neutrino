@@ -2,10 +2,11 @@
  * $Id: sdt.cpp,v 1.44 2003/03/14 08:22:04 obi Exp $
  *
  * (C) 2002, 2003 by Andreas Oberritter <obi@tuxbox.org>
+ * (C) 2011 Stefan Seyfried, all changes by me are GPLv3+ only!
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -15,8 +16,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * Foundation, 51 Franklin Street, Suite 500 Boston, MA 02110-1335 USA
  */
 
 #include <fcntl.h>
@@ -421,9 +421,10 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 
 	do {
 		if ((dmx->sectionFilter(0x11, filter, mask, 8) < 0) || (dmx->Read(buffer, SDT_SIZE) < 0)) {
-			delete dmx;
-			return ret;
+			ret = -1; /* if we already received something, throw it away anyway */
+			break;
 		}
+
 		dmx->Stop();
 
 		section_length = ((buffer[1] & 0x0F) << 8) | buffer[2];
