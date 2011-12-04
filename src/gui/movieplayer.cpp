@@ -3,6 +3,7 @@
 
   Movieplayer (c) 2003, 2004 by gagga
   Based on code by Dirch, obi and the Metzler Bros. Thanks.
+  (C) 2011 Stefan Seyfried
 
   Copyright (C) 2011 CoolStream International Ltd
 
@@ -30,6 +31,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <system/safe_system.h>
 #include <gui/movieplayer.h>
 #include <gui/infoviewer.h>
 #include <gui/bookmarkmanager.h>
@@ -175,7 +177,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	startposition = 0;
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_START_SCRIPT ".");
-	if (system(MOVIEPLAYER_START_SCRIPT) != 0)
+	if (safe_system(MOVIEPLAYER_START_SCRIPT) != 0)
 		perror(MOVIEPLAYER_START_SCRIPT " failed");
 	
 	isMovieBrowser = false;
@@ -213,7 +215,7 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 	bookmarkmanager->flush();
 
 	puts("[movieplayer.cpp] executing " MOVIEPLAYER_END_SCRIPT ".");
-	if (system(MOVIEPLAYER_END_SCRIPT) != 0)
+	if (safe_system(MOVIEPLAYER_END_SCRIPT) != 0)
 		perror(MOVIEPLAYER_END_SCRIPT " failed");
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);

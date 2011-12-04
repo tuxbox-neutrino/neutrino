@@ -3,15 +3,16 @@
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 							 and some other guys
-	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2006-2011 Stefan Seyfried
+				my contributions are GPL3+ only
 	Copyright (C) 2011 CoolStream International Ltd
 
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
+	the Free Software Foundation; either version 3 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
@@ -20,8 +21,8 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -99,6 +100,7 @@
 #include <system/fsmounter.h>
 #include <system/setting_helpers.h>
 #include <system/settings.h>
+#include <system/safe_system.h>
 
 #include <timerdclient/timerdmsg.h>
 
@@ -570,7 +572,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		if(strcmp(g_settings.timeshiftdir, g_settings.network_nfs_recordingdir)) {
 			char buf[512];
 			sprintf(buf, "rm -f %s/*_temp.ts %s/*_temp.xml &", timeshiftDir, timeshiftDir);
-			system(buf);
+			safe_system(buf);
 		}
 	}
 	g_settings.record_hours = configfile.getInt32( "record_hours", 4 );
@@ -2689,7 +2691,7 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
-		system(NEUTRINO_RECORDING_TIMER_SCRIPT);
+		safe_system(NEUTRINO_RECORDING_TIMER_SCRIPT);
 		if (g_settings.recording_type == RECORDING_FILE) {
 			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -2697,13 +2699,13 @@ _repeat:
 					printf("[neutrino] waking up %s (%s)\n",g_settings.network_nfs_ip[i].c_str(),recordingDir);
 					std::string command = "ether-wake ";
 					command += g_settings.network_nfs_mac[i];
-					if(system(command.c_str()) != 0)
+					if(safe_system(command.c_str()) != 0)
 						perror("ether-wake failed");
 					break;
 				}
 			}
 			if(has_hdd) {
-				system("(rm /media/sda1/.wakeup; touch /media/sda1/.wakeup; sync) > /dev/null  2> /dev/null &"); // wakeup hdd
+				safe_system("(rm /media/sda1/.wakeup; touch /media/sda1/.wakeup; sync) > /dev/null  2> /dev/null &"); // wakeup hdd
 			}
 		}
 		if( g_settings.recording_zap_on_announce ) {
@@ -2949,7 +2951,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		if(retcode) {
 			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
 			printf("[%s] executing %s\n",__FILE__ ,neutrino_enter_deepstandby_script);
-			if (system(neutrino_enter_deepstandby_script) != 0)
+			if (safe_system(neutrino_enter_deepstandby_script) != 0)
 				perror(neutrino_enter_deepstandby_script );
 
 			printf("entering off state\n");
@@ -3246,7 +3248,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		standby_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
-		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
+		if (safe_system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
 
 		if(!CRecordManager::getInstance()->RecordingStatus())
@@ -3291,7 +3293,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		}
 
 		puts("[neutrino.cpp] executing " NEUTRINO_LEAVE_STANDBY_SCRIPT ".");
-		if (system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
+		if (safe_system(NEUTRINO_LEAVE_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_LEAVE_STANDBY_SCRIPT " failed");
 
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);

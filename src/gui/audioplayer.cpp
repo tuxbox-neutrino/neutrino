@@ -5,6 +5,7 @@
 
   (C) 2002-2008 the tuxbox project contributors
   (C) 2008 Novell, Inc. Author: Stefan Seyfried
+  (C) 2011 Stefan Seyfried
 
   Homepage: http://dbox.cyberphoria.org/
 
@@ -20,7 +21,7 @@
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
+  the Free Software Foundation; either version 3 of the License, or
   (at your option) any later version.
 
   This program is distributed in the hope that it will be useful,
@@ -29,8 +30,7 @@
   GNU General Public License for more details.
 
   You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -68,6 +68,7 @@
 #include <gui/widget/stringinput_ext.h>
 
 #include <system/settings.h>
+#include <system/safe_system.h>
 #include <xmltree/xmlinterface.h>
 #include <driver/screen_max.h>
 
@@ -315,7 +316,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	g_Sectionsd->setPauseScanning(true);
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_START_SCRIPT ".");
-	if (system(AUDIOPLAYER_START_SCRIPT) != 0)
+	if (safe_system(AUDIOPLAYER_START_SCRIPT) != 0)
 		perror("Datei " AUDIOPLAYER_START_SCRIPT " fehlt.Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_START_SCRIPT " not found. Please create if needed.\n");
 
 	show();
@@ -327,7 +328,7 @@ int CAudioPlayerGui::exec(CMenuTarget* parent, const std::string &actionKey)
 	m_frameBuffer->paintBackground();
 
 	puts("[audioplayer.cpp] executing " AUDIOPLAYER_END_SCRIPT ".");
-	if (system(AUDIOPLAYER_END_SCRIPT) != 0)
+	if (safe_system(AUDIOPLAYER_END_SCRIPT) != 0)
 		perror("Datei " AUDIOPLAYER_END_SCRIPT " fehlt. Bitte erstellen, wenn gebraucht.\nFile " AUDIOPLAYER_END_SCRIPT " not found. Please create if needed.\n");
 
 	g_Zapit->unlockPlayBack();

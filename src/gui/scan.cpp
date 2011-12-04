@@ -2,21 +2,13 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
-
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2011 Stefan Seyfried
 
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
+	the Free Software Foundation; either version 3 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
@@ -25,8 +17,7 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -52,6 +43,7 @@
 #include <gui/widget/progressbar.h>
 
 #include <system/settings.h>
+#include <system/safe_system.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -250,7 +242,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	if(!manual) {
 		g_RCInput->close_click();
-                if (system(NEUTRINO_SCAN_START_SCRIPT) != 0)
+		if (safe_system(NEUTRINO_SCAN_START_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
 
@@ -321,7 +313,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	g_Zapit->stopScan();
 
 	if(!manual) {
-                if (system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
+		if (safe_system(NEUTRINO_SCAN_STOP_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_STOP_SCRIPT " failed");
 		g_RCInput->open_click();
 	}
