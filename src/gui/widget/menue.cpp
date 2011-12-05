@@ -354,7 +354,6 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	{
 		/* warn about abuse until we found all offenders... */
 		fprintf(stderr, "Warning: %s (%s) (%s) mwidth over 100%%: %d\n", __FUNCTION__, nameString.c_str(), Icon.c_str(), mwidth);
-		
 	}
 	else 
 	{
@@ -363,10 +362,6 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 			min_width = frameBuffer->getScreenWidth();
 	}
 
-	/* set the max height to 9/10 of usable screen height
-	   debatable, if the callers need a possibility to set this */
-	height 		= frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
-	wanted_height 	= height;
         current_page	= 0;
 	offx = offy 	= 0;
 	from_wizard 	= false;
@@ -475,12 +470,6 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 	if (parent)
 		parent->hide();
-
-	/* set the max height to 9/10 of usable screen height
-	   debatable, if the callers need a possibility to set this */
-	//FIXME width ??
-	height = frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
-	wanted_height = height;
 
 	bool fadeIn = g_settings.widget_fade && fade;
 	bool fadeOut = false;
@@ -787,9 +776,8 @@ void CMenuWidget::calcSize()
 	if (name != NONEXISTANT_LOCALE)
 		nameString = g_Locale->getText(name);
 
-	/* FIXME why wanted_height needed ? in ::exec it set to height,
-	 * here height set to wanted_height ?? */
-	//height = wanted_height;
+	/* set the max height to 9/10 of usable screen height
+	   debatable, if the callers need a possibility to set this */
 	height = frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
 	width = min_width;
 

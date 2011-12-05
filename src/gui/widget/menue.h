@@ -403,7 +403,6 @@ class CMenuWidget : public CMenuTarget
 		int			width;
 		int			height;
 		int			hheight; // header
-		int         		wanted_height;
 		int			x;
 		int			y;
 		int			offx, offy;
