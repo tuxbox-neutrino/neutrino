@@ -307,6 +307,9 @@ CMenuWidget::CMenuWidget()
 	offx = offy 	= 0;
 	from_wizard 	= false;
 	fade 		= true;
+	sb_width	= 0;
+	savescreen	= false;
+	background	= NULL;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
@@ -368,6 +371,8 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	offx = offy 	= 0;
 	from_wizard 	= false;
 	fade 		= true;
+	savescreen	= false;
+	background	= NULL;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -378,18 +383,6 @@ void CMenuWidget::move(int xoff, int yoff)
 
 CMenuWidget::~CMenuWidget()
 {
-#if 0
-	for(unsigned int count=0;count<items.size();count++) {
-		CMenuItem * item = items[count];
-		if ((item != GenericMenuSeparator) &&
-		    (item != GenericMenuSeparatorLine) &&
-		    (item != GenericMenuBack) &&
-		    (item != GenericMenuCancel))
-			delete item;
-	}
-	items.clear();
-	page_start.clear();
-#endif
 	resetWidget();
 }
 
@@ -765,10 +758,6 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			items[count] = GenericMenuBack;
 		else if (items[count] == GenericMenuCancel)
 			items[count] = GenericMenuBack;
-#if 0 // done in hide
-		CMenuItem* item = items[count];
-		item->init(-1, 0, 0, 0);
-#endif
 	}
 	
  	if (widget_index > -1)
@@ -780,18 +769,21 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 void CMenuWidget::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x, y, width+15+SHADOW_OFFSET,height+10+SHADOW_OFFSET);
+	//frameBuffer->paintBackgroundBoxRel(x, y, width+15+SHADOW_OFFSET,height+10+SHADOW_OFFSET);
+	if(savescreen && background)
+		restoreScreen();//FIXME
+	else
+		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height);
+
 	/* setActive() paints item for hidden parent menu, if called from child menu */
 	for (unsigned int count = 0; count < items.size(); count++) 
 		items[count]->init(-1, 0, 0, 0);
 }
 
-void CMenuWidget::paint()
+void CMenuWidget::calcSize()
 {
 	if (name != NONEXISTANT_LOCALE)
 		nameString = g_Locale->getText(name);
-	
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
 
 	/* FIXME why wanted_height needed ? in ::exec it set to height,
 	 * here height set to wanted_height ?? */
@@ -821,8 +813,8 @@ void CMenuWidget::paint()
 	if (neededWidth > width-48) {
 		width= neededWidth+ 49;
 	}
-	int hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
+	hheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+
 	int itemHeightTotal=0;
 	int heightCurrPage=0;
 	page_start.clear();
@@ -868,11 +860,12 @@ void CMenuWidget::paint()
 	x = offx + frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width ) >> 1 );
 	y = offy + frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 1 );
 
-	int sb_width;
+	sb_width=0;
 	if(total_pages > 1)
 		sb_width=15;
-	else
-		sb_width=0;
+
+	full_width = width+sb_width+SHADOW_OFFSET;
+	full_height = height+RADIUS_LARGE-2+SHADOW_OFFSET;
 
 	switch(g_settings.menu_pos) {
 		case 0: //DEFAULT_CENTER
@@ -894,6 +887,14 @@ void CMenuWidget::paint()
 			x = offx + frameBuffer->getScreenX() + frameBuffer->getScreenWidth() - width - sb_width - 10;
 			break;
 	}
+}
+
+void CMenuWidget::paint()
+{
+	calcSize();
+	saveScreen();
+
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
 
 	//paint shadow and backround
 	int rad = RADIUS_LARGE-2;
@@ -908,6 +909,7 @@ void CMenuWidget::paint()
 		frameBuffer->getIconSize(iconfile.c_str(), &w, &h);
 		HeadiconOffset = w+6;
 	}
+	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getWidth();
 	g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(x+(fw/3)+HeadiconOffset,y+hheight+1, width-((fw/3)+HeadiconOffset), nameString.c_str(), COL_MENUHEAD, 0, true); // UTF-8
 	frameBuffer->paintIcon(iconfile, x + fw/4, y, hheight);
 
@@ -991,6 +993,37 @@ void CMenuWidget::addIntroItems(neutrino_locale_t subhead_text, neutrino_locale_
 		addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, section_text));
 	else
 		addItem(GenericMenuSeparatorLine);
+}
+
+void CMenuWidget::saveScreen()
+{
+	if(!savescreen)
+		return;
+
+	delete[] background;
+
+	background = new fb_pixel_t [full_width * full_height];
+	if(background)
+		frameBuffer->SaveScreen(x, y, full_width, full_height, background);
+}
+
+void CMenuWidget::restoreScreen()
+{
+	if(background) {
+		if(savescreen)
+			frameBuffer->RestoreScreen(x, y, full_width, full_height, background);
+		delete[] background;
+		background = NULL;
+	}
+}
+
+void CMenuWidget::enableSaveScreen(bool enable)
+{
+	savescreen = enable;
+	if(!enable && background) {
+		delete[] background;
+		background = NULL;
+	}
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------

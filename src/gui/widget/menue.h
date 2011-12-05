@@ -402,6 +402,7 @@ class CMenuWidget : public CMenuTarget
 		int			min_width;
 		int			width;
 		int			height;
+		int			hheight; // header
 		int         		wanted_height;
 		int			x;
 		int			y;
@@ -409,6 +410,10 @@ class CMenuWidget : public CMenuTarget
 		int			preselected;
 		int			selected;
 		int 			iconOffset;
+		int			sb_width;
+		fb_pixel_t		*background;
+		int			full_width, full_height;
+		bool			savescreen;
 		
 		unsigned int         item_start_y;
 		unsigned int         current_page;
@@ -419,6 +424,9 @@ class CMenuWidget : public CMenuTarget
 
 		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
+		void calcSize();
+		void saveScreen();
+		void restoreScreen();
 	public:
 		CMenuWidget();
 		/* mwidth (minimum width) in percent of screen width */
@@ -453,6 +461,7 @@ class CMenuWidget : public CMenuTarget
 		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
 		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};
 		void enableFade(bool _enable) { fade = _enable; };
+		void enableSaveScreen(bool enable);
 };
 
 class CPINProtection
@@ -518,7 +527,5 @@ extern CMenuSeparator * const GenericMenuSeparator;
 extern CMenuSeparator * const GenericMenuSeparatorLine;
 extern CMenuForwarder * const GenericMenuBack;
 extern CMenuForwarder * const GenericMenuCancel;
-
-
 
 #endif
