@@ -106,7 +106,7 @@ class CMenuItem
 		
 		virtual void init(const int X, const int Y, const int DX, const int OFFX);
 
-		virtual int paint (bool selected = false, bool last = false) = 0;
+		virtual int paint (bool selected = false) = 0;
 		virtual int getHeight(void) const = 0;
 		virtual int getWidth(void)
 		{
@@ -162,7 +162,7 @@ class CMenuSeparator : public CMenuItem
 		CMenuSeparator(const int Type = 0, const neutrino_locale_t Text = NONEXISTANT_LOCALE);
 		virtual ~CMenuSeparator(){}
 
-		int paint(bool selected=false, bool last = false);
+		int paint(bool selected=false);
 		int getHeight(void) const;
 		int getWidth(void);
 
@@ -191,7 +191,7 @@ class CMenuForwarder : public CMenuItem
 
 	virtual ~CMenuForwarder(){}
 
-	int paint(bool selected=false, bool last = false);
+	int paint(bool selected=false);
 	int getHeight(void) const;
 	int getWidth(void);
 	void setOption(const char *Option);
@@ -262,7 +262,7 @@ private:
  public:
 	CMenuOptionNumberChooser(const neutrino_locale_t name, int * const OptionValue, const bool Active, const int min_value, const int max_value, CChangeObserver * const Observ = NULL, const int print_offset = 0, const int special_value = 0, const neutrino_locale_t special_value_name = NONEXISTANT_LOCALE, const char * non_localized_name = NULL, bool sliderOn = false );
 
-	int paint(bool selected, bool last = false);
+	int paint(bool selected);
 
 	int exec(CMenuTarget* parent);
 	int isMenueOptionChooser(void) const{return 1;}
@@ -314,7 +314,7 @@ class CMenuOptionChooser : public CAbstractMenuOptionChooser
 	int getOptionValue(void) const;
 	int getWidth(void);
 
-	int paint(bool selected, bool last = 0);
+	int paint(bool selected);
 	std::string getOptionName() {return optionNameString;};
 
 	int exec(CMenuTarget* parent);
@@ -336,7 +336,7 @@ class CMenuOptionStringChooser : public CMenuItem
 
 		void addOption(const char * value);
 		void removeOptions(){options.clear();};
-		int paint(bool selected, bool last = 0);
+		int paint(bool selected);
 		int getHeight(void) const
 		{
 			return height;
@@ -362,7 +362,7 @@ class CMenuOptionLanguageChooser : public CMenuItem
 		~CMenuOptionLanguageChooser();
 
 		void addOption(const char * value);
-		int paint(bool selected, bool last = 0);
+		int paint(bool selected);
 		int getHeight(void) const
 		{
 			return height;

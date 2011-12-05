@@ -3446,7 +3446,7 @@ int CMenuSelector::exec(CMenuTarget* /*parent*/)
 	return menu_return::RETURN_EXIT;
 };
 
-int CMenuSelector::paint(bool selected, bool /*last*/)
+int CMenuSelector::paint(bool selected)
 {
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
 

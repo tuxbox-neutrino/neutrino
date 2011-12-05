@@ -130,8 +130,6 @@ void CMenuItem::paintItemBackground (const bool select_mode, const int &item_hei
 	
 	if(select_mode)
 		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
-	//else if(last) ?? Why do we need this?
-		//frameBuffer->paintBoxRel(x, y, dx, item_height, i_bgcolor, RADIUS_LARGE, CORNER_BOTTOM); //FIXME 
 	else
 		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
 }
@@ -510,7 +508,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			CMenuItem* titem = items[i];
 			if ((titem->directKey != CRCInput::RC_nokey) && (titem->directKey == msg)) {
 				if (titem->isSelectable()) {
-					items[selected]->paint( false, (i == items.size()-1) );
+					items[selected]->paint( false );
 					selected= i;
 					msg= CRCInput::RC_ok;
 				} else {
@@ -561,8 +559,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								CMenuItem* item = items[pos];
 								if ( item->isSelectable() ) {
 									if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
-										items[selected]->paint( false, (pos == (int) items.size()-1) );
-										item->paint( true , (count == items.size()-1));
+										items[selected]->paint( false );
+										item->paint( true );
 										selected = pos;
 									} else {
 										selected=pos;
@@ -578,8 +576,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								CMenuItem* item = items[pos];
 								if ( item->isSelectable() ) {
 									if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
-										items[selected]->paint( false, (count == items.size()-1) );
-										item->paint( true, (count == items.size()-1) );
+										items[selected]->paint( false );
+										item->paint( true );
 										selected = pos;
 									} else {
 										selected=pos;
@@ -632,7 +630,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page]))
 								{ // Item is currently on screen
 									//clear prev. selected
-									items[selected]->paint( false, (selected == (int) (page_start[current_page + 1]-1)) );
+									items[selected]->paint( false );
 									//select new
 									item->paint( true );
 									selected = pos;
@@ -1061,7 +1059,7 @@ int CMenuOptionNumberChooser::exec(CMenuTarget*)
 	return menu_return::RETURN_NONE;
 }
 
-int CMenuOptionNumberChooser::paint(bool selected, bool /*last*/)
+int CMenuOptionNumberChooser::paint(bool selected)
 {
 	const char * l_option;
 	char option_value[11];
@@ -1249,7 +1247,7 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 	return ret;
 }
 
-int CMenuOptionChooser::paint( bool selected , bool /*last*/)
+int CMenuOptionChooser::paint( bool selected)
 {
 	if(optionName != NONEXISTANT_LOCALE)
 		optionNameString  = g_Locale->getText(optionName);
@@ -1403,7 +1401,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 	return ret;
 }
 
-int CMenuOptionStringChooser::paint( bool selected, bool /*last*/ )
+int CMenuOptionStringChooser::paint( bool selected )
 {
 	const char * l_optionName = g_Locale->getText(optionName);
 	
@@ -1468,7 +1466,7 @@ int CMenuOptionLanguageChooser::exec(CMenuTarget*)
 		return menu_return::RETURN_NONE;
 }
 
-int CMenuOptionLanguageChooser::paint( bool selected, bool /*last*/ )
+int CMenuOptionLanguageChooser::paint( bool selected )
 {
 	active = true;
 		
@@ -1589,7 +1587,7 @@ const char * CMenuForwarder::getName(void)
 	return g_Locale->getText(text);
 }
 
-int CMenuForwarder::paint(bool selected, bool /*last*/)
+int CMenuForwarder::paint(bool selected)
 {
 	int height = getHeight();
  	const char * l_text = getName();
@@ -1684,7 +1682,7 @@ int CMenuSeparator::getWidth(void)
 	return w;
 }
 
-int CMenuSeparator::paint(bool selected, bool /*last*/)
+int CMenuSeparator::paint(bool selected)
 {
 	int height;
 	CFrameBuffer * frameBuffer = CFrameBuffer::getInstance();
