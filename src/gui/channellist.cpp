@@ -335,6 +335,7 @@ int CChannelList::doChannelMenu(void)
 
 	CMenuWidget* menu = new CMenuWidget(LOCALE_CHANNELLIST_EDIT, NEUTRINO_ICON_SETTINGS);
 	menu->enableFade(false);
+	menu->enableSaveScreen(true);
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 
 	snprintf(cnt, sizeof(cnt), "%d", i);
@@ -435,6 +436,9 @@ int CChannelList::doChannelMenu(void)
 			{
 				COsdSetup osd_setup;
 				osd_setup.showContextChanlistMenu();
+				//FIXME check font/options changed ?
+				hide();
+				calcSize();
 			}
 			break;
 		default:
@@ -464,24 +468,9 @@ int CChannelList::exec()
 	return nNewChannel;
 }
 
-#define CHANNEL_SMSKEY_TIMEOUT 800
-/* return: >= 0 to zap, -1 on cancel, -3 on list mode change, -4 list edited, -2 zap but no restore old list/chan ?? */
-int CChannelList::show()
+void CChannelList::calcSize()
 {
-	/* temporary debugging stuff */
-	struct timeval t1, t2;
-	gettimeofday(&t1, NULL);
-
-	neutrino_msg_t      msg;
-	neutrino_msg_data_t data;
-	bool actzap = 0;
-	int res = -1;
 	const int pic_h = 39;
-	if (chanlist.empty()) {
-		return res;
-	}
-
-	this->new_mode_active = 0;
 	int  fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
 	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * (fw+6)):(frameBuffer->getScreenWidth() / 20 * (fw+5))), 100);
 	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
@@ -518,6 +507,65 @@ int CChannelList::show()
 
 	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
+}
+
+#define CHANNEL_SMSKEY_TIMEOUT 800
+/* return: >= 0 to zap, -1 on cancel, -3 on list mode change, -4 list edited, -2 zap but no restore old list/chan ?? */
+int CChannelList::show()
+{
+	/* temporary debugging stuff */
+	struct timeval t1, t2;
+	gettimeofday(&t1, NULL);
+
+	neutrino_msg_t      msg;
+	neutrino_msg_data_t data;
+	bool actzap = 0;
+	int res = -1;
+	if (chanlist.empty()) {
+		return res;
+	}
+
+	this->new_mode_active = 0;
+#if 0
+	const int pic_h = 39;
+	int  fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
+	width  = w_max (((g_settings.channellist_extended)?(frameBuffer->getScreenWidth() / 20 * (fw+6)):(frameBuffer->getScreenWidth() / 20 * (fw+5))), 100);
+	height = h_max ((frameBuffer->getScreenHeight() / 20 * 16), (frameBuffer->getScreenHeight() / 20 * 2));
+
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, name.c_str());
+
+	/* assuming all color icons must have same size */
+	int icol_w, icol_h;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
+
+	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+
+	theight = std::max(theight, pic_h);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_HELP, &icol_w, &icol_h);
+	theight = std::max(theight, icol_h);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &icol_h);
+	theight = std::max(theight, icol_h);
+
+	if(g_settings.channellist_new_zap_mode)
+	{
+		frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE, &icol_w, &icol_h);
+		theight = std::max(theight, icol_h);
+	}
+
+	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+	if (fheight == 0)
+		fheight = 1; /* avoid crash on invalid font */
+
+	listmaxshow = (height - theight - footerHeight -0)/fheight;
+	height = theight + footerHeight + listmaxshow * fheight;
+	info_height = 2*fheight + g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getHeight() + 10;
+
+	x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
+	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
+#endif
+	calcSize();
 	displayNext = false;
 
 	bool fadeIn = g_settings.widget_fade;

@@ -501,7 +501,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
-	paint();
+	paint(true);
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 		
@@ -743,6 +743,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	}
 	while ( msg!=CRCInput::RC_timeout );
 	hide();
+	delete[] background;
+	background = NULL;
 
 	if ( fadeIn || fadeOut ) {
 		g_RCInput->killTimer(fadeTimer);
@@ -889,10 +891,11 @@ void CMenuWidget::calcSize()
 	}
 }
 
-void CMenuWidget::paint()
+void CMenuWidget::paint(bool save)
 {
 	calcSize();
-	saveScreen();
+	if(save)
+		saveScreen();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
 
@@ -1012,8 +1015,10 @@ void CMenuWidget::restoreScreen()
 	if(background) {
 		if(savescreen)
 			frameBuffer->RestoreScreen(x, y, full_width, full_height, background);
+#if 0
 		delete[] background;
 		background = NULL;
+#endif
 	}
 }
 

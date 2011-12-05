@@ -93,6 +93,7 @@ private:
 	void paintButtonBar(bool is_current);
 	void hide();
 	void showChannelLogo();
+	void calcSize();
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );

@@ -664,6 +664,7 @@ int COsdSetup::showContextChanlistMenu()
 	static int cselected = -1;
 
 	CMenuWidget * menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
+	menu_chanlist->enableSaveScreen(true);
 	menu_chanlist->setSelected(cselected);
 
 	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
@@ -676,8 +677,9 @@ int COsdSetup::showContextChanlistMenu()
 	/* TODO ? problems:
 	 * 1. channel list not re-calc sizes after menu; 
 	 * 2. font menu smaller and make hole in channel list */
-#if 0
+#if 1
 	CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
+	fontSettingsSubMenu->enableSaveScreen(true);
 
 	int i = 1;
 	fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname);

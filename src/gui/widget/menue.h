@@ -451,7 +451,7 @@ class CMenuWidget : public CMenuTarget
 		int getItemId(CMenuItem* menuItem);
 		int getItemsCount(){return items.size();};
 		CMenuItem* getItem(const uint& item_id);
-		virtual void paint();
+		virtual void paint(bool save = false);
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual std::string getName();
