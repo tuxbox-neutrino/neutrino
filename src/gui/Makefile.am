@@ -93,7 +93,6 @@ libneutrino_gui_a_SOURCES = \
 	zapit_setup.cpp
 
 libneutrino_gui2_a_SOURCES = \
-	alphasetup.cpp \
 	cam_menu.cpp \
 	color.cpp \
 	hdd_menu.cpp \
