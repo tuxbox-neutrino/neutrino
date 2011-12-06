@@ -48,6 +48,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
+#include <driver/fade.h>
 
 #include <cctype>
 
@@ -62,7 +63,6 @@ CMenuSeparator * const GenericMenuSeparatorLine = &CGenericMenuSeparatorLine;
 CMenuForwarder * const GenericMenuBack = &CGenericMenuBack;
 CMenuForwarder * const GenericMenuCancel = &CGenericMenuCancel;
 CMenuForwarder * const GenericMenuNext = &CGenericMenuNext;
-
 
 CMenuItem::CMenuItem()
 {
@@ -123,11 +123,10 @@ void CMenuItem::initItemColors(const bool select_mode)
 	}
 }
 
-
 void CMenuItem::paintItemBackground (const bool select_mode, const int &item_height)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
-	
+	//FIXME what select_mode change here ??
 	if(select_mode)
 		frameBuffer->paintBoxRel(x, y, dx, item_height, item_bgcolor, RADIUS_LARGE);
 	else
@@ -169,7 +168,6 @@ void CMenuItem::prepareItem(const bool select_mode, const int &item_height)
 	//paint item background
 	paintItemBackground(select_mode, item_height);
 }
-
 
 void CMenuItem::paintItemSlider( const bool select_mode, const int &item_height, const int &optionvalue, const int &factor, const char * left_text, const char * right_text)
 {
@@ -469,16 +467,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	if (parent)
 		parent->hide();
 
-	bool fadeIn = g_settings.widget_fade && fade;
-	bool fadeOut = false;
-	uint32_t fadeTimer = 0;
-	int fadeValue = g_settings.menu_Content_alpha;
-        if ( fadeIn ) {
-		fadeValue = 100;
-		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-		frameBuffer->setBlendLevel(fadeValue, fadeValue);
-		fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
-        }
+	COSDFader fader(g_settings.menu_Content_alpha);
+	if(fade)
+		fader.StartFadeIn();
 
 	if(from_wizard) {
 		for (unsigned int count = 0; count < items.size(); count++) {
@@ -499,8 +490,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, bAllowRepeatLR);
 
 		if ( msg <= CRCInput::RC_MaxRC ) {
-			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
-::TIMING_MENU]);
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 		}
 		int handled= false;
 
@@ -522,27 +512,9 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		if (!handled) {
 			switch (msg) {
 				case (NeutrinoMessages::EVT_TIMER):
-					if(data == fadeTimer) {
-						if (fadeOut) { // disappear
-							fadeValue += FADE_STEP;
-							if (fadeValue >= 100) {
-								fadeValue = g_settings.menu_Content_alpha;
-								g_RCInput->killTimer (fadeTimer);
-								msg = CRCInput::RC_timeout;
-							} else
-								frameBuffer->setBlendLevel(fadeValue, fadeValue);
-						} else { // appears
-							fadeValue -= FADE_STEP;
-							if (fadeValue <= g_settings.menu_Content_alpha) {
-								fadeValue = g_settings.menu_Content_alpha;
-								g_RCInput->killTimer (fadeTimer);
-								fadeIn = false;
-								frameBuffer->setBlendMode(1); // Set back to per pixel alpha
-							} else
-								frameBuffer->setBlendLevel(fadeValue, fadeValue);
-						}
-
-
+					if(data == fader.GetTimer()) {
+						if(fader.Fade())
+							msg = CRCInput::RC_timeout;
 					} else {
 						if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
 							retval = menu_return::RETURN_EXIT_ALL;
@@ -660,11 +632,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 							//exec this item...
 							CMenuItem* item = items[selected];
 							item->msg = msg;
-							if ( fadeIn ) {
-								g_RCInput->killTimer(fadeTimer);
-								fadeIn = false;
-								frameBuffer->setBlendMode(1); // Set back to per pixel alpha
-							}
+							fader.Stop();
 							int rv = item->exec( this );
 							switch ( rv ) {
 								case menu_return::RETURN_EXIT_ALL:
@@ -707,15 +675,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					}
 			}
 			if(msg == CRCInput::RC_timeout) {
-				if ( fadeIn ) {
-					g_RCInput->killTimer(fadeTimer);
-					fadeIn = false;
-				}
-				if ((!fadeOut) && g_settings.widget_fade && fade) {
-					fadeOut = true;
-					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+				if(fade && fader.StartFadeOut()) {
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
-					frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 					msg = 0;
 					continue;
 				}
@@ -733,10 +694,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 	delete[] background;
 	background = NULL;
 
-	if ( fadeIn || fadeOut ) {
-		g_RCInput->killTimer(fadeTimer);
-		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
-	}
+	fader.Stop();
 
 	if(!parent)
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
