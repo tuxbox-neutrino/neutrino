@@ -49,6 +49,7 @@
 
 #include <driver/encoding.h>
 #include <driver/screen_max.h>
+#include <driver/fade.h>
 #include <gui/filebrowser.h>
 #include <gui/customcolor.h>
 #include <gui/pictureviewer.h>
@@ -598,16 +599,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		FollowScreenings(channel_id, epgData.title);
 	}
 
-        bool fadeIn = g_settings.widget_fade && doLoop;
-        bool fadeOut = false;
-        int fadeValue = g_settings.menu_Content_alpha;
-        uint32_t fadeTimer = 0;
-        if ( fadeIn ) {
-                fadeValue = 100;
-		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-		frameBuffer->setBlendLevel(fadeValue, fadeValue);
-                fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
-        }
+	COSDFader fader(g_settings.menu_Content_alpha);
+	fader.StartFadeIn();
 
 	//show the epg
 	frameBuffer->paintBoxRel(sx, sy, ox, toph, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
@@ -712,25 +705,9 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 						pb.paintProgressBarDefault(pbx, sy+oy-height, 104, height-6, epg_done, 100);
 					}
 				}
-				if(data == fadeTimer) {
-					if (fadeOut) { // disappear
-						fadeValue += FADE_STEP;
-						if (fadeValue >= 100) {
-							fadeValue = g_settings.menu_Content_alpha;
-							g_RCInput->killTimer (fadeTimer);
-							loop = false;
-						} else
-							frameBuffer->setBlendLevel(fadeValue, fadeValue);
-					} else { // appears
-						fadeValue -= FADE_STEP;
-						if (fadeValue <= g_settings.menu_Content_alpha) {
-							fadeValue = g_settings.menu_Content_alpha;
-							g_RCInput->killTimer (fadeTimer);
-							fadeIn = false;
-							frameBuffer->setBlendMode(1); // set back to per pixel alpha only
-						} else
-							frameBuffer->setBlendLevel(fadeValue, fadeValue);
-					}
+				if(data == fader.GetTimer()) {
+					if(fader.Fade())
+						loop = false;
 				}
 				else
 					CNeutrinoApp::getInstance()->handleMsg(msg, data);
@@ -896,15 +873,8 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 			case CRCInput::RC_ok:
 			case CRCInput::RC_timeout:
-				if ( fadeIn ) {
-					g_RCInput->killTimer(fadeTimer);
-					fadeIn = false;
-				}
-				if ((!fadeOut) && g_settings.widget_fade) {
-					fadeOut = true;
-					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+				if(fader.StartFadeOut()) {
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
-					frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 					msg = 0;
 				} else
 					loop = false;
@@ -918,19 +888,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			default:
 				// konfigurierbare Keys handlen...
 				if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel) {
-					if ( fadeIn ) {
-						g_RCInput->killTimer(fadeTimer);
-						fadeIn = false;
-					}
-					if ((!fadeOut) && g_settings.widget_fade) {
-						fadeOut = true;
-						fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+					if(fader.StartFadeOut()) {
 						timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
-						frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 						msg = 0;
 					} else
 						loop = false;
-				} 
+				}
 				else
 				{
 					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all )
@@ -942,10 +905,7 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 			}
 		}
 		hide();
-		if ( fadeIn || fadeOut ) {
-			g_RCInput->killTimer(fadeTimer);
-			frameBuffer->setBlendMode(1); // set back to per pixel alpha only
-		}
+		fader.Stop();
 	}
 	return res;
 }
