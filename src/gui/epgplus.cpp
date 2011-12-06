@@ -42,6 +42,7 @@
 #include <zapit/client/zapittools.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
+#include <driver/fade.h>
 #include <zapit/satconfig.h>
 
 #include <algorithm>
@@ -782,10 +783,8 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 	int res = menu_return::RETURN_REPAINT;
 
+	COSDFader fader(g_settings.menu_Content_alpha);
 	do {
-		bool fadeIn = g_settings.widget_fade && !this->refreshAll;//FIXME ?
-
-		this->refreshAll = false;
 		this->refreshFooterButtons = false;
 		time_t currentTime = time (NULL);
 		tm tmStartTime = *localtime (&currentTime);
@@ -806,15 +805,10 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 
 		this->createChannelEntries (selectedChannelIndex);
 
-		bool fadeOut = false;
-		int fadeValue = g_settings.menu_Content_alpha;
-		uint32_t fadeTimer = 0;
-		if ( fadeIn ) {
-			fadeValue = 100;
-			frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-			frameBuffer->setBlendLevel(fadeValue, fadeValue);
-			fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
-		}
+		if(!this->refreshAll)
+			fader.StartFadeIn();
+
+		this->refreshAll = false;
 
 		this->header->paint(this->channelList->getName());
 
@@ -831,36 +825,13 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 
 
-			if((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
-				if (fadeOut) { // disappear
-					fadeValue += FADE_STEP;
-					if (fadeValue >= 100) {
-						fadeValue = g_settings.menu_Content_alpha;
-						g_RCInput->killTimer (fadeTimer);
-						loop = false;
-					} else
-						frameBuffer->setBlendLevel(fadeValue, fadeValue);
-				} else { // appears
-					fadeValue -= FADE_STEP;
-					if (fadeValue <= g_settings.menu_Content_alpha) {
-						fadeValue = g_settings.menu_Content_alpha;
-						g_RCInput->killTimer (fadeTimer);
-						fadeIn = false;
-						frameBuffer->setBlendMode(1); // Set back to per pixel alpha
-					} else
-						frameBuffer->setBlendLevel(fadeValue, fadeValue);
-				}
+			if((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
+				if(fader.Fade())
+					loop = false;
 			}
 			else if ((msg == CRCInput::RC_timeout) || (msg == (neutrino_msg_t) g_settings.key_channelList_cancel)) {
-				if ( fadeIn ) {
-					g_RCInput->killTimer(fadeTimer);
-					fadeIn = false;
-				}
-				if ((!fadeOut) && g_settings.widget_fade) {
-					fadeOut = true;
-					fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
+				if(fader.StartFadeOut()) {
 					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
-					frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
 					msg = 0;
 				} else
 					loop = false;
@@ -1180,10 +1151,8 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 		}
 
 		this->hide();
-		if ( fadeIn || fadeOut ) {
-			g_RCInput->killTimer(fadeTimer);
-			frameBuffer->setBlendMode(1); // Set back to per pixel alpha
-		}
+
+		fader.Stop();
 #if 0
 		for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
 				It != this->displayedChannelEntries.end(); It++) {
