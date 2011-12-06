@@ -802,10 +802,8 @@ void CMenuWidget::calcSize()
 	// shrink menu if less items
 	if(hheight+itemHeightTotal < height)
 		height=hheight+itemHeightTotal;
-
-	x = offx + frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width ) >> 1 );
-	y = offy + frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height) >> 1 );
-
+	
+	//scrollbar width
 	sb_width=0;
 	if(total_pages > 1)
 		sb_width=15;
@@ -813,26 +811,7 @@ void CMenuWidget::calcSize()
 	full_width = width+sb_width+SHADOW_OFFSET;
 	full_height = height+RADIUS_LARGE-2+SHADOW_OFFSET;
 
-	switch(g_settings.menu_pos) {
-		case 0: //DEFAULT_CENTER
-			break;
-		case 1: //TOP_LEFT
-			y = offy + frameBuffer->getScreenY() + 10;
-			x = offx + frameBuffer->getScreenX() + 10;
-			break;
-		case 2: //TOP_RIGHT
-			y = offy + frameBuffer->getScreenY() + 10;
-			x = offx + frameBuffer->getScreenX() + frameBuffer->getScreenWidth() - width - sb_width - 10;
-			break;
-		case 3: //BOTTOM_LEFT
-			y = offy + frameBuffer->getScreenY() + frameBuffer->getScreenHeight() - height - 10;
-			x = offx + frameBuffer->getScreenX() + 10;
-			break;
-		case 4: //BOTTOM_RIGHT
-			y = offy + frameBuffer->getScreenY() + frameBuffer->getScreenHeight() - height - 10;
-			x = offx + frameBuffer->getScreenX() + frameBuffer->getScreenWidth() - width - sb_width - 10;
-			break;
-	}
+	setMenuPos(width - sb_width);
 }
 
 void CMenuWidget::paint(bool save)
@@ -862,6 +841,45 @@ void CMenuWidget::paint(bool save)
 
 	item_start_y = y+hheight;
 	paintItems();
+}
+
+void CMenuWidget::setMenuPos(const int& menu_width)
+{
+	int mn_width = menu_width;
+	
+	int scr_x = frameBuffer->getScreenX();
+	int scr_y = frameBuffer->getScreenY();
+	int scr_w = frameBuffer->getScreenWidth();
+	int scr_h = frameBuffer->getScreenHeight();
+	
+	//configured positions 
+	switch(g_settings.menu_pos) 
+	{
+		case MENU_POS_CENTER:
+			x = offx + scr_x + ((scr_w - mn_width ) >> 1 );
+			y = offy + scr_y + ((scr_h - height) >> 1 );
+			break;
+			
+		case MENU_POS_TOP_LEFT: 
+			y = offy + scr_y + 10;
+			x = offx + scr_x + 10;
+			break;
+			
+		case MENU_POS_TOP_RIGHT: 
+			y = offy + scr_y + 10;
+			x = offx + scr_x + scr_w - mn_width - 10;
+			break;
+			
+		case MENU_POS_BOTTOM_LEFT: 
+			y = offy + scr_y + scr_h - height - 10;
+			x = offx + scr_x + 10;
+			break;
+			
+		case MENU_POS_BOTTOM_RIGHT: 
+			y = offy + scr_y + scr_h - height - 10;
+			x = offx + scr_x + scr_w - mn_width - 10;
+			break;
+	}
 }
 
 void CMenuWidget::paintItems()

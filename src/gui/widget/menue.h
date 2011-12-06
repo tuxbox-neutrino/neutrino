@@ -426,6 +426,8 @@ class CMenuWidget : public CMenuTarget
 		void calcSize();
 		void saveScreen();
 		void restoreScreen();
+		void setMenuPos(const int& menu_width);
+
 	public:
 		CMenuWidget();
 		/* mwidth (minimum width) in percent of screen width */
@@ -458,9 +460,17 @@ class CMenuWidget : public CMenuTarget
 		virtual int getSelected(){ return selected; };
 		void move(int xoff, int yoff);
 		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
-		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};
+		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};		
 		void enableFade(bool _enable) { fade = _enable; };
 		void enableSaveScreen(bool enable);
+		enum 
+		{
+			MENU_POS_CENTER 	,
+			MENU_POS_TOP_LEFT	,
+			MENU_POS_TOP_RIGHT	,
+			MENU_POS_BOTTOM_LEFT	,
+			MENU_POS_BOTTOM_RIGHT	,
+		};
 };
 
 class CPINProtection
