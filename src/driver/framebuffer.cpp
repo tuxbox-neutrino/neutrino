@@ -518,18 +518,18 @@ void CFrameBuffer::setBlendMode(uint8_t mode)
 #endif
 }
 
-void CFrameBuffer::setBlendLevel(int blev1, int /*blev2*/)
+void CFrameBuffer::setBlendLevel(int level)
 {
-	//printf("CFrameBuffer::setBlendLevel %d\n", blev1);
-	unsigned char value = 0xFF;
-	if((blev1 >= 0) && (blev1 <= 100))
-		value = convertSetupAlpha2Alpha(blev1);
-
 #ifdef HAVE_COOL_HARDWARE
+	//printf("CFrameBuffer::setBlendLevel %d\n", level);
+	unsigned char value = 0xFF;
+	if((level >= 0) && (level <= 100))
+		value = convertSetupAlpha2Alpha(level);
+
 	if (ioctl(fd, FBIO_SETOPACITY, value))
 		printf("FBIO_SETOPACITY failed.\n");
 #if 1
-       if(blev1 == 100) // TODO: sucks.
+       if(level == 100) // TODO: sucks.
                usleep(20000);
 #endif
 #endif

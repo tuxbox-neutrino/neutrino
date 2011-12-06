@@ -142,7 +142,7 @@ class CFrameBuffer
 
 		void setTransparency( int tr = 0 );
 		void setBlendMode(uint8_t mode = 1);
-		void setBlendLevel(int blev1, int blev2);
+		void setBlendLevel(int level);
 
 		//Palette stuff
 		void setAlphaFade(int in, int num, int tr);

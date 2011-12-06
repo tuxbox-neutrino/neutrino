@@ -50,7 +50,7 @@ void COSDFader::StartFadeIn()
 	fadeOut = false;
 	fadeValue = 100;
 	frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-	frameBuffer->setBlendLevel(fadeValue, fadeValue);
+	frameBuffer->setBlendLevel(fadeValue);
 	fadeTimer = g_RCInput->addTimer( FADE_TIME, false );
 }
 
@@ -92,7 +92,7 @@ bool COSDFader::Fade()
 			g_RCInput->killTimer (fadeTimer);
 			ret = true;
 		} else
-			frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			frameBuffer->setBlendLevel(fadeValue);
 	} else { // appears
 		fadeValue -= FADE_STEP;
 		if (fadeValue <= max_alpha) {
@@ -101,7 +101,7 @@ bool COSDFader::Fade()
 			fadeIn = false;
 			frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 		} else
-			frameBuffer->setBlendLevel(fadeValue, fadeValue);
+			frameBuffer->setBlendLevel(fadeValue);
 	}
 	return ret;
 }
