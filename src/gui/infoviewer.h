@@ -38,6 +38,7 @@
 #include <driver/rcinput.h>
 #include <driver/framebuffer.h>
 #include <driver/fontrenderer.h>
+#include <driver/fade.h>
 #include <system/settings.h>
 #include "widget/menue.h"
 #include <gui/widget/progressbar.h>
@@ -96,7 +97,8 @@ class CInfoViewer
 	char           aspectRatio;
 
 	uint32_t           sec_timer_id;
-	uint32_t           fadeTimer;
+	//uint32_t           fadeTimer;
+	COSDFader	fader;
 
 	int time_left_width;
 	int time_dot_width;
@@ -151,7 +153,8 @@ class CInfoViewer
 	void showRadiotext();
 	void killRadiotext();
 	void showInfoFile();
-	void loop(int fadeValue, bool show_dot ,bool fadeIn);
+	//void loop(int fadeValue, bool show_dot ,bool fadeIn);
+	void loop(bool show_dot);
 	std::string eventname;
 	void paintshowButtonBar();
 	void show_current_next(bool new_chan, int  epgpos);

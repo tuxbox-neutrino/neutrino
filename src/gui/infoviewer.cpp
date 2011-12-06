@@ -93,6 +93,7 @@ extern uint32_t shift_timer;
 extern bool timeset;
 
 CInfoViewer::CInfoViewer ()
+	: fader(g_settings.infobar_alpha)
 {
 	sigscale = NULL;
 	snrscale = NULL;
@@ -546,11 +547,7 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
 	showButtonBar = true;
-	bool fadeIn = g_settings.widget_fade && (!is_visible) ;
-	is_visible = true;
 
-	if (fadeIn)
-		fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
 
 	fileplay = true;
 	reset_allScala();
@@ -561,6 +558,13 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
 		g_Radiotext->RT_MsgShow = true;
 	}
 
+#if 0
+	bool fadeIn = g_settings.widget_fade && (!is_visible) ;
+	is_visible = true;
+
+	if (fadeIn)
+		fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
+
 	int fadeValue;
 	if (fadeIn) {
 		fadeValue = 100;
@@ -568,6 +572,11 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
 	} else
 		fadeValue = g_settings.infobar_alpha;
+#endif
+	if(!is_visible)
+		fader.StartFadeIn();
+
+	is_visible = true;
 
 	ChannelName = Channel;
 	channel_id = 0;
@@ -620,7 +629,8 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
 	frameBuffer->paintIcon(playicon, icon_x, icon_y);
 
 	showLcdPercentOver ();
-	loop(fadeValue, show_dot , fadeIn);
+	//loop(fadeValue, show_dot , fadeIn);
+	loop(show_dot);
 	aspectRatio = 0;
 	fileplay = 0;
 }
@@ -655,11 +665,6 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
 	showButtonBar = !calledFromNumZap;
-	bool fadeIn = g_settings.widget_fade && (!is_visible) && showButtonBar;
-	is_visible = true;
-
-	if (!calledFromNumZap && fadeIn)
-		fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
 
 	fileplay = (ChanNum == 0);
 	newfreq = true;
@@ -668,6 +673,13 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	if (!gotTime)
 		gotTime = timeset;
 
+#if 0
+	bool fadeIn = g_settings.widget_fade && (!is_visible) && showButtonBar;
+	is_visible = true;
+
+	if (!calledFromNumZap && fadeIn)
+		fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
+
 	int fadeValue;
 	if (fadeIn) {
 		fadeValue = 100;
@@ -675,6 +687,12 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		frameBuffer->setBlendLevel(fadeValue, fadeValue);
 	} else
 		fadeValue = g_settings.infobar_alpha;
+#endif
+
+	if(!is_visible && !calledFromNumZap)
+		fader.StartFadeIn();
+
+	is_visible = true;
 
 	int col_NumBoxText = COL_INFOBAR;
 	int col_NumBox = COL_INFOBAR_PLUS_0;
@@ -810,17 +828,18 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	}
 
 	if (!calledFromNumZap) {
-		loop(fadeValue, show_dot , fadeIn);
+		//loop(fadeValue, show_dot , fadeIn);
+		loop(show_dot);
 	}
 	aspectRatio = 0;
 	fileplay = 0;
 }
 
-void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
+void CInfoViewer::loop(bool show_dot)
 {
 	bool hideIt = true;
 	virtual_zap_mode = false;
-	bool fadeOut = false;
+	//bool fadeOut = false;
 	uint64_t timeoutEnd;
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	
@@ -855,7 +874,8 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 		else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
 			res = messages_return::cancel_info;
-		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fadeTimer)) {
+		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
+#if 0
 			if (fadeOut) { // disappear
 				fadeValue += FADE_STEP;
 				if (fadeValue >= 100) {
@@ -875,7 +895,11 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 				} else
 					frameBuffer->setBlendLevel(fadeValue, fadeValue);
 			}
+#endif
+			if(fader.Fade())
+				res = messages_return::cancel_info;
 		} else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
+#if 0
 			if (fadeIn) {
 				g_RCInput->killTimer (fadeTimer);
 				fadeIn = false;
@@ -893,6 +917,11 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 #endif
 				res = messages_return::cancel_info;
 			}
+#endif
+			if(fader.StartFadeOut()) {
+				timeoutEnd = CRCInput::calcTimeoutEnd (1);
+			} else
+				res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id)) {
 			showSNR ();
 			paintTime (show_dot, false);
@@ -930,8 +959,11 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 			} else {
 				if (msg == CRCInput::RC_standby) {
 					g_RCInput->killTimer (sec_timer_id);
+#if 0
 					if (fadeIn || fadeOut)
 						g_RCInput->killTimer (fadeTimer);
+#endif
+					fader.Stop();
 				}
 				res = neutrino->handleMsg (msg, data);
 				if (res & messages_return::unhandled) {
@@ -970,11 +1002,14 @@ void CInfoViewer::loop(int fadeValue, bool show_dot ,bool fadeIn)
 		killTitle ();
 
 	g_RCInput->killTimer (sec_timer_id);
+#if 0
 	if (fadeIn || fadeOut) {
 		g_RCInput->killTimer (fadeTimer);
 		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
 		frameBuffer->setBlendLevel(100, 100);//FIXME
 	}
+#endif
+	fader.Stop();
 	if (virtual_zap_mode) {
 		/* if bouquet cycle set, do virtual over current bouquet */
 		if (g_settings.zap_cycle && (bouquetList != NULL) && !(bouquetList->Bouquets.empty()))
@@ -1417,10 +1452,13 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		showSNR ();
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_TIMER) {
-		if (data == fadeTimer) {
-			// hierher kann das event nur dann kommen, wenn ein anderes Fenster im Vordergrund ist!
+		if (data == fader.GetTimer()) {
+			// here, the event can only come if there is another window in the foreground!
+#if 0
 			g_RCInput->killTimer (fadeTimer);
 			frameBuffer->setBlendMode(1);
+#endif
+			fader.Stop();
 			return messages_return::handled;
 		} else if (data == lcdUpdateTimer) {
 //printf("CInfoViewer::handleMsg: lcdUpdateTimer\n");
