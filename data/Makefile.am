@@ -5,4 +5,4 @@ SUBDIRS += lcd
 endif
 
 configdir = $(CONFIGDIR)
-config_DATA = cables.xml satellites.xml encoding.conf
+config_DATA = cables.xml satellites.xml encoding.conf tobackup.conf
