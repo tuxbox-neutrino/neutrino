@@ -35,6 +35,7 @@ libneutrino_driver_a_SOURCES = \
 	rfmod.cpp \
 	radiotools.cpp \
 	radiotext.cpp \
+	fade.cpp \
 	ringbuffer.c
 
 if BOXTYPE_COOL
