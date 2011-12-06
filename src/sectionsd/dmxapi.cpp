@@ -1,13 +1,12 @@
 /*
- * $Header: /cvs/tuxbox/apps/tuxbox/neutrino/daemons/sectionsd/dmxapi.cpp,v 1.5 2005/01/13 10:48:02 diemade Exp $
- *
  * DMX low level functions (sectionsd) - d-box2 linux project
  *
  * (C) 2003 by thegoodguy <thegoodguy@berlios.de>
+ * (C) 2009-2011 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
+ * the Free Software Foundation; either version 3 of the License, or
  * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -16,9 +15,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 
@@ -113,7 +110,7 @@ struct descrLocalTimeOffset
 } __attribute__ ((packed)); /* 13 bytes */;
 
 
-cDemux * dmxUTC;
+cDemux * dmxUTC = NULL;
 bool getUTC(UTC_t * const UTC, const bool TDT)
 {
 	unsigned char filter[DMX_FILTER_SIZE];
@@ -141,7 +138,16 @@ bool getUTC(UTC_t * const UTC, const bool TDT)
 	dmxUTC->sectionFilter(0x0014, filter, mask, 5, timeout);
 
 	int size = TDT ? sizeof(struct SI_section_TDT_header) : sizeof(tdt_tot_header);
+
+#if HAVE_COOL_HARDWARE
+	int state;
+	/* this is stupid, but libcoolstream does not like pthread_cancel */
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &state);
+#endif
 	int r = dmxUTC->Read(buf, TDT ? size : sizeof(buf));
+#if HAVE_COOL_HARDWARE
+	pthread_setcancelstate(state, NULL);
+#endif
 	if (r < size) {
 		if (TDT || sections_debug) /* not having TOT is common, no need to log */
 			perror("[sectionsd] getUTC: read");
