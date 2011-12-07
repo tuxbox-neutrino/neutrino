@@ -39,7 +39,7 @@
 
 #include <global.h>
 #include <neutrino.h>
-
+#include <neutrino_menue.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keychooser.h>
@@ -96,8 +96,9 @@ int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)
 
 int CUserMenuSetup::showSetup()
 {
-	CMenuWidget * ums = new CMenuWidget(local, NEUTRINO_ICON_KEYBINDING, width);
-
+	mn_widget_id_t widget_id = MN_WIDGET_ID_USERMENU_RED + button; //add up ''button'' and becomes to MN_WIDGET_ID_USERMENU_ GREEN, MN_WIDGET_ID_USERMENU_ YELLOW, MN_WIDGET_ID_USERMENU_BLUE
+	CMenuWidget * ums = new CMenuWidget(local, NEUTRINO_ICON_KEYBINDING, width, widget_id);
+	
 	//CUserMenuNotifier *notify = new CUserMenuNotifier();
 	CStringInputSMS name(LOCALE_USERMENU_NAME, &g_settings.usermenu_text[button], 11, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäöüß/- "/*, notify*/);
 
