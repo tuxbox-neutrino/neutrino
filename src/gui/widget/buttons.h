@@ -27,6 +27,8 @@
 #include <system/localize.h>
 #include <gui/color.h>
 
+#include <vector>
+
 typedef struct button_label
 {
 	const char *      button;
@@ -44,6 +46,7 @@ int paintButtons(	const int &x,
 			const unsigned char fcolor = COL_INFOBAR_SHADOW,
 			const char * alt_buttontext = NULL,
 			const uint &buttontext_id = 0,
-			bool show = true);
+			bool show = true,
+			const std::vector<neutrino_locale_t>& all_buttontext_id = std::vector<neutrino_locale_t>());
 
 #endif /* __gui_widget_buttons_h__ */

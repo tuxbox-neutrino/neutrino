@@ -70,7 +70,8 @@ int paintButtons(	const int &x,
 			const unsigned char fcolor,
 			const char * alt_buttontext,
 			const uint &buttontext_id,
-			bool show)
+			bool show,
+			const std::vector<neutrino_locale_t>& all_buttontext_id)
 {
 	CFrameBuffer *frameBuffer = CFrameBuffer::getInstance();
 	Font * font = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL];
@@ -114,7 +115,18 @@ int paintButtons(	const int &x,
 		int fwidth = font->getRenderWidth(buttontext, true);
 		w_max_text = std::max(w_max_text, fwidth);
 	}
-	
+	if(!all_buttontext_id.empty())
+	{
+		for(vector<neutrino_locale_t>::const_iterator it = all_buttontext_id.begin(); it != all_buttontext_id.end(); ++it)
+		{
+			//text
+			const char * buttontext =   *it  ? g_Locale->getText( *it ) : "";
+		
+			//text width
+			int fwidth = font->getRenderWidth(buttontext, true);
+			w_max_text = std::max(w_max_text, fwidth);
+		}
+	}
 	//calculate button width
 	w_button = buttonwidth == 0 ? (w_max_icon + w_space + w_max_text) : buttonwidth;
 	

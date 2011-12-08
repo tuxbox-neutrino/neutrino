@@ -160,6 +160,9 @@ void CBEBouquetWidget::paintFoot()
 	Button[2] = CBEBouquetWidgetButtons[2];
 	Button[3].button = NEUTRINO_ICON_BUTTON_BLUE;
 
+	const neutrino_locale_t button_ids[] = {LOCALE_BOUQUETEDITOR_RENAME,LOCALE_BOUQUETEDITOR_HIDE,LOCALE_BOUQUETEDITOR_LOCK};
+	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
+
 	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
@@ -182,7 +185,7 @@ void CBEBouquetWidget::paintFoot()
 			Button[3].locale = LOCALE_BOUQUETEDITOR_LOCK;
 		break;
 	}
-	::paintButtons(x, y+height, width, 4, Button, ButtonHeight);
+	::paintButtons(x, y+height, width, 4, Button, ButtonHeight,0,false,COL_INFOBAR_SHADOW,NULL,0,true, buttonID_rest);
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MENU, x + width - 10 - icol_w, y + height, ButtonHeight);
 }
 
