@@ -89,7 +89,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 
 	switch (bpp){
 		case 1: /* monochrome */
-			skip = fill4B(x/8+(x%8?1:0));
+			skip = fill4B(x/8 + ((x%8) ? 1 : 0));
 			lseek(fd, raster, SEEK_SET);
 			{
 				int bytes=x/8;
@@ -210,6 +210,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 		}
 		break;
 		case 16: /* 16bit RGB */
+			close(fd);
 			return(FH_ERROR_FORMAT);
 			break;
 		case 24: /* 24bit RGB */
@@ -232,6 +233,7 @@ int fh_bmp_load(const char *name,unsigned char **buffer,int* xp,int* yp)
 			}
 			break;
 		default:
+			close(fd);
 			return(FH_ERROR_FORMAT);
 	}
 
