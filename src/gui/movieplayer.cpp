@@ -1353,7 +1353,7 @@ void CMoviePlayerGui::callInfoViewer(const std::string & epg_title, const std::s
 				     const std::string & epg_channel, const int duration, const int curr_pos)
 {
 	if (isMovieBrowser) {
-		g_InfoViewer->showMovieTitle(playstate, epg_channel.c_str(), epg_title, epg_info1,
+		g_InfoViewer->showMovieTitle(playstate, epg_channel, epg_title, epg_info1,
 					     duration, curr_pos);
 		return;
 	}

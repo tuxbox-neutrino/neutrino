@@ -539,11 +539,11 @@ void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
 	}
 }
 
-void CInfoViewer::showMovieTitle(const int playState, const std::string Channel,
-				 const std::string g_file_epg, const std::string g_file_epg1,
+void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel,
+				 const std::string &g_file_epg, const std::string &g_file_epg1,
 				 const int duration, const int curr_pos)
 {
-	chack_channellogo_ca_SettingsChange();
+	check_channellogo_ca_SettingsChange();
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
 	showButtonBar = true;
@@ -645,7 +645,7 @@ void CInfoViewer::reset_allScala()
 	lastsig = lastsnr = lasthdd = lastvar = -1;
 }
 
-void CInfoViewer::chack_channellogo_ca_SettingsChange()
+void CInfoViewer::check_channellogo_ca_SettingsChange()
 {
 	if (casysChange != g_settings.casystem_display || channellogoChange != g_settings.infobar_show_channellogo) {
 		casysChange = g_settings.casystem_display;
@@ -661,7 +661,7 @@ void CInfoViewer::chack_channellogo_ca_SettingsChange()
 
 void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id, const bool calledFromNumZap, int epgpos)
 {
-	chack_channellogo_ca_SettingsChange();
+	check_channellogo_ca_SettingsChange();
 	aspectRatio = 0;
 	last_curr_id = last_next_id = 0;
 	showButtonBar = !calledFromNumZap;

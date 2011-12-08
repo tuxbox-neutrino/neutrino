@@ -159,7 +159,7 @@ class CInfoViewer
 	void paintshowButtonBar();
 	void show_current_next(bool new_chan, int  epgpos);
 	void reset_allScala();
-	void chack_channellogo_ca_SettingsChange();
+	void check_channellogo_ca_SettingsChange();
  public:
 	bool chanready;
 	bool	is_visible;
@@ -167,8 +167,8 @@ class CInfoViewer
 	uint32_t    lcdUpdateTimer;
 
 	CInfoViewer();
-	void	showMovieTitle(const int playState, const std::string title,
-				const std::string g_file_epg, const std::string g_file_epg1,
+	void	showMovieTitle(const int playState, const std::string &title,
+				const std::string &g_file_epg, const std::string &g_file_epg1,
 				const int duration, const int curr_pos);
 
 	void	start();
