@@ -121,6 +121,10 @@ namespace ZapitTools {
 		}
 		return r;
 	}
+	std::string Latin1_to_UTF8(const std::string & s)
+	{
+		return Latin1_to_UTF8(s.c_str());
+	}
 	
 	void replace_char(char * p_act)
 	{
