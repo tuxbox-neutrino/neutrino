@@ -384,7 +384,7 @@ extra.longitude Längengrad
 extra.manual_scan Manueller Scan
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
-extra.record_time Timeshift Aufnahmezeit in Stunden
+extra.record_time Max. Aufnahmezeit in Stunden
 extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig

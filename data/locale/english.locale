@@ -384,7 +384,7 @@ extra.longitude Longitude
 extra.manual_scan Manual scan
 extra.menu_left_exit "Left" = menu back
 extra.north North
-extra.record_time Fast/timeshift record time(hours)
+extra.record_time Max. recording time in hours
 extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
