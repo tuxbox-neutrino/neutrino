@@ -1021,9 +1021,9 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 		for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 			if((*it)->eventID == recinfo->eventID) {
 				printf("%s: removing pending eventID %d channel_id %llx\n", __FUNCTION__, recinfo->eventID, recinfo->channel_id);
-				nextmap.erase(it);
 				/* Note: CTimerd::RecordingInfo is a class! => typecast to avoid destructor call */
 				delete[] (unsigned char *) (*it);
+				nextmap.erase(it);
 				ret = true;
 				break;
 			}
@@ -1173,7 +1173,9 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
-
+// focus: i think no sense for 2 loops, because this code run in the same thread as neutrino,
+// so neutrino dont have a chance to handle RECORD_STOP before this function returns
+#if 0 
 			int i = 0;
 			int recording_ids[RECORD_MAX_COUNT];
 			t_channel_id channel_ids[RECORD_MAX_COUNT];
@@ -1217,11 +1219,28 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 					}else
 					{
 						usleep(500000);
+						printf("CRecordManager::exec(ExitAll line %d) stop channel %llx recording_id %d\n", __LINE__, channel_ids[i2], recording_ids[i2]);
 						g_Timerd->stopTimerEvent(recording_ids[i2]);
 					}
 					mutex.unlock();
 				}
 			}
+#endif
+			int i = 0;
+			mutex.lock();
+			for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
+			{
+				t_channel_id channel_id = it->first;
+				CRecordInstance * inst = it->second;
+				
+				snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records-i, records);
+				inst->SetStopMessage(rec_msg);
+				
+				printf("CRecordManager::exec(ExitAll line %d) found channel %llx recording_id %d\n", __LINE__, channel_id, inst->GetRecordingId());
+				g_Timerd->stopTimerEvent(inst->GetRecordingId());
+				i++;
+			}
+			mutex.unlock();
 		}
 		return menu_return::RETURN_EXIT_ALL;
 	}else if(actionKey == "Record")
