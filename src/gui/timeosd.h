@@ -27,6 +27,7 @@
 
 #include <time.h>
 #include <driver/framebuffer.h>
+#include <gui/widget/progressbar.h>
 
 class CTimeOSD
 {
@@ -39,7 +40,8 @@ class CTimeOSD
 	
 	private:
 		CFrameBuffer		*frameBuffer;
-		time_t m_time_dis;
+		CProgressBar		*timescale;
+
 		time_t m_time_show;
 		bool visible;
 		int m_xstart,m_xend,m_y,m_height, m_width, t1;
@@ -50,11 +52,13 @@ class CTimeOSD
 		CTimeOSD();
 		~CTimeOSD();
 		void show(time_t time_show);
-		void update(time_t time_show = 0);
+		void update(time_t time_show);
 		void updatePos(short runningPercent);
 		void hide();
 		bool IsVisible() {return visible;}
 		void SetMode(mode m) { m_mode = m;}
 		mode GetMode() { return m_mode;}
+		void update(int position, int duration);
+		void switchMode(int position, int duration);
 };
 #endif

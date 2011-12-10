@@ -61,17 +61,9 @@ class CMoviePlayerGui : public CMenuTarget
 		    PAUSE       =  4,
 		    FF          =  5,
 		    REW         =  6,
-		    RESYNC      =  7,
-		    JPOS        =  8, // jump to absolute position
-		    JF          =  9,
-		    JB          = 10,
-		    SKIP        = 11,
-		    AUDIOSELECT = 12,
-		    SOFTRESET   = 99
 		};
 
  private:
-	pthread_t      rct;
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
 	const char     *filename;
@@ -80,7 +72,6 @@ class CMoviePlayerGui : public CMenuTarget
 	bool isBookmark;
 	bool isMovieBrowser;
 	int speed;
-	int slow;
 	off64_t fullposition;
 	int startposition;
 	int jumpseconds;
@@ -90,10 +81,6 @@ class CMoviePlayerGui : public CMenuTarget
 	std::string startfilename;
 
 	std::string Path_local;
-	std::string Path_vlc;
-	std::string Path_vlc_settings;
-	std::string g_file_epg;
-	std::string g_file_epg1;
 	static  unsigned short g_numpida;
 	static unsigned short g_vtype;
 	static unsigned short g_vpid;
@@ -102,27 +89,22 @@ class CMoviePlayerGui : public CMenuTarget
 
 	CFileBrowser * filebrowser;
 	CMovieBrowser* moviebrowser;
-	CHintBox *hintBox;
 
 	CBookmarkManager * bookmarkmanager;
 
 	CFileFilter tsfilefilter;
-	CFileFilter pesfilefilter;
-	CFileFilter vlcfilefilter;
 
 	static cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
 
 	void Init(void);
-	void PlayStream(int streamtype);
 	void PlayFile();
 	void cutNeutrino();
 	void restoreNeutrino();
 
 	void showHelpTS(void);
 	void showHelpVLC(void);
-	void callInfoViewer(const std::string & epg_title, const std::string & epg_info1,
-			    const std::string & epg_channel, const int duration, const int pos);
+	void callInfoViewer(MI_MOVIE_INFO * p_movie_info, const int duration, const int pos);
 	void fillPids(MI_MOVIE_INFO * p_movie_info);
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
