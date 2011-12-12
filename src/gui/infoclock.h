@@ -17,8 +17,10 @@ class CInfoClock
 	CFrameBuffer * 	frameBuffer;
 
 	pthread_t	   	thrTimer;
+	void			Init();
 	int 			time_width;
 	int 			time_height;
+	int			clock_x;
 	void 			paintTime( bool show_dot);
 	int 			y,x;
 	static void		CleanUpProc(void* arg);
