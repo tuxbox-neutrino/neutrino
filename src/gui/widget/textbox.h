@@ -67,19 +67,19 @@
 
 class CBox
 {
-    private:
+	private:
 
-    public:
-        /* Constructor */
-        inline CBox(){;};
-        inline CBox( const int _iX, const int _iY, const int _iWidth, const int _iHeight){iX=_iX; iY=_iY; iWidth=_iWidth; iHeight=_iHeight;};
-        inline ~CBox(){;};
-        /* Functions */
-        /* Variables */
-        int iX;
-        int iY;
-        int iWidth;
-        int iHeight;
+	public:
+		/* Constructor */
+		inline CBox(){;};
+		inline CBox( const int _iX, const int _iY, const int _iWidth, const int _iHeight){iX=_iX; iY=_iY; iWidth=_iWidth; iHeight=_iHeight;};
+		inline ~CBox(){;};
+		/* Functions */
+		/* Variables */
+		int iX;
+		int iY;
+		int iWidth;
+		int iHeight;
 };
 
 class CTextBox  
@@ -112,7 +112,7 @@ class CTextBox
 		int m_nNrOfPages;
 		int m_nNrOfLines;
 		int m_nNrOfNewLine;
-		int	m_nMaxLineWidth;
+		int m_nMaxLineWidth;
 		int m_nLinesPerPage;
 		int m_nCurrentLine;
 		int m_nCurrentPage;
@@ -140,29 +140,27 @@ class CTextBox
 		void    scrollPageDown(const int pages);
 		void    scrollPageUp(const int pages);				
 		bool	setText(const std::string* newText, int _max_width = 0);
-inline	bool 	isPainted(void){if( frameBuffer == NULL) return (false); else return (true);};
 
-inline	CBox	getWindowsPos(void)			{return(m_cFrame);};
-inline	int		getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
-inline  int     getLines(void)				{return(m_nNrOfLines);};
-inline  int     getPages(void)				{return(m_nNrOfPages);};
-inline	void	movePosition(int x, int y){m_cFrame.iX = x; m_cFrame.iY = y;};
+		inline	bool 	isPainted(void)			{if( frameBuffer == NULL) return (false); else return (true);};
+		inline	CBox	getWindowsPos(void)		{return(m_cFrame);};
+		inline	int	getMaxLineWidth(void)		{return(m_nMaxLineWidth);};
+		inline  int     getLines(void)			{return(m_nNrOfLines);};
+		inline  int     getPages(void)			{return(m_nNrOfPages);};
+		inline	void	movePosition(int x, int y)	{m_cFrame.iX = x; m_cFrame.iY = y;};
 
 		void paint (void);
 		void hide (void);
 
 
 		/* Variables */
-	typedef enum mode_
-	{
-		AUTO_WIDTH	= 0x01,
-		AUTO_HIGH	= 0x02,
-		SCROLL		= 0x04,
-		CENTER		= 0x40,
-		NO_AUTO_LINEBREAK = 0x80
-	}mode;
+		typedef enum mode_
+		{
+			AUTO_WIDTH	= 0x01,
+			AUTO_HIGH	= 0x02,
+			SCROLL		= 0x04,
+			CENTER		= 0x40,
+			NO_AUTO_LINEBREAK = 0x80
+		} mode;
 };
-
-						
 
 #endif // !defined(AFX_TEXTBOX_H__208DED01_ABEC_491C_A632_5B21057DC5D8__INCLUDED_)
