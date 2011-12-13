@@ -829,7 +829,7 @@ moviebrowser.book_clear_all Clear all
 moviebrowser.book_head Bookmarks
 moviebrowser.book_lastmoviestop Last play stop:
 moviebrowser.book_movieend Movie end:
-moviebrowser.book_moviestart Movie start:
+moviebrowser.book_moviestart User Movie start:
 moviebrowser.book_name Name:
 moviebrowser.book_new New Bookmark
 moviebrowser.book_position Position:
