@@ -371,7 +371,7 @@ class CMovieBrowser : public CMenuTarget
 
 		///// Menu ////////////////////////////////////
 		bool showMenu(MI_MOVIE_INFO* movie_info); // P2
-		void showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
+		int showMovieInfoMenu(MI_MOVIE_INFO* movie_info); // P2
 		int  showStartPosSelectionMenu(void); // P2
 
 		///// settings ///////////////////////////////////
@@ -487,7 +487,7 @@ class CDirMenu : public CMenuWidget
 	public:
 		CDirMenu(std::vector<MB_DIR>* dir_list);
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		void show(void);
+		int show(void);
 		bool isChanged(){return changed;};
 };
 

@@ -823,7 +823,7 @@ int CMovieBrowser::exec(CMenuTarget* parent, const std::string & actionKey)
     else if(actionKey == "show_movie_info_menu")
     {
         if(m_movieSelectionHandler != NULL)
-            showMovieInfoMenu(m_movieSelectionHandler);
+            return showMovieInfoMenu(m_movieSelectionHandler);
     }
     else if(actionKey == "save_movie_info")
     {
@@ -2770,7 +2770,7 @@ void CMovieBrowser::showHelp(void)
 }
 
 #define MAX_STRING 30
-void CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
+int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 {
      /********************************************************************/
     /**  MovieInfo menu ******************************************************/
@@ -2792,8 +2792,8 @@ void CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
     bookmarkMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_CLEAR_ALL, true, NULL, this, "book_clear_all",CRCInput::RC_blue,   NEUTRINO_ICON_BUTTON_BLUE));
     bookmarkMenu.addItem(GenericMenuSeparatorLine);
     bookmarkMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIESTART,    true, bookStartIntInput.getValue(), &bookStartIntInput));
-    bookmarkMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND,      true, bookLastIntInput.getValue(),  &bookLastIntInput));
-    bookmarkMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, bookEndIntInput.getValue(),   &bookEndIntInput));
+    bookmarkMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_MOVIEEND,      true, bookEndIntInput.getValue(),  &bookLastIntInput));
+    bookmarkMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_BOOK_LASTMOVIESTOP, true, bookLastIntInput.getValue(),   &bookEndIntInput));
     bookmarkMenu.addItem(GenericMenuSeparatorLine);
 
     for(int li =0 ; li < MI_MOVIE_BOOK_USER_MAX && li < MAX_NUMBER_OF_BOOKMARK_ITEMS; li++ )
@@ -2890,7 +2890,7 @@ void CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
     movieInfoMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_RECORDDATE,     false, recUserDateInput.getValue()));//LOCALE_FLASHUPDATE_CURRENTVERSIONDATE
     movieInfoMenu.addItem( new CMenuForwarder(LOCALE_MOVIEBROWSER_INFO_SIZE,           false, size,     NULL));
 
-    movieInfoMenu.exec(NULL,"");
+    int res = movieInfoMenu.exec(NULL,"");
 
     for(int li =0 ; li < MI_MOVIE_BOOK_USER_MAX && li < MAX_NUMBER_OF_BOOKMARK_ITEMS; li++ )
     {
@@ -2899,6 +2899,7 @@ void CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
         delete pBookTypeIntInput[li];
         delete pBookItemMenu[li];
     }
+    return res;
 }
 
 extern "C" int pinghost( const char *hostname );
@@ -3556,7 +3557,7 @@ int CDirMenu::exec(CMenuTarget* parent, const std::string & actionKey)
             parent->hide();
 
         changed = false;
-        show();
+        return show();
     }
     else if(actionKey.size() == 1)
     {
@@ -3676,10 +3677,10 @@ printf("updateDirState: %d: state %d nfs %d\n", i, dirState[i], dirNfsMountNr[i]
 }
 
 
-void CDirMenu::show(void)
+int CDirMenu::show(void)
 {
     if(dirList->empty())
-        return;
+        return menu_return::RETURN_REPAINT;
 
     char tmp[20];
 
@@ -3693,9 +3694,8 @@ void CDirMenu::show(void)
         tmp[1]=0;
         dirMenu.addItem( new CMenuForwarderNonLocalized ( (*dirList)[i].name.c_str(),       (dirState[i] != DIR_STATE_UNKNOWN), dirOptionText[i],       this,tmp));
     }
-    dirMenu.exec(NULL," ");
-  return;
-
+    int ret = dirMenu.exec(NULL," ");
+    return ret;
 }
 
 off64_t get_full_len(char * startname)
