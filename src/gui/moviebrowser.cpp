@@ -3082,7 +3082,6 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	startPosSelectionMenu.enableFade(false);
 
 	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD);
-	//startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL));
 
 	if(m_movieSelectionHandler->bookmarks.start != 0)
 	{
@@ -3095,7 +3094,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 		position[menu_nr++] = m_movieSelectionHandler->bookmarks.lastPlayStop;
 	}
 	startPosSelectionMenu.addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_START_RECORD_START, true,NULL));
-	int sep_pos = menu_nr;
+	position[menu_nr++] = 0;
 
 	for(int i =0 ; i < MI_MOVIE_BOOK_USER_MAX && menu_nr < MAX_NUMBER_OF_BOOKMARK_ITEMS; i++ )
 	{
@@ -3107,7 +3106,6 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 				position[menu_nr] = m_movieSelectionHandler->bookmarks.user[i].pos + m_movieSelectionHandler->bookmarks.user[i].length;
 
 			snprintf(book[i], 19,"%5d min",position[menu_nr]/60);
-TRACE("[mb] adding boomark menu N %d, position %d\n", menu_nr, position[menu_nr]);
 			startPosSelectionMenu.addItem(new CMenuForwarderNonLocalized (m_movieSelectionHandler->bookmarks.user[i].name.c_str(), 	true, book[i]));
 			menu_nr++;
 		}
@@ -3115,17 +3113,11 @@ TRACE("[mb] adding boomark menu N %d, position %d\n", menu_nr, position[menu_nr]
 
 	startPosSelectionMenu.exec(NULL, "12345");
 	/* check what menu item was ok'd  and set the appropriate play offset*/
-	//result = startPosSelectionMenu.getSelected();
 	result = startPosSelectionMenu.getSelectedLine();
-printf("startPosSelectionMenu result %d\n", result);
-	if(result < 4)// select 2 for startPosSelectionMenu.addIntroItems();
-		return -1;
+	result -= 4; // sub-text, separator, back, separator-line
 
-	//TRACE("[mb] selected bookmark %d\n", result);
-	if(result != 0 && result <= MAX_NUMBER_OF_BOOKMARK_ITEMS)
+	if(result >= 0 && result <= MAX_NUMBER_OF_BOOKMARK_ITEMS)
 	{
-		result -= 4;
-		if(result > sep_pos) result--;	  
 		pos = position[result];
 	}
 	TRACE("[mb] selected bookmark %d position %d \n", result, pos);
