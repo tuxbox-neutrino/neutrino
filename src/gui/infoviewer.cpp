@@ -558,21 +558,6 @@ void CInfoViewer::showMovieTitle(const int playState, const std::string &Channel
 		g_Radiotext->RT_MsgShow = true;
 	}
 
-#if 0
-	bool fadeIn = g_settings.widget_fade && (!is_visible) ;
-	is_visible = true;
-
-	if (fadeIn)
-		fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
-
-	int fadeValue;
-	if (fadeIn) {
-		fadeValue = 100;
-		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-		frameBuffer->setBlendLevel(fadeValue, fadeValue);
-	} else
-		fadeValue = g_settings.infobar_alpha;
-#endif
 	if(!is_visible)
 		fader.StartFadeIn();
 
@@ -672,22 +657,6 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	reset_allScala();
 	if (!gotTime)
 		gotTime = timeset;
-
-#if 0
-	bool fadeIn = g_settings.widget_fade && (!is_visible) && showButtonBar;
-	is_visible = true;
-
-	if (!calledFromNumZap && fadeIn)
-		fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
-
-	int fadeValue;
-	if (fadeIn) {
-		fadeValue = 100;
-		frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-		frameBuffer->setBlendLevel(fadeValue, fadeValue);
-	} else
-		fadeValue = g_settings.infobar_alpha;
-#endif
 
 	if(!is_visible && !calledFromNumZap)
 		fader.StartFadeIn();
@@ -800,10 +769,13 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 
 	if (g_settings.infobar_show_channellogo < 5 || !logo_ok) {
 		if (ChannelLogoMode != 2) {
+			//FIXME good color to display inactive for zap ?
+			//uint8_t    color = CNeutrinoApp::getInstance ()->channelList->SameTP(new_channel_id) ? COL_INFOBAR : COL_INFOBAR_SHADOW;
+			uint8_t    color = COL_INFOBAR;
 			g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(
 				ChanNameX + 10 + ChanNumWidth, ChanNameY + time_height,
 				BoxEndX - (ChanNameX + 20) - time_width - LEFT_OFFSET - 5 - ChanNumWidth,
-				ChannelName, COL_INFOBAR, 0, true);	// UTF-8
+				ChannelName, color /*COL_INFOBAR*/, 0, true);	// UTF-8
 		}
 	}
 
@@ -875,52 +847,12 @@ void CInfoViewer::loop(bool show_dot)
 			g_RCInput->postMsg (NeutrinoMessages::SHOW_EPG, 0);
 			res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == fader.GetTimer())) {
-#if 0
-			if (fadeOut) { // disappear
-				fadeValue += FADE_STEP;
-				if (fadeValue >= 100) {
-					fadeValue = g_settings.infobar_alpha;
-					g_RCInput->killTimer (fadeTimer);
-					res = messages_return::cancel_info;
-				} else
-					frameBuffer->setBlendLevel(fadeValue, fadeValue);
-			} else { // appears
-				fadeValue -= FADE_STEP;
-				if (fadeValue <= g_settings.infobar_alpha) {
-					fadeValue = g_settings.infobar_alpha;
-					g_RCInput->killTimer (fadeTimer);
-					fadeIn = false;
-					frameBuffer->setBlendMode(1); // Set back to per pixel alpha
-					frameBuffer->setBlendLevel(100, 100);//FIXME
-				} else
-					frameBuffer->setBlendLevel(fadeValue, fadeValue);
-			}
-#endif
 			if(fader.Fade())
 				res = messages_return::cancel_info;
 		} else if ((msg == CRCInput::RC_ok) || (msg == CRCInput::RC_home) || (msg == CRCInput::RC_timeout)) {
-#if 0
-			if (fadeIn) {
-				g_RCInput->killTimer (fadeTimer);
-				fadeIn = false;
-			}
-			if ((!fadeOut) && g_settings.widget_fade) {
-				fadeOut = true;
-				fadeTimer = g_RCInput->addTimer (FADE_TIME, false);
+			if(fader.StartFadeOut())
 				timeoutEnd = CRCInput::calcTimeoutEnd (1);
-				frameBuffer->setBlendMode(2); // Global alpha multiplied with pixel alpha
-			} else {
-#if 0
-				if ((msg != CRCInput::RC_timeout) && (msg != CRCInput::RC_ok))
-					if (!fileplay && !CMoviePlayerGui::getInstance().timeshift)
-						g_RCInput->postMsg (msg, data);
-#endif
-				res = messages_return::cancel_info;
-			}
-#endif
-			if(fader.StartFadeOut()) {
-				timeoutEnd = CRCInput::calcTimeoutEnd (1);
-			} else
+			else
 				res = messages_return::cancel_info;
 		} else if ((msg == NeutrinoMessages::EVT_TIMER) && (data == sec_timer_id)) {
 			showSNR ();
@@ -959,10 +891,6 @@ void CInfoViewer::loop(bool show_dot)
 			} else {
 				if (msg == CRCInput::RC_standby) {
 					g_RCInput->killTimer (sec_timer_id);
-#if 0
-					if (fadeIn || fadeOut)
-						g_RCInput->killTimer (fadeTimer);
-#endif
 					fader.Stop();
 				}
 				res = neutrino->handleMsg (msg, data);
@@ -984,7 +912,8 @@ void CInfoViewer::loop(bool show_dot)
 			else
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 
-		} else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
+		} 
+		else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
 			CMoviePlayerGui::getInstance().start_timeshift = false;
 		} else if (CMoviePlayerGui::getInstance().timeshift && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind)  || \
 		   							(msg == (neutrino_msg_t) g_settings.mpkey_forward) || \
@@ -1002,13 +931,6 @@ void CInfoViewer::loop(bool show_dot)
 		killTitle ();
 
 	g_RCInput->killTimer (sec_timer_id);
-#if 0
-	if (fadeIn || fadeOut) {
-		g_RCInput->killTimer (fadeTimer);
-		frameBuffer->setBlendMode(1); // Set back to per pixel alpha
-		frameBuffer->setBlendLevel(100, 100);//FIXME
-	}
-#endif
 	fader.Stop();
 	if (virtual_zap_mode) {
 		/* if bouquet cycle set, do virtual over current bouquet */
@@ -1270,14 +1192,6 @@ void CInfoViewer::showFailure ()
 void CInfoViewer::showMotorMoving (int duration)
 {
 	char text[256];
-#if 0
-	char buffer[10];
-	snprintf (buffer, sizeof(buffer), "%d", duration);
-	strcpy (text, g_Locale->getText (LOCALE_INFOVIEWER_MOTOR_MOVING));
-	strcat (text, " (");
-	strcat (text, buffer);
-	strcat (text, " s)");
-#endif
 	snprintf(text, sizeof(text), "%s (%ds)", g_Locale->getText (LOCALE_INFOVIEWER_MOTOR_MOVING), duration);
 	ShowHintUTF (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text, true) + 10, duration);	// UTF-8
 }
@@ -1454,10 +1368,6 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_TIMER) {
 		if (data == fader.GetTimer()) {
 			// here, the event can only come if there is another window in the foreground!
-#if 0
-			g_RCInput->killTimer (fadeTimer);
-			frameBuffer->setBlendMode(1);
-#endif
 			fader.Stop();
 			return messages_return::handled;
 		} else if (data == lcdUpdateTimer) {
@@ -1622,13 +1532,6 @@ void CInfoViewer::showSNR ()
 			else
 				polarisation = "";
 			snprintf (freq, sizeof(freq), "%d.%d MHz %s", si.tsfrequency / 1000, si.tsfrequency % 1000, polarisation.c_str());
-#if 0
-//FIXME this sets default params for scan menu
-			sprintf (get_set.TP_freq, "%d", si.tsfrequency);
-			sprintf (get_set.TP_rate, "%d", si.rate);
-			get_set.TP_pol = si.polarisation;
-			get_set.TP_fec = si.fec;
-#endif
 
 			int satNameWidth = g_SignalFont->getRenderWidth (freq);
 			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2), BoxStartY + 2 * chanH - 3, satNameWidth, freq, COL_INFOBAR);
