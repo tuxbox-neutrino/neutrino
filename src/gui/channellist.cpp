@@ -1428,7 +1428,9 @@ int CChannelList::numericZap(int key)
 		if(SameTP(chanlist[chn]->channel_id)) {
 			zapTo( chn );
 			res = 0;
-		}
+		} else
+			g_InfoViewer->killTitle();
+
 	} else {
 		showInfo(tuned);
 		g_InfoViewer->killTitle();
@@ -1538,6 +1540,8 @@ void CChannelList::virtual_zap_mode(bool up)
 			g_InfoViewer->killTitle();
 		if(SameTP(chanlist[chn]->channel_id))
 			zapTo( chn );
+		else
+			g_InfoViewer->killTitle();
 	}
 	else
 	{
