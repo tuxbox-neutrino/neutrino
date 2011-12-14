@@ -31,8 +31,6 @@
 
 #include <gui/widget/menue.h>
 
-#include <driver/framebuffer.h>
-
 #include <string>
 
 class CCECSetup : public CMenuTarget, CChangeObserver
