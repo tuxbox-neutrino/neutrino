@@ -259,7 +259,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	
 	printf("[neutrino] CScanSetup %s: init scan setup (Mode: %d)...\n",__FUNCTION__ , is_wizard);
 	CZapit::getInstance()->GetConfig(zapitCfg);
-	showScanMenu();
+	res = showScanMenu();
 
 	return res;
 }
@@ -306,7 +306,7 @@ unsigned int CScanSetup::getSatMenuListWidth()
 	return max_txt_w;
 }
 
-void CScanSetup::showScanMenu()
+int CScanSetup::showScanMenu()
 {
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortcut = 1;
@@ -449,13 +449,14 @@ void CScanSetup::showScanMenu()
 	}
 #endif /*ENABLE_FASTSCAN*/
 	
-	settings->exec(NULL, "");
+	int res = settings->exec(NULL, "");
 	settings->hide();
 	selected = settings->getSelected();
 	delete satNotify;
 	delete usalsNotify;
 	delete satSelect;
 	delete settings;
+	return res;
 }
 
 //init sat setup menu

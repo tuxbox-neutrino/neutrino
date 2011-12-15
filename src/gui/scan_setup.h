@@ -68,7 +68,7 @@ class CScanSetup : public CMenuTarget
 		
 		uint getSatMenuListWidth();
 		
-		void showScanMenu();
+		int showScanMenu();
 		
 		void addScanMenuLnbSetup(CMenuWidget *sat_setup);
 		void addScanMenuProvider(CMenuWidget *provider_setup);
