@@ -461,7 +461,6 @@ mainmenu.radiomode Radio-Modus
 mainmenu.recording Ufnäh
 mainmenu.recording_start Schtart
 mainmenu.recording_stop Schtopp
-mainmenu.scartmode Scart-Iigang
 mainmenu.scripts Skripte
 mainmenu.service Service
 mainmenu.settings Ischtöuige
@@ -488,20 +487,12 @@ messagebox.error Fähler
 messagebox.info Informatione
 messagebox.no Nei
 messagebox.yes Jo
-miscsettings.bootinfo Infos bim Boote azeige
-miscsettings.bootmenu Bootmenü azeige
-miscsettings.driver_boot Triber- u Bootoptione
-miscsettings.fb_destination EXPERT! Boot-Konsole
 miscsettings.general Augemein
 miscsettings.head Diversi Ischtöuige
 miscsettings.hwsections HW-Sections verwände
 miscsettings.infobar_sat_display Infobar Satelliteazeig
-miscsettings.noaviawatchdog AVIA-Watchdog aktiviere
-miscsettings.noenxwatchdog eNX-Watchdog aktiviere
-miscsettings.pmtupdate PMT Update verwände
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögerte Shutdown
-miscsettings.sptsmode SPTS-Mode Triber lade
 miscsettings.startbhdriver BH-Mode Triber lade
 motorcontrol.head Motor-Setup
 movieplayer.bookmark Bookmarks
@@ -659,25 +650,12 @@ recordingmenu.defdir Ufnahmeverzeichnis
 recordingmenu.epg_for_filename langi Dateiname (mit EPG-Date)
 recordingmenu.file Diräkt (Datei)
 recordingmenu.filesettingsseparator Diräktufnahm
-recordingmenu.head Ufnahm Ischtöuige
 recordingmenu.help Aufnahmegeräte:\n-----------------------\nServer:\nuf PC mit Höuf vomene Streaming-Programm\n\n(analoge) Videorekorder:\nüber VCR-Usgang\n\nDiräkt (Datei):\nuf es per NFS gemountetes Verzeichnis\noder ä interni Feschtplatte\nTS: SPTS-Mode Triber lade\nPES: SPTS-Mode Triber nid lade\n\n\nMaximali Dateigrössi:\n----------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: fasch unändlech (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
-recordingmenu.no_scart Ungerdrücke Scart-Umschautig
 recordingmenu.off aus
-recordingmenu.recording_type Ufnahme Grät
-recordingmenu.ringbuffers Anz. Ringpuffer
 recordingmenu.server Sörver
-recordingmenu.server_ip Ufnahmesörver IP
 recordingmenu.server_mac Mac Adrässi
-recordingmenu.server_port Ufnahmesörver Port
-recordingmenu.server_wakeup Ufnahmäsörver WOL
 recordingmenu.setupnow Ischtöuigä jetzt übernää
-recordingmenu.splitsize Max. Dateigrössi (MB)
-recordingmenu.stopplayback Playbäck aahaute
-recordingmenu.stopsectionsd Sectionsd aahaute
 recordingmenu.stream_all_audio_pids Aui Audiopids ufzeichne
-recordingmenu.stream_vtxt_pid Videotext ufzeichne
-recordingmenu.use_fdatasync Synchrones Schribe (fdatasync)
-recordingmenu.use_o_sync Synchrones Schribe (O_SYNC)
 recordingmenu.vcr Videorekorder
 recordtimer.announce d'Ufnahm beginnt i wenige Minute
 repeatblocker.hint_1 Mindeschtzyt (in ms) zwüschä 2 Taschtädrück
@@ -735,7 +713,6 @@ servicemenu.head Service
 servicemenu.reload Kanaulischtä nöi lade
 servicemenu.reload_hint Kanaulischtä wärde nöi glade,\nbitte wartä...
 servicemenu.scants Kanausuächi
-servicemenu.ucodecheck UCodes überprüäfe
 servicemenu.update Software-Aktualisierig
 settings.help Höuf
 settings.missingoptionsconffile d'Neutrino-Ischtöuige si erwitert worde.\nDi nöiä Wärt wärde uf Standart gsetzt.
@@ -767,28 +744,6 @@ streaming.dir_not_writable s'Ufnahmeverzeichnis isch ni beschribbar.\ns'Ufnä is
 streaming.success d'Ufnahm isch erfougrich beändet worde.
 streaming.write_error d'Ufnahme isch leider abbroche,\ndo ä Fähler bim Schribe vo de Date ufträte isch.
 streaming.write_error_open d'Ufnahm isch leider abbroche,\ndo diä entsprächend Datei nid zum Schribe g'öffnet cha wärde.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Movieplayer Iischtöue
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Deaktiviert
-streamingmenu.on Aktiviert
-streamingmenu.server_ip Streamingsörver IP
-streamingmenu.server_port Streamingsörver Port
-streamingmenu.streaming_audiorate Daterate Audio
-streamingmenu.streaming_force_avi_rawaudio Erzwinge AC3 bei avi
-streamingmenu.streaming_force_transcode_video Transcod. ou bi mpg/vcd Video
-streamingmenu.streaming_resolution Uflösig
-streamingmenu.streaming_server_cddrive DVD Loufwärk
-streamingmenu.streaming_server_startdir Verzeichnis (VLC)
-streamingmenu.streaming_transcode_audio Transcod. Audio (dvd/vcd/mpg)
-streamingmenu.streaming_transcode_video_codec MPEG Video Codec
-streamingmenu.streaming_type Streamingsörver
-streamingmenu.streaming_videorate Daterate Video
-streamingserver.noconnect Kei verbindig zum Streamingsörver.\nd'Ufnahm wird abbroche.
 stringinput.caps Gross-/Chlibuächschtabe
 stringinput.clear Aues lösche
 timer.eventrecord.msg d'Sändig isch zur Ufnahm vorgmerkt worde
@@ -870,12 +825,6 @@ timing.hint_2 uf äm TV aazeiget wird
 timing.infobar Infobar
 timing.menu Menü
 timing.numericzap Umschaute mit Ziffertaschte
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head UCode überprüäfig
-ucodecheck.ucode UCode
-ucodes.failure Achtung, d'µCodes si NID gfunge worde!\n\nBitte per FTP (oder DBox-BootManager)\nuploade, u d'Box nöi schtarte!
 videomenu.csync Sync.-Korrektur
 videomenu.head Video-Ischtöuige
 videomenu.rgb_centering RGB-Zentrierig

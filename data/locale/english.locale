@@ -696,7 +696,6 @@ mainmenu.reboot Reboot
 mainmenu.recording Recording
 mainmenu.recording_start start
 mainmenu.recording_stop stop
-mainmenu.scartmode Scart-Mode
 mainmenu.scripts Scripts
 mainmenu.service Service
 mainmenu.settings Settings
@@ -728,15 +727,12 @@ messagebox.info Information
 messagebox.no No
 messagebox.ok Ok
 messagebox.yes Yes
-miscsettings.bootinfo Show infos at start
-miscsettings.bootmenu Show boot menu
 miscsettings.channellist Channellist
 miscsettings.channellist_colored_events Program colored
 miscsettings.channellist_epgtext_align Programtext Align
 miscsettings.colored_events_0 none
 miscsettings.colored_events_1 current
 miscsettings.colored_events_2 next
-miscsettings.driver_boot driver and boot options
 miscsettings.energy Energy
 miscsettings.epg_cache EPG-Cache (Days)
 miscsettings.epg_cache_hint1 How long will EPG-Data in the future cached?
@@ -753,7 +749,6 @@ miscsettings.epg_old_events EPG remove after (std.)
 miscsettings.epg_old_events_hint1 How long will EPG-Data be stored after they timed out?
 miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
-miscsettings.fb_destination Expert! Boot-Console
 miscsettings.general General
 miscsettings.head Extended settings
 miscsettings.hwsections use hardware sections
@@ -776,9 +771,6 @@ miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_var_hdd Fill level (var & hdd )
-miscsettings.noaviawatchdog enable AVIA watchdog
-miscsettings.noenxwatchdog enable eNX watchdog
-miscsettings.pmtupdate enable pmt update
 miscsettings.radiotext Radiotext
 miscsettings.show_infomenu 
 miscsettings.shutdown_count In standby, switch off after
@@ -787,7 +779,6 @@ miscsettings.shutdown_count_hint2 to deep standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
-miscsettings.sptsmode use spts mode
 miscsettings.virtual_zap_mode Virtual zap
 miscsettings.zapto_pre_time Zapto Start Time Correction (minutes)
 motorcontrol.calc_positions (Re)-Calculate Positions
@@ -1135,37 +1126,21 @@ recordingmenu.end_of_recording_max max. Recordingtime
 recordingmenu.end_of_recording_name Endtime of Recording
 recordingmenu.epg_for_filename long filenames (with EPG data)
 recordingmenu.file direct (file)
-recordingmenu.filesettings direct recording settings
-recordingmenu.head Recording Settings
 recordingmenu.help Recording devices:\n--------------------------\nserver:\nusing streaming software on a PC\n\n(analog) vcr:\nusing the vcr outlet\n\ndirect (file):\ndirectly into an NFS mounted directory\nor onto an internal hard drive\nTS: use spts mode(dbox2)\nPES: do not use spts mode(dbox2)\n\n\nMax. file size:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: almost unlimited (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.multimenu.ask_stop_all really stop all %d recordings?
 recordingmenu.multimenu.info_stop_all %d of %d recordings will be stopped.
 recordingmenu.multimenu.rec_akt record current channel
 recordingmenu.multimenu.stop_all stop all recordings
 recordingmenu.multimenu.timeshift Timeshift
-recordingmenu.no_scart do not switch to scart mode
 recordingmenu.off off
-recordingmenu.record_in_spts_mode switch to spts mode before recording
 recordingmenu.record_is_not_running No record is running!
 recordingmenu.record_is_running Record is running!
-recordingmenu.recording_type recording device
-recordingmenu.ringbuffers no. of ringbuffers
 recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server server
-recordingmenu.server_ip recording server IP
 recordingmenu.server_mac MAC address
-recordingmenu.server_port recording server port
-recordingmenu.server_wakeup recording server WOL
 recordingmenu.setupnow activate changes
-recordingmenu.splitsize Max. file size (MB)
-recordingmenu.stopplayback stop playback
-recordingmenu.stopsectionsd stop sectionsd
-recordingmenu.stream_pmt_pid record PMT
-recordingmenu.stream_vtxt_pid record videotext
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift directory
-recordingmenu.use_fdatasync write synchronous (fdatasync)
-recordingmenu.use_o_sync write synchronous (O_SYNC)
 recordingmenu.vcr vcr
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
@@ -1276,7 +1251,6 @@ servicemenu.restart_failed Restart failed
 servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Servicescan
-servicemenu.ucodecheck Check ucodes
 servicemenu.update Software Update
 settings.backup Backup all settings
 settings.backup_failed Backup failed!
@@ -1319,28 +1293,6 @@ streaming.dir_not_writable The recording directory is not writable.\nRecording w
 streaming.success The recording has ended successfully.
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 streaming.write_error_open The recording was aborted,\nbecause the target file could not be opened.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Movieplayer Settings
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Off
-streamingmenu.on On
-streamingmenu.server_ip Streamingserver IP
-streamingmenu.server_port Streamingserver Port
-streamingmenu.streaming_audiorate Datarate Audio
-streamingmenu.streaming_force_avi_rawaudio Force AC3 for AVI
-streamingmenu.streaming_force_transcode_video Transcode MPG/VCD video
-streamingmenu.streaming_resolution Resolution
-streamingmenu.streaming_server_cddrive DVD Drive
-streamingmenu.streaming_server_startdir Directory (VLC)
-streamingmenu.streaming_transcode_audio Transcode audio (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec MPEG video codec
-streamingmenu.streaming_type Streamingserver
-streamingmenu.streaming_videorate Datarate Video
-streamingserver.noconnect No connection to streamingserver.\nRecording canceled.
 stringinput.caps caps / no caps
 stringinput.clear clear all
 subtitles.head Subtitles
@@ -1427,12 +1379,6 @@ timing.infobar_movieplayer Infobar (movie mode)
 timing.infobar_radio Infobar (radio mode)
 timing.menu Menu
 timing.numericzap Numeric Zap
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head UCode check
-ucodecheck.ucode UCode
-ucodes.failure ATTENTION, µCodes could NOT be found!\n\nPlease upload them via FTP (or DBox-BootManager),\nthen restart your box!
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers No UPnP servers found
 upnpbrowser.rescan Scan again

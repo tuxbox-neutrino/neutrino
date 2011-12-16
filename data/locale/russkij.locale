@@ -585,7 +585,6 @@ mainmenu.radiomode Радио-каналы
 mainmenu.recording Запись
 mainmenu.recording_start старт
 mainmenu.recording_stop стоп
-mainmenu.scartmode Scart-режим
 mainmenu.scripts Скрипты
 mainmenu.service Сервисы
 mainmenu.settings Настройки
@@ -612,25 +611,17 @@ messagebox.error Ошибка
 messagebox.info Информация
 messagebox.no Нет
 messagebox.yes Да
-miscsettings.bootinfo Показывать информацию при старте
-miscsettings.bootmenu Показывать меню загрузки
-miscsettings.driver_boot Загрузка системы 
 miscsettings.epg_cache_days EPG-Cache (days)
 miscsettings.epg_dir Dir for epg cache
 miscsettings.epg_head Epg settings
 miscsettings.epg_old_hours Events old after (hours)
 miscsettings.epg_save Save/Restore epg on reboot
-miscsettings.fb_destination Expert! Boot-Console
 miscsettings.general Основное
 miscsettings.head Прочие настройки
 miscsettings.hwsections HW-Sections использовать
 miscsettings.infobar_sat_display Название спутника на инфопанели
-miscsettings.noaviawatchdog enable AVIA watchdog
-miscsettings.noenxwatchdog enable eNX watchdog
-miscsettings.pmtupdate enable pmt update
 miscsettings.shutdown_real Включить дежурный режим
 miscsettings.shutdown_real_rcdelay Задержка выключения
-miscsettings.sptsmode SPTS-Mode использовать
 miscsettings.startbhdriver загрузить драйвера BH-Режима
 miscsettings.virtual_zap_mode Virtual zap
 motorcontrol.head Настройки мотора
@@ -921,28 +912,12 @@ recordingmenu.choose_direct_rec_dir куда вести запись
 recordingmenu.defdir Каталог для записи
 recordingmenu.epg_for_filename имя файла с данными о программе
 recordingmenu.file direkt (в файл)
-recordingmenu.filesettings настройки direkt(в файл)
-recordingmenu.head Настройки записи
 recordingmenu.help Режимы записи:\n--------------------------\nсервер:\nиспользуется софт установленный на ПК\n\n(analog) vcr:\nиспользуется выход для видеомагнитофона\n\ndirect (в файл):\nзапись в предварительно монтированный NFS-каталог\nили в каталоги внутреннего жесткого диска\nTS: использует spts-режим (для Dbox2)\nPES: spts-режим должен быть выключен (для Dbox2)\n\n\nМакс.размер файла:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: без ограничений (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
-recordingmenu.no_scart не переключаться на SCART
 recordingmenu.off отключить
-recordingmenu.record_in_spts_mode switch to spts mode before recording
-recordingmenu.recording_type Режим записи
-recordingmenu.ringbuffers значение для ringbuffers
 recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server сервер
-recordingmenu.server_ip IP-адрес сервера записи
 recordingmenu.server_mac MAC-адрес
-recordingmenu.server_port Порт сервера записи
-recordingmenu.server_wakeup WOL сервера записи
 recordingmenu.setupnow применить изменения
-recordingmenu.splitsize Макс.размер файла (MB)
-recordingmenu.stopplayback Остановить воспроизведение
-recordingmenu.stopsectionsd Остановить sectionsd
-recordingmenu.stream_pmt_pid record PMT
-recordingmenu.stream_vtxt_pid Видеотекст
-recordingmenu.use_fdatasync write synchronous (fdatasync)
-recordingmenu.use_o_sync Синхронизация (O_SYNC)
 recordingmenu.vcr vcr
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Запись начинается через несколько минут
@@ -1007,7 +982,6 @@ servicemenu.restart_failed Restart failed
 servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Поиск каналов
-servicemenu.ucodecheck Check ucodes
 servicemenu.update Обновление прошивки
 settings.help Подсказка
 settings.missingoptionsconffile Настройки системы обновлены.\nНовые установки заменят настройки по умолчанию.
@@ -1040,28 +1014,6 @@ streaming.dir_not_writable Нет доступа в папку для запис
 streaming.success Запись прошла успешно.
 streaming.write_error Запись прервана,\n ошибка в процессе самой записи.
 streaming.write_error_open Запись прервана,\n файл для записи не может быть открыт.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Настройки видеоплеера
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off отключен
-streamingmenu.on включен
-streamingmenu.server_ip IP-адрес стрим-сервера
-streamingmenu.server_port Порт стрим-сервера
-streamingmenu.streaming_audiorate Аудио-поток (kbs)
-streamingmenu.streaming_force_avi_rawaudio AC3 для AVI
-streamingmenu.streaming_force_transcode_video Транскод видео (MPG/VCD)
-streamingmenu.streaming_resolution Размер кадра
-streamingmenu.streaming_server_cddrive DVD-привод
-streamingmenu.streaming_server_startdir Каталог (VLC)
-streamingmenu.streaming_transcode_audio Транскод аудио (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec Видео-кодек MPEG
-streamingmenu.streaming_type Стрим-сервер
-streamingmenu.streaming_videorate Видео-поток (kbs)
-streamingserver.noconnect Нет соединения со стрим-сервером.\nПринятие данных остановлено.
 stringinput.caps большие / маленькие
 stringinput.clear очистить все
 timer.eventrecord.msg   ... Быть или не быть? ;-)
@@ -1145,12 +1097,6 @@ timing.hint_2 инфопанель будет прозрачной.
 timing.infobar Инфопанель
 timing.menu Меню
 timing.numericzap При наборе цифрами с пульта
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head проверка UCode
-ucodecheck.ucode UCode
-ucodes.failure ВНИМАНИЕ, , mCodes нет в наличии!\nПожалуйста загрузите их через FTP(или с помощью DBox-BootManager),\nзатем перегрузите Ваш Dbox!
 videomenu.csync корекция синхронизации
 videomenu.head Настройки видео-изображения
 videomenu.osd OSD

@@ -385,7 +385,6 @@ mainmenu.radiomode radio
 mainmenu.recording snimanje
 mainmenu.recording_start start
 mainmenu.recording_stop stop
-mainmenu.scartmode av-scart ulaz
 mainmenu.service servis
 mainmenu.settings namješćenje
 mainmenu.shutdown ugasiti
@@ -413,9 +412,7 @@ messagebox.error greška
 messagebox.info informacija
 messagebox.no ne
 messagebox.yes ja
-miscsettings.bootinfo pokazati informacije pri startovanju
 miscsettings.boxtype proizvođač dbox2
-miscsettings.fb_destination majstori! boot konsola
 miscsettings.general generalno
 miscsettings.head namjestiti razne stvari
 miscsettings.infobar_sat_display informativna traka sateliti
@@ -518,18 +515,10 @@ rclock.lockmsg Speruje se daljinska dbox2.\n Za prekid spere, molim\n<crveno> i 
 rclock.menueadd fb sperovati
 rclock.title daljinsku sperovati
 rclock.unlockmsg daljinska je reaktivirana...
-recordingmenu.head namjestiti snimanje
-recordingmenu.no_scart nema mijenjanja scarta
 recordingmenu.off ugašeno
-recordingmenu.recording_type vrsta snimanja
 recordingmenu.server server
-recordingmenu.server_ip ip servera za snimanje
 recordingmenu.server_mac mac adresa
-recordingmenu.server_port port servera za snimanje
-recordingmenu.server_wakeup server za snimanje wol
 recordingmenu.setupnow namješćenje sada preuzeti
-recordingmenu.stopplayback zaustaviti playback
-recordingmenu.stopsectionsd zaustaviti sectionsd
 recordingmenu.vcr video rikorder
 recordingmenu.vcr_devicename ime video rikordera (lirc)
 recordtimer.announce snimanje počinje za jednu minutu
@@ -576,7 +565,6 @@ servicemenu.head servis
 servicemenu.reload liste kanale obnoviti
 servicemenu.reload_hint obnavljaju se liste kanala,\nčekajte molim ...
 servicemenu.scants tražiti kanale
-servicemenu.ucodecheck provjeriti ucodese
 servicemenu.update obnoviti softver
 settings.missingoptionsconffile Neutrino je opširen.\nNove stvari su namješćene na standardne podatke.
 settings.noconffile Podaci o neutrinu nisu nađeni.\nMeću se standardni podaci.
@@ -599,28 +587,6 @@ streaminfo.head informacije
 streaminfo.not_available nije pristupno
 streaminfo.not_crypted nije šifrovano
 streaminfo.resolution rezolucija
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head namješćenje promatrača filmova
-streamingmenu.mpeg1 mpeg1
-streamingmenu.mpeg2 mpeg2
-streamingmenu.off ugaseno
-streamingmenu.on upaljeno
-streamingmenu.server_ip ip streamingservera
-streamingmenu.server_port port streamingservera
-streamingmenu.streaming_audiorate brzina audia
-streamingmenu.streaming_force_avi_rawaudio prisili ac3 kod avia
-streamingmenu.streaming_force_transcode_video transkod. i mpg/vcd video
-streamingmenu.streaming_resolution resolucija
-streamingmenu.streaming_server_cddrive dvd
-streamingmenu.streaming_server_startdir direktorij (vlc)
-streamingmenu.streaming_transcode_audio transkod. audio (dvd/vcd/mpg)
-streamingmenu.streaming_transcode_video_codec mpeg video vodec
-streamingmenu.streaming_type streamingserver
-streamingmenu.streaming_videorate brzina videa
-streamingserver.noconnect Ne postoji veza sa streamingserverom.\nPrekid snimanja.
 stringinput.caps velika/mala slova
 stringinput.clear sve izbrisati
 timer.eventrecord.msg emisija je zapamćena za snimanje
@@ -696,12 +662,6 @@ timing.hint_1 vrijeme u sekundama u kojemu
 timing.hint_2 će biti pokazana informativna traka
 timing.infobar infromativna traka
 timing.menu izbor
-ucodecheck.avia500 avia 500
-ucodecheck.avia600 avia 600
-ucodecheck.cam-alpha cam-alpha
-ucodecheck.head provjera ucodesa
-ucodecheck.ucode ucode
-ucodes.failure Pažnja, nisu nađeni ucodesi!\n\nMolim sa ftpeom (ili dbox-bootmanagerom)\npostaviti, i dbox2 ponovno startovati!
 videomenu.csync namjescenje sinkronizacije
 videomenu.head namjestiti video
 videomenu.rgb_centering centriranje rgbea

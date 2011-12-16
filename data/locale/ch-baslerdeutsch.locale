@@ -385,7 +385,6 @@ mainmenu.radiomode Radio-Modus
 mainmenu.recording Sdreaming (ufnehh)
 mainmenu.recording_start un los
 mainmenu.recording_stop hald
-mainmenu.scartmode Scart-Igang
 mainmenu.service Sörvis
 mainmenu.settings Iischdellige
 mainmenu.shutdown Usschalde
@@ -413,9 +412,7 @@ messagebox.error Fehler
 messagebox.info Informatione
 messagebox.no Nei
 messagebox.yes Jo
-miscsettings.bootinfo Infos bim Boote a'zeige
 miscsettings.boxtype DBox Hersdeller
-miscsettings.fb_destination EXPERT! Boot-Chonsole
 miscsettings.general Allg'mein
 miscsettings.head Diverse Iischdellige
 miscsettings.infobar_sat_display Infobar Satellite-A'zeig
@@ -518,18 +515,10 @@ rclock.lockmsg D'Fernbedienig der dbox2 wird gsperrt.\nUm'd Sperre uufz'hebe, bi
 rclock.menueadd FB sperre
 rclock.title Fernbedienung sperre
 rclock.unlockmsg Fernbedienig reaktiviert...
-recordingmenu.head Streamingserver Iischdellige
-recordingmenu.no_scart  Scart-Umschaldig underdrugge
 recordingmenu.off uss
-recordingmenu.recording_type Uffnahme g'rät
 recordingmenu.server sörfer
-recordingmenu.server_ip Uffnahmesörfer IP
 recordingmenu.server_mac Mac Adräss
-recordingmenu.server_port Uffnahmesörfer Port
-recordingmenu.server_wakeup Uffnahmesörfer WOL
 recordingmenu.setupnow Iinsdellige jetz überneh
-recordingmenu.stopplayback Abspiele a'halde
-recordingmenu.stopsectionsd Sectionsd a'halde
 recordingmenu.vcr Videorecorder
 recordingmenu.vcr_devicename VCR Name (lirc)
 recordtimer.announce D'Ufnahm beginnt in weniga Minudde
@@ -576,7 +565,6 @@ servicemenu.head Sörvis
 servicemenu.reload Kanallischde neu lade
 servicemenu.reload_hint Kannallischde wärde neu g'lade,\ne'Moment warde...
 servicemenu.scants Kanalsürchi
-servicemenu.ucodecheck UCodes tschegge
 servicemenu.update Software-Öbdaede
 settings.missingoptionsconffile D'Neutrino-Iischdellige wurde erwiidered.\nDie neue Wärt werde uff Standard g'setzt.
 settings.noconffile D'Neutrino-Iischdellige wurde nidd\ngfunde. S'werde d'Standardwert gno.
@@ -599,28 +587,6 @@ streaminfo.head Informatione
 streaminfo.not_available nidd verfuigbar
 streaminfo.not_crypted nidd verschlüssld
 streaminfo.resolution Uflösig
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Movieplayer Iistellige
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Deaktiviert
-streamingmenu.on Aktiviert
-streamingmenu.server_ip Streamingserver IP
-streamingmenu.server_port Streamingserver Port
-streamingmenu.streaming_audiorate Daterade Audio
-streamingmenu.streaming_force_avi_rawaudio Erzwinge AC3 bii avi
-streamingmenu.streaming_force_transcode_video Transcod. auch mpg/vcd Video
-streamingmenu.streaming_resolution Auflösung
-streamingmenu.streaming_server_cddrive DVD Laufwerk
-streamingmenu.streaming_server_startdir Verzeichniss (VLC)
-streamingmenu.streaming_transcode_audio Transcod. Audio (dvd/vcd/mpg)
-streamingmenu.streaming_transcode_video_codec MPEG Video Codec
-streamingmenu.streaming_type Streamingserver
-streamingmenu.streaming_videorate Daterade Video
-streamingserver.noconnect Kei Verbindig zuem Streamingsörver.\nd'Uffnahm' wird abbroche.
 stringinput.caps Groß-/Chleiueuchstabe
 stringinput.clear OSD Timeouts
 timer.eventrecord.msg   D'Sendig isch zuer Aufnahm vorgmerkt
@@ -696,12 +662,6 @@ timing.hint_1 Iinbländzit in Sek., di's OSD
 timing.hint_2 uffem TV a'zeigt wird
 timing.infobar Infobar
 timing.menu Menu
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head UCode Ueberpruefig
-ucodecheck.ucode UCode
-ucodes.failure Achtig, die µCodes wurde nidd gefunde!\n\nBitte per FTP (oder DBox-BootManager)\nöploaden, un d'DBox neu starte!
 videomenu.csync Sync.-Korrektur
 videomenu.head Video-Iischdellige
 videomenu.rgb_centering RGB-Zentrierig

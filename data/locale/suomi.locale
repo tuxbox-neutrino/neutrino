@@ -486,7 +486,6 @@ mainmenu.reboot Käynnistä uudelleen
 mainmenu.recording Tallennus
 mainmenu.recording_start Käynnistä
 mainmenu.recording_stop Pysäytä
-mainmenu.scartmode Scart
 mainmenu.scripts Lisäkomennot
 mainmenu.service Huoltovalikko
 mainmenu.settings Asetukset
@@ -513,24 +512,16 @@ messagebox.error Virhe
 messagebox.info Info
 messagebox.no Ei
 messagebox.yes Kyllä
-miscsettings.bootinfo Näytä tiedot käynnistyksessä
-miscsettings.bootmenu Näytä käynnistysvalikko
 miscsettings.cabledriver Lataa Nokian kaapeliajuri
-miscsettings.driver_boot Ajurit ja käynnistys
-miscsettings.fb_destination Konsoli
 miscsettings.general Yleiset
 miscsettings.head Sekalaiset asetukset
 miscsettings.hwsections Käytä hwsections:ia
 miscsettings.infobar_sat_display Näytä satelliitin nimi
-miscsettings.noaviawatchdog Käytä AVIA valvontaa
-miscsettings.noenxwatchdog Käytä eNX valvontaa
-miscsettings.pmtupdate Käytä PMT päivitystä
 miscsettings.shutdown_count Automaattinen sammutus
 miscsettings.shutdown_count_hint1 Aika minuutteina jonka jälkeen laite sammuu
 miscsettings.shutdown_count_hint2 automaattisesti valmiustilasta (0 = pois).
 miscsettings.shutdown_real Käytä valmiustilaa
 miscsettings.shutdown_real_rcdelay Sammutusviive
-miscsettings.sptsmode Käytä spts-tilaa
 miscsettings.startbhdriver Lataa BH-tilan ajurit
 miscsettings.tuxtxt_cache Teksti-tv:n välimuisti
 motorcontrol.head Kääntömoottorin asetukset
@@ -793,27 +784,11 @@ recordingmenu.epg_for_filename Pitkät tiedostonimet (sis. EPG-tiedot)
 recordingmenu.file Tiedosto
 recordingmenu.filename_template Tiedostojen nimeäminen
 recordingmenu.filename_template_hint %c=kanava, %i=ohjelman nimi,%d=päiväys, %t=aika
-recordingmenu.filesettings Tiedostotallennuksen asetukset
-recordingmenu.head Tallennusasetukset
 recordingmenu.help Tallennustavat:\n- Palvelin:\n-- Tallennus käyttäen PC:ssä olevaa erillistä ohjelmistoa\n- Videonauhuri:\n-- Tallennus VCR-scart:iin kytketylle videonauhurille\n\n- Tiedosto:\n-- Tallennus suoraan tiedostoon\n -- verkkolevylle tai sisäiselle kiintolevylle\nTallennus spts-tilassa:\n- Päällä = TS\n- Pois = PES\n\nTiedostojärjestelmien suurimmat tiedostokoot:\n- NFS V2: 2 GB (2048 MB)\n- NFS V3: lähes rajoittamaton (0 MB)\n- FAT: 2 GB (2048 MB)\n- FAT32: 4 GB (4096 MB)
-recordingmenu.no_scart Älä vaihda scart-tilaan
 recordingmenu.off Pois
-recordingmenu.record_in_spts_mode Tallennus spts-tilassa
-recordingmenu.recording_type Tallennustapa
-recordingmenu.ringbuffers Rengaspuskureiden määrä
 recordingmenu.server Palvelin (stream)
-recordingmenu.server_ip Palvelimen IP-osoite
 recordingmenu.server_mac Palvelimen MAC
-recordingmenu.server_port Palvelimen portti
-recordingmenu.server_wakeup Palvelimen Wake-On-Lan
 recordingmenu.setupnow Ota asetukset käyttöön
-recordingmenu.splitsize Suurin tiedostokoko (MB)
-recordingmenu.stopplayback Pysäytä toisto
-recordingmenu.stopsectionsd Pysäytä sectionsd
-recordingmenu.stream_pmt_pid Tallenna PMT
-recordingmenu.stream_vtxt_pid Tallenna teksti-tv
-recordingmenu.use_fdatasync Tallenna synkronisesti (fdatasync)
-recordingmenu.use_o_sync Tallenna asynkronisesti (O_SYNC)
 recordingmenu.vcr Videonauhuri
 recordingmenu.zap_on_announce Kanavanvaihtoennakko
 recordtimer.announce Tallennus alkaa muutaman minuutin kuluttua
@@ -881,7 +856,6 @@ servicemenu.restart_failed Neutrinon uudelleenkäynnistys epäonnistui.
 servicemenu.restart_hint Uudelleenkäynnistetään Neutrino...
 servicemenu.restart_refused_recording Tallennus käynnissä. Uudelleenkäynnistys estetty.
 servicemenu.scants Kanavahaku
-servicemenu.ucodecheck µCodejen tiedot
 servicemenu.update Ohjelmistopäivitys
 settings.help Ohje
 settings.missingoptionsconffile Neutrinon asetukset päivitetty.\nUudet asetukset on alustettu oletusarvoihin.
@@ -914,28 +888,6 @@ streaming.dir_not_writable Tallennushakemistoon ei voida kirjoittaa\nTallennus e
 streaming.success Tallennus onnistui.
 streaming.write_error Tallennus keskeytyi,\nkoska tallennustiedostoa ei voitu luoda.
 streaming.write_error_open Tallennus keskeytyi,\nkoska tallennustiedostoa ei voitu luoda.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Mediasoittimen asetukset
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Pois
-streamingmenu.on Päällä
-streamingmenu.server_ip Palvelimen IP-osoite
-streamingmenu.server_port Palvelimen portti
-streamingmenu.streaming_audiorate Äänen datanopeus
-streamingmenu.streaming_force_avi_rawaudio Pakota AC3 AVI:lle
-streamingmenu.streaming_force_transcode_video Muunna video (MPG/VCD)
-streamingmenu.streaming_resolution Resoluutio
-streamingmenu.streaming_server_cddrive DVD-aseman polku
-streamingmenu.streaming_server_startdir Aloituspolku
-streamingmenu.streaming_transcode_audio Muunna audio (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec MPEG video
-streamingmenu.streaming_type Palvelin (stream)
-streamingmenu.streaming_videorate Kuvan datanopeus
-streamingserver.noconnect Tallennuspalvelimelle ei saatu yhteyttä.\nTallennus keskeytetty.
 stringinput.caps ABC / abc
 stringinput.clear Tyhjennä kaikki
 timer.eventrecord.msg Oletko varma?
@@ -1018,12 +970,6 @@ timing.hint_2 näytetään tämä aika.
 timing.infobar Infopalkki
 timing.menu Valikko
 timing.numericzap Kanavan valinta numerolla
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head µCodejen tiedot
-ucodecheck.ucode µCode
-ucodes.failure VAROITUS: µCodeja ei löytynyt!\n\nOle hyvä ja siirrä ne FTP:llä (tai DBox-BootManagerilla) laitteeseen,\nja käynnistä se uudelleen!
 videomenu.csync Tahdistuskorjaus
 videomenu.head Kuva-asetukset
 videomenu.rgb_centering RGB keskitys

@@ -509,7 +509,6 @@ mainmenu.reboot Reboot
 mainmenu.recording Nahrávání
 mainmenu.recording_start Spusť
 mainmenu.recording_stop Zastav
-mainmenu.scartmode Eurokonektor (SCART)
 mainmenu.scripts Skripty
 mainmenu.service Služby
 mainmenu.settings Nastavení
@@ -540,12 +539,8 @@ messagebox.info Zpráva
 messagebox.no ne
 messagebox.ok ok
 messagebox.yes ano
-miscsettings.bootinfo Zobrazování startovací informace
-miscsettings.bootmenu Zobrazení BOOT Menu
 miscsettings.channellist Nastavení seznamu kanálů
 miscsettings.channellist_epgtext_align Zarovnej EPG text
-miscsettings.driver_boot Pokročilé možnosti
-miscsettings.fb_destination Startovací konzola (Expert)
 miscsettings.general Hlavní nastavení
 miscsettings.head Jiné nastavení
 miscsettings.hwsections Použití sekce HW
@@ -563,12 +558,8 @@ miscsettings.infobar_show_var_hdd Zobrazení zaplnění (var a hdd)
 miscsettings.shutdown_count Vypnout po
 miscsettings.shutdown_count_hint1 Čas (v minutách) pro přepnutí ze stavu spánku
 miscsettings.shutdown_count_hint2 do hlubokého spánku (0=vypnuté)
-miscsettings.noaviawatchdog použití AVIA sledovače
-miscsettings.noenxwatchdog použití ENX sledovače
-miscsettings.pmtupdate použití aktualizace PMT
 miscsettings.shutdown_real Umožnění spánku
 miscsettings.shutdown_real_rcdelay Zpoždění vypnutí
-miscsettings.sptsmode použití SPTS způsobu
 miscsettings.virtual_zap_mode Virtuální přepínání
 miscsettings.epg_cache Zachytávání EPG (dni)
 miscsettings.epg_cache_hint1 Jak dlouho uchovávat data EPG v budoucnosti?
@@ -904,28 +895,12 @@ recordingmenu.defdir Adresář nahrávání
 recordingmenu.tsdir Adresář časového posuvu
 recordingmenu.epg_for_filename dlouhé názvy (z dat EPG)
 recordingmenu.file disk (soubor)
-recordingmenu.filesettings Nastavení přímého nahrávání
-recordingmenu.head Nastavení nahrávání
 recordingmenu.help Nahrávací zařízení:\n--------------------------------------\nserver:\npotřebný streamovací SW na PC\n\(analog) VCR:\npotřebný VCR (druhý SCART)\n\ndisk (soubor):\npotřebný připojený síťový NFS adresář\nnebo vnitřní HDD disk\nTS: použij SPTS mód(dBox2)\nPES: nepoužij SPTS mód(dBox2)\n\n\nMaximální velikost souboru:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: téměř nekonečné (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)\n\nPro NFS (UDP) se doporučuje synchronizovaný zápis
-recordingmenu.no_scart Nepřepnout do SCART módu
 recordingmenu.off vypnuté
-recordingmenu.record_in_spts_mode Přepnout do SPTS módu před nahráváním
-recordingmenu.recording_type Nahrávací zařízení
-recordingmenu.ringbuffers no. z RINGBUFFERS
 recordingmenu.save_in_channeldir Zapsání do adresáře kanálu
 recordingmenu.server server
-recordingmenu.server_ip Adresa IP serveru
 recordingmenu.server_mac Adresa MAC serveru
-recordingmenu.server_port Port serveru
-recordingmenu.server_wakeup Probuzení serveru
 recordingmenu.setupnow Použij nastavení
-recordingmenu.splitsize Max. velikost souboru (MB)
-recordingmenu.stopplayback Zastav přehrávání
-recordingmenu.stopsectionsd Zastav SEKCE
-recordingmenu.stream_vtxt_pid Nahrávání teletextu
-recordingmenu.stream_pmt_pid nahrávání PMT
-recordingmenu.use_fdatasync Synchronizovaný zápis (ftdatasync)
-recordingmenu.use_o_sync Synchronizovaný zápis (O_SYNC)
 recordingmenu.vcr videomagnetofon
 recordingmenu.zap_on_announce Informuj o zapnutí nahrávání
 recordtimer.announce Začátek nahrávání za pár minut.
@@ -1009,7 +984,6 @@ servicemenu.restart_failed Chyba během restartu
 servicemenu.restart_hint Restartování, prosím čekej...
 servicemenu.restart_refused_recording Neumožněné restartování, probíhá nahrávání
 servicemenu.scants Hledání kanálů
-servicemenu.ucodecheck Kontrola verze uCodes
 servicemenu.update Aktualizace software
 settings.help Nápověda
 settings.missingoptionsconffile Nastavení Neutrino byly aktualizované.\nNové možnosti budou mít přednastavené hodnoty.
@@ -1046,28 +1020,6 @@ streaming.dir_not_writable Do nahrávacího adresáře není  možné nahrávat.
 streaming.success Úspěšné ukončení nahrávání.
 streaming.write_error Nahrávání bylo přerušené\nprotože vznikla chyba během zapisovacího procesu.
 streaming.write_error_open Nahrávání bylo přerušené\nprotože cílový soubor nemohl být otevřený.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Nastavení tvorby filmů
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off vypnutý
-streamingmenu.on zapnutý
-streamingmenu.server_ip IP serveru streamování
-streamingmenu.server_port Port serveru streamování
-streamingmenu.streaming_audiorate Rychlost přenosu zvuku
-streamingmenu.streaming_force_avi_rawaudio Vynutit AC3 pro AVI
-streamingmenu.streaming_force_transcode_video Překódování obrazu (MPG/VCD)
-streamingmenu.streaming_resolution Rozlišení
-streamingmenu.streaming_server_cddrive DVD disk
-streamingmenu.streaming_server_startdir Adresář (VLC)
-streamingmenu.streaming_transcode_audio Překódování zvuku (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec Kodek obrazu
-streamingmenu.streaming_type Server streamování
-streamingmenu.streaming_videorate Přenosová rychlost obrazu
-streamingserver.noconnect Nepřipojení streamovacího serveru.\nNahrávání bude přerušené.
 stringinput.caps velké/malé znaky
 stringinput.clear všechno smaž
 timer.eventrecord.msg  ... Ukončené, nebo neukončené
@@ -1150,12 +1102,6 @@ timing.hint_2 na obrazovce TV (v sekundách)
 timing.infobar Stavový řádek
 timing.menu Menu
 timing.numericzap Přepínání čísly
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head Kontrola uCode
-ucodecheck.ucode uCode
-ucodes.failure POZOR, nenalezené uCodes!\n\nedošly soubory přes FTP (nebo s pomocí\nprogramu DBox-BootManager) a potom restartuj svůj box!
 upnpbrowser.head UPnP prohlížeč
 upnpbrowser.noservers Nenalezen UPnP server
 upnpbrowser.rescan Znovu hledat

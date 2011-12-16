@@ -382,7 +382,6 @@ mainmenu.radiomode Radio hern
 mainmenu.recording Streaming (aufnemma)
 mainmenu.recording_start ofanga
 mainmenu.recording_stop aufhearn
-mainmenu.scartmode Scart hernemma
 mainmenu.service Service
 mainmenu.settings Eistellunga
 mainmenu.shutdown Ausmacha
@@ -408,8 +407,6 @@ messagebox.error Bläd glaffa
 messagebox.info Information
 messagebox.no Ned
 messagebox.yes Scho
-miscsettings.bootinfo Informationa beim Startn zoang
-miscsettings.fb_destination EXPERT! Boot-Konsole
 miscsettings.general Allgemein
 miscsettings.head Diverse Eistellunga
 miscsettings.infobar_sat_display Satelitn Informationsleistn
@@ -511,18 +508,10 @@ rclock.lockmsg D Fernbedienung von da dbox2 werd gsperrt.\nUm die Sperrn aufzhem
 rclock.menueadd FB sperrn 
 rclock.title Fernbedienung sperrn
 rclock.unlockmsg Fernbedienung reaktiviert...
-recordingmenu.head Streamingserva Eistellunga
-recordingmenu.no_scart Scart Umschoita untadrucka
 recordingmenu.off aus
-recordingmenu.recording_type Grät zum Aufnemma
 recordingmenu.server Serva
-recordingmenu.server_ip Aufnahmeserva IP
 recordingmenu.server_mac MAC-Adressn
-recordingmenu.server_port Aunahmeserva Port
-recordingmenu.server_wakeup Serva zum Aufnemma (WOL)
 recordingmenu.setupnow los moachs !
-recordingmenu.stopplayback Fuim ohoitn
-recordingmenu.stopsectionsd Sectionsd ohoitn
 recordingmenu.vcr Video Recorda
 recordtimer.announce In weniga Minutn werd aufgnomma
 repeatblocker.hint_1 Mindestzeit (ms) zwischn zwoa Dasdndrucka
@@ -566,7 +555,6 @@ servicemenu.head Service
 servicemenu.reload Sendalistn nei loan
 servicemenu.reload_hint Sendalistn wern nei glon,\noan Moment...
 servicemenu.scants Senda suacha
-servicemenu.ucodecheck UCodes obcheckn
 servicemenu.update Software-aktualisiern
 settings.missingoptionsconffile Es gibt neie Eistellunga.\nDe stenga jetz erstmoi auf Standard.
 settings.noconffile De Eistellunga von Neutrino san ned\ngfundn worn. Mia nemma de Standardwerte.
@@ -586,28 +574,6 @@ streaminfo.framerate_unknown Bildrate: ken i ned
 streaminfo.head Informationen
 streaminfo.not_available kumt nix
 streaminfo.resolution Auflösung
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Fuimspuia Eistellunga
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Ausgschoitn
-streamingmenu.on Eigschoitn
-streamingmenu.server_ip Streamingserva IP
-streamingmenu.server_port Streamingserva Port
-streamingmenu.streaming_audiorate Datenrate Audio
-streamingmenu.streaming_force_avi_rawaudio AC3 bei avi erzwinga
-streamingmenu.streaming_force_transcode_video Transcod. a mpg/vcd Video
-streamingmenu.streaming_resolution Auflösung
-streamingmenu.streaming_server_cddrive DVD Laufwerk
-streamingmenu.streaming_server_startdir Verzeichnis (VLC)
-streamingmenu.streaming_transcode_audio Transcod. Audio (dvd/vcd/mpg)
-streamingmenu.streaming_transcode_video_codec MPEG Video Codec
-streamingmenu.streaming_type Streamingserva
-streamingmenu.streaming_videorate Datenrate Video
-streamingserver.noconnect Kao Verbindung zum Streamingserva.\nDe Aufnahme werd obbrocha.
 stringinput.caps Groß-/Koabuchstobm
 stringinput.clear Ois löschn
 timer.eventrecord.msg De Sendung is zum Aufnemma vorgmerkt
@@ -682,12 +648,6 @@ timing.hint_1 Einblendzeit in Sek., die das OSD
 timing.hint_2 auf dem TV angezeigt wird
 timing.infobar Infobar
 timing.menu Menu
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head UCodes obcheckn
-ucodecheck.ucode UCode
-ucodes.failure Obacht, de µCodes san ned gfundn worn!\n\nLoans de doch bittschen mit FTP \nauffi, und startns de Box numoi!
 videomenu.csync Sync.-Korrigiern
 videomenu.head Video-Eistellunga
 videomenu.rgb_centering RGB-Zentriern

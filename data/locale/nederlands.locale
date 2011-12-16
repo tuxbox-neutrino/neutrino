@@ -425,7 +425,6 @@ mainmenu.radiomode Radio-Mode
 mainmenu.recording Opnemen
 mainmenu.recording_start Start opname
 mainmenu.recording_stop Stop opname
-mainmenu.scartmode Scart-Mode
 mainmenu.service Service
 mainmenu.settings Instellingen
 mainmenu.shutdown Uitschakelen
@@ -451,17 +450,12 @@ messagebox.error Fout
 messagebox.info Informatie
 messagebox.no Neen
 messagebox.yes Ja
-miscsettings.bootinfo Toon info bij starten
-miscsettings.bootmenu Info tonen bij opstarten
-miscsettings.driver_boot Bootoptie's
-miscsettings.fb_destination Expert! Boot-Console
 miscsettings.general Algemeen
 miscsettings.head Overige settings
 miscsettings.hwsections Gebruik hardware secties
 miscsettings.infobar_sat_display Satelliet display in infobar
 miscsettings.shutdown_real standby
 miscsettings.shutdown_real_rcdelay vertraagde shutdown
-miscsettings.sptsmode Gebruik spts-mode
 miscsettings.startbhdriver load BH-Mode drivers
 motorcontrol.head Motor-Setup
 movieplayer.bookmark Favorieten
@@ -566,19 +560,10 @@ rclock.unlockmsg Afstandsbediening in werking.
 recordingmenu.defdir Opnamefolder
 recordingmenu.file Direct (file)
 recordingmenu.filesettingsseparator Direct opnemen
-recordingmenu.head Opnameinstellingen
-recordingmenu.no_scart Verander niet naar Scart-mode
 recordingmenu.off Uit
-recordingmenu.recording_type Opname type
 recordingmenu.server server
-recordingmenu.server_ip Opname server IP
 recordingmenu.server_mac MAC adres
-recordingmenu.server_port Opname server port
-recordingmenu.server_wakeup recording server WOL
 recordingmenu.setupnow Activeer veranderingen
-recordingmenu.splitsize Max. grootte (MB)
-recordingmenu.stopplayback stop playback
-recordingmenu.stopsectionsd stop sectionsd
 recordingmenu.stream_all_audio_pids Alle audiopids opnemen
 recordingmenu.vcr vcr
 recordtimer.announce Opname start in enkele minuten
@@ -623,7 +608,6 @@ servicemenu.head Service
 servicemenu.reload Herlaad Kanalenlijst
 servicemenu.reload_hint Even geduld, herladen van kanalenlijst
 servicemenu.scants Service scan
-servicemenu.ucodecheck Controle ucodes
 servicemenu.update Software Update
 settings.missingoptionsconffile De neutrino-settings zijn geupdate.\nNew Opties worden standaard gezet.
 settings.noconffile Geen neutrino-settings gevonden.\nStandaart in gebruik.
@@ -649,28 +633,6 @@ streaming.dir_not_writable De opnamefolder is niet bereikbaar.\nOpnemen zal niet
 streaming.success De opname is met succes beëindigd
 streaming.write_error De opname is afgebroken \nomdat er een schrijffout opgetreden is.
 streaming.write_error_open De opname is afgebroken \nomdat de doelmap niet kon geopend worden.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Instellingen filmspeler
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Uit
-streamingmenu.on Aan
-streamingmenu.server_ip Streamingserver IP
-streamingmenu.server_port Streamingserver Poort
-streamingmenu.streaming_audiorate Datarate Geluid
-streamingmenu.streaming_force_avi_rawaudio AC3 met avi
-streamingmenu.streaming_force_transcode_video Transcod. ook mpg/vcd Video
-streamingmenu.streaming_resolution Resolutie
-streamingmenu.streaming_server_cddrive DVD Drive
-streamingmenu.streaming_server_startdir Directory (VLC)
-streamingmenu.streaming_transcode_audio Transcod. Audio (dvd/vcd/mpg)
-streamingmenu.streaming_transcode_video_codec MPEG Video Codec
-streamingmenu.streaming_type Streamingserver
-streamingmenu.streaming_videorate Datarate Beeld
-streamingserver.noconnect Geen verbinding met de streamserver.\nOpname afgelast.
 stringinput.caps caps/geen caps
 stringinput.clear Wis alles
 timer.eventrecord.msg OK, niet OK
@@ -745,12 +707,6 @@ timing.hint_1 Tijd in sec. Na deze tijd zal de
 timing.hint_2 infobar verdwijnen.
 timing.infobar Infobar
 timing.menu Menu
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Alpha-Cam
-ucodecheck.head Controle UCode
-ucodecheck.ucode UCode
-ucodes.failure Opgelet, ÂµCodes konden niet gevonden worden!\n\nLoad ze up via FTP (of via de DBox-BootManager),\nnadien de DBox herstarten!
 videomenu.csync Sync.-correctie
 videomenu.head Videoinstellingen
 videomenu.rgb_centering RGB-centering

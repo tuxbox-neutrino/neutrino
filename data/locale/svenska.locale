@@ -486,7 +486,6 @@ mainmenu.reboot Nystart
 mainmenu.recording Inspelning
 mainmenu.recording_start start
 mainmenu.recording_stop stopp
-mainmenu.scartmode Scart-läge
 mainmenu.scripts Skript
 mainmenu.service Service
 mainmenu.settings Inställningar
@@ -513,23 +512,15 @@ messagebox.error Fel
 messagebox.info Information
 messagebox.no Nej
 messagebox.yes Ja
-miscsettings.bootinfo Visa info vid start
-miscsettings.bootmenu Visa bootmeny
-miscsettings.driver_boot drivare och boot optioner
-miscsettings.fb_destination Expert! Bootkonsol
 miscsettings.general Generellt
 miscsettings.head Extra inställningar
 miscsettings.hwsections använd hårdvarusektioner
 miscsettings.infobar_sat_display Satellitinfo på Infobalken
-miscsettings.noaviawatchdog aktivera AVIA watchdog
-miscsettings.noenxwatchdog aktivera eNX watchdog
-miscsettings.pmtupdate aktivera pmt uppdatering
 miscsettings.shutdown_count stäng av efter
 miscsettings.shutdown_count_hint1 tid (i minuter) för att växla från viloläge
 miscsettings.shutdown_count_hint2 till djupt viloläge (0 = av).
 miscsettings.shutdown_real Aktivera vilovälge
 miscsettings.shutdown_real_rcdelay Fördröjd avstängning
-miscsettings.sptsmode använd spts läge
 miscsettings.startbhdriver ladda BH-Mode drivare
 miscsettings.tuxtxt_cache mellanlagring av TextTV-sidor
 motorcontrol.head Motorinstallation
@@ -696,27 +687,11 @@ recordingmenu.epg_for_filename långa filnamn (med EPG data)
 recordingmenu.file direkt (fil)
 recordingmenu.filename_template Schablon för filnamn
 recordingmenu.filename_template_hint %c=Kanal, %i=Titel, %d=Datum, %t=Tid
-recordingmenu.filesettings direktinspelning inställning
-recordingmenu.head Inspelningsinställningar
 recordingmenu.help Inspelningsenheter:\n--------------------------\nserver:\nmed en streaming programvara på en PC\n\n(analog) vcr:\nmed ett VCR uttag\n\ndirekt (fil):\ndirekt till en NFS-monterad mapp\neller till en intern hårddisk\nTS: använd spts-läge\nPES: använd inte spts-läget\n\n\nMax. filstorlek:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: så stor hårddisken är (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
-recordingmenu.no_scart växla inte till SCART-läge
 recordingmenu.off av
-recordingmenu.record_in_spts_mode växla till spts-läge före inspelning
-recordingmenu.recording_type inspelningsenhet
-recordingmenu.ringbuffers antal ringbuffrar
 recordingmenu.server server
-recordingmenu.server_ip inspelningsserver IP
 recordingmenu.server_mac MAC address
-recordingmenu.server_port inspelningsserver port
-recordingmenu.server_wakeup inspelningsserver WoL
 recordingmenu.setupnow aktivera ändringar
-recordingmenu.splitsize Max. filstorlek (MB)
-recordingmenu.stopplayback stoppa avspelning
-recordingmenu.stopsectionsd stoppa sectionsd
-recordingmenu.stream_pmt_pid spela in PMT
-recordingmenu.stream_vtxt_pid spela in TextTV
-recordingmenu.use_fdatasync skriv synkront (fdatasync)
-recordingmenu.use_o_sync skriv synkront (O_SYNC)
 recordingmenu.vcr vcr
 recordingmenu.zap_on_announce Slä om vid meddelande
 recordtimer.announce Inspelning startar om några minuter
@@ -784,7 +759,6 @@ servicemenu.restart_failed Fel vid omstart av Neutrino.
 servicemenu.restart_hint Startar om Neutrino...
 servicemenu.restart_refused_recording Inspelning görs. Omstart inte möjlig.
 servicemenu.scants Programsökning
-servicemenu.ucodecheck Kontrollera ucodes
 servicemenu.update Mjukvaruuppdatering
 settings.help Hjälp
 settings.missingoptionsconffile Neutrinoinställningarna har uppdaterats.\nNya inställningar kommer att sättas till default.
@@ -817,28 +791,6 @@ streaming.dir_not_writable Inspelningsmappen är inte skrivbar.\nInspelningar ko
 streaming.success Inspelningen gick bra.
 streaming.write_error Inspelningen avbröts,\neftersom ett fel inträffade under skrivning.
 streaming.write_error_open Inspelningen avbröts,\nför att målfilen inte kunde öppnas.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Filmspelare inställningar
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Av
-streamingmenu.on På
-streamingmenu.server_ip Streamingserver IP
-streamingmenu.server_port Streamingserver Port
-streamingmenu.streaming_audiorate Datarate Ljud
-streamingmenu.streaming_force_avi_rawaudio Tvinga AC3 för AVI
-streamingmenu.streaming_force_transcode_video Transcode MPG/VCD video
-streamingmenu.streaming_resolution Upplösning
-streamingmenu.streaming_server_cddrive DVD-enhet
-streamingmenu.streaming_server_startdir Mapp (VLC)
-streamingmenu.streaming_transcode_audio Transcode audio (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec MPEG video codec
-streamingmenu.streaming_type Streamingserver
-streamingmenu.streaming_videorate Datarate Video
-streamingserver.noconnect Ingen anslutning till streamingserver.\nInspelning avbruten.
 stringinput.caps caps / inga caps
 stringinput.clear rensa alla
 timer.eventrecord.msg ... FÖR att GÖRAS, eller inte göras
@@ -923,12 +875,6 @@ timing.infobar Infobalk
 timing.infobar_radio Infobalk/Radio
 timing.menu Meny
 timing.numericzap Numerisk Zap
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head UCode kontroll
-ucodecheck.ucode UCode
-ucodes.failure VARNING, Âµkoder kunde INTE hittas!\n\nVänligen ladda upp dom via FTP (eller Dbox-BootManager),\nstarta sedan om din DBox!
 videomenu.csync sync justering
 videomenu.head Videoinställningar
 videomenu.rgb_centering RGB centrering

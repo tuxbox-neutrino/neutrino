@@ -454,7 +454,6 @@ mainmenu.radiomode Mode Radio
 mainmenu.recording Enregistrement
 mainmenu.recording_start Début
 mainmenu.recording_stop stop
-mainmenu.scartmode Mode Péritel
 mainmenu.service Service
 mainmenu.settings Réglages
 mainmenu.shutdown Eteindre
@@ -480,18 +479,12 @@ messagebox.error Erreur
 messagebox.info Information
 messagebox.no Non
 messagebox.yes Oui
-miscsettings.bootinfo Montrer les infos au démarrage
-miscsettings.bootmenu Montrer le menu démarrage
-miscsettings.driver_boot Options de driver et Démarrage
-miscsettings.fb_destination Console de démarrage Expert!
 miscsettings.general Général
 miscsettings.head Réglages divers
 miscsettings.hwsections Utiliser les sections hardware
 miscsettings.infobar_sat_display Affichage du satellite dans la barre d'infos
-miscsettings.pmtupdate enable m.à.j pmt
 miscsettings.shutdown_real Permettre Veille
 miscsettings.shutdown_real_rcdelay Arrêt retardé
-miscsettings.sptsmode utiliser le mode spts
 miscsettings.startbhdriver Charger les drivers du Mode BH
 motorcontrol.head Réglage moteur
 movieplayer.bookmark Signet
@@ -596,23 +589,12 @@ rclock.unlockmsg Télécommande réactivée.
 recordingmenu.defdir Répertoire d'enregistrement 
 recordingmenu.file Directe (fichier)
 recordingmenu.filesettingsseparator Enregistrement directe
-recordingmenu.head Réglages d'enregistrement
 recordingmenu.help Dispositifs d'enregistrement:\n--------------------------\nserveur:\nutilisation du programme de streaming sur PC\n\n(analogique) vcr:\nutilisation de la sortie vcr\n\ndirecte (fichier):\ndirectement dans le répertoire NFS mounté\nsur le dique dur interne(HDD)\nTS: utiliser mode spts (dbox2)\nPES: ne pas utiliser le mode spts(dbox2)\n\n\nTaille fichier Max.:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: Presque illimité (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
-recordingmenu.no_scart Ne pas balancer vers le mode Péritel
 recordingmenu.off off
-recordingmenu.recording_type Dispositif d'enregistrement
 recordingmenu.server serveur
-recordingmenu.server_ip IP serveur d'enregistrement
 recordingmenu.server_mac Adresse MAC
-recordingmenu.server_port PORT serveur d'enregistrement 
-recordingmenu.server_wakeup WOL serveur d'enregistrement 
 recordingmenu.setupnow activater les changements
-recordingmenu.splitsize Max. Taille fichier (MB)
-recordingmenu.stopplayback stop playback
-recordingmenu.stopsectionsd stop section sd
 recordingmenu.stream_all_audio_pids enregistrer tout les PIDS audio
-recordingmenu.stream_vtxt_pid enregistrer le videotext
-recordingmenu.use_o_sync écrire synchrone (O_SYNC)
 recordingmenu.vcr vcr
 recordtimer.announce L'enregistrement démarre dans quelques minutes
 repeatblocker.hint_1 Durée test court (in ms) pour reconnaitre 2 keystrokes
@@ -656,7 +638,6 @@ servicemenu.head Service
 servicemenu.reload Recharger listes de chaines
 servicemenu.reload_hint Rechargement listes de chaines,\nPatientez SVP.
 servicemenu.scants Balayage du service
-servicemenu.ucodecheck Verifier ucodes
 servicemenu.update Mise à jour du Software
 settings.help Aide
 settings.missingoptionsconffile Les réglages NEUTRINO sont mis à jour.\nDes nouvelles Options seront mis par défaut.
@@ -684,28 +665,6 @@ streaming.dir_not_writable Le répertoire d'enregistrement n'est pas autorisé e
 streaming.success L'enregistrement est effectué avec succès.
 streaming.write_error L'enregistrement est abondonné,\nTant qu'une erreur est survenue lors du processus d'écriture.
 streaming.write_error_open L'enregistrement est abondonné,\nParceque le fichier cible ne peut être ouvert.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Réglages Lecteur vidéo
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Off
-streamingmenu.on On
-streamingmenu.server_ip IP Serveur Streaming
-streamingmenu.server_port PORT Serveur Streaming 
-streamingmenu.streaming_audiorate Taux de données Audio
-streamingmenu.streaming_force_avi_rawaudio Forcer AC3 pour AVI
-streamingmenu.streaming_force_transcode_video Transcoder MPG/VCD vidéo
-streamingmenu.streaming_resolution Résolution
-streamingmenu.streaming_server_cddrive DVD Drive
-streamingmenu.streaming_server_startdir Répertoire (VLC)
-streamingmenu.streaming_transcode_audio Transcoder audio (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec MPEG vidéo codec
-streamingmenu.streaming_type Serveur Streaming
-streamingmenu.streaming_videorate Taux de données Vidéo
-streamingserver.noconnect Pas de connection au serveur streaming.\nEnregistrement annulé.
 stringinput.caps caps / Pas de caps
 stringinput.clear Tout éffacer
 timer.eventrecord.msg   ... à exécuter, ou bien non
@@ -781,12 +740,6 @@ timing.hint_2 la barre d'infos disparaîtra .
 timing.infobar Barre d'infos
 timing.menu Menu
 timing.numericzap Zap Numerique
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head vérification UCode 
-ucodecheck.ucode UCode
-ucodes.failure ATTENTION, µCodes ne sont pas trouvés!\n\nTélécharger les via FTP (ou bien Récepteur-BootManager),\nensuite redémarrer votre récepteur!
 videomenu.csync Correction sync
 videomenu.head Réglages Vidéo
 videomenu.rgb_centering Centrage RGB

@@ -493,7 +493,6 @@ mainmenu.reboot Herstart neutrino
 mainmenu.recording Opnemen
 mainmenu.recording_start start
 mainmenu.recording_stop stop
-mainmenu.scartmode Scart-Mode
 mainmenu.service Onderhoud
 mainmenu.settings Instellingen
 mainmenu.shutdown Uitzetten
@@ -521,25 +520,19 @@ messagebox.error Fout
 messagebox.info Informatie
 messagebox.no Nee
 messagebox.yes Ja
-miscsettings.bootinfo Toon info bij start
-miscsettings.bootmenu Toon boot menu
 miscsettings.channellist Kanalenlijst
 miscsettings.channellist_epgtext_align Huidige uitzending tonen
-miscsettings.driver_boot driver en boot opties
 miscsettings.epg_cache EPG cache (Dagen)
 miscsettings.epg_extendedcache Beschrijvingen behouden (Uren)
 miscsettings.epg_old_events EPG verwijderen na (Uren)
 miscsettings.epg_max_events Max. events
-miscsettings.fb_destination Expert! Boot-Console
 miscsettings.general Algemeen
 miscsettings.head Diverse instellingen
 miscsettings.hwsections hardware secties gebruiken
 miscsettings.infobar_sat_display Satelliet display op infobar
-miscsettings.pmtupdate enable pmt update
 miscsettings.shutdown_count Geheel uitschakelen na
 miscsettings.shutdown_real Schakel standby in
 miscsettings.shutdown_real_rcdelay Vertraagde shutdown
-miscsettings.sptsmode gebruik spts mode
 miscsettings.startbhdriver laad BH-Mode drivers
 motorcontrol.head Motor-Setup
 movieplayer.bookmark Bookmarks
@@ -650,23 +643,12 @@ rclock.title Vergrendel Afstand Bediening
 rclock.unlockmsg A-fstand B-ediening gereactiveerd.
 recordingmenu.defdir Opname opslaan in
 recordingmenu.file direct (file)
-recordingmenu.head Opneem instellingen
 recordingmenu.help Recording devices:\n--------------------------\nserver:\ngebruik stream software op een PC\n\n(analoog) vcr:\ngebruik de vcr uitgang\n\ndirect (file):\ndirect in een NFS mounted directory\nof op een interne hard disk\nTS: gebruik spts mode(dbox2)\nPES: niet spts mode(dbox2) gebruiken\n\n\nMax. file grootte:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: bijna ongelimiteerd (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
-recordingmenu.no_scart onderdruk scart mode schakelen
 recordingmenu.off uit
-recordingmenu.recording_type opslag-medium
 recordingmenu.server server
-recordingmenu.server_ip opslag-server IP
 recordingmenu.server_mac MAC adres
-recordingmenu.server_port opslag-server poort
-recordingmenu.server_wakeup opslag-server WOL
 recordingmenu.setupnow activeer veranderingen nu
-recordingmenu.splitsize Max. file grootte (MB)
-recordingmenu.stopplayback stop terug spelen
-recordingmenu.stopsectionsd stop sectionsd
-recordingmenu.stream_vtxt_pid neem videotext op
 recordingmenu.tsdir TS opslaan in
-recordingmenu.use_o_sync schrijf synchroon (O_SYNC)
 recordingmenu.vcr vcr
 recordtimer.announce Opname start over enkele minuten
 reset_channels Wis alle kanalen
@@ -715,7 +697,6 @@ servicemenu.head Onderhoud
 servicemenu.reload lees kanaallijst opnieuw in
 servicemenu.reload_hint Lees kanaallijst opnieuw in,\ngeduld aub.
 servicemenu.scants Kanalen zoeken
-servicemenu.ucodecheck Check ucodes
 servicemenu.update Software Update
 settings.help Help
 settings.missingoptionsconffile De neutrino-instellingen zijn geupdated.\nNieuwe opties worden op default gezet.
@@ -743,28 +724,6 @@ streaming.dir_not_writable De opneem directory is niet beschrijfbaar.\nOpname za
 streaming.success De opname is succesvol beeindigd.
 streaming.write_error De opname was afgebroken,\nomdat er een fout optrad gedurende het schrijven.
 streaming.write_error_open De opname is afgebroken,\nomdat de file niet geopend kon worden.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Filmspeler Instellingen
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off uit
-streamingmenu.on aan
-streamingmenu.server_ip Streamserver IP
-streamingmenu.server_port Streamserver Poort
-streamingmenu.streaming_audiorate Datarate Audio
-streamingmenu.streaming_force_avi_rawaudio Forceeer AC3 bij AVI
-streamingmenu.streaming_force_transcode_video Transcode MPG/VCD video
-streamingmenu.streaming_resolution Resolutie
-streamingmenu.streaming_server_cddrive DVD Drive
-streamingmenu.streaming_server_startdir Directory (VLC)
-streamingmenu.streaming_transcode_audio Transcode audio (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec MPEG video codec
-streamingmenu.streaming_type Streamserver
-streamingmenu.streaming_videorate Datarate Video
-streamingserver.noconnect Geen verbinding met streamserver.\nOpname gestopt
 stringinput.caps Hoofd- / kleine letters
 stringinput.clear alles schoonmaken
 timer.eventrecord.msg   ... DOEN, of LATEN
@@ -840,12 +799,6 @@ timing.hint_2 infobar wegfaden.
 timing.infobar Infobar
 timing.menu Menu
 timing.numericzap Nummer Zap
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head UCode check
-ucodecheck.ucode UCode
-ucodes.failure ATTENTIE, µCodes NIeT gevonden!\n\nAub uploaden via FTP (of DBox-BootManager),\nen herstart je ruDbox!
 usermenu.button_blue Gebruikersmenu 'blauw'
 usermenu.button_green Gebruikersmenu 'groen'
 usermenu.button_red Gebruikersmenu 'rood'
@@ -985,8 +938,6 @@ filesystem.is.utf8.option.iso8859.1 ISO-8859-1
 filesystem.is.utf8.option.utf8 UTF-8
 infoviewer.subchan_disp_pos Toon subkanalen
 mainmenu.scripts Scripts
-miscsettings.noaviawatchdog enable AVIA watchdog
-miscsettings.noenxwatchdog enable eNX watchdog
 movieplayer.defplugin Start-Plugin
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 approx. 10 minutes back 
@@ -1039,9 +990,6 @@ pictureviewer.help9 exit
 plugins.result plugin output
 recordingmenu.choose_direct_rec_dir kies dir. voor directe opnames
 recordingmenu.epg_for_filename lange bestandsnamen (met EPG data)
-recordingmenu.filesettings direct opname instellingen
-recordingmenu.ringbuffers no. of ringbuffers
-recordingmenu.use_fdatasync schrijf synchronous (fdatasync)
 settings.pos_bottom_left linksonder
 settings.pos_bottom_right rechtsonder
 settings.pos_top_left linksboven
@@ -1057,7 +1005,6 @@ pictureviewer.decode_server_ip decodeer server ip
 pictureviewer.decode_server_port decodeer server port
 scants.abort_body Zoeken echt afbreken?
 scants.abort_header Onderbreek Scan
-recordingmenu.record_in_spts_mode switch to spts mode before recording
 servicemenu.getplugins Herlaad plugins
 servicemenu.getplugins_hint Herladen van plugins bezig,\nmomentje aub..
 usermenu.head Gebruikers menu
@@ -1255,7 +1202,6 @@ recordingmenu.apids default audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternatieve streams
 recordingmenu.apids_std record standaard stream
-recordingmenu.stream_pmt_pid opname PMT
 recordingmenu.zap_on_announce melding zappen tijdens opname
 timerlist.apids_dflt record standaard audio streams
 videomenu.osd OSD

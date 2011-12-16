@@ -667,7 +667,6 @@ mainmenu.reboot Reboot
 mainmenu.recording Nahrávanie
 mainmenu.recording_start Spusti
 mainmenu.recording_stop Zasatav
-mainmenu.scartmode Eurokonektor (SCART)
 mainmenu.scripts Skripty
 mainmenu.service Služby
 mainmenu.settings Nastavenia
@@ -698,11 +697,8 @@ messagebox.info Správa
 messagebox.no nie
 messagebox.ok ok
 messagebox.yes áno
-miscsettings.bootinfo Zobrazovanie štartovacej informácie
-miscsettings.bootmenu Zobrazenie BOOT Menu
 miscsettings.channellist Nastavenia zoznamu kanálov
 miscsettings.channellist_epgtext_align Zarovnaj EPG text
-miscsettings.driver_boot Pokročilé možnosti
 miscsettings.epg_cache Zachytávanie EPG (dni)
 miscsettings.epg_cache_hint1 Ako dlho uchovávať dáta EPG v budúcnosti?
 miscsettings.epg_cache_hint2 Nastavenie v dňoch.
@@ -718,7 +714,6 @@ miscsettings.epg_old_events Odstráň neaktuálne EPG
 miscsettings.epg_old_events_hint1 Ako dlho zapisovať dáta EPG po uplinutí doby?
 miscsettings.epg_old_events_hint2 Nastavenie v hodinách.
 miscsettings.epg_save Ulož/Obnov EPG po reštarte
-miscsettings.fb_destination Štartovacia konzola (Expert)
 miscsettings.general Hlavné nastavenia
 miscsettings.head Iné nastavenia
 miscsettings.hwsections Použitie sekcie HW
@@ -733,15 +728,11 @@ miscsettings.infobar_disp_3 Logo 3
 miscsettings.infobar_disp_log Informačné okno
 miscsettings.infobar_sat_display Zobrazenie satelitu v stavovom riadku
 miscsettings.infobar_show_var_hdd Zobrazenie zaplnenia (var a hdd)
-miscsettings.noaviawatchdog použitie AVIA sledovača
-miscsettings.noenxwatchdog použitie ENX sledovača
-miscsettings.pmtupdate použitie aktualizácie PMT
 miscsettings.shutdown_count Vypnúť po
 miscsettings.shutdown_count_hint1 Čas (v minútach) pre prepnutie zo stavu spánku
 miscsettings.shutdown_count_hint2 do hlbokého spánku (0=vypnuté)
 miscsettings.shutdown_real Umožnenie spánku
 miscsettings.shutdown_real_rcdelay Oneskorenie vypnutia
-miscsettings.sptsmode použitie SPTS spôsobu
 miscsettings.virtual_zap_mode Virtuálne prepínanie
 motorcontrol.calc_positions Prepočítaj pozície
 motorcontrol.disable_limit Vypni (soft) limity
@@ -1072,29 +1063,13 @@ recordingmenu.choose_direct_rec_dir Výber adresára pre nahrávanie
 recordingmenu.defdir Adresár nahrávania
 recordingmenu.epg_for_filename dlhé názvy (z dát EPG)
 recordingmenu.file disk (súbor)
-recordingmenu.filesettings Nastavenia priameho nahrávania
-recordingmenu.head Nastavenia nahrávania
 recordingmenu.help Nahrávacie zariadenie:\n--------------------------------------\nserver:\npotrebný streamovaci SW na PC\n\(analóg) VCR:\npotrebný VCR (druhý SCART)\n\ndisk (súbor):\npotrebný pripojený sieťový NFS adresár\nalebo vnútorný HDD disk\nTS: použi SPTS mód(dBox2)\nPES: nepouži SPTS mód(dBox2)\n\n\nMaximálna veľkosť súboru:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: takmer nekonečné (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)\n\nPre NFS (UDP) sa doporučuje synchronizovaný zápis
-recordingmenu.no_scart Neprepnúť do SCART módu
 recordingmenu.off vypnuté
-recordingmenu.record_in_spts_mode Prepnúť do SPTS módu pred nahrávaním
-recordingmenu.recording_type Nahrávacie zariadenie
-recordingmenu.ringbuffers no. z RINGBUFFERS
 recordingmenu.save_in_channeldir Zapísanie do adresára kanálu
 recordingmenu.server server
-recordingmenu.server_ip Adresa IP servera
 recordingmenu.server_mac Adresa MAC servera
-recordingmenu.server_port Port servera
-recordingmenu.server_wakeup Zobudenie servera
 recordingmenu.setupnow Použi nastavenia
-recordingmenu.splitsize Max. veľkosť súboru (MB)
-recordingmenu.stopplayback Zastav prehrávanie
-recordingmenu.stopsectionsd Zastav SEKCIE
-recordingmenu.stream_pmt_pid nahrávanie PMT
-recordingmenu.stream_vtxt_pid Nahrávanie teletextu
 recordingmenu.tsdir Adresár časového posuvu
-recordingmenu.use_fdatasync Synchronizovaný zápis (ftdatasync)
-recordingmenu.use_o_sync Synchronizovaný zápis (O_SYNC)
 recordingmenu.vcr videomagnetofón
 recordingmenu.zap_on_announce Informuj o zapnutí nahrávania
 recordtimer.announce Začatie nahrávania za pár minút.
@@ -1195,7 +1170,6 @@ servicemenu.restart_failed Chyba počas reštartu
 servicemenu.restart_hint Reštartovanie, prosím čakaj...
 servicemenu.restart_refused_recording Neumožnené reštartovanie, prebieha nahrávanie
 servicemenu.scants Hľadanie kanálov
-servicemenu.ucodecheck Kontrola verzie uCodes
 servicemenu.update Aktualizácia software
 settings.backup Záloha nastavení
 settings.backup_failed Chybná záloha!
@@ -1236,28 +1210,6 @@ streaming.dir_not_writable Do nahrávacieho adresára nie je možné nahrávať.
 streaming.success Úspešné ukončenie nahrávania.
 streaming.write_error Nahrávanie bolo prerušené\npretože vznikla chybu počas zapisovacieho procesu.
 streaming.write_error_open Nahrávanie bolo prerušené\npretože cieľový súbor nemohol byť otvorený.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Nastavenia tvorenia filmov
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off vypnutý
-streamingmenu.on zapnutý
-streamingmenu.server_ip IP servera streamovania
-streamingmenu.server_port Port servera streamovania
-streamingmenu.streaming_audiorate Rýchlosť prenosu zvuku
-streamingmenu.streaming_force_avi_rawaudio Vynútiť AC3 pre AVI
-streamingmenu.streaming_force_transcode_video Prekódovanie obrazu (MPG/VCD)
-streamingmenu.streaming_resolution Rozlíšenie
-streamingmenu.streaming_server_cddrive DVD disk
-streamingmenu.streaming_server_startdir Adresár (VLC)
-streamingmenu.streaming_transcode_audio Prekódovanie zvuku (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec Kodek obrazu
-streamingmenu.streaming_type Server streamovania
-streamingmenu.streaming_videorate Prenosová rýchlosť obrazu
-streamingserver.noconnect Nepripojenie streamovacieho servera.\nNahrávanie bude prerušené.
 stringinput.caps veľké/malé znaky
 stringinput.clear všetko zmaž
 subtitles.head Titulky
@@ -1342,12 +1294,6 @@ timing.hint_2 na obrazovke TV (v sekundách)
 timing.infobar Stavový riadok
 timing.menu Menu
 timing.numericzap Prepínanie číslami
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head Kontrola uCode
-ucodecheck.ucode uCode
-ucodes.failure POZOR, nenájdené uCodes!\n\nOdošli súbory cez FTP (alebo s pomocou\nprogramu DBox-BootManager) a potom reštartuj svoj box!
 upnpbrowser.head UPnP prehliadač
 upnpbrowser.noservers Nenájdený UPnP server
 upnpbrowser.rescan Znova hľadať

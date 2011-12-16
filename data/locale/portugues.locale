@@ -636,7 +636,6 @@ mainmenu.radiomode Modo Rádio
 mainmenu.recording Gravação
 mainmenu.recording_start Iniciar
 mainmenu.recording_stop Parar
-mainmenu.scartmode Modo Scart
 mainmenu.scripts Scripts
 mainmenu.service Serviços
 mainmenu.settings Configurações
@@ -663,25 +662,17 @@ messagebox.error Erro
 messagebox.info Informação
 messagebox.no Não
 messagebox.yes Sim
-miscsettings.bootinfo Mostrar informação ao arrancar
-miscsettings.bootmenu Mostrar boot
-miscsettings.driver_boot Driver e boot - opções
 miscsettings.epg_cache_days EPG-Cache (days)
 miscsettings.epg_dir Dir for epg cache
 miscsettings.epg_head Epg settings
 miscsettings.epg_old_hours Events old after (hours)
 miscsettings.epg_save Save/Restore epg on reboot
-miscsettings.fb_destination Expertos! Boot-Console
 miscsettings.general Geral
 miscsettings.head Outras configurações
 miscsettings.hwsections Secções de hardware usado
 miscsettings.infobar_sat_display Mostrar satélite na barra de informações
-miscsettings.noaviawatchdog enable AVIA watchdog
-miscsettings.noenxwatchdog enable eNX watchdog
-miscsettings.pmtupdate activar actualização do pmt
 miscsettings.shutdown_real Activar standby
 miscsettings.shutdown_real_rcdelay Desligar com telecomando
-miscsettings.sptsmode use spts mode
 miscsettings.startbhdriver carregar BH-Mode drivers
 miscsettings.virtual_zap_mode Virtual zap
 motorcontrol.head Definições do Motor 
@@ -972,28 +963,12 @@ recordingmenu.choose_direct_rec_dir choose dir on imm. recording
 recordingmenu.defdir Directório a Gravar
 recordingmenu.epg_for_filename long filenames (with EPG data)
 recordingmenu.file directo (ficheiro)
-recordingmenu.filesettings direct recording settings
-recordingmenu.head Configurações de gravação
 recordingmenu.help Modo de Gravação:\nserver: usando software de transmissão de dados num PC\nVcr: usando vcr \ndirect (ficheiro): directamente num directório de NFS montado \nou num Dísco Rígido Interno\n\nMax. Tamanho do Ficheiro:\nNFS V2: 2 GB (2048 MB)\nNFS V3: Não limitado (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
-recordingmenu.no_scart Não alternar para scart mode
 recordingmenu.off off
-recordingmenu.record_in_spts_mode switch to spts mode before recording
-recordingmenu.recording_type recording device
-recordingmenu.ringbuffers no. of ringbuffers
 recordingmenu.save_in_channeldir Save in channel dir
 recordingmenu.server server
-recordingmenu.server_ip recording server IP
 recordingmenu.server_mac MAC address
-recordingmenu.server_port recording server port
-recordingmenu.server_wakeup recording server WOL
 recordingmenu.setupnow Activar alterações
-recordingmenu.splitsize Max. Tamanho do ficheiro (MB)
-recordingmenu.stopplayback parar playback
-recordingmenu.stopsectionsd parar sectionsd
-recordingmenu.stream_pmt_pid record PMT
-recordingmenu.stream_vtxt_pid Gravar teletextp
-recordingmenu.use_fdatasync write synchronous (fdatasync)
-recordingmenu.use_o_sync Escrever synchronous (O_SYNC)
 recordingmenu.vcr vcr
 recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
@@ -1058,7 +1033,6 @@ servicemenu.restart_failed Restart failed
 servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Busca de Canais
-servicemenu.ucodecheck Verificar ucodes
 servicemenu.update Actualização de Software 
 settings.help Ajuda
 settings.missingoptionsconffile As configurações de neutrino foram actualizadas.\nNovas opções estão agora seleccionadas.
@@ -1091,28 +1065,6 @@ streaming.dir_not_writable Não tem permissões para gravar nesse directório.\n
 streaming.success Gravação concluída com sucesso.
 streaming.write_error A gravação abortou,\napós ocorrer um erro no processo de escrita.
 streaming.write_error_open A gravação abortou,\nporque o ficheiro de destino não pode ser aberto.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Configuração do Reprodutor de Vídeo
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Desligar
-streamingmenu.on Ligar
-streamingmenu.server_ip Streamingserver IP
-streamingmenu.server_port Streamingserver Porta
-streamingmenu.streaming_audiorate Datarate Audio
-streamingmenu.streaming_force_avi_rawaudio Forçar AC3 para filmes AVI
-streamingmenu.streaming_force_transcode_video Transcode MPG/VCD vídeo
-streamingmenu.streaming_resolution Resolução
-streamingmenu.streaming_server_cddrive DVD Drive
-streamingmenu.streaming_server_startdir Directório (VLC)
-streamingmenu.streaming_transcode_audio Transcode áudio (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec MPEG vídeo codec
-streamingmenu.streaming_type Streamingserver
-streamingmenu.streaming_videorate Datarate Video
-streamingserver.noconnect Não há ligação ao streamingserver.\nGravação Parada.
 stringinput.caps maiúsculas / minúsculas
 stringinput.clear limpar tudo
 timer.eventrecord.msg   ... Realizar ou não???
@@ -1196,12 +1148,6 @@ timing.hint_2 a barra de informação irá desaparecer
 timing.infobar Barra de informação
 timing.menu Menu
 timing.numericzap Numeric Zap
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head Procurar UCode
-ucodecheck.ucode UCode
-ucodes.failure ATENÇÃO, ÂµCodes NÃO PODE SER ENCONTRADO!\n\nPor favor fazer upload via FTP,\ne depois reiniciar a vossa box!
 videomenu.csync Correcção sincronismo
 videomenu.head Configurações Vídeo
 videomenu.osd OSD

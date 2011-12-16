@@ -669,7 +669,6 @@ mainmenu.reboot Restart odbiornika
 mainmenu.recording Nagrywanie
 mainmenu.recording_start START
 mainmenu.recording_stop STOP
-mainmenu.scartmode Eurozłącze
 mainmenu.scripts Skrypty
 mainmenu.service Usługi
 mainmenu.settings Ustawienia
@@ -699,11 +698,8 @@ messagebox.error Błąd!
 messagebox.info Informacja
 messagebox.no NIE
 messagebox.yes TAK
-miscsettings.bootinfo Informacje przy starcie
-miscsettings.bootmenu Pokaż boot menu
 miscsettings.channellist Lista kanałów
 miscsettings.channellist_epgtext_align Wyrównywanie informacji EPG
-miscsettings.driver_boot Ustawienia zaawansowane 
 miscsettings.energy Zarządzanie energią
 miscsettings.epg_cache Bufor EPG (dni)
 miscsettings.epg_cache_hint1 Wpisz na ile dni do przodu
@@ -720,7 +716,6 @@ miscsettings.epg_old_events Bufor starych wpisów (godz.)
 miscsettings.epg_old_events_hint1 Wpisz do ilu godzin wstecz
 miscsettings.epg_old_events_hint2 pokazywać stare wpisy.
 miscsettings.epg_save Zapis i przywracanie EPG 
-miscsettings.fb_destination Konsola startowa
 miscsettings.general Ogólne
 miscsettings.head Ustawienia różne
 miscsettings.hwsections użyj sekcji hardware
@@ -738,9 +733,6 @@ miscsettings.infobar_show Pokaż pasek po zmianie epg
 miscsettings.infobar_show_res Pokaż rozdzielczość
 miscsettings.infobar_show_res_simple prosta
 miscsettings.infobar_show_var_hdd Paski zapełnienia pamięci flash i dysku
-miscsettings.noaviawatchdog włącz AVIA watchdog
-miscsettings.noenxwatchdog włącz eNX watchdog
-miscsettings.pmtupdate włącz aktualizację pmt
 miscsettings.show_infomenu Menu informacyjne
 miscsettings.shutdown_count Całkowite wyłączenie po (min, 0-wył)
 miscsettings.shutdown_count_hint1 Czas w minutach, po którym odbiornik w trybie 
@@ -748,7 +740,6 @@ miscsettings.shutdown_count_hint2 gotowości wyłączy się całkowicie (0-wył)
 miscsettings.shutdown_real Tryb gotowości
 miscsettings.shutdown_real_rcdelay Wyłączenie po przytrzymaniu
 miscsettings.sleeptimer Deaktywuj wył. timera po:
-miscsettings.sptsmode użyj trybu SPTS
 miscsettings.virtual_zap_mode Wirtualne przełączanie
 motorcontrol.calc_positions Wyliczenie pozycji
 motorcontrol.disable_limit Wyłączenie limitów 
@@ -1073,24 +1064,12 @@ recordingmenu.choose_direct_rec_dir Wybierz katalog dla nagrywania
 recordingmenu.defdir Katalog nagrań
 recordingmenu.epg_for_filename długie nazwy (z danych EPG)
 recordingmenu.file dysk
-recordingmenu.filesettings Bezpośrednie ustawienia nagrywania 
-recordingmenu.head Ustawienia nagrywania
 recordingmenu.help Urządzenia nagrywające:\n--------------------------------------\nserwer:\nwykorzystuje serwer strumieniowania\n\nmagnetowid:\nwykorzystuje gniazdo magnetowidu (drugi scart)\n\ndysk:\nwykorzystuje zasób sieciowy (NFS)\nlub wewnętrzny dysk twardy\nTS: używaj trybu SPTS(Dbox2)\nPES: nie używaj trybu SPTS(Dbox2)\n\n\nMaksymalny rozmiar pliku:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: bez ograniczeń (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)\n\nDla NFS (UDP) zaleca się zapis synchroniczny
-recordingmenu.no_scart Nie przełączaj w tryb SCART
 recordingmenu.off wyłączone
-recordingmenu.record_in_spts_mode Przełącz do spts przed nagrywaniem
-recordingmenu.recording_type Urządzenie nagrywające
-recordingmenu.ringbuffers no. of ringbuffers
 recordingmenu.save_in_channeldir Zapisz w katalogu 
 recordingmenu.server_mac Adres MAC serwera (dla opcji WoL)
 recordingmenu.setupnow Zastosuj
-recordingmenu.splitsize Dziel plik na części (MB)
-recordingmenu.stopplayback Zatrzymaj odtwarzanie
-recordingmenu.stopsectionsd Zatrzymaj sekcję
-recordingmenu.stream_pmt_pid nagrywaj PMT
-recordingmenu.stream_vtxt_pid Nagrywaj teletext
 recordingmenu.tsdir Katalog opcji timeshift
-recordingmenu.use_o_sync Zapis synchroniczny (O_SYNC)
 recordingmenu.vcr magnetowid
 recordingmenu.zap_on_announce Powiadamianie o nagrywaniu
 recordtimer.announce Za kilka minut rozpocznie się nagrywanie.
@@ -1238,28 +1217,6 @@ streaming.dir_not_writable Brak możliwości zapisu do katalogu nagrań.\nNagryw
 streaming.success Nagrywanie zakończone sukcesem.
 streaming.write_error Nagrywanie zostało przerwane z powodu błędu w trakcie zapisu.
 streaming.write_error_open Nagrywanie zostało przerwane z powodu błędu otwarcia pliku do zapisu.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Ustawienia odtwarzacza filmów
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2 
-streamingmenu.off wyłączony
-streamingmenu.on włączony
-streamingmenu.server_ip IP serwera strumieniowania
-streamingmenu.server_port Port serwera strumieniowania
-streamingmenu.streaming_audiorate Szybkość transmisji dźwięku
-streamingmenu.streaming_force_avi_rawaudio Wymuś AC3 dla AVI
-streamingmenu.streaming_force_transcode_video Transkoduj obraz (MPG/VCD)
-streamingmenu.streaming_resolution Rozdzielczość
-streamingmenu.streaming_server_cddrive Napęd DVD
-streamingmenu.streaming_server_startdir Katalog (VLC)
-streamingmenu.streaming_transcode_audio Transkoduj dźwięk (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec Kodowanie obrazu 
-streamingmenu.streaming_type Serwer strumieniowania
-streamingmenu.streaming_videorate Szybkość transmisji obrazu
-streamingserver.noconnect Brak połączenia z serwerem strumieniowym.\nNagrywanie zostanie przerwane.
 stringinput.caps wielkie/małe litery
 stringinput.clear usuń wszystko
 subtitles.head Napisy

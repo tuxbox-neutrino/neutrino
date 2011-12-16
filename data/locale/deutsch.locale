@@ -696,7 +696,6 @@ mainmenu.reboot Neustart
 mainmenu.recording Aufnehmen
 mainmenu.recording_start Start
 mainmenu.recording_stop Stopp
-mainmenu.scartmode Scart-Eingang
 mainmenu.scripts Skripte
 mainmenu.service Service
 mainmenu.settings Einstellungen
@@ -728,15 +727,12 @@ messagebox.info Information
 messagebox.no Nein
 messagebox.ok OK
 messagebox.yes Ja
-miscsettings.bootinfo Infos beim Booten anzeigen
-miscsettings.bootmenu Bootmenü anzeigen
 miscsettings.channellist Kanalliste
 miscsettings.channellist_colored_events Sendung farbig
 miscsettings.channellist_epgtext_align Event-Text ausrichten
 miscsettings.colored_events_0 keine
 miscsettings.colored_events_1 aktuelle
 miscsettings.colored_events_2 nächste
-miscsettings.driver_boot Treiber- und Bootoptionen
 miscsettings.energy Energieverbrauch
 miscsettings.epg_cache EPG-Cache (Tage)
 miscsettings.epg_cache_hint1 EPG-Daten im Voraus zwischenspeichern?
@@ -753,7 +749,6 @@ miscsettings.epg_old_events EPG verwerfen nach (Std.)
 miscsettings.epg_old_events_hint1 Wie lange abgelaufene EPG-Daten aufheben?
 miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
-miscsettings.fb_destination EXPERT! Boot-Konsole
 miscsettings.general Allgemein
 miscsettings.head Erweitert
 miscsettings.hwsections EPG Daten per Hardware filtern
@@ -776,9 +771,6 @@ miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
-miscsettings.noaviawatchdog AVIA-Watchdog aktivieren
-miscsettings.noenxwatchdog eNX-Watchdog aktivieren
-miscsettings.pmtupdate PMT Aktualisierung verwenden
 miscsettings.radiotext Radiotext
 miscsettings.show_infomenu 
 miscsettings.shutdown_count Komplett ausschalten nach
@@ -787,7 +779,6 @@ miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögertes Ausschalten
 miscsettings.sleeptimer Ausschalten nach Inaktivität
-miscsettings.sptsmode SPTS-Mode Treiber laden
 miscsettings.virtual_zap_mode Virtual Zap
 miscsettings.zapto_pre_time Umschaltstart-Vorlaufzeit (Minuten)
 motorcontrol.calc_positions Positionen (Neu)-Berechne(n))
@@ -1135,37 +1126,21 @@ recordingmenu.end_of_recording_max max. Aufnahmezeit
 recordingmenu.end_of_recording_name Ende der Sofortaufnahme
 recordingmenu.epg_for_filename lange Dateinamen (mit EPG-Daten)
 recordingmenu.file Direkt (Datei)
-recordingmenu.filesettings Direktaufnahme Einstellungen
-recordingmenu.head Aufnahme Einstellungen
 recordingmenu.help Aufnahmegeräte:\n-----------------------\nServer:\nauf PC mit Hilfe eines Streaming-Programmes\n\n(analoger) Videorekorder:\nüber VCR-Ausgang\n\nDirekt (Datei):\nauf ein per NFS gemountetes Verzeichnis\noder eine interne Festplatte\nTS: SPTS-Mode Treiber laden(dbox2)\nPES: SPTS-Mode Treiber nicht laden(dbox2)\n\n\nMaximale Dateigröße:\n----------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: fast unendlich (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.multimenu.ask_stop_all Wirklich alle %d Aufnahmen beenden?
 recordingmenu.multimenu.info_stop_all %d von %d Aufnahmen werden beendet.
 recordingmenu.multimenu.rec_akt Aufnahme aktueller Kanal
 recordingmenu.multimenu.stop_all Alle Aufnahmen beenden
 recordingmenu.multimenu.timeshift Timeshift
-recordingmenu.no_scart Unterdrücke Scart-Umschaltung
 recordingmenu.off aus
-recordingmenu.record_in_spts_mode in SPTS-Modus aufnehmen
 recordingmenu.record_is_not_running Keine laufende Aufnahme verfügbar!
 recordingmenu.record_is_running Aufnahme läuft!
-recordingmenu.recording_type Aufnahme Gerät
-recordingmenu.ringbuffers Anz. Ringpuffer
 recordingmenu.save_in_channeldir Speichere im Kanalverzeichnis
 recordingmenu.server Server
-recordingmenu.server_ip Aufnahmeserver IP
 recordingmenu.server_mac Mac Adresse
-recordingmenu.server_port Aufnahmeserver Port
-recordingmenu.server_wakeup Aufnahmeserver WOL
 recordingmenu.setupnow Einstellungen jetzt übernehmen
-recordingmenu.splitsize Max. Dateigröße (MB)
-recordingmenu.stopplayback Wiedergabe anhalten
-recordingmenu.stopsectionsd "sectionsd" anhalten
-recordingmenu.stream_pmt_pid PMT aufzeichnen
-recordingmenu.stream_vtxt_pid Teletext aufzeichnen
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
-recordingmenu.use_fdatasync Synchrones Schreiben (fdatasync)
-recordingmenu.use_o_sync Synchrones Schreiben (O_SYNC)
 recordingmenu.vcr Videorekorder
 recordingmenu.zap_on_announce Umschalten bei Ankündigung
 recordtimer.announce Die Aufnahme beginnt in wenigen Minuten.
@@ -1276,7 +1251,6 @@ servicemenu.restart_failed Neustart von Neutrino fehlgeschlagen
 servicemenu.restart_hint Neutrino wird neu gestartet...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
-servicemenu.ucodecheck UCodes überprüfen
 servicemenu.update Software-Aktualisierung
 settings.backup Alle Settings sichern
 settings.backup_failed Sicherung fehlgeschlagen!
@@ -1319,28 +1293,6 @@ streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufn
 streaming.success Die Aufnahme wurde erfolgreich beendet.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 streaming.write_error_open Die Aufnahme wurde leider abgebrochen,\nda die entsprechende Datei nicht zum Schreiben geöffnet werden konnte.
-streamingmenu.352x288 352x288
-streamingmenu.352x576 352x576
-streamingmenu.480x576 480x576
-streamingmenu.704x576 704x576
-streamingmenu.head Movieplayer Einstellungen
-streamingmenu.mpeg1 MPEG1
-streamingmenu.mpeg2 MPEG2
-streamingmenu.off Deaktiviert
-streamingmenu.on Aktiviert
-streamingmenu.server_ip Streamingserver IP
-streamingmenu.server_port Streamingserver Port
-streamingmenu.streaming_audiorate Datenrate Audio
-streamingmenu.streaming_force_avi_rawaudio Erzwinge AC3 bei avi
-streamingmenu.streaming_force_transcode_video Transcod. auch MPG/VCD Video
-streamingmenu.streaming_resolution Auflösung
-streamingmenu.streaming_server_cddrive DVD Laufwerk
-streamingmenu.streaming_server_startdir Verzeichnis (VLC)
-streamingmenu.streaming_transcode_audio Transcod. Audio (DVD/VCD/MPG)
-streamingmenu.streaming_transcode_video_codec MPEG Video Codec
-streamingmenu.streaming_type Streamingserver
-streamingmenu.streaming_videorate Datenrate Video
-streamingserver.noconnect Keine Verbindung zum Streamingserver.\nAufnahme wird abgebrochen.
 stringinput.caps Groß-/Kleinbuchstaben
 stringinput.clear Alles löschen
 subtitles.head Untertitel
@@ -1427,12 +1379,6 @@ timing.infobar_movieplayer Infobar (Filmwiedergabe)
 timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
-ucodecheck.avia500 Avia 500
-ucodecheck.avia600 Avia 600
-ucodecheck.cam-alpha Cam-Alpha
-ucodecheck.head UCode Überprüfung
-ucodecheck.ucode UCode
-ucodes.failure Achtung, die µCodes wurden nicht gefunden!\n\nBitte per FTP (oder DBox-BootManager)\nuploaden, und die box neu starten!
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Kein UPnP-Server gefunden
 upnpbrowser.rescan Neue Suche
