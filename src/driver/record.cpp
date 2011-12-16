@@ -1385,7 +1385,7 @@ bool CRecordManager::AskToStop(const t_channel_id channel_id)
 		return false;
 
 	if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, title.c_str(),
-				CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
+				CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes) {
 		g_Timerd->stopTimerEvent(recording_id);
 		return true;
 	}
