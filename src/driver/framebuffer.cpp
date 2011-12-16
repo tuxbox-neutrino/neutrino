@@ -571,7 +571,7 @@ void CFrameBuffer::setBlendMode(uint8_t mode)
 	ioctl(gfxfd, STB04GFX_OSD_SETCONTROL, &g);
 }
 
-void CFrameBuffer::setBlendLevel(int blev1, int /*blev2*/)
+void CFrameBuffer::setBlendLevel(int level)
 {
 	/* this is bypassing directfb, but faster and easier */
 	Stb04GFXOsdControl g;
@@ -579,13 +579,13 @@ void CFrameBuffer::setBlendLevel(int blev1, int /*blev2*/)
 	if (g.use_global_alpha == 0)
 		return;
 
-	if (blev1 < 0 || blev1 > 100)
+	if (level < 0 || level > 100)
 		return;
 
 	/* this is the same as convertSetupAlpha2Alpha(), but non-float */
-	g.global_alpha = 255 - (255 * blev1 / 100);
+	g.global_alpha = 255 - (255 * level / 100);
 	ioctl(gfxfd, STB04GFX_OSD_SETCONTROL, &g);
-	if (blev1 == 100) // sucks
+	if (level == 100) // sucks
 		usleep(20000);
 }
 #endif
