@@ -913,9 +913,12 @@ void CInfoViewer::loop(bool show_dot)
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 
 		} 
+#if 0
 		else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
 			CMoviePlayerGui::getInstance().start_timeshift = false;
-		} else if (CMoviePlayerGui::getInstance().timeshift && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind)  || \
+		} 
+#endif
+		else if (CMoviePlayerGui::getInstance().timeshift && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind)  || \
 		   							(msg == (neutrino_msg_t) g_settings.mpkey_forward) || \
 		   							(msg == (neutrino_msg_t) g_settings.mpkey_pause)   || \
 		   							(msg == (neutrino_msg_t) g_settings.mpkey_stop)    || \

@@ -3771,11 +3771,11 @@ void stop_daemons(bool stopall)
 	g_Zapit->shutdown();
 	pthread_join(zapit_thread, NULL);
 #endif
+	delete &CMoviePlayerGui::getInstance();
 	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
 	CVFD::getInstance()->Clear();
 	if(stopall) {
-		CMoviePlayerGui::Delete(); //remove instance
 		if (cpuFreq)
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
 		if (powerManager) {

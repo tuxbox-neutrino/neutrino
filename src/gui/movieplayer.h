@@ -66,35 +66,40 @@ class CMoviePlayerGui : public CMenuTarget
  private:
 	CFrameBuffer * frameBuffer;
 	int            m_LastMode;	
-	const char     *filename;
-	bool		stopped;
-	CMoviePlayerGui::state playstate;
-	bool isBookmark;
-	bool isMovieBrowser;
-	int speed;
-	off64_t fullposition;
-	int startposition;
-	int jumpseconds;
-	bool showaudioselectdialog;
-	off64_t minuteoffset;
-	off64_t secondoffset;
-	std::string startfilename;
 
-	std::string Path_local;
-	static  unsigned short g_numpida;
-	static unsigned short g_vtype;
-	static unsigned short g_vpid;
-	static std::string    g_language[REC_MAX_APIDS];
+	std::string	full_name;
+	std::string	file_name;
+
+	bool		playing;
+	CMoviePlayerGui::state playstate;
+	int speed;
+	int startposition;
+
+	unsigned short numpida;
+	unsigned short vpid;
+	unsigned short vtype;
+	std::string    language[REC_MAX_APIDS];
+	unsigned short apids[REC_MAX_APIDS];
+	unsigned short ac3flags[REC_MAX_APIDS];
+	unsigned short currentapid, currentac3;
+
+	/* playback from MB */
+	bool isMovieBrowser;
+	CMovieBrowser* moviebrowser;
+	MI_MOVIE_INFO * p_movie_info;
 	const static short MOVIE_HINT_BOX_TIMER = 5;	// time to show bookmark hints in seconds
 
+	/* playback from file */
+	bool is_file_player;
 	CFileBrowser * filebrowser;
-	CMovieBrowser* moviebrowser;
-
-	CBookmarkManager * bookmarkmanager;
-
 	CFileFilter tsfilefilter;
+	std::string Path_local;
 
-	static cPlayback *playback;
+	/* playback from bookmark */
+	CBookmarkManager * bookmarkmanager;
+	bool isBookmark;
+
+	cPlayback *playback;
 	static CMoviePlayerGui* instance_mp;
 
 	void Init(void);
@@ -103,35 +108,27 @@ class CMoviePlayerGui : public CMenuTarget
 	void restoreNeutrino();
 
 	void showHelpTS(void);
-	void showHelpVLC(void);
-	void callInfoViewer(MI_MOVIE_INFO * p_movie_info, const int duration, const int pos);
-	void fillPids(MI_MOVIE_INFO * p_movie_info);
+	void callInfoViewer(const int duration, const int pos);
+	void fillPids();
+	bool getAudioName(int pid, std::string &apidtitle);
+	void selectAudioPid(bool file_player);
+
+	void handleMovieBrowser(neutrino_msg_t msg, int position = 0);
+	bool SelectFile();
+	void updateLcd();
 
 	CMoviePlayerGui(const CMoviePlayerGui&) {};
+	CMoviePlayerGui();
 
  public:
-	CMoviePlayerGui();
 	~CMoviePlayerGui();
 
 	static CMoviePlayerGui& getInstance();
-	static void Delete();
-	
+
 	int exec(CMenuTarget* parent, const std::string & actionKey);
-	void updateLcd(const std::string & sel_filename);
-	bool Playing();
+	bool Playing() { return playing; };
 	int timeshift;
-	bool start_timeshift;
 	int file_prozent;
-};
-
-
-class CAPIDSelectExec : public CMenuTarget
-{
-	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-		static unsigned short g_apids[REC_MAX_APIDS];
-		static unsigned short g_ac3flags[REC_MAX_APIDS];
-		static unsigned short g_currentapid, g_currentac3, apidchanged;
 };
 
 #endif
