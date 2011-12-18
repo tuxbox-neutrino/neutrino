@@ -6,26 +6,7 @@ EPGMenu.streaminfo technische informatie
 EPGPlus.actions Akties 
 EPGPlus.bybouquet_mode per bouquet
 EPGPlus.bypage_mode per pagina
-EPGPlus.change_font_size font grootte
-EPGPlus.change_font_style font stijl
-EPGPlus.change_size grootte
-EPGPlus.channelentry_font kanaal font
-EPGPlus.channelentry_separationlineheight afstand tussen de lijnen
-EPGPlus.channelentry_width breedte
-EPGPlus.channelevententry_font programma font
-EPGPlus.edit_fonts edit fonts
-EPGPlus.edit_sizes edit afmeting
-EPGPlus.font_style_bold stijl bold
-EPGPlus.font_style_italic stijl italic
-EPGPlus.font_style_regular stijl normaal
-EPGPlus.footer_fontbouquetchannelname selekteer bouquet/kanaalnaam
-EPGPlus.footer_fontbuttons selekteer buttons
-EPGPlus.footer_fonteventdescription selekteer aktuele uitzending
-EPGPlus.footer_fonteventshortdescription selekteer verkorte uitzending
 EPGPlus.head Programma gids Overzicht (EPG Plus)
-EPGPlus.header_font kop font
-EPGPlus.horgap1_height hoogte 1
-EPGPlus.horgap2_height hoogte 2
 EPGPlus.next_bouquet volgend bouquet
 EPGPlus.options opties
 EPGPlus.page_down pagina terug
@@ -34,18 +15,10 @@ EPGPlus.prev_bouquet vorig bouquet
 EPGPlus.record opnemen
 EPGPlus.refresh_epg ververs de epg
 EPGPlus.remind Herinnering
-EPGPlus.reset_settings reset instellingen
-EPGPlus.save_settings sla instellingen op
 EPGPlus.scroll_mode Scroll Mode
 EPGPlus.select_font_name font naam
-EPGPlus.settings instellingen
-EPGPlus.slider_width slider breedte
 EPGPlus.stretch_mode Uitstrek Mode
 EPGPlus.swap_mode swap mode
-EPGPlus.timeline_fontdate font datum
-EPGPlus.timeline_fonttime font tijd
-EPGPlus.vergap1_width breedte 1
-EPGPlus.vergap2_width breedte 2
 EPGPlus.view_mode kijk mode
 GENRE.ARTS.0 kunst / kultuur
 GENRE.ARTS.1 uitvoerende kunst
@@ -135,14 +108,10 @@ audio.srs_volume Referentie luidsterkte
 audiomenu.PCMOffset PCM offset
 audiomenu.analogout Analoge uitgang
 audiomenu.avs avs
-audiomenu.avs_control Volume kontrole avs/oost
 audiomenu.dolbydigital Dolby Digital
 audiomenu.hdmi_dd Dolby Digital via HDMI
-audiomenu.head Audio instellingen
-audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
-audiomenu.ost oost
 audiomenu.stereo stereo
 audioplayer.add voeg toe
 audioplayer.artist_title Artiest, Titel
@@ -229,14 +198,11 @@ colorchooser.red rood
 colormenu.background Achtergrond
 colormenu.fade Fade menu's
 colormenu.font Font grootte
-colormenu.gtx_alpha Transparentie (GTX)
-colormenu.head Color Settings
 colormenu.menucolors Menukleur
 colormenu.statusbar Infobar
 colormenu.textcolor Textkleur
 colormenu.themeselect selecteer thema
 colormenu.timing OSD Timing
-colormenusetup.head Menu Kleuren
 colormenusetup.menucontent Window-Inhoud
 colormenusetup.menucontent_inactive Window-Inhoud inaktief
 colormenusetup.menucontent_selected Window-Inhoud selekteren
@@ -313,10 +279,8 @@ flashupdate.actionreadflash Flash lezen
 flashupdate.cantopenfile kan bestand niet openen
 flashupdate.cantopenmtd kan mtd-device niet openen
 flashupdate.checkupdate zoek naar nieuwe versie
-flashupdate.currentreleasecycle Release cycle
 flashupdate.currentversion_sep Aktuele versie
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot ImageType
 flashupdate.currentversiontime Tijd
 flashupdate.erasefailed flash wissen mislukt
 flashupdate.erasing flash wissen
@@ -473,11 +437,8 @@ lcdcontroler.brightness normale Helderheid
 lcdcontroler.brightnessstandby Standby Helderheid
 lcdcontroler.contrast Kontrast
 lcdcontroler.head LCD Instellingen
-lcdmenu.autodimm Auto dimmer
 lcdmenu.head LCD Instellingen
-lcdmenu.inverse Omgekeerd
 lcdmenu.lcdcontroler Kontrast / Helderheid
-lcdmenu.power Verlichting
 lcdmenu.statusline status lijn
 lcdmenu.statusline.both volume / speelduur
 lcdmenu.statusline.playtime speelduur
@@ -528,7 +489,6 @@ miscsettings.epg_old_events EPG verwijderen na (Uren)
 miscsettings.epg_max_events Max. events
 miscsettings.general Algemeen
 miscsettings.head Diverse instellingen
-miscsettings.hwsections hardware secties gebruiken
 miscsettings.infobar_sat_display Satelliet display op infobar
 miscsettings.shutdown_count Geheel uitschakelen na
 miscsettings.shutdown_real Schakel standby in
@@ -539,25 +499,16 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarknaam
 movieplayer.bookmarkname_hint1 Geef een naam in voor je nieuwe bookmark
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering Buffering...
-movieplayer.defdir start dir.
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback File via VLC
-movieplayer.goto Spring naar ...
-movieplayer.goto.h1 = -> absolute sprong
-movieplayer.goto.h2 +,- -> relative sprong
 movieplayer.head Filmspeler
-movieplayer.nostreamingserver De stream server niet te bereiken.
 movieplayer.pesplayback Speel PES (Experimenteel)
-movieplayer.pleasewait Aub wachten.\nVerbind met stream server...
 movieplayer.toomanybookmarks Er zijn teveel bookmarks.\nWis er eerst een van.
 movieplayer.tsplayback Speel TS
 movieplayer.vcdplayback (S)VCD
-movieplayer.wrongvlcversion Deze functie wordt niet ondersteund door deze versie van VLC
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway default gateway
-networkmenu.head Netwerk Instellingen
 networkmenu.ipaddress IP adres
 networkmenu.mount NFS/CIFS
 networkmenu.nameserver server naam
@@ -666,10 +617,8 @@ satsetup.auto_scan Automatisch scannen
 satsetup.auto_scan_all Alle satellieten automatisch scannen
 satsetup.manual_scan Handmatig scannen
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Motor handmatig instellen
 satsetup.nodiseqc geen DiSEqC
 satsetup.satellite Satelliet
-satsetup.savesettingsnow sla instellingen nu op
 satsetup.smatvremote SMATV Remote Tuning
 scants.actcable Kabel:
 scants.actsatellite Satelliet:
@@ -706,11 +655,9 @@ sleeptimerbox.announce Sleeptimer over 1 min
 sleeptimerbox.hint1 Shutdown tijd in min. (000=uit)
 sleeptimerbox.hint2 De ruDbox gaat shutdown na deze tijd.
 sleeptimerbox.title Sleeptimer
-streamfeatures.head Features
 streaminfo.aratio verhouding
 streaminfo.aratio_unknown verhoudig: onbekend
 streaminfo.audiotype Audiotype
-streaminfo.audiotype_unknown Audiotype: onbekend
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: onbekend
@@ -718,12 +665,9 @@ streaminfo.head Stream-Informatie
 streaminfo.not_available niet beschikbaar
 streaminfo.resolution Resolutie
 streaminfo.signal Ontvangst signaal
-streaming.buffer_overflow De opname is helaas afgebroken,\nomdat de data niet snel genoeg geschreven kon worden. 
 streaming.busy Een of meerdere opneem processen zijn aktief.\nAls je dit bericht krijgt en geen opname is aktief,\nherstart Neutrino aub.
 streaming.dir_not_writable De opneem directory is niet beschrijfbaar.\nOpname zal niet gaan.
-streaming.success De opname is succesvol beeindigd.
 streaming.write_error De opname was afgebroken,\nomdat er een fout optrad gedurende het schrijven.
-streaming.write_error_open De opname is afgebroken,\nomdat de file niet geopend kon worden.
 stringinput.caps Hoofd- / kleine letters
 stringinput.clear alles schoonmaken
 timer.eventrecord.msg   ... DOEN, of LATEN
@@ -826,22 +770,17 @@ videomenu.dbdr_deblock Blockbildung
 videomenu.dbdr_both Block- & Ringbildung
 videomenu.enabled_modes Videosysteem onder de V.F-Toets
 videomenu.fullscreen Volledig beeld
-videomenu.head Video Instellingen
 videomenu.letterbox Letterbox
-videomenu.rgb_centering RGB centrering
 videomenu.screensetup Scherm aanpassen
 videomenu.tv-scart TV Scart
-videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR-uitgang signaal type
 videomenu.vcrsignal_composiet CVBS
 videomenu.vcrsignal_svideo S-Video
-videomenu.vcrswitch Schakel Scart automatisch
 videomenu.videoformat Formaat
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
 videomenu.videoformat_149 14:9
-videomenu.videoformat_autodetect autodetecteer
 videomenu.videosignal VideoOutput
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS
@@ -866,12 +805,8 @@ extra.logview Bekijk Log
 extra.ru ruDREAM
 extra.english Engels
 extra.dboxinfo Box Info
-extra.scan_mode Scan mode
 extra.start_tostandby In standby gaan na opstarten
 extra.rotor_swap Swap rotor oost/west
-extra.use_log Log to /tmp/log
-extra.spts_mode SPTS mode
-extra.hw_sect Hardware Secties
 extra.logo Logo nummer
 extra.scan_full vol
 extra.scan_fast snel
@@ -896,10 +831,8 @@ extra.hdd_fs Filesysteem
 extra.hdd_format Formateer HDD
 extra.hdd_check Check filesysteem
 extra.hdd_settings HDD instellingen
-extra.clear_log Clear Log
 extra.zap_cycle Zap cyclus
 extra.sms_channel sms-kanaal
-extra.manual_scan Manuele scan
 extra.tp_freq Frequentie
 extra.tp_rate Symbol rate
 extra.tp_pol Polarisatie
@@ -911,10 +844,8 @@ extra.fec_2_3 2/3
 extra.fec_3_4 3/4
 extra.fec_5_6 5/6
 extra.fec_7_8 7/8
-extra.timezone Tijd zone
 extra.zapit_menu Zapit opties
 extra.zapit_make_bouquet Maak bouquet
-extra.zapit_save_last_chan Sla laatste kanaal op
 extra.zapit_motor_speed Motor snelheid (10 = 1 graad/sec)
 extra.zapit_fe_timeout Timeout melodie
 extra.add_to_bouquet  voeg to aan bouquet
@@ -929,9 +860,7 @@ extra.cache Cache
 extra.debug Debug
 extra.zapit_backup Backup channels to /tmp
 extra.zapit_delete Delete channels
-extra.zapit_fast_zap fast zap
 extra.zapit_restore Restore channels from /tmp
-extra.zapit_sort_names Sort ch. by name
 fan_speed Ventilator snelheid
 filesystem.is.utf8 file system
 filesystem.is.utf8.option.iso8859.1 ISO-8859-1
@@ -951,18 +880,6 @@ movieplayer.tshelp6 approx. 1 minute back
 movieplayer.tshelp7 skip approx. 1 minute 
 movieplayer.tshelp8 approx. 5 minutes back 
 movieplayer.tshelp9 skip approx. 5 minutes 
-movieplayer.vlchelp1 Stop 
-movieplayer.vlchelp10 approx. 10 minutes back 
-movieplayer.vlchelp11 skip approx. 10 minutes 
-movieplayer.vlchelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.vlchelp2 Resync 
-movieplayer.vlchelp3 Pause/Continue 
-movieplayer.vlchelp4 Create bookmark 
-movieplayer.vlchelp5 Show progress 
-movieplayer.vlchelp6 approx. 1 minute back 
-movieplayer.vlchelp7 skip approx. 1 minute 
-movieplayer.vlchelp8 approx. 5 minutes back 
-movieplayer.vlchelp9 skip approx. 5 minutes 
 nfs.mountok mount successful
 nfs.type_lufs FTPFS
 pictureviewer.help1 menu mode
@@ -988,8 +905,6 @@ pictureviewer.help7 next image
 pictureviewer.help8 change sort order
 pictureviewer.help9 exit
 plugins.result plugin output
-recordingmenu.choose_direct_rec_dir kies dir. voor directe opnames
-recordingmenu.epg_for_filename lange bestandsnamen (met EPG data)
 settings.pos_bottom_left linksonder
 settings.pos_bottom_right rechtsonder
 settings.pos_top_left linksboven
@@ -1001,8 +916,6 @@ timerlist.repeatcount.help1 aantal timer herhalingen
 timerlist.repeatcount.help2 0 voor ongelimiteerd 
 timerlist.type.execplugin Start plugin
 audioplayer.reading_files bestanden lezen
-pictureviewer.decode_server_ip decodeer server ip
-pictureviewer.decode_server_port decodeer server port
 scants.abort_body Zoeken echt afbreken?
 scants.abort_header Onderbreek Scan
 servicemenu.getplugins Herlaad plugins
@@ -1027,21 +940,14 @@ mpkey.audio Audio track
 mpkey.time Show time
 mpkey.bookmark save bookmark
 mpkey.plugin Run plugin
-extra.key_click Key click
-extra.loadcolors Kleuren inladen vanaf
-extra.savecolors Kleuren opslaan als
 extra.loadkeys Keys inladen vanaf
 extra.savekeys Keys opslaan als
 extra.loadconfig Instellingen laden
 extra.saveconfig Sla configuratie op als
 videomenu.videomode Video systeem
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 extra.key_timeshift Timeshift
 extra.key_plugin One touch plugin
 extra.timeshift_pause Timeshift pause
-rfmod.rfmod RF modulator
 rfmod.carrier Subcarrier Frequentie
 rfmod.carrier4500 4.5
 rfmod.carrier5500 5.5
@@ -1081,7 +987,6 @@ epgextended.presenter Presenter
 epgextended.year_of_production Year of Production
 recordingmenu.save_in_channeldir Save in channel dir
 servicemenu.restart Soft restart
-servicemenu.restart_failed Restart failed
 servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 extra.cs Cardserver
@@ -1189,7 +1094,6 @@ moviebrowser.short_title Titel
 moviebrowser.start_head Start film from:
 moviebrowser.start_record_start Film start
 options.on.without_messages Without msg
-extra.zapit_scan_sdt Scan SDT for updates
 extra.zapit_sdt_changed Kanalenlijst veranderd, herladen van lijsten.
 miscsettings.virtual_zap_mode Virtual zap
 miscsettings.epg_head Epg instellingen
@@ -1204,9 +1108,7 @@ recordingmenu.apids_alt record alternatieve streams
 recordingmenu.apids_std record standaard stream
 recordingmenu.zap_on_announce melding zappen tijdens opname
 timerlist.apids_dflt record standaard audio streams
-videomenu.osd OSD
 videomenu.tv-scart TV Scart
-videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR Output Signal Type
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
@@ -1235,7 +1137,6 @@ moviebrowser.last_play_max_items Aantal regels van laatst gespeelde video
 moviebrowser.browser_frame_high Browser hoogte [%]
 extra.auto_timeshift Auto-record, sec (0 = uit)
 extra.auto_delete Automatiisch wissen
-extra.auto_to_record Verplaats timeshift naar opnames
 extra.record_time Fast/timeshift opname periode (uren)
 subtitles.head Ondertitels
 subtitles.stop Stop ondertiteling

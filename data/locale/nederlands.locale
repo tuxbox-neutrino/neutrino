@@ -4,24 +4,7 @@ EPGMenu.eventlist Preview programma
 EPGMenu.head EPG - Programma Informatie
 EPGMenu.streaminfo technische Informatie
 EPGPlus.actions Aktie's
-EPGPlus.change_font_size Fonttype veranderen
-EPGPlus.change_font_style Fontstijl veranderen
-EPGPlus.change_size Grootte veranderen
-EPGPlus.channelentry_font Kanaal
-EPGPlus.channelentry_separationlineheight Hoogteverschil tussen 2 kanaalnamen
-EPGPlus.channelentry_width Breedte van de kanaallnamen
-EPGPlus.channelevententry_font Uitzendingen
-EPGPlus.edit_fonts Fonts instellen
-EPGPlus.edit_sizes Grootte instellen
-EPGPlus.font_style_bold Vet
-EPGPlus.font_style_italic Cursief
-EPGPlus.font_style_regular Normaal
-EPGPlus.footer_fontbouquetchannelname Kies Boeket- of Kanaalnaam
-EPGPlus.footer_fontbuttons Knoppen
-EPGPlus.footer_fonteventdescription Titel 1 kies uitzending
-EPGPlus.footer_fonteventshortdescription Titel 2 kies uitzending
 EPGPlus.head Preview  (EPG Plus)
-EPGPlus.header_font Menu
 EPGPlus.next_bouquet Volgend Boeket
 EPGPlus.options Optie's
 EPGPlus.page_down Vorige pagina.
@@ -30,16 +13,10 @@ EPGPlus.prev_bouquet Vorig Boeket.
 EPGPlus.record Opname
 EPGPlus.refresh_epg Aktualiseren
 EPGPlus.remind Herinneren
-EPGPlus.reset_settings Resetten van instellingen.
-EPGPlus.save_settings Instellingen bewaren
 EPGPlus.scroll_mode Scroll Mode
 EPGPlus.select_font_name Lettertype kiezen
-EPGPlus.settings Instellingen
-EPGPlus.slider_width Breedte van de sliders
 EPGPlus.stretch_mode Stretch Mode
 EPGPlus.swap_mode Bladeren
-EPGPlus.timeline_fontdate Tijdschaal datum
-EPGPlus.timeline_fonttime Tijdschaal Tijd
 EPGPlus.view_mode Mode
 GENRE.ARTS.0 Kunst/ cultuur
 GENRE.ARTS.1 Beeldende kunst
@@ -123,13 +100,9 @@ apidselector.head Kies taal
 audiomenu.PCMOffset Volume Decrease PCM
 audiomenu.analogout Analoge uitgang
 audiomenu.avs avs
-audiomenu.avs_control Volume Control avs/ost
 audiomenu.dolbydigital Dolby Digital
-audiomenu.head Geluidsinstellingen
-audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
-audiomenu.ost ost
 audiomenu.stereo stereo
 audioplayer.add Voeg toe
 audioplayer.artist_title Artiest, Titel
@@ -185,15 +158,12 @@ colormenu.background Achtergrond
 colormenu.background_head Achtergrond
 colormenu.fade Fade menu's
 colormenu.font lettergrootte
-colormenu.gtx_alpha Transparantheid (GTX)
-colormenu.head Kleur Settings
 colormenu.menucolors Menu kleuren
 colormenu.statusbar Infobar
 colormenu.textcolor Tekstkleur
 colormenu.textcolor_head Tekstkleur
 colormenu.themeselect selecteer onderwerp
 colormenu.timing OSD Tijd
-colormenusetup.head Menu Kleuren
 colormenusetup.menucontent Vensterinhoud
 colormenusetup.menucontent_inactive Vensterinhoud niet actief
 colormenusetup.menucontent_selected Vensterinhoud geactiveerd
@@ -261,10 +231,8 @@ flashupdate.actionreadflash lezen
 flashupdate.cantopenfile Kan bestand niet openen
 flashupdate.cantopenmtd Kan het mtd-device niet openen
 flashupdate.checkupdate Zoek nieuwe versie
-flashupdate.currentreleasecycle Release cycle
 flashupdate.currentversion_sep Huidige versie
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot Type Image
 flashupdate.currentversiontime Tijd
 flashupdate.erasefailed Wissen van de flash mislukt
 flashupdate.erasing Wissen van de flash
@@ -406,11 +374,8 @@ lcdcontroler.brightness normale helderheid
 lcdcontroler.brightnessstandby Standby helderheid
 lcdcontroler.contrast Contrast
 lcdcontroler.head Display-instellingen
-lcdmenu.autodimm Auto dimm
 lcdmenu.head LCD Settings
-lcdmenu.inverse Invert
 lcdmenu.lcdcontroler Contrast / Helderheid
-lcdmenu.power Voeding
 lcdmenu.statusline status lijn
 lcdmenu.statusline.both Volume/Speelduur
 lcdmenu.statusline.playtime Speelduur
@@ -452,7 +417,6 @@ messagebox.no Neen
 messagebox.yes Ja
 miscsettings.general Algemeen
 miscsettings.head Overige settings
-miscsettings.hwsections Gebruik hardware secties
 miscsettings.infobar_sat_display Satelliet display in infobar
 miscsettings.shutdown_real standby
 miscsettings.shutdown_real_rcdelay vertraagde shutdown
@@ -462,27 +426,18 @@ movieplayer.bookmark Favorieten
 movieplayer.bookmarkname Bookmark Naam
 movieplayer.bookmarkname_hint1 Geef de naam voor de
 movieplayer.bookmarkname_hint2 nieuwe favoriet in
-movieplayer.buffering Bufferen...
-movieplayer.defdir startdirectory
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Bestand via VLC
-movieplayer.goto Ga naar...
-movieplayer.goto.h1 = -> absolute sprong
-movieplayer.goto.h2 +,- -> relatieve sprong
 movieplayer.head Filmplayer
-movieplayer.nostreamingserver De streamserver kon niet gevonden worden
 movieplayer.pesplayback PES Afspelen (Experiment)
-movieplayer.pleasewait Even geduld aub.\nBezig met verbinden met streamserver...
 movieplayer.toomanybookmarks U heeft te veel favorieten.\nEr moet een andere favoriet gewist worden.
 movieplayer.tshelp Rood/Home Stop\nGROEN Kies audio track\nGEEL Pause/Continue\nBLUE Create bookmark\nd-box Show progress\n1 approx. 1 minute back\n3 skip approx. 1 minute\n4 approx. 5 minuten terug\n6 sla over ongeveer 5 minuten\n7 ongeveer 10 minuten terug\n9 sla ongeveer 10 minutes\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tsplayback Speel TS
 movieplayer.vcdplayback (S)VCD
 movieplayer.vlchelp ROOD/Home Stop\nGROEN Resync\nGEEL Pause/verder\nBLAUW Favoriet instellen\n1 ca. 1 Minuut terug\n3 ca. 1 Minuut vooruit\n4 ca. 5 Minuten terug\n6 ca. 5 Minuten vooruit\n7 ca. 10 Minuten terug\n9 ca. 10 Minuten vooruit\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.wrongvlcversion Functie is niet mogelijk met de gebruikte VLC-versie
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Standaard Gateway
-networkmenu.head Netwerkinstellingen
 networkmenu.ipaddress IP-Addres
 networkmenu.mount  NFS/CIFS
 networkmenu.nameserver Nameserver
@@ -577,10 +532,8 @@ satsetup.diseqcrepeat DiSEqC-herhaling
 satsetup.extended DiSEqC-Settings
 satsetup.extended_motor Motorsettings
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Manuele Setup van de motor
 satsetup.nodiseqc Geen DiSEqC
 satsetup.satellite Satelliet
-satsetup.savesettingsnow Sla de settings op
 satsetup.smatvremote SMATV Remote Tuning
 scants.actcable Kabel:
 scants.actsatellite Satelliet:
@@ -616,23 +569,18 @@ sleeptimerbox.announce Sleeptimer in 1 min
 sleeptimerbox.hint1 Schakel uit in ...minuten. (000=uit)
 sleeptimerbox.hint2 dbox2 zal uitgaan na deze tijd.
 sleeptimerbox.title Sleeptimer
-streamfeatures.head Features
 streaminfo.aratio Aspect Ratio
 streaminfo.aratio_unknown Aspect Ratio: onbekend
 streaminfo.audiotype Audiotype
-streaminfo.audiotype_unknown Audiotype: onbekend
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: onbekend
 streaminfo.head Stream-Informatie
 streaminfo.not_available Niet beschikbaar
 streaminfo.resolution Resolutie
-streaming.buffer_overflow De opname is afgebroken \nomdat doelmap niet kon geopend worden.
 streaming.busy Een of meerdere opnames zijn bezig.\nAls U deze oodschap krijgt en er is geen opname\nbezig herstart dan Neutrino.
 streaming.dir_not_writable De opnamefolder is niet bereikbaar.\nOpnemen zal niet gaan.
-streaming.success De opname is met succes beëindigd
 streaming.write_error De opname is afgebroken \nomdat er een schrijffout opgetreden is.
-streaming.write_error_open De opname is afgebroken \nomdat de doelmap niet kon geopend worden.
 stringinput.caps caps/geen caps
 stringinput.clear Wis alles
 timer.eventrecord.msg OK, niet OK
@@ -708,15 +656,11 @@ timing.hint_2 infobar verdwijnen.
 timing.infobar Infobar
 timing.menu Menu
 videomenu.csync Sync.-correctie
-videomenu.head Videoinstellingen
-videomenu.rgb_centering RGB-centering
 videomenu.screensetup Scherm Setup
-videomenu.vcrswitch Switch Scart automatisch
 videomenu.videoformat Formaat
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect autodetect
 videomenu.videosignal Video uit
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

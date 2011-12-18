@@ -6,26 +6,7 @@ EPGMenu.streaminfo Informations techniques
 EPGPlus.actions Actions 
 EPGPlus.bybouquet_mode Par bouquet
 EPGPlus.bypage_mode par Page
-EPGPlus.change_font_size Taille caractère
-EPGPlus.change_font_style Taille style
-EPGPlus.change_size Taille
-EPGPlus.channelentry_font caractère chaine
-EPGPlus.channelentry_separationlineheight Hauteur ligne de séparation
-EPGPlus.channelentry_width Largeur
-EPGPlus.channelevententry_font Caractère événement
-EPGPlus.edit_fonts edit Caractères
-EPGPlus.edit_sizes edit Tailles
-EPGPlus.font_style_bold style Gras
-EPGPlus.font_style_italic style Italic
-EPGPlus.font_style_regular style Régulier
-EPGPlus.footer_fontbouquetchannelname Bas de page bouquet
-EPGPlus.footer_fontbuttons Bas de page boutons
-EPGPlus.footer_fonteventdescription Bas de page évènement
-EPGPlus.footer_fonteventshortdescription Bas de page évènement réduit
 EPGPlus.head Eventlist Présentation (EPG Plus)
-EPGPlus.header_font Caractère Entête
-EPGPlus.horgap1_height Hauteur1
-EPGPlus.horgap2_height Hauteur2
 EPGPlus.next_bouquet Bouquet suivant
 EPGPlus.options Options
 EPGPlus.page_down Page vers le bas
@@ -34,18 +15,10 @@ EPGPlus.prev_bouquet Bouquet précedent
 EPGPlus.record Enregistrer
 EPGPlus.refresh_epg Rafraîchir
 EPGPlus.remind Rappel
-EPGPlus.reset_settings Reset réglages
-EPGPlus.save_settings Sauvegarder Réglages
 EPGPlus.scroll_mode Mode défilement
 EPGPlus.select_font_name Nom de caractère
-EPGPlus.settings Réglages
-EPGPlus.slider_width Largeur barette
 EPGPlus.stretch_mode Mode déployé
 EPGPlus.swap_mode  Mode échange
-EPGPlus.timeline_fontdate Caractère de Date
-EPGPlus.timeline_fonttime Caractère d'heure
-EPGPlus.vergap1_width Largeur1
-EPGPlus.vergap2_width Largeur2
 EPGPlus.view_mode Mode visualisation
 GENRE.ARTS.0 arts / culture
 GENRE.ARTS.1 arts contemporains
@@ -129,13 +102,9 @@ apidselector.head Sélectionner language
 audiomenu.PCMOffset diminuer le Volume PCM
 audiomenu.analogout sortie Analogique
 audiomenu.avs avs
-audiomenu.avs_control Contrôle de Volume avs/ost
 audiomenu.dolbydigital Dolby Digital
-audiomenu.head Réglages Audio
-audiomenu.lirc lirc
 audiomenu.monoleft mono gauche
 audiomenu.monoright mono droite
-audiomenu.ost ost
 audiomenu.stereo stéreo
 audioplayer.add Ajouter
 audioplayer.artist_title Artiste, Titre
@@ -211,14 +180,11 @@ colorchooser.red rouge
 colormenu.background Arrière plan
 colormenu.fade Fade menus
 colormenu.font Font taille
-colormenu.gtx_alpha Transparence (GTX)
-colormenu.head Color Régalges
 colormenu.menucolors Couleur de Menu
 colormenu.statusbar Barre d'info
 colormenu.textcolor Couleur du texte
 colormenu.themeselect sélectionner le thème
 colormenu.timing Temporisation OSD
-colormenusetup.head Couleurs du Menu
 colormenusetup.menucontent Contenu Fenêtre
 colormenusetup.menucontent_inactive Contenue Fenêtre inactive
 colormenusetup.menucontent_selected Contenue Fenêtre sélectinnée
@@ -268,12 +234,10 @@ extra.add_to_bouquet Ajouter au bouquet
 extra.audio_run_player Audio key start player
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
-extra.auto_to_record Move timeshift to records
 extra.cache Cache
 extra.cache_txt Cache teletext
 extra.chadded La chaine actuelle est ajoutée au bouquet selectionné....\n
 extra.chalreadyinbq La chaine actuelle existe déja dans le bouquet selectionné....\n
-extra.clear_log Effacer Log
 extra.cs Cardserver
 extra.dboxinfo Infos Récepteur
 extra.debug Debug
@@ -315,15 +279,12 @@ extra.hdd_reiser Reiserfs
 extra.hdd_settings Réglages Disque Dur(HDD)
 extra.hdd_sleep Temps vers Veille
 extra.hdd_slow Lent
-extra.hw_sect Section Hardware (matériel)
-extra.key_click Key click
 extra.key_list_end Fin
 extra.key_list_start Retour départ
 extra.key_plugin One touch plugin
 extra.key_timeshift Timeshift
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadcolors Load colors from
 extra.loadconfig Load settings from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
@@ -333,25 +294,20 @@ extra.logo2 2
 extra.logo3 3
 extra.logview Montrer Log
 extra.longitude Longitude
-extra.manual_scan Balayage Manuelle
 extra.menu_left_exit "Left" = menu back
 extra.north North
 extra.record_time Fast/timeshift record time(hours)
 extra.restart_cs Restart cardserver
 extra.rotor_swap Echange Rotor Est/Ouest
 extra.ru ruDREAM
-extra.savecolors Save colors as
 extra.saveconfig Save settings as
 extra.savekeys Save keys as
 extra.scan_fast Rapide
 extra.scan_full Plein
-extra.scan_mode Mode Balayage
 extra.sms_channel Chaine Mode sms
 extra.south South
-extra.spts_mode Mode SPTS
 extra.start_tostandby Démarrage vers veille
 extra.timeshift_pause Timeshift pause
-extra.timezone Zone horaire(TimeZone)
 extra.tp.pol_v V
 extra.tp_fec FEC
 extra.tp_freq Fréquence
@@ -366,22 +322,17 @@ extra.tp_pol_h H
 extra.tp_rate Taux de Symbole
 extra.update_dir Directory for updates
 extra.use_gotoxx Use gotoXX
-extra.use_log Log vers /tmp/log
 extra.west West
 extra.zap_cycle Cycle de Zap
 extra.zapit_backup Backup channels to /tmp
 extra.zapit_delete Delete channels
-extra.zapit_fast_zap fast zap
 extra.zapit_fe_timeout Régler temps de sortie(timeout)
 extra.zapit_make_bouquet Construire liste chaines restantes
 extra.zapit_menu Options Zapit
 extra.zapit_motor_speed Vitesse du Moteur (10 = 1deg/sec)
 extra.zapit_restore Restore channels from /tmp
-extra.zapit_save_last_chan Sauvegarder dernière chaine
-extra.zapit_scan_sdt Scan SDT for updates
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
-extra.zapit_sort_names Sort ch. by name
 extra.zapit_write_names Write channel names
 favorites.addchannel La chaine en cours sera ajoutée \nau bouquet "Mes Favories". \n ça prendra quelques secondes...
 favorites.bouquetname Mes Favories
@@ -416,10 +367,8 @@ flashupdate.actionreadflash Lecture
 flashupdate.cantopenfile Ouverture de fichier impossible
 flashupdate.cantopenmtd Ouverture de mtd-device impossible
 flashupdate.checkupdate Recherche de nouvelle version
-flashupdate.currentreleasecycle Cycle de sortie
 flashupdate.currentversion_sep Version courante
 flashupdate.currentversiondate Date
-flashupdate.currentversionsnapshot Type d'Image
 flashupdate.currentversiontime heure
 flashupdate.erasefailed Effacement du flash échoué
 flashupdate.erasing Effacement flash
@@ -560,13 +509,10 @@ lcdcontroler.brightness Brillance normale
 lcdcontroler.brightnessstandby Brillance de veille
 lcdcontroler.contrast Contraste
 lcdcontroler.head Réglage LCD
-lcdmenu.autodimm Estompage Auto
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head LCD Réglages
-lcdmenu.inverse Inverse
 lcdmenu.lcdcontroler Contraste / Brillance
-lcdmenu.power Alimentation
 lcdmenu.statusline Ligne d'état
 lcdmenu.statusline.both Volume / temps écoulé
 lcdmenu.statusline.playtime Temps écoulé
@@ -614,7 +560,6 @@ miscsettings.epg_old_hours Events old after (hours)
 miscsettings.epg_save Save/Restore epg on reboot
 miscsettings.general Général
 miscsettings.head Réglages divers
-miscsettings.hwsections Utiliser les sections hardware
 miscsettings.infobar_sat_display Affichage du satellite dans la barre d'infos
 miscsettings.shutdown_real Permettre Veille
 miscsettings.shutdown_real_rcdelay Arrêt retardé
@@ -744,18 +689,11 @@ movieplayer.bookmark Signet
 movieplayer.bookmarkname Nom du signet
 movieplayer.bookmarkname_hint1 Entrer un nom pour votre nouveau signet
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering (Tampons)Buffering...
-movieplayer.defdir dir. de démarrage
 movieplayer.defplugin Start-Plugin
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fichier via VLC
-movieplayer.goto Saut vers ...
-movieplayer.goto.h1 = -> Saut absolu
-movieplayer.goto.h2 +,- -> Saut relatif
 movieplayer.head Lecteur vidéo
-movieplayer.nostreamingserver Le serveur Streaming n'est pas accessible.
 movieplayer.pesplayback Lecture PES (Expérimental)
-movieplayer.pleasewait Patienter SVP.\nConnection au serveur streaming...
 movieplayer.toomanybookmarks Il y'a plusieurs signets.\nVous avez à éffacer l'un d'eux avant.
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 approx. 10 minutes back 
@@ -771,19 +709,6 @@ movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes 
 movieplayer.tsplayback Lecture TS
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stop 
-movieplayer.vlchelp10 approx. 10 minutes back 
-movieplayer.vlchelp11 skip approx. 10 minutes 
-movieplayer.vlchelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.vlchelp2 Resync 
-movieplayer.vlchelp3 Pause/Continue 
-movieplayer.vlchelp4 Create bookmark 
-movieplayer.vlchelp5 Show progress 
-movieplayer.vlchelp6 approx. 1 minute back 
-movieplayer.vlchelp7 skip approx. 1 minute 
-movieplayer.vlchelp8 approx. 5 minutes back 
-movieplayer.vlchelp9 skip approx. 5 minutes 
-movieplayer.wrongvlcversion Cette option n'est pas supportée par votre version courante de VLC
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
@@ -796,7 +721,6 @@ mpkey.time Show time
 networkmenu.broadcast Transmisson
 networkmenu.dhcp DHCP
 networkmenu.gateway Entrée par défaut
-networkmenu.head Réglage réseau
 networkmenu.ipaddress Adresse IP
 networkmenu.mount NFS/CIFS
 networkmenu.nameserver Nom du serveur
@@ -853,8 +777,6 @@ parentallock.never jamais
 parentallock.onsignal pour fournisseur bloquer
 parentallock.parentallock Protection parentale
 parentallock.prompt ponctuellemnt pour PIN
-pictureviewer.decode_server_ip decode server ip
-pictureviewer.decode_server_port decode server port
 pictureviewer.defdir Répertoire de démarrage.
 pictureviewer.head Visualiseur de photos
 pictureviewer.help1 menu mode
@@ -904,9 +826,7 @@ recordingmenu.apids default audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream
-recordingmenu.choose_direct_rec_dir choose dir on imm. recording
 recordingmenu.defdir Répertoire d’enregistrement 
-recordingmenu.epg_for_filename long filenames (with EPG data)
 recordingmenu.file Directe (fichier)
 recordingmenu.help Dispositifs d’enregistrement:\n--------------------------\nserveur:\nutilisation du programme de streaming sur PC\n\n(analogique) vcr:\nutilisation de la sortie vcr\n\ndirecte (fichier):\ndirectement dans le répertoire NFS mounté\nsur le dique dur interne(HDD)\nTS: utiliser mode spts (dbox2)\nPES: ne pas utiliser le mode spts(dbox2)\n\n\nTaille fichier Max.:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: Presque illimité (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.off off
@@ -927,7 +847,6 @@ rfmod.carrier6500 6.5
 rfmod.channel Channel
 rfmod.enable Enable sound
 rfmod.finetune Fine tune
-rfmod.rfmod RF modulator
 rfmod.standby Enable modulator
 rfmod.test Test pattern
 satsetup.diseqc DiSEqC
@@ -938,10 +857,8 @@ satsetup.diseqcrepeat Répetitions DiSEqC
 satsetup.extended Réglages DiSEqC
 satsetup.extended_motor Réglages Moteur
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Réglages Moteur Manuel
 satsetup.nodiseqc Pas de DiSEqC
 satsetup.satellite Satellite
-satsetup.savesettingsnow sauvegarder réglages maintenant
 satsetup.smatvremote mise au point SMATV 
 scants.abort_body Should the search really be aborted?
 scants.abort_header Abondonner le balayage
@@ -974,7 +891,6 @@ servicemenu.imageinfo Image info
 servicemenu.reload Recharger listes de chaines
 servicemenu.reload_hint Rechargement listes de chaines,\nPatientez SVP.
 servicemenu.restart Soft restart
-servicemenu.restart_failed Restart failed
 servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Balayage du service
@@ -992,11 +908,9 @@ sleeptimerbox.announce Veille dans in 1 min
 sleeptimerbox.hint1 Arrêt dans in min. (000=off)
 sleeptimerbox.hint2 Le récepteur sera arrêté après ce temps.
 sleeptimerbox.title Veille
-streamfeatures.head Caractéristiques
 streaminfo.aratio Aspect de proportion
 streaminfo.aratio_unknown Aspect de proportion: inconnu
 streaminfo.audiotype Type Audio
-streaminfo.audiotype_unknown Type Audio: inconnu
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: inconnu
@@ -1004,12 +918,9 @@ streaminfo.head Information Stream
 streaminfo.not_available Non disponible
 streaminfo.resolution Résolution
 streaminfo.signal Receipt signal
-streaming.buffer_overflow L’enregistrement est abondonné,\nTant que les données ne peuvent être écrites assez rapidement.
 streaming.busy Un ou plusieurs processus d’enregistrement sont actifs.\nSi vous rencontrez ce message et aucun enregistrement n’est actif, Redémarrer NEUTRINO SVP.
 streaming.dir_not_writable Le répertoire d’enregistrement n’est pas autorisé en écriture.\nL’enregistrement ne fonctionnera pas.
-streaming.success L’enregistrement est effectué avec succès.
 streaming.write_error L’enregistrement est abondonné,\nTant qu’une erreur est survenue lors du processus d’écriture.
-streaming.write_error_open L’enregistrement est abondonné,\nParceque le fichier cible ne peut être ouvert.
 stringinput.caps caps / Pas de caps
 stringinput.clear Tout éffacer
 subtitles.head Subtitles
@@ -1096,25 +1007,16 @@ timing.infobar Barre d’infos
 timing.menu Menu
 timing.numericzap Zap Numerique
 videomenu.csync Correction sync
-videomenu.head Réglages Vidéo
-videomenu.osd OSD
-videomenu.rgb_centering Centrage RGB
 videomenu.screensetup Réglage écran
 videomenu.tv-scart TV Scart
-videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR Output Signal Type
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-videomenu.vcrswitch Balance Péritel automatique
 videomenu.videoformat Format
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect Détection automatique
 videomenu.videomode Video system
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 videomenu.videosignal Sortie Vidéo
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

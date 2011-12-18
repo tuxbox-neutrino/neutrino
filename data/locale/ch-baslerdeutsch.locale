@@ -91,13 +91,9 @@ apidselector.head Sproochuswahl
 audiomenu.PCMOffset Lutstärkeabsänkig PCM
 audiomenu.analogout Analog-Usgang
 audiomenu.avs avs
-audiomenu.avs_control Luutstärgi Stüürig avs/os
 audiomenu.dolbydigital Dolby Digital automatisch
-audiomenu.head Audio-Iischdellige
-audiomenu.lirc lirc
 audiomenu.monoleft mono lings
 audiomenu.monoright mono rächts
-audiomenu.ost ost
 audiomenu.stereo stereo
 audioplayer.add A'hänge
 audioplayer.artist_title Interpret, Titel
@@ -149,15 +145,12 @@ colormenu.background Hintergrundfarb
 colormenu.background_head Hintergrundfarb
 colormenu.fade Menüs faden
 colormenu.font Schriftgrössi
-colormenu.gtx_alpha Transparänz (GTX)
-colormenu.head Farb-Iischdellige
 colormenu.menucolors Menüfarb
 colormenu.statusbar Statusbalke
 colormenu.textcolor Textfarb
 colormenu.textcolor_head Textfarb
 colormenu.themeselect Theme usswähle
 colormenu.timing OSD Timeouts
-colormenusetup.head Menüfarbe
 colormenusetup.menucontent Fenschderinhalt
 colormenusetup.menucontent_inactive Fenschderinhalt deaktiviert
 colormenusetup.menucontent_selected Fenschderinhalt selektiert
@@ -222,10 +215,8 @@ flashupdate.actionwriteflash schrieb grad s'flash
 flashupdate.cantopenfile ka Datei nidd uffmache
 flashupdate.cantopenmtd ka's MTD-Device nidd uffmache
 flashupdate.checkupdate nach neuer Version sueche
-flashupdate.currentreleasecycle Releasezyklus
 flashupdate.currentversion_sep Installierdi Version
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot ImageTyp
 flashupdate.currentversiontime Uhrzit
 flashupdate.erasefailed Flash lösche fehlg'schlage
 flashupdate.erasing lösch' grad s'Fläsh
@@ -367,11 +358,8 @@ lcdcontroler.brightness normale Helligkeit
 lcdcontroler.brightnessstandby Standby Helligkeit
 lcdcontroler.contrast Kontrast
 lcdcontroler.head LCD Stettings
-lcdmenu.autodimm Automatisch dimme
 lcdmenu.head LCD Iistellige
-lcdmenu.inverse Inverdiere
 lcdmenu.lcdcontroler Kontrast / Hälligkeit
-lcdmenu.power Pfuus
 lcdmenu.statusline Statusziile
 lcdmenu.statusline.both change me
 lcdmenu.statusline.playtime Sendigsfortschritt
@@ -424,25 +412,16 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Gib de Name für's neue Bookmark ii
 movieplayer.bookmarkname_hint2
-movieplayer.buffering Puffere...
-movieplayer.defdir Start-Verz.
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Datei via VLC
-movieplayer.goto Spring' zue ...
-movieplayer.goto.h1 = -> absolute Sprung
-movieplayer.goto.h2 +,- -> relative Sprung
 movieplayer.head Movieplayer
-movieplayer.nostreamingserver Es het kei Verbindig\nzuem Streamingserver herg'stellt werde chönne.
 movieplayer.pesplayback PES Abspiele (Experimendell)
-movieplayer.pleasewait Bitte warde.\nD'Verbindig zuem Streamingserver wird herg'stellt.
 movieplayer.toomanybookmarks D'hesch bereits z'viel Bookmarks a'glegt.\nEs mueß erscht e anderes g'löscht werde.
 movieplayer.tsplayback TS Abspiele
 movieplayer.vcdplayback (S)VCD
 movieplayer.vlchelp ROT/Home Stop\nGRÜN Resync\nGELB Paus/Widdr\nBLAU Bookmark setze\nd-box Ziit iiblände\nv Sprung\n1 ca. 1 Minute zruck\n3 ca. 1 Minute vor\n4 ca. 5 Minute zruck\n6 ca. 5 Minute vor\n7 ca. 10 Minute zruck\n9 ca. 10 Minute vor\nHilfe: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.wrongvlcversion Funktion isch mit dr benutzte Version vom VLC nit möglich
 networkmenu.broadcast Broadcast
 networkmenu.gateway Standard Gateway
-networkmenu.head Netzwäerk Iischdellige
 networkmenu.ipaddress IP-Adress'
 networkmenu.nameserver Nameserver
 networkmenu.netmask Netzmaske
@@ -533,10 +512,8 @@ satsetup.extended DiSEqC-Iinstellig
 satsetup.extended_lnb LNB-Iistellige
 satsetup.extended_motor Motor-Iistellige
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Motor-Setup
 satsetup.nodiseqc Kein DiSEqC
 satsetup.satellite Sadellid
-satsetup.savesettingsnow Iischdellige jetz speichere
 satsetup.smatvremote SMATV Remote Tuning
 scants.actcable Kabel:
 scants.actsatellite Sadellid:
@@ -573,12 +550,10 @@ sleeptimerbox.announce Ussschaltzit in 1 min
 sleeptimerbox.hint1 Ussschaltzit in Min. (000=aus)
 sleeptimerbox.hint2 D'dbox2 schaltet sich nach dere Zit uss.
 sleeptimerbox.title Schloofuhr
-streamfeatures.head Fiitschrs
 streamfeatures.info Stream-Informatione
 streaminfo.aratio Verhältnis
 streaminfo.aratio_unknown Verhältnis: unbekannt
 streaminfo.audiotype Audiotyp
-streaminfo.audiotype_unknown Audiotyp: unbekannt
 streaminfo.bitrate Bitrate
 streaminfo.ecm_invalid igüldiges CA-Syschdem
 streaminfo.framerate Bildrate
@@ -663,15 +638,11 @@ timing.hint_2 uffem TV a'zeigt wird
 timing.infobar Infobar
 timing.menu Menu
 videomenu.csync Sync.-Korrektur
-videomenu.head Video-Iischdellige
-videomenu.rgb_centering RGB-Zentrierig
 videomenu.screensetup Bildbereich ischelle
-videomenu.vcrswitch Scart-Eingang audomaddisch
 videomenu.videoformat Bildschirmformat
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect audomaddisch
 videomenu.videosignal Video Signalart
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

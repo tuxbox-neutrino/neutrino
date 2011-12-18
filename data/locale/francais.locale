@@ -6,26 +6,7 @@ EPGMenu.streaminfo Informations techniques
 EPGPlus.actions Actions 
 EPGPlus.bybouquet_mode Par bouquet
 EPGPlus.bypage_mode par Page
-EPGPlus.change_font_size Taille caractère
-EPGPlus.change_font_style Taille style
-EPGPlus.change_size Taille
-EPGPlus.channelentry_font caractère chaine
-EPGPlus.channelentry_separationlineheight Hauteur ligne de séparation
-EPGPlus.channelentry_width Largeur
-EPGPlus.channelevententry_font Caractère événement
-EPGPlus.edit_fonts edit Caractères
-EPGPlus.edit_sizes edit Tailles
-EPGPlus.font_style_bold style Gras
-EPGPlus.font_style_italic style Italic
-EPGPlus.font_style_regular style Régulier
-EPGPlus.footer_fontbouquetchannelname Bas de page bouquet
-EPGPlus.footer_fontbuttons Bas de page boutons
-EPGPlus.footer_fonteventdescription Bas de page évènement
-EPGPlus.footer_fonteventshortdescription Bas de page évènement réduit
 EPGPlus.head Eventlist Présentation (EPG Plus)
-EPGPlus.header_font Caractère Entête
-EPGPlus.horgap1_height Hauteur1
-EPGPlus.horgap2_height Hauteur2
 EPGPlus.next_bouquet Bouquet suivant
 EPGPlus.options Options
 EPGPlus.page_down Page vers le bas
@@ -34,18 +15,10 @@ EPGPlus.prev_bouquet Bouquet précedent
 EPGPlus.record Enregistrer
 EPGPlus.refresh_epg Rafraîchir
 EPGPlus.remind Rappel
-EPGPlus.reset_settings Reset réglages
-EPGPlus.save_settings Sauvegarder Réglages
 EPGPlus.scroll_mode Mode défilement
 EPGPlus.select_font_name Nom de caractère
-EPGPlus.settings Réglages
-EPGPlus.slider_width Largeur barette
 EPGPlus.stretch_mode Mode déployé
 EPGPlus.swap_mode  Mode échange
-EPGPlus.timeline_fontdate Caractère de Date
-EPGPlus.timeline_fonttime Caractère d'heure
-EPGPlus.vergap1_width Largeur1
-EPGPlus.vergap2_width Largeur2
 EPGPlus.view_mode Mode visualisation
 GENRE.ARTS.0 arts / culture
 GENRE.ARTS.1 arts contemporains
@@ -129,13 +102,9 @@ apidselector.head Sélectionner language
 audiomenu.PCMOffset diminuer le Volume PCM
 audiomenu.analogout sortie Analogique
 audiomenu.avs avs
-audiomenu.avs_control Contrôle de Volume avs/ost
 audiomenu.dolbydigital Dolby Digital
-audiomenu.head Réglages Audio
-audiomenu.lirc lirc
 audiomenu.monoleft mono gauche
 audiomenu.monoright mono droite
-audiomenu.ost ost
 audiomenu.stereo stéreo
 audioplayer.add Ajouter
 audioplayer.artist_title Artiste, Titre
@@ -209,15 +178,12 @@ colormenu.background Arrière plan
 colormenu.background_head Arrière plan
 colormenu.fade Fade menus
 colormenu.font Font taille
-colormenu.gtx_alpha Transparence (GTX)
-colormenu.head Color Régalges
 colormenu.menucolors Couleur de Menu
 colormenu.statusbar Barre d'info
 colormenu.textcolor Couleur du texte
 colormenu.textcolor_head Couleur de texte
 colormenu.themeselect sélectionner le thème
 colormenu.timing Temporisation OSD
-colormenusetup.head Couleurs du Menu
 colormenusetup.menucontent Contenu Fenêtre
 colormenusetup.menucontent_inactive Contenue Fenêtre inactive
 colormenusetup.menucontent_selected Contenue Fenêtre sélectinnée
@@ -286,10 +252,8 @@ flashupdate.actionreadflash Lecture
 flashupdate.cantopenfile Ouverture de fichier impossible
 flashupdate.cantopenmtd Ouverture de mtd-device impossible
 flashupdate.checkupdate Recherche de nouvelle version
-flashupdate.currentreleasecycle Cycle de sortie
 flashupdate.currentversion_sep Version courante
 flashupdate.currentversiondate Date
-flashupdate.currentversionsnapshot Type d'Image
 flashupdate.currentversiontime heure
 flashupdate.erasefailed Effacement du flash échoué
 flashupdate.erasing Effacement flash
@@ -435,11 +399,8 @@ lcdcontroler.brightness Brillance normale
 lcdcontroler.brightnessstandby Brillance de veille
 lcdcontroler.contrast Contraste
 lcdcontroler.head Réglage LCD
-lcdmenu.autodimm Estompage Auto
 lcdmenu.head LCD Réglages
-lcdmenu.inverse Inverse
 lcdmenu.lcdcontroler Contraste / Brillance
-lcdmenu.power Alimentation
 lcdmenu.statusline Ligne d'état
 lcdmenu.statusline.both Volume / temps écoulé
 lcdmenu.statusline.playtime Temps écoulé
@@ -481,7 +442,6 @@ messagebox.no Non
 messagebox.yes Oui
 miscsettings.general Général
 miscsettings.head Réglages divers
-miscsettings.hwsections Utiliser les sections hardware
 miscsettings.infobar_sat_display Affichage du satellite dans la barre d'infos
 miscsettings.shutdown_real Permettre Veille
 miscsettings.shutdown_real_rcdelay Arrêt retardé
@@ -491,27 +451,18 @@ movieplayer.bookmark Signet
 movieplayer.bookmarkname Nom du signet
 movieplayer.bookmarkname_hint1 Entrer un nom pour votre nouveau signet
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering (Tampons)Buffering...
-movieplayer.defdir dir. de démarrage
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fichier via VLC
-movieplayer.goto Saut vers ...
-movieplayer.goto.h1 = -> Saut absolu
-movieplayer.goto.h2 +,- -> Saut relatif
 movieplayer.head Lecteur vidéo
-movieplayer.nostreamingserver Le serveur Streaming n'est pas accessible.
 movieplayer.pesplayback Lecture PES (Expérimental)
-movieplayer.pleasewait Patienter SVP.\nConnection au serveur streaming...
 movieplayer.toomanybookmarks Il y'a plusieurs signets.\nVous avez à éffacer l'un d'eux avant.
 movieplayer.tshelp Rouge/LAME(Exit)! Stop\nVERT Sélection piste audio\nJAUNE Pause/Continu\nBLEU Créer signet\nRécepteur montre progression\n1 approx. 1 minute arrière\n3 saut approx. 1 minute\n4 approx. 5 minutes arrière\n6 saut approx. 5 minutes\n7 approx. 10 minutes arrière\n9 skip approx. 10 minutes\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tsplayback Lecture TS
 movieplayer.vcdplayback (S)VCD
 movieplayer.vlchelp Rouge/LAME(Exit)! Stop\nVERT Resync\nJAUNE Pause/Continu\nBLEU Créer signet\nRécepteur montre Progression\n1 approx. 1 minute arrière\n3 saut approx. 1 minute\n4 approx. 5 minutes arrière\n6 saut approx. 5 minutes\n7 approx. 10 minutes arrière\n9 saut approx. 10 minutes\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.wrongvlcversion Cette option n'est pas supportée par votre version courante de VLC
 networkmenu.broadcast Transmisson
 networkmenu.dhcp DHCP
 networkmenu.gateway Entrée par défaut
-networkmenu.head Réglage réseau
 networkmenu.ipaddress Adresse IP
 networkmenu.mount NFS/CIFS
 networkmenu.nameserver Nom du serveur
@@ -607,10 +558,8 @@ satsetup.diseqcrepeat Répetitions DiSEqC
 satsetup.extended Réglages DiSEqC
 satsetup.extended_motor Réglages Moteur
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Réglages Moteur Manuel
 satsetup.nodiseqc Pas de DiSEqC
 satsetup.satellite Satellite
-satsetup.savesettingsnow sauvegarder réglages maintenant
 satsetup.smatvremote mise au point SMATV 
 scants.actcable Cable:
 scants.actsatellite Satellite:
@@ -647,11 +596,9 @@ sleeptimerbox.announce Veille dans in 1 min
 sleeptimerbox.hint1 Arrêt dans in min. (000=off)
 sleeptimerbox.hint2 Le récepteur sera arrêté après ce temps.
 sleeptimerbox.title Veille
-streamfeatures.head Caractéristiques
 streaminfo.aratio Aspect de proportion
 streaminfo.aratio_unknown Aspect de proportion: inconnu
 streaminfo.audiotype Type Audio
-streaminfo.audiotype_unknown Type Audio: inconnu
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: inconnu
@@ -659,12 +606,9 @@ streaminfo.head Information Stream
 streaminfo.not_available Non disponible
 streaminfo.resolution Résolution
 streaminfo.signal Receipt signal
-streaming.buffer_overflow L'enregistrement est abondonné,\nTant que les données ne peuvent être écrites assez rapidement.
 streaming.busy Un ou plusieurs processus d'enregistrement sont actifs.\nSi vous rencontrez ce message et aucun enregistrement n'est actif, Redémarrer NEUTRINO SVP.
 streaming.dir_not_writable Le répertoire d'enregistrement n'est pas autorisé en écriture.\nL'enregistrement ne fonctionnera pas.
-streaming.success L'enregistrement est effectué avec succès.
 streaming.write_error L'enregistrement est abondonné,\nTant qu'une erreur est survenue lors du processus d'écriture.
-streaming.write_error_open L'enregistrement est abondonné,\nParceque le fichier cible ne peut être ouvert.
 stringinput.caps caps / Pas de caps
 stringinput.clear Tout éffacer
 timer.eventrecord.msg   ... à exécuter, ou bien non
@@ -741,15 +685,11 @@ timing.infobar Barre d'infos
 timing.menu Menu
 timing.numericzap Zap Numerique
 videomenu.csync Correction sync
-videomenu.head Réglages Vidéo
-videomenu.rgb_centering Centrage RGB
 videomenu.screensetup Réglage écran
-videomenu.vcrswitch Balance Péritel automatique
 videomenu.videoformat Format
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect Détection automatique
 videomenu.videosignal Sortie Vidéo
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

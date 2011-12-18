@@ -7,26 +7,7 @@ EPGMenu.streaminfo Technische Information
 EPGPlus.actions Aktionen
 EPGPlus.bybouquet_mode bouquetweise
 EPGPlus.bypage_mode seitenweise
-EPGPlus.change_font_size Schriftgröße ändern
-EPGPlus.change_font_style Schriftstil
-EPGPlus.change_size Größe ändern
-EPGPlus.channelentry_font Kanäle
-EPGPlus.channelentry_separationlineheight Höhe Linie zwischen Kanaleinträgen
-EPGPlus.channelentry_width Breite der Kanalnamen
-EPGPlus.channelevententry_font Sendungen
-EPGPlus.edit_fonts Schriften einstellen
-EPGPlus.edit_sizes Abmessungen einstellen
-EPGPlus.font_style_bold Fett
-EPGPlus.font_style_italic Kursiv
-EPGPlus.font_style_regular Normal
-EPGPlus.footer_fontbouquetchannelname Selektierter Bouquet-/Kanalname
-EPGPlus.footer_fontbuttons Buttons
-EPGPlus.footer_fonteventdescription Titel 1 selekt. Sendung
-EPGPlus.footer_fonteventshortdescription Titel 2 selekt. Sendung
 EPGPlus.head Vorschau Übersicht (EPG Plus)
-EPGPlus.header_font Menütitel
-EPGPlus.horgap1_height Höhe hor. Lücke 1
-EPGPlus.horgap2_height Höhe hor. Lücke 2
 EPGPlus.next_bouquet Bouquet vor
 EPGPlus.options Optionen
 EPGPlus.page_down Seite zurück
@@ -35,17 +16,9 @@ EPGPlus.prev_bouquet Bouquet zurück
 EPGPlus.record Aufnahme
 EPGPlus.refresh_epg Aktualisieren
 EPGPlus.remind Vormerken
-EPGPlus.reset_settings Einstellungen zurücksetzen
-EPGPlus.save_settings Einstellungen speichern
 EPGPlus.scroll_mode Scroll-Modus
-EPGPlus.settings Einstellungen
-EPGPlus.slider_width Breite des Schiebereglers
 EPGPlus.stretch_mode Stretch-Modus
 EPGPlus.swap_mode Blättern
-EPGPlus.timeline_fontdate Zeitscala Datum
-EPGPlus.timeline_fonttime Zeitscala Zeit
-EPGPlus.vergap1_width Breite ver. Lücke 1
-EPGPlus.vergap2_width Breite ver. Lücke 2
 EPGPlus.view_mode Modus
 GENRE.ARTS.0 Kunst/Kultur
 GENRE.ARTS.1 Darstellende Künste
@@ -136,17 +109,13 @@ audiomenu.analog_out Analog-Ausgang
 audiomenu.auto_lang Tonwahl automatisch
 audiomenu.auto_subs Untertitel automatisch
 audiomenu.avs avs
-audiomenu.avs_control Volume Steuerung avs/ost
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
 audiomenu.dolbydigital DD-Unterkanal automatisch
 audiomenu.hdmi_dd DolbyDigital über HDMI
-audiomenu.head Audio-Einstellungen
-audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
-audiomenu.ost ost
 audiomenu.pref_lang Sprache
 audiomenu.pref_lang_head Tonwahl
 audiomenu.pref_languages Bevorzugte Sprachen
@@ -263,16 +232,13 @@ colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Menüs faden
 colormenu.font Neutrino Schriftart
 colormenu.font_ttx Teletext Schriftart
-colormenu.gtx_alpha Transparenz (GTX)
 colormenu.hd_preset LCD
-colormenu.head Farb-Einstellungen
 colormenu.menucolors Menüfarben
 colormenu.osd_preset Monitor Auswahl
 colormenu.sd_preset CRT
 colormenu.textcolor Textfarbe
 colormenu.themeselect Theme auswählen
 colormenu.timing OSD Timeouts
-colormenusetup.head Menüfarben
 colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
@@ -333,12 +299,10 @@ extra.add_to_bouquet dem Bouquet zufügen
 extra.audio_run_player Audiotaste startet Player
 extra.auto_delete Automatisch löschen
 extra.auto_timeshift Autom. Aufnahme, Sek. (0 = deakt.)
-extra.auto_to_record Timeshift zu den Aufnahmen hinzufügen
 extra.bigwindows Große Fenster
 extra.cache_txt Teletext zwischenspeichern
 extra.chadded Der aktuelle Kanal wird dem selektierten Bouquet hinzugefügt...\n
 extra.chalreadyinbq Der aktuelle Kanal ist bereits im selektierten Bouquet...\n
-extra.clear_log Logdatei löschen
 extra.dboxinfo Box-Info
 extra.east Osten
 extra.fec_1_2 1/2 S1_QPSK
@@ -366,8 +330,6 @@ extra.fec_s2_qpsk_5_6 5/6 S2_QPSK
 extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
 extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
 extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
-extra.hw_sect Hardware Sektionen
-extra.key_click Tastendruck
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
 extra.key_plugin One-touch-Plugin
@@ -375,13 +337,11 @@ extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
-extra.loadcolors Lade Farben von
 extra.loadconfig Lade Einstellungen von
 extra.loadkeys Lade Tastenbelegung von
 extra.lodirection Längengrad-Ausrichtung
 extra.logo Logonummer
 extra.longitude Längengrad
-extra.manual_scan Manueller Scan
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
 extra.record_time Max. Aufnahmezeit in Stunden
@@ -389,21 +349,17 @@ extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
-extra.savecolors Speichere Farben als
 extra.saveconfig Speichere Einstellungen als
 extra.savekeys Speichere Tastenbelegung als
 extra.scan_fast Schnell
 extra.scan_full Total
-extra.scan_mode Scan-Modus
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus Kanal
 extra.south Süden
-extra.spts_mode SPTS-Modus
 extra.start_tostandby Standby nach Boxstart
 extra.temp_timeshift Temporäres Timeshift
 extra.timeshift_pause Timeshift Pause
-extra.timezone Zeitzone
 extra.tp.pol_v V
 extra.tp_fec FEC
 extra.tp_freq Frequenz
@@ -418,22 +374,16 @@ extra.tp_pol_h H
 extra.tp_rate Symbolrate
 extra.update_dir Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
-extra.use_log Logge nach /tmp/log
 extra.volume_pos Lautstärkeanzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
-extra.zapit_fast_zap Schnellumschaltung
 extra.zapit_fe_timeout Tuning Timeout (1=10ms)
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
 extra.zapit_menu Zapit-Einstellungen
 extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
-extra.zapit_rezap_time ReZap-Intervall
-extra.zapit_save_last_chan Letzten Kanal merken
-extra.zapit_scan_sdt Scanne SDT für Aktualisierungen
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
-extra.zapit_sort_names Kanäle nach Namen sortieren
 extra.zapit_write_names Schreibe Kanalname
 fan_speed CPU-Lüftergeschwindigkeit
 favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment...
@@ -470,10 +420,8 @@ flashupdate.actionreadflash lese Flash
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
 flashupdate.checkupdate nach neuer Version suchen
-flashupdate.currentreleasecycle Releasezyklus
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot Image-Typ
 flashupdate.currentversiontime Uhrzeit
 flashupdate.erasefailed Flash löschen fehlgeschlagen
 flashupdate.erasing lösche Flash
@@ -662,13 +610,10 @@ lcdcontroler.brightness normale
 lcdcontroler.brightnessdeepstandby Deep-Standby
 lcdcontroler.brightnessstandby Standby
 lcdcontroler.contrast Kontrast
-lcdmenu.autodimm Automatisch dimmen
 lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
 lcdmenu.head VFD Einstellungen
-lcdmenu.inverse Invertieren
 lcdmenu.lcdcontroler Helligkeit
-lcdmenu.power Power
 lcdmenu.statusline Statuszeile
 lcdmenu.statusline.both Lautstärke/Fortschritt
 lcdmenu.statusline.playtime Sendungsfortschritt
@@ -751,7 +696,6 @@ miscsettings.epg_old_events_hint2 Angabe in Stunden
 miscsettings.epg_save EPG zwischenspeichern
 miscsettings.general Allgemein
 miscsettings.head Erweitert
-miscsettings.hwsections EPG Daten per Hardware filtern
 miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Anzeige
 miscsettings.infobar_casystem_mini Mini
@@ -772,7 +716,6 @@ miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
 miscsettings.radiotext Radiotext
-miscsettings.show_infomenu 
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
 miscsettings.shutdown_count_hint2 den Deep-Standby geschalten wird (0 = aus)
@@ -935,18 +878,11 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering Puffern...
-movieplayer.defdir Start-Verz.
 movieplayer.defplugin Start-Plugin
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Abspielen (Multiformat)
-movieplayer.goto Springe zu...
-movieplayer.goto.h1 = -> absoluter Sprung
-movieplayer.goto.h2 +,- -> relativer Sprung
 movieplayer.head Movieplayer
-movieplayer.nostreamingserver Es konnte keine Verbindung\nzum Streamingserver hergestellt werden.
 movieplayer.pesplayback PES Abspielen (experimentell)
-movieplayer.pleasewait Bitte warten Sie.\nDie Verbindung zum Streamingserver wird hergestellt.
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ca. 10 Minuten zurück
@@ -962,19 +898,6 @@ movieplayer.tshelp8 ca. 5 Minuten zurück
 movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stopp
-movieplayer.vlchelp10 ca. 10 Minuten zurück
-movieplayer.vlchelp11 ca. 10 Minuten vor
-movieplayer.vlchelp12 Hilfe: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.vlchelp2 Resync
-movieplayer.vlchelp3 Pause/ Weiter
-movieplayer.vlchelp4 Bookmark setzen
-movieplayer.vlchelp5 Zeit einblenden
-movieplayer.vlchelp6 ca. 1 Minute zurück
-movieplayer.vlchelp7 ca. 1 Minute vor
-movieplayer.vlchelp8 ca. 5 Minuten zurück
-movieplayer.vlchelp9 ca. 5 Minuten vor
-movieplayer.wrongvlcversion Funktion ist mit der benutzten Version des VLC nicht möglich
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
@@ -990,7 +913,6 @@ networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.error_no_address Keine %s-Adresse angegeben!
 networkmenu.gateway Standard Gateway
-networkmenu.head Netzwerk Einstellungen
 networkmenu.hostname Hostname
 networkmenu.inactive_network Netzwerk nicht aktiviert!
 networkmenu.ipaddress IP
@@ -1064,8 +986,6 @@ parentallock.never Nie
 parentallock.onsignal Bei gesendeter Vorsperre
 parentallock.parentallock Jugendschutz
 parentallock.prompt PIN-Eingabe
-pictureviewer.decode_server_ip Decode Server IP
-pictureviewer.decode_server_port Decode Server Port
 pictureviewer.defdir Start-Verz.
 pictureviewer.head Bildbetrachter
 pictureviewer.help1 Menü-Modus
@@ -1119,12 +1039,10 @@ recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
 recordingmenu.apids_std Standard Tonspur aufnehmen
-recordingmenu.choose_direct_rec_dir Bei Sofortaufn. Verzeichnisauswahl
 recordingmenu.defdir Aufnahmeverzeichnis
 recordingmenu.end_of_recording_epg EPG aktuelles Event
 recordingmenu.end_of_recording_max max. Aufnahmezeit
 recordingmenu.end_of_recording_name Ende der Sofortaufnahme
-recordingmenu.epg_for_filename lange Dateinamen (mit EPG-Daten)
 recordingmenu.file Direkt (Datei)
 recordingmenu.help Aufnahmegeräte:\n-----------------------\nServer:\nauf PC mit Hilfe eines Streaming-Programmes\n\n(analoger) Videorekorder:\nüber VCR-Ausgang\n\nDirekt (Datei):\nauf ein per NFS gemountetes Verzeichnis\noder eine interne Festplatte\nTS: SPTS-Mode Treiber laden(dbox2)\nPES: SPTS-Mode Treiber nicht laden(dbox2)\n\n\nMaximale Dateigröße:\n----------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: fast unendlich (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.multimenu.ask_stop_all Wirklich alle %d Aufnahmen beenden?
@@ -1158,7 +1076,6 @@ rfmod.carrier6500 6.5
 rfmod.channel Kanal
 rfmod.enable Sound aktivieren
 rfmod.finetune Feintuning
-rfmod.rfmod RF Modulator
 rfmod.standby Modulator aktivieren
 rfmod.test Testbild
 satsetup.auto_scan Automatisch einen gewählten %s
@@ -1171,10 +1088,8 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Erweiterte Auswahl
 satsetup.diseqc_com_uncom Committed/Uncommitted
 satsetup.diseqc_input Diseqc Einspeisung
-satsetup.diseqc_order Einspeisungsfolge
 satsetup.diseqc_uncom_com Uncommitted/Committed
 satsetup.diseqcrepeat DiSEqC-Wiederholungen
-satsetup.do_scan Satelliten scannen
 satsetup.extended DiSEqC-Einstellungen
 satsetup.extended_motor Motor-Einstellungen
 satsetup.fastscan_all SD und HD
@@ -1192,11 +1107,9 @@ satsetup.lofs LNB Switch Offset
 satsetup.manual_scan Manueller Frequenzscan
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor-Position
-satsetup.motorcontrol Manuelle Motor-Einstellung
 satsetup.nodiseqc Kein DiSEqC
 satsetup.sat_setup LNB-Konfiguration
 satsetup.satellite Satellit
-satsetup.savesettingsnow Einstellungen jetzt speichern
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommitted
 satsetup.usals_repeat USALS wiederholen
@@ -1247,7 +1160,6 @@ servicemenu.imageinfo Imageinfo
 servicemenu.reload Kanallisten neu laden
 servicemenu.reload_hint Kanallisten werden neu geladen,\nbitte warten...
 servicemenu.restart Neutrino neu starten
-servicemenu.restart_failed Neustart von Neutrino fehlgeschlagen
 servicemenu.restart_hint Neutrino wird neu gestartet...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
@@ -1274,11 +1186,9 @@ sleeptimerbox.hint2 Die Box schaltet sich nach dieser Standby-Zeit aus.
 sleeptimerbox.hint3 Die Box schaltet sich bei Nichtbenutzen der FB aus.
 sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inaktivitätstimer
-streamfeatures.head Erweiterungen
 streaminfo.aratio Verhältnis
 streaminfo.aratio_unknown unbekannt
 streaminfo.audiotype Audiotyp
-streaminfo.audiotype_unknown unbekannt
 streaminfo.average_bitrate Durchschnitt
 streaminfo.bitrate Bitrate
 streaminfo.framerate Bildrate
@@ -1287,12 +1197,9 @@ streaminfo.head Tech. Information
 streaminfo.not_available nicht verfügbar
 streaminfo.resolution Auflösung
 streaminfo.signal Empfangssignal
-streaming.buffer_overflow Die Aufnahme wurde leider abgebrochen,\nda die Daten nicht schnell genug geschrieben werden konnten.
 streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart von Neutrino Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
-streaming.success Die Aufnahme wurde erfolgreich beendet.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
-streaming.write_error_open Die Aufnahme wurde leider abgebrochen,\nda die entsprechende Datei nicht zum Schreiben geöffnet werden konnte.
 stringinput.caps Groß-/Kleinbuchstaben
 stringinput.clear Alles löschen
 subtitles.head Untertitel
@@ -1395,7 +1302,6 @@ usermenu.item_vtxt Teletext
 usermenu.name Name
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten
-videomenu.adjust Video Einstellungen anpassen
 videomenu.analog_hd_rgb_cinch RGB -> Cinch (HD)
 videomenu.analog_hd_rgb_scart RGB -> Scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr -> Cinch (HD)
@@ -1423,32 +1329,23 @@ videomenu.hdmi_cec_mode_recorder als Sat/Kabel PVR
 videomenu.hdmi_cec_mode_tuner als Sat/Kabel STB
 videomenu.hdmi_cec_standby Aktiviere CEC Standby
 videomenu.hdmi_cec_view_on Aktiviere CEC View on
-videomenu.head Video-Einstellungen
 videomenu.hue Farbton
 videomenu.letterbox Letterbox
-videomenu.osd OSD
 videomenu.panscan Pan & Scan
 videomenu.panscan2 14:9 Pan & Scan
-videomenu.rgb_centering RGB-Zentrierung
 videomenu.saturation Sättigung
 videomenu.scart Scart
 videomenu.screensetup Bildbereich
 videomenu.sharpness Schärfe
 videomenu.tv-scart TV Scart
-videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR-Ausgang Signalart
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-videomenu.vcrswitch Scart-Eingang automatisch
 videomenu.videoformat Bildschirmformat
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
-videomenu.videoformat_autodetect automatisch
 videomenu.videomode Videosystem
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 wizard.welcome_head Willkommen zur Ersteinrichtung Ihres Receivers!
 wizard.welcome_text Wir gratulieren Ihnen zum Kauf Ihrer Coolstream. In den nun folgenden\nSchritten begleiten wir Sie durch die Erstinstallation des Gerätes.\nWir wünschen Ihnen viel Freude mit dem wohl einzigartigsten Receiver!\nBeachten Sie: Ihre Coolstream Set-Top-Box lässt sich bequem per Webinterface\nsteuern, um zum Beispiel die Timer-Verwaltung zu nutzen oder Live-TV im Web-Browser zu schauen.\nZugriff erhalten Sie mit dem Benutzernamen: root und dem Passwort: coolstream\nAchten Sie darauf, dass Ihre Gerät nicht von aussen zugänglich ist, da sonst ein Zugriff über das Internet nicht ausgeschlossen werden kann!\nNächster Schritt?
 word.from ab

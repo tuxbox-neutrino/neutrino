@@ -6,26 +6,7 @@ EPGMenu.streaminfo Technischi Information
 EPGPlus.actions Aktione
 EPGPlus.bybouquet_mode bouquetwiis
 EPGPlus.bypage_mode sitewiis
-EPGPlus.change_font_size Schriftgrössi ändere
-EPGPlus.change_font_style Schriftstil
-EPGPlus.change_size Größe ändere
-EPGPlus.channelentry_font Kanäu
-EPGPlus.channelentry_separationlineheight Höchi Linie zwüsche Kanäuiträg
-EPGPlus.channelentry_width Breiti vo de Kanäuname
-EPGPlus.channelevententry_font Sändige
-EPGPlus.edit_fonts Schrifte ischtöue
-EPGPlus.edit_sizes Abmässige ischtöue
-EPGPlus.font_style_bold Fett
-EPGPlus.font_style_italic Kursiv
-EPGPlus.font_style_regular Normau
-EPGPlus.footer_fontbouquetchannelname Selektierte Bouquet~/Kanauname
-EPGPlus.footer_fontbuttons Buttons
-EPGPlus.footer_fonteventdescription Titu 1 selekt. Sändig
-EPGPlus.footer_fonteventshortdescription Titu 2 selekt. Sändig
 EPGPlus.head Vorschau Übersicht (EPG Plus)
-EPGPlus.header_font Menütitu
-EPGPlus.horgap1_height Höchi hor. Lücke 1
-EPGPlus.horgap2_height Höchi hor. Lücke 2
 EPGPlus.next_bouquet Bouquet vor
 EPGPlus.options Optione
 EPGPlus.page_down Site zrugg
@@ -34,18 +15,10 @@ EPGPlus.prev_bouquet Bouquet zrugg
 EPGPlus.record Ufnahm
 EPGPlus.refresh_epg Aktualisiere
 EPGPlus.remind Vormerke
-EPGPlus.reset_settings Ischtöuige zruggsetze
-EPGPlus.save_settings Ischtöuige schpichere
 EPGPlus.scroll_mode Scroll Mode
 EPGPlus.select_font_name Schrift wähle
-EPGPlus.settings Ischtöuige
-EPGPlus.slider_width Breiti vom Slider
 EPGPlus.stretch_mode Stretch Mode
 EPGPlus.swap_mode Blättere
-EPGPlus.timeline_fontdate Zytscala Datum
-EPGPlus.timeline_fonttime Zytscala Zyt
-EPGPlus.vergap1_width Breiti ver. Lücke 1
-EPGPlus.vergap2_width Breiti ver. Lücke 2
 EPGPlus.view_mode Modus
 GENRE.ARTS.0 Kunscht / Kultur
 GENRE.ARTS.1 Darschtöuendi Kunscht
@@ -129,13 +102,9 @@ apidselector.head Schproochuswau
 audiomenu.PCMOffset Lutschterkisänkig PCM
 audiomenu.analogout Analog-Usgang
 audiomenu.avs avs
-audiomenu.avs_control Volume Schtüürig avs/ost
 audiomenu.dolbydigital Dolby Digital outomatisch
-audiomenu.head Audio-Ischtöuige
-audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rächts
-audiomenu.ost ost
 audiomenu.stereo stereo
 audioplayer.add Dezuefüege
 audioplayer.artist_title Interpret, Titu
@@ -212,15 +181,12 @@ colormenu.background Hingergrundfarb
 colormenu.background_head Hingergrundfarb
 colormenu.fade Menüs faden
 colormenu.font Schriftgrössi
-colormenu.gtx_alpha Transparänz (GTX)
-colormenu.head Farb-Ischtöuige
 colormenu.menucolors Menüfarbe
 colormenu.statusbar Schtatusbauke
 colormenu.textcolor Textfarb
 colormenu.textcolor_head Textfarb
 colormenu.themeselect Theme uswähle
 colormenu.timing OSD Timeouts
-colormenusetup.head Menüfarbä
 colormenusetup.menucontent Fäischterinhaut
 colormenusetup.menucontent_inactive Fäischterinhaut deaktiviert
 colormenusetup.menucontent_selected Fäischterinhaut selektiert
@@ -292,10 +258,8 @@ flashupdate.actionreadflash lisä Flash
 flashupdate.cantopenfile cha Datei nid öffnä
 flashupdate.cantopenmtd cha s'MTD-Device nid öffnä
 flashupdate.checkupdate noch nöiere version suäche
-flashupdate.currentreleasecycle Releasezyklus
 flashupdate.currentversion_sep Installierti Version
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot ImageTyp
 flashupdate.currentversiontime Uhrzyt
 flashupdate.erasefailed Flash lösche fäugschlage
 flashupdate.erasing lösche Flash
@@ -442,11 +406,8 @@ lcdcontroler.brightness normali Häuigkeit
 lcdcontroler.brightnessstandby Standby Häuigkeit
 lcdcontroler.contrast Kontrascht
 lcdcontroler.head LCD Ischtöuigä
-lcdmenu.autodimm Outomatisch dimme
 lcdmenu.head LCD Ischtöuigä
-lcdmenu.inverse Invertierä
 lcdmenu.lcdcontroler Kontrascht / Häuigkeit
-lcdmenu.power Power
 lcdmenu.statusline Schtatuszilä
 lcdmenu.statusline.both Lutschterchi / Fortschritt
 lcdmenu.statusline.playtime Sändigsvortschritt
@@ -489,7 +450,6 @@ messagebox.no Nei
 messagebox.yes Jo
 miscsettings.general Augemein
 miscsettings.head Diversi Ischtöuige
-miscsettings.hwsections HW-Sections verwände
 miscsettings.infobar_sat_display Infobar Satelliteazeig
 miscsettings.shutdown_real Standbymodus
 miscsettings.shutdown_real_rcdelay Verzögerte Shutdown
@@ -499,17 +459,10 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Gib ä Name für's nöie Bookmark i.
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering Puffern...
-movieplayer.defdir Schtart-Verz.
 movieplayer.defplugin Start-Plugin
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Datei via VLC
-movieplayer.goto Schpringe zu ...
-movieplayer.goto.h1 = -> absolute Schprung
-movieplayer.goto.h2 +,- -> relative Schprung
 movieplayer.head Movieplayer
-movieplayer.nostreamingserver Verbindig zum\nStreamingsörver fäugschlage.
-movieplayer.pleasewait Bitte warte.\nd'Verbindig zum Streamingsörver wird härgschtöut.
 movieplayer.toomanybookmarks Du hesch scho zviu Bookmarks aagleit.\nEs muess zersch äs Angers glöscht wärde.
 movieplayer.tshelp1 Stop
 movieplayer.tshelp10 ca. 10 Minute zrugg
@@ -526,23 +479,9 @@ movieplayer.tshelp9 ca. 5 Minute vor
 movieplayer.tsplayback TS Abschpile
 movieplayer.tsplayback_pc TS Abschpiele mit PIN
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stop
-movieplayer.vlchelp10 ca. 10 Minute zrugg
-movieplayer.vlchelp11 ca. 10 Minuten vor
-movieplayer.vlchelp12 Höuf: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.vlchelp2 Resync
-movieplayer.vlchelp3 Pouse/Witer
-movieplayer.vlchelp4 Bookmark setze
-movieplayer.vlchelp5 Zyt iblände
-movieplayer.vlchelp6 ca. 1 Minute zrugg
-movieplayer.vlchelp7 ca. 1 Minute vor
-movieplayer.vlchelp8 ca. 5 Minute zrugg
-movieplayer.vlchelp9 ca. 5 Minute vor
-movieplayer.wrongvlcversion Funktion isch mit dere Version vom VLC nid müglech
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Schtandard Gateway
-networkmenu.head Netzwärk Ischtöuige
 networkmenu.ipaddress IP-Adrässi
 networkmenu.mount NFS/CIFS
 networkmenu.nameserver Namesörver
@@ -598,8 +537,6 @@ parentallock.never Niä
 parentallock.onsignal Bi gsändeter Vorschperri
 parentallock.parentallock Jugendschutz
 parentallock.prompt PIN-Igab
-pictureviewer.decode_server_ip Decoding-Server IP
-pictureviewer.decode_server_port Decoding-Server Port
 pictureviewer.defdir Schtart-Verz.
 pictureviewer.head Böudbetrachter
 pictureviewer.help1 Menü-Modus
@@ -645,9 +582,7 @@ rclock.lockmsg d'Färnbedienig vo de DBOX2 wird gschperrt.\num d'Schperri ufzheb
 rclock.menueadd FB schperre 
 rclock.title Färnbedienig schperre
 rclock.unlockmsg Färnbedienig reaktiviert...
-recordingmenu.choose_direct_rec_dir Bi Sofortufn. Verzeichnisuswau
 recordingmenu.defdir Ufnahmeverzeichnis
-recordingmenu.epg_for_filename langi Dateiname (mit EPG-Date)
 recordingmenu.file Diräkt (Datei)
 recordingmenu.filesettingsseparator Diräktufnahm
 recordingmenu.help Aufnahmegeräte:\n-----------------------\nServer:\nuf PC mit Höuf vomene Streaming-Programm\n\n(analoge) Videorekorder:\nüber VCR-Usgang\n\nDiräkt (Datei):\nuf es per NFS gemountetes Verzeichnis\noder ä interni Feschtplatte\nTS: SPTS-Mode Triber lade\nPES: SPTS-Mode Triber nid lade\n\n\nMaximali Dateigrössi:\n----------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: fasch unändlech (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
@@ -668,10 +603,8 @@ satsetup.diseqcrepeat DiSEqC-Widerholige
 satsetup.extended DiSEqC-Ischtöuige
 satsetup.extended_motor Motor-Ischtöuige
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Manuells Motor-Setup
 satsetup.nodiseqc Keis DiSEqC
 satsetup.satellite Satellit
-satsetup.savesettingsnow Ischtöuigä jetzt schpichere
 satsetup.smatvremote SMATV Remote Tuning
 scantp.abort_scan Breche Scan ab
 scantp.fec FEC
@@ -726,11 +659,9 @@ sleeptimerbox.announce Sleeptimer i 1 min
 sleeptimerbox.hint1 Usschautzyt i Min. (000=aus)
 sleeptimerbox.hint2 d'Box schautet sich noch derä Zyt uus.
 sleeptimerbox.title Sleeptimer
-streamfeatures.head Features
 streaminfo.aratio Verhäutnis
 streaminfo.aratio_unknown Verhäutnis: unbekannt
 streaminfo.audiotype Audiotyp
-streaminfo.audiotype_unknown Audiotyp: unbekannt
 streaminfo.bitrate Bitrate
 streaminfo.framerate Böudrate
 streaminfo.framerate_unknown Böudrate: unbekannt
@@ -738,12 +669,9 @@ streaminfo.head Informatione
 streaminfo.not_available nid verfüegbar
 streaminfo.resolution Uflösig
 streaminfo.signal Empfangssignau
-streaming.buffer_overflow d'Ufnahm isch leider abbroche,\ndo d'Date nid schnäu gnue gschribe hei chöne wärde.
 streaming.busy Eine oder mehreri Aufnahmprozäss si aktiv.\nSöt d'Ufnahm eigentlech beändet si,\nschafft ä Neustart vo Neutrino Abhiuf.
 streaming.dir_not_writable s'Ufnahmeverzeichnis isch ni beschribbar.\ns'Ufnä isch wäg däm nid müglech.
-streaming.success d'Ufnahm isch erfougrich beändet worde.
 streaming.write_error d'Ufnahme isch leider abbroche,\ndo ä Fähler bim Schribe vo de Date ufträte isch.
-streaming.write_error_open d'Ufnahm isch leider abbroche,\ndo diä entsprächend Datei nid zum Schribe g'öffnet cha wärde.
 stringinput.caps Gross-/Chlibuächschtabe
 stringinput.clear Aues lösche
 timer.eventrecord.msg d'Sändig isch zur Ufnahm vorgmerkt worde
@@ -826,15 +754,11 @@ timing.infobar Infobar
 timing.menu Menü
 timing.numericzap Umschaute mit Ziffertaschte
 videomenu.csync Sync.-Korrektur
-videomenu.head Video-Ischtöuige
-videomenu.rgb_centering RGB-Zentrierig
 videomenu.screensetup Böudbereich ischtöue
-videomenu.vcrswitch Scart-Iigang outomatisch
 videomenu.videoformat Böudschirmformat
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect outomatisch
 videomenu.videosignal Video Signauart
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

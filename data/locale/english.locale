@@ -7,26 +7,7 @@ EPGMenu.streaminfo technical information
 EPGPlus.actions Actions
 EPGPlus.bybouquet_mode by bouquet
 EPGPlus.bypage_mode by page
-EPGPlus.change_font_size font size
-EPGPlus.change_font_style font style
-EPGPlus.change_size size
-EPGPlus.channelentry_font channel font
-EPGPlus.channelentry_separationlineheight separation line height
-EPGPlus.channelentry_width width
-EPGPlus.channelevententry_font event font
-EPGPlus.edit_fonts edit fonts
-EPGPlus.edit_sizes edit sizes
-EPGPlus.font_style_bold style bold
-EPGPlus.font_style_italic style italic
-EPGPlus.font_style_regular style regular
-EPGPlus.footer_fontbouquetchannelname footer bouquet
-EPGPlus.footer_fontbuttons footer buttons
-EPGPlus.footer_fonteventdescription footer event
-EPGPlus.footer_fonteventshortdescription footer event short
 EPGPlus.head Eventlist Overview (EPG Plus)
-EPGPlus.header_font header font
-EPGPlus.horgap1_height height1
-EPGPlus.horgap2_height height2
 EPGPlus.next_bouquet next bouquet
 EPGPlus.options options
 EPGPlus.page_down page down
@@ -35,17 +16,9 @@ EPGPlus.prev_bouquet prev bouquet
 EPGPlus.record Record
 EPGPlus.refresh_epg Refresh
 EPGPlus.remind Schedule
-EPGPlus.reset_settings reset settings
-EPGPlus.save_settings save settings
 EPGPlus.scroll_mode Scroll Mode
-EPGPlus.settings settings
-EPGPlus.slider_width slider width
 EPGPlus.stretch_mode Stretch Mode
 EPGPlus.swap_mode swap mode
-EPGPlus.timeline_fontdate font date
-EPGPlus.timeline_fonttime font time
-EPGPlus.vergap1_width width1
-EPGPlus.vergap2_width width2
 EPGPlus.view_mode view mode
 GENRE.ARTS.0 arts / culture
 GENRE.ARTS.1 performing arts
@@ -136,17 +109,13 @@ audiomenu.analog_out Analog output
 audiomenu.auto_lang Auto select audio
 audiomenu.auto_subs Auto select subtitles
 audiomenu.avs avs
-audiomenu.avs_control Volume Control avs/ost
 audiomenu.avsync A/V sync
 audiomenu.avsync_am Audio master
 audiomenu.clockrec 
 audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.hdmi_dd Encoded DD on HDMI
-audiomenu.head Audio Settings
-audiomenu.lirc lirc
 audiomenu.monoleft mono left
 audiomenu.monoright mono right
-audiomenu.ost ost
 audiomenu.pref_lang Prefered language
 audiomenu.pref_lang_head Audio/EPG language preferences
 audiomenu.pref_languages Language preferences
@@ -263,16 +232,13 @@ colormenu.contrast_fonts Contrast fonts
 colormenu.fade Fade menus
 colormenu.font Select GUI font
 colormenu.font_ttx Select Teletext font
-colormenu.gtx_alpha Transparency (GTX)
 colormenu.hd_preset LCD
-colormenu.head Color Settings
 colormenu.menucolors Colors
 colormenu.osd_preset TV preset
 colormenu.sd_preset CRT
 colormenu.textcolor Text color
 colormenu.themeselect select theme
 colormenu.timing OSD Timeouts
-colormenusetup.head Colors
 colormenusetup.menucontent Content
 colormenusetup.menucontent_inactive Content inactive
 colormenusetup.menucontent_selected Content selected
@@ -333,12 +299,10 @@ extra.add_to_bouquet Add to bouquet
 extra.audio_run_player Audio key start player
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
-extra.auto_to_record Move timeshift to records
 extra.bigwindows Big Windows
 extra.cache_txt Cache teletext
 extra.chadded The current channel has been added to selected bouquet....\n
 extra.chalreadyinbq The current channel is already in selected bouquet....\n
-extra.clear_log Clear Log
 extra.dboxinfo Box Info
 extra.east East
 extra.fec_1_2 1/2
@@ -366,8 +330,6 @@ extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
 extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
 extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
-extra.hw_sect Hardware Sections
-extra.key_click Key click
 extra.key_list_end end
 extra.key_list_start home
 extra.key_plugin One touch plugin
@@ -375,13 +337,11 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadcolors Load colors from
 extra.loadconfig Load settings from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
 extra.logo Logo number
 extra.longitude Longitude
-extra.manual_scan Manual scan
 extra.menu_left_exit "Left" = menu back
 extra.north North
 extra.record_time Max. recording time in hours
@@ -389,21 +349,17 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.savecolors Save colors as
 extra.saveconfig Save settings as
 extra.savekeys Save keys as
 extra.scan_fast Fast
 extra.scan_full Full
-extra.scan_mode Scan mode
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
 extra.sms_channel sms-mode channel
 extra.south South
-extra.spts_mode SPTS mode
 extra.start_tostandby Startup to standby
 extra.temp_timeshift Temporary timeshift
 extra.timeshift_pause Timeshift pause
-extra.timezone Timezone
 extra.tp.pol_v V
 extra.tp_fec FEC
 extra.tp_freq Frequency
@@ -418,22 +374,16 @@ extra.tp_pol_h H
 extra.tp_rate Symbol rate
 extra.update_dir Directory for updates
 extra.use_gotoxx Use gotoXX
-extra.use_log Log to /tmp/log
 extra.volume_pos Volumebar
 extra.west West
 extra.zap_cycle Zap cycle
-extra.zapit_fast_zap fast zap
 extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
 extra.zapit_hvoltage 18V for rotor moving 
 extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_menu Zapit options
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
-extra.zapit_rezap_time Re-Zap on emu switch time
-extra.zapit_save_last_chan Save last channel
-extra.zapit_scan_sdt Scan SDT for updates
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
-extra.zapit_sort_names Sort ch. by name
 extra.zapit_write_names Write channel names
 fan_speed CPU Fan speed
 favorites.addchannel The current channel will be added \nto the bouquet "My Favorites". \n This will take a few seconds...
@@ -470,10 +420,8 @@ flashupdate.actionreadflash reading
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open mtd-device
 flashupdate.checkupdate search for new version
-flashupdate.currentreleasecycle Release cycle
 flashupdate.currentversion_sep Current version
 flashupdate.currentversiondate Date
-flashupdate.currentversionsnapshot Image Type
 flashupdate.currentversiontime Time
 flashupdate.erasefailed erasure of flash failed
 flashupdate.erasing erasing flash
@@ -662,13 +610,10 @@ lcdcontroler.brightness normal Brightness
 lcdcontroler.brightnessdeepstandby DeepStandby Brightness
 lcdcontroler.brightnessstandby Standby Brightness
 lcdcontroler.contrast Contrast
-lcdmenu.autodimm Auto dimm
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD Settings
-lcdmenu.inverse Invert
 lcdmenu.lcdcontroler Brightness
-lcdmenu.power Power
 lcdmenu.statusline status line
 lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
@@ -751,7 +696,6 @@ miscsettings.epg_old_events_hint2 Set in hours
 miscsettings.epg_save Save/Restore epg on reboot
 miscsettings.general General
 miscsettings.head Extended settings
-miscsettings.hwsections use hardware sections
 miscsettings.infobar Infobar
 miscsettings.infobar_casystem_display CA-System Display
 miscsettings.infobar_casystem_mini mini
@@ -772,7 +716,6 @@ miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
 miscsettings.infobar_show_var_hdd Fill level (var & hdd )
 miscsettings.radiotext Radiotext
-miscsettings.show_infomenu 
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
 miscsettings.shutdown_count_hint2 to deep standby (0 = off).
@@ -935,18 +878,11 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering Buffering...
-movieplayer.defdir start dir.
 movieplayer.defplugin Start-Plugin
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback File play
-movieplayer.goto Jump to ...
-movieplayer.goto.h1 = -> absolute jump
-movieplayer.goto.h2 +,- -> relative jump
 movieplayer.head Movieplayer
-movieplayer.nostreamingserver The streaming server could not be reached.
 movieplayer.pesplayback Play PES (Experimental)
-movieplayer.pleasewait Please wait.\nConnecting to the streaming server...
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tshelp1 Stop
 movieplayer.tshelp10 approx. 10 minutes back
@@ -962,19 +898,6 @@ movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stop
-movieplayer.vlchelp10 approx. 10 minutes back
-movieplayer.vlchelp11 skip approx. 10 minutes
-movieplayer.vlchelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.vlchelp2 Resync
-movieplayer.vlchelp3 Pause/Continue
-movieplayer.vlchelp4 Create bookmark
-movieplayer.vlchelp5 Show progress
-movieplayer.vlchelp6 approx. 1 minute back
-movieplayer.vlchelp7 skip approx. 1 minute
-movieplayer.vlchelp8 approx. 5 minutes back
-movieplayer.vlchelp9 skip approx. 5 minutes
-movieplayer.wrongvlcversion This feature is not support by your current version of VLC
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
@@ -990,7 +913,6 @@ networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.error_no_address Missing %s-address!
 networkmenu.gateway default gateway
-networkmenu.head Network Settings
 networkmenu.hostname Hostname
 networkmenu.inactive_network Network inactiv!
 networkmenu.ipaddress IP address
@@ -1064,8 +986,6 @@ parentallock.never never
 parentallock.onsignal on broadcasted lock
 parentallock.parentallock Youth protection
 parentallock.prompt prompt for PIN
-pictureviewer.decode_server_ip decode server ip
-pictureviewer.decode_server_port decode server port
 pictureviewer.defdir start dir.
 pictureviewer.head Picture viewer
 pictureviewer.help1 menu mode
@@ -1119,12 +1039,10 @@ recordingmenu.apids Audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream
-recordingmenu.choose_direct_rec_dir choose dir on imm. recording
 recordingmenu.defdir Recording directory
 recordingmenu.end_of_recording_epg EPG act. Event
 recordingmenu.end_of_recording_max max. Recordingtime
 recordingmenu.end_of_recording_name Endtime of Recording
-recordingmenu.epg_for_filename long filenames (with EPG data)
 recordingmenu.file direct (file)
 recordingmenu.help Recording devices:\n--------------------------\nserver:\nusing streaming software on a PC\n\n(analog) vcr:\nusing the vcr outlet\n\ndirect (file):\ndirectly into an NFS mounted directory\nor onto an internal hard drive\nTS: use spts mode(dbox2)\nPES: do not use spts mode(dbox2)\n\n\nMax. file size:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: almost unlimited (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.multimenu.ask_stop_all really stop all %d recordings?
@@ -1158,7 +1076,6 @@ rfmod.carrier6500 6.5
 rfmod.channel Channel
 rfmod.enable Enable sound
 rfmod.finetune Fine tune
-rfmod.rfmod RF modulator
 rfmod.standby Enable modulator
 rfmod.test Test pattern
 satsetup.auto_scan Auto-Scan selected %s
@@ -1171,10 +1088,8 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Advanced
 satsetup.diseqc_com_uncom Commited/Uncommited
 satsetup.diseqc_input Diseqc input
-satsetup.diseqc_order Input order
 satsetup.diseqc_uncom_com Uncommited/Commited
 satsetup.diseqcrepeat DiSEqC-repeats
-satsetup.do_scan Include in all scan
 satsetup.extended DiSEqC-Settings
 satsetup.extended_motor Motor-Settings
 satsetup.fastscan_all SD and HD
@@ -1192,11 +1107,9 @@ satsetup.lofs LNB switch Offset
 satsetup.manual_scan Manual frequency scan
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor position
-satsetup.motorcontrol Manual Motor-Setup
 satsetup.nodiseqc no DiSEqC
 satsetup.sat_setup Setup satellites input / LNB
 satsetup.satellite Satellite
-satsetup.savesettingsnow save settings now
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommited input
 satsetup.usals_repeat USALS command repeat
@@ -1247,7 +1160,6 @@ servicemenu.imageinfo Image info
 servicemenu.reload Reload channel lists
 servicemenu.reload_hint Reloading channel lists,\nplease be patient.
 servicemenu.restart Soft restart
-servicemenu.restart_failed Restart failed
 servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Servicescan
@@ -1274,11 +1186,9 @@ sleeptimerbox.hint2 The STB will shutdown after this time in standby.
 sleeptimerbox.hint3 The STB will shutdown, if remote not used.
 sleeptimerbox.title Sleeptimer
 sleeptimerbox.title2 Inactivity shutdown timer
-streamfeatures.head Features
 streaminfo.aratio Aspect Ratio
 streaminfo.aratio_unknown unknown
 streaminfo.audiotype Audiotype
-streaminfo.audiotype_unknown unknown
 streaminfo.average_bitrate Average
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
@@ -1287,12 +1197,9 @@ streaminfo.head Stream-Information
 streaminfo.not_available not available
 streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
-streaming.buffer_overflow The recording was aborted,\nsince the data could not be written fast enough.
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
-streaming.success The recording has ended successfully.
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
-streaming.write_error_open The recording was aborted,\nbecause the target file could not be opened.
 stringinput.caps caps / no caps
 stringinput.clear clear all
 subtitles.head Subtitles
@@ -1395,7 +1302,6 @@ usermenu.item_vtxt Videotext
 usermenu.name Name
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode
-videomenu.adjust Adjust video settings
 videomenu.analog_hd_rgb_cinch RGB on cinch (HD)
 videomenu.analog_hd_rgb_scart RGB on scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr on cinch (HD)
@@ -1423,32 +1329,23 @@ videomenu.hdmi_cec_mode_recorder as Sat/Cable PVR
 videomenu.hdmi_cec_mode_tuner as Sat/Cable STB
 videomenu.hdmi_cec_standby Enable CEC standby
 videomenu.hdmi_cec_view_on Enable CEC View on
-videomenu.head Video Settings
 videomenu.hue Hue
 videomenu.letterbox Letterbox
-videomenu.osd OSD
 videomenu.panscan Pan&Scan
 videomenu.panscan2 14:9 Pan&Scan
-videomenu.rgb_centering RGB centering
 videomenu.saturation Saturation
 videomenu.scart Scart
 videomenu.screensetup Screen Setup
 videomenu.sharpness Sharpness
 videomenu.tv-scart Video
-videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR Output Signal Type
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-videomenu.vcrswitch Switch Scart automatically
 videomenu.videoformat Format
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
-videomenu.videoformat_autodetect autodetect
 videomenu.videomode Digital video mode
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 wizard.welcome_head Welcome to the Setup Wizard
 wizard.welcome_text Next steps will guide you through initial installation of the device.\nImportant: Your CoolStream set-top box can be conveniently controlled\nwith the web interface for timer management or live TV on the Web browser.\nDo not make it accessible to untrusted networks!\nDo you want to continue?
 word.from from

@@ -7,26 +7,7 @@ EPGMenu.streaminfo Teknistä tietoa
 EPGPlus.actions Toiminnot
 EPGPlus.bybouquet_mode Kanavaniputtain
 EPGPlus.bypage_mode Sivu kerrallaan
-EPGPlus.change_font_size Muuta kirjasimen kokoa
-EPGPlus.change_font_style Muuta kirjasinta
-EPGPlus.change_size Muuta kokoa
-EPGPlus.channelentry_font Kanavat
-EPGPlus.channelentry_separationlineheight riviväli
-EPGPlus.channelentry_width Kanavanimien leveys
-EPGPlus.channelevententry_font Ohjelma
-EPGPlus.edit_fonts Muokkaa kirjasinta
-EPGPlus.edit_sizes Muokkaa kokoa
-EPGPlus.font_style_bold lihavointi
-EPGPlus.font_style_italic kursivointi
-EPGPlus.font_style_regular normaali
-EPGPlus.footer_fontbouquetchannelname Valitse kanavanipun/kanavan nimi
-EPGPlus.footer_fontbuttons Näppäimet
-EPGPlus.footer_fonteventdescription Ohjelman kuvaus
-EPGPlus.footer_fonteventshortdescription Ohjelman kuvaus lyhyesti
 EPGPlus.head EPG ohjelmaopas
-EPGPlus.header_font Header
-EPGPlus.horgap1_height height hor. gap 1
-EPGPlus.horgap2_height height hor. gap 2
 EPGPlus.next_bouquet Seuraava nippu
 EPGPlus.options Asetukset
 EPGPlus.page_down Sivu ylös
@@ -35,18 +16,10 @@ EPGPlus.prev_bouquet Edellinen nippu
 EPGPlus.record Ajasta tallennus
 EPGPlus.refresh_epg Päivitä EPG-tiedot
 EPGPlus.remind Ajasta kanavanvaihto
-EPGPlus.reset_settings Palauta asetukset
-EPGPlus.save_settings Tallenna asetukset
 EPGPlus.scroll_mode Vieritys
 EPGPlus.select_font_name Kirjasimen valinta
-EPGPlus.settings Asetukset
-EPGPlus.slider_width slider width
 EPGPlus.stretch_mode Venytetty
 EPGPlus.swap_mode Vaihtotila
-EPGPlus.timeline_fontdate Pvm kirjasin
-EPGPlus.timeline_fonttime Aika Kirjasin
-EPGPlus.vergap1_width width ver. gap 1
-EPGPlus.vergap2_width width ver. gap 2
 EPGPlus.view_mode Näyttötila
 GENRE.ARTS.0 taide / kulttuuri
 GENRE.ARTS.1 esittävä taide
@@ -132,13 +105,9 @@ audiomenu.analogout Analoginen lähtö
 audiomenu.audio_left_right_selectable Stereo/mono-valinta
 audiomenu.audiochannel_up_down_enable Valitse ääniraita nuolilla
 audiomenu.avs avs
-audiomenu.avs_control Äänenvoimakkuuden säätö
 audiomenu.dolbydigital Suosi AC3/DD-ääniraitaa
-audiomenu.head Ääniasetukset
-audiomenu.lirc lirc
 audiomenu.monoleft mono vasen
 audiomenu.monoright mono oikea
-audiomenu.ost ost
 audiomenu.stereo stereo
 audioplayer.add Lisää
 audioplayer.artist_title Artisti, Kappale
@@ -215,15 +184,12 @@ colormenu.background Tausta
 colormenu.background_head Tausta
 colormenu.fade Fade valikot
 colormenu.font Kirjasinkoot
-colormenu.gtx_alpha Läpinäkyvyys
-colormenu.head Käyttöliittymän ulkoasu
 colormenu.menucolors Valikon värit
 colormenu.statusbar Infopalkin värit
 colormenu.textcolor Tekstin väri
 colormenu.textcolor_head Tekstin väri
 colormenu.themeselect Teeman valinta
 colormenu.timing OSD-ajoitukset
-colormenusetup.head Valikon värit
 colormenusetup.menucontent Valitun ikkunan sisältö
 colormenusetup.menucontent_inactive Passiivisen ikkunan sisältö
 colormenusetup.menucontent_selected Valitun ikkunan sisältö
@@ -303,10 +269,8 @@ flashupdate.actionreadflash Luetaan
 flashupdate.cantopenfile Tiedostoa ei voida avata
 flashupdate.cantopenmtd MTD-laitetta ei voida käyttää
 flashupdate.checkupdate Etsi uutta versiota
-flashupdate.currentreleasecycle Versio
 flashupdate.currentversion_sep Nykyinen versio
 flashupdate.currentversiondate Päiväys
-flashupdate.currentversionsnapshot Tyyppi
 flashupdate.currentversiontime Aika
 flashupdate.erasefailed Flashin tyhjennys epäonnistui
 flashupdate.erasing Flash-muistin tyhjennys
@@ -464,13 +428,10 @@ lcdcontroler.brightness Kirkkaus
 lcdcontroler.brightnessstandby - valmiustilassa
 lcdcontroler.contrast Kontrasti
 lcdcontroler.head LCD asetukset
-lcdmenu.autodimm Automaattinen himmennys
 lcdmenu.dim_brightness Himmennetty kirkkaus
 lcdmenu.dim_time Viive ennen himmennystä
 lcdmenu.head LCD-näytön asetukset
-lcdmenu.inverse Käänteinen
 lcdmenu.lcdcontroler Kontrasti / Kirkkaus
-lcdmenu.power Näyttö
 lcdmenu.statusline Näytä
 lcdmenu.statusline.both äänenvoim. / aikajana
 lcdmenu.statusline.playtime aikajana
@@ -515,7 +476,6 @@ messagebox.yes Kyllä
 miscsettings.cabledriver Lataa Nokian kaapeliajuri
 miscsettings.general Yleiset
 miscsettings.head Sekalaiset asetukset
-miscsettings.hwsections Käytä hwsections:ia
 miscsettings.infobar_sat_display Näytä satelliitin nimi
 miscsettings.shutdown_count Automaattinen sammutus
 miscsettings.shutdown_count_hint1 Aika minuutteina jonka jälkeen laite sammuu
@@ -625,17 +585,10 @@ movieplayer.bookmark Kirjanmerkit
 movieplayer.bookmarkname Kirjanmerkki
 movieplayer.bookmarkname_hint1 Syötä nimi uudelle kirjanmerkille
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering Puskuroin...
-movieplayer.defdir Oletushakemisto
 movieplayer.defplugin Oletuslaajennos
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Toisto VLC:n kautta
-movieplayer.goto +,- -> suhteellinen hyppy
-movieplayer.goto.h1 = -> absoluuttinen hyppy
-movieplayer.goto.h2 +,- -> suhteellinen hyppy
 movieplayer.head Mediasoitin
-movieplayer.nostreamingserver Videon lähettäjäpalvelimeen ei saatu yhteyttä.
-movieplayer.pleasewait Odota hetki.\nYhdistän videopalvelimeen...
 movieplayer.toomanybookmarks Liian monta kirjanmerkkiä.\nPoista vähintään yksi ensin.
 movieplayer.tshelp1 Ohjeet: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tshelp10 n. 10 minuuttia taaksepäin
@@ -652,23 +605,9 @@ movieplayer.tshelp9 n. 5 minuuttia eteenpäin
 movieplayer.tsplayback Toista tiedosto
 movieplayer.tsplayback_pc Toista tiedosto (PIN-koodattu)
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Ohjeet: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.vlchelp10 n. 10 minuuttia taaksepäin
-movieplayer.vlchelp11 n. 10 minuuttia eteenpäin
-movieplayer.vlchelp12 Ohjeet: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.vlchelp2 Tahdista
-movieplayer.vlchelp3 Tauko/Jatka
-movieplayer.vlchelp4 Luo kirjanmerkki
-movieplayer.vlchelp5 Näytä eteneminen
-movieplayer.vlchelp6 n. minuutti taaksepäin
-movieplayer.vlchelp7 n. minuutti eteenpäin
-movieplayer.vlchelp8 n. 5 minuuttia taaksepäin
-movieplayer.vlchelp9 n. 5 minuuttia eteenpäin
-movieplayer.wrongvlcversion Tämä toiminto ei ole käytössä tässä VLC versiossa
 networkmenu.broadcast Broadcast-osoite
 networkmenu.dhcp DHCP
 networkmenu.gateway Yhdyskäytävä
-networkmenu.head Verkkoasetukset
 networkmenu.ipaddress IP-osoite
 networkmenu.mount Verkkolevyt
 networkmenu.nameserver Nimipalvelin
@@ -725,8 +664,6 @@ parentallock.never ei koskaan
 parentallock.onsignal lähetyksen mukaan
 parentallock.parentallock Lapsilukko
 parentallock.prompt PIN-koodin kysely
-pictureviewer.decode_server_ip palvelimen IP-osoite
-pictureviewer.decode_server_port palvelimen portti
 pictureviewer.defdir Aloitushakemisto
 pictureviewer.head Kuvankatselu
 pictureviewer.help1 siirry alas
@@ -776,11 +713,9 @@ recordingmenu.apids Tallennuksen äänet
 recordingmenu.apids_ac3 Tallenna AC3 ääni
 recordingmenu.apids_alt Tallenna muut äänet
 recordingmenu.apids_std Tallenna oletusääni
-recordingmenu.choose_direct_rec_dir Hakemiston valinta välittömässä tall.
 recordingmenu.defdir Tallennushakemisto
 recordingmenu.dir_permissions Hakemisto-oikeudet
 recordingmenu.dir_permissions_hint Hakemiston oikeudet unix-tyyliin. Yleensä 755.
-recordingmenu.epg_for_filename Pitkät tiedostonimet (sis. EPG-tiedot)
 recordingmenu.file Tiedosto
 recordingmenu.filename_template Tiedostojen nimeäminen
 recordingmenu.filename_template_hint %c=kanava, %i=ohjelman nimi,%d=päiväys, %t=aika
@@ -802,10 +737,8 @@ satsetup.diseqcrepeat DiSEqC-toisto
 satsetup.extended Moottorin asetukset
 satsetup.extended_motor Moottorin asetukset
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Manaalinen moottorin asennus
 satsetup.nodiseqc no DiSEqC
 satsetup.satellite Satelliitti
-satsetup.savesettingsnow Tallenna asetukset
 satsetup.smatvremote SMATV Remote Tuning
 scantp.fec Virheenkorjaus
 scantp.fec_1_2 1/2
@@ -852,7 +785,6 @@ servicemenu.imageinfo Ohjelmiston tiedot
 servicemenu.reload Lue kanavalista uudelleen
 servicemenu.reload_hint Ladataan kanavalistoja,\nodota hetki.
 servicemenu.restart Käynnistä Neutrino uudelleen
-servicemenu.restart_failed Neutrinon uudelleenkäynnistys epäonnistui.
 servicemenu.restart_hint Uudelleenkäynnistetään Neutrino...
 servicemenu.restart_refused_recording Tallennus käynnissä. Uudelleenkäynnistys estetty.
 servicemenu.scants Kanavahaku
@@ -870,11 +802,9 @@ sleeptimerbox.announce Uniajastimessa minuutti jäljellä.
 sleeptimerbox.hint1 Sammutusaika minuutteina (000=ei sammutusta).
 sleeptimerbox.hint2 Laite sammuu itsestään asetetun ajan kuluttua.
 sleeptimerbox.title Uniajastin
-streamfeatures.head Lisätoiminnot
 streaminfo.aratio Kuvasuhde
 streaminfo.aratio_unknown Tuntematon kuvasuhde
 streaminfo.audiotype Ääniraita
-streaminfo.audiotype_unknown Tuntematon ääniraita
 streaminfo.bitrate Bittinopeus
 streaminfo.framerate Kuvataajuus
 streaminfo.framerate_unknown Tuntematon kuvataajuus
@@ -882,12 +812,9 @@ streaminfo.head Lähetteen tiedot
 streaminfo.not_available ei saatavilla
 streaminfo.resolution Resoluutio
 streaminfo.signal Signaalitasot
-streaming.buffer_overflow Tallennus keskeytyi,\nkoska videota ei pystytty tallentamaan tarpeeksi nopeasti.
 streaming.busy Yksi tai useampi tallennus käynnissä.\nMikäli olet varma, että tallennusta ei ole, käynnistä laite uudelleen.
 streaming.dir_not_writable Tallennushakemistoon ei voida kirjoittaa\nTallennus ei toimi.
-streaming.success Tallennus onnistui.
 streaming.write_error Tallennus keskeytyi,\nkoska tallennustiedostoa ei voitu luoda.
-streaming.write_error_open Tallennus keskeytyi,\nkoska tallennustiedostoa ei voitu luoda.
 stringinput.caps ABC / abc
 stringinput.clear Tyhjennä kaikki
 timer.eventrecord.msg Oletko varma?
@@ -971,15 +898,11 @@ timing.infobar Infopalkki
 timing.menu Valikko
 timing.numericzap Kanavan valinta numerolla
 videomenu.csync Tahdistuskorjaus
-videomenu.head Kuva-asetukset
-videomenu.rgb_centering RGB keskitys
 videomenu.screensetup OSD-näytön kohdistus
-videomenu.vcrswitch SCART:in automaattiohjaus
 videomenu.videoformat Kuvasuhde
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect automaattinen
 videomenu.videosignal Videolähtö
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

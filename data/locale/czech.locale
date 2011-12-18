@@ -7,26 +7,7 @@ EPGMenu.streaminfo Technické informace
 EPGPlus.actions Akce
 EPGPlus.bybouquet_mode bukety
 EPGPlus.bypage_mode stranami
-EPGPlus.change_font_size Velikost písma
-EPGPlus.change_font_style Styl písma
-EPGPlus.change_size Velikost
-EPGPlus.channelentry_font Název kanálu
-EPGPlus.channelentry_separationlineheight Výška oddělovačů
-EPGPlus.channelentry_width Šířka
-EPGPlus.channelevententry_font Název programu
-EPGPlus.edit_fonts Úprava fontů
-EPGPlus.edit_sizes Úprava velikostí
-EPGPlus.font_style_bold tučné
-EPGPlus.font_style_italic kurzíva
-EPGPlus.font_style_regular normální
-EPGPlus.footer_fontbouquetchannelname Pasek: Buket
-EPGPlus.footer_fontbuttons Pasek: Tlačítka
-EPGPlus.footer_fonteventdescription Pasek: Titul programu
-EPGPlus.footer_fonteventshortdescription Pasek: Popis programu
 EPGPlus.head Multi EPG
-EPGPlus.header_font Nadpis
-EPGPlus.horgap1_height Výška horního rozestupu
-EPGPlus.horgap2_height Výška dolního rozestupu
 EPGPlus.next_bouquet násl.buket
 EPGPlus.options Možnosti
 EPGPlus.page_down Předcházející strana
@@ -35,17 +16,9 @@ EPGPlus.prev_bouquet předch.buket
 EPGPlus.record Záznam1
 EPGPlus.refresh_epg Obnov
 EPGPlus.remind Plánovač
-EPGPlus.reset_settings Obnov původní
-EPGPlus.save_settings Ulož nastavení
 EPGPlus.scroll_mode přetáčení
-EPGPlus.settings Nastavení
-EPGPlus.slider_width Šířka posuvníku
 EPGPlus.stretch_mode rozšíření
 EPGPlus.swap_mode Změna stránkování
-EPGPlus.timeline_fontdate Datum
-EPGPlus.timeline_fonttime Čas
-EPGPlus.vergap1_width Šířka levého okraje
-EPGPlus.vergap2_width Šířka pravého okraje
 EPGPlus.view_mode Způsob zobrazení
 GENRE.ARTS.0 umění/kultura
 GENRE.ARTS.1 divadlo
@@ -128,13 +101,9 @@ audiomenu.PCMOffset Snížení hlasitosti PCM
 audiomenu.analog_mode Analogový mód
 audiomenu.analog_out Analogový výstup
 audiomenu.avs avs
-audiomenu.avs_control Ovládání hlasitosti avs/ost
 audiomenu.dolbydigital Zvuk Dolby Digital
-audiomenu.head Nastavení zvuku
-audiomenu.lirc lirc
 audiomenu.monoleft mono levý kanál
 audiomenu.monoright mono pravý kanál
-audiomenu.ost ost
 audiomenu.stereo stereo
 audiomenu.hdmi_dd Zvuk DD na HDMI
 audiomenu.spdif_dd Zvuk DD na SPDIF
@@ -239,8 +208,6 @@ colormenu.background Pozadí
 colormenu.fade Mizející menu
 colormenu.font Výběr písma
 colormenu.font_ttx Výběr teletextového písma
-colormenu.gtx_alpha Průhlednost (GTX)
-colormenu.head Nastavení barev
 colormenu.menucolors Barvy menu
 colormenu.textcolor Barva textu
 colormenu.themeselect Výběr témat
@@ -248,7 +215,6 @@ colormenu.timing Čas zobrazení na OSD
 colormenu.osd_preset Druh TV
 colormenu.hd_preset LCD
 colormenu.sd_preset CRT
-colormenusetup.head Barvy menu
 colormenusetup.menucontent Obsahové okno
 colormenusetup.menucontent_inactive Neaktivní v obsahovém okně
 colormenusetup.menucontent_selected Vybrané v obsahovém okně
@@ -334,10 +300,8 @@ flashupdate.actionreadflash načítání
 flashupdate.cantopenfile Otevření souboru nemožné
 flashupdate.cantopenmtd Otevření MTD-zařízení nemožné
 flashupdate.checkupdate Zjisti novou verzi
-flashupdate.currentreleasecycle Číslo verze
 flashupdate.currentversion_sep Aktuální verze
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot Typ Image
 flashupdate.currentversiontime Hodina
 flashupdate.erasefailed Vymazání paměti FLASH se nepodařilo
 flashupdate.erasing Mazání paměti FLASH
@@ -477,13 +441,10 @@ lcdcontroler.brightness Jas
 lcdcontroler.brightnessdeepstandby Jas v hlubokém spánku
 lcdcontroler.brightnessstandby Jas ve spánku
 lcdcontroler.contrast Kontrast
-lcdmenu.autodimm Automatické stmívání
 lcdmenu.dim_brightness Jas po zhasnutí
 lcdmenu.dim_time Čas zhasnutí
 lcdmenu.head Nastavení VFD
-lcdmenu.inverse Invertovat
 lcdmenu.lcdcontroler Jas
-lcdmenu.power Zapnutí
 lcdmenu.statusline Stavový řádek
 lcdmenu.statusline.both hlasitost/hraný čas
 lcdmenu.statusline.playtime odehraný čas
@@ -543,7 +504,6 @@ miscsettings.channellist Nastavení seznamu kanálů
 miscsettings.channellist_epgtext_align Zarovnej EPG text
 miscsettings.general Hlavní nastavení
 miscsettings.head Jiné nastavení
-miscsettings.hwsections Použití sekce HW
 miscsettings.infobar Infořádek
 miscsettings.infobar_casystem_display Zobrazení CA-Systému
 miscsettings.infobar_casystem_mini CA mini
@@ -730,18 +690,11 @@ movieplayer.bookmark Záložky
 movieplayer.bookmarkname Název záložky
 movieplayer.bookmarkname_hint1 Vložení názvu
 movieplayer.bookmarkname_hint2 nové záložky?
-movieplayer.buffering Vyrovnávání...
-movieplayer.defdir Startovací adresář
 movieplayer.defplugin Startovací PLUGIN
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Soubor přes VLC
-movieplayer.goto Skoč do ...
-movieplayer.goto.h1 = -> absolutní skok
-movieplayer.goto.h2 +,- -> relativní skok
 movieplayer.head Tvoření filmů
-movieplayer.nostreamingserver Připojit k serveru\streaming byl neúspěšný. 
 movieplayer.pesplayback Přehrávání PES
-movieplayer.pleasewait Prosím čekejte.\nPřipojování na streamovací server...
 movieplayer.toomanybookmarks Mnoho záložek.\nNejprve je potřebné jednu vymazat.
 movieplayer.tshelp1 Zastavení
 movieplayer.tshelp10 asi 10 min dozadu
@@ -757,23 +710,9 @@ movieplayer.tshelp8 asi 5 min dozadu
 movieplayer.tshelp9 asi 5 min dopředu
 movieplayer.tsplayback Přehrát TS
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Zastavení
-movieplayer.vlchelp10 asi 10 min dozadu
-movieplayer.vlchelp11 asi 10 min dopředu
-movieplayer.vlchelp12 Nápověda: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.vlchelp2 Synchronizace
-movieplayer.vlchelp3 Přerušení/Pokračování
-movieplayer.vlchelp4 Vytvoří záložku
-movieplayer.vlchelp5 Zobrazí postup
-movieplayer.vlchelp6 asi 1 min dozadu
-movieplayer.vlchelp7 asi 1 min dopředu
-movieplayer.vlchelp8 asi 5 min dozadu
-movieplayer.vlchelp9 asi 5 min dopředu
-movieplayer.wrongvlcversion Vlastnost není podporovaná Vaší aktuální verzí VLC
 networkmenu.broadcast Vysílání
 networkmenu.dhcp Převzetí z DHCP
 networkmenu.gateway Předvolená brána
-networkmenu.head Nastavení sítě
 networkmenu.hostname Název hostitele
 networkmenu.ipaddress Adresa IP
 networkmenu.mount NFS/CIFS/FTPFS
@@ -838,8 +777,6 @@ parentallock.never nikdy
 parentallock.onsignal při zjištění zámku
 parentallock.parentallock Rodičovský zámek
 parentallock.prompt Použití PIN kódu
-pictureviewer.decode_server_ip IP serveru dekódování
-pictureviewer.decode_server_port Port serveru dekódování
 pictureviewer.defdir Výchozí adresář
 pictureviewer.head Prohlížeč obrázků
 pictureviewer.help1 Způsob menu
@@ -890,10 +827,8 @@ recordingmenu.apids Předvolené zvukové stopy
 recordingmenu.apids_ac3 Nahraj zvuk AC3
 recordingmenu.apids_alt Nahraj ostatní zvukové stopy
 recordingmenu.apids_std Nahraj standartní zvuk
-recordingmenu.choose_direct_rec_dir Výběr adresáře pro nahrávání
 recordingmenu.defdir Adresář nahrávání
 recordingmenu.tsdir Adresář časového posuvu
-recordingmenu.epg_for_filename dlouhé názvy (z dat EPG)
 recordingmenu.file disk (soubor)
 recordingmenu.help Nahrávací zařízení:\n--------------------------------------\nserver:\npotřebný streamovací SW na PC\n\(analog) VCR:\npotřebný VCR (druhý SCART)\n\ndisk (soubor):\npotřebný připojený síťový NFS adresář\nnebo vnitřní HDD disk\nTS: použij SPTS mód(dBox2)\nPES: nepoužij SPTS mód(dBox2)\n\n\nMaximální velikost souboru:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: téměř nekonečné (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)\n\nPro NFS (UDP) se doporučuje synchronizovaný zápis
 recordingmenu.off vypnuté
@@ -911,20 +846,16 @@ satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1
 satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced Rozšířené
-satsetup.diseqc_order Pořadí vstupu
 satsetup.diseqc_com_uncom Potvrzený/Nepotvrzený
 satsetup.diseqc_uncom_com Nepotvrzený/Potvrzený
 satsetup.diseqcrepeat DiSEqC opakování
 satsetup.extended Nastavení DiSEqC
 satsetup.extended_motor Nastavení motoru
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Ruční nastavení motoru
 satsetup.nodiseqc bez DiSEqC
 satsetup.satellite Satelit
-satsetup.savesettingsnow Uložení nastavení
 satsetup.smatvremote SMATV ladění
 satsetup.sat_setup Nastavení vstupů a LNB pro satelity
-satsetup.do_scan Zahrnout všechny do vyhledávání
 satsetup.lofl LNB spodní pásmo
 satsetup.lofh LNB horní pásmo
 satsetup.lofs LNB přepnutí pásma
@@ -980,7 +911,6 @@ servicemenu.head Služby
 servicemenu.reload Načítání seznamu kanálů
 servicemenu.reload_hint Načítání seznamu kanálů,\nprosím čekej...
 servicemenu.restart Restart software
-servicemenu.restart_failed Chyba během restartu
 servicemenu.restart_hint Restartování, prosím čekej...
 servicemenu.restart_refused_recording Neumožněné restartování, probíhá nahrávání
 servicemenu.scants Hledání kanálů
@@ -1001,11 +931,9 @@ sleeptimerbox.announce Do vypnutí chybí minuta.
 sleeptimerbox.hint1 Čas do vypnutí v minutách (000=vypnuté)
 sleeptimerbox.hint2 Po uplynutí tohoto času se vypnu.
 sleeptimerbox.title Časovač vypnutí
-streamfeatures.head Vlastnosti
 streaminfo.aratio Formát obrazu
 streaminfo.aratio_unknown Formát obrazu: neznámý
 streaminfo.audiotype Formát zvuku
-streaminfo.audiotype_unknown Formát zvuku: neznámý
 streaminfo.average_bitrate průměr
 streaminfo.bitrate Přenosová rychlost
 streaminfo.framerate Snímková rychlost
@@ -1014,12 +942,9 @@ streaminfo.head Technické informace
 streaminfo.not_available nedostupné
 streaminfo.resolution Rozlišení
 streaminfo.signal Parametry signálu
-streaming.buffer_overflow Nahrávání bylo přerušené\nprotože data nemohli být rychle uložená.
 streaming.busy Nahrávací proces aktivní.\nPokud se zpráva zobrazuje a není nic nahrávané,\nrestartujte Neutrino.
 streaming.dir_not_writable Do nahrávacího adresáře není  možné nahrávat.\nNahrávání nebude pracovat.
-streaming.success Úspěšné ukončení nahrávání.
 streaming.write_error Nahrávání bylo přerušené\nprotože vznikla chyba během zapisovacího procesu.
-streaming.write_error_open Nahrávání bylo přerušené\nprotože cílový soubor nemohl být otevřený.
 stringinput.caps velké/malé znaky
 stringinput.clear všechno smaž
 timer.eventrecord.msg  ... Ukončené, nebo neukončené
@@ -1117,21 +1042,15 @@ usermenu.item_none Nic
 usermenu.item_vtxt Teletext
 usermenu.name Název
 videomenu.csync korekce synchronizace
-videomenu.head Nastavení obrazu
-videomenu.osd OSD
-videomenu.rgb_centering centrování RGB
 videomenu.screensetup Nastavení zobrazení OSD
 videomenu.tv-scart TV SCART
-videomenu.vcr-scart VCR SCART
 videomenu.vcrsignal Typ signálu VCR výstupu
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-videomenu.vcrswitch Automatické přepnutí SCARTu
 videomenu.videoformat Formát obrazu
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
 videomenu.videoformat_149 14:9
-videomenu.videoformat_autodetect automatický
 videomenu.43mode Zobrazení formátu 4:3
 videomenu.panscan Pan&Scan
 videomenu.panscan2 14:9 Pan&Scan
@@ -1161,7 +1080,6 @@ videomenu.dbdr_none nic
 videomenu.dbdr_deblock deblock
 videomenu.dbdr_both deblock+dering
 videomenu.enabled_modes Nastavení módů pro VF klávesu
-videomenu.adjust Nastavení videa
 videomenu.contrast Kontrast
 videomenu.brightness Jas
 videomenu.sharpness Ostrost
@@ -1174,15 +1092,11 @@ zapit.scantype.tv jen TV
 zapit.scantype.tvradio TV a Radio
 zaptotimer.announce Minuta do změny kanálu.
 extra.dboxinfo Informace o systému
-extra.scan_mode Způsob prohledávání
 extra.start_tostandby Spuštění do stavu připravenosti
 extra.rounded_corners Vzhled rohů
 extra.rounded_corners_off hranatý
 extra.rounded_corners_on zaoblený
 extra.rotor_swap Vyměnit východ/západ motoru
-extra.use_log Logování do /tmp/log
-extra.spts_mode SPTS mód
-extra.hw_sect Sekce hardweru
 extra.logo Číslo loga(Startovací logo?)
 extra.scan_full Úplné prohledávání (XML+NIT)
 extra.scan_fast Rychlé prohledávání (XML)
@@ -1210,10 +1124,8 @@ hdd_check_failed Chyba kontroly disku !
 hdd_settings Nastavení HDD
 hdd_manage Správa HDD
 hdd_not_found Nenalezený disk
-extra.clear_log Vyčisti Log
 extra.zap_cycle Vypnout historii kanálů
 extra.sms_channel Mód SMS pro kanál
-extra.manual_scan Ruční prohledávání
 extra.tp_freq Kmitočet
 extra.tp_rate SymbolRate
 extra.tp_pol Polarizace
@@ -1233,16 +1145,11 @@ extra.tp_mod_32 QAM/32
 extra.tp_mod_64 QAM/64
 extra.tp_mod_128 QAM/128
 extra.tp_mod_256 QAM/256
-extra.timezone Časová zóna
 extra.zapit_menu Možnosti přepínání
 extra.zapit_make_bouquet Udělejte ostatní seznam kanálů
-extra.zapit_save_last_chan Uložit poslední kanál
 extra.zapit_motor_speed Rychlost točení (10 = 1st/sek)
 extra.zapit_fe_timeout Časový limit naladění (1 = 10 msek)
-extra.zapit_fast_zap Rychlé přepínání
-extra.zapit_sort_names Třídění kanálů podle názvu
 extra.zapit_scanpids Vyhledávání s PIDy
-extra.zapit_rezap_time Přepnout na EMU přepínacím časem
 extra.zapit_hvoltage 18V při točení motoru
 reset_channels Smazání všech kanálů
 reset_settings Návrat k přednastavenému nastavení
@@ -1270,21 +1177,14 @@ mpkey.audio Zvuková stpopa
 mpkey.time Zobrazení času
 mpkey.bookmark Ulož záložku
 mpkey.plugin Spusť PLUGIN
-extra.loadcolors Nahraj barvy z ...
-extra.savecolors Ulož barvy jako ...
 extra.loadkeys Nahraj nastavení kláves
 extra.savekeys Ulož nastavení kláves
 extra.loadconfig Nahraj nastavení z ...
 extra.saveconfig Ulož nastavení jako ...
-extra.key_click Zmáčkni tlačítko
 videomenu.videomode Obrazový mód
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 extra.key_timeshift Časový posuv
 extra.key_plugin Tlačítko zobrazující PLUGIN
 extra.timeshift_pause Pozastavení časového posuvu
-rfmod.rfmod Modulátor RF
 rfmod.carrier Nosný kmitočet
 rfmod.carrier4500 4.5
 rfmod.carrier5500 5.5
@@ -1320,12 +1220,10 @@ extra.north Severně
 extra.east Východně
 extra.west Západně
 options.on.without_messages Bez zpráv
-extra.zapit_scan_sdt Prohledávání SDT pro aktualizaci
 extra.zapit_sdt_changed Změněné kanály, načítání nastavení.
 extra.auto_timeshift Auto-nahrávání, sec (0=vypnuté)
 extra.temp_timeshift Dočasný časový posuv
 extra.auto_delete Auto-mazání
-extra.auto_to_record Přesun časového posuvu do nahrávek
 extra.record_time Rychlý čas nahrávání (hodiny)
 extra.fec_s2_qpsk_1_2 1/2 s2 qpsk
 extra.fec_s2_qpsk_2_3 2/3 s2 qpsk

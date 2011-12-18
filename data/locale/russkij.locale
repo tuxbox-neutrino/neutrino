@@ -6,26 +6,7 @@ EPGMenu.streaminfo техническая информация канала
 EPGPlus.actions Действия 
 EPGPlus.bybouquet_mode по пакетам 
 EPGPlus.bypage_mode по страницам 
-EPGPlus.change_font_size Размер шрифта 
-EPGPlus.change_font_style Вид шрифта 
-EPGPlus.change_size Изменить размер 
-EPGPlus.channelentry_font Шрифт для Канала
-EPGPlus.channelentry_separationlineheight Высота строк
-EPGPlus.channelentry_width Ширина ячейки канала
-EPGPlus.channelevententry_font Шрифт для Передачи
-EPGPlus.edit_fonts Установка шрифтов 
-EPGPlus.edit_sizes Установка размеров 
-EPGPlus.font_style_bold Жирный
-EPGPlus.font_style_italic Курсив
-EPGPlus.font_style_regular Обычный
-EPGPlus.footer_fontbouquetchannelname Шрифт инф.канала в сноске
-EPGPlus.footer_fontbuttons Шрифт подписей кнопок
-EPGPlus.footer_fonteventdescription Шрифт названия передачи в сноске
-EPGPlus.footer_fonteventshortdescription Шрифт инф.передачи в сноске 
 EPGPlus.head Телегид по всем каналам (просмотр/обзор)
-EPGPlus.header_font Шрифт Заголовка
-EPGPlus.horgap1_height Высота верх.поля раздела
-EPGPlus.horgap2_height Высота ниж.поля раздела
 EPGPlus.next_bouquet Пакет вперед 
 EPGPlus.options Опции
 EPGPlus.page_down вниз страница
@@ -34,18 +15,10 @@ EPGPlus.prev_bouquet Пакет обратно
 EPGPlus.record запись
 EPGPlus.refresh_epg обновить
 EPGPlus.remind запомнить
-EPGPlus.reset_settings Настройки по умолчанию 
-EPGPlus.save_settings Сохранить настройки
 EPGPlus.scroll_mode Scroll Mode
 EPGPlus.select_font_name Выбор шрифта
-EPGPlus.settings Настройки
-EPGPlus.slider_width Ширина поля всех программ
 EPGPlus.stretch_mode Stretch Mode
 EPGPlus.swap_mode режим обмена
-EPGPlus.timeline_fontdate Шрифт даты
-EPGPlus.timeline_fonttime Шрифт времени
-EPGPlus.vergap1_width Ширина прав.поля раздела
-EPGPlus.vergap2_width Ширина лев.поля раздела
 EPGPlus.view_mode режим просмотра
 GENRE.ARTS.0 искусство / культура
 GENRE.ARTS.1 исполнительное искусство (танец, пьеса т.д.)
@@ -129,13 +102,9 @@ apidselector.head Выбор языка
 audiomenu.PCMOffset Уменьшение громкости PCM
 audiomenu.analogout Аналоговый выход
 audiomenu.avs avs
-audiomenu.avs_control Управление громкостью avs/ost
 audiomenu.dolbydigital Dolby Digital
-audiomenu.head Аудио Настройки
-audiomenu.lirc lirc
 audiomenu.monoleft левое моно
 audiomenu.monoright правое моно
-audiomenu.ost ost
 audiomenu.stereo стерео
 audioplayer.add Добавить
 audioplayer.artist_title Артист, Название
@@ -211,14 +180,11 @@ colorchooser.red красный
 colormenu.background Фон
 colormenu.fade Fade-режим для меню
 colormenu.font Размер шрифта
-colormenu.gtx_alpha Прозрачность (GTX)
-colormenu.head Настройки цвета
 colormenu.menucolors Выбор цветов в меню
 colormenu.statusbar Информационная панель
 colormenu.textcolor Цвет текста
 colormenu.themeselect Выбор темы
 colormenu.timing Время показа OSD
-colormenusetup.head Выбор цветов в меню
 colormenusetup.menucontent Содержимое окна
 colormenusetup.menucontent_inactive Содержимое окна неактивное
 colormenusetup.menucontent_selected Содержимое окна выбранное
@@ -268,12 +234,10 @@ extra.add_to_bouquet Канал в пакет
 extra.audio_run_player Audio key start player
 extra.auto_delete Auto-delete
 extra.auto_timeshift Auto-record, sec (0 = disable)
-extra.auto_to_record Move timeshift to records
 extra.cache Cache
 extra.cache_txt Cache teletext
 extra.chadded Канал добавлен в выбранный пакет....\n
 extra.chalreadyinbq Канал уже существует в выбранном пакете....\n
-extra.clear_log Clear Log
 extra.dboxinfo Box Info
 extra.debug Debug
 extra.dvbsnoop DVB Stream Info
@@ -314,14 +278,11 @@ extra.hdd_reiser Reiserfs
 extra.hdd_settings HDD Settings
 extra.hdd_sleep Sleep time
 extra.hdd_slow Slow
-extra.hw_sect Hardware Sections
-extra.key_click Key click
 extra.key_plugin One touch plugin
 extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadcolors Load colors from
 extra.loadconfig Load settings from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
@@ -331,7 +292,6 @@ extra.logo2 2
 extra.logo3 3
 extra.logview View Log
 extra.longitude Longitude
-extra.manual_scan Manual scan
 extra.menu_left_exit Left = выход из меню
 extra.mg_ecm_timeout Network ecm timeout
 extra.mg_netoptions Network options
@@ -342,18 +302,14 @@ extra.mg_reread Reread files on zap
 extra.north North
 extra.record_time Fast/timeshift record time(hours)
 extra.rotor_swap Swap rotor east/west
-extra.savecolors Save colors as
 extra.saveconfig Save settings as
 extra.savekeys Save keys as
 extra.scan_fast Fast
 extra.scan_full Full
-extra.scan_mode Scan mode
 extra.sms_channel sms-mode channel
 extra.south South
-extra.spts_mode SPTS mode
 extra.start_tostandby Startup to standby
 extra.timeshift_pause Timeshift pause
-extra.timezone Timezone
 extra.tp.pol_v V
 extra.tp_fec FEC
 extra.tp_freq Frequency
@@ -368,24 +324,18 @@ extra.tp_pol_h H
 extra.tp_rate Symbol rate
 extra.update_dir Каталог для обновлений
 extra.use_gotoxx Use gotoXX
-extra.use_log Log to /tmp/log
 extra.west West
 extra.zap_cycle Zap cycle
 extra.zapit_backup Backup channels to /tmp
 extra.zapit_delete Delete channels
-extra.zapit_fast_zap fast zap
 extra.zapit_fe_timeout Tune timeout
 extra.zapit_hvoltage High (13.5/18.5) voltage
 extra.zapit_make_bouquet Make Remaining Channels list
 extra.zapit_menu Параметры Zapit
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
 extra.zapit_restore Restore channels from /tmp
-extra.zapit_rezap_time Re-Zap on emu switch time
-extra.zapit_save_last_chan Save last channel
-extra.zapit_scan_sdt Scan SDT for updates
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
-extra.zapit_sort_names Sort ch. by name
 extra.zapit_write_names Имена каналов в bouquets.xml
 favorites.addchannel Этот канал будет добавлен \nв пакет каналов "Избранное". \n Это займет несколько секунд...
 favorites.bouquetname Избранное
@@ -420,10 +370,8 @@ flashupdate.actionreadflash чтение
 flashupdate.cantopenfile не могу открыть файл
 flashupdate.cantopenmtd не могу открыть устройство mtd
 flashupdate.checkupdate поиск новой версии
-flashupdate.currentreleasecycle Версия релиза
 flashupdate.currentversion_sep Текущая версия
 flashupdate.currentversiondate Дата
-flashupdate.currentversionsnapshot Тип прошивки
 flashupdate.currentversiontime Время
 flashupdate.erasefailed не могу стереть флешь
 flashupdate.erasing стирание флешь
@@ -564,13 +512,10 @@ lcdcontroler.brightness Яркость
 lcdcontroler.brightnessstandby Яркость деж.режима
 lcdcontroler.contrast Контрастность
 lcdcontroler.head ЖК Настройки
-lcdmenu.autodimm Авто dimm
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head ЖК Настройки
-lcdmenu.inverse Инвертировать изображение
 lcdmenu.lcdcontroler Контрастность / Яркость
-lcdmenu.power Питание
 lcdmenu.statusline В строке статуса
 lcdmenu.statusline.both громкость / время
 lcdmenu.statusline.playtime время 
@@ -618,7 +563,6 @@ miscsettings.epg_old_hours Events old after (hours)
 miscsettings.epg_save Save/Restore epg on reboot
 miscsettings.general Основное
 miscsettings.head Прочие настройки
-miscsettings.hwsections HW-Sections использовать
 miscsettings.infobar_sat_display Название спутника на инфопанели
 miscsettings.shutdown_real Включить дежурный режим
 miscsettings.shutdown_real_rcdelay Задержка выключения
@@ -748,18 +692,11 @@ movieplayer.bookmark Закладки
 movieplayer.bookmarkname Название закладки
 movieplayer.bookmarkname_hint1 Введите название
 movieplayer.bookmarkname_hint2 для новой закладки
-movieplayer.buffering Буферизация...
-movieplayer.defdir Каталог по умолчанию
 movieplayer.defplugin Старт плагина
 movieplayer.dvdplayback Просмотр DVD (VLC)
 movieplayer.fileplayback Просмотр файлов (VLC)
-movieplayer.goto Прыгнуть в ...
-movieplayer.goto.h1 = -> абсолютный прыжок
-movieplayer.goto.h2 +,- -> относительный прыжок
 movieplayer.head Видеоплеер
-movieplayer.nostreamingserver Стрим-сервер недоступен.
 movieplayer.pesplayback Просмотр PES-файлов
-movieplayer.pleasewait Подождите пожалуйста.\nСоединение со стрим-сервером...
 movieplayer.toomanybookmarks Слишком много закладок.\n Удалите одну из уже существующих.
 movieplayer.tshelp1 стоп 
 movieplayer.tshelp10 назад на 10 мин. 
@@ -775,19 +712,6 @@ movieplayer.tshelp8 назад на 5 мин.
 movieplayer.tshelp9 вперед на 5 мин.
 movieplayer.tsplayback Просмотр TS-файлов
 movieplayer.vcdplayback Просмотр (S)VCD (VLC)
-movieplayer.vlchelp1 стоп 
-movieplayer.vlchelp10 назад на 10 мин. 
-movieplayer.vlchelp11 вперед на 10 мин.
-movieplayer.vlchelp12 подробнее смотри на: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.vlchelp2 ресинхронизазия
-movieplayer.vlchelp3 пауза/продолжить
-movieplayer.vlchelp4 добавить закладку 
-movieplayer.vlchelp5 общее время
-movieplayer.vlchelp6 назад на 1 мин. 
-movieplayer.vlchelp7 вперед на 1 мин.
-movieplayer.vlchelp8 назад на 5 мин. 
-movieplayer.vlchelp9 вперед на 5 мин.
-movieplayer.wrongvlcversion Эта функция не поддерживается текущей версией VLC 
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
@@ -800,7 +724,6 @@ mpkey.time Show time
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Основной шлюз
-networkmenu.head Настройки сети
 networkmenu.ipaddress IP-адрес
 networkmenu.mount NFS/CIFS/FTPFS
 networkmenu.nameserver DNS-сервер
@@ -857,8 +780,6 @@ parentallock.never не использовать
 parentallock.onsignal на все
 parentallock.parentallock Возрастная защита
 parentallock.prompt Зашита PIN-кодом
-pictureviewer.decode_server_ip decode server ip
-pictureviewer.decode_server_port decode server port
 pictureviewer.defdir Каталог по умолчанию
 pictureviewer.head Просмотр картинок
 pictureviewer.help1 Режим меню
@@ -908,9 +829,7 @@ recordingmenu.apids default audio streams
 recordingmenu.apids_ac3 record AC3 streams
 recordingmenu.apids_alt record alternative streams
 recordingmenu.apids_std record standard stream
-recordingmenu.choose_direct_rec_dir куда вести запись
 recordingmenu.defdir Каталог для записи
-recordingmenu.epg_for_filename имя файла с данными о программе
 recordingmenu.file direkt (в файл)
 recordingmenu.help Режимы записи:\n--------------------------\nсервер:\nиспользуется софт установленный на ПК\n\n(analog) vcr:\nиспользуется выход для видеомагнитофона\n\ndirect (в файл):\nзапись в предварительно монтированный NFS-каталог\nили в каталоги внутреннего жесткого диска\nTS: использует spts-режим (для Dbox2)\nPES: spts-режим должен быть выключен (для Dbox2)\n\n\nМакс.размер файла:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: без ограничений (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.off отключить
@@ -931,7 +850,6 @@ rfmod.carrier6500 6.5
 rfmod.channel Channel
 rfmod.enable Enable sound
 rfmod.finetune Fine tune
-rfmod.rfmod RF modulator
 rfmod.standby Enable modulator
 rfmod.test Test pattern
 satsetup.diseqc DiSEqC
@@ -942,10 +860,8 @@ satsetup.diseqcrepeat DiSEqC-повторы
 satsetup.extended Настройки DiSEqC
 satsetup.extended_motor Настройки мотора
 satsetup.minidiseqc мини-DiSEqC
-satsetup.motorcontrol Ручная настройка мотора
 satsetup.nodiseqc без DiSEqC
 satsetup.satellite Спутники
-satsetup.savesettingsnow сохранить изменения
 satsetup.smatvremote SMATV Remote Tuning
 scants.abort_body Should the search really be aborted?
 scants.abort_header Abortion of channel scan
@@ -978,7 +894,6 @@ servicemenu.imageinfo Image info
 servicemenu.reload Перегрузить список каналов
 servicemenu.reload_hint Перезагрузка списка каналов,\nвыполняется...
 servicemenu.restart Soft restart
-servicemenu.restart_failed Restart failed
 servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Поиск каналов
@@ -996,11 +911,9 @@ sleeptimerbox.announce Отключение через 1 минуту
 sleeptimerbox.hint1 Время до выключения в минутах. (000=откл)
 sleeptimerbox.hint2 Ваш Dbox будет выключен через указанное время.
 sleeptimerbox.title Таймер перехода в дежурный режим
-streamfeatures.head Меню дополнений
 streaminfo.aratio Aspect Ratio
 streaminfo.aratio_unknown Aspect Ratio: неизвестный
 streaminfo.audiotype Audiotype
-streaminfo.audiotype_unknown Audiotype: неизвестный
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: неизвестный
@@ -1008,12 +921,9 @@ streaminfo.head Информация о потоке
 streaminfo.not_available не представлен
 streaminfo.resolution Resolution
 streaminfo.signal сигнал
-streaming.buffer_overflow Запись прервана,\n скорость получения данных низкая.
 streaming.busy Идет запись!\n Если запись не включена, а Вы получили это сообщение, то пожалуйста перегрузите Neutrino.
 streaming.dir_not_writable Нет доступа в папку для записи.\nЗапись не возможна.
-streaming.success Запись прошла успешно.
 streaming.write_error Запись прервана,\n ошибка в процессе самой записи.
-streaming.write_error_open Запись прервана,\n файл для записи не может быть открыт.
 stringinput.caps большие / маленькие
 stringinput.clear очистить все
 timer.eventrecord.msg   ... Быть или не быть? ;-)
@@ -1098,25 +1008,16 @@ timing.infobar Инфопанель
 timing.menu Меню
 timing.numericzap При наборе цифрами с пульта
 videomenu.csync корекция синхронизации
-videomenu.head Настройки видео-изображения
-videomenu.osd OSD
-videomenu.rgb_centering Центровка RGB
 videomenu.screensetup Настройки экрана
 videomenu.tv-scart TV Scart
-videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR Output Signal Type
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-videomenu.vcrswitch Авто-включение на SCART
 videomenu.videoformat Формат
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect авто-формат
 videomenu.videomode Video system
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 videomenu.videosignal Видео-выход
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

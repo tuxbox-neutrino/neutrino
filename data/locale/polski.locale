@@ -7,26 +7,7 @@ EPGMenu.streaminfo Informacje o strumieniu
 EPGPlus.actions Akcje
 EPGPlus.bybouquet_mode bukietami
 EPGPlus.bypage_mode stronami
-EPGPlus.change_font_size Rozmiar
-EPGPlus.change_font_style Styl
-EPGPlus.change_size Podaj wielkość
-EPGPlus.channelentry_font Nazwa kanału
-EPGPlus.channelentry_separationlineheight Wysokość separatorów
-EPGPlus.channelentry_width Szerokość kolumny z kanałami
-EPGPlus.channelevententry_font Tytuł programu
-EPGPlus.edit_fonts Edycja czcionek
-EPGPlus.edit_sizes Edycja rozmiarów
-EPGPlus.font_style_bold pogrubiony
-EPGPlus.font_style_italic kursywa
-EPGPlus.font_style_regular normalny
-EPGPlus.footer_fontbouquetchannelname Pasek: Bukiet
-EPGPlus.footer_fontbuttons Pasek: Funkcje
-EPGPlus.footer_fonteventdescription Pasek: Tytuł programu
-EPGPlus.footer_fonteventshortdescription Pasek: Opis programu
 EPGPlus.head Multi EPG
-EPGPlus.header_font Nagłówek
-EPGPlus.horgap1_height Wysokość górnego odstępu
-EPGPlus.horgap2_height Wysokość dolnego odstępu
 EPGPlus.next_bouquet Następny bukiet
 EPGPlus.options Opcje
 EPGPlus.page_down Poprzednia strona
@@ -35,17 +16,9 @@ EPGPlus.prev_bouquet Poprzedni bukiet
 EPGPlus.record Nagraj
 EPGPlus.refresh_epg Odśwież
 EPGPlus.remind Przełącz 
-EPGPlus.reset_settings Przywróć ustawienia domyślne
-EPGPlus.save_settings Zapisz ustawienia
 EPGPlus.scroll_mode przewijanie
-EPGPlus.settings Ustawienia
-EPGPlus.slider_width Szerokość suwaka 
 EPGPlus.stretch_mode rozciąganie
 EPGPlus.swap_mode Rodzaj przewijania
-EPGPlus.timeline_fontdate Data
-EPGPlus.timeline_fonttime Czas
-EPGPlus.vergap1_width Szerokość lewego odstępu
-EPGPlus.vergap2_width Szerokość prawego odstępu
 EPGPlus.view_mode Tryb wyświetlania
 GENRE.ARTS.0 sztuka/kultura
 GENRE.ARTS.1 sztuki plastyczne
@@ -136,16 +109,12 @@ audiomenu.analog_out Dźwięk analogowy
 audiomenu.auto_lang Automatyczny wybór ścieżki audio
 audiomenu.auto_subs Automatyczny wybór napisów
 audiomenu.avs avs
-audiomenu.avs_control Tryb sterowania głośnością
 audiomenu.avsync Synchronizacja audio-wideo
 audiomenu.avsync_am główne audio
 audiomenu.dolbydigital Preferowanie ścieżki Dolby Digital
 audiomenu.hdmi_dd Dolby Digital przez HDMI
-audiomenu.head Ustawienia dźwięku
-audiomenu.lirc lirc
 audiomenu.monoleft mono lewy kanał
 audiomenu.monoright mono prawy kanał
-audiomenu.ost ost
 audiomenu.pref_lang Preferowany język audio
 audiomenu.pref_lang_head Preferencje audio/EPG
 audiomenu.pref_languages Preferencje językowe
@@ -259,16 +228,13 @@ colormenu.background Kolor tła
 colormenu.fade Zanikanie menu
 colormenu.font Font OSD
 colormenu.font_ttx Font teletekstu
-colormenu.gtx_alpha Przezroczystość (GTX)
 colormenu.hd_preset HD (LCD/PDP)
-colormenu.head Ustawienia kolorów
 colormenu.menucolors Kolory menu
 colormenu.osd_preset Rodzaj TV
 colormenu.sd_preset SD (CRT)
 colormenu.textcolor Kolor tekstu
 colormenu.themeselect Wybór tematów
 colormenu.timing Czasy wyświetlania OSD
-colormenusetup.head Kolory menu
 colormenusetup.menucontent Zawartość okna
 colormenusetup.menucontent_inactive Nieaktywna zawartość okna
 colormenusetup.menucontent_selected Wybrana zawartość okna
@@ -325,12 +291,10 @@ extra.add_to_bouquet Dodaj do bukietu
 extra.audio_run_player Przycisk audio rozpoczyna odtwarzanie 
 extra.auto_delete Kasowanie plików tymczasowych
 extra.auto_timeshift Timeshift po (s, 0-wył)
-extra.auto_to_record Przesuń timeshift do ngrań
 extra.bigwindows Duże okna
 extra.cache_txt Buforowanie teletekstu
 extra.chadded Obecny kanał został dodany do wybranego bukietu....\n
 extra.chalreadyinbq The current channel is already in selected bouquet....\n
-extra.clear_log Wyczyść Log 
 extra.dboxinfo Informacje o systemie
 extra.east wschód
 extra.fec_1_2 1/2
@@ -356,8 +320,6 @@ extra.fec_s2_qpsk_5_6 5/6 S2 QPSK
 extra.fec_s2_qpsk_7_8 7/8 S2 QPSK
 extra.fec_s2_qpsk_8_9 8/9 S2 QPSK
 extra.fec_s2_qpsk_9_10 9/10 S2 QPSK
-extra.hw_sect Sprzętowe przetwarzanie sekcji
-extra.key_click Wciśnij przycisk
 extra.key_list_end koniec
 extra.key_list_start rozpocznij
 extra.key_plugin Przycisk wywołujący plugin
@@ -365,13 +327,11 @@ extra.key_timeshift Timeshift
 extra.key_unlock Odblokuj
 extra.ladirection Kierunek szerokości geogr.
 extra.latitude Szerokość geograficzna
-extra.loadcolors Wczytaj...
 extra.loadconfig Wczytaj...
 extra.loadkeys Wczytaj ustawienia pilota
 extra.lodirection Kierunek długości geogr.
 extra.logo Logo startowe
 extra.longitude Długość geograficzna
-extra.manual_scan Ręczne skanowanie
 extra.menu_left_exit "Lewy" - powrót do poprzedniego menu
 extra.north północ
 extra.record_time Bufor opcji timeshift (godz.)
@@ -379,20 +339,16 @@ extra.rotor_swap Zamiana kierunków obrotnicy
 extra.rounded_corners Kształt narożników menu
 extra.rounded_corners_off proste
 extra.rounded_corners_on zaokrąglone 
-extra.savecolors Zapisz jako...
 extra.saveconfig Zapisz jako...
 extra.savekeys Zapisz ustawienia pilota
 extra.scan_fast szybkie
 extra.scan_full pełne
-extra.scan_mode Tryb wyszukiwania
 extra.scrambled_message Informacja o braku uprawnień
 extra.sms_channel Tryb sms dla kanału 
 extra.south południe
-extra.spts_mode Tryb SPTS
 extra.start_tostandby Tryb gotowości po uruchomieniu
 extra.temp_timeshift Osobny katalog dla timeshift/pauzy
 extra.timeshift_pause Pauza
-extra.timezone Strefa czasowa
 extra.tp.pol_v V
 extra.tp_fec FEC
 extra.tp_freq Częstotliwość
@@ -407,21 +363,16 @@ extra.tp_pol_h H
 extra.tp_rate SR
 extra.update_dir Katalog aktualizacji
 extra.use_gotoxx Użyj "gotoXX"
-extra.use_log Loguj do /tmp/log
 extra.volume_pos Poz. wskaźnika głośności
 extra.west zachód
 extra.zap_cycle Wyłącz historię programów
-extra.zapit_fast_zap Szybkie przełączenie
 extra.zapit_fe_timeout Przekroczony czas
 extra.zapit_hvoltage Podwyższone napięcie (13.5/18.5)
 extra.zapit_make_bouquet Wykonaj pozostałe listy kanałów 
 extra.zapit_menu Opcje przełączania
 extra.zapit_motor_speed Prędkość obrotnicy (10=1°/sec)
-extra.zapit_save_last_chan Zapisz ostatni kanał
-extra.zapit_scan_sdt Szukaj SDT dla aktualizacji
 extra.zapit_scanpids PID
 extra.zapit_sdt_changed Zmieniono kanały, przeładuj ustawienia.
-extra.zapit_sort_names Sortuj kanały wg. nazwy 
 extra.zapit_write_names Wprowadź nazwę kanału
 fan_speed Prędkość wentylatora
 favorites.addchannel Bieżący kanał zostanie dodany do bukietu \n"Ulubione". \nProszę czekać...
@@ -458,10 +409,8 @@ flashupdate.actionreadflash Odczyt partycji
 flashupdate.cantopenfile Nie można otworzyć pliku.
 flashupdate.cantopenmtd Nie można otworzyć urządzenia MTD.
 flashupdate.checkupdate Pokaż dostępne aktualizacje
-flashupdate.currentreleasecycle Wersja
 flashupdate.currentversion_sep Zainstalowane oprogramowanie
 flashupdate.currentversiondate Data
-flashupdate.currentversionsnapshot Typ
 flashupdate.currentversiontime Godzina
 flashupdate.erasefailed Kasowanie pamięci flash nie powiodło się.
 flashupdate.erasing Kasowanie pamięć flash
@@ -718,7 +667,6 @@ miscsettings.epg_old_events_hint2 pokazywać stare wpisy.
 miscsettings.epg_save Zapis i przywracanie EPG 
 miscsettings.general Ogólne
 miscsettings.head Ustawienia różne
-miscsettings.hwsections użyj sekcji hardware
 miscsettings.infobar Belka informacyjna
 miscsettings.infobar_casystem_display Ikony systemów kodowania
 miscsettings.infobar_casystem_mini mini
@@ -733,7 +681,6 @@ miscsettings.infobar_show Pokaż pasek po zmianie epg
 miscsettings.infobar_show_res Pokaż rozdzielczość
 miscsettings.infobar_show_res_simple prosta
 miscsettings.infobar_show_var_hdd Paski zapełnienia pamięci flash i dysku
-miscsettings.show_infomenu Menu informacyjne
 miscsettings.shutdown_count Całkowite wyłączenie po (min, 0-wył)
 miscsettings.shutdown_count_hint1 Czas w minutach, po którym odbiornik w trybie 
 miscsettings.shutdown_count_hint2 gotowości wyłączy się całkowicie (0-wył).
@@ -894,17 +841,10 @@ movieplayer.bookmark Zakładki
 movieplayer.bookmarkname Nazwa zakładki
 movieplayer.bookmarkname_hint1 Podaj nazwę nowej zakładki
 movieplayer.bookmarkname_hint2 Podaj nazwę nowej zakładki
-movieplayer.buffering Trwa buforowanie...
-movieplayer.defdir Katalog startowy
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Odtwórz plik...
-movieplayer.goto Skocz do ...
-movieplayer.goto.h1 = -> skok bezwzględny
-movieplayer.goto.h2 +,- -> skok względny
 movieplayer.head Odtwarzacz filmów
-movieplayer.nostreamingserver Nawiązanie połączenia z serwerem\nstrumieniowania nie powiodło się.
 movieplayer.pesplayback Odtwarzaj PES 
-movieplayer.pleasewait Proszę czekać. Trwa nawiązywanie\npołączenia z serwerem strumieniowania.
 movieplayer.toomanybookmarks Za dużo zakładek. Aby dodać\nkolejną musisz jedną usunąć.
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 przesuń 10 min do tyłu
@@ -920,7 +860,6 @@ movieplayer.tshelp8 przesuń 5 min do tyłu
 movieplayer.tshelp9 przesuń 5 min do przodu 
 movieplayer.tsplayback Odtwarzaj TS
 movieplayer.vcdplayback (S)VCD
-movieplayer.wrongvlcversion Ta opcja nie jest wspierana przez twoją wersję VLC 
 mpkey.audio Utwór audio
 mpkey.bookmark zapisz zakładkę
 mpkey.forward Do przodu
@@ -936,7 +875,6 @@ networkmenu.broadcast Adres rozgłoszenia
 networkmenu.dhcp DHCP
 networkmenu.error_no_address %s nie został(a) wprowadzony!
 networkmenu.gateway Adres bramy
-networkmenu.head Ustawienia sieciowe
 networkmenu.hostname Nazwa hosta
 networkmenu.inactive_network Sieć nieaktywna!
 networkmenu.ipaddress Adres IP
@@ -1008,8 +946,6 @@ parentallock.never nigdy
 parentallock.onsignal sygnał nadawcy
 parentallock.parentallock Blokada rodzicielska
 parentallock.prompt Żądanie kodu PIN
-pictureviewer.decode_server_ip IP serwera dekodującego
-pictureviewer.decode_server_port Port serwera dekodującego
 pictureviewer.defdir Katalog startowy
 pictureviewer.head Przeglądarka obrazów
 pictureviewer.help1 Funkcje przycisków w menu
@@ -1060,9 +996,7 @@ recordingmenu.apids Ścieżki audio
 recordingmenu.apids_ac3 Nagrywanie ścieżki Dolby Digital
 recordingmenu.apids_alt Nagrywanie pozostałych ścieżek 
 recordingmenu.apids_std Nagrywanie standardowej ścieżki
-recordingmenu.choose_direct_rec_dir Wybierz katalog dla nagrywania
 recordingmenu.defdir Katalog nagrań
-recordingmenu.epg_for_filename długie nazwy (z danych EPG)
 recordingmenu.file dysk
 recordingmenu.help Urządzenia nagrywające:\n--------------------------------------\nserwer:\nwykorzystuje serwer strumieniowania\n\nmagnetowid:\nwykorzystuje gniazdo magnetowidu (drugi scart)\n\ndysk:\nwykorzystuje zasób sieciowy (NFS)\nlub wewnętrzny dysk twardy\nTS: używaj trybu SPTS(Dbox2)\nPES: nie używaj trybu SPTS(Dbox2)\n\n\nMaksymalny rozmiar pliku:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: bez ograniczeń (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)\n\nDla NFS (UDP) zaleca się zapis synchroniczny
 recordingmenu.off wyłączone
@@ -1087,7 +1021,6 @@ rfmod.carrier6500 6.5
 rfmod.channel kanał
 rfmod.enable Włącz dźwięk
 rfmod.finetune Pomyslne strojenie
-rfmod.rfmod Modulator RF
 rfmod.standby Włącz modulator
 rfmod.test Test obrazu
 satsetup.auto_scan Auto. przeszukiwanie jednego satelity
@@ -1100,10 +1033,8 @@ satsetup.diseqc12 DiSEqC 1.2
 satsetup.diseqc_advanced zaawansowane
 satsetup.diseqc_com_uncom Podłączone/Niepodłączone
 satsetup.diseqc_input Wejście przełącznika DiSEqC
-satsetup.diseqc_order Wejście
 satsetup.diseqc_uncom_com Niepodłączone/Podłączone
 satsetup.diseqcrepeat Liczba powtórzeń DiSEqC
-satsetup.do_scan Wprowadź wszystkie do skanowania 
 satsetup.extended Konfiguracja DiSEqC
 satsetup.extended_motor Konfiguracja siłownika
 satsetup.fastscan_all kanały SD i HD
@@ -1121,11 +1052,9 @@ satsetup.lofs Offset przełączania
 satsetup.manual_scan Wyszukiwanie ręczne
 satsetup.minidiseqc mini-DiSEqC
 satsetup.motor_pos Pozycja obrotnicy
-satsetup.motorcontrol Ręczna konfiguracja siłownika
 satsetup.nodiseqc brak
 satsetup.sat_setup Ustawienia wejść LNB dla satelity
 satsetup.satellite Satelita
-satsetup.savesettingsnow Zapisz ustawienia
 satsetup.smatvremote SMATV
 satsetup.uncomm_input Wejście niepodłączone 
 satsetup.usals_repeat Powtarzanie USALS
@@ -1174,7 +1103,6 @@ servicemenu.imageinfo Informacje o oprogramowaniu
 servicemenu.reload Przeładowanie listy kanałów
 servicemenu.reload_hint Trwa przeładowywanie list kanałów, proszę czekać...
 servicemenu.restart Restart Neutrino
-servicemenu.restart_failed Wystąpił błąd podczas restartu!
 servicemenu.restart_hint Zatrzymywanie Neutrino, proszę czekać...
 servicemenu.restart_refused_recording Nie można wykonać restartu, trwa nagrywanie.
 servicemenu.scants Wyszukiwanie kanałów
@@ -1199,11 +1127,9 @@ sleeptimerbox.announce Odbiornik zostanie wyłączony za minutę.
 sleeptimerbox.hint1 Czas do wyłączenia w minutach (000-wył)
 sleeptimerbox.hint2 Po upływie tego czasu, odbiornik zostanie wyłączony.
 sleeptimerbox.title Wyłącznik czasowy
-streamfeatures.head Funkcje
 streaminfo.aratio Proporcje
 streaminfo.aratio_unknown Proporcje: nieznane
 streaminfo.audiotype Format dźwięku
-streaminfo.audiotype_unknown Format dźwięku: nieznany
 streaminfo.bitrate Szybkość transmisji:
 streaminfo.framerate Klatek/s
 streaminfo.framerate_unknown Klatek/s: brak danych
@@ -1211,12 +1137,9 @@ streaminfo.head Informacje o strumieniu
 streaminfo.not_available niedostępne
 streaminfo.resolution Rozdzielczość
 streaminfo.signal Parametry sygnału
-streaming.buffer_overflow Nagrywanie zostało przerwane z powodu zbyt dużych opóźnień w zapisie.
 streaming.busy Proces nagrywania wciąż trwa. Jeśli ten komunikat się powtarza,\na nie jesteś w trakcie nagrywania, zrestartuj Neutrino.
 streaming.dir_not_writable Brak możliwości zapisu do katalogu nagrań.\nNagrywanie nie będzie działać.
-streaming.success Nagrywanie zakończone sukcesem.
 streaming.write_error Nagrywanie zostało przerwane z powodu błędu w trakcie zapisu.
-streaming.write_error_open Nagrywanie zostało przerwane z powodu błędu otwarcia pliku do zapisu.
 stringinput.caps wielkie/małe litery
 stringinput.clear usuń wszystko
 subtitles.head Napisy
@@ -1317,7 +1240,6 @@ usermenu.item_vtxt Teletekst
 usermenu.name Nazwa
 video_mode_ok Czy ten tryb wideo działa poprawnie?
 videomenu.43mode Tryb 4:3
-videomenu.adjust Dostrajanie obrazu
 videomenu.analog_hd_rgb_cinch RGB cinch (HD)
 videomenu.analog_hd_rgb_scart RGB scart (HD)
 videomenu.analog_hd_yprpb_cinch YPbPr cinch (HD)
@@ -1345,13 +1267,10 @@ videomenu.hdmi_cec_mode_recorder nagrywarka
 videomenu.hdmi_cec_mode_tuner odbiornik
 videomenu.hdmi_cec_standby Stan gotowości po wył. TV
 videomenu.hdmi_cec_view_on Włączanie TV
-videomenu.head Ustawienia obrazu
 videomenu.hue Odcień
 videomenu.letterbox letterbox
-videomenu.osd Grafika ekranowa
 videomenu.panscan Pan&Scan
 videomenu.panscan2 Pan&Scan 14:9
-videomenu.rgb_centering Wyśrodkowanie RGB
 videomenu.saturation Nasycenie
 videomenu.scart Scart
 videomenu.screensetup Widoczna część obrazu
@@ -1361,11 +1280,7 @@ videomenu.videoformat Proporcje obrazu
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3
-videomenu.videoformat_autodetect automatycznie
 videomenu.videomode Sygnał cyfrowy
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 word.from Od
 zapit.scantype Wyszukaj kanały
 zapit.scantype.all wszystkie

@@ -7,26 +7,7 @@ EPGMenu.streaminfo Teknisk information
 EPGPlus.actions Åtgärder
 EPGPlus.bybouquet_mode av bouquet
 EPGPlus.bypage_mode av sida
-EPGPlus.change_font_size Byt textstorlek
-EPGPlus.change_font_style Byt textutseende
-EPGPlus.change_size Byt storlek
-EPGPlus.channelentry_font Kanaler
-EPGPlus.channelentry_separationlineheight höjden av linje mellan poster
-EPGPlus.channelentry_width längd av kanalnamn
-EPGPlus.channelevententry_font Program
-EPGPlus.edit_fonts Edit text
-EPGPlus.edit_sizes Edit storlekar
-EPGPlus.font_style_bold fet
-EPGPlus.font_style_italic kursiv
-EPGPlus.font_style_regular vanlig
-EPGPlus.footer_fontbouquetchannelname Valt bouquet-/kanalnamn
-EPGPlus.footer_fontbuttons Knappar
-EPGPlus.footer_fonteventdescription Title 1 valt Prog.
-EPGPlus.footer_fonteventshortdescription Title 2 valt Prog.
 EPGPlus.head Händelselistvy (EPG Plus)
-EPGPlus.header_font Huvud
-EPGPlus.horgap1_height höjd hor. gap 1
-EPGPlus.horgap2_height höjd hor. gap 2
 EPGPlus.next_bouquet Nästa bouquet
 EPGPlus.options Optioner
 EPGPlus.page_down Sida ner
@@ -35,18 +16,10 @@ EPGPlus.prev_bouquet Föregående bouquet
 EPGPlus.record Spela in
 EPGPlus.refresh_epg Uppdatera
 EPGPlus.remind Schema
-EPGPlus.reset_settings Återställ inställningar
-EPGPlus.save_settings Spara inställningar
 EPGPlus.scroll_mode Scroll läge
 EPGPlus.select_font_name Textval
-EPGPlus.settings Inställningar
-EPGPlus.slider_width rullist bredd
 EPGPlus.stretch_mode Utdragningsläge
 EPGPlus.swap_mode hoppa-över läge
-EPGPlus.timeline_fontdate Tidsskala Datum
-EPGPlus.timeline_fonttime Tidsskala Tid
-EPGPlus.vergap1_width längd ver. gap 1
-EPGPlus.vergap2_width längd ver. gap 2
 EPGPlus.view_mode Läge
 GENRE.ARTS.0 konst / kultur
 GENRE.ARTS.1 konstnärlig uppvisning
@@ -132,13 +105,9 @@ audiomenu.analogout Analog utgång
 audiomenu.audio_left_right_selectable väljbar i Ljudmenu
 audiomenu.audiochannel_up_down_enable Ljudval med höger/vänster 
 audiomenu.avs avs
-audiomenu.avs_control Volymkontroll 
 audiomenu.dolbydigital Dolby Digital som default
-audiomenu.head Ljudinställningar
-audiomenu.lirc lirc
 audiomenu.monoleft mono vänster
 audiomenu.monoright mono höger
-audiomenu.ost ost
 audiomenu.stereo stereo
 audioplayer.add Lägg till
 audioplayer.artist_title Artist, Titel
@@ -215,15 +184,12 @@ colormenu.background Bakgrund
 colormenu.background_head Bakgrund
 colormenu.fade Tona ner menyer
 colormenu.font Font storlek
-colormenu.gtx_alpha Genomskinlighet (GTX)
-colormenu.head Färginställningar
 colormenu.menucolors Menyfärger
 colormenu.statusbar Infobalk
 colormenu.textcolor Textfärg
 colormenu.textcolor_head Textfärg
 colormenu.themeselect välj tema
 colormenu.timing OSD Tajming
-colormenusetup.head Menyfärger
 colormenusetup.menucontent Fönsterinnehåll
 colormenusetup.menucontent_inactive Fönsterinnehåll inaktivt
 colormenusetup.menucontent_selected Fönsterinnehåll vald
@@ -303,10 +269,8 @@ flashupdate.actionreadflash läser
 flashupdate.cantopenfile kan inte öppna fil
 flashupdate.cantopenmtd kan inte öppna mtd-enhet
 flashupdate.checkupdate söker efter ny version
-flashupdate.currentreleasecycle Lanseringscykel
 flashupdate.currentversion_sep Nuvarande version
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot Bildtyp
 flashupdate.currentversiontime Tid
 flashupdate.erasefailed radering av flash misslyckades
 flashupdate.erasing raderar flash
@@ -464,13 +428,10 @@ lcdcontroler.brightness normal ljusstyrka
 lcdcontroler.brightnessstandby Ljusstyrka viloläge
 lcdcontroler.contrast Kontrast
 lcdcontroler.head LCD Inställning
-lcdmenu.autodimm Auto dim
 lcdmenu.dim_brightness Ljusstyrka efter dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head LCD Inställning
-lcdmenu.inverse Invertera
 lcdmenu.lcdcontroler Kontrast / Ljusstyrka
-lcdmenu.power Ström
 lcdmenu.statusline statuslinje
 lcdmenu.statusline.both volym / speltid
 lcdmenu.statusline.playtime speltid
@@ -514,7 +475,6 @@ messagebox.no Nej
 messagebox.yes Ja
 miscsettings.general Generellt
 miscsettings.head Extra inställningar
-miscsettings.hwsections använd hårdvarusektioner
 miscsettings.infobar_sat_display Satellitinfo på Infobalken
 miscsettings.shutdown_count stäng av efter
 miscsettings.shutdown_count_hint1 tid (i minuter) för att växla från viloläge
@@ -528,17 +488,10 @@ movieplayer.bookmark Bokmärken
 movieplayer.bookmarkname Bokmärkesnamn
 movieplayer.bookmarkname_hint1 Ange ett namn för ditt nya bokmärke
 movieplayer.bookmarkname_hint2   
-movieplayer.buffering Buffrar...
-movieplayer.defdir start mapp
 movieplayer.defplugin Startplugin
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fil via VLC
-movieplayer.goto Hoppa till ...
-movieplayer.goto.h1 = -> absolut hopp
-movieplayer.goto.h2 +,- -> relativt hopp
 movieplayer.head Filmspelare
-movieplayer.nostreamingserver Streamingservern kan inte nås.
-movieplayer.pleasewait Var god vänta.\nKopplar upp mot streamingservern...
 movieplayer.toomanybookmarks Det finns för många bokmärken.\nDu måste ta bort en av dom först.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ungefär 10 min tillbaks
@@ -555,23 +508,9 @@ movieplayer.tshelp9 hoppa ungefär 5 min
 movieplayer.tsplayback Spela TS
 movieplayer.tsplayback_pc Spela TS med PIN-lås
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stopp
-movieplayer.vlchelp10 ungefär 10 min tillbaks
-movieplayer.vlchelp11 hoppa ungefär 10 min
-movieplayer.vlchelp12 Hjälp: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.vlchelp2 Resync
-movieplayer.vlchelp3 Pause/Fortsätt
-movieplayer.vlchelp4 Skapa bokmärke
-movieplayer.vlchelp5 Visa progress
-movieplayer.vlchelp6 ungefär 1 min tillbaks
-movieplayer.vlchelp7 hoppa ungefär 1 min
-movieplayer.vlchelp8 ungefär 5 min tillbaks
-movieplayer.vlchelp9 hoppa ungefär 5 min
-movieplayer.wrongvlcversion Denna funktion finns inte i den nuvarande versionen av VLC
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Default Gateway
-networkmenu.head Nätverksinställningar
 networkmenu.ipaddress IP-address
 networkmenu.mount NFS/CIFS/FTPFS
 networkmenu.nameserver DNS server
@@ -628,8 +567,6 @@ parentallock.never aldrig
 parentallock.onsignal på broadcastat lås
 parentallock.parentallock Föräldralås
 parentallock.prompt fråga efter PIN-kod
-pictureviewer.decode_server_ip dekoda server ip
-pictureviewer.decode_server_port dekoda server port
 pictureviewer.defdir start mapp
 pictureviewer.head Bildvisare
 pictureviewer.help1 menyläge
@@ -679,11 +616,9 @@ recordingmenu.apids Förinställning för tonspår
 recordingmenu.apids_ac3 Spela in AC3 tonspår
 recordingmenu.apids_alt Spela in alternativt tonspår
 recordingmenu.apids_std Spela in standard tonspår
-recordingmenu.choose_direct_rec_dir välj mapp vid direkt inspel.
 recordingmenu.defdir inspelningsmapp
 recordingmenu.dir_permissions Mapprättigheter
 recordingmenu.dir_permissions_hint Rättigheter i 'chmod'-stil
-recordingmenu.epg_for_filename långa filnamn (med EPG data)
 recordingmenu.file direkt (fil)
 recordingmenu.filename_template Schablon för filnamn
 recordingmenu.filename_template_hint %c=Kanal, %i=Titel, %d=Datum, %t=Tid
@@ -705,10 +640,8 @@ satsetup.diseqcrepeat DiSEqC-upprepningar
 satsetup.extended DiSEqC-inställningar
 satsetup.extended_motor Motorinställningar
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Manuell Motorinställning
 satsetup.nodiseqc ingen DiSEqC
 satsetup.satellite Satellit
-satsetup.savesettingsnow spara inställningar nu
 satsetup.smatvremote SMATV Fjärrtuning
 scantp.fec FEC
 scantp.fec_1_2 1/2
@@ -755,7 +688,6 @@ servicemenu.imageinfo Bildinformation
 servicemenu.reload Läs in kanallistor
 servicemenu.reload_hint Läser in kanallistor,\nvar god vänta.
 servicemenu.restart Starta om Neutrino
-servicemenu.restart_failed Fel vid omstart av Neutrino.
 servicemenu.restart_hint Startar om Neutrino...
 servicemenu.restart_refused_recording Inspelning görs. Omstart inte möjlig.
 servicemenu.scants Programsökning
@@ -773,11 +705,9 @@ sleeptimerbox.announce Sovtimer om 1 min
 sleeptimerbox.hint1 Avstängningstid i min. (000=av)
 sleeptimerbox.hint2 Din dbox2 kommer att stängas av efter denna tid.
 sleeptimerbox.title Sovtimer
-streamfeatures.head Funktioner:
 streaminfo.aratio TV-format
 streaminfo.aratio_unknown TV-format: okänt
 streaminfo.audiotype Ljudtyp
-streaminfo.audiotype_unknown Ljudtyp: okänt
 streaminfo.bitrate Bitrate
 streaminfo.framerate Framerate
 streaminfo.framerate_unknown Framerate: okänt
@@ -785,12 +715,9 @@ streaminfo.head Stream-Information
 streaminfo.not_available inte tillgänglig
 streaminfo.resolution Upplösning
 streaminfo.signal mottagningssignal
-streaming.buffer_overflow Inspelning avbröts eftersom\ndata inte kunde skrivas tillräckligt snabbt.
 streaming.busy En eller flera inspelningsprocesser är aktiva.\nOm du ser detta meddelande och inga inspelningar är aktiva, starta om Neutrino.
 streaming.dir_not_writable Inspelningsmappen är inte skrivbar.\nInspelningar kommer inte att fungera.
-streaming.success Inspelningen gick bra.
 streaming.write_error Inspelningen avbröts,\neftersom ett fel inträffade under skrivning.
-streaming.write_error_open Inspelningen avbröts,\nför att målfilen inte kunde öppnas.
 stringinput.caps caps / inga caps
 stringinput.clear rensa alla
 timer.eventrecord.msg ... FÖR att GÖRAS, eller inte göras
@@ -876,15 +803,11 @@ timing.infobar_radio Infobalk/Radio
 timing.menu Meny
 timing.numericzap Numerisk Zap
 videomenu.csync sync justering
-videomenu.head Videoinställningar
-videomenu.rgb_centering RGB centrering
 videomenu.screensetup Skärminställning
-videomenu.vcrswitch Växla SCART automatiskt
 videomenu.videoformat Format
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect autodetektera
 videomenu.videosignal Videoutgång
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

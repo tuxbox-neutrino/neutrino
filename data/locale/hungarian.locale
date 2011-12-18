@@ -7,26 +7,7 @@ EPGMenu.streaminfo Műszaki információk
 EPGPlus.actions Műveletek
 EPGPlus.bybouquet_mode csomag szerint
 EPGPlus.bypage_mode Oldal szerint
-EPGPlus.change_font_size Betűméret
-EPGPlus.change_font_style Betűstílus
-EPGPlus.change_size Méret
-EPGPlus.channelentry_font csatorna
-EPGPlus.channelentry_separationlineheight Elválasztó vonal magasság
-EPGPlus.channelentry_width Szélesség
-EPGPlus.channelevententry_font Műsor
-EPGPlus.edit_fonts Betűk szerkesztése
-EPGPlus.edit_sizes Méretek szerkesztése
-EPGPlus.font_style_bold kövér
-EPGPlus.font_style_italic dőlt
-EPGPlus.font_style_regular sima
-EPGPlus.footer_fontbouquetchannelname Csomag lábjegyzet
-EPGPlus.footer_fontbuttons Csomag gombok
-EPGPlus.footer_fonteventdescription Műsor lábjegyzet
-EPGPlus.footer_fonteventshortdescription Rövid leírás lábjegyzet
 EPGPlus.head Áttekintő tábla
-EPGPlus.header_font Fejléc
-EPGPlus.horgap1_height Magasság1
-EPGPlus.horgap2_height Magasság2
 EPGPlus.next_bouquet Következő csomag
 EPGPlus.options Opciók
 EPGPlus.page_down Oldalt le
@@ -35,18 +16,10 @@ EPGPlus.prev_bouquet előző csomag
 EPGPlus.record Felvétel
 EPGPlus.refresh_epg Frissítés
 EPGPlus.remind Emlékeztető
-EPGPlus.reset_settings Alapértelmezett értékek
-EPGPlus.save_settings Beállítások mentése
 EPGPlus.scroll_mode görgetés
 EPGPlus.select_font_name Betűtípus
-EPGPlus.settings Beállítások
-EPGPlus.slider_width Csúszkaszélesség
 EPGPlus.stretch_mode nyújtás
 EPGPlus.swap_mode Mód váltás
-EPGPlus.timeline_fontdate Dátum
-EPGPlus.timeline_fonttime Idő
-EPGPlus.vergap1_width Szélesség1
-EPGPlus.vergap2_width Szélesség2
 EPGPlus.view_mode Nézet
 GENRE.ARTS.0 művészet / kultúra
 GENRE.ARTS.1 előadóművészet
@@ -140,16 +113,12 @@ audiomenu.analogout Analóg kimenet
 audiomenu.auto_lang Automatikus hangsáv választás
 audiomenu.auto_subs Automatikus felirat választás
 audiomenu.avs avs
-audiomenu.avs_control Hangerő-szabalyzás (avs/ost)
 audiomenu.avsync A/V szinkron
 audiomenu.avsync_am hang referencia
 audiomenu.dolbydigital Dolby Digital
 audiomenu.hdmi_dd HDMI AC3
-audiomenu.head Hang beállítások
-audiomenu.lirc lirc
 audiomenu.monoleft bal monó
 audiomenu.monoright jobb monó
-audiomenu.ost ost
 audiomenu.pref_lang Preferált nyelv
 audiomenu.pref_lang_head Hangsáv/műsorújság nyelvi sorrend
 audiomenu.pref_languages Nyelvi sorrend
@@ -253,9 +222,7 @@ colormenu.background Háttér
 colormenu.fade Menük úsztatása
 colormenu.font Menü betűtípus
 colormenu.font_ttx Teletext betűtípus
-colormenu.gtx_alpha Áttetszőség
 colormenu.hd_preset LCD vagy Plazma TV
-colormenu.head Színbeállítások
 colormenu.menucolors Színek
 colormenu.osd_preset Képernyő típusa
 colormenu.sd_preset CRT (hagyományos TV)
@@ -263,7 +230,6 @@ colormenu.statusbar Infósor
 colormenu.textcolor Betűszín
 colormenu.themeselect Téma
 colormenu.timing Időtartam
-colormenusetup.head Színek
 colormenusetup.menucontent ablak
 colormenusetup.menucontent_inactive inaktív elem
 colormenusetup.menucontent_selected aktív elem
@@ -321,13 +287,11 @@ extra.audio_run_player Audio gomb indítja a zenelejátszót
 extra.auto automatikus
 extra.auto_delete Automatikus törlés
 extra.auto_timeshift Automatikus felvétel, mp (0 = ki)
-extra.auto_to_record Move timeshift to records
 extra.cache Cache
 extra.cache Gyorsítótár
 extra.cache_txt Teletext gyorsítótár
 extra.chadded A csatorna hozzá lett adva a kiválasztott csomaghoz...\n
 extra.chalreadyinbq A csatorna már benne van a kiválasztott csomagban...\n
-extra.clear_log Napló törlése
 extra.cs Cardserver
 extra.dboxinfo Készülék infó
 extra.debug Debug
@@ -387,7 +351,6 @@ extra.hdd_reiser ReiserFS
 extra.hdd_settings Merevlemez-beállítások
 extra.hdd_sleep Elalvási idő
 extra.hdd_slow lassú
-extra.hw_sect Hardwareszekciók
 extra.key_list_end Vége
 extra.key_list_start Eleje
 extra.key_plugin One touch plugin
@@ -395,7 +358,6 @@ extra.key_timeshift Időeltolás
 extra.key_unlock Távvezérlő nyitás
 extra.ladirection Pozíció
 extra.latitude Szélességi fok
-extra.loadcolors Téma betöltése...
 extra.loadconfig Beállítások betöltése...
 extra.loadkeys Beállítások betöltése...
 extra.lodirection Pozíció
@@ -405,7 +367,6 @@ extra.logo2 2
 extra.logo3 3
 extra.logview View Log
 extra.longitude Hosszúsági fok
-extra.manual_scan Kézi keresés
 extra.menu_left_exit Visszalépés menüben balra gombbal
 extra.north észak
 extra.record_time Gyorsfelvétel/időeltolás ideje (óra)
@@ -415,20 +376,16 @@ extra.rounded_corners Menükeret forma
 extra.rounded_corners_off szögletes
 extra.rounded_corners_on kerekített
 extra.ru ruDREAM
-extra.savecolors Téma mentése...
 extra.saveconfig Beállítások mentése...
 extra.savekeys Beállítások mentése...
 extra.scan_fast gyors
 extra.scan_full teljes
-extra.scan_mode Keresési mód
 extra.scrambled_message Kódolt adás üzenet
 extra.sms_channel SMS csatornaváltás
 extra.south dél
-extra.spts_mode SPTS mód
 extra.start_tostandby Készenlét bekapcsolás után
 extra.temp_timeshift Ideiglenes időeltolás
 extra.timeshift_pause Időeltolás pillanatállj
-extra.timezone Időzóna
 extra.tp.pol_v vertikális
 extra.tp_fec FEC
 extra.tp_freq Frekvencia
@@ -443,24 +400,19 @@ extra.tp_pol_h horizontális
 extra.tp_rate SR
 extra.update_dir Image fájl helye
 extra.use_gotoxx USALS
-extra.use_log Naplózás a /tmp/log -ba
 extra.volume_pos Hangerőszabályzó 
 extra.west nyugat
 extra.zap_cycle Körbejárás
 extra.zapit_backup Backup channels to /tmp
 extra.zapit_delete Delete channels
-extra.zapit_fast_zap fast zap
 extra.zapit_fe_timeout Hangolásra várakozás (1 = 100 msec)
 extra.zapit_hvoltage Emelt fejfeszültség forgatáskor
 extra.zapit_make_bouquet Csomagokon kívüli csatornák
 extra.zapit_menu Zapit beállítások
 extra.zapit_motor_speed Motor sebessége
 extra.zapit_restore Restore channels from /tmp
-extra.zapit_save_last_chan Utolsó pozíció mentése
-extra.zapit_scan_sdt Scan SDT for updates
 extra.zapit_scanpids PID-ek használata
 extra.zapit_sdt_changed Channels changed, reload settings.
-extra.zapit_sort_names Sort ch. by name
 extra.zapit_write_names Csatornanevek mentése
 fan_speed Ventillátor sebesség
 favorites.addchannel A kiválasztott csatorna hozzáadódik a kedvencekhez.\nEz pár másodpercet vesz igénybe.
@@ -496,10 +448,8 @@ flashupdate.actionreadflash Olvasás
 flashupdate.cantopenfile a fájl nem nyitható
 flashupdate.cantopenmtd az MTD eszköz nem nyitható
 flashupdate.checkupdate Frissítések keresése
-flashupdate.currentreleasecycle Verzió
 flashupdate.currentversion_sep Aktuális verzió
 flashupdate.currentversiondate Dátum
-flashupdate.currentversionsnapshot Típus
 flashupdate.currentversiontime Idő
 flashupdate.erasefailed flash törlése sikertelen
 flashupdate.erasing Flash törlése
@@ -668,13 +618,10 @@ lcdcontroler.brightness Normál fényerő
 lcdcontroler.brightnessstandby Készenléti fényerő
 lcdcontroler.contrast kontraszt
 lcdcontroler.head VFD beállítások
-lcdmenu.autodimm automatikus halványítás
 lcdmenu.dim_brightness Halványított fényerő
 lcdmenu.dim_time Halványítás (mp)
 lcdmenu.head Előlapi kijelző
-lcdmenu.inverse Inverz
 lcdmenu.lcdcontroler Fényerő
-lcdmenu.power Háttérfény
 lcdmenu.statusline Folyamatjelző
 lcdmenu.statusline.playtime eltelt idő
 lcdmenu.statusline.volume hangerő
@@ -732,7 +679,6 @@ miscsettings.epg_old_hours Elavulás (óra)
 miscsettings.epg_save Műsorújság tárolása
 miscsettings.general Általános
 miscsettings.head Egyéb beállítások
-miscsettings.hwsections hardverszekciók használata
 miscsettings.infobar Infósor
 miscsettings.infobar_casystem_display Kódolási rendszer kijelzés
 miscsettings.infobar_disp_0 ki
@@ -903,18 +849,11 @@ movieplayer.bookmark könyvjelzők
 movieplayer.bookmarkname könyvjelző neve
 movieplayer.bookmarkname_hint1 Kérem adjon nevet az új könyvjelzőnek!
 movieplayer.bookmarkname_hint2 
-movieplayer.buffering Buffering...
-movieplayer.defdir Alapértelmezett könyvtár
 movieplayer.defplugin Start-Plugin
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fájlok lejátszása
-movieplayer.goto Ugrás...
-movieplayer.goto.h1 = -> abszolút ugrás
-movieplayer.goto.h2 +,- -> relatív ugrás
 movieplayer.head Filmböngésző
-movieplayer.nostreamingserver A streamingszerver nem elérhető.
 movieplayer.pesplayback PES lejátszása (kísérleti)
-movieplayer.pleasewait Kérem várjon!\nCsatlakozás a streamingszerverhez...
 movieplayer.toomanybookmarks Túl sok könyvjelző.\nElőbb törölni kell egyet.
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 approx. 10 minutes back 
@@ -930,19 +869,6 @@ movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes 
 movieplayer.tsplayback TS lejátszása
 movieplayer.vcdplayback (S)VCD
-movieplayer.vlchelp1 Stop 
-movieplayer.vlchelp10 approx. 10 minutes back 
-movieplayer.vlchelp11 skip approx. 10 minutes 
-movieplayer.vlchelp12 Help: http://www.giggo.de/dbox2/movieplayer.html\n 
-movieplayer.vlchelp2 Resync 
-movieplayer.vlchelp3 Pause/Continue 
-movieplayer.vlchelp4 Create bookmark 
-movieplayer.vlchelp5 Show progress 
-movieplayer.vlchelp6 approx. 1 minute back 
-movieplayer.vlchelp7 skip approx. 1 minute 
-movieplayer.vlchelp8 approx. 5 minutes back 
-movieplayer.vlchelp9 skip approx. 5 minutes 
-movieplayer.wrongvlcversion Ez a funkció nem elérhető a VLC jelenlegi verziójával.
 mpkey.audio Hangsáv
 mpkey.bookmark Könyvjelző mentése
 mpkey.forward Előre
@@ -955,7 +881,6 @@ mpkey.time Idő kijelzése
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Átjáró
-networkmenu.head Hálózat
 networkmenu.hostname Hálózati elnevezés
 networkmenu.ipaddress IP cím
 networkmenu.mount NFS/CIFS
@@ -1022,8 +947,6 @@ parentallock.never soha
 parentallock.onsignal műsortól függően
 parentallock.parentallock Gyermekzár
 parentallock.prompt PIN kód kérése
-pictureviewer.decode_server_ip decode server ip
-pictureviewer.decode_server_port decode server port
 pictureviewer.defdir Alapértelmezett könyvtár
 pictureviewer.head Képnéző
 pictureviewer.help1 MENU NFS/CIFS beállítások
@@ -1074,9 +997,7 @@ recordingmenu.apids Hangsávok felvétele
 recordingmenu.apids_ac3 AC3
 recordingmenu.apids_alt Többi hangsáv
 recordingmenu.apids_std Elsődleges hangsáv
-recordingmenu.choose_direct_rec_dir choose dir on imm. recording
 recordingmenu.defdir Felvétel helye
-recordingmenu.epg_for_filename Hosszú fájlnevek (műsoradatokkal)
 recordingmenu.file Közvetlen (fájl)
 recordingmenu.help Felvételi eszközök:\n--------------------------\nszerver:\nstreaming szoftver használata a PC-n\n\n(analóg) képmagnó:\nképmagnó használata\n\nközvetlen (fájl):\nközvetlen felvétel NFS könyvtárba,\nvagy beépített merevlemezre\n\n\nMax. fájlméret:\n---------------------\nNFS V2: 2 GB (2048 MB)\nNFS V3: elég nagy :) (0 MB)\nFAT: 2 GB (2048 MB)\nFAT32: 4 GB (4096 MB)
 recordingmenu.off ki
@@ -1101,7 +1022,6 @@ rfmod.carrier6500 6.5
 rfmod.channel Csatorna
 rfmod.enable Hang engedélyezése
 rfmod.finetune Finomhangolás
-rfmod.rfmod RF modulátor
 rfmod.standby Modulátor bekapcsolása
 rfmod.test Tesztábra
 satsetup.auto_scan Automatikus keresés
@@ -1131,11 +1051,9 @@ satsetup.lofs Átkapcsolási frekvencia
 satsetup.manual_scan Kézi keresés
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Motor pozíció
-satsetup.motorcontrol Kézi beállítás
 satsetup.nodiseqc nincs DiSEqC
 satsetup.sat_setup Műholdak beállítása
 satsetup.satellite Műhold
-satsetup.savesettingsnow Beállítások mentése
 satsetup.smatvremote kisközösségi rendszer
 satsetup.uncomm_input Uncommitted kapcsoló
 satsetup.usals_repeat USALS parancs ismétlés
@@ -1176,7 +1094,6 @@ servicemenu.imageinfo Szoftver információ
 servicemenu.reload Csatornalista újratöltése
 servicemenu.reload_hint Újratöltés. Kérem várjon!
 servicemenu.restart Neutrino újraindítása
-servicemenu.restart_failed Újraindítás sikertelen
 servicemenu.restart_hint Újraindítás, kérem várjon!
 servicemenu.restart_refused_recording Újraindítás nem lehetséges, felvétel van folyamatban
 servicemenu.scants Csatornakeresés
@@ -1199,11 +1116,9 @@ sleeptimerbox.announce A készülék 1 percen belül készenlétbe megy
 sleeptimerbox.hint1 Kikapcsolási idő percben. (000=ki)
 sleeptimerbox.hint2 A készülék ennyi idő múlva fog kikapcsolni.
 sleeptimerbox.title Elalváskapcsoló
-streamfeatures.head Features
 streaminfo.aratio Képarány
 streaminfo.aratio_unknown Képarány: ismeretlen
 streaminfo.audiotype Hangsáv
-streaminfo.audiotype_unknown Hangsáv: ismeretlen
 streaminfo.bitrate Bitráta
 streaminfo.framerate Képkocka-ráta
 streaminfo.framerate_unknown képkocka-ráta: ismeretlen
@@ -1211,12 +1126,9 @@ streaminfo.head Műszaki információk
 streaminfo.not_available nem elérhető
 streaminfo.resolution Felbontás
 streaminfo.signal Jelparaméterek
-streaming.buffer_overflow A felvétel megállt.\nPuffer túlcsordulás.
 streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino.
 streaming.dir_not_writable A felvételi könyvtár nem írható.\nA felvétel nem indítható.
-streaming.success A felvétel sikeresen befejeződött.
 streaming.write_error A felvétel meg lett szakítva,\nmert hiba történt az írásnál.
-streaming.write_error_open A felvétel meg lett szakítva,\nmert a célfájlt nem lehet megnyitni.
 stringinput.caps Betűméret
 stringinput.clear Összes törlése
 subtitles.head Feliratok
@@ -1332,29 +1244,20 @@ videomenu.dbdr_deblock deblock
 videomenu.dbdr_none kikapcsolva
 videomenu.enabled_modes Engedélyezett videómódok
 videomenu.fullscreen teljes képernyő
-videomenu.head TV beállítások
 videomenu.letterbox letterbox
-videomenu.osd Megjelenítés
 videomenu.panscan panscan
 videomenu.panscan2 14:9 panscan
-videomenu.rgb_centering RGB középpont
 videomenu.screensetup Képernyő pozícionálás
 videomenu.tv-scart Kimenetek
-videomenu.vcr-scart VCR Scart
 videomenu.vcrsignal VCR Output Signal Type
 videomenu.vcrsignal_composite CVBS
 videomenu.vcrsignal_svideo S-Video
-videomenu.vcrswitch SCART automatikus kapcsolása
 videomenu.videoformat Formátum
 videomenu.videoformat_149 14:9
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect automatikus
 videomenu.videomode Videómód
-videomenu.videomode_ntsc NTSC
-videomenu.videomode_pal PAL
-videomenu.videomode_palm PAL-M
 videomenu.videosignal Videójel
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS

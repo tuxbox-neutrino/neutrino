@@ -91,13 +91,9 @@ apidselector.head izbor jezika
 audiomenu.PCMOffset smanjivanje glasnoce pcm
 audiomenu.analogout analogni izlaz
 audiomenu.avs avs
-audiomenu.avs_control upravljanje glasnosti avs/ost
 audiomenu.dolbydigital dolby digital automaticno
-audiomenu.head namjestiti ton
-audiomenu.lirc lirc
 audiomenu.monoleft mono lijevo
 audiomenu.monoright mono desno
-audiomenu.ost ost
 audiomenu.stereo stereo
 audioplayer.add dodati
 audioplayer.artist_title pjevač, pjesma
@@ -149,15 +145,12 @@ colormenu.background boja pozadine
 colormenu.background_head boja pozadine
 colormenu.fade izblijediti izbore
 colormenu.font veličina slova
-colormenu.gtx_alpha providnost (gtx)
-colormenu.head namjestiti boje
 colormenu.menucolors boja izbora
 colormenu.statusbar statusna traka
 colormenu.textcolor boja teksta
 colormenu.textcolor_head boja teksta
 colormenu.themeselect izabrati teme
 colormenu.timing osd tajm-aut
-colormenusetup.head boja izbora
 colormenusetup.menucontent sadržaj prozora
 colormenusetup.menucontent_inactive deaktiviran sadržaj prozora
 colormenusetup.menucontent_selected izabran sadržaj prozora
@@ -222,10 +215,8 @@ flashupdate.actionwriteflash piše se fleš
 flashupdate.cantopenfile nemože se otvoriti datoteka
 flashupdate.cantopenmtd nemože se otvoriti mtd-uredaj
 flashupdate.checkupdate tražiti novu verziju
-flashupdate.currentreleasecycle release imidž
 flashupdate.currentversion_sep instalirana verzija
 flashupdate.currentversiondate datum
-flashupdate.currentversionsnapshot vrsta imidža
 flashupdate.currentversiontime vrijeme
 flashupdate.erasefailed brisanje flesa nije uspjelo
 flashupdate.erasing briše se fleš
@@ -367,11 +358,8 @@ lcdcontroler.brightness normalna svjetlost
 lcdcontroler.brightnessstandby svjetlost u pripravnosti
 lcdcontroler.contrast kontrast
 lcdcontroler.head namjestiti tečni kristal
-lcdmenu.autodimm automaticno smanjiti svjetlost
 lcdmenu.head namjestiti tečni kristal
-lcdmenu.inverse invertirati
 lcdmenu.lcdcontroler kontrast / svjetlost
-lcdmenu.power struja
 lcdmenu.statusline statusna linija
 lcdmenu.statusline.both glasnost i trajanje
 lcdmenu.statusline.playtime igrano vrijeme
@@ -424,25 +412,16 @@ movieplayer.bookmark oznaka
 movieplayer.bookmarkname ime zapamcenog mjesta
 movieplayer.bookmarkname_hint1 Imenujte novo zapamceno mjesto
 movieplayer.bookmarkname_hint2
-movieplayer.buffering predraditi...
-movieplayer.defdir početni direktorij
 movieplayer.dvdplayback dvd
 movieplayer.fileplayback datoteka preko vlcea
-movieplayer.goto Skacem prema ...
-movieplayer.goto.h1 = -> absolutni skok
-movieplayer.goto.h2 +,- -> relativni skok
 movieplayer.head promatrač filmova
-movieplayer.nostreamingserver Nije bilo moguće\nuspostaviti vezu sa streamingserverom.
 movieplayer.pesplayback odigrati pes (eksperimentalno)
-movieplayer.pleasewait Uspostavlja se veza sa streamingserverom.\nČekajte molim ...
 movieplayer.toomanybookmarks Previse mjesta su zapamcena.\nMora se prvo jedno drugo izbrisati.
 movieplayer.tsplayback odigrati ts
 movieplayer.vcdplayback (s)vcd
 movieplayer.vlchelp crveno/kuci stop\nzeleno resync\nzuto pausa/dalje\nplavo zapamtiti mjesto\n1 oko 1 minuta nazad\n3 oko 1 minuta naprijed\n4 oko 5 minuta nazad\n6 oko5 minuta naprijed\n7 oko 10 minuta nazad\n9 oko 10 minuta naprijed\npomoc:http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.wrongvlcversion funkcije nije moguca sa trenutacno upotrijebito verziji vlca
 networkmenu.broadcast broadcast
 networkmenu.gateway standard gateway
-networkmenu.head namjestiti mrežu
 networkmenu.ipaddress ip adresa
 networkmenu.nameserver nameserver
 networkmenu.netmask netmask
@@ -533,10 +512,8 @@ satsetup.extended diseqc namjestiti
 satsetup.extended_lnb namješćenje lnb-ea
 satsetup.extended_motor namješćenje motora
 satsetup.minidiseqc mini-diseqc
-satsetup.motorcontrol namješćenje motora
 satsetup.nodiseqc nema diseqca
 satsetup.satellite satelit
-satsetup.savesettingsnow namješćenje sada memorisati
 satsetup.smatvremote smatv remote tuning
 scants.actcable kablo:
 scants.actsatellite satelit:
@@ -573,12 +550,10 @@ sleeptimerbox.announce vremenski brojač će ugasiti za 1 minutu
 sleeptimerbox.hint1 ugasiti za XXX minuta. (000=ugašeno)
 sleeptimerbox.hint2 Dbox2 će se ugasiti za to vrijeme.
 sleeptimerbox.title vremenski brojač za ugasiti
-streamfeatures.head osobine streama
 streamfeatures.info informacija o streamu
 streaminfo.aratio odnos
 streaminfo.aratio_unknown nepoznat odnos
 streaminfo.audiotype vrsta tona
-streaminfo.audiotype_unknown nepoznata vrsta tona
 streaminfo.bitrate bitrate
 streaminfo.ecm_invalid nevažeći ca sistem
 streaminfo.framerate framerate
@@ -663,15 +638,11 @@ timing.hint_2 će biti pokazana informativna traka
 timing.infobar infromativna traka
 timing.menu izbor
 videomenu.csync namjescenje sinkronizacije
-videomenu.head namjestiti video
-videomenu.rgb_centering centriranje rgbea
 videomenu.screensetup namjestiti ekran
-videomenu.vcrswitch automatični av-scart ulaz
 videomenu.videoformat format ekrana
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (lb)
 videomenu.videoformat_431 4:3 (ps)
-videomenu.videoformat_autodetect automatično
 videomenu.videosignal vrsta video signala
 videomenu.videosignal_composite cvbs
 videomenu.videosignal_rgb rgb + cvbs

@@ -91,13 +91,9 @@ apidselector.head Sproch auswaehn
 audiomenu.PCMOffset Lautstärknabsenkung PCM
 audiomenu.analogout Analog-Ausgong
 audiomenu.avs avs
-audiomenu.avs_control Eistain avs/ost
 audiomenu.dolbydigital Dolby Digital
-audiomenu.head Audio-Eistellunga
-audiomenu.lirc lirc
 audiomenu.monoleft mono links
 audiomenu.monoright mono rechts
-audiomenu.ost ost
 audiomenu.stereo stereo
 audioplayer.add dazuadoa
 audioplayer.artist_title Interpret, Titl
@@ -150,15 +146,12 @@ colormenu.background Hintergrundfarb
 colormenu.background_head Hintergrundfarbe
 colormenu.fade Menüs faden
 colormenu.font Schriftgräßn
-colormenu.gtx_alpha Alpha überblendunga
-colormenu.head Farb-Eistellunga
 colormenu.menucolors Menüfarbn
 colormenu.statusbar Statusboikn
 colormenu.textcolor Textfarb
 colormenu.textcolor_head Textfarb
 colormenu.themeselect Theme auswähn
 colormenu.timing OSD Timeouts
-colormenusetup.head Menüfarbn
 colormenusetup.menucontent Fenstainhoit
 colormenusetup.menucontent_inactive Fenstainhoit deaktiviert
 colormenusetup.menucontent_selected Fenstainhoit ausgwähit
@@ -221,10 +214,8 @@ flashupdate.actionreadflash flash lesn
 flashupdate.cantopenfile kon de Datei ned aufmacha
 flashupdate.cantopenmtd kon des MTD-Device ned aufmacha
 flashupdate.checkupdate nach ner neien Versio suacha
-flashupdate.currentreleasecycle Releasezyklus
 flashupdate.currentversion_sep De Version host
 flashupdate.currentversiondate Datum
-flashupdate.currentversionsnapshot ImageTyp
 flashupdate.currentversiontime Uhrzeit
 flashupdate.erasefailed Flash löschn is schiafganga
 flashupdate.erasing lösch des Flash
@@ -364,11 +355,8 @@ lcdcontroler.brightness normale Helligkeid
 lcdcontroler.brightnessstandby Standby Helligkeid
 lcdcontroler.contrast Kontrast
 lcdcontroler.head LCD Eistellunga
-lcdmenu.autodimm Automatisch dimma
 lcdmenu.head LCD Eistellunga
-lcdmenu.inverse Invertieren
 lcdmenu.lcdcontroler Kontrast / Helligkeid
-lcdmenu.power Pauwa
 lcdmenu.statusline Statuszeiln
 lcdmenu.statusline.both change me
 lcdmenu.statusline.playtime Spuizeit
@@ -418,25 +406,16 @@ movieplayer.bookmark Vormerka
 movieplayer.bookmarkname Merkal Nama 
 movieplayer.bookmarkname_hint1 Bitte gems den Nama fürs neie Merkal o.
 movieplayer.bookmarkname_hint2 movieplayer.skipping Umsortiern bitte wartn 
-movieplayer.buffering Buffern..
-movieplayer.defdir Start-Verz.
 movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fuim mim VLC
-movieplayer.goto Spring zu ...
-movieplayer.goto.h1 = -> absoluter Sprung
-movieplayer.goto.h2 +,- -> relativer Sprung
 movieplayer.head Fuimspuia
-movieplayer.nostreamingserver Koa Vabindung\nzum Streamingserva möglich.
 movieplayer.pesplayback PES Abspuin (Experiment)
-movieplayer.pleasewait Oan Moment, de Verbindung\nzum Streamingserva werd hergsteaid
 movieplayer.toomanybookmarks Sie ham scho zvui Merkal oglegt.\nEs muas erst a andas glöscht wern.
 movieplayer.tsplayback TS Abspuin
 movieplayer.vcdplayback (S)VCD
 movieplayer.vlchelp ROT/Hoam Stop\nGREA Resync\nGELB Pause/Weida\nBLAU Merkal setzn\n1 ca. 1 Minutn zruck\n3 ca. 1 Minutn viri\n4 ca. 5 Minutn zruck\n6 ca. 5 Minutn viri\n7 ca. 10 Minutn zruck\n9 ca. 10 Minutn viri\nHuif: http://www.giggo.de/dbox2/movieplayer.html\n
-movieplayer.wrongvlcversion Des is mit ehnara VLC-Version ne drin
 networkmenu.broadcast Broadcast
 networkmenu.gateway Standard Gateway
-networkmenu.head Netzwerk Eistellunga
 networkmenu.ipaddress IP-Adressn
 networkmenu.nameserver Nameserva
 networkmenu.netmask Netzmaskn
@@ -524,10 +503,8 @@ satsetup.diseqcrepeat DiSEqC-Wiederholunga
 satsetup.extended DiSEqC-Eistellunga
 satsetup.extended_motor Motor-Eistellunga
 satsetup.minidiseqc Mini-DiSEqC
-satsetup.motorcontrol Manuelle Motor-Eistellunga
 satsetup.nodiseqc Koa DiSEqC
 satsetup.satellite Satellit
-satsetup.savesettingsnow Eistellunga jetz speichan
 satsetup.smatvremote SMATV Remote Tuning
 scants.actcable Kabi:
 scants.actsatellite Satellit:
@@ -563,11 +540,9 @@ sleeptimerbox.announce Eischloftimer in min
 sleeptimerbox.hint1 Einschlofzeit in Min. (000=aus)
 sleeptimerbox.hint2 De Box schoit si noch der Zeid aus.
 sleeptimerbox.title Eischloftimer
-streamfeatures.head Features
 streaminfo.aratio Verhältnis
 streaminfo.aratio_unknown Verhältnis: ken i ned
 streaminfo.audiotype Audiotyp
-streaminfo.audiotype_unknown Audiotyp: ken i ned
 streaminfo.bitrate Bitrate
 streaminfo.framerate Bildrate
 streaminfo.framerate_unknown Bildrate: ken i ned
@@ -649,15 +624,11 @@ timing.hint_2 auf dem TV angezeigt wird
 timing.infobar Infobar
 timing.menu Menu
 videomenu.csync Sync.-Korrigiern
-videomenu.head Video-Eistellunga
-videomenu.rgb_centering RGB-Zentriern
 videomenu.screensetup Bildbereich eistein
-videomenu.vcrswitch Scart-Eigang automatisch
 videomenu.videoformat Bildschirmformat
 videomenu.videoformat_169 16:9
 videomenu.videoformat_43 4:3 (LB)
 videomenu.videoformat_431 4:3 (PS)
-videomenu.videoformat_autodetect automatisch
 videomenu.videosignal Video Signalart
 videomenu.videosignal_composite CVBS
 videomenu.videosignal_rgb RGB + CVBS
