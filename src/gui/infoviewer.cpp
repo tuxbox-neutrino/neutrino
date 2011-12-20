@@ -1903,10 +1903,10 @@ void CInfoViewer::showInfoFile()
 	/*if (recordModeActive)
 		return;*/
 	char infotext[80];
-	int fd, xStart, yStart, width, height, radius;
+	int fd, xStart, xOffset, yStart, width, height, tWidth, tIndent;
 	ssize_t cnt;
 
-	fd = open("/tmp/infobar.txt", O_RDONLY); //Datei aus welcher der Text ausgelesen wird
+	fd = open("/tmp/infobar.txt", O_RDONLY); //read textcontent from this file
 
 	if (fd < 0)
 		return;
@@ -1919,18 +1919,23 @@ void CInfoViewer::showInfoFile()
 	}
 	infotext[cnt-1] = '\0';
 
-	xStart	= BoxStartX + ChanWidth + 140;	//Abstand rechts vom Aufnahmeicon
+	xStart	= BoxStartX + ChanWidth + 140;	//140px space for the little rec/ts-bar
+	xOffset	= 5;				//same value as the used RADIUS_SMALL
 	yStart	= BoxStartY;
-	width	= BoxEndX - xStart - 225;
+	width	= BoxEndX - xStart - 225;	//225px space for the progress-bar
 	height	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getHeight() + 2;
-	radius 	= height / 3;
+	tWidth	= g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->getRenderWidth(infotext);
+	if (tWidth < (width - (xOffset * 2)) )
+		tIndent	= (width - (xOffset * 2) - tWidth) / 2;
+	else
+		tIndent	= 0;
 	//shadow
 	frameBuffer->paintBoxRel(xStart + SHADOW_OFFSET, yStart + SHADOW_OFFSET, width, height, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_SMALL, CORNER_ALL);
 	//background
 	frameBuffer->paintBoxRel(xStart, yStart, width, height, COL_INFOBAR_PLUS_0, RADIUS_SMALL, CORNER_ALL);
 	//content
 	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString(
-		xStart + radius, yStart + height, width - radius, (std::string)infotext, COL_INFOBAR, height, false);
+		xStart + xOffset + tIndent, yStart + height, width - xOffset, (std::string)infotext, COL_INFOBAR, height, false);
 }
 
 
