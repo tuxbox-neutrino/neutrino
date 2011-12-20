@@ -83,7 +83,8 @@ const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUN
 	{ SNeutrinoSettings::ITEM_VTXT,			LOCALE_USERMENU_ITEM_VTXT },
 	{ SNeutrinoSettings::ITEM_IMAGEINFO,		LOCALE_SERVICEMENU_IMAGEINFO },
 	{ SNeutrinoSettings::ITEM_BOXINFO,		LOCALE_EXTRA_DBOXINFO },
-	{ SNeutrinoSettings::ITEM_CAM,			LOCALE_CI_SETTINGS }
+	{ SNeutrinoSettings::ITEM_CAM,			LOCALE_CI_SETTINGS },
+	{ SNeutrinoSettings::ITEM_CLOCK,		LOCALE_CLOCK_SWITCH_ON }
 };
 
 int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)

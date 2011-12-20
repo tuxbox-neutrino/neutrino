@@ -223,6 +223,8 @@ ci.reset_standby Reset nach Standby
 ci.settings Zugangskontrolle
 ci.timeout CAM antwortet nicht
 ci.waiting Warte auf CAM-Antwort
+clock_switch_off Uhr ausblenden
+clock_switch_on Uhr einblenden
 colorchooser.alpha alpha
 colorchooser.blue blau
 colorchooser.green grün
@@ -646,7 +648,7 @@ mainmenu.service Service
 mainmenu.settings Einstellungen
 mainmenu.shutdown Ausschalten
 mainmenu.sleeptimer SleepTimer
-mainmenu.tvmode TV-Modus/Uhr
+mainmenu.tvmode TV/Radio Umschaltung
 mainsettings.audio Audio
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten

@@ -768,7 +768,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
                 "2,3,4,13",                     // RED
                 "6",                            // GREEN
                 "7",                            // YELLOW
-                "12,10,11,14,15"    // BLUE
+                "12,10,11,19,14,15"    // BLUE
         };
         char txt1[81];
         std::string txt2;
@@ -2095,19 +2095,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					saveSetup(NEUTRINO_SETTINGS_FILE);
 				}
 			}
-			else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode ) {
-				if( mode == mode_tv )
-					radioMode();
-				else if( mode == mode_radio )
-					tvMode();
-			}
 			else if( ((msg == CRCInput::RC_tv) || (msg == CRCInput::RC_radio)) && ((neutrino_msg_t)g_settings.key_tvradio_mode == CRCInput::RC_nokey)) {
-				if(mode == mode_radio ) {
-					tvMode();
-				}
-				else if(mode == mode_tv) {
-					radioMode();
-				}
+				switchTvRadioMode();//used with defined default tv/radio rc key
+			}
+			else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode ) {
+				switchTvRadioMode(); //used with defined rc key TODO: do we really need this, because we already have a specified key on the remote control 
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
 			   if(g_RemoteControl->subChannels.size() > 0) {
@@ -3337,18 +3329,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_TV, true);
 
-        if( mode == mode_tv ) {
-                if(g_settings.mode_clock) {
-                        InfoClock->StopClock();
-                        g_settings.mode_clock=false;
-                } else {
-                        InfoClock->StartClock();
-                        g_settings.mode_clock=true;
-                }
-                return;
-	} else if( mode == mode_scart ) {
-		//g_Controld->setScartMode( 0 );
-	} else if( mode == mode_standby ) {
+	if( mode == mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
 	}
@@ -3552,20 +3533,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, true);
 
-	if( mode==mode_radio ) {
-                if(g_settings.mode_clock) {
-                        InfoClock->StopClock();
-                        g_settings.mode_clock=false;
-                } else {
-                        InfoClock->StartClock();
-                        g_settings.mode_clock=true;
-                }
-		return;
-	}
-	else if( mode == mode_scart ) {
-		//g_Controld->setScartMode( 0 );
-	}
-	else if( mode == mode_standby ) {
+	if( mode == mode_standby ) {
 		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 		videoDecoder->Standby(false);
 	}
@@ -3584,6 +3552,27 @@ void CNeutrinoApp::radioMode( bool rezap)
 
 	if (g_settings.radiotext_enable) {
 		g_Radiotext = new CRadioText;
+	}
+}
+
+//switching from current mode to next mode between tv or radio
+void CNeutrinoApp::switchTvRadioMode()
+{
+	if (mode == mode_radio ) 
+		tvMode();
+	else if(mode == mode_tv) 
+		radioMode();
+}
+
+//switching clock on or off depends of current displayed or not
+void CNeutrinoApp::switchClockOnOff()
+{
+	if(g_settings.mode_clock) {
+		InfoClock->StopClock();
+		g_settings.mode_clock=false;
+	} else {
+		InfoClock->StartClock();
+		g_settings.mode_clock=true;
 	}
 }
 
@@ -3611,12 +3600,14 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		unlink("/tmp/.reboot");
 		returnval = menu_return::RETURN_NONE;
 	}
-	else if(actionKey=="tv") {
-		tvMode();
+	else if (actionKey=="clock_switch")
+	{
+		switchClockOnOff();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
-	else if(actionKey=="radio") {
-		radioMode();
+	else if (actionKey=="tv_radio_switch")//used in mainmenu
+	{
+		switchTvRadioMode();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
 	else if(actionKey=="scart") {

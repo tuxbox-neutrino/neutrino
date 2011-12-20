@@ -250,6 +250,8 @@ const char * locale_real_names[] =
 	"ci.settings",
 	"ci.timeout",
 	"ci.waiting",
+	"clock_switch_off",
+	"clock_switch_on",
 	"colorchooser.alpha",
 	"colorchooser.blue",
 	"colorchooser.green",

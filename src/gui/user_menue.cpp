@@ -119,7 +119,8 @@ bool CUserMenu::showUserMenu(int button)
 	CRCLock *rcLock						= NULL;
 	CStreamFeaturesChangeExec *StreamFeaturesChanger	= NULL;
 	CImageInfo *imageinfo					= NULL;
-	CDBoxInfoWidget *boxinfo				= NULL; 
+	CDBoxInfoWidget *boxinfo				= NULL;
+	CNeutrinoApp * neutrino					= NULL;
 	
 	std::string txt = g_settings.usermenu_text[button];
 	neutrino_locale_t caption = user_menu[button].caption;
@@ -333,6 +334,16 @@ bool CUserMenu::showUserMenu(int button)
 				menu_prev = SNeutrinoSettings::ITEM_CAM;
 				keyhelper.get(&key,&icon);
 				menu->addItem(new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler, NULL, key, icon));
+			}
+			break;
+		case SNeutrinoSettings::ITEM_CLOCK:
+			{
+				menu_items++;
+				menu_prev = SNeutrinoSettings::ITEM_CLOCK;
+				keyhelper.get(&key,&icon, CRCInput::RC_green); 
+				neutrino = CNeutrinoApp::getInstance();
+				menu_item = new CMenuForwarder(!g_settings.mode_clock ? LOCALE_CLOCK_SWITCH_ON:LOCALE_CLOCK_SWITCH_OFF, true, NULL, neutrino, "clock_switch", key, icon);
+				menu->addItem(menu_item, false);
 			}
 			break;
 

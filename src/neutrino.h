@@ -206,6 +206,9 @@ public:
 	int getLastMode() {
 		return lastMode;
 	}
+	void switchTvRadioMode();
+	void switchClockOnOff();
+	
 	bool isMuted() {
 		return current_muted;
 	}

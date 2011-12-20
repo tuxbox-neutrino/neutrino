@@ -223,6 +223,8 @@ ci.reset_standby Reset after standby
 ci.settings Conditional access
 ci.timeout Timeout waiting CI menu ready
 ci.waiting Waiting for CI answer
+clock_switch_off Clock off
+clock_switch_on Clock on
 colorchooser.alpha alpha
 colorchooser.blue blue
 colorchooser.green green
@@ -646,7 +648,7 @@ mainmenu.service Service
 mainmenu.settings Settings
 mainmenu.shutdown Shutdown
 mainmenu.sleeptimer SleepTimer
-mainmenu.tvmode TV-Mode
+mainmenu.tvmode TV/Radio-Mode
 mainsettings.audio Audio
 mainsettings.head Settings
 mainsettings.keybinding Key Setup
