@@ -65,12 +65,9 @@ public:
 	DMX_CHANNEL_TYPE getChannelType(void) { return type; };
 	int		getUnit(void) { return unit; };
 	unsigned short	GetPID(void) { return pid; }
-	//
-#if 0
-	const unsigned char *GetFilterTID(u8 FilterIndex = 0);
-	const unsigned char *GetFilterMask(u8 FilterIndex = 0);
-	const unsigned int GetFilterLength(u8 FilterIndex = 0);
-	unsigned int GetFilterCount(void);
-#endif
+
+	int		GetSource();
+	static bool	SetSource(int unit, int source);
+	static int	GetSource(int unit);
 };
 #endif //__DMX_CS_H_
