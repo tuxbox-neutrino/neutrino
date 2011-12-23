@@ -1216,9 +1216,8 @@ void CMovieBrowser::refreshMovieInfo(void)
 	else
 	{
 		bool logo_ok = false;
-		float divx = (float)576 / (float)m_cBoxFrameInfo.iHeight;
-		int picw = (int)((float)720 / divx);
-		int pich = (int)((float)576 / divx);
+		int picw = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
+		int pich = m_cBoxFrameInfo.iHeight;
 		std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
 		logo_ok = (fname != "");
 
@@ -1798,9 +1797,9 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
         } else if (msg == CRCInput::RC_topleft) {
           if (m_movieSelectionHandler != NULL) {
                 if(ShowMsgUTF (LOCALE_MESSAGEBOX_INFO, "Remove screenshot ?", CMessageBox::mbrNo, CMessageBox:: mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
-                        std::string fname = m_movieSelectionHandler->file.Name;
-                        strReplace(fname, ".ts", ".bmp");
-                        unlink(fname.c_str());
+			std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
+			if (fname != "")
+	                        unlink(fname.c_str());
 			refresh();
 		}
           }
@@ -2060,10 +2059,10 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
                                 }
                                 i++;
                         } while(1);
-                        std::string fname = movieSelectionHandler.file.Name;
-                        strReplace(fname, ".ts", ".bmp");
-                        unlink(fname.c_str());
 #endif
+			std::string fname = getScreenshotName(movieSelectionHandler.file.Name);
+			if (fname != "")
+	                        unlink(fname.c_str());
 
 			CFile file_xml  = movieSelectionHandler.file;
 			if(m_movieInfo.convertTs2XmlName(&file_xml.Name) == true)
