@@ -3555,13 +3555,20 @@ void CNeutrinoApp::radioMode( bool rezap)
 	}
 }
 
-//switching from current mode to next mode between tv or radio
-void CNeutrinoApp::switchTvRadioMode()
+//switching from current mode to tv or radio mode or to optional parameter prev_mode 
+void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 {
-	if (mode == mode_radio ) 
-		tvMode();
-	else if(mode == mode_tv) 
-		radioMode();
+	if (prev_mode != mode_unknown){
+		if (prev_mode == mode_tv && mode != mode_tv ) 
+			tvMode();
+		else if(prev_mode == mode_radio && mode != mode_radio) 
+			radioMode();
+	}else {
+		if (mode == mode_radio ) 
+			tvMode();
+		else if(mode == mode_tv) 
+			radioMode();
+	}
 }
 
 //switching clock on or off depends of current displayed or not
@@ -3605,9 +3612,19 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		switchClockOnOff();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
-	else if (actionKey=="tv_radio_switch")//used in mainmenu
+// 	else if (actionKey=="tv_radio_switch")//used in mainmenu
+// 	{
+// 		switchTvRadioMode();
+// 		returnval = menu_return::RETURN_EXIT_ALL;
+// 	}
+	else if (actionKey=="tv")//used in mainmenu
 	{
-		switchTvRadioMode();
+		switchTvRadioMode(mode_tv);
+		returnval = menu_return::RETURN_EXIT_ALL;
+	}
+	else if (actionKey=="radio")//used in mainmenu
+	{
+		switchTvRadioMode(mode_radio);
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
 	else if(actionKey=="scart") {

@@ -206,7 +206,7 @@ public:
 	int getLastMode() {
 		return lastMode;
 	}
-	void switchTvRadioMode();
+	void switchTvRadioMode(const int prev_mode = mode_unknown);
 	void switchClockOnOff();
 	
 	bool isMuted() {

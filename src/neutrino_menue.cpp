@@ -100,15 +100,17 @@ void CNeutrinoApp::InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings
 
 	dprintf(DEBUG_DEBUG, "init mainmenue\n");
 	mainMenu.addItem(GenericMenuSeparator);
+	
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_TVMODE, true, NULL, this, "tv", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), true);
 
-	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_TVMODE, true, NULL, this, "tv_radio_switch", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), true);
+	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_RADIOMODE, true, NULL, this, "radio", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 	//games	
 	if (g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME))
-		mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_GAMES, true, NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME), "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+		mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_GAMES, true, NULL, new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME), "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	
-	//timer
-	mainMenu.addItem(new CMenuForwarder(LOCALE_TIMERLIST_NAME, true, NULL, new CTimerList(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+// 	//TODO: timer
+// 	mainMenu.addItem(new CMenuForwarder(LOCALE_TIMERLIST_NAME, true, NULL, new CTimerList(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	//multimedia menu
  	mainMenu.addItem(new CMenuForwarder(LOCALE_MAINMENU_MEDIA, true, NULL, CMediaPlayerMenu::getInstance(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
