@@ -52,6 +52,26 @@ void CPictureViewer::add_format (int (*picsize) (const char *, int *, int *, int
   fh_root = fhn;
 }
 
+void CPictureViewer::getSupportedImageFormats(std::vector<std::string>& exts)
+{
+#ifdef FBV_SUPPORT_PNG
+	exts.push_back(".png");
+#endif
+#ifdef FBV_SUPPORT_GIF
+	exts.push_back(".gif");
+#endif
+#ifdef FBV_SUPPORT_JPEG
+	exts.push_back(".jpg");
+	exts.push_back(".jpeg");
+#endif
+#ifdef FBV_SUPPORT_BMP
+	exts.push_back(".bmp");
+#endif
+#ifdef FBV_SUPPORT_CRW
+	exts.push_back(".crw");
+#endif
+}
+
 void CPictureViewer::init_handlers (void)
 {
 #ifdef FBV_SUPPORT_PNG
