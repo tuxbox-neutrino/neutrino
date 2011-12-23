@@ -297,6 +297,9 @@ class CMovieBrowser : public CMenuTarget
 		int movieInfoUpdateAll[MB_INFO_MAX_NUMBER];
 		int movieInfoUpdateAllIfDestEmptyOnly;
 
+		std::vector<std::string> PicExts;
+		std::string getScreenshotName(std::string movie);
+
 		//bool restart_mb_timeout;
 
 	public:  // Functions //////////////////////////////////////////////////////////7

@@ -514,6 +514,7 @@ void CMovieBrowser::init(void)
 	refreshLastRecordList();
 	refreshBrowserList();
 	refreshFilterList();
+	g_PicViewer->getSupportedImageFormats(PicExts);
 #if 0
 	TRACE_1("Frames\r\n\tScren:\t%3d,%3d,%3d,%3d\r\n\tMain:\t%3d,%3d,%3d,%3d\r\n\tTitle:\t%3d,%3d,%3d,%3d \r\n\tBrowsr:\t%3d,%3d,%3d,%3d \r\n\tPlay:\t%3d,%3d,%3d,%3d \r\n\tRecord:\t%3d,%3d,%3d,%3d\r\n\r\n",
 	g_settings.screen_StartX,
@@ -1177,6 +1178,27 @@ CFile* CMovieBrowser::getSelectedFile(void)
 		return(NULL);
 }
 
+std::string CMovieBrowser::getScreenshotName(std::string movie)
+{
+	std::string ext;
+	std::string ret;
+
+	size_t found = movie.rfind(".ts");
+	if ((found == string::npos) || (found != (movie.length() - 3)))
+		return "";
+
+	vector<std::string>::iterator it = PicExts.begin();
+	while (it < PicExts.end()) {
+		ret = movie;
+		ext = *it;
+		ret.replace(found, ext.length(), ext);
+		++it;
+		if (!access(ret.c_str(), F_OK))
+			return ret;
+	}
+	return "";
+}
+
 void CMovieBrowser::refreshMovieInfo(void)
 {
 //TRACE("[mb]->refreshMovieInfo m_vMovieInfo.size %d\n", m_vMovieInfo.size());
@@ -1194,13 +1216,11 @@ void CMovieBrowser::refreshMovieInfo(void)
 	else
 	{
 		bool logo_ok = false;
-		int divx = 720/m_cBoxFrameInfo.iHeight;
-		int picw = 720/divx;
-		int pich = 576/divx;
-		std::string fname = m_movieSelectionHandler->file.Name;
-		strReplace(fname, ".ts", ".bmp");
-//printf("screenshot name: %s\n", fname.c_str());
-		logo_ok = !access(fname.c_str(), F_OK);
+		float divx = (float)576 / (float)m_cBoxFrameInfo.iHeight;
+		int picw = (int)((float)720 / divx);
+		int pich = (int)((float)576 / divx);
+		std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
+		logo_ok = (fname != "");
 
 		m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-picw-20: 0);
 		static int logo_w = 0;
@@ -1221,22 +1241,16 @@ void CMovieBrowser::refreshMovieInfo(void)
 			g_PicViewer->DisplayImage(lname, lx - pb_hdd_offset, ly, logo_w, logo_h);
 		}
 		if(logo_ok) {
-#if 0
-			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - picw -10;
-			ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-pich)/2;
-			g_PicViewer->DisplayImage(fname, lx, ly, picw, pich);
-#endif
-
 			int flogo_w = 0, flogo_h = 0;
 			g_PicViewer->getSize(fname.c_str(), &flogo_w, &flogo_h);
-			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw, pich);
-			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -10;
-			ly = m_cBoxFrameInfo.iY + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
-			m_pcWindow->paintVLineRel(lx, ly, flogo_h, COL_WHITE);
-			m_pcWindow->paintVLineRel(lx+flogo_w, ly, flogo_h, COL_WHITE);
-			m_pcWindow->paintHLineRel(lx, flogo_w, ly, COL_WHITE);
-			m_pcWindow->paintHLineRel(lx, flogo_w, ly+flogo_h, COL_WHITE);
-			g_PicViewer->DisplayImage(fname, lx+3, ly+3, flogo_w-3, flogo_h-3);
+			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw-2, pich-2);
+			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
+			ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
+			g_PicViewer->DisplayImage(fname, lx+2, ly+1, flogo_w, flogo_h);
+			m_pcWindow->paintVLineRel(lx, ly, flogo_h+1, COL_WHITE);
+			m_pcWindow->paintVLineRel(lx+flogo_w+2, ly, flogo_h+2, COL_WHITE);
+			m_pcWindow->paintHLineRel(lx, flogo_w+2, ly, COL_WHITE);
+			m_pcWindow->paintHLineRel(lx, flogo_w+2, ly+flogo_h+1, COL_WHITE);
 		}
 	}
 }
@@ -2747,7 +2761,8 @@ void CMovieBrowser::loadMovies(bool doRefresh)
 		refreshLastPlayList();
 		refreshLastRecordList();
 		refreshFilterList();
-		refreshMovieInfo();	// is done by refreshBrowserList if needed
+		// Suppressed Duplicate call to refresh MovieInfo() at start Moviebrowser
+		//refreshMovieInfo();	// is done by refreshBrowserList if needed
 		//clock_act = clock()/10000;TRACE("[mb] *7: time %9ld  clock %6ld  dclock %6ld*\n",(long)time(NULL),clock_act,clock_act - clock_prev);clock_prev = clock_act;
 	}
 
