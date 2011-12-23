@@ -486,7 +486,12 @@ int CTimerList::show()
 			paint();
 		}
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
-
+		
+		//ignore numeric keys
+		if (g_RCInput->isNumeric(msg)){
+			msg = CRCInput::RC_nokey;
+		}
+			
 		if ( msg <= CRCInput::RC_MaxRC )
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 							      ::TIMING_MENU]);
