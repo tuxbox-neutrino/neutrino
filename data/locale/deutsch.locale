@@ -648,7 +648,7 @@ mainmenu.service Service
 mainmenu.settings Einstellungen
 mainmenu.shutdown Ausschalten
 mainmenu.sleeptimer SleepTimer
-mainmenu.tvmode TV/Radio Umschaltung
+mainmenu.tvmode TV-Modus
 mainsettings.audio Audio
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten
