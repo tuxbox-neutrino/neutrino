@@ -1133,7 +1133,8 @@ void CRecordManager::StartTimeshift()
 		if(RecordingStatus(live_channel_id))
 		{
 			tmode = "ptimeshift"; // already recording, pause
-			SetTimeshiftMode(FindInstance(live_channel_id), TSHIFT_MODE_PAUSE);
+			if(GetRecordMode(live_channel_id) == RECMODE_TSHIFT)
+				SetTimeshiftMode(FindInstance(live_channel_id), TSHIFT_MODE_PAUSE);
 		}else
 		{
 			if(g_settings.temp_timeshift)
