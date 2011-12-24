@@ -202,7 +202,16 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &
 
 bool CRecordInstance::Stop(bool remove_event)
 {
-	char buf[FILENAMEBUFFERSIZE];
+	char buf[FILENAMEBUFFERSIZE]={0};
+
+	struct stat test;
+	snprintf(buf,sizeof(buf), "%s.xml", filename);
+	if(stat(buf, &test) == 0){
+		cMovieInfo->clearMovieInfo(recMovieInfo);
+		snprintf(buf,sizeof(buf), "%s.ts", filename);
+		recMovieInfo->file.Name = buf;
+		cMovieInfo->loadMovieInfo(recMovieInfo);//restore user bookmark
+	}
 
 	time_t end_time = time(0);
 	recMovieInfo->length = (int) round((double) (end_time - start_time) / (double) 60);
@@ -217,9 +226,9 @@ bool CRecordInstance::Stop(bool remove_event)
         CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
         if((autoshift && g_settings.auto_delete) /* || autoshift_delete*/) {
-                sprintf(buf, "rm -f %s.ts &", filename);
+                snprintf(buf,sizeof(buf), "rm -f %s.ts &", filename);
                 system(buf);
-                sprintf(buf, "%s.xml", filename);
+                snprintf(buf,sizeof(buf), "%s.xml", filename);
                 //autoshift_delete = false;
                 unlink(buf);
         }
