@@ -458,7 +458,7 @@ int CBouquetList::show(bool bShowChannelList)
 		else if(msg == (neutrino_msg_t)g_settings.key_bouquet_up || msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
 			if(bShowChannelList) {
 				int mode = CNeutrinoApp::getInstance()->GetChannelMode();
-				mode += (msg == CRCInput::RC_left) ? -1 : 1;
+				mode += (msg == (neutrino_msg_t)g_settings.key_bouquet_down) ? -1 : 1;
 				if(mode < 0)
 					mode = LIST_MODE_LAST - 1;
 				else if(mode >= LIST_MODE_LAST)
