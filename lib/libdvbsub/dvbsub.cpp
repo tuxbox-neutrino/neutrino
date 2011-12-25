@@ -249,8 +249,11 @@ static void* reader_thread(void * /*arg*/)
 	uint8_t* buf;
 
         dmx = new cDemux(0);
-        dmx->Open(DMX_PES_CHANNEL, NULL, 16*1024);
-
+#if HAVE_TRIPLEDRAGON
+	dmx->Open(DMX_PES_CHANNEL, NULL, 16*1024);
+#else
+        dmx->Open(DMX_PES_CHANNEL, NULL, 64*1024);
+#endif
 	while (reader_running) {
 		if(dvbsub_stopped /*dvbsub_paused*/) {
 			sub_debug.print(Debug::VERBOSE, "%s stopped\n", __FUNCTION__);

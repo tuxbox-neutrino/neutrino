@@ -300,8 +300,10 @@ void dvbsub_get_stc(int64_t * STC);
 int cDvbSubtitleConverter::Action(void)
 {
 	int WaitMs = WAITMS;
+#if 0
  retry:
 	bool shown = false;
+#endif
 	if (!running)
 		return 0;
 
@@ -332,7 +334,7 @@ dbgconverter("cDvbSubtitleConverter::Action: PTS: %012llx STC: %012llx (%lld) ti
 				if(sb->Count())
 					WaitMs = MIN_DISPLAY_TIME;
 				bitmaps->Del(sb, true);
-				shown = true;
+//				shown = true;
 			}
 			else if (Delta < WaitMs)
 				WaitMs = (Delta > SHOW_DELTA) ? Delta - SHOW_DELTA : Delta;
@@ -350,9 +352,10 @@ dbgconverter("cDvbSubtitleConverter::Action: PTS: %012llx STC: %012llx (%lld) ti
 		}
 	}
 	Unlock();
+#if 0
 if (shown)
 	goto retry;
-
+#endif
 	if(WaitMs != WAITMS)
 		dbgconverter("cDvbSubtitleConverter::Action: finish, WaitMs %d\n", WaitMs);
 
