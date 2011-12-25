@@ -1224,7 +1224,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 		}
 
 		bool logo_ok = false;
-		int picw = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
+		int picw = m_cBoxFrameInfo.iHeight * 16 / 9;
 		int pich = m_cBoxFrameInfo.iHeight;
 		std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
 		logo_ok = (fname != "");
@@ -1271,7 +1271,7 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 	if(getSelectedFile() != NULL){
 		if (::statfs(getSelectedFile()->Name.c_str(), &s) == 0) {
 			long blocks_used = s.f_blocks - s.f_bfree;
-			blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
+			blocks_percent_used = (blocks_used * 1000 / (blocks_used + s.f_bavail) + 5)/10;
 		}
 	}
 	
@@ -4114,7 +4114,7 @@ if(buf[0] != 0x47) printf("cut: buffer not aligned at %lld\n", sdone);
 					}
 					sdone += r;
 					spos += r - wptr;
-					percent = (int) ((float)(spos)/(float)(newsize)*100.);
+					percent = spos * 100 / newsize;
 					timescale->paintProgressBar2(x + 41, y + 12, percent);
 #if REAL_CUT
 					int wr = write(dstfd, &buf[wptr], r-wptr);
@@ -4342,7 +4342,7 @@ if(buf[0] != 0x47) printf("copy: buffer not aligned at %lld\n", sdone);
 				bskip -= r;
 				spos += r - wptr;
 				btotal += r;
-				percent = (int) ((float)(btotal)/(float)(newsize)*100.);
+				percent = btotal * 100 / newsize;
 				timescale->paintProgressBar2(x + 41, y + 12, percent);
 #if REAL_CUT
 				int wr = write(dstfd, &buf[wptr], r-wptr);

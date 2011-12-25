@@ -2193,7 +2193,7 @@ void CInfoViewer::showLcdPercentOver ()
 			if (jetzt < info_CurrentNext.current_zeit.startzeit)
 				runningPercent = 0;
 			else
-				runningPercent = MIN ((unsigned) ((float) (jetzt - info_CurrentNext.current_zeit.startzeit) / (float) info_CurrentNext.current_zeit.dauer * 100.), 100);
+				runningPercent = MIN ((jetzt - info_CurrentNext.current_zeit.startzeit) * 100 / info_CurrentNext.current_zeit.dauer, 100);
 		}
 		CVFD::getInstance ()->showPercentOver (runningPercent);
 	}
