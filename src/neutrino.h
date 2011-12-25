@@ -154,7 +154,7 @@ private:
 	void scartMode( bool bOnOff );
 	void standbyMode( bool bOnOff );
 	void AudioMute( int newValue, bool isEvent= false );
-	void setvol(int vol, int avs);
+	void setvol(int vol);
 	void saveEpg();
 
 	void ExitRun(const bool write_si = true, int retcode = 0);

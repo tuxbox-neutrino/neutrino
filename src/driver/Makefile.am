@@ -24,14 +24,12 @@ libneutrino_driver_a_SOURCES = \
 	record.cpp \
 	audioplay.cpp \
 	screen_max.cpp \
-	slotbuffer.c \
 	file.cpp \
 	audiometadata.cpp \
 	audiofile.cpp \
 	shutdown_count.cpp \
 	genpsi.c \
 	streamts.cpp \
-	rfmod.cpp \
 	radiotools.cpp \
 	radiotext.cpp \
 	fade.cpp \

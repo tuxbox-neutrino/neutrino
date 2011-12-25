@@ -294,34 +294,6 @@ bool CLcdNotifier::changeNotify(const neutrino_locale_t, void *)
 	return true;
 }
 
-int CRfExec::exec(CMenuTarget* /*parent*/, const std::string& /*actionKey*/)
-{
-	g_RFmod->init();
-	return true;
-}
-
-bool CRfNotifier::changeNotify(const neutrino_locale_t OptionName, void * val)
-{
-//printf("CRfNotifier: Option %d val %d\n", OptionName, *((int *)val));
-	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_CARRIER)) {
-		g_RFmod->setSoundSubCarrier(*((int *)val));
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_ENABLE)) {
-		g_RFmod->setSoundEnable(*((int *)val));
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_CHANNEL)) {
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_FINETUNE)) {
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_STANDBY)) {
-		g_RFmod->setStandby(*((int *)val));
-	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_RFMOD_TEST)) {
-		g_RFmod->setTestPattern(*((int *)val));
-	}
-	return true;
-}
-
 bool CPauseSectionsdNotifier::changeNotify(const neutrino_locale_t, void * Data)
 {
 	g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);

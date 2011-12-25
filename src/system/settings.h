@@ -64,7 +64,6 @@ struct SNeutrinoSettings
 	int zapto_pre_time;
 	int infobar_sat_display;
 	int infobar_subchan_disp_pos;
-	int misc_spts;
 	int fan_speed;
 	int infobar_show;
 	int show_infomenu;
@@ -80,7 +79,6 @@ struct SNeutrinoSettings
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
-	int audio_avs_Control;
 	int auto_lang;
 	int auto_subs;
 	char audio_PCMOffset[3];
@@ -230,28 +228,17 @@ struct SNeutrinoSettings
 
 	//recording
 	int  recording_type;
-	int  recording_stopplayback;
 	int  recording_stopsectionsd;
-	std::string recording_server_ip;
-	char recording_server_port[10];
-	int  recording_server_wakeup;
-	char recording_server_mac[31];
-	int  recording_vcr_no_scart;
-	char recording_splitsize[10];
-	int  recording_use_o_sync;
-	int  recording_use_fdatasync;
 	unsigned char recording_audio_pids_default;
 	int recording_audio_pids_std;
 	int recording_audio_pids_alt;
 	int recording_audio_pids_ac3;
 	int  recording_stream_vtxt_pid;
 	int  recording_stream_pmt_pid;
-	char recording_ringbuffers[10];
 	int recording_choose_direct_rec_dir;
 	int recording_epg_for_filename;
 	int recording_epg_for_end;
 	int recording_save_in_channeldir;
-	int recording_in_spts_mode;
 	int  recording_zap_on_announce;
 	int shutdown_timer_record_type;
 
@@ -304,12 +291,6 @@ struct SNeutrinoSettings
 	int mpkey_plugin;
 	int key_timeshift;
 	int key_plugin;
-
-	int rf_subcarrier;
-	int rf_soundenable;
-	int rf_channel;
-	int rf_finetune;
-	int rf_standby;
 
 	int key_unlock;
 	int cacheTXT;
@@ -423,18 +404,6 @@ struct SNeutrinoSettings
 #define UTF8_TO_FILESYSTEM_ENCODING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::UTF8_to_Latin1(a).c_str())
 #define FILESYSTEM_ENCODING_TO_UTF8_STRING(a) (g_settings.filesystem_is_utf8 ? (a) : ZapitTools::Latin1_to_UTF8(a))
 
-
-#if 0
-#define MISC_SETTING_FILES_COUNT 7
-#else
-#define MISC_SETTING_FILES_COUNT 4
-#endif
-
-// #define MISC_SETTING_SPTS_MODE 0
-
-	int misc_option[MISC_SETTING_FILES_COUNT];
-
-
 	// pictureviewer
 	char   picviewer_slide_time[3];
 	int    picviewer_scaling;
@@ -468,8 +437,6 @@ struct SNeutrinoSettings
 	int	power_standby;
 	int	emlog;
 	int	rotor_swap;
-	int	ts_mode;
-	int	hw_sect;
 	int	hdd_sleep;
 	int	hdd_noise;
 	int	hdd_fs;
@@ -512,7 +479,6 @@ struct SNeutrinoSettings
 		ITEM_CLOCK = 19,
 #if 0
 		ITEM_MOVIEPLAYER_TS,
-		ITEM_RESTART_CAMD,
 #endif
 		ITEM_MAX   // MUST be always the last in the list
 	} USER_ITEM;

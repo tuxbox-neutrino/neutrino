@@ -408,7 +408,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
 	g_settings.audio_DolbyDigital    = configfile.getBool("audio_DolbyDigital"   , false);
 
-	g_settings.audio_avs_Control = false;
 	g_settings.auto_lang = configfile.getInt32( "auto_lang", 0 );
 	g_settings.auto_subs = configfile.getInt32( "auto_subs", 0 );
 
@@ -564,28 +563,17 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	//recording (server + vcr)
 	g_settings.recording_type = configfile.getInt32("recording_type", RECORDING_FILE);
-	g_settings.recording_stopplayback          = configfile.getBool("recording_stopplayback"             , false);
 	g_settings.recording_stopsectionsd         = configfile.getBool("recording_stopsectionsd"            , false );
-	g_settings.recording_server_ip = configfile.getString("recording_server_ip", "127.0.0.1");
-	strcpy( g_settings.recording_server_port, configfile.getString( "recording_server_port", "4000").c_str() );
-	g_settings.recording_server_wakeup = configfile.getInt32( "recording_server_wakeup", 0 );
-	strcpy( g_settings.recording_server_mac, configfile.getString( "recording_server_mac", "11:22:33:44:55:66").c_str() );
-	g_settings.recording_vcr_no_scart = configfile.getInt32( "recording_vcr_no_scart", false);
-	strcpy( g_settings.recording_splitsize, configfile.getString( "recording_splitsize", "2048").c_str() );
-	g_settings.recording_use_o_sync            = configfile.getBool("recordingmenu.use_o_sync"           , false);
-	g_settings.recording_use_fdatasync         = configfile.getBool("recordingmenu.use_fdatasync"        , false);
 	g_settings.recording_audio_pids_default    = configfile.getInt32("recording_audio_pids_default", TIMERD_APIDS_STD | TIMERD_APIDS_AC3);
 	g_settings.recording_zap_on_announce       = configfile.getBool("recording_zap_on_announce"      , false);
 	g_settings.shutdown_timer_record_type       = configfile.getBool("shutdown_timer_record_type"      , false);
 
 	g_settings.recording_stream_vtxt_pid       = configfile.getBool("recordingmenu.stream_vtxt_pid"      , false);
 	g_settings.recording_stream_pmt_pid        = configfile.getBool("recordingmenu.stream_pmt_pid"      , false);
-	strcpy( g_settings.recording_ringbuffers, configfile.getString( "recordingmenu.ringbuffers", "20").c_str() );
 	g_settings.recording_choose_direct_rec_dir = configfile.getInt32( "recording_choose_direct_rec_dir", 0 );
 	g_settings.recording_epg_for_filename      = configfile.getBool("recording_epg_for_filename"         , true);
 	g_settings.recording_epg_for_end           = configfile.getBool("recording_epg_for_end"              , false);
 	g_settings.recording_save_in_channeldir      = configfile.getBool("recording_save_in_channeldir"         , false);
-	g_settings.recording_in_spts_mode          = true;
 
 	// default plugin for movieplayer
 	g_settings.movieplayer_plugin = configfile.getString( "movieplayer_plugin", "Teletext" );
@@ -596,12 +584,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	loadKeys();
 
 	g_settings.timeshift_pause = configfile.getInt32( "timeshift_pause", 1 );
-//rfmod
-	g_settings.rf_subcarrier = configfile.getInt32( "rf_subcarrier", 1);
-	g_settings.rf_soundenable = configfile.getInt32( "rf_soundenable", 0);
-	g_settings.rf_channel = configfile.getInt32( "rf_channel", 36);
-	g_settings.rf_finetune = configfile.getInt32( "rf_finetune", 0);
-	g_settings.rf_standby = configfile.getInt32( "rf_standby", 0);
 
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
@@ -855,7 +837,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );
 	configfile.setBool("audio_DolbyDigital"   , g_settings.audio_DolbyDigital   );
-	configfile.setInt32( "audio_avs_Control", g_settings.audio_avs_Control );
 	configfile.setInt32( "auto_lang", g_settings.auto_lang );
 	configfile.setInt32( "auto_subs", g_settings.auto_subs );
 	for(int i = 0; i < 3; i++) {
@@ -981,16 +962,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	//recording (server + vcr)
 	configfile.setInt32 ("recording_type",                      g_settings.recording_type);
-	configfile.setBool  ("recording_stopplayback"             , g_settings.recording_stopplayback         );
 	configfile.setBool  ("recording_stopsectionsd"            , g_settings.recording_stopsectionsd        );
-	configfile.setString("recording_server_ip",                 g_settings.recording_server_ip);
-	configfile.setString("recording_server_port",               g_settings.recording_server_port);
-	configfile.setInt32 ("recording_server_wakeup",             g_settings.recording_server_wakeup);
-	configfile.setString("recording_server_mac",                g_settings.recording_server_mac);
-	configfile.setInt32 ("recording_vcr_no_scart",              g_settings.recording_vcr_no_scart);
-	configfile.setString("recording_splitsize",                 g_settings.recording_splitsize);
-	configfile.setBool  ("recordingmenu.use_o_sync"           , g_settings.recording_use_o_sync           );
-	configfile.setBool  ("recordingmenu.use_fdatasync"        , g_settings.recording_use_fdatasync        );
 
 	configfile.setInt32 ("recording_audio_pids_default"       , g_settings.recording_audio_pids_default);
 	configfile.setBool  ("recording_zap_on_announce"          , g_settings.recording_zap_on_announce      );
@@ -998,24 +970,16 @@ void CNeutrinoApp::saveSetup(const char * fname)
 
 	configfile.setBool  ("recordingmenu.stream_vtxt_pid"      , g_settings.recording_stream_vtxt_pid      );
 	configfile.setBool  ("recordingmenu.stream_pmt_pid"       , g_settings.recording_stream_pmt_pid      );
-	configfile.setString("recordingmenu.ringbuffers"          , g_settings.recording_ringbuffers);
 	configfile.setInt32 ("recording_choose_direct_rec_dir"    , g_settings.recording_choose_direct_rec_dir);
 	configfile.setBool  ("recording_epg_for_filename"         , g_settings.recording_epg_for_filename     );
 	configfile.setBool  ("recording_epg_for_end"              , g_settings.recording_epg_for_end          );
 	configfile.setBool  ("recording_save_in_channeldir"       , g_settings.recording_save_in_channeldir     );
-	configfile.setBool  ("recording_in_spts_mode"             , g_settings.recording_in_spts_mode         );
 
 	// default plugin for movieplayer
 	configfile.setString ( "movieplayer_plugin", g_settings.movieplayer_plugin );
 	configfile.setString ( "onekey_plugin", g_settings.onekey_plugin );
 	configfile.setString ( "plugin_hdd_dir", g_settings.plugin_hdd_dir );
 	configfile.setString ( "logo_hdd_dir", g_settings.logo_hdd_dir );
-
-	configfile.setInt32( "rf_subcarrier", g_settings.rf_subcarrier);
-	configfile.setInt32( "rf_soundenable", g_settings.rf_soundenable);
-	configfile.setInt32( "rf_channel", g_settings.rf_channel);
-	configfile.setInt32( "rf_finetune", g_settings.rf_finetune);
-	configfile.setInt32( "rf_standby", g_settings.rf_standby);
 
 	saveKeys();
 
@@ -2230,7 +2194,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		g_Zapit->getVolume(&volume, &volume);
 		current_volume = 100 - volume*100/63;
 		printf("zapit volume %d new current %d mode %d\n", volume, current_volume, g_settings.audio_AnalogMode);
-		setvol(current_volume,(g_settings.audio_avs_Control));
+		setvol(current_volume);
 #endif
 		g_RCInput->killTimer(scrambled_timer);
 
@@ -2672,14 +2636,6 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::ANNOUNCE_RECORD) {
 		system(NEUTRINO_RECORDING_TIMER_SCRIPT);
-#if 0 // FIXME: we dont have menu to config g_settings.recording_server_mac. Outdated code ?
-		if( g_settings.recording_server_wakeup ) {
-			std::string command = "ether-wake ";
-			command += g_settings.recording_server_mac;
-			if(system(command.c_str()) != 0)
-				perror("ether-wake failed");
-		}
-#endif
 		if (g_settings.recording_type == RECORDING_FILE) {
 			char * recordingDir = ((CTimerd::RecordingInfo*)data)->recordingDir;
 			for(int i=0 ; i < NETWORK_NFS_NR_OF_ENTRIES ; i++) {
@@ -3108,7 +3064,7 @@ printf("AudioMute: current %d new %d isEvent: %d\n", current_muted, newValue, is
 	}
 }
 
-void CNeutrinoApp::setvol(int vol, int /*avs*/)
+void CNeutrinoApp::setvol(int vol)
 {
 	audioDecoder->setVolume(vol, vol);
 }
@@ -3217,12 +3173,12 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 				break;
 			}
 
-			setvol(g_settings.current_volume,(g_settings.audio_avs_Control));
+			setvol(g_settings.current_volume);
 			timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : 3);
 		}
 		else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
 			//current_volume = g_Controld->getVolume((CControld::volume_type)g_settings.audio_avs_Control);//FIXME
-//printf("setVolume EVT_VOLCHANGED %d\n", current_volume);
+			//printf("setVolume EVT_VOLCHANGED %d\n", current_volume);
 			timeoutEnd = CRCInput::calcTimeoutEnd(3);
 		}
 		else if (handleMsg(msg, data) & messages_return::unhandled) {

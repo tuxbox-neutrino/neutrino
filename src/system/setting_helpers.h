@@ -118,16 +118,6 @@ class CLcdNotifier : public CChangeObserver
 	public:
 		bool changeNotify(const neutrino_locale_t, void *);
 };
-class CRfNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-class CRfExec : public CMenuTarget
-{
-	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
 
 class CPauseSectionsdNotifier : public CChangeObserver
 {
