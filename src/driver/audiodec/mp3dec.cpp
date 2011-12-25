@@ -3,6 +3,7 @@
 
 	Copyright (C) 2002 Bjoern Kalkbrenner <terminar@cyberphoria.org>
    (C) 2002,2003,2004 Zwen <Zwen@tuxbox.org>
+	Copyright (C) 2010-2011 Stefan Seyfried
 
 	libmad MP3 low-level core
 	Homepage: http://www.cyberphoria.org/
@@ -282,8 +283,7 @@ void CMP3Dec::CreateInfo(CAudioMetaData* m, int FrameNumber)
 	if ( !m->hasInfoOrXingTag )
 	{
 		m->total_time = m->avg_bitrate != 0 ?
-			static_cast<int>( round( static_cast<double>( m->filesize )
-									 / m->avg_bitrate ) )
+			static_cast<int>(m->filesize / m->avg_bitrate)
 			: 0;
 	}
 
@@ -1132,8 +1132,7 @@ bool CMP3Dec::GetMP3Info( FILE* input, const bool nice,
 		{
 			meta->vbr = true;
 			meta->avg_bitrate = meta->total_time != 0
-				? static_cast<int>( round( static_cast<double>(meta->filesize)
-										   / meta->total_time ) )
+				? static_cast<int>(meta->filesize / meta->total_time)
 				: 0;
 		}
 		else /* we do not know wether the file is vbr or not */
