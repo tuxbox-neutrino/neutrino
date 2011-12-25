@@ -5,13 +5,7 @@
 							 and some other guys
 	Homepage: http://dbox.cyberphoria.org/
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
+	Copyright (C) 2011 CoolStream International Ltd
 
 	License: GPL
 
@@ -42,14 +36,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <dirent.h>
-#include <dlfcn.h>
 #include <signal.h>
-#include <sys/wait.h>
-#include <sys/statvfs.h>
-#include <sys/socket.h>
 
-#include <iostream>
 #include <fstream>
 #include <string>
 
@@ -59,7 +47,6 @@
 #include <daemonc/remotecontrol.h>
 
 #include <driver/abstime.h>
-#include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/framebuffer.h>
 #include <driver/rcinput.h>
@@ -72,54 +59,34 @@
 #include "gui/widget/lcdcontroler.h"
 #endif
 
-#include "gui/alphasetup.h"
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
 #include "gui/cec_setup.h"
 #include "gui/channellist.h"
-#include "gui/color.h"
-#include "gui/customcolor.h"
-#include "gui/epg_menu.h"
 #include "gui/epgview.h"
 #include "gui/eventlist.h"
 #include "gui/favorites.h"
 #include "gui/filebrowser.h"
 #include "gui/hdd_menu.h"
-#include "gui/imageinfo.h"
 #include "gui/infoviewer.h"
 #include "gui/keybind_setup.h"
 #include "gui/mediaplayer.h"
-#include "gui/motorcontrol.h"
 #include "gui/movieplayer.h"
-#include "gui/nfs.h"
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
 #include "gui/pictureviewer.h"
-#include "gui/pluginlist.h"
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
-#include "gui/scan.h"
 #include "gui/scan_setup.h"
-#include "gui/screensetup.h"
-#include "gui/sleeptimer.h"
 #include "gui/timerlist.h"
-#include "gui/update.h"
-#if ENABLE_UPNP
-#include "gui/upnpbrowser.h"
-#endif
 #include "gui/videosettings.h"
-#include "gui/widget/colorchooser.h"
+
 #include "gui/widget/hintbox.h"
 #include "gui/widget/icons.h"
-#include "gui/widget/keychooser.h"
 #include "gui/widget/menue.h"
 #include "gui/widget/messagebox.h"
-#include "gui/widget/mountchooser.h"
-#include "gui/widget/stringinput.h"
-#include "gui/widget/stringinput_ext.h"
-#include "gui/epgplus.h"
-#include "gui/streaminfo2.h"
+#include "gui/infoclock.h"
 
 #if HAVE_COOL_HARDWARE
 #include "gui/widget/progressbar.h"
@@ -132,7 +99,6 @@
 #include <pwrmngr.h>
 
 #include <system/debug.h>
-#include <system/flashtool.h>
 #include <system/fsmounter.h>
 #include <system/setting_helpers.h>
 #include <system/settings.h>
@@ -140,12 +106,9 @@
 #include <timerdclient/timerdmsg.h>
 
 #include <zapit/debug.h>
-#include <zapit/frontend_c.h>
+#include <zapit/zapit.h>
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
-#include <zapit/zapit.h>
-#include <zapit/channel.h>
-#include <zapit/bouquets.h>
 
 #include <string.h>
 #include <linux/reboot.h>
@@ -156,12 +119,10 @@
 
 int old_b_id = -1;
 CHintBox * reloadhintBox = 0;
-// int rf_dummy; 
 bool has_hdd;
-#include "gui/infoclock.h"
+
 CInfoClock      *InfoClock;
 int allow_flash = 1;
-//int was_record;
 Zapit_config zapitCfg;
 char zapit_lat[20];
 char zapit_long[20];
@@ -178,10 +139,6 @@ extern int streamts_stop;
 void * streamts_main_thread(void *data);
 static pthread_t stream_thread ;
 
-//extern int zapit_ready;
-//static pthread_t zapit_thread ;
-void * zapit_main_thread(void *data);
-
 void * nhttpd_main_thread(void *data);
 static pthread_t nhttpd_thread ;
 
@@ -189,7 +146,6 @@ static pthread_t nhttpd_thread ;
 extern int sectionsd_stop;
 static pthread_t sections_thread;
 void * sectionsd_main_thread(void *data);
-//extern int sectionsd_scanning; // sectionsd.cpp
 extern bool timeset; // sectionsd
 
 extern cVideo * videoDecoder;
@@ -206,8 +162,6 @@ void stop_daemons(bool stopall = true);
 #ifdef __EXPERIMENTAL_CODE__
 #include "gui/ch_mosaic.h"
 #endif
-
-#include "gui/audio_select.h"
 
 CAudioSetupNotifier	* audioSetupNotifier;
 CBouquetList   * bouquetList; // current list
@@ -227,24 +181,18 @@ CRemoteControl * g_RemoteControl;
 CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
 
-//int g_ChannelMode = LIST_MODE_PROV;
-
 // Globale Variablen - to use import global.h
 
 // I don't like globals, I would have hidden them in classes,
 // but if you wanna do it so... ;)
 bool parentallocked = false;
-//static bool waitforshutdown = false;
 static char **global_argv;
 
-//static CTimingSettingsNotifier timingsettingsnotifier;
 CFontSizeNotifier fontsizenotifier;
 
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 // USERMENU
 const char* usermenu_button_def[SNeutrinoSettings::BUTTON_MAX]={"red","green","yellow","blue"};
-
-CZapitClient::SatelliteList satList;
 
 static void initGlobals(void)
 {
@@ -1720,17 +1668,11 @@ int CNeutrinoApp::run(int argc, char **argv)
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 
-	//pthread_create (&zapit_thread, NULL, zapit_main_thread, (void *) &ZapStart_arg);
 	CZapit::getInstance()->Start(&ZapStart_arg);
 
 	audioSetupNotifier        = new CAudioSetupNotifier;
 	//timer start
 	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
-#if 0
-	while(!zapit_ready)
-		usleep(0);
-#endif
-	printf("zapit ready\n\n");
 
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
@@ -3775,10 +3717,7 @@ void stop_daemons(bool stopall)
 	if(!stopall && g_settings.hdmi_cec_mode && g_settings.hdmi_cec_standby){
 	  	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)0);
 	}
-#if 0
-	g_Zapit->shutdown();
-	pthread_join(zapit_thread, NULL);
-#endif
+
 	delete &CMoviePlayerGui::getInstance();
 	CZapit::getInstance()->Stop();
 	printf("zapit shutdown done\n");
