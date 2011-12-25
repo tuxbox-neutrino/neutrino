@@ -28,9 +28,9 @@ int readEncodingFile()
 			else if ( (sscanf( line, "0x%x 0x%x ISO8859-%d", &tsid, &onid, &encoding ) == 3 )
 					||(sscanf( line, "%d %d ISO8859-%d", &tsid, &onid, &encoding ) == 3 ) )
 				TransponderDefaultMapping[(tsid<<16)|onid]=encoding;
-			else if ( (sscanf( line, "0x%x 0x%x ISO%d", &tsid, &onid, &encoding ) == 3 && encoding == 6397 )
-					||(sscanf( line, "%d %d ISO%d", &tsid, &onid, &encoding ) == 3 && encoding == 6397 ) )
-				TransponderDefaultMapping[(tsid<<16)|onid]=0;
+			else if ( (sscanf( line, "0x%x 0x%x ISO%d", &tsid, &onid, &encoding ) == 3 && encoding == 6937 )
+					||(sscanf( line, "%d %d ISO%d", &tsid, &onid, &encoding ) == 3 && encoding == 6937 ) )
+				TransponderDefaultMapping[(tsid<<16)|onid]=64;
 			else if ( (sscanf( line, "0x%x 0x%x", &tsid, &onid ) == 2 )
 					||(sscanf( line, "%d %d", &tsid, &onid ) == 2 ) )
 				TransponderUseTwoCharMapping.insert((tsid<<16)|onid);
@@ -168,7 +168,7 @@ static unsigned long c885916[96]= {
 	0x00E0, 0x00E1, 0x00E2, 0x0103, 0x00E4, 0x0107, 0x00E6, 0x00E7, 0x00E8, 0x00E9, 0x00EA, 0x00EB, 0x00EC, 0x00ED, 0x00EE, 0x00EF,
 	0x0111, 0x0144, 0x00F2, 0x00F3, 0x00F4, 0x0151, 0x00F6, 0x015B, 0x0171, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x0119, 0x021B, 0x00FF
 };
-static unsigned long iso6397[96]={
+static unsigned long iso6937[96]={
 	0x00A0, 0x00A1, 0x00A2, 0x00A3, 0x20AC, 0x00A5, 0x0000, 0x00A7, 0x00A4, 0x2018, 0x201C, 0x00AB, 0x2190, 0x2191, 0x2192, 0x2193,
 	0x00B0, 0x00B1, 0x00B2, 0x00B3, 0x00D7, 0x00B5, 0x00B6, 0x00B7, 0x00F7, 0x2019, 0x201D, 0x00BB, 0x00BC, 0x00BD, 0x00BE, 0x00BF,
 	0x0000, 0xE002, 0xE003, 0xE004, 0xE005, 0xE006, 0xE007, 0xE008, 0xE009, 0xE00C, 0xE00A, 0xE00B, 0x0000, 0xE00D, 0xE00E, 0xE00F,
@@ -556,8 +556,7 @@ static inline unsigned int recode(unsigned char d, int cp)
 		return d;
 	switch (cp)
 	{
-	case 0:		// ISO6397
-		return iso6397[d-0xA0];
+	case 0:		// Latin1 <-> unicode mapping
 	case 1:		// 8859-1 <-> unicode mapping
 		return d;
 	case 2:		// 8859-2 -> unicode mapping
@@ -590,6 +589,8 @@ static inline unsigned int recode(unsigned char d, int cp)
 		return c885915[d-0xA0];
 	case 16:// 8859-16 -> unicode mapping
 		return c885916[d-0xA0];
+	case 64:// ISO6937
+		return iso6937[d-0xA0];
 	default:
 		return d;
 	}
@@ -610,6 +611,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 			TransponderDefaultMapping.find(tsidonid);
 		if ( it != TransponderDefaultMapping.end() )
 			table = it->second;
+
 		twochar = TransponderUseTwoCharMapping.find(tsidonid) != TransponderUseTwoCharMapping.end();
 	}
 //printf("table %d tsidonid %04x twochar %d : %20s\n", table, tsidonid, twochar, data);
@@ -658,8 +660,13 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 	++i;
 	break;
 	}
+
 	if(!table)
 		table = newtable;
+	if(table == 64 && (newtable !=0 )){//for ISO6937
+		table = newtable;
+	}
+
 //dprintf("recode:::: tsidonid %X table %d two-char %d len %d\n", tsidonid, table, twochar, len);
 	unsigned char res[2048];
 	while (i < len)
