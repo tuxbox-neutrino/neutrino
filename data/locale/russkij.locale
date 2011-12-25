@@ -842,16 +842,6 @@ recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Запись начинается через несколько минут
 repeatblocker.hint_1 Время в ms для распознавания 2-го нажатия кнопки
 repeatblocker.hint_2 Нажмите  0 для переключения (красная - пробел)
-rfmod.carrier Subcarrier Frequency
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel Channel
-rfmod.enable Enable sound
-rfmod.finetune Fine tune
-rfmod.standby Enable modulator
-rfmod.test Test pattern
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1

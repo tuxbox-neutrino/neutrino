@@ -1014,16 +1014,6 @@ repeatblocker.hint_2 0 érték kikapcsolja a blokkolót (PIROS gomb: szóköz)
 reset_channels Csatornalista törlése
 reset_confirm Minden beállítás alaphelyzetbe kerül!\nBiztos benne?
 reset_settings Alaphelyzet
-rfmod.carrier Vivőfrekvencia (MHz)
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel Csatorna
-rfmod.enable Hang engedélyezése
-rfmod.finetune Finomhangolás
-rfmod.standby Modulátor bekapcsolása
-rfmod.test Tesztábra
 satsetup.auto_scan Automatikus keresés
 satsetup.auto_scan_all Többműholdas keresés
 satsetup.comm_input Committed kapcsoló

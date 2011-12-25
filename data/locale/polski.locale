@@ -1013,16 +1013,6 @@ reset_all Ustawienia fabryczne
 reset_channels Usuwanie listy kanałów
 reset_confirm Jesteś pewny?
 reset_settings Przywróć domyślne
-rfmod.carrier Czestotliwość
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel kanał
-rfmod.enable Włącz dźwięk
-rfmod.finetune Pomyslne strojenie
-rfmod.standby Włącz modulator
-rfmod.test Test obrazu
 satsetup.auto_scan Auto. przeszukiwanie jednego satelity
 satsetup.auto_scan_all Auto. przeszukiwanie wybranych satelitów
 satsetup.comm_input Wejście podłączone

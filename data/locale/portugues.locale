@@ -893,16 +893,6 @@ recordingmenu.zap_on_announce zap on recording announce
 recordtimer.announce Recording starts in a few minutes
 repeatblocker.hint_1 O mais curto espaço de tempo (in ms) para reconhecer 2 "keystrokes"
 repeatblocker.hint_2 Introduzir 0 para desligar o blocker (vermelho é espaço)
-rfmod.carrier Subcarrier Frequency
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel Channel
-rfmod.enable Enable sound
-rfmod.finetune Fine tune
-rfmod.standby Enable modulator
-rfmod.test Test pattern
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1

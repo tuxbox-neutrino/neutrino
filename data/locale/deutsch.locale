@@ -1070,16 +1070,6 @@ reset_all Werkseinstellungen und Reboot
 reset_channels Lösche Kanäle
 reset_confirm Sind Sie sich sicher?
 reset_settings Einstellungen auf Standardwerte
-rfmod.carrier Unterträger-Frequenz
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel Kanal
-rfmod.enable Sound aktivieren
-rfmod.finetune Feintuning
-rfmod.standby Modulator aktivieren
-rfmod.test Testbild
 satsetup.auto_scan Automatisch einen gewählten %s
 satsetup.auto_scan_all Automatisch alle Satelliten
 satsetup.comm_input Committed Input

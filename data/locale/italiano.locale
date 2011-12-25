@@ -950,16 +950,6 @@ reset_all Reset di Fabbrica
 reset_channels Cancella tutti i canali
 reset_confirm Sei sicuro ?
 reset_settings Ripristina impostazioni iniziali
-rfmod.carrier Subcarrier Frequency
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel Canale
-rfmod.enable Abilita suono
-rfmod.finetune Fine tune
-rfmod.standby Abilita modulatore
-rfmod.test Test pattern
 satsetup.auto_scan Auto-Scan selected Satellite
 satsetup.auto_scan_all Auto-Scan multiple Satellites
 satsetup.comm_input Commited input

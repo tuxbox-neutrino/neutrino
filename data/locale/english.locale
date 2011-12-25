@@ -1070,16 +1070,6 @@ reset_all Factory reset and reboot
 reset_channels Delete all channels
 reset_confirm Are you sure ?
 reset_settings Reset settings to defaults
-rfmod.carrier Subcarrier Frequency
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel Channel
-rfmod.enable Enable sound
-rfmod.finetune Fine tune
-rfmod.standby Enable modulator
-rfmod.test Test pattern
 satsetup.auto_scan Auto-Scan selected %s
 satsetup.auto_scan_all Auto-Scan multiple Satellites
 satsetup.comm_input Commited input

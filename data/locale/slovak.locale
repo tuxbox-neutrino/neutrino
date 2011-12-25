@@ -998,16 +998,6 @@ reset_all Továrenské nastavenie
 reset_channels Zmazanie všetkych kanálov
 reset_confirm Skutočne?
 reset_settings Návrat k prednastavenému nastaveniu
-rfmod.carrier Nosný kmitočet
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.channel Kanál
-rfmod.enable Použi zvuk
-rfmod.finetune Jemné ladenie
-rfmod.standby Použi modlátor
-rfmod.test Testovacie pruhy
 satsetup.auto_scan Automatické prehľadanie vybraného satelitu
 satsetup.auto_scan_all Automatické prehľadanie vybraných satelitov
 satsetup.comm_input Potvrdený vstup

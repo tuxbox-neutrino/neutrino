@@ -948,16 +948,6 @@ videomenu.videomode Video systeem
 extra.key_timeshift Timeshift
 extra.key_plugin One touch plugin
 extra.timeshift_pause Timeshift pause
-rfmod.carrier Subcarrier Frequentie
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.enable Schakel geluid in
-rfmod.channel Kanaal
-rfmod.finetune Fine tune
-rfmod.standby Schakel modulator in
-rfmod.test Test-beeld
 extra.zapit_scanpids Scan/Gebruik pids
 servicemenu.imageinfo Techies Image info
 imageinfo.creator Gemaakt door:

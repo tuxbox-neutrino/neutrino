@@ -1185,16 +1185,6 @@ videomenu.videomode Obrazový mód
 extra.key_timeshift Časový posuv
 extra.key_plugin Tlačítko zobrazující PLUGIN
 extra.timeshift_pause Pozastavení časového posuvu
-rfmod.carrier Nosný kmitočet
-rfmod.carrier4500 4.5
-rfmod.carrier5500 5.5
-rfmod.carrier6000 6.0
-rfmod.carrier6500 6.5
-rfmod.enable Použij zvuk
-rfmod.channel Kanál
-rfmod.finetune Jemné ladění
-rfmod.standby Použij modlátor
-rfmod.test Testovací pruhy
 extra.key_unlock Odblokuj
 servicemenu.imageinfo Informace o IMAGE
 imageinfo.creator Vytvořil:
