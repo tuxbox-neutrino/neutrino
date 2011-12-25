@@ -46,7 +46,6 @@ libneutrino_gui_a_SOURCES = \
 	channellist.cpp \
 	cec_setup.cpp \
 	dboxinfo.cpp \
-	epg_menu.cpp \
 	epgplus.cpp \
 	epgview.cpp \
 	eventlist.cpp \
