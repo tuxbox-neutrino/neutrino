@@ -1235,11 +1235,10 @@ void EpgPlus::paint()
 	this->frameBuffer->paintBoxRel (this->sliderX, this->sliderY, this->sliderWidth, this->sliderHeight, COL_MENUCONTENT_PLUS_0);
 
 	int tmp = ((this->channelList->getSize() - 1) / this->maxNumberOfDisplayableEntries) + 1;
-	float sliderKnobHeight = (sliderHeight - 4) / tmp;
 	int sliderKnobPosition = this->selectedChannelEntry == NULL ? 0 : (this->selectedChannelEntry->index / this->maxNumberOfDisplayableEntries);
 
-	this->frameBuffer->paintBoxRel (this->sliderX + 2, this->sliderY + int (sliderKnobPosition * sliderKnobHeight)
-					, this->sliderWidth - 4, int (sliderKnobHeight) , COL_MENUCONTENT_PLUS_3);
+	this->frameBuffer->paintBoxRel(this->sliderX + 2, this->sliderY + sliderKnobPosition * (sliderHeight-4)/tmp
+					, this->sliderWidth - 4, (sliderHeight-4)/tmp, COL_MENUCONTENT_PLUS_3);
 }
 
 //  -- EPG+ Menue Handler Class

@@ -343,12 +343,11 @@ void CPluginList::paintItems()
 		// Scrollbar
 		int nrOfPages = ((pluginlist.size()-1) / listmaxshow)+1;
 		int currPage  = (liststart/listmaxshow) +1;
-		float blockHeight = (height-theight-4-RADIUS_LARGE)/nrOfPages;
 
 		frameBuffer->paintBoxRel(x, y+theight, width+15, height-theight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 		frameBuffer->paintBoxRel(x+width, y+theight, 15, height-theight-RADIUS_LARGE,  COL_MENUCONTENT_PLUS_1);
-		frameBuffer->paintBoxRel(x+ width +2, y+theight+2+int((currPage-1)*blockHeight) , 11, int(blockHeight), COL_MENUCONTENT_PLUS_3);
+		frameBuffer->paintBoxRel(x+ width +2, y+theight+2+(currPage-1)*(height-theight-4-RADIUS_LARGE)/nrOfPages, 11, (height-theight-4-RADIUS_LARGE)/nrOfPages, COL_MENUCONTENT_PLUS_3);
 	} else
 		frameBuffer->paintBoxRel(x, y+theight, width, height-theight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
