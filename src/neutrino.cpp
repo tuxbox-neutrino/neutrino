@@ -188,8 +188,6 @@ CCAMMenuHandler * g_CamHandler;
 bool parentallocked = false;
 static char **global_argv;
 
-CFontSizeNotifier fontsizenotifier;
-
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 // USERMENU
 const char* usermenu_button_def[SNeutrinoSettings::BUTTON_MAX]={"red","green","yellow","blue"};
@@ -2570,7 +2568,7 @@ _repeat:
 		//FIXME better at announce ?
 		if( mode == mode_standby ) {
 			cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-			if(g_settings.ci_standby_reset) {
+			if(!recordingstatus && g_settings.ci_standby_reset) {
 				g_CamHandler->exec(NULL, "ca_ci_reset0");
 				g_CamHandler->exec(NULL, "ca_ci_reset1");
 			}
@@ -3405,7 +3403,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		powerManager->SetStandby(false, false);
 
-		if(g_settings.ci_standby_reset) {
+		if(!recordingstatus && g_settings.ci_standby_reset) {
 			g_CamHandler->exec(NULL, "ca_ci_reset0");
 			g_CamHandler->exec(NULL, "ca_ci_reset1");
 		}
