@@ -276,7 +276,7 @@ printf("[pmt] name %s\n", description.c_str());
 		case 0x03:
 		case 0x04:
 			if (description == "")
-				description = esInfo->elementary_PID;
+				description = " ";
 			if(CServiceScan::getInstance()->Scanning()) {
 				if(channel->getPreAudioPid() == 0)
 					channel->setAudioPid(esInfo->elementary_PID);
@@ -319,7 +319,7 @@ printf("[pmt] name %s\n", description.c_str());
 		case 0x81:
 			esInfo->stream_type = 0x6;
 			if (description == "")
-				description = esInfo->elementary_PID;
+				description = "Unknown";
 			description += " (AC3)";
 			isAc3 = true;
 			descramble = true;
