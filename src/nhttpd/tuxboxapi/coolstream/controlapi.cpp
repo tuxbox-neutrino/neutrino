@@ -1647,7 +1647,7 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 					{
 						if(!(init_iso))
 						{
-							strcpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ) );
+							strncpy( pids.APIDs[j].desc, _getISO639Description( pids.APIDs[j].desc ),DESC_MAX_LEN );
 						}
 						hh->printf("%05u %s %s\n",pids.APIDs[j].pid,pids.APIDs[j].desc,pids.APIDs[j].is_ac3 ? " (AC3)": " ");
 					}
@@ -1664,7 +1664,7 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 		{
 			if(!(init_iso))
 			{
-				strcpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ) );
+				strncpy( pids.APIDs[i].desc, _getISO639Description( pids.APIDs[i].desc ),DESC_MAX_LEN );
 			}
 			hh->printf("%05u %s %s\n",it->pid,pids.APIDs[i].desc,pids.APIDs[i].is_ac3 ? " (AC3)": " ");
 			i++;

@@ -321,7 +321,7 @@ void CRecordInstance::GetPids(CZapitChannel * channel)
 	for (uint32_t  i = 0; i < channel->getAudioChannelCount(); i++) {
 		CZapitClient::responseGetAPIDs response;
 		response.pid = channel->getAudioPid(i);
-		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), 25);
+		strncpy(response.desc, channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN);
 		response.is_ac3 = response.is_aac = 0;
 		if (channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
@@ -344,12 +344,12 @@ void CRecordInstance::ProcessAPIDnames()
 			has_unresolved_ctags= true;
 
 		if ( strlen( allpids.APIDs[count].desc ) == 3 )
-			strcpy( allpids.APIDs[count].desc, getISO639Description( allpids.APIDs[count].desc ) );
+			strncpy( allpids.APIDs[count].desc, getISO639Description( allpids.APIDs[count].desc ),DESC_MAX_LEN );
 
-		if ( allpids.APIDs[count].is_ac3 )
-			strncat(allpids.APIDs[count].desc, " (AC3)", 25);
-		else if (allpids.APIDs[count].is_aac)
-			strncat(allpids.APIDs[count].desc, " (AAC)", 25);
+		if ( allpids.APIDs[count].is_ac3 && !strstr(allpids.APIDs[count].desc, " (AC3)"))
+			strncat(allpids.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc));
+		else if (allpids.APIDs[count].is_aac && !strstr(allpids.APIDs[count].desc, " (AAC)"))
+			strncat(allpids.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[count].desc));
 	}
 
 	if(has_unresolved_ctags && (epgid != 0)) {
@@ -359,11 +359,11 @@ void CRecordInstance::ProcessAPIDnames()
 				for(unsigned int j=0; j< allpids.APIDs.size(); j++) {
 					if(allpids.APIDs[j].component_tag == tags[i].componentTag) {
 						if(!tags[i].component.empty()) {
-							strncpy(allpids.APIDs[j].desc, tags[i].component.c_str(), 25);
-							if (allpids.APIDs[j].is_ac3)
-								strncat(allpids.APIDs[j].desc, " (AC3)", 25);
-							else if (allpids.APIDs[j].is_aac)
-								strncat(allpids.APIDs[j].desc, " (AAC)", 25);
+							strncpy(allpids.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN);
+							if (allpids.APIDs[j].is_ac3 && !strstr(allpids.APIDs[j].desc, " (AC3)"))
+								strncat(allpids.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc));
+							else if (allpids.APIDs[j].is_aac && !strstr(allpids.APIDs[j].desc, " (AAC)"))
+								strncat(allpids.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(allpids.APIDs[j].desc));
 						}
 						allpids.APIDs[j].component_tag = -1;
 						break;
@@ -601,16 +601,16 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 				if (errno == ENOENT) {
 					res = safe_mkdir(filename);
 					if (res == 0)
-						strcat(filename,"/");
+						strncat(filename,"/",FILENAMEBUFFERSIZE - strlen(filename));
 					else
 						perror("[vcrcontrol] mkdir");
 				} else 
 					perror("[vcrcontrol] stat");
 			} else
 				// directory exists
-				strcat(filename,"/");
+				strncat(filename,"/",FILENAMEBUFFERSIZE - strlen(filename));
 		} else
-			strcat(filename, "_");
+			strncat(filename, "_",FILENAMEBUFFERSIZE - strlen(filename));
 	}
 
 	pos = strlen(filename);
@@ -634,7 +634,7 @@ record_error_msg_t CRecordInstance::MakeFileName(CZapitChannel * channel)
 	pos += strftime(&(filename[pos]), sizeof(filename) - pos - 1, "%Y%m%d_%H%M%S", localtime(&t));
 
 	if(autoshift)
-		strcat(filename, "_temp");
+		strncat(filename, "_temp",FILENAMEBUFFERSIZE - strlen(filename));
 
 	return RECORD_OK;
 }

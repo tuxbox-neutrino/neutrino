@@ -175,11 +175,11 @@ class CZapitClient:public CBasicClient
 	{};
 
 	typedef std::vector<responseGetBouquetNChannels> BouquetNChannelList;
-
+#define DESC_MAX_LEN 38 //component descriptor name length + " (AC3)"
 	struct responseGetAPIDs
 	{
 		uint32_t    pid;
-		char    desc[25];
+		char    desc[DESC_MAX_LEN];
 		int     is_ac3;
 		int     is_aac;
 		int     component_tag;
