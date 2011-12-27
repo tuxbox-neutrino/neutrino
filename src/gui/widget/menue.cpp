@@ -479,7 +479,11 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
-	paint(true);
+	if(savescreen) {
+		calcSize();
+		saveScreen();
+	}
+	paint();
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 		
@@ -814,12 +818,13 @@ void CMenuWidget::calcSize()
 	setMenuPos(width - sb_width);
 }
 
-void CMenuWidget::paint(bool save)
+void CMenuWidget::paint()
 {
 	calcSize();
+#if 0
 	if(save)
 		saveScreen();
-
+#endif
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
 
 	//paint shadow and backround
