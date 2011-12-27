@@ -90,7 +90,6 @@ class CVFD
 		int brightness;
 		char text[256];
 
-		void wake_up();
 		void count_down();
 
 		CVFD();
@@ -145,6 +144,7 @@ class CVFD
 		void Clear();
 		void ShowIcon(vfd_icon icon, bool show);
 		void ShowText(const char *str);
+		void wake_up();
 		MODES getMode(void) { return mode; };
 #ifdef LCD_UPDATE
         private:

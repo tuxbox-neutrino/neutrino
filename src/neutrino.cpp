@@ -2141,7 +2141,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			{
 				bool show_info = ((msg != NeutrinoMessages::SHOW_INFOBAR) || (g_InfoViewer->is_visible || g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] != 0));
 			         // turn on LCD display
-				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+				CVFD::getInstance()->wake_up();
 
 				// show Infoviewer
 				if(show_info && channelList->getSize()) {

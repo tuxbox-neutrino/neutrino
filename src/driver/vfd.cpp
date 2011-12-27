@@ -101,6 +101,7 @@ void CVFD::count_down() {
 }
 
 void CVFD::wake_up() {
+ 	if(!has_lcd) return;
 	if (atoi(g_settings.lcd_setting_dim_time) > 0) {
 		timeout_cnt = atoi(g_settings.lcd_setting_dim_time);
 		g_settings.lcd_setting_dim_brightness > -1 ?
