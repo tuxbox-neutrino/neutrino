@@ -401,9 +401,12 @@ void CMenuWidget::resetWidget()
 		if ((item != GenericMenuSeparator) &&
 		    (item != GenericMenuSeparatorLine) &&
 		    (item != GenericMenuBack) &&
-		    (item != GenericMenuCancel))
-			delete item;
+		    (item != GenericMenuCancel)){
+			//delete item;//FIXME: possible crash here
+			item = NULL;
+		}
 	}
+	
 	items.clear();
 	page_start.clear();
 	selected=-1;
