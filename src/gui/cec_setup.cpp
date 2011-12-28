@@ -67,7 +67,7 @@ int CCECSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	if (parent)
 		parent->hide();
 	
-	showMenu();
+	res = showMenu();
 	
 	return res;
 }
@@ -81,7 +81,7 @@ const CMenuOptionChooser::keyval VIDEOMENU_HDMI_CEC_MODE_OPTIONS[VIDEOMENU_HDMI_
 	{ VIDEO_HDMI_CEC_MODE_RECORDER	, LOCALE_VIDEOMENU_HDMI_CEC_MODE_RECORDER },
 };
 
-void CCECSetup::showMenu()
+int CCECSetup::showMenu()
 {
 	//menue init
 	CMenuWidget *cec = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_CEC);
@@ -98,9 +98,11 @@ void CCECSetup::showMenu()
 	cec->addItem(cec1);
 	cec->addItem(cec2);
 	
-	cec->exec(NULL, "");
+	int res = cec->exec(NULL, "");
 	cec->hide();
 	delete cec;
+	
+	return res;
 }
 
 void CCECSetup::setCECSettings()	

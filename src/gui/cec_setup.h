@@ -40,7 +40,7 @@ class CCECSetup : public CMenuTarget, CChangeObserver
 				
 		int width;
 
-		void showMenu();
+		int showMenu();
  		
 
 	public:	
