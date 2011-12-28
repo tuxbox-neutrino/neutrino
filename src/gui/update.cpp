@@ -37,6 +37,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 
 #include <driver/encoding.h>
 #include <driver/fontrenderer.h>
@@ -158,7 +159,8 @@ bool CFlashUpdate::selectHttpImage(void)
 	snprintf(current, 200, "%s: %s %s %s %s %s", g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSION_SEP), curInfo.getReleaseCycle(), 
 		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONDATE), curInfo.getDate(), 
 		g_Locale->getText(LOCALE_FLASHUPDATE_CURRENTVERSIONTIME), curInfo.getTime());
-	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE, listWidth);
+
+	CMenuWidget SelectionWidget(LOCALE_FLASHUPDATE_SELECTIMAGE, NEUTRINO_ICON_UPDATE, listWidth, MN_WIDGET_ID_IMAGESELECTOR);
 
 	SelectionWidget.addItem(GenericMenuSeparator);
 	SelectionWidget.addItem(GenericMenuBack);
@@ -596,8 +598,14 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 
 void CFlashExpert::showMTDSelector(const std::string & actionkey)
 {
-	//mtd-selector erzeugen
-	CMenuWidget* mtdselector = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width);
+	mn_widget_id_t widget_id = NO_WIDGET_ID;
+	if (actionkey == "readmtd")
+		widget_id = MN_WIDGET_ID_MTDREAD_SELECTOR;
+	else if (actionkey == "writemtd")
+		widget_id = MN_WIDGET_ID_MTDWRITE_SELECTOR;
+	
+	//generate mtd-selector
+	CMenuWidget* mtdselector = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, widget_id);
 	mtdselector->addIntroItems(LOCALE_FLASHUPDATE_MTDSELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	CMTDInfo* mtdInfo =CMTDInfo::getInstance();
@@ -612,7 +620,7 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 
 void CFlashExpert::showFileSelector(const std::string & actionkey)
 {
-	CMenuWidget* fileselector = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width);
+	CMenuWidget* fileselector = new CMenuWidget(LOCALE_SERVICEMENU_UPDATE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_FILESELECTOR);
 	fileselector->addIntroItems(LOCALE_FLASHUPDATE_FILESELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	struct dirent **namelist;
