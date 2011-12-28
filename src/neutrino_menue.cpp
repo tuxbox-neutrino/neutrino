@@ -101,9 +101,9 @@ enum
 
 const mn_widget_struct_t menu_widgets[MENU_MAX] =
 {
-	{LOCALE_MAINMENU_HEAD, 		NEUTRINO_ICON_MAINMENU, 	MENU_WIDTH},	/** 0 = MENU_MAIN*/
-	{LOCALE_MAINSETTINGS_HEAD, 	NEUTRINO_ICON_SETTINGS, 	MENU_WIDTH},	/** 1 = MENU_SETTINGS*/
-	{LOCALE_SERVICEMENU_HEAD,	NEUTRINO_ICON_SETTINGS, 	MENU_WIDTH}, 	/** 2 = MENU_SERVICE*/
+	{LOCALE_MAINMENU_HEAD, 		NEUTRINO_ICON_MAINMENU, 	MENU_WIDTH},	/* 0 = MENU_MAIN*/
+	{LOCALE_MAINSETTINGS_HEAD, 	NEUTRINO_ICON_SETTINGS, 	MENU_WIDTH},	/* 1 = MENU_SETTINGS*/
+	{LOCALE_SERVICEMENU_HEAD,	NEUTRINO_ICON_SETTINGS, 	MENU_WIDTH}, 	/* 2 = MENU_SERVICE*/
 };
 
 //init all menues
@@ -135,12 +135,12 @@ void CNeutrinoApp::InitMenuMain()
 	// Dynamic renumbering
 	personalize.setShortcut();
 	
-	///CMenuWidget &menu = personalize.getWidget(MENU_MAIN)/**main**/;
+	//CMenuWidget &menu = personalize.getWidget(MENU_MAIN)/**main**/;
 	
 	//top
 	personalize.addItem(MENU_MAIN, GenericMenuSeparator, NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 	
-	///1st section*************************************************************************************************** 
+	//1st section*************************************************************************************************** 
 	
 	//tv-mode
 	CMenuItem *tvswitch = new CMenuForwarder(LOCALE_MAINMENU_TVMODE, true, NULL, this, "tv", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
@@ -166,7 +166,7 @@ void CNeutrinoApp::InitMenuMain()
 	//separator
  	personalize.addSeparator(MENU_MAIN);
 	
-	///2nd section***************************************************************************************************
+	//2nd section***************************************************************************************************
 
 	//scripts 
 	bool show_scripts = g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT);
@@ -181,7 +181,7 @@ void CNeutrinoApp::InitMenuMain()
 	//separator
 	personalize.addSeparator(MENU_MAIN);
 	
-	///3rd section***************************************************************************************************
+	//3rd section***************************************************************************************************
 	
 	//10. -- only 10 shortcuts (1-9, 0), the next could be the last also!(10. => 0)
 	//sleeptimer
@@ -197,7 +197,7 @@ void CNeutrinoApp::InitMenuMain()
 	//separator
 	personalize.addSeparator(MENU_MAIN);
 	
-	///4th section***************************************************************************************************
+	//4th section***************************************************************************************************
 
 	//infomenu
 	personalize.addItem(MENU_MAIN, new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_info, NEUTRINO_ICON_BUTTON_INFO_SMALL), &g_settings.personalize[SNeutrinoSettings::P_MAIN_INFOMENU]);
@@ -216,7 +216,7 @@ void CNeutrinoApp::InitMenuSettings()
 {
 	dprintf(DEBUG_DEBUG, "init settings menue...\n");
 	
-	///CMenuWidget &menu = personalize.getWidget(MENU_SETTINGS)/**settings**/;
+	//CMenuWidget &menu = personalize.getWidget(MENU_SETTINGS)/**settings**/;
 	
 	// Dynamic renumbering
 	personalize.setShortcut();
@@ -224,7 +224,7 @@ void CNeutrinoApp::InitMenuSettings()
 	// back button, no personalized
 	personalize.addIntroItems(MENU_SETTINGS);
 	
-	///***************************************************************************************************
+	//***************************************************************************************************
 	// save
 	int show_save = CPersonalizeGui::PERSONALIZE_MODE_VISIBLE;
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), &show_save, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
@@ -232,7 +232,7 @@ void CNeutrinoApp::InitMenuSettings()
 	// separator line
 	personalize.addItem(MENU_SETTINGS, GenericMenuSeparatorLine, NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 	
-	///1st section***************************************************************************************************
+	//1st section***************************************************************************************************
 	
 	// video.
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_VIDEO, true, NULL, g_videoSettings), &g_settings.personalize[SNeutrinoSettings::P_MSET_VIDEO]);	
@@ -270,7 +270,7 @@ void CNeutrinoApp::InitMenuSettings()
 	//separator
 	personalize.addSeparator(MENU_SETTINGS);
 		
-	///***************************************************************************************************	
+	//***************************************************************************************************	
 	//10. -- only 10 shortcuts (1-9, 0), the next could be the last also!(10. => 0)
 	// settings manager
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager()), &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
@@ -281,7 +281,7 @@ void CNeutrinoApp::InitMenuSettings()
 	// separator
 	personalize.addSeparator(MENU_SETTINGS);
 		
-	///***************************************************************************************************
+	//***************************************************************************************************
 		
 	// keybindings
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, new CKeybindSetup(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), &g_settings.personalize[SNeutrinoSettings::P_MSET_KEYBINDING]);
@@ -300,7 +300,7 @@ void CNeutrinoApp::InitMenuService()
 {
 	dprintf(DEBUG_DEBUG, "init service menu...\n");
 	
-	///CMenuWidget &menu = personalize.getWidget(MENU_SERVICE)/**service**/;
+	//CMenuWidget &menu = personalize.getWidget(MENU_SERVICE)/**service**/;
 	
 	// Dynamic renumbering
 	personalize.setShortcut();
@@ -308,7 +308,7 @@ void CNeutrinoApp::InitMenuService()
 	// back button, no personalized
 	personalize.addIntroItems(MENU_SERVICE);
 	
-	///1st section***************************************************************************************************
+	//1st section***************************************************************************************************
 	
 	// channel scan
 	personalize.addItem(MENU_SERVICE, new CMenuForwarder(LOCALE_SERVICEMENU_SCANTS    , true, NULL, CScanSetup::getInstance(), "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) , &g_settings.personalize[SNeutrinoSettings::P_MSER_SCANTS]);
@@ -332,7 +332,7 @@ void CNeutrinoApp::InitMenuService()
  	//separator
 	personalize.addSeparator(MENU_SERVICE);
  	
-	///2nd section***************************************************************************************************
+	//2nd section***************************************************************************************************
 	
 	//infomenu
 	personalize.addItem(MENU_SERVICE, new CMenuForwarder(LOCALE_MESSAGEBOX_INFO, true, NULL, new CInfoMenu(), NULL, CRCInput::RC_info, NEUTRINO_ICON_BUTTON_INFO_SMALL) , &g_settings.personalize[SNeutrinoSettings::P_MSER_SERVICE_INFOMENU]);
