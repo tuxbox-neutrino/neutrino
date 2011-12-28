@@ -138,6 +138,7 @@ struct SNeutrinoSettings
  		
  		//main menu
 		P_MAIN_TV_MODE,
+		P_MAIN_TV_RADIO_MODE, //togglemode
 		P_MAIN_RADIO_MODE,
 		P_MAIN_TIMER,
 		P_MAIN_MEDIA,

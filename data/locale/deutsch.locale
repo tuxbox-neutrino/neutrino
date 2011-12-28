@@ -649,6 +649,7 @@ mainmenu.settings Einstellungen
 mainmenu.shutdown Ausschalten
 mainmenu.sleeptimer SleepTimer
 mainmenu.tvmode TV-Modus
+mainmenu.tvradio_switch TV-Radio Umschaltung
 mainsettings.audio Audio
 mainsettings.head Einstellungen
 mainsettings.keybinding Tasten

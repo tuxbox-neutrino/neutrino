@@ -676,6 +676,7 @@ const char * locale_real_names[] =
 	"mainmenu.shutdown",
 	"mainmenu.sleeptimer",
 	"mainmenu.tvmode",
+	"mainmenu.tvradio_switch",
 	"mainsettings.audio",
 	"mainsettings.head",
 	"mainsettings.keybinding",

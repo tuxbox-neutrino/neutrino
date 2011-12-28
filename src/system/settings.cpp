@@ -39,6 +39,7 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	
 	//main menu
 	{"personalize_tv_mode"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_tv_radio_mode"		, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE}, //toggle
 	{"personalize_radio_mode"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
 	{"personalize_timer"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
 	{"personalize_media"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 

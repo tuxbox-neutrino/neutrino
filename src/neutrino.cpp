@@ -3521,11 +3521,11 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 		switchClockOnOff();
 		returnval = menu_return::RETURN_EXIT_ALL;
 	}
-// 	else if (actionKey=="tv_radio_switch")//used in mainmenu
-// 	{
-// 		switchTvRadioMode();
-// 		returnval = menu_return::RETURN_EXIT_ALL;
-// 	}
+	else if (actionKey=="tv_radio_switch")//used in mainmenu
+	{
+		switchTvRadioMode();
+		returnval = menu_return::RETURN_EXIT_ALL;
+	}
 	else if (actionKey=="tv")//used in mainmenu
 	{
 		switchTvRadioMode(mode_tv);

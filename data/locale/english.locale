@@ -649,6 +649,7 @@ mainmenu.settings Settings
 mainmenu.shutdown Shutdown
 mainmenu.sleeptimer SleepTimer
 mainmenu.tvmode TV-Mode
+mainmenu.tvradio_switch TV-Radio Switch
 mainsettings.audio Audio
 mainsettings.head Settings
 mainsettings.keybinding Key Setup
