@@ -37,6 +37,7 @@
 
 #include <global.h>
 #include <neutrino.h>
+#include <neutrino_menue.h>
 #include "software_update.h"
 
 #include "gui/filebrowser.h"
@@ -49,7 +50,6 @@
 CSoftwareUpdate::CSoftwareUpdate()
 {
 	width = w_max (40, 10);
-	selected = -1;
 	fe = new CFlashExpert();
 	input_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""�$%&/()=?-. ");
 }
@@ -93,13 +93,12 @@ int CSoftwareUpdate::exec(CMenuTarget* parent, const std::string &actionKey)
 int CSoftwareUpdate::showSoftwareUpdate()
 /* shows the menue and options for software update */
 {
-	CMenuWidget* softUpdate = new CMenuWidget(LOCALE_MAINMENU_SERVICE, NEUTRINO_ICON_UPDATE, width);
-	softUpdate->setSelected(selected);
+	CMenuWidget* softUpdate = new CMenuWidget(LOCALE_MAINMENU_SERVICE, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_SOFTWAREUPDATE);
 	
 	softUpdate->addIntroItems(LOCALE_SERVICEMENU_UPDATE);
 	
  	//expert-functions
- 	CMenuWidget *mtdexpert = new CMenuWidget(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width);
+ 	CMenuWidget *mtdexpert = new CMenuWidget(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
 	showSoftwareUpdateExpert(mtdexpert); 
  	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, mtdexpert, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
@@ -115,7 +114,6 @@ int CSoftwareUpdate::showSoftwareUpdate()
 
 	int res = softUpdate->exec (NULL, "");
 	softUpdate->hide ();
-	selected = softUpdate->getSelected();
 	delete softUpdate;
 	return res;
 }

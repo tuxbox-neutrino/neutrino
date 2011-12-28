@@ -41,7 +41,7 @@
 class CSoftwareUpdate : public CMenuTarget
 {
 	private:
-		int width, selected;
+		int width;
 
 		int showSoftwareUpdate();
  		void showSoftwareUpdateExpert(CMenuWidget *mtd_expert);
