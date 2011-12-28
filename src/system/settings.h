@@ -66,7 +66,6 @@ struct SNeutrinoSettings
 	int infobar_subchan_disp_pos;
 	int fan_speed;
 	int infobar_show;
-	int show_infomenu;
 	int infobar_show_channellogo;
 	int progressbar_color;
 	int casystem_display;
@@ -127,9 +126,86 @@ struct SNeutrinoSettings
 	std::string network_ntprefresh;
 	int network_ntpenable;
 	char ifname[10];
+	
+	//personalize
+	enum PERSONALIZE_SETTINGS  //settings.h
+	{
+		P_MAIN_PINSTATUS,
+		
+		//user menu
+		P_MAIN_BLUE_BUTTON,
+ 		P_MAIN_RED_BUTTON,
+ 		
+ 		//main menu
+		P_MAIN_TV_MODE,
+		P_MAIN_RADIO_MODE,
+		P_MAIN_GAMES,
+		P_MAIN_MEDIA,
+		P_MAIN_SCRIPTS,
+		P_MAIN_SETTINGS,
+		P_MAIN_SERVICE,
+		P_MAIN_SLEEPTIMER,
+		P_MAIN_REBOOT,
+		P_MAIN_SHUTDOWN,
+		P_MAIN_INFOMENU,
+		P_MAIN_CISETTINGS,
+		
+		//settings menu
+		P_MSET_SETTINGS_MANAGER,
+		P_MSET_VIDEO,
+		P_MSET_AUDIO,
+		P_MSET_YOUTH,
+		P_MSET_NETWORK,
+		P_MSET_RECORDING,
+		P_MSET_OSDLANG,
+		P_MSET_OSD,
+		P_MSET_VFD,
+		P_MSET_DRIVES,
+		P_MSET_CISETTINGS,
+		P_MSET_KEYBINDING,
+		P_MSET_MEDIAPLAYER,
+		P_MSET_MISC,
+		
+		//service menu
+		P_MSER_SCANTS,
+		P_MSER_RELOAD_CHANNELS,
+		P_MSER_BOUQUET_EDIT,
+		P_MSER_RESET_CHANNELS,
+		P_MSER_RESTART,
+		P_MSER_RELOAD_PLUGINS,
+		P_MSER_SERVICE_INFOMENU,
+		P_MSER_SOFTUPDATE,
+		
+		//media menu
+		P_MEDIA_MENU,
+		P_MEDIA_AUDIO,
+		P_MEDIA_INETPLAY,
+		P_MEDIA_MPLAYER,
+		P_MEDIA_PVIEWER,
+		P_MEDIA_UPNP,
+		
+		//movieplayer menu
+		P_MPLAYER_MBROWSER,
+		P_MPLAYER_FILEPLAY,
+		
+		//feature keys
+		P_FEAT_KEY_FAVORIT,
+		P_FEAT_KEY_TIMERLIST,
+		P_FEAT_KEY_VTXT,
+		P_FEAT_KEY_RC_LOCK,
+		
+		//user menu
+		P_UMENU_SHOW_CANCEL,
+
+ 		P_SETTINGS_MAX
+	};
+
+ 	int  personalize[P_SETTINGS_MAX];
+	char personalize_pincode[5];
 
 	//timing
-	enum TIMING_SETTINGS {
+	enum TIMING_SETTINGS 
+	{
 		TIMING_MENU        = 0,
 		TIMING_CHANLIST    = 1,
 		TIMING_EPG         = 2,
@@ -488,6 +564,8 @@ struct SNeutrinoSettings
 };
 
 /* some default Values */
+
+extern const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SETTINGS_MAX];
 
 typedef struct time_settings_t
 {

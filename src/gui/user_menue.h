@@ -1,6 +1,6 @@
 /*
 	user_menue setup implementation - Neutrino-GUI
-	based up implementation by Günther
+	based up implementation by GÃ¼nther
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	and some other guys
@@ -10,19 +10,23 @@
 	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
-	License: GPL
+        License: GPL
 
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU
-	General Public License as published by the Free Software Foundation; either version 2 of the License, 
-	or (at your option) any later version.
+        This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Library General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	See the GNU General Public License for more details.
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Library General Public License for more details.
 
-	You should have received a copy of the GNU General Public License along with this program; 
-	if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
-		
+	You should have received a copy of the GNU Library General Public
+	License along with this library; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
+
 		
 	NOTE for ignorant distributors:
 	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.

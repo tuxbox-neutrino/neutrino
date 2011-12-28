@@ -85,6 +85,7 @@ install_DATA = \
 	left.png \
 	local.png \
 	lock.png \
+	lock_passive.png \
 	mainmenue.png \
 	menu.png \
 	menu_small.png \
@@ -121,6 +122,7 @@ install_DATA = \
 	notyet.png \
 	numericpad.png \
 	ok.png \
+	personalize.png \
 	polski.png \
 	portugues.png \
 	power.png \

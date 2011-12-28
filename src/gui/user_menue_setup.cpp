@@ -52,7 +52,7 @@ CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 {
 	local = menue_title;
 	button = menue_button;
-
+	max_char = 24;
 	width = w_max (40, 10);
 }
 
@@ -91,8 +91,11 @@ int CUserMenuSetup::exec(CMenuTarget* parent, const std::string &)
 {
 	if(parent != NULL)
 		parent->hide();
-
-	return showSetup();
+	
+	int res = showSetup();
+	checkItem();
+	
+	return res; 
 }
 
 int CUserMenuSetup::showSetup()
@@ -104,25 +107,38 @@ int CUserMenuSetup::showSetup()
 	CStringInputSMS name(LOCALE_USERMENU_NAME, &g_settings.usermenu_text[button], 11, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäöüß/- "/*, notify*/);
 
 	CMenuForwarder *mf = new CMenuForwarder(LOCALE_USERMENU_NAME, true, g_settings.usermenu_text[button],&name);
-// 	notify->setItem(mf);
-
+	
 	//-------------------------------------
 	ums->addIntroItems();
 	//-------------------------------------
 	ums->addItem(mf);
 	ums->addItem(GenericMenuSeparatorLine);
 	//-------------------------------------
-	char text[10];
+	char text[max_char];
 	for(int item = 0; item < SNeutrinoSettings::ITEM_MAX && item <13; item++) // Do not show more than 13 items
 	{
-		snprintf(text,10,"%d:",item);
-		text[9]=0;// terminate for sure
-		ums->addItem( new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, USERMENU_ITEM_OPTION_COUNT, true, NULL, CRCInput::RC_nokey, "", true));
+		snprintf(text,max_char,"%d.",item+1);
+		text[max_char-1]=0;// terminate for sure
+		ums->addItem( new CMenuOptionChooser(text, &g_settings.usermenu[button][item], USERMENU_ITEM_OPTIONS, USERMENU_ITEM_OPTION_COUNT,true, NULL, CRCInput::RC_nokey, "", true ));
 	}
-
+	
 	int res = ums->exec(NULL, "");
 	ums->hide();
 	delete ums;
 	return res;
 }
+
+//check item for details like empty string and show an user message
+void CUserMenuSetup::checkItem()
+{
+	bool is_empty = g_settings.usermenu_text[button].empty();
+	if (is_empty)
+	{
+		std::string 	msg = g_Locale->getText(LOCALE_USERMENU_MSG_INFO_IS_EMPTY);
+				msg += g_Locale->getText(usermenu[button].def_name);
+		DisplayInfoMessage(msg.c_str());
+		g_settings.usermenu_text[button] = is_empty ? g_Locale->getText(usermenu[button].def_name) : g_settings.usermenu_text[button].c_str();
+	}
+}
+
 

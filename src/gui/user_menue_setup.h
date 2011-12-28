@@ -33,18 +33,40 @@
 #define __user_menue_setup__
 
 #include <gui/widget/menue.h>
+#include <system/settings.h>
 
 #include <string>
+
+typedef struct usermenu_props_t
+{
+	neutrino_locale_t menue_title;
+	const int menue_button;
+	const neutrino_msg_t DirectKey;
+	const char* IconName;
+	neutrino_locale_t def_name;
+
+}usermenu_props_struct_t;
+
+#define USERMENU_ITEMS_COUNT 4
+const struct usermenu_props_t usermenu[USERMENU_ITEMS_COUNT] =
+{
+	{LOCALE_USERMENU_BUTTON_RED	, SNeutrinoSettings::BUTTON_RED		, CRCInput::RC_red	,NEUTRINO_ICON_BUTTON_RED	,LOCALE_INFOVIEWER_EVENTLIST	},
+	{LOCALE_USERMENU_BUTTON_GREEN	, SNeutrinoSettings::BUTTON_GREEN	, CRCInput::RC_green	,NEUTRINO_ICON_BUTTON_GREEN	,LOCALE_AUDIOSELECTMENUE_HEAD	},
+	{LOCALE_USERMENU_BUTTON_YELLOW	, SNeutrinoSettings::BUTTON_YELLOW	, CRCInput::RC_yellow	,NEUTRINO_ICON_BUTTON_YELLOW	,LOCALE_INFOVIEWER_SUBSERVICE	},
+	{LOCALE_USERMENU_BUTTON_BLUE	, SNeutrinoSettings::BUTTON_BLUE	, CRCInput::RC_blue	,NEUTRINO_ICON_BUTTON_BLUE	,LOCALE_INFOVIEWER_STREAMINFO	}
+};
+
 
  class CUserMenuSetup : public CMenuTarget
 {	
 	private:
 		int width;
-
+		int max_char;
 		int button;
 		neutrino_locale_t local;
 
 		int showSetup();
+		void checkItem();
 
 	public:
 		CUserMenuSetup(neutrino_locale_t menue_title, int menue_button);

@@ -514,7 +514,7 @@ class CLockedMenuForwarder : public CMenuForwarder, public CPINProtection
 						//if we in ask mode then show NEUTRINO_ICON_SCRAMBLED as default info icon or no icon, 
 						//but use always an info icon if defined in parameter 'IconName_Info_right'
 						if (IconName_Info_right || ask)
-							iconName_Info_right = IconName_Info_right ? IconName_Info_right : NEUTRINO_ICON_SCRAMBLED; 
+							iconName_Info_right = IconName_Info_right ? IconName_Info_right : NEUTRINO_ICON_LOCK; 
 						else
 							iconName_Info_right = "";
 				       };

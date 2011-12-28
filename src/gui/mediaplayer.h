@@ -31,20 +31,20 @@
 
 #include <gui/widget/menue.h>
 #include "gui/audioplayer.h"
+#include "gui/personalize.h"
 
 #include <string>
 
 class CMediaPlayerMenu : public CMenuTarget
 {
 	private:
+		int width, usage_mode;
+		neutrino_locale_t menu_title;
+		
 		CAudioPlayerGui *audioPlayer;
 		CAudioPlayerGui *inetPlayer;
 				
-		int width, usage_mode;
-		neutrino_locale_t menu_title;
-
-		int showMenu();
-		void showMoviePlayer(CMenuWidget *menu_movieplayer);
+		void showMoviePlayer(CMenuWidget *menu_movieplayer, CPersonalizeGui *p);
 
 	public:	
 		enum MM_MENU_MODES
@@ -57,6 +57,8 @@ class CMediaPlayerMenu : public CMenuTarget
 		CMediaPlayerMenu();
 		~CMediaPlayerMenu();
 		static CMediaPlayerMenu* getInstance();
+		
+		int initMenuMedia(CMenuWidget *m = NULL, CPersonalizeGui *p = NULL);
 		
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 		void setMenuTitel(const neutrino_locale_t title = LOCALE_MAINMENU_MEDIA){menu_title = title;};

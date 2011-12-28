@@ -95,7 +95,11 @@ int CAudioSelectMenuHandler::doMenu ()
 
 	CSubtitleChangeExec SubtitleChanger;
 	
-	AudioSelector.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	//show cancel button if configured in usermenu settings
+	if (g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL])
+		AudioSelector.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	else
+		AudioSelector.addItem(GenericMenuSeparator);
 
 	unsigned int shortcut_num = 1;
 

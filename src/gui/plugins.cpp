@@ -207,7 +207,7 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		{
 			plugin_data->index = atoi(parm.c_str());
 		}
-		else if (cmd == "key")
+		else if (cmd == "pluginversion")
 		{
 			plugin_data->key = atoi(parm.c_str());
 		}

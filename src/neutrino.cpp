@@ -189,6 +189,7 @@ bool parentallocked = false;
 static char **global_argv;
 
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
+
 // USERMENU
 const char* usermenu_button_def[SNeutrinoSettings::BUTTON_MAX]={"red","green","yellow","blue"};
 
@@ -400,7 +401,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );                                                                                                                  
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
 	g_settings.infobar_show_var_hdd   = configfile.getBool("infobar_show_var_hdd"  , true );
-	g_settings.show_infomenu = configfile.getInt32("show_infomenu", 0 );
 	g_settings.show_mute_icon = configfile.getInt32("show_mute_icon" ,0);
 	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 0 );
 	g_settings.radiotext_enable = configfile.getBool("radiotext_enable"          , false);
@@ -495,6 +495,11 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.infobar_Text_red = configfile.getInt32( "infobar_Text_red", 0x64 );
 	g_settings.infobar_Text_green = configfile.getInt32( "infobar_Text_green", 0x64 );
 	g_settings.infobar_Text_blue = configfile.getInt32( "infobar_Text_blue", 0x64 );
+	
+	//personalize
+	strcpy( g_settings.personalize_pincode, configfile.getString( "personalize_pincode", "0000" ).c_str() );
+	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++)//settings.h, settings.cpp
+		g_settings.personalize[i] = configfile.getInt32( personalize_settings[i].personalize_settings_name, personalize_settings[i].personalize_default_val );
 
 	g_settings.colored_events_channellist = configfile.getInt32( "colored_events_channellist" , 0 );
 	g_settings.colored_events_infobar = configfile.getInt32( "colored_events_infobar" , 0 );
@@ -705,10 +710,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
         {
                 snprintf(txt1,80,"usermenu_tv_%s_text",usermenu_button_def[button]);
                 txt1[80] = 0; // terminate for sure
-                g_settings.usermenu_text[button] = configfile.getString(txt1, "" );
-
+                g_settings.usermenu_text[button] = configfile.getString(txt1, "");
+                
                 snprintf(txt1,80,"usermenu_tv_%s",usermenu_button_def[button]);
-                txt2 = configfile.getString(txt1,usermenu_default[button]);
+                txt2 = configfile.getString(txt1,usermenu_default[button]);	
                 txt2ptr = txt2.c_str();
                 for( int pos = 0; pos < SNeutrinoSettings::ITEM_MAX; pos++)
                 {
@@ -830,7 +835,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
 	configfile.setInt32("infobar_show_var_hdd"  , g_settings.infobar_show_var_hdd  );
-	configfile.setInt32("show_infomenu"  , g_settings.show_infomenu  );
 	configfile.setInt32("show_mute_icon"   , g_settings.show_mute_icon);
 	configfile.setInt32("infobar_show_res"  , g_settings.infobar_show_res  );
 	configfile.setBool("radiotext_enable"          , g_settings.radiotext_enable);
@@ -921,6 +925,11 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "infobar_Text_red", g_settings.infobar_Text_red );
 	configfile.setInt32( "infobar_Text_green", g_settings.infobar_Text_green );
 	configfile.setInt32( "infobar_Text_blue", g_settings.infobar_Text_blue );
+	
+	//personalize
+	configfile.setString("personalize_pincode", g_settings.personalize_pincode);
+	for (int i = 0; i < SNeutrinoSettings::P_SETTINGS_MAX; i++) //settings.h, settings.cpp
+		configfile.setInt32(personalize_settings[i].personalize_settings_name, g_settings.personalize[i]);
 
 	configfile.setInt32( "colored_events_channellist", g_settings.colored_events_channellist );
 	configfile.setInt32( "colored_events_infobar", g_settings.colored_events_infobar );
@@ -1745,15 +1754,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	setupRecordingDevice();
 
 	dprintf( DEBUG_NORMAL, "menue setup\n");
-
-	//Main settings
-	CMenuWidget    mainMenu            (LOCALE_MAINMENU_HEAD                 , NEUTRINO_ICON_MAINMENU/*,   22*/);
-	CMenuWidget    mainSettings        (LOCALE_MAINSETTINGS_HEAD             , NEUTRINO_ICON_SETTINGS);
-	CMenuWidget    service             (LOCALE_SERVICEMENU_HEAD              , NEUTRINO_ICON_SETTINGS);
-
-	InitMainMenu(mainMenu, mainSettings, service);
-
-	InitServiceSettings(service);
+	//init Menues
+	InitMenu();
 
 	/* wait for sectionsd to be able to process our registration */
 	time_t t = time_monotonic_ms();
@@ -1836,7 +1838,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 			//open video settings in wizardmode
 			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD);
 			
-			COsdSetup osdSettings(true);
+			COsdSetup osdSettings(COsdSetup::OSD_SETUP_MODE_WIZARD);
 			
 			bool ret = g_videoSettings->exec(NULL, "");
 			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD_NO);
@@ -1891,7 +1893,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hintBox->hide();
 	delete hintBox;
 
-	RealRun(mainMenu);
+	RealRun(personalize.getWidget(0)/**main**/);
 
 	ExitRun(true, (cs_get_revision() > 7));
 
@@ -2083,9 +2085,15 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				CRecordManager::getInstance()->exec(NULL, "Stop_record");
 			}
 			else if( msg == CRCInput::RC_red ) {
-				StopSubtitles();
-				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_RED);
-				StartSubtitles();
+				// eventlist
+				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)// EventList Menu - Personalization Check
+				{
+					StopSubtitles();
+					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_RED);
+					StartSubtitles();
+				}
+					else
+						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
 			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
@@ -2099,9 +2107,14 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				StartSubtitles();
 			}
 			else if( msg == CRCInput::RC_blue ) {
-				StopSubtitles();
-				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_BLUE);
-				StartSubtitles();
+				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)// Features Menu - Personalization Check
+				{
+					StopSubtitles();
+					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_BLUE);
+					StartSubtitles();
+				}
+					else
+						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT), 450, 10);
 			}
 			else if( (msg == CRCInput::RC_audio) && g_settings.audio_run_player) {
 				//open mediaplayer menu in audio mode, user can select between audioplayer and internetradio

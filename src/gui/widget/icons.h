@@ -89,6 +89,7 @@
 #define NEUTRINO_ICON_IMPORTANT		"important"
 #define NEUTRINO_ICON_KEYBINDING	"keybinding"
 #define NEUTRINO_ICON_LOCK		"lock"
+#define NEUTRINO_ICON_LOCK_PASSIVE	"lock_passive"
 #define NEUTRINO_ICON_HIDDEN		"hidden"
 #define NEUTRINO_ICON_MOUNTED		"mounted"
 #define NEUTRINO_ICON_MP3		"mp3"
@@ -153,6 +154,7 @@
 #define NEUTRINO_ICON_RESOLUTION_000	"res_000"
 #define NEUTRINO_ICON_RESOLUTION_HD	"res_hd"
 #define NEUTRINO_ICON_RESOLUTION_SD	"res_sd"
+#define NEUTRINO_ICON_PERSONALIZE	"personalize"
 #define NEUTRINO_ICON_RECORDING_EVENT_MARKER	"rec_event_marker"
 #define NEUTRINO_ICON_ZAP		"zap"
 

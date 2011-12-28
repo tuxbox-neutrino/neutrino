@@ -35,7 +35,6 @@
 
 
 #include "gui/keybind_setup.h"
-#include "gui/user_menue_setup.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -191,12 +190,6 @@ int CKeybindSetup::showKeySetup()
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
 	keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL, &g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_OPTION_COUNT, true));
 
-	//user menues
-	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_HEAD));
-	keySettings->addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_RED, true, NULL, new CUserMenuSetup(LOCALE_USERMENU_BUTTON_RED,0), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	keySettings->addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_GREEN, true, NULL, new CUserMenuSetup(LOCALE_USERMENU_BUTTON_GREEN,1), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	keySettings->addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_YELLOW, true, NULL, new CUserMenuSetup(LOCALE_USERMENU_BUTTON_YELLOW,2), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	keySettings->addItem(new CMenuForwarder(LOCALE_USERMENU_BUTTON_BLUE, true, NULL, new CUserMenuSetup(LOCALE_USERMENU_BUTTON_BLUE,3), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 	
 	int res = keySettings->exec(NULL, "");
 	keySettings->hide();

@@ -66,6 +66,7 @@ libneutrino_gui_a_SOURCES = \
 	osd_setup.cpp \
 	osdlang_setup.cpp \
 	parentallock_setup.cpp \
+	personalize.cpp \
 	pictureviewer.cpp \
 	pictureviewer_setup.cpp \
 	pluginlist.cpp \

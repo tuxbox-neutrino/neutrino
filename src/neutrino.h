@@ -45,7 +45,7 @@
 #include <gui/channellist.h>          /* CChannelList */
 #include <gui/rc_lock.h>
 #include <daemonc/remotecontrol.h>    /* st_rmsg      */
-
+#include <gui/personalize.h>
 #include <gui/user_menue.h>
 #include <zapit/client/zapitclient.h>
 
@@ -117,6 +117,7 @@ private:
 
 	CConfigFile			configfile;
 	CScanSettings			scanSettings;
+	CPersonalizeGui			personalize;
 	CUserMenu 			usermenu;
 	int                             network_dhcp;
 	int                             network_automatic_start;
@@ -160,10 +161,13 @@ private:
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
-	void InitServiceSettings(CMenuWidget &);
-	void InitScreenSettings(CMenuWidget &);
-	void InitMainMenu(CMenuWidget &mainMenu, CMenuWidget &mainSettings, CMenuWidget &service);
-
+	
+	//menues
+	void InitMenu();
+ 	void InitMenuMain();
+	void InitMenuSettings();
+	void InitMenuService();
+		
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
 	CNeutrinoApp();

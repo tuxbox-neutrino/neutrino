@@ -988,6 +988,40 @@ parentallock.never never
 parentallock.onsignal on broadcasted lock
 parentallock.parentallock Youth protection
 parentallock.prompt prompt for PIN
+personalize.access Access options
+personalize.apply_settings Apply changes?
+personalize.button_auto auto
+personalize.button_blue blue
+personalize.button_green green
+personalize.button_red red
+personalize.button_yellow yellow
+personalize.disabled Disabled
+personalize.enabled Enabled
+personalize.features Features menue
+personalize.head Personalization
+personalize.help Help
+personalize.help_line1 Personalization makes it possible to adapt the most
+personalize.help_line2 important menus you need. Menus
+personalize.help_line3 can be set to visible, not visible, activate, deactivate
+personalize.help_line4 or PIN-protected.
+personalize.help_line5 The access to personalization can be protected
+personalize.help_line6 with PIN. The PIN is identical for all protected menus
+personalize.help_line7 (not for youth protection).
+personalize.help_line8 Default PIN is: 0000
+personalize.menuconfiguration Menu Configuration
+personalize.menudisabledhint The requested menu is currently disabled!\nFor activation please open menu 'Personalize'\nto find in menu 'Settings'!
+personalize.notprotected No
+personalize.notvisible Not Visible
+personalize.pin PIN
+personalize.pincode PIN Code
+personalize.pinhint Enter the Personalization PIN Code
+personalize.pinprotect Yes
+personalize.pinstatus Require PIN
+personalize.plugins Plugins
+personalize.setupmenuwithpin Settings Menu with PIN
+personalize.usermenu_preferred_buttons Assigning of preferred keys
+personalize.usermenu_show_cancel Show "Cancel"-Button
+personalize.visible Visible
 pictureviewer.defdir start dir.
 pictureviewer.head Picture viewer
 pictureviewer.help1 menu mode
@@ -1289,8 +1323,9 @@ usermenu.button_yellow User menu yellow
 usermenu.head User menu
 usermenu.item_bar ---- Boarder ----
 usermenu.item_epg_misc EPG functions
-usermenu.item_none Nothing
+usermenu.item_none (empty)
 usermenu.item_vtxt Videotext
+usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
 usermenu.name Name
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode

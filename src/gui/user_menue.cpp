@@ -12,19 +12,23 @@
 	Homepage: http://www.dbox2-tuning.net/
 
 
-	License: GPL
+        License: GPL
 
-	This program is free software; you can redistribute it and/or modify it under the terms of the GNU
-	General Public License as published by the Free Software Foundation; either version 2 of the License, 
-	or (at your option) any later version.
+        This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Library General Public
+	License as published by the Free Software Foundation; either
+	version 2 of the License, or (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-	without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-	See the GNU General Public License for more details.
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Library General Public License for more details.
 
-	You should have received a copy of the GNU General Public License along with this program; 
-	if not, write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110, USA
-		
+	You should have received a copy of the GNU Library General Public
+	License along with this library; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
+
 		
 	NOTE for ignorant distributors:
 	It's not allowed to distribute any compiled parts of this code, if you don't accept the terms of GPL.
@@ -62,7 +66,7 @@
 
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
-extern CPlugins * g_PluginList;
+// extern CPlugins * g_PluginList;
 extern CCAMMenuHandler * g_CamHandler;
 // 
 #include <system/debug.h>
@@ -97,7 +101,7 @@ bool CUserMenu::showUserMenu(int button)
 	CColorKeyHelper keyhelper;
 	
 	//set default feature key
-	neutrino_msg_t key = CRCInput::RC_nokey;
+	neutrino_msg_t key = feat_key[CPersonalizeGui::PERSONALIZE_FEAT_KEY_AUTO].key; //CRCInput::RC_nokey
 	
 	const char * icon = NULL;
 	int dummy;
@@ -139,8 +143,11 @@ bool CUserMenu::showUserMenu(int button)
 	
 	menu->setSelected(user_menu[button].selected);
 	
-	//menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
-	menu->addItem(GenericMenuSeparator);
+	//show cancel button if configured
+	if (g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL])
+		menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
+	else
+		menu->addItem(GenericMenuSeparator);
 	
 	// go through any postition number
 	for (int pos = 0; pos < SNeutrinoSettings::ITEM_MAX ; pos++) {
@@ -162,7 +169,7 @@ bool CUserMenu::showUserMenu(int button)
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_FAVORITS;
 			tmpFavorites = new CFavorites;
-			keyhelper.get(&key,&icon,CRCInput::RC_green); 
+			keyhelper.get(&key,&icon,feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_FAVORIT]].key); //CRCInput::RC_green
 			menu_item = new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, true, NULL, tmpFavorites, "-1", key, icon);
 			menu->addItem(menu_item, false);
 			break;
@@ -190,7 +197,7 @@ bool CUserMenu::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_TIMERLIST:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_TIMERLIST;
-			keyhelper.get(&key,&icon,CRCInput::RC_yellow); 
+			keyhelper.get(&key,&icon,feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_TIMERLIST]].key); //CRCInput::RC_yellow
 			Timerlist = new CTimerList();
 			menu_item = new CMenuForwarder(LOCALE_TIMERLIST_NAME, true, NULL, Timerlist, "-1", key, icon);
 			menu->addItem(menu_item, false);
@@ -199,7 +206,7 @@ bool CUserMenu::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_REMOTE:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_REMOTE;
-			keyhelper.get(&key,&icon,CRCInput::RC_nokey);
+			keyhelper.get(&key,&icon,feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_RC_LOCK]].key); //CRCInput::RC_nokey);
 			rcLock = new CRCLock();
 			menu_item = new CMenuForwarder(LOCALE_RCLOCK_MENUEADD, true, NULL, rcLock, "-1" , key, icon );
 			menu->addItem(menu_item, false);
@@ -308,7 +315,7 @@ bool CUserMenu::showUserMenu(int button)
 		case SNeutrinoSettings::ITEM_VTXT:
 			menu_items++;
 			menu_prev = SNeutrinoSettings::ITEM_VTXT;
-			keyhelper.get(&key,&icon, CRCInput::RC_blue); 
+			keyhelper.get(&key,&icon, feat_key[g_settings.personalize[SNeutrinoSettings::P_FEAT_KEY_VTXT]].key); //CRCInput::RC_blue
 			StreamFeaturesChanger     = new CStreamFeaturesChangeExec();
 			menu_item = new CMenuForwarder(LOCALE_USERMENU_ITEM_VTXT, true, NULL, StreamFeaturesChanger, "teletext", key, icon);
 			menu->addItem(menu_item, 0);

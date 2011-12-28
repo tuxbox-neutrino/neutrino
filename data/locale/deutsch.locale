@@ -988,6 +988,40 @@ parentallock.never Nie
 parentallock.onsignal Bei gesendeter Vorsperre
 parentallock.parentallock Jugendschutz
 parentallock.prompt PIN-Eingabe
+personalize.access Zugangsoptionen
+personalize.apply_settings Änderungen übernehmen?
+personalize.button_auto Auto
+personalize.button_blue Blau
+personalize.button_green Grün
+personalize.button_red Rot
+personalize.button_yellow Gelb
+personalize.disabled deaktiviert
+personalize.enabled aktiviert
+personalize.features Erweiterungen
+personalize.head Menüs anpassen
+personalize.help Hilfe
+personalize.help_line1 Die Personalisierung ermöglicht es, die wichtigsten
+personalize.help_line2 Menüs Ihren Bedürfnissen anzupassen. Menüs
+personalize.help_line3 können auf sichtbar, unsichtbar, aktiviert, deaktiviert
+personalize.help_line4 gestellt oder mit PIN gesichert werden.
+personalize.help_line5 Der Zugang zur Personalisierung selbst kann mit PIN
+personalize.help_line6 gesichert werden. Die PIN ist dann für alle anderen
+personalize.help_line7 Menüs identisch (nicht Jugendschutz-PIN).
+personalize.help_line8 Die Standard-PIN lautet 0000.
+personalize.menuconfiguration Menüeinstellungen
+personalize.menudisabledhint Das angeforderte Menü ist nicht aktiviert!\nNutzen sie die Personalisierung im\nMenü 'Einstellungen', um es zu aktivieren!
+personalize.notprotected nein
+personalize.notvisible nicht sichtbar
+personalize.pin PIN
+personalize.pincode PIN Code
+personalize.pinhint Personalisierungs PIN Code eingeben
+personalize.pinprotect ja
+personalize.pinstatus mit PIN
+personalize.plugins Plugins
+personalize.setupmenuwithpin Einstellungen-Menü mit PIN
+personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
+personalize.usermenu_show_cancel Zeige Schalter "Abbrechen" 
+personalize.visible sichtbar
 pictureviewer.defdir Start-Verz.
 pictureviewer.head Bildbetrachter
 pictureviewer.help1 Menü-Modus
@@ -1289,8 +1323,9 @@ usermenu.button_yellow Benutzermenü 'gelb'
 usermenu.head Benutzermenü
 usermenu.item_bar ---- Trennung ----
 usermenu.item_epg_misc EPG Funktionen
-usermenu.item_none  
+usermenu.item_none (frei)
 usermenu.item_vtxt Teletext
+usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwende Standardname:\n
 usermenu.name Name
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten

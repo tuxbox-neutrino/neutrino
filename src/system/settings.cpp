@@ -26,7 +26,78 @@
 
 #include <zapit/settings.h>
 #include <zapit/satconfig.h>
+#include <gui/personalize.h>
 
+//enum PERSONALIZE_SETTINGS to find in settings.h
+const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SETTINGS_MAX] =
+{
+	{"personalize_pinstatus"		, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	
+	//user menu
+	{"personalize_bluebutton"		, CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED}, // features
+	{"personalize_redbutton"		, CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED}, // epg/info
+	
+	//main menu
+	{"personalize_tv_mode"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_radio_mode"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_games"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},	
+	{"personalize_media"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_scripts"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_settings"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	{"personalize_service"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	{"personalize_sleeptimer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_reboot"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_shutdown"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_infomenu_main"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_cisettings_main"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	
+	//main menu->settings menu
+	{"personalize_settingsmager"		, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	{"personalize_video"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_audio"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_youth"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_network"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_recording"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_osdlang"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_osd"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_vfd"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_drives"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_cisettings_settings"	, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
+	{"personalize_keybindings"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_mediaplayer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_misc"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	
+	//main menu->service menu
+	{"personalize_scants"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_reload_channels"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_bouquet_edit"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_reset_channels"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	{"personalize_restart"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_reload_plugins"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_infomenu_service"		, CPersonalizeGui::PERSONALIZE_MODE_NOTVISIBLE},
+	{"personalize_softupdate"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	
+	//media menu
+	{"personalize_media_menu"		, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	{"personalize_media_audio"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_media_intetplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_media_movieplayer"	, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
+	{"personalize_media_pviewer"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_media_upnp"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	
+	//media menu->movieplayer
+	{"personalize_mplayer_mbrowswer"	, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	{"personalize_mplayer_fileplay"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
+	
+	//key
+	{"personalize_feat_key_fav"		, CPersonalizeGui::PERSONALIZE_FEAT_KEY_GREEN},
+	{"personalize_feat_key_timerlist"	, CPersonalizeGui::PERSONALIZE_FEAT_KEY_YELLOW},
+	{"personalize_feat_key_vtxt"		, CPersonalizeGui::PERSONALIZE_FEAT_KEY_BLUE},
+	{"personalize_feat_key_rclock"		, CPersonalizeGui::PERSONALIZE_FEAT_KEY_AUTO},
+	
+	//user menu
+	{"personalize_usermenu_show_cancel"	, true},
+};
 CScanSettings::CScanSettings(void)
 	: configfile('\t')
 {

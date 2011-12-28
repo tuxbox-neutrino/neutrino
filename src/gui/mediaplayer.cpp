@@ -102,16 +102,29 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		return menu_return::RETURN_REPAINT;
 	}
 	
-	int res = showMenu(); 
+	int res = initMenuMedia();
 	
 	return res;
 }
 
-//show selectable mediaplayer items
-int CMediaPlayerMenu::showMenu()
-{
-	CMenuWidget *media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA);
 
+//show selectable mediaplayer items
+int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
+{	
+	CPersonalizeGui *personalize = p;
+	CMenuWidget 	*media = m;
+	
+	bool show = (personalize == NULL || media == NULL);
+
+	if (personalize == NULL)
+		 personalize = new CPersonalizeGui();
+	
+	if (media == NULL)
+		 media = new CMenuWidget(menu_title, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA);
+
+	personalize->addWidget(media);
+	personalize->addIntroItems(media);
+	
 	CMenuForwarder *fw_audio = NULL;
 	CMenuForwarder *fw_inet = NULL;
 	CMenuForwarder *fw_mp = NULL;
@@ -127,6 +140,7 @@ int CMediaPlayerMenu::showMenu()
 		neutrino_msg_t audio_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_audio:CRCInput::RC_red;
 		const char* audio_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_RED;
 		fw_audio = new CMenuForwarder(LOCALE_MAINMENU_AUDIOPLAYER, true, NULL, this, "audioplayer", audio_rc, audio_btn);
+		
 		//internet player
 		neutrino_msg_t inet_rc = usage_mode == MODE_AUDIO ? CRCInput::RC_www : CRCInput::RC_green;
 		const char* inet_btn = usage_mode == MODE_AUDIO ? "" : NEUTRINO_ICON_BUTTON_GREEN;
@@ -136,67 +150,83 @@ int CMediaPlayerMenu::showMenu()
 	if (usage_mode == MODE_DEFAULT)
 	{
 		//movieplayer
-		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MEDIA, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
+		moviePlayer = new CMenuWidget(LOCALE_MAINMENU_MOVIEPLAYER, NEUTRINO_ICON_MULTIMEDIA, width, MN_WIDGET_ID_MEDIA_MOVIEPLAYER);
+		personalize->addWidget(moviePlayer);
 		fw_mp = new CMenuForwarder(LOCALE_MAINMENU_MOVIEPLAYER, true, NULL, moviePlayer, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
 
-		//pictureviewer
-		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
-
+ 		//pictureviewer
+ 		fw_pviewer = new CMenuForwarder(LOCALE_MAINMENU_PICTUREVIEWER, true, NULL, new CPictureViewerGui(), NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
 #if ENABLE_UPNP
 		//upnp browser
 		fw_upnp = new CMenuForwarder(LOCALE_UPNPBROWSER_HEAD, true, NULL, new CUpnpBrowserGui(), NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0);
 #endif
-		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
+//  		media->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, usage_mode == MODE_AUDIO ? CMenuWidget::BTN_TYPE_CANCEL : CMenuWidget::BTN_TYPE_BACK);
 	}
 
 	if (usage_mode == MODE_AUDIO)
 	{
-		//audio player	
-		media->addItem(fw_audio);
-		
-		//internet player
-		media->addItem(fw_inet);
+ 		//audio player	
+		personalize->addItem(media, fw_audio, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_AUDIO]);
+ 		
+ 		//internet player
+		personalize->addItem(media, fw_inet, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
 	}
 	else if (usage_mode == MODE_VIDEO)
 	{
-		showMoviePlayer(media);
+ 		showMoviePlayer(media, personalize);
 	}
 	else
 	{
 		//audio player
-		media->addItem(fw_audio);
+		personalize->addItem(media, fw_audio, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_AUDIO]);
 		
 		//internet player
-		media->addItem(fw_inet);
+		personalize->addItem(media, fw_inet, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_INETPLAY]);
 		
 		//movieplayer
-		showMoviePlayer(moviePlayer);
-		media->addItem(fw_mp);
+		showMoviePlayer(moviePlayer,  personalize);
+		personalize->addItem(media, fw_mp, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_MPLAYER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
 		
-		//pictureviewer
-		media->addItem(fw_pviewer);
-#if ENABLE_UPNP
+		//picture viewer
+		personalize->addItem(media, fw_pviewer, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_PVIEWER]);
+#if ENABLE_UPNP		
 		//upnp browser
-		media->addItem(fw_upnp);
+		personalize->addItem(media, fw_upnp, &g_settings.personalize[SNeutrinoSettings::P_MEDIA_UPNP]);
 #endif
 	}
 	
-	int res = media->exec(NULL, "");
-	media->hide();
-	delete media;
-	setUsageMode();//set default usage_mode
+	int res = menu_return::RETURN_NONE;
+	
+	if (show)
+	{
+ 		//adding personalized items
+		personalize->addPersonalizedItems();
+		
+		res = media->exec(NULL, "");
+		media->hide();
+		delete media;
+		delete personalize;
+
+		setUsageMode();//set default usage_mode
+	}
 	
 	return res;
 }
 
 //show movieplayer submenu with selectable items for moviebrowser or filebrowser
-void CMediaPlayerMenu::showMoviePlayer(CMenuWidget *moviePlayer)
+void CMediaPlayerMenu::showMoviePlayer(CMenuWidget *moviePlayer, CPersonalizeGui *p)
 { 
 	CMoviePlayerGui *movieplayer_gui = &CMoviePlayerGui::getInstance();
-
-	moviePlayer->addIntroItems(LOCALE_MAINMENU_MOVIEPLAYER);
-	moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, movieplayer_gui, "tsmoviebrowser", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, movieplayer_gui, "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	CMenuForwarder *fw_mbrowser = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, movieplayer_gui, "tsmoviebrowser", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder *fw_file = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, movieplayer_gui, "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	
+	p->addIntroItems(moviePlayer);
+	
+	//moviebrowser
+	p->addItem(moviePlayer, fw_mbrowser, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_MBROWSER]);
+	
+	//fileplayback
+	p->addItem(moviePlayer, fw_file, &g_settings.personalize[SNeutrinoSettings::P_MPLAYER_FILEPLAY]);
 
 // #if 0
 // 	//moviePlayer->addItem(new CMenuForwarder(LOCALE_MOVIEPLAYER_PESPLAYBACK, true, NULL, moviePlayerGui, "pesplayback"));
