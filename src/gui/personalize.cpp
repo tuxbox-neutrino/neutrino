@@ -244,7 +244,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 	}
 	
-	ShowPersonalizationMenu();                                              // Show main Personalization Menu
+	res = ShowPersonalizationMenu();                                        // Show main Personalization Menu
 	SaveAndExit();
 	return res;
 }
@@ -259,7 +259,7 @@ const CMenuOptionChooser::keyval OPTIONS_FEAT_KEY_OPTIONS[CPersonalizeGui::PERSO
 };
 //This is the main personalization menu. From here we can go to the other sub-menu's and enable/disable
 //the PIN code feature, as well as determine whether or not the EPG menu/Features menu is accessible.
-void CPersonalizeGui::ShowPersonalizationMenu()
+int CPersonalizeGui::ShowPersonalizationMenu()
 {
 	width = w_max (40, 10);
 	
@@ -302,7 +302,7 @@ void CPersonalizeGui::ShowPersonalizationMenu()
 	pMenu->addItem(GenericMenuSeparatorLine);
 	pMenu->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_HELP, true, NULL, this, "personalize_help", CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP));
 	
-	pMenu->exec(NULL, "");
+	int res = pMenu->exec(NULL, "");
 	pMenu->hide();
 	delete pMenu;
 	delete uMenu;
@@ -311,6 +311,8 @@ void CPersonalizeGui::ShowPersonalizationMenu()
 	delete plMenu;
 	v_userMenuSetup.clear();
 	delete pers_notifier;
+	
+	return res;
 }
 
 //init pin setup dialog
