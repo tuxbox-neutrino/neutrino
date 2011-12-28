@@ -139,8 +139,10 @@ struct SNeutrinoSettings
  		//main menu
 		P_MAIN_TV_MODE,
 		P_MAIN_RADIO_MODE,
-		P_MAIN_GAMES,
+		P_MAIN_TIMER,
 		P_MAIN_MEDIA,
+		
+		P_MAIN_GAMES,
 		P_MAIN_SCRIPTS,
 		P_MAIN_SETTINGS,
 		P_MAIN_SERVICE,

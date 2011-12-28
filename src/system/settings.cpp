@@ -40,8 +40,10 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	//main menu
 	{"personalize_tv_mode"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
 	{"personalize_radio_mode"		, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
-	{"personalize_games"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},	
+	{"personalize_timer"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
 	{"personalize_media"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE}, 
+	
+	{"personalize_games"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},	
 	{"personalize_scripts"			, CPersonalizeGui::PERSONALIZE_MODE_VISIBLE},
 	{"personalize_settings"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
 	{"personalize_service"			, CPersonalizeGui::PERSONALIZE_PROTECT_MODE_NOT_PROTECTED},
