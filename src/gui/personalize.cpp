@@ -357,11 +357,11 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 		
 		v_umenu_fw.push_back(new CMenuForwarder(usermenu[i].menue_title, true, g_settings.usermenu_text[i], v_umenu[i], NULL, usermenu[i].DirectKey, usermenu[i].IconName));
 	}
-		
+#if 0		
 	//feature keys
 	fkeyMenu = new CMenuWidget(LOCALE_PERSONALIZE_HEAD, NEUTRINO_ICON_PERSONALIZE, width, MN_WIDGET_ID_PERSONALIZE_FEATUREKEYS);
 	CMenuForwarder *fw_fkeys = new CMenuForwarder(LOCALE_PERSONALIZE_USERMENU_PREFERRED_BUTTONS, true, NULL, fkeyMenu, NULL, CRCInput::RC_1);
-	
+#endif	
 	//enable/disable epg/features
 	pers_notifier = new CPersonalizeNotifier(v_umenu_fw[0], v_umenu_fw[3]);
 	//red 
@@ -376,12 +376,12 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 		p_widget->addItem(v_umenu_fw[j]);
 	
 	p_widget->addItem(GenericMenuSeparator);
-	
+#if 0	
 	//preverred keys
 	p_widget->addItem(GenericMenuSeparatorLine);
 	p_widget->addItem(fw_fkeys);
 	ShowPreverredKeySetup(fkeyMenu);
-	
+#endif	
 	p_widget->addItem(GenericMenuSeparatorLine);
 	p_widget->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_USERMENU_SHOW_CANCEL, &g_settings.personalize[SNeutrinoSettings::P_UMENU_SHOW_CANCEL], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 }

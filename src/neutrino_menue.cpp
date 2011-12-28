@@ -97,7 +97,7 @@ enum
 	MENU_MAX //3
 };
 
-#define MENU_WIDTH 40
+#define MENU_WIDTH 35
 
 const mn_widget_struct_t menu_widgets[MENU_MAX] =
 {
@@ -293,6 +293,7 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MISC, true, NULL, new CMiscMenue() , NULL, CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE), &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
 	
 }
+	
 
 /* service menu*/
 void CNeutrinoApp::InitMenuService()
@@ -378,5 +379,4 @@ void CNeutrinoApp::InitServiceSettings(CMenuWidget &service)
 #endif
 }
 #endif//**************************************************************************************
-
 
