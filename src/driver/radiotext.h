@@ -112,7 +112,7 @@ private:
 	void RadioStatusMsg(void);
 	void AudioRecorderService(void);
 	void RassDecode(uchar *Data, int Length);
-	bool DividePes(char *data, int length, int *substart, int *subend);
+	bool DividePes(unsigned char *data, int length, int *substart, int *subend);
 
 	uint pid;
 	pthread_t threadRT;
@@ -121,7 +121,7 @@ private:
 public:
 	CRadioText(void);
 	~CRadioText(void);
-	int  PES_Receive(char *data, int len);
+	int  PES_Receive(unsigned char *data, int len);
 	int  RassImage(int QArchiv, int QKey, bool DirUp);
 	void EnableRadioTextProcessing(const char *Titel, bool replay = false);
 	void DisableRadioTextProcessing();

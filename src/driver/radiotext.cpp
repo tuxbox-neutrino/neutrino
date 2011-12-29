@@ -190,7 +190,7 @@ char* CRadioText::ptynr2string(int nr)
 	}
 }
 
-bool CRadioText::DividePes(char *data, int length, int *substart, int *subend)
+bool CRadioText::DividePes(unsigned char *data, int length, int *substart, int *subend)
 {
 	int i = *substart;
 	int found = 0;
@@ -217,7 +217,7 @@ bool CRadioText::DividePes(char *data, int length, int *substart, int *subend)
 	}
 }
 
-int CRadioText::PES_Receive(char *data, int len)
+int CRadioText::PES_Receive(unsigned char *data, int len)
 {
 	const int mframel = 263;  // max. 255(MSG)+4(ADD/SQC/MFL)+2(CRC)+2(Start/Stop) of RDS-data
 	static unsigned char mtext[mframel+1];
@@ -2289,7 +2289,7 @@ eOSState cRTplusList::ProcessKey(eKeys Key)
 #endif
 
 
-static int pes_SyncBufferRead (cDemux *audioDemux, ringbuffer_t *buf, u_long *skipped_bytes);
+//static int pes_SyncBufferRead (cDemux *audioDemux, ringbuffer_t *buf, u_long *skipped_bytes);
 
 static bool rtThreadRunning;
 
@@ -2297,94 +2297,78 @@ void *RadioTextThread(void *data)
 {
 	CRadioText *rt = ((CRadioText::s_rt_thread*)data)->rt_object;
 	int fd = ((CRadioText::s_rt_thread*)data)->fd;
-//	struct dmx_pes_filter_params flt;
+	//	struct dmx_pes_filter_params flt;
 	cDemux *audioDemux = rt->audioDemux;
-printf("in RadioTextThread fd = %d\n", fd);
+	printf("in RadioTextThread fd = %d\n", fd);
 
-//	while (1) 
+	bool ret = false;
+
+	printf("\nRadioTextThread: ###################### Setting PID 0x%x ######################\n", rt->getPid());
+
+	audioDemux->Stop();
+	if (audioDemux->pesFilter(rt->getPid()))
 	{
-		bool ret = false;
-
-		printf("Thread Setting PID 0x%x\n", rt->getPid());
-
-		audioDemux->Stop();
-		if (audioDemux->pesFilter(rt->getPid()) >= 0)
-		{
 		/* start demux filter */
-			if (audioDemux->Start() >= 0)
-				ret = true;
-		}
-		if (!ret) {
-			perror("RadiotextThread Audiodemuxer");
-			perror("DMX_SET_PES_FILTER");
-			pthread_exit(NULL);
-		}
-#if 0
-
-			ioctl(fd, DMX_SET_BUFFER_SIZE, 128*1024);
-	
-			flt.pid = rt->getPid();
-			flt.pes_type = DMX_PES_OTHER;
-			flt.flags = DMX_IMMEDIATE_START;
-#ifndef HAVE_TRIPLEDRAGON
-			flt.input = DMX_IN_FRONTEND;
-			flt.output = DMX_OUT_TAP;
-#else
-			flt.output = OUT_MEMORY;
-			flt.unloader.unloader_type = UNLOADER_TYPE_PAYLOAD;
-			flt.unloader.threshold     = 64;
-#endif
-			if (ioctl(fd, DMX_SET_PES_FILTER, &flt) < 0) {
-				perror("DMX_SET_PES_FILTER");
-				pthread_exit(NULL);
-			}
-#endif
-			/*
-			-- read PES packet for pid
-			*/
-			ringbuffer_t *buf_in = ringbuffer_create(0x1FFFF);
-			char  *b;				/* ptr to packet start */
-			long    count = 0;
-			rtThreadRunning = true;
-			while(rtThreadRunning)
-			{
-				int n;
-				int offset;
-				size_t rd;
-				u_long  skipped_bytes = 0;
-
-//printf("."); fflush(stdout);
-				//  -- Read PES packet  (sync Read)
-				n = pes_SyncBufferRead (audioDemux, buf_in, &skipped_bytes);
-
-				// -- error or eof?
-				if (n <= 0) {
-					usleep(10000); /* save CPU if nothing read */
-					continue;
-				}
-				rd = ringbuffer_get_readpointer(buf_in, &b, n);
-/* this can not happen, because pes_SyncBufferRead() returns -1 if ringbuffer is empty
-				if (rd <= 0) {
-					continue;
-				}
-*/
-				count ++;
-				// -- skipped Data to get sync byte?
-				offset = rt->PES_Receive(b, n);
-//				if (skipped_bytes) {
-//					printf("!!! %ld bytes skipped to get PS/PES sync!!! read: %d processed: %d\n",skipped_bytes, n, offset);
-//				}
-				ringbuffer_read_advance(buf_in, offset);
-			}
-
-			if (audioDemux->Stop() < 0) {
-//			if (ioctl(fd, DMX_STOP) < 0) {
-				perror("DMX_STOP");
-				pthread_exit(NULL);
-			}
-			ringbuffer_free(buf_in);
+		if (audioDemux->Start())
+			ret = true;
 	}
-fprintf(stderr, "RT %s: exit\n", __FUNCTION__);
+	if (!ret) {
+		perror("RadiotextThread Audiodemuxer");
+		perror("DMX_SET_PES_FILTER");
+		audioDemux->Stop();
+		pthread_exit(NULL);
+	}
+	/*
+	   -- read PES packet for pid
+	   */
+#if 0
+	ringbuffer_t *buf_in = ringbuffer_create(0x1FFFF);
+	char  *b;				/* ptr to packet start */
+	long    count = 0;
+#endif
+	rtThreadRunning = true;
+	while(rtThreadRunning)
+	{
+		int n;
+		unsigned char buf[0x1FFFF];
+#if 0
+		int offset;
+		size_t rd;
+		u_long  skipped_bytes = 0;
+#endif
+		//printf("."); fflush(stdout);
+		//  -- Read PES packet  (sync Read)
+		//n = pes_SyncBufferRead (audioDemux, buf_in, &skipped_bytes);
+		n = audioDemux->Read(buf, sizeof(buf), 500 /*5000*/);
+
+		// -- error or eof?
+		if (n <= 0) {
+			usleep(10000); /* save CPU if nothing read */
+			continue;
+		}
+		rt->PES_Receive(buf, n);
+#if 0
+		rd = ringbuffer_get_readpointer(buf_in, &b, n);
+		/* this can not happen, because pes_SyncBufferRead() returns -1 if ringbuffer is empty
+		   if (rd <= 0) {
+		   continue;
+		   }
+		   */
+		count ++;
+		// -- skipped Data to get sync byte?
+		offset = rt->PES_Receive(b, n);
+
+		ringbuffer_read_advance(buf_in, offset);
+#endif
+	}
+
+	audioDemux->Stop();
+
+#if 0
+	ringbuffer_free(buf_in);
+	fprintf(stderr, "RT %s: exit\n", __FUNCTION__);
+#endif
+	printf("\nRadioTextThread: ###################### exit ######################\n");
 	pthread_exit(NULL);
 }
 
@@ -2425,6 +2409,7 @@ CRadioText::CRadioText(void)
 
 void CRadioText::radiotext_stop(void)
 {
+	printf("\nCRadioText::radiotext_stop: ###################### pid 0x%x ######################\n", getPid());
 	if (getPid() != 0) {
 		// this stuff takes a while sometimes - look for a better syncronisation
 		printf("Stopping RT Thread\n");
@@ -2432,7 +2417,7 @@ void CRadioText::radiotext_stop(void)
 		pthread_join(getThread(), NULL);
 		pid = 0;
 		have_radiotext = false;
-      audioDemux->Stop();
+		audioDemux->Stop();
 		S_RtOsd = 0;
 	}
 
@@ -2445,8 +2430,8 @@ CRadioText::~CRadioText(void)
 //	printf("Deleting RT object\n");
 
 //	close(dmxfd);
-   delete audioDemux;
-   audioDemux = NULL;
+	delete audioDemux;
+	audioDemux = NULL;
 	dmxfd = -1;
 }
 
@@ -2455,31 +2440,35 @@ void CRadioText::setPid(uint inPid)
 {
 	uint oldPid = pid;
 
+	printf("\nCRadioText::setPid: ###################### old pid 0x%x new pid 0x%x ######################\n", oldPid, inPid);
 	if (pid != inPid)
 	{
 		int rc;
 
-//		printf("setting pid 0x%x\n", inPid);
+		printf("CRadioText::setPid: setting pid 0x%x\n", inPid);
 		pid = inPid;
 
 		// open the device if first pid
 		if (0 == oldPid)
 		{
 			if (audioDemux == NULL) {
-            bool ret = false;
-         	audioDemux = new cDemux(1);
-         	audioDemux->Open(DMX_TP_CHANNEL/*DMX_AUDIO_CHANNEL*/,0,128*1024);
-      	   if (audioDemux->pesFilter(pid) >= 0)
-            {
-            	/* start demux filter */
-            	if (audioDemux->Start() >= 0)
-            		ret = true;
-            }
-            if (!ret) {
-					perror("Radiotext Audiodemuxer");
-					pthread_exit(NULL);
+				audioDemux = new cDemux(1);
+				//audioDemux->Open(DMX_TP_CHANNEL /*DMX_AUDIO_CHANNEL*/,0,128*1024);
+				audioDemux->Open(DMX_PES_CHANNEL,0,128*1024);
+#if 0
+				bool ret = false;
+				if (audioDemux->pesFilter(pid))
+				{
+					/* start demux filter */
+					if (audioDemux->Start())
+						ret = true;
 				}
-//            audioDemux->Stop()
+				if (!ret) {
+					perror("Radiotext Audiodemuxer");
+					return;
+				}
+#endif
+				//            audioDemux->Stop()
 #if 0
 				dmxfd = open(DMXDEV, O_RDWR|O_NONBLOCK);
 				if (dmxfd < 0) {
@@ -2493,8 +2482,8 @@ void CRadioText::setPid(uint inPid)
 		}
 
 		// Setup-Params
-//		S_Activate = false;
-//		S_HMEntry = false;
+		//		S_Activate = false;
+		//		S_HMEntry = false;
 		S_RtFunc = 1;
 		S_RtOsd = 0;
 		S_RtOsdTitle = 1;
@@ -2509,7 +2498,7 @@ void CRadioText::setPid(uint inPid)
 		S_RtFgCol = 1;
 		S_RtDispl = 1;
 		S_RtMsgItems = 0;
-//int S_RtpMemNo = 25;
+		//int S_RtpMemNo = 25;
 		RT_Index = RT_PTY = 0;
 
 		// Radiotext
@@ -2547,6 +2536,7 @@ void CRadioText::setPid(uint inPid)
   -- return: len // read()-return code
 */
 
+#if 0
 static int pes_SyncBufferRead(cDemux *audioDemux, ringbuffer_t *buf, /*u_long max_len,*/ u_long *skipped_bytes)
 {
 	ringbuffer_data_t vec;
@@ -2672,3 +2662,4 @@ static int pes_SyncBufferRead(cDemux *audioDemux, ringbuffer_t *buf, /*u_long ma
 //	fprintf(stderr, "RT %s: unsynced, ret = -1! (this never happens) ppes[3] = 0x%02x\n", __FUNCTION__, ppes[3]);
 	return -1;					// buffer overflow
 }
+#endif
