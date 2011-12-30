@@ -374,7 +374,18 @@ void CMenuWidget::move(int xoff, int yoff)
 
 CMenuWidget::~CMenuWidget()
 {
-	resetWidget();
+	for(unsigned int count=0;count<items.size();count++) {
+		CMenuItem * item = items[count];
+		if ((item != GenericMenuSeparator) &&
+		    (item != GenericMenuSeparatorLine) &&
+		    (item != GenericMenuBack) &&
+		    (item != GenericMenuCancel)){
+			delete item;
+		}
+	}
+	
+	items.clear();
+	page_start.clear();
 }
 
 void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
