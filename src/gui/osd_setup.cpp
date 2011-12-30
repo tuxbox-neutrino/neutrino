@@ -78,8 +78,6 @@ COsdSetup::~COsdSetup()
 {
 	delete colorSetupNotifier;
 	delete fontsizenotifier;
-	//for shure
-	delete radiotextNotifier;
 }
 
 //font settings
@@ -388,6 +386,8 @@ int COsdSetup::showOsdSetup()
 	osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP);
 	osd_menu->setWizardMode(is_wizard);
 
+ 	radiotextNotifier = new CRadiotextNotifier();
+
 	//menu colors
 	CMenuWidget *osd_menu_colors = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_MENUCOLORS);
 
@@ -440,6 +440,7 @@ int COsdSetup::showOsdSetup()
 
 	int res = osd_menu->exec(NULL, "");
 	osd_menu->hide();
+
 	delete osd_menu;
 	delete radiotextNotifier;
 	return res;
@@ -622,7 +623,6 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_RES, &g_settings.infobar_show_res, INFOBAR_SHOW_RES_MODE_OPTIONS, INFOBAR_SHOW_RES_MODE_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS, &g_settings.colored_events_infobar, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
- 	radiotextNotifier = new CRadiotextNotifier();
  	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, radiotextNotifier));
 }
 
