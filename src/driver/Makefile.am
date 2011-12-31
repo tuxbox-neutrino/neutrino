@@ -45,7 +45,6 @@ endif
 if BOXTYPE_TRIPLE
 libneutrino_driver_a_SOURCES += \
 	newclock.cpp \
-	lcdfontrenderer.cpp \
 	lcdd.cpp
 
 INCLUDES += \
