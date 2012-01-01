@@ -245,7 +245,7 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO, true, NULL, new CAudioSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_AUDIO]);
 	
 	// parental lock
-	personalize.addItem(MENU_SETTINGS, new CLockedMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, g_settings.parentallock_pincode, g_settings.parentallock_prompt, true, NULL, new CParentalSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_YOUTH]);
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, true, NULL, new CParentalSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_YOUTH]);
 
 	// network
 	if(networksetup == NULL)

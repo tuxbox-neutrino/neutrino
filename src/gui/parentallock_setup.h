@@ -31,19 +31,29 @@
 #ifndef __parentallock_setup__
 #define __parentallock_setup__
 
-#include <gui/widget/menue.h>
+#include <global.h>
+#include <neutrino.h>
+#include <neutrino_menue.h>
 
+#include <gui/widget/menue.h>
+#include <driver/screen_max.h>
 #include <string>
 
-class CParentalSetup : public CMenuTarget
+class CParentalSetup : public CMenuTarget, public CPINProtection
 {
 	private:
 		int width;
-
 		void showParentalSetup();
+		
+	protected:
+		virtual CMenuTarget* getParent() { return( NULL);};
 
 	public:	
-		CParentalSetup();
+		
+		CParentalSetup() : CPINProtection(g_settings.parentallock_pincode)
+		{ 
+			width = w_max (40, 10); //%	
+		};
 		~CParentalSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };

@@ -35,23 +35,14 @@
 
 #include "gui/parentallock_setup.h"
 
-#include <global.h>
-#include <neutrino.h>
-#include <neutrino_menue.h>
-
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 
-#include <driver/screen_max.h>
 
 #include <system/debug.h>
 
 
-
-CParentalSetup::CParentalSetup()
-{
-	width = w_max (40, 10); //%
-}
+//constructor is definied in parentallock_setup.h
 
 CParentalSetup::~CParentalSetup()
 {
@@ -64,12 +55,11 @@ int CParentalSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 	int   res = menu_return::RETURN_REPAINT;
 
 	if (parent)
-	{
 		parent->hide();
-	}
-
-	showParentalSetup();
 	
+	if (check())
+		showParentalSetup();
+		
 	return res;
 }
 
