@@ -183,7 +183,8 @@ FT_Error LcdFont::getGlyphBitmap(FT_ULong glyph_index, FTC_SBit *sbit)
 	return renderer->getGlyphBitmap(&font, glyph_index, sbit);
 }
 
-int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on error
+extern int UTF8ToUnicode(const char * &text, const bool utf8_encoded); // returns -1 on error
+#if 0
 {
 	int unicode_value;
 	
@@ -227,6 +228,7 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 
 	return unicode_value;
 }
+#endif
 
 void LcdFont::RenderString(int x, int y, const int width, const char * text, const int color, const int selected, const bool utf8_encoded)
 {
