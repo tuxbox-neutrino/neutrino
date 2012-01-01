@@ -52,7 +52,8 @@ class CParentalSetup : public CMenuTarget, public CPINProtection
 		
 		CParentalSetup() : CPINProtection(g_settings.parentallock_pincode)
 		{ 
-			width = w_max (40, 10); //%	
+			width = w_max (40, 10); //%
+			title = LOCALE_PARENTALLOCK_HEAD;
 		};
 		~CParentalSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
