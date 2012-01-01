@@ -479,9 +479,17 @@ class CPINProtection
 		char* validPIN;
 		bool check();
 		virtual CMenuTarget* getParent() = 0;
+		neutrino_locale_t title, hint;
 	public:
-		CPINProtection( char* validpin){ validPIN = validpin;};
+		CPINProtection( char* validpin)
+		{ 
+			validPIN = validpin;
+			hint = NONEXISTANT_LOCALE;
+			title = LOCALE_PINPROTECTION_HEAD;
+		};
 		virtual ~CPINProtection(){}
+		virtual void setTitle(neutrino_locale_t Title){title = Title;};
+		virtual void setHint(neutrino_locale_t Hint){ hint = Hint;};
 };
 
 class CZapProtection : public CPINProtection
@@ -491,7 +499,11 @@ class CZapProtection : public CPINProtection
 	public:
 		int	fsk;
 
-		CZapProtection( char* validpin, int	FSK ) : CPINProtection(validpin){ fsk= FSK; };
+		CZapProtection( char* validpin, int	FSK ) : CPINProtection(validpin)
+		{
+			fsk = FSK;
+			title = LOCALE_PARENTALLOCK_HEAD;
+		};
 		bool check();
 };
 

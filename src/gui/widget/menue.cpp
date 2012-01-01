@@ -1728,11 +1728,10 @@ int CMenuSeparator::paint(bool selected)
 bool CPINProtection::check()
 {
 	char cPIN[5];
-	neutrino_locale_t hint = NONEXISTANT_LOCALE;
 	do
 	{
 		cPIN[0] = 0;
-		CPINInput* PINInput = new CPINInput(LOCALE_PINPROTECTION_HEAD, cPIN, 4, hint);
+		CPINInput* PINInput = new CPINInput(title, cPIN, 4, hint);
 		PINInput->exec( getParent(), "");
 		delete PINInput;
 		hint = LOCALE_PINPROTECTION_WRONGCODE;
@@ -1743,20 +1742,18 @@ bool CPINProtection::check()
 
 bool CZapProtection::check()
 {
-
 	int res;
 	char cPIN[5];
-	neutrino_locale_t hint2 = NONEXISTANT_LOCALE;
 	do
 	{
 		cPIN[0] = 0;
 
-		CPLPINInput* PINInput = new CPLPINInput(LOCALE_PARENTALLOCK_HEAD, cPIN, 4, hint2, fsk);
+		CPLPINInput* PINInput = new CPLPINInput(title, cPIN, 4, hint, fsk);
 
 		res = PINInput->exec(getParent(), "");
 		delete PINInput;
 
-		hint2 = LOCALE_PINPROTECTION_WRONGCODE;
+		hint = LOCALE_PINPROTECTION_WRONGCODE;
 	} while ( (strncmp(cPIN,validPIN,4) != 0) &&
 		  (cPIN[0] != 0) &&
 		  ( res == menu_return::RETURN_REPAINT ) &&
