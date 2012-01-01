@@ -746,6 +746,31 @@ void CLCD::showPercentOver(const unsigned char perc, const bool perform_update, 
 
 void CLCD::showMenuText(const int position, const char * text, const int highlight, const bool utf_encoded)
 {
+	/* hack, to not have to patch too much in movieplayer.cpp */
+	if (mode == MODE_MOVIE) {
+		size_t p;
+		AUDIOMODES m = movie_playmode;
+		std::string mytext = text;
+		if (mytext.find("> ") == 0) {
+			mytext = mytext.substr(2);
+			m = AUDIO_MODE_PLAY;
+		} else if (mytext.find("|| ") == 0) {
+			mytext = mytext.substr(3);
+			m = AUDIO_MODE_PAUSE;
+		} else if ((p = mytext.find("s||> ")) < 3) {
+			mytext = mytext.substr(p + 5);
+			m = AUDIO_MODE_PLAY;
+		} else if ((p = mytext.find("x>> ")) < 3) {
+			mytext = mytext.substr(p + 4);
+			m = AUDIO_MODE_FF;
+		} else if ((p = mytext.find("x<< ")) < 3) {
+			mytext = mytext.substr(p + 4);
+			m = AUDIO_MODE_REV;
+		}
+		setMovieInfo(m, "", mytext, false);
+		return;
+	}
+
 	if (mode != MODE_MENU_UTF8)
 		return;
 

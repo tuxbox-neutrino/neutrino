@@ -48,6 +48,11 @@
 #include <zapit/zapit.h>
 
 //extern CPlugins *g_PluginList;
+#if HAVE_TRIPLEDRAGON
+#define LCD_MODE CVFD::MODE_MOVIE
+#else
+#define LCD_MODE CVFD::MODE_MENU_UTF8
+#endif
 
 extern cVideo * videoDecoder;
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
@@ -244,7 +249,7 @@ void CMoviePlayerGui::updateLcd()
 			break;
 	}
 	lcd += name;
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8);
+	CVFD::getInstance()->setMode(LCD_MODE);
 	CVFD::getInstance()->showMenuText(0, lcd.c_str(), -1, true);
 }
 
@@ -442,6 +447,10 @@ void CMoviePlayerGui::PlayFile(void)
 			if(playback->GetPosition(position, duration)) {
 				if(duration > 100)
 					file_prozent = (unsigned char) (position / (duration / 100));
+#if HAVE_TRIPLEDRAGON
+				CVFD::getInstance()->showPercentOver(file_prozent, true, CVFD::MODE_MOVIE);
+#endif
+
 				playback->GetSpeed(speed);
 #ifdef DEBUG
 				printf("CMoviePlayerGui::PlayFile: speed %d position %d duration %d (%d, %d%%)\n", speed, position, duration, duration-position, file_prozent);
