@@ -36,7 +36,6 @@
 #include <neutrino.h>
 #include <system/settings.h>
 
-#include <driver/encoding.h>
 #include <driver/newclock.h>
 #include <lcddisplay/lcddisplay.h>
 #include <gui/widget/icons.h>

@@ -54,11 +54,6 @@
 #include <driver/stream2file.h>
 #include <driver/record.h>
 
-#if HAVE_TRIPLEDRAGON
-#include <driver/lcdd.h>
-#include "gui/widget/lcdcontroler.h"
-#endif
-
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
