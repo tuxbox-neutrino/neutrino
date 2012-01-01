@@ -53,6 +53,38 @@
 #include <daemonc/remotecontrol.h>
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
+/* from edvbstring.cpp */
+static bool isUTF8(const std::string &string)
+{
+	unsigned int len=string.size();
+
+	for (unsigned int i=0; i < len; ++i)
+	{
+		if (!(string[i]&0x80)) // normal ASCII
+			continue;
+		if ((string[i] & 0xE0) == 0xC0) // one char following.
+		{
+			// first, length check:
+			if (i+1 >= len)
+				return false; // certainly NOT utf-8
+			i++;
+			if ((string[i]&0xC0) != 0x80)
+				return false; // no, not UTF-8.
+		} else if ((string[i] & 0xF0) == 0xE0)
+		{
+			if ((i+1) >= len)
+				return false;
+			i++;
+			if ((string[i]&0xC0) != 0x80)
+				return false;
+			i++;
+			if ((string[i]&0xC0) != 0x80)
+				return false;
+		}
+	}
+	return true; // can be UTF8 (or pure ASCII, at least no non-UTF-8 8bit characters)
+}
+
 CLCD::CLCD()
 	: configfile('\t')
 {
