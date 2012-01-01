@@ -68,6 +68,9 @@ COsdSetup::COsdSetup(bool wizard_mode)
 
 	fontsizenotifier = new CFontSizeNotifier;
 	radiotextNotifier = NULL;
+	osd_menu = NULL;
+	
+	tmp_virtual_zap_mode = 0;
 
 	is_wizard = wizard_mode;
 
