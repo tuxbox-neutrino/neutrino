@@ -1049,7 +1049,7 @@ const char * locale_real_names[] =
 	"personalize.setupmenuwithpin",
 	"personalize.usermenu_preferred_buttons",
 	"personalize.usermenu_show_cancel",
-	"personalize.visible",	
+	"personalize.visible",
 	"pictureviewer.defdir",
 	"pictureviewer.head",
 	"pictureviewer.help1",
