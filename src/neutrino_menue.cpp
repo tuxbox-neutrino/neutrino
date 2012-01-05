@@ -230,8 +230,8 @@ void CNeutrinoApp::InitMenuSettings()
 	
 	//***************************************************************************************************
 	// save
-	int show_save = CPersonalizeGui::PERSONALIZE_MODE_VISIBLE;
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), &show_save, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
+	int show = CPersonalizeGui::PERSONALIZE_MODE_VISIBLE;
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 	
 	// separator line
 	personalize.addItem(MENU_SETTINGS, GenericMenuSeparatorLine, NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
@@ -245,7 +245,7 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_AUDIO, true, NULL, new CAudioSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_AUDIO]);
 	
 	// parental lock
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, true, NULL, new CParentalSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_YOUTH]);
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, true, NULL, new CParentalSetup()), &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 
 	// network
 	if(networksetup == NULL)
