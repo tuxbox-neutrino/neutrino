@@ -108,6 +108,11 @@ int CHDDMenuHandler::doMenu ()
 
 
 	CMenuWidget* hddmenu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_DRIVESETUP);
+	
+	//if no drives found, select 'back'
+	if (hdd_found == 0 && hddmenu->getSelected() != -1)
+		hddmenu->setSelected(2);
+	
 	hddmenu->addIntroItems(LOCALE_HDD_SETTINGS);
 	
 	hddmenu->addItem(new CMenuForwarder(LOCALE_HDD_ACTIVATE, true, "", new CHDDDestExec(), NULL, CRCInput::RC_red,NEUTRINO_ICON_BUTTON_RED));
