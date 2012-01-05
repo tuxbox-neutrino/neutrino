@@ -306,13 +306,14 @@ CMenuWidget::CMenuWidget()
 	sb_width	= 0;
 	savescreen	= false;
 	background	= NULL;
+	preselected 	= -1;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
 {
 	name = Name;
         nameString = g_Locale->getText(Name);
-	
+	preselected 	= -1;
 	Init(Icon, mwidth, w_index);
 }
 
@@ -320,7 +321,7 @@ CMenuWidget::CMenuWidget(const char* Name, const std::string & Icon, const int m
 {
 	name = NONEXISTANT_LOCALE;
         nameString = Name;
-	
+	preselected 	= -1;
 	Init(Icon, mwidth, w_index);
 }
 
@@ -340,8 +341,13 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 		//ok
 		widget_index = w_index;
 	}
-	preselected = NO_WIDGET_ID;  
+	
+	//set default preselected if value =  -1 (no selected).  If value has changed, e.g. with setSelected(), then use current value
+	preselected = preselected != -1 ? preselected : -1;
+	
+	//overwrite preselected value with global select value
 	selected = (widget_index == NO_WIDGET_ID ? preselected : mglobal->v_selected[widget_index]);
+
 	
 	min_width = 0;
 	width = 0; /* is set in paint() */
