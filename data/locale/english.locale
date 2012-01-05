@@ -1327,6 +1327,8 @@ usermenu.item_epg_misc EPG functions
 usermenu.item_none (empty)
 usermenu.item_vtxt Videotext
 usermenu.msg_info_is_empty You don't have definied a name for this menu!\nUsing default name:\n
+usermenu.msg_warning_name You have more than one items created for this menu,\nbut none new name for this menue defined.\nIt is recommended to enter a new name!
+usermenu.msg_warning_no_items No items defined!\nThe menu name is reset!
 usermenu.name Name
 video_mode_ok Is this video mode working ok ?
 videomenu.43mode 4:3 Content mode

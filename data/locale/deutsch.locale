@@ -1327,6 +1327,8 @@ usermenu.item_epg_misc EPG Funktionen
 usermenu.item_none (frei)
 usermenu.item_vtxt Teletext
 usermenu.msg_info_is_empty Es wurde kein Name für dieses Menü vergeben.\nVerwende Standardname:\n
+usermenu.msg_warning_name Sie haben mehrere Menüpunkte für dieses Menü angelegt,\naber keinen neuen Namen festgelegt.\nEs ist daher empfohlen, einen neuen Namen zu vergeben!
+usermenu.msg_warning_no_items Sie haben keine Menüpunkte für dieses Menü angelegt!\nDer Menüname wird daher zurückgesetzt!
 usermenu.name Name
 video_mode_ok Video-Einstellungen OK?
 videomenu.43mode 4:3 Anzeigeverhalten

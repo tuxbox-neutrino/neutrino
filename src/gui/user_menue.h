@@ -1,6 +1,6 @@
 /*
 	user_menue setup implementation - Neutrino-GUI
-	based up implementation by GÃ¼nther
+	based up implementation by Günther
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	and some other guys

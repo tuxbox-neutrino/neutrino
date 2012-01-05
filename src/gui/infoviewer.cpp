@@ -1955,7 +1955,7 @@ void CInfoViewer::showButton_Audio ()
 
 		frameBuffer->paintBoxRel(sx, BBarY, asize, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND);
 
-		if (txt.empty())
+		if (txt.empty() || (txt == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD)))
 			txt = g_RemoteControl->current_PIDs.APIDs[selected].desc;
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(sx, BBarFontY, asize,

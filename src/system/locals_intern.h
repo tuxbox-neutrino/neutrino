@@ -1354,6 +1354,8 @@ const char * locale_real_names[] =
 	"usermenu.item_none",
 	"usermenu.item_vtxt",
 	"usermenu.msg_info_is_empty",
+	"usermenu.msg_warning_name",
+	"usermenu.msg_warning_no_items",
 	"usermenu.name",
 	"video_mode_ok",
 	"videomenu.43mode",

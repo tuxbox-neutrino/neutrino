@@ -33,6 +33,7 @@
 #define __user_menue_setup__
 
 #include <gui/widget/menue.h>
+
 #include <system/settings.h>
 
 #include <string>
@@ -63,14 +64,20 @@ const struct usermenu_props_t usermenu[USERMENU_ITEMS_COUNT] =
 		int width;
 		int max_char;
 		int button;
+		std::string pref_name;
 		neutrino_locale_t local;
 
 		int showSetup();
-		void checkItem();
-
+		void checkButtonItems();
+		void checkButtonName();
+		
+		CMenuWidget * ums;
+		CMenuForwarder *mf;
+		
 	public:
 		CUserMenuSetup(neutrino_locale_t menue_title, int menue_button);
 		~CUserMenuSetup();
+		int getUsedItemsCount();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 

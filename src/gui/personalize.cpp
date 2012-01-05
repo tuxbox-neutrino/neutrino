@@ -354,8 +354,10 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 	for (uint i = 0; i<USERMENU_ITEMS_COUNT; i++)
 	{
 		v_umenu.push_back(new CUserMenuSetup(usermenu[i].menue_title, usermenu[i].menue_button));
+		
 		//ensure correct default string, e.g: required after settings reset
- 		g_settings.usermenu_text[i] = g_settings.usermenu_text[i].empty() ? g_Locale->getText(usermenu[i].def_name) : g_settings.usermenu_text[i].c_str();
+		if (v_umenu[i]->getUsedItemsCount() > 0)
+			g_settings.usermenu_text[i] = g_settings.usermenu_text[i].empty() ? g_Locale->getText(usermenu[i].def_name) : g_settings.usermenu_text[i].c_str();
 		
 		v_umenu_fw.push_back(new CMenuForwarder(usermenu[i].menue_title, true, g_settings.usermenu_text[i], v_umenu[i], NULL, usermenu[i].DirectKey, usermenu[i].IconName));
 	}
