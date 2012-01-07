@@ -1,0 +1,72 @@
+libtriple reimplements the interfaces of the libcoolstrem library for
+the Tripledragon receiver.
+
+There are a few debugging or configuration helpers which affect the
+way libtriple does some things. They are all configured by exporting
+environment variables, which are described here:
+
+TRIPLE_NOSCART=1 - makes neutrino *not* do any voltage switching on
+	SCART pin 8, probably not useful for anyone but me
+
+TRIPLE_DEBUG=... - controls various debugging levels in libtriple
+	valid values for the different component:
+		audio   0x01
+		video   0x02
+		demux   0x04
+		play    0x08
+		power   0x10
+		init    0x20
+		ca      0x40
+		record  0x80
+		all     0xff
+	multiple levels are added / ORed together, so if you want to
+	debug record and playback code, do "export TRIPLE_DEBUG=0x88"
+	for audio & video use TRIPLE_DEBUG=0x3
+
+DSP_DEVICE
+MIX_DEVICE - alternative audio devices for the audioplayer and internet 
+	radio. Those are used to output music to e.g. USB audio devices.
+	Here is what you need to do:
+	* look in /dev/sound which devices are already there. Probably
+	  /dev/sound/dsp and /dev/sound/mixer, created by the tdoss driver
+	* make sure that the USB HC driver is loaded:
+		modprobe ohci-hcd
+	* load the USB audio driver:
+		modprobe audio
+	* plug in your USB audio device, check with "dmesg" that it is
+	  recognised by the kernel
+	* look in /dev/sound which new devices are there. Probably it's
+	  /dev/sound/dsp1 and /dev/sound/mixer1. If there are more - well
+	  it's time to experiment ;)
+	* export DSP_DEVICE=/dev/sound/dsp1 and MIX_DEVICE=/dev/sound/mixer1
+	  (of course the devices you found in the last step)
+	* from the same shell you exported the variables, start neutrino
+	  (make sure that an already running neutrino is stopped before you
+	  do that)
+	* start the audioplayer, play a track. Look for log lines like
+	  [LT:106b5788:audio ] PrepareClipPlay: dsp_dev /dev/sound/dsp1 mix_dev /dev/sound/mixer1
+	* if it works - fine :-)
+	* if it does not work, look for:
+	  PrepareClipPlay: DSP_DEVICE is set (/dev/sound/dsp1) but cannot be opened, fall back to /dev/sound/dsp
+	  PrepareClipPlay: dsp_dev /dev/sound/dsp mix_dev /dev/sound/mixer1
+	  PrepareClipPlay: open mixer /dev/sound/mixer1 failed (No such file or directory)
+	* this basically means that the device is not there. Different errors
+	  will get different messages - I cannot trigger those now, so you'll
+	  need to find them out by yourself ;)
+	* another possible messag you may get is:
+	  PrepareClipPlay: more than one mixer control: devmask 00000021 stereo 00000021
+	  This means that your device has more than one mixer. The set bit
+	  numbers in the devmask are the different mixers, in this case
+	  it would be number 0 and 5. To select one of those, export
+	  MIX_NUMBER=5 or MIX_NUMBER=0 (this code is untested, there may
+	  be bugs)
+
+	So now I found out what devices to use, but how do I make that permanent?
+	That's easy:
+	* create or extend /etc/rcS.local with
+	  modprobe ohci-hcd
+	  modprobe audio
+	* create or extend /etc/profile.local with
+	  export DSP_DEVICE=/dev/sound/dsp1
+	  export MIX_DEVICE=/dev/sound/mixer1
+	* reboot. Enjoy.
