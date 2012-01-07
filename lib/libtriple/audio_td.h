@@ -37,6 +37,8 @@ class cAudio
 		bool Muted;
 
 		int clipfd; /* for pcm playback */
+		int mixer_fd;  /* if we are using the OSS mixer */
+		int mixer_num; /* oss mixer to use, if any */
 
 		AUDIO_FORMAT	StreamType;
 		AUDIO_SYNC_MODE    SyncMode;

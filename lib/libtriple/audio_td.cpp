@@ -20,6 +20,7 @@ cAudio::cAudio(void *, void *, void *)
 {
 	fd = -1;
 	clipfd = -1;
+	mixer_fd = -1;
 	openDevice();
 	Muted = false;
 }
@@ -49,6 +50,9 @@ void cAudio::closeDevice(void)
 	if (clipfd >= 0)
 		close(clipfd);
 	clipfd = -1;
+	if (mixer_fd >= 0)
+		close(mixer_fd);
+	mixer_fd = -1;
 }
 
 int cAudio::do_mute(bool enable, bool remember)
@@ -60,6 +64,11 @@ int cAudio::do_mute(bool enable, bool remember)
 	ret = ioctl(fd, MPEG_AUD_SET_MUTE, enable);
 	if (ret < 0)
 		lt_info("%s(%d) failed (%m)\n", __FUNCTION__, (int)enable);
+
+	/* are we using alternative DSP / mixer? */
+	if (clipfd != -1 || mixer_fd != -1)
+		setVolume(volume,volume); /* considers "Muted" variable, "remember"
+					     is basically always true in this context */
 	return ret;
 }
 
@@ -80,7 +89,18 @@ int cAudio::setVolume(unsigned int left, unsigned int right)
 	int ret;
 	int vl = map_volume(left);
 	int vr = map_volume(right);
-	int v = map_volume((left + right) / 2);
+	volume = (left + right) / 2;
+	int v = map_volume(volume);
+	if (clipfd != -1 && mixer_fd != -1) {
+		int tmp = 0;
+		/* not sure if left / right is correct here, but it is always the same anyways ;-) */
+		if (! Muted)
+			tmp = left << 8 | right;
+		ret = ioctl(mixer_fd, MIXER_WRITE(mixer_num), &tmp);
+		if (ret == -1)
+			lt_info("%s: MIXER_WRITE(%d),%04x: %m\n", __func__, mixer_num, tmp);
+		return ret;
+	}
 //	if (settings.volume_type == CControld::TYPE_OST || forcetype == (int)CControld::TYPE_OST)
 	{
 		AUDVOL vol;
@@ -173,17 +193,38 @@ int cAudio::setChannel(int channel)
 int cAudio::PrepareClipPlay(int ch, int srate, int bits, int little_endian)
 {
 	int fmt;
+	unsigned int devmask, stereo, usable;
+	const char *dsp_dev = getenv("DSP_DEVICE");
+	const char *mix_dev = getenv("MIX_DEVICE");
 	lt_debug("%s ch %d srate %d bits %d le %d\n", __FUNCTION__, ch, srate, bits, little_endian);
 	if (clipfd >= 0) {
 		lt_info("%s: clipfd already opened (%d)\n", __FUNCTION__, clipfd);
 		return -1;
 	}
-	/* the dsp driver seems to work only on the second open(). really. */
-	clipfd = open("/dev/sound/dsp", O_WRONLY);
+	mixer_num = -1;
+	mixer_fd = -1;
+	/* a different DSP device can be given with DSP_DEVICE and MIX_DEVICE
+	 * if this device cannot be opened, we fall back to the internal TD OSS device
+	 * Example:
+	 *   modprobe ohci-hcd
+	 *   modprobe audio
+	 *   export DSP_DEVICE=/dev/sound/dsp1
+	 *   export MIX_DEVICE=/dev/sound/mixer1
+	 *   neutrino
+	 */
+	if ((!dsp_dev) || (access(dsp_dev, W_OK))) {
+		if (dsp_dev)
+			lt_info("%s: DSP_DEVICE is set (%s) but cannot be opened,"
+				" fall back to /dev/sound/dsp\n", __func__, dsp_dev);
+		dsp_dev = "/dev/sound/dsp";
+	}
+	lt_info("%s: dsp_dev %s mix_dev %s\n", __func__, dsp_dev, mix_dev); /* NULL mix_dev is ok */
+	/* the tdoss dsp driver seems to work only on the second open(). really. */
+	clipfd = open(dsp_dev, O_WRONLY);
 	close(clipfd);
-	clipfd = open("/dev/sound/dsp", O_WRONLY);
+	clipfd = open(dsp_dev, O_WRONLY);
 	if (clipfd < 0) {
-		lt_info("%s open /dev/sound/dsp: %m\n", __FUNCTION__);
+		lt_info("%s open %s: %m\n", dsp_dev, __FUNCTION__);
 		return -1;
 	}
 	fcntl(clipfd, F_SETFD, FD_CLOEXEC);
@@ -200,6 +241,52 @@ int cAudio::PrepareClipPlay(int ch, int srate, int bits, int little_endian)
 		perror("SNDCTL_DSP_SPEED");
 	if (ioctl(clipfd, SNDCTL_DSP_RESET))
 		perror("SNDCTL_DSP_RESET");
+
+	if (!mix_dev)
+		return 0;
+
+	mixer_fd = open(mix_dev, O_RDWR);
+	if (mixer_fd < 0) {
+		lt_info("%s: open mixer %s failed (%m)\n", __func__, mix_dev);
+		/* not a real error */
+		return 0;
+	}
+	if (ioctl(mixer_fd, SOUND_MIXER_READ_DEVMASK, &devmask) == -1) {
+		lt_info("%s: SOUND_MIXER_READ_DEVMASK %m\n", __func__);
+		devmask = 0;
+	}
+	if (ioctl(mixer_fd, SOUND_MIXER_READ_STEREODEVS, &stereo) == -1) {
+		lt_info("%s: SOUND_MIXER_READ_STEREODEVS %m\n", __func__);
+		stereo = 0;
+	}
+	usable = devmask & stereo;
+	if (usable == 0) {
+		lt_info("%s: devmask: %08x stereo: %08x, no usable dev :-(\n",
+			__func__, devmask, stereo);
+		close(mixer_fd);
+		mixer_fd = -1;
+		return 0; /* TODO: should we treat this as error? */
+	}
+	/* __builtin_popcount needs GCC, it counts the set bits... */
+	if (__builtin_popcount (usable) != 1) {
+		/* TODO: this code is not yet tested as I have only single-mixer devices... */
+		lt_info("%s: more than one mixer control: devmask %08x stereo %08x\n"
+			"%s: querying MIX_NUMBER environment variable...\n",
+			__func__, devmask, stereo, __func__);
+		const char *tmp = getenv("MIX_NUMBER");
+		if (tmp)
+			mixer_num = atoi(tmp);
+		lt_info("%s: mixer_num is %d -> device %08x\n",
+			__func__, (mixer_num >= 0) ? (1 << mixer_num) : 0);
+		/* no error checking, you'd better know what you are doing... */
+	} else {
+		mixer_num = 0;
+		while (!(usable & 0x01)) {
+			mixer_num++;
+			usable >>= 1;
+		}
+	}
+	setVolume(volume, volume);
 
 	return 0;
 };
@@ -227,6 +314,10 @@ int cAudio::StopClip()
 	}
 	close(clipfd);
 	clipfd = -1;
+	if (mixer_fd >= 0)
+		close(mixer_fd);
+	mixer_fd = -1;
+	setVolume(volume, volume);
 	return 0;
 };
 
