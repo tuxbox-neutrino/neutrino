@@ -52,9 +52,15 @@ bool cCpuFreqManager::SetCpuFreq(unsigned long f)
 		return false;
 	}
 	if (f)
+	{
+		ioctl(fd, IOC_AVS_SET_VOLUME, 31); /* mute AVS to avoid ugly noise */
 		ioctl(fd, IOC_AVS_STANDBY_ENTER);
+	}
 	else
+	{
 		ioctl(fd, IOC_AVS_STANDBY_LEAVE);
+		ioctl(fd, IOC_AVS_SET_VOLUME, 0); /* max gain */
+	}
 
 	close(fd);
 	return true;
