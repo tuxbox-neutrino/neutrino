@@ -335,6 +335,7 @@ extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
 extra.key_list_end end
 extra.key_list_start home
 extra.key_plugin One touch plugin
+extra.key_screenshot Screenshot key
 extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
@@ -1180,6 +1181,8 @@ scants.transponders Transponders:
 scrambled_channel Scrambled channel
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
+screenshot.count Screenshot count
+screenshot.format Screenshot format
 servicemenu.getplugins Reload plugins
 servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
 servicemenu.head Service
