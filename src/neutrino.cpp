@@ -53,6 +53,7 @@
 #include <driver/shutdown_count.h>
 #include <driver/stream2file.h>
 #include <driver/record.h>
+#include <driver/screenshot.h>
 
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
@@ -585,6 +586,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.timeshift_pause = configfile.getInt32( "timeshift_pause", 1 );
 
+	g_settings.screenshot_count = configfile.getInt32( "screenshot_count",  1);
+	g_settings.screenshot_format = configfile.getInt32( "screenshot_format",  1);
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
@@ -993,6 +996,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "auto_delete", g_settings.auto_delete );
 	configfile.setInt32( "record_hours", g_settings.record_hours );
 //printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
+	configfile.setInt32( "screenshot_count", g_settings.screenshot_count );
+	configfile.setInt32( "screenshot_format", g_settings.screenshot_format );
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
 	configfile.setInt32( "minimode", g_settings.minimode );
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );
@@ -2049,10 +2054,12 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles(res < 0);
 				}
 			}
-			else if (msg == CRCInput::RC_games){
-					StopSubtitles();
-					int res = channelList->numericZap( msg );
-					StartSubtitles(res < 0);
+			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
+				for(int i = 0; i < g_settings.screenshot_count; i++) {
+					CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
+					sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
+					sc->Start();
+				}
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
@@ -2065,6 +2072,11 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			}
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
 				CRecordManager::getInstance()->StartTimeshift();
+			}
+			else if (msg == CRCInput::RC_games){
+				StopSubtitles();
+				int res = channelList->numericZap( msg );
+				StartSubtitles(res < 0);
 			}
 			else if(msg == CRCInput::RC_rewind) {
 				if(g_RemoteControl->is_video_started) {
@@ -3761,6 +3773,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_timeshift = configfile.getInt32( "key_timeshift", CRCInput::RC_pause );
 	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
+	g_settings.key_screenshot = configfile.getInt32( "key_screenshot", CRCInput::RC_nokey );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
 	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );
@@ -3813,6 +3826,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_timeshift", g_settings.key_timeshift );
 	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
 	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
+	tconfig.setInt32( "key_screenshot", g_settings.key_screenshot );
 
 	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
 	tconfig.setInt32( "key_quickzap_down", g_settings.key_quickzap_down );
