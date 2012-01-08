@@ -74,6 +74,7 @@ class CKeybindSetup : public CMenuTarget
 			MPKEY_PLUGIN,
 			KEY_PLUGIN,
 			KEY_UNLOCK,
+			KEY_SCREENSHOT,
 			
 			KEYBINDS_COUNT
 		};
