@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <png.h>
+#include <zlib.h>
 
 #include <global.h>
 #include <neutrino.h>
