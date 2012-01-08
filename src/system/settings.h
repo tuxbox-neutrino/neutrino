@@ -371,6 +371,10 @@ struct SNeutrinoSettings
 	int key_plugin;
 
 	int key_unlock;
+	int key_screenshot;
+	int screenshot_count;
+	int screenshot_format;
+
 	int cacheTXT;
 	int minimode;
 	int mode_clock;
