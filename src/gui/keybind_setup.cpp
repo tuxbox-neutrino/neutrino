@@ -47,6 +47,7 @@
 #include "gui/filebrowser.h"
 
 #include <driver/screen_max.h>
+#include <driver/screenshot.h>
 
 #include <system/debug.h>
 
@@ -120,6 +121,13 @@ const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS[KEYBINDI
 	{ 2, LOCALE_KEYBINDINGMENU_ALLCHANNELS_ON_OK     }
 };
 
+#define KEYBINDINGMENU_SCREENSHOT_FMT_OPTION_COUNT 2
+const CMenuOptionChooser::keyval_ext KEYBINDINGMENU_SCREENSHOT_FMT_OPTIONS[KEYBINDINGMENU_SCREENSHOT_FMT_OPTION_COUNT] =
+{
+	{ CScreenShot::FORMAT_PNG,   NONEXISTANT_LOCALE, "PNG"  },
+	{ CScreenShot::FORMAT_JPG,   NONEXISTANT_LOCALE, "JPEG" }
+};
+
 typedef struct key_settings_t
 {
 	const neutrino_locale_t keydescription;
@@ -159,6 +167,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MPKEY_PLUGIN,			&g_settings.mpkey_plugin,		},
 	{LOCALE_EXTRA_KEY_PLUGIN,		&g_settings.key_plugin,			},
 	{LOCALE_EXTRA_KEY_UNLOCK,		&g_settings.key_unlock,			},
+	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,			},
 };
 
 
@@ -229,6 +238,9 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	bindSettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_MISC));
 	//bindSettings->addItem(new CMenuForwarder(keydescription[KEY_PLUGIN], true, NULL, keychooser[KEY_PLUGIN]));
 	bindSettings->addItem(new CMenuForwarder(key_settings[KEY_UNLOCK].keydescription, true, keychooser[KEY_UNLOCK]->getKeyName(), keychooser[KEY_UNLOCK]));
+	bindSettings->addItem(new CMenuForwarder(key_settings[KEY_SCREENSHOT].keydescription, true, keychooser[KEY_SCREENSHOT]->getKeyName(), keychooser[KEY_SCREENSHOT]));
+	bindSettings->addItem(new CMenuOptionNumberChooser(LOCALE_SCREENSHOT_COUNT, &g_settings.screenshot_count, true, 1, 5, NULL));
+	bindSettings->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_FORMAT, &g_settings.screenshot_format, KEYBINDINGMENU_SCREENSHOT_FMT_OPTIONS, KEYBINDINGMENU_SCREENSHOT_FMT_OPTION_COUNT, true));
 	//bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_MENU_LEFT_EXIT, &g_settings.menu_left_exit, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
