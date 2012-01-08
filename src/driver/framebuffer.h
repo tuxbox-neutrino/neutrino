@@ -109,7 +109,6 @@ class CFrameBuffer
 		unsigned int	  smem_start;		/* as aquired from the fbdev, the framebuffers physical start address */
 		volatile uint8_t *gxa_base;		/* base address for the GXA's register access */
 
-		void setupGXA(void);
 		#endif /* USE_NEVIS_GXA */
 		bool locked;
 		std::map<std::string, rawIcon> icon_cache;
@@ -122,6 +121,9 @@ class CFrameBuffer
 		~CFrameBuffer();
 
 		static CFrameBuffer* getInstance();
+		#ifdef USE_NEVIS_GXA
+		void setupGXA(void);
+		#endif
 
 		void init(const char * const fbDevice = "/dev/fb/0");
 		int setMode(unsigned int xRes, unsigned int yRes, unsigned int bpp);
