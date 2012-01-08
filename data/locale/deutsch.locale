@@ -335,6 +335,7 @@ extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
 extra.key_plugin One-touch-Plugin
+extra.key_screenshot Screenshot Taste
 extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
@@ -1180,6 +1181,8 @@ scants.transponders Transponder:
 scrambled_channel Verschlüsselung aktiv
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
+screenshot.count Screenshot Anzahl
+screenshot.format Screenshot Format
 servicemenu.getplugins Plugins neu laden
 servicemenu.getplugins_hint Plugins werden neu geladen,\nbitte warten...
 servicemenu.head Service
