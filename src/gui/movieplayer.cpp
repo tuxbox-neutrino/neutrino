@@ -38,6 +38,7 @@
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
+#include <driver/screenshot.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -578,6 +579,21 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			if(restore)
 				FileTime.show(position);
+		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
+			std::string fname = full_name;
+			std::string::size_type pos = fname.find_last_of('.');
+			if(pos != std::string::npos) {
+				fname.replace(pos, fname.length(), ".jpg");
+			} else
+				fname += ".jpg";
+
+#if 0 // TODO disable overwrite ?
+			if(!access(fname.c_str(), F_OK)) {
+			}
+#endif
+			CScreenShot * sc = new CScreenShot(fname);
+			sc->Start();
+
 		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||
 				msg == NeutrinoMessages::RECORD_START) {
 			CNeutrinoApp::getInstance()->handleMsg(msg, data);
