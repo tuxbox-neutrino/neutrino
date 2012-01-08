@@ -76,7 +76,7 @@ CScanTs::CScanTs()
 }
 
 extern int scan_fta_flag;//in zapit descriptors definiert
-extern int start_fast_scan(int scan_mode, int opid);
+//extern int start_fast_scan(int scan_mode, int opid);
 #include <zapit/getservices.h>
 
 void CScanTs::prev_next_TP( bool up)
@@ -269,7 +269,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
-		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
+//		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
 	}
 	else
 		success = g_Zapit->startScan(scan_mode);

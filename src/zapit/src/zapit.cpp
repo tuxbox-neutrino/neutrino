@@ -43,7 +43,7 @@
 #include <zapit/pat.h>
 #include <zapit/pmt.h>
 #include <zapit/scan.h>
-#include <zapit/fastscan.h>
+//#include <zapit/fastscan.h>
 #include <zapit/settings.h>
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
@@ -709,6 +709,7 @@ bool CZapit::StartScanTP(TP_params * TPparams)
 	return true;
 }
 
+#if 0
 bool CZapit::StartFastScan(int scan_mode, int opid)
 {
 	fast_scan_type_t scant;
@@ -721,6 +722,7 @@ bool CZapit::StartFastScan(int scan_mode, int opid)
 	CServiceScan::getInstance()->Start(CServiceScan::SCAN_FAST, (void *) &scant);
 	return true;
 }
+#endif
 
 bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 {

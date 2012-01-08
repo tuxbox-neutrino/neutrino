@@ -13,7 +13,7 @@
 
 #include <zapit/frontend_c.h>
 #include <zapit/getservices.h>
-#include <zapit/fastscan.h>
+//#include <zapit/fastscan.h>
 #include "bouquets.h"
 #include <OpenThreads/Thread>
 
@@ -25,7 +25,7 @@ class CServiceScan : public OpenThreads::Thread
 		typedef enum scan_type {
 			SCAN_PROVIDER,
 			SCAN_TRANSPONDER,
-			SCAN_FAST
+//			SCAN_FAST
 		} scan_type_t;
 
 	private:
@@ -62,7 +62,7 @@ class CServiceScan : public OpenThreads::Thread
 
 		bool ScanTransponder();
 		bool ScanProviders();
-
+#if 0
 		/* fast scan */
 		std::map <t_channel_id, t_satellite_position> fast_services_sat;
 		std::map <t_channel_id, freq_id_t> fast_services_freq;
@@ -75,7 +75,7 @@ class CServiceScan : public OpenThreads::Thread
 		void process_service_list_descriptor(const unsigned char * const buffer, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
 		void process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition);
 		bool ScanFast();
-
+#endif
 		void run();
 
 		static CServiceScan * scan;

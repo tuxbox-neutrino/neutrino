@@ -53,7 +53,9 @@
 #include <zapit/frontend_c.h>
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
+#ifdef ENABLE_FASTSCAN
 #include <zapit/fastscan.h>
+#endif
 #include <zapit/zapit.h>
 
 extern std::map<transponder_id_t, transponder> select_transponders;

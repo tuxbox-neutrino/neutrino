@@ -118,9 +118,11 @@ void CServiceScan::run()
 		case SCAN_TRANSPONDER:
 			ScanTransponder();
 			break;
+#if 0
 		case SCAN_FAST:
 			ScanFast();
 			break;
+#endif
 		default:
 			break;
 	}
