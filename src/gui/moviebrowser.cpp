@@ -1253,20 +1253,25 @@ void CMovieBrowser::refreshMovieInfo(void)
 		}
 	}
 }
-void CMovieBrowser::info_hdd_level()
+void CMovieBrowser::info_hdd_level(bool paint_hdd)
 {
 	struct statfs s;
 	long	blocks_percent_used =0;
+	static long tmp_blocks_percent_used = 0;
 	if(getSelectedFile() != NULL){
 		if (::statfs(getSelectedFile()->Name.c_str(), &s) == 0) {
 			long blocks_used = s.f_blocks - s.f_bfree;
 			blocks_percent_used = (long)(blocks_used * 100.0 / (blocks_used + s.f_bavail) + 0.5);
 		}
 	}
-	CProgressBar pb(true, -1, -1, 30, 100, 70, true);
-	const short pbw = 100;
-	const short border = m_cBoxFrameTitleRel.iHeight/4;
-	pb.paintProgressBarDefault(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw,  m_cBoxFrameTitleRel.iHeight/2, blocks_percent_used, 100);
+	
+	if(tmp_blocks_percent_used != blocks_percent_used || paint_hdd){
+		tmp_blocks_percent_used = blocks_percent_used;
+		CProgressBar pb(true, -1, -1, 30, 100, 70, true);
+		const short pbw = 100;
+		const short border = m_cBoxFrameTitleRel.iHeight/4;
+		pb.paintProgressBarDefault(m_cBoxFrame.iX+ m_cBoxFrameFootRel.iWidth - pbw - border, m_cBoxFrame.iY+m_cBoxFrameTitleRel.iY + border, pbw,  m_cBoxFrameTitleRel.iHeight/2, blocks_percent_used, 100);
+	}
 
 }
 void CMovieBrowser::refreshLCD(void)
@@ -1558,7 +1563,7 @@ void CMovieBrowser::refreshTitle(void)
 	m_pcWindow->paintIcon(NEUTRINO_ICON_MOVIEPLAYER, m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX+6, start_y+ m_cBoxFrameTitleRel.iHeight/2 - iconh/2);
 
 	m_pcFontTitle->RenderString(m_cBoxFrame.iX+m_cBoxFrameTitleRel.iX + iconw + text_border_width, start_y + m_cBoxFrameTitleRel.iHeight, m_cBoxFrameTitleRel.iWidth - (text_border_width << 1), m_textTitle.c_str(), TITLE_FONT_COLOR, 0, true); // UTF-8
-	info_hdd_level();
+	info_hdd_level(true);
 }
 
 void CMovieBrowser::refreshFoot(void)
@@ -2641,6 +2646,7 @@ void CMovieBrowser::updateMovieSelection(void)
 	if(new_selection == true)
 	{
 		//TRACE("new\r\n");
+		info_hdd_level();
 		refreshMovieInfo();
 		refreshLCD();
 	}
