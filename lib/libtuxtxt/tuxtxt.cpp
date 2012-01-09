@@ -19,6 +19,11 @@
 #include <dmx.h>
 #include <video.h>
 
+/* same as in rcinput.h... */
+#define KEY_TTTV	KEY_FN_1
+#define KEY_TTZOOM	KEY_FN_2
+#define KEY_REVEAL	KEY_FN_D
+
 extern cVideo * videoDecoder;
 
 static pthread_t ttx_sub_thread;
@@ -6334,7 +6339,7 @@ void DecodePage()
 /******************************************************************************
  * GetRCCode                                                                  *
  ******************************************************************************/
-#if !HAVE_TRIPLEDRAGON
+#if 1
 int GetRCCode()
 {
 	struct input_event ev;
@@ -6378,7 +6383,17 @@ int GetRCCode()
 				case KEY_VOLUMEUP:	RCCode = RC_PLUS;	break;
 				case KEY_VOLUMEDOWN:	RCCode = RC_MINUS;	break;
 				case KEY_MUTE:		RCCode = RC_MUTE;	break;
+#if !HAVE_TRIPLEDRAGON
+				/* on CS, change transparent mode with TEXT key */
 				case KEY_TEXT:		RCCode = RC_TEXT;	break;
+#else
+				/* on TD, cycle split screen mode with TTX key
+				 * - the TD has a special key for transparent mode */
+				case KEY_TEXT:		RCCode = RC_MINUS;	break;
+#endif
+				case KEY_TTTV:		RCCode = RC_MUTE;	break;
+				case KEY_TTZOOM:	RCCode = RC_PLUS;	break;
+				case KEY_REVEAL:	RCCode = RC_HELP;	break;
 				//case KEY_HELP:		RCCode = RC_HELP;	break;
 				case KEY_INFO:		RCCode = RC_HELP;	break;
 				case KEY_MENU:		RCCode = RC_DBOX;	break;
@@ -6402,6 +6417,7 @@ printf("[tuxtxt] new key, code %X\n", RCCode);
 	return 0;
 }
 #else
+/* this is obsolete and can soon be removed */
 int GetRCCode()
 {
 	static unsigned short LastKey = -1;
