@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -136,6 +137,8 @@ void init_td_api()
 			perror("open /dev/stb/tdgfx");
 		fcntl(gfxfd, F_SETFD, FD_CLOEXEC);
 	}
+	/* load the module which converts the TD tuner to a Linux-DVB frontend... */
+	system("/sbin/modprobe td-dvb-frontend");
 	initialized = true;
 	lt_info("%s end\n", __FUNCTION__);
 }
