@@ -3,9 +3,10 @@ INCLUDES = \
 
 noinst_LIBRARIES = libtriple.a
 
-AM_CPPFLAGS = -fno-rtti -fno-exceptions -fno-strict-aliasing
+AM_CXXFLAGS = -fno-rtti -fno-exceptions -fno-strict-aliasing
 
 libtriple_a_SOURCES = \
+	lt_dfbinput.c \
 	lt_debug.cpp \
 	dmx_td.cpp \
 	ca.cpp \

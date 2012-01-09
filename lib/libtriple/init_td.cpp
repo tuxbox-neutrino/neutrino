@@ -14,6 +14,7 @@ extern "C" {
 #include <tdpanel/ir_ruwido.h>
 #include <hardware/avs/avs_inf.h>
 #include <hardware/avs/bios_system_config.h>
+#include "lt_dfbinput.h"
 }
 
 #include "lt_debug.h"
@@ -52,7 +53,10 @@ static void dfb_init()
 	/* signal handling seems to interfere with neutrino */
 	DirectFBSetOption("no-sighandler", NULL);
 	/* if DirectFB grabs the remote, neutrino does not get events */
+	/* now we handle the input via a DFB thread and push it to
+	 * neutrino via uinput, so reenable tdremote module
 	DirectFBSetOption("disable-module", "tdremote");
+	 */
 	DirectFBSetOption("disable-module", "keyboard");
 	DirectFBSetOption("disable-module", "linux_input");
 	DFBCHECK(DirectFBCreate(&dfb));
@@ -79,10 +83,13 @@ static void dfb_init()
 	primary->Clear(primary, 0, 0, 0, 0);
 	primary->GetSubSurface(primary, NULL, &dfbdest);
 	dfbdest->Clear(dfbdest, 0, 0, 0, 0);
+
+	start_input_thread(dfb);
 }
 
 static void dfb_deinit()
 {
+	stop_input_thread();
 	dfbdest->Release(dfbdest);
 	primary->Release(primary);
 	layer->Release(layer);
