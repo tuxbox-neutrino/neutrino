@@ -214,9 +214,10 @@ int CMoviePlayerGui::exec(CMenuTarget * parent, const std::string & actionKey)
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 
-	if (timeshift)
+	if (timeshift){
+		timeshift = 0;
 		return menu_return::RETURN_EXIT_ALL;
-
+	}
 	return menu_return::RETURN_REPAINT;
 }
 
