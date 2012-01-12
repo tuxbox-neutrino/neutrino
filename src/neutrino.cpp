@@ -2482,6 +2482,14 @@ _repeat:
 		g_videoSettings->SwitchFormat();
 		return messages_return::handled;
 	}
+	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
+		//video+osd scaled to osd size
+		CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
+		sc->EnableOSD(true);
+		sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
+		sc->Start();
+	}
+
 	/* ================================== MESSAGES ================================================ */
 	else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
 		//setVolume(msg, false, true);
