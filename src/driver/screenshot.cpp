@@ -3,6 +3,8 @@
 
 	Copyright (C) 2011 CoolStream International Ltd
 
+	parts based on AiO Screengrabber (C) Seddi seddi@ihad.tv
+
 	License: GPLv2
 
 	This program is free software; you can redistribute it and/or modify
@@ -55,6 +57,11 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 	filename = fname;
 	pixel_data = NULL;
 	fd = NULL;
+	xres = 0;
+	yres = 0;
+	get_video = true;
+	get_osd = false;
+	scale_to_video = false;
 }
 
 CScreenShot::~CScreenShot()
@@ -68,15 +75,20 @@ bool CScreenShot::GetData()
 	bool res = false;
 
 	mutex.lock();
+#ifdef USE_NEVIS_GXA
+	CFrameBuffer::getInstance()->setActive(false);
+#endif
 
 #if 0 // to enable after libcs/drivers update
-	res = videoDecoder->GetScreenImage(pixel_data, xres, yres);
+	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
 
 #ifdef USE_NEVIS_GXA
 	/* sort of hack. GXA used to transfer/convert live image to RGB,
 	 * so setup GXA back */
 	CFrameBuffer::getInstance()->setupGXA();
+	CFrameBuffer::getInstance()->add_gxa_sync_marker();
+	CFrameBuffer::getInstance()->setActive(true);
 #endif
 	mutex.unlock();
 	if (!res) {
@@ -94,6 +106,8 @@ bool CScreenShot::Start()
 	bool ret = false;
 	if(GetData())
 		ret = (start() == 0);
+	else
+		delete this;
 	return ret;
 }
 
@@ -125,6 +139,7 @@ bool CScreenShot::StartSync()
 bool CScreenShot::SaveFile()
 {
 	bool ret = true;
+
 	switch (format) {
 	case FORMAT_PNG:
 		ret = SavePng();
@@ -134,7 +149,11 @@ bool CScreenShot::SaveFile()
 	case FORMAT_JPG:
 		ret = SaveJpg();
 		break;
+	case FORMAT_BMP:
+		ret = SaveBmp();
+		break;
 	}
+
 	cs_free_uncached((void *) pixel_data);
 	return ret;
 }
@@ -195,7 +214,7 @@ bool CScreenShot::SavePng()
 	png_set_compression_level(png_ptr, Z_BEST_SPEED);
 
 	png_set_bgr(png_ptr);
-	png_set_invert_alpha(png_ptr);
+	//png_set_invert_alpha(png_ptr);
 	png_write_info(png_ptr, info_ptr);
 	png_write_image(png_ptr, row_pointers);
 	png_write_end(png_ptr, info_ptr);
@@ -234,6 +253,7 @@ bool CScreenShot::SaveJpg()
 {
 	int quality = 90;
 
+	TIMER_START();
 	if(!OpenFile())
 		return false;
 
@@ -283,9 +303,43 @@ bool CScreenShot::SaveJpg()
 	jpeg_finish_compress(&cinfo);
 	jpeg_destroy_compress(&cinfo);
 	fclose(fd);
+	TIMER_STOP(filename.c_str());
 	return true;
 }
 
+/* save screenshot in bmp format, return true if success, or false */
+bool CScreenShot::SaveBmp()
+{
+	TIMER_START();
+	if(!OpenFile())
+		return false;
+
+	unsigned char hdr[14 + 40];
+	unsigned int i = 0;
+#define PUT32(x) hdr[i++] = ((x)&0xFF); hdr[i++] = (((x)>>8)&0xFF); hdr[i++] = (((x)>>16)&0xFF); hdr[i++] = (((x)>>24)&0xFF);
+#define PUT16(x) hdr[i++] = ((x)&0xFF); hdr[i++] = (((x)>>8)&0xFF);
+#define PUT8(x) hdr[i++] = ((x)&0xFF);
+	PUT8('B'); PUT8('M');
+	PUT32((((xres * yres) * 3 + 3) &~ 3) + 14 + 40);
+	PUT16(0); PUT16(0); PUT32(14 + 40);
+	PUT32(40); PUT32(xres); PUT32(yres);
+	PUT16(1);
+	PUT16(4*8); // bits
+	PUT32(0); PUT32(0); PUT32(0); PUT32(0); PUT32(0); PUT32(0);
+#undef PUT32
+#undef PUT16
+#undef PUT8
+	fwrite(hdr, 1, i, fd);
+
+	int y;
+	for (y=yres-1; y>=0 ; y-=1) {
+		fwrite(pixel_data+(y*xres*4),xres*4,1,fd);
+	}
+	fclose(fd);
+	TIMER_STOP(filename.c_str());
+	return true;
+
+}
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
 bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
 
@@ -328,7 +382,7 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 	gettimeofday(&tv, NULL);	
 	strftime(&(fname[pos]), sizeof(fname) - pos - 1, "_%Y%m%d_%H%M%S", localtime(&tv.tv_sec));
 	pos = strlen(fname);
-	snprintf(&(fname[pos]), sizeof(fname) - pos - 1, "_%d", (int) tv.tv_usec/1000);
+	snprintf(&(fname[pos]), sizeof(fname) - pos - 1, "_%03d", (int) tv.tv_usec/1000);
 
 	switch (format) {
 	case FORMAT_PNG:
@@ -338,6 +392,9 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 		printf("CScreenShot::MakeFileName unsupported format %d, using jpeg\n", format);
 	case FORMAT_JPG:
 		strcat(fname, ".jpg");
+		break;
+	case FORMAT_BMP:
+		strcat(fname, ".bmp");
 		break;
 	}
 	printf("CScreenShot::MakeFileName: [%s]\n", fname);

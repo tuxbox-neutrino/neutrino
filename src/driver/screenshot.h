@@ -29,7 +29,8 @@ class CScreenShot : public OpenThreads::Thread
 	public:
 		typedef enum {
 			FORMAT_PNG,
-			FORMAT_JPG
+			FORMAT_JPG,
+			FORMAT_BMP,
 		} screenshot_format_t;
 
 	private:
@@ -38,6 +39,9 @@ class CScreenShot : public OpenThreads::Thread
 		unsigned char * pixel_data;
 		int xres;
 		int yres;
+		bool get_osd;
+		bool get_video;
+		bool scale_to_video;
 		FILE *fd;
 
 		bool GetData();
@@ -46,6 +50,7 @@ class CScreenShot : public OpenThreads::Thread
 
 		bool SavePng();
 		bool SaveJpg();
+		bool SaveBmp();
 		void run();
 
 	public:
@@ -53,6 +58,10 @@ class CScreenShot : public OpenThreads::Thread
 		~CScreenShot();
 
 		void MakeFileName(const t_channel_id channel_id);
+		void SetSize(int w, int h) { xres = w; yres = h; }
+		void EnableVideo(bool enable) { get_video = enable; }
+		void EnableOSD(bool enable) { get_osd = enable; }
+		void ScaleToVideo(bool enable) { scale_to_video = enable; }
 		bool Start();
 		bool StartSync();
 };
