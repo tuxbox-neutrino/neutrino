@@ -149,6 +149,7 @@ typedef struct ZAPIT_start_arg
 	int startchannelradio_nr;
 	int uselastchannel;
 	int video_mode;
+	int ci_clock;
 } Z_start_arg;
 
 typedef struct TP_map
@@ -162,23 +163,26 @@ typedef struct TP_map
 
 #define MAX_LNB 64 
 typedef struct Zapit_config {
-	int motorRotationSpeed;
 	int writeChannelsNames;
 	int makeRemainingChannelsBouquet;
 	int saveLastChannel;
 	int rezapTimeout;
-	int feTimeout;
 	int fastZap;
 	int sortNames;
-	int highVoltage;
 	int scanPids;
 	int scanSDT;
+	int cam_ci;
 	int useGotoXX;
+	/* FE common */
+	int feTimeout;
 	int gotoXXLaDirection;
 	int gotoXXLoDirection;
-	int repeatUsals;
 	double gotoXXLatitude;
 	double gotoXXLongitude;
+	int repeatUsals;
+	/* FE specific */
+	int highVoltage;
+	int motorRotationSpeed;
 	int uni_scr;
 	int uni_qrg;
 } t_zapit_config;
