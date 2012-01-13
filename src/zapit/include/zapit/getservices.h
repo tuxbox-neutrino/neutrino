@@ -26,10 +26,10 @@
 
 #include <eventserver.h>
 
-#include "ci.h"
-#include "descriptors.h"
-#include "sdt.h"
-#include "types.h"
+#include <zapit/ci.h>
+#include <zapit/descriptors.h>
+#include <zapit/sdt.h>
+#include <zapit/types.h>
 #include <xmltree/xmlinterface.h>
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
@@ -99,9 +99,12 @@ class CServiceManager
 		tallchans curchans;
 		tallchans nvodchannels;
 
+		fe_type_t frontendType;
+		satellite_map_t satellitePositions;
+
 		bool ParseScanXml();
 		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable);
-		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
+		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization);
 		void FindTransponder(xmlNodePtr search);
 		void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition);
 		int LoadMotorPositions(void);
@@ -120,7 +123,7 @@ class CServiceManager
 
 		static void CopyFile(char * from, char * to);
 
-		void InitSatPosition(t_satellite_position position);
+		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy);
 		void SaveMotorPositions();
@@ -148,6 +151,22 @@ class CServiceManager
 		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position);
 		bool GetAllUnusedChannels(ZapitChannelList &list);
 
+		std::string GetSatelliteName(t_satellite_position position)
+		{
+			sat_iterator_t it = satellitePositions.find(position);
+			if(it != satellitePositions.end())
+				return it->second.name;
+			return "";
+		}
+		t_satellite_position GetSatellitePosition(std::string name)
+		{
+			for(sat_iterator_t sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit) {
+				if(name == sit->second.name)
+					return sit->second.position;
+			}
+			return 0;
+		}
+		satellite_map_t & SatelliteList() { return satellitePositions; }
 		xmlDocPtr ScanXml();
 };
 #endif /* __getservices_h__ */

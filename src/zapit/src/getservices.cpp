@@ -21,7 +21,7 @@
 
 #include <zapit/debug.h>
 #include <zapit/zapit.h>
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
 #include <zapit/getservices.h>
 #include <zapit/settings.h>
 #include <zapit/satconfig.h>
@@ -33,7 +33,7 @@
 
 extern transponder_list_t transponders;
 
-satellite_map_t satellitePositions;
+//satellite_map_t satellitePositions;
 std::map<transponder_id_t, transponder> select_transponders;
 
 extern int zapit_debug;
@@ -64,7 +64,8 @@ bool CServiceManager::ParseScanXml(void)
 		delete scanInputParser;
 		scanInputParser = NULL;
 	}
-	switch (CFrontend::getInstance()->getInfo()->type) {
+	frontendType = CFEManager::getInstance()->getLiveFE()->getInfo()->type;
+	switch (frontendType) {
 		case FE_QPSK:
 			scanInputParser = parseXmlFile(SATELLITES_XML);
 			break;
@@ -74,7 +75,7 @@ bool CServiceManager::ParseScanXml(void)
 			break;
 
 		default:
-			WARN("Unknown type %d", CFrontend::getInstance()->getInfo()->type);
+			WARN("Unknown type %d", frontendType);
 			return false;
 	}
 	return (scanInputParser != NULL);
@@ -307,7 +308,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			printf("[zapit] duplicate transponder id %llx freq %d\n", tid, feparams.frequency);
 
 		/* read channels that belong to the current transponder */
-		ParseChannels(node->xmlChildrenNode, transport_stream_id, original_network_id, satellitePosition, freq);
+		ParseChannels(node->xmlChildrenNode, transport_stream_id, original_network_id, satellitePosition, freq, polarization);
 
 		/* hop to next transponder */
 		node = node->xmlNextNode;
@@ -315,7 +316,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 	return;
 }
 
-void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
+void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization)
 {
 	t_service_id service_id;
 	std::string  name;
@@ -377,6 +378,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		} else {
 			service_count++;
 			channel->scrambled = scrambled;
+			channel->polarization = polarization;
 			service_type = channel->getServiceType();
 			if(pmtpid != 0 && (((service_type == 2) && (apid > 0)) || ( (service_type == 1)  && (vpid > 0) && (apid > 0))) ) {
 				DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);
@@ -415,7 +417,7 @@ void CServiceManager::FindTransponder(xmlNodePtr search)
 	}
 }
 
-void CServiceManager::ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition)
+void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t_satellite_position satellitePosition)
 {
 	uint8_t polarization = 0;
 	uint8_t system = 0, modulation = 1;
@@ -432,7 +434,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t frontendType, xmlNodePtr se
 		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
 
 		freq_id_t freq;
-		if (frontendType == FE_QAM) {
+		if (fType == FE_QAM) {
 			if (feparams.frequency > 1000*1000)
 				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
 			//feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
@@ -445,12 +447,12 @@ void CServiceManager::ParseSatTransponders(fe_type_t frontendType, xmlNodePtr se
 
 		feparams.inversion = INVERSION_AUTO;
 
-		if (frontendType == FE_QAM) {
+		if (fType == FE_QAM) {
 			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
 			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(tps, "fec_inner", 0);
 			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, "modulation", 0);
 		}
-		else if (frontendType == FE_QPSK) {
+		else if (fType == FE_QPSK) {
 			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
 			polarization = xmlGetNumericAttribute(tps, "polarization", 0);
 			system = xmlGetNumericAttribute(tps, "system", 0);
@@ -496,10 +498,10 @@ int CServiceManager::LoadMotorPositions(void)
 			satellitePosition = spos;
 			sat_iterator_t sit = satellitePositions.find(satellitePosition);
 			if(sit != satellitePositions.end()) {
-				sit->second.motor_position = mpos;
 				sit->second.diseqc = diseqc;
 				sit->second.commited = com;
 				sit->second.uncommited = uncom;
+				sit->second.motor_position = mpos;
 				sit->second.lnbOffsetLow = offL;
 				sit->second.lnbOffsetHigh = offH;
 				sit->second.lnbSwitch = sw;
@@ -539,20 +541,27 @@ void CServiceManager::SaveMotorPositions()
 	fclose(fd);
 }
 
-void CServiceManager::InitSatPosition(t_satellite_position position)
+bool CServiceManager::InitSatPosition(t_satellite_position position, char * name, bool force)
 {
-	satellitePositions[position].position = position;
-	satellitePositions[position].diseqc = -1;
-	satellitePositions[position].commited = -1;
-	satellitePositions[position].uncommited = -1;
-	satellitePositions[position].motor_position = 0;
-	satellitePositions[position].diseqc_order = 0;
-	satellitePositions[position].lnbOffsetLow = 9750;
-	satellitePositions[position].lnbOffsetHigh = 10600;
-	satellitePositions[position].lnbSwitch = 11700;
-	satellitePositions[position].use_in_scan = 0;
-	satellitePositions[position].use_usals = 0;
-	satellitePositions[position].input = 0;
+	if(force || (satellitePositions.find(position) == satellitePositions.end())) {
+		satellitePositions[position].position = position;
+		satellitePositions[position].diseqc = -1;
+		satellitePositions[position].commited = -1;
+		satellitePositions[position].uncommited = -1;
+		satellitePositions[position].motor_position = 0;
+		satellitePositions[position].diseqc_order = 0;
+		satellitePositions[position].lnbOffsetLow = 9750;
+		satellitePositions[position].lnbOffsetHigh = 10600;
+		satellitePositions[position].lnbSwitch = 11700;
+		satellitePositions[position].use_in_scan = 0;
+		satellitePositions[position].use_usals = 0;
+		satellitePositions[position].input = 0;
+		satellitePositions[position].configured = 0;
+		if(name)
+			satellitePositions[position].name = name;
+		return true;
+	}
+	return false;
 }
 
 bool CServiceManager::LoadServices(bool only_current)
@@ -561,7 +570,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	static bool satcleared = 0;//clear only once, because menu is static
 	service_count = 0;
 	printf("[zapit] Loading services, channel size %d ..\n", sizeof(CZapitChannel));
-	fe_type_t frontendType = CFrontend::getInstance()->getInfo()->type;
+	frontendType = CFEManager::getInstance()->getLiveFE()->getInfo()->type;
 
 	if(only_current)
 		goto do_current;
@@ -575,8 +584,10 @@ bool CServiceManager::LoadServices(bool only_current)
 
 	if (ParseScanXml()) {
 		t_satellite_position position = 0;
-		if(!satcleared)
+		if(!satcleared) {
 			satellitePositions.clear();
+			//satelliteList.clear();
+		}
 		satcleared = 1;
 
 		xmlNodePtr search = xmlDocGetRootElement(scanInputParser)->xmlChildrenNode;
@@ -584,17 +595,10 @@ bool CServiceManager::LoadServices(bool only_current)
 			if (!(strcmp(xmlGetName(search), "sat"))) {
 				position = xmlGetSignedNumericAttribute(search, "position", 10);
 				char * name = xmlGetAttribute(search, "name");
-				/* FIXME reuse this */
-				if(satellitePositions.find(position) == satellitePositions.end()) {
-					InitSatPosition(position);
-				}
-				satellitePositions[position].name = name;
+				InitSatPosition(position, name);
 			} else if(!(strcmp(xmlGetName(search), "cable"))) {
 				char * name = xmlGetAttribute(search, "name");
-				if(satellitePositions.find(position) == satellitePositions.end()) {
-					InitSatPosition(position);
-				}
-				satellitePositions[position].name = name;
+				InitSatPosition(position, name);
 			}
 			ParseSatTransponders(frontendType, search, position);
 			position++;
@@ -609,10 +613,7 @@ bool CServiceManager::LoadServices(bool only_current)
 			if (!(strcmp(xmlGetName(search), "sat"))) {
 				t_satellite_position position = xmlGetSignedNumericAttribute(search, "position", 10);
 				char * name = xmlGetAttribute(search, "name");
-				if(satellitePositions.find(position) == satellitePositions.end()) {
-					InitSatPosition(position);
-					satellitePositions[position].name = name;
-				}
+				InitSatPosition(position, name);
 			}
 
 			search = search->xmlNextNode;
@@ -624,6 +625,9 @@ bool CServiceManager::LoadServices(bool only_current)
 	if(frontendType == FE_QPSK) {
 		LoadMotorPositions();
 	}
+
+	//FIXME copy, until global satellitePositions removed
+	//satelliteList = satellitePositions;
 
 	printf("[zapit] %d services loaded (%d)...\n", service_count, allchans.size());
 	TIMER_STOP("[zapit] service loading took");
@@ -668,7 +672,7 @@ void CServiceManager::CopyFile(char * from, char * to)
 
 void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 {
-	switch (CFrontend::getInstance()->getInfo()->type) {
+	switch (frontendType) {
 		case FE_QPSK: /* satellite */
 			fprintf(fd, "\t<sat name=\"%s\" position=\"%hd\" diseqc=\"%hd\" uncommited=\"%hd\">\n",
 					config.name.c_str(), config.position, config.diseqc, config.uncommited);
@@ -684,7 +688,7 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 
 void CServiceManager::WriteTransponderHeader(FILE * fd, struct transponder &tp)
 {
-	switch (CFrontend::getInstance()->getInfo()->type) {
+	switch (frontendType) {
 		case FE_QPSK: /* satellite */
 			fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
 					tp.transport_stream_id, tp.original_network_id,
@@ -771,7 +775,7 @@ void CServiceManager::SaveServices(bool tocopy)
 			if(tpdone) fprintf(fd, "\t\t</TS>\n");
 		}
 		if(satdone) {
-			switch (CFrontend::getInstance()->getInfo()->type) {
+			switch (frontendType) {
 				case FE_QPSK:
 					fprintf(fd, "\t</sat>\n");
 					break;
@@ -852,7 +856,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		return false;
 	}
 
-	switch (CFrontend::getInstance()->getInfo()->type) {
+	switch (frontendType) {
 		case FE_QPSK: /* satellite */
 			sprintf(satstr, "\t<%s name=\"%s\" position=\"%hd\">\n", "sat", spos_it->second.name.c_str(), satellitePosition);
 			break;
