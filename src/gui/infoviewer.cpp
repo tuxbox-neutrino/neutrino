@@ -60,7 +60,7 @@
 #include <driver/record.h>
 
 #include <zapit/satconfig.h>
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
 #include <zapit/zapit.h>
 #include <video.h>
 
@@ -80,16 +80,11 @@ extern cVideo * videoDecoder;
 
 event_id_t CInfoViewer::last_curr_id = 0, CInfoViewer::last_next_id = 0;
 
-
-extern CZapitClient::SatelliteList satList;
 static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
 {
 	return a.startTime < b.startTime;
 }
 
-extern bool autoshift;
-extern uint32_t shift_timer;
-//extern std::string ext_channel_name;
 extern bool timeset;
 
 CInfoViewer::CInfoViewer ()
@@ -177,7 +172,7 @@ void CInfoViewer::Init()
      BBarY------+----------------------------------------------------+--+
                 | * red   * green  * yellow  * blue ====== [DD][16:9]|  InfoHeightY_Info
                 +----------------------------------------------------+--+
-                                                                     |
+                |              asize               |                 |
                                                              BoxEndX-/
 */
 void CInfoViewer::start ()
@@ -416,6 +411,7 @@ void CInfoViewer::paintBackground(int col_NumBox)
 				 ChanWidth, ChanHeight,
 				 col_NumBox, c_rad_mid);
 }
+
 void CInfoViewer::paintCA_bar(int left, int right)
 {
 	int xcnt = (BoxEndX - ChanInfoX) / 4;
@@ -468,7 +464,17 @@ void CInfoViewer::paintshowButtonBar()
 	showIcon_VTXT ();
 	showIcon_SubT();
 	showIcon_Resolution();
+	showIcon_Tuner();
+}
 
+void CInfoViewer::showIcon_Tuner() const
+{
+	//FIXME test
+	int tuner_x = BoxEndX - 2 - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 3*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2);
+	int tuner = 1 + CFEManager::getInstance()->getLiveFE()->getNumber();
+	char icon_name[3];
+	snprintf(icon_name, 3, "%d", tuner);
+	frameBuffer->paintIcon(icon_name, tuner_x, BBarY, InfoHeightY_Info);
 }
 
 void CInfoViewer::show_current_next(bool new_chan, int  epgpos)
@@ -718,34 +724,32 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 		int ChanNumYPos = BoxStartY + ChanHeight;
-		if (g_settings.infobar_sat_display && !satellitePositions.empty()) {
-			sat_iterator_t sit = satellitePositions.find(satellitePosition);
+		//if (g_settings.infobar_sat_display && satellitePosition >= 0 && !satellitePositions.empty()) {
+		if (g_settings.infobar_sat_display) {
+			std::string name = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
+			int satNameWidth = g_SignalFont->getRenderWidth (name);
+			std::string satname_tmp = name;
+			if (satNameWidth > (ChanWidth - 4)) {
+				satNameWidth = ChanWidth - 4;
+				size_t pos1 = name.find("(") ;
+				size_t pos2 = name.find_last_of(")");
+				size_t pos0 = name.find(" ") ;
+				if ((pos1 != std::string::npos) && (pos2 != std::string::npos) && (pos0 != std::string::npos)) {
+					pos1++;
+					satname_tmp = name.substr(0, pos0 );
 
-			if (sit != satellitePositions.end()) {
-				int satNameWidth = g_SignalFont->getRenderWidth (sit->second.name);
-				std::string satname_tmp = sit->second.name;
-				if (satNameWidth > (ChanWidth - 4)) {
-					satNameWidth = ChanWidth - 4;
-					size_t pos1 = sit->second.name.find("(") ;
-					size_t pos2 = sit->second.name.find_last_of(")");
-					size_t pos0 = sit->second.name.find(" ") ;
-					if ((pos1 != std::string::npos) && (pos2 != std::string::npos) && (pos0 != std::string::npos)) {
-						pos1++;
-						satname_tmp = sit->second.name.substr(0, pos0 );
+					if(satname_tmp == "Hot")
+						satname_tmp = "Hotbird";
 
-						if(satname_tmp == "Hot")
-							satname_tmp = "Hotbird";
-
-						satname_tmp +=" ";
-						satname_tmp += sit->second.name.substr( pos1,pos2-pos1 );
-						satNameWidth = g_SignalFont->getRenderWidth (satname_tmp);
-						if (satNameWidth > (ChanWidth - 4)) 
-							satNameWidth = ChanWidth - 4;
-					}
+					satname_tmp +=" ";
+					satname_tmp += name.substr( pos1,pos2-pos1 );
+					satNameWidth = g_SignalFont->getRenderWidth (satname_tmp);
+					if (satNameWidth > (ChanWidth - 4)) 
+						satNameWidth = ChanWidth - 4;
 				}
-				int chanH = g_SignalFont->getHeight ();
-				g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2) , BoxStartY + chanH, satNameWidth, satname_tmp, COL_INFOBAR);
 			}
+			int chanH = g_SignalFont->getHeight ();
+			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2) , BoxStartY + chanH, satNameWidth, satname_tmp, COL_INFOBAR);
 			ChanNumYPos += 10;
 		}
 
@@ -912,22 +916,22 @@ void CInfoViewer::loop(bool show_dot)
 			else
 				res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
 
-		} 
+		}
 #if 0
 		else if (CMoviePlayerGui::getInstance().start_timeshift && (msg == NeutrinoMessages::EVT_TIMER)) {
 			CMoviePlayerGui::getInstance().start_timeshift = false;
-		} 
+                }
 #endif
 		else if (CMoviePlayerGui::getInstance().timeshift && ((msg == (neutrino_msg_t) g_settings.mpkey_rewind)  || \
-		   							(msg == (neutrino_msg_t) g_settings.mpkey_forward) || \
-		   							(msg == (neutrino_msg_t) g_settings.mpkey_pause)   || \
-		   							(msg == (neutrino_msg_t) g_settings.mpkey_stop)    || \
-		   							(msg == (neutrino_msg_t) g_settings.mpkey_play)    || \
-		   							(msg == (neutrino_msg_t) g_settings.mpkey_time)    || \
-		   							(msg == (neutrino_msg_t) g_settings.key_timeshift))) {
+									(msg == (neutrino_msg_t) g_settings.mpkey_forward) || \
+									(msg == (neutrino_msg_t) g_settings.mpkey_pause)   || \
+									(msg == (neutrino_msg_t) g_settings.mpkey_stop)    || \
+									(msg == (neutrino_msg_t) g_settings.mpkey_play)    || \
+									(msg == (neutrino_msg_t) g_settings.mpkey_time)    || \
+									(msg == (neutrino_msg_t) g_settings.key_timeshift))) {
 			g_RCInput->postMsg (msg, data);
 			res = messages_return::cancel_info;
-		}
+                }
 	}
 
 	if (hideIt)
@@ -1356,6 +1360,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 				showIcon_SubT();
 				showIcon_CA_Status (0);
 				showIcon_Resolution();
+				showIcon_Tuner();
 			}
 		}
 		return messages_return::handled;
@@ -1541,8 +1546,8 @@ void CInfoViewer::showSNR ()
 		}
 		int sw, snr, sig, posx, posy;
 		int height, ChanNumYPos;
-		ssig = CFrontend::getInstance()->getSignalStrength();
-		ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
+		ssig = CFEManager::getInstance()->getLiveFE()->getSignalStrength();
+		ssnr = CFEManager::getInstance()->getLiveFE()->getSignalNoiseRatio();
 
 		sig = (ssig & 0xFFFF) * 100 / 65535;
 		snr = (ssnr & 0xFFFF) * 100 / 65535;
@@ -1581,17 +1586,16 @@ void CInfoViewer::showSNR ()
 		/* center the scales in the button bar. BBarY + InfoHeightY_Info / 2 is middle,
 		   scales are 6 pixels high, icons are 16 pixels, so keep 4 pixels free between
 		   the scales */
-		varscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - hddwidth - 2,
-					   BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth , 6, per, 100);
+		int scale_x = BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 3*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - hddwidth - 2;
+		varscale->paintProgressBar(scale_x, BBarY + InfoHeightY_Info / 2 - 2 - 6, hddwidth , 6, per, 100);
 		per = 0;
 		//HD info
-		if(!check_dir(g_settings.network_nfs_recordingdir)){
+		if(!check_dir(g_settings.network_nfs_recordingdir)) {
 			if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0) {
 				per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
 			}
 		}
-		hddscale->paintProgressBar(BoxEndX - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 2*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2) - hddwidth - 2,
-					   BBarY + InfoHeightY_Info / 2 + 2, hddwidth, 6, per, 100);
+		hddscale->paintProgressBar(scale_x, BBarY + InfoHeightY_Info / 2 + 2, hddwidth, 6, per, 100);
 	}
 }
 
@@ -2248,48 +2252,40 @@ void CInfoViewer::showOne_CAIcon(bool fta)
 
 void CInfoViewer::showIcon_CA_Status (int notfirst)
 {
-	extern int pmt_caids[4][11];
 	int caids[] = { 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
 	int i = 0;
-	if (g_settings.casystem_display == 2) {
-		bool fta = true;
-		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
-			if (pmt_caids[0][i]) {
-				fta = false;
-				break;
-			}
-		}
-		showOne_CAIcon(fta);
+
+	if (g_settings.casystem_display == 3)
 		return;
-	}
-	else if (g_settings.casystem_display == 3) {
+
+	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+	if(!channel)
+		return;
+
+	if (g_settings.casystem_display == 2) {
+		bool fta = (channel->camap.size() == 0);
+		showOne_CAIcon(fta);
 		return;
 	}
 
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
 	static int icon_space_offset = 0;
-	bool paintIconFlag = false;
 
-	if (pmt_caids[0][0] != 0 && pmt_caids[0][1] != 0)
-		pmt_caids[0][1] = 0;
-
-	if (!notfirst) {
+	if(!notfirst) {
 		if ((g_settings.casystem_display == 1) && (icon_space_offset)) {
 			paintCA_bar(0,icon_space_offset);
 			icon_space_offset = 0;
 		}
-		for (i=0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
-			if (!(i == 1 && pmt_caids[0][0] != 0 && pmt_caids[0][1] == 0 )) {
-				if ((g_settings.casystem_display == 1 )  && pmt_caids[0][i]) {
-					paintIconFlag = true;
-				} else if (g_settings.casystem_display == 0 )
-					paintIconFlag = true;
+		for (i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
+			bool found = false;
+			for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
+				int caid = (*it) & 0xFF00;
+				if((found = (caid == caids[i])))
+					break;
 			}
-			if (paintIconFlag) {
-				paint_ca_icons(caids[i], (char *) (pmt_caids[0][i] ? yellow : white),icon_space_offset);
-				paintIconFlag = false;
-			}
+			if(found || (g_settings.casystem_display == 0))
+				paint_ca_icons(caids[i], (char *) (found ? yellow : white), icon_space_offset);
 		}
 	}
 }
