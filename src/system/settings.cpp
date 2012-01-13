@@ -163,6 +163,7 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	scanSectionsd = configfile.getInt32("scanSectionsd", 0);
 	fast_type = configfile.getInt32("fast_type", 1);
 	fast_op = configfile.getInt32("fast_op", 0);
+	cable_nid = configfile.getInt32("cable_nid", 0);
 
 	return true;
 }
@@ -186,6 +187,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("scanSectionsd", scanSectionsd );
 	configfile.setInt32("fast_type", fast_type);
 	configfile.setInt32("fast_op", fast_op);
+	configfile.setInt32("cable_nid", fast_op);
 
 	if(configfile.getModifiedFlag())
 		configfile.saveConfig(fileName);
