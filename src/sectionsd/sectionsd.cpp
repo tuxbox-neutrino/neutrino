@@ -7048,9 +7048,9 @@ int eit_set_update_filter(int *fd)
 
 	unsigned char cur_eit = dmxCN.get_eit_version();
 	xprintf("eit_set_update_filter, servicekey = 0x"
-		PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-		", current version 0x%x got events %d\n",
-		messaging_current_servicekey, cur_eit, messaging_have_CN);
+			PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
+			", current version 0x%x got events %d\n",
+			messaging_current_servicekey, cur_eit, messaging_have_CN);
 
 	if (cur_eit == 0xff) {
 		*fd = -1;
@@ -7078,7 +7078,7 @@ int eit_set_update_filter(int *fd)
 	mask[2] = 0xFF;
 
 	int timeout = 0;
-#if !HAVE_COOL_HARDWARE
+#if 1 //!HAVE_COOL_HARDWARE
 	filter[3] = (cur_eit << 1) | 0x01;
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
@@ -8384,7 +8384,7 @@ static void *cnThread(void *)
 			removeOldEvents(oldEventsAre); // alte Events
 			dprintf("after removeoldevents\n");
 			readLockEvents();
-			printf("[sectionsd] Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
+			printf("[sectionsd] Removed %d old events (%d left).\n", anzEventsAlt - mySIeventsOrderUniqueKey.size(), mySIeventsOrderUniqueKey.size());
 			if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 			{
 				print_meminfo();
