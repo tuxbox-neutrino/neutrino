@@ -67,7 +67,8 @@
 #include <zapit/zapit.h>
 #include <zapit/satconfig.h>
 #include <zapit/getservices.h>
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
+#include <zapit/debug.h>
 
 extern CBouquetList * bouquetList;       /* neutrino.cpp */
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
@@ -146,7 +147,7 @@ void CChannelList::putChannel(CZapitChannel* channel)
 {
 	int num = channel->number - 1;
 	if(num < 0) {
-		printf("CChannelList::addChannel error inserting at %d\n", num);
+		printf("CChannelList::addChannel error inserting at %d : %s\n", num, channel->name.c_str());
 		return;
 	}
 	if(num >= (int) chanlist.size()) {
@@ -1286,7 +1287,7 @@ int CChannelList::numericZap(int key)
 				}
 			} else {
 				for ( unsigned int i = 0 ; i < orgList->chanlist.size(); i++) {
-					if(SameTP(orgList->chanlist[i]->channel_id))
+					if(SameTP(orgList->chanlist[i]))
 						channelList->addChannel(orgList->chanlist[i]);
 				}
 			}
@@ -1425,7 +1426,7 @@ int CChannelList::numericZap(int key)
 	if ( doZap ) {
 		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)
 			g_InfoViewer->killTitle();
-		if(SameTP(chanlist[chn]->channel_id)) {
+		if(SameTP(chanlist[chn])) {
 			zapTo( chn );
 			res = 0;
 		} else
@@ -1538,7 +1539,7 @@ void CChannelList::virtual_zap_mode(bool up)
 	{
 		if(g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0)
 			g_InfoViewer->killTitle();
-		if(SameTP(chanlist[chn]->channel_id))
+		if(SameTP(chanlist[chn]))
 			zapTo( chn );
 		else
 			g_InfoViewer->killTitle();
@@ -1691,13 +1692,16 @@ void CChannelList::paintDetails(int index)
 				while ( text2.find_first_of("[ -.+*#?=!$%&/]+") == 0 )
 					text2 = text2.substr( 1 );
 				text2 = text2.substr( 0, text2.find('\n') );
+#if 0 //FIXME: to discuss, eat too much cpu time if string long enough
 				int pos = 0;
 				while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (width - 30 - noch_len) ) ) {
 					pos = text2.find_last_of(" ");
 
-					if ( pos!=-1 )
+					if ( pos!=-1 ) {
 						text2 = text2.substr( 0, pos );
+					}
 				}
+#endif
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ 2* fheight, width- xstart- 30- noch_len, text2, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
 			}
 
@@ -1715,13 +1719,14 @@ void CChannelList::paintDetails(int index)
 
 			if(tpI != transponders.end()) {
 				char * f, *s, *m;
-				switch(CFrontend::getInstance()->getInfo()->type) {
+				CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
+				switch(frontend->getInfo()->type) {
 				case FE_QPSK:
-					CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
+					frontend->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
 					len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
 					break;
 				case FE_QAM:
-					CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
+					frontend->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
 					len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
 					break;
 				case FE_OFDM:
@@ -1733,11 +1738,13 @@ void CChannelList::paintDetails(int index)
 			if(chanlist[index]->pname)
 				snprintf(&buf[len], sizeof(buf) - len, "(%s)", chanlist[index]->pname);
 			else {
-				sat_iterator_t sit = satellitePositions.find(chanlist[index]->getSatellitePosition());
-				if(sit != satellitePositions.end()) {
-					//int satNameWidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth (sit->second.name);
-					snprintf(&buf[len], sizeof(buf) - len, "(%s)", sit->second.name.c_str());
-				}
+#if 0
+				const char * satname = CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition());
+				if(satname)
+					snprintf(&buf[len], sizeof(buf) - len, "(%s)", satname);
+#endif
+				snprintf(&buf[len], sizeof(buf) - len, "(%s)",
+						CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()).c_str());
 			}
 			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
 		}
@@ -1878,7 +1885,7 @@ void CChannelList::paintItem(int pos)
 	}
 #endif
 	if(curr < chanlist.size())
-		iscurrent = SameTP(chanlist[curr]->channel_id);
+		iscurrent = SameTP(chanlist[curr]);
 
 	if (curr == selected) {
 		color   = COL_MENUCONTENTSELECTED;
@@ -1892,7 +1899,7 @@ void CChannelList::paintItem(int pos)
 		bgcolor = iscurrent ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, fheight, bgcolor, 0);
 	}
-	
+
 	if(curr < chanlist.size()) {
 		char nameAndDescription[255];
 		char tmp[10];
@@ -2165,10 +2172,28 @@ bool CChannelList::SameTP(t_channel_id channel_id)
 		iscurrent = (channel_id >> 16) == (rec_channel_id >> 16);
 #endif
 	if(CNeutrinoApp::getInstance()->recordingstatus) {
+#if 0
 		if(channel_id == 0)
 			channel_id = chanlist[selected]->channel_id;
 		iscurrent = CRecordManager::getInstance()->SameTransponder(channel_id);
+#endif
+		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+		if(channel)
+			iscurrent = SameTP(channel);
+		else
+			iscurrent = false;
 	}
+	return iscurrent;
+}
 
+bool CChannelList::SameTP(CZapitChannel * channel)
+{
+	bool iscurrent = true;
+
+	if(CNeutrinoApp::getInstance()->recordingstatus) {
+		if(channel == NULL)
+			channel = chanlist[selected];
+		iscurrent = CFEManager::getInstance()->canTune(channel);
+	}
 	return iscurrent;
 }

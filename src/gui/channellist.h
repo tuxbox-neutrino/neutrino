@@ -149,7 +149,8 @@ public:
 	void SortSat(void);
 	void SortTP(void);
 	void ClearList(void);
-	bool SameTP(t_channel_id channel_id = 0);
+	bool SameTP(t_channel_id channel_id);
+	bool SameTP(CZapitChannel * channel = NULL);
 	CLastChannel & getLastChannels() { return lastChList; }
 	//friend class CZapitChannel;
 };
