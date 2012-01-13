@@ -44,6 +44,7 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 #include <zapit/satconfig.h>
+#include <zapit/getservices.h>
 
 #include <algorithm>
 #include <sstream>
@@ -396,10 +397,9 @@ void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
 		if(this->channel->pname) {
 			this->footer->setBouquetChannelName(this->channel->pname, this->channel->getName());
 		} else {
-			sat_iterator_t sit = satellitePositions.find(this->channel->getSatellitePosition());
-			if(sit != satellitePositions.end()) {
-				this->footer->setBouquetChannelName(sit->second.name, this->channel->getName());
-			}
+			this->footer->setBouquetChannelName(
+					CServiceManager::getInstance()->GetSatelliteName(this->channel->getSatellitePosition()),
+					this->channel->getName());
 		}
 	}
 	// paint the separation line

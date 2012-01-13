@@ -203,25 +203,27 @@ void CBEChannelSelectWidget::paintDetails(int index)
 	int len = 0;
 	transponder_id_t ct = Channels[index]->getTransponderId();
 	transponder_list_t::iterator tpI = transponders.find(ct);
-	sat_iterator_t sit = satellitePositions.find(Channels[index]->getSatellitePosition());
+	//sat_iterator_t sit = satellitePositions.find(Channels[index]->getSatellitePosition());
+	std::string satname = CServiceManager::getInstance()->GetSatelliteName(Channels[index]->getSatellitePosition());
 
 	len = snprintf(buf, sizeof(buf), "%d ", Channels[index]->getFreqId());
 
 	if(tpI != transponders.end()) {
 		char * f, *s, *m;
-		switch(CFrontend::getInstance()->getInfo()->type)
+		CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
+		switch(frontend->getInfo()->type)
 		{
 			case FE_QPSK:
-				CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
-			len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-			break;
-		case FE_QAM:
-			CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
-			len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
-			break;
-		case FE_OFDM:
-		case FE_ATSC:
-			break;
+				frontend->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
+				len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+				break;
+			case FE_QAM:
+				frontend->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
+				len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
+				break;
+			case FE_OFDM:
+			case FE_ATSC:
+				break;
 		}
 	}
 
@@ -229,13 +231,17 @@ void CBEChannelSelectWidget::paintDetails(int index)
 		snprintf(&buf[len], sizeof(buf) - len, "(%s)", Channels[index]->pname);
 	}
 	else {
+		snprintf(&buf[len], sizeof(buf) - len, "(%s)", satname.c_str());
+#if 0
 		if(sit != satellitePositions.end()) {
 			snprintf(&buf[len], sizeof(buf) - len, "(%s)", sit->second.name.c_str());
 		}
+#endif
 	}
 
-	if(sit != satellitePositions.end()) {
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  sit->second.name.c_str(), COL_MENUCONTENTDARK, 0, true);
+	//if(sit != satellitePositions.end()) 
+	{
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
 	}
 	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
 }
