@@ -16,7 +16,7 @@
 
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
 
 #define PAL	0
 #define NTSC	1
@@ -80,6 +80,8 @@ class CZapit : public OpenThreads::Thread
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
 
+		CFrontend * live_fe;
+
 		audio_map_t audio_map;
 		bool current_is_nvod;
 		bool standby;
@@ -89,12 +91,13 @@ class CZapit : public OpenThreads::Thread
 		int pmt_update_fd;
 
 		void LoadAudioMap();
-		void SaveSettings(bool write_conf, bool write_audio);
+		void SaveAudioMap();
+		void SaveSettings(bool write);
 		void SaveChannelPids(CZapitChannel* channel);
 		void RestoreChannelPids(CZapitChannel* channel);
 		void ConfigFrontend();
 
-		bool TuneChannel(CZapitChannel * channel, bool &transponder_change);
+		bool TuneChannel(CFrontend *frontend, CZapitChannel * channel, bool &transponder_change);
 		bool ParsePatPmt(CZapitChannel * channel);
 
 		bool send_data_count(int connfd, int data_count);
@@ -161,5 +164,7 @@ class CZapit : public OpenThreads::Thread
 		CZapitChannel * GetCurrentChannel() { return current_channel; };
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
+		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
+		CFrontend * GetLiveFrontend() { return live_fe; };
 };
 #endif /* __zapit_h__ */
