@@ -391,6 +391,8 @@ void CConfigFile::setInt32Vector(const std::string & key, const std::vector<int3
 
 	for (std::vector<int32_t>::const_iterator it = vec.begin(); ; )
 	{
+		if (it == vec.end())
+			break;
 		s << (*it);
 		it++;
 		if (it == vec.end())
@@ -406,6 +408,8 @@ void CConfigFile::setStringVector(const std::string & key, const std::vector<std
 
 	for (std::vector<std::string>::const_iterator it = vec.begin(); ; )
 	{
+		if (it == vec.end())
+			break;
 		configData[key] += *it;
 		it++;
 		if (it == vec.end())
