@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <xmltree/xmlinterface.h>
 #include <sectionsdclient/sectionsdclient.h>
+#include <set>
 
 /* zapit */
 #include "ci.h"
@@ -108,6 +109,9 @@ class CZapitAudioChannel
 
 class CChannelList;
 
+typedef std::set<int> casys_map_t;
+typedef casys_map_t::iterator casys_map_iterator_t;
+
 class CZapitChannel
 {
 	private:
@@ -155,9 +159,13 @@ class CZapitChannel
 
 		std::string			ttx_language_code;
 
+		uint8_t				record_demux;
+
 		friend class CChannelList;
 
 	public:
+		casys_map_t			camap;
+
 		bool				bAlwaysLocked;
 
 		int				number;
@@ -167,6 +175,7 @@ class CZapitChannel
 		unsigned char			scrambled;
 		char *				pname;
 		bool				has_bouquet;
+		uint8_t				polarization;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
@@ -232,6 +241,8 @@ class CZapitChannel
 
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
 		void dumpBouquetXml(FILE * fd);
+		void setRecordDemux(int num) { record_demux = num; };
+		int  getRecordDemux() { return record_demux; };
 };
 
 #endif /* __zapit_channel_h__ */

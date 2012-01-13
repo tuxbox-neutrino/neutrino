@@ -46,6 +46,8 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	last_unlocked_EPGid = 0;
 	last_unlocked_time = 0;
 	has_bouquet = false;
+	record_demux = 2;
+	polarization = 0;
 //printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
 
@@ -55,6 +57,7 @@ CZapitChannel::~CZapitChannel(void)
 	resetPids();
 	setCaPmt(NULL);
 	setRawPmt(NULL);
+	camap.clear();
 
 	//if(currentEvent)
 	//	delete currentEvent;
