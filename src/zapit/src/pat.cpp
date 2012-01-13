@@ -1,12 +1,13 @@
 /*
- * $Id: pat.cpp,v 1.44 2003/01/30 17:21:17 obi Exp $
+ * Neutrino-GUI  -   DBoxII-Project
  *
- * (C) 2002 by Andreas Oberritter <obi@tuxbox.org>
+ * Copyright (C) 2011 CoolStream International Ltd
+ *
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,18 +24,34 @@
 #include <zapit/pat.h>
 #include <dmx.h>
 
-#define PAT_SIZE 1024
-
-int parse_pat(CZapitChannel * const channel)
+CPat::CPat(int dnum)
 {
-	if (!channel)
-		return -1;
+	parsed = false;
+	dmxnum = dnum;
+}
 
-        cDemux * dmx = new cDemux();
+CPat::~CPat()
+{
+	sidpmt.clear();
+}
+
+void CPat::Reset()
+{
+	sidpmt.clear();
+	parsed = false;
+}
+
+bool CPat::Parse()
+{
+	//INFO("parsed: %s", parsed ? "yes" : "no");
+	if(parsed)
+		return true;
+
+        dmx = new cDemux(dmxnum);
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	/* buffer for program association table */
-	unsigned char buffer[PAT_SIZE];
+	unsigned char buffer[PAT_SECTION_SIZE];
 
 	/* current positon in buffer */
 	unsigned short i;
@@ -51,113 +68,43 @@ int parse_pat(CZapitChannel * const channel)
 	do {
 		/* set filter for program association section */
 		/* read section */
-		if ((dmx->sectionFilter(0, filter, mask, 5) < 0) || (i = dmx->Read(buffer, PAT_SIZE) < 0))
+		if ((dmx->sectionFilter(0, filter, mask, 5) < 0) || (i = dmx->Read(buffer, PAT_SECTION_SIZE) < 0))
 		{
 			delete dmx;
 			printf("[pat.cpp] dmx read failed\n");
-			return -1;
+			return false;
 		}
-if(buffer[7]) printf("[PAT] ***************************************************** section %X last %X\n", buffer[6], buffer[7]);
-//printf("[pat.cpp] dmx read %d len %d\n", i, ( (buffer[1] & 0x0F) << 8) | buffer[2]);
 		/* loop over service id / program map table pid pairs */
 		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3; i += 4) {
-			/* compare service id */
-			if (channel->getServiceId() == ((buffer[i] << 8) | buffer[i+1])) {
-				/* store program map table pid */
-				channel->setPmtPid(((buffer[i+2] & 0x1F) << 8) | buffer[i+3]);
-				delete dmx;
-				return 0;
-			}
-		}
-	} while (filter[4]++ != buffer[7]);
-	delete dmx;
-
-	printf("[pat.cpp] sid %X not found..\n", channel->getServiceId());
-	return -1;
-}
-
-int scan_parse_pat( std::vector<std::pair<int,int> > &sidpmt )
-{
-
-        cDemux * dmx = new cDemux();
-	dmx->Open(DMX_PSI_CHANNEL);
-
-	/* buffer for program association table */
-	unsigned char buffer[PAT_SIZE];
-
-	/* current positon in buffer */
-	unsigned short i;
-
-	unsigned char filter[DMX_FILTER_SIZE];
-	unsigned char mask[DMX_FILTER_SIZE];
-
-	memset(filter, 0x00, DMX_FILTER_SIZE);
-	memset(mask, 0x00, DMX_FILTER_SIZE);
-
-	mask[0] = 0xFF;
-	mask[4] = 0xFF;
-
-	do {
-		/* set filter for program association section */
-		/* read section */
-		if ((dmx->sectionFilter(0, filter, mask, 5) < 0) || (i = dmx->Read(buffer, PAT_SIZE) < 0))
-		{
-			delete dmx;
-			printf("[%s] dmx read failed\n",__FILE__);
-			return -1;
-		}
-		dmx->Stop();
-		for (i = 8; i < (((buffer[1] & 0x0F) << 8) | buffer[2]) + 3; i += 4) {
-			int service_id = ((buffer[i] << 8) | buffer[i+1]);
-			if (service_id != 0)
-				sidpmt.push_back(std::make_pair( service_id , (((buffer[i+2] & 0x1F) << 8) | buffer[i+3]) ) ); 
-		}
-	} while (filter[4]++ != buffer[7]);
-	delete dmx;
-	return 1;
-}
-
-static unsigned char pbuffer[PAT_SIZE];
-int parse_pat()
-{
-	int ret = 0;
-
-	printf("[scan] Parsing pat ...\n");
-	cDemux * dmx = new cDemux();
-	dmx->Open(DMX_PSI_CHANNEL);
-
-	unsigned char filter[DMX_FILTER_SIZE];
-	unsigned char mask[DMX_FILTER_SIZE];
-
-	memset(filter, 0x00, DMX_FILTER_SIZE);
-	memset(mask, 0x00, DMX_FILTER_SIZE);
-
-	mask[0] = 0xFF;
-	mask[4] = 0xFF;
-
-	memset(pbuffer, 0x00, PAT_SIZE);
-	if ((dmx->sectionFilter(0, filter, mask, 5) < 0) || (dmx->Read(pbuffer, PAT_SIZE) < 0))
-	{
-		printf("[pat.cpp] dmx read failed\n");
-		ret = -1;
-	}
-	delete dmx;
-	return ret;
-}
-
-int pat_get_pmt_pid (CZapitChannel * const channel)
-{
-	unsigned short i;
-
-	for (i = 8; i < (((pbuffer[1] & 0x0F) << 8) | pbuffer[2]) + 3; i += 4) {
-		/* compare service id */
-		if (channel->getServiceId() == ((pbuffer[i] << 8) | pbuffer[i+1])) {
 			/* store program map table pid */
-			channel->setPmtPid(((pbuffer[i+2] & 0x1F) << 8) | pbuffer[i+3]);
-			return 0;
+			int service_id	= ((buffer[i] << 8) | buffer[i+1]);
+			int pmt_pid	= (((buffer[i+2] & 0x1F) << 8) | buffer[i+3]);
+			sidpmt.insert(sidpmt_map_pair_t(service_id, pmt_pid)); 
 		}
-	}
-	printf("[pat.cpp] sid %X not found..\n", channel->getServiceId());
-	return -1;
+	} while (filter[4]++ != buffer[7]);
+	parsed = true;
+	delete dmx;
+	return true;
 }
 
+unsigned short CPat::GetPmtPid(t_service_id sid)
+{
+	unsigned short pid = 0;
+
+	if(Parse()) {
+		sidpmt_map_iterator_t it = sidpmt.find(sid);
+		if(it != sidpmt.end())
+			pid = it->second;
+	}
+	return pid;
+}
+
+bool CPat::Parse(CZapitChannel * const channel)
+{
+	unsigned short pid = GetPmtPid(channel->getServiceId());
+	if(pid > 0) {
+		channel->setPmtPid(pid);
+		return true;
+	}
+	return false;
+}
