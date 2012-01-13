@@ -44,7 +44,7 @@
 #include <driver/screen_max.h>
 
 #include <zapit/satconfig.h>
-#include <zapit/frontend_c.h>
+#include <zapit/zapit.h>
 
 static int g_sig;
 static int g_snr;
@@ -59,11 +59,21 @@ static int moving = 0;
 #define BAR_WIDTH 100
 #define BAR_HEIGHT 16 //(13 + BAR_BORDER*2)
 
-CMotorControl::CMotorControl()
+CMotorControl::CMotorControl(int tnum)
 {
+	printf("CMotorControl::CMotorControl: tuner %d\n", tnum);
+	frontend = CFEManager::getInstance()->getFE(tnum);
+	if(frontend == NULL) {
+		printf("CMotorControl::CMotorControl: BUG, invalid tuner number %d, using first\n", tnum);
+		frontend = CFEManager::getInstance()->getFE(0);
+	}
 	Init();
 }
 
+CMotorControl::~CMotorControl()
+{
+printf("CMotorControl::~CMotorControl\n");
+}
 void CMotorControl::Init(void)
 {
 	frameBuffer = CFrameBuffer::getInstance();
@@ -120,6 +130,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
         x = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - width) / 2;
         y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - height) / 2;
 
+#if 0
        	/* send satellite list to zapit */
 	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 		if(!strcmp(sit->second.name.c_str(),scansettings.satNameNoDiseqc)) {
@@ -131,23 +142,28 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 			break;
 		}
 	}
-	origPosition = motorPosition;
+#endif
+       	/* send satellite list to zapit */
+	sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
+	strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
+	satList.push_back(sat);
 
+	satellite_map_t & satmap = frontend->getSatellites();
+	sit = satmap.find(sat.position);
+	if(sit != satmap.end() && sit->second.motor_position)
+		motorPosition = sit->second.motor_position;
+
+	origPosition = motorPosition;
+	//FIXME change cZapit live fe
+	g_Zapit->stopPlayBack();
        	g_Zapit->setScanSatelliteList( satList);
+	CZapit::getInstance()->SetLiveFrontend(frontend);
 
 	TP.feparams.frequency = atoi(scansettings.TP_freq);
 	TP.feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
 	TP.feparams.u.qpsk.fec_inner = (fe_code_rate_t)scansettings.TP_fec;
 	TP.polarization = scansettings.TP_pol;
-#if 0
-	CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo ();
-	TP.feparams.frequency = si.tsfrequency;
-	TP.feparams.u.qpsk.symbol_rate = si.rate;
-	TP.feparams.u.qpsk.fec_inner = si.fec;
-	TP.polarization = si.polarisation;
-#endif
 
-	g_Zapit->stopPlayBack();
 	g_Zapit->tune_TP(TP);
 
 	paint();
@@ -335,15 +351,16 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 							printf("[motorcontrol] 5 key received... store present satellite number: %d\n", motorPosition);
 							if(motorPosition != origPosition) {
 								printf("[motorcontrol] position changed %d -> %d\n", origPosition, motorPosition);
-								for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+								for(sit = satmap.begin(); sit != satmap.end(); sit++) {
 									if(sit->second.motor_position == motorPosition)
 										break;
 								}
-								if(sit != satellitePositions.end()) {
-									printf("[motorcontrol] new positions configured for %s\n", sit->second.name.c_str());
+								if(sit != satmap.end()) {
+									std::string satname = CServiceManager::getInstance()->GetSatelliteName(sit->first);
+									printf("[motorcontrol] new positions configured for %s\n", satname.c_str());
 									std::string buf = g_Locale->getText(LOCALE_MOTORCONTROL_OVERRIDE);
 									buf += " ";
-									buf += sit->second.name;
+									buf += satname;
 									buf += " ?";
 									store = (ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, buf,CMessageBox::mbrNo,CMessageBox::mbNo|CMessageBox::mbYes) == CMessageBox::mbrYes);
 								}
@@ -414,7 +431,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	}
 
 	hide();
-	CFrontend::getInstance()->setTsidOnid(0);
+	frontend->setTsidOnid(0);
 
 	return menu_return::RETURN_REPAINT;
 }
@@ -701,8 +718,8 @@ void CMotorControl::showSNR()
 
 	int sw;
 
-	ssig = CFrontend::getInstance()->getSignalStrength();
-	ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
+	ssig = frontend->getSignalStrength();
+	ssnr = frontend->getSignalNoiseRatio();
 
 	snr = (ssnr & 0xFFFF) * 100 / 65535;
 	sig = (ssig & 0xFFFF) * 100 / 65535;
