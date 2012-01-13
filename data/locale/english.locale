@@ -214,6 +214,7 @@ channellist.sats Satellites
 channellist.since since
 channellist.start starts
 ci.empty No CAM in slot
+ci.clock CI clock (Mhz)
 ci.init_failed CAM init failed
 ci.init_ok CAM init complete
 ci.inserted CAM inserted in slot
@@ -1109,6 +1110,7 @@ reset_settings Reset settings to defaults
 satsetup.auto_scan Auto-Scan selected %s
 satsetup.auto_scan_all Auto-Scan multiple Satellites
 satsetup.comm_input Commited input
+satsetup.cable_nid Network ID
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1
@@ -1393,3 +1395,10 @@ zapitsetup.last_radio Radio Channel
 zapitsetup.last_tv TV Channel
 zapitsetup.last_use from last Channel
 zaptotimer.announce Zapto timer in one minute
+satsetup.fe_setup Setup tuner
+satsetup.fe_mode Tuner mode
+satsetup.fe_mode_single single
+satsetup.fe_mode_loop loop
+satsetup.fe_mode_twin twin
+satsetup.fe_mode_alone independent
+satsetup.select_sat Select satellites
