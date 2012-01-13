@@ -23,17 +23,13 @@
 #include <unistd.h>
 
 #include <zapit/client/zapitclient.h>
-#include <zapit/getservices.h>
 #include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/settings.h>
 #include <zapit/types.h>
-#include <zapit/frontend_c.h>
 #include <zapit/dvbstring.h>
-#include <zapit/fastscan.h>
 #include <zapit/satconfig.h>
 #include <zapit/scan.h>
-#include <zapit/frontend_c.h>
 #include <zapit/zapit.h>
 #include <dmx.h>
 #include <math.h>
@@ -54,26 +50,38 @@ extern transponder_list_t transponders; //  defined in zapit.cpp
 
 void CServiceScan::InitFastscanLnb(int id)
 {
-	CServiceManager::getInstance()->InitSatPosition(192);
-	CServiceManager::getInstance()->InitSatPosition(235);
-	CServiceManager::getInstance()->InitSatPosition(282);
-	CServiceManager::getInstance()->InitSatPosition(130);
+	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
+	CServiceManager::getInstance()->InitSatPosition(235, NULL, true);
+	CServiceManager::getInstance()->InitSatPosition(282, NULL, true);
+	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
+	satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
+
+	frontend = CFEManager::getInstance()->getFE(0);
+	frontend->setSatellites(satmap);
+	satmap = frontend->getSatellites();
+
 	switch(id) {
 		default:
 		case CD_OPERATOR_ID:
 		case OPERATOR_TVV:
-			satellitePositions[192].diseqc = 0;
-			satellitePositions[235].diseqc = 1;
-			satellitePositions[282].diseqc = 2;
-			satellitePositions[130].diseqc = 3;
+			satmap[192].diseqc = 0;
+			satmap[235].diseqc = 1;
+			satmap[282].diseqc = 2;
+			satmap[130].diseqc = 3;
 			break;
 		case OPERATOR_TELESAT:
-			satellitePositions[130].diseqc = 0;
-			satellitePositions[192].diseqc = 1;
-			satellitePositions[235].diseqc = 2;
-			satellitePositions[282].diseqc = 3;
+			satmap[130].diseqc = 0;
+			satmap[192].diseqc = 1;
+			satmap[235].diseqc = 2;
+			satmap[282].diseqc = 3;
 			break;
 	}
+	satmap[130].configured = 1;
+	satmap[192].configured = 1;
+	satmap[235].configured = 1;
+	satmap[282].configured = 1;
+	CFEManager::getInstance()->saveSettings();
+	SetFrontend(192);
 }
 
 bool CServiceScan::ScanFast()
@@ -146,7 +154,7 @@ bool CServiceScan::ScanFast()
 		myZapitClient.reloadCurrentServices();
 	} else {
 		Cleanup(false);
-		CFrontend::getInstance()->setTsidOnid(0);
+		frontend->setTsidOnid(0);
 		//zapit(live_channel_id, 0);
 	}
 	fast_services_sat.clear();
@@ -260,10 +268,12 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 
 						std::map <t_channel_id, t_satellite_position>::iterator sIt = fast_services_sat.find(channel_id);
 						if(sIt != fast_services_sat.end()) {
+#if 0
 							satellitePosition = sIt->second;
 							sat_iterator_t sit = satellitePositions.find(satellitePosition);
 							if(sit != satellitePositions.end())
 								sit->second.have_channels = true;
+#endif
 						}
 
 						std::map <t_channel_id, freq_id_t>::iterator fIt = fast_services_freq.find(channel_id);
@@ -332,7 +342,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						newchannel->number = num;
 
 						char pname[100];
-						if (CFrontend::getInstance()->getInfo()->type == FE_QPSK)
+						if (frontend->getInfo()->type == FE_QPSK)
 							snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
 						else
 							snprintf(pname, 100, "%s", providerName.c_str());
