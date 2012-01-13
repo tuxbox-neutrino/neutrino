@@ -251,7 +251,8 @@ int satellite_delivery_system_descriptor(const unsigned char * const buffer, t_t
 	transponder_id_t TsidOnid;
 	int modulationSystem, modulationType, rollOff, fec_inner;
 
-	if (CFrontend::getInstance()->getInfo()->type != FE_QPSK)
+	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+	if (frontend->getInfo()->type != FE_QPSK)
 		return -1;
 
 	feparams.frequency =
@@ -315,7 +316,8 @@ int satellite_delivery_system_descriptor(const unsigned char * const buffer, t_t
 int cable_delivery_system_descriptor(const unsigned char * const buffer, t_transport_stream_id transport_stream_id, t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq)
 {
 	transponder_id_t TsidOnid;
-	if (CFrontend::getInstance()->getInfo()->type != FE_QAM)
+	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+	if (frontend->getInfo()->type != FE_QAM)
 		return -1;
 
 	FrontendParameters feparams;
@@ -442,6 +444,9 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 	CZapitChannel *channel = NULL;
 	bool tpchange = false;
 	static transponder_id_t last_tpid = 0;
+	
+	static CPat pat;
+
 	//scrambled
 	if(free_ca && scan_fta_flag){
 		return;
@@ -624,7 +629,8 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 				CZapitBouquet* bouquet;
 				int bouquetId;
 				char pname[100];
-				if (CFrontend::getInstance()->getInfo()->type == FE_QPSK)
+				CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+				if (frontend->getInfo()->type == FE_QPSK)
 					snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
 				else
 					snprintf(pname, 100, "%s", providerName.c_str());
@@ -654,14 +660,27 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 			break;
 	}
 	if(CZapit::getInstance()->scanPids()) {
-		if(tpchange)
-			parse_pat();
+		if(tpchange) {
+			//parse_pat();
+			pat.Reset();
+			pat.Parse();
+		}
 
 		channel->resetPids();
+#if 0
 		if(!pat_get_pmt_pid(channel)) {
 			if(!parse_pmt(channel)) {
 				//if(channel->getPreAudioPid() == 0 && channel->getVideoPid() == 0)
 				//	printf("[scan] Channel %s dont have A/V pids !\n", channel->getName().c_str());
+				if ((channel->getPreAudioPid() != 0) || (channel->getVideoPid() != 0)) {
+					channel->setPidsFlag();
+				}
+			}
+		}
+#endif
+		if(pat.Parse(channel)) {
+			CPmt pmt;
+			if(!pmt.parse_pmt(channel)) {
 				if ((channel->getPreAudioPid() != 0) || (channel->getVideoPid() != 0)) {
 					channel->setPidsFlag();
 				}
@@ -851,11 +870,12 @@ void subtitling_descriptor(const unsigned char * const)
 /* 0x5A */
 int terrestrial_delivery_system_descriptor(const unsigned char * const)
 {
-	if (CFrontend::getInstance()->getInfo()->type != FE_OFDM)
-		return -1;
-
 	/* TODO */
-
+#if 0
+	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+	if (frontend->getInfo()->type != FE_OFDM)
+		return -1;
+#endif
 	return 0;
 }
 
