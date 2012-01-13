@@ -121,16 +121,15 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		int height = sub.rects[i]->h;
 		int xoff, yoff;
 
-		int nw = (double) width * xc;
+		int nw = width == 1280 ? ((double) width / xc) : ((double) width * xc);
 		int nh = (double) height * yc;
 
 		int xdiff = (wd > xf) ? ((wd - xf) / 2) : 0;
 		xoff = sub.rects[i]->x*xc + xstart + xdiff;
-
 		if(sub.rects[i]->y < 576/2) {
 			yoff = ystart + sub.rects[i]->y*yc;
 		} else {
-			yoff = yend - (576 - (double) (sub.rects[i]->y + height))*yc - nh;
+			yoff = yend - ((width == 1280 ? 704:576) - (double) (sub.rects[i]->y + height))*yc - nh;
 			if(yoff < ystart)
 				yoff = ystart;
 		}
