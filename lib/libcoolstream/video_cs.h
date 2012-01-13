@@ -230,6 +230,7 @@ public:
 	int  CloseVBI(void);
 	int  StartVBI(unsigned short pid);
 	int  StopVBI(void);
+	bool GetScreenImage(unsigned char * &data, int &xres, int &yres, bool get_video = true, bool get_osd = false, bool scale_to_video = false);
 };
 
 #endif // __VIDEO_CS_H_

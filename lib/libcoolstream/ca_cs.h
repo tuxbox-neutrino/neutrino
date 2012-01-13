@@ -5,6 +5,7 @@
 /*                                                                             */
 /* (C) 2010 CoolStream International Ltd.                                      */
 /*                                                                             */
+/* $Id:: ca_cs.h 2528 2011-12-22 13:19:41Z nightshad                         $ */
 /*******************************************************************************/
 #ifndef __CA_CS_H_
 #define __CA_CS_H_
@@ -26,13 +27,13 @@ enum CA_SLOT_TYPE {
 
 enum CA_MESSAGE_FLAGS {
 	CA_MESSAGE_EMPTY		= (1 << 0),
-	CA_MESSAGE_HAS_PARAM1_DATA	= (1 << 1), // Free after use!
+	CA_MESSAGE_HAS_PARAM1_DATA	= (1 << 1), /// Free after use!
 	CA_MESSAGE_HAS_PARAM1_INT	= (1 << 2),
 	CA_MESSAGE_HAS_PARAM1_PTR	= (1 << 3),
 	CA_MESSAGE_HAS_PARAM2_INT	= (1 << 4),
 	CA_MESSAGE_HAS_PARAM2_PTR	= (1 << 5),
 	CA_MESSAGE_HAS_PARAM2_DATA	= (1 << 6),
-	CA_MESSAGE_HAS_PARAM3_DATA	= (1 << 7), // Free after use!
+	CA_MESSAGE_HAS_PARAM3_DATA	= (1 << 7), /// Free after use!
 	CA_MESSAGE_HAS_PARAM3_INT	= (1 << 8),
 	CA_MESSAGE_HAS_PARAM3_PTR	= (1 << 9),
 	CA_MESSAGE_HAS_PARAM4_INT	= (1 << 10),
@@ -59,6 +60,7 @@ enum CA_MESSAGE_MSGID {
 	CA_MESSAGE_MSG_ECM_ARRIVED,
 	CA_MESSAGE_MSG_EMM_ARRIVED,
 	CA_MESSAGE_MSG_CHANNEL_CHANGE,
+	CA_MESSAGE_MSG_GUI_READY,
 	CA_MESSAGE_MSG_EXIT,
 };
 
@@ -84,36 +86,60 @@ typedef struct CA_MESSAGE {
 #define CS_CA_PDATA		void
 #endif
 
+/// CA module class
 class cCA : public OpenThreads::Thread {
 private:
+	/// Static instance of the CA module
 	static cCA *inst;
-	//
+	/// Private constructor (singleton method)
 	cCA(void);
-	//
+	/// Private data for the CA module
 	CS_CA_PDATA		*privateData;
 	enum CA_INIT_MASK	initMask;
 	bool exit;
 	bool started;
 	bool guiReady;
+	/// Thread method
 	virtual void run(void);
 public:
+	/// Returns the number of CI slots
 	u32 GetNumberCISlots(void);
-	u32 GetNumberSmartCardSlots(void);	//
+	/// Returns the number of Smartcard slots
+	u32 GetNumberSmartCardSlots(void);
+	/// Singleton
 	static cCA *GetInstance(void);
+	/// Send PMT to a individual or to all available modules
 	bool SendPMT(int Unit, unsigned char *Data, int Len, enum CA_SLOT_TYPE SlotType = CA_SLOT_TYPE_ALL);
+	/// Sends a message to the CA thread
 	bool SendMessage(const CA_MESSAGE *Msg);
+	/// Sets which modules to initialize. It is only
+	/// possible to change this once!
 	void SetInitMask(enum CA_INIT_MASK InitMask);
+	/// Sets the frequency (in Hz) of the TS stream input (only valid for CI)
+	void SetTSClock(u32 Speed);
+	/// Start the CA module
 	bool Start(void);
+	/// Stops the CA module
 	void Stop(void);
+	/// Notify that the GUI is ready to receive messages
+	/// (CA messages coming from a module)
 	void Ready(bool Set);
+	/// Resets a module (if possible)
 	void ModuleReset(enum CA_SLOT_TYPE, u32 Slot);
+	/// Checks if a module is present
 	bool ModulePresent(enum CA_SLOT_TYPE, u32 Slot);
+	/// Returns the module name in array Name
 	void ModuleName(enum CA_SLOT_TYPE, u32 Slot, char *Name);
+	/// Notify the module we want to enter menu
 	void MenuEnter(enum CA_SLOT_TYPE, u32 Slot);
+	/// Notify the module with our answer (choice nr)
 	void MenuAnswer(enum CA_SLOT_TYPE, u32 Slot, u32 choice);
+	/// Notify the module with our answer (binary)
 	void InputAnswer(enum CA_SLOT_TYPE, u32 Slot, u8 * Data, int Len);
+	/// Notify the module we closed the menu
 	void MenuClose(enum CA_SLOT_TYPE, u32 Slot);
+	/// Virtual destructor
 	virtual ~cCA();
 };
 
-#endif //__CA_H_
+#endif ///__CA_H_
