@@ -81,7 +81,10 @@ class CCaPmt : public CCaTable
 		unsigned ca_pmt_length;
 
 	public:
+		CCaPmt();
+		CCaPmt(const unsigned char * const buffer);
 		~CCaPmt(void);
+
 		unsigned getLength(void);
 		unsigned writeToBuffer(unsigned char * const buffer, int demux = 1, int camask = 3);
 
@@ -90,6 +93,8 @@ class CCaPmt : public CCaTable
 		unsigned reserved1		: 2;
 		unsigned version_number		: 5;
 		unsigned current_next_indicator	: 1;
+
+		unsigned short ca_pmt_pid;
 
 		std::vector<CEsInfo *> es_info;
 };

@@ -22,7 +22,7 @@
 
 #include <zapit/ci.h>
 #include <messagetools.h>
-extern int curpmtpid;
+#include <stdio.h>
 /*
  * conditional access descriptors
  */
@@ -50,7 +50,6 @@ unsigned int CCaDescriptor::writeToBuffer(unsigned char * const buffer) // retur
 
 	return descriptor_length + 2;
 }
-
 
 /*
  * generic table containing conditional access descriptors
@@ -89,7 +88,6 @@ CCaTable::~CCaTable(void)
 		delete ca_descriptor[i];
 }
 
-
 /*
  * elementary stream information
  */
@@ -111,10 +109,30 @@ unsigned int CEsInfo::writeToBuffer(unsigned char * const buffer) // returns num
 	//return 3 + CCaTable::writeToBuffer(&(buffer[3]));
 }
 
-
 /*
  * contitional access program map table
  */
+
+CCaPmt::CCaPmt()
+{
+	ca_pmt_list_management = 0;
+	program_number = 0;
+	reserved1 = 0;
+	version_number = 0;
+	current_next_indicator = 0;
+	ca_pmt_pid = 0;
+}
+
+CCaPmt::CCaPmt(const unsigned char * const buffer)
+{
+	program_number = (buffer[3] << 8) + buffer[4];
+	reserved1 = buffer[5] >> 6;
+	version_number = (buffer[5] >> 1) & 0x1F;
+	current_next_indicator = buffer[5] & 0x01;
+	reserved2 = buffer[10] >> 4;
+	ca_pmt_pid = 0;
+}
+
 CCaPmt::~CCaPmt(void)
 {
 	for (unsigned int i = 0; i < es_info.size(); i++)
@@ -153,8 +171,8 @@ unsigned int CCaPmt::writeToBuffer(unsigned char * const buffer, int demux, int 
 
 	buffer[27] = 0x84;  // pmt pid
 	buffer[28] = 0x02;
-	buffer[29] = (curpmtpid >> 8) & 0xFF;
-	buffer[30] = curpmtpid & 0xFF; // 30
+	buffer[29] = (ca_pmt_pid >> 8) & 0xFF;
+	buffer[30] = ca_pmt_pid & 0xFF; // 30
 
         int lenpos=10;
         int len=19;
