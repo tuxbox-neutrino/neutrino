@@ -25,9 +25,24 @@
 #include "channel.h"
 #include "ci.h"
 
-int parse_pmt(CZapitChannel * const channel);
 int pmt_set_update_filter(CZapitChannel * const channel, int * fd);
 int pmt_stop_update_filter(int * fd);
-int scan_parse_pmt(int pmtpid, int service_id );
 
+#define PMT_SECTION_SIZE 1024
+class CPmt
+{
+	private:
+		int dmxnum;
+		unsigned char buffer[PMT_SECTION_SIZE];
+
+		bool Read(unsigned short pid, unsigned short sid);
+		void MakeCAMap(casys_map_t &camap);
+		unsigned short ParseES(const unsigned char * const buff, CZapitChannel * const channel, CCaPmt * const caPmt);
+	public:
+		CPmt(int dnum = 0);
+		~CPmt();
+
+		bool parse_pmt(CZapitChannel * const channel);
+		bool haveCaSys(int pmtpid, int service_id);
+};
 #endif /* __zapit_pmt_h__ */
