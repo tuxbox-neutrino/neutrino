@@ -27,6 +27,7 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/progressbar.h>
+#include <zapit/femanager.h>
 
 
 class CStreamInfo2 : public CMenuTarget
@@ -34,6 +35,7 @@ class CStreamInfo2 : public CMenuTarget
 	private:
 
 		CFrameBuffer	*frameBuffer;
+		CFrontend	*frontend;
 		int x;
 		int y;
 		int width;
