@@ -140,7 +140,9 @@ static pthread_t nhttpd_thread ;
 
 //#define DISABLE_SECTIONSD
 extern int sectionsd_stop;
+#ifndef DISABLE_SECTIONSD
 static pthread_t sections_thread;
+#endif
 void * sectionsd_main_thread(void *data);
 extern bool timeset; // sectionsd
 
@@ -355,6 +357,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.standby_cpufreq = configfile.getInt32("standby_cpufreq", 100);
 	g_settings.rounded_corners = configfile.getInt32("rounded_corners", 1);
 	g_settings.ci_standby_reset = configfile.getInt32("ci_standby_reset", 0);
+	g_settings.ci_clock = configfile.getInt32("ci_clock", 7);
 
 #ifndef CPU_FREQ
 	g_settings.cpufreq = 0;
@@ -801,6 +804,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "standby_cpufreq", g_settings.standby_cpufreq);
 	configfile.setInt32("rounded_corners", g_settings.rounded_corners);
 	configfile.setInt32("ci_standby_reset", g_settings.ci_standby_reset);
+	configfile.setInt32("ci_clock", g_settings.ci_clock);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	//led
@@ -1241,15 +1245,21 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 		/* all TV / RADIO channels per satellite */
 		sat_iterator_t sit;
-		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		satellite_map_t satlist = CServiceManager::getInstance()->SatelliteList();
+		for(sit = satlist.begin(); sit != satlist.end(); sit++) {
+#if 0
 			if(!sit->second.have_channels)
+				continue;
+#endif
+			CServiceManager::getInstance()->GetAllSatelliteChannels(zapitList, sit->first);
+			if(!zapitList.size())
 				continue;
 
 			tvi = 0, ri = 0;
 			CBouquet* tmp1 = TVsatList->addBouquet(sit->second.name.c_str());
 			CBouquet* tmp2 = RADIOsatList->addBouquet(sit->second.name.c_str());
 
-			CServiceManager::getInstance()->GetAllSatelliteChannels(zapitList, sit->first);
+			//CServiceManager::getInstance()->GetAllSatelliteChannels(zapitList, sit->first);
 			for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++) {
 				if ((*it)->getServiceType() == ST_DIGITAL_TELEVISION_SERVICE) {
 					tmp1->channelList->addChannel(*it);
@@ -1638,6 +1648,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	ZapStart_arg.startchannelradio_nr = g_settings.startchannelradio_nr;
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
+	ZapStart_arg.ci_clock = g_settings.ci_clock;
 
 	CZapit::getInstance()->Start(&ZapStart_arg);
 
@@ -1758,10 +1769,12 @@ int CNeutrinoApp::run(int argc, char **argv)
 	InitMenu();
 
 	/* wait for sectionsd to be able to process our registration */
+#ifndef DISABLE_SECTIONSD
 	time_t t = time_monotonic_ms();
 	while (! sectionsd_isReady())
 		sleep(0);
 	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
+#endif
 
 	dprintf( DEBUG_NORMAL, "registering as event client\n");
 
@@ -1905,11 +1918,13 @@ void CNeutrinoApp::quickZap(int msg)
 	int res;
 
 	StopSubtitles();
-#if 1
-	if(recordingstatus && !autoshift) 
-#else
+#if 0
 	CRecordManager::getInstance()->StopAutoRecord();
 	if(CRecordManager::getInstance()->RecordingStatus()) 
+#else
+	//if(recordingstatus && !autoshift) 
+	printf("CNeutrinoApp::quickZap haveFreeFrontend %d\n", CFEManager::getInstance()->haveFreeFrontend());
+	if(!CFEManager::getInstance()->haveFreeFrontend())
 #endif
 	{
 		res = channelList->numericZap(g_settings.key_zaphistory);
@@ -1944,8 +1959,10 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	if(g_settings.power_standby || init_cec_setting)
 		standbyMode(true);
 
-	//cCA::GetInstance()->Ready(true);
-
+#if 0
+INFO("cCA::GetInstance()->Ready\n");
+	cCA::GetInstance()->Ready(true);
+#endif
 	while( true ) {
 		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 
@@ -2223,33 +2240,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		StartSubtitles(!g_InfoViewer->is_visible);
 
 		/* update scan settings for manual scan to current channel */
-		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
-		if(channel) {
-			sat_iterator_t sit = satellitePositions.find(channel->getSatellitePosition());
-			if(sit != satellitePositions.end())
-				strncpy(scanSettings.satNameNoDiseqc, sit->second.name.c_str(), 50);
-
-			transponder_list_t::iterator tI;
-			tI = transponders.find(channel->getTransponderId());
-			if(tI != transponders.end()) {
-				sprintf(scanSettings.TP_freq, "%d", tI->second.feparams.frequency);
-				switch (CFrontend::getInstance()->getInfo()->type) {
-					case FE_QPSK:
-						sprintf(scanSettings.TP_rate, "%d", tI->second.feparams.u.qpsk.symbol_rate);
-						scanSettings.TP_fec = tI->second.feparams.u.qpsk.fec_inner;
-						scanSettings.TP_pol = tI->second.polarization;
-						break;
-					case FE_QAM:
-						sprintf(scanSettings.TP_rate, "%d", tI->second.feparams.u.qam.symbol_rate);
-						scanSettings.TP_fec = tI->second.feparams.u.qam.fec_inner;
-						scanSettings.TP_mod = tI->second.feparams.u.qam.modulation;
-						break;
-					case FE_OFDM:
-					case FE_ATSC:
-						break;
-				}
-			}
-		}
+		CScanSetup::getInstance()->updateManualSettings();
 	}
 	if ((msg == NeutrinoMessages::EVT_TIMER)) {
 		if(data == scrambled_timer) {
@@ -2905,7 +2896,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			saveEpg();
 		}
 
-		stop_daemons(retcode);//need here for timer_is_rec before saveSetup
+		stop_daemons(true /*retcode*/);//need here for timer_is_rec before saveSetup
 		g_settings.shutdown_timer_record_type = timer_is_rec;
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
@@ -3025,8 +3016,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				delete funNotifier;
 			}
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
-			delete frameBuffer;
-
+			//delete frameBuffer;
 #if 0 /* FIXME this next hack to test, until we find real crash on exit reason */
 			system("/etc/init.d/rcK");
 			system("/bin/sync");
@@ -3237,6 +3227,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 
 void CNeutrinoApp::tvMode( bool rezap )
 {
+	INFO("rezap %d current mode %d", rezap, mode);
 	if(mode==mode_radio ) {
 		if (g_settings.radiotext_enable && g_Radiotext) {
 			delete g_Radiotext;
@@ -3315,7 +3306,7 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 void CNeutrinoApp::standbyMode( bool bOnOff )
 {
 	static bool wasshift = false;
-	//printf( ( bOnOff ) ? "mode: standby on\n" : "mode: standby off\n" );
+	INFO("%s", bOnOff ? "ON" : "OFF" );
 	
 	if( bOnOff ) {
 		if( mode == mode_scart ) {
@@ -3419,6 +3410,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		if( lastMode == mode_radio ) {
 			radioMode( false );
 		} else {
+			/* for standby -> tv mode from radio mode in case of record */
+			videoDecoder->StopPicture();
 			tvMode( false );
 		} 
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -3447,7 +3440,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 void CNeutrinoApp::radioMode( bool rezap)
 {
-	printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
+	//printf("radioMode: rezap %s\n", rezap ? "yes" : "no");
+	INFO("rezap %d current mode %d", rezap, mode);
 	if(mode==mode_tv ) {
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
 		g_InfoViewer->lcdUpdateTimer = g_RCInput->addTimer( LCD_UPDATE_TIME_RADIO_MODE, false );
@@ -3510,7 +3504,6 @@ void CNeutrinoApp::switchClockOnOff()
 /**************************************************************************************
 *          CNeutrinoApp -  exec, menuitem callback (shutdown)                         *
 **************************************************************************************/
-void SaveMotorPositions();
 
 int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 {
@@ -3728,6 +3721,7 @@ void sighandler (int signum)
           case SIGTERM:
           case SIGINT:
 		delete CRecordManager::getInstance();
+		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
                 _exit(0);
           default:
