@@ -22,6 +22,18 @@
 #ifndef __zapit_nit_h__
 #define __zapit_nit_h__
 
-int parse_nit(t_satellite_position satellitePosition, freq_id_t freq);
+typedef struct nit_thread_args {
+	t_satellite_position	satellitePosition;
+	freq_id_t		freq;
+	unsigned short		nid;
+
+	nit_thread_args(t_satellite_position SatellitePosition, freq_id_t Freq, unsigned short Nid = 0) {
+		satellitePosition = SatellitePosition;
+		freq = Freq;
+		nid = Nid;
+	}
+} nit_thread_args_t;
+
+int parse_nit(t_satellite_position satellitePosition, freq_id_t freq, unsigned short nid = 0);
 
 #endif /* __zapit_nit_h__ */
