@@ -51,6 +51,7 @@ class CHintBox
 
 	int                      width;
 	int                      height;
+	int                      textStartX;
 
 	int                      fheight;
 	int                      theight;
