@@ -129,7 +129,7 @@ static DFBEnumerationResult enum_input_device(DFBInputDeviceID device_id,
 					      DFBInputDeviceDescription desc,
 					      void *data)
 {
-	DeviceInfo **devices = data;
+	DeviceInfo **devices = (DeviceInfo **)data;
 	DeviceInfo  *device;
 
 	device = (DeviceInfo *)malloc(sizeof(DeviceInfo));

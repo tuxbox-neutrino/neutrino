@@ -15,8 +15,8 @@ extern "C" {
 #include <tdpanel/ir_ruwido.h>
 #include <hardware/avs/avs_inf.h>
 #include <hardware/avs/bios_system_config.h>
-#include "lt_dfbinput.h"
 }
+#include "lt_dfbinput.h"
 
 #include "lt_debug.h"
 #define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_INIT, NULL, args)

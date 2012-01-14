@@ -6,7 +6,7 @@ noinst_LIBRARIES = libtriple.a
 AM_CXXFLAGS = -fno-rtti -fno-exceptions -fno-strict-aliasing
 
 libtriple_a_SOURCES = \
-	lt_dfbinput.c \
+	lt_dfbinput.cpp \
 	lt_debug.cpp \
 	dmx_td.cpp \
 	ca.cpp \
