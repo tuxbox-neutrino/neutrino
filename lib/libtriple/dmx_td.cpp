@@ -12,6 +12,10 @@
 #include "dmx_td.h"
 #include "lt_debug.h"
 
+/* Ugh... see comment in destructor for details... */
+#include "video_td.h"
+extern cVideo *videoDecoder;
+
 #define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_DEMUX, this, args)
 #define lt_info(args...) _lt_info(TRIPLE_DEBUG_DEMUX, this, args)
 
@@ -60,6 +64,18 @@ cDemux::~cDemux()
 {
 	lt_debug("%s #%d fd: %d\n", __FUNCTION__, num, fd);
 	Close();
+	/* in zapit.cpp, videoDemux is deleted after videoDecoder
+	 * in the video watchdog, we access videoDecoder
+	 * the thread still runs after videoDecoder has been deleted
+	 * => set videoDecoder to NULL here to make the check in the
+	 * watchdog thread pick this up.
+	 * This is ugly, but it saves me from changing neutrino
+	 *
+	 * if the delete order in neutrino will ever be changed, this
+	 * will blow up badly :-(
+	 */
+	if (dmx_type == DMX_VIDEO_CHANNEL)
+		videoDecoder = NULL;
 }
 
 bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBufferSize)

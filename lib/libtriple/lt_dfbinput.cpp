@@ -39,6 +39,10 @@
 #include <directfb.h>
 #include "lt_dfbinput.h"
 
+/* needed for videodecoder watchdog */
+#include "video_td.h"
+extern cVideo *videoDecoder;
+
 /* same defines as in neutrino's rcinput.h */
 #define KEY_TTTV	KEY_FN_1
 #define KEY_TTZOOM	KEY_FN_2
@@ -245,7 +249,12 @@ static void *input_thread(void *data)
 	thread_running = 1;
 	while (thread_running)
 	{
-		if (events->WaitForEventWithTimeout(events, 1, 0) == DFB_TIMEOUT)
+		/* check every 250ms (if a key is pressed on remote, we might
+		 * even check earlier, but it does not really hurt... */
+		if (videoDecoder)
+			videoDecoder->VideoParamWatchdog();
+
+		if (events->WaitForEventWithTimeout(events, 0, 250) == DFB_TIMEOUT)
 			continue;
 		DFBInputEvent e;
 		while (events->GetEvent(events, DFB_EVENT(&e)) == DFB_OK)
