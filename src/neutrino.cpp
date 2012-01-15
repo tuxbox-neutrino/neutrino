@@ -66,7 +66,6 @@
 #include "gui/filebrowser.h"
 #include "gui/hdd_menu.h"
 #include "gui/infoviewer.h"
-#include "gui/keybind_setup.h"
 #include "gui/mediaplayer.h"
 #include "gui/movieplayer.h"
 #include "gui/osd_setup.h"
@@ -591,8 +590,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
+	g_settings.mode_left_right_key_tv = configfile.getInt32( "mode_left_right_key_tv",  SNeutrinoSettings::ZAP);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
-	g_settings.virtual_zap_mode         = configfile.getBool("virtual_zap_mode"          , false);
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
@@ -623,7 +622,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.bigFonts = configfile.getInt32("bigFonts", 0);
 	g_settings.big_windows = configfile.getInt32("big_windows", 0);
 
-	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CKeybindSetup::REMOTECONTROL_STANDARD);
+	g_settings.remote_control_hardware = configfile.getInt32( "remote_control_hardware",  CRCInput::RC_HW_COOLSTREAM);
 	g_settings.audiochannel_up_down_enable = configfile.getBool("audiochannel_up_down_enable", false);
 
 	//Software-update
@@ -1001,7 +1000,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
 	configfile.setInt32( "minimode", g_settings.minimode );
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );
-	configfile.setBool("virtual_zap_mode", g_settings.virtual_zap_mode);
+	configfile.setInt32( "mode_left_right_key_tv", g_settings.mode_left_right_key_tv );
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
@@ -1947,7 +1946,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	//cCA::GetInstance()->Ready(true);
 
 	while( true ) {
-		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
+		g_RCInput->getMsg(&msg, &data, 100, ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) && (g_RemoteControl->subChannels.size() < 1)) ? true : false);	// 10 secs..
 
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
@@ -2012,32 +2011,32 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				StopSubtitles();
 				g_RemoteControl->subChannelUp();
 				g_InfoViewer->showSubchan();
-			    } else if(g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) {
-				setVolume(msg, true);
-			    } else if(g_settings.virtual_zap_mode) {
-				if(channelList->getSize()) {
-					showInfo();
-				}
+			    } else if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+					setVolume(msg, true);
+			    } else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+					if(channelList->getSize()) {
+						showInfo();
+					}
 			    } else
-				quickZap( msg );
+					quickZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
 			   if(g_RemoteControl->subChannels.size()> 0) {
 				StopSubtitles();
 				g_RemoteControl->subChannelDown();
 				g_InfoViewer->showSubchan();
-			    } else if(g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) {
-				setVolume(msg, true);
-			    } else if(g_settings.virtual_zap_mode) {
-				if(channelList->getSize()) {
-					showInfo();
-				}
+			    } else if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+					setVolume(msg, true);
+			    } else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+					if(channelList->getSize()) {
+						showInfo();
+					}
 			    } else
-				quickZap( msg );
+					quickZap( msg );
 			}
 			/* in case key_subchannel_up/down redefined */
 			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
-			    	if(g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1) {
+			    if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
 					setVolume(msg, true);
 				} else if(channelList->getSize()) {
 					showInfo();
@@ -3171,7 +3170,7 @@ printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
 		if (msg <= CRCInput::RC_MaxRC) 
 		{
 			int sub_chan_keybind = 0;
-			if (g_settings.remote_control_hardware == CKeybindSetup::REMOTECONTROL_NEO1 && g_RemoteControl->subChannels.size() < 1)
+			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME && g_RemoteControl->subChannels.size() < 1)
  			     sub_chan_keybind = 1;
 			
 			if ((msg == CRCInput::RC_plus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_right))) {

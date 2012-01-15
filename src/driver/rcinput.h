@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <string>
 #include <vector>
+#include <coolstream/nevis_ir.h>
 
 #ifndef KEY_OK
 #define KEY_OK           0x160
@@ -148,6 +149,7 @@ class CRCInput
 		int translate(int code, int num);
 		void calculateMaxFd(void);
 		int checkTimers();
+		void set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address);
 	public:
 		//rc-code definitions
 		static const neutrino_msg_t RC_Repeat   = 0x0400;
@@ -241,6 +243,16 @@ class CRCInput
 			RC_timeout	= 0xFFFFFFFF,
 			RC_nokey	= 0xFFFFFFFE
 		};
+
+		//rc-hardware definitions
+		enum
+		{
+			RC_HW_COOLSTREAM	= 0,
+			RC_HW_DBOX		= 1,
+			RC_HW_PHILIPS		= 2,
+			RC_HW_TRIPLEDRAGON	= 3,
+		};
+		void set_rc_hw(void);
 
 		inline int getFileHandle(void) /* used for plugins (i.e. games) only */
 		{

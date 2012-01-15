@@ -47,10 +47,8 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 		CFontSizeNotifier *fontsizenotifier;
 		CRadiotextNotifier *radiotextNotifier;
 		CMenuWidget *osd_menu;
-		int tmp_virtual_zap_mode;
 
 		int width;
-		
 		bool is_wizard;
 
 		int showOsdSetup();

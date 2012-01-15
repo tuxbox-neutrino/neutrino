@@ -70,10 +70,10 @@ static struct termio orig_termio;
 static bool          saved_orig_termio = false;
 #endif /* KEYBOARD_INSTEAD_OF_REMOTE_CONTROL */
 
-/**************************************************************************
-*	Constructor - opens rc-input device and starts threads
+/*********************************************************************************
+*	Constructor - opens rc-input device, selects rc-hardware and starts threads
 *
-**************************************************************************/
+*********************************************************************************/
 CRCInput::CRCInput()
 {
 	timerid= 1;
@@ -139,6 +139,9 @@ CRCInput::CRCInput()
 	repeat_block = repeat_block_generic = 0;
 	open();
 	rc_last_key =  KEY_MAX;
+
+	//select and setup remote control hardware
+	set_rc_hw();
 }
 
 void CRCInput::open()
@@ -153,7 +156,7 @@ void CRCInput::open()
 		{
 			fcntl(fd_rc[i], F_SETFL, O_NONBLOCK);
 		}
-printf("CRCInput::open: %s fd %d\n", RC_EVENT_DEVICE[i], fd_rc[i]);
+		printf("CRCInput::open: %s fd %d\n", RC_EVENT_DEVICE[i], fd_rc[i]);
 	}
 
 	//+++++++++++++++++++++++++++++++++++++++
@@ -1523,4 +1526,67 @@ void CRCInput::set_dsp()
 
 void CRCInput::play_click()
 {
+}
+
+// hint: ir_protocol_t and other useful things are defined in nevis_ir.h
+void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
+{
+	int ioctl_ret = -1;
+
+	//fixme?: for now fd_rc[] is hardcoded to 0 since only fd_rc[0] is used at the moment
+	ioctl_ret = ::ioctl(fd_rc[0], IOC_IR_SET_PRI_PROTOCOL, ir_protocol);
+	if(ioctl_ret < 0)
+		perror("IOC_IR_SET_PRI_PROTOCOL");
+	else
+		printf("CRCInput::set_rc_hw: Set IOCTRL : IOC_IR_SET_PRI_PROTOCOL, %05X\n", ir_protocol);
+
+	//bypass setting of IR Address with ir_address=0
+	if(ir_address > 0)
+	{
+		//fixme?: for now fd_rc[] is hardcoded to 0 since only fd_rc[0] is used at the moment
+		ioctl_ret = ::ioctl(fd_rc[0], IOC_IR_SET_PRI_ADDRESS, ir_address);
+		if(ioctl_ret < 0)
+			perror("IOC_IR_SET_PRI_ADDRESS");
+		else
+			printf("CRCInput::set_rc_hw: Set IOCTRL : IOC_IR_SET_PRI_ADDRESS,  %05X\n", ir_address);
+	}
+}
+
+// hint: ir_protocol_t and other useful things are defined in nevis_ir.h
+void CRCInput::set_rc_hw(void)
+{
+	ir_protocol_t ir_protocol = IR_PROTOCOL_UNKNOWN;
+	unsigned int ir_address = 0x00;
+
+	switch(g_settings.remote_control_hardware)
+	{
+		case RC_HW_COOLSTREAM:
+			ir_protocol = IR_PROTOCOL_NECE;
+			ir_address  = 0xFF80;
+			break;
+		case RC_HW_DBOX:
+			ir_protocol = IR_PROTOCOL_NRC17;
+			ir_address  = 0x00C5;
+			break;
+		case RC_HW_PHILIPS:
+			ir_protocol = IR_PROTOCOL_RC5;
+			ir_address  = 0x000A;
+			break;
+		case RC_HW_TRIPLEDRAGON:
+			ir_protocol = IR_PROTOCOL_RMAP_E;
+			ir_address  = 0x000A; // with device id 0
+//			ir_address  = 0x100A; // with device id 1
+//			ir_address  = 0x200A; // with device id 2
+//			ir_address  = 0x300A; // with device id 3
+//			ir_address  = 0x400A; // with device id 4
+//			ir_address  = 0x500A; // with device id 5
+//			ir_address  = 0x600A; // with device id 6
+//			ir_address  = 0x700A; // with device id 7
+			break;
+		default:
+			ir_protocol = IR_PROTOCOL_NECE;
+			ir_address  = 0xFF80;
+	}
+	
+	set_rc_hw(ir_protocol, ir_address);
 }
