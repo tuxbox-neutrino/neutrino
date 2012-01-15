@@ -1,6 +1,4 @@
 //
-//  $Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $
-//
 //    sectionsd.cpp (network daemon for SI-sections)
 //    (dbox-II-project)
 //
@@ -8,7 +6,7 @@
 //
 //    Homepage: http://dbox2.elxsi.de
 //
-//    Copyright (C) 2008-2011 Stefan Seyfried
+//    Copyright (C) 2008-2012 Stefan Seyfried
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -4586,167 +4584,134 @@ std::string UTF8_to_Latin1(const char * s)
 static void *insertEventsfromFile(void *)
 {
 	xmlDocPtr event_parser = NULL;
-	xmlNodePtr eventfile = NULL;
 	xmlNodePtr service = NULL;
 	xmlNodePtr event = NULL;
 	xmlNodePtr node = NULL;
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
-	char cclass[20]={0};
-	char cuser[20]={0};;
-	std::string indexname;
-	std::string filename;
+	char cclass[20];
+	char cuser[20];
 	std::string epgname;
 	int ev_count = 0;
 
-	struct stat buf;
-	indexname = epg_dir + "index.tmp";
-	//skip read EPG cache if index.tmp available
-	if (stat(indexname.c_str(), &buf) != 0){
+	epgname = epg_dir + "events.xml";
+	time_t now = time_monotonic_ms();
+	printdate_ms(stdout);
+	printf("[sectionsd] Reading Information from file %s:\n", epgname.c_str());
+	if ((event_parser = parseXmlFile(epgname.c_str()))) {
+		service = xmlDocGetRootElement(event_parser)->xmlChildrenNode;
 
-		indexname = epg_dir + "index.xml";
+		while (service) {
+			onid = xmlGetNumericAttribute(service, "original_network_id", 16);
+			tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
+			sid = xmlGetNumericAttribute(service, "service_id", 16);
 
-		xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
+			event = service->xmlChildrenNode;
 
-		if (index_parser != NULL) {
-			time_t now = time_monotonic_ms();
-			printdate_ms(stdout);
-			printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
+			while (event) {
+				SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
+				node = event->xmlChildrenNode;
 
-			eventfile = xmlDocGetRootElement(index_parser)->xmlChildrenNode;
-
-			while (eventfile) {
-				filename = xmlGetAttribute(eventfile, "name");
-				epgname = epg_dir + filename;
-				if (!(event_parser = parseXmlFile(epgname.c_str()))) {
-					dprintf("unable to open %s for reading\n", epgname.c_str());
+				while (xmlGetNextOccurence(node, "name") != NULL) {
+					e.setName(std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+						  std::string(xmlGetAttribute(node, "string")));
+					node = node->xmlNextNode;
 				}
-				else {
-					service = xmlDocGetRootElement(event_parser)->xmlChildrenNode;
-
-					while (service) {
-						onid = xmlGetNumericAttribute(service, "original_network_id", 16);
-						tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
-						sid = xmlGetNumericAttribute(service, "service_id", 16);
-
-						event = service->xmlChildrenNode;
-
-						while (event) {
-
-							SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
-
-							node = event->xmlChildrenNode;
-
-							while (xmlGetNextOccurence(node, "name") != NULL) {
-								e.setName(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-										std::string(xmlGetAttribute(node, "string")));
-								node = node->xmlNextNode;
-							}
-							while (xmlGetNextOccurence(node, "text") != NULL) {
-								e.setText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-										std::string(xmlGetAttribute(node, "string")));
-								node = node->xmlNextNode;
-							}
-							while (xmlGetNextOccurence(node, "item") != NULL) {
-								e.item = std::string(xmlGetAttribute(node, "string"));
-								node = node->xmlNextNode;
-							}
-							while (xmlGetNextOccurence(node, "item_description") != NULL) {
-								e.itemDescription = std::string(xmlGetAttribute(node, "string"));
-								node = node->xmlNextNode;
-							}
-							while (xmlGetNextOccurence(node, "extended_text") != NULL) {
-								e.appendExtendedText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-											std::string(xmlGetAttribute(node, "string")));
-								node = node->xmlNextNode;
-							}
-							/*
-							if (xmlGetNextOccurence(node, "description") != NULL) {
-								if (xmlGetAttribute(node, "name") != NULL) {
-									e.langName = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "name")));
-								}
-								//printf("Name: %s\n", e->name);
-								if (xmlGetAttribute(node, "text") != NULL) {
-									e.langText = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "text")));
-								}
-								if (xmlGetAttribute(node, "item") != NULL) {
-									e.item = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "item")));
-								}
-								if (xmlGetAttribute(node, "item_description") != NULL) {
-									e.itemDescription = std::string(UTF8_to_Latin1(xmlGetAttribute(node,"item_description")));
-								}
-								if (xmlGetAttribute(node, "extended_text") != NULL) {
-									e.langExtendedText = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "extended_text")));
-								}
-								node = node->xmlNextNode;
-							}
-							*/
-							while (xmlGetNextOccurence(node, "time") != NULL) {
-								e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
-										      xmlGetNumericAttribute(node, "duration", 10)));
-								node = node->xmlNextNode;
-							}
-
-							unsigned int count = 0;
-							while (xmlGetNextOccurence(node, "content") != NULL) {
-								cclass[count] = xmlGetNumericAttribute(node, "class", 16);
-								cuser[count] = xmlGetNumericAttribute(node, "user", 16);
-								node = node->xmlNextNode;
-								count++;
-								if(count > sizeof(cclass)-1)
-									break;
-							}
-							e.contentClassification = std::string(cclass, count);
-							e.userClassification = std::string(cuser, count);
-
-							while (xmlGetNextOccurence(node, "component") != NULL) {
-								SIcomponent c;
-								c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
-								c.componentType = xmlGetNumericAttribute(node, "type", 16);
-								c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
-								c.component = std::string(xmlGetAttribute(node, "text"));
-								e.components.insert(c);
-								node = node->xmlNextNode;
-							}
-							while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
-								e.ratings.insert(SIparentalRating(std::string(UTF8_to_Latin1(xmlGetAttribute(node, "country"))), (unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
-								node = node->xmlNextNode;
-							}
-							while (xmlGetNextOccurence(node, "linkage") != NULL) {
-								SIlinkage l;
-								l.linkageType = xmlGetNumericAttribute(node, "type", 16);
-								l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
-								l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
-								l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
-								l.name = std::string(xmlGetAttribute(node, "linkage_descriptor"));
-								e.linkage_descs.insert(e.linkage_descs.end(), l);
-
-								node = node->xmlNextNode;
-							}
-							//lockEvents();
-							//writeLockEvents();
-							addEvent(e, 0);
-							ev_count++;
-							//unlockEvents();
-
-							event = event->xmlNextNode;
-						}
-
-						service = service->xmlNextNode;
+				while (xmlGetNextOccurence(node, "text") != NULL) {
+					e.setText(std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+						  std::string(xmlGetAttribute(node, "string")));
+					node = node->xmlNextNode;
+				}
+				while (xmlGetNextOccurence(node, "item") != NULL) {
+					e.item = std::string(xmlGetAttribute(node, "string"));
+					node = node->xmlNextNode;
+				}
+				while (xmlGetNextOccurence(node, "item_description") != NULL) {
+					e.itemDescription = std::string(xmlGetAttribute(node, "string"));
+					node = node->xmlNextNode;
+				}
+				while (xmlGetNextOccurence(node, "extended_text") != NULL) {
+					e.appendExtendedText(std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+							     std::string(xmlGetAttribute(node, "string")));
+					node = node->xmlNextNode;
+				}
+				/*
+				if (xmlGetNextOccurence(node, "description") != NULL) {
+					if (xmlGetAttribute(node, "name") != NULL) {
+						e.langName = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "name")));
 					}
-					xmlFreeDoc(event_parser);
+					//printf("Name: %s\n", e->name);
+					if (xmlGetAttribute(node, "text") != NULL) {
+						e.langText = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "text")));
+					}
+					if (xmlGetAttribute(node, "item") != NULL) {
+						e.item = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "item")));
+					}
+					if (xmlGetAttribute(node, "item_description") != NULL) {
+						e.itemDescription = std::string(UTF8_to_Latin1(xmlGetAttribute(node,"item_description")));
+					}
+					if (xmlGetAttribute(node, "extended_text") != NULL) {
+						e.langExtendedText = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "extended_text")));
+					}
+					node = node->xmlNextNode;
+				}
+				*/
+				while (xmlGetNextOccurence(node, "time") != NULL) {
+					e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
+							      xmlGetNumericAttribute(node, "duration", 10)));
+					node = node->xmlNextNode;
 				}
 
-				eventfile = eventfile->xmlNextNode;
-			}
+				int count = 0;
+				while (xmlGetNextOccurence(node, "content") != NULL) {
+					cclass[count] = xmlGetNumericAttribute(node, "class", 16);
+					cuser[count] = xmlGetNumericAttribute(node, "user", 16);
+					node = node->xmlNextNode;
+					count++;
+				}
+				e.contentClassification = std::string(cclass, count);
+				e.userClassification = std::string(cuser, count);
 
-			xmlFreeDoc(index_parser);
-			printdate_ms(stdout);
-			printf("[sectionsd] Reading Information finished after %ld miliseconds (%d events)\n",
-			       time_monotonic_ms()-now, ev_count);
+				while (xmlGetNextOccurence(node, "component") != NULL) {
+					SIcomponent c;
+					c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
+					c.componentType = xmlGetNumericAttribute(node, "type", 16);
+					c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
+					c.component = std::string(xmlGetAttribute(node, "text"));
+					e.components.insert(c);
+					node = node->xmlNextNode;
+				}
+				while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
+					e.ratings.insert(SIparentalRating(std::string(UTF8_to_Latin1(xmlGetAttribute(node, "country"))), (unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
+					node = node->xmlNextNode;
+				}
+				while (xmlGetNextOccurence(node, "linkage") != NULL) {
+					SIlinkage l;
+					l.linkageType = xmlGetNumericAttribute(node, "type", 16);
+					l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
+					l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
+					l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
+					l.name = std::string(xmlGetAttribute(node, "linkage_descriptor"));
+					e.linkage_descs.insert(e.linkage_descs.end(), l);
+					node = node->xmlNextNode;
+				}
+				//lockEvents();
+				//writeLockEvents();
+				addEvent(e, 0);
+				ev_count++;
+				//unlockEvents();
+				event = event->xmlNextNode;
+			}
+			service = service->xmlNextNode;
 		}
+		xmlFreeDoc(event_parser);
+		printdate_ms(stdout);
+		printf("[sectionsd] Reading Information finished after %ld miliseconds (%d events)\n",
+		       time_monotonic_ms()-now, ev_count);
 	}
+	else
+		printf("             [sectionsd] not found.\n");
 	reader_ready = true;
 
 	pthread_exit(NULL);
@@ -4795,44 +4760,17 @@ static void write_epg_xml_header(FILE * fd, const t_original_network_id onid, co
 	fprintf(fd,"\t<service original_network_id=\"%04x\" transport_stream_id=\"%04x\" service_id=\"%04x\">\n",onid,tsid,sid);
 }
 
-static void write_index_xml_header(FILE * fd)
-{
-	fprintf(fd,
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-		"<!--\n"
-		"  This file was automatically generated by the sectionsd.\n"
-		"  It contains all event entries which have been cached\n"
-		"  at time the box was shut down.\n"
-		"-->\n"
-		"<dvbepgfiles>\n");
-}
-
 static void write_epgxml_footer(FILE *fd)
 {
 	fprintf(fd, "\t</service>\n");
 	fprintf(fd, "</dvbepg>\n");
 }
 
-static void write_indexxml_footer(FILE *fd)
-{
-	fprintf(fd, "</dvbepgfiles>\n");
-}
-
-void cp(char * from, char * to)
-{
-	char cmd[256];
-	snprintf(cmd, 256, "cp -f %s %s", from, to);
-	system(cmd);
-}
-
 static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength)
 {
-	FILE * indexfile = NULL;
 	FILE * eventfile =NULL;
 	char filename[100] = "";
-	char tmpname[100] = "";
 	char epgdir[100] = "";
-	char eventname[17] = "";
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
@@ -4846,18 +4784,14 @@ static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength
 
 	strncpy(epgdir, data, dataLength);
 	epgdir[dataLength] = '\0';
-	sprintf(tmpname, "%s/index.tmp", epgdir);
+	sprintf(filename, "%s/events.xml", epgdir);
 
-	if (!(indexfile = fopen(tmpname, "w"))) {
-		printf("[sectionsd] unable to open %s for writing\n", tmpname);
-		goto _ret;
+	if (!(eventfile = fopen(filename, "w"))) {
+		printf("[sectionsd] unable to open %s for writing\n", filename);
 	}
 	else {
 
-		printf("[sectionsd] Writing Information to file: %s\n", tmpname);
-
-		write_index_xml_header(indexfile);
-
+		printf("[sectionsd] Writing Information to file: %s\n", filename);
 		readLockEvents();
 
 		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e =
@@ -4866,14 +4800,6 @@ static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength
 			onid = (*e)->original_network_id;
 			tsid = (*e)->transport_stream_id;
 			sid = (*e)->service_id;
-			snprintf(eventname,17,"%04x%04x%04x.xml",onid,tsid,sid);
-			sprintf(filename, "%s/%s", epgdir, eventname);
-			if (!(eventfile = fopen(filename, "w"))) {
-				write_indexxml_footer(indexfile);
-				fclose(indexfile);
-				goto _done;
-			}
-			fprintf(indexfile, "\t<eventfile name=\"%s\"/>\n",eventname);
 			write_epg_xml_header(eventfile,onid,tsid,sid);
 
 			while (e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) {
@@ -4881,36 +4807,22 @@ static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength
 					onid = (*e)->original_network_id;
 					tsid = (*e)->transport_stream_id;
 					sid = (*e)->service_id;
-					write_epgxml_footer(eventfile);
-					fclose(eventfile);
-					snprintf(eventname,17,"%04x%04x%04x.xml",onid,tsid,sid);
-					sprintf(filename, "%s/%s", epgdir, eventname);
-					if (!(eventfile = fopen(filename, "w"))) {
-						goto _done;
-					}
-					fprintf(indexfile, "\t<eventfile name=\"%s\"/>\n", eventname);
-					write_epg_xml_header(eventfile,onid,tsid,sid);
+					fprintf(eventfile,
+						"\t</service>\n"
+						"\t<service original_network_id=\"%04x\""
+						" transport_stream_id=\"%04x\""
+						" service_id=\"%04x\">\n",onid,tsid,sid);
 				}
 				(*e)->saveXML(eventfile);
 				e ++;
 			}
 			write_epgxml_footer(eventfile);
-			fclose(eventfile);
-
 		}
-_done:
 		unlockEvents();
-		write_indexxml_footer(indexfile);
-		fclose(indexfile);
+		fclose(eventfile);
 
 		printf("[sectionsd] Writing Information finished\n");
 	}
-	strncpy(filename, data, dataLength);
-	filename[dataLength] = '\0';
-	strncat(filename, "/index.xml", 10);
-
-	cp(tmpname, filename);
-	unlink(tmpname);
 _ret:
 	eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
 	return ;
