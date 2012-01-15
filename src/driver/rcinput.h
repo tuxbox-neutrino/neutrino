@@ -32,12 +32,15 @@
 #ifndef __MOD_rcinput__
 #define __MOD_rcinput__
 
+#include <config.h>
 #include <linux/input.h>
 #include <stdint.h>
 #include <sys/types.h>
 #include <string>
 #include <vector>
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 #include <coolstream/nevis_ir.h>
+#endif
 
 #ifndef KEY_OK
 #define KEY_OK           0x160
@@ -149,7 +152,9 @@ class CRCInput
 		int translate(int code, int num);
 		void calculateMaxFd(void);
 		int checkTimers();
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 		void set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address);
+#endif
 	public:
 		//rc-code definitions
 		static const neutrino_msg_t RC_Repeat   = 0x0400;

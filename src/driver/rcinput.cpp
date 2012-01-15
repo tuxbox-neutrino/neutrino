@@ -1528,6 +1528,8 @@ void CRCInput::play_click()
 {
 }
 
+
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 // hint: ir_protocol_t and other useful things are defined in nevis_ir.h
 void CRCInput::set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address)
 {
@@ -1590,3 +1592,8 @@ void CRCInput::set_rc_hw(void)
 	
 	set_rc_hw(ir_protocol, ir_address);
 }
+#else
+void CRCInput::set_rc_hw(void)
+{
+}
+#endif
