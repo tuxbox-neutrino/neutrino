@@ -1167,11 +1167,6 @@ ssize_t cPlayback::read_mpeg()
 		if (count + pesPacketLen >= pesbuf_pos)
 		{
 			lt_debug("buffer len: %ld, pesPacketLen: %d :-(\n", pesbuf_pos - count, pesPacketLen);
-			if (count != 0)
-			{
-				memmove(pesbuf, ppes, pesbuf_pos - count);
-				pesbuf_pos -= count;
-			}
 			break;
 		}
 
@@ -1179,8 +1174,6 @@ ssize_t cPlayback::read_mpeg()
 		if ((tsPacksCount + 1) * 188 > INBUF_SIZE - inbuf_pos)
 		{
 			lt_info("not enough size in inbuf (needed %d, got %d)\n", (tsPacksCount + 1) * 188, INBUF_SIZE - inbuf_pos);
-			memmove(pesbuf, ppes, pesbuf_pos - count);
-			pesbuf_pos -= count;
 			break;
 		}
 
@@ -1223,10 +1216,10 @@ ssize_t cPlayback::read_mpeg()
 			}
 		} //if (av)
 
-		memmove(pesbuf, ppes + pesPacketLen, pesbuf_pos - count - pesPacketLen);
-		pesbuf_pos -= count + pesPacketLen;
-		count = 0; /* we shifted everything to the start of the buffer => offset == 0 */
+		count += pesPacketLen;
 	}
+	memmove(pesbuf, pesbuf + count, pesbuf_pos - count);
+	pesbuf_pos -= count;
 	return ret;
 }
 
