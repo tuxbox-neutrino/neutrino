@@ -1550,6 +1550,7 @@ void CNeutrinoApp::InitZapper()
 	}
 	firstChannel();
 	lastChannelMode = g_settings.channel_mode;
+	SDTreloadChannels = false;
 	channelsInit();
 
 	if(firstchannel.mode == 't') {
@@ -2865,8 +2866,9 @@ _repeat:
 		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_SERVICES_UPD) {
-		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
-				CMessageBox::mbrBack,CMessageBox::mbBack, NEUTRINO_ICON_INFO);
+		SDTreloadChannels = true;
+//		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
+//				CMessageBox::mbrBack,CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 	}
 	if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
 		delete [] (unsigned char*) data;
@@ -2889,6 +2891,11 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 	}
 
 	if(do_shutdown) {
+		if(SDTreloadChannels){
+			SDT_ReloadChannels();
+			SDTreloadChannels = false;
+		}
+
 		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
 		delete CRecordManager::getInstance();
@@ -3321,7 +3328,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 			//g_Controld->setScartMode( 0 );
 		}
 		StopSubtitles();
-
+		if(SDTreloadChannels && !CRecordManager::getInstance()->RecordingStatus()){
+			SDT_ReloadChannels();
+			SDTreloadChannels = false;
+		}
 		frameBuffer->useBackground(false);
 		frameBuffer->paintBackground();
 
@@ -3936,4 +3946,17 @@ void CNeutrinoApp::SelectSubtitles()
 			}
 		}
 	}
+}
+void CNeutrinoApp::SDT_ReloadChannels()
+{
+  			g_Zapit->reinitChannels();
+			channelsInit();
+			t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+			channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
+			if(old_b_id >= 0) {
+				bouquetList->activateBouquet(old_b_id, false);
+				old_b_id = -1;
+				g_RCInput->postMsg(CRCInput::RC_ok, 0);
+			}
+
 }
