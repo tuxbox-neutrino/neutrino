@@ -54,7 +54,9 @@
 #include <driver/shutdown_count.h>
 #include <driver/stream2file.h>
 #include <driver/record.h>
+#ifdef SCREENSHOT
 #include <driver/screenshot.h>
+#endif
 #include <driver/volume.h>
 
 #include "gui/audioplayer.h"
@@ -2090,6 +2092,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					StartSubtitles(res < 0);
 				}
 			}
+#ifdef SCREENSHOT
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 				for(int i = 0; i < g_settings.screenshot_count; i++) {
 					CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
@@ -2097,6 +2100,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					sc->Start();
 				}
 			}
+#endif
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
 				StopSubtitles();
@@ -2510,6 +2514,7 @@ _repeat:
 		g_videoSettings->SwitchFormat();
 		return messages_return::handled;
 	}
+#ifdef SCREENSHOT
 	else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 		//video+osd scaled to osd size
 		CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
@@ -2517,6 +2522,7 @@ _repeat:
 		sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
 		sc->Start();
 	}
+#endif
 
 	/* ================================== MESSAGES ================================================ */
 	else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {

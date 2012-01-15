@@ -33,7 +33,6 @@ libneutrino_driver_a_SOURCES = \
 	radiotools.cpp \
 	radiotext.cpp \
 	fader.cpp \
-	screenshot.cpp \
 	ringbuffer.c \
 	volume.cpp
 

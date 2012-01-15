@@ -40,7 +40,9 @@
 #include <gui/widget/helpbox.h>
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
+#ifdef SCREENSHOT
 #include <driver/screenshot.h>
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -586,6 +588,7 @@ void CMoviePlayerGui::PlayFile(void)
 			}
 			if(restore)
 				FileTime.show(position);
+#ifdef SCREENSHOT
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
 
 			char ending[(sizeof(int)*2) + 6] = ".jpg";
@@ -614,6 +617,7 @@ void CMoviePlayerGui::PlayFile(void)
 			if(g_settings.screenshot_cover && !g_settings.screenshot_video)
 				sc->EnableVideo(true);
 			sc->Start();
+#endif
 
 		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||
 				msg == NeutrinoMessages::RECORD_START) {
