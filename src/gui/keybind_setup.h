@@ -79,19 +79,10 @@ class CKeybindSetup : public CMenuTarget
 			KEYBINDS_COUNT
 		};
 
-		enum remote_control_t
-		{
-			REMOTECONTROL_STANDARD = 0,
-			REMOTECONTROL_NEO1 = 1,
-
-			REMOTECONTROL_COUNT
-		};
-
 	private:
 		CFrameBuffer *frameBuffer;
 		CKeySetupNotifier      *keySetupNotifier;
-		CKeyChooser * keychooser[KEYBINDS_COUNT];
-		
+		CKeyChooser *keychooser[KEYBINDS_COUNT];
 		int width;
 
 		int showKeySetup();

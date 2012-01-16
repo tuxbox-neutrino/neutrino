@@ -48,7 +48,6 @@
 #include <neutrino.h>
 
 #include <gui/infoviewer.h>
-#include <gui/keybind_setup.h>
 #include <gui/bouquetlist.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/hintbox.h>
@@ -868,8 +867,7 @@ void CInfoViewer::loop(bool show_dot)
 
 			showIcon_16_9();
 			showIcon_Resolution();
-		} else if ((g_settings.remote_control_hardware != CKeybindSetup::REMOTECONTROL_NEO1) && 
-			   ( g_settings.virtual_zap_mode && ((msg == CRCInput::RC_right) || msg == CRCInput::RC_left ))) {
+		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
 			virtual_zap_mode = true;
 			res = messages_return::cancel_all;
 			hideIt = true;

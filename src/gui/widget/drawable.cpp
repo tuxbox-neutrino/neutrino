@@ -80,7 +80,7 @@ DText::DText(const char *text)
 
 void DText::init()
 {
-	m_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getRenderWidth(m_text, true); // UTF-8
+	m_width = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(m_text, true); // UTF-8
 	m_height = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 }
 

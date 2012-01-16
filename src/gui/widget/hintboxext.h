@@ -55,6 +55,7 @@ class CHintBoxExt
 
 	int                      m_width;
 	int                      m_height;
+	int                      textStartX;
 
 	int                      m_fheight;
 	int                      m_theight;

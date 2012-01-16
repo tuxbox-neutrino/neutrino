@@ -130,7 +130,7 @@ private:
 //	bool				fromflash;
 	bool 				init_cec_setting;
 	int				lastChannelMode;
-
+	bool 				SDTreloadChannels;
 	struct timeval                  standby_pressed_at;
 
 	CZapitClient::responseGetLastChannel    firstchannel;
@@ -146,6 +146,7 @@ private:
 	COnekeyPluginChangeExec		*OnekeyPluginChanger;
 	CIPChangeNotifier		*MyIPChanger;
 
+	void SDT_ReloadChannels();
 	void firstChannel();
 	void setupNetwork( bool force= false );
 	void setupNFS();

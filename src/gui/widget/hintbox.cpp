@@ -60,6 +60,8 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 	char * begin;
 	char * pos;
 	int    nw;
+	int    scrollWidth = 0;
+	int    maxLineWidth = 0;
 
 	message = strdup(Text);
 
@@ -68,6 +70,7 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	height  = theight + fheight;
+	textStartX = 0;
 
 	caption = Caption;
 
@@ -98,9 +101,10 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 	unsigned int additional_width;
 
 	if (entries_per_page < line.size())
-		additional_width = 20 + 15;
+		scrollWidth = 15;
 	else
-		additional_width = 20 +  0;
+		scrollWidth = 0;
+	additional_width = 20 + scrollWidth;
 
 	if (Icon != NULL)
 	{
@@ -118,7 +122,9 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 
 	for (std::vector<char *>::const_iterator it = line.begin(); it != line.end(); it++)
 	{
-		nw = additional_width + g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it, true); // UTF-8
+		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it, true); // UTF-8
+		maxLineWidth = std::max(maxLineWidth, w);
+		nw = additional_width + w;
 		if (nw > width)
 			width = nw;
 	}
@@ -126,6 +132,7 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 	/* make sure we don't overflow the usable area */
 	if (nw > (int)CFrameBuffer::getInstance()->getScreenWidth())
 		width = CFrameBuffer::getInstance()->getScreenWidth();
+	textStartX = (width - scrollWidth - maxLineWidth) / 2;
 
 	window = NULL;
 }
@@ -195,7 +202,7 @@ void CHintBox::refresh(void)
 	int ypos  = theight + (fheight >> 1);
 
 	for (std::vector<char *>::const_iterator it = line.begin() + (entries_per_page * current_page); ((it != line.end()) && (count > 0)); it++, count--)
-		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], 10, (ypos += fheight), width, *it, (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
+		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], textStartX, (ypos += fheight), width, *it, (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
 
 	if (entries_per_page < line.size())
 	{

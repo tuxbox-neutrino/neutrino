@@ -379,7 +379,16 @@ struct SNeutrinoSettings
 	int cacheTXT;
 	int minimode;
 	int mode_clock;
-	int virtual_zap_mode;
+
+	enum MODE_LEFT_RIGHT_KEY_TV_SETTINGS 
+	{
+		ZAP     = 0,
+		VZAP    = 1,
+		VOLUME  = 2,
+		INFOBAR = 3
+	};
+	int mode_left_right_key_tv;
+
 	int spectrum;
 	int pip_width;
 	int pip_height;

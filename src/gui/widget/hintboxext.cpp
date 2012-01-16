@@ -105,6 +105,9 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	m_fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
 	m_height  = m_theight + m_fheight;
 	m_maxEntriesPerPage = 0;
+	int maxLineWidth = 0;
+	int scrollWidth = 0;
+	textStartX = 0;
 
 	m_caption = Caption;
 
@@ -126,6 +129,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 			if ((*item)->getType() == Drawable::DTYPE_PAGEBREAK)
 				pagebreak = true;
 		}
+                maxLineWidth = std::max(maxLineWidth, lineWidth);
                 if (lineWidth > maxWidth)
 			maxWidth = lineWidth;
 		m_height += maxHeight;
@@ -168,10 +172,12 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	m_pages = page + 1;
 	unsigned int additional_width;
 
-	if (m_startEntryOfPage.size() > 1)
-		additional_width = 20 + 15;
+	if (has_scrollbar()) 
+		scrollWidth = 15;
 	else
-		additional_width = 20 +  0;
+		scrollWidth = 0;
+	additional_width = 30 + scrollWidth;
+	m_width += additional_width;
 
 	if (Icon != NULL)
 	{
@@ -185,6 +191,7 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 
 	if (nw > m_width)
 		m_width = nw;
+	textStartX = (m_width - scrollWidth - maxLineWidth) / 2;
 
 	m_window = NULL;
 }
@@ -258,7 +265,7 @@ void CHintBoxExt::refresh(bool toround)
 		 it != m_lines.begin() + m_startEntryOfPage[m_currentPage+1]
 			 && it != m_lines.end(); it++)
 	{
-		int xPos = 10;
+		int xPos = textStartX;
 		int maxHeight = 0;
 		for (std::vector<Drawable*>::iterator d = it->begin();d!=it->end();d++)
 		{

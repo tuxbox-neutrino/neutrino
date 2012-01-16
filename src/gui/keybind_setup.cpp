@@ -42,6 +42,7 @@
 #include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
+#include <gui/widget/messagebox.h>
 #include <gui/widget/stringinput.h>
 
 #include "gui/filebrowser.h"
@@ -102,15 +103,26 @@ int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	res = showKeySetup();
-	
+
 	return res;
 }
 
-#define KEYBINDINGMENU_REMOTECONTROL_OPTION_COUNT 2
-const CMenuOptionChooser::keyval KEYBINDINGMENU_REMOTECONTROL_OPTIONS[KEYBINDINGMENU_REMOTECONTROL_OPTION_COUNT] =
+#define KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT 4
+const CMenuOptionChooser::keyval KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS[KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT] =
 {
-	{ CKeybindSetup::REMOTECONTROL_STANDARD, LOCALE_KEYBINDINGMENU_REMOTECONTROL_STANDARD },
-	{ CKeybindSetup::REMOTECONTROL_NEO1,     LOCALE_KEYBINDINGMENU_REMOTECONTROL_NEO1     }
+	{ CRCInput::RC_HW_COOLSTREAM,   LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM   },
+	{ CRCInput::RC_HW_DBOX,         LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX         },
+	{ CRCInput::RC_HW_PHILIPS,      LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS      },
+	{ CRCInput::RC_HW_TRIPLEDRAGON, LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_TRIPLEDRAGON }
+};
+
+#define KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT 4
+const CMenuOptionChooser::keyval KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_OPTIONS[KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT] =
+{
+	{ SNeutrinoSettings::ZAP,     LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_ZAP     },
+	{ SNeutrinoSettings::VZAP,    LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_VZAP    },
+	{ SNeutrinoSettings::VOLUME,  LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_VOLUME  },
+	{ SNeutrinoSettings::INFOBAR, LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_INFOBAR }
 };
 
 #define KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT 3
@@ -174,12 +186,22 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 
 int CKeybindSetup::showKeySetup()
 {
+	//save original rc hardware selection and initialize text strings
+	int org_remote_control_hardware = g_settings.remote_control_hardware;
+	char RC_HW_str[4][32];
+	snprintf(RC_HW_str[CRCInput::RC_HW_COOLSTREAM],   sizeof(RC_HW_str[CRCInput::RC_HW_COOLSTREAM])-1,   "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_COOLSTREAM));
+	snprintf(RC_HW_str[CRCInput::RC_HW_DBOX],         sizeof(RC_HW_str[CRCInput::RC_HW_DBOX])-1,         "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_DBOX));
+	snprintf(RC_HW_str[CRCInput::RC_HW_PHILIPS],      sizeof(RC_HW_str[CRCInput::RC_HW_PHILIPS])-1,      "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_PHILIPS));
+	snprintf(RC_HW_str[CRCInput::RC_HW_TRIPLEDRAGON], sizeof(RC_HW_str[CRCInput::RC_HW_TRIPLEDRAGON])-1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_TRIPLEDRAGON));
+	char RC_HW_msg[256];
+	snprintf(RC_HW_msg, sizeof(RC_HW_msg)-1, "%s", g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART1));
+
 	//keysetup menu
 	CMenuWidget* keySettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP);
+	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING);
 	
 	//keybindings menu
 	CMenuWidget* bindSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_KEYBINDING, width, MN_WIDGET_ID_KEYSETUP_KEYBINDING);
-	keySettings->addIntroItems(LOCALE_MAINSETTINGS_KEYBINDING);
 	
 	//keybindings
 	int shortcut = 1;
@@ -196,13 +218,26 @@ int CKeybindSetup::showKeySetup()
 	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
+	keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE, &g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCK, true, g_settings.repeat_blocker, keySettings_repeatBlocker));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
-	keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL, &g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_OPTION_COUNT, true));
 
-	
 	int res = keySettings->exec(NULL, "");
 	keySettings->hide();
+
+	//check if rc hardware selection has changed before leaving the menu
+	if (org_remote_control_hardware != g_settings.remote_control_hardware) {
+		g_RCInput->CRCInput::set_rc_hw();
+		strcat(RC_HW_msg, RC_HW_str[org_remote_control_hardware]);
+		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART2));
+		strcat(RC_HW_msg, RC_HW_str[g_settings.remote_control_hardware]);
+		strcat(RC_HW_msg, g_Locale->getText(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE_MSG_PART3));
+		if(ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, RC_HW_msg, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NEUTRINO_ICON_INFO, 450, 15, true) == CMessageBox::mbrNo) {
+			g_settings.remote_control_hardware = org_remote_control_hardware;
+			g_RCInput->CRCInput::set_rc_hw();
+		}
+	}	
+
 	delete keySettings;
 	return res;
 }
@@ -244,8 +279,8 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_FORMAT, &g_settings.screenshot_format, KEYBINDINGMENU_SCREENSHOT_FMT_OPTIONS, KEYBINDINGMENU_SCREENSHOT_FMT_OPTION_COUNT, true));
 	//bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_MENU_LEFT_EXIT, &g_settings.menu_left_exit, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_AUDIO_RUN_PLAYER, &g_settings.audio_run_player, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	bindSettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV, &g_settings.mode_left_right_key_tv, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_OPTIONS, KEYBINDINGMENU_MODE_LEFT_RIGHT_KEY_TV_COUNT, true));
 }
 
 void CKeybindSetup::showKeyBindModeSetup(CMenuWidget *bindSettings_modes)

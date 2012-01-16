@@ -583,14 +583,24 @@ keybindingmenu.channelup channel up
 keybindingmenu.head Edit Keybindings
 keybindingmenu.lastchannel Quick Zap
 keybindingmenu.misc Misc
+keybindingmenu.mode_left_right_key_tv Left/Right Key Behavior in TV-Mode
+keybindingmenu.mode_left_right_key_tv_infobar Show Infobar
+keybindingmenu.mode_left_right_key_tv_volume Volume Control
+keybindingmenu.mode_left_right_key_tv_vzap Virtual Zap
+keybindingmenu.mode_left_right_key_tv_zap Zap
 keybindingmenu.modechange Modechange
 keybindingmenu.pagedown page down
 keybindingmenu.pageup page up
 keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
-keybindingmenu.remotecontrol Type
-keybindingmenu.remotecontrol_neo1 Neo1
-keybindingmenu.remotecontrol_standard Standard
+keybindingmenu.remotecontrol_hardware Hardware
+keybindingmenu.remotecontrol_hardware_coolstream Coolstream
+keybindingmenu.remotecontrol_hardware_dbox dbox
+keybindingmenu.remotecontrol_hardware_msg_part1 The remote control has been changed from '
+keybindingmenu.remotecontrol_hardware_msg_part2 ' to '
+keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs this correct?\nPlease confirm the selection within 15 seconds by using the new remote control.\nOtherwise the selection will be reverted.
+keybindingmenu.remotecontrol_hardware_philips Philips
+keybindingmenu.remotecontrol_hardware_tripledragon Triple Dragon
 keybindingmenu.repeatblock generic delay
 keybindingmenu.repeatblockgeneric repeat delay
 keybindingmenu.sort change sort order
@@ -727,7 +737,6 @@ miscsettings.shutdown_count_hint2 to deep standby (0 = off).
 miscsettings.shutdown_real Enable standby
 miscsettings.shutdown_real_rcdelay Delayed shutdown
 miscsettings.sleeptimer Inactivity shutdown timer
-miscsettings.virtual_zap_mode Virtual zap
 miscsettings.zapto_pre_time Zapto Start Time Correction (minutes)
 motorcontrol.calc_positions (Re)-Calculate Positions
 motorcontrol.disable_limit Disable (soft) Limits
