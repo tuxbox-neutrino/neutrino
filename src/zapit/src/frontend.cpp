@@ -107,7 +107,7 @@ static const struct dtv_property dvbc_cmdargs[] = {
 	struct timeval tv, tv2;				\
 	unsigned int timer_msec = 0;
 
-#define FE_TIMER_START()					\
+#define FE_TIMER_START()				\
 	gettimeofday(&tv, NULL);
 
 #define FE_TIMER_STOP(label)				\
@@ -134,6 +134,8 @@ typedef enum dvb_fec {
 	fNone = 15
 } dvb_fec_t;
 
+#define TIME_STEP 200
+#define TIMEOUT_MAX_MS (feTimeout*100)
 /*********************************************************************************************************/
 // Global fe instance
 CFrontend *CFrontend::currentFe = NULL;
@@ -153,7 +155,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	fd		= -1;
 	fenumber	= Number;
 	adapter		= Adapter;
-	slave		= false;
+	slave		= (Number != 0); //false;
 	standby		= true;
 	locked		= false;
 	usecount	= 0;
@@ -424,8 +426,6 @@ uint32_t CFrontend::getUncorrectedBlocks(void) const
 	return blocks;
 }
 
-#define TIME_STEP 200
-#define TIMEOUT_MAX_MS (feTimeout*100)
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
 	struct dvb_frontend_event event;
@@ -440,7 +440,7 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 	memset(&event, 0, sizeof(struct dvb_frontend_event));
 
-	printf("[fe%d] getEvent: max timeout: %d\n", fenumber, TIMEOUT_MAX_MS);
+	//printf("[fe%d] getEvent: max timeout: %d\n", fenumber, TIMEOUT_MAX_MS);
 	FE_TIMER_START();
 
 	//while (msec <= TIMEOUT_MAX_MS ) {
@@ -770,7 +770,9 @@ int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool 
 		struct dvb_frontend_event event;
 		event = getEvent();
 
-		FE_TIMER_STOP("tuning took");
+		if(tuned) {
+			FE_TIMER_STOP("tuning took");
+		}
 	}
 
 	return tuned;
@@ -1085,7 +1087,7 @@ bool CFrontend::retuneChannel(void)
 int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization, bool nowait)
 {
 	TP_params TP;
-	printf("[fe%d] tune to frequency %d pol %s srate %d\n", fenumber, feparams->frequency, polarization ? "Vertical/Right" : "Horizontal/Left", feparams->u.qpsk.symbol_rate);
+	//printf("[fe%d] tune to frequency %d pol %s srate %d\n", fenumber, feparams->frequency, polarization ? "Vertical/Right" : "Horizontal/Left", feparams->u.qpsk.symbol_rate);
 
 	memmove(&curfe, feparams, sizeof(struct dvb_frontend_parameters));
 	memmove(&TP.feparams, feparams, sizeof(struct dvb_frontend_parameters));
@@ -1134,7 +1136,10 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 #endif
 	}
 
-	printf("[fe%d] tuner to frequency %d (offset %d)\n", fenumber, feparams->frequency, freq_offset);
+	//printf("[fe%d] tuner to frequency %d (offset %d timeout %d)\n", fenumber, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
+	//printf("[fe%d] tune to frequency %d (tuner %d offset %d timeout %d)\n", fenumber, freq, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
+	printf("[fe%d] tune to %d pol %s srate %d (tuner %d offset %d timeout %d)\n", fenumber,
+			freq, TP->polarization ? "V/R" : "H/L", feparams->u.qpsk.symbol_rate, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(feparams);
 
 #if 0
@@ -1227,7 +1232,7 @@ void CFrontend::setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequenc
 	fe_sec_mini_cmd_t b = (sat_no & 1) ? SEC_MINI_B : SEC_MINI_A;
 	int delay = 0;
 
-	INFO("[fe%d] diseqc input  %d -> %d", fenumber, diseqc, sat_no);
+	printf("[fe%d] diseqc input  %d -> %d\n", fenumber, diseqc, sat_no);
 	if (slave)
 		return;
 
@@ -1365,7 +1370,7 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 
 	//if(config.diseqcType == DISEQC_ADVANCED) //FIXME testing
 	{
-		printf("[fe%d] SatellitePosition %d -> %d\n", fenumber, currentSatellitePosition, satellitePosition);
+		//printf("[fe%d] SatellitePosition %d -> %d\n", fenumber, currentSatellitePosition, satellitePosition);
 		bool moved = false;
 
 		sat_iterator_t sit = satellites.find(satellitePosition);
@@ -1380,7 +1385,8 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 		if (sit != satellites.end())
 			old_position = sit->second.motor_position;
 
-		printf("[fe%d] motorPosition %d -> %d usals %s\n", fenumber, old_position, new_position, use_usals ? "on" : "off");
+		//printf("[fe%d] motorPosition %d -> %d usals %s\n", fenumber, old_position, new_position, use_usals ? "on" : "off");
+		printf("[fe%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", fenumber, currentSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
 
 		if (currentSatellitePosition == satellitePosition)
 			return 0;
