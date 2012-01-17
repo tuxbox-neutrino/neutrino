@@ -660,7 +660,7 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 	++i;
 	break;
 	}
-
+//printf("convertDVBUTF8: table %d new table %d\n", table, newtable);
 	if(!table)
 		table = newtable;
 	if(table == 64 && (newtable !=0 )){//for ISO6937
@@ -697,6 +697,8 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 			res[t++]= 0x20;
 		else if ((code == 0x8A))
 			res[t++]= '\n'; // 0x8a is vertical tab. Just use newline for now.
+		else if((code >= 0x80) && (code <= 0x9F))
+			continue;
 		else if (code < 0x800) // two byte mapping
 		{
 			res[t++]=(code>>6)|0xC0;
