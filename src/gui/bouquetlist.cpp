@@ -57,7 +57,6 @@
 #include <neutrino.h>
 
 extern CBouquetManager *g_bouquetManager;
-extern int g_channel_list_changed;
 
 CBouquetList::CBouquetList(const char * const Name)
 {
@@ -381,7 +380,7 @@ int CBouquetList::show(bool bShowChannelList)
 		else if ( msg == CRCInput::RC_setup) {
 			int ret = doMenu();
 			if(ret > 0) {
-				g_channel_list_changed = true;
+				CNeutrinoApp::getInstance ()->g_channel_list_changed = true;
 				res = -4;
 				loop = false;
 			} else if(ret < 0)

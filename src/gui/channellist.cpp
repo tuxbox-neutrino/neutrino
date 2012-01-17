@@ -84,7 +84,6 @@ extern CBouquetList   * RADIOallList;
 
 //extern t_channel_id rec_channel_id;
 extern bool autoshift;
-extern int g_channel_list_changed;
 
 extern CBouquetManager *g_bouquetManager;
 void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode, t_channel_id *chidlist, int clen);
@@ -662,8 +661,8 @@ int CChannelList::show()
 		else if ( msg == CRCInput::RC_setup) {
 			old_b_id = bouquetList->getActiveBouquetNumber();
 			fader.Stop();
-			g_channel_list_changed = doChannelMenu();
-			if(g_channel_list_changed) {
+			CNeutrinoApp::getInstance ()->g_channel_list_changed = doChannelMenu();
+			if(CNeutrinoApp::getInstance ()->g_channel_list_changed) {
 				res = -4;
 				loop = false;
 			} else {

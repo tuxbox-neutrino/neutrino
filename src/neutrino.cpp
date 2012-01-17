@@ -148,8 +148,6 @@ extern cAudio * audioDecoder;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
-int g_channel_list_changed;
-
 void stop_daemons(bool stopall = true);
 // uncomment if you want to have a "test" menue entry  (rasc)
 

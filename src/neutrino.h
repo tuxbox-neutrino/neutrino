@@ -130,7 +130,6 @@ private:
 //	bool				fromflash;
 	bool 				init_cec_setting;
 	int				lastChannelMode;
-	bool 				SDTreloadChannels;
 	struct timeval                  standby_pressed_at;
 
 	CZapitClient::responseGetLastChannel    firstchannel;
@@ -229,6 +228,8 @@ public:
 	void SelectSubtitles();
 	void showInfo(void);
 	CConfigFile* getConfigFile() {return &configfile;};
+	bool 		SDTreloadChannels;
+	bool 		g_channel_list_changed;
 };
 #endif
 
