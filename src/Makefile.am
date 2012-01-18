@@ -85,6 +85,7 @@ neutrino_LDADD = \
 	@AVUTIL_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS) \
+	-ldvbsi++ \
 	-lungif \
 	-ljpeg \
 	-lOpenThreads \
