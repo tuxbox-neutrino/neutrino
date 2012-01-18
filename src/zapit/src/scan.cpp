@@ -33,6 +33,7 @@
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
+#include <zapit/scansdt.h>
 
 #define NIT_THREAD
 
@@ -272,12 +273,15 @@ _repeat:
 			}
 #endif
 		//INFO("parsing SDT (tsid:onid %04x:%04x)", tI->second.transport_stream_id, tI->second.original_network_id);
+#if 0
 		int status = parse_sdt(&tI->second.transport_stream_id, &tI->second.original_network_id, satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
 		if(status < 0) {
 			printf("[scan] SDT failed !\n");
 			continue;
 		}
-
+#endif
+		CSdt sdt(satellitePosition, freq);
+		sdt.Parse(&tI->second.transport_stream_id, &tI->second.original_network_id);
 		TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
 				freq /*tI->second.feparams.frequency/1000*/, satellitePosition, tI->second.original_network_id,
 				tI->second.transport_stream_id);
