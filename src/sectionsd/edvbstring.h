@@ -6,7 +6,7 @@ int isUTF8(const std::string &string);
 std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid = 0);
 int readEncodingFile();
 
-inline std::string convertDVBUTF8(const std::string &string, int table=0, int tsidonid=0)
+inline std::string stringDVBUTF8(const std::string &string, int table=0, int tsidonid=0)
 {
 	return convertDVBUTF8((const char*)string.c_str(), string.length(), table, tsidonid);
 }
