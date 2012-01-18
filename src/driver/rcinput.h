@@ -38,7 +38,7 @@
 #include <sys/types.h>
 #include <string>
 #include <vector>
-#ifndef HAVE_TRIPLEDRAGON
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 #include <coolstream/nevis_ir.h>
 #endif
 
@@ -152,7 +152,7 @@ class CRCInput
 		int translate(int code, int num);
 		void calculateMaxFd(void);
 		int checkTimers();
-#ifndef HAVE_TRIPLEDRAGON
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
 		void set_rc_hw(ir_protocol_t ir_protocol, unsigned int ir_address);
 #endif
 	public:
