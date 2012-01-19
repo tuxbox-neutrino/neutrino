@@ -33,13 +33,31 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	satellitePosition = p_satellite_position;
 	freq = p_freq;
 	channel_id = CREATE_CHANNEL_ID64;
+	Init();
+//printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
+}
+
+CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq)
+{
+	name = p_name;
+	channel_id = p_channel_id;
+	service_id = GET_SERVICE_ID_FROM_CHANNEL_ID(channel_id);
+	transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_CHANNEL_ID(channel_id);
+	original_network_id = GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(channel_id);
+	serviceType = p_service_type;
+	satellitePosition = p_satellite_position;
+	freq = p_freq;
+	Init();
+}
+
+void CZapitChannel::Init()
+{
 	caPmt = NULL;
 	rawPmt = NULL;
 	type = 0;
 	number = 0;
 	scrambled = 0;
 	pname = NULL;
-	//currentEvent = NULL;
 	pmtPid = 0;
 	resetPids();
 	ttx_language_code = "";
@@ -48,7 +66,6 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	has_bouquet = false;
 	record_demux = 2;
 	polarization = 0;
-//printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
 }
 
 CZapitChannel::~CZapitChannel(void)
@@ -58,9 +75,6 @@ CZapitChannel::~CZapitChannel(void)
 	setCaPmt(NULL);
 	setRawPmt(NULL);
 	camap.clear();
-
-	//if(currentEvent)
-	//	delete currentEvent;
 }
 
 CZapitAudioChannel *CZapitChannel::getAudioChannel(unsigned char index)
