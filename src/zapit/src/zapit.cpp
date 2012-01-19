@@ -45,6 +45,7 @@
 #include <zapit/pmt.h>
 #include <zapit/scan.h>
 #include <zapit/fastscan.h>
+#include <zapit/scansdt.h>
 #include <zapit/settings.h>
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
@@ -2215,7 +2216,6 @@ bool CZapitSdtMonitor::Stop()
 void CZapitSdtMonitor::run()
 {
 	time_t tstart, tcur, wtime = 0;
-	int ret;
 	t_transport_stream_id           transport_stream_id = 0;
 	t_original_network_id           original_network_id = 0;
 	t_satellite_position            satellitePosition = 0;
@@ -2265,10 +2265,16 @@ void CZapitSdtMonitor::run()
 
 			CServiceManager::getInstance()->RemoveCurrentChannels();
 
-			ret = parse_current_sdt(transport_stream_id, original_network_id, satellitePosition, freq);
+#if 0
+			int ret = parse_current_sdt(transport_stream_id, original_network_id, satellitePosition, freq);
 			if(ret) {
 				if(ret == -1)
 					printf("[sdt monitor] scanSDT broken ?\n");
+				continue;
+			}
+#endif
+			CSdt sdt(satellitePosition, freq, true);
+			if(!sdt.Parse(transport_stream_id, original_network_id)) {
 				continue;
 			}
 			sdt_tp.insert(std::pair <transponder_id_t, time_t> (tpid, time_monotonic()));
