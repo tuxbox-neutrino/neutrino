@@ -161,6 +161,7 @@ class CZapitChannel
 
 		uint8_t				record_demux;
 
+		void				Init();
 		friend class CChannelList;
 
 	public:
@@ -179,6 +180,7 @@ class CZapitChannel
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
+		CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq);
 		~CZapitChannel(void);
 
 		/* get methods - read only variables */
@@ -243,6 +245,11 @@ class CZapitChannel
 		void dumpBouquetXml(FILE * fd);
 		void setRecordDemux(int num) { record_demux = num; };
 		int  getRecordDemux() { return record_demux; };
+		static t_channel_id makeChannelId(t_satellite_position sat, freq_id_t freq,
+				t_transport_stream_id tsid, t_original_network_id onid, t_service_id sid)
+		{
+			return (((uint64_t)(sat+freq*4) << 48) | ((uint64_t) tsid << 32) | ((uint64_t)onid << 16) | (uint64_t)sid);
+		};
 };
 
 #endif /* __zapit_channel_h__ */
