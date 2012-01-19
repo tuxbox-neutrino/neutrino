@@ -29,9 +29,11 @@
 #include <zapit/pmt.h>
 #include <zapit/pat.h>
 
+#include <zapit/settings.h>  // DEMUX_DEVICE
 #include <zapit/types.h>
-#include <zapit/zapit.h>
-#include <zapit/scan.h>
+#include <zapit/bouquets.h>
+#include <zapit/frontend_c.h>
+#include <zapit/satconfig.h>
 #include <dmx.h>
 
 #define SDT_SIZE 1026
@@ -174,7 +176,7 @@ int parse_sdt(
 
 	int flen;
 	bool cable_hack_done = false;
-	bool cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
+	bool cable = (CFrontend::getInstance()->getInfo()->type == FE_QAM);
 #if 1
 	flen = 5;
 	memset(filter, 0x00, DMX_FILTER_SIZE);
@@ -255,11 +257,10 @@ _repeat:
 						ISO_639_language_descriptor(buffer + pos2);
 						break;
 
-					/*
-					case 0x40:
-						network_name_descriptor(buffer + pos2);
-						break;
-					*/
+						/*				case 0x40:
+										network_name_descriptor(buffer + pos2);
+										break;
+										*/
 					case 0x42:
 						stuffing_descriptor(buffer + pos2);
 						break;
@@ -361,11 +362,10 @@ _repeat:
 		goto _repeat;
 	}
 	delete dmx;
-#if 0
+
 	sat_iterator_t sit = satellitePositions.find(satellitePosition);
 	if(sit != satellitePositions.end())
 		sit->second.have_channels = true;
-#endif
 	return 0;
 }
 
@@ -394,7 +394,7 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
-	transponder_id_t current_tp_id = CFEManager::getInstance()->getLiveFE()->getTsidOnid();
+	transponder_id_t current_tp_id = CFrontend::getInstance()->getTsidOnid();
 
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	filter[0] = 0x42;
@@ -412,24 +412,13 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 	mask[6] = 0xFF;
 	mask[7] = 0xFF;
 
-	CPat pat;
-
-	int pat_ok = pat.Parse();
+	std::vector<std::pair<int,int> > sidpmt;
+	int pat_ok = scan_parse_pat( sidpmt );
 
 	cDemux * dmx = new cDemux();
 	dmx->Open(DMX_PSI_CHANNEL);
 	int ret = -1;
 
-	t_service_id current_sid = 0;
-	unsigned short curent_pmt = 0;
-	unsigned char current_scrambled = 0;
-	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
-	if(channel) {
-		current_sid = channel->getServiceId();
-		curent_pmt = channel->getPmtPid();
-		current_scrambled = channel->scrambled;
-	}
-	//printf("parse_current_sdt: *************** current sid 0x%x ***************\n", current_sid);
 	do {
 		if ((dmx->sectionFilter(0x11, filter, mask, 8) < 0) || (dmx->Read(buffer, SDT_SIZE) < 0)) {
 			delete dmx;
@@ -448,22 +437,11 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 			EIT_present_following_flag = buffer[pos + 2] & 0x01;
 			running_status = buffer [pos + 3] & 0xE0;
 
-			unsigned short pmtpid = pat.GetPmtPid(service_id);
-			if(pat_ok && (pmtpid > 0) && running_status != 32) {
-				if(service_id != current_sid) {
-					CPmt pmt;
-					tmp_free_CA_mode = pmt.haveCaSys(pmtpid, service_id);
-					//printf("parse_current_sdt: sid 0x%x scrambled %d\n", service_id, tmp_free_CA_mode);
-				} else if(pmtpid != curent_pmt) {
-					ret = -2;
-					break;
-				}
-				else {
-					tmp_free_CA_mode = current_scrambled;
-					//printf("parse_current_sdt: skip current sid 0x%x\n", current_sid);
+			for (unsigned short i=0; i<sidpmt.size() && pat_ok == 1; i++){
+				if(sidpmt[i].first == service_id && running_status != 32 ){
+					tmp_free_CA_mode = scan_parse_pmt( sidpmt[i].second, sidpmt[i].first );
 				}
 			}
-
 			if(tmp_free_CA_mode == -1){
 				free_CA_mode = buffer [pos + 3] & 0x10;
 			}else{
@@ -494,14 +472,14 @@ int parse_current_sdt( const t_transport_stream_id p_transport_stream_id, const 
 				break; 
 			}
 #endif
-			if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+			if(current_tp_id != CFrontend::getInstance()->getTsidOnid())
 				break; 
 		}
 	}
 	while (filter[4]++ != buffer[7]);
 	delete dmx;
 
-	if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+	if(current_tp_id != CFrontend::getInstance()->getTsidOnid())
 		ret = -2;
 
 	return ret;
