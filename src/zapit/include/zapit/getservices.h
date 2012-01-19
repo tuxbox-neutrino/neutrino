@@ -35,6 +35,7 @@
 #include <zapit/satconfig.h>
 
 #include <map>
+#include <list>
 #define zapped_chan_is_nvod 0x80
 
 struct transponder
@@ -82,6 +83,18 @@ typedef map<t_channel_id, CZapitChannel> channel_map_t;
 typedef channel_map_t::iterator channel_map_iterator_t;
 typedef std::pair<t_channel_id, CZapitChannel> channel_pair_t;
 typedef std::pair<channel_map_iterator_t,bool> channel_insert_res_t;
+
+struct provider_replace
+{
+	t_transport_stream_id transport_stream_id;
+	t_original_network_id original_network_id;
+	int frequency;
+	std::string name;
+	std::string newname;
+};
+
+typedef std::list<provider_replace> prov_replace_map_t;
+typedef prov_replace_map_t::iterator prov_replace_map_iterator_t;
 
 class CServiceManager
 {
@@ -167,5 +180,9 @@ class CServiceManager
 		}
 		satellite_map_t & SatelliteList() { return satellitePositions; }
 		xmlDocPtr ScanXml();
+
+		prov_replace_map_t replace_map;
+		bool LoadProviderMap();
+		bool ReplaceProviderName(std::string &name, t_transport_stream_id tsid, t_original_network_id onid);
 };
 #endif /* __getservices_h__ */

@@ -284,6 +284,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 			providerName = lastProviderName;
 	} else {
 		FixWhiteSpaces(providerName);
+		CServiceManager::getInstance()->ReplaceProviderName(providerName, transport_stream_id, original_network_id);
 		lastProviderName = providerName;
 	}
 

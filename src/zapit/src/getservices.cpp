@@ -629,6 +629,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	//FIXME copy, until global satellitePositions removed
 	//satelliteList = satellitePositions;
 
+	LoadProviderMap();
 	printf("[zapit] %d services loaded (%d)...\n", service_count, allchans.size());
 	TIMER_STOP("[zapit] service loading took");
 
@@ -916,4 +917,75 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 	rename(CURRENTSERVICES_TMP, CURRENTSERVICES_XML);
 
 	return updated;
+}
+
+#define PROVIDER_MAP_XML CONFIGDIR "/zapit/providermap.xml"
+bool CServiceManager::LoadProviderMap()
+{
+	xmlDocPtr parser;
+
+	replace_map.clear();
+	parser = parseXmlFile(PROVIDER_MAP_XML);
+	if (parser != NULL) {
+		xmlNodePtr node = xmlDocGetRootElement(parser)->xmlChildrenNode;
+		while ((node = xmlGetNextOccurence(node, "TS")) != NULL) {
+			provider_replace replace;
+			replace.transport_stream_id = xmlGetNumericAttribute(node, "id", 16);
+			replace.original_network_id = xmlGetNumericAttribute(node, "on", 16);
+			replace.frequency = xmlGetNumericAttribute(node, "frq", 0);
+
+			char * n = xmlGetAttribute(node, "name");
+			char * tn = xmlGetAttribute(node, "newname");
+			if(n)
+				replace.name = n;
+			if(tn)
+				replace.newname = tn;
+
+printf("prov map: tsid %04x onid %04x freq %d name [%s] to [%s]\n", replace.transport_stream_id, replace.original_network_id, replace.frequency, replace.name.c_str(), replace.newname.c_str());
+			replace_map.push_back(replace);
+			node = node->xmlNextNode;
+		}
+		xmlFreeDoc(parser);
+		return true;
+	}
+	return false;
+}
+
+bool CServiceManager::ReplaceProviderName(std::string &name, t_transport_stream_id tsid, t_original_network_id onid)
+{
+	std::string newname;
+
+	prov_replace_map_iterator_t it;
+	for (it = replace_map.begin(); it != replace_map.end(); ++it) {
+		provider_replace replace = *it;
+		/* if replace map has tsid and onid */
+		if(replace.transport_stream_id && replace.original_network_id) {
+			/* compare tsid/onid */
+			if(replace.transport_stream_id == tsid && replace.original_network_id == onid) {
+				/* if new name present, old name should be present */
+				if(!replace.newname.empty()) {
+					if (name == replace.name)
+						newname = replace.newname;
+				} else {
+					newname = replace.name;
+				}
+			}
+		} else {
+			/* no tsid/onid, only names. if new name present, old name should be present */
+			if(!replace.newname.empty()) {
+				if(name == replace.name)
+					newname = replace.newname;
+			}
+			/* no tsid/onid, no newname, only name. compare name without case */
+			else if(!strcasecmp(replace.name.c_str(), name.c_str()))
+				newname = replace.name;
+		}
+
+	}
+	if(!newname.empty()) {
+		printf("ReplaceProviderName: old [%s] new [%s]\n", name.c_str(), newname.c_str());
+		name = newname;
+		return true;
+	}
+	return false;
 }
