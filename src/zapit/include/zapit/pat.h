@@ -47,6 +47,7 @@ class CPat
 		bool Parse();
 		unsigned short GetPmtPid(t_service_id sid);
 		bool Parse(CZapitChannel * const channel);
+		sidpmt_map_t &getSids() { return sidpmt; };
 };
 
 #endif /* __zapit_pat_h__ */
