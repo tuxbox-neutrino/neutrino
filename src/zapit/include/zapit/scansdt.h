@@ -23,32 +23,31 @@
 #ifndef __zapit_scan_sdt_h__
 #define __zapit_scan_sdt_h__
 
-#include <zapit/channel.h>
+#include <zapit/pat.h>
 #include <dmx.h>
 #include <dvbsi++/service_description_section.h>
 #include <dvbsi++/service_descriptor.h>
 
 #define SDT_SECTION_SIZE 1026
 
-#if 0
-typedef std::map<int,int> sidpmt_map_t;
-typedef sidpmt_map_t::iterator sidpmt_map_iterator_t;
-typedef std::pair<int,int> sidpmt_map_pair_t;
-#endif
-
 class CSdt
 {
 	private:
 		int dmxnum;
-		bool parsed;
 		bool cable;
 
 		t_transport_stream_id transport_stream_id;
 		t_original_network_id original_network_id;
 		t_satellite_position satellitePosition;
 		freq_id_t freq_id;
+		std::string lastProviderName;
 
 		ServiceDescriptionSectionList sections;
+		CPat pat;
+
+		/* current sdt to check updates */
+		bool current;
+		transponder_id_t current_tp_id;
 
 		uint8_t FixServiceType(uint8_t type);
 		bool CheckScanType(uint8_t service_type);
@@ -60,9 +59,9 @@ class CSdt
 		bool ParseServiceDescriptor(ServiceDescription * service, ServiceDescriptor * sd);
 
 	public:
-		CSdt(t_satellite_position spos, freq_id_t frq, int dnum = 0);
+		CSdt(t_satellite_position spos, freq_id_t frq, bool curr = false, int dnum = 0);
 		~CSdt();
-		bool Parse(t_transport_stream_id *p_tsid, t_original_network_id *p_onid);
+		bool Parse(t_transport_stream_id &tsid, t_original_network_id &onid);
 };
 
 #endif

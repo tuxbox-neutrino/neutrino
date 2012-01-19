@@ -1,12 +1,11 @@
 /*
- * $Id: sdt.cpp,v 1.44 2003/03/14 08:22:04 obi Exp $
+ * Copyright (C) 2011 CoolStream International Ltd
  *
- * (C) 2002, 2003 by Andreas Oberritter <obi@tuxbox.org>
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -40,12 +39,16 @@
 #include <zapit/dvbstring.h>
 
 extern CZapitClient::scanType scanType; // FIXME
+extern int scan_fta_flag; // FIXME
 
-CSdt::CSdt(t_satellite_position spos, freq_id_t frq, int dnum)
+CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 {
 	satellitePosition = spos;
 	freq_id = frq;
 	dmxnum = dnum;
+	current = curr;
+	transport_stream_id = 0;
+	original_network_id = 0;
 	cable = (CServiceScan::getInstance()->GetFrontend()->getInfo()->type == FE_QAM);
 }
 
@@ -57,6 +60,7 @@ CSdt::~CSdt()
 	}
 }
 
+/* read all sdt sections */
 bool CSdt::Read()
 {
 	int secdone[255];
@@ -77,12 +81,28 @@ bool CSdt::Read()
 
 	filter[0] = 0x42;
 	mask[0] = 0xFF;
+
+	if (transport_stream_id && original_network_id) {
+		flen = 8;
+		filter[1] = (transport_stream_id >> 8) & 0xff;
+		filter[2] = transport_stream_id & 0xff;
+		filter[6] = (original_network_id >> 8) & 0xff;
+		filter[7] = original_network_id & 0xff;
+
+		mask[1] = 0xFF;
+		mask[2] = 0xFF;
+		mask[6] = 0xFF;
+		mask[7] = 0xFF;
+	}
 	if (!dmx->sectionFilter(0x11, filter, mask, flen)) {
 		delete dmx;
 		return false;
 	}
 	do {
 _repeat:
+		if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+			break;
+
 		if (dmx->Read(buffer, SDT_SECTION_SIZE) < 0) {
 			delete dmx;
 			return false;
@@ -107,18 +127,28 @@ _repeat:
 		sections.push_back(sdt);
 
 	} while(sectotal < buffer[7]);
+
 	if(cable && !cable_hack_done && sectotal == 0) {
 		cable_hack_done = true;
 		secdone[0] = 0;
 		goto _repeat;
 	}
 	delete dmx;
+	if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+		return false;
 	return true;
 }
 
-bool CSdt::Parse(t_transport_stream_id *p_tsid, t_original_network_id *p_onid)
+/* parse sdt sections */
+bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 {
 	ServiceDescriptionSectionIterator it;
+
+	if(current) {
+		transport_stream_id = tsid;
+		original_network_id = onid;
+	}
+	current_tp_id = CFEManager::getInstance()->getLiveFE()->getTsidOnid();
 
 	if(!Read())
 		return false;
@@ -129,7 +159,6 @@ bool CSdt::Parse(t_transport_stream_id *p_tsid, t_original_network_id *p_onid)
 		transport_stream_id = sdt->getTransportStreamId();
 		original_network_id = sdt->getOriginalNetworkId();
 
-		//ServiceDescriptionSection sdt(buffer);
 		printf("SDT: tid %02x onid %02x\n", sdt->getTransportStreamId(), sdt->getOriginalNetworkId());
 		const ServiceDescriptionList &slist = *sdt->getDescriptions();
 		for (ServiceDescriptionConstIterator sit = slist.begin(); sit != slist.end(); ++sit) {
@@ -138,7 +167,6 @@ bool CSdt::Parse(t_transport_stream_id *p_tsid, t_original_network_id *p_onid)
 			DescriptorConstIterator dit;
                         for (dit = service->getDescriptors()->begin(); dit != service->getDescriptors()->end(); ++dit) {
 				Descriptor * d = *dit;
-				//printf("SDT: sid %x descriptor %02x\n", service->getServiceId(), d->getTag());
 				switch (d->getTag()) {
 				case SERVICE_DESCRIPTOR:
 					{
@@ -150,19 +178,29 @@ bool CSdt::Parse(t_transport_stream_id *p_tsid, t_original_network_id *p_onid)
 					{
 						CaIdentifierDescriptor * cad = (CaIdentifierDescriptor *) d;
 						const CaSystemIdList * calist = cad->getCaSystemIds();
+						printf("CASYS: ");
 						for(CaSystemIdConstIterator cit = calist->begin(); cit != calist->end(); ++cit)
-							printf("CASYS %02x\n", *cit);
+							printf("%02x ", *cit);
+						printf("\n");
 					}
 					break;
 				default:
-					printf("SDT: sid %x descriptor %02x\n", service->getServiceId(), d->getTag());
+					{
+						printf("SDT: sid %x descriptor %02x: ", service->getServiceId(), d->getTag());
+						uint8_t len = d->getLength();
+						uint8_t buf[len];
+						d->writeToBuffer(buf);
+						for(uint8_t i = 0; i < len; i++)
+							printf("%02x ", buf[i]);
+						printf("\n");
+					}
 					break;
 				}
 			}
 		}
 	}
-	*p_tsid = transport_stream_id;
-	*p_onid = original_network_id;
+	tsid = transport_stream_id;
+	onid = original_network_id;
 	return true;
 }
 
@@ -183,6 +221,9 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	t_service_id service_id = service->getServiceId();
 	bool free_ca = service->getFreeCaMode();
 
+	if(!current && free_ca && scan_fta_flag)
+		return false;
+
 	int tsidonid = (transport_stream_id << 16) | original_network_id;
 	std::string providerName = stringDVBUTF8(sd->getServiceProviderName(), 0, tsidonid);
 	std::string serviceName = stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
@@ -192,7 +233,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	if (!CheckScanType(service_type))
 		return false;
 
-	if(serviceName.empty() || serviceName == "."){
+	if (serviceName.empty() || serviceName == "."){
 		char buf_tmp[64];
 		snprintf(buf_tmp, sizeof(buf_tmp), "unknown (0x%04X_0x%04X)", transport_stream_id, service_id);
 		serviceName = buf_tmp;
@@ -200,10 +241,34 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 		FixWhiteSpaces(serviceName);
 	}
 
-	if(providerName.empty()) {
-		providerName = "Unknown Provider";
+	t_channel_id channel_id = CZapitChannel::makeChannelId(satellitePosition,
+			freq_id, transport_stream_id, original_network_id, service_id);
+	if(current) {
+		if(CServiceManager::getInstance()->FindCurrentChannel(channel_id))
+			return false;
+
+		CZapitChannel * channel = new CZapitChannel(serviceName, channel_id,
+				real_type, satellitePosition, freq_id);
+
+		CServiceManager::getInstance()->AddCurrentChannel(channel);
+
+		channel->scrambled = free_ca;
+		if(pat.Parse(channel)) {
+			CPmt pmt;
+			if(pmt.haveCaSys(channel->getPmtPid(), channel->getServiceId()))
+				channel->scrambled = true;
+		}
+		return true;
+	}
+
+	if (providerName.empty()) {
+		if(lastProviderName.empty())
+			providerName = "Unknown Provider";
+		else
+			providerName = lastProviderName;
 	} else {
 		FixWhiteSpaces(providerName);
+		lastProviderName = providerName;
 	}
 
 	CServiceScan::getInstance()->ChannelFound(service_type, providerName, serviceName);
@@ -213,24 +278,29 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 		channel->setName(serviceName);
 		channel->setServiceType(real_type);
 	} else {
-		channel = new CZapitChannel (
-				serviceName,
-				service_id,
-				transport_stream_id,
-				original_network_id,
-				real_type,
-				satellitePosition,
-				freq_id
-				);
+		channel = new CZapitChannel(serviceName, channel_id,
+				real_type, satellitePosition, freq_id);
+
 		CServiceManager::getInstance()->AddChannel(channel);
 	}
 	channel->scrambled = free_ca;
 
 	AddToBouquet(providerName, channel);
 
+	if (CZapit::getInstance()->scanPids()) {
+		if(pat.Parse(channel)) {
+			CPmt pmt;
+			pmt.parse_pmt(channel);
+		}
+	}
+	if(service_type == ST_DIGITAL_TELEVISION_SERVICE && !channel->scrambled) {
+		CZapit::getInstance()->SetCurrentChannelID(channel->getChannelID());
+	}
+
 	return true;
 }
 
+/* check current freq from -2 to +2 to find if channel already exist */
 CZapitChannel * CSdt::CheckChannelId(t_service_id service_id)
 {
 	int flist[5] = { freq_id, freq_id-1, freq_id+1, freq_id-2, freq_id+2 };
@@ -245,6 +315,7 @@ CZapitChannel * CSdt::CheckChannelId(t_service_id service_id)
 	return NULL;
 }
 
+/* strip repeated and begin/end whitespaces */
 void CSdt::FixWhiteSpaces(std::string &str)
 {
 	size_t found;
@@ -257,8 +328,12 @@ void CSdt::FixWhiteSpaces(std::string &str)
 		str = str.substr(0, str.length()-1);
 }
 
+/* check if service type wanted in current scan type */
 bool CSdt::CheckScanType(uint8_t service_type)
 {
+	if(current)
+		return true;
+
 	switch ( scanType ) {
 		case CZapitClient::ST_TVRADIO:
 			if ( (service_type == 1 ) || (service_type == 2) )
@@ -279,6 +354,7 @@ bool CSdt::CheckScanType(uint8_t service_type)
 	return false;
 }
 
+/* create bouquet if not exist, and add channel to bouquet */
 bool CSdt::AddToBouquet(std::string &providerName, CZapitChannel *channel)
 {
         switch (channel->getServiceType()) {
