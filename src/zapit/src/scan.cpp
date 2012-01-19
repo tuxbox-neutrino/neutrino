@@ -281,7 +281,26 @@ _repeat:
 		}
 #endif
 		CSdt sdt(satellitePosition, freq);
-		sdt.Parse(&tI->second.transport_stream_id, &tI->second.original_network_id);
+		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
+
+#ifdef NIT_THREAD
+		if(scan_nit && nthread) {
+			if(pthread_join(nthread, NULL))
+				perror("pthread_join !!!!!!!!!");
+		}
+#else
+		if(scan_nit) {
+			printf("[scan] trying to parse NIT\n");
+			int status = parse_nit(satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
+			if(status < 0)
+				printf("[scan] NIT failed !\n");
+		}
+#endif
+		if(!sdt_parsed) {
+			printf("[scan] SDT failed !\n");
+			continue;
+		}
+
 		TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
 				freq /*tI->second.feparams.frequency/1000*/, satellitePosition, tI->second.original_network_id,
 				tI->second.transport_stream_id);
@@ -304,19 +323,6 @@ _repeat:
 		else
 			stI->second.feparams.u.qpsk.fec_inner = tI->second.feparams.u.qpsk.fec_inner;
 
-#ifdef NIT_THREAD
-		if(scan_nit && nthread) {
-			if(pthread_join(nthread, NULL))
-				perror("pthread_join !!!!!!!!!");
-		}
-#else
-		if(scan_nit) {
-			printf("[scan] trying to parse NIT\n");
-			int status = parse_nit(satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
-			if(status < 0)
-				printf("[scan] NIT failed !\n");
-		}
-#endif
 		printf("[scan] tpid ready: %llx\n", TsidOnid);
 	}
 	if(scan_nit) {
