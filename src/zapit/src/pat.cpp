@@ -96,6 +96,8 @@ unsigned short CPat::GetPmtPid(t_service_id sid)
 		if(it != sidpmt.end())
 			pid = it->second;
 	}
+	if(!pid)
+		printf("[pat] sid %04x not found\n", sid);
 	return pid;
 }
 
