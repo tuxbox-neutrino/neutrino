@@ -941,7 +941,7 @@ bool CServiceManager::LoadProviderMap()
 			if(newname)
 				replace.newname = newname;
 
-			DBR("prov map: tsid %04x onid %04x freq %d name [%s] to [%s]\n",
+			DBG("prov map: tsid %04x onid %04x freq %d name [%s] to [%s]\n",
 					replace.transport_stream_id, replace.original_network_id,
 					replace.frequency, replace.name.c_str(), replace.newname.c_str());
 			replace_map.push_back(replace);
