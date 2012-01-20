@@ -39,7 +39,7 @@
 #include <zapit/dvbstring.h>
 
 extern CZapitClient::scanType scanType; // FIXME
-extern int scan_fta_flag; // FIXME
+int scan_fta_flag; // FIXME
 
 #define DEBUG_SDT
 
@@ -57,7 +57,7 @@ CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 CSdt::~CSdt()
 {
 	ServiceDescriptionSectionIterator sit;
-	for (sit = sections.begin(); sit != sections.end(); sit++) {
+	for (sit = sections.begin(); sit != sections.end(); ++sit) {
 		delete *(sit);
 	}
 }
@@ -156,7 +156,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 	if(!Read())
 		return false;
 
-	for (it = sections.begin(); it != sections.end(); it++) {
+	for (it = sections.begin(); it != sections.end(); ++it) {
 		ServiceDescriptionSection * sdt = *it;
 
 		transport_stream_id = sdt->getTransportStreamId();
