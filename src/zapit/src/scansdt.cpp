@@ -195,7 +195,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					{
 #ifdef DEBUG_SDT
 						printf("SDT: sid %x descriptor %02x: ", service->getServiceId(), d->getTag());
-						uint8_t len = d->getLength();
+						uint8_t len = 2+d->getLength();
 						uint8_t buf[len];
 						d->writeToBuffer(buf);
 						for(uint8_t i = 0; i < len; i++)
