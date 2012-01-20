@@ -941,7 +941,9 @@ bool CServiceManager::LoadProviderMap()
 			if(newname)
 				replace.newname = newname;
 
-printf("prov map: tsid %04x onid %04x freq %d name [%s] to [%s]\n", replace.transport_stream_id, replace.original_network_id, replace.frequency, replace.name.c_str(), replace.newname.c_str());
+			DBR("prov map: tsid %04x onid %04x freq %d name [%s] to [%s]\n",
+					replace.transport_stream_id, replace.original_network_id,
+					replace.frequency, replace.name.c_str(), replace.newname.c_str());
 			replace_map.push_back(replace);
 			node = node->xmlNextNode;
 		}
@@ -981,7 +983,7 @@ bool CServiceManager::ReplaceProviderName(std::string &name, t_transport_stream_
 				newname = replace.name;
 		}
 		if(!newname.empty()) {
-			printf("ReplaceProviderName: old [%s] new [%s]\n", name.c_str(), newname.c_str());
+			DBG("ReplaceProviderName: old [%s] new [%s]\n", name.c_str(), newname.c_str());
 			name = newname;
 			return true;
 		}
