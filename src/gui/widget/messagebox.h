@@ -42,11 +42,23 @@
 class CMessageBox : public CHintBoxExt
 {
  private:
+	struct mbButtons
+	{
+		bool active;
+		bool def;
+		const char* icon;
+		const char* text;
+	};
 
 	int  showbuttons;
 	bool returnDefaultOnTimeout;
+	int  mbBtnAlign;
+	int  ButtonSpacing;
+	int  fh, i_maxw;
+	int  b_height, bb_height;
 
 	void paintButtons();
+	int getButtonWidth();
 
  public:
 	enum result_
@@ -60,12 +72,15 @@ class CMessageBox : public CHintBoxExt
 	
 	enum buttons_
 		{
-			mbYes= 0x01,
-			mbNo = 0x02,
-			mbCancel = 0x04,
-			mbAll = 0x07,
-			mbBack = 0x08,
-			mbOk = 0x10
+			mbYes            = 0x01,
+			mbNo             = 0x02,
+			mbCancel         = 0x04,
+			mbAll            = 0x07,
+			mbBack           = 0x08,
+			mbOk             = 0x10,
+			mbBtnAlignCenter = 0x0100,
+			mbBtnAlignLeft   = 0x0200,
+			mbBtnAlignRight  = 0x0400
 		} buttons;
 	
 	// Text & Caption are always UTF-8 encoded
@@ -75,6 +90,9 @@ class CMessageBox : public CHintBoxExt
 
 	int exec(int timeout = -1);
 	void returnDefaultValueOnTimeout(bool returnDefault);
+
+ private:
+	void Init(const CMessageBox::result_ Default, const uint32_t ShowButtons);
 };
 
 // Text is always UTF-8 encoded

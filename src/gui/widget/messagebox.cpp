@@ -42,39 +42,43 @@
 
 CMessageBox::CMessageBox(const neutrino_locale_t Caption, const char * const Text, const int Width, const char * const Icon, const CMessageBox::result_ Default, const uint32_t ShowButtons) : CHintBoxExt(Caption, Text, Width, Icon)
 {
-	returnDefaultOnTimeout = false;
-
-	m_height += (m_fheight << 1);
-
-	result = Default;
-
-	showbuttons = ShowButtons;
-
-	int MaxButtonTextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL), true); // UTF-8
-	int ButtonWidth = 20 + 33 + MaxButtonTextWidth + 5;
-	int num = 0;
-	if (showbuttons & mbYes)
-		num++;
-	if (showbuttons & mbNo)
-		num++;
-	if (showbuttons & (mbCancel | mbBack | mbOk))
-		num++;
-	int new_width = 15 + num*ButtonWidth;
-	if(new_width > m_width)
-		m_width = new_width;
+	Init(Default, ShowButtons);
 }
 
 CMessageBox::CMessageBox(const neutrino_locale_t Caption, ContentLines& Lines, const int Width, const char * const Icon, const CMessageBox::result_ Default, const uint32_t ShowButtons) : CHintBoxExt(Caption, Lines, Width, Icon)
 {
+	Init(Default, ShowButtons);
+}
+
+void CMessageBox::Init(const CMessageBox::result_ Default, const uint32_t ShowButtons)
+{
 	returnDefaultOnTimeout = false;
+	ButtonSpacing          = 15;
+#define BtnCount 3
+	int w = 0, h = 0, ih = 0;
+	i_maxw = 0;
+	std::string Btns[BtnCount] = {NEUTRINO_ICON_BUTTON_RED, NEUTRINO_ICON_BUTTON_GREEN, NEUTRINO_ICON_BUTTON_HOME};
+	for (int i = 0; i < BtnCount; i++) {
+		CFrameBuffer::getInstance()->getIconSize(Btns[i].c_str(), &w, &h);
+		ih = std::max(h, ih);
+		i_maxw = std::max(w, i_maxw);
+	}
+	fh                     = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
+	b_height               = std::max(fh, ih) + 8 + (RADIUS_LARGE / 2);
+	bb_height              = b_height + fh/2 + ButtonSpacing;
+	m_height               += bb_height;
+	result                 = Default;
+	int ButtonWidth        = getButtonWidth() + 5;
+	if (ShowButtons & CMessageBox::mbBtnAlignCenter)
+		mbBtnAlign     = CMessageBox::mbBtnAlignCenter;
+	else if (ShowButtons & CMessageBox::mbBtnAlignLeft)
+		mbBtnAlign     = CMessageBox::mbBtnAlignLeft;
+	else if (ShowButtons & CMessageBox::mbBtnAlignRight)
+		mbBtnAlign     = CMessageBox::mbBtnAlignRight;
+	else
+		mbBtnAlign     = CMessageBox::mbBtnAlignCenter; // or g_settings.mbBtnAlign? ;-)
+	showbuttons            = ShowButtons & 0xFF;
 
-	m_height += (m_fheight << 1);
-
-	result = Default;
-
-	showbuttons = ShowButtons;
-	int MaxButtonTextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL), true); // UTF-8
-	int ButtonWidth = 20 + 33 + MaxButtonTextWidth + 5;
 	int num = 0;
 	if (showbuttons & mbYes)
 		num++;
@@ -92,86 +96,77 @@ void CMessageBox::returnDefaultValueOnTimeout(bool returnDefault)
 	returnDefaultOnTimeout = returnDefault;
 }
 
+int CMessageBox::getButtonWidth()
+{
+#define localeMsgCount 3
+	neutrino_locale_t localeMsg[localeMsgCount] = {LOCALE_MESSAGEBOX_YES, LOCALE_MESSAGEBOX_NO, LOCALE_MESSAGEBOX_CANCEL};
+	int MaxButtonTextWidth = 0;
+	for (int i = 0; i < localeMsgCount; i++)
+		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i]), true), MaxButtonTextWidth);
+
+	return MaxButtonTextWidth + i_maxw + 31 + (RADIUS_LARGE / 2);
+}
+
 void CMessageBox::paintButtons()
 {
-	uint8_t    color;
+#define MaxButtons 3
+	fb_pixel_t color;
 	fb_pixel_t bgcolor;
+	struct mbButtons Buttons[MaxButtons];
+	int ButtonCount = 0;
 
-	m_window->paintBoxRel(0, m_height - (m_fheight << 1) - RADIUS_LARGE, m_width, (m_fheight << 1) + RADIUS_LARGE, (CFBWindow::color_t)COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	int ButtonWidth = getButtonWidth();
 
-	//irgendwann alle vergleichen - aber cancel ist sicher der l�ngste
-	int MaxButtonTextWidth = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(LOCALE_MESSAGEBOX_CANCEL), true); // UTF-8
+	if (showbuttons & mbYes) {
+		Buttons[ButtonCount].active = true;
+		Buttons[ButtonCount].def = (result == mbrYes) ? true : false;
+		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_RED;
+		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_YES);
+		ButtonCount++;
+	}
+	if (showbuttons & mbNo) {
+		Buttons[ButtonCount].active = true;
+		Buttons[ButtonCount].def = (result == mbrNo) ? true : false;
+		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_GREEN;
+		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_NO);
+		ButtonCount++;
+	}
+	if (showbuttons & (mbCancel | mbBack | mbOk)) {
+		Buttons[ButtonCount].active = true;
+		Buttons[ButtonCount].def = (result >= mbrCancel) ? true : false;
+		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_HOME;
+		Buttons[ButtonCount].text = g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK);
+		ButtonCount++;
+	}
 
-	int ButtonWidth = 20 + 33 + MaxButtonTextWidth;
-
-	int ButtonSpacing = (m_width - 20 - (ButtonWidth * 3)) / 2;
-	if(ButtonSpacing <= 5) ButtonSpacing = 5;
-
-	int xpos = 10;
 	int iw, ih;
-	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-	const int noname = 20;
-	if (showbuttons & mbYes)
-	{
-		if (result == mbrYes)
-		{
+	int ButtonbarWidth = ButtonWidth * ButtonCount + ButtonSpacing * (ButtonCount - 1);
+	int xpos = (m_width - ButtonbarWidth) / 2;
+	if (mbBtnAlign == CMessageBox::mbBtnAlignCenter)
+		xpos = (m_width - ButtonbarWidth) / 2;
+	else if (mbBtnAlign == CMessageBox::mbBtnAlignLeft)
+		xpos = ButtonSpacing;
+	else if (mbBtnAlign == CMessageBox::mbBtnAlignRight)
+		xpos = m_width - ButtonbarWidth - ButtonSpacing;
+
+	int ypos = (m_height - bb_height) + fh/2;
+
+	m_window->paintBoxRel(0, m_height - bb_height, m_width, bb_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+
+	for (int i = 0; i < ButtonCount; i++) {
+		if (Buttons[i].def) {
 			color   = COL_MENUCONTENTSELECTED;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		}
-		else
-		{
+		} else {
 			color   = COL_INFOBAR_SHADOW;
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
-		CFrameBuffer::getInstance()->getIconSize(NEUTRINO_ICON_BUTTON_RED, &iw, &ih);
-		m_window->paintBoxRel(xpos, m_height - m_fheight - noname, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
-		//m_window->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14, m_height - m_fheight - 15);
-		//m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, m_height-m_fheight+4, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
-		m_window->paintIcon(NEUTRINO_ICON_BUTTON_RED, xpos + 14, m_height - m_fheight - noname, m_fheight);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, (m_height - noname)-(m_fheight-fh)/2, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_YES), (CFBWindow::color_t)color, 0, true); // UTF-8
+		CFrameBuffer::getInstance()->getIconSize(Buttons[i].icon, &iw, &ih);
+		m_window->paintBoxRel(xpos, ypos, ButtonWidth, b_height, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);
+		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
+		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
+			               ButtonWidth - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color, 0, true);
 		xpos += ButtonWidth + ButtonSpacing;
-	}
-
-	if (showbuttons & mbNo)
-	{
-		if (result == mbrNo)
-		{
-			color   = COL_MENUCONTENTSELECTED;
-			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		}
-		else
-		{
-			color   = COL_INFOBAR_SHADOW;
-			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
-		}
-
-		m_window->paintBoxRel(xpos, m_height-m_fheight-noname, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
-		//m_window->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos+14, m_height-m_fheight-15);
-		m_window->paintIcon(NEUTRINO_ICON_BUTTON_GREEN, xpos+14, m_height-m_fheight - noname, m_fheight);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, (m_height - noname)-(m_fheight-fh)/2, ButtonWidth- 53, g_Locale->getText(LOCALE_MESSAGEBOX_NO), (CFBWindow::color_t)color, 0, true); // UTF-8
-		xpos += ButtonWidth + ButtonSpacing;
-	}
-
-
-	if (showbuttons & (mbCancel | mbBack | mbOk))
-	{
-		if (result >= mbrCancel)
-		{
-			color   = COL_MENUCONTENTSELECTED;
-			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
-		}
-		else
-		{
-			color   = COL_INFOBAR_SHADOW;
-			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
-		}
-
-		m_window->paintBoxRel(xpos, m_height-m_fheight-noname, ButtonWidth, m_fheight, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);//round
-		//m_window->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+10, m_height-m_fheight-19);
-		m_window->paintIcon(NEUTRINO_ICON_BUTTON_HOME, xpos+14, m_height-m_fheight - noname, m_fheight);
-		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + 43, (m_height - noname)-(m_fheight-fh)/2, ButtonWidth- 53,
-			g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK),
-			(CFBWindow::color_t)color, 0, true); // UTF-8
 	}
 }
 
