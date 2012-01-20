@@ -919,7 +919,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 	return updated;
 }
 
-#define PROVIDER_MAP_XML CONFIGDIR "/zapit/providermap.xml"
+#define PROVIDER_MAP_XML CONFIGDIR "/providermap.xml"
 bool CServiceManager::LoadProviderMap()
 {
 	xmlDocPtr parser;
@@ -934,12 +934,12 @@ bool CServiceManager::LoadProviderMap()
 			replace.original_network_id = xmlGetNumericAttribute(node, "on", 16);
 			replace.frequency = xmlGetNumericAttribute(node, "frq", 0);
 
-			char * n = xmlGetAttribute(node, "name");
-			char * tn = xmlGetAttribute(node, "newname");
-			if(n)
-				replace.name = n;
-			if(tn)
-				replace.newname = tn;
+			char * name = xmlGetAttribute(node, "name");
+			char * newname = xmlGetAttribute(node, "newname");
+			if(name)
+				replace.name = name;
+			if(newname)
+				replace.newname = newname;
 
 printf("prov map: tsid %04x onid %04x freq %d name [%s] to [%s]\n", replace.transport_stream_id, replace.original_network_id, replace.frequency, replace.name.c_str(), replace.newname.c_str());
 			replace_map.push_back(replace);
