@@ -980,12 +980,11 @@ bool CServiceManager::ReplaceProviderName(std::string &name, t_transport_stream_
 			else if(!strcasecmp(replace.name.c_str(), name.c_str()))
 				newname = replace.name;
 		}
-
-	}
-	if(!newname.empty()) {
-		printf("ReplaceProviderName: old [%s] new [%s]\n", name.c_str(), newname.c_str());
-		name = newname;
-		return true;
+		if(!newname.empty()) {
+			printf("ReplaceProviderName: old [%s] new [%s]\n", name.c_str(), newname.c_str());
+			name = newname;
+			return true;
+		}
 	}
 	return false;
 }
