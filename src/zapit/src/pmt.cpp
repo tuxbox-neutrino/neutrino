@@ -167,7 +167,6 @@ printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
 					descramble = true;//FIXME MGM / 10E scrambling subtitles ?
 				}
 
-				subtitling_descriptor(buff + pos);
 				break;
 
 			case 0x6A: /* AC3 descriptor */
