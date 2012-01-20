@@ -26,14 +26,13 @@
 
 #include <zapit/client/zapitclient.h>
 #include <zapit/debug.h>
-#include <zapit/nit.h>
 #include <zapit/scan.h>
-#include <zapit/sdt.h>
 #include <zapit/settings.h>
 #include <zapit/satconfig.h>
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
 #include <zapit/scansdt.h>
+#include <zapit/scannit.h>
 
 #define NIT_THREAD
 
@@ -263,43 +262,27 @@ _repeat:
 		else
 			freq = tI->second.feparams.frequency/1000;
 
+		CNit nit(satellitePosition, freq, cable_nid);
 #ifdef NIT_THREAD
-		pthread_t nthread;
-		nit_thread_args_t threadArgs(satellitePosition, freq, cable_nid);
 		if(scan_nit)
-			if(pthread_create(&nthread, 0, nit_thread, (void*)&threadArgs)) {
-				ERROR("pthread_create");
-				nthread = 0;
-			}
+			nit.Start();
 #endif
-		//INFO("parsing SDT (tsid:onid %04x:%04x)", tI->second.transport_stream_id, tI->second.original_network_id);
-#if 0
-		int status = parse_sdt(&tI->second.transport_stream_id, &tI->second.original_network_id, satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
-		if(status < 0) {
-			printf("[scan] SDT failed !\n");
-			continue;
-		}
-#endif
+
 		CSdt sdt(satellitePosition, freq);
 		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
 
 #ifdef NIT_THREAD
-		if(scan_nit && nthread) {
-			if(pthread_join(nthread, NULL))
-				perror("pthread_join !!!!!!!!!");
-		}
-#else
-		if(scan_nit) {
-			printf("[scan] trying to parse NIT\n");
-			int status = parse_nit(satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
-			if(status < 0)
-				printf("[scan] NIT failed !\n");
-		}
+		if(scan_nit)
+			nit.Stop();
 #endif
 		if(!sdt_parsed) {
 			printf("[scan] SDT failed !\n");
 			continue;
 		}
+#ifndef NIT_THREAD
+		if(scan_nit)
+			nit.Parse();
+#endif
 
 		TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
 				freq /*tI->second.feparams.frequency/1000*/, satellitePosition, tI->second.original_network_id,
