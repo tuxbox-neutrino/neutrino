@@ -38,24 +38,26 @@
 #include <stdint.h>
 #include <string>
 
+#define MaxButtons 3
 
 class CMessageBox : public CHintBoxExt
 {
  private:
 	struct mbButtons
 	{
-		bool active;
 		bool def;
 		const char* icon;
 		const char* text;
 	};
+	struct mbButtons Buttons[MaxButtons];
 
 	int  showbuttons;
 	bool returnDefaultOnTimeout;
 	int  mbBtnAlign;
-	int  ButtonSpacing;
+	int  ButtonSpacing, ButtonDistance;
 	int  fh, i_maxw;
-	int  b_height, bb_height;
+	int  b_height, b_width, bb_height, bb_width;
+	int ButtonCount;
 
 	void paintButtons();
 	int getButtonWidth();
@@ -72,15 +74,16 @@ class CMessageBox : public CHintBoxExt
 	
 	enum buttons_
 		{
-			mbYes            = 0x01,
-			mbNo             = 0x02,
-			mbCancel         = 0x04,
-			mbAll            = 0x07,
-			mbBack           = 0x08,
-			mbOk             = 0x10,
-			mbBtnAlignCenter = 0x0100,
-			mbBtnAlignLeft   = 0x0200,
-			mbBtnAlignRight  = 0x0400
+			mbYes             = 0x01,
+			mbNo              = 0x02,
+			mbCancel          = 0x04,
+			mbAll             = 0x07,
+			mbBack            = 0x08,
+			mbOk              = 0x10,
+			mbBtnAlignCenter1 = 0x0100, /* centered, large distances */
+			mbBtnAlignCenter2 = 0x0200, /* centered, small distances */
+			mbBtnAlignLeft    = 0x0400,
+			mbBtnAlignRight   = 0x0800
 		} buttons;
 	
 	// Text & Caption are always UTF-8 encoded

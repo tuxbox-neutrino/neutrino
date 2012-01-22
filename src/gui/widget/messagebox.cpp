@@ -52,9 +52,9 @@ CMessageBox::CMessageBox(const neutrino_locale_t Caption, ContentLines& Lines, c
 
 void CMessageBox::Init(const CMessageBox::result_ Default, const uint32_t ShowButtons)
 {
+#define BtnCount 3
 	returnDefaultOnTimeout = false;
 	ButtonSpacing          = 15;
-#define BtnCount 3
 	int w = 0, h = 0, ih = 0;
 	i_maxw = 0;
 	std::string Btns[BtnCount] = {NEUTRINO_ICON_BUTTON_RED, NEUTRINO_ICON_BUTTON_GREEN, NEUTRINO_ICON_BUTTON_HOME};
@@ -68,27 +68,46 @@ void CMessageBox::Init(const CMessageBox::result_ Default, const uint32_t ShowBu
 	bb_height              = b_height + fh/2 + ButtonSpacing;
 	m_height               += bb_height;
 	result                 = Default;
-	int ButtonWidth        = getButtonWidth() + 5;
-	if (ShowButtons & CMessageBox::mbBtnAlignCenter)
-		mbBtnAlign     = CMessageBox::mbBtnAlignCenter;
-	else if (ShowButtons & CMessageBox::mbBtnAlignLeft)
+	b_width                = getButtonWidth();
+	if (ShowButtons        & CMessageBox::mbBtnAlignCenter1)
+		mbBtnAlign     = CMessageBox::mbBtnAlignCenter1; // centered, large distances
+	else if (ShowButtons   & CMessageBox::mbBtnAlignCenter2)
+		mbBtnAlign     = CMessageBox::mbBtnAlignCenter2; // centered, small distances
+	else if (ShowButtons   & CMessageBox::mbBtnAlignLeft)
 		mbBtnAlign     = CMessageBox::mbBtnAlignLeft;
-	else if (ShowButtons & CMessageBox::mbBtnAlignRight)
+	else if (ShowButtons   & CMessageBox::mbBtnAlignRight)
 		mbBtnAlign     = CMessageBox::mbBtnAlignRight;
 	else
-		mbBtnAlign     = CMessageBox::mbBtnAlignCenter; // or g_settings.mbBtnAlign? ;-)
+		mbBtnAlign     = CMessageBox::mbBtnAlignCenter1; // or g_settings.mbBtnAlign? ;-)
 	showbuttons            = ShowButtons & 0xFF;
 
-	int num = 0;
-	if (showbuttons & mbYes)
-		num++;
-	if (showbuttons & mbNo)
-		num++;
-	if (showbuttons & (mbCancel | mbBack | mbOk))
-		num++;
-	int new_width = 15 + num*ButtonWidth;
-	if(new_width > m_width)
-		m_width = new_width;
+	ButtonCount = 0;
+	if (showbuttons & mbYes) {
+		Buttons[ButtonCount].def = (result == mbrYes) ? true : false;
+		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_RED;
+		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_YES);
+		ButtonCount++;
+	}
+	if (showbuttons & mbNo) {
+		Buttons[ButtonCount].def = (result == mbrNo) ? true : false;
+		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_GREEN;
+		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_NO);
+		ButtonCount++;
+	}
+	if (showbuttons & (mbCancel | mbBack | mbOk)) {
+		Buttons[ButtonCount].def = (result >= mbrCancel) ? true : false;
+		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_HOME;
+		Buttons[ButtonCount].text = g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK);
+		ButtonCount++;
+	}
+
+	ButtonDistance = ButtonSpacing;
+	bb_width = b_width * ButtonCount + ButtonDistance * (ButtonCount - 1);
+	if(bb_width > m_width)
+		m_width = bb_width;
+	else
+		if (mbBtnAlign == CMessageBox::mbBtnAlignCenter1)
+			ButtonDistance = (m_width - b_width * ButtonCount) / (ButtonCount + 1);
 }
 
 void CMessageBox::returnDefaultValueOnTimeout(bool returnDefault)
@@ -98,56 +117,29 @@ void CMessageBox::returnDefaultValueOnTimeout(bool returnDefault)
 
 int CMessageBox::getButtonWidth()
 {
-#define localeMsgCount 3
-	neutrino_locale_t localeMsg[localeMsgCount] = {LOCALE_MESSAGEBOX_YES, LOCALE_MESSAGEBOX_NO, LOCALE_MESSAGEBOX_CANCEL};
+#define localeMsgCount 5
+	neutrino_locale_t localeMsg[localeMsgCount] = {LOCALE_MESSAGEBOX_YES, LOCALE_MESSAGEBOX_NO, LOCALE_MESSAGEBOX_CANCEL, LOCALE_MESSAGEBOX_OK, LOCALE_MESSAGEBOX_BACK};
 	int MaxButtonTextWidth = 0;
 	for (int i = 0; i < localeMsgCount; i++)
 		MaxButtonTextWidth = std::max(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getRenderWidth(g_Locale->getText(localeMsg[i]), true), MaxButtonTextWidth);
-
-	return MaxButtonTextWidth + i_maxw + 31 + (RADIUS_LARGE / 2);
+	return MaxButtonTextWidth + i_maxw + 36 + (RADIUS_LARGE / 2);
 }
 
 void CMessageBox::paintButtons()
 {
-#define MaxButtons 3
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
-	struct mbButtons Buttons[MaxButtons];
-	int ButtonCount = 0;
-
-	int ButtonWidth = getButtonWidth();
-
-	if (showbuttons & mbYes) {
-		Buttons[ButtonCount].active = true;
-		Buttons[ButtonCount].def = (result == mbrYes) ? true : false;
-		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_RED;
-		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_YES);
-		ButtonCount++;
-	}
-	if (showbuttons & mbNo) {
-		Buttons[ButtonCount].active = true;
-		Buttons[ButtonCount].def = (result == mbrNo) ? true : false;
-		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_GREEN;
-		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_NO);
-		ButtonCount++;
-	}
-	if (showbuttons & (mbCancel | mbBack | mbOk)) {
-		Buttons[ButtonCount].active = true;
-		Buttons[ButtonCount].def = (result >= mbrCancel) ? true : false;
-		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_HOME;
-		Buttons[ButtonCount].text = g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK);
-		ButtonCount++;
-	}
 
 	int iw, ih;
-	int ButtonbarWidth = ButtonWidth * ButtonCount + ButtonSpacing * (ButtonCount - 1);
-	int xpos = (m_width - ButtonbarWidth) / 2;
-	if (mbBtnAlign == CMessageBox::mbBtnAlignCenter)
-		xpos = (m_width - ButtonbarWidth) / 2;
+	int xpos = (m_width - bb_width) / 2;
+	if (mbBtnAlign == CMessageBox::mbBtnAlignCenter1)
+		xpos = ButtonDistance;
+	if (mbBtnAlign == CMessageBox::mbBtnAlignCenter2)
+		xpos = (m_width - bb_width) / 2;
 	else if (mbBtnAlign == CMessageBox::mbBtnAlignLeft)
 		xpos = ButtonSpacing;
 	else if (mbBtnAlign == CMessageBox::mbBtnAlignRight)
-		xpos = m_width - ButtonbarWidth - ButtonSpacing;
+		xpos = m_width - bb_width - ButtonSpacing;
 
 	int ypos = (m_height - bb_height) + fh/2;
 
@@ -162,11 +154,11 @@ void CMessageBox::paintButtons()
 			bgcolor = COL_INFOBAR_SHADOW_PLUS_0;
 		}
 		CFrameBuffer::getInstance()->getIconSize(Buttons[i].icon, &iw, &ih);
-		m_window->paintBoxRel(xpos, ypos, ButtonWidth, b_height, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);
+		m_window->paintBoxRel(xpos, ypos, b_width, b_height, (CFBWindow::color_t)bgcolor, RADIUS_LARGE);
 		m_window->paintIcon(Buttons[i].icon, xpos + ((b_height - ih) / 2), ypos + ((b_height - ih) / 2), ih);
 		m_window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL], xpos + iw + 17, ypos + fh + ((b_height - fh) / 2), 
-			               ButtonWidth - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color, 0, true);
-		xpos += ButtonWidth + ButtonSpacing;
+			               b_width - (iw + 21), Buttons[i].text, (CFBWindow::color_t)color, 0, true);
+		xpos += b_width + ButtonDistance;
 	}
 }
 
