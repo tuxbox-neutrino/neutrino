@@ -2,7 +2,7 @@
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
+	Copyright (C) 2007-2012 Stefan Seyfried
 
 	Kommentar:
 
@@ -205,7 +205,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 		CChannelEventList levents;
 		CEitManager::getInstance()->getChannelEvents(levents, p_requested_channels, chanlist_size);
 		for (uint32_t count=0; count < chanlist_size; count++) {
-			chanlist[count]->currentEvent = CChannelEvent();
+			chanlist[count + from]->currentEvent = CChannelEvent();
 			for (CChannelEventList::iterator e = levents.begin(); e != levents.end(); ++e) {
 				if ((chanlist[count + from]->channel_id&0xFFFFFFFFFFFFULL) == e->get_channel_id()) {
 					chanlist[count + from]->currentEvent = *e;
