@@ -19,19 +19,30 @@ extern cVideo *videoDecoder;
 #define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_DEMUX, this, args)
 #define lt_info(args...) _lt_info(TRIPLE_DEBUG_DEMUX, this, args)
 
+#define dmx_err(_errfmt, _errstr, _revents) do { \
+	uint16_t _pid = (uint16_t)-1; uint16_t _f = 0;\
+	if (dmx_type == DMX_PES_CHANNEL) { \
+		_pid = p_flt.pid; \
+	} else if (dmx_type == DMX_PSI_CHANNEL) { \
+		_pid = s_flt.pid; _f = s_flt.filter[0]; \
+	}; \
+	lt_info("%s " _errfmt " fd:%d, ev:0x%x %s pid:0x%04hx flt:0x%02hx\n", \
+		__func__, _errstr, fd, _revents, DMX_T[dmx_type], _pid, _f); \
+} while(0);
+
 cDemux *videoDemux = NULL;
 cDemux *audioDemux = NULL;
 //cDemux *pcrDemux = NULL;
 
 static const char *DMX_T[] = {
 	"DMX_INVALID",
-	"DMX_VIDEO_CHANNEL",
-	"DMX_AUDIO_CHANNEL",
-	"DMX_PES_CHANNEL",
-	"DMX_PSI_CHANNEL",
-	"DMX_PIP_CHANNEL",
-	"DMX_TP_CHANNEL",
-	"DMX_PCR_ONLY_CHANNEL"
+	"DMX_VIDEO",
+	"DMX_AUDIO",
+	"DMX_PES",
+	"DMX_PSI",
+	"DMX_PIP",
+	"DMX_TP",
+	"DMX_PCR"
 };
 
 /* map the device numbers as used to the TD devices */
@@ -116,8 +127,8 @@ bool cDemux::Open(DMX_CHANNEL_TYPE pes_type, void * /*hVideoBuffer*/, int uBuffe
 		return false;
 	}
 	fcntl(fd, F_SETFD, FD_CLOEXEC);
-	lt_debug("%s #%d pes_type: %s (%d), uBufferSize: %d devname: %s fd: %d\n", __FUNCTION__,
-			num, DMX_T[pes_type], pes_type, uBufferSize, devname[devnum], fd);
+	lt_debug("%s #%d pes_type: %s(%d), uBufferSize: %d dev:%s fd: %d\n", __func__,
+		 num, DMX_T[pes_type], pes_type, uBufferSize, devname[devnum] + strlen("/dev/stb/"), fd);
 
 	dmx_type = pes_type;
 
@@ -284,7 +295,8 @@ int cDemux::Read(unsigned char *buff, int len, int timeout)
 			return 0; // timeout
 		else if (rc < 0)
 		{
-			lt_info("%s poll: %m\n", __FUNCTION__);
+			dmx_err("poll: %s,", strerror(errno), 0)
+			//lt_info("%s poll: %m\n", __FUNCTION__);
 			/* happens, when running under gdb... */
 			if (errno == EINTR)
 				goto retry;
@@ -292,19 +304,18 @@ int cDemux::Read(unsigned char *buff, int len, int timeout)
 		}
 		if (ufds.revents & POLLERR) /* POLLERR means buffer error, i.e. buffer overflow */
 		{
-			lt_info("%s received POLLERR, fd %d, revents 0x%x\n", __FUNCTION__, fd, ufds.revents);
+			dmx_err("received %s,", "POLLERR", ufds.revents);
 			/* this seems to happen sometimes at recording start, without bad effects */
 			return 0;
 		}
 		if (ufds.revents & POLLHUP) /* we get POLLHUP if e.g. a too big DMX_BUFFER_SIZE was set */
 		{
-			lt_info("%s received POLLHUP, fd %d\n", __FUNCTION__, fd);
+			dmx_err("received %s,", "POLLHUP", ufds.revents);
 			return -1;
 		}
 		if (!(ufds.revents & POLLIN)) /* we requested POLLIN but did not get it? */
 		{
-			lt_info("%s not ufds.revents&POLLIN, please report! "
-				"revents: 0x%x fd: %d rc: %d '%m'\n", __FUNCTION__, ufds.revents, fd, rc);
+			dmx_err("received %s, please report!", "POLLIN", ufds.revents);
 			return 0;
 		}
 	}
@@ -312,7 +323,7 @@ int cDemux::Read(unsigned char *buff, int len, int timeout)
 	rc = ::read(fd, buff, len);
 	//fprintf(stderr, "fd %d ret: %d\n", fd, rc);
 	if (rc < 0)
-		lt_info("%s read(): %m\n", __FUNCTION__);
+		dmx_err("read: %s", strerror(errno), 0);
 
 	return rc;
 }
@@ -321,9 +332,8 @@ bool cDemux::sectionFilter(unsigned short pid, const unsigned char * const filte
 			   const unsigned char * const mask, int len, int timeout,
 			   const unsigned char * const negmask)
 {
-	struct demux_filter_para flt;
 	int length;
-	memset(&flt, 0, sizeof(flt));
+	memset(&s_flt, 0, sizeof(s_flt));
 
 	if (len > FILTER_LENGTH - 2)
 		lt_info("%s #%d: len too long: %d, FILTER_LENGTH: %d\n", __FUNCTION__, num, len, FILTER_LENGTH);
@@ -331,20 +341,20 @@ bool cDemux::sectionFilter(unsigned short pid, const unsigned char * const filte
 	length = (len + 2 + 1) & 0xfe;	/* reportedly, the TD drivers don't handle odd filter  */
 	if (length > FILTER_LENGTH)	/* lengths well. So make sure the length is a multiple */
 		length = FILTER_LENGTH;	/* of 2. The unused mask is zeroed anyway.             */
-	flt.pid = pid;
-	flt.filter_length = length;
-	flt.filter[0] = filter[0];
-	flt.mask[0] = mask[0];
-	flt.timeout = timeout;
-	memcpy(&flt.filter[3], &filter[1], len - 1);
-	memcpy(&flt.mask[3],   &mask[1],   len - 1);
+	s_flt.pid = pid;
+	s_flt.filter_length = length;
+	s_flt.filter[0] = filter[0];
+	s_flt.mask[0] = mask[0];
+	s_flt.timeout = timeout;
+	memcpy(&s_flt.filter[3], &filter[1], len - 1);
+	memcpy(&s_flt.mask[3],   &mask[1],   len - 1);
 	if (negmask != NULL)
 	{
-		flt.positive[0] = negmask[0];
-		memcpy(&flt.positive[3], &negmask[1], len - 1);
+		s_flt.positive[0] = negmask[0];
+		memcpy(&s_flt.positive[3], &negmask[1], len - 1);
 	}
 
-	flt.flags = XPDF_IMMEDIATE_START;
+	s_flt.flags = XPDF_IMMEDIATE_START;
 
 	int to = 0;
 	switch (filter[0]) {
@@ -388,25 +398,25 @@ bool cDemux::sectionFilter(unsigned short pid, const unsigned char * const filte
 	/* 0x50 - 0x5F: event_information_section - actual_transport_stream, schedule */
 	/* 0x60 - 0x6F: event_information_section - other_transport_stream, schedule */
 	case 0x70: /* time_date_section */
-		flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
-		//flt.pid     = 0x0014;
+		s_flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
+		//s_flt.pid     = 0x0014;
 		to = 30000;
 		break;
 	case 0x71: /* running_status_section */
-		flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
+		s_flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
 		to = 0;
 		break;
 	case 0x72: /* stuffing_section */
-		flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
+		s_flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
 		to = 0;
 		break;
 	case 0x73: /* time_offset_section */
-		//flt.pid     = 0x0014;
+		//s_flt.pid     = 0x0014;
 		to = 30000;
 		break;
 	/* 0x74 - 0x7D: reserved for future use */
 	case 0x7E: /* discontinuity_information_section */
-		flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
+		s_flt.flags  |= (XPDF_NO_CRC); /* section has no CRC */
 		to = 0;
 		break;
 	case 0x7F: /* selection_information_section */
@@ -420,15 +430,17 @@ bool cDemux::sectionFilter(unsigned short pid, const unsigned char * const filte
 //		return -1;
 	}
 	if (timeout == 0)
-		flt.timeout = to;
+		s_flt.timeout = to;
+
+	lt_debug("%s #%d pid:0x%04hx fd:%d type:%s len:%d/%d to:%d flags:%x flt[0]:%02x\n", __func__, num,
+		pid, fd, DMX_T[dmx_type], len,s_flt.filter_length, s_flt.timeout,s_flt.flags, s_flt.filter[0]);
 #if 0
-	fprintf(stderr, "cDemux::%s #%d pid:0x%04hx fd:%d type:%s len:%d/%d to:%d flags:%x\n", __FUNCTION__, num, pid, fd, DMX_T[dmx_type], len,flt.filter_length, flt.timeout,flt.flags);
-	fprintf(stderr,"filt: ");for(int i=0;i<FILTER_LENGTH;i++)fprintf(stderr,"%02hhx ",flt.filter[i]);fprintf(stderr,"\n");
-	fprintf(stderr,"mask: ");for(int i=0;i<FILTER_LENGTH;i++)fprintf(stderr,"%02hhx ",flt.mask  [i]);fprintf(stderr,"\n");
-	fprintf(stderr,"posi: ");for(int i=0;i<FILTER_LENGTH;i++)fprintf(stderr,"%02hhx ",flt.positive[i]);fprintf(stderr,"\n");
+	fprintf(stderr,"filt: ");for(int i=0;i<FILTER_LENGTH;i++)fprintf(stderr,"%02hhx ",s_flt.filter[i]);fprintf(stderr,"\n");
+	fprintf(stderr,"mask: ");for(int i=0;i<FILTER_LENGTH;i++)fprintf(stderr,"%02hhx ",s_flt.mask  [i]);fprintf(stderr,"\n");
+	fprintf(stderr,"posi: ");for(int i=0;i<FILTER_LENGTH;i++)fprintf(stderr,"%02hhx ",s_flt.positive[i]);fprintf(stderr,"\n");
 #endif
 	ioctl (fd, DEMUX_STOP);
-	if (ioctl(fd, DEMUX_FILTER_SET, &flt) < 0)
+	if (ioctl(fd, DEMUX_FILTER_SET, &s_flt) < 0)
 		return false;
 
 	return true;
@@ -436,8 +448,6 @@ bool cDemux::sectionFilter(unsigned short pid, const unsigned char * const filte
 
 bool cDemux::pesFilter(const unsigned short pid)
 {
-	demux_pes_para flt;
-
 	if (pid <= 0x0001 && dmx_type != DMX_PCR_ONLY_CHANNEL)
 		return false;
 	if ((pid >= 0x0002 && pid <= 0x000f) || pid >= 0x1fff)
@@ -451,40 +461,40 @@ bool cDemux::pesFilter(const unsigned short pid)
 		addPid(pid);
 		return (n != pesfds.size());
 	}
-	memset(&flt, 0, sizeof(flt));
-	flt.pid = pid;
-	flt.output = OUT_DECODER;
+	memset(&p_flt, 0, sizeof(p_flt));
+	p_flt.pid = pid;
+	p_flt.output = OUT_DECODER;
 	switch (dmx_type) {
 	case DMX_PCR_ONLY_CHANNEL:
-		flt.pesType = DMX_PES_PCR;
+		p_flt.pesType = DMX_PES_PCR;
 		break;
 	case DMX_AUDIO_CHANNEL:
-		flt.pesType = DMX_PES_AUDIO;
+		p_flt.pesType = DMX_PES_AUDIO;
 		break;
 	case DMX_VIDEO_CHANNEL:
-		flt.pesType = DMX_PES_VIDEO;
+		p_flt.pesType = DMX_PES_VIDEO;
 		break;
 	case DMX_PES_CHANNEL:
-		flt.unloader.unloader_type = UNLOADER_TYPE_PAYLOAD;
+		p_flt.unloader.unloader_type = UNLOADER_TYPE_PAYLOAD;
 		if (buffersize <= 0x10000) // dvbsubtitle, instant delivery...
-			flt.unloader.threshold = 1;
+			p_flt.unloader.threshold = 1;
 		else
-			flt.unloader.threshold = 8; // 1k, teletext
-		flt.pesType = DMX_PES_OTHER;
-		flt.output  = OUT_MEMORY;
+			p_flt.unloader.threshold = 8; // 1k, teletext
+		p_flt.pesType = DMX_PES_OTHER;
+		p_flt.output  = OUT_MEMORY;
 		break;
 	case DMX_TP_CHANNEL:
 		/* must be measure == true or we would have returned above */
-		flt.output = OUT_MEMORY;
-		flt.pesType = DMX_PES_OTHER;
-		flt.unloader.threshold = 1;
-		flt.unloader.unloader_type = UNLOADER_TYPE_MEASURE_DUMMY;
+		p_flt.output = OUT_MEMORY;
+		p_flt.pesType = DMX_PES_OTHER;
+		p_flt.unloader.threshold = 1;
+		p_flt.unloader.unloader_type = UNLOADER_TYPE_MEASURE_DUMMY;
 		ioctl(fd, DEMUX_SET_MEASURE_TIME, 250000);
 		break;
 	default:
-		flt.pesType = DMX_PES_OTHER;
+		p_flt.pesType = DMX_PES_OTHER;
 	}
-	return (ioctl(fd, DEMUX_FILTER_PES_SET, &flt) >= 0);
+	return (ioctl(fd, DEMUX_FILTER_PES_SET, &p_flt) >= 0);
 }
 
 void cDemux::SetSyncMode(AVSYNC_TYPE /*mode*/)

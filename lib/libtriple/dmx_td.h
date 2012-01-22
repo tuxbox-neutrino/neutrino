@@ -41,6 +41,8 @@ class cDemux
 		uint64_t last_measure, last_data;
 		DMX_CHANNEL_TYPE dmx_type;
 		std::vector<pes_pids> pesfds;
+		struct demux_filter_para s_flt;
+		demux_pes_para p_flt;
 	public:
 
 		bool Open(DMX_CHANNEL_TYPE pes_type, void * x = NULL, int y = 0);
