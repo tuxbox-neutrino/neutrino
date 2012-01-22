@@ -17,6 +17,7 @@ extern "C" {
 #include <hardware/avs/bios_system_config.h>
 }
 #include "lt_dfbinput.h"
+#include "pwrmngr.h"
 
 #include "lt_debug.h"
 #define lt_debug(args...) _lt_debug(TRIPLE_DEBUG_INIT, NULL, args)
@@ -125,6 +126,9 @@ void init_td_api()
 	lt_info("%s begin, initialized=%d, debug=0x%02x\n", __FUNCTION__, (int)initialized, debuglevel);
 	if (!initialized)
 	{
+		/* leave standby early, this avoids popping noise on audio device */
+		cCpuFreqManager f;
+		f.SetCpuFreq(0);	/* CPUFREQ == 0 is the trigger for leaving standby */
 		/* DirectFB does setpgid(0,0), which disconnects us from controlling terminal
 		   and thus disables e.g. ctrl-C. work around that. */
 		pid_t pid = getpgid(0);

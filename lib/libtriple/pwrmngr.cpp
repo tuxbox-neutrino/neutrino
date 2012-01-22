@@ -58,8 +58,10 @@ bool cCpuFreqManager::SetCpuFreq(unsigned long f)
 	}
 	else
 	{
+		ioctl(fd, IOC_AVS_SET_VOLUME, 31); /* mute AVS to avoid ugly noise */
 		ioctl(fd, IOC_AVS_STANDBY_LEAVE);
-		ioctl(fd, IOC_AVS_SET_VOLUME, 0); /* max gain */
+		/* unmute will be done by cAudio::do_mute(). Ugly, but prevents pops */
+		// ioctl(fd, IOC_AVS_SET_VOLUME, 0); /* max gain */
 	}
 
 	close(fd);

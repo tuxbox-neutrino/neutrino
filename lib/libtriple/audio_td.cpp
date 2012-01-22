@@ -6,6 +6,7 @@
 
 
 #include <hardware/tddevices.h>
+#include <avs/avs_inf.h>
 #define AUDIO_DEVICE "/dev/" DEVICE_NAME_AUDIO
 #include "audio_td.h"
 #include "lt_debug.h"
@@ -37,6 +38,7 @@ void cAudio::openDevice(void)
 		if ((fd = open(AUDIO_DEVICE, O_RDWR)) < 0)
 			lt_info("openDevice: open failed (%m)\n");
 		fcntl(fd, F_SETFD, FD_CLOEXEC);
+		do_mute(true, false);
 	}
 	else
 		lt_info("openDevice: already open (fd = %d)\n", fd);
@@ -58,6 +60,7 @@ void cAudio::closeDevice(void)
 int cAudio::do_mute(bool enable, bool remember)
 {
 	lt_debug("%s(%d, %d)\n", __FUNCTION__, enable, remember);
+	int avsfd;
 	int ret;
 	if (remember)
 		Muted = enable;
@@ -69,6 +72,15 @@ int cAudio::do_mute(bool enable, bool remember)
 	if (clipfd != -1 || mixer_fd != -1)
 		setVolume(volume,volume); /* considers "Muted" variable, "remember"
 					     is basically always true in this context */
+	avsfd = open("/dev/stb/tdsystem", O_RDONLY);
+	if (avsfd >= 0)
+	{
+		if (enable)
+			ioctl(avsfd, IOC_AVS_SET_VOLUME, 31);
+		else
+			ioctl(avsfd, IOC_AVS_SET_VOLUME, 0);
+		close(avsfd);
+	}
 	return ret;
 }
 
