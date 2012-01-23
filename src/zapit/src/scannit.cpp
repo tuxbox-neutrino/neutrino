@@ -27,6 +27,7 @@
 #include <math.h>
 
 #define DEBUG_NIT
+//#define DEBUG_NIT_UNUSED
 
 CNit::CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dnum)
 {
@@ -189,7 +190,7 @@ bool CNit::Parse()
 
 				default:
 					{
-#ifdef DEBUG_NIT
+#ifdef DEBUG_NIT_UNUSED
 						printf("NIT: descriptor %02x: ", d->getTag());
 						uint8_t len = 2+d->getLength();
 						uint8_t buf[len];
@@ -223,6 +224,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	if(satellitePosition != newSat) {
 		printf("NIT: different satellite position: our %d nit %d\n",
 				satellitePosition, sd->getOrbitalPosition());
+		return false;
 	}
 
 	uint8_t polarization = sd->getPolarization();
