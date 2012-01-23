@@ -83,19 +83,16 @@ void CMessageBox::Init(const CMessageBox::result_ Default, const uint32_t ShowBu
 
 	ButtonCount = 0;
 	if (showbuttons & mbYes) {
-		Buttons[ButtonCount].def = (result == mbrYes) ? true : false;
 		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_RED;
 		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_YES);
 		ButtonCount++;
 	}
 	if (showbuttons & mbNo) {
-		Buttons[ButtonCount].def = (result == mbrNo) ? true : false;
 		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_GREEN;
 		Buttons[ButtonCount].text = g_Locale->getText(LOCALE_MESSAGEBOX_NO);
 		ButtonCount++;
 	}
 	if (showbuttons & (mbCancel | mbBack | mbOk)) {
-		Buttons[ButtonCount].def = (result >= mbrCancel) ? true : false;
 		Buttons[ButtonCount].icon = NEUTRINO_ICON_BUTTON_HOME;
 		Buttons[ButtonCount].text = g_Locale->getText((showbuttons & mbCancel) ? LOCALE_MESSAGEBOX_CANCEL : (showbuttons & mbOk) ? LOCALE_MESSAGEBOX_OK : LOCALE_MESSAGEBOX_BACK);
 		ButtonCount++;
@@ -129,8 +126,8 @@ void CMessageBox::paintButtons()
 {
 	fb_pixel_t color;
 	fb_pixel_t bgcolor;
+	int iw, ih, i;
 
-	int iw, ih;
 	int xpos = (m_width - bb_width) / 2;
 	if (mbBtnAlign == CMessageBox::mbBtnAlignCenter1)
 		xpos = ButtonDistance;
@@ -145,7 +142,19 @@ void CMessageBox::paintButtons()
 
 	m_window->paintBoxRel(0, m_height - bb_height, m_width, bb_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
-	for (int i = 0; i < ButtonCount; i++) {
+	i = 0;
+	if (showbuttons & mbYes) {
+		Buttons[i].def = (result == mbrYes) ? true : false;
+		i++;
+	}
+	if (showbuttons & mbNo) {
+		Buttons[i].def = (result == mbrNo) ? true : false;
+		i++;
+	}
+	if (showbuttons & (mbCancel | mbBack | mbOk))
+		Buttons[i].def = (result >= mbrCancel) ? true : false;
+
+	for (i = 0; i < ButtonCount; i++) {
 		if (Buttons[i].def) {
 			color   = COL_MENUCONTENTSELECTED;
 			bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
