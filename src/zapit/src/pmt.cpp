@@ -366,7 +366,7 @@ bool CPmt::parse_pmt(CZapitChannel * const channel)
 	/* length of elementary stream description */
 	unsigned short ES_info_length;
 
-	printf("[zapit] parsing pmt pid 0x%X\n", channel->getPmtPid());
+	printf("[zapit] parsing pmt pid 0x%X (%s)\n", channel->getPmtPid(), channel->getName().c_str());
 
 	if (channel->getPmtPid() == 0)
 		return false;
@@ -406,18 +406,25 @@ bool CPmt::parse_pmt(CZapitChannel * const channel)
 	for (i = 12 + program_info_length; i < section_length - 1; i += ES_info_length + 5)
 		ES_info_length = ParseES(buffer + i, channel, caPmt);
 
+	casys_map_t camap;
+	MakeCAMap(camap);
+	channel->scrambled = !camap.empty();
+
 	if(CServiceScan::getInstance()->Scanning()) {
 		channel->setCaPmt(NULL);
 		channel->setRawPmt(NULL);
 		delete caPmt;
 	} else {
+#if 0
 		MakeCAMap(channel->camap);
+		channel->scrambled = !channel->camap.empty();
+#endif
+		channel->camap = camap;
 		channel->setCaPmt(caPmt);
 		int pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] + 3;
 		unsigned char * p = new unsigned char[pmtlen];
 		memmove(p, buffer, pmtlen);
 		channel->setRawPmt(p, pmtlen);
-		channel->scrambled = !channel->camap.empty();
 	}
 #if 0
 	//Quick&Dirty Hack to support Premiere's EPG not only on the portal but on the subchannels as well
@@ -440,6 +447,7 @@ bool CPmt::haveCaSys(int pmtpid, int service_id )
 
 	casys_map_t camap;
 	MakeCAMap(camap);
+printf("CPmt::haveCaSys: sid %04x camap.size %d\n", service_id, camap.size());
 	return !camap.empty();
 }
 
