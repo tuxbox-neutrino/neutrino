@@ -35,9 +35,10 @@ extern short abort_scan;
 
 void *nit_thread(void * data)
 {
-	nit_thread_args_t *threadArgs = (nit_thread_args_t *)data;
+	int satellitePosition = (int) data;
+
 	printf("[scan] trying to parse NIT\n");
-	int status = parse_nit(threadArgs->satellitePosition, threadArgs->freq, threadArgs->nid);
+	int status = parse_nit(satellitePosition, 0);
 	if(status < 0)
 		printf("[scan] NIT failed !\n");
 	else
@@ -46,19 +47,16 @@ void *nit_thread(void * data)
 	pthread_exit(NULL);
 }
 
-int parse_nit(t_satellite_position satellitePosition, freq_id_t freq, unsigned short nid)
+int parse_nit(t_satellite_position satellitePosition, freq_id_t freq)
 {
 	int ret = 0;
-	int secdone[2][255];
-	int sectotal[2] = { -1, -1 };
-	int nit_index = 0;
+	int secdone[255];
+	int sectotal = -1;
 
-	for(int i = 0; i < 2; i++) {
-		for (int j = 0; j < 255; j++)
-		secdone[i][j] = 0;
-	}
+	for(int i = 0; i < 255; i++)
+		secdone[i] = 0;
 
-	cDemux * dmx = new cDemux();
+	cDemux * dmx = new cDemux();;
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	unsigned char buffer[NIT_SIZE];
@@ -84,15 +82,7 @@ int parse_nit(t_satellite_position satellitePosition, freq_id_t freq, unsigned s
 
 	filter[0] = 0x40;
 	//filter[4] = 0x00;
-	mask[0] = (nid != 0) ? 0xFE : 0xFF; // in case we have network ID we also want the 'other' tables
-
-	if (nid) { // filter for the network ID
-		filter[1] = (nid >> 8) & 0xff;
-		filter[2] = (nid >> 0) & 0xff;
-		mask[1] = 0xff;
-		mask[2] = 0xff;
-	}
-
+	mask[0] = 0xFF;
 	//mask[4] = 0xFF;
 	//unsigned char sec = 0x00;
 
@@ -100,44 +90,34 @@ int parse_nit(t_satellite_position satellitePosition, freq_id_t freq, unsigned s
 		delete dmx;
 		return -1;
 	}
-
 	do {
 		if (dmx->Read(buffer, NIT_SIZE) < 0) {
 			delete dmx;
 			return -1;
 		}
-
 		if (CServiceScan::getInstance()->Aborted()) {
 			ret = -1;
 			goto _return;
 		}
-
-		if ((buffer[0] != 0x40) && ((nid > 0) && (buffer[0] != 0x41))) {
-			// NIT actual or NIT other 
-			printf("[NIT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
-			ret = -1;
-			goto _return;
-		}
-
-		nit_index = buffer[0] & 1; 
+if(buffer[0] != 0x40)
+	printf("[NIT] ******************************************* Bogus section received: 0x%x\n", buffer[0]);
 		section_length = ((buffer[1] & 0x0F) << 8) + buffer[2];
 		network_id = ((buffer[3] << 8)| buffer [4]);
 		network_descriptors_length = ((buffer[8] & 0x0F) << 8) | buffer[9];
 		unsigned char secnum = buffer[6];
-		printf("[NIT] section %X last %X network_id 0x%x -> %s\n", secnum, buffer[7], network_id, secdone[nit_index][secnum] ? "skip" : "use");
-		if(secdone[nit_index][secnum]) // mark sec XX done
+printf("[NIT] section %X last %X network_id 0x%x -> %s\n", secnum, buffer[7], network_id, secdone[secnum] ? "skip" : "use");
+		if(secdone[secnum]) // mark sec XX done
 			continue;
-		secdone[nit_index][secnum] = 1;
-		sectotal[nit_index]++;
+		secdone[secnum] = 1;
+		sectotal++;
 		for (pos = 10; pos < network_descriptors_length + 10; pos += buffer[pos + 1] + 2)
 		{
 			switch (buffer[pos])
 			{
-				/*
-				case 0x0F:
-					Private_data_indicator_descriptor(buffer + pos);
-					break;
-				*/
+				/*			case 0x0F:
+							Private_data_indicator_descriptor(buffer + pos);
+							break;
+							*/
 				case 0x40:
 					network_name_descriptor(buffer + pos);
 					break;
@@ -149,11 +129,11 @@ int parse_nit(t_satellite_position satellitePosition, freq_id_t freq, unsigned s
 				case 0x5B:
 					multilingual_network_name_descriptor(buffer + pos);
 					break;
-				/*
-				case 0x5F:
-					private_data_specifier_descriptor(buffer + pos);
-					break;
-				*/
+
+					/*			case 0x5F:
+								private_data_specifier_descriptor(buffer + pos);
+								break;
+								*/
 				case 0x80: /* unknown, Eutelsat 13.0E */
 					break;
 
@@ -234,7 +214,7 @@ int parse_nit(t_satellite_position satellitePosition, freq_id_t freq, unsigned s
 				}
 			}
 		}
-	} while(sectotal[nit_index] < buffer[7]);
+	} while(sectotal < buffer[7]);
 	//} while (filter[4]++ != buffer[7]);
 _return:
 	dmx->Stop();
