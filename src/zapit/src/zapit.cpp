@@ -42,7 +42,7 @@
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
 #include <zapit/pat.h>
-#include <zapit/pmt.h>
+#include <zapit/scanpmt.h>
 #include <zapit/scan.h>
 #include <zapit/fastscan.h>
 #include <zapit/scansdt.h>
@@ -452,7 +452,7 @@ bool CZapit::ParsePatPmt(CZapitChannel * channel)
 		printf("[zapit] pat parsing failed\n");
 		return false;
 	}
-	if (!pmt.parse_pmt(channel)) {
+	if (!pmt.Parse(channel)) {
 		printf("[zapit] pmt parsing failed\n");
 		return false;
 	}
@@ -528,7 +528,7 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	if (failed)
 		return false;
 
-	current_channel->getCaPmt()->ca_pmt_list_management = transponder_change ? 0x03 : 0x04;
+	//current_channel->getCaPmt()->ca_pmt_list_management = transponder_change ? 0x03 : 0x04;
 
 	RestoreChannelPids(current_channel);
 
@@ -841,7 +841,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 			msgCurrentServiceInfo.apid = current_channel->getAudioPid();
 			msgCurrentServiceInfo.vtxtpid = current_channel->getTeletextPid();
 			msgCurrentServiceInfo.pmtpid = current_channel->getPmtPid();
-			msgCurrentServiceInfo.pmt_version = (current_channel->getCaPmt() != NULL) ? current_channel->getCaPmt()->version_number : 0xff;
+			//msgCurrentServiceInfo.pmt_version = (current_channel->getCaPmt() != NULL) ? current_channel->getCaPmt()->version_number : 0xff;
+			msgCurrentServiceInfo.pmt_version = current_channel->getPmtVersion();
 			msgCurrentServiceInfo.pcrpid = current_channel->getPcrPid();
 			msgCurrentServiceInfo.tsfrequency = live_fe->getFrequency();
 			msgCurrentServiceInfo.rate = live_fe->getRate();
@@ -2099,7 +2100,7 @@ void CZapit::run()
 					t_channel_id channel_id = current_channel->getChannelID();
 					int vpid = current_channel->getVideoPid();
 					CPmt pmt;
-					pmt.parse_pmt(current_channel);
+					pmt.Parse(current_channel);
 					if(vpid != current_channel->getVideoPid()) {
 						ZapIt(current_channel->getChannelID(), true);
 					} else {
