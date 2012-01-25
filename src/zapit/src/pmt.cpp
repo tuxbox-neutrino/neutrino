@@ -55,16 +55,7 @@
  * 0xc6 User Private (Canal+)
  */
 
-CPmt::CPmt(int dnum)
-{
-	dmxnum = dnum;
-}
-
-CPmt::~CPmt()
-{
-}
-
-unsigned short CPmt::ParseES(const unsigned char * const buff, CZapitChannel * const channel, CCaPmt * const caPmt)
+unsigned short parse_ES_info(const unsigned char * const buffer, CZapitChannel * const channel, CCaPmt * const caPmt)
 {
 	unsigned short ES_info_length;
 	unsigned short pos;
@@ -82,46 +73,73 @@ unsigned short CPmt::ParseES(const unsigned char * const buff, CZapitChannel * c
 	/* elementary stream info for ca pmt */
 	CEsInfo *esInfo = new CEsInfo();
 
-	esInfo->stream_type = buff[0];
-	esInfo->reserved1 = buff[1] >> 5;
-	esInfo->elementary_PID = ((buff[1] & 0x1F) << 8) | buff[2];
-	esInfo->reserved2 = buff[3] >> 4;
+	esInfo->stream_type = buffer[0];
+	esInfo->reserved1 = buffer[1] >> 5;
+	esInfo->elementary_PID = ((buffer[1] & 0x1F) << 8) | buffer[2];
+	esInfo->reserved2 = buffer[3] >> 4;
 
-	ES_info_length = ((buff[3] & 0x0F) << 8) | buff[4];
+	ES_info_length = ((buffer[3] & 0x0F) << 8) | buffer[4];
 
 	for (pos = 5; pos < ES_info_length + 5; pos += descriptor_length + 2) {
-		descriptor_tag = buff[pos];
-		descriptor_length = buff[pos + 1];
+		descriptor_tag = buffer[pos];
+		descriptor_length = buffer[pos + 1];
 		unsigned char fieldCount = descriptor_length / 5;
 
 		switch (descriptor_tag) {
+			case 0x02:
+				video_stream_descriptor(buffer + pos);
+				break;
+
+			case 0x03:
+				audio_stream_descriptor(buffer + pos);
+				break;
+
 			case 0x05:
 				if (descriptor_length >= 3)
-					if (!strncmp((const char*)&buff[pos + 2], "DTS", 3))
+					if (!strncmp((const char*)&buffer[pos + 2], "DTS", 3))
 						isDts = true;
 				break;
 
 			case 0x09:
-				esInfo->addCaDescriptor(buff + pos);
+				esInfo->addCaDescriptor(buffer + pos);
 				descramble = true;
 				break;
 
 			case 0x0A: /* ISO_639_language_descriptor */
 #if 0
-printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
+printf("descr 0x0A: %02X %02X %02X\n", buffer[pos+2], buffer[pos+3], buffer[pos+4]);
 #endif
 				/* FIXME cyfra+ radio -> 41 20 31 ?? */
-				if (description != "" && buff[pos + 3] == ' ') {
-					description += buff[pos + 3];
-					description += buff[pos + 4];
+				if (description != "" && buffer[pos + 3] == ' ') {
+					description += buffer[pos + 3];
+					description += buffer[pos + 4];
 				} else {
 				for (i = 0; i < 3; i++)
-					description += tolower(buff[pos + i + 2]);
+					description += tolower(buffer[pos + i + 2]);
 				}
 				break;
 
+			case 0x13: /* Defined in ISO/IEC 13818-6 */
+				break;
+
+			case 0x0E:
+				Maximum_bitrate_descriptor(buffer + pos);
+				break;
+
+			case 0x0F:
+				Private_data_indicator_descriptor(buffer + pos);
+				break;
+
+			case 0x11:
+				STD_descriptor(buffer + pos);
+				break;
+
+			case 0x45:
+				VBI_data_descriptor(buffer + pos);
+				break;
+
 			case 0x52: /* stream_identifier_descriptor */
-				componentTag = buff[pos + 2];
+				componentTag = buffer[pos + 2];
 				break;
 
 			case 0x56: /* teletext descriptor */
@@ -129,12 +147,12 @@ printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
 				//printf("[pmt] teletext pid %x: %s\n", esInfo->elementary_PID, tmp_Lang);
 				printf("[pmt] teletext pid %x\n", esInfo->elementary_PID);
 				for (unsigned char fIdx = 0; fIdx < fieldCount; fIdx++) {
-					memmove(tmp_Lang, &buff[pos + 5*fIdx + 2], 3);
+					memmove(tmp_Lang, &buffer[pos + 5*fIdx + 2], 3);
 					tmp_Lang[3] = '\0';
-					unsigned char teletext_type=buff[pos + 5*fIdx + 5]>> 3;
-					unsigned char teletext_magazine_number = buff[pos + 5*fIdx + 5] & 7;
-					unsigned char teletext_page_number=buff[pos + 5*fIdx + 6];
-					printf("[pmt] teletext type %d mag %d page %d lang %s\n", teletext_type, teletext_magazine_number, teletext_page_number, tmp_Lang);
+					unsigned char teletext_type=buffer[pos + 5*fIdx + 5]>> 3;
+					unsigned char teletext_magazine_number = buffer[pos + 5*fIdx + 5] & 7;
+					unsigned char teletext_page_number=buffer[pos + 5*fIdx + 6];
+printf("[pmt] teletext type %d mag %d page %d lang %s\n", teletext_type, teletext_magazine_number, teletext_page_number, tmp_Lang);
 					if (teletext_type==0x01)
 						channel->setTeletextLang(tmp_Lang);
 					if (teletext_type==0x02){
@@ -155,22 +173,34 @@ printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
 					unsigned char fieldCount1=descriptor_length/8;
 					for (unsigned char fIdx=0;fIdx<fieldCount1;fIdx++){
 						char tmpLang[4];
-						memmove(tmpLang,&buff[pos + 8*fIdx + 2],3);
+						memmove(tmpLang,&buffer[pos + 8*fIdx + 2],3);
 						tmpLang[3] = '\0';
-						unsigned char subtitling_type=buff[pos+8*fIdx+5];
+						unsigned char subtitling_type=buffer[pos+8*fIdx+5];
 						unsigned short composition_page_id=
-							*((unsigned short*)(&buff[pos + 8*fIdx + 6]));
+							*((unsigned short*)(&buffer[pos + 8*fIdx + 6]));
 						unsigned short ancillary_page_id=
-							*((unsigned short*)(&buff[pos + 8*fIdx + 8]));
+							*((unsigned short*)(&buffer[pos + 8*fIdx + 8]));
 						channel->addDVBSubtitle(esInfo->elementary_PID,tmpLang,subtitling_type,composition_page_id,ancillary_page_id);
 					}
 					descramble = true;//FIXME MGM / 10E scrambling subtitles ?
 				}
 
+				subtitling_descriptor(buffer + pos);
+				break;
+
+			case 0x5F:
+				private_data_specifier_descriptor(buffer + pos);
+				break;
+
+			case 0x66:
+				data_broadcast_id_descriptor(buffer + pos);
 				break;
 
 			case 0x6A: /* AC3 descriptor */
 				isAc3 = true;
+				break;
+
+			case 0x6F: /* unknown, Astra 19.2E */
 				break;
 
 			case 0x7B:
@@ -181,8 +211,50 @@ printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
 				isAac = true;
 				break;
 
+			case 0x90: /* unknown, Astra 19.2E */
+				break;
+
+			case 0xB1: /* unknown, Astra 19.2E */
+				break;
+
+			case 0xC0: /* unknown, Astra 19.2E */
+				break;
+
+			case 0xC1: /* unknown, Astra 19.2E */
+				break;
+
+			case 0xC2: /* User Private descriptor - Canal+ */
+#if 0
+				DBG("0xC2 dump:");
+				for (i = 0; i < descriptor_length; i++) {
+					printf("%c", buffer[pos + 2 + i]);
+					if (((i+1) % 8) == 0)
+						printf("\n");
+				}
+#endif
+				break;
+
 			case 0xC5: /* User Private descriptor - Canal+ Radio */
-				description = convertDVBUTF8((const char*)&buff[pos+3], 24, 2, channel->getTransportStreamId() << 16 | channel->getOriginalNetworkId());
+				//description = convertDVBUTF8((const char*)&buffer[pos+3], 24, 2, 1);
+				description = convertDVBUTF8((const char*)&buffer[pos+3], 24, 2, channel->getTransportStreamId() << 16 | channel->getOriginalNetworkId());
+#if 0
+printf("descr 0xC5\n");
+				for (i = 0; i < 24; i++) {
+printf("%02X ", buffer[pos + i]);
+					//description += buffer[pos + i + 3];
+				}
+printf("\n");
+printf("[pmt] name %s\n", description.c_str());
+#endif
+				break;
+
+			case 0xC6: /* unknown, Astra 19.2E */
+				break;
+
+			case 0xFD: /* unknown, Astra 19.2E */
+				break;
+
+			case 0xFE: /* unknown, Astra 19.2E */
 				break;
 
 			default:
@@ -219,17 +291,17 @@ printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
 				int tmp=0;
 				// Houdini: shameless stolen from enigma dvbservices.cpp
 				for (pos = 5; pos < ES_info_length + 5; pos += descriptor_length + 2) {
-					descriptor_tag = buff[pos];
-					descriptor_length = buff[pos + 1];
+					descriptor_tag = buffer[pos];
+					descriptor_length = buffer[pos + 1];
 
 					switch (descriptor_tag) {
 						case 0x5F: //DESCR_PRIV_DATA_SPEC:
-							if ( ((buff[pos + 2]<<24) | (buff[pos + 3]<<16) | (buff[pos + 4]<<8) | (buff[pos + 5])) == 190 )
+							if ( ((buffer[pos + 2]<<24) | (buffer[pos + 3]<<16) | (buffer[pos + 4]<<8) | (buffer[pos + 5])) == 190 )
 								tmp |= 1;
 							break;
 						case 0x90:
 							{
-								if ( descriptor_length == 4 && !buff[pos + 2] && !buff[pos + 3] && buff[pos + 4] == 0xFF && buff[pos + 5] == 0xFF )
+								if ( descriptor_length == 4 && !buffer[pos + 2] && !buffer[pos + 3] && buffer[pos + 4] == 0xFF && buffer[pos + 5] == 0xFF )
 									tmp |= 2;
 							}
 							//break;??
@@ -293,8 +365,26 @@ printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
 			if(!CServiceScan::getInstance()->Scanning())
 				channel->addAudioChannel(esInfo->elementary_PID, CZapitAudioChannel::AAC, description, componentTag);
 			break;
+		case 0x0B:
+			break;
+
+		case 0x90:
+			break;
+
+		case 0x93:
+			break;
+
+		case 0xC0:
+			break;
+
+		case 0xC1:
+			break;
+
+		case 0xC6:
+			break;
+
 		default:
-			INFO("stream_type: %02x\n", esInfo->stream_type);
+			DBG("stream_type: %02x\n", esInfo->stream_type);
 			break;
 	}
 
@@ -306,21 +396,48 @@ printf("descr 0x0A: %02X %02X %02X\n", buff[pos+2], buff[pos+3], buff[pos+4]);
 	return ES_info_length;
 }
 
-bool CPmt::Read(unsigned short pid, unsigned short sid)
+int curpmtpid,curservice_id;
+int pmt_caids[4][11] = {{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0,0}};
+
+int parse_pmt(CZapitChannel * const channel)
 {
-	bool ret = true;
+	int pmtlen;
+	int ia, dpmtlen, pos;
+	unsigned char descriptor_length=0;
+
+	unsigned char buffer[PMT_SIZE];
+
+	/* current position in buffer */
+	unsigned short i,j;
+	for(j=0;j<4;j++){
+		for(i=0;i<11;i++)
+			pmt_caids[j][i] = 0;
+	}
+	/* length of elementary stream description */
+	unsigned short ES_info_length;
+
+	/* TS_program_map_section elements */
+	unsigned short section_length;
+	unsigned short program_info_length;
+
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 
-	cDemux * dmx = new cDemux(dmxnum);
+	printf("[zapit] parsing pmt pid 0x%X\n", channel->getPmtPid());
+
+	if (channel->getPmtPid() == 0){
+		return -1;
+	}
+
+	cDemux * dmx = new cDemux();
 	dmx->Open(DMX_PSI_CHANNEL);
 
 	memset(filter, 0x00, DMX_FILTER_SIZE);
 	memset(mask, 0x00, DMX_FILTER_SIZE);
 
 	filter[0] = 0x02;	/* table_id */
-	filter[1] = sid >> 8;
-	filter[2] = sid;
+	filter[1] = channel->getServiceId() >> 8;
+	filter[2] = channel->getServiceId();
 	filter[3] = 0x01;	/* current_next_indicator */
 	filter[4] = 0x00;	/* section_number */
 	mask[0] = 0xFF;
@@ -328,55 +445,83 @@ bool CPmt::Read(unsigned short pid, unsigned short sid)
 	mask[2] = 0xFF;
 	mask[3] = 0x01;
 	mask[4] = 0xFF;
-	if ((dmx->sectionFilter(pid, filter, mask, 5) < 0) || (dmx->Read(buffer, PMT_SIZE) < 0)) {
-		printf("CPmt::Read: pid %x failed\n", pid);
-		ret = false;
+
+	if ((dmx->sectionFilter(channel->getPmtPid(), filter, mask, 5) < 0) || (dmx->Read(buffer, PMT_SIZE) < 0)) {
+		delete dmx;
+		return -1;
 	}
 	delete dmx;
-	return ret;
-}
 
-void CPmt::MakeCAMap(casys_map_t &camap)
-{
-	int pmtlen;
-	int pos;
-	unsigned char descriptor_length=0;
-
+	curservice_id = channel->getServiceId();
+	curpmtpid = channel->getPmtPid();
 	pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] +3;
+
+	dpmtlen=0;
 	pos=10;
-	camap.clear();
-	while(pos + 2 < pmtlen) {
-		int dpmtlen=((buffer[pos] & 0x0f) << 8) | buffer[pos+1];
-		for (int ia = pos+2; ia < (dpmtlen+pos+2);ia += descriptor_length + 2) {
-			descriptor_length = buffer[ia+1];
-			if (ia < pmtlen - 4)
-				if(buffer[ia] == 0x09 && buffer[ia + 1] > 0) {
-					int caid = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];;
-					camap.insert(caid);
-				}
+	short int ci0 = 0, ci1 = 0, ci2 = 0, ci3 = 0, ci4 = 0, ci5 = 0, ci6 = 0, ci7 = 0, ci8 = 0, ci9 = 0, ci10 = 0;
+	if(!CServiceScan::getInstance()->Scanning()) {
+		while(pos+2<pmtlen) {
+			dpmtlen=((buffer[pos] & 0x0f) << 8) | buffer[pos+1];
+			for ( ia=pos+2;ia<(dpmtlen+pos+2);ia +=descriptor_length+2 ) {
+				descriptor_length = buffer[ia+1];
+				if ( ia < pmtlen - 4 )
+					if(buffer[ia]==0x09 && buffer[ia+1]>0) {
+						switch(buffer[ia+2]) {
+							case 0x06: pmt_caids[ci0][0] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci0 < 3) ci0++;
+								   break;
+							case 0x17: pmt_caids[ci1][1] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci1 < 3) ci1++;
+								   break;
+							case 0x01: pmt_caids[ci2][2] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci2 < 3) ci2++;
+								   break;
+							case 0x05: pmt_caids[ci3][3] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci3 < 3) ci3++;
+								   break;
+							case 0x18: pmt_caids[ci4][4] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci4 < 3) ci4++;
+								   break;
+							case 0x0B: pmt_caids[ci5][5] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci5 < 3) ci5++;
+								   break;
+							case 0x0D: pmt_caids[ci6][6] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci6 < 3) ci6++;
+								   break;
+							case 0x09: pmt_caids[ci7][7] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci7 < 3) ci7++;
+								   break;
+							case 0x26: pmt_caids[ci8][8] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci8 < 3) ci8++;
+								   break;
+							case 0x4a: pmt_caids[ci9][9] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci9 < 3) ci9++;
+								   break;
+							case 0x0E: pmt_caids[ci10][10] = (buffer[ia+2] & 0x1f) << 8 | buffer[ia+3];
+								   if(ci10 < 3) ci10++;
+								   break;
+						} //switch
+					} // if
+			} // for
+			pos+=dpmtlen+5;
+		} // while
+#if 0
+		fout=fopen("/tmp/caids.info","w");
+		if(fout) {
+			fprintf(fout, "%d %d %d %d %d %d %d %d %d %d\n", caids[0],caids[1],caids[2],caids[3],caids[4],caids[5], caids[6], caids[7], caids[8], caids[9]);
+			fclose(fout);
 		}
-		pos += dpmtlen + 5;
-	}
-}
 
-bool CPmt::parse_pmt(CZapitChannel * const channel)
-{
-	unsigned short i;
-
-	/* length of elementary stream description */
-	unsigned short ES_info_length;
-
-	printf("[zapit] parsing pmt pid 0x%X (%s)\n", channel->getPmtPid(), channel->getName().c_str());
-
-	if (channel->getPmtPid() == 0)
-		return false;
-
-	if(!Read(channel->getPmtPid(), channel->getServiceId()))
-		return false;
+#endif
+	} /* if !CServiceScan::getInstance()->Scanning() */
+	CCaPmt *caPmt = new CCaPmt();
 
 	/* ca pmt */
-	CCaPmt *caPmt = new CCaPmt(buffer);
-	caPmt->ca_pmt_pid = channel->getPmtPid();
+	caPmt->program_number = (buffer[3] << 8) + buffer[4];
+	caPmt->reserved1 = buffer[5] >> 6;
+	caPmt->version_number = (buffer[5] >> 1) & 0x1F;
+	caPmt->current_next_indicator = buffer[5] & 0x01;
+	caPmt->reserved2 = buffer[10] >> 4;
 
 	printf("[pmt] pcr pid: old 0x%x new 0x%x\n", channel->getPcrPid(), ((buffer[8] & 0x1F) << 8) + buffer[9]);
 
@@ -385,11 +530,14 @@ bool CPmt::parse_pmt(CZapitChannel * const channel)
 			channel->resetPids();
 	}
 	/* pmt */
+	section_length = ((buffer[1] & 0x0F) << 8) + buffer[2];
 
-	channel->setPcrPid(((buffer[8] & 0x1F) << 8) + buffer[9]);
+	//if(!channel->getPidsFlag())
+		channel->setPcrPid(((buffer[8] & 0x1F) << 8) + buffer[9]);
 
-	unsigned short program_info_length = ((buffer[10] & 0x0F) << 8) | buffer[11];
-	if (program_info_length) {
+	program_info_length = ((buffer[10] & 0x0F) << 8) | buffer[11];
+
+	if (program_info_length)
 		for (i = 12; i < 12 + program_info_length; i += buffer[i + 1] + 2)
 			switch (buffer[i]) {
 				case 0x09:
@@ -399,29 +547,17 @@ bool CPmt::parse_pmt(CZapitChannel * const channel)
 					DBG("decriptor_tag: %02x\n", buffer[i]);
 					break;
 			}
-	}
 
 	/* pmt */
-	unsigned short section_length = ((buffer[1] & 0x0F) << 8) + buffer[2];
 	for (i = 12 + program_info_length; i < section_length - 1; i += ES_info_length + 5)
-		ES_info_length = ParseES(buffer + i, channel, caPmt);
-
-	casys_map_t camap;
-	MakeCAMap(camap);
-	channel->scrambled = !camap.empty();
+		ES_info_length = parse_ES_info(buffer + i, channel, caPmt);
 
 	if(CServiceScan::getInstance()->Scanning()) {
 		channel->setCaPmt(NULL);
 		channel->setRawPmt(NULL);
 		delete caPmt;
 	} else {
-#if 0
-		MakeCAMap(channel->camap);
-		channel->scrambled = !channel->camap.empty();
-#endif
-		channel->camap = camap;
 		channel->setCaPmt(caPmt);
-		int pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] + 3;
 		unsigned char * p = new unsigned char[pmtlen];
 		memmove(p, buffer, pmtlen);
 		channel->setRawPmt(p, pmtlen);
@@ -437,19 +573,90 @@ bool CPmt::parse_pmt(CZapitChannel * const channel)
 #endif
 	channel->setPidsFlag();
 
-	return true;
+	return 0;
 }
 
-bool CPmt::haveCaSys(int pmtpid, int service_id )
+int scan_parse_pmt(int pmtpid, int service_id )
 {
-	if(!Read(pmtpid, service_id))
-		return false;
+	if((pmtpid < 1 ) || (curpmtpid == pmtpid && service_id != curservice_id))
+		return -1;
+	if(curpmtpid == pmtpid && service_id == curservice_id){
+		 for(int i=0;i<11;i++){
+			if(pmt_caids[0][i] > 0)
+			  return 1;
+		 }
+		 return 0;
+	}
 
-	casys_map_t camap;
-	MakeCAMap(camap);
-printf("CPmt::haveCaSys: sid %04x camap.size %d\n", service_id, camap.size());
-	return !camap.empty();
+	int pmtlen;
+	int ia, dpmtlen, pos;
+	unsigned char descriptor_length=0;
+	const short pmt_size = 1024;
+
+	unsigned char buffer[pmt_size];
+
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
+
+	cDemux * dmx = new cDemux();
+	dmx->Open(DMX_PSI_CHANNEL);
+
+	memset(filter, 0x00, DMX_FILTER_SIZE);
+	memset(mask, 0x00, DMX_FILTER_SIZE);
+
+	filter[0] = 0x02;	/* table_id */
+	filter[1] = service_id >> 8;
+	filter[2] = service_id;
+	filter[3] = 0x01;	/* current_next_indicator */
+	filter[4] = 0x00;	/* section_number */
+	mask[0] = 0xFF;
+	mask[1] = 0xFF;
+	mask[2] = 0xFF;
+	mask[3] = 0x01;
+	mask[4] = 0xFF;
+
+	if ((dmx->sectionFilter(pmtpid, filter, mask, 5) < 0) || (dmx->Read(buffer, pmt_size) < 0)) {
+		delete dmx;
+		return -1;
+	}
+	delete dmx;
+	pmtlen= ((buffer[1]&0xf)<<8) + buffer[2] +3;
+
+	dpmtlen=0;
+	pos=10;
+	if(service_id == ((buffer[3] << 8) | buffer[4]) ){
+		while(pos+2<pmtlen) {
+			dpmtlen=((buffer[pos] & 0x0f) << 8) | buffer[pos+1];
+			for ( ia=pos+2;ia<(dpmtlen+pos+2);ia +=descriptor_length+2 ) {
+				descriptor_length = buffer[ia+1];
+				if ( ia < pmtlen - 4 )
+					if(buffer[ia]==0x09 && buffer[ia+1]>0) {
+						switch(buffer[ia+2]) {
+							case 0x06: 
+							case 0x17: 
+							case 0x01: 
+							case 0x05: 
+							case 0x18: 
+							case 0x0B: 
+							case 0x0D: 
+							case 0x09: 
+							case 0x26: 
+							case 0x4a: 
+							case 0x0E: 
+					 		return 1;
+						} //switch
+					} // if
+			} // for
+			pos+=dpmtlen+5;
+		} // while
+		return 0;
+	}
+	return -1;
+
 }
+#ifndef DMX_SET_NEGFILTER_MASK
+        #define DMX_SET_NEGFILTER_MASK   _IOW('o',48,uint8_t *)
+#endif
 
 cDemux * pmtDemux;
 
@@ -482,7 +689,7 @@ int pmt_set_update_filter(CZapitChannel * const channel, int * fd)
 	mask[4] = 0xFF;
 
 	printf("[pmt] set update filter, sid 0x%x pid 0x%x version %x\n", channel->getServiceId(), channel->getPmtPid(), channel->getCaPmt()->version_number);
-#if 0 //HAVE_COOL_HARDWARE
+#if HAVE_COOL_HARDWARE
 	filter[3] = (((channel->getCaPmt()->version_number + 1) & 0x01) << 1) | 0x01;
 	mask[3] = (0x01 << 1) | 0x01;
 	pmtDemux->sectionFilter(channel->getPmtPid(), filter, mask, 5);
