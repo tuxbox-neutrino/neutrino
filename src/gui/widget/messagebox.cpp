@@ -131,7 +131,7 @@ void CMessageBox::paintButtons()
 	int xpos = (m_width - bb_width) / 2;
 	if (mbBtnAlign == CMessageBox::mbBtnAlignCenter1)
 		xpos = ButtonDistance;
-	if (mbBtnAlign == CMessageBox::mbBtnAlignCenter2)
+	else if (mbBtnAlign == CMessageBox::mbBtnAlignCenter2)
 		xpos = (m_width - bb_width) / 2;
 	else if (mbBtnAlign == CMessageBox::mbBtnAlignLeft)
 		xpos = ButtonSpacing;
