@@ -33,7 +33,6 @@ CCam::CCam()
 {
 	camask = 0;
 	demuxes[0] = demuxes[1] = demuxes[2] = 0;
-	source_demux = -1;
 }
 
 unsigned char CCam::getVersion(void) const
@@ -73,7 +72,6 @@ bool CCam::sendMessage(const char * const data, const size_t length, bool update
 bool CCam::setCaPmt(CCaPmt * const caPmt, int _demux, int _camask, bool update)
 {
 	camask = _camask;
-	source_demux = _demux;
 
 	printf("CCam::setCaPmt cam %x source %d camask %d update %s\n", (int) this, _demux, camask, update ? "yes" : "no" );
 	if(camask == 0) {
@@ -142,13 +140,15 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		printf("CCamManager: channel %llx not found\n", channel_id);
 		return false;
 	}
-printf("CCam::SetMode: channel %llx [%s] mode %d %s update %d\n", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
+
 	mutex.lock();
 	if(channel->getCaPmt() == NULL) {
 		printf("CCamManager: channel %llx dont have caPmt\n", channel_id);
 		mutex.unlock();
 		return false;
 	}
+
+	sat_iterator_t sit = satellitePositions.find(channel->getSatellitePosition());
 
 	cammap_iterator_t it = channel_map.find(channel_id);
 	if(it != channel_map.end()) {
@@ -167,8 +167,8 @@ printf("CCam::SetMode: channel %llx [%s] mode %d %s update %d\n", channel_id, ch
 			demux = LIVE_DEMUX;
 			break;
 		case RECORD:
-			source = channel->getRecordDemux(); //DEMUX_SOURCE_0;//FIXME
-			demux = channel->getRecordDemux(); //RECORD_DEMUX;//FIXME
+			source = DEMUX_SOURCE_0;
+			demux = RECORD_DEMUX;//FIXME
 			break;
 		case STREAM:
 			source = DEMUX_SOURCE_0;
@@ -182,10 +182,6 @@ printf("CCam::SetMode: channel %llx [%s] mode %d %s update %d\n", channel_id, ch
 	else
 		newmask = cam->makeMask(demux, start);
 
-	if(cam->getSource() > 0)
-		source = cam->getSource();
-
-printf("CCam::SetMode:  source %d old mask %d new mask %d force update %s\n", source, oldmask, newmask, force_update ? "yes" : "no");
 	if((oldmask != newmask) || force_update)
 		cam->setCaPmt(channel->getCaPmt(), source, newmask, true);
 

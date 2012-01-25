@@ -46,7 +46,6 @@ class CCam : public CBasicClient
 		virtual unsigned char getVersion(void) const;
 		virtual const char *getSocketName(void) const;
 		int camask, demuxes[3];
-		int source_demux;
 
 	public:
 		CCam();
@@ -54,7 +53,6 @@ class CCam : public CBasicClient
 		bool setCaPmt(CCaPmt * const caPmt, int _demux = 0, int _camask = 1, bool update = false);
 		int  getCaMask(void) { return camask; };
 		int  makeMask(int demux, bool add);
-		int  getSource() { return source_demux; };
 };
 
 typedef std::map<t_channel_id, CCam*> cammap_t;
