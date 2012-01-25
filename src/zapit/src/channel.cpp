@@ -52,7 +52,7 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_
 
 void CZapitChannel::Init()
 {
-	caPmt = NULL;
+	//caPmt = NULL;
 	rawPmt = NULL;
 	type = 0;
 	number = 0;
@@ -72,7 +72,7 @@ CZapitChannel::~CZapitChannel(void)
 {
 //printf("DEL CHANNEL %s %x subs %d\n", name.c_str(), (int) this, getSubtitleCount());
 	resetPids();
-	setCaPmt(NULL);
+	//setCaPmt(NULL);
 	setRawPmt(NULL);
 	camap.clear();
 }
@@ -280,12 +280,14 @@ int CZapitChannel::getChannelSubIndex(void)
     return currentSub < getSubtitleCount() ? currentSub : -1;
 }
 
+#if 0
 void CZapitChannel::setCaPmt(CCaPmt *pCaPmt)
 { 
 	if(caPmt)
 		delete caPmt;
 	caPmt = pCaPmt; 
 }
+#endif
 
 void CZapitChannel::setRawPmt(unsigned char * pmt, int len)
 {

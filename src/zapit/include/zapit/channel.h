@@ -32,7 +32,6 @@
 #include <set>
 
 /* zapit */
-#include "ci.h"
 #include "types.h"
 //#include <zapit/audio.h>
 
@@ -149,9 +148,10 @@ class CZapitChannel
 		unsigned char			serviceType;
 
 		/* the conditional access program map table of this channel */
-		CCaPmt * 			caPmt;
+		//CCaPmt * 			caPmt;
 		unsigned char			* rawPmt;
 		int				pmtLen;
+		uint8_t				pmt_version;
 
 		/* from neutrino CChannel class */
 		uint64_t			last_unlocked_EPGid;
@@ -206,8 +206,9 @@ class CZapitChannel
 		unsigned short		getPrivatePid(void)		{ return privatePid; }
 		unsigned short		getPreAudioPid(void)		{ return audioPid; }
 		bool			getPidsFlag(void)		{ return pidsFlag; }
-		CCaPmt *		getCaPmt(void)			{ return caPmt; }
+		//CCaPmt *		getCaPmt(void)			{ return caPmt; }
 		unsigned char *		getRawPmt(int &len)		{ len = pmtLen; return rawPmt; };
+		uint8_t			getPmtVersion(void)		{ return pmt_version; };
 
 		CZapitAudioChannel * 	getAudioChannel(unsigned char index = 0xFF);
 		unsigned short 		getAudioPid(unsigned char index = 0xFF);
@@ -222,12 +223,13 @@ class CZapitChannel
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
 		void setTeletextPid(unsigned short pTeletextPid)	{ teletextPid = pTeletextPid; }
-		void setTeletextLang(char * lang)			{ ttx_language_code = lang; };
+		void setTeletextLang(std::string lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }
 		void setAudioPid(unsigned short pAudioPid)		{ audioPid = pAudioPid; }
 		void setPrivatePid(unsigned short pPrivatePid)		{ privatePid = pPrivatePid; }
 		void setPidsFlag(void)					{ pidsFlag = true; }
-		void setCaPmt(CCaPmt *pCaPmt);
+		//void setCaPmt(CCaPmt *pCaPmt);
+		void setPmtVersion(uint8_t version)			{ pmt_version = version; }
 		void setRawPmt(unsigned char * pmt, int len = 0);
 		/* cleanup methods */
 		void resetPids(void);
