@@ -1,12 +1,11 @@
 /*
- * $Id: pmt.h,v 1.10 2003/08/15 23:34:09 obi Exp $
+ * Copyright (C) 2011 CoolStream International Ltd
  *
- * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
