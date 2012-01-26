@@ -595,7 +595,7 @@ keybindingmenu.poweroff Power toggle
 keybindingmenu.quickzap Quickzap
 keybindingmenu.remotecontrol_hardware Hardware
 keybindingmenu.remotecontrol_hardware_coolstream Coolstream
-keybindingmenu.remotecontrol_hardware_dbox dbox
+keybindingmenu.remotecontrol_hardware_dbox d-box Nokia (old)
 keybindingmenu.remotecontrol_hardware_msg_part1 The remote control has been changed from '
 keybindingmenu.remotecontrol_hardware_msg_part2 ' to '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' \nIs this correct?\nPlease confirm the selection within 15 seconds by using the new remote control.\nOtherwise the selection will be reverted.

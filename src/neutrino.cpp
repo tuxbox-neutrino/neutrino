@@ -150,8 +150,6 @@ extern cAudio * audioDecoder;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
-int g_channel_list_changed;
-
 void stop_daemons(bool stopall = true);
 // uncomment if you want to have a "test" menue entry  (rasc)
 
@@ -2148,21 +2146,8 @@ INFO("cCA::GetInstance()->Ready\n");
 				media->exec(NULL, "");
 			}
 			else if( msg == CRCInput::RC_video || msg == CRCInput::RC_play ) {
-				bool show = true;
-				if ((g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_ONSIGNAL) || (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED)) {
-                                        CZapProtection* zapProtection = new CZapProtection( g_settings.parentallock_pincode, 0x100 );
-                                        show = zapProtection->check();
-					delete zapProtection;
-				}
-				if(show) {
-					//StopSubtitles();
-					if( mode == mode_radio )
-						videoDecoder->StopPicture();
-					CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
-					if( mode == mode_radio )
-						videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
-					//StartSubtitles();
-				}
+				//open moviebrowser via media player menu object
+				CMediaPlayerMenu::getInstance()->exec(NULL,"movieplayer");
 			}
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
 				g_RemoteControl->setSubChannel(CRCInput::getNumericValue(msg));
