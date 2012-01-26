@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zapit>
+	<TS id="03F0" on="0001" name="Digital+" />
+	<TS id="03F8" on="0001" name="Digital+" />
+	<TS id="0404" on="0001" name="Digital+" />
+	<TS id="0408" on="0001" name="Digital+" />
+	<TS id="040A" on="0001" name="Digital+" />
+	<TS id="040E" on="0001" name="Digital+" />
+	<TS id="0412" on="0001" name="Digital+" />
+	<TS id="0416" on="0001" name="Digital+" />
+	<TS id="041A" on="0001" name="Digital+" />
+	<TS id="041E" on="0001" name="Digital+" />
+	<TS id="0420" on="0001" name="Digital+" />
+	<TS id="0422" on="0001" name="Digital+" />
+	<TS id="0424" on="0001" name="Digital+" />
+	<TS name="CSAT" newname="CanalSat France" />
+</zapit>
