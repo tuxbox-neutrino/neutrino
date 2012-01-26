@@ -153,22 +153,17 @@ bool CNit::Parse()
 		return false;
 
 	NetworkInformationSectionIterator sit;
-#ifdef DEBUG_NIT
-	printf("NIT: %d sections\n", sections.size());
-#endif
 	for (sit = sections.begin(); sit != sections.end(); ++sit) {
 		NetworkInformationSection * nit = *sit;
 		const TransportStreamInfoList *tslist = nit->getTsInfo();
-#ifdef DEBUG_NIT
-		printf("NIT: %d TransportStreamInfos\n", tslist->size());
-#endif
+
 		if (CServiceScan::getInstance()->Aborted())
 			return false;
 
 		for(TransportStreamInfoConstIterator tit = tslist->begin(); tit != tslist->end(); ++tit) {
 			TransportStreamInfo * tsinfo = *tit;
 			const DescriptorList * dlist = tsinfo->getDescriptors();
-#if 0 //ifdef DEBUG_NIT
+#if 0
 			printf("NIT: tsid %04x onid %04x %d descriptors\n", tsinfo->getTransportStreamId(),
 					tsinfo->getOriginalNetworkId(), dlist->size());
 #endif
