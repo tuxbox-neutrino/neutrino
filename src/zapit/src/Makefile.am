@@ -20,8 +20,8 @@ noinst_LIBRARIES = libzapit.a
 
 libzapit_a_SOURCES = \
 	bouquets.cpp channel.cpp dvbstring.cpp getservices.cpp \
-	scan.cpp zapit.cpp cam.cpp ci.cpp frontend.cpp femanager.cpp \
-	pat.cpp pmt.cpp fastscan.cpp scansdt.cpp scannit.cpp
+	scan.cpp zapit.cpp capmt.cpp frontend.cpp femanager.cpp \
+	pat.cpp scanpmt.cpp fastscan.cpp scansdt.cpp scannit.cpp
 
 bin_PROGRAMS = pzapit
 sbin_PROGRAMS = udpstreampes
