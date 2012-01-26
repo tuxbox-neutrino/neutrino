@@ -184,13 +184,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	}
 printf("CCam::SetMode: channel %llx [%s] mode %d %s update %d\n", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 	mutex.lock();
-#if 0
-	if(channel->getCaPmt() == NULL) {
-		printf("CCamManager: channel %llx dont have caPmt\n", channel_id);
-		mutex.unlock();
-		return false;
-	}
-#endif
+
 	cammap_iterator_t it = channel_map.find(channel_id);
 	if(it != channel_map.end()) {
 		cam = it->second;
@@ -234,7 +228,6 @@ printf("CCam::SetMode:  source %d old mask %d new mask %d force update %s\n", so
 	if(newmask == 0) {
 		/* FIXME: back to live channel from playback dont parse pmt and call setCaPmt
 		 * (see CMD_SB_LOCK / UNLOCK PLAYBACK */
-		//channel->setCaPmt(NULL);
 		//channel->setRawPmt(NULL);//FIXME
 		channel_map.erase(channel_id);
 		delete cam;
