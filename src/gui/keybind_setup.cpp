@@ -33,6 +33,19 @@
 #include <config.h>
 #endif
 
+#ifdef HAVE_COOLSTREAM_NEVIS_IR_H
+/* define constants instead of #ifdef'ing the corresponding code.
+ * the compiler will optimize it away anyway, but the syntax is
+ * still checked */
+#define RC_HW_SELECT true
+#else
+#define RC_HW_SELECT false
+#ifdef HAVE_COOL_HARDWARE
+#warning header coolstream/nevis_ir.h not found
+#warning you probably have an old driver installation
+#warning you´ll be missing the remotecontrol selection feature!
+#endif
+#endif
 
 #include "gui/keybind_setup.h"
 
@@ -218,7 +231,8 @@ int CKeybindSetup::showKeySetup()
 	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
-	keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE, &g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true));
+	if (RC_HW_SELECT)
+		keySettings->addItem(new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_REMOTECONTROL_HARDWARE, &g_settings.remote_control_hardware, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTIONS, KEYBINDINGMENU_REMOTECONTROL_HARDWARE_OPTION_COUNT, true));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCK, true, g_settings.repeat_blocker, keySettings_repeatBlocker));
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, keySettings_repeat_genericblocker));
 

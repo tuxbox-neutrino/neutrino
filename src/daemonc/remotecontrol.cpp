@@ -505,9 +505,11 @@ void CRemoteControl::processAPIDnames()
 			if(!strstr(current_PIDs.APIDs[count].desc, " (AC3)"))
 				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
 			has_ac3 = true;
-			if((strlen( current_PIDs.APIDs[count].desc ) == 3) && g_settings.audio_DolbyDigital && (ac3_found < 0))
+			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
 				ac3_found = count;
 		}
+		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
+			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
 	}
 
 	if ( has_unresolved_ctags )

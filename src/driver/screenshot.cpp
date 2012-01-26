@@ -197,6 +197,7 @@ bool CScreenShot::SavePng()
 	{
 		printf("CScreenShot::SavePng: %s save error\n", filename.c_str());
 		png_destroy_write_struct(&png_ptr, &info_ptr);
+		free(row_pointers);
 		fclose(fd);
 		return false;
 	}

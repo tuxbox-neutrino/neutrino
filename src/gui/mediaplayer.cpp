@@ -36,6 +36,7 @@
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
+#include <neutrinoMessages.h>
 
 #include "gui/movieplayer.h"
 #include "gui/pictureviewer.h"
@@ -48,7 +49,8 @@
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
-
+#include <video.h>
+extern cVideo * videoDecoder;
 
 CMediaPlayerMenu::CMediaPlayerMenu()
 {
@@ -100,6 +102,28 @@ int CMediaPlayerMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 		inetPlayer->exec(NULL, "init");
 		
 		return menu_return::RETURN_REPAINT;
+	}
+	else if (actionKey == "movieplayer")
+	{
+#if 0		//Is it really necessary to lock here? Moviebrowser got its own configurable parental lock.
+		bool show = true;
+		if ((g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_ONSIGNAL) || (g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED)) {
+			CZapProtection zapProtection( g_settings.parentallock_pincode, 0x100 );
+			show = zapProtection.check();
+		}
+		
+		if(show){
+#endif			
+			int mode = CNeutrinoApp::getInstance()->getMode();
+			if( mode == NeutrinoMessages::mode_radio )
+				videoDecoder->StopPicture();
+			CMoviePlayerGui::getInstance().exec(NULL, "tsmoviebrowser");
+				if( mode == NeutrinoMessages::mode_radio )
+					videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
+#if 0
+		}
+#endif		
+		return menu_return::RETURN_REPAINT;;
 	}
 	
 	int res = initMenuMedia();
@@ -216,9 +240,8 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 //show movieplayer submenu with selectable items for moviebrowser or filebrowser
 void CMediaPlayerMenu::showMoviePlayer(CMenuWidget *moviePlayer, CPersonalizeGui *p)
 { 
-	CMoviePlayerGui *movieplayer_gui = &CMoviePlayerGui::getInstance();
-	CMenuForwarder *fw_mbrowser = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, movieplayer_gui, "tsmoviebrowser", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	CMenuForwarder *fw_file = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, movieplayer_gui, "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CMenuForwarder *fw_mbrowser = new CMenuForwarder(LOCALE_MOVIEBROWSER_HEAD, true, NULL, this, "movieplayer", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	CMenuForwarder *fw_file = new CMenuForwarder(LOCALE_MOVIEPLAYER_FILEPLAYBACK, true, NULL, &CMoviePlayerGui::getInstance(), "fileplayback", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	
 	p->addIntroItems(moviePlayer);
 	

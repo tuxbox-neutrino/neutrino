@@ -248,6 +248,7 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		g_Zapit->reinitChannels();
 		if (reloadhintBox)
 			reloadhintBox->hide();
+		CNeutrinoApp::getInstance ()->SDTreloadChannels = false;
 		return res;
 	}
 	else if(actionKey=="satsetup") 
