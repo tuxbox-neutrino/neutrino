@@ -25,7 +25,7 @@
 #include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/scansdt.h>
-#include <zapit/pmt.h>
+#include <zapit/scanpmt.h>
 #include <zapit/pat.h>
 
 #include <zapit/types.h>
@@ -42,6 +42,8 @@ extern CZapitClient::scanType scanType; // FIXME
 int scan_fta_flag; // FIXME
 
 #define DEBUG_SDT
+//#define DEBUG_SDT_UNUSED
+//#define DEBUG_SDT_SERVICE
 
 CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 {
@@ -102,7 +104,7 @@ bool CSdt::Read()
 	}
 	do {
 _repeat:
-		if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+		if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
 			break;
 
 		if (dmx->Read(buffer, SDT_SECTION_SIZE) < 0) {
@@ -137,7 +139,7 @@ _repeat:
 		goto _repeat;
 	}
 	delete dmx;
-	if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+	if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
 		return false;
 	return true;
 }
@@ -181,7 +183,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					break;
 				case CA_IDENTIFIER_DESCRIPTOR:
 					{
-#ifdef DEBUG_SDT
+#if 0 //ifdef DEBUG_SDT
 						CaIdentifierDescriptor * cad = (CaIdentifierDescriptor *) d;
 						const CaSystemIdList * calist = cad->getCaSystemIds();
 						printf("CASYS: ");
@@ -193,7 +195,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					break;
 				default:
 					{
-#ifdef DEBUG_SDT
+#ifdef DEBUG_SDT_UNUSED
 						printf("SDT: sid %x descriptor %02x: ", service->getServiceId(), d->getTag());
 						uint8_t len = 2+d->getLength();
 						uint8_t buf[len];
@@ -206,13 +208,13 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 					break;
 				}
 			}
-			if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+			if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
 				break;
 		}
 	}
 	tsid = transport_stream_id;
 	onid = original_network_id;
-	if(current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
+	if(current && current_tp_id != CFEManager::getInstance()->getLiveFE()->getTsidOnid())
 		return false;
 
 	return true;
@@ -242,9 +244,9 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	std::string providerName = stringDVBUTF8(sd->getServiceProviderName(), 0, tsidonid);
 	std::string serviceName = stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
 
-#ifdef DEBUG_SDT
-	printf("SDT: sid %04x type %x provider [%s] service [%s]\n", service_id, sd->getServiceType(),
-			providerName.c_str(), serviceName.c_str());
+#ifdef DEBUG_SDT_SERVICE
+	printf("SDT: sid %04x type %x provider [%s] service [%s] scrambled %d\n", service_id, sd->getServiceType(),
+			providerName.c_str(), serviceName.c_str(), free_ca);
 #endif
 	if (!CheckScanType(service_type))
 		return false;
@@ -273,7 +275,20 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 			CPmt pmt;
 			if(pmt.haveCaSys(channel->getPmtPid(), channel->getServiceId()))
 				channel->scrambled = true;
+			else
+				channel->scrambled = false;
+#ifdef DEBUG_SDT_SERVICE
+			if(free_ca != channel->scrambled)
+				printf("SDT: service update: [%s] free_ca %d scrambled %d\n",
+						serviceName.c_str(), free_ca, channel->scrambled);
+#endif
 		}
+#if 0 //FIXME updates scrambled flag without reloading, but prevent changes found if only scrambled different
+		bool scrambled = channel->scrambled;
+		channel = CServiceManager::getInstance()->FindChannel(channel_id);
+		if(channel)
+			channel->scrambled = scrambled;
+#endif
 		return true;
 	}
 
@@ -307,7 +322,12 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	if (CZapit::getInstance()->scanPids()) {
 		if(pat.Parse(channel)) {
 			CPmt pmt;
-			pmt.parse_pmt(channel);
+			pmt.Parse(channel);
+#ifdef DEBUG_SDT_SERVICE
+			if(free_ca != channel->scrambled)
+				printf("SDT: provider [%s] service [%s] free_ca %d scrambled %d camap.size %d\n", providerName.c_str(),
+						serviceName.c_str(), free_ca, channel->scrambled, channel->camap.size());
+#endif
 		}
 	}
 	if(service_type == ST_DIGITAL_TELEVISION_SERVICE && !channel->scrambled) {
@@ -327,7 +347,6 @@ CZapitChannel * CSdt::CheckChannelId(t_service_id service_id)
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
 		if(channel)
 			return channel;
-		freq++;
 	}
 	return NULL;
 }
