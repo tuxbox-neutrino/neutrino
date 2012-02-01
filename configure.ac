@@ -174,7 +174,7 @@ data/lcd/clock/Makefile
 data/locale/Makefile
 data/scripts/Makefile
 data/themes/Makefile
-src/sectionsd/Makefile
+src/eitd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile
 src/zapit/lib/Makefile
