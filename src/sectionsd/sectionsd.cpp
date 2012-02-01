@@ -803,7 +803,7 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 	   on one German Sky channel and incomplete on another one. So we
 	   make sure to keep the complete event, if applicable. */
 
-	if ((already_exists) && (evt.components.size() > 0)) {
+	if ((already_exists) && ( !evt.components.empty() )) {
 		if (si->second->components.size() != evt.components.size())
 			already_exists = false;
 		else {
@@ -823,7 +823,7 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 		}
 	}
 
-	if ((already_exists) && (evt.linkage_descs.size() > 0)) {
+	if ((already_exists) && ( !evt.linkage_descs.empty() )) {
 		if (si->second->linkage_descs.size() != evt.linkage_descs.size())
 			already_exists = false;
 		else {
@@ -843,7 +843,7 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 		}
 	}
 
-	if ((already_exists) && (evt.ratings.size() > 0)) {
+	if ((already_exists) && ( !evt.ratings.empty() )) {
 		if (si->second->ratings.size() != evt.ratings.size())
 			already_exists = false;
 		else {
@@ -2296,14 +2296,14 @@ static void findPrevNextSIevent(const event_id_t uniqueKey, SItime &zeit, SIeven
 //			connection-thread
 // handles incoming requests
 //---------------------------------------------------------------------
-
+#if 0
 struct connectionData
 {
 	int connectionSocket;
 
 	struct sockaddr_in clientAddr;
 };
-
+#endif 
 static void commandPauseScanning(int connfd, char *data, const unsigned dataLength)
 {
 	if (dataLength != 4)
@@ -9443,7 +9443,6 @@ static void *cnThread(void *)
 		t_channel_id uniqueOld = 0;
 		bool found_already = false;
 		time_t azeit = time(NULL);
-		std::string sname;
 
 		if(tv_mode) {
 			serviceTyp1 = 0x01;
@@ -9471,7 +9470,6 @@ static void *cnThread(void *)
 				{
 					if (s->second->serviceTyp == serviceTyp1 || (serviceTyp2 && s->second->serviceTyp == serviceTyp2))
 					{
-						sname = s->second->serviceName;
 						found_already = false;
 					}
 				}
@@ -9488,10 +9486,6 @@ static void *cnThread(void *)
 
 			if ( !found_already )
 			{
-				std::string eName = (*e)->getName();
-				std::string eText = (*e)->getText();
-				std::string eExtendedText = (*e)->getExtendedText();
-
 				for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
 				{
 					if (t->startzeit <= azeit && azeit <= (long)(t->startzeit + t->dauer))
