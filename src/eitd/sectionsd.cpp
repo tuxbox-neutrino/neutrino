@@ -1,6 +1,4 @@
 //
-//  $Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $
-//
 //    sectionsd.cpp (network daemon for SI-sections)
 //    (dbox-II-project)
 //
@@ -23,8 +21,6 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-//
-//
 //
 
 #include <config.h>
@@ -66,7 +62,6 @@
 
 #include <xmltree/xmlinterface.h>
 #include <zapit/settings.h>
-//#include <zapit/frontend.h>
 #include <configfile.h>
 
 // Daher nehmen wir SmartPointers aus der Boost-Lib (www.boost.org)
@@ -84,8 +79,6 @@
 #include "SIlanguage.hpp"
 
 #include "edvbstring.h"
-//#include "timerdclient.h"
-//#include "../timermanager.h"
 
 // 60 Minuten Zyklus...
 #define TIME_EIT_SCHEDULED_PAUSE 60 * 60
@@ -101,46 +94,10 @@
 
 static bool sectionsd_ready = false;
 static bool reader_ready = true;
-//#define MAX_EVENTS 6000
 static unsigned int max_events;
-// sleep 5 minutes
-//#define HOUSEKEEPING_SLEEP (30 * 60)
-#define HOUSEKEEPING_SLEEP (5 * 60)
-// meta housekeeping after XX housekeepings - every 24h -
-#define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP
 
-// 12h Pause fr SDT
-//#define TIME_SDT_SCHEDULED_PAUSE 12* 60* 60
-// -- shorter time for pause should  result in better behavior  (rasc, 2005-05-02)
-#define TIME_SDT_SCHEDULED_PAUSE 2* 60* 60
-//#define TIME_SDT_SKIPPING 30
-//We are very nice here. Start scanning for channels, if the user stays for XX secs on that channel
-//#define TIME_SDT_BACKOFF	120
-//Sleeping when TIME_SDT_NODATA seconds no NEW section was received
-#define TIME_SDT_NONEWDATA	5
-//How many BATs shall we read per transponder
-#define MAX_BAT 10
-//How many other SDTs shall we puzzle per transponder at the same time
-//#define MAX_CONCURRENT_OTHER_SDT 5
-//How many other SDTs shall we assume per tranponder
-//#define MAX_OTHER_SDT 70
-#define MAX_SDTs 70
-//How many sections can a table consist off?
-#define MAX_SECTIONS 0x1f
-//Okay, since zapit has got nothing do to with scanning - we read it on our own
-#define NEUTRINO_SCAN_SETTINGS_FILE     CONFIGDIR "/scan.conf"
-
-//Set pause for NIT
-#define TIME_NIT_SCHEDULED_PAUSE 2* 60* 60
-//We are very nice here. Start scanning for channels, if the user stays for XX secs on that channel
-//#define TIME_NIT_BACKOFF	20
-//Sleeping when TIME_NIT_NODATA seconds no NEW section was received
-#define TIME_NIT_NONEWDATA	5
-//How many other NITs shall we puzzle per transponder at the same time
-//#define MAX_CONCURRENT_OTHER_NIT 5
-//How many other SDTs shall we assume per tranponder
-//#define MAX_OTHER_NIT 10
-#define MAX_NIDs 10
+#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
+#define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 
 // Timeout bei tcp/ip connections in ms
 #define READ_TIMEOUT_IN_SECONDS  2
@@ -165,20 +122,14 @@ static unsigned int max_events;
 // the maximum length of a section (0x0fff) + header (3)
 #define MAX_SECTION_LENGTH (0x0fff + 3)
 
-// Wieviele Sekunden EPG gecached werden sollen
-//static long secondsToCache=4*24*60L*60L; // 4 Tage - weniger Prozessorlast?!
-//static long secondsToCache = 14*24*60L*60L; // 14 Tage - Prozessorlast <3% (rasc)
 static long secondsToCache;
 static long secondsExtendedTextCache;
-// Ab wann ein Event als alt gilt (in Sekunden)
-//static long oldEventsAre = 60*60L; // 2h  (sometimes want to know something about current/last movie)
 static long oldEventsAre;
 static int scanning = 1;
 
 std::string epg_filter_dir = "/var/tuxbox/config/zapit/epgfilter.xml";
 static bool epg_filter_is_whitelist = false;
 static bool epg_filter_except_current_next = false;
-// static bool bouquet_filter_is_whitelist = false;
 static bool messaging_zap_detected = false;
 
 std::string dvbtime_filter_dir = "/var/tuxbox/config/zapit/dvbtimefilter.xml";
@@ -209,27 +160,14 @@ static bool channel_is_blacklisted = false;
 // EVENTS...
 
 static CEventServer *eventServer;
-//CTimerdClient   *timerdClient;
-//bool            timerd = false;
 
 static pthread_rwlock_t eventsLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge events geschrieben und gelesen wird
 static pthread_rwlock_t servicesLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge services geschrieben und gelesen wird
-static pthread_rwlock_t transpondersLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge transponders geschrieben und gelesen wird
-static pthread_rwlock_t bouquetsLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge bouquets geschrieben und gelesen wird
 static pthread_rwlock_t messagingLock = PTHREAD_RWLOCK_INITIALIZER;
 
 static pthread_cond_t timeThreadSleepCond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t timeThreadSleepMutex = PTHREAD_MUTEX_INITIALIZER;
 
-// k.A. ob volatile im Kampf gegen Bugs trotz mutex's was bringt,
-// falsch ist es zumindest nicht
-/*
-static DMX dmxEIT(0x12, 0x4f, (0xff- 0x01), 0x50, (0xff- 0x0f), 256);
-static DMX dmxSDT(0x11, 0x42, 0xff, 0x42, 0xff, 256);
-*/
-// Houdini: changed sizes, EIT thread no more receives POLLER, saves some mem in sdt
-//static DMX dmxEIT(0x12, 256);
-//static DMX dmxSDT(0x11, 256);
 /* no matter how big the buffer, we will receive spurious POLLERR's in table 0x60,
    but those are not a big deal, so let's save some memory */
 static DMX dmxEIT(0x12, 3000 /*320*/);
@@ -289,36 +227,6 @@ inline void writeLockEvents(void)
 inline void unlockEvents(void)
 {
 	pthread_rwlock_unlock(&eventsLock);
-}
-
-inline void readLockTransponders(void)
-{
-	pthread_rwlock_rdlock(&transpondersLock);
-}
-
-inline void writeLockTransponders(void)
-{
-	pthread_rwlock_wrlock(&transpondersLock);
-}
-
-inline void unlockTransponders(void)
-{
-	pthread_rwlock_unlock(&transpondersLock);
-}
-
-inline void readLockBouquets(void)
-{
-	pthread_rwlock_rdlock(&bouquetsLock);
-}
-
-inline void writeLockBouquets(void)
-{
-	pthread_rwlock_wrlock(&bouquetsLock);
-}
-
-inline void unlockBouquets(void)
-{
-	pthread_rwlock_unlock(&bouquetsLock);
 }
 
 bool timeset = false;
@@ -1154,16 +1062,6 @@ static void removeDupEvents(void)
 	return;
 }
 #endif
-
-//  SIservicePtr;
-//  FIXME not needed
-typedef boost::shared_ptr<class SIservice> SIservicePtr;
-
-typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesOrderUniqueKey;
-static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
-
-typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesNVODorderUniqueKey;
-static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
 
 /*
  * communication with sectionsdclient:
@@ -4046,20 +3944,8 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandDummy1,				"commandPing"				}
 };
 
-//static void *connectionThread(void *conn)
 bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 {
-	/*
-	  pthread_t threadConnection;
-	  rc = pthread_create(&threadConnection, &conn_attrs, connectionThread, client);
-	  if(rc)
-	  {
-	  fprintf(stderr, "[sectionsd] failed to create connection-thread (rc=%d)\n", rc);
-	  return 4;
-	  }
-	*/
-	// VERSUCH OHNE CONNECTION-THREAD!
-	// spart die thread-creation-zeit, und die Locks lassen ohnehin nur ein cmd gleichzeitig zu
 	try
 	{
 		dprintf("Connection from UDS\n");
