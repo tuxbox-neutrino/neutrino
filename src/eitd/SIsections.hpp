@@ -255,20 +255,6 @@ class SIsection
 public:
 	SIsection(void) { buffer = 0; bufferLength = 0;}
 
-#if 0
-	// Kopierte den Puffer in eigenen Puffer
-	SIsection(const char *buf, unsigned bufLength) {
-		buffer = 0; bufferLength = 0;
-		if ((buf) && (bufLength >= sizeof(struct SI_section_header))) {
-			buffer = new char[bufLength];
-			if (buffer) {
-				bufferLength = bufLength;
-				memmove(buffer, buf, bufLength);
-			}
-		}
-	}
-#endif
-
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
 	SIsection(unsigned bufLength, char *buf) {
 		buffer = 0; bufferLength = 0;
@@ -277,31 +263,6 @@ public:
 			bufferLength = bufLength;
 		}
 	}
-
-#if 0
-	// Konstruktor um eine (leere) SIsection mit den fuer Vergleiche
-	// noetigen Inhalte (s. key) zu erstellen
-	SIsection(const struct SI_section_header *header) {
-		bufferLength = 0;
-		buffer = new char[sizeof(struct SI_section_header)];
-		if (buffer) {
-			memmove(buffer, header, sizeof(struct SI_section_header));
-			bufferLength = sizeof(struct SI_section_header);
-		}
-	}
-
-	// Std-Copy
-	SIsection(const SIsection &s) {
-		buffer = 0; bufferLength = 0;
-		if (s.buffer) {
-			buffer = new char[s.bufferLength];
-			if (buffer) {
-				bufferLength = s.bufferLength;
-				memmove(buffer, s.buffer, bufferLength);
-			}
-		}
-	}
-#endif
 
 	// Destruktor
 	virtual ~SIsection(void) {

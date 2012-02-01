@@ -249,28 +249,15 @@ void SIsectionEIT::parseExtendedEventDescriptor(const char *buf, SIevent &e, uns
 		// Should I make language filter those as well?  Arzka
 
 		if(*items) {
-#if 0
-			if(*(items+1) < 0x06) { // other code table
-				// 21.07.2005 - collect all extended events in one
-				// string, delimit multiple entries with a newline
-				e.itemDescription.append(std::string((const char *)(items+2), min(maxlen-((const char *)items+2-buf), (*items)-1)));
-				e.itemDescription.append("\n");
-			}
-			else
-#endif
-			{
-				// 21.07.2005 - collect all extended events in one
-				// string, delimit multiple entries with a newline
-				//e.itemDescription.append(std::string((const char *)(items+1), min(maxlen-((const char *)items+1-buf), *items)));
-				e.itemDescription.append(convertDVBUTF8((const char *)(items+1), min(maxlen-((const char *)items+1-buf), *items), table, tsidonid));
-				e.itemDescription.append("\n");
-			}
+			// 21.07.2005 - collect all extended events in one
+			// string, delimit multiple entries with a newline
+			e.itemDescription.append(convertDVBUTF8((const char *)(items+1), min(maxlen-((const char *)items+1-buf), *items), table, tsidonid));
+			e.itemDescription.append("\n");
 		}
 		items+=1+*items;
 		if(*items) {
 			// 21.07.2005 - collect all extended events in one
 			// string, delimit multiple entries with a newline
-			//e.item.append(std::string((const char *)(items+0), min(maxlen-((const char *)items+1-buf), *items)));
 			e.item.append(convertDVBUTF8((const char *)(items+1), min(maxlen-((const char *)items+1-buf), *items), table, tsidonid));
 			e.item.append("\n");
 		}
@@ -281,16 +268,8 @@ void SIsectionEIT::parseExtendedEventDescriptor(const char *buf, SIevent &e, uns
 //	printf("Item: %s\n", e.item.c_str());
 //  }
 	if(*items) {
-#if 0
-		if(*(items+1) < 0x06) { // other code table
-			e.appendExtendedText(language, std::string((const char *)(items+2), min(maxlen-((const char *)items+2-buf), (*items)-1)));
-		} else
-#endif
-		{
-			//e.appendExtendedText(language, std::string((const char *)(items+1), min(maxlen-((const char *)items+1-buf), *items)));
-			e.appendExtendedText(language, convertDVBUTF8((const char *)(items+1), min(maxlen-((const char *)items+1-buf), (*items)), table, tsidonid));
-//			printf("Extended Text: %s\n", e.extendedText.c_str());
-		}
+		e.appendExtendedText(language, convertDVBUTF8((const char *)(items+1), min(maxlen-((const char *)items+1-buf), (*items)), table, tsidonid));
+		//printf("Extended Text: %s\n", e.extendedText.c_str());
 	}
 }
 
@@ -415,49 +394,22 @@ void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsign
 
 	buf+=sizeof(struct descr_short_event_header);
 	if(evt->event_name_length) {
-#if 0
-		if(*buf < 0x06) { // other code table
 #ifdef ENABLE_FREESATEPG
-			e.setName(language, buf[1] == 0x1f ? freesatHuffmanDecode(std::string(buf+1, evt->event_name_length-1)) : std::string(buf+1, evt->event_name_length-1));
+		std::string tmp_str = buf[0] == 0x1f ? freesatHuffmanDecode(std::string(buf, evt->event_name_length)) : std::string(buf, evt->event_name_length);
+		e.setName(language, convertDVBUTF8(tmp_str.c_str(), tmp_str.size(), table, tsidonid));
 #else
-			e.setName(language, std::string(buf+1, evt->event_name_length-1));
+		e.setName(language, convertDVBUTF8(buf, evt->event_name_length, table, tsidonid));
 #endif
-		} else
-#endif // 0
-		{
-#ifdef ENABLE_FREESATEPG
-//			e.setName(language, buf[0] == 0x1f ? freesatHuffmanDecode(std::string(buf, evt->event_name_length)) : std::string(buf, evt->event_name_length));
-
-			std::string tmp_str = buf[0] == 0x1f ? freesatHuffmanDecode(std::string(buf, evt->event_name_length)) : std::string(buf, evt->event_name_length);
-			e.setName(language, convertDVBUTF8(tmp_str.c_str(), tmp_str.size(), table, tsidonid));
-#else
-			//e.setName(language, std::string(buf, evt->event_name_length));
-			e.setName(language, convertDVBUTF8(buf, evt->event_name_length, table, tsidonid));
-#endif
-		}
 	}
 	buf+=evt->event_name_length;
 	unsigned char textlength=*((unsigned char *)buf);
 	if(textlength > 2) {
-#if 0
-		if(*(buf+1) < 0x06) {// other code table
 #ifdef ENABLE_FREESATEPG
-			e.setText(language, buf[2] == 0x1f ? freesatHuffmanDecode(std::string((++buf)+1, textlength-1)) : std::string((++buf)+1, textlength-1));
+		std::string tmp_str = buf[1] == 0x1f ? freesatHuffmanDecode(std::string(++buf, textlength)) : std::string(++buf, textlength);
+		e.setText(language, convertDVBUTF8(tmp_str.c_str(), tmp_str.size(), table, tsidonid));
 #else
-			e.setText(language, std::string((++buf)+1, textlength-1));
+		e.setText(language, convertDVBUTF8((++buf), textlength, table, tsidonid));
 #endif
-		} else
-#endif // 0
-		{
-#ifdef ENABLE_FREESATEPG
-//			e.setText(language, buf[1] == 0x1f ? freesatHuffmanDecode(std::string(++buf, textlength)) : std::string(++buf, textlength));
-			std::string tmp_str = buf[1] == 0x1f ? freesatHuffmanDecode(std::string(++buf, textlength)) : std::string(++buf, textlength);
-			e.setText(language, convertDVBUTF8(tmp_str.c_str(), tmp_str.size(), table, tsidonid));
-#else
-			//e.setText(language, std::string(++buf, textlength));
-			e.setText(language, convertDVBUTF8((++buf), textlength, table, tsidonid));
-#endif
-		}
 	}
 
 //  printf("Name: %s\n", e.name.c_str());
@@ -655,8 +607,7 @@ void SIsectionPPT::parsePrivateContentOrderDescriptor(const char *buf, SIevent &
 	if((evt->descriptor_length+sizeof(descr_generic_header)>maxlen) || (evt->descriptor_length<sizeof(struct descr_short_event_header)-sizeof(descr_generic_header)))
 		return; // defekt
 
-#if 0
-// to be done
+#if 0 // to be done
 	unsigned char Order_number_length;
 	char Order_number[Order_number_length];
 	unsigned char Order_price_length;

@@ -477,20 +477,7 @@ int DMX::immediate_start(void)
 		dprintf("DMX::immediate_start: realPausecounter !=0 (%d)!\n", real_pauseCounter);
 		return 0;
 	}
-#if 0
-	if ((fd = open(DEMUX_DEVICE, O_RDWR|O_NONBLOCK)) == -1)
-	{
-		perror("[sectionsd] open dmx");
-		return 2;
-	}
 
-	if (ioctl(fd, DMX_SET_BUFFER_SIZE, (unsigned long)(dmxBufferSizeInKB*1024UL)) == -1)
-	{
-		closefd();
-		perror("[sectionsd] DMX: DMX_SET_BUFFER_SIZE");
-		return 3;
-	}
-#endif
 	if(dmx == NULL) {
 		dmx = new cDemux(dmx_num);
 #if !HAVE_TRIPLEDRAGON
@@ -503,22 +490,18 @@ int DMX::immediate_start(void)
 	fd = 1;
 
 	/* setfilter() only if this is no dummy filter... */
-#if 0
-	if (filters[filter_index].filter && filters[filter_index].mask &&
-			!setfilter(fd, pID, filters[filter_index].filter, filters[filter_index].mask, DMX_IMMEDIATE_START | DMX_CHECK_CRC))
-#endif
-		if (filters[filter_index].filter && filters[filter_index].mask)
-		{
-			unsigned char filter[DMX_FILTER_SIZE];
-			unsigned char mask[DMX_FILTER_SIZE];
+	if (filters[filter_index].filter && filters[filter_index].mask)
+	{
+		unsigned char filter[DMX_FILTER_SIZE];
+		unsigned char mask[DMX_FILTER_SIZE];
 
-			filter[0] = filters[filter_index].filter;
-			mask[0] = filters[filter_index].mask;
-			dmx->sectionFilter(pID, filter, mask, 1);
-			//FIXME error check
-			//closefd();
-			//return 4;
-		}
+		filter[0] = filters[filter_index].filter;
+		mask[0] = filters[filter_index].mask;
+		dmx->sectionFilter(pID, filter, mask, 1);
+		//FIXME error check
+		//closefd();
+		//return 4;
+	}
 	/* this is for dmxCN only... */
 	eit_version = 0xff;
 	return 0;
@@ -604,33 +587,6 @@ int DMX::request_unpause(void)
 	return 0;
 }
 
-#if 0
-to be removed....
-int DMX::pause(void)
-{
-	pthread_mutex_lock(&pauselock);
-
-	//dprintf("lock from pc: %d\n", pauseCounter);
-	pauseCounter++;
-
-	pthread_mutex_unlock(&pauselock);
-
-	return 0;
-}
-
-int DMX::unpause(void)
-{
-	pthread_mutex_lock(&pauselock);
-
-	//dprintf("unlock from pc: %d\n", pauseCounter);
-	--pauseCounter;
-
-	pthread_mutex_unlock(&pauselock);
-
-	return 0;
-}
-#endif
-
 const char *dmx_filter_types [] = {
 	"dummy filter",
 	"actual transport stream, scheduled",
@@ -711,61 +667,6 @@ int DMX::change(const int new_filter_index, const int new_current_service)
 	return 0;
 }
 
-// Liest n Bytes aus einem Socket per read
-// Liefert 0 bei timeout
-// und -1 bei Fehler
-// ansonsten die Anzahl gelesener Bytes
-/* inline */
-ssize_t DMX::readNbytes(int _fd, char *buf, const size_t n, unsigned timeoutInMSeconds)
-{
-	int rc;
-	struct pollfd ufds;
-	ufds.fd = _fd;
-	ufds.events = POLLIN;
-	ufds.revents = 0;
-
-	rc = ::poll(&ufds, 1, timeoutInMSeconds);
-
-	if (!rc)
-		return 0; // timeout
-	else if (rc < 0)
-	{
-		/* we consciously ignore EINTR, since it does not happen in practice */
-		perror ("[sectionsd] DMX::readNbytes poll");
-		return -1;
-	}
-	if ((ufds.revents & POLLERR) != 0) /* POLLERR means buffer error, i.e. buffer overflow */
-	{
-		printdate_ms(stderr);
-		fprintf(stderr, "[sectionsd] DMX::readNbytes received POLLERR, pid 0x%x, filter[%d] "
-			"filter 0x%02x mask 0x%02x\n", pID, filter_index,
-			filters[filter_index].filter, filters[filter_index].mask);
-		return -1;
-	}
-	if (!(ufds.revents&POLLIN))
-	{
-		xprintf("%s: not ufds.revents&POLLIN, please report!\n", __FUNCTION__);
-		// POLLHUP, beim dmx bedeutet das DMXDEV_STATE_TIMEDOUT
-		// kommt wenn ein Timeout im Filter gesetzt wurde
-		// dprintf("revents: 0x%hx\n", ufds.revents);
-		// usleep(100*1000UL); // wir warten 100 Millisekunden bevor wir es nochmal probieren
-		// if (timeoutInMSeconds <= 200000)
-		return 0; // timeout
-		// timeoutInMSeconds -= 200000;
-		// goto retry;
-	}
-
-	int r = ::read(_fd, buf, n);
-
-	if (r >= 0)
-		return r;
-
-	perror ("[sectionsd] DMX::readNbytes read");
-	return -1;
-}
-
-
-
 int DMX::setPid(const unsigned short new_pid)
 {
 	lock();
@@ -812,37 +713,7 @@ int DMX::dropCachedSectionIDs()
 {
 	lock();
 
-	/* i think that those checks are wrong for dropCachedSectionIDs(), since
-	   this is called from the housekeeping thread while sectionsd might be
-	   idle waiting for the EIT update filter to trigger -- seife
-	 */
-#if 0
-	if (!isOpen())
-	{
-		pthread_cond_signal(&change_cond);
-		unlock();
-		return 1;
-	}
-
-	if (real_pauseCounter > 0)
-	{
-		unlock();
-		return 0;	// not running (e.g. streaming)
-	}
-	closefd();
-#endif
-
 	myDMXOrderUniqueKey.clear();
-
-#if 0
-	int rc = immediate_start();
-
-	if (rc != 0)
-	{
-		unlock();
-		return rc;
-	}
-#endif
 
 	pthread_cond_signal(&change_cond);
 
