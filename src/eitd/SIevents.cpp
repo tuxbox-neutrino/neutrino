@@ -40,10 +40,6 @@
 #include "SIutils.hpp"
 #include "SIservices.hpp"
 #include "SIevents.hpp"
-#ifdef UPDATE_NETWORKS
-#include "SIbouquets.hpp"
-#include "SInetworks.hpp"
-#endif
 #include "SIsections.hpp"
 #include <dmxapi.h>
 
