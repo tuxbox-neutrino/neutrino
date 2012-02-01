@@ -1063,6 +1063,16 @@ static void removeDupEvents(void)
 }
 #endif
 
+//  SIservicePtr;
+//  FIXME not needed
+typedef boost::shared_ptr<class SIservice> SIservicePtr;
+
+typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesOrderUniqueKey;
+static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
+
+typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesNVODorderUniqueKey;
+static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
+
 /*
  * communication with sectionsdclient:
  */
