@@ -1259,6 +1259,7 @@ xmlNodePtr FindTransponder(xmlNodePtr provider, const t_original_network_id onid
 static void removeOldEvents(const long seconds)
 {
 	bool goodtimefound;
+	std::vector<event_id_t> to_delete;
 
 	// Alte events loeschen
 	time_t zeit = time(NULL);
@@ -1268,7 +1269,6 @@ static void removeOldEvents(const long seconds)
 	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
 	while ((e != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end()) && (!messaging_zap_detected)) {
-		unlockEvents();
 		goodtimefound = false;
 		for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); t++) {
 			if (t->startzeit + (long)t->dauer >= zeit - seconds) {
@@ -1279,12 +1279,13 @@ static void removeOldEvents(const long seconds)
 		}
 
 		if (false == goodtimefound)
-			deleteEvent((*(e++))->uniqueKey());
-		else
-			++e;
-		readLockEvents();
+			to_delete.push_back((*e)->uniqueKey());
+		e++;
 	}
 	unlockEvents();
+
+	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); i++)
+		deleteEvent(*i);
 
 	return;
 }
@@ -1341,7 +1342,6 @@ static void removeDupEvents(void)
 	/* clean up outside of the iterator loop */
 	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); i++)
 		deleteEvent(*i);
-	to_delete.clear(); /* needed? can't hurt... */
 
 	return;
 }
