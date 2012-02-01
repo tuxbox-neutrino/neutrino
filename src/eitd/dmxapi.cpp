@@ -41,28 +41,6 @@
 #include "SIutils.hpp"
 #include "debug.h"
 
-#ifndef DO_NOT_INCLUDE_STUFF_NOT_NEEDED_FOR_SECTIONSD
-bool setfilter(const int fd, const uint16_t pid, const uint8_t filter, const uint8_t mask, const uint32_t  flags)
-{
-	struct dmx_sct_filter_params flt;
-
-	memset(&flt, 0, sizeof(struct dmx_sct_filter_params));
-
-	flt.pid              = pid;
-	flt.filter.filter[0] = filter;
-	flt.filter.mask  [0] = mask;
-	flt.timeout          = 0;
-	flt.flags            = flags;
-
-	if (::ioctl(fd, DMX_SET_FILTER, &flt) == -1)
-	{
-		perror("[sectionsd] DMX: DMX_SET_FILTER");
-		return false;
-	}
-	return true;
-}
-#endif
-
 struct SI_section_TOT_header
 {
 	unsigned char      table_id                 :  8;
