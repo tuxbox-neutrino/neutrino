@@ -270,7 +270,7 @@ void showProfiling( std::string text )
 	int64_t now = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
 
 	int64_t tmp = now - last_profile_call;
-	dprintf("--> '%s' %lld.%03lld\n", text.c_str(), tmp / 1000LL, tmp % 1000LL);
+	printf("--> '%s' %lld.%03lld\n", text.c_str(), tmp / 1000LL, tmp % 1000LL);
 	last_profile_call = now;
 }
 
@@ -1064,7 +1064,6 @@ static void removeDupEvents(void)
 #endif
 
 //  SIservicePtr;
-//  FIXME not needed
 typedef boost::shared_ptr<class SIservice> SIservicePtr;
 
 typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesOrderUniqueKey;
@@ -2221,23 +2220,6 @@ static void commandCurrentNextInfoChannelID(int connfd, char *data, const unsign
 		}
 		else
 		{	// no current event...
-			readLockServices();
-
-			MySIservicesOrderUniqueKey::iterator si = mySIservicesOrderUniqueKey.end();
-			si = mySIservicesOrderUniqueKey.find(*uniqueServiceKey);
-
-			if (si != mySIservicesOrderUniqueKey.end())
-			{
-				dprintf("[sectionsd] current service has%s scheduled events, and has%s present/following events\n", si->second->eitScheduleFlag() ? "" : " no", si->second->eitPresentFollowingFlag() ? "" : " no" );
-
-				if ( /*( !si->second->eitScheduleFlag() ) || */
-					( !si->second->eitPresentFollowingFlag() ) )
-				{
-					flag |= CSectionsdClient::epgflags::not_broadcast;
-				}
-			}
-			unlockServices();
-
 			if ( flag2 & CSectionsdClient::epgflags::has_anything )
 			{
 				flag |= CSectionsdClient::epgflags::has_anything;
@@ -2780,6 +2762,8 @@ static void sendEventList(int connfd, const unsigned char serviceTyp1, const uns
 		goto out;
 	}
 
+	if(serviceTyp1 != serviceTyp2) { }
+
 	*evtList = 0;
 	liste = evtList;
 
@@ -2792,27 +2776,7 @@ static void sendEventList(int connfd, const unsigned char serviceTyp1, const uns
 		if (!channel_in_requested_list(chidlist, uniqueNow, clen)) continue;
 		if ( uniqueNow != uniqueOld )
 		{
-			found_already = true;
-			readLockServices();
-			// new service, check service- type
-			MySIservicesOrderUniqueKey::iterator s = mySIservicesOrderUniqueKey.find(uniqueNow);
-
-			if (s != mySIservicesOrderUniqueKey.end())
-			{
-				if (s->second->serviceTyp == serviceTyp1 || (serviceTyp2 && s->second->serviceTyp == serviceTyp2))
-				{
-					sname = s->second->serviceName;
-					found_already = false;
-				}
-			}
-			else
-			{
-				// wenn noch nie hingetuned wurde, dann gibts keine Info ber den ServiceTyp...
-				// im Zweifel mitnehmen
-				found_already = false;
-			}
-			unlockServices();
-
+			found_already = false;
 			uniqueOld = uniqueNow;
 		}
 
@@ -3341,7 +3305,6 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 static void deleteSIexceptEPG()
 {
 	writeLockServices();
-	mySIservicesOrderUniqueKey.clear();
 	unlockServices();
 	dmxEIT.dropCachedSectionIDs();
 }
@@ -4287,52 +4250,6 @@ static void *fseitThread(void *)
 			}
 		}
 
-		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS - 1)
-		{
-			readLockServices();
-			readLockMessaging();
-
-			MySIservicesOrderUniqueKey::iterator si = mySIservicesOrderUniqueKey.end();
-			//dprintf("timeoutsDMX %x\n",currentServiceKey);
-
-			if ( messaging_current_servicekey )
-				si = mySIservicesOrderUniqueKey.find( messaging_current_servicekey );
-
-			if (si != mySIservicesOrderUniqueKey.end())
-			{
-				// 1 and 3 == scheduled
-				// 2 == current/next
-				if ((dmxFSEIT.filter_index == 2 && !si->second->eitPresentFollowingFlag()) ||
-						((dmxFSEIT.filter_index == 1 || dmxFSEIT.filter_index == 3) && !si->second->eitScheduleFlag()))
-				{
-					timeoutsDMX = 0;
-					dprintf("[freesatEitThread] timeoutsDMX for 0x"
-						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-						" reset to 0 (not broadcast)\n", messaging_current_servicekey );
-
-					dprintf("New Filterindex: %d (ges. %d)\n", dmxFSEIT.filter_index + 1, (signed) dmxFSEIT.filters.size() );
-					dmxFSEIT.change( dmxFSEIT.filter_index + 1 );
-				}
-				else if (dmxFSEIT.filter_index >= 1)
-				{
-					if (dmxFSEIT.filter_index + 1 < (signed) dmxFSEIT.filters.size() )
-					{
-						dprintf("New Filterindex: %d (ges. %d)\n", dmxFSEIT.filter_index + 1, (signed) dmxFSEIT.filters.size() );
-						dmxFSEIT.change(dmxFSEIT.filter_index + 1);
-						//dprintf("[eitThread] timeoutsDMX for 0x%x reset to 0 (skipping to next filter)\n" );
-						timeoutsDMX = 0;
-					}
-					else
-					{
-						sendToSleepNow = true;
-						dputs("sendToSleepNow = true");
-					}
-				}
-			}
-			unlockMessaging();
-			unlockServices();
-		}
-
 		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS && scanning)
 		{
 			if ( dmxFSEIT.filter_index + 1 < (signed) dmxFSEIT.filters.size() )
@@ -4568,50 +4485,6 @@ static void *eitThread(void *)
 				sendToSleepNow = true;
 				timeoutsDMX = 0;
 			}
-		}
-
-		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS - 1 && !channel_is_blacklisted)
-		{
-			readLockServices();
-			MySIservicesOrderUniqueKey::iterator si = mySIservicesOrderUniqueKey.end();
-			//dprintf("timeoutsDMX %x\n",currentServiceKey);
-
-			if ( messaging_current_servicekey )
-				si = mySIservicesOrderUniqueKey.find( messaging_current_servicekey );
-
-			if (si != mySIservicesOrderUniqueKey.end())
-			{
-				/* I'm not 100% sure what this is good for... */
-				// 1 == scheduled
-				// 2 == current/next
-				if ((dmxEIT.filter_index == 2 && !si->second->eitPresentFollowingFlag()) ||
-						(dmxEIT.filter_index == 1 && !si->second->eitScheduleFlag()))
-				{
-					timeoutsDMX = 0;
-					dprintf("[eitThread] timeoutsDMX for 0x"
-						PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-						" reset to 0 (not broadcast)\n", messaging_current_servicekey );
-
-					dprintf("New Filterindex: %d (ges. %d)\n", dmxEIT.filter_index + 1, (signed) dmxEIT.filters.size() );
-					dmxEIT.change( dmxEIT.filter_index + 1 );
-				}
-				else if (dmxEIT.filter_index >= 1)
-				{
-					if (dmxEIT.filter_index + 1 < (signed) dmxEIT.filters.size() )
-					{
-						dprintf("[eitThread] New Filterindex: %d (ges. %d)\n", dmxEIT.filter_index + 1, (signed) dmxEIT.filters.size() );
-						dmxEIT.change(dmxEIT.filter_index + 1);
-						//dprintf("[eitThread] timeoutsDMX for 0x%x reset to 0 (skipping to next filter)\n" );
-						timeoutsDMX = 0;
-					}
-					else
-					{
-						sendToSleepNow = true;
-						dputs("sendToSleepNow = true");
-					}
-				}
-			}
-			unlockServices();
 		}
 
 		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS && scanning && !channel_is_blacklisted)
@@ -5819,23 +5692,6 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 		}
 		else
 		{	// no current event...
-			readLockServices();
-
-			MySIservicesOrderUniqueKey::iterator si = mySIservicesOrderUniqueKey.end();
-			si = mySIservicesOrderUniqueKey.find(uniqueServiceKey);
-
-			if (si != mySIservicesOrderUniqueKey.end())
-			{
-				dprintf("[sectionsd] current service has%s scheduled events, and has%s present/following events\n", si->second->eitScheduleFlag() ? "" : " no", si->second->eitPresentFollowingFlag() ? "" : " no" );
-
-				if ( /*( !si->second->eitScheduleFlag() ) || */
-						( !si->second->eitPresentFollowingFlag() ) )
-				{
-					flag |= CSectionsdClient::epgflags::not_broadcast;
-				}
-			}
-			unlockServices();
-
 			if ( flag2 & CSectionsdClient::epgflags::has_anything )
 			{
 				flag |= CSectionsdClient::epgflags::has_anything;
@@ -5974,6 +5830,7 @@ bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 }
 
 /*was getEPGid commandEPGepgID(int connfd, char *data, const unsigned dataLength) */
+/* TODO item / itemDescription */
 bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata)
 {
 	bool ret = false;
@@ -6077,62 +5934,32 @@ bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGD
 /* was static void sendEventList(int connfd, const unsigned char serviceTyp1, const unsigned char serviceTyp2 = 0, int sendServiceName = 1, t_channel_id * chidlist = NULL, int clen = 0) */
 void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = true, t_channel_id *chidlist = NULL, int clen = 0)
 {
-	unsigned char serviceTyp1, serviceTyp2;
 	clen = clen / sizeof(t_channel_id);
 
 	t_channel_id uniqueNow = 0;
 	t_channel_id uniqueOld = 0;
 	bool found_already = false;
 	time_t azeit = time(NULL);
-	std::string sname;
 
-	if(tv_mode) {
-		serviceTyp1 = 0x01;
-		serviceTyp2 = 0x04;
-	} else {
-		serviceTyp1 = 0x02;
-		serviceTyp2 = 0x00;
-	}
-
+showProfiling("sectionsd_getChannelEvents start");
+	if(tv_mode) {}
 	readLockEvents();
 
 	/* !!! FIX ME: if the box starts on a channel where there is no EPG sent, it hangs!!!	*/
 	for (MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin(); e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end(); ++e)
 	{
 		uniqueNow = (*e)->get_channel_id();
-		if (!channel_in_requested_list(chidlist, uniqueNow, clen)) continue;
+
 		if ( uniqueNow != uniqueOld )
 		{
-			found_already = true;
-			readLockServices();
-			// new service, check service- type
-			MySIservicesOrderUniqueKey::iterator s = mySIservicesOrderUniqueKey.find(uniqueNow);
-
-			if (s != mySIservicesOrderUniqueKey.end())
-			{
-				if (s->second->serviceTyp == serviceTyp1 || (serviceTyp2 && s->second->serviceTyp == serviceTyp2))
-				{
-					sname = s->second->serviceName;
-					found_already = false;
-				}
-			}
-			else
-			{
-				// wenn noch nie hingetuned wurde, dann gibts keine Info ber den ServiceTyp...
-				// im Zweifel mitnehmen
-				found_already = false;
-			}
-			unlockServices();
-
 			uniqueOld = uniqueNow;
+			if (!channel_in_requested_list(chidlist, uniqueNow, clen))
+				continue;
+			found_already = false;
 		}
 
 		if ( !found_already )
 		{
-			std::string eName = (*e)->getName();
-			std::string eText = (*e)->getText();
-			std::string eExtendedText = (*e)->getExtendedText();
-
 			for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
 			{
 				if (t->startzeit <= azeit && azeit <= (long)(t->startzeit + t->dauer))
@@ -6152,10 +5979,14 @@ void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = t
 					break;
 				}
 			}
+			if(clen == (int) eList.size())
+				break;
 		}
 	}
 
 	unlockEvents();
+showProfiling("sectionsd_getChannelEvents end");
+printf("clen %d eList size %d\n", clen, eList.size());
 }
 /*was static void commandComponentTagsUniqueKey(int connfd, char *data, const unsigned dataLength) */
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
