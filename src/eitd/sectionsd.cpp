@@ -86,7 +86,7 @@ static bool reader_ready = true;
 static unsigned int max_events;
 
 //#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
-#define HOUSEKEEPING_SLEEP (1 * 60) // sleep 5 minutes
+#define HOUSEKEEPING_SLEEP (1 * 60) // FIXME 1 min for testing
 #define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 
 // Timeout bei tcp/ip connections in ms
@@ -2582,25 +2582,6 @@ static void commandTimesNVODservice(int connfd, char *data, const unsigned dataL
 				p += 4;
 				*(unsigned *)p = zeitEvt1.dauer;
 				p += 4;
-
-				/*        MySIeventUniqueKeysMetaOrderServiceUniqueKey::iterator ei=mySIeventUniqueKeysMetaOrderServiceUniqueKey.find(ni->uniqueKey());
-				        if(ei!=mySIeventUniqueKeysMetaOrderServiceUniqueKey.end())
-				        {
-				            dprintf("found NVod - Service: %0llx\n", ei->second);
-				            MySIeventsOrderUniqueKey::iterator e=mySIeventsOrderUniqueKey.find(ei->second);
-				            if(e!=mySIeventsOrderUniqueKey.end())
-				            {
-				                // ist ein MetaEvent, d.h. mit Zeiten fuer NVOD-Event
-				                for(SItimes::iterator t=e->second->times.begin(); t!=e->second->times.end(); t++)
-				                if(t->startzeit<=azeit && azeit<=(long)(t->startzeit+t->dauer))
-				                {
-				                    *(time_t *)p=t->startzeit;
-				                    break;
-				                }
-				            }
-				        }
-				*/
-
 			}
 		}
 	}
