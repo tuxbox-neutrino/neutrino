@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <arpa/inet.h>
 #include <errno.h>
 #include <signal.h>
 
@@ -52,6 +51,7 @@
 
 #include <xmltree/xmlinterface.h>
 #include <configfile.h>
+#include <zapit/client/zapittools.h>
 
 // Daher nehmen wir SmartPointers aus der Boost-Lib (www.boost.org)
 #include <boost/shared_ptr.hpp>
@@ -827,7 +827,8 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 	}
 	unlockEvents();
 }
-#if 0 // FIXME used for PPT
+
+#ifdef ENABLE_PPT
 // Fuegt zusaetzliche Zeiten in ein Event ein
 static void addEventTimes(const SIevent &evt)
 {
@@ -868,6 +869,7 @@ static void addEventTimes(const SIevent &evt)
 	}
 }
 #endif
+
 static void addNVODevent(const SIevent &evt)
 {
 	SIevent *eptr = new SIevent(evt);
@@ -933,6 +935,7 @@ static void addNVODevent(const SIevent &evt)
 static void removeOldEvents(const long seconds)
 {
 	bool goodtimefound;
+	std::vector<event_id_t> to_delete;
 
 	// Alte events loeschen
 	time_t zeit = time(NULL);
@@ -942,7 +945,6 @@ static void removeOldEvents(const long seconds)
 	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
 	while ((e != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end()) && (!messaging_zap_detected)) {
-		unlockEvents();
 		goodtimefound = false;
 		for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); t++) {
 			if (t->startzeit + (long)t->dauer >= zeit - seconds) {
@@ -953,12 +955,13 @@ static void removeOldEvents(const long seconds)
 		}
 
 		if (false == goodtimefound)
-			deleteEvent((*(e++))->uniqueKey());
-		else
-			++e;
-		readLockEvents();
+			to_delete.push_back((*e)->uniqueKey());
+		++e;
 	}
 	unlockEvents();
+
+	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); i++)
+		deleteEvent(*i);
 
 	return;
 }
@@ -1211,13 +1214,6 @@ static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 //			connection-thread
 // handles incoming requests
 //---------------------------------------------------------------------
-
-struct connectionData
-{
-	int connectionSocket;
-
-	struct sockaddr_in clientAddr;
-};
 
 static void commandPauseScanning(int connfd, char *data, const unsigned dataLength)
 {
@@ -2790,47 +2786,6 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 	return ;
 }
 
-std::string UTF8_to_Latin1(const char * s)
-{
-	std::string r;
-
-	while ((*s) != 0)
-	{
-		if (((*s) & 0xf0) == 0xf0)      /* skip (can't be encoded in Latin1) */
-		{
-			s++;
-			if ((*s) == 0)
-				return r;
-			s++;
-			if ((*s) == 0)
-				return r;
-			s++;
-			if ((*s) == 0)
-				return r;
-		}
-		else if (((*s) & 0xe0) == 0xe0) /* skip (can't be encoded in Latin1) */
-		{
-			s++;
-			if ((*s) == 0)
-				return r;
-			s++;
-			if ((*s) == 0)
-				return r;
-		}
-		else if (((*s) & 0xc0) == 0xc0)
-		{
-			char c = (((*s) & 3) << 6);
-			s++;
-			if ((*s) == 0)
-				return r;
-			r += (c | ((*s) & 0x3f));
-		}
-		else r += *s;
-		s++;
-	}
-	return r;
-}
-
 static void *insertEventsfromFile(void *)
 {
 	xmlDocPtr event_parser = NULL;
@@ -2882,12 +2837,12 @@ static void *insertEventsfromFile(void *)
 						node = event->xmlChildrenNode;
 
 						while (xmlGetNextOccurence(node, "name") != NULL) {
-							e.setName(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+							e.setName(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
 									std::string(xmlGetAttribute(node, "string")));
 							node = node->xmlNextNode;
 						}
 						while (xmlGetNextOccurence(node, "text") != NULL) {
-							e.setText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+							e.setText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
 									std::string(xmlGetAttribute(node, "string")));
 							node = node->xmlNextNode;
 						}
@@ -2900,7 +2855,7 @@ static void *insertEventsfromFile(void *)
 							node = node->xmlNextNode;
 						}
 						while (xmlGetNextOccurence(node, "extended_text") != NULL) {
-							e.appendExtendedText(	std::string(UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
+							e.appendExtendedText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
 										std::string(xmlGetAttribute(node, "string")));
 							node = node->xmlNextNode;
 						}
@@ -2930,7 +2885,8 @@ static void *insertEventsfromFile(void *)
 							node = node->xmlNextNode;
 						}
 						while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
-							e.ratings.insert(SIparentalRating(std::string(UTF8_to_Latin1(xmlGetAttribute(node, "country"))), (unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
+							e.ratings.insert(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
+										(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
 							node = node->xmlNextNode;
 						}
 						while (xmlGetNextOccurence(node, "linkage") != NULL) {
