@@ -165,11 +165,6 @@ static DMX dmxEIT(0x12, 3000 /*320*/);
 static DMX dmxFSEIT(3842, 320);
 #endif
 static DMX dmxCN(0x12, 512, false, 1);
-#ifdef ENABLE_PPT
-// Houdini: added for Premiere Private EPG section for Sport/Direkt Portal
-static DMX dmxPPT(0x00, 256);
-unsigned int privatePid=0;
-#endif
 int sectionsd_stop = 0;
 
 static bool slow_addevent = true;
@@ -828,48 +823,6 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 	unlockEvents();
 }
 
-#ifdef ENABLE_PPT
-// Fuegt zusaetzliche Zeiten in ein Event ein
-static void addEventTimes(const SIevent &evt)
-{
-	if (evt.times.size())
-	{
-		readLockEvents();
-		// D.h. wir fuegen die Zeiten in das richtige Event ein
-		MySIeventsOrderUniqueKey::iterator e = mySIeventsOrderUniqueKey.find(evt.uniqueKey());
-
-		if (e != mySIeventsOrderUniqueKey.end())
-		{
-			// Event vorhanden
-			// Falls das Event in den beiden Mengen mit Zeiten vorhanden ist, dieses dort loeschen
-			unlockEvents();
-			writeLockEvents();
-			if (e->second->times.size())
-			{
-				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.erase(e->second);
-				mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.erase(e->second);
-				//unlockEvents();
-			}
-
-			// Und die Zeiten im Event updaten
-			e->second->times.insert(evt.times.begin(), evt.times.end());
-
-			// Und das Event in die beiden Mengen mit Zeiten (wieder) einfuegen
-			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.insert(e->second);
-			mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.insert(e->second);
-			unlockEvents();
-//			printf("Updating: %04x times.size() = %d\n", (int) evt.uniqueKey(), e->second->times.size());
-		}
-		else
-		{
-			unlockEvents();
-			// Event nicht vorhanden -> einfuegen
-			addEvent(evt, 0);
-		}
-	}
-}
-#endif
-
 static void addNVODevent(const SIevent &evt)
 {
 	SIevent *eptr = new SIevent(evt);
@@ -1176,9 +1129,6 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 #ifdef ENABLE_FREESATEPG
 		dmxFSEIT.request_pause();
 #endif
-#ifdef ENABLE_PPT
-		dmxPPT.request_pause();
-#endif
 		scanning = 0;
 	}
 	else if (!pause && !scanning)
@@ -1187,9 +1137,6 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		dmxEIT.request_unpause();
 #ifdef ENABLE_FREESATEPG
 		dmxFSEIT.request_unpause();
-#endif
-#ifdef ENABLE_PPT
-		dmxPPT.request_unpause();
 #endif
 		writeLockEvents();
 		if (myCurrentEvent) {
@@ -1695,9 +1642,6 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 			channel_is_blacklisted = true;
 			dmxCN.request_pause();
 			dmxEIT.request_pause();
-#ifdef ENABLE_PPT
-			dmxPPT.request_pause();
-#endif
 		}
 		xprintf("[sectionsd] commandserviceChanged: service is filtered!\n");
 	}
@@ -1707,9 +1651,6 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 			channel_is_blacklisted = false;
 			dmxCN.request_unpause();
 			dmxEIT.request_unpause();
-#ifdef ENABLE_PPT
-			dmxPPT.request_unpause();
-#endif
 			xprintf("[sectionsd] commandserviceChanged: service is no longer filtered!\n");
 		}
 	}
@@ -2587,32 +2528,6 @@ static void commandUnRegisterEventClient(int /*connfd*/, char *data, const unsig
 }
 
 
-#ifdef ENABLE_PPT
-static void commandSetPrivatePid(int connfd, char *data, const unsigned dataLength)
-{
-	unsigned short pid;
-
-	if (dataLength != 2)
-		goto out;
-
-	pid = *((unsigned short*)data);
-//	if (privatePid != pid)
-	{
-		privatePid = pid;
-		if (pid != 0) {
-			dprintf("[sectionsd] wakeup PPT Thread, pid=%x\n", pid);
-			dmxPPT.change( 0 );
-		}
-	}
-
-out:
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = 0;
-	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-	return ;
-}
-#endif
-
 static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength*/)
 {
 	struct sectionsd::msgResponseHeader responseHeader;
@@ -3071,11 +2986,7 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandLinkageDescriptorsUniqueKey,     "commandLinkageDescriptorsUniqueKey"	},
 	{	commandRegisterEventClient,             "commandRegisterEventClient"		},
 	{	commandUnRegisterEventClient,           "commandUnRegisterEventClient"		},
-#ifdef ENABLE_PPT
-	{	commandSetPrivatePid,                   "commandSetPrivatePid"			},
-#else
 	{	commandDummy2,                          "commandSetPrivatePid"			},
-#endif
 	{	commandFreeMemory,			"commandFreeMemory"			},
 	{	commandReadSIfromXML,			"commandReadSIfromXML"			},
 	{	commandWriteSI2XML,			"commandWriteSI2XML"			},
@@ -4033,303 +3944,6 @@ static void *cnThread(void *)
 	pthread_exit(NULL);
 }
 
-#ifdef ENABLE_PPT
-
-//---------------------------------------------------------------------
-// Premiere Private EPG Thread
-// reads EPG-datas
-//---------------------------------------------------------------------
-
-static void *pptThread(void *)
-{
-	struct SI_section_header *header;
-	unsigned timeoutInMSeconds = EIT_READ_TIMEOUT;
-	bool sendToSleepNow = false;
-	unsigned short start_section = 0;
-	unsigned short pptpid=0;
-	long first_content_id = 0;
-	long previous_content_id = 0;
-	long current_content_id = 0;
-	bool already_exists = false;
-
-	//	dmxPPT.addfilter( 0xa0, (0xff - 0x01) );
-	dmxPPT.addfilter( 0xa0, (0xff));
-	dprintf("[%sThread] pid %d (%lu) start\n", "ppt", getpid(), pthread_self());
-	int timeoutsDMX = 0;
-	char *static_buf = new char[MAX_SECTION_LENGTH];
-	int rc;
-
-	if (static_buf == NULL)
-		throw std::bad_alloc();
-
-	time_t lastRestarted = time_monotonic();
-	time_t lastData = time_monotonic();
-
-	dmxPPT.start(); // -> unlock
-	if (!scanning)
-		dmxPPT.request_pause();
-
-	waitForTimeset();
-	dmxPPT.lastChanged = time_monotonic();
-
-	while (!sectionsd_stop) {
-		time_t zeit = time_monotonic();
-
-		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS && scanning && !channel_is_blacklisted)
-		{
-			if (zeit > lastRestarted + 3) // last restart older than 3secs, therefore do NOT decrease cache
-			{
-				dmxPPT.stop(); // -> lock
-				dmxPPT.start(); // -> unlock
-				dprintf("[pptThread] dmxPPT restarted, cache NOT decreased (dt=%ld)\n", (int)zeit - lastRestarted);
-			}
-			else
-			{
-
-				// sectionsd ist zu langsam, da zu viele events -> cache kleiner machen
-				dmxPPT.stop(); // -> lock
-				/*                    lockEvents();
-						      if(secondsToCache>24*60L*60L && mySIeventsOrderUniqueKey.size()>3000)
-						      {
-				// kleiner als 1 Tag machen wir den Cache nicht,
-				// da die timeouts ja auch von einem Sender ohne EPG kommen koennen
-				// Die 3000 sind ne Annahme und beruhen auf (wenigen) Erfahrungswerten
-				// Man koennte auch ab 3000 Events nur noch jedes 3 Event o.ae. einsortieren
-				dmxSDT.real_pause();
-				lockServices();
-				unsigned anzEventsAlt=mySIeventsOrderUniqueKey.size();
-				secondsToCache-=5*60L*60L; // 5h weniger
-				dprintf("[eitThread] decreasing cache 5h (now %ldh)\n", secondsToCache/(60*60L));
-				removeNewEvents();
-				removeOldEvents(oldEventsAre);
-				if(anzEventsAlt>mySIeventsOrderUniqueKey.size())
-				dprintf("[eitThread] Removed %u Events (%u -> %u)\n", anzEventsAlt-mySIeventsOrderUniqueKey.size(), anzEventsAlt, mySIeventsOrderUniqueKey.size());
-				unlockServices();
-				dmxSDT.real_unpause();
-				}
-				unlockEvents();
-				*/
-				dmxPPT.start(); // -> unlock
-				//					dputs("[pptThread] dmxPPT restarted");
-
-			}
-
-			lastRestarted = zeit;
-			timeoutsDMX = 0;
-			lastData = zeit;
-		}
-
-		if (sendToSleepNow || !scanning || channel_is_blacklisted)
-		{
-			sendToSleepNow = false;
-
-			dmxPPT.real_pause();
-
-			int rs;
-			do {
-				pthread_mutex_lock( &dmxPPT.start_stop_mutex );
-
-				if (0 != privatePid)
-				{
-					struct timespec abs_wait;
-					struct timeval now;
-
-					gettimeofday(&now, NULL);
-					TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
-					abs_wait.tv_sec += (TIME_EIT_SCHEDULED_PAUSE);
-					dprintf("[pptThread] going to sleep for %d seconds...\n", TIME_EIT_SCHEDULED_PAUSE);
-					rs = pthread_cond_timedwait(&dmxPPT.change_cond, &dmxPPT.start_stop_mutex, &abs_wait);
-				}
-				else
-				{
-					dprintf("[pptThread] going to sleep until wakeup...\n");
-					rs = pthread_cond_wait(&dmxPPT.change_cond, &dmxPPT.start_stop_mutex);
-				}
-
-				pthread_mutex_unlock( &dmxPPT.start_stop_mutex );
-			} while (channel_is_blacklisted);
-
-			if (rs == ETIMEDOUT)
-			{
-				dprintf("dmxPPT: waking up again - looking for new events :)\n");
-				if (0 != privatePid)
-				{
-					dmxPPT.change( 0 ); // -> restart
-				}
-			}
-			else if (rs == 0)
-			{
-				dprintf("dmxPPT: waking up again - requested from .change()\n");
-			}
-			else
-			{
-				dprintf("dmxPPT: waking up again - unknown reason?!\n");
-				dmxPPT.real_unpause();
-			}
-			// after sleeping get current time
-			zeit = time_monotonic();
-			start_section = 0; // fetch new? events
-			lastData = zeit; // restart timer
-			first_content_id = 0;
-			previous_content_id = 0;
-			current_content_id = 0;
-		}
-
-		if (0 == privatePid)
-		{
-			sendToSleepNow = true; // if there is no valid pid -> sleep
-			dprintf("dmxPPT: no valid pid 0\n");
-			sleep(1);
-			continue;
-		}
-
-		if (!scanning)
-			continue; // go to sleep again...
-
-		if (pptpid != privatePid)
-		{
-			pptpid = privatePid;
-			dprintf("Setting PrivatePid %x\n", pptpid);
-			dmxPPT.setPid(pptpid);
-		}
-
-		rc = dmxPPT.getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
-
-		if (rc < 0) {
-			if (zeit > lastData + 5)
-			{
-				sendToSleepNow = true; // if there are no data for 5 seconds -> sleep
-				dprintf("dmxPPT: no data for 5 seconds\n");
-			}
-			continue;
-		}
-
-		if (rc < (int)sizeof(struct SI_section_header))
-		{
-			xprintf("%s: ret < sizeof(SI_Section_header) (%d < %d)\n", __FUNCTION__, rc, sizeof(struct SI_section_header));
-			continue;
-		}
-
-		lastData = zeit;
-
-		header = (SI_section_header*)static_buf;
-		unsigned short section_length = header->section_length_hi << 8 | header->section_length_lo;
-
-		if (header->current_next_indicator)
-		{
-			// Wir wollen nur aktuelle sections
-			if (start_section == 0)
-				start_section = header->section_number;
-			else if (start_section == header->section_number)
-			{
-				sendToSleepNow = true; // no more scanning
-				dprintf("[pptThread] got all sections\n");
-				continue;
-			}
-
-			//				SIsectionPPT ppt(SIsection(section_length + 3, buf));
-			SIsectionPPT ppt(section_length + 3, static_buf);
-			if (ppt.is_parsed())
-				if (ppt.header())
-				{
-					// == 0 -> kein event
-					//					dprintf("[pptThread] adding %d events [table 0x%x] (begin)\n", ppt.events().size(), header.table_id);
-					//					dprintf("got %d: ", header.section_number);
-					zeit = time(NULL);
-
-					// Hintereinander vorkommende sections mit gleicher contentID herausfinden
-					current_content_id = ppt.content_id();
-					if (first_content_id == 0)
-					{
-						// aktuelle section ist die erste
-						already_exists = false;
-						first_content_id = current_content_id;
-					}
-					else if ((first_content_id == current_content_id) || (previous_content_id == current_content_id))
-					{
-						// erste und aktuelle bzw. vorherige und aktuelle section sind gleich
-						already_exists = true;
-					}
-					else
-					{
-						// erste und aktuelle bzw. vorherige und aktuelle section sind nicht gleich
-						already_exists = false;
-						previous_content_id = current_content_id;
-					}
-
-					// Nicht alle Events speichern
-					for (SIevents::iterator e = ppt.events().begin(); e != ppt.events().end(); e++)
-					{
-						if (!(e->times.empty()))
-						{
-							for (SItimes::iterator t = e->times.begin(); t != e->times.end(); t++) {
-								//								if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-								//								        ( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
-								// add the event if at least one starttime matches
-								if ( ( t->startzeit < zeit + secondsToCache ) &&
-										( ( t->startzeit + (long)t->dauer ) > zeit - oldEventsAre ) )
-								{
-									//									dprintf("chId: " PRINTF_CHANNEL_ID_TYPE " Dauer: %ld, Startzeit: %s", e->get_channel_id(),  (long)e->times.begin()->dauer, ctime(&e->times.begin()->startzeit));
-									//									writeLockEvents();
-
-									if (already_exists)
-									{
-										// Zusaetzliche Zeiten in ein Event einfuegen
-										addEventTimes(*e);
-									}
-									else
-									{
-										// Ein Event in alle Mengen einfuegen
-										addEvent(*e, zeit);
-									}
-
-									//									unlockEvents();
-									break; // only add the event once
-								}
-#if 0
-								// why is the following not compiling, fuXX STL
-								else {
-									// remove unusable times in event
-									SItimes::iterator kt = t;
-									t--; // the iterator t points to the last element
-									e->times.erase(kt);
-								}
-#endif
-							}
-						}
-						else
-						{
-							// pruefen ob nvod event
-							readLockServices();
-							MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
-
-							if (si != mySIservicesNVODorderUniqueKey.end())
-							{
-								// Ist ein nvod-event
-								writeLockEvents();
-
-								for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
-									mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
-
-								addNVODevent(*e);
-								unlockEvents();
-							}
-							unlockServices();
-						}
-					} // for
-					//dprintf("[pptThread] added %d events (end)\n",  ppt.events().size());
-				} // if
-		} // if
-	} // for
-	delete[] static_buf;
-
-	dputs("[pptThread] end");
-
-	pthread_exit(NULL);
-}
-
-#endif
-
 /* helper function for the housekeeping-thread */
 static void print_meminfo(void)
 {
@@ -4494,9 +4108,6 @@ void sectionsd_main_thread(void */*data*/)
 #ifdef ENABLE_FREESATEPG
 	pthread_t threadFSEIT;
 #endif
-#ifdef ENABLE_PPT
-	pthread_t threadPPT;
-#endif
 	int rc;
 
 	struct sched_param parm;
@@ -4589,16 +4200,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	}
 #endif
 
-#ifdef ENABLE_PPT
-	// premiere private epg -Thread starten
-	rc = pthread_create(&threadPPT, 0, pptThread, 0);
-
-	if (rc) {
-		fprintf(stderr, "[sectionsd] failed to create ppt-thread (rc=%d)\n", rc);
-		return;
-	}
-#endif
-
 	// housekeeping-Thread starten
 	rc = pthread_create(&threadHouseKeeping, 0, houseKeepingThread, 0);
 
@@ -4663,17 +4264,9 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	pthread_mutex_lock(&dmxCN.start_stop_mutex);
 	pthread_cond_broadcast(&dmxCN.change_cond);
 	pthread_mutex_unlock(&dmxCN.start_stop_mutex);
-#ifdef ENABLE_PPT
-	pthread_mutex_lock(&dmxPPT.start_stop_mutex);
-	pthread_cond_broadcast(&dmxPPT.change_cond);
-	pthread_mutex_unlock(&dmxPPT.start_stop_mutex);
-#endif
 	printf("pausing...\n");
 	dmxEIT.request_pause();
 	dmxCN.request_pause();
-#ifdef ENABLE_PPT
-	dmxPPT.request_pause();
-#endif
 #ifdef ENABLE_FREESATEPG
 	dmxFSEIT.request_pause();
 #endif
@@ -4690,10 +4283,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	pthread_join(threadEIT, NULL);
 	printf("join 3\n");
 	pthread_join(threadCN, NULL);
-#ifdef ENABLE_PPT
-	printf("join 3\n");
-	pthread_join(threadPPT, NULL);
-#endif
 
 	eit_stop_update_filter(&eit_update_fd);
 	if(eitDmx)
@@ -4705,9 +4294,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	dmxCN.close();
 #ifdef ENABLE_FREESATEPG
 	dmxFSEIT.close();
-#endif
-#ifdef ENABLE_PPT
-	dmxPPT.close();
 #endif
 	printf("[sectionsd] ended\n");
 
@@ -5249,13 +4835,6 @@ bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSect
 
 void sectionsd_setPrivatePid(unsigned short /*pid*/)
 {
-#ifdef ENABLE_PPT
-	privatePid = pid;
-	if (pid != 0) {
-		dprintf("[sectionsd] wakeup PPT Thread, pid=%x\n", pid);
-		dmxPPT.change( 0 );
-	}
-#endif
 }
 
 void sectionsd_set_languages(const std::vector<std::string>& newLanguages)
