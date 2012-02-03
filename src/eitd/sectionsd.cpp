@@ -966,64 +966,6 @@ static void removeOldEvents(const long seconds)
 	return;
 }
 
-#ifdef REMOVE_DUPS
-/* Remove duplicate events (same Service, same start and endtime)
- * with different eventID. Use the one from the lower table_id.
- * This routine could be extended to remove overlapping events also,
- * but let's keep that for later
- */
-static void removeDupEvents(void)
-{
-	MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e1, e2, del;
-	/* list of event IDs to delete */
-	std::vector<event_id_t>to_delete;
-
-	readLockEvents();
-	e1 = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
-
-	while ((e1 != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) && !messaging_zap_detected)
-	{
-		e2 = e1;
-		e1++;
-		if (e1 == mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
-			break;
-
-		/* check for the same service */
-		if ((*e1)->get_channel_id() != (*e2)->get_channel_id())
-			continue;
-		/* check for same time */
-		if (((*e1)->times.begin()->startzeit != (*e2)->times.begin()->startzeit) ||
-			((*e1)->times.begin()->dauer     != (*e2)->times.begin()->dauer))
-			continue;
-
-		if ((*e1)->table_id == (*e2)->table_id)
-		{
-			dprintf("%s: not removing events %llx %llx, t:%02x '%s'\n", __func__,
-				(*e1)->uniqueKey(), (*e2)->uniqueKey(), (*e1)->table_id, (*e1)->getName().c_str());
-			continue;
-		}
-
-		if ((*e1)->table_id > (*e2)->table_id)
-			del = e1;
-		if ((*e1)->table_id < (*e2)->table_id)
-			del = e2;
-
-		dprintf("%s: removing event %llx.%02x '%s'\n", __func__,
-			(*del)->uniqueKey(), (*del)->table_id, (*del)->getName().c_str());
-		/* remember the unique ID for later deletion */
-		to_delete.push_back((*del)->uniqueKey());
-	}
-	unlockEvents();
-
-	/* clean up outside of the iterator loop */
-	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); i++)
-		deleteEvent(*i);
-	to_delete.clear(); /* needed? can't hurt... */
-
-	return;
-}
-#endif
-
 //  SIservicePtr;
 typedef boost::shared_ptr<class SIservice> SIservicePtr;
 
@@ -4451,15 +4393,7 @@ static void *houseKeepingThread(void *)
 		}
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
 		unlockEvents();
-		//			usleep(100);
-		//			lockEvents();
-#ifdef REMOVE_DUPS
-		removeDupEvents();
-		readLockEvents();
-		printf("[sectionsd] Removed %d dup events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
-		anzEventsAlt = mySIeventsOrderUniqueKey.size();
-		unlockEvents();
-#endif
+
 		readLockEvents();
 		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 		{
