@@ -29,25 +29,15 @@
 #include <dmx.h>
 #include <debug.h>
 
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <netinet/in.h>
-#include <netinet/in_systm.h>
-#include <netinet/ip.h>
-#include <netdb.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/poll.h>
 #include <pthread.h>
-#include <semaphore.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <signal.h>
-//#include <sys/resource.h> // getrusage
+
 #include <set>
 #include <map>
 #include <algorithm>
@@ -61,7 +51,6 @@
 #include <connection/basicserver.h>
 
 #include <xmltree/xmlinterface.h>
-#include <zapit/settings.h>
 #include <configfile.h>
 
 // Daher nehmen wir SmartPointers aus der Boost-Lib (www.boost.org)
@@ -2915,27 +2904,6 @@ static void *insertEventsfromFile(void *)
 										std::string(xmlGetAttribute(node, "string")));
 							node = node->xmlNextNode;
 						}
-						/*
-						if (xmlGetNextOccurence(node, "description") != NULL) {
-							if (xmlGetAttribute(node, "name") != NULL) {
-								e.langName = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "name")));
-							}
-							//printf("Name: %s\n", e->name);
-							if (xmlGetAttribute(node, "text") != NULL) {
-								e.langText = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "text")));
-							}
-							if (xmlGetAttribute(node, "item") != NULL) {
-								e.item = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "item")));
-							}
-							if (xmlGetAttribute(node, "item_description") != NULL) {
-								e.itemDescription = std::string(UTF8_to_Latin1(xmlGetAttribute(node,"item_description")));
-							}
-							if (xmlGetAttribute(node, "extended_text") != NULL) {
-								e.langExtendedText = std::string(UTF8_to_Latin1(xmlGetAttribute(node, "extended_text")));
-							}
-							node = node->xmlNextNode;
-						}
-						*/
 						while (xmlGetNextOccurence(node, "time") != NULL) {
 							e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
 									      xmlGetNumericAttribute(node, "duration", 10)));
@@ -2976,11 +2944,8 @@ static void *insertEventsfromFile(void *)
 
 							node = node->xmlNextNode;
 						}
-						//lockEvents();
-						//writeLockEvents();
 						addEvent(e, 0);
 						ev_count++;
-						//unlockEvents();
 
 						event = event->xmlNextNode;
 					}
