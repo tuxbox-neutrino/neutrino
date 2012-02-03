@@ -10,8 +10,12 @@ INCLUDES = \
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
+if USE_NEUTRINO_HAL
+INCLUDES += -I$(NEUTRINO_HAL_INC)
+else
 if BOXTYPE_TRIPLE
 INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 endif
 
 AM_CPPFLAGS = -D DO_NOT_INCLUDE_STUFF_NOT_NEEDED_FOR_SECTIONSD

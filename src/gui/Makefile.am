@@ -30,8 +30,13 @@ INCLUDES = \
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
+
+if USE_NEUTRINO_HAL
+INCLUDES += -I$(NEUTRINO_HAL_INC)
+else
 if BOXTYPE_TRIPLE
 INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
 endif
 
 noinst_LIBRARIES = libtimerlist.a libneutrino_gui.a libneutrino_gui2.a

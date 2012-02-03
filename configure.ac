@@ -114,6 +114,16 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
+AC_ARG_WITH(neutrino-hal-includes,
+	[  --with-neutrinohal-includes=PATH  path for libneutrino-hal includes [[NONE]]],
+	[NEUTRINO_HAL_INC="$withval"],[NEUTRINO_HAL_INC=""])
+AC_ARG_WITH(neutrino-hal-build,
+	[  --with-neutrinohal-build=PATH   path where libneutrino-hal is built [[NONE]]],
+	[NEUTRINO_HAL_LIB="$withval"],[NEUTRINO_HAL_LIB=""])
+
+AM_CONDITIONAL(USE_NEUTRINO_HAL, test "$NEUTRINO_HAL_INC")
+
+
 AC_CHECK_HEADERS(coolstream/nevis_ir.h)
 
 #
@@ -137,6 +147,8 @@ AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 AC_SUBST(VORBISIDEC_CFLAGS)
 AC_SUBST(VORBISIDEC_LIBS)
+AC_SUBST(NEUTRINO_HAL_INC)
+AC_SUBST(NEUTRINO_HAL_LIB)
 
 AC_OUTPUT([
 Makefile

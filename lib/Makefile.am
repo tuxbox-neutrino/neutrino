@@ -15,7 +15,10 @@ SUBDIRS += \
 	libupnpclient
 endif
 
+if USE_NEUTRINO_HAL
+else
 if BOXTYPE_TRIPLE
 SUBDIRS += \
 	libtriple
+endif
 endif

@@ -19,9 +19,15 @@ INCLUDES = \
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
+if USE_NEUTRINO_HAL
+INCLUDES += -I$(NEUTRINO_HAL_INC)
+else
+if BOXTYPE_TRIPLE
+INCLUDES += -I$(top_srcdir)/lib/libtriple
+endif
+endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
-INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 
 if USE_TREMOR
@@ -106,9 +112,17 @@ bin_PROGRAMS += drivertool
 
 drivertool_SOURCES = drivertool.c
 endif
+if USE_NEUTRINO_HAL
+neutrino_LDADD += \
+	$(NEUTRINO_HAL_LIB)/libneutrino-hal.a
+else
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
-	$(top_builddir)/lib/libtriple/libtriple.a \
+	$(top_builddir)/lib/libtriple/libtriple.a
+endif
+endif
+if BOXTYPE_TRIPLE
+neutrino_LDADD += \
 	@DIRECTFB_LIBS@ \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a
 endif

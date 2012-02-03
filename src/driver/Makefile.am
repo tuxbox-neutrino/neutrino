@@ -47,10 +47,18 @@ if BOXTYPE_TRIPLE
 libneutrino_driver_a_SOURCES += \
 	newclock.cpp \
 	lcdd.cpp
+endif
 
+if USE_NEUTRINO_HAL
+INCLUDES += \
+	-I$(NEUTRINO_HAL_INC) \
+	@DIRECTFB_CFLAGS@
+else
+if BOXTYPE_TRIPLE
 INCLUDES += \
 	-I$(top_srcdir)/lib/libtriple \
 	@DIRECTFB_CFLAGS@
+endif
 endif
 
 libneutrino_driver_netfile_a_SOURCES = netfile.cpp
