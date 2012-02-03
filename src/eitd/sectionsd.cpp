@@ -96,7 +96,8 @@ static bool sectionsd_ready = false;
 static bool reader_ready = true;
 static unsigned int max_events;
 
-#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
+//#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
+#define HOUSEKEEPING_SLEEP (1 * 60) // sleep 5 minutes
 #define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 
 // Timeout bei tcp/ip connections in ms
@@ -311,7 +312,6 @@ struct OrderFirstEndTimeServiceIDEventUniqueKey
 	{
 		return
 			p1->times.begin()->startzeit + (long)p1->times.begin()->dauer == p2->times.begin()->startzeit + (long)p2->times.begin()->dauer ?
-			//      ( p1->serviceID == p2->serviceID ? p1->uniqueKey() < p2->uniqueKey() : p1->serviceID < p2->serviceID )
 			(p1->service_id == p2->service_id ? p1->uniqueKey() > p2->uniqueKey() : p1->service_id < p2->service_id)
 				:
 				( p1->times.begin()->startzeit + (long)p1->times.begin()->dauer < p2->times.begin()->startzeit + (long)p2->times.begin()->dauer ) ;
@@ -1218,81 +1218,6 @@ static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 	return nullEvt;
 }
 
-// Sucht das naechste UND vorhergehende Event anhand unique key und Startzeit
-static void findPrevNextSIevent(const event_id_t uniqueKey, SItime &zeit, SIevent &prev, SItime &prev_zeit, SIevent &next, SItime &next_zeit)
-{
-	prev = nullEvt;
-	next = nullEvt;
-	bool prev_ok = false;
-	bool next_ok = false;
-
-	MySIeventsOrderUniqueKey::iterator eFirst = mySIeventsOrderUniqueKey.find(uniqueKey);
-
-	if (eFirst != mySIeventsOrderUniqueKey.end())
-	{
-		if (eFirst->second->times.size() > 1)
-		{
-			// Wir haben ein NVOD-Event
-			// d.h. wir suchen die aktuelle Zeit und nehmen die naechste davon, falls existent
-
-			for (SItimes::iterator t = eFirst->second->times.begin(); t != eFirst->second->times.end(); ++t)
-				if (t->startzeit == zeit.startzeit)
-				{
-					if (t != eFirst->second->times.begin())
-					{
-						--t;
-						prev_zeit = *t;
-						prev = *(eFirst->second);
-						prev_ok = true;
-						++t;
-					}
-
-					++t;
-
-					if (t != eFirst->second->times.end())
-					{
-						next_zeit = *t;
-						next = *(eFirst->second);
-						next_ok = true;
-					}
-
-					if ( prev_ok && next_ok )
-						return ; // beide gefunden...
-					else
-						break;
-				}
-		}
-
-		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator eNext = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.find(eFirst->second);
-
-		if ( (!prev_ok) && (eNext != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin() ) )
-		{
-			--eNext;
-
-			if ((*eNext)->get_channel_id() == eFirst->second->get_channel_id())
-			{
-				prev_zeit = *((*eNext)->times.begin());
-				prev = *(*eNext);
-			}
-
-			++eNext;
-		}
-
-		++eNext;
-
-		if ( (!next_ok) && (eNext != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) )
-		{
-			if ((*eNext)->get_channel_id() == eFirst->second->get_channel_id())
-			{
-				next_zeit = *((*eNext)->times.begin());
-				next = *(*eNext);
-			}
-		}
-
-		// printf("evt_id >%llx<, time %x - evt_id >%llx<, time %x\n", prev.uniqueKey(), prev_zeit.startzeit, next.uniqueKey(), next_zeit.startzeit);
-	}
-}
-
 //---------------------------------------------------------------------
 //			connection-thread
 // handles incoming requests
@@ -1390,75 +1315,6 @@ static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigne
 	}
 	else
 		dputs("[sectionsd] Fehler/Timeout bei write");
-}
-
-static void commandDumpAllServices(int connfd, char* /*data*/, const unsigned /*dataLength*/)
-{
-	dputs("Request of service list.\n");
-	long count=0;
-#define MAX_SIZE_SERVICELIST	64*1024
-	char *serviceList = new char[MAX_SIZE_SERVICELIST]; // 65kb should be enough and dataLength is unsigned short
-
-	if (!serviceList)
-	{
-		fprintf(stderr, "low on memory!\n");
-		return ;
-	}
-
-	*serviceList = 0;
-	readLockServices();
-#define MAX_SIZE_DATEN	200
-	char daten[MAX_SIZE_DATEN];
-
-	for (MySIservicesOrderUniqueKey::iterator s = mySIservicesOrderUniqueKey.begin(); s != mySIservicesOrderUniqueKey.end(); ++s)
-	{
-		count += 1 + snprintf(daten, MAX_SIZE_DATEN,
-				      PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-				      " %hu %hhu %d %d %d %d %u ",
-				      s->first,
-				      s->second->service_id, s->second->serviceTyp,
-				      s->second->eitScheduleFlag(), s->second->eitPresentFollowingFlag(),
-				      s->second->runningStatus(), s->second->freeCAmode(),
-				      s->second->nvods.size());
-		/**	soll es in count ?
-					+ strlen(s->second->serviceName.c_str()) + 1
-		 			+ strlen(s->second->providerName.c_str()) + 1
-		 			+ 3;  **/
-		if (count < MAX_SIZE_SERVICELIST)
-		{
-			strcat(serviceList, daten);
-			strcat(serviceList, "\n");
-			strcat(serviceList, s->second->serviceName.c_str());
-			strcat(serviceList, "\n");
-			strcat(serviceList, s->second->providerName.c_str());
-			strcat(serviceList, "\n");
-		} else {
-			dprintf("warning: commandDumpAllServices: serviceList cut\n");
-			break;
-		}
-	}
-
-	unlockServices();
-	struct sectionsd::msgResponseHeader msgResponse;
-	msgResponse.dataLength = strlen(serviceList) + 1;
-
-	if (msgResponse.dataLength > MAX_SIZE_SERVICELIST)
-		printf("warning: commandDumpAllServices: length=%d\n", msgResponse.dataLength);
-
-	if (msgResponse.dataLength == 1)
-		msgResponse.dataLength = 0;
-
-	if (writeNbytes(connfd, (const char *)&msgResponse, sizeof(msgResponse), WRITE_TIMEOUT_IN_SECONDS) == true)
-	{
-		if (msgResponse.dataLength)
-			writeNbytes(connfd, serviceList, msgResponse.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	}
-	else
-		dputs("[sectionsd] Fehler/Timeout bei write");
-
-	delete[] serviceList;
-
-	return ;
 }
 
 static void sendAllEvents(int connfd, t_channel_id serviceUniqueKey, bool oldFormat = true, char search = 0, std::string search_text = "")
@@ -2342,44 +2198,6 @@ out:
 		delete[] msgData;
 }
 
-static void commandGetNextEPG(int connfd, char *data, const unsigned dataLength)
-{
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = 0;
-
-	if (dataLength != 8 + 4) {
-		writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-		return ;
-	}
-
-	event_id_t * uniqueEventKey = (event_id_t *)data;
-
-	time_t *starttime = (time_t *)(data + 8);
-
-	dprintf("Request of next epg for 0x%llx %s", *uniqueEventKey, ctime(starttime));
-
-	readLockEvents();
-
-	SItime zeit(*starttime, 0);
-
-	const SIevent &nextEvt = findNextSIevent(*uniqueEventKey, zeit);
-
-	if (nextEvt.service_id != 0)
-	{
-		dprintf("next epg found.\n");
-		sendEPG(connfd, nextEvt, zeit);
-// this call is made in sendEPG()
-//		unlockEvents();
-		return;
-	}
-
-	unlockEvents();
-	dprintf("next epg not found!\n");
-
-	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-	return ;
-}
-
 static void commandActualEPGchannelID(int connfd, char *data, const unsigned dataLength)
 {
 	if (dataLength != sizeof(t_channel_id))
@@ -2430,69 +2248,6 @@ static void commandActualEPGchannelID(int connfd, char *data, const unsigned dat
 	struct sectionsd::msgResponseHeader responseHeader;
 	responseHeader.dataLength = 0;
 	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-
-	return ;
-}
-
-static void commandGetEPGPrevNext(int connfd, char *data, const unsigned dataLength)
-{
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = 0;
-	char* msgData = NULL;
-
-	if (dataLength != 8 + 4) {
-		writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-		return;
-	}
-
-	event_id_t * uniqueEventKey = (event_id_t *)data;
-
-	time_t *starttime = (time_t *)(data + 8);
-	SItime zeit(*starttime, 0);
-	SItime prev_zeit(0, 0);
-	SItime next_zeit(0, 0);
-	SIevent prev_evt;
-	SIevent next_evt;
-
-	dprintf("Request of Prev/Next EPG for 0x%llx %s", *uniqueEventKey, ctime(starttime));
-
-	readLockEvents();
-
-	findPrevNextSIevent(*uniqueEventKey, zeit, prev_evt, prev_zeit, next_evt, next_zeit);
-
-	responseHeader.dataLength =
-		12 + 1 + 				// Unique-Key + del
-		8 + 1 + 				// start time + del
-		12 + 1 + 				// Unique-Key + del
-		8 + 1 + 1;				// start time + del
-
-	msgData = new char[responseHeader.dataLength];
-
-	if (!msgData)
-	{
-		fprintf(stderr, "low on memory!\n");
-		unlockEvents();
-		responseHeader.dataLength = 0; // empty response
-		goto out;
-	}
-
-	sprintf(msgData, "%012llx\xFF%08lx\xFF%012llx\xFF%08lx\xFF",
-		prev_evt.uniqueKey(),
-		prev_zeit.startzeit,
-		next_evt.uniqueKey(),
-		next_zeit.startzeit
-	       );
-	unlockEvents();
-
-out:
-	if (writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS)) {
-		if (responseHeader.dataLength)
-			writeNbytes(connfd, msgData, responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	} else
-		dputs("[sectionsd] Fehler/Timeout bei write");
-
-	if (msgData)
-		delete[] msgData;
 
 	return ;
 }
@@ -2698,56 +2453,10 @@ out:
 		delete[] msgData;
 }
 
-static void commandGetNextShort(int connfd, char *data, const unsigned dataLength)
-{
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = 0;
-	if (dataLength != 8 + 4) {
-		writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-		return;
-	}
-
-	event_id_t * uniqueEventKey = (event_id_t *)data;
-
-	time_t *starttime = (time_t *)(data + 8);
-	SItime zeit(*starttime, 0);
-
-	dprintf("Request of next short for 0x%llx %s", *uniqueEventKey, ctime(starttime));
-
-	readLockEvents();
-
-	const SIevent &nextEvt = findNextSIevent(*uniqueEventKey, zeit);
-
-	if (nextEvt.service_id != 0)
-	{
-		dprintf("next short found.\n");
-		sendShort(connfd, nextEvt, zeit);
-// this call is made in sendShort()
-//		unlockEvents();
-		return;
-	}
-	unlockEvents();
-	dprintf("next short not found!\n");
-
-	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-}
-
-static void commandEventListTV(int connfd, char* /*data*/, const unsigned /*dataLength*/)
-{
-	dputs("Request of TV event list.\n");
-	sendEventList(connfd, 0x01, 0x04);
-}
-
 static void commandEventListTVids(int connfd, char* data, const unsigned dataLength)
 {
 	dputs("Request of TV event list (IDs).\n");
 	sendEventList(connfd, 0x01, 0x04, 0, (t_channel_id *) data, dataLength/sizeof(t_channel_id));
-}
-
-static void commandEventListRadio(int connfd, char* /*data*/, const unsigned /*dataLength*/)
-{
-	dputs("Request of radio event list.\n");
-	sendEventList(connfd, 0x02);
 }
 
 static void commandEventListRadioIDs(int connfd, char* data, const unsigned dataLength)
@@ -3493,136 +3202,6 @@ static void commandAllEventsChannelIDSearch(int connfd, char *data, const unsign
 	return;
 }
 
-static void commandLoadLanguages(int connfd, char* /*data*/, const unsigned /*dataLength*/)
-{
-	struct sectionsd::msgResponseHeader responseHeader;
-	bool retval = SIlanguage::loadLanguages();
-	responseHeader.dataLength = sizeof(retval);
-
-	if (writeNbytes(connfd, (const char *)&responseHeader,
-			sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS) == true) {
-		writeNbytes(connfd, (const char *)&retval,
-			    responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	}
-	else
-		dputs("[sectionsd] Fehler/Timeout bei write");
-}
-
-
-static void commandSaveLanguages(int connfd, char* /*data*/, const unsigned /*dataLength*/)
-{
-	struct sectionsd::msgResponseHeader responseHeader;
-	bool retval = SIlanguage::saveLanguages();
-	responseHeader.dataLength = sizeof(retval);
-
-	if (writeNbytes(connfd, (const char *)&responseHeader,
-			sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS) == true) {
-		writeNbytes(connfd, (const char *)&retval,
-			    responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	}
-	else
-		dputs("[sectionsd] Fehler/Timeout bei write");
-}
-
-
-static void commandSetLanguages(int connfd, char* data, const unsigned dataLength)
-{
-	bool retval = true;
-
-	if (dataLength % 3) {
-		retval = false;
-	} else {
-		std::vector<std::string> languages;
-		for (unsigned int i = 0 ; i < dataLength ; ) {
-			char tmp[4];
-			tmp[0] = data[i++];
-			tmp[1] = data[i++];
-			tmp[2] = data[i++];
-			tmp[3] = '\0';
-			languages.push_back(tmp);
-		}
-		SIlanguage::setLanguages(languages);
-	}
-
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = sizeof(retval);
-
-	if (writeNbytes(connfd, (const char *)&responseHeader,
-			sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS) == true) {
-		writeNbytes(connfd, (const char *)&retval, responseHeader.dataLength,
-			    WRITE_TIMEOUT_IN_SECONDS);
-	} else {
-		dputs("[sectionsd] Fehler/Timeout bei write");
-	}
-}
-
-
-static void commandGetLanguages(int connfd, char* /* data */, const unsigned /* dataLength */)
-{
-	std::string retval;
-	std::vector<std::string> languages = SIlanguage::getLanguages();
-
-	for (std::vector<std::string>::iterator it = languages.begin() ;
-			it != languages.end() ; it++) {
-		retval.append(*it);
-	}
-
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = retval.length();
-
-	if (writeNbytes(connfd, (const char *)&responseHeader,
-			sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS) == true) {
-		writeNbytes(connfd, (const char *)retval.c_str(),
-			    responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	} else {
-		dputs("[sectionsd] Fehler/Timeout bei write");
-	}
-}
-
-
-static void commandSetLanguageMode(int connfd, char* data , const unsigned dataLength)
-{
-	bool retval = true;
-	CSectionsdClient::SIlanguageMode_t tmp(CSectionsdClient::ALL);
-
-	if (dataLength != sizeof(tmp)) {
-		retval = false;
-	} else {
-		tmp = *(CSectionsdClient::SIlanguageMode_t *)data;
-		SIlanguage::setMode(tmp);
-	}
-
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = sizeof(retval);
-
-	if (writeNbytes(connfd, (const char *)&responseHeader,
-			sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS) == true) {
-		writeNbytes(connfd, (const char *)&retval,
-			    responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	} else {
-		dputs("[sectionsd] Fehler/Timeout bei write");
-	}
-}
-
-
-static void commandGetLanguageMode(int connfd, char* /* data */, const unsigned /* dataLength */)
-{
-	CSectionsdClient::SIlanguageMode_t retval(CSectionsdClient::ALL);
-
-	retval = SIlanguage::getMode();
-
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = sizeof(retval);
-
-	if (writeNbytes(connfd, (const char *)&responseHeader,
-			sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS) == true) {
-		writeNbytes(connfd, (const char *)&retval,
-			    responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	} else {
-		dputs("[sectionsd] Fehler/Timeout bei write");
-	}
-}
-
 struct s_cmd_table
 {
 	void (*cmd)(int connfd, char *, const unsigned);
@@ -3630,21 +3209,8 @@ struct s_cmd_table
 };
 
 static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
-	//commandActualEPGchannelName,
-	{	commandDummy2,				"commandDummy1"				},
-	{	commandEventListTV,			"commandEventListTV"			},
-	//commandCurrentNextInfoChannelName,
-	{	commandDummy2,				"commandDummy2"				},
 	{	commandDumpStatusInformation,		"commandDumpStatusInformation"		},
-	//commandAllEventsChannelName,
 	{	commandAllEventsChannelIDSearch,        "commandAllEventsChannelIDSearch"	},
-	{	commandDummy2,				"commandSetHoursToCache"		},
-	{	commandDummy2,				"commandSetHoursExtendedCache"		},
-	{	commandDummy2,				"commandSetEventsAreOldInMinutes"	},
-	{	commandDumpAllServices,                 "commandDumpAllServices"		},
-	{	commandEventListRadio,                  "commandEventListRadio"			},
-	{	commandGetNextEPG,                      "commandGetNextEPG"			},
-	{	commandGetNextShort,                    "commandGetNextShort"			},
 	{	commandPauseScanning,                   "commandPauseScanning"			},
 	{	commandGetIsScanningActive,             "commandGetIsScanningActive"		},
 	{	commandActualEPGchannelID,              "commandActualEPGchannelID"		},
@@ -3656,11 +3222,9 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandComponentTagsUniqueKey,          "commandComponentTagsUniqueKey"		},
 	{	commandAllEventsChannelID,              "commandAllEventsChannelID"		},
 	{	commandTimesNVODservice,                "commandTimesNVODservice"		},
-	{	commandGetEPGPrevNext,                  "commandGetEPGPrevNext"			},
 	{	commandGetIsTimeSet,                    "commandGetIsTimeSet"			},
 	{	commandserviceChanged,                  "commandserviceChanged"			},
 	{	commandLinkageDescriptorsUniqueKey,     "commandLinkageDescriptorsUniqueKey"	},
-	{	commandDummy2,                          "commandPauseSorting"			},
 	{	commandRegisterEventClient,             "commandRegisterEventClient"		},
 	{	commandUnRegisterEventClient,           "commandUnRegisterEventClient"		},
 #ifdef ENABLE_PPT
@@ -3668,19 +3232,10 @@ static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 #else
 	{	commandDummy2,                          "commandSetPrivatePid"			},
 #endif
-	{	commandDummy2,				"commandSetSectionsdScanMode"		},
 	{	commandFreeMemory,			"commandFreeMemory"			},
 	{	commandReadSIfromXML,			"commandReadSIfromXML"			},
 	{	commandWriteSI2XML,			"commandWriteSI2XML"			},
-	{	commandLoadLanguages,                   "commandLoadLanguages"			},
-	{	commandSaveLanguages,                   "commandSaveLanguages"			},
-	{	commandSetLanguages,                    "commandSetLanguages"			},
-	{	commandGetLanguages,                    "commandGetLanguages"			},
-	{	commandSetLanguageMode,                 "commandSetLanguageMode"		},
-	{	commandGetLanguageMode,                 "commandGetLanguageMode"		},
 	{	commandSetConfig,			"commandSetConfig"			},
-	{	commandDummy1,				"commandRestart"			},
-	{	commandDummy1,				"commandPing"				}
 };
 
 bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
@@ -5111,6 +4666,7 @@ void sectionsd_main_thread(void */*data*/)
 	struct sched_param parm;
 
 	printf("$Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $\n");
+printf("SIevent size: %d\n", sizeof(SIevent));
 	/* "export NO_SLOW_ADDEVENT=true" to disable this */
 	slow_addevent = (getenv("NO_SLOW_ADDEVENT") == NULL);
 	if (slow_addevent)
