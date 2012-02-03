@@ -234,14 +234,10 @@ bool bTimeCorrect = false;
 pthread_cond_t timeIsSetCond = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t timeIsSetMutex = PTHREAD_MUTEX_INITIALIZER;
 
-//static bool	messaging_wants_current_next_Event = false;
-//static bool	messaging_got_current = false;
-//static bool	messaging_got_next = false;
 static int	messaging_have_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
 static int	messaging_got_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
 static time_t	messaging_last_requested = time_monotonic();
 static bool	messaging_neutrino_sets_time = false;
-//static bool 	messaging_WaitForServiceDesc = false;
 
 inline bool waitForTimeset(void)
 {
@@ -284,8 +280,7 @@ static const SIevent nullEvt; // Null-Event
 // SmartPointer auf SIevent
 //typedef Loki::SmartPtr<class SIevent, Loki::RefCounted, Loki::DisallowConversion, Loki::NoCheck>
 //  SIeventPtr;
-typedef boost::shared_ptr<class SIevent>
-		SIeventPtr;
+typedef boost::shared_ptr<class SIevent> SIeventPtr;
 
 typedef std::map<event_id_t, SIeventPtr, std::less<event_id_t> > MySIeventsOrderUniqueKey;
 static MySIeventsOrderUniqueKey mySIeventsOrderUniqueKey;
@@ -330,26 +325,6 @@ static MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey mySIeventsOrderFirstEn
 // d.h. key ist der Unique Service-Key des Meta-Events und Data ist der unique Event-Key
 typedef std::map<t_channel_id, event_id_t, std::less<t_channel_id> > MySIeventUniqueKeysMetaOrderServiceUniqueKey;
 static MySIeventUniqueKeysMetaOrderServiceUniqueKey mySIeventUniqueKeysMetaOrderServiceUniqueKey;
-
-/*
-class NvodSubEvent {
-  public:
-    NvodSubEvent() {
-      uniqueServiceID=0;
-      uniqueEventID=0;
-    }
-    NvodSubEvent(const NvodSubEvent &n) {
-      uniqueServiceID=n.uniqueServiceID;
-      uniqueEventID=n.uniqueEventID;
-    }
-    t_channel_id uniqueServiceID;
-    event_id_t   uniqueMetaEventID; // ID des Meta-Events
-    event_id_t   uniqueMetaEventID; // ID des eigentlichen Events
-};
-
-// Menge sortiert nach Meta-ServiceIDs (NVODs)
-typedef std::multimap<t_channel_id, class NvodSubEvent *, std::less<t_channel_id> > nvodSubEvents;
-*/
 
 struct EPGFilter
 {
@@ -493,12 +468,6 @@ static bool deleteEvent(const event_id_t uniqueKey)
 		unlockEvents();
 		return false;
 	}
-
-	/*
-	  for(MySIeventIDsMetaOrderServiceID::iterator i=mySIeventIDsMetaOrderServiceID.begin(); i!=mySIeventIDsMetaOrderServiceID.end(); i++)
-	    if(i->second==eventID)
-	      mySIeventIDsMetaOrderServiceID.erase(i);
-	*/
 }
 
 // Fuegt ein Event in alle Mengen ein
@@ -869,7 +838,7 @@ static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 	}
 	unlockEvents();
 }
-#if 0
+#if 0 // FIXME used for PPT
 // Fuegt zusaetzliche Zeiten in ein Event ein
 static void addEventTimes(const SIevent &evt)
 {
@@ -1249,90 +1218,6 @@ static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 	return nullEvt;
 }
 
-
-/*
-
-// Sucht das naechste Event anhand unique key und Startzeit
-static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
-{
-	MySIeventsOrderUniqueKey::iterator eFirst = mySIeventsOrderUniqueKey.find(uniqueKey);
-
-	if (eFirst != mySIeventsOrderUniqueKey.end())
-	{
-
-		SItimes::iterator t = eFirst->second->times.end();
-
-		if (eFirst->second->times.size() > 1)
-		{
-			// Wir haben ein NVOD-Event
-			// d.h. wir suchen die aktuelle Zeit und nehmen die naechste davon, falls existent
-
-			for ( t = eFirst->second->times.begin(); t != eFirst->second->times.end(); t++)
-				if (t->startzeit == zeit.startzeit)
-				{
-					t++;
-
-					if (t != eFirst->second->times.end())
-					{
-					//	zeit = *t;
-					//	return *(eFirst->second);
-						break;
-					}
-
-					t = eFirst->second->times.end();
-					break; // ganz normal naechstes Event suchen
-				}
-		}
-
-		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator eNext = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.find(eFirst->second);
-		eNext++;
-
-		if (eNext != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
-		{
-			if ((*eNext)->get_channel_id() == eFirst->second->get_channel_id())
-			{
-				if (t != eFirst->second->times.end()) {
-					if (t->startzeit < (*eNext)->times.begin()->startzeit) {
-						zeit = *t;
-						return *(eFirst->second);
-					}
-				}
-				MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator ePrev =
-					mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
-				while ( ((*ePrev)->times.begin()->startzeit < zeit.startzeit) &&
-					(ePrev != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) ) {
-					if ((*ePrev)->times.size() > 1) {
-						t = (*ePrev)->times.begin();
-						while ( (t != (*ePrev)->times.end()) && (t->startzeit <
-								(*eNext)->times.begin()->startzeit) ) {
-							if (t->startzeit > zeit.startzeit) {
-								zeit = *t;
-								return *(*ePrev);
-							}
-							t++;
-						}
-					}
-					ePrev++;
-				}
-				zeit = *((*eNext)->times.begin());
-				return *(*eNext);
-			}
-			else if (t != eFirst->second->times.end()) {
-				zeit = *t;
-				return *(eFirst->second);
-			}
-			else
-				return nullEvt;
-		}
-		else if (t != eFirst->second->times.end()) {
-			zeit = *t;
-			return *(eFirst->second);
-		}
-	}
-
-	return nullEvt;
-}
-*/
 // Sucht das naechste UND vorhergehende Event anhand unique key und Startzeit
 static void findPrevNextSIevent(const event_id_t uniqueKey, SItime &zeit, SIevent &prev, SItime &prev_zeit, SIevent &next, SItime &next_zeit)
 {
@@ -1737,18 +1622,7 @@ out:
 
 	return ;
 }
-/*
-static void commandAllEventsChannelName(int connfd, char *data, const unsigned dataLength)
-{
-	data[dataLength - 1] = 0; // to be sure it has an trailing 0
-	dprintf("Request of all events for '%s'\n", data);
-	lockServices();
-	t_channel_id uniqueServiceKey = findServiceUniqueKeyforServiceName(data);
-	unlockServices();
-	sendAllEvents(connfd, uniqueServiceKey);
-	return ;
-}
-*/
+
 static void commandAllEventsChannelID(int connfd, char *data, const unsigned dataLength)
 {
 	if (dataLength != sizeof(t_channel_id))
@@ -2014,27 +1888,10 @@ out:
 
 	return ;
 }
-/*
-std::vector<int64_t>	messaging_skipped_sections_ID [0x22];			// 0x4e .. 0x6f
-static int64_t 	messaging_sections_max_ID [0x22];			// 0x4e .. 0x6f
-static int 		messaging_sections_got_all [0x22];			// 0x4e .. 0x6f
-*/
-//static unsigned char 	messaging_current_version_number = 0xff;
-//static unsigned char 	messaging_current_section_number = 0;
 /* messaging_eit_is_busy does not need locking, it is only written to from CN-Thread */
 static bool		messaging_eit_is_busy = false;
 static bool		messaging_need_eit_version = false;
 
-//std::vector<int64_t>	messaging_sdt_skipped_sections_ID [2];			// 0x42, 0x46
-//static int64_t 	messaging_sdt_sections_max_ID [2];			// 0x42, 0x46
-//static int 		messaging_sdt_sections_got_all [2];			// 0x42, 0x46
-/*
-static bool 		messaging_sdt_actual_sections_got_all;						// 0x42
-static bool		messaging_sdt_actual_sections_so_far [MAX_SECTIONS];				// 0x42
-static t_transponder_id	messaging_sdt_other_sections_got_all [MAX_OTHER_SDT];				// 0x46
-static bool		messaging_sdt_other_sections_so_far [MAX_CONCURRENT_OTHER_SDT] [MAX_SECTIONS];	// 0x46
-static t_transponder_id	messaging_sdt_other_tid [MAX_CONCURRENT_OTHER_SDT];				// 0x46
-*/
 std::string		epg_dir("");
 
 static void commandserviceChanged(int connfd, char *data, const unsigned dataLength)
@@ -2639,97 +2496,6 @@ out:
 
 	return ;
 }
-
-// Mostly copied from epgd (something bugfixed ;) )
-/*
-static void commandActualEPGchannelName(int connfd, char *data, const unsigned dataLength)
-{
-	int nResultDataSize = 0;
-	char* pResultData = 0;
-
-	data[dataLength - 1] = 0; // to be sure it has an trailing 0
-	dprintf("Request of actual EPG for '%s'\n", data);
-
-	if (EITThreadsPause()) // -> lock
-		return ;
-
-	lockServices();
-
-	lockEvents();
-
-	SItime zeitEvt(0, 0);
-
-	const SIevent &evt = findActualSIeventForServiceName(data, zeitEvt);
-
-	unlockServices();
-
-	if (evt.service_id != 0)
-	{ //Found
-		dprintf("EPG found.\n");
-		nResultDataSize =
-		    12 + 1 + 					// Unique-Key + del
-		    strlen(evt.getName().c_str()) + 1 + 		//Name + del
-		    strlen(evt.getText().c_str()) + 1 + 		//Text + del
-		    strlen(evt.getExtendedText().c_str()) + 1 + 	//ext + del
-		    3 + 3 + 4 + 1 + 					//dd.mm.yyyy + del
-		    3 + 2 + 1 + 					//std:min + del
-		    3 + 2 + 1 + 					//std:min+ del
-		    3 + 1 + 1;					//100 + del + 0
-		pResultData = new char[nResultDataSize];
-
-		if (!pResultData)
-		{
-			fprintf(stderr, "low on memory!\n");
-			unlockEvents();
-			EITThreadsUnPause();
-			return ;
-		}
-
-		struct tm *pStartZeit = localtime(&zeitEvt.startzeit);
-
-		int nSDay(pStartZeit->tm_mday), nSMon(pStartZeit->tm_mon + 1), nSYear(pStartZeit->tm_year + 1900),
-		nSH(pStartZeit->tm_hour), nSM(pStartZeit->tm_min);
-
-		long int uiEndTime(zeitEvt.startzeit + zeitEvt.dauer);
-
-		struct tm *pEndeZeit = localtime((time_t*) & uiEndTime);
-
-		int nFH(pEndeZeit->tm_hour), nFM(pEndeZeit->tm_min);
-
-		unsigned nProcentagePassed = (unsigned)((float)(time(NULL) - zeitEvt.startzeit) / (float)zeitEvt.dauer * 100.);
-
-		sprintf(pResultData, "%012llx\xFF%s\xFF%s\xFF%s\xFF%02d.%02d.%04d\xFF%02d:%02d\xFF%02d:%02d\xFF%03u\xFF",
-		        evt.uniqueKey(),
-		        evt.getName().c_str(),
-		        evt.getText().c_str(),
-		        evt.getExtendedText().c_str(), nSDay, nSMon, nSYear, nSH, nSM, nFH, nFM, nProcentagePassed );
-	}
-	else
-		dprintf("actual EPG not found!\n");
-
-	unlockEvents();
-
-	EITThreadsUnPause(); // -> unlock
-
-	// response
-
-	struct sectionsd::msgResponseHeader pmResponse;
-
-	pmResponse.dataLength = nResultDataSize;
-
-	bool rc = writeNbytes(connfd, (const char *)&pmResponse, sizeof(pmResponse), WRITE_TIMEOUT_IN_SECONDS);
-
-	if ( nResultDataSize > 0 )
-	{
-		if (rc == true)
-			writeNbytes(connfd, pResultData, nResultDataSize, WRITE_TIMEOUT_IN_SECONDS);
-		else
-			dputs("[sectionsd] Fehler/Timeout bei write");
-
-		delete[] pResultData;
-	}
-}
-*/
 
 bool channel_in_requested_list(t_channel_id * clist, t_channel_id chid, int len)
 {
