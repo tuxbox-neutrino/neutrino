@@ -122,6 +122,9 @@ AC_ARG_WITH(neutrino-hal-build,
 	[NEUTRINO_HAL_LIB="$withval"],[NEUTRINO_HAL_LIB=""])
 
 AM_CONDITIONAL(USE_NEUTRINO_HAL, test "$NEUTRINO_HAL_INC")
+if test "$NEUTRINO_HAL_INC"; then
+	AC_DEFINE(USE_NEUTRINO_HAL, 1,[use libneutrino-hal])
+fi
 
 
 AC_CHECK_HEADERS(coolstream/nevis_ir.h)
