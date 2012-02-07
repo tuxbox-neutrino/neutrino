@@ -53,20 +53,12 @@
 #include <configfile.h>
 #include <zapit/client/zapittools.h>
 
-// Daher nehmen wir SmartPointers aus der Boost-Lib (www.boost.org)
-#include <boost/shared_ptr.hpp>
-
 #include <sectionsdclient/sectionsdMsg.h>
 #include <sectionsdclient/sectionsdclient.h>
 #include <eventserver.h>
 #include <driver/abstime.h>
 
-#include "SIutils.hpp"
-#include "SIservices.hpp"
-#include "SIevents.hpp"
-#include "SIsections.hpp"
-#include "SIlanguage.hpp"
-
+#include "eitd.h"
 #include "edvbstring.h"
 
 // 60 Minuten Zyklus...
@@ -82,11 +74,11 @@
 #endif
 
 static bool sectionsd_ready = false;
-static bool reader_ready = true;
+/*static*/ bool reader_ready = true;
 static unsigned int max_events;
 
 //#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
-#define HOUSEKEEPING_SLEEP (1 * 60) // FIXME 1 min for testing
+#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
 #define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 
 // Timeout bei tcp/ip connections in ms
@@ -151,7 +143,7 @@ static bool channel_is_blacklisted = false;
 
 static CEventServer *eventServer;
 
-static pthread_rwlock_t eventsLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge events geschrieben und gelesen wird
+/*static*/ pthread_rwlock_t eventsLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge events geschrieben und gelesen wird
 static pthread_rwlock_t servicesLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge services geschrieben und gelesen wird
 static pthread_rwlock_t messagingLock = PTHREAD_RWLOCK_INITIALIZER;
 
@@ -257,58 +249,27 @@ void showProfiling( std::string text )
 
 static const SIevent nullEvt; // Null-Event
 
-//------------------------------------------------------------
 // Wir verwalten die events in SmartPointers
 // und nutzen verschieden sortierte Menge zum Zugriff
 //------------------------------------------------------------
 
-// SmartPointer auf SIevent
-//typedef Loki::SmartPtr<class SIevent, Loki::RefCounted, Loki::DisallowConversion, Loki::NoCheck>
-//  SIeventPtr;
-typedef boost::shared_ptr<class SIevent> SIeventPtr;
-
-typedef std::map<event_id_t, SIeventPtr, std::less<event_id_t> > MySIeventsOrderUniqueKey;
 static MySIeventsOrderUniqueKey mySIeventsOrderUniqueKey;
+
 static SIevent * myCurrentEvent = NULL;
 static SIevent * myNextEvent = NULL;
 
 // Mengen mit SIeventPtr sortiert nach Event-ID fuer NVOD-Events (mehrere Zeiten)
 static MySIeventsOrderUniqueKey mySIeventsNVODorderUniqueKey;
+/*static*/ MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
 
-struct OrderServiceUniqueKeyFirstStartTimeEventUniqueKey
-{
-	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2)
-	{
-		return
-			(p1->get_channel_id() == p2->get_channel_id()) ?
-			(p1->times.begin()->startzeit == p2->times.begin()->startzeit ? p1->eventID < p2->eventID : p1->times.begin()->startzeit < p2->times.begin()->startzeit )
-				:
-				(p1->get_channel_id() < p2->get_channel_id());
-	}
-};
-
-typedef std::set<SIeventPtr, OrderServiceUniqueKeyFirstStartTimeEventUniqueKey > MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
-static MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
-
-struct OrderFirstEndTimeServiceIDEventUniqueKey
-{
-	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2)
-	{
-		return
-			p1->times.begin()->startzeit + (long)p1->times.begin()->dauer == p2->times.begin()->startzeit + (long)p2->times.begin()->dauer ?
-			(p1->service_id == p2->service_id ? p1->uniqueKey() > p2->uniqueKey() : p1->service_id < p2->service_id)
-				:
-				( p1->times.begin()->startzeit + (long)p1->times.begin()->dauer < p2->times.begin()->startzeit + (long)p2->times.begin()->dauer ) ;
-	}
-};
-
-typedef std::set<SIeventPtr, OrderFirstEndTimeServiceIDEventUniqueKey > MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey;
 static MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey;
 
 // Hier landen alle Service-Ids von Meta-Events inkl. der zugehoerigen Event-ID (nvod)
 // d.h. key ist der Unique Service-Key des Meta-Events und Data ist der unique Event-Key
-typedef std::map<t_channel_id, event_id_t, std::less<t_channel_id> > MySIeventUniqueKeysMetaOrderServiceUniqueKey;
 static MySIeventUniqueKeysMetaOrderServiceUniqueKey mySIeventUniqueKeysMetaOrderServiceUniqueKey;
+
+static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
+static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
 
 struct EPGFilter
 {
@@ -456,7 +417,7 @@ static bool deleteEvent(const event_id_t uniqueKey)
 
 // Fuegt ein Event in alle Mengen ein
 /* if cn == true (if called by cnThread), then myCurrentEvent and myNextEvent is updated, too */
-static void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
+/*static*/ void addEvent(const SIevent &evt, const time_t zeit, bool cn = false)
 {
 	bool EPG_filtered = checkEPGFilter(evt.original_network_id, evt.transport_stream_id, evt.service_id);
 
@@ -918,15 +879,6 @@ static void removeOldEvents(const long seconds)
 
 	return;
 }
-
-//  SIservicePtr;
-typedef boost::shared_ptr<class SIservice> SIservicePtr;
-
-typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesOrderUniqueKey;
-static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
-
-typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesNVODorderUniqueKey;
-static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
 
 /*
  * communication with sectionsdclient:
@@ -2280,7 +2232,7 @@ out:
 }
 
 // Sendet ein short EPG, unlocked die events, unpaused dmxEIT
-
+//FIXME
 static void sendShort(int connfd, const SIevent& e, const SItime& t)
 {
 
@@ -2624,144 +2576,7 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 	return ;
 }
 
-static void *insertEventsfromFile(void *)
-{
-	xmlDocPtr event_parser = NULL;
-	xmlNodePtr eventfile = NULL;
-	xmlNodePtr service = NULL;
-	xmlNodePtr event = NULL;
-	xmlNodePtr node = NULL;
-	t_original_network_id onid = 0;
-	t_transport_stream_id tsid = 0;
-	t_service_id sid = 0;
-	char cclass[20];
-	char cuser[20];
-	std::string indexname;
-	std::string filename;
-	std::string epgname;
-	int ev_count = 0;
-
-	indexname = epg_dir + "index.xml";
-
-	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
-
-	if (index_parser != NULL) {
-		time_t now = time_monotonic_ms();
-		printdate_ms(stdout);
-		printf("[sectionsd] Reading Information from file %s:\n", indexname.c_str());
-
-		eventfile = xmlDocGetRootElement(index_parser)->xmlChildrenNode;
-
-		while (eventfile) {
-			filename = xmlGetAttribute(eventfile, "name");
-			epgname = epg_dir + filename;
-			if (!(event_parser = parseXmlFile(epgname.c_str()))) {
-				dprintf("unable to open %s for reading\n", epgname.c_str());
-			}
-			else {
-				service = xmlDocGetRootElement(event_parser)->xmlChildrenNode;
-
-				while (service) {
-					onid = xmlGetNumericAttribute(service, "original_network_id", 16);
-					tsid = xmlGetNumericAttribute(service, "transport_stream_id", 16);
-					sid = xmlGetNumericAttribute(service, "service_id", 16);
-
-					event = service->xmlChildrenNode;
-
-					while (event) {
-
-						SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
-
-						node = event->xmlChildrenNode;
-
-						while (xmlGetNextOccurence(node, "name") != NULL) {
-							e.setName(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-									std::string(xmlGetAttribute(node, "string")));
-							node = node->xmlNextNode;
-						}
-						while (xmlGetNextOccurence(node, "text") != NULL) {
-							e.setText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-									std::string(xmlGetAttribute(node, "string")));
-							node = node->xmlNextNode;
-						}
-						while (xmlGetNextOccurence(node, "item") != NULL) {
-							e.item = std::string(xmlGetAttribute(node, "string"));
-							node = node->xmlNextNode;
-						}
-						while (xmlGetNextOccurence(node, "item_description") != NULL) {
-							e.itemDescription = std::string(xmlGetAttribute(node, "string"));
-							node = node->xmlNextNode;
-						}
-						while (xmlGetNextOccurence(node, "extended_text") != NULL) {
-							e.appendExtendedText(	std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "lang"))),
-										std::string(xmlGetAttribute(node, "string")));
-							node = node->xmlNextNode;
-						}
-						while (xmlGetNextOccurence(node, "time") != NULL) {
-							e.times.insert(SItime(xmlGetNumericAttribute(node, "start_time", 10),
-									      xmlGetNumericAttribute(node, "duration", 10)));
-							node = node->xmlNextNode;
-						}
-
-						int count = 0;
-						while (xmlGetNextOccurence(node, "content") != NULL) {
-							cclass[count] = xmlGetNumericAttribute(node, "class", 16);
-							cuser[count] = xmlGetNumericAttribute(node, "user", 16);
-							node = node->xmlNextNode;
-							count++;
-						}
-						e.contentClassification = std::string(cclass, count);
-						e.userClassification = std::string(cuser, count);
-
-						while (xmlGetNextOccurence(node, "component") != NULL) {
-							SIcomponent c;
-							c.streamContent = xmlGetNumericAttribute(node, "stream_content", 16);
-							c.componentType = xmlGetNumericAttribute(node, "type", 16);
-							c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
-							c.component = std::string(xmlGetAttribute(node, "text"));
-							e.components.insert(c);
-							node = node->xmlNextNode;
-						}
-						while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
-							e.ratings.insert(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
-										(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
-							node = node->xmlNextNode;
-						}
-						while (xmlGetNextOccurence(node, "linkage") != NULL) {
-							SIlinkage l;
-							l.linkageType = xmlGetNumericAttribute(node, "type", 16);
-							l.transportStreamId = xmlGetNumericAttribute(node, "transport_stream_id", 16);
-							l.originalNetworkId = xmlGetNumericAttribute(node, "original_network_id", 16);
-							l.serviceId = xmlGetNumericAttribute(node, "service_id", 16);
-							l.name = std::string(xmlGetAttribute(node, "linkage_descriptor"));
-							e.linkage_descs.insert(e.linkage_descs.end(), l);
-
-							node = node->xmlNextNode;
-						}
-						addEvent(e, 0);
-						ev_count++;
-
-						event = event->xmlNextNode;
-					}
-
-					service = service->xmlNextNode;
-				}
-				xmlFreeDoc(event_parser);
-			}
-
-			eventfile = eventfile->xmlNextNode;
-		}
-
-		xmlFreeDoc(index_parser);
-		printdate_ms(stdout);
-		printf("[sectionsd] Reading Information finished after %ld miliseconds (%d events)\n",
-		       time_monotonic_ms()-now, ev_count);
-	}
-	reader_ready = true;
-
-	pthread_exit(NULL);
-}
-
+void *insertEventsfromFile(void * data);
 static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLength)
 {
 	pthread_t thrInsert;
@@ -2782,7 +2597,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	pthread_attr_init(&attr);
 	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 
-	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, 0 ))
+	if (pthread_create (&thrInsert, &attr, insertEventsfromFile, (void *)epg_dir.c_str() ))
 	{
 		perror("sectionsd: pthread_create()");
 	}
@@ -2792,138 +2607,25 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	return ;
 }
 
-static void write_epg_xml_header(FILE * fd, const t_original_network_id onid, const t_transport_stream_id tsid, const t_service_id sid)
-{
-	fprintf(fd,
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-		"<!--\n"
-		"  This file was automatically generated by the sectionsd.\n"
-		"  It contains all event entries which have been cached\n"
-		"  at time the box was shut down.\n"
-		"-->\n"
-		"<dvbepg>\n");
-	fprintf(fd,"\t<service original_network_id=\"%04x\" transport_stream_id=\"%04x\" service_id=\"%04x\">\n",onid,tsid,sid);
-}
-
-static void write_index_xml_header(FILE * fd)
-{
-	fprintf(fd,
-		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-		"<!--\n"
-		"  This file was automatically generated by the sectionsd.\n"
-		"  It contains all event entries which have been cached\n"
-		"  at time the box was shut down.\n"
-		"-->\n"
-		"<dvbepgfiles>\n");
-}
-
-static void write_epgxml_footer(FILE *fd)
-{
-	fprintf(fd, "\t</service>\n");
-	fprintf(fd, "</dvbepg>\n");
-}
-
-static void write_indexxml_footer(FILE *fd)
-{
-	fprintf(fd, "</dvbepgfiles>\n");
-}
-
-void cp(char * from, char * to)
-{
-	char cmd[256];
-	snprintf(cmd, 256, "cp -f %s %s", from, to);
-	system(cmd);
-}
-
+void writeEventsToFile(char *epgdir);
 static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength)
 {
-	FILE * indexfile = NULL;
-	FILE * eventfile =NULL;
-	char filename[100] = "";
-	char tmpname[100] = "";
 	char epgdir[100] = "";
-	char eventname[17] = "";
-	t_original_network_id onid = 0;
-	t_transport_stream_id tsid = 0;
-	t_service_id sid = 0;
 
 	struct sectionsd::msgResponseHeader responseHeader;
 	responseHeader.dataLength = 0;
 	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
 
 	if (dataLength > 100)
-		goto _ret ;
+		return;
 
 	strncpy(epgdir, data, dataLength);
 	epgdir[dataLength] = '\0';
-	sprintf(tmpname, "%s/index.tmp", epgdir);
 
-	if (!(indexfile = fopen(tmpname, "w"))) {
-		printf("[sectionsd] unable to open %s for writing\n", tmpname);
-		goto _ret;
-	}
-	else {
+	writeEventsToFile(epgdir);
 
-		printf("[sectionsd] Writing Information to file: %s\n", tmpname);
-
-		write_index_xml_header(indexfile);
-
-		readLockEvents();
-
-		MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey::iterator e =
-			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin();
-		if (e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) {
-			onid = (*e)->original_network_id;
-			tsid = (*e)->transport_stream_id;
-			sid = (*e)->service_id;
-			snprintf(eventname,17,"%04x%04x%04x.xml",onid,tsid,sid);
-			sprintf(filename, "%s/%s", epgdir, eventname);
-			if (!(eventfile = fopen(filename, "w"))) {
-				write_indexxml_footer(indexfile);
-				fclose(indexfile);
-				goto _done;
-			}
-			fprintf(indexfile, "\t<eventfile name=\"%s\"/>\n",eventname);
-			write_epg_xml_header(eventfile,onid,tsid,sid);
-
-			while (e != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end()) {
-				if ( (onid != (*e)->original_network_id) || (tsid != (*e)->transport_stream_id) || (sid != (*e)->service_id) ) {
-					onid = (*e)->original_network_id;
-					tsid = (*e)->transport_stream_id;
-					sid = (*e)->service_id;
-					write_epgxml_footer(eventfile);
-					fclose(eventfile);
-					snprintf(eventname,17,"%04x%04x%04x.xml",onid,tsid,sid);
-					sprintf(filename, "%s/%s", epgdir, eventname);
-					if (!(eventfile = fopen(filename, "w"))) {
-						goto _done;
-					}
-					fprintf(indexfile, "\t<eventfile name=\"%s\"/>\n", eventname);
-					write_epg_xml_header(eventfile,onid,tsid,sid);
-				}
-				(*e)->saveXML(eventfile);
-				e ++;
-			}
-			write_epgxml_footer(eventfile);
-			fclose(eventfile);
-
-		}
-_done:
-		unlockEvents();
-		write_indexxml_footer(indexfile);
-		fclose(indexfile);
-
-		printf("[sectionsd] Writing Information finished\n");
-	}
-	strncpy(filename, data, dataLength);
-	filename[dataLength] = '\0';
-	strncat(filename, "/index.xml", 10);
-
-	cp(tmpname, filename);
-	unlink(tmpname);
-_ret:
 	eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
-	return ;
+	return;
 }
 
 /* dummy1: do not send back anything */
@@ -3647,6 +3349,8 @@ static void *eitThread(void *)
 
 		if(sectionsd_stop)
 			break;
+
+		//FIXME DMX check this already
 		if (header->current_next_indicator)
 		{
 			// Wir wollen nur aktuelle sections
@@ -3903,6 +3607,7 @@ static void *cnThread(void *)
 		if (rc < 0)
 			continue;
 
+		//FIXME getSection check len
 		if (rc < (int)sizeof(struct SI_section_header))
 		{
 			xprintf("%s: rc < sizeof(SI_Section_header) (%d < %d)\n", __FUNCTION__, rc, sizeof(struct SI_section_header));
