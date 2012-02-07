@@ -68,6 +68,7 @@
 // Zeit die fuer die gewartet wird, bevor der Filter weitergeschaltet wird, falls es automatisch nicht klappt
 #define TIME_EIT_SKIPPING 90
 
+#define ENABLE_FREESATEPG // FIXME
 #ifdef ENABLE_FREESATEPG
 // a little more time for freesat epg
 #define TIME_FSEIT_SKIPPING 240
@@ -2965,7 +2966,6 @@ int eit_stop_update_filter(int *fd)
 static void *fseitThread(void *)
 {
 
-	struct SI_section_header *header;
 	/* we are holding the start_stop lock during this timeout, so don't
 	   make it too long... */
 	unsigned timeoutInMSeconds = EIT_READ_TIMEOUT;
@@ -2983,7 +2983,7 @@ static void *fseitThread(void *)
 
 	dprintf("[%sThread] pid %d (%lu) start\n", "fseit", getpid(), pthread_self());
 	int timeoutsDMX = 0;
-	char *static_buf = new char[MAX_SECTION_LENGTH];
+	uint8_t *static_buf = new uint8_t[MAX_SECTION_LENGTH];
 	int rc;
 
 	if (static_buf == NULL)
@@ -3099,74 +3099,47 @@ static void *fseitThread(void *)
 			unlockMessaging();
 		}
 
-		if (rc <= (int)sizeof(struct SI_section_header))
+		SIsectionEIT eit(static_buf);
+		// Houdini: if section is not parsed (too short) -> no need to check events
+		if (eit.is_parsed() && eit.header())
 		{
-			xprintf("%s rc < sizeof(SI_Section_header) (%d < %d)\n", __FUNCTION__, rc, sizeof(struct SI_section_header));
-			continue;
-		}
-
-		header = (SI_section_header*)static_buf;
-		unsigned short section_length = header->section_length_hi << 8 | header->section_length_lo;
-
-
-
-		if ((header->current_next_indicator) && (!dmxFSEIT.real_pauseCounter ))
-		{
-			// Wir wollen nur aktuelle sections
-
-			// Houdini: added new constructor where the buffer is given as a parameter and must be allocated outside
-			// -> no allocation and copy of data into a 2nd buffer
-			//				SIsectionEIT eit(SIsection(section_length + 3, buf));
-			SIsectionEIT eit(section_length + 3, static_buf);
-			// Houdini: if section is not parsed (too short) -> no need to check events
-			if (eit.is_parsed() && eit.header())
+			//dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
+			zeit = time(NULL);
+			// Nicht alle Events speichern
+			for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
 			{
-				// == 0 -> kein event
-
-				//dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), header.table_id);
-				zeit = time(NULL);
-				// Nicht alle Events speichern
-				for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
+				if (!(e->times.empty()))
 				{
-					if (!(e->times.empty()))
+					if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
+							( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
 					{
-						if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-								( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
-						{
-							//fprintf(stderr, "%02x ", header.table_id);
-							addEvent(*e, zeit);
-						}
+						addEvent(*e, zeit);
 					}
-					else
+				}
+				else
+				{
+					// pruefen ob nvod event
+					readLockServices();
+					MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+
+					if (si != mySIservicesNVODorderUniqueKey.end())
 					{
-						// pruefen ob nvod event
-						readLockServices();
-						MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+						// Ist ein nvod-event
+						writeLockEvents();
 
-						if (si != mySIservicesNVODorderUniqueKey.end())
-						{
-							// Ist ein nvod-event
-							writeLockEvents();
+						for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
+							mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
 
-							for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
-								mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
-
-							unlockEvents();
-							addNVODevent(*e);
-						}
-						unlockServices();
+						unlockEvents();
+						addNVODevent(*e);
 					}
-				} // for
-				//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
-			} // if
+					unlockServices();
+				}
+			} // for
+			//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
 		} // if
-		else
-		{
-			delete[] static_buf;
-
-			//dprintf("[eitThread] skipped sections for table 0x%x\n", header.table_id);
-		}
 	} // for
+	delete[] static_buf;
 	dputs("[freesatEitThread] end");
 
 	pthread_exit(NULL);
@@ -3180,7 +3153,6 @@ static void *fseitThread(void *)
 static void *eitThread(void *)
 {
 
-	struct SI_section_header *header;
 	/* we are holding the start_stop lock during this timeout, so don't
 	   make it too long... */
 	unsigned timeoutInMSeconds = EIT_READ_TIMEOUT;
@@ -3338,71 +3310,53 @@ static void *eitThread(void *)
 		if (rc < 0)
 			continue;
 
-		if (rc < (int)sizeof(struct SI_section_header))
-		{
-			xprintf("%s rc < sizeof(SI_Section_header) (%d < %d)\n", __FUNCTION__, rc, sizeof(struct SI_section_header));
-			continue;
-		}
-
-		header = (SI_section_header*)static_buf;
-		unsigned short section_length = header->section_length_hi << 8 | header->section_length_lo;
-
 		if(sectionsd_stop)
 			break;
 
-		//FIXME DMX check this already
-		if (header->current_next_indicator)
+		SIsectionEIT eit(static_buf);
+		// Houdini: if section is not parsed (too short) -> no need to check events
+		if (eit.is_parsed() && eit.header())
 		{
-			SIsectionEIT eit(section_length + 3, static_buf);
-			// Houdini: if section is not parsed (too short) -> no need to check events
-			if (eit.is_parsed() && eit.header())
+			// == 0 -> kein event
+
+			dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
+			zeit = time(NULL);
+			// Nicht alle Events speichern
+			for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
 			{
-				// == 0 -> kein event
-
-				/*					dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), header.table_id);*/
-				zeit = time(NULL);
-				// Nicht alle Events speichern
-				for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
+				if (!(e->times.empty()))
 				{
-					if (!(e->times.empty()))
+					if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
+							( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
 					{
-						if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-								( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
-						{
-							//fprintf(stderr, "%02x ", header.table_id);
-							if(sectionsd_stop)
-								break;
-//printf("Adding event 0x%llx table %x version %x running %d\n", e->uniqueKey(), header->table_id, header->version_number, e->runningStatus());
-							addEvent(*e, zeit);
-						}
+						if(sectionsd_stop)
+							break;
+						//printf("Adding event 0x%llx table %x version %x running %d\n", e->uniqueKey(), eit.getTableId(), eit.getVersionNumber(), e->runningStatus());
+						addEvent(*e, zeit);
 					}
-					else
+				}
+				else
+				{
+					// pruefen ob nvod event
+					readLockServices();
+					MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+
+					if (si != mySIservicesNVODorderUniqueKey.end())
 					{
-						// pruefen ob nvod event
-						readLockServices();
-						MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+						// Ist ein nvod-event
+						writeLockEvents();
 
-						if (si != mySIservicesNVODorderUniqueKey.end())
-						{
-							// Ist ein nvod-event
-							writeLockEvents();
+						for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
+							mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
 
-							for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
-								mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
-
-							unlockEvents();
-							addNVODevent(*e);
-						}
-						unlockServices();
+						unlockEvents();
+						addNVODevent(*e);
 					}
-				} // for
-				//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
-			} // if
+					unlockServices();
+				}
+			} // for
+			//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
 		} // if
-		else
-		{
-			dprintf("[eitThread] skipped sections for table 0x%x\n", header->table_id);
-		}
 	} // for
 	delete[] static_buf;
 
@@ -3416,8 +3370,6 @@ static void *eitThread(void *)
 //---------------------------------------------------------------------
 static void *cnThread(void *)
 {
-
-	struct SI_section_header *header;
 	/* we are holding the start_stop lock during this timeout, so don't
 	   make it too long... */
 	unsigned timeoutInMSeconds = EIT_READ_TIMEOUT;
@@ -3602,30 +3554,12 @@ static void *cnThread(void *)
 		if (rc < 0)
 			continue;
 
-		//FIXME getSection check len
-		if (rc < (int)sizeof(struct SI_section_header))
-		{
-			xprintf("%s: rc < sizeof(SI_Section_header) (%d < %d)\n", __FUNCTION__, rc, sizeof(struct SI_section_header));
-			continue;
-		}
-
-		header = (SI_section_header *)static_buf;
-		unsigned short section_length = (header->section_length_hi << 8) | header->section_length_lo;
-
-		if (!header->current_next_indicator)
-		{
-			// Wir wollen nur aktuelle sections
-			//dprintf("[cnThread] skipped sections for table 0x%x\n", header->table_id);
-			continue;
-		}
-
-		SIsectionEIT eit(section_length + 3, static_buf);
+		SIsectionEIT eit(static_buf);
 		// Houdini: if section is not parsed (too short) -> no need to check events
 		if (!eit.is_parsed() || !eit.header())
 			continue;
 
-		// == 0 -> kein event
-		//dprintf("[cnThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), header->table_id);
+		//dprintf("[cnThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
 		zeit = time(NULL);
 		// Nicht alle Events speichern
 		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
