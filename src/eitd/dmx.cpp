@@ -250,7 +250,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 
 	lock();
 
-	int rc = dmx->Read((unsigned char *) buf, 4098, timeoutInMSeconds);
+	int rc = dmx->Read(buf, 4098, timeoutInMSeconds);
 
 	if (rc < 3)
 	{
@@ -271,7 +271,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	}
 
 	/* lets assume buffer size never less than 8, and parse LongSection */
-	LongSection section((unsigned char *) buf);
+	LongSection section(buf);
 	uint16_t section_length =  section.getSectionLength();
 
 	if (section_length <= 0)
