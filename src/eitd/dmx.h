@@ -62,7 +62,6 @@ private:
 	int immediate_stop(void);  /* mutex must be locked before and unlocked after this method */
 	bool check_complete(const unsigned char table_id, const unsigned short extension_id, const unsigned short onid, const unsigned short tsid, const unsigned char);
 	sections_id_t create_sections_id(const unsigned char table_id, const unsigned short extension_id, const unsigned char section_number, const unsigned short onid, const unsigned short tsid);
-	//ssize_t readNbytes(int fd, char * buf, const size_t n, unsigned timeoutInMSeconds);
 
 public:
 	struct s_filters
@@ -84,7 +83,6 @@ public:
 	~DMX();
 
 	int start(void);
-	ssize_t read(char * const buf, const size_t buflength, const unsigned timeoutMInSeconds);
 	void closefd(void);
 	void addfilter(const unsigned char filter, const unsigned char mask);
 	int stop(void);
