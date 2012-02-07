@@ -118,7 +118,6 @@ class CInfoViewer
 	int lastsnr, lastsig, lasthdd, lastvar, lasttime;
 	CProgressBar *snrscale, *sigscale, *hddscale, *varscale, *timescale;
 	int hddwidth;
-	void changePB();
 	bool casysChange;
 	bool channellogoChange;
 	void paintBackground(int col_Numbox);
@@ -183,6 +182,7 @@ class CInfoViewer
 	
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 	void    clearVirtualZapMode() {virtual_zap_mode = false;}
+	void changePB();
 };
 
 class CInfoViewerHandler : public CMenuTarget
