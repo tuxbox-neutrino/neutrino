@@ -40,6 +40,7 @@
 
 #include <driver/abstime.h>
 
+#include <dvbsi++/long_section.h>
 /*
 #define DEBUG_MUTEX 1
 #define DEBUG_CACHED_SECTIONS 1
@@ -88,14 +89,6 @@ DMX::~DMX()
 	pthread_mutex_destroy(&start_stop_mutex);
 	pthread_cond_destroy (&change_cond);
 	closefd();
-}
-
-ssize_t DMX::read(char * const /*buf*/, const size_t /*buflength*/, const unsigned /*timeoutMInSeconds*/)
-{
-	//FIXME is this used ??
-	printf("[sectionsd] ******************************* DMX::read called *******************************\n");
-	return 0;
-	//return readNbytes(fd, buf, buflength, timeoutMInSeconds);
 }
 
 void DMX::close(void)
@@ -199,6 +192,10 @@ bool DMX::check_complete(const unsigned char table_id, const unsigned short exte
 	int current_section_number = 0;
 
 	if (((table_id == 0x4e) || (table_id == 0x50)) && (current_service == extension_id)) {
+#ifdef DEBUG_CACHED_SECTIONS
+printf("	[sectionsd] check section for table 0x%02x table_extension 0x%04x last 0x%02x\n",
+					table_id, extension_id, last);
+#endif
 		if (last == 0)
 			return true;
 		MyDMXOrderUniqueKey::iterator di = myDMXOrderUniqueKey.find(create_sections_id(
@@ -231,38 +228,6 @@ bool DMX::check_complete(const unsigned char table_id, const unsigned short exte
 
 int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 {
-	struct minimal_section_header {
-		unsigned table_id                 : 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-		unsigned section_syntax_indicator : 1;
-		unsigned reserved_future_use      : 1;
-		unsigned reserved1                : 2;
-		unsigned section_length_hi        : 4;
-#else
-		unsigned section_length_hi        : 4;
-		unsigned reserved1                : 2;
-		unsigned reserved_future_use      : 1;
-		unsigned section_syntax_indicator : 1;
-#endif
-		unsigned section_length_lo        : 8;
-	} __attribute__ ((packed));  // 3 bytes total
-
-	struct extended_section_header {
-		unsigned table_extension_id_hi    : 8;
-		unsigned table_extension_id_lo    : 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-		unsigned reserved		  : 2;
-		unsigned version_number		  : 5;
-		unsigned current_next_indicator	  : 1;
-#else
-		unsigned current_next_indicator	  : 1;
-		unsigned version_number		  : 5;
-		unsigned reserved		  : 2;
-#endif
-		unsigned section_number		  : 8;
-		unsigned last_section_number	  : 8;
-	} __attribute__ ((packed));  // 5 bytes total
-
 	struct eit_extended_section_header {
 		unsigned transport_stream_id_hi	  : 8;
 		unsigned transport_stream_id_lo	  : 8;
@@ -272,13 +237,7 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 		unsigned last_table_id		  : 8;
 	} __attribute__ ((packed));  // 6 bytes total
 
-	minimal_section_header *initial_header;
-	extended_section_header *extended_header;
 	eit_extended_section_header *eit_extended_header;
-	int    rc;
-	unsigned short section_length;
-	unsigned short current_onid = 0;
-	unsigned short current_tsid = 0;
 
 	/* filter == 0 && maks == 0 => EIT dummy filter to slow down EIT thread startup */
 	if (pID == 0x12 && filters[filter_index].filter == 0 && filters[filter_index].mask == 0)
@@ -291,8 +250,7 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 
 	lock();
 
-	//rc = read(buf, 4098, timeoutInMSeconds);
-	rc = dmx->Read((unsigned char *) buf, 4098, timeoutInMSeconds);
+	int rc = dmx->Read((unsigned char *) buf, 4098, timeoutInMSeconds);
 
 	if (rc < 3)
 	{
@@ -312,8 +270,9 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 		return -1;
 	}
 
-	initial_header = (minimal_section_header*)buf;
-	section_length = (initial_header->section_length_hi * 256) | initial_header->section_length_lo;
+	/* lets assume buffer size never less than 8, and parse LongSection */
+	LongSection section((unsigned char *) buf);
+	uint16_t section_length =  section.getSectionLength();
 
 	if (section_length <= 0)
 	{
@@ -334,10 +293,11 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 		return -1;
 	}
 
+	uint8_t table_id = section.getTableId();
 	// check if the filter worked correctly
-	if (((initial_header->table_id ^ filters[filter_index].filter) & filters[filter_index].mask) != 0)
+	if (((table_id ^ filters[filter_index].filter) & filters[filter_index].mask) != 0)
 	{
-		printf("[sectionsd] filter 0x%x mask 0x%x -> skip sections for table 0x%x\n", filters[filter_index].filter, filters[filter_index].mask, initial_header->table_id);
+		printf("[sectionsd] filter 0x%x mask 0x%x -> skip sections for table 0x%x\n", filters[filter_index].filter, filters[filter_index].mask, table_id);
 		unlock();
 		real_pause();
 		real_unpause();
@@ -347,120 +307,110 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 	unlock();
 	// skip sections which are too short
 	if ((section_length < 5) ||
-			(initial_header->table_id >= 0x4e && initial_header->table_id <= 0x6f && section_length < 14))
+			(table_id >= 0x4e && table_id <= 0x6f && section_length < 14))
 	{
-		dprintf("section too short: table %x, length: %d\n", initial_header->table_id, section_length);
+		dprintf("section too short: table %x, length: %d\n", table_id, section_length);
 		return -1;
 	}
 
-	// check if it's extended syntax, e.g. NIT, BAT, SDT, EIT
-	if (initial_header->section_syntax_indicator != 0)
-	{
-		extended_header = (extended_section_header *)(buf+3);
+	// check if it's extended syntax, e.g. NIT, BAT, SDT, EIT, only current sections
+	if (!section.getSectionSyntaxIndicator() || !section.getCurrentNextIndicator())
+		return rc;
 
-		// only current sections
-		if (extended_header->current_next_indicator != 0) {
-			// if ((initial_header.table_id >= 0x4e) && (initial_header.table_id <= 0x6f))
-			if (pID == 0x12) {
-				eit_extended_header = (eit_extended_section_header *)(buf+8);
-				current_onid = 	eit_extended_header->original_network_id_hi * 256 +
-						eit_extended_header->original_network_id_lo;
-				current_tsid = 	eit_extended_header->transport_stream_id_hi * 256 +
-						eit_extended_header->transport_stream_id_lo;
+
+	uint16_t eh_tbl_extension_id = section.getTableIdExtension();
+	uint8_t version_number = section.getVersionNumber();
+
+	/* if we are not caching the already read sections (CN-thread), check EIT version and get out */
+	if (!cache)
+	{
+		if (table_id == 0x4e &&
+				eh_tbl_extension_id == current_service &&
+				version_number != eit_version) {
+			dprintf("EIT old: %d new version: %d\n", eit_version, version_number);
+			eit_version = version_number;
+		}
+		return rc;
+	}
+
+	unsigned short current_onid = 0;
+	unsigned short current_tsid = 0;
+	if (pID == 0x12) {
+		eit_extended_header = (eit_extended_section_header *)(buf+8);
+		current_onid = 	eit_extended_header->original_network_id_hi * 256 +
+			eit_extended_header->original_network_id_lo;
+		current_tsid = 	eit_extended_header->transport_stream_id_hi * 256 +
+			eit_extended_header->transport_stream_id_lo;
+	}
+
+	uint8_t section_number = section.getSectionNumber();
+	uint8_t last_section_number = section.getLastSectionNumber();
+	// the current section
+	sections_id_t s_id = create_sections_id(table_id,
+			eh_tbl_extension_id,
+			section_number,
+			current_onid,
+			current_tsid);
+	//find current section in list
+	MyDMXOrderUniqueKey::iterator di = myDMXOrderUniqueKey.find(s_id);
+	if (di != myDMXOrderUniqueKey.end())
+	{
+		//the current section was read before
+		if (di->second == version_number) {
+			//the version number is still up2date
+			if (first_skipped == 0) {
+				//the last section was new - this is the 1st dup
+				first_skipped = s_id;
 			}
 			else {
-				current_onid = 0;
-				current_tsid = 0;
+				//this is not the 1st new - check if it's the last
+				//or to be more precise only dups occured since
+				if (first_skipped == s_id)
+					timeouts = -1;
 			}
-
-			int eh_tbl_extension_id = extended_header->table_extension_id_hi * 256
-						  + extended_header->table_extension_id_lo;
-
-			/* if we are not caching the already read sections (CN-thread), check EIT version and get out */
-			if (!cache)
-			{
-				if (initial_header->table_id == 0x4e &&
-						eh_tbl_extension_id == current_service &&
-						extended_header->version_number != eit_version) {
-					dprintf("EIT old: %d new version: %d\n",eit_version,extended_header->version_number);
-					eit_version = extended_header->version_number;
-				}
-				return rc;
-			}
-
-			// the current section
-			sections_id_t s_id = create_sections_id(initial_header->table_id,
-								eh_tbl_extension_id,
-								extended_header->section_number,
-								current_onid,
-								current_tsid);
-			//find current section in list
-			MyDMXOrderUniqueKey::iterator di = myDMXOrderUniqueKey.find(s_id);
-			if (di != myDMXOrderUniqueKey.end())
-			{
-				//the current section was read before
-				if (di->second == extended_header->version_number) {
-#ifdef DEBUG_CACHED_SECTIONS
-					dprintf("[sectionsd] skipped duplicate section for table 0x%02x table_extension 0x%04x section 0x%02x\n",
-						initial_header->table_id,
+			//since version is still up2date, check if table complete
+			if (check_complete(table_id,
 						eh_tbl_extension_id,
-						extended_header->section_number);
-#endif
-					//the version number is still up2date
-					if (first_skipped == 0) {
-						//the last section was new - this is the 1st dup
-						first_skipped = s_id;
-					}
-					else {
-						//this is not the 1st new - check if it's the last
-						//or to be more precise only dups occured since
-						if (first_skipped == s_id)
-							timeouts = -1;
-					}
-					//since version is still up2date, check if table complete
-					if (check_complete(initial_header->table_id,
-							   eh_tbl_extension_id,
-							   current_onid,
-							   current_tsid,
-							   extended_header->last_section_number))
-						timeouts = -2;
-					return -1;
-				}
-				else {
+						current_onid,
+						current_tsid,
+						last_section_number))
+				timeouts = -2;
 #ifdef DEBUG_CACHED_SECTIONS
-					dprintf("[sectionsd] version update from 0x%02x to 0x%02x for table 0x%02x table_extension 0x%04x section 0x%02x\n",
-						di->second,
-						extended_header->version_number,
-						initial_header->table_id,
-						eh_tbl_extension_id,
-						extended_header->section_number);
+			printf("[sectionsd] skipped duplicate section for table 0x%02x table_extension 0x%04x section 0x%02x last 0x%02x touts %d\n",
+					table_id, eh_tbl_extension_id, section_number,
+					last_section_number, timeouts);
 #endif
-					//update version number
-					di->second = extended_header->version_number;
-				}
-			}
-			else
-			{
+			return -1;
+		}
+		else {
 #ifdef DEBUG_CACHED_SECTIONS
-				dprintf("[sectionsd] new section for table 0x%02x table_extension 0x%04x section 0x%02x\n",
-					initial_header->table_id,
-					eh_tbl_extension_id,
-					extended_header->section_number);
+			printf("[sectionsd] version update from 0x%02x to 0x%02x for table 0x%02x table_extension 0x%04x section 0x%02x\n",
+					di->second, version_number, table_id,
+					eh_tbl_extension_id, section_number);
 #endif
-				//section was not read before - insert in list
-				myDMXOrderUniqueKey.insert(std::make_pair(s_id, extended_header->version_number));
-				//check if table is now complete
-				if (check_complete(initial_header->table_id,
-						   eh_tbl_extension_id,
-						   current_onid,
-						   current_tsid,
-						   extended_header->last_section_number))
-					timeouts = -2;
-			}
-			//if control comes to here the sections skipped counter must be restarted
-			first_skipped = 0;
+			//update version number
+			di->second = version_number;
 		}
 	}
+	else
+	{
+		//section was not read before - insert in list
+		myDMXOrderUniqueKey.insert(std::make_pair(s_id, version_number));
+		//check if table is now complete
+		if (check_complete(table_id,
+					eh_tbl_extension_id,
+					current_onid,
+					current_tsid,
+					last_section_number))
+			timeouts = -2;
+#ifdef DEBUG_CACHED_SECTIONS
+		printf("[sectionsd] new section for table 0x%02x table_extension 0x%04x section 0x%02x last 0x%02x slast 0x%02x touts %d\n",
+				table_id, eh_tbl_extension_id,
+				section_number, last_section_number, eit_extended_header->segment_last_section_number, timeouts);
+#endif
+	}
+	//if control comes to here the sections skipped counter must be restarted
+	first_skipped = 0;
 
 	return rc;
 }
