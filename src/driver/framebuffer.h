@@ -177,8 +177,8 @@ class CFrameBuffer
 
 		void getIconSize(const char * const filename, int* width, int *height);
 		/* h is the height of the target "window", if != 0 the icon gets centered in that window */
-		bool paintIcon (const std::string & filename, const int x, const int y,
-				const int h = 0, const unsigned char offset = 1, bool paint = true);
+		bool paintIcon (const std::string & filename, const int x, const int y, 
+				const int h = 0, const unsigned char offset = 1, bool paint = true, bool paintBg = false, const fb_pixel_t colBg = 0);
 		bool paintIcon8(const std::string & filename, const int x, const int y, const unsigned char offset = 0);
 		void loadPal   (const std::string & filename, const unsigned char offset = 0, const unsigned char endidx = 255);
 
