@@ -3353,12 +3353,7 @@ static void *eitThread(void *)
 		//FIXME DMX check this already
 		if (header->current_next_indicator)
 		{
-			// Wir wollen nur aktuelle sections
-
-			// Houdini: added new constructor where the buffer is given as a parameter and must be allocated outside
-			// -> no allocation and copy of data into a 2nd buffer
-			//				SIsectionEIT eit(SIsection(section_length + 3, buf));
-			SIsectionEIT eit(section_length + 3, (char *) static_buf);
+			SIsectionEIT eit(section_length + 3, static_buf);
 			// Houdini: if section is not parsed (too short) -> no need to check events
 			if (eit.is_parsed() && eit.header())
 			{
@@ -3624,7 +3619,7 @@ static void *cnThread(void *)
 			continue;
 		}
 
-		SIsectionEIT eit(section_length + 3, (char *) static_buf);
+		SIsectionEIT eit(section_length + 3, static_buf);
 		// Houdini: if section is not parsed (too short) -> no need to check events
 		if (!eit.is_parsed() || !eit.header())
 			continue;

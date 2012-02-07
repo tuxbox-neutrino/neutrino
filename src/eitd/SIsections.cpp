@@ -407,7 +407,7 @@ void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsign
 
 }
 
-void SIsectionEIT::parseDescriptors(const char *des, unsigned len, SIevent &e)
+void SIsectionEIT::parseDescriptors(const uint8_t *des, unsigned len, SIevent &e)
 {
 	struct descr_generic_header *desc;
 	/* we pass the buffer including the eit_event header, so we have to
@@ -441,8 +441,8 @@ void SIsectionEIT::parseDescriptors(const char *des, unsigned len, SIevent &e)
 // Die infos aus dem Puffer holen
 void SIsectionEIT::parse(void)
 {
-	const char *actPos;
-	const char *bufEnd;
+	const uint8_t *actPos;
+	const uint8_t *bufEnd;
 	struct eit_event *evt;
 	unsigned short descriptors_loop_length;
 
@@ -454,8 +454,12 @@ void SIsectionEIT::parse(void)
 		return;
 	}
 
+#if 0
 	unsigned char table_id = header()->table_id;
 	unsigned char version_number = header()->version_number;
+#endif
+	unsigned char table_id = getTableId();
+	unsigned char version_number = getVersionNumber();
 	actPos = buffer + sizeof(SI_section_EIT_header);
 	bufEnd = buffer + bufferLength;
 
@@ -527,7 +531,7 @@ void SIsectionSDT::parsePrivateDataDescriptor(const char *buf, SIservice &s)
 		s.serviceTyp = 0x01;
 }
 
-void SIsectionSDT::parseDescriptors(const char *des, unsigned len, SIservice &s)
+void SIsectionSDT::parseDescriptors(const uint8_t *des, unsigned len, SIservice &s)
 {
 	struct descr_generic_header *desc;
 	des += sizeof(struct sdt_service);
@@ -558,8 +562,8 @@ void SIsectionSDT::parseDescriptors(const char *des, unsigned len, SIservice &s)
 // Die infos aus dem Puffer holen
 void SIsectionSDT::parse(void)
 {
-	const char *actPos;
-	const char *bufEnd;
+	const uint8_t *actPos;
+	const uint8_t *bufEnd;
 	struct sdt_service *sv;
 	unsigned short descriptors_loop_length;
 

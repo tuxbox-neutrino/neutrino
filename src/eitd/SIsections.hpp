@@ -26,6 +26,7 @@
 //
 
 #include <endian.h>
+#include <dvbsi++/event_information_section.h>
 
 struct SI_section_SDT_header {
 	unsigned table_id			: 8;
@@ -127,13 +128,14 @@ struct SI_section_header {
 } __attribute__ ((packed)) ; // 8 bytes
 
 
-class SIsection
+class SIsection: public LongSection
 {
 public:
-	SIsection(void) { buffer = 0; bufferLength = 0;}
+	//SIsection(void) { buffer = 0; bufferLength = 0;}
 
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
-	SIsection(unsigned bufLength, char *buf) {
+	SIsection(unsigned bufLength, uint8_t *buf) : LongSection(buf)
+	{
 		buffer = 0; bufferLength = 0;
 		if ((buf) && (bufLength >= sizeof(struct SI_section_header))) {
 			buffer = buf;
@@ -146,6 +148,7 @@ public:
 		bufferLength = 0;
 	}
 
+#if 0
 	unsigned char tableID(void) const {
 		return buffer ? ((struct SI_section_header *)buffer)->table_id : (unsigned char) -1;
 	}
@@ -170,7 +173,7 @@ public:
 	unsigned char lastSectionNumber(void) const {
 		return buffer ? ((struct SI_section_header *)buffer)->last_section_number : (unsigned char) -1;
 	}
-
+#endif
 	struct SI_section_header const *header(void) const {
 		return (struct SI_section_header *)buffer;
 	}
@@ -269,7 +272,7 @@ public:
 	}
 
 protected:
-	char *buffer;
+	uint8_t *buffer;
 	unsigned bufferLength;
 };
 
@@ -315,7 +318,7 @@ public:
 	}
 
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
-	SIsectionEIT(unsigned bufLength, char *buf) : SIsection(bufLength, buf) {
+	SIsectionEIT(unsigned bufLength, uint8_t *buf) : SIsection(bufLength, buf) {
 		parsed = 0;
 		parse();
 	}
@@ -375,7 +378,7 @@ protected:
 	SIevents evts;
 	int parsed;
 	void parse(void);
-	void parseDescriptors(const char *desc, unsigned len, SIevent &e);
+	void parseDescriptors(const uint8_t *desc, unsigned len, SIevent &e);
 	void parseShortEventDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parseExtendedEventDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parseContentDescriptor(const char *buf, SIevent &e, unsigned maxlen);
@@ -404,7 +407,7 @@ public:
 	}
 
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
-	SIsectionSDT(unsigned bufLength, char *buf) : SIsection(bufLength, buf) {
+	SIsectionSDT(unsigned bufLength, uint8_t *buf) : SIsection(bufLength, buf) {
 		parsed = 0;
 		parse();
 	}
@@ -452,7 +455,7 @@ private:
 	SIservices svs;
 	int parsed;
 	void parse(void);
-	void parseDescriptors(const char *desc, unsigned len, SIservice &s);
+	void parseDescriptors(const uint8_t *desc, unsigned len, SIservice &s);
 	void parseServiceDescriptor(const char *buf, SIservice &s);
 	void parsePrivateDataDescriptor(const char *buf, SIservice &s);
 	void parseNVODreferenceDescriptor(const char *buf, SIservice &s);
