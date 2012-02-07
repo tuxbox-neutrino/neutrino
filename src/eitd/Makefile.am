@@ -17,4 +17,5 @@ endif
 AM_CPPFLAGS =
 
 noinst_LIBRARIES = libsectionsd.a
-libsectionsd_a_SOURCES = sectionsd.cpp dmxapi.cpp debug.cpp dmx.cpp SIsections.cpp SIevents.cpp SIutils.cpp SIlanguage.cpp edvbstring.cpp
+libsectionsd_a_SOURCES = sectionsd.cpp dmxapi.cpp debug.cpp dmx.cpp savexml.cpp \
+			 SIsections.cpp SIevents.cpp SIutils.cpp SIlanguage.cpp edvbstring.cpp
