@@ -99,8 +99,8 @@ public:
 	void lock(void);
 	void unlock(void);
 
-	int getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts);
 	// section with size < 3 + 5 are skipped !
+	int getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeouts);
 	int setPid(const unsigned short new_pid);
 	int setCurrentService(int new_current_service);
 	int dropCachedSectionIDs();

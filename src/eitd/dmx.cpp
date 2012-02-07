@@ -226,7 +226,7 @@ printf("	[sectionsd] check section for table 0x%02x table_extension 0x%04x last 
 	return false;
 }
 
-int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
+int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeouts)
 {
 	struct eit_extended_section_header {
 		unsigned transport_stream_id_hi	  : 8;

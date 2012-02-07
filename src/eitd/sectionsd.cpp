@@ -3215,7 +3215,7 @@ static void *eitThread(void *)
 	}
 	dprintf("[%sThread] pid %d (%lu) start\n", "eit", getpid(), pthread_self());
 	int timeoutsDMX = 0;
-	char *static_buf = new char[MAX_SECTION_LENGTH];
+	uint8_t *static_buf = new uint8_t[MAX_SECTION_LENGTH];
 	int rc;
 
 	if (static_buf == NULL)
@@ -3358,7 +3358,7 @@ static void *eitThread(void *)
 			// Houdini: added new constructor where the buffer is given as a parameter and must be allocated outside
 			// -> no allocation and copy of data into a 2nd buffer
 			//				SIsectionEIT eit(SIsection(section_length + 3, buf));
-			SIsectionEIT eit(section_length + 3, static_buf);
+			SIsectionEIT eit(section_length + 3, (char *) static_buf);
 			// Houdini: if section is not parsed (too short) -> no need to check events
 			if (eit.is_parsed() && eit.header())
 			{
@@ -3435,7 +3435,7 @@ static void *cnThread(void *)
 	dprintf("[%sThread] pid %d (%lu) start\n", "cn", getpid(), pthread_self());
 	t_channel_id time_trigger_last = 0;
 	int timeoutsDMX = 0;
-	char *static_buf = new char[MAX_SECTION_LENGTH];
+	uint8_t *static_buf = new uint8_t[MAX_SECTION_LENGTH];
 	int rc;
 
 	if (static_buf == NULL)
@@ -3624,7 +3624,7 @@ static void *cnThread(void *)
 			continue;
 		}
 
-		SIsectionEIT eit(section_length + 3, static_buf);
+		SIsectionEIT eit(section_length + 3, (char *) static_buf);
 		// Houdini: if section is not parsed (too short) -> no need to check events
 		if (!eit.is_parsed() || !eit.header())
 			continue;
