@@ -134,9 +134,11 @@ public:
 	//SIsection(void) { buffer = 0; bufferLength = 0;}
 
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
-	SIsection(unsigned bufLength, uint8_t *buf) : LongSection(buf)
+	SIsection(uint8_t *buf) : LongSection(buf)
 	{
-		buffer = 0; bufferLength = 0;
+		buffer = NULL;
+		bufferLength = 0;
+		unsigned bufLength = 3 + getSectionLength();
 		if ((buf) && (bufLength >= sizeof(struct SI_section_header))) {
 			buffer = buf;
 			bufferLength = bufLength;
@@ -318,7 +320,7 @@ public:
 	}
 
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
-	SIsectionEIT(unsigned bufLength, uint8_t *buf) : SIsection(bufLength, buf) {
+	SIsectionEIT(uint8_t *buf) : SIsection(buf) {
 		parsed = 0;
 		parse();
 	}
@@ -407,7 +409,7 @@ public:
 	}
 
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
-	SIsectionSDT(unsigned bufLength, uint8_t *buf) : SIsection(bufLength, buf) {
+	SIsectionSDT(uint8_t *buf) : SIsection(buf) {
 		parsed = 0;
 		parse();
 	}
