@@ -117,7 +117,7 @@ void SIevent::parse(Event &event)
 			setName(lang, stringDVBUTF8(d->getEventName(), table, tsidonid));
 			setText(lang, stringDVBUTF8(d->getText(), table, tsidonid));
 		}
-		if(dtype == EXTENDED_EVENT_DESCRIPTOR) {
+		else if(dtype == EXTENDED_EVENT_DESCRIPTOR) {
 			const ExtendedEventDescriptor *d = (ExtendedEventDescriptor*) *dit;
 			std::string lang = d->getIso639LanguageCode();
 			std::transform(lang.begin(), lang.end(), lang.begin(), tolower);
@@ -132,7 +132,7 @@ void SIevent::parse(Event &event)
 			}
 			appendExtendedText(lang, stringDVBUTF8(d->getText(), table, tsidonid));
 		}
-		if(dtype == CONTENT_DESCRIPTOR) {
+		else if(dtype == CONTENT_DESCRIPTOR) {
 			const ContentDescriptor * d = (ContentDescriptor *) *dit;
 			const ContentClassificationList *clist = d->getClassifications();
 			for (ContentClassificationConstIterator cit = clist->begin(); cit != clist->end(); ++cit) {
@@ -143,7 +143,7 @@ void SIevent::parse(Event &event)
 				contentClassification += user;
 			}
 		}
-		if(dtype == COMPONENT_DESCRIPTOR) {
+		else if(dtype == COMPONENT_DESCRIPTOR) {
 			const ComponentDescriptor *d = (ComponentDescriptor*)*dit;
 			SIcomponent c;
 			c.streamContent = d->getStreamContent();
@@ -155,7 +155,7 @@ void SIevent::parse(Event &event)
 			c.component = stringDVBUTF8(d->getText(), table, tsidonid);
 			components.insert(c);
 		}
-		if(dtype == PARENTAL_RATING_DESCRIPTOR) {
+		else if(dtype == PARENTAL_RATING_DESCRIPTOR) {
 			const ParentalRatingDescriptor *d = (ParentalRatingDescriptor*) *dit;
 			const ParentalRatingList *plist = d->getParentalRatings();
 			for (ParentalRatingConstIterator it = plist->begin(); it != plist->end(); ++it) {
@@ -163,7 +163,7 @@ void SIevent::parse(Event &event)
 				ratings.insert(p);
 			}
 		}
-		if(dtype == LINKAGE_DESCRIPTOR) {
+		else if(dtype == LINKAGE_DESCRIPTOR) {
 			const LinkageDescriptor * d = (LinkageDescriptor *) *dit;
 			SIlinkage l;
 			l.linkageType = d->getLinkageType();
