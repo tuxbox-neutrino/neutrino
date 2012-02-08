@@ -28,7 +28,6 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
-#include <sys/poll.h> // fuer poll()
 
 #include <set>
 #include <algorithm>
@@ -43,6 +42,8 @@
 #ifdef ENABLE_FREESATEPG
 #include "FreesatTables.hpp"
 #endif
+
+#include <dvbsi++/descriptor_tag.h>
 
 struct descr_generic_header {
 	unsigned descriptor_tag			: 8;
@@ -80,30 +81,6 @@ struct service_list_entry {
 	unsigned service_id_hi			: 8;
 	unsigned service_id_lo			: 8;
 	unsigned service_type			: 8;
-} __attribute__ ((packed)) ;
-
-struct digplus_order_entry {
-	unsigned service_id_hi			: 8;
-	unsigned service_id_lo			: 8;
-	unsigned channel_number_hi		: 8;
-	unsigned channel_number_lo		: 8;
-} __attribute__ ((packed)) ;
-
-struct bskyb_order_entry {
-	unsigned service_id_hi			: 8;
-	unsigned service_id_lo			: 8;
-	unsigned service_type			: 8;
-	unsigned unknown1			: 8;
-	unsigned unknown2			: 8;
-	unsigned channel_number_hi		: 8;
-	unsigned channel_number_lo		: 8;
-	unsigned unknown3			: 8;
-	unsigned unknown4			: 8;
-} __attribute__ ((packed)) ;
-
-struct bskyb_bid {
-	unsigned unknown1			: 8;
-	unsigned unknown2			: 8;
 } __attribute__ ((packed)) ;
 
 struct private_data_specifier {
@@ -441,25 +418,22 @@ void SIsectionEIT::parseDescriptors(const uint8_t *des, unsigned len, SIevent &e
 // Die infos aus dem Puffer holen
 void SIsectionEIT::parse(void)
 {
+	if (!buffer || parsed)
+		return;
+
+#if 0
 	const uint8_t *actPos;
 	const uint8_t *bufEnd;
 	struct eit_event *evt;
 	unsigned short descriptors_loop_length;
-
-	if (!buffer || parsed)
-		return;
 
 	if (bufferLength < sizeof(SI_section_EIT_header) + sizeof(struct eit_event)) {
 		bufferLength=0;
 		return;
 	}
 
-#if 0
 	unsigned char table_id = header()->table_id;
 	unsigned char version_number = header()->version_number;
-#endif
-	unsigned char table_id = getTableId();
-	unsigned char version_number = getVersionNumber();
 	actPos = buffer + sizeof(SI_section_EIT_header);
 	bufEnd = buffer + bufferLength;
 
@@ -476,7 +450,30 @@ void SIsectionEIT::parse(void)
 		evts.insert(e);
 		actPos += descriptors_loop_length;
 	}
+#endif
+#if 1
+	const EventList &elist = *getEvents();
 
+	if(elist.empty())
+		return;
+
+        t_service_id		sid = getTableIdExtension();
+        t_original_network_id	onid = getOriginalNetworkId();
+        t_transport_stream_id	tsid = getTransportStreamId();
+	unsigned char		tid = getTableId();
+	unsigned char		version = getVersionNumber();
+
+	for (EventConstIterator eit = elist.begin(); eit != elist.end(); ++eit) {
+		Event &event = (**eit);
+
+		SIevent e(onid, tsid, sid, event.getEventId());
+		e.table_id = tid;
+		e.version = version;
+
+		e.parse(event);
+		evts.insert(e);
+	}
+#endif
 	parsed = 1;
 }
 
