@@ -31,6 +31,10 @@ int readEncodingFile()
 			else if ( (sscanf( line, "0x%x 0x%x ISO%d", &tsid, &onid, &encoding ) == 3 && encoding == 6937 )
 					||(sscanf( line, "%d %d ISO%d", &tsid, &onid, &encoding ) == 3 && encoding == 6937 ) )
 				TransponderDefaultMapping[(tsid<<16)|onid]=64;
+#if 0 // FIXME crash at stop if compiled with -g -ggb3 ???
+			else if ( sscanf( line, "%s ISO%d", countrycode, &encoding ) == 2 && encoding == 6937 )
+				CountryCodeDefaultMapping[countrycode] = 64;
+#endif
 			else if ( (sscanf( line, "0x%x 0x%x", &tsid, &onid ) == 2 )
 					||(sscanf( line, "%d %d", &tsid, &onid ) == 2 ) )
 				TransponderUseTwoCharMapping.insert((tsid<<16)|onid);
@@ -39,6 +43,15 @@ int readEncodingFile()
 		return 0;
 	}
 	return -1;
+}
+
+int getCountryCodeDefaultMapping( const std::string &lang )
+{
+	std::map<std::string, int>::iterator it =
+		CountryCodeDefaultMapping.find(lang);
+	if ( it != CountryCodeDefaultMapping.end() )
+		return it->second;
+	return 1;  // ISO8859-1 / Latin1
 }
 
 // 8859-x to ucs-16 coding tables. taken from www.unicode.org/Public/MAPPINGS/ISO8859/
