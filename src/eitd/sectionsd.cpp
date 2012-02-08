@@ -3059,43 +3059,43 @@ static void *fseitThread(void *)
 
 		SIsectionEIT eit(static_buf);
 		// Houdini: if section is not parsed (too short) -> no need to check events
-		if (eit.is_parsed() && eit.header())
+		if (!eit.is_parsed())
+			continue;
+
+		//dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
+		zeit = time(NULL);
+		// Nicht alle Events speichern
+		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
 		{
-			//dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
-			zeit = time(NULL);
-			// Nicht alle Events speichern
-			for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
+			if (!(e->times.empty()))
 			{
-				if (!(e->times.empty()))
+				if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
+						( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
 				{
-					if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-							( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
-					{
-						addEvent(*e, zeit);
-					}
+					addEvent(*e, zeit);
 				}
-				else
+			}
+			else
+			{
+				// pruefen ob nvod event
+				readLockServices();
+				MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+
+				if (si != mySIservicesNVODorderUniqueKey.end())
 				{
-					// pruefen ob nvod event
-					readLockServices();
-					MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+					// Ist ein nvod-event
+					writeLockEvents();
 
-					if (si != mySIservicesNVODorderUniqueKey.end())
-					{
-						// Ist ein nvod-event
-						writeLockEvents();
+					for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
+						mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
 
-						for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
-							mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
-
-						unlockEvents();
-						addNVODevent(*e);
-					}
-					unlockServices();
+					unlockEvents();
+					addNVODevent(*e);
 				}
-			} // for
-			//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
-		} // if
+				unlockServices();
+			}
+		} // for
+		//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
 	} // for
 	delete[] static_buf;
 	dputs("[freesatEitThread] end");
@@ -3273,48 +3273,46 @@ static void *eitThread(void *)
 
 		SIsectionEIT eit(static_buf);
 		// Houdini: if section is not parsed (too short) -> no need to check events
-		if (eit.is_parsed() && eit.header())
+		if (!eit.is_parsed())
+			continue;
+
+		dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
+		zeit = time(NULL);
+		// Nicht alle Events speichern
+		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
 		{
-			// == 0 -> kein event
-
-			dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
-			zeit = time(NULL);
-			// Nicht alle Events speichern
-			for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
+			if (!(e->times.empty()))
 			{
-				if (!(e->times.empty()))
+				if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
+						( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
 				{
-					if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
-							( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
-					{
-						if(sectionsd_stop)
-							break;
-						//printf("Adding event 0x%llx table %x version %x running %d\n", e->uniqueKey(), eit.getTableId(), eit.getVersionNumber(), e->runningStatus());
-						addEvent(*e, zeit);
-					}
+					if(sectionsd_stop)
+						break;
+					//printf("Adding event 0x%llx table %x version %x running %d\n", e->uniqueKey(), eit.getTableId(), eit.getVersionNumber(), e->runningStatus());
+					addEvent(*e, zeit);
 				}
-				else
+			}
+			else
+			{
+				// pruefen ob nvod event
+				readLockServices();
+				MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+
+				if (si != mySIservicesNVODorderUniqueKey.end())
 				{
-					// pruefen ob nvod event
-					readLockServices();
-					MySIservicesNVODorderUniqueKey::iterator si = mySIservicesNVODorderUniqueKey.find(e->get_channel_id());
+					// Ist ein nvod-event
+					writeLockEvents();
 
-					if (si != mySIservicesNVODorderUniqueKey.end())
-					{
-						// Ist ein nvod-event
-						writeLockEvents();
+					for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
+						mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
 
-						for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
-							mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
-
-						unlockEvents();
-						addNVODevent(*e);
-					}
-					unlockServices();
+					unlockEvents();
+					addNVODevent(*e);
 				}
-			} // for
-			//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
-		} // if
+				unlockServices();
+			}
+		} // for
+		//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
 	} // for
 	delete[] static_buf;
 
@@ -3514,7 +3512,7 @@ static void *cnThread(void *)
 
 		SIsectionEIT eit(static_buf);
 		// Houdini: if section is not parsed (too short) -> no need to check events
-		if (!eit.is_parsed() || !eit.header())
+		if (!eit.is_parsed())
 			continue;
 
 		//dprintf("[cnThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
