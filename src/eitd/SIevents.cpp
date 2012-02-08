@@ -52,6 +52,7 @@
 
 const std::string languangeOFF = "OFF";
 
+#if 0
 SIevent::SIevent(const struct eit_event *e)
 {
 	eventID = (e->event_id_hi << 8) | e->event_id_lo;
@@ -75,6 +76,7 @@ SIevent::SIevent(const struct eit_event *e)
 	original_network_id = 0;
 	transport_stream_id = 0;
 }
+#endif
 
 SIevent::SIevent(const t_original_network_id _original_network_id, const t_transport_stream_id _transport_stream_id, const t_service_id _service_id,
 		 const unsigned short _event_id)
@@ -177,6 +179,7 @@ void SIevent::parse(Event &event)
 	}
 }
 
+#if 0
 // Std-Copy
 SIevent::SIevent(const SIevent &e)
 {
@@ -202,20 +205,7 @@ SIevent::SIevent(const SIevent &e)
 	table_id = e.table_id;
 	version =  e.version;
 }
-
-int SIevent::saveXML(FILE *file, const char *serviceName) const
-{
-	if(saveXML0(file))
-		return 1;
-	if(serviceName) {
-		if(fprintf(file, "    <service_name>")<0)
-			return 2;
-		saveStringToXMLfile(file, serviceName);
-		if(fprintf(file, "</service_name>\n")<0)
-			return 3;
-	}
-	return saveXML2(file);
-}
+#endif
 
 char SIevent::getFSK() const
 {
@@ -238,65 +228,6 @@ char SIevent::getFSK() const
 	}
 
 	return 0x00;                                           //                     0x00         undefined
-}
-
-int SIevent::saveXML0(FILE *file) const
-{
-	if(fprintf(file, "\t\t<event id=\"%04x\">\n", eventID)<0)
-		return 1;
-	return 0;
-}
-
-int SIevent::saveXML2(FILE *file) const
-{
-	for (std::map<std::string, std::string>::const_iterator
-			i = langName.begin() ;
-			i != langName.end() ;
-			i++) {
-		if (i->second.length()) {
-			fprintf(file, "\t\t\t<name lang=\"%s\" string=\"", i->first.c_str());
-			saveStringToXMLfile(file, i->second.c_str());
-			fprintf(file, "\"/>\n");
-		}
-	}
-	for (std::map<std::string, std::string>::const_iterator
-			i = langText.begin() ;
-			i != langText.end() ;
-			i++) {
-		if (i->second.length()) {
-			fprintf(file, "\t\t\t<text lang=\"%s\" string=\"", i->first.c_str());
-			saveStringToXMLfile(file, i->second.c_str());
-			fprintf(file, "\"/>\n");
-		}
-	}
-	if(item.length()) {
-		fprintf(file, "\t\t\t<item string=\"");
-		saveStringToXMLfile(file, item.c_str());
-		fprintf(file, "\"/>\n");
-	}
-	if(itemDescription.length()) {
-		fprintf(file, "\t\t\t<item_description string=\"");
-		saveStringToXMLfile(file, itemDescription.c_str());
-		fprintf(file, "\"/>\n");
-	}
-	for (std::map<std::string, std::string>::const_iterator
-			i = langExtendedText.begin() ;
-			i != langExtendedText.end() ;
-			i++) {
-		if (i->second.length()) {
-			fprintf(file, "\t\t\t<extended_text lang=\"%s\" string=\"", i->first.c_str());
-			saveStringToXMLfile(file, i->second.c_str());
-			fprintf(file, "\"/>\n");
-		}
-	}
-	for_each(times.begin(), times.end(), saveSItimeXML(file));
-	for(unsigned i=0; i<contentClassification.length(); i++)
-		fprintf(file, "\t\t\t<content class=\"%02x\" user=\"%02x\"/>\n", contentClassification[i], userClassification[i]);
-	for_each(components.begin(), components.end(), saveSIcomponentXML(file));
-	for_each(ratings.begin(), ratings.end(), saveSIparentalRatingXML(file));
-	for_each(linkage_descs.begin(), linkage_descs.end(), saveSIlinkageXML(file));
-	fprintf(file, "\t\t</event>\n");
-	return 0;
 }
 
 std::string SIevent::getName() const
@@ -379,6 +310,79 @@ void SIevent::setExtendedText(const std::string &lang, const std::string &text)
 	}
 }
 
+int SIevent::saveXML(FILE *file, const char *serviceName) const
+{
+	if(saveXML0(file))
+		return 1;
+	if(serviceName) {
+		if(fprintf(file, "    <service_name>")<0)
+			return 2;
+		saveStringToXMLfile(file, serviceName);
+		if(fprintf(file, "</service_name>\n")<0)
+			return 3;
+	}
+	return saveXML2(file);
+}
+
+int SIevent::saveXML0(FILE *file) const
+{
+	if(fprintf(file, "\t\t<event id=\"%04x\">\n", eventID)<0)
+		return 1;
+	return 0;
+}
+
+int SIevent::saveXML2(FILE *file) const
+{
+	for (std::map<std::string, std::string>::const_iterator
+			i = langName.begin() ;
+			i != langName.end() ;
+			i++) {
+		if (i->second.length()) {
+			fprintf(file, "\t\t\t<name lang=\"%s\" string=\"", i->first.c_str());
+			saveStringToXMLfile(file, i->second.c_str());
+			fprintf(file, "\"/>\n");
+		}
+	}
+	for (std::map<std::string, std::string>::const_iterator
+			i = langText.begin() ;
+			i != langText.end() ;
+			i++) {
+		if (i->second.length()) {
+			fprintf(file, "\t\t\t<text lang=\"%s\" string=\"", i->first.c_str());
+			saveStringToXMLfile(file, i->second.c_str());
+			fprintf(file, "\"/>\n");
+		}
+	}
+	if(item.length()) {
+		fprintf(file, "\t\t\t<item string=\"");
+		saveStringToXMLfile(file, item.c_str());
+		fprintf(file, "\"/>\n");
+	}
+	if(itemDescription.length()) {
+		fprintf(file, "\t\t\t<item_description string=\"");
+		saveStringToXMLfile(file, itemDescription.c_str());
+		fprintf(file, "\"/>\n");
+	}
+	for (std::map<std::string, std::string>::const_iterator
+			i = langExtendedText.begin() ;
+			i != langExtendedText.end() ;
+			i++) {
+		if (i->second.length()) {
+			fprintf(file, "\t\t\t<extended_text lang=\"%s\" string=\"", i->first.c_str());
+			saveStringToXMLfile(file, i->second.c_str());
+			fprintf(file, "\"/>\n");
+		}
+	}
+	for_each(times.begin(), times.end(), saveSItimeXML(file));
+	for(unsigned i=0; i<contentClassification.length(); i++)
+		fprintf(file, "\t\t\t<content class=\"%02x\" user=\"%02x\"/>\n", contentClassification[i], userClassification[i]);
+	for_each(components.begin(), components.end(), saveSIcomponentXML(file));
+	for_each(ratings.begin(), ratings.end(), saveSIparentalRatingXML(file));
+	for_each(linkage_descs.begin(), linkage_descs.end(), saveSIlinkageXML(file));
+	fprintf(file, "\t\t</event>\n");
+	return 0;
+}
+
 void SIevent::dump(void) const
 {
 	printf("Unique key: %llx\n", uniqueKey());
@@ -414,12 +418,7 @@ void SIevent::dump(void) const
 			printf(" 0x%02hhx", userClassification[i]);
 		printf("\n");
 	}
-	/*
-	  if(startzeit)
-	  printf("Startzeit: %s", ctime(&startzeit));
-	  if(dauer)
-	  printf("Dauer: %02u:%02u:%02u (%umin, %us)\n", dauer/3600, (dauer%3600)/60, dauer%60, dauer/60, dauer);
-	*/
+
 	for_each(times.begin(), times.end(), printSItime());
 	for_each(components.begin(), components.end(), printSIcomponent());
 	for_each(ratings.begin(), ratings.end(), printSIparentalRating());
@@ -437,12 +436,7 @@ void SIevent::dumpSmall(void) const
 	for (std::map<std::string, std::string>::const_iterator it = langExtendedText.begin() ;
 			it != langExtendedText.end() ; ++it)
 		printf("Extended-Text (%s): %s\n", it->first.c_str(), it->second.c_str());
-	/*
-	  if(startzeit)
-	  printf("Startzeit: %s", ctime(&startzeit));
-	  if(dauer)
-	  printf("Dauer: %02u:%02u:%02u (%umin, %us)\n", dauer/3600, (dauer%3600)/60, dauer%60, dauer/60, dauer);
-	*/
+
 	for_each(times.begin(), times.end(), printSItime());
 	for_each(ratings.begin(), ratings.end(), printSIparentalRating());
 	for_each(linkage_descs.begin(), linkage_descs.end(), printSIlinkage());

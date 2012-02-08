@@ -60,6 +60,7 @@ struct SI_section_SDT_header {
 	unsigned reserved_future_use2		: 8;
 } __attribute__ ((packed)) ; // 11 bytes
 
+#if 0
 struct SI_section_EIT_header {
 	unsigned table_id			: 8;
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -94,7 +95,7 @@ struct SI_section_EIT_header {
 	unsigned segment_last_section_number	: 8;
 	unsigned last_table_id			: 8;
 } __attribute__ ((packed)) ; // 14 bytes
-
+#endif
 // Muss evtl. angepasst werden falls damit RST, TDT und TOT gelesen werden sollen
 // ^^^
 //   RST usw. haben section_syntax_indicator == 0, andere == 1 (obi)
@@ -155,15 +156,15 @@ protected:
 	unsigned bufferLength;
 };
 
-class SIsectionEIT : public SIsection, public EventInformationSection
+class SIsectionEIT : /*public SIsection,*/ public EventInformationSection
 {
 public:
-	SIsectionEIT(uint8_t *buf) : SIsection(buf), EventInformationSection(buf) 
+	SIsectionEIT(uint8_t *buf) : /*SIsection(buf),*/ EventInformationSection(buf) 
 	{
 		parsed = 0;
 		parse();
 	}
-
+#if 0
 	t_service_id service_id(void) const {
 		return buffer ? ((((struct SI_section_EIT_header *)buffer)->service_id_hi << 8) |
 				((struct SI_section_EIT_header *)buffer)->service_id_lo): 0;
@@ -178,14 +179,12 @@ public:
 		return buffer ? ((((struct SI_section_EIT_header *)buffer)->transport_stream_id_hi << 8) |
 				((struct SI_section_EIT_header *)buffer)->transport_stream_id_lo) : 0;
 	}
-
 	struct SI_section_EIT_header const *header(void) const {
 		return (struct SI_section_EIT_header *)buffer;
 	}
+#endif
 
 	const SIevents &events(void) const {
-		//if(!parsed)
-		//	parse(); -> nicht const
 		return evts;
 	}
 
@@ -197,6 +196,7 @@ protected:
 	SIevents evts;
 	int parsed;
 	void parse(void);
+#if 0
 	void parseDescriptors(const uint8_t *desc, unsigned len, SIevent &e);
 	void parseShortEventDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parseExtendedEventDescriptor(const char *buf, SIevent &e, unsigned maxlen);
@@ -205,6 +205,7 @@ protected:
 	void parseParentalRatingDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parseLinkageDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parsePDCDescriptor(const char *buf, SIevent &e, unsigned maxlen);
+#endif
 #ifdef ENABLE_FREESATEPG
 	std::string freesatHuffmanDecode(std::string input);
 #endif
@@ -219,12 +220,13 @@ public:
 		parse();
 	}
 
+#if 0
 	// Std-Copy
 	SIsectionSDT(const SIsectionSDT &s) : SIsection(s) {
 		svs = s.svs;
 		parsed = s.parsed;
 	}
-
+#endif
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
 	SIsectionSDT(uint8_t *buf) : SIsection(buf) {
 		parsed = 0;

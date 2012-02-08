@@ -38,6 +38,7 @@ class SIservice;
 class SIservices;
 class SIbouquets;
 
+#if 0
 struct eit_event {
 	unsigned event_id_hi			: 8;
 	unsigned event_id_lo			: 8;
@@ -61,6 +62,7 @@ struct eit_event {
 	unsigned descriptors_loop_length_lo	: 8;
 } __attribute__ ((packed)) ;
 
+#endif
 
 struct descr_component_header {
 	unsigned descriptor_tag			: 8;
@@ -79,6 +81,7 @@ struct descr_component_header {
 	unsigned iso_639_2_language_code_lo	: 8;
 } __attribute__ ((packed)) ;
 
+#if 0
 struct descr_linkage_header {
 	unsigned descriptor_tag			: 8;
 	unsigned descriptor_length		: 8;
@@ -90,6 +93,7 @@ struct descr_linkage_header {
 	unsigned service_id_lo			: 8;
 	unsigned linkage_type			: 8;
 } __attribute__ ((packed)) ;
+#endif
 
 struct descr_pdc_header {
 	unsigned descriptor_tag			: 8;
@@ -101,6 +105,7 @@ struct descr_pdc_header {
 
 class SIlinkage {
 public:
+#if 0
 	SIlinkage(const struct descr_linkage_header *link) {
 		linkageType = link->linkage_type;
 		transportStreamId = (link->transport_stream_id_hi << 8) | link->transport_stream_id_lo;
@@ -110,7 +115,6 @@ public:
 			//name = std::string(((const char *)link) + sizeof(struct descr_linkage_header), link->descriptor_length - (sizeof(struct descr_linkage_header) - 2));
 			name = convertDVBUTF8(((const char *)link)+sizeof(struct descr_linkage_header), link->descriptor_length-(sizeof(struct descr_linkage_header)-2), 0, 0);
 	}
-
 	// Std-copy
 	SIlinkage(const SIlinkage &l) {
 		linkageType = l.linkageType;
@@ -119,6 +123,7 @@ public:
 		serviceId = l.serviceId;
 		name = l.name;
 	}
+#endif
 
 	// default
 	SIlinkage(void) {
@@ -176,150 +181,145 @@ struct saveSIlinkageXML : public std::unary_function<class SIlinkage, void>
 //typedef std::multiset <SIlinkage, std::less<SIlinkage> > SIlinkage_descs;
 typedef std::vector<class SIlinkage> SIlinkage_descs;
 
-class SIcomponent {
-  public:
-    SIcomponent(const struct descr_component_header *comp) {
-      streamContent=comp->stream_content;
-      componentType=comp->component_type;
-      componentTag=comp->component_tag;
-      if(comp->descriptor_length>sizeof(struct descr_component_header)-2)
-        //component=std::string(((const char *)comp)+sizeof(struct descr_component_header), comp->descriptor_length-(sizeof(struct descr_component_header)-2));
-        component=convertDVBUTF8(((const char *)comp)+sizeof(struct descr_component_header), comp->descriptor_length-(sizeof(struct descr_component_header)-2), 0, 0);
-    }
-    // Std-copy
-    SIcomponent(const SIcomponent &c) {
-      streamContent=c.streamContent;
-      componentType=c.componentType;
-      componentTag=c.componentTag;
-      component=c.component;
-    }
-    
-    SIcomponent(void) {
-      streamContent=0;
-      componentType=0;
-      componentTag=0;      
-    }
-    // Der Operator zum sortieren
-    bool operator < (const SIcomponent& c) const {
-      return streamContent < c.streamContent;
-//      return component < c.component;
-    }
-    void dump(void) const {
-      if(component.length())
-        printf("Component: %s\n", component.c_str());
-      printf("Stream Content: 0x%02hhx\n", streamContent);
-      printf("Component type: 0x%02hhx\n", componentType);
-      printf("Component tag: 0x%02hhx\n", componentTag);
-    }
-    int saveXML(FILE *file) const {
-      fprintf(file, "\t\t\t<component tag=\"%02x\" type=\"%02x\" stream_content=\"%02x\" text=\"", componentTag, componentType, streamContent);
-      saveStringToXMLfile(file,component.c_str());
-      fprintf(file, "\"/>\n");
-//      %s
-//	return 1;
-//	saveStringToXMLfile(file, component.c_str());
-//	fprintf(file, "\"/>\n");
-      return 0;
-    }
-    std::string component; // Text aus dem Component Descriptor
-    unsigned char componentType; // Component Descriptor
-    unsigned char componentTag; // Component Descriptor
-    unsigned char streamContent; // Component Descriptor
+class SIcomponent 
+{
+	public:
+		std::string component; // Text aus dem Component Descriptor
+		unsigned char componentType; // Component Descriptor
+		unsigned char componentTag; // Component Descriptor
+		unsigned char streamContent; // Component Descriptor
+#if 0
+		SIcomponent(const struct descr_component_header *comp) {
+			streamContent=comp->stream_content;
+			componentType=comp->component_type;
+			componentTag=comp->component_tag;
+			if(comp->descriptor_length>sizeof(struct descr_component_header)-2)
+				//component=std::string(((const char *)comp)+sizeof(struct descr_component_header), comp->descriptor_length-(sizeof(struct descr_component_header)-2));
+				component=convertDVBUTF8(((const char *)comp)+sizeof(struct descr_component_header), comp->descriptor_length-(sizeof(struct descr_component_header)-2), 0, 0);
+		}
+		// Std-copy
+		SIcomponent(const SIcomponent &c) {
+			streamContent=c.streamContent;
+			componentType=c.componentType;
+			componentTag=c.componentTag;
+			component=c.component;
+		}
+#endif
+		SIcomponent(void) {
+			streamContent=0;
+			componentType=0;
+			componentTag=0;      
+		}
+		// Der Operator zum sortieren
+		bool operator < (const SIcomponent& c) const {
+			return streamContent < c.streamContent;
+		}
+		void dump(void) const {
+			if(component.length())
+				printf("Component: %s\n", component.c_str());
+			printf("Stream Content: 0x%02hhx\n", streamContent);
+			printf("Component type: 0x%02hhx\n", componentType);
+			printf("Component tag: 0x%02hhx\n", componentTag);
+		}
+		int saveXML(FILE *file) const {
+			fprintf(file, "\t\t\t<component tag=\"%02x\" type=\"%02x\" stream_content=\"%02x\" text=\"", componentTag, componentType, streamContent);
+			saveStringToXMLfile(file,component.c_str());
+			fprintf(file, "\"/>\n");
+			return 0;
+		}
 };
+
+typedef std::multiset <SIcomponent, std::less<SIcomponent> > SIcomponents;
 
 // Fuer for_each
 struct printSIcomponent : public std::unary_function<class SIcomponent, void>
 {
-  void operator() (const SIcomponent &c) { c.dump();}
+	void operator() (const SIcomponent &c) { c.dump();}
 };
 
 // Fuer for_each
 struct saveSIcomponentXML : public std::unary_function<class SIcomponent, void>
 {
-  FILE *f;
-  saveSIcomponentXML(FILE *fi) { f=fi;}
-  void operator() (const SIcomponent &c) { c.saveXML(f);}
+	FILE *f;
+	saveSIcomponentXML(FILE *fi) { f=fi;}
+	void operator() (const SIcomponent &c) { c.saveXML(f);}
 };
 
-typedef std::multiset <SIcomponent, std::less<SIcomponent> > SIcomponents;
+class SIparentalRating 
+{
+	public:
+		std::string countryCode;
+		unsigned char rating; // Bei 1-16 -> Minumim Alter = rating +3
 
-class SIparentalRating {
-  public:
-    SIparentalRating(const std::string &cc, unsigned char rate) {
-      rating=rate;
-      countryCode=cc;
-    }
-    // Std-Copy
-    SIparentalRating(const SIparentalRating &r) {
-      rating=r.rating;
-      countryCode=r.countryCode;
-    }
-    // Der Operator zum sortieren
-    bool operator < (const SIparentalRating& c) const {
-      return countryCode < c.countryCode;
-    }
-    void dump(void) const {
-      printf("Rating: %s %hhu (+3)\n", countryCode.c_str(), rating);
-    }
-    int saveXML(FILE *file) const {
-      if(fprintf(file, "\t\t\t<parental_rating country=\"%s\" rating=\"%hhu\"/>\n", countryCode.c_str(), rating)<0)
-        return 1;
-      return 0;
-    }
-    std::string countryCode;
-    unsigned char rating; // Bei 1-16 -> Minumim Alter = rating +3
+		SIparentalRating(const std::string &cc, unsigned char rate) {
+			rating=rate;
+			countryCode=cc;
+		}
+#if 0
+		// Std-Copy
+		SIparentalRating(const SIparentalRating &r) {
+			rating=r.rating;
+			countryCode=r.countryCode;
+		}
+#endif
+		// Der Operator zum sortieren
+		bool operator < (const SIparentalRating& c) const {
+			return countryCode < c.countryCode;
+		}
+		void dump(void) const {
+			printf("Rating: %s %hhu (+3)\n", countryCode.c_str(), rating);
+		}
+		int saveXML(FILE *file) const {
+			if(fprintf(file, "\t\t\t<parental_rating country=\"%s\" rating=\"%hhu\"/>\n", countryCode.c_str(), rating)<0)
+				return 1;
+			return 0;
+		}
 };
 
 // Fuer for_each
 struct printSIparentalRating : public std::unary_function<SIparentalRating, void>
 {
-  void operator() (const SIparentalRating &r) { r.dump();}
+	void operator() (const SIparentalRating &r) { r.dump();}
 };
 
 // Fuer for_each
 struct saveSIparentalRatingXML : public std::unary_function<SIparentalRating, void>
 {
-  FILE *f;
-  saveSIparentalRatingXML(FILE *fi) { f=fi;}
-  void operator() (const SIparentalRating &r) { r.saveXML(f);}
+	FILE *f;
+	saveSIparentalRatingXML(FILE *fi) { f=fi;}
+	void operator() (const SIparentalRating &r) { r.saveXML(f);}
 };
 
 typedef std::set <SIparentalRating, std::less<SIparentalRating> > SIparentalRatings;
 
 class SItime {
-  public:
-    SItime(time_t s, unsigned d) {
-      startzeit=s;
-      dauer=d; // in Sekunden, 0 -> time shifted (cinedoms)
-    }
-    // Std-Copy
-    SItime(const SItime &t) {
-      startzeit=t.startzeit;
-      dauer=t.dauer;
-    }
-    // Der Operator zum sortieren
-    bool operator < (const SItime& t) const {
-      return startzeit < t.startzeit;
-    }
-    void dump(void) const {
-      printf("Startzeit: %s", ctime(&startzeit));
-      printf("Dauer: %02u:%02u:%02u (%umin, %us)\n", dauer/3600, (dauer%3600)/60, dauer%60, dauer/60, dauer);
-    }
-    int saveXML(FILE *file) const { // saves the time
-      // Ist so noch nicht in Ordnung, das sollte untergliedert werden,
-      // da sonst evtl. time,date,duration,time,date,... auftritt
-      // und eine rein sequentielle Ordnung finde ich nicht ok.
-      /*
-      struct tm *zeit=localtime(&startzeit);
-      fprintf(file, "\t\t\t\t\t<time>%02d:%02d:%02d</time>\n", zeit->tm_hour, zeit->tm_min, zeit->tm_sec);
-      fprintf(file, "\t\t\t\t\t<date>%02d.%02d.%04d</date>\n", zeit->tm_mday, zeit->tm_mon+1, zeit->tm_year+1900);
-      fprintf(file, "\t\t\t\t\t<duration>%u</duration>\n", dauer);
-      */
-      fprintf(file, "\t\t\t<time start_time=\"%u\" duration=\"%u\"/>\n", (unsigned int) startzeit, dauer);
-      return 0;
-    }
-    time_t startzeit;  // lokale Zeit, 0 -> time shifted (cinedoms)
-    unsigned dauer; // in Sekunden, 0 -> time shifted (cinedoms)
+	public:
+		time_t startzeit;  // lokale Zeit, 0 -> time shifted (cinedoms)
+		unsigned dauer; // in Sekunden, 0 -> time shifted (cinedoms)
+
+		SItime(time_t s, unsigned d) {
+			startzeit=s;
+			dauer=d; // in Sekunden, 0 -> time shifted (cinedoms)
+		}
+#if 0
+		// Std-Copy
+		SItime(const SItime &t) {
+			startzeit=t.startzeit;
+			dauer=t.dauer;
+		}
+#endif
+		// Der Operator zum sortieren
+		bool operator < (const SItime& t) const {
+			return startzeit < t.startzeit;
+		}
+		void dump(void) const {
+			printf("Startzeit: %s", ctime(&startzeit));
+			printf("Dauer: %02u:%02u:%02u (%umin, %us)\n", dauer/3600, (dauer%3600)/60, dauer%60, dauer/60, dauer);
+		}
+		int saveXML(FILE *file) const { // saves the time
+			fprintf(file, "\t\t\t<time start_time=\"%u\" duration=\"%u\"/>\n", (unsigned int) startzeit, dauer);
+			return 0;
+		}
 };
 
 typedef std::set <SItime, std::less<SItime> > SItimes;
@@ -327,109 +327,119 @@ typedef std::set <SItime, std::less<SItime> > SItimes;
 // Fuer for_each
 struct printSItime : public std::unary_function<SItime, void>
 {
-  void operator() (const SItime &t) { t.dump();}
+	void operator() (const SItime &t) { t.dump();}
 };
 
 // Fuer for_each
 struct saveSItimeXML : public std::unary_function<SItime, void>
 {
-  FILE *f;
-  saveSItimeXML(FILE *fi) { f=fi;}
-  void operator() (const SItime &t) { t.saveXML(f);}
+	FILE *f;
+	saveSItimeXML(FILE *fi) { f=fi;}
+	void operator() (const SItime &t) { t.saveXML(f);}
 };
 
-class SIevent {
-public:
-	t_service_id          service_id;
-	t_original_network_id original_network_id;
-	t_transport_stream_id transport_stream_id;
-	
-	SIevent(const struct eit_event *);
-	void parse(Event &event);
-	// Std-Copy
-	SIevent(const SIevent &);
-	SIevent(const t_original_network_id, const t_transport_stream_id, const t_service_id, const unsigned short);
-	SIevent(void) {
-		service_id = 0;
-		original_network_id = 0;
-		transport_stream_id = 0;
-		eventID    = 0;
-		vps = 0;
-		table_id = 0xFF; /* 0xFF means "not set" */
-		version = 0xFF;
-	}
-	unsigned short eventID;
-	// Name aus dem Short-Event-Descriptor
-	std::string getName() const;
-	void setName(const std::string &lang, const std::string &name);
+class SIevent
+{
+	private:
+		std::map<std::string, std::string> langName;
+		std::map<std::string, std::string> langText;
+		std::map<std::string, std::string> langExtendedText;
+		int running;
 
-	// Text aus dem Short-Event-Descriptor
-	std::string getText() const;
-	void setText(const std::string &lang, const std::string &text);
+	protected:
+		int saveXML0(FILE *f) const;
+		int saveXML2(FILE *f) const;
 
-	std::string itemDescription; // Aus dem Extended Descriptor
-	std::string item; // Aus dem Extended Descriptor
+	public:
+		t_service_id          service_id;
+		t_original_network_id original_network_id;
+		t_transport_stream_id transport_stream_id;
+		unsigned short eventID;
+		time_t vps;
+		unsigned char table_id;
+		unsigned char version;
 
-	// Aus dem Extended Descriptor
-	std::string getExtendedText() const;
-	void appendExtendedText(const std::string &lang, const std::string &text);
-	void setExtendedText(const std::string &lang, const std::string &text);
+		SIcomponents components;
+		SIparentalRatings ratings;
+		SIlinkage_descs linkage_descs;
+		SItimes times;
 
-	std::string contentClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
-	std::string userClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
-	
-	t_channel_id get_channel_id(void) const {
-		return CREATE_CHANNEL_ID;
-	}
+		std::string itemDescription; // Aus dem Extended Descriptor
+		std::string item; // Aus dem Extended Descriptor
+		std::string contentClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
+		std::string userClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
+#if 0
+		SIevent(const struct eit_event *);
+		// Std-Copy
+		SIevent(const SIevent &);
+#endif
+		SIevent(const t_original_network_id, const t_transport_stream_id, const t_service_id, const unsigned short);
+		SIevent(void) {
+			service_id = 0;
+			original_network_id = 0;
+			transport_stream_id = 0;
+			eventID    = 0;
+			vps = 0;
+			table_id = 0xFF; /* 0xFF means "not set" */
+			version = 0xFF;
+		}
+		void parse(Event &event);
 
-	event_id_t uniqueKey(void) const {
-		return CREATE_EVENT_ID(CREATE_CHANNEL_ID, eventID);
-	}
-	int runningStatus(void) const {
-		return running;
-	}
-    SIcomponents components;
-    SIparentalRatings ratings;
-    SIlinkage_descs linkage_descs;
-    SItimes times;
-    time_t vps;
-    unsigned char table_id;
-    unsigned char version;
-    // Der Operator zum sortieren
-    bool operator < (const SIevent& e) const {
-      return uniqueKey()<e.uniqueKey();
-    }
-    int saveXML(FILE *file) const { // saves the event
-      return saveXML0(file) || saveXML2(file);
-    }
-    int saveXML(FILE *file, const char *serviceName) const; // saves the event
-    void dump(void) const; // dumps the event to stdout
-    void dumpSmall(void) const; // dumps the event to stdout (not all information)
-    char getFSK() const;
- protected:
-    int saveXML0(FILE *f) const;
-    int saveXML2(FILE *f) const;
- private:
-    std::map<std::string, std::string> langName;
-    std::map<std::string, std::string> langText;
-    std::map<std::string, std::string> langExtendedText;
-	int running;
+		// Name aus dem Short-Event-Descriptor
+		std::string getName() const;
+		void setName(const std::string &lang, const std::string &name);
+
+		// Text aus dem Short-Event-Descriptor
+		std::string getText() const;
+		void setText(const std::string &lang, const std::string &text);
+
+
+		// Aus dem Extended Descriptor
+		std::string getExtendedText() const;
+		void appendExtendedText(const std::string &lang, const std::string &text);
+		void setExtendedText(const std::string &lang, const std::string &text);
+
+		t_channel_id get_channel_id(void) const {
+			return CREATE_CHANNEL_ID;
+		}
+
+		event_id_t uniqueKey(void) const {
+			return CREATE_EVENT_ID(CREATE_CHANNEL_ID, eventID);
+		}
+		int runningStatus(void) const {
+			return running;
+		}
+		// Der Operator zum sortieren
+		bool operator < (const SIevent& e) const {
+			return uniqueKey()<e.uniqueKey();
+		}
+		int saveXML(FILE *file) const { // saves the event
+			return saveXML0(file) || saveXML2(file);
+		}
+		int saveXML(FILE *file, const char *serviceName) const; // saves the event
+		char getFSK() const;
+
+		void dump(void) const; // dumps the event to stdout
+		void dumpSmall(void) const; // dumps the event to stdout (not all information)
 };
+
+typedef std::set <SIevent, std::less<SIevent> > SIevents;
 
 // Fuer for_each
 struct printSIevent : public std::unary_function<SIevent, void>
 {
-  void operator() (const SIevent &e) { e.dump();}
+	void operator() (const SIevent &e) { e.dump();}
 };
 
 // Fuer for_each
 struct saveSIeventXML : public std::unary_function<SIevent, void>
 {
-  FILE *f;
-  saveSIeventXML(FILE *fi) { f=fi;}
-  void operator() (const SIevent &e) { e.saveXML(f);}
+	FILE *f;
+	saveSIeventXML(FILE *fi) { f=fi;}
+	void operator() (const SIevent &e) { e.saveXML(f);}
 };
 
+#if 0
 // Fuer for_each
 struct saveSIeventXMLwithServiceName : public std::unary_function<SIevent, void>
 {
@@ -446,7 +456,9 @@ struct saveSIeventXMLwithServiceName : public std::unary_function<SIevent, void>
       e.saveXML(f);
   }
 };
+#endif
 
+#if 0
 // Fuer for_each
 struct printSIeventWithService : public std::unary_function<SIevent, void>
 {
@@ -477,5 +489,6 @@ class SIevents : public std::set <SIevent, std::less<SIevent> >
     // Loescht alte Events (aufgrund aktueller Zeit - seconds und Zeit im Event)
     void removeOldEvents(long seconds);
 };
+#endif
 
 #endif // SIEVENTS_HPP

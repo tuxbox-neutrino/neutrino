@@ -50,6 +50,7 @@ struct descr_generic_header {
 	unsigned descriptor_length		: 8;
 } __attribute__ ((packed)) ;
 
+#if 0
 struct descr_short_event_header {
 	unsigned descriptor_tag			: 8;
 	unsigned descriptor_length		: 8;
@@ -58,6 +59,7 @@ struct descr_short_event_header {
 	unsigned language_code_lo		: 8;
 	unsigned event_name_length		: 8;
 } __attribute__ ((packed)) ;
+#endif
 
 struct descr_service_header {
 	unsigned descriptor_tag			: 8;
@@ -66,6 +68,7 @@ struct descr_service_header {
 	unsigned service_provider_name_length	: 8;
 } __attribute__ ((packed)) ;
 
+#if 0
 struct descr_extended_event_header {
 	unsigned descriptor_tag			: 8;
 	unsigned descriptor_length		: 8;
@@ -76,6 +79,7 @@ struct descr_extended_event_header {
 	unsigned iso_639_2_language_code_lo	: 8;
 	unsigned length_of_items		: 8;
 } __attribute__ ((packed)) ;
+#endif
 
 struct service_list_entry {
 	unsigned service_id_hi			: 8;
@@ -95,6 +99,68 @@ inline unsigned min(unsigned a, unsigned b)
 	return b < a ? b : a;
 }
 
+void SIsectionEIT::parse(void)
+{
+#if 0
+	if (!buffer || parsed)
+		return;
+
+	const uint8_t *actPos;
+	const uint8_t *bufEnd;
+	struct eit_event *evt;
+	unsigned short descriptors_loop_length;
+
+	if (bufferLength < sizeof(SI_section_EIT_header) + sizeof(struct eit_event)) {
+		bufferLength=0;
+		return;
+	}
+
+	unsigned char table_id = header()->table_id;
+	unsigned char version_number = header()->version_number;
+	actPos = buffer + sizeof(SI_section_EIT_header);
+	bufEnd = buffer + bufferLength;
+
+	while (actPos < bufEnd - sizeof(struct eit_event)) {
+		evt = (struct eit_event *) actPos;
+		SIevent e(evt);
+		e.service_id = service_id();
+		e.original_network_id = original_network_id();
+		e.transport_stream_id = transport_stream_id();
+		e.table_id = table_id;
+		e.version = version_number;
+		descriptors_loop_length = sizeof(struct eit_event) + ((evt->descriptors_loop_length_hi << 8) | evt->descriptors_loop_length_lo);
+		parseDescriptors(actPos, min((unsigned)(bufEnd - actPos), descriptors_loop_length), e);
+		evts.insert(e);
+		actPos += descriptors_loop_length;
+	}
+#endif
+#if 1
+	const EventList &elist = *getEvents();
+
+	if(elist.empty())
+		return;
+
+        t_service_id		sid = getTableIdExtension();
+        t_original_network_id	onid = getOriginalNetworkId();
+        t_transport_stream_id	tsid = getTransportStreamId();
+	unsigned char		tid = getTableId();
+	unsigned char		version = getVersionNumber();
+
+	for (EventConstIterator eit = elist.begin(); eit != elist.end(); ++eit) {
+		Event &event = (**eit);
+
+		SIevent e(onid, tsid, sid, event.getEventId());
+		e.table_id = tid;
+		e.version = version;
+
+		e.parse(event);
+		evts.insert(e);
+	}
+#endif
+	parsed = 1;
+}
+
+#if 0
 static int get_table(unsigned char hi, unsigned char mid, unsigned char lo)
 {
 	char lang[4];
@@ -117,15 +183,6 @@ static int get_table(unsigned char hi, unsigned char mid, unsigned char lo)
 	return 0;
 }
 
-bool check_blacklisted(const t_original_network_id onid, const t_transport_stream_id tsid)
-{
-	if ( (onid == 0x0001) &&
-			((tsid == 0x03F0) || (tsid == 0x0408) || (tsid == 0x040E) || (tsid == 0x0412) || (tsid == 0x0416) || (tsid == 0x041E) ||
-			 (tsid == 0x0420) || (tsid == 0x0422) || (tsid == 0x0424) || (tsid == 0x0444) ))
-		return true;
-	else
-		return false;
-}
 //-----------------------------------------------------------------------
 // Da es vorkommen kann das defekte Packete empfangen werden
 // sollte hier alles ueberprueft werden.
@@ -240,113 +297,6 @@ void SIsectionEIT::parseExtendedEventDescriptor(const char *buf, SIevent &e, uns
 	}
 }
 
-#ifdef ENABLE_FREESATEPG
-std::string SIsectionEIT::freesatHuffmanDecode(std::string input)
-{
-	const char *src = input.c_str();
-	uint size = input.length();
-
-	if (src[1] == 1 || src[1] == 2)
-	{
-		std::string uncompressed(size * 3, ' ');
-		uint p = 0;
-		struct hufftab *table;
-		unsigned table_length;
-		if (src[1] == 1)
-		{
-			table = fsat_huffman1;
-			table_length = sizeof(fsat_huffman1) / sizeof(fsat_huffman1[0]);
-		}
-		else
-		{
-			table = fsat_huffman2;
-			table_length = sizeof(fsat_huffman2) / sizeof(fsat_huffman2[0]);
-		}
-		unsigned value = 0, byte = 2, bit = 0;
-		while (byte < 6 && byte < size)
-		{
-			value |= src[byte] << ((5-byte) * 8);
-			byte++;
-		}
-		char lastch = START;
-
-		do
-		{
-			bool found = false;
-			unsigned bitShift = 0;
-			if (lastch == ESCAPE)
-			{
-				found = true;
-				// Encoded in the next 8 bits.
-				// Terminated by the first ASCII character.
-				char nextCh = (value >> 24) & 0xff;
-				bitShift = 8;
-				if ((nextCh & 0x80) == 0)
-					lastch = nextCh;
-				if (p >= uncompressed.length())
-					uncompressed.resize(p+10);
-				uncompressed[p++] = nextCh;
-			}
-			else
-			{
-				for (unsigned j = 0; j < table_length; j++)
-				{
-					if (table[j].last == lastch)
-					{
-						unsigned mask = 0, maskbit = 0x80000000;
-						for (short kk = 0; kk < table[j].bits; kk++)
-						{
-							mask |= maskbit;
-							maskbit >>= 1;
-						}
-						if ((value & mask) == table[j].value)
-						{
-							char nextCh = table[j].next;
-							bitShift = table[j].bits;
-							if (nextCh != STOP && nextCh != ESCAPE)
-							{
-								if (p >= uncompressed.length())
-									uncompressed.resize(p+10);
-								uncompressed[p++] = nextCh;
-							}
-							found = true;
-							lastch = nextCh;
-							break;
-						}
-					}
-				}
-			}
-			if (found)
-			{
-				// Shift up by the number of bits.
-				for (unsigned b = 0; b < bitShift; b++)
-				{
-					value = (value << 1) & 0xfffffffe;
-					if (byte < size)
-						value |= (src[byte] >> (7-bit)) & 1;
-					if (bit == 7)
-					{
-						bit = 0;
-						byte++;
-					}
-					else bit++;
-				}
-			}
-			else
-			{
-				// Entry missing in table.
-				uncompressed.resize(p);
-				uncompressed.append("...");
-				return uncompressed;
-			}
-		} while (lastch != STOP && value != 0);
-
-		uncompressed.resize(p);
-		return uncompressed;
-	}
-	else return input;
-}
-#endif
 
 void SIsectionEIT::parseShortEventDescriptor(const char *buf, SIevent &e, unsigned maxlen)
 {
@@ -414,70 +364,19 @@ void SIsectionEIT::parseDescriptors(const uint8_t *des, unsigned len, SIevent &e
 		des+=desc->descriptor_length+2;
 	}
 }
-
-// Die infos aus dem Puffer holen
-void SIsectionEIT::parse(void)
-{
-	if (!buffer || parsed)
-		return;
-
-#if 0
-	const uint8_t *actPos;
-	const uint8_t *bufEnd;
-	struct eit_event *evt;
-	unsigned short descriptors_loop_length;
-
-	if (bufferLength < sizeof(SI_section_EIT_header) + sizeof(struct eit_event)) {
-		bufferLength=0;
-		return;
-	}
-
-	unsigned char table_id = header()->table_id;
-	unsigned char version_number = header()->version_number;
-	actPos = buffer + sizeof(SI_section_EIT_header);
-	bufEnd = buffer + bufferLength;
-
-	while (actPos < bufEnd - sizeof(struct eit_event)) {
-		evt = (struct eit_event *) actPos;
-		SIevent e(evt);
-		e.service_id = service_id();
-		e.original_network_id = original_network_id();
-		e.transport_stream_id = transport_stream_id();
-		e.table_id = table_id;
-		e.version = version_number;
-		descriptors_loop_length = sizeof(struct eit_event) + ((evt->descriptors_loop_length_hi << 8) | evt->descriptors_loop_length_lo);
-		parseDescriptors(actPos, min((unsigned)(bufEnd - actPos), descriptors_loop_length), e);
-		evts.insert(e);
-		actPos += descriptors_loop_length;
-	}
 #endif
-#if 1
-	const EventList &elist = *getEvents();
-
-	if(elist.empty())
-		return;
-
-        t_service_id		sid = getTableIdExtension();
-        t_original_network_id	onid = getOriginalNetworkId();
-        t_transport_stream_id	tsid = getTransportStreamId();
-	unsigned char		tid = getTableId();
-	unsigned char		version = getVersionNumber();
-
-	for (EventConstIterator eit = elist.begin(); eit != elist.end(); ++eit) {
-		Event &event = (**eit);
-
-		SIevent e(onid, tsid, sid, event.getEventId());
-		e.table_id = tid;
-		e.version = version;
-
-		e.parse(event);
-		evts.insert(e);
-	}
-#endif
-	parsed = 1;
-}
 
 /********************/
+bool check_blacklisted(const t_original_network_id onid, const t_transport_stream_id tsid)
+{
+	if ( (onid == 0x0001) &&
+			((tsid == 0x03F0) || (tsid == 0x0408) || (tsid == 0x040E) || (tsid == 0x0412) || (tsid == 0x0416) || (tsid == 0x041E) ||
+			 (tsid == 0x0420) || (tsid == 0x0422) || (tsid == 0x0424) || (tsid == 0x0444) ))
+		return true;
+	else
+		return false;
+}
+
 void SIsectionSDT::parseNVODreferenceDescriptor(const char *buf, SIservice &s)
 {
 	struct descr_generic_header *hdr=(struct descr_generic_header *)buf;
@@ -589,3 +488,111 @@ void SIsectionSDT::parse(void)
 
 	parsed = 1;
 }
+
+#ifdef ENABLE_FREESATEPG
+std::string SIsectionEIT::freesatHuffmanDecode(std::string input)
+{
+	const char *src = input.c_str();
+	uint size = input.length();
+
+	if (src[1] == 1 || src[1] == 2)
+	{
+		std::string uncompressed(size * 3, ' ');
+		uint p = 0;
+		struct hufftab *table;
+		unsigned table_length;
+		if (src[1] == 1)
+		{
+			table = fsat_huffman1;
+			table_length = sizeof(fsat_huffman1) / sizeof(fsat_huffman1[0]);
+		}
+		else
+		{
+			table = fsat_huffman2;
+			table_length = sizeof(fsat_huffman2) / sizeof(fsat_huffman2[0]);
+		}
+		unsigned value = 0, byte = 2, bit = 0;
+		while (byte < 6 && byte < size)
+		{
+			value |= src[byte] << ((5-byte) * 8);
+			byte++;
+		}
+		char lastch = START;
+
+		do
+		{
+			bool found = false;
+			unsigned bitShift = 0;
+			if (lastch == ESCAPE)
+			{
+				found = true;
+				// Encoded in the next 8 bits.
+				// Terminated by the first ASCII character.
+				char nextCh = (value >> 24) & 0xff;
+				bitShift = 8;
+				if ((nextCh & 0x80) == 0)
+					lastch = nextCh;
+				if (p >= uncompressed.length())
+					uncompressed.resize(p+10);
+				uncompressed[p++] = nextCh;
+			}
+			else
+			{
+				for (unsigned j = 0; j < table_length; j++)
+				{
+					if (table[j].last == lastch)
+					{
+						unsigned mask = 0, maskbit = 0x80000000;
+						for (short kk = 0; kk < table[j].bits; kk++)
+						{
+							mask |= maskbit;
+							maskbit >>= 1;
+						}
+						if ((value & mask) == table[j].value)
+						{
+							char nextCh = table[j].next;
+							bitShift = table[j].bits;
+							if (nextCh != STOP && nextCh != ESCAPE)
+							{
+								if (p >= uncompressed.length())
+									uncompressed.resize(p+10);
+								uncompressed[p++] = nextCh;
+							}
+							found = true;
+							lastch = nextCh;
+							break;
+						}
+					}
+				}
+			}
+			if (found)
+			{
+				// Shift up by the number of bits.
+				for (unsigned b = 0; b < bitShift; b++)
+				{
+					value = (value << 1) & 0xfffffffe;
+					if (byte < size)
+						value |= (src[byte] >> (7-bit)) & 1;
+					if (bit == 7)
+					{
+						bit = 0;
+						byte++;
+					}
+					else bit++;
+				}
+			}
+			else
+			{
+				// Entry missing in table.
+				uncompressed.resize(p);
+				uncompressed.append("...");
+				return uncompressed;
+			}
+		} while (lastch != STOP && value != 0);
+
+		uncompressed.resize(p);
+		return uncompressed;
+	}
+	else return input;
+}
+#endif
