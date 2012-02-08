@@ -44,7 +44,10 @@
 // Alles neu macht der Mai.
 //
 //
+#include <stdint.h>
+
 time_t changeUTCtoCtime(const unsigned char *buffer, int local_time=1);
+time_t parseDVBtime(uint16_t mjd, uint32_t bcd);
 
 // returns the descriptor type as readable text
 const char *decode_descr (unsigned char tag_value);

@@ -85,6 +85,8 @@
 #include <time.h>
 #include <string.h>
 
+#include "SIutils.hpp"
+
 // Thanks to kwon
 time_t changeUTCtoCtime(const unsigned char *buffer, int local_time)
 {
@@ -126,6 +128,36 @@ time_t changeUTCtoCtime(const unsigned char *buffer, int local_time)
 #endif
 
 	return mktime(&time) + (local_time ? -timezone : 0);
+}
+
+time_t parseDVBtime(uint16_t mjd, uint32_t bcd)
+{
+	int year, month, day, y_, m_, k, hour, minutes, seconds;
+
+	y_   = (int) ((mjd - 15078.2) / 365.25);
+	m_   = (int) ((mjd - 14956.1 - (int) (y_ * 365.25)) / 30.6001);
+	day  = mjd - 14956 - (int) (y_ * 365.25) - (int) (m_ * 30.60001);
+
+	hour = (bcd >> 16) & 0xFF;
+	minutes = (bcd >> 8) & 0xFF;
+	seconds = bcd & 0xFF;
+
+	k = !!((m_ == 14) || (m_ == 15));
+
+	year  = y_ + k + 1900;
+	month = m_ - 1 - k * 12;
+
+	struct tm time;
+	memset(&time, 0, sizeof(struct tm));
+
+	time.tm_mday = day;
+	time.tm_mon = month - 1;
+	time.tm_year = year - 1900;
+	time.tm_hour = (hour >> 4) * 10 + (hour & 0x0f);
+	time.tm_min = (minutes >> 4) * 10 + (minutes & 0x0f);
+	time.tm_sec = (seconds >> 4) * 10 + (seconds & 0x0f);
+
+	return mktime(&time) - timezone;
 }
 
 // Thanks to tmbinc
