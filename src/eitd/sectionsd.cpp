@@ -2232,48 +2232,6 @@ out:
 		delete[] evtList;
 }
 
-// Sendet ein short EPG, unlocked die events, unpaused dmxEIT
-//FIXME
-static void sendShort(int connfd, const SIevent& e, const SItime& t)
-{
-
-	struct sectionsd::msgResponseHeader responseHeader;
-
-	responseHeader.dataLength =
-		12 + 1 + 				// Unique-Key + del
-		e.getName().length() + 1 + 		// name + del
-		8 + 1 + 				// start time + del
-		8 + 1 + 1;				// duration + del + 0
-	char* msgData = new char[responseHeader.dataLength];
-
-	if (!msgData)
-	{
-		fprintf(stderr, "low on memory!\n");
-		unlockEvents();
-		responseHeader.dataLength = 0;
-		goto out;
-	}
-
-	sprintf(msgData,
-		"%012llx\n%s\n%08lx\n%08x\n",
-		e.uniqueKey(),
-		e.getName().c_str(),
-		t.startzeit,
-		t.dauer
-	       );
-	unlockEvents();
-
-out:
-	if(writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS)) {
-		if (responseHeader.dataLength)
-			writeNbytes(connfd, msgData, responseHeader.dataLength, WRITE_TIMEOUT_IN_SECONDS);
-	} else
-		dputs("[sectionsd] Fehler/Timeout bei write");
-
-	if (msgData)
-		delete[] msgData;
-}
-
 static void commandEventListTVids(int connfd, char* data, const unsigned dataLength)
 {
 	dputs("Request of TV event list (IDs).\n");
