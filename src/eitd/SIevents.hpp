@@ -30,6 +30,7 @@
 
 #include <sectionsdclient/sectionsdtypes.h>
 #include "edvbstring.h"
+#include <dvbsi++/event_information_section.h>
 //#include "SIutils.hpp"
 
 // forward references
@@ -344,6 +345,7 @@ public:
 	t_transport_stream_id transport_stream_id;
 	
 	SIevent(const struct eit_event *);
+	void parse(Event &event);
 	// Std-Copy
 	SIevent(const SIevent &);
 	SIevent(const t_original_network_id, const t_transport_stream_id, const t_service_id, const unsigned short);
@@ -355,8 +357,6 @@ public:
 		vps = 0;
 		table_id = 0xFF; /* 0xFF means "not set" */
 		version = 0xFF;
-//      dauer=0;
-//      startzeit=0;
 	}
 	unsigned short eventID;
 	// Name aus dem Short-Event-Descriptor
@@ -377,8 +377,6 @@ public:
 
 	std::string contentClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
 	std::string userClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
-	//    time_t startzeit; // lokale Zeit, 0 -> time shifted (cinedoms)
-	//    unsigned dauer; // in Sekunden, 0 -> time shifted (cinedoms)
 	
 	t_channel_id get_channel_id(void) const {
 		return CREATE_CHANNEL_ID;

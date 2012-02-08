@@ -42,6 +42,13 @@
 #include "SIevents.hpp"
 #include "SIsections.hpp"
 #include <dmxapi.h>
+#include <dvbsi++/descriptor_tag.h>
+#include <dvbsi++/short_event_descriptor.h>
+#include <dvbsi++/extended_event_descriptor.h>
+#include <dvbsi++/linkage_descriptor.h>
+#include <dvbsi++/component_descriptor.h>
+#include <dvbsi++/content_descriptor.h>
+#include <dvbsi++/parental_rating_descriptor.h>
 
 const std::string languangeOFF = "OFF";
 
@@ -56,6 +63,7 @@ SIevent::SIevent(const struct eit_event *e)
 			   ((e->duration_mid)>>4)*10*60L + ((e->duration_mid)&0x0f)*60L +
 			   ((e->duration_lo)>>4)*10 + ((e->duration_lo)&0x0f);
 
+//printf("SIevent::SIevent: eventID %x start %d duration %d\n", eventID, (int) start_time, (int) duration);
 	if (start_time && duration)
 		times.insert(SItime(start_time, duration));
 
@@ -77,11 +85,96 @@ SIevent::SIevent(const t_original_network_id _original_network_id, const t_trans
 	eventID		    = _event_id;
 	table_id            = 0xFF; /* not set */
 	version 	    = 0xFF;
-	/*	contentClassification = "";
-		userClassification = "";
-		itemDescription = "";
-		item = "";
-		extendedText = "";*/
+}
+
+void SIevent::parse(Event &event)
+{
+	int tsidonid = (transport_stream_id << 16) | original_network_id;
+	time_t start_time = parseDVBtime(event.getStartTimeMjd(), event.getStartTimeBcd());
+
+	running = event.getRunningStatus();
+
+	uint32_t duration = event.getDuration();
+	uint8_t duration_hi = (duration >> 16) & 0xFF;
+	uint8_t duration_mid = (duration >> 8) & 0xFF;
+	uint8_t duration_lo = duration & 0xFF;
+	if (!((duration_hi == 0xff) && (duration_mid == 0xff) && (duration_lo == 0xff)))
+		duration = ((duration_hi)>>4)*10*3600L + ((duration_hi)&0x0f)*3600L +
+			   ((duration_mid)>>4)*10*60L + ((duration_mid)&0x0f)*60L +
+			   ((duration_lo)>>4)*10 + ((duration_lo)&0x0f);
+
+//printf("SIevent::parse  : eventID %x start %d duration %d\n", eventID, (int) start_time, (int) duration);
+	if (start_time && duration)
+		times.insert(SItime(start_time, duration));
+	const DescriptorList &dlist = *event.getDescriptors();
+	for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit) {
+		uint8_t dtype = (*dit)->getTag();
+		if(dtype == SHORT_EVENT_DESCRIPTOR) {
+			const ShortEventDescriptor *d = (ShortEventDescriptor*) *dit;
+			std::string lang = d->getIso639LanguageCode();
+			std::transform(lang.begin(), lang.end(), lang.begin(), tolower);
+			int table = getCountryCodeDefaultMapping(lang);
+			setName(lang, stringDVBUTF8(d->getEventName(), table, tsidonid));
+			setText(lang, stringDVBUTF8(d->getText(), table, tsidonid));
+		}
+		if(dtype == EXTENDED_EVENT_DESCRIPTOR) {
+			const ExtendedEventDescriptor *d = (ExtendedEventDescriptor*) *dit;
+			std::string lang = d->getIso639LanguageCode();
+			std::transform(lang.begin(), lang.end(), lang.begin(), tolower);
+			int table = getCountryCodeDefaultMapping(lang);
+
+			const ExtendedEventList *itemlist = d->getItems();
+			for (ExtendedEventConstIterator it = itemlist->begin(); it != itemlist->end(); ++it) {
+				itemDescription.append(stringDVBUTF8((*it)->getItemDescription(), table, tsidonid));
+				itemDescription.append("\n");
+				item.append(stringDVBUTF8((*it)->getItem(), table, tsidonid));
+				item.append("\n");
+			}
+			appendExtendedText(lang, stringDVBUTF8(d->getText(), table, tsidonid));
+		}
+		if(dtype == CONTENT_DESCRIPTOR) {
+			const ContentDescriptor * d = (ContentDescriptor *) *dit;
+			const ContentClassificationList *clist = d->getClassifications();
+			for (ContentClassificationConstIterator cit = clist->begin(); cit != clist->end(); ++cit) {
+				ContentClassification * c = *cit;
+				char content = c->getContentNibbleLevel1() << 4 | c->getContentNibbleLevel2();
+				contentClassification += content;
+				char user = c->getUserNibble1() << 4 | c->getUserNibble2();
+				contentClassification += user;
+			}
+		}
+		if(dtype == COMPONENT_DESCRIPTOR) {
+			const ComponentDescriptor *d = (ComponentDescriptor*)*dit;
+			SIcomponent c;
+			c.streamContent = d->getStreamContent();
+			c.componentType = d->getComponentType();
+			c.componentTag = d->getComponentTag();
+			std::string lang = d->getIso639LanguageCode();
+			std::transform(lang.begin(), lang.end(), lang.begin(), tolower);
+			int table = getCountryCodeDefaultMapping(lang);
+			c.component = stringDVBUTF8(d->getText(), table, tsidonid);
+			components.insert(c);
+		}
+		if(dtype == PARENTAL_RATING_DESCRIPTOR) {
+			const ParentalRatingDescriptor *d = (ParentalRatingDescriptor*) *dit;
+			const ParentalRatingList *plist = d->getParentalRatings();
+			for (ParentalRatingConstIterator it = plist->begin(); it != plist->end(); ++it) {
+				SIparentalRating p((*it)->getCountryCode(), (*it)->getRating());
+				ratings.insert(p);
+			}
+		}
+		if(dtype == LINKAGE_DESCRIPTOR) {
+			const LinkageDescriptor * d = (LinkageDescriptor *) *dit;
+			SIlinkage l;
+			l.linkageType = d->getLinkageType();
+			l.transportStreamId = d->getTransportStreamId();
+			l.originalNetworkId = d->getOriginalNetworkId();
+			l.serviceId = d->getServiceId();
+			const PrivateDataByteVector *privateData = d->getPrivateDataBytes();
+			l.name = convertDVBUTF8((const char*)&((*privateData)[0]), privateData->size(), 1, tsidonid);
+			linkage_descs.insert(linkage_descs.end(), l);
+		}
+	}
 }
 
 // Std-Copy
