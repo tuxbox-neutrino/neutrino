@@ -102,6 +102,7 @@ struct SI_section_EIT_header {
 // Muss evtl. angepasst werden falls damit RST, TDT und TOT gelesen werden sollen
 // ^^^
 //   RST usw. haben section_syntax_indicator == 0, andere == 1 (obi)
+#if 0
 struct SI_section_header {
 	unsigned table_id			: 8;
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -130,8 +131,9 @@ struct SI_section_header {
 	unsigned section_number			: 8;
 	unsigned last_section_number		: 8;
 } __attribute__ ((packed)) ; // 8 bytes
+#endif
 
-
+#if 0
 class SIsection //: public LongSection
 {
 public:
@@ -158,6 +160,7 @@ protected:
 	uint8_t *buffer;
 	unsigned bufferLength;
 };
+#endif
 
 class SIsectionEIT : /*public SIsection,*/ public EventInformationSection
 {
@@ -283,8 +286,6 @@ public:
 	}
 #endif
 	const SIservices &services(void) const {
-		//if(!parsed)
-		//	parse(); -> nicht const
 		return svs;
 	}
 
