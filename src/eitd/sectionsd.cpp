@@ -4056,14 +4056,14 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	while (sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
 		sched_yield();
 		if (eit_update_fd != -1) {
-			unsigned char buf[4096];
-			int ret = eitDmx->Read(buf, 4095, 10);
+			unsigned char buf[MAX_SECTION_LENGTH];
+			int ret = eitDmx->Read(buf, MAX_SECTION_LENGTH, 10);
 
 			if (ret > 0) {
-				//printf("[sectionsd] EIT update: len %d, %02X %02X %02X %02X %02X %02X version %02X\n", ret, buf[0], buf[1], buf[2], buf[3], buf[4], buf[5], ((SI_section_header*)buf)->version_number);
 
+				LongSection section(buf);
 				printdate_ms(stdout);
-				printf("EIT Update Filter: new version 0x%x, Activate cnThread\n", ((SI_section_header*)buf)->version_number);
+				printf("EIT Update Filter: new version 0x%x, Activate cnThread\n", section.getVersionNumber());
 
 				writeLockMessaging();
 				messaging_have_CN = 0x00;
@@ -4538,7 +4538,6 @@ void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = t
 	bool found_already = false;
 	time_t azeit = time(NULL);
 
-showProfiling("sectionsd_getChannelEvents start");
 	if(tv_mode) {}
 	readLockEvents();
 
@@ -4547,7 +4546,7 @@ showProfiling("sectionsd_getChannelEvents start");
 	{
 		uniqueNow = (*e)->get_channel_id();
 
-		if ( uniqueNow != uniqueOld )
+		if (uniqueNow != uniqueOld)
 		{
 			uniqueOld = uniqueNow;
 			if (!channel_in_requested_list(chidlist, uniqueNow, clen))
@@ -4555,7 +4554,7 @@ showProfiling("sectionsd_getChannelEvents start");
 			found_already = false;
 		}
 
-		if ( !found_already )
+		if (!found_already)
 		{
 			for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
 			{
@@ -4582,8 +4581,6 @@ showProfiling("sectionsd_getChannelEvents start");
 	}
 
 	unlockEvents();
-showProfiling("sectionsd_getChannelEvents end");
-printf("clen %d eList size %d\n", clen, eList.size());
 }
 /*was static void commandComponentTagsUniqueKey(int connfd, char *data, const unsigned dataLength) */
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags)
