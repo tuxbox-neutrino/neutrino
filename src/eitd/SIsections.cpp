@@ -40,7 +40,7 @@
 #include <zapit/dvbstring.h>
 #include <edvbstring.h>
 #ifdef ENABLE_FREESATEPG
-#include "FreesatTables.hpp"
+//#include "FreesatTables.hpp"
 #endif
 
 #include <dvbsi++/descriptor_tag.h>
@@ -398,10 +398,6 @@ void SIsectionSDT::parseServiceDescriptor(const char *buf, SIservice &s)
 	s.serviceTyp=sv->service_typ;
 	is_blacklisted = check_blacklisted(s.original_network_id, s.transport_stream_id);
 	if(sv->service_provider_name_length) {
-		//if(*buf < 0x06) // other code table
-//      s.providerName=std::string(buf+1, sv->service_provider_name_length-1);
-//    else
-//      s.providerName=std::string(buf, sv->service_provider_name_length);
 		if ((*buf > 0x05) && (is_blacklisted))
 			s.providerName  = CDVBString(("\x05" + std::string((const char *)(buf))).c_str(), sv->service_provider_name_length+1).getContent();
 		else
@@ -489,7 +485,7 @@ void SIsectionSDT::parse(void)
 	parsed = 1;
 }
 
-#ifdef ENABLE_FREESATEPG
+#if 0 //def ENABLE_FREESATEPG
 std::string SIsectionEIT::freesatHuffmanDecode(std::string input)
 {
 	const char *src = input.c_str();

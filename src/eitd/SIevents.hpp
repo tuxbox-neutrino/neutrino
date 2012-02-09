@@ -95,6 +95,7 @@ struct descr_linkage_header {
 } __attribute__ ((packed)) ;
 #endif
 
+#if 0
 struct descr_pdc_header {
 	unsigned descriptor_tag			: 8;
 	unsigned descriptor_length		: 8;
@@ -102,6 +103,7 @@ struct descr_pdc_header {
 	unsigned pil1				: 8;
 	unsigned pil2				: 8;
 } __attribute__ ((packed)) ;
+#endif
 
 class SIlinkage {
 public:
@@ -392,7 +394,6 @@ class SIevent
 		// Text aus dem Short-Event-Descriptor
 		std::string getText() const;
 		void setText(const std::string &lang, const std::string &text);
-
 
 		// Aus dem Extended Descriptor
 		std::string getExtendedText() const;

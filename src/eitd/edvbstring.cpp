@@ -5,6 +5,8 @@
 #include <map>
 #include <set>
 
+#include <SIutils.hpp>
+
 std::map<std::string, int> CountryCodeDefaultMapping;
 std::map<int, int> TransponderDefaultMapping;
 std::set<int> TransponderUseTwoCharMapping;
@@ -666,12 +668,21 @@ std::string convertDVBUTF8(const char *data, int len, int table, int tsidonid)
 		++i;
 		{} //eDebug("unsup. Big5 subset of ISO/IEC 10646-1 enc.");
 		break;
+	case 0x1F:
+		{
+#ifdef ENABLE_FREESATEPG
+			std::string decoded_string = freesatHuffmanDecode(std::string(data, len));
+			if (!decoded_string.empty()) return decoded_string;
+#endif
+		}
+		++i;
+		break;
 	case 0x0:
 	case 0xD ... 0xF:
-	case 0x15 ... 0x1F:
-	{} //eDebug("reserved %d", data[0]);
-	++i;
-	break;
+	case 0x15 ... 0x1E:
+		{} //eDebug("reserved %d", data[0]);
+		++i;
+		break;
 	}
 //printf("convertDVBUTF8: table %d new table %d\n", table, newtable);
 	if(!table)

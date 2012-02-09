@@ -158,6 +158,10 @@ protected:
 
 class SIsectionEIT : /*public SIsection,*/ public EventInformationSection
 {
+protected:
+	SIevents evts;
+	int parsed;
+	void parse(void);
 public:
 	SIsectionEIT(uint8_t *buf) : /*SIsection(buf),*/ EventInformationSection(buf) 
 	{
@@ -192,10 +196,6 @@ public:
 		return parsed;
 	}
 
-protected:
-	SIevents evts;
-	int parsed;
-	void parse(void);
 #if 0
 	void parseDescriptors(const uint8_t *desc, unsigned len, SIevent &e);
 	void parseShortEventDescriptor(const char *buf, SIevent &e, unsigned maxlen);
@@ -205,9 +205,9 @@ protected:
 	void parseParentalRatingDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parseLinkageDescriptor(const char *buf, SIevent &e, unsigned maxlen);
 	void parsePDCDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-#endif
 #ifdef ENABLE_FREESATEPG
 	std::string freesatHuffmanDecode(std::string input);
+#endif
 #endif
 };
 
