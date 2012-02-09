@@ -53,7 +53,8 @@ int getCountryCodeDefaultMapping( const std::string &lang )
 		CountryCodeDefaultMapping.find(lang);
 	if ( it != CountryCodeDefaultMapping.end() )
 		return it->second;
-	return 1;  // ISO8859-1 / Latin1
+	return 0;
+	//return 1;  // ISO8859-1 / Latin1
 }
 
 // 8859-x to ucs-16 coding tables. taken from www.unicode.org/Public/MAPPINGS/ISO8859/

@@ -37,6 +37,7 @@
 class SIservice;
 class SIevent;
 
+#if 0
 struct sdt_service {
 	unsigned service_id_hi			: 8;
 	unsigned service_id_lo			: 8;
@@ -57,7 +58,7 @@ struct sdt_service {
 #endif
 	unsigned descriptors_loop_length_lo	: 8;
 } __attribute__ ((packed)) ; // 5 Bytes
-
+#endif
 
 class SInvodReference
 {
@@ -72,13 +73,14 @@ public:
 			original_network_id = new_original_network_id;
 			transport_stream_id = new_transport_stream_id;
 		}
-
+#if 0
 	SInvodReference(const SInvodReference &ref)
 		{
 			service_id          = ref.service_id;
 			original_network_id = ref.original_network_id;
 			transport_stream_id = ref.transport_stream_id;
 		}
+#endif
 
 	bool operator < (const SInvodReference& ref) const
 		{
@@ -117,8 +119,28 @@ struct printSInvodReference : public std::unary_function<class SInvodReference, 
 
 typedef std::set <SInvodReference, std::less<SInvodReference> > SInvodReferences;
 
-class SIservice {
+class SIservice 
+{
+//protected:
 public:
+	struct {
+		unsigned char EIT_schedule_flag : 1;
+		unsigned char EIT_present_following_flag : 1;
+		unsigned char running_status : 3;
+		unsigned char free_CA_mode : 1;
+	} flags;
+	t_service_id          service_id;
+	t_original_network_id original_network_id; // Ist innerhalb einer section unnoetig
+	t_transport_stream_id transport_stream_id;
+	unsigned char serviceTyp;
+	int is_actual;
+	SInvodReferences nvods;
+#if 0 // unused
+	std::string serviceName; // Name aus dem Service-Descriptor
+	std::string providerName; // Name aus dem Service-Descriptor
+#endif
+
+#if 0
 	SIservice(const struct sdt_service *s) {
 		service_id          = (s->service_id_hi << 8) | s->service_id_lo;
 		original_network_id = 0;
@@ -130,6 +152,7 @@ public:
 		flags.free_CA_mode = s->free_CA_mode;
 		is_actual = false;
 	}
+#endif
 	// Um einen service zum Suchen zu erstellen
 	SIservice(const t_service_id _service_id, const t_original_network_id _original_network_id, const t_transport_stream_id _transport_stream_id)
 	{
@@ -139,6 +162,8 @@ public:
 		serviceTyp=0;
 		memset(&flags, 0, sizeof(flags));
 	}
+
+#if 0
 	// Std-Copy
 	SIservice(const SIservice &s) {
 		service_id          = s.service_id;
@@ -151,18 +176,11 @@ public:
 		nvods=s.nvods;
 		is_actual=s.is_actual;
 	}
-	t_service_id          service_id;
-	t_original_network_id original_network_id; // Ist innerhalb einer section unnoetig
-	t_transport_stream_id transport_stream_id;
-	unsigned char serviceTyp;
-	int is_actual;
-	SInvodReferences nvods;
-	std::string serviceName; // Name aus dem Service-Descriptor
-	std::string providerName; // Name aus dem Service-Descriptor
-	int eitScheduleFlag(void) {return (int)flags.EIT_schedule_flag;}
-	int eitPresentFollowingFlag(void) {return (int)flags.EIT_present_following_flag;}
-	int runningStatus(void) {return (int)flags.running_status;}
-	int freeCAmode(void) {return (int)flags.free_CA_mode;}
+#endif
+	int eitScheduleFlag(void)	{ return (int)flags.EIT_schedule_flag; }
+	int eitPresentFollowingFlag(void) { return (int)flags.EIT_present_following_flag; }
+	int runningStatus(void)		{ return (int)flags.running_status; }
+	int freeCAmode(void)		{ return (int)flags.free_CA_mode; }
 
 	bool operator < (const SIservice& s) const {
 		return uniqueKey() < s.uniqueKey();
@@ -178,20 +196,15 @@ public:
 		printf("Original-Network-ID: %hu\n", original_network_id);
 		printf("Service-ID: %hu\n", service_id);
 		printf("Service-Typ: %hhu\n", serviceTyp);
+#if 0
 		if(providerName.length())
 			printf("Provider-Name: %s\n", providerName.c_str());
 		if(serviceName.length())
 			printf("Service-Name: %s\n", serviceName.c_str());
+#endif
 		for_each(nvods.begin(), nvods.end(), printSInvodReference());
 		printf("\n");
 	}
-protected:
-	struct {
-		unsigned char EIT_schedule_flag : 1;
-		unsigned char EIT_present_following_flag : 1;
-		unsigned char running_status : 3;
-		unsigned char free_CA_mode : 1;
-	} flags;
 };
 
 // Fuer for_each

@@ -44,6 +44,8 @@
 #endif
 
 #include <dvbsi++/descriptor_tag.h>
+#include <dvbsi++/nvod_reference_descriptor.h>
+#include <dvbsi++/service_descriptor.h>
 
 struct descr_generic_header {
 	unsigned descriptor_tag			: 8;
@@ -61,12 +63,14 @@ struct descr_short_event_header {
 } __attribute__ ((packed)) ;
 #endif
 
+#if 0
 struct descr_service_header {
 	unsigned descriptor_tag			: 8;
 	unsigned descriptor_length		: 8;
 	unsigned service_typ			: 8;
 	unsigned service_provider_name_length	: 8;
 } __attribute__ ((packed)) ;
+#endif
 
 #if 0
 struct descr_extended_event_header {
@@ -81,6 +85,7 @@ struct descr_extended_event_header {
 } __attribute__ ((packed)) ;
 #endif
 
+#if 0
 struct service_list_entry {
 	unsigned service_id_hi			: 8;
 	unsigned service_id_lo			: 8;
@@ -98,6 +103,7 @@ inline unsigned min(unsigned a, unsigned b)
 {
 	return b < a ? b : a;
 }
+#endif
 
 void SIsectionEIT::parse(void)
 {
@@ -367,6 +373,7 @@ void SIsectionEIT::parseDescriptors(const uint8_t *des, unsigned len, SIevent &e
 #endif
 
 /********************/
+#if 0
 bool check_blacklisted(const t_original_network_id onid, const t_transport_stream_id tsid)
 {
 	if ( (onid == 0x0001) &&
@@ -451,9 +458,11 @@ void SIsectionSDT::parseDescriptors(const uint8_t *des, unsigned len, SIservice 
 	}
 }
 
+#endif
 // Die infos aus dem Puffer holen
 void SIsectionSDT::parse(void)
 {
+#if 0
 	const uint8_t *actPos;
 	const uint8_t *bufEnd;
 	struct sdt_service *sv;
@@ -481,114 +490,45 @@ void SIsectionSDT::parse(void)
 		svs.insert(s);
 		actPos += descriptors_loop_length;
 	}
-
-	parsed = 1;
-}
-
-#if 0 //def ENABLE_FREESATEPG
-std::string SIsectionEIT::freesatHuffmanDecode(std::string input)
-{
-	const char *src = input.c_str();
-	uint size = input.length();
-
-	if (src[1] == 1 || src[1] == 2)
-	{
-		std::string uncompressed(size * 3, ' ');
-		uint p = 0;
-		struct hufftab *table;
-		unsigned table_length;
-		if (src[1] == 1)
-		{
-			table = fsat_huffman1;
-			table_length = sizeof(fsat_huffman1) / sizeof(fsat_huffman1[0]);
-		}
-		else
-		{
-			table = fsat_huffman2;
-			table_length = sizeof(fsat_huffman2) / sizeof(fsat_huffman2[0]);
-		}
-		unsigned value = 0, byte = 2, bit = 0;
-		while (byte < 6 && byte < size)
-		{
-			value |= src[byte] << ((5-byte) * 8);
-			byte++;
-		}
-		char lastch = START;
-
-		do
-		{
-			bool found = false;
-			unsigned bitShift = 0;
-			if (lastch == ESCAPE)
-			{
-				found = true;
-				// Encoded in the next 8 bits.
-				// Terminated by the first ASCII character.
-				char nextCh = (value >> 24) & 0xff;
-				bitShift = 8;
-				if ((nextCh & 0x80) == 0)
-					lastch = nextCh;
-				if (p >= uncompressed.length())
-					uncompressed.resize(p+10);
-				uncompressed[p++] = nextCh;
-			}
-			else
-			{
-				for (unsigned j = 0; j < table_length; j++)
-				{
-					if (table[j].last == lastch)
-					{
-						unsigned mask = 0, maskbit = 0x80000000;
-						for (short kk = 0; kk < table[j].bits; kk++)
-						{
-							mask |= maskbit;
-							maskbit >>= 1;
-						}
-						if ((value & mask) == table[j].value)
-						{
-							char nextCh = table[j].next;
-							bitShift = table[j].bits;
-							if (nextCh != STOP && nextCh != ESCAPE)
-							{
-								if (p >= uncompressed.length())
-									uncompressed.resize(p+10);
-								uncompressed[p++] = nextCh;
-							}
-							found = true;
-							lastch = nextCh;
-							break;
-						}
-					}
-				}
-			}
-			if (found)
-			{
-				// Shift up by the number of bits.
-				for (unsigned b = 0; b < bitShift; b++)
-				{
-					value = (value << 1) & 0xfffffffe;
-					if (byte < size)
-						value |= (src[byte] >> (7-bit)) & 1;
-					if (bit == 7)
-					{
-						bit = 0;
-						byte++;
-					}
-					else bit++;
-				}
-			}
-			else
-			{
-				// Entry missing in table.
-				uncompressed.resize(p);
-				uncompressed.append("...");
-				return uncompressed;
-			}
-		} while (lastch != STOP && value != 0);
-
-		uncompressed.resize(p);
-		return uncompressed;
-	}
-	else return input;
-}
 #endif
+	parsed = 1;
+	t_transport_stream_id transport_stream_id = getTransportStreamId();
+	t_original_network_id original_network_id = getOriginalNetworkId();
+	const ServiceDescriptionList &slist = *getDescriptions();
+	for (ServiceDescriptionConstIterator sit = slist.begin(); sit != slist.end(); ++sit) {
+		ServiceDescription * service = *sit;
+
+		SIservice s(service->getServiceId(), original_network_id, transport_stream_id);
+
+		s.flags.EIT_schedule_flag = service->getEitScheduleFlag();
+		s.flags.EIT_present_following_flag = service->getEitPresentFollowingFlag();
+		s.flags.running_status = service->getRunningStatus();
+		s.flags.free_CA_mode = service->getFreeCaMode();
+
+		DescriptorConstIterator dit;
+		for (dit = service->getDescriptors()->begin(); dit != service->getDescriptors()->end(); ++dit) {
+			switch ((*dit)->getTag()) {
+				case SERVICE_DESCRIPTOR:
+					{
+						ServiceDescriptor * d = (ServiceDescriptor *) *dit;
+						s.serviceTyp = d->getServiceType();
+					}
+					break;
+				case NVOD_REFERENCE_DESCRIPTOR:
+					{
+						NvodReferenceDescriptor * d = (NvodReferenceDescriptor *) *dit;
+						NvodReferenceConstIterator it;
+						const NvodReferenceList* nlist = d->getNvodReferences();
+						for (it = nlist->begin(); it != nlist->end(); ++it) { 
+							SInvodReference nvod((*it)->getTransportStreamId(), (*it)->getOriginalNetworkId(), (*it)->getServiceId());
+							s.nvods.insert(nvod);
+						}
+					}
+					break;
+				default:
+					break;
+			}
+		}
+		svs.insert(s);
+	}
+}

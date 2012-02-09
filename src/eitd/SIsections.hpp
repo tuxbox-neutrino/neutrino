@@ -27,7 +27,9 @@
 
 #include <endian.h>
 #include <dvbsi++/event_information_section.h>
+#include <dvbsi++/service_description_section.h>
 
+#if 0
 struct SI_section_SDT_header {
 	unsigned table_id			: 8;
 #if __BYTE_ORDER == __BIG_ENDIAN
@@ -59,6 +61,7 @@ struct SI_section_SDT_header {
 	unsigned original_network_id_lo		: 8;
 	unsigned reserved_future_use2		: 8;
 } __attribute__ ((packed)) ; // 11 bytes
+#endif
 
 #if 0
 struct SI_section_EIT_header {
@@ -212,14 +215,25 @@ public:
 };
 
 
-class SIsectionSDT : public SIsection
+class SIsectionSDT : public ServiceDescriptionSection
 {
+private:
+	SIservices svs;
+	int parsed;
+	void parse(void);
+#if 0
+	void parseDescriptors(const uint8_t *desc, unsigned len, SIservice &s);
+	void parseServiceDescriptor(const char *buf, SIservice &s);
+	void parsePrivateDataDescriptor(const char *buf, SIservice &s);
+	void parseNVODreferenceDescriptor(const char *buf, SIservice &s);
+#endif
 public:
+#if 0
 	SIsectionSDT(const SIsection &s) : SIsection(s) {
 		parsed = 0;
 		parse();
 	}
-
+#endif
 #if 0
 	// Std-Copy
 	SIsectionSDT(const SIsectionSDT &s) : SIsection(s) {
@@ -228,11 +242,12 @@ public:
 	}
 #endif
 	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
-	SIsectionSDT(uint8_t *buf) : SIsection(buf) {
+	SIsectionSDT(uint8_t *buf) : ServiceDescriptionSection(buf) {
 		parsed = 0;
 		parse();
 	}
 
+#if 0
 	t_transport_stream_id transport_stream_id(void) const {
 		return buffer ? ((((struct SI_section_SDT_header *)buffer)->transport_stream_id_hi << 8) |
 				((struct SI_section_SDT_header *)buffer)->transport_stream_id_lo) : 0;
@@ -246,6 +261,7 @@ public:
 		return buffer ? ((((struct SI_section_SDT_header *)buffer)->original_network_id_hi << 8) |
 				((struct SI_section_SDT_header *)buffer)->original_network_id_lo) : 0;
 	}
+#endif
 #if 0
 	static void dump(const struct SI_section_SDT_header *header) {
 		if (!header)
@@ -272,14 +288,6 @@ public:
 		return svs;
 	}
 
-private:
-	SIservices svs;
-	int parsed;
-	void parse(void);
-	void parseDescriptors(const uint8_t *desc, unsigned len, SIservice &s);
-	void parseServiceDescriptor(const char *buf, SIservice &s);
-	void parsePrivateDataDescriptor(const char *buf, SIservice &s);
-	void parseNVODreferenceDescriptor(const char *buf, SIservice &s);
 };
 
 #endif // SISECTIONS_HPP
