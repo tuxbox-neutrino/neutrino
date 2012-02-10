@@ -174,7 +174,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"info", 			&CControlAPI::InfoCGI,			"text/plain"},
 	{"version", 		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup", 	&CControlAPI::ReloadNutrinoSetupfCGI,		""},
-	{"relodplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
+	{"reloadplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
 	// boxcontrol - devices
 	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
 	{"lcd", 			&CControlAPI::LCDAction,		"text/plain"},
