@@ -54,17 +54,36 @@ extern void showProfiling(std::string text);
 DMX::DMX(const unsigned short p, const unsigned short bufferSizeInKB, const bool c, int dmx_source)
 {
 	dmx_num = dmx_source;
+	dmxBufferSizeInKB = bufferSizeInKB;
+	pID = p;
+	cache = c;
+	init();
+}
+
+DMX::DMX()
+{
+	pID = 0;
+	cache = true;
+	dmx_num = 0;
+	dmxBufferSizeInKB = 512;
+	init();
+}
+
+
+void DMX::init()
+{
 	fd = -1;
 	lastChanged = time_monotonic();
 	filter_index = 0;
-	pID = p;
-	dmxBufferSizeInKB = bufferSizeInKB;
+	real_pauseCounter = 0;
+	current_service = 0;
+	first_skipped = 0;
+
 #if HAVE_TRIPLEDRAGON
 	/* hack, to keep the TD changes in one place. */
 	dmxBufferSizeInKB = 128;	/* 128kB is enough on TD */
 	dmx_num = 0;			/* always use demux 0 */
 #endif
-	pthread_mutex_init(&pauselock, NULL);        // default = fast mutex
 #ifdef DEBUG_MUTEX
 	pthread_mutexattr_t start_stop_mutex_attr;
 	pthread_mutexattr_init(&start_stop_mutex_attr);
@@ -74,20 +93,15 @@ DMX::DMX(const unsigned short p, const unsigned short bufferSizeInKB, const bool
 	pthread_mutex_init(&start_stop_mutex, NULL); // default = fast mutex
 #endif
 	pthread_cond_init (&change_cond, NULL);
-	real_pauseCounter = 0;
-	current_service = 0;
-
-	first_skipped = 0;
-	cache = c;
 }
 
 DMX::~DMX()
 {
 	first_skipped = 0;
 	myDMXOrderUniqueKey.clear();
-	pthread_mutex_destroy(&pauselock);
 	pthread_mutex_destroy(&start_stop_mutex);
 	pthread_cond_destroy (&change_cond);
+	// FIXME
 	closefd();
 }
 

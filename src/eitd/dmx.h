@@ -43,16 +43,16 @@ class DMX
 {
 private:
 
-	int             fd;
-	cDemux * dmx;
-	int dmx_num;
-	pthread_mutex_t pauselock;
+	int		fd;
+	cDemux *	dmx;
+	int		dmx_num;
 	unsigned short  pID;
 	unsigned short  dmxBufferSizeInKB;
-	sections_id_t first_skipped;
+	sections_id_t	first_skipped;
 	int		current_service;
 	unsigned char	eit_version;
 	bool		cache; /* should read sections be cached? true for all but dmxCN */
+	int		real_pauseCounter;
 
 	inline bool isOpen(void) {
 		return (fd != -1);
@@ -62,6 +62,8 @@ private:
 	int immediate_stop(void);  /* mutex must be locked before and unlocked after this method */
 	bool check_complete(const unsigned char table_id, const unsigned short extension_id, const unsigned short onid, const unsigned short tsid, const unsigned char);
 	sections_id_t create_sections_id(const unsigned char table_id, const unsigned short extension_id, const unsigned char section_number, const unsigned short onid, const unsigned short tsid);
+
+	void init();
 
 public:
 	struct s_filters
@@ -74,11 +76,11 @@ public:
 	int                    filter_index;
 	time_t                 lastChanged;
 
-	int                    real_pauseCounter;
 	pthread_cond_t         change_cond;
 	pthread_mutex_t        start_stop_mutex;
 
 
+	DMX();
 	DMX(const unsigned short p, const unsigned short bufferSizeInKB, const bool cache = true, int dmx_source = 0);
 	~DMX();
 
