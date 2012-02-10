@@ -1,5 +1,3 @@
-#ifndef SILANGUAGES_HPP
-#define SILANGUAGES_HPP
 //
 // $Id: SIlanguage.hpp,v 1.2 2006/04/12 21:23:58 Arzka Exp $
 //
@@ -21,17 +19,9 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
-// $Log: SIlanguage.hpp,v $
-// Revision 1.2  2006/04/12 21:23:58  Arzka
-// Optimization.
-// Removed unnecessary copying of std:map and
-// removed few avoidable std::string creation
-//
-// Revision 1.1  2006/03/26 20:13:49  Arzka
-// Added support for selecting EPG language
-//
-//
-//
+
+#ifndef SILANGUAGES_HPP
+#define SILANGUAGES_HPP
 
 #include <string>
 #include <vector>

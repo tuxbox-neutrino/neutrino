@@ -23,25 +23,13 @@
 //
 //
 
-#include <assert.h>
 #include <stdio.h>
 #include <time.h>
 
-#include <unistd.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <sys/poll.h> // fuer poll()
-
-#include <set>
-#include <algorithm>
-#include <string>
-
 #include "SIlanguage.hpp"
 #include "SIutils.hpp"
-#include "SIservices.hpp"
 #include "SIevents.hpp"
-#include "SIsections.hpp"
-#include <dmxapi.h>
+
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/short_event_descriptor.h>
 #include <dvbsi++/extended_event_descriptor.h>
@@ -51,32 +39,6 @@
 #include <dvbsi++/parental_rating_descriptor.h>
 
 const std::string languangeOFF = "OFF";
-
-#if 0
-SIevent::SIevent(const struct eit_event *e)
-{
-	eventID = (e->event_id_hi << 8) | e->event_id_lo;
-	time_t start_time = changeUTCtoCtime(((const unsigned char *)e) + 2);
-	unsigned long duration = 0;
-
-	if (!((e->duration_hi == 0xff) && (e->duration_mid == 0xff) && (e->duration_lo == 0xff)))
-		duration = ((e->duration_hi)>>4)*10*3600L + ((e->duration_hi)&0x0f)*3600L +
-			   ((e->duration_mid)>>4)*10*60L + ((e->duration_mid)&0x0f)*60L +
-			   ((e->duration_lo)>>4)*10 + ((e->duration_lo)&0x0f);
-
-//printf("SIevent::SIevent: eventID %x start %d duration %d\n", eventID, (int) start_time, (int) duration);
-	if (start_time && duration)
-		times.insert(SItime(start_time, duration));
-
-	running = (int)e->running_status;
-
-	table_id = 0xFF; /* not set */
-	version = 0xFF;
-	service_id = 0;
-	original_network_id = 0;
-	transport_stream_id = 0;
-}
-#endif
 
 SIevent::SIevent(const t_original_network_id _original_network_id, const t_transport_stream_id _transport_stream_id, const t_service_id _service_id,
 		 const unsigned short _event_id)
@@ -176,36 +138,12 @@ void SIevent::parse(Event &event)
 			l.name = convertDVBUTF8((const char*)&((*privateData)[0]), privateData->size(), 1, tsidonid);
 			linkage_descs.insert(linkage_descs.end(), l);
 		}
+#if 0 // TODO ? vps was never used
+		else if(dtype == PDC_DESCRIPTOR) {
+		}
+#endif
 	}
 }
-
-#if 0
-// Std-Copy
-SIevent::SIevent(const SIevent &e)
-{
-	eventID=e.eventID;
-	langName=e.langName;
-	langText=e.langText;
-//  startzeit=e.startzeit;
-//  dauer=e.dauer;
-	times=e.times;
-	service_id          = e.service_id;
-	original_network_id = e.original_network_id;
-	transport_stream_id = e.transport_stream_id;
-	itemDescription=e.itemDescription;
-	item=e.item;
-	langExtendedText=e.langExtendedText;
-	contentClassification=e.contentClassification;
-	userClassification=e.userClassification;
-	components=e.components;
-	ratings=e.ratings;
-	linkage_descs=e.linkage_descs;
-	running=e.running;
-	vps = e.vps;
-	table_id = e.table_id;
-	version =  e.version;
-}
-#endif
 
 char SIevent::getFSK() const
 {
@@ -214,7 +152,7 @@ char SIevent::getFSK() const
 		if (it->countryCode == "DEU")
 		{
 			if ((it->rating >= 0x01) && (it->rating <= 0x0F))
-				return (it->rating + 3);           //                     0x01 to 0x0F minimum age = rating + 3 years
+				return (it->rating + 3);           // 0x01 to 0x0F minimum age = rating + 3 years
 			else
 				return (it->rating == 0 ? 0 : 18); // return FSK 18 for : 0x10 to 0xFF defined by the broadcaster
 		}
@@ -227,7 +165,7 @@ char SIevent::getFSK() const
 			return (ratings.begin()->rating == 0 ? 0 : 18);
 	}
 
-	return 0x00;                                           //                     0x00         undefined
+	return 0x00; // 0x00         undefined
 }
 
 std::string SIevent::getName() const

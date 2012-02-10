@@ -1,5 +1,3 @@
-#ifndef SISECTIONS_HPP
-#define SISECTIONS_HPP
 //
 //    $Id: SIsections.hpp,v 1.28 2009/07/26 17:02:46 rhabarber1848 Exp $
 //
@@ -25,174 +23,24 @@
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
-#include <endian.h>
+#ifndef SISECTIONS_HPP
+#define SISECTIONS_HPP
+
 #include <dvbsi++/event_information_section.h>
 #include <dvbsi++/service_description_section.h>
 
-#if 0
-struct SI_section_SDT_header {
-	unsigned table_id			: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned section_syntax_indicator	: 1;
-	unsigned reserved_future_use		: 1;
-	unsigned reserved1			: 2;
-	unsigned section_length_hi		: 4;
-#else
-	unsigned section_length_hi		: 4;
-	unsigned reserved1			: 2;
-	unsigned reserved_future_use		: 1;
-	unsigned section_syntax_indicator	: 1;
-#endif
-	unsigned section_length_lo		: 8;
-	unsigned transport_stream_id_hi		: 8;
-	unsigned transport_stream_id_lo		: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned reserved2			: 2;
-	unsigned version_number			: 5;
-	unsigned current_next_indicator		: 1;
-#else
-	unsigned current_next_indicator		: 1;
-	unsigned version_number			: 5;
-	unsigned reserved2			: 2;
-#endif
-	unsigned section_number			: 8;
-	unsigned last_section_number		: 8;
-	unsigned original_network_id_hi		: 8;
-	unsigned original_network_id_lo		: 8;
-	unsigned reserved_future_use2		: 8;
-} __attribute__ ((packed)) ; // 11 bytes
-#endif
-
-#if 0
-struct SI_section_EIT_header {
-	unsigned table_id			: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned section_syntax_indicator	: 1;
-	unsigned reserved_future_use		: 1;
-	unsigned reserved1			: 2;
-	unsigned section_length_hi		: 4;
-#else
-	unsigned section_length_hi		: 4;
-	unsigned reserved1			: 2;
-	unsigned reserved_future_use		: 1;
-	unsigned section_syntax_indicator	: 1;
-#endif
-	unsigned section_length_lo		: 8;
-	unsigned service_id_hi			: 8;
-	unsigned service_id_lo			: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned reserved2			: 2;
-	unsigned version_number			: 5;
-	unsigned current_next_indicator		: 1;
-#else
-	unsigned current_next_indicator		: 1;
-	unsigned version_number			: 5;
-	unsigned reserved2			: 2;
-#endif
-	unsigned section_number			: 8;
-	unsigned last_section_number		: 8;
-	unsigned transport_stream_id_hi		: 8;
-	unsigned transport_stream_id_lo		: 8;
-	unsigned original_network_id_hi		: 8;
-	unsigned original_network_id_lo		: 8;
-	unsigned segment_last_section_number	: 8;
-	unsigned last_table_id			: 8;
-} __attribute__ ((packed)) ; // 14 bytes
-#endif
-// Muss evtl. angepasst werden falls damit RST, TDT und TOT gelesen werden sollen
-// ^^^
-//   RST usw. haben section_syntax_indicator == 0, andere == 1 (obi)
-#if 0
-struct SI_section_header {
-	unsigned table_id			: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned section_syntax_indicator	: 1;
-	unsigned reserved_future_use		: 1;
-	unsigned reserved1			: 2;
-	unsigned section_length_hi		: 4;
-#else
-	unsigned section_length_hi		: 4;
-	unsigned reserved1			: 2;
-	unsigned reserved_future_use		: 1;
-	unsigned section_syntax_indicator	: 1;
-#endif
-	unsigned section_length_lo		: 8;
-	unsigned table_id_extension_hi		: 8;
-	unsigned table_id_extension_lo		: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned reserved2			: 2;
-	unsigned version_number			: 5;
-	unsigned current_next_indicator		: 1;
-#else
-	unsigned current_next_indicator		: 1;
-	unsigned version_number			: 5;
-	unsigned reserved2			: 2;
-#endif
-	unsigned section_number			: 8;
-	unsigned last_section_number		: 8;
-} __attribute__ ((packed)) ; // 8 bytes
-#endif
-
-#if 0
-class SIsection //: public LongSection
-{
-public:
-	//SIsection(void) { buffer = 0; bufferLength = 0;}
-
-	SIsection(uint8_t *buf) //: LongSection(buf)
-	{
-		buffer = NULL;
-		bufferLength = 0;
-		//unsigned bufLength = 3 + getSectionLength();
-		unsigned bufLength = 3 + (((struct SI_section_header*) buf)->section_length_hi << 8 | ((struct SI_section_header*) buf)->section_length_lo);
-		if ((buf) && (bufLength >= sizeof(struct SI_section_header))) {
-			buffer = buf;
-			bufferLength = bufLength;
-		}
-	}
-
-	// Destruktor
-	virtual ~SIsection(void) {
-		bufferLength = 0;
-	}
-
-protected:
-	uint8_t *buffer;
-	unsigned bufferLength;
-};
-#endif
-
-class SIsectionEIT : /*public SIsection,*/ public EventInformationSection
+class SIsectionEIT : public EventInformationSection
 {
 protected:
 	SIevents evts;
 	int parsed;
 	void parse(void);
 public:
-	SIsectionEIT(uint8_t *buf) : /*SIsection(buf),*/ EventInformationSection(buf) 
+	SIsectionEIT(uint8_t *buf) : EventInformationSection(buf) 
 	{
 		parsed = 0;
 		parse();
 	}
-#if 0
-	t_service_id service_id(void) const {
-		return buffer ? ((((struct SI_section_EIT_header *)buffer)->service_id_hi << 8) |
-				((struct SI_section_EIT_header *)buffer)->service_id_lo): 0;
-	}
-
-	t_original_network_id original_network_id(void) const {
-		return buffer ? ((((struct SI_section_EIT_header *)buffer)->original_network_id_hi << 8) |
-				((struct SI_section_EIT_header *)buffer)->original_network_id_lo) : 0;
-	}
-
-	t_transport_stream_id transport_stream_id(void) const {
-		return buffer ? ((((struct SI_section_EIT_header *)buffer)->transport_stream_id_hi << 8) |
-				((struct SI_section_EIT_header *)buffer)->transport_stream_id_lo) : 0;
-	}
-	struct SI_section_EIT_header const *header(void) const {
-		return (struct SI_section_EIT_header *)buffer;
-	}
-#endif
 
 	const SIevents &events(void) const {
 		return evts;
@@ -201,22 +49,7 @@ public:
 	int is_parsed(void) const {
 		return parsed;
 	}
-
-#if 0
-	void parseDescriptors(const uint8_t *desc, unsigned len, SIevent &e);
-	void parseShortEventDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-	void parseExtendedEventDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-	void parseContentDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-	void parseComponentDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-	void parseParentalRatingDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-	void parseLinkageDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-	void parsePDCDescriptor(const char *buf, SIevent &e, unsigned maxlen);
-#ifdef ENABLE_FREESATEPG
-	std::string freesatHuffmanDecode(std::string input);
-#endif
-#endif
 };
-
 
 class SIsectionSDT : public ServiceDescriptionSection
 {
@@ -224,48 +57,13 @@ private:
 	SIservices svs;
 	int parsed;
 	void parse(void);
-#if 0
-	void parseDescriptors(const uint8_t *desc, unsigned len, SIservice &s);
-	void parseServiceDescriptor(const char *buf, SIservice &s);
-	void parsePrivateDataDescriptor(const char *buf, SIservice &s);
-	void parseNVODreferenceDescriptor(const char *buf, SIservice &s);
-#endif
 public:
-#if 0
-	SIsectionSDT(const SIsection &s) : SIsection(s) {
-		parsed = 0;
-		parse();
-	}
-#endif
-#if 0
-	// Std-Copy
-	SIsectionSDT(const SIsectionSDT &s) : SIsection(s) {
-		svs = s.svs;
-		parsed = s.parsed;
-	}
-#endif
-	// Benutzt den uebergebenen Puffer (sollte mit new char[n] allokiert sein)
 	SIsectionSDT(uint8_t *buf) : ServiceDescriptionSection(buf) {
 		parsed = 0;
 		parse();
 	}
 
-#if 0
-	t_transport_stream_id transport_stream_id(void) const {
-		return buffer ? ((((struct SI_section_SDT_header *)buffer)->transport_stream_id_hi << 8) |
-				((struct SI_section_SDT_header *)buffer)->transport_stream_id_lo) : 0;
-	}
-
-	struct SI_section_SDT_header const *header(void) const {
-		return (struct SI_section_SDT_header *)buffer;
-	}
-
-	t_original_network_id original_network_id(void) const {
-		return buffer ? ((((struct SI_section_SDT_header *)buffer)->original_network_id_hi << 8) |
-				((struct SI_section_SDT_header *)buffer)->original_network_id_lo) : 0;
-	}
-#endif
-#if 0
+#if 0 // TODO ?
 	static void dump(const struct SI_section_SDT_header *header) {
 		if (!header)
 			return;

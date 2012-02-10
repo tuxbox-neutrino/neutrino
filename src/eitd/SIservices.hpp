@@ -1,5 +1,3 @@
-#ifndef SISERVICES_HPP
-#define SISERVICES_HPP
 //
 // $Id: SIservices.hpp,v 1.15 2009/02/24 19:09:10 seife Exp $
 //
@@ -25,40 +23,15 @@
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
 
+#ifndef SISERVICES_HPP
+#define SISERVICES_HPP
 
+#include <set>
 #include <algorithm>
+#include <string>
 #include <cstring> // memset
-#include <endian.h>
 
 #include <sectionsdclient/sectionsdMsg.h>
-
-
-// forward references
-class SIservice;
-class SIevent;
-
-#if 0
-struct sdt_service {
-	unsigned service_id_hi			: 8;
-	unsigned service_id_lo			: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned reserved_future_use		: 6;
-	unsigned EIT_schedule_flag		: 1;
-	unsigned EIT_present_following_flag	: 1;
-	unsigned running_status			: 3;
-	unsigned free_CA_mode			: 1;
-	unsigned descriptors_loop_length_hi	: 4;
-#else
-	unsigned EIT_present_following_flag	: 1;
-	unsigned EIT_schedule_flag		: 1;
-	unsigned reserved_future_use		: 6;
-	unsigned descriptors_loop_length_hi	: 4;
-	unsigned free_CA_mode			: 1;
-	unsigned running_status			: 3;
-#endif
-	unsigned descriptors_loop_length_lo	: 8;
-} __attribute__ ((packed)) ; // 5 Bytes
-#endif
 
 class SInvodReference
 {
@@ -73,25 +46,10 @@ public:
 			original_network_id = new_original_network_id;
 			transport_stream_id = new_transport_stream_id;
 		}
-#if 0
-	SInvodReference(const SInvodReference &ref)
-		{
-			service_id          = ref.service_id;
-			original_network_id = ref.original_network_id;
-			transport_stream_id = ref.transport_stream_id;
-		}
-#endif
 
 	bool operator < (const SInvodReference& ref) const
 		{
 			return uniqueKey() < ref.uniqueKey();
-		}
-
-	void dump(void) const
-		{
-			printf("NVOD Ref. Service-ID: %hu\n", service_id);
-			printf("NVOD Ref. Original-Network-ID: %hu\n", original_network_id);
-			printf("NVOD Ref. Transport-Stream-ID: %hu\n", transport_stream_id);
 		}
 
 	void toStream(char * &p) const
@@ -109,6 +67,13 @@ public:
 	t_channel_id uniqueKey(void) const {
 		return CREATE_CHANNEL_ID; // cf. zapittypes.h
 	}
+	void dump(void) const
+		{
+			printf("NVOD Ref. Service-ID: %hu\n", service_id);
+			printf("NVOD Ref. Original-Network-ID: %hu\n", original_network_id);
+			printf("NVOD Ref. Transport-Stream-ID: %hu\n", transport_stream_id);
+		}
+
 };
 
 // Fuer for_each
@@ -130,7 +95,7 @@ public:
 		unsigned char free_CA_mode : 1;
 	} flags;
 	t_service_id          service_id;
-	t_original_network_id original_network_id; // Ist innerhalb einer section unnoetig
+	t_original_network_id original_network_id;
 	t_transport_stream_id transport_stream_id;
 	unsigned char serviceTyp;
 	int is_actual;
@@ -140,20 +105,6 @@ public:
 	std::string providerName; // Name aus dem Service-Descriptor
 #endif
 
-#if 0
-	SIservice(const struct sdt_service *s) {
-		service_id          = (s->service_id_hi << 8) | s->service_id_lo;
-		original_network_id = 0;
-		transport_stream_id = 0;
-		serviceTyp = 0;
-		flags.EIT_schedule_flag = s->EIT_schedule_flag;
-		flags.EIT_present_following_flag = s->EIT_present_following_flag;
-		flags.running_status = s->running_status;
-		flags.free_CA_mode = s->free_CA_mode;
-		is_actual = false;
-	}
-#endif
-	// Um einen service zum Suchen zu erstellen
 	SIservice(const t_service_id _service_id, const t_original_network_id _original_network_id, const t_transport_stream_id _transport_stream_id)
 	{
 		service_id          = _service_id;
@@ -163,20 +114,6 @@ public:
 		memset(&flags, 0, sizeof(flags));
 	}
 
-#if 0
-	// Std-Copy
-	SIservice(const SIservice &s) {
-		service_id          = s.service_id;
-		original_network_id = s.original_network_id;
-		transport_stream_id = s.transport_stream_id;
-		serviceTyp=s.serviceTyp;
-		providerName=s.providerName;
-		serviceName=s.serviceName;
-		flags=s.flags;
-		nvods=s.nvods;
-		is_actual=s.is_actual;
-	}
-#endif
 	int eitScheduleFlag(void)	{ return (int)flags.EIT_schedule_flag; }
 	int eitPresentFollowingFlag(void) { return (int)flags.EIT_present_following_flag; }
 	int runningStatus(void)		{ return (int)flags.running_status; }
@@ -196,7 +133,7 @@ public:
 		printf("Original-Network-ID: %hu\n", original_network_id);
 		printf("Service-ID: %hu\n", service_id);
 		printf("Service-Typ: %hhu\n", serviceTyp);
-#if 0
+#if 0 // unused
 		if(providerName.length())
 			printf("Provider-Name: %s\n", providerName.c_str());
 		if(serviceName.length())

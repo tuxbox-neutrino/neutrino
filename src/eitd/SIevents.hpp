@@ -1,5 +1,3 @@
-#ifndef SIEVENTS_HPP
-#define SIEVENTS_HPP
 //
 // $Id: SIevents.hpp,v 1.29 2008/08/16 19:23:18 seife Exp $
 //
@@ -23,117 +21,32 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //
+#ifndef SIEVENTS_HPP
+#define SIEVENTS_HPP
 
-#include <endian.h>
 #include <vector>
 #include <map>
+#include <set>
+#include <algorithm>
+#include <string>
 
 #include <sectionsdclient/sectionsdtypes.h>
 #include "edvbstring.h"
 #include <dvbsi++/event_information_section.h>
-//#include "SIutils.hpp"
-
-// forward references
-class SIservice;
-class SIservices;
-class SIbouquets;
-
-#if 0
-struct eit_event {
-	unsigned event_id_hi			: 8;
-	unsigned event_id_lo			: 8;
-	unsigned start_time_hi			: 8;
-	unsigned start_time_hi2			: 8;
-	unsigned start_time_mid			: 8;
-	unsigned start_time_lo2			: 8;
-	unsigned start_time_lo			: 8;
-	unsigned duration_hi			: 8;
-	unsigned duration_mid			: 8;
-	unsigned duration_lo			: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned running_status			: 3;
-	unsigned free_CA_mode			: 1;
-	unsigned descriptors_loop_length_hi	: 4;
-#else
-	unsigned descriptors_loop_length_hi	: 4;
-	unsigned free_CA_mode			: 1;
-	unsigned running_status			: 3;
-#endif
-	unsigned descriptors_loop_length_lo	: 8;
-} __attribute__ ((packed)) ;
-
-#endif
-
-struct descr_component_header {
-	unsigned descriptor_tag			: 8;
-	unsigned descriptor_length		: 8;
-#if __BYTE_ORDER == __BIG_ENDIAN
-	unsigned reserved_future_use		: 4;
-	unsigned stream_content			: 4;
-#else
-	unsigned stream_content			: 4;
-	unsigned reserved_future_use		: 4;
-#endif
-	unsigned component_type			: 8;
-	unsigned component_tag			: 8;
-	unsigned iso_639_2_language_code_hi	: 8;
-	unsigned iso_639_2_language_code_mid	: 8;
-	unsigned iso_639_2_language_code_lo	: 8;
-} __attribute__ ((packed)) ;
-
-#if 0
-struct descr_linkage_header {
-	unsigned descriptor_tag			: 8;
-	unsigned descriptor_length		: 8;
-	unsigned transport_stream_id_hi		: 8;
-	unsigned transport_stream_id_lo		: 8;
-	unsigned original_network_id_hi		: 8;
-	unsigned original_network_id_lo		: 8;
-	unsigned service_id_hi			: 8;
-	unsigned service_id_lo			: 8;
-	unsigned linkage_type			: 8;
-} __attribute__ ((packed)) ;
-#endif
-
-#if 0
-struct descr_pdc_header {
-	unsigned descriptor_tag			: 8;
-	unsigned descriptor_length		: 8;
-	unsigned pil0				: 8;
-	unsigned pil1				: 8;
-	unsigned pil2				: 8;
-} __attribute__ ((packed)) ;
-#endif
 
 class SIlinkage {
 public:
-#if 0
-	SIlinkage(const struct descr_linkage_header *link) {
-		linkageType = link->linkage_type;
-		transportStreamId = (link->transport_stream_id_hi << 8) | link->transport_stream_id_lo;
-		originalNetworkId = (link->original_network_id_hi << 8) | link->original_network_id_lo;
-		serviceId = (link->service_id_hi << 8) | link->service_id_lo;
-		if (link->descriptor_length > sizeof(struct descr_linkage_header) - 2)
-			//name = std::string(((const char *)link) + sizeof(struct descr_linkage_header), link->descriptor_length - (sizeof(struct descr_linkage_header) - 2));
-			name = convertDVBUTF8(((const char *)link)+sizeof(struct descr_linkage_header), link->descriptor_length-(sizeof(struct descr_linkage_header)-2), 0, 0);
-	}
-	// Std-copy
-	SIlinkage(const SIlinkage &l) {
-		linkageType = l.linkageType;
-		transportStreamId = l.transportStreamId;
-		originalNetworkId = l.originalNetworkId;
-		serviceId = l.serviceId;
-		name = l.name;
-	}
-#endif
+	unsigned char linkageType;
+	std::string name;
+	t_transport_stream_id transportStreamId;
+	t_original_network_id originalNetworkId;
+	t_service_id          serviceId;
 
-	// default
 	SIlinkage(void) {
 		linkageType = 0;
 		transportStreamId = 0;
 		originalNetworkId = 0;
 		serviceId = 0;
-//		name = ;
 	}
 	
 	// Der Operator zum sortieren
@@ -159,11 +72,6 @@ public:
 		return 0;
 	}
 
-	unsigned char linkageType; // Linkage Descriptor
-	std::string name; // Text aus dem Linkage Descriptor
-	t_transport_stream_id transportStreamId; // Linkage Descriptor
-	t_original_network_id originalNetworkId; // Linkage Descriptor
-	t_service_id          serviceId;         // Linkage Descriptor
 };
 
 // Fuer for_each
@@ -180,33 +88,16 @@ struct saveSIlinkageXML : public std::unary_function<class SIlinkage, void>
 	void operator() (const SIlinkage &l) { l.saveXML(f);}
 };
 
-//typedef std::multiset <SIlinkage, std::less<SIlinkage> > SIlinkage_descs;
 typedef std::vector<class SIlinkage> SIlinkage_descs;
 
 class SIcomponent 
 {
 	public:
-		std::string component; // Text aus dem Component Descriptor
-		unsigned char componentType; // Component Descriptor
-		unsigned char componentTag; // Component Descriptor
-		unsigned char streamContent; // Component Descriptor
-#if 0
-		SIcomponent(const struct descr_component_header *comp) {
-			streamContent=comp->stream_content;
-			componentType=comp->component_type;
-			componentTag=comp->component_tag;
-			if(comp->descriptor_length>sizeof(struct descr_component_header)-2)
-				//component=std::string(((const char *)comp)+sizeof(struct descr_component_header), comp->descriptor_length-(sizeof(struct descr_component_header)-2));
-				component=convertDVBUTF8(((const char *)comp)+sizeof(struct descr_component_header), comp->descriptor_length-(sizeof(struct descr_component_header)-2), 0, 0);
-		}
-		// Std-copy
-		SIcomponent(const SIcomponent &c) {
-			streamContent=c.streamContent;
-			componentType=c.componentType;
-			componentTag=c.componentTag;
-			component=c.component;
-		}
-#endif
+		std::string component;
+		unsigned char componentType;
+		unsigned char componentTag;
+		unsigned char streamContent;
+
 		SIcomponent(void) {
 			streamContent=0;
 			componentType=0;
@@ -257,13 +148,7 @@ class SIparentalRating
 			rating=rate;
 			countryCode=cc;
 		}
-#if 0
-		// Std-Copy
-		SIparentalRating(const SIparentalRating &r) {
-			rating=r.rating;
-			countryCode=r.countryCode;
-		}
-#endif
+
 		// Der Operator zum sortieren
 		bool operator < (const SIparentalRating& c) const {
 			return countryCode < c.countryCode;
@@ -303,13 +188,7 @@ class SItime {
 			startzeit=s;
 			dauer=d; // in Sekunden, 0 -> time shifted (cinedoms)
 		}
-#if 0
-		// Std-Copy
-		SItime(const SItime &t) {
-			startzeit=t.startzeit;
-			dauer=t.dauer;
-		}
-#endif
+
 		// Der Operator zum sortieren
 		bool operator < (const SItime& t) const {
 			return startzeit < t.startzeit;
@@ -370,11 +249,7 @@ class SIevent
 		std::string item; // Aus dem Extended Descriptor
 		std::string contentClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
 		std::string userClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
-#if 0
-		SIevent(const struct eit_event *);
-		// Std-Copy
-		SIevent(const SIevent &);
-#endif
+
 		SIevent(const t_original_network_id, const t_transport_stream_id, const t_service_id, const unsigned short);
 		SIevent(void) {
 			service_id = 0;

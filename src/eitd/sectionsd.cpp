@@ -547,8 +547,8 @@ static bool deleteEvent(const event_id_t uniqueKey)
 					already_exists = false;
 					break;
 				}
-				c1++;
-				c2++;
+				++c1;
+				++c2;
 			}
 		}
 	}
@@ -585,8 +585,8 @@ static bool deleteEvent(const event_id_t uniqueKey)
 					already_exists = false;
 					break;
 				}
-				p1++;
-				p2++;
+				++p1;
+				++p2;
 			}
 		}
 	}
@@ -603,8 +603,8 @@ static bool deleteEvent(const event_id_t uniqueKey)
 					already_exists = false;
 					break;
 				}
-				t1++;
-				t2++;
+				++t1;
+				++t2;
 			}
 		}
 	}
@@ -665,7 +665,7 @@ static bool deleteEvent(const event_id_t uniqueKey)
 			 * match *or* from a different channel, then no event for this channel is stored */
 			while (x != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.begin())
 			{
-				x--;
+				--x;
 				if ((*x)->get_channel_id() != e_chid)
 					break;
 				else
@@ -723,13 +723,13 @@ static bool deleteEvent(const event_id_t uniqueKey)
 			{
 				// fprintf(stderr, "<");
 				lastEvent = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
-				lastEvent--;
+				--lastEvent;
 
 				//preserve events of current channel
 				readLockMessaging();
 				while ((lastEvent != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin()) &&
 					((*lastEvent)->get_channel_id() == messaging_current_servicekey)) {
-					lastEvent--;
+					--lastEvent;
 				}
 				unlockMessaging();
 			}
@@ -830,7 +830,7 @@ static void addNVODevent(const SIevent &evt)
 		readLockMessaging();
 		while ((lastEvent != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin()) &&
 				((*lastEvent)->get_channel_id() == messaging_current_servicekey)) {
-			lastEvent--;
+			--lastEvent;
 		}
 		unlockMessaging();
 		unlockEvents();
@@ -867,7 +867,7 @@ static void removeOldEvents(const long seconds)
 
 	while ((e != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end()) && (!messaging_zap_detected)) {
 		goodtimefound = false;
-		for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); t++) {
+		for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t) {
 			if (t->startzeit + (long)t->dauer >= zeit - seconds) {
 				goodtimefound=true;
 				// one time found -> exit times loop
@@ -881,7 +881,7 @@ static void removeOldEvents(const long seconds)
 	}
 	unlockEvents();
 
-	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); i++)
+	for (std::vector<event_id_t>::iterator i = to_delete.begin(); i != to_delete.end(); ++i)
 		deleteEvent(*i);
 
 	return;
@@ -964,7 +964,7 @@ static const SIevent& findNextSIeventForServiceUniqueKey(const t_channel_id serv
 {
 	time_t azeit = time(NULL);
 
-	for (MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin(); e != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end(); e++)
+	for (MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin(); e != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end(); ++e)
 		if ((*e)->get_channel_id() == serviceUniqueKey)
 		{
 			for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t)
@@ -3094,7 +3094,7 @@ static void *fseitThread(void *)
 		//dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
 		zeit = time(NULL);
 		// Nicht alle Events speichern
-		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
+		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); ++e)
 		{
 			if (!(e->times.empty()))
 			{
@@ -3115,7 +3115,7 @@ static void *fseitThread(void *)
 					// Ist ein nvod-event
 					writeLockEvents();
 
-					for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
+					for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); ++i)
 						mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
 
 					unlockEvents();
@@ -3308,7 +3308,7 @@ static void *eitThread(void *)
 		dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
 		zeit = time(NULL);
 		// Nicht alle Events speichern
-		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
+		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); ++e)
 		{
 			if (!(e->times.empty()))
 			{
@@ -3332,7 +3332,7 @@ static void *eitThread(void *)
 					// Ist ein nvod-event
 					writeLockEvents();
 
-					for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); i++)
+					for (SInvodReferences::iterator i = si->second->nvods.begin(); i != si->second->nvods.end(); ++i)
 						mySIeventUniqueKeysMetaOrderServiceUniqueKey.insert(std::make_pair(i->uniqueKey(), e->uniqueKey()));
 
 					unlockEvents();
@@ -3547,7 +3547,7 @@ static void *cnThread(void *)
 		//dprintf("[cnThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
 		zeit = time(NULL);
 		// Nicht alle Events speichern
-		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
+		for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); ++e)
 		{
 			if (!(e->times.empty()))
 			{
@@ -3745,7 +3745,7 @@ static void *sdtThread(void *)
 			bool is_new = false;
 			is_actual = (is_actual | 8);
 
-			for (SIservices::iterator s = sdt.services().begin(); s != sdt.services().end(); s++) {
+			for (SIservices::iterator s = sdt.services().begin(); s != sdt.services().end(); ++s) {
 				if (addService(*s, is_actual)) {
 					is_new = true;
 					tid = CREATE_TRANSPONDER_ID_FROM_ORIGINALNETWORK_TRANSPORTSTREAM_ID(s->original_network_id,
