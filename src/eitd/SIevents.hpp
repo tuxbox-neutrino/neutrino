@@ -49,10 +49,6 @@ public:
 		serviceId = 0;
 	}
 	
-	// Der Operator zum sortieren
-	bool operator < (const SIlinkage& l) const {
-		return name < l.name;
-	}
 
 	void dump(void) const {
 		printf("Linakge Type: 0x%02hhx\n", linkageType);
@@ -71,8 +67,26 @@ public:
 //			return 1;
 		return 0;
 	}
-
+	// Der Operator zum sortieren
+	bool operator < (const SIlinkage& l) const {
+		return name < l.name;
+	}
+	bool operator==(const SIlinkage& s) const {
+		return (linkageType == s.linkageType) &&
+			(transportStreamId == s.transportStreamId) &&
+			(originalNetworkId == s.originalNetworkId) &&
+			(serviceId == s.serviceId) &&
+			(name == s.name);
+	}
+	bool operator!=(const SIlinkage& s) const {
+		return (linkageType != s.linkageType) ||
+			(transportStreamId != s.transportStreamId) ||
+			(originalNetworkId != s.originalNetworkId) ||
+			(serviceId != s.serviceId) ||
+			(name != s.name);
+	}
 };
+typedef std::vector<class SIlinkage> SIlinkage_descs;
 
 // Fuer for_each
 struct printSIlinkage : public std::unary_function<class SIlinkage, void>
@@ -88,8 +102,6 @@ struct saveSIlinkageXML : public std::unary_function<class SIlinkage, void>
 	void operator() (const SIlinkage &l) { l.saveXML(f);}
 };
 
-typedef std::vector<class SIlinkage> SIlinkage_descs;
-
 class SIcomponent 
 {
 	public:
@@ -103,10 +115,6 @@ class SIcomponent
 			componentType=0;
 			componentTag=0;      
 		}
-		// Der Operator zum sortieren
-		bool operator < (const SIcomponent& c) const {
-			return streamContent < c.streamContent;
-		}
 		void dump(void) const {
 			if(component.length())
 				printf("Component: %s\n", component.c_str());
@@ -119,6 +127,22 @@ class SIcomponent
 			saveStringToXMLfile(file,component.c_str());
 			fprintf(file, "\"/>\n");
 			return 0;
+		}
+		// Der Operator zum sortieren
+		bool operator < (const SIcomponent& c) const {
+			return streamContent < c.streamContent;
+		}
+		bool operator==(const SIcomponent& c) const {
+			return (componentType == c.componentType) &&
+				(componentTag == c.componentTag) &&
+				(streamContent == c.streamContent) &&
+				(component == c.component);
+		}
+		bool operator!=(const SIcomponent& c) const {
+			return (componentType != c.componentType) ||
+				(componentTag != c.componentTag) ||
+				(streamContent != c.streamContent) ||
+				(component != c.component);
 		}
 };
 
@@ -161,7 +185,16 @@ class SIparentalRating
 				return 1;
 			return 0;
 		}
+		bool operator==(const SIparentalRating& p) const {
+			return (rating == p.rating) &&
+				(countryCode == p.countryCode);
+		}
+		bool operator!=(const SIparentalRating& p) const {
+			return (rating != p.rating) ||
+				(countryCode != p.countryCode);
+		}
 };
+typedef std::set <SIparentalRating, std::less<SIparentalRating> > SIparentalRatings;
 
 // Fuer for_each
 struct printSIparentalRating : public std::unary_function<SIparentalRating, void>
@@ -176,8 +209,6 @@ struct saveSIparentalRatingXML : public std::unary_function<SIparentalRating, vo
 	saveSIparentalRatingXML(FILE *fi) { f=fi;}
 	void operator() (const SIparentalRating &r) { r.saveXML(f);}
 };
-
-typedef std::set <SIparentalRating, std::less<SIparentalRating> > SIparentalRatings;
 
 class SItime {
 	public:
@@ -200,6 +231,14 @@ class SItime {
 		int saveXML(FILE *file) const { // saves the time
 			fprintf(file, "\t\t\t<time start_time=\"%u\" duration=\"%u\"/>\n", (unsigned int) startzeit, dauer);
 			return 0;
+		}
+		bool operator==(const SItime& t) const {
+			return (dauer == t.dauer) &&
+				(startzeit == t.startzeit);
+		}
+		bool operator!=(const SItime& t) const {
+			return (dauer != t.dauer) ||
+				(startzeit != t.startzeit);
 		}
 };
 

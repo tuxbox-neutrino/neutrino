@@ -77,8 +77,8 @@ static bool sectionsd_ready = false;
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
 
-#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
-//#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
+//#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
+#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
 #define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 
 // Timeout bei tcp/ip connections in ms
@@ -533,81 +533,17 @@ static bool deleteEvent(const event_id_t uniqueKey)
 	   on one German Sky channel and incomplete on another one. So we
 	   make sure to keep the complete event, if applicable. */
 
-	if ((already_exists) && (evt.components.size() > 0)) {
-		if (si->second->components.size() != evt.components.size())
-			already_exists = false;
-		else {
-			SIcomponents::iterator c1 = si->second->components.begin();
-			SIcomponents::iterator c2 = evt.components.begin();
-			while ((c1 != si->second->components.end()) && (c2 != evt.components.end())) {
-				if ((c1->componentType != c2->componentType) ||
-						(c1->componentTag != c2->componentTag) ||
-						(c1->streamContent != c2->streamContent) ||
-						(strcmp(c1->component.c_str(),c2->component.c_str()) != 0)) {
-					already_exists = false;
-					break;
-				}
-				++c1;
-				++c2;
-			}
-		}
-	}
+	if (already_exists && (!evt.components.empty()) && (evt.components != si->second->components))
+		already_exists = false;
 
-	if ((already_exists) && (evt.linkage_descs.size() > 0)) {
-		if (si->second->linkage_descs.size() != evt.linkage_descs.size())
-			already_exists = false;
-		else {
-			for (unsigned int i = 0; i < si->second->linkage_descs.size(); i++) {
-				if ((si->second->linkage_descs[i].linkageType !=
-						evt.linkage_descs[i].linkageType) ||
-						(si->second->linkage_descs[i].originalNetworkId !=
-						 evt.linkage_descs[i].originalNetworkId) ||
-						(si->second->linkage_descs[i].transportStreamId !=
-						 evt.linkage_descs[i].transportStreamId) ||
-						(strcmp(si->second->linkage_descs[i].name.c_str(),
-							evt.linkage_descs[i].name.c_str()) != 0)) {
-					already_exists = false;
-					break;
-				}
-			}
-		}
-	}
+	if (already_exists && (!evt.linkage_descs.empty()) && (evt.linkage_descs != si->second->linkage_descs))
+		already_exists = false;
 
-	if ((already_exists) && (evt.ratings.size() > 0)) {
-		if (si->second->ratings.size() != evt.ratings.size())
-			already_exists = false;
-		else {
-			SIparentalRatings::iterator p1 = si->second->ratings.begin();
-			SIparentalRatings::iterator p2 = evt.ratings.begin();
-			while ((p1 != si->second->ratings.end()) && (p2 != evt.ratings.end())) {
-				if ((p1->rating != p2->rating) ||
-						(strcmp(p1->countryCode.c_str(),p2->countryCode.c_str()) != 0)) {
-					already_exists = false;
-					break;
-				}
-				++p1;
-				++p2;
-			}
-		}
-	}
+	if (already_exists && (!evt.ratings.empty()) && (evt.ratings != si->second->ratings))
+		already_exists = false;
 
-	if (already_exists) {
-		if (si->second->times.size() != evt.times.size())
-			already_exists = false;
-		else {
-			SItimes::iterator t1 = si->second->times.begin();
-			SItimes::iterator t2 = evt.times.begin();
-			while ((t1 != si->second->times.end()) && (t2 != evt.times.end())) {
-				if ((t1->startzeit != t2->startzeit) ||
-						(t1->dauer != t2->dauer)) {
-					already_exists = false;
-					break;
-				}
-				++t1;
-				++t2;
-			}
-		}
-	}
+	if (already_exists && (evt.times != si->second->times))
+		already_exists = false;
 
 	if ((already_exists) && (SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF)) {
 		si->second->contentClassification = evt.contentClassification;
