@@ -81,6 +81,7 @@ private:
 	void EpgCGI(CyhookHandler *hh);
 	void VersionCGI(CyhookHandler *hh);
 	void ReloadNutrinoSetupfCGI(CyhookHandler *hh);
+	void ReloadPluginsCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
 	void StartPluginCGI(CyhookHandler *hh);
 	void LCDAction(CyhookHandler *hh);
@@ -121,7 +122,7 @@ public:
 
 	// virtual functions for HookHandler/Hook
 	virtual std::string getHookName(void) {return std::string("mod_ControlAPI");}
-	virtual std::string 	getHookVersion(void) {return std::string("$Revision: 976 $");}
+	virtual std::string 	getHookVersion(void) {return std::string("$Revision$");}
 	virtual THandleStatus Hook_SendResponse(CyhookHandler *hh);
 	virtual THandleStatus Hook_PrepareResponse(CyhookHandler *hh);
 };

@@ -33,6 +33,7 @@
 #include <system/configure_network.h>
 #include <cs_api.h>
 #include <global.h>
+#include "gui/plugins.h"//for relodplugins
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -49,6 +50,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 bool sectionsd_getLinkageDescriptorsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::LinkageDescriptorList& descriptors);
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 
+extern CPlugins *g_PluginList;//for relodplugins
 extern CBouquetManager *g_bouquetManager;
 #define EVENTDEV "/dev/input/input0"
 
@@ -172,6 +174,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"info", 			&CControlAPI::InfoCGI,			"text/plain"},
 	{"version", 		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup", 	&CControlAPI::ReloadNutrinoSetupfCGI,		""},
+	{"relodplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
 	// boxcontrol - devices
 	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
 	{"lcd", 			&CControlAPI::LCDAction,		"text/plain"},
@@ -1436,6 +1439,12 @@ void CControlAPI::VersionCGI(CyhookHandler *hh)
 void CControlAPI::ReloadNutrinoSetupfCGI(CyhookHandler *hh)
 {
 	NeutrinoAPI->EventServer->sendEvent(NeutrinoMessages::RELOAD_SETUP, CEventServer::INITID_HTTPD);
+	hh->SendOk();
+}
+
+void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
+{
+	g_PluginList->loadPlugins();
 	hh->SendOk();
 }
 
