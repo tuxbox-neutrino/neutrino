@@ -28,7 +28,7 @@
 #include <stdint.h>
 #include <string>
 
-#define ENABLE_FREESATEPG //FIXME
+//#define ENABLE_FREESATEPG //FIXME
 
 time_t changeUTCtoCtime(const unsigned char *buffer, int local_time=1);
 time_t parseDVBtime(uint16_t mjd, uint32_t bcd);

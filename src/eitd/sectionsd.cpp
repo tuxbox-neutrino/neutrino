@@ -61,7 +61,7 @@
 #include "eitd.h"
 #include "edvbstring.h"
 
-#define ENABLE_SDT //FIXME
+//#define ENABLE_SDT //FIXME
 
 // 60 Minuten Zyklus...
 #define TIME_EIT_SCHEDULED_PAUSE 60 * 60
@@ -77,8 +77,8 @@ static bool sectionsd_ready = false;
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
 
-//#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
-#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
+#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
+//#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
 #define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 
 // Timeout bei tcp/ip connections in ms

@@ -62,6 +62,7 @@ void SIevent::parse(Event &event)
 	uint8_t duration_hi = (duration >> 16) & 0xFF;
 	uint8_t duration_mid = (duration >> 8) & 0xFF;
 	uint8_t duration_lo = duration & 0xFF;
+
 	if (!((duration_hi == 0xff) && (duration_mid == 0xff) && (duration_lo == 0xff)))
 		duration = ((duration_hi)>>4)*10*3600L + ((duration_hi)&0x0f)*3600L +
 			   ((duration_mid)>>4)*10*60L + ((duration_mid)&0x0f)*60L +
