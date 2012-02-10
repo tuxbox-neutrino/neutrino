@@ -81,6 +81,7 @@ SIevent::SIevent(const t_original_network_id _original_network_id, const t_trans
 	eventID		    = _event_id;
 	table_id            = 0xFF; /* not set */
 	version 	    = 0xFF;
+	running		    = 0;
 	/*	contentClassification = "";
 		userClassification = "";
 		itemDescription = "";
@@ -336,7 +337,7 @@ void SIevent::dump(void) const
 	for_each(ratings.begin(), ratings.end(), printSIparentalRating());
 	for_each(linkage_descs.begin(), linkage_descs.end(), printSIlinkage());
 }
-
+#if 0
 void SIevent::dumpSmall(void) const
 {
 	for (std::map<std::string, std::string>::const_iterator it = langName.begin() ;
@@ -358,6 +359,7 @@ void SIevent::dumpSmall(void) const
 	for_each(ratings.begin(), ratings.end(), printSIparentalRating());
 	for_each(linkage_descs.begin(), linkage_descs.end(), printSIlinkage());
 }
+#endif
 /*
 // Liest n Bytes aus einem Socket per read
 inline int readNbytes(int fd, char *buf, int n)
@@ -520,7 +522,7 @@ void SIevents::removeOldEvents(long seconds)
 
 			// Set has the important property that inserting a new element into a set does not
 			//  invalidate iterators that point to existing elements.
-			if (copy_of_event.times.size() != 0)
+			if (!copy_of_event.times.empty())
 #ifdef DEBUG
 				assert((++insert(it, copy_of_event)) == it);
 #else
