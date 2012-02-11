@@ -19,8 +19,8 @@ INCLUDES = \
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
 endif
-if USE_NEUTRINO_HAL
-INCLUDES += -I$(NEUTRINO_HAL_INC)
+if USE_STB_HAL
+INCLUDES += -I$(STB_HAL_INC)
 else
 if BOXTYPE_TRIPLE
 INCLUDES += -I$(top_srcdir)/lib/libtriple
@@ -112,9 +112,9 @@ bin_PROGRAMS += drivertool
 
 drivertool_SOURCES = drivertool.c
 endif
-if USE_NEUTRINO_HAL
+if USE_STB_HAL
 neutrino_LDADD += \
-	$(NEUTRINO_HAL_LIB)/libneutrino-hal.a
+	$(STB_HAL_LIB)/libstb-hal.a
 else
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \

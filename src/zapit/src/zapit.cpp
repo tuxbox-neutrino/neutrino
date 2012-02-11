@@ -60,7 +60,7 @@
 #include <audio_cs.h>
 #include <video_cs.h>
 #endif
-#if USE_NEUTRINO_HAL || HAVE_TRIPLEDRAGON
+#if USE_STB_HAL || HAVE_TRIPLEDRAGON
 #include <video_td.h>
 #include <audio_td.h>
 #endif

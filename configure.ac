@@ -114,16 +114,16 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
-AC_ARG_WITH(neutrino-hal-includes,
-	[  --with-neutrinohal-includes=PATH  path for libneutrino-hal includes [[NONE]]],
-	[NEUTRINO_HAL_INC="$withval"],[NEUTRINO_HAL_INC=""])
-AC_ARG_WITH(neutrino-hal-build,
-	[  --with-neutrinohal-build=PATH   path where libneutrino-hal is built [[NONE]]],
-	[NEUTRINO_HAL_LIB="$withval"],[NEUTRINO_HAL_LIB=""])
+AC_ARG_WITH(stb-hal-includes,
+	[  --with-stb-hal-includes=PATH  path for libstb-hal includes [[NONE]]],
+	[STB_HAL_INC="$withval"],[STB_HAL_INC=""])
+AC_ARG_WITH(stb-hal-build,
+	[  --with-stb-hal-build=PATH   path where libstb-hal is built [[NONE]]],
+	[STB_HAL_LIB="$withval"],[STB_HAL_LIB=""])
 
-AM_CONDITIONAL(USE_NEUTRINO_HAL, test "$NEUTRINO_HAL_INC")
-if test "$NEUTRINO_HAL_INC"; then
-	AC_DEFINE(USE_NEUTRINO_HAL, 1,[use libneutrino-hal])
+AM_CONDITIONAL(USE_STB_HAL, test "$STB_HAL_INC")
+if test "$STB_HAL_INC"; then
+	AC_DEFINE(USE_STB_HAL, 1,[use libstb-hal])
 fi
 
 
@@ -150,8 +150,8 @@ AC_SUBST(FREETYPE_CFLAGS)
 AC_SUBST(FREETYPE_LIBS)
 AC_SUBST(VORBISIDEC_CFLAGS)
 AC_SUBST(VORBISIDEC_LIBS)
-AC_SUBST(NEUTRINO_HAL_INC)
-AC_SUBST(NEUTRINO_HAL_LIB)
+AC_SUBST(STB_HAL_INC)
+AC_SUBST(STB_HAL_LIB)
 
 AC_OUTPUT([
 Makefile

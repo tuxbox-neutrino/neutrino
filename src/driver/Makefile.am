@@ -49,9 +49,9 @@ libneutrino_driver_a_SOURCES += \
 	lcdd.cpp
 endif
 
-if USE_NEUTRINO_HAL
+if USE_STB_HAL
 INCLUDES += \
-	-I$(NEUTRINO_HAL_INC) \
+	-I$(STB_HAL_INC) \
 	@DIRECTFB_CFLAGS@
 else
 if BOXTYPE_TRIPLE
