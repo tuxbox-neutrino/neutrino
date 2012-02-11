@@ -226,7 +226,7 @@ CNeutrinoApp::CNeutrinoApp()
 
 	frameBuffer = CFrameBuffer::getInstance();
 	frameBuffer->setIconBasePath(DATADIR "/neutrino/icons/");
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || USE_STB_HAL
 	/* this needs to happen before the framebuffer is set up */
 	init_td_api();
 	// shutdown_td_api();

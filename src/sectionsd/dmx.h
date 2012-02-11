@@ -32,7 +32,7 @@
 #if HAVE_COOL_HARDWARE
 #include <dmx_cs.h>
 #endif
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || USE_STB_HAL
 #include <dmx_td.h>
 #endif
 
