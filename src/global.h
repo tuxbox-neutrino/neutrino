@@ -47,7 +47,7 @@
 #include "driver/vfd.h"
 #include "driver/rfmod.h"
 #endif
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE
 #include "driver/lcdd.h"
 #define CVFD CLCD
 #endif

@@ -29,6 +29,9 @@ endif
 if BOXTYPE_TRIPLE
 SUBDIRS += lcddisplay
 endif
+if BOXTYPE_SPARK
+SUBDIRS += lcddisplay
+endif
 
 if USE_TREMOR
 VORBISLIBS = @VORBISIDEC_LIBS@
@@ -114,16 +117,17 @@ drivertool_SOURCES = drivertool.c
 endif
 if USE_STB_HAL
 neutrino_LDADD += \
-	$(STB_HAL_LIB)/libstb-hal.a
+	$(STB_HAL_LIB)/libstb-hal.a \
+	$(top_builddir)/src/lcddisplay/liblcddisplay.a
 else
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
-	$(top_builddir)/lib/libtriple/libtriple.a
-endif
-endif
-if BOXTYPE_TRIPLE
-neutrino_LDADD += \
-	@DIRECTFB_LIBS@ \
+	$(top_builddir)/lib/libtriple/libtriple.a \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a
 endif
+endif
 
+if BOXTYPE_TRIPLE
+neutrino_LDADD += \
+	@DIRECTFB_LIBS@
+endif

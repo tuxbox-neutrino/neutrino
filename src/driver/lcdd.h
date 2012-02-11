@@ -83,6 +83,9 @@ typedef enum
 #include <configfile.h>
 #include <pthread.h>
 
+#if HAVE_SPARK_HARDWARE
+#define HAVE_GENERIC_HARDWARE 1
+#endif
 #include <lcddisplay/fontrenderer.h>
 
 
