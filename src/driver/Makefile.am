@@ -18,7 +18,6 @@ noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
 libneutrino_driver_a_SOURCES = \
 	abstime.c \
 	fontrenderer.cpp \
-	framebuffer.cpp \
 	fb_window.cpp \
 	rcinput.cpp \
 	record.cpp \
@@ -36,6 +35,13 @@ libneutrino_driver_a_SOURCES = \
 	ringbuffer.c \
 	volume.cpp
 
+if BOXTYPE_SPARK
+libneutrino_driver_a_SOURCES += \
+	framebuffer_spark.cpp
+else
+libneutrino_driver_a_SOURCES += \
+	framebuffer.cpp
+endif
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \
 	vfd.cpp

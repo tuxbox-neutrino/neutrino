@@ -114,6 +114,10 @@ class CFrameBuffer
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
+#if HAVE_SPARK_HARDWARE
+		void blitRect(int x, int y, int width, int height, unsigned long color);
+		void blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height);
+#endif
 		int m_transparent_default, m_transparent;
 
 	public:
@@ -215,7 +219,7 @@ class CFrameBuffer
 		void add_gxa_sync_marker(void);
 		void waitForIdle(void);
 #else
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE
 		void waitForIdle(void);
 #else
 		inline void waitForIdle(void) {};
@@ -226,6 +230,18 @@ class CFrameBuffer
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
+
+#if HAVE_SPARK_HARDWARE
+		int scaleX(const int x, bool clamp = true);
+		int scaleY(const int y, bool clamp = true);
+		void resize(int format);
+		void update(void);
+#else
+		int scaleX(const int x, bool) { return x; };
+		int scaleY(const int y, bool) { return y; };
+		void resize(int) {};
+		void update(void) {};
+#endif
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
 		enum 
