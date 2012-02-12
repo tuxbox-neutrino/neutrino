@@ -247,6 +247,7 @@ void streamts_main_thread(void * /*data*/)
 	if(st != 0) {
 		printf("Stopping stream thread\n");
 		exit_flag = 1;
+		pthread_cancel(st);
 		pthread_join(st, NULL);
 		close(connfd);
 	}
