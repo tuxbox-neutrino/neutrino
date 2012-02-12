@@ -7692,8 +7692,6 @@ static void *cnThread(void *)
 	messaging_need_eit_version = false;
 	unlockMessaging();
 
-	waitForTimeset();
-
 	time_t eit_waiting_since = time_monotonic();
 	dmxCN.lastChanged = eit_waiting_since;
 
@@ -7923,14 +7921,11 @@ static void *cnThread(void *)
 
 			// == 0 -> kein event
 			//dprintf("[cnThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), header->table_id);
-			zeit = time(NULL);
 			// Nicht alle Events speichern
 			for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); e++)
 			{
 				if (!(e->times.empty()))
-				{
-					addEvent(*e, zeit, true); /* cn = true => fill in current / next event */
-				}
+					addEvent(*e, 0, true); /* cn = true => fill in current / next event */
 #if 0
 				/* I don't think there are NVOD events in CN tables, so we can skip that */
 				else
