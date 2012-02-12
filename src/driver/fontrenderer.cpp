@@ -37,6 +37,9 @@
 #include <system/debug.h>
 #include <global.h>
 
+/* the multiplier for the SPARK scale feature */
+#define SCALE_MULT 2048
+
 /* Drawing pixels is actually faster without the GXA accelerator (wich OTOH is
    faster for drawing lines, so disable it here. */
 #undef USE_NEVIS_GXA
@@ -241,6 +244,9 @@ Font::Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const 
 	scaler.x_res   = render->xres;
 	scaler.y_res   = render->yres;
 
+	xmult = frameBuffer->scaleX(SCALE_MULT, false);
+	ymult = frameBuffer->scaleY(SCALE_MULT, false);
+
 	setSize(isize);
 }
 
@@ -252,9 +258,10 @@ FT_Error Font::getGlyphBitmap(FT_ULong glyph_index, FTC_SBit *sbit)
 int Font::setSize(int isize)
 {
 	int temp = font.width;
-	font.width = font.height = isize;
-	scaler.width  = isize * 64;
-	scaler.height = isize * 64;
+	font.width  = isize * xmult / SCALE_MULT;
+	font.height = isize * ymult / SCALE_MULT;
+	scaler.width  = font.width * 64;
+	scaler.height = font.height * 64;
 
 	FT_Error err = FTC_Manager_LookupSize(renderer->cacheManager, &scaler, &size);
 	if (err != 0)
@@ -304,12 +311,12 @@ return 0;
 
 int Font::getWidth(void)
 {
-	return fontwidth;
+	return fontwidth * SCALE_MULT / xmult;
 }
 
 int Font::getHeight(void)
 {
-	return height;
+	return height * SCALE_MULT / ymult;
 }
 
 int Font::getDigitHeight(void)
@@ -367,10 +374,16 @@ int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on 
 	return unicode_value;
 }
 
-void Font::RenderString(int x, int y, const int width, const char *text, const unsigned char color, const int boxheight, const bool utf8_encoded)
+void Font::RenderString(int _x, int _y, const int _width, const char *text, const unsigned char color, const int _boxheight, const bool utf8_encoded)
 {
 	if (!frameBuffer->getActive())
 		return;
+
+	int x = _x * xmult / SCALE_MULT;
+	int y = _y * ymult / SCALE_MULT;
+	int boxheight = _boxheight * ymult / SCALE_MULT;
+	int width = _width * xmult / SCALE_MULT;
+	int step_y = height * ymult / SCALE_MULT;
 
 	pthread_mutex_lock( &renderer->render_mutex );
 
@@ -386,7 +399,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	int use_kerning=FT_HAS_KERNING(face);
 
 	int left=x;
-	int step_y=height;
 
 	// ----------------------------------- box upper end (this is NOT a font metric, this is our method for y centering)
 	//
@@ -682,7 +694,7 @@ int Font::getRenderWidth(const char *text, const bool utf8_encoded)
 
 	pthread_mutex_unlock( &renderer->render_mutex );
 
-	return x;
+	return x * SCALE_MULT / xmult;
 }
 
 int Font::getRenderWidth(const std::string & text, const bool utf8_encoded)

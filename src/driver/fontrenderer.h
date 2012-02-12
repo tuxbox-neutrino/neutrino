@@ -53,6 +53,7 @@ class Font
 	// these are HACKED values, because the font metrics were unusable.
 	int height,DigitHeight,DigitOffset,ascender,descender,upper,lower;
 	int fontwidth;
+	int xmult, ymult;
 
  public:
 	enum fontmodifier
