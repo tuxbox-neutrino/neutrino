@@ -26,7 +26,9 @@
 
 
 #include <stdio.h>
-
+#include <unistd.h>
+#include <stdlib.h>
+#include <string>
 
 extern bool sections_debug;
 
@@ -35,6 +37,7 @@ extern bool sections_debug;
 #define xprintf(fmt, args...) do { printdate_ms(stderr); fprintf(stderr, fmt, ## args); } while (0)
 
 void printdate_ms(FILE* f);
+void showProfiling( std::string text );
 
 #endif /* __sectionsd__debug_h__ */
 

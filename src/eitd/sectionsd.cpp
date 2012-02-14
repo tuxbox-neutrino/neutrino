@@ -240,20 +240,6 @@ inline bool waitForTimeset(void)
 	return true;
 }
 
-static int64_t last_profile_call;
-
-void showProfiling( std::string text )
-{
-	struct timeval tv;
-
-	gettimeofday( &tv, NULL );
-	int64_t now = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
-
-	int64_t tmp = now - last_profile_call;
-	printf("--> '%s' %lld.%03lld\n", text.c_str(), tmp / 1000LL, tmp % 1000LL);
-	last_profile_call = now;
-}
-
 static const SIevent nullEvt; // Null-Event
 
 // Wir verwalten die events in SmartPointers

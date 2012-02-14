@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
+#include "debug.h"
 
 bool sections_debug;
 
@@ -32,4 +33,18 @@ void printdate_ms(FILE *f) {
 	struct tm *tm = localtime(&now.tv_sec);
 	/* use strftime for that? */
 	fprintf(f, "%02d:%02d:%02d.%03ld ", tm->tm_hour, tm->tm_min, tm->tm_sec, now.tv_usec/1000);
+}
+
+static int64_t last_profile_call;
+
+void showProfiling( std::string text )
+{
+	struct timeval tv;
+
+	gettimeofday( &tv, NULL );
+	int64_t now = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
+
+	int64_t tmp = now - last_profile_call;
+	printf("--> '%s' %lld.%03lld\n", text.c_str(), tmp / 1000LL, tmp % 1000LL);
+	last_profile_call = now;
 }
