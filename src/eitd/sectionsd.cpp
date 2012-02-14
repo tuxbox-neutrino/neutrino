@@ -60,6 +60,7 @@
 
 #include "eitd.h"
 #include "edvbstring.h"
+#include "xmlutil.h"
 
 //#define ENABLE_SDT //FIXME
 
@@ -106,13 +107,11 @@ static long secondsExtendedTextCache;
 static long oldEventsAre;
 static int scanning = 1;
 
-std::string epg_filter_dir = "/var/tuxbox/config/zapit/epgfilter.xml";
-static bool epg_filter_is_whitelist = false;
-static bool epg_filter_except_current_next = false;
-static bool messaging_zap_detected = false;
+extern bool epg_filter_is_whitelist;
+extern bool epg_filter_except_current_next;
 
-std::string dvbtime_filter_dir = "/var/tuxbox/config/zapit/dvbtimefilter.xml";
-static bool dvb_time_update = false;
+static bool messaging_zap_detected = false;
+/*static*/ bool dvb_time_update = false;
 
 //NTP-Config
 #define CONF_FILE "/var/tuxbox/config/neutrino.conf"
@@ -263,122 +262,6 @@ static MySIeventUniqueKeysMetaOrderServiceUniqueKey mySIeventUniqueKeysMetaOrder
 
 static MySIservicesOrderUniqueKey mySIservicesOrderUniqueKey;
 static MySIservicesNVODorderUniqueKey mySIservicesNVODorderUniqueKey;
-
-struct EPGFilter
-{
-	t_original_network_id onid;
-	t_transport_stream_id tsid;
-	t_service_id sid;
-	EPGFilter *next;
-};
-
-struct ChannelBlacklist
-{
-	t_channel_id chan;
-	t_channel_id mask;
-	ChannelBlacklist *next;
-};
-
-struct ChannelNoDVBTimelist
-{
-	t_channel_id chan;
-	t_channel_id mask;
-	ChannelNoDVBTimelist *next;
-};
-
-EPGFilter *CurrentEPGFilter = NULL;
-ChannelBlacklist *CurrentBlacklist = NULL;
-ChannelNoDVBTimelist *CurrentNoDVBTime = NULL;
-
-static bool checkEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
-{
-	EPGFilter *filterptr = CurrentEPGFilter;
-	while (filterptr)
-	{
-		if (((filterptr->onid == onid) || (filterptr->onid == 0)) &&
-				((filterptr->tsid == tsid) || (filterptr->tsid == 0)) &&
-				((filterptr->sid == sid) || (filterptr->sid == 0)))
-			return true;
-		filterptr = filterptr->next;
-	}
-	return false;
-}
-
-static bool checkBlacklist(t_channel_id channel_id)
-{
-	ChannelBlacklist *blptr = CurrentBlacklist;
-	while (blptr)
-	{
-		if (blptr->chan == (channel_id & blptr->mask))
-			return true;
-		blptr = blptr->next;
-	}
-	return false;
-}
-
-static bool checkNoDVBTimelist(t_channel_id channel_id)
-{
-	ChannelNoDVBTimelist *blptr = CurrentNoDVBTime;
-	while (blptr)
-	{
-		if (blptr->chan == (channel_id & blptr->mask))
-			return true;
-		blptr = blptr->next;
-	}
-	return false;
-}
-
-static void addEPGFilter(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
-{
-	if (!checkEPGFilter(onid, tsid, sid))
-	{
-		dprintf("Add EPGFilter for onid=\"%04x\" tsid=\"%04x\" service_id=\"%04x\"\n", onid, tsid, sid);
-		EPGFilter *node = new EPGFilter;
-		node->onid = onid;
-		node->tsid = tsid;
-		node->sid = sid;
-		node->next = CurrentEPGFilter;
-		CurrentEPGFilter = node;
-	}
-}
-
-static void addBlacklist(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
-{
-	t_channel_id channel_id =
-		CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(sid, onid, tsid);
-	t_channel_id mask =
-		CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
-			(sid ? 0xFFFF : 0), (onid ? 0xFFFF : 0), (tsid ? 0xFFFF : 0)
-		);
-	if (!checkBlacklist(channel_id))
-	{
-		xprintf("Add Channel Blacklist for channel 0x%012llx, mask 0x%012llx\n", channel_id, mask);
-		ChannelBlacklist *node = new ChannelBlacklist;
-		node->chan = channel_id;
-		node->mask = mask;
-		node->next = CurrentBlacklist;
-		CurrentBlacklist = node;
-	}
-}
-
-static void addNoDVBTimelist(t_original_network_id onid, t_transport_stream_id tsid, t_service_id sid)
-{
-	t_channel_id channel_id =
-		CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(sid, onid, tsid);
-	t_channel_id mask =
-		CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
-			(sid ? 0xFFFF : 0), (onid ? 0xFFFF : 0), (tsid ? 0xFFFF : 0)
-		);
-	if (!checkNoDVBTimelist(channel_id))
-	{
-		xprintf("Add channel 0x%012llx, mask 0x%012llx to NoDVBTimelist\n", channel_id, mask);
-		ChannelNoDVBTimelist *node = new ChannelNoDVBTimelist;
-		node->chan = channel_id;
-		node->mask = mask;
-		node->next = CurrentNoDVBTime;
-		CurrentNoDVBTime = node;
-	}
-}
 
 // Loescht ein Event aus allen Mengen
 static bool deleteEvent(const event_id_t uniqueKey)
@@ -3780,6 +3663,7 @@ static void *houseKeepingThread(void *)
 	pthread_exit(NULL);
 }
 
+#if 0
 static void readEPGFilter(void)
 {
 	xmlDocPtr filter_parser = parseXmlFile(epg_filter_dir.c_str());
@@ -3846,6 +3730,7 @@ static void readDVBTimeFilter(void)
 		dvb_time_update = true;
 	}
 }
+#endif
 
 extern cDemux * dmxUTC;
 
