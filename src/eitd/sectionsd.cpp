@@ -4511,7 +4511,7 @@ void sectionsd_getChannelEvents(CChannelEventList &eList, const bool tv_mode = t
 					break;
 				}
 			}
-			if(clen == (int) eList.size())
+			if(clen && (clen == (int) eList.size()))
 				break;
 		}
 	}
