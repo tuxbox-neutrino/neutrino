@@ -79,7 +79,7 @@ bool CScreenShot::GetData()
 	CFrameBuffer::getInstance()->setActive(false);
 #endif
 
-#if 0 // to enable after libcs/drivers update
+#if 1 // to enable after libcs/drivers update
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
 

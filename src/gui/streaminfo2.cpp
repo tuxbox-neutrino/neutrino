@@ -246,6 +246,10 @@ int CStreamInfo2::doSignalStrengthLoop ()
 			res = menu_return::RETURN_EXIT_ALL;
 			break;
 		}
+		else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
+			CNeutrinoApp::getInstance ()->handleMsg (msg, data);
+			continue;
+		}
 
 		// -- any key --> abort
 		if (msg <= CRCInput::RC_MaxRC) {
