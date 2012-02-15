@@ -211,7 +211,7 @@ void CNeutrinoApp::InitMenuMain()
 		personalize.addItem(MENU_MAIN, new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler), &g_settings.personalize[SNeutrinoSettings::P_MAIN_CISETTINGS]);
 	
 #ifdef TEST_MENU
-	personalize.addItem(MENU_MAIN, new CMenuForwarderNonLocalized("Test menu", true, NULL, new CTestMenu(), CPersonalizeGui::PERSONALIZE_SHOW_NO));
+	personalize.addItem(MENU_MAIN, new CMenuForwarderNonLocalized("Test menu", true, NULL, new CTestMenu()), NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 #endif
 }
 
