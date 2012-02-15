@@ -456,8 +456,8 @@ class CMenuWidget : public CMenuTarget
 		virtual void hide();
 		virtual int exec(CMenuTarget* parent, const std::string & actionKey);
 		virtual std::string getName();
-		virtual void setSelected(const int &Preselected){ preselected = Preselected; };
-		virtual int getSelected(){ return selected; };
+		void setSelected(const int &Preselected){ preselected = Preselected; };
+		int getSelected(){ return selected; };
 		void move(int xoff, int yoff);
 		int getSelectedLine(void){return exit_pressed ? -1 : selected;};
 		void setWizardMode(bool _from_wizard) { from_wizard = _from_wizard;};		
