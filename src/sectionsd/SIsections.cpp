@@ -91,7 +91,7 @@ struct service_list_entry {
 	unsigned service_id_lo			: 8;
 	unsigned service_type			: 8;
 } __attribute__ ((packed)) ;
-
+#if 0
 struct digplus_order_entry {
 	unsigned service_id_hi			: 8;
 	unsigned service_id_lo			: 8;
@@ -115,7 +115,7 @@ struct bskyb_bid {
 	unsigned unknown1			: 8;
 	unsigned unknown2			: 8;
 } __attribute__ ((packed)) ;
-
+#endif
 struct private_data_specifier {
 	unsigned byte1				: 8;
 	unsigned byte2				: 8;
@@ -1510,13 +1510,13 @@ int SIsections :: readSections(const unsigned short pid, const unsigned char fil
 	// Jetzt erstellen wir eine Liste der fehlenden Sections
 	unsigned short actualTableIDextension = (unsigned short) -1;
 	unsigned char actualTableID = (unsigned char) -1;
-	unsigned char maxNr = 0;
+//	unsigned char maxNr = 0;
 	unsigned char lastNr = 0;
 
 	for (SIsections::iterator k = begin(); k != end(); k++) {
 		if ((k->tableIDextension() != actualTableIDextension) || (k->tableID() != actualTableID)) {
 			// Neue Table-ID-Extension
-			maxNr = k->lastSectionNumber();
+//			maxNr = k->lastSectionNumber();
 			actualTableIDextension = k->tableIDextension();
 			actualTableID = k->tableID();
 		}

@@ -231,8 +231,18 @@ void CInfoViewer::changePB()
 	const short red_bar = 40;
 	const short yellow_bar = 70;
 	const short green_bar = 100;
+	int w = 0, h = 0;
 
-	hddwidth = frameBuffer->getScreenWidth(true) * 10 / 128; /* 100 pix if screen is 1280 wide */
+	frameBuffer->getIconSize(NEUTRINO_ICON_16_9, &w, &h);
+	if (w > 26) { // larger icons
+		if (g_settings.screen_preset == 1)
+			w = (g_settings.casystem_display == 2) ? 6 : 10; // LCD
+		else
+			w = (g_settings.casystem_display == 2) ? 4 : 7; // CRT
+	}
+	else // org. icons
+		w = 10;
+	hddwidth = frameBuffer->getScreenWidth(true) * w / 128; /* 40...100 pix if screen is 1280 wide */
 	if (sigscale != NULL)
 		delete sigscale;
 	sigscale = new CProgressBar(true, bar_width, 10, red_bar, green_bar, yellow_bar);
@@ -1082,14 +1092,14 @@ void CInfoViewer::showIcon_16_9 ()
 		}
 		frameBuffer->paintIcon((aspectRatio > 2) ? NEUTRINO_ICON_16_9 : NEUTRINO_ICON_16_9_GREY,
 				       BoxEndX - (2*icon_large_width + 2*icon_small_width + 4*2), BBarY,
-				       InfoHeightY_Info);
+				       InfoHeightY_Info, 1, true, true, COL_INFOBAR_BUTTONS_BACKGROUND);
 	}
 }
 
 void CInfoViewer::showIcon_VTXT () const
 {
 	frameBuffer->paintIcon((g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0) ? NEUTRINO_ICON_VTXT : NEUTRINO_ICON_VTXT_GREY,
-			       BoxEndX - (2*icon_small_width + 2*2), BBarY, InfoHeightY_Info);
+			       BoxEndX - (2*icon_small_width + 2*2), BBarY, InfoHeightY_Info, 1, true, true, COL_INFOBAR_BUTTONS_BACKGROUND);
 }
 
 void CInfoViewer::showIcon_Resolution() const
@@ -1172,10 +1182,9 @@ void CInfoViewer::showIcon_Resolution() const
 			}
 		}
 	}
-	if (g_settings.infobar_show_res < 2) {
-		frameBuffer->paintBoxRel(BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, icon_large_width, InfoHeightY_Info, COL_INFOBAR_BUTTONS_BACKGROUND, RADIUS_SMALL, CORNER_BOTTOM);
-		frameBuffer->paintIcon(icon_name, BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, InfoHeightY_Info);
-        }
+	if (g_settings.infobar_show_res < 2)
+		frameBuffer->paintIcon(icon_name, BoxEndX - (icon_xres_width + 2*icon_large_width + 2*icon_small_width + 5*2), BBarY, 
+				       InfoHeightY_Info, 1, true, true, COL_INFOBAR_BUTTONS_BACKGROUND);
 }
 
 void CInfoViewer::showIcon_SubT() const
@@ -1186,7 +1195,7 @@ void CInfoViewer::showIcon_SubT() const
 		have_sub = true;
 
 	frameBuffer->paintIcon(have_sub ? NEUTRINO_ICON_SUBT : NEUTRINO_ICON_SUBT_GREY, BoxEndX - (icon_small_width + 2),
-			       BBarY, InfoHeightY_Info);
+			       BBarY, InfoHeightY_Info, 1, true, true, COL_INFOBAR_BUTTONS_BACKGROUND);
 }
 
 void CInfoViewer::showFailure ()
@@ -1972,7 +1981,7 @@ void CInfoViewer::showButton_Audio ()
 		dd_icon = NEUTRINO_ICON_DD_GREY;
 
 	frameBuffer->paintIcon(dd_icon, BoxEndX - (icon_large_width + 2*icon_small_width + 3*2),
-			       BBarY, InfoHeightY_Info);
+			       BBarY, InfoHeightY_Info, 1, true, true, COL_INFOBAR_BUTTONS_BACKGROUND);
 }
 
 void CInfoViewer::killTitle()
@@ -2245,7 +2254,7 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 void CInfoViewer::showOne_CAIcon(bool fta)
 {
 	frameBuffer->paintIcon(fta ? NEUTRINO_ICON_SCRAMBLED2_GREY : NEUTRINO_ICON_SCRAMBLED2, BoxEndX - (icon_xres_width + icon_crypt_width + 2*icon_large_width + 2*icon_small_width + 6*2), BBarY,
-			       InfoHeightY_Info);
+			       InfoHeightY_Info, 1, true, true, COL_INFOBAR_BUTTONS_BACKGROUND);
 }
 
 void CInfoViewer::showIcon_CA_Status (int notfirst)

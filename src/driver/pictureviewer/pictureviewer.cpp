@@ -549,11 +549,24 @@ void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int m
 
 bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy, int width, int height)
 {
+	return int_DisplayImage(name, posx, posy, width, height, false);
+}
+
+bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, int width, int height, const fb_pixel_t colBg)
+{
+	return int_DisplayImage(name, posx, posy, width, height, true, colBg);
+}
+
+bool CPictureViewer::int_DisplayImage(const std::string & name, int posx, int posy, int width, int height, bool paintBg, const fb_pixel_t colBg)
+{
 	/* TODO: cache or check for same */
 	fb_pixel_t * data = getImage(name, width, height);
 
 	if(data) {
-		CFrameBuffer::getInstance()->blit2FB(data, width, height, posx, posy);
+		CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
+		if (paintBg)
+			frameBuffer->paintBoxRel(posx, posy, width, height, colBg);
+		frameBuffer->blit2FB(data, width, height, posx, posy);
 		cs_free_uncached(data);
 		return true;
 	}

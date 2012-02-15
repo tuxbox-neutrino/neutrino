@@ -56,6 +56,8 @@
 	CMenuItem *menuItem		= pointer to a menuitem object, can be forwarders, locked forwarders and separators...NO CHOOSERS!
 	const int *personalize_mode	= optional, default NULL, pointer to a specified personalize setting look at: PERSONALIZE_MODE, this regulates the personalize mode
 	const bool item_mode		= optional, default true, if you don't want to see this item in personalize menue, then set it to false
+	CMenuItem *observer_Item	= optional, default NULL, if you want to observe this item with another item (observer), then use this prameter.
+					  Effect: this observed item will be deactivated, if observer is set to 'visible' or 'pin-protected'
 	
 	Icon handling:
 	If you define an icon in the item object, this will be shown in the personalized menu but not the personilazitions menue itself, otherwise a shortcut will be create
@@ -203,14 +205,18 @@ CPersonalizeGui::CPersonalizeGui()
 	shortcut = 1;
 	show_usermenu = false;
 	show_pin_setup = false;
-	pers_notifier = NULL;
+	user_menu_notifier = NULL;
 	fkeyMenu = NULL;
 	plMenu = NULL;
+	tmpW = NULL;
+	v_observ.clear();
+	options_count = 0;
 }
 
 CPersonalizeGui::~CPersonalizeGui()
 {
 	v_widget.clear();
+	v_observ.clear();
 }
 
 int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
@@ -310,7 +316,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	delete fkeyMenu;
 	delete plMenu;
 	v_userMenuSetup.clear();
-	delete pers_notifier;
+	delete user_menu_notifier;
 	
 	return res;
 }
@@ -367,15 +373,15 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 	CMenuForwarder *fw_fkeys = new CMenuForwarder(LOCALE_PERSONALIZE_USERMENU_PREFERRED_BUTTONS, true, NULL, fkeyMenu, NULL, CRCInput::RC_1);
 #endif	
 	//enable/disable epg/features
-	pers_notifier = new CPersonalizeNotifier(v_umenu_fw[0], v_umenu_fw[3]);
+	user_menu_notifier = new CUserMenuNotifier(v_umenu_fw[0], v_umenu_fw[3]);
 	//red 
-	p_widget->addItem(new CMenuOptionChooser(usermenu[0].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, pers_notifier));/*LOCALE_INFOVIEWER_EVENTLIST*/
+	p_widget->addItem(new CMenuOptionChooser(usermenu[0].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, user_menu_notifier));/*LOCALE_INFOVIEWER_EVENTLIST*/
 	//blue 
-	p_widget->addItem(new CMenuOptionChooser(usermenu[3].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, pers_notifier));/*LOCALE_INFOVIEWER_STREAMINFO*/
+	p_widget->addItem(new CMenuOptionChooser(usermenu[3].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, user_menu_notifier));/*LOCALE_INFOVIEWER_STREAMINFO*/
 	
 	//add usermenu items
 	p_widget->addItem(new CMenuSeparator(CMenuSeparator::ALIGN_RIGHT | CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_USERMENU_NAME));
-	pers_notifier->changeNotify();
+	user_menu_notifier->changeNotify();
 	for (uint j = 0; j<USERMENU_ITEMS_COUNT; j++)
 		p_widget->addItem(v_umenu_fw[j]);
 	
@@ -413,9 +419,13 @@ void CPersonalizeGui::ShowMenuOptions(const int& widget)
 {
 	string mn_name = v_widget[widget]->getName();
 	printf("[neutrino-personalize] exec %s...\n", __FUNCTION__);
-
+	
 	mn_widget_id_t w_index = widget+MN_WIDGET_ID_PERSONALIZE_MAIN;
 	CMenuWidget* pm = new CMenuWidget(LOCALE_PERSONALIZE_HEAD, NEUTRINO_ICON_PERSONALIZE, width, w_index);
+	//reuqired in changeNotify()
+	options_count = 0; 
+	tmpW = pm;
+	//*************************
 	
 	//subhead
 	CMenuSeparator * pm_subhead = new CMenuSeparator(CMenuSeparator::ALIGN_LEFT | CMenuSeparator::SUB_HEAD | CMenuSeparator::STRING);
@@ -435,10 +445,29 @@ void CPersonalizeGui::ShowMenuOptions(const int& widget)
 			
 			if (i_mode != PERSONALIZE_SHOW_NO)
 			{
+				//add items to the options menu
 				if (i_mode == PERSONALIZE_SHOW_AS_ITEM_OPTION) 
 				{	
 					if (v_item[i].personalize_mode != NULL) //option chooser
-						pm->addItem(new CMenuOptionChooser(v_item[i].locale_name, v_item[i].personalize_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->active));
+					{
+						//get locale name and personalize mode
+						neutrino_locale_t name = v_item[i].locale_name;
+						int* p_mode = v_item[i].personalize_mode;
+						
+						//found observer item and if found, then define 'this' as observer for current option chooser and run changeNotify
+						bool is_observer = isObserver(v_item[i].widget, v_item[i].menuItem) ? true : false;
+						CChangeObserver* observer = is_observer ? this : NULL;					
+						CMenuOptionChooser * opt = new CMenuOptionChooser(name, p_mode, PERSONALIZE_MODE_OPTIONS, PERSONALIZE_MODE_MAX, v_item[i].menuItem->active, observer);
+						if (is_observer)
+							changeNotify(name, (void*)p_mode);
+										
+						//required for first view: check active mode of option chooser and disable if it's an observed item and item mode is set to 'not visible'
+						for (uint j = 0; j < v_observ.size(); j++)		
+							if (opt->getOptionName()== g_Locale->getText(v_observ[j].to_observ_locale) && *p_mode == PERSONALIZE_MODE_NOTVISIBLE)
+								opt->setActive(false);	
+												
+						pm->addItem(opt); //add option chooser
+					}
 					else 
 						pm->addItem(v_item[i].menuItem); //separator
 				}
@@ -459,12 +488,74 @@ void CPersonalizeGui::ShowMenuOptions(const int& widget)
 					pm->addItem(v_item[i].menuItem); 
 			}	
 		}
+		
 	}
-	
+	options_count = pm->getItemsCount();
 	pm->exec (NULL, "");
 	pm->hide ();
 	delete pm;
 
+}
+
+//returns true, if found an observer item
+bool CPersonalizeGui::isObserver(CMenuWidget* widget, CMenuItem *item)
+{	 
+	for (uint i = 0; i < v_observ.size(); i++)
+	{	
+		if (v_observ[i].widget == widget)
+		{
+			CMenuForwarder* fw = static_cast <CMenuForwarder*> (item);		
+			if (fw->getTextLocale() == v_observ[i].observer_locale)
+				return true;	
+		}
+	}	
+	return false;
+}
+
+
+bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
+{	
+	int opt_val = *(int*) data;
+	
+	//exit if no options found
+	int opt_count = options_count;
+	if (opt_count == 0 && locale == NONEXISTANT_LOCALE)
+		return true;
+	
+	//if found an option and handle
+	for (int i = 0; i < opt_count; i++){
+		
+		//get current item
+		CMenuItem* item = tmpW->getItem(i);
+		if (item->isMenueOptionChooser())
+		{
+			//if found an optionchooser, then extract option name
+			CMenuOptionChooser* chooser = static_cast <CMenuOptionChooser*> (item);
+			string opt_name = chooser->getOptionName();
+
+			for (uint j = 0; j < v_observ.size(); j++)
+			{	
+				//if found the same option name for an observer item then...
+				if (locale == v_observ[j].observer_locale)
+				{	
+					//...compare for observed item
+					if (opt_name == g_Locale->getText(v_observ[j].to_observ_locale))	
+					{
+						//and if found an observed item, then set properties
+						if (opt_val == PERSONALIZE_MODE_VISIBLE || opt_val == PERSONALIZE_MODE_PIN)
+						{
+							chooser->setActive(false);
+							chooser->setOptionValue(PERSONALIZE_MODE_NOTVISIBLE);
+						}else{
+							chooser->setActive(true);
+							chooser->setOptionValue(PERSONALIZE_MODE_VISIBLE);
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
 }
 
 //shows a short help message
@@ -539,6 +630,14 @@ int CPersonalizeGui::getWidgetId(CMenuWidget *widget)
 	return -1;
 }
 
+void CPersonalizeGui::addObservedItem(CMenuWidget *widget, CMenuItem* observer_Item, CMenuItem* to_observ_Item)
+{
+	CMenuForwarder *fw[2] = {	static_cast <CMenuForwarder*> (observer_Item),
+					static_cast <CMenuForwarder*> (to_observ_Item)};
+	observ_menu_item_t item = {widget, fw[0]->getTextLocale(), fw[1]->getTextLocale()};
+	v_observ.push_back(item);
+}
+
 
 //adds non personalized menu intro items objects with separator, back button and separator line to menu without personalizing parameters
 void CPersonalizeGui::addIntroItems(const int& widget_id)
@@ -555,17 +654,20 @@ void CPersonalizeGui::addIntroItems(CMenuWidget *widget)
 
 
 //overloaded version from 'addItem', first parameter is an id from widget collection 'v_widget'
-void CPersonalizeGui::addItem(const int& widget_id, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode)
+void CPersonalizeGui::addItem(const int& widget_id, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode, CMenuItem *observer_Item)
 {
-	addItem(v_widget[widget_id], menu_Item, personalize_mode, defaultselected, item_mode);
+	addItem(v_widget[widget_id], menu_Item, personalize_mode, defaultselected, item_mode, observer_Item);
 }
 
 //adds a personalized menu item object to menu with personalizing parameters
-void CPersonalizeGui::addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode)
+void CPersonalizeGui::addItem(CMenuWidget *widget, CMenuItem *menu_Item, const int *personalize_mode, const bool defaultselected, const int& item_mode, CMenuItem *observer_Item)
 {
+	if (observer_Item != NULL)
+		addObservedItem(widget, observer_Item, menu_Item);
+	
  	CMenuForwarder *fw = static_cast <CMenuForwarder*> (menu_Item);
 	
-	menu_item_t item = {widget, menu_Item, defaultselected, fw->getTextLocale(), (int*)personalize_mode, item_mode};
+	menu_item_t item = {widget, menu_Item, defaultselected, fw->getTextLocale(), (int*)personalize_mode, item_mode, observer_Item};
 
 	if (item_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION)
 	{
@@ -592,8 +694,8 @@ void CPersonalizeGui::addSeparator(const int& widget_id, const neutrino_locale_t
 //expands with parameter within you can show or hide this item in personalize options
 void CPersonalizeGui::addSeparator(CMenuWidget &widget, const neutrino_locale_t locale_text, const int& item_mode)
 {
-	menu_item_t to_add_sep[2] = {	{&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode}, 
-					{&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode}};
+	menu_item_t to_add_sep[2] = {	{&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode, NULL}, 
+					{&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode, NULL}};
 	
 	if (locale_text == NONEXISTANT_LOCALE)
 		v_item.push_back(to_add_sep[0]);
@@ -776,13 +878,13 @@ void CPersonalizeGui::restoreSettings()
 
 
 //helper class to enable/disable some items in usermenu setup
-CPersonalizeNotifier::CPersonalizeNotifier( CMenuItem* i1, CMenuItem* i2)
+CUserMenuNotifier::CUserMenuNotifier( CMenuItem* i1, CMenuItem* i2)
 {
    toDisable[0]=i1;
    toDisable[1]=i2;
 }
 
-bool CPersonalizeNotifier::changeNotify(const neutrino_locale_t, void *)
+bool CUserMenuNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	toDisable[0]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON]);
 	toDisable[1]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON]);

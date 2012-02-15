@@ -956,7 +956,7 @@ bool CFrameBuffer::blitToPrimary(unsigned int *, int, int, int, int)
    if height h is given, center vertically between y and y+h
    offset is a color offset (probably only useful with palette) */
 bool CFrameBuffer::paintIcon(const std::string & filename, const int x, const int y,
-			     const int h, const unsigned char offset, bool paint)
+			     const int h, const unsigned char offset, bool paint, bool paintBg, const fb_pixel_t colBg)
 {
 	struct rawHeader header;
 	int         width, height;
@@ -1053,6 +1053,8 @@ _display:
 	if (h != 0)
 		yy += (h - height) / 2;
 
+	if (paintBg)
+		paintBoxRel(x, yy, width, height, colBg);
 	blit2FB(data, width, height, x, yy, 0, 0, true);
 	return true;
  

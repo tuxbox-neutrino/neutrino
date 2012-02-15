@@ -355,6 +355,7 @@ public:
 		vps = 0;
 		table_id = 0xFF; /* 0xFF means "not set" */
 		version = 0xFF;
+		running = 0;
 //      dauer=0;
 //      startzeit=0;
 	}
