@@ -233,10 +233,21 @@ void CNeutrinoApp::InitMenuSettings()
 	int show = CPersonalizeGui::PERSONALIZE_MODE_VISIBLE;
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_SAVESETTINGSNOW, true, NULL, this, "savesettings", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 	
-	// separator line
-	personalize.addItem(MENU_SETTINGS, GenericMenuSeparatorLine, NULL, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
+	// settings manager
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
+	
+	// personalize
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PERSONALIZE_HEAD, true, NULL, &personalize, NULL, CRCInput::RC_yellow , NEUTRINO_ICON_BUTTON_YELLOW), &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
+	
+	// miscSettings
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MISC, true, NULL, new CMiscMenue() , NULL, CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE), &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
+		
+ 	//separator
+ 	personalize.addSeparator(MENU_SETTINGS);
 	
 	//1st section***************************************************************************************************
+	
+	//use only 10 shortcuts (1-9, 0), >9 means -> no shortcut
 	
 	// video.
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_VIDEO, true, NULL, g_videoSettings), &g_settings.personalize[SNeutrinoSettings::P_MSET_VIDEO]);	
@@ -271,31 +282,12 @@ void CNeutrinoApp::InitMenuSettings()
 	// cisettings
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_CI_SETTINGS, true, NULL, g_CamHandler), &g_settings.personalize[SNeutrinoSettings::P_MSET_CISETTINGS]);
 	
-	//separator
-	personalize.addSeparator(MENU_SETTINGS);
-		
-	//***************************************************************************************************	
-	//10. -- only 10 shortcuts (1-9, 0), the next could be the last also!(10. => 0)
-	// settings manager
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager()), &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
-
-	// personalize
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PERSONALIZE_HEAD, true, NULL, &personalize), &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
-	
-	// separator
-	personalize.addSeparator(MENU_SETTINGS);
-		
-	//***************************************************************************************************
-		
 	// keybindings
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, new CKeybindSetup(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), &g_settings.personalize[SNeutrinoSettings::P_MSET_KEYBINDING]);
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_KEYBINDING, true, NULL, new CKeybindSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_KEYBINDING]);
 	
 	// audioplayer/pictureviewer settings
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, true, NULL, new CMediaPlayerSetup(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), &g_settings.personalize[SNeutrinoSettings::P_MSET_MEDIAPLAYER]);
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL, true, NULL, new CMediaPlayerSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_MEDIAPLAYER]);
 
-	// miscSettings
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MISC, true, NULL, new CMiscMenue() , NULL, CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE), &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);
-	
 }
 	
 
