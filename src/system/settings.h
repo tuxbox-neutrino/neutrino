@@ -569,6 +569,7 @@ struct SNeutrinoSettings
 		ITEM_CAM = 18,
 		ITEM_CLOCK = 19,
 		ITEM_GAMES = 20,
+		ITEM_SCRIPTS = 21,
 #if 0
 		ITEM_MOVIEPLAYER_TS,
 #endif

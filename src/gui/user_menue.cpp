@@ -127,6 +127,7 @@ bool CUserMenu::showUserMenu(int button)
 	CDBoxInfoWidget *boxinfo				= NULL;
 	CNeutrinoApp * neutrino					= NULL;
 	CPluginList * games					= NULL;
+	CPluginList * scripts					= NULL;
 	
 	std::string txt = g_settings.usermenu_text[button];
 	neutrino_locale_t caption = user_menu[button].caption;
@@ -298,6 +299,14 @@ bool CUserMenu::showUserMenu(int button)
 			menu_item = new CMenuForwarder(LOCALE_MAINMENU_GAMES, g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME), NULL, games, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
+		case SNeutrinoSettings::ITEM_SCRIPTS:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_SCRIPTS;
+			scripts = new CPluginList(LOCALE_MAINMENU_SCRIPTS,CPlugins::P_TYPE_SCRIPT);
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_MAINMENU_SCRIPTS, g_PluginList->hasPlugin(CPlugins::P_TYPE_SCRIPT), NULL, games, "-1", key, icon );
+			menu->addItem(menu_item, false);
+			break;
 		case SNeutrinoSettings::ITEM_PLUGIN:
 		{
 			char id[5];
@@ -445,6 +454,7 @@ bool CUserMenu::showUserMenu(int button)
 	if (imageinfo)			 delete imageinfo;
 	if (boxinfo)			 delete boxinfo;
 	if (games)                       delete games;
+	if (scripts)                     delete scripts;
 	if (menu)                        delete menu;
  	return 0;
 }
