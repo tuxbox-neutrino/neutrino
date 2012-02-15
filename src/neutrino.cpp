@@ -1321,6 +1321,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 			myinfo.arena, myinfo.arena / 1024, myinfo.uordblks);
 #endif
 
+	delete hdBouquet;
 	reloadhintBox->hide();
 }
 
