@@ -316,6 +316,18 @@ void CPmt::MakeCAMap(casys_map_t &camap)
 			camap.insert(d->getCaSystemId());
 		}
 	}
+	const ElementaryStreamInfoList * eslist = pmt.getEsInfo();
+	ElementaryStreamInfoConstIterator it;
+	for (it = eslist->begin(); it != eslist->end(); ++it) {
+		ElementaryStreamInfo *esinfo = *it;
+		const DescriptorList * dlist = esinfo->getDescriptors();
+		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
+			if ((*dit)->getTag() == CA_DESCRIPTOR ) {
+				CaDescriptor * d = (CaDescriptor*) *dit;
+				camap.insert(d->getCaSystemId());
+			}
+		}
+	}
 }
 
 bool CPmt::haveCaSys(int pmtpid, int service_id )
