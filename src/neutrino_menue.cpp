@@ -327,6 +327,9 @@ void CNeutrinoApp::InitMenuService()
 	CDataResetNotifier *resetNotifier = new CDataResetNotifier();
 	personalize.addItem(MENU_SERVICE, new CMenuForwarder(LOCALE_RESET_CHANNELS    , true, NULL, resetNotifier, "channels", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE) , &g_settings.personalize[SNeutrinoSettings::P_MSER_RESET_CHANNELS]);
 	
+	//separator
+	personalize.addSeparator(MENU_SERVICE);
+	
 	//restart neutrino
 	personalize.addItem(MENU_SERVICE, new CMenuForwarder(LOCALE_SERVICEMENU_RESTART   , true, NULL, this, "restart", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER) , &g_settings.personalize[SNeutrinoSettings::P_MSER_RESTART]);
 	
