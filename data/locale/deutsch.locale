@@ -1024,7 +1024,8 @@ personalize.menudisabledhint Das angeforderte Menü ist nicht aktiviert!\nNutzen
 personalize.notprotected nein
 personalize.notvisible nicht sichtbar
 personalize.pin PIN
-personalize.pincode PIN Code
+personalize.pin_in_use PIN-Zugang für Personalisierung
+personalize.pincode Personalisierungs PIN
 personalize.pinhint Personalisierungs PIN Code eingeben
 personalize.pinprotect ja
 personalize.pinstatus mit PIN

@@ -237,7 +237,7 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MANAGE, true, NULL, new CSettingsManager(), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), &g_settings.personalize[SNeutrinoSettings::P_MSET_SETTINGS_MANAGER], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
 	
 	// personalize
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PERSONALIZE_HEAD, true, NULL, &personalize, NULL, CRCInput::RC_yellow , NEUTRINO_ICON_BUTTON_YELLOW), &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS], false, CPersonalizeGui::PERSONALIZE_SHOW_AS_ACCESS_OPTION);
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PERSONALIZE_HEAD, true, NULL, &personalize, NULL, CRCInput::RC_yellow , NEUTRINO_ICON_BUTTON_YELLOW, NEUTRINO_ICON_LOCK), &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 	
 	// miscSettings
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_MISC, true, NULL, new CMiscMenue() , NULL, CRCInput::RC_blue , NEUTRINO_ICON_BUTTON_BLUE), &g_settings.personalize[SNeutrinoSettings::P_MSET_MISC]);

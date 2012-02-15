@@ -1024,7 +1024,8 @@ personalize.menudisabledhint The requested menu is currently disabled!\nFor acti
 personalize.notprotected No
 personalize.notvisible Not Visible
 personalize.pin PIN
-personalize.pincode PIN Code
+personalize.pin_in_use PIN access for personalize setup
+personalize.pincode Personalization PIN
 personalize.pinhint Enter the Personalization PIN Code
 personalize.pinprotect Yes
 personalize.pinstatus Require PIN

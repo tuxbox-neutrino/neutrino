@@ -1051,6 +1051,7 @@ const char * locale_real_names[] =
 	"personalize.notprotected",
 	"personalize.notvisible",
 	"personalize.pin",
+	"personalize.pin_in_use",	
 	"personalize.pincode",
 	"personalize.pinhint",
 	"personalize.pinprotect",
