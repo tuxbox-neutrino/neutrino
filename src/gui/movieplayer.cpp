@@ -360,6 +360,11 @@ bool CMoviePlayerGui::SelectFile()
 			file_name = full_name;
 		printf("CMoviePlayerGui::SelectFile: full_name [%s] file_name [%s]\n", full_name.c_str(), file_name.c_str());
 	}
+	//store last multiformat play dir
+	if( (sizeof(g_settings.network_nfs_moviedir)) > Path_local.size() && (strcmp(g_settings.network_nfs_moviedir,Path_local.c_str()) != 0)){
+		strcpy(g_settings.network_nfs_moviedir,Path_local.c_str());
+	}
+
 	return ret;
 }
 
