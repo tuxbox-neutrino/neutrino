@@ -1337,9 +1337,15 @@ bool CRecordManager::ShowMenu(void)
 				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
 
 			sprintf(cnt, "%d", i);
-			item = new CMenuForwarderNonLocalized(title.c_str(), true, NULL, 
-				selector, cnt, CRCInput::convertDigitToKey((rec_count == 1) ? 0 : shortcut++), NULL, mode_icon);
-			item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+			//define stop key if only one record is running, otherwise define shortcuts
+			neutrino_msg_t rc_key = CRCInput::convertDigitToKey(shortcut++);
+			std::string btn_icon = NEUTRINO_ICON_BUTTON_OKAY;
+			if (rec_count == 1){
+				rc_key = CRCInput::RC_stop;
+				btn_icon = NEUTRINO_ICON_BUTTON_STOP;
+			}	
+			item = new CMenuForwarderNonLocalized(title.c_str(), true, NULL, selector, cnt, rc_key, NULL, mode_icon);
+			item->setItemButton(btn_icon, true);
 			
 			//if only one recording is running, set the focus to this menu item
 			menu.addItem(item, rec_count == 1 ? true: false);
@@ -1351,8 +1357,8 @@ bool CRecordManager::ShowMenu(void)
 		{
 			menu.addItem(GenericMenuSeparatorLine);
 			iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_STOP_ALL, true, NULL, 
-					this, "StopAll", CRCInput::convertDigitToKey(0));
-			iteml->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+					this, "StopAll", CRCInput::RC_stop);
+			iteml->setItemButton(NEUTRINO_ICON_BUTTON_STOP, true);
 			
 			//if more than one recording is running, set the focus to menu item 'stopp all records'
 			menu.addItem(iteml, rec_count > 1 ? true: false);
