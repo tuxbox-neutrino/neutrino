@@ -2058,6 +2058,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					CScreenShot * sc = new CScreenShot("", (CScreenShot::screenshot_format_t)g_settings.screenshot_format);
 					sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
 					sc->Start();
+					delete sc;
 				}
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
@@ -2474,6 +2475,7 @@ _repeat:
 		sc->EnableOSD(true);
 		sc->MakeFileName(CZapit::getInstance()->GetCurrentChannelID());
 		sc->Start();
+		delete sc;
 	}
 
 	/* ================================== MESSAGES ================================================ */
