@@ -599,6 +599,7 @@ void CMoviePlayerGui::PlayFile(void)
 #endif
 			CScreenShot * sc = new CScreenShot(fname);
 			sc->Start();
+			delete sc;
 
 		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||
 				msg == NeutrinoMessages::RECORD_START) {
