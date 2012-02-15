@@ -54,6 +54,7 @@
 #include "gui/imageinfo.h"
 #include "gui/dboxinfo.h"
 #include "gui/cam_menu.h"
+#include "gui/pluginlist.h"
 
 #include <global.h>
 #include <neutrino.h>
@@ -125,6 +126,7 @@ bool CUserMenu::showUserMenu(int button)
 	CImageInfo *imageinfo					= NULL;
 	CDBoxInfoWidget *boxinfo				= NULL;
 	CNeutrinoApp * neutrino					= NULL;
+	CPluginList * games					= NULL;
 	
 	std::string txt = g_settings.usermenu_text[button];
 	neutrino_locale_t caption = user_menu[button].caption;
@@ -288,6 +290,14 @@ bool CUserMenu::showUserMenu(int button)
 			menu_item = new CMenuForwarder(LOCALE_EPGMENU_STREAMINFO, true, NULL, streamInfo, "-1", key, icon );
 			menu->addItem(menu_item, false);
 			break;
+		case SNeutrinoSettings::ITEM_GAMES:
+			menu_items++;
+			menu_prev = SNeutrinoSettings::ITEM_GAMES;
+			games = new CPluginList(LOCALE_MAINMENU_GAMES,CPlugins::P_TYPE_GAME);
+			keyhelper.get(&key,&icon);
+			menu_item = new CMenuForwarder(LOCALE_MAINMENU_GAMES, g_PluginList->hasPlugin(CPlugins::P_TYPE_GAME), NULL, games, "-1", key, icon );
+			menu->addItem(menu_item, false);
+			break;
 		case SNeutrinoSettings::ITEM_PLUGIN:
 		{
 			char id[5];
@@ -434,6 +444,7 @@ bool CUserMenu::showUserMenu(int button)
 	if (StreamFeaturesChanger)	 delete StreamFeaturesChanger;
 	if (imageinfo)			 delete imageinfo;
 	if (boxinfo)			 delete boxinfo;
+	if (games)                       delete games;
 	if (menu)                        delete menu;
  	return 0;
 }

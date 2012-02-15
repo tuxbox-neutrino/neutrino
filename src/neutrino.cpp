@@ -695,8 +695,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
         const char* usermenu_default[SNeutrinoSettings::BUTTON_MAX]={
                 "2,3,4,13",                     // RED
                 "6",                            // GREEN
-                "7",                            // YELLOW
-                "12,10,11,19,14,15"    // BLUE
+                "7",                       // YELLOW
+                "12,10,11,20,19,14,15"    // BLUE
         };
         char txt1[81];
         std::string txt2;
