@@ -586,33 +586,115 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 	if (!getActive())
 		return;
 
-	int _xa = scaleX(xa);
-	int _ya = scaleY(ya);
-	int _xb = scaleX(xb);
-	int _yb = scaleY(yb);
+	int dx = abs (xa - xb);
+	int dy = abs (ya - yb);
+	int x;
+	int y;
+	int End;
+	int step;
 
-	blitRect(_xa, _ya, _xb - _xa, _yb - _ya, col);
-	return;
+	if ( dx > dy )
+	{
+		int p = 2 * dy - dx;
+		int twoDy = 2 * dy;
+		int twoDyDx = 2 * (dy-dx);
+
+		if (xa > xb)
+		{
+			x = xb;
+			y = yb;
+			End = xa;
+			step = ya < yb ? -1 : 1;
+		}
+		else
+		{
+			x = xa;
+			y = ya;
+			End = xb;
+			step = yb < ya ? -1 : 1;
+		}
+
+		paintPixel(x, y, col);
+
+		while (x < End)
+		{
+			x++;
+			if (p < 0)
+				p += twoDy;
+			else
+			{
+				y += step;
+				p += twoDyDx;
+			}
+			paintPixel(x, y, col);
+		}
+	}
+	else
+	{
+		int p = 2 * dx - dy;
+		int twoDx = 2 * dx;
+		int twoDxDy = 2 * (dx-dy);
+
+		if (ya > yb)
+		{
+			x = xb;
+			y = yb;
+			End = ya;
+			step = xa < xb ? -1 : 1;
+		}
+		else
+		{
+			x = xa;
+			y = ya;
+			End = yb;
+			step = xb < xa ? -1 : 1;
+		}
+
+		paintPixel(x, y, col);
+
+		while (y < End)
+		{
+			y++;
+			if (p < 0)
+				p += twoDx;
+			else
+			{
+				x += step;
+				p += twoDxDy;
+			}
+			paintPixel(x, y, col);
+		}
+	}
 }
 
 void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
 {
-	paintLine(x, ya, x, yb, col);
+	paintVLineRel(x, ya, yb - ya, col);
 }
 
 void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 {
-	paintLine(x, y, x, y + dy, col);
+	if (!getActive())
+		return;
+	int _x = scaleX(x);
+	int _y = scaleY(y);
+	int _dy = scaleY(dy);
+	blitRect(_x, _y, 1, _dy, col);
 }
 
 void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
 {
-	paintLine(xa, y, xb, y, col);
+	paintHLineRel(xa, xb - xa, y, col);
 }
 
 void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 {
-	paintLine(x, y, x + dx, y, col);
+	if (!getActive())
+		return;
+	int _x = scaleX(x);
+	int _y = scaleY(y);
+	int _dx = scaleY(dx);
+	blitRect(_x, _y, _dx, 1, col);
 }
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
