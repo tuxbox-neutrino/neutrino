@@ -41,7 +41,7 @@ typedef unsigned char version_number_t;
 
 class DMX
 {
-private:
+protected:
 
 	int		fd;
 	cDemux *	dmx;
@@ -63,6 +63,7 @@ private:
 	bool check_complete(const unsigned char table_id, const unsigned short extension_id, const unsigned short onid, const unsigned short tsid, const unsigned char);
 	sections_id_t create_sections_id(const unsigned char table_id, const unsigned short extension_id, const unsigned char section_number, const unsigned short onid, const unsigned short tsid);
 
+	bool next_filter();
 	void init();
 
 public:

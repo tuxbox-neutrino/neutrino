@@ -551,6 +551,15 @@ int DMX::request_unpause(void)
 	return 0;
 }
 
+bool DMX::next_filter()
+{
+	if (filter_index + 1 < (signed) filters.size()) {
+		change(filter_index + 1);
+		return true;
+	}
+	return false;
+}
+
 const char *dmx_filter_types [] = {
 	"dummy filter",
 	"actual transport stream, scheduled",
