@@ -1293,6 +1293,8 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 	if(g_settings.make_hd_list && hi)
 		TVfavList->Bouquets.push_back(hdBouquet);
+	else
+		delete hdBouquet;
 
 	/* Favorites and provides RADIO bouquets */
 	bnum = 0;
@@ -1320,9 +1322,6 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	printf("[neutrino] total memory allocated by malloc, in bytes: %d (%dkb), chunks %d\n",
 			myinfo.arena, myinfo.arena / 1024, myinfo.uordblks);
 #endif
-
-	if(g_settings.make_hd_list)
-		delete hdBouquet;
 
 	reloadhintBox->hide();
 }
