@@ -55,6 +55,9 @@ bool timer_is_rec;
 bool timer_wakeup;
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
 
+void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
+bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
+
 //------------------------------------------------------------
 CTimerManager::CTimerManager()
 {
@@ -1140,11 +1143,11 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 	eventInfo.channel_id = channel_id;
 	eventInfo.apids = apids;
 	recordingDir = recDir;
-	CSectionsdClient sdc;
 	epgTitle="";
 	CShortEPGData epgdata;
-	if (sdc.getEPGidShort(epgID, &epgdata))
+	if (sectionsd_getEPGidShort(epgID, &epgdata))
 		epgTitle=epgdata.title;
+
 }
 //------------------------------------------------------------
 CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
@@ -1249,8 +1252,9 @@ void CTimerEvent_Record::Reschedule()
 //------------------------------------------------------------
 void CTimerEvent_Record::getEpgId()
 {
-	CSectionsdClient sdc;
-	CChannelEventList evtlist = sdc.getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL);
+	//TODO: Record/Zapto getEpgId code almost identical !
+	CChannelEventList evtlist;
+	sectionsd_getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
 	// we check for a time in the middle of the recording
 	time_t check_time=alarmTime/2 + stopTime/2;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
@@ -1265,7 +1269,7 @@ void CTimerEvent_Record::getEpgId()
 	if(eventInfo.epgID != 0)
 	{
 		CShortEPGData epgdata;
-		if (sdc.getEPGidShort(eventInfo.epgID, &epgdata))
+		if (sectionsd_getEPGidShort(eventInfo.epgID, &epgdata))
 			epgTitle=epgdata.title;
 	}
 }
@@ -1296,8 +1300,9 @@ void CTimerEvent_Zapto::fireEvent()
 //------------------------------------------------------------
 void CTimerEvent_Zapto::getEpgId()
 {
-	CSectionsdClient sdc;
-	CChannelEventList evtlist = sdc.getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL);
+	//TODO: Record/Zapto getEpgId code almost identical !
+	CChannelEventList evtlist;
+	sectionsd_getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
 	// we check for a time 5 min after zap
 	time_t check_time=alarmTime + 300;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
@@ -1312,8 +1317,8 @@ void CTimerEvent_Zapto::getEpgId()
 	if(eventInfo.epgID != 0)
 	{
 		CShortEPGData epgdata;
-		if (sdc.getEPGidShort(eventInfo.epgID, &epgdata))
-			epgTitle=epgdata.title; 
+		if (sectionsd_getEPGidShort(eventInfo.epgID, &epgdata))
+			epgTitle=epgdata.title;
 	}
 }
 //=============================================================
