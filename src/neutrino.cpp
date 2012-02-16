@@ -1198,7 +1198,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++)
 		RADIOchannelList->putChannel(*it);
 
-	CBouquet* hdBouquet;
+	CBouquet* hdBouquet = NULL;
 	/* all HD channels */
 	if(g_settings.make_hd_list) {
 		hdBouquet = new CBouquet(0, (char *) "HD", false);
@@ -1291,10 +1291,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 	TIMER_STOP("[neutrino] tv took");
 
-	if(g_settings.make_hd_list && hi)
-		TVfavList->Bouquets.push_back(hdBouquet);
-	else
-		delete hdBouquet;
+	if(g_settings.make_hd_list) {
+		if(hi)
+			TVfavList->Bouquets.push_back(hdBouquet);
+		else
+			delete hdBouquet;
+	}
 
 	/* Favorites and provides RADIO bouquets */
 	bnum = 0;
