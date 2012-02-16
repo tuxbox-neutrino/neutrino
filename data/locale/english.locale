@@ -332,6 +332,7 @@ extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
 extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
 extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
+extra.key_current_transponder Current Transponder Key
 extra.key_list_end end
 extra.key_list_start home
 extra.key_plugin One touch plugin

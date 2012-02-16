@@ -2075,7 +2075,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
 				CRecordManager::getInstance()->StartTimeshift();
 			}
-			else if (msg == CRCInput::RC_games){
+			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder){
 				StopSubtitles();
 				int res = channelList->numericZap( msg );
 				StartSubtitles(res < 0);
@@ -3780,6 +3780,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = configfile.getInt32( "key_screenshot", CRCInput::RC_nokey );
+	g_settings.key_current_transponder = configfile.getInt32( "key_current_transponder", CRCInput::RC_nokey );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
 	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );
@@ -3833,6 +3834,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
 	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
 	tconfig.setInt32( "key_screenshot", g_settings.key_screenshot );
+	tconfig.setInt32( "key_current_transponder", g_settings.key_current_transponder );
 
 	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
 	tconfig.setInt32( "key_quickzap_down", g_settings.key_quickzap_down );

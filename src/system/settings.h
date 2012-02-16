@@ -375,6 +375,8 @@ struct SNeutrinoSettings
 	int screenshot_count;
 	int screenshot_format;
 
+	int key_current_transponder;
+
 	int cacheTXT;
 	int minimode;
 	int mode_clock;
