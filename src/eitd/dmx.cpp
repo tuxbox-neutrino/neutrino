@@ -41,15 +41,15 @@
 #include <driver/abstime.h>
 
 #include <dvbsi++/long_section.h>
+#include "debug.h"
+
 /*
 #define DEBUG_MUTEX 1
 #define DEBUG_CACHED_SECTIONS 1
+#define DEBUG_COMPLETE 1
 */
 
-typedef std::map<sections_id_t, version_number_t, std::less<sections_id_t> > MyDMXOrderUniqueKey;
 static MyDMXOrderUniqueKey myDMXOrderUniqueKey;
-
-extern void showProfiling(std::string text);
 
 DMX::DMX(const unsigned short p, const unsigned short bufferSizeInKB, const bool c, int dmx_source)
 {
@@ -68,7 +68,6 @@ DMX::DMX()
 	dmxBufferSizeInKB = 512;
 	init();
 }
-
 
 void DMX::init()
 {
@@ -192,51 +191,50 @@ void DMX::unlock(void)
 	sched_yield();
 }
 
-sections_id_t DMX::create_sections_id(const unsigned char table_id, const unsigned short extension_id, const unsigned char section_number, const unsigned short onid, const unsigned short tsid)
+inline sections_id_t create_sections_id(const uint8_t table_id, const uint16_t extension_id,
+		const uint16_t onid, const uint16_t tsid, const uint8_t section_number)
 {
 	return 	(sections_id_t) (	((sections_id_t) table_id 	<< 56) |
 					((sections_id_t) extension_id 	<< 40) |
-					((sections_id_t) section_number << 32) |
-					((sections_id_t) onid		<< 16) |
-					((sections_id_t) tsid));
+					((sections_id_t) onid		<< 24) |
+					((sections_id_t) tsid		<< 8) |
+					((sections_id_t) section_number));
 }
 
-bool DMX::check_complete(const unsigned char table_id, const unsigned short extension_id, const unsigned short onid, const unsigned short tsid, const unsigned char last)
+bool DMX::cache_section(sections_id_t s_id, uint8_t number, uint8_t last, uint8_t segment_last) 
 {
-	int current_section_number = 0;
+	section_map_t::iterator it = seenSections.find(s_id);
 
-	if (((table_id == 0x4e) || (table_id == 0x50)) && (current_service == extension_id)) {
-#ifdef DEBUG_CACHED_SECTIONS
-printf("	[sectionsd] check section for table 0x%02x table_extension 0x%04x last 0x%02x\n",
-					table_id, extension_id, last);
-#endif
-		if (last == 0)
-			return true;
-		MyDMXOrderUniqueKey::iterator di = myDMXOrderUniqueKey.find(create_sections_id(
-				table_id,
-				extension_id,
-				current_section_number,
-				onid,
-				tsid));
-		if (di != myDMXOrderUniqueKey.end()) {
-			di++;
-		}
-		while ((di != myDMXOrderUniqueKey.end()) && ((uint8_t) ((di->first >> 56) & 0xff) == table_id) &&
-				((uint16_t) ((di->first >> 40) & 0xffff) == extension_id) &&
-				(((uint8_t) ((di->first >> 32) & 0xff) == current_section_number + 1) ||
-				 ((uint8_t) ((di->first >> 32) & 0xff) == current_section_number + 8)) &&
-				((uint16_t) ((di->first >> 16) & 0xffff) == onid) &&
-				((uint16_t) (di->first & 0xffff) == tsid))
+	if (it == seenSections.end())
+	{
+		seenSections.insert(s_id);
+		calcedSections.insert(s_id);
+		uint64_t tmpval = s_id & 0xFFFFFFFFFFFFFF00ULL;
+
+		uint8_t tid = (s_id >> 56);
+		uint8_t incr = ((tid >> 4) == 4) ? 1 : 8;
+		for ( int i = 0; i <= last; i+=incr )
 		{
-			if ((uint8_t) ((di->first >> 32) & 0xff) == last) {
-				return true;
+			if ( i == number )
+			{
+				for (int x=i; x <= segment_last; ++x)
+					calcedSections.insert((sections_id_t) tmpval | (sections_id_t) (x&0xFF));
 			}
-			else {
-				current_section_number = (uint8_t) (di->first >> 32) & 0xff;
-				di++;
-			}
+			else
+				calcedSections.insert((sections_id_t) tmpval | (sections_id_t)(i&0xFF));
 		}
+#ifdef DEBUG_COMPLETE
+printf("[cache] section for table 0x%02x sid 0x%04x section 0x%02x last 0x%02x slast 0x%02x seen %d calc %d\n", 
+		(int)(s_id >> 56), (int) ((s_id >> 40) & 0xFFFF), (int)(s_id & 0xFF), last,
+		segment_last, seenSections.size(), calcedSections.size());
+#endif
 	}
+	if(seenSections == calcedSections) {
+		printf("[sectionsd] cache %02x complete: %d\n", filters[filter_index].filter, seenSections.size());
+		return true;
+	}
+	//printf("[cache] not complete\n");
+
 	return false;
 }
 
@@ -331,7 +329,6 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	if (!section.getSectionSyntaxIndicator() || !section.getCurrentNextIndicator())
 		return rc;
 
-
 	uint16_t eh_tbl_extension_id = section.getTableIdExtension();
 	uint8_t version_number = section.getVersionNumber();
 
@@ -359,44 +356,33 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 
 	uint8_t section_number = section.getSectionNumber();
 	uint8_t last_section_number = section.getLastSectionNumber();
-	// the current section
-	sections_id_t s_id = create_sections_id(table_id,
-			eh_tbl_extension_id,
-			section_number,
-			current_onid,
-			current_tsid);
+
+	sections_id_t s_id = create_sections_id(table_id, eh_tbl_extension_id, current_onid, current_tsid, section_number);
+
+	bool complete = cache_section(s_id, section_number, last_section_number, eit_extended_header->segment_last_section_number);
+
 	//find current section in list
 	MyDMXOrderUniqueKey::iterator di = myDMXOrderUniqueKey.find(s_id);
 	if (di != myDMXOrderUniqueKey.end())
 	{
 		//the current section was read before
 		if (di->second == version_number) {
-			//the version number is still up2date
-			if (first_skipped == 0) {
-				//the last section was new - this is the 1st dup
-				first_skipped = s_id;
-			}
-			else {
+                        if (first_skipped == 0) {
+                                //the last section was new - this is the 1st dup
+                                first_skipped = s_id;
+			} else {
 				//this is not the 1st new - check if it's the last
 				//or to be more precise only dups occured since
 				if (first_skipped == s_id)
 					timeouts = -1;
 			}
-			//since version is still up2date, check if table complete
-			if (check_complete(table_id,
-						eh_tbl_extension_id,
-						current_onid,
-						current_tsid,
-						last_section_number))
-				timeouts = -2;
 #ifdef DEBUG_CACHED_SECTIONS
 			printf("[sectionsd] skipped duplicate section for table 0x%02x table_extension 0x%04x section 0x%02x last 0x%02x touts %d\n",
 					table_id, eh_tbl_extension_id, section_number,
 					last_section_number, timeouts);
 #endif
-			return -1;
-		}
-		else {
+			rc = -1;
+		} else {
 #ifdef DEBUG_CACHED_SECTIONS
 			printf("[sectionsd] version update from 0x%02x to 0x%02x for table 0x%02x table_extension 0x%04x section 0x%02x\n",
 					di->second, version_number, table_id,
@@ -410,18 +396,22 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	{
 		//section was not read before - insert in list
 		myDMXOrderUniqueKey.insert(std::make_pair(s_id, version_number));
-		//check if table is now complete
-		if (check_complete(table_id,
-					eh_tbl_extension_id,
-					current_onid,
-					current_tsid,
-					last_section_number))
-			timeouts = -2;
 #ifdef DEBUG_CACHED_SECTIONS
-		printf("[sectionsd] new section for table 0x%02x table_extension 0x%04x section 0x%02x last 0x%02x slast 0x%02x touts %d\n",
+		printf("[sectionsd] new section for table 0x%02x table_extension 0x%04x section 0x%02x last 0x%02x slast 0x%02x\n",
 				table_id, eh_tbl_extension_id,
-				section_number, last_section_number, eit_extended_header->segment_last_section_number, timeouts);
+				section_number, last_section_number, eit_extended_header->segment_last_section_number);
 #endif
+	}
+	//debug
+	if(timeouts == -1) {
+		printf("\n\n[sectionsd] skipped loop\n\n");
+	}
+	if(complete) {
+		lock();
+		seenSections.clear();
+		calcedSections.clear();
+		timeouts = -2;
+		unlock();
 	}
 	//if control comes to here the sections skipped counter must be restarted
 	first_skipped = 0;
@@ -592,6 +582,10 @@ int DMX::change(const int new_filter_index, const int new_current_service)
 		return 1;
 	}
 #endif
+
+	seenSections.clear();
+	calcedSections.clear();
+
 	if (new_current_service != -1)
 		current_service = new_current_service;
 

@@ -36,8 +36,14 @@
 #include <dmx_td.h>
 #endif
 
+#include <set>
+#include <map>
+
 typedef uint64_t sections_id_t;
 typedef unsigned char version_number_t;
+
+typedef std::set<sections_id_t> section_map_t;
+typedef std::map<sections_id_t, version_number_t, std::less<sections_id_t> > MyDMXOrderUniqueKey;
 
 class DMX
 {
@@ -60,12 +66,13 @@ protected:
 
 	int immediate_start(void); /* mutex must be locked before and unlocked after this method */
 	int immediate_stop(void);  /* mutex must be locked before and unlocked after this method */
-	bool check_complete(const unsigned char table_id, const unsigned short extension_id, const unsigned short onid, const unsigned short tsid, const unsigned char);
-	sections_id_t create_sections_id(const unsigned char table_id, const unsigned short extension_id, const unsigned char section_number, const unsigned short onid, const unsigned short tsid);
 
 	bool next_filter();
 	void init();
 
+	section_map_t seenSections;
+	section_map_t calcedSections;
+	bool cache_section(sections_id_t sectionNo, uint8_t number, uint8_t last, uint8_t segment_last);
 public:
 	struct s_filters
 	{
