@@ -126,7 +126,10 @@ neutrino_LDADD += \
 	$(top_builddir)/src/lcddisplay/liblcddisplay.a
 endif
 endif
-
+if BOXTYPE_SPARK
+neutrino_LDADD += \
+	-lass
+endif
 if BOXTYPE_TRIPLE
 neutrino_LDADD += \
 	@DIRECTFB_LIBS@
