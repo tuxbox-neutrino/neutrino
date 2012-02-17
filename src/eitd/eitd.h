@@ -26,15 +26,23 @@
 #ifndef __eitd_h__
 #define __eitd_h__
 
+#include <sys/time.h>
+
 #include "SIutils.hpp"
 #include "SIservices.hpp"
 #include "SIevents.hpp"
 #include "SIsections.hpp"
 #include "SIlanguage.hpp"
 
+//#define USE_BOOST_SHARED_PTR
+#ifdef USE_BOOST_SHARED_PTR
 #include <boost/shared_ptr.hpp>
-
 typedef boost::shared_ptr<class SIevent> SIeventPtr;
+typedef boost::shared_ptr<class SIservice> SIservicePtr;
+#else
+typedef SIevent * SIeventPtr;
+typedef SIservice * SIservicePtr;
+#endif
 
 struct OrderServiceUniqueKeyFirstStartTimeEventUniqueKey
 {
@@ -48,8 +56,6 @@ struct OrderServiceUniqueKeyFirstStartTimeEventUniqueKey
 	}
 };
 
-typedef std::set<SIeventPtr, OrderServiceUniqueKeyFirstStartTimeEventUniqueKey > MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
-
 struct OrderFirstEndTimeServiceIDEventUniqueKey
 {
 	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2)
@@ -62,13 +68,100 @@ struct OrderFirstEndTimeServiceIDEventUniqueKey
 	}
 };
 
+typedef std::set<SIeventPtr, OrderServiceUniqueKeyFirstStartTimeEventUniqueKey > MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;
 typedef std::set<SIeventPtr, OrderFirstEndTimeServiceIDEventUniqueKey > MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey;
 
-typedef std::map<t_channel_id, event_id_t, std::less<t_channel_id> > MySIeventUniqueKeysMetaOrderServiceUniqueKey;
 typedef std::map<event_id_t, SIeventPtr, std::less<event_id_t> > MySIeventsOrderUniqueKey;
 
-typedef boost::shared_ptr<class SIservice> SIservicePtr;
+typedef std::map<t_channel_id, event_id_t, std::less<t_channel_id> > MySIeventUniqueKeysMetaOrderServiceUniqueKey;
+
 typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesOrderUniqueKey;
 typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesNVODorderUniqueKey;
+
+#include <OpenThreads/Thread>
+#include "dmx.h"
+
+#define MAX_SECTION_LENGTH (0x0fff + 3)
+
+class CSectionThread : public OpenThreads::Thread, public DMX
+{
+	protected:
+		uint8_t		*static_buf;
+		int		timeoutsDMX;
+		unsigned	timeoutInMSeconds;
+		bool		running;
+		std::string	name;
+
+		virtual void run() {};
+		int Sleep(unsigned int timeout)
+		{
+			struct timespec abs_wait;
+			struct timeval now;
+			gettimeofday(&now, NULL);
+			TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
+			abs_wait.tv_sec += timeout;
+			dprintf("%s: going to sleep for %d seconds...\n", name.c_str(), timeout);
+			pthread_mutex_lock(&start_stop_mutex);
+			int rs = pthread_cond_timedwait( &change_cond, &start_stop_mutex, &abs_wait );
+			pthread_mutex_unlock( &start_stop_mutex );
+			return rs;
+		}
+
+	public:
+
+		CSectionThread()
+		{
+			static_buf = new uint8_t[MAX_SECTION_LENGTH];
+			timeoutsDMX = 0;
+			running = false;
+		}
+
+		~CSectionThread()
+		{
+		}
+
+		bool Start()
+		{
+			if(running)
+				return false;
+			running = true;
+			return (OpenThreads::Thread::start() == 0);
+		}
+		bool Stop()
+		{
+			if(!running)
+				return false;
+			running = false;
+			pthread_cond_broadcast(&change_cond);
+			DMX::closefd();
+			int ret = (OpenThreads::Thread::join() == 0);
+			DMX::close();
+			return ret;
+		}
+};
+
+class CEitThread : public CSectionThread
+{
+	private:
+		void run();
+};
+
+class CCNThread : public CSectionThread
+{
+	private:
+		void run();
+};
+
+class CTimeThread : public CSectionThread
+{
+	private:
+		void run();
+};
+
+class CEitManager
+{
+	private:
+	public:
+};
 
 #endif
