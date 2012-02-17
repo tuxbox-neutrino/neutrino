@@ -213,5 +213,6 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool IsTimeshift(t_channel_id channel_id=0);
 		void StartTimeshift();
 		int GetRecordMode(const t_channel_id channel_id=0);
+		bool IsFileRecord(std::string file);
 };
 #endif

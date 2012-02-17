@@ -1636,6 +1636,20 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 	return ret;
 }
 
+bool CRecordManager::IsFileRecord(std::string file)
+{
+	mutex.lock();
+	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+		CRecordInstance * inst = it->second;
+		if ((((std::string)inst->GetFileName()) + ".ts") == file) {
+			mutex.unlock();
+			return true;
+		}
+	}
+	mutex.unlock();
+	return false;
+}
+
 #if 0 // not used, saved in case we needed it
 extern bool autoshift_delete;
 bool CRecordManager::LinkTimeshift()
