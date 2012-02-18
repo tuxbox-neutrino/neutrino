@@ -585,6 +585,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.screenshot_count = configfile.getInt32( "screenshot_count",  1);
 	g_settings.screenshot_format = configfile.getInt32( "screenshot_format",  1);
+	g_settings.screenshot_cover = configfile.getInt32( "screenshot_cover",  0);
+	g_settings.screenshot_mode = configfile.getInt32( "screenshot_mode",  0);
+	g_settings.screenshot_video = configfile.getInt32( "screenshot_video",  1);
+	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
+
+	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
@@ -995,6 +1001,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 //printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
 	configfile.setInt32( "screenshot_count", g_settings.screenshot_count );
 	configfile.setInt32( "screenshot_format", g_settings.screenshot_format );
+	configfile.setInt32( "screenshot_cover", g_settings.screenshot_cover );
+	configfile.setInt32( "screenshot_mode", g_settings.screenshot_mode );
+	configfile.setInt32( "screenshot_video", g_settings.screenshot_video );
+	configfile.setInt32( "screenshot_scale", g_settings.screenshot_scale );
+
+	configfile.setString( "screenshot_dir", g_settings.screenshot_dir);
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
 	configfile.setInt32( "minimode", g_settings.minimode );
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );

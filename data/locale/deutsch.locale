@@ -1193,7 +1193,15 @@ scrambled_channel Verschlüsselung aktiv
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
 screenshot.count Screenshot Anzahl
+screenshot.cover Film Cover
+screenshot.defdir Screenshot Dir.
 screenshot.format Screenshot Format
+screenshot.info Screenshot Taste ist nicht belegt
+screenshot.menu Screenshot
+screenshot.osd OSD Auflösung
+screenshot.scale Scale
+screenshot.tv TV Auflösung
+screenshot.video Screenshot mit Video Hintergrund
 servicemenu.getplugins Plugins neu laden
 servicemenu.getplugins_hint Plugins werden neu geladen,\nbitte warten...
 servicemenu.head Service

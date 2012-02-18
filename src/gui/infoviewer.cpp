@@ -848,7 +848,10 @@ void CInfoViewer::loop(bool show_dot)
 	while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
-		if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+		if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
+			res = CNeutrinoApp::getInstance()->handleMsg(msg, data);
+		  
+		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
 			g_RCInput->postMsg (msg, 0);
 			res = messages_return::cancel_info;
 		}

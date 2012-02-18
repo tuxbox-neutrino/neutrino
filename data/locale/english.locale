@@ -1193,7 +1193,15 @@ scrambled_channel Scrambled channel
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Screenshot count
+screenshot.cover Movie Cover
+screenshot.defdir Screenshot dir.
 screenshot.format Screenshot format
+screenshot.info Screenshot Key is not used
+screenshot.menu Screenshot
+screenshot.osd OSD resolution
+screenshot.scale Scale
+screenshot.tv TV resolution
+screenshot.video Screenshot with Video background
 servicemenu.getplugins Reload plugins
 servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
 servicemenu.head Service

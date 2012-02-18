@@ -371,9 +371,15 @@ struct SNeutrinoSettings
 	int key_plugin;
 
 	int key_unlock;
+
 	int key_screenshot;
 	int screenshot_count;
 	int screenshot_format;
+	int screenshot_cover;
+	int screenshot_mode;
+	int screenshot_video;
+	int screenshot_scale;
+	std::string screenshot_dir;
 
 	int key_current_transponder;
 
