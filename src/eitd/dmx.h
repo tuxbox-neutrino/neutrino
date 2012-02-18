@@ -36,6 +36,7 @@
 #include <dmx_td.h>
 #endif
 
+#include <zapit/client/zapittypes.h>
 #include <set>
 #include <map>
 
@@ -55,7 +56,7 @@ protected:
 	unsigned short  pID;
 	unsigned short  dmxBufferSizeInKB;
 	sections_id_t	first_skipped;
-	int		current_service;
+	t_channel_id	current_service;
 	unsigned char	eit_version;
 	bool		cache; /* should read sections be cached? true for all but dmxCN */
 	int		real_pauseCounter;
@@ -104,7 +105,7 @@ public:
 	int request_pause(void);
 	int request_unpause(void);
 
-	int change(const int new_filter_index, const int new_current_service = -1); // locks while changing
+	int change(const int new_filter_index, const t_channel_id new_current_service = 0); // locks while changing
 
 	void lock(void);
 	void unlock(void);
@@ -112,12 +113,12 @@ public:
 	// section with size < 3 + 5 are skipped !
 	int getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeouts);
 	int setPid(const unsigned short new_pid);
-	int setCurrentService(int new_current_service);
+	int setCurrentService(t_channel_id new_current_service);
 	int dropCachedSectionIDs();
 
-	unsigned char get_eit_version(void);
+	unsigned char get_eit_version(void) { return eit_version; }
 	// was useful for debugging...
-	unsigned int get_current_service(void);
+	t_channel_id get_current_service(void) { return current_service; }
 };
 
 #endif /* __sectionsd__dmx_h__ */
