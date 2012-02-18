@@ -203,6 +203,8 @@ inline sections_id_t create_sections_id(const uint8_t table_id, const uint16_t e
 
 bool DMX::cache_section(sections_id_t s_id, uint8_t number, uint8_t last, uint8_t segment_last) 
 {
+	bool ret = false;
+	lock();
 	section_map_t::iterator it = seenSections.find(s_id);
 
 	if (it == seenSections.end())
@@ -231,11 +233,10 @@ printf("[cache] section for table 0x%02x sid 0x%04x section 0x%02x last 0x%02x s
 	}
 	if(seenSections == calcedSections) {
 		printf("[sectionsd] cache %02x complete: %d\n", filters[filter_index].filter, seenSections.size());
-		return true;
+		ret = true;
 	}
-	//printf("[cache] not complete\n");
-
-	return false;
+	unlock();
+	return ret;
 }
 
 int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeouts)
@@ -336,13 +337,14 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	if (!cache)
 	{
 		if (table_id == 0x4e &&
-				eh_tbl_extension_id == current_service &&
+				eh_tbl_extension_id == (current_service & 0xFFFF) &&
 				version_number != eit_version) {
 			dprintf("EIT old: %d new version: %d\n", eit_version, version_number);
 			eit_version = version_number;
 		}
 		return rc;
 	}
+
 
 	unsigned short current_onid = 0;
 	unsigned short current_tsid = 0;
@@ -404,7 +406,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	}
 	//debug
 	if(timeouts == -1) {
-		printf("\n\n[sectionsd] skipped loop\n\n");
+		printf("\n\n[sectionsd] skipped looped\n\n");
 	}
 	if(complete) {
 		lock();
@@ -558,7 +560,7 @@ const char *dmx_filter_types [] = {
 	"other transport stream, scheduled 2"
 };
 
-int DMX::change(const int new_filter_index, const int new_current_service)
+int DMX::change(const int new_filter_index, const t_channel_id new_current_service)
 {
 	if (sections_debug)
 		showProfiling("changeDMX: before pthread_mutex_lock(&start_stop_mutex)");
@@ -583,11 +585,12 @@ int DMX::change(const int new_filter_index, const int new_current_service)
 	}
 #endif
 
+	eit_version = 0xff;
 	seenSections.clear();
 	calcedSections.clear();
-
-	if (new_current_service != -1)
+	if (new_current_service)
 		current_service = new_current_service;
+xprintf("DMX::change: filter %02x current_service %016llx\n\n", filters[new_filter_index].filter, current_service);
 
 	if (real_pauseCounter > 0)
 	{
@@ -671,7 +674,7 @@ int DMX::setPid(const unsigned short new_pid)
 	return 0;
 }
 
-int DMX::setCurrentService(int new_current_service)
+int DMX::setCurrentService(t_channel_id new_current_service)
 {
 	return change(0, new_current_service);
 }
@@ -687,14 +690,4 @@ int DMX::dropCachedSectionIDs()
 	unlock();
 
 	return 0;
-}
-
-unsigned char DMX::get_eit_version()
-{
-	return eit_version;
-}
-
-unsigned int DMX::get_current_service()
-{
-	return current_service;
 }
