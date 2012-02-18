@@ -412,13 +412,10 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Gib de Name für's neue Bookmark ii
 movieplayer.bookmarkname_hint2
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Datei via VLC
 movieplayer.head Movieplayer
-movieplayer.pesplayback PES Abspiele (Experimendell)
 movieplayer.toomanybookmarks D'hesch bereits z'viel Bookmarks a'glegt.\nEs mueß erscht e anderes g'löscht werde.
 movieplayer.tsplayback TS Abspiele
-movieplayer.vcdplayback (S)VCD
 movieplayer.vlchelp ROT/Home Stop\nGRÜN Resync\nGELB Paus/Widdr\nBLAU Bookmark setze\nd-box Ziit iiblände\nv Sprung\n1 ca. 1 Minute zruck\n3 ca. 1 Minute vor\n4 ca. 5 Minute zruck\n6 ca. 5 Minute vor\n7 ca. 10 Minute zruck\n9 ca. 10 Minute vor\nHilfe: http://www.giggo.de/dbox2/movieplayer.html\n
 networkmenu.broadcast Broadcast
 networkmenu.gateway Standard Gateway

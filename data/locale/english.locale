@@ -893,10 +893,8 @@ movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
-movieplayer.pesplayback Play PES (Experimental)
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tshelp1 Stop
 movieplayer.tshelp10 approx. 10 minutes back
@@ -911,7 +909,6 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward

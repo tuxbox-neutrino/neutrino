@@ -787,10 +787,8 @@ movieplayer.bookmarkname Nome Bookmark
 movieplayer.bookmarkname_hint1 Inserire nome del nuovo bookmark
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
-movieplayer.pesplayback Play PES (Experimental)
 movieplayer.toomanybookmarks Ci sono troppi bookmarks.\nDevi prima cancellarne altri.
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 appross. 10 minuti indietro 
@@ -805,7 +803,6 @@ movieplayer.tshelp7 salta appross 1 minuto
 movieplayer.tshelp8 appross 5 minuti indietro 
 movieplayer.tshelp9 salta appross 5 minuti 
 movieplayer.tsplayback Play TS
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Traccia audio
 mpkey.bookmark salva segnalibro
 mpkey.forward Forward

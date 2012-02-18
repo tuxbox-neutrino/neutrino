@@ -693,10 +693,8 @@ movieplayer.bookmarkname Название закладки
 movieplayer.bookmarkname_hint1 Введите название
 movieplayer.bookmarkname_hint2 для новой закладки
 movieplayer.defplugin Старт плагина
-movieplayer.dvdplayback Просмотр DVD (VLC)
 movieplayer.fileplayback Просмотр файлов (VLC)
 movieplayer.head Видеоплеер
-movieplayer.pesplayback Просмотр PES-файлов
 movieplayer.toomanybookmarks Слишком много закладок.\n Удалите одну из уже существующих.
 movieplayer.tshelp1 стоп 
 movieplayer.tshelp10 назад на 10 мин. 
@@ -711,7 +709,6 @@ movieplayer.tshelp7 вперед на 1 мин.
 movieplayer.tshelp8 назад на 5 мин. 
 movieplayer.tshelp9 вперед на 5 мин.
 movieplayer.tsplayback Просмотр TS-файлов
-movieplayer.vcdplayback Просмотр (S)VCD (VLC)
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward

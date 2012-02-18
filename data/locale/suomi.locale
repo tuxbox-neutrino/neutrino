@@ -586,7 +586,6 @@ movieplayer.bookmarkname Kirjanmerkki
 movieplayer.bookmarkname_hint1 Syötä nimi uudelle kirjanmerkille
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Oletuslaajennos
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Toisto VLC:n kautta
 movieplayer.head Mediasoitin
 movieplayer.toomanybookmarks Liian monta kirjanmerkkiä.\nPoista vähintään yksi ensin.
@@ -604,7 +603,6 @@ movieplayer.tshelp8 n. 5 minuuttia taaksepäin
 movieplayer.tshelp9 n. 5 minuuttia eteenpäin
 movieplayer.tsplayback Toista tiedosto
 movieplayer.tsplayback_pc Toista tiedosto (PIN-koodattu)
-movieplayer.vcdplayback (S)VCD
 networkmenu.broadcast Broadcast-osoite
 networkmenu.dhcp DHCP
 networkmenu.gateway Yhdyskäytävä

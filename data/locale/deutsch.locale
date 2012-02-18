@@ -893,10 +893,8 @@ movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
-movieplayer.pesplayback PES Abspielen (experimentell)
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ca. 10 Minuten zurück
@@ -911,7 +909,6 @@ movieplayer.tshelp7 ca. 1 Minute vor
 movieplayer.tshelp8 ca. 5 Minuten zurück
 movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
