@@ -2321,10 +2321,14 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 
 	if (scanning && pause)
 	{
+		scanning = 0;
 		dmxCN.request_pause();
+		pthread_cond_broadcast(&dmxCN.change_cond);
 		dmxEIT.request_pause();
+		pthread_cond_broadcast(&dmxEIT.change_cond);
 #ifdef ENABLE_FREESATEPG
 		dmxFSEIT.request_pause();
+		pthread_cond_broadcast(&dmxFSEIT.change_cond);
 #endif
 #ifdef UPDATE_NETWORKS
 		dmxNIT.request_pause();
@@ -2333,7 +2337,6 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 #ifdef ENABLE_PPT
 		dmxPPT.request_pause();
 #endif
-		scanning = 0;
 	}
 	else if (!pause && !scanning)
 	{
