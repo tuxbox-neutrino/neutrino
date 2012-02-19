@@ -504,9 +504,12 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 	live_channel_id = current_channel->getChannelID();
 	SaveSettings(false);
 
-	if(!TuneChannel(live_fe, newchannel, transponder_change))
+	if(!TuneChannel(live_fe, newchannel, transponder_change)) {
+		t_channel_id chid = 0;
+		SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &chid, sizeof(t_channel_id));
 		return false;
-
+	}
+	SendEvent(CZapitClient::EVT_TUNE_COMPLETE, &live_channel_id, sizeof(t_channel_id));
 
 	if (current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
 		current_is_nvod = true;
