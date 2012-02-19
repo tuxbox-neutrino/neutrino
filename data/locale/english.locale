@@ -333,6 +333,7 @@ extra.fec_s2_qpsk_5_6 5/6 s2 qpsk
 extra.fec_s2_qpsk_7_8 7/8 s2 qpsk
 extra.fec_s2_qpsk_8_9 8/9 s2 qpsk
 extra.fec_s2_qpsk_9_10 9/10 s2 qpsk
+extra.key_current_transponder Current Transponder Key
 extra.key_list_end end
 extra.key_list_start home
 extra.key_plugin One touch plugin
@@ -893,10 +894,8 @@ movieplayer.bookmarkname Bookmarkname
 movieplayer.bookmarkname_hint1 Enter a name for your new bookmark
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback File play
 movieplayer.head Movieplayer
-movieplayer.pesplayback Play PES (Experimental)
 movieplayer.toomanybookmarks There are too many bookmarks.\nYou need to delete one of them first.
 movieplayer.tshelp1 Stop
 movieplayer.tshelp10 approx. 10 minutes back
@@ -911,7 +910,6 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back
 movieplayer.tshelp9 skip approx. 5 minutes
 movieplayer.tsplayback Play TS
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward
@@ -1025,7 +1023,8 @@ personalize.menudisabledhint The requested menu is currently disabled!\nFor acti
 personalize.notprotected No
 personalize.notvisible Not Visible
 personalize.pin PIN
-personalize.pincode PIN Code
+personalize.pin_in_use PIN access for personalize setup
+personalize.pincode Personalization PIN
 personalize.pinhint Enter the Personalization PIN Code
 personalize.pinprotect Yes
 personalize.pinstatus Require PIN
@@ -1193,7 +1192,15 @@ scrambled_channel Scrambled channel
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Screenshot count
+screenshot.cover Movie Cover
+screenshot.defdir Screenshot dir.
 screenshot.format Screenshot format
+screenshot.info Screenshot Key is not used
+screenshot.menu Screenshot
+screenshot.osd OSD resolution
+screenshot.scale Scale
+screenshot.tv TV resolution
+screenshot.video Screenshot with Video background
 servicemenu.getplugins Reload plugins
 servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
 servicemenu.head Service

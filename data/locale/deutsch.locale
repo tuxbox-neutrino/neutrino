@@ -332,6 +332,7 @@ extra.fec_s2_qpsk_5_6 5/6 S2_QPSK
 extra.fec_s2_qpsk_7_8 7/8 S2_QPSK
 extra.fec_s2_qpsk_8_9 8/9 S2_QPSK
 extra.fec_s2_qpsk_9_10 9/10 S2_QPSK
+extra.key_current_transponder Aktuelle Transponder Taste
 extra.key_list_end Listenende
 extra.key_list_start Listenanfang
 extra.key_plugin One-touch-Plugin
@@ -892,10 +893,8 @@ movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Geben Sie den Namen für das neue Lesezeichen ein
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Abspielen (Multiformat)
 movieplayer.head Movieplayer
-movieplayer.pesplayback PES Abspielen (experimentell)
 movieplayer.toomanybookmarks Sie haben bereits zu viele Lesezeichen angelegt.\nEs muß erst ein anderes gelöscht werden.
 movieplayer.tshelp1 Stopp
 movieplayer.tshelp10 ca. 10 Minuten zurück
@@ -910,7 +909,6 @@ movieplayer.tshelp7 ca. 1 Minute vor
 movieplayer.tshelp8 ca. 5 Minuten zurück
 movieplayer.tshelp9 ca. 5 Minuten vor
 movieplayer.tsplayback TS Abspielen
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Audiotrack
 mpkey.bookmark Speichere Lesezeichen
 mpkey.forward Vorlauf
@@ -1024,7 +1022,8 @@ personalize.menudisabledhint Das angeforderte Menü ist nicht aktiviert!\nNutzen
 personalize.notprotected nein
 personalize.notvisible nicht sichtbar
 personalize.pin PIN
-personalize.pincode PIN Code
+personalize.pin_in_use PIN-Zugang für Personalisierung
+personalize.pincode Personalisierungs PIN
 personalize.pinhint Personalisierungs PIN Code eingeben
 personalize.pinprotect ja
 personalize.pinstatus mit PIN
@@ -1191,7 +1190,15 @@ scrambled_channel Verschlüsselung aktiv
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
 screenshot.count Screenshot Anzahl
+screenshot.cover Film Cover
+screenshot.defdir Screenshot Dir.
 screenshot.format Screenshot Format
+screenshot.info Screenshot Taste ist nicht belegt
+screenshot.menu Screenshot
+screenshot.osd OSD Auflösung
+screenshot.scale Scale
+screenshot.tv TV Auflösung
+screenshot.video Screenshot mit Video Hintergrund
 servicemenu.getplugins Plugins neu laden
 servicemenu.getplugins_hint Plugins werden neu geladen,\nbitte warten...
 servicemenu.head Service

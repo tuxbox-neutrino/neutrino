@@ -451,14 +451,11 @@ movieplayer.bookmark Signet
 movieplayer.bookmarkname Nom du signet
 movieplayer.bookmarkname_hint1 Entrer un nom pour votre nouveau signet
 movieplayer.bookmarkname_hint2 
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fichier via VLC
 movieplayer.head Lecteur vidéo
-movieplayer.pesplayback Lecture PES (Expérimental)
 movieplayer.toomanybookmarks Il y'a plusieurs signets.\nVous avez à éffacer l'un d'eux avant.
 movieplayer.tshelp Rouge/LAME(Exit)! Stop\nVERT Sélection piste audio\nJAUNE Pause/Continu\nBLEU Créer signet\nRécepteur montre progression\n1 approx. 1 minute arrière\n3 saut approx. 1 minute\n4 approx. 5 minutes arrière\n6 saut approx. 5 minutes\n7 approx. 10 minutes arrière\n9 skip approx. 10 minutes\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tsplayback Lecture TS
-movieplayer.vcdplayback (S)VCD
 movieplayer.vlchelp Rouge/LAME(Exit)! Stop\nVERT Resync\nJAUNE Pause/Continu\nBLEU Créer signet\nRécepteur montre Progression\n1 approx. 1 minute arrière\n3 saut approx. 1 minute\n4 approx. 5 minutes arrière\n6 saut approx. 5 minutes\n7 approx. 10 minutes arrière\n9 saut approx. 10 minutes\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
 networkmenu.broadcast Transmisson
 networkmenu.dhcp DHCP

@@ -841,10 +841,8 @@ movieplayer.bookmark Zakładki
 movieplayer.bookmarkname Nazwa zakładki
 movieplayer.bookmarkname_hint1 Podaj nazwę nowej zakładki
 movieplayer.bookmarkname_hint2 Podaj nazwę nowej zakładki
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Odtwórz plik...
 movieplayer.head Odtwarzacz filmów
-movieplayer.pesplayback Odtwarzaj PES 
 movieplayer.toomanybookmarks Za dużo zakładek. Aby dodać\nkolejną musisz jedną usunąć.
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 przesuń 10 min do tyłu
@@ -859,7 +857,6 @@ movieplayer.tshelp7 przesuń 1 min do przodu
 movieplayer.tshelp8 przesuń 5 min do tyłu
 movieplayer.tshelp9 przesuń 5 min do przodu 
 movieplayer.tsplayback Odtwarzaj TS
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Utwór audio
 mpkey.bookmark zapisz zakładkę
 mpkey.forward Do przodu

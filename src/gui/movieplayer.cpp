@@ -586,18 +586,33 @@ void CMoviePlayerGui::PlayFile(void)
 			if(restore)
 				FileTime.show(position);
 		} else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
+
+			char ending[(sizeof(int)*2) + 6] = ".jpg";
+			if(!g_settings.screenshot_cover)
+				snprintf(ending, sizeof(ending) - 1, "_%x.jpg", position);
+
 			std::string fname = full_name;
 			std::string::size_type pos = fname.find_last_of('.');
 			if(pos != std::string::npos) {
-				fname.replace(pos, fname.length(), ".jpg");
+				fname.replace(pos, fname.length(), ending);
 			} else
-				fname += ".jpg";
+				fname += ending;
+
+			if(!g_settings.screenshot_cover){
+				pos = fname.find_last_of('/');
+				if(pos != std::string::npos) {
+					std::string fname_scr=fname;
+					fname.replace(0, pos, g_settings.screenshot_dir);
+				}
+			}
 
 #if 0 // TODO disable overwrite ?
 			if(!access(fname.c_str(), F_OK)) {
 			}
 #endif
 			CScreenShot * sc = new CScreenShot(fname);
+			if(g_settings.screenshot_cover && !g_settings.screenshot_video)
+				sc->EnableVideo(true);
 			sc->Start();
 
 		} else if ( msg == NeutrinoMessages::ANNOUNCE_RECORD ||

@@ -833,10 +833,8 @@ movieplayer.bookmarkname Názov záložky
 movieplayer.bookmarkname_hint1 Vložienie názvu
 movieplayer.bookmarkname_hint2 novej záložky?
 movieplayer.defplugin Štarovací PLUGIN
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Súbor cez VLC
 movieplayer.head Tvorenie filmov
-movieplayer.pesplayback Prehrávanie PES
 movieplayer.toomanybookmarks Veľa záložiek.\nJe potrebné vymazať jednu najprv.
 movieplayer.tshelp1 Zastavenie
 movieplayer.tshelp10 asi 10 min dozadu
@@ -851,7 +849,6 @@ movieplayer.tshelp7 asi 1 min dopredu
 movieplayer.tshelp8 asi 5 min dozadu
 movieplayer.tshelp9 asi 5 min dopredu
 movieplayer.tsplayback Prehrť TS
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Zvuková stpopa
 mpkey.bookmark Ulož záložku
 mpkey.forward Dopredu

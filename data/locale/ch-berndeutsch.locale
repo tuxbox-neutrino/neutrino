@@ -460,7 +460,6 @@ movieplayer.bookmarkname Bookmark Name
 movieplayer.bookmarkname_hint1 Gib ä Name für's nöie Bookmark i.
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Datei via VLC
 movieplayer.head Movieplayer
 movieplayer.toomanybookmarks Du hesch scho zviu Bookmarks aagleit.\nEs muess zersch äs Angers glöscht wärde.
@@ -478,7 +477,6 @@ movieplayer.tshelp8 ca. 5 Minute zrugg
 movieplayer.tshelp9 ca. 5 Minute vor
 movieplayer.tsplayback TS Abschpile
 movieplayer.tsplayback_pc TS Abschpiele mit PIN
-movieplayer.vcdplayback (S)VCD
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Schtandard Gateway

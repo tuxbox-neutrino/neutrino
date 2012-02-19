@@ -372,9 +372,17 @@ struct SNeutrinoSettings
 	int key_plugin;
 
 	int key_unlock;
+
 	int key_screenshot;
 	int screenshot_count;
 	int screenshot_format;
+	int screenshot_cover;
+	int screenshot_mode;
+	int screenshot_video;
+	int screenshot_scale;
+	std::string screenshot_dir;
+
+	int key_current_transponder;
 
 	int cacheTXT;
 	int minimode;
@@ -569,6 +577,8 @@ struct SNeutrinoSettings
 		ITEM_BOXINFO = 17,
 		ITEM_CAM = 18,
 		ITEM_CLOCK = 19,
+		ITEM_GAMES = 20,
+		ITEM_SCRIPTS = 21,
 #if 0
 		ITEM_MOVIEPLAYER_TS,
 #endif

@@ -22,6 +22,88 @@
 		<transponder frequency="466000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="482000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="490000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="498000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="522000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="530000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="583000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="618000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="626000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="634000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="642000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="650000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="666000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="674000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+	</cable>
+	<cable name="KMS Frankfurt" satfeed="true" flags="9">
+		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="121000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="322000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="346000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="354000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="362000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="370000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="378000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="386000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="394000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="402000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="410000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="418000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="426000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="434000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="442000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="450000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="458000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="466000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="482000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="490000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="498000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="522000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="530000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="583000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="618000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="626000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="650000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="666000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="634000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="642000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="674000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+	</cable>
+	<cable name="KMS Nuernberg" satfeed="true" flags="9">
+		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="121000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="322000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="346000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="354000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="362000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="370000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="378000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="386000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="394000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="402000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="410000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="418000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="426000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="434000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="442000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="450000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="458000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="466000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="480000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="482000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="490000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="498000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="522000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="546000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="618000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="626000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="634000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -510,6 +592,7 @@
 		<transponder frequency="129000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="378000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="386000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
+		<transponder frequency="394000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="402000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="410000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="418000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
@@ -520,7 +603,7 @@
 		<transponder frequency="634000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="642000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 		<transponder frequency="650000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
-		<transponder frequency="666000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="658000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="674000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
@@ -537,6 +620,7 @@
 		<transponder frequency="778000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="786000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="794000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="802000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
 	<cable name="All (SR6900)" satfeed="true" flags="9">
 		<transponder frequency="105000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
@@ -1128,7 +1212,7 @@
 		<transponder frequency="169000" symbol_rate="6875000" fec_inner="1" modulation="3"/>
 		<transponder frequency="210000" symbol_rate="6875000" fec_inner="1" modulation="3"/>
 	</cable>
-	<cable name="Comhem (Sweden)" satfeed="true" flags="9"> 
+	<cable name="Comhem (Sweden)" satfeed="true" flags="9">
 		<transponder frequency="290000000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
 		<transponder frequency="298000000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
 		<transponder frequency="306000000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
@@ -1173,5 +1257,5 @@
 		<transponder frequency="746000000" symbol_rate="6875000" fec_inner="0" modulation="5"/>
 		<transponder frequency="786000000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
 		<transponder frequency="786000000" symbol_rate="6875000" fec_inner="0" modulation="5"/>
-	</cable> 
+	</cable>
 </cables>

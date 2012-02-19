@@ -67,6 +67,7 @@
 #include <gui/widget/progressbar.h>
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
+#include <driver/record.h>
 
 extern CPictureViewer * g_PicViewer;
 static CProgressBar *timescale;
@@ -515,6 +516,7 @@ void CMovieBrowser::init(void)
 	refreshBrowserList();
 	refreshFilterList();
 	g_PicViewer->getSupportedImageFormats(PicExts);
+	IsRecord = false;
 #if 0
 	TRACE_1("Frames\r\n\tScren:\t%3d,%3d,%3d,%3d\r\n\tMain:\t%3d,%3d,%3d,%3d\r\n\tTitle:\t%3d,%3d,%3d,%3d \r\n\tBrowsr:\t%3d,%3d,%3d,%3d \r\n\tPlay:\t%3d,%3d,%3d,%3d \r\n\tRecord:\t%3d,%3d,%3d,%3d\r\n\r\n",
 	g_settings.screen_StartX,
@@ -1208,13 +1210,18 @@ void CMovieBrowser::refreshMovieInfo(void)
 			m_pcInfo->setText(&emptytext);
 		return;
 	}
-	if (m_movieSelectionHandler == NULL)
-	{
+	if (m_movieSelectionHandler == NULL) {
 		// There is no selected element, clear LCD
 		m_pcInfo->setText(&emptytext);
 	}
-	else
-	{
+	else {
+		// Is record?
+		bool tmp = CRecordManager::getInstance()->IsFileRecord(m_movieSelectionHandler->file.Name);
+		if (tmp != IsRecord) {
+			IsRecord = tmp;
+			refreshFoot();
+		}
+
 		bool logo_ok = false;
 		int picw = (int)(((float)16 / (float)9) * (float)m_cBoxFrameInfo.iHeight);
 		int pich = m_cBoxFrameInfo.iHeight;
@@ -1615,10 +1622,13 @@ void CMovieBrowser::refreshFoot(void)
 	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_OKAY, &iw, &ih);
 	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, m_cBoxFrame.iX+xpos1+width*2, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
 	m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*2 + 10 + iw, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, ok_text.c_str(), (CFBWindow::color_t)color, 0, true); // UTF-8
-	//delte icon
-	m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
-	m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, m_cBoxFrame.iX+xpos1+width*3, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
-	m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*3 + 10 + iw , m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color, 0, true); // UTF-8
+
+	if (IsRecord == false) {
+		//delte icon
+		m_pcWindow->getIconSize(NEUTRINO_ICON_BUTTON_MUTE_SMALL, &iw, &ih);
+		m_pcWindow->paintIcon(NEUTRINO_ICON_BUTTON_MUTE_SMALL, m_cBoxFrame.iX+xpos1+width*3, m_cBoxFrame.iY+m_cBoxFrameFootRel.iY, m_cBoxFrameFootRel.iHeight+ 6);
+		m_pcFontFoot->RenderString(m_cBoxFrame.iX+xpos1+width*3 + 10 + iw , m_cBoxFrame.iY+m_cBoxFrameFootRel.iY + m_cBoxFrameFootRel.iHeight + 4 , width-30, g_Locale->getText(LOCALE_FILEBROWSER_DELETE), (CFBWindow::color_t)color, 0, true); // UTF-8
+	}
 
 }
 
@@ -1714,13 +1724,8 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_spkr)
 	{
-		if(m_vMovieInfo.size() > 0)
-		{
-			if(m_movieSelectionHandler != NULL)
-			{
-			 	onDeleteFile(*m_movieSelectionHandler);
-			}
-		}
+		if ((m_vMovieInfo.size() > 0) && (m_movieSelectionHandler != NULL) && (IsRecord == false))
+		 	onDeleteFile(*m_movieSelectionHandler);
 	}
 	else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
 	{

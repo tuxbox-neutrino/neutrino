@@ -198,7 +198,7 @@ const CMenuOptionChooser::keyval PERSONALIZE_PROTECT_MODE_OPTIONS[CPersonalizeGu
 
 
 
-CPersonalizeGui::CPersonalizeGui()
+CPersonalizeGui::CPersonalizeGui() : CPINProtection(g_settings.personalize_pincode)
 {
 	width 	= 0;
 	widget_count = 0;
@@ -206,6 +206,7 @@ CPersonalizeGui::CPersonalizeGui()
 	show_usermenu = false;
 	show_pin_setup = false;
 	user_menu_notifier = NULL;
+	pin_setup_notifier = NULL;
 	fkeyMenu = NULL;
 	plMenu = NULL;
 	tmpW = NULL;
@@ -250,8 +251,22 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 		return menu_return::RETURN_EXIT_ALL;
 	}
 	
-	res = ShowPersonalizationMenu();                                        // Show main Personalization Menu
-	SaveAndExit();
+	//also handle pin access 
+	handleSetting(&g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS]);
+	
+	//pin protected access to personalize menu also if found any pin protected items 
+	bool is_pin_protected = g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS];
+	
+	if ( is_pin_protected || hasPinItems()){
+		setHint(LOCALE_PERSONALIZE_PINHINT); //from CPINProtection
+		if (check())
+			is_pin_protected = false;
+	}
+	if (!is_pin_protected){
+		res = ShowPersonalizationMenu();                                 // Show main Personalization Menu
+		SaveAndExit();
+	}
+	
 	return res;
 }
 
@@ -317,6 +332,7 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	delete plMenu;
 	v_userMenuSetup.clear();
 	delete user_menu_notifier;
+	delete pin_setup_notifier;
 	
 	return res;
 }
@@ -325,7 +341,14 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 void CPersonalizeGui::ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget *pin_widget)
 {
 	pin_widget = new CPINChangeWidget(LOCALE_PERSONALIZE_PINCODE, g_settings.personalize_pincode, 4, LOCALE_PERSONALIZE_PINHINT);
-	p_widget->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, g_settings.personalize_pincode, pin_widget, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	
+	CMenuForwarder * fw_pin_setup = new CMenuForwarder(LOCALE_PERSONALIZE_PINCODE, true, g_settings.personalize_pincode, pin_widget, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+ 	pin_setup_notifier = new CPinSetupNotifier(fw_pin_setup);
+ 	p_widget->addItem(new CMenuOptionChooser(LOCALE_PERSONALIZE_PIN_IN_USE, &g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, pin_setup_notifier));
+	
+	fw_pin_setup->setActive(pin_setup_notifier->changeNotify());
+	p_widget->addItem(fw_pin_setup);
+	
 	p_widget->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_PERSONALIZE_MENUCONFIGURATION));
 }
 
@@ -892,3 +915,15 @@ bool CUserMenuNotifier::changeNotify(const neutrino_locale_t, void *)
    return true;
 }
 
+//helper class to enable/disable pin setup
+CPinSetupNotifier::CPinSetupNotifier( CMenuItem* item)
+{
+   toDisable=item;
+}
+
+bool CPinSetupNotifier::changeNotify(const neutrino_locale_t, void *)
+{
+	toDisable->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS]);
+   
+   return g_settings.personalize[SNeutrinoSettings::P_MAIN_PINSTATUS];
+}
