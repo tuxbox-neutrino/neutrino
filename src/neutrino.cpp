@@ -1592,7 +1592,7 @@ void CNeutrinoApp::InitZapper()
 		channelList->adjustToChannelID(live_channel_id);
 		CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
 		g_Sectionsd->setPauseScanning(false);
-		g_Sectionsd->setServiceChanged(live_channel_id&0xFFFFFFFFFFFFULL, true );
+		g_Sectionsd->setServiceChanged(live_channel_id, true );
 		g_Zapit->getPIDS(g_RemoteControl->current_PIDs);
 		if(g_settings.cacheTXT)
 			if(g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0)
@@ -1798,7 +1798,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_BOUQUETS_UPDATE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 
-#define ZAPIT_EVENT_COUNT 30
+#define ZAPIT_EVENT_COUNT 31
 	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
 	{
 		CZapitClient::EVT_ZAP_COMPLETE,
@@ -1830,7 +1830,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 		CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN,
 		CZapitClient::EVT_SCAN_FOUND_DATA_CHAN,
 		CZapitClient::EVT_SDT_CHANGED,
-		CZapitClient::EVT_PMT_CHANGED
+		CZapitClient::EVT_PMT_CHANGED,
+		CZapitClient::EVT_TUNE_COMPLETE,
 	};
 
 	for (int i = 0; i < ZAPIT_EVENT_COUNT; i++)
@@ -3433,7 +3434,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		videoDecoder->Standby(false);
 		g_Sectionsd->setPauseScanning(false);
-		g_Sectionsd->setServiceChanged(live_channel_id&0xFFFFFFFFFFFFULL, true );
+		g_Sectionsd->setServiceChanged(live_channel_id, true );
 
                 if(g_settings.mode_clock)
                         InfoClock->StartClock();

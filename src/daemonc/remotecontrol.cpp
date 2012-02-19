@@ -121,7 +121,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			if ((*(t_channel_id *)data) != current_channel_id) {
 				g_InfoViewer->chanready = 0;
 				g_Zapit->zapTo_serviceID_NOWAIT(current_channel_id );
-				g_Sectionsd->setServiceChanged(current_channel_id &0xFFFFFFFFFFFFULL, false);
+				g_Sectionsd->setServiceChanged(current_channel_id, false);
 
 				zap_completion_timeout = getcurrenttime() + 2 * (int64_t) 1000000;
 
@@ -168,7 +168,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				director_mode = 0;
 				needs_nvods = (msg == NeutrinoMessages:: EVT_ZAP_ISNVOD);
 
-				g_Sectionsd->setServiceChanged( current_channel_id&0xFFFFFFFFFFFFULL, true );
+				g_Sectionsd->setServiceChanged( current_channel_id, true );
 				CNeutrinoApp::getInstance()->channelList->adjustToChannelID(current_channel_id);
 				if ( g_InfoViewer->is_visible )
 					g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR , 0 );
@@ -321,11 +321,11 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			{
 				getNVODs();
 				if (subChannels.empty())
-					g_Sectionsd->setServiceChanged( current_channel_id&0xFFFFFFFFFFFFULL, true );
+					g_Sectionsd->setServiceChanged( current_channel_id, true );
 			}
 			else
 				// EVENT anfordern!
-				g_Sectionsd->setServiceChanged( current_channel_id&0xFFFFFFFFFFFFULL, true );
+				g_Sectionsd->setServiceChanged( current_channel_id, true );
 
 		}
 	    return messages_return::handled;
@@ -686,7 +686,7 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		//dvbsub_pause(true);
 		CZapit::getInstance()->Abort();
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
-		g_Sectionsd->setServiceChanged( current_channel_id&0xFFFFFFFFFFFFULL, false );
+		g_Sectionsd->setServiceChanged( current_channel_id, false );
 
 		zap_completion_timeout = now + 2 * (int64_t) 1000000;
 		g_RCInput->killTimer( current_programm_timer );

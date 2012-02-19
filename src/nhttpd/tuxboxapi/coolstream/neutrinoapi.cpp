@@ -183,7 +183,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 	}
 
 	if (Zapit->zapTo_serviceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id&0xFFFFFFFFFFFFULL, false);
+		Sectionsd->setServiceChanged(channel_id, false);
 }
 //-------------------------------------------------------------------------
 
@@ -196,7 +196,7 @@ void CNeutrinoAPI::ZapToSubService(const char * const target)
 		&channel_id);
 
 	if (Zapit->zapTo_subServiceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id&0xFFFFFFFFFFFFULL, false);
+		Sectionsd->setServiceChanged(channel_id, false);
 }
 //-------------------------------------------------------------------------
 t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_name)
