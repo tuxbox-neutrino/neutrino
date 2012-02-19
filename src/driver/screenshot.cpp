@@ -59,9 +59,9 @@ CScreenShot::CScreenShot(const std::string fname, screenshot_format_t fmt)
 	fd = NULL;
 	xres = 0;
 	yres = 0;
-	get_video = true;
-	get_osd = false;
-	scale_to_video = false;
+	get_video = g_settings.screenshot_video;
+	get_osd = g_settings.screenshot_mode;
+	scale_to_video = g_settings.screenshot_scale;
 }
 
 CScreenShot::~CScreenShot()
@@ -355,9 +355,7 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 	CEPGData	epgData;
 	unsigned int	pos = 0;
 
-	//TODO settings to select screenshot dir ?
-	sprintf(fname, "%s/", g_settings.network_nfs_recordingdir);
-
+	snprintf(fname, sizeof(fname), "%s/", g_settings.screenshot_dir.c_str());
 	pos = strlen(fname);
 
 	channel_name = g_Zapit->getChannelName(channel_id);

@@ -615,6 +615,7 @@ int CChannelList::show()
 			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
 			{
 				printf("[neutrino channellist] start direct recording...\n");
+				hide();
 				if (CRecordManager::getInstance()->Record(chanlist[selected]->channel_id))
 				{
 					if(SameTP())

@@ -1474,6 +1474,8 @@ const char * CRCInput::getSpecialKeyName(const unsigned int key)
 				return "analog on";
 			case RC_analog_off:
 				return "analog off";
+			case RC_www:
+				return "window print";
 			default:
 				printf("unknown key: %d (0x%x) \n", key, key);
 				return "unknown";

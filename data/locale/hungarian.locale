@@ -850,10 +850,8 @@ movieplayer.bookmarkname könyvjelző neve
 movieplayer.bookmarkname_hint1 Kérem adjon nevet az új könyvjelzőnek!
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fájlok lejátszása
 movieplayer.head Filmböngésző
-movieplayer.pesplayback PES lejátszása (kísérleti)
 movieplayer.toomanybookmarks Túl sok könyvjelző.\nElőbb törölni kell egyet.
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 approx. 10 minutes back 
@@ -868,7 +866,6 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back 
 movieplayer.tshelp9 skip approx. 5 minutes 
 movieplayer.tsplayback TS lejátszása
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Hangsáv
 mpkey.bookmark Könyvjelző mentése
 mpkey.forward Előre

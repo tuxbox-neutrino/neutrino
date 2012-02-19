@@ -690,10 +690,8 @@ movieplayer.bookmarkname Nom du signet
 movieplayer.bookmarkname_hint1 Entrer un nom pour votre nouveau signet
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fichier via VLC
 movieplayer.head Lecteur vidéo
-movieplayer.pesplayback Lecture PES (Expérimental)
 movieplayer.toomanybookmarks Il y'a plusieurs signets.\nVous avez à éffacer l'un d'eux avant.
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 approx. 10 minutes back 
@@ -708,7 +706,6 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back 
 movieplayer.tshelp9 skip approx. 5 minutes 
 movieplayer.tsplayback Lecture TS
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward

@@ -412,13 +412,10 @@ movieplayer.bookmark oznaka
 movieplayer.bookmarkname ime zapamcenog mjesta
 movieplayer.bookmarkname_hint1 Imenujte novo zapamceno mjesto
 movieplayer.bookmarkname_hint2
-movieplayer.dvdplayback dvd
 movieplayer.fileplayback datoteka preko vlcea
 movieplayer.head promatrač filmova
-movieplayer.pesplayback odigrati pes (eksperimentalno)
 movieplayer.toomanybookmarks Previse mjesta su zapamcena.\nMora se prvo jedno drugo izbrisati.
 movieplayer.tsplayback odigrati ts
-movieplayer.vcdplayback (s)vcd
 movieplayer.vlchelp crveno/kuci stop\nzeleno resync\nzuto pausa/dalje\nplavo zapamtiti mjesto\n1 oko 1 minuta nazad\n3 oko 1 minuta naprijed\n4 oko 5 minuta nazad\n6 oko5 minuta naprijed\n7 oko 10 minuta nazad\n9 oko 10 minuta naprijed\npomoc:http://www.giggo.de/dbox2/movieplayer.html\n
 networkmenu.broadcast broadcast
 networkmenu.gateway standard gateway

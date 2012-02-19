@@ -146,14 +146,6 @@ const CMenuOptionChooser::keyval KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS[KEYBINDI
 	{ 2, LOCALE_KEYBINDINGMENU_ALLCHANNELS_ON_OK     }
 };
 
-#define KEYBINDINGMENU_SCREENSHOT_FMT_OPTION_COUNT 3
-const CMenuOptionChooser::keyval_ext KEYBINDINGMENU_SCREENSHOT_FMT_OPTIONS[KEYBINDINGMENU_SCREENSHOT_FMT_OPTION_COUNT] =
-{
-	{ CScreenShot::FORMAT_PNG,   NONEXISTANT_LOCALE, "PNG"  },
-	{ CScreenShot::FORMAT_JPG,   NONEXISTANT_LOCALE, "JPEG" },
-	{ CScreenShot::FORMAT_BMP,   NONEXISTANT_LOCALE, "BMP" }
-};
-
 typedef struct key_settings_t
 {
 	const neutrino_locale_t keydescription;
@@ -175,6 +167,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_KEYBINDINGMENU_ADDREMIND,	&g_settings.key_channelList_addremind,	},
 	{LOCALE_KEYBINDINGMENU_BOUQUETUP,	&g_settings.key_bouquet_up, 		},
 	{LOCALE_KEYBINDINGMENU_BOUQUETDOWN,	&g_settings.key_bouquet_down, 		},
+	{LOCALE_EXTRA_KEY_CURRENT_TRANSPONDER,	&g_settings.key_current_transponder,	},
 	{LOCALE_KEYBINDINGMENU_CHANNELUP,	&g_settings.key_quickzap_up,		},
 	{LOCALE_KEYBINDINGMENU_CHANNELDOWN,	&g_settings.key_quickzap_down,  	},
 	{LOCALE_KEYBINDINGMENU_SUBCHANNELUP,	&g_settings.key_subchannel_up,  	},
@@ -193,7 +186,7 @@ const key_settings_struct_t key_settings[CKeybindSetup::KEYBINDS_COUNT] =
 	{LOCALE_MPKEY_PLUGIN,			&g_settings.mpkey_plugin,		},
 	{LOCALE_EXTRA_KEY_PLUGIN,		&g_settings.key_plugin,			},
 	{LOCALE_EXTRA_KEY_UNLOCK,		&g_settings.key_unlock,			},
-	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,			},
+	{LOCALE_EXTRA_KEY_SCREENSHOT,		&g_settings.key_screenshot,		}
 };
 
 
@@ -289,8 +282,6 @@ void CKeybindSetup::showKeyBindSetup(CMenuWidget *bindSettings)
 	//bindSettings->addItem(new CMenuForwarder(keydescription[KEY_PLUGIN], true, NULL, keychooser[KEY_PLUGIN]));
 	bindSettings->addItem(new CMenuForwarder(key_settings[KEY_UNLOCK].keydescription, true, keychooser[KEY_UNLOCK]->getKeyName(), keychooser[KEY_UNLOCK]));
 	bindSettings->addItem(new CMenuForwarder(key_settings[KEY_SCREENSHOT].keydescription, true, keychooser[KEY_SCREENSHOT]->getKeyName(), keychooser[KEY_SCREENSHOT]));
-	bindSettings->addItem(new CMenuOptionNumberChooser(LOCALE_SCREENSHOT_COUNT, &g_settings.screenshot_count, true, 1, 5, NULL));
-	bindSettings->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_FORMAT, &g_settings.screenshot_format, KEYBINDINGMENU_SCREENSHOT_FMT_OPTIONS, KEYBINDINGMENU_SCREENSHOT_FMT_OPTION_COUNT, true));
 	//bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE, &g_settings.zap_cycle, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_MENU_LEFT_EXIT, &g_settings.menu_left_exit, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	bindSettings->addItem(new CMenuOptionChooser(LOCALE_EXTRA_AUDIO_RUN_PLAYER, &g_settings.audio_run_player, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -311,7 +302,7 @@ void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist
 	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_BOUQUETHANDLING, &g_settings.bouquetlist_mode, KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS, KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT, true );
 	bindSettings_chlist->addItem(oj);
 
-	for (int i = KEY_PAGE_UP; i <= KEY_BOUQUET_DOWN; i++)
+	for (int i = KEY_PAGE_UP; i <= KEY_CURRENT_TRANSPONDER; i++)
 		bindSettings_chlist->addItem(new CMenuForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]));
 
 	bindSettings_chlist->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SMS_CHANNEL, &g_settings.sms_channel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));

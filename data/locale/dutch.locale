@@ -499,13 +499,10 @@ movieplayer.bookmark Bookmarks
 movieplayer.bookmarkname Bookmarknaam
 movieplayer.bookmarkname_hint1 Geef een naam in voor je nieuwe bookmark
 movieplayer.bookmarkname_hint2 
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback File via VLC
 movieplayer.head Filmspeler
-movieplayer.pesplayback Speel PES (Experimenteel)
 movieplayer.toomanybookmarks Er zijn teveel bookmarks.\nWis er eerst een van.
 movieplayer.tsplayback Speel TS
-movieplayer.vcdplayback (S)VCD
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway default gateway

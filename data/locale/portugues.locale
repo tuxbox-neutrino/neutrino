@@ -744,10 +744,8 @@ movieplayer.bookmarkname Nome da lista
 movieplayer.bookmarkname_hint1 Introduzir um nome para a nova lista
 movieplayer.bookmarkname_hint2 
 movieplayer.defplugin Start-Plugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Ficheiro via VLC
 movieplayer.head Movieplayer
-movieplayer.pesplayback Play PES (Experimental)
 movieplayer.toomanybookmarks Tem demasiadas lista de favoritos.\nNecessita primeiro apagar alguma(s) dela(s).
 movieplayer.tshelp1 Stop 
 movieplayer.tshelp10 approx. 10 minutes back 
@@ -762,7 +760,6 @@ movieplayer.tshelp7 skip approx. 1 minute
 movieplayer.tshelp8 approx. 5 minutes back 
 movieplayer.tshelp9 skip approx. 5 minutes 
 movieplayer.tsplayback Play TS
-movieplayer.vcdplayback (S)VCD
 mpkey.audio Audio track
 mpkey.bookmark save bookmark
 mpkey.forward Forward

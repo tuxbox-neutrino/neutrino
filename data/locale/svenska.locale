@@ -489,7 +489,6 @@ movieplayer.bookmarkname Bokmärkesnamn
 movieplayer.bookmarkname_hint1 Ange ett namn för ditt nya bokmärke
 movieplayer.bookmarkname_hint2   
 movieplayer.defplugin Startplugin
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Fil via VLC
 movieplayer.head Filmspelare
 movieplayer.toomanybookmarks Det finns för många bokmärken.\nDu måste ta bort en av dom först.
@@ -507,7 +506,6 @@ movieplayer.tshelp8 ungefär 5 min tillbaks
 movieplayer.tshelp9 hoppa ungefär 5 min
 movieplayer.tsplayback Spela TS
 movieplayer.tsplayback_pc Spela TS med PIN-lås
-movieplayer.vcdplayback (S)VCD
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
 networkmenu.gateway Default Gateway

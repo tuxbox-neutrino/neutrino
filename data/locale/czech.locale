@@ -691,10 +691,8 @@ movieplayer.bookmarkname Název záložky
 movieplayer.bookmarkname_hint1 Vložení názvu
 movieplayer.bookmarkname_hint2 nové záložky?
 movieplayer.defplugin Startovací PLUGIN
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Soubor přes VLC
 movieplayer.head Tvoření filmů
-movieplayer.pesplayback Přehrávání PES
 movieplayer.toomanybookmarks Mnoho záložek.\nNejprve je potřebné jednu vymazat.
 movieplayer.tshelp1 Zastavení
 movieplayer.tshelp10 asi 10 min dozadu
@@ -709,7 +707,6 @@ movieplayer.tshelp7 asi 1 min dopředu
 movieplayer.tshelp8 asi 5 min dozadu
 movieplayer.tshelp9 asi 5 min dopředu
 movieplayer.tsplayback Přehrát TS
-movieplayer.vcdplayback (S)VCD
 networkmenu.broadcast Vysílání
 networkmenu.dhcp Převzetí z DHCP
 networkmenu.gateway Předvolená brána

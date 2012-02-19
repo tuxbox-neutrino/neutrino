@@ -1191,7 +1191,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_ASK_STOP_ALL));
 		snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records);
 		if(ShowMsgUTF(LOCALE_SHUTDOWN_RECODING_QUERY, rec_msg,
-			CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
+			CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
 // focus: i think no sense for 2 loops, because this code run in the same thread as neutrino,
@@ -1348,9 +1348,15 @@ bool CRecordManager::ShowMenu(void)
 				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
 
 			sprintf(cnt, "%d", i);
-			item = new CMenuForwarderNonLocalized(title.c_str(), true, NULL, 
-				selector, cnt, CRCInput::convertDigitToKey((rec_count == 1) ? 0 : shortcut++), NULL, mode_icon);
-			item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+			//define stop key if only one record is running, otherwise define shortcuts
+			neutrino_msg_t rc_key = CRCInput::convertDigitToKey(shortcut++);
+			std::string btn_icon = NEUTRINO_ICON_BUTTON_OKAY;
+			if (rec_count == 1){
+				rc_key = CRCInput::RC_stop;
+				btn_icon = NEUTRINO_ICON_BUTTON_STOP;
+			}	
+			item = new CMenuForwarderNonLocalized(title.c_str(), true, NULL, selector, cnt, rc_key, NULL, mode_icon);
+			item->setItemButton(btn_icon, true);
 			
 			//if only one recording is running, set the focus to this menu item
 			menu.addItem(item, rec_count == 1 ? true: false);
@@ -1362,8 +1368,8 @@ bool CRecordManager::ShowMenu(void)
 		{
 			menu.addItem(GenericMenuSeparatorLine);
 			iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_STOP_ALL, true, NULL, 
-					this, "StopAll", CRCInput::convertDigitToKey(0));
-			iteml->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
+					this, "StopAll", CRCInput::RC_stop);
+			iteml->setItemButton(NEUTRINO_ICON_BUTTON_STOP, true);
 			
 			//if more than one recording is running, set the focus to menu item 'stopp all records'
 			menu.addItem(iteml, rec_count > 1 ? true: false);
@@ -1675,6 +1681,20 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 	}
 
 	return ret;
+}
+
+bool CRecordManager::IsFileRecord(std::string file)
+{
+	mutex.lock();
+	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+		CRecordInstance * inst = it->second;
+		if ((((std::string)inst->GetFileName()) + ".ts") == file) {
+			mutex.unlock();
+			return true;
+		}
+	}
+	mutex.unlock();
+	return false;
 }
 
 #if 0 // not used, saved in case we needed it

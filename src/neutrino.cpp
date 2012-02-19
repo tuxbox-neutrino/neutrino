@@ -588,6 +588,12 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	g_settings.screenshot_count = configfile.getInt32( "screenshot_count",  1);
 	g_settings.screenshot_format = configfile.getInt32( "screenshot_format",  1);
+	g_settings.screenshot_cover = configfile.getInt32( "screenshot_cover",  0);
+	g_settings.screenshot_mode = configfile.getInt32( "screenshot_mode",  0);
+	g_settings.screenshot_video = configfile.getInt32( "screenshot_video",  1);
+	g_settings.screenshot_scale = configfile.getInt32( "screenshot_scale",  0);
+
+	g_settings.screenshot_dir = configfile.getString( "screenshot_dir", "/media/sda1/movies" );
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
@@ -698,8 +704,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
         const char* usermenu_default[SNeutrinoSettings::BUTTON_MAX]={
                 "2,3,4,13",                     // RED
                 "6",                            // GREEN
-                "7",                            // YELLOW
-                "12,10,11,19,14,15"    // BLUE
+                "7",                       // YELLOW
+                "12,10,11,20,21,19,14,15"    // BLUE
         };
         char txt1[81];
         std::string txt2;
@@ -999,6 +1005,12 @@ void CNeutrinoApp::saveSetup(const char * fname)
 //printf("set: key_unlock =============== %d\n", g_settings.key_unlock);
 	configfile.setInt32( "screenshot_count", g_settings.screenshot_count );
 	configfile.setInt32( "screenshot_format", g_settings.screenshot_format );
+	configfile.setInt32( "screenshot_cover", g_settings.screenshot_cover );
+	configfile.setInt32( "screenshot_mode", g_settings.screenshot_mode );
+	configfile.setInt32( "screenshot_video", g_settings.screenshot_video );
+	configfile.setInt32( "screenshot_scale", g_settings.screenshot_scale );
+
+	configfile.setString( "screenshot_dir", g_settings.screenshot_dir);
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
 	configfile.setInt32( "minimode", g_settings.minimode );
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );
@@ -1202,7 +1214,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++)
 		RADIOchannelList->putChannel(*it);
 
-	CBouquet* hdBouquet;
+	CBouquet* hdBouquet = NULL;
 	/* all HD channels */
 	if(g_settings.make_hd_list) {
 		hdBouquet = new CBouquet(0, (char *) "HD", false);
@@ -1301,8 +1313,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 	TIMER_STOP("[neutrino] tv took");
 
-	if(g_settings.make_hd_list && hi)
-		TVfavList->Bouquets.push_back(hdBouquet);
+	if(g_settings.make_hd_list) {
+		if(hi)
+			TVfavList->Bouquets.push_back(hdBouquet);
+		else
+			delete hdBouquet;
+	}
 
 	/* Favorites and provides RADIO bouquets */
 	bnum = 0;
@@ -2088,7 +2104,7 @@ INFO("cCA::GetInstance()->Ready\n");
 			else if(msg == (neutrino_msg_t) g_settings.key_timeshift) {
 				CRecordManager::getInstance()->StartTimeshift();
 			}
-			else if (msg == CRCInput::RC_games){
+			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder){
 				StopSubtitles();
 				int res = channelList->numericZap( msg );
 				StartSubtitles(res < 0);
@@ -3770,6 +3786,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = configfile.getInt32( "key_screenshot", CRCInput::RC_nokey );
+	g_settings.key_current_transponder = configfile.getInt32( "key_current_transponder", CRCInput::RC_nokey );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
 	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );
@@ -3823,6 +3840,7 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_plugin", g_settings.key_plugin );
 	tconfig.setInt32( "key_unlock", g_settings.key_unlock );
 	tconfig.setInt32( "key_screenshot", g_settings.key_screenshot );
+	tconfig.setInt32( "key_current_transponder", g_settings.key_current_transponder );
 
 	tconfig.setInt32( "key_quickzap_up", g_settings.key_quickzap_up );
 	tconfig.setInt32( "key_quickzap_down", g_settings.key_quickzap_down );

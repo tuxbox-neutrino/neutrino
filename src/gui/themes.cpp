@@ -55,7 +55,7 @@ CThemes::CThemes()
 : themefile('\t')
 {
 	width 	= w_max (40, 10);
-
+	notifier = NULL;
 	hasThemeChanged = false;
 }
 

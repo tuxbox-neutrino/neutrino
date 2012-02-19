@@ -426,14 +426,11 @@ movieplayer.bookmark Favorieten
 movieplayer.bookmarkname Bookmark Naam
 movieplayer.bookmarkname_hint1 Geef de naam voor de
 movieplayer.bookmarkname_hint2 nieuwe favoriet in
-movieplayer.dvdplayback DVD
 movieplayer.fileplayback Bestand via VLC
 movieplayer.head Filmplayer
-movieplayer.pesplayback PES Afspelen (Experiment)
 movieplayer.toomanybookmarks U heeft te veel favorieten.\nEr moet een andere favoriet gewist worden.
 movieplayer.tshelp Rood/Home Stop\nGROEN Kies audio track\nGEEL Pause/Continue\nBLUE Create bookmark\nd-box Show progress\n1 approx. 1 minute back\n3 skip approx. 1 minute\n4 approx. 5 minuten terug\n6 sla over ongeveer 5 minuten\n7 ongeveer 10 minuten terug\n9 sla ongeveer 10 minutes\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
 movieplayer.tsplayback Speel TS
-movieplayer.vcdplayback (S)VCD
 movieplayer.vlchelp ROOD/Home Stop\nGROEN Resync\nGEEL Pause/verder\nBLAUW Favoriet instellen\n1 ca. 1 Minuut terug\n3 ca. 1 Minuut vooruit\n4 ca. 5 Minuten terug\n6 ca. 5 Minuten vooruit\n7 ca. 10 Minuten terug\n9 ca. 10 Minuten vooruit\nHelp: http://www.giggo.de/dbox2/movieplayer.html\n
 networkmenu.broadcast Broadcast
 networkmenu.dhcp DHCP
