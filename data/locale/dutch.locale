@@ -585,7 +585,7 @@ ping.socket is onbereikbaar (socket fout)
 ping.unreachable is onbereikbaar
 pinprotection.head Geef PIN code in
 pinprotection.wrongcode PIN-Code was verkeerd! Probeer opnieuw.
-rclock.lockmsg Je Coolstream A-fstand B-ediening is vergrendeld.\nOm je A-B te ontgrendelen, druk <ROOD> en <DBOX>\nop je A-fstand B-ediening.
+rclock.lockmsg Je A-fstand B-ediening is vergrendeld.\nOm je A-B te ontgrendelen, druk <ROOD> en <MENU>\nop je A-fstand B-ediening.
 rclock.menueadd Vergrendel A-B 
 rclock.title Vergrendel Afstand Bediening
 rclock.unlockmsg A-fstand B-ediening gereactiveerd.

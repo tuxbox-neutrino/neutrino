@@ -77,7 +77,9 @@ int CStartUpWizard::exec(CMenuTarget* parent, const string & /*actionKey*/)
 	
 	languageSettings.exec(NULL, "");
 
+#if 0
 	if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes) 
+#endif
 	{
 		//open video settings in wizardmode
 		g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD);
