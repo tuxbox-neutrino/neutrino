@@ -1223,6 +1223,7 @@ const char * locale_real_names[] =
 	"screenshot.info",
 	"screenshot.menu",
 	"screenshot.osd",
+	"screenshot.res",
 	"screenshot.scale",
 	"screenshot.tv",
 	"screenshot.video",

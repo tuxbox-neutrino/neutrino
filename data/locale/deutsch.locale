@@ -1190,13 +1190,14 @@ scrambled_channel Verschlüsselung aktiv
 screensetup.lowerright grün = Bildrand unten, rechts
 screensetup.upperleft rot = Bildrand oben, links
 screenshot.count Screenshot Anzahl
-screenshot.cover Film Cover
-screenshot.defdir Screenshot Dir.
+screenshot.cover Erzeuge Filmcover für Moviebrowser
+screenshot.defdir Screenshot Verzeichnis
 screenshot.format Screenshot Format
 screenshot.info Screenshot Taste ist nicht belegt
 screenshot.menu Screenshot
 screenshot.osd OSD Auflösung
-screenshot.scale Scale
+screenshot.res Screenshot Auflösung
+screenshot.scale Screenshot Skalierung
 screenshot.tv TV Auflösung
 screenshot.video Screenshot mit Video Hintergrund
 servicemenu.getplugins Plugins neu laden

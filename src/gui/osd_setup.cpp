@@ -731,7 +731,7 @@ void COsdSetup::showOsdScreenshottSetup(CMenuWidget *menu_screenshot)
 	menu_screenshot->addItem(new CMenuOptionNumberChooser(LOCALE_SCREENSHOT_COUNT, &g_settings.screenshot_count, true, 1, 5, NULL));
 	menu_screenshot->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_FORMAT, &g_settings.screenshot_format, SCREENSHOT_FMT_OPTIONS, SCREENSHOT_FMT_OPTION_COUNT, true));
 	menu_screenshot->addItem(new CMenuForwarder(LOCALE_SCREENSHOT_DEFDIR, true, g_settings.screenshot_dir, this, "screenshot_dir"));
-	menu_screenshot->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_MENU, &g_settings.screenshot_mode, SCREENSHOT_OPTIONS, SCREENSHOT_OPTION_COUNT, true));
+	menu_screenshot->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_RES, &g_settings.screenshot_mode, SCREENSHOT_OPTIONS, SCREENSHOT_OPTION_COUNT, true));
 	menu_screenshot->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_VIDEO, &g_settings.screenshot_video, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 //	menu_screenshot->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_SCALE, &g_settings.screenshot_scale, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_screenshot->addItem(new CMenuOptionChooser(LOCALE_SCREENSHOT_COVER, &g_settings.screenshot_cover, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
