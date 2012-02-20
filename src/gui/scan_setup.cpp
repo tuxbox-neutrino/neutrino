@@ -830,17 +830,20 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 	CStringInput		*rate 	= new CStringInput(LOCALE_EXTRA_TP_RATE, (char *) scansettings.TP_rate, 8, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
 	CMenuForwarder		*Rate 	= new CMenuForwarder(LOCALE_EXTRA_TP_RATE, true, scansettings.TP_rate, rate, "", CRCInput::convertDigitToKey(shortCut++));
 
-	CMenuOptionChooser	*fec 	= new CMenuOptionChooser(LOCALE_EXTRA_TP_FEC, (int *)&scansettings.TP_fec, SATSETUP_SCANTP_FEC, fec_count, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
-	
+	CMenuOptionChooser	*fec = NULL;
+
 	CMenuOptionChooser	*mod_pol= NULL;
-	if (r_system == DVB_S)
+	if (r_system == DVB_S) {
+		fec 	= new CMenuOptionChooser(LOCALE_EXTRA_TP_FEC, (int *)&scansettings.TP_fec, SATSETUP_SCANTP_FEC, fec_count, true, NULL, CRCInput::convertDigitToKey(shortCut++), "", true);
 		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_POL, (int *)&scansettings.TP_pol, SATSETUP_SCANTP_POL, SATSETUP_SCANTP_POL_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
-	else if (r_system == DVB_C)
+	} else if (r_system == DVB_C) {
 		mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+	}
 
 	options_menu->addItem(Freq);
 	options_menu->addItem(Rate);
-	options_menu->addItem(fec);
+	if (r_system == DVB_S)
+		options_menu->addItem(fec);
 	options_menu->addItem(mod_pol);
 	
 	return shortCut;
