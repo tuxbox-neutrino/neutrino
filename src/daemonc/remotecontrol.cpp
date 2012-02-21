@@ -121,7 +121,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			if ((*(t_channel_id *)data) != current_channel_id) {
 				g_InfoViewer->chanready = 0;
 				g_Zapit->zapTo_serviceID_NOWAIT(current_channel_id );
-				g_Sectionsd->setServiceChanged(current_channel_id, false);
+				//g_Sectionsd->setServiceChanged(current_channel_id, false);
 
 				zap_completion_timeout = getcurrenttime() + 2 * (int64_t) 1000000;
 
@@ -168,7 +168,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				director_mode = 0;
 				needs_nvods = (msg == NeutrinoMessages:: EVT_ZAP_ISNVOD);
 
-				g_Sectionsd->setServiceChanged( current_channel_id, true );
+				//g_Sectionsd->setServiceChanged( current_channel_id, true );
 				CNeutrinoApp::getInstance()->channelList->adjustToChannelID(current_channel_id);
 				if ( g_InfoViewer->is_visible )
 					g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR , 0 );
@@ -340,6 +340,15 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 
  		return messages_return::handled;
 	}
+	else if (msg == NeutrinoMessages::EVT_TUNE_COMPLETE) {
+		t_channel_id chid = *(t_channel_id *)data;
+printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016llx)\n", chid);
+		if(chid)
+			g_Sectionsd->setServiceChanged( chid, true );
+		else
+			g_Sectionsd->setServiceChanged( current_channel_id, true );
+ 		return messages_return::handled;
+	}
 	//else if (msg == NeutrinoMessages::EVT_ZAP_FAILED || msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED)
  		//return messages_return::handled;
 	else
@@ -361,12 +370,12 @@ void CRemoteControl::getSubChannels()
 //printf("CRemoteControl::getSubChannels linkedServices.size %d\n", linkedServices.size());
 				for (unsigned int i=0; i< linkedServices.size(); i++)
 				{
-//printf("CRemoteControl::getSubChannels %s\n", linkedServices[i].name.c_str());
 					subChannels.push_back(CSubService(
 								      linkedServices[i].originalNetworkId,
 								      linkedServices[i].serviceId,
 								      linkedServices[i].transportStreamId,
 								      linkedServices[i].name));
+//printf("CRemoteControl::getSubChannels %s: %016llx\n", linkedServices[i].name.c_str(), subChannels[i].getChannelID());
 					if ((subChannels[i].getChannelID()&0xFFFFFFFFFFFFULL) == (current_channel_id&0xFFFFFFFFFFFFULL))
 						selected_subchannel = i;
 				}
@@ -606,7 +615,7 @@ const std::string & CRemoteControl::setSubChannel(const int numSub, const bool f
 
 	g_Zapit->zapTo_subServiceID_NOWAIT( current_sub_channel_id );
 	// Houdini: to restart reading the private EPG when switching to a new option
-	g_Sectionsd->setServiceChanged( current_sub_channel_id , true );
+	//g_Sectionsd->setServiceChanged( current_sub_channel_id , true );
 
 	return subChannels[numSub].subservice_name;
 }
@@ -686,7 +695,7 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		//dvbsub_pause(true);
 		CZapit::getInstance()->Abort();
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
-		g_Sectionsd->setServiceChanged( current_channel_id, false );
+		//g_Sectionsd->setServiceChanged( current_channel_id, false );
 
 		zap_completion_timeout = now + 2 * (int64_t) 1000000;
 		g_RCInput->killTimer( current_programm_timer );
