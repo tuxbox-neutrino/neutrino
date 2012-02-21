@@ -36,6 +36,14 @@ extern bool sections_debug;
 #define dputs(str)            do { if (sections_debug) { printdate_ms(stdout); puts(str);            fflush(stdout); }} while (0)
 #define xprintf(fmt, args...) do { printdate_ms(stderr); fprintf(stderr, fmt, ## args); } while (0)
 
+/* dont add \n when using this */
+#define xcprintf(fmt, args...) do {			\
+	fprintf(stderr, "%c[%d;%d;%dm", 0x1B, 1, 31, 40);\
+	printdate_ms(stderr);				\
+	fprintf(stderr, fmt, ## args);			\
+	fprintf(stderr, "%c[%dm\n", 0x1B, 0);		\
+}  while (0)
+
 void printdate_ms(FILE* f);
 void showProfiling( std::string text );
 
