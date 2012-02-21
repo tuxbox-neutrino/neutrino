@@ -90,7 +90,8 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 		int		timeoutsDMX;
 		unsigned	timeoutInMSeconds;
 		bool		running;
-		std::string	name;
+		//std::string	name;
+		int		event_count; // debug
 
 		virtual void run() {};
 		int Sleep(unsigned int timeout)
@@ -106,6 +107,7 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 			pthread_mutex_unlock( &start_stop_mutex );
 			return rs;
 		}
+		bool addEvents();
 
 	public:
 
@@ -114,6 +116,7 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 			static_buf = new uint8_t[MAX_SECTION_LENGTH];
 			timeoutsDMX = 0;
 			running = false;
+			event_count = 0;
 		}
 
 		~CSectionThread()
@@ -131,8 +134,14 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 		{
 			if(!running)
 				return false;
+printf("%s::Stop: to lock\n", name.c_str());
+			lock();
 			running = false;
+printf("%s::Stop: to broadcast\n", name.c_str());
 			pthread_cond_broadcast(&change_cond);
+printf("%s::Stop: to unlock\n", name.c_str());
+			unlock();
+printf("%s::Stop: to close\n", name.c_str());
 			DMX::closefd();
 			int ret = (OpenThreads::Thread::join() == 0);
 			DMX::close();
@@ -147,6 +156,12 @@ class CEitThread : public CSectionThread
 };
 
 class CCNThread : public CSectionThread
+{
+	private:
+		void run();
+};
+
+class CSdtThread : public CSectionThread
 {
 	private:
 		void run();
