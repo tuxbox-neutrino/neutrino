@@ -429,7 +429,7 @@ bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &tr
 		}
 
 		/* if channel's transponder does not match frontend's tuned transponder ... */
-		if (transponder_change || current_is_nvod) {
+		if (transponder_change /* || current_is_nvod*/) {
 			if (frontend->tuneChannel(channel, current_is_nvod) == false) {
 				return false;
 			}
