@@ -978,9 +978,13 @@ void CFrontend::positionMotor(uint8_t motorPosition)
 bool CFrontend::setInput(CZapitChannel * channel, bool nvod)
 {
 	transponder_list_t::iterator tpI;
-	transponder_id_t ct = channel->getTransponderId();
+	//transponder_id_t ct = channel->getTransponderId();
+	transponder_id_t ct = nvod ? (channel->getTransponderId() & 0xFFFFFFFFULL) : channel->getTransponderId();
+	transponder_id_t current_id = nvod ? (currentTransponder.TP_id & 0xFFFFFFFFULL) : currentTransponder.TP_id;
+	//printf("CFrontend::setInput tuned %d nvod %d current_id %llx new %llx\n\n", tuned, nvod, current_id, ct);
 
-	if (tuned && (ct == currentTransponder.TP_id))
+	//if (tuned && (ct == currentTransponder.TP_id))
+	if (tuned && (ct == current_id))
 		return false;
 
 	if (nvod) {
