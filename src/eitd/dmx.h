@@ -39,6 +39,7 @@
 #include <zapit/client/zapittypes.h>
 #include <set>
 #include <map>
+#include <string>
 
 typedef uint64_t sections_id_t;
 typedef unsigned char version_number_t;
@@ -60,6 +61,10 @@ protected:
 	unsigned char	eit_version;
 	bool		cache; /* should read sections be cached? true for all but dmxCN */
 	int		real_pauseCounter;
+	std::string 	name;
+
+	/* flag to check if there was section for that table, if yes, dont increase timeouts */
+	bool		seen_section;
 
 	inline bool isOpen(void) {
 		return (fd != -1);
@@ -73,6 +78,7 @@ protected:
 
 	section_map_t seenSections;
 	section_map_t calcedSections;
+	MyDMXOrderUniqueKey myDMXOrderUniqueKey;
 	bool cache_section(sections_id_t sectionNo, uint8_t number, uint8_t last, uint8_t segment_last);
 public:
 	struct s_filters
@@ -101,10 +107,10 @@ public:
 
 	int real_pause(void);
 	int real_unpause(void);
-
+#if 0
 	int request_pause(void);
 	int request_unpause(void);
-
+#endif
 	int change(const int new_filter_index, const t_channel_id new_current_service = 0); // locks while changing
 
 	void lock(void);
