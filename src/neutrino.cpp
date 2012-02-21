@@ -1794,8 +1794,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
-	g_Sectionsd->registerEvent(CSectionsdClient::EVT_SERVICES_UPDATE, 222, NEUTRINO_UDS_NAME);
-	g_Sectionsd->registerEvent(CSectionsdClient::EVT_BOUQUETS_UPDATE, 222, NEUTRINO_UDS_NAME);
+	//g_Sectionsd->registerEvent(CSectionsdClient::EVT_SERVICES_UPDATE, 222, NEUTRINO_UDS_NAME);
+	//g_Sectionsd->registerEvent(CSectionsdClient::EVT_BOUQUETS_UPDATE, 222, NEUTRINO_UDS_NAME);
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 
 #define ZAPIT_EVENT_COUNT 31
@@ -3434,7 +3434,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		videoDecoder->Standby(false);
 		g_Sectionsd->setPauseScanning(false);
-		g_Sectionsd->setServiceChanged(live_channel_id, true );
+		//g_Sectionsd->setServiceChanged(live_channel_id, true );
 
                 if(g_settings.mode_clock)
                         InfoClock->StartClock();
