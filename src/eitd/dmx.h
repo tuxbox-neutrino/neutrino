@@ -79,7 +79,7 @@ protected:
 	section_map_t seenSections;
 	section_map_t calcedSections;
 	MyDMXOrderUniqueKey myDMXOrderUniqueKey;
-	bool cache_section(sections_id_t sectionNo, uint8_t number, uint8_t last, uint8_t segment_last);
+	bool check_complete(sections_id_t sectionNo, uint8_t number, uint8_t last, uint8_t segment_last);
 public:
 	struct s_filters
 	{
