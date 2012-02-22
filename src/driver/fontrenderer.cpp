@@ -246,6 +246,7 @@ Font::Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const 
 
 	xmult = frameBuffer->scaleX(SCALE_MULT, false);
 	ymult = frameBuffer->scaleY(SCALE_MULT, false);
+	last_xmult = xmult;
 
 	setSize(isize);
 }
@@ -258,6 +259,7 @@ FT_Error Font::getGlyphBitmap(FT_ULong glyph_index, FTC_SBit *sbit)
 int Font::setSize(int isize)
 {
 	int temp = font.width;
+	last_size = isize;
 	font.width  = isize * xmult / SCALE_MULT;
 	font.height = isize * ymult / SCALE_MULT;
 	scaler.width  = font.width * 64;
@@ -378,6 +380,13 @@ void Font::RenderString(int _x, int _y, const int _width, const char *text, cons
 {
 	if (!frameBuffer->getActive())
 		return;
+
+	if ((xmult = frameBuffer->scaleX(SCALE_MULT, false)) != last_xmult)
+	{
+		last_xmult = xmult;
+		ymult = frameBuffer->scaleY(SCALE_MULT, false);
+		setSize(last_size);
+	}
 
 	int x = _x * xmult / SCALE_MULT;
 	int y = _y * ymult / SCALE_MULT;

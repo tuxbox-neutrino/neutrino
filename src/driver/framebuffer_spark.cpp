@@ -693,7 +693,7 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 		return;
 	int _x = scaleX(x);
 	int _y = scaleY(y);
-	int _dx = scaleY(dx);
+	int _dx = scaleX(dx);
 	blitRect(_x, _y, _dx, 1, col);
 }
 
@@ -1483,6 +1483,7 @@ void CFrameBuffer::resize(int format)
 	yRes = xyres[format][1];
 	bpp = 32;
 	stride = xRes * bpp / 8;
+	fprintf(stderr, "CFrameBuffer::resize(%d): %d x %d\n", format, xRes, yRes);
 }
 
 void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long color)

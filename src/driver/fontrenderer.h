@@ -54,6 +54,7 @@ class Font
 	int height,DigitHeight,DigitOffset,ascender,descender,upper,lower;
 	int fontwidth;
 	int xmult, ymult;
+	int last_xmult, last_size;
 
  public:
 	enum fontmodifier
