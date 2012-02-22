@@ -43,7 +43,7 @@ int scan_fta_flag; // FIXME
 
 #define DEBUG_SDT
 //#define DEBUG_SDT_UNUSED
-//#define DEBUG_SDT_SERVICE
+#define DEBUG_SDT_SERVICE
 
 CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 {
@@ -237,9 +237,6 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	t_service_id service_id = service->getServiceId();
 	bool free_ca = service->getFreeCaMode();
 
-	if(!current && free_ca && scan_fta_flag)
-		return false;
-
 	int tsidonid = (transport_stream_id << 16) | original_network_id;
 	std::string providerName = stringDVBUTF8(sd->getServiceProviderName(), 0, tsidonid);
 	std::string serviceName = stringDVBUTF8(sd->getServiceName(), 0, tsidonid);
@@ -248,6 +245,9 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	printf("SDT: sid %04x type %x provider [%s] service [%s] scrambled %d\n", service_id, sd->getServiceType(),
 			providerName.c_str(), serviceName.c_str(), free_ca);
 #endif
+	if(!current && free_ca && scan_fta_flag)
+		return false;
+
 	if (!CheckScanType(service_type))
 		return false;
 
