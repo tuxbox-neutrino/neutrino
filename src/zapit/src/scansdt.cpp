@@ -43,7 +43,7 @@ int scan_fta_flag; // FIXME
 
 #define DEBUG_SDT
 //#define DEBUG_SDT_UNUSED
-#define DEBUG_SDT_SERVICE
+//#define DEBUG_SDT_SERVICE
 
 CSdt::CSdt(t_satellite_position spos, freq_id_t frq, bool curr, int dnum)
 {
