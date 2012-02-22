@@ -164,6 +164,7 @@ class CCNThread : public CSectionThread
 class CSdtThread : public CSectionThread
 {
 	private:
+		bool addServices();
 		void run();
 };
 
