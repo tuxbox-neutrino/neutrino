@@ -78,7 +78,8 @@ bool CScreenShot::GetData()
 #ifdef USE_NEVIS_GXA
 	CFrameBuffer::getInstance()->setActive(false);
 #endif
-
+	if (videoDecoder->getBlank()) 
+		get_video = false;
 #if 1 // to enable after libcs/drivers update
 	res = videoDecoder->GetScreenImage(pixel_data, xres, yres, get_video, get_osd, scale_to_video);
 #endif
