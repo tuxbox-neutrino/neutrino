@@ -129,13 +129,8 @@ int ntprefresh;
 int ntpenable;
 
 static int eit_update_fd = -1;
-static bool update_eit = true;
 
 std::string		epg_dir("");
-
-/* messaging_eit_is_busy does not need locking, it is only written to from CN-Thread */
-static bool		messaging_eit_is_busy = false;
-static bool		messaging_need_eit_version = false;
 
 /* messaging_current_servicekey does probably not need locking, since it is
    changed from one place */
@@ -143,13 +138,11 @@ static t_channel_id    messaging_current_servicekey = 0;
 static bool channel_is_blacklisted = false;
 
 bool timeset = false;
-bool bTimeCorrect = false;
 pthread_cond_t timeIsSetCond = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t timeIsSetMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int	messaging_have_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
 static int	messaging_got_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
-static time_t	messaging_last_requested = time_monotonic();
 static bool	messaging_neutrino_sets_time = false;
 // EVENTS...
 
@@ -161,9 +154,6 @@ static pthread_rwlock_t messagingLock = PTHREAD_RWLOCK_INITIALIZER;
 
 static pthread_cond_t timeThreadSleepCond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t timeThreadSleepMutex = PTHREAD_MUTEX_INITIALIZER;
-
-/* no matter how big the buffer, we will receive spurious POLLERR's in table 0x60,
-   but those are not a big deal, so let's save some memory */
 
 //static DMX dmxEIT(0x12, 3000 /*320*/);
 static CEitThread threadEIT;
@@ -242,9 +232,6 @@ inline bool waitForTimeset(void)
 	   waitForTimeset() returns. Let's hope that we work around this issue
 	   with this sleep */
 	sleep(1);
-	writeLockMessaging();
-	messaging_last_requested = time_monotonic();
-	unlockMessaging();
 	return true;
 }
 
@@ -656,7 +643,6 @@ static void removeOldEvents(const long seconds)
 
 	MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
-	//TODO move messaging_zap_detected check to thread, not here
 	while ((e != mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end()) && (!messaging_zap_detected)) {
 		bool goodtimefound = false;
 		for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t) {
@@ -855,6 +841,15 @@ inline bool writeNbytes(int fd, const char *buf,  const size_t numberOfBytes, co
 	return send_data(fd, buf, numberOfBytes, timeout);
 }
 
+/* send back an empty response */
+static void sendEmptyResponse(int connfd, char *, const unsigned)
+{
+	struct sectionsd::msgResponseHeader msgResponse;
+	msgResponse.dataLength = 0;
+	writeNbytes(connfd, (const char *)&msgResponse, sizeof(msgResponse), WRITE_TIMEOUT_IN_SECONDS);
+	return;
+}
+
 //---------------------------------------------------------------------
 //			connection-thread
 // handles incoming requests
@@ -908,7 +903,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		unlockMessaging();
 
 		scanning = 1;
-		if (!bTimeCorrect && !ntpenable)
+		if (!ntpenable)
 		{
 			pthread_mutex_lock(&timeThreadSleepMutex);
 			pthread_cond_broadcast(&timeThreadSleepCond);
@@ -924,12 +919,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		threadSDT.change(0);
 #endif
 	}
-
-	struct sectionsd::msgResponseHeader msgResponse;
-	msgResponse.dataLength = 0;
-	writeNbytes(connfd, (const char *)&msgResponse, sizeof(msgResponse), WRITE_TIMEOUT_IN_SECONDS);
-
-	return;
+	sendEmptyResponse(connfd, NULL, 0);
 }
 
 static void commandserviceChanged(int connfd, char *data, const unsigned dataLength)
@@ -942,9 +932,9 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	uniqueServiceKey &= 0xFFFFFFFFFFFFULL;
 
 	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
-xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 
-	messaging_last_requested = time_monotonic();
+	static t_channel_id time_trigger_last = 0;
 
 #if 0
 	if(checkBlacklist(uniqueServiceKey))
@@ -1008,7 +998,7 @@ xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_
 		messaging_have_CN = 0x00;
 		messaging_got_CN = 0x00;
 		messaging_zap_detected = true;
-		messaging_need_eit_version = false;
+		//messaging_need_eit_version = false;
 		unlockMessaging();
 
 		threadCN.setCurrentService(messaging_current_servicekey);
@@ -1019,17 +1009,20 @@ xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_
 #ifdef ENABLE_SDT
 		threadSDT.setCurrentService(messaging_current_servicekey);
 #endif
+		if (time_trigger_last != (messaging_current_servicekey & 0xFFFFFFFF0000ULL))
+		{
+			time_trigger_last = messaging_current_servicekey & 0xFFFFFFFF0000ULL;
+			pthread_mutex_lock(&timeThreadSleepMutex);
+			pthread_cond_broadcast(&timeThreadSleepCond);
+			pthread_mutex_unlock(&timeThreadSleepMutex);
+		}
 	}
 	else
 		dprintf("[sectionsd] commandserviceChanged: no change...\n");
 
 out:
-	struct sectionsd::msgResponseHeader msgResponse;
-	msgResponse.dataLength = 0;
-	writeNbytes(connfd, (const char *)&msgResponse, sizeof(msgResponse), WRITE_TIMEOUT_IN_SECONDS);
-
-	dprintf("[sectionsd] commandserviceChanged: END!!\n");
-	return ;
+	sendEmptyResponse(connfd, NULL, 0);
+xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 }
 
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
@@ -1147,55 +1140,42 @@ static void commandUnRegisterEventClient(int /*connfd*/, char *data, const unsig
 		eventServer->unRegisterEvent2(((CEventServer::commandUnRegisterEvent*)data)->eventID, ((CEventServer::commandUnRegisterEvent*)data)->clientID);
 }
 
-
 static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength*/)
 {
-	struct sectionsd::msgResponseHeader responseHeader;
+	sendEmptyResponse(connfd, NULL, 0);
+
 	struct sectionsd::commandSetConfig *pmsg;
 
 	pmsg = (struct sectionsd::commandSetConfig *)data;
 
-	if (secondsToCache != (long)(pmsg->epg_cache)*24*60L*60L) {
-		dprintf("new epg_cache = %d\n", pmsg->epg_cache);
-		writeLockEvents();
-		secondsToCache = (long)(pmsg->epg_cache)*24*60L*60L;
-		unlockEvents();
-	}
+	/* writeLockEvents not needed because write lock will block if read lock active */
+	readLockEvents();
+	secondsToCache = (long)(pmsg->epg_cache)*24*60L*60L;
+	oldEventsAre = (long)(pmsg->epg_old_events)*60L*60L;
+	secondsExtendedTextCache = (long)(pmsg->epg_extendedcache)*60L*60L;
+	max_events = pmsg->epg_max_events;
+	unlockEvents();
 
-	if (oldEventsAre != (long)(pmsg->epg_old_events)*60L*60L) {
-		dprintf("new epg_old_events = %d\n", pmsg->epg_old_events);
-		writeLockEvents();
-		oldEventsAre = (long)(pmsg->epg_old_events)*60L*60L;
-		unlockEvents();
+	bool time_wakeup = false;
+	if (ntpserver.compare((std::string)&data[sizeof(struct sectionsd::commandSetConfig)])) {
+		time_wakeup = true;
 	}
-	if (secondsExtendedTextCache != (long)(pmsg->epg_extendedcache)*60L*60L) {
-		dprintf("new epg_extendedcache = %d\n", pmsg->epg_extendedcache);
-//		lockEvents();
-		writeLockEvents();
-		secondsExtendedTextCache = (long)(pmsg->epg_extendedcache)*60L*60L;
-		unlockEvents();
-	}
-	if (max_events != pmsg->epg_max_events) {
-		dprintf("new epg_max_events = %d\n", pmsg->epg_max_events);
-		writeLockEvents();
-		max_events = pmsg->epg_max_events;
-		unlockEvents();
-	}
-
 	if (ntprefresh != pmsg->network_ntprefresh) {
 		dprintf("new network_ntprefresh = %d\n", pmsg->network_ntprefresh);
-		pthread_mutex_lock(&timeThreadSleepMutex);
-		ntprefresh = pmsg->network_ntprefresh;
-		if (timeset) {
-			// wake up time thread
-			pthread_cond_broadcast(&timeThreadSleepCond);
-		}
-		pthread_mutex_unlock(&timeThreadSleepMutex);
+		time_wakeup = true;
 	}
-
 	if (ntpenable ^ (pmsg->network_ntpenable == 1))	{
 		dprintf("new network_ntpenable = %d\n", pmsg->network_ntpenable);
+		time_wakeup = true;
+	}
+
+	if(time_wakeup) {
 		pthread_mutex_lock(&timeThreadSleepMutex);
+
+		ntpserver = (std::string)&data[sizeof(struct sectionsd::commandSetConfig)];
+		dprintf("new network_ntpserver = %s\n", ntpserver.c_str());
+		ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
+		ntprefresh = pmsg->network_ntprefresh;
 		ntpenable = (pmsg->network_ntpenable == 1);
 		if (timeset) {
 			// wake up time thread
@@ -1204,30 +1184,17 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 		pthread_mutex_unlock(&timeThreadSleepMutex);
 	}
 
-	if (ntpserver.compare((std::string)&data[sizeof(struct sectionsd::commandSetConfig)])) {
-		ntpserver = (std::string)&data[sizeof(struct sectionsd::commandSetConfig)];
-		dprintf("new network_ntpserver = %s\n", ntpserver.c_str());
-		ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
-	}
-
-	if (epg_dir.compare((std::string)&data[sizeof(struct sectionsd::commandSetConfig) + strlen(&data[sizeof(struct sectionsd::commandSetConfig)]) + 1])) {
-		epg_dir= (std::string)&data[sizeof(struct sectionsd::commandSetConfig) + strlen(&data[sizeof(struct sectionsd::commandSetConfig)]) + 1];
-		dprintf("new epg_dir = %s\n", epg_dir.c_str());
-	}
-
-	responseHeader.dataLength = 0;
-	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-	return ;
+	epg_dir= (std::string)&data[sizeof(struct sectionsd::commandSetConfig) + strlen(&data[sizeof(struct sectionsd::commandSetConfig)]) + 1];
 }
 
 static void deleteSIexceptEPG()
 {
-	writeLockServices();
-	mySIservicesOrderUniqueKey.clear();
-	unlockServices();
 	threadEIT.dropCachedSectionIDs();
 	threadEIT.change(0);
 #ifdef ENABLE_SDT
+	writeLockServices();
+	mySIservicesOrderUniqueKey.clear();
+	unlockServices();
 	threadSDT.dropCachedSectionIDs();
 	threadSDT.change(0);
 #endif
@@ -1239,13 +1206,15 @@ static void deleteSIexceptEPG()
 
 static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*dataLength*/)
 {
+	sendEmptyResponse(connfd, NULL, 0);
+
 	deleteSIexceptEPG();
 
 	writeLockEvents();
 
 #ifndef USE_BOOST_SHARED_PTR
-
 	std::set<SIeventPtr> allevents;
+
 	allevents.insert(mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin(), mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end());
 	/* this probably not needed, but takes only additional ~2 seconds
 	 * with even count > 70000 */
@@ -1258,7 +1227,6 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 
 	for(std::set<SIeventPtr>::iterator ait = allevents.begin(); ait != allevents.end(); ++ait)
 		delete (*ait);
-
 #endif
 	mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.clear();
 	mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.clear();
@@ -1272,16 +1240,13 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 	printf("total size of memory occupied by chunks handed out by malloc: %d\n"
 			"total bytes memory allocated with `sbrk' by malloc, in bytes: %d (%dkB)\n",
 			meminfo.uordblks, meminfo.arena, meminfo.arena / 1024);
-
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = 0;
-	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
-	return ;
 }
 
 static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLength)
 {
 	pthread_t thrInsert;
+
+	sendEmptyResponse(connfd, NULL, 0);
 
 	if (dataLength > 100)
 		return ;
@@ -1291,9 +1256,6 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	epg_dir = (std::string)data + "/";
 	unlockMessaging();
 
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = 0;
-	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
 
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
@@ -1305,17 +1267,13 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 	}
 
 	pthread_attr_destroy(&attr);
-
-	return ;
 }
 
 static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength)
 {
 	char epgdir[100] = "";
 
-	struct sectionsd::msgResponseHeader responseHeader;
-	responseHeader.dataLength = 0;
-	writeNbytes(connfd, (const char *)&responseHeader, sizeof(responseHeader), WRITE_TIMEOUT_IN_SECONDS);
+	sendEmptyResponse(connfd, NULL, 0);
 
 	if (dataLength > 100)
 		return;
@@ -1326,24 +1284,6 @@ static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength
 	writeEventsToFile(epgdir);
 
 	eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
-	return;
-}
-
-#if 0
-/* dummy1: do not send back anything */
-static void commandDummy1(int, char *, const unsigned)
-{
-	return;
-}
-#endif
-
-/* dummy2: send back an empty response */
-static void commandDummy2(int connfd, char *, const unsigned)
-{
-	struct sectionsd::msgResponseHeader msgResponse;
-	msgResponse.dataLength = 0;
-	writeNbytes(connfd, (const char *)&msgResponse, sizeof(msgResponse), WRITE_TIMEOUT_IN_SECONDS);
-	return;
 }
 
 struct s_cmd_table
@@ -1354,24 +1294,24 @@ struct s_cmd_table
 
 static s_cmd_table connectionCommands[sectionsd::numberOfCommands] = {
 	{	commandDumpStatusInformation,		"commandDumpStatusInformation"		},
-	{	commandDummy2,        "commandAllEventsChannelIDSearch"	},
+	{	sendEmptyResponse,        "commandAllEventsChannelIDSearch"	},
 	{	commandPauseScanning,                   "commandPauseScanning"			},
 	{	commandGetIsScanningActive,             "commandGetIsScanningActive"		},
-	{	commandDummy2,              "commandActualEPGchannelID"		},
-	{	commandDummy2,                  "commandEventListTVids"			},
-	{	commandDummy2,               "commandEventListRadioIDs"		},
-	{	commandDummy2,				"commandCurrentNextInfoChannelID"	},
-	{	commandDummy2,                        "commandEPGepgID"			},
-	{	commandDummy2,                   "commandEPGepgIDshort"			},
-	{	commandDummy2,          "commandComponentTagsUniqueKey"		},
-	{	commandDummy2,              "commandAllEventsChannelID"		},
-	{	commandDummy2,                "commandTimesNVODservice"		},
+	{	sendEmptyResponse,              "commandActualEPGchannelID"		},
+	{	sendEmptyResponse,                  "commandEventListTVids"			},
+	{	sendEmptyResponse,               "commandEventListRadioIDs"		},
+	{	sendEmptyResponse,				"commandCurrentNextInfoChannelID"	},
+	{	sendEmptyResponse,                        "commandEPGepgID"			},
+	{	sendEmptyResponse,                   "commandEPGepgIDshort"			},
+	{	sendEmptyResponse,          "commandComponentTagsUniqueKey"		},
+	{	sendEmptyResponse,              "commandAllEventsChannelID"		},
+	{	sendEmptyResponse,                "commandTimesNVODservice"		},
 	{	commandGetIsTimeSet,                    "commandGetIsTimeSet"			},
 	{	commandserviceChanged,                  "commandserviceChanged"			},
-	{	commandDummy2,     "commandLinkageDescriptorsUniqueKey"	},
+	{	sendEmptyResponse,     "commandLinkageDescriptorsUniqueKey"	},
 	{	commandRegisterEventClient,             "commandRegisterEventClient"		},
 	{	commandUnRegisterEventClient,           "commandUnRegisterEventClient"		},
-	{	commandDummy2,                          "commandSetPrivatePid"			},
+	{	sendEmptyResponse,                          "commandSetPrivatePid"			},
 	{	commandFreeMemory,			"commandFreeMemory"			},
 	{	commandReadSIfromXML,			"commandReadSIfromXML"			},
 	{	commandWriteSI2XML,			"commandWriteSI2XML"			},
@@ -1410,7 +1350,7 @@ bool sectionsd_parse_command(CBasicMessage::Header &rmsg, int connfd)
 				if (rc == true)
 				{
 					dprintf("%s\n", connectionCommands[header.command].sCmd.c_str());
-					if(connectionCommands[header.command].cmd == commandDummy2)
+					if(connectionCommands[header.command].cmd == sendEmptyResponse)
 						printf("sectionsd_parse_command: UNUSED cmd used: %d (%s)\n", header.command, connectionCommands[header.command].sCmd.c_str());
 					connectionCommands[header.command].cmd(connfd, data, header.dataLength);
 				}
@@ -1438,6 +1378,21 @@ static void dump_sched_info(std::string label)
 // updates system time according TOT every 30 minutes
 //---------------------------------------------------------------------
 
+static void sendTimeEvent(bool by_ntp, time_t tim = 0)
+{
+	time_t actTime = time(NULL);
+	if(!by_ntp) {
+		struct tm *tmTime = localtime(&actTime);
+		xprintf("[%sThread] - current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", "time",
+				tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
+	}
+	pthread_mutex_lock(&timeIsSetMutex);
+	timeset = true;
+	pthread_cond_broadcast(&timeIsSetCond);
+	pthread_mutex_unlock(&timeIsSetMutex );
+	eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &actTime, sizeof(actTime) );
+}
+
 static void *timeThread(void *)
 {
 	UTC_t UTC;
@@ -1449,10 +1404,6 @@ static void *timeThread(void *)
 	bool time_ntp = false;
 	bool success = true;
 
-	//t_channel_id time_trigger_last = 0;
-
-	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
-
 	dprintf("[%sThread] pid %d (%lu) start\n", "time", getpid(), pthread_self());
 
 	while(!sectionsd_stop)
@@ -1462,38 +1413,12 @@ static void *timeThread(void *)
 				break;
 			sleep(1);
 		}
-#if 0
-		t_channel_id new_transponder = (messaging_current_servicekey & 0xFFFFFFFF0000ULL);
-		if (time_trigger_last != new_transponder)
-		{
-			time_trigger_last = new_transponder;
-		}
-#endif
-		if (bTimeCorrect == true) {		// sectionsd started with parameter "-tc"
-			if (first_time == true) {	// only do this once!
-				time_t actTime;
-				actTime=time(NULL);
-				pthread_mutex_lock(&timeIsSetMutex);
-				timeset = true;
-				pthread_cond_broadcast(&timeIsSetCond);
-				pthread_mutex_unlock(&timeIsSetMutex );
-				eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &actTime, sizeof(actTime) );
-				printf("[timeThread] Time is already set by system, no further timeThread work!\n");
-				break;
-			}
-		}
 
-		else if ( ntpenable && system( ntp_system_cmd.c_str() ) == 0)
+		if ( ntpenable && system( ntp_system_cmd.c_str() ) == 0)
 		{
-			time_t actTime;
-			actTime = time(NULL);
 			first_time = false;
-			pthread_mutex_lock(&timeIsSetMutex);
-			timeset = true;
 			time_ntp = true;
-			pthread_cond_broadcast(&timeIsSetCond);
-			pthread_mutex_unlock(&timeIsSetMutex );
-			eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &actTime, sizeof(actTime) );
+			sendTimeEvent(true);
 		} else {
 			if (dvb_time_update) {
 xprintf("timeThread: getting UTC\n");
@@ -1502,6 +1427,8 @@ xprintf("timeThread: getting UTC done : %d\n", success);
 				if (success)
 				{
 					tim = changeUTCtoCtime((const unsigned char *) &UTC);
+					time_ntp = false;
+					sendTimeEvent(false, tim);
 
 					if (tim) {
 						if ((!messaging_neutrino_sets_time) && (geteuid() == 0)) {
@@ -1514,18 +1441,6 @@ xprintf("timeThread: getting UTC done : %d\n", success);
 							}
 						}
 					}
-
-					time_t actTime;
-					struct tm *tmTime;
-					actTime = time(NULL);
-					tmTime = localtime(&actTime);
-					xprintf("[%sThread] - %02d.%02d.%04d %02d:%02d:%02d, tim: %s", "time", tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
-					pthread_mutex_lock(&timeIsSetMutex);
-					timeset = true;
-					time_ntp = false;
-					pthread_cond_broadcast(&timeIsSetCond);
-					pthread_mutex_unlock(&timeIsSetMutex );
-					eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &tim, sizeof(tim));
 				}
 			}
 		}
@@ -1569,6 +1484,7 @@ xprintf("timeThread: going to sleep for %d sec\n\n", seconds);
 		restartWait.tv_sec += seconds;
 		pthread_mutex_lock( &timeThreadSleepMutex );
 		int ret = pthread_cond_timedwait( &timeThreadSleepCond, &timeThreadSleepMutex, &restartWait );
+		pthread_mutex_unlock( &timeThreadSleepMutex );
 		if (ret == ETIMEDOUT)
 		{
 			dprintf("TDT-Thread sleeping is over - no signal received\n");
@@ -1577,8 +1493,6 @@ xprintf("timeThread: going to sleep for %d sec\n\n", seconds);
 		{
 			dprintf("TDT-Thread sleeping interrupted\n");
 		}
-		// else if (ret == 0) //everything is fine :) e.g. timeThreadSleepCond maybe signalled @zap time to get a valid time
-		pthread_mutex_unlock( &timeThreadSleepMutex );
 	}
 
 	printf("[sectionsd] timeThread ended\n");
@@ -1622,19 +1536,12 @@ int eit_set_update_filter(int *fd)
 	mask[2] = 0xFF;
 
 	int timeout = 0;
-#if 1 //!HAVE_COOL_HARDWARE
+
 	filter[3] = (cur_eit << 1) | 0x01;
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
 	eitDmx->sectionFilter(0x12, filter, mask, 4, timeout, mode);
-#else
-	/* coolstream drivers broken? */
-	filter[3] = (((cur_eit + 1) & 0x01) << 1) | 0x01;
-	mask[3] = (0x01 << 1) | 0x01;
-	eitDmx->sectionFilter(0x12, filter, mask, 4, timeout, NULL);
-#endif
 
-	//printf("[sectionsd] start EIT update filter: current version %02X, filter %02X %02X %02X %02X, mask %02X mode %02X \n", cur_eit, dsfp.filter.filter[0], dsfp.filter.filter[1], dsfp.filter.filter[2], dsfp.filter.filter[3], dsfp.filter.mask[3], dsfp.filter.mode[3]);
 	*fd = 1;
 	return 0;
 }
@@ -1939,6 +1846,13 @@ void CEitThread::run()
 //---------------------------------------------------------------------
 // CN-thread: eit thread, but only current/next
 //---------------------------------------------------------------------
+void CCNThread::sendCNEvent()
+{
+	eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG,
+			CEventServer::INITID_SECTIONSD,
+			&messaging_current_servicekey,
+			sizeof(messaging_current_servicekey));
+}
 
 void CCNThread::run()
 {
@@ -1948,42 +1862,24 @@ void CCNThread::run()
 	dmx_num = 1;
 	cache = false;
 
-	/* we are holding the start_stop lock during this timeout, so don't
-	   make it too long... */
 	timeoutInMSeconds = EIT_READ_TIMEOUT;
 	bool sendToSleepNow = false;
 
 	// -- set EIT filter  0x4e
 	addfilter(0x4e, 0xff); //0  current TS, current/next
 
-	//t_channel_id time_trigger_last = 0;
-
-	writeLockMessaging();
-	messaging_eit_is_busy = true;
-	messaging_need_eit_version = false;
-	unlockMessaging();
-
 	waitForTimeset();
 #ifdef DEBUG_CN_THREAD
 	xprintf("CCNThread::run:: time set..\n");
 #endif
-
 	DMX::start(); // -> unlock
-
-	//time_t eit_waiting_since = time_monotonic();
 
 	while(running)
 	{
 		if(sendToSleepNow || !scanning || channel_is_blacklisted) {
 #ifdef DEBUG_CN_THREAD
 			xprintf("%s: going to sleep, running %d scanning %d blacklisted %d events %d\n", name.c_str(), running, scanning, channel_is_blacklisted, event_count);
-			//xprintf("%s: eit_version %02x messaging_need_eit_version %d rc %d\n", name.c_str(), get_eit_version(), messaging_need_eit_version, rc);
 #endif
-
-			writeLockMessaging();
-			messaging_eit_is_busy = false;
-			unlockMessaging();
-
 			int rs = 0;
 			do {
 				real_pause();
@@ -2002,12 +1898,6 @@ void CCNThread::run()
 				break;
 
 			sendToSleepNow = false;
-
-			writeLockMessaging();
-			messaging_need_eit_version = false;
-			messaging_eit_is_busy = true;
-			unlockMessaging();
-
 #if HAVE_IPBOX_HARDWARE
 			if (rs == 0)
 				change(0);
@@ -2019,41 +1909,6 @@ void CCNThread::run()
 			addEvents();
 
 		time_t zeit = time_monotonic();
-		if (update_eit) {
-#if 0
-			xprintf("%s: eit_version %02x messaging_need_eit_version %d rc %d\n", name.c_str(), get_eit_version(), messaging_need_eit_version, rc);
-			if (get_eit_version() != 0xff) {
-				writeLockMessaging();
-				messaging_need_eit_version = false;
-				unlockMessaging();
-			} else {
-				readLockMessaging();
-				if (!messaging_need_eit_version) {
-					unlockMessaging();
-					dprintf("waiting for eit_version...\n");
-					zeit = time_monotonic();  /* reset so that we don't get negative */
-					eit_waiting_since = zeit; /* and still compensate for getSection */
-					lastChanged = zeit; /* this is ugly - needs somehting better */
-					sendToSleepNow = false;   /* reset after channel change */
-					writeLockMessaging();
-					messaging_need_eit_version = true;
-				}
-				unlockMessaging();
-				if (zeit - eit_waiting_since > TIME_EIT_VERSION_WAIT) {
-					dprintf("waiting for more than %d seconds - bail out...\n", TIME_EIT_VERSION_WAIT);
-					/* send event anyway, so that we know there is no EPG */
-					eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG,
-							CEventServer::INITID_SECTIONSD,
-							&messaging_current_servicekey,
-							sizeof(messaging_current_servicekey));
-					writeLockMessaging();
-					messaging_need_eit_version = false;
-					unlockMessaging();
-					sendToSleepNow = true;
-				}
-			}
-#endif
-		} // if (update_eit)
 
 		readLockMessaging();
 		if (messaging_got_CN != messaging_have_CN)
@@ -2067,31 +1922,12 @@ void CCNThread::run()
 					name.c_str(), timeoutsDMX, messaging_have_CN, messaging_got_CN);
 #endif
 			dprintf("[cnThread] got current_next (0x%x) - sending event!\n", messaging_have_CN);
-			eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG,
-					CEventServer::INITID_SECTIONSD,
-					&messaging_current_servicekey,
-					sizeof(messaging_current_servicekey));
-			/* we received an event => reset timeout timer... */
-			//eit_waiting_since = zeit;
+			sendCNEvent();
 			lastChanged = zeit; /* this is ugly - needs somehting better */
-			//readLockMessaging();
 		}
 		else
 			unlockMessaging();
-#if 0
-		if (messaging_have_CN == 0x03) // current + next
-		{
-			xprintf("%s: have all CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n\n",
-					name.c_str(), timeoutsDMX, messaging_have_CN, messaging_got_CN);
-			unlockMessaging();
-			//sendToSleepNow = true;
-			//timeoutsDMX = 0;
-		}
-		else {
-			unlockMessaging();
-		}
-#endif
-#if 1
+
 		if(timeoutsDMX < 0) {
 #ifdef DEBUG_CN_THREAD
 			xprintf("%s: timeoutsDMX %d messaging_got_CN %x messaging_have_CN %x sid %016llx\n\n",
@@ -2100,7 +1936,6 @@ void CCNThread::run()
 			timeoutsDMX = 0;
 			sendToSleepNow = true;
 		}
-#endif
 		if (zeit > lastChanged + TIME_EIT_VERSION_WAIT) {
 #ifdef DEBUG_CN_THREAD
 			xprintf("%s: zeit > lastChanged + TIME_EIT_VERSION_WAIT\n", name.c_str());
@@ -2110,95 +1945,8 @@ void CCNThread::run()
 
 		if (sendToSleepNow && messaging_have_CN == 0x00) {
 			/* send a "no epg" event anyway before going to sleep */
-			eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG,
-					CEventServer::INITID_SECTIONSD,
-					&messaging_current_servicekey,
-					sizeof(messaging_current_servicekey));
+			sendCNEvent();
 		}
-#if 0
-		/* ignore sleep if channel not blacklisted and messaging_need_eit_version == false */
-		if(!channel_is_blacklisted && messaging_need_eit_version) {
-			xprintf("%s: sendToSleepNow ignored: messaging_need_eit_version %d\n", name.c_str(), messaging_need_eit_version);
-			sendToSleepNow = false;
-		}
-#endif
-#if 0
-		/* sleep if channel blacklisted OR sleep requested and messaging_need_eit_version == false */
-		if ((sendToSleepNow && !messaging_need_eit_version) || channel_is_blacklisted)
-		{
-			sendToSleepNow = false;
-
-			real_pause();
-			dprintf("dmxCN: going to sleep...\n");
-
-			writeLockMessaging();
-			messaging_eit_is_busy = false;
-			unlockMessaging();
-
-			/* re-fetch time if transponder changed
-			   Why I'm doing this here and not from commandserviceChanged?
-			   commandserviceChanged is called on zap *start*, not after zap finished
-			   this would lead to often actually fetching the time on the transponder
-			   you are switching away from, not the one you are switching onto.
-			   Doing it here at least gives us a good chance to have actually tuned
-			   to the channel we want to get the time from...
-			   */
-			if (time_trigger_last != (messaging_current_servicekey & 0xFFFFFFFF0000ULL))
-			{
-				time_trigger_last = messaging_current_servicekey & 0xFFFFFFFF0000ULL;
-				pthread_mutex_lock(&timeThreadSleepMutex);
-				pthread_cond_broadcast(&timeThreadSleepCond);
-				pthread_mutex_unlock(&timeThreadSleepMutex);
-			}
-
-			xprintf("dmxCN: going to sleep, processed %d events\n\n", event_count);
-			event_count = 0;
-
-			int rs;
-			do {
-				pthread_mutex_lock( &start_stop_mutex );
-				if (!channel_is_blacklisted)
-					eit_set_update_filter(&eit_update_fd);
-				rs = pthread_cond_wait(&change_cond, &start_stop_mutex);
-				eit_stop_update_filter(&eit_update_fd);
-				pthread_mutex_unlock(&start_stop_mutex);
-			} while (channel_is_blacklisted);
-
-			writeLockMessaging();
-			messaging_need_eit_version = false;
-			messaging_eit_is_busy = true;
-			unlockMessaging();
-
-			if (rs == 0)
-			{
-				dprintf("dmxCN: waking up again - requested from .change()\n");
-				// fix EPG problems on IPBox
-				// http://tuxbox-forum.dreambox-fan.de/forum/viewtopic.php?p=367937#p367937
-#if HAVE_IPBOX_HARDWARE
-				change(0);
-#endif
-			}
-			else
-			{
-				printf("dmxCN:  waking up again - unknown reason %d\n",rs);
-				real_unpause();
-			}
-			zeit = time_monotonic();
-		}
-		else if (zeit > lastChanged + TIME_EIT_VERSION_WAIT && !messaging_need_eit_version)
-		{
-			xprintf("zeit > lastChanged + TIME_EIT_VERSION_WAIT\n");
-			sendToSleepNow = true;
-			/* we can get here if we got the EIT version but no events */
-			/* send a "no epg" event anyway before going to sleep */
-			if (messaging_have_CN == 0x00)
-				eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG,
-						CEventServer::INITID_SECTIONSD,
-						&messaging_current_servicekey,
-						sizeof(messaging_current_servicekey));
-			continue;
-		}
-#endif
 	} // for
 	delete[] static_buf;
 	printf("[sectionsd] %s ended\n", name.c_str());
@@ -2582,7 +2330,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 				writeLockMessaging();
 				messaging_have_CN = 0x00;
 				messaging_got_CN = 0x00;
-				messaging_last_requested = time_monotonic();
 				unlockMessaging();
 
 				sched_yield();
@@ -2768,7 +2515,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 	SIevent nextEvt;
 	unsigned flag = 0, flag2=0;
 	/* ugly hack: retry fetching current/next by restarting dmxCN if this is true */
-	bool change = false;
+	bool change = false;//TODO remove ?
 
 	//t_channel_id * uniqueServiceKey = (t_channel_id *)data;
 
@@ -2940,14 +2687,8 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 	current_next.current_fsk = currentEvt.getFSK();
 
 	unlockEvents();
-
-xprintf("change: %s, messaging_eit_busy: %s, last_request: %d\n", change?"true":"false", messaging_eit_is_busy?"true":"false",(int) (time_monotonic() - messaging_last_requested));
-	if (change && !messaging_eit_is_busy && (time_monotonic() - messaging_last_requested) < 11) {
-		/* restart dmxCN, but only if it is not already running, and only for 10 seconds */
-xprintf("change && !messaging_eit_is_busy => dmxCN.change(0)\n");
-		threadCN.change(0);
-	}
 }
+
 /* commandEPGepgIDshort */
 bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata)
 {

@@ -158,6 +158,7 @@ class CEitThread : public CSectionThread
 class CCNThread : public CSectionThread
 {
 	private:
+		void sendCNEvent();
 		void run();
 };
 
