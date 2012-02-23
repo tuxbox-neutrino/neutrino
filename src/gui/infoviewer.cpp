@@ -2239,8 +2239,6 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 			}
 		}
 	}
-	if (( caid & 0xFF00 ) == 0x1700)
-		caid = 0x0600;
 
 	if (g_settings.casystem_display == 0) {
 		px = endx - (icon_offset[icon_map[( caid & 0xFF00 )].first] - icon_space );
@@ -2264,7 +2262,7 @@ void CInfoViewer::showOne_CAIcon(bool fta)
 
 void CInfoViewer::showIcon_CA_Status (int notfirst)
 {
-	int caids[] = { 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
+	int caids[] = { 0x600, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
 	int i = 0;
 
 	if (g_settings.casystem_display == 3)
@@ -2293,11 +2291,15 @@ void CInfoViewer::showIcon_CA_Status (int notfirst)
 			bool found = false;
 			for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
 				int caid = (*it) & 0xFF00;
+				if (caid == 0x1700)
+					caid = 0x0600;
 				if((found = (caid == caids[i])))
 					break;
 			}
-			if(found || (g_settings.casystem_display == 0))
+			if(g_settings.casystem_display == 0)
 				paint_ca_icons(caids[i], (char *) (found ? yellow : white), icon_space_offset);
+			else if(found)
+				paint_ca_icons(caids[i], (char *) yellow, icon_space_offset);
 		}
 	}
 }
