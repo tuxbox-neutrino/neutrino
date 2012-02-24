@@ -158,8 +158,15 @@ class CEitThread : public CSectionThread
 class CCNThread : public CSectionThread
 {
 	private:
+		bool	updating;
+		cDemux * eitDmx;
+
 		void sendCNEvent();
+		bool startUpdateFilter();
+		bool stopUpdateFilter();
 		void run();
+	public:
+		bool checkUpdate();
 };
 
 class CSdtThread : public CSectionThread

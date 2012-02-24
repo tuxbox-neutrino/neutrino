@@ -25,8 +25,6 @@
 
 #include <config.h>
 #include <malloc.h>
-#include <dmxapi.h>
-#include <dmx.h>
 #include <debug.h>
 
 #include <unistd.h>
@@ -58,6 +56,7 @@
 #include <eventserver.h>
 #include <driver/abstime.h>
 
+#include "dmxapi.h"
 #include "eitd.h"
 #include "edvbstring.h"
 #include "xmlutil.h"
@@ -65,13 +64,13 @@
 //#define ENABLE_SDT //FIXME
 
 //#define DEBUG_SDT_THREAD
-//#define DEBUG_EIT_THREAD
+#define DEBUG_EIT_THREAD
 #define DEBUG_CN_THREAD
 
 /* period to restart EIT reading */
 #define TIME_EIT_SCHEDULED_PAUSE 60 * 60
 /* force EIT thread to change filter after, seconds */
-#define TIME_EIT_SKIPPING 90
+#define TIME_EIT_SKIPPING 120 // 90 <- Canal diditaal 19.2e -> ~100 seconds for 0x5x
 // a little more time for freesat epg
 #define TIME_FSEIT_SKIPPING 240
 
@@ -127,8 +126,6 @@ CConfigFile ntp_config(',');
 std::string ntpserver;
 int ntprefresh;
 int ntpenable;
-
-static int eit_update_fd = -1;
 
 std::string		epg_dir("");
 
@@ -1499,62 +1496,6 @@ xprintf("timeThread: going to sleep for %d sec\n\n", seconds);
 	pthread_exit(NULL);
 }
 
-static cDemux * eitDmx;
-int eit_set_update_filter(int *fd)
-{
-	dprintf("eit_set_update_filter\n");
-
-	unsigned char cur_eit = threadCN.get_eit_version();
-	xprintf("eit_set_update_filter, servicekey = 0x"
-			PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
-			", current version 0x%x got events %d\n",
-			messaging_current_servicekey, cur_eit, messaging_have_CN);
-
-	if (cur_eit == 0xff) {
-		*fd = -1;
-		return -1;
-	}
-
-	if(eitDmx == NULL) {
-		eitDmx = new cDemux(2);
-		eitDmx->Open(DMX_PSI_CHANNEL);
-	}
-
-	unsigned char filter[DMX_FILTER_SIZE];
-	unsigned char mask[DMX_FILTER_SIZE];
-	unsigned char mode[DMX_FILTER_SIZE];
-	memset(&filter, 0, DMX_FILTER_SIZE);
-	memset(&mask, 0, DMX_FILTER_SIZE);
-	memset(&mode, 0, DMX_FILTER_SIZE);
-
-	filter[0] = 0x4e;   /* table_id */
-	filter[1] = (unsigned char)(messaging_current_servicekey >> 8);
-	filter[2] = (unsigned char)messaging_current_servicekey;
-
-	mask[0] = 0xFF;
-	mask[1] = 0xFF;
-	mask[2] = 0xFF;
-
-	int timeout = 0;
-
-	filter[3] = (cur_eit << 1) | 0x01;
-	mask[3] = (0x1F << 1) | 0x01;
-	mode[3] = 0x1F << 1;
-	eitDmx->sectionFilter(0x12, filter, mask, 4, timeout, mode);
-
-	*fd = 1;
-	return 0;
-}
-
-int eit_stop_update_filter(int *fd)
-{
-	printf("[sectionsd] stop eit update filter\n");
-	if(eitDmx)
-		eitDmx->Stop();
-
-	*fd = -1;
-	return 0;
-}
 
 #ifdef ENABLE_FREESATEPG
 //---------------------------------------------------------------------
@@ -1846,6 +1787,73 @@ void CEitThread::run()
 //---------------------------------------------------------------------
 // CN-thread: eit thread, but only current/next
 //---------------------------------------------------------------------
+bool CCNThread::startUpdateFilter()
+{
+	xprintf("%s: set eit update filter, service = 0x%016llx, current version 0x%x got events %d (%s)\n",
+			name.c_str(), messaging_current_servicekey, eit_version, messaging_have_CN,
+			updating ? "active" : "not active");
+
+	if (updating || eit_version == 0xff)
+		return false;
+
+	updating = true;
+
+	unsigned char filter[DMX_FILTER_SIZE];
+	unsigned char mask[DMX_FILTER_SIZE];
+	unsigned char mode[DMX_FILTER_SIZE];
+	memset(&filter, 0, DMX_FILTER_SIZE);
+	memset(&mask, 0, DMX_FILTER_SIZE);
+	memset(&mode, 0, DMX_FILTER_SIZE);
+
+	filter[0] = 0x4e;   /* table_id */
+	filter[1] = (unsigned char)(current_service >> 8);
+	filter[2] = (unsigned char) current_service;
+
+	mask[0] = 0xFF;
+	mask[1] = 0xFF;
+	mask[2] = 0xFF;
+
+	filter[3] = (eit_version << 1) | 0x01;
+	mask[3] = (0x1F << 1) | 0x01;
+	mode[3] = 0x1F << 1;
+	eitDmx->sectionFilter(0x12, filter, mask, 4, 0 /*timeout*/, mode);
+
+	return true;
+}
+
+bool CCNThread::stopUpdateFilter()
+{
+	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
+	if(updating) {
+		updating = false;
+		eitDmx->Stop();
+		return true;
+	}
+	return false;
+}
+
+bool CCNThread::checkUpdate()
+{
+	if(!updating)
+		return false;
+
+	unsigned char buf[MAX_SECTION_LENGTH];
+	int ret = eitDmx->Read(buf, MAX_SECTION_LENGTH, 10);
+
+	if (ret > 0) {
+		LongSection section(buf);
+		printdate_ms(stdout);
+		xprintf("%s: eit update filter: ### new version 0x%02x ###, Activate thread\n", name.c_str(), section.getVersionNumber());
+
+		writeLockMessaging();
+		messaging_have_CN = 0x00;
+		messaging_got_CN = 0x00;
+		unlockMessaging();
+		return true;
+	}
+	return false;
+}
+
 void CCNThread::sendCNEvent()
 {
 	eventServer->sendEvent(CSectionsdClient::EVT_GOT_CN_EPG,
@@ -1859,11 +1867,15 @@ void CCNThread::run()
 	name = "cnThread";
 	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
 	pID = 0x12;
-	dmx_num = 1;
+	dmx_num = 0;
 	cache = false;
 
 	timeoutInMSeconds = EIT_READ_TIMEOUT;
 	bool sendToSleepNow = false;
+
+	updating = false;
+	eitDmx = new cDemux(0);
+	eitDmx->Open(DMX_PSI_CHANNEL);
 
 	// -- set EIT filter  0x4e
 	addfilter(0x4e, 0xff); //0  current TS, current/next
@@ -1885,9 +1897,9 @@ void CCNThread::run()
 				real_pause();
 				pthread_mutex_lock( &start_stop_mutex );
 				if (!channel_is_blacklisted)
-					eit_set_update_filter(&eit_update_fd);
+					startUpdateFilter();
 				rs = pthread_cond_wait(&change_cond, &start_stop_mutex);
-				eit_stop_update_filter(&eit_update_fd);
+				stopUpdateFilter();
 				pthread_mutex_unlock(&start_stop_mutex);
 #ifdef DEBUG_CN_THREAD
 				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n\n", name.c_str(), running, scanning, channel_is_blacklisted, rs);
@@ -1949,6 +1961,8 @@ void CCNThread::run()
 		}
 	} // for
 	delete[] static_buf;
+	stopUpdateFilter();
+	delete eitDmx;
 	printf("[sectionsd] %s ended\n", name.c_str());
 	pthread_exit(NULL);
 }
@@ -2203,13 +2217,9 @@ extern cDemux * dmxUTC;
 
 void sectionsd_main_thread(void * /*data*/)
 {
-	//pthread_t threadTOT, threadEIT, threadCN, threadHouseKeeping;
 	pthread_t threadTOT, threadHouseKeeping;
 #ifdef ENABLE_FREESATEPG
 	pthread_t threadFSEIT;
-#endif
-#ifdef ENABLE_SDT
-	//pthread_t threadSDT;
 #endif
 	int rc;
 
@@ -2290,15 +2300,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	}
 #endif
 #ifdef ENABLE_SDT
-#if 0
-	printf("\n\n\n[sectionsd] starting SDT thread\n");
-	rc = pthread_create(&threadSDT, 0, sdtThread, 0);
-
-	if (rc) {
-		fprintf(stderr, "[sectionsd] failed to create sdt-thread (rc=%d)\n", rc);
-		return;
-	}
-#endif
 	threadSDT.Start();
 #endif
 
@@ -2315,30 +2316,13 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 
 	sectionsd_ready = true;
 
-	while (sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
+	while (!sectionsd_stop && sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
 		sched_yield();
-		if (eit_update_fd != -1) {
-			unsigned char buf[MAX_SECTION_LENGTH];
-			int ret = eitDmx->Read(buf, MAX_SECTION_LENGTH, 10);
-
-			if (ret > 0) {
-
-				LongSection section(buf);
-				printdate_ms(stdout);
-				printf("EIT Update Filter: new version 0x%x, Activate cnThread\n", section.getVersionNumber());
-
-				writeLockMessaging();
-				messaging_have_CN = 0x00;
-				messaging_got_CN = 0x00;
-				unlockMessaging();
-
-				sched_yield();
-				threadCN.change(0);
-				sched_yield();
-			}
+		if(threadCN.checkUpdate()) {
+			sched_yield();
+			threadCN.change(0);
+			sched_yield();
 		}
-		if(sectionsd_stop)
-			break;
 
 		sched_yield();
 		/* 10 ms is the minimal timeslice anyway (HZ = 100), so let's
@@ -2358,26 +2342,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	pthread_cond_broadcast(&timeThreadSleepCond);
 	pthread_mutex_unlock(&timeThreadSleepMutex);
 
-#if 0
-	pthread_mutex_lock(&dmxEIT.start_stop_mutex);
-	pthread_cond_broadcast(&dmxEIT.change_cond);
-	pthread_mutex_unlock(&dmxEIT.start_stop_mutex);
-#endif
-
-#if 0
-	pthread_mutex_lock(&dmxCN.start_stop_mutex);
-	pthread_cond_broadcast(&dmxCN.change_cond);
-	pthread_mutex_unlock(&dmxCN.start_stop_mutex);
-#endif
-
-#ifdef ENABLE_SDT
-#if 0
-	pthread_mutex_lock(&dmxSDT.start_stop_mutex);
-	pthread_cond_broadcast(&dmxSDT.change_cond);
-	pthread_mutex_unlock(&dmxSDT.start_stop_mutex);
-#endif
-#endif
-
 	printf("pausing...\n");
 #if 0
 	dmxEIT.request_pause();
@@ -2394,7 +2358,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	if(dmxUTC) dmxUTC->Stop();
 
 	//pthread_cancel(threadTOT);
-
 	printf("join TOT\n");
 	pthread_join(threadTOT, NULL);
 	if(dmxUTC) delete dmxUTC;
@@ -2408,29 +2371,11 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 #ifdef ENABLE_SDT
 	printf("join SDT\n");
 	threadSDT.Stop();
-	//pthread_join(threadSDT, NULL);
 #endif
-
-	eit_stop_update_filter(&eit_update_fd);
-	if(eitDmx)
-		delete eitDmx;
-
-	printf("close 1\n");
-#if 0
-	dmxEIT.close();
-	printf("close 3\n");
-	dmxCN.close();
-#endif
-
 #ifdef ENABLE_FREESATEPG
 	dmxFSEIT.close();
 #endif
-#ifdef ENABLE_SDT
-	//dmxSDT.close();
-#endif
 	printf("[sectionsd] ended\n");
-
-	return;
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
