@@ -590,13 +590,21 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 		processTextToArray(GetGenre(epgData.contentClassification[0])); // UTF-8
 //	processTextToArray( epgData.userClassification.c_str() );
 
-
 	// -- display more screenings on the same channel
 	// -- 2002-05-03 rasc
 	if (hasFollowScreenings(channel_id, epgData.title)) {
 		processTextToArray(""); // UTF-8
 		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS)) + ':'); // UTF-8
 		FollowScreenings(channel_id, epgData.title);
+	}
+
+	/* neat for debugging duplicate event issues etc. */
+	char *epgid;
+	if (asprintf(&epgid, "EPG ID:%04llX.%02X", (epgData.eventID)&0x0FFFF, epgData.table_id) >= 0)
+	{
+		processTextToArray(""); // UTF-8
+		processTextToArray(epgid);
+		free(epgid);
 	}
 
 	COSDFader fader(g_settings.menu_Content_alpha);
