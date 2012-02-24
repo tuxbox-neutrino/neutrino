@@ -341,7 +341,7 @@ extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
-extra.loadconfig Lade Einstellungen von
+extra.loadconfig Neutrino-Einstellungen: Laden von
 extra.loadkeys Lade Tastenbelegung von
 extra.lodirection Längengrad-Ausrichtung
 extra.logo Logonummer
@@ -353,7 +353,7 @@ extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
-extra.saveconfig Speichere Einstellungen als
+extra.saveconfig Neutrino-Einstellungen: Sichern als
 extra.savekeys Speichere Tastenbelegung als
 extra.scan_fast Schnell
 extra.scan_full Total
@@ -1211,7 +1211,7 @@ servicemenu.restart_hint Neutrino wird neu gestartet...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.update Software-Aktualisierung
-settings.backup Alle Settings sichern
+settings.backup Image-Einstellungen: Sichern
 settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
 settings.menu_pos Menüposition
@@ -1223,7 +1223,7 @@ settings.pos_default_center oben Mitte
 settings.pos_higher_center unten Mitte
 settings.pos_top_left oben links
 settings.pos_top_right oben rechts
-settings.restore Wiederherstellen aller Settings
+settings.restore Image-Einstellungen: Wiederherstellen
 settings.restore_warn Alle Settings werden ersetzt.\nDie Box wird neu gestartet.\nWeiter?
 shutdown.recoding_query Aufnahme läuft. Trotzdem beenden?
 shutdowntimer.announce Die Box wird in 1 Min. heruntergefahren.\nShutdown abbrechen?

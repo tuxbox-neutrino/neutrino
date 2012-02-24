@@ -341,7 +341,7 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadconfig Load settings from
+extra.loadconfig Neutrino-Settings: Load from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
 extra.logo Logo number
@@ -353,7 +353,7 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.saveconfig Save settings as
+extra.saveconfig Neutrino-Settings: Save as
 extra.savekeys Save keys as
 extra.scan_fast Fast
 extra.scan_full Full
@@ -1211,7 +1211,7 @@ servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Servicescan
 servicemenu.update Software Update
-settings.backup Backup all settings
+settings.backup Image-Settings: Backup
 settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_pos Menu position
@@ -1223,7 +1223,7 @@ settings.pos_default_center top center
 settings.pos_higher_center higher center
 settings.pos_top_left top left
 settings.pos_top_right top right
-settings.restore Restore all settings
+settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shutdown.recoding_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
