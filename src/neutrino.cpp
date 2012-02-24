@@ -3857,7 +3857,11 @@ void CNeutrinoApp::SelectSubtitles()
 }
 void CNeutrinoApp::SDT_ReloadChannels()
 {
+			if (reloadhintBox)
+				reloadhintBox->paint();
   			g_Zapit->reinitChannels();
+			if (reloadhintBox)
+				reloadhintBox->hide();
 			channelsInit();
 			t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 			channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
