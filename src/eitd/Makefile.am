@@ -14,7 +14,8 @@ if BOXTYPE_TRIPLE
 INCLUDES += -I$(top_srcdir)/lib/libtriple
 endif
 
-AM_CPPFLAGS =
+#AM_CPPFLAGS =
+AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
 noinst_LIBRARIES = libsectionsd.a
 libsectionsd_a_SOURCES = sectionsd.cpp dmxapi.cpp debug.cpp dmx.cpp xmlutil.cpp \
