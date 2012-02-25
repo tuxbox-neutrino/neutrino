@@ -4582,12 +4582,20 @@ static void *insertEventsfromFile(void *)
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
-	char cclass[20];
-	char cuser[20];
+	char cclass[20]={0};
+	char cuser[20]={0};;
 	std::string indexname;
 	std::string filename;
 	std::string epgname;
 	int ev_count = 0;
+
+	struct stat buf;
+	indexname = epg_dir + "index.tmp";
+	//skip read EPG cache if index.tmp available
+	if (stat(indexname.c_str(), &buf) == 0){
+		reader_ready = true;
+		pthread_exit(NULL);
+	}
 
 	indexname = epg_dir + "index.xml";
 
@@ -4672,12 +4680,14 @@ static void *insertEventsfromFile(void *)
 							node = node->xmlNextNode;
 						}
 
-						int count = 0;
+						unsigned int count = 0;
 						while (xmlGetNextOccurence(node, "content") != NULL) {
 							cclass[count] = xmlGetNumericAttribute(node, "class", 16);
 							cuser[count] = xmlGetNumericAttribute(node, "user", 16);
 							node = node->xmlNextNode;
 							count++;
+							if(count > sizeof(cclass)-1)
+								break;
 						}
 						e.contentClassification = std::string(cclass, count);
 						e.userClassification = std::string(cuser, count);
