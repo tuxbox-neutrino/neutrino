@@ -334,7 +334,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	// check if the filter worked correctly
 	if (((table_id ^ filters[filter_index].filter) & filters[filter_index].mask) != 0)
 	{
-		xprintf("	%s: filter 0x%x mask 0x%x -> skip sections for table 0x%x\n", name.c_str(), filters[filter_index].filter, filters[filter_index].mask, table_id);
+		xcprintf("	%s: filter 0x%x mask 0x%x -> skip sections for table 0x%x\n", name.c_str(), filters[filter_index].filter, filters[filter_index].mask, table_id);
 		unlock();
 		real_pause();
 		real_unpause();
