@@ -3324,10 +3324,10 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		if(!recordingstatus) { //only switch to standby_channel_id when not recording
 			live_channel_id = standby_channel_id;
 		}
+		videoDecoder->Standby(false);
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		channelList->zapTo_ChannelID(live_channel_id);
 
-		videoDecoder->Standby(false);
 		g_Sectionsd->setPauseScanning(false);
 		g_Sectionsd->setServiceChanged(live_channel_id&0xFFFFFFFFFFFFULL, true );
 
