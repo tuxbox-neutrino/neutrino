@@ -316,6 +316,11 @@ int Font::getWidth(void)
 	return fontwidth * SCALE_MULT / xmult;
 }
 
+int Font::getSize(void)
+{
+	return font.width * SCALE_MULT / xmult;
+}
+
 int Font::getHeight(void)
 {
 	return height * SCALE_MULT / ymult;

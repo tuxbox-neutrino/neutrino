@@ -73,7 +73,7 @@ class Font
 	int getDigitHeight(void);
 	int getDigitOffset(void);
 	int getWidth(void);
-	int getSize(){return font.width;}
+	int getSize(void);
 	int setSize(int isize);
 
 	Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const fontmodifier _stylemodifier);
