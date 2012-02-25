@@ -4595,6 +4595,7 @@ static void *insertEventsfromFile(void *)
 	if (stat(indexname.c_str(), &buf) == 0){
 		reader_ready = true;
 		pthread_exit(NULL);
+		return;
 	}
 
 	indexname = epg_dir + "index.xml";
