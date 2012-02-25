@@ -3343,7 +3343,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
-			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 		} else {
 			g_Zapit->stopPlayBack();
 		}
@@ -3370,6 +3369,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
 		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
+
+		if(!CRecordManager::getInstance()->RecordingStatus())
+			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 
 		lastMode = mode;
 		mode = mode_standby;
