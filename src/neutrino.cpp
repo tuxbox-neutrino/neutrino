@@ -3794,7 +3794,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = configfile.getInt32( "key_screenshot", CRCInput::RC_nokey );
-	g_settings.key_current_transponder = configfile.getInt32( "key_current_transponder", CRCInput::RC_nokey );
+	g_settings.key_current_transponder = configfile.getInt32( "key_current_transponder", CRCInput::RC_games );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
 	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );
