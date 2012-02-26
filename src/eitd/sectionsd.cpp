@@ -1375,13 +1375,14 @@ static void dump_sched_info(std::string label)
 // updates system time according TOT every 30 minutes
 //---------------------------------------------------------------------
 
-static void sendTimeEvent(bool by_ntp, time_t tim = 0)
+static void sendTimeEvent(bool dvb, time_t tim = 0)
 {
 	time_t actTime = time(NULL);
-	if(!by_ntp) {
+	if(dvb) {
 		struct tm *tmTime = localtime(&actTime);
 		xprintf("[%sThread] - current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", "time",
 				tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
+		actTime = tim;
 	}
 	pthread_mutex_lock(&timeIsSetMutex);
 	timeset = true;
@@ -1415,7 +1416,7 @@ static void *timeThread(void *)
 		{
 			first_time = false;
 			time_ntp = true;
-			sendTimeEvent(true);
+			sendTimeEvent(false);
 		} else {
 			if (dvb_time_update) {
 xprintf("timeThread: getting UTC\n");
@@ -1425,7 +1426,7 @@ xprintf("timeThread: getting UTC done : %d\n", success);
 				{
 					tim = changeUTCtoCtime((const unsigned char *) &UTC);
 					time_ntp = false;
-					sendTimeEvent(false, tim);
+					sendTimeEvent(true, tim);
 
 					if (tim) {
 						if ((!messaging_neutrino_sets_time) && (geteuid() == 0)) {
@@ -1703,7 +1704,7 @@ void CEitThread::run()
 	   - 4   then get the other TS's scheduled events,
 	   - 4ab (in two steps to reduce the POLLERRs on the DMX device)
 	   */
-	addfilter(0x00, 0x00); //0 dummy filter
+	//addfilter(0x00, 0x00); //0 dummy filter
 	addfilter(0x50, 0xf0); //1  current TS, scheduled
 	addfilter(0x4f, 0xff); //2  other TS, current/next
 #if 1
