@@ -921,7 +921,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 
 static void commandserviceChanged(int connfd, char *data, const unsigned dataLength)
 {
-	t_channel_id uniqueServiceKey;
+	t_channel_id uniqueServiceKey = 0;
 	if (dataLength != sizeof(sectionsd::commandSetServiceChanged))
 		goto out;
 
