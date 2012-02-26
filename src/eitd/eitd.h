@@ -141,9 +141,11 @@ printf("%s::Stop: to broadcast\n", name.c_str());
 			pthread_cond_broadcast(&change_cond);
 printf("%s::Stop: to unlock\n", name.c_str());
 			unlock();
-printf("%s::Stop: to close\n", name.c_str());
+printf("%s::Stop: to closefd\n", name.c_str());
 			DMX::closefd();
+printf("%s::Stop: to join\n", name.c_str());
 			int ret = (OpenThreads::Thread::join() == 0);
+printf("%s::Stop: to close\n", name.c_str());
 			DMX::close();
 			return ret;
 		}
