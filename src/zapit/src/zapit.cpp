@@ -1520,10 +1520,10 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		if (msgBoolean.truefalse) {
 			// if(currentMode & RECORD_MODE) videoDecoder->freeze();
 			enterStandby();
-			response.cmd = CZapitMessages::CMD_READY;
-			CBasicServer::send_data(connfd, &response, sizeof(response));
 		} else
 			leaveStandby();
+		response.cmd = CZapitMessages::CMD_READY;
+		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	}
 
