@@ -261,11 +261,11 @@ static bool deleteEvent(const event_id_t uniqueKey)
 			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.erase(e->second);
 		}
 
-		mySIeventsOrderUniqueKey.erase(uniqueKey);
-		mySIeventsNVODorderUniqueKey.erase(uniqueKey);
 #ifndef USE_BOOST_SHARED_PTR
 		delete e->second;
 #endif
+		mySIeventsOrderUniqueKey.erase(uniqueKey);
+		mySIeventsNVODorderUniqueKey.erase(uniqueKey);
 		ret = true;
 	}
 	unlockEvents();
@@ -933,50 +933,7 @@ xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_I
 
 	static t_channel_id time_trigger_last = 0;
 
-#if 0
-	if(checkBlacklist(uniqueServiceKey))
-	{
-		if (!channel_is_blacklisted) {
-			channel_is_blacklisted = true;
-			threadCN.request_pause();
-			threadEIT.request_pause();
-#ifdef ENABLE_SDT
-			dmxSDT.request_pause();
-#endif
-		}
-		xprintf("[sectionsd] commandserviceChanged: service is filtered!\n");
-	}
-	else
-	{
-		if (channel_is_blacklisted) {
-			channel_is_blacklisted = false;
-			threadCN.request_unpause();
-			threadEIT.request_unpause();
-#ifdef ENABLE_SDT
-			dmxSDT.request_unpause();
-#endif
-			xprintf("[sectionsd] commandserviceChanged: service is no longer filtered!\n");
-		}
-	}
-#endif
-#if 0
-	if(checkNoDVBTimelist(uniqueServiceKey))
-	{
-		if (dvb_time_update) {
-			dvb_time_update = false;
-		}
-		xprintf("[sectionsd] commandserviceChanged: DVB time update is blocked!\n");
-	}
-	else
-	{
-		if (!dvb_time_update) {
-			dvb_time_update = true;
-			xprintf("[sectionsd] commandserviceChanged: DVB time update is allowed!\n");
-		}
-	}
-#endif
-	if (uniqueServiceKey && messaging_current_servicekey != uniqueServiceKey)
-	{
+	if (uniqueServiceKey && messaging_current_servicekey != uniqueServiceKey) {
 		dvb_time_update = !checkNoDVBTimelist(uniqueServiceKey);
 		dprintf("[sectionsd] commandserviceChanged: DVB time update is %s\n", dvb_time_update ? "allowed" : "blocked!");
 
@@ -995,7 +952,6 @@ xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_I
 		messaging_have_CN = 0x00;
 		messaging_got_CN = 0x00;
 		messaging_zap_detected = true;
-		//messaging_need_eit_version = false;
 		unlockMessaging();
 
 		threadCN.setCurrentService(messaging_current_servicekey);
@@ -1006,8 +962,7 @@ xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_I
 #ifdef ENABLE_SDT
 		threadSDT.setCurrentService(messaging_current_servicekey);
 #endif
-		if (time_trigger_last != (messaging_current_servicekey & 0xFFFFFFFF0000ULL))
-		{
+		if (time_trigger_last != (messaging_current_servicekey & 0xFFFFFFFF0000ULL)) {
 			time_trigger_last = messaging_current_servicekey & 0xFFFFFFFF0000ULL;
 			pthread_mutex_lock(&timeThreadSleepMutex);
 			pthread_cond_broadcast(&timeThreadSleepCond);
@@ -1771,7 +1726,7 @@ void CEitThread::run()
 #endif
 			need_change = true;
 		}
-
+		/* FIXME without dummy filter, there is race between service change and need_change */
 		if(running && need_change && scanning && !channel_is_blacklisted) {
 			readLockMessaging();
 			if (!next_filter())
