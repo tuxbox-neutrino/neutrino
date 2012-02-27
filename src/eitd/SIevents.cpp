@@ -265,7 +265,7 @@ int SIevent::saveXML(FILE *file, const char *serviceName) const
 
 int SIevent::saveXML0(FILE *file) const
 {
-	if(fprintf(file, "\t\t<event id=\"%04x\">\n", eventID)<0)
+	if(fprintf(file, "\t\t<event id=\"%04x\" tid=\"%02x\">\n", eventID, table_id)<0)
 		return 1;
 	return 0;
 }

@@ -254,8 +254,6 @@ void *insertEventsfromFile(void * data)
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
-	char cclass[20];
-	char cuser[20];
 	std::string indexname;
 	std::string filename;
 	std::string epgname;
@@ -296,6 +294,9 @@ void *insertEventsfromFile(void * data)
 			while (event) {
 
 				SIevent e(onid,tsid,sid,xmlGetNumericAttribute(event, "id", 16));
+				uint8_t tid = xmlGetNumericAttribute(event, "tid", 16);
+				if(tid)
+					e.table_id = tid;
 
 				node = event->xmlChildrenNode;
 
@@ -328,15 +329,13 @@ void *insertEventsfromFile(void * data)
 					node = node->xmlNextNode;
 				}
 
-				int count = 0;
 				while (xmlGetNextOccurence(node, "content") != NULL) {
-					cclass[count] = xmlGetNumericAttribute(node, "class", 16);
-					cuser[count] = xmlGetNumericAttribute(node, "user", 16);
+					char cl = xmlGetNumericAttribute(node, "class", 16);
+					e.contentClassification += cl;
+					cl = xmlGetNumericAttribute(node, "user", 16);
+					e.userClassification += cl;
 					node = node->xmlNextNode;
-					count++;
 				}
-				e.contentClassification = std::string(cclass, count);
-				e.userClassification = std::string(cuser, count);
 
 				while (xmlGetNextOccurence(node, "component") != NULL) {
 					SIcomponent c;
