@@ -341,7 +341,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 CZapitChannel * CSdt::CheckChannelId(t_service_id service_id)
 {
 	int flist[5] = { freq_id, freq_id-1, freq_id+1, freq_id-2, freq_id+2 };
-	for(int i = 0; i < 6; i++) {
+	for(int i = 0; i < 5; i++) {
 		freq_id_t freq = flist[i];
 		t_channel_id channel_id = CREATE_CHANNEL_ID64;
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
