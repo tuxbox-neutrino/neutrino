@@ -208,7 +208,7 @@ inline sections_id_t create_sections_id(const uint8_t table_id, const uint16_t e
 bool DMX::check_complete(sections_id_t s_id, uint8_t number, uint8_t last, uint8_t segment_last) 
 {
 	bool ret = false;
-	lock();
+	//lock();
 	section_map_t::iterator it = seenSections.find(s_id);
 
 	if (it == seenSections.end())
@@ -258,7 +258,7 @@ printf("	[%s cache] old section for table 0x%02x sid 0x%04x section 0x%02x last 
 		if(seenSections.size() > 10)
 			ret = true;
 	}
-	unlock();
+	//unlock();
 	return ret;
 }
 
@@ -342,19 +342,22 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	}
 	/* there are channels with very low rate, neutrino change filter on timeouts while data not complete */
 	seen_section = true;
-	unlock();
+	//unlock();
 
 	// skip sections which are too short
 	if ((section_length < 5) ||
 			(table_id >= 0x4e && table_id <= 0x6f && section_length < 14))
 	{
 		dprintf("section too short: table %x, length: %d\n", table_id, section_length);
+		unlock();
 		return -1;
 	}
 
 	// check if it's extended syntax, e.g. NIT, BAT, SDT, EIT, only current sections
-	if (!section.getSectionSyntaxIndicator() || !section.getCurrentNextIndicator())
+	if (!section.getSectionSyntaxIndicator() || !section.getCurrentNextIndicator()) {
+		unlock();
 		return rc;
+	}
 
 	uint16_t eh_tbl_extension_id = section.getTableIdExtension();
 	uint8_t version_number = section.getVersionNumber();
@@ -450,15 +453,16 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	}
 
 	if(complete) {
-		lock();
+		//lock();
 		seenSections.clear();
 		calcedSections.clear();
 		timeouts = -2;
-		unlock();
+		//unlock();
 	}
 	if(rc > 0)
 		first_skipped = 0;
 
+	unlock();
 	return rc;
 }
 
