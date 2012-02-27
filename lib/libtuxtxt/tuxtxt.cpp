@@ -1934,6 +1934,8 @@ int Init(int source)
 	TTFShiftX         = 0;
 	TTFShiftY         = -2;
 
+	pageinfo = NULL;
+
 	/* load config */
 	if ((conf = fopen(TUXTXTCONF, "rt")) == 0)
 	{
