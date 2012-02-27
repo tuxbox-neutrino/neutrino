@@ -105,7 +105,7 @@ void SIevent::parse(Event &event)
 				char content = c->getContentNibbleLevel1() << 4 | c->getContentNibbleLevel2();
 				contentClassification += content;
 				char user = c->getUserNibble1() << 4 | c->getUserNibble2();
-				contentClassification += user;
+				userClassification += user;
 			}
 		}
 		else if(dtype == COMPONENT_DESCRIPTOR) {
@@ -313,8 +313,11 @@ int SIevent::saveXML2(FILE *file) const
 		}
 	}
 	for_each(times.begin(), times.end(), saveSItimeXML(file));
-	for(unsigned i=0; i<contentClassification.length(); i++)
-		fprintf(file, "\t\t\t<content class=\"%02x\" user=\"%02x\"/>\n", contentClassification[i], userClassification[i]);
+	for(unsigned i=0; i<contentClassification.length(); i++) {
+		/* focus: i think no sense to save 'unknown' */
+		if(contentClassification[i] || userClassification[i])
+			fprintf(file, "\t\t\t<content class=\"%02x\" user=\"%02x\"/>\n", contentClassification[i], userClassification[i]);
+	}
 	for_each(components.begin(), components.end(), saveSIcomponentXML(file));
 	for_each(ratings.begin(), ratings.end(), saveSIparentalRatingXML(file));
 	for_each(linkage_descs.begin(), linkage_descs.end(), saveSIlinkageXML(file));
