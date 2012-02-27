@@ -532,14 +532,6 @@ std::string CNetAdapter::getMacAddr(void)
 	}
 }
 
-uint64_t getcurrenttime()
-{
-	struct timeval tv;
-	gettimeofday( &tv, NULL );
-	return (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-}
-
-
 bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 {
 	bool found = false;

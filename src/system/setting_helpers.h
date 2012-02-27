@@ -37,8 +37,6 @@
 
 #include <string>
 
-uint64_t getcurrenttime();
-
 class CGenericMenuActivate
 {
 	private:
