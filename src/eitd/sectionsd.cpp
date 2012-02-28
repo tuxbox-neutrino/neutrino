@@ -922,6 +922,8 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 static void commandserviceChanged(int connfd, char *data, const unsigned dataLength)
 {
 	t_channel_id uniqueServiceKey = 0;
+
+	sendEmptyResponse(connfd, NULL, 0);
 	if (dataLength != sizeof(sectionsd::commandSetServiceChanged))
 		goto out;
 
@@ -973,7 +975,7 @@ xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_I
 		dprintf("[sectionsd] commandserviceChanged: no change...\n");
 
 out:
-	sendEmptyResponse(connfd, NULL, 0);
+	//sendEmptyResponse(connfd, NULL, 0);
 xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 }
 
