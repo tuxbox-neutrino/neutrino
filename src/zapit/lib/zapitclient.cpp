@@ -921,8 +921,10 @@ void CZapitClient::setStandby(const bool enable)
 	CZapitMessages::commandBoolean msg;
 	msg.truefalse = enable;
 	send(CZapitMessages::CMD_SET_STANDBY, (char*)&msg, sizeof(msg));
-	CZapitMessages::responseCmd response;
-	CBasicClient::receive_data((char* )&response, sizeof(response));
+	if(enable) {
+		CZapitMessages::responseCmd response;
+		CBasicClient::receive_data((char* )&response, sizeof(response));
+	}
 	close_connection();
 }
 

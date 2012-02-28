@@ -3741,7 +3741,6 @@ void sighandler (int signum)
           case SIGINT:
 		delete CRecordManager::getInstance();
 		stop_daemons();
-		delete CFrameBuffer::getInstance();
                 _exit(0);
           default:
                 break;
