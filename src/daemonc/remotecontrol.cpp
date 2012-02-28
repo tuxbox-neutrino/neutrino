@@ -50,6 +50,8 @@
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 
+#define ZAP_GUARD_TIME 2000 // ms
+
 extern CBouquetManager *g_bouquetManager;
 
 extern uint32_t scrambled_timer;
@@ -124,7 +126,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 				g_Zapit->zapTo_serviceID_NOWAIT(current_channel_id );
 				//g_Sectionsd->setServiceChanged(current_channel_id, false);
 
-				zap_completion_timeout = time_monotonic_ms() + 2 * (int64_t) 1000;
+				zap_completion_timeout = time_monotonic_ms() + ZAP_GUARD_TIME;
 
 				return messages_return::handled;
 			}
@@ -660,7 +662,6 @@ const std::string & CRemoteControl::subChannelDown(void)
   	}
 }
 
-void stopAutoRecord();
 void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::string & channame, const bool start_video) // UTF-8
 {
 	current_channel_id = channel_id;
@@ -698,7 +699,7 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		g_Zapit->zapTo_serviceID_NOWAIT(channel_id);
 		//g_Sectionsd->setServiceChanged( current_channel_id, false );
 
-		zap_completion_timeout = now + 2 * (int64_t) 1000;
+		zap_completion_timeout = now + ZAP_GUARD_TIME;
 		g_RCInput->killTimer( current_programm_timer );
 	}
 }
