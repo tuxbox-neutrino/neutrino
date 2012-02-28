@@ -1019,7 +1019,7 @@ xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_I
 
 out:
 	sendEmptyResponse(connfd, NULL, 0);
-xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+//xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 }
 
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
