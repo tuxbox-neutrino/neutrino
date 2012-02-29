@@ -67,13 +67,6 @@
 #define DEBUG_EIT_THREAD
 #define DEBUG_CN_THREAD
 
-/* period to restart EIT reading */
-#define TIME_EIT_SCHEDULED_PAUSE 60 * 60
-/* force EIT thread to change filter after, seconds */
-#define TIME_EIT_SKIPPING 120 // 90 <- Canal diditaal 19.2e -> ~100 seconds for 0x5x
-// a little more time for freesat epg
-#define TIME_FSEIT_SKIPPING 240
-
 static bool sectionsd_ready = false;
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
@@ -87,13 +80,6 @@ static unsigned int max_events;
 // Timeout bei tcp/ip connections in ms
 #define READ_TIMEOUT_IN_SECONDS  2
 #define WRITE_TIMEOUT_IN_SECONDS 2
-
-// Timeout in ms for reading from dmx in EIT threads. Dont make this too long
-// since we are holding the start_stop lock during this read!
-#define EIT_READ_TIMEOUT 100
-// Number of DMX read timeouts, after which we check if there is an EIT at all
-// for EIT and PPT threads...
-#define CHECK_RESTART_DMX_AFTER_TIMEOUTS (2000 / EIT_READ_TIMEOUT) // 2 seconds
 
 // Time in seconds we are waiting for an EIT version number
 //#define TIME_EIT_VERSION_WAIT		3 // old
@@ -152,14 +138,11 @@ static pthread_rwlock_t messagingLock = PTHREAD_RWLOCK_INITIALIZER;
 static pthread_cond_t timeThreadSleepCond = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t timeThreadSleepMutex = PTHREAD_MUTEX_INITIALIZER;
 
-//static DMX dmxEIT(0x12, 3000 /*320*/);
 static CEitThread threadEIT;
-
-//static DMX dmxCN(0x12, 512, false, 1);
 static CCNThread threadCN;
 
 #ifdef ENABLE_FREESATEPG
-static DMX dmxFSEIT(3842, 320);
+static CFreeSatThread threadFSEIT;
 #endif
 
 #ifdef ENABLE_SDT
@@ -1454,152 +1437,121 @@ xprintf("timeThread: going to sleep for %d sec\n\n", seconds);
 	pthread_exit(NULL);
 }
 
-
-#ifdef ENABLE_FREESATEPG
-//---------------------------------------------------------------------
-//			Freesat EIT-thread
-// reads Freesat EPG-data
-//---------------------------------------------------------------------
-static void *fseitThread(void *)
+/********************************************************************************/
+/* abstract CSectionThread functions						*/
+/********************************************************************************/
+/* sleep for sleep_time seconds, forever if sleep_time = 0 */
+int CSectionThread::Sleep()
 {
+	int rs;
+	struct timespec abs_wait;
+	struct timeval now;
 
-	/* we are holding the start_stop lock during this timeout, so don't
-	   make it too long... */
-	unsigned timeoutInMSeconds = EIT_READ_TIMEOUT;
-	bool sendToSleepNow = false;
-	pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, 0);
+	if(sleep_time) {
+		gettimeofday(&now, NULL);
+		TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
+		abs_wait.tv_sec += sleep_time;
+	}
+	xprintf("%s: going to sleep for %d seconds...\n", name.c_str(), sleep_time);
+	pthread_mutex_lock(&start_stop_mutex);
 
-	dmxFSEIT.addfilter(0x60, 0xfe); //other TS, scheduled, freesat epg is only broadcast using table_ids 0x60 (scheduled) and 0x61 (scheduled later)
+	beforeWait();
+	if(sleep_time)
+		rs = pthread_cond_timedwait( &change_cond, &start_stop_mutex, &abs_wait );
+	else
+		rs = pthread_cond_wait(&change_cond, &start_stop_mutex);
 
+	afterWait();
+
+	pthread_mutex_unlock( &start_stop_mutex );
+	return rs;
+}
+
+/* common thread main function */
+void CSectionThread::run()
+{
+	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
 	if (sections_debug)
-		dump_sched_info("freesatEitThread");
+		dump_sched_info(name.c_str());
 
-	dprintf("[%sThread] pid %d (%lu) start\n", "fseit", getpid(), pthread_self());
-	int timeoutsDMX = 0;
-	uint8_t *static_buf = new uint8_t[MAX_SECTION_LENGTH];
-	int rc;
+	addFilters();
 
-	dmxFSEIT.start(); // -> unlock
-	if (!scanning)
-		dmxFSEIT.request_pause();
+	if (wait_for_time) {
+		waitForTimeset();
+		xprintf("%s::run:: time set.\n", name.c_str());
+	}
 
-	waitForTimeset();
-	dmxFSEIT.lastChanged = time_monotonic();
+	DMX::start();
 
-	while(!sectionsd_stop) {
-		while (!scanning) {
-			if(sectionsd_stop)
+	while (running) {
+		if (shouldSleep()) {
+#ifdef DEBUG_EIT_THREAD
+			xprintf("%s: going to sleep %d seconds, running %d scanning %d blacklisted %d events %d\n",
+					name.c_str(), sleep_time, running, scanning, channel_is_blacklisted, event_count);
+#endif
+			event_count = 0;
+
+			beforeSleep();
+			int rs = 0;
+			do {
+				real_pause();
+				rs = Sleep();
+#ifdef DEBUG_EIT_THREAD
+				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n\n",
+						name.c_str(), running, scanning, channel_is_blacklisted, rs);
+#endif
+			} while (checkSleep());
+
+			if(!running)
 				break;
-			sleep(1);
-		}
-		if(sectionsd_stop)
-			break;
-		time_t zeit = time_monotonic();
 
-		rc = dmxFSEIT.getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
-
-		if (rc < 0)
-			continue;
-
-		if (timeoutsDMX < 0)
-		{
-			if ( dmxFSEIT.filter_index + 1 < (signed) dmxFSEIT.filters.size() )
-			{
-				if (timeoutsDMX == -1)
-					dprintf("[freesatEitThread] skipping to next filter(%d) (> DMX_HAS_ALL_SECTIONS_SKIPPING)\n", dmxFSEIT.filter_index+1 );
-				if (timeoutsDMX == -2)
-					dprintf("[freesatEitThread] skipping to next filter(%d) (> DMX_HAS_ALL_CURRENT_SECTIONS_SKIPPING)\n", dmxFSEIT.filter_index+1 );
-				timeoutsDMX = 0;
-				dmxFSEIT.change(dmxFSEIT.filter_index + 1);
-			}
-			else {
-				sendToSleepNow = true;
-				timeoutsDMX = 0;
-			}
-		}
-
-		if (timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS && scanning)
-		{
-			if ( dmxFSEIT.filter_index + 1 < (signed) dmxFSEIT.filters.size() )
-			{
-				dprintf("[freesatEitThread] skipping to next filter(%d) (> DMX_TIMEOUT_SKIPPING)\n", dmxFSEIT.filter_index+1 );
-				dmxFSEIT.change(dmxFSEIT.filter_index + 1);
-			}
-			else
-				sendToSleepNow = true;
-
-			timeoutsDMX = 0;
-		}
-
-		if (sendToSleepNow)
-		{
-			sendToSleepNow = false;
-
-			if(sectionsd_stop)
-				break;
-			dmxFSEIT.real_pause();
-			pthread_mutex_lock( &dmxFSEIT.start_stop_mutex );
-			writeLockMessaging();
-			messaging_zap_detected = false;
-			unlockMessaging();
-
-			struct timespec abs_wait;
-			struct timeval now;
-			gettimeofday(&now, NULL);
-			TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
-			abs_wait.tv_sec += TIME_EIT_SCHEDULED_PAUSE;
-			dprintf("dmxFSEIT: going to sleep for %d seconds...\n", TIME_EIT_SCHEDULED_PAUSE);
-
-			int rs = pthread_cond_timedwait( &dmxFSEIT.change_cond, &dmxFSEIT.start_stop_mutex, &abs_wait );
-
-			pthread_mutex_unlock( &dmxFSEIT.start_stop_mutex );
+			afterSleep();
 
 			if (rs == ETIMEDOUT)
-			{
-				dprintf("dmxFSEIT: waking up again - timed out\n");
-				// must call dmxFSEIT.change after! unpause otherwise dev is not open,
-				// dmxFSEIT.lastChanged will not be set, and filter is advanced the next iteration
-				// maybe .change should imply .real_unpause()? -- seife
-				dprintf("New Filterindex: %d (ges. %d)\n", 2, (signed) dmxFSEIT.filters.size() );
-				dmxFSEIT.change(1); // -> restart
-			}
-			else if (rs == 0)
-			{
-				dprintf("dmxFSEIT: waking up again - requested from .change()\n");
-			}
-			else
-			{
-				dprintf("dmxFSEIT:  waking up again - unknown reason %d\n",rs);
-			}
-			// update zeit after sleep
-			zeit = time_monotonic();
+				change(0); // -> restart, FIXME
+
+			sendToSleepNow = false;
 		}
-		else if (zeit > dmxFSEIT.lastChanged + TIME_FSEIT_SKIPPING )
-		{
+
+		int rc = getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
+
+		processSection(rc);
+
+		time_t zeit = time_monotonic();
+		bool need_change = false;
+
+		if(timeoutsDMX < 0 || timeoutsDMX >= skipTimeouts) {
+#ifdef DEBUG_EIT_THREAD
+			xprintf("%s: skipping to next filter %d from %d (timeouts %d)\n",
+					name.c_str(), filter_index+1, filters.size(), timeoutsDMX);
+#endif
+			timeoutsDMX = 0;
+			need_change = true;
+		}
+		if (zeit > lastChanged + skipTime) {
+#ifdef DEBUG_EIT_THREAD
+			xprintf("%s: skipping to next filter %d from %d (seconds %d)\n", 
+					name.c_str(), filter_index+1, filters.size(), (int) (zeit - lastChanged));
+#endif
+			need_change = true;
+		}
+		if(running && need_change && scanning) {
 			readLockMessaging();
-
-			if ( dmxFSEIT.filter_index + 1 < (signed) dmxFSEIT.filters.size() )
-			{
-				dprintf("[freesatEitThread] skipping to next filter(%d) (> TIME_FSEIT_SKIPPING)\n", dmxFSEIT.filter_index+1 );
-				dmxFSEIT.change(dmxFSEIT.filter_index + 1);
-			}
-			else
+			if (!next_filter())
 				sendToSleepNow = true;
-
 			unlockMessaging();
 		}
-
-		addEvents();
-		//dprintf("[eitThread] added %d events (end)\n",  eit.events().size());
-	} // for
+	} // while running
 	delete[] static_buf;
-	dputs("[freesatEitThread] end");
-
+	cleanup();
+	printf("[sectionsd] %s ended\n", name.c_str());
 	pthread_exit(NULL);
 }
-#endif
 
-bool CSectionThread::addEvents()
+/********************************************************************************/
+/* abstract CEventsThread functions						*/
+/********************************************************************************/
+bool CEventsThread::addEvents()
 {
 	SIsectionEIT eit(static_buf);
 
@@ -1638,21 +1590,37 @@ bool CSectionThread::addEvents()
 	return true;
 }
 
-//---------------------------------------------------------------------
-//			EIT-thread
-// reads EPG-datas
-//---------------------------------------------------------------------
-
-void CEitThread::run()
+/* default check if thread should go to sleep */
+bool CEventsThread::shouldSleep()
 {
-	name = "eitThread";
-	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
+	return (sendToSleepNow || !scanning || channel_is_blacklisted);
+}
 
-	pID = 0x12;
-	timeoutInMSeconds = EIT_READ_TIMEOUT;
+/* default check if thread should continue to sleep */
+bool CEventsThread::checkSleep()
+{
+	return (running && (!scanning || channel_is_blacklisted));
+}
 
-	bool sendToSleepNow = false;
+/* default section process */
+void CEventsThread::processSection(int rc)
+{
+	if(rc <= 0)
+		return;
+	addEvents();
+}
 
+/********************************************************************************/
+/* EIT thread to read other TS CN + all scheduled events 			*/
+/********************************************************************************/
+CEitThread::CEitThread()
+	: CEventsThread("eitThread")
+{
+}
+
+/* EIT thread hooks */
+void CEitThread::addFilters()
+{
 	/* These filters are a bit tricky (index numbers):
 	   - 0   Dummy filter, to make this thread sleep for some seconds
 	   - 1   then get other TS's current/next (this TS's cur/next are
@@ -1670,89 +1638,51 @@ void CEitThread::run()
 #else
 	addfilter(0x60, 0xf0); //3  other TS, scheduled
 #endif
-
-	if (sections_debug)
-		dump_sched_info("eitThread");
-
-	waitForTimeset();
-	xprintf("%s::run:: time set.\n", name.c_str());
-
-	DMX::start(); // -> unlock
-
-	while (running) {
-		if(sendToSleepNow || !scanning || channel_is_blacklisted) {
-#ifdef DEBUG_EIT_THREAD
-			xprintf("%s: going to sleep %d seconds, running %d scanning %d blacklisted %d events %d\n",
-					name.c_str(), TIME_EIT_SCHEDULED_PAUSE, running, scanning, channel_is_blacklisted, event_count);
-#endif
-			event_count = 0;
-
-			writeLockMessaging();
-			messaging_zap_detected = false;
-			unlockMessaging();
-
-			int rs = 0;
-			do {
-				real_pause();
-				rs = Sleep(TIME_EIT_SCHEDULED_PAUSE);
-#ifdef DEBUG_EIT_THREAD
-				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n\n", name.c_str(), running, scanning, channel_is_blacklisted, rs);
-#endif
-			} while(running && (!scanning || channel_is_blacklisted));
-
-			if(!running)
-				break;
-			if (rs == ETIMEDOUT)
-				change(1); // -> restart
-			sendToSleepNow = false;
-		}
-
-		int rc = getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
-
-		if (rc > 0)
-			addEvents();
-
-		time_t zeit = time_monotonic();
-		bool need_change = false;
-
-		if(timeoutsDMX < 0 || timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS) {
-#ifdef DEBUG_EIT_THREAD
-			xprintf("%s: skipping to next filter %d from %d (timeouts %d)\n", name.c_str(), filter_index+1, filters.size(), timeoutsDMX);
-#endif
-			timeoutsDMX = 0;
-			need_change = true;
-		}
-		if (zeit > lastChanged + TIME_EIT_SKIPPING) {
-#ifdef DEBUG_EIT_THREAD
-			xprintf("%s: skipping to next filter %d from %d (TIME_EIT_SKIPPING)\n", name.c_str(), filter_index+1, filters.size());
-#endif
-			need_change = true;
-		}
-		/* FIXME without dummy filter, there is race between service change and need_change */
-		if(running && need_change && scanning && !channel_is_blacklisted) {
-			readLockMessaging();
-			if (!next_filter())
-				sendToSleepNow = true;
-			unlockMessaging();
-		}
-	} // while running
-
-	delete[] static_buf;
-	printf("[sectionsd] %s ended\n", name.c_str());
-	pthread_exit(NULL);
 }
 
-//---------------------------------------------------------------------
-// CN-thread: eit thread, but only current/next
-//---------------------------------------------------------------------
-bool CCNThread::startUpdateFilter()
+void CEitThread::beforeSleep()
+{
+	xprintf("%s: CScheduledThread::beforeSleep()\n", name.c_str());
+	writeLockMessaging();
+	messaging_zap_detected = false;
+	unlockMessaging();
+}
+
+/********************************************************************************/
+/* CN thread to read current TS CN events 					*/
+/********************************************************************************/
+CCNThread::CCNThread()
+	: CEventsThread("cnThread")
+{
+	sleep_time = 0;
+	cache = false;
+	skipTimeouts = 5000 / timeoutInMSeconds; // 5 seconds
+	skipTime = TIME_EIT_VERSION_WAIT;
+
+	updating = false;
+	eitDmx = new cDemux(0);
+	eitDmx->Open(DMX_PSI_CHANNEL);
+}
+
+/* CN thread hooks */
+void CCNThread::cleanup()
+{
+	delete eitDmx;
+}
+
+void CCNThread::addFilters()
+{
+	addfilter(0x4e, 0xff); //0  current TS, current/next
+}
+
+void CCNThread::beforeWait()
 {
 	xprintf("%s: set eit update filter, service = 0x%016llx, current version 0x%x got events %d (%s)\n",
 			name.c_str(), messaging_current_servicekey, eit_version, messaging_have_CN,
 			updating ? "active" : "not active");
 
 	if (updating || eit_version == 0xff)
-		return false;
+		return;
 
 	updating = true;
 
@@ -1775,21 +1705,51 @@ bool CCNThread::startUpdateFilter()
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
 	eitDmx->sectionFilter(0x12, filter, mask, 4, 0 /*timeout*/, mode);
-
-	return true;
 }
 
-bool CCNThread::stopUpdateFilter()
+void CCNThread::afterWait()
 {
 	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
 	if(updating) {
 		updating = false;
 		eitDmx->Stop();
-		return true;
 	}
-	return false;
 }
 
+void CCNThread::beforeSleep()
+{
+	if (sendToSleepNow && messaging_have_CN == 0x00) {
+		/* send a "no epg" event anyway before going to sleep */
+		sendCNEvent();
+	}
+}
+
+void CCNThread::processSection(int rc)
+{
+	if(rc <= 0)
+		return;
+
+	addEvents();
+	readLockMessaging();
+	if (messaging_got_CN != messaging_have_CN) {
+		unlockMessaging();
+		writeLockMessaging();
+		messaging_have_CN = messaging_got_CN;
+		unlockMessaging();
+
+#ifdef DEBUG_CN_THREAD
+		xprintf("%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n\n",
+				name.c_str(), timeoutsDMX, messaging_have_CN, messaging_got_CN);
+#endif
+		dprintf("[cnThread] got current_next (0x%x) - sending event!\n", messaging_have_CN);
+		sendCNEvent();
+		lastChanged = time_monotonic();
+	}
+	else
+		unlockMessaging();
+}
+
+/* CN private functions */
 bool CCNThread::checkUpdate()
 {
 	if(!updating)
@@ -1801,7 +1761,8 @@ bool CCNThread::checkUpdate()
 	if (ret > 0) {
 		LongSection section(buf);
 		printdate_ms(stdout);
-		xprintf("%s: eit update filter: ### new version 0x%02x ###, Activate thread\n", name.c_str(), section.getVersionNumber());
+		xprintf("%s: eit update filter: ### new version 0x%02x ###, Activate thread\n",
+				name.c_str(), section.getVersionNumber());
 
 		writeLockMessaging();
 		messaging_have_CN = 0x00;
@@ -1820,110 +1781,23 @@ void CCNThread::sendCNEvent()
 			sizeof(messaging_current_servicekey));
 }
 
-void CCNThread::run()
+#ifdef ENABLE_FREESATEPG
+/********************************************************************************/
+/* Freesat EIT thread 								*/
+/********************************************************************************/
+CFreeSatThread()
+	: CEventsThread("freeSatThread", 3842)
 {
-	name = "cnThread";
-	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
-	pID = 0x12;
-	dmx_num = 0;
-	cache = false;
+	skipTime = TIME_FSEIT_SKIPPING;
+};
 
-	timeoutInMSeconds = EIT_READ_TIMEOUT;
-	bool sendToSleepNow = false;
-
-	updating = false;
-	eitDmx = new cDemux(0);
-	eitDmx->Open(DMX_PSI_CHANNEL);
-
-	// -- set EIT filter  0x4e
-	addfilter(0x4e, 0xff); //0  current TS, current/next
-
-	waitForTimeset();
-#ifdef DEBUG_CN_THREAD
-	xprintf("CCNThread::run:: time set..\n");
-#endif
-	DMX::start(); // -> unlock
-
-	while(running)
-	{
-		if(sendToSleepNow || !scanning || channel_is_blacklisted) {
-#ifdef DEBUG_CN_THREAD
-			xprintf("%s: going to sleep, running %d scanning %d blacklisted %d events %d\n", name.c_str(), running, scanning, channel_is_blacklisted, event_count);
-#endif
-			int rs = 0;
-			do {
-				real_pause();
-				pthread_mutex_lock( &start_stop_mutex );
-				if (!channel_is_blacklisted)
-					startUpdateFilter();
-				rs = pthread_cond_wait(&change_cond, &start_stop_mutex);
-				stopUpdateFilter();
-				pthread_mutex_unlock(&start_stop_mutex);
-#ifdef DEBUG_CN_THREAD
-				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n\n", name.c_str(), running, scanning, channel_is_blacklisted, rs);
-#endif
-			} while(running && (!scanning || channel_is_blacklisted));
-
-			if(!running)
-				break;
-
-			sendToSleepNow = false;
-#if HAVE_IPBOX_HARDWARE
-			if (rs == 0)
-				change(0);
-#endif
-		}
-
-		int rc = getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
-		if (rc > 0)
-			addEvents();
-
-		time_t zeit = time_monotonic();
-
-		readLockMessaging();
-		if (messaging_got_CN != messaging_have_CN)
-		{
-			unlockMessaging();
-			writeLockMessaging();
-			messaging_have_CN = messaging_got_CN;
-			unlockMessaging();
-#ifdef DEBUG_CN_THREAD
-			xprintf("%s: have CN: timeoutsDMX %d messaging_have_CN %x messaging_got_CN %x\n\n",
-					name.c_str(), timeoutsDMX, messaging_have_CN, messaging_got_CN);
-#endif
-			dprintf("[cnThread] got current_next (0x%x) - sending event!\n", messaging_have_CN);
-			sendCNEvent();
-			lastChanged = zeit; /* this is ugly - needs somehting better */
-		}
-		else
-			unlockMessaging();
-
-		if(timeoutsDMX < 0) {
-#ifdef DEBUG_CN_THREAD
-			xprintf("%s: timeoutsDMX %d messaging_got_CN %x messaging_have_CN %x sid %016llx\n\n",
-					name.c_str(), timeoutsDMX, messaging_got_CN, messaging_have_CN, messaging_current_servicekey);
-#endif
-			timeoutsDMX = 0;
-			sendToSleepNow = true;
-		}
-		if (zeit > lastChanged + TIME_EIT_VERSION_WAIT) {
-#ifdef DEBUG_CN_THREAD
-			xprintf("%s: zeit > lastChanged + TIME_EIT_VERSION_WAIT\n", name.c_str());
-#endif
-			sendToSleepNow = true;
-		}
-
-		if (sendToSleepNow && messaging_have_CN == 0x00) {
-			/* send a "no epg" event anyway before going to sleep */
-			sendCNEvent();
-		}
-	} // for
-	delete[] static_buf;
-	stopUpdateFilter();
-	delete eitDmx;
-	printf("[sectionsd] %s ended\n", name.c_str());
-	pthread_exit(NULL);
+/* Freesat hooks */
+void CFreeSatThread::addFilters()
+{
+	//other TS, scheduled, freesat epg is only broadcast using table_ids 0x60 (scheduled) and 0x61 (scheduled later)
+	addfilter(0x60, 0xfe); 
 }
+#endif
 
 #ifdef ENABLE_SDT
 static bool addService(const SIservice &s, const int is_actual)
@@ -1954,16 +1828,6 @@ static bool addService(const SIservice &s, const int is_actual)
 
 		SIservicePtr sptr(sp);
 
-#if 0
-#define MAX_SIZE_SERVICENAME    50
-		char servicename[MAX_SIZE_SERVICENAME];
-
-		if (sptr->serviceName.empty()) {
-			sprintf(servicename, "%04x",  sptr->service_id);
-			servicename[sizeof(servicename) - 1] = 0;
-			sptr->serviceName = servicename;
-		}
-#endif
 		sptr->is_actual = is_actual;
 
 		writeLockServices();
@@ -2176,9 +2040,6 @@ extern cDemux * dmxUTC;
 void sectionsd_main_thread(void * /*data*/)
 {
 	pthread_t threadTOT, threadHouseKeeping;
-#ifdef ENABLE_FREESATEPG
-	pthread_t threadFSEIT;
-#endif
 	int rc;
 
 	printf("$Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $\n");
@@ -2249,13 +2110,7 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	threadCN.Start();
 
 #ifdef ENABLE_FREESATEPG
-	// EIT-Thread3 starten
-	rc = pthread_create(&threadFSEIT, 0, fseitThread, 0);
-
-	if (rc) {
-		fprintf(stderr, "[sectionsd] failed to create fseit-thread (rc=%d)\n", rc);
-		return;
-	}
+	threadFSEIT.Start();
 #endif
 #ifdef ENABLE_SDT
 	threadSDT.Start();
@@ -2301,16 +2156,7 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	pthread_mutex_unlock(&timeThreadSleepMutex);
 
 	printf("pausing...\n");
-#if 0
-	dmxEIT.request_pause();
-	dmxCN.request_pause();
-#endif
-#ifdef ENABLE_FREESATEPG
-	dmxFSEIT.request_pause();
-#endif
-#ifdef ENABLE_SDT
-	//dmxSDT.request_pause();
-#endif
+
 	pthread_cancel(threadHouseKeeping);
 
 	if(dmxUTC) dmxUTC->Stop();
@@ -2331,7 +2177,8 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	threadSDT.Stop();
 #endif
 #ifdef ENABLE_FREESATEPG
-	dmxFSEIT.close();
+	printf("join FSEIT\n");
+	threadFSEIT.Stop();
 #endif
 	printf("[sectionsd] ended\n");
 }

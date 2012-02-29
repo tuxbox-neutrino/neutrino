@@ -44,6 +44,21 @@ typedef SIevent * SIeventPtr;
 typedef SIservice * SIservicePtr;
 #endif
 
+/* period to restart EIT reading */
+#define TIME_EIT_SCHEDULED_PAUSE 60 * 60
+
+/* force EIT thread to change filter after, seconds */
+#define TIME_EIT_SKIPPING 120 // 90 <- Canal diditaal 19.2e -> ~100 seconds for 0x5x
+/* a little more time for freesat epg */
+#define TIME_FSEIT_SKIPPING 240
+/* Timeout in ms for reading from dmx in EIT threads. Dont make this too long
+   since we are holding the start_stop lock during this read! */
+#define EIT_READ_TIMEOUT 100
+
+/* Number of DMX read timeouts, after which we check if there is an EIT at all
+   for EIT and PPT threads... */
+#define CHECK_RESTART_DMX_AFTER_TIMEOUTS (2000 / EIT_READ_TIMEOUT) // 2 seconds
+
 struct OrderServiceUniqueKeyFirstStartTimeEventUniqueKey
 {
 	bool operator()(const SIeventPtr &p1, const SIeventPtr &p2)
@@ -83,40 +98,64 @@ typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservi
 
 #define MAX_SECTION_LENGTH (0x0fff + 3)
 
+/* abstract section reading class */
 class CSectionThread : public OpenThreads::Thread, public DMX
 {
 	protected:
 		uint8_t		*static_buf;
 		int		timeoutsDMX;
-		unsigned	timeoutInMSeconds;
 		bool		running;
-		//std::string	name;
 		int		event_count; // debug
+		/* section read timeout, msec */
+		unsigned	timeoutInMSeconds;
+		/* read timeouts count to switch to next filter */
+		int		skipTimeouts;
+		/* time to switch to next filter */
+		int		skipTime;
+		bool		sendToSleepNow;
 
-		virtual void run() {};
-		int Sleep(unsigned int timeout)
-		{
-			struct timespec abs_wait;
-			struct timeval now;
-			gettimeofday(&now, NULL);
-			TIMEVAL_TO_TIMESPEC(&now, &abs_wait);
-			abs_wait.tv_sec += timeout;
-			dprintf("%s: going to sleep for %d seconds...\n", name.c_str(), timeout);
-			pthread_mutex_lock(&start_stop_mutex);
-			int rs = pthread_cond_timedwait( &change_cond, &start_stop_mutex, &abs_wait );
-			pthread_mutex_unlock( &start_stop_mutex );
-			return rs;
-		}
-		bool addEvents();
+		/* should thread wait for time set before process loop */
+		bool	wait_for_time;
+		/* time in seconds to sleep when requested, wait forever if 0 */
+		int	sleep_time;
 
+		/* thread hooks */
+		/* add filters when thread started */
+		virtual void addFilters() {};
+
+		/* check if thread should go sleep */
+		virtual bool shouldSleep() { return false; };
+		/* check if thread should continue to sleep after wakeup or timeout */
+		virtual bool checkSleep() { return false; };
+
+		/* called before sleep loop */
+		virtual void beforeSleep() {};
+		/* called after sleep loop */
+		virtual void afterSleep() {};
+
+		/* called inside sleep loop, after lock, before wait */
+		virtual void beforeWait() {};
+		/* called inside sleep loop, before lock, after wait */
+		virtual void afterWait() {};
+
+		/* process section after getSection */
+		virtual void processSection(int rc) { if(rc < 0) return; }; 
+		/* cleanup before exit */
+		virtual void cleanup() {};
+
+		/* sleep for sleep_time, forever if sleep_time = 0 */
+		int Sleep();
+
+		/* main thread function */
+		void run();
 	public:
-
 		CSectionThread()
 		{
 			static_buf = new uint8_t[MAX_SECTION_LENGTH];
 			timeoutsDMX = 0;
 			running = false;
 			event_count = 0;
+			sendToSleepNow = 0;
 		}
 
 		~CSectionThread()
@@ -151,23 +190,69 @@ printf("%s::Stop: to close\n", name.c_str());
 		}
 };
 
-class CEitThread : public CSectionThread
+/* abstract eit events reading class */
+class CEventsThread : public CSectionThread
 {
-	private:
-		void run();
+	protected:
+		/* default hooks */
+		bool shouldSleep();
+		bool checkSleep();
+		void processSection(int rc);
+
+		/* private */
+		bool addEvents();
+	public:
+		CEventsThread(std::string tname, unsigned short pid = 0x12)
+		{
+			name = tname;
+			pID = pid;
+
+			/* defaults for events threads, redefined if needed in derived */
+			timeoutInMSeconds = EIT_READ_TIMEOUT;
+			skipTimeouts = CHECK_RESTART_DMX_AFTER_TIMEOUTS;
+			skipTime = TIME_EIT_SKIPPING;
+			sleep_time = TIME_EIT_SCHEDULED_PAUSE;
+			wait_for_time = true;
+		};
 };
 
-class CCNThread : public CSectionThread
+class CEitThread : public CEventsThread
 {
 	private:
+		/* overloaded hooks */
+		void addFilters();
+		void beforeSleep();
+	public:
+		CEitThread();
+};
+
+class CFreeSatThread : public CEventsThread
+{
+	private:
+		/* overloaded hooks */
+		void addFilters();
+	public:
+		CFreeSatThread(); 
+};
+
+class CCNThread : public CEventsThread
+{
+	private:
+		/* private */
 		bool	updating;
 		cDemux * eitDmx;
 
 		void sendCNEvent();
-		bool startUpdateFilter();
-		bool stopUpdateFilter();
-		void run();
+
+		/* overloaded hooks */
+		void beforeWait();
+		void afterWait();
+		void addFilters();
+		void beforeSleep();
+		void processSection(int rc); 
+		void cleanup();
 	public:
+		CCNThread();
 		bool checkUpdate();
 };
 
