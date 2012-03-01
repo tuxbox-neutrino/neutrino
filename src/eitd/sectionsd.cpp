@@ -61,10 +61,10 @@
 #include "edvbstring.h"
 #include "xmlutil.h"
 
-//#define ENABLE_SDT //FIXME
+#define ENABLE_SDT //FIXME
 
 //#define DEBUG_SDT_THREAD
-#define DEBUG_EIT_THREAD
+#define DEBUG_SECTION_THREAD
 #define DEBUG_CN_THREAD
 
 static bool sectionsd_ready = false;
@@ -147,7 +147,7 @@ static CFreeSatThread threadFSEIT;
 
 #ifdef ENABLE_SDT
 #define TIME_SDT_NONEWDATA      15
-#define RESTART_DMX_AFTER_TIMEOUTS 5
+//#define RESTART_DMX_AFTER_TIMEOUTS 5
 #define TIME_SDT_SCHEDULED_PAUSE 2* 60* 60
 CSdtThread threadSDT;
 #endif
@@ -1038,7 +1038,6 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 	return ;
 }
 
-
 static void commandGetIsTimeSet(int connfd, char* /*data*/, const unsigned /*dataLength*/)
 {
 	sectionsd::responseIsTimeSet rmsg;
@@ -1485,7 +1484,7 @@ void CSectionThread::run()
 
 	while (running) {
 		if (shouldSleep()) {
-#ifdef DEBUG_EIT_THREAD
+#ifdef DEBUG_SECTION_THREAD
 			xprintf("%s: going to sleep %d seconds, running %d scanning %d blacklisted %d events %d\n",
 					name.c_str(), sleep_time, running, scanning, channel_is_blacklisted, event_count);
 #endif
@@ -1496,7 +1495,7 @@ void CSectionThread::run()
 			do {
 				real_pause();
 				rs = Sleep();
-#ifdef DEBUG_EIT_THREAD
+#ifdef DEBUG_SECTION_THREAD
 				xprintf("%s: wakeup, running %d scanning %d blacklisted %d reason %d\n\n",
 						name.c_str(), running, scanning, channel_is_blacklisted, rs);
 #endif
@@ -1521,7 +1520,7 @@ void CSectionThread::run()
 		bool need_change = false;
 
 		if(timeoutsDMX < 0 || timeoutsDMX >= skipTimeouts) {
-#ifdef DEBUG_EIT_THREAD
+#ifdef DEBUG_SECTION_THREAD
 			xprintf("%s: skipping to next filter %d from %d (timeouts %d)\n",
 					name.c_str(), filter_index+1, filters.size(), timeoutsDMX);
 #endif
@@ -1529,7 +1528,7 @@ void CSectionThread::run()
 			need_change = true;
 		}
 		if (zeit > lastChanged + skipTime) {
-#ifdef DEBUG_EIT_THREAD
+#ifdef DEBUG_SECTION_THREAD
 			xprintf("%s: skipping to next filter %d from %d (seconds %d)\n", 
 					name.c_str(), filter_index+1, filters.size(), (int) (zeit - lastChanged));
 #endif
@@ -1566,7 +1565,7 @@ bool CEventsThread::addEvents()
 			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
 					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )
 			{
-				addEvent(*e, zeit, e->table_id == 0x4e);
+				addEvent(*e, wait_for_time ? zeit: 0, e->table_id == 0x4e);
 				event_count++;
 			}
 		} else {
@@ -1749,7 +1748,7 @@ void CCNThread::processSection(int rc)
 		unlockMessaging();
 }
 
-/* CN private functions */
+/* CN specific functions */
 bool CCNThread::checkUpdate()
 {
 	if(!updating)
@@ -1845,81 +1844,44 @@ static bool addService(const SIservice &s, const int is_actual)
 	return is_new;
 }
 
-void CSdtThread::run()
+/********************************************************************************/
+/* SDT thread to cache actual/other TS service ids				*/
+/********************************************************************************/
+CSdtThread::CSdtThread()
+	: CSectionThread("sdtThread", 0x11)
 {
-	name = "sdtThread";
-	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
-	pID = 0x11;
-	dmx_num = 0;
+	skipTime = TIME_SDT_NONEWDATA;
+	sleep_time = TIME_SDT_SCHEDULED_PAUSE;
 	cache = false;
+	wait_for_time = false;
+};
 
-	timeoutInMSeconds = EIT_READ_TIMEOUT;
-
-	bool sendToSleepNow = false;
-
-	//addfilter(0x42, 0xf3 ); //SDT actual = 0x42 + SDT other = 0x46 + BAT = 0x4A
+/* SDT thread hooks */
+void CSdtThread::addFilters()
+{
 	addfilter(0x42, 0xfb ); //SDT actual = 0x42 + SDT other = 0x46
-
-	waitForTimeset();
-	DMX::start(); // -> unlock
-
-	time_t lastData = time_monotonic();
-
-	while (running) {
-		if(sendToSleepNow || !scanning) {
-#ifdef DEBUG_SDT_THREAD
-			xprintf("%s: going to sleep %d seconds, running %d scanning %d services %d\n",
-					name.c_str(), TIME_SDT_SCHEDULED_PAUSE, running, scanning, event_count);
-#endif
-			event_count = 0;
-
-			int rs = 0;
-			do {
-				real_pause();
-				rs = Sleep(TIME_SDT_SCHEDULED_PAUSE);
-#ifdef DEBUG_SDT_THREAD
-				xprintf("%s: wakeup, running %d scanning %d reason %d\n\n", name.c_str(), running, scanning, rs);
-#endif
-			} while(running && !scanning);
-
-			if(!running)
-				break;
-
-			if (rs == ETIMEDOUT)
-				change(0); // -> restart
-
-			sendToSleepNow = false;
-			lastData = time_monotonic();
-		}
-
-		int rc = getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
-		if(rc > 0) {
-			if(addServices())
-				lastData = time_monotonic();
-		}
-
-		time_t zeit = time_monotonic();
-
-		if(timeoutsDMX < 0 || timeoutsDMX >= CHECK_RESTART_DMX_AFTER_TIMEOUTS) {
-#ifdef DEBUG_SDT_THREAD
-			xprintf("%s: timeouts %d\n", name.c_str(), timeoutsDMX);
-#endif
-			timeoutsDMX = 0;
-			sendToSleepNow = true;
-		}
-
-		if (zeit > (lastData + TIME_SDT_NONEWDATA)) {
-#ifdef DEBUG_SDT_THREAD
-			xprintf("%s: no new services for %d seconds\n", name.c_str(), (int) (zeit - lastData));
-#endif
-			sendToSleepNow = true;
-		}
-	} // while running
-	delete[] static_buf;
-	printf("[sectionsd] %s ended\n", name.c_str());
-	pthread_exit(NULL);
 }
 
+bool CSdtThread::shouldSleep()
+{
+	return (sendToSleepNow || !scanning);
+}
+
+bool CSdtThread::checkSleep()
+{
+	return (running && !scanning);
+}
+
+void CSdtThread::processSection(int rc)
+{
+	if(rc <= 0)
+		return;
+
+	if(addServices())
+		lastChanged = time_monotonic();
+}
+
+/* SDT specific */
 bool CSdtThread::addServices()
 {
 	bool is_new = false;

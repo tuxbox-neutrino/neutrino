@@ -149,13 +149,23 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 		/* main thread function */
 		void run();
 	public:
-		CSectionThread()
+		CSectionThread(std::string tname, unsigned short pid)
 		{
+			name = tname;
+			pID = pid;
+
 			static_buf = new uint8_t[MAX_SECTION_LENGTH];
 			timeoutsDMX = 0;
 			running = false;
 			event_count = 0;
 			sendToSleepNow = 0;
+
+			/* defaults for threads, redefined if needed in derived */
+			timeoutInMSeconds = EIT_READ_TIMEOUT;
+			skipTimeouts = CHECK_RESTART_DMX_AFTER_TIMEOUTS;
+			skipTime = TIME_EIT_SKIPPING;
+			sleep_time = TIME_EIT_SCHEDULED_PAUSE;
+			wait_for_time = true;
 		}
 
 		~CSectionThread()
@@ -199,20 +209,12 @@ class CEventsThread : public CSectionThread
 		bool checkSleep();
 		void processSection(int rc);
 
-		/* private */
+		/* EIT-specific */
 		bool addEvents();
 	public:
 		CEventsThread(std::string tname, unsigned short pid = 0x12)
+			: CSectionThread(tname, pid)
 		{
-			name = tname;
-			pID = pid;
-
-			/* defaults for events threads, redefined if needed in derived */
-			timeoutInMSeconds = EIT_READ_TIMEOUT;
-			skipTimeouts = CHECK_RESTART_DMX_AFTER_TIMEOUTS;
-			skipTime = TIME_EIT_SKIPPING;
-			sleep_time = TIME_EIT_SCHEDULED_PAUSE;
-			wait_for_time = true;
 		};
 };
 
@@ -238,19 +240,19 @@ class CFreeSatThread : public CEventsThread
 class CCNThread : public CEventsThread
 {
 	private:
-		/* private */
+		/* overloaded hooks */
+		void addFilters();
+		void beforeSleep();
+		void beforeWait();
+		void afterWait();
+		void processSection(int rc); 
+		void cleanup();
+
+		/* CN-specific */
 		bool	updating;
 		cDemux * eitDmx;
 
 		void sendCNEvent();
-
-		/* overloaded hooks */
-		void beforeWait();
-		void afterWait();
-		void addFilters();
-		void beforeSleep();
-		void processSection(int rc); 
-		void cleanup();
 	public:
 		CCNThread();
 		bool checkUpdate();
@@ -259,8 +261,16 @@ class CCNThread : public CEventsThread
 class CSdtThread : public CSectionThread
 {
 	private:
+		/* overloaded hooks */
+		void addFilters();
+		bool shouldSleep();
+		bool checkSleep();
+		void processSection(int rc);
+
+		/* SDT-specific */
 		bool addServices();
-		void run();
+	public:
+		CSdtThread();
 };
 
 class CTimeThread : public CSectionThread
