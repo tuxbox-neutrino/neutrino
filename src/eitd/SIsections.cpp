@@ -31,11 +31,17 @@
 #include "SIservices.hpp"
 #include "SIevents.hpp"
 #include "SIsections.hpp"
+#include "debug.h"
 #include <edvbstring.h>
 
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/nvod_reference_descriptor.h>
 #include <dvbsi++/service_descriptor.h>
+
+#include <dvbsi++/time_offset_section.h>
+#include <dvbsi++/time_date_section.h>
+#include <dvbsi++/local_time_offset_descriptor.h>
+
 
 void SIsectionEIT::parse(void)
 {
@@ -109,4 +115,45 @@ void SIsectionSDT::parse(void)
 		svs.insert(s);
 	}
 	parsed = 1;
+}
+
+void SIsectionTIME::parse(uint8_t *buf)
+{
+	if(buf[0] != 0x70 && buf[0] != 0x73)
+		return;
+
+	bool TDT = (buf[0] == 0x70);
+	if(TDT) {
+		TimeAndDateSection tdt(buf);
+		if(tdt.getSectionLength() < 5)
+			return;
+		dvbtime = parseDVBtime(tdt.getUtcTimeMjd(), tdt.getUtcTimeBcd());
+		xcprintf("SIsectionTIME::parse: TDT time: %s", ctime(&dvbtime));
+		parsed = true;
+	} else {
+		TimeOffsetSection tot(buf);
+		dvbtime = parseDVBtime(tot.getUtcTimeMjd(), tot.getUtcTimeBcd());
+		xcprintf("SIsectionTIME::parse: TOT time: %s", ctime(&dvbtime));
+		const DescriptorList &dlist = *tot.getDescriptors();
+		for (DescriptorConstIterator dit = dlist.begin(); dit != dlist.end(); ++dit) {
+			uint8_t dtype = (*dit)->getTag();
+			if(dtype == LOCAL_TIME_OFFSET_DESCRIPTOR) {
+				/* TOT without descriptors seems to be not better than a plain TDT, such TOT's are */
+				/* found on transponders which also have wrong time in TDT etc, so don't trust it. */
+				parsed = true;
+
+				const LocalTimeOffsetDescriptor * d = (LocalTimeOffsetDescriptor*) *dit;
+				const LocalTimeOffsetList * oflist = d->getLocalTimeOffsets();
+				for (LocalTimeOffsetConstIterator it = oflist->begin(); it != oflist->end(); ++it) {
+					const LocalTimeOffset * of = (LocalTimeOffset *) *it;
+					time_t change_time = parseDVBtime(of->getTimeOfChangeMjd(), of->getTimeOfChangeBcd(), false);
+					xprintf("TOT: cc=%s reg_id=%d pol=%d offs=%04x new=%04x when=%s",
+							of->getCountryCode().c_str(), of->getCountryRegionId(), of->getLocalTimeOffsetPolarity(),
+							of->getLocalTimeOffset(), of->getNextTimeOffset(), ctime(&change_time));
+				}
+			} else {
+				xprintf("SIsectionTIME::parse: unhandled descriptor %02x\n", dtype);
+			}
+		}
+	}
 }

@@ -89,4 +89,20 @@ public:
 
 };
 
+class SIsectionTIME
+{
+	private:
+		time_t dvbtime;
+		int parsed;
+		void parse(uint8_t *buf);
+	public:
+		SIsectionTIME(uint8_t *buf)
+		{
+			parsed = 0;
+			parse(buf);
+		}
+		time_t getTime() { return dvbtime; }
+		int is_parsed(void) const { return parsed; }
+};
+
 #endif // SISECTIONS_HPP
