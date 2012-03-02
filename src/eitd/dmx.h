@@ -41,6 +41,8 @@
 #include <map>
 #include <string>
 
+#define MAX_SECTION_LENGTH (0x0fff + 3)
+
 typedef uint64_t sections_id_t;
 typedef unsigned char version_number_t;
 
@@ -93,7 +95,6 @@ public:
 
 	pthread_cond_t         change_cond;
 	pthread_mutex_t        start_stop_mutex;
-
 
 	DMX();
 	DMX(const unsigned short p, const unsigned short bufferSizeInKB, const bool cache = true, int dmx_source = 0);
