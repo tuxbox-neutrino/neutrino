@@ -141,6 +141,8 @@ const char * locale_real_names[] =
 	"audiomenu.clockrec",
 	"audiomenu.dolbydigital",
 	"audiomenu.hdmi_dd",
+	"audiomenu.hdmi_dd_auto",
+	"audiomenu.hdmi_dd_force",
 	"audiomenu.monoleft",
 	"audiomenu.monoright",
 	"audiomenu.pref_lang",

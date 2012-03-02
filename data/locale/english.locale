@@ -114,6 +114,8 @@ audiomenu.avsync_am Audio master
 audiomenu.clockrec 
 audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.hdmi_dd Encoded DD on HDMI
+audiomenu.hdmi_dd_auto auto
+audiomenu.hdmi_dd_force force
 audiomenu.monoleft mono left
 audiomenu.monoright mono right
 audiomenu.pref_lang Prefered language

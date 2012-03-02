@@ -1661,7 +1661,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
-	audioDecoder->SetHdmiDD(g_settings.hdmi_dd ? true : false);
+	audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE)g_settings.hdmi_dd);
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 
