@@ -286,7 +286,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 
 	lock();
 
-	int rc = dmx->Read(buf, 4098, timeoutInMSeconds);
+	int rc = dmx->Read(buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
 
 	if (rc < 3)
 	{
@@ -503,8 +503,6 @@ int DMX::immediate_start(void)
 		mask[0] = filters[filter_index].mask;
 		dmx->sectionFilter(pID, filter, mask, 1);
 		//FIXME error check
-		//closefd();
-		//return 4;
 	}
 	/* this is for dmxCN only... */
 	eit_version = 0xff;
