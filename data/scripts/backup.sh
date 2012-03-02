@@ -5,9 +5,10 @@ USRF="/var/tuxbox/config/tobackup.conf"
 
 if [ -e "${USRF}" ]; then
 # read user-files from $USRF
+	TOBACKUP="${USRF}"
 	while read i
-	do [ "${i:0:1}" = "#" ] || TOBACKUP="$TOBACKUP ${i%%#*}"
-	done < $USRF
+		do [ "${i:0:1}" = "#" ] || TOBACKUP="$TOBACKUP ${i%%#*}"
+		done < $USRF
 
 else
 	TOBACKUP="/var/tuxbox/config/"

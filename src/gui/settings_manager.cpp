@@ -152,8 +152,8 @@ int CSettingsManager::showMenu()
 
 	mset->addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier, 	"settings", 	CRCInput::RC_recall));// FIXME: RC-button RECALL is broken
 	mset->addItem(GenericMenuSeparatorLine);
-	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, 	"loadconfig", 	CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, 	"saveconfig", 	CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, 	"saveconfig", 	CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, 	"loadconfig", 	CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	mset->addItem(GenericMenuSeparatorLine);
 	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_BACKUP,  true, NULL, this, 	"backup", 	CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, 	"restore", 	CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
