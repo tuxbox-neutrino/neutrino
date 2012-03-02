@@ -821,32 +821,34 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 	aspectRatio = 0;
 	fileplay = 0;
 }
-
+void CInfoViewer::setInfobarTimeout(int timeout_ext)
+{
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	//define timeouts
+	switch (mode)
+	{
+		case NeutrinoMessages::mode_tv:
+				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + timeout_ext);
+				break;
+		case NeutrinoMessages::mode_radio:
+				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] + timeout_ext);
+				break;
+		case NeutrinoMessages::mode_ts:
+				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] + timeout_ext);
+				break;
+		default:
+				timeoutEnd = CRCInput::calcTimeoutEnd(6 + timeout_ext); 
+				break;
+	}
+}
 void CInfoViewer::loop(bool show_dot)
 {
 	bool hideIt = true;
 	virtual_zap_mode = false;
 	//bool fadeOut = false;
-	uint64_t timeoutEnd;
-	int mode = CNeutrinoApp::getInstance()->getMode();
-	
-	//define timeouts
-	switch (mode)
-	{
-		case NeutrinoMessages::mode_tv:
-				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR]);
-				break;
-		case NeutrinoMessages::mode_radio:
-				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_RADIO]);
-				break;
-		case NeutrinoMessages::mode_ts:
-				timeoutEnd = CRCInput::calcTimeoutEnd (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR_MOVIE]);
-				break;
-		default:
-				timeoutEnd = CRCInput::calcTimeoutEnd(6); 
-				break;
-	}
-	
+	timeoutEnd=0;;
+	setInfobarTimeout();
+
 	int res = messages_return::none;
 	neutrino_msg_t msg;
 	neutrino_msg_data_t data;
@@ -1039,14 +1041,14 @@ void CInfoViewer::showSubchan ()
 			} else
 				g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO]->RenderString (x + 10, y + dy - 2, dx - 20, text, COL_MENUCONTENT, 0, true);
 
-			uint64_t timeoutEnd = CRCInput::calcTimeoutEnd (2);
+			uint64_t timeoutEnd_tmp = CRCInput::calcTimeoutEnd (2);
 			int res = messages_return::none;
 
 			neutrino_msg_t msg;
 			neutrino_msg_data_t data;
 
 			while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
-				g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
+				g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd_tmp);
 
 				if (msg == CRCInput::RC_timeout) {
 					res = messages_return::cancel_info;
@@ -1210,6 +1212,8 @@ void CInfoViewer::showFailure ()
 
 void CInfoViewer::showMotorMoving (int duration)
 {
+	setInfobarTimeout(duration + 1);
+
 	char text[256];
 	snprintf(text, sizeof(text), "%s (%ds)", g_Locale->getText (LOCALE_INFOVIEWER_MOTOR_MOVING), duration);
 	ShowHintUTF (LOCALE_MESSAGEBOX_INFO, text, g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth (text, true) + 10, duration);	// UTF-8

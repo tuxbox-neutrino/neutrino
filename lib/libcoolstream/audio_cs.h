@@ -5,6 +5,7 @@
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
+/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __AUDIO_CS_H_
 #define __AUDIO_CS_H_
@@ -37,6 +38,36 @@ typedef enum {
 	AUDIO_FMT_ADVANCED = AUDIO_FMT_MLP
 } AUDIO_FORMAT;
 
+typedef enum {
+	HDMI_ENCODED_OFF,
+	HDMI_ENCODED_AUTO,
+	HDMI_ENCODED_FORCED
+} HDMI_ENCODED_MODE;
+
+typedef enum
+{
+	HDMI_AUDIO_FMT_LPCM  = 0x1,
+	HDMI_AUDIO_FMT_AC3        ,
+	HDMI_AUDIO_FMT_MPEG1      ,
+	HDMI_AUDIO_FMT_MP3        ,
+	HDMI_AUDIO_FMT_MPEG2      ,
+	HDMI_AUDIO_FMT_AAC        ,
+	HDMI_AUDIO_FMT_DTS        ,
+	HDMI_AUDIO_FMT_ATRAC
+} HDMI_AUDIO_FORMAT;
+
+#define CS_MAX_AUDIO_FORMATS 10
+
+typedef struct cs_audio_format {
+	HDMI_AUDIO_FORMAT format;
+	unsigned int max_channels;
+} cs_audio_format_t;
+
+typedef struct cs_audio_caps {
+	unsigned char count;
+	cs_audio_format_t formats[CS_MAX_AUDIO_FORMATS];
+} cs_audio_caps_t;
+
 class cAudio {
 private:
 	CS_AUDIO_PDATA	*privateData;
@@ -57,7 +88,7 @@ private:
 	int volume;
 
 	bool clip_started;
-	bool hdmiDD;
+	HDMI_ENCODED_MODE hdmiDD;
 	bool spdifDD;
 	bool hasMuteScheduled;
 	bool analogOut;
@@ -110,10 +141,12 @@ public:
 	void getAudioInfo(int &Type, int &Layer, int &Freq, int &Bitrate, int &Mode);
 	void SetSRS(int iq_enable, int nmgr_enable, int iq_mode, int iq_level);
 	bool IsHdmiDDSupported(void);
-	void SetHdmiDD(bool Enable);
+	void SetHdmiDD(HDMI_ENCODED_MODE type);
 	void SetSpdifDD(bool Enable);
 	void ScheduleMute(bool On);
 	void EnableAnalogOut(bool Enable);
+	bool GetHdmiAudioCaps(cs_audio_caps_t &caps);
+	bool IsHdmiAudioFormatSupported(HDMI_AUDIO_FORMAT format);
 };
 
 #endif //__AUDIO_CS_H_

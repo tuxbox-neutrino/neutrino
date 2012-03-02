@@ -366,7 +366,7 @@ bool CUserMenu::showUserMenu(int button)
 			{
 				menu_items++;
 				menu_prev = SNeutrinoSettings::ITEM_CLOCK;
-				keyhelper.get(&key,&icon, CRCInput::RC_green); 
+				keyhelper.get(&key,&icon); 
 				neutrino = CNeutrinoApp::getInstance();
 				menu_item = new CMenuForwarder(!g_settings.mode_clock ? LOCALE_CLOCK_SWITCH_ON:LOCALE_CLOCK_SWITCH_OFF, true, NULL, neutrino, "clock_switch", key, icon);
 				menu->addItem(menu_item, false);

@@ -705,7 +705,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
                 "2,3,4,13",                     // RED
                 "6",                            // GREEN
                 "7",                       // YELLOW
-                "12,10,11,20,21,19,14,15"    // BLUE
+                "12,11,20,21,19,14,15"    // BLUE
         };
         char txt1[81];
         std::string txt2;
@@ -1672,7 +1672,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
-	audioDecoder->SetHdmiDD(g_settings.hdmi_dd ? true : false);
+	audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE)g_settings.hdmi_dd);
 	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
 	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
 
@@ -3335,7 +3335,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
 			g_Zapit->setStandby(true);
-			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 		} else {
 			g_Zapit->stopPlayBack();
 		}
@@ -3362,6 +3361,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		puts("[neutrino.cpp] executing " NEUTRINO_ENTER_STANDBY_SCRIPT ".");
 		if (system(NEUTRINO_ENTER_STANDBY_SCRIPT) != 0)
 			perror(NEUTRINO_ENTER_STANDBY_SCRIPT " failed");
+
+		if(!CRecordManager::getInstance()->RecordingStatus())
+			cpuFreq->SetCpuFreq(g_settings.standby_cpufreq * 1000 * 1000);
 
 		lastMode = mode;
 		mode = mode_standby;
@@ -3787,7 +3789,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_plugin = configfile.getInt32( "key_plugin", CRCInput::RC_nokey );
 	g_settings.key_unlock = configfile.getInt32( "key_unlock", CRCInput::RC_setup );
 	g_settings.key_screenshot = configfile.getInt32( "key_screenshot", CRCInput::RC_nokey );
-	g_settings.key_current_transponder = configfile.getInt32( "key_current_transponder", CRCInput::RC_nokey );
+	g_settings.key_current_transponder = configfile.getInt32( "key_current_transponder", CRCInput::RC_games );
 
 	g_settings.key_quickzap_up = tconfig.getInt32( "key_quickzap_up",  CRCInput::RC_up );
 	g_settings.key_quickzap_down = tconfig.getInt32( "key_quickzap_down",  CRCInput::RC_down );

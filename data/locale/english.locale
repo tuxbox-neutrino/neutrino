@@ -114,6 +114,8 @@ audiomenu.avsync_am Audio master
 audiomenu.clockrec 
 audiomenu.dolbydigital Prefer Dolby Digital
 audiomenu.hdmi_dd Encoded DD on HDMI
+audiomenu.hdmi_dd_auto auto
+audiomenu.hdmi_dd_force force
 audiomenu.monoleft mono left
 audiomenu.monoright mono right
 audiomenu.pref_lang Prefered language
@@ -342,7 +344,7 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadconfig Load settings from
+extra.loadconfig Neutrino-Settings: Load from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
 extra.logo Logo number
@@ -354,7 +356,7 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.saveconfig Save settings as
+extra.saveconfig Neutrino-Settings: Save as
 extra.savekeys Save keys as
 extra.scan_fast Fast
 extra.scan_full Full
@@ -1192,15 +1194,16 @@ scrambled_channel Scrambled channel
 screensetup.lowerright green = setup lower right
 screensetup.upperleft red = setup upper left
 screenshot.count Screenshot count
-screenshot.cover Movie Cover
-screenshot.defdir Screenshot dir.
+screenshot.cover Create Moviecover for Moviebrowser
+screenshot.defdir Screenshot directory
 screenshot.format Screenshot format
-screenshot.info Screenshot Key is not used
+screenshot.info Screenshot key is unused
 screenshot.menu Screenshot
 screenshot.osd OSD resolution
-screenshot.scale Scale
+screenshot.res Screenshot resolution
+screenshot.scale Screenshot scale
 screenshot.tv TV resolution
-screenshot.video Screenshot with Video background
+screenshot.video Screenshot with video background
 servicemenu.getplugins Reload plugins
 servicemenu.getplugins_hint Reloading plugins,\nplease be patient.
 servicemenu.head Service
@@ -1212,7 +1215,7 @@ servicemenu.restart_hint Restarting, please wait
 servicemenu.restart_refused_recording Cant restart, recording in progress
 servicemenu.scants Servicescan
 servicemenu.update Software Update
-settings.backup Backup all settings
+settings.backup Image-Settings: Backup
 settings.backup_failed Backup failed!
 settings.help Help
 settings.menu_pos Menu position
@@ -1224,7 +1227,7 @@ settings.pos_default_center top center
 settings.pos_higher_center higher center
 settings.pos_top_left top left
 settings.pos_top_right top right
-settings.restore Restore all settings
+settings.restore Image-Settings: Restore
 settings.restore_warn This will replace all settings and reboot\nContinue ?
 shutdown.recoding_query You really want to to stop record ?
 shutdowntimer.announce Box will shutdown in 1 min.\nCancel Shutdown ?
