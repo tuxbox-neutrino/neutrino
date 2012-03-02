@@ -96,8 +96,6 @@ typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservi
 #include <OpenThreads/Thread>
 #include "dmx.h"
 
-#define MAX_SECTION_LENGTH (0x0fff + 3)
-
 /* abstract section reading class */
 class CSectionThread : public OpenThreads::Thread, public DMX
 {
@@ -139,7 +137,7 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 		virtual void afterWait() {};
 
 		/* process section after getSection */
-		virtual void processSection(int rc) { if(rc < 0) return; }; 
+		virtual void processSection() {}; 
 		/* cleanup before exit */
 		virtual void cleanup() {};
 
@@ -207,7 +205,7 @@ class CEventsThread : public CSectionThread
 		/* default hooks */
 		bool shouldSleep();
 		bool checkSleep();
-		void processSection(int rc);
+		void processSection();
 
 		/* EIT-specific */
 		bool addEvents();
@@ -245,7 +243,7 @@ class CCNThread : public CEventsThread
 		void beforeSleep();
 		void beforeWait();
 		void afterWait();
-		void processSection(int rc); 
+		void processSection(); 
 		void cleanup();
 
 		/* CN-specific */
@@ -265,7 +263,7 @@ class CSdtThread : public CSectionThread
 		void addFilters();
 		bool shouldSleep();
 		bool checkSleep();
-		void processSection(int rc);
+		void processSection();
 
 		/* SDT-specific */
 		bool addServices();
@@ -276,7 +274,18 @@ class CSdtThread : public CSectionThread
 class CTimeThread : public CSectionThread
 {
 	private:
+		/* overloaded hooks */
+		void addFilters();
+
+		/* specific */
+		bool time_ntp;
+		bool first_time;
+
+		void sendTimeEvent(bool dvb, time_t tim = 0);
+		void setSystemTime(time_t tim);
 		void run();
+	public:
+		CTimeThread();
 };
 
 class CEitManager
