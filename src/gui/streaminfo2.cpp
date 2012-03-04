@@ -994,18 +994,17 @@ int CStreamInfo2::ts_setup ()
 
 int CStreamInfo2::update_rate ()
 {
-	unsigned char buf[TS_BUF_SIZE];
-	long b;
-
-	int ret = 0;
-	int b_len, b_start;
-	int timeout = 100;
 
 	if(!dmx)
 		return 0;
 
-	b_len = 0;
-	b_start = 0;
+	unsigned char buf[TS_BUF_SIZE] = {0};
+	long b = 0;
+
+	int ret = 0;
+	int b_len = 0;
+	int timeout = 100;
+
 
 	b_len = dmx->Read(buf, sizeof (buf), timeout);
 	//printf("ts: read %d\n", b_len);

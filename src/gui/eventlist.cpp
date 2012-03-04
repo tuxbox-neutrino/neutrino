@@ -901,7 +901,7 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 	CColorKeyHelper keyhelper; //user_menue.h
 	neutrino_msg_t dummy = CRCInput::RC_nokey;
 	const char * icon = NULL;
-	std::string btncaption;	
+//	std::string btncaption;	
 
 	bh = std::max(FunctionBarHeight, bh);
 	frameBuffer->paintBackgroundBoxRel(x,by,width,bh);
@@ -925,10 +925,10 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 			EventListFirstButton[0].button = icon;
 
 			if(is_timer == CTimerd::TIMER_RECORD ){
-				btncaption = g_Locale->getText(LOCALE_TIMERLIST_DELETE);
+//				btncaption = g_Locale->getText(LOCALE_TIMERLIST_DELETE);
 				EventListFirstButton[0].locale = LOCALE_TIMERLIST_DELETE;
 			} else {
-				btncaption = g_Locale->getText(LOCALE_EVENTLISTBAR_RECORDEVENT);
+//				btncaption = g_Locale->getText(LOCALE_EVENTLISTBAR_RECORDEVENT);
 				EventListFirstButton[0].locale = LOCALE_EVENTLISTBAR_RECORDEVENT;
 			}
 			
@@ -948,10 +948,10 @@ void  EventList::showFunctionBar (bool show, t_channel_id channel_id)
 			keyhelper.get(&dummy, &icon, g_settings.key_channelList_addremind);
 			EventListThirdButton[0].button = icon;
 			if(is_timer == CTimerd::TIMER_ZAPTO) {
-				btncaption =  g_Locale->getText(LOCALE_TIMERLIST_DELETE);
+//				btncaption =  g_Locale->getText(LOCALE_TIMERLIST_DELETE);
 				EventListThirdButton[0].locale = LOCALE_TIMERLIST_DELETE;
 			} else {
-				btncaption =  g_Locale->getText(LOCALE_EVENTLISTBAR_CHANNELSWITCH);
+//				btncaption =  g_Locale->getText(LOCALE_EVENTLISTBAR_CHANNELSWITCH);
 				EventListThirdButton[0].locale = LOCALE_EVENTLISTBAR_CHANNELSWITCH;
 			}
 		}

@@ -697,7 +697,7 @@ void CMotorControl::showSNR()
 	int barwidth = 100;
 	uint16_t ssig, ssnr;
 	int sig, snr;
-	int bheight, posx, posy;
+	int posx, posy;
 
 	int sw;
 
@@ -711,7 +711,6 @@ void CMotorControl::showSNR()
 	g_sig = ssig & 0xFFFF;
 	g_snr = snr;
 
-	bheight = mheight - 5;
 	posy = y + height - mheight - 5;
 
 	if (lastsig != sig) {

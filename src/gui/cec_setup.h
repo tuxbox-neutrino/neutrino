@@ -48,7 +48,7 @@ class CCECSetup : public CMenuTarget, CChangeObserver
 		~CCECSetup();
 		void setCECSettings();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
-		virtual bool changeNotify(const neutrino_locale_t OptionName, void *data);
+		virtual bool changeNotify(const neutrino_locale_t OptionName);
 };
 
 

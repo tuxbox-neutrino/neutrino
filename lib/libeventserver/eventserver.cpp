@@ -102,12 +102,14 @@ bool CEventServer::sendEvent2Client(const unsigned int eventID, const initiators
 	head.eventID = eventID;
 	head.initiatorID = initiatorID;
 	head.dataSize = eventbodysize;
-	int written = write(sock_fd, &head, sizeof(head));
+	/*int written = */
+	write(sock_fd, &head, sizeof(head));
 //	printf ("[eventserver]: sent 0x%x - following eventbody= %d\n", written, eventbodysize );
 
 	if(eventbodysize!=0)
 	{
-		written = write(sock_fd, eventbody, eventbodysize);
+		/*written = */
+		write(sock_fd, eventbody, eventbodysize);
 //		printf ("[eventserver]: eventbody sent 0x%x - peventbody= %x eventbody= %x\n", written, (unsigned)eventbody, *(unsigned*)eventbody );
 	}
 	close(sock_fd);

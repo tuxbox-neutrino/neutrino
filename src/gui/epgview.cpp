@@ -1079,10 +1079,9 @@ const struct button_label EpgButtons[] =
 void CEpgData::showTimerEventBar (bool pshow)
 
 {
-	int  x,y,w,h,fh;
+	int  x,y,h,fh;
         int icol_w, icol_h;
 
-	w = ox - 20;
 	x = sx + 10;
 	y = sy + oy;
 
