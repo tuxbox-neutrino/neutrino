@@ -30,12 +30,12 @@
 #include <unistd.h> /* fork */
 #include <syscall.h>
 
-#include <timermanager.h>
-#include <debug.h>
 #include <sectionsdclient/sectionsdclient.h>
-
 #include <connection/basicserver.h>
 #include <timerdclient/timerdmsg.h>
+
+#include "debug.h"
+#include "timermanager.h"
 
 int timerd_debug = 0;
 

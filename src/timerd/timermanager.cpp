@@ -30,10 +30,8 @@
 
 #include <sstream>
 
-#include <timermanager.h>
 #include <timerdclient/timerdclient.h>
 #include <timerdclient/timerdmsg.h>
-#include <debug.h>
 #include <sectionsdclient/sectionsdclient.h>
 #if HAVE_COOL_HARDWARE
 #include <coolstream/cs_vfd.h>
@@ -41,6 +39,9 @@
 
 #include <vector>
 #include <cstdlib>
+
+#include "debug.h"
+#include "timermanager.h"
 
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
 #define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
