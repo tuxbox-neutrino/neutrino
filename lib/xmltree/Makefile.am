@@ -1,4 +1,6 @@
-INCLUDES = -I$(srcdir)/xmltok
+INCLUDES = \
+	-I$(top_srcdir) \
+	-I$(srcdir)\xmltok
 
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 

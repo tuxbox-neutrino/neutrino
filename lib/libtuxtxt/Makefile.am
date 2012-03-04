@@ -1,6 +1,7 @@
 INCLUDES = \
-        -I$(top_srcdir)/src/zapit/include \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/zapit/include \
 	$(FREETYPE_CFLAGS)
 
 if BOXTYPE_COOL

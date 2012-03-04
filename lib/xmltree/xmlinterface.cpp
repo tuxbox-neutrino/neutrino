@@ -40,7 +40,7 @@
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #else  /* USE_LIBXML */
-#include <xmltok.h>
+#include "xmltok.h"
 #endif /* USE_LIBXML */
 
 
