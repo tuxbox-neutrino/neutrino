@@ -33,8 +33,6 @@
 #include <config.h>
 #endif
 
-#include <gui/bedit/bouqueteditor_chanselect.h>
-
 #include <global.h>
 #include <neutrino.h>
 
@@ -46,6 +44,8 @@
 #include <zapit/client/zapitclient.h>
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
+
+#include "bouqueteditor_chanselect.h"
 
 extern CBouquetManager *g_bouquetManager;
 

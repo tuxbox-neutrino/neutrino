@@ -33,8 +33,6 @@
 #include <config.h>
 #endif
 
-#include <gui/plugins.h>
-
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -52,6 +50,7 @@
 
 #include <zapit/client/zapittools.h>
 
+#include "plugins.h"
 /* for alexW images with old drivers:
  * #define USE_VBI_INTERFACE 1
  */
