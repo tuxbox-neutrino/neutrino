@@ -23,9 +23,6 @@
  */
 
 
-#include <dmx.h>
-#include <dmxapi.h>
-#include <debug.h>
 
 #include <endian.h>
 #include <errno.h>
@@ -40,6 +37,9 @@
 
 #include <driver/abstime.h>
 
+#include "dmx.h"
+#include "dmxapi.h"
+#include "debug.h"
 /*
 #define DEBUG_MUTEX 1
 #define DEBUG_CACHED_SECTIONS 1

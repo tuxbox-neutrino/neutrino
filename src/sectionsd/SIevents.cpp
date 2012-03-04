@@ -45,7 +45,7 @@
 #include "SInetworks.hpp"
 #endif
 #include "SIsections.hpp"
-#include <dmxapi.h>
+#include "dmxapi.h"
 
 const std::string languangeOFF = "OFF";
 

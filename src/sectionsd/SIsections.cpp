@@ -42,12 +42,12 @@
 #include "SInetworks.hpp"
 #endif
 #include "SIsections.hpp"
-#include <dmxapi.h>
 #include <zapit/dvbstring.h>
-#include <edvbstring.h>
 #ifdef ENABLE_FREESATEPG
 #include "FreesatTables.hpp"
 #endif
+#include "dmxapi.h"
+#include "edvbstring.h"
 
 #define NOVA		0x3ffe
 #define CANALDIGITAAL	0x3fff
