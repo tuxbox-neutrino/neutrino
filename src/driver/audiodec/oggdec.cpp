@@ -32,13 +32,14 @@
 
 #include <endian.h>
 #include <errno.h>
-#include <oggdec.h>
 #include <linux/soundcard.h>
 #include <algorithm>
 #include <sstream>
 #include <driver/netfile.h>
 
 #include <zapit/include/audio.h>
+
+#include "oggdec.h"
 
 extern cAudio * audioDecoder;
 

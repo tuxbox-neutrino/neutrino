@@ -33,11 +33,12 @@
 #include <cstring>
 #include <errno.h>
 #include <unistd.h>
-#include <wavdec.h>
 #include <sstream>
 #include <driver/audioplay.h>
 #include <linux/soundcard.h>
 #include <zapit/include/audio.h>
+
+#include "wavdec.h"
 
 extern cAudio * audioDecoder;
 

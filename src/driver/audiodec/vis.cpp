@@ -19,13 +19,17 @@
 
 #include <global.h>
 #include <neutrino.h>
+
 #if HAVE_COOL_HARDWARE
 #include <driver/vfd.h>
 #endif
+
 #if HAVE_TRIPLEDRAGON
 #include <driver/lcdd.h>
 #endif
+
 #include "int_fft.c"
+
 typedef signed short gint16;
 typedef int gint;
 typedef float gfloat;

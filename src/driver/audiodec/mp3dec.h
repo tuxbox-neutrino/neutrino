@@ -42,11 +42,12 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <basedec.h>
 #include <driver/audiometadata.h>
+
+#include "basedec.h"
 extern "C"
 {
-#include "driver/audiodec/tag.h"
+#include "tag.h"
 }
 
 class CMP3Dec : public CBaseDec

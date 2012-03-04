@@ -4,14 +4,15 @@ SUBDIRS = pictureviewer audiodec
 
 INCLUDES = \
 	-I$(top_srcdir)/daemons \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/zapit/include \
+	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
 	-I$(top_srcdir)/lib/libeventserver \
-	@FREETYPE_CFLAGS@ \
-	-I$(top_srcdir)/lib
+	@FREETYPE_CFLAGS@
 
 noinst_LIBRARIES = libneutrino_driver.a libneutrino_driver_netfile.a
 
