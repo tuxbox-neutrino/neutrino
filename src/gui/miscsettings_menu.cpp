@@ -193,6 +193,9 @@ int CMiscMenue::showMiscSettingsMenu()
 #if !HAVE_TRIPLEDRAGON
 	//cec settings
 	misc_menue->addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, new CCECSetup() , NULL, CRCInput::RC_1));
+#else
+	// if (cs_get_revision() == 1)
+		misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent", CRCInput::RC_1));
 #endif
 	
 	//channellist
@@ -248,7 +251,6 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 {
 	ms_energy->addIntroItems(LOCALE_MISCSETTINGS_ENERGY);
-	
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
 
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");

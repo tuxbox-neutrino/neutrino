@@ -403,7 +403,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
         strcpy(g_settings.shutdown_count, configfile.getString("shutdown_count","0").c_str());
 
 	strcpy(g_settings.shutdown_min, "000");
-	if(cs_get_revision() > 7)
+	if (cs_get_revision() > 7 || cs_get_revision() == 1)
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
@@ -2744,6 +2744,12 @@ _repeat:
 				return messages_return::handled;
 			} 
 			else {
+				if (cs_get_revision() == 1)
+				{
+					/* TD has no FP for real shutdown -> do standby instead */
+					standbyMode(true);
+					return messages_return::handled;
+				}
 				printf("NeutrinoMessages::SLEEPTIMER: shutdown\n");
 				ExitRun(true, (cs_get_revision() > 7));
 			}
