@@ -28,6 +28,10 @@
 
 #include <sys/time.h>
 
+#include <OpenThreads/Thread>
+#include <OpenThreads/Condition>
+#include "dmx.h"
+
 #include "SIutils.hpp"
 #include "SIservices.hpp"
 #include "SIevents.hpp"
@@ -93,8 +97,6 @@ typedef std::map<t_channel_id, event_id_t, std::less<t_channel_id> > MySIeventUn
 typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesOrderUniqueKey;
 typedef std::map<t_channel_id, SIservicePtr, std::less<t_channel_id> > MySIservicesNVODorderUniqueKey;
 
-#include <OpenThreads/Thread>
-#include "dmx.h"
 
 /* abstract section reading class */
 class CSectionThread : public OpenThreads::Thread, public DMX
@@ -177,23 +179,44 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 			running = true;
 			return (OpenThreads::Thread::start() == 0);
 		}
-		bool Stop()
-		{
-			if(!running)
-				return false;
-printf("%s::Stop: to lock\n", name.c_str());
+		void StopRun() {
+			xprintf("%s::StopRun: to lock\n", name.c_str());
 			lock();
 			running = false;
-printf("%s::Stop: to broadcast\n", name.c_str());
-			pthread_cond_broadcast(&change_cond);
-printf("%s::Stop: to unlock\n", name.c_str());
-			unlock();
-printf("%s::Stop: to closefd\n", name.c_str());
+			real_pauseCounter = 1;
+			xprintf("%s::StopRun: to closefd\n", name.c_str());
 			DMX::closefd();
-printf("%s::Stop: to join\n", name.c_str());
+			xprintf("%s::StopRun: to unlock\n", name.c_str());
+			unlock();
+		}
+		void Wakeup() { pthread_cond_broadcast(&change_cond); }
+		bool Stop()
+		{
+			xprintf("%s::Stop: to broadcast\n", name.c_str());
+			pthread_cond_broadcast(&change_cond);
+			xprintf("%s::Stop: to join\n", name.c_str());
 			int ret = (OpenThreads::Thread::join() == 0);
-printf("%s::Stop: to close\n", name.c_str());
+			xprintf("%s::Stop: to close\n", name.c_str());
 			DMX::close();
+#if 0
+			if(!running)
+				return false;
+xprintf("%s::Stop: to lock\n", name.c_str());
+			lock();
+			running = false;
+xprintf("%s::Stop: to broadcast\n", name.c_str());
+			pthread_cond_broadcast(&change_cond);
+xprintf("%s::Stop: to unlock\n", name.c_str());
+			unlock();
+#if 1
+xprintf("%s::Stop: to closefd\n", name.c_str());
+			DMX::closefd();
+#endif
+xprintf("%s::Stop: to join\n", name.c_str());
+			int ret = (OpenThreads::Thread::join() == 0);
+xprintf("%s::Stop: to close\n", name.c_str());
+			DMX::close();
+#endif
 			return ret;
 		}
 };
@@ -281,11 +304,18 @@ class CTimeThread : public CSectionThread
 		bool time_ntp;
 		bool first_time;
 
+		int64_t timediff;
+
+		OpenThreads::Mutex time_mutex;
+		OpenThreads::Condition time_cond;
+
 		void sendTimeEvent(bool dvb, time_t tim = 0);
 		void setSystemTime(time_t tim);
 		void run();
 	public:
 		CTimeThread();
+		void waitForTimeset();
+		void setTimeSet();
 };
 
 class CEitManager
