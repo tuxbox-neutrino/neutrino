@@ -119,12 +119,7 @@ void DMX::closefd(void)
 #endif
 	if (isOpen())
 	{
-		//close(fd);
-#if HAVE_TRIPLEDRAGON
 		dmx->Close();
-#else
-		dmx->Stop();
-#endif
 		fd = -1;
 	}
 }
@@ -484,13 +479,8 @@ int DMX::immediate_start(void)
 
 	if(dmx == NULL) {
 		dmx = new cDemux(dmx_num);
-#if !HAVE_TRIPLEDRAGON
-		dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
-#endif
 	}
-#if HAVE_TRIPLEDRAGON
 	dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
-#endif
 	fd = 1;
 
 	/* setfilter() only if this is no dummy filter... */
@@ -576,7 +566,6 @@ int DMX::request_pause(void)
 
 	return 0;
 }
-
 
 int DMX::request_unpause(void)
 {
