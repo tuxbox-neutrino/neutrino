@@ -23,25 +23,25 @@
 //
 //
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 #include <stdio.h>
 #include <unistd.h>
+
+#include <dvbsi++/descriptor_tag.h>
+#include <dvbsi++/nvod_reference_descriptor.h>
+#include <dvbsi++/service_descriptor.h>
+#include <dvbsi++/time_offset_section.h>
+#include <dvbsi++/time_date_section.h>
+#include <dvbsi++/local_time_offset_descriptor.h>
 
 #include "SIutils.hpp"
 #include "SIservices.hpp"
 #include "SIevents.hpp"
 #include "SIsections.hpp"
 #include "debug.h"
-#include <edvbstring.h>
-
-#include <dvbsi++/descriptor_tag.h>
-#include <dvbsi++/nvod_reference_descriptor.h>
-#include <dvbsi++/service_descriptor.h>
-
-#include <dvbsi++/time_offset_section.h>
-#include <dvbsi++/time_date_section.h>
-#include <dvbsi++/local_time_offset_descriptor.h>
-
+#include "edvbstring.h"
 
 void SIsectionEIT::parse(void)
 {

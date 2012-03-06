@@ -26,10 +26,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#include "SIlanguage.hpp"
-#include "SIutils.hpp"
-#include "SIevents.hpp"
-
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/short_event_descriptor.h>
 #include <dvbsi++/extended_event_descriptor.h>
@@ -37,6 +33,10 @@
 #include <dvbsi++/component_descriptor.h>
 #include <dvbsi++/content_descriptor.h>
 #include <dvbsi++/parental_rating_descriptor.h>
+
+#include "SIlanguage.hpp"
+#include "SIutils.hpp"
+#include "SIevents.hpp"
 
 const std::string languangeOFF = "OFF";
 

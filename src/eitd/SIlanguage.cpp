@@ -38,8 +38,6 @@
 //
 //
 
-#include "SIlanguage.hpp"
-
 #include <string>
 #include <vector>
 #include <map>
@@ -47,6 +45,8 @@
 #include <fstream>
 
 #include <sectionsdclient/sectionsdclient.h>
+
+#include "SIlanguage.hpp"
 
 #define LANGUAGEFILE "/var/tuxbox/config/epglanguages.conf"
 

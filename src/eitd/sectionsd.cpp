@@ -25,7 +25,6 @@
 
 #include <config.h>
 #include <malloc.h>
-#include <debug.h>
 
 #include <unistd.h>
 #include <string.h>
@@ -60,6 +59,7 @@
 #include "eitd.h"
 #include "edvbstring.h"
 #include "xmlutil.h"
+#include "debug.h"
 
 //#define ENABLE_SDT //FIXME
 

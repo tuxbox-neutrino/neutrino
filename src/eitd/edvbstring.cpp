@@ -1,11 +1,11 @@
 #include <string>
 #include <ctype.h>
 #include <limits.h>
-#include <debug.h>
 #include <map>
 #include <set>
 
-#include <SIutils.hpp>
+#include "SIutils.hpp"
+#include "debug.h"
 
 std::map<std::string, int> CountryCodeDefaultMapping;
 std::map<int, int> TransponderDefaultMapping;

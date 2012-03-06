@@ -31,8 +31,8 @@
 #include <string>
 
 #include <sectionsdclient/sectionsdtypes.h>
-#include "edvbstring.h"
 #include <dvbsi++/event_information_section.h>
+#include "edvbstring.h"
 
 class SIlinkage {
 public:
