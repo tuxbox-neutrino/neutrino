@@ -200,10 +200,11 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 	if ( msg == NeutrinoMessages::EVT_CURRENTEPG ) {
 		CSectionsdClient::CurrentNextInfo* info_CN = (CSectionsdClient::CurrentNextInfo*) data;
 
-		//printf("[neutrino] got  EVT_CURRENTEPG, uniqueKey %llx chid %llx flags %x\n", info_CN->current_uniqueKey, current_channel_id, info_CN->flags);
-		printf("[neutrino] EVT_CURRENTEPG comparing: uniqueKey %llx chid %llx subid %llx flags %x\n",
+#if 0
+		printf("[neutrino] EVT_CURRENTEPG: uniqueKey %llx chid %llx subid %llx flags %x\n",
 				info_CN->current_uniqueKey >> 16, current_channel_id & 0xFFFFFFFFFFFFULL,
 				current_sub_channel_id&0xFFFFFFFFFFFFULL, info_CN->flags);
+#endif
 		t_channel_id chid = (info_CN->current_uniqueKey >> 16);
 		if(chid != (current_channel_id&0xFFFFFFFFFFFFULL) && chid != (current_sub_channel_id&0xFFFFFFFFFFFFULL))
 			return messages_return::handled;
