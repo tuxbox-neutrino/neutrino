@@ -26,16 +26,15 @@
 
 #include <eventserver.h>
 
-#include "ci.h"
-#include "descriptors.h"
-#include "sdt.h"
-#include "types.h"
+#include <zapit/descriptors.h>
+#include <zapit/types.h>
 #include <xmltree/xmlinterface.h>
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 #include <zapit/satconfig.h>
 
 #include <map>
+#include <list>
 #define zapped_chan_is_nvod 0x80
 
 struct transponder
@@ -84,6 +83,18 @@ typedef channel_map_t::iterator channel_map_iterator_t;
 typedef std::pair<t_channel_id, CZapitChannel> channel_pair_t;
 typedef std::pair<channel_map_iterator_t,bool> channel_insert_res_t;
 
+struct provider_replace
+{
+	t_transport_stream_id transport_stream_id;
+	t_original_network_id original_network_id;
+	int frequency;
+	std::string name;
+	std::string newname;
+};
+
+typedef std::list<provider_replace> prov_replace_map_t;
+typedef prov_replace_map_t::iterator prov_replace_map_iterator_t;
+
 class CServiceManager
 {
 	private:
@@ -99,9 +110,12 @@ class CServiceManager
 		tallchans curchans;
 		tallchans nvodchannels;
 
+		fe_type_t frontendType;
+		satellite_map_t satellitePositions;
+
 		bool ParseScanXml();
 		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable);
-		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq);
+		void ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization);
 		void FindTransponder(xmlNodePtr search);
 		void ParseSatTransponders(fe_type_t frontendType, xmlNodePtr search, t_satellite_position satellitePosition);
 		int LoadMotorPositions(void);
@@ -120,7 +134,7 @@ class CServiceManager
 
 		static void CopyFile(char * from, char * to);
 
-		void InitSatPosition(t_satellite_position position);
+		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false);
 		bool LoadServices(bool only_current);
 		void SaveServices(bool tocopy);
 		void SaveMotorPositions();
@@ -148,6 +162,26 @@ class CServiceManager
 		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position);
 		bool GetAllUnusedChannels(ZapitChannelList &list);
 
+		std::string GetSatelliteName(t_satellite_position position)
+		{
+			sat_iterator_t it = satellitePositions.find(position);
+			if(it != satellitePositions.end())
+				return it->second.name;
+			return "";
+		}
+		t_satellite_position GetSatellitePosition(std::string name)
+		{
+			for(sat_iterator_t sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit) {
+				if(name == sit->second.name)
+					return sit->second.position;
+			}
+			return 0;
+		}
+		satellite_map_t & SatelliteList() { return satellitePositions; }
 		xmlDocPtr ScanXml();
+
+		prov_replace_map_t replace_map;
+		bool LoadProviderMap();
+		bool ReplaceProviderName(std::string &name, t_transport_stream_id tsid, t_original_network_id onid);
 };
 #endif /* __getservices_h__ */

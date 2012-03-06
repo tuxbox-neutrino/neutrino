@@ -53,21 +53,8 @@ struct sectionsd
 
         enum commands
         {
-                /* actualEPGchannelName=0,*/
-                dummy1,
-                dummy3, //actualEventListTVshort,               // commandEventListTV
-                /*currentNextInformation,*/
-                dummy2,
                 dumpStatusinformation,          // commandDumpStatusInformation
-                /*allEventsChannelName,*/
                 allEventsChannelIDSearch,       // commandAllEventsChannelIDSearch
-                dummy4, // setHoursToCache,
-                dummy5, // setHoursExtendedCache,
-                dummy6, // setEventsAreOldInMinutes,
-                dummy7, // dumpAllServices,             // commandDumpAllServices
-                dummy8, // actualEventListRadioshort,   // commandEventListRadio
-                dummy9, // getNextEPG,                  // commandGetNextEPG
-                dummy10,// getNextShort,                        // commandGetNextShort
                 pauseScanning,                  // commandPauseScanning // for the grabbers ;)
                 getIsScanningActive,            // commandGetIsScanningActive
                 actualEPGchannelID,             // commandActualEPGchannelID
@@ -79,11 +66,9 @@ struct sectionsd
                 ComponentTagsUniqueKey,         // commandComponentTagsUniqueKey
                 allEventsChannelID_,            // commandAllEventsChannelID
                 timesNVODservice,               // commandTimesNVODservice
-                getEPGPrevNext,                 // commandGetEPGPrevNext
                 getIsTimeSet,                   // commandGetIsTimeSet
                 serviceChanged,                 // commandserviceChanged
                 LinkageDescriptorsUniqueKey,    // commandLinkageDescriptorsUniqueKey
-                pauseSorting,                   // commandPauseSorting
                 CMD_registerEvents,             // commandRegisterEventClient
                 CMD_unregisterEvents,           // commandUnRegisterEventClient
 #ifdef ENABLE_PPT
@@ -91,20 +76,11 @@ struct sectionsd
 #else
                 dummy11_setPrivatePid,
 #endif
-                setSectionsdScanMode,           // commandSetSectionsdScanMode
                 freeMemory,                     // commandFreeMemory
                 readSIfromXML,                  // commandReadSIfromXML
                 writeSI2XML,                    // commandWriteSI2XML
 
-                LoadLanguages,                  // commandLoadLanguages
-                SaveLanguages,                  // commandSaveLanguages
-                SetLanguages,                   // commandSetLanguages
-                GetLanguages,                   // commandGetLanguages
-                SetLanguageMode,                // commandSetLanguageMode
-                GetLanguageMode,                // commandGetLanguageMode
                 setConfig,                      // commandSetConfig
-                Restart,                        // commandRestart
-                ping,
 
                 numberOfCommands        // <- no actual command, end of command marker
         };

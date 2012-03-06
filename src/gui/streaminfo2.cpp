@@ -40,17 +40,18 @@
 #include <gui/widget/icons.h>
 #include <gui/customcolor.h>
 #include <daemonc/remotecontrol.h>
-#include <zapit/frontend_c.h>
+#include <zapit/zapit.h>
+#include <zapit/getservices.h>
 #include <video.h>
 #include <audio.h>
 #include <dmx.h>
 #include <zapit/satconfig.h>
 #include <string>
+
 extern cVideo * videoDecoder;
 extern cAudio * audioDecoder;
 
 extern CRemoteControl *g_RemoteControl;	/* neutrino.cpp */
-extern CZapitClient::SatelliteList satList;
 
 #if 0
 extern CPipSetup * g_Pip0;
@@ -115,6 +116,7 @@ int CStreamInfo2::exec (CMenuTarget * parent, const std::string &)
 	if (parent)
 		parent->hide ();
 
+	frontend = CFEManager::getInstance()->getLiveFE();
 	paint (paint_mode);
 	int res = doSignalStrengthLoop ();
 	hide ();
@@ -150,9 +152,9 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS (100);
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
-		ssig = CFrontend::getInstance()->getSignalStrength();
-		ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
-		ber = CFrontend::getInstance()->getBitErrorRate();
+		ssig = frontend->getSignalStrength();
+		ssnr = frontend->getSignalNoiseRatio();
+		ber = frontend->getBitErrorRate();
 
 		signal.sig = ssig & 0xFFFF;
 		signal.snr = ssnr & 0xFFFF;
@@ -289,10 +291,12 @@ void CStreamInfo2::paint_signal_fe_box(int _x, int _y, int w, int h)
 {
 	int y1;
 	int xd = w/4;
-	std::string tuner_name = g_Locale->getText(LOCALE_STREAMINFO_SIGNAL);
-	tuner_name += ": ";
-	tuner_name += CFrontend::getInstance()->getInfo()->name;
-	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, tuner_name.c_str(), COL_INFOBAR, 0, true);
+
+	int tuner = 1 + frontend->getNumber();
+	char tname[255];
+	snprintf(tname, sizeof(tname), "%s: %d: %s", g_Locale->getText(LOCALE_STREAMINFO_SIGNAL), tuner, frontend->getInfo()->name);
+
+	g_Font[font_small]->RenderString(_x, _y+iheight+15, width-10, tname /*tuner_name.c_str()*/, COL_INFOBAR, 0, true);
 
 	sigBox_x = _x;
 	sigBox_y = _y+iheight+15;
@@ -606,19 +610,20 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 
 	//satellite
 	t_satellite_position satellitePosition = CNeutrinoApp::getInstance ()->channelList->getActiveSatellitePosition ();
-	sat_iterator_t sit = satellitePositions.find(satellitePosition);
-	if(sit != satellitePositions.end()) {
-		ypos += iheight;
-		if(CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
-			sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_SATSETUP_SATELLITE));//swiped locale
-		}
-		else if(CFrontend::getInstance()->getInfo()->type == FE_QAM) {
-			sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
-		}
-		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
-		sprintf ((char *) buf, "%s", sit->second.name.c_str());
-		g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+
+	ypos += iheight;
+	if(frontend->getInfo()->type == FE_QPSK) {
+		sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_SATSETUP_SATELLITE));//swiped locale
 	}
+	else if(frontend->getInfo()->type == FE_QAM) {
+		sprintf ((char *) buf, "%s:",g_Locale->getText (LOCALE_CHANNELLIST_PROVS));
+	}
+	g_Font[font_info]->RenderString(xpos, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
+
+	sprintf ((char *) buf, "%s",
+		CServiceManager::getInstance()->GetSatelliteName(satellitePosition).c_str());
+	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
+
 	CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
 //	int curnum = channelList->getActiveChannelNumber();
 //	CZapitChannel * channel = channelList->getChannel(curnum);
@@ -633,8 +638,8 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	//tsfrequenz
 	ypos += iheight;
 	char * f=NULL, *s=NULL, *m=NULL;
-	if(CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
-		CFrontend::getInstance()->getDelSys((fe_code_rate_t)si.fec, dvbs_get_modulation((fe_code_rate_t)si.fec), f, s, m);
+	if(frontend->getInfo()->type == FE_QPSK) {
+		frontend->getDelSys((fe_code_rate_t)si.fec, dvbs_get_modulation((fe_code_rate_t)si.fec), f, s, m);
 		if (!strncmp(s,const_cast<char *>("DVB-S2"),6)){
 			s=const_cast<char *>("S2");
 			scaling = 27000;
@@ -647,7 +652,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, "Tp. Freq.:" , COL_INFOBAR, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 	}
-	else if(CFrontend::getInstance()->getInfo()->type == FE_QAM) {
+	else if(frontend->getInfo()->type == FE_QAM) {
 		sprintf ((char *) buf, "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, buf , COL_INFOBAR, 0, true); // UTF-8
 		sprintf((char*) buf, "%d.%d MHz", si.tsfrequency/1000, si.tsfrequency%1000);
@@ -732,187 +737,88 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	paintCASystem(xpos,ypos);
 }
 
+#define NUM_CAIDS 11
 void CStreamInfo2::paintCASystem(int xpos, int ypos)
 {
-	extern int pmt_caids[4][11];
-	unsigned short i,j, ypos1 = 0;
+	unsigned short i, ypos1 = 0;
 	int box_width = width*2/3-10;
 	if(box_h2 > 0)
 	{
 		frameBuffer->paintBoxRel (0, ypos+(iheight*2), box_width, box_h2, COL_MENUHEAD_PLUS_0);
 	}
 
-	std::string casys[11]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
-	bool caids[11] ={ false, false, false, false, false, false, false, false, false, false, false };
-	char tmp[100] = {0};
-	int array[11] = {0};
-	for(i = 0; i < 11; i++){
-		array[i]=0;
-		array[i] = g_Font[font_info]->getRenderWidth( casys[i].c_str() );
+	std::string casys[NUM_CAIDS]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
+	bool caids[NUM_CAIDS];
+	int array[NUM_CAIDS];
+	char tmp[100];
+
+	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+	if(!channel)
+		return;
+
+	for(i = 0; i < NUM_CAIDS; i++) {
+		array[i] = g_Font[font_info]->getRenderWidth(casys[i].c_str());
+		caids[i] = false;
 	}
 
-	for(j=0;j<4;j++){
-		for(i=0;i<11;i++){
-			if(pmt_caids[j][i] > 1 && i == 0){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 1){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 2){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 3){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 4){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 5){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 6){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 7){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 8){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 9){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
-			else if(pmt_caids[j][i] > 1 && i == 10){
-				for( int k = 0; k < 4;k++){
-					if(pmt_caids[j][i] == pmt_caids[k][i] && ( j != k)){
-						pmt_caids[j][i]=1;
-					}
-				}
-				if(pmt_caids[j][i] > 1 )
-				{
-					snprintf(tmp,sizeof(tmp)," 0x%04X",pmt_caids[j][i]);
-					casys[i] += tmp;
-				}
-				caids[i] = true;
-			}
+	int spaceoffset = 0;
+
+	for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
+		int idx = -1;
+		switch(((*it) >> 8) & 0xFF) {
+			case 0x06:
+				idx = 0;
+				break;
+			case 0x17:
+				idx = 1;
+				break;
+			case 0x01:
+				idx = 2;
+				break;
+			case 0x05:
+				idx = 3;
+				break;
+			case 0x18:
+				idx = 4;
+				break;
+			case 0x0B:
+				idx = 5;
+				break;
+			case 0x0D:
+				idx = 6;
+				break;
+			case 0x09:
+				idx = 7;
+				break;
+			case 0x26:
+				idx = 8;
+				break;
+			case 0x4a:
+				idx = 9;
+				break;
+			case 0x0E:
+				idx = 10;
+				break;
+			default:
+				break;
+		}
+		if(idx >= 0) {
+			snprintf(tmp, sizeof(tmp)," 0x%04X", (*it));
+			casys[idx] += tmp;
+			caids[idx] = true;
+			if(spaceoffset < array[idx])
+				spaceoffset = array[idx];
 		}
 	}
-	int spaceoffset = 0 ;
 
-	for(i=0 ; i<11; i++){
-		if(caids[i] == true)
-			if(spaceoffset < array[i])
-				spaceoffset = array[i];
-	}
 	spaceoffset+=4;
 	ypos += iheight*2;
 	bool cryptsysteme = true;
-	for(int ca_id = 0;ca_id < 11;ca_id++){
+	for(int ca_id = 0; ca_id < NUM_CAIDS; ca_id++){
 		if(caids[ca_id] == true){
 			if(cryptsysteme){
 				ypos += iheight;
-				g_Font[font_info]->RenderString(xpos , ypos, box_width, "Cryptsysteme:" , COL_INFOBAR, 0, false);
+				g_Font[font_info]->RenderString(xpos , ypos, box_width, "Conditional access:" , COL_INFOBAR, 0, false);
 				cryptsysteme = false;
 			}
 			ypos += sheight;

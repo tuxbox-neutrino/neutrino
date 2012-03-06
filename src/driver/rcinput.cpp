@@ -1017,6 +1017,10 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								*msg          = NeutrinoMessages::EVT_PMT_CHANGED;
 								*data = (neutrino_msg_data_t) p;
 								break;
+							case CZapitClient::EVT_TUNE_COMPLETE:
+								*msg          = NeutrinoMessages::EVT_TUNE_COMPLETE;
+								*data = (neutrino_msg_data_t) p;
+								break;
 							default:
 								printf("[neutrino] event INITID_ZAPIT - unknown eventID 0x%x\n",  emsg.eventID );
 						}

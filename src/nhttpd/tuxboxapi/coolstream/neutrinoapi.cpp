@@ -35,7 +35,7 @@
 #include <dmx.h>
 #include <zapit/satconfig.h>
 #include <zapit/client/zapitclient.h>
-#include <zapit/channel.h>
+#include <zapit/zapit.h>
 #include <zapit/bouquets.h>
 #include <zapit/getservices.h>
 
@@ -183,7 +183,7 @@ void CNeutrinoAPI::ZapToChannelId(t_channel_id channel_id)
 	}
 
 	if (Zapit->zapTo_serviceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id&0xFFFFFFFFFFFFULL, false);
+		Sectionsd->setServiceChanged(channel_id, false);
 }
 //-------------------------------------------------------------------------
 
@@ -196,7 +196,7 @@ void CNeutrinoAPI::ZapToSubService(const char * const target)
 		&channel_id);
 
 	if (Zapit->zapTo_subServiceID(channel_id) != CZapitClient::ZAP_INVALID_PARAM)
-		Sectionsd->setServiceChanged(channel_id&0xFFFFFFFFFFFFULL, false);
+		Sectionsd->setServiceChanged(channel_id, false);
 }
 //-------------------------------------------------------------------------
 t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_name)
@@ -457,15 +457,20 @@ std::string CNeutrinoAPI::getAudioInfoAsString(void) {
 
 //-------------------------------------------------------------------------
 std::string CNeutrinoAPI::getCryptInfoAsString(void) {
-	extern int pmt_caids[4][11];
-	unsigned short i,j;
+	unsigned short i;
 	std::stringstream out;
-	std::string casys[11]={"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
-	for(i=0;i<4;i++){
-		for(j=0;j<11;j++){
-			if(pmt_caids[i][j]){
-				out << casys[j] << hex << pmt_caids[i][j]<< "\n";
-			}
+	std::string casys[11]=	{"Irdeto:","Betacrypt:","Seca:","Viaccess:","Nagra:","Conax: ","Cryptoworks:","Videoguard:","EBU:","XCrypt:","PowerVU:"};
+	int caids[] =		{ 0x600, 0x1700, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
+
+	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+	if(channel) {
+                for (i = 0; i < 11; i++) {
+                        for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
+                                int caid = (*it) & 0xFF00;
+                                if(caid == caids[i])
+					out << casys[i] << hex << (*it) << "\n";
+                        }
+
 		}
 	}
 	return out.str();

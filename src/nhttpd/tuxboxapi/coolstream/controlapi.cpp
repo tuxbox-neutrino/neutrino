@@ -1883,9 +1883,8 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 		// epg title
 		std::string title = timer->epgTitle;
 		if(timer->epgID!=0) {
-			CSectionsdClient sdc;
 			CEPGData epgdata;
-			if (sdc.getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+			if (sectionsd_getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
 				title = epgdata.title;
 		}
 

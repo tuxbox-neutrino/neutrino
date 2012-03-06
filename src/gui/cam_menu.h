@@ -1,13 +1,12 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
-
-	License: GPL
+	Copyright (C) 2011 CoolStream International Ltd
+	License: GPLv2
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	the Free Software Foundation;
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -32,7 +31,7 @@
 
 using namespace std;
 
-class CCAMMenuHandler : public CMenuTarget
+class CCAMMenuHandler : public CMenuTarget, public CChangeObserver
 {
 	private:
 		CHintBox * hintBox;
@@ -48,6 +47,7 @@ class CCAMMenuHandler : public CMenuTarget
 		void init(void);
 		int exec(CMenuTarget* parent,  const std::string &actionkey);
 		int handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data);
+		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 #endif
 

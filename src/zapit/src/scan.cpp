@@ -26,15 +26,13 @@
 
 #include <zapit/client/zapitclient.h>
 #include <zapit/debug.h>
-#include <zapit/getservices.h>
-#include <zapit/nit.h>
 #include <zapit/scan.h>
-#include <zapit/sdt.h>
 #include <zapit/settings.h>
 #include <zapit/satconfig.h>
-#include <zapit/frontend_c.h>
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
+#include <zapit/scansdt.h>
+#include <zapit/scannit.h>
 
 #define NIT_THREAD
 
@@ -63,6 +61,8 @@ CServiceScan::CServiceScan()
 	started = false;
 	scan_nit = false;
 	running = false;
+	cable_nid = 0;
+	frontend = CFEManager::getInstance()->getFE(0);
 }
 
 CServiceScan::~CServiceScan()
@@ -128,8 +128,8 @@ void CServiceScan::run()
 
 bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition)
 {
-	CFrontend::getInstance()->setInput(satellitePosition, feparams->frequency, polarization);
-	int ret = CFrontend::getInstance()->driveToSatellitePosition(satellitePosition, false); //true);
+	frontend->setInput(satellitePosition, feparams->frequency, polarization);
+	int ret = frontend->driveToSatellitePosition(satellitePosition, false); //true);
 	if(ret > 0) {
 		printf("[scan] waiting %d seconds for motor to turn satellite dish.\n", ret);
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) "moving rotor", 13);
@@ -139,7 +139,7 @@ bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarizat
 				return false;
 		}
 	}
-	return CFrontend::getInstance()->tuneFrequency(feparams, polarization, false);
+	return frontend->tuneFrequency(feparams, polarization, false);
 }
 
 bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t polarity, bool fromnit)
@@ -256,25 +256,33 @@ _repeat:
 		if(abort_scan)
 			return false;
 
-#ifdef NIT_THREAD
-		pthread_t nthread;
-		if(scan_nit)
-			if(pthread_create(&nthread, 0, nit_thread,  (void*)satellitePosition)) {
-				ERROR("pthread_create");
-				nthread = 0;
-			}
-#endif
 		freq_id_t freq;
 		if(cable)
 			freq = tI->second.feparams.frequency/100;
 		else
 			freq = tI->second.feparams.frequency/1000;
-		//INFO("parsing SDT (tsid:onid %04x:%04x)", tI->second.transport_stream_id, tI->second.original_network_id);
-		int status = parse_sdt(&tI->second.transport_stream_id, &tI->second.original_network_id, satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
-		if(status < 0) {
+
+		CNit nit(satellitePosition, freq, cable_nid);
+#ifdef NIT_THREAD
+		if(scan_nit)
+			nit.Start();
+#endif
+
+		CSdt sdt(satellitePosition, freq);
+		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
+
+#ifdef NIT_THREAD
+		if(scan_nit)
+			nit.Stop();
+#endif
+		if(!sdt_parsed) {
 			printf("[scan] SDT failed !\n");
 			continue;
 		}
+#ifndef NIT_THREAD
+		if(scan_nit)
+			nit.Parse();
+#endif
 
 		TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
 				freq /*tI->second.feparams.frequency/1000*/, satellitePosition, tI->second.original_network_id,
@@ -298,19 +306,6 @@ _repeat:
 		else
 			stI->second.feparams.u.qpsk.fec_inner = tI->second.feparams.u.qpsk.fec_inner;
 
-#ifdef NIT_THREAD
-		if(scan_nit && nthread) {
-			if(pthread_join(nthread, NULL))
-				perror("pthread_join !!!!!!!!!");
-		}
-#else
-		if(scan_nit) {
-			printf("[scan] trying to parse NIT\n");
-			int status = parse_nit(satellitePosition, freq /*tI->second.feparams.frequency/1000*/);
-			if(status < 0)
-				printf("[scan] NIT failed !\n");
-		}
-#endif
 		printf("[scan] tpid ready: %llx\n", TsidOnid);
 	}
 	if(scan_nit) {
@@ -361,7 +356,7 @@ bool CServiceScan::AddTransponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_
 		feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(transponder, "modulation", 0);
 		diseqc_pos = 0;
 	}
-	else if (CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
+	else if (frontend->getInfo()->type == FE_QPSK) {
 		feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(transponder, "symbol_rate", 0);
 		polarization = xmlGetNumericAttribute(transponder, "polarization", 0);
 		system = xmlGetNumericAttribute(transponder, "system", 0);
@@ -411,14 +406,10 @@ bool CServiceScan::ScanProvider(xmlNodePtr search, t_satellite_position satellit
 	processed_transponders = 0;
 
 	TIMER_START();
-	sat_iterator_t sit = satellitePositions.find(satellitePosition);
-	if(sit == satellitePositions.end()) {
-		printf("[zapit] WARNING satellite position %d not found!\n", satellitePosition);
-		return false;
-	}
+	std::string satname = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
-	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, sit->second.name.c_str(), sit->second.name.size() + 1);
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, satname.c_str(), satname.size() + 1);
 	tps = search->xmlChildrenNode;
 	/* TPs from current service list */
 	for(tI = transponders.begin(); tI != transponders.end(); tI++) {
@@ -470,6 +461,19 @@ void CServiceScan::Cleanup(const bool success)
 	service_types.clear();
 }
 
+bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)
+{
+	CFrontend * fe = CFEManager::getInstance()->getScanFrontend(satellitePosition);
+	if(fe == NULL) {
+		INFO("No frontend found for satellite  %d\n", satellitePosition);
+		return false;
+	}
+
+	frontend = fe;
+	CFEManager::getInstance()->setLiveFE(frontend);
+	return true;
+}
+
 bool CServiceScan::ScanProviders()
 {
 	scan_list_iterator_t spI;
@@ -482,7 +486,7 @@ bool CServiceScan::ScanProviders()
 
 	curr_sat = 0;
 
-	cable = (CFrontend::getInstance()->getInfo()->type == FE_QAM);
+	cable = (frontend->getInfo()->type == FE_QAM);//FIXME
 	if (cable)
 		frontendType = "cable";
 	else
@@ -492,7 +496,7 @@ bool CServiceScan::ScanProviders()
 	int scan_sat_mode = mode & 0xFF00; // single = 0, all = 1
 
 	printf("[zapit] scan mode %s, satellites %s\n", scan_nit ? "NIT" : "fast", scan_sat_mode ? "all" : "single");
-	// CZapitClient myZapitClient;
+	CZapitClient myZapitClient;
 
 	/* get first child */
 	//xmlNodePtr search = xmlDocGetRootElement(scanInputParser)->xmlChildrenNode;
@@ -518,6 +522,8 @@ bool CServiceScan::ScanProviders()
 
 		/* provider is not wanted - jump to the next one */
 		if (spI != scanProviders.end()) {
+			if(!SetFrontend(position))
+				break;
 			/* get name of current satellite oder cable provider */
 			strcpy(providerName, xmlGetAttribute(search, "name"));
 
@@ -562,24 +568,10 @@ bool CServiceScan::ScanProviders()
 		g_bouquetManager->loadBouquets();
 		printf("[scan] save bouquets done\n");
 		Cleanup(true);
-#if 1
-		CZapitClient myZapitClient;
 		myZapitClient.reloadCurrentServices();
-#else
-		/* this can hang as the thread handling the connections
-		 * could already be in g_Zapit->stopScan(), waiting for
-		 * *this* thread to join().
-		myZapitClient.reloadCurrentServices();
-		 * so let's do another ugly, layer-violating hack...
-		 */
-		CFrontend::getInstance()->setTsidOnid(0);
-		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		CZapit::getInstance()->ZapIt(live_channel_id, false);
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
-#endif
 	} else {
 		Cleanup(false);
-		CFrontend::getInstance()->setTsidOnid(0);
+		frontend->setTsidOnid(0);
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
 	}
@@ -593,13 +585,18 @@ bool CServiceScan::ScanTransponder()
 	char providerName[32] = "";
 	t_satellite_position satellitePosition = 0;
 
+	satellitePosition = scanProviders.begin()->first;
+	if(!SetFrontend(satellitePosition)) {
+		Cleanup(false);
+		return false;
+	}
+
 	scanBouquetManager = new CBouquetManager();
 
-	cable = (CFrontend::getInstance()->getInfo()->type == FE_QAM);
+	cable = (frontend->getInfo()->type == FE_QAM);//FIXME
 
 	strcpy(providerName, scanProviders.size() > 0 ? scanProviders.begin()->second.c_str() : "unknown provider");
 
-	satellitePosition = scanProviders.begin()->first;
 	printf("[scan_transponder] scanning sat %s position %d\n", providerName, satellitePosition);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, providerName, strlen(providerName) + 1);
 
@@ -628,7 +625,7 @@ bool CServiceScan::ScanTransponder()
 	if(abort_scan)
 		found_channels = 0;
 
-	// CZapitClient myZapitClient;
+	CZapitClient myZapitClient;
 	//FIXME move to Cleanup() ?
 	if(found_channels) {
 		CServiceManager::getInstance()->SaveServices(true);
@@ -639,21 +636,10 @@ bool CServiceScan::ScanTransponder()
 		//g_bouquetManager->clearAll();
 		g_bouquetManager->loadBouquets();
 		Cleanup(true);
-#if 1
-		CZapitClient myZapitClient;
 		myZapitClient.reloadCurrentServices();
-#else
-		/* see the explanation in CServiceScan::ScanProviders() in why this is a bad idea
-		myZapitClient.reloadCurrentServices();
-		 */
-		CFrontend::getInstance()->setTsidOnid(0);
-		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-		CZapit::getInstance()->ZapIt(live_channel_id, false);
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
-#endif
 	} else {
 		Cleanup(false);
-		CFrontend::getInstance()->setTsidOnid(0);
+		frontend->setTsidOnid(0);
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
 	}

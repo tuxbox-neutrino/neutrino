@@ -101,6 +101,7 @@ struct SNeutrinoSettings
 	int clockrec;
 	int rounded_corners;
 	int ci_standby_reset;
+	int ci_clock;
 	int radiotext_enable;
 	
 	//vcr
@@ -677,6 +678,7 @@ public:
 	char		TP_rate[9];
 	int		fast_type;
 	int		fast_op;
+	int		cable_nid;
 
 	CScanSettings();
 

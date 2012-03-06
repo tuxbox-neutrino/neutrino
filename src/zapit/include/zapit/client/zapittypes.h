@@ -55,6 +55,7 @@ typedef uint32_t t_transponder_id;
 typedef uint64_t t_channel_id;
 #define CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service_id,original_network_id,transport_stream_id) ((((t_channel_id)transport_stream_id) << 32) | (((t_channel_id)original_network_id) << 16) | (t_channel_id)service_id)
 #define CREATE_CHANNEL_ID CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service_id, original_network_id, transport_stream_id)
+#define GET_TRANSPORT_STREAM_ID_FROM_CHANNEL_ID(channel_id) ((t_original_network_id)((channel_id) >> 32))
 #define GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(channel_id) ((t_original_network_id)((channel_id) >> 16))
 #define GET_SERVICE_ID_FROM_CHANNEL_ID(channel_id) ((t_service_id)(channel_id))
 #define PRINTF_CHANNEL_ID_TYPE "%16llx"
@@ -62,7 +63,6 @@ typedef uint64_t t_channel_id;
 #define SCANF_CHANNEL_ID_TYPE "%llx"
 
 #define CREATE_CHANNEL_ID64 (((uint64_t)(satellitePosition+freq*4) << 48) | ((uint64_t) transport_stream_id << 32) | ((uint64_t)original_network_id << 16) | (uint64_t)service_id)
-//#define CREATE_CHANNEL_ID64 CREATE_CHANNEL_ID_FROM_64(satellitePosition, service_id, original_network_id, transport_stream_id)
 
 #define SAME_TRANSPONDER(id1, id2) ((id1 >> 16) == (id2 >> 16))
 
@@ -149,6 +149,7 @@ typedef struct ZAPIT_start_arg
 	int startchannelradio_nr;
 	int uselastchannel;
 	int video_mode;
+	int ci_clock;
 } Z_start_arg;
 
 typedef struct TP_map
@@ -162,23 +163,26 @@ typedef struct TP_map
 
 #define MAX_LNB 64 
 typedef struct Zapit_config {
-	int motorRotationSpeed;
 	int writeChannelsNames;
 	int makeRemainingChannelsBouquet;
 	int saveLastChannel;
 	int rezapTimeout;
-	int feTimeout;
 	int fastZap;
 	int sortNames;
-	int highVoltage;
 	int scanPids;
 	int scanSDT;
+	int cam_ci;
 	int useGotoXX;
+	/* FE common */
+	int feTimeout;
 	int gotoXXLaDirection;
 	int gotoXXLoDirection;
-	int repeatUsals;
 	double gotoXXLatitude;
 	double gotoXXLongitude;
+	int repeatUsals;
+	/* FE specific */
+	int highVoltage;
+	int motorRotationSpeed;
 	int uni_scr;
 	int uni_qrg;
 } t_zapit_config;

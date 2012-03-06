@@ -1,23 +1,13 @@
 /*
 	Neutrino-GUI  -   DBoxII-Project
 
-	Copyright (C) 2001 Steffen Hehn 'McClean'
-	Homepage: http://dbox.cyberphoria.org/
+	Copyright (C) 2011 CoolStream International Ltd
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
-
-	License: GPL
+	License: GPLv2
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	the Free Software Foundation;
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -110,15 +100,20 @@ int CCAMMenuHandler::doMainMenu()
 	char name1[255]={0};
 	char str1[255]={0};
 
-	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
-	cammenu->addItem( GenericMenuBack );
-	cammenu->addItem( GenericMenuSeparatorLine );
+	int CiSlots = ca->GetNumberCISlots();
 
-	cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	cammenu->addItem( GenericMenuSeparatorLine );
+	CMenuWidget* cammenu = new CMenuWidget(LOCALE_CI_SETTINGS, NEUTRINO_ICON_SETTINGS);
+	//cammenu->addItem( GenericMenuBack );
+	//cammenu->addItem( GenericMenuSeparatorLine );
+	cammenu->addIntroItems();
+
+	if(true /* CiSlots */) {
+		cammenu->addItem( new CMenuOptionChooser(LOCALE_CI_RESET_STANDBY, &g_settings.ci_standby_reset, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+		cammenu->addItem( new CMenuOptionNumberChooser(LOCALE_CI_CLOCK, &g_settings.ci_clock, true, 6, 12, this));
+		cammenu->addItem( GenericMenuSeparatorLine );
+	}
 
 	CMenuWidget * tempMenu;
-	int CiSlots = ca->GetNumberCISlots();
 	int i = 0;
 
 	cnt = 0;
@@ -493,4 +488,14 @@ int CCAMMenuHandler::doMenu(int slot, CA_SLOT_TYPE slotType)
 	hideHintBox();
 	printf("CCAMMenuHandler::doMenu: return\n");
 	return res;
+}
+
+bool CCAMMenuHandler::changeNotify(const neutrino_locale_t OptionName, void * /*Data*/)
+{
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_CI_CLOCK)) {
+		printf("CCAMMenuHandler::changeNotify: ci_clock %d\n", g_settings.ci_clock);
+		ca->SetTSClock(g_settings.ci_clock * 1000000);
+		return true;
+	}
+	return false;
 }

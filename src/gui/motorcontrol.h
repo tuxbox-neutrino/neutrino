@@ -37,7 +37,7 @@
 #include <gui/widget/progressbar.h>
 #include <driver/framebuffer.h>
 #include <string>
-
+#include <zapit/femanager.h>
 
 #define STEP_MODE_OFF 0
 #define STEP_MODE_AUTO 1
@@ -49,6 +49,7 @@ class CMotorControl : public CMenuTarget
 	private:
 		void Init(void);
 		CFrameBuffer	*frameBuffer;
+		CFrontend	*frontend;
 		int x;
 		int y;
 		int width;
@@ -57,7 +58,7 @@ class CMotorControl : public CMenuTarget
 		int ypos;
 		int ypos_status;
 		int ypos_menue;
-		
+
 		int8_t stepSize;
 		int32_t stepDelay;
 		int stepMode;
@@ -81,7 +82,8 @@ class CMotorControl : public CMenuTarget
 
 	public:
 
-		CMotorControl();
+		CMotorControl(int tnum = 0);
+		~CMotorControl();
 		void hide();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };

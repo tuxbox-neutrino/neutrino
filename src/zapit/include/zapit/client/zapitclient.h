@@ -71,6 +71,7 @@ class CZapitClient:public CBasicClient
 			EVT_SDT_CHANGED,
 			EVT_SERVICES_CHANGED,
 			EVT_PMT_CHANGED,
+			EVT_TUNE_COMPLETE,
 			LAST_EVENT_MARKER             // <- no actual event, needed by pzapit
 		};
 

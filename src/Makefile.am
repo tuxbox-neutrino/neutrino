@@ -1,6 +1,6 @@
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
-SUBDIRS = zapit gui daemonc driver system sectionsd timerd nhttpd
+SUBDIRS = zapit gui daemonc driver system eitd timerd nhttpd
 
 INCLUDES = \
 	-I$(srcdir) \
@@ -56,7 +56,7 @@ neutrino_LDADD = \
 	system/libneutrino_system.a \
 	gui/movieinfo.o \
 	gui/libneutrino_gui2.a \
-	sectionsd/libsectionsd.a \
+	eitd/libsectionsd.a \
 	driver/libneutrino_driver.a \
 	driver/audiodec/libneutrino_driver_audiodec.a \
 	driver/libneutrino_driver_netfile.a \
@@ -87,6 +87,7 @@ neutrino_LDADD = \
 	@AVUTIL_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS) \
+	-ldvbsi++ \
 	-lungif \
 	-ljpeg \
 	-lOpenThreads \

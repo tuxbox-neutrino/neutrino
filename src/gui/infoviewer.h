@@ -145,6 +145,7 @@ class CInfoViewer
 	void showRecordIcon(const bool show);
 	void showIcon_SubT() const;
 	void showIcon_Resolution() const;
+	void showIcon_Tuner() const;
 
 	void showFailure();
 	void showMotorMoving(int duration);

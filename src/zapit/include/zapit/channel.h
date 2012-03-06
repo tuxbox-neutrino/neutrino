@@ -29,9 +29,9 @@
 #include <cstdlib>
 #include <xmltree/xmlinterface.h>
 #include <sectionsdclient/sectionsdclient.h>
+#include <set>
 
 /* zapit */
-#include "ci.h"
 #include "types.h"
 //#include <zapit/audio.h>
 
@@ -108,6 +108,9 @@ class CZapitAudioChannel
 
 class CChannelList;
 
+typedef std::set<int> casys_map_t;
+typedef casys_map_t::iterator casys_map_iterator_t;
+
 class CZapitChannel
 {
 	private:
@@ -145,9 +148,10 @@ class CZapitChannel
 		unsigned char			serviceType;
 
 		/* the conditional access program map table of this channel */
-		CCaPmt * 			caPmt;
+		//CCaPmt * 			caPmt;
 		unsigned char			* rawPmt;
 		int				pmtLen;
+		uint8_t				pmt_version;
 
 		/* from neutrino CChannel class */
 		uint64_t			last_unlocked_EPGid;
@@ -155,9 +159,14 @@ class CZapitChannel
 
 		std::string			ttx_language_code;
 
+		uint8_t				record_demux;
+
+		void				Init();
 		friend class CChannelList;
 
 	public:
+		casys_map_t			camap;
+
 		bool				bAlwaysLocked;
 
 		int				number;
@@ -167,9 +176,11 @@ class CZapitChannel
 		unsigned char			scrambled;
 		char *				pname;
 		bool				has_bouquet;
+		uint8_t				polarization;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
+		CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq);
 		~CZapitChannel(void);
 
 		/* get methods - read only variables */
@@ -195,8 +206,9 @@ class CZapitChannel
 		unsigned short		getPrivatePid(void)		{ return privatePid; }
 		unsigned short		getPreAudioPid(void)		{ return audioPid; }
 		bool			getPidsFlag(void)		{ return pidsFlag; }
-		CCaPmt *		getCaPmt(void)			{ return caPmt; }
+		//CCaPmt *		getCaPmt(void)			{ return caPmt; }
 		unsigned char *		getRawPmt(int &len)		{ len = pmtLen; return rawPmt; };
+		uint8_t			getPmtVersion(void)		{ return pmt_version; };
 
 		CZapitAudioChannel * 	getAudioChannel(unsigned char index = 0xFF);
 		unsigned short 		getAudioPid(unsigned char index = 0xFF);
@@ -211,12 +223,13 @@ class CZapitChannel
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
 		void setTeletextPid(unsigned short pTeletextPid)	{ teletextPid = pTeletextPid; }
-		void setTeletextLang(char * lang)			{ ttx_language_code = lang; };
+		void setTeletextLang(std::string lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }
 		void setAudioPid(unsigned short pAudioPid)		{ audioPid = pAudioPid; }
 		void setPrivatePid(unsigned short pPrivatePid)		{ privatePid = pPrivatePid; }
 		void setPidsFlag(void)					{ pidsFlag = true; }
-		void setCaPmt(CCaPmt *pCaPmt);
+		//void setCaPmt(CCaPmt *pCaPmt);
+		void setPmtVersion(uint8_t version)			{ pmt_version = version; }
 		void setRawPmt(unsigned char * pmt, int len = 0);
 		/* cleanup methods */
 		void resetPids(void);
@@ -232,6 +245,13 @@ class CZapitChannel
 
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
 		void dumpBouquetXml(FILE * fd);
+		void setRecordDemux(int num) { record_demux = num; };
+		int  getRecordDemux() { return record_demux; };
+		static t_channel_id makeChannelId(t_satellite_position sat, freq_id_t freq,
+				t_transport_stream_id tsid, t_original_network_id onid, t_service_id sid)
+		{
+			return (((uint64_t)(sat+freq*4) << 48) | ((uint64_t) tsid << 32) | ((uint64_t)onid << 16) | (uint64_t)sid);
+		};
 };
 
 #endif /* __zapit_channel_h__ */

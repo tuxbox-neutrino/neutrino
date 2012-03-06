@@ -57,9 +57,10 @@
 
 #include <gui/customcolor.h>
 
-#include <zapit/satconfig.h>
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
+#include <zapit/scan.h>
 #include <zapit/zapit.h>
+#include <zapit/getservices.h>
 #include <video.h>
 extern cVideo * videoDecoder;
 
@@ -83,25 +84,18 @@ CScanTs::CScanTs()
 }
 
 extern int scan_fta_flag;//in zapit descriptors definiert
-extern int start_fast_scan(int scan_mode, int opid);
-#include <zapit/getservices.h>
 
 void CScanTs::prev_next_TP( bool up)
 {
 	t_satellite_position position = 0;
 
-	for (sat_iterator_t sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		if (!strcmp(sit->second.name.c_str(), scansettings.satNameNoDiseqc)) {
-			position = sit->first;
-			break;
-		}
-	}
+	position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
 
 	extern std::map<transponder_id_t, transponder> select_transponders;
 	transponder_list_t::iterator tI;
 	bool next_tp = false;
 
-	if(up){
+	if(up) {
 		for (tI = select_transponders.begin(); tI != select_transponders.end(); tI++) {
 			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
 			if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
@@ -113,21 +107,21 @@ void CScanTs::prev_next_TP( bool up)
 				break;
 			}
 		}
-	}else{
-		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); tI-- ){
+	} else {
+		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); tI-- ) {
 			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
 			if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
 				satpos = -satpos;
 			if (satpos != position)
 				continue;
-			if(tI->second.feparams.frequency < TP.feparams.frequency){
+			if(tI->second.feparams.frequency < TP.feparams.frequency) {
 				next_tp = true;
 				break;
 			}
 		}
 	}
 
-	if(next_tp){
+	if(next_tp) {
 		TP.feparams.frequency = tI->second.feparams.frequency;
 		if(g_info.delivery_system == DVB_S) {
 			TP.feparams.u.qpsk.symbol_rate = tI->second.feparams.u.qpsk.symbol_rate;
@@ -147,21 +141,23 @@ void CScanTs::testFunc()
 	int w = x + width - xpos2;
 	char buffer[128];
 	char * f, *s, *m;
-	if(CFrontend::getInstance()->getInfo()->type == FE_QPSK) {
-		CFrontend::getInstance()->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
+
+	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+	if(frontend->getInfo()->type == FE_QPSK) {
+		frontend->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, TP.polarization == 0 ? 'H' : 'V', TP.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-	} else if(CFrontend::getInstance()->getInfo()->type == FE_QAM) {
-		CFrontend::getInstance()->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
+	} else if(frontend->getInfo()->type == FE_QAM) {
+		frontend->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(scansettings.TP_freq)/1000, atoi(scansettings.TP_rate)/1000, f, s, m);
 	}
 	paintLine(xpos2, ypos_cur_satellite, w - 95, scansettings.satNameNoDiseqc);
 	paintLine(xpos2, ypos_frequency, w, buffer);
 	success = g_Zapit->tune_TP(TP);
-
 }
+
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
-	diseqc_t            diseqcType = NO_DISEQC;
+	//diseqc_t            diseqcType = NO_DISEQC;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	//bool manual = (scansettings.scan_mode == 2);
@@ -201,6 +197,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	CRecordManager::getInstance()->StopAutoRecord();
 	g_Zapit->stopPlayBack();
+
 	frameBuffer->paintBackground();
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/scan.jpg");
 	g_Sectionsd->setPauseScanning(true);
@@ -221,6 +218,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.u.qam.symbol_rate	= atoi(scansettings.TP_rate);
 			TP.feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.TP_fec;
 			TP.feparams.u.qam.modulation	= (fe_modulation_t) scansettings.TP_mod;
+			CServiceScan::getInstance()->SetCableNID(scansettings.cable_nid);
 		}
 		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
 	}
@@ -228,16 +226,12 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(fast) {
 	}
 	else if(manual || !scan_all) {
-		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-			if(!strcmp(sit->second.name.c_str(),scansettings.satNameNoDiseqc)) {
-				sat.position = sit->first;
-				strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
-				satList.push_back(sat);
-				break;
-			}
-		}
+		sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
+		strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
+		satList.push_back(sat);
 	} else {
-		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+		satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
+		for(sit = satmap.begin(); sit != satmap.end(); sit++) {
 			if(sit->second.use_in_scan) {
 				sat.position = sit->first;
 				strncpy(sat.satName, sit->second.name.c_str(), 50);
@@ -252,13 +246,14 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
                 if (system(NEUTRINO_SCAN_START_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
-
+#if 0
 	/* send diseqc type to zapit */
 	diseqcType = (diseqc_t) scansettings.diseqcMode;
 	g_Zapit->setDiseqcType(diseqcType);
 
 	/* send diseqc repeat to zapit */
 	g_Zapit->setDiseqcRepeat( scansettings.diseqcRepeat);
+#endif
 	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)scansettings.bouquetMode);
 
 	/* send satellite list to zapit */
@@ -268,7 +263,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
         /* send scantype to zapit */
         g_Zapit->setScanType((CZapitClient::scanType) scansettings.scanType );
 
-	tuned = CFrontend::getInstance()->getStatus();
+	tuned = -1;
 	paint(test);
 	/* go */
 	if(test) {
@@ -314,7 +309,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 				msg = handleMsg(msg, data);
 		}
 		while (!(msg == CRCInput::RC_timeout));
-		showSNR(); // FIXME commented until scan slowdown will be solved
+		showSNR();
 	}
 	/* to join scan thread */
 	g_Zapit->stopScan();
@@ -394,9 +389,9 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				int fec = (data >> 8) & 0xFF;
 				int rate = data >> 16;
 				char * f, *s, *m;
-				CFrontend::getInstance()->getDelSys(fec, (fe_modulation_t)0, f, s, m); // FIXME
+				CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+				frontend->getDelSys(fec, (fe_modulation_t)0, f, s, m); // FIXME
 				snprintf(buffer,sizeof(buffer), " %c %d %s %s %s", pol == 0 ? 'H' : 'V', rate, f, s, m);
-				//(pol == 0) ? sprintf(buffer, "-H") : sprintf(buffer, "-V");
 				paintLine(xpos2 + xpos_frequency, ypos_frequency, w - xpos_frequency - (7*fw), buffer);
 			}
 			break;
@@ -453,8 +448,10 @@ void CScanTs::paintRadar(void)
 {
 	char filename[30];
 
-	if(tuned != CFrontend::getInstance()->getStatus()) {
-		tuned = CFrontend::getInstance()->getStatus();
+	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+	bool status = frontend->getStatus();
+	if(tuned != status) {
+		tuned = status;
 		frameBuffer->loadPal(tuned ? "radar.pal" : "radar_red.pal", 18, 38);
 	}
 
@@ -558,8 +555,9 @@ void CScanTs::showSNR ()
 	int posx, posy;
 	int sw;
 
-	ssig = CFrontend::getInstance()->getSignalStrength();
-	ssnr = CFrontend::getInstance()->getSignalNoiseRatio();
+	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
+	ssig = frontend->getSignalStrength();
+	ssnr = frontend->getSignalNoiseRatio();
 	snr = (ssnr & 0xFFFF) * 100 / 65535;
 	sig = (ssig & 0xFFFF) * 100 / 65535;
 

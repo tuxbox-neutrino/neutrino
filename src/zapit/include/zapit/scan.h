@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
 #include <zapit/getservices.h>
 #include <zapit/fastscan.h>
 #include "bouquets.h"
@@ -45,6 +45,7 @@ class CServiceScan : public OpenThreads::Thread
 		uint32_t found_radio_chans;
 		uint32_t found_data_chans;
 		uint32_t failed_transponders;
+		unsigned short cable_nid;
 
 		short curr_sat;
 
@@ -78,6 +79,7 @@ class CServiceScan : public OpenThreads::Thread
 
 		void run();
 
+		CFrontend * frontend;
 		static CServiceScan * scan;
 		CServiceScan();
 
@@ -96,8 +98,12 @@ class CServiceScan : public OpenThreads::Thread
 		void Abort() { abort_scan = 1; };
 		bool Aborted() { return abort_scan; };
 
+		bool SetFrontend(t_satellite_position satellitePosition);
+		CFrontend * GetFrontend() { return frontend; };
+
 		uint32_t & FoundTransponders() { return found_transponders; };
 		uint32_t & FoundChannels() { return found_channels; };
+		void SetCableNID(unsigned short nid) { cable_nid = nid; }
 };
 
 #endif /* __scan_h__ */

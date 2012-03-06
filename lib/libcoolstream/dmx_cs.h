@@ -5,6 +5,7 @@
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
+/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __DEMUX_CS_H_
 #define __DEMUX_CS_H_
@@ -14,9 +15,12 @@
 
 #define DEMUX_POLL_TIMEOUT		0  // timeout in ms
 #define MAX_FILTER_LENGTH		12    // maximum number of filters
-#ifndef DMX_FILTER_SIZE
-#define DMX_FILTER_SIZE			MAX_FILTER_LENGTH
+
+#ifdef DMX_FILTER_SIZE
+#error
 #endif
+#define DMX_FILTER_SIZE			MAX_FILTER_LENGTH
+
 #define MAX_DMX_UNITS			4
 
 typedef enum {

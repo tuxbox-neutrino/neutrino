@@ -48,7 +48,7 @@
 #include "gui/widget/hintbox.h"
 #include "gui/scan.h"
 #include "gui/scan_setup.h"
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
 
 extern int cs_test_card(int unit, char * str);
 
@@ -254,7 +254,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		sprintf(scansettings.TP_freq, "%d", freq);
 #if 0 // not needed ?
-		switch (CFrontend::getInstance()->getInfo()->type) 
+		CFrontend * frontend = CFEManager::getInstance()->getFE(0);
+		switch (frontend->getInfo()->type) 
 		{
 		case FE_QPSK:
 			sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
@@ -279,7 +280,8 @@ int CTestMenu::exec(CMenuTarget* parent, const std::string &actionKey)
 
 		int freq = 12538000;
 		sprintf(scansettings.TP_freq, "%d", freq);
-		switch (CFrontend::getInstance()->getInfo()->type) 
+		CFrontend * frontend = CFEManager::getInstance()->getFE(0);
+		switch (frontend->getInfo()->type) 
 		{
 			case FE_QPSK:
 				sprintf(scansettings.TP_rate, "%d", 41250*1000);

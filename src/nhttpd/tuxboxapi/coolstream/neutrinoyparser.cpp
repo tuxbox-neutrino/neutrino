@@ -38,6 +38,7 @@ bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSect
 void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
+bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
 //=============================================================================
 // Constructor & Destructor & Initialization
 //=============================================================================
@@ -808,9 +809,8 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 				}
 				if(timer->epgID!=0)
 				{
-					CSectionsdClient sdc;
 					CEPGData epgdata;
-					if (sdc.getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+					if (sectionsd_getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
 						sAddData+="<br/>" + epgdata.title;
 					else
 						sAddData+=std::string("<br/>")+timer->epgTitle;

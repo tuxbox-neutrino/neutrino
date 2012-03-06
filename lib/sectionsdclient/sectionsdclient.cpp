@@ -120,27 +120,6 @@ bool CSectionsdClient::getIsTimeSet()
 	}
 }
 
-
-#if 0
-void CSectionsdClient::setEventsAreOldInMinutes(const unsigned short minutes)
-{
-	send(sectionsd::setEventsAreOldInMinutes, (char*)&minutes, sizeof(minutes));
-
-	readResponse();
-	close_connection();
-}
-#endif
-
-void CSectionsdClient::setPauseSorting(const bool doPause)
-{
-	int PauseIt = (doPause) ? 1 : 0;
-
-	send(sectionsd::pauseSorting, (char*)&PauseIt, sizeof(PauseIt));
-
-	readResponse();
-	close_connection();
-}
-
 void CSectionsdClient::setPauseScanning(const bool doPause)
 {
 	int PauseIt = (doPause) ? 1 : 0;
@@ -733,15 +712,6 @@ bool CSectionsdClient::getEPGidShort(const event_id_t eventid, CShortEPGData * e
 void CSectionsdClient::setPrivatePid(const unsigned short pid)
 {
 	send(sectionsd::setPrivatePid, (char*)&pid, sizeof(pid));
-
-	readResponse();
-	close_connection();
-}
-#endif
-#if 0
-void CSectionsdClient::setSectionsdScanMode(const int scanMode)
-{
-	send(sectionsd::setSectionsdScanMode, (char*)&scanMode, sizeof(scanMode));
 
 	readResponse();
 	close_connection();
