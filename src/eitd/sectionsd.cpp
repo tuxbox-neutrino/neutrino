@@ -1342,6 +1342,7 @@ CTimeThread::CTimeThread()
 
 void CTimeThread::sendTimeEvent(bool ntp, time_t tim)
 {
+#if 0
 	time_t actTime = time(NULL);
 	if (!ntp) {
 		struct tm *tmTime = localtime(&actTime);
@@ -1350,6 +1351,9 @@ void CTimeThread::sendTimeEvent(bool ntp, time_t tim)
 		actTime = tim;
 	}
 	eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &actTime, sizeof(actTime) );
+#endif
+	if(ntp || tim) {}
+	eventServer->sendEvent(CSectionsdClient::EVT_TIMESET, CEventServer::INITID_SECTIONSD, &timediff, sizeof(timediff));
 	setTimeSet();
 }
 
@@ -1377,18 +1381,22 @@ void CTimeThread::setSystemTime(time_t tim)
 	struct tm *tmTime = localtime(&now);
 
 	gettimeofday(&tv, NULL);
-	timediff = tim * (int64_t)1000000 - (tv.tv_usec + tv.tv_sec * (int64_t)1000000);
+	timediff = (int64_t)tim * (int64_t)1000000 - (tv.tv_usec + tv.tv_sec * (int64_t)1000000);
 
 	xprintf("%s: timediff %lld, current: %02d.%02d.%04d %02d:%02d:%02d, dvb: %s", name.c_str(), timediff,
 			tmTime->tm_mday, tmTime->tm_mon+1, tmTime->tm_year+1900, 
 			tmTime->tm_hour, tmTime->tm_min, tmTime->tm_sec, ctime(&tim));
 
-	if (!messaging_neutrino_sets_time) {
-		tv.tv_sec = tim;
-		tv.tv_usec = 0;
-		if (settimeofday(&tv, NULL) < 0)
-			perror("[sectionsd] settimeofday");
+	/* if new time less than current for less than 1 second, ignore */
+	if(timediff < 0 && timediff > (int64_t) -1000000) {
+		timediff = 0;
+		return;
 	}
+
+	tv.tv_sec = tim;
+	tv.tv_usec = 0;
+	if (settimeofday(&tv, NULL) < 0)
+		perror("[sectionsd] settimeofday");
 }
 
 void CTimeThread::addFilters()
@@ -1434,9 +1442,9 @@ void CTimeThread::run()
 			else
 				change(0);
 
-			xprintf("timeThread: getting DVB time (isOpen %d)\n", isOpen());
+			xprintf("%s: getting DVB time (isOpen %d)\n", name.c_str(), isOpen());
 			int rc = dmx->Read(static_buf, MAX_SECTION_LENGTH, timeoutInMSeconds);
-			xprintf("timeThread: getting DVB time done : %d messaging_neutrino_sets_time %d\n", rc, messaging_neutrino_sets_time);
+			xprintf("%s: getting DVB time done : %d messaging_neutrino_sets_time %d\n", name.c_str(), rc, messaging_neutrino_sets_time);
 			if (rc > 0) {
 				SIsectionTIME st(static_buf);
 				if (st.is_parsed()) {
@@ -1465,60 +1473,9 @@ void CTimeThread::run()
 				sleep_time = 1;
 		}
 		sendToSleepNow = true;
-
-#if 0
-		if (timeset && dvb_time_update) {
-			if (!first_time)
-				sleep_time = ntprefresh * 60;
-			else
-				sleep_time = 5; /* retry a second time immediately */
-
-			if (time_ntp) {
-				xprintf("[%sThread] Time set via NTP, going to sleep for %d seconds.\n", "time", sleep_time);
-			}
-			else {
-				xprintf("[%sThread] Time %sset via DVB(%s), going to sleep for %d seconds.\n",
-						"time", success?"":"not ", first_time?"TDT":"TOT", sleep_time);
-			}
-			first_time = false;
-		}
-		else {
-			if (!first_time) {
-				/* time was already set, no need to do it again soon when DVB time-blocked channel is tuned */
-				sleep_time = ntprefresh * 60;
-			} else {
-				sleep_time = 1;
-			}
-			if (!dvb_time_update && !first_time) {
-				xprintf("[%sThread] Time NOT set via DVB due to blocked channel, going to sleep for %d seconds.\n", "time", sleep_time);
-			}
-		}
-#endif
-#if 0
-		if (sectionsd_stop)
-			break;
-
-		xprintf("timeThread: going to sleep for %d sec\n\n", seconds);
-
-		struct timespec restartWait;
-		struct timeval now;
-		gettimeofday(&now, NULL);
-		TIMEVAL_TO_TIMESPEC(&now, &restartWait);
-		restartWait.tv_sec += seconds;
-		pthread_mutex_lock( &timeThreadSleepMutex );
-		int ret = pthread_cond_timedwait( &timeThreadSleepCond, &timeThreadSleepMutex, &restartWait );
-		pthread_mutex_unlock( &timeThreadSleepMutex );
-		if (ret == ETIMEDOUT)
-		{
-			dprintf("TDT-Thread sleeping is over - no signal received\n");
-		}
-		else if (ret == EINTR)
-		{
-			dprintf("TDT-Thread sleeping interrupted\n");
-		}
-#endif
 	}
 
+	delete[] static_buf;
 	printf("[sectionsd] timeThread ended\n");
 	pthread_exit(NULL);
 }
