@@ -3341,8 +3341,8 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 
 		videoDecoder->Standby(true);
 
-		g_Sectionsd->setServiceChanged(0, false);
 		g_Sectionsd->setPauseScanning(true);
+		g_Sectionsd->setServiceChanged(0, false);
 
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
 			//only save epg when not recording
