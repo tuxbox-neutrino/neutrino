@@ -111,6 +111,7 @@
 
 #include "libdvbsub/dvbsub.h"
 #include "libtuxtxt/teletext.h"
+#include <eitd/sectionsd.h>
 
 int old_b_id = -1;
 CHintBox * reloadhintBox = 0;
@@ -140,7 +141,7 @@ static pthread_t nhttpd_thread ;
 //#define DISABLE_SECTIONSD
 extern int sectionsd_stop;
 #ifndef DISABLE_SECTIONSD
-static pthread_t sections_thread;
+//static pthread_t sections_thread;
 #endif
 void * sectionsd_main_thread(void *data);
 extern bool timeset; // sectionsd
@@ -1717,7 +1718,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hintBox->paint();
 
 #ifndef DISABLE_SECTIONSD
-	pthread_create (&sections_thread, NULL, sectionsd_main_thread, (void *) NULL);
+	//pthread_create (&sections_thread, NULL, sectionsd_main_thread, (void *) NULL);
+	CEitManager::getInstance()->Start();
 #endif
 	g_Zapit         = new CZapitClient;
 
@@ -3697,7 +3699,8 @@ void stop_daemons(bool stopall)
 	}
 #ifndef DISABLE_SECTIONSD
 	printf("sectionsd shutdown\n");
-	pthread_join(sections_thread, NULL);
+	//pthread_join(sections_thread, NULL);
+	CEitManager::getInstance()->Stop();
 	printf("sectionsd shutdown done\n");
 #endif
 	tuxtx_stop_subtitle();

@@ -299,10 +299,4 @@ class CTimeThread : public CSectionThread
 		void setTimeSet();
 };
 
-class CEitManager
-{
-	private:
-	public:
-};
-
 #endif

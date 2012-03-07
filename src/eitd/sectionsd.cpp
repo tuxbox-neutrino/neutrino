@@ -60,6 +60,7 @@
 #include <driver/abstime.h>
 
 #include "eitd.h"
+#include "sectionsd.h"
 #include "edvbstring.h"
 #include "xmlutil.h"
 
@@ -2009,7 +2010,48 @@ static void *houseKeepingThread(void *)
 	pthread_exit(NULL);
 }
 
-void sectionsd_main_thread(void * /*data*/)
+CEitManager* CEitManager::manager = NULL;
+OpenThreads::Mutex CEitManager::m;
+
+CEitManager::CEitManager()
+{
+	running = false;
+}
+
+CEitManager::~CEitManager()
+{
+}
+
+CEitManager * CEitManager::getInstance()
+{
+	m.lock();
+	if(manager == NULL)
+		manager = new CEitManager();
+	m.unlock();
+	return manager;
+}
+
+bool CEitManager::Start()
+{
+xprintf("[sectionsd] start\n");
+	if(running)
+		return false;
+
+	running = true;
+	return (OpenThreads::Thread::start() == 0);
+
+}
+
+bool CEitManager::Stop()
+{
+	if(!running)
+		return false;
+	running = false;
+	int ret = (OpenThreads::Thread::join() == 0);
+	return ret;
+}
+
+void CEitManager::run()
 {
 	pthread_t /*threadTOT,*/ threadHouseKeeping;
 	int rc;
@@ -2093,7 +2135,7 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 
 	sectionsd_ready = true;
 
-	while (!sectionsd_stop && sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
+	while (running && sectionsd_server.run(sectionsd_parse_command, sectionsd::ACTVERSION, true)) {
 		sched_yield();
 		if (threadCN.checkUpdate()) {
 			sched_yield();
@@ -2113,6 +2155,12 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	threadEIT.StopRun();
 	threadCN.StopRun();
 	threadTIME.StopRun();
+#ifdef ENABLE_SDT
+	threadSDT.StopRun();
+#endif
+#ifdef ENABLE_FREESATEPG
+	threadFSEIT.StopRun();
+#endif
 
 	xprintf("broadcasting...\n");
 
