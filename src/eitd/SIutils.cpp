@@ -1,26 +1,26 @@
-//
-// $Id: SIutils.cpp,v 1.15 2005/11/03 21:08:52 mogway Exp $
-//
-// utility functions for the SI-classes (dbox-II-project)
-//
-//    Homepage: http://dbox2.elxsi.de
-//
-//    Copyright (C) 2001 fnbrd (fnbrd@gmx.de)
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-//
+/*
+ * SIutils.cpp, utility functions for the SI-classes (dbox-II-project)
+ *
+ * (C) 2001 by fnbrd (fnbrd@gmx.de)
+ *
+ * Copyright (C) 2011-2012 CoolStream International Ltd
+ *
+ * License: GPLv2
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 
 #include <stdio.h>
 #include <unistd.h>
