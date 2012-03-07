@@ -1087,20 +1087,11 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 	}
 
 	if (time_wakeup) {
-		//pthread_mutex_lock(&timeThreadSleepMutex);
-
 		ntpserver = (std::string)&data[sizeof(struct sectionsd::commandSetConfig)];
 		dprintf("new network_ntpserver = %s\n", ntpserver.c_str());
 		ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
 		ntprefresh = pmsg->network_ntprefresh;
 		ntpenable = (pmsg->network_ntpenable == 1);
-#if 0
-		if (timeset) {
-			// wake up time thread
-			pthread_cond_broadcast(&timeThreadSleepCond);
-		}
-		pthread_mutex_unlock(&timeThreadSleepMutex);
-#endif
 		if(timeset)
 			threadTIME.change(1);
 	}
@@ -1427,8 +1418,7 @@ void CTimeThread::run()
 			}
 		}
 		/* default sleep time */
-		//sleep_time = ntprefresh * 60;
-		sleep_time = 10;
+		sleep_time = ntprefresh * 60;
 		if(success) {
 			if(dvb_time) {
 				setSystemTime(dvb_time);
@@ -2019,14 +2009,12 @@ static void *houseKeepingThread(void *)
 	pthread_exit(NULL);
 }
 
-//extern cDemux * dmxUTC;
-
 void sectionsd_main_thread(void * /*data*/)
 {
 	pthread_t /*threadTOT,*/ threadHouseKeeping;
 	int rc;
 
-	xpritf("[sectionsd] starting\n");
+	xprintf("[sectionsd] starting\n");
 printf("SIevent size: %d\n", sizeof(SIevent));
 
 	/* "export NO_SLOW_ADDEVENT=true" to disable this */
