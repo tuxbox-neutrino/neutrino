@@ -1758,7 +1758,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_RemoteControl = new CRemoteControl;
 	g_EpgData = new CEpgData;
 	g_InfoViewer = new CInfoViewer;
-	g_EventList = new EventList;
+	g_EventList = new CNeutrinoEventList;
 
 	int dx = 0;
 	int dy = 0;
