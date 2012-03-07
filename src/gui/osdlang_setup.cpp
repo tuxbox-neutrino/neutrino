@@ -128,7 +128,7 @@ CMenuOptionStringChooser* COsdLangSetup::getTzItems()
 			if (!strcmp(xmlGetName(search), "zone")) 
 			{
 				std::string name = xmlGetAttribute(search, "name");
-				std::string zone = xmlGetAttribute(search, "zone");
+//				std::string zone = xmlGetAttribute(search, "zone");
 				//printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
 				tzSelect->addOption(name.c_str());
 				found = true;

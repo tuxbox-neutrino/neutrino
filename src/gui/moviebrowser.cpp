@@ -681,7 +681,7 @@ void CMovieBrowser::initRows(void)
 	m_settings.lastRecordRowWidth[4] = m_defaultRowWidth[m_settings.lastRecordRow[4]];
 	m_settings.lastRecordRowWidth[5] = m_defaultRowWidth[m_settings.lastRecordRow[5]];
 }
-
+#if  0
 void CMovieBrowser::initDevelopment(void)
 {
 	TRACE("[mb]->initDevelopment\r\n");
@@ -694,6 +694,7 @@ void CMovieBrowser::initDevelopment(void)
     //addDir(name);
 
 }
+#endif
 
 void CMovieBrowser::defaultSettings(MB_SETTINGS* settings)
 {
@@ -2378,7 +2379,6 @@ void CMovieBrowser::updateDir(void)
 void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 {
 	//TRACE("[mb]->loadAllTsFileNamesFromStorage \r\n");
-	bool result;
 	int i,size;
 
 	m_movieSelectionHandler = NULL;
@@ -2391,7 +2391,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 	for(i=0; i < size;i++)
 	{
 		if(*m_dir[i].used == true )
-			result = loadTsFileNamesFromDir(m_dir[i].name);
+			loadTsFileNamesFromDir(m_dir[i].name);
 	}
 
 	TRACE("[mb] Dir%d, Files:%d \r\n",m_dirNames.size(),m_vMovieInfo.size());

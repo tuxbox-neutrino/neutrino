@@ -360,7 +360,6 @@ static void* dvbsub_thread(void* /*arg*/)
 
 		gettimeofday(&now, NULL);
 
-		int ret = 0;
 		now.tv_usec += (timeout == 0) ? 1000000 : timeout;   // add the timeout
 		while (now.tv_usec >= 1000000) {   // take care of an overflow
 			now.tv_sec++;
@@ -370,7 +369,7 @@ static void* dvbsub_thread(void* /*arg*/)
 		restartWait.tv_nsec = now.tv_usec * 1000; // nano seconds
 
 		pthread_mutex_lock( &packetMutex );
-		ret = pthread_cond_timedwait( &packetCond, &packetMutex, &restartWait );
+		pthread_cond_timedwait( &packetCond, &packetMutex, &restartWait );
 		pthread_mutex_unlock( &packetMutex );
 
 		timeout = dvbSubtitleConverter->Action();

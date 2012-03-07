@@ -1225,7 +1225,8 @@ void CInfoViewer::killRadiotext()
 void CInfoViewer::showRadiotext()
 {
 	char stext[3][100];
-	int yoff = 8, ii = 0;
+//	int yoff = 8;
+	int ii = 0;
 	bool RTisIsUTF = false;
 
 	if (g_Radiotext == NULL) return;
@@ -1262,7 +1263,7 @@ void CInfoViewer::showRadiotext()
 					frameBuffer->paintBoxRel(rt_x, rt_y, rt_dx, rt_dy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rt_x+10, rt_y+ 30, rt_dx-20, stext[0], COL_INFOBAR, 0, RTisIsUTF); // UTF-8
 				}
-				yoff = 17;
+//				yoff = 17;
 				ii = 1;
 #if 0
 			// RDS- or Rass-Symbol, ARec-Symbol or Bitrate
@@ -1559,14 +1560,14 @@ void CInfoViewer::showSNR ()
 			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2), BoxStartY + 2 * chanH - 3, satNameWidth, freq, COL_INFOBAR);
 		}
 		int sw, snr, sig, posx, posy;
-		int height, ChanNumYPos;
+
+		int height;
 		ssig = CFEManager::getInstance()->getLiveFE()->getSignalStrength();
 		ssnr = CFEManager::getInstance()->getLiveFE()->getSignalNoiseRatio();
 
 		sig = (ssig & 0xFFFF) * 100 / 65535;
 		snr = (ssnr & 0xFFFF) * 100 / 65535;
 		height = g_SignalFont->getHeight () - 1;
-		ChanNumYPos = BoxStartY + ChanHeight /*+ 4*/ - 2 * height;
 
 		if (lastsig != sig) {
 			lastsig = sig;

@@ -787,12 +787,12 @@ void CTimerList::paintItem(int pos)
 		if (liststart+pos==selected)
 		{
 			std::string line1 = convertTimerType2String(timer.eventType); // UTF-8
-			std::string line2 = zAlarmTime;
+			//std::string line2 = zAlarmTime;
 			switch (timer.eventType)
 			{
 			case CTimerd::TIMER_RECORD :
-				line2+= " -";
-				line2+= zStopTime+6;
+			//	line2+= " -";
+			//	line2+= zStopTime+6;
 			case CTimerd::TIMER_NEXTPROGRAM :
 			case CTimerd::TIMER_ZAPTO :
 			{

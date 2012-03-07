@@ -356,7 +356,7 @@ std::string CUPnPDevice::HTTP(std::string url, std::string post, std::string act
 	std::string portname;
 	std::string hostname;
 	std::string path;
-	int port, t_socket, result, received;
+	int port, t_socket, received;
 	std::stringstream command, reply;
 	std::string commandstr, line;
 	struct sockaddr_in socktcp;
@@ -431,7 +431,7 @@ std::string CUPnPDevice::HTTP(std::string url, std::string post, std::string act
 	}
 
 	commandstr = command.str();
-	result = send(t_socket, commandstr.c_str(), commandstr.size(), 0);
+	send(t_socket, commandstr.c_str(), commandstr.size(), 0);
 	while ((received = recv(t_socket, buf, sizeof(buf)-1, 0)) > 0)
 	{
 		buf[received] = 0;

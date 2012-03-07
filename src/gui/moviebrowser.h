@@ -330,7 +330,9 @@ class CMovieBrowser : public CMenuTarget
 		void init(void); //P1
 		void initGlobalSettings(void); //P1
 		void initFrames(void);
+#if 0
 		void initDevelopment(void); //P1 for development testing only
+#endif
 		void initRows(void);
 		void reinit(void); //P1
 
