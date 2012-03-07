@@ -24,7 +24,6 @@
  */
 
 #include <dmx.h>
-#include <dmxapi.h>
 #include <debug.h>
 
 #include <endian.h>
@@ -44,7 +43,7 @@
 #include "debug.h"
 
 //#define DEBUG_MUTEX 1
-#define DEBUG_DEMUX 1 // debug start/close/change
+//#define DEBUG_DEMUX 1 // debug start/close/change
 //#define DEBUG_CACHED_SECTIONS 1
 //#define DEBUG_COMPLETE_SECTIONS 1
 #define DEBUG_COMPLETE 1
