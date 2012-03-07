@@ -113,7 +113,7 @@ void CCECSetup::setCECSettings()
 	videoDecoder->SetCECMode((VIDEO_HDMI_CEC_MODE)g_settings.hdmi_cec_mode);
 }
 
-bool CCECSetup::changeNotify(const neutrino_locale_t OptionName)
+bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
 {
 
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_HDMI_CEC_MODE))
