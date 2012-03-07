@@ -1,27 +1,30 @@
-//
-//    sectionsd.cpp (network daemon for SI-sections)
-//    (dbox-II-project)
-//
-//    Copyright (C) 2001 by fnbrd
-//
-//    Homepage: http://dbox2.elxsi.de
-//
-//    Copyright (C) 2008, 2009 Stefan Seyfried
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-//
+/*
+ * sectionsd.cpp (network daemon for SI-sections)
+ * (dbox-II-project)
+ *
+ * Copyright (C) 2001 by fnbrd (fnbrd@gmx.de)
+ * Homepage: http://dbox2.elxsi.de
+ *
+ * Copyright (C) 2008, 2009 Stefan Seyfried
+ *
+ * Copyright (C) 2011-2012 CoolStream International Ltd
+ *
+ * License: GPLv2
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 
 #include <config.h>
 #include <malloc.h>
@@ -56,7 +59,6 @@
 #include <eventserver.h>
 #include <driver/abstime.h>
 
-#include "dmxapi.h"
 #include "eitd.h"
 #include "edvbstring.h"
 #include "xmlutil.h"
@@ -123,8 +125,6 @@ static t_channel_id    messaging_current_servicekey = 0;
 static bool channel_is_blacklisted = false;
 
 bool timeset = false;
-//pthread_cond_t timeIsSetCond = PTHREAD_COND_INITIALIZER;
-//pthread_mutex_t timeIsSetMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int	messaging_have_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
 static int	messaging_got_CN = 0x00;	// 0x01 = CURRENT, 0x02 = NEXT
@@ -136,9 +136,6 @@ static CEventServer *eventServer;
 /*static*/ pthread_rwlock_t eventsLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge events geschrieben und gelesen wird
 static pthread_rwlock_t servicesLock = PTHREAD_RWLOCK_INITIALIZER; // Unsere (fast-)mutex, damit nicht gleichzeitig in die Menge services geschrieben und gelesen wird
 static pthread_rwlock_t messagingLock = PTHREAD_RWLOCK_INITIALIZER;
-
-//static pthread_cond_t timeThreadSleepCond = PTHREAD_COND_INITIALIZER;
-//static pthread_mutex_t timeThreadSleepMutex = PTHREAD_MUTEX_INITIALIZER;
 
 static CTimeThread threadTIME;
 static CEitThread threadEIT;
@@ -203,22 +200,6 @@ inline void unlockEvents(void)
 {
 	pthread_rwlock_unlock(&eventsLock);
 }
-
-#if 0
-inline bool waitForTimeset(void)
-{
-	pthread_mutex_lock(&timeIsSetMutex);
-	while(!timeset)
-		pthread_cond_wait(&timeIsSetCond, &timeIsSetMutex);
-	pthread_mutex_unlock(&timeIsSetMutex);
-	/* we have time synchronization issues, at least on kernel 2.4, so
-	   sometimes the time in the threads is still 1.1.1970, even after
-	   waitForTimeset() returns. Let's hope that we work around this issue
-	   with this sleep */
-	sleep(1);
-	return true;
-}
-#endif
 
 static const SIevent nullEvt; // Null-Event
 
@@ -855,10 +836,10 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		threadCN.request_pause();
 		threadEIT.request_pause();
 #ifdef ENABLE_FREESATEPG
-		dmxFSEIT.request_pause();
+		threadFSEIT.request_pause();
 #endif
 #ifdef ENABLE_SDT
-		dmxSDT.request_pause();
+		threadSDT.request_pause();
 #endif
 #endif
 		scanning = 0;
@@ -869,10 +850,10 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		threadCN.request_unpause();
 		threadEIT.request_unpause();
 #ifdef ENABLE_FREESATEPG
-		dmxFSEIT.request_unpause();
+		threadFSEIT.request_unpause();
 #endif
 #ifdef ENABLE_SDT
-		dmxSDT.request_unpause();
+		threadSDT.request_unpause();
 #endif
 #endif
 		writeLockEvents();
@@ -888,20 +869,16 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		unlockMessaging();
 
 		scanning = 1;
-		if (!ntpenable) //FIXME flag if ntp update was good ?
+		/* FIXME should we stop time updates if not scanning ? flag if ntp update was good ? */
+		if (!ntpenable)
 		{
-#if 0
-			pthread_mutex_lock(&timeThreadSleepMutex);
-			pthread_cond_broadcast(&timeThreadSleepCond);
-			pthread_mutex_unlock(&timeThreadSleepMutex);
-#endif
 			threadTIME.change(0);
 		}
 
 		threadCN.change(0);
 		threadEIT.change(0);
 #ifdef ENABLE_FREESATEPG
-		dmxFSEIT.change(0);
+		threadFSEIT.change(0);
 #endif
 #ifdef ENABLE_SDT
 		threadSDT.change(0);
@@ -921,12 +898,11 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	uniqueServiceKey = (((sectionsd::commandSetServiceChanged *)data)->channel_id);
 	uniqueServiceKey &= 0xFFFFFFFFFFFFULL;
 
-	dprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n", uniqueServiceKey);
-xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 
 	static t_channel_id time_trigger_last = 0;
 
-	if (uniqueServiceKey && messaging_current_servicekey != uniqueServiceKey) {
+	if (messaging_current_servicekey != uniqueServiceKey) {
 		dvb_time_update = !checkNoDVBTimelist(uniqueServiceKey);
 		dprintf("[sectionsd] commandserviceChanged: DVB time update is %s\n", dvb_time_update ? "allowed" : "blocked!");
 
@@ -950,18 +926,13 @@ xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_I
 		threadCN.setCurrentService(messaging_current_servicekey);
 		threadEIT.setCurrentService(messaging_current_servicekey);
 #ifdef ENABLE_FREESATEPG
-		dmxFSEIT.setCurrentService(messaging_current_servicekey);
+		threadFSEIT.setCurrentService(messaging_current_servicekey);
 #endif
 #ifdef ENABLE_SDT
 		threadSDT.setCurrentService(messaging_current_servicekey);
 #endif
 		if (time_trigger_last != (messaging_current_servicekey & 0xFFFFFFFF0000ULL)) {
 			time_trigger_last = messaging_current_servicekey & 0xFFFFFFFF0000ULL;
-#if 0
-			pthread_mutex_lock(&timeThreadSleepMutex);
-			pthread_cond_broadcast(&timeThreadSleepCond);
-			pthread_mutex_unlock(&timeThreadSleepMutex);
-#endif
 			threadTIME.setCurrentService(messaging_current_servicekey);
 		}
 	}
@@ -970,7 +941,7 @@ xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_I
 
 out:
 	//sendEmptyResponse(connfd, NULL, 0);
-xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
+	xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 }
 
 static void commandGetIsScanningActive(int connfd, char* /*data*/, const unsigned /*dataLength*/)
@@ -1021,7 +992,6 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 	char stati[MAX_SIZE_STATI];
 
 	snprintf(stati, MAX_SIZE_STATI,
-		 "$Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $\n"
 		 "Current time: %s"
 		 "Hours to cache: %ld\n"
 		 "Hours to cache extended text: %ld\n"
@@ -1150,8 +1120,8 @@ static void deleteSIexceptEPG()
 	threadSDT.change(0);
 #endif
 #ifdef ENABLE_FREESATEPG
-	dmxFSEIT.setCurrentService(messaging_current_servicekey);
-	dmxFSEIT.change(0);
+	threadFSEIT.setCurrentService(messaging_current_servicekey);
+	threadFSEIT.change(0);
 #endif
 }
 
@@ -1419,12 +1389,15 @@ void CTimeThread::run()
 			xprintf("%s: going to sleep %d seconds, running %d scanning %d\n",
 					name.c_str(), sleep_time, running, scanning);
 #endif
-			real_pause();
-			int rs = Sleep();
+			do {
+				real_pause();
+				int rs = Sleep();
 #ifdef DEBUG_TIME_THREAD
-			xprintf("%s: wakeup, running %d scanning %d reason %d\n",
-					name.c_str(), running, scanning, rs);
+				xprintf("%s: wakeup, running %d scanning %d channel %llx reason %d\n",
+						name.c_str(), running, scanning, current_service, rs);
 #endif
+			} while (running && !scanning);
+
 			if (!running)
 				break;
 		}
@@ -1454,7 +1427,8 @@ void CTimeThread::run()
 			}
 		}
 		/* default sleep time */
-		sleep_time = ntprefresh * 60;
+		//sleep_time = ntprefresh * 60;
+		sleep_time = 10;
 		if(success) {
 			if(dvb_time) {
 				setSystemTime(dvb_time);
@@ -1474,7 +1448,6 @@ void CTimeThread::run()
 		}
 		sendToSleepNow = true;
 	}
-
 	delete[] static_buf;
 	printf("[sectionsd] timeThread ended\n");
 	pthread_exit(NULL);
@@ -1689,7 +1662,6 @@ void CEitThread::addFilters()
 
 void CEitThread::beforeSleep()
 {
-	xprintf("%s: CScheduledThread::beforeSleep()\n", name.c_str());
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
@@ -2054,7 +2026,7 @@ void sectionsd_main_thread(void * /*data*/)
 	pthread_t /*threadTOT,*/ threadHouseKeeping;
 	int rc;
 
-	printf("$Id: sectionsd.cpp,v 1.305 2009/07/30 12:41:39 seife Exp $\n");
+	xpritf("[sectionsd] starting\n");
 printf("SIevent size: %d\n", sizeof(SIevent));
 
 	/* "export NO_SLOW_ADDEVENT=true" to disable this */
@@ -2109,18 +2081,8 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 
 	eventServer = new CEventServer;
 
-#if 0
-	// time-Thread starten
-	rc = pthread_create(&threadTOT, 0, timeThread, 0);
-
-	if (rc) {
-		fprintf(stderr, "[sectionsd] failed to create time-thread (rc=%d)\n", rc);
-		return;
-	}
-#endif
 	threadTIME.Start();
 	threadEIT.Start();
-
 	threadCN.Start();
 
 #ifdef ENABLE_FREESATEPG
@@ -2165,34 +2127,15 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	threadTIME.StopRun();
 
 	xprintf("broadcasting...\n");
-#if 0
-	timeset = true;
-	pthread_mutex_lock(&timeIsSetMutex);
-	pthread_cond_broadcast(&timeIsSetCond);
-	pthread_mutex_unlock(&timeIsSetMutex);
-#endif
+
 	threadTIME.setTimeSet();
-#if 0
-	pthread_mutex_lock(&timeThreadSleepMutex);
-	pthread_cond_broadcast(&timeThreadSleepCond);
-	pthread_mutex_unlock(&timeThreadSleepMutex);
-#endif
+
 	xprintf("pausing...\n");
 
 	pthread_cancel(threadHouseKeeping);
 
-	//if (dmxUTC) dmxUTC->Stop();
-
-#if 0
-	xprintf("cancel TOT\n");
-	//threadTIME.cancel();
-	//pthread_cancel(threadTOT);
-#endif
 	xprintf("join TOT\n");
-	//pthread_join(threadTOT, NULL);
 	threadTIME.Stop();
-
-	//if (dmxUTC) delete dmxUTC;
 
 	xprintf("join EIT\n");
 	threadEIT.Stop();
