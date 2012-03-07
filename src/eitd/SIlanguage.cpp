@@ -1,43 +1,27 @@
-//
-// $Id: SIlanguage.cpp,v 1.4 2006/04/21 20:40:13 houdini Exp $
-//
-// Class for filtering preferred language
-//
-//    Copyright (C) 2001 arzka (dbox2@oh3mqu.pp.hyper.fi)
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-//
-// $Log: SIlanguage.cpp,v $
-// Revision 1.4  2006/04/21 20:40:13  houdini
-// improvments when not using the MultiLanguageEPG feature
-//
-// Revision 1.3  2006/04/13 19:10:54  mws
-// bugfix returned wrong value for error while saving;
-// preincrement iterators;
-//
-// Revision 1.2  2006/04/12 21:23:58  Arzka
-// Optimization.
-// Removed unnecessary copying of std:map and
-// removed few avoidable std::string creation
-//
-// Revision 1.1  2006/03/26 20:13:49  Arzka
-// Added support for selecting EPG language
-//
-//
-//
-
+/*
+ * SIlanguage.cpp, Class for filtering preferred language
+ *
+ * Copyright (C) 2001 arzka (dbox2@oh3mqu.pp.hyper.fi)
+ * Copyright (C) 2006 houdini, mws
+ *
+ * Copyright (C) 2011-2012 CoolStream International Ltd
+ *
+ * License: GPLv2
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 #include "SIlanguage.hpp"
 
 #include <string>
