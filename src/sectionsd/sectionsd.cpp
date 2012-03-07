@@ -35,6 +35,8 @@
 
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <netinet/ip.h>
@@ -4592,7 +4594,7 @@ static void *insertEventsfromFile(void *)
 	struct stat buf;
 	indexname = epg_dir + "index.tmp";
 	//skip read EPG cache if index.tmp available
-	if (!(stat(indexname.c_str(), &buf) == 0)){
+	if (stat(indexname.c_str(), &buf) != 0){
 
 		indexname = epg_dir + "index.xml";
 
