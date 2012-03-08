@@ -106,7 +106,7 @@ void CProgressBar::paintProgressBar2(const int pos_x,
 }
 
 void CProgressBar::realpaint(const int pos_x, const int pos_y,
-			     const int value, const int max_value,
+			     const int val,   const int max_value,
 			     const fb_pixel_t activebar_col,
 			     const fb_pixel_t passivebar_col,
 			     const fb_pixel_t backgroundbar_col,
@@ -120,6 +120,14 @@ void CProgressBar::realpaint(const int pos_x, const int pos_y,
 		bl_changed = g_settings.progressbar_color;
 		reset();
 	}
+
+	/* stupid callers give invalid values like "-1"... */
+	int value = val;
+	if (value < 0)
+		value = 0;
+	if (value > max_value)
+		value = max_value;
+
 	// set colors
 	fb_pixel_t active_col = activebar_col != 0 ? activebar_col : COL_INFOBAR_PLUS_7;
 	fb_pixel_t passive_col = passivebar_col != 0 ? passivebar_col : COL_INFOBAR_PLUS_3;
