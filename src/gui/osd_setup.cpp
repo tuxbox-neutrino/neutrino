@@ -52,7 +52,9 @@
 #include <gui/widget/stringinput.h>
 
 #include <driver/screen_max.h>
+#ifdef SCREENSHOT
 #include <driver/screenshot.h>
+#endif
 #include <driver/volume.h>
 
 #include <system/debug.h>
@@ -421,10 +423,12 @@ int COsdSetup::showOsdSetup()
 	showOsdChanlistSetup(osd_menu_chanlist);
 	osd_menu->addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, osd_menu_chanlist, NULL, CRCInput::RC_2));
 
+#ifdef SCREENSHOT
 	//screenshot
 	CMenuWidget *osd_menu_screenshot = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
 	showOsdScreenshottSetup(osd_menu_screenshot);
 	osd_menu->addItem( new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, osd_menu_screenshot, NULL, CRCInput::RC_3));
+#endif
 
 	//monitor
  	//CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
@@ -716,6 +720,7 @@ int COsdSetup::showContextChanlistMenu()
 	return res;
 }
 
+#ifdef SCREENSHOT
 //screenshot
 #define SCREENSHOT_FMT_OPTION_COUNT 3
 const CMenuOptionChooser::keyval_ext SCREENSHOT_FMT_OPTIONS[SCREENSHOT_FMT_OPTION_COUNT] =
@@ -746,3 +751,4 @@ void COsdSetup::showOsdScreenshottSetup(CMenuWidget *menu_screenshot)
 
 
 }
+#endif
