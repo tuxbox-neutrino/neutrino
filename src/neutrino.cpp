@@ -2971,6 +2971,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				standby.timer_minutes_hi    = fp_timer >> 8;;
 				standby.timer_minutes_lo    = fp_timer & 0xFF;
 
+				delete videoDecoder;
+				cs_api_exit();
+
 				int fd = open("/dev/display", O_RDONLY);
 				if (fd < 0) {
 					perror("/dev/display");
@@ -3058,7 +3061,7 @@ void CNeutrinoApp::saveEpg()
 		neutrino_msg_data_t data;
 		g_Sectionsd->writeSI2XML(g_settings.epg_dir.c_str());
 		while( true ) {
-			g_RCInput->getMsg(&msg, &data, 300); // 30 secs..
+			g_RCInput->getMsg(&msg, &data, 1200); // 120 secs..
 			if (( msg == CRCInput::RC_timeout ) || (msg == NeutrinoMessages::EVT_SI_FINISHED)) {
 				//printf("Msg %x timeout %d EVT_SI_FINISHED %x\n", msg, CRCInput::RC_timeout, NeutrinoMessages::EVT_SI_FINISHED);
 				break;
@@ -3734,7 +3737,6 @@ void stop_daemons(bool stopall)
 			delete powerManager;
 		}
 		cs_deregister_messenger();
-		cs_api_exit();
 	}
 }
 
@@ -3747,6 +3749,8 @@ void sighandler (int signum)
 		delete CRecordManager::getInstance();
 		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
+		delete videoDecoder;
+		cs_api_exit();
                 _exit(0);
           default:
                 break;
