@@ -40,7 +40,6 @@
 #include <dvbsi++/long_section.h>
 
 #include "dmx.h"
-#include "dmxapi.h"
 #include "debug.h"
 
 //#define DEBUG_MUTEX 1
