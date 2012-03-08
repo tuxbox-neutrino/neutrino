@@ -30,6 +30,8 @@
 
 #include <OpenThreads/Thread>
 #include <OpenThreads/Condition>
+#include <sectionsdclient/sectionsdclient.h>
+#include <connection/basicserver.h>
 #include "dmx.h"
 
 //#include "SIutils.hpp"
@@ -42,6 +44,8 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 {
 	private:
 		bool	running;
+		CSectionsdClient::epg_config config;
+		CBasicServer sectionsd_server;
 
 		static OpenThreads::Mutex m;
 		static CEitManager * manager;
@@ -56,6 +60,7 @@ class CEitManager : public OpenThreads::Thread, public OpenThreads::Mutex
 
 		bool Start();
 		bool Stop();
+		void SetConfig(CSectionsdClient::epg_config &cfg) { config = cfg; };
 };
 
 #endif
