@@ -1,15 +1,16 @@
 /*
- * $Header: /cvs/tuxbox/apps/tuxbox/neutrino/daemons/sectionsd/dmx.cpp,v 1.51 2009/06/14 21:46:03 rhabarber1848 Exp $
- *
  * DMX class (sectionsd) - d-box2 linux project
  *
- * (C) 2001 by fnbrd,
+ * (C) 2001 by fnbrd (fnbrd@gmx.de),
  *     2003 by thegoodguy <thegoodguy@berlios.de>
+ *
+ * Copyright (C) 2011-2012 CoolStream International Ltd
+ *
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,12 +22,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
 #include <endian.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -205,11 +203,10 @@ inline sections_id_t create_sections_id(const uint8_t table_id, const uint16_t e
 bool DMX::check_complete(sections_id_t s_id, uint8_t number, uint8_t last, uint8_t segment_last) 
 {
 	bool ret = false;
-	//lock();
+
 	section_map_t::iterator it = seenSections.find(s_id);
 
-	if (it == seenSections.end())
-	{
+	if (it == seenSections.end()) {
 		seenSections.insert(s_id);
 		calcedSections.insert(s_id);
 		uint64_t tmpval = s_id & 0xFFFFFFFFFFFFFF00ULL;
@@ -255,7 +252,6 @@ printf("	[%s cache] old section for table 0x%02x sid 0x%04x section 0x%02x last 
 		if(seenSections.size() > 10)
 			ret = true;
 	}
-	//unlock();
 	return ret;
 }
 
@@ -450,11 +446,9 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	}
 
 	if(complete) {
-		//lock();
 		seenSections.clear();
 		calcedSections.clear();
 		timeouts = -2;
-		//unlock();
 	}
 	if(rc > 0)
 		first_skipped = 0;

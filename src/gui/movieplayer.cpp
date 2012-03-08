@@ -601,7 +601,6 @@ void CMoviePlayerGui::PlayFile(void)
 			if(!g_settings.screenshot_cover){
 				pos = fname.find_last_of('/');
 				if(pos != std::string::npos) {
-					std::string fname_scr=fname;
 					fname.replace(0, pos, g_settings.screenshot_dir);
 				}
 			}

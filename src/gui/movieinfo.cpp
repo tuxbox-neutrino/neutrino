@@ -957,8 +957,8 @@ bool CMovieInfo::saveFile_std(const CFile & file, const char *text, const int te
 	bool result = false;
 	int fd;
 	if ((fd = open(file.Name.c_str(), O_SYNC | O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)) >= 0) {
-		int nr;
-		nr = write(fd, text, text_size);
+		/*int nr=*/ 
+		write(fd, text, text_size);
 		//fdatasync(fd);
 		close(fd);
 		result = true;

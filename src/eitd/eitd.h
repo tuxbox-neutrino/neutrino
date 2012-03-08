@@ -1,27 +1,27 @@
-//
-//    sectionsd.cpp (network daemon for SI-sections)
-//    (dbox-II-project)
-//
-//    Copyright (C) 2001 by fnbrd
-//
-//    Homepage: http://dbox2.elxsi.de
-//
-//    Copyright (C) 2008, 2009 Stefan Seyfried
-//
-//    This program is free software; you can redistribute it and/or modify
-//    it under the terms of the GNU General Public License as published by
-//    the Free Software Foundation; either version 2 of the License, or
-//    (at your option) any later version.
-//
-//    This program is distributed in the hope that it will be useful,
-//    but WITHOUT ANY WARRANTY; without even the implied warranty of
-//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//    GNU General Public License for more details.
-//
-//    You should have received a copy of the GNU General Public License
-//    along with this program; if not, write to the Free Software
-//    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-//
+/*
+ * sectionsd.cpp (network daemon for SI-sections)
+ * (dbox-II-project)
+ *
+ * (C) 2001 by fnbrd (fnbrd@gmx.de)
+ *
+ * Copyright (C) 2011-2012 CoolStream International Ltd
+ *
+ * License: GPLv2
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation;
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
 
 #ifndef __eitd_h__
 #define __eitd_h__
@@ -52,7 +52,7 @@ typedef SIservice * SIservicePtr;
 #define TIME_EIT_SCHEDULED_PAUSE 60 * 60
 
 /* force EIT thread to change filter after, seconds */
-#define TIME_EIT_SKIPPING 120 // 90 <- Canal diditaal 19.2e -> ~100 seconds for 0x5x
+#define TIME_EIT_SKIPPING 180 // 90 <- Canal diditaal 19.2e -> ~100 seconds for 0x5x
 /* a little more time for freesat epg */
 #define TIME_FSEIT_SKIPPING 240
 /* Timeout in ms for reading from dmx in EIT threads. Dont make this too long
@@ -179,7 +179,8 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 			running = true;
 			return (OpenThreads::Thread::start() == 0);
 		}
-		void StopRun() {
+		void StopRun()
+		{
 			xprintf("%s::StopRun: to lock\n", name.c_str());
 			lock();
 			running = false;
@@ -189,7 +190,6 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 			xprintf("%s::StopRun: to unlock\n", name.c_str());
 			unlock();
 		}
-		void Wakeup() { pthread_cond_broadcast(&change_cond); }
 		bool Stop()
 		{
 			xprintf("%s::Stop: to broadcast\n", name.c_str());
@@ -198,25 +198,6 @@ class CSectionThread : public OpenThreads::Thread, public DMX
 			int ret = (OpenThreads::Thread::join() == 0);
 			xprintf("%s::Stop: to close\n", name.c_str());
 			DMX::close();
-#if 0
-			if(!running)
-				return false;
-xprintf("%s::Stop: to lock\n", name.c_str());
-			lock();
-			running = false;
-xprintf("%s::Stop: to broadcast\n", name.c_str());
-			pthread_cond_broadcast(&change_cond);
-xprintf("%s::Stop: to unlock\n", name.c_str());
-			unlock();
-#if 1
-xprintf("%s::Stop: to closefd\n", name.c_str());
-			DMX::closefd();
-#endif
-xprintf("%s::Stop: to join\n", name.c_str());
-			int ret = (OpenThreads::Thread::join() == 0);
-xprintf("%s::Stop: to close\n", name.c_str());
-			DMX::close();
-#endif
 			return ret;
 		}
 };

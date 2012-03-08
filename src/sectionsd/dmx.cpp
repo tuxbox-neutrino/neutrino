@@ -276,7 +276,7 @@ int DMX::getSection(char *buf, const unsigned timeoutInMSeconds, int &timeouts)
 	extended_section_header *extended_header;
 	eit_extended_section_header *eit_extended_header;
 	int    rc;
-	unsigned short section_length;
+	short section_length = 0;
 	unsigned short current_onid = 0;
 	unsigned short current_tsid = 0;
 

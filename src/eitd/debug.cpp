@@ -1,14 +1,15 @@
 /*
- * $Header: /cvs/tuxbox/apps/tuxbox/neutrino/daemons/sectionsd/debug.cpp,v 1.3 2008/06/15 10:19:38 seife Exp $
- *
- * Debug tools (sectionsd) - d-box2 linux project
+ * debug.cpp, Debug tools (sectionsd) - d-box2 linux project
  *
  * (C) 2003 by thegoodguy <thegoodguy@berlios.de>
  *
+ * Copyright (C) 2011-2012 CoolStream International Ltd
+ *
+ * License: GPLv2
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of

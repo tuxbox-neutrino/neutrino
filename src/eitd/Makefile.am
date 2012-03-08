@@ -19,5 +19,5 @@ endif
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
 noinst_LIBRARIES = libsectionsd.a
-libsectionsd_a_SOURCES = sectionsd.cpp dmxapi.cpp debug.cpp dmx.cpp xmlutil.cpp \
+libsectionsd_a_SOURCES = sectionsd.cpp debug.cpp dmx.cpp xmlutil.cpp \
 			 SIsections.cpp SIevents.cpp SIutils.cpp SIlanguage.cpp edvbstring.cpp

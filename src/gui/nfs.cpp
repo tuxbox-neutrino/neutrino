@@ -208,7 +208,7 @@ const CMenuOptionChooser::keyval NFS_TYPE_OPTIONS[NFS_TYPE_OPTION_COUNT] =
 
 int CNFSMountGui::menuEntry(int nr)
 {
-	char *dir,*local_dir, *username, *password, *options1, *options2, *mac;
+	char *dir,*local_dir, *username, *password, *options1, *options2/*, *mac*/;
 	int* automount;
 	int* type;
 	char cmd[9];
@@ -222,7 +222,7 @@ int CNFSMountGui::menuEntry(int nr)
 	type = &g_settings.network_nfs_type[nr];
 	options1 = g_settings.network_nfs_mount_options1[nr];
 	options2 = g_settings.network_nfs_mount_options2[nr];
-	mac = g_settings.network_nfs_mac[nr];
+//	mac = g_settings.network_nfs_mac[nr];
 
 	sprintf(cmd,"domount%d",nr);
 	sprintf(cmd2,"dir%d",nr);

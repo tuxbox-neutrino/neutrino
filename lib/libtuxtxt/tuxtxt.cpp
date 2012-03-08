@@ -3383,8 +3383,6 @@ void ConfigMenu(int Init)
 
 void PageInput(int Number)
 {
-	int zoom = 0;
-
 	/* clear temp_page */
 	if (inputcounter == 2)
 		temp_page = 0;
@@ -3415,9 +3413,6 @@ void PageInput(int Number)
 		zoommode = 1;
 		CopyBB2FB();
 	}
-
-	if (zoommode == 1)
-		zoom = 1<<10;
 
 	PosY = StartY;
 
@@ -3915,7 +3910,7 @@ void SwitchScreenMode(int newscreenmode)
 	{
 		ClearFB(clearbbcolor);
 
-		int fw, fh, tx, ty, tw, th;
+		int fw, tx, ty, tw, th;
 
 		if (screenmode==1) /* split with topmenu */
 		{
@@ -3923,7 +3918,6 @@ void SwitchScreenMode(int newscreenmode)
 			int w = CFrameBuffer::getInstance()->getScreenWidth();
 			int h = CFrameBuffer::getInstance()->getScreenHeight();
 			fw = fontwidth_topmenumain;
-			fh = fontheight;
 
 			tx = 0; /* split means we start at the left edge */
 			sx = x;
@@ -3951,7 +3945,6 @@ void SwitchScreenMode(int newscreenmode)
 		{
 			StartX = CFrameBuffer::getInstance()->getScreenX();
 			fw = fontwidth_small;
-			fh = fontheight;
 			tx = TV169FULLSTARTX;
 			ty = TV169FULLSTARTY;
 			tw = TV169FULLWIDTH;
@@ -4905,7 +4898,7 @@ void RenderCharLCDsmall(int Char, int XPos, int YPos)
 void RenderMessage(int Message)
 {
 	int byte;
-	int fbcolor, timecolor, imenuatr;
+	int fbcolor, imenuatr;
 	int pagecolumn;
 	const char *msg;
 	int national_subset_back = national_subset;
@@ -4930,7 +4923,6 @@ void RenderMessage(int Message)
 
 	/* set colors */
 	fbcolor   = transp;
-	timecolor = transp<<4 | transp;
 	imenuatr = ATR_MSG0;
 
 	/* clear framebuffer */
