@@ -15,17 +15,18 @@ noinst_HEADERS = svn_version.h
 SUBDIRS = widget bedit
 
 INCLUDES = \
-	-I$(top_srcdir)/daemons \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/zapit/include \
+	-I$(top_srcdir)/daemons \
+	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@CURL_CFLAGS@ \
-	@FREETYPE_CFLAGS@ \
-	-I$(top_srcdir)/lib 
+	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream

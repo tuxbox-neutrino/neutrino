@@ -37,7 +37,7 @@
 #include "SIevents.hpp"
 #include "SIsections.hpp"
 #include "SIlanguage.hpp"
-
+#include "debug.h"
 //#define USE_BOOST_SHARED_PTR
 #ifdef USE_BOOST_SHARED_PTR
 #include <boost/shared_ptr.hpp>

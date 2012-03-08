@@ -15,8 +15,8 @@
 #include <stdlib.h>
 // yhttpd
 #include "yconfig.h"
-#include "ytypes_globals.h"
-#include "ywebserver.h"
+//#include <ytypes_globals.h>
+#include <ywebserver.h>
 
 //-----------------------------------------------------------------------------
 class Cyhttpd {

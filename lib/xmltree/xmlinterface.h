@@ -33,7 +33,7 @@
 #define __xmlinterface_h__
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 
 #include <string>

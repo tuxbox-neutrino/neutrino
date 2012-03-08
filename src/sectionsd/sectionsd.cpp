@@ -29,9 +29,6 @@
 
 #include <config.h>
 #include <malloc.h>
-#include <dmxapi.h>
-#include <dmx.h>
-#include <debug.h>
 
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -90,6 +87,11 @@
 #include "SIlanguage.hpp"
 
 #include "edvbstring.h"
+#include "dmxapi.h"
+#include "dmx.h"
+#include "debug.h"
+
+
 //#include "timerdclient.h"
 //#include "../timermanager.h"
 

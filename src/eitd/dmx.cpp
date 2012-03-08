@@ -22,10 +22,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
-#include <dmx.h>
-#include <debug.h>
-
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
 #include <endian.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -38,8 +37,10 @@
 #include <map>
 
 #include <driver/abstime.h>
-
 #include <dvbsi++/long_section.h>
+
+#include "dmx.h"
+#include "dmxapi.h"
 #include "debug.h"
 
 //#define DEBUG_MUTEX 1

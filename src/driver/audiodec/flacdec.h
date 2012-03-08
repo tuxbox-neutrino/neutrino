@@ -31,9 +31,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <basedec.h>
 #include <driver/audiometadata.h>
 #include <FLAC/all.h>
+#include "basedec.h"
 
 #define DECODE_SLOTS 30
 

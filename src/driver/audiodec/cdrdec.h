@@ -29,7 +29,7 @@
 #ifndef __CDR_DEC__
 #define __CDR_DEC__
 
-#include <driver/audiodec/wavdec.h>
+#include "wavdec.h"
 
 class CCdrDec : public CWavDec
 {

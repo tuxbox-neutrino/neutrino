@@ -40,25 +40,25 @@
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 
-#include "driver/fontrenderer.h"
-#include "driver/rcinput.h"
-#include "driver/radiotext.h"
+#include <driver/fontrenderer.h>
+#include <driver/rcinput.h>
+#include <driver/radiotext.h>
 #if HAVE_COOL_HARDWARE
-#include "driver/vfd.h"
-#include "driver/rfmod.h"
+#include <driver/vfd.h>
+#include <driver/rfmod.h>
 #endif
 #if HAVE_TRIPLEDRAGON
-#include "driver/lcdd.h"
+#include <driver/lcdd.h>
 #define CVFD CLCD
 #endif
 
-#include "system/localize.h"
-#include "system/settings.h"
+#include <system/localize.h>
+#include <system/settings.h>
 
-#include "gui/epgview.h"
-#include "gui/infoviewer.h"
-#include "gui/eventlist.h"
-#include "gui/videosettings.h"
+#include <gui/epgview.h>
+#include <gui/infoviewer.h>
+#include <gui/eventlist.h>
+#include <gui/videosettings.h>
 
 
 #ifndef NEUTRINO_CPP

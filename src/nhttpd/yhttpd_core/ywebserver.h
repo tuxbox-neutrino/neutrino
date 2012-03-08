@@ -20,7 +20,7 @@
 #include <arpa/inet.h>
 
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 #include "ysocket.h"
 

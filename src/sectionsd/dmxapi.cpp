@@ -30,14 +30,9 @@
 #include <unistd.h>        /* close, read */
 #include <arpa/inet.h>     /* htons */
 #include <time.h>          /* ctime */
-#include <dmxapi.h>
+#include "dmxapi.h"
 
-#if HAVE_TRIPLEDRAGON
-#include <dmx_td.h>
-#else
-#include <dmx_cs.h>
-#endif
-
+#include <dmx.h>
 #include "SIutils.hpp"
 #include "debug.h"
 

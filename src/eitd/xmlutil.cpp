@@ -21,9 +21,9 @@
  *
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
-
-#include <debug.h>
+#endif
 
 #include <unistd.h>
 #include <string.h>
@@ -39,6 +39,7 @@
 
 #include "xmlutil.h"
 #include "eitd.h"
+#include "debug.h"
 
 void addEvent(const SIevent &evt, const time_t zeit, bool cn = false);
 extern MySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey;

@@ -1,12 +1,13 @@
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
 INCLUDES = \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
-        -I$(top_srcdir)/lib \
+	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libconfigfile \
-        @FREETYPE_CFLAGS@ \
-        @VORBISIDEC_CFLAGS@
+	@FREETYPE_CFLAGS@ \
+	@VORBISIDEC_CFLAGS@
 
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream

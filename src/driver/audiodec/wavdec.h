@@ -30,7 +30,7 @@
 #define __WAV_DEC__
 
 #include <stdio.h>
-#include <driver/audiodec/basedec.h>
+#include "basedec.h"
 
 class CWavDec : public CBaseDec
 {
