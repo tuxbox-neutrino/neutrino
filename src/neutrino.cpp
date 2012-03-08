@@ -3743,6 +3743,8 @@ void sighandler (int signum)
           case SIGINT:
 		delete CRecordManager::getInstance();
 		stop_daemons();
+		delete videoDecoder;
+		cs_api_exit();
                 _exit(0);
           default:
                 break;
