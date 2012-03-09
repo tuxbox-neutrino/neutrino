@@ -660,26 +660,26 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	spaceoffset = 7 * fontW;
 	//onid
 	ypos+= sheight;
-	sprintf((char*) buf, "0x%04x (%i)", si.onid, si.onid);
+	sprintf((char*) buf, "0x%04X (%i)", si.onid, si.onid);
 	g_Font[font_small]->RenderString(xpos, ypos, box_width, "ONid:" , COL_INFOBAR, 0, true); // UTF-8
 	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 
 	//sid
 	ypos+= sheight;
-	sprintf((char*) buf, "0x%04x (%i)", si.sid, si.sid);
+	sprintf((char*) buf, "0x%04X (%i)", si.sid, si.sid);
 	g_Font[font_small]->RenderString(xpos, ypos, box_width, "Sid:" , COL_INFOBAR, 0, true); // UTF-8
 	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 
 	//tsid
 	ypos+= sheight;
-	sprintf((char*) buf, "0x%04x (%i)", si.tsid, si.tsid);
+	sprintf((char*) buf, "0x%04X (%i)", si.tsid, si.tsid);
 	g_Font[font_small]->RenderString(xpos, ypos, box_width, "TSid:" , COL_INFOBAR, 0, true); // UTF-8
 	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 
 	//pmtpid
 	ypos+= sheight;
 	pmt_version = si.pmt_version;
-	sprintf((char*) buf, "0x%04x (%i) [%i]", si.pmtpid, si.pmtpid,pmt_version);
+	sprintf((char*) buf, "0x%04X (%i) [%i]", si.pmtpid, si.pmtpid,pmt_version);
 	g_Font[font_small]->RenderString(xpos, ypos, box_width, "PMTpid:", COL_INFOBAR, 0, true); // UTF-8
 	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 
@@ -687,7 +687,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	//vpid
 	ypos+= sheight;
 	if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ){
-		sprintf((char*) buf, "0x%04x (%i)", g_RemoteControl->current_PIDs.PIDs.vpid, g_RemoteControl->current_PIDs.PIDs.vpid );
+		sprintf((char*) buf, "0x%04X (%i)", g_RemoteControl->current_PIDs.PIDs.vpid, g_RemoteControl->current_PIDs.PIDs.vpid );
 	} else {
 		sprintf((char*) buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 	}
@@ -703,7 +703,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 		unsigned int sw=spaceoffset;
 		for (unsigned int li= 0; (li<g_RemoteControl->current_PIDs.APIDs.size()) && (li<10); li++)
 		{
-			sprintf((char*) buf, "0x%04x (%i)", g_RemoteControl->current_PIDs.APIDs[li].pid, g_RemoteControl->current_PIDs.APIDs[li].pid );
+			sprintf((char*) buf, "0x%04X (%i)", g_RemoteControl->current_PIDs.APIDs[li].pid, g_RemoteControl->current_PIDs.APIDs[li].pid );
 			if (li == g_RemoteControl->current_PIDs.PIDs.selected_apid){
 				g_Font[font_small]->RenderString(xpos+sw, ypos, box_width, buf, COL_MENUHEAD, 0, true); // UTF-8
 			}
@@ -723,7 +723,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	if ( g_RemoteControl->current_PIDs.PIDs.vtxtpid == 0 )
         	sprintf((char*) buf, "%s", g_Locale->getText(LOCALE_STREAMINFO_NOT_AVAILABLE));
 	else
-        	sprintf((char*) buf, "0x%04x (%i)", g_RemoteControl->current_PIDs.PIDs.vtxtpid, g_RemoteControl->current_PIDs.PIDs.vtxtpid );
+        	sprintf((char*) buf, "0x%04X (%i)", g_RemoteControl->current_PIDs.PIDs.vtxtpid, g_RemoteControl->current_PIDs.PIDs.vtxtpid );
 	g_Font[font_small]->RenderString(xpos, ypos, box_width, "VTXTpid:" , COL_INFOBAR, 0, true); // UTF-8
 	g_Font[font_small]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 	if(box_h == 0)
