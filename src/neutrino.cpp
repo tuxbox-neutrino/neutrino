@@ -3618,6 +3618,8 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete frameBuffer;
 
 			stop_daemons(true);
+			delete videoDecoder;
+			cs_api_exit();
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
 			delete g_Zapit; //do we really need this?
