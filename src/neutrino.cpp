@@ -297,7 +297,7 @@ const lcd_setting_struct_t lcd_setting[SNeutrinoSettings::LCD_SETTING_COUNT] =
 /**************************************************************************************
 *          CNeutrinoApp -  loadSetup, load the application-settings                   *
 **************************************************************************************/
-#if HAVE_TRIPLEDRAGON
+#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE
 #define DEFAULT_X_START_SD	32
 #define DEFAULT_Y_START_SD	26
 #define DEFAULT_X_END_SD	694
@@ -636,6 +636,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if HAVE_TRIPLEDRAGON
 	/* does not make sense to have two configurations for that... */
 	g_settings.screen_preset = 0;
+#elif HAVE_SPARK_HARDWARE
+	g_settings.screen_preset = (g_settings.video_Mode > VIDEO_STD_576P);
 #else
 	g_settings.screen_preset = configfile.getInt32( "screen_preset", 1);
 #endif
