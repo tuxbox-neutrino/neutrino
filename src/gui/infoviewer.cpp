@@ -1016,9 +1016,12 @@ void CInfoViewer::showSubchan ()
 				y = g_settings.screen_EndY - dy - 10;
 			}
 
-			fb_pixel_t pixbuf[(dx + 2 * borderwidth) * (dy + 2 * borderwidth)];
-			lframeBuffer->SaveScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
-
+			int x_pic = lframeBuffer->scaleX(dx + 2 * borderwidth);
+			int y_pic = lframeBuffer->scaleY(dy + 2 * borderwidth);
+			fb_pixel_t *pixbuf = new fb_pixel_t[x_pic * y_pic];
+			if (pixbuf)
+				lframeBuffer->SaveScreen(x - borderwidth, y - borderwidth,
+							 dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
 			// clear border
 			lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, borderwidth);
 			lframeBuffer->paintBackgroundBoxRel (x - borderwidth, y + dy, dx + 2 * borderwidth, borderwidth);
@@ -1057,7 +1060,11 @@ void CInfoViewer::showSubchan ()
 					}
 				}
 			}
-			lframeBuffer->RestoreScreen (x - borderwidth, y - borderwidth, dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
+			if (pixbuf) {
+				lframeBuffer->RestoreScreen(x - borderwidth, y - borderwidth,
+							    dx + 2 * borderwidth, dy + 2 * borderwidth, pixbuf);
+				delete[] pixbuf;
+			}
 		}
 	} else {
 		g_RCInput->postMsg (NeutrinoMessages::SHOW_INFOBAR, 0);

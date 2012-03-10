@@ -477,10 +477,15 @@ void CFrameBuffer::paintBoxRel(const int _x, const int _y, const int _dx, const 
 	if (!getActive())
 		return;
 
+	int add = 0;
+	/* hack to remove artefacts caused by rounding in scaling mode */
+	if (xRes > 1280 && col == backgroundColor)
+		add = 1;
+
 	int x = scaleX(_x);
 	int y = scaleY(_y);
-	int dx = scaleX(_dx);
-	int dy = scaleY(_dy);
+	int dx = scaleX(_dx + add);
+	int dy = scaleY(_dy + add);
 	int radius = scaleX(_radius);
 
 	int corner_tl = (type & CORNER_TOP_LEFT)     ? 1 : 0;
@@ -585,6 +590,11 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 {
 	if (!getActive())
 		return;
+
+	xa = scaleX(xa);
+	xb = scaleX(xb);
+	ya = scaleY(ya);
+	yb = scaleY(yb);
 
 	int dx = abs (xa - xb);
 	int dy = abs (ya - yb);
@@ -1228,7 +1238,7 @@ void CFrameBuffer::paintBackground()
 	}
 	else
 	{
-		paintBoxRel(0, 0, xRes, yRes, backgroundColor);
+		paintBoxRel(0, 0, screeninfo.xres, screeninfo.yres, backgroundColor);
 	}
 }
 
@@ -1237,6 +1247,12 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	if (!getActive())
 		return;
 
+	/* danger: memp needs to be big enough for scaled picture...
+	 * need to make sure all callers know this... */
+	x = scaleX(x);
+	y = scaleY(y);
+	dx = scaleX(dx);
+	dy = scaleY(dy);
 
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
@@ -1268,6 +1284,13 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 {
 	if (!getActive())
 		return;
+
+	/* danger: memp needs to be big enough for scaled picture...
+	 * need to make sure all callers know this... */
+	x = scaleX(x);
+	y = scaleY(y);
+	dx = scaleX(dx);
+	dy = scaleY(dy);
 
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;

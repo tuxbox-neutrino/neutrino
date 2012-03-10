@@ -39,6 +39,7 @@ class CPrivateData
 
 CFBWindow::CFBWindow(const int _x, const int _y, const int _dx, const int _dy)
 {
+	int realx, realy;
 	x  = _x ;
 	y  = _y ;
 	dx = _dx;
@@ -46,7 +47,9 @@ CFBWindow::CFBWindow(const int _x, const int _y, const int _dx, const int _dy)
 
 	private_data = (void *) new CPrivateData;
 	((CPrivateData *)private_data)->frameBuffer = CFrameBuffer::getInstance();
-	((CPrivateData *)private_data)->Background = new fb_pixel_t [_dx * _dy];
+	realx = ((CPrivateData *)private_data)->frameBuffer->scaleX(_dx);
+	realy = ((CPrivateData *)private_data)->frameBuffer->scaleX(_dy);
+	((CPrivateData *)private_data)->Background = new fb_pixel_t [realx * realy];
 	if (((CPrivateData *)private_data)->Background != NULL)
 		((CPrivateData *)private_data)->frameBuffer->SaveScreen(_x, _y, _dx, _dy, (fb_pixel_t *)((CPrivateData *)private_data)->Background);
 
