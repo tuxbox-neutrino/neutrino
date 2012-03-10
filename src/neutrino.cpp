@@ -144,11 +144,13 @@ void * sectionsd_main_thread(void *data);
 extern bool timeset; // sectionsd
 
 extern cVideo * videoDecoder;
+extern cDemux *videoDemux;
 extern cAudio * audioDecoder;
 cPowerManager *powerManager;
 cCpuFreqManager * cpuFreq;
 
 void stop_daemons(bool stopall = true);
+void stop_video(void);
 // uncomment if you want to have a "test" menue entry  (rasc)
 
 //#define __EXPERIMENTAL_CODE__
@@ -2969,8 +2971,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				standby.timer_minutes_hi    = fp_timer >> 8;;
 				standby.timer_minutes_lo    = fp_timer & 0xFF;
 
-				delete videoDecoder;
-				cs_api_exit();
+				stop_video();
 
 				int fd = open("/dev/display", O_RDONLY);
 				if (fd < 0) {
@@ -3035,7 +3036,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				delete funNotifier;
 			}
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
-			delete frameBuffer;
+			stop_video();
 
 #if 0 /* FIXME this next hack to test, until we find real crash on exit reason */
 			system("/etc/init.d/rcK");
@@ -3615,11 +3616,9 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete g_fontRenderer;
 
 			delete hintBox;
-			delete frameBuffer;
 
 			stop_daemons(true);
-			delete videoDecoder;
-			cs_api_exit();
+			stop_video();
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
 			delete g_Zapit; //do we really need this?
@@ -3737,6 +3736,14 @@ void stop_daemons(bool stopall)
 	}
 }
 
+void stop_video()
+{
+	delete videoDecoder;
+	delete videoDemux;
+	delete CFrameBuffer::getInstance();
+	cs_api_exit();
+}
+
 void sighandler (int signum)
 {
 	signal (signum, SIG_IGN);
@@ -3745,8 +3752,7 @@ void sighandler (int signum)
           case SIGINT:
 		delete CRecordManager::getInstance();
 		stop_daemons();
-		delete videoDecoder;
-		cs_api_exit();
+		stop_video();
                 _exit(0);
           default:
                 break;
