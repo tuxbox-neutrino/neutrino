@@ -333,7 +333,14 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	        checkParentallocked.close();
 	}
 	// video
-	g_settings.video_Mode = configfile.getInt32("video_Mode", VIDEO_STD_1080I50); // VIDEO_STD_720P50
+#if HAVE_TRIPLEDRAGON
+	int vid_Mode_default = VIDEO_STD_PAL;
+#else
+	int vid_Mode_default = VIDEO_STD_720P50;
+	if (getenv("NEUTRINO_DEFAULT_SCART") != NULL)
+		vid_Mode_default = VIDEO_STD_PAL;
+#endif
+	g_settings.video_Mode = configfile.getInt32("video_Mode", vid_Mode_default);
 	g_settings.analog_mode1 = configfile.getInt32("analog_mode1", (int)ANALOG_SD_RGB_SCART); // default RGB
 	g_settings.analog_mode2 = configfile.getInt32("analog_mode2", (int)ANALOG_SD_YPRPB_CINCH); // default YPBPR
 	g_settings.hdmi_cec_mode = configfile.getInt32("hdmi_cec_mode", 0); // default off
@@ -633,13 +640,15 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_StartY_lcd = configfile.getInt32( "screen_StartY_lcd", DEFAULT_Y_START_HD );
 	g_settings.screen_EndX_lcd = configfile.getInt32( "screen_EndX_lcd", DEFAULT_X_END_HD);
 	g_settings.screen_EndY_lcd = configfile.getInt32( "screen_EndY_lcd", DEFAULT_Y_END_HD);
+
+	int screen_preset_default = (g_settings.video_Mode > VIDEO_STD_576P);
 #if HAVE_TRIPLEDRAGON
 	/* does not make sense to have two configurations for that... */
 	g_settings.screen_preset = 0;
 #elif HAVE_SPARK_HARDWARE
-	g_settings.screen_preset = (g_settings.video_Mode > VIDEO_STD_576P);
+	g_settings.screen_preset = screen_preset_default;
 #else
-	g_settings.screen_preset = configfile.getInt32( "screen_preset", 1);
+	g_settings.screen_preset = configfile.getInt32("screen_preset", screen_preset_default);
 #endif
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
 	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
