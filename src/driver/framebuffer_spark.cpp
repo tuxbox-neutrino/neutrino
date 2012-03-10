@@ -74,7 +74,7 @@ void CFrameBuffer::waitForIdle(void)
 	struct timeval ts, te;
 	gettimeofday(&ts, NULL);
 #endif
-	ioctl(fd, STMFBIO_SYNC_BLITTER);
+//	ioctl(fd, STMFBIO_SYNC_BLITTER);
 #if 0
 	gettimeofday(&te, NULL);
 	printf("STMFBIO_SYNC_BLITTER took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
@@ -1436,8 +1436,9 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	int y = scaleY(yoff);
 	int dw = scaleX(width - xp);
 	int dh = scaleY(height - yp);
+	size_t mem_sz = width * height * sizeof(fb_pixel_t);
 
-	memcpy(backbuffer, fbbuff, width * height * sizeof(fb_pixel_t));
+	memcpy(backbuffer, fbbuff, mem_sz);
 
 	STMFBIO_BLT_EXTERN_DATA blt_data;
 	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
@@ -1463,7 +1464,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	blt_data.dstMemSize = stride * yRes;
 
 	// icons are so small that they will still be in cache
-	msync(backbuffer, backbuf_sz, MS_SYNC);
+	msync(backbuffer, mem_sz, MS_SYNC);
 
 	if(ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("blit2FB FBIO_BLIT");
@@ -1608,6 +1609,7 @@ void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long c
 
 	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
 		perror("blitRect FBIO_BLIT");
+	ioctl(fd, STMFBIO_SYNC_BLITTER);
 }
 
 void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
@@ -1635,10 +1637,11 @@ void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, i
 	blt_data.srcMemSize = backbuf_sz;
 	blt_data.dstMemSize = stride * yRes;
 
-	msync(backbuffer, backbuf_sz, MS_SYNC);
+	msync(backbuffer, blt_data.srcPitch * src_height, MS_SYNC);
 
 	if(ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("blit_icon FBIO_BLIT");
+	ioctl(fd, STMFBIO_SYNC_BLITTER);
 }
 
 void CFrameBuffer::update(void)
