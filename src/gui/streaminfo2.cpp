@@ -345,8 +345,10 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 {
 	int   x_now = sigBox_pos;
 	int   yt = sig_text_y + (sheight *2)+4;
-	int   yd;
-	static int old_x=0,old_y=0;
+	int   yd[4];
+	const fb_pixel_t colors[4] = { COL_YELLOW, COL_RED, COL_GREEN, COL_BLUE };
+	static int old_x = 0, old_y[4] = { 0, 0, 0, 0 };
+	int i;
 	sigBox_pos++;
 	sigBox_pos %= sigBox_w;
 
@@ -356,27 +358,22 @@ void CStreamInfo2::paint_signal_fe(struct bitrate br, struct feSignal s)
 	long value = (long) (bit_s / 1000ULL);
 
 	if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ){
-		yd = y_signal_fe (value, scaling, sigBox_h);// Video + Audio
+		yd[0] = y_signal_fe (value, scaling, sigBox_h);// Video + Audio
 	} else {
-		yd = y_signal_fe (value, 512, sigBox_h); // Audio only
+		yd[0] = y_signal_fe (value, 512, sigBox_h); // Audio only
 	}
-	if ((old_x == 0 && old_y == 0) || sigBox_pos == 1) {
-		old_x = sigBox_x+x_now;
-		old_y = sigBox_y+sigBox_h-yd;
-	} else {
-		frameBuffer->paintLine(old_x, old_y, sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_YELLOW); //yellow
-		old_x = sigBox_x+x_now;
-		old_y = sigBox_y+sigBox_h-yd;
+	yd[1] = y_signal_fe(s.ber, 4000, sigBox_h);
+	yd[2] = y_signal_fe(s.sig, 65000, sigBox_h);
+	yd[3] = y_signal_fe(s.snr, 65000, sigBox_h);
+
+	for (i = 0; i < 4; i++)
+	{
+		if (!((old_x == 0 && old_y[i] == 0) || sigBox_pos == 1))
+			frameBuffer->paintLine(old_x, old_y[i],
+					       sigBox_x + x_now, sigBox_y + sigBox_h - yd[i], colors[i]);
+		old_y[i] = sigBox_y + sigBox_h - yd[i];
 	}
-
-	yd = y_signal_fe (s.ber, 4000, sigBox_h);
-	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_RED); //red
-
-	yd = y_signal_fe (s.sig, 65000, sigBox_h);
-	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_GREEN); //green
-
-	yd = y_signal_fe (s.snr, 65000, sigBox_h);
-	frameBuffer->paintPixel(sigBox_x+x_now, sigBox_y+sigBox_h-yd, COL_BLUE); //blue
+	old_x = sigBox_x + x_now;
 
 	if (s.max_ber != s_old.max_ber)
 		SignalRenderStr(s_old.max_ber, s.max_ber, sig_text_ber_x, yt);
