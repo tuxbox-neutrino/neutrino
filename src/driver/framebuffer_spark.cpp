@@ -64,8 +64,9 @@ static int bpafd = -1;
 static fb_pixel_t *backbuffer = NULL;
 static int fake_xRes = 0;
 static int fake_yRes = 0;
-static int fake_stride = 0;
 static int backbuf_sz = 0;
+static int max_backbuf_sz = 0;
+static bool scaling = false;
 
 void CFrameBuffer::waitForIdle(void)
 {
@@ -153,12 +154,26 @@ void CFrameBuffer::init(const char * const fbDevice)
 	stride = xRes * bpp / 8;
 printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 
-	fake_xRes = DEFAULT_XRES;
-	fake_yRes = DEFAULT_YRES;
-	screeninfo.xres = DEFAULT_XRES;
-	screeninfo.yres = DEFAULT_YRES;
-	screeninfo.xres_virtual = DEFAULT_XRES;
-	screeninfo.yres_virtual = DEFAULT_YRES;
+	/* PAL and 720p mode is unscaled, but 1080 modes are not */
+	scaling = (xRes > 1280);
+
+	if (xRes > 720)
+	{
+		/* HDTV mode */
+		fake_xRes = DEFAULT_XRES;
+		fake_yRes = DEFAULT_YRES;
+		screeninfo.xres = DEFAULT_XRES;
+		screeninfo.yres = DEFAULT_YRES;
+		screeninfo.xres_virtual = DEFAULT_XRES;
+		screeninfo.yres_virtual = DEFAULT_YRES;
+	}
+	else
+	{
+		/* PAL mode */
+		fake_xRes = xRes;
+		fake_yRes = yRes;
+	}
+
 	screeninfo.bits_per_pixel = 32;
 	backbuf_sz = stride * yRes;
 
@@ -189,7 +204,9 @@ printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 	}
 	BPAMemAllocMemData bpa_data;
 	bpa_data.bpa_part = (char *)"LMI_VID";
-	bpa_data.mem_size = backbuf_sz;
+	/* allocate maximum possibly needed amount of memory */
+	max_backbuf_sz = 1920 * 1080 * sizeof(fb_pixel_t);
+	bpa_data.mem_size = max_backbuf_sz;
 	int res;
 	res = ioctl(bpafd, BPAMEMIO_ALLOCMEM, &bpa_data);
 	if (res)
@@ -220,7 +237,7 @@ printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 		return;
 	}
 
-	memset(backbuffer, 0, backbuf_sz);
+	memset(backbuffer, 0, max_backbuf_sz);
 	cache_size = 0;
 
 	/* Windows Colors */
@@ -298,7 +315,7 @@ CFrameBuffer::~CFrameBuffer()
 	if (backbuffer)
 	{
 		fprintf(stderr, "CFrameBuffer: unmap backbuffer\n");
-		munmap(backbuffer, backbuf_sz);
+		munmap(backbuffer, max_backbuf_sz);
 	}
 	if (bpafd != -1)
 	{
@@ -479,7 +496,7 @@ void CFrameBuffer::paintBoxRel(const int _x, const int _y, const int _dx, const 
 
 	int add = 0;
 	/* hack to remove artefacts caused by rounding in scaling mode */
-	if (xRes > 1280 && col == backgroundColor)
+	if (scaling && col == backgroundColor)
 		add = 1;
 
 	int x = scaleX(_x);
@@ -1524,6 +1541,45 @@ void CFrameBuffer::resize(int format)
 	bpp = 32;
 	stride = xRes * bpp / 8;
 	fprintf(stderr, "CFrameBuffer::resize(%d): %d x %d\n", format, xRes, yRes);
+
+	/* reacquire parameters...
+	 * TODO: this is duplicated code from ::init() function */
+	if (ioctl(fd, FBIOGET_VSCREENINFO, &screeninfo) < 0)
+		perror("FBIOGET_VSCREENINFO");
+
+	xRes = screeninfo.xres;
+	yRes = screeninfo.yres;
+	bpp = 32;
+	stride = xRes * bpp / 8;
+
+	scaling = (xRes > 1280);
+
+	if (xRes > 720)
+	{
+		fake_xRes = DEFAULT_XRES;
+		fake_yRes = DEFAULT_YRES;
+		screeninfo.xres = DEFAULT_XRES;
+		screeninfo.yres = DEFAULT_YRES;
+		screeninfo.xres_virtual = DEFAULT_XRES;
+		screeninfo.yres_virtual = DEFAULT_YRES;
+	}
+	else
+	{
+		fake_xRes = xRes;
+		fake_yRes = yRes;
+	}
+
+	printf("FB:resize %dx%dx%d line length %d. scaling: %d\n", xRes, yRes, bpp, stride, scaling);
+
+	screeninfo.bits_per_pixel = 32;
+	backbuf_sz = stride * yRes;
+
+	int p = (xRes > 720); /* 0 == SDTV, 1 == HDTV */
+	g_settings.screen_preset = p;
+	g_settings.screen_StartX = p ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
+	g_settings.screen_StartY = p ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
+	g_settings.screen_EndX   = p ? g_settings.screen_EndX_lcd   : g_settings.screen_EndX_crt;
+	g_settings.screen_EndY   = p ? g_settings.screen_EndY_lcd   : g_settings.screen_EndY_crt;
 }
 
 void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long color)
@@ -1592,6 +1648,8 @@ void CFrameBuffer::update(void)
 
 int CFrameBuffer::scaleX(const int x, bool clamp)
 {
+	if (!scaling)
+		return x;
 	unsigned int mul = x * xRes;
 	mul = mul / DEFAULT_XRES + (((mul % DEFAULT_XRES) >= (DEFAULT_XRES / 2)) ? 1 : 0);
 	if (clamp && mul > xRes)
@@ -1601,6 +1659,8 @@ int CFrameBuffer::scaleX(const int x, bool clamp)
 
 int CFrameBuffer::scaleY(const int y, bool clamp)
 {
+	if (!scaling)
+		return y;
 	unsigned int mul = y * yRes;
 	mul = mul / DEFAULT_YRES + (((mul % DEFAULT_YRES) >= (DEFAULT_YRES / 2)) ? 1 : 0);
 	if (clamp && mul > yRes)
