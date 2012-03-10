@@ -591,6 +591,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 	if (!getActive())
 		return;
 
+	int d = scaleX(1);
 	xa = scaleX(xa);
 	xb = scaleX(xb);
 	ya = scaleY(ya);
@@ -624,7 +625,10 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 			step = yb < ya ? -1 : 1;
 		}
 
-		paintPixel(x, y, col);
+		if (d == 1)
+			paintPixel(x, y, col);
+		else
+			blitRect(x, y, 2, 2, col);
 
 		while (x < End)
 		{
@@ -636,7 +640,10 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 				y += step;
 				p += twoDyDx;
 			}
-			paintPixel(x, y, col);
+			if (d == 1)
+				paintPixel(x, y, col);
+			else
+				blitRect(x, y, 2, 2, col);
 		}
 	}
 	else
@@ -660,7 +667,10 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 			step = xb < xa ? -1 : 1;
 		}
 
-		paintPixel(x, y, col);
+		if (d == 1)
+			paintPixel(x, y, col);
+		else
+			blitRect(x, y, 2, 2, col);
 
 		while (y < End)
 		{
@@ -672,7 +682,10 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 				x += step;
 				p += twoDxDy;
 			}
-			paintPixel(x, y, col);
+			if (d == 1)
+				paintPixel(x, y, col);
+			else
+				blitRect(x, y, 2, 2, col);
 		}
 	}
 }
@@ -689,7 +702,8 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 	int _x = scaleX(x);
 	int _y = scaleY(y);
 	int _dy = scaleY(dy);
-	blitRect(_x, _y, 1, _dy, col);
+	int w = scaleX(1);
+	blitRect(_x, _y, w, _dy, col);
 }
 
 void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
@@ -704,7 +718,8 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 	int _x = scaleX(x);
 	int _y = scaleY(y);
 	int _dx = scaleX(dx);
-	blitRect(_x, _y, _dx, 1, col);
+	int w = scaleY(1);
+	blitRect(_x, _y, _dx, w, col);
 }
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
