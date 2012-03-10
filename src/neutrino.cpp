@@ -387,7 +387,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.standby_cpufreq = 50;
 #endif
 
-	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 1);
+	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 0);
 
 	//misc
 	g_settings.power_standby = configfile.getInt32( "power_standby", 0);
