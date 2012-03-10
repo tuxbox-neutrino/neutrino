@@ -74,7 +74,7 @@ void CFrameBuffer::waitForIdle(void)
 	struct timeval ts, te;
 	gettimeofday(&ts, NULL);
 #endif
-//	ioctl(fd, STMFBIO_SYNC_BLITTER);
+	ioctl(fd, STMFBIO_SYNC_BLITTER);
 #if 0
 	gettimeofday(&te, NULL);
 	printf("STMFBIO_SYNC_BLITTER took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
@@ -1609,7 +1609,6 @@ void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long c
 
 	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
 		perror("blitRect FBIO_BLIT");
-	ioctl(fd, STMFBIO_SYNC_BLITTER);
 }
 
 void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
