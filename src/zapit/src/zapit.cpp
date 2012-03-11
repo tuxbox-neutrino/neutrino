@@ -2143,7 +2143,6 @@ void CZapit::run()
 	delete pcrDemux;
 	delete pmtDemux;
 	delete audioDecoder;
-	delete videoDemux;
 	delete audioDemux;
 
 	INFO("demuxes/decoders deleted");
