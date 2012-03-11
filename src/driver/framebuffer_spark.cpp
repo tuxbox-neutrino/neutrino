@@ -371,6 +371,11 @@ fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
 		return (fb_pixel_t *) virtual_fb;
 }
 
+fb_pixel_t * CFrameBuffer::getBackBufferPointer() const
+{
+	return backbuffer;
+}
+
 bool CFrameBuffer::getActive() const
 {
 	return (active || (virtual_fb != NULL));
@@ -1430,20 +1435,36 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp, bool scale)
 {
-	int x = scaleX(xoff);
-	int y = scaleY(yoff);
-	int dw = scaleX(width - xp);
-	int dh = scaleY(height - yp);
-	size_t mem_sz = width * height * sizeof(fb_pixel_t);
+	int x, y, dw, dh;
+	if (scale)
+	{
+		x = scaleX(xoff);
+		y = scaleY(yoff);
+		dw = scaleX(width - xp);
+		dh = scaleY(height - yp);
+	}
+	else
+	{
+		x = xoff;
+		y = yoff;
+		dw = width - xp;
+		dh = height - yp;
+	}
 
-	memcpy(backbuffer, fbbuff, mem_sz);
+	size_t mem_sz = width * height * sizeof(fb_pixel_t);
+	unsigned long ulFlags = 0;
+	if (transp) /* transp == true means: color "0x0" is transparent (??) */
+		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
+
+	if (fbbuff != backbuffer)
+		memmove(backbuffer, fbbuff, mem_sz);
 
 	STMFBIO_BLT_EXTERN_DATA blt_data;
 	memset(&blt_data, 0, sizeof(STMFBIO_BLT_EXTERN_DATA));
 	blt_data.operation  = BLT_OP_COPY;
-	blt_data.ulFlags    = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
+	blt_data.ulFlags    = ulFlags;
 	blt_data.srcOffset  = 0;
 	blt_data.srcPitch   = width * 4;
 	blt_data.dstOffset  = 0;

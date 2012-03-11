@@ -460,6 +460,11 @@ fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
 		return (fb_pixel_t *) virtual_fb;
 }
 
+fb_pixel_t * CFrameBuffer::getBackBufferPointer() const
+{
+	return lfb + xRes * yRes;
+}
+
 bool CFrameBuffer::getActive() const
 {
 	return (active || (virtual_fb != NULL));
@@ -1790,7 +1795,7 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 }
 
 #if !HAVE_TRIPLEDRAGON
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp, bool /*scale*/)
 {
 	int  xc, yc;
 
@@ -1843,7 +1848,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 #endif
 }
 #else
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp, bool /*scale*/)
 {
 	DFBRectangle src;
 	DFBResult err;
