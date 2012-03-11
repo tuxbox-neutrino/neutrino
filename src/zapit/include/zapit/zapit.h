@@ -75,7 +75,9 @@ class CZapit : public OpenThreads::Thread
 		int video_mode;
 		Zapit_config config;
 		CConfigFile configfile;
+	
 		CEventServer *eventServer;
+		CBasicServer zapit_server;
 
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;

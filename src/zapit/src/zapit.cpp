@@ -27,6 +27,7 @@
 #include <sys/poll.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <syscall.h>
 
@@ -741,6 +742,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	if ((standby) && ((rmsg.cmd != CZapitMessages::CMD_SET_VOLUME)
 		&& (rmsg.cmd != CZapitMessages::CMD_MUTE)
+		&& (rmsg.cmd != CZapitMessages::CMD_REGISTEREVENTS)
 		&& (rmsg.cmd != CZapitMessages::CMD_IS_TV_CHANNEL)
 		&& (rmsg.cmd != CZapitMessages::CMD_SET_STANDBY))) {
 		WARN("cmd %d in standby mode", rmsg.cmd);
@@ -2046,15 +2048,20 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 	ca->Start();
 
 	eventServer = new CEventServer;
+	if (!zapit_server.prepare(ZAPIT_UDS_NAME)) {
+		perror(ZAPIT_UDS_NAME);
+		return false;
+	}
 
 	current_channel = CServiceManager::getInstance()->FindChannel(live_channel_id);
 
 	// some older? hw needs this sleep. e.g. my hd-1c.
 	// if sleep is not set -> blackscreen after boot.
 	// sleep(1) is ok here. (striper)
+#if 0
 	sleep(1);
 	leaveStandby();
-
+#endif
 	started = true;
 	int ret = start();
 	return (ret == 0);
@@ -2081,15 +2088,14 @@ void CZapit::run()
 	printf("[zapit] starting... tid %ld\n", syscall(__NR_gettid));
 
 	abort_zapit = 0;
-
+#if 0
 	CBasicServer zapit_server;
 
 	if (!zapit_server.prepare(ZAPIT_UDS_NAME)) {
 		perror(ZAPIT_UDS_NAME);
 		return;
 	}
-
-	//pthread_create (&tsdt, NULL, sdt_thread, (void *) NULL);
+#endif
 	SdtMonitor.Start();
 	while (started && zapit_server.run(zapit_parse_command, CZapitMessages::ACTVERSION, true))
 	{
