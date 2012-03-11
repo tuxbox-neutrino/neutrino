@@ -85,19 +85,18 @@ int tv_pip_y;
 #define fontwidth_small_lcd 8
 
 #define TV43STARTX (ex)
-#define TVENDX (CFrameBuffer::getInstance()->getScreenX() + CFrameBuffer::getInstance()->getScreenWidth()) //ex
+#define TVENDX (screen_x + screen_w) //ex
 // #define TVENDY (StartY + 25*fontheight)
 // #define TV43WIDTH  (TVENDX - TV43STARTX)
 // #define TV43HEIGHT (TV43WIDTH *9/16)
 // #define TV43STARTY (TVENDY - TV43HEIGHT)
 
 //#define TV169FULLSTARTX (sx+ 8*40) //(sx +(ex +1 - sx)/2)
-#define TV169FULLSTARTX (CFrameBuffer::getInstance()->getScreenX() + CFrameBuffer::getInstance()->getScreenWidth()/2)
+#define TV169FULLSTARTX (screen_x + screen_w / 2)
 #define TV169FULLSTARTY sy
 //#define TV169FULLWIDTH  (ex - sx)/2
-#define TV169FULLWIDTH  (CFrameBuffer::getInstance()->getScreenWidth()/2)
+#define TV169FULLWIDTH  (screen_w / 2)
 #define TV169FULLHEIGHT (ey - sy)
-
 #define TOPMENUSTARTX TV43STARTX+2
 //#define TOPMENUENDX TVENDX
 #define TOPMENUSTARTY StartY
@@ -205,6 +204,7 @@ const char *ObjectType[] =
 
 /* framebuffer stuff */
 static unsigned char *lfb = 0;
+static unsigned char *lbb = 0;
 struct fb_var_screeninfo var_screeninfo;
 struct fb_fix_screeninfo fix_screeninfo;
 
