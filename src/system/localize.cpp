@@ -47,91 +47,7 @@
 //static const char * iso639filename = "/usr/share/iso-codes/iso-639.tab";
 static const char * iso639filename = "/share/iso-codes/iso-639.tab";
 
-#if 0
-#include <stdlib.h>
-#include <stdio.h>
-
-#define ISO639_TABLE_SIZE 489
-typedef struct
-{
-	char * iso_639_2_code;
-	char * name;
-} iso639_t;
-
-iso639_t iso639[ISO639_TABLE_SIZE];
-
-int mycompare(const void * a, const void * b)
-{
-	return strcmp(((iso639_t *)a)->iso_639_2_code, ((iso639_t *)b)->iso_639_2_code);
-}
-
-void initialize_iso639_map(void)
-{
-	unsigned i = 0;
-	std::string s, t, v;
-	std::ifstream in(iso639filename);
-	if (in.is_open())
-	{
-		while (in.peek() == '#')
-			getline(in, s);
-		while (in >> s >> t >> v >> std::ws)
-		{
-			getline(in, v);
-
-			if (i == ISO639_TABLE_SIZE)
-			{
-				printf("ISO639 table overflow\n");
-				goto do_sorting;
-			}
-
-			iso639[i].iso_639_2_code = strdup(s.c_str());
-			iso639[i].name           = strdup(v.c_str());
-
-			i++;
-
-			if (s != t)
-			{
-				if (i == ISO639_TABLE_SIZE)
-				{
-					printf("ISO639 table overflow\n");
-					goto do_sorting;
-				}
-
-				iso639[i].iso_639_2_code = strdup(t.c_str());
-//				iso639[i].name           = strdup(v.c_str());
-				iso639[i].name           = iso639[i - 1].name;
-
-				i++;
-			}
-		}
-		if (i != ISO639_TABLE_SIZE)
-		{
-			printf("ISO639 table underflow\n");
-			while(i < ISO639_TABLE_SIZE)
-			{
-				iso639[i].iso_639_2_code = iso639[i].name = (char *)iso639filename; // fill with junk
-				i++;
-			}
-		}
-	do_sorting:
-		qsort(iso639, ISO639_TABLE_SIZE, sizeof(iso639_t), mycompare);
-	}
-	else
-		printf("Loading %s failed.\n", iso639filename);
-}
-
-const char * getISO639Description(const char * const iso)
-{
-	iso639_t tmp;
-	tmp.iso_639_2_code = (char *)iso;
-
-	void * value = bsearch(&tmp, iso639, ISO639_TABLE_SIZE, sizeof(iso639_t), mycompare);
-	if (value == NULL)
-		return iso;
-	else
-		return ((iso639_t *)value)->name;
-}
-#else
+#define DEFAULT_LOCALE "english"
 
 std::map<std::string, std::string> iso639;
 std::map<std::string, std::string> iso639rev;
@@ -166,7 +82,6 @@ const char * getISO639Description(const char * const iso)
 	else
 		return it->second.c_str();
 }
-#endif
 
 CLocaleManager::CLocaleManager()
 {
@@ -178,7 +93,7 @@ CLocaleManager::CLocaleManager()
 	for (unsigned int i = 0; i < (sizeof(locale_real_names)/sizeof(const char *)); i++)
 		defaultData[i] = (char *)locale_real_names[i];
 
-	loadLocale("english", true);
+	loadLocale(DEFAULT_LOCALE, true);
 }
 
 CLocaleManager::~CLocaleManager()
@@ -198,7 +113,14 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 	FILE * fd;
 	char ** loadData = asdefault ? defaultData : localeData;
 
-	//initialize_iso639_map();
+	if(!asdefault && !strcmp(locale, DEFAULT_LOCALE)) {
+		for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++) {
+			if (loadData[j] != locale_real_names[j] && loadData[j] != defaultData[j])
+				free(loadData[j]);
+			loadData[j] = defaultData[j];
+		}
+		return UNICODE_FONT;
+	}
 
 	for (i = 0; i < 2; i++)
 	{
@@ -278,29 +200,6 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 //			printf("i=%d\n", i);
 			if(i == sizeof(locale_real_names)/sizeof(const char *))
 				printf("[%s.locale] superfluous entry: %s\n", locale, buf);
-#if 0
-
-			while (1)
-			{
-				j = (i >= (sizeof(locale_real_names)/sizeof(const char *))) ? -1 : strcmp(buf, locale_real_names[i]);
-				if (j > 0)
-				{
-					printf("[%s.locale] missing entry:     %s\n", locale, locale_real_names[i]);
-					i++;
-				}
-				else
-					break;
-			}
-			if (j == 0)
-			{
-				localeData[i] = strdup(text.c_str());
-				i++;
-			}
-			else
-			{
-				printf("[%s.locale] superfluous entry: %s\n", locale, buf);
-			}
-#endif
 		}
 	}
 	fclose(fd);
