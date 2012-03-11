@@ -161,13 +161,16 @@ private:
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
-	
+	void InitTimerdClient();
+	void InitZapitClient();
+	void InitSectiondClient();
+
 	//menues
 	void InitMenu();
  	void InitMenuMain();
 	void InitMenuSettings();
 	void InitMenuService();
-		
+
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
 	CNeutrinoApp();

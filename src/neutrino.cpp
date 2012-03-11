@@ -1573,17 +1573,17 @@ void CNeutrinoApp::InitZapper()
  	struct stat my_stat;
 
 	g_InfoViewer->start();
-	//SendSectionsdConfig();
 	if (g_settings.epg_save){
 		if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
 			g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
 	}
-	firstChannel();
 	lastChannelMode = g_settings.channel_mode;
 	SDTreloadChannels = false;
 	channelsInit();
 
-	if(firstchannel.mode == 't') {
+	int tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;
+	if(tvmode)
+	{
 		tvMode(true);
 	} else {
 		g_RCInput->killTimer(g_InfoViewer->lcdUpdateTimer);
@@ -1594,10 +1594,13 @@ void CNeutrinoApp::InitZapper()
 		tuxtxt_init();
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	g_Sectionsd->setServiceChanged(live_channel_id, true );
+#if 0 // mode switch above do zap, so all next should be done after zap complete message
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(channelList->getSize() && live_channel_id) {
 		channelList->adjustToChannelID(live_channel_id);
 		CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
-		g_Sectionsd->setPauseScanning(false);
+		//g_Sectionsd->setPauseScanning(false);
 		g_Sectionsd->setServiceChanged(live_channel_id, true );
 		g_Zapit->getPIDS(g_RemoteControl->current_PIDs);
 		if(g_settings.cacheTXT)
@@ -1608,6 +1611,7 @@ void CNeutrinoApp::InitZapper()
 		SelectSubtitles();
 		StartSubtitles();
 	}
+#endif
 }
 
 void CNeutrinoApp::setupRecordingDevice(void)
@@ -1622,231 +1626,9 @@ static void CSSendMessage(uint32_t msg, uint32_t data)
 		g_RCInput->postMsg(msg, data);
 }
 
-extern bool timer_wakeup;//timermanager.cpp
-int CNeutrinoApp::run(int argc, char **argv)
+void CNeutrinoApp::InitTimerdClient()
 {
-	CmdParser(argc, argv);
-
-	cs_api_init();
-	cs_register_messenger(CSSendMessage);
-
-	CHintBox * hintBox;
-
-	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
-
-	bool display_language_selection;
-
-	initialize_iso639_map();
-
-	CLocaleManager::loadLocale_ret_t loadLocale_ret = g_Locale->loadLocale(g_settings.language);
-	if (loadLocale_ret == CLocaleManager::NO_SUCH_LOCALE)
-	{
-		strcpy(g_settings.language, "english");
-		loadLocale_ret = g_Locale->loadLocale(g_settings.language);
-		display_language_selection = true;
-	}
-	else
-		display_language_selection = false;
-
-	SetupFonts();
-	SetupTiming();
-	g_PicViewer = new CPictureViewer();
-	colorSetupNotifier        = new CColorSetupNotifier;
-	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
-	hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
-	hintBox->paint();
-	CVFD::getInstance()->init(font.filename, font.name);
-
-	CVFD::getInstance()->Clear();
-	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
-
-	//zapit start parameters
-	Z_start_arg ZapStart_arg;
-	ZapStart_arg.startchanneltv_id = g_settings.startchanneltv_id;
-	ZapStart_arg.startchannelradio_id = g_settings.startchannelradio_id;
-	ZapStart_arg.startchanneltv_nr = g_settings.startchanneltv_nr;
-	ZapStart_arg.startchannelradio_nr = g_settings.startchannelradio_nr;
-	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
-	ZapStart_arg.video_mode = g_settings.video_Mode;
-	ZapStart_arg.ci_clock = g_settings.ci_clock;
-
-	CZapit::getInstance()->Start(&ZapStart_arg);
-
-	audioSetupNotifier        = new CAudioSetupNotifier;
-	//timer start
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
-
-	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
-	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
-	audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE)g_settings.hdmi_dd);
-	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
-	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
-
-	//init video settings
-	g_videoSettings = new CVideoSettings;
-	g_videoSettings->setVideoSettings();
-
-	init_cec_setting = true;
-	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
-		//init cec settings
-		CCECSetup cecsetup;
-		cecsetup.setCECSettings();
-		init_cec_setting = false;
-	}
-	g_settings.shutdown_timer_record_type = false;
-	timer_wakeup = false;	  
-
-	// trigger a change
-	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
-
-	if(display_language_selection)
-		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/start.jpg");
-
-	powerManager = new cPowerManager;
-
-	if (powerManager) {
-		if (!powerManager->Open())
-			printf("opening powermanager failed\n");
-	}
-
-	cpuFreq = new cCpuFreqManager();
-	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-
-
-	dvbsub_init();
-
-	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
-
-	pthread_create (&stream_thread, NULL, streamts_main_thread, (void *) NULL);
-
-	hintBox->hide(); //FIXME
-	hintBox->paint();
-
-#ifndef DISABLE_SECTIONSD
-	//pthread_create (&sections_thread, NULL, sectionsd_main_thread, (void *) NULL);
-        CSectionsdClient::epg_config config;
-	MakeSectionsdConfig(config);
-	CEitManager::getInstance()->SetConfig(config);
-	CEitManager::getInstance()->Start();
-#endif
-	g_Zapit         = new CZapitClient;
-
-	g_info.delivery_system = g_Zapit->getDeliverySystem();
-	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE, g_info.delivery_system)) {
-		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
-	}
-#if HAVE_TRIPLEDRAGON
-	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
-	g_info.has_fan = (cs_get_revision() > 1 && cs_get_revision() < 8 && g_info.delivery_system == DVB_S);
-#else
-	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);
-#endif
-
-	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
-	//fan speed
-	if (g_info.has_fan) {
-		CFanControlNotifier * funNotifier= new CFanControlNotifier();
-		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
-		delete funNotifier;
-	}
-
-
-	CVFD::getInstance()->showVolume(g_settings.current_volume);
-	CVFD::getInstance()->setMuted(current_muted);
-
-	InfoClock = new CInfoClock();
-	if(g_settings.mode_clock)
-		InfoClock->StartClock();
-
-	g_RCInput = new CRCInput;
-
-	g_Sectionsd = new CSectionsdClient;
 	g_Timerd = new CTimerdClient;
-
-	g_RemoteControl = new CRemoteControl;
-	g_EpgData = new CEpgData;
-	g_InfoViewer = new CInfoViewer;
-	g_EventList = new CNeutrinoEventList;
-
-	int dx = 0;
-	int dy = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME,&dx,&dy);
-	g_volscale = new CProgressBar(true, dy * 125 / 10, dy, 50, 100, 80, true);
-	g_CamHandler = new CCAMMenuHandler();
-	g_CamHandler->init();
-
-	g_PluginList = new CPlugins;
-	g_PluginList->setPluginDir(PLUGINDIR);
-
-
-	CFSMounter::automount();
-	//load Pluginlist before main menu (only show script menu if at least one script is available
-	g_PluginList->loadPlugins();
-
-	MoviePluginChanger        = new CMoviePluginChangeExec;
-
-	// setup recording device
-	setupRecordingDevice();
-
-	dprintf( DEBUG_NORMAL, "menue setup\n");
-	//init Menues
-	InitMenu();
-
-#if 0 //ndef DISABLE_SECTIONSD
-	/* wait for sectionsd to be able to process our registration */
-	time_t t = time_monotonic_ms();
-	while (! sectionsd_isReady())
-		sleep(0);
-	dprintf(DEBUG_NORMAL, "had to wait %ld ms for sectionsd to start up\n", time_monotonic_ms() - t);
-#endif
-
-	dprintf( DEBUG_NORMAL, "registering as event client\n");
-
-	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
-	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
-	//g_Sectionsd->registerEvent(CSectionsdClient::EVT_SERVICES_UPDATE, 222, NEUTRINO_UDS_NAME);
-	//g_Sectionsd->registerEvent(CSectionsdClient::EVT_BOUQUETS_UPDATE, 222, NEUTRINO_UDS_NAME);
-	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
-
-#define ZAPIT_EVENT_COUNT 31
-	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
-	{
-		CZapitClient::EVT_ZAP_COMPLETE,
-		CZapitClient::EVT_ZAP_COMPLETE_IS_NVOD,
-		CZapitClient::EVT_ZAP_FAILED,
-		CZapitClient::EVT_ZAP_SUB_COMPLETE,
-		CZapitClient::EVT_ZAP_SUB_FAILED,
-		CZapitClient::EVT_ZAP_MOTOR,
-		CZapitClient::EVT_ZAP_CA_CLEAR,
-		CZapitClient::EVT_ZAP_CA_LOCK,
-		CZapitClient::EVT_ZAP_CA_FTA,
-		CZapitClient::EVT_ZAP_CA_ID,
-		CZapitClient::EVT_RECORDMODE_ACTIVATED,
-		CZapitClient::EVT_RECORDMODE_DEACTIVATED,
-		CZapitClient::EVT_SCAN_COMPLETE,
-		CZapitClient::EVT_SCAN_FAILED,
-		CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
-		CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS,
-		CZapitClient::EVT_SCAN_REPORT_FREQUENCY,
-		CZapitClient::EVT_SCAN_REPORT_FREQUENCYP,
-		CZapitClient::EVT_SCAN_SATELLITE,
-		CZapitClient::EVT_SCAN_NUM_CHANNELS,
-		CZapitClient::EVT_SCAN_PROVIDER,
-		CZapitClient::EVT_BOUQUETS_CHANGED,
-		CZapitClient::EVT_SERVICES_CHANGED,
-		CZapitClient::EVT_SCAN_SERVICENAME,
-		CZapitClient::EVT_SCAN_FOUND_A_CHAN,
-		CZapitClient::EVT_SCAN_FOUND_TV_CHAN,
-		CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN,
-		CZapitClient::EVT_SCAN_FOUND_DATA_CHAN,
-		CZapitClient::EVT_SDT_CHANGED,
-		CZapitClient::EVT_PMT_CHANGED,
-		CZapitClient::EVT_TUNE_COMPLETE,
-	};
-
-	for (int i = 0; i < ZAPIT_EVENT_COUNT; i++)
-		g_Zapit->registerEvent(zapit_event[i], 222, NEUTRINO_UDS_NAME);
-
 	g_Timerd->registerEvent(CTimerdClient::EVT_ANNOUNCE_SHUTDOWN, 222, NEUTRINO_UDS_NAME);
 	g_Timerd->registerEvent(CTimerdClient::EVT_SHUTDOWN, 222, NEUTRINO_UDS_NAME);
 	g_Timerd->registerEvent(CTimerdClient::EVT_ANNOUNCE_NEXTPROGRAM, 222, NEUTRINO_UDS_NAME);
@@ -1862,7 +1644,227 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Timerd->registerEvent(CTimerdClient::EVT_ANNOUNCE_SLEEPTIMER, 222, NEUTRINO_UDS_NAME);
 	g_Timerd->registerEvent(CTimerdClient::EVT_REMIND, 222, NEUTRINO_UDS_NAME);
 	g_Timerd->registerEvent(CTimerdClient::EVT_EXEC_PLUGIN, 222, NEUTRINO_UDS_NAME);
+}
 
+void CNeutrinoApp::InitZapitClient()
+{
+	g_Zapit         = new CZapitClient;
+#define ZAPIT_EVENT_COUNT 27
+	const CZapitClient::events zapit_event[ZAPIT_EVENT_COUNT] =
+	{
+		CZapitClient::EVT_ZAP_COMPLETE,
+		CZapitClient::EVT_ZAP_COMPLETE_IS_NVOD,
+		CZapitClient::EVT_ZAP_FAILED,
+		CZapitClient::EVT_ZAP_SUB_COMPLETE,
+		CZapitClient::EVT_ZAP_SUB_FAILED,
+		CZapitClient::EVT_ZAP_MOTOR,
+#if 0
+		CZapitClient::EVT_ZAP_CA_CLEAR,
+		CZapitClient::EVT_ZAP_CA_LOCK,
+		CZapitClient::EVT_ZAP_CA_FTA,
+#endif
+		CZapitClient::EVT_ZAP_CA_ID,
+		CZapitClient::EVT_RECORDMODE_ACTIVATED,
+		CZapitClient::EVT_RECORDMODE_DEACTIVATED,
+		CZapitClient::EVT_SCAN_COMPLETE,
+		CZapitClient::EVT_SCAN_FAILED,
+		CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
+		CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS,
+		CZapitClient::EVT_SCAN_REPORT_FREQUENCY,
+		CZapitClient::EVT_SCAN_REPORT_FREQUENCYP,
+		CZapitClient::EVT_SCAN_SATELLITE,
+		CZapitClient::EVT_SCAN_NUM_CHANNELS,
+		CZapitClient::EVT_SCAN_PROVIDER,
+		CZapitClient::EVT_BOUQUETS_CHANGED,
+		CZapitClient::EVT_SERVICES_CHANGED,
+		CZapitClient::EVT_SCAN_SERVICENAME,
+#if 0
+		CZapitClient::EVT_SCAN_FOUND_A_CHAN,
+#endif
+		CZapitClient::EVT_SCAN_FOUND_TV_CHAN,
+		CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN,
+		CZapitClient::EVT_SCAN_FOUND_DATA_CHAN,
+		CZapitClient::EVT_SDT_CHANGED,
+		CZapitClient::EVT_PMT_CHANGED,
+		CZapitClient::EVT_TUNE_COMPLETE,
+	};
+
+	for (int i = 0; i < ZAPIT_EVENT_COUNT; i++)
+		g_Zapit->registerEvent(zapit_event[i], 222, NEUTRINO_UDS_NAME);
+}
+
+void CNeutrinoApp::InitSectiondClient()
+{
+	g_Sectionsd = new CSectionsdClient;
+	g_Sectionsd->registerEvent(CSectionsdClient::EVT_TIMESET, 222, NEUTRINO_UDS_NAME);
+	g_Sectionsd->registerEvent(CSectionsdClient::EVT_GOT_CN_EPG, 222, NEUTRINO_UDS_NAME);
+	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
+}
+
+extern bool timer_wakeup;//timermanager.cpp
+int CNeutrinoApp::run(int argc, char **argv)
+{
+	CmdParser(argc, argv);
+
+TIMER_START();
+	cs_api_init();
+	cs_register_messenger(CSSendMessage);
+
+	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
+
+	initialize_iso639_map();
+
+	bool display_language_selection = false;
+	CLocaleManager::loadLocale_ret_t loadLocale_ret = g_Locale->loadLocale(g_settings.language);
+	if (loadLocale_ret == CLocaleManager::NO_SUCH_LOCALE)
+	{
+		strcpy(g_settings.language, "english");
+		loadLocale_ret = g_Locale->loadLocale(g_settings.language);
+		display_language_selection = true;
+	}
+
+	/* setup GUI */
+	SetupFonts();
+	SetupTiming();
+	g_PicViewer = new CPictureViewer();
+	colorSetupNotifier        = new CColorSetupNotifier;
+	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+
+	CHintBox * hintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+	hintBox->paint();
+
+	CVFD::getInstance()->init(font.filename, font.name);
+	CVFD::getInstance()->Clear();
+	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
+
+	//zapit start parameters
+	Z_start_arg ZapStart_arg;
+	ZapStart_arg.startchanneltv_id = g_settings.startchanneltv_id;
+	ZapStart_arg.startchannelradio_id = g_settings.startchannelradio_id;
+	ZapStart_arg.startchanneltv_nr = g_settings.startchanneltv_nr;
+	ZapStart_arg.startchannelradio_nr = g_settings.startchannelradio_nr;
+	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
+	ZapStart_arg.video_mode = g_settings.video_Mode;
+	ZapStart_arg.ci_clock = g_settings.ci_clock;
+
+	/* create decoders, read channels */
+	CZapit::getInstance()->Start(&ZapStart_arg);
+
+	// init audio settings
+	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
+	audioDecoder->setVolume(g_settings.current_volume, g_settings.current_volume);
+	audioDecoder->SetHdmiDD((HDMI_ENCODED_MODE)g_settings.hdmi_dd);
+	audioDecoder->SetSpdifDD(g_settings.spdif_dd ? true : false);
+	audioDecoder->EnableAnalogOut(g_settings.analog_out ? true : false);
+	audioSetupNotifier        = new CAudioSetupNotifier;
+	// trigger a change
+	if(g_settings.avsync != (AVSYNC_TYPE) AVSYNC_ENABLED)
+		audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
+
+	//init video settings
+	g_videoSettings = new CVideoSettings;
+	g_videoSettings->setVideoSettings();
+	if(display_language_selection)
+		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/start.jpg");
+
+	g_RCInput = new CRCInput();
+
+	InitZapitClient();
+	g_Zapit->setStandby(false);
+
+	//timer start
+	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
+
+	init_cec_setting = true;
+	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
+		//init cec settings
+		CCECSetup cecsetup;
+		cecsetup.setCECSettings();
+		init_cec_setting = false;
+	}
+	g_settings.shutdown_timer_record_type = false;
+	timer_wakeup = false;	  
+
+	powerManager = new cPowerManager;
+	powerManager->Open();
+
+	cpuFreq = new cCpuFreqManager();
+	cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+#if HAVE_TRIPLEDRAGON
+	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
+	g_info.has_fan = (cs_get_revision() > 1 && cs_get_revision() < 8 && g_info.delivery_system == DVB_S);
+#else
+	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);
+#endif
+	dprintf(DEBUG_NORMAL, "g_info.has_fan: %d\n", g_info.has_fan);
+	//fan speed
+	if (g_info.has_fan) {
+		CFanControlNotifier * funNotifier= new CFanControlNotifier();
+		funNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
+		delete funNotifier;
+	}
+
+	dvbsub_init();
+
+	pthread_create (&nhttpd_thread, NULL, nhttpd_main_thread, (void *) NULL);
+
+	pthread_create (&stream_thread, NULL, streamts_main_thread, (void *) NULL);
+
+#ifndef DISABLE_SECTIONSD
+        CSectionsdClient::epg_config config;
+	MakeSectionsdConfig(config);
+	CEitManager::getInstance()->SetConfig(config);
+	CEitManager::getInstance()->Start();
+#endif
+
+	g_info.delivery_system = CFEManager::getInstance()->getLiveFE()->getInfo()->type == FE_QPSK ? DVB_S : DVB_C;
+	if (!scanSettings.loadSettings(NEUTRINO_SCAN_SETTINGS_FILE, g_info.delivery_system)) {
+		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
+	}
+
+	CVFD::getInstance()->showVolume(g_settings.current_volume);
+	CVFD::getInstance()->setMuted(current_muted);
+
+	InfoClock = new CInfoClock();
+	if(g_settings.mode_clock)
+		InfoClock->StartClock();
+
+	//g_RCInput = new CRCInput();
+
+	g_RemoteControl = new CRemoteControl;
+	g_EpgData = new CEpgData;
+	g_InfoViewer = new CInfoViewer;
+	g_EventList = new CNeutrinoEventList;
+
+	int dx, dy;
+	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &dx, &dy);
+	g_volscale = new CProgressBar(true, dy * 125 / 10, dy, 50, 100, 80, true);
+
+	g_CamHandler = new CCAMMenuHandler();
+	g_CamHandler->init();
+
+	CFSMounter::automount();
+	g_PluginList = new CPlugins;
+	g_PluginList->setPluginDir(PLUGINDIR);
+	//load Pluginlist before main menu (only show script menu if at least one script is available
+	g_PluginList->loadPlugins();
+
+	MoviePluginChanger        = new CMoviePluginChangeExec;
+
+	// setup recording device
+	setupRecordingDevice();
+
+	dprintf( DEBUG_NORMAL, "menue setup\n");
+	//init Menues
+	InitMenu();
+
+	dprintf( DEBUG_NORMAL, "registering as event client\n");
+
+#ifndef DISABLE_SECTIONSD
+	InitSectiondClient();
+#endif
+
+	InitTimerdClient();
 
 	if (display_language_selection) 
 	{
@@ -1875,9 +1877,9 @@ int CNeutrinoApp::run(int argc, char **argv)
 		{
 			//open video settings in wizardmode
 			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD);
-			
+
 			COsdSetup osdSettings(COsdSetup::OSD_SETUP_MODE_WIZARD);
-			
+
 			bool ret = g_videoSettings->exec(NULL, "");
 			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD_NO);
 
@@ -1931,6 +1933,7 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hintBox->hide();
 	delete hintBox;
 
+TIMER_STOP("################################## after all ##################################");
 	RealRun(personalize.getWidget(0)/**main**/);
 
 	ExitRun(true, (cs_get_revision() > 7));
@@ -3622,11 +3625,15 @@ int CNeutrinoApp::exec(CMenuTarget* parent, const std::string & actionKey)
 			delete frameBuffer;
 
 			stop_daemons(true);
+			delete videoDecoder;
+			cs_api_exit();
 			/* g_Timerd, g_Zapit and CVFD are used in stop_daemons */
 			delete g_Timerd;
 			delete g_Zapit; //do we really need this?
 			delete CVFD::getInstance();
 
+			for(int i = 3; i < 256; i++)
+				close(i);
 			execvp(global_argv[0], global_argv); // no return if successful
 			exit(1);
 		}
@@ -3765,9 +3772,10 @@ int main(int argc, char **argv)
 	signal(SIGHUP, SIG_IGN);	//        process are unspecified (signal(2))
 	/* don't die in streamts.cpp from a SIGPIPE if client disconnects */
 	signal(SIGPIPE, SIG_IGN);
-
+#if 0
 	for(int i = 3; i < 256; i++)
 		close(i);
+#endif
 	tzset();
 	initGlobals();
 
