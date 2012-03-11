@@ -113,7 +113,6 @@ const std::string ntp_system_cmd_prefix = "/sbin/ntpdate ";
 #endif
 
 std::string ntp_system_cmd;
-CConfigFile ntp_config(',');
 std::string ntpserver;
 int ntprefresh;
 int ntpenable;
@@ -2033,13 +2032,33 @@ CEitManager * CEitManager::getInstance()
 
 bool CEitManager::Start()
 {
-xprintf("[sectionsd] start\n");
+	xprintf("[sectionsd] start\n");
 	if(running)
 		return false;
 
+	ntpserver = config.network_ntpserver;
+	ntprefresh = config.network_ntprefresh;
+	ntpenable = config.network_ntpenable;
+	ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
+
+	secondsToCache = config.epg_cache *24*60L*60L; //days
+	secondsExtendedTextCache = config.epg_extendedcache*60L*60L; //hours
+	oldEventsAre = config.epg_old_events*60L*60L; //hours
+	max_events = config.epg_max_events;
+
+	printf("[sectionsd] Caching: %d days, %d hours Extended Text, max %d events, Events are old %d hours after end time\n",
+		config.epg_cache, config.epg_extendedcache, config.epg_max_events, config.epg_old_events);
+	printf("[sectionsd] NTP: %s, server %s\n", ntpenable ? "enabled" : "disabled", ntpserver.c_str());
+
+	if (!sectionsd_server.prepare(SECTIONSD_UDS_NAME)) {
+		fprintf(stderr, "[sectionsd] failed to prepare basic server\n");
+		return false;
+	}
+
+	eventServer = new CEventServer;
+
 	running = true;
 	return (OpenThreads::Thread::start() == 0);
-
 }
 
 bool CEitManager::Stop()
@@ -2075,42 +2094,11 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 
 	tzset(); // TZ auswerten
 
-	CBasicServer sectionsd_server;
-
-	//NTP-Config laden
-	if (!ntp_config.loadConfig(CONF_FILE))
-	{
-		/* set defaults if no configuration file exists */
-		printf("[sectionsd] %s not found\n", CONF_FILE);
-	}
-
-	ntpserver = ntp_config.getString("network_ntpserver", "de.pool.ntp.org");
-	ntprefresh = atoi(ntp_config.getString("network_ntprefresh","30").c_str() );
-	ntpenable = ntp_config.getBool("network_ntpenable", false);
-	ntp_system_cmd = ntp_system_cmd_prefix + ntpserver;
-
-	//EPG Einstellungen laden
-	secondsToCache = (atoi(ntp_config.getString("epg_cache_time","14").c_str() ) *24*60L*60L); //Tage
-	secondsExtendedTextCache = (atoi(ntp_config.getString("epg_extendedcache_time","360").c_str() ) *60L*60L); //Stunden
-	oldEventsAre = (atoi(ntp_config.getString("epg_old_events","1").c_str() ) *60L*60L); //Stunden
-	max_events= atoi(ntp_config.getString("epg_max_events","50000").c_str() );
-
-	printf("[sectionsd] Caching max %d events\n", max_events);
-	printf("[sectionsd] Caching %ld days\n", secondsToCache / (24*60*60L));
-	printf("[sectionsd] Caching %ld hours Extended Text\n", secondsExtendedTextCache / (60*60L));
-	printf("[sectionsd] Events are old %ldmin after their end time\n", oldEventsAre / 60);
-
 	readEPGFilter();
 	readDVBTimeFilter();
 	readEncodingFile();
 
-	if (!sectionsd_server.prepare(SECTIONSD_UDS_NAME)) {
-		fprintf(stderr, "[sectionsd] failed to prepare basic server\n");
-		return;
-	}
-
-	eventServer = new CEventServer;
-
+	/* threads start left here for now, if any problems found, will be moved to Start() */
 	threadTIME.Start();
 	threadEIT.Start();
 	threadCN.Start();
@@ -2349,6 +2337,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 
 				if (nextEvt.service_id != 0)
 				{
+					/* FIXME what this code should do ? why search channel id as event key ?? */
 					MySIeventsOrderUniqueKey::iterator eFirst = mySIeventsOrderUniqueKey.find(uniqueServiceKey);
 
 					if (eFirst != mySIeventsOrderUniqueKey.end())

@@ -1550,9 +1550,8 @@ bool sectionsd_isReady(void);
 #define LCD_UPDATE_TIME_RADIO_MODE (6 * 1000 * 1000)
 #define LCD_UPDATE_TIME_TV_MODE (60 * 1000 * 1000)
 
-void CNeutrinoApp::SendSectionsdConfig(void)
+void CNeutrinoApp::MakeSectionsdConfig(CSectionsdClient::epg_config& config)
 {
-        CSectionsdClient::epg_config config;
         config.scanMode                 = scanSettings.scanSectionsd;
         config.epg_cache                = atoi(g_settings.epg_cache.c_str());
         config.epg_old_events           = atoi(g_settings.epg_old_events.c_str());
@@ -1562,6 +1561,12 @@ void CNeutrinoApp::SendSectionsdConfig(void)
         config.network_ntpserver        = g_settings.network_ntpserver;
         config.network_ntprefresh       = atoi(g_settings.network_ntprefresh.c_str());
         config.network_ntpenable        = g_settings.network_ntpenable;
+}
+
+void CNeutrinoApp::SendSectionsdConfig(void)
+{
+        CSectionsdClient::epg_config config;
+	MakeSectionsdConfig(config);
         g_Sectionsd->setConfig(config);
 }
 
@@ -1570,7 +1575,7 @@ void CNeutrinoApp::InitZapper()
  	struct stat my_stat;
 
 	g_InfoViewer->start();
-	SendSectionsdConfig();
+	//SendSectionsdConfig();
 	if (g_settings.epg_save){
 		if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
 			g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
@@ -1721,6 +1726,9 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 #ifndef DISABLE_SECTIONSD
 	//pthread_create (&sections_thread, NULL, sectionsd_main_thread, (void *) NULL);
+        CSectionsdClient::epg_config config;
+	MakeSectionsdConfig(config);
+	CEitManager::getInstance()->SetConfig(config);
 	CEitManager::getInstance()->Start();
 #endif
 	g_Zapit         = new CZapitClient;
@@ -1786,8 +1794,8 @@ int CNeutrinoApp::run(int argc, char **argv)
 	//init Menues
 	InitMenu();
 
+#if 0 //ndef DISABLE_SECTIONSD
 	/* wait for sectionsd to be able to process our registration */
-#ifndef DISABLE_SECTIONSD
 	time_t t = time_monotonic_ms();
 	while (! sectionsd_isReady())
 		sleep(0);

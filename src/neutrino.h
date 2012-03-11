@@ -217,6 +217,7 @@ public:
 		return current_muted;
 	}
 	int recordingstatus;
+	void MakeSectionsdConfig(CSectionsdClient::epg_config& config);
 	void SendSectionsdConfig(void);
 	int GetChannelMode(void) {
 		return lastChannelMode;
