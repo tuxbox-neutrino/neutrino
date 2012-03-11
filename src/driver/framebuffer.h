@@ -237,8 +237,8 @@ class CFrameBuffer
 		void resize(int format);
 		void update(void);
 #else
-		int scaleX(const int x, bool) { return x; };
-		int scaleY(const int y, bool) { return y; };
+		int scaleX(const int x, bool __attribute__((unused)) clamp = true) { return x; };
+		int scaleY(const int y, bool __attribute__((unused)) clamp = true) { return y; };
 		void resize(int) {};
 		void update(void) {};
 #endif
