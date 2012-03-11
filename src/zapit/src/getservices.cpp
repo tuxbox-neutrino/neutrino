@@ -127,7 +127,7 @@ bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 
 void CServiceManager::ResetChannelNumbers()
 {
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		it->second.number = 0;
 		it->second.has_bouquet = 0;
 	}
@@ -173,7 +173,7 @@ CZapitChannel * CServiceManager::FindChannel(const t_channel_id channel_id, bool
 
 CZapitChannel * CServiceManager::FindChannelByName(std::string name)
 {
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if(it->second.getName().length() == name.length() &&
 			!strcasecmp(it->second.getName().c_str(), name.c_str())) {
 			return &it->second;
@@ -194,7 +194,7 @@ CZapitChannel * CServiceManager::FindCurrentChannel(const t_channel_id channel_i
 bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list)
 {
 	list.clear();
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE)
 			list.push_back(&(it->second));
 	}
@@ -204,7 +204,7 @@ bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list)
 bool CServiceManager::GetAllTvChannels(ZapitChannelList &list)
 {
 	list.clear();
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE)
 			list.push_back(&(it->second));
 	}
@@ -214,7 +214,7 @@ bool CServiceManager::GetAllTvChannels(ZapitChannelList &list)
 bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
 {
 	list.clear();
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if (it->second.isHD())
 			list.push_back(&(it->second));
 	}
@@ -224,7 +224,7 @@ bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
 bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
 {
 	list.clear();
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if (it->second.has_bouquet == false)
 			list.push_back(&(it->second));
 	}
@@ -234,7 +234,7 @@ bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
 bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position)
 {
 	list.clear();
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++) {
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if(it->second.getSatellitePosition() == position)
 			list.push_back(&(it->second));
 	}
@@ -532,7 +532,7 @@ void CServiceManager::SaveMotorPositions()
 		return;
 	}
 	fprintf(fd, "# sat position, stored rotor, diseqc, commited, uncommited, low, high, switch, use in full scan, use usals, input\n");
-	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
+	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit) {
 		fprintf(fd, "%d %d %d %d %d %d %d %d %d %d %d\n", sit->first, sit->second.motor_position,
 				sit->second.diseqc, sit->second.commited, sit->second.uncommited, sit->second.lnbOffsetLow,
 				sit->second.lnbOffsetHigh, sit->second.lnbSwitch, sit->second.use_in_scan, sit->second.use_usals, sit->second.input);
@@ -635,7 +635,7 @@ bool CServiceManager::LoadServices(bool only_current)
 
 	if(zapit_debug) {//FIXME
 		sat_iterator_t sit;
-		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++)
+		for(sit = satellitePositions.begin(); sit != satellitePositions.end(); ++sit)
 			printf("satelliteName = %s (%d), satellitePosition = %d motor position = %d usals %d\n", sit->second.name.c_str(), sit->second.name.size(), sit->first, sit->second.motor_position, sit->second.use_usals);
 	}
 do_current:
@@ -735,14 +735,14 @@ void CServiceManager::SaveServices(bool tocopy)
 		return;
 	}
 	fprintf(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit api=\"3\">\n");
-	for (spos_it = satellitePositions.begin(); spos_it != satellitePositions.end(); spos_it++) {
+	for (spos_it = satellitePositions.begin(); spos_it != satellitePositions.end(); ++spos_it) {
 		satdone = 0;
 #ifdef SAVE_DEBUG
 		printf("Process sat: %s\n", spos_it->second.name.c_str());
 		printf("processed channels: %d\n", chans_processed.size());
 		printf("tp count: %d\n", transponders.size());
 #endif
-		for(tI = transponders.begin(); tI != transponders.end(); tI++) {
+		for(tI = transponders.begin(); tI != transponders.end(); ++tI) {
 			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
 			tpdone = 0;
 			if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
@@ -755,7 +755,7 @@ void CServiceManager::SaveServices(bool tocopy)
 				continue;
 			}
 			tpid = tI->first;
-			for (ccI = allchans.begin(); ccI != allchans.end(); ccI++) {
+			for (ccI = allchans.begin(); ccI != allchans.end(); ++ccI) {
 				if(ccI->second.getTransponderId() == tpid) {
 					if(!satdone) {
 						WriteSatHeader(fd, spos_it->second);
@@ -797,7 +797,7 @@ void CServiceManager::SaveServices(bool tocopy)
 #ifdef SAVE_DEBUG
 	printf("processed channels: %d\n", chans_processed.size());
 	int i = 0;
-	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); it++)
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it)
 		if (chans_processed.find(it->first) == chans_processed.end())
 			printf("unused channel %d sat %d freq %d sid %04X: %s\n", ++i, it->second.getSatellitePosition(), it->second.getFreqId(), it->second.getServiceId(), it->second.getName().c_str());
 	chans_processed.clear();
@@ -880,7 +880,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 			fgets(buffer, 255, fd1);
 		}
 	}
-	for (channel_map_iterator_t cI = curchans.begin(); cI != curchans.end(); cI++) {
+	for (channel_map_iterator_t cI = curchans.begin(); cI != curchans.end(); ++cI) {
 		ccI = allchans.find(cI->second.getChannelID());
 		if(ccI == allchans.end()) {
 			WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "add");
@@ -890,7 +890,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 			}
 		}
 	}
-	for (ccI = allchans.begin(); ccI != allchans.end(); ccI++) {
+	for (ccI = allchans.begin(); ccI != allchans.end(); ++ccI) {
 		if(ccI->second.getTransponderId() == tpid) {
 			dI = curchans.find(ccI->second.getChannelID());
 			if(dI == curchans.end())
