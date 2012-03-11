@@ -222,7 +222,11 @@ bool CFrontend::Open(void)
 	//secSetVoltage(SEC_VOLTAGE_OFF, 15);
 	secSetVoltage(SEC_VOLTAGE_13, 15);
 	secSetTone(SEC_TONE_OFF, 15);
-	sendDiseqcPowerOn();
+
+	diseqc_t diseqcType = (diseqc_t) config.diseqcType;
+	config.diseqcType = NO_DISEQC;
+	setDiseqcType(diseqcType);
+
 	currentTransponder.TP_id = 0;
 
 	standby = false;
@@ -242,6 +246,8 @@ void CFrontend::Close(void)
 	secSetTone(SEC_TONE_OFF, 15);
 	tuned = false;
 	standby = true;;
+	close(fd);
+	fd = -1;
 }
 
 void CFrontend::setMasterSlave(bool _slave)
