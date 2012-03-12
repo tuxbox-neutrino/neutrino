@@ -57,6 +57,7 @@ class CChannelList
 private:
 	CFrameBuffer		*frameBuffer;
 	unsigned int		selected, selected_in_new_mode;
+	unsigned int		tuned;
 	t_channel_id		selected_chid;
 	CLastChannel		lastChList;
 	unsigned int		liststart;
@@ -143,7 +144,6 @@ public:
 	int getSize() const;
 	int getSelectedChannelIndex() const;
 	void setSize(int newsize);
-	unsigned int		tuned;
 	int doChannelMenu(void);
 	void SortAlpha(void);
 	void SortSat(void);

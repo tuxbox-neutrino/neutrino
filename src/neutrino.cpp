@@ -3290,7 +3290,7 @@ void CNeutrinoApp::tvMode( bool rezap )
 	SetChannelMode(g_settings.channel_mode);
 	if( rezap ) {
 		firstChannel();
-		channelList->tuned = 0xfffffff;;
+		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		channelList->zapTo( firstchannel.channelNumber -1 );
 	}
 #ifdef USEACTIONLOG
@@ -3494,7 +3494,7 @@ void CNeutrinoApp::radioMode( bool rezap)
 	SetChannelMode(g_settings.channel_mode_radio);
 	if( rezap ) {
 		firstChannel();
-		channelList->tuned = 0xfffffff;;
+		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		channelList->zapTo( firstchannel.channelNumber -1 );
 	}
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
