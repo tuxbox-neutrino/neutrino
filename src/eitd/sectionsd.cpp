@@ -1439,7 +1439,7 @@ void CTimeThread::run()
 		sendToSleepNow = true;
 	}
 	delete[] static_buf;
-	printf("[sectionsd] timeThread ended\n");
+	printf("[sectionsd] timeThread stopped\n");
 	pthread_exit(NULL);
 }
 
@@ -1553,7 +1553,7 @@ void CSectionThread::run()
 	} // while running
 	delete[] static_buf;
 	cleanup();
-	printf("[sectionsd] %s ended\n", name.c_str());
+	printf("[sectionsd] %s stopped\n", name.c_str());
 	pthread_exit(NULL);
 }
 
@@ -2138,7 +2138,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	}
 
 	printf("[sectionsd] stopping...\n");
-	//scanning = 0;
 
 	threadEIT.StopRun();
 	threadCN.StopRun();
@@ -2175,7 +2174,7 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 	xprintf("join FSEIT\n");
 	threadFSEIT.Stop();
 #endif
-	printf("[sectionsd] ended\n");
+	xprintf("[sectionsd] stopped\n");
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
