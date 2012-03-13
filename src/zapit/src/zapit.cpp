@@ -145,6 +145,7 @@ void CZapit::SendEvent(const unsigned int eventID, const void* eventbody, const 
 void CZapit::SaveSettings(bool write)
 {
 	if (current_channel) {
+#if 0
 		// now save the lowest channel number with the current channel_id
 		int c = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).getLowestChannelNumberWithChannelID(current_channel->getChannelID());
 //printf("LAST CHAN %d !!!!!!!!!!!\n\n\n", c);
@@ -155,14 +156,19 @@ void CZapit::SaveSettings(bool write)
 			else
 				lastChannelTV = c;
 		}
+#endif
+		if ((currentMode & RADIO_MODE))
+			lastChannelRadio = current_channel->getChannelID();
+		else
+			lastChannelTV = current_channel->getChannelID();
 	}
 
 	if (write) {
 		configfile.setBool("saveLastChannel", config.saveLastChannel);
 		if (config.saveLastChannel) {
 			configfile.setInt32("lastChannelMode", (currentMode & RADIO_MODE) ? 1 : 0);
-			configfile.setInt32("lastChannelRadio", lastChannelRadio);
-			configfile.setInt32("lastChannelTV", lastChannelTV);
+			configfile.setInt64("lastChannelRadio", lastChannelRadio);
+			configfile.setInt64("lastChannelTV", lastChannelTV);
 			configfile.setInt64("lastChannel", live_channel_id);
 		}
 
@@ -253,8 +259,8 @@ void CZapit::LoadSettings()
 		WARN("%s not found", CONFIGFILE);
 
 	live_channel_id				= configfile.getInt64("lastChannel", 0);
-	lastChannelRadio			= configfile.getInt32("lastChannelRadio", 0);
-	lastChannelTV				= configfile.getInt32("lastChannelTV", 0);
+	lastChannelRadio			= configfile.getInt64("lastChannelRadio", 0);
+	lastChannelTV				= configfile.getInt64("lastChannelTV", 0);
 
 #if 0 //unused
 	config.fastZap				= configfile.getBool("fastZap", 1);
@@ -665,9 +671,6 @@ void CZapit::SetTVMode(void)
 
 int CZapit::getMode(void)
 {
-	int mode = currentMode & (~RECORD_MODE);
-	return mode;
-
 	if (currentMode & TV_MODE)
 		return CZapitClient::MODE_TV;
 	if (currentMode & RADIO_MODE)
@@ -792,8 +795,8 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 	case CZapitMessages::CMD_GET_LAST_CHANNEL: {
 		CZapitClient::responseGetLastChannel lastchannel;
-		lastchannel.channelNumber = (currentMode & RADIO_MODE) ? lastChannelRadio : lastChannelTV;
-		lastchannel.mode = (currentMode & RADIO_MODE) ? 'r' : 't';
+		lastchannel.channel_id = (currentMode & RADIO_MODE) ? lastChannelRadio : lastChannelTV;
+		lastchannel.mode = getMode();
 		CBasicServer::send_data(connfd, &lastchannel, sizeof(lastchannel)); // bouquet & channel number are already starting at 0!
 		break;
 	}
@@ -2023,8 +2026,8 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 	if(ZapStart_arg->uselastchannel == 0){
 		live_channel_id = (currentMode & RADIO_MODE) ? ZapStart_arg->startchannelradio_id : ZapStart_arg->startchanneltv_id ;
-		lastChannelRadio = ZapStart_arg->startchannelradio_nr;
-		lastChannelTV    = ZapStart_arg->startchanneltv_nr;
+		lastChannelRadio = ZapStart_arg->startchannelradio_id;
+		lastChannelTV    = ZapStart_arg->startchanneltv_id;
 	}
 
 	/* CA_INIT_CI or CA_INIT_SC or CA_INIT_BOTH */

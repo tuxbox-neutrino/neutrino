@@ -139,8 +139,8 @@ class CZapitClient:public CBasicClient
 
 	struct responseGetLastChannel
 	{
-		unsigned int	channelNumber;
-		char		mode;
+		t_channel_id	channel_id;
+		int		mode;
 	};
 
 	struct responseGetBouquets
@@ -290,7 +290,7 @@ class CZapitClient:public CBasicClient
 	int32_t getCurrentSatellitePosition();
 
 	/* get last channel-information */
-	void getLastChannel(unsigned int &channumber, char &mode);
+	void getLastChannel(t_channel_id &channel_id, int &mode);
 
 	/* audiochan set */
 	void setAudioChannel(const unsigned int channel);

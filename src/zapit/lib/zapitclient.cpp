@@ -106,13 +106,13 @@ CZapitClient::CCurrentServiceInfo CZapitClient::getCurrentServiceInfo()
 	return response;
 }
 
-void CZapitClient::getLastChannel(unsigned int &channumber, char &mode)
+void CZapitClient::getLastChannel(t_channel_id &channel_id, int &mode)
 {
 	send(CZapitMessages::CMD_GET_LAST_CHANNEL);
 
 	CZapitClient::responseGetLastChannel response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
-	channumber = response.channelNumber + 1;
+	channel_id = response.channel_id;
 	mode = response.mode;
 
 	close_connection();
