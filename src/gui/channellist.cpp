@@ -181,7 +181,7 @@ void CChannelList::updateEvents(unsigned int from, unsigned int to)
 						(e->startTime < (long)chanlist[count]->nextEvent.startTime))
 				{
 					chanlist[count]->nextEvent = *e;
-					break; //max: FIXME no sense to continue ?
+					break;
 				}
 			}
 		}
@@ -454,15 +454,15 @@ int CChannelList::exec()
 	displayNext = 0; // always start with current events
 	int nNewChannel = show();
 	if ( nNewChannel > -1) {
-#if 1
 		if(this->historyMode && chanlist[nNewChannel]) {
-			int new_mode = CNeutrinoApp::getInstance ()->channelList->getLastChannels().get_mode(chanlist[nNewChannel]->channel_id);
+			int new_mode = CNeutrinoApp::getInstance()->channelList->getLastChannels().get_mode(chanlist[nNewChannel]->channel_id);
 			if(new_mode >= 0)
 				CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
 		}
-		CNeutrinoApp::getInstance ()->channelList->zapTo(getKey(nNewChannel)-1);
+#if 1
+		CNeutrinoApp::getInstance()->channelList->zapTo(getKey(nNewChannel)-1);
 #else
-		CNeutrinoApp::getInstance ()->channelList->NewZap(chanlist[nNewChannel]->channel_id);
+		CNeutrinoApp::getInstance()->channelList->NewZap(chanlist[nNewChannel]->channel_id);
 #endif
 	}
 
@@ -663,8 +663,8 @@ int CChannelList::show()
 		else if ( msg == CRCInput::RC_setup) {
 			old_b_id = bouquetList->getActiveBouquetNumber();
 			fader.Stop();
-			CNeutrinoApp::getInstance ()->g_channel_list_changed = doChannelMenu();
-			if(CNeutrinoApp::getInstance ()->g_channel_list_changed) {
+			CNeutrinoApp::getInstance()->g_channel_list_changed = doChannelMenu();
+			if(CNeutrinoApp::getInstance()->g_channel_list_changed) {
 				res = -4;
 				loop = false;
 			} else {
@@ -959,7 +959,7 @@ int CChannelList::show()
 void CChannelList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
-	clearItem2DetailsLine ();
+	clearItem2DetailsLine();
 }
 
 bool CChannelList::showInfo(int pos, int epgpos)
@@ -1212,7 +1212,7 @@ void CChannelList::zapTo(int pos, bool /* forceStoreToLastChannels */)
 		}
 
 		g_RCInput->postMsg( NeutrinoMessages::SHOW_INFOBAR, 0 );
-		CNeutrinoApp::getInstance ()->channelList->getLastChannels().set_mode(chan->channel_id);
+		CNeutrinoApp::getInstance()->channelList->getLastChannels().set_mode(chan->channel_id);
 	}
 }
 
@@ -1255,7 +1255,7 @@ int CChannelList::numericZap(int key)
 	if (key == g_settings.key_lastchannel) {
 		t_channel_id channel_id = lastChList.getlast(1);
 		if(channel_id && SameTP(channel_id)) {
-			lastChList.clear_storedelay (); // ignore store delay
+			lastChList.clear_storedelay(); // ignore store delay
 			int new_mode = lastChList.get_mode(channel_id);
 			if(new_mode >= 0)
 				CNeutrinoApp::getInstance()->SetChannelMode(new_mode);
@@ -1598,7 +1598,7 @@ void CChannelList::quickZap(int key, bool cycle)
 #else
 		CZapitChannel* chan = bouquetList->Bouquets[bactive]->channelList->getChannelFromIndex(cactive);
 		if(chan != NULL)
-			CNeutrinoApp::getInstance ()->channelList->NewZap(chan->channel_id);
+			CNeutrinoApp::getInstance()->channelList->NewZap(chan->channel_id);
 #endif
 	} else {
 		if ( (key==g_settings.key_quickzap_down) || (key == CRCInput::RC_left)) {
@@ -1613,7 +1613,7 @@ void CChannelList::quickZap(int key, bool cycle)
 #if 1
 		CNeutrinoApp::getInstance()->channelList->zapTo(getKey(selected)-1);
 #else
-		CNeutrinoApp::getInstance ()->channelList->NewZap(chanlist[selected]->channel_id);
+		CNeutrinoApp::getInstance()->channelList->NewZap(chanlist[selected]->channel_id);
 #endif
 	}
 	g_RCInput->clearRCMsg(); //FIXME test for n.103
@@ -1764,7 +1764,7 @@ void CChannelList::paintDetails(int index)
 	}
 }
 
-void CChannelList::clearItem2DetailsLine ()
+void CChannelList::clearItem2DetailsLine()
 {
 	paintItem2DetailsLine (-1, 0);
 }
