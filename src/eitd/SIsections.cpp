@@ -139,7 +139,7 @@ void SIsectionTIME::parse(uint8_t *buf)
 				/* TOT without descriptors seems to be not better than a plain TDT, such TOT's are */
 				/* found on transponders which also have wrong time in TDT etc, so don't trust it. */
 				parsed = true;
-
+#ifdef DEBUG_TOT
 				const LocalTimeOffsetDescriptor * d = (LocalTimeOffsetDescriptor*) *dit;
 				const LocalTimeOffsetList * oflist = d->getLocalTimeOffsets();
 				for (LocalTimeOffsetConstIterator it = oflist->begin(); it != oflist->end(); ++it) {
@@ -149,6 +149,7 @@ void SIsectionTIME::parse(uint8_t *buf)
 							of->getCountryCode().c_str(), of->getCountryRegionId(), of->getLocalTimeOffsetPolarity(),
 							of->getLocalTimeOffset(), of->getNextTimeOffset(), ctime(&change_time));
 				}
+#endif
 			} else {
 				xprintf("SIsectionTIME::parse: unhandled descriptor %02x\n", dtype);
 			}
