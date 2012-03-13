@@ -659,6 +659,21 @@ void CInfoViewer::check_channellogo_ca_SettingsChange()
 	}
 }
 
+void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap, int epgpos)
+{
+	showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
+			channel->getChannelID(), calledFromNumZap, epgpos);
+}
+
+void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int epgpos)
+{
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(chid);
+	if(channel) {
+		showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
+				channel->getChannelID(), calledFromNumZap, epgpos);
+	}
+}
+
 void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, const t_satellite_position satellitePosition, const t_channel_id new_channel_id, const bool calledFromNumZap, int epgpos)
 {
 	check_channellogo_ca_SettingsChange();
