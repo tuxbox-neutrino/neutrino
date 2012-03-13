@@ -1146,7 +1146,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 **************************************************************************************/
 void CNeutrinoApp::firstChannel()
 {
-	g_Zapit->getLastChannel(firstchannel.channelNumber, firstchannel.mode);
+	g_Zapit->getLastChannel(firstchannel.channel_id, firstchannel.mode);
 }
 
 /**************************************************************************************
@@ -3291,7 +3291,10 @@ void CNeutrinoApp::tvMode( bool rezap )
 	if( rezap ) {
 		firstChannel();
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
-		channelList->zapTo( firstchannel.channelNumber -1 );
+		if(CServiceManager::getInstance()->FindChannel(firstchannel.channel_id))
+			channelList->zapTo_ChannelID( firstchannel.channel_id );
+		else
+			channelList->zapTo(0);
 	}
 #ifdef USEACTIONLOG
 	g_ActionLog->println("mode: tv");
@@ -3495,7 +3498,10 @@ void CNeutrinoApp::radioMode( bool rezap)
 	if( rezap ) {
 		firstChannel();
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
-		channelList->zapTo( firstchannel.channelNumber -1 );
+		if(CServiceManager::getInstance()->FindChannel(firstchannel.channel_id))
+			channelList->zapTo_ChannelID( firstchannel.channel_id );
+		else
+			channelList->zapTo(0);
 	}
 	videoDecoder->ShowPicture(DATADIR "/neutrino/icons/radiomode.jpg");
 
