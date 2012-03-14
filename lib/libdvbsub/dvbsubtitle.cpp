@@ -150,12 +150,17 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 
 		fb_pixel_t * newdata = simple_resize32 (sub.rects[i]->pict.data[0], colors, sub.rects[i]->nb_colors, width, height, nw, nh);
 
+#ifdef HAVE_SPARK_HARDWARE
+		// CFrameBuffer::getInstance()->waitForIdle();
+		CFrameBuffer::getInstance()->blit2FB(newdata, nw, nh, xoff, yoff, 0, 0);
+#else
 		fb_pixel_t * ptr = newdata;
 		for (int y2 = 0; y2 < nh; y2++) {
 			int y = (yoff + y2) * stride;
 			for (int x2 = 0; x2 < nw; x2++)
 				*(sublfb + xoff + x2 + y) = *ptr++;
 		}
+#endif
 		free(newdata);
 
 		if(min_x > xoff)
