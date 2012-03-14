@@ -1206,16 +1206,23 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	/* all TV channels */
 	CServiceManager::getInstance()->GetAllTvChannels(zapitList);
 	tvi = zapitList.size();
+#if 0
 	TVchannelList->setSize(tvi);
 	for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++)
 		TVchannelList->putChannel(*it);
-
+#else
+	TVchannelList->SetChannelList(&zapitList);
+#endif
 	/* all RADIO channels */
 	CServiceManager::getInstance()->GetAllRadioChannels(zapitList);
 	ri = zapitList.size();
+#if 0
 	RADIOchannelList->setSize(ri);
 	for(zapit_list_it_t it = zapitList.begin(); it != zapitList.end(); it++)
 		RADIOchannelList->putChannel(*it);
+#else
+	RADIOchannelList->SetChannelList(&zapitList);
+#endif
 
 	CBouquet* hdBouquet = NULL;
 	/* all HD channels */
@@ -2303,7 +2310,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			printf("************************* ZAP START: bouquetList %p size %d old_b %d\n", bouquetList, bouquetList->Bouquets.size(), old_b);fflush(stdout);
 
 			if(bouquetList->Bouquets.size()) {
-				old_num = bouquetList->Bouquets[old_b]->channelList->getActiveChannelNumber();
+				old_num = bouquetList->Bouquets[old_b]->channelList->getSelected();
 			}
 _show:
 			if(msg == CRCInput::RC_ok)
@@ -2322,10 +2329,12 @@ _show:
 _repeat:
 			printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
 			if(nNewChannel == -1) { // restore orig. bouquet and selected channel on cancel
+				/* FIXME if mode was changed while browsing,
+				 * other modes selected bouquet not restored */
 				SetChannelMode(old_mode);
 				bouquetList->activateBouquet(old_b, false);
 				if(bouquetList->Bouquets.size())
-					bouquetList->Bouquets[old_b]->channelList->setSelected(old_num-1);
+					bouquetList->Bouquets[old_b]->channelList->setSelected(old_num);
 				StartSubtitles(mode == mode_tv);
 			}
 			else if(nNewChannel == -3) { // list mode changed
@@ -3938,11 +3947,15 @@ void CNeutrinoApp::StartSubtitles(bool show)
 
 void CNeutrinoApp::SelectSubtitles()
 {
-	if(!g_settings.auto_subs)
-		return;
-
+#if 0
 	int curnum = channelList->getActiveChannelNumber();
 	CZapitChannel * cc = channelList->getChannel(curnum);
+#endif
+	/* called on NeutrinoMessages::EVT_ZAP_COMPLETE, should be safe to use zapit current channel */
+	CZapitChannel * cc = CZapit::getInstance()->GetCurrentChannel();
+
+	if(!g_settings.auto_subs || cc == NULL)
+		return;
 
 	for(int i = 0; i < 3; i++) {
 		if(strlen(g_settings.pref_subs[i]) == 0)

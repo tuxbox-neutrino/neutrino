@@ -125,7 +125,7 @@ public:
 	t_channel_id         getActiveChannel_ChannelID(void) const;
 
 	void zapTo(int pos, bool forceStoreToLastChannels = false);
-	void NewZap(t_channel_id channel_id);
+	void zapToChannel(CZapitChannel *channel);
 	void virtual_zap_mode(bool up);
 	bool zapTo_ChannelID(const t_channel_id channel_id);
 	bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
@@ -152,6 +152,9 @@ public:
 	bool SameTP(t_channel_id channel_id);
 	bool SameTP(CZapitChannel * channel = NULL);
 	CLastChannel & getLastChannels() { return lastChList; }
+	bool showEmptyError();
+	int getSelected() { return selected; }
+	CZapitChannel* getPrevNextChannelNumber(int key, unsigned int &sl);
 	//friend class CZapitChannel;
 };
 #endif
