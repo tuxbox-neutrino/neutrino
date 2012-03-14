@@ -142,12 +142,13 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	const int delay = 15;
 	int offset = g_Font[font_info]->getRenderWidth(g_Locale->getText (LOCALE_STREAMINFO_BITRATE));
 	int sw = g_Font[font_info]->getRenderWidth ("99999.999");
+	int dheight = g_Font[font_info]->getHeight ();
 	maxb = minb = lastb = tmp_rate = 0;
 	ts_setup ();
 	while (1) {
 		neutrino_msg_data_t data;
 
-		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS (100);
+		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd_MS(10);
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
 		ssig = CFrontend::getInstance()->getSignalStrength();
@@ -163,7 +164,6 @@ int CStreamInfo2::doSignalStrengthLoop ()
 			char currate[150];
 			if (cnt < 12)
 				cnt++;
-			int dheight = g_Font[font_info]->getHeight ();
 			int dx1 = x + 10;
 
 			if(delay_counter > delay + 1){
