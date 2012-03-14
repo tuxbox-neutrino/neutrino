@@ -161,6 +161,7 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 //	dbgconverter("\n");
 }
 
+static int screen_w, screen_h, screen_x, screen_y;
 // --- cDvbSubtitleConverter -------------------------------------------------
 
 cDvbSubtitleConverter::cDvbSubtitleConverter(void)
@@ -191,10 +192,10 @@ cDvbSubtitleConverter::cDvbSubtitleConverter(void)
 	//if(DebugConverter)
 	//	av_log_set_level(AV_LOG_INFO);
 
-	min_x = CFrameBuffer::getInstance()->getScreenWidth();
-	min_y = CFrameBuffer::getInstance()->getScreenHeight();
-	max_x = CFrameBuffer::getInstance()->getScreenX();
-	max_y = CFrameBuffer::getInstance()->getScreenY();
+	screen_w = min_x = CFrameBuffer::getInstance()->getScreenWidth();
+	screen_h = min_y = CFrameBuffer::getInstance()->getScreenHeight();
+	screen_x = max_x = CFrameBuffer::getInstance()->getScreenX();
+	screen_y = max_y = CFrameBuffer::getInstance()->getScreenY();
 	Timeout.Set(0xFFFF*1000);
 }
 
@@ -235,6 +236,11 @@ void cDvbSubtitleConverter::Clear(void)
 //	dbgconverter("cDvbSubtitleConverter::Clear: x=% d y= %d, w= %d, h= %d\n", min_x, min_y, max_x-min_x, max_y-min_y);
 	if(running && (max_x-min_x > 0) && (max_y-min_y > 0)) {
 		CFrameBuffer::getInstance()->paintBackgroundBoxRel (min_x, min_y, max_x-min_x, max_y-min_y);
+		/* reset area to clear */
+		min_x = screen_w;
+		min_y = screen_h;
+		max_x = screen_x;
+		max_y = screen_h;
 		//CFrameBuffer::getInstance()->paintBackground();
 	}
 }
