@@ -625,8 +625,6 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
 
 	CChannelList *channelList = CNeutrinoApp::getInstance ()->channelList;
-//	int curnum = channelList->getActiveChannelNumber();
-//	CZapitChannel * channel = channelList->getChannel(curnum);
 
 	//channel
 	ypos += iheight;
