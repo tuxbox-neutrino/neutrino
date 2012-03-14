@@ -110,10 +110,14 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 
 //	dbgconverter("cDvbSubtitleBitmaps::Draw: %d bitmaps, x= %d, width= %d yend=%d stride %d\n", Count(), xstart, wd, yend, stride);
 
+	int sw = CFrameBuffer::getInstance()->getScreenWidth(true);
+	int sh = CFrameBuffer::getInstance()->getScreenHeight(true);
+#if 0
 	double xc = (double) CFrameBuffer::getInstance()->getScreenWidth(true)/(double) 720;
 	double yc = (double) CFrameBuffer::getInstance()->getScreenHeight(true)/(double) 576;
 	xc = yc; //FIXME should we scale also to full width ?
 	int xf = xc * (double) 720;
+#endif
 
 	for (i = 0; i < Count(); i++) {
 		uint32_t * colors = (uint32_t *) sub.rects[i]->pict.data[1];
@@ -121,6 +125,7 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		int height = sub.rects[i]->h;
 		int xoff, yoff;
 
+#if 0
 		int nw = width == 1280 ? ((double) width / xc) : ((double) width * xc);
 		int nh = (double) height * yc;
 
@@ -133,6 +138,12 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 			if(yoff < ystart)
 				yoff = ystart;
 		}
+#endif
+		int h2 = (width == 1280) ? 720 : 576;
+		xoff = sub.rects[i]->x * sw / width;
+		yoff = sub.rects[i]->y * sh / h2;
+		int nw = width * sw / width;
+		int nh = height * sh / h2;
 
 //		dbgconverter("cDvbSubtitleBitmaps::Draw: #%d at %d,%d size %dx%d colors %d (x=%d y=%d w=%d h=%d) \n", i+1, 
 //				sub.rects[i]->x, sub.rects[i]->y, sub.rects[i]->w, sub.rects[i]->h, sub.rects[i]->nb_colors, xoff, yoff, nw, nh);
