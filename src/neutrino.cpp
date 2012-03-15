@@ -2870,6 +2870,11 @@ _repeat:
 	}
 	else if (msg == NeutrinoMessages::EVT_SERVICES_UPD) {
 		SDTreloadChannels = true;
+		g_InfoViewer->SDT_freq_update = true;
+		if( !g_InfoViewer->is_visible && !autoshift){
+			g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR , 0);
+		}
+		return messages_return::handled;
 //		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
 //				CMessageBox::mbrBack,CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 	}

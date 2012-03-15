@@ -185,6 +185,7 @@ class CInfoViewer
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 	void    clearVirtualZapMode() {virtual_zap_mode = false;}
 	void changePB();
+	bool SDT_freq_update;
 };
 
 class CInfoViewerHandler : public CMenuTarget
