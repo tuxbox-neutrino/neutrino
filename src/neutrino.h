@@ -156,7 +156,7 @@ private:
 	void standbyMode( bool bOnOff );
 	void AudioMute( int newValue, bool isEvent= false );
 	void setvol(int vol);
-	void saveEpg();
+	void saveEpg(bool cvfd_mode);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
