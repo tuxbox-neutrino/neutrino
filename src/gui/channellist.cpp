@@ -144,7 +144,7 @@ void CChannelList::putChannel(CZapitChannel* channel)
 {
 	int num = channel->number - 1;
 	if(num < 0) {
-		printf("CChannelList::addChannel error inserting at %d : %s\n", num, channel->name.c_str());
+		printf("%s error inserting at %d\n", __FUNCTION__, num);
 		return;
 	}
 	if(num >= (int) chanlist.size()) {
