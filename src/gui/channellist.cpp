@@ -462,7 +462,7 @@ int CChannelList::exec()
 {
 	displayNext = 0; // always start with current events
 	int nNewChannel = show();
-	if ( nNewChannel > -1 && nNewChannel < chanlist.size()) {
+	if ( nNewChannel > -1 && nNewChannel < (int) chanlist.size()) {
 		if(this->historyMode && chanlist[nNewChannel]) {
 			int new_mode = CNeutrinoApp::getInstance()->channelList->getLastChannels().get_mode(chanlist[nNewChannel]->channel_id);
 			if(new_mode >= 0)
