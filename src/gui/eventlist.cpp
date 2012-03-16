@@ -1206,6 +1206,7 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 			if (nNewBouquet > -1)
 			{
 				int nNewChannel = bouquetList->Bouquets[nNewBouquet]->channelList->show();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				//printf("nNewChannel %d\n",nNewChannel);
 				if (nNewChannel > -1)
 				{

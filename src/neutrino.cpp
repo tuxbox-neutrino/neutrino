@@ -2327,6 +2327,8 @@ _show:
 				nNewChannel = bouquetList->exec(true);
 			}
 _repeat:
+			CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
+			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
 			if(nNewChannel == -1) { // restore orig. bouquet and selected channel on cancel
 				/* FIXME if mode was changed while browsing,

@@ -906,8 +906,10 @@ int CChannelList::show()
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
+#if 0
 	/* FIXME call this somewhere after show */
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+#endif
 	this->new_mode_active = 0;
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
