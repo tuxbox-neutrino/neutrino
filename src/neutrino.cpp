@@ -3998,14 +3998,14 @@ void CNeutrinoApp::SelectSubtitles()
 }
 void CNeutrinoApp::SDT_ReloadChannels()
 {
-  			g_Zapit->reinitChannels();
-			channelsInit();
-			t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-			channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
-			if(old_b_id >= 0) {
-				bouquetList->activateBouquet(old_b_id, false);
-				old_b_id = -1;
-				g_RCInput->postMsg(CRCInput::RC_ok, 0);
-			}
+	g_Zapit->reinitChannels();
+	channelsInit();
+	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
+	if(old_b_id >= 0) {
+		bouquetList->activateBouquet(old_b_id, false);
+		old_b_id = -1;
+		g_RCInput->postMsg(CRCInput::RC_ok, 0);
+	}
 
 }
