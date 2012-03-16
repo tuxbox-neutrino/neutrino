@@ -300,20 +300,20 @@ void CZapitChannel::setRawPmt(unsigned char * pmt, int len)
 void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
 {
 	if(action) {
-		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n", action,
+		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\"/>\n", action,
 				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-				getServiceType(), scrambled);
+				getServiceType(), scrambled, number);
 
 	} else if(getPidsFlag()) {
-		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\"/>\n",
+		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\" num=\"%d\"/>\n",
 				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
 				getVideoPid(), getPreAudioPid(),
 				getPcrPid(), getPmtPid(), getTeletextPid(),
-				getServiceType(true), type, scrambled);
+				getServiceType(true), type, scrambled, number);
 	} else {
-		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n",
+		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\"/>\n",
 				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-				getServiceType(true), scrambled);
+				getServiceType(true), scrambled, number);
 	}
 }
 
