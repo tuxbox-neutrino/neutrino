@@ -322,6 +322,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 	std::string  name;
 	uint8_t      service_type;
 	unsigned short vpid, apid, pcrpid, pmtpid, txpid, vtype, scrambled;
+	int number;
 	std::string desc = "";
 	desc += "Preset";
 	t_channel_id chid;
@@ -344,6 +345,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		txpid = xmlGetNumericAttribute(node, "tx", 16);
 		vtype = xmlGetNumericAttribute(node, "vt", 16);
 		scrambled = xmlGetNumericAttribute(node, "s", 16);
+		number = xmlGetNumericAttribute(node, "num", 10);
 
 		chid = CREATE_CHANNEL_ID64;
 		char *ptr = xmlGetAttribute(node, "action");
