@@ -114,7 +114,8 @@ std::string convert_UTF8_To_UTF8_XML(const char* s)
 			r += "&apos;";
 			break;
 		default:
-			r += *s;
+			if ((unsigned char)*s >= 32)
+				r += *s;
 		}
 		s++;
 	}
