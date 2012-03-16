@@ -227,6 +227,7 @@ public:
 	};
 	void SetChannelMode(int mode);
 	void quickZap(int msg);
+	void numericZap(int msg);
 	void StopSubtitles();
 	void StartSubtitles(bool show = true);
 	void SelectSubtitles();

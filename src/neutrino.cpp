@@ -1974,6 +1974,13 @@ void CNeutrinoApp::quickZap(int msg)
 		channelList->quickZap(msg);
 }
 
+void CNeutrinoApp::numericZap(int msg)
+{
+	StopSubtitles();
+	int res = channelList->numericZap( msg );
+	StartSubtitles(res < 0);
+}
+
 void CNeutrinoApp::showInfo()
 {
 	StopSubtitles();
@@ -2103,9 +2110,7 @@ INFO("cCA::GetInstance()->Ready\n");
 					InfoClock->StopClock();
 					g_settings.mode_clock=false;
 				} else {
-					StopSubtitles();
-					int res = channelList->numericZap( msg );
-					StartSubtitles(res < 0);
+					numericZap( msg );
 				}
 			}
 			else if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -2117,9 +2122,7 @@ INFO("cCA::GetInstance()->Ready\n");
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_lastchannel ) {
 				// Quick Zap
-				StopSubtitles();
-				int res = channelList->numericZap( msg );
-				StartSubtitles(res < 0);
+				numericZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_plugin ) {
 				g_PluginList->start_plugin_by_name(g_settings.onekey_plugin.c_str(), 0);
@@ -2128,9 +2131,10 @@ INFO("cCA::GetInstance()->Ready\n");
 				CRecordManager::getInstance()->StartTimeshift();
 			}
 			else if (msg == (neutrino_msg_t) g_settings.key_current_transponder){
-				StopSubtitles();
-				int res = channelList->numericZap( msg );
-				StartSubtitles(res < 0);
+				numericZap( msg );
+			}
+			else if (CRCInput::isNumeric(msg)) {
+				numericZap( msg );
 			}
 			else if(msg == CRCInput::RC_rewind) {
 				if(g_RemoteControl->is_video_started) {
@@ -2191,11 +2195,6 @@ INFO("cCA::GetInstance()->Ready\n");
 			else if (CRCInput::isNumeric(msg) && g_RemoteControl->director_mode ) {
 				g_RemoteControl->setSubChannel(CRCInput::getNumericValue(msg));
 				g_InfoViewer->showSubchan();
-			}
-			else if (CRCInput::isNumeric(msg)) {
-				StopSubtitles();
-				int res = channelList->numericZap( msg );
-				StartSubtitles(res < 0);
 			}
 			else if( ( msg == CRCInput::RC_help ) || ( msg == CRCInput::RC_info) ||
 						( msg == NeutrinoMessages::SHOW_INFOBAR ) )
