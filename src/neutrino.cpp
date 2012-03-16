@@ -1603,7 +1603,8 @@ void CNeutrinoApp::InitZapper()
 		tuxtxt_init();
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	g_Sectionsd->setServiceChanged(live_channel_id, true );
+	if(channelList->getSize() && live_channel_id)
+		g_Sectionsd->setServiceChanged(live_channel_id, true );
 #if 0 // mode switch above do zap, so all next should be done after zap complete message
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(channelList->getSize() && live_channel_id) {
