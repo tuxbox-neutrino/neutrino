@@ -661,8 +661,10 @@ void CInfoViewer::check_channellogo_ca_SettingsChange()
 
 void CInfoViewer::showTitle(CZapitChannel * channel, const bool calledFromNumZap, int epgpos)
 {
-	showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
-			channel->getChannelID(), calledFromNumZap, epgpos);
+	if(channel) {
+		showTitle(channel->number, channel->getName(), channel->getSatellitePosition(),
+				channel->getChannelID(), calledFromNumZap, epgpos);
+	}
 }
 
 void CInfoViewer::showTitle(t_channel_id chid, const bool calledFromNumZap, int epgpos)
@@ -748,7 +750,6 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 		fprintf(stderr, "after showchannellogo, mode = %d ret = %d logo_ok = %d\n",g_settings.infobar_show_channellogo, ChannelLogoMode, logo_ok);
 
 		int ChanNumYPos = BoxStartY + ChanHeight;
-		//if (g_settings.infobar_sat_display && satellitePosition >= 0 && !satellitePositions.empty()) {
 		if (g_settings.infobar_sat_display) {
 			std::string name = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 			int satNameWidth = g_SignalFont->getRenderWidth (name);
