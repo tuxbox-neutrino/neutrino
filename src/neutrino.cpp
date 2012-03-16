@@ -2861,6 +2861,11 @@ _repeat:
 	}
 	else if (msg == NeutrinoMessages::EVT_SERVICES_UPD) {
 		SDTreloadChannels = true;
+		g_InfoViewer->SDT_freq_update = true;
+		if( !g_InfoViewer->is_visible && !autoshift){
+			g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR , 0);
+		}
+		return messages_return::handled;
 //		ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_EXTRA_ZAPIT_SDT_CHANGED),
 //				CMessageBox::mbrBack,CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 	}
@@ -2902,7 +2907,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/shutdown.jpg");
 
 		if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/) {
-			saveEpg();
+			saveEpg(true);// true CVFD::MODE_SHUTDOWN  
 		}
 
 		stop_daemons(true /*retcode*/);//need here for timer_is_rec before saveSetup
@@ -3043,18 +3048,26 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 	}
 }
 
-void CNeutrinoApp::saveEpg()
+void CNeutrinoApp::saveEpg(bool cvfd_mode)
 {
 	struct stat my_stat;
 	if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0){
-		printf("Saving EPG to %s....\n", g_settings.epg_dir.c_str());
+		const char *save_txt = "Saving EPG";
+		printf("%s to %s....\n",save_txt, g_settings.epg_dir.c_str());
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
+
+		CVFD::getInstance()->Clear();
+		CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
+		CVFD::getInstance ()->ShowText(save_txt);
+
 		g_Sectionsd->writeSI2XML(g_settings.epg_dir.c_str());
 		while( true ) {
 			g_RCInput->getMsg(&msg, &data, 1200); // 120 secs..
 			if (( msg == CRCInput::RC_timeout ) || (msg == NeutrinoMessages::EVT_SI_FINISHED)) {
 				//printf("Msg %x timeout %d EVT_SI_FINISHED %x\n", msg, CRCInput::RC_timeout, NeutrinoMessages::EVT_SI_FINISHED);
+				CVFD::getInstance()->Clear();
+				CVFD::getInstance()->setMode(cvfd_mode ? CVFD::MODE_SHUTDOWN : CVFD::MODE_STANDBY);// true CVFD::MODE_SHUTDOWN  , false CVFD::MODE_STANDBY
 				break;
 			}
 		}
@@ -3351,7 +3364,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		if(!CRecordManager::getInstance()->RecordingStatus()) {
 			//only save epg when not recording
 			if(g_settings.epg_save) {
-				saveEpg();
+				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}
 
