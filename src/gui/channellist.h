@@ -123,6 +123,7 @@ public:
 	t_satellite_position getActiveSatellitePosition(void) const;
 	int                  getActiveChannelNumber    (void) const;
 	t_channel_id         getActiveChannel_ChannelID(void) const;
+	CZapitChannel*	     getActiveChannel	       (void) const;
 
 	void zapTo(int pos, bool forceStoreToLastChannels = false);
 	void zapToChannel(CZapitChannel *channel);
@@ -154,7 +155,7 @@ public:
 	CLastChannel & getLastChannels() { return lastChList; }
 	bool showEmptyError();
 	int getSelected() { return selected; }
-	CZapitChannel* getPrevNextChannelNumber(int key, unsigned int &sl);
+	CZapitChannel* getPrevNextChannel(int key, unsigned int &sl);
 	//friend class CZapitChannel;
 };
 #endif
