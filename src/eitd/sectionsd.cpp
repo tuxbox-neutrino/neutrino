@@ -870,7 +870,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 
 		scanning = 1;
 		/* FIXME should we stop time updates if not scanning ? flag if ntp update was good ? */
-		if (!ntpenable)
+		//if (!ntpenable)
 		{
 			threadTIME.change(0);
 		}
@@ -1381,6 +1381,8 @@ void CTimeThread::run()
 					name.c_str(), sleep_time, running, scanning);
 #endif
 			do {
+				if(!scanning)
+					sleep_time = 0;
 				real_pause();
 				int rs = Sleep();
 #ifdef DEBUG_TIME_THREAD
@@ -1482,11 +1484,13 @@ void CSectionThread::run()
 
 	addFilters();
 
+	real_pauseCounter = 1;
 	if (wait_for_time) {
 		threadTIME.waitForTimeset();
 		time_t now = time(NULL);
 		xprintf("%s::run:: time set: %s", name.c_str(), ctime(&now));
 	}
+	real_pauseCounter = 0;
 
 	DMX::start();
 
