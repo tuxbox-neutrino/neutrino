@@ -2069,6 +2069,9 @@ void CZapit::run()
 	time_t stime = time(0);
 	time_t curtime;
 #endif
+#if HAVE_SPARK_HARDWARE
+	bool v_stopped = false;
+#endif
 	printf("[zapit] starting... tid %ld\n", syscall(__NR_gettid));
 
 	abort_zapit = 0;
@@ -2103,7 +2106,33 @@ void CZapit::run()
 						SendEvent(CZapitClient::EVT_PMT_CHANGED, &channel_id, sizeof(channel_id));
 					}
 				}
+#if HAVE_SPARK_HARDWARE
+			/* hack: stop videodecoder if the tuner looses lock
+			 * at least the h264 decoder seems unhappy if he runs out of data...
+			 * ...until we fix the driver, let's work around it here.
+			 * theoretically, a "retune()" function could also be implemented here
+			 * for the case that the driver cannot re-lock the tuner (DiSEqC problem,
+			 * unicable collision, .... */
+			if (CFrontend::getInstance()->tuned)
+			{
+				if (!CFrontend::getInstance()->getStatus() && !v_stopped)
+				{
+					fprintf(stderr, "[zapit] LOST LOCK! stopping video...\n");
+					videoDecoder->Stop(false);
+					v_stopped = true;
+				}
+				else if (CFrontend::getInstance()->getStatus())
+				{
+					if (v_stopped)
+					{
+						fprintf(stderr, "[zapit] reacquired LOCK! starting video...\n");
+						videoDecoder->Start();
+					}
+					v_stopped = false;
+				}
 			}
+#endif
+		}
 		/* yuck, don't waste that much cpu time :) */
 		usleep(0);
 #if 0

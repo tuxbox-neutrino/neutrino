@@ -92,8 +92,6 @@ class CFrontend
 		/* current frontend instance */
 		static CFrontend *currentFe;
 		bool locked;
-		/* tuning finished flag */
-		bool tuned;
 		/* information about the used frontend type */
 		struct dvb_frontend_info info;
 		/* current 22kHz tone mode */
@@ -157,6 +155,9 @@ class CFrontend
 
 		friend class CFEManager;
 	public:
+		/* tuning finished flag */
+		bool tuned;
+
 		~CFrontend(void);
 		static CFrontend *getInstance(int Number = 0, int Adapter = 0);
 
