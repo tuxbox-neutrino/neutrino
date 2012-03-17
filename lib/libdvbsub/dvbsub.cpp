@@ -247,6 +247,7 @@ static void* reader_thread(void * /*arg*/)
 	int len;
 	uint16_t packlen;
 	uint8_t* buf;
+	bool bad_startcode = false;
 
         dmx = new cDemux(0);
 #if HAVE_TRIPLEDRAGON
@@ -291,9 +292,13 @@ static void* reader_thread(void * /*arg*/)
 			continue;
 
 		if(memcmp(tmp, "\x00\x00\x01\xbd", 4)) {
-			sub_debug.print(Debug::VERBOSE, "[subtitles] bad start code: %02x%02x%02x%02x\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+			if (!bad_startcode) {
+				sub_debug.print(Debug::VERBOSE, "[subtitles] bad start code: %02x%02x%02x%02x\n", tmp[0], tmp[1], tmp[2], tmp[3]);
+				bad_startcode = true;
+			}
 			continue;
 		}
+		bad_startcode = false;
 		count = 6;
 
 		packlen =  getbits(tmp, 4*8, 16) + 6;
