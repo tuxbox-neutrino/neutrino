@@ -24,10 +24,13 @@
 #include <zapit/scannit.h>
 #include <zapit/scan.h>
 #include <dvbsi++/descriptor_tag.h>
+#include <dvbsi++/network_name_descriptor.h>
 #include <math.h>
+#include <eitd/edvbstring.h>
 
 #define DEBUG_NIT
 //#define DEBUG_NIT_UNUSED
+#define DEBUG_LCN
 
 CNit::CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dnum)
 {
@@ -183,6 +186,17 @@ bool CNit::Parse()
 					ParseServiceList((ServiceListDescriptor *) d, tsinfo);
 					break;
 
+				case LOGICAL_CHANNEL_DESCRIPTOR:
+					ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo);
+					break;
+				case NETWORK_NAME_DESCRIPTOR:
+					{
+						NetworkNameDescriptor * nd = (NetworkNameDescriptor *) d;
+						int tsidonid = (tsinfo->getTransportStreamId() << 16) | tsinfo->getOriginalNetworkId();
+						std::string networkName = stringDVBUTF8(nd->getNetworkName(), 0, tsidonid);
+						printf("NIT: network name [%s]\n", networkName.c_str());
+					}
+					break;
 				default:
 					{
 #ifdef DEBUG_NIT_UNUSED
@@ -280,6 +294,28 @@ bool CNit::ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts
 		t_channel_id channel_id = CZapitChannel::makeChannelId(satellitePosition,
 				freq_id, tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId(), s->getServiceId());
 		CServiceScan::getInstance()->AddServiceType(channel_id, s->getServiceType());
+	}
+	return true;
+}
+
+bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * tsinfo)
+{
+	t_transport_stream_id transport_stream_id = tsinfo->getTransportStreamId();
+	t_original_network_id original_network_id = tsinfo->getOriginalNetworkId();
+
+	const LogicalChannelList &clist = *ld->getChannelList();
+	LogicalChannelListConstIterator it;
+	for (it = clist.begin(); it != clist.end(); ++it) { 
+		t_service_id service_id = (*it)->getServiceId();
+		int lcn = (*it)->getLogicalChannelNumber();
+		/* FIXME dont use freq_id / satellitePosition ? */
+		t_channel_id channel_id = CZapitChannel::makeChannelId(satellitePosition,
+				freq_id, transport_stream_id, original_network_id, service_id);
+		// (*it)->getVisibleServiceFlag();
+		logical_map[channel_id] = lcn;
+#ifdef DEBUG_LCN
+		printf("NIT: lcn tsid %04x onid %04x %llx -> %d\n", transport_stream_id, original_network_id, channel_id, lcn);
+#endif
 	}
 	return true;
 }

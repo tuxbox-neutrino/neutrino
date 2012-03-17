@@ -29,8 +29,11 @@
 #include <dvbsi++/satellite_delivery_system_descriptor.h>
 #include <dvbsi++/cable_delivery_system_descriptor.h>
 #include <dvbsi++/service_list_descriptor.h>
+#include <dvbsi++/logical_channel_descriptor.h>
 
 #define NIT_SECTION_SIZE 1024
+
+typedef std::map <t_channel_id, int> channel_number_map_t;
 
 class CNit : public OpenThreads::Thread
 {
@@ -41,6 +44,7 @@ class CNit : public OpenThreads::Thread
 		t_satellite_position satellitePosition;
 		freq_id_t freq_id;
 		unsigned short nid;
+		channel_number_map_t logical_map;
 
 		NetworkInformationSectionList sections;
 
@@ -49,6 +53,7 @@ class CNit : public OpenThreads::Thread
 		bool ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts);
+		bool ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * ts);
 
 	public:
 		CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dnum = 0);
@@ -56,6 +61,7 @@ class CNit : public OpenThreads::Thread
 		bool Start();
 		bool Stop();
 		bool Parse();
+		channel_number_map_t & getLogicalMap() { return logical_map; };
 };
 
 #endif
