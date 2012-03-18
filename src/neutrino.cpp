@@ -54,6 +54,7 @@
 #include <driver/stream2file.h>
 #include <driver/record.h>
 #include <driver/screenshot.h>
+#include <driver/volume.h>
 
 #include "gui/audioplayer.h"
 #include "gui/bouquetlist.h"
@@ -175,6 +176,7 @@ CPlugins       * g_PluginList;
 CRemoteControl * g_RemoteControl;
 CPictureViewer * g_PicViewer;
 CCAMMenuHandler * g_CamHandler;
+CVolume        * g_volume;
 
 // Globale Variablen - to use import global.h
 
@@ -206,6 +208,7 @@ static void initGlobals(void)
 	InfoClock 	= NULL;
 	g_CamHandler 	= NULL;
 	g_Radiotext     = NULL;
+	g_volume	= NULL;
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -226,9 +229,9 @@ CNeutrinoApp::CNeutrinoApp()
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
 	networksetup		= NULL;
-	skipShutdownTimer=false;
-	current_muted = 0;
-	recordingstatus = 0;
+	skipShutdownTimer	= false;
+	current_muted		= 0;
+	recordingstatus		= 0;
 	memset(&font, 0, sizeof(neutrino_font_descr_struct));
 }
 
@@ -1735,10 +1738,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 	CVFD::getInstance()->showVolume(g_settings.current_volume);
 	CVFD::getInstance()->setMuted(current_muted);
 
-	InfoClock = new CInfoClock();
-	if(g_settings.mode_clock)
-		InfoClock->StartClock();
-
 	g_RCInput = new CRCInput;
 
 	g_Sectionsd = new CSectionsdClient;
@@ -1899,11 +1898,11 @@ int CNeutrinoApp::run(int argc, char **argv)
 	hdd->exec(NULL, "");
 	delete hdd;
 
+	g_volume = CVolume::getInstance();
 	cCA::GetInstance()->Ready(true);
 	InitZapper();
 
-	AudioMute( current_muted, true);
-
+	g_volume->AudioMute(current_muted, true);
 	SHTDCNT::getInstance()->init();
 
 	hintBox->hide();
@@ -1949,7 +1948,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
-	
+
 	dprintf(DEBUG_NORMAL, "initialized everything\n");
 
 	g_PluginList->startPlugin("startup.cfg");
@@ -1959,6 +1958,10 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	g_RCInput->clearRCMsg();
 	if(g_settings.power_standby || init_cec_setting)
 		standbyMode(true);
+
+	InfoClock = CInfoClock::getInstance();
+	if(g_settings.mode_clock)
+		InfoClock->StartClock();
 
 	//cCA::GetInstance()->Ready(true);
 
@@ -1998,7 +2001,9 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				//if(!g_settings.cacheTXT)
 				//	tuxtxt_stop();
 				g_RCInput->clearRCMsg();
-				AudioMute(current_muted, true);
+				// restore mute symbol
+				if (current_muted)
+					g_volume->AudioMute(current_muted, true);
 				if(g_settings.mode_clock)
 					InfoClock->StartClock();
 				StartSubtitles();
@@ -2010,7 +2015,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
                                 	        InfoClock->StopClock();
 					mainMenu.exec(NULL, "");
 					// restore mute symbol
-					AudioMute(current_muted, true);
+					if (current_muted)
+						g_volume->AudioMute(current_muted, true);
                                 	if(g_settings.mode_clock)
                                 	        InfoClock->StartClock();
 					StartSubtitles();
@@ -2024,37 +2030,37 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				switchTvRadioMode(); //used with defined rc key TODO: do we really need this, because we already have a specified key on the remote control 
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
-			   if(g_RemoteControl->subChannels.size() > 0) {
-				StopSubtitles();
-				g_RemoteControl->subChannelUp();
-				g_InfoViewer->showSubchan();
-			    } else if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					setVolume(msg, true);
-			    } else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+				if(g_RemoteControl->subChannels.size() > 0) {
+					StopSubtitles();
+					g_RemoteControl->subChannelUp();
+					g_InfoViewer->showSubchan();
+				} else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+					g_volume->setVolume(msg, true);
+				} else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
 					if(channelList->getSize()) {
 						showInfo();
 					}
-			    } else
+				} else
 					quickZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
-			   if(g_RemoteControl->subChannels.size()> 0) {
-				StopSubtitles();
-				g_RemoteControl->subChannelDown();
-				g_InfoViewer->showSubchan();
-			    } else if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					setVolume(msg, true);
-			    } else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+				if(g_RemoteControl->subChannels.size()> 0) {
+					StopSubtitles();
+					g_RemoteControl->subChannelDown();
+					g_InfoViewer->showSubchan();
+				} else if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+					g_volume->setVolume(msg, true);
+				} else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
 					if(channelList->getSize()) {
 						showInfo();
 					}
-			    } else
+				} else
 					quickZap( msg );
 			}
 			/* in case key_subchannel_up/down redefined */
 			else if( msg == CRCInput::RC_left || msg == CRCInput::RC_right) {
 			    if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					setVolume(msg, true);
+					g_volume->setVolume(msg, true);
 				} else if(channelList->getSize()) {
 					showInfo();
 				}
@@ -2062,8 +2068,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == (neutrino_msg_t) g_settings.key_zaphistory ) {
 				// Zap-History "Bouquet"
 				if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-					InfoClock->StopClock();
 					g_settings.mode_clock=false;
+					InfoClock->StopClock();
 				} else {
 					StopSubtitles();
 					int res = channelList->numericZap( msg );
@@ -2179,8 +2185,8 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else {
 				if (msg == CRCInput::RC_home) {
 					if(g_settings.mode_clock && g_settings.key_zaphistory == CRCInput::RC_home) {
-						InfoClock->StopClock();
 						g_settings.mode_clock=false;
+						InfoClock->StopClock();
 					}
 					CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 				}
@@ -2217,7 +2223,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 		g_Zapit->getVolume(&volume, &volume);
 		current_volume = 100 - volume*100/63;
 		printf("zapit volume %d new current %d mode %d\n", volume, current_volume, g_settings.audio_AnalogMode);
-		setvol(current_volume);
+		g_volume->setvol(current_volume);
 #endif
 		g_RCInput->killTimer(scrambled_timer);
 
@@ -2307,6 +2313,9 @@ _show:
 					nNewChannel = bouquetList->Bouquets[old_b]->channelList->exec();//with ZAP!
 				else
 					nNewChannel = bouquetList->exec(true);
+				// restore mute symbol
+				if (current_muted)
+					g_volume->AudioMute(current_muted, true);
 			} else if(msg == CRCInput::RC_sat) {
 				SetChannelMode(LIST_MODE_SAT);
 				nNewChannel = bouquetList->exec(true);
@@ -2441,7 +2450,7 @@ _repeat:
 	}
 	else if ((msg == CRCInput::RC_plus) || (msg == CRCInput::RC_minus))
 	{
-		setVolume(msg, (mode != mode_scart));
+		g_volume->setVolume(msg, (mode != mode_scart));
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_spkr ) {
@@ -2451,16 +2460,16 @@ _repeat:
 		}
 		else {
 			//mute
-			AudioMute( !current_muted, true);
+			g_volume->AudioMute(!current_muted, true);
 		}
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_on ) {
-		AudioMute( true, true);
+		g_volume->AudioMute(true, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_mute_off ) {
-		AudioMute( false, true);
+		g_volume->AudioMute(false, true);
 		return messages_return::handled;
 	}
 	else if( msg == CRCInput::RC_analog_on ) {
@@ -2513,7 +2522,7 @@ _repeat:
 #if 0
 		CControldMsg::commandMute* cmd = (CControldMsg::commandMute*) data;
 		if(cmd->type == (CControld::volume_type)g_settings.audio_avs_Control)
-			AudioMute( cmd->mute, true );
+			g_volume->AudioMute(cmd->mute, true );
 		delete[] (unsigned char*) data;
 #endif
 		return messages_return::handled;
@@ -3083,182 +3092,6 @@ void CNeutrinoApp::saveEpg(bool cvfd_mode)
 	}
 }
 
-void CNeutrinoApp::AudioMute( int newValue, bool isEvent )
-{
-	if((g_settings.current_volume == 0) && (g_settings.show_mute_icon == 1))
-		return;
-	//printf("MUTE: val %d current %d event %d\n", newValue, current_muted, isEvent);
-	int dx = 0;
-	int dy = 0;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE,&dx,&dy);
-	int offset = (dx/4);
-	dx += offset;
-	dy += offset;
-
-	int x = g_settings.screen_EndX-dx;
-	int y = g_settings.screen_StartY;
-
-printf("AudioMute: current %d new %d isEvent: %d\n", current_muted, newValue, isEvent);
-	CVFD::getInstance()->setMuted(newValue);
-	current_muted = newValue;
-
-	//if( !isEvent )
-		g_Zapit->muteAudio(current_muted);
-
-	if( isEvent && ( mode != mode_scart ) && ( mode != mode_audio) && ( mode != mode_pic))
-	{
-		if( current_muted ) {
-			frameBuffer->paintBoxRel(x, y, dx, dy, COL_INFOBAR_PLUS_0);
-			frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, x+(offset/2), y+(offset/2));
-		}
-		else
-			frameBuffer->paintBackgroundBoxRel(x, y, dx, dy);
-	}
-}
-
-void CNeutrinoApp::setvol(int vol)
-{
-	audioDecoder->setVolume(vol, vol);
-}
-
-void CNeutrinoApp::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowait)
-{
-	neutrino_msg_t msg = key;
-
-	int dx = 0;//256
-	int dy = 0;//32
-	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME,&dx,&dy);
-printf("CNeutrinoApp::setVolume dx %d dy %d\n", dx, dy);
-	dx *=16;
-	dy *=2;
-#if 0 // orig
-	int x = (((g_settings.screen_EndX- g_settings.screen_StartX)- dx) / 2) + g_settings.screen_StartX;
-	int y = g_settings.screen_EndY - 100;
-#else
-
-	int x = frameBuffer->getScreenX();
-	int y = frameBuffer->getScreenY();
-#endif
-	int vol = g_settings.current_volume;
-	int sw = frameBuffer->getScreenWidth();
-	int sh = frameBuffer->getScreenHeight();
-	int clock_height = 0;
-
-	switch( g_settings.volume_pos )
-	{
-		case 0:// upper right
-			if(g_settings.mode_clock){
-				clock_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
-			}
-			x = sw - dx - 6;
-			y += clock_height;
-			break;
-		case 1:// upper left
-			break;
-		case 2:// bottom left
-			y = sh - dy;
-			break;
-		case 3:// bottom right
-			x = sw - dx;
-			y = sh - dy;
-			break;
-		case 4:// center default
-			x = ((sw - dx) / 2) + x;
-			break;
-		case 5:// center higher
-			x = ((sw - dx) / 2) + x;
-			y = sh - sh/15;
-			break;
-	}
-
-	fb_pixel_t * pixbuf = NULL;
-
-	if(bDoPaint) {
-		pixbuf = new fb_pixel_t[dx * dy];
-		if(pixbuf!= NULL)
-			frameBuffer->SaveScreen(x, y, dx, dy, pixbuf);
-
-		frameBuffer->paintBoxRel(x , y , dx, dy, COL_MENUCONTENT_PLUS_0, g_settings.rounded_corners ? dy/2 : 0);
-		frameBuffer->paintBoxRel(x+dy+dy/4-2, y+dy/4-2, dy*25/4+4, dy/2+4, COL_MENUCONTENT_PLUS_3);
-		frameBuffer->paintBoxRel(x+dy+dy/4,   y+dy/4,   dy*25/4,   dy/2,   COL_MENUCONTENT_PLUS_1);
-		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME,x+dy/2,y+(dy/4), 0, COL_MENUCONTENT_PLUS_0);
-
-		g_volscale->reset();
-		g_volscale->paintProgressBar2(x + dy+ (dy/4), y +(dy/4), g_settings.current_volume);
-	}
-
-	neutrino_msg_data_t data;
-
-	uint64_t timeoutEnd;
-
-	do {
-		if (msg <= CRCInput::RC_MaxRC) 
-		{
-			int sub_chan_keybind = 0;
-			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME && g_RemoteControl->subChannels.size() < 1)
- 			     sub_chan_keybind = 1;
-			
-			if ((msg == CRCInput::RC_plus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_right))) {
-				if (g_settings.current_volume < 100 - g_settings.current_volume_step)
-					g_settings.current_volume += g_settings.current_volume_step;
-				else
-					g_settings.current_volume = 100;
-				
-				if(current_muted)
-					AudioMute( false, true);
-			}
-			else if ((msg == CRCInput::RC_minus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_left))) {
-				if (g_settings.current_volume > g_settings.current_volume_step)
-					g_settings.current_volume -= g_settings.current_volume_step;
-				else if ((g_settings.show_mute_icon == 1) && (g_settings.current_volume = 1)) {
-					(g_settings.current_volume = 1);
-					AudioMute( true, true);
-					g_settings.current_volume = 0;
-				}
-				else if (g_settings.show_mute_icon == 0)
-					g_settings.current_volume = 0;
-			}
-			else if (msg == CRCInput::RC_home)
-				break;
-			else {
-				g_RCInput->postMsg(msg, data);
-				break;
-			}
-
-			setvol(g_settings.current_volume);
-			timeoutEnd = CRCInput::calcTimeoutEnd(nowait ? 1 : 3);
-		}
-		else if (msg == NeutrinoMessages::EVT_VOLCHANGED) {
-			//current_volume = g_Controld->getVolume((CControld::volume_type)g_settings.audio_avs_Control);//FIXME
-			//printf("setVolume EVT_VOLCHANGED %d\n", current_volume);
-			timeoutEnd = CRCInput::calcTimeoutEnd(3);
-		}
-		else if (handleMsg(msg, data) & messages_return::unhandled) {
-			g_RCInput->postMsg(msg, data);
-			break;
-		}
-
-		if (bDoPaint) {
-			if(vol != g_settings.current_volume) {
-				vol = g_settings.current_volume;
-				g_volscale->paintProgressBar2(x + dy+ (dy/4), y +(dy/4), g_settings.current_volume);
-			}
-		}
-
-		CVFD::getInstance()->showVolume(g_settings.current_volume);
-		if (msg != CRCInput::RC_timeout) {
-			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
-		}
-	} while (msg != CRCInput::RC_timeout);
-
-	//frameBuffer->paintBackgroundBoxRel(x, y, dx, dy); //FIXME osd bug
-
-	if( (bDoPaint) && (pixbuf!= NULL) ) {
-		frameBuffer->RestoreScreen(x, y, dx, dy, pixbuf);
-		delete [] pixbuf;
-	}
-}
-
 void CNeutrinoApp::tvMode( bool rezap )
 {
 	if(mode==mode_radio ) {
@@ -3273,6 +3106,8 @@ void CNeutrinoApp::tvMode( bool rezap )
 		CVFD::getInstance()->ShowIcon(VFD_ICON_RADIO, false);
 		StartSubtitles(!rezap);
 	}
+
+	g_volume->Init();
 
 	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 	CVFD::getInstance()->ShowIcon(VFD_ICON_TV, true);
@@ -3464,7 +3299,7 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
                 if(g_settings.mode_clock)
                         InfoClock->StartClock();
 
-		AudioMute(current_muted, true);
+		g_volume->AudioMute(current_muted, true);
 		if((mode == mode_tv) && wasshift) {
 			//startAutoRecord();
 			CRecordManager::getInstance()->StartAutoRecord();
@@ -3528,11 +3363,11 @@ void CNeutrinoApp::switchTvRadioMode(const int prev_mode)
 void CNeutrinoApp::switchClockOnOff()
 {
 	if(g_settings.mode_clock) {
-		InfoClock->StopClock();
 		g_settings.mode_clock=false;
+		InfoClock->StopClock();
 	} else {
-		InfoClock->StartClock();
 		g_settings.mode_clock=true;
+		InfoClock->StartClock();
 	}
 }
 
