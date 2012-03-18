@@ -33,8 +33,10 @@
 #include <xmlinterface.h>
 #include <zapit/scansdt.h>
 #include <zapit/scannit.h>
+#include <zapit/scanbat.h>
 
 #define NIT_THREAD
+//#define USE_BAT
 
 extern CBouquetManager *g_bouquetManager;
 extern transponder_list_t transponders; //  defined in zapit.cpp
@@ -267,6 +269,10 @@ _repeat:
 		if(scan_nit)
 			nit.Start();
 #endif
+#ifdef USE_BAT
+		CBat bat(satellitePosition, freq);
+		bat.Start();
+#endif
 
 		CSdt sdt(satellitePosition, freq);
 		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
@@ -274,6 +280,9 @@ _repeat:
 #ifdef NIT_THREAD
 		if(scan_nit)
 			nit.Stop();
+#endif
+#ifdef USE_BAT
+		bat.Stop();
 #endif
 		if(!sdt_parsed) {
 			printf("[scan] SDT failed !\n");
