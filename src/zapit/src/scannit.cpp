@@ -25,6 +25,7 @@
 #include <zapit/scan.h>
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/network_name_descriptor.h>
+#include <dvbsi++/linkage_descriptor.h>
 #include <math.h>
 #include <eitd/edvbstring.h>
 
@@ -51,8 +52,8 @@ CNit::~CNit()
 
 bool CNit::Start()
 {
-        int ret = start();
-        return (ret == 0);
+	int ret = start();
+	return (ret == 0);
 }
 
 bool CNit::Stop()
@@ -158,58 +159,94 @@ bool CNit::Parse()
 	NetworkInformationSectionIterator sit;
 	for (sit = sections.begin(); sit != sections.end(); ++sit) {
 		NetworkInformationSection * nit = *sit;
-		const TransportStreamInfoList *tslist = nit->getTsInfo();
 
 		if (CServiceScan::getInstance()->Aborted())
 			return false;
 
-		for(TransportStreamInfoConstIterator tit = tslist->begin(); tit != tslist->end(); ++tit) {
-			TransportStreamInfo * tsinfo = *tit;
-			const DescriptorList * dlist = tsinfo->getDescriptors();
-#if 0
-			printf("NIT: tsid %04x onid %04x %d descriptors\n", tsinfo->getTransportStreamId(),
-					tsinfo->getOriginalNetworkId(), dlist->size());
+		const DescriptorList * dlist = nit->getDescriptors();
+		DescriptorConstIterator dit;
+#ifdef DEBUG_NIT
+		printf("NIT: section %d, %d descriptors\n", nit->getSectionNumber(), dlist->size());
 #endif
-			DescriptorConstIterator dit;
-			for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
-				Descriptor * d = *dit;
-				switch(d->getTag()) {
-				case SATELLITE_DELIVERY_SYSTEM_DESCRIPTOR:
-					ParseSatelliteDescriptor((SatelliteDeliverySystemDescriptor *)d, tsinfo);
-					break;
-
-				case CABLE_DELIVERY_SYSTEM_DESCRIPTOR:
-					ParseCableDescriptor((CableDeliverySystemDescriptor *)d, tsinfo);
-					break;
-
-				case SERVICE_LIST_DESCRIPTOR:
-					ParseServiceList((ServiceListDescriptor *) d, tsinfo);
-					break;
-
-				case LOGICAL_CHANNEL_DESCRIPTOR:
-					ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo);
-					break;
+		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
+			Descriptor * d = *dit;
+			switch(d->getTag()) {
 				case NETWORK_NAME_DESCRIPTOR:
 					{
+#ifdef DEBUG_NIT
 						NetworkNameDescriptor * nd = (NetworkNameDescriptor *) d;
-						int tsidonid = (tsinfo->getTransportStreamId() << 16) | tsinfo->getOriginalNetworkId();
-						std::string networkName = stringDVBUTF8(nd->getNetworkName(), 0, tsidonid);
+						std::string networkName = stringDVBUTF8(nd->getNetworkName());
 						printf("NIT: network name [%s]\n", networkName.c_str());
+#endif
+					}
+					break;
+				case LINKAGE_DESCRIPTOR:
+					{
+#ifdef DEBUG_NIT
+						LinkageDescriptor * ld = (LinkageDescriptor*) d;
+						printf("NIT: linkage, tsid %04x onid %04x sid %04x type %02x\n", ld->getTransportStreamId(),
+								ld->getOriginalNetworkId(), ld->getServiceId(), ld->getLinkageType());
+#endif
 					}
 					break;
 				default:
 					{
 #ifdef DEBUG_NIT_UNUSED
-						printf("NIT: descriptor %02x: ", d->getTag());
+						printf("NIT net loop: descriptor %02x len %d: ", d->getTag(), d->getLength());
+#if 0
 						uint8_t len = 2+d->getLength();
 						uint8_t buf[len];
 						d->writeToBuffer(buf);
 						for(uint8_t i = 0; i < len; i++)
 							printf("%02x ", buf[i]);
+#endif
 						printf("\n");
 #endif
 					}
 					break;
+			}
+		}
+		const TransportStreamInfoList *tslist = nit->getTsInfo();
+		for(TransportStreamInfoConstIterator tit = tslist->begin(); tit != tslist->end(); ++tit) {
+			TransportStreamInfo * tsinfo = *tit;
+			dlist = tsinfo->getDescriptors();
+#if 0
+			printf("NIT: tsid %04x onid %04x %d descriptors\n", tsinfo->getTransportStreamId(),
+					tsinfo->getOriginalNetworkId(), dlist->size());
+#endif
+			//DescriptorConstIterator dit;
+			for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
+				Descriptor * d = *dit;
+				switch(d->getTag()) {
+					case SATELLITE_DELIVERY_SYSTEM_DESCRIPTOR:
+						ParseSatelliteDescriptor((SatelliteDeliverySystemDescriptor *)d, tsinfo);
+						break;
+
+					case CABLE_DELIVERY_SYSTEM_DESCRIPTOR:
+						ParseCableDescriptor((CableDeliverySystemDescriptor *)d, tsinfo);
+						break;
+
+					case SERVICE_LIST_DESCRIPTOR:
+						ParseServiceList((ServiceListDescriptor *) d, tsinfo);
+						break;
+
+					case LOGICAL_CHANNEL_DESCRIPTOR:
+						ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo);
+						break;
+						break;
+					default:
+						{
+#ifdef DEBUG_NIT_UNUSED
+							printf("NIT TS loop: descriptor %02x: ", d->getTag());
+							uint8_t len = 2+d->getLength();
+							uint8_t buf[len];
+							d->writeToBuffer(buf);
+							for(uint8_t i = 0; i < len; i++)
+								printf("%02x ", buf[i]);
+							printf("\n");
+#endif
+						}
+						break;
 				}
 			}
 		}
@@ -311,10 +348,10 @@ bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamIn
 		/* FIXME dont use freq_id / satellitePosition ? */
 		t_channel_id channel_id = CZapitChannel::makeChannelId(satellitePosition,
 				freq_id, transport_stream_id, original_network_id, service_id);
-		// (*it)->getVisibleServiceFlag();
+		/* (*it)->getVisibleServiceFlag(); */
 		logical_map[channel_id] = lcn;
 #ifdef DEBUG_LCN
-		printf("NIT: lcn tsid %04x onid %04x %llx -> %d\n", transport_stream_id, original_network_id, channel_id, lcn);
+		printf("NIT: logical channel tsid %04x onid %04x %llx -> %d\n", transport_stream_id, original_network_id, channel_id, lcn);
 #endif
 	}
 	return true;
