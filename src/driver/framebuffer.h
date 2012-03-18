@@ -221,6 +221,7 @@ class CFrameBuffer
 		void displayRGB(unsigned char *rgbbuff, int x_size, int y_size, int x_pan, int y_pan, int x_offs, int y_offs, bool clearfb = true, int transp = 0xFF);
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
+		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 };
 
 
