@@ -61,8 +61,13 @@
 #include <neutrino.h>
 #include <cs_api.h>
 
-//const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
+#if HAVE_SPARK_HARDWARE
+/* this relies on event0 being the AOTOM frontpanel driver device
+ * TODO: what if another input device is present? */
+const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
+#else
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir"};
+#endif
 typedef struct input_event t_input_event;
 
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
@@ -1155,6 +1160,8 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 
 				if(ret != sizeof(t_input_event))
 					continue;
+				if (ev.type == EV_SYN)
+					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();
 				uint32_t trkey = translate(ev.code, i);
 #ifdef _DEBUG
