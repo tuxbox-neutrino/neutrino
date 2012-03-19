@@ -1115,6 +1115,10 @@ void CChannelList::setSelected( int nChannelNr)
 	selected = nChannelNr;
 	//FIXME real difference between tuned and selected ?!
 	tuned = nChannelNr;
+	if(tuned < chanlist.size())
+		selected_chid = chanlist[tuned]->getChannelID();
+	else
+		selected_chid = 0;
 }
 
 // -- Zap to channel with channel_id
