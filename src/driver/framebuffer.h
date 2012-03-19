@@ -114,6 +114,7 @@ class CFrameBuffer
 		std::map<std::string, rawIcon> icon_cache;
 		int cache_size;
 		void * int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, unsigned long y, int transp, bool alpha);
+		int m_transparent_default, m_transparent;
 
 	public:
 		fb_pixel_t realcolor[256];
@@ -222,7 +223,16 @@ class CFrameBuffer
 		void blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp = 0, uint32_t yp = 0, bool transp = false);
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
-};
 
+		enum 
+			{
+				TM_EMPTY  = 0,
+				TM_NONE   = 1,
+				TM_BLACK  = 2,
+				TM_INI    = 3
+			};
+		void SetTransparent(int t){ m_transparent = t; }
+		void SetTransparentDefault(){ m_transparent = m_transparent_default; }
+};
 
 #endif
