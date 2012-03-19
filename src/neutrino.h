@@ -40,7 +40,6 @@
 #include <system/setting_helpers.h>
 #include <system/configure_network.h>
 #include <gui/timerlist.h>
-#include <gui/network_setup.h>
 #include <timerdclient/timerdtypes.h>
 #include <gui/channellist.h>          /* CChannelList */
 #include <gui/rc_lock.h>
@@ -125,7 +124,6 @@ private:
 	bool				skipShutdownTimer;
 	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
-	CNetworkSetup			*networksetup;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
 	COnekeyPluginChangeExec		*OnekeyPluginChanger;
 	CIPChangeNotifier		*MyIPChanger;

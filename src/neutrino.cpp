@@ -75,6 +75,7 @@
 #include "gui/plugins.h"
 #include "gui/rc_lock.h"
 #include "gui/scan_setup.h"
+#include "gui/start_wizard.h"
 #include "gui/timerlist.h"
 #include "gui/videosettings.h"
 
@@ -228,7 +229,6 @@ CNeutrinoApp::CNeutrinoApp()
 	channelList		= NULL;
 	TVchannelList		= NULL;
 	RADIOchannelList	= NULL;
-	networksetup		= NULL;
 	skipShutdownTimer	= false;
 	current_muted		= 0;
 	recordingstatus		= 0;
@@ -1623,20 +1623,17 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	int loadSettingsErg = loadSetup(NEUTRINO_SETTINGS_FILE);
 
-	bool display_language_selection;
-
 	initialize_iso639_map();
 
+	bool show_startwizard = false;
 	CLocaleManager::loadLocale_ret_t loadLocale_ret = g_Locale->loadLocale(g_settings.language);
 	if (loadLocale_ret == CLocaleManager::NO_SUCH_LOCALE)
 	{
 		strcpy(g_settings.language, "english");
 		loadLocale_ret = g_Locale->loadLocale(g_settings.language);
-		display_language_selection = true;
+		show_startwizard = true;
 	}
-	else
-		display_language_selection = false;
-
+	
 	SetupFonts();
 	SetupTiming();
 	g_PicViewer = new CPictureViewer();
@@ -1686,9 +1683,6 @@ int CNeutrinoApp::run(int argc, char **argv)
 
 	// trigger a change
 	audioSetupNotifier->changeNotify(LOCALE_AUDIOMENU_AVSYNC, NULL);
-
-	if(display_language_selection)
-		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/start.jpg");
 
 	powerManager = new cPowerManager;
 
@@ -1841,41 +1835,10 @@ int CNeutrinoApp::run(int argc, char **argv)
 	g_Timerd->registerEvent(CTimerdClient::EVT_EXEC_PLUGIN, 222, NEUTRINO_UDS_NAME);
 
 
-	if (display_language_selection) 
-	{
-		COsdLangSetup languageSettings(COsdLangSetup::OSDLANG_SETUP_MODE_WIZARD);
+	if (show_startwizard) {
 		hintBox->hide();
-
-		languageSettings.exec(NULL, "");
-
-		if(ShowMsgUTF (LOCALE_WIZARD_WELCOME_HEAD, g_Locale->getText(LOCALE_WIZARD_WELCOME_TEXT), CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbrCancel) == CMessageBox::mbrYes) 
-		{
-			//open video settings in wizardmode
-			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD);
-			
-			COsdSetup osdSettings(COsdSetup::OSD_SETUP_MODE_WIZARD);
-			
-			bool ret = g_videoSettings->exec(NULL, "");
-			g_videoSettings->setWizardMode(CVideoSettings::V_SETUP_MODE_WIZARD_NO);
-
-			if(ret != menu_return::RETURN_EXIT_ALL) 
-			{
-				ret = osdSettings.exec(NULL, "");
-			}
-			if(ret != menu_return::RETURN_EXIT_ALL) 
-			{
-				networksetup->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD);
-				ret = networksetup->exec(NULL, "");
-				networksetup->setWizardMode(CNetworkSetup::N_SETUP_MODE_WIZARD_NO);
-			}
-			if(ret != menu_return::RETURN_EXIT_ALL) 
-			{
-				CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD);
-				ret = CScanSetup::getInstance()->exec(NULL, "");
-				CScanSetup::getInstance()->setWizardMode(CScanSetup::SCAN_SETUP_MODE_WIZARD_NO);
-			}
-		}
-		videoDecoder->StopPicture();
+		CStartUpWizard startwizard;
+		startwizard.exec(NULL, "");
 	}
 
 	if(loadSettingsErg) {

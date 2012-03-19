@@ -80,6 +80,7 @@ libneutrino_gui_a_SOURCES = \
 	settings_manager.cpp \
 	sleeptimer.cpp \
 	software_update.cpp \
+	start_wizard.cpp \
 	streaminfo2.cpp \
 	subchannel_select.cpp \
 	test_menu.cpp \
