@@ -77,12 +77,16 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 	fb_pixel_t  *cr,*l;
 	int i,j,k,ip;
 
+#ifndef HAVE_SPARK_HARDWARE
 	cr = (fb_pixel_t *) malloc(dx*dy*sizeof(fb_pixel_t));
 
 	if(cr == NULL) {
 		printf("Error: malloc\n");
 		return NULL;
 	}
+#else
+	cr = CFrameBuffer::getInstance()->getBackBufferPointer();
+#endif
 	l = cr;
 
 	for(j = 0; j < dy; j++, l += dx)
@@ -160,8 +164,8 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 			for (int x2 = 0; x2 < nw; x2++)
 				*(sublfb + xoff + x2 + y) = *ptr++;
 		}
-#endif
 		free(newdata);
+#endif
 
 		if(min_x > xoff)
 			min_x = xoff;
