@@ -3734,7 +3734,7 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.menu_left_exit = tconfig.getInt32( "menu_left_exit", 0 );
 	g_settings.audio_run_player = tconfig.getInt32( "audio_run_player", 1 );
 	g_settings.key_click = tconfig.getInt32( "key_click", 1 );
-	strcpy(g_settings.repeat_blocker, tconfig.getString("repeat_blocker", "150").c_str());
+	strcpy(g_settings.repeat_blocker, tconfig.getString("repeat_blocker", "250").c_str());
 	strcpy(g_settings.repeat_genericblocker, tconfig.getString("repeat_genericblocker", "100").c_str());
 
 	g_settings.bouquetlist_mode = tconfig.getInt32( "bouquetlist_mode", 0 );
