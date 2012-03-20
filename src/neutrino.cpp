@@ -1776,8 +1776,6 @@ TIMER_START();
 	//init video settings
 	g_videoSettings = new CVideoSettings;
 	g_videoSettings->setVideoSettings();
-	if(display_language_selection)
-		videoDecoder->ShowPicture(DATADIR "/neutrino/icons/start.jpg");
 
 	g_RCInput = new CRCInput();
 
