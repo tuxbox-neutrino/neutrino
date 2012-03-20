@@ -49,6 +49,7 @@
 #include "gui/scan.h"
 #include "gui/scan_setup.h"
 #include <zapit/femanager.h>
+#include <gui/widget/messagebox.h>
 
 extern int cs_test_card(int unit, char * str);
 

@@ -32,7 +32,6 @@
 #define __network_setup__
 
 #include <gui/widget/menue.h>
-#include <gui/widget/messagebox.h>
 
 #include <system/setting_helpers.h>
 #include <system/configure_network.h>
@@ -122,6 +121,8 @@ class CNetworkSetup : public CMenuTarget, CChangeObserver
 
 		CNetworkSetup(bool wizard_mode = N_SETUP_MODE_WIZARD_NO);
 		~CNetworkSetup();
+		
+		static CNetworkSetup* getInstance();
 		
 		bool getWizardMode() {return is_wizard;};
 		void setWizardMode(bool mode);

@@ -63,8 +63,7 @@ class CPictureViewer
 	void Cleanup();
 	void SetVisible(int startx, int endx, int starty, int endy);
 	static double m_aspect_ratio_correction;
-	bool DisplayImage (const std::string & name, int posx, int posy, int width, int height);
-	bool DisplayImage (const std::string & name, int posx, int posy, int width, int height, const fb_pixel_t colBg);
+	bool DisplayImage (const std::string & name, int posx, int posy, int width, int height, int transp=CFrameBuffer::TM_EMPTY);
 	bool DisplayLogo (uint64_t channel_id, int posx, int posy, int width, int height);
 	bool GetLogoName(uint64_t channel_id, std::string ChanName, std::string & name, int *width = NULL, int *height = NULL);
 	fb_pixel_t * getImage (const std::string & name, int width, int height);
@@ -112,7 +111,6 @@ class CPictureViewer
 	void add_format(int (*picsize)(const char *,int *,int*,int,int),int (*picread)(const char *,unsigned char **,int*,int*), int (*id)(const char*));
 	unsigned char * int_Resize(unsigned char *orgin, int ox, int oy, int dx, int dy, ScalingMode type, unsigned char * dst, bool alpha);
 	fb_pixel_t * int_getImage(const std::string & name, int *width, int *height, bool GetImage);
-	bool int_DisplayImage (const std::string & name, int posx, int posy, int width, int height, bool paintBg, const fb_pixel_t colBg=0);
 };
 
 

@@ -43,6 +43,7 @@
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
 #include <driver/record.h>
+#include <driver/volume.h>
 
 #include <gui/color.h>
 
@@ -434,7 +435,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 		case CRCInput::RC_minus:
 		case CRCInput::RC_left:
 		case CRCInput::RC_right:
-			CNeutrinoApp::getInstance()->setVolume(msg, true, true);
+			CVolume::getInstance()->setVolume(msg, true, true);
 			break;
 		default:
 			if ((msg >= CRCInput::RC_WithData) && (msg < CRCInput::RC_WithData + 0x10000000))
