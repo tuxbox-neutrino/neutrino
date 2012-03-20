@@ -547,25 +547,19 @@ void CPictureViewer::rescaleImageDimensions(int *width, int *height, const int m
 	}
 }
 
-bool CPictureViewer::DisplayImage (const std::string & name, int posx, int posy, int width, int height)
+bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, int width, int height, int transp)
 {
-	return int_DisplayImage(name, posx, posy, width, height, false);
-}
+	CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
+	if (transp > CFrameBuffer::TM_EMPTY)
+		frameBuffer->SetTransparent(transp);
 
-bool CPictureViewer::DisplayImage(const std::string & name, int posx, int posy, int width, int height, const fb_pixel_t colBg)
-{
-	return int_DisplayImage(name, posx, posy, width, height, true, colBg);
-}
-
-bool CPictureViewer::int_DisplayImage(const std::string & name, int posx, int posy, int width, int height, bool paintBg, const fb_pixel_t colBg)
-{
 	/* TODO: cache or check for same */
 	fb_pixel_t * data = getImage(name, width, height);
 
+	if (transp > CFrameBuffer::TM_EMPTY)
+		frameBuffer->SetTransparentDefault();
+
 	if(data) {
-		CFrameBuffer* frameBuffer = CFrameBuffer::getInstance();
-		if (paintBg)
-			frameBuffer->paintBoxRel(posx, posy, width, height, colBg);
 		frameBuffer->blit2FB(data, width, height, posx, posy);
 		cs_free_uncached(data);
 		return true;

@@ -43,6 +43,7 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/keychooser.h>
+#include <gui/widget/messagebox.h>
 
 #include <driver/screen_max.h>
 

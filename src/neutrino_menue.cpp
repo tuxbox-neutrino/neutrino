@@ -62,6 +62,7 @@
 #include "gui/miscsettings_menu.h"
 #include "gui/motorcontrol.h"
 #include "gui/movieplayer.h"
+#include <gui/network_setup.h>
 #include "gui/osd_setup.h"
 #include "gui/osdlang_setup.h"
 #include "gui/parentallock_setup.h"
@@ -259,9 +260,7 @@ void CNeutrinoApp::InitMenuSettings()
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_PARENTALLOCK_PARENTALLOCK, true, NULL, new CParentalSetup()), &show, false, CPersonalizeGui::PERSONALIZE_SHOW_NO);
 
 	// network
-	if(networksetup == NULL)
-		networksetup = new CNetworkSetup();
-	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_NETWORK, true, NULL, networksetup), &g_settings.personalize[SNeutrinoSettings::P_MSET_NETWORK]);
+	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_NETWORK, true, NULL, CNetworkSetup::getInstance()), &g_settings.personalize[SNeutrinoSettings::P_MSET_NETWORK]);
 
 	// record settings
 	personalize.addItem(MENU_SETTINGS, new CMenuForwarder(LOCALE_MAINSETTINGS_RECORDING, true, NULL, new CRecordSetup()), &g_settings.personalize[SNeutrinoSettings::P_MSET_RECORDING]);

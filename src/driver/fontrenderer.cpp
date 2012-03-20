@@ -292,6 +292,8 @@ return 0;
 	upper = halflinegap+ascender+3;   // we add 3 at top
 	lower = -descender+halflinegap+1; // we add 1 at bottom
 	height=upper+lower;               // this is total height == distance of lines
+	DigitHeight = ascender+2;
+	DigitOffset = -descender+halflinegap;
 	// hack end
 
 	//printf("glyph: hM=%d tM=%d hg=%d tg=%d ascender=%d descender=%d height=%d linegap/2=%d upper=%d lower=%d\n",
@@ -308,6 +310,16 @@ int Font::getWidth(void)
 int Font::getHeight(void)
 {
 	return height;
+}
+
+int Font::getDigitHeight(void)
+{
+	return DigitHeight;
+}
+
+int Font::getDigitOffset(void)
+{
+	return DigitOffset;
 }
 
 int UTF8ToUnicode(const char * &text, const bool utf8_encoded) // returns -1 on error

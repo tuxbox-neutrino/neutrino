@@ -42,6 +42,7 @@
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
 #include <gui/widget/hintbox.h>
+#include <gui/widget/messagebox.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -70,6 +71,17 @@ CNetworkSetup::CNetworkSetup(bool wizard_mode)
 CNetworkSetup::~CNetworkSetup()
 {
 	//delete networkConfig;
+}
+
+CNetworkSetup* CNetworkSetup::getInstance()
+{
+	static CNetworkSetup* me = NULL;
+
+	if(!me) {
+		me = new CNetworkSetup();
+		dprintf(DEBUG_DEBUG, "CNetworkSetup Instance created\n");
+	}
+	return me;
 }
 
 int CNetworkSetup::exec(CMenuTarget* parent, const std::string &actionKey)

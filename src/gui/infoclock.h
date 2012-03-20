@@ -16,23 +16,24 @@ class CInfoClock
  private:
 	CFrameBuffer * 	frameBuffer;
 
-	pthread_t	   	thrTimer;
-	void			Init();
-	int 			time_width;
-	int 			time_height;
-	int			clock_x;
-	void 			paintTime( bool show_dot);
-	int 			y,x;
-	static void		CleanUpProc(void* arg);
-	static void*		TimerProc(void *arg);
+	pthread_t   	thrTimer;
+	void 		paintTime( bool show_dot);
+	int 		time_offset, digit_offset, digit_h;
+	int 		x, y, clock_x;
+	static void	CleanUpProc(void* arg);
+	static void*	TimerProc(void *arg);
 
  public:
-	CInfoClock();
+	CInfoClock(bool noVolume=false);
 	~CInfoClock();
+	static		CInfoClock* getInstance(bool noVolume=false);
 
-	void 			StartClock();
-	void 			StopClock();
+	void		Init(bool noVolume=false);
+	void 		StartClock();
+	void 		StopClock();
+	void		ClearDisplay();
 
+	int 		time_width, time_height;
 };
 
 #endif
