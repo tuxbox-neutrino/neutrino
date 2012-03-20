@@ -35,7 +35,8 @@ libneutrino_driver_a_SOURCES = \
 	radiotext.cpp \
 	fade.cpp \
 	screenshot.cpp \
-	ringbuffer.c
+	ringbuffer.c \
+	volume.cpp
 
 if BOXTYPE_COOL
 libneutrino_driver_a_SOURCES += \

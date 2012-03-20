@@ -40,7 +40,6 @@
 #include <system/setting_helpers.h>
 #include <system/configure_network.h>
 #include <gui/timerlist.h>
-#include <gui/network_setup.h>
 #include <timerdclient/timerdtypes.h>
 #include <gui/channellist.h>          /* CChannelList */
 #include <gui/rc_lock.h>
@@ -100,21 +99,6 @@ public:
 private:
 	CFrameBuffer * frameBuffer;
 
-	enum
-	{
-		mode_unknown = -1,
-		mode_tv = 1,
-		mode_radio = 2,
-		mode_scart = 3,
-		mode_standby = 4,
-		mode_audio = 5,
-		mode_pic = 6,
-		mode_ts = 7,
-		mode_off = 8,
-		mode_mask = 0xFF,
-		norezap = 0x100
-	};
-
 	CConfigFile			configfile;
 	CScanSettings			scanSettings;
 	CPersonalizeGui			personalize;
@@ -140,7 +124,6 @@ private:
 	bool				skipShutdownTimer;
 	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
-	CNetworkSetup			*networksetup;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
 	COnekeyPluginChangeExec		*OnekeyPluginChanger;
 	CIPChangeNotifier		*MyIPChanger;
@@ -154,8 +137,6 @@ private:
 	void radioMode( bool rezap = true );
 	void scartMode( bool bOnOff );
 	void standbyMode( bool bOnOff );
-	void AudioMute( int newValue, bool isEvent= false );
-	void setvol(int vol);
 	void saveEpg(bool cvfd_mode);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);
@@ -176,6 +157,21 @@ private:
 	CNeutrinoApp();
 
 public:
+	enum
+	{
+		mode_unknown = -1,
+		mode_tv = 1,
+		mode_radio = 2,
+		mode_scart = 3,
+		mode_standby = 4,
+		mode_audio = 5,
+		mode_pic = 6,
+		mode_ts = 7,
+		mode_off = 8,
+		mode_mask = 0xFF,
+		norezap = 0x100
+	};
+
 	void saveSetup(const char * fname);
 	int loadSetup(const char * fname);
 	void loadKeys(const char * fname = NULL);
@@ -183,8 +179,7 @@ public:
 	void SetupTiming();
 	void SetupFonts();
 	void setupRecordingDevice(void);
-	
-	void setVolume(const neutrino_msg_t key, const bool bDoPaint = true, bool nowait = false);
+
 	~CNeutrinoApp();
 	CScanSettings& getScanSettings() {
 		return scanSettings;
@@ -216,9 +211,8 @@ public:
 	void switchTvRadioMode(const int prev_mode = mode_unknown);
 	void switchClockOnOff();
 	
-	bool isMuted() {
-		return current_muted;
-	}
+	bool isMuted() {return current_muted; }
+	void setCurrentMuted(int m) { current_muted = m; }
 	int recordingstatus;
 	void MakeSectionsdConfig(CSectionsdClient::epg_config& config);
 	void SendSectionsdConfig(void);

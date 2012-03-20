@@ -1253,7 +1253,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw-2, pich-2);
 			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 			ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
-			g_PicViewer->DisplayImage(fname, lx+2, ly+1, flogo_w, flogo_h);
+			g_PicViewer->DisplayImage(fname, lx+2, ly+1, flogo_w, flogo_h, CFrameBuffer::TM_NONE);
 			m_pcWindow->paintVLineRel(lx, ly, flogo_h+1, COL_WHITE);
 			m_pcWindow->paintVLineRel(lx+flogo_w+2, ly, flogo_h+2, COL_WHITE);
 			m_pcWindow->paintHLineRel(lx, flogo_w+2, ly, COL_WHITE);

@@ -10,16 +10,17 @@
 #include <sys/timeb.h>
 #include <time.h>
 #include <sys/param.h>
-#include "infoclock.h"
+#include <driver/volume.h>
+#include <gui/infoclock.h>
 
 #define YOFF 0
 
-CInfoClock::CInfoClock()
+CInfoClock::CInfoClock(bool noVolume)
 {
 	frameBuffer = CFrameBuffer::getInstance();
 	x = y = clock_x = 0;
 	time_height = time_width = thrTimer = 0;
-	Init();
+	Init(noVolume);
 }
 
 CInfoClock::~CInfoClock()
@@ -29,23 +30,34 @@ CInfoClock::~CInfoClock()
 	thrTimer = 0;
 }
 
-void CInfoClock::Init()
+void CInfoClock::Init(bool noVolume)
 {
-	//TOTO Give me a framebuffer->getScreenEndX ();
-	x = frameBuffer->getScreenWidth() + frameBuffer->getScreenX();
-	y = frameBuffer->getScreenY();
+	static int mute_dx = 0;
+	static int spacer = 0;
+	if (!noVolume) {
+		x = CVolume::getInstance()->getEndPosRight();
+		y = CVolume::getInstance()->getStartPosTop();
+		mute_dx = CVolume::getInstance()->mute_dx;
+		spacer = CVolume::getInstance()->spacer;
+	}
 
-	time_height = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getHeight();
-	int t1 = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
-	int t2 = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
-	time_width = t1*6 + t2*2;
+	digit_offset = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitOffset();
+	digit_h      = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getDigitHeight();
+	int t1       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(widest_number);
+	int t2       = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(":");
+	time_height  = digit_h + (int)((float)digit_offset * 1.5);
+	time_width   = t1*6 + t2*2;
+	clock_x      = x - time_width;
+	if (CNeutrinoApp::getInstance()->isMuted())
+		clock_x -= (mute_dx + spacer);
+}
 
-	int dvx, dummy;
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MUTE,&dvx,&dummy);
-	dvx += (dvx/4);
-
-	x -= dvx;
-	clock_x = x - time_width - 10;
+CInfoClock* CInfoClock::getInstance(bool noVolume)
+{
+	static CInfoClock* InfoClock = NULL;
+	if(!InfoClock)
+		InfoClock = new CInfoClock(noVolume);
+	return InfoClock;
 }
 
 void CInfoClock::paintTime( bool show_dot)
@@ -57,7 +69,7 @@ void CInfoClock::paintTime( bool show_dot)
 
 	int x_diff = (time_width - g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->getRenderWidth(timestr)) / 2;
 	frameBuffer->paintBoxRel(clock_x, y, time_width, time_height, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
-	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(clock_x + x_diff, y + time_height, time_width, timestr, COL_MENUCONTENT);
+	g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME]->RenderString(clock_x + x_diff, y + digit_h + digit_offset + ((time_height - digit_h) / 2), time_width, timestr, COL_MENUCONTENT);
 }
 
 void* CInfoClock::TimerProc(void *arg)
@@ -77,9 +89,15 @@ void* CInfoClock::TimerProc(void *arg)
 	return 0;
 }
 
+void CInfoClock::ClearDisplay()
+{
+	frameBuffer->paintBackgroundBoxRel(clock_x, y, time_width, time_height);
+}
+
 void CInfoClock::StartClock()
 {
 	Init();
+	CVolume::getInstance()->Init();
 	
 	if(!thrTimer) {
 		pthread_create (&thrTimer, NULL, TimerProc, (void*) this) ;
@@ -89,6 +107,7 @@ void CInfoClock::StartClock()
 
 void CInfoClock::StopClock()
 {
+	CVolume::getInstance()->Init();
 	if(thrTimer) {
 		pthread_cancel(thrTimer);
 		thrTimer = 0;

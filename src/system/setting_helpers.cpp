@@ -60,6 +60,8 @@
 #include <global.h>
 #include <neutrino.h>
 #include <gui/widget/stringinput.h>
+#include <gui/infoclock.h>
+#include <driver/volume.h>
 
 // obsolete #include <gui/streaminfo.h>
 
@@ -250,6 +252,10 @@ bool CColorSetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	                              8, convertSetupAlpha2Alpha(g_settings.infobar_alpha) );
 
 	frameBuffer->paletteSet();
+	/* recalculate volumebar */
+	CVolume::getInstance()->Init();
+	/* recalculate infoclock */
+	CInfoClock::getInstance()->Init();
 	return false;
 }
 
@@ -325,7 +331,10 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CNeutrinoApp::getInstance()->SetupFonts();
 
 	hintBox.hide();
-
+	/* recalculate volumebar */
+	CVolume::getInstance()->Init();
+	/* recalculate infoclock */
+	CInfoClock::getInstance()->Init();
 	return true;
 }
 
