@@ -63,6 +63,7 @@ class CServiceScan : public OpenThreads::Thread
 
 		bool ScanTransponder();
 		bool ScanProviders();
+		void SaveServices();
 
 		/* fast scan */
 		std::map <t_channel_id, t_satellite_position> fast_services_sat;

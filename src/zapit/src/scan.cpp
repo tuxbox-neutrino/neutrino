@@ -297,8 +297,6 @@ _repeat:
 				freq /*tI->second.feparams.frequency/1000*/, satellitePosition, tI->second.original_network_id,
 				tI->second.transport_stream_id);
 
-		//scanedtransponders.insert(std::pair <transponder_id_t,bool> (TsidOnid, true));
-
 		stI = transponders.find(TsidOnid);
 		if(stI == transponders.end())
 			transponders.insert (
@@ -321,7 +319,6 @@ _repeat:
 		printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
 		scantransponders.clear();
 		for (tI = nittransponders.begin(); tI != nittransponders.end(); tI++) {
-//int AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t polarity, bool fromnit = 0)
 			AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization, false);
 		}
 		nittransponders.clear();
@@ -376,10 +373,8 @@ bool CServiceScan::AddTransponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_
 			xml_fec += 9;
 		feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 	}
-	/* read network information table */
 	fake_tid++; fake_nid++;
-	AddTransponder(
-			CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq /*feparams.frequency/1000*/, satellitePosition, fake_nid, fake_tid),
+	AddTransponder(CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, fake_nid, fake_tid),
 			&feparams, polarization);
 	return true;
 }
@@ -483,6 +478,18 @@ bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)
 	return true;
 }
 
+void CServiceScan::SaveServices()
+{
+	CServiceManager::getInstance()->SaveServices(true);
+	printf("[scan] save services done\n"); fflush(stdout);
+	g_bouquetManager->saveBouquets();
+	//g_bouquetManager->sortBouquets();
+	//g_bouquetManager->renumServices();
+	//g_bouquetManager->clearAll();
+	g_bouquetManager->loadBouquets();
+	printf("[scan] save bouquets done\n");
+}
+
 bool CServiceScan::ScanProviders()
 {
 	scan_list_iterator_t spI;
@@ -508,7 +515,6 @@ bool CServiceScan::ScanProviders()
 	CZapitClient myZapitClient;
 
 	/* get first child */
-	//xmlNodePtr search = xmlDocGetRootElement(scanInputParser)->xmlChildrenNode;
 	xmlNodePtr search = xmlDocGetRootElement(CServiceManager::getInstance()->ScanXml())->xmlChildrenNode;
 
 	/* read all sat or cable sections */
@@ -566,16 +572,8 @@ bool CServiceScan::ScanProviders()
 
 	/* report status */
 	printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
-	//FIXME move to Cleanup() ?
 	if (found_channels) {
-		CServiceManager::getInstance()->SaveServices(true);
-		printf("[scan] save services done\n"); fflush(stdout);
-	        g_bouquetManager->saveBouquets();
-	        //g_bouquetManager->sortBouquets();
-	        //g_bouquetManager->renumServices();
-	        //g_bouquetManager->clearAll();
-		g_bouquetManager->loadBouquets();
-		printf("[scan] save bouquets done\n");
+		SaveServices();
 		Cleanup(true);
 		myZapitClient.reloadCurrentServices();
 	} else {
@@ -609,7 +607,6 @@ bool CServiceScan::ScanTransponder()
 	printf("[scan_transponder] scanning sat %s position %d\n", providerName, satellitePosition);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, providerName, strlen(providerName) + 1);
 
-	//scan_nit = TP->scan_mode;
 	scan_nit = (TP->scan_mode & 0xFF) == 0; // NIT (0) or fast (1)
 
 	TP->feparams.inversion = INVERSION_AUTO;
@@ -635,15 +632,9 @@ bool CServiceScan::ScanTransponder()
 		found_channels = 0;
 
 	CZapitClient myZapitClient;
-	//FIXME move to Cleanup() ?
 	if(found_channels) {
-		CServiceManager::getInstance()->SaveServices(true);
 		scanBouquetManager->saveBouquets(bouquetMode, providerName);
-		g_bouquetManager->saveBouquets();
-		//g_bouquetManager->sortBouquets();
-		//g_bouquetManager->renumServices();
-		//g_bouquetManager->clearAll();
-		g_bouquetManager->loadBouquets();
+		SaveServices();
 		Cleanup(true);
 		myZapitClient.reloadCurrentServices();
 	} else {
