@@ -26,11 +26,13 @@
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/bouquet_name_descriptor.h>
 #include <dvbsi++/linkage_descriptor.h>
+#include <dvbsi++/private_data_specifier_descriptor.h>
 #include <math.h>
 #include <eitd/edvbstring.h>
 
 #define DEBUG_BAT
 #define DEBUG_BAT_UNUSED
+#define DEBUG_LCN
 
 CBat::CBat(t_satellite_position spos, freq_id_t frq, int dnum)
 {
@@ -152,6 +154,7 @@ bool CBat::Parse()
 #ifdef DEBUG_BAT
 		printf("BAT: section %d, %d descriptors\n", bat->getSectionNumber(), dlist->size());
 #endif
+		unsigned int pdsd = 0;
 		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
 			Descriptor * d = *dit;
 			//printf("BAT: parse descriptor %02x len %d\n", d->getTag(), d->getLength());
@@ -172,8 +175,16 @@ bool CBat::Parse()
 #endif
 					}
 					break;
-				case COUNTRY_AVAILABILITY_DESCRIPTOR:
 				case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
+					{
+						PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
+						pdsd = pd->getPrivateDataSpecifier();
+#ifdef DEBUG_BAT
+						printf("BAT: private data specifier %08x\n", pdsd);
+#endif
+					}
+					break;
+				case COUNTRY_AVAILABILITY_DESCRIPTOR:
 				default:
 					{
 #ifdef DEBUG_BAT_UNUSED
@@ -204,9 +215,19 @@ bool CBat::Parse()
 					case SERVICE_LIST_DESCRIPTOR:
 						ParseServiceList((ServiceListDescriptor *) d, b);
 						break;
-
+#if 1
 					case LOGICAL_CHANNEL_DESCRIPTOR:
 						ParseLogicalChannels((LogicalChannelDescriptor *) d, b);
+						break;
+#endif
+					case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
+						{
+							PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
+							pdsd = pd->getPrivateDataSpecifier();
+#ifdef DEBUG_BAT
+							printf("BAT: private data specifier %08x\n", pdsd);
+#endif
+						}
 						break;
 					default:
 						{
@@ -220,6 +241,18 @@ bool CBat::Parse()
 							printf("\n");
 #endif
 						}
+						break;
+				}
+				switch(pdsd) {
+					case 0x00000010:
+						if(d->getTag() == 0x82) {
+							uint8_t buf[2 + d->getLength()];
+							d->writeToBuffer(buf);
+							LogicalChannelDescriptor ld(buf);
+							ParseLogicalChannels(&ld, b);
+						}
+						break;
+					default:
 						break;
 				}
 			}
@@ -257,13 +290,16 @@ bool CBat::ParseLogicalChannels(LogicalChannelDescriptor * ld, BouquetAssociatio
 	for (it = clist.begin(); it != clist.end(); ++it) {
 		t_service_id service_id = (*it)->getServiceId();
 		int lcn = (*it)->getLogicalChannelNumber();
-		/* FIXME dont use freq_id / satellitePosition ? */
-		t_channel_id channel_id = CZapitChannel::makeChannelId(satellitePosition,
-				freq_id, transport_stream_id, original_network_id, service_id);
+		t_channel_id channel_id = CZapitChannel::makeChannelId(0, 0,
+				transport_stream_id, original_network_id, service_id);
 		/* (*it)->getVisibleServiceFlag(); */
 		logical_map[channel_id] = lcn;
 #ifdef DEBUG_LCN
-		printf("BAT: logical channel tsid %04x onid %04x %llx -> %d\n", transport_stream_id, original_network_id, channel_id, lcn);
+		std::string name;
+		CZapitChannel * chan = CServiceManager::getInstance()->FindChannel48(channel_id);
+		if(chan)
+			name = chan->getName();
+		printf("BAT: logical channel %05d: tsid %04x onid %04x %016llx [%s]\n", lcn, transport_stream_id, original_network_id, channel_id, name.c_str());
 #endif
 	}
 	return true;
