@@ -26,11 +26,12 @@
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/network_name_descriptor.h>
 #include <dvbsi++/linkage_descriptor.h>
+#include <dvbsi++/private_data_specifier_descriptor.h>
 #include <math.h>
 #include <eitd/edvbstring.h>
 
 #define DEBUG_NIT
-//#define DEBUG_NIT_UNUSED
+#define DEBUG_NIT_UNUSED
 #define DEBUG_LCN
 
 CNit::CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dnum)
@@ -168,6 +169,7 @@ bool CNit::Parse()
 #ifdef DEBUG_NIT
 		printf("NIT: section %d, %d descriptors\n", nit->getSectionNumber(), dlist->size());
 #endif
+		unsigned int pdsd = 0;
 		for (dit = dlist->begin(); dit != dlist->end(); ++dit) {
 			Descriptor * d = *dit;
 			switch(d->getTag()) {
@@ -189,10 +191,19 @@ bool CNit::Parse()
 #endif
 					}
 					break;
+				case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
+					{
+						PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
+						pdsd = pd->getPrivateDataSpecifier();
+#ifdef DEBUG_NIT
+						printf("NIT: private data specifier %08x\n", pdsd);
+#endif
+					}
+					break;
 				default:
 					{
 #ifdef DEBUG_NIT_UNUSED
-						printf("NIT net loop: descriptor %02x len %d: ", d->getTag(), d->getLength());
+						printf("NIT: descriptor %02x len %d: ", d->getTag(), d->getLength());
 #if 0
 						uint8_t len = 2+d->getLength();
 						uint8_t buf[len];
@@ -210,7 +221,7 @@ bool CNit::Parse()
 		for(TransportStreamInfoConstIterator tit = tslist->begin(); tit != tslist->end(); ++tit) {
 			TransportStreamInfo * tsinfo = *tit;
 			dlist = tsinfo->getDescriptors();
-#if 0
+#ifdef DEBUG_NIT
 			printf("NIT: tsid %04x onid %04x %d descriptors\n", tsinfo->getTransportStreamId(),
 					tsinfo->getOriginalNetworkId(), dlist->size());
 #endif
@@ -230,14 +241,23 @@ bool CNit::Parse()
 						ParseServiceList((ServiceListDescriptor *) d, tsinfo);
 						break;
 
+                                        case PRIVATE_DATA_SPECIFIER_DESCRIPTOR:
+                                                {
+                                                        PrivateDataSpecifierDescriptor * pd = (PrivateDataSpecifierDescriptor *)d;
+                                                        pdsd = pd->getPrivateDataSpecifier();
+#ifdef DEBUG_NIT
+                                                        printf("NIT: private data specifier %08x\n", pdsd);
+#endif
+                                                }
+                                                break;
+
 					case LOGICAL_CHANNEL_DESCRIPTOR:
 						ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo);
-						break;
 						break;
 					default:
 						{
 #ifdef DEBUG_NIT_UNUSED
-							printf("NIT TS loop: descriptor %02x: ", d->getTag());
+							printf("NIT: descriptor %02x: ", d->getTag());
 							uint8_t len = 2+d->getLength();
 							uint8_t buf[len];
 							d->writeToBuffer(buf);
