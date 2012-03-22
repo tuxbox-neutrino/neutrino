@@ -128,7 +128,15 @@ bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 void CServiceManager::ResetChannelNumbers()
 {
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		it->second.number = 0;
+#if 0 /* force to get free numbers if there are any */
+		if(have_numbers) {
+			if(!it->second.number) {
+				it->second.number = GetFreeNumber(it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE);
+			}
+		} else {
+			it->second.number = 0;
+		}
+#endif
 		it->second.has_bouquet = 0;
 	}
 }
@@ -188,6 +196,15 @@ CZapitChannel * CServiceManager::FindCurrentChannel(const t_channel_id channel_i
 	if(cit != curchans.end())
 		return &cit->second;
 
+	return NULL;
+}
+
+CZapitChannel * CServiceManager::FindChannel48(const t_channel_id channel_id)
+{
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		if((it->second.getChannelID() & 0xFFFFFFFFFFFFULL) == channel_id)
+			return &it->second;
+	}
 	return NULL;
 }
 
@@ -328,6 +345,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 	t_channel_id chid;
 	int dummy;
 	int * have_ptr = &dummy;
+	service_number_map_t * channel_numbers;
 
 	sat_iterator_t sit = satellitePositions.find(satellitePosition);
 	if(sit != satellitePositions.end())
@@ -346,6 +364,8 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		vtype = xmlGetNumericAttribute(node, "vt", 16);
 		scrambled = xmlGetNumericAttribute(node, "s", 16);
 		number = xmlGetNumericAttribute(node, "num", 10);
+
+		channel_numbers = (service_type == ST_DIGITAL_RADIO_SOUND_SERVICE) ? &radio_numbers : &tv_numbers;
 
 		chid = CREATE_CHANNEL_ID64;
 		char *ptr = xmlGetAttribute(node, "action");
@@ -372,6 +392,16 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				freq);
 
 		bool ret = AddChannel(channel);
+		if(number) {
+			have_numbers = true;
+			service_number_map_t::iterator it = channel_numbers->find(number);
+			if(it != channel_numbers->end()) {
+				printf("[zapit] duplicate channel number %d: %s id %llx freq %d\n", number,
+						name.c_str(), chid, freq);
+				number = 0;
+			} else
+				channel_numbers->insert(number);
+		}
 
 		//printf("INS CHANNEL %s %x\n", name.c_str(), (int) &ret.first->second);
 		if(ret == false) {
@@ -379,6 +409,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 					name.c_str(), chid, freq, channel->getName().c_str(), channel->getFreqId());
 		} else {
 			service_count++;
+			channel->number = number;
 			channel->scrambled = scrambled;
 			channel->polarization = polarization;
 			service_type = channel->getServiceType();
@@ -582,6 +613,10 @@ bool CServiceManager::LoadServices(bool only_current)
 	allchans.clear();
 	transponders.clear();
 	select_transponders.clear();
+	tv_numbers.clear();
+	radio_numbers.clear();
+	have_numbers = false;
+
 	fake_tid = fake_nid = 0;
 
 	if (ParseScanXml()) {
@@ -627,9 +662,6 @@ bool CServiceManager::LoadServices(bool only_current)
 	if(frontendType == FE_QPSK) {
 		LoadMotorPositions();
 	}
-
-	//FIXME copy, until global satellitePositions removed
-	//satelliteList = satellitePositions;
 
 	LoadProviderMap();
 	printf("[zapit] %d services loaded (%d)...\n", service_count, allchans.size());
@@ -888,6 +920,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 			WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "add");
 		} else {
 			if(strcmp(cI->second.getName().c_str(), ccI->second.getName().c_str()) || cI->second.scrambled != ccI->second.scrambled) {
+				cI->second.number = cI->second.number;
 				WriteCurrentService(fd, satfound, tpdone, updated, satstr, tI->second, cI->second, "replace");
 			}
 		}
@@ -991,4 +1024,30 @@ bool CServiceManager::ReplaceProviderName(std::string &name, t_transport_stream_
 		}
 	}
 	return false;
+}
+
+int CServiceManager::GetFreeNumber(bool radio)
+{
+	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
+	int i = 0;
+	while(true) {
+		++i;
+		service_number_map_t::iterator it = channel_numbers->find(i);
+		if(it == channel_numbers->end()) {
+			channel_numbers->insert(i);
+			return i;
+		}
+	}
+}
+
+int CServiceManager::GetMaxNumber(bool radio)
+{
+	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
+	int i = 0;
+	service_number_map_t::iterator it = channel_numbers->end();
+	if(it != channel_numbers->begin()) {
+		--it;
+		i = *it;
+	}
+	return i+1;
 }

@@ -480,14 +480,21 @@ bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)
 
 void CServiceScan::SaveServices()
 {
+#if 0 // old
 	CServiceManager::getInstance()->SaveServices(true);
 	printf("[scan] save services done\n"); fflush(stdout);
 	g_bouquetManager->saveBouquets();
-	//g_bouquetManager->sortBouquets();
-	//g_bouquetManager->renumServices();
-	//g_bouquetManager->clearAll();
 	g_bouquetManager->loadBouquets();
 	printf("[scan] save bouquets done\n");
+#endif
+	/* first save bouquets, next load to re-number */
+	g_bouquetManager->saveBouquets();
+	printf("[scan] save bouquets done\n");
+	/* load and renumber */
+	g_bouquetManager->loadBouquets();
+	/* save with numbers */
+	CServiceManager::getInstance()->SaveServices(true);
+	printf("[scan] save services done\n"); fflush(stdout);
 }
 
 bool CServiceScan::ScanProviders()
