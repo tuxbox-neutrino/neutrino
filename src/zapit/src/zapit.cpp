@@ -707,6 +707,8 @@ bool CZapit::PrepareChannels()
 
 	INFO("LoadServices: success");
 	g_bouquetManager->loadBouquets();
+	/* save if services changed (update from sdt, etc) */
+	CServiceManager::getInstance()->SaveServices(true, true);
 	return true;
 }
 

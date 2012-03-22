@@ -116,6 +116,7 @@ class CServiceManager
 		bool have_numbers;
 		service_number_map_t tv_numbers;
 		service_number_map_t radio_numbers;
+		bool services_changed;
 
 		fe_type_t frontendType;
 		satellite_map_t satellitePositions;
@@ -143,7 +144,7 @@ class CServiceManager
 
 		bool InitSatPosition(t_satellite_position position, char * name = NULL, bool force = false);
 		bool LoadServices(bool only_current);
-		void SaveServices(bool tocopy);
+		void SaveServices(bool tocopy, bool if_changed = false);
 		void SaveMotorPositions();
 		bool SaveCurrentServices(transponder_id_t tpid);
 

@@ -44,6 +44,7 @@ CServiceManager::CServiceManager()
 {
 	scanInputParser = NULL;
 	service_count = 0;
+	services_changed = false;
 }
 
 CServiceManager::~CServiceManager()
@@ -391,7 +392,6 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				satellitePosition,
 				freq);
 
-		bool ret = AddChannel(channel);
 		if(number) {
 			have_numbers = true;
 			service_number_map_t::iterator it = channel_numbers->find(number);
@@ -403,6 +403,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				channel_numbers->insert(number);
 		}
 
+		bool ret = AddChannel(channel);
 		//printf("INS CHANNEL %s %x\n", name.c_str(), (int) &ret.first->second);
 		if(ret == false) {
 			printf("[zapit] duplicate channel %s id %llx freq %d (old %s at %d)\n",
@@ -680,8 +681,10 @@ do_current:
 		FindTransponder(xmlDocGetRootElement(parser)->xmlChildrenNode);
 		xmlFreeDoc(parser);
 		unlink(CURRENTSERVICES_XML);
-		if(newfound)
-			SaveServices(true);
+		if(newfound) {
+			//SaveServices(true);
+			services_changed = true;
+		}
 	}
 
 	if(!only_current) {
@@ -691,6 +694,8 @@ do_current:
 			xmlFreeDoc(parser);
 		}
 	}
+	if(!have_numbers)
+		services_changed = true;
 
 	return true;
 }
@@ -744,41 +749,33 @@ void CServiceManager::WriteTransponderHeader(FILE * fd, struct transponder &tp)
 	}
 }
 
-void CServiceManager::SaveServices(bool tocopy)
+void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 {
-	transponder_id_t 		tpid = 0;
-	FILE * fd = 0;
-	bool updated = 0;
-
-	channel_map_iterator_t ccI;
-	channel_map_iterator_t dI;
-	transponder_list_t::iterator tI;
-	bool tpdone = 0;
-	bool satdone = 0;
 	int processed = 0;
-	sat_iterator_t spos_it;
-	updated = 0;
+
+	if(if_changed && !services_changed)
+		return;
+
 #ifdef SAVE_DEBUG
 	set<t_channel_id> chans_processed;
-	DBG("\nChannel size: %d\n", sizeof(CZapitChannel));
 #endif
-	printf("total channels: %d\n", allchans.size());
-	fd = fopen(SERVICES_TMP, "w");
+	printf("CServiceManager::SaveServices: total channels: %d\n", allchans.size());
+	FILE * fd = fopen(SERVICES_TMP, "w");
 	if(!fd) {
 		perror(SERVICES_TMP);
 		return;
 	}
 	fprintf(fd, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<zapit api=\"3\">\n");
-	for (spos_it = satellitePositions.begin(); spos_it != satellitePositions.end(); ++spos_it) {
-		satdone = 0;
+	for (sat_iterator_t spos_it = satellitePositions.begin(); spos_it != satellitePositions.end(); ++spos_it) {
+		bool satdone = 0;
 #ifdef SAVE_DEBUG
 		printf("Process sat: %s\n", spos_it->second.name.c_str());
 		printf("processed channels: %d\n", chans_processed.size());
 		printf("tp count: %d\n", transponders.size());
 #endif
-		for(tI = transponders.begin(); tI != transponders.end(); ++tI) {
+		for(transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-			tpdone = 0;
+			bool tpdone = 0;
 			if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
 				satpos = -satpos;
 
@@ -788,9 +785,8 @@ void CServiceManager::SaveServices(bool tocopy)
 #endif
 				continue;
 			}
-			tpid = tI->first;
-			for (ccI = allchans.begin(); ccI != allchans.end(); ++ccI) {
-				if(ccI->second.getTransponderId() == tpid) {
+			for (channel_map_iterator_t ccI = allchans.begin(); ccI != allchans.end(); ++ccI) {
+				if(ccI->second.getTransponderId() == tI->first) {
 					if(!satdone) {
 						WriteSatHeader(fd, spos_it->second);
 						satdone = 1;
@@ -836,7 +832,7 @@ void CServiceManager::SaveServices(bool tocopy)
 			printf("unused channel %d sat %d freq %d sid %04X: %s\n", ++i, it->second.getSatellitePosition(), it->second.getFreqId(), it->second.getServiceId(), it->second.getName().c_str());
 	chans_processed.clear();
 #endif
-	printf("processed channels: %d\n", processed);
+	printf("CServiceManager::SaveServices: processed channels: %d\n", processed);
 }
 
 /* helper for reused code */
