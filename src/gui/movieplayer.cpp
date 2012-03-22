@@ -560,11 +560,6 @@ void CMoviePlayerGui::PlayFile(void)
 			playback->SetPosition(-10 * 1000);
 		} else if (msg == CRCInput::RC_0) {	// cancel bookmark jump
 			handleMovieBrowser(CRCInput::RC_0, position);
-		} 
-		else if (msg == CRCInput::RC_timeout) {
-			// nothing
-		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
-			//FIXME do nothing ?
 		} else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info) {
 			callInfoViewer(duration, position);
 			update_lcd = true;
@@ -624,6 +619,10 @@ void CMoviePlayerGui::PlayFile(void)
 			printf("CMoviePlayerGui::PlayFile: ZAPTO etc..\n");
 			playstate = CMoviePlayerGui::STOPPED;
 			g_RCInput->postMsg(msg, data);
+		} else if (msg == CRCInput::RC_timeout) {
+			// nothing
+		} else if (msg == CRCInput::RC_sat || msg == CRCInput::RC_favorites) {
+			//FIXME do nothing ?
 		} else {
 			if (CNeutrinoApp::getInstance()->handleMsg(msg, data) & messages_return::cancel_all) {
 				printf("CMoviePlayerGui::PlayFile: neutrino handleMsg messages_return::cancel_all\n");

@@ -2572,7 +2572,9 @@ bool CMovieBrowser::delFile_vlc(CFile& /*file*/)
 bool CMovieBrowser::delFile_std(CFile& file)
 {
 	bool result = true;
-	unlink(file.Name.c_str()); // fix: use full path
+	char buf[FILENAME_MAX]={0};
+        snprintf(buf,sizeof(buf), "nice -n 20 rm -f %s &", file.Name.c_str());
+	system(buf);
 	TRACE("  delete file: %s\r\n",file.Name.c_str());
 	return(result);
 }
