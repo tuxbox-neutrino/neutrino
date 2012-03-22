@@ -95,6 +95,8 @@ struct provider_replace
 typedef std::list<provider_replace> prov_replace_map_t;
 typedef prov_replace_map_t::iterator prov_replace_map_iterator_t;
 
+typedef std::set<int> service_number_map_t;
+
 class CServiceManager
 {
 	private:
@@ -109,6 +111,11 @@ class CServiceManager
 		tallchans allchans;
 		tallchans curchans;
 		tallchans nvodchannels;
+
+		prov_replace_map_t replace_map;
+		bool have_numbers;
+		service_number_map_t tv_numbers;
+		service_number_map_t radio_numbers;
 
 		fe_type_t frontendType;
 		satellite_map_t satellitePositions;
@@ -153,6 +160,7 @@ class CServiceManager
 		CZapitChannel* FindChannel(const t_channel_id channel_id, bool * current_is_nvod = NULL);
 		CZapitChannel* FindChannelByName(std::string name);
 		CZapitChannel* FindCurrentChannel(const t_channel_id channel_id);
+		CZapitChannel* FindChannel48(const t_channel_id channel_id);
 
 		std::string GetServiceName(t_channel_id channel_id);
 
@@ -180,8 +188,9 @@ class CServiceManager
 		satellite_map_t & SatelliteList() { return satellitePositions; }
 		xmlDocPtr ScanXml();
 
-		prov_replace_map_t replace_map;
 		bool LoadProviderMap();
 		bool ReplaceProviderName(std::string &name, t_transport_stream_id tsid, t_original_network_id onid);
+		int  GetFreeNumber(bool radio);
+		int  GetMaxNumber(bool radio);
 };
 #endif /* __getservices_h__ */
