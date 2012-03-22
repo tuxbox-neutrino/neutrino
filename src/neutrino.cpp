@@ -1230,7 +1230,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	CBouquet* hdBouquet = NULL;
 	/* all HD channels */
 	if(g_settings.make_hd_list) {
-		hdBouquet = new CBouquet(0, (char *) "HD", false);
+		hdBouquet = new CBouquet(0, (char *) "HD", false, true);
 
 		CServiceManager::getInstance()->GetAllHDChannels(zapitList);
 		hi = zapitList.size();
@@ -1325,7 +1325,6 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	printf("[neutrino] got %d TV bouquets\n", bnum); fflush(stdout);
 
 	TIMER_STOP("[neutrino] tv took");
-	/* FIXME HD bouquet must be virtual ? it is not now */
 	if(g_settings.make_hd_list) {
 		if(hi)
 			TVfavList->Bouquets.push_back(hdBouquet);
