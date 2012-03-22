@@ -1266,6 +1266,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 	}
 
 	case CZapitMessages::CMD_BQ_REMOVE_CHANNEL_FROM_BOUQUET: {
+		/* removeChannelFromBouquet, still used in webif */
 		CZapitMessages::commandRemoveChannelFromBouquet msgRemoveChannelFromBouquet;
 		CBasicServer::receive_data(connfd, &msgRemoveChannelFromBouquet, sizeof(msgRemoveChannelFromBouquet)); // bouquet & channel number are already starting at 0!
 		if (msgRemoveChannelFromBouquet.bouquet < g_bouquetManager->Bouquets.size())
