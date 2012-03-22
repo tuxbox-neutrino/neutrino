@@ -373,6 +373,8 @@ int CChannelList::doChannelMenu(void)
 
 			if(result == CMessageBox::mbrYes) {
 				bouquet_id = bouquetList->getActiveBouquetNumber();
+				/* FIXME if bouquet name not unique, this is bad,
+				 * existsBouquet can find wrong bouquet */
 				if(!strcmp(bouquetList->Bouquets[bouquet_id]->channelList->getName(), g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME)))
 					bouquet_id = g_bouquetManager->existsUBouquet(g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME), true);
 				else

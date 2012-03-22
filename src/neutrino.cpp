@@ -1307,7 +1307,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		TIMER_STOP("[neutrino] sats took");
 	}
 
-	/* Favorites and provides TV bouquets */
+	/* Favorites and providers TV bouquets */
 	bnum = 0;
 	for (i = 0; i < g_bouquetManager->Bouquets.size(); i++) {
 		if (!g_bouquetManager->Bouquets[i]->bHidden && !g_bouquetManager->Bouquets[i]->tvChannels.empty())
@@ -1325,7 +1325,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	printf("[neutrino] got %d TV bouquets\n", bnum); fflush(stdout);
 
 	TIMER_STOP("[neutrino] tv took");
-
+	/* FIXME HD bouquet must be virtual ? it is not now */
 	if(g_settings.make_hd_list) {
 		if(hi)
 			TVfavList->Bouquets.push_back(hdBouquet);
@@ -2298,6 +2298,7 @@ _show:
 				nNewChannel = bouquetList->exec(true);
 			}
 _repeat:
+			//FIXME wrong name after channel delete ? */
 			CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
