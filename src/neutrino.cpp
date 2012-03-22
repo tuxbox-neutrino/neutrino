@@ -2297,7 +2297,6 @@ _show:
 				nNewChannel = bouquetList->exec(true);
 			}
 _repeat:
-			//FIXME wrong name after channel delete ? */
 			CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
 			CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			printf("************************* ZAP RES: nNewChannel %d\n", nNewChannel);fflush(stdout);
@@ -2328,6 +2327,8 @@ _repeat:
 				g_bouquetManager->saveUBouquets();
 				g_bouquetManager->renumServices();
 				channelsInit(true);
+				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+				channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 				bouquetList->activateBouquet(old_b_id, false);
 				msg = CRCInput::RC_ok;
 				goto _show;
