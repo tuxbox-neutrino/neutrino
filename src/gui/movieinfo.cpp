@@ -119,7 +119,7 @@ bool CMovieInfo::convertTs2XmlName(std::string * filename)
 ************************************************************************/
 #define XML_ADD_TAG_STRING(_xml_text_,_tag_name_,_tag_content_){ \
 	_xml_text_ += "\t\t<"_tag_name_">"; \
-	_xml_text_ += _tag_content_; \
+	_xml_text_ += ZapitTools::UTF8_to_UTF8XML(_tag_content_.c_str()); \
 	_xml_text_ += "</"_tag_name_">\n";}
 
 #define XML_ADD_TAG_UNSIGNED(_xml_text_,_tag_name_,_tag_content_){\
@@ -141,7 +141,7 @@ bool CMovieInfo::convertTs2XmlName(std::string * filename)
 	{\
 		if(_node_->GetData() != NULL)\
 		{\
-			_string_dest_ = _node_->GetData();\
+			_string_dest_ = decodeXmlSpecialChars(_node_->GetData());\
 		}\
 	}}
 #define	XML_GET_DATA_INT(_node_,_tag_,_int_dest_){\
@@ -201,7 +201,7 @@ bool CMovieInfo::encodeMovieInfoXml(std::string * extMessage, MI_MOVIE_INFO * mo
 			sprintf(tmp, "%u", movie_info->audioPids[i].selected);	//pids.APIDs[i].pid);
 			*extMessage += tmp;
 			*extMessage += "\" " MI_XML_TAG_NAME "=\"";
-			*extMessage += movie_info->audioPids[i].epgAudioPidName;	// ZapitTools::UTF8_to_UTF8XML(g_RemoteControl->current_PIDs.APIDs[i].desc);
+			*extMessage += ZapitTools::UTF8_to_UTF8XML(movie_info->audioPids[i].epgAudioPidName.c_str());
 			*extMessage += "\"/>\n";
 		}
 		*extMessage += "\t\t</" MI_XML_TAG_AUDIOPIDS ">\n";
@@ -235,7 +235,7 @@ bool CMovieInfo::encodeMovieInfoXml(std::string * extMessage, MI_MOVIE_INFO * mo
 			sprintf(tmp, "%d", movie_info->bookmarks.user[i].length);	//pids.APIDs[i].pid);
 			*extMessage += tmp;
 			*extMessage += "\" " MI_XML_TAG_BOOKMARK_USER_NAME "=\"";
-			*extMessage += movie_info->bookmarks.user[i].name;
+			*extMessage += ZapitTools::UTF8_to_UTF8XML(movie_info->bookmarks.user[i].name.c_str());
 			*extMessage += "\"/>\n";
 		}
 	}
@@ -372,7 +372,7 @@ bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 							pids.epgAudioPid = atoi(xam2->GetAttributeValue(MI_XML_TAG_PID));
 							pids.atype = atoi(xam2->GetAttributeValue(MI_XML_TAG_ATYPE));
 							pids.selected = atoi(xam2->GetAttributeValue(MI_XML_TAG_SELECTED));
-							pids.epgAudioPidName = xam2->GetAttributeValue(MI_XML_TAG_NAME);
+							pids.epgAudioPidName = decodeXmlSpecialChars(xam2->GetAttributeValue(MI_XML_TAG_NAME));
 //printf("MOVIE INFO: apid %d type %d name %s selected %d\n", pids.epgAudioPid, pids.atype, pids.epgAudioPidName.c_str(), pids.selected);
 							movie_info->audioPids.push_back(pids);
 						}
@@ -405,16 +405,9 @@ bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 	}
 
 	delete parser;
-	strReplace(movie_info->epgTitle, "&quot;", "\"");
-	strReplace(movie_info->epgInfo1, "&quot;", "\"");
-	strReplace(movie_info->epgTitle, "&apos;", "'");
-	strReplace(movie_info->epgInfo1, "&apos;", "'");
 	if (movie_info->epgInfo2 == "") {
 		movie_info->epgInfo2 = movie_info->epgInfo1;
 		//movie_info->epgInfo1 = "";
-	} else {
-		strReplace(movie_info->epgInfo2, "&quot;", "\"");
-		strReplace(movie_info->epgInfo2, "&apos;", "'");
 	}
 #endif /* XMLTREE_LIB */
 	return (true);
@@ -590,6 +583,7 @@ int find_next_char(char to_find, char *text, int start_pos, int end_pos)
 		while(_pos_ < bytes && _text_[_pos_] != '<' ) _pos_++;\
 		_dest_ = "";\
 		_dest_.append(&_text_[pos_prev],_pos_ - pos_prev );\
+		_dest_ = decodeXmlSpecialChars(_dest_);\
 		_pos_ += sizeof(_tag_);\
 		continue;\
 	}
@@ -625,6 +619,16 @@ void strReplace(std::string & orig, const char *fstr, const std::string rstr)
 		orig.replace(index, fstrlen, rstr);
 		index += rstrlen;
 	}
+}
+
+std::string decodeXmlSpecialChars(std::string s)
+{
+	strReplace(s,"&lt;","<");
+	strReplace(s,"&gt;",">");
+	strReplace(s,"&amp;","&");
+	strReplace(s,"&quot;","\"");
+	strReplace(s,"&apos;","\'");
+	return s;
 }
 
  /************************************************************************
@@ -731,7 +735,10 @@ bool CMovieInfo::parseXmlQuickFix(char *text, MI_MOVIE_INFO * movie_info)
 					while (text[pos + pos3] != '\"' && text[pos + pos3] != 0 && text[pos + pos3] != '/')
 						pos3++;
 					if (text[pos + pos3] == '\"')
+					{
 						audio_pids.epgAudioPidName.append(&text[pos + pos2 + 1], pos3 - pos2 - 1);
+						audio_pids.epgAudioPidName = decodeXmlSpecialChars(audio_pids.epgAudioPidName);
+					}
 				}
 			}
 			printf("MOVIE INFO: apid %d type %d name %s selected %d\n", audio_pids.epgAudioPid, audio_pids.atype, audio_pids.epgAudioPidName.c_str(), audio_pids.selected);
@@ -776,7 +783,10 @@ bool CMovieInfo::parseXmlQuickFix(char *text, MI_MOVIE_INFO * movie_info)
 										while (text[pos + pos3] != '\"' && text[pos + pos3] != 0 && text[pos + pos3] != '/')
 											pos3++;
 										if (text[pos + pos3] == '\"')
+										{
 											movie_info->bookmarks.user[bookmark_nr].name.append(&text[pos + pos2 + 1], pos3 - pos2 - 1);
+											movie_info->bookmarks.user[bookmark_nr].name = decodeXmlSpecialChars(movie_info->bookmarks.user[bookmark_nr].name);
+										}
 									}
 								}
 							}
@@ -790,16 +800,9 @@ bool CMovieInfo::parseXmlQuickFix(char *text, MI_MOVIE_INFO * movie_info)
 		}
 	}
 
-	strReplace(movie_info->epgTitle, "&quot;", "\"");
-	strReplace(movie_info->epgInfo1, "&quot;", "\"");
-	strReplace(movie_info->epgTitle, "&apos;", "'");
-	strReplace(movie_info->epgInfo1, "&apos;", "'");
 	if (movie_info->epgInfo2 == "") {
 		movie_info->epgInfo2 = movie_info->epgInfo1;
 		//movie_info->epgInfo1 = "";
-	} else {
-		strReplace(movie_info->epgInfo2, "&quot;", "\"");
-		strReplace(movie_info->epgInfo2, "&apos;", "'");
 	}
 
 	return (true);
