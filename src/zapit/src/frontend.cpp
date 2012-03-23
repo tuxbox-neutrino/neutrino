@@ -176,6 +176,7 @@ CFrontend::CFrontend(int Number, int Adapter)
 	highVoltage = false;
 	motorRotationSpeed = 0; //in 0.1 degrees per second
 
+	currentToneMode = SEC_TONE_OFF;
 }
 
 CFrontend::~CFrontend(void)

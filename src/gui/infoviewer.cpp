@@ -99,6 +99,9 @@ CInfoViewer::CInfoViewer ()
 	hddscale = NULL;
 	varscale = NULL;
 	timescale = NULL;
+	info_CurrentNext.current_zeit.startzeit = 0;
+	info_CurrentNext.current_zeit.dauer = 0;
+	info_CurrentNext.flags = 0;
 	Init();
 }
 

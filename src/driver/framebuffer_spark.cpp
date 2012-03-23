@@ -111,6 +111,7 @@ CFrameBuffer::CFrameBuffer()
 	backgroundFilename = "";
 	fd  = 0;
 	tty = 0;
+	bpp = 0;
 //FIXME: test
 	memset(red, 0, 256*sizeof(__u16));
 	memset(green, 0, 256*sizeof(__u16));
