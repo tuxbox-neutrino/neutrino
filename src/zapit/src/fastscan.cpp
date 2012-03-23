@@ -284,38 +284,14 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						if(nIt != fast_services_number.end())
 							num = nIt->second;
 
-						//std::string providerName = CDVBString((const char*)&(dbuf[4]), service_provider_name_length).getContent();
-						//std::string serviceName  = CDVBString((const char*)&(dbuf[4 + service_provider_name_length + 1]), (2 + dbuf[1]) - (4 + service_provider_name_length + 1)).getContent();
-
 						std::string providerName = convertDVBUTF8((const char*)&(dbuf[4]), service_provider_name_length, 1, 1);
 						std::string serviceName  = convertDVBUTF8((const char*)&(dbuf[4 + service_provider_name_length + 1]), service_name_length, 1, 1);
 						
-						CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) providerName.c_str(), providerName.length() + 1);
 #ifdef SCAN_DEBUG
 						printf("[FST] #%04d at %04d: net %04x tp %04x sid %04x v %04x a %04x pcr %04x frq %05d type %d prov [%s] name [%s]\n", num, satellitePosition, original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid, freq, service_type, providerName.c_str(), serviceName.c_str());
 #endif
-						found_channels ++;
-						CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_CHANNELS, &found_channels, sizeof(found_channels));
-						switch (service_type) {
-							case ST_DIGITAL_TELEVISION_SERVICE:
-								found_tv_chans++;
-								CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_FOUND_TV_CHAN, &found_tv_chans, sizeof(found_tv_chans));
-								break;
-							case ST_DIGITAL_RADIO_SOUND_SERVICE:
-								found_radio_chans++;
-								CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN, &found_radio_chans, sizeof(found_radio_chans));
-								break;
-							case ST_NVOD_REFERENCE_SERVICE:
-							case ST_NVOD_TIME_SHIFTED_SERVICE:
-							case ST_DATA_BROADCAST_SERVICE:
-							case ST_RCS_MAP:
-							case ST_RCS_FLS:
-							default:
-								found_data_chans++;
-								CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_FOUND_DATA_CHAN, &found_data_chans, sizeof(found_data_chans));
-								break;
-						}
-						CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) serviceName.c_str(), serviceName.length() + 1);
+						ChannelFound(service_type, providerName, serviceName);
+
 						channel_id = CREATE_CHANNEL_ID64;
 
 						CZapitChannel * newchannel;
@@ -324,9 +300,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						if(newchannel == NULL) {
 							newchannel = new CZapitChannel (
 									serviceName,
-									service_id,
-									transport_stream_id,
-									original_network_id,
+									channel_id,
 									service_type,
 									satellitePosition,
 									freq
