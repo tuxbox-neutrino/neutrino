@@ -106,7 +106,7 @@ CRemoteControl::CRemoteControl()
 	selected_subchannel = -1;
 	needs_nvods = 	false;
 	director_mode = 0;
-	current_programm_timer = 0;
+//	current_programm_timer = 0;
 	is_video_started = true;
 }
 
@@ -194,19 +194,19 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 			}
 	}
 
-    if ( msg == NeutrinoMessages::EVT_CURRENTEPG ) {
-		CSectionsdClient::CurrentNextInfo* info_CN = (CSectionsdClient::CurrentNextInfo*) data;
+	if ( msg == NeutrinoMessages::EVT_CURRENTEPG )
+	{
+		if ((*(t_channel_id *)data) != (current_channel_id & 0xFFFFFFFFFFFFULL) &&
+		    (*(t_channel_id *)data) != (current_sub_channel_id & 0xFFFFFFFFFFFFULL))
+			return messages_return::handled;
 
-//printf("[neutrino] got  EVT_CURRENTEPG, uniqueKey %llx chid %llx flags %x\n", info_CN->current_uniqueKey, current_channel_id, info_CN->flags);
-//printf("[neutrino] comparing: uniqueKey %llx chid %llx\n", info_CN->current_uniqueKey >> 16, current_channel_id & 0xFFFFFFFFFFFFULL);
-		if ( ( info_CN->current_uniqueKey >> 16) == (current_channel_id&0xFFFFFFFFFFFFULL))
+		const CSectionsdClient::CurrentNextInfo info_CN = g_InfoViewer->getCurrentNextInfo();
+		if ((info_CN.current_uniqueKey >> 16) == (current_channel_id & 0xFFFFFFFFFFFFULL) || (info_CN.current_uniqueKey >> 16) == (current_sub_channel_id & 0xFFFFFFFFFFFFULL))
 		{
-//printf("[neutrino] channel match\n");
-			//CURRENT-EPG für den aktuellen Kanal bekommen!;
-			CVFD::getInstance()->setEPGTitle(info_CN->current_name);
-			if ( info_CN->current_uniqueKey != current_EPGid )
+			//CURRENT-EPG for current channel arrived!;
+			CVFD::getInstance()->setEPGTitle(info_CN.current_name);
+			if (info_CN.current_uniqueKey != current_EPGid)
 			{
-//printf("[neutrino] info_CN->current_uniqueKey != current_EPGid\n");
 				if ( current_EPGid != 0 )
 				{
 					// ist nur ein neues Programm, kein neuer Kanal
@@ -218,58 +218,45 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 					g_InfoViewer->showEpgInfo();
 				}
 
-				current_EPGid= info_CN->current_uniqueKey;
+				current_EPGid = info_CN.current_uniqueKey;
 
 				if ( has_unresolved_ctags )
 					processAPIDnames();
 
-				if ( info_CN->flags & CSectionsdClient::epgflags::current_has_linkagedescriptors ) {
-//printf("[neutrino] info_CN->flags have current_has_linkaged\n");
+				if (selected_subchannel <= 0 && info_CN.flags & CSectionsdClient::epgflags::current_has_linkagedescriptors)
+				{
 					subChannels.clear();
 					getSubChannels();
 				}
 
 				if ( needs_nvods )
 					getNVODs();
-
-				g_RCInput->killTimer( current_programm_timer );
-
-				time_t end_program= info_CN->current_zeit.startzeit+ info_CN->current_zeit.dauer;
-				current_programm_timer = g_RCInput->addTimer( &end_program );
 			}
 
 			// is_video_started is only false if channel is locked
 			if ((!is_video_started) &&
-			    (info_CN->current_fsk == 0 || g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
+			    (info_CN.current_fsk == 0 || g_settings.parentallock_prompt == PARENTALLOCK_PROMPT_CHANGETOLOCKED))
 				g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false);
 			else
-				g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, info_CN->current_fsk, false);
+				g_RCInput->postMsg(NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, info_CN.current_fsk, false);
 		}
-	    return messages_return::handled;
+		return messages_return::handled;
 	}
 	else if ( msg == NeutrinoMessages::EVT_NEXTEPG )
 	{
-		CSectionsdClient::CurrentNextInfo* info_CN = (CSectionsdClient::CurrentNextInfo*) data;
+		if ((*(t_channel_id *)data) != current_channel_id)
+			return messages_return::handled;
 
-		if ( ( info_CN->next_uniqueKey >> 16) == (current_channel_id&0xFFFFFFFFFFFFULL) )
+		const CSectionsdClient::CurrentNextInfo info_CN = g_InfoViewer->getCurrentNextInfo();
+		if ((info_CN.next_uniqueKey >> 16) == (current_channel_id&0xFFFFFFFFFFFFULL) )
 		{
-			// next-EPG für den aktuellen Kanal bekommen, current ist leider net da?!;
-			if ( info_CN->next_uniqueKey != next_EPGid )
-			{
-			    next_EPGid= info_CN->next_uniqueKey;
-
-				// timer setzen
-
-			    g_RCInput->killTimer( current_programm_timer );
-
-				time_t end_program= info_CN->next_zeit.startzeit;
-				current_programm_timer = g_RCInput->addTimer( &end_program );
-			}
+			// next-EPG for current channel arrived. no current-EPG?!
+			if (info_CN.next_uniqueKey != next_EPGid)
+				next_EPGid = info_CN.next_uniqueKey;
 		}
 		if ( !is_video_started )
 			g_RCInput->postMsg( NeutrinoMessages::EVT_PROGRAMLOCKSTATUS, 0x100, false );
-
-	    return messages_return::handled;
+		return messages_return::handled;
 	}
 	else if (msg == NeutrinoMessages::EVT_NOEPG_YET)
 	{
@@ -298,8 +285,8 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 					tuxtxt_start(current_PIDs.PIDs.vtxtpid);
 			}
 #endif
-			t_channel_id * p = new t_channel_id;
-			*p = current_channel_id;
+			char *p = new char[sizeof(t_channel_id)];
+			memcpy(p, &current_channel_id, sizeof(t_channel_id));
 			g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_GOTPIDS, (const neutrino_msg_data_t)p, false); 
 
 			processAPIDnames();
@@ -330,6 +317,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 		}
 	    return messages_return::handled;
 	}
+#if 0
 	else if ( ( msg == NeutrinoMessages::EVT_TIMER ) && ( data == current_programm_timer ) )
 	{
 		//printf("new program !\n");
@@ -340,6 +328,7 @@ int CRemoteControl::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 
  		return messages_return::handled;
 	}
+#endif
 	//else if (msg == NeutrinoMessages::EVT_ZAP_FAILED || msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED)
  		//return messages_return::handled;
 	else
@@ -372,8 +361,8 @@ void CRemoteControl::getSubChannels()
 				}
 				copySubChannelsToZapit();
 
-				t_channel_id * p = new t_channel_id;
-				*p = current_channel_id;
+				char *p = new char[sizeof(t_channel_id)];
+				memcpy(p, &current_channel_id, sizeof(t_channel_id));
 				g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES, (const neutrino_msg_data_t)p, false); // data is pointer to allocated memory
 			}
 		}
@@ -415,8 +404,8 @@ void CRemoteControl::getNVODs()
 
 			copySubChannelsToZapit();
 
-			t_channel_id * p = new t_channel_id;
-			*p = current_channel_id;
+			char *p = new char[sizeof(t_channel_id)];
+			memcpy(p, &current_channel_id, sizeof(t_channel_id));
 			g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_GOT_SUBSERVICES, (const neutrino_msg_data_t)p, false); // data is pointer to allocated memory
 
 			if ( selected_subchannel == -1 )
@@ -562,8 +551,8 @@ void CRemoteControl::processAPIDnames()
 		setAPID( 0 );
 	}
 
-	t_channel_id * p = new t_channel_id;
-	*p = current_channel_id;
+	char *p = new char[sizeof(t_channel_id)];
+	memcpy(p, &current_channel_id, sizeof(t_channel_id));
 	g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_GOTAPIDS, (const neutrino_msg_data_t)p, false); // data is pointer to allocated memory
 }
 
@@ -689,7 +678,7 @@ void CRemoteControl::zapTo_ChannelID(const t_channel_id channel_id, const std::s
 		g_Sectionsd->setServiceChanged( current_channel_id&0xFFFFFFFFFFFFULL, false );
 
 		zap_completion_timeout = now + 2 * (int64_t) 1000000;
-		g_RCInput->killTimer( current_programm_timer );
+//		g_RCInput->killTimer( current_programm_timer );
 	}
 }
 

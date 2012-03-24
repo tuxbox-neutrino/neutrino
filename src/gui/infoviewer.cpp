@@ -4,6 +4,9 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Bugfixes/cleanups (C) 2007-2012 Stefan Seyfried
+	(C) 2008 Novell, Inc. Author: Stefan Seyfried
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -1501,43 +1504,45 @@ void CInfoViewer::showButton_SubServices ()
 	}
 }
 
-CSectionsdClient::CurrentNextInfo CInfoViewer::getEPG (const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
+void CInfoViewer::getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info)
 {
 	static CSectionsdClient::CurrentNextInfo oldinfo;
 
-	//g_Sectionsd->getCurrentNextServiceKey (for_channel_id & 0xFFFFFFFFFFFFULL, info);
-	sectionsd_getCurrentNextServiceKey(for_channel_id & 0xFFFFFFFFFFFFULL, info);
+	/* to clear the oldinfo for channels without epg, call getEPG() with for_channel_id = 0 */
+	if (for_channel_id == 0)
+	{
+		oldinfo.current_uniqueKey = 0;
+		return;
+	}
 
-//printf("CInfoViewer::getEPG: old uniqueKey %llx new %llx\n", oldinfo.current_uniqueKey, info.current_uniqueKey);
+	sectionsd_getCurrentNextServiceKey(for_channel_id & 0xFFFFFFFFFFFFULL, info);
 
 	/* of there is no EPG, send an event so that parental lock can work */
 	if (info.current_uniqueKey == 0 && info.next_uniqueKey == 0) {
-		oldinfo = info;
-		t_channel_id *p = new t_channel_id;
-		*p = for_channel_id;
+		memcpy(&oldinfo, &info, sizeof(CSectionsdClient::CurrentNextInfo));
+		char *p = new char[sizeof(t_channel_id)];
+		memcpy(p, &for_channel_id, sizeof(t_channel_id));
 		g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);
-		return info;
+		return;
 	}
 
-	if (info.current_uniqueKey != oldinfo.current_uniqueKey || info.next_uniqueKey != oldinfo.next_uniqueKey) {
-		if (info.flags & (CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::has_next)) {
-			CSectionsdClient::CurrentNextInfo * _info = new CSectionsdClient::CurrentNextInfo;
-			*_info = info;
-			neutrino_msg_t msg;
+	if (info.current_uniqueKey != oldinfo.current_uniqueKey || info.next_uniqueKey != oldinfo.next_uniqueKey)
+	{
+		char *p = new char[sizeof(t_channel_id)];
+		memcpy(p, &for_channel_id, sizeof(t_channel_id));
+		neutrino_msg_t msg;
+		if (info.flags & (CSectionsdClient::epgflags::has_current | CSectionsdClient::epgflags::has_next))
+		{
 			if (info.flags & CSectionsdClient::epgflags::has_current)
 				msg = NeutrinoMessages::EVT_CURRENTEPG;
 			else
 				msg = NeutrinoMessages::EVT_NEXTEPG;
-			g_RCInput->postMsg(msg, (unsigned) _info, false );
-		} else {
-			t_channel_id *p = new t_channel_id;
-			*p = for_channel_id;
-			g_RCInput->postMsg (NeutrinoMessages::EVT_NOEPG_YET, (const neutrino_msg_data_t) p, false);	// data is pointer to allocated memory
 		}
-		oldinfo = info;
+		else
+			msg = NeutrinoMessages::EVT_NOEPG_YET;
+		g_RCInput->postMsg(msg, (const neutrino_msg_data_t)p, false); // data is pointer to allocated memory
+		memcpy(&oldinfo, &info, sizeof(CSectionsdClient::CurrentNextInfo));
 	}
-
-	return info;
 }
 
 void CInfoViewer::showSNR ()
