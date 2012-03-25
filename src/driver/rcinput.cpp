@@ -524,6 +524,9 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	getKeyBegin = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
 
 	while(1) {
+		/* we later check for ev.type = EV_SYN which is 0x00, so set something invalid here... */
+		memset(&ev, 0, sizeof(ev));
+		ev.type = EV_MAX;
 		timer_id = 0;
 		if ( timers.size()> 0 )
 		{
@@ -1238,6 +1241,8 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 				}
 			}/* if FDSET */
 		} /* for NUMBER_OF_EVENT_DEVICES */
+		if (ev.type == EV_SYN)
+			continue; /* ignore... */
 
 		if(FD_ISSET(fd_pipe_low_priority[0], &rfds))
 		{
