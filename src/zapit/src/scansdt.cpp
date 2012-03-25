@@ -39,7 +39,6 @@
 #include <zapit/dvbstring.h>
 
 extern CZapitClient::scanType scanType; // FIXME
-int scan_fta_flag; // FIXME
 
 #define DEBUG_SDT
 //#define DEBUG_SDT_UNUSED
@@ -245,7 +244,7 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	printf("SDT: sid %04x type %x provider [%s] service [%s] scrambled %d\n", service_id, sd->getServiceType(),
 			providerName.c_str(), serviceName.c_str(), free_ca);
 #endif
-	if(!current && free_ca && scan_fta_flag)
+	if(!current && free_ca && CServiceScan::getInstance()->isFtaOnly())
 		return false;
 
 	if (!CheckScanType(service_type))
