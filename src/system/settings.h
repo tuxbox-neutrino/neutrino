@@ -669,8 +669,12 @@ public:
 	char                      satNameNoDiseqc[50];
 	delivery_system_t         delivery_system;
 	int		scanSectionsd;
-	int		scan_mode;
+	int		scan_nit;
+	int		scan_nit_manual;
+	int		scan_bat;
 	int		scan_fta_flag;
+	int		scan_reset_numbers;
+	int		scan_logical_numbers;
 	int		TP_fec;
 	int		TP_pol;
 	int		TP_mod;

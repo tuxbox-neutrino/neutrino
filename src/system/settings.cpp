@@ -151,7 +151,11 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	strcpy(satNameNoDiseqc, configfile.getString("satNameNoDiseqc", satNameNoDiseqc).c_str());
 
 	scan_fta_flag = configfile.getInt32("scan_fta_flag", 0);
-	scan_mode = configfile.getInt32("scan_mode", 1); // NIT (0) or fast (1)
+	scan_nit = configfile.getInt32("scan_nit", 1);
+	scan_nit = configfile.getInt32("scan_nit_manual", 0);
+	scan_bat = configfile.getInt32("scan_bat", 0);
+	scan_bat = configfile.getInt32("scan_reset_numbers", 0);
+	scan_bat = configfile.getInt32("scan_logical_numbers", 0);
 	TP_fec = configfile.getInt32("TP_fec", 1);
 	TP_pol = configfile.getInt32("TP_pol", 0);
 	TP_mod = configfile.getInt32("TP_mod", 3);
@@ -178,7 +182,11 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setString( "satNameNoDiseqc", satNameNoDiseqc );
 
 	configfile.setInt32("scan_fta_flag", scan_fta_flag);
-	configfile.setInt32("scan_mode", scan_mode);
+	configfile.setInt32("scan_nit", scan_nit);
+	configfile.setInt32("scan_nit_manual", scan_nit);
+	configfile.setInt32("scan_bat", scan_bat);
+	configfile.setInt32("scan_reset_numbers", scan_reset_numbers);
+	configfile.setInt32("scan_logical_numbers", scan_logical_numbers);
 	configfile.setInt32("TP_fec", TP_fec);
 	configfile.setInt32("TP_pol", TP_pol);
 	configfile.setInt32("TP_mod", TP_mod);
