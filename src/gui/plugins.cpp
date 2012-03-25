@@ -108,11 +108,14 @@ void CPlugins::scanDir(const char *dir)
 
 	int number_of_files = scandir(dir, &namelist, 0, alphasort);
 
+	if (number_of_files < 0)
+		return;
+
 	for (int i = 0; i < number_of_files; i++)
 	{
-		std::string filename;
+		std::string filename(namelist[i]->d_name);
+		free(namelist[i]);
 
-		filename = namelist[i]->d_name;
 		int pos = filename.find(".cfg");
 		if (pos > -1)
 		{
@@ -122,9 +125,9 @@ void CPlugins::scanDir(const char *dir)
 			fname += '/';
 			new_plugin.cfgfile = fname.append(new_plugin.filename);
 			new_plugin.cfgfile.append(".cfg");
-			parseCfg(&new_plugin);
 			bool plugin_ok = parseCfg(&new_plugin);
-			if (plugin_ok) {
+			if (plugin_ok)
+			{
 				new_plugin.pluginfile = fname;
 				if (new_plugin.type == CPlugins::P_TYPE_SCRIPT)
 				{
@@ -148,6 +151,7 @@ void CPlugins::scanDir(const char *dir)
 			}
 		}
 	}
+	free(namelist);
 }
 
 void CPlugins::loadPlugins()
