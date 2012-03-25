@@ -152,7 +152,7 @@ class CServiceManager
 		bool AddCurrentChannel(CZapitChannel * &channel);
 		bool AddNVODChannel(CZapitChannel * &channel);
 
-		void ResetChannelNumbers();
+		void ResetChannelNumbers(bool bouquets = true, bool numbers = false);
 		void RemoveChannel(const t_channel_id channel_id);
 		void RemoveAllChannels();
 		void RemoveCurrentChannels();

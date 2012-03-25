@@ -124,7 +124,7 @@ bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 	return ret.second;
 }
 
-void CServiceManager::ResetChannelNumbers()
+void CServiceManager::ResetChannelNumbers(bool bouquets, bool numbers)
 {
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 #if 0 /* force to get free numbers if there are any */
@@ -136,7 +136,10 @@ void CServiceManager::ResetChannelNumbers()
 			it->second.number = 0;
 		}
 #endif
-		it->second.has_bouquet = 0;
+		if(numbers)
+			it->second.number = 0;
+		if(bouquets)
+			it->second.has_bouquet = 0;
 	}
 }
 
