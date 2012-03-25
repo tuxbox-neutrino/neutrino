@@ -101,7 +101,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
  		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
-		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1);
+		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1, bool manual = false);
 
 		void saveScanSetup();
 

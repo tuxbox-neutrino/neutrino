@@ -744,7 +744,7 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
 	manual_Scan->addItem(GenericMenuSeparatorLine);
 	//----------------------------------------------------------------------
 	shortCut = addScanOptionsItems(manual_Scan, shortCut);
-	addListFlagsItems(manual_Scan, shortCut);
+	addListFlagsItems(manual_Scan, shortCut, true);
 	//----------------------------------------------------------------------
 	manual_Scan->addItem(GenericMenuSeparatorLine);
 
@@ -850,13 +850,18 @@ int CScanSetup::addScanOptionsItems(CMenuWidget *options_menu, const int &shortc
 }
 
 //create list flag items
-int CScanSetup::addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut)
+int CScanSetup::addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut, bool manual)
 {	
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	int shortCut = shortcut;
-	
-	CMenuOptionChooser 	*useNit = new CMenuOptionChooser(LOCALE_SATSETUP_USE_NIT, (int *)&scansettings.scan_mode, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
-	CMenuOptionChooser	*ftaFlag = new CMenuOptionChooser(LOCALE_SATSETUP_USE_FTA_FLAG, (int *)&scansettings.scan_fta_flag, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+
+	CMenuOptionChooser *useNit;
+	if (manual)
+		useNit = new CMenuOptionChooser(LOCALE_SATSETUP_USE_NIT, (int *)&scansettings.scan_nit_manual, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+	else
+		useNit = new CMenuOptionChooser(LOCALE_SATSETUP_USE_NIT, (int *)&scansettings.scan_nit, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+
+	CMenuOptionChooser	*ftaFlag = new CMenuOptionChooser(LOCALE_SATSETUP_USE_FTA_FLAG, (int *)&scansettings.scan_fta_flag, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 	CMenuOptionChooser	*scanPid = new CMenuOptionChooser(LOCALE_EXTRA_ZAPIT_SCANPIDS,  &zapitCfg.scanPids, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 
 	listflags_menu->addItem(useNit);
