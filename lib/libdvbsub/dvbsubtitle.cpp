@@ -183,8 +183,8 @@ cDvbSubtitleConverter::cDvbSubtitleConverter(void)
 		dbgconverter("cDvbSubtitleConverter: unable to get dvb subtitle codec!\n");
 		return;
 	}
-	avctx = avcodec_alloc_context3(avcodec);
-	if (avcodec_open2(avctx, avcodec, NULL) < 0)
+	avctx = avcodec_alloc_context();
+	if (avcodec_open(avctx, avcodec) < 0)
 		dbgconverter("cDvbSubtitleConverter: unable to open codec !\n");
 
 	av_log_set_level(AV_LOG_PANIC);
