@@ -84,8 +84,6 @@ CScanTs::CScanTs()
 	snrscale = new CProgressBar(true, BAR_WIDTH, BAR_HEIGHT);
 }
 
-extern int scan_fta_flag;//in zapit descriptors definiert
-
 void CScanTs::prev_next_TP( bool up)
 {
 	t_satellite_position position = 0;
@@ -161,9 +159,16 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	//diseqc_t            diseqcType = NO_DISEQC;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
-	//bool manual = (scansettings.scan_mode == 2);
-	int scan_mode = scansettings.scan_mode;
-	scan_fta_flag = scansettings.scan_fta_flag;
+
+	int scan_flags = 0;
+	if(scansettings.scan_fta_flag)
+		scan_flags |= CServiceScan::SCAN_FTA;
+	if(scansettings.scan_bat)
+		scan_flags |= CServiceScan::SCAN_BAT;
+	if(scansettings.scan_reset_numbers)
+		scan_flags |= CServiceScan::SCAN_RESET_NUMBERS;
+	if(scansettings.scan_logical_numbers)
+		scan_flags |= CServiceScan::SCAN_LOGICAL_NUMBERS;
 
 	sat_iterator_t sit;
 	bool scan_all = actionKey == "all";
@@ -171,9 +176,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	bool manual = (actionKey == "manual") || test;
 	bool fast = (actionKey == "fast");
 
-	CZapitClient::ScanSatelliteList satList;
-	CZapitClient::commandSetScanSatelliteList sat;
-	int _scan_pids = CZapit::getInstance()->scanPids();
+	int scan_pids = CZapit::getInstance()->scanPids();
 
 	hheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	mheight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
@@ -186,9 +189,10 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
+#if 0
 	if(scan_all)
 		scan_mode |= 0xFF00;
-
+#endif
 	sigscale->reset();
 	snrscale->reset();
 	lastsig = lastsnr = -1;
@@ -209,7 +213,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	if(manual) {
 		CZapit::getInstance()->scanPids(true);
-		TP.scan_mode = scansettings.scan_mode;
+		if(scansettings.scan_nit_manual)
+			scan_flags |= CServiceScan::SCAN_NIT;
+		TP.scan_mode = scan_flags;
 		TP.feparams.frequency = atoi(scansettings.TP_freq);
 		if(g_info.delivery_system == DVB_S) {
 			TP.feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
@@ -219,10 +225,17 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			TP.feparams.u.qam.symbol_rate	= atoi(scansettings.TP_rate);
 			TP.feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.TP_fec;
 			TP.feparams.u.qam.modulation	= (fe_modulation_t) scansettings.TP_mod;
-			CServiceScan::getInstance()->SetCableNID(scansettings.cable_nid);
 		}
 		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
+	} else {
+		if(scansettings.scan_nit)
+			scan_flags |= CServiceScan::SCAN_NIT;
 	}
+	if(g_info.delivery_system == DVB_C)
+		CServiceScan::getInstance()->SetCableNID(scansettings.cable_nid);
+
+	CZapitClient::commandSetScanSatelliteList sat;
+	CZapitClient::ScanSatelliteList satList;
 	satList.clear();
 	if(fast) {
 	}
@@ -275,7 +288,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		success = CZapit::getInstance()->StartFastScan(scansettings.fast_type, scansettings.fast_op);
 	}
 	else
-		success = g_Zapit->startScan(scan_mode);
+		success = g_Zapit->startScan(scan_flags);
 
 	/* poll for messages */
 	istheend = !success;
@@ -300,7 +313,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 			}
 			
 			else if(msg == CRCInput::RC_home) {
-				if(manual && scansettings.scan_mode)
+				if(manual && !scansettings.scan_nit_manual)
 					continue;
 				if (ShowLocalizedMessage(LOCALE_SCANTS_ABORT_HEADER, LOCALE_SCANTS_ABORT_BODY, CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo) == CMessageBox::mbrYes) {
 					g_Zapit->stopScan();
@@ -339,7 +352,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	hide();
 
-	CZapit::getInstance()->scanPids(_scan_pids);
+	CZapit::getInstance()->scanPids(scan_pids);
 	videoDecoder->StopPicture();
 	frameBuffer->Clear();
 	g_Sectionsd->setPauseScanning(false);
