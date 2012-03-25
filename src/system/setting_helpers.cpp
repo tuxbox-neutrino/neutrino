@@ -461,17 +461,19 @@ bool CKeySetupNotifier::changeNotify(const neutrino_locale_t, void *)
 	ioctl(fd, IOC_IR_SET_X_DELAY, xdelay);
 #else
 	/* if we have a good input device, we don't need the private ioctl above */
-	struct my_repeat {
-		unsigned int delay;	/* in ms */
-		unsigned int period;	/* in ms */
-	};
-	struct my_repeat n;
+	struct input_event ie;
+	ie.type = EV_REP;
 	/* increase by 10 ms to trick the repeat checker code in the
 	 * rcinput loop into accepting the key event... */
-	n.delay =  fdelay + 10;
-	n.period = xdelay + 10;
-	if (ioctl(fd, EVIOCSREP, &n))
-		perror("CKeySetupNotifier::changeNotify EVIOCSREP");
+	ie.value = fdelay + 10;
+	ie.code = REP_DELAY;
+	if (write(fd, &ie, sizeof(ie)) == -1)
+		perror("CKeySetupNotifier::changeNotify REP_DELAY");
+
+	ie.value = xdelay + 10;
+	ie.code = REP_PERIOD;
+	if (write(fd, &ie, sizeof(ie)) == -1)
+		perror("CKeySetupNotifier::changeNotify REP_PERIOD");
 #endif
 	return false;
 }

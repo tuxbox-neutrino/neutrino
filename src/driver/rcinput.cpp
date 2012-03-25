@@ -155,7 +155,7 @@ void CRCInput::open()
 
 	for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++)
 	{
-		if ((fd_rc[i] = ::open(RC_EVENT_DEVICE[i], O_RDONLY)) == -1)
+		if ((fd_rc[i] = ::open(RC_EVENT_DEVICE[i], O_RDWR)) == -1)
 			perror(RC_EVENT_DEVICE[i]);
 		else
 		{
