@@ -60,6 +60,7 @@ CVolume::CVolume()
 	MuteIconFrame	= false; // For future On/Off switch IconFrame
 	ShadowOffset	= 4;
 	mute_ay		= 0;
+	m_mode = CNeutrinoApp::getInstance()->getMode();
 
 	Init();
 }
@@ -115,6 +116,8 @@ void CVolume::Init()
 	mute_dy 	+= mute_icon_dx / 4;
 	mute_ax 	= sw - mute_dx;
 	mute_ay 	= y;
+	
+	CNeutrinoApp* neutrino = CNeutrinoApp::getInstance();
 
 	if ((g_settings.mode_clock) && (g_settings.volume_pos == 0)) {
 		// Clock and MuteIcon in a line.
@@ -129,17 +132,20 @@ void CVolume::Init()
 		else
 			mute_ay += (vbar_h - mute_dy) / 2;
 	}
-	if ((g_settings.mode_clock) && (!CNeutrinoApp::getInstance()->isMuted()))
+
+	if ((g_settings.mode_clock) && (!neutrino->isMuted()))
 		frameBuffer->paintBackgroundBoxRel(sw - clock_width, y, clock_width, clock_height);
 //printf("\n##### [volume.cpp Zeile %d] mute_ax %d, mute_dx %d\n \n", __LINE__, mute_ax, mute_dx);
 	switch (g_settings.volume_pos)
 	{
 		case 0:// upper right
-			if (CNeutrinoApp::getInstance()->isMuted())
-				x_corr = mute_dx + spacer;
+			if (( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic)) {
+				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
+					x_corr = mute_dx + spacer;
+				if (g_settings.mode_clock)
+					y += clock_height + spacer / 2;
+			}
 			x = sw - vbar_w - x_corr;
-			if (g_settings.mode_clock)
-				y += clock_height + spacer / 2;
 			break;
 		case 1:// upper left
 			break;
@@ -181,8 +187,6 @@ CVolume* CVolume::getInstance()
 
 void CVolume::AudioMute(int newValue, bool isEvent)
 {
-	if((g_settings.current_volume == 0) && (g_settings.show_mute_icon == 1))
-		return;
 	CNeutrinoApp* neutrino = CNeutrinoApp::getInstance();
 	bool doInit = newValue != (int) neutrino->isMuted();
 
@@ -212,6 +216,17 @@ void CVolume::setvol(int vol)
 void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowait)
 {
 	neutrino_msg_t msg	= key;
+	int mode = CNeutrinoApp::getInstance()->getMode();
+	
+	if (msg <= CRCInput::RC_MaxRC) {
+		if(m_mode != mode) {
+			m_mode = mode;
+			Init();
+			setVolume(msg);
+			return;
+		}
+	}
+	
 	int vol			= g_settings.current_volume;
 	fb_pixel_t * pixbuf	= NULL;
 
@@ -245,11 +260,6 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
  			     sub_chan_keybind = 1;
 			
 			if ((msg == CRCInput::RC_plus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_right))) {
-				if (g_settings.current_volume < 100 - g_settings.current_volume_step)
-					g_settings.current_volume += g_settings.current_volume_step;
-				else
-					g_settings.current_volume = 100;
-				
 				if(CNeutrinoApp::getInstance()->isMuted()) {
 					if ((bDoPaint) && (pixbuf!= NULL)) {
 						frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
@@ -260,18 +270,47 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 					setVolume(msg);
 					return;
 				}
+				
+				if(!CNeutrinoApp::getInstance()->isMuted()) {
+					if (g_settings.current_volume < 100 - g_settings.current_volume_step)
+						g_settings.current_volume += g_settings.current_volume_step;
+					else
+						g_settings.current_volume = 100;
+				}				
 			}
 			else if ((msg == CRCInput::RC_minus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_left))) {
-				if (g_settings.current_volume > g_settings.current_volume_step)
-					g_settings.current_volume -= g_settings.current_volume_step;
-				else if ((g_settings.show_mute_icon == 1) && (g_settings.current_volume = 1)) {
-					(g_settings.current_volume = 1);
-					AudioMute( true, true);
-					g_settings.current_volume = 0;
+				if(CNeutrinoApp::getInstance()->isMuted() && g_settings.current_volume > 0) {
+					if ((bDoPaint) && (pixbuf!= NULL)) {
+						frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
+						delete [] pixbuf;
+					}
+					AudioMute(false, true);
+					Init();
+					setVolume(msg);
+					return;
 				}
-				else if (g_settings.show_mute_icon == 0)
-					g_settings.current_volume = 0;
+				
+				if(!CNeutrinoApp::getInstance()->isMuted()) {
+					if (g_settings.current_volume > g_settings.current_volume_step)
+						g_settings.current_volume -= g_settings.current_volume_step;
+						
+					else if  (g_settings.show_mute_icon == 1) {
+						if ((bDoPaint) && (pixbuf!= NULL)) {
+							frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
+							delete [] pixbuf;
+						}
+						g_settings.current_volume = 0;
+						AudioMute( true, true);
+						Init();
+						setVolume(msg);
+						return;						
+					}
+					
+					else if (g_settings.show_mute_icon == 0)
+						g_settings.current_volume = 0;
+				}				
 			}
+
 			else if (msg == CRCInput::RC_home)
 				break;
 			else {

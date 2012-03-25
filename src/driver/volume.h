@@ -45,6 +45,7 @@ class CVolume
 		int VolumeFont, colShadow, colBar, colFrame, colContent;
 		int ShadowOffset;
 		int rounded;
+		int m_mode;
 		bool paintShadow, paintDigits, MuteIconFrame;
 
 	public:

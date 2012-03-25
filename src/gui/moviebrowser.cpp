@@ -1228,8 +1228,13 @@ void CMovieBrowser::refreshMovieInfo(void)
 		int pich = m_cBoxFrameInfo.iHeight;
 		std::string fname = getScreenshotName(m_movieSelectionHandler->file.Name);
 		logo_ok = (fname != "");
+		int flogo_w = 0, flogo_h = 0;
+		if(logo_ok) {
+			g_PicViewer->getSize(fname.c_str(), &flogo_w, &flogo_h);
+			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw-2, pich-2);
+		}
+		m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-flogo_w-20 : 0);
 
-		m_pcInfo->setText(&m_movieSelectionHandler->epgInfo2, logo_ok ? m_cBoxFrameInfo.iWidth-picw-20: 0);
 		static int logo_w = 0;
 		static int logo_h = 0;
 		int logo_w_max = m_cBoxFrameTitleRel.iWidth / 4;
@@ -1248,9 +1253,6 @@ void CMovieBrowser::refreshMovieInfo(void)
 			g_PicViewer->DisplayImage(lname, lx - pb_hdd_offset, ly, logo_w, logo_h);
 		}
 		if(logo_ok) {
-			int flogo_w = 0, flogo_h = 0;
-			g_PicViewer->getSize(fname.c_str(), &flogo_w, &flogo_h);
-			g_PicViewer->rescaleImageDimensions(&flogo_w, &flogo_h, picw-2, pich-2);
 			lx = m_cBoxFrameInfo.iX+m_cBoxFrameInfo.iWidth - flogo_w -14;
 			ly = m_cBoxFrameInfo.iY - 1 + (m_cBoxFrameInfo.iHeight-flogo_h)/2;
 			g_PicViewer->DisplayImage(fname, lx+2, ly+1, flogo_w, flogo_h, CFrameBuffer::TM_NONE);
