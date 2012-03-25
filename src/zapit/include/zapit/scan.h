@@ -27,6 +27,13 @@ class CServiceScan : public OpenThreads::Thread
 			SCAN_TRANSPONDER,
 			SCAN_FAST
 		} scan_type_t;
+		typedef enum scan_flags {
+			SCAN_NIT		= 0x01,
+			SCAN_BAT		= 0x02,
+			SCAN_FTA		= 0x04,
+			SCAN_RESET_NUMBERS	= 0x08,
+			SCAN_LOGICAL_NUMBERS	= 0x10
+		} scan_flags_t;
 
 	private:
 		bool started;
@@ -34,7 +41,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool cable;
 		bool abort_scan;
 		scan_type_t scan_mode;
-		bool scan_nit;
+		int flags;
 		void * scan_arg;
 
 		uint32_t fake_tid, fake_nid;
@@ -105,6 +112,7 @@ class CServiceScan : public OpenThreads::Thread
 		uint32_t & FoundTransponders() { return found_transponders; };
 		uint32_t & FoundChannels() { return found_channels; };
 		void SetCableNID(unsigned short nid) { cable_nid = nid; }
+		bool isFtaOnly() { return flags & SCAN_FTA; }
 };
 
 #endif /* __scan_h__ */

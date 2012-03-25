@@ -61,9 +61,10 @@ CServiceScan * CServiceScan::getInstance()
 CServiceScan::CServiceScan()
 {
 	started = false;
-	scan_nit = false;
 	running = false;
+
 	cable_nid = 0;
+
 	frontend = CFEManager::getInstance()->getFE(0);
 }
 
@@ -266,30 +267,32 @@ _repeat:
 
 		CNit nit(satellitePosition, freq, cable_nid);
 #ifdef NIT_THREAD
-		if(scan_nit)
+		if(flags & SCAN_NIT)
 			nit.Start();
 #endif
 #ifdef USE_BAT
 		CBat bat(satellitePosition, freq);
-		bat.Start();
+		if(flags & SCAN_BAT)
+			bat.Start();
 #endif
 
 		CSdt sdt(satellitePosition, freq);
 		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
 
 #ifdef NIT_THREAD
-		if(scan_nit)
+		if(flags & SCAN_NIT)
 			nit.Stop();
 #endif
 #ifdef USE_BAT
-		bat.Stop();
+		if(flags & SCAN_BAT)
+			bat.Stop();
 #endif
 		if(!sdt_parsed) {
 			printf("[scan] SDT failed !\n");
 			continue;
 		}
 #ifndef NIT_THREAD
-		if(scan_nit)
+		if(flags & SCAN_NIT)
 			nit.Parse();
 #endif
 
@@ -315,7 +318,7 @@ _repeat:
 
 		printf("[scan] tpid ready: %llx\n", TsidOnid);
 	}
-	if(scan_nit) {
+	if(flags & SCAN_NIT) {
 		printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
 		scantransponders.clear();
 		for (tI = nittransponders.begin(); tI != nittransponders.end(); tI++) {
@@ -505,7 +508,8 @@ bool CServiceScan::ScanProviders()
 	uint8_t diseqc_pos = 0;
 	scanBouquetManager = new CBouquetManager();
 	bool satfeed = false;
-	int mode = (int) scan_arg;
+
+	flags = (int) scan_arg;
 
 	curr_sat = 0;
 
@@ -515,10 +519,9 @@ bool CServiceScan::ScanProviders()
 	else
 		frontendType = "sat";
 
-	scan_nit = (mode & 0xFF) == 0; // NIT (0) or fast (1)
-	int scan_sat_mode = mode & 0xFF00; // single = 0, all = 1
+	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
+			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
-	printf("[zapit] scan mode %s, satellites %s\n", scan_nit ? "NIT" : "fast", scan_sat_mode ? "all" : "single");
 	CZapitClient myZapitClient;
 
 	/* get first child */
@@ -611,17 +614,19 @@ bool CServiceScan::ScanTransponder()
 
 	strcpy(providerName, scanProviders.size() > 0 ? scanProviders.begin()->second.c_str() : "unknown provider");
 
-	printf("[scan_transponder] scanning sat %s position %d\n", providerName, satellitePosition);
+	printf("[scan] scanning sat %s position %d\n", providerName, satellitePosition);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, providerName, strlen(providerName) + 1);
-
-	scan_nit = (TP->scan_mode & 0xFF) == 0; // NIT (0) or fast (1)
 
 	TP->feparams.inversion = INVERSION_AUTO;
 
-	if (!cable) {
-		printf("[scan_transponder] freq %d rate %d fec %d pol %d NIT %s\n", TP->feparams.frequency, TP->feparams.u.qpsk.symbol_rate, TP->feparams.u.qpsk.fec_inner, TP->polarization, scan_nit ? "no" : "yes");
+	if (cable) {
+		printf("[scan] freq %d rate %d fec %d mod %d\n", TP->feparams.frequency, TP->feparams.u.qam.symbol_rate, TP->feparams.u.qam.fec_inner, TP->feparams.u.qam.modulation);
 	} else
-		printf("[scan_transponder] freq %d rate %d fec %d mod %d\n", TP->feparams.frequency, TP->feparams.u.qam.symbol_rate, TP->feparams.u.qam.fec_inner, TP->feparams.u.qam.modulation);
+		printf("[scan] freq %d rate %d fec %d pol %d\n", TP->feparams.frequency, TP->feparams.u.qpsk.symbol_rate, TP->feparams.u.qpsk.fec_inner, TP->polarization);
+
+	flags = TP->scan_mode;
+	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
+			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
 	freq_id_t freq;
 	if(cable)
