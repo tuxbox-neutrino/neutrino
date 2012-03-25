@@ -201,6 +201,7 @@ CFrameBuffer::CFrameBuffer()
 	fd  = 0;
 	tty = 0;
 	bpp = 0;
+	locked = false;
 	m_transparent_default = CFrameBuffer::TM_BLACK; // TM_BLACK: Transparency when black content ('pseudo' transparency)
 							// TM_NONE:  No 'pseudo' transparency
 							// TM_INI:   Transparency depends on g_settings.infobar_alpha ???

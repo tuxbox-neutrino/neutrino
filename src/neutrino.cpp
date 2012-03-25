@@ -1588,6 +1588,7 @@ void CNeutrinoApp::SendSectionsdConfig(void)
 void CNeutrinoApp::InitZapper()
 {
  	struct stat my_stat;
+	g_channel_list_changed = false;
 
 	g_InfoViewer->start();
 	SendSectionsdConfig();
