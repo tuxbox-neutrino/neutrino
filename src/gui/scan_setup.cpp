@@ -590,7 +590,7 @@ void CScanSetup::fillSatSelect()
 
 	satSelect->removeOptions();
 
-	satOnOff->resetWidget(/*true*/);
+	satOnOff->resetWidget(true);
 	satOnOff->addIntroItems();
 
 	bool sfound = false;
