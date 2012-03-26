@@ -141,6 +141,10 @@ void CServiceManager::ResetChannelNumbers(bool bouquets, bool numbers)
 		if(bouquets)
 			it->second.has_bouquet = 0;
 	}
+	if(numbers) {
+		tv_numbers.clear();
+		radio_numbers.clear();
+	}
 }
 
 void CServiceManager::RemoveChannel(const t_channel_id channel_id)
