@@ -99,7 +99,7 @@ transponder_list_t transponders;
 CZapitClient::bouquetMode bouquetMode = CZapitClient::BM_UPDATEBOUQUETS;
 CZapitClient::scanType scanType = CZapitClient::ST_TVRADIO;
 
-static TP_params TP;
+//static TP_params TP;
 
 static bool update_pmt = true;
 /******************************************************************************/
@@ -727,6 +727,14 @@ bool CZapit::StartScan(int scan_mode)
 	return true;
 }
 
+bool CZapit::StartScanTP(TP_params * TPparams)
+{
+	PrepareScan();
+
+	CServiceScan::getInstance()->Start(CServiceScan::SCAN_TRANSPONDER, (void *) TPparams);
+	return true;
+}
+
 bool CZapit::StartFastScan(int scan_mode, int opid)
 {
 	fast_scan_type_t scant;
@@ -1083,8 +1091,11 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 				CServiceManager::getInstance()->GetSatelliteName(current_channel->getSatellitePosition());
 			current_channel = 0;
 		}
+#if 0
 		PrepareScan();
 		CServiceScan::getInstance()->Start(CServiceScan::SCAN_TRANSPONDER, (void *) &TP);
+#endif
+		StartScanTP(&TP);
                 break;
         }
 
