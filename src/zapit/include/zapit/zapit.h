@@ -79,6 +79,7 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * current_channel;
 		t_channel_id live_channel_id;
+		TP_params TP;
 
 		audio_map_t audio_map;
 		bool current_is_nvod;
@@ -140,6 +141,7 @@ class CZapit : public OpenThreads::Thread
 
 		bool PrepareChannels();
 		bool StartScan(int scan_mode);
+		bool StartScanTP(TP_params * TPparams);
 		bool StartFastScan(int scan_mode, int opid);
 
 		void addChannelToBouquet(const unsigned int bouquet, const t_channel_id channel_id);
