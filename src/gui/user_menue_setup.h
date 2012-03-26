@@ -72,7 +72,6 @@ const struct usermenu_props_t usermenu[USERMENU_ITEMS_COUNT] =
 		void checkButtonName();
 		
 		CMenuWidget * ums;
-		CMenuForwarder *mf;
 		
 	public:
 		CUserMenuSetup(neutrino_locale_t menue_title, int menue_button);

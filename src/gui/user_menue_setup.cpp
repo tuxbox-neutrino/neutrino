@@ -57,16 +57,12 @@ CUserMenuSetup::CUserMenuSetup(neutrino_locale_t menue_title, int menue_button)
 	width = w_max (40, 10);
 	pref_name = g_settings.usermenu_text[button]; //set current button name as prefered name
 	ums = NULL;
-	mf = NULL;
 }
 
 CUserMenuSetup::~CUserMenuSetup()
 {
 	delete ums;
-	if (mf != NULL)
-		delete mf;
 }
-
 
 #define USERMENU_ITEM_OPTION_COUNT SNeutrinoSettings::ITEM_MAX
 const CMenuOptionChooser::keyval USERMENU_ITEM_OPTIONS[USERMENU_ITEM_OPTION_COUNT] =
@@ -114,15 +110,14 @@ int CUserMenuSetup::showSetup()
 	}else{ 
 		//if widget not clean, ensure that we have an empty widget without any item and set the last selected item
 		int sel = ums->getSelected(); 
-		ums->resetWidget();
+		ums->resetWidget(true);
 		ums->setSelected(sel);
 	}
 	
 	//CUserMenuNotifier *notify = new CUserMenuNotifier();
 	CStringInputSMS name(LOCALE_USERMENU_NAME, &g_settings.usermenu_text[button], 11, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzäöüß/- "/*, notify*/);
 
-	if (mf == NULL) 
-		mf = new CMenuForwarder(LOCALE_USERMENU_NAME, true, g_settings.usermenu_text[button],&name);
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_USERMENU_NAME, true, g_settings.usermenu_text[button],&name);
 	
 	//-------------------------------------
 	ums->addIntroItems();
