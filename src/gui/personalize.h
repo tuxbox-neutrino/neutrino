@@ -162,7 +162,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		void 	ShowMenuOptions(const int& menu);
 		void 	ShowHelpPersonalize();
 		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget *pin_widget);
-		void 	ShowUserMenu(CMenuWidget* p_widget, std::vector<CUserMenuSetup*> v_umenu);
+		void 	ShowUserMenu(CMenuWidget* p_widget, std::vector<CUserMenuSetup*> &v_umenu);
 		void 	ShowPluginMenu(CMenuWidget* p_widget);
 		void 	ShowPreverredKeySetup(CMenuWidget* p_widget);
 		void 	SaveAndExit();

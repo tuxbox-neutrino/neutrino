@@ -446,7 +446,7 @@ class CMenuWidget : public CMenuTarget
 		};
 		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK );
 		bool hasItem();
-		void resetWidget();
+		void resetWidget(bool delete_items = false);
 		void insertItem(const uint& item_id, CMenuItem* menuItem);
 		void removeItem(const uint& item_id);
 		int getItemId(CMenuItem* menuItem);
