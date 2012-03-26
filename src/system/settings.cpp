@@ -183,7 +183,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 
 	configfile.setInt32("scan_fta_flag", scan_fta_flag);
 	configfile.setInt32("scan_nit", scan_nit);
-	configfile.setInt32("scan_nit_manual", scan_nit);
+	configfile.setInt32("scan_nit_manual", scan_nit_manual);
 	configfile.setInt32("scan_bat", scan_bat);
 	configfile.setInt32("scan_reset_numbers", scan_reset_numbers);
 	configfile.setInt32("scan_logical_numbers", scan_logical_numbers);
