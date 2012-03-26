@@ -330,6 +330,8 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	delete pinChangeWidget;
 	delete fkeyMenu;
 	delete plMenu;
+	for(vector<CUserMenuSetup*>::iterator it = v_userMenuSetup.begin(); it != v_userMenuSetup.end(); ++it)
+		delete *it;
 	v_userMenuSetup.clear();
 	delete user_menu_notifier;
 	delete pin_setup_notifier;
@@ -374,7 +376,7 @@ void CPersonalizeGui::ShowPreverredKeySetup(CMenuWidget* p_widget)
 
 
 //init usermenu items
-void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*> v_umenu)
+void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*> &v_umenu)
 {
 	p_widget->addIntroItems(LOCALE_USERMENU_HEAD);
 	
