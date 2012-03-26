@@ -380,6 +380,7 @@ void CMenuWidget::move(int xoff, int yoff)
 
 CMenuWidget::~CMenuWidget()
 {
+#if 0
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
 		if ((item != GenericMenuSeparator) &&
@@ -392,6 +393,8 @@ CMenuWidget::~CMenuWidget()
 	
 	items.clear();
 	page_start.clear();
+#endif
+	resetWidget(true);
 }
 
 void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
@@ -411,7 +414,7 @@ void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
 	items.push_back(menuItem);
 }
 
-void CMenuWidget::resetWidget()
+void CMenuWidget::resetWidget(bool delete_items)
 {
 	for(unsigned int count=0;count<items.size();count++) {
 		CMenuItem * item = items[count];
@@ -419,7 +422,8 @@ void CMenuWidget::resetWidget()
 		    (item != GenericMenuSeparatorLine) &&
 		    (item != GenericMenuBack) &&
 		    (item != GenericMenuCancel)){
-			//delete item;//FIXME: possible crash here
+			if(delete_items)
+				delete item;
 			item = NULL;
 		}
 	}
