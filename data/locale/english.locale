@@ -1155,6 +1155,9 @@ satsetup.uncomm_input Uncommited input
 satsetup.usals_repeat USALS command repeat
 satsetup.use_fta_flag just free Channels
 satsetup.use_nit Use NIT
+satsetup.use_bat Use BAT
+satsetup.reset_numbers Reset channel numbers
+satsetup.logical_numbers Use logical numbers
 satsetup.use_usals Use usals for all
 sc.empty No card in slot
 sc.init_failed Card init failed
