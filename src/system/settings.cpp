@@ -152,10 +152,10 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 
 	scan_fta_flag = configfile.getInt32("scan_fta_flag", 0);
 	scan_nit = configfile.getInt32("scan_nit", 1);
-	scan_nit = configfile.getInt32("scan_nit_manual", 0);
+	scan_nit_manual = configfile.getInt32("scan_nit_manual", 0);
 	scan_bat = configfile.getInt32("scan_bat", 0);
-	scan_bat = configfile.getInt32("scan_reset_numbers", 0);
-	scan_bat = configfile.getInt32("scan_logical_numbers", 0);
+	scan_reset_numbers = configfile.getInt32("scan_reset_numbers", 0);
+	scan_logical_numbers = configfile.getInt32("scan_logical_numbers", 0);
 	TP_fec = configfile.getInt32("TP_fec", 1);
 	TP_pol = configfile.getInt32("TP_pol", 0);
 	TP_mod = configfile.getInt32("TP_mod", 3);
