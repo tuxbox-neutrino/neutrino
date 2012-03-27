@@ -488,6 +488,7 @@ void CBouquetManager::deleteBouquet(const CZapitBouquet* bouquet)
 	}
 }
 
+#if 0
 int str_compare_withoutspace(char const *s1, char const *s2)
 {
 	int cmp_result = 0;
@@ -501,6 +502,8 @@ int str_compare_withoutspace(char const *s1, char const *s2)
 	}
 	return cmp_result;
 } 
+#endif
+
 // -- Find Bouquet-Name, if BQ exists   (2002-04-02 rasc)
 // -- Return: Bouqet-ID (found: 0..n)  or -1 (Bouquet does not exist)
 int CBouquetManager::existsBouquet(char const * const name)
@@ -511,6 +514,7 @@ int CBouquetManager::existsBouquet(char const * const name)
 		{
 			return (int)i;
 		}
+#if 0
 		else if (strcasecmp(Bouquets[i]->Name.c_str(), name)==0)
 		{
 			int lower1 = 0, lower2 =  0;
@@ -548,6 +552,7 @@ int CBouquetManager::existsBouquet(char const * const name)
 			}
 			return (int)i;
 		}
+#endif
 	}
 	return -1;
 }
