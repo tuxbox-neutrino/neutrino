@@ -193,6 +193,8 @@ class CServiceManager
 		bool ReplaceProviderName(std::string &name, t_transport_stream_id tsid, t_original_network_id onid);
 		int  GetFreeNumber(bool radio);
 		int  GetMaxNumber(bool radio);
-		void SetServiceChanged(bool changed) { services_changed = changed; }
+		void FreeNumber(int number, bool radio);
+		void UseNumber(int number, bool radio);
+		void SetServicesChanged(bool changed) { services_changed = changed; }
 };
 #endif /* __getservices_h__ */

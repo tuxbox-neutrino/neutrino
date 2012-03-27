@@ -452,7 +452,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 
 		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
 
-		freq_id_t freq;
+		freq_id_t freq = 0;
 
 		feparams.inversion = INVERSION_AUTO;
 
@@ -1029,4 +1029,16 @@ int CServiceManager::GetMaxNumber(bool radio)
 		i = *it;
 	}
 	return i+1;
+}
+
+void CServiceManager::FreeNumber(int number, bool radio)
+{
+	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
+	channel_numbers->erase(number);
+}
+
+void CServiceManager::UseNumber(int number, bool radio)
+{
+	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
+	channel_numbers->insert(number);
 }
