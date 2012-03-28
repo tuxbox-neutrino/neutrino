@@ -28,10 +28,6 @@
 #ifndef __lcdd__
 #define __lcdd__
 
-#ifndef LCD_UPDATE
-#define LCD_UPDATE 1
-#endif
-
 #define LCDDIR_VAR "/var/share/tuxbox/neutrino/lcdd"
 
 typedef enum
@@ -83,14 +79,13 @@ typedef enum
 #include <configfile.h>
 #include <pthread.h>
 
-#if HAVE_SPARK_HARDWARE
-#define HAVE_GENERIC_HARDWARE 1
-#endif
+#ifndef  HAVE_SPARK_HARDWARE
 #include <lcddisplay/fontrenderer.h>
 
 
 class CLCDPainter;
 class LcdFontRenderClass;
+#endif
 class CLCD
 {
 	public:
@@ -122,7 +117,7 @@ class CLCD
 
 
 	private:
-
+#ifndef HAVE_SPARK_HARDWARE
 		class FontsDef
 		{
 			public:
@@ -170,7 +165,14 @@ class CLCD
 		void setlcdparameter(int dimm, int contrast, int power, int inverse, int bias);
 		void displayUpdate();
 		void showTextScreen(const std::string & big, const std::string & small, int showmode, bool perform_wakeup, bool centered = false);
-
+#else
+		CLCD();
+		std::string	menutitle;
+		MODES		mode;
+		void setled(int red, int green);
+		static void	*TimeThread(void *);
+		pthread_t	thrTime;
+#endif
 	public:
 		bool has_lcd;
 		void wake_up();

@@ -27,7 +27,7 @@
 */
 
 #ifdef HAVE_SPARK_HARDWARE
-#define HAVE_GENERIC_HARDWARE 1
+#error src/lcddisplay/lcddisplay.h must not be included on SPARK
 #endif
 #ifdef HAVE_GENERIC_HARDWARE
 // dummy

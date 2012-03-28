@@ -57,8 +57,7 @@ endif
 
 if BOXTYPE_SPARK
 libneutrino_driver_a_SOURCES += \
-	newclock.cpp \
-	lcdd.cpp
+	spark_led.cpp
 endif
 if USE_STB_HAL
 INCLUDES += \
