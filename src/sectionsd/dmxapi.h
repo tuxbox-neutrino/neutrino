@@ -29,7 +29,7 @@
 #endif
 
 #include <stdint.h>
-#if !HAVE_TRIPLEDRAGON
+#if 0 // !HAVE_TRIPLEDRAGON
 #include <linux/dvb/dmx.h>
 #endif
 
