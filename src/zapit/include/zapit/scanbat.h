@@ -32,6 +32,7 @@
 #define BAT_SECTION_SIZE 4098
 
 typedef std::map <t_channel_id, int> channel_number_map_t;
+typedef std::map <std::string, std::set<t_channel_id> > bouquet_map_t;
 
 class CBat : public OpenThreads::Thread
 {
@@ -42,6 +43,8 @@ class CBat : public OpenThreads::Thread
 		t_satellite_position satellitePosition;
 		freq_id_t freq_id;
 		channel_number_map_t logical_map;
+		bouquet_map_t bouquet_map;
+		std::string bouquetName;
 
 		BouquetAssociationSectionList sections;
 
@@ -56,7 +59,8 @@ class CBat : public OpenThreads::Thread
 		bool Start();
 		bool Stop();
 		bool Parse();
-		channel_number_map_t & getLogicalMap() { return logical_map; };
+		channel_number_map_t & getLogicalMap() { return logical_map; }
+		bouquet_map_t & getBouquets() { return bouquet_map; }
 };
 
 #endif

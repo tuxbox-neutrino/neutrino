@@ -34,6 +34,11 @@
 #define DEBUG_BAT_UNUSED
 #define DEBUG_LCN
 
+static bool compare_section_num(BouquetAssociationSection * first, BouquetAssociationSection * second)
+{
+	return first->getSectionNumber() < second->getSectionNumber();
+}
+
 CBat::CBat(t_satellite_position spos, freq_id_t frq, int dnum)
 {
 	satellitePosition = spos;
@@ -141,6 +146,7 @@ bool CBat::Parse()
 	if(!Read())
 		return false;
 
+	sections.sort(compare_section_num);
 	BouquetAssociationSectionConstIterator sit;
 	for (sit = sections.begin(); sit != sections.end(); ++sit) {
 		BouquetAssociationSection * bat = *sit;
@@ -162,7 +168,7 @@ bool CBat::Parse()
 				case BOUQUET_NAME_DESCRIPTOR:
 					{
 						BouquetNameDescriptor * nd = (BouquetNameDescriptor *) d;
-						std::string bouquetName = stringDVBUTF8(nd->getBouquetName());
+						/*std::string*/ bouquetName = stringDVBUTF8(nd->getBouquetName());
 						printf("BAT: bouquet name [%s]\n", bouquetName.c_str());
 					}
 					break;
@@ -267,15 +273,16 @@ bool CBat::ParseServiceList(ServiceListDescriptor * sd, BouquetAssociation * b)
 	ServiceListItemConstIterator it;
 	for (it = slist->begin(); it != slist->end(); ++it) {
 		ServiceListItem * s = *it;
-#if 0
-		t_channel_id channel_id = CZapitChannel::makeChannelId(satellitePosition,
-				freq_id, b->getTransportStreamId(), b->getOriginalNetworkId(), s->getServiceId());
+#if 1
+		t_channel_id channel_id = CZapitChannel::makeChannelId(0 /*satellitePosition*/,
+				0 /*freq_id*/, b->getTransportStreamId(), b->getOriginalNetworkId(), s->getServiceId());
 		CServiceScan::getInstance()->AddServiceType(channel_id, s->getServiceType());
 #endif
 #ifdef DEBUG_BAT
 		printf("BAT: service tsid %04x onid %04x sid %04x type %02x\n",
 				b->getTransportStreamId(), b->getOriginalNetworkId(), s->getServiceId(), s->getServiceType());
 #endif
+		bouquet_map[bouquetName].insert(channel_id);
 	}
 	return true;
 }
@@ -288,8 +295,11 @@ bool CBat::ParseLogicalChannels(LogicalChannelDescriptor * ld, BouquetAssociatio
 	const LogicalChannelList &clist = *ld->getChannelList();
 	LogicalChannelListConstIterator it;
 	for (it = clist.begin(); it != clist.end(); ++it) {
-		t_service_id service_id = (*it)->getServiceId();
 		int lcn = (*it)->getLogicalChannelNumber();
+		if(lcn == 0)
+			continue;
+
+		t_service_id service_id = (*it)->getServiceId();
 		t_channel_id channel_id = CZapitChannel::makeChannelId(0, 0,
 				transport_stream_id, original_network_id, service_id);
 		/* (*it)->getVisibleServiceFlag(); */
@@ -299,7 +309,7 @@ bool CBat::ParseLogicalChannels(LogicalChannelDescriptor * ld, BouquetAssociatio
 		CZapitChannel * chan = CServiceManager::getInstance()->FindChannel48(channel_id);
 		if(chan)
 			name = chan->getName();
-		printf("BAT: logical channel %05d: tsid %04x onid %04x %016llx [%s]\n", lcn, transport_stream_id, original_network_id, channel_id, name.c_str());
+		printf("BAT: logical channel %05d: tsid %04x onid %04x %016llx [%s] visible %d\n", lcn, transport_stream_id, original_network_id, channel_id, name.c_str(), (*it)->getVisibleServiceFlag());
 #endif
 	}
 	return true;
