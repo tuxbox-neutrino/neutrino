@@ -5,6 +5,7 @@
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
+/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __PLAYBACK_CS_H_
 #define __PLAYBACK_CS_H_
@@ -17,6 +18,14 @@ typedef enum {
 } playmode_t;
 
 class cPlaybackData;
+
+typedef struct {
+	bool enabled;
+	uint16_t pid;
+	uint16_t ac3flags;
+	std::string lang;
+	std::string codec_name;
+} playback_audio_pid_info_t;
 
 class cPlayback {
 private:
@@ -50,6 +59,7 @@ public:
 	bool SetPosition(int position, bool absolute = false);
 	bool IsPlaying(void) const { return playing; }
 	bool IsEnabled(void) const { return enabled; }
+	void FindAllPids(playback_audio_pid_info_t *audiopids, uint16_t size, uint16_t *numpida);
 	void FindAllPids(uint16_t *apids, unsigned short *ac3flags, uint16_t *numpida, std::string *language);
 
 };

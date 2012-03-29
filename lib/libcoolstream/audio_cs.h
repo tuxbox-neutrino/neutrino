@@ -141,12 +141,13 @@ public:
 	void getAudioInfo(int &Type, int &Layer, int &Freq, int &Bitrate, int &Mode);
 	void SetSRS(int iq_enable, int nmgr_enable, int iq_mode, int iq_level);
 	bool IsHdmiDDSupported(void);
-	void SetHdmiDD(HDMI_ENCODED_MODE type);
+	void SetHdmiDD(bool On);
 	void SetSpdifDD(bool Enable);
 	void ScheduleMute(bool On);
 	void EnableAnalogOut(bool Enable);
 	bool GetHdmiAudioCaps(cs_audio_caps_t &caps);
 	bool IsHdmiAudioFormatSupported(HDMI_AUDIO_FORMAT format);
+	void SetHdmiDD(HDMI_ENCODED_MODE type);
 };
 
 #endif //__AUDIO_CS_H_
