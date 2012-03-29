@@ -1230,7 +1230,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 	CBouquet* hdBouquet = NULL;
 	/* all HD channels */
 	if(g_settings.make_hd_list) {
-		hdBouquet = new CBouquet(0, (char *) "HD", false, true);
+		hdBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_HDTV), false, true);
 
 		CServiceManager::getInstance()->GetAllHDChannels(zapitList);
 		hi = zapitList.size();
