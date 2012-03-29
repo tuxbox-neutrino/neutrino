@@ -126,7 +126,7 @@ class CZapitChannel
 		unsigned short			teletextPid;
 		unsigned short			videoPid;
 		unsigned short			audioPid;
-		unsigned short			privatePid;
+		/*unsigned short			privatePid;*/
 
 		/* set true when pids are set up */
 		bool				pidsFlag;
@@ -203,7 +203,7 @@ class CZapitChannel
 		unsigned short		getTeletextPid(void)		{ return teletextPid; }
 		const char *		getTeletextLang(void)		{ return ttx_language_code.c_str(); }
 		unsigned short		getVideoPid(void)		{ return videoPid; }
-		unsigned short		getPrivatePid(void)		{ return privatePid; }
+		/*unsigned short		getPrivatePid(void)		{ return privatePid; }*/
 		unsigned short		getPreAudioPid(void)		{ return audioPid; }
 		bool			getPidsFlag(void)		{ return pidsFlag; }
 		//CCaPmt *		getCaPmt(void)			{ return caPmt; }
@@ -226,7 +226,7 @@ class CZapitChannel
 		void setTeletextLang(std::string lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }
 		void setAudioPid(unsigned short pAudioPid)		{ audioPid = pAudioPid; }
-		void setPrivatePid(unsigned short pPrivatePid)		{ privatePid = pPrivatePid; }
+		/*void setPrivatePid(unsigned short pPrivatePid)		{ privatePid = pPrivatePid; }*/
 		void setPidsFlag(void)					{ pidsFlag = true; }
 		//void setCaPmt(CCaPmt *pCaPmt);
 		void setPmtVersion(uint8_t version)			{ pmt_version = version; }

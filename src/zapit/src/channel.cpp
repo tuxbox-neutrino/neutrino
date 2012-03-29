@@ -138,7 +138,7 @@ void CZapitChannel::resetPids(void)
 	videoPid = 0;
 	audioPid = 0;
 
-	privatePid = 0;
+	/*privatePid = 0;*/
 	pidsFlag = false;
         std::vector<CZapitAbsSub *>::iterator subI;
         for (subI = channelSubs.begin(); subI != channelSubs.end(); subI++){
@@ -153,7 +153,8 @@ unsigned char CZapitChannel::getServiceType(bool real)
 	if(real)
 		return serviceType; 
 	else
-		return serviceType == 2 ? 2 : 1;	
+		return serviceType == ST_DIGITAL_RADIO_SOUND_SERVICE ?
+			ST_DIGITAL_RADIO_SOUND_SERVICE : ST_DIGITAL_TELEVISION_SERVICE;	
 }
 
 bool CZapitChannel::isHD()
@@ -162,7 +163,7 @@ bool CZapitChannel::isHD()
 		case 0x11: case 0x19:
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
 			return true;
-		case 0x1: {
+		case ST_DIGITAL_TELEVISION_SERVICE: {
 				  char * temp = (char *) name.c_str();
 				  int len = name.size();
 				  if((len > 1) && temp[len-2] == 'H' && temp[len-1] == 'D') {
@@ -171,7 +172,7 @@ bool CZapitChannel::isHD()
 				  }
 				  return false;
 			  }
-		case 0x2:
+		case ST_DIGITAL_RADIO_SOUND_SERVICE:
 			return false;
 		default:
 			//printf("[zapit] Unknown channel type 0x%X name %s !!!!!!\n", serviceType, name.c_str());
