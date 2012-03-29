@@ -433,6 +433,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 
 	// TODO: use locales
 	remainChannels = addBouquet((Bouquets.size() == 0) ? "All Channels" : "Other", false); // UTF-8 encoded
+	remainChannels->bOther = true;
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); it++) {
 		remainChannels->addService(*it);
@@ -457,6 +458,7 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? "favorites" : name);
 	newBouquet->bUser = ub;
 	newBouquet->bFav = myfav;
+	newBouquet->bOther = false;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
 	if(ub) {

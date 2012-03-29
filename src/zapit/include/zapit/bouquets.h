@@ -34,6 +34,7 @@ class CZapitBouquet
 	bool        bLocked;
 	bool        bUser;
 	bool        bFav;
+	bool        bOther;
 	t_satellite_position satellitePosition;
 
 	ZapitChannelList radioChannels;
