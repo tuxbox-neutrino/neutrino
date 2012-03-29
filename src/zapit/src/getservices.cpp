@@ -358,8 +358,6 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		uint16_t scrambled = xmlGetNumericAttribute(node, "s", 16);
 		int number = xmlGetNumericAttribute(node, "num", 10);
 
-		service_number_map_t * channel_numbers = (service_type == ST_DIGITAL_RADIO_SOUND_SERVICE) ? &radio_numbers : &tv_numbers;
-
 		t_channel_id chid = CREATE_CHANNEL_ID64;
 		char *ptr = xmlGetAttribute(node, "action");
 		bool remove = ptr ? (!strcmp(ptr, "remove") || !strcmp(ptr, "replace")) : false;
@@ -380,6 +378,8 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		CZapitChannel * channel = new CZapitChannel(name, chid, service_type,
 				satellitePosition, freq);
 
+		service_number_map_t * channel_numbers = (service_type == ST_DIGITAL_RADIO_SOUND_SERVICE) ? &radio_numbers : &tv_numbers;
+
 		if(number) {
 			have_numbers = true;
 			service_number_map_t::iterator it = channel_numbers->find(number);
@@ -387,6 +387,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				printf("[zapit] duplicate channel number %d: %s id %llx freq %d\n", number,
 						name.c_str(), chid, freq);
 				number = 0;
+				services_changed = true;
 			} else
 				channel_numbers->insert(number);
 		}
@@ -402,7 +403,8 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 			channel->scrambled = scrambled;
 			channel->polarization = polarization;
 			service_type = channel->getServiceType();
-			if(pmtpid != 0 && (((service_type == 2) && (apid > 0)) || ( (service_type == 1)  && (vpid > 0) && (apid > 0))) ) {
+			if(pmtpid != 0 && (((channel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE) && (apid > 0))
+						|| ( (channel->getServiceType() == ST_DIGITAL_TELEVISION_SERVICE)  && (vpid > 0) && (apid > 0))) ) {
 				DBG("[getserv] preset chan %s vpid %X sid %X tpid %X onid %X\n", name.c_str(), vpid, service_id, transport_stream_id, transport_stream_id);
 				channel->setVideoPid(vpid);
 				channel->setAudioPid(apid);
