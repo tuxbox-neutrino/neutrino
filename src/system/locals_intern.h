@@ -221,6 +221,8 @@ const char * locale_real_names[] =
 	"bouqueteditor.switch",
 	"bouqueteditor.switchmode",
 	"bouquetlist.head",
+	"bouquetname.other",
+	"bouquetname.hdtv",
 	"cablesetup.provider",
 	"channellist.current_tp",
 	"channellist.edit",
