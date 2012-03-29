@@ -66,6 +66,7 @@ void CZapitChannel::Init()
 	has_bouquet = false;
 	record_demux = 2;
 	polarization = 0;
+	flags = 0;
 }
 
 CZapitChannel::~CZapitChannel(void)
