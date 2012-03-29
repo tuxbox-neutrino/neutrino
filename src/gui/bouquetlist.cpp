@@ -81,7 +81,15 @@ CBouquetList::~CBouquetList()
 CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 {
 	int BouquetKey= Bouquets.size();//FIXME not used ?
-	CBouquet* tmp = new CBouquet(BouquetKey, zapitBouquet->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : zapitBouquet->Name.c_str(), zapitBouquet->bLocked);
+	const char * bname;
+	if (zapitBouquet->bFav)
+		bname = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
+	else if (zapitBouquet->bOther)
+		bname = g_Locale->getText(LOCALE_BOUQUETNAME_OTHER);
+	else
+		bname = zapitBouquet->Name.c_str();
+
+	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked);
 	tmp->zapitBouquet = zapitBouquet;
 	Bouquets.push_back(tmp);
 	return tmp;
