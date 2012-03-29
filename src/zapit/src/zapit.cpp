@@ -1461,7 +1461,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 			responseGetOtherPIDs.pmtpid = current_channel->getPmtPid();
 			responseGetOtherPIDs.pcrpid = current_channel->getPcrPid();
 			responseGetOtherPIDs.selected_apid = current_channel->getAudioChannelIndex();
-			responseGetOtherPIDs.privatepid = current_channel->getPrivatePid();
+			/*responseGetOtherPIDs.privatepid = current_channel->getPrivatePid();*/
 			CBasicServer::send_data(connfd, &responseGetOtherPIDs, sizeof(responseGetOtherPIDs));
 			sendAPIDs(connfd);
 		}
