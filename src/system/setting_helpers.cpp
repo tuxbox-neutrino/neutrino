@@ -875,7 +875,8 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 				name = xmlGetAttribute(search, "name");
 				if(!strcmp(g_settings.timezone, name.c_str())) {
 					zone = xmlGetAttribute(search, "zone");
-					found = true;
+					if (!access(("/usr/share/zoneinfo/" + zone).c_str(), R_OK))
+						found = true;
 					break;
 				}
                         }
@@ -885,9 +886,12 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
         }
 	if(found) {
 		printf("Timezone: %s -> %s\n", name.c_str(), zone.c_str());
-		std::string cmd = "cp /usr/share/zoneinfo/" + zone + " /etc/localtime";
-		printf("exec %s\n", cmd.c_str());
-		system(cmd.c_str());
+		std::string cmd = "/usr/share/zoneinfo/" + zone;
+		printf("symlink %s to /etc/localtime\n", cmd.c_str());
+		if (unlink("/etc/localtime"))
+			perror("unlink failed");
+		if (symlink(cmd.c_str(), "/etc/localtime"))
+			perror("symlink failed");
 		cmd = ":" + zone;
 		setenv("TZ", cmd.c_str(), 1);
 	}
