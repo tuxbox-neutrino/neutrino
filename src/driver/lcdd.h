@@ -192,7 +192,7 @@ class CLCD
 		void setMovieInfo(const AUDIOMODES playmode, const std::string big, const std::string small, const bool centered = false);
 		void setMovieAudio(const bool is_ac3);
 		std::string getMenutitle() { return menutitle; };
-		void showTime();
+		void showTime(bool force = false);
 		/** blocks for duration seconds */
 		void showRCLock(int duration = 2);
 		void showVolume(const char vol, const bool perform_update = true);

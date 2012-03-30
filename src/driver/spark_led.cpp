@@ -130,7 +130,7 @@ printf("spark_led:%s red:%d green:%d\n", __func__, red, green);
 	close(fd);
 }
 
-void CLCD::showTime()
+void CLCD::showTime(bool force)
 {
 	static bool redled = false;
 
@@ -141,14 +141,14 @@ void CLCD::showTime()
 	}
 
 	time_t now = time(NULL);
-	if (power && showclock && (now - last_display) > 4)
+	if (power && (force || (showclock && (now - last_display) > 4)))
 	{
 		char timestr[5];
 		struct tm *t;
 		static int hour = 0, minute = 0;
 
 		t = localtime(&now);
-		if (last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
+		if (force || last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
 			sprintf(timestr, "%02d%02d", hour, minute);
@@ -239,8 +239,7 @@ printf("spark_led:%s %d\n", __func__, (int)m);
 	case MODE_STANDBY:
 		setled(0, 1);
 		showclock = true;
-		last_display = 0;
-		showTime();
+		showTime(true);
 		break;
 	default:
 		showclock = true;
@@ -281,6 +280,8 @@ void CLCD::togglePower(void)
 	power = !power;
 	if (!power)
 		Clear();
+	else
+		showTime(true);
 }
 
 void CLCD::setMuted(bool mu)

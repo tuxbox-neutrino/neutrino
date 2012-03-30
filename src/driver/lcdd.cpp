@@ -605,7 +605,7 @@ void CLCD::setMovieAudio(const bool is_ac3)
 	showPercentOver(percentOver, true, MODE_MOVIE);
 }
 
-void CLCD::showTime()
+void CLCD::showTime(bool)
 {
 	if (showclock)
 	{
