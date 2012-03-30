@@ -122,6 +122,9 @@ int push(int ev, unsigned int code, unsigned int value)
 
 	/* ev is unused - stupid compiler... */
 	fd = ev;
+	/* ignore for now, neutrino does not handle this anyway */
+	if (value == KEY_RELEASED)
+		return 0;
 
 	memset(&servaddr, 0, sizeof(struct sockaddr_un));
 	servaddr.sun_family = AF_UNIX;
@@ -147,10 +150,9 @@ int push(int ev, unsigned int code, unsigned int value)
 	/* neutrino-hd does not yet do REPEAT or RELEASE AFAICT. */
 	if (value == KEY_AUTOREPEAT)
 		code |= 0x0400; // neutrino:CRCInput::RC_repeat
-#endif
 	if (value == KEY_RELEASED)
-		goto out;
-//		code |= 0x0800; // neutrino:CRCInput::RC_release
+		code |= 0x0800; // neutrino:CRCInput::RC_release
+#endif
 
 	if (write(fd, &eh, sizeof(eh)) < 0)
 	{
