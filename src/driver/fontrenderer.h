@@ -53,8 +53,6 @@ class Font
 	// these are HACKED values, because the font metrics were unusable.
 	int height,DigitHeight,DigitOffset,ascender,descender,upper,lower;
 	int fontwidth;
-	int xmult, ymult;
-	int last_xmult, last_size;
 
  public:
 	enum fontmodifier
@@ -73,7 +71,7 @@ class Font
 	int getDigitHeight(void);
 	int getDigitOffset(void);
 	int getWidth(void);
-	int getSize(void);
+	int getSize(){return font.width;}
 	int setSize(int isize);
 
 	Font(FBFontRenderClass *render, FTC_FaceID faceid, const int isize, const fontmodifier _stylemodifier);

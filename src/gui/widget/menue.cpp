@@ -996,7 +996,7 @@ void CMenuWidget::saveScreen()
 
 	delete[] background;
 
-	background = new fb_pixel_t [frameBuffer->scaleX(full_width) * frameBuffer->scaleY(full_height)];
+	background = new fb_pixel_t [full_width * full_height];
 	if(background)
 		frameBuffer->SaveScreen(x, y, full_width, full_height, background);
 }

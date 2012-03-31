@@ -64,9 +64,8 @@ static int bpafd = -1;
 static fb_pixel_t *backbuffer = NULL;
 static int fake_xRes = 0;
 static int fake_yRes = 0;
+static int fake_stride = 0;
 static int backbuf_sz = 0;
-static int max_backbuf_sz = 0;
-static bool scaling = false;
 
 void CFrameBuffer::waitForIdle(void)
 {
@@ -156,26 +155,12 @@ void CFrameBuffer::init(const char * const fbDevice)
 	stride = xRes * bpp / 8;
 printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 
-	/* PAL and 720p mode is unscaled, but 1080 modes are not */
-	scaling = (xRes > 1280);
-
-	if (xRes > 720)
-	{
-		/* HDTV mode */
-		fake_xRes = DEFAULT_XRES;
-		fake_yRes = DEFAULT_YRES;
-		screeninfo.xres = DEFAULT_XRES;
-		screeninfo.yres = DEFAULT_YRES;
-		screeninfo.xres_virtual = DEFAULT_XRES;
-		screeninfo.yres_virtual = DEFAULT_YRES;
-	}
-	else
-	{
-		/* PAL mode */
-		fake_xRes = xRes;
-		fake_yRes = yRes;
-	}
-
+	fake_xRes = DEFAULT_XRES;
+	fake_yRes = DEFAULT_YRES;
+	screeninfo.xres = DEFAULT_XRES;
+	screeninfo.yres = DEFAULT_YRES;
+	screeninfo.xres_virtual = DEFAULT_XRES;
+	screeninfo.yres_virtual = DEFAULT_YRES;
 	screeninfo.bits_per_pixel = 32;
 	backbuf_sz = stride * yRes;
 
@@ -206,9 +191,7 @@ printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 	}
 	BPAMemAllocMemData bpa_data;
 	bpa_data.bpa_part = (char *)"LMI_VID";
-	/* allocate maximum possibly needed amount of memory */
-	max_backbuf_sz = 1920 * 1080 * sizeof(fb_pixel_t);
-	bpa_data.mem_size = max_backbuf_sz;
+	bpa_data.mem_size = backbuf_sz;
 	int res;
 	res = ioctl(bpafd, BPAMEMIO_ALLOCMEM, &bpa_data);
 	if (res)
@@ -239,7 +222,7 @@ printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 		return;
 	}
 
-	memset(backbuffer, 0, max_backbuf_sz);
+	memset(backbuffer, 0, backbuf_sz);
 	cache_size = 0;
 
 	/* Windows Colors */
@@ -317,7 +300,7 @@ CFrameBuffer::~CFrameBuffer()
 	if (backbuffer)
 	{
 		fprintf(stderr, "CFrameBuffer: unmap backbuffer\n");
-		munmap(backbuffer, max_backbuf_sz);
+		munmap(backbuffer, backbuf_sz);
 	}
 	if (bpafd != -1)
 	{
@@ -501,15 +484,10 @@ void CFrameBuffer::paintBoxRel(const int _x, const int _y, const int _dx, const 
 	if (!getActive())
 		return;
 
-	int add = 0;
-	/* hack to remove artefacts caused by rounding in scaling mode */
-	if (scaling && col == backgroundColor)
-		add = 1;
-
 	int x = scaleX(_x);
 	int y = scaleY(_y);
-	int dx = scaleX(_dx + add);
-	int dy = scaleY(_dy + add);
+	int dx = scaleX(_dx);
+	int dy = scaleY(_dy);
 	int radius = scaleX(_radius);
 
 	int corner_tl = (type & CORNER_TOP_LEFT)     ? 1 : 0;
@@ -615,12 +593,6 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 	if (!getActive())
 		return;
 
-	int d = scaleX(1);
-	xa = scaleX(xa);
-	xb = scaleX(xb);
-	ya = scaleY(ya);
-	yb = scaleY(yb);
-
 	int dx = abs (xa - xb);
 	int dy = abs (ya - yb);
 	int x;
@@ -649,10 +621,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 			step = yb < ya ? -1 : 1;
 		}
 
-		if (d == 1)
-			paintPixel(x, y, col);
-		else
-			blitRect(x, y, 2, 2, col);
+		paintPixel(x, y, col);
 
 		while (x < End)
 		{
@@ -664,10 +633,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 				y += step;
 				p += twoDyDx;
 			}
-			if (d == 1)
-				paintPixel(x, y, col);
-			else
-				blitRect(x, y, 2, 2, col);
+			paintPixel(x, y, col);
 		}
 	}
 	else
@@ -691,10 +657,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 			step = xb < xa ? -1 : 1;
 		}
 
-		if (d == 1)
-			paintPixel(x, y, col);
-		else
-			blitRect(x, y, 2, 2, col);
+		paintPixel(x, y, col);
 
 		while (y < End)
 		{
@@ -706,10 +669,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 				x += step;
 				p += twoDxDy;
 			}
-			if (d == 1)
-				paintPixel(x, y, col);
-			else
-				blitRect(x, y, 2, 2, col);
+			paintPixel(x, y, col);
 		}
 	}
 }
@@ -726,8 +686,7 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 	int _x = scaleX(x);
 	int _y = scaleY(y);
 	int _dy = scaleY(dy);
-	int w = scaleX(1);
-	blitRect(_x, _y, w, _dy, col);
+	blitRect(_x, _y, 1, _dy, col);
 }
 
 void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
@@ -741,9 +700,8 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 		return;
 	int _x = scaleX(x);
 	int _y = scaleY(y);
-	int _dx = scaleX(dx);
-	int w = scaleY(1);
-	blitRect(_x, _y, _dx, w, col);
+	int _dx = scaleY(dx);
+	blitRect(_x, _y, _dx, 1, col);
 }
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
@@ -1277,7 +1235,7 @@ void CFrameBuffer::paintBackground()
 	}
 	else
 	{
-		paintBoxRel(0, 0, screeninfo.xres, screeninfo.yres, backgroundColor);
+		paintBoxRel(0, 0, xRes, yRes, backgroundColor);
 	}
 }
 
@@ -1286,12 +1244,6 @@ void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const m
 	if (!getActive())
 		return;
 
-	/* danger: memp needs to be big enough for scaled picture...
-	 * need to make sure all callers know this... */
-	x = scaleX(x);
-	y = scaleY(y);
-	dx = scaleX(dx);
-	dy = scaleY(dy);
 
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
@@ -1323,13 +1275,6 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 {
 	if (!getActive())
 		return;
-
-	/* danger: memp needs to be big enough for scaled picture...
-	 * need to make sure all callers know this... */
-	x = scaleX(x);
-	y = scaleY(y);
-	dx = scaleX(dx);
-	dy = scaleY(dy);
 
 	uint8_t * fbpos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
@@ -1437,23 +1382,13 @@ void * CFrameBuffer::convertRGBA2FB(unsigned char *rgbbuff, unsigned long x, uns
 	return int_convertRGB2FB(rgbbuff, x, y, 0, true);
 }
 
-void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp, bool scale)
+void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32_t xoff, uint32_t yoff, uint32_t xp, uint32_t yp, bool transp)
 {
 	int x, y, dw, dh;
-	if (scale)
-	{
-		x = scaleX(xoff);
-		y = scaleY(yoff);
-		dw = scaleX(width - xp);
-		dh = scaleY(height - yp);
-	}
-	else
-	{
-		x = xoff;
-		y = yoff;
-		dw = width - xp;
-		dh = height - yp;
-	}
+	x = xoff;
+	y = yoff;
+	dw = width - xp;
+	dh = height - yp;
 
 	size_t mem_sz = width * height * sizeof(fb_pixel_t);
 	unsigned long ulFlags = 0;
@@ -1487,7 +1422,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	blt_data.dstMemSize = stride * yRes;
 
 	// icons are so small that they will still be in cache
-	msync(backbuffer, mem_sz, MS_SYNC);
+	msync(backbuffer, backbuf_sz, MS_SYNC);
 
 	if(ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("blit2FB FBIO_BLIT");
@@ -1564,46 +1499,6 @@ void CFrameBuffer::resize(int format)
 	yRes = xyres[format][1];
 	bpp = 32;
 	stride = xRes * bpp / 8;
-	fprintf(stderr, "CFrameBuffer::resize(%d): %d x %d\n", format, xRes, yRes);
-
-	/* reacquire parameters...
-	 * TODO: this is duplicated code from ::init() function */
-	if (ioctl(fd, FBIOGET_VSCREENINFO, &screeninfo) < 0)
-		perror("FBIOGET_VSCREENINFO");
-
-	xRes = screeninfo.xres;
-	yRes = screeninfo.yres;
-	bpp = 32;
-	stride = xRes * bpp / 8;
-
-	scaling = (xRes > 1280);
-
-	if (xRes > 720)
-	{
-		fake_xRes = DEFAULT_XRES;
-		fake_yRes = DEFAULT_YRES;
-		screeninfo.xres = DEFAULT_XRES;
-		screeninfo.yres = DEFAULT_YRES;
-		screeninfo.xres_virtual = DEFAULT_XRES;
-		screeninfo.yres_virtual = DEFAULT_YRES;
-	}
-	else
-	{
-		fake_xRes = xRes;
-		fake_yRes = yRes;
-	}
-
-	printf("FB:resize %dx%dx%d line length %d. scaling: %d\n", xRes, yRes, bpp, stride, scaling);
-
-	screeninfo.bits_per_pixel = 32;
-	backbuf_sz = stride * yRes;
-
-	int p = (xRes > 720); /* 0 == SDTV, 1 == HDTV */
-	g_settings.screen_preset = p;
-	g_settings.screen_StartX = p ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
-	g_settings.screen_StartY = p ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
-	g_settings.screen_EndX   = p ? g_settings.screen_EndX_lcd   : g_settings.screen_EndX_crt;
-	g_settings.screen_EndY   = p ? g_settings.screen_EndY_lcd   : g_settings.screen_EndY_crt;
 }
 
 void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long color)
@@ -1659,11 +1554,10 @@ void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, i
 	blt_data.srcMemSize = backbuf_sz;
 	blt_data.dstMemSize = stride * yRes;
 
-	msync(backbuffer, blt_data.srcPitch * src_height, MS_SYNC);
+	msync(backbuffer, backbuf_sz, MS_SYNC);
 
 	if(ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("blit_icon FBIO_BLIT");
-	ioctl(fd, STMFBIO_SYNC_BLITTER);
 }
 
 void CFrameBuffer::update(void)
@@ -1673,8 +1567,6 @@ void CFrameBuffer::update(void)
 
 int CFrameBuffer::scaleX(const int x, bool clamp)
 {
-	if (!scaling)
-		return x;
 	unsigned int mul = x * xRes;
 	mul = mul / DEFAULT_XRES + (((mul % DEFAULT_XRES) >= (DEFAULT_XRES / 2)) ? 1 : 0);
 	if (clamp && mul > xRes)
@@ -1684,8 +1576,6 @@ int CFrameBuffer::scaleX(const int x, bool clamp)
 
 int CFrameBuffer::scaleY(const int y, bool clamp)
 {
-	if (!scaling)
-		return y;
 	unsigned int mul = y * yRes;
 	mul = mul / DEFAULT_YRES + (((mul % DEFAULT_YRES) >= (DEFAULT_YRES / 2)) ? 1 : 0);
 	if (clamp && mul > yRes)

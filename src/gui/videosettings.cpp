@@ -318,7 +318,6 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 {
 	printf("[neutrino VideoSettings] %s setup videosystem...\n", __FUNCTION__);
 	videoDecoder->SetVideoSystem(g_settings.video_Mode); //FIXME 
-	frameBuffer->resize(g_settings.video_Mode);
 	
 	if (do_ask)
 	{
@@ -329,7 +328,6 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 			{
 				g_settings.video_Mode = prev_video_mode;
 				videoDecoder->SetVideoSystem(g_settings.video_Mode);
-				frameBuffer->resize(g_settings.video_Mode);
 			} 
 		}
 		else
@@ -493,7 +491,6 @@ void CVideoSettings::nextMode(void)
 			g_settings.video_Mode = VIDEOMENU_VIDEOMODE_OPTIONS[curmode].key;
 			//CVFD::getInstance()->ShowText(text);
 			videoDecoder->SetVideoSystem(g_settings.video_Mode);
-			frameBuffer->resize(g_settings.video_Mode);
 			//return;
 			disp_cur = 1;
 		}
