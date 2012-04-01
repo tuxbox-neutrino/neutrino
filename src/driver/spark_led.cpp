@@ -43,6 +43,7 @@ static bool power = true;
 static bool muted = false;
 static bool showclock = true;
 static time_t last_display = 0;
+static char display_text[64] = { 0 };
 
 static inline int dev_open()
 {
@@ -153,7 +154,12 @@ void CLCD::showTime(bool force)
 	}
 
 	time_t now = time(NULL);
-	if (power && (force || (showclock && (now - last_display) > 4)))
+	if (display_text[0])
+	{
+		display(display_text);
+		display_text[0] = '\0';
+	}
+	else if (power && (force || (showclock && (now - last_display) > 4)))
 	{
 		char timestr[5];
 		struct tm *t;
@@ -214,7 +220,8 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 {
 	if (mode != MODE_MENU_UTF8)
 		return;
-	display(text);
+	strncpy(display_text, text, sizeof(display_text) - 1);
+	display_text[sizeof(display_text) - 1] = '\0';
 }
 
 void CLCD::showAudioTrack(const std::string &, const std::string & title, const std::string &)
