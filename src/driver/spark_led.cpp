@@ -55,13 +55,20 @@ static inline int dev_open()
 static void display(const char *s, bool update_timestamp = true)
 {
 	int fd = dev_open();
+	int len = strlen(s);
 	if (fd < 0)
 		return;
 printf("spark_led:%s '%s'\n", __func__, s);
-	write(fd, s, strlen(s));
+	write(fd, s, len);
 	close(fd);
 	if (update_timestamp)
+	{
 		last_display = time(NULL);
+		/* increase timeout to ensure that everything is displayed
+		 * the driver displays 5 characters per second */
+		if (len > 4)
+			last_display += (len - 4) / 5;
+	}
 }
 
 CLCD::CLCD()
@@ -203,11 +210,11 @@ void CLCD::showPercentOver(const unsigned char perc, const bool /*perform_update
 {
 }
 
-void CLCD::showMenuText(const int, const char *, const int, const bool)
+void CLCD::showMenuText(const int, const char *text, const int, const bool)
 {
 	if (mode != MODE_MENU_UTF8)
 		return;
-//	ShowText(ptext);
+	display(text);
 }
 
 void CLCD::showAudioTrack(const std::string &, const std::string & title, const std::string &)
