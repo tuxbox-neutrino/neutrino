@@ -932,6 +932,8 @@ _display:
 
 	if (paintBg)
 		paintBoxRel(x, yy, width, height, colBg);
+	/* to make sure backbuffer is already blitted completely... */
+	waitForIdle();
 	blit2FB(data, width, height, x, yy, 0, 0, true);
 	return true;
 }
