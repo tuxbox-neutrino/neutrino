@@ -50,6 +50,8 @@
 #include <linux/stmfb.h>
 #include <bpamem.h>
 
+#include <pthread.h>
+
 #define DEFAULT_XRES 1280
 #define DEFAULT_YRES 720
 
@@ -61,11 +63,44 @@ extern CPictureViewer * g_PicViewer;
 #define BACKGROUNDIMAGEWIDTH 720
 
 static int bpafd = -1;
-static fb_pixel_t *backbuffer = NULL;
-static int fake_xRes = 0;
-static int fake_yRes = 0;
-static int fake_stride = 0;
+static fb_pixel_t *backbuffer = NULL;		/* buffer in BPA mem, mostly for tuxtxt or icons */
+static fb_pixel_t *lbb;				/* "shadow buffer", will be scale-blitted to the FB */
+static size_t lbb_sz = 1920 * 1080;			/* offset from fb start in 'pixels' */
+static size_t lbb_off = lbb_sz * sizeof(fb_pixel_t);	/* offset from fb start in bytes    */
 static int backbuf_sz = 0;
+static unsigned int last_xres = 0;
+
+struct dirty_region {
+	int xs;
+	int ys;
+	int xe;
+	int ye;
+};
+
+static struct dirty_region to_blit = { INT_MAX, INT_MAX, 0, 0 };
+static pthread_mutex_t blit_mutex;
+
+static inline void blit_lock()
+{
+	pthread_mutex_lock(&blit_mutex);
+}
+
+static inline void blit_unlock()
+{
+	pthread_mutex_unlock(&blit_mutex);
+}
+
+static inline void update_dirty(int xs, int ys, int xe, int ye)
+{
+	if (xs < to_blit.xs)
+		to_blit.xs = xs;
+	if (xe > to_blit.xe)
+		to_blit.xe = xe;
+	if (ys < to_blit.ys)
+		to_blit.ys = ys;
+	if (ye > to_blit.ye)
+		to_blit.ye = ye;
+}
 
 void CFrameBuffer::waitForIdle(void)
 {
@@ -73,7 +108,9 @@ void CFrameBuffer::waitForIdle(void)
 	struct timeval ts, te;
 	gettimeofday(&ts, NULL);
 #endif
+	blit_lock();
 	ioctl(fd, STMFBIO_SYNC_BLITTER);
+	blit_unlock();
 #if 0
 	gettimeofday(&te, NULL);
 	printf("STMFBIO_SYNC_BLITTER took %lld us\n", (te.tv_sec * 1000000LL + te.tv_usec) - (ts.tv_sec * 1000000LL + ts.tv_usec));
@@ -117,6 +154,7 @@ CFrameBuffer::CFrameBuffer()
 	memset(green, 0, 256*sizeof(__u16));
 	memset(blue, 0, 256*sizeof(__u16));
 	memset(trans, 0, 256*sizeof(__u16));
+	pthread_mutex_init(&blit_mutex, NULL);
 }
 
 CFrameBuffer* CFrameBuffer::getInstance()
@@ -155,13 +193,15 @@ void CFrameBuffer::init(const char * const fbDevice)
 	stride = xRes * bpp / 8;
 printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 
-	fake_xRes = DEFAULT_XRES;
-	fake_yRes = DEFAULT_YRES;
+	xRes = DEFAULT_XRES;
+	yRes = DEFAULT_YRES;
 	screeninfo.xres = DEFAULT_XRES;
 	screeninfo.yres = DEFAULT_YRES;
 	screeninfo.xres_virtual = DEFAULT_XRES;
 	screeninfo.yres_virtual = DEFAULT_YRES;
+
 	screeninfo.bits_per_pixel = 32;
+	stride = xRes * bpp / 8;
 	backbuf_sz = stride * yRes;
 
 	memmove(&oldscreen, &screeninfo, sizeof(screeninfo));
@@ -173,8 +213,20 @@ printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 
 	available = fix.smem_len;
 	printf("%dk video mem\n", available/1024);
-	if (available < 8*1024*1024)
+	if (available < 12*1024*1024)
+	{
+		/* for old installations that did not upgrade their module config
+		 * it will still work good enough to display the message below */
 		fprintf(stderr, "[neutrino] WARNING: not enough framebuffer memory available!\n");
+		fprintf(stderr, "[neutrino]          I need at least 12MB.\n");
+		FILE *f = fopen("/tmp/infobar.txt", "w");
+		if (f) {
+			fprintf(f, "NOT ENOUGH FRAMEBUFFER MEMORY!");
+			fclose(f);
+		}
+		lbb_sz = 0;
+		lbb_off = 0;
+	}
 
 	lfb = (fb_pixel_t*)mmap(0, available, PROT_WRITE|PROT_READ, MAP_SHARED, fd, 0);
 
@@ -183,6 +235,7 @@ printf("FB: %dx%dx%d line length %d.\n", xRes, yRes, bpp, stride);
 		goto nolfb;
 	}
 	memset(lfb, 0, available);
+	lbb = lfb + lbb_sz;
 	bpafd = open("/dev/bpamem0", O_RDWR);
 	if (bpafd < 0)
 	{
@@ -325,7 +378,7 @@ unsigned int CFrameBuffer::getStride() const
 unsigned int CFrameBuffer::getScreenWidth(bool real)
 {
 	if(real)
-		return fake_xRes;
+		return xRes;
 	else
 		return g_settings.screen_EndX - g_settings.screen_StartX;
 }
@@ -333,7 +386,7 @@ unsigned int CFrameBuffer::getScreenWidth(bool real)
 unsigned int CFrameBuffer::getScreenHeight(bool real)
 {
 	if(real)
-		return fake_yRes;
+		return yRes;
 	else
 		return g_settings.screen_EndY - g_settings.screen_StartY;
 }
@@ -351,7 +404,7 @@ unsigned int CFrameBuffer::getScreenY()
 fb_pixel_t * CFrameBuffer::getFrameBufferPointer() const
 {
 	if (active || (virtual_fb == NULL))
-		return lfb;
+		return lbb;
 	else
 		return (fb_pixel_t *) virtual_fb;
 }
@@ -388,7 +441,7 @@ void CFrameBuffer::setTransparency( int /*tr*/ )
 {
 }
 
-void CFrameBuffer::setBlendMode(uint8_t mode)
+void CFrameBuffer::setBlendMode(uint8_t /*mode*/)
 {
 #if 0
 	//g.use_global_alpha = (mode == 2); /* 1 == pixel alpha, 2 == global alpha */
@@ -397,7 +450,7 @@ void CFrameBuffer::setBlendMode(uint8_t mode)
 #endif
 }
 
-void CFrameBuffer::setBlendLevel(int level)
+void CFrameBuffer::setBlendLevel(int /*level*/)
 {
 #if 0
 	//printf("CFrameBuffer::setBlendLevel %d\n", level);
@@ -478,17 +531,11 @@ void CFrameBuffer::paletteSet(struct fb_cmap *map)
 	}
 }
 
-void CFrameBuffer::paintBoxRel(const int _x, const int _y, const int _dx, const int _dy, const fb_pixel_t col, int _radius, int type)
+void CFrameBuffer::paintBoxRel(const int x, const int y, const int dx, const int dy, const fb_pixel_t col, int radius, int type)
 {
 	/* draw a filled rectangle (with additional round corners) */
 	if (!getActive())
 		return;
-
-	int x = scaleX(_x);
-	int y = scaleY(_y);
-	int dx = scaleX(_dx);
-	int dy = scaleY(_dy);
-	int radius = scaleX(_radius);
 
 	int corner_tl = (type & CORNER_TOP_LEFT)     ? 1 : 0;
 	int corner_tr = (type & CORNER_TOP_RIGHT)    ? 1 : 0;
@@ -585,6 +632,7 @@ void CFrameBuffer::paintBoxRel(const int _x, const int _y, const int _dx, const 
 		blitRect(x + ofl, y + line, dx - ofl - ofr - 1, 1, col);
 		line++;
 	}
+	update_dirty(x, y, x + dx, y + dy);
 }
 
 
@@ -672,6 +720,7 @@ void CFrameBuffer::paintLine(int xa, int ya, int xb, int yb, const fb_pixel_t co
 			paintPixel(x, y, col);
 		}
 	}
+	update_dirty(xa, ya, xb, yb);
 }
 
 void CFrameBuffer::paintVLine(int x, int ya, int yb, const fb_pixel_t col)
@@ -683,10 +732,7 @@ void CFrameBuffer::paintVLineRel(int x, int y, int dy, const fb_pixel_t col)
 {
 	if (!getActive())
 		return;
-	int _x = scaleX(x);
-	int _y = scaleY(y);
-	int _dy = scaleY(dy);
-	blitRect(_x, _y, 1, _dy, col);
+	blitRect(x, y, 1, dy, col);
 }
 
 void CFrameBuffer::paintHLine(int xa, int xb, int y, const fb_pixel_t col)
@@ -698,10 +744,7 @@ void CFrameBuffer::paintHLineRel(int x, int dx, int y, const fb_pixel_t col)
 {
 	if (!getActive())
 		return;
-	int _x = scaleX(x);
-	int _y = scaleY(y);
-	int _dx = scaleY(dx);
-	blitRect(_x, _y, _dx, 1, col);
+	blitRect(x, y, dx, 1, col);
 }
 
 void CFrameBuffer::setIconBasePath(const std::string & iconPath)
@@ -938,29 +981,20 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 	*pos = col;
 }
 
-void CFrameBuffer::paintBoxFrame(const int _sx, const int _sy, const int _dx, const int _dy, const int _px, const fb_pixel_t col, const int rad)
+void CFrameBuffer::paintBoxFrame(const int sx, const int sy, const int dx, const int dy, const int px, const fb_pixel_t col, const int radius)
 {
 	if (!getActive())
 		return;
 
-	int radius = rad;
-	int c_radius = rad << 1;
+	int c_radius = radius << 1;
 
-	paintBoxRel(_sx + rad      , _sy            , _dx - c_radius, _px,            col); // upper horizontal
-	paintBoxRel(_sx + rad      , _sy + _dy - _px, _dx - c_radius, _px,            col); // lower horizontal
-	paintBoxRel(_sx            , _sy + rad      , _px,            _dy - c_radius, col); // left vertical
-	paintBoxRel(_sx + _dx - _px, _sy + rad      , _px,            _dy - c_radius, col); // right vertical
+	paintBoxRel(sx + radius , sy          , dx - c_radius, px,            col); // upper horizontal
+	paintBoxRel(sx + radius , sy + dy - px, dx - c_radius, px,            col); // lower horizontal
+	paintBoxRel(sx          , sy + radius , px,            dy - c_radius, col); // left vertical
+	paintBoxRel(sx + dx - px, sy + radius , px,            dy - c_radius, col); // right vertical
 
 	if (!radius)
 		return;
-
-	radius = scaleX(rad);
-	c_radius = radius * 2;
-	int sx = scaleX(_sx);
-	int sy = scaleY(_sy);
-	int dx = scaleX(_dx);
-	int dy = scaleY(_dy);
-	int px = scaleX(_px);
 
 	int x1 = sx + radius;
 	int y1 = sy + radius;
@@ -1237,13 +1271,13 @@ void CFrameBuffer::paintBackground()
 	{
 		paintBoxRel(0, 0, xRes, yRes, backgroundColor);
 	}
+	blit();
 }
 
 void CFrameBuffer::SaveScreen(int x, int y, int dx, int dy, fb_pixel_t * const memp)
 {
 	if (!getActive())
 		return;
-
 
 	uint8_t * pos = ((uint8_t *)getFrameBufferPointer()) + x * sizeof(fb_pixel_t) + stride * y;
 	fb_pixel_t * bkpos = memp;
@@ -1284,31 +1318,11 @@ void CFrameBuffer::RestoreScreen(int x, int y, int dx, int dy, fb_pixel_t * cons
 		fbpos += stride;
 		bkpos += dx;
 	}
+	update_dirty(x, y, x + dx, y + dy);
 }
 
-void CFrameBuffer::switch_signal (int signal)
+void CFrameBuffer::switch_signal(int)
 {
-	CFrameBuffer * thiz = CFrameBuffer::getInstance();
-	if (signal == SIGUSR1) {
-		if (virtual_fb != NULL)
-			delete[] virtual_fb;
-		virtual_fb = new uint8_t[thiz->stride * thiz->yRes];
-		thiz->active = false;
-		if (virtual_fb != NULL)
-			memmove(virtual_fb, thiz->lfb, thiz->stride * thiz->yRes);
-		ioctl(thiz->tty, VT_RELDISP, 1);
-		printf ("release display\n");
-	}
-	else if (signal == SIGUSR2) {
-		ioctl(thiz->tty, VT_RELDISP, VT_ACKACQ);
-		thiz->active = true;
-		printf ("acquire display\n");
-		thiz->paletteSet(NULL);
-		if (virtual_fb != NULL)
-			memmove(thiz->lfb, virtual_fb, thiz->stride * thiz->yRes);
-		else
-			memset(thiz->lfb, 0, thiz->stride * thiz->yRes);
-	}
 }
 
 void CFrameBuffer::Clear()
@@ -1404,7 +1418,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	blt_data.ulFlags    = ulFlags;
 	blt_data.srcOffset  = 0;
 	blt_data.srcPitch   = width * 4;
-	blt_data.dstOffset  = 0;
+	blt_data.dstOffset  = lbb_off;
 	blt_data.dstPitch   = stride;
 	blt_data.src_left   = xp;
 	blt_data.src_top    = yp;
@@ -1418,14 +1432,19 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 	blt_data.dstFormat  = SURF_ARGB8888;
 	blt_data.srcMemBase = (char *)backbuffer;
 	blt_data.dstMemBase = (char *)lfb;
-	blt_data.srcMemSize = backbuf_sz;
-	blt_data.dstMemSize = stride * yRes;
+	blt_data.srcMemSize = mem_sz;
+	blt_data.dstMemSize = stride * yRes + lbb_off;
 
+	blit_lock();
+	if (fbbuff != backbuffer)
+		memmove(backbuffer, fbbuff, mem_sz);
 	// icons are so small that they will still be in cache
 	msync(backbuffer, backbuf_sz, MS_SYNC);
 
 	if(ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("blit2FB FBIO_BLIT");
+	update_dirty(x, y, blt_data.dst_right, blt_data.dst_bottom);
+	blit_unlock();
 	return;
 }
 
@@ -1458,60 +1477,26 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
 	cs_free_uncached(fbbuff);
 }
 
-void CFrameBuffer::resize(int format)
-{
-#if 0
-	static const char *aVideoSystems[][2] = {
-	{"VIDEO_STD_NTSC", "pal"},
-	{"VIDEO_STD_SECAM", "pal"},
-	{"VIDEO_STD_PAL", "pal"},
-	{"VIDEO_STD_480P", "480p"},
-	{"VIDEO_STD_576P", "576p50"},
-	{"VIDEO_STD_720P60", "720p60"},
-	{"VIDEO_STD_1080I60", "1080i60"},
-	{"VIDEO_STD_720P50", "720p50"},
-	{"VIDEO_STD_1080I50", "1080i50"},
-	{"VIDEO_STD_1080P30", "1080p30"},
-	{"VIDEO_STD_1080P24", "1080p24"},
-	{"VIDEO_STD_1080P25", "1080p25"},
-	{"VIDEO_STD_AUTO", "1080i50"}
-	};
-#endif
-
-	static const int xyres[][2] = {
-	{720, 576},
-	{720, 576},
-	{720, 576},
-	{640, 480},
-	{720, 576},
-	{1280, 720},
-	{1920, 1080},
-	{1280, 720},
-	{1920, 1080},
-	{1920, 1080},
-	{1920, 1080},
-	{1920, 1080},
-	{1920, 1080}
-	};
-
-	paintBackground(); // clear framebuffer
-	xRes = xyres[format][0];
-	yRes = xyres[format][1];
-	bpp = 32;
-	stride = xRes * bpp / 8;
-}
-
 void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long color)
 {
 //printf ("[fb - blitRect]: x=%d, y=%d, width=%d, height=%d\n", x, y, width, height);
 	if (width == 0 || height == 0)
 		return;
 
+	if (x + width > (int)xRes) {
+		fprintf(stderr, "[neutrino] fb::%s: x + w > xRes! (%d+%d > %d)\n", __func__, x, width, xRes);
+		width = xRes - x;
+	}
+	if (y + height > (int)yRes) {
+		fprintf(stderr, "[neutrino] fb::%s: y + h > yRes! (%d+%d > %d)\n", __func__, y, height, yRes);
+		height = yRes - y;
+	}
+
 	STMFBIO_BLT_DATA bltData;
 	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
 
 	bltData.operation  = BLT_OP_FILL;
-	bltData.dstOffset  = 0;
+	bltData.dstOffset  = lbb_off;
 	bltData.dstPitch   = stride;
 
 	bltData.dst_left   = x;
@@ -1525,8 +1510,11 @@ void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long c
 	bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
 	bltData.colour     = color;
 
+	blit_lock();
 	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
-		perror("blitRect FBIO_BLIT");
+		fprintf(stderr, "blitRect FBIO_BLIT: %m x:%d y:%d w:%d h:%d s:%d\n", x,y,width,height,stride);
+	update_dirty(x, y, bltData.dst_right, bltData.dst_bottom);
+	blit_unlock();
 }
 
 void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, int width, int height)
@@ -1537,7 +1525,7 @@ void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, i
 	blt_data.ulFlags    = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY;	// we need alpha blending
 	blt_data.srcOffset  = 0;
 	blt_data.srcPitch   = src_width * 4;
-	blt_data.dstOffset  = 0;
+	blt_data.dstOffset  = lbb_off;
 	blt_data.dstPitch   = stride;
 	blt_data.src_top    = 0;
 	blt_data.src_left   = 0;
@@ -1554,31 +1542,96 @@ void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, i
 	blt_data.srcMemSize = backbuf_sz;
 	blt_data.dstMemSize = stride * yRes;
 
-	msync(backbuffer, backbuf_sz, MS_SYNC);
+	blit_lock();
+	msync(backbuffer, blt_data.srcPitch * src_height, MS_SYNC);
 
 	if(ioctl(fd, STMFBIO_BLT_EXTERN, &blt_data) < 0)
 		perror("blit_icon FBIO_BLIT");
+	update_dirty(fb_x, fb_y, blt_data.dst_right, blt_data.dst_bottom);
+	blit_unlock();
 }
 
-void CFrameBuffer::update(void)
+void CFrameBuffer::mark(int xs, int ys, int xe, int ye)
 {
+	update_dirty(xs, ys, xe, ye);
 }
 
-
-int CFrameBuffer::scaleX(const int x, bool clamp)
+void CFrameBuffer::blit()
 {
-	unsigned int mul = x * xRes;
-	mul = mul / DEFAULT_XRES + (((mul % DEFAULT_XRES) >= (DEFAULT_XRES / 2)) ? 1 : 0);
-	if (clamp && mul > xRes)
-		return xRes;
-	return mul;
-}
+	if (to_blit.xs == INT_MAX)
+		return;
 
-int CFrameBuffer::scaleY(const int y, bool clamp)
-{
-	unsigned int mul = y * yRes;
-	mul = mul / DEFAULT_YRES + (((mul % DEFAULT_YRES) >= (DEFAULT_YRES / 2)) ? 1 : 0);
-	if (clamp && mul > yRes)
-		return yRes;
-	return mul;
+	int srcXa = to_blit.xs;
+	int srcYa = to_blit.ys;
+	int srcXb = to_blit.xe;
+	int srcYb = to_blit.ye;
+
+	STMFBIO_BLT_DATA  bltData;
+	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
+
+	bltData.operation  = BLT_OP_COPY;
+	//bltData.ulFlags  = BLT_OP_FLAGS_BLEND_SRC_ALPHA | BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
+	// src
+	bltData.srcOffset  = lbb_off;
+	bltData.srcPitch   = stride;
+
+	bltData.src_left   = srcXa;
+	bltData.src_top    = srcYa;
+	bltData.src_right  = srcXb;
+	bltData.src_bottom = srcYb;
+
+	bltData.srcFormat = SURF_BGRA8888;
+	bltData.srcMemBase = STMFBGP_FRAMEBUFFER;
+
+	/* calculate dst/blit factor */
+	fb_var_screeninfo s;
+	if (ioctl(fd, FBIOGET_VSCREENINFO, &s) == -1)
+		perror("frameBuffer <FBIOGET_VSCREENINFO>");
+
+	if (s.xres != last_xres) /* fb resolution has changed -> clear artifacts */
+	{
+		last_xres = s.xres;
+		bltData.src_left   = 0;
+		bltData.src_top    = 0;
+		bltData.src_right  = xRes;
+		bltData.src_bottom = yRes;
+	}
+
+	double xFactor = (double)s.xres/(double)xRes;
+	double yFactor = (double)s.yres/(double)yRes;
+
+	int desXa = xFactor * bltData.src_left;
+	int desYa = yFactor * bltData.src_top;
+	int desXb = xFactor * bltData.src_right;
+	int desYb = yFactor * bltData.src_bottom;
+
+	/* dst */
+	bltData.dstOffset  = 0;
+	bltData.dstPitch   = s.xres * 4;
+
+	bltData.dst_left   = desXa;
+	bltData.dst_top    = desYa;
+	bltData.dst_right  = desXb;
+	bltData.dst_bottom = desYb;
+
+	bltData.dstFormat = SURF_BGRA8888;
+	bltData.dstMemBase = STMFBGP_FRAMEBUFFER;
+
+	//printf("CFrameBuffer::blit: sx:%d sy:%d sxe:%d sye: %d dx:%d dy:%d dxe:%d dye:%d\n", srcXa, srcYa, srcXb, srcYb, desXa, desYa, desXb, desYb);
+	if ((bltData.dst_right > s.xres) || (bltData.dst_bottom > s.yres))
+		printf("CFrameBuffer::blit: values out of range desXb:%d desYb:%d\n",
+			bltData.dst_right, bltData.dst_bottom);
+
+	blit_lock();
+	if(ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
+		perror("CFrameBuffer::blit ioctl STMFBIO_SYNC_BLITTER 1");
+	msync(lbb, xRes * 4 * yRes, MS_SYNC);
+	if (ioctl(fd, STMFBIO_BLT, &bltData ) < 0)
+		perror("STMFBIO_BLT");
+	if(ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
+		perror("CFrameBuffer::blit ioctl STMFBIO_SYNC_BLITTER 2");
+
+	to_blit.xs = to_blit.ys = INT_MAX;
+	to_blit.xe = to_blit.ye = 0;
+	blit_unlock();
 }

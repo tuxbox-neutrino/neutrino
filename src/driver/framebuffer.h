@@ -233,15 +233,11 @@ class CFrameBuffer
 		bool blitToPrimary(unsigned int * data, int dx, int dy, int sw, int sh);
 
 #if HAVE_SPARK_HARDWARE
-		int scaleX(const int x, bool clamp = true);
-		int scaleY(const int y, bool clamp = true);
-		void resize(int format);
-		void update(void);
+		void mark(int x, int y, int dx, int dy);
+		void blit(void);
 #else
-		int scaleX(const int x, bool __attribute__((unused)) clamp = true) { return x; };
-		int scaleY(const int y, bool __attribute__((unused)) clamp = true) { return y; };
-		void resize(int) {};
-		void update(void) {};
+		void mark(int, int, int, int) {};
+		void blit(void) {};
 #endif
 		void paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame=true);
 
