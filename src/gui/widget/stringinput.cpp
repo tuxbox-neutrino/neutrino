@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2009-2012 Stefan Seyfried
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -191,13 +193,26 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 		std::string tmp_value = value;
 		value[selected] = validchars[CRCInput::getNumericValue(key)];
 		int current_value = atoi(value);
+		int tmp = current_value;
+		if (current_value <= lower_bound)
+			current_value = lower_bound + 1;
+		else if (current_value >= upper_bound)
+			current_value = upper_bound - 1;
+		if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
+			snprintf(value, size + 1, "%*d", size, current_value);
 		if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 			if (selected < (size - 1))
 			{
 				selected++;
 				paintChar(selected - 1);
 			}
-			paintChar(selected);
+			if (tmp != current_value)
+			{
+				for (tmp = 0; tmp < size; tmp++)
+					paintChar(tmp);
+			}
+			else
+				paintChar(selected);
 		}else{
 			snprintf(value, sizeof(value),"%s",tmp_value.c_str());
 		}
@@ -276,8 +291,21 @@ void CStringInput::keyUpPressed()
 	value[selected]=validchars[npos];
 
 	int current_value = atoi(value);
+	int tmp = current_value;
+	if (current_value <= lower_bound)
+		current_value = lower_bound + 1;
+	else if (current_value >= upper_bound)
+		current_value = upper_bound - 1;
+	if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
+		snprintf(value, size + 1, "%*d", size, current_value);
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
-		paintChar(selected);
+		if (tmp != current_value)
+		{
+			for (tmp = 0; tmp < size; tmp++)
+				paintChar(tmp);
+		}
+		else
+			paintChar(selected);
 	}else{
 		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
 	}
@@ -296,8 +324,21 @@ void CStringInput::keyDownPressed()
 	value[selected]=validchars[npos];
 
 	int current_value = atoi(value);
+	int tmp = current_value;
+	if (current_value <= lower_bound)
+		current_value = lower_bound + 1;
+	else if (current_value >= upper_bound)
+		current_value = upper_bound - 1;
+	if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
+		snprintf(value, size + 1, "%*d", size, current_value);
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
-		paintChar(selected);
+		if (tmp != current_value)
+		{
+			for (tmp = 0; tmp < size; tmp++)
+				paintChar(tmp);
+		}
+		else
+			paintChar(selected);
 	}else{
 		snprintf(value, sizeof(value),"%s",tmp_value.c_str());
 	}
