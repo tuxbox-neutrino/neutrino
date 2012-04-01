@@ -25,6 +25,7 @@
 #endif
 
 #include <driver/lcdd.h>
+#include <driver/framebuffer.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -86,6 +87,10 @@ void* CLCD::TimeThread(void *)
 	while(1) {
 		sleep(1);
 		CLCD::getInstance()->showTime();
+		/* hack, just if we missed the blit() somewhere
+		 * this will update the framebuffer once per second */
+		if (getenv("SPARK_NOBLIT") == NULL)
+			CFrameBuffer::getInstance()->blit();
 	}
 	return NULL;
 }
