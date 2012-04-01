@@ -26,6 +26,12 @@
 #define KEY_TTZOOM	KEY_FN_2
 #define KEY_REVEAL	KEY_FN_D
 
+#ifdef HAVE_SPARK_HARDWARE
+#define MARK_FB(a, b, c, d) if (p == lfb) CFrameBuffer::getInstance()->mark(a, b, (a) + (c), (b) + (d))
+#else
+#define MARK_FB(a, b, c, d)
+#endif
+
 extern cVideo * videoDecoder;
 
 static pthread_t ttx_sub_thread;
@@ -52,6 +58,7 @@ unsigned char *getFBp(int *y)
 void FillRect(int x, int y, int w, int h, int color)
 {
 	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, w, h);
 	p += x*4 + y * fix_screeninfo.line_length;
 #if !HAVE_TRIPLEDRAGON
 	unsigned int col = bgra[color][3] << 24 | bgra[color][2] << 16 | bgra[color][1] << 8 | bgra[color][0];
@@ -256,6 +263,7 @@ void ClearB(int color)
 {
 	FillRect(0,                   0, var_screeninfo.xres, var_screeninfo.yres, color); /* framebuffer */
 	FillRect(0, var_screeninfo.yres, var_screeninfo.xres, var_screeninfo.yres, color); /* backbuffer */
+	CFrameBuffer::getInstance()->blit();
 }
 
 int  GetCurFontWidth()
@@ -1654,6 +1662,7 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 
 	fcntl(rc, F_SETFL, fcntl(rc, F_GETFL) | O_EXCL | O_NONBLOCK);
 
+#ifndef HAVE_SPARK_HARDWARE
 	/* get fixed screeninfo */
 	if (ioctl(fb, FBIOGET_FSCREENINFO, &fix_screeninfo) == -1)
 	{
@@ -1667,7 +1676,12 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 		perror("TuxTxt <FBIOGET_VSCREENINFO>");
 		return 0;
 	}
-
+#else
+	struct fb_var_screeninfo *var;
+	var = fbp->getScreenInfo();
+	memcpy(&var_screeninfo, var, sizeof(struct fb_var_screeninfo));
+	fix_screeninfo.line_length = var_screeninfo.xres * sizeof(fb_pixel_t);
+#endif
 	/* set variable screeninfo for double buffering */
 	var_screeninfo.yoffset      = 0;
 #if 0
@@ -1676,10 +1690,10 @@ int tuxtx_main(int _rc, int pid, int page, int source)
 	ex = x + w - 10;
 	ey = y + h - 10;
 #endif
-	screen_x = fbp->scaleX(fbp->getScreenX());
-	screen_y = fbp->scaleY(fbp->getScreenY());
-	screen_w = fbp->scaleX(fbp->getScreenWidth());
-	screen_h = fbp->scaleY(fbp->getScreenHeight());
+	screen_x = fbp->getScreenX();
+	screen_y = fbp->getScreenY();
+	screen_w = fbp->getScreenWidth();
+	screen_h = fbp->getScreenHeight();
 
 	int x = screen_x;
 	int y = screen_y;
@@ -2801,6 +2815,7 @@ void Menu_Init(char *menu, int current_pid, int menuitem, int hotindex)
 	national_subset = national_subset_bak;
 	Menu_HighlightLine(menu, MenuLine[menuitem], 1);
 	Menu_UpdateHotlist(menu, hotindex, menuitem);
+	CFrameBuffer::getInstance()->blit();
 }
 
 void ConfigMenu(int Init)
@@ -3391,6 +3406,7 @@ void ConfigMenu(int Init)
 				break;
 			}
 		}
+		CFrameBuffer::getInstance()->blit();
 		UpdateLCD(); /* update number of cached pages */
 	} while ((RCCode != RC_HOME) && (RCCode != RC_DBOX) && (RCCode != RC_MUTE));
 
@@ -3690,6 +3706,7 @@ void PageCatching()
 			RCCode = -1;
 			return;
 		}
+		CFrameBuffer::getInstance()->blit();
 		UpdateLCD();
 	} while (RCCode != RC_OK);
 
@@ -3984,7 +4001,7 @@ void SwitchScreenMode(int newscreenmode)
 
 		CFrameBuffer *f = CFrameBuffer::getInstance();
 		videoDecoder->Pig(tx, ty, tw, th,
-				  f->scaleX(f->getScreenWidth(true)), f->scaleY(f->getScreenHeight(true)));
+				  f->getScreenWidth(true), f->getScreenHeight(true));
 #if 0
 		int sm = 0;
 		ioctl(pig, VIDIOC_OVERLAY, &sm);
@@ -4151,6 +4168,7 @@ void RenderDRCS( //FIX ME
 void DrawVLine(int x, int y, int l, int color)
 {
 	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, 0, l);
 	p += x*4 + y * fix_screeninfo.line_length;
 
 	for ( ; l > 0 ; l--)
@@ -4164,6 +4182,7 @@ void DrawHLine(int x, int y, int l, int color)
 {
 	int ltmp;
 	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, l, 0);
 	if (l > 0)
 	{
 		for (ltmp=0; ltmp <= l; ltmp++)
@@ -4185,6 +4204,7 @@ void FillRectMosaicSeparated(int x, int y, int w, int h, int fgcolor, int bgcolo
 void FillTrapez(int x0, int y0, int l0, int xoffset1, int h, int l1, int color)
 {
 	unsigned char *p = getFBp(&y0);
+	MARK_FB(x0, y0, l0, h);
 	p += x0 * 4 + y0 * fix_screeninfo.line_length;
 
 	int xoffset, l;
@@ -4209,6 +4229,7 @@ void FlipHorz(int x, int y, int w, int h)
 {
 	unsigned char *buf= new unsigned char[w*4];
 	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, w, h);
 	p += x * 4 + y * fix_screeninfo.line_length;
 
 	int w1,h1;
@@ -4230,6 +4251,7 @@ void FlipVert(int x, int y, int w, int h)
 	unsigned char *buf= new unsigned char[w*4];
 	unsigned char *p1, *p2;
 	unsigned char *p = getFBp(&y);
+	MARK_FB(x, y, w, h);
 	p += x*4 + y * fix_screeninfo.line_length;
 
 	int h1;
@@ -4494,6 +4516,7 @@ void RenderChar(int Char, tstPageAttr *Attribute, int zoom, int yoffset)
 				int x,y,f,c;
 				y = yoffset;
 				unsigned char *p = getFBp(&y);
+				MARK_FB(PosX, PosY, curfontwidth, fontheight);
 				p += PosX * 4 + PosY * fix_screeninfo.line_length;
 
 				for (y=0; y<fontheight;y++)
@@ -5151,8 +5174,9 @@ void DoFlashing(int startrow)
 		}
 		PosY += fontheight*factor;
 	}
-
+	CFrameBuffer::getInstance()->blit();
 }
+
 void RenderPage()
 {
 	int row, col, byte, startrow = 0;;
@@ -5360,6 +5384,7 @@ void RenderPage()
 		RenderCharFB(ns[0],&atrtable[ATR_WB]);
 		RenderCharFB(ns[1],&atrtable[ATR_WB]);
 		RenderCharFB(ns[2],&atrtable[ATR_WB]);
+		CFrameBuffer::getInstance()->blit();
 
 		tuxtxt_cache.pageupdate=0;
 	}
@@ -5608,7 +5633,8 @@ void CopyBB2FB()
 			perror("TuxTxt <FBIOPAN_DISPLAY>");
 #else
 #ifdef HAVE_SPARK_HARDWARE
-		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, false, false);
+		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, false);
+		f->blit();
 #else
 		memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
 #endif
@@ -5662,7 +5688,7 @@ void CopyBB2FB()
 		int cw = TV43STARTX;				/* width */
 		int cy = StartY;
 		int ch = 24*fontheight;
-		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, false, false);
+		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, false);
 #else
 		unsigned char *topdst = dst;
 		size_t width = ex * sizeof(fb_pixel_t) - screenwidth;
@@ -5706,6 +5732,10 @@ void CopyBB2FB()
 			memmove(dst + fix_screeninfo.line_length*(fontheight+i)+swtmp*4, bgra[fillcolor], 4);
 		}
 	}
+#ifdef HAVE_SPARK_HARDWARE
+	f->mark(0, 0, var_screeninfo.xres, var_screeninfo.yres);
+	f->blit();
+#endif
 }
 
 /******************************************************************************
@@ -6468,7 +6498,7 @@ printf("[tuxtxt] new key, code %X\n", RCCode);
 	}
 
 	RCCode = -1;
-	usleep(1000000/100);
+	usleep(1000000/25);
 
 	return 0;
 }
