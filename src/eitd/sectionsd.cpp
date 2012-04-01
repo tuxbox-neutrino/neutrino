@@ -1442,7 +1442,6 @@ void CTimeThread::run()
 	}
 	delete[] static_buf;
 	printf("[sectionsd] timeThread stopped\n");
-	pthread_exit(NULL);
 }
 
 /********************************************************************************/
@@ -1558,7 +1557,6 @@ void CSectionThread::run()
 	delete[] static_buf;
 	cleanup();
 	printf("[sectionsd] %s stopped\n", name.c_str());
-	pthread_exit(NULL);
 }
 
 /********************************************************************************/
