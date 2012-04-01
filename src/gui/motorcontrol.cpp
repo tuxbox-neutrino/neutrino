@@ -153,6 +153,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	paint();
 	paintMenu();
 	paintStatus();
+	frameBuffer->blit();
 
 	while (!istheend)
 	{
@@ -409,6 +410,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 				}
 			}
 		}
+		frameBuffer->blit();
 
 		istheend = (msg == CRCInput::RC_home);
 	}
@@ -473,6 +475,7 @@ void CMotorControl::motorStepEast(void)
 void CMotorControl::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width, height + 20);
+	frameBuffer->blit();
 	stopSatFind();
 }
 

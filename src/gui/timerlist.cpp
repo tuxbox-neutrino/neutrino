@@ -484,6 +484,7 @@ int CTimerList::show()
 			updateEvents();
 			update=false;
 			paint();
+			frameBuffer->blit();
 		}
 		g_RCInput->getMsgAbsoluteTimeout( &msg, &data, &timeoutEnd );
 		
@@ -633,6 +634,7 @@ int CTimerList::show()
 				res = menu_return::RETURN_EXIT_ALL;
 			}
 		}
+		frameBuffer->blit();
 	}
 	hide();
 	fader.Stop();
@@ -645,6 +647,7 @@ void CTimerList::hide()
 	if (visible)
 	{
 		frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
+		frameBuffer->blit();
 		visible = false;
 	}
 }

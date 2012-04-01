@@ -223,6 +223,7 @@ int CPictureViewerGui::show()
 			hide();
 			update=false;
 			paint();
+			frameBuffer->blit();
 		}
 
 		if (m_state!=SLIDESHOW)
@@ -558,6 +559,7 @@ int CPictureViewerGui::show()
 				loop = false;
 			}
 		}
+		frameBuffer->blit();
 	}
 	hide();
 

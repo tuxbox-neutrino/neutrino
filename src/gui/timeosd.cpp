@@ -109,6 +109,7 @@ void CTimeOSD::update(time_t time_show)
 	strftime(cDisplayTime, 9, "%T", gmtime(&time_show));
 	frameBuffer->paintBoxRel(m_xend - m_width - t1, m_y, m_width, m_height, color1,RADIUS_SMALL);
 	g_Font[TIMEOSD_FONT]->RenderString(m_xend - m_width - (t1/2),  m_y + m_height, m_width,    cDisplayTime, color2);
+	frameBuffer->blit();
 }
 
 void CTimeOSD::updatePos(short runningPercent)
@@ -120,6 +121,7 @@ void CTimeOSD::updatePos(short runningPercent)
 		runningPercent = 0;
 
 	timescale->paintProgressBar2(m_xstart, m_y, runningPercent);
+	frameBuffer->blit();
 }
 
 void CTimeOSD::update(int position, int duration)
@@ -149,6 +151,7 @@ void CTimeOSD::hide()
 	frameBuffer->paintBackgroundBoxRel(m_xend - m_width - t1, m_y, m_width, m_height);
 	timescale->reset();
 	frameBuffer->paintBackgroundBoxRel(m_xstart-2, m_y, 2+BARLEN+2, m_height); //clear border
+	frameBuffer->blit();
 	visible=false;
 }
 

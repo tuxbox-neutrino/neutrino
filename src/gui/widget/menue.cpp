@@ -508,6 +508,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		saveScreen();
 	}
 	paint();
+	frameBuffer->blit();
+
 	int retval = menu_return::RETURN_REPAINT;
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 		
@@ -716,6 +718,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 			}
 		}
+		frameBuffer->blit();
 	}
 	while ( msg!=CRCInput::RC_timeout );
 	hide();
@@ -749,6 +752,7 @@ void CMenuWidget::hide()
 		restoreScreen();//FIXME
 	else
 		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height);
+	frameBuffer->blit();
 
 	/* setActive() paints item for hidden parent menu, if called from child menu */
 	for (unsigned int count = 0; count < items.size(); count++) 

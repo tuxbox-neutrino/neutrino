@@ -307,6 +307,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 	}
 	paint(channel_id);
 	showFunctionBar(true, channel_id);
+	frameBuffer->blit();
 
 	int oldselected = selected;
 
@@ -651,6 +652,7 @@ int EventList::exec(const t_channel_id channel_id, const std::string& channelnam
 				res = menu_return::RETURN_EXIT_ALL;
 			}
 		}
+		frameBuffer->blit();
 	}
 
 	hide();
@@ -662,6 +664,7 @@ void EventList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
 	showFunctionBar (false, 0);
+	frameBuffer->blit();
 
 }
 
@@ -788,6 +791,7 @@ void EventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		
 		
 	}
+	frameBuffer->blit();
 }
 void EventList::paintHead(std::string _channelname, std::string _channelname_prev, std::string _channelname_next)
 {

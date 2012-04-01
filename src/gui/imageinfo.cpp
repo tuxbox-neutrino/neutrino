@@ -121,6 +121,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	//paint_pig( width-170, y, 215, 170);
 	paint_pig (width - width/3 - 10, y + 10, width/3, height/3);
+	frameBuffer->blit();
 
 	neutrino_msg_t msg;
 
@@ -148,6 +149,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 		{
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 		}
+		frameBuffer->blit();
 	}
 
 	hide();

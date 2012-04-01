@@ -263,6 +263,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	tuned = CFrontend::getInstance()->getStatus();
 	paint(test);
+	frameBuffer->blit();
+
 	/* go */
 	if(test) {
 	  testFunc();
@@ -308,6 +310,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		}
 		while (!(msg == CRCInput::RC_timeout));
 		showSNR(); // FIXME commented until scan slowdown will be solved
+		frameBuffer->blit();
 	}
 	/* to join scan thread */
 	g_Zapit->stopScan();
@@ -324,6 +327,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		//paintLine(xpos2, ypos_frequency, xpos_frequency, text);
 		frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(xpos1, y + hheight, width, text, COL_MENUHEAD, 0, true); // UTF-8
+		frameBuffer->blit();
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);

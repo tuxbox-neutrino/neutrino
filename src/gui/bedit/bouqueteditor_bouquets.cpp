@@ -194,6 +194,7 @@ void CBEBouquetWidget::paintFoot()
 void CBEBouquetWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+ButtonHeight);
+	frameBuffer->blit();
 }
 
 int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
@@ -219,6 +220,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 	paintHead();
 	paint();
 	paintFoot();
+	frameBuffer->blit();
 
 	bouquetsChanged = false;
 
@@ -457,6 +459,7 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			CNeutrinoApp::getInstance()->handleMsg( msg, data );
 			// kein canceling...
 		}
+		frameBuffer->blit();
 	}
 	hide();
 	return res;

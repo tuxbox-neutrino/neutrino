@@ -352,6 +352,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 				res = menu_return::RETURN_EXIT_ALL;
 			}
 		}
+		frameBuffer->blit();
 	}
 	hide();
 
@@ -406,6 +407,7 @@ void CBookmarkManager::paintItem(int pos)
 			CVFD::getInstance()->showMenuText(1, theBookmark.getUrl(), -1, true); // UTF-8
 		}
 	}
+	frameBuffer->blit();
 }
 
 //------------------------------------------------------------------------
@@ -415,6 +417,7 @@ void CBookmarkManager::hide()
 	if (visible)
 	{
 		frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
+		frameBuffer->blit();
 		visible = false;
 	}
 }
@@ -481,5 +484,6 @@ void CBookmarkManager::paint()
 
 	paintFoot();
 	visible = true;
+	frameBuffer->blit();
 }
 

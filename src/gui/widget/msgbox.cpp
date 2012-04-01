@@ -512,6 +512,7 @@ bool CMsgBox::hide(void)
 	// delete window
 	// delete m_pcWindow;
 	m_pcWindow->paintBackgroundBoxRel(m_cBoxFrame.iX, m_cBoxFrame.iY, m_cBoxFrame.iWidth, m_cBoxFrame.iHeight);
+	m_pcWindow->blit();
 	m_pcWindow = NULL;
 	return (true);
 }
@@ -638,6 +639,7 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 
 	// show message box
 	paint();
+	m_pcWindow->blit();
 	if (m_pcWindow == NULL)
 	{
 		return res; /* out of memory */
@@ -717,7 +719,7 @@ int CMsgBox::exec( int timeout, int returnDefaultOnTimeout)
 			res  = menu_return::RETURN_EXIT_ALL;
 			loop = false;
 		}
-
+		m_pcWindow->blit();
 	}
 
 	hide();

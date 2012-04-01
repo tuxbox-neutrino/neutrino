@@ -573,6 +573,7 @@ int CChannelList::show()
 
 	paintHead();
 	paint();
+	frameBuffer->blit();
 
 	gettimeofday(&t2, NULL);
 	fprintf(stderr, "CChannelList::show(): %llu ms to paint channellist\n",
@@ -931,6 +932,7 @@ int CChannelList::show()
 				res = - 2;
 			}
 		}
+		frameBuffer->blit();
 	}
 	hide();
 
@@ -959,6 +961,7 @@ void CChannelList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width, height+ info_height+ 5);
 	clearItem2DetailsLine ();
+	frameBuffer->blit();
 }
 
 bool CChannelList::showInfo(int pos, int epgpos)
@@ -1360,6 +1363,7 @@ int CChannelList::numericZap(int key)
 				valstr[i+ 1]= 0;
 				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(ox+7+ i*((sx-14)>>2), oy+sy-3, sx, &valstr[i], COL_INFOBAR);
 			}
+			frameBuffer->blit();
 
 			showInfo(chn- 1);
 			lastchan= chn;

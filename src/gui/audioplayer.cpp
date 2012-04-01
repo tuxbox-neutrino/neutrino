@@ -873,6 +873,7 @@ int CAudioPlayerGui::show()
 			//paintHead();
 			//paintLCD();
 		}
+		m_frameBuffer->blit();
 	}
 	hide();
 
@@ -1486,6 +1487,7 @@ void CAudioPlayerGui::hide()
 						     m_width + ConnectLineBox_Width+2, m_height + 2 - m_title_height);
 		clearItemID3DetailsLine();
 		m_frameBuffer->paintBackgroundBoxRel(m_x, m_y, m_width, m_title_height);
+		m_frameBuffer->blit();
 		m_visible = false;
 	}
 }
@@ -1637,6 +1639,7 @@ void CAudioPlayerGui::paintHead()
 		m_frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_MUTE, xpos - iw, ypos, m_theight);
 	}
 #endif
+	m_frameBuffer->blit();
 }
 
 //------------------------------------------------------------------------
@@ -1749,6 +1752,7 @@ const struct button_label ScondLineButtons[2] =
 				::paintButtons(m_x, top, m_width, 2, AudioPlayerButtons[2], m_width, m_buttonHeight);
 		}
 	}
+	m_frameBuffer->blit();
 }
 //------------------------------------------------------------------------
 void CAudioPlayerGui::paintInfo()
@@ -1825,6 +1829,7 @@ void CAudioPlayerGui::paintInfo()
 
 		updateTimes(true);
 	}
+	m_frameBuffer->blit();
 }
 //------------------------------------------------------------------------
 
@@ -1851,6 +1856,7 @@ void CAudioPlayerGui::paint()
 
 	paintFoot();
 	paintInfo();
+	m_frameBuffer->blit();
 	m_visible = true;
 
 }
@@ -1940,6 +1946,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	{
 		m_frameBuffer->paintBackgroundBoxRel(m_x, ypos2, m_width, m_info_height);
 	}
+	m_frameBuffer->blit();
 }
 //------------------------------------------------------------------------
 
@@ -2170,6 +2177,7 @@ void CAudioPlayerGui::updateMetaData(bool screen_saver)
 		g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]
 		->RenderString(m_x + xstart, m_y + 4 + 2*m_fheight + m_sheight,
 			       m_width- 2*xstart, m_metainfo, COL_MENUCONTENTSELECTED);
+		m_frameBuffer->blit();
 	}
 }
 //------------------------------------------------------------------------
@@ -2230,6 +2238,7 @@ void CAudioPlayerGui::updateTimes(const bool force)
 							w2+4, play_time, COL_MENUCONTENTSELECTED);
 				}
 			}
+			m_frameBuffer->blit();
 		}
 		if ((updatePlayed || updateTotal) && m_time_total != 0)
 		{
@@ -2356,6 +2365,7 @@ bool CAudioPlayerGui::getNumericInput(neutrino_msg_t& msg, int& val) {
 		m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_MENUCONTENT_PLUS_6);
 		m_frameBuffer->paintBoxRel(x1 - 4, y1 - h - 3, w +  8, h +  6, COL_MENUCONTENTSELECTED_PLUS_0);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(x1, y1, w + 1, str, COL_MENUCONTENTSELECTED, 0);
+		m_frameBuffer->blit();
 		while (true)
 		{
 			g_RCInput->getMsg(&msg, &data, 100);

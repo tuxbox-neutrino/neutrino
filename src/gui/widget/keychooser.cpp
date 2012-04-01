@@ -117,7 +117,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 		parent->hide();
 
 	paint();
-
+	CFrameBuffer::getInstance()->blit();
 	g_RCInput->clearRCMsg();
 
 	timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
@@ -145,6 +145,7 @@ int CKeyChooserItem::exec(CMenuTarget* parent, const std::string &)
 void CKeyChooserItem::hide()
 {
 	CFrameBuffer::getInstance()->paintBackgroundBoxRel(x, y, width, height);
+	CFrameBuffer::getInstance()->blit();
 }
 
 void CKeyChooserItem::paint()

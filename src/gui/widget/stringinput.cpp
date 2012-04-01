@@ -381,6 +381,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 	strncpy(oldval, value, size);
 
 	paint();
+	frameBuffer->blit();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings
 ::TIMING_MENU]);
@@ -489,6 +490,7 @@ int CStringInput::exec( CMenuTarget* parent, const std::string & )
 				}
 			}
 		}
+		frameBuffer->blit();
 	}
 
 	hide();
@@ -526,6 +528,7 @@ int CStringInput::handleOthers(const neutrino_msg_t /*msg*/, const neutrino_msg_
 void CStringInput::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x, y, width, height + footerHeight);
+	frameBuffer->blit();
 }
 
 const char * CStringInput::getHint1(void)

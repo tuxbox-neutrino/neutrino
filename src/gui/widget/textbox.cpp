@@ -420,6 +420,7 @@ void CTextBox::refreshScroll(void)
 				m_cFrameScrollRel.iWidth, m_cFrameScrollRel.iHeight,
 				m_textBackgroundColor);
 	}
+	frameBuffer->blit();
 }
 
 void CTextBox::refreshText(void)
@@ -448,6 +449,7 @@ void CTextBox::refreshText(void)
 				y+m_cFrame.iY, m_cFrameTextRel.iWidth, m_cLineArray[i].c_str(),
 				COL_MENUCONTENT, 0, true); // UTF-8
 	}
+	frameBuffer->blit();
 }
 
 void CTextBox::scrollPageDown(const int pages)
@@ -529,5 +531,6 @@ void CTextBox::hide (void)
 	if(frameBuffer == NULL) return;
 	//TRACE("[CTextBox]->hide \r\n");
 	frameBuffer->paintBackgroundBoxRel(m_cFrame.iX, m_cFrame.iY, m_cFrame.iWidth, m_cFrame.iHeight);
+	frameBuffer->blit();
 	frameBuffer = NULL;
 }

@@ -141,6 +141,7 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 	fader.StartFadeIn();
 
 	paint();
+	frameBuffer->blit();
 
 	uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 
@@ -248,6 +249,7 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 			loop = false;
 			res = menu_return::RETURN_EXIT_ALL;
 		}
+		frameBuffer->blit();
 	}
 	hide();
 
@@ -258,6 +260,7 @@ int CPluginList::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 void CPluginList::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width+15,height);
+	frameBuffer->blit();
 }
 
 void CPluginList::paintItem(int pos)

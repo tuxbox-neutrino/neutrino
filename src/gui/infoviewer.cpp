@@ -815,10 +815,13 @@ void CInfoViewer::showTitle (const int ChanNum, const std::string & Channel, con
 			showIcon_RadioText(false);
 	}
 
+
 	if (!calledFromNumZap) {
 		//loop(fadeValue, show_dot , fadeIn);
 		loop(show_dot);
 	}
+	else
+		frameBuffer->blit();
 	aspectRatio = 0;
 	fileplay = 0;
 }
@@ -855,6 +858,7 @@ void CInfoViewer::loop(bool show_dot)
 	neutrino_msg_data_t data;
 
 	while (!(res & (messages_return::cancel_info | messages_return::cancel_all))) {
+		frameBuffer->blit();
 		g_RCInput->getMsgAbsoluteTimeout (&msg, &data, &timeoutEnd);
 
 		if (msg == (neutrino_msg_t) g_settings.key_screenshot) {
@@ -1223,6 +1227,7 @@ void CInfoViewer::showMotorMoving (int duration)
 void CInfoViewer::killRadiotext()
 {
 	frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
+	frameBuffer->blit();
 }
 
 void CInfoViewer::showRadiotext()
@@ -1249,8 +1254,10 @@ void CInfoViewer::showRadiotext()
 			if (g_Radiotext->RT_Text[i][0] != '\0') lines++;
 		}
 		if (lines == 0)
+		{
 			frameBuffer->paintBackgroundBox(rt_x, rt_y, rt_w, rt_h);
-
+			frameBuffer->blit();
+		}
 		if (g_Radiotext->RT_MsgShow) {
 
 			if (g_Radiotext->S_RtOsdTitle == 1) {
@@ -1265,6 +1272,7 @@ void CInfoViewer::showRadiotext()
 					frameBuffer->paintBoxRel(rt_x+SHADOW_OFFSET, rt_y+SHADOW_OFFSET, rt_dx, rt_dy, COL_INFOBAR_SHADOW_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 					frameBuffer->paintBoxRel(rt_x, rt_y, rt_dx, rt_dy, COL_INFOBAR_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 					g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rt_x+10, rt_y+ 30, rt_dx-20, stext[0], COL_INFOBAR, 0, RTisIsUTF); // UTF-8
+					frameBuffer->blit();
 				}
 //				yoff = 17;
 				ii = 1;
@@ -1311,6 +1319,7 @@ void CInfoViewer::showRadiotext()
 					for (int i = g_Radiotext->S_RtOsdRows-1; i > ind; i--)
 						g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->RenderString(rts_x, rts_y + (ii++)*rt_dy, rts_dx, g_Radiotext->RT_Text[i], COL_INFOBAR, 0, RTisIsUTF); // UTF-8
 				}
+				frameBuffer->blit();
 			}
 #if 0
 			// + RT-Plus or PS-Text = 2 rows
@@ -2010,6 +2019,7 @@ void CInfoViewer::killTitle()
 			bottom += InfoHeightY_Info;
 		//printf("killTitle(%d, %d, %d, %d)\n", BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET-BoxStartX, bottom-BoxStartY);
 		frameBuffer->paintBackgroundBox(BoxStartX, BoxStartY, BoxEndX+ SHADOW_OFFSET, bottom);
+		frameBuffer->blit();
 		if (g_settings.radiotext_enable && g_Radiotext) {
 			g_Radiotext->S_RtOsd = g_Radiotext->haveRadiotext() ? 1 : 0;
 			killRadiotext();

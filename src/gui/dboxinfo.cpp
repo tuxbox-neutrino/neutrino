@@ -82,6 +82,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 	fader.StartFadeIn();
 
 	paint();
+	frameBuffer->blit();
 
 	//int res = g_RCInput->messageLoop();
 	neutrino_msg_t      msg;
@@ -139,6 +140,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 				}
 			}
 		}
+		frameBuffer->blit();
 	}
 
 	hide();
@@ -149,6 +151,7 @@ int CDBoxInfoWidget::exec(CMenuTarget* parent, const std::string &)
 void CDBoxInfoWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height);
+	frameBuffer->blit();
 }
 
 static void bytes2string(uint64_t bytes, char *result, size_t len)

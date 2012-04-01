@@ -176,6 +176,10 @@ void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 		if(max_y < (yoff + nh))
 			max_y = yoff + nh;
 	}
+#ifdef HAVE_SPARK_HARDWARE
+	if (Count())	/* sync framebuffer */
+		CFrameBuffer::getInstance()->blit();
+#endif
 //	if(Count())
 //		dbgconverter("cDvbSubtitleBitmaps::Draw: finish, min/max screen: x=% d y= %d, w= %d, h= %d\n", min_x, min_y, max_x-min_x, max_y-min_y);
 //	dbgconverter("\n");

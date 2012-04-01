@@ -145,6 +145,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 	int dheight = g_Font[font_info]->getHeight ();
 	maxb = minb = lastb = tmp_rate = 0;
 	ts_setup ();
+	frameBuffer->blit();
 	while (1) {
 		neutrino_msg_data_t data;
 
@@ -255,6 +256,7 @@ int CStreamInfo2::doSignalStrengthLoop ()
 		if (msg > CRCInput::RC_MaxRC && msg != CRCInput::RC_timeout) {
 			CNeutrinoApp::getInstance ()->handleMsg (msg, data);
 		}
+		frameBuffer->blit();
 	}
 	if(sigscale){
 		delete sigscale;
@@ -272,11 +274,13 @@ void CStreamInfo2::hide ()
 {
   videoDecoder->Pig(-1, -1, -1, -1);
   frameBuffer->paintBackgroundBoxRel (0, 0, max_width, max_height);
+  frameBuffer->blit();
 }
 
 void CStreamInfo2::paint_pig (int px, int py, int w, int h)
 {
   frameBuffer->paintBackgroundBoxRel (px,py, w, h);
+  frameBuffer->blit();
 printf("CStreamInfo2::paint_pig x %d y %d w %d h %d\n", px, py, w, h);
   videoDecoder->Pig(px, py, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
@@ -427,7 +431,7 @@ void CStreamInfo2::SignalRenderStr(unsigned int oldvalue, unsigned int value, in
 	int fw = g_Font[font_small]->getRenderWidth(str);
 	frameBuffer->paintBoxRel(_x, _y - sheight + 5, fw, sheight -1, COL_MENUHEAD_PLUS_0);
 	sprintf(str,"%6u",value);
-	g_Font[font_small]->RenderString(_x, _y + 5, width - x, str, COL_INFOBAR, 0, true);
+	g_Font[font_small]->RenderString(_x, _y + 5, width - _x, str, COL_INFOBAR, 0, true);
 }
 
 void CStreamInfo2::paint (int /*mode*/)

@@ -137,6 +137,7 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 		if(Channels[itemNr]->scrambled)
 			frameBuffer->paintIcon(NEUTRINO_ICON_SCRAMBLED, x+width- 15 - 28, ypos, fheight);
 	}
+	frameBuffer->blit();
 }
 
 void CBEChannelSelectWidget::onOkKeyPressed()
@@ -187,6 +188,7 @@ const struct button_label CBEChannelSelectButtons[] =
 void CBEChannelSelectWidget::paintFoot()
 {
 	::paintButtons(x, y + (height-footerHeight), width, 2, CBEChannelSelectButtons, width, footerHeight);
+	frameBuffer->blit();
 
 #if 0
 	frameBuffer->paintIcon(NEUTRINO_ICON_BUTTON_OKAY, x+width- 3* ButtonWidth+ 8, y+height+1);
