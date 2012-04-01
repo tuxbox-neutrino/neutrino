@@ -121,6 +121,11 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("m2ts");
 	tsfilefilter.addFilter("mp4");
 	tsfilefilter.addFilter("mov");
+#ifdef HAVE_SPARK_HARDWARE
+	tsfilefilter.addFilter("vdr");
+	tsfilefilter.addFilter("flv");
+	tsfilefilter.addFilter("wmv");
+#endif
 
 	if (strlen(g_settings.network_nfs_moviedir) != 0)
 		Path_local = g_settings.network_nfs_moviedir;
@@ -751,7 +756,9 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 				break;
 			case 6: /*DTS*/
 				apidtitle.append(" (DTS)");
+#ifndef HAVE_SPARK_HARDWARE
 				enabled = false;
+#endif
 				break;
 			case 7: /*MLP*/
 				apidtitle.append(" (MLP)");
