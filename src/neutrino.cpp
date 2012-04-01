@@ -640,17 +640,13 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.screen_StartY_lcd = configfile.getInt32( "screen_StartY_lcd", DEFAULT_Y_START_HD );
 	g_settings.screen_EndX_lcd = configfile.getInt32( "screen_EndX_lcd", DEFAULT_X_END_HD);
 	g_settings.screen_EndY_lcd = configfile.getInt32( "screen_EndY_lcd", DEFAULT_Y_END_HD);
+	g_settings.screen_preset = configfile.getInt32( "screen_preset", 1);
 
 #if HAVE_TRIPLEDRAGON
-	/* does not make sense to have two configurations for that... */
-	g_settings.screen_preset = 0;
-#else
-	int screen_preset_default = (g_settings.video_Mode > VIDEO_STD_576P);
-#if HAVE_SPARK_HARDWARE
-	g_settings.screen_preset = screen_preset_default;
-#else
-	g_settings.screen_preset = configfile.getInt32("screen_preset", screen_preset_default);
+	g_settings.screen_preset = 0; /* does not make sense to have two configurations for that... */
 #endif
+#if HAVE_SPARK_HARDWARE
+	g_settings.screen_preset = 1; /* spark is now always using 1280x720 framebuffer */
 #endif
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
 	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
