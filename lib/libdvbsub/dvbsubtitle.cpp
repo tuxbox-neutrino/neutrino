@@ -105,12 +105,16 @@ fb_pixel_t * simple_resize32(uint8_t * orgin, uint32_t * colors, int nb_colors, 
 void cDvbSubtitleBitmaps::Draw(int &min_x, int &min_y, int &max_x, int &max_y)
 {
 	int i;
+#ifndef HAVE_SPARK_HARDWARE
 	int stride = CFrameBuffer::getInstance()->getScreenWidth(true);
+#if 0
 	int wd = CFrameBuffer::getInstance()->getScreenWidth();
 	int xstart = CFrameBuffer::getInstance()->getScreenX();
 	int yend = CFrameBuffer::getInstance()->getScreenY() + CFrameBuffer::getInstance()->getScreenHeight();
 	int ystart = CFrameBuffer::getInstance()->getScreenY();
+#endif
 	uint32_t *sublfb = CFrameBuffer::getInstance()->getFrameBufferPointer();
+#endif
 
 //	dbgconverter("cDvbSubtitleBitmaps::Draw: %d bitmaps, x= %d, width= %d yend=%d stride %d\n", Count(), xstart, wd, yend, stride);
 
