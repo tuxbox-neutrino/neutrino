@@ -229,6 +229,10 @@ bool CServiceScan::ReadNitSdt(t_satellite_position satellitePosition)
 	std::map <transponder_id_t, transponder>::iterator sT;
 
 	printf("[scan] scanning tp from sat/service\n");
+#ifdef USE_BAT
+	bouquet_map_t bouquet_map;
+	channel_number_map_t logical_map;
+#endif
 _repeat:
 	for (tI = scantransponders.begin(); tI != scantransponders.end(); tI++) {
 		if(abort_scan)
@@ -284,8 +288,16 @@ _repeat:
 			nit.Stop();
 #endif
 #ifdef USE_BAT
-		if(flags & SCAN_BAT)
+		if(flags & SCAN_BAT) {
 			bat.Stop();
+			bouquet_map_t & tmp = bat.getBouquets();
+			for(bouquet_map_t::iterator it = tmp.begin(); it != tmp.end(); ++it) {
+				bouquet_map[it->first].insert(it->second.begin(), it->second.end());
+printf("########### CServiceScan::ReadNitSdt: bouquet_map [%s] size %d ###########\n", it->first.c_str(), bouquet_map[it->first].size());
+			}
+			channel_number_map_t &lcn = bat.getLogicalMap();
+			logical_map.insert(lcn.begin(), lcn.end());
+		}
 #endif
 		if(!sdt_parsed) {
 			printf("[scan] SDT failed !\n");
@@ -332,6 +344,49 @@ _repeat:
 			goto _repeat;
 		}
 	}
+#ifdef USE_BAT
+	if(flags & SCAN_BAT) {
+		bool have_lcn = false;
+		if((flags & SCAN_LOGICAL_NUMBERS) && !logical_map.empty()) {
+			CServiceManager::getInstance()->ResetChannelNumbers(true, true);
+			for(channel_number_map_t::iterator lit = logical_map.begin(); lit != logical_map.end(); ++lit) {
+				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(lit->first);
+				if(channel) {
+					channel->number = lit->second;
+					CServiceManager::getInstance()->UseNumber(channel->number, channel->getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE);
+					have_lcn = true;
+				}
+			}
+		}
+#if 1
+		for(bouquet_map_t::iterator it = bouquet_map.begin(); it != bouquet_map.end(); ++it) {
+			CZapitBouquet* bouquet;
+			std::string pname = it->first;
+			int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
+printf("########### CServiceScan::ReadNitSdt: bouquet [%s] size %d id %d ###########\n", it->first.c_str(), bouquet_map[it->first].size(), bouquetId);
+			if (bouquetId == -1)
+				bouquet = g_bouquetManager->addBouquet(pname, true);
+			else
+				bouquet = g_bouquetManager->Bouquets[bouquetId];
+
+			for(std::set<t_channel_id>::iterator cit = it->second.begin(); cit != it->second.end(); ++cit) {
+				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(*cit);
+				//if (channel->getAudioPid() == 0) && (channel->getVideoPid() == 0)
+				if(channel && !bouquet->getChannelByChannelID(channel->getChannelID())) {
+					bouquet->addService(channel);
+				}
+#if 0
+				else
+					printf("CServiceScan::ReadNitSdt: channel id %016llx not found\n", *cit);
+#endif
+			}
+			if(have_lcn)
+				bouquet->sortBouquetByNumber();
+
+#endif
+		}
+	}
+#endif
 	return true;
 }
 
@@ -489,6 +544,11 @@ void CServiceScan::SaveServices()
 	g_bouquetManager->saveBouquets();
 	g_bouquetManager->loadBouquets();
 	printf("[scan] save bouquets done\n");
+#endif
+#ifdef USE_BAT
+	if(flags & SCAN_BAT) {
+		g_bouquetManager->saveUBouquets();
+	}
 #endif
 	if(flags & SCAN_RESET_NUMBERS)
 		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
