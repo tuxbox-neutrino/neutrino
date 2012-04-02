@@ -1561,7 +1561,6 @@ bool sectionsd_isReady(void);
 
 void CNeutrinoApp::MakeSectionsdConfig(CSectionsdClient::epg_config& config)
 {
-        config.scanMode                 = scanSettings.scanSectionsd;
         config.epg_cache                = atoi(g_settings.epg_cache.c_str());
         config.epg_old_events           = atoi(g_settings.epg_old_events.c_str());
         config.epg_max_events           = atoi(g_settings.epg_max_events.c_str());

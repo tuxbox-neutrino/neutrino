@@ -664,11 +664,9 @@ public:
 	CConfigFile	configfile;
 	int		bouquetMode;
 	int		scanType;
-	int		diseqcMode;
-	uint32_t	diseqcRepeat;
+
 	char                      satNameNoDiseqc[50];
 	delivery_system_t         delivery_system;
-	int		scanSectionsd;
 	int		scan_nit;
 	int		scan_nit_manual;
 	int		scan_bat;
@@ -686,7 +684,7 @@ public:
 
 	CScanSettings();
 
-	void useDefaults(const delivery_system_t _delivery_system);
+	//void useDefaults(const delivery_system_t _delivery_system);
 	bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
 	bool saveSettings(const char * const fileName);
 };

@@ -100,54 +100,30 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	//user menu
 	{"personalize_usermenu_show_cancel"	, true},
 };
+
 CScanSettings::CScanSettings(void)
 	: configfile('\t')
 {
 	delivery_system = DVB_S;
-	satNameNoDiseqc[0] = 0;
-}
-
-void CScanSettings::useDefaults(const delivery_system_t _delivery_system)
-{
-	delivery_system = _delivery_system;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
 	scanType = CZapitClient::ST_ALL;
-	diseqcMode      = NO_DISEQC;
-	diseqcRepeat    = 0;
-	TP_mod = 3;
-	TP_fec = 3;
-
-	switch (delivery_system)
-	{
-	case DVB_C:
-		strcpy(satNameNoDiseqc, "none");
-		break;
-	case DVB_S:
-		strcpy(satNameNoDiseqc, "none");
-		break;
-	case DVB_T:
-		strcpy(satNameNoDiseqc, "");
-		break;
-	}
+	strcpy(satNameNoDiseqc, "none");
 }
 
-bool CScanSettings::loadSettings(const char * const fileName, const delivery_system_t _delivery_system)
+bool CScanSettings::loadSettings(const char * const fileName, const delivery_system_t dsys)
 {
-	useDefaults(_delivery_system);
-	if(!configfile.loadConfig(fileName))
-		return false;
+	bool ret = configfile.loadConfig(fileName);
 
-	if (configfile.getInt32("delivery_system", -1) != delivery_system)
+	if (configfile.getInt32("delivery_system", -1) != dsys)
 	{
 		// configfile is not for this delivery system
 		configfile.clear();
-		return false;
+		delivery_system = dsys;
+		ret = false;
 	}
 
-	diseqcMode = configfile.getInt32("diseqcMode"  , diseqcMode);
-	diseqcRepeat = configfile.getInt32("diseqcRepeat", diseqcRepeat);
 	bouquetMode = (CZapitClient::bouquetMode) configfile.getInt32("bouquetMode" , bouquetMode);
-	scanType=(CZapitClient::scanType) configfile.getInt32("scanType", scanType);
+	scanType = (CZapitClient::scanType) configfile.getInt32("scanType", scanType);
 	strcpy(satNameNoDiseqc, configfile.getString("satNameNoDiseqc", satNameNoDiseqc).c_str());
 
 	scan_fta_flag = configfile.getInt32("scan_fta_flag", 0);
@@ -159,27 +135,25 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	TP_fec = configfile.getInt32("TP_fec", 1);
 	TP_pol = configfile.getInt32("TP_pol", 0);
 	TP_mod = configfile.getInt32("TP_mod", 3);
+
 	strcpy(TP_freq, configfile.getString("TP_freq", "10100000").c_str());
 	strcpy(TP_rate, configfile.getString("TP_rate", "27500000").c_str());
 #if 1
 	if(TP_fec == 4) TP_fec = 5;
 #endif
-	scanSectionsd = configfile.getInt32("scanSectionsd", 0);
 	fast_type = configfile.getInt32("fast_type", 1);
 	fast_op = configfile.getInt32("fast_op", 0);
 	cable_nid = configfile.getInt32("cable_nid", 0);
 
-	return true;
+	return ret;
 }
 
 bool CScanSettings::saveSettings(const char * const fileName)
 {
 	configfile.setInt32("delivery_system", delivery_system);
-	configfile.setInt32( "diseqcMode", diseqcMode );
-	configfile.setInt32( "diseqcRepeat", diseqcRepeat );
-	configfile.setInt32( "bouquetMode", bouquetMode );
-	configfile.setInt32( "scanType", scanType );
-	configfile.setString( "satNameNoDiseqc", satNameNoDiseqc );
+	configfile.setInt32("bouquetMode", bouquetMode);
+	configfile.setInt32("scanType", scanType);
+	configfile.setString("satNameNoDiseqc", satNameNoDiseqc);
 
 	configfile.setInt32("scan_fta_flag", scan_fta_flag);
 	configfile.setInt32("scan_nit", scan_nit);
@@ -192,7 +166,6 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setInt32("TP_mod", TP_mod);
 	configfile.setString("TP_freq", TP_freq);
 	configfile.setString("TP_rate", TP_rate);
-	configfile.setInt32("scanSectionsd", scanSectionsd );
 	configfile.setInt32("fast_type", fast_type);
 	configfile.setInt32("fast_op", fast_op);
 	configfile.setInt32("cable_nid", fast_op);
