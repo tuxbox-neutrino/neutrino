@@ -97,7 +97,7 @@ int zapit_debug = 0;
 transponder_list_t transponders;
 
 CZapitClient::bouquetMode bouquetMode = CZapitClient::BM_UPDATEBOUQUETS;
-CZapitClient::scanType scanType = CZapitClient::ST_TVRADIO;
+//static CZapitClient::scanType scanType = CZapitClient::ST_TVRADIO;
 
 //static TP_params TP;
 
@@ -1179,7 +1179,8 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		break;
 
         case CZapitMessages::CMD_SCANSETTYPE:
-                CBasicServer::receive_data(connfd, &scanType, sizeof(scanType));
+                //CBasicServer::receive_data(connfd, &scanType, sizeof(scanType));
+		ERROR("CZapitMessages::CMD_SCANSETTYPE: depreciated command\n");
                 break;
 
 	case CZapitMessages::CMD_SET_EVENT_MODE: {
