@@ -3038,7 +3038,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 
 			reboot(LINUX_REBOOT_CMD_RESTART);
 #else
-			_exit(retcode);
+			//_exit(retcode);
+			exit(retcode);
 #endif
 			exit(retcode);
 		}
@@ -3593,7 +3594,8 @@ void sighandler (int signum)
 		CNeutrinoApp::getInstance()->saveSetup(NEUTRINO_SETTINGS_FILE);
 		stop_daemons();
 		stop_video();
-                _exit(0);
+		//_exit(0);
+		exit(0);
           default:
                 break;
         }
