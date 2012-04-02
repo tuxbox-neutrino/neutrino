@@ -38,8 +38,6 @@
 #include <sectionsd/edvbstring.h>
 #include <zapit/dvbstring.h>
 
-extern CZapitClient::scanType scanType; // FIXME
-
 #define DEBUG_SDT
 //#define DEBUG_SDT_UNUSED
 //#define DEBUG_SDT_SERVICE
@@ -369,23 +367,15 @@ bool CSdt::CheckScanType(uint8_t service_type)
 	if(current)
 		return true;
 
-	switch ( scanType ) {
-	case CZapitClient::ST_TVRADIO:
-		if ( (service_type == 1 ) || (service_type == 2) )
-			return true;
-		break;
-	case CZapitClient::ST_TV:
-		if ( service_type == 1 )
-			return true;
-		break;
-	case CZapitClient::ST_RADIO:
-		if ( service_type == 2 )
-			return true;
-		break;
-	case CZapitClient::ST_ALL:
+	int flags = CServiceScan::getInstance()->GetFlags();
+
+	if ((flags & CServiceScan::SCAN_ALL) == CServiceScan::SCAN_ALL)
 		return true;
-		break;
-	}
+	if ((service_type == 1) && (flags & CServiceScan::SCAN_TV))
+		return true;
+	if ((service_type == 2) && (flags & CServiceScan::SCAN_RADIO))
+		return true;
+
 	return false;
 }
 
