@@ -170,6 +170,9 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(scansettings.scan_logical_numbers)
 		scan_flags |= CServiceScan::SCAN_LOGICAL_NUMBERS;
 
+	/* channel types to scan, TV/RADIO/ALL */
+	scan_flags |= scansettings.scanType;
+
 	sat_iterator_t sit;
 	bool scan_all = actionKey == "all";
 	bool test = actionKey == "test";
@@ -267,6 +270,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 	/* send diseqc repeat to zapit */
 	g_Zapit->setDiseqcRepeat( scansettings.diseqcRepeat);
+        /* send scantype to zapit */
+        g_Zapit->setScanType((CZapitClient::scanType) scansettings.scanType );
 #endif
 	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)scansettings.bouquetMode);
 
@@ -274,14 +279,11 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	if(satList.size())
 		g_Zapit->setScanSatelliteList( satList);
 
-        /* send scantype to zapit */
-        g_Zapit->setScanType((CZapitClient::scanType) scansettings.scanType );
-
 	tuned = -1;
 	paint(test);
 	/* go */
 	if(test) {
-	  testFunc();
+		testFunc();
 	} else if(manual)
 		success = g_Zapit->scan_TP(TP);
 	else if(fast) {
