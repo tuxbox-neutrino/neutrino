@@ -32,7 +32,12 @@ class CServiceScan : public OpenThreads::Thread
 			SCAN_BAT		= 0x02,
 			SCAN_FTA		= 0x04,
 			SCAN_RESET_NUMBERS	= 0x08,
-			SCAN_LOGICAL_NUMBERS	= 0x10
+			SCAN_LOGICAL_NUMBERS	= 0x10,
+			SCAN_TV			= 0x20,
+			SCAN_RADIO		= 0x40,
+			SCAN_TVRADIO		= 0x60,
+			SCAN_DATA		= 0x80,
+			SCAN_ALL		= 0xE0
 		} scan_flags_t;
 
 	private:
@@ -113,6 +118,7 @@ class CServiceScan : public OpenThreads::Thread
 		uint32_t & FoundChannels() { return found_channels; };
 		void SetCableNID(unsigned short nid) { cable_nid = nid; }
 		bool isFtaOnly() { return flags & SCAN_FTA; }
+		int GetFlags() { return flags; }
 };
 
 #endif /* __scan_h__ */
