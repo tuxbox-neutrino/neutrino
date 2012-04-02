@@ -56,7 +56,7 @@
 #include <zapit/femanager.h>
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
-#include <zapit/fastscan.h>
+#include <zapit/scan.h>
 #include <zapit/zapit.h>
 #include <zapit/debug.h>
 #include <set>
@@ -84,10 +84,10 @@ const CMenuOptionChooser::keyval SCANTS_BOUQUET_OPTIONS[SCANTS_BOUQUET_OPTION_CO
 #define SCANTS_ZAPIT_SCANTYPE_COUNT 4
 const CMenuOptionChooser::keyval SCANTS_ZAPIT_SCANTYPE[SCANTS_ZAPIT_SCANTYPE_COUNT] =
 {
-	{  CZapitClient::ST_TVRADIO	, LOCALE_ZAPIT_SCANTYPE_TVRADIO     },
-	{  CZapitClient::ST_TV		, LOCALE_ZAPIT_SCANTYPE_TV    },
-	{  CZapitClient::ST_RADIO	, LOCALE_ZAPIT_SCANTYPE_RADIO     },
-	{  CZapitClient::ST_ALL		, LOCALE_ZAPIT_SCANTYPE_ALL }
+	{  CServiceScan::SCAN_TVRADIO	, LOCALE_ZAPIT_SCANTYPE_TVRADIO	},
+	{  CServiceScan::SCAN_TV	, LOCALE_ZAPIT_SCANTYPE_TV      },
+	{  CServiceScan::SCAN_RADIO	, LOCALE_ZAPIT_SCANTYPE_RADIO   },
+	{  CServiceScan::SCAN_ALL	, LOCALE_ZAPIT_SCANTYPE_ALL     }
 };
 
 #define SATSETUP_DISEQC_OPTION_COUNT 6
