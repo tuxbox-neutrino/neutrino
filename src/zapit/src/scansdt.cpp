@@ -364,10 +364,11 @@ void CSdt::FixWhiteSpaces(std::string &str)
 /* check if service type wanted in current scan type */
 bool CSdt::CheckScanType(uint8_t service_type)
 {
+	int flags;
 	if(current)
-		return true;
-
-	int flags = CServiceScan::getInstance()->GetFlags();
+		flags = CServiceScan::SCAN_TVRADIO;
+	else
+		flags = CServiceScan::getInstance()->GetFlags();
 
 	if ((flags & CServiceScan::SCAN_ALL) == CServiceScan::SCAN_ALL)
 		return true;
