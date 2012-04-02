@@ -25,7 +25,7 @@
 #include <system/settings.h>
 
 #include <zapit/settings.h>
-#include <zapit/satconfig.h>
+#include <zapit/scan.h>
 #include <gui/personalize.h>
 
 //enum PERSONALIZE_SETTINGS to find in settings.h
@@ -106,7 +106,7 @@ CScanSettings::CScanSettings(void)
 {
 	delivery_system = DVB_S;
 	bouquetMode     = CZapitClient::BM_UPDATEBOUQUETS;
-	scanType = CZapitClient::ST_ALL;
+	scanType = CServiceScan::SCAN_TVRADIO;
 	strcpy(satNameNoDiseqc, "none");
 }
 
