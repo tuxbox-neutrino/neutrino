@@ -357,6 +357,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		uint16_t vtype = xmlGetNumericAttribute(node, "vt", 16);
 		uint16_t scrambled = xmlGetNumericAttribute(node, "s", 16);
 		int number = xmlGetNumericAttribute(node, "num", 10);
+		int flags = xmlGetNumericAttribute(node, "f", 10);
 
 		t_channel_id chid = CREATE_CHANNEL_ID64;
 		char *ptr = xmlGetAttribute(node, "action");
@@ -400,6 +401,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 		} else {
 			service_count++;
 			channel->number = number;
+			channel->flags = flags;
 			channel->scrambled = scrambled;
 			channel->polarization = polarization;
 			service_type = channel->getServiceType();
