@@ -209,7 +209,7 @@ CZapitChannel * CServiceManager::FindCurrentChannel(const t_channel_id channel_i
 CZapitChannel * CServiceManager::FindChannel48(const t_channel_id channel_id)
 {
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if((it->second.getChannelID() & 0xFFFFFFFFFFFFULL) == channel_id)
+		if((it->second.getChannelID() & 0xFFFFFFFFFFFFULL) == (channel_id & 0xFFFFFFFFFFFFULL))
 			return &it->second;
 	}
 	return NULL;
