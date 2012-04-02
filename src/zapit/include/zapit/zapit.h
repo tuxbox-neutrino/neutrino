@@ -125,8 +125,9 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitSdtMonitor SdtMonitor;
 
-		static CZapit * zapit;
 		void run();
+	protected:
+		static CZapit * zapit;
 		CZapit();
 	public:
 		~CZapit();
@@ -153,7 +154,7 @@ class CZapit : public OpenThreads::Thread
 		void SetConfig(Zapit_config * Cfg);
 		void GetConfig(Zapit_config &Cfg);
 
-		void SendEvent(const unsigned int eventID, const void* eventbody = NULL, const unsigned int eventbodysize = 0);
+		virtual void SendEvent(const unsigned int eventID, const void* eventbody = NULL, const unsigned int eventbodysize = 0);
 
 		audio_map_set_t * GetSavedPids(const t_channel_id channel_id);
 
