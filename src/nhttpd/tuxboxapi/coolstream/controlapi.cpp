@@ -34,6 +34,7 @@
 #include <cs_api.h>
 #include <global.h>
 #include "gui/plugins.h"//for relodplugins
+#include <neutrino.h>
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -440,11 +441,9 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 			hh->SendError();
 	}
 	else
-#if HAVE_DBOX2 // FIXME: not implemented
-		if(NeutrinoAPI->Controld->getVideoPowerDown())
+		if(CNeutrinoApp::getInstance()->getMode() == 4)//mode_standby = 4
 			hh->WriteLn("on");
 		else
-#endif
 			hh->WriteLn("off");
 }
 
