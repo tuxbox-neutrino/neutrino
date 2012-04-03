@@ -147,6 +147,7 @@ class CServiceManager
 		void SaveServices(bool tocopy, bool if_changed = false);
 		void SaveMotorPositions();
 		bool SaveCurrentServices(transponder_id_t tpid);
+		bool CopyCurrentServices(transponder_id_t tpid);
 
 		bool AddChannel(CZapitChannel * &channel);
 		bool AddCurrentChannel(CZapitChannel * &channel);
@@ -165,10 +166,11 @@ class CServiceManager
 
 		std::string GetServiceName(t_channel_id channel_id);
 
-		bool GetAllRadioChannels(ZapitChannelList &list);
-		bool GetAllTvChannels(ZapitChannelList &list);
+		bool GetAllRadioChannels(ZapitChannelList &list, int flags = 0);
+		bool GetAllTvChannels(ZapitChannelList &list, int flags = 0);
 		bool GetAllHDChannels(ZapitChannelList &list);
 		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position);
+		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid);
 		bool GetAllUnusedChannels(ZapitChannelList &list);
 
 		std::string GetSatelliteName(t_satellite_position position)

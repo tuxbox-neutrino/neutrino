@@ -215,21 +215,23 @@ CZapitChannel * CServiceManager::FindChannel48(const t_channel_id channel_id)
 	return NULL;
 }
 
-bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list)
+bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE)
+		if (it->second.getServiceType() == ST_DIGITAL_RADIO_SOUND_SERVICE &&
+				((flags == 0) || (it->second.flags & flags)))
 			list.push_back(&(it->second));
 	}
 	return (list.size() != 0);
 }
 
-bool CServiceManager::GetAllTvChannels(ZapitChannelList &list)
+bool CServiceManager::GetAllTvChannels(ZapitChannelList &list, int flags)
 {
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
-		if (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE)
+		if (it->second.getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE &&
+				((flags == 0) || (it->second.flags & flags)))
 			list.push_back(&(it->second));
 	}
 	return (list.size() != 0);
@@ -260,6 +262,16 @@ bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellit
 	list.clear();
 	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
 		if(it->second.getSatellitePosition() == position)
+			list.push_back(&(it->second));
+	}
+	return (list.size() != 0);
+}
+
+bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid)
+{
+	list.clear();
+	for (channel_map_iterator_t it = allchans.begin(); it != allchans.end(); ++it) {
+		if(it->second.getTransponderId() == tpid)
 			list.push_back(&(it->second));
 	}
 	return (list.size() != 0);
@@ -659,6 +671,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	/* reset flag after loading services.xml */
 	services_changed = false;
 do_current:
+#if 0
 	DBG("Loading current..\n");
 	if (CZapit::getInstance()->scanSDT() && (parser = parseXmlFile(CURRENTSERVICES_XML))) {
 		newfound = 0;
@@ -671,7 +684,7 @@ do_current:
 			services_changed = true;
 		}
 	}
-
+#endif
 	if(!only_current) {
 		parser = parseXmlFile(MYSERVICES_XML);
 		if (parser != NULL) {
@@ -820,6 +833,48 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 #endif
 	printf("CServiceManager::SaveServices: processed channels: %d\n", processed);
 	services_changed = false;
+}
+
+bool CServiceManager::CopyCurrentServices(transponder_id_t tpid)
+{
+	channel_map_iterator_t aI;
+	bool updated = false;
+
+	for (channel_map_iterator_t cI = curchans.begin(); cI != curchans.end(); ++cI) {
+		aI = allchans.find(cI->second.getChannelID());
+		if(aI == allchans.end()) {
+			channel_insert_res_t ret = allchans.insert(channel_pair_t (cI->second.getChannelID(), cI->second));
+			ret.first->second.flags |= CZapitChannel::NEW;
+			updated = true;
+printf("CServiceManager::CopyCurrentServices: [%s] add\n", cI->second.getName().c_str());
+		} else {
+			if(cI->second.scrambled != aI->second.scrambled || cI->second.getName() != aI->second.getName()) {
+				aI->second.setName(cI->second.getName());
+				aI->second.scrambled = cI->second.scrambled;
+				aI->second.flags |= CZapitChannel::UPDATED;
+				updated = true;
+printf("CServiceManager::CopyCurrentServices: [%s] replace\n", cI->second.getName().c_str());
+			}
+		}
+	}
+	for (aI = allchans.begin(); aI != allchans.end(); ++aI) {
+		if(aI->second.getTransponderId() == tpid) {
+			channel_map_iterator_t dI = curchans.find(aI->second.getChannelID());
+			if(dI == curchans.end()) {
+				aI->second.flags |= CZapitChannel::REMOVED;
+				updated = true;
+printf("CServiceManager::CopyCurrentServices: [%s] remove\n", aI->second.getName().c_str());
+			} else if(aI->second.flags & CZapitChannel::REMOVED) {
+printf("CServiceManager::CopyCurrentServices: [%s] restore\n", aI->second.getName().c_str());
+				aI->second.flags = 0;
+				updated = true;
+			}
+		}
+	}
+	if(updated)
+		services_changed = true;
+
+	return updated;
 }
 
 /* helper for reused code */
