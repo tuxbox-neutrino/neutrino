@@ -2306,6 +2306,7 @@ void CZapitSdtMonitor::run()
 			sdt_tp.insert(std::pair <transponder_id_t, time_t> (tpid, time_monotonic()));
 
 			bool updated = CServiceManager::getInstance()->SaveCurrentServices(tpid);
+			CServiceManager::getInstance()->CopyCurrentServices(tpid);
 
 			if(updated && (CZapit::getInstance()->scanSDT() == 1))
 				CZapit::getInstance()->SendEvent(CZapitClient::EVT_SDT_CHANGED);
