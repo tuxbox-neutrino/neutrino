@@ -155,11 +155,21 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 	if(!Read())
 		return false;
 
+	bool updated = false;
 	for (it = sections.begin(); it != sections.end(); ++it) {
 		ServiceDescriptionSection * sdt = *it;
 
 		transport_stream_id = sdt->getTransportStreamId();
 		original_network_id = sdt->getOriginalNetworkId();
+		if(!current && !updated) {
+			updated = true;
+			transponder_id_t tpid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+					freq_id, satellitePosition, original_network_id, transport_stream_id);
+			ZapitChannelList satChannelList;
+			CServiceManager::getInstance()->GetAllTransponderChannels(satChannelList, tpid);
+			for (zapit_list_it_t oldI = satChannelList.begin(); oldI != satChannelList.end(); ++oldI)
+				(*oldI)->flags = CZapitChannel::REMOVED;
+		}
 
 #ifdef DEBUG_SDT
 		printf("SDT: tid %02x onid %02x\n", sdt->getTransportStreamId(), sdt->getOriginalNetworkId());
@@ -306,11 +316,15 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	if (channel) {
 		channel->setName(serviceName);
 		channel->setServiceType(real_type);
+		channel->flags = CZapitChannel::UPDATED;
 	} else {
 		channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
 
 		CServiceManager::getInstance()->AddChannel(channel);
+		/* mark channel as new, if this satellite already have channels */
+		if (CServiceScan::getInstance()->SatHaveChannels())
+			channel->flags = CZapitChannel::NEW;
 	}
 	channel->scrambled = free_ca;
 
