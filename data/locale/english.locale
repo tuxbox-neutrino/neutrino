@@ -196,6 +196,8 @@ bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
 bouquetname.other Unknown provider
 bouquetname.hdtv HD channels
+bouquetname.new New channels
+bouquetname.removed Removed channels
 cablesetup.provider cable provider
 channellist.current_tp Current transponder
 channellist.edit Edit
