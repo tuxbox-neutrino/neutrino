@@ -168,7 +168,7 @@ class CZapitChannel
 		typedef enum channel_flags {
 			NEW		= 0x01,
 			REMOVED		= 0x02,
-			UPDATED		= 0x03
+			UPDATED		= 0x04
 		} channel_flags_t;
 		casys_map_t			camap;
 
