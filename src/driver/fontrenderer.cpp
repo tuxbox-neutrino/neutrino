@@ -387,7 +387,6 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 
 	int left=x;
 	int step_y=height;
-	int _y = y;
 
 	// ----------------------------------- box upper end (this is NOT a font metric, this is our method for y centering)
 	//
@@ -615,8 +614,8 @@ void Font::RenderString(int x, int y, const int width, const char *text, const u
 	}
 //printf("RenderStat: %d %d %d \n", renderer->cacheManager->num_nodes, renderer->cacheManager->num_bytes, renderer->cacheManager->max_bytes);
 	pthread_mutex_unlock( &renderer->render_mutex );
-	int _h = (boxheight > height) ? boxheight : height;
-	frameBuffer->mark(left, _y - _h, left + width, _y);
+	/* x is the rightmost position of the last drawn character */
+	frameBuffer->mark(left, y + lower - height, x, y + lower);
 }
 
 void Font::RenderString(int x, int y, const int width, const std::string & text, const unsigned char color, const int boxheight, const bool utf8_encoded)
