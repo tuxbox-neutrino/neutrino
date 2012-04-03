@@ -279,7 +279,6 @@ _repeat:
 		if(flags & SCAN_BAT)
 			bat.Start();
 #endif
-
 		CSdt sdt(satellitePosition, freq);
 		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
 
@@ -293,7 +292,7 @@ _repeat:
 			bouquet_map_t & tmp = bat.getBouquets();
 			for(bouquet_map_t::iterator it = tmp.begin(); it != tmp.end(); ++it) {
 				bouquet_map[it->first].insert(it->second.begin(), it->second.end());
-printf("########### CServiceScan::ReadNitSdt: bouquet_map [%s] size %d ###########\n", it->first.c_str(), bouquet_map[it->first].size());
+				printf("########### CServiceScan::ReadNitSdt: bouquet_map [%s] size %d ###########\n", it->first.c_str(), bouquet_map[it->first].size());
 			}
 			channel_number_map_t &lcn = bat.getLogicalMap();
 			logical_map.insert(lcn.begin(), lcn.end());
@@ -340,7 +339,7 @@ printf("########### CServiceScan::ReadNitSdt: bouquet_map [%s] size %d #########
 		printf("\n\n[scan] found %d additional transponders from nit\n", scantransponders.size());
 		if(scantransponders.size()) {
 			CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
-				&found_transponders, sizeof(found_transponders));
+					&found_transponders, sizeof(found_transponders));
 			goto _repeat;
 		}
 	}
@@ -363,7 +362,7 @@ printf("########### CServiceScan::ReadNitSdt: bouquet_map [%s] size %d #########
 			CZapitBouquet* bouquet;
 			std::string pname = it->first;
 			int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
-printf("########### CServiceScan::ReadNitSdt: bouquet [%s] size %d id %d ###########\n", it->first.c_str(), bouquet_map[it->first].size(), bouquetId);
+			printf("########### CServiceScan::ReadNitSdt: bouquet [%s] size %d id %d ###########\n", it->first.c_str(), bouquet_map[it->first].size(), bouquetId);
 			if (bouquetId == -1)
 				bouquet = g_bouquetManager->addBouquet(pname, true);
 			else
@@ -536,6 +535,15 @@ bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)
 	return true;
 }
 
+void CServiceScan::CheckSatelliteChannels(t_satellite_position satellitePosition)
+{
+	satHaveChannels = false;
+
+	ZapitChannelList zapitList;
+	if(CServiceManager::getInstance()->GetAllSatelliteChannels(zapitList, satellitePosition))
+		satHaveChannels = true;
+}
+
 void CServiceScan::SaveServices()
 {
 #if 0 // old
@@ -626,6 +634,9 @@ bool CServiceScan::ScanProviders()
 			scanedtransponders.clear();
 			nittransponders.clear();
 
+			/* set satHaveChannels flag so SDT can mark channels as NEW only if
+			 * this is not first satellite scan */
+			CheckSatelliteChannels(position);
 			printf("[scan] scanning %s at %d bouquetMode %d\n", providerName, position, bouquetMode);
 			ScanProvider(search, position, diseqc_pos);
 			if(abort_scan) {
@@ -669,6 +680,7 @@ bool CServiceScan::ScanTransponder()
 		Cleanup(false);
 		return false;
 	}
+	CheckSatelliteChannels(satellitePosition);
 
 	scanBouquetManager = new CBouquetManager();
 

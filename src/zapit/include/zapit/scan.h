@@ -65,6 +65,7 @@ class CServiceScan : public OpenThreads::Thread
 		scan_type_t scan_mode;
 		int flags;
 		void * scan_arg;
+		bool satHaveChannels;
 
 		uint32_t fake_tid, fake_nid;
 		uint32_t found_transponders;
@@ -90,6 +91,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool ReadNitSdt(t_satellite_position satellitePosition);
 		void FixServiceTypes();
 
+		void CheckSatelliteChannels(t_satellite_position satellitePosition);
 		bool ScanTransponder();
 		bool ScanProviders();
 		void SaveServices();
@@ -136,6 +138,7 @@ class CServiceScan : public OpenThreads::Thread
 		void SetCableNID(unsigned short nid) { cable_nid = nid; }
 		bool isFtaOnly() { return flags & SCAN_FTA; }
 		int GetFlags() { return flags; }
+		bool SatHaveChannels() { return satHaveChannels; }
 };
 
 #endif /* __scan_h__ */
