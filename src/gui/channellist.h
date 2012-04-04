@@ -89,6 +89,7 @@ private:
 	void clearItem2DetailsLine ();
 	void paintItem2DetailsLine (int pos, int ch_index);
 	void paintItem(int pos);
+	bool updateSelection(int newpos);
 	void paint();
 	void paintHead();
 	void paintButtonBar(bool is_current);

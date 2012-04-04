@@ -517,6 +517,31 @@ void CChannelList::calcSize()
 	y = frameBuffer->getScreenY() + (frameBuffer->getScreenHeight() - (height+ info_height)) / 2;
 }
 
+bool CChannelList::updateSelection(int newpos)
+{
+	bool actzap = false;
+	if((int) selected != newpos) {
+		int prev_selected = selected;
+		unsigned int oldliststart = liststart;
+
+		selected = newpos;
+		liststart = (selected/listmaxshow)*listmaxshow;
+		if (oldliststart != liststart)
+			paint();
+		else {
+			paintItem(prev_selected - liststart);
+			paintItem(selected - liststart);
+			showChannelLogo();
+		}
+
+		if(this->new_mode_active && SameTP()) {
+			actzap = true;
+			zapTo(selected);
+		}
+	}
+	return actzap;
+}
+
 #define CHANNEL_SMSKEY_TIMEOUT 800
 /* return: >= 0 to zap, -1 on cancel, -3 on list mode change, -4 list edited, -2 zap but no restore old list/chan ?? */
 int CChannelList::show()
@@ -644,84 +669,36 @@ int CChannelList::show()
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 		}
 		else if (msg == (neutrino_msg_t) g_settings.key_list_start) {
-			selected=0;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			paint();
-			if(this->new_mode_active && SameTP()) {
-				actzap = true;
-				zapTo(selected);
-			}
+			actzap = updateSelection(0);
 		}
 		else if (msg == (neutrino_msg_t) g_settings.key_list_end) {
-			selected=chanlist.size()-1;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			paint();
-			if(this->new_mode_active && SameTP()) {
-				actzap = true;
-				zapTo(selected);
-			}
+			actzap = updateSelection(chanlist.size()-1);
 		}
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
-			int step = 0;
-			int prev_selected = selected;
-
-			step =  ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-			selected -= step;
-			if((prev_selected-step) < 0) {
-				if(prev_selected != 0 && step != 1)
-					selected = 0;
+			int step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+			int new_selected = selected - step;
+			if (new_selected < 0) {
+				if (selected != 0 && step != 1)
+					new_selected = 0;
 				else
-					selected = chanlist.size() - 1;
+					new_selected = chanlist.size() - 1;
 			}
-
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-				paint();
-			else {
-				paintItem(selected - liststart);
-				showChannelLogo();
-			}
-
-			if(this->new_mode_active && SameTP()) {
-				actzap = true;
-				zapTo(selected);
-			}
-			//paintHead();
+			actzap = updateSelection(new_selected);
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
-			unsigned int step = 0;
-			unsigned int prev_selected = selected;
-
-			step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-			if(selected >= chanlist.size()) {
-				if((chanlist.size() - listmaxshow -1 < prev_selected) && (prev_selected != (chanlist.size() - 1)) && (step != 1))
-					selected = chanlist.size() - 1;
+			int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+			int new_selected = selected + step;
+			if (new_selected >= (int) chanlist.size()) {
+				if ((chanlist.size() - listmaxshow -1 < selected) && (selected != (chanlist.size() - 1)) && (step != 1))
+					new_selected = chanlist.size() - 1;
 				else if (((chanlist.size() / listmaxshow) + 1) * listmaxshow == chanlist.size() + listmaxshow) // last page has full entries
-					selected = 0;
+					new_selected = 0;
 				else
-					selected = ((step == listmaxshow) && (selected < (((chanlist.size() / listmaxshow)+1) * listmaxshow))) ? (chanlist.size() - 1) : 0;
+					new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((chanlist.size() / listmaxshow)+1) * listmaxshow))) ? (chanlist.size() - 1) : 0;
 			}
-
-			paintItem(prev_selected - liststart);
-			unsigned int oldliststart = liststart;
-			liststart = (selected/listmaxshow)*listmaxshow;
-			if(oldliststart!=liststart)
-				paint();
-			else {
-				paintItem(selected - liststart);
-				showChannelLogo();
-			}
-
-			if(this->new_mode_active && SameTP()) {
-				actzap = true;
-				zapTo(selected);
-			}
-			//paintHead();
+			actzap = updateSelection(new_selected);
 		}
 		else if ((msg == (neutrino_msg_t)g_settings.key_bouquet_up) && (bouquetList != NULL)) {
 			if (bouquetList->Bouquets.size() > 0) {
