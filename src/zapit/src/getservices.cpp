@@ -400,7 +400,7 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				printf("[zapit] duplicate channel number %d: %s id %llx freq %d\n", number,
 						name.c_str(), chid, freq);
 				number = 0;
-				services_changed = true;
+				dup_numbers = true; // force save after loading
 			} else
 				channel_numbers->insert(number);
 		}
@@ -613,6 +613,7 @@ bool CServiceManager::LoadServices(bool only_current)
 	tv_numbers.clear();
 	radio_numbers.clear();
 	have_numbers = false;
+	dup_numbers = false;
 
 	fake_tid = fake_nid = 0;
 
@@ -693,7 +694,7 @@ do_current:
 		}
 	}
 	/* if no numbers, zapit will save after loading bouquets, with numbers */
-	if(!have_numbers)
+	if(!have_numbers || dup_numbers)
 		services_changed = true;
 
 	return true;

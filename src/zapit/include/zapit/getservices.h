@@ -113,10 +113,12 @@ class CServiceManager
 		tallchans nvodchannels;
 
 		prov_replace_map_t replace_map;
-		bool have_numbers;
 		service_number_map_t tv_numbers;
 		service_number_map_t radio_numbers;
 		bool services_changed;
+
+		bool have_numbers;
+		bool dup_numbers;
 
 		fe_type_t frontendType;
 		satellite_map_t satellitePositions;
