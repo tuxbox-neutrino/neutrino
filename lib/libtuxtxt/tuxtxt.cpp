@@ -5633,7 +5633,7 @@ void CopyBB2FB()
 			perror("TuxTxt <FBIOPAN_DISPLAY>");
 #else
 #ifdef HAVE_SPARK_HARDWARE
-		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, false);
+		f->blit2FB(lbb, var_screeninfo.xres, var_screeninfo.yres, 0, 0, 0, 0, true);
 		f->blit();
 #else
 		memcpy(lfb, lbb, fix_screeninfo.line_length*var_screeninfo.yres);
@@ -5688,7 +5688,7 @@ void CopyBB2FB()
 		int cw = TV43STARTX;				/* width */
 		int cy = StartY;
 		int ch = 24*fontheight;
-		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, false);
+		f->blit2FB(lbb, cw, ch, cx, cy, cx, cy, true);
 #else
 		unsigned char *topdst = dst;
 		size_t width = ex * sizeof(fb_pixel_t) - screenwidth;

@@ -934,7 +934,7 @@ _display:
 		paintBoxRel(x, yy, width, height, colBg);
 	/* to make sure backbuffer is already blitted completely... */
 	waitForIdle();
-	blit2FB(data, width, height, x, yy, 0, 0, true);
+	blit2FB(data, width, height, x, yy, 0, 0);
 	return true;
 }
 
@@ -1408,7 +1408,7 @@ void CFrameBuffer::blit2FB(void *fbbuff, uint32_t width, uint32_t height, uint32
 
 	size_t mem_sz = width * height * sizeof(fb_pixel_t);
 	unsigned long ulFlags = 0;
-	if (transp) /* transp == true means: color "0x0" is transparent (??) */
+	if (!transp) /* transp == false (default) means: color "0x0" is transparent (??) */
 		ulFlags = BLT_OP_FLAGS_BLEND_SRC_ALPHA|BLT_OP_FLAGS_BLEND_DST_MEMORY; // we need alpha blending
 
 	if (fbbuff != backbuffer)
