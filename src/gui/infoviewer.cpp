@@ -973,7 +973,7 @@ void CInfoViewer::loop(bool show_dot)
 	fader.Stop();
 	if (virtual_zap_mode) {
 		/* if bouquet cycle set, do virtual over current bouquet */
-		if (/*g_settings.zap_cycle && */ (bouquetList != NULL) && !(bouquetList->Bouquets.empty()))
+		if (/*g_settings.zap_cycle && */ /* (bouquetList != NULL) && */ !(bouquetList->Bouquets.empty()))
 			bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->virtual_zap_mode(msg == CRCInput::RC_right);
 		else
 			CNeutrinoApp::getInstance()->channelList->virtual_zap_mode(msg == CRCInput::RC_right);
