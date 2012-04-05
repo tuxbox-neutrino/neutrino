@@ -692,7 +692,10 @@ void CZapit::SetRecordMode(bool enable)
 	} else {
 		currentMode &= ~RECORD_MODE;
 
-		ca->SendPMT(DEMUX_SOURCE_2, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
+		int demux = 2;
+		if(current_channel)
+			demux = current_channel->getRecordDemux();
+		ca->SendPMT(demux /*DEMUX_SOURCE_2*/, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
 		event = CZapitClient::EVT_RECORDMODE_DEACTIVATED;
 	}
 	SendEvent(event);

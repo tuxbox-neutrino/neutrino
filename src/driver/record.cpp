@@ -195,7 +195,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &
 	int len;
 	unsigned char * pmt = channel->getRawPmt(len);
 	cCA * ca = cCA::GetInstance();
-	ca->SendPMT(DEMUX_SOURCE_2, pmt, len);
+	ca->SendPMT(channel->getRecordDemux() /*DEMUX_SOURCE_2*/, pmt, len);
 
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
 	WaitRecMsg(msg_start_time, 2);
