@@ -1955,7 +1955,7 @@ void CNeutrinoApp::quickZap(int msg)
 		StartSubtitles(res < 0);
 		return;
 	}
-	if((bouquetList != NULL) && !(bouquetList->Bouquets.empty()))
+	if(!bouquetList->Bouquets.empty())
 		bouquetList->Bouquets[bouquetList->getActiveBouquetNumber()]->channelList->quickZap(msg, g_settings.zap_cycle);
 	else
 		channelList->quickZap(msg);
