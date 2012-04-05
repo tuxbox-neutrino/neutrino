@@ -1426,90 +1426,84 @@ void CChannelList::paintDetails(int index)
 		p_event = &chanlist[index]->currentEvent;
 	}
 
-#if 0
-	if (chanlist[index]->currentEvent.description.empty()) {
-		frameBuffer->paintBackgroundBoxRel(x, y+ height, width, info_height);
-	} else
-#endif
-	{
-		frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
+	frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
 
-		if (!p_event->description.empty()) {
-			char cNoch[50] = {0}; // UTF-8
-			char cSeit[50] = {0}; // UTF-8
+	if (!p_event->description.empty()) {
+		char cNoch[50] = {0}; // UTF-8
+		char cSeit[50] = {0}; // UTF-8
 
-			struct		tm *pStartZeit = localtime(&p_event->startTime);
-			unsigned 	seit = ( time(NULL) - p_event->startTime ) / 60;
-			snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayNext) ? g_Locale->getText(LOCALE_CHANNELLIST_START):g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
-			if (displayNext) {
-				snprintf(cNoch, sizeof(cNoch), "(%d min)", p_event->duration / 60);
-			} else {
-				int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
-				if ((noch< 0) || (noch>=10000))
-					noch= 0;
-				snprintf(cNoch, sizeof(cNoch), "(%d / %d min)", seit, noch);
-			}
-			int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit, true); // UTF-8
-			int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cNoch, true); // UTF-8
-
-			std::string text1= p_event->description;
-			std::string text2= p_event->text;
-
-			int xstart = 10;
-			if (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (width - 30 - seit_len) )
-			{
-				// zu breit, Umbruch versuchen...
-				int pos;
-				do {
-					pos = text1.find_last_of("[ -.]+");
-					if ( pos!=-1 )
-						text1 = text1.substr( 0, pos );
-				} while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (width - 30 - seit_len) ) );
-
-				std::string text3 = ""; /* not perfect, but better than crashing... */
-				if (p_event->description.length() > text1.length())
-					text3 = p_event->description.substr(text1.length()+ 1);
-
-				if (!text2.empty() && !text3.empty())
-					text3= text3+ " - ";
-
-				xstart += g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text3, true);
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2* fheight, width - 30- noch_len, text3, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
-			}
-
-			if (!(text2.empty())) {
-				while ( text2.find_first_of("[ -.+*#?=!$%&/]+") == 0 )
-					text2 = text2.substr( 1 );
-				text2 = text2.substr( 0, text2.find('\n') );
-#if 0 //FIXME: to discuss, eat too much cpu time if string long enough
-				int pos = 0;
-				while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (width - 30 - noch_len) ) ) {
-					pos = text2.find_last_of(" ");
-
-					if ( pos!=-1 ) {
-						text2 = text2.substr( 0, pos );
-					}
-				}
-#endif
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ 2* fheight, width- xstart- 30- noch_len, text2, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
-			}
-
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30 - seit_len, text1, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- noch_len, y+ height+ 5+ 2* fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
+		struct		tm *pStartZeit = localtime(&p_event->startTime);
+		unsigned 	seit = ( time(NULL) - p_event->startTime ) / 60;
+		snprintf(cSeit, sizeof(cSeit), "%s %02d:%02d",(displayNext) ? g_Locale->getText(LOCALE_CHANNELLIST_START):g_Locale->getText(LOCALE_CHANNELLIST_SINCE), pStartZeit->tm_hour, pStartZeit->tm_min);
+		if (displayNext) {
+			snprintf(cNoch, sizeof(cNoch), "(%d min)", p_event->duration / 60);
+		} else {
+			int noch = (p_event->startTime + p_event->duration - time(NULL)) / 60;
+			if ((noch< 0) || (noch>=10000))
+				noch= 0;
+			snprintf(cNoch, sizeof(cNoch), "(%d / %d min)", seit, noch);
 		}
-		char buf[128] = {0};
-		char cFrom[50] = {0}; // UTF-8
-		int len = 0;
-		if(g_settings.channellist_foot == 0) {
-			transponder_id_t ct = chanlist[index]->getTransponderId();
-			transponder_list_t::iterator tpI = transponders.find(ct);
-			len = snprintf(buf, sizeof(buf), "%d ", chanlist[index]->getFreqId());
+		int seit_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cSeit, true); // UTF-8
+		int noch_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cNoch, true); // UTF-8
 
-			if(tpI != transponders.end()) {
-				char * f, *s, *m;
-				CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
-				switch(frontend->getInfo()->type) {
+		std::string text1= p_event->description;
+		std::string text2= p_event->text;
+
+		int xstart = 10;
+		if (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (width - 30 - seit_len) )
+		{
+			// zu breit, Umbruch versuchen...
+			int pos;
+			do {
+				pos = text1.find_last_of("[ -.]+");
+				if ( pos!=-1 )
+					text1 = text1.substr( 0, pos );
+			} while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text1, true) > (width - 30 - seit_len) ) );
+
+			std::string text3 = ""; /* not perfect, but better than crashing... */
+			if (p_event->description.length() > text1.length())
+				text3 = p_event->description.substr(text1.length()+ 1);
+
+			if (!text2.empty() && !text3.empty())
+				text3= text3+ " - ";
+
+			xstart += g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text3, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2* fheight, width - 30- noch_len, text3, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
+		}
+
+		if (!(text2.empty())) {
+			while ( text2.find_first_of("[ -.+*#?=!$%&/]+") == 0 )
+				text2 = text2.substr( 1 );
+			text2 = text2.substr( 0, text2.find('\n') );
+#if 0 //FIXME: to discuss, eat too much cpu time if string long enough
+			int pos = 0;
+			while ( ( pos != -1 ) && (g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getRenderWidth(text2, true) > (width - 30 - noch_len) ) ) {
+				pos = text2.find_last_of(" ");
+
+				if ( pos!=-1 ) {
+					text2 = text2.substr( 0, pos );
+				}
+			}
+#endif
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ xstart, y+ height+ 5+ 2* fheight, width- xstart- 30- noch_len, text2, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
+		}
+
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30 - seit_len, text1, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- noch_len, y+ height+ 5+ 2* fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
+	}
+	char buf[128] = {0};
+	char cFrom[50] = {0}; // UTF-8
+	int len = 0;
+	if(g_settings.channellist_foot == 0) {
+		transponder_id_t ct = chanlist[index]->getTransponderId();
+		transponder_list_t::iterator tpI = transponders.find(ct);
+		len = snprintf(buf, sizeof(buf), "%d ", chanlist[index]->getFreqId());
+
+		if(tpI != transponders.end()) {
+			char * f, *s, *m;
+			CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
+			switch(frontend->getInfo()->type) {
 				case FE_QPSK:
 					frontend->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
 					len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
@@ -1521,34 +1515,33 @@ void CChannelList::paintDetails(int index)
 				case FE_OFDM:
 				case FE_ATSC:
 					break;
-				}
 			}
-
-			if(chanlist[index]->pname)
-				snprintf(&buf[len], sizeof(buf) - len, "(%s)", chanlist[index]->pname);
-			else {
-#if 0
-				const char * satname = CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition());
-				if(satname)
-					snprintf(&buf[len], sizeof(buf) - len, "(%s)", satname);
-#endif
-				snprintf(&buf[len], sizeof(buf) - len, "(%s)",
-						CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()).c_str());
-			}
-			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
 		}
-		else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
-			CSectionsdClient::CurrentNextInfo CurrentNext;
-			sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
-			if (!CurrentNext.next_name.empty()) {
-				struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
-				snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
-				snprintf(buf, sizeof(buf), "%s", CurrentNext.next_name.c_str());
-				int from_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cFrom, true); // UTF-8
 
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30 - from_len, buf, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST :COL_MENUCONTENTDARK, 0, true);
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- from_len, y+ height+ 5+ 3*fheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
-			}
+		if(chanlist[index]->pname)
+			snprintf(&buf[len], sizeof(buf) - len, "(%s)", chanlist[index]->pname);
+		else {
+#if 0
+			const char * satname = CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition());
+			if(satname)
+				snprintf(&buf[len], sizeof(buf) - len, "(%s)", satname);
+#endif
+			snprintf(&buf[len], sizeof(buf) - len, "(%s)",
+					CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()).c_str());
+		}
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
+	}
+	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
+		CSectionsdClient::CurrentNextInfo CurrentNext;
+		sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
+		if (!CurrentNext.next_name.empty()) {
+			struct tm *pStartZeit = localtime (& CurrentNext.next_zeit.startzeit);
+			snprintf(cFrom, sizeof(cFrom), "%s %02d:%02d",g_Locale->getText(LOCALE_WORD_FROM),pStartZeit->tm_hour, pStartZeit->tm_min );
+			snprintf(buf, sizeof(buf), "%s", CurrentNext.next_name.c_str());
+			int from_len = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->getRenderWidth(cFrom, true); // UTF-8
+
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30 - from_len, buf, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST :COL_MENUCONTENTDARK, 0, true);
+			g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- from_len, y+ height+ 5+ 3*fheight, from_len, cFrom, colored_event_N ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
 		}
 	}
 }
