@@ -299,7 +299,7 @@ int CChannelList::doChannelMenu(void)
 	char cnt[5];
 	bool enabled = true;
 
-	if(!bouquetList || g_settings.minimode)
+	if(g_settings.minimode)
 		return 0;
 
 	if(vlist)
@@ -611,7 +611,7 @@ int CChannelList::show()
 			paint();
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_CHANLIST]);
 		}
-		else if (msg == CRCInput::RC_yellow && ( bouquetList != NULL ) ) { //FIXME
+		else if (msg == CRCInput::RC_yellow) {
 			bShowBouquetList = true;
 			loop=false;
 		}
@@ -666,7 +666,7 @@ int CChannelList::show()
 			}
 			actzap = updateSelection(new_selected);
 		}
-		else if ((msg == (neutrino_msg_t)g_settings.key_bouquet_up) && (bouquetList != NULL)) {
+		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up) {
 			if (bouquetList->Bouquets.size() > 0) {
 				bool found = true;
 				uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
@@ -688,7 +688,7 @@ int CChannelList::show()
 				}
 			}
 		}
-		else if ((msg == (neutrino_msg_t)g_settings.key_bouquet_down) && (bouquetList != NULL)) {
+		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
 			if (bouquetList->Bouquets.size() > 0) {
 				bool found = true;
 				int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
@@ -957,7 +957,7 @@ bool CChannelList::adjustToChannelID(const t_channel_id channel_id, bool bToo)
 
 			lastChList.store (selected, channel_id, false);
 
-			if (bToo && (bouquetList != NULL)) {
+			if (bToo) {
 				int old_mode = CNeutrinoApp::getInstance()->GetChannelMode();
 				int new_mode = old_mode;
 				bool has_channel;
