@@ -33,5 +33,5 @@ libneutrino_driver_audiodec_a_SOURCES = \
 	wavdec.cpp \
 	$(FLACdec) \
 	tag.c \
-	crc.c \
-	vis.cpp
+	crc.c
+#	vis.cpp
