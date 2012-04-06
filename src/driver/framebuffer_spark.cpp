@@ -821,6 +821,8 @@ bool CFrameBuffer::paintIcon8(const std::string & filename, const int x, const i
 		d += stride;
 	}
 	close(lfd);
+	update_dirty(x, y, x + width, y + height);
+	blit();
 	return true;
 }
 
