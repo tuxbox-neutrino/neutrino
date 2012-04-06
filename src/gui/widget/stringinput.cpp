@@ -194,12 +194,15 @@ void CStringInput::NormalKeyPressed(const neutrino_msg_t key)
 		value[selected] = validchars[CRCInput::getNumericValue(key)];
 		int current_value = atoi(value);
 		int tmp = current_value;
-		if (current_value <= lower_bound)
-			current_value = lower_bound + 1;
-		else if (current_value >= upper_bound)
-			current_value = upper_bound - 1;
-		if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
-			snprintf(value, size + 1, "%*d", size, current_value);
+		if (lower_bound != -1 || upper_bound != -1)
+		{
+			if (current_value <= lower_bound)
+				current_value = lower_bound + 1;
+			else if (current_value >= upper_bound)
+				current_value = upper_bound - 1;
+			if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
+				snprintf(value, size + 1, "%*d", size, current_value);
+		}
 		if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 			if (selected < (size - 1))
 			{
@@ -292,12 +295,15 @@ void CStringInput::keyUpPressed()
 
 	int current_value = atoi(value);
 	int tmp = current_value;
-	if (current_value <= lower_bound)
-		current_value = lower_bound + 1;
-	else if (current_value >= upper_bound)
-		current_value = upper_bound - 1;
-	if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
-		snprintf(value, size + 1, "%*d", size, current_value);
+	if (lower_bound != -1 || upper_bound != -1)
+	{
+		if (current_value <= lower_bound)
+			current_value = lower_bound + 1;
+		else if (current_value >= upper_bound)
+			current_value = upper_bound - 1;
+		if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
+			snprintf(value, size + 1, "%*d", size, current_value);
+	}
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		if (tmp != current_value)
 		{
@@ -325,12 +331,15 @@ void CStringInput::keyDownPressed()
 
 	int current_value = atoi(value);
 	int tmp = current_value;
-	if (current_value <= lower_bound)
-		current_value = lower_bound + 1;
-	else if (current_value >= upper_bound)
-		current_value = upper_bound - 1;
-	if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
-		snprintf(value, size + 1, "%*d", size, current_value);
+	if (lower_bound != -1 || upper_bound != -1)
+	{
+		if (current_value <= lower_bound)
+			current_value = lower_bound + 1;
+		else if (current_value >= upper_bound)
+			current_value = upper_bound - 1;
+		if (tmp != current_value) /* size + 1 is correct, snprintf includes always '\0' */
+			snprintf(value, size + 1, "%*d", size, current_value);
+	}
 	if( (lower_bound == -1 || upper_bound == -1) || (current_value > 0 && current_value > lower_bound && current_value < upper_bound) ){
 		if (tmp != current_value)
 		{
