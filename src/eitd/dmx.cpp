@@ -42,7 +42,7 @@
 #include "dmx.h"
 #include "debug.h"
 
-//#define DEBUG_MUTEX 1
+#define DEBUG_MUTEX 1
 //#define DEBUG_DEMUX 1 // debug start/close/change
 //#define DEBUG_CACHED_SECTIONS 1
 //#define DEBUG_COMPLETE_SECTIONS 1
@@ -100,8 +100,8 @@ DMX::~DMX()
 	myDMXOrderUniqueKey.clear();
 	pthread_mutex_destroy(&start_stop_mutex);
 	pthread_cond_destroy (&change_cond);
-	// FIXME
-	closefd();
+	//closefd();
+	close();
 }
 
 void DMX::close(void)
