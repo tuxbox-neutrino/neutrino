@@ -35,7 +35,7 @@
 
 #include <dvbsi++/descriptor_tag.h>
 #include <dvbsi++/ca_identifier_descriptor.h>
-#include <sectionsd/edvbstring.h>
+#include <eitd/edvbstring.h>
 #include <zapit/dvbstring.h>
 
 #define DEBUG_SDT

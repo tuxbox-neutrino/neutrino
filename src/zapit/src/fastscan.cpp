@@ -33,7 +33,7 @@
 #include <zapit/zapit.h>
 #include <dmx.h>
 #include <math.h>
-#include <sectionsd/edvbstring.h>
+#include <eitd/edvbstring.h>
 
 #define SEC_SIZE 4096
 

@@ -51,7 +51,7 @@
 
 #include <gui/cam_menu.h>
 #include <mymenu.h>
-#include <sectionsd/edvbstring.h>
+#include <eitd/edvbstring.h>
 
 void CCAMMenuHandler::init(void)
 {

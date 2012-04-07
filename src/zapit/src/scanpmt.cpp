@@ -27,7 +27,7 @@
 #include <zapit/debug.h>
 #include <zapit/scanpmt.h>
 #include <zapit/scan.h>
-#include <sectionsd/edvbstring.h>
+#include <eitd/edvbstring.h>
 #include <dmx.h>
 
 #include <dvbsi++/descriptor_tag.h>
