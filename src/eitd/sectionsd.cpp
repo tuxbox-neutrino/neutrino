@@ -1428,10 +1428,12 @@ void CTimeThread::run()
 				if(first_time)
 					sleep_time = 5;
 			}
-
-			sendTimeEvent(time_ntp, dvb_time);
-			xprintf("%s: Time set via %s, going to sleep for %d seconds.\n", name.c_str(),
-					time_ntp ? "NTP" : first_time ? "DVB (TDT)" : "DVB (TOT)", sleep_time);
+			/* in case of wrong TDT date, dont send time is set, 1325376000 - 01.01.2012 */
+			if(dvb_time > (time_t) 1325376000) {
+				sendTimeEvent(time_ntp, dvb_time);
+				xprintf("%s: Time set via %s, going to sleep for %d seconds.\n", name.c_str(),
+						time_ntp ? "NTP" : first_time ? "DVB (TDT)" : "DVB (TOT)", sleep_time);
+			}
 			first_time = false;
 		} else {
 			xprintf("%s: Time set FAILED (enabled: ntp %d dvb %d)\n", name.c_str(), ntpenable, dvb_time_update);
