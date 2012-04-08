@@ -611,8 +611,12 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 	CMTDInfo* mtdInfo =CMTDInfo::getInstance();
 	for(int lx=0;lx<mtdInfo->getMTDCount();lx++) {
 		char sActionKey[20];
+		bool enabled = true;
+		// disable write uboot
+		if ((actionkey == "writemtd") && (lx == 0))
+			enabled = false;
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
-		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), true, NULL, this, sActionKey));
+		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey));
 	}
 	mtdselector->exec(NULL,"");
 	delete mtdselector;
