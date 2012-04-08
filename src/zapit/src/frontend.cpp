@@ -1116,6 +1116,7 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 	currTP		= *TP;
 	feparams	= &currTP.feparams;
 	freq		= (int) feparams->frequency;
+	char * f, *s, *m;
 
 	if (info.type == FE_QPSK) {
 		bool high_band;
@@ -1130,9 +1131,11 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 
 		feparams->frequency = abs(freq - freq_offset);
 		setSec(TP->diseqc, TP->polarization, high_band);
+		getDelSys(feparams->u.qpsk.fec_inner, dvbs_get_modulation(feparams->u.qpsk.fec_inner),  f, s, m);
 	} else if (info.type == FE_QAM) {
 		if (freq < 1000*1000)
 			feparams->frequency = freq * 1000;
+		getDelSys(feparams->u.qam.fec_inner,feparams->u.qam.modulation, f, s, m);
 #if 0
 		switch (TP->feparams.inversion) {
 		case INVERSION_OFF:
@@ -1148,7 +1151,7 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 
 	//printf("[fe%d] tuner to frequency %d (offset %d timeout %d)\n", fenumber, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
 	//printf("[fe%d] tune to frequency %d (tuner %d offset %d timeout %d)\n", fenumber, freq, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
-	printf("[fe%d] tune to %d pol %s srate %d (tuner %d offset %d timeout %d)\n", fenumber,
+	printf("[fe%d] tune to %s %s %s %d %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, s, m, f,
 			freq, TP->polarization ? "V/R" : "H/L", feparams->u.qpsk.symbol_rate, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(feparams);
 
