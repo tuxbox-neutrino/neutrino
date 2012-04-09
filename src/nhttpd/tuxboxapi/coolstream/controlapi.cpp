@@ -733,7 +733,9 @@ static const struct key keynames[] = {
 	{"KEY_PAUSE",		KEY_PAUSE},
 	{"KEY_RECORD",		KEY_RECORD},
 	{"KEY_STOP",		KEY_STOP},
-	{"KEY_PLAY",		KEY_PLAY}
+	{"KEY_PLAY",		KEY_PLAY},
+	{"KEY_WWW",		KEY_WWW},
+	{"KEY_GAMES",		KEY_GAMES}
 };
 
 // The code here is based on rcsim. Thx Carjay!
