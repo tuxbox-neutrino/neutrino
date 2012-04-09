@@ -383,7 +383,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 			break;
 
 		case NeutrinoMessages::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS:
-			if (total == 0) data = 0;
+			//if (total == 0) data = 0; // why ??
 			done = data;
 			sprintf(buffer, "%d/%d", done, total);
 			paintLine(xpos2, ypos_transponder, w - (8*fw), buffer);
