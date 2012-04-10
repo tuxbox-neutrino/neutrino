@@ -2647,10 +2647,9 @@ _repeat:
 
 				CTimerd::responseGetTimer &timer = tmpTimerList[0];
 
-				CZapitClient Zapit;
 				name += "\n";
 
-				std::string zAddData = Zapit.getChannelName( timer.channel_id ); // UTF-8
+				std::string zAddData = CServiceManager::getInstance()->GetServiceName(timer.channel_id);
 				if( zAddData.empty()) {
 					zAddData = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
 				}
