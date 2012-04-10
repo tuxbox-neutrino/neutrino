@@ -807,10 +807,13 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	}
 
 	case CZapitMessages::CMD_GET_LAST_CHANNEL: {
+#if 0
 		CZapitClient::responseGetLastChannel lastchannel;
 		lastchannel.channel_id = (currentMode & RADIO_MODE) ? lastChannelRadio : lastChannelTV;
 		lastchannel.mode = getMode();
 		CBasicServer::send_data(connfd, &lastchannel, sizeof(lastchannel)); // bouquet & channel number are already starting at 0!
+#endif
+		ERROR("CZapitMessages::CMD_GET_LAST_CHANNEL: depreciated command\n");
 		break;
 	}
 
