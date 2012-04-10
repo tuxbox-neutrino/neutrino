@@ -36,7 +36,7 @@
 #include <dmx_td.h>
 #endif
 
-#include <zapit/client/zapittypes.h>
+#include <zapit/types.h>
 #include <set>
 #include <map>
 #include <string>

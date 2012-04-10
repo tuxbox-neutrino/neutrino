@@ -32,7 +32,7 @@
 
 #include <xmltree/xmlinterface.h>
 #include <zapit/client/zapittools.h>
-#include <zapit/client/zapittypes.h>
+#include <zapit/types.h>
 
 void *insertEventsfromFile(void * data);
 void writeEventsToFile(char *epgdir);
