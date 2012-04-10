@@ -91,10 +91,13 @@ function init(){
 				<li class="disabled" title="{=L:bc.menue.lcd_screenshot_desc_ni=}">{=L:bc.menue.lcd_screenshot=}</li>
 				=}
 			~=}
+				{=if-equal:{=global-var-get:boxtype=}~coolstream~
+				<li><a target="work" title="{=L:bc.menue.tv_screenshot_desc=}" href="Y_Tools_tvshot.yhtm">{=L:bc.menue.tv_screenshot=}</a></li>
+				~=}
 				{=if-equal:{=var-get:fbshot=}~true~
 				<li><a target="work" title="{=L:bc.menue.osd_screenshot_desc=}" href="Y_Tools_fbshot.yhtm">{=L:bc.menue.osd_screenshot=}</a></li>
 				~
-				<li class="disabled" title="{=L:bc.menue.osd_screenshot_desc_ni=}>{=L:bc.menue.osd_screenshot=}</li>
+				<li class="disabled" title="{=L:bc.menue.osd_screenshot_desc_ni=}">{=L:bc.menue.osd_screenshot=}</li>
 				=}
 				{=if-equal:{=var-get:dboxshot=}~true~
 				<li><a target="work" title="{=L:bc.menue.remote_osd_desc=}" href="Y_Tools_remote_osd.yhtm">{=L:bc.menue.remote_osd=}</a></li>

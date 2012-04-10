@@ -87,6 +87,8 @@ bc.menue.lcd_screenshot_desc_ni=lcshot não se encontra instalado em /bin ou /va
 bc.menue.osd_screenshot_desc=fazer um osd screenshot
 bc.menue.osd_screenshot=OSD Screenshot
 bc.menue.osd_screenshot_desc_ni=fbshot não se encontra instalado em /bin ou /var/bin
+bc.menue.tv_screenshot_desc=frazer um tv screenshot
+bc.menue.tv_screenshot=TV Screenshot
 bc.menue.remote_osd_desc=remote e osd
 bc.menue.remote_osd=Remote & OSD
 bc.menue.remote_osd_desc_ni=dboxshot não se encontra instalado em /bin ou /var/bin
@@ -131,6 +133,11 @@ bc.msg.send_message=enviar mensagem
 bc.osd.shot=Shot
 bc.osd.delete_shots=Apagar shots
 bc.osd.shap_wait_text=Fazer Snapshot
+
+======== Boxcontrol - TV-Screenshot
+bc.tv.shot=Shot
+bc.tv.delete_shot=Apagar shots
+bc.tv.shap_wait_text=Frazer Snapshot
 
 ========= Boxcontrol - Others
 bc.channels=Canais
