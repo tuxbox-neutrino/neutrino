@@ -482,9 +482,8 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 								transponders.insert (
 										std::pair <transponder_id_t, transponder> (
 											TsidOnid,
-											transponder (
-												transport_stream_id,
-												original_network_id,
+											transponder(
+												TsidOnid,
 												feparams,
 												polarization
 												)

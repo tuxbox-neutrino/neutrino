@@ -41,14 +41,25 @@ struct transponder
 {
 	t_transport_stream_id transport_stream_id;
 	t_original_network_id original_network_id;
+	transponder_id_t transponder_id;
 	struct dvb_frontend_parameters feparams;
 	unsigned char polarization;
 	bool updated;
-
+#if 0
 	transponder(const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
         {
                 transport_stream_id = p_transport_stream_id;
                 original_network_id = p_original_network_id;
+                feparams            = p_feparams;
+                polarization        = p_polarization;
+		updated = 0;
+        }
+#endif
+	transponder(const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
+        {
+		transponder_id      = t_id;
+                transport_stream_id = (t_id >> 16) & 0xFFFF;
+                original_network_id = t_id & 0xFFFF;
                 feparams            = p_feparams;
                 polarization        = p_polarization;
 		updated = 0;

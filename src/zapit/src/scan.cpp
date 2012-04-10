@@ -196,8 +196,7 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 				nittransponders.insert (
 						std::pair <transponder_id_t, transponder> (
 							TsidOnid,
-							transponder ( (TsidOnid >> 16) &0xFFFF,
-								TsidOnid &0xFFFF, *feparams, polarity)));
+							transponder (TsidOnid, *feparams, polarity)));
 			}
 		}
 		else {
@@ -205,11 +204,11 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 			scantransponders.insert (
 					std::pair <transponder_id_t, transponder> (
 						TsidOnid,
-						transponder ( (TsidOnid >> 16) &0xFFFF, TsidOnid &0xFFFF, *feparams, polarity)));
+						transponder(TsidOnid, *feparams, polarity)));
 			scanedtransponders.insert (
 					std::pair <transponder_id_t, transponder> (
 						TsidOnid,
-						transponder ( (TsidOnid >> 16) &0xFFFF, TsidOnid &0xFFFF, *feparams, polarity)));
+						transponder(TsidOnid, *feparams, polarity)));
 		}
 		return true;
 	}
@@ -320,8 +319,7 @@ _repeat:
 					std::pair <transponder_id_t, transponder> (
 						TsidOnid,
 						transponder (
-							tI->second.transport_stream_id,
-							tI->second.original_network_id,
+							TsidOnid,
 							tI->second.feparams,
 							tI->second.polarization
 							)

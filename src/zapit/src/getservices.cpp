@@ -115,7 +115,7 @@ bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 	t_satellite_position satellitePosition = channel->getSatellitePosition();
 	t_channel_id sub_channel_id =
 		((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
-		(uint64_t) CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service_id, original_network_id, transport_stream_id);
+		(uint64_t) CREATE_CHANNEL_ID(service_id, original_network_id, transport_stream_id);
 
 	channel_insert_res_t ret = nvodchannels.insert (
 			channel_pair_t (sub_channel_id, *channel));
@@ -330,10 +330,8 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
 
 		ret = transponders.insert (
-				std::pair <transponder_id_t, transponder> ( tid,
-					transponder (transport_stream_id, original_network_id,
-						feparams, polarization)
-					)
+				std::pair <transponder_id_t, transponder> (tid,
+					transponder(tid, feparams, polarization))
 				);
 		if (ret.second == false)
 			printf("[zapit] duplicate transponder id %llx freq %d\n", tid, feparams.frequency);
@@ -502,7 +500,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 		polarization &= 1;
 		select_transponders.insert (
 				std::pair <transponder_id_t, transponder> (tid,
-					transponder (fake_tid, fake_nid, feparams, polarization))
+					transponder (tid, feparams, polarization))
 				);
 		fake_nid ++; fake_tid ++;
 
