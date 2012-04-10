@@ -42,28 +42,35 @@ struct transponder
 	t_transport_stream_id transport_stream_id;
 	t_original_network_id original_network_id;
 	transponder_id_t transponder_id;
+	t_satellite_position satellitePosition;
+
 	struct dvb_frontend_parameters feparams;
 	unsigned char polarization;
 	bool updated;
 #if 0
 	transponder(const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
-        {
-                transport_stream_id = p_transport_stream_id;
-                original_network_id = p_original_network_id;
-                feparams            = p_feparams;
-                polarization        = p_polarization;
+	{
+		transport_stream_id = p_transport_stream_id;
+		original_network_id = p_original_network_id;
+		feparams            = p_feparams;
+		polarization        = p_polarization;
 		updated = 0;
-        }
+	}
 #endif
 	transponder(const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
-        {
+	{
 		transponder_id      = t_id;
-                transport_stream_id = (t_id >> 16) & 0xFFFF;
-                original_network_id = t_id & 0xFFFF;
-                feparams            = p_feparams;
-                polarization        = p_polarization;
+		transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_TRANSPONDER_ID(t_id);
+		original_network_id = GET_ORIGINAL_NETWORK_ID_FROM_TRANSPONDER_ID(t_id);
+		feparams            = p_feparams;
+		polarization        = p_polarization;
 		updated = 0;
-        }
+		satellitePosition   = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(transponder_id);
+		if(satellitePosition & 0xF000)
+			satellitePosition = -(satellitePosition & 0xFFF);
+		else
+			satellitePosition = satellitePosition & 0xFFF;
+	}
 };
 
 typedef std::map <transponder_id_t, transponder> transponder_list_t;
