@@ -32,11 +32,6 @@
 */
 
 
-#include <zapit/client/zapitclient.h>
-
-#ifdef HAVE_CONTROLD
-#include <controldclient/controldclient.h>
-#endif
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 
