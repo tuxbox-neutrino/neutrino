@@ -1145,14 +1145,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 }
 
 /**************************************************************************************
-*          CNeutrinoApp -  firstChannel, get the initial channel                      *
-**************************************************************************************/
-void CNeutrinoApp::firstChannel()
-{
-	g_Zapit->getLastChannel(firstchannel.channel_id, firstchannel.mode);
-}
-
-/**************************************************************************************
 *          CNeutrinoApp -  channelsInit, get the Channellist from daemon              *
 **************************************************************************************/
 extern CBouquetManager *g_bouquetManager;
@@ -3135,10 +3127,10 @@ void CNeutrinoApp::tvMode( bool rezap )
 	g_RemoteControl->tvMode();
 	SetChannelMode(g_settings.channel_mode);
 	if( rezap ) {
-		firstChannel();
+		t_channel_id last_chid = CZapit::getInstance()->GetLastTVChannel();
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
-		if(CServiceManager::getInstance()->FindChannel(firstchannel.channel_id))
-			channelList->zapTo_ChannelID( firstchannel.channel_id );
+		if(CServiceManager::getInstance()->FindChannel(last_chid))
+			channelList->zapTo_ChannelID(last_chid);
 		else
 			channelList->zapTo(0);
 	}
@@ -3342,10 +3334,10 @@ void CNeutrinoApp::radioMode( bool rezap)
 	g_RemoteControl->radioMode();
 	SetChannelMode(g_settings.channel_mode_radio);
 	if( rezap ) {
-		firstChannel();
+		t_channel_id last_chid = CZapit::getInstance()->GetLastRADIOChannel();
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
-		if(CServiceManager::getInstance()->FindChannel(firstchannel.channel_id))
-			channelList->zapTo_ChannelID( firstchannel.channel_id );
+		if(CServiceManager::getInstance()->FindChannel(last_chid))
+			channelList->zapTo_ChannelID(last_chid);
 		else
 			channelList->zapTo(0);
 	}

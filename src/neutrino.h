@@ -116,7 +116,6 @@ private:
 	int				lastChannelMode;
 	struct timeval                  standby_pressed_at;
 
-	CZapitClient::responseGetLastChannel    firstchannel;
 	st_rmsg				sendmessage;
 
 	int				current_muted;
@@ -129,7 +128,6 @@ private:
 	CIPChangeNotifier		*MyIPChanger;
 
 	void SDT_ReloadChannels();
-	void firstChannel();
 	void setupNetwork( bool force= false );
 	void setupNFS();
 
