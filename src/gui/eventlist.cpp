@@ -53,7 +53,6 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 
-#include <zapit/client/zapitclient.h> /* CZapitClient::Utf8_to_Latin1 */
 #include <zapit/client/zapittools.h>
 #include <zapit/zapit.h>
 #include <daemonc/remotecontrol.h>
@@ -565,15 +564,15 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 						channel = (channel == 0) ? channel_nr -1 : channel - 1;
 					}
 					_channel_id = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(channel)->channel_id;
-					current_channel_name = g_Zapit->getChannelName(_channel_id);
+					current_channel_name = CServiceManager::getInstance()->GetServiceName(_channel_id);
 
 					tmp_channel = (channel == 0) ? channel_nr - 1 : channel - 1;
 					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->channel_id;
-					prev_channel_name = g_Zapit->getChannelName(channel_id_tmp);
+					prev_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
 
 					tmp_channel = (channel+1) %channel_nr;
 					channel_id_tmp = bouquetList->Bouquets[current_bouquet_id]->channelList->getChannelFromIndex(tmp_channel)->channel_id;
-					next_channel_name = g_Zapit->getChannelName(channel_id_tmp);
+					next_channel_name = CServiceManager::getInstance()->GetServiceName(channel_id_tmp);
 					break;
 				}
 			}
@@ -736,7 +735,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 			{
 				t_channel_id channel = evtlist[curpos].channelID;
 				datetime2_str += "      ";
-				datetime2_str += g_Zapit->getChannelName(channel);
+				datetime2_str += CServiceManager::getInstance()->GetServiceName(channel);
 			}
 
 			snprintf(tmpstr,sizeof(tmpstr), "[%d min]", evtlist[curpos].duration / 60 );
@@ -983,8 +982,6 @@ int CEventListHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*
 	e = new CNeutrinoEventList;
 
 	channelList = CNeutrinoApp::getInstance()->channelList;
-	//e->exec(channelList->getActiveChannel_ChannelID(), channelList->getActiveChannelName()); // UTF-8
-	//e->exec(g_Zapit->getCurrentServiceID(), channelList->getActiveChannelName()); // UTF-8
 	e->exec(CZapit::getInstance()->GetCurrentChannelID(), channelList->getActiveChannelName()); // UTF-8
 	delete e;
 
@@ -999,7 +996,7 @@ bool CNeutrinoEventList::findEvents(void)
 {
 	bool res = false;
 	int event = 0;
-	t_channel_id channel_id = 0;  //g_Zapit->getCurrentServiceID()
+	t_channel_id channel_id = 0;
 
 	CEventFinderMenu menu(	&event,
 							&m_search_epg_item,
@@ -1180,7 +1177,7 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 		if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_CHANNEL)
 		{
 			mf[1]->setActive(true);
-			m_search_channelname = g_Zapit->getChannelName(*m_search_channel_id);;
+			m_search_channelname = CServiceManager::getInstance()->GetServiceName(*m_search_channel_id);;
 		}
 		else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
 		{
@@ -1212,7 +1209,7 @@ int CEventFinderMenu::exec(CMenuTarget* parent, const std::string &actionkey)
 				{
 					*m_search_bouquet_id = nNewBouquet;
 					*m_search_channel_id = bouquetList->Bouquets[nNewBouquet]->channelList->getActiveChannel_ChannelID();
-					m_search_channelname = g_Zapit->getChannelName(*m_search_channel_id);
+					m_search_channelname = CServiceManager::getInstance()->GetServiceName(*m_search_channel_id);
 				}
 			}
 		}
@@ -1245,7 +1242,7 @@ int CEventFinderMenu::showMenu(void)
 
 	if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_CHANNEL)
 	{
-		m_search_channelname = g_Zapit->getChannelName(*m_search_channel_id);
+		m_search_channelname = CServiceManager::getInstance()->GetServiceName(*m_search_channel_id);
 	}
 	else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
 	{
