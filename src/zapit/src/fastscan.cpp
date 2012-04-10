@@ -484,9 +484,9 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 											TsidOnid,
 											transponder (
 												transport_stream_id,
+												original_network_id,
 												feparams,
-												polarization,
-												original_network_id
+												polarization
 												)
 											)
 										);

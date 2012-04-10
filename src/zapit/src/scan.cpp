@@ -321,9 +321,9 @@ _repeat:
 						TsidOnid,
 						transponder (
 							tI->second.transport_stream_id,
+							tI->second.original_network_id,
 							tI->second.feparams,
-							tI->second.polarization,
-							tI->second.original_network_id
+							tI->second.polarization
 							)
 						)
 					);

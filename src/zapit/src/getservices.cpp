@@ -331,8 +331,8 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 
 		ret = transponders.insert (
 				std::pair <transponder_id_t, transponder> ( tid,
-					transponder (transport_stream_id, feparams,
-						polarization, original_network_id)
+					transponder (transport_stream_id, original_network_id,
+						feparams, polarization)
 					)
 				);
 		if (ret.second == false)
@@ -502,8 +502,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 		polarization &= 1;
 		select_transponders.insert (
 				std::pair <transponder_id_t, transponder> (tid,
-					transponder (fake_tid, feparams,
-						polarization, fake_nid))
+					transponder (fake_tid, fake_nid, feparams, polarization))
 				);
 		fake_nid ++; fake_tid ++;
 

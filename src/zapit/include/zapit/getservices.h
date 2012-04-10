@@ -45,15 +45,6 @@ struct transponder
 	unsigned char polarization;
 	bool updated;
 
-	transponder (t_transport_stream_id p_transport_stream_id, struct dvb_frontend_parameters p_feparams)
-	{
-		transport_stream_id = p_transport_stream_id;
-		feparams = p_feparams;
-		polarization = 0;
-		original_network_id = 0;
-		updated = 0;
-	}
-
 	transponder(const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
         {
                 transport_stream_id = p_transport_stream_id;
@@ -62,15 +53,6 @@ struct transponder
                 polarization        = p_polarization;
 		updated = 0;
         }
-
-	transponder (t_transport_stream_id p_transport_stream_id, struct dvb_frontend_parameters p_feparams, unsigned short p_polarization, t_original_network_id p_original_network_id)
-	{
-		transport_stream_id = p_transport_stream_id;
-		feparams = p_feparams;
-		polarization = p_polarization;
-		original_network_id = p_original_network_id;
-		updated = 0;
-	}
 };
 
 typedef std::map <transponder_id_t, transponder> transponder_list_t;
