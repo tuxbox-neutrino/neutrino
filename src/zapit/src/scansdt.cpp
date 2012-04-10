@@ -163,7 +163,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 		original_network_id = sdt->getOriginalNetworkId();
 		if(!current && !updated) {
 			updated = true;
-			transponder_id_t tpid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+			transponder_id_t tpid = CREATE_TRANSPONDER_ID64(
 					freq_id, satellitePosition, original_network_id, transport_stream_id);
 			ZapitChannelList satChannelList;
 			CServiceManager::getInstance()->GetAllTransponderChannels(satChannelList, tpid);

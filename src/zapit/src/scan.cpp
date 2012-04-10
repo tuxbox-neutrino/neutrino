@@ -175,7 +175,7 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 				satellitePosition = -satellitePosition;
 
 			freq1++;
-			TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+			TsidOnid = CREATE_TRANSPONDER_ID64(
 				freq1, satellitePosition, original_network_id, transport_stream_id);
 				printf("[scan] AddTransponder: SAME freq %d pol1 %d pol2 %d tpid %llx\n", feparams->frequency, poltmp1, poltmp2, TsidOnid);
 			feparams->frequency = feparams->frequency+1000;
@@ -309,7 +309,7 @@ _repeat:
 			nit.Parse();
 #endif
 
-		TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+		TsidOnid = CREATE_TRANSPONDER_ID64(
 				freq /*tI->second.feparams.frequency/1000*/, satellitePosition, tI->second.original_network_id,
 				tI->second.transport_stream_id);
 
@@ -434,7 +434,7 @@ bool CServiceScan::AddTransponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_
 		feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 	}
 	fake_tid++; fake_nid++;
-	AddTransponder(CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, fake_nid, fake_tid),
+	AddTransponder(CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid),
 			&feparams, polarization);
 	return true;
 }
@@ -714,7 +714,7 @@ bool CServiceScan::ScanTransponder()
 	/* read network information table */
 	fake_tid++; fake_nid++;
 	AddTransponder(
-			CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, fake_nid, fake_tid),
+			CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid),
 			&TP->feparams, TP->polarization);
 	ReadNitSdt(satellitePosition);
 

@@ -326,7 +326,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 			freq = feparams.frequency/1000;
 		}
 
-		transponder_id_t tid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition,original_network_id,transport_stream_id);
+		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
 
 		ret = transponders.insert (
@@ -494,7 +494,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 		}
 		
 		transponder_id_t tid =
-			CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+			CREATE_TRANSPONDER_ID64(
 					freq /*feparams.frequency/1000*/, satellitePosition, fake_nid, fake_tid);
 
 		polarization &= 1;

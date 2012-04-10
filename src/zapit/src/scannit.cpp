@@ -309,7 +309,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 
 	freq_id_t freq = feparams.frequency / 1000;
-	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId());
 
 	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, polarization, true);
@@ -334,7 +334,7 @@ bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStr
 		feparams.frequency /= 1000;
 
 	freq_id_t freq = feparams.frequency / 1000;
-	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 		freq, satellitePosition, tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId());
 
 	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, 0, true);

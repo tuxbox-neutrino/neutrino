@@ -476,7 +476,7 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 
 							process_satellite_delivery_system_descriptor(buffer + pos2, &feparams, &polarization, &satellitePosition);
 							freq = feparams.frequency / 1000;
-							TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, original_network_id, transport_stream_id);
+							TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, original_network_id, transport_stream_id);
 							stI = transponders.find(TsidOnid);
 							if(stI == transponders.end()) {
 								transponders.insert (
