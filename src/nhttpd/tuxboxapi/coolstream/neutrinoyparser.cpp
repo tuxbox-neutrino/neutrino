@@ -409,7 +409,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					cmd.service_id = ntohs(ni->service_id);
 					cmd.transport_stream_id = ntohs(ni->transport_stream_id);
 
-					t_channel_id channel_id = CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(cmd.service_id, cmd.original_network_id, cmd.transport_stream_id);
+					t_channel_id channel_id = CREATE_CHANNEL_ID(cmd.service_id, cmd.original_network_id, cmd.transport_stream_id);
 
 					timestr = timeString(ni->zeit.startzeit); // FIXME: time is wrong (at least on little endian)!
 					sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epg); // FIXME: der scheissendreck geht nit!!!

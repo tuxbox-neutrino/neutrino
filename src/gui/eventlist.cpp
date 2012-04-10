@@ -181,7 +181,7 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 #endif
 					for (unsigned int i=0; i<linkedServices.size(); i++)
 					{
-						channel_id2 = CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+						channel_id2 = CREATE_CHANNEL_ID(
 								linkedServices[i].serviceId,
 								linkedServices[i].originalNetworkId,
 								linkedServices[i].transportStreamId);

@@ -1503,7 +1503,7 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 				for(unsigned int i=0; i< desc.size(); i++)
 				{
 					t_channel_id sub_channel_id =
-						CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+						CREATE_CHANNEL_ID(
 							desc[i].serviceId, desc[i].originalNetworkId, desc[i].transportStreamId);
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 						   " %s\n",

@@ -313,11 +313,11 @@ class SIevent
 		void setExtendedText(const std::string &lang, const std::string &text);
 
 		t_channel_id get_channel_id(void) const {
-			return CREATE_CHANNEL_ID;
+			return CREATE_CHANNEL_ID(service_id, original_network_id, transport_stream_id);
 		}
 
 		event_id_t uniqueKey(void) const {
-			return CREATE_EVENT_ID(CREATE_CHANNEL_ID, eventID);
+			return CREATE_EVENT_ID(get_channel_id(), eventID);
 		}
 		int runningStatus(void) const {
 			return running;

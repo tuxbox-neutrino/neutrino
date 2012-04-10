@@ -65,7 +65,7 @@ public:
 		}
 
 	t_channel_id uniqueKey(void) const {
-		return CREATE_CHANNEL_ID; // cf. zapittypes.h
+		return CREATE_CHANNEL_ID(service_id, original_network_id, transport_stream_id); // cf. zapittypes.h
 	}
 	void dump(void) const
 		{
@@ -124,9 +124,8 @@ public:
 	}
 
 	t_channel_id uniqueKey(void) const {
-		//return CREATE_CHANNEL_ID;
 		//notice that tsid & onid were changed for compatibility sake - order should be onid tsid when being sorted
-		return CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service_id, transport_stream_id, original_network_id);
+		return CREATE_CHANNEL_ID(service_id, transport_stream_id, original_network_id);
 	}
 
 	void dump(void) const {

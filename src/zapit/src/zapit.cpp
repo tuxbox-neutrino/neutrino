@@ -1492,7 +1492,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 			t_service_id          service_id          = msgAddSubService.service_id;
 			t_channel_id sub_channel_id = 
 				((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
-				(uint64_t) CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(msgAddSubService.service_id, msgAddSubService.original_network_id, msgAddSubService.transport_stream_id);
+				(uint64_t) CREATE_CHANNEL_ID(msgAddSubService.service_id, msgAddSubService.original_network_id, msgAddSubService.transport_stream_id);
 			DBG("NVOD insert %llx\n", sub_channel_id);
 			nvodchannels.insert (
 					std::pair <t_channel_id, CZapitChannel> (
