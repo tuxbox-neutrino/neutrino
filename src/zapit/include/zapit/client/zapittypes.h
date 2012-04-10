@@ -107,6 +107,7 @@ typedef struct Channel_parameter
 } CH_params;
 #endif
 
+#if 0
 /* complete zapit start thread-parameters in a struct */
 typedef struct ZAPIT_start_arg
 {
@@ -118,7 +119,7 @@ typedef struct ZAPIT_start_arg
 	int video_mode;
 	int ci_clock;
 } Z_start_arg;
-
+#endif
 #if 0
 typedef struct TP_map
 {
@@ -132,6 +133,7 @@ typedef struct TP_map
 #define MAX_LNB 64 
 #endif
 
+#if 0
 typedef struct Zapit_config {
 	int writeChannelsNames;
 	int makeRemainingChannelsBouquet;
@@ -156,7 +158,7 @@ typedef struct Zapit_config {
 	int uni_scr;
 	int uni_qrg;
 } t_zapit_config;
-
+#endif
 #if 0
 typedef std::map <uint32_t, TP_map> TP_map_t;
 typedef std::map <uint32_t, TP_map>::iterator TP_iterator;
