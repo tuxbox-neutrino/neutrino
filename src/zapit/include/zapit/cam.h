@@ -23,6 +23,7 @@
 #ifndef __zapit_cam_h__
 #define __zapit_cam_h__
 
+#include <map>
 #include "ci.h"
 #include <basicclient.h>
 #include "types.h"
