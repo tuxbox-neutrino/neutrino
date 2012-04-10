@@ -106,6 +106,7 @@
 #include <zapit/zapit.h>
 #include <zapit/getservices.h>
 #include <zapit/satconfig.h>
+#include <zapit/client/zapitclient.h>
 
 #include <string.h>
 #include <linux/reboot.h>
