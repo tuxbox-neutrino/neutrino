@@ -67,11 +67,9 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <zapit/client/zapitclient.h>
-#include <zapit/client/zapittools.h>
-
-#include <zapit/channel.h>
+#include <zapit/getservices.h>
 #include <zapit/bouquets.h>
+
 extern CBouquetManager *g_bouquetManager;
 
 #include <string.h>
@@ -961,8 +959,7 @@ std::string CTimerList::convertTimerRepeat2String(const CTimerd::CTimerEventRepe
 
 std::string CTimerList::convertChannelId2String(const t_channel_id id) // UTF-8
 {
-	//CZapitClient Zapit;
-	std::string name = g_Zapit->getChannelName(id); // UTF-8
+	std::string name = CServiceManager::getInstance()->GetServiceName(id);
 	if (name.empty())
 		name = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
 
