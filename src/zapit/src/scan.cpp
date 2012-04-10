@@ -169,10 +169,8 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 			t_transport_stream_id transport_stream_id = tI->second.transport_stream_id;
 			t_original_network_id original_network_id = tI->second.original_network_id;
 			uint16_t freq1 = GET_FREQ_FROM_TPID(tI->first);
-			//FIXME simplify/change GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID
-			t_satellite_position satellitePosition = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-			if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
-				satellitePosition = -satellitePosition;
+
+			t_satellite_position satellitePosition = tI->second.satellitePosition;
 
 			freq1++;
 			TsidOnid = CREATE_TRANSPONDER_ID64(
@@ -479,12 +477,8 @@ bool CServiceScan::ScanProvider(xmlNodePtr search, t_satellite_position satellit
 	for(tI = transponders.begin(); tI != transponders.end(); tI++) {
 		if(abort_scan)
 			return false;
-		t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-		if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
-			satpos = -satpos;
-		if(satpos != satellitePosition)
-			continue;
-		AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization);
+		if(tI->second.satellitePosition == satellitePosition)
+			AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization);
 	}
 	/* read all transponders */
 	while ((tps = xmlGetNextOccurence(tps, "transponder")) != NULL) {
@@ -749,10 +743,7 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 {
 	bool ret = false;
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); tI++) {
-		t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-		if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
-			satpos = -satpos;
-		if (satpos == satellitePosition) {
+		if (tI->second.satellitePosition == satellitePosition) {
 			freq_id_t newfreq;
 			if (cable)
 				newfreq = tI->second.feparams.frequency/100;

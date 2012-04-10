@@ -771,12 +771,8 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 		printf("tp count: %d\n", transponders.size());
 #endif
 		for(transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
-			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
 			bool tpdone = 0;
-			if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
-				satpos = -satpos;
-
-			if(satpos != spos_it->first) {
+			if(tI->second.satellitePosition != spos_it->first) {
 #ifdef SAVE_DEBUG
 				printf("Sat position %d not found !!\n", satpos);
 #endif
@@ -909,11 +905,7 @@ bool CServiceManager::SaveCurrentServices(transponder_id_t tpid)
 		printf("[sdt monitor] tp not found ?!\n");
 		return false;
 	}
-
-	t_satellite_position satellitePosition = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tpid) & 0xFFF;
-	if(GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tpid) & 0xF000)
-		satellitePosition = -satellitePosition;
-
+	t_satellite_position satellitePosition = tI->second.satellitePosition;
 
 	fd = fopen(CURRENTSERVICES_TMP, "w");
 	if(!fd) {

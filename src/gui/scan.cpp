@@ -95,11 +95,8 @@ void CScanTs::prev_next_TP( bool up)
 	bool next_tp = false;
 
 	if(up) {
-		for (tI = select_transponders.begin(); tI != select_transponders.end(); tI++) {
-			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-			if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
-				satpos = -satpos;
-			if (satpos != position)
+		for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
+			if (tI->second.satellitePosition != position)
 				continue;
 			if(tI->second.feparams.frequency > TP.feparams.frequency){
 				next_tp = true;
@@ -107,11 +104,8 @@ void CScanTs::prev_next_TP( bool up)
 			}
 		}
 	} else {
-		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); tI-- ) {
-			t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-			if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
-				satpos = -satpos;
-			if (satpos != position)
+		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); --tI ) {
+			if (tI->second.satellitePosition != position)
 				continue;
 			if(tI->second.feparams.frequency < TP.feparams.frequency) {
 				next_tp = true;
@@ -248,7 +242,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		satList.push_back(sat);
 	} else {
 		satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
-		for(sit = satmap.begin(); sit != satmap.end(); sit++) {
+		for(sit = satmap.begin(); sit != satmap.end(); ++sit) {
 			if(sit->second.use_in_scan) {
 				sat.position = sit->first;
 				strncpy(sat.satName, sit->second.name.c_str(), 50);
@@ -301,11 +295,11 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 
 		do {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd);
-			if (test && (msg == CRCInput::RC_down)) {
+			if (test && (msg == CRCInput::RC_down || msg == CRCInput::RC_left)) {
 				prev_next_TP(false);
 				continue;
 			}
-			else if (test && (msg == CRCInput::RC_up)) {
+			else if (test && (msg == CRCInput::RC_up || msg == CRCInput::RC_right)) {
 				prev_next_TP(true);
 				continue;
 			}

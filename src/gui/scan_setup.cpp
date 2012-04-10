@@ -1011,10 +1011,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 	i = 0;
 	for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI)
 	{
-		t_satellite_position satpos = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xFFF;
-		if (GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(tI->first) & 0xF000)
-			satpos = -satpos;
-		if (satpos != position)
+		if (tI->second.satellitePosition != position)
 			continue;
 
 		char buf[128];
