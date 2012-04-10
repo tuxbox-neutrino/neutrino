@@ -206,6 +206,8 @@ class CZapit : public OpenThreads::Thread
 
 		CZapitChannel * GetCurrentChannel() { return current_channel; };
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
+		t_channel_id GetLastTVChannel() { return lastChannelTV; }
+		t_channel_id GetLastRADIOChannel() { return lastChannelRadio; }
 		void SetCurrentChannelID(const t_channel_id channel_id) { live_channel_id = channel_id; };
 		void SetLiveFrontend(CFrontend * fe) { if(fe) live_fe = fe; }
 		CFrontend * GetLiveFrontend() { return live_fe; };
