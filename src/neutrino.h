@@ -46,7 +46,6 @@
 #include <daemonc/remotecontrol.h>    /* st_rmsg      */
 #include <gui/personalize.h>
 #include <gui/user_menue.h>
-#include <zapit/client/zapitclient.h>
 
 #include <string>
 
@@ -115,8 +114,6 @@ private:
 	bool 				init_cec_setting;
 	int				lastChannelMode;
 	struct timeval                  standby_pressed_at;
-
-	st_rmsg				sendmessage;
 
 	int				current_muted;
 
