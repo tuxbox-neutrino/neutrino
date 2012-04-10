@@ -1018,7 +1018,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CServiceScan::getInstance()->Abort();
 		CServiceScan::getInstance()->Stop();
 		break;
-
+#if 0
 	case CZapitMessages::CMD_SETCONFIG:
 		Zapit_config Cfg;
                 CBasicServer::receive_data(connfd, &Cfg, sizeof(Cfg));
@@ -1027,6 +1027,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	case CZapitMessages::CMD_GETCONFIG:
 		SendConfig(connfd);
 		break;
+#endif
 	case CZapitMessages::CMD_REZAP:
 		if (currentMode & RECORD_MODE)
 			break;

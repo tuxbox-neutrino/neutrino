@@ -378,8 +378,10 @@ class CZapitClient:public CBasicClient
 	/*					*/
 	/****************************************/
 	/* start TS-Scan */
+#if 0
 	bool setConfig(Zapit_config Cfg);
 	void getConfig(Zapit_config * Cfg);
+#endif
 	bool Rezap();
 	bool startScan(int scan_mode);
 	bool stopScan();

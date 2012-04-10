@@ -585,6 +585,7 @@ bool CZapitClient::stopScan()
         close_connection();
         return reply;
 }
+#if 0
 bool CZapitClient::setConfig(Zapit_config Cfg)
 {
         //bool reply = send(CZapitMessages::CMD_LOADCONFIG);
@@ -598,6 +599,7 @@ void CZapitClient::getConfig (Zapit_config * Cfg)
 	CBasicClient::receive_data((char *) Cfg, sizeof(Zapit_config));
 	close_connection();
 }
+#endif
 bool CZapitClient::Rezap()
 {
         bool reply = send(CZapitMessages::CMD_REZAP);
