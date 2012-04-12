@@ -79,12 +79,14 @@ bc.menue.messages_desc=Nachricht an die Box senden
 bc.menue.messages=Nachrichten
 bc.menue.remote_desc=Fernbedinung
 bc.menue.remote=Fernbedienung
-bc.menue.lcd_screenshot_desc=lcd screenshot machen
+bc.menue.lcd_screenshot_desc=LCD Screenshot erstellen
 bc.menue.lcd_screenshot=LCD Screenshot
 bc.menue.lcd_screenshot_desc_ni=lcshot nicht installiert in /bin oder /var/bin
-bc.menue.osd_screenshot_desc=osd screenshot machen
+bc.menue.osd_screenshot_desc=OSD Screenshot erstellen
 bc.menue.osd_screenshot=OSD Screenshot
 bc.menue.osd_screenshot_desc_ni=fbshot nicht installiert in /bin oder /var/bin
+bc.menue.tv_screenshot_desc=TV Screenshot erstellen
+bc.menue.tv_screenshot=TV Screenshot
 bc.menue.remote_osd_desc=Fernbedienung und On Screen Display
 bc.menue.remote_osd=Fernbed. & OSD
 bc.menue.remote_osd_desc_ni=dboxshot nicht installiert in /bin oder /var/bin
@@ -129,6 +131,11 @@ bc.msg.send_message=Nachricht senden
 bc.osd.shot=Schnappschuss
 bc.osd.delete_shots=Schnappschuss löschen
 bc.osd.shap_wait_text=Schnappschuss wird erstellt
+
+======== Boxcontrol - TV-Screenshot
+bc.tv.shot=Schnappschuss
+bc.tv.delete_shot=Schnappschuss löschen
+bc.tv.shap_wait_text=Schnappschuss wird erstellt
 
 ========= Boxcontrol - Others
 bc.channels=Sender

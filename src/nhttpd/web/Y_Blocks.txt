@@ -544,6 +544,8 @@ start-block~remote_neo
   <area shape="rect" href="javascript:rcsim('KEY_RECORD')" coords="212, 628, 237, 651" />
   <area shape="rect" href="javascript:rcsim('KEY_STOP')" coords="330, 593, 353, 614" />
   <area shape="rect" href="javascript:rcsim('KEY_PLAY')" coords="252, 593, 275, 614" />
+  <area shape="rect" href="javascript:rcsim('KEY_WWW')" coords="216, 128, 237, 150" />
+  <area shape="rect" href="javascript:rcsim('KEY_GAMES')" coords="290, 628, 315, 651" />
 </map>
 end-block~remote_neo
 
@@ -596,6 +598,8 @@ start-block~remote_zee
   <area shape="rect" href="javascript:rcsim('KEY_RECORD')" coords="216, 582, 236, 604" />
   <area shape="rect" href="javascript:rcsim('KEY_STOP')" coords="311, 552, 333, 574" />
   <area shape="rect" href="javascript:rcsim('KEY_PLAY')" coords="248, 552, 269, 574" />
+  <area shape="rect" href="javascript:rcsim('KEY_WWW')" coords="216, 512, 236, 534" />
+  <area shape="rect" href="javascript:rcsim('KEY_GAMES')" coords="279, 582, 300, 604" />
 </map>
 end-block~remote_zee
 
@@ -648,5 +652,6 @@ start-block~remote_hd1
   <area shape="rect" href="javascript:rcsim('KEY_RECORD')" coords="224, 620, 259, 645" />
   <area shape="rect" href="javascript:rcsim('KEY_STOP')" coords="265, 625, 310, 645" />
   <area shape="rect" href="javascript:rcsim('KEY_PLAY')" coords="315, 625, 350, 645" />
+  <area shape="rect" href="javascript:rcsim('KEY_GAMES')" coords="318, 422, 360, 455" />
 </map>
 end-block~remote_hd1

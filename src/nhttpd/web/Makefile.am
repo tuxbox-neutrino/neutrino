@@ -87,6 +87,7 @@ install_DATA =	channels.js \
 		Y_Tools_remote_osd.yhtm  \
 		Y_Tools_Timer_Sync.js \
 		Y_Tools_Timer_Sync.yhtm \
+		Y_Tools_tvshot.yhtm \
 		Y_Version.txt \
 		Y_VLC.js \
 		Y_Wait.yhtm \

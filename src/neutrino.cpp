@@ -420,7 +420,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 		strncpy(g_settings.pref_subs[i], configfile.getString(cfg_key, "").c_str(), 30);
 	}
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
-	g_settings.sms_channel = configfile.getInt32( "sms_channel", 0 );
 	strcpy( g_settings.audio_PCMOffset, configfile.getString( "audio_PCMOffset", "0" ).c_str() );
 
 	//vcr
@@ -603,7 +602,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.cacheTXT = configfile.getInt32( "cacheTXT",  0);
 	g_settings.minimode = configfile.getInt32( "minimode",  0);
 	g_settings.mode_clock = configfile.getInt32( "mode_clock",  0);
-	g_settings.mode_left_right_key_tv = configfile.getInt32( "mode_left_right_key_tv",  SNeutrinoSettings::ZAP);
 	g_settings.zapto_pre_time = configfile.getInt32( "zapto_pre_time",  0);
 	g_settings.spectrum         = configfile.getBool("spectrum"          , false);
 	g_settings.channellist_epgtext_align_right	= configfile.getBool("channellist_epgtext_align_right"          , false);
@@ -650,8 +648,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	strcpy( g_settings.ttx_font_file, configfile.getString( "ttx_font_file", FONTDIR"/DejaVuLGCSansMono-Bold.ttf" ).c_str() );
 	ttx_font_file = g_settings.ttx_font_file;
 	strcpy( g_settings.update_dir, configfile.getString( "update_dir", "/tmp" ).c_str() );
-	//BouquetHandling
-	g_settings.bouquetlist_mode = configfile.getInt32( "bouquetlist_mode", 0 );
 
 	// parentallock
 	if (!parentallocked) {
@@ -828,7 +824,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "rotor_swap", g_settings.rotor_swap);
 	configfile.setInt32( "emlog", g_settings.emlog);
 	configfile.setInt32( "zap_cycle", g_settings.zap_cycle );
-	configfile.setInt32( "sms_channel", g_settings.sms_channel );
 	configfile.setInt32( "hdd_fs", g_settings.hdd_fs);
 	configfile.setInt32( "hdd_sleep", g_settings.hdd_sleep);
 	configfile.setInt32( "hdd_noise", g_settings.hdd_noise);
@@ -1020,7 +1015,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "cacheTXT", g_settings.cacheTXT );
 	configfile.setInt32( "minimode", g_settings.minimode );
 	configfile.setInt32( "mode_clock", g_settings.mode_clock );
-	configfile.setInt32( "mode_left_right_key_tv", g_settings.mode_left_right_key_tv );
 	configfile.setInt32( "zapto_pre_time", g_settings.zapto_pre_time );
 	configfile.setBool("spectrum", g_settings.spectrum);
 	configfile.setBool("channellist_epgtext_align_right", g_settings.channellist_epgtext_align_right);
@@ -1056,8 +1050,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString("update_dir", g_settings.update_dir);
 	configfile.setString("font_file", g_settings.font_file);
 	configfile.setString("ttx_font_file", g_settings.ttx_font_file);
-	//BouquetHandling
-	configfile.setInt32( "bouquetlist_mode", g_settings.bouquetlist_mode );
 
 	//parentallock
 	configfile.setInt32( "parentallock_prompt", g_settings.parentallock_prompt );
@@ -3701,6 +3693,10 @@ void CNeutrinoApp::loadKeys(const char * fname)
 	g_settings.key_click = tconfig.getInt32( "key_click", 1 );
 	strcpy(g_settings.repeat_blocker, tconfig.getString("repeat_blocker", "150").c_str());
 	strcpy(g_settings.repeat_genericblocker, tconfig.getString("repeat_genericblocker", "100").c_str());
+
+	g_settings.bouquetlist_mode = tconfig.getInt32( "bouquetlist_mode", 0 );
+	g_settings.sms_channel = tconfig.getInt32( "sms_channel", 0 );
+	g_settings.mode_left_right_key_tv = tconfig.getInt32( "mode_left_right_key_tv",  SNeutrinoSettings::ZAP);
 }
 
 void CNeutrinoApp::saveKeys(const char * fname)
@@ -3754,6 +3750,10 @@ void CNeutrinoApp::saveKeys(const char * fname)
 	tconfig.setInt32( "key_click", g_settings.key_click );
 	tconfig.setString( "repeat_blocker", g_settings.repeat_blocker );
 	tconfig.setString( "repeat_genericblocker", g_settings.repeat_genericblocker );
+
+	tconfig.setInt32( "bouquetlist_mode", g_settings.bouquetlist_mode );
+	tconfig.setInt32( "sms_channel", g_settings.sms_channel );
+	tconfig.setInt32( "mode_left_right_key_tv", g_settings.mode_left_right_key_tv );
 
 	if(fname)
 		tconfig.saveConfig(fname);

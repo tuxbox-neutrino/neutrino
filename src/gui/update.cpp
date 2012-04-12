@@ -529,11 +529,13 @@ CFlashExpert::CFlashExpert()
 
 void CFlashExpert::readmtd(int preadmtd)
 {
-	char tmp[10];
-	sprintf(tmp, "%d", preadmtd);
-	std::string filename = "/tmp/mtd";
-	filename += tmp;
-	filename += ".img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
+	char tmpStr[256];
+	struct timeval tv;
+	gettimeofday(&tv, NULL);	
+	strftime(tmpStr, sizeof(tmpStr), "_%Y%m%d_%H%M.img", localtime(&tv.tv_sec));
+	CMTDInfo* mtdInfo = CMTDInfo::getInstance();
+	std::string filename = "/tmp/" + mtdInfo->getMTDName(preadmtd);
+	filename += tmpStr;
 
 	if (preadmtd == -1) {
 		filename = "/tmp/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
@@ -542,10 +544,10 @@ void CFlashExpert::readmtd(int preadmtd)
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
 	paint();
 	showGlobalStatus(0);
-	showStatusMessageUTF((std::string(g_Locale->getText(LOCALE_FLASHUPDATE_ACTIONREADFLASH)) + " (" + CMTDInfo::getInstance()->getMTDName(preadmtd) + ')')); // UTF-8
+	showStatusMessageUTF((std::string(g_Locale->getText(LOCALE_FLASHUPDATE_ACTIONREADFLASH)) + " (" + mtdInfo->getMTDName(preadmtd) + ')')); // UTF-8
 	CFlashTool ft;
 	ft.setStatusViewer( this );
-	ft.setMTDDevice(CMTDInfo::getInstance()->getMTDFileName(preadmtd));
+	ft.setMTDDevice(mtdInfo->getMTDFileName(preadmtd));
 
 	if(!ft.readFromMTD(filename, 100)) {
 		showStatusMessageUTF(ft.getErrorMessage()); // UTF-8
@@ -611,8 +613,12 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 	CMTDInfo* mtdInfo =CMTDInfo::getInstance();
 	for(int lx=0;lx<mtdInfo->getMTDCount();lx++) {
 		char sActionKey[20];
+		bool enabled = true;
+		// disable write uboot
+		if ((actionkey == "writemtd") && (lx == 0))
+			enabled = false;
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
-		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), true, NULL, this, sActionKey));
+		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey));
 	}
 	mtdselector->exec(NULL,"");
 	delete mtdselector;

@@ -34,6 +34,8 @@
 #include <cs_api.h>
 #include <global.h>
 #include "gui/plugins.h"//for relodplugins
+#include <neutrino.h>
+#include <driver/screenshot.h>
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -175,6 +177,7 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"version", 		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup", 	&CControlAPI::ReloadNutrinoSetupfCGI,		""},
 	{"reloadplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
+	{"screenshot", 		&CControlAPI::ScreenshotCGI,		""},
 	// boxcontrol - devices
 	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
 	{"lcd", 			&CControlAPI::LCDAction,		"text/plain"},
@@ -440,11 +443,9 @@ void CControlAPI::StandbyCGI(CyhookHandler *hh)
 			hh->SendError();
 	}
 	else
-#if HAVE_DBOX2 // FIXME: not implemented
-		if(NeutrinoAPI->Controld->getVideoPowerDown())
+		if(CNeutrinoApp::getInstance()->getMode() == 4)//mode_standby = 4
 			hh->WriteLn("on");
 		else
-#endif
 			hh->WriteLn("off");
 }
 
@@ -732,7 +733,9 @@ static const struct key keynames[] = {
 	{"KEY_PAUSE",		KEY_PAUSE},
 	{"KEY_RECORD",		KEY_RECORD},
 	{"KEY_STOP",		KEY_STOP},
-	{"KEY_PLAY",		KEY_PLAY}
+	{"KEY_PLAY",		KEY_PLAY},
+	{"KEY_WWW",		KEY_WWW},
+	{"KEY_GAMES",		KEY_GAMES}
 };
 
 // The code here is based on rcsim. Thx Carjay!
@@ -1448,6 +1451,13 @@ void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
 	hh->SendOk();
 }
 
+void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
+{
+	CScreenShot * sc = new CScreenShot("/tmp/screenshot.png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
+	sc->EnableOSD(true);
+	sc->Start();
+	hh->SendOk();
+}
 
 //-----------------------------------------------------------------------------
 void CControlAPI::ZaptoCGI(CyhookHandler *hh)

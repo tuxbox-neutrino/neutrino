@@ -82,6 +82,7 @@ private:
 	void VersionCGI(CyhookHandler *hh);
 	void ReloadNutrinoSetupfCGI(CyhookHandler *hh);
 	void ReloadPluginsCGI(CyhookHandler *hh);
+	void ScreenshotCGI(CyhookHandler *hh);
 	void ZaptoCGI(CyhookHandler *hh);
 	void StartPluginCGI(CyhookHandler *hh);
 	void LCDAction(CyhookHandler *hh);
