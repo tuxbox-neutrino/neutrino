@@ -125,13 +125,14 @@ class CZapit : public OpenThreads::Thread
 		audio_map_t audio_map;
 		bool current_is_nvod;
 		//bool standby;
-		uint32_t  lastChannelRadio;
-		uint32_t  lastChannelTV;
+		t_channel_id  lastChannelRadio;
+		t_channel_id  lastChannelTV;
 		int abort_zapit;
 		int pmt_update_fd;
 
 		//void LoadAudioMap();
-		void SaveSettings(bool write_conf, bool write_audio);
+		void SaveAudioMap();
+		void SaveSettings(bool write_conf);
 		//void SaveChannelPids(CZapitChannel* channel);
 		void RestoreChannelPids(CZapitChannel* channel);
 		//void ConfigFrontend();
