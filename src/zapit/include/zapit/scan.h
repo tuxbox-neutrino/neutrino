@@ -79,13 +79,12 @@ class CServiceScan : public OpenThreads::Thread
 
 		short curr_sat;
 
-		std::map <transponder_id_t, transponder> scantransponders;   // TP list to scan
-		std::map <transponder_id_t, transponder> scanedtransponders; // TP list for current scan
-		std::map <transponder_id_t, transponder> nittransponders;
+		transponder_list_t scantransponders;   // TP list to scan
+		transponder_list_t scanedtransponders; // TP list for current scan
+		transponder_list_t nittransponders;
 		std::map <t_channel_id, uint8_t> service_types;
 
-		bool AddTransponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_position satellitePosition);
-		bool ScanProvider(xmlNodePtr search, t_satellite_position satellitePosition, uint8_t diseqc_pos);
+		bool ScanProvider(t_satellite_position satellitePosition);
 		void Cleanup(const bool success);
 		bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition);
 		bool ReadNitSdt(t_satellite_position satellitePosition);

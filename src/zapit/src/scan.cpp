@@ -43,10 +43,6 @@ extern transponder_list_t transponders; //  defined in zapit.cpp
 extern CZapitClient::bouquetMode bouquetMode;
 extern int motorRotationSpeed;
 
-void *nit_thread(void * data);
-
-//int scan_mode = 0; /* 0 = NIT, 1 = fast */
-
 CBouquetManager* scanBouquetManager;
 
 CServiceScan * CServiceScan::scan = NULL;
@@ -149,18 +145,13 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 {
 	DBG("AddTransponder: freq %d pol %d tpid %llx\n", feparams->frequency, polarity, TsidOnid);
 //if(fromnit) printf("AddTransponder: freq %d pol %d tpid %llx\n", feparams->frequency, polarity, TsidOnid);
-	freq_id_t freq;
-	if(cable)
-		freq = feparams->frequency/100;
-	else
-		freq = feparams->frequency/1000;
+
+	freq_id_t freq = CREATE_FREQ_ID(feparams->frequency, cable);
 
 	uint8_t poltmp1 = polarity & 1;
 	uint8_t poltmp2;
 
-	stiterator tI;
-
-	tI = scanedtransponders.find(TsidOnid);
+	stiterator tI = scanedtransponders.find(TsidOnid);
 
 	if (tI != scanedtransponders.end()) {
 		poltmp2 = tI->second.polarization & 1;
@@ -188,25 +179,17 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
         }
 	if(tI == scanedtransponders.end()) {
 		DBG("[scan] insert tp-id %llx freq %d rate %d\n", TsidOnid, feparams->frequency, cable? feparams->u.qam.symbol_rate : feparams->u.qpsk.symbol_rate );
+		transponder t(TsidOnid, *feparams, polarity);
 		if(fromnit) {
 			if(nittransponders.find(TsidOnid) == nittransponders.end()) {
 				printf("[scan] insert tp-id %llx freq %d pol %d rate %d\n", TsidOnid, feparams->frequency, polarity, cable? feparams->u.qam.symbol_rate : feparams->u.qpsk.symbol_rate );
-				nittransponders.insert (
-						std::pair <transponder_id_t, transponder> (
-							TsidOnid,
-							transponder (TsidOnid, *feparams, polarity)));
+				nittransponders.insert (transponder_pair_t(TsidOnid, t));
 			}
 		}
 		else {
 			found_transponders++;
-			scantransponders.insert (
-					std::pair <transponder_id_t, transponder> (
-						TsidOnid,
-						transponder(TsidOnid, *feparams, polarity)));
-			scanedtransponders.insert (
-					std::pair <transponder_id_t, transponder> (
-						TsidOnid,
-						transponder(TsidOnid, *feparams, polarity)));
+			scantransponders.insert(transponder_pair_t(TsidOnid, t));
+			scanedtransponders.insert(transponder_pair_t(TsidOnid, t));
 		}
 		return true;
 	}
@@ -218,13 +201,7 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 
 bool CServiceScan::ReadNitSdt(t_satellite_position satellitePosition)
 {
-	uint32_t  actual_freq;
-	uint32_t actual_polarisation;
-	transponder_id_t TsidOnid = 0;
 	stiterator tI;
-	stiterator stI;
-	std::map <transponder_id_t, transponder>::iterator sT;
-
 	printf("[scan] scanning tp from sat/service\n");
 #ifdef USE_BAT
 	bouquet_map_t bouquet_map;
@@ -240,19 +217,18 @@ _repeat:
 
 		printf("[scan] scanning: %llx\n", tI->first);
 
-		if(cable)
-			actual_freq = tI->second.feparams.frequency;
-		else
-			actual_freq = tI->second.feparams.frequency/1000;
+		uint32_t  actual_freq = tI->second.feparams.frequency;
+		if (!cable)
+			actual_freq /= 1000;
+		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
 
 		processed_transponders++;
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
 
 		if (!cable) {
-			actual_polarisation = ((tI->second.feparams.u.qpsk.symbol_rate/1000) << 16) | (tI->second.feparams.u.qpsk.fec_inner << 8) | (uint)tI->second.polarization;
+			uint32_t actual_polarisation = ((tI->second.feparams.u.qpsk.symbol_rate/1000) << 16) | (tI->second.feparams.u.qpsk.fec_inner << 8) | (uint)tI->second.polarization;
 			CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
 		}
 
@@ -263,11 +239,7 @@ _repeat:
 		if(abort_scan)
 			return false;
 
-		freq_id_t freq;
-		if(cable)
-			freq = tI->second.feparams.frequency/100;
-		else
-			freq = tI->second.feparams.frequency/1000;
+		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, cable);
 
 		CNit nit(satellitePosition, freq, cable_nid);
 #ifdef NIT_THREAD
@@ -307,22 +279,28 @@ _repeat:
 			nit.Parse();
 #endif
 
-		TsidOnid = CREATE_TRANSPONDER_ID64(
-				freq /*tI->second.feparams.frequency/1000*/, satellitePosition, tI->second.original_network_id,
-				tI->second.transport_stream_id);
+		transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,
+				tI->second.original_network_id, tI->second.transport_stream_id);
 
-		stI = transponders.find(TsidOnid);
-		if(stI == transponders.end())
-			transponders.insert (
-					std::pair <transponder_id_t, transponder> (
-						TsidOnid,
-						transponder (
-							TsidOnid,
-							tI->second.feparams,
-							tI->second.polarization
-							)
-						)
-					);
+#if 0 //GetTransponder
+		{
+		struct transponder t(TsidOnid, tI->second.feparams,  tI->second.polarization);
+		for (transponder_list_t::iterator ttI = transponders.begin(); ttI != transponders.end(); ttI++) {
+			if (ttI->second.satellitePosition == satellitePosition) {
+				if(t == ttI->second) {
+					printf("[scan] found similar tp:\n");
+					ttI->second.dump("[scan] old", cable);
+					t.dump("[scan] new", cable);
+				}
+			}
+		}
+		}
+#endif
+		stiterator stI = transponders.find(TsidOnid);
+		if(stI == transponders.end()) {
+			struct transponder t(TsidOnid, tI->second.feparams, tI->second.polarization);
+			transponders.insert(transponder_pair_t(TsidOnid, t));
+		}
 		else
 			stI->second.feparams.u.qpsk.fec_inner = tI->second.feparams.u.qpsk.fec_inner;
 
@@ -390,53 +368,6 @@ _repeat:
 	return true;
 }
 
-bool CServiceScan::AddTransponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_position satellitePosition)
-{
-	uint8_t polarization = 0;
-	uint8_t system = 0, modulation = 1;
-	int xml_fec;
-	FrontendParameters feparams;
-	memset(&feparams, 0x00, sizeof(FrontendParameters));
-
-	feparams.frequency = xmlGetNumericAttribute(transponder, "frequency", 0);
-
-	freq_id_t freq;
-	if(cable) {
-		if (feparams.frequency > 1000*1000)
-			feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
-		//feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-		freq = feparams.frequency/100;
-	}
-	else  {
-		feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-		freq = feparams.frequency/1000;
-	}
-
-	feparams.inversion = INVERSION_AUTO;
-
-	if (cable) {
-		feparams.u.qam.symbol_rate = xmlGetNumericAttribute(transponder, "symbol_rate", 0);
-		feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(transponder, "fec_inner", 0);
-		feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(transponder, "modulation", 0);
-		diseqc_pos = 0;
-	}
-	else if (frontend->getInfo()->type == FE_QPSK) {
-		feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(transponder, "symbol_rate", 0);
-		polarization = xmlGetNumericAttribute(transponder, "polarization", 0);
-		system = xmlGetNumericAttribute(transponder, "system", 0);
-		modulation = xmlGetNumericAttribute(transponder, "modulation", 0);
-		xml_fec = xmlGetNumericAttribute(transponder, "fec_inner", 0);
-		xml_fec = CFrontend::getCodeRate(xml_fec, system);
-		if(modulation == 2)
-			xml_fec += 9;
-		feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
-	}
-	fake_tid++; fake_nid++;
-	AddTransponder(CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid),
-			&feparams, polarization);
-	return true;
-}
-
 void CServiceScan::FixServiceTypes()
 {
 	std::map <t_channel_id, uint8_t>::iterator stI;
@@ -460,39 +391,32 @@ void CServiceScan::FixServiceTypes()
 	}
 }
 
-bool CServiceScan::ScanProvider(xmlNodePtr search, t_satellite_position satellitePosition, uint8_t diseqc_pos)
+bool CServiceScan::ScanProvider(t_satellite_position satellitePosition)
 {
-	xmlNodePtr tps = NULL;
-	transponder_list_t::iterator tI;
 	found_transponders = 0;
 	processed_transponders = 0;
+	transponder_list_t::iterator tI;
 
 	TIMER_START();
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName(satellitePosition);
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, satname.c_str(), satname.size() + 1);
-	tps = search->xmlChildrenNode;
-	/* TPs from current service list */
+	/* transponders from current service list */
 	for(tI = transponders.begin(); tI != transponders.end(); tI++) {
 		if(abort_scan)
 			return false;
 		if(tI->second.satellitePosition == satellitePosition)
 			AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization);
 	}
-	/* read all transponders */
-	while ((tps = xmlGetNextOccurence(tps, "transponder")) != NULL) {
+	/* transponders from satellites.xml */
+	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(satellitePosition);
+	for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
 		if(abort_scan)
 			return false;
-		AddTransponder(tps, diseqc_pos, satellitePosition);
-
-		/* next transponder */
-		tps = tps->xmlNextNode;
+		AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization);
 	}
-#if 0
-	CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
-					&found_transponders, sizeof(found_transponders));
-#endif
+
 	ReadNitSdt(satellitePosition);
 
 	/* channels from PAT do not have service_type set.
@@ -573,7 +497,6 @@ bool CServiceScan::ScanProviders()
 	scan_list_iterator_t spI;
 	char providerName[80] = "";
 	const char *frontendType;
-	uint8_t diseqc_pos = 0;
 	scanBouquetManager = new CBouquetManager();
 	bool satfeed = false;
 
@@ -636,7 +559,7 @@ bool CServiceScan::ScanProviders()
 			 * this is not first satellite scan */
 			CheckSatelliteChannels(position);
 			printf("[scan] scanning %s at %d bouquetMode %d\n", providerName, position, bouquetMode);
-			ScanProvider(search, position, diseqc_pos);
+			ScanProvider(position);
 			if(abort_scan) {
 				found_channels = 0;
 				break;
@@ -691,25 +614,24 @@ bool CServiceScan::ScanTransponder()
 	
 	TP->feparams.inversion = INVERSION_AUTO;
 
-	if (cable) {
-		printf("[scan] freq %d rate %d fec %d mod %d\n", TP->feparams.frequency, TP->feparams.u.qam.symbol_rate, TP->feparams.u.qam.fec_inner, TP->feparams.u.qam.modulation);
-	} else
-		printf("[scan] freq %d rate %d fec %d pol %d\n", TP->feparams.frequency, TP->feparams.u.qpsk.symbol_rate, TP->feparams.u.qpsk.fec_inner, TP->polarization);
-
 	flags = TP->scan_mode;
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
 			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
-	freq_id_t freq;
-	if(cable)
-		freq = TP->feparams.frequency/100;
-	else
-		freq = TP->feparams.frequency/1000;
-	/* read network information table */
+	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.frequency, cable);
+
 	fake_tid++; fake_nid++;
-	AddTransponder(
-			CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid),
-			&TP->feparams, TP->polarization);
+	transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
+	struct transponder t(tid, TP->feparams,  TP->polarization);
+	t.dump("[scan]", cable);
+#if 1
+	AddTransponder(tid, &TP->feparams, TP->polarization);
+#else
+	CServiceManager::getInstance()->GetTransponder(t);
+	AddTransponder(t.transponder_id, &t.feparams, t.polarization);
+#endif
+
+	/* read network information table */
 	ReadNitSdt(satellitePosition);
 
 	if (found_channels)
@@ -731,10 +653,6 @@ bool CServiceScan::ScanTransponder()
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 		CZapit::getInstance()->ZapIt(live_channel_id, false);
 	}
-	if(cable)
-		DBG("[scan_transponder] done scan freq %d rate %d fec %d mod %d\n", TP->feparams.frequency, TP->feparams.u.qam.symbol_rate, TP->feparams.u.qam.fec_inner,TP->feparams.u.qam.modulation);
-	else
-		DBG("[scan_transponder] done scan freq %d rate %d fec %d pol %d\n", TP->feparams.frequency, TP->feparams.u.qpsk.symbol_rate, TP->feparams.u.qpsk.fec_inner, TP->polarization);
 
 	return (found_channels != 0);
 }
@@ -744,11 +662,7 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 	bool ret = false;
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); tI++) {
 		if (tI->second.satellitePosition == satellitePosition) {
-			freq_id_t newfreq;
-			if (cable)
-				newfreq = tI->second.feparams.frequency/100;
-			else
-				newfreq = tI->second.feparams.frequency/1000;
+			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.frequency, cable);
 			if (freq == newfreq) {
 				memcpy(&tI->second.feparams, feparams, sizeof(struct dvb_frontend_parameters));
 				tI->second.polarization = polarization;
