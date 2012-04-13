@@ -85,6 +85,15 @@ AC_ARG_ENABLE(freesatepg,
 	[  --enable-freesatepg                  enable Freesat EPG code (experimental)],
 	[AC_DEFINE(ENABLE_FREESATEPG,1,[enable Freesat EPG code])])
 
+AC_ARG_ENABLE(giflib,
+	AS_HELP_STRING(--enable-giflib,use giflib instead of libungif),
+	,[enable_giflib=no])
+
+AM_CONDITIONAL(ENABLE_GIFLIB,test "$enable_giflib" = "yes")
+if test "$enable_giflib" = "yes"; then
+	AC_DEFINE(ENABLE_GIFLIB,1,[use giflib instead of libungif])
+fi
+
 # FLAC - Free Lossless Audio Codec
 AC_ARG_ENABLE(flac,
 	AS_HELP_STRING(--enable-flac,include FLAC support),
