@@ -61,7 +61,7 @@
 #include <zapit/debug.h>
 #include <set>
 
-extern std::map<transponder_id_t, transponder> select_transponders;
+//extern std::map<transponder_id_t, transponder> select_transponders;
 extern Zapit_config zapitCfg;
 extern char zapit_lat[20];
 extern char zapit_long[20];
@@ -980,11 +980,8 @@ void CScanSetup::updateManualSettings()
 
 int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/)
 {
-	transponder_list_t::iterator tI;
-	t_satellite_position position = 0;
 	std::map<int, transponder> tmplist;
 	std::map<int, transponder>::iterator tmpI;
-	int i;
 	char cnt[5];
 	int select = -1;
 	static int old_selected = 0;
@@ -995,10 +992,9 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 	if (parent)
 		parent->hide();
 
-	position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
+	t_satellite_position position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
 
-	if (old_position != position)
-	{
+	if (old_position != position) {
 		old_selected = 0;
 		old_position = position;
 	}
@@ -1007,18 +1003,15 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL); //add cancel button, ensures that we have enought space left from item caption
 
+	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
-	i = 0;
-	for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI)
-	{
-		if (tI->second.satellitePosition != position)
-			continue;
-
+	int i = 0;
+	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(position);
+	for (transponder_list_t::iterator tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
 		char buf[128];
 		sprintf(cnt, "%d", i);
 		char * f, *s, *m;
-		switch (frontend->getInfo()->type)
-		{
+		switch (frontend->getInfo()->type) {
 			case FE_QPSK:
 				frontend->getDelSys(tI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tI->second.feparams.u.qpsk.fec_inner),  f, s, m);
 				snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.polarization ? 'V' : 'H', tI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
@@ -1032,9 +1025,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 				break;
 		}
 
-		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
-		if(!old_selected && channel && channel->getSatellitePosition() == position)
-		{
+		if(!old_selected && channel && channel->getSatellitePosition() == position) {
 			if(channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first))
 				old_selected = i;
 		}
@@ -1048,8 +1039,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		i++;
 	}
 
-	if (i == 0)
-	{
+	if (i == 0) {
 		std::string text = "No transponders found for ";
 		text += scansettings.satNameNoDiseqc;
 		ShowHintUTF(LOCALE_MESSAGEBOX_ERROR, text.c_str(), 450, 2);
@@ -1061,8 +1051,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 
 	delete selector;
 
-	if (select >= 0)
-	{
+	if (select >= 0) {
 		old_selected = select;
 
 		tmpI = tmplist.find(select);
@@ -1072,8 +1061,7 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 
 		sprintf(scansettings.TP_freq, "%d", tmpI->second.feparams.frequency);
 
-		switch (frontend->getInfo()->type)
-		{
+		switch (frontend->getInfo()->type) {
 			case FE_QPSK:
 				sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
 				scansettings.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
