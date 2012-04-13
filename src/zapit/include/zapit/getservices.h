@@ -35,7 +35,6 @@
 
 #include <map>
 #include <list>
-#define zapped_chan_is_nvod 0x80
 
 struct transponder
 {
@@ -47,16 +46,8 @@ struct transponder
 	struct dvb_frontend_parameters feparams;
 	unsigned char polarization;
 	bool updated;
-#if 0
-	transponder(const t_transport_stream_id p_transport_stream_id, const t_original_network_id p_original_network_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
-	{
-		transport_stream_id = p_transport_stream_id;
-		original_network_id = p_original_network_id;
-		feparams            = p_feparams;
-		polarization        = p_polarization;
-		updated = 0;
-	}
-#endif
+	bool failed;
+
 	transponder(const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
 	{
 		transponder_id      = t_id;
@@ -65,18 +56,42 @@ struct transponder
 		feparams            = p_feparams;
 		polarization        = p_polarization;
 		updated = 0;
+		failed = 0;
 		satellitePosition   = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(transponder_id);
 		if(satellitePosition & 0xF000)
 			satellitePosition = -(satellitePosition & 0xFFF);
 		else
 			satellitePosition = satellitePosition & 0xFFF;
+
+	}
+	bool operator==(const transponder& t) const {
+		return (
+				(satellitePosition == t.satellitePosition) &&
+				//(transport_stream_id == t.transport_stream_id) &&
+				//(original_network_id == t.original_network_id) &&
+				((polarization & 1) == (t.polarization & 1)) &&
+				(abs((int) feparams.frequency - (int)t.feparams.frequency) <= 3000)
+		       );
+	}
+	void dump(std::string label = "tp", bool cable = 0) {
+		if(cable)
+			printf("%s: tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
+				transponder_id, feparams.frequency, feparams.u.qam.symbol_rate,
+				feparams.u.qam.fec_inner, feparams.u.qam.modulation);
+		else
+			printf("%s: tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
+				transponder_id, feparams.frequency, feparams.u.qpsk.symbol_rate,
+				feparams.u.qpsk.fec_inner, polarization);
 	}
 };
 
 typedef std::map <transponder_id_t, transponder> transponder_list_t;
 typedef std::map <transponder_id_t, transponder>::iterator stiterator;
-extern transponder_list_t scantransponders;
+typedef std::pair<transponder_id_t, transponder> transponder_pair_t;
+
 extern transponder_list_t transponders;
+
+typedef std::map <t_satellite_position, transponder_list_t> sat_transponder_map_t;
 
 typedef map<t_channel_id, CZapitChannel> channel_map_t;
 typedef channel_map_t::iterator channel_map_iterator_t;
@@ -122,6 +137,7 @@ class CServiceManager
 
 		fe_type_t frontendType;
 		satellite_map_t satellitePositions;
+		sat_transponder_map_t satelliteTransponders;
 
 		bool ParseScanXml();
 		void ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable);
@@ -169,8 +185,8 @@ class CServiceManager
 		std::string GetServiceName(t_channel_id channel_id);
 
 		tallchans* GetAllChannels(){ return &allchans; };
-		bool GetAllRadioChannels(ZapitChannelList &list);
-		bool GetAllTvChannels(ZapitChannelList &list);
+		bool GetAllRadioChannels(ZapitChannelList &list, int flags = 0);
+		bool GetAllTvChannels(ZapitChannelList &list, int flags = 0);
 		bool GetAllHDChannels(ZapitChannelList &list);
 		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position);
 		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid);
@@ -201,5 +217,8 @@ class CServiceManager
 		void FreeNumber(int number, bool radio);
 		void UseNumber(int number, bool radio);
 		void SetServicesChanged(bool changed) { services_changed = changed; }
+
+		bool GetTransponder(struct transponder &t);
+		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
 };
 #endif /* __getservices_h__ */

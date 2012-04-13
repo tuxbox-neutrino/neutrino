@@ -32,7 +32,6 @@
 //#define SAVE_DEBUG
 
 extern transponder_list_t transponders;
-std::map<transponder_id_t, transponder> select_transponders;
 
 CServiceManager * CServiceManager::manager = NULL;
 
@@ -113,6 +112,7 @@ bool CServiceManager::AddNVODChannel(CZapitChannel * &channel)
 	t_transport_stream_id transport_stream_id = channel->getTransportStreamId();
 
 	t_satellite_position satellitePosition = channel->getSatellitePosition();
+	//FIXME define CREATE_NVOD_CHANNEL_ID
 	t_channel_id sub_channel_id =
 		((uint64_t) ( satellitePosition >= 0 ? satellitePosition : (uint64_t)(0xF000+ abs(satellitePosition))) << 48) |
 		(uint64_t) CREATE_CHANNEL_ID(service_id, original_network_id, transport_stream_id);
@@ -458,6 +458,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 	FrontendParameters feparams;
 
 	fake_tid = fake_nid = 0;
+	satelliteTransponders[satellitePosition].clear();
 
 	xmlNodePtr tps = search->xmlChildrenNode;
 
@@ -465,9 +466,6 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
 
 		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
-
-		freq_id_t freq = 0;
-
 		feparams.inversion = INVERSION_AUTO;
 
 		if (fType == FE_QAM) {
@@ -476,8 +474,6 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, "modulation", 0);
 			if (feparams.frequency > 1000*1000)
 				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
-			//feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-			freq = feparams.frequency/100;
 		}
 		else if (fType == FE_QPSK) {
 			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
@@ -490,18 +486,14 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 				xml_fec += 9;
 			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-			freq = feparams.frequency/1000;
 		}
-		
-		transponder_id_t tid =
-			CREATE_TRANSPONDER_ID64(
-					freq /*feparams.frequency/1000*/, satellitePosition, fake_nid, fake_tid);
-
+		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, fType == FE_QAM);
 		polarization &= 1;
-		select_transponders.insert (
-				std::pair <transponder_id_t, transponder> (tid,
-					transponder (tid, feparams, polarization))
-				);
+
+		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
+		transponder t(tid, feparams, polarization);
+		satelliteTransponders[satellitePosition].insert(transponder_pair_t(tid, t));
+
 		fake_nid ++; fake_tid ++;
 
 		tps = tps->xmlNextNode;
@@ -606,7 +598,6 @@ bool CServiceManager::LoadServices(bool only_current)
 	TIMER_START();
 	allchans.clear();
 	transponders.clear();
-	select_transponders.clear();
 	tv_numbers.clear();
 	radio_numbers.clear();
 	have_numbers = false;
@@ -1090,4 +1081,15 @@ void CServiceManager::UseNumber(int number, bool radio)
 {
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
 	channel_numbers->insert(number);
+}
+
+bool CServiceManager::GetTransponder(struct transponder &t)
+{
+	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); tI++) {
+		if (t == tI->second) {
+			t = tI->second;
+			return true;
+		}
+	}
+	return false;
 }
