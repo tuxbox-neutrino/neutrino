@@ -74,11 +74,12 @@ class CFlashExpert : public CProgressWindow
 		void showFileSelector(const std::string & actionkey);
 
 		void readmtd(int readmtd);
-		void writemtd(const std::string & filename, int mtdNumber);
 
 	public:
 		CFlashExpert();
+		static CFlashExpert* getInstance();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		void writemtd(const std::string & filename, int mtdNumber);
 
 };
 

@@ -51,6 +51,7 @@ libneutrino_gui_a_SOURCES = \
 	epgplus.cpp \
 	epgview.cpp \
 	eventlist.cpp \
+	ext_update.cpp \
 	favorites.cpp \
 	filebrowser.cpp \
 	imageinfo.cpp \

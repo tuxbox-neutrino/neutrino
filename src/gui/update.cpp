@@ -35,6 +35,7 @@
 #endif
 
 #include <gui/update.h>
+#include <gui/ext_update.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -518,6 +519,14 @@ CFlashExpert::CFlashExpert()
 	width = w_max (40, 10);
 }
 
+CFlashExpert* CFlashExpert::getInstance()
+{
+	static CFlashExpert* FlashExpert = NULL;
+	if(!FlashExpert)
+		FlashExpert = new CFlashExpert();
+	return FlashExpert;
+}
+
 void CFlashExpert::readmtd(int preadmtd)
 {
 	char tmpStr[256];
@@ -558,7 +567,7 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 {
 	char message[500];
 
-	sprintf(message,
+	snprintf(message, sizeof(message),
 		g_Locale->getText(LOCALE_FLASHUPDATE_REALLYFLASHMTD),
 		FILESYSTEM_ENCODING_TO_UTF8_STRING(filename).c_str(),
 		CMTDInfo::getInstance()->getMTDName(mtdNumber).c_str());
@@ -613,6 +622,8 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
 		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
+	if (actionkey == "writemtd")
+		mtdselector->addItem(new CMenuForwarderNonLocalized("systemFS with settings", true, NULL, this, "writemtd10", CRCInput::convertDigitToKey(shortcut++)));
 	mtdselector->exec(NULL,"");
 	delete mtdselector;
 }
@@ -678,7 +689,10 @@ int CFlashExpert::exec(CMenuTarget* parent, const std::string & actionKey)
 			selectedMTD = iWritemtd;
 			showFileSelector("");
 		} else {
-			if(selectedMTD==-1) {
+			if(selectedMTD == 10) {
+				CExtUpdate::getInstance()->writemtdExt(actionKey);
+			}
+			else if(selectedMTD==-1) {
 				writemtd(actionKey, MTD_OF_WHOLE_IMAGE);
 			} else {
 				writemtd(actionKey, selectedMTD);
