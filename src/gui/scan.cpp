@@ -90,14 +90,13 @@ void CScanTs::prev_next_TP( bool up)
 
 	position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
 
-	extern std::map<transponder_id_t, transponder> select_transponders;
+	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(position);
 	transponder_list_t::iterator tI;
 	bool next_tp = false;
 
+	/* FIXME transponders with duplicate frequency skipped */
 	if(up) {
 		for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
-			if (tI->second.satellitePosition != position)
-				continue;
 			if(tI->second.feparams.frequency > TP.feparams.frequency){
 				next_tp = true;
 				break;
@@ -105,8 +104,6 @@ void CScanTs::prev_next_TP( bool up)
 		}
 	} else {
 		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); --tI ) {
-			if (tI->second.satellitePosition != position)
-				continue;
 			if(tI->second.feparams.frequency < TP.feparams.frequency) {
 				next_tp = true;
 				break;
