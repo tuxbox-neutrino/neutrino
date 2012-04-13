@@ -30,7 +30,7 @@ function do_clearshot2(){
 	<div class="work_box_head"><div class="work_box_head_h2">
 	{=var-set:help_url=Help-BoxControl-Remote_OSD=}{=var-set:menu={=L:bc.menue.remote_osd=}=}{=include-block:Y_Blocks.txt;work_menu=}</div></div>
 	<div class="work_box_body">
-		<div style="height:30x;">
+		<div style="height:30px;">
 		<span id="buttons" style="display:none"><button name="dboxshot" ytype="shot" onclick="do_dboxshot()">{=L:bc.osd.shot=}</button>&nbsp;
 		<button name="clearshot" ytype="clearshot" onclick="do_clearshot()">{=L:bc.osd.delete_shots=}</button></span>
 		<span id="statusline"><img border="0" src="/images/wait.gif" width="20" height="20" alt="wait"/></span>
