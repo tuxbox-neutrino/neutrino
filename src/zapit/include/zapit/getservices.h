@@ -142,6 +142,7 @@ class CServiceManager
 
 		std::string GetServiceName(t_channel_id channel_id);
 
+		tallchans* GetAllChannels(){ return &allchans; };
 		bool GetAllRadioChannels(ZapitChannelList &list);
 		bool GetAllTvChannels(ZapitChannelList &list);
 		bool GetAllHDChannels(ZapitChannelList &list);
