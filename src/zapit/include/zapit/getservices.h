@@ -168,8 +168,9 @@ class CServiceManager
 
 		std::string GetServiceName(t_channel_id channel_id);
 
-		bool GetAllRadioChannels(ZapitChannelList &list, int flags = 0);
-		bool GetAllTvChannels(ZapitChannelList &list, int flags = 0);
+		tallchans* GetAllChannels(){ return &allchans; };
+		bool GetAllRadioChannels(ZapitChannelList &list);
+		bool GetAllTvChannels(ZapitChannelList &list);
 		bool GetAllHDChannels(ZapitChannelList &list);
 		bool GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position);
 		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid);
