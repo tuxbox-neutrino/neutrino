@@ -32,62 +32,10 @@
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 #include <zapit/satconfig.h>
+#include <zapit/transponder.h>
 
 #include <map>
 #include <list>
-
-struct transponder
-{
-	t_transport_stream_id transport_stream_id;
-	t_original_network_id original_network_id;
-	transponder_id_t transponder_id;
-	t_satellite_position satellitePosition;
-
-	struct dvb_frontend_parameters feparams;
-	unsigned char polarization;
-	bool updated;
-	bool failed;
-
-	transponder(const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0)
-	{
-		transponder_id      = t_id;
-		transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_TRANSPONDER_ID(t_id);
-		original_network_id = GET_ORIGINAL_NETWORK_ID_FROM_TRANSPONDER_ID(t_id);
-		feparams            = p_feparams;
-		polarization        = p_polarization;
-		updated = 0;
-		failed = 0;
-		satellitePosition   = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(transponder_id);
-		if(satellitePosition & 0xF000)
-			satellitePosition = -(satellitePosition & 0xFFF);
-		else
-			satellitePosition = satellitePosition & 0xFFF;
-
-	}
-	bool operator==(const transponder& t) const {
-		return (
-				(satellitePosition == t.satellitePosition) &&
-				//(transport_stream_id == t.transport_stream_id) &&
-				//(original_network_id == t.original_network_id) &&
-				((polarization & 1) == (t.polarization & 1)) &&
-				(abs((int) feparams.frequency - (int)t.feparams.frequency) <= 3000)
-		       );
-	}
-	void dump(std::string label = "tp", bool cable = 0) {
-		if(cable)
-			printf("%s: tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
-				transponder_id, feparams.frequency, feparams.u.qam.symbol_rate,
-				feparams.u.qam.fec_inner, feparams.u.qam.modulation);
-		else
-			printf("%s: tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
-				transponder_id, feparams.frequency, feparams.u.qpsk.symbol_rate,
-				feparams.u.qpsk.fec_inner, polarization);
-	}
-};
-
-typedef std::map <transponder_id_t, transponder> transponder_list_t;
-typedef std::map <transponder_id_t, transponder>::iterator stiterator;
-typedef std::pair<transponder_id_t, transponder> transponder_pair_t;
 
 extern transponder_list_t transponders;
 
@@ -147,9 +95,9 @@ class CServiceManager
 		int LoadMotorPositions(void);
 
 		void WriteSatHeader(FILE * fd, sat_config_t &config);
-		void WriteTransponderHeader(FILE * fd, struct transponder &tp);
+		void WriteTransponderHeader(FILE * fd, transponder &tp);
 		void WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
-				bool &updated, char * satstr, struct transponder &tp, CZapitChannel &channel, const char * action);
+				bool &updated, char * satstr, transponder &tp, CZapitChannel &channel, const char * action);
 
 		static CServiceManager * manager;
 		CServiceManager();
@@ -218,7 +166,7 @@ class CServiceManager
 		void UseNumber(int number, bool radio);
 		void SetServicesChanged(bool changed) { services_changed = changed; }
 
-		bool GetTransponder(struct transponder &t);
+		bool GetTransponder(transponder &t);
 		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
 };
 #endif /* __getservices_h__ */
