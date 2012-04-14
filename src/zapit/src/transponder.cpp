@@ -1,12 +1,11 @@
 /*
- * $Id: transponder.cpp,v 1.6 2002/10/12 23:14:20 obi Exp $
+ * Copyright (C) 2012 CoolStream International Ltd
  *
- * (C) 2002 by Steffen Hehn "McClean" <McClean@tuxbox.org>
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,122 +18,44 @@
  *
  */
 
-
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/poll.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <stdint.h>
+#include <stdlib.h>
 #include <zapit/transponder.h>
 
-
-CTransponder::CTransponder()
+transponder::transponder(const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization)
 {
-	frequency = 0;
-	modulation = 0;
-	symbolrate = 0;
-	polarisation = 0;
-	innerFec = 0;
-	diseqc = 0;
-	inversion = 0;
-	originalNetworkId = 0;
-	transportStreamId = 0;
+	transponder_id      = t_id;
+	transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_TRANSPONDER_ID(t_id);
+	original_network_id = GET_ORIGINAL_NETWORK_ID_FROM_TRANSPONDER_ID(t_id);
+	feparams            = p_feparams;
+	polarization        = p_polarization;
 	updated = 0;
+	scanned = 0;
+	satellitePosition   = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(transponder_id);
+	if(satellitePosition & 0xF000)
+		satellitePosition = -(satellitePosition & 0xFFF);
+	else
+		satellitePosition = satellitePosition & 0xFFF;
 }
 
-unsigned int CTransponder::getFrequency()
+bool transponder::operator==(const transponder& t) const
 {
-	return frequency;
+	return (
+			(satellitePosition == t.satellitePosition) &&
+			//(transport_stream_id == t.transport_stream_id) &&
+			//(original_network_id == t.original_network_id) &&
+			((polarization & 1) == (t.polarization & 1)) &&
+			(abs((int) feparams.frequency - (int)t.feparams.frequency) <= 3000)
+	       );
 }
 
-void CTransponder::setFrequency(unsigned int ifrequency)
+void transponder::dump(std::string label, bool cable) 
 {
-	frequency = ifrequency;
+	if(cable)
+		printf("%s: tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
+				transponder_id, feparams.frequency, feparams.u.qam.symbol_rate,
+				feparams.u.qam.fec_inner, feparams.u.qam.modulation);
+	else
+		printf("%s: tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
+				transponder_id, feparams.frequency, feparams.u.qpsk.symbol_rate,
+				feparams.u.qpsk.fec_inner, polarization);
 }
-
-unsigned char CTransponder::getModulation()
-{
-	return modulation;
-}
-
-void CTransponder::setModulation(unsigned char cmodulation)
-{
-	modulation = cmodulation;
-}
-
-unsigned int CTransponder::getSymbolrate()
-{
-	return symbolrate;
-}
-
-void CTransponder::setSymbolrate(unsigned int isymbolrate)
-{
-	symbolrate = isymbolrate;
-}
-
-unsigned char CTransponder::getPolarisation()
-{
-	return polarisation;
-}
-
-void CTransponder::setPolarisation(unsigned char cpolarisation)
-{
-	polarisation = cpolarisation;
-}
-
-unsigned char CTransponder::getDiseqc()
-{
-	return diseqc;
-}
-
-void CTransponder::setDiseqc(unsigned char cdiseqc)
-{
-	diseqc = cdiseqc;
-}
-
-unsigned char CTransponder::getInnerFec()
-{
-	return innerFec;
-}
-
-void CTransponder::setInnerFec(unsigned char cinnerFec)
-{
-	innerFec = cinnerFec;
-}
-
-unsigned char CTransponder::getInversion()
-{
-	return inversion;
-}
-
-void CTransponder::setInversion(unsigned char cinversion)
-{
-	inversion = cinversion;
-}
-
-unsigned short CTransponder::getOriginalNetworkId()
-{
-	return originalNetworkId;
-}
-
-void CTransponder::setOriginalNetworkId(unsigned short soriginalNetworkId)
-{
-	originalNetworkId = soriginalNetworkId;
-}
-
-unsigned short CTransponder::getTransportStreamId()
-{
-	return transportStreamId;
-}
-
-void CTransponder::setTransportStreamId(unsigned short stransportStreamId)
-{
-	transportStreamId = stransportStreamId;
-}
-
-unsigned int CTransponder::getTsidOnid()
-{
-	return (transportStreamId << 16) | originalNetworkId;
-}
-
