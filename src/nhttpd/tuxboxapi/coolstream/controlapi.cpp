@@ -35,7 +35,9 @@
 #include <global.h>
 #include "gui/plugins.h"//for relodplugins
 #include <neutrino.h>
+#ifdef SCREENSHOT
 #include <driver/screenshot.h>
+#endif
 // yhttpd
 #include "yhttpd.h"
 #include "ytypes_globals.h"
@@ -177,7 +179,9 @@ const CControlAPI::TyCgiCall CControlAPI::yCgiCallList[]=
 	{"version", 		&CControlAPI::VersionCGI,		""},
 	{"reloadsetup", 	&CControlAPI::ReloadNutrinoSetupfCGI,		""},
 	{"reloadplugins", 	&CControlAPI::ReloadPluginsCGI,		""},
+#ifdef SCREENSHOT
 	{"screenshot", 		&CControlAPI::ScreenshotCGI,		""},
+#endif
 	// boxcontrol - devices
 	{"volume", 			&CControlAPI::VolumeCGI,		"text/plain"},
 	{"lcd", 			&CControlAPI::LCDAction,		"text/plain"},
@@ -1451,6 +1455,7 @@ void CControlAPI::ReloadPluginsCGI(CyhookHandler *hh)
 	hh->SendOk();
 }
 
+#ifdef SCREENSHOT
 void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 {
 	CScreenShot * sc = new CScreenShot("/tmp/screenshot.png", (CScreenShot::screenshot_format_t)0 /*PNG*/);
@@ -1458,6 +1463,7 @@ void CControlAPI::ScreenshotCGI(CyhookHandler *hh)
 	sc->Start();
 	hh->SendOk();
 }
+#endif
 
 //-----------------------------------------------------------------------------
 void CControlAPI::ZaptoCGI(CyhookHandler *hh)
