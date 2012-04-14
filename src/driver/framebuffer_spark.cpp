@@ -149,6 +149,10 @@ CFrameBuffer::CFrameBuffer()
 	tty = 0;
 	bpp = 0;
 	locked = false;
+	m_transparent_default = CFrameBuffer::TM_BLACK; // TM_BLACK: Transparency when black content ('pseudo' transparency)
+							// TM_NONE:  No 'pseudo' transparency
+							// TM_INI:   Transparency depends on g_settings.infobar_alpha ???
+	m_transparent         = m_transparent_default;
 //FIXME: test
 	memset(red, 0, 256*sizeof(__u16));
 	memset(green, 0, 256*sizeof(__u16));
@@ -330,6 +334,8 @@ CFrameBuffer::~CFrameBuffer()
 		backupBackground = NULL;
 	}
 
+	useBackground(false);
+	m_transparent = m_transparent_default;
 #if 0
 #ifdef RETURN_FROM_GRAPHICS_MODE
 	if (-1 == ioctl(tty,KDSETMODE, kd_mode))
@@ -1364,27 +1370,36 @@ void * CFrameBuffer::int_convertRGB2FB(unsigned char *rgbbuff, unsigned long x, 
 	unsigned long count = x * y;
 
 	fbbuff = (unsigned int *) cs_malloc_uncached(count * sizeof(unsigned int));
-	if(fbbuff == NULL)
-	{
+	if(fbbuff == NULL) {
 		printf("convertRGB2FB%s: Error: cs_malloc_uncached\n", ((alpha) ? " (Alpha)" : ""));
 		return NULL;
 	}
 
-	if (alpha)
-	{
+	if (alpha) {
 		for(i = 0; i < count ; i++)
 			fbbuff[i] = ((rgbbuff[i*4+3] << 24) & 0xFF000000) | 
 			            ((rgbbuff[i*4]   << 16) & 0x00FF0000) | 
 		        	    ((rgbbuff[i*4+1] <<  8) & 0x0000FF00) | 
 			            ((rgbbuff[i*4+2])       & 0x000000FF);
-	}else
-	{
-		for(i = 0; i < count ; i++)
-		{
-			transp = 0;
-			if(rgbbuff[i*3] || rgbbuff[i*3+1] || rgbbuff[i*3+2])
-				transp = 0xFF;
-			fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+	} else {
+		switch (m_transparent) {
+			case CFrameBuffer::TM_BLACK:
+				for(i = 0; i < count ; i++) {
+					transp = 0;
+					if(rgbbuff[i*3] || rgbbuff[i*3+1] || rgbbuff[i*3+2])
+						transp = 0xFF;
+					fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+				}
+				break;
+			case CFrameBuffer::TM_INI:
+				for(i = 0; i < count ; i++)
+					fbbuff[i] = (transp << 24) | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+				break;
+			case CFrameBuffer::TM_NONE:
+			default:
+				for(i = 0; i < count ; i++)
+					fbbuff[i] = 0xFF000000 | ((rgbbuff[i*3] << 16) & 0xFF0000) | ((rgbbuff[i*3+1] << 8) & 0xFF00) | (rgbbuff[i*3+2] & 0xFF);
+				break;
 		}
 	}
 	return (void *) fbbuff;
@@ -1638,4 +1653,20 @@ void CFrameBuffer::blit()
 	to_blit.xs = to_blit.ys = INT_MAX;
 	to_blit.xe = to_blit.ye = 0;
 	blit_unlock();
+}
+
+void CFrameBuffer::paintMuteIcon(bool paint, int ax, int ay, int dx, int dy, bool paintFrame)
+{
+	if(paint) {
+		if (paintFrame) {
+			paintBackgroundBoxRel(ax, ay, dx, dy);
+			paintBoxRel(ax, ay, dx, dy, COL_MENUCONTENT_PLUS_0, RADIUS_SMALL);
+		}
+		int icon_dx=0, icon_dy=0;
+		getIconSize(NEUTRINO_ICON_BUTTON_MUTE, &icon_dx, &icon_dy);
+		paintIcon(NEUTRINO_ICON_BUTTON_MUTE, ax+((dx-icon_dx)/2), ay+((dy-icon_dy)/2));
+	}
+	else
+		paintBackgroundBoxRel(ax, ay, dx, dy);
+	blit();
 }
