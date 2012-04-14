@@ -33,7 +33,8 @@
 #include <gui/infoclock.h>
 #include <gui/keybind_setup.h>
 #include <system/debug.h>
-#include <audio_cs.h>
+/* compat header from zapit/include */
+#include <audio.h>
 #include <system/settings.h>
 #include <daemonc/remotecontrol.h>
 #include <driver/framebuffer.h>
