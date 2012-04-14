@@ -21,7 +21,7 @@ noinst_LIBRARIES = libzapit.a
 
 libzapit_a_SOURCES = \
 	bouquets.cpp channel.cpp dvbstring.cpp getservices.cpp \
-	scan.cpp zapit.cpp capmt.cpp frontend.cpp femanager.cpp \
+	transponder.cpp scan.cpp zapit.cpp capmt.cpp frontend.cpp femanager.cpp \
 	pat.cpp scanpmt.cpp fastscan.cpp scansdt.cpp scannit.cpp scanbat.cpp
 
 bin_PROGRAMS = pzapit
