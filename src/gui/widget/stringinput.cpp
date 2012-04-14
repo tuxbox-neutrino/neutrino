@@ -833,6 +833,7 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 		strcat(value, " ");
 
 	paint();
+	frameBuffer->blit();
 
 	bool loop = true;
 
@@ -883,7 +884,7 @@ int CPINInput::exec( CMenuTarget* parent, const std::string & )
 				}
 			}
 		}
-
+		frameBuffer->blit();
 	}
 
 	hide();
