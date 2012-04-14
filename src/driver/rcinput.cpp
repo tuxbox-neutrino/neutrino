@@ -49,6 +49,7 @@
 #endif /* KEYBOARD_INSTEAD_OF_REMOTE_CONTROL */
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include <sys/un.h>
 #include <sys/socket.h>
@@ -74,6 +75,7 @@ typedef struct input_event t_input_event;
 static struct termio orig_termio;
 static bool          saved_orig_termio = false;
 #endif /* KEYBOARD_INSTEAD_OF_REMOTE_CONTROL */
+static bool input_stopped = false;
 
 /*********************************************************************************
 *	Constructor - opens rc-input device, selects rc-hardware and starts threads
@@ -149,12 +151,18 @@ CRCInput::CRCInput()
 	set_rc_hw();
 }
 
-void CRCInput::open()
+/* if dev is given, open device with index <dev>, if not (re)open all */
+void CRCInput::open(int dev)
 {
-	close();
+	if (dev == -1)
+		close();
 
 	for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++)
 	{
+		if (dev != -1) {
+			if (i != dev || fd_rc[i] != -1)
+				continue;
+		}
 		if ((fd_rc[i] = ::open(RC_EVENT_DEVICE[i], O_RDWR)) == -1)
 			perror(RC_EVENT_DEVICE[i]);
 		else
@@ -273,6 +281,7 @@ CRCInput::~CRCInput()
 **************************************************************************/
 void CRCInput::stopInput()
 {
+	input_stopped = true;
 	close();
 }
 
@@ -284,6 +293,7 @@ void CRCInput::restartInput()
 {
 	close();
 	open();
+	input_stopped = false;
 }
 
 int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
@@ -518,6 +528,16 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	t_input_event ev;
 
 	*data = 0;
+
+	/* reopen a missing input device
+	 * TODO: real hot-plugging, e.g. of keyboards and triggering this loop...
+	 *       right now it is only run if some event is happening "by accident" */
+	if (!input_stopped) {
+		for (int i = 0; i < NUMBER_OF_EVENT_DEVICES; i++) {
+			if (fd_rc[i] == -1)
+				open(i);
+		}
+	}
 
 	// wiederholung reinmachen - dass wirklich die ganze zeit bis timeout gewartet wird!
 	gettimeofday( &tv, NULL );
@@ -1160,9 +1180,14 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 			if ((fd_rc[i] != -1) && (FD_ISSET(fd_rc[i], &rfds))) {
 				int ret;
 				ret = read(fd_rc[i], &ev, sizeof(t_input_event));
-
-				if(ret != sizeof(t_input_event))
+				if (ret != sizeof(t_input_event)) {
+					if (errno == ENODEV) {
+						/* hot-unplugged? */
+						::close(fd_rc[i]);
+						fd_rc[i] = -1;
+					}
 					continue;
+				}
 				if (ev.type == EV_SYN)
 					continue; /* ignore... */
 				SHTDCNT::getInstance()->resetSleepTimer();

@@ -151,7 +151,7 @@ class CRCInput
 		__u16 rc_last_key;
 		void set_dsp();
 
-		void open();
+		void open(int dev = -1);
 		void close();
 		int translate(int code, int num);
 		void calculateMaxFd(void);
