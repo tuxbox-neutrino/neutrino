@@ -35,7 +35,6 @@
 #include <zapit/scannit.h>
 #include <zapit/scanbat.h>
 
-#define NIT_THREAD
 //#define USE_BAT
 
 extern CBouquetManager *g_bouquetManager;
@@ -126,6 +125,7 @@ void CServiceScan::CleanAllMaps()
 {
 	scantransponders.clear();
 	scanedtransponders.clear();
+	failedtransponders.clear();
 	nittransponders.clear();
 	service_types.clear();
 }
@@ -148,6 +148,7 @@ bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarizat
 
 bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t polarity, bool fromnit)
 {
+#if 0
 	DBG("AddTransponder: freq %d pol %d tpid %llx\n", feparams->frequency, polarity, TsidOnid);
 //if(fromnit) printf("AddTransponder: freq %d pol %d tpid %llx\n", feparams->frequency, polarity, TsidOnid);
 
@@ -200,8 +201,38 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 	}
 	else
 		tI->second.feparams.u.qpsk.fec_inner = feparams->u.qpsk.fec_inner;
-
-	return false;
+#endif
+	bool ret = false;
+	stiterator tI;
+	transponder t(frontendType, TsidOnid, *feparams, polarity);
+	if (fromnit) {
+		for (tI = nittransponders.begin(); tI != nittransponders.end(); tI++) {
+			if(t.compare(tI->second))
+				break;
+		}
+		if (tI == nittransponders.end()) {
+#if 1 // debug
+			if((tI = nittransponders.find(TsidOnid)) != nittransponders.end()) {
+				tI->second.dump("[scan] same tid, different params: old");
+				t.dump("[scan] same tid, different params: new");
+			}
+#endif
+			t.dump("[scan] add tp from nit:");
+			nittransponders.insert(transponder_pair_t(TsidOnid, t));
+			ret = true;
+		}
+	} else {
+		for (tI = scantransponders.begin(); tI != scantransponders.end(); tI++) {
+			if(t.compare(tI->second))
+				break;
+		}
+		if (tI == scantransponders.end()) {
+			t.dump("[scan] add tp from settings:");
+			scantransponders.insert(transponder_pair_t(TsidOnid, t));
+		}
+		ret = true;
+	}
+	return ret;
 }
 
 bool CServiceScan::ReadNitSdt(t_satellite_position satellitePosition)
@@ -213,6 +244,7 @@ bool CServiceScan::ReadNitSdt(t_satellite_position satellitePosition)
 	channel_number_map_t logical_map;
 #endif
 _repeat:
+	found_transponders += scantransponders.size();
 	CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
 			&found_transponders, sizeof(found_transponders));
 
@@ -223,15 +255,18 @@ _repeat:
 		printf("[scan] scanning: %llx\n", tI->first);
 		SendTransponderInfo(tI->second);
 
+		transponder t(frontendType, tI->first, tI->second.feparams,  tI->second.polarization);
 		if (!tuneFrequency(&(tI->second.feparams), tI->second.polarization, satellitePosition)) {
 			failed_transponders++;
+			failedtransponders.insert(transponder_pair_t(t.transponder_id, t));
 			continue;
 		}
 		tI->second.scanned = true;
+		scanedtransponders.insert(transponder_pair_t(t.transponder_id, t));
+
 		if(abort_scan)
 			return false;
 
-		transponder t(frontendType, tI->first, tI->second.feparams,  tI->second.polarization);
 		for (transponder_list_t::iterator ttI = transponders.begin(); ttI != transponders.end(); ttI++) {
 			if(t == ttI->second) {
 				ttI->second.dump("[scan] similar tp, old");
@@ -243,10 +278,9 @@ _repeat:
 		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, cable);
 
 		CNit nit(satellitePosition, freq, cable_nid);
-#ifdef NIT_THREAD
 		if(flags & SCAN_NIT)
 			nit.Start();
-#endif
+
 #ifdef USE_BAT
 		CBat bat(satellitePosition, freq);
 		if(flags & SCAN_BAT)
@@ -255,10 +289,9 @@ _repeat:
 		CSdt sdt(satellitePosition, freq);
 		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
 
-#ifdef NIT_THREAD
 		if(flags & SCAN_NIT)
 			nit.Stop();
-#endif
+
 #ifdef USE_BAT
 		if(flags & SCAN_BAT) {
 			bat.Stop();
@@ -275,10 +308,6 @@ _repeat:
 			printf("[scan] SDT failed !\n");
 			continue;
 		}
-#ifndef NIT_THREAD
-		if(flags & SCAN_NIT)
-			nit.Parse();
-#endif
 
 		transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,
 				tI->second.original_network_id, tI->second.transport_stream_id);
@@ -297,14 +326,33 @@ _repeat:
 	if(flags & SCAN_NIT) {
 		printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
 		scantransponders.clear();
+#if 0
 		for (tI = nittransponders.begin(); tI != nittransponders.end(); tI++) {
 			AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization, false);
+		}
+#endif
+		for (stiterator ntI = nittransponders.begin(); ntI != nittransponders.end(); ++ntI) {
+			for (tI = failedtransponders.begin(); tI != failedtransponders.end(); ++tI) {
+				if (ntI->second.compare(tI->second))
+					break;
+			}
+			if (tI != failedtransponders.end()) {
+				ntI->second.dump("[scan] not use tp from nit:");
+				continue;
+			}
+			for (tI = scanedtransponders.begin(); tI != scanedtransponders.end(); ++tI) {
+				if (ntI->second == tI->second)
+					break;
+			}
+			if (tI == scanedtransponders.end()) {
+				ntI->second.dump("[scan] use tp from nit:");
+				scantransponders.insert(transponder_pair_t(ntI->first, ntI->second));
+			}
 		}
 		nittransponders.clear();
 		printf("\n\n[scan] found %d additional transponders from nit\n", scantransponders.size());
 		if(scantransponders.size())
 			goto _repeat;
-
 	}
 #ifdef USE_BAT
 	if(flags & SCAN_BAT) {
@@ -344,7 +392,6 @@ _repeat:
 			}
 			if(have_lcn)
 				bouquet->sortBouquetByNumber();
-
 #endif
 		}
 	}
@@ -357,19 +404,19 @@ void CServiceScan::FixServiceTypes()
 	std::map <t_channel_id, uint8_t>::iterator stI;
 	for (stI = service_types.begin(); stI != service_types.end(); stI++) {
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(stI->first);
-		if (channel) {
-			if (channel->getServiceType() != stI->second) {
-				switch (channel->getServiceType()) {
-					case ST_DIGITAL_TELEVISION_SERVICE:
-					case ST_DIGITAL_RADIO_SOUND_SERVICE:
-					case ST_NVOD_REFERENCE_SERVICE:
-					case ST_NVOD_TIME_SHIFTED_SERVICE:
-						break;
-					default:
-						INFO("setting service_type of channel_id " PRINTF_CHANNEL_ID_TYPE " %s from %02x to %02x", stI->first, channel->getName().c_str(), channel->getServiceType(), stI->second);
-						channel->setServiceType(stI->second);
-						break;
-				}
+		if(!channel)
+			continue;
+		if (channel->getServiceType() != stI->second) {
+			switch (channel->getServiceType()) {
+				case ST_DIGITAL_TELEVISION_SERVICE:
+				case ST_DIGITAL_RADIO_SOUND_SERVICE:
+				case ST_NVOD_REFERENCE_SERVICE:
+				case ST_NVOD_TIME_SHIFTED_SERVICE:
+					break;
+				default:
+					INFO("setting service_type of channel_id " PRINTF_CHANNEL_ID_TYPE " %s from %02x to %02x", stI->first, channel->getName().c_str(), channel->getServiceType(), stI->second);
+					channel->setServiceType(stI->second);
+					break;
 			}
 		}
 	}
