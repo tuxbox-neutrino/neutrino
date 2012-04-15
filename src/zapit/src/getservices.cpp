@@ -289,7 +289,6 @@ std::string CServiceManager::GetServiceName(t_channel_id channel_id)
 void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position satellitePosition, bool cable)
 {
 	uint8_t polarization = 0;
-	uint16_t freq;
 
 	/* read all transponders */
 	while ((node = xmlGetNextOccurence(node, "TS")) != NULL) {
@@ -307,9 +306,6 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 
 			if (feparams.frequency > 1000*1000)
 				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
-
-			//feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-			freq = feparams.frequency/100;
 		} else {
 			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
 			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
@@ -323,18 +319,16 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 				feparams.frequency = feparams.frequency*1000;
 			else
 				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
-			freq = feparams.frequency/1000;
 		}
+		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, cable);
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
+		transponder t(frontendType, tid, feparams, polarization);
 		pair<map<transponder_id_t, transponder>::iterator,bool> ret;
 
-		ret = transponders.insert (
-				std::pair <transponder_id_t, transponder> (tid,
-					transponder(tid, feparams, polarization))
-				);
+		ret = transponders.insert(transponder_pair_t(tid, t));
 		if (ret.second == false)
-			printf("[zapit] duplicate transponder id %llx freq %d\n", tid, feparams.frequency);
+			t.dump("[zapit] duplicate");
 
 		/* read channels that belong to the current transponder */
 		ParseChannels(node->xmlChildrenNode, transport_stream_id, original_network_id, satellitePosition, freq, polarization);
@@ -482,7 +476,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			uint8_t modulation = xmlGetNumericAttribute(tps, "modulation", 0);
 			int xml_fec = xmlGetNumericAttribute(tps, "fec_inner", 0);
 			xml_fec = CFrontend::getCodeRate(xml_fec, system);
-			if(modulation == 2)
+			if(modulation == 2 && ((fe_code_rate_t) xml_fec != FEC_AUTO))
 				xml_fec += 9;
 			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
@@ -491,7 +485,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 		polarization &= 1;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
-		transponder t(tid, feparams, polarization);
+		transponder t(fType, tid, feparams, polarization);
 		satelliteTransponders[satellitePosition].insert(transponder_pair_t(tid, t));
 
 		fake_nid ++; fake_tid ++;
@@ -714,29 +708,6 @@ void CServiceManager::WriteSatHeader(FILE * fd, sat_config_t &config)
 	}
 }
 
-void CServiceManager::WriteTransponderHeader(FILE * fd, struct transponder &tp)
-{
-	switch (frontendType) {
-		case FE_QPSK: /* satellite */
-			fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
-					tp.transport_stream_id, tp.original_network_id,
-					tp.feparams.frequency, tp.feparams.inversion,
-					tp.feparams.u.qpsk.symbol_rate, tp.feparams.u.qpsk.fec_inner,
-					tp.polarization);
-			break;
-		case FE_QAM: /* cable */
-			fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" mod=\"%hu\">\n",
-					tp.transport_stream_id, tp.original_network_id,
-					tp.feparams.frequency, tp.feparams.inversion,
-					tp.feparams.u.qam.symbol_rate, tp.feparams.u.qam.fec_inner,
-					tp.feparams.u.qam.modulation);
-			break;
-		case FE_OFDM:
-		default:
-			break;
-	}
-}
-
 void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 {
 	int processed = 0;
@@ -776,7 +747,7 @@ void CServiceManager::SaveServices(bool tocopy, bool if_changed)
 						satdone = 1;
 					}
 					if(!tpdone) {
-						WriteTransponderHeader(fd, tI->second);
+						tI->second.dumpServiceXml(fd);
 						tpdone = 1;
 					}
 
@@ -864,12 +835,12 @@ printf("CServiceManager::CopyCurrentServices: [%s] restore\n", aI->second.getNam
 
 /* helper for reused code */
 void CServiceManager::WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
-		bool &updated, char * satstr, struct transponder &tp, CZapitChannel &channel, const char * action)
+		bool &updated, char * satstr, transponder &tp, CZapitChannel &channel, const char * action)
 {
 	if(!tpdone) {
 		if(!satfound)
 			fprintf(fd, "%s", satstr);
-		WriteTransponderHeader(fd, tp);
+		tp.dumpServiceXml(fd);
 		tpdone = 1;
 	}
 	updated = 1;
@@ -1083,7 +1054,7 @@ void CServiceManager::UseNumber(int number, bool radio)
 	channel_numbers->insert(number);
 }
 
-bool CServiceManager::GetTransponder(struct transponder &t)
+bool CServiceManager::GetTransponder(transponder &t)
 {
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); tI++) {
 		if (t == tI->second) {

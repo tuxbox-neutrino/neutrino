@@ -95,7 +95,6 @@ class CServiceManager
 		int LoadMotorPositions(void);
 
 		void WriteSatHeader(FILE * fd, sat_config_t &config);
-		void WriteTransponderHeader(FILE * fd, transponder &tp);
 		void WriteCurrentService(FILE * fd, bool &satfound, bool &tpdone,
 				bool &updated, char * satstr, transponder &tp, CZapitChannel &channel, const char * action);
 
