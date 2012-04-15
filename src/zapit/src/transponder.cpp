@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <zapit/transponder.h>
+#include <zapit/debug.h>
 
 transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization)
 {
@@ -100,4 +101,10 @@ void transponder::dump(std::string label)
 		printf("%s tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
 				transponder_id, feparams.frequency, feparams.u.qpsk.symbol_rate,
 				feparams.u.qpsk.fec_inner, polarization);
+}
+
+void transponder::ddump(std::string label) 
+{
+	if(zapit_debug)
+		dump(label);
 }

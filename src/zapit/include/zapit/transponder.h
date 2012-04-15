@@ -44,8 +44,9 @@ public:
 
 	bool operator==(const transponder& t) const;
 	bool compare (const transponder& t) const;
-	void dump(std::string label = "tp");
 	void dumpServiceXml(FILE * fd);
+	void dump(std::string label = "tp");
+	void ddump(std::string label = "tp");
 };
 
 typedef std::map <transponder_id_t, transponder> transponder_list_t;
