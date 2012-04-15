@@ -33,16 +33,19 @@ public:
 	t_original_network_id original_network_id;
 	transponder_id_t transponder_id;
 	t_satellite_position satellitePosition;
+	uint8_t type;
 
 	struct dvb_frontend_parameters feparams;
 	unsigned char polarization;
 	bool updated;
 	bool scanned;
 
-	transponder(const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0);
+	transponder(fe_type_t fType, const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0);
 
 	bool operator==(const transponder& t) const;
-	void dump(std::string label = "tp", bool cable = 0);
+	bool compare (const transponder& t) const;
+	void dump(std::string label = "tp");
+	void dumpServiceXml(FILE * fd);
 };
 
 typedef std::map <transponder_id_t, transponder> transponder_list_t;

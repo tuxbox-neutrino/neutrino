@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <zapit/transponder.h>
 
-transponder::transponder(const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization)
+transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization)
 {
 	transponder_id      = t_id;
 	transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_TRANSPONDER_ID(t_id);
@@ -35,6 +35,7 @@ transponder::transponder(const transponder_id_t t_id, const struct dvb_frontend_
 		satellitePosition = -(satellitePosition & 0xFFF);
 	else
 		satellitePosition = satellitePosition & 0xFFF;
+	type = fType;
 }
 
 bool transponder::operator==(const transponder& t) const
@@ -48,14 +49,55 @@ bool transponder::operator==(const transponder& t) const
 	       );
 }
 
-void transponder::dump(std::string label, bool cable) 
+bool transponder::compare(const transponder& t) const
 {
-	if(cable)
-		printf("%s: tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
+	bool ret = false;
+	if(type == FE_QAM) {
+		ret = (
+				(t == (*this)) &&
+				(feparams.u.qam.symbol_rate == t.feparams.u.qam.symbol_rate) &&
+				(feparams.u.qam.fec_inner == t.feparams.u.qam.fec_inner ||
+				 feparams.u.qam.fec_inner == FEC_AUTO || t.feparams.u.qam.fec_inner == FEC_AUTO) &&
+				(feparams.u.qam.modulation == t.feparams.u.qam.modulation ||
+				 feparams.u.qam.modulation == QAM_AUTO || t.feparams.u.qam.modulation == QAM_AUTO)
+		      );
+	} else {
+		ret = (
+				(t == (*this)) &&
+				(feparams.u.qpsk.symbol_rate == t.feparams.u.qpsk.symbol_rate) &&
+				(feparams.u.qpsk.fec_inner == t.feparams.u.qpsk.fec_inner ||
+				 feparams.u.qpsk.fec_inner == FEC_AUTO || t.feparams.u.qpsk.fec_inner == FEC_AUTO)
+		      );
+	}
+	return ret;
+}
+
+void transponder::dumpServiceXml(FILE * fd)
+{
+	if(type == FE_QAM) {
+		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" mod=\"%hu\">\n",
+				transport_stream_id, original_network_id,
+				feparams.frequency, feparams.inversion,
+				feparams.u.qam.symbol_rate, feparams.u.qam.fec_inner,
+				feparams.u.qam.modulation);
+
+	} else {
+		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
+				transport_stream_id, original_network_id,
+				feparams.frequency, feparams.inversion,
+				feparams.u.qpsk.symbol_rate, feparams.u.qpsk.fec_inner,
+				polarization);
+	}
+}
+
+void transponder::dump(std::string label) 
+{
+	if(type == FE_QAM)
+		printf("%s tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
 				transponder_id, feparams.frequency, feparams.u.qam.symbol_rate,
 				feparams.u.qam.fec_inner, feparams.u.qam.modulation);
 	else
-		printf("%s: tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
+		printf("%s tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
 				transponder_id, feparams.frequency, feparams.u.qpsk.symbol_rate,
 				feparams.u.qpsk.fec_inner, polarization);
 }
