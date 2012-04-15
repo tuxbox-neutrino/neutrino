@@ -931,7 +931,7 @@ void CFrontend::setLnbOffsets(int32_t _lnbOffsetLow, int32_t _lnbOffsetHigh, int
 	lnbOffsetLow = _lnbOffsetLow * 1000;
 	lnbOffsetHigh = _lnbOffsetHigh * 1000;
 	lnbSwitch = _lnbSwitch * 1000;
-	printf("[fe%d] setLnbOffsets %d/%d/%d\n", fenumber, lnbOffsetLow, lnbOffsetHigh, lnbSwitch);
+	//printf("[fe%d] setLnbOffsets %d/%d/%d\n", fenumber, lnbOffsetLow, lnbOffsetHigh, lnbSwitch);
 }
 
 void CFrontend::sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t command, uint8_t num_parameters, uint8_t parameter1, uint8_t parameter2, int repeat)
@@ -1152,8 +1152,8 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 
 	//printf("[fe%d] tuner to frequency %d (offset %d timeout %d)\n", fenumber, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
 	//printf("[fe%d] tune to frequency %d (tuner %d offset %d timeout %d)\n", fenumber, freq, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
-	printf("[fe%d] tune to %s %s %s %d %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, s, m, f,
-			freq, TP->polarization ? "V/R" : "H/L", feparams->u.qpsk.symbol_rate, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
+	printf("[fe%d] tune to %d %s %s %s %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
+			TP->polarization ? "V/R" : "H/L", feparams->u.qpsk.symbol_rate, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(feparams);
 
 #if 0
