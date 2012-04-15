@@ -247,8 +247,13 @@ _TUXBOX_APPS_LIB_CONFIG($1,$2,WARN)
 ])
 
 AC_DEFUN([TUXBOX_APPS_PKGCONFIG],[
-AC_PATH_PROG(PKG_CONFIG, pkg-config,no)
-if test "$PKG_CONFIG" = "no" ; then
+m4_pattern_forbid([^_?PKG_[A-Z_]+$])
+m4_pattern_allow([^PKG_CONFIG(_PATH)?$])
+AC_ARG_VAR([PKG_CONFIG], [path to pkg-config utility])dnl
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+fi
+if test x"$PKG_CONFIG" = x"" ; then
 	AC_MSG_ERROR([could not find pkg-config]);
 fi
 ])
