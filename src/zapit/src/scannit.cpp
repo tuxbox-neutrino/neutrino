@@ -302,13 +302,13 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	feparams.u.qpsk.symbol_rate = sd->getSymbolRate() * 100;
 
 	int fec_inner = CFrontend::getCodeRate(sd->getFecInner(), sd->getModulationSystem());
-	if(sd->getModulation() == 2)
+	if(sd->getModulation() == 2 && ((fe_code_rate_t) fec_inner != FEC_AUTO))
 		fec_inner += 9;
 
 	feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
 	feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 
-	freq_id_t freq = CREATE_FREQ_ID(feparams->frequency, false);
+	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, false);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId());
 
@@ -333,7 +333,7 @@ bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStr
 	if(feparams.frequency > 1000*1000)
 		feparams.frequency /= 1000;
 
-	freq_id_t freq = CREATE_FREQ_ID(feparams->frequency, true);
+	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, true);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 		freq, satellitePosition, tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId());
 
