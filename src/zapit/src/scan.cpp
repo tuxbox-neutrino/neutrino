@@ -96,10 +96,7 @@ void CServiceScan::run()
 {
 	running = true;
 
-	scantransponders.clear();
-	scanedtransponders.clear();
-	nittransponders.clear();
-	service_types.clear();
+	CleanAllMaps();
 
 	found_transponders = 0;
 	processed_transponders = 0;
@@ -123,6 +120,14 @@ void CServiceScan::run()
 		default:
 			break;
 	}
+}
+
+void CServiceScan::CleanAllMaps()
+{
+	scantransponders.clear();
+	scanedtransponders.clear();
+	nittransponders.clear();
+	service_types.clear();
 }
 
 bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition)
@@ -179,7 +184,7 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
         }
 	if(tI == scanedtransponders.end()) {
 		DBG("[scan] insert tp-id %llx freq %d rate %d\n", TsidOnid, feparams->frequency, cable? feparams->u.qam.symbol_rate : feparams->u.qpsk.symbol_rate );
-		transponder t(TsidOnid, *feparams, polarity);
+		transponder t(frontendType, TsidOnid, *feparams, polarity);
 		if(fromnit) {
 			if(nittransponders.find(TsidOnid) == nittransponders.end()) {
 				printf("[scan] insert tp-id %llx freq %d pol %d rate %d\n", TsidOnid, feparams->frequency, polarity, cable? feparams->u.qam.symbol_rate : feparams->u.qpsk.symbol_rate );
@@ -216,28 +221,24 @@ _repeat:
 			return false;
 
 		printf("[scan] scanning: %llx\n", tI->first);
-
-		uint32_t  actual_freq = tI->second.feparams.frequency;
-		if (!cable)
-			actual_freq /= 1000;
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
-
-		processed_transponders++;
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
-		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
-
-		if (!cable) {
-			uint32_t actual_polarisation = ((tI->second.feparams.u.qpsk.symbol_rate/1000) << 16) | (tI->second.feparams.u.qpsk.fec_inner << 8) | (uint)tI->second.polarization;
-			CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
-		}
+		SendTransponderInfo(tI->second);
 
 		if (!tuneFrequency(&(tI->second.feparams), tI->second.polarization, satellitePosition)) {
 			failed_transponders++;
 			continue;
 		}
+		tI->second.scanned = true;
 		if(abort_scan)
 			return false;
+
+		transponder t(frontendType, tI->first, tI->second.feparams,  tI->second.polarization);
+		for (transponder_list_t::iterator ttI = transponders.begin(); ttI != transponders.end(); ttI++) {
+			if(t == ttI->second) {
+				ttI->second.dump("[scan] similar tp, old");
+				t.dump("[scan] similar tp, new");
+				ttI->second.feparams = t.feparams;
+			}
+		}
 
 		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, cable);
 
@@ -282,28 +283,15 @@ _repeat:
 		transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,
 				tI->second.original_network_id, tI->second.transport_stream_id);
 
-#if 0 //GetTransponder
-		{
-		struct transponder t(TsidOnid, tI->second.feparams,  tI->second.polarization);
-		for (transponder_list_t::iterator ttI = transponders.begin(); ttI != transponders.end(); ttI++) {
-			if (ttI->second.satellitePosition == satellitePosition) {
-				if(t == ttI->second) {
-					printf("[scan] found similar tp:\n");
-					ttI->second.dump("[scan] old", cable);
-					t.dump("[scan] new", cable);
-				}
-			}
-		}
-		}
-#endif
 		stiterator stI = transponders.find(TsidOnid);
 		if(stI == transponders.end()) {
-			struct transponder t(TsidOnid, tI->second.feparams, tI->second.polarization);
-			transponders.insert(transponder_pair_t(TsidOnid, t));
+			transponder t2(frontendType, TsidOnid, tI->second.feparams, tI->second.polarization);
+			transponders.insert(transponder_pair_t(TsidOnid, t2));
 		}
+#if 0
 		else
 			stI->second.feparams.u.qpsk.fec_inner = tI->second.feparams.u.qpsk.fec_inner;
-
+#endif
 		printf("[scan] tpid ready: %llx\n", TsidOnid);
 	}
 	if(flags & SCAN_NIT) {
@@ -314,13 +302,9 @@ _repeat:
 		}
 		nittransponders.clear();
 		printf("\n\n[scan] found %d additional transponders from nit\n", scantransponders.size());
-		if(scantransponders.size()) {
-#if 0
-			CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
-					&found_transponders, sizeof(found_transponders));
-#endif
+		if(scantransponders.size())
 			goto _repeat;
-		}
+
 	}
 #ifdef USE_BAT
 	if(flags & SCAN_BAT) {
@@ -438,10 +422,7 @@ void CServiceScan::Cleanup(const bool success)
 		delete scanBouquetManager;
 		scanBouquetManager = NULL;
 	}
-	scantransponders.clear();
-	scanedtransponders.clear();
-	nittransponders.clear();
-	service_types.clear();
+	CleanAllMaps();
 }
 
 bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)
@@ -454,6 +435,8 @@ bool CServiceScan::SetFrontend(t_satellite_position satellitePosition)
 
 	frontend = fe;
 	CFEManager::getInstance()->setLiveFE(frontend);
+	frontendType = frontend->getInfo()->type;
+	cable = (frontend->getInfo()->type == FE_QAM);//FIXME
 	return true;
 }
 
@@ -494,84 +477,33 @@ void CServiceScan::SaveServices()
 
 bool CServiceScan::ScanProviders()
 {
-	scan_list_iterator_t spI;
-	char providerName[80] = "";
-	const char *frontendType;
-	scanBouquetManager = new CBouquetManager();
-	bool satfeed = false;
-
 	flags = (int) scan_arg;
-
-	curr_sat = 0;
-
-	cable = (frontend->getInfo()->type == FE_QAM);//FIXME
-	if (cable)
-		frontendType = "cable";
-	else
-		frontendType = "sat";
+	scanBouquetManager = new CBouquetManager();
 
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
 			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
-	CZapitClient myZapitClient;
+	for (scan_list_iterator_t spI = scanProviders.begin(); spI != scanProviders.end(); spI++) {
+		t_satellite_position position = spI->first;
+		if(!SetFrontend(position))
+			break;
 
-	/* get first child */
-	xmlNodePtr search = xmlDocGetRootElement(CServiceManager::getInstance()->ScanXml())->xmlChildrenNode;
+		CleanAllMaps();
 
-	/* read all sat or cable sections */
-	while ((search = xmlGetNextOccurence(search, frontendType)) != NULL) {
-		t_satellite_position position = xmlGetSignedNumericAttribute(search, "position", 10);
-
-		if(cable) {
-			strcpy(providerName, xmlGetAttribute(search, "name"));
-			for (spI = scanProviders.begin(); spI != scanProviders.end(); spI++)
-				if (!strcmp(spI->second.c_str(), providerName)) {
-					position = spI->first;
-					break;
-				}
-
-		} else {
-			for (spI = scanProviders.begin(); spI != scanProviders.end(); spI++)
-				if(spI->first == position)
-					break;
+		/* set satHaveChannels flag so SDT can mark channels as NEW only if
+		 * this is not first satellite scan */
+		CheckSatelliteChannels(position);
+		printf("[scan] scanning %s at %d bouquetMode %d\n", spI->second.c_str(), position, bouquetMode);
+		ScanProvider(position);
+		if(abort_scan) {
+			found_channels = 0;
+			break;
 		}
 
-		/* provider is not wanted - jump to the next one */
-		if (spI != scanProviders.end()) {
-			if(!SetFrontend(position))
-				break;
-			/* get name of current satellite oder cable provider */
-			strcpy(providerName, xmlGetAttribute(search, "name"));
-
-			if (cable && xmlGetAttribute(search, "satfeed")) {
-				if (!strcmp(xmlGetAttribute(search, "satfeed"), "true"))
-					satfeed = true;
-			}
-
-			/* increase sat counter */
-			curr_sat++;
-
-			scantransponders.clear();
-			scanedtransponders.clear();
-			nittransponders.clear();
-
-			/* set satHaveChannels flag so SDT can mark channels as NEW only if
-			 * this is not first satellite scan */
-			CheckSatelliteChannels(position);
-			printf("[scan] scanning %s at %d bouquetMode %d\n", providerName, position, bouquetMode);
-			ScanProvider(position);
-			if(abort_scan) {
-				found_channels = 0;
-				break;
-			}
-
-			if(scanBouquetManager->Bouquets.size() > 0) {
-				scanBouquetManager->saveBouquets(bouquetMode, providerName);
-			}
-			scanBouquetManager->clearAll();
+		if(scanBouquetManager->Bouquets.size() > 0) {
+			scanBouquetManager->saveBouquets(bouquetMode, spI->second.c_str());
 		}
-		/* go to next satellite */
-		search = search->xmlNextNode;
+		scanBouquetManager->clearAll();
 	}
 
 	/* report status */
@@ -579,6 +511,7 @@ bool CServiceScan::ScanProviders()
 	if (found_channels) {
 		SaveServices();
 		Cleanup(true);
+		CZapitClient myZapitClient;
 		myZapitClient.reloadCurrentServices();
 	} else {
 		Cleanup(false);
@@ -593,24 +526,21 @@ bool CServiceScan::ScanProviders()
 bool CServiceScan::ScanTransponder()
 {
 	TP_params *TP = (TP_params *) scan_arg;
-	char providerName[32] = "";
-	t_satellite_position satellitePosition = 0;
 
-	satellitePosition = scanProviders.begin()->first;
-	if(!SetFrontend(satellitePosition)) {
+	if(scanProviders.empty() || !SetFrontend(scanProviders.begin()->first)) {
 		Cleanup(false);
 		return false;
 	}
+
+	t_satellite_position satellitePosition = scanProviders.begin()->first;
+	std::string providerName = scanProviders.begin()->second.c_str();
+
 	CheckSatelliteChannels(satellitePosition);
 
 	scanBouquetManager = new CBouquetManager();
 
-	cable = (frontend->getInfo()->type == FE_QAM);//FIXME
-
-	strcpy(providerName, scanProviders.size() > 0 ? scanProviders.begin()->second.c_str() : "unknown provider");
-
-	printf("[scan] scanning sat %s position %d\n", providerName, satellitePosition);
-	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, providerName, strlen(providerName) + 1);
+	printf("[scan] scanning sat %s position %d\n", providerName.c_str(), satellitePosition);
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, providerName.c_str(), providerName.size()+1);
 	
 	TP->feparams.inversion = INVERSION_AUTO;
 
@@ -622,8 +552,8 @@ bool CServiceScan::ScanTransponder()
 
 	fake_tid++; fake_nid++;
 	transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
-	struct transponder t(tid, TP->feparams,  TP->polarization);
-	t.dump("[scan]", cable);
+	transponder t(frontendType, tid, TP->feparams,  TP->polarization);
+	t.dump("[scan]");
 #if 1
 	AddTransponder(tid, &TP->feparams, TP->polarization);
 #else
@@ -633,19 +563,19 @@ bool CServiceScan::ScanTransponder()
 
 	/* read network information table */
 	ReadNitSdt(satellitePosition);
-
+#if 0
 	if (found_channels)
 		ReplaceTransponderParams(freq, satellitePosition, &TP->feparams, TP->polarization);
-
+#endif
 	printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
 	if(abort_scan)
 		found_channels = 0;
 
-	CZapitClient myZapitClient;
 	if(found_channels) {
-		scanBouquetManager->saveBouquets(bouquetMode, providerName);
+		scanBouquetManager->saveBouquets(bouquetMode, providerName.c_str());
 		SaveServices();
 		Cleanup(true);
+		CZapitClient myZapitClient;
 		myZapitClient.reloadCurrentServices();
 	} else {
 		Cleanup(false);
@@ -673,6 +603,24 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 		}
 	}
 	return ret;
+}
+
+void CServiceScan::SendTransponderInfo(transponder &t)
+{
+	uint32_t  actual_freq = t.feparams.frequency;
+	if (!cable)
+		actual_freq /= 1000;
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
+
+	processed_transponders++;
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
+	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
+
+	if (!cable) {
+		uint32_t actual_polarisation = ((t.feparams.u.qpsk.symbol_rate/1000) << 16) | (t.feparams.u.qpsk.fec_inner << 8) | (uint)t.polarization;
+		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
+	}
 }
 
 void CServiceScan::ChannelFound(uint8_t service_type, std::string providerName, std::string serviceName)

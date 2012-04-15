@@ -66,6 +66,7 @@ class CServiceScan : public OpenThreads::Thread
 		int flags;
 		void * scan_arg;
 		bool satHaveChannels;
+		fe_type_t frontendType;
 
 		uint32_t fake_tid, fake_nid;
 		uint32_t found_transponders;
@@ -81,12 +82,14 @@ class CServiceScan : public OpenThreads::Thread
 
 		transponder_list_t scantransponders;   // TP list to scan
 		transponder_list_t scanedtransponders; // TP list for current scan
+		transponder_list_t failedtransponders; // TP list for current scan
 		transponder_list_t nittransponders;
 		std::map <t_channel_id, uint8_t> service_types;
 
 		bool ScanProvider(t_satellite_position satellitePosition);
 		void Cleanup(const bool success);
 		bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition);
+		void SendTransponderInfo(transponder &t);
 		bool ReadNitSdt(t_satellite_position satellitePosition);
 		void FixServiceTypes();
 
@@ -94,6 +97,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool ScanTransponder();
 		bool ScanProviders();
 		void SaveServices();
+		void CleanAllMaps();
 		bool ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, struct dvb_frontend_parameters * feparams, uint8_t polarization);
 
 		/* fast scan */
