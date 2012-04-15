@@ -6,13 +6,14 @@
 	Homepage: http://dbox.cyberphoria.org/
 
 	Copyright (C) 2011-2012 M. Liebmann (micha-bbg)
+	Copyright (C) 2012 Stefan Seyfried
 
 	License: GPL
 
 	This library is free software; you can redistribute it and/or
 	modify it under the terms of the GNU Library General Public
 	License as published by the Free Software Foundation; either
-	version 2 of the License, or (at your option) any later version.
+	version 3 of the License, or (at your option) any later version.
 
 	This library is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -72,6 +73,7 @@ CVolume::~CVolume()
 {
 	if (g_volscale)
 		delete g_volscale;
+	g_volscale = NULL;
 }
 
 void CVolume::Init()
@@ -107,6 +109,8 @@ void CVolume::Init()
 		vbar_w 		+= digit_w;
 	}
 
+	if (g_volscale)
+		delete g_volscale;
 	g_volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
 
 	// mute icon
@@ -190,6 +194,8 @@ CVolume* CVolume::getInstance()
 
 void CVolume::AudioMute(int newValue, bool isEvent)
 {
+	if (!g_Zapit)	/* don't die... */
+		return;
 	CNeutrinoApp* neutrino = CNeutrinoApp::getInstance();
 	bool doInit = newValue != (int) neutrino->isMuted();
 
@@ -218,6 +224,8 @@ void CVolume::setvol(int vol)
 
 void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowait)
 {
+	if (!g_RCInput) /* don't die... */
+		return;
 	neutrino_msg_t msg	= key;
 	int mode = CNeutrinoApp::getInstance()->getMode();
 	
@@ -250,6 +258,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 
 		g_volscale->reset();
 		refreshVolumebar(vol);
+		frameBuffer->blit();
 	}
 
 	neutrino_msg_data_t data;
@@ -259,7 +268,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 		if (msg <= CRCInput::RC_MaxRC) 
 		{
 			int sub_chan_keybind = 0;
-			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME && g_RemoteControl->subChannels.size() < 1)
+			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME && g_RemoteControl && g_RemoteControl->subChannels.size() < 1)
  			     sub_chan_keybind = 1;
 			
 			if ((msg == CRCInput::RC_plus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_right))) {
@@ -339,6 +348,9 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 			}
 		}
 
+		if (bDoPaint)
+			frameBuffer->blit();
+
 		CVFD::getInstance()->showVolume(g_settings.current_volume);
 		if (msg != CRCInput::RC_timeout) {
 			g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, true );
@@ -349,6 +361,8 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 		frameBuffer->RestoreScreen(x, y, vbar_w+ShadowOffset, vbar_h+ShadowOffset, pixbuf);
 		delete [] pixbuf;
 	}
+	if (bDoPaint)
+		frameBuffer->blit();
 }
 
 void CVolume::refreshVolumebar(int current_volume)
