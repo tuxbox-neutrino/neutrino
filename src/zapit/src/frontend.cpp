@@ -344,6 +344,7 @@ fe_code_rate_t CFrontend::getCodeRate(const uint8_t fec_inner, int system)
 		default:
 			if (zapit_debug)
 				printf("no valid fec for DVB-S2 set.. !!\n");
+		case fAuto:
 			return FEC_AUTO;
 		}
 	}
