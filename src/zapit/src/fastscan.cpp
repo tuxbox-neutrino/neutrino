@@ -479,16 +479,8 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 							TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, original_network_id, transport_stream_id);
 							stI = transponders.find(TsidOnid);
 							if(stI == transponders.end()) {
-								transponders.insert (
-										std::pair <transponder_id_t, transponder> (
-											TsidOnid,
-											transponder(
-												TsidOnid,
-												feparams,
-												polarization
-												)
-											)
-										);
+								transponder t(frontendType, TsidOnid, feparams, polarization);
+								transponders.insert(transponder_pair_t(TsidOnid, t));
 							}
 							found_transponders++;
 							//CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
