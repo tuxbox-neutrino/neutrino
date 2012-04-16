@@ -82,7 +82,7 @@ class CZapit : public OpenThreads::Thread
 		TP_params TP;
 
 		audio_map_t audio_map;
-		bool current_is_nvod;
+		//bool current_is_nvod;
 		//bool standby;
 		uint32_t  lastChannelRadio;
 		uint32_t  lastChannelTV;
@@ -125,6 +125,7 @@ class CZapit : public OpenThreads::Thread
 		diseqc_t diseqcType;
 		int video_mode;
 		CConfigFile configfile;
+		bool current_is_nvod;
 		bool standby;
 		Zapit_config config;
 		CZapitSdtMonitor SdtMonitor;
