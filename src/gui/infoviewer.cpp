@@ -1569,7 +1569,7 @@ void CInfoViewer::showSNR ()
 			CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo ();
 			std::string polarisation;
 			if (g_info.delivery_system == DVB_S)
-				polarisation = (si.polarisation) ? "V" : "H";
+				polarisation = transponder::pol(si.polarisation);
 			else
 				polarisation = "";
 			snprintf (freq, sizeof(freq), "%d.%d MHz %s", si.tsfrequency / 1000, si.tsfrequency % 1000, polarisation.c_str());

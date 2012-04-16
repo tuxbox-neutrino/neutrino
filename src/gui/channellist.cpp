@@ -1502,15 +1502,16 @@ void CChannelList::paintDetails(int index)
 
 		if(tpI != transponders.end()) {
 			char * f, *s, *m;
+			transponder & t = tpI->second;
 			CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
 			switch(frontend->getInfo()->type) {
 				case FE_QPSK:
-					frontend->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
-					len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+					frontend->getDelSys(t.feparams.u.qpsk.fec_inner, dvbs_get_modulation(t.feparams.u.qpsk.fec_inner),  f, s, m);
+					len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", transponder::pol(t.polarization), t.feparams.u.qpsk.symbol_rate/1000, f, s, m);
 					break;
 				case FE_QAM:
-					frontend->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
-					len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
+					frontend->getDelSys(t.feparams.u.qam.fec_inner, t.feparams.u.qam.modulation, f, s, m);
+					len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", t.feparams.u.qam.symbol_rate/1000, f, s, m);
 					break;
 				case FE_OFDM:
 				case FE_ATSC:

@@ -146,11 +146,13 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_MOD[SATSETUP_SCANTP_MOD_COUNT] 
 	{ 5, LOCALE_EXTRA_TP_MOD_256}
 };
 
-#define SATSETUP_SCANTP_POL_COUNT 2
+#define SATSETUP_SCANTP_POL_COUNT 4
 const CMenuOptionChooser::keyval SATSETUP_SCANTP_POL[SATSETUP_SCANTP_POL_COUNT] =
 {
 	{ 0, LOCALE_EXTRA_TP_POL_H },
-	{ 1, LOCALE_EXTRA_TP_POL_V }
+	{ 1, LOCALE_EXTRA_TP_POL_V },
+	{ 2, LOCALE_EXTRA_TP_POL_L },
+	{ 3, LOCALE_EXTRA_TP_POL_R }
 };
 
 #if 0
@@ -1011,14 +1013,15 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		char buf[128];
 		sprintf(cnt, "%d", i);
 		char * f, *s, *m;
+		transponder & t = tI->second;
 		switch (frontend->getInfo()->type) {
 			case FE_QPSK:
-				frontend->getDelSys(tI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tI->second.feparams.u.qpsk.fec_inner),  f, s, m);
-				snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.polarization ? 'V' : 'H', tI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+				frontend->getDelSys(t.feparams.u.qpsk.fec_inner, dvbs_get_modulation(t.feparams.u.qpsk.fec_inner),  f, s, m);
+				snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", t.feparams.frequency/1000, transponder::pol(t.polarization), t.feparams.u.qpsk.symbol_rate/1000, f, s, m);
 				break;
 			case FE_QAM:
-				frontend->getDelSys(tI->second.feparams.u.qam.fec_inner, tI->second.feparams.u.qam.modulation, f, s, m);
-				snprintf(buf, sizeof(buf), "%d %d %s %s %s ", tI->second.feparams.frequency/1000, tI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
+				frontend->getDelSys(t.feparams.u.qam.fec_inner, t.feparams.u.qam.modulation, f, s, m);
+				snprintf(buf, sizeof(buf), "%d %d %s %s %s ", t.feparams.frequency/1000, t.feparams.u.qam.symbol_rate/1000, f, s, m);
 				break;
 			case FE_OFDM:
 			case FE_ATSC:

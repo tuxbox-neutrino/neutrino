@@ -646,7 +646,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			s=const_cast<char *>("S1");
 			scaling = 15000;
 		}
-		sprintf ((char *) buf,"%d.%d (%c) %d %s %s %s", si.tsfrequency / 1000, si.tsfrequency % 1000, si.polarisation ? 'V' : 'H', si.rate / 1000,f,m,s);
+		sprintf ((char *) buf,"%d.%d (%c) %d %s %s %s", si.tsfrequency / 1000, si.tsfrequency % 1000, transponder::pol(si.polarisation), si.rate / 1000,f,m,s);
 		g_Font[font_info]->RenderString(xpos, ypos, box_width, "Tp. Freq.:" , COL_INFOBAR, 0, true); // UTF-8
 		g_Font[font_info]->RenderString(xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true); // UTF-8
 	}
