@@ -3231,6 +3231,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		powerManager->SetStandby(true, false);
 	} else {
 		// Active standby off
+		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
+		powerManager->SetStandby(false, false);
+		videoDecoder->Standby(false);
 
 		if(init_cec_setting){
 			//init cec settings
@@ -3238,10 +3241,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 			cecsetup.setCECSettings();
 			init_cec_setting = false;
 		}
-
-		cpuFreq->SetCpuFreq(g_settings.cpufreq * 1000 * 1000);
-
-		powerManager->SetStandby(false, false);
 
 		if(!recordingstatus && g_settings.ci_standby_reset) {
 			g_CamHandler->exec(NULL, "ca_ci_reset0");
@@ -3286,7 +3285,6 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		channelList->setSelected(0xfffffff); /* make sure that zapTo_ChannelID will zap */
 		channelList->zapTo_ChannelID(live_channel_id);
 
-		videoDecoder->Standby(false);
 		g_Sectionsd->setPauseScanning(false);
 		//g_Sectionsd->setServiceChanged(live_channel_id, true );
 
