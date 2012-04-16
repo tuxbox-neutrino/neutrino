@@ -409,6 +409,8 @@ const char * locale_real_names[] =
 	"extra.tp_mod_64",
 	"extra.tp_pol",
 	"extra.tp_pol_h",
+	"extra.tp_pol_l",
+	"extra.tp_pol_r",
 	"extra.tp_rate",
 	"extra.update_dir",
 	"extra.use_gotoxx",

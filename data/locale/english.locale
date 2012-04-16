@@ -382,6 +382,8 @@ extra.tp_mod_32 QAM/32
 extra.tp_mod_64 QAM/64
 extra.tp_pol Polarization
 extra.tp_pol_h H
+extra.tp_pol_l L
+extra.tp_pol_r R
 extra.tp_rate Symbol rate
 extra.update_dir Directory for updates
 extra.use_gotoxx Use gotoXX
