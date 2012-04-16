@@ -32,7 +32,7 @@ transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const str
 	updated = 0;
 	scanned = 0;
 	satellitePosition   = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(transponder_id);
-	if(satellitePosition & 0xF000)
+	if (satellitePosition & 0xF000)
 		satellitePosition = -(satellitePosition & 0xFFF);
 	else
 		satellitePosition = satellitePosition & 0xFFF;
@@ -53,7 +53,7 @@ bool transponder::operator==(const transponder& t) const
 bool transponder::compare(const transponder& t) const
 {
 	bool ret = false;
-	if(type == FE_QAM) {
+	if (type == FE_QAM) {
 		ret = (
 				(t == (*this)) &&
 				(feparams.u.qam.symbol_rate == t.feparams.u.qam.symbol_rate) &&
@@ -75,7 +75,7 @@ bool transponder::compare(const transponder& t) const
 
 void transponder::dumpServiceXml(FILE * fd)
 {
-	if(type == FE_QAM) {
+	if (type == FE_QAM) {
 		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" mod=\"%hu\">\n",
 				transport_stream_id, original_network_id,
 				feparams.frequency, feparams.inversion,
@@ -93,7 +93,7 @@ void transponder::dumpServiceXml(FILE * fd)
 
 void transponder::dump(std::string label) 
 {
-	if(type == FE_QAM)
+	if (type == FE_QAM)
 		printf("%s tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
 				transponder_id, feparams.frequency, feparams.u.qam.symbol_rate,
 				feparams.u.qam.fec_inner, feparams.u.qam.modulation);
@@ -105,6 +105,18 @@ void transponder::dump(std::string label)
 
 void transponder::ddump(std::string label) 
 {
-	if(zapit_debug)
+	if (zapit_debug)
 		dump(label);
+}
+
+char transponder::pol(unsigned char p)
+{
+	if (p == 0)
+		return 'H';
+	else if (p == 1)
+		return 'V';
+	else if (p == 2)
+		return 'L';
+	else
+		return 'R';
 }

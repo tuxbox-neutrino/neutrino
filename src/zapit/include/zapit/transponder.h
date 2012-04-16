@@ -47,6 +47,7 @@ public:
 	void dumpServiceXml(FILE * fd);
 	void dump(std::string label = "tp");
 	void ddump(std::string label = "tp");
+	static char pol(unsigned char pol);
 };
 
 typedef std::map <transponder_id_t, transponder> transponder_list_t;
