@@ -80,10 +80,10 @@ class CServiceScan : public OpenThreads::Thread
 
 		short curr_sat;
 
-		transponder_list_t scantransponders;   // TP list to scan
-		transponder_list_t scanedtransponders; // TP list for current scan
-		transponder_list_t failedtransponders; // TP list for current scan
-		transponder_list_t nittransponders;
+		transponder_list_t scantransponders;   // list to scan
+		transponder_list_t scanedtransponders; // successfully scanned
+		transponder_list_t failedtransponders; // failed to tune
+		transponder_list_t nittransponders;    // transponders from NIT
 		std::map <t_channel_id, uint8_t> service_types;
 
 		bool ScanProvider(t_satellite_position satellitePosition);
