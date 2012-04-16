@@ -482,7 +482,7 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
 		}
 		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, fType == FE_QAM);
-		polarization &= 1;
+		polarization &= 7;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
 		transponder t(fType, tid, feparams, polarization);
