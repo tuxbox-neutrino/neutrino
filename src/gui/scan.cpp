@@ -135,7 +135,7 @@ void CScanTs::testFunc()
 	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
 	if(frontend->getInfo()->type == FE_QPSK) {
 		frontend->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
-		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, TP.polarization == 0 ? 'H' : 'V', TP.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, transponder::pol(TP.polarization), TP.feparams.u.qpsk.symbol_rate/1000, f, s, m);
 	} else if(frontend->getInfo()->type == FE_QAM) {
 		frontend->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(scansettings.TP_freq)/1000, atoi(scansettings.TP_rate)/1000, f, s, m);
@@ -398,7 +398,7 @@ int CScanTs::handleMsg(neutrino_msg_t msg, neutrino_msg_data_t data)
 				char * f, *s, *m;
 				CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
 				frontend->getDelSys(fec, (fe_modulation_t)0, f, s, m); // FIXME
-				snprintf(buffer,sizeof(buffer), " %c %d %s %s %s", pol == 0 ? 'H' : 'V', rate, f, s, m);
+				snprintf(buffer,sizeof(buffer), " %c %d %s %s %s", transponder::pol(pol), rate, f, s, m);
 				paintLine(xpos2 + xpos_frequency, ypos_frequency, w - xpos_frequency - (7*fw), buffer);
 			}
 			break;
