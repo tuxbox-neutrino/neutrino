@@ -1314,7 +1314,7 @@ void CFrontend::setSec(const uint8_t /*sat_no*/, const uint8_t pol, const bool h
 
 	secSetVoltage(v, 15);
 	secSetTone(t, 15);
-	currentTransponder.polarization = pol & 1;
+	currentTransponder.polarization = pol;// & 1;
 }
 
 void CFrontend::sendDiseqcPowerOn(void)
