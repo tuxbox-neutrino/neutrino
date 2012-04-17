@@ -34,7 +34,6 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <driver/netfile.h>
 
 #include <driver/audioplay.h> // for ShoutcastCallback()
 
@@ -47,6 +46,7 @@
 #include "mp3dec.h"
 #include "oggdec.h"
 #include "wavdec.h"
+#include <driver/netfile.h>
 
 unsigned int CBaseDec::mSamplerate=0;
 
