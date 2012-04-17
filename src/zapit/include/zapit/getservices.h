@@ -164,6 +164,7 @@ class CServiceManager
 		void FreeNumber(int number, bool radio);
 		void UseNumber(int number, bool radio);
 		void SetServicesChanged(bool changed) { services_changed = changed; }
+		void UpdateSatTransponders(t_satellite_position satellitePosition);
 
 		bool GetTransponder(transponder &t);
 		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }

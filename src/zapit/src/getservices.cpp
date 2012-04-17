@@ -328,7 +328,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 
 		ret = transponders.insert(transponder_pair_t(tid, t));
 		if (ret.second == false)
-			t.dump("[zapit] duplicate");
+			t.dump("[zapit] duplicate in all transponders:");
 
 		/* read channels that belong to the current transponder */
 		ParseChannels(node->xmlChildrenNode, transport_stream_id, original_network_id, satellitePosition, freq, polarization);
@@ -336,6 +336,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 		/* hop to next transponder */
 		node = node->xmlNextNode;
 	}
+	UpdateSatTransponders(satellitePosition);
 	return;
 }
 
@@ -1063,4 +1064,21 @@ bool CServiceManager::GetTransponder(transponder &t)
 		}
 	}
 	return false;
+}
+
+void CServiceManager::UpdateSatTransponders(t_satellite_position satellitePosition)
+{
+	pair<map<transponder_id_t, transponder>::iterator,bool> ret;
+	transponder_list_t & stransponders = satelliteTransponders[satellitePosition];
+	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); tI++) {
+		for (stiterator stI = stransponders.begin(); stI != stransponders.end(); ++stI) {
+			if (stI->second.compare(tI->second)) {
+				stransponders.erase(stI);
+				break;
+			}
+		}
+		ret = stransponders.insert(transponder_pair_t(tI->first, tI->second));
+		if (ret.second == false)
+			tI->second.dump("[zapit] duplicate in sat transponders:");
+	}
 }
