@@ -44,16 +44,18 @@
 #endif
 
 CFrameBuffer * frameBuffer;
-CRemoteControl * v_RemoteControl;
+extern CRemoteControl * g_RemoteControl;
 extern cAudio * audioDecoder;
 static CProgressBar *g_volscale = NULL;
 
 CVolume::CVolume()
 {
 	frameBuffer	= CFrameBuffer::getInstance();
+#if 0
 	g_Zapit		= new CZapitClient;
 	g_RCInput	= new CRCInput;
 	v_RemoteControl	= new CRemoteControl;
+#endif
 	VolumeFont	= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
 	paintDigits	= true;  // For future On/Off digits
 	paintShadow	= false; // For future On/Off switch shadow
@@ -256,7 +258,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 		if (msg <= CRCInput::RC_MaxRC) 
 		{
 			int sub_chan_keybind = 0;
-			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME && v_RemoteControl->subChannels.size() < 1)
+			if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME && g_RemoteControl->subChannels.size() < 1)
  			     sub_chan_keybind = 1;
 			
 			if ((msg == CRCInput::RC_plus) || (sub_chan_keybind == 1 && (msg == CRCInput::RC_right))) {
