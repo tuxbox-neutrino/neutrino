@@ -123,7 +123,7 @@ class CZapit : public OpenThreads::Thread
 		CFrontend * live_fe;
 
 		audio_map_t audio_map;
-		bool current_is_nvod;
+		//bool current_is_nvod;
 		//bool standby;
 		t_channel_id  lastChannelRadio;
 		t_channel_id  lastChannelTV;
@@ -167,6 +167,7 @@ class CZapit : public OpenThreads::Thread
 		diseqc_t diseqcType;
 		int video_mode;
 		CConfigFile configfile;
+		bool current_is_nvod;
 		bool standby;
 		Zapit_config config;
 		CZapitSdtMonitor SdtMonitor;
