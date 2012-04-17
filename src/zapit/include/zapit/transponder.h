@@ -38,9 +38,9 @@ public:
 	struct dvb_frontend_parameters feparams;
 	unsigned char polarization;
 	bool updated;
-	bool scanned;
 
 	transponder(fe_type_t fType, const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0);
+	transponder();
 
 	bool operator==(const transponder& t) const;
 	bool compare (const transponder& t) const;
@@ -48,6 +48,7 @@ public:
 	void dump(std::string label = "tp");
 	void ddump(std::string label = "tp");
 	static char pol(unsigned char pol);
+	std::string description();
 };
 
 typedef std::map <transponder_id_t, transponder> transponder_list_t;

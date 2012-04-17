@@ -20,6 +20,7 @@
 
 #include <stdlib.h>
 #include <zapit/transponder.h>
+#include <zapit/frontend_c.h>
 #include <zapit/debug.h>
 
 transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization)
@@ -30,13 +31,23 @@ transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const str
 	feparams            = p_feparams;
 	polarization        = p_polarization;
 	updated = 0;
-	scanned = 0;
 	satellitePosition   = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(transponder_id);
 	if (satellitePosition & 0xF000)
 		satellitePosition = -(satellitePosition & 0xFFF);
 	else
 		satellitePosition = satellitePosition & 0xFFF;
 	type = fType;
+}
+
+transponder::transponder()
+{
+	memset(&feparams, 0, sizeof(struct dvb_frontend_parameters));
+	transponder_id	= 0;
+	transport_stream_id = 0;
+	original_network_id = 0;
+	polarization = 0;
+	satellitePosition = 0;
+	type = FE_QPSK;
 }
 
 bool transponder::operator==(const transponder& t) const
@@ -119,4 +130,24 @@ char transponder::pol(unsigned char p)
 		return 'L';
 	else
 		return 'R';
+}
+
+std::string transponder::description()
+{
+	char buf[128] = {0};
+	char * f, *s, *m;
+	switch(type) {
+		case FE_QPSK:
+			CFrontend::getDelSys(type, feparams.u.qpsk.fec_inner, dvbs_get_modulation(feparams.u.qpsk.fec_inner),  f, s, m);
+			snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", feparams.frequency/1000, pol(polarization), feparams.u.qpsk.symbol_rate/1000, f, s, m);
+			break;
+		case FE_QAM:
+			CFrontend::getDelSys(type, feparams.u.qam.fec_inner, feparams.u.qam.modulation, f, s, m);
+			snprintf(buf, sizeof(buf), "%d %d %s %s %s ", feparams.frequency/1000, feparams.u.qam.symbol_rate/1000, f, s, m);
+			break;
+		case FE_OFDM:
+		case FE_ATSC:
+			break;
+	}
+	return std::string(buf);
 }
