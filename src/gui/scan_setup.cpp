@@ -1015,7 +1015,11 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 	CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 	menu.addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL); //add cancel button, ensures that we have enought space left from item caption
 
+	transponder ct;
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+	if(channel)
+		CServiceManager::getInstance()->GetTransponder(channel->getTransponderId(), ct);
+
 	CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
 	int i = 0;
 	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(position);
@@ -1023,10 +1027,9 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		sprintf(cnt, "%d", i);
 		transponder & t = tI->second;
 
-		if(!old_selected && channel && channel->getSatellitePosition() == position) {
-			if(channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first))
-				old_selected = i;
-		}
+		if(!old_selected && ct == t)
+			old_selected = i;
+
 		std::string tname = t.description();
 		CMenuForwarderNonLocalized * ts_item = new CMenuForwarderNonLocalized(tname.c_str(), true, NULL, selector, cnt, CRCInput::RC_nokey, NULL)/*, false*/;
 
@@ -1036,7 +1039,6 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 		tmplist.insert(std::pair <int, transponder>(i, tI->second));
 		i++;
 	}
-
 	if (i == 0) {
 		std::string text = "No transponders found for ";
 		text += scansettings.satNameNoDiseqc;
