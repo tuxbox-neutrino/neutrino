@@ -508,7 +508,12 @@ struct dvb_frontend_event CFrontend::getEvent(void)
 
 void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
 {
-	if (info.type == FE_QPSK) {
+	return getDelSys(info.type, f, m, fec, sys, mod);
+}
+
+void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, char *&mod)
+{
+	if (type == FE_QPSK) {
 		if (f < FEC_S2_QPSK_1_2) {
 			sys = (char *)"DVB";
 			mod = (char *)"QPSK";
@@ -519,7 +524,7 @@ void CFrontend::getDelSys(int f, int m, char *&fec, char *&sys, char *&mod)
 			sys = (char *)"DVB-S2";
 			mod = (char *)"8PSK";
 		}
-	} else if (info.type == FE_QAM) {
+	} else if (type == FE_QAM) {
 		sys = (char *)"DVB";
 		switch (m) {
 		case QAM_16:
@@ -1682,3 +1687,4 @@ void CFrontend::gotoXX(t_satellite_position pos)
 	sendMotorCommand(0xE0, 0x31, 0x6E, 2, ((RotorCmd & 0xFF00) / 0x100), RotorCmd & 0xFF, repeatUsals);
 	secSetVoltage(config.highVoltage ? SEC_VOLTAGE_18 : SEC_VOLTAGE_13, 15); //FIXME ?
 }
+

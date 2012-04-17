@@ -240,5 +240,6 @@ class CFrontend
 		satellite_map_t &		getSatellites() { return satellites; }
 		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
 		int				getNumber() { return fenumber; };
+		static void			getDelSys(uint8_t type, int f, int m, char * &fec, char * &sys, char * &mod);
 };
 #endif /* __zapit_frontend_h__ */
