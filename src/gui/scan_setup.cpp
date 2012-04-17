@@ -1010,30 +1010,15 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 	int i = 0;
 	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(position);
 	for (transponder_list_t::iterator tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
-		char buf[128];
 		sprintf(cnt, "%d", i);
-		char * f, *s, *m;
 		transponder & t = tI->second;
-		switch (frontend->getInfo()->type) {
-			case FE_QPSK:
-				frontend->getDelSys(t.feparams.u.qpsk.fec_inner, dvbs_get_modulation(t.feparams.u.qpsk.fec_inner),  f, s, m);
-				snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", t.feparams.frequency/1000, transponder::pol(t.polarization), t.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-				break;
-			case FE_QAM:
-				frontend->getDelSys(t.feparams.u.qam.fec_inner, t.feparams.u.qam.modulation, f, s, m);
-				snprintf(buf, sizeof(buf), "%d %d %s %s %s ", t.feparams.frequency/1000, t.feparams.u.qam.symbol_rate/1000, f, s, m);
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
-		}
 
 		if(!old_selected && channel && channel->getSatellitePosition() == position) {
 			if(channel->getFreqId() == GET_FREQ_FROM_TPID(tI->first))
 				old_selected = i;
 		}
-
-		CMenuForwarderNonLocalized * ts_item = new CMenuForwarderNonLocalized(buf, true, NULL, selector, cnt, CRCInput::RC_nokey, NULL)/*, false*/;
+		std::string tname = t.description();
+		CMenuForwarderNonLocalized * ts_item = new CMenuForwarderNonLocalized(tname.c_str(), true, NULL, selector, cnt, CRCInput::RC_nokey, NULL)/*, false*/;
 
 		ts_item->setItemButton(NEUTRINO_ICON_BUTTON_OKAY, true);
 		menu.addItem(ts_item, old_selected == i);

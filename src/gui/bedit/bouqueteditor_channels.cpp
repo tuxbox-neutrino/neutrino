@@ -172,53 +172,17 @@ void CBEChannelWidget::paintFoot()
 
 void CBEChannelWidget::paintDetails(int index)
 {
-	char buf[128] = {0};
-	int len = 0;
+	std::string satname = CServiceManager::getInstance()->GetSatelliteName((*Channels)[index]->getSatellitePosition());
+	transponder t;
+	CServiceManager::getInstance()->GetTransponder((*Channels)[index]->getTransponderId(), t);
+	std::string desc = t.description();
+	if((*Channels)[index]->pname)
+		desc = desc + " (" + std::string((*Channels)[index]->pname) + ")";
+	else    
+		desc = desc + " (" + satname + ")";
 
-	transponder_id_t ct = (*Channels)[index]->getTransponderId();
-	transponder_list_t::iterator tpI = transponders.find(ct);
-	//sat_iterator_t sit = satellitePositions.find((*Channels)[index]->getSatellitePosition());
-	std::string satname = CServiceManager::getInstance()->GetSatelliteName((*Channels)[index]->getSatellitePosition()).c_str();
-
-	len = snprintf(buf, sizeof(buf), "%d ", (*Channels)[index]->getFreqId());
-
-	if(tpI != transponders.end()) {
-		char * f, *s, *m;
-		CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
-		transponder & t = tpI->second;
-		switch(frontend->getInfo()->type)
-		{
-			case FE_QPSK:
-				frontend->getDelSys(t.feparams.u.qpsk.fec_inner, dvbs_get_modulation(t.feparams.u.qpsk.fec_inner),  f, s, m);
-				len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", transponder::pol(t.polarization), t.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-				break;
-			case FE_QAM:
-				frontend->getDelSys(t.feparams.u.qam.fec_inner, t.feparams.u.qam.modulation, f, s, m);
-				len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", t.feparams.u.qam.symbol_rate/1000, f, s, m);
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
-		}
-	}
-
-	if((*Channels)[index]->pname) {
-		snprintf(&buf[len], sizeof(buf) - len, "(%s)", (*Channels)[index]->pname);
-	}
-	else {
-		snprintf(&buf[len], sizeof(buf) - len, "(%s)", satname.c_str());
-#if 0
-		if(sit != satellitePositions.end()) {
-			snprintf(&buf[len], sizeof(buf) - len, "(%s)", sit->second.name.c_str());
-		}
-#endif
-	}
-
-	//if(sit != satellitePositions.end()) 
-	{
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
-	}
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 }
 
 void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)

@@ -1492,47 +1492,21 @@ void CChannelList::paintDetails(int index)
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- seit_len, y+ height+ 5+    fheight, seit_len, cSeit, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ width- 10- noch_len, y+ height+ 5+ 2* fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
-	char buf[128] = {0};
-	char cFrom[50] = {0}; // UTF-8
-	int len = 0;
 	if(g_settings.channellist_foot == 0) {
-		transponder_id_t ct = chanlist[index]->getTransponderId();
-		transponder_list_t::iterator tpI = transponders.find(ct);
-		len = snprintf(buf, sizeof(buf), "%d ", chanlist[index]->getFreqId());
+		transponder t;
+		CServiceManager::getInstance()->GetTransponder(chanlist[index]->getTransponderId(), t);
 
-		if(tpI != transponders.end()) {
-			char * f, *s, *m;
-			transponder & t = tpI->second;
-			CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
-			switch(frontend->getInfo()->type) {
-				case FE_QPSK:
-					frontend->getDelSys(t.feparams.u.qpsk.fec_inner, dvbs_get_modulation(t.feparams.u.qpsk.fec_inner),  f, s, m);
-					len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", transponder::pol(t.polarization), t.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-					break;
-				case FE_QAM:
-					frontend->getDelSys(t.feparams.u.qam.fec_inner, t.feparams.u.qam.modulation, f, s, m);
-					len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", t.feparams.u.qam.symbol_rate/1000, f, s, m);
-					break;
-				case FE_OFDM:
-				case FE_ATSC:
-					break;
-			}
-		}
-
+		std::string desc = t.description();
 		if(chanlist[index]->pname)
-			snprintf(&buf[len], sizeof(buf) - len, "(%s)", chanlist[index]->pname);
-		else {
-#if 0
-			const char * satname = CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition());
-			if(satname)
-				snprintf(&buf[len], sizeof(buf) - len, "(%s)", satname);
-#endif
-			snprintf(&buf[len], sizeof(buf) - len, "(%s)",
-					CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()).c_str());
-		}
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
+			desc = desc + " (" + std::string(chanlist[index]->pname) + ")";
+		else
+			desc = desc + " (" + CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()) + ")";
+
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 	}
 	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
+		char buf[128] = {0};
+		char cFrom[50] = {0}; // UTF-8
 		CSectionsdClient::CurrentNextInfo CurrentNext;
 		sectionsd_getCurrentNextServiceKey(chanlist[index]->channel_id & 0xFFFFFFFFFFFFULL, CurrentNext);
 		if (!CurrentNext.next_name.empty()) {
