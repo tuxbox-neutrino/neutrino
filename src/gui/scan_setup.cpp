@@ -380,8 +380,10 @@ int CScanSetup::showScanMenu()
 			CMenuOptionChooser * mode = new CMenuOptionChooser(LOCALE_SATSETUP_FE_MODE, (int *)&femode, SATSETUP_FRONTEND_MODE, 2, true, this);
 			settings->addItem(mode);
 		}
+#if 0
 		CIntInput* nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 		settings->addItem(new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid));
+#endif
 	}
 	//--------------------------------------------------------------
 	settings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SCANTS_PREVERENCES_SCAN));
@@ -742,6 +744,10 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
 	manual_Scan->addIntroItems();
 	//----------------------------------------------------------------------
 	manual_Scan->addItem(satSelect);
+	if (r_system == DVB_C)  { //cable
+		CIntInput* nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+		manual_Scan->addItem(new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid));
+	}
 	manual_Scan->addItem(new CMenuForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler()/*tpSelect*/, "test", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 	manual_Scan->addItem(GenericMenuSeparatorLine);
@@ -813,6 +819,10 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 	auto_Scan->addIntroItems();
 
 	auto_Scan->addItem(satSelect);
+	if (r_system == DVB_C)  { //cable
+		CIntInput* nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+		auto_Scan->addItem(new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid));
+	}
 	auto_Scan->addItem(GenericMenuSeparatorLine);
 	//----------------------------------------------------------------------
 	addListFlagsItems(auto_Scan, 1);
