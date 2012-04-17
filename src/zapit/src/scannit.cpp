@@ -30,7 +30,7 @@
 #include <math.h>
 #include <eitd/edvbstring.h>
 
-#define DEBUG_NIT
+//#define DEBUG_NIT
 #define DEBUG_NIT_UNUSED
 #define DEBUG_LCN
 
@@ -310,7 +310,7 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 
 	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, false);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
-			freq, satellitePosition, tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId());
+			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
 	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, polarization, true);
 
@@ -335,7 +335,7 @@ bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStr
 
 	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, true);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
-		freq, satellitePosition, tsinfo->getTransportStreamId(), tsinfo->getOriginalNetworkId());
+			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
 	CServiceScan::getInstance()->AddTransponder(TsidOnid, &feparams, 0, true);
 	return true;
