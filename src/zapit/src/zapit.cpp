@@ -2049,6 +2049,8 @@ bool CZapit::Start(Z_start_arg *ZapStart_arg)
 
 bool CZapit::Stop()
 {
+	if(!started)
+		return false;
 	started = false;
 	int ret = join();
 	return (ret == 0);
