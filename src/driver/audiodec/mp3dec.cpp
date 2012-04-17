@@ -51,9 +51,9 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <driver/netfile.h>
 #include <zapit/include/audio.h>
 #include "mp3dec.h"
+#include <driver/netfile.h>
 
 extern cAudio * audioDecoder;
 
