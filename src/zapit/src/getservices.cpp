@@ -1055,13 +1055,12 @@ void CServiceManager::UseNumber(int number, bool radio)
 	channel_numbers->insert(number);
 }
 
-bool CServiceManager::GetTransponder(transponder &t)
+bool CServiceManager::GetTransponder(transponder_id_t tid, transponder &t)
 {
-	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); tI++) {
-		if (t == tI->second) {
-			t = tI->second;
-			return true;
-		}
+	stiterator tI = transponders.find(tid);
+	if(tI != transponders.end()) {
+		t = tI->second;
+		return true;
 	}
 	return false;
 }

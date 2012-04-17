@@ -166,7 +166,8 @@ class CServiceManager
 		void SetServicesChanged(bool changed) { services_changed = changed; }
 		void UpdateSatTransponders(t_satellite_position satellitePosition);
 
-		bool GetTransponder(transponder &t);
+		bool GetTransponder(transponder_id_t tid, transponder &t);
+		transponder_list_t & GetTransponders() { return transponders; }
 		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
 };
 #endif /* __getservices_h__ */
