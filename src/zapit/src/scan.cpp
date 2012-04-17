@@ -193,6 +193,7 @@ _repeat:
 		if(abort_scan)
 			return false;
 
+		processed_transponders++;
 		/* partial compare with already scanned, skip duplicate */
 		for (stiterator ntI = scanedtransponders.begin(); ntI != scanedtransponders.end(); ++ntI) {
 			if (ntI->second == tI->second) {
@@ -202,27 +203,27 @@ _repeat:
 			}
 		}
 
-		printf("[scan] scanning: %llx\n", tI->first);
+		transponder t(frontendType, tI->first, tI->second.feparams,  tI->second.polarization);
+		t.dump("[scan] scanning:");
 		SendTransponderInfo(tI->second);
 
-		transponder t(frontendType, tI->first, tI->second.feparams,  tI->second.polarization);
 		if (!tuneFrequency(&(tI->second.feparams), tI->second.polarization, satellitePosition)) {
 			failed_transponders++;
 			failedtransponders.insert(transponder_pair_t(t.transponder_id, t));
 			continue;
 		}
-		tI->second.scanned = true;
 		scanedtransponders.insert(transponder_pair_t(t.transponder_id, t));
 
 		if(abort_scan)
 			return false;
 		/* partial compare with existent transponders, update params if found */
-		for (transponder_list_t::iterator ttI = transponders.begin(); ttI != transponders.end(); ++ttI) {
+		for (stiterator ttI = transponders.begin(); ttI != transponders.end(); ++ttI) {
 			if(t == ttI->second) {
 				ttI->second.dump("[scan] similar tp, old");
 				t.dump("[scan] similar tp, new");
 				ttI->second.feparams = t.feparams;
 				ttI->second.polarization = t.polarization;
+				break;
 			}
 		}
 
@@ -291,6 +292,11 @@ _repeat:
 			if (tI == scanedtransponders.end()) {
 				ntI->second.dump("[scan] use tp from nit:");
 				scantransponders.insert(transponder_pair_t(ntI->first, ntI->second));
+			}
+			/* common satellites.xml have V/H, update to L/R if found */
+			stiterator stI = transponders.find(ntI->first);
+			if(stI != transponders.end() && stI->second == ntI->second) {
+				stI->second.polarization = ntI->second.polarization;
 			}
 		}
 		nittransponders.clear();
@@ -377,18 +383,9 @@ bool CServiceScan::ScanProvider(t_satellite_position satellitePosition)
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, satname.c_str(), satname.size() + 1);
-	/* transponders from current service list */
-	for(tI = transponders.begin(); tI != transponders.end(); ++tI) {
-		if(abort_scan)
-			return false;
-		if(tI->second.satellitePosition == satellitePosition)
-			AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization);
-	}
-	/* transponders from satellites.xml */
+
 	transponder_list_t &select_transponders = CServiceManager::getInstance()->GetSatelliteTransponders(satellitePosition);
 	for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
-		if(abort_scan)
-			return false;
 		AddTransponder(tI->first, &tI->second.feparams, tI->second.polarization);
 	}
 
@@ -398,6 +395,7 @@ bool CServiceScan::ScanProvider(t_satellite_position satellitePosition)
 	 * some channels set the service_type in the BAT or the NIT.
 	 * should the NIT be parsed on every transponder? */
 	FixServiceTypes();
+	CServiceManager::getInstance()->UpdateSatTransponders(satellitePosition);
 
 	TIMER_STOP_SEC("[scan] scanning took");
 	return true;
@@ -550,6 +548,8 @@ bool CServiceScan::ScanTransponder()
 
 	/* read network information table */
 	ReadNitSdt(satellitePosition);
+	FixServiceTypes();
+	CServiceManager::getInstance()->UpdateSatTransponders(satellitePosition);
 #if 0
 	if (found_channels)
 		ReplaceTransponderParams(freq, satellitePosition, &TP->feparams, TP->polarization);
@@ -599,7 +599,6 @@ void CServiceScan::SendTransponderInfo(transponder &t)
 		actual_freq /= 1000;
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
 
-	processed_transponders++;
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_NUM_SCANNED_TRANSPONDERS, &processed_transponders, sizeof(processed_transponders));
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) " ", 2);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
