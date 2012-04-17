@@ -1403,9 +1403,9 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		channel_id = (*(t_channel_id *)data);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID) {
-		chanready = 1;
-		Set_CA_Status (data);
+		//chanready = 1;
 		showSNR ();
+		Set_CA_Status (data);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_TIMER) {
 		if (data == fader.GetTimer()) {
@@ -1440,7 +1440,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		}
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_COMPLETE) {
-		chanready = 1;
+		//chanready = 1;
 		showSNR ();
 		//if ((*(t_channel_id *)data) == channel_id)
 		{
@@ -1450,7 +1450,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		showLcdPercentOver ();
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_SUB_FAILED) {
-		chanready = 1;
+		//chanready = 1;
 		showSNR ();
 		// show failure..!
 		CVFD::getInstance ()->showServicename ("(" + g_RemoteControl->getCurrentChannelName () + ')');
@@ -1459,7 +1459,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		CVFD::getInstance ()->showPercentOver (255);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_FAILED) {
-		chanready = 1;
+		//chanready = 1;
 		showSNR ();
 		if ((*(t_channel_id *) data) == channel_id) {
 			// show failure..!
@@ -1472,6 +1472,10 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_ZAP_MOTOR) {
 		chanready = 0;
 		showMotorMoving (data);
+		return messages_return::handled;
+	} else if (msg == NeutrinoMessages::EVT_TUNE_COMPLETE) {
+		chanready = 1;
+		showSNR ();
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_MODECHANGED) {
 		aspectRatio = data;
