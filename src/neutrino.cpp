@@ -1616,23 +1616,6 @@ void CNeutrinoApp::InitZapper()
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(channelList->getSize() && live_channel_id)
 		g_Sectionsd->setServiceChanged(live_channel_id, true );
-#if 0 // mode switch above do zap, so all next should be done after zap complete message
-	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	if(channelList->getSize() && live_channel_id) {
-		channelList->adjustToChannelID(live_channel_id);
-		CVFD::getInstance ()->showServicename(channelList->getActiveChannelName());
-		//g_Sectionsd->setPauseScanning(false);
-		g_Sectionsd->setServiceChanged(live_channel_id, true );
-		g_Zapit->getPIDS(g_RemoteControl->current_PIDs);
-		if(g_settings.cacheTXT)
-			if(g_RemoteControl->current_PIDs.PIDs.vtxtpid != 0)
-				tuxtxt_start(g_RemoteControl->current_PIDs.PIDs.vtxtpid);
-		g_RCInput->postMsg(NeutrinoMessages::SHOW_INFOBAR, 0);
-		//g_RCInput->postMsg(NeutrinoMessages::EVT_ZAP_COMPLETE, (neutrino_msg_data_t) &live_channel_id);
-		SelectSubtitles();
-		StartSubtitles();
-	}
-#endif
 }
 
 void CNeutrinoApp::setupRecordingDevice(void)
@@ -1986,7 +1969,6 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 
 		if( ( mode == mode_tv ) || ( ( mode == mode_radio ) ) ) {
 			if( (msg == NeutrinoMessages::SHOW_EPG) /* || (msg == CRCInput::RC_info) */ ) {
-				//g_EpgData->show( g_Zapit->getCurrentServiceID() );
 				StopSubtitles();
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				g_EpgData->show(live_channel_id);
@@ -2222,7 +2204,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 	neutrino_msg_t msg = _msg;
 
 	if(msg == NeutrinoMessages::EVT_ZAP_COMPLETE) {
-		g_Zapit->getAudioMode(&g_settings.audio_AnalogMode);
+		CZapit::getInstance()->GetAudioMode(g_settings.audio_AnalogMode);
 		if(g_settings.audio_AnalogMode < 0 || g_settings.audio_AnalogMode > 2)
 			g_settings.audio_AnalogMode = 0;
 
@@ -2599,7 +2581,7 @@ _repeat:
 		CTimerd::EventInfo * eventinfo;
 		eventinfo = (CTimerd::EventInfo *) data;
 		if(recordingstatus==0) {
-			bool isTVMode = g_Zapit->isChannelTVChannel(eventinfo->channel_id);
+			bool isTVMode = CServiceManager::getInstance()->IsChannelTVChannel(eventinfo->channel_id);
 
 			dvbsub_stop();
 
