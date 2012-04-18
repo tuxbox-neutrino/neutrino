@@ -782,7 +782,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 			{
 				sAddData = NeutrinoAPI->GetServiceName(timer->channel_id);
 				if (sAddData.empty())
-					sAddData = NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
+					sAddData = CServiceManager::getInstance()->IsChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
 
 				if( timer->apids != TIMERD_APIDS_CONF)
 				{
