@@ -1570,13 +1570,12 @@ void CInfoViewer::showSNR ()
 			char freq[20];
 			newfreq = false;
 
-			CZapitClient::CCurrentServiceInfo si = g_Zapit->getCurrentServiceInfo ();
-			std::string polarisation;
+			std::string polarisation = "";
 			if (g_info.delivery_system == DVB_S)
-				polarisation = transponder::pol(si.polarisation);
-			else
-				polarisation = "";
-			snprintf (freq, sizeof(freq), "%d.%d MHz %s", si.tsfrequency / 1000, si.tsfrequency % 1000, polarisation.c_str());
+				polarisation = transponder::pol(CFEManager::getInstance()->getLiveFE()->getPolarization());
+
+			int frequency = CFEManager::getInstance()->getLiveFE()->getFrequency();
+			snprintf (freq, sizeof(freq), "%d.%d MHz %s", frequency / 1000, frequency % 1000, polarisation.c_str());
 
 			int satNameWidth = g_SignalFont->getRenderWidth (freq);
 			g_SignalFont->RenderString (3 + BoxStartX + ((ChanWidth - satNameWidth) / 2), BoxStartY + 2 * chanH - 3, satNameWidth, freq, SDT_freq_update ? COL_COLORED_EVENTS_INFOBAR:COL_INFOBAR);
