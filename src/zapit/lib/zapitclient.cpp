@@ -106,6 +106,7 @@ CZapitClient::CCurrentServiceInfo CZapitClient::getCurrentServiceInfo()
 	return response;
 }
 
+#if 0
 void CZapitClient::getLastChannel(t_channel_id &channel_id, int &mode)
 {
 	send(CZapitMessages::CMD_GET_LAST_CHANNEL);
@@ -117,7 +118,9 @@ void CZapitClient::getLastChannel(t_channel_id &channel_id, int &mode)
 
 	close_connection();
 }
+#endif
 
+#if 0
 int32_t CZapitClient::getCurrentSatellitePosition(void)
 {
 	send(CZapitMessages::CMD_GET_CURRENT_SATELLITE_POSITION);
@@ -128,6 +131,7 @@ int32_t CZapitClient::getCurrentSatellitePosition(void)
 	close_connection();
 	return response;
 }
+#endif
 
 void CZapitClient::setAudioChannel(const unsigned int channel)
 {
@@ -431,6 +435,7 @@ std::string CZapitClient::getChannelName(const t_channel_id channel_id)
 	return std::string(response.name);
 }
 
+#if 0
 /* is channel a TV channel ? */
 bool CZapitClient::isChannelTVChannel(const t_channel_id channel_id)
 {
@@ -441,7 +446,7 @@ bool CZapitClient::isChannelTVChannel(const t_channel_id channel_id)
 	close_connection();
 	return response.status;
 }
-
+#endif
 
 
 
@@ -994,6 +999,7 @@ void CZapitClient::setAudioMode(const int mode)
 	close_connection();
 }
 
+#if 0
 void CZapitClient::getAudioMode(int * mode)
 {
         CZapitMessages::commandInt msg;
@@ -1002,7 +1008,7 @@ void CZapitClient::getAudioMode(int * mode)
         * mode = msg.val;
         close_connection();
 }
-
+#endif
 void CZapitClient::setRecordMode(const bool activate)
 {
 	CZapitMessages::commandSetRecordMode msg;
