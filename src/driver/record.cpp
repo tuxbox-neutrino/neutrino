@@ -784,10 +784,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	 * neutrino check if this channel_id already recording, may be not needed */
 	bool direct_record = timeshift || strlen(eventinfo->recordingDir) == 0;
 
-	int mode = g_Zapit->isChannelTVChannel(eventinfo->channel_id) ? NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
-
-	printf("%s channel_id %llx epg: %llx, apidmode 0x%X mode %d\n", __FUNCTION__,
-	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids, mode);
+	printf("%s channel_id %llx epg: %llx, apidmode 0x%X\n", __FUNCTION__,
+	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
 	if(!CheckRecording(eventinfo))
 		return false;
@@ -815,6 +813,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 #if 1//FIXME test
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
 		CFrontend * frontend = CFEManager::getInstance()->allocateFE(channel);
+		int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
+			NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
 #endif
 		if(frontend && CutBackNeutrino(eventinfo->channel_id, mode)) {
 			std::string newdir;
