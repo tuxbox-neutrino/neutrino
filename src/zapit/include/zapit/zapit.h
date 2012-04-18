@@ -216,6 +216,8 @@ class CZapit : public OpenThreads::Thread
 		bool scanPids() { return config.scanPids; };
 		void scanPids(bool enable) { config.scanPids = enable; };
 
+		void GetAudioMode(int &mode) { mode = audio_mode; }
+
 		CZapitChannel * GetCurrentChannel() { return current_channel; };
 		t_channel_id GetCurrentChannelID() { return live_channel_id; };
 		t_channel_id GetLastTVChannel() { return lastChannelTV; }
