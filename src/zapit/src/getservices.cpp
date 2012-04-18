@@ -1081,3 +1081,12 @@ void CServiceManager::UpdateSatTransponders(t_satellite_position satellitePositi
 			tI->second.dump("[zapit] duplicate in sat transponders:");
 	}
 }
+
+bool CServiceManager::IsChannelTVChannel(const t_channel_id channel_id)
+{
+	bool ret = true;
+	CZapitChannel * channel = FindChannel(channel_id);
+	if(channel)
+		ret = (channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
+	return ret;
+}

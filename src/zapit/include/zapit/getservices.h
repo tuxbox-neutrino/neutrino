@@ -139,6 +139,8 @@ class CServiceManager
 		bool GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid);
 		bool GetAllUnusedChannels(ZapitChannelList &list);
 
+		bool IsChannelTVChannel(const t_channel_id channel_id);
+
 		std::string GetSatelliteName(t_satellite_position position)
 		{
 			sat_iterator_t it = satellitePositions.find(position);
