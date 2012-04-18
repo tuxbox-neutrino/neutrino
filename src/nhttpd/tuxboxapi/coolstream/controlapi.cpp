@@ -1730,7 +1730,8 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 			{
 				strncpy(zAddData, NeutrinoAPI->GetServiceName(timer->channel_id).c_str(), 22);
 				if (zAddData[0] == 0)
-					strcpy(zAddData, NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel");
+					strcpy(zAddData, CServiceManager::getInstance()->IsChannelTVChannel(timer->channel_id) ?
+							"Unknown TV-Channel" : "Unknown Radio-Channel");
 			}
 			else
 				sprintf(zAddData, PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id);
@@ -1888,7 +1889,7 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 		// channel infos
 		std::string channel_name = NeutrinoAPI->GetServiceName(timer->channel_id);
 		if (channel_name.empty())
-			channel_name = NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
+			channel_name = CServiceManager::getInstance()->IsChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
 
 		// epg title
 		std::string title = timer->epgTitle;
