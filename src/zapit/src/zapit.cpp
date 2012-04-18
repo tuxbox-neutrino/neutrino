@@ -806,23 +806,23 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
 	}
 
-	case CZapitMessages::CMD_GET_LAST_CHANNEL: {
 #if 0
+	case CZapitMessages::CMD_GET_LAST_CHANNEL: {
 		CZapitClient::responseGetLastChannel lastchannel;
 		lastchannel.channel_id = (currentMode & RADIO_MODE) ? lastChannelRadio : lastChannelTV;
 		lastchannel.mode = getMode();
 		CBasicServer::send_data(connfd, &lastchannel, sizeof(lastchannel)); // bouquet & channel number are already starting at 0!
-#endif
 		ERROR("CZapitMessages::CMD_GET_LAST_CHANNEL: depreciated command\n");
 		break;
 	}
-
+#endif
+#if 0
 	case CZapitMessages::CMD_GET_CURRENT_SATELLITE_POSITION: {
 		int32_t currentSatellitePosition = current_channel ? current_channel->getSatellitePosition() : live_fe->getCurrentSatellitePosition();
 		CBasicServer::send_data(connfd, &currentSatellitePosition, sizeof(currentSatellitePosition));
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_SET_AUDIOCHAN: {
 		CZapitMessages::commandSetAudioChannel msgSetAudioChannel;
 		CBasicServer::receive_data(connfd, &msgSetAudioChannel, sizeof(msgSetAudioChannel));
@@ -952,7 +952,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
                 CBasicServer::send_data(connfd, &_response, sizeof(_response));
                 break;
         }
-
+#if 0
        case CZapitMessages::CMD_IS_TV_CHANNEL: {
                t_channel_id                             requested_channel_id;
                CZapitMessages::responseGeneralTrueFalse _response;
@@ -968,7 +968,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CBasicServer::send_data(connfd, &_response, sizeof(_response));
 		break;
         }
-
+#endif
 	case CZapitMessages::CMD_BQ_RESTORE: {
 		//2004.08.02 g_bouquetManager->restoreBouquets();
 		if(list_changed) {
@@ -1409,7 +1409,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 #endif
 		break;
 	}
-
+#if 0
 	case CZapitMessages::CMD_SET_AUDIO_MODE: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
@@ -1417,7 +1417,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		audio_mode = msg.val;
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_GET_AUDIO_MODE: {
 		CZapitMessages::commandInt msg;
 		msg.val = (int) audio_mode;
