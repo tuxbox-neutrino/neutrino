@@ -883,7 +883,7 @@ int CScanSetup::addListFlagsItems(CMenuWidget *listflags_menu, const int &shortc
 
 	CMenuOptionChooser *resetNum  = new CMenuOptionChooser(LOCALE_SATSETUP_RESET_NUMBERS, (int *)&scansettings.scan_reset_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 	listflags_menu->addItem(resetNum);
-#if 1 // testing
+#if 0 // testing
 	CMenuOptionChooser *useBat  = new CMenuOptionChooser(LOCALE_SATSETUP_USE_BAT, (int *)&scansettings.scan_bat, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
 	listflags_menu->addItem(useBat);
 	CMenuOptionChooser *lcn  = new CMenuOptionChooser(LOCALE_SATSETUP_LOGICAL_NUMBERS, (int *)&scansettings.scan_logical_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
