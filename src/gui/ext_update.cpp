@@ -121,7 +121,7 @@ bool CExtUpdate::ErrorReset(bool modus, const std::string & msg1, const std::str
 
 bool CExtUpdate::writemtdExt(const std::string & filename)
 {
-	imgFilename = "/tmp/" + FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
+	imgFilename = (std::string)g_settings.update_dir + "/" + FILESYSTEM_ENCODING_TO_UTF8_STRING(filename);
 	DBG_TIMER_START()
 	bool ret = writemtdExt();
 	DBG_TIMER_STOP("Image bearbeiten")
@@ -446,6 +446,7 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 	size_t pos;
 	while(fgets(buf, sizeof(buf), f1) != NULL) {
 		std::string line = buf;
+		// remove comments
 		line = trim(line);
 		if (line.find_first_of("#") == 0)
 			continue;
@@ -476,8 +477,8 @@ bool CExtUpdate::readBackupList(const std::string & dstPath)
 		std::string dst = dstPath + line;
 		if ((line.find("*") != std::string::npos) || (line.find("?") != std::string::npos)) {
 			// Wildcards
-			WRITE_UPDATE_LOG("\n");
 			DBG_MSG("Wildcards: %s\n", dst.c_str());
+			WRITE_UPDATE_LOG("\n");
 			WRITE_UPDATE_LOG("--------------------\n");
 			WRITE_UPDATE_LOG("Wildcards: %s\n", dst.c_str());
 			copyFileList(line, dstPath);

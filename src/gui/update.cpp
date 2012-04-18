@@ -534,11 +534,11 @@ void CFlashExpert::readmtd(int preadmtd)
 	gettimeofday(&tv, NULL);	
 	strftime(tmpStr, sizeof(tmpStr), "_%Y%m%d_%H%M.img", localtime(&tv.tv_sec));
 	CMTDInfo* mtdInfo = CMTDInfo::getInstance();
-	std::string filename = "/tmp/" + mtdInfo->getMTDName(preadmtd);
+	std::string filename = (std::string)g_settings.update_dir + "/" + mtdInfo->getMTDName(preadmtd);
 	filename += tmpStr;
 
 	if (preadmtd == -1) {
-		filename = "/tmp/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
+		filename = (std::string)g_settings.update_dir + "/flashimage.img"; // US-ASCII (subset of UTF-8 and ISO8859-1)
 		preadmtd = MTD_OF_WHOLE_IMAGE;
 	}
 	setTitle(LOCALE_FLASHUPDATE_TITLEREADFLASH);
@@ -585,7 +585,7 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 	CFlashTool ft;
 	ft.setStatusViewer( this );
 	ft.setMTDDevice( CMTDInfo::getInstance()->getMTDFileName(mtdNumber) );
-	if(!ft.program( "/tmp/" + filename, 50, 100)) {
+	if(!ft.program( (std::string)g_settings.update_dir + "/" + filename, 50, 100)) {
 		showStatusMessageUTF(ft.getErrorMessage()); // UTF-8
 		sleep(10);
 	} else {
@@ -634,7 +634,7 @@ void CFlashExpert::showFileSelector(const std::string & actionkey)
 	fileselector->addIntroItems(LOCALE_FLASHUPDATE_FILESELECTOR, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	struct dirent **namelist;
-	int n = scandir("/tmp", &namelist, 0, alphasort);
+	int n = scandir(g_settings.update_dir, &namelist, 0, alphasort);
 	if (n < 0)
 	{
 		perror("no flashimages available");
