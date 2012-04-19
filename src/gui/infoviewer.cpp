@@ -1628,8 +1628,9 @@ void CInfoViewer::showSNR ()
 		per = 0;
 		//HD info
 		if(!check_dir(g_settings.network_nfs_recordingdir)) {
-			if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0) {
-				per = (s.f_blocks - s.f_bfree) / (s.f_blocks/100);
+			if (::statfs(g_settings.network_nfs_recordingdir, &s) == 0 && s.f_blocks) {
+				long blocks_used = s.f_blocks - s.f_bfree;
+				per = (blocks_used * 100ULL) / s.f_blocks;
 			}
 		}
 		hddscale->paintProgressBar(scale_x, BBarY + InfoHeightY_Info / 2 + 2, hddwidth, 6, per, 100);
