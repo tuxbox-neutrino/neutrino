@@ -1799,7 +1799,7 @@ void CCNThread::sendCNEvent()
 /********************************************************************************/
 /* Freesat EIT thread 								*/
 /********************************************************************************/
-CFreeSatThread()
+CFreeSatThread::CFreeSatThread()
 	: CEventsThread("freeSatThread", 3842)
 {
 	skipTime = TIME_FSEIT_SKIPPING;
