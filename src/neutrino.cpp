@@ -1838,6 +1838,13 @@ TIMER_START();
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
 
+#ifndef ASSUME_MDEV
+	system("mkdir /media/sda1 2> /dev/null");
+	system("mount /media/sda1 2> /dev/null");
+	system("mkdir /media/sdb1 2> /dev/null");
+	system("mount /media/sdb1 2> /dev/null");
+#endif
+
 	CFSMounter::automount();
 	g_PluginList = new CPlugins;
 	g_PluginList->setPluginDir(PLUGINDIR);
@@ -1875,13 +1882,6 @@ TIMER_START();
 		configfile.setModifiedFlag(true);
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 	}
-
-#ifndef ASSUME_MDEV
-	system("mkdir /media/sda1 2> /dev/null");
-	system("mount /media/sda1 2> /dev/null");
-	system("mkdir /media/sdb1 2> /dev/null");
-	system("mount /media/sdb1 2> /dev/null");
-#endif
 
 	CHDDDestExec * hdd = new CHDDDestExec();
 	hdd->exec(NULL, "");
