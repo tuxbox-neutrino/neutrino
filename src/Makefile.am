@@ -87,10 +87,15 @@ neutrino_LDADD = \
 	$(FLACLIBS) \
 	$(VORBISLIBS) \
 	-ldvbsi++ \
-	-lungif \
 	-ljpeg \
 	-lOpenThreads \
 	-lrt -lpthread
+
+if ENABLE_GIFLIB
+neutrino_LDADD += -lgif
+else
+neutrino_LDADD += -lungif
+endif
 
 if ENABLE_UPNP
 neutrino_LDADD += \
