@@ -120,8 +120,12 @@ _repeat:
 #ifdef DEBUG_SDT
 		printf("[SDT] section %X last %X tsid 0x%x onid 0x%x -> %s\n", buffer[6], buffer[7], transport_stream_id, original_network_id, secdone[secnum] ? "skip" : "use");
 #endif
-		if(secdone[secnum])
+		if(secdone[secnum]) {
+			secdone[secnum]++;
+			if(secdone[secnum] >= 5)
+				break;
 			continue;
+		}
 		secdone[secnum] = 1;
 		sectotal++;
 

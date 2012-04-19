@@ -135,8 +135,12 @@ bool CNit::Read()
 #ifdef DEBUG_NIT
 		printf("[NIT] section %X last %X -> %s\n", secnum, buffer[7], secdone[nit_index][secnum] ? "skip" : "use");
 #endif
-		if(secdone[nit_index][secnum]) // mark sec XX done
+		if(secdone[nit_index][secnum]) { // mark sec XX done
+			secdone[nit_index][secnum]++;
+			if(secdone[nit_index][secnum] >= 5)
+				break;
 			continue;
+		}
 		secdone[nit_index][secnum] = 1;
 		sectotal[nit_index]++;
 

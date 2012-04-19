@@ -124,8 +124,12 @@ bool CBat::Read()
 #ifdef DEBUG_BAT
 		printf("[BAT] section %X last %X -> %s\n", secnum, buffer[7], secdone[secnum] ? "skip" : "use");
 #endif
-		if(secdone[secnum])
-			continue;
+                if(secdone[secnum]) {
+                        secdone[secnum]++;
+                        if(secdone[secnum] >= 5)
+                                break;
+                        continue;
+                }
 		secdone[secnum] = 1;
 		sectotal++;
 
