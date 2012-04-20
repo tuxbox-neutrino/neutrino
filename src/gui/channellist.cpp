@@ -105,7 +105,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	selected_chid = 0;
 	this->new_mode_active = false;
 	footerHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+6; //initial height value for buttonbar
-//printf("************ NEW LIST %s : %x\n", name.c_str(), this);fflush(stdout);
+//printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
 CChannelList::~CChannelList()
@@ -1026,13 +1026,13 @@ int CChannelList::hasChannelID(t_channel_id channel_id)
 void CChannelList::setSelected( int nChannelNr)
 {
 //printf("CChannelList::setSelected me %s %d -> %s\n", name.c_str(), nChannelNr, (nChannelNr < chanlist.size() && chanlist[nChannelNr] != NULL) ? chanlist[nChannelNr]->getName().c_str() : "********* NONE *********");
-	selected = nChannelNr;
 	//FIXME real difference between tuned and selected ?!
-	tuned = nChannelNr;
-	if(tuned < chanlist.size())
+	selected_chid = 0;
+	if (nChannelNr < (int) chanlist.size()) {
+		selected = nChannelNr;
+		tuned = nChannelNr;
 		selected_chid = chanlist[tuned]->getChannelID();
-	else
-		selected_chid = 0;
+	}
 }
 
 // -- Zap to channel with channel_id
