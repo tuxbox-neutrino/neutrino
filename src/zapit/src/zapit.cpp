@@ -2089,9 +2089,19 @@ void CZapit::run()
 				if(current_channel) {
 					t_channel_id channel_id = current_channel->getChannelID();
 					int vpid = current_channel->getVideoPid();
+					int apid = current_channel->getAudioPid();
 					CPmt pmt;
 					pmt.Parse(current_channel);
-					if(vpid != current_channel->getVideoPid()) {
+					bool apid_found = false;
+					/* check if selected audio pid still present */
+					for (int i = 0; i <  current_channel->getAudioChannelCount(); i++) {
+						if (current_channel->getAudioChannel(i)->pid == apid) {
+							apid_found = true;
+							break;
+						}
+					}
+					
+					if(!apid_found || vpid != current_channel->getVideoPid()) {
 						ZapIt(current_channel->getChannelID(), true);
 					} else {
 						SendPMT(true);
