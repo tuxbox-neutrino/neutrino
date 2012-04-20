@@ -751,9 +751,15 @@ bool CZapit::StartFastScan(int scan_mode, int opid)
 	return true;
 }
 
-bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
+void CZapit::SendCmdReady(int connfd)
 {
 	CZapitMessages::responseCmd response;
+	response.cmd = CZapitMessages::CMD_READY;
+	CBasicServer::send_data(connfd, &response, sizeof(response));
+}
+
+bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
+{
 	DBG("cmd %d (version %d) received\n", rmsg.cmd, rmsg.version);
 
 	if ((standby) && ((rmsg.cmd != CZapitMessages::CMD_SET_VOLUME)
@@ -885,23 +891,23 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 	}
 
 	case CZapitMessages::CMD_GET_DELIVERY_SYSTEM: {
-		CZapitMessages::responseDeliverySystem _response;
+		CZapitMessages::responseDeliverySystem response;
 		switch (live_fe->getInfo()->type) {
 		case FE_QAM:
-			_response.system = DVB_C;
+			response.system = DVB_C;
 			break;
 		case FE_QPSK:
-			_response.system = DVB_S;
+			response.system = DVB_S;
 			break;
 		case FE_OFDM:
-			_response.system = DVB_T;
+			response.system = DVB_T;
 			break;
 		default:
 			WARN("Unknown type %d", live_fe->getInfo()->type);
 			return false;
 
 		}
-		CBasicServer::send_data(connfd, &_response, sizeof(_response));
+		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
 	}
 
@@ -934,38 +940,32 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
         case CZapitMessages::CMD_GET_CHANNEL_NAME: {
                 t_channel_id requested_channel_id;
-                CZapitMessages::responseGetChannelName _response;
+                CZapitMessages::responseGetChannelName response;
                 CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
-		_response.name[0] = 0;
-		if(requested_channel_id == 0) {
-			if(current_channel) {
-				strncpy(_response.name, current_channel->getName().c_str(), CHANNEL_NAME_SIZE);
-				_response.name[CHANNEL_NAME_SIZE-1] = 0;
-			}
-		} else {
-			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(requested_channel_id);
-			if(channel) {
-				strncpy(_response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE);
-				_response.name[CHANNEL_NAME_SIZE-1] = 0;
-			}
+		response.name[0] = 0;
+		CZapitChannel * channel = (requested_channel_id == 0) ? current_channel :
+			CServiceManager::getInstance()->FindChannel(requested_channel_id);
+		if(channel) {
+			strncpy(response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE);
+			response.name[CHANNEL_NAME_SIZE-1] = 0;
 		}
-                CBasicServer::send_data(connfd, &_response, sizeof(_response));
+                CBasicServer::send_data(connfd, &response, sizeof(response));
                 break;
         }
 #if 0
        case CZapitMessages::CMD_IS_TV_CHANNEL: {
                t_channel_id                             requested_channel_id;
-               CZapitMessages::responseGeneralTrueFalse _response;
+               CZapitMessages::responseGeneralTrueFalse response;
                CBasicServer::receive_data(connfd, &requested_channel_id, sizeof(requested_channel_id));
 
 		/* if in doubt (i.e. unknown channel) answer yes */
-		_response.status = true;
+		response.status = true;
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(requested_channel_id);
 		if(channel)
 			/* FIXME: the following check is no even remotely accurate */
-			_response.status = (channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
+			response.status = (channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE);
 		
-		CBasicServer::send_data(connfd, &_response, sizeof(_response));
+		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
         }
 #endif
@@ -978,8 +978,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 			g_bouquetManager->clearAll();
 			g_bouquetManager->loadBouquets();
 		}
-		response.cmd = CZapitMessages::CMD_READY;
-		CBasicServer::send_data(connfd, &response, sizeof(response));
+		SendCmdReady(connfd);
 		break;
 	}
 
@@ -991,16 +990,14 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 		current_channel = CServiceManager::getInstance()->FindChannel(cid);
 
-		response.cmd = CZapitMessages::CMD_READY;
-		CBasicServer::send_data(connfd, &response, sizeof(response));
+		SendCmdReady(connfd);
 		SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 		break;
 	}
 
 	case CZapitMessages::CMD_RELOAD_CURRENTSERVICES: {
 #if 0
-  	        response.cmd = CZapitMessages::CMD_READY;
-  	        CBasicServer::send_data(connfd, &response, sizeof(response));
+		SendCmdReady(connfd);
 #endif
 		DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
 		live_fe->setTsidOnid(0);
@@ -1067,41 +1064,6 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		break;
         case CZapitMessages::CMD_SCAN_TP: {
                 CBasicServer::receive_data(connfd, &TP, sizeof(TP));
-
-#if 0
-printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
-#endif
-		//FIXME not used ? to scan current channel's TP. manual scan menu updated with current params
-		if(!(TP.feparams.frequency > 0) && current_channel) {
-			transponder_list_t::iterator transponder = transponders.find(current_channel->getTransponderId());
-			TP.feparams.frequency = transponder->second.feparams.frequency;
-			switch (live_fe->getInfo()->type) {
-			case FE_QPSK:
-			case FE_OFDM:
-				TP.feparams.u.qpsk.symbol_rate = transponder->second.feparams.u.qpsk.symbol_rate;
-				TP.feparams.u.qpsk.fec_inner = transponder->second.feparams.u.qpsk.fec_inner;
-				TP.polarization = transponder->second.polarization;
-				break;
-			case FE_QAM:
-				TP.feparams.u.qam.symbol_rate = transponder->second.feparams.u.qam.symbol_rate;
-				TP.feparams.u.qam.fec_inner = transponder->second.feparams.u.qam.fec_inner;
-				TP.feparams.u.qam.modulation = transponder->second.feparams.u.qam.modulation;
-				break;
-			default:
-				WARN("Unknown type %d", live_fe->getInfo()->type);
-				return false;
-			}
-
-			scanProviders.clear();
-
-			scanProviders[current_channel->getSatellitePosition()] = 
-				CServiceManager::getInstance()->GetSatelliteName(current_channel->getSatellitePosition());
-			current_channel = 0;
-		}
-#if 0
-		PrepareScan();
-		CServiceScan::getInstance()->Start(CServiceScan::SCAN_TRANSPONDER, (void *) &TP);
-#endif
 		StartScanTP(&TP);
                 break;
         }
@@ -1154,13 +1116,13 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		}
 		break;
 	}
-
+#if 0
 	case CZapitMessages::CMD_SCANSETSCANMOTORPOSLIST: {
 		// absolute
 		ERROR("CZapitMessages::CMD_SCANSETSCANMOTORPOSLIST: depreciated command\n");
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_SCANSETDISEQCTYPE: {
 		//FIXME diseqcType is global
 #if 0
@@ -1184,12 +1146,12 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 	case CZapitMessages::CMD_SCANSETBOUQUETMODE:
 		CBasicServer::receive_data(connfd, &bouquetMode, sizeof(bouquetMode));
 		break;
-
+#if 0
         case CZapitMessages::CMD_SCANSETTYPE:
                 //CBasicServer::receive_data(connfd, &scanType, sizeof(scanType));
 		ERROR("CZapitMessages::CMD_SCANSETTYPE: depreciated command\n");
                 break;
-
+#endif
 	case CZapitMessages::CMD_SET_EVENT_MODE: {
 		CZapitMessages::commandSetRecordMode msgSetRecordMode;
 		CBasicServer::receive_data(connfd, &msgSetRecordMode, sizeof(msgSetRecordMode));
@@ -1213,14 +1175,10 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 	}
 
 	case CZapitMessages::CMD_SB_GET_PLAYBACK_ACTIVE: {
+		/* FIXME check if needed */
 		CZapitMessages::responseGetPlaybackState msgGetPlaybackState;
                 msgGetPlaybackState.activated = playing;
-#if 0 //FIXME
-		if (videoDecoder) {
-                	if (videoDecoder->getPlayState() == VIDEO_PLAYING)
-                        	msgGetPlaybackState.activated = 1;
-                }
-#endif
+		msgGetPlaybackState.activated = videoDecoder->getPlayState();
 		CBasicServer::send_data(connfd, &msgGetPlaybackState, sizeof(msgGetPlaybackState));
 		break;
 	}
@@ -1260,7 +1218,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		CBasicServer::send_data(connfd, &responseInteger, sizeof(responseInteger)); // bouquet & channel number are already starting at 0!
 		break;
 	}
-
+#if 0
 	case CZapitMessages::CMD_BQ_EXISTS_CHANNEL_IN_BOUQUET: {
 		CZapitMessages::commandExistsChannelInBouquet msgExistsChInBq;
 		CZapitMessages::responseGeneralTrueFalse responseBool;
@@ -1269,7 +1227,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		CBasicServer::send_data(connfd, &responseBool, sizeof(responseBool));
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_BQ_MOVE_BOUQUET: {
 		CZapitMessages::commandMoveBouquet msgMoveBouquet;
 		CBasicServer::receive_data(connfd, &msgMoveBouquet, sizeof(msgMoveBouquet)); // bouquet & channel number are already starting at 0!
@@ -1305,7 +1263,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 #endif
 		break;
 	}
-
+#if 0
 	case CZapitMessages::CMD_BQ_MOVE_CHANNEL: {
 		CZapitMessages::commandMoveChannel msgMoveChannel;
 		CBasicServer::receive_data(connfd, &msgMoveChannel, sizeof(msgMoveChannel)); // bouquet & channel number are already starting at 0!
@@ -1315,7 +1273,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 					 || (msgMoveChannel.mode==CZapitClient::MODE_RADIO)) ? 2 : 1);
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_BQ_SET_LOCKSTATE: {
 		CZapitMessages::commandBouquetState msgBouquetLockState;
 		CBasicServer::receive_data(connfd, &msgBouquetLockState, sizeof(msgBouquetLockState)); // bouquet & channel number are already starting at 0!
@@ -1341,8 +1299,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		CZapitMessages::commandBoolean msgBoolean;
 		CBasicServer::receive_data(connfd, &msgBoolean, sizeof(msgBoolean));
 
-		response.cmd = CZapitMessages::CMD_READY;
-		CBasicServer::send_data(connfd, &response, sizeof(response));
+		SendCmdReady(connfd);
 #if 0
 		//if (msgBoolean.truefalse)
 		if(list_changed) {
@@ -1361,19 +1318,20 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		}
 		break;
 	}
-
+#if 0
         case CZapitMessages::CMD_SET_VIDEO_SYSTEM: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
 		videoDecoder->SetVideoSystem(msg.val);
                 break;
         }
-
+#endif
+#if 0
         case CZapitMessages::CMD_SET_NTSC: {
 		videoDecoder->SetVideoSystem(8);
                 break;
         }
-
+#endif
 	case CZapitMessages::CMD_SB_START_PLAYBACK:
 		//playbackStopForced = false;
 		StartPlayBack(current_channel);
@@ -1381,8 +1339,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 
 	case CZapitMessages::CMD_SB_STOP_PLAYBACK:
 		StopPlayBack(false);
-		response.cmd = CZapitMessages::CMD_READY;
-		CBasicServer::send_data(connfd, &response, sizeof(response));
+		SendCmdReady(connfd);
 		break;
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
@@ -1391,25 +1348,22 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		StopPlayBack(true);
 		standby = false;
 		playbackStopForced = true;
-		response.cmd = CZapitMessages::CMD_READY;
-		CBasicServer::send_data(connfd, &response, sizeof(response));
+		SendCmdReady(connfd);
 		break;
 	case CZapitMessages::CMD_SB_UNLOCK_PLAYBACK:
 		playbackStopForced = false;
 		StartPlayBack(current_channel);
 		SendPMT();
-		response.cmd = CZapitMessages::CMD_READY;
-		CBasicServer::send_data(connfd, &response, sizeof(response));
+		SendCmdReady(connfd);
 		break;
+#if 0 
 	case CZapitMessages::CMD_SET_DISPLAY_FORMAT: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
-#if 0 //FIXME
 		videoDecoder->setCroppingMode((video_displayformat_t) msg.val);
-#endif
 		break;
 	}
-#if 0
+#endif
 	case CZapitMessages::CMD_SET_AUDIO_MODE: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
@@ -1417,13 +1371,14 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		audio_mode = msg.val;
 		break;
 	}
-#endif
+#if 0
 	case CZapitMessages::CMD_GET_AUDIO_MODE: {
 		CZapitMessages::commandInt msg;
 		msg.val = (int) audio_mode;
 		CBasicServer::send_data(connfd, &msg, sizeof(msg));
 		break;
 	}
+#endif
 
 	case CZapitMessages::CMD_SET_ASPECTRATIO: {
 		CZapitMessages::commandInt msg;
@@ -1475,7 +1430,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		}
 		break;
 	}
-
+#if 0
 	case CZapitMessages::CMD_GET_FE_SIGNAL: {
 		CZapitClient::responseFESignal response_FEsig;
 		response_FEsig.sig = live_fe->getSignalStrength();
@@ -1485,7 +1440,7 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		ERROR("CZapitMessages::CMD_GET_FE_SIGNAL: depreciated command\n");
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_SETSUBSERVICES: {
 		CZapitClient::commandAddSubServices msgAddSubService;
 
@@ -1575,18 +1530,17 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
 		if (msgBoolean.truefalse) {
 			// if(currentMode & RECORD_MODE) videoDecoder->freeze();
 			enterStandby();
-			response.cmd = CZapitMessages::CMD_READY;
-			CBasicServer::send_data(connfd, &response, sizeof(response));
+			SendCmdReady(connfd);
 		} else
 			leaveStandby();
 		break;
 	}
-
+#if 0
 	case CZapitMessages::CMD_NVOD_SUBSERVICE_NUM: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
 	}
-
+#endif
 	case CZapitMessages::CMD_SEND_MOTOR_COMMAND: {
 		CZapitMessages::commandMotor msgMotor;
 		CBasicServer::receive_data(connfd, &msgMotor, sizeof(msgMotor));
