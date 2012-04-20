@@ -147,7 +147,6 @@ void CScanTs::testFunc()
 
 int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 {
-	//diseqc_t            diseqcType = NO_DISEQC;
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 
@@ -183,10 +182,6 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	ypos_radar = y + hheight + (mheight >> 1);
 	xpos1 = x + 10;
 
-#if 0
-	if(scan_all)
-		scan_mode |= 0xFF00;
-#endif
 	sigscale->reset();
 	snrscale->reset();
 	lastsig = lastsnr = -1;
@@ -254,16 +249,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
                 if (system(NEUTRINO_SCAN_START_SCRIPT) != 0)
                 	perror(NEUTRINO_SCAN_START_SCRIPT " failed");
 	}
-#if 0
-	/* send diseqc type to zapit */
-	diseqcType = (diseqc_t) scansettings.diseqcMode;
-	g_Zapit->setDiseqcType(diseqcType);
 
-	/* send diseqc repeat to zapit */
-	g_Zapit->setDiseqcRepeat( scansettings.diseqcRepeat);
-        /* send scantype to zapit */
-        g_Zapit->setScanType((CZapitClient::scanType) scansettings.scanType );
-#endif
 	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)scansettings.bouquetMode);
 
 	/* send satellite list to zapit */
@@ -327,10 +313,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		g_RCInput->open_click();
 	}
 	if(!test) {
-		//ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
-
 		const char * text = g_Locale->getText(success ? LOCALE_SCANTS_FINISHED : LOCALE_SCANTS_FAILED);
-		//paintLine(xpos2, ypos_frequency, xpos_frequency, text);
 		frameBuffer->paintBoxRel(x, y, width, hheight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_TOP);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->RenderString(xpos1, y + hheight, width, text, COL_MENUHEAD, 0, true); // UTF-8
 		uint64_t timeoutEnd = CRCInput::calcTimeoutEnd(0xFFFF);
