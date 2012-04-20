@@ -403,7 +403,8 @@ void CBouquetManager::renumChannels(ZapitChannelList &list, int & counter, char 
 		if(!(*it)->pname && pname)
 			(*it)->pname = pname;
 
-		(*it)->has_bouquet = true;
+		if ((*it)->pname)
+			(*it)->has_bouquet = true;
 	}
 }
 
