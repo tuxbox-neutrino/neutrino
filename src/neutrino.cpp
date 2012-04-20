@@ -2260,6 +2260,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 
 			StopSubtitles();
 
+_show:
 			int nNewChannel = -1;
 			int old_num = 0;
 			int old_b = bouquetList->getActiveBouquetNumber();
@@ -2270,7 +2271,7 @@ int CNeutrinoApp::handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data)
 			if(bouquetList->Bouquets.size()) {
 				old_num = bouquetList->Bouquets[old_b]->channelList->getSelected();
 			}
-_show:
+//_show:
 			if(msg == CRCInput::RC_ok)
 			{
 				if(bouquetList->Bouquets.size() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
