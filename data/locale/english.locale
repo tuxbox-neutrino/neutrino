@@ -194,9 +194,9 @@ bouqueteditor.savingchanges Saving changes. Please wait ...
 bouqueteditor.switch add/remove
 bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
-bouquetname.other Unknown provider
 bouquetname.hdtv HD channels
 bouquetname.new New channels
+bouquetname.other Unknown provider
 bouquetname.removed Removed channels
 cablesetup.provider cable provider
 channellist.current_tp Current transponder
@@ -219,8 +219,8 @@ channellist.recording_not_possible Recording not possible!
 channellist.sats Satellites
 channellist.since since
 channellist.start starts
-ci.empty No CAM in slot
 ci.clock CI clock (Mhz)
+ci.empty No CAM in slot
 ci.init_failed CAM init failed
 ci.init_ok CAM init complete
 ci.inserted CAM inserted in slot
@@ -1125,8 +1125,8 @@ reset_confirm Are you sure ?
 reset_settings Reset settings to defaults
 satsetup.auto_scan Auto-Scan selected %s
 satsetup.auto_scan_all Auto-Scan multiple Satellites
-satsetup.comm_input Commited input
 satsetup.cable_nid Network ID
+satsetup.comm_input Commited input
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
 satsetup.diseqc11 DiSEqC 1.1
@@ -1147,23 +1147,30 @@ satsetup.fastscan_prov_telesat TéléSAT
 satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
+satsetup.fe_mode Tuner mode
+satsetup.fe_mode_alone independent
+satsetup.fe_mode_loop loop
+satsetup.fe_mode_single single
+satsetup.fe_mode_twin twin
+satsetup.fe_setup Setup tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB switch Offset
+satsetup.logical_numbers Use logical numbers
 satsetup.manual_scan Manual frequency scan
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor position
 satsetup.nodiseqc no DiSEqC
+satsetup.reset_numbers Reset channel numbers
 satsetup.sat_setup Setup satellites input / LNB
 satsetup.satellite Satellite
+satsetup.select_sat Select satellites
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommited input
 satsetup.usals_repeat USALS command repeat
+satsetup.use_bat Use BAT
 satsetup.use_fta_flag just free Channels
 satsetup.use_nit Use NIT
-satsetup.use_bat Use BAT
-satsetup.reset_numbers Reset channel numbers
-satsetup.logical_numbers Use logical numbers
 satsetup.use_usals Use usals for all
 sc.empty No card in slot
 sc.init_failed Card init failed
@@ -1423,10 +1430,3 @@ zapitsetup.last_radio Radio Channel
 zapitsetup.last_tv TV Channel
 zapitsetup.last_use from last Channel
 zaptotimer.announce Zapto timer in one minute
-satsetup.fe_setup Setup tuner
-satsetup.fe_mode Tuner mode
-satsetup.fe_mode_single single
-satsetup.fe_mode_loop loop
-satsetup.fe_mode_twin twin
-satsetup.fe_mode_alone independent
-satsetup.select_sat Select satellites
