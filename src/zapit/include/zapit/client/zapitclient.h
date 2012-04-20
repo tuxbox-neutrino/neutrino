@@ -287,10 +287,10 @@ class CZapitClient:public CBasicClient
 	t_channel_id getCurrentServiceID();
 
 	/* return the current satellite position */
-	int32_t getCurrentSatellitePosition();
+	//int32_t getCurrentSatellitePosition();
 
 	/* get last channel-information */
-	void getLastChannel(t_channel_id &channel_id, int &mode);
+	//void getLastChannel(t_channel_id &channel_id, int &mode);
 
 	/* audiochan set */
 	void setAudioChannel(const unsigned int channel);
@@ -319,11 +319,11 @@ class CZapitClient:public CBasicClient
 	std::string getChannelName(const t_channel_id channel_id);
 
 	/* is channel a TV channel ? */
-	bool isChannelTVChannel(const t_channel_id channel_id);
+	//bool isChannelTVChannel(const t_channel_id channel_id);
 
 
 	/* get the current_TP */
-	bool get_current_TP(TP_params* TP);
+	//bool get_current_TP(TP_params* TP);
 
 	/* restore bouquets so as if they where just loaded*/
 	void restoreBouquets();
@@ -398,7 +398,7 @@ class CZapitClient:public CBasicClient
 	void setScanSatelliteList( ScanSatelliteList& satelliteList );
 
 	/* tell zapit stored satellite positions in diseqc 1.2 motor */
-	void setScanMotorPosList( ScanMotorPosList& motorPosList );
+	//void setScanMotorPosList( ScanMotorPosList& motorPosList );
 
 	/* set diseqcType*/
 	void setDiseqcType(const diseqc_t diseqc);
@@ -410,10 +410,10 @@ class CZapitClient:public CBasicClient
 	void setScanBouquetMode(const bouquetMode mode);
 
 	/* set Scan-Type for channel search */
-  	void setScanType(const scanType mode);
+  	//void setScanType(const scanType mode);
 
 	/* get FrontEnd Signal Params */ 
-	void getFESignal (struct responseFESignal& f);
+	//void getFESignal (struct responseFESignal& f);
 
 	/****************************************/
 	/*					*/
@@ -437,7 +437,7 @@ class CZapitClient:public CBasicClient
 
 	/* moves a channel of a bouquet from one position to another, channel lists begin at position=1*/
 	/* bouquets are numbered starting at 0 */
-	void moveChannel(const unsigned int bouquet, unsigned int oldPos, unsigned int newPos, channelsMode mode = MODE_CURRENT);
+	//void moveChannel(const unsigned int bouquet, unsigned int oldPos, unsigned int newPos, channelsMode mode = MODE_CURRENT);
 
 	// -- check if Bouquet-Name exists (2002-04-02 rasc)
 	// -- Return bq_id or -1
@@ -448,7 +448,7 @@ class CZapitClient:public CBasicClient
 	// -- check if Channel already in Bouquet (2002-04-05 rasc)
 	// -- Return true/false
 	/* bouquets are numbered starting at 0 */
-	bool  existsChannelInBouquet(const unsigned int bouquet, const t_channel_id channel_id);
+	//bool  existsChannelInBouquet(const unsigned int bouquet, const t_channel_id channel_id);
 
 
 	/* adds a channel at the end of then channel list to specified bouquet */
@@ -490,9 +490,9 @@ class CZapitClient:public CBasicClient
 	void unlockPlayBack();
 	bool tune_TP(TP_params TP);
 	bool isPlayBackActive();
-	void setDisplayFormat(const video_display_format_t mode);
+	//void setDisplayFormat(const video_display_format_t mode);
 	void setAudioMode(int mode);
-	void getAudioMode(int * mode);
+	//void getAudioMode(int * mode);
 	void setVideoSystem(int video_system);
 	void getAspectRatio(int *ratio);
 	void setAspectRatio(int ratio);

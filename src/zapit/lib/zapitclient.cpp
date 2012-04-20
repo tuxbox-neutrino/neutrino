@@ -678,6 +678,7 @@ void CZapitClient::setScanSatelliteList( ScanSatelliteList& satelliteList )
 	close_connection();
 }
 
+#if 0
 /* tell zapit stored satellite positions in diseqc 1.2 motor */
 void CZapitClient::setScanMotorPosList( ScanMotorPosList& motorPosList )
 {
@@ -689,6 +690,7 @@ void CZapitClient::setScanMotorPosList( ScanMotorPosList& motorPosList )
 	}
 	close_connection();
 }
+#endif
 
 /* set diseqcType*/
 void CZapitClient::setDiseqcType(const diseqc_t diseqc)
@@ -711,13 +713,15 @@ void CZapitClient::setScanBouquetMode(const bouquetMode mode)
 	close_connection();
 }
 
+#if 0
 /* set Scan-TYpe for channelsearch */
 void CZapitClient::setScanType(const scanType mode)
 {
 	send(CZapitMessages::CMD_SCANSETTYPE, (const char *) & mode, sizeof(mode));
   	close_connection();
 }
-
+#endif
+#if 0
 //
 // -- query Frontend Signal parameters
 //
@@ -734,7 +738,7 @@ void CZapitClient::getFESignal (struct responseFESignal &f)
 
 	close_connection();
 }
-
+#endif
 
 /***********************************************/
 /*                                             */
@@ -806,6 +810,7 @@ signed int CZapitClient::existsBouquet(const char * const name)
 	return response.number;
 }
 
+#if 0
 // -- check if Channel already is in Bouquet
 // -- Return: true/false
 /* bouquets are numbered starting at 0 */
@@ -823,9 +828,9 @@ bool CZapitClient::existsChannelInBouquet(const unsigned int bouquet, const t_ch
 	close_connection();
 	return (unsigned int) response.status;
 }
+#endif
 
-
-
+#if 0
 /* moves a channel of a bouquet from one position to another, channel lists begin at position=1*/
 /* bouquets are numbered starting at 0 */
 void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsigned int newPos, channelsMode mode)
@@ -841,6 +846,7 @@ void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsig
 
 	close_connection();
 }
+#endif
 
 /* adds a channel at the end of then channel list to specified bouquet */
 /* same channels can be in more than one bouquet */
@@ -943,7 +949,6 @@ void CZapitClient::setVideoSystem(int video_system)
 	close_connection();
 }
 
-
 void CZapitClient::startPlayBack()
 {
 	send(CZapitMessages::CMD_SB_START_PLAYBACK);
@@ -972,6 +977,7 @@ void CZapitClient::unlockPlayBack()
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
 }
+
 bool CZapitClient::isPlayBackActive()
 {
 	send(CZapitMessages::CMD_SB_GET_PLAYBACK_ACTIVE);
@@ -982,7 +988,7 @@ bool CZapitClient::isPlayBackActive()
 	close_connection();
 	return response.activated;
 }
-
+#if 0
 void CZapitClient::setDisplayFormat(const video_display_format_t format)
 {
 	CZapitMessages::commandInt msg;
@@ -990,7 +996,7 @@ void CZapitClient::setDisplayFormat(const video_display_format_t format)
 	send(CZapitMessages::CMD_SET_DISPLAY_FORMAT, (char*)&msg, sizeof(msg));
 	close_connection();
 }
-
+#endif
 void CZapitClient::setAudioMode(const int mode)
 {
 	CZapitMessages::commandInt msg;
