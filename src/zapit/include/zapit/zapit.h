@@ -147,6 +147,7 @@ class CZapit : public OpenThreads::Thread
 		void sendBouquetChannels(int connfd, const unsigned int bouquet, const CZapitClient::channelsMode mode, bool nonames);
 		void sendChannels(int connfd, const CZapitClient::channelsMode mode, const CZapitClient::channelsOrder order);
 		void SendConfig(int connfd);
+		void SendCmdReady(int connfd);
 
 		bool StartPlayBack(CZapitChannel *thisChannel);
 		//bool StopPlayBack(bool send_pmt);
