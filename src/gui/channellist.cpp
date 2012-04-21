@@ -1028,9 +1028,9 @@ void CChannelList::setSelected( int nChannelNr)
 //printf("CChannelList::setSelected me %s %d -> %s\n", name.c_str(), nChannelNr, (nChannelNr < chanlist.size() && chanlist[nChannelNr] != NULL) ? chanlist[nChannelNr]->getName().c_str() : "********* NONE *********");
 	//FIXME real difference between tuned and selected ?!
 	selected_chid = 0;
+	tuned = nChannelNr;
 	if (nChannelNr < (int) chanlist.size()) {
 		selected = nChannelNr;
-		tuned = nChannelNr;
 		selected_chid = chanlist[tuned]->getChannelID();
 	}
 }
