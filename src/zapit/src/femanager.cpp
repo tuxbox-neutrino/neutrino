@@ -371,7 +371,7 @@ bool CFEManager::loopCanTune(CFrontend * fe, CZapitChannel * channel)
 #endif
 	uint8_t fe_pol = fe->getPolarization() & 1;
 
-	INFO("Check fe%d: locked %d pol:band %d:%d vs %d:%d (%d:%d)", fe->fenumber, fe->Locked(), fe_pol, fe->getHighBand(), tp_pol, tp_band, fe->getFrequency(), channel->getFreqId()*1000);
+	DBG("Check fe%d: locked %d pol:band %d:%d vs %d:%d (%d:%d)", fe->fenumber, fe->Locked(), fe_pol, fe->getHighBand(), tp_pol, tp_band, fe->getFrequency(), channel->getFreqId()*1000);
 	if(!fe->tuned || (fe_pol == tp_pol && fe->getHighBand() == tp_band))
 		return true;
 	return false;
