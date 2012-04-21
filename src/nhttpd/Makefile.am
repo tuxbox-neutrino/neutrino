@@ -4,6 +4,7 @@ AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
 INCLUDES = \
 	-I$(srcdir) \
+	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src \

@@ -1,4 +1,5 @@
 INCLUDES = \
+	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(srcdir)/xmltok
 

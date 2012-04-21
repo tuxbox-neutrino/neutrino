@@ -1,6 +1,7 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
 INCLUDES = \
+	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib \

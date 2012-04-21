@@ -1,8 +1,10 @@
 AM_CXXFLAGS = -fno-rtti -fno-exceptions
 
 INCLUDES = \
+	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/driver/audiodec \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib/libconfigfile \

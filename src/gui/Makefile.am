@@ -15,6 +15,7 @@ noinst_HEADERS = svn_version.h
 SUBDIRS = widget bedit
 
 INCLUDES = \
+	-I$(top_builddir) \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/zapit/include \
