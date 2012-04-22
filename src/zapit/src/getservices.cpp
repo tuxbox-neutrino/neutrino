@@ -1076,9 +1076,11 @@ void CServiceManager::UpdateSatTransponders(t_satellite_position satellitePositi
 				break;
 			}
 		}
-		ret = stransponders.insert(transponder_pair_t(tI->first, tI->second));
-		if (ret.second == false)
-			tI->second.dump("[zapit] duplicate in sat transponders:");
+		if (tI->second.satellitePosition == satellitePosition) {
+			ret = stransponders.insert(transponder_pair_t(tI->first, tI->second));
+			if (ret.second == false)
+				tI->second.dump("[zapit] duplicate in sat transponders:");
+		}
 	}
 }
 
