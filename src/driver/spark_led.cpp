@@ -44,6 +44,8 @@ static bool muted = false;
 static bool showclock = true;
 static time_t last_display = 0;
 static char display_text[64] = { 0 };
+static bool led_r = false;
+static bool led_g = false;
 
 static inline int dev_open()
 {
@@ -145,7 +147,8 @@ printf("spark_led:%s red:%d green:%d\n", __func__, red, green);
 
 void CLCD::showTime(bool force)
 {
-	static bool redled = false;
+	static bool blink = false;
+	int red = -1, green = -1;
 
 	if (mode == MODE_SHUTDOWN)
 	{
@@ -175,16 +178,14 @@ void CLCD::showTime(bool force)
 		}
 	}
 
-	if (CNeutrinoApp::getInstance()->recordingstatus)
-	{
-		redled = !redled;
-		setled(redled, -1);
-	}
-	else if (redled)
-	{
-		redled = false;
-		setled(redled, -1);
-	}
+	if (led_r)
+		red = blink;
+	blink = !blink;
+	if (led_g)
+		green = blink;
+
+	if (led_r || led_g)
+		setled(red, green);
 }
 
 void CLCD::showRCLock(int)
@@ -338,8 +339,21 @@ void CLCD::Clear()
 printf("spark_led:%s\n", __func__);
 }
 
-void CLCD::ShowIcon(vfd_icon, bool)
+void CLCD::ShowIcon(vfd_icon i, bool on)
 {
+	switch (i)
+	{
+		case VFD_ICON_CAM1:
+			led_r = on;
+			setled(led_r, -1); /* switch instant on / switch off if disabling */
+			break;
+		case VFD_ICON_PLAY:
+			led_g = on;
+			setled(-1, led_g);
+			break;
+		default:
+			break;
+	}
 }
 
 void CLCD::setEPGTitle(const std::string)

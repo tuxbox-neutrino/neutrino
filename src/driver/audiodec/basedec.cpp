@@ -40,13 +40,14 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <driver/netfile.h>
 
 #include <driver/audioplay.h> // for ShoutcastCallback()
 
 #include <global.h>
 #include <neutrino.h>
 #include <zapit/client/zapittools.h>
+
+#include <driver/netfile.h>
 
 unsigned int CBaseDec::mSamplerate=0;
 
