@@ -212,10 +212,13 @@ channellist.foot_off off
 channellist.head All Services
 channellist.history History
 channellist.make_hdlist Create list of HD channels
+channellist.make_newlist Create list of new channels
+channellist.make_removedlist Create list of removed channels
 channellist.new_zap_mode Quickzap in list
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
+channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
 channellist.since since
 channellist.start starts
