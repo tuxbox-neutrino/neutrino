@@ -97,6 +97,8 @@ struct SNeutrinoSettings
 	int cpufreq;
 	int standby_cpufreq;
 	int make_hd_list;
+	int make_new_list;
+	int make_removed_list;
 	int avsync;
 	int clockrec;
 	int rounded_corners;
