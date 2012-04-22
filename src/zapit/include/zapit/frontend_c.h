@@ -112,6 +112,8 @@ class CFrontend
 		fe_sec_voltage_t currentVoltage;
 		/* current satellite position */
 		int32_t currentSatellitePosition;
+		/* rotor satellite position */
+		int32_t rotorSatellitePosition;
 
 		/* SETTINGS */
 		frontend_config_t config;
@@ -180,6 +182,7 @@ class CFrontend
 		void				getDelSys(int f, int m, char * &fec, char * &sys, char * &mod);
 
 		int32_t				getCurrentSatellitePosition() { return currentSatellitePosition; }
+		int32_t				getRotorSatellitePosition() { return rotorSatellitePosition; }
 
 		void				setDiseqcRepeats(const uint8_t repeats)	{ config.diseqcRepeats = repeats; }
 		void				setDiseqcType(const diseqc_t type);
@@ -204,6 +207,7 @@ class CFrontend
 		const TP_params*		getParameters(void) const { return &currentTransponder; };
 		struct dvb_frontend_event*	setParametersResponse(TP_params *TP);
 		void				setCurrentSatellitePosition(int32_t satellitePosition) {currentSatellitePosition = satellitePosition; }
+		void				setRotorSatellitePosition(int32_t satellitePosition) {rotorSatellitePosition = satellitePosition; }
 
 		void				positionMotor(uint8_t motorPosition);
 		void				sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t command, uint8_t num_parameters, uint8_t parameter1, uint8_t parameter2, int repeat = 0);

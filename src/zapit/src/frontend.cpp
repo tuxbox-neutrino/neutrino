@@ -1389,7 +1389,7 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 
 	//if(config.diseqcType == DISEQC_ADVANCED) //FIXME testing
 	{
-		//printf("[fe%d] SatellitePosition %d -> %d\n", fenumber, currentSatellitePosition, satellitePosition);
+		//printf("[fe%d] SatellitePosition %d -> %d\n", fenumber, rotorSatellitePosition, satellitePosition);
 		bool moved = false;
 
 		sat_iterator_t sit = satellites.find(satellitePosition);
@@ -1400,14 +1400,14 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 			new_position = sit->second.motor_position;
 			use_usals = sit->second.use_usals;
 		}
-		sit = satellites.find(currentSatellitePosition);
+		sit = satellites.find(rotorSatellitePosition);
 		if (sit != satellites.end())
 			old_position = sit->second.motor_position;
 
 		//printf("[fe%d] motorPosition %d -> %d usals %s\n", fenumber, old_position, new_position, use_usals ? "on" : "off");
-		printf("[fe%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", fenumber, currentSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
+		printf("[fe%d] sat pos %d -> %d motor pos %d -> %d usals %s\n", fenumber, rotorSatellitePosition, satellitePosition, old_position, new_position, use_usals ? "on" : "off");
 
-		if (currentSatellitePosition == satellitePosition)
+		if (rotorSatellitePosition == satellitePosition)
 			return 0;
 
 		if (use_usals) {
@@ -1421,12 +1421,11 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 		}
 
 		if (from_scan || (new_position > 0 && old_position > 0)) {
-			waitForMotor = config.motorRotationSpeed ? 2 + abs(satellitePosition - currentSatellitePosition) / config.motorRotationSpeed : 0;
+			waitForMotor = config.motorRotationSpeed ? 2 + abs(satellitePosition - rotorSatellitePosition) / config.motorRotationSpeed : 0;
 		}
 		if (moved) {
-			//currentSatellitePosition = satellitePosition;
-			waitForMotor = config.motorRotationSpeed ? 2 + abs(satellitePosition - currentSatellitePosition) / config.motorRotationSpeed : 0;
-			currentSatellitePosition = satellitePosition;
+			waitForMotor = config.motorRotationSpeed ? 2 + abs(satellitePosition - rotorSatellitePosition) / config.motorRotationSpeed : 0;
+			rotorSatellitePosition = satellitePosition;
 		}
 	}
 	//FIXME we never remember currentSatellitePosition for non-rotor ?
