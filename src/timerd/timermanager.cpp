@@ -82,6 +82,13 @@ void CTimerManager::Init(void)
 			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
 		close(fd);
 	}
+#endif
+	/* not platform specific - this is created by the init process */
+	if (access("/tmp/.timer_wakeup", F_OK) == 0) {
+		wakeup = true;
+		unlink("/tmp/.timer_wakeup");
+	}
+
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(wakeup){
 		creat("/tmp/.wakeup", 0);
@@ -92,7 +99,6 @@ void CTimerManager::Init(void)
 		if (system(neutrino_leave_deepstandby_script) != 0)
 			perror( neutrino_leave_deepstandby_script );
 	}
-#endif
 	loadRecordingSafety();
 
 	//thread starten

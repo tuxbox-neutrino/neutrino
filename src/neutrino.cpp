@@ -2970,22 +2970,25 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		g_settings.shutdown_timer_record_type = timer_is_rec;
 		saveSetup(NEUTRINO_SETTINGS_FILE);
 
+#if HAVE_COOL_HARDWARE
 		if(retcode) {
+#endif
 			const char *neutrino_enter_deepstandby_script = CONFIGDIR "/deepstandby.on";
 			printf("[%s] executing %s\n",__FILE__ ,neutrino_enter_deepstandby_script);
 			if (safe_system(neutrino_enter_deepstandby_script) != 0)
 				perror(neutrino_enter_deepstandby_script );
 
 			printf("entering off state\n");
+			printf("timer_minutes: %ld\n", timer_minutes);
 			mode = mode_off;
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_SHUTDOWN));
 
+#if HAVE_COOL_HARDWARE
 			system("/etc/init.d/rcK");
 			system("/bin/sync");
 			system("/bin/umount -a");
 			sleep(1);
 			{
-#if HAVE_COOL_HARDWARE
 				standby_data_t standby;
 				time_t mtime = time(NULL);
 				struct tm *tmtime = localtime(&mtime);
@@ -3039,10 +3042,8 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 						while(true) sleep(1);
 					}
 				}
-#else
-				reboot(LINUX_REBOOT_CMD_RESTART);
-#endif
 			}
+#endif
 #if 0
 			neutrino_msg_t      msg;
 			neutrino_msg_data_t data;
@@ -3081,7 +3082,22 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 				}
 			}
 #endif
+#if HAVE_COOL_HARDWARE
 		} else {
+#endif
+			if (timer_minutes)
+			{
+				FILE *f = fopen("/tmp/.timer", "w");
+				if (f)
+				{
+					fprintf(stderr, "timer_wakeup: %ld\n", timer_minutes * 60);
+					fprintf(f, "%ld\n", timer_minutes * 60);
+					fclose(f);
+				}
+				else
+					perror("fopen /tmp/.timer");
+			}
+
 			if (g_RCInput != NULL)
 				delete g_RCInput;
 			//fan speed
@@ -3104,7 +3120,9 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			_exit(retcode);
 #endif
 			exit(retcode);
+#if HAVE_COOL_HARDWARE
 		}
+#endif
 	}
 }
 
