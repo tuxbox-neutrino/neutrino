@@ -91,7 +91,7 @@ void CTimerManager::Init(void)
 
 	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
 	if(wakeup){
-		creat("/tmp/.wakeup", 0);
+		close(creat("/tmp/.wakeup", 0644));
 		timer_wakeup = true;
 	}else{
 		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
