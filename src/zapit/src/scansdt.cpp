@@ -172,7 +172,7 @@ bool CSdt::Parse(t_transport_stream_id &tsid, t_original_network_id &onid)
 			ZapitChannelList satChannelList;
 			CServiceManager::getInstance()->GetAllTransponderChannels(satChannelList, tpid);
 			for (zapit_list_it_t oldI = satChannelList.begin(); oldI != satChannelList.end(); ++oldI)
-				(*oldI)->flags = CZapitChannel::REMOVED;
+				(*oldI)->flags |= CZapitChannel::REMOVED;
 		}
 
 #ifdef DEBUG_SDT
@@ -320,7 +320,8 @@ bool CSdt::ParseServiceDescriptor(ServiceDescription * service, ServiceDescripto
 	if (channel) {
 		channel->setName(serviceName);
 		channel->setServiceType(real_type);
-		channel->flags = CZapitChannel::UPDATED;
+		channel->flags &= ~CZapitChannel::REMOVED;
+		channel->flags |= CZapitChannel::UPDATED;
 	} else {
 		channel = new CZapitChannel(serviceName, channel_id,
 				real_type, satellitePosition, freq_id);
