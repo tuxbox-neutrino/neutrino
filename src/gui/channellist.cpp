@@ -323,6 +323,9 @@ int CChannelList::doChannelMenu(void)
 	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_FAVORITES_MENUEADD, true, NULL, selector, cnt, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE), old_selected == i++);
 	snprintf(cnt, sizeof(cnt), "%d", i);
+	bool reset_enabled = chanlist[selected]->flags & CZapitChannel::NEW;
+	menu->addItem(new CMenuForwarder(LOCALE_CHANNELLIST_RESET_FLAGS, reset_enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(0)), old_selected == i++);
+	snprintf(cnt, sizeof(cnt), "%d", i);
 	menu->addItem(new CMenuForwarder(LOCALE_MAINMENU_SETTINGS, true, NULL, selector, cnt, CRCInput::convertDigitToKey(0)), old_selected == i++);
 	menu->exec(NULL, "");
 	delete menu;
@@ -410,7 +413,14 @@ int CChannelList::doChannelMenu(void)
 			}
 
 			break;
-		case 4: // settings
+		case 4: // reset new
+			chanlist[selected]->flags &= ~CZapitChannel::NEW;
+			CServiceManager::getInstance()->SetServicesChanged(true);
+			/* if make_new_list == ON, signal to re-init services */
+			if(g_settings.make_new_list)
+				return 1;
+			break;
+		case 5: // settings
 			{
 				COsdSetup osd_setup;
 				osd_setup.showContextChanlistMenu();
