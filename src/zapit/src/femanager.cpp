@@ -178,7 +178,7 @@ bool CFEManager::loadSettings()
 		fe_config.uni_scr		= getConfigValue(fe, "uni_scr", -1);
 		fe_config.uni_qrg		= getConfigValue(fe, "uni_qrg", 0);
 
-		fe->setCurrentSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
+		fe->setRotorSatellitePosition(getConfigValue(fe, "lastSatellitePosition", 0));
 
 		//fe->setDiseqcType((diseqc_t) fe_config.diseqcType);
 		fe->setDiseqcType(diseqcType);
@@ -243,7 +243,7 @@ void CFEManager::saveSettings(bool write)
 		setConfigValue(fe, "highVoltage", fe_config.highVoltage);
 		setConfigValue(fe, "uni_scr", fe_config.uni_scr);
 		setConfigValue(fe, "uni_qrg", fe_config.uni_qrg);
-		setConfigValue(fe, "lastSatellitePosition", fe->getCurrentSatellitePosition());
+		setConfigValue(fe, "lastSatellitePosition", fe->getRotorSatellitePosition());
 
 		std::vector<int> satList;
 		satellite_map_t satellites = fe->getSatellites();

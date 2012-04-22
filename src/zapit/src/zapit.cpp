@@ -199,7 +199,7 @@ void CZapit::SaveSettings(bool write)
 #if 1
 		/* FIXME FE specific */
 		configfile.setBool("highVoltage", config.highVoltage);
-		configfile.setInt32("lastSatellitePosition", live_fe->getCurrentSatellitePosition());
+		configfile.setInt32("lastSatellitePosition", live_fe->getRotorSatellitePosition());
 		configfile.setInt32("diseqcRepeats", live_fe->getDiseqcRepeats());
 		configfile.setInt32("diseqcType", live_fe->getDiseqcType());
 		configfile.setInt32("motorRotationSpeed", config.motorRotationSpeed);
@@ -317,7 +317,7 @@ void CZapit::ConfigFrontend()
 			fe->configUnicable(config.uni_scr, config.uni_qrg);
 			fe->setDiseqcType(diseqcType);
 			fe->setDiseqcRepeats(configfile.getInt32("diseqcRepeats", 0));
-			fe->setCurrentSatellitePosition(configfile.getInt32("lastSatellitePosition", 0));
+			fe->setRotorSatellitePosition(configfile.getInt32("lastSatellitePosition", 0));
 			fe->setSatellites(CServiceManager::getInstance()->SatelliteList());
 		}
 	}
