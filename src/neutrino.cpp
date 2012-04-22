@@ -369,6 +369,8 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #endif
 
 	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 1);
+	g_settings.make_new_list = configfile.getInt32("make_new_list", 1);
+	g_settings.make_removed_list = configfile.getInt32("make_removed_list", 1);
 
 	//misc
 	g_settings.power_standby = configfile.getInt32( "power_standby", 0);
@@ -813,6 +815,8 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("ci_clock", g_settings.ci_clock);
 
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
+	configfile.setInt32( "make_new_list", g_settings.make_new_list);
+	configfile.setInt32( "make_removed_list", g_settings.make_removed_list);
 	//led
 	configfile.setInt32( "led_tv_mode", g_settings.led_tv_mode);
 	configfile.setInt32( "led_standby_mode", g_settings.led_standby_mode);
@@ -1278,33 +1282,37 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		}
 #if 1
 		/* new channels */
-		CServiceManager::getInstance()->GetAllTvChannels(zapitList, CZapitChannel::NEW);
-		if (!zapitList.empty()) {
-			CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_NEW), false, true);
-			newBouquet->channelList->SetChannelList(&zapitList);
-			TVallList->Bouquets.push_back(newBouquet);
-			printf("[neutrino] got %d new TV channels\n", zapitList.size()); fflush(stdout);
+		if (g_settings.make_new_list) {
+			CServiceManager::getInstance()->GetAllTvChannels(zapitList, CZapitChannel::NEW);
+			if (!zapitList.empty()) {
+				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_NEW), false, true);
+				newBouquet->channelList->SetChannelList(&zapitList);
+				TVallList->Bouquets.push_back(newBouquet);
+				printf("[neutrino] got %d new TV channels\n", zapitList.size()); fflush(stdout);
+			}
+			CServiceManager::getInstance()->GetAllRadioChannels(zapitList, CZapitChannel::NEW);
+			if (!zapitList.empty()) {
+				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_NEW), false, true);
+				newBouquet->channelList->SetChannelList(&zapitList);
+				RADIOallList->Bouquets.push_back(newBouquet);
+				printf("[neutrino] got %d new RADIO channels\n", zapitList.size()); fflush(stdout);
+			}
 		}
-		CServiceManager::getInstance()->GetAllTvChannels(zapitList, CZapitChannel::REMOVED);
-		if (!zapitList.empty()) {
-			CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_REMOVED), false, true);
-			newBouquet->channelList->SetChannelList(&zapitList);
-			TVallList->Bouquets.push_back(newBouquet);
-			printf("[neutrino] got %d removed TV channels\n", zapitList.size()); fflush(stdout);
-		}
-		CServiceManager::getInstance()->GetAllRadioChannels(zapitList, CZapitChannel::NEW);
-		if (!zapitList.empty()) {
-			CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_NEW), false, true);
-			newBouquet->channelList->SetChannelList(&zapitList);
-			RADIOallList->Bouquets.push_back(newBouquet);
-			printf("[neutrino] got %d new RADIO channels\n", zapitList.size()); fflush(stdout);
-		}
-		CServiceManager::getInstance()->GetAllRadioChannels(zapitList, CZapitChannel::REMOVED);
-		if (!zapitList.empty()) {
-			CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_REMOVED), false, true);
-			newBouquet->channelList->SetChannelList(&zapitList);
-			RADIOallList->Bouquets.push_back(newBouquet);
-			printf("[neutrino] got %d removed RADIO channels\n", zapitList.size()); fflush(stdout);
+		if (g_settings.make_removed_list) {
+			CServiceManager::getInstance()->GetAllTvChannels(zapitList, CZapitChannel::REMOVED);
+			if (!zapitList.empty()) {
+				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_REMOVED), false, true);
+				newBouquet->channelList->SetChannelList(&zapitList);
+				TVallList->Bouquets.push_back(newBouquet);
+				printf("[neutrino] got %d removed TV channels\n", zapitList.size()); fflush(stdout);
+			}
+			CServiceManager::getInstance()->GetAllRadioChannels(zapitList, CZapitChannel::REMOVED);
+			if (!zapitList.empty()) {
+				CBouquet* newBouquet = new CBouquet(0, g_Locale->getText(LOCALE_BOUQUETNAME_REMOVED), false, true);
+				newBouquet->channelList->SetChannelList(&zapitList);
+				RADIOallList->Bouquets.push_back(newBouquet);
+				printf("[neutrino] got %d removed RADIO channels\n", zapitList.size()); fflush(stdout);
+			}
 		}
 #endif
 		TIMER_STOP("[neutrino] sats took");
@@ -2350,7 +2358,7 @@ _repeat:
 				g_bouquetManager->saveBouquets();
 				g_bouquetManager->saveUBouquets();
 				g_bouquetManager->renumServices();
-				channelsInit(true);
+				channelsInit(/*true*/);
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				channelList->adjustToChannelID(live_channel_id);//FIXME what if deleted ?
 				bouquetList->activateBouquet(old_b_id, false);
