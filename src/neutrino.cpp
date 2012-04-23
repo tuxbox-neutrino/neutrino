@@ -406,9 +406,10 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
-	g_settings.infobar_show_var_hdd   = configfile.getBool("infobar_show_var_hdd"  , true );
+	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , true );
 	g_settings.show_mute_icon = configfile.getInt32("show_mute_icon" ,0);
 	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 0 );
+	g_settings.infobar_show_tuner = configfile.getInt32("infobar_show_tuner", 1 );
 	g_settings.radiotext_enable = configfile.getBool("radiotext_enable"          , false);
 	//audio
 	g_settings.audio_AnalogMode = configfile.getInt32( "audio_AnalogMode", 0 );
@@ -848,9 +849,10 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
-	configfile.setInt32("infobar_show_var_hdd"  , g_settings.infobar_show_var_hdd  );
+	configfile.setInt32("infobar_show_sysfs_hdd"  , g_settings.infobar_show_sysfs_hdd  );
 	configfile.setInt32("show_mute_icon"   , g_settings.show_mute_icon);
 	configfile.setInt32("infobar_show_res"  , g_settings.infobar_show_res  );
+	configfile.setInt32("infobar_show_tuner"  , g_settings.infobar_show_tuner  );
 	configfile.setBool("radiotext_enable"          , g_settings.radiotext_enable);
 	//audio
 	configfile.setInt32( "audio_AnalogMode", g_settings.audio_AnalogMode );

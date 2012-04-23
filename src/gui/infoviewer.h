@@ -41,6 +41,7 @@
 #include <driver/fade.h>
 #include <system/settings.h>
 #include "widget/menue.h"
+#include <gui/infoviewer_bb.h>
 #include <gui/widget/progressbar.h>
 #include <string>
 #include <zapit/channel.h>
@@ -48,9 +49,10 @@
 class CInfoViewer
 {
  private:
-	void Init(void);
+
 	CFrameBuffer * frameBuffer;
-	
+	CInfoViewerBB* infoViewerBB;
+
 	bool           gotTime;
 	bool           recordModeActive;
 #ifndef SKIP_CA_STATUS
@@ -58,12 +60,8 @@ class CInfoViewer
 #endif
 	
 	int            InfoHeightY;
-	int            InfoHeightY_Info;
-	bool           showButtonBar;
 	bool	       fileplay;
 
-	int            BoxEndX;
-	int            BoxEndY;
 	int            BoxStartX;
 	int            BoxStartY;
 	int            ButtonWidth;
@@ -82,22 +80,10 @@ class CInfoViewer
 	int            ChanNameY;
 	int            ChanWidth;
 	int            ChanHeight;
-	int            ChanInfoX;
 
-	/* the position of the button bar */
-	int            BBarY;
-	int            BBarIconY;
-	int            BBarFontY;
-
-	int		asize;
-	int		icol_w, icol_h;
-	int 		icon_large_width, icon_small_width, icon_xres_width, icon_crypt_width;
 	CSectionsdClient::CurrentNextInfo info_CurrentNext;
         t_channel_id   channel_id;
 
-	char           aspectRatio;
-
-	uint32_t           sec_timer_id;
 	//uint32_t           fadeTimer;
 	COSDFader	fader;
 
@@ -106,7 +92,6 @@ class CInfoViewer
 	int time_width;
 	int time_height;
 	int info_time_width;
-	int bottom_bar_offset;
 
 	bool newfreq ;
 	char old_timestr[10];
@@ -118,9 +103,8 @@ class CInfoViewer
 	CChannelEventList               evtlist;
 	CChannelEventList::iterator     eli;
 
-	int lastsnr, lastsig, lasthdd, lastvar, lasttime;
-	CProgressBar *snrscale, *sigscale, *hddscale, *varscale, *timescale;
-	int hddwidth;
+	int lastsnr, lastsig, lasttime;
+	CProgressBar *snrscale, *sigscale, *timescale;
 	bool casysChange;
 	bool channellogoChange;
 	void paintBackground(int col_Numbox);
@@ -132,45 +116,38 @@ class CInfoViewer
 			  bool update_current = true, bool update_next = true);
 	void paintTime( bool show_dot, bool firstPaint );
 	
-	void showButton_Audio();
-	void showButton_SubServices();
-	
-	void showIcon_16_9();
-	void showIcon_RadioText(bool rt_available) const;
-	void showIcon_CA_Status(int);
-	void paint_ca_icons(int, char*, int&);
-	void paintCA_bar(int,int);
-	void showOne_CAIcon(bool);
-
-	void showIcon_VTXT()      const;
 	void showRecordIcon(const bool show);
-	void showIcon_SubT() const;
-	void showIcon_Resolution() const;
 	void showIcon_Tuner() const;
 
 	void showFailure();
 	void showMotorMoving(int duration);
    	void showLcdPercentOver();
 	int showChannelLogo(const t_channel_id logo_channel_id, const int channel_number_width);
-	void showSNR();
 	void showRadiotext();
 	void killRadiotext();
 	void showInfoFile();
 	//void loop(int fadeValue, bool show_dot ,bool fadeIn);
 	void loop(bool show_dot);
 	std::string eventname;
-	void paintshowButtonBar();
 	void show_current_next(bool new_chan, int  epgpos);
 	void reset_allScala();
 	void check_channellogo_ca_SettingsChange();
  public:
-	bool chanready;
-	bool	is_visible;
-	bool	virtual_zap_mode;
-	uint32_t    lcdUpdateTimer;
+	bool     chanready;
+	bool	 is_visible;
+	bool	 virtual_zap_mode;
+	uint32_t lcdUpdateTimer;
+	char     aspectRatio;
+	uint32_t sec_timer_id;
+
+	int      BoxEndX;
+	int      BoxEndY;
+	int      ChanInfoX;
+	bool     showButtonBar;
 
 	CInfoViewer();
 	~CInfoViewer();
+
 	void	showMovieTitle(const int playState, const std::string &title,
 				const std::string &g_file_epg, const std::string &g_file_epg1,
 				const int duration, const int curr_pos);
@@ -189,8 +166,10 @@ class CInfoViewer
 	
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 	void    clearVirtualZapMode() {virtual_zap_mode = false;}
-	void changePB();
-	bool SDT_freq_update;
+	void    changePB();
+	void    showSNR();
+	void    Init(void);
+	bool    SDT_freq_update;
 };
 
 class CInfoViewerHandler : public CMenuTarget

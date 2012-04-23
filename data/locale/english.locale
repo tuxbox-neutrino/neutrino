@@ -745,7 +745,8 @@ miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
 miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
-miscsettings.infobar_show_var_hdd Fill level (var & hdd )
+miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
+miscsettings.infobar_show_tuner Display active tuner
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby

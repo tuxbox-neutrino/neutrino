@@ -745,7 +745,8 @@ miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
 miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
-miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
+miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
+miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
