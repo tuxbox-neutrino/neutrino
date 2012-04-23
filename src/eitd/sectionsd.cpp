@@ -1927,11 +1927,12 @@ bool CSdtThread::addServices()
 /* helper function for the housekeeping-thread */
 static void print_meminfo(void)
 {
+#if 0
 	if (!sections_debug)
 		return;
-
+#endif
 	struct mallinfo meminfo = mallinfo();
-	dprintf("total size of memory occupied by chunks handed out by malloc: %d\n"
+	xprintf("total size of memory occupied by chunks handed out by malloc: %d\n"
 			"total bytes memory allocated with `sbrk' by malloc, in bytes: %d (%dkB)\n",
 			meminfo.uordblks, meminfo.arena, meminfo.arena / 1024);
 }
@@ -1982,7 +1983,7 @@ static void *houseKeepingThread(void *)
 		printf("[sectionsd] Removed %d old events (%d left).\n", anzEventsAlt - mySIeventsOrderUniqueKey.size(), mySIeventsOrderUniqueKey.size());
 		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 		{
-			print_meminfo();
+			//print_meminfo();
 			dprintf("Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		}
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
@@ -1991,7 +1992,7 @@ static void *houseKeepingThread(void *)
 		readLockEvents();
 		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 		{
-			print_meminfo();
+			//print_meminfo();
 			dprintf("Removed %d waste events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		}
 
