@@ -211,11 +211,14 @@ channellist.foot_next Nachfolgesendung
 channellist.foot_off aus
 channellist.head Alle Kanäle
 channellist.history Verlauf
-channellist.make_hdlist Erzeuge "HD"- Bouquet
+channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
+channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
+channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
 channellist.new_zap_mode Quickzap in Liste
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
+channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.since seit
 channellist.start Start
