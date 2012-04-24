@@ -798,6 +798,19 @@ int CChannelList::show()
 			paintHead(); // update button bar
 			showChannelLogo();
 		}
+		else if ( msg == CRCInput::RC_green )
+		{
+			int mode = CNeutrinoApp::getInstance()->GetChannelMode();
+			if(mode){
+				g_settings.channellist_sort_mode++;
+				if(g_settings.channellist_sort_mode > 2)
+					g_settings.channellist_sort_mode = 0;
+				CNeutrinoApp::getInstance()->SetChannelMode(mode);
+				paint();
+				paintHead(); // update button bar
+			}
+		}
+
 		else if ((msg == CRCInput::RC_info) || (msg == CRCInput::RC_help)) {
 			hide();
 			CChannelEvent *p_event=NULL;
@@ -1604,36 +1617,78 @@ struct button_label SChannelListButtons[NUM_LIST_BUTTONS] =
 	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_INFOVIEWER_NEXT},
 	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE}
 };
+#define NUM_LIST_BUTTONS_SORT 5
+struct button_label SChannelListButtons_SMode[NUM_LIST_BUTTONS_SORT] =
+{
+	{ NEUTRINO_ICON_BUTTON_RED, LOCALE_INFOVIEWER_EVENTLIST},
+	{ NEUTRINO_ICON_BUTTON_GREEN, LOCALE_CHANNELLIST_FOOT_SORT_ALPHA},
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_BOUQUETLIST_HEAD},
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_INFOVIEWER_NEXT},
+	{ NEUTRINO_ICON_BUTTON_RECORD_INACTIVE, NONEXISTANT_LOCALE}
+};
 
 void CChannelList::paintButtonBar(bool is_current)
 {
 	//printf("[neutrino channellist] %s...%d, selected %d\n", __FUNCTION__, __LINE__, selected);
-	
+	unsigned int smode = CNeutrinoApp::getInstance()->GetChannelMode();
+	int num_buttons = smode ? NUM_LIST_BUTTONS_SORT : NUM_LIST_BUTTONS;
+
+	struct button_label Button[num_buttons];
+	const neutrino_locale_t button_ids[] = {LOCALE_INFOVIEWER_NOW,LOCALE_INFOVIEWER_NEXT,LOCALE_MAINMENU_RECORDING,LOCALE_MAINMENU_RECORDING_STOP,NONEXISTANT_LOCALE,
+						LOCALE_CHANNELLIST_FOOT_SORT_ALPHA,LOCALE_CHANNELLIST_FOOT_SORT_FREQ,LOCALE_CHANNELLIST_FOOT_SORT_SAT};
+	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
+
+	for (int i = 0;i<num_buttons;i++)
+	{
+		if(smode)
+			Button[i] = SChannelListButtons_SMode[i];
+		else
+			Button[i] = SChannelListButtons[i];
+	}
+
+	int Bindex = 2 + (smode ? 1:0);
+
 	//manage now/next button
 	if (displayNext)
-		SChannelListButtons[2].locale = LOCALE_INFOVIEWER_NOW;
+		Button[Bindex].locale = LOCALE_INFOVIEWER_NOW;
 	else
-		SChannelListButtons[2].locale = LOCALE_INFOVIEWER_NEXT;
-	
+		Button[Bindex].locale = LOCALE_INFOVIEWER_NEXT;
+
+	Bindex++;
 	//manage record button
 	bool do_record = CRecordManager::getInstance()->RecordingStatus(getActiveChannel_ChannelID());
 	
 	if (g_settings.recording_type != RECORDING_OFF && !displayNext){
 		if (is_current && !do_record){
-			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING;
-			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE;
+			Button[Bindex].locale = LOCALE_MAINMENU_RECORDING;
+			Button[Bindex].button = NEUTRINO_ICON_BUTTON_RECORD_ACTIVE;
 		}else if (do_record){
-			SChannelListButtons[3].locale = LOCALE_MAINMENU_RECORDING_STOP;
-			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_STOP;
+			Button[Bindex].locale = LOCALE_MAINMENU_RECORDING_STOP;
+			Button[Bindex].button = NEUTRINO_ICON_BUTTON_STOP;
 		}else{
-			SChannelListButtons[3].locale = NONEXISTANT_LOCALE;
-			SChannelListButtons[3].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE;
+			Button[Bindex].locale = NONEXISTANT_LOCALE;
+			Button[Bindex].button = NEUTRINO_ICON_BUTTON_RECORD_INACTIVE;
 		}
 	}
-	
+	if(smode)
+	{
+		switch (g_settings.channellist_sort_mode)
+		{
+			case 0:
+				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_ALPHA;
+			break;
+			case 1:
+				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_FREQ;
+			break;
+			case 2:
+				Button[1].locale = LOCALE_CHANNELLIST_FOOT_SORT_SAT;
+			break;
+		}
+	}
+
 	//paint buttons
 	int y_foot = y + (height - footerHeight);
-	::paintButtons(x, y_foot, width, NUM_LIST_BUTTONS, SChannelListButtons, footerHeight/*, (width - 20) / NUM_LIST_BUTTONS*/); //buttonwidth will set automaticly
+	::paintButtons(x, y_foot, width,num_buttons, Button, footerHeight,0,false,COL_INFOBAR_SHADOW,NULL,0,true, buttonID_rest);
 }
 
 void CChannelList::paintItem(int pos)

@@ -209,6 +209,9 @@ channellist.foot Kanalinformationen
 channellist.foot_freq Tuning-Parameter
 channellist.foot_next Nachfolgesendung
 channellist.foot_off aus
+channellist.foot_sort_alpha Sortiert[alpha]
+channellist.foot_sort_freq Sortiert[freq]
+channellist.foot_sort_sat Sortiert[sat]
 channellist.head Alle Kanäle
 channellist.history Verlauf
 channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
