@@ -149,13 +149,14 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 		}
 	}
 
-	char buf[1000];
+	char *buf=NULL;
+	size_t len = 0;
 
 	i = 1;
 
 	while(!feof(fd))
 	{
-		if(fgets(buf,sizeof(buf),fd)!=NULL)
+		if(getline(&buf, &len, fd)!=-1)
 		{
 			char * val    = NULL;
 			char * tmpptr = buf;
@@ -203,6 +204,9 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 		}
 	}
 	fclose(fd);
+	if(buf)
+		free(buf);
+
 	for (unsigned j = 1; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
 		if (loadData[j] == locale_real_names[j])
 		{
