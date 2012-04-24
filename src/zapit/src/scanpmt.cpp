@@ -290,7 +290,8 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 	if(audio) {
 		if(description.empty()) {
 			char str[DESC_MAX_LEN];
-			snprintf(str, DESC_MAX_LEN, "Unknown 0x%04x", esinfo->getPid());
+//			snprintf(str, DESC_MAX_LEN, "Unknown 0x%04x", esinfo->getPid());
+			snprintf(str, DESC_MAX_LEN, "Unknown");
 			description = str;
 		}
 		printf("[pmt] apid %04x stream %02x type %d [%s]\n", esinfo->getPid(), stream_type,
