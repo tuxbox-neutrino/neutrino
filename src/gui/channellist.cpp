@@ -32,6 +32,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
+#include <sstream>
 
 #include <gui/channellist.h>
 
@@ -1899,10 +1900,19 @@ void CChannelList::paintHead()
 
 void CChannelList::paint()
 {
-	liststart = (selected/listmaxshow)*listmaxshow;
-	//FIXME do we need to find biggest chan number in list ?
-	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0000");
+	zapit_list_it_t chan_it;
+	std::stringstream ss;
+	std::string chan_width;
+	int chan_nr_max = 1;
+	unsigned int nr = 0;
+	for (chan_it=chanlist.begin(); chan_it!=chanlist.end(); ++chan_it) {
+		chan_nr_max = std::max(chan_nr_max, chanlist[nr++]->number);
+	}
+	ss << chan_nr_max;
+	ss >> chan_width;
+	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(chan_width.c_str());
 
+	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
 
 	frameBuffer->paintBoxRel(x, y+theight, width, height-footerHeight-theight, COL_MENUCONTENT_PLUS_0, 0, CORNER_BOTTOM);
