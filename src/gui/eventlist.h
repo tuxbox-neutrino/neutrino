@@ -67,6 +67,7 @@ class CNeutrinoEventList
         private:
         int             m_search_epg_item;
         std::string     m_search_keyword;
+	std::string     m_search_autokeyword;
         int             m_search_list;
         t_channel_id    m_search_channel_id;
         t_bouquet_id    m_search_bouquet_id;

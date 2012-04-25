@@ -1016,6 +1016,12 @@ bool CNeutrinoEventList::findEvents(void)
 	int event = 0;
 	t_channel_id channel_id = 0;
 
+	if((m_search_keyword.empty() || m_search_keyword == m_search_autokeyword) && evtlist[selected].eventID != 0)
+	{
+		m_search_keyword = evtlist[selected].description;
+		m_search_autokeyword = m_search_keyword;
+	}
+
 	CEventFinderMenu menu(	&event,
 							&m_search_epg_item,
 							&m_search_keyword,
