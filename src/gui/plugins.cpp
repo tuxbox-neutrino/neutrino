@@ -42,6 +42,7 @@
 #include <dlfcn.h>
 
 #include <unistd.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
@@ -325,12 +326,16 @@ void CPlugins::startScriptPlugin(int number)
 	FILE *f = popen(script,"r");
 	if (f != NULL)
 	{
-		char output[1024];
-		while (fgets(output,1024,f))
+		char *output=NULL;
+		size_t len = 0;
+		while (( getline(&output, &len, f)) != -1)
+
 		{
 			scriptOutput += output;
 		}
 		pclose(f);
+		if(output)
+			free(output);
 	}
 	else
 	{

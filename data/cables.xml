@@ -253,6 +253,12 @@
 		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="722000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="730000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="738000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="746000" symbol_rate="6900000" fec_inner="0" modulation="3"/>
 	</cable>
 	<cable name="Kabel BW" satfeed="true" flags="9">
 		<transponder frequency="113000" symbol_rate="6900000" fec_inner="0" modulation="3"/>

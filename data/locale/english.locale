@@ -209,6 +209,9 @@ channellist.foot Channel Information
 channellist.foot_freq Sat/Freq Info
 channellist.foot_next next Event
 channellist.foot_off off
+channellist.foot_sort_alpha sorted[alpha]
+channellist.foot_sort_freq sorted[freq]
+channellist.foot_sort_sat sorted[sat]
 channellist.head All Services
 channellist.history History
 channellist.make_hdlist Create list of HD channels

@@ -611,6 +611,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.channellist_extended		= configfile.getBool("channellist_extended"          , true);
 	g_settings.channellist_foot	= configfile.getInt32("channellist_foot"          , 1);//default next Event
 	g_settings.channellist_new_zap_mode = configfile.getInt32("channellist_new_zap_mode", 1);
+	g_settings.channellist_sort_mode  = configfile.getInt32("channellist_sort_mode", 0);//sort mode: alpha, freq, sat 
 
 	//screen configuration
 	g_settings.screen_xres = configfile.getInt32("screen_xres", 100);
@@ -1028,6 +1029,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32("channellist_new_zap_mode", g_settings.channellist_new_zap_mode);
 	configfile.setInt32("remote_control_hardware", g_settings.remote_control_hardware);
 	configfile.setBool  ( "audiochannel_up_down_enable", g_settings.audiochannel_up_down_enable );
+	configfile.setInt32("channellist_sort_mode", g_settings.channellist_sort_mode);
 
 	//screen configuration
 	configfile.setInt32( "screen_xres", g_settings.screen_xres);
@@ -1458,6 +1460,16 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 				bouquetList = TVbouquetList;
 			}
 			break;
+	}
+	if( newmode != LIST_MODE_FAV && g_settings.channellist_sort_mode < 3){
+		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
+			if(g_settings.channellist_sort_mode == 0)
+				bouquetList->Bouquets[i]->channelList->SortAlpha();
+			if(g_settings.channellist_sort_mode == 1)
+				bouquetList->Bouquets[i]->channelList->SortTP();
+			if(g_settings.channellist_sort_mode == 2)
+				bouquetList->Bouquets[i]->channelList->SortSat();
+		}
 	}
 	lastChannelMode = newmode;
 }
