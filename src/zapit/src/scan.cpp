@@ -195,12 +195,16 @@ _repeat:
 
 		processed_transponders++;
 		/* partial compare with already scanned, skip duplicate */
+		bool skip = false;
 		for (stiterator ntI = scanedtransponders.begin(); ntI != scanedtransponders.end(); ++ntI) {
 			if (ntI->second == tI->second) {
-				tI->second.dump("[scan] skip");
-				++tI;
-				continue;
+				skip = true;
+				break;
 			}
+		}
+		if(skip) {
+			tI->second.dump("[scan] skip");
+			continue;
 		}
 
 		transponder t(frontendType, tI->first, tI->second.feparams,  tI->second.polarization);
