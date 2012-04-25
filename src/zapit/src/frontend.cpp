@@ -1014,6 +1014,7 @@ bool CFrontend::setInput(CZapitChannel * channel, bool nvod)
 
 	currentTransponder.TP_id = tpI->first;
 
+	currentSatellitePosition = channel->getSatellitePosition();
 	setInput(channel->getSatellitePosition(), tpI->second.feparams.frequency, tpI->second.polarization);
 	return true;
 }
@@ -1428,8 +1429,6 @@ int CFrontend::driveToSatellitePosition(t_satellite_position satellitePosition, 
 			rotorSatellitePosition = satellitePosition;
 		}
 	}
-	//FIXME we never remember currentSatellitePosition for non-rotor ?
-	currentSatellitePosition = satellitePosition;
 
 	return waitForMotor;
 }
