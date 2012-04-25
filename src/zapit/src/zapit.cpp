@@ -1856,7 +1856,7 @@ bool CZapit::StopPlayBack(bool send_pmt)
 
 void CZapit::enterStandby(void)
 {
-	INFO("standby %d", standby);
+	INFO("standby %d recording %d", standby, (currentMode & RECORD_MODE));
 	if (standby)
 		return;
 
@@ -1867,17 +1867,16 @@ void CZapit::enterStandby(void)
 	StopPlayBack(true);
 
 	if(!(currentMode & RECORD_MODE)) {
+		pmt_stop_update_filter(&pmt_update_fd);
 		CFEManager::getInstance()->Close();
 	}
 }
 
 void CZapit::leaveStandby(void)
 {
-	INFO("standby %d", standby);
+	INFO("standby %d recording %d", standby, (currentMode & RECORD_MODE));
 	if(!standby)
 		return;
-
-	printf("[zapit] diseqc type = %d\n", diseqcType);
 
 	if(!(currentMode & RECORD_MODE)) {
 		CFEManager::getInstance()->Open();
