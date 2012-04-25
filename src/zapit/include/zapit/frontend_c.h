@@ -100,7 +100,7 @@ class CFrontend
 		/* current adapter where this frontend is on */
 		int adapter;
 		/* current frontend instance */
-		static CFrontend *currentFe;
+		//static CFrontend *currentFe;
 		bool locked;
 		/* tuning finished flag */
 		bool tuned;
@@ -159,7 +159,7 @@ class CFrontend
 		/* Private constructor */
 		CFrontend(int Number = 0, int Adapter = 0);
 
-		static CFrontend *getInstance(int Number = 0, int Adapter = 0);
+		//static CFrontend *getInstance(int Number = 0, int Adapter = 0);
 		friend class CFEManager;
 	public:
 		~CFrontend(void);

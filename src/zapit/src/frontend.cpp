@@ -137,6 +137,7 @@ typedef enum dvb_fec {
 #define TIME_STEP 200
 #define TIMEOUT_MAX_MS (feTimeout*100)
 /*********************************************************************************************************/
+#if 0
 // Global fe instance
 CFrontend *CFrontend::currentFe = NULL;
 
@@ -148,7 +149,7 @@ CFrontend *CFrontend::getInstance(int Number, int Adapter)
 	}
 	return currentFe;
 }
-
+#endif
 CFrontend::CFrontend(int Number, int Adapter)
 {
 	printf("[fe%d] New frontend on adapter %d\n", Number, Adapter);
@@ -238,6 +239,8 @@ void CFrontend::Close(void)
 {
 	if(standby)
 		return;
+
+	printf("[fe%d] close frontend\n", fenumber);
 
 	if (!slave && config.diseqcType > MINI_DISEQC)
 		sendDiseqcStandby();
