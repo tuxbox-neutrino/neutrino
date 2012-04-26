@@ -78,7 +78,7 @@ bool sortById (const CChannelEvent& a, const CChannelEvent& b)
 inline bool sortByDescription (const CChannelEvent& a, const CChannelEvent& b)
 {
 	if(a.description == b.description)
-		return a.eventID < b.eventID;
+		return a.startTime < b.startTime;
 	else
 		return a.description < b.description ;
 }
