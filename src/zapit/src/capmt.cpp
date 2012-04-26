@@ -25,6 +25,9 @@
 #include <zapit/capmt.h>
 #include <zapit/settings.h> /* CAMD_UDS_NAME         */
 #include <zapit/getservices.h>
+#include <zapit/debug.h>
+
+#include <ca_cs.h>
 
 #include <dvbsi++/program_map_section.h>
 #include <dvbsi++/ca_program_map_section.h>
@@ -36,6 +39,7 @@ CCam::CCam()
 	camask = 0;
 	demuxes[0] = demuxes[1] = demuxes[2] = 0;
 	source_demux = -1;
+	calen = 0;
 }
 
 unsigned char CCam::getVersion(void) const
@@ -72,25 +76,18 @@ bool CCam::sendMessage(const char * const data, const size_t length, bool update
 	return send_data(data, length);
 }
 
-bool CCam::setCaPmt(CZapitChannel * channel, int _demux, int _camask, bool update)
+bool CCam::makeCaPmt(CZapitChannel * channel, uint8_t list, const CaIdVector &caids)
 {
         int len;
         unsigned char * buffer = channel->getRawPmt(len);
 
-	camask = _camask;
-	source_demux = _demux;
+	INFO("cam %x source %d camask %d list %02x buffer", (int) this, source_demux, camask, list);
 
-	printf("CCam::setCaPmt cam %x source %d camask %d update %s\n", (int) this, _demux, camask, update ? "yes" : "no" );
-
-	if(camask == 0) {
-		close_connection();
-		return true;
-	}
 	if(!buffer)
 		return false;
 
 	ProgramMapSection pmt(buffer);
-	CaProgramMapSection capmt(&pmt, 0x03, 0x01);
+	CaProgramMapSection capmt(&pmt, list, 0x01, caids);
 
 	uint8_t tmp[10];
 	tmp[0] = 0x84;
@@ -119,15 +116,25 @@ bool CCam::setCaPmt(CZapitChannel * channel, int _demux, int _camask, bool updat
 
 	capmt.injectDescriptor(tmp, false);
 
-	unsigned char cabuf[2048];
-	int calen = capmt.writeToBuffer(cabuf);
+	calen = capmt.writeToBuffer(cabuf);
 #ifdef DEBUG_CAPMT
 	printf("CAPMT: ");
 	for(int i = 0; i < calen; i++)
 		printf("%02X ", cabuf[i]);
 	printf("\n");
 #endif
+	return true;
+}
+
+bool CCam::setCaPmt(bool update)
+{
 	return sendMessage((char *)cabuf, calen, update);
+}
+
+bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
+{
+	//cCA::SendCAPMT(u64 Source, u8 DemuxSource, u8 DemuxMask, const unsigned char *CAPMT, u32 CAPMTLen, const unsigned char *RawPMT, u32 RawPMTLen)
+	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask, cabuf, calen, rawpmt, rawlen);
 }
 
 int CCam::makeMask(int demux, bool add)
@@ -143,7 +150,7 @@ int CCam::makeMask(int demux, bool add)
 		if(demuxes[i] > 0)
 			mask |= 1 << i;
 	}
-	printf("CCam::MakeMask: demuxes %d:%d:%d old mask %d new mask %d\n", demuxes[0], demuxes[1], demuxes[2], camask, mask);
+	INFO("demuxes %d:%d:%d old mask %d new mask %d", demuxes[0], demuxes[1], demuxes[2], camask, mask);
 	return mask;
 }
 
@@ -182,7 +189,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 		printf("CCamManager: channel %llx not found\n", channel_id);
 		return false;
 	}
-printf("CCam::SetMode: channel %llx [%s] mode %d %s update %d\n", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
+	INFO("channel %llx [%s] mode %d %s update %d", channel_id, channel->getName().c_str(), mode, start ? "START" : "STOP", force_update);
 	mutex.lock();
 
 	cammap_iterator_t it = channel_map.find(channel_id);
@@ -220,9 +227,19 @@ printf("CCam::SetMode: channel %llx [%s] mode %d %s update %d\n", channel_id, ch
 	if(cam->getSource() > 0)
 		source = cam->getSource();
 
-printf("CCam::SetMode:  source %d old mask %d new mask %d force update %s\n", source, oldmask, newmask, force_update ? "yes" : "no");
+	INFO("source %d old mask %d new mask %d force update %s", source, oldmask, newmask, force_update ? "yes" : "no");
 	if((oldmask != newmask) || force_update) {
+#if 0
 		cam->setCaPmt(channel, source, newmask, true);
+#endif
+		cam->setCaMask(newmask);
+		cam->setSource(source);
+		if(newmask == 0) {
+			cam->sendMessage(NULL, 0, false);
+		} else {
+			cam->makeCaPmt(channel);
+			cam->setCaPmt(true);
+		}
 	}
 
 	if(newmask == 0) {
@@ -231,6 +248,25 @@ printf("CCam::SetMode:  source %d old mask %d new mask %d force update %s\n", so
 		//channel->setRawPmt(NULL);//FIXME
 		channel_map.erase(channel_id);
 		delete cam;
+	}
+	CaIdVector caids;
+	cCA::GetInstance()->GetCAIDS(caids);
+	uint8_t list = CCam::CAPMT_FIRST;
+	for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
+	{
+		channel = CServiceManager::getInstance()->FindChannel(it->first);
+		++it;
+		if(!channel)
+			continue;
+
+		if (it == channel_map.end())
+			list |= CCam::CAPMT_LAST; // FIRST->ONLY or MORE->LAST
+
+		cam->makeCaPmt(channel, list, caids);
+		int len;
+		unsigned char * buffer = channel->getRawPmt(len);
+		cam->sendCaPmt(channel->getTransponderId(), buffer, len);
+		list = CCam::CAPMT_MORE;
 	}
 	mutex.unlock();
 
