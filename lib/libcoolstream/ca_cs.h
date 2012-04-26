@@ -5,13 +5,14 @@
 /*                                                                             */
 /* (C) 2010 CoolStream International Ltd.                                      */
 /*                                                                             */
-/* $Id:: ca_cs.h 2528 2011-12-22 13:19:41Z nightshad                         $ */
+/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __CA_CS_H_
 #define __CA_CS_H_
 
 #include <OpenThreads/Thread>
 #include "cs_types.h"
+#include <vector>
 
 enum CA_INIT_MASK {
 	CA_INIT_SC	= 1,
@@ -39,7 +40,16 @@ enum CA_MESSAGE_FLAGS {
 	CA_MESSAGE_HAS_PARAM4_INT	= (1 << 10),
 	CA_MESSAGE_HAS_PARAM4_PTR	= (1 << 11),
 	CA_MESSAGE_HAS_PARAM4_DATA	= (1 << 12),
-	CA_MESSAGE_HAS_PARAM_LONG	= (1 << 13),
+	CA_MESSAGE_HAS_PARAM5_INT	= (1 << 13),
+	CA_MESSAGE_HAS_PARAM5_PTR	= (1 << 14),
+	CA_MESSAGE_HAS_PARAM5_DATA	= (1 << 15),
+	CA_MESSAGE_HAS_PARAM6_INT	= (1 << 16),
+	CA_MESSAGE_HAS_PARAM6_PTR	= (1 << 17),
+	CA_MESSAGE_HAS_PARAM6_DATA	= (1 << 18),
+	CA_MESSAGE_HAS_PARAM1_LONG	= (1 << 19),
+	CA_MESSAGE_HAS_PARAM2_LONG	= (1 << 20),
+	CA_MESSAGE_HAS_PARAM3_LONG	= (1 << 21),
+	CA_MESSAGE_HAS_PARAM4_LONG	= (1 << 22),
 };
 
 enum CA_MESSAGE_MSGID {
@@ -56,6 +66,7 @@ enum CA_MESSAGE_MSGID {
 	CA_MESSAGE_MSG_MMI_CLOSE,
 	CA_MESSAGE_MSG_INTERNAL,
 	CA_MESSAGE_MSG_PMT_ARRIVED,
+	CA_MESSAGE_MSG_CAPMT_ARRIVED,
 	CA_MESSAGE_MSG_CAT_ARRIVED,
 	CA_MESSAGE_MSG_ECM_ARRIVED,
 	CA_MESSAGE_MSG_EMM_ARRIVED,
@@ -70,12 +81,16 @@ typedef struct CA_MESSAGE {
 	int Slot;
 	u32 Flags;
 	union {
-		u8 *Data[4];
-		u32 Param[4];
-		void *Ptr[4];
-		u64 ParamLong;
+		u8 *Data[8];
+		u32 Param[8];
+		void *Ptr[8];
+		u64 ParamLong[4];
 	} Msg;
 } CA_MESSAGE;
+
+typedef std::vector<u16>			CaIdVector;
+typedef std::vector<u16>::iterator		CaIdVectorIterator;
+typedef std::vector<u16>::const_iterator	CaIdVectorConstIterator;
 
 #define CA_MESSAGE_SIZE		sizeof(CA_MESSAGE)
 #define CA_MESSAGE_ENTRIES	256
@@ -138,6 +153,10 @@ public:
 	void InputAnswer(enum CA_SLOT_TYPE, u32 Slot, u8 * Data, int Len);
 	/// Notify the module we closed the menu
 	void MenuClose(enum CA_SLOT_TYPE, u32 Slot);
+	/// Get the supported CAIDs
+	int GetCAIDS(CaIdVector & Caids);
+	/// Send a CA-PMT object and Raw unparsed PMT to the CA layer
+	bool SendCAPMT(u64 Source, u8 DemuxSource, u8 DemuxMask, const unsigned char *CAPMT, u32 CAPMTLen, const unsigned char *RawPMT, u32 RawPMTLen);
 	/// Virtual destructor
 	virtual ~cCA();
 };
