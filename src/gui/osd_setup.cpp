@@ -466,6 +466,11 @@ int COsdSetup::showOsdSetup()
 	mc->setHint("", LOCALE_MENU_HINT_VOLUME_POS);
 	osd_menu->addItem(mc);
 
+	// volume digits
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_VOLUME_DIGITS, &g_settings.volume_digits, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this);
+	mc->setHint("", LOCALE_MENU_HINT_VOLUME_DIGITS);
+	osd_menu->addItem(mc);
+
 	// show mute at volume 0
 	mc = new CMenuOptionChooser(LOCALE_EXTRA_SHOW_MUTE_ICON, &g_settings.show_mute_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
 	mc->setHint("", LOCALE_MENU_HINT_SHOW_MUTE_ICON);
@@ -839,7 +844,8 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		g_InfoViewer->changePB();
 		return true;
 	}
-	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_POS)) {
+	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_POS)) || 
+		 (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_DIGITS))){
 		CVolume::getInstance()->Init();
 		return false;
 	}

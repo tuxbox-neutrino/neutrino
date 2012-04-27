@@ -315,6 +315,7 @@ extra.tp.pol_v V
 extra.tp_rate Symbol rate
 extra.update_dir Local update directory
 extra.use_gotoxx Use gotoXX
+extra.volume_digits Volumebar digits
 extra.volume_pos Volumebar
 extra.west West
 extra.zap_cycle Zap cycle
@@ -1047,6 +1048,7 @@ menu.hint_video_mode HDMI output video mode
 menu.hint_video_modes VF key will cycle between enabled modes 
 menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
+menu.hint_volume_digits Numeric display of the volumebar on/off
 menu.hint_volume_pos Select volume indicator position
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
 menu.next Next (press Menu to quit)

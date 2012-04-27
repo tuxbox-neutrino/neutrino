@@ -57,12 +57,11 @@ CVolume::CVolume()
 	v_RemoteControl	= new CRemoteControl;
 #endif
 	VolumeFont	= SNeutrinoSettings::FONT_TYPE_INFOBAR_INFO;
-	paintDigits	= true;  // For future On/Off digits
 	paintShadow	= false; // For future On/Off switch shadow
 	MuteIconFrame	= false; // For future On/Off switch IconFrame
 	ShadowOffset	= 4;
 	mute_ay		= 0;
-	m_mode = CNeutrinoApp::getInstance()->getMode();
+	m_mode 		= CNeutrinoApp::getInstance()->getMode();
 
 	Init();
 }
@@ -75,6 +74,7 @@ CVolume::~CVolume()
 
 void CVolume::Init()
 {
+	paintDigits	= g_settings.volume_digits;
 	mute_ay_old	= mute_ay;
 	int faktor_h	= 18; // scale * 10
 	int clock_height= 0;
@@ -239,9 +239,9 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 
 		// volumebar shadow
 		if (paintShadow)
-			frameBuffer->paintBoxRel(x+ShadowOffset , y+ShadowOffset , (paintDigits) ? vbar_w - vbar_h : vbar_w, vbar_h, colShadow, ROUNDED, CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT);
+			frameBuffer->paintBoxRel(x+ShadowOffset , y+ShadowOffset , (paintDigits) ? vbar_w - vbar_h : vbar_w + 1, vbar_h, colShadow, ROUNDED, (paintDigits) ? CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT : CORNER_ALL);
 		// volumebar
-		frameBuffer->paintBoxRel(x , y , (paintDigits) ? vbar_w - vbar_h : vbar_w, vbar_h, colBar, ROUNDED, CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT);
+		frameBuffer->paintBoxRel(x , y , (paintDigits) ? vbar_w - vbar_h : vbar_w + 1, vbar_h, colBar, ROUNDED, (paintDigits) ? CORNER_TOP_LEFT | CORNER_BOTTOM_LEFT : CORNER_ALL);
 		// frame for progress
 		frameBuffer->paintBoxRel(progress_x-pB, progress_y-pB, progress_w+pB*1, progress_h+pB*2, colFrame);
 		// volume icon
