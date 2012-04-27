@@ -214,6 +214,7 @@ channellist.foot_sort_freq Sortiert[freq]
 channellist.foot_sort_sat Sortiert[sat]
 channellist.head Alle Kanäle
 channellist.history Verlauf
+channellist.keep_numbers Dauerhafte Kanalnummern
 channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
 channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
 channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
