@@ -955,7 +955,8 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		/* to copy settings from fe0 */
 		if(femode !=  CFEManager::FE_MODE_ALONE)
 			CFEManager::getInstance()->saveSettings(true);
-		fillSatSelect();
+		if (r_system == DVB_S) //sat
+			fillSatSelect();
 	}
 	return true;
 }
