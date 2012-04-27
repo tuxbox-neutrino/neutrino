@@ -31,8 +31,8 @@
 #include <eitd/edvbstring.h>
 
 //#define DEBUG_NIT
-#define DEBUG_NIT_UNUSED
-#define DEBUG_LCN
+//#define DEBUG_NIT_UNUSED
+//#define DEBUG_LCN
 
 CNit::CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dnum)
 {
