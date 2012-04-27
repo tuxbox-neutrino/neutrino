@@ -264,6 +264,7 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 		unsigned segment_last_section_number : 8;
 		unsigned last_table_id		  : 8;
 	} __attribute__ ((packed));  // 6 bytes total
+	static int bad_count = 0;
 
 	eit_extended_section_header *eit_extended_header;
 
@@ -326,12 +327,19 @@ int DMX::getSection(uint8_t *buf, const unsigned timeoutInMSeconds, int &timeout
 	// check if the filter worked correctly
 	if (((table_id ^ filters[filter_index].filter) & filters[filter_index].mask) != 0)
 	{
-		xcprintf("	%s: filter 0x%x mask 0x%x -> skip sections for table 0x%x\n", name.c_str(), filters[filter_index].filter, filters[filter_index].mask, table_id);
+		xcprintf("	%s: filter 0x%x mask 0x%x -> skip sections for table 0x%x", name.c_str(), filters[filter_index].filter, filters[filter_index].mask, table_id);
 		unlock();
+		bad_count++;
+		if(bad_count >= 5) {
+			bad_count = 0;
+			timeouts = -1;
+			return -1;
+		}
 		real_pause();
 		real_unpause();
 		return -1;
 	}
+	bad_count = 0;
 	/* there are channels with very low rate, neutrino change filter on timeouts while data not complete */
 	seen_section = true;
 	//unlock();
