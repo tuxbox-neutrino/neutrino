@@ -32,7 +32,7 @@
 #include <dvbsi++/program_map_section.h>
 #include <dvbsi++/ca_program_map_section.h>
 
-#define DEBUG_CAPMT
+//#define DEBUG_CAPMT
 
 CCam::CCam()
 {
@@ -133,7 +133,6 @@ bool CCam::setCaPmt(bool update)
 
 bool CCam::sendCaPmt(uint64_t tpid, uint8_t *rawpmt, int rawlen)
 {
-	//cCA::SendCAPMT(u64 Source, u8 DemuxSource, u8 DemuxMask, const unsigned char *CAPMT, u32 CAPMTLen, const unsigned char *RawPMT, u32 RawPMTLen)
 	return cCA::GetInstance()->SendCAPMT(tpid, source_demux, camask, cabuf, calen, rawpmt, rawlen);
 }
 
