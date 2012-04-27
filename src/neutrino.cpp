@@ -372,6 +372,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.make_hd_list = configfile.getInt32("make_hd_list", 1);
 	g_settings.make_new_list = configfile.getInt32("make_new_list", 1);
 	g_settings.make_removed_list = configfile.getInt32("make_removed_list", 1);
+	g_settings.keep_channel_numbers = configfile.getInt32("keep_channel_numbers", 0);
 
 	//misc
 	g_settings.power_standby = configfile.getInt32( "power_standby", 0);
@@ -819,6 +820,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setInt32( "make_hd_list", g_settings.make_hd_list);
 	configfile.setInt32( "make_new_list", g_settings.make_new_list);
 	configfile.setInt32( "make_removed_list", g_settings.make_removed_list);
+	configfile.setInt32( "keep_channel_numbers", g_settings.keep_channel_numbers);
 	//led
 	configfile.setInt32( "led_tv_mode", g_settings.led_tv_mode);
 	configfile.setInt32( "led_standby_mode", g_settings.led_standby_mode);
@@ -1793,6 +1795,8 @@ TIMER_START();
 	CVFD::getInstance()->Clear();
 	CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_NEUTRINO_STARTING));
 
+	/* set service manager options before starting zapit */
+	CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
 	//zapit start parameters
 	Z_start_arg ZapStart_arg;
 	ZapStart_arg.startchanneltv_id = g_settings.startchanneltv_id;
