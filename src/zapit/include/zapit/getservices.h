@@ -80,6 +80,7 @@ class CServiceManager
 		service_number_map_t radio_numbers;
 		bool services_changed;
 
+		bool keep_numbers;
 		bool have_numbers;
 		bool dup_numbers;
 
@@ -171,5 +172,6 @@ class CServiceManager
 		bool GetTransponder(transponder_id_t tid, transponder &t);
 		transponder_list_t & GetTransponders() { return transponders; }
 		transponder_list_t & GetSatelliteTransponders(t_satellite_position position) { return satelliteTransponders[position]; }
+		void KeepNumbers(bool enable) { keep_numbers = enable; };
 };
 #endif /* __getservices_h__ */

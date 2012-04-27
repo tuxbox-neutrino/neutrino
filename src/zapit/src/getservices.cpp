@@ -40,6 +40,7 @@ CServiceManager::CServiceManager()
 	scanInputParser = NULL;
 	service_count = 0;
 	services_changed = false;
+	keep_numbers = false;
 }
 
 CServiceManager::~CServiceManager()
@@ -136,7 +137,7 @@ void CServiceManager::ResetChannelNumbers(bool bouquets, bool numbers)
 			it->second.number = 0;
 		}
 #endif
-		if(numbers)
+		if(!keep_numbers || numbers)
 			it->second.number = 0;
 		if(bouquets)
 			it->second.has_bouquet = 0;
@@ -385,6 +386,9 @@ void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id
 				satellitePosition, freq);
 
 		service_number_map_t * channel_numbers = (service_type == ST_DIGITAL_RADIO_SOUND_SERVICE) ? &radio_numbers : &tv_numbers;
+
+		if(!keep_numbers)
+			number = 0;
 
 		if(number) {
 			have_numbers = true;
@@ -677,7 +681,7 @@ do_current:
 		}
 	}
 	/* if no numbers, zapit will save after loading bouquets, with numbers */
-	if(!have_numbers || dup_numbers)
+	if(service_count && keep_numbers && (!have_numbers || dup_numbers))
 		services_changed = true;
 
 	return true;
