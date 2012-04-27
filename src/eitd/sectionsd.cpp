@@ -77,8 +77,8 @@ static bool sectionsd_ready = false;
 static unsigned int max_events;
 
 /* period to remove old events */
-//#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
-#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
+#define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
+//#define HOUSEKEEPING_SLEEP (30) // FIXME 1 min for testing
 /* period to clean cached sections and force restart sections read */
 #define META_HOUSEKEEPING (24 * 60 * 60) / HOUSEKEEPING_SLEEP // meta housekeeping after XX housekeepings - every 24h -
 
@@ -981,8 +981,6 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 	//  unsigned anzServices=services.size();
 	unlockServices();
 
-	struct mallinfo speicherinfo = mallinfo();
-
 	//  struct rusage resourceUsage;
 	//  getrusage(RUSAGE_CHILDREN, &resourceUsage);
 	//  getrusage(RUSAGE_SELF, &resourceUsage);
@@ -1002,20 +1000,17 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 "Number of cached nvod-events: %u\n"
 		 "Number of cached meta-services: %u\n"
 		 //    "Resource-usage: maxrss: %ld ixrss: %ld idrss: %ld isrss: %ld\n"
-		 "Total size of memory occupied by chunks handed out by malloc: %d (%dkb)\n"
-		 "Total bytes memory allocated with `sbrk' by malloc, in bytes: %d (%dkb)\n"
 #ifdef ENABLE_FREESATEPG
 		 "FreeSat enabled\n"
 #else
 		 ""
 #endif
 		 ,ctime(&zeit),
-		 secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices,
+		 secondsToCache / (60*60L), secondsExtendedTextCache / (60*60L), oldEventsAre / 60, anzServices, anzNVODservices, anzEvents, anzNVODevents, anzMetaServices
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
-		 speicherinfo.uordblks, speicherinfo.uordblks / 1024,
-		 speicherinfo.arena, speicherinfo.arena / 1024
 		);
 	printf("%s\n", stati);
+	malloc_stats();
 	return ;
 }
 
@@ -1147,11 +1142,7 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 
 	unlockEvents();
 
-	//FIXME debug
-	struct mallinfo meminfo = mallinfo();
-	printf("total size of memory occupied by chunks handed out by malloc: %d\n"
-			"total bytes memory allocated with `sbrk' by malloc, in bytes: %d (%dkB)\n",
-			meminfo.uordblks, meminfo.arena, meminfo.arena / 1024);
+	malloc_stats();
 }
 
 static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLength)
@@ -1927,14 +1918,10 @@ bool CSdtThread::addServices()
 /* helper function for the housekeeping-thread */
 static void print_meminfo(void)
 {
-#if 0
 	if (!sections_debug)
 		return;
-#endif
-	struct mallinfo meminfo = mallinfo();
-	xprintf("total size of memory occupied by chunks handed out by malloc: %d\n"
-			"total bytes memory allocated with `sbrk' by malloc, in bytes: %d (%dkB)\n",
-			meminfo.uordblks, meminfo.arena, meminfo.arena / 1024);
+
+	malloc_stats();
 }
 
 //---------------------------------------------------------------------
@@ -1983,7 +1970,7 @@ static void *houseKeepingThread(void *)
 		printf("[sectionsd] Removed %d old events (%d left).\n", anzEventsAlt - mySIeventsOrderUniqueKey.size(), mySIeventsOrderUniqueKey.size());
 		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 		{
-			//print_meminfo();
+			print_meminfo();
 			dprintf("Removed %d old events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		}
 		anzEventsAlt = mySIeventsOrderUniqueKey.size();
@@ -1992,7 +1979,7 @@ static void *houseKeepingThread(void *)
 		readLockEvents();
 		if (mySIeventsOrderUniqueKey.size() != anzEventsAlt)
 		{
-			//print_meminfo();
+			print_meminfo();
 			dprintf("Removed %d waste events.\n", anzEventsAlt - mySIeventsOrderUniqueKey.size());
 		}
 
