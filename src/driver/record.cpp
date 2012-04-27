@@ -129,6 +129,7 @@ bool CRecordInstance::SaveXml()
 
 void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 {
+	return;
 	while (time(0) < StartTime + WaitTime)
 		usleep(100000);
 }
