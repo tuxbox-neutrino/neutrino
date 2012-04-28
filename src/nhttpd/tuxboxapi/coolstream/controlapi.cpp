@@ -237,7 +237,7 @@ void CControlAPI::Execute(CyhookHandler *hh)
 	{
 		dprintf("Execute CGI : %s\n",filename.c_str());
 		for(CStringList::iterator it = hh->ParamList.begin() ;
-				it != hh->ParamList.end() ; it++)
+				it != hh->ParamList.end() ; ++it)
 			dprintf("  Parameter %s : %s\n",it->first.c_str(), it->second.c_str());
 	}
 
@@ -1206,7 +1206,7 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 	int i = 0;
 	CChannelEventList::iterator eventIterator;
 	bool isFirstLine = true;
-	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, i++) {
+	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); ++eventIterator, i++) {
 		if ((max != -1 && i >= max) || (stoptime != -1 && eventIterator->startTime >= stoptime))
 			break;
 		std::string prog = "";
@@ -1414,7 +1414,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 		sscanf(hh->ParamList["id"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
 		sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 		CChannelEventList::iterator eventIterator;
-		for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++) {
+		for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); ++eventIterator) {
 			CShortEPGData epg;
 			if (sectionsd_getEPGidShort(eventIterator->eventID, &epg)) {
 				hh->printf("%llu %ld %d\n", eventIterator->eventID, eventIterator->startTime, eventIterator->duration);
@@ -1581,11 +1581,11 @@ void CControlAPI::LCDAction(CyhookHandler *hh)
 //-------------------------------------------------------------------------
 void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 {
-	int pos;
+	int pos = 0;
 	sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 	CChannelEventList::iterator eventIterator;
 
-	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, pos++)
+	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); ++eventIterator, pos++)
 		hh->printf("%llu %ld %d %s\n", eventIterator->eventID, eventIterator->startTime, eventIterator->duration, eventIterator->description.c_str());
 }
 
@@ -1679,7 +1679,7 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 	if(eit_not_ok)
 	{
 		unsigned short i = 0;
-		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); it++)
+		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); ++it)
 		{
 			if(!(init_iso))
 			{
@@ -1712,7 +1712,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 
 	CTimerd::TimerList::iterator timer = timerlist.begin();
 
-	for(; timer != timerlist.end(); timer++)
+	for(; timer != timerlist.end(); ++timer)
 	{
 		// Add Data
 		char zAddData[22+1] = { 0 };
@@ -1814,7 +1814,7 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 	// start timer list
 	hh->WriteLn("\t<timer_list>\n");
 
-	for(; timer != timerlist.end(); timer++)
+	for(; timer != timerlist.end(); ++timer)
 	{
 		hh->WriteLn("\t\t<timer>\n");
 		hh->printf("\t\t\t<type>%s</type>\n",(NeutrinoAPI->timerEventType2Str(timer->eventType)).c_str());
@@ -2322,7 +2322,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 				real_alarmTimeT -= pre;
 			}
 
-			for(; timer != timerlist.end(); timer++)
+			for(; timer != timerlist.end(); ++timer)
 				if(timer->alarmTime == real_alarmTimeT)
 				{
 					NeutrinoAPI->Timerd->removeTimerEvent(timer->eventID);
@@ -2432,7 +2432,7 @@ void CControlAPI::changeBouquetCGI(CyhookHandler *hh)
 		CZapitClient::BouquetChannelList BChannelList;
 		NeutrinoAPI->Zapit->getBouquetChannels(selected - 1, BChannelList, CZapitClient::MODE_CURRENT, true);
 		CZapitClient::BouquetChannelList::iterator channels = BChannelList.begin();
-		for(; channels != BChannelList.end(); channels++)
+		for(; channels != BChannelList.end(); ++channels)
 		{
 			NeutrinoAPI->Zapit->removeChannelFromBouquet(selected - 1, channels->channel_id);
 		}
@@ -2613,7 +2613,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 		if (load) {	// get and output list
 			conf = Config->getConfigDataMap();
 			ConfigDataMap::iterator it, end, start;
-			for (start = conf.begin(), it=start, end = conf.end(); it != end; it++) {
+			for (start = conf.begin(), it=start, end = conf.end(); it != end; ++it) {
 				std::string key = it->first;
 				replace(key, ".", "_dot_");
 				replace(key, "-", "_bind_");
@@ -2629,7 +2629,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 			}
 		}
 		else { // set values and save list
-			for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); it++) {
+			for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it) {
 				std::string key = it->first;
 				replace(key, "_dot_", ".");
 				replace(key, "_bind_", "-");

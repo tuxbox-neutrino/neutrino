@@ -29,7 +29,7 @@ THandleStatus CyhookHandler::Hooks_SendResponse() {
 	log_level_printf(4, "Response Hook-List Start\n");
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); i++) {
+	for (; i != HookList.end(); ++i) {
 		log_level_printf(4, "Response Hook-List (%s) Start\n",
 				((*i)->getHookName()).c_str());
 		// response Hook
@@ -53,7 +53,7 @@ THandleStatus CyhookHandler::Hooks_PrepareResponse() {
 	outType = checkOutput();
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); i++) {
+	for (; i != HookList.end(); ++i) {
 		log_level_printf(4, "PrepareResponse Hook-List (%s) Start\n",
 				((*i)->getHookName()).c_str());
 		// response Hook
@@ -82,7 +82,7 @@ THandleStatus CyhookHandler::Hooks_ReadConfig(CConfigFile *Config,
 	log_level_printf(4, "ReadConfig Hook-List Start\n");
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); i++) {
+	for (; i != HookList.end(); ++i) {
 		//		log_level_printf(4,"ReadConfig Hook-List (%s)  Start\n", ((*i)->getHookName()).c_str());
 		// response Hook
 		_status = (*i)->Hook_ReadConfig(Config, ConfigList);
@@ -101,7 +101,7 @@ THandleStatus CyhookHandler::Hooks_EndConnection() {
 	log_level_printf(4, "EndConnection Hook-List Start\n");
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); i++) {
+	for (; i != HookList.end(); ++i) {
 		log_level_printf(4, "EndConnection Hook-List (%s) Start\n",
 				((*i)->getHookName()).c_str());
 		// response Hook
@@ -123,7 +123,7 @@ THandleStatus CyhookHandler::Hooks_UploadSetFilename(std::string &Filename) {
 			Filename.c_str());
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); i++) {
+	for (; i != HookList.end(); ++i) {
 		log_level_printf(4, "UploadSetFilename Hook-List (%s) Start\n",
 				((*i)->getHookName()).c_str());
 		// response Hook
@@ -146,7 +146,7 @@ THandleStatus CyhookHandler::Hooks_UploadReady(const std::string& Filename) {
 			Filename.c_str());
 	THandleStatus _status = HANDLED_NONE;
 	THookList::iterator i = HookList.begin();
-	for (; i != HookList.end(); i++) {
+	for (; i != HookList.end(); ++i) {
 		log_level_printf(4, "UploadReady Hook-List (%s) Start\n",
 				((*i)->getHookName()).c_str());
 		// response Hook

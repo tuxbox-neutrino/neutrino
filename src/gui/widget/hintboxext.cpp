@@ -85,10 +85,10 @@ CHintBoxExt::~CHintBoxExt(void)
 		// content has been set using "m_message" so we are responsible to 
 		// delete it
 		for (ContentLines::iterator it = m_lines.begin();
-			 it != m_lines.end(); it++)
+			 it != m_lines.end(); ++it)
 		{
 			for (std::vector<Drawable*>::iterator it2 = it->begin();
-				 it2 != it->end(); it2++)
+				 it2 != it->end(); ++it2)
 			{
 				//(*it2)->print();
 				delete *it2;
@@ -116,13 +116,13 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	int maxWidth = m_width > 0 ? m_width : 0;
 	int maxOverallHeight = 0;
 	m_startEntryOfPage.push_back(0);
-	for (ContentLines::iterator it = m_lines.begin(); it!=m_lines.end(); it++)
+	for (ContentLines::iterator it = m_lines.begin(); it!=m_lines.end(); ++it)
 	{
 		bool pagebreak = false;
 		int maxHeight = 0;
 		int lineWidth = 0;
 		for (std::vector<Drawable*>::iterator item = it->begin();
-			 item != it->end(); item++) {
+			 item != it->end(); ++item) {
 			if ((*item)->getHeight() > maxHeight)
 				maxHeight = (*item)->getHeight();
 			lineWidth += (*item)->getWidth();
@@ -263,11 +263,11 @@ void CHintBoxExt::refresh(bool toround)
 
 	for (ContentLines::iterator it = m_lines.begin() + m_startEntryOfPage[m_currentPage];
 		 it != m_lines.begin() + m_startEntryOfPage[m_currentPage+1]
-			 && it != m_lines.end(); it++)
+			 && it != m_lines.end(); ++it)
 	{
 		int xPos = textStartX;
 		int maxHeight = 0;
-		for (std::vector<Drawable*>::iterator d = it->begin();d!=it->end();d++)
+		for (std::vector<Drawable*>::iterator d = it->begin();d!=it->end();++d)
 		{
 // 			(*d)->print();
 // 			printf("\n");

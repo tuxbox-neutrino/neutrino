@@ -69,8 +69,8 @@ void CLastChannel::store (int channel, t_channel_id channel_id, bool /* forceSto
 	/* remove this channel at other than 0 position */
 	if(this->lastChannels.size() > 1) {
 		It = this->lastChannels.begin();
-		It++;
-		for (; It != this->lastChannels.end() ; It++) {
+		++It;
+		for (; It != this->lastChannels.end() ; ++It) {
 			if (channel_id == It->channel_id) {
 				this->lastChannels.erase(It);
 				break;

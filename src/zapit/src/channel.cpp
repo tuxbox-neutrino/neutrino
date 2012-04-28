@@ -106,7 +106,7 @@ int CZapitChannel::addAudioChannel(const unsigned short pid, const CZapitAudioCh
 {
 	std::vector <CZapitAudioChannel *>::iterator aI;
 
-	for (aI = audioChannels.begin(); aI != audioChannels.end(); aI++)
+	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI)
 		if ((* aI)->pid == pid) {
 			(* aI)->description = description;
                         (* aI)->audioChannelType = audioChannelType;
@@ -126,7 +126,7 @@ void CZapitChannel::resetPids(void)
 {
 	std::vector<CZapitAudioChannel *>::iterator aI;
 
-	for (aI = audioChannels.begin(); aI != audioChannels.end(); aI++) {
+	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI) {
 		delete *aI;
 	}
 
@@ -142,7 +142,7 @@ void CZapitChannel::resetPids(void)
 	/*privatePid = 0;*/
 	pidsFlag = false;
         std::vector<CZapitAbsSub *>::iterator subI;
-        for (subI = channelSubs.begin(); subI != channelSubs.end(); subI++){
+        for (subI = channelSubs.begin(); subI != channelSubs.end(); ++subI){
             delete *subI;
         }
         channelSubs.clear();
@@ -189,7 +189,7 @@ void CZapitChannel::addTTXSubtitle(const unsigned int pid, const std::string lan
 
 printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCode.c_str(), mag_nr, page_number);
 	std::vector<CZapitAbsSub*>::iterator subI;
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();subI++){
+	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
 		if ((*subI)->thisSubType==CZapitAbsSub::TTX){
 			tmpSub=reinterpret_cast<CZapitTTXSub*>(*subI);
 			if (tmpSub->ISO639_language_code == langCode) {
@@ -224,7 +224,7 @@ void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string lan
 	CZapitDVBSub* tmpSub = 0;
 	std::vector<CZapitAbsSub*>::iterator subI;
 printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n", pid, langCode.c_str(), composition_page_id, ancillary_page_id);
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();subI++){
+	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
 		if ((*subI)->thisSubType==CZapitAbsSub::DVB){
 			tmpSub=reinterpret_cast<CZapitDVBSub*>(*subI);
 			if (tmpSub->ISO639_language_code==langCode) {

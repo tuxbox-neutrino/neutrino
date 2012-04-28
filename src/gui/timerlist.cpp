@@ -418,7 +418,7 @@ void CTimerList::updateEvents(void)
 	Timer->getTimerList (timerlist);
 	//Remove last deleted event from List
 	CTimerd::TimerList::iterator timer = timerlist.begin();
-	for (; timer != timerlist.end(); timer++)
+	for (; timer != timerlist.end(); ++timer)
 	{
 		if (timer->eventID==skipEventID)
 		{
@@ -1218,7 +1218,7 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 	std::string timerbuf = g_Locale->getText(LOCALE_TIMERLIST_OVERLAPPING_TIMER);
 	timerbuf += "\n";
 	for (CTimerd::TimerList::iterator it = overlappingTimers.begin();
-			it != overlappingTimers.end(); it++)
+			it != overlappingTimers.end(); ++it)
 	{
 		timerbuf += CTimerList::convertTimerType2String(it->eventType);
 		timerbuf += " (";

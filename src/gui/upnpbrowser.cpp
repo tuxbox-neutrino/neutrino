@@ -527,7 +527,7 @@ void CUpnpBrowserGui::playnext(void)
 		}
 #endif
 		results=m_devices[m_selecteddevice].SendSOAP("urn:schemas-upnp-org:service:ContentDirectory:1", "Browse", attribs);
-		for (i=results.begin(); i!=results.end(); i++)
+		for (i=results.begin(); i!=results.end(); ++i)
 		{
 			if (i->first=="NumberReturned")
 			{
@@ -644,7 +644,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			}
 #endif
 			results=m_devices[m_selecteddevice].SendSOAP("urn:schemas-upnp-org:service:ContentDirectory:1", "Browse", attribs);
-			for (i=results.begin(); i!=results.end(); i++)
+			for (i=results.begin(); i!=results.end(); ++i)
 			{
 				if (i->first=="NumberReturned")
 				{

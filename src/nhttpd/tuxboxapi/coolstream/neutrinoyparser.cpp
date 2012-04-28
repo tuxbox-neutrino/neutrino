@@ -399,7 +399,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			{
 				CZapitClient::subServiceList subServiceList;
 
-				for (CSectionsdClient::NVODTimesList::iterator ni = nvod_list.begin(); ni != nvod_list.end(); ni++)
+				for (CSectionsdClient::NVODTimesList::iterator ni = nvod_list.begin(); ni != nvod_list.end(); ++ni)
 				{
 					CZapitClient::commandAddSubServices cmd;
 					CEPGData epg;
@@ -578,7 +578,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 	if(eit_not_ok)
 	{
 		unsigned short i = 0;
-		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); it++)
+		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); ++it)
 		{
 			if(!(init_iso))
 			{
@@ -744,7 +744,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 	int i = 1;
 	char classname= 'a';
 	CTimerd::TimerList::iterator timer = timerlist.begin();
-	for(; timer != timerlist.end();timer++)
+	for(; timer != timerlist.end();++timer)
 	{
 		classname = (i++&1)?'a':'b';
 

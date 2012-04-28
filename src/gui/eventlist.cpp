@@ -667,7 +667,7 @@ void CNeutrinoEventList::hide()
 CTimerd::CTimerEventTypes CNeutrinoEventList::isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID)
 {
 	CTimerd::TimerList::iterator timer = timerlist.begin();
-	for(; timer != timerlist.end(); timer++) {
+	for(; timer != timerlist.end(); ++timer) {
 		if(timer->channel_id == channel_id && (timer->eventType == CTimerd::TIMER_ZAPTO || timer->eventType == CTimerd::TIMER_RECORD)) {
 			if(timer->epgID == event->eventID) {
 				if(timer->epg_starttime == event->startTime) {

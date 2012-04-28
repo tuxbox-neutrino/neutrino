@@ -3837,7 +3837,7 @@ void CNeutrinoApp::SelectSubtitles()
 			if (s->thisSubType == CZapitAbsSub::DVB) {
 				CZapitDVBSub* sd = reinterpret_cast<CZapitDVBSub*>(s);
 				std::map<std::string, std::string>::const_iterator it;
-				for(it = iso639.begin(); it != iso639.end(); it++) {
+				for(it = iso639.begin(); it != iso639.end(); ++it) {
 					if(temp == it->second && sd->ISO639_language_code == it->first) {
 						printf("CNeutrinoApp::SelectSubtitles: found DVB %s, pid %x\n", sd->ISO639_language_code.c_str(), sd->pId);
 						dvbsub_stop();
@@ -3852,7 +3852,7 @@ void CNeutrinoApp::SelectSubtitles()
 			if (s->thisSubType == CZapitAbsSub::TTX) {
 				CZapitTTXSub* sd = reinterpret_cast<CZapitTTXSub*>(s);
 				std::map<std::string, std::string>::const_iterator it;
-				for(it = iso639.begin(); it != iso639.end(); it++) {
+				for(it = iso639.begin(); it != iso639.end(); ++it) {
 					if(temp == it->second && sd->ISO639_language_code == it->first) {
 						int page = ((sd->teletext_magazine_number & 0xFF) << 8) | sd->teletext_page_number;
 						printf("CNeutrinoApp::SelectSubtitles: found TTX %s, pid %x page %03X\n", sd->ISO639_language_code.c_str(), sd->pId, page);

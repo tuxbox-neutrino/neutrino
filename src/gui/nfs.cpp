@@ -303,7 +303,7 @@ int CNFSUmountGui::menu()
 	umountMenu.addIntroItems();
 	CFSMounter::getMountedFS(infos);
 	for (CFSMounter::MountInfos::const_iterator it = infos.begin();
-	     it != infos.end();it++)
+	     it != infos.end();++it)
 	{
 		if(it->type == "nfs" || it->type == "cifs" || it->type == "lufs")
 		{

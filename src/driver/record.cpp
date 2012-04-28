@@ -278,7 +278,7 @@ bool CRecordInstance::Update()
 	GetPids(channel);
 	FilterPids(apid_list);
 
-	for(it = apid_list.begin(); it != apid_list.end(); it++) {
+	for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 		bool found = false;
 		for(unsigned int i = 0; i < numpids; i++) {
 			if(apids[i] == it->apid) {
@@ -497,7 +497,7 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
                         APIDDesc a = {apid_min, apid_min_idx, false};
                         apid_list.push_back(a);
                 }
-                for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); it++)
+                for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); ++it)
                         printf("Record APID 0x%X %d\n",it->apid, it->ac3);
         }
 }
@@ -546,7 +546,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	EPG_AUDIO_PIDS audio_pids;
 	APIDList::iterator it;
 	for(unsigned int i= 0; i< allpids.APIDs.size(); i++) {
-		for(it = apid_list.begin(); it != apid_list.end(); it++) {
+		for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 			if(allpids.APIDs[i].pid == it->apid) {
 				audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 				audio_pids.epgAudioPidName = g_RemoteControl->current_PIDs.APIDs[i].desc;

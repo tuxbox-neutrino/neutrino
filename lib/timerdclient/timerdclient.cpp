@@ -357,7 +357,7 @@ CTimerd::TimerList CTimerdClient::getOverlappingTimers(time_t& startTime, time_t
 	getRecordingSafety(timerPre,timerPost);
 
 	for (CTimerd::TimerList::iterator it = timerlist.begin();
-	     it != timerlist.end();it++)
+	     it != timerlist.end();++it)
 	{
 		if(it->stopTime != 0 && stopTime != 0)
 		{

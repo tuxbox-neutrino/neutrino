@@ -64,7 +64,7 @@ void CEventServer::sendEvent(const unsigned int eventID, const initiators initia
 {
 	eventClientMap notifyClients = eventData[eventID];
 
-	for(eventClientMap::iterator pos = notifyClients.begin(); pos != notifyClients.end(); pos++)
+	for(eventClientMap::iterator pos = notifyClients.begin(); pos != notifyClients.end(); ++pos)
 	{
 		//allen clients ein event schicken
 		eventClient client = pos->second;

@@ -163,7 +163,7 @@ void CBookmarkManager::writeBookmarkFile() {
 
 	printf("CBookmarkManager: Writing bookmark file\n");
 
-	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); it++)
+	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
 	{
 		std::string tmp = bookmarkstring;
 		tmp += "name";

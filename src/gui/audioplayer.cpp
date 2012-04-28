@@ -1243,7 +1243,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 
 		m_Path = filebrowser.getCurrentDir();
 		CFileList::const_iterator files = filebrowser.getSelectedFiles().begin();
-		for (; files != filebrowser.getSelectedFiles().end(); files++)
+		for (; files != filebrowser.getSelectedFiles().end(); ++files)
 		{
 			if (maxProgress > SHOW_FILE_LOAD_LIMIT)
 			{
@@ -1434,7 +1434,7 @@ bool CAudioPlayerGui::openSCbrowser(void)
 		neutrino_msg_t      msg;
 		neutrino_msg_data_t data;
 		g_RCInput->getMsg(&msg, &data, 0);
-		for (; (files != filebrowser.getSelectedFiles().end()) && (msg != CRCInput::RC_home); files++)
+		for (; (files != filebrowser.getSelectedFiles().end()) && (msg != CRCInput::RC_home); ++files)
 		{
 			//if (maxProgress > SHOW_FILE_LOAD_LIMIT)
 			{
@@ -2482,11 +2482,11 @@ void CAudioPlayerGui::removeFromPlaylist(long pos)
 		// behind item to delete
 		long p = 0;
 		for (CTitle2Pos::iterator title=m_title2Pos.begin();
-				title!=m_title2Pos.end(); title++)
+				title!=m_title2Pos.end(); ++title)
 		{
 			CPosList newList;
 			for (CPosList::iterator posIt=title->second.begin();
-					posIt!=title->second.end(); posIt++)
+					posIt!=title->second.end(); ++posIt)
 			{
 				p = *(posIt);
 				if (*posIt > pos)
@@ -2568,12 +2568,12 @@ void CAudioPlayerGui::selectTitle(unsigned char selectionChar)
 void CAudioPlayerGui::printSearchTree()
 {
 	for (CTitle2Pos::iterator it=m_title2Pos.begin();
-			it!=m_title2Pos.end(); it++)
+			it!=m_title2Pos.end(); ++it)
 	{
 		printf("key: %c\n",it->first);
 		long pos=-1;
 		for (CPosList::iterator it2=it->second.begin();
-				it2!=it->second.end(); it2++)
+				it2!=it->second.end(); ++it2)
 		{
 			pos++;
 			printf(" val: %ld ",*it2);
@@ -2607,7 +2607,7 @@ void CAudioPlayerGui::buildSearchTree()
 	long listPos = -1;
 
 	for (CAudioPlayList::iterator it=m_playlist.begin();
-			it!=m_playlist.end(); it++)
+			it!=m_playlist.end(); ++it)
 	{
 		// 		if (m_state == CAudioPlayerGui::PLAY)
 		// 			usleep(10*1000);
@@ -2779,7 +2779,7 @@ void CAudioPlayerGui::savePlaylist()
 		playlistFile << "#EXTM3U" << std::endl;
 
 		CAudioPlayList::const_iterator it;
-		for (it = m_playlist.begin(); it!=m_playlist.end(); it++)
+		for (it = m_playlist.begin(); it!=m_playlist.end(); ++it)
 		{
 			playlistFile << "#EXTINF:" << it->MetaData.total_time << ","
 			<< it->MetaData.artist << " - " << it->MetaData.title << std::endl;

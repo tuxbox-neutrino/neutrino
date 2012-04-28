@@ -275,7 +275,7 @@ int SIevent::saveXML2(FILE *file) const
 	for (std::map<std::string, std::string>::const_iterator
 			i = langName.begin() ;
 			i != langName.end() ;
-			i++) {
+			++i) {
 		if (i->second.length()) {
 			fprintf(file, "\t\t\t<name lang=\"%s\" string=\"", i->first.c_str());
 			saveStringToXMLfile(file, i->second.c_str());
@@ -285,7 +285,7 @@ int SIevent::saveXML2(FILE *file) const
 	for (std::map<std::string, std::string>::const_iterator
 			i = langText.begin() ;
 			i != langText.end() ;
-			i++) {
+			++i) {
 		if (i->second.length()) {
 			fprintf(file, "\t\t\t<text lang=\"%s\" string=\"", i->first.c_str());
 			saveStringToXMLfile(file, i->second.c_str());
@@ -305,7 +305,7 @@ int SIevent::saveXML2(FILE *file) const
 	for (std::map<std::string, std::string>::const_iterator
 			i = langExtendedText.begin() ;
 			i != langExtendedText.end() ;
-			i++) {
+			++i) {
 		if (i->second.length()) {
 			fprintf(file, "\t\t\t<extended_text lang=\"%s\" string=\"", i->first.c_str());
 			saveStringToXMLfile(file, i->second.c_str());

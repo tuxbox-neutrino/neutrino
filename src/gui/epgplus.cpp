@@ -361,7 +361,7 @@ void EpgPlus::ChannelEntry::init()
 EpgPlus::ChannelEntry::~ChannelEntry()
 {
 	for (TCChannelEventEntries::iterator It = this->channelEventEntries.begin();
-			It != this->channelEventEntries.end(); It++) {
+			It != this->channelEventEntries.end(); ++It) {
 		delete *It;
 	}
 	this->channelEventEntries.clear();
@@ -527,7 +527,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 {
 	for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
-			It != this->displayedChannelEntries.end(); It++) {
+			It != this->displayedChannelEntries.end(); ++It) {
 		delete *It;
 	}
 	this->displayedChannelEntries.clear();
@@ -1163,7 +1163,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 	}
 	while (this->refreshAll);
 	for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
-			It != this->displayedChannelEntries.end(); It++) {
+			It != this->displayedChannelEntries.end(); ++It) {
 		delete *It;
 	}
 	this->displayedChannelEntries.clear();

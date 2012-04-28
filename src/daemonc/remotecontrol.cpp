@@ -483,7 +483,7 @@ void CRemoteControl::processAPIDnames()
 
 				std::string temp(g_settings.pref_lang[i]);
 				std::map<std::string, std::string>::const_iterator it;
-				for(it = iso639.begin(); it != iso639.end(); it++) {
+				for(it = iso639.begin(); it != iso639.end(); ++it) {
 					if(temp == it->second && strcasecmp(desc, it->first.c_str()) == 0) {
 						/* remember first pref found index and pid*/
 						if(pref_found < 0) {
@@ -590,7 +590,7 @@ void CRemoteControl::copySubChannelsToZapit(void)
 {
 	CZapitClient::subServiceList zapitList;
 
-	for (CSubServiceListSorted::const_iterator e = subChannels.begin(); e != subChannels.end(); e++)
+	for (CSubServiceListSorted::const_iterator e = subChannels.begin(); e != subChannels.end(); ++e)
 		zapitList.push_back(e->getAsZapitSubService());
 
 	g_Zapit->setSubServices(zapitList);

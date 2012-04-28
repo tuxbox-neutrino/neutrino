@@ -27,7 +27,7 @@ std::string Latin1_to_UTF8(const std::string & s)
 {
 	std::string r;
 	
-	for (std::string::const_iterator it = s.begin(); it != s.end(); it++)
+	for (std::string::const_iterator it = s.begin(); it != s.end(); ++it)
 	{
 		unsigned char c = *it;
 		if (c < 0x80)

@@ -235,7 +235,7 @@ void CVCRControl::CDevice::getAPIDs(const unsigned char _apidmode, APIDList & ap
                         APIDDesc a = {apid_min, apid_min_idx, false};
                         apid_list.push_back(a);
                 }
-                for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); it++)
+                for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); ++it)
                         printf("Record APID 0x%X %d\n",it->apid, it->ac3);
 
         }
@@ -399,7 +399,7 @@ std::string CVCRControl::CFileAndServerDevice::getCommandString(const CVCRComman
         APIDList apid_list;
         getAPIDs(apidmode,apid_list);
         apids_selected="";
-        for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); it++)
+        for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); ++it)
         {
                 if(it != apid_list.begin())
                         apids_selected += " ";
@@ -532,7 +532,7 @@ bool CVCRControl::CFileDevice::Record(const t_channel_id channel_id, int mode, c
         APIDList apid_list;
         getAPIDs(apids_mode, apid_list);
 
-        for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); it++) {
+        for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); ++it) {
                 apids[numpids++] = it->apid;
 		transfer_pids(it->apid, EN_TYPE_AUDIO, it->ac3 ? 1 : 0);
         }
@@ -666,7 +666,7 @@ bool CVCRControl::CFileDevice::Update(void)
 	g_RemoteControl->current_PIDs = allpids;
 	g_RemoteControl->processAPIDnames();
 
-	for(it = apid_list.begin(); it != apid_list.end(); it++) {
+	for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 		bool found = false;
 		for(unsigned int i = 0; i < rec_numpida; i++) {
 			if(rec_apids[i] == it->apid) {
@@ -926,7 +926,7 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 
 	APIDList::iterator it;
 	for(unsigned int i= 0; i< allpids.APIDs.size(); i++) {
-		for(it = apid_list.begin(); it != apid_list.end(); it++) {
+		for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 			if(allpids.APIDs[i].pid == it->apid) {
 				audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 				audio_pids.epgAudioPidName = ZapitTools::UTF8_to_UTF8XML(g_RemoteControl->current_PIDs.APIDs[i].desc);

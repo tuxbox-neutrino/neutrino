@@ -156,7 +156,7 @@ void* CTimerManager::timerThread(void *arg)
 			pthread_mutex_lock(&tm_eventsMutex);
 
 			CTimerEventMap::iterator pos = timerManager->events.begin();
-			for(;pos != timerManager->events.end();pos++)
+			for(;pos != timerManager->events.end();++pos)
 			{
 				event = pos->second;
 				dprintf("checking event: %03d\n",event->eventID);
@@ -239,7 +239,7 @@ CTimerEvent* CTimerManager::getNextEvent()
 	pthread_mutex_lock(&tm_eventsMutex);
 	CTimerEvent *erg = events[0];
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos!=events.end();pos++)
+	for(;pos!=events.end();++pos)
 	{
 		if(pos->second <= erg)
 		{
@@ -316,7 +316,7 @@ bool CTimerManager::listEvents(CTimerEventMap &Events)
 	pthread_mutex_lock(&tm_eventsMutex);
 
 	Events.clear();
-	for (CTimerEventMap::iterator pos = events.begin(); pos != events.end(); pos++)
+	for (CTimerEventMap::iterator pos = events.begin(); pos != events.end(); ++pos)
 	{
 		pos->second->Refresh();
 		Events[pos->second->eventID] = pos->second;
@@ -677,7 +677,7 @@ void CTimerManager::saveEventsToConfig()
 	config.clear();
 	dprintf("save %d events to config ...\n", events.size());
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos != events.end();pos++)
+	for(;pos != events.end();++pos)
 	{
 		CTimerEvent *event = pos->second;
 		dprintf("event #%d\n",event->eventID);
@@ -724,7 +724,7 @@ bool CTimerManager::shutdown()
 	}
 
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos != events.end();pos++)
+	for(;pos != events.end();++pos)
 	{
 		CTimerEvent *event = pos->second;
 		dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType, event->eventState, event->announceTime);
@@ -764,7 +764,7 @@ void CTimerManager::shutdownOnWakeup(int currEventID)
 	pthread_mutex_lock(&tm_eventsMutex);
 
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos != events.end();pos++)
+	for(;pos != events.end();++pos)
 	{
 		CTimerEvent *event = pos->second;
 		if((event->eventType == CTimerd::TIMER_RECORD ||

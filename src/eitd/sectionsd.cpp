@@ -569,7 +569,7 @@ static void addNVODevent(const SIevent &evt)
 		//TODO: Set Old Events to 0 if limit is reached...
 		MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 			mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
-		lastEvent--;
+		--lastEvent;
 
 		//preserve events of current channel
 		readLockMessaging();

@@ -422,7 +422,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	int j = CServiceManager::getInstance()->GetMaxNumber(true);
 	/* FIXME temp debug */
 	printf("############## CBouquetManager::makeRemainingChannelsBouquet: numbers start at: tv %d radio %d ############\n", i, j);
-	for (vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); it++) {
+	for (vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
 		renumChannels((*it)->tvChannels, i, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 		renumChannels((*it)->radioChannels, j, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 	}
@@ -436,7 +436,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	remainChannels = addBouquet((Bouquets.size() == 0) ? "All Channels" : "Other", false); // UTF-8 encoded
 	remainChannels->bOther = true;
 
-	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); it++) {
+	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
 		remainChannels->addService(*it);
 	}
 
@@ -464,7 +464,7 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
 	if(ub) {
 		BouquetList::iterator it;
-		for(it = Bouquets.begin(); it != Bouquets.end(); it++)
+		for(it = Bouquets.begin(); it != Bouquets.end(); ++it)
 			if(!(*it)->bUser)
 				break;
 		Bouquets.insert(it, newBouquet);

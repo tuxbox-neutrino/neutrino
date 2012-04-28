@@ -445,7 +445,7 @@ std::list<UPnPAttribute> CUPnPDevice::SendSOAP(std::string servicename, std::str
 	std::list<CUPnPService>::iterator i;
 	std::list<UPnPAttribute> empty;
 
-	for (i=services.begin(); i != services.end(); i++)
+	for (i=services.begin(); i != services.end(); ++i)
 	{
 		if (i->servicename == servicename)
 			return i->SendSOAP(action, attribs);
@@ -458,7 +458,7 @@ std::list<std::string> CUPnPDevice::GetServices(void)
 	std::list<CUPnPService>::iterator i;
 	std::list<std::string> result;
 
-	for (i=services.begin(); i != services.end(); i++)
+	for (i=services.begin(); i != services.end(); ++i)
 		result.push_back(i->servicename);
 	return result;
 }

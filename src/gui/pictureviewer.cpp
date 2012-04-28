@@ -393,7 +393,7 @@ int CPictureViewerGui::show()
 				{
 					Path = filebrowser.getCurrentDir();
 					CFileList::const_iterator files = filebrowser.getSelectedFiles().begin();
-					for (; files != filebrowser.getSelectedFiles().end(); files++)
+					for (; files != filebrowser.getSelectedFiles().end(); ++files)
 					{
 						if (files->getType() == CFile::FILE_PICTURE)
 						{

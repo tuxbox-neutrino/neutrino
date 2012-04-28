@@ -601,7 +601,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 {
 	for (std::vector<plugin>::iterator it=plugin_list.begin();
-			it!=plugin_list.end(); it++)
+			it!=plugin_list.end(); ++it)
 	{
 		if (it->type == type && !it->hide)
 			return true;

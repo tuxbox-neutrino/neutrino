@@ -1003,7 +1003,7 @@ bool CFrontend::setInput(CZapitChannel * channel, bool nvod)
 		return false;
 
 	if (nvod) {
-		for (tpI = transponders.begin(); tpI != transponders.end(); tpI++) {
+		for (tpI = transponders.begin(); tpI != transponders.end(); ++tpI) {
 			if ((ct & 0xFFFFFFFFULL) == (tpI->first & 0xFFFFFFFFULL))
 				break;
 		}

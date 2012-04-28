@@ -506,12 +506,12 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 				}
 			}
 			std::map <t_channel_id, t_satellite_position>::iterator sIt = fast_services_sat.begin();
-			for(; sIt != fast_services_sat.end(); sIt++)
+			for(; sIt != fast_services_sat.end(); ++sIt)
 				if(sIt->second == 0)
 					sIt->second = satellitePosition;
 
 			std::map <t_channel_id, freq_id_t>::iterator fIt = fast_services_freq.begin();
-			for(; fIt != fast_services_freq.end(); fIt++)
+			for(; fIt != fast_services_freq.end(); ++fIt)
 				if(fIt->second == 0)
 					fIt->second = freq;
 		}

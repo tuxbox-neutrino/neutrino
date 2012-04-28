@@ -1073,7 +1073,7 @@ void CServiceManager::UpdateSatTransponders(t_satellite_position satellitePositi
 {
 	pair<map<transponder_id_t, transponder>::iterator,bool> ret;
 	transponder_list_t & stransponders = satelliteTransponders[satellitePosition];
-	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); tI++) {
+	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 		for (stiterator stI = stransponders.begin(); stI != stransponders.end(); ++stI) {
 			if (stI->second.compare(tI->second)) {
 				stransponders.erase(stI);
