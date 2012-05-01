@@ -53,7 +53,7 @@
 #include <zapit/zapit.h>
 
 //extern CPlugins *g_PluginList;
-#if HAVE_TRIPLEDRAGON
+#ifndef HAVE_COOL_HARDWARE
 #define LCD_MODE CVFD::MODE_MOVIE
 #else
 #define LCD_MODE CVFD::MODE_MENU_UTF8
