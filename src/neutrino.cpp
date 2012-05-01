@@ -2754,12 +2754,11 @@ _repeat:
 				return messages_return::handled;
 			} 
 			else {
-				if (cs_get_revision() == 1)
-				{
-					/* TD has no FP for real shutdown -> do standby instead */
-					standbyMode(true);
-					return messages_return::handled;
-				}
+#if HAVE_TRIPLEDRAGON
+				/* TD has no FP for real shutdown -> do standby instead */
+				standbyMode(true);
+				return messages_return::handled;
+#endif
 				printf("NeutrinoMessages::SLEEPTIMER: shutdown\n");
 				ExitRun(true, (cs_get_revision() > 7));
 			}
