@@ -179,6 +179,11 @@ size_t CZapitBouquet::recModeTVSize(const transponder_id_t transponder_id)
 	return size;
 }
 
+CBouquetManager::~CBouquetManager()
+{
+	clearAll();
+}
+
 void CBouquetManager::writeBouquetHeader(FILE * bouq_fd, uint32_t i, const char * bouquetName)
 {
 //printf("[bouquets] writing bouquet header: %s\n", bouquetName);
