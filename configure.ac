@@ -114,6 +114,10 @@ if test "$enable_upnp" = "yes"; then
 	AC_DEFINE(ENABLE_UPNP,1,[include UPNP support - currently broken])
 fi
 
+AC_ARG_ENABLE(cleanup,
+	[  --enable-cleanup                  enable cleanup on exit],
+	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
+
 AC_CHECK_HEADERS(coolstream/nevis_ir.h)
 
 #
