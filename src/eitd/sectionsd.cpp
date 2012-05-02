@@ -821,6 +821,18 @@ static void sendEmptyResponse(int connfd, char *, const unsigned)
 // handles incoming requests
 //---------------------------------------------------------------------
 
+static void wakeupAll()
+{
+	threadCN.change(0);
+	threadEIT.change(0);
+#ifdef ENABLE_FREESATEPG
+	threadFSEIT.change(0);
+#endif
+#ifdef ENABLE_SDT
+	threadSDT.change(0);
+#endif
+}
+
 static void commandPauseScanning(int connfd, char *data, const unsigned dataLength)
 {
 	if (dataLength != sizeof(int))
@@ -874,15 +886,7 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 		{
 			threadTIME.change(0);
 		}
-
-		threadCN.change(0);
-		threadEIT.change(0);
-#ifdef ENABLE_FREESATEPG
-		threadFSEIT.change(0);
-#endif
-#ifdef ENABLE_SDT
-		threadSDT.change(0);
-#endif
+		wakeupAll();
 	}
 	sendEmptyResponse(connfd, NULL, 0);
 }
@@ -1096,25 +1100,19 @@ static void commandSetConfig(int connfd, char *data, const unsigned /*dataLength
 
 static void deleteSIexceptEPG()
 {
+	threadCN.dropCachedSectionIDs();
 	threadEIT.dropCachedSectionIDs();
-	threadEIT.change(0);
 #ifdef ENABLE_SDT
 	writeLockServices();
 	mySIservicesOrderUniqueKey.clear();
 	unlockServices();
 	threadSDT.dropCachedSectionIDs();
-	threadSDT.change(0);
-#endif
-#ifdef ENABLE_FREESATEPG
-	threadFSEIT.setCurrentService(messaging_current_servicekey);
-	threadFSEIT.change(0);
 #endif
 }
 
-static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*dataLength*/)
+static void FreeMemory()
 {
-	sendEmptyResponse(connfd, NULL, 0);
-
+	xprintf("[sectionsd] free memory...\n");
 	deleteSIexceptEPG();
 
 	writeLockEvents();
@@ -1143,6 +1141,14 @@ static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*data
 	unlockEvents();
 
 	malloc_stats();
+	xprintf("[sectionsd] free memory done\n");
+	//wakeupAll(); //FIXME should we re-start eit here ?
+}
+
+static void commandFreeMemory(int connfd, char * /*data*/, const unsigned /*dataLength*/)
+{
+	sendEmptyResponse(connfd, NULL, 0);
+	FreeMemory();
 }
 
 static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLength)
@@ -2165,6 +2171,10 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 #ifdef ENABLE_FREESATEPG
 	xprintf("join FSEIT\n");
 	threadFSEIT.Stop();
+#endif
+#ifdef EXIT_CLEANUP
+	xprintf("[sectionsd] cleanup...\n");
+	FreeMemory();
 #endif
 	xprintf("[sectionsd] stopped\n");
 }
