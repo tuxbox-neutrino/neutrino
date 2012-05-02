@@ -46,6 +46,7 @@ CServiceManager::CServiceManager()
 CServiceManager::~CServiceManager()
 {
 	delete scanInputParser;
+	transponders.clear();
 }
 
 CServiceManager * CServiceManager::getInstance()
