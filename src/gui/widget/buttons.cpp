@@ -129,7 +129,13 @@ int paintButtons(	const int &x,
 	}
 	//calculate button width
 	w_button = buttonwidth == 0 ? (w_max_icon + w_space + w_max_text) : buttonwidth;
-	
+
+	//workaround for to small screen (1)
+	int skip_last_button_txt = false;
+	if((w_button*cnt) >(uint) w_footer){
+		w_button= ((w_footer+w_max_icon)/(cnt));
+		skip_last_button_txt = true;
+	}
 	//calculate button heigth
 	h_button = std::max(h_max_icon, h_max_text); //calculate optimal button height
 	
@@ -156,7 +162,11 @@ int paintButtons(	const int &x,
 			caption = alt_buttontext; //...with an alternate buttontext
 		else
 			caption =  content[j].locale ? g_Locale->getText(content[j].locale) : ""; 
-		
+
+		//workaround for to small screen (2)
+		if(skip_last_button_txt && j == cnt-1)
+			caption="";
+
 		const char * icon = content[j].button ? content[j].button : "";
 
 		//get height/width of icon
