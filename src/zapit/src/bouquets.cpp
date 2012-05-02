@@ -355,7 +355,7 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				if(freq > 20000)
 					freq = freq/1000;
 
-				CZapitChannel* chan = CServiceManager::getInstance()->FindChannel(CREATE_CHANNEL_ID64);
+				CZapitChannel* chan = CServiceManager::getInstance()->FindChannel48(CREATE_CHANNEL_ID64);
 				if (chan != NULL) {
 					DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
 #if 0
