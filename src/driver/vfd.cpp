@@ -67,6 +67,7 @@ CVFD::CVFD()
 	}
 	text[0] = 0;
 	clearClock = 0;
+	mode = MODE_TVRADIO;
 }
 
 CVFD::~CVFD()
