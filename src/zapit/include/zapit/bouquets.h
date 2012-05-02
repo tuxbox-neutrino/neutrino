@@ -75,6 +75,7 @@ class CBouquetManager
 
 	public:
 		CBouquetManager() { remainChannels = NULL; };
+		~CBouquetManager();
 		class ChannelIterator
 		{
 			private:
