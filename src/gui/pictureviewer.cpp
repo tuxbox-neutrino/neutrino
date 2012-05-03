@@ -430,16 +430,19 @@ int CPictureViewerGui::show()
 		}
 		else if (msg==CRCInput::RC_blue)
 		{
-			if ((m_state == MENU) && (!playlist.empty()))
+			if(!playlist.empty())
 			{
-				m_time=(long)time(NULL);
-				view(selected);
-				m_state=SLIDESHOW;
-			} else {
-				if (m_state == SLIDESHOW)
-					m_state = VIEW;
-				else
-					m_state = SLIDESHOW;
+				if (m_state == MENU)
+				{
+					m_time=(long)time(NULL);
+					view(selected);
+					m_state=SLIDESHOW;
+				} else {
+					if (m_state == SLIDESHOW)
+						m_state = VIEW;
+					else
+						m_state = SLIDESHOW;
+				}
 			}
 		}
 		else if (msg==CRCInput::RC_help)
