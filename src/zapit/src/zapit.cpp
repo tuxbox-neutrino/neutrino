@@ -2155,6 +2155,13 @@ void CZapit::run()
 		ca->Stop();
 		delete ca;
 	}
+#ifdef EXIT_CLEANUP
+	INFO("cleanup...");
+	delete eventServer;
+	delete g_bouquetManager;
+	delete CServiceManager::getInstance();
+	delete CServiceScan::getInstance();
+#endif
 	INFO("shutdown complete");
 	return;
 }
