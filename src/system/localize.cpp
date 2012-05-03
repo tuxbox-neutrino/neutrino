@@ -99,10 +99,16 @@ CLocaleManager::CLocaleManager()
 CLocaleManager::~CLocaleManager()
 {
 	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
-		if (localeData[j] != locale_real_names[j])
+		if (localeData[j] != locale_real_names[j] && localeData[j] != defaultData[j])
 			::free(localeData[j]);
 
-	delete localeData;
+	delete[] localeData;
+
+	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
+		if (defaultData[j] != locale_real_names[j])
+			::free(defaultData[j]);
+
+	delete[] defaultData;
 }
 
 const char * path[2] = {"/var/tuxbox/config/locale/", DATADIR "/neutrino/locale/"};
