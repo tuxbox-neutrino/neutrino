@@ -129,7 +129,6 @@ bool autoshift = false;
 uint32_t scrambled_timer;
 t_channel_id standby_channel_id;
 
-//static CProgressBar *g_volscale;
 //NEW
 static pthread_t timer_thread;
 void * timerd_main_thread(void *data);
@@ -1890,7 +1889,6 @@ TIMER_START();
 
 	int dx, dy;
 	frameBuffer->getIconSize(NEUTRINO_ICON_VOLUME, &dx, &dy);
-	//g_volscale = new CProgressBar(true, dy * 125 / 10, dy, 50, 100, 80, true);
 
 	g_CamHandler = new CCAMMenuHandler();
 	g_CamHandler->init();
