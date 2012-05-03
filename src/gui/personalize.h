@@ -159,7 +159,7 @@ class CPersonalizeGui : public CMenuTarget, public CChangeObserver, public CPINP
 		std::vector<observ_menu_item_t> v_observ;
 				
 		int 	ShowPersonalizationMenu();
-		void 	ShowMenuOptions(const int& menu);
+		int 	ShowMenuOptions(const int& menu);
 		void 	ShowHelpPersonalize();
 		void 	ShowPinSetup(CMenuWidget* p_widget, CPINChangeWidget *pin_widget);
 		void 	ShowUserMenu(CMenuWidget* p_widget, std::vector<CUserMenuSetup*> &v_umenu);
