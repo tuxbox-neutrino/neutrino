@@ -421,12 +421,12 @@ static void write_indexxml_footer(FILE *fd)
 	fprintf(fd, "</dvbepgfiles>\n");
 }
 
-void cp(char * from, char * to)
-{
-	char cmd[256];
-	snprintf(cmd, 256, "cp -f %s %s", from, to);
-	system(cmd);
-}
+// void cp(char * from, char * to)
+// {
+// 	char cmd[256];
+// 	snprintf(cmd, 256, "cp -f %s %s", from, to);
+// 	system(cmd);
+// }
 
 void writeEventsToFile(char *epgdir)
 {
@@ -484,7 +484,7 @@ _done:
 
 	sprintf(filename, "%s/index.xml", epgdir);
 
-	cp(tmpname, filename);
+	rename(tmpname, filename);
 	unlink(tmpname);
 
 	return ;
