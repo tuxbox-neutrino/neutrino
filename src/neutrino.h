@@ -121,8 +121,8 @@ private:
 	bool 				pbBlinkChange;
 	CColorSetupNotifier		*colorSetupNotifier;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
-	COnekeyPluginChangeExec		*OnekeyPluginChanger;
-	CIPChangeNotifier		*MyIPChanger;
+	//COnekeyPluginChangeExec		*OnekeyPluginChanger;
+	//CIPChangeNotifier		*MyIPChanger;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );
