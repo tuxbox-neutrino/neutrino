@@ -76,7 +76,7 @@ CKeybindSetup::CKeybindSetup()
 
 CKeybindSetup::~CKeybindSetup()
 {
-
+	delete keySetupNotifier;
 }
 
 int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -218,7 +218,6 @@ int CKeybindSetup::showKeySetup()
 	keySettings->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys", CRCInput::convertDigitToKey(shortcut++)));
 
 	//rc tuning
-	keySetupNotifier = new CKeySetupNotifier;
 	CStringInput * keySettings_repeat_genericblocker = new CStringInput(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, g_settings.repeat_genericblocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", keySetupNotifier);
 	CStringInput * keySettings_repeatBlocker = new CStringInput(LOCALE_KEYBINDINGMENU_REPEATBLOCK, g_settings.repeat_blocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", keySetupNotifier);
 	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
