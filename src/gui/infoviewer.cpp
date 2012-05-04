@@ -97,6 +97,15 @@ CInfoViewer::CInfoViewer ()
 	Init();
 }
 
+CInfoViewer::~CInfoViewer()
+{
+	delete sigscale;
+	delete snrscale;
+	delete hddscale;
+	delete varscale;
+	delete timescale;
+}
+
 void CInfoViewer::Init()
 {
 	frameBuffer = CFrameBuffer::getInstance ();
