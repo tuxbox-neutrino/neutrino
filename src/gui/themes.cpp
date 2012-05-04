@@ -134,6 +134,7 @@ void CThemes::readThemes(CMenuWidget &themes)
 						oj = new CMenuForwarderNonLocalized((char*)file, true, "", this, file);
 					themes.addItem( oj );
 				}
+				free(themelist[count]);
 			}
 			free(themelist);
 		}
