@@ -68,10 +68,14 @@ int CInfoMenu::showMenu()
 {
 	CMenuWidget *info = new CMenuWidget(LOCALE_MESSAGEBOX_INFO, NEUTRINO_ICON_INFO, width, MN_WIDGET_ID_INFOMENUE);
 
+	CImageInfo imageinfo;
+	CDBoxInfoWidget boxinfo;
+	CStreamInfo2 streaminfo;
+
 	info->addIntroItems();
-	info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, new CImageInfo(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
-	info->addItem(new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, 	true, NULL, new CDBoxInfoWidget, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, 	true, NULL, new CStreamInfo2(), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	info->addItem(new CMenuForwarder(LOCALE_SERVICEMENU_IMAGEINFO,  true, NULL, &imageinfo, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED ), false);
+	info->addItem(new CMenuForwarder(LOCALE_EXTRA_DBOXINFO, 	true, NULL, &boxinfo, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, 	true, NULL, &streaminfo, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	int res = info->exec(NULL, "");
 	info->hide();
