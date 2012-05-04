@@ -1001,10 +1001,13 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			else if (msg == (neutrino_msg_t) CRCInput::RC_red) {
 				CMenuWidget menuWidgetActions(LOCALE_EPGPLUS_ACTIONS, NEUTRINO_ICON_FEATURES);
 				menuWidgetActions.enableFade(false);
+				MenuTargetAddRecordTimer record(this);
+				MenuTargetRefreshEpg refresh(this);
+				MenuTargetAddReminder remind(this);
 				if (!g_settings.minimode)
-					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, new MenuTargetAddRecordTimer (this), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, new MenuTargetRefreshEpg (this), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, new MenuTargetAddReminder (this), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), false);
+					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, &record, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, &refresh, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, &remind, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), false);
 
 				menuWidgetActions.exec (NULL, "");
 
