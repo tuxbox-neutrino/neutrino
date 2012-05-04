@@ -88,9 +88,11 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 
 	// intros
 	mediaSetup->addIntroItems(LOCALE_AUDIOPLAYERPICSETTINGS_GENERAL);
-	
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, new CPictureViewerSetup(), "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, new CAudioPlayerSetup(), "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+
+	CPictureViewerSetup psetup;
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_HEAD, true, NULL, &psetup, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CAudioPlayerSetup asetup;
+	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 	int res = mediaSetup->exec (NULL, "");
 	mediaSetup->hide ();
