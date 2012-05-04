@@ -719,16 +719,10 @@ void CPersonalizeGui::addSeparator(const int& widget_id, const neutrino_locale_t
 //expands with parameter within you can show or hide this item in personalize options
 void CPersonalizeGui::addSeparator(CMenuWidget &widget, const neutrino_locale_t locale_text, const int& item_mode)
 {
-#if 0
-	menu_item_t to_add_sep[2] = {	{&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode, NULL}, 
-					{&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode, NULL}};
-#endif
 	if (locale_text == NONEXISTANT_LOCALE) {
-		//v_item.push_back(to_add_sep[0]);
 		menu_item_t to_add_sep = {&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode, NULL};
 		v_item.push_back(to_add_sep);
 	} else {
-		//v_item.push_back(to_add_sep[1]);
 		menu_item_t to_add_sep = {&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode, NULL};
 		v_item.push_back(to_add_sep);
 	}
