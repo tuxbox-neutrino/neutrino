@@ -57,8 +57,8 @@ void CServiceScan::InitFastscanLnb(int id)
 	satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
 
 	frontend = CFEManager::getInstance()->getFE(0);
-	frontend->setSatellites(satmap);
-	satmap = frontend->getSatellites();
+	//frontend->setSatellites(satmap);
+	//satmap = frontend->getSatellites();
 
 	switch(id) {
 		default:
@@ -80,6 +80,7 @@ void CServiceScan::InitFastscanLnb(int id)
 	satmap[192].configured = 1;
 	satmap[235].configured = 1;
 	satmap[282].configured = 1;
+	frontend->setSatellites(satmap);
 	CFEManager::getInstance()->saveSettings();
 	SetFrontend(192);
 }
