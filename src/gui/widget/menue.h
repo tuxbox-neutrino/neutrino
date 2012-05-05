@@ -174,10 +174,10 @@ class CMenuForwarder : public CMenuItem
 {
 	const char *        option;
 	const std::string * option_string;
-	CMenuTarget *       jumpTarget;
 	std::string         actionKey;
 
  protected:
+	CMenuTarget *       jumpTarget;
 	neutrino_locale_t text;
 
 	virtual const char * getOption(void);
@@ -205,6 +205,15 @@ class CMenuForwarder : public CMenuItem
 		{
 			return active;
 		}
+};
+
+class CMenuDForwarder : public CMenuForwarder
+{
+ public:
+	CMenuDForwarder(const neutrino_locale_t Text, const bool Active=true, const char * const Option=NULL, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL);
+	CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL);
+
+	~CMenuDForwarder();
 };
 
 class CMenuForwarderNonLocalized : public CMenuForwarder
