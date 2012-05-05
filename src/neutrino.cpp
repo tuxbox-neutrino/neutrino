@@ -3076,72 +3076,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			}
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 			stop_video();
-#ifdef EXIT_CLEANUP
-			INFO("cleanup...");
-printf("cleanup 10\n");fflush(stdout);
-			delete g_Sectionsd; g_Sectionsd = NULL;
-			delete g_Timerd; g_Timerd = NULL;
-			delete g_Zapit; g_Zapit = NULL;
-			delete g_RemoteControl; g_RemoteControl = NULL;
-
-printf("cleanup 11\n");fflush(stdout);
-			delete g_fontRenderer; g_fontRenderer = NULL;
-printf("cleanup 12\n");fflush(stdout);
-			delete g_PicViewer; g_PicViewer = NULL;
-printf("cleanup 13\n");fflush(stdout);
-			delete g_PluginList; g_PluginList = NULL;
-printf("cleanup 16\n");fflush(stdout);
-			delete g_CamHandler; g_CamHandler = NULL;
-printf("cleanup 17\n");fflush(stdout);
-			delete g_volume; g_volume = NULL;
-printf("cleanup 18\n");fflush(stdout);
-			delete g_EpgData; g_EpgData = NULL;
-printf("cleanup 19\n");fflush(stdout);
-			delete g_InfoViewer; g_InfoViewer = NULL;
-printf("cleanup 11\n");fflush(stdout);
-			delete g_EventList; g_EventList = NULL;
-printf("cleanup 12\n");fflush(stdout);
-			delete g_Locale; g_Locale = NULL;
-			delete g_videoSettings; g_videoSettings = NULL;
-			delete g_Radiotext; g_Radiotext = NULL;
-
-printf("cleanup 13\n");fflush(stdout);
-			delete colorSetupNotifier; colorSetupNotifier = NULL;
-			delete audioSetupNotifier; audioSetupNotifier = NULL;
-			delete MoviePluginChanger; MoviePluginChanger = NULL;
-printf("cleanup 14\n");fflush(stdout);
-
-			delete TVbouquetList; TVbouquetList = NULL;
-			delete RADIObouquetList; RADIObouquetList = NULL;
-
-			delete TVfavList; TVfavList = NULL;
-			delete RADIOfavList; RADIOfavList = NULL;
-
-			delete TVchannelList; TVchannelList = NULL;
-			delete RADIOchannelList; RADIOchannelList = NULL;
-			delete TVallList; TVallList = NULL;
-			delete RADIOallList; RADIOallList = NULL;
-			delete TVsatList; TVsatList = NULL;
-			delete RADIOsatList; RADIOsatList = NULL;
-
-printf("cleanup 1\n");fflush(stdout);
-			for (int i = 0; i < FONT_TYPE_COUNT; i++) {
-				delete g_Font[i];
-				g_Font[i] = NULL;
-			}
-printf("cleanup 2\n");fflush(stdout);
-			delete g_SignalFont; g_SignalFont = NULL;
-printf("cleanup 3\n");fflush(stdout);
-			configfile.clear();
-
-printf("cleanup 4\n");fflush(stdout);
-			delete CZapit::getInstance();
-printf("cleanup 5\n");fflush(stdout);
-			delete CEitManager::getInstance();
-printf("cleanup 6\n");fflush(stdout);
-			delete CVFD::getInstance();
-			malloc_stats();
-#endif
+			Cleanup();
 			//_exit(retcode);
 			exit(retcode);
 		}
@@ -3932,4 +3867,74 @@ void CNeutrinoApp::SDT_ReloadChannels()
 		old_b_id = -1;
 		g_RCInput->postMsg(CRCInput::RC_ok, 0);
 	}
+}
+
+void CNeutrinoApp::Cleanup()
+{
+#ifdef EXIT_CLEANUP
+	INFO("cleanup...");
+	printf("cleanup 10\n");fflush(stdout);
+	delete g_Sectionsd; g_Sectionsd = NULL;
+	delete g_Timerd; g_Timerd = NULL;
+	delete g_Zapit; g_Zapit = NULL;
+	delete g_RemoteControl; g_RemoteControl = NULL;
+
+	printf("cleanup 11\n");fflush(stdout);
+	delete g_fontRenderer; g_fontRenderer = NULL;
+	printf("cleanup 12\n");fflush(stdout);
+	delete g_PicViewer; g_PicViewer = NULL;
+	printf("cleanup 13\n");fflush(stdout);
+	delete g_PluginList; g_PluginList = NULL;
+	printf("cleanup 16\n");fflush(stdout);
+	delete g_CamHandler; g_CamHandler = NULL;
+	printf("cleanup 17\n");fflush(stdout);
+	delete g_volume; g_volume = NULL;
+	printf("cleanup 18\n");fflush(stdout);
+	delete g_EpgData; g_EpgData = NULL;
+	printf("cleanup 19\n");fflush(stdout);
+	delete g_InfoViewer; g_InfoViewer = NULL;
+	printf("cleanup 11\n");fflush(stdout);
+	delete g_EventList; g_EventList = NULL;
+	printf("cleanup 12\n");fflush(stdout);
+	delete g_Locale; g_Locale = NULL;
+	delete g_videoSettings; g_videoSettings = NULL;
+	delete g_Radiotext; g_Radiotext = NULL;
+
+	printf("cleanup 13\n");fflush(stdout);
+	delete colorSetupNotifier; colorSetupNotifier = NULL;
+	delete audioSetupNotifier; audioSetupNotifier = NULL;
+	delete MoviePluginChanger; MoviePluginChanger = NULL;
+	printf("cleanup 14\n");fflush(stdout);
+
+	delete TVbouquetList; TVbouquetList = NULL;
+	delete RADIObouquetList; RADIObouquetList = NULL;
+
+	delete TVfavList; TVfavList = NULL;
+	delete RADIOfavList; RADIOfavList = NULL;
+
+	delete TVchannelList; TVchannelList = NULL;
+	delete RADIOchannelList; RADIOchannelList = NULL;
+	delete TVallList; TVallList = NULL;
+	delete RADIOallList; RADIOallList = NULL;
+	delete TVsatList; TVsatList = NULL;
+	delete RADIOsatList; RADIOsatList = NULL;
+
+	printf("cleanup 1\n");fflush(stdout);
+	for (int i = 0; i < FONT_TYPE_COUNT; i++) {
+		delete g_Font[i];
+		g_Font[i] = NULL;
+	}
+	printf("cleanup 2\n");fflush(stdout);
+	delete g_SignalFont; g_SignalFont = NULL;
+	printf("cleanup 3\n");fflush(stdout);
+	configfile.clear();
+
+	printf("cleanup 4\n");fflush(stdout);
+	delete CZapit::getInstance();
+	printf("cleanup 5\n");fflush(stdout);
+	delete CEitManager::getInstance();
+	printf("cleanup 6\n");fflush(stdout);
+	delete CVFD::getInstance();
+	malloc_stats();
+#endif
 }

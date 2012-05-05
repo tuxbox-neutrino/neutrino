@@ -254,8 +254,8 @@ int CNFSMountGui::menuEntry(int nr)
 	CMenuForwarder *username_fwd = new CMenuForwarder(LOCALE_NFS_USERNAME, (*type==CFSMounter::CIFS || CFSMounter::LUFS), username, &userInput);
 	CStringInputSMS passInput(LOCALE_NFS_PASSWORD, password, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-_.,:|!?/ ");
 	CMenuForwarder *password_fwd = new CMenuForwarder(LOCALE_NFS_PASSWORD, (*type==CFSMounter::CIFS || CFSMounter::LUFS), NULL, &passInput);
-	CMACInput * macInput = new CMACInput(LOCALE_RECORDINGMENU_SERVER_MAC,  g_settings.network_nfs_mac[nr], LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
-	CMenuForwarder * macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, g_settings.network_nfs_mac[nr], macInput);
+	CMACInput macInput(LOCALE_RECORDINGMENU_SERVER_MAC,  g_settings.network_nfs_mac[nr], LOCALE_IPSETUP_HINT_1, LOCALE_IPSETUP_HINT_2);
+	CMenuForwarder * macInput_fwd = new CMenuForwarder(LOCALE_RECORDINGMENU_SERVER_MAC, true, g_settings.network_nfs_mac[nr], &macInput);
 
 	CNFSMountGuiNotifier notifier(username_fwd, password_fwd, type);
 

@@ -98,9 +98,9 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	softUpdate->addIntroItems(LOCALE_SERVICEMENU_UPDATE);
 	
  	//expert-functions
- 	CMenuWidget *mtdexpert = new CMenuWidget(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
-	showSoftwareUpdateExpert(mtdexpert); 
- 	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, mtdexpert, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+ 	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
+	showSoftwareUpdateExpert(&mtdexpert); 
+ 	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, "", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
  	softUpdate->addItem(GenericMenuSeparatorLine);
 	
@@ -110,7 +110,8 @@ int CSoftwareUpdate::showSoftwareUpdate()
  	softUpdate->addItem( new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, true, g_settings.update_dir , this, "update_dir", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
  
 	softUpdate->addItem(GenericMenuSeparatorLine);
-	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, new CFlashUpdate(), "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
+	CFlashUpdate flash;
+	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, &flash, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
 
 	int res = softUpdate->exec (NULL, "");
 	softUpdate->hide ();

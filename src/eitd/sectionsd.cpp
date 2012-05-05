@@ -2174,6 +2174,8 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 #endif
 #ifdef EXIT_CLEANUP
 	xprintf("[sectionsd] cleanup...\n");
+	delete myNextEvent;
+	delete myCurrentEvent;
 	FreeMemory();
 #endif
 	xprintf("[sectionsd] stopped\n");

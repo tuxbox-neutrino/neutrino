@@ -68,9 +68,11 @@ void CZapitSetup::showMenu()
 
 	//zapit
 	zapit->addItem(new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CSelectChannelWidget select;
+
 	zapit->addItem(GenericMenuSeparatorLine);
-	zapit->addItem(zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, new CSelectChannelWidget(), "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
-	zapit->addItem(zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, new CSelectChannelWidget(), "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
+	zapit->addItem(zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
+	zapit->addItem(zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
 
 	zapit->exec(NULL, "");
 	zapit->hide();

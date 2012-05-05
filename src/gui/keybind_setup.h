@@ -73,7 +73,7 @@ class CKeybindSetup : public CMenuTarget
 			MPKEY_BOOKMARK,
 			KEY_TIMESHIFT,
 			MPKEY_PLUGIN,
-			KEY_PLUGIN,
+			/*KEY_PLUGIN,*/
 			KEY_UNLOCK,
 			KEY_SCREENSHOT,
 			
