@@ -144,6 +144,8 @@ bool CFlashUpdate::selectHttpImage(void)
 	int selected = -1, listWidth = w_max (80, 10);
 	int curVer, newVer, newfound = 0;
 
+	std::vector<CUpdateMenuTarget*> update_t_list;
+
 	CConfigFile _configfile('\t');
 	const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
 	installedVersion = versionString;
@@ -235,7 +237,9 @@ bool CFlashUpdate::selectHttpImage(void)
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
 
 				//SelectionWidget.addItem(new CMenuForwarderNonLocalized(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
-				SelectionWidget.addItem(new CMenuForwarderNonLocalized(descriptions[i].c_str(), enabled, names[i].c_str(), new CUpdateMenuTarget(i, &selected)));
+				CUpdateMenuTarget * up = new CUpdateMenuTarget(i, &selected);
+				update_t_list.push_back(up);
+				SelectionWidget.addItem(new CMenuForwarderNonLocalized(descriptions[i].c_str(), enabled, names[i].c_str(), up));
 				i++;
 			}
 		}
@@ -254,6 +258,9 @@ bool CFlashUpdate::selectHttpImage(void)
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 
 	SelectionWidget.exec(NULL, "");
+
+	for (std::vector<CUpdateMenuTarget*>::iterator it = update_t_list.begin(); it != update_t_list.end(); ++it)
+		delete (*it);
 
 	if (selected == -1)
 		return false;
