@@ -87,9 +87,9 @@ int COsdLangSetup::showLocalSetup()
 	localSettings->addIntroItems(LOCALE_LANGUAGESETUP_HEAD);
 	
 	//language setup
-	CMenuWidget * osdl_setup = new CMenuWidget(LOCALE_LANGUAGESETUP_OSD, NEUTRINO_ICON_LANGUAGE, width, MN_WIDGET_ID_LANGUAGESETUP_LOCALE);
-	showLanguageSetup(osdl_setup);
-	localSettings->addItem(new CMenuForwarder(LOCALE_LANGUAGESETUP_OSD, true, NULL, osdl_setup, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CMenuWidget osdl_setup(LOCALE_LANGUAGESETUP_OSD, NEUTRINO_ICON_LANGUAGE, width, MN_WIDGET_ID_LANGUAGESETUP_LOCALE);
+	showLanguageSetup(&osdl_setup);
+	localSettings->addItem(new CMenuForwarder(LOCALE_LANGUAGESETUP_OSD, true, NULL, &osdl_setup, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
  	//timezone setup
 	CMenuOptionStringChooser* tzSelect = getTzItems();
@@ -98,10 +98,10 @@ int COsdLangSetup::showLocalSetup()
 	
 	//prefered audio language
 	CLangSelectNotifier *langNotifier = new CLangSelectNotifier();
-	CMenuWidget * prefMenu = new CMenuWidget(LOCALE_AUDIOMENU_PREF_LANGUAGES, NEUTRINO_ICON_LANGUAGE, width, MN_WIDGET_ID_LANGUAGESETUP_PREFAUDIO_LANGUAGE);
+	CMenuWidget prefMenu(LOCALE_AUDIOMENU_PREF_LANGUAGES, NEUTRINO_ICON_LANGUAGE, width, MN_WIDGET_ID_LANGUAGESETUP_PREFAUDIO_LANGUAGE);
 	//call menue for prefered audio languages
-	showPrefMenu(prefMenu, langNotifier);
-	localSettings->addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+	showPrefMenu(&prefMenu, langNotifier);
+	localSettings->addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, &prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 	
 	int res = localSettings->exec(NULL, "");
