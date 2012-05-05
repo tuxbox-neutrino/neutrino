@@ -149,6 +149,7 @@ private:
 
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
+	void Cleanup();
 	CNeutrinoApp();
 
 public:
