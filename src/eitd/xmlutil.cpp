@@ -243,6 +243,27 @@ void readDVBTimeFilter(void)
 		dvb_time_update = true;
 	}
 }
+void deleteOldfileEvents(char *epgdir)
+{
+	std::string indexname = std::string(epgdir) + "/index.xml";
+	xmlDocPtr filter_parser = parseXmlFile(indexname.c_str());
+	std::string filename;
+
+	if (filter_parser != NULL)
+	{
+		xmlNodePtr filter = xmlDocGetRootElement(filter_parser);
+		filter = filter->xmlChildrenNode;
+
+		while (filter) {
+
+			filename = xmlGetAttribute(filter, "name");
+			unlink(filename.c_str());
+
+			filter = filter->xmlNextNode;
+		}
+		xmlFreeDoc(filter_parser);
+	}
+}
 
 void *insertEventsfromFile(void * data)
 {
@@ -259,7 +280,6 @@ void *insertEventsfromFile(void * data)
 	std::string epgname;
 	int ev_count = 0;
 	char * epg_dir = (char *) data;
-
 	indexname = std::string(epg_dir) + "index.xml";
 
 	xmlDocPtr index_parser = parseXmlFile(indexname.c_str());
@@ -438,6 +458,8 @@ void writeEventsToFile(char *epgdir)
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
+	deleteOldfileEvents(epgdir);
+
 
 	sprintf(tmpname, "%s/index.tmp", epgdir);
 
@@ -485,7 +507,6 @@ _done:
 	sprintf(filename, "%s/index.xml", epgdir);
 
 	rename(tmpname, filename);
-	unlink(tmpname);
 
 	return ;
 }
