@@ -253,6 +253,7 @@ bool CCamManager::SetMode(t_channel_id channel_id, enum runmode mode, bool start
 	uint8_t list = CCam::CAPMT_FIRST;
 	for (it = channel_map.begin(); it != channel_map.end(); /*++it*/)
 	{
+		cam = it->second;
 		channel = CServiceManager::getInstance()->FindChannel(it->first);
 		++it;
 		if(!channel)

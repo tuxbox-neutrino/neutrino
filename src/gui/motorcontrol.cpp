@@ -72,8 +72,11 @@ CMotorControl::CMotorControl(int tnum)
 
 CMotorControl::~CMotorControl()
 {
-printf("CMotorControl::~CMotorControl\n");
+	printf("CMotorControl::~CMotorControl\n");
+	delete sigscale;
+	delete snrscale;
 }
+
 void CMotorControl::Init(void)
 {
 	frameBuffer = CFrameBuffer::getInstance();
