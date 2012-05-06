@@ -90,12 +90,12 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int /*OutputFd*/, State* state, CAu
 		return Status;
 	}
 	fseek(in, header_size, SEEK_SET);
-	int fmt;
+//	int fmt;
 	switch(mBitsPerSample)
 	{
-		case 8  : fmt = AFMT_U8;
+		case 8  : //fmt = AFMT_U8;
 			break;
-		case 16 : fmt = header_size == 0 ? AFMT_S16_BE : AFMT_S16_LE;
+		case 16 : //fmt = header_size == 0 ? AFMT_S16_BE : AFMT_S16_LE;
 			break;
 		default:
 			printf("%s: wrong bits per sample (%d)\n", ProgName, mBitsPerSample);

@@ -502,9 +502,6 @@ void CUpnpBrowserGui::playnext(void)
 		std::list<UPnPAttribute>::iterator i;
 		std::stringstream sindex;
 		std::vector<UPnPEntry> *entries = NULL;
-		bool rfound = false;
-		bool nfound = false;
-		bool tfound = false;
 
 		sindex << m_playid;
 		attribs.push_back(UPnPAttribute("ObjectID", m_playfolder));
@@ -536,16 +533,13 @@ void CUpnpBrowserGui::playnext(void)
 					m_folderplay = false;
 					return;
 				}
-				nfound=true;
 			}
 			if (i->first=="TotalMatches")
 			{
-				tfound=true;
 			}
 			if (i->first=="Result")
 			{
 				entries=decodeResult(i->second);
-				rfound=true;
 			}
 		}
 		m_playid++;

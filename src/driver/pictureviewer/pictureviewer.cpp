@@ -111,10 +111,10 @@ bool CPictureViewer::DecodeImage (const std::string & name, bool showBusySign, b
 		return true;
 	}
 #endif
-	int x, y, xs, ys, imx, imy;
+	int x, y, imx, imy;
 
-	xs = CFrameBuffer::getInstance()->getScreenWidth(true);
-	ys = CFrameBuffer::getInstance()->getScreenHeight(true);
+// 	int xs = CFrameBuffer::getInstance()->getScreenWidth(true);
+// 	int ys = CFrameBuffer::getInstance()->getScreenHeight(true);
 
 	// Show red block for "next ready" in view state
 	if (showBusySign)

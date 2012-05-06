@@ -47,7 +47,7 @@ inline void m_rend_gif_decodecolormap(unsigned char *cmb,unsigned char *rgbb,Col
 }
 int fh_gif_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 {
-	int px,py,i,ibxs;
+	int px,py,i/*,ibxs*/;
 	int j;
 	unsigned char *fbptr;
 	unsigned char *lb;
@@ -79,7 +79,7 @@ int fh_gif_load(const char *name,unsigned char **buffer,int* /*xp*/,int* /*yp*/)
 					cmap=(gft->Image.ColorMap ? gft->Image.ColorMap : gft->SColorMap);
 					cmaps=cmap->ColorCount;
 
-					ibxs=ibxs*3;
+//					ibxs=ibxs*3;
 					fbptr=*buffer;
 					if(!(gft->Image.Interlace))
 					{
