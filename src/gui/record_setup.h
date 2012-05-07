@@ -41,6 +41,7 @@ class CRecordSetup : public CMenuTarget
 	private:
 		int width;
 		CRecordingSafetyNotifier *RecordingSafetyNotifier;
+		CRecAPIDSettingsNotifier * APIDNotifier;
 
 		int showRecordSetup();
 		void showRecordTimerSetup(CMenuWidget *menu_timersettings);

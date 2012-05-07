@@ -172,6 +172,7 @@ int CRecordSetup::showRecordSetup()
 	//menue init
 
 	RecordingSafetyNotifier = new CRecordingSafetyNotifier;
+	APIDNotifier = new CRecAPIDSettingsNotifier;
 	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP);
 
 	//apply settings
@@ -216,6 +217,7 @@ int CRecordSetup::showRecordSetup()
 	recordingSettings->hide();
 	delete recordingSettings;
 	delete RecordingSafetyNotifier;
+	delete APIDNotifier;
 	return res;
 }
 
@@ -257,10 +259,9 @@ void CRecordSetup::showRecordAudioSetup(CMenuWidget *menu_audiosettings)
 	g_settings.recording_audio_pids_ac3 = ( g_settings.recording_audio_pids_default & TIMERD_APIDS_AC3 ) ? 1 : 0 ;
 
 	//audio pids
-	CRecAPIDSettingsNotifier * an = new CRecAPIDSettingsNotifier;
-	CMenuOptionChooser* aoj1 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &g_settings.recording_audio_pids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, an);
-	CMenuOptionChooser* aoj2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &g_settings.recording_audio_pids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, an);
-	CMenuOptionChooser* aoj3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &g_settings.recording_audio_pids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, an);
+	CMenuOptionChooser* aoj1 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &g_settings.recording_audio_pids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, APIDNotifier);
+	CMenuOptionChooser* aoj2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &g_settings.recording_audio_pids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, APIDNotifier);
+	CMenuOptionChooser* aoj3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &g_settings.recording_audio_pids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, APIDNotifier);
 
 	menu_audiosettings->addIntroItems(LOCALE_RECORDINGMENU_APIDS);
 	menu_audiosettings->addItem(aoj1);
@@ -284,7 +285,3 @@ void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)
 		menu_ts->addItem(new CMenuOptionChooser(LOCALE_EXTRA_TEMP_TIMESHIFT, &g_settings.temp_timeshift, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	}
 }
-
-
-
-
