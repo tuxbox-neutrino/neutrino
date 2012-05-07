@@ -202,6 +202,7 @@ void COsdLangSetup::showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *lan
 	for(int i = 0; i < 3; i++) 
 	{
 		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_LANG, g_settings.pref_lang[i], true, langNotifier, CRCInput::convertDigitToKey(i+1), "", true);
+		langSelect->addOption("none");
 		std::map<std::string, std::string>::const_iterator it;
 		for(it = iso639rev.begin(); it != iso639rev.end(); ++it) 
 			langSelect->addOption(it->first.c_str());
@@ -215,7 +216,7 @@ void COsdLangSetup::showPrefMenu(CMenuWidget *prefMenu, CLangSelectNotifier *lan
 	{
 		CMenuOptionStringChooser * langSelect = new CMenuOptionStringChooser(LOCALE_AUDIOMENU_PREF_SUBS, g_settings.pref_subs[i], true, NULL, CRCInput::convertDigitToKey(i+4), "", true);
 		std::map<std::string, std::string>::const_iterator it;
-		
+		langSelect->addOption("none");
 		for(it = iso639rev.begin(); it != iso639rev.end(); ++it) 
 			langSelect->addOption(it->first.c_str());
 
@@ -242,7 +243,7 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 	//prefered audio languages
 	for(int i = 0; i < 3; i++) 
 	{
-		if(strlen(g_settings.pref_lang[i])) 
+		if(strlen(g_settings.pref_lang[i]) && strcmp(g_settings.pref_lang[i], "none")) 
 		{
 			printf("setLanguages: %d: %s\n", i, g_settings.pref_lang[i]);
 			
@@ -258,7 +259,7 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 			}
 		}
 	}
-	if(found)
+	//if(found)
 		sectionsd_set_languages(v_languages);
 	
 	return true;
