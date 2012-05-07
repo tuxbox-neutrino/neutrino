@@ -170,6 +170,8 @@ const CMenuOptionChooser::keyval END_OF_RECORDING[END_OF_RECORDING_COUNT] =
 int CRecordSetup::showRecordSetup()
 {
 	//menue init
+
+	RecordingSafetyNotifier = new CRecordingSafetyNotifier;
 	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP);
 
 	//apply settings
@@ -213,6 +215,7 @@ int CRecordSetup::showRecordSetup()
 	int res = recordingSettings->exec(NULL, "");
 	recordingSettings->hide();
 	delete recordingSettings;
+	delete RecordingSafetyNotifier;
 	return res;
 }
 
@@ -225,7 +228,6 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	sprintf(g_settings.record_safety_time_after, "%02d", post/60);
 
 	//start 
-	CRecordingSafetyNotifier *RecordingSafetyNotifier = new CRecordingSafetyNotifier;
 	CStringInput * timerBefore = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, g_settings.record_safety_time_before, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_2,"0123456789 ", RecordingSafetyNotifier);
 	CMenuForwarder *fTimerBefore = new CMenuDForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, true, g_settings.record_safety_time_before, timerBefore);
 

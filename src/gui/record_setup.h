@@ -40,6 +40,7 @@ class CRecordSetup : public CMenuTarget
 {
 	private:
 		int width;
+		CRecordingSafetyNotifier *RecordingSafetyNotifier;
 
 		int showRecordSetup();
 		void showRecordTimerSetup(CMenuWidget *menu_timersettings);
