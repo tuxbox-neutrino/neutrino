@@ -362,15 +362,13 @@ class CMenuOptionStringChooser : public CMenuItem
 class CMenuOptionLanguageChooser : public CMenuItem
 {
 		int                      height;
-		char *                   optionValue;
-		std::vector<std::string> options;
+		std::string		 optionValue;
 		CChangeObserver *        observ;
 
 	public:
 		CMenuOptionLanguageChooser(char* OptionValue, CChangeObserver* Observ = NULL, const char * const IconName = NULL);
 		~CMenuOptionLanguageChooser();
 
-		void addOption(const char * value);
 		int paint(bool selected);
 		int getHeight(void) const
 		{
