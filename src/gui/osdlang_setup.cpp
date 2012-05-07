@@ -171,18 +171,14 @@ void COsdLangSetup::showLanguageSetup(CMenuWidget *osdl_setup)
 		{
 			for (int count=0; count<n; count++) 
 			{
-				char * locale = strdup(namelist[count]->d_name);
+				char * locale = namelist[count]->d_name;
 				char * pos = strstr(locale, ".locale");
 				if (pos != NULL) 
 				{
-					char iname[50];
 					*pos = '\0';
-					sprintf(iname, "%s", locale);
-					CMenuOptionLanguageChooser* oj = new CMenuOptionLanguageChooser((char*)locale, this, iname);
-					oj->addOption(locale);
+					CMenuOptionLanguageChooser* oj = new CMenuOptionLanguageChooser((char*)locale, this, locale);
 					osdl_setup->addItem( oj );
-				} else
-					free(locale);
+				}
 				free(namelist[count]);
 			}
 			free(namelist);
