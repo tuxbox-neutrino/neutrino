@@ -217,10 +217,10 @@ int CVideoSettings::showVideoSetup()
 	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
 	videomodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
 
-	CAutoModeNotifier * anotify = new CAutoModeNotifier();
+	CAutoModeNotifier anotify;
 	for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
-		videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, anotify));
-	//anotify->changeNotify(NONEXISTANT_LOCALE, 0);
+		videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
+	//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 
 	CMenuForwarder * vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
 
@@ -275,9 +275,8 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
-	CAutoModeNotifier * anotify = new CAutoModeNotifier();
-	anotify->changeNotify(NONEXISTANT_LOCALE, 0);
-	delete anotify;
+	CAutoModeNotifier anotify;
+	anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 }
 
 void CVideoSettings::setupVideoSystem(bool do_ask)
