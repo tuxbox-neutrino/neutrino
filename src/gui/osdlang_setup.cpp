@@ -102,7 +102,7 @@ int COsdLangSetup::showLocalSetup()
 	//call menue for prefered audio languages
 	showPrefMenu(&prefMenu, langNotifier);
 	localSettings->addItem(new CMenuForwarder(LOCALE_AUDIOMENU_PREF_LANGUAGES, true, NULL, &prefMenu, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+	//langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 	
 	int res = localSettings->exec(NULL, "");
 	localSettings->hide();
