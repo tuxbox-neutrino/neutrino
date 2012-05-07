@@ -212,7 +212,6 @@ int CMiscMenue::showMiscSettingsMenu()
 #endif /*CPU_FREQ*/
 
 	int res = misc_menue.exec(NULL, "");
-	misc_menue.hide();
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
 	return res;

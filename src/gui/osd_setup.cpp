@@ -444,7 +444,6 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 	int res = osd_menu->exec(NULL, "");
-	osd_menu->hide();
 
 	delete osd_menu;
 	delete radiotextNotifier;
@@ -709,7 +708,6 @@ int COsdSetup::showContextChanlistMenu()
 #endif
 
 	int res = menu_chanlist->exec(NULL, "");
-	menu_chanlist->hide();
 	cselected = menu_chanlist->getSelected();
 	delete menu_chanlist;
 	return res;

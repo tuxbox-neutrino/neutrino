@@ -334,7 +334,6 @@ void CTestMenu::showTestMenu()
 	//TestMenu->addItem(new CMenuForwarderNonLocalized("22 Khz OFF", true, NULL, this, "22koff"));
 	
 	TestMenu->exec(NULL, "");
-	TestMenu->hide();
 	selected = TestMenu->getSelected();
 	delete TestMenu;
 }

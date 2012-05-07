@@ -243,7 +243,6 @@ int CVideoSettings::showVideoSetup()
 	videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
 
 	int res = videosetup->exec(NULL, "");
-	videosetup->hide();
 	selected = videosetup->getSelected();
 	delete videosetup;
 	return res;

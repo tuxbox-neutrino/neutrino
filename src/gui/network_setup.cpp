@@ -325,7 +325,6 @@ int CNetworkSetup::showNetworkSetup()
 	while(true) {
 		int res = menu_return::RETURN_EXIT; 
 		ret = networkSettings->exec(NULL, "");
-		networkSettings->hide();
 
 		if (settingsChanged())
 			res = saveChangesDialog();

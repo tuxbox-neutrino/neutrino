@@ -99,7 +99,6 @@ int CCECSetup::showMenu()
 	cec->addItem(cec2);
 	
 	int res = cec->exec(NULL, "");
-	cec->hide();
 	delete cec;
 	
 	return res;

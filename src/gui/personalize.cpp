@@ -324,7 +324,6 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	pMenu->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_HELP, true, NULL, this, "personalize_help", CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP));
 	
 	int res = pMenu->exec(NULL, "");
-	pMenu->hide();
 	delete pMenu;
 	delete uMenu;
 	delete pinChangeWidget;
@@ -517,7 +516,6 @@ int CPersonalizeGui::ShowMenuOptions(const int& widget)
 	}
 	options_count = pm->getItemsCount();
 	int res = pm->exec (NULL, "");
-	pm->hide ();
 	delete pm;
 	return res;
 }

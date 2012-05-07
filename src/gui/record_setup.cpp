@@ -214,7 +214,6 @@ int CRecordSetup::showRecordSetup()
 	recordingSettings->addItem(new CMenuForwarder(LOCALE_RECORDINGMENU_APIDS, true, NULL, &recordingaAudioSettings, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
 
 	int res = recordingSettings->exec(NULL, "");
-	recordingSettings->hide();
 	delete recordingSettings;
 	delete RecordingSafetyNotifier;
 	delete APIDNotifier;

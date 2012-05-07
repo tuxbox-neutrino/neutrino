@@ -409,7 +409,6 @@ int CScanSetup::showScanMenu()
 	}
 
 	int res = settings->exec(NULL, "");
-	settings->hide();
 
 	//delete satSelect;
 	delete satOnOff;
@@ -517,7 +516,6 @@ int CScanSetup::showFrontendSetup(int number)
 	setupMenu->addItem(new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, true, NULL, this, "satfind", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 
 	int res = setupMenu->exec(NULL, "");
-	setupMenu->hide();
 	feselected = setupMenu->getSelected();
 
 	/* add configured satellites to satSelect in case they changed */
@@ -569,7 +567,6 @@ int CScanSetup::showScanMenuLnbSetup()
 	}
 	if(count) {
 		res = sat_setup->exec(NULL, "");
-		sat_setup->hide();
 		for (int i = 0; i < count; i++)
 			delete tmp[i];
 	}
@@ -686,7 +683,6 @@ int CScanSetup::showScanMenuSatFind()
 	sat_findMenu->addItem(new CMenuForwarder(LOCALE_MOTORCONTROL_HEAD, allow_start, NULL, &mcontrol, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	int res = sat_findMenu->exec(NULL, "");
-	sat_findMenu->hide();
 	delete sat_findMenu;
 	return res;
 }

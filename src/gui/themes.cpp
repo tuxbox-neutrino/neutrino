@@ -174,7 +174,6 @@ int CThemes::Show()
 	}
 
 	int res = themes.exec(NULL, "");
-	themes.hide();
 
 	if (file_name.length() > 1) {
 		saveFile((char*)((std::string)USERDIR + file_name + FILE_PREFIX).c_str());

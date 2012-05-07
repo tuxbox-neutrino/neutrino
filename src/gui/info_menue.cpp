@@ -78,7 +78,6 @@ int CInfoMenu::showMenu()
 	info->addItem(new CMenuForwarder(LOCALE_STREAMINFO_HEAD, 	true, NULL, &streaminfo, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	int res = info->exec(NULL, "");
-	info->hide();
 	delete info;
 	return res;
 }

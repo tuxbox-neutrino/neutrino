@@ -105,7 +105,6 @@ int COsdLangSetup::showLocalSetup()
 	//langNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 	
 	int res = localSettings->exec(NULL, "");
-	localSettings->hide();
 	delete localSettings;
 	delete langNotifier;
 	return res;

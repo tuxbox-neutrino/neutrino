@@ -90,7 +90,6 @@ int CProxySetup::showProxySetup()
 	mn->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYPASSWORD, true, g_settings.softupdate_proxypassword, &softUpdate_proxypass, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
 
 	int res = mn->exec(NULL, "");
-	mn->hide();
 	delete mn;
 	return res;
 }

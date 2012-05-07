@@ -119,7 +119,6 @@ int CAudioPlayerSetup::showAudioPlayerSetup()
 	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true ));
 
 	int res = audioplayerSetup->exec (NULL, "");
-	audioplayerSetup->hide ();
 	delete audioplayerSetup;
 	return res;
 }

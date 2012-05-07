@@ -135,8 +135,7 @@ int CVfdSetup::showSetup()
 	vfds->addItem(lcd_clock_channelname_menu);
 	
 	int res = vfds->exec(NULL, "");
-	vfds->hide();
-	
+
 	delete vfds;
 	return res;
 }

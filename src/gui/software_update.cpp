@@ -114,7 +114,6 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	softUpdate->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, &flash, "", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
 
 	int res = softUpdate->exec (NULL, "");
-	softUpdate->hide ();
 	delete softUpdate;
 	return res;
 }

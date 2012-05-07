@@ -75,7 +75,6 @@ void CZapitSetup::showMenu()
 	zapit->addItem(zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
 
 	zapit->exec(NULL, "");
-	zapit->hide();
 	delete zapit;
 }
 
@@ -175,7 +174,6 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 		}
 	}
 	mctv.exec (NULL, "");
-	mctv.hide ();
 
 	// delete dynamic created objects
 	for(unsigned int count=0;count<toDelete.size();count++)

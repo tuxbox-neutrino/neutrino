@@ -191,7 +191,6 @@ int CAudioSetup::showAudioSetup()
 #endif
 	
 	int res = audioSettings->exec(NULL, "");
-	audioSettings->hide();
 	selected = audioSettings->getSelected();
 	delete audioSettings;
 	return res;

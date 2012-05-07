@@ -95,7 +95,6 @@ int CMediaPlayerSetup::showMediaPlayerSetup()
 	mediaSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_NAME, true, NULL, &asetup, "", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 
 	int res = mediaSetup->exec (NULL, "");
-	mediaSetup->hide ();
 	selected = mediaSetup->getSelected();
 	delete mediaSetup;
 	return res;

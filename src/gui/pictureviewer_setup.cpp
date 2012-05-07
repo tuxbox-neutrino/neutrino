@@ -111,7 +111,6 @@ int CPictureViewerSetup::showPictureViewerSetup()
 	picviewsetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_DEFDIR, true, g_settings.network_nfs_picturedir, this, "picturedir"));
 	
 	int res = picviewsetup->exec(NULL, "");
-	picviewsetup->hide();
 	delete picviewsetup;
 	return res;
 }

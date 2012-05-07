@@ -230,7 +230,6 @@ int CKeybindSetup::showKeySetup()
 	keySettings->addItem(new CMenuForwarder(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, true, g_settings.repeat_genericblocker, &keySettings_repeat_genericblocker));
 
 	int res = keySettings->exec(NULL, "");
-	keySettings->hide();
 
 	//check if rc hardware selection has changed before leaving the menu
 	if (org_remote_control_hardware != g_settings.remote_control_hardware) {

@@ -134,7 +134,6 @@ int CUserMenuSetup::showSetup()
 	}
 	
 	int res = ums->exec(NULL, "");
-	ums->hide();
 
 	return res;
 }
