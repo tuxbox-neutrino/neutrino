@@ -214,6 +214,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 	delete fanNotifier;
 	delete sectionsdConfigNotifier;
+	delete miscNotifier;
 	return res;
 }
 
@@ -254,7 +255,7 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, g_settings.shutdown_count, miscSettings_shutdown_count);
 
-	CMiscNotifier* miscNotifier = new CMiscNotifier( m1, m2 );
+	miscNotifier = new CMiscNotifier( m1, m2 );
 
 	ms_energy->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier));
 	ms_energy->addItem(m1);
