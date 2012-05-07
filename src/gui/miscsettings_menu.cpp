@@ -161,6 +161,7 @@ int CMiscMenue::showMiscSettingsMenu()
 {
 	//misc settings
 	fanNotifier = new CFanControlNotifier();
+	sectionsdConfigNotifier = new CSectionsdConfigNotifier();
 	CMenuWidget misc_menue(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP);
 
 	misc_menue.addIntroItems(LOCALE_MISCSETTINGS_HEAD);
@@ -213,6 +214,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	int res = misc_menue.exec(NULL, "");
 	misc_menue.hide();
 	delete fanNotifier;
+	delete sectionsdConfigNotifier;
 	return res;
 }
 
@@ -266,7 +268,6 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 {
 	ms_epg->addIntroItems(LOCALE_MISCSETTINGS_EPG_HEAD);
 
-	CSectionsdConfigNotifier* sectionsdConfigNotifier = new CSectionsdConfigNotifier;
 	ms_epg->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 
 	CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &g_settings.epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);

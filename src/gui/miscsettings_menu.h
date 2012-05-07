@@ -40,6 +40,8 @@ class CMiscMenue : public CMenuTarget
 {	
 	private:
 		CFanControlNotifier *fanNotifier;
+		CSectionsdConfigNotifier* sectionsdConfigNotifier;
+
 		int width;
 
 		int showMiscSettingsMenu();
