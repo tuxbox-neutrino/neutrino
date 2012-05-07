@@ -419,9 +419,9 @@ int CNeutrinoApp::loadSetup(const char * fname)
 
 	for(int i = 0; i < 3; i++) {
 		sprintf(cfg_key, "pref_lang_%d", i);
-		strncpy(g_settings.pref_lang[i], configfile.getString(cfg_key, "").c_str(), 30);
+		strncpy(g_settings.pref_lang[i], configfile.getString(cfg_key, "none").c_str(), 30);
 		sprintf(cfg_key, "pref_subs_%d", i);
-		strncpy(g_settings.pref_subs[i], configfile.getString(cfg_key, "").c_str(), 30);
+		strncpy(g_settings.pref_subs[i], configfile.getString(cfg_key, "none").c_str(), 30);
 	}
 	g_settings.zap_cycle = configfile.getInt32( "zap_cycle", 0 );
 	strcpy( g_settings.audio_PCMOffset, configfile.getString( "audio_PCMOffset", "0" ).c_str() );
@@ -3816,7 +3816,7 @@ void CNeutrinoApp::SelectSubtitles()
 		return;
 
 	for(int i = 0; i < 3; i++) {
-		if(strlen(g_settings.pref_subs[i]) == 0)
+		if(strlen(g_settings.pref_subs[i]) == 0 || !strcmp(g_settings.pref_subs[i], "none"))
 			continue;
 
 		std::string temp(g_settings.pref_subs[i]);
