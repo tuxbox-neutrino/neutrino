@@ -616,12 +616,6 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	return ret;
 }
 
-bool CLedControlNotifier::changeNotify(const neutrino_locale_t, void* /*data*/)
-{
-	CVFD::getInstance()->setled();
-	return true;
-}
-
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 {
 	int cfd, ret;
