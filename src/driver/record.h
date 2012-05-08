@@ -64,7 +64,7 @@ enum record_error_msg_t
         RECORD_BUSY			= -1,
         RECORD_INVALID_DIRECTORY	= -2,
         RECORD_INVALID_CHANNEL		= -3,
-        RECORD_FAILURE			= -4,
+        RECORD_FAILURE			= -4
 };
 
 class CRecordInstance
@@ -167,7 +167,7 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 			RECMODE_OFF = 0,
 			RECMODE_REC = 1,
 			RECMODE_TSHIFT = 2,
-			RECMODE_REC_TSHIFT = 3,
+			RECMODE_REC_TSHIFT = 3
 		};
 		
 		CRecordManager();

@@ -478,7 +478,7 @@ void CFEManager::setLiveFE(CFrontend * fe)
 	if(femap.size() > 1)
 		cDemux::SetSource(0, livefe->fenumber);
 	mutex.unlock();
-};
+}
 
 bool CFEManager::canTune(CZapitChannel * channel)
 {

@@ -449,7 +449,7 @@ class CMenuWidget : public CMenuTarget
 			BTN_TYPE_BACK =		0,
 			BTN_TYPE_CANCEL =	1,
 			BTN_TYPE_NEXT =		3,
-			BTN_TYPE_NO =		-1,
+			BTN_TYPE_NO =		-1
 		};
 		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK );
 		bool hasItem();
@@ -476,7 +476,7 @@ class CMenuWidget : public CMenuTarget
 			MENU_POS_TOP_LEFT	,
 			MENU_POS_TOP_RIGHT	,
 			MENU_POS_BOTTOM_LEFT	,
-			MENU_POS_BOTTOM_RIGHT	,
+			MENU_POS_BOTTOM_RIGHT
 		};
 };
 

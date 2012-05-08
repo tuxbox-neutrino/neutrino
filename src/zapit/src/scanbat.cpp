@@ -200,11 +200,14 @@ bool CBat::Parse()
 #ifdef DEBUG_BAT_UNUSED
 						printf("BAT: descriptor %02x: ", d->getTag());
 						uint8_t len = 2+d->getLength();
-						uint8_t buf[len];
-						d->writeToBuffer(buf);
-						for(uint8_t i = 0; i < len; i++)
-							printf("%02x ", buf[i]);
-						printf("\n");
+						uint8_t *buf = new uint8_t[len];
+						if(buf){
+							d->writeToBuffer(buf);
+							for(uint8_t i = 0; i < len; i++)
+								printf("%02x ", buf[i]);
+							printf("\n");
+							delete []buf;
+						}
 #endif
 					}
 					break;
@@ -244,11 +247,14 @@ bool CBat::Parse()
 #ifdef DEBUG_BAT_UNUSED
 							printf("BAT: descriptor %02x: ", d->getTag());
 							uint8_t len = 2+d->getLength();
-							uint8_t buf[len];
-							d->writeToBuffer(buf);
-							for(uint8_t i = 0; i < len; i++)
-								printf("%02x ", buf[i]);
-							printf("\n");
+							uint8_t *buf = new uint8_t[len];
+							if(buf){
+								d->writeToBuffer(buf);
+								for(uint8_t i = 0; i < len; i++)
+									printf("%02x ", buf[i]);
+								printf("\n");
+								delete []buf;
+							}
 #endif
 						}
 						break;
@@ -256,10 +262,13 @@ bool CBat::Parse()
 				switch(pdsd) {
 					case 0x00000010:
 						if(d->getTag() == 0x82) {
-							uint8_t buf[2 + d->getLength()];
-							d->writeToBuffer(buf);
-							LogicalChannelDescriptor ld(buf);
-							ParseLogicalChannels(&ld, b);
+							uint8_t *buf = new uint8_t[2 + d->getLength()];
+							if(buf){
+								d->writeToBuffer(buf);
+								LogicalChannelDescriptor ld(buf);
+								ParseLogicalChannels(&ld, b);
+								delete []buf;
+							}
 						}
 						break;
 					default:

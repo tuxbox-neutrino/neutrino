@@ -280,7 +280,7 @@ CMenuGlobal::CMenuGlobal()
 CMenuGlobal::~CMenuGlobal()
 {
 	v_selected.clear();
-};
+}
 
 //Note: use only singleton to create an instance in the constructor or init handler of menu widget
 CMenuGlobal* CMenuGlobal::getInstance()

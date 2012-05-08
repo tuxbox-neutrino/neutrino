@@ -145,7 +145,9 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 			{
 				RegistrationDescriptor *sd = (RegistrationDescriptor*) d;
 				switch (sd->getFormatIdentifier()) {
-				case 0x44545331 ... 0x44545333:
+				case 0x44545331:
+				case 0x44545332:
+				case 0x44545333:
 					audio_type = CZapitAudioChannel::DTS;
 					break;
 				case 0x41432d33:
@@ -228,10 +230,13 @@ bool CPmt::ParseEsInfo(ElementaryStreamInfo *esinfo, CZapitChannel * const chann
 			break;
 		case 0xC5: /* User Private descriptor - Canal+ Radio */
 			if(d->getLength() >= 25) {
-				uint8_t buf[2 + d->getLength()];
-				d->writeToBuffer(buf);
-				int tsidonid =  channel->getTransportStreamId() << 16 | channel->getOriginalNetworkId();
-				description = convertDVBUTF8((const char*)&buf[3], 24, 2, tsidonid);
+				uint8_t *buf = new uint8_t[2 + d->getLength()];
+				if(buf){
+					d->writeToBuffer(buf);
+					int tsidonid =  channel->getTransportStreamId() << 16 | channel->getOriginalNetworkId();
+					description = convertDVBUTF8((const char*)&buf[3], 24, 2, tsidonid);
+					delete []buf;
+				}
 			}
 			break;
 		case AUDIO_STREAM_DESCRIPTOR:
