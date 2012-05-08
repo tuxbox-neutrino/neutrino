@@ -2354,7 +2354,7 @@ _repeat:
 				 * other modes selected bouquet not restored */
 				SetChannelMode(old_mode);
 				bouquetList->activateBouquet(old_b, false);
-				if(bouquetList->Bouquets.empty())
+				if(!bouquetList->Bouquets.empty())
 					bouquetList->Bouquets[old_b]->channelList->setSelected(old_num);
 				StartSubtitles(mode == mode_tv);
 			}

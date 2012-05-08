@@ -70,7 +70,8 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 CPlugins::CPlugins()
 {
-	
+	frameBuffer = NULL;
+	number_of_plugins = 0;
 }
 
 bool CPlugins::plugin_exists(const std::string & filename)
@@ -215,10 +216,6 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		else if (cmd == "pluginversion")
 		{
 			plugin_data->key = atoi(parm.c_str());
-		}
-		else if (cmd == "pluginversion")
-		{
-			plugin_data->version = atoi(parm.c_str());
 		}
 		else if (cmd == "name")
 		{
