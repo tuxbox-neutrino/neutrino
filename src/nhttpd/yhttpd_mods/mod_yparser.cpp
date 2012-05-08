@@ -660,14 +660,14 @@ const CyParser::TyFuncCall CyParser::yFuncCallList[] = {
 //-------------------------------------------------------------------------
 std::string CyParser::YWeb_cgi_func(CyhookHandler *hh, std::string ycmd) {
 	std::string func, para, yresult = "ycgi func not found";
-	bool found = false;
+	//bool found = false;
 	ySplitString(ycmd, " ", func, para);
 
 	for (unsigned int i = 0; i < (sizeof(yFuncCallList)
 			/ sizeof(yFuncCallList[0])); i++)
 		if (func == yFuncCallList[i].func_name) {
 			yresult = (this->*yFuncCallList[i].pfunc)(hh, para);
-			found = true;
+			//found = true;
 			break;
 		}
 	log_level_printf(8, "<yparser: func>:%s Result:%s\n", func.c_str(),

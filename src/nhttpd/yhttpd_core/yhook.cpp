@@ -237,14 +237,14 @@ std::string CyhookHandler::BuildHeader(bool cache) {
 	std::string result = "";
 
 	const char *responseString = "";
-	const char *infoString = 0;
+	//const char *infoString = 0;
 
 	// get Info Index
 	for (unsigned int i = 0; i < (sizeof(httpResponseNames)
 			/ sizeof(httpResponseNames[0])); i++)
 		if (httpResponseNames[i].type == httpStatus) {
 			responseString = httpResponseNames[i].name;
-			infoString = httpResponseNames[i].info;
+			//infoString = httpResponseNames[i].info;
 			break;
 		}
 	// print Status-line

@@ -444,11 +444,9 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
         }
         if (apidmode & TIMERD_APIDS_ALT) {
                 uint32_t apid_min=UINT_MAX;
-                uint32_t apid_min_idx=0;
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
                         if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3) {
                                 apid_min = allpids.APIDs[i].pid;
-                                apid_min_idx = i;
                         }
                 }
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {

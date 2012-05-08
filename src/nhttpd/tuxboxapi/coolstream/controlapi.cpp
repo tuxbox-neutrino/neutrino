@@ -757,6 +757,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 		hh->SendError();
 		return;
 	}
+#if 0
 	unsigned int repeat = 1;
 	unsigned int delay = 250;
 	if (hh->ParamList["delay"] != "")
@@ -765,7 +766,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 		repeat = atoi(hh->ParamList["duration"].c_str()) * 1000 / delay;
 	if (hh->ParamList["repeat"] != "")
 		repeat = atoi(hh->ParamList["repeat"].c_str());
-
+#endif
 	int evd = open(EVENTDEV, O_RDWR);
 	if (evd < 0) {
 		hh->SendError();

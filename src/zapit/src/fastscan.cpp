@@ -554,7 +554,7 @@ void CServiceScan::process_service_list_descriptor(const unsigned char * const b
 void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition)
 {
         stiterator tI;
-        int modulationSystem, modulationType, rollOff, fec_inner;
+        int modulationSystem, modulationType, /*rollOff,*/ fec_inner;
 
         feparams->frequency = (
                  ((buffer[2] >> 4)      * 100000000) +
@@ -575,7 +575,7 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
 	);
         feparams->inversion = INVERSION_AUTO;
 
-        rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
+        //rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
         modulationSystem = (buffer[8] >> 2) & 0x01; // 1= DVB_S2
         modulationType = (buffer[8]) & 0x03; // 1=QPSK, 2=M8PSK
 

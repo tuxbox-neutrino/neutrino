@@ -137,7 +137,7 @@ recv_ping( struct sockaddr_in *taddr )
   socklen_t from;
   int nf, cc;
   unsigned char buf[ HDRLEN + DATALEN ];
-  struct icmp        *icp;
+  //struct icmp        *icp;
   struct sockaddr_in faddr;
   struct timeval to;
   fd_set readset, writeset;
@@ -169,7 +169,7 @@ recv_ping( struct sockaddr_in *taddr )
     exit( EXIT_FAILURE );
   }
 
-  icp = (struct icmp *)(buf + HDRLEN + DATALEN );
+  //icp = (struct icmp *)(buf + HDRLEN + DATALEN );
   if( faddr.sin_addr.s_addr != taddr->sin_addr.s_addr ){
     return 1;
   }

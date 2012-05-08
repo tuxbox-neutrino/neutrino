@@ -222,7 +222,7 @@ t_channel_id CNeutrinoAPI::ChannelNameToChannelId(std::string search_channel_nam
 
 bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 {
-	char *key, *tmpptr, buf[100];
+	char /* *key,*/ *tmpptr, buf[100];
 	long value;
 	int pos = 0;
 
@@ -243,7 +243,7 @@ bool CNeutrinoAPI::GetStreamInfo(int bitInfo[10])
 		{
 			buf[strlen(buf)-1]=0;
 			tmpptr=buf;
-			key=strsep(&tmpptr,":");
+			//key=strsep(&tmpptr,":");
 			value=strtoul(tmpptr,NULL,0);
 			bitInfo[pos]= value;
 			pos++;

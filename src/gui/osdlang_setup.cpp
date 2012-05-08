@@ -232,7 +232,7 @@ void sectionsd_set_languages(const std::vector<std::string>& newLanguages);
 bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	std::vector<std::string> v_languages;
-	bool found = false;
+	//bool found = false;
 	std::map<std::string, std::string>::const_iterator it;
 
 	//prefered audio languages
@@ -249,7 +249,7 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 				{
 					v_languages.push_back(it->first);
 					printf("setLanguages: adding %s\n", it->first.c_str());
-					found = true;
+					//found = true;
 				}
 			}
 		}

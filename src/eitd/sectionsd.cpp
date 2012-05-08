@@ -2263,7 +2263,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 	SIevent nextEvt;
 	unsigned flag = 0, flag2=0;
 	/* ugly hack: retry fetching current/next by restarting dmxCN if this is true */
-	bool change = false;//TODO remove ?
+	//bool change = false;//TODO remove ?
 
 	//t_channel_id * uniqueServiceKey = (t_channel_id *)data;
 
@@ -2273,7 +2273,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 		/* ...check for myCurrentEvent and myNextEvent */
 		if (!myCurrentEvent) {
 			dprintf("!myCurrentEvent ");
-			change = true;
+			//change = true;
 			flag |= CSectionsdClient::epgflags::not_broadcast;
 		} else {
 			currentEvt = *myCurrentEvent;
@@ -2282,7 +2282,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 		}
 		if (!myNextEvent) {
 			dprintf("!myNextEvent ");
-			change = true;
+			//change = true;
 		} else {
 			nextEvt = *myNextEvent;
 			if (flag & CSectionsdClient::epgflags::not_broadcast) {
@@ -2313,7 +2313,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 		if (currentEvt.getName().empty() && flag2 != 0)
 		{
 			dprintf("commandCurrentNextInfoChannelID change1\n");
-			change = true;
+			//change = true;
 		}
 
 		if (currentEvt.service_id != 0)
@@ -2371,7 +2371,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 		else if (flag != 0)
 		{
 			dprintf("commandCurrentNextInfoChannelID change2 flag: 0x%02x\n", flag);
-			change = true;
+			//change = true;
 		}
 	}
 
