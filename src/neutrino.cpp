@@ -2325,7 +2325,7 @@ _show:
 			int old_mode = GetChannelMode();
 			printf("************************* ZAP START: bouquetList %p size %d old_b %d\n", bouquetList, bouquetList->Bouquets.size(), old_b);fflush(stdout);
 
-			if(bouquetList->Bouquets.size()) {
+			if(!bouquetList->Bouquets.empty()) {
 				old_num = bouquetList->Bouquets[old_b]->channelList->getSelected();
 			}
 //_show:
@@ -2354,7 +2354,7 @@ _repeat:
 				 * other modes selected bouquet not restored */
 				SetChannelMode(old_mode);
 				bouquetList->activateBouquet(old_b, false);
-				if(bouquetList->Bouquets.size())
+				if(bouquetList->Bouquets.empty())
 					bouquetList->Bouquets[old_b]->channelList->setSelected(old_num);
 				StartSubtitles(mode == mode_tv);
 			}

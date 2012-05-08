@@ -344,7 +344,7 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 
 void CServiceManager::ParseChannels(xmlNodePtr node, const t_transport_stream_id transport_stream_id, const t_original_network_id original_network_id, t_satellite_position satellitePosition, freq_id_t freq, uint8_t polarization)
 {
-	int dummy;
+	int dummy = 0;
 	int * have_ptr = &dummy;
 
 	sat_iterator_t sit = satellitePositions.find(satellitePosition);

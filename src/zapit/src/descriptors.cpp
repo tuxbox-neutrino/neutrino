@@ -249,7 +249,7 @@ int satellite_delivery_system_descriptor(const unsigned char * const buffer, t_t
 	uint8_t polarization;
 	stiterator tI;
 	transponder_id_t TsidOnid;
-	int modulationSystem, modulationType, rollOff, fec_inner;
+	int modulationSystem, modulationType/*, rollOff*/, fec_inner;
 
 	if (CFrontend::getInstance()->getInfo()->type != FE_QPSK)
 		return -1;
@@ -268,7 +268,7 @@ int satellite_delivery_system_descriptor(const unsigned char * const buffer, t_t
 
 	feparams.inversion = INVERSION_AUTO;
 
-	rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
+//	rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
 	modulationSystem = (buffer[8] >> 2) & 0x01; // 1= DVB_S2
 	modulationType = (buffer[8]) & 0x03; // 1=QPSK, 2=M8PSK
 
@@ -475,7 +475,7 @@ void service_descriptor(const unsigned char * const buffer, const t_service_id s
 
 	std::string providerName((const char*)&(buffer[4]), service_provider_name_length);
 	std::string serviceName;
-	std::string satelliteName = "unknown";
+//	std::string satelliteName = "unknown";
 	bool in_blacklist = false;
 
 	if (check_blacklisted(providerName)) {
@@ -713,7 +713,7 @@ void current_service_descriptor(const unsigned char * const buffer, const t_serv
 
 	std::string providerName((const char*)&(buffer[4]), service_provider_name_length);
 	std::string serviceName;
-	std::string satelliteName = "unknown";
+//	std::string satelliteName = "unknown";
 
 	bool in_blacklist = false;
 

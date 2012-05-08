@@ -1796,7 +1796,7 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 	sort(timerlist.begin(), timerlist.end());		// sort timer
 	CTimerd::TimerList::iterator timer = timerlist.begin();
 
-	std::string xml_response = "";
+//	std::string xml_response = "";
 	hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 	hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	hh->WriteLn("<timer>\n");

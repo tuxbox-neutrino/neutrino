@@ -143,7 +143,7 @@ void CPIG::_set_window (int x, int y, int w, int h)
   // -- Modul interne Routine
         struct v4l2_crop crop;
         struct v4l2_format coord;
-        int    err;
+//        int    err;
 
         crop.type = V4L2_BUF_TYPE_VIDEO_OVERLAY;
         err = ioctl(fd, VIDIOC_G_CROP, &crop);
@@ -153,10 +153,10 @@ void CPIG::_set_window (int x, int y, int w, int h)
         crop.c.top = 0;
         crop.c.width = 720;
         crop.c.height = 576;
-        err = ioctl(fd, VIDIOC_S_CROP, &crop);
+        /*err =*/ ioctl(fd, VIDIOC_S_CROP, &crop);
 
         coord.type = V4L2_BUF_TYPE_VIDEO_OVERLAY;
-        err = ioctl(fd, VIDIOC_G_FMT, &coord);
+        /*err = */ioctl(fd, VIDIOC_G_FMT, &coord);
 
         // fit into small window
         coord.fmt.win.w.left = x;
@@ -178,7 +178,7 @@ void CPIG::_set_window (int x, int y, int w, int h)
 	coord.fmt.win.w.height = h;
 
 	int pigmode = 0;
-	err = ioctl(fd, VIDIOC_OVERLAY, &pigmode);
+	/*err =*/ ioctl(fd, VIDIOC_OVERLAY, &pigmode);
 printf("pig::window VIDIOC_OVERLAY %d\n", err);
 
 	err = ioctl(fd, VIDIOC_S_FMT, &coord);
