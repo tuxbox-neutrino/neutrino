@@ -112,6 +112,7 @@ public:
 		transport_stream_id = _transport_stream_id;
 		serviceTyp=0;
 		memset(&flags, 0, sizeof(flags));
+		is_actual = 0;
 	}
 
 	int eitScheduleFlag(void)	{ return (int)flags.EIT_schedule_flag; }
