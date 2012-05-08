@@ -243,11 +243,13 @@ void readDVBTimeFilter(void)
 		dvb_time_update = true;
 	}
 }
+
 void deleteOldfileEvents(char *epgdir)
 {
 	std::string indexname = std::string(epgdir) + "/index.xml";
 	xmlDocPtr filter_parser = parseXmlFile(indexname.c_str());
 	std::string filename;
+	std::string file;
 
 	if (filter_parser != NULL)
 	{
@@ -255,10 +257,11 @@ void deleteOldfileEvents(char *epgdir)
 		filter = filter->xmlChildrenNode;
 
 		while (filter) {
-
 			filename = xmlGetAttribute(filter, "name");
-			unlink(filename.c_str());
-
+			file = epgdir;
+			file +="/";
+			file +=filename;
+			unlink(file.c_str());
 			filter = filter->xmlNextNode;
 		}
 		xmlFreeDoc(filter_parser);
@@ -267,6 +270,7 @@ void deleteOldfileEvents(char *epgdir)
 
 void *insertEventsfromFile(void * data)
 {
+	reader_ready=false;
 	xmlDocPtr event_parser = NULL;
 	xmlNodePtr eventfile = NULL;
 	xmlNodePtr service = NULL;
@@ -440,13 +444,6 @@ static void write_indexxml_footer(FILE *fd)
 {
 	fprintf(fd, "</dvbepgfiles>\n");
 }
-
-// void cp(char * from, char * to)
-// {
-// 	char cmd[256];
-// 	snprintf(cmd, 256, "cp -f %s %s", from, to);
-// 	system(cmd);
-// }
 
 void writeEventsToFile(char *epgdir)
 {
