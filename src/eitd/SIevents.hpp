@@ -296,6 +296,7 @@ class SIevent
 			vps = 0;
 			table_id = 0xFF; /* 0xFF means "not set" */
 			version = 0xFF;
+			running = false;
 		}
 		void parse(Event &event);
 

@@ -39,6 +39,11 @@ CNetworkConfig::CNetworkConfig()
 	netGetNameserver(our_nameserver);
 	nameserver = our_nameserver;
 	ifname = "eth0";
+	orig_automatic_start = false;
+	orig_inet_static = false;
+	automatic_start = false;
+	inet_static = false;
+	wireless = false;
 }
 
 CNetworkConfig* CNetworkConfig::getInstance()
