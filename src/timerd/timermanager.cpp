@@ -212,8 +212,10 @@ void* CTimerManager::timerThread(void *arg)
 						pos->second->printEvent();
 					dprintf("\n");
 					delete pos->second;										// delete event
-					timerManager->events.erase(pos);				// remove from list
+					timerManager->events.erase(pos++);				// remove from list
 					timerManager->m_saveEvents = true;
+					if(pos == timerManager->events.end())
+						break;
 				}
 			}
 			pthread_mutex_unlock(&tm_eventsMutex);
