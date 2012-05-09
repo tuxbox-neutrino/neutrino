@@ -60,6 +60,16 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	frameBuffer = CFrameBuffer::getInstance();
 	selected = 0;
 	iconoffset = 0;
+	origPosition = 0;
+	newPosition = 0;
+	listmaxshow = 0;
+	numwidth = 0;
+	info_height = 0;
+	channelsChanged = false;
+	width = 0;
+	height = 0;
+	x = 0;
+	y = 0;
 
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();

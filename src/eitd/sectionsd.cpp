@@ -493,7 +493,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 		{
 			// ist ein MetaEvent, d.h. mit Zeiten fuer NVOD-Event
 
-			if (e->times.size())
+			if (!e->times.empty())
 			{
 				// D.h. wir fuegen die Zeiten in das richtige Event ein
 				MySIeventsOrderUniqueKey::iterator ie = mySIeventsOrderUniqueKey.find(i->second);
@@ -527,7 +527,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 		// normales Event
 		mySIeventsOrderUniqueKey.insert(std::make_pair(e->uniqueKey(), e));
 
-		if (e->times.size())
+		if (!e->times.empty())
 		{
 			// diese beiden Mengen enthalten nur Events mit Zeiten
 			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.insert(e);
@@ -588,7 +588,7 @@ static void addNVODevent(const SIevent &evt)
 
 	mySIeventsNVODorderUniqueKey.insert(std::make_pair(e->uniqueKey(), e));
 	unlockEvents();
-	if (e->times.size())
+	if (!e->times.empty())
 	{
 		// diese beiden Mengen enthalten nur Events mit Zeiten
 		writeLockEvents();
@@ -1472,7 +1472,7 @@ void CSectionThread::run()
 {
 	xprintf("%s::run:: starting, pid %d (%lu)\n", name.c_str(), getpid(), pthread_self());
 	if (sections_debug)
-		dump_sched_info(name.c_str());
+		dump_sched_info(name);
 
 	addFilters();
 

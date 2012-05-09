@@ -2263,7 +2263,7 @@ void CInfoViewer::paint_ca_icons(int caid, char * icon, int &icon_space_offset)
 		icon_map[0x0D00] = std::make_pair(index++,"cw");
 		icon_map[0x0900] = std::make_pair(index  ,"nds");
 
-		for (it=icon_map.begin(); it!=icon_map.end(); it++) {
+		for (it=icon_map.begin(); it!=icon_map.end(); ++it) {
 			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, icon);
 			frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
 		}

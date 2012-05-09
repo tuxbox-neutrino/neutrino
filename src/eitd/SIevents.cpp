@@ -52,6 +52,7 @@ SIevent::SIevent(const t_original_network_id _original_network_id, const t_trans
 	eventID		    = _event_id;
 	table_id            = 0xFF; /* not set */
 	version 	    = 0xFF;
+	running 	    = 0;
 }
 
 void SIevent::parse(Event &event)
