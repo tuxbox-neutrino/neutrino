@@ -152,7 +152,8 @@ void CZapitBouquet::moveService(const unsigned int oldPosition, const unsigned i
 		CZapitChannel* tmp = *it;
 		channels->erase(it);
 
-		advance(it, newPosition - oldPosition);
+		it = channels->begin();
+		advance(it, newPosition);
 		channels->insert(it, tmp);
 	}
 }
@@ -604,7 +605,8 @@ void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int n
 		CZapitBouquet* tmp = *it;
 		Bouquets.erase(it);
 
-		advance(it, newId - oldId);
+		it = Bouquets.begin();
+		advance(it, newId);
 		Bouquets.insert(it, tmp);
 	}
 }
