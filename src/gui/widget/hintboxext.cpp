@@ -258,26 +258,33 @@ void CHintBoxExt::refresh(bool toround)
 // 		it != m_startEntryOfPage.end();it++) {
 // 		printf(" %d",*it);
 // 	}
-// 	printf("\n current page: %d",m_currentPage);
-// 	printf("von %d bis %d\n",m_startEntryOfPage[m_currentPage],m_startEntryOfPage[m_currentPage+1]-1);
+ 	printf("\n current page: %d lines %d ",m_currentPage, m_lines.size());
+ 	printf("start %d bis %d\n",m_startEntryOfPage[m_currentPage],m_startEntryOfPage[m_currentPage+1]-1);
 
+#if 0
 	for (ContentLines::iterator it = m_lines.begin() + m_startEntryOfPage[m_currentPage];
 		 it != m_lines.begin() + m_startEntryOfPage[m_currentPage+1]
 			 && it != m_lines.end(); ++it)
+#endif
+	for (int count = 0; count < (int) m_lines.size(); count++)
 	{
-		int xPos = textStartX;
-		int maxHeight = 0;
-		for (std::vector<Drawable*>::iterator d = it->begin();d!=it->end();++d)
+		if ((count >= m_startEntryOfPage[m_currentPage]) &&
+				(count < m_startEntryOfPage[m_currentPage+1]))
 		{
-// 			(*d)->print();
-// 			printf("\n");
-			//(*d)->draw(m_window,xPos,yPos,m_width);
-  			(*d)->draw(m_window,xPos,yPos,m_width-20);
-			xPos += (*d)->getWidth() + 20;
-			if ((*d)->getHeight() > maxHeight)
-				maxHeight = (*d)->getHeight();
+			int xPos = textStartX;
+			int maxHeight = 0;
+			for (std::vector<Drawable*>::iterator d = m_lines[count].begin(); d != m_lines[count].end(); ++d)
+			{
+				// 			(*d)->print();
+				// 			printf("\n");
+				//(*d)->draw(m_window,xPos,yPos,m_width);
+				(*d)->draw(m_window,xPos,yPos,m_width-20);
+				xPos += (*d)->getWidth() + 20;
+				if ((*d)->getHeight() > maxHeight)
+					maxHeight = (*d)->getHeight();
+			}
+			yPos += maxHeight;
 		}
-		yPos += maxHeight;
 	}
 
 	if (has_scrollbar()) 
