@@ -31,7 +31,7 @@
 
 #include "eventserver.h"
 
-void CEventServer::registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string udsName)
+void CEventServer::registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string &udsName)
 {
 	strcpy(eventData[eventID][ClientID].udsName, udsName.c_str());
 }

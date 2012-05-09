@@ -69,7 +69,6 @@ class CBEChannelWidget : public CMenuWidget
 		int			footerHeight;
 		int			info_height;
 
-		int 			ButtonHeight;
 		std::string		caption;
 		bool			channelsChanged;
 

@@ -55,6 +55,14 @@ CBEBouquetWidget::CBEBouquetWidget()
 	int icol_w, icol_h;
 	frameBuffer = CFrameBuffer::getInstance();
 	iconoffset = 0;
+	origPosition = 0;
+	newPosition = 0;
+	listmaxshow = 0;
+	bouquetsChanged = 0;
+	width = 0;
+	height = 0;
+	x = 0;
+	y = 0;
 
 	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8;
 
