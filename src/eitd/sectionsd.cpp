@@ -709,7 +709,7 @@ static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 	if (eFirst != mySIeventsOrderUniqueKey.end())
 	{
 		SItimes::iterator nextnvodtimes = eFirst->second->times.end();
-		SItimes::iterator nexttimes = eFirst->second->times.end();
+		//SItimes::iterator nexttimes = eFirst->second->times.end();
 
 		if (eFirst->second->times.size() > 1)
 		{
@@ -725,14 +725,17 @@ static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 
 		MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator eNext;
 
-		//if ((nextnvodtimes != eFirst->second->times.begin()) && (nextnvodtimes != eFirst->second->times.end())) {
+		SItimes::iterator nexttimes;
+		bool nextfound = false;
 		//Startzeit not first - we can't use the ordered list...
 		for (MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator e = mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin(); e !=
 				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end(); ++e ) {
 			if ((*e)->get_channel_id() == eFirst->second->get_channel_id()) {
 				for (SItimes::iterator t = (*e)->times.begin(); t != (*e)->times.end(); ++t) {
 					if (t->startzeit > zeit.startzeit) {
-						if (nexttimes != eFirst->second->times.end()) {
+						//if (nexttimes != eFirst->second->times.end())
+						if(nextfound)
+						{
 							if (t->startzeit < nexttimes->startzeit) {
 								eNext = e;
 								nexttimes = t;
@@ -741,27 +744,18 @@ static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 						else {
 							eNext = e;
 							nexttimes = t;
+							nextfound = true;
 						}
 					}
 				}
 			}
 		}
-		/*		} else {
-					//find next normal
-					eNext = mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.find(eFirst->second);
-					eNext++;
-
-					if (eNext != mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.end())
-					{
-						if ((*eNext)->get_channel_id() == eFirst->second->get_channel_id())
-							nexttimes = (*eNext)->times.begin();
-					}
-				}
-		*/
 		if (nextnvodtimes != eFirst->second->times.end())
 			++nextnvodtimes;
 		//Compare
-		if (nexttimes != eFirst->second->times.end()) {
+		//if (nexttimes != eFirst->second->times.end())
+		if(nextfound)
+		{
 			if (nextnvodtimes != eFirst->second->times.end()) {
 				//both times are set - take the first
 				if (nexttimes->startzeit < nextnvodtimes->startzeit) {
