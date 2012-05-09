@@ -362,7 +362,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 		si->second->itemDescription = evt.itemDescription;
 		si->second->item = evt.item;
 		si->second->vps = evt.vps;
-		if ((evt.getExtendedText().length() > 0) &&
+		if ((evt.getExtendedText().length() > 0) && !evt.times.empty() &&
 				(evt.times.begin()->startzeit < zeit + secondsExtendedTextCache))
 			si->second->setExtendedText("OFF",evt.getExtendedText().c_str());
 		if (evt.getText().length() > 0)
@@ -701,7 +701,7 @@ static const SIevent& findNextSIeventForServiceUniqueKey(const t_channel_id serv
 	return nullEvt;
 }
 
-// Sucht das naechste Event anhand unique key und Startzeit
+// Finds the next event based on unique key and start time
 static const SIevent &findNextSIevent(const event_id_t uniqueKey, SItime &zeit)
 {
 	MySIeventsOrderUniqueKey::iterator eFirst = mySIeventsOrderUniqueKey.find(uniqueKey);
@@ -2304,7 +2304,7 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 		SItime zeitEvt1(0, 0);
 		if (!(flag & CSectionsdClient::epgflags::has_current)) {
 			currentEvt = findActualSIeventForServiceUniqueKey(uniqueServiceKey, zeitEvt1, 0, &flag2);
-		} else {
+		} else if(!currentEvt.times.empty()) {
 			zeitEvt1.startzeit = currentEvt.times.begin()->startzeit;
 			zeitEvt1.dauer = currentEvt.times.begin()->dauer;
 		}
@@ -2338,9 +2338,10 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 					nextEvt = findNextSIeventForServiceUniqueKey(uniqueServiceKey, zeitEvt2);
 				}
 
+				/* FIXME what this code should do ? why search channel id as event key ?? */
+#if 0
 				if (nextEvt.service_id != 0)
 				{
-					/* FIXME what this code should do ? why search channel id as event key ?? */
 					MySIeventsOrderUniqueKey::iterator eFirst = mySIeventsOrderUniqueKey.find(uniqueServiceKey);
 
 					if (eFirst != mySIeventsOrderUniqueKey.end())
@@ -2354,12 +2355,13 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 						{
 							time_t azeit = time(NULL);
 
-							if (eFirst->second->times.begin()->startzeit < azeit &&
+							if (!eFirst->second->times.empty() && eFirst->second->times.begin()->startzeit < azeit &&
 									eFirst->second->uniqueKey() == nextEvt.uniqueKey() - 1)
 								flag |= CSectionsdClient::epgflags::has_no_current;
 						}
 					}
 				}
+#endif
 			}
 		}
 		if (nextEvt.service_id != 0)
@@ -2397,10 +2399,16 @@ void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSections
 	CSectionsdClient::sectionsdTime time_cur;
 	CSectionsdClient::sectionsdTime time_nxt;
 	now = time(NULL);
-	time_cur.startzeit = currentEvt.times.begin()->startzeit;
-	time_cur.dauer = currentEvt.times.begin()->dauer;
-	time_nxt.startzeit = nextEvt.times.begin()->startzeit;
-	time_nxt.dauer = nextEvt.times.begin()->dauer;
+	time_cur.startzeit = time_cur.dauer = 0;
+	if(!currentEvt.times.empty()) {
+		time_cur.startzeit = currentEvt.times.begin()->startzeit;
+		time_cur.dauer = currentEvt.times.begin()->dauer;
+	}
+	time_nxt.startzeit = time_nxt.dauer = 0;
+	if(!nextEvt.times.empty()) {
+		time_nxt.startzeit = nextEvt.times.begin()->startzeit;
+		time_nxt.dauer = nextEvt.times.begin()->dauer;
+	}
 	/* for nvod events that have multiple times, find the one that matches the current time... */
 	if (currentEvt.times.size() > 1) {
 		for (SItimes::iterator t = currentEvt.times.begin(); t != currentEvt.times.end(); ++t) {
@@ -2520,8 +2528,10 @@ bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGD
 	if (uniqueServiceKey == messaging_current_servicekey) {
 		if (myCurrentEvent) {
 			evt = *myCurrentEvent;
-			zeit.startzeit = evt.times.begin()->startzeit;
-			zeit.dauer = evt.times.begin()->dauer;
+			if(!evt.times.empty()) {
+				zeit.startzeit = evt.times.begin()->startzeit;
+				zeit.dauer = evt.times.begin()->dauer;
+			}
 			if (evt.times.size() > 1) {
 				time_t now = time(NULL);
 				for (SItimes::iterator t = evt.times.begin(); t != evt.times.end(); ++t) {
