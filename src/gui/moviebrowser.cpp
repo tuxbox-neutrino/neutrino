@@ -177,7 +177,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 /* default row size in percent for any element */
 #define	MB_ROW_WIDTH_FILENAME		22
 #define	MB_ROW_WIDTH_FILEPATH		22
-#define	MB_ROW_WIDTH_TITLE		45
+#define	MB_ROW_WIDTH_TITLE		35
 #define	MB_ROW_WIDTH_SERIE		15
 #define	MB_ROW_WIDTH_INFO1		25
 #define	MB_ROW_WIDTH_MAJOR_GENRE	15
@@ -186,7 +186,7 @@ const neutrino_locale_t m_localizedItemName[MB_INFO_MAX_NUMBER+1] =
 #define	MB_ROW_WIDTH_PARENTAL_LOCKAGE	4
 #define	MB_ROW_WIDTH_CHANNEL		12
 #define	MB_ROW_WIDTH_BOOKMARK		4
-#define	MB_ROW_WIDTH_QUALITY		4
+#define	MB_ROW_WIDTH_QUALITY		10
 #define	MB_ROW_WIDTH_PREVPLAYDATE	12
 #define	MB_ROW_WIDTH_RECORDDATE		12
 #define	MB_ROW_WIDTH_PRODDATE		8
@@ -553,8 +553,14 @@ void CMovieBrowser::initGlobalSettings(void)
 
 	m_settings.gui = MB_GUI_MOVIE_INFO;
 
-	m_settings.sorting.direction = MB_DIRECTION_DOWN;
+	m_settings.lastPlayMaxItems = NUMBER_OF_MOVIES_LAST;
+	m_settings.lastRecordMaxItems = NUMBER_OF_MOVIES_LAST;
+
+	m_settings.browser_serie_mode = 0;
+	m_settings.serie_auto_create = 0;
+
 	m_settings.sorting.item 	=  MB_INFO_TITLE;
+	m_settings.sorting.direction = MB_DIRECTION_DOWN;
 
 	m_settings.filter.item = MB_INFO_MAX_NUMBER;
 	m_settings.filter.optionString = "";
@@ -562,6 +568,12 @@ void CMovieBrowser::initGlobalSettings(void)
 
 	m_settings.parentalLockAge = MI_PARENTAL_OVER18;
 	m_settings.parentalLock = MB_PARENTAL_LOCK_OFF;
+
+	m_settings.storageDirMovieUsed = true;
+	m_settings.storageDirRecUsed = true;
+
+	m_settings.reload = true;
+	m_settings.remount = false;
 
 	for(int i = 0; i < MB_MAX_DIRS; i++)
 	{
@@ -586,12 +598,6 @@ void CMovieBrowser::initGlobalSettings(void)
 	m_settings.browserRowWidth[4] = m_defaultRowWidth[m_settings.browserRowItem[4]]; 		//30;
 	m_settings.browserRowWidth[5] = m_defaultRowWidth[m_settings.browserRowItem[5]]; 		//30;
 
-	m_settings.storageDirMovieUsed = true;
-	m_settings.storageDirRecUsed = true;
-	m_settings.reload = true;
-	m_settings.remount = false;
-	m_settings.browser_serie_mode = 0;
-	m_settings.serie_auto_create = 0;
 }
 
 void CMovieBrowser::initFrames(void)
@@ -696,69 +702,63 @@ void CMovieBrowser::initDevelopment(void)
 }
 #endif
 
-void CMovieBrowser::defaultSettings(MB_SETTINGS* settings)
+void CMovieBrowser::defaultSettings(MB_SETTINGS* /*settings*/)
 {
-    CFile file;
-    file.Name = MOVIEBROWSER_SETTINGS_FILE;
-    delFile(file);
-    //configfile.clear();
-    loadSettings(settings);
+	unlink(MOVIEBROWSER_SETTINGS_FILE);
+	configfile.clear();
+	//loadSettings(settings);
+	initGlobalSettings();
 }
 
 bool CMovieBrowser::loadSettings(MB_SETTINGS* settings)
 {
-	bool result = true;
 	//TRACE("CMovieBrowser::loadSettings\r\n");
-	//configfile.loadConfig(MOVIEBROWSER_SETTINGS_FILE);
-	if(configfile.loadConfig(MOVIEBROWSER_SETTINGS_FILE))
-	{
-        	settings->lastPlayMaxItems = configfile.getInt32("mb_lastPlayMaxItems", NUMBER_OF_MOVIES_LAST);
-        	settings->lastRecordMaxItems = configfile.getInt32("mb_lastRecordMaxItems", NUMBER_OF_MOVIES_LAST);
-        	settings->browser_serie_mode = configfile.getInt32("mb_browser_serie_mode", 0);
-        	settings->serie_auto_create = configfile.getInt32("mb_serie_auto_create", 0);
-
-		settings->gui = (MB_GUI)configfile.getInt32("mb_gui", MB_GUI_MOVIE_INFO);
-
-		settings->sorting.item = (MB_INFO_ITEM)configfile.getInt32("mb_sorting_item", MB_INFO_TITLE);
-		settings->sorting.direction = (MB_DIRECTION)configfile.getInt32("mb_sorting_direction", MB_DIRECTION_UP);
-
-		settings->filter.item = (MB_INFO_ITEM)configfile.getInt32("mb_filter_item", MB_INFO_INFO1);
-		settings->filter.optionString = configfile.getString("mb_filter_optionString", "");
-		settings->filter.optionVar = configfile.getInt32("mb_filter_optionVar", 0);
-
-		settings->parentalLockAge = (MI_PARENTAL_LOCKAGE)configfile.getInt32("mb_parentalLockAge", MI_PARENTAL_OVER18);
-		settings->parentalLock = (MB_PARENTAL_LOCK)configfile.getInt32("mb_parentalLock", MB_PARENTAL_LOCK_ACTIVE);
-
-        	settings->storageDirRecUsed = (bool)configfile.getInt32("mb_storageDir_rec", true );
-        	settings->storageDirMovieUsed = (bool)configfile.getInt32("mb_storageDir_movie", true );
-
-		settings->reload = (bool)configfile.getInt32("mb_reload", false );
-		settings->remount = (bool)configfile.getInt32("mb_remount", false );
-
-		char cfg_key[81];
-		for(int i = 0; i < MB_MAX_DIRS; i++)
-		{
-			snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
-			settings->storageDir[i] = configfile.getString( cfg_key, "" );
-			snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-			settings->storageDirUsed[i] = configfile.getInt32( cfg_key,false );
-		}
-		/* these variables are used for the listframes */
-		settings->browserFrameHeight  = configfile.getInt32("mb_browserFrameHeight", 50);
-		settings->browserRowNr  = configfile.getInt32("mb_browserRowNr", 0);
-		for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
-		{
-			snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
-			settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32(cfg_key, MB_INFO_MAX_NUMBER);
-			snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
-			settings->browserRowWidth[i] = configfile.getInt32(cfg_key, 50);
-		}
-	}
-	else
-	{
+	bool result = configfile.loadConfig(MOVIEBROWSER_SETTINGS_FILE);
+	if(!result) {
 		TRACE("CMovieBrowser::loadSettings failed\r\n");
-		configfile.clear();
-		result = false;
+		return result;
+	}
+
+	settings->gui = (MB_GUI)configfile.getInt32("mb_gui", MB_GUI_MOVIE_INFO);
+
+	settings->lastPlayMaxItems = configfile.getInt32("mb_lastPlayMaxItems", NUMBER_OF_MOVIES_LAST);
+	settings->lastRecordMaxItems = configfile.getInt32("mb_lastRecordMaxItems", NUMBER_OF_MOVIES_LAST);
+	settings->browser_serie_mode = configfile.getInt32("mb_browser_serie_mode", 0);
+	settings->serie_auto_create = configfile.getInt32("mb_serie_auto_create", 0);
+
+	settings->sorting.item = (MB_INFO_ITEM)configfile.getInt32("mb_sorting_item", MB_INFO_RECORDDATE);
+	settings->sorting.direction = (MB_DIRECTION)configfile.getInt32("mb_sorting_direction", MB_DIRECTION_UP);
+
+	settings->filter.item = (MB_INFO_ITEM)configfile.getInt32("mb_filter_item", MB_INFO_MAX_NUMBER);
+	settings->filter.optionString = configfile.getString("mb_filter_optionString", "");
+	settings->filter.optionVar = configfile.getInt32("mb_filter_optionVar", 0);
+
+	settings->parentalLockAge = (MI_PARENTAL_LOCKAGE)configfile.getInt32("mb_parentalLockAge", MI_PARENTAL_OVER18);
+	settings->parentalLock = (MB_PARENTAL_LOCK)configfile.getInt32("mb_parentalLock", MB_PARENTAL_LOCK_ACTIVE);
+
+	settings->storageDirRecUsed = (bool)configfile.getInt32("mb_storageDir_rec", true );
+	settings->storageDirMovieUsed = (bool)configfile.getInt32("mb_storageDir_movie", true );
+
+	settings->reload = (bool)configfile.getInt32("mb_reload", true );
+	settings->remount = (bool)configfile.getInt32("mb_remount", false );
+
+	char cfg_key[81];
+	for(int i = 0; i < MB_MAX_DIRS; i++)
+	{
+		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
+		settings->storageDir[i] = configfile.getString( cfg_key, "" );
+		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
+		settings->storageDirUsed[i] = configfile.getInt32( cfg_key,false );
+	}
+	/* these variables are used for the listframes */
+	settings->browserFrameHeight  = configfile.getInt32("mb_browserFrameHeight", 50);
+	settings->browserRowNr  = configfile.getInt32("mb_browserRowNr", 0);
+	for(int i = 0; i < MB_MAX_ROWS && i < settings->browserRowNr; i++)
+	{
+		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowItem_%d", i);
+		settings->browserRowItem[i] = (MB_INFO_ITEM)configfile.getInt32(cfg_key, MB_INFO_MAX_NUMBER);
+		snprintf(cfg_key, sizeof(cfg_key), "mb_browserRowWidth_%d", i);
+		settings->browserRowWidth[i] = configfile.getInt32(cfg_key, 50);
 	}
 	return (result);
 }
@@ -796,8 +796,8 @@ bool CMovieBrowser::saveSettings(MB_SETTINGS* settings)
 	{
 		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_%d", i);
 		configfile.setString( cfg_key, settings->storageDir[i] );
-        snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
-        configfile.setInt32( cfg_key, settings->storageDirUsed[i] ); // do not save this so far
+		snprintf(cfg_key, sizeof(cfg_key), "mb_dir_used%d", i);
+		configfile.setInt32( cfg_key, settings->storageDirUsed[i] ); // do not save this so far
 	}
 	/* these variables are used for the listframes */
 	configfile.setInt32("mb_browserFrameHeight", settings->browserFrameHeight);
@@ -2080,7 +2080,8 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
 			CFile file_xml  = movieSelectionHandler.file;
 			if(m_movieInfo.convertTs2XmlName(&file_xml.Name) == true)
 			{
-				delFile(file_xml);
+				//delFile(file_xml);
+				unlink(file_xml.Name.c_str());
 	    		}
 
 			m_vMovieInfo.erase( (std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
