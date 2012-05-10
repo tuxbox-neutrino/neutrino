@@ -119,10 +119,12 @@ private:
 
 	bool				skipShutdownTimer;
 	bool 				pbBlinkChange;
+
+	int tvsort[LIST_MODE_LAST];
+	int radiosort[LIST_MODE_LAST];
+
 	CColorSetupNotifier		*colorSetupNotifier;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
-	//COnekeyPluginChangeExec		*OnekeyPluginChanger;
-	//CIPChangeNotifier		*MyIPChanger;
 
 	void SDT_ReloadChannels();
 	void setupNetwork( bool force= false );

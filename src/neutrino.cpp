@@ -1162,6 +1162,9 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		reloadhintBox = new CHintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_SERVICEMENU_RELOAD_HINT));
 	reloadhintBox->paint();
 
+	memset(tvsort, -1, sizeof(tvsort));
+	memset(radiosort, -1, sizeof(tvsort));
+
 	const char * fav_bouquetname = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
 	if(g_bouquetManager->existsUBouquet(fav_bouquetname, true) == -1)
 		g_bouquetManager->addBouquet(fav_bouquetname, true, true);
@@ -1215,13 +1218,13 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		tmp = TVallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
 		delete tmp->channelList;
 		tmp->channelList = new CChannelList(*TVchannelList);
-		tmp->channelList->SortAlpha();
+		//tmp->channelList->SortAlpha();
 
 		RADIOallList = new CBouquetList(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
 		tmp = RADIOallList->addBouquet(g_Locale->getText(LOCALE_CHANNELLIST_HEAD));
 		delete tmp->channelList;
 		tmp->channelList = new CChannelList(*RADIOchannelList);
-		tmp->channelList->SortAlpha();
+		//tmp->channelList->SortAlpha();
 
 		TIMER_STOP("[neutrino] sort took");
 
@@ -1252,8 +1255,8 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 					ri++;
 				}
 			}
-			if(tvi || ri)
-				printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
+			printf("[neutrino] created %s bouquet with %d TV and %d RADIO channels\n", sit->second.name.c_str(), tvi, ri);
+#if 0
 			if(tvi)
 				tmp1->channelList->SortAlpha();
 			else
@@ -1262,6 +1265,12 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 				tmp2->channelList->SortAlpha();
 			else
 				RADIOsatList->deleteBouquet(tmp2);
+#endif
+			if(!tvi)
+				TVsatList->deleteBouquet(tmp1);
+			if(!ri)
+				RADIOsatList->deleteBouquet(tmp2);
+			
 			TIMER_STOP("[neutrino] sat took");
 		}
 		/* new channels */
@@ -1362,13 +1371,17 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 
 void CNeutrinoApp::SetChannelMode(int newmode)
 {
-printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
+	printf("CNeutrinoApp::SetChannelMode %d [%s]\n", newmode, mode == mode_radio ? "radio" : "tv");
+	int *sortmode;
+
 	if(mode == mode_radio) {
 		channelList = RADIOchannelList;
 		g_settings.channel_mode_radio = newmode;
+		sortmode = radiosort;
 	} else {
 		channelList = TVchannelList;
 		g_settings.channel_mode = newmode;
+		sortmode = tvsort;
 	}
 
 	switch(newmode) {
@@ -1385,11 +1398,6 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 			} else {
 				bouquetList = TVsatList;
 			}
-#if 0
-	for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
-		bouquetList->Bouquets[i]->channelList->SortTP();
-	}
-#endif
 			break;
 		case LIST_MODE_ALL:
 			if(mode == mode_radio) {
@@ -1399,6 +1407,7 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 			}
 			break;
 		default:
+			newmode = LIST_MODE_PROV;
 		case LIST_MODE_PROV:
 			if(mode == mode_radio) {
 				bouquetList = RADIObouquetList;
@@ -1407,7 +1416,10 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 			}
 			break;
 	}
-	if( newmode != LIST_MODE_FAV && g_settings.channellist_sort_mode < 3){
+	INFO("newmode %d sort old %d new %d", newmode, sortmode[newmode], g_settings.channellist_sort_mode);
+	if(newmode != LIST_MODE_FAV && sortmode[newmode] != g_settings.channellist_sort_mode && g_settings.channellist_sort_mode < 3) {
+		sortmode[newmode] = g_settings.channellist_sort_mode;
+		INFO("sorting, mode %d, %d bouquets\n", g_settings.channellist_sort_mode, bouquetList->Bouquets.size());
 		for (uint32_t i = 0; i < bouquetList->Bouquets.size(); i++) {
 			if(g_settings.channellist_sort_mode == 0)
 				bouquetList->Bouquets[i]->channelList->SortAlpha();
@@ -1416,6 +1428,7 @@ printf("CNeutrinoApp::SetChannelMode %d\n", newmode);
 			if(g_settings.channellist_sort_mode == 2)
 				bouquetList->Bouquets[i]->channelList->SortSat();
 		}
+		channelList->adjustToChannelID(channelList->getActiveChannel_ChannelID());
 	}
 	lastChannelMode = newmode;
 }
@@ -1595,11 +1608,13 @@ void CNeutrinoApp::InitZapper()
 		if(stat(g_settings.epg_dir.c_str(), &my_stat) == 0)
 			g_Sectionsd->readSIfromXML(g_settings.epg_dir.c_str());
 	}
-	lastChannelMode = g_settings.channel_mode;
+	int tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;
+	lastChannelMode = tvmode ? g_settings.channel_mode : g_settings.channel_mode_radio;
+	mode = tvmode ? mode_tv : mode_radio;
+
 	SDTreloadChannels = false;
 	channelsInit();
 
-	int tvmode = CZapit::getInstance()->getMode() & CZapitClient::MODE_TV;
 	if(tvmode)
 	{
 		tvMode(true);
