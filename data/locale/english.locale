@@ -1151,14 +1151,14 @@ networkmenu.ntpserver NTP-Server
 networkmenu.ntpserver_hint1 NTP-Server example: ntp1.ptb.de
 networkmenu.ntpserver_hint2 need reboot or epg-reset
 networkmenu.ntptitle Time-Syncronisation
-networkmenu.password Key
+networkmenu.password Pre-Shared Key (PSK)
 networkmenu.reset_settings_now Do you want restore the previous settings?
 networkmenu.select_if Interface
 networkmenu.services Network services
 networkmenu.setupnow Apply network settings now
 networkmenu.setuponstartup Setup network on startup
 networkmenu.show Show active Network settings
-networkmenu.ssid Network name
+networkmenu.ssid Network name (SSID)
 networkmenu.test Test network now
 neutrino_starting Neutrino-HD starting...
 nfs.alreadymounted directory already mounted

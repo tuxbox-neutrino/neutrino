@@ -949,13 +949,13 @@ networkmenu.ntpserver NTP-URL (Zeitserver)
 networkmenu.ntpserver_hint1 NTP-URL Beispiel: ntp1.ptb.de
 networkmenu.ntpserver_hint2 braucht Reboot oder EPG-Reset
 networkmenu.ntptitle Zeitsynchronisation
-networkmenu.password Passwort
+networkmenu.password Passwort (PSK)
 networkmenu.reset_settings_now Sollen die vorherigen Einstellungen \nwieder hergestellt werden?
 networkmenu.select_if Schnittstelle
 networkmenu.setupnow Einstellungen jetzt zuweisen
 networkmenu.setuponstartup Beim Start Netzwerk setzen
 networkmenu.show Aktive Einstellungen zeigen
-networkmenu.ssid Netzwerkname
+networkmenu.ssid Netzwerkname (SSID)
 networkmenu.test Netzwerk testen
 neutrino_starting Neutrino-HD wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
