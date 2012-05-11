@@ -2176,17 +2176,6 @@ printf("SIevent size: %d\n", sizeof(SIevent));
 }
 
 /* was: commandAllEventsChannelID sendAllEvents */
-inline static bool sortbyEventid (const CChannelEvent& a, const CChannelEvent& b)
-{
- return (a.channelID == b.channelID && a.eventID == b.eventID); 
-  
-}
-
-inline static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& b)
-{
-	return a.startTime < b.startTime;
-}
-
 void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "")
 {
 	dprintf("sendAllEvents for " PRINTF_CHANNEL_ID_TYPE "\n", serviceUniqueKey);
@@ -2245,11 +2234,6 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 				break; // sind nach serviceID und startzeit sortiert -> nicht weiter suchen
 		}
 		unlockEvents();
-		if(search != 0 && !eList.empty()){
-			sort(eList.begin(),eList.end(),sortByDateTime);
-			unique(eList.begin(),eList.end(),sortbyEventid);
-			eList.erase(unique(eList.begin(),eList.end(),sortbyEventid),eList.end()); 
-		}
 	}
 }
 
