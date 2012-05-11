@@ -2245,7 +2245,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 				break; // sind nach serviceID und startzeit sortiert -> nicht weiter suchen
 		}
 		unlockEvents();
-		if(!search_text.empty() && !eList.empty()){
+		if(search != 0 && !eList.empty()){
 			sort(eList.begin(),eList.end(),sortByDateTime);
 			unique(eList.begin(),eList.end(),sortbyEventid);
 			eList.erase(unique(eList.begin(),eList.end(),sortbyEventid),eList.end()); 
