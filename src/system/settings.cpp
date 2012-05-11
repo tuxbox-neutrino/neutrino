@@ -118,9 +118,9 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	{
 		// configfile is not for this delivery system
 		configfile.clear();
-		delivery_system = dsys;
 		ret = false;
 	}
+	delivery_system = dsys;
 
 	bouquetMode = (CZapitClient::bouquetMode) configfile.getInt32("bouquetMode" , bouquetMode);
 	scanType = (CZapitClient::scanType) configfile.getInt32("scanType", scanType);
@@ -136,8 +136,13 @@ bool CScanSettings::loadSettings(const char * const fileName, const delivery_sys
 	TP_pol = configfile.getInt32("TP_pol", 0);
 	TP_mod = configfile.getInt32("TP_mod", 3);
 
-	strcpy(TP_freq, configfile.getString("TP_freq", "10100000").c_str());
-	strcpy(TP_rate, configfile.getString("TP_rate", "27500000").c_str());
+	if(delivery_system == DVB_S) {
+		strcpy(TP_freq, configfile.getString("TP_freq", "10100000").c_str());
+		strcpy(TP_rate, configfile.getString("TP_rate", "27500000").c_str());
+	} else {
+		strcpy(TP_freq, configfile.getString("TP_freq", "369000").c_str());
+		strcpy(TP_rate, configfile.getString("TP_rate", "6875000").c_str());
+	}
 #if 1
 	if(TP_fec == 4) TP_fec = 5;
 #endif
