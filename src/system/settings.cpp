@@ -173,7 +173,7 @@ bool CScanSettings::saveSettings(const char * const fileName)
 	configfile.setString("TP_rate", TP_rate);
 	configfile.setInt32("fast_type", fast_type);
 	configfile.setInt32("fast_op", fast_op);
-	configfile.setInt32("cable_nid", fast_op);
+	configfile.setInt32("cable_nid", cable_nid);
 
 	if(configfile.getModifiedFlag())
 		configfile.saveConfig(fileName);
