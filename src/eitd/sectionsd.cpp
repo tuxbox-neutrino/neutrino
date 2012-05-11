@@ -2244,12 +2244,12 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 			else if ( serviceIDfound )
 				break; // sind nach serviceID und startzeit sortiert -> nicht weiter suchen
 		}
-		if(!eList.empty()){
+		unlockEvents();
+		if(!search_text.empty() && !eList.empty()){
 			sort(eList.begin(),eList.end(),sortByDateTime);
 			unique(eList.begin(),eList.end(),sortbyEventid);
 			eList.erase(unique(eList.begin(),eList.end(),sortbyEventid),eList.end()); 
 		}
-		unlockEvents();
 	}
 }
 
