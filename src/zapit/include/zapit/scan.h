@@ -91,6 +91,7 @@ class CServiceScan : public OpenThreads::Thread
 		bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition);
 		void SendTransponderInfo(transponder &t);
 		bool ReadNitSdt(t_satellite_position satellitePosition);
+		bool AddFromNit();
 		void FixServiceTypes();
 
 		void CheckSatelliteChannels(t_satellite_position satellitePosition);

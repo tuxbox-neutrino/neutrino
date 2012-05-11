@@ -176,6 +176,40 @@ bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters 
 	return true;
 }
 
+bool CServiceScan::AddFromNit()
+{
+	scantransponders.clear();
+	stiterator tI;
+	for (stiterator ntI = nittransponders.begin(); ntI != nittransponders.end(); ++ntI) {
+		/* full compare with failed, ignore same transponders */
+		for (tI = failedtransponders.begin(); tI != failedtransponders.end(); ++tI) {
+			if (ntI->second.compare(tI->second))
+				break;
+		}
+		if (tI != failedtransponders.end()) {
+			ntI->second.dump("[scan] not use tp from nit:");
+			continue;
+		}
+		/* partial compare with scaned, ignore same transponders */
+		for (tI = scanedtransponders.begin(); tI != scanedtransponders.end(); ++tI) {
+			if (ntI->second == tI->second)
+				break;
+		}
+		if (tI == scanedtransponders.end()) {
+			ntI->second.dump("[scan] use tp from nit:");
+			scantransponders.insert(transponder_pair_t(ntI->first, ntI->second));
+		}
+		/* common satellites.xml have V/H, update to L/R if found */
+		stiterator stI = transponders.find(ntI->first);
+		if(stI != transponders.end() && stI->second == ntI->second) {
+			stI->second.polarization = ntI->second.polarization;
+		}
+	}
+	nittransponders.clear();
+	printf("\n\n[scan] found %d additional transponders from nit\n", scantransponders.size());
+	return !scantransponders.empty();
+}
+
 bool CServiceScan::ReadNitSdt(t_satellite_position satellitePosition)
 {
 	stiterator tI;
@@ -184,6 +218,8 @@ bool CServiceScan::ReadNitSdt(t_satellite_position satellitePosition)
 	bouquet_map_t bouquet_map;
 	channel_number_map_t logical_map;
 #endif
+	std::string networkName;
+	channel_number_map_t nit_logical_map;
 _repeat:
 	found_transponders += scantransponders.size();
 	CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
@@ -245,8 +281,12 @@ _repeat:
 		CSdt sdt(satellitePosition, freq);
 		bool sdt_parsed = sdt.Parse(tI->second.transport_stream_id, tI->second.original_network_id);
 
-		if(flags & SCAN_NIT)
+		if(flags & SCAN_NIT) {
 			nit.Stop();
+			networkName = nit.GetNetworkName();
+			channel_number_map_t &lcn = nit.getLogicalMap();
+			nit_logical_map.insert(lcn.begin(), lcn.end());
+		}
 
 #ifdef USE_BAT
 		if(flags & SCAN_BAT) {
@@ -275,39 +315,31 @@ _repeat:
 		}
 		printf("[scan] tpid ready: %llx\n", TsidOnid);
 	}
-	if(flags & SCAN_NIT) {
-		printf("[scan] found %d transponders (%d failed) and %d channels\n", found_transponders, failed_transponders, found_channels);
-		scantransponders.clear();
-		for (stiterator ntI = nittransponders.begin(); ntI != nittransponders.end(); ++ntI) {
-			/* full compare with failed, ignore same transponders */
-			for (tI = failedtransponders.begin(); tI != failedtransponders.end(); ++tI) {
-				if (ntI->second.compare(tI->second))
-					break;
-			}
-			if (tI != failedtransponders.end()) {
-				ntI->second.dump("[scan] not use tp from nit:");
-				continue;
-			}
-			/* partial compare with scaned, ignore same transponders */
-			for (tI = scanedtransponders.begin(); tI != scanedtransponders.end(); ++tI) {
-				if (ntI->second == tI->second)
-					break;
-			}
-			if (tI == scanedtransponders.end()) {
-				ntI->second.dump("[scan] use tp from nit:");
-				scantransponders.insert(transponder_pair_t(ntI->first, ntI->second));
-			}
-			/* common satellites.xml have V/H, update to L/R if found */
-			stiterator stI = transponders.find(ntI->first);
-			if(stI != transponders.end() && stI->second == ntI->second) {
-				stI->second.polarization = ntI->second.polarization;
+	if((flags & SCAN_NIT) && AddFromNit())
+		goto _repeat;
+
+	if (flags & (SCAN_NIT/*|SCAN_LOGICAL_NUMBERS*/) && !nit_logical_map.empty()) {
+		std::string pname = networkName;
+		INFO("network [%s] %d logical channels\n", pname.c_str(), nit_logical_map.size());
+		g_bouquetManager->loadBouquets(true);
+		CZapitBouquet* bouquet;
+		int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
+		if (bouquetId == -1)
+			bouquet = g_bouquetManager->addBouquet(pname, true);
+		else
+			bouquet = g_bouquetManager->Bouquets[bouquetId];
+
+		for(channel_number_map_t::iterator cit = nit_logical_map.begin(); cit != nit_logical_map.end(); ++cit) {
+			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(cit->first);
+			if(channel && !bouquet->getChannelByChannelID(channel->getChannelID())) {
+				channel->number = cit->second;
+				bouquet->addService(channel);
 			}
 		}
-		nittransponders.clear();
-		printf("\n\n[scan] found %d additional transponders from nit\n", scantransponders.size());
-		if(scantransponders.size())
-			goto _repeat;
+		bouquet->sortBouquetByNumber();
+		g_bouquetManager->saveUBouquets();
 	}
+
 #ifdef USE_BAT
 	if(flags & SCAN_BAT) {
 		bool have_lcn = false;
