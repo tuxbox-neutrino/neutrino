@@ -45,6 +45,7 @@ class CNit : public OpenThreads::Thread
 		freq_id_t freq_id;
 		unsigned short nid;
 		channel_number_map_t logical_map;
+		std::string networkName;
 
 		NetworkInformationSectionList sections;
 
@@ -62,6 +63,7 @@ class CNit : public OpenThreads::Thread
 		bool Stop();
 		bool Parse();
 		channel_number_map_t & getLogicalMap() { return logical_map; };
+		std::string GetNetworkName() { return networkName; }
 };
 
 #endif
