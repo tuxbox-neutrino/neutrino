@@ -1243,11 +1243,17 @@ int CEventFinderMenu::showMenu(void)
 	}
 	else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_BOUQUET)
 	{
-		m_search_channelname = bouquetList->Bouquets[*m_search_bouquet_id]->channelList->getName();
+		if(bouquetList->Bouquets.size()<*m_search_bouquet_id ){
+			  *m_search_bouquet_id = bouquetList->getActiveBouquetNumber();;
+		}
+		if(!bouquetList->Bouquets.empty())
+			m_search_channelname = bouquetList->Bouquets[*m_search_bouquet_id]->channelList->getName();
+		else
+			m_search_channelname ="";
 	}
 	else if(*m_search_list == CNeutrinoEventList::SEARCH_LIST_ALL)
 	{
-		m_search_channelname =="";
+		m_search_channelname ="";
 	}
 
 	CStringInputSMS stringInput(LOCALE_EVENTFINDER_KEYWORD,m_search_keyword, 20, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789 -_/()<>=+.,:!?\\'");
