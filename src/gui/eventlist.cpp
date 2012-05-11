@@ -431,14 +431,14 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
 			{
 				int tID = -1;
-				CTimerd::CTimerEventTypes etype = isScheduled(channel_id, &evtlist[selected], &tID);
+				CTimerd::CTimerEventTypes etype = isScheduled(evtlist[selected].channelID, &evtlist[selected], &tID);
 				if(etype == CTimerd::TIMER_RECORD) //remove timer event 
 				{
 					g_Timerd->removeTimerEvent(tID);
 					timerlist.clear();
 					g_Timerd->getTimerList (timerlist);
-					paint(channel_id);
-					showFunctionBar(true, channel_id);
+					paint(evtlist[selected].channelID);
+					showFunctionBar(true, evtlist[selected].channelID);
 					continue;
 				}
 				char *recDir = g_settings.network_nfs_recordingdir;
@@ -450,7 +450,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					{
 						hide();
 						recDirs.exec(NULL,"");
-						paint(channel_id);
+						paint(evtlist[selected].channelID);
 						timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 					} 
 					else
@@ -465,8 +465,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				}
 				if (recDir != NULL) //add/remove recording timer events and check/warn for conflicts
 				{
-					//FIXME: bad ?if (g_Timerd->addRecordTimerEvent(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id,
-					if (g_Timerd->addRecordTimerEvent(channel_id,
+					if (g_Timerd->addRecordTimerEvent(evtlist[selected].channelID ,
 								evtlist[selected].startTime,
 								evtlist[selected].startTime + evtlist[selected].duration,
 								evtlist[selected].eventID, evtlist[selected].startTime,
@@ -475,8 +474,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 					{
 						if(askUserOnTimerConflict(evtlist[selected].startTime - (ANNOUNCETIME + 120), evtlist[selected].startTime + evtlist[selected].duration)) //check for timer conflict
 						{
-							//g_Timerd->addRecordTimerEvent(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id,
-							g_Timerd->addRecordTimerEvent(channel_id,
+							g_Timerd->addRecordTimerEvent(evtlist[selected].channelID ,
 									evtlist[selected].startTime,
 									evtlist[selected].startTime + evtlist[selected].duration,
 									evtlist[selected].eventID, evtlist[selected].startTime,
@@ -496,33 +494,32 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				}
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
-				paint(channel_id);
-				showFunctionBar(true, channel_id);
+				paint(evtlist[selected].channelID );
+				showFunctionBar(true, evtlist[selected].channelID );
 			}
 		}
 		else if ( msg == (neutrino_msg_t) g_settings.key_channelList_addremind )//add/remove zapto timer event
 		{
 			int tID = -1;
-			CTimerd::CTimerEventTypes etype = isScheduled(channel_id, &evtlist[selected], &tID);
+			CTimerd::CTimerEventTypes etype = isScheduled(evtlist[selected].channelID, &evtlist[selected], &tID);
 			if(etype == CTimerd::TIMER_ZAPTO) {
 				g_Timerd->removeTimerEvent(tID);
 				timerlist.clear();
 				g_Timerd->getTimerList (timerlist);
-				paint(channel_id);
-				showFunctionBar(true, channel_id);
+				paint(evtlist[selected].channelID);
+				showFunctionBar(true, evtlist[selected].channelID);
 				continue;
 			}
 			
-			// FIXME g_Timerd->addZaptoTimerEvent(evtlist[selected].sub ? GET_CHANNEL_ID_FROM_EVENT_ID(evtlist[selected].eventID) : channel_id,		
-			g_Timerd->addZaptoTimerEvent(channel_id,
+			g_Timerd->addZaptoTimerEvent(evtlist[selected].channelID ,
 					evtlist[selected].startTime - (g_settings.zapto_pre_time * 60),
 					evtlist[selected].startTime - ANNOUNCETIME - (g_settings.zapto_pre_time * 60), 0,
 					evtlist[selected].eventID, evtlist[selected].startTime, 0);
 			//ShowLocalizedMessage(LOCALE_TIMER_EVENTTIMED_TITLE, LOCALE_TIMER_EVENTTIMED_MSG, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 			timerlist.clear();
 			g_Timerd->getTimerList (timerlist);
-			paint(channel_id);
-			showFunctionBar(true, channel_id);
+			paint(evtlist[selected].channelID );
+			showFunctionBar(true, evtlist[selected].channelID );
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_channelList_cancel)
@@ -759,7 +756,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		
 		// 2nd line
 		// set status icons
-		CTimerd::CTimerEventTypes etype = isScheduled(channel_idI, &evtlist[curpos]);
+		CTimerd::CTimerEventTypes etype = isScheduled(m_showChannel ? evtlist[curpos].channelID : channel_idI, &evtlist[curpos]);
 		icontype = etype == CTimerd::TIMER_ZAPTO ? NEUTRINO_ICON_ZAP : etype == CTimerd::TIMER_RECORD ? NEUTRINO_ICON_RECORDING_EVENT_MARKER : 0;
 		
 		int iw = 0, ih;
@@ -783,7 +780,7 @@ void CNeutrinoEventList::paintItem(unsigned int pos, t_channel_id channel_idI)
 		}
 		
 		// paint 2nd line text
-		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+10+iw, ypos+ fheight, width- 25- 20, evtlist[curpos].description, color, 0, true);
+		g_Font[SNeutrinoSettings::FONT_TYPE_EVENTLIST_ITEMLARGE]->RenderString(x+10+iw, ypos+ fheight, width- 25- 20 -iw, evtlist[curpos].description, color, 0, true);
 		
 		
 	}
