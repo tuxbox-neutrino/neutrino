@@ -258,8 +258,8 @@ void CHintBoxExt::refresh(bool toround)
 // 		it != m_startEntryOfPage.end();it++) {
 // 		printf(" %d",*it);
 // 	}
- 	printf("\n current page: %d lines %d ",m_currentPage, m_lines.size());
- 	printf("start %d bis %d\n",m_startEntryOfPage[m_currentPage],m_startEntryOfPage[m_currentPage+1]-1);
+// 	printf("\n current page: %d lines %d ",m_currentPage, m_lines.size());
+// 	printf("start %d bis %d\n",m_startEntryOfPage[m_currentPage],m_startEntryOfPage[m_currentPage+1]-1);
 
 #if 0
 	for (ContentLines::iterator it = m_lines.begin() + m_startEntryOfPage[m_currentPage];
