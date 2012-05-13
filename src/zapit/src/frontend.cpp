@@ -860,7 +860,7 @@ void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const
 	for (int i = 0; i < cmd->msg_len; i++)
 		printf("0x%X ", cmd->msg[i]);
 	printf("\n");
-	if(slave)
+	if (slave || info.type != FE_QPSK)
 		return;
 	if (fop(ioctl, FE_DISEQC_SEND_MASTER_CMD, cmd) == 0)
 		usleep(1000 * ms);
@@ -873,6 +873,8 @@ uint32_t CFrontend::getDiseqcReply(const int /*timeout_ms*/) const
 
 void CFrontend::sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms)
 {
+	if (slave || info.type != FE_QPSK)
+		return;
 	if (fop(ioctl, FE_DISEQC_SEND_BURST, burst) == 0)
 		usleep(1000 * ms);
 }
@@ -1052,6 +1054,8 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
 					     const int horizontal, const int bank)
 {
+	if (slave || info.type != FE_QPSK)
+		return;
 	uint32_t uni_qrgs[] = { 1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096 };
 	uint32_t bpf;
 	if (config.uni_qrg == 0)
