@@ -89,7 +89,7 @@ inline static bool sortByDateTime (const CChannelEvent& a, const CChannelEvent& 
 
 inline static bool sortbyEventid (const CChannelEvent& a, const CChannelEvent& b)
 {
-	return (a.channelID == b.channelID && a.eventID == b.eventID); 
+	return (a.channelID == b.channelID && a.eventID == b.eventID && a.startTime == b.startTime); 
 }
 
 CNeutrinoEventList::CNeutrinoEventList()
@@ -1050,7 +1050,6 @@ bool CNeutrinoEventList::findEvents(void)
 		}
 		if(!evtlist.empty()){
 			sort(evtlist.begin(),evtlist.end(),sortByDateTime);
-			unique(evtlist.begin(), evtlist.end(),sortbyEventid);
 			evtlist.erase(unique(evtlist.begin(), evtlist.end(),sortbyEventid), evtlist.end()); 
 		}
 
