@@ -1054,8 +1054,6 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
 					     const int horizontal, const int bank)
 {
-	if (slave || info.type != FE_QPSK)
-		return;
 	uint32_t uni_qrgs[] = { 1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096 };
 	uint32_t bpf;
 	if (config.uni_qrg == 0)
@@ -1069,17 +1067,19 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 	unsigned int t = (frequency / 1000 + bpf + 2) / 4 - 350;
 	if (t < 1024 && config.uni_scr >= 0 && config.uni_scr < 8)
 	{
-		fprintf(stderr, "VOLT18=%d TONE_ON=%d, freq=%d bpf=%d ret=%d\n", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, (t + 350) * 4000 - frequency);
-		cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
-			     (config.uni_scr << 5)	|	/* adress */
-			     (bank << 4)	|	/* not implemented yet */
-			     (horizontal << 3)	|	/* horizontal == 0x08 */
-			     (high_band) << 2;		/* high_band  == 0x04 */
-		cmd.msg[4] = t & 0xFF;
-		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
-		usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
-		sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
-		fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
+		INFO("VOLT18=%d TONE_ON=%d, freq=%d bpf=%d ret=%d", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, (t + 350) * 4000 - frequency);
+		if (!slave && info.type == FE_QPSK) {
+			cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
+				(config.uni_scr << 5)	|	/* adress */
+				(bank << 4)	|	/* not implemented yet */
+				(horizontal << 3)	|	/* horizontal == 0x08 */
+				(high_band) << 2;		/* high_band  == 0x04 */
+			cmd.msg[4] = t & 0xFF;
+			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_18);
+			usleep(15 * 1000);		/* en50494 says: >4ms and < 22 ms */
+			sendDiseqcCommand(&cmd, 50);	/* en50494 says: >2ms and < 60 ms */
+			fop(ioctl, FE_SET_VOLTAGE, SEC_VOLTAGE_13);
+		}
 		return (t + 350) * 4000 - frequency;
 	}
 	WARN("ooops. t > 1024? (%d) or uni_scr out of range? (%d)", t, config.uni_scr);
