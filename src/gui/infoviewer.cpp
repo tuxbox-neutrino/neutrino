@@ -488,11 +488,18 @@ void CInfoViewer::paintshowButtonBar()
 
 void CInfoViewer::showIcon_Tuner() const
 {
-	//FIXME test
 	int tuner_x = BoxEndX - 2 - (((g_settings.casystem_display !=2) ? 0:icon_crypt_width )+ icon_xres_width + 2*icon_large_width + 3*icon_small_width + ((g_settings.casystem_display !=2) ?5:6)*2);
 	int tuner = 1 + CFEManager::getInstance()->getLiveFE()->getNumber();
-	char icon_name[3];
-	snprintf(icon_name, 3, "%d", tuner);
+	const char *icon_name = NULL;
+	switch (tuner) {
+		case 2:
+			icon_name = NEUTRINO_ICON_TUNER_2;
+			break;
+		case 1:
+		default:
+			icon_name = NEUTRINO_ICON_TUNER_1;
+			break;
+	}
 	frameBuffer->paintIcon(icon_name, tuner_x, BBarY, InfoHeightY_Info);
 }
 
