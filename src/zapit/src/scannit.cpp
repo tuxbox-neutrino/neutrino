@@ -259,6 +259,10 @@ bool CNit::Parse()
 						if(pdsd == 0x00000028)
 							ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo);
 						break;
+					case HD_SIMULCAST_LOGICAL_CHANNEL_DESCRIPTOR:
+						if(pdsd == 0x00000028)
+							ParseLogicalChannels((LogicalChannelDescriptor *) d, tsinfo, true);
+						break;
 					default:
 						{
 #ifdef DEBUG_NIT_UNUSED
@@ -359,7 +363,7 @@ bool CNit::ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts
 	return true;
 }
 
-bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * tsinfo)
+bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * tsinfo, bool hd)
 {
 	t_transport_stream_id transport_stream_id = tsinfo->getTransportStreamId();
 	t_original_network_id original_network_id = tsinfo->getOriginalNetworkId();
@@ -373,10 +377,14 @@ bool CNit::ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamIn
 				transport_stream_id, original_network_id, service_id);
 		int visible = (*it)->getVisibleServiceFlag();
 #ifdef DEBUG_LCN
-		printf("NIT: logical channel tsid %04x onid %04x %012llx -> %d (%d)\n", transport_stream_id, original_network_id, channel_id, lcn, visible);
+		printf("NIT: logical channel tsid %04x onid %04x %012llx -> %d (%s, %d)\n", transport_stream_id, original_network_id, channel_id, lcn, hd ? "hd", : "sd", visible);
 #endif
-		if (visible && lcn)
-			logical_map[channel_id] = lcn;
+		if (visible && lcn) {
+			if(hd)
+				hd_logical_map[channel_id] = lcn;
+			else
+				logical_map[channel_id] = lcn;
+		}
 	}
 	return true;
 }
