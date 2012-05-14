@@ -220,6 +220,7 @@ bool CServiceScan::ReadNitSdt(t_satellite_position satellitePosition)
 #endif
 	std::string networkName;
 	channel_number_map_t nit_logical_map;
+	channel_number_map_t nit_hd_logical_map;
 _repeat:
 	found_transponders += scantransponders.size();
 	CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
@@ -286,6 +287,8 @@ _repeat:
 			networkName = nit.GetNetworkName();
 			channel_number_map_t &lcn = nit.getLogicalMap();
 			nit_logical_map.insert(lcn.begin(), lcn.end());
+			channel_number_map_t &hdlcn = nit.getHDLogicalMap();
+			nit_hd_logical_map.insert(hdlcn.begin(), hdlcn.end());
 		}
 
 #ifdef USE_BAT
@@ -320,7 +323,8 @@ _repeat:
 
 	if (flags & (SCAN_NIT/*|SCAN_LOGICAL_NUMBERS*/) && !nit_logical_map.empty()) {
 		std::string pname = networkName;
-		INFO("network [%s] %d logical channels\n", pname.c_str(), nit_logical_map.size());
+		INFO("network [%s] %d logical channels (%d hd)\n", pname.c_str(), nit_logical_map.size(), nit_hd_logical_map.size());
+		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
 		g_bouquetManager->loadBouquets(true);
 		CZapitBouquet* bouquet;
 		int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
@@ -329,11 +333,21 @@ _repeat:
 		else
 			bouquet = g_bouquetManager->Bouquets[bouquetId];
 
+		for(channel_number_map_t::iterator cit = nit_hd_logical_map.begin(); cit != nit_hd_logical_map.end(); ++cit) {
+			//nit_logical_map.erase(cit->first);
+			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(cit->first);
+			if (channel) {
+				channel->number = cit->second;
+				if (!bouquet->getChannelByChannelID(channel->getChannelID()))
+					bouquet->addService(channel);
+			}
+		}
 		for(channel_number_map_t::iterator cit = nit_logical_map.begin(); cit != nit_logical_map.end(); ++cit) {
 			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(cit->first);
-			if(channel && !bouquet->getChannelByChannelID(channel->getChannelID())) {
+			if (channel && !channel->number) {
 				channel->number = cit->second;
-				bouquet->addService(channel);
+				if (!bouquet->getChannelByChannelID(channel->getChannelID()))
+					bouquet->addService(channel);
 			}
 		}
 		bouquet->sortBouquetByNumber();

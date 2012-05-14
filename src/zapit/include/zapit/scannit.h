@@ -45,6 +45,7 @@ class CNit : public OpenThreads::Thread
 		freq_id_t freq_id;
 		unsigned short nid;
 		channel_number_map_t logical_map;
+		channel_number_map_t hd_logical_map;
 		std::string networkName;
 
 		NetworkInformationSectionList sections;
@@ -54,7 +55,7 @@ class CNit : public OpenThreads::Thread
 		bool ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStreamInfo * ts);
 		bool ParseServiceList(ServiceListDescriptor * sd, TransportStreamInfo * ts);
-		bool ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * ts);
+		bool ParseLogicalChannels(LogicalChannelDescriptor * ld, TransportStreamInfo * ts, bool hd = false);
 
 	public:
 		CNit(t_satellite_position spos, freq_id_t frq, unsigned short pnid, int dnum = 0);
@@ -63,6 +64,7 @@ class CNit : public OpenThreads::Thread
 		bool Stop();
 		bool Parse();
 		channel_number_map_t & getLogicalMap() { return logical_map; };
+		channel_number_map_t & getHDLogicalMap() { return hd_logical_map; };
 		std::string GetNetworkName() { return networkName; }
 };
 
