@@ -210,7 +210,7 @@ bool CFrontend::Open(void)
 	printf("[fe%d] open %s\n", fenumber, filename);
 
 	if (fd < 0) {
-		if ((fd = open(filename, O_RDWR | O_NONBLOCK)) < 0) {
+		if ((fd = open(filename, O_RDWR | O_NONBLOCK | O_CLOEXEC)) < 0) {
 			ERROR(filename);
 			return false;
 		}
