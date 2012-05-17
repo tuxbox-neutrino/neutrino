@@ -2039,32 +2039,24 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 			else if( msg == (neutrino_msg_t) g_settings.key_tvradio_mode ) {
 				switchTvRadioMode(); //used with defined rc key TODO: do we really need this, because we already have a specified key on the remote control
 			}
-			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
+			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up || msg == (neutrino_msg_t) g_settings.key_subchannel_down) {
 				if( !g_RemoteControl->subChannels.empty() ) {
 					StopSubtitles();
-					g_RemoteControl->subChannelUp();
+					if( msg == (neutrino_msg_t) g_settings.key_subchannel_up )
+						g_RemoteControl->subChannelUp();
+					else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down )
+						g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
-				} else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
+				} 
+				else if (g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
 					g_volume->setVolume(msg, true);
-				} else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
+				} 
+				else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
 					if(channelList->getSize()) {
 						showInfo();
 					}
-				} else
-					quickZap( msg );
-			}
-			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
-				if( !g_RemoteControl->subChannels.empty() ) {
-					StopSubtitles();
-					g_RemoteControl->subChannelDown();
-					g_InfoViewer->showSubchan();
-				} else if(g_settings.mode_left_right_key_tv == SNeutrinoSettings::VOLUME) {
-					g_volume->setVolume(msg, true);
-				} else if((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) || (g_settings.mode_left_right_key_tv == SNeutrinoSettings::INFOBAR)) {
-					if(channelList->getSize()) {
-						showInfo();
-					}
-				} else
+				} 
+				else
 					quickZap( msg );
 			}
 			/* in case key_subchannel_up/down redefined */
