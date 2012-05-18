@@ -1325,7 +1325,7 @@ void CFrontend::setSec(const uint8_t /*sat_no*/, const uint8_t pol, const bool h
 	fe_sec_voltage_t v = (pol & 1) ? SEC_VOLTAGE_13 : SEC_VOLTAGE_18;
 	fe_sec_tone_mode_t t = high_band ? SEC_TONE_ON : SEC_TONE_OFF;
 
-	secSetVoltage(v, 15);
+	secSetVoltage(v, 300 /*15*/);
 	secSetTone(t, 15);
 	currentTransponder.polarization = pol;// & 1;
 }
