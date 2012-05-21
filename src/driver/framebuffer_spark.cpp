@@ -68,6 +68,13 @@ static fb_pixel_t *lbb;				/* "shadow buffer", will be scale-blitted to the FB *
 static size_t lbb_sz = 1920 * 1080;			/* offset from fb start in 'pixels' */
 static size_t lbb_off = lbb_sz * sizeof(fb_pixel_t);	/* offset from fb start in bytes    */
 static int backbuf_sz = 0;
+
+/* #define PARTIAL_BLIT to use the theoretically faster blitter code
+ * which updates only the region on screen which is really drawn upon
+ * in practice, it seems to cause artifacts on some machines...
+ */
+#undef PARTIAL_BLIT
+#ifdef PARTIAL_BLIT
 static unsigned int last_xres = 0;
 
 struct dirty_region {
@@ -78,6 +85,7 @@ struct dirty_region {
 };
 
 static struct dirty_region to_blit = { INT_MAX, INT_MAX, 0, 0 };
+#endif
 static pthread_mutex_t blit_mutex;
 
 static inline void blit_lock()
@@ -90,6 +98,7 @@ static inline void blit_unlock()
 	pthread_mutex_unlock(&blit_mutex);
 }
 
+#ifdef PARTIAL_BLIT
 static inline void update_dirty(int xs, int ys, int xe, int ye)
 {
 	if (xs < to_blit.xs)
@@ -101,6 +110,9 @@ static inline void update_dirty(int xs, int ys, int xe, int ye)
 	if (ye > to_blit.ye)
 		to_blit.ye = ye;
 }
+#else
+#define update_dirty(a, b, c, d)
+#endif
 
 void CFrameBuffer::waitForIdle(void)
 {
@@ -1570,13 +1582,20 @@ void CFrameBuffer::blitIcon(int src_width, int src_height, int fb_x, int fb_y, i
 	blit_unlock();
 }
 
+#ifdef PARTIAL_BLIT
 void CFrameBuffer::mark(int xs, int ys, int xe, int ye)
 {
 	update_dirty(xs, ys, xe, ye);
 }
+#else
+void CFrameBuffer::mark(int, int, int, int)
+{
+}
+#endif
 
 void CFrameBuffer::blit()
 {
+#ifdef PARTIAL_BLIT
 	if (to_blit.xs == INT_MAX)
 		return;
 
@@ -1584,7 +1603,12 @@ void CFrameBuffer::blit()
 	int srcYa = to_blit.ys;
 	int srcXb = to_blit.xe;
 	int srcYb = to_blit.ye;
-
+#else
+	const int srcXa = 0;
+	const int srcYa = 0;
+	int srcXb = xRes;
+	int srcYb = yRes;
+#endif
 	STMFBIO_BLT_DATA  bltData;
 	memset(&bltData, 0, sizeof(STMFBIO_BLT_DATA));
 
@@ -1607,6 +1631,7 @@ void CFrameBuffer::blit()
 	if (ioctl(fd, FBIOGET_VSCREENINFO, &s) == -1)
 		perror("frameBuffer <FBIOGET_VSCREENINFO>");
 
+#ifdef PARTIAL_BLIT
 	if (s.xres != last_xres) /* fb resolution has changed -> clear artifacts */
 	{
 		last_xres = s.xres;
@@ -1623,6 +1648,12 @@ void CFrameBuffer::blit()
 	int desYa = yFactor * bltData.src_top;
 	int desXb = xFactor * bltData.src_right;
 	int desYb = yFactor * bltData.src_bottom;
+#else
+	const int desXa = 0;
+	const int desYa = 0;
+	int desXb = s.xres;
+	int desYb = s.yres;
+#endif
 
 	/* dst */
 	bltData.dstOffset  = 0;
@@ -1650,8 +1681,10 @@ void CFrameBuffer::blit()
 	if(ioctl(fd, STMFBIO_SYNC_BLITTER) < 0)
 		perror("CFrameBuffer::blit ioctl STMFBIO_SYNC_BLITTER 2");
 
+#ifdef PARTIAL_BLIT
 	to_blit.xs = to_blit.ys = INT_MAX;
 	to_blit.xe = to_blit.ye = 0;
+#endif
 	blit_unlock();
 }
 
