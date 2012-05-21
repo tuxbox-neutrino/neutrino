@@ -32,6 +32,67 @@
 #include <dvbsi++/event_information_section.h>
 #include "edvbstring.h"
 
+struct eit_event {
+	unsigned event_id_hi                    : 8;
+	unsigned event_id_lo                    : 8;
+	unsigned start_time_hi                  : 8;
+	unsigned start_time_hi2                 : 8;
+	unsigned start_time_mid                 : 8;
+	unsigned start_time_lo2                 : 8;
+	unsigned start_time_lo                  : 8;
+	unsigned duration_hi                    : 8;
+	unsigned duration_mid                   : 8;
+	unsigned duration_lo                    : 8;
+#if __BYTE_ORDER == __BIG_ENDIAN
+	unsigned running_status                 : 3;
+	unsigned free_CA_mode                   : 1;
+	unsigned descriptors_loop_length_hi     : 4;
+#else
+	unsigned descriptors_loop_length_hi     : 4;
+	unsigned free_CA_mode                   : 1;
+	unsigned running_status                 : 3;
+#endif
+	unsigned descriptors_loop_length_lo     : 8;
+} __attribute__ ((packed)) ;
+
+
+struct descr_component_header {
+	unsigned descriptor_tag                 : 8;
+	unsigned descriptor_length              : 8;
+#if __BYTE_ORDER == __BIG_ENDIAN
+	unsigned reserved_future_use            : 4;
+	unsigned stream_content                 : 4;
+#else
+	unsigned stream_content                 : 4;
+	unsigned reserved_future_use            : 4;
+#endif
+	unsigned component_type                 : 8;
+	unsigned component_tag                  : 8;
+	unsigned iso_639_2_language_code_hi     : 8;
+	unsigned iso_639_2_language_code_mid    : 8;
+	unsigned iso_639_2_language_code_lo     : 8;
+} __attribute__ ((packed)) ;
+
+struct descr_linkage_header {
+	unsigned descriptor_tag                 : 8;
+	unsigned descriptor_length              : 8;
+	unsigned transport_stream_id_hi         : 8;
+	unsigned transport_stream_id_lo         : 8;
+	unsigned original_network_id_hi         : 8;
+	unsigned original_network_id_lo         : 8;
+	unsigned service_id_hi                  : 8;
+	unsigned service_id_lo                  : 8;
+	unsigned linkage_type                   : 8;
+} __attribute__ ((packed)) ;
+
+struct descr_pdc_header {
+	unsigned descriptor_tag                 : 8;
+	unsigned descriptor_length              : 8;
+	unsigned pil0                           : 8;
+	unsigned pil1                           : 8;
+	unsigned pil2                           : 8;
+} __attribute__ ((packed)) ;
+
 class SIlinkage {
 public:
 	unsigned char linkageType;
@@ -46,7 +107,15 @@ public:
 		originalNetworkId = 0;
 		serviceId = 0;
 	}
-	
+
+	SIlinkage(const struct descr_linkage_header *link) {
+		linkageType = link->linkage_type;
+		transportStreamId = (link->transport_stream_id_hi << 8) | link->transport_stream_id_lo;
+		originalNetworkId = (link->original_network_id_hi << 8) | link->original_network_id_lo;
+		serviceId = (link->service_id_hi << 8) | link->service_id_lo;
+		if (link->descriptor_length > sizeof(struct descr_linkage_header) - 2)
+			name = convertDVBUTF8(((const char *)link)+sizeof(struct descr_linkage_header), link->descriptor_length-(sizeof(struct descr_linkage_header)-2), 0, 0);
+	}
 
 	void dump(void) const {
 		printf("Linakge Type: 0x%02hhx\n", linkageType);
@@ -113,6 +182,15 @@ class SIcomponent
 			componentType=0;
 			componentTag=0;      
 		}
+		SIcomponent(const struct descr_component_header *comp) {
+			streamContent=comp->stream_content;
+			componentType=comp->component_type;
+			componentTag=comp->component_tag;
+			if(comp->descriptor_length>sizeof(struct descr_component_header)-2)
+				component=convertDVBUTF8(((const char *)comp)+sizeof(struct descr_component_header),
+						comp->descriptor_length-(sizeof(struct descr_component_header)-2), 0, 0);
+		}
+
 		void dump(void) const {
 			if(component.length())
 				printf("Component: %s\n", component.c_str());
@@ -264,6 +342,13 @@ class SIevent
 		std::map<std::string, std::string> langExtendedText;
 		int running;
 
+		void parseShortEventDescriptor(const uint8_t *buf, unsigned maxlen);
+		void parseExtendedEventDescriptor(const uint8_t *buf, unsigned maxlen);
+		void parseContentDescriptor(const uint8_t *buf, unsigned maxlen);
+		void parseComponentDescriptor(const uint8_t *buf, unsigned maxlen);
+		void parseParentalRatingDescriptor(const uint8_t *buf, unsigned maxlen);
+		void parseLinkageDescriptor(const uint8_t *buf, unsigned maxlen);
+
 	protected:
 		int saveXML0(FILE *f) const;
 		int saveXML2(FILE *f) const;
@@ -298,7 +383,10 @@ class SIevent
 			version = 0xFF;
 			running = false;
 		}
+		SIevent(const struct eit_event *e);
+
 		void parse(Event &event);
+		void parseDescriptors(const uint8_t *des, unsigned len);
 
 		// Name aus dem Short-Event-Descriptor
 		std::string getName() const;

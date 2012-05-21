@@ -43,6 +43,36 @@
 
 const std::string languangeOFF = "OFF";
 
+struct descr_generic_header {
+	unsigned descriptor_tag                 : 8;
+	unsigned descriptor_length              : 8;
+} __attribute__ ((packed)) ;
+
+struct descr_short_event_header {
+	unsigned descriptor_tag                 : 8;
+	unsigned descriptor_length              : 8;
+	unsigned language_code_hi               : 8;
+	unsigned language_code_mid              : 8;
+	unsigned language_code_lo               : 8;
+	unsigned event_name_length              : 8;
+} __attribute__ ((packed)) ;
+
+struct descr_extended_event_header {
+	unsigned descriptor_tag                 : 8;
+	unsigned descriptor_length              : 8;
+	unsigned descriptor_number              : 4;
+	unsigned last_descriptor_number         : 4;
+	unsigned iso_639_2_language_code_hi     : 8;
+	unsigned iso_639_2_language_code_mid    : 8;
+	unsigned iso_639_2_language_code_lo     : 8;
+	unsigned length_of_items                : 8;
+} __attribute__ ((packed)) ;
+
+inline unsigned min(unsigned a, unsigned b)
+{
+        return b < a ? b : a;
+}
+
 SIevent::SIevent(const t_original_network_id _original_network_id, const t_transport_stream_id _transport_stream_id, const t_service_id _service_id,
 		 const unsigned short _event_id)
 {
@@ -53,6 +83,29 @@ SIevent::SIevent(const t_original_network_id _original_network_id, const t_trans
 	table_id            = 0xFF; /* not set */
 	version 	    = 0xFF;
 	running 	    = 0;
+}
+
+SIevent::SIevent(const struct eit_event *e)
+{
+	eventID = (e->event_id_hi << 8) | e->event_id_lo;
+	time_t start_time = changeUTCtoCtime(((const unsigned char *)e) + 2);
+	unsigned long duration = 0;
+
+	if (!((e->duration_hi == 0xff) && (e->duration_mid == 0xff) && (e->duration_lo == 0xff)))
+		duration = ((e->duration_hi)>>4)*10*3600L + ((e->duration_hi)&0x0f)*3600L +
+			((e->duration_mid)>>4)*10*60L + ((e->duration_mid)&0x0f)*60L +
+			((e->duration_lo)>>4)*10 + ((e->duration_lo)&0x0f);
+
+	if (start_time && duration)
+		times.insert(SItime(start_time, duration));
+
+	running = (int)e->running_status;
+
+	table_id = 0xFF; /* not set */
+	version = 0xFF;
+	service_id = 0;
+	original_network_id = 0;
+	transport_stream_id = 0;
 }
 
 void SIevent::parse(Event &event)
@@ -147,6 +200,132 @@ void SIevent::parse(Event &event)
 		else if(dtype == PDC_DESCRIPTOR) {
 		}
 #endif
+	}
+}
+
+void SIevent::parseDescriptors(const uint8_t *des, unsigned len)
+{
+	struct descr_generic_header *desc;
+	/* we pass the buffer including the eit_event header, so we have to
+	 *            skip it here... */
+	des += sizeof(struct eit_event);
+	len -= sizeof(struct eit_event);
+	while(len>=sizeof(struct descr_generic_header)) {
+		desc=(struct descr_generic_header *)des;
+		/*printf("Type: %s\n", decode_descr(desc->descriptor_tag)); */
+		if(desc->descriptor_tag==0x4D)
+			parseShortEventDescriptor((const uint8_t *)desc, len);
+		else if(desc->descriptor_tag==0x4E)
+			parseExtendedEventDescriptor((const uint8_t *)desc, len);
+		else if(desc->descriptor_tag==0x54)
+			parseContentDescriptor((const uint8_t *)desc, len);
+		else if(desc->descriptor_tag==0x50)
+			parseComponentDescriptor((const uint8_t *)desc, len);
+		else if(desc->descriptor_tag==0x55)
+			parseParentalRatingDescriptor((const uint8_t *)desc, len);
+		else if(desc->descriptor_tag==0x4A) {
+			parseLinkageDescriptor((const uint8_t *)desc, len);
+		}
+#if 0
+		else if(desc->descriptor_tag==0x69)
+			parsePDCDescriptor((const char *)desc, e, len);
+#endif
+		if((unsigned)(desc->descriptor_length+2)>len)
+			break;
+		len-=desc->descriptor_length+2;
+		des+=desc->descriptor_length+2;
+	}
+}
+
+void SIevent::parseShortEventDescriptor(const uint8_t *buf, unsigned maxlen)
+{
+        struct descr_short_event_header *evt=(struct descr_short_event_header *)buf;
+        if((evt->descriptor_length+sizeof(descr_generic_header) > maxlen) ||
+			(evt->descriptor_length<sizeof(struct descr_short_event_header)-sizeof(descr_generic_header)))
+                return;
+
+        int tsidonid = (transport_stream_id << 16) | original_network_id;
+
+        char lang[] = {tolower(evt->language_code_hi), tolower(evt->language_code_mid), tolower(evt->language_code_lo), '\0'};
+        std::string language(lang);
+	int table = getCountryCodeDefaultMapping(language);
+
+        buf+=sizeof(struct descr_short_event_header);
+        if(evt->event_name_length)
+                setName(language, convertDVBUTF8((const char*) buf, evt->event_name_length, table, tsidonid));
+
+        buf+=evt->event_name_length;
+        unsigned char textlength=*((unsigned char *)buf);
+        if(textlength > 2)
+                setText(language, convertDVBUTF8((const char*) (++buf), textlength, table, tsidonid));
+}
+
+void SIevent::parseExtendedEventDescriptor(const uint8_t *buf, unsigned maxlen)
+{
+        struct descr_extended_event_header *evt=(struct descr_extended_event_header *)buf;
+        if((evt->descriptor_length+sizeof(descr_generic_header)>maxlen) ||
+			(evt->descriptor_length<sizeof(struct descr_extended_event_header)-sizeof(descr_generic_header)))
+                return;
+
+        int tsidonid = (transport_stream_id << 16) | original_network_id;
+
+        char lang[] = {tolower(evt->iso_639_2_language_code_hi), tolower(evt->iso_639_2_language_code_mid), tolower(evt->iso_639_2_language_code_lo), '\0'};
+        std::string language(lang);
+	int table = getCountryCodeDefaultMapping(language);
+
+        unsigned char *items=(unsigned char *)(buf+sizeof(struct descr_extended_event_header));
+        while(items < (unsigned char *)(buf + sizeof(struct descr_extended_event_header) + evt->length_of_items)) {
+                if(*items) {
+                        itemDescription.append(convertDVBUTF8((const char *)(items+1), min(maxlen-(items+1-buf), *items), table, tsidonid));
+                        itemDescription.append("\n");
+                }
+                items+=1+*items;
+                if(*items) {
+                        item.append(convertDVBUTF8((const char *)(items+1), min(maxlen-(items+1-buf), *items), table, tsidonid));
+                        item.append("\n");
+                }
+                items+=1+*items;
+        }
+        if(*items) 
+                appendExtendedText(language, convertDVBUTF8((const char *)(items+1), min(maxlen-(items+1-buf), (*items)), table, tsidonid));
+}
+
+void SIevent::parseContentDescriptor(const uint8_t *buf, unsigned maxlen)
+{
+	struct descr_generic_header *cont=(struct descr_generic_header *)buf;
+	if(cont->descriptor_length+sizeof(struct descr_generic_header)>maxlen)
+		return;
+
+	const uint8_t *classification=buf+sizeof(struct descr_generic_header);
+	while(classification <= buf+sizeof(struct descr_generic_header)+cont->descriptor_length-2) {
+		contentClassification+=std::string((const char *)classification, 1);
+		userClassification+=std::string((const char *)classification+1, 1);
+		classification+=2;
+	}
+}
+
+void SIevent::parseComponentDescriptor(const uint8_t *buf, unsigned maxlen)
+{
+	if(maxlen>=sizeof(struct descr_component_header))
+		components.insert(SIcomponent((const struct descr_component_header *)buf));
+}
+
+void SIevent::parseParentalRatingDescriptor(const uint8_t *buf, unsigned maxlen)
+{
+        struct descr_generic_header *cont=(struct descr_generic_header *)buf;
+        if(cont->descriptor_length+sizeof(struct descr_generic_header)>maxlen)
+                return;
+        const uint8_t *s=buf+sizeof(struct descr_generic_header);
+        while(s<buf+sizeof(struct descr_generic_header)+cont->descriptor_length-4) {
+                ratings.insert(SIparentalRating(std::string((const char *)s, 3), *(s+3)));
+                s+=4;
+        }
+}
+void SIevent::parseLinkageDescriptor(const uint8_t *buf, unsigned maxlen)
+{
+	if(maxlen>=sizeof(struct descr_linkage_header)) {
+		SIlinkage l((const struct descr_linkage_header *)buf);
+		linkage_descs.insert(linkage_descs.end(), l);
 	}
 }
 
