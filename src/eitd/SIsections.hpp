@@ -29,15 +29,89 @@
 #include <dvbsi++/event_information_section.h>
 #include <dvbsi++/service_description_section.h>
 
-class SIsectionEIT : public EventInformationSection
+#define USE_DVBSI_EVENTS
+
+struct SI_section_EIT_header {
+	unsigned table_id                       : 8;
+#if __BYTE_ORDER == __BIG_ENDIAN
+	unsigned section_syntax_indicator       : 1;
+	unsigned reserved_future_use            : 1;
+	unsigned reserved1                      : 2;
+	unsigned section_length_hi              : 4;
+#else
+	unsigned section_length_hi              : 4;
+	unsigned reserved1                      : 2;
+	unsigned reserved_future_use            : 1;
+	unsigned section_syntax_indicator       : 1;
+#endif
+	unsigned section_length_lo              : 8;
+	unsigned service_id_hi                  : 8;
+	unsigned service_id_lo                  : 8;
+#if __BYTE_ORDER == __BIG_ENDIAN
+	unsigned reserved2                      : 2;
+	unsigned version_number                 : 5;
+	unsigned current_next_indicator         : 1;
+#else
+	unsigned current_next_indicator         : 1;
+	unsigned version_number                 : 5;
+	unsigned reserved2                      : 2;
+#endif
+	unsigned section_number                 : 8;
+	unsigned last_section_number            : 8;
+	unsigned transport_stream_id_hi         : 8;
+	unsigned transport_stream_id_lo         : 8;
+	unsigned original_network_id_hi         : 8;
+	unsigned original_network_id_lo         : 8;
+	unsigned segment_last_section_number    : 8;
+	unsigned last_table_id                  : 8;
+} __attribute__ ((packed)) ; // 14 bytes
+
+struct SI_section_header {
+	unsigned table_id                       : 8;
+#if __BYTE_ORDER == __BIG_ENDIAN
+	unsigned section_syntax_indicator       : 1;
+	unsigned reserved_future_use            : 1;
+	unsigned reserved1                      : 2;
+	unsigned section_length_hi              : 4;
+#else
+	unsigned section_length_hi              : 4;
+	unsigned reserved1                      : 2;
+	unsigned reserved_future_use            : 1;
+	unsigned section_syntax_indicator       : 1;
+#endif
+	unsigned section_length_lo              : 8;
+	unsigned table_id_extension_hi          : 8;
+	unsigned table_id_extension_lo          : 8;
+#if __BYTE_ORDER == __BIG_ENDIAN
+	unsigned reserved2                      : 2;
+	unsigned version_number                 : 5;
+	unsigned current_next_indicator         : 1;
+#else
+	unsigned current_next_indicator         : 1;
+	unsigned version_number                 : 5;
+	unsigned reserved2                      : 2;
+#endif
+	unsigned section_number                 : 8;
+	unsigned last_section_number            : 8;
+} __attribute__ ((packed)) ; // 8 bytes
+
+class SIsectionEIT 
+#ifdef USE_DVBSI_EVENTS
+	: public EventInformationSection
+#endif
 {
 protected:
+	uint8_t * buffer;
 	SIevents evts;
 	int parsed;
 	void parse(void);
 public:
-	SIsectionEIT(uint8_t *buf) : EventInformationSection(buf) 
+	SIsectionEIT(uint8_t *buf) 
+#ifdef USE_DVBSI_EVENTS
+		: EventInformationSection(buf) 
+#endif
 	{
+		buffer = buf;
 		parsed = 0;
 		parse();
 	}
@@ -48,6 +122,24 @@ public:
 
 	int is_parsed(void) const {
 		return parsed;
+	}
+	t_service_id service_id(void) const {
+		return buffer ? ((((struct SI_section_EIT_header *)buffer)->service_id_hi << 8) |
+				((struct SI_section_EIT_header *)buffer)->service_id_lo): 0;
+	}
+
+	t_original_network_id original_network_id(void) const {
+		return buffer ? ((((struct SI_section_EIT_header *)buffer)->original_network_id_hi << 8) |
+				((struct SI_section_EIT_header *)buffer)->original_network_id_lo) : 0;
+	}
+
+	t_transport_stream_id transport_stream_id(void) const {
+		return buffer ? ((((struct SI_section_EIT_header *)buffer)->transport_stream_id_hi << 8) |
+				((struct SI_section_EIT_header *)buffer)->transport_stream_id_lo) : 0;
+	}
+
+	struct SI_section_EIT_header const *header(void) const {
+		return (struct SI_section_EIT_header *)buffer;
 	}
 };
 

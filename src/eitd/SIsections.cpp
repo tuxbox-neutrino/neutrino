@@ -41,6 +41,12 @@
 #include "debug.h"
 #include "edvbstring.h"
 
+inline unsigned min(unsigned a, unsigned b)
+{
+	return b < a ? b : a;
+}
+
+#ifdef USE_DVBSI_EVENTS
 void SIsectionEIT::parse(void)
 {
 	const EventList &elist = *getEvents();
@@ -66,6 +72,46 @@ void SIsectionEIT::parse(void)
 	}
 	parsed = 1;
 }
+#else
+void SIsectionEIT::parse(void)
+{
+	const uint8_t *actPos;
+	const uint8_t *bufEnd;
+	struct eit_event *evt;
+	unsigned short descriptors_loop_length;
+
+	if (!buffer || parsed)
+		return;
+
+	struct SI_section_header *siheader = (SI_section_header*) buffer;
+	unsigned short bufferLength = siheader->section_length_hi << 8 | siheader->section_length_lo;
+
+	if (bufferLength < sizeof(SI_section_EIT_header) + sizeof(struct eit_event)) {
+		bufferLength=0;
+		return;
+	}
+
+	unsigned char table_id = header()->table_id;
+	unsigned char version_number = header()->version_number;
+	actPos = buffer + sizeof(SI_section_EIT_header);
+	bufEnd = buffer + bufferLength;
+
+	while (actPos < bufEnd - sizeof(struct eit_event)) {
+		evt = (struct eit_event *) actPos;
+		SIevent e(evt);
+		e.service_id = service_id();
+		e.original_network_id = original_network_id();
+		e.transport_stream_id = transport_stream_id();
+		e.table_id = table_id;
+		e.version = version_number;
+		descriptors_loop_length = sizeof(struct eit_event) + ((evt->descriptors_loop_length_hi << 8) | evt->descriptors_loop_length_lo);
+		e.parseDescriptors(actPos, min((unsigned)(bufEnd - actPos), descriptors_loop_length));
+		evts.insert(e);
+		actPos += descriptors_loop_length;
+	}
+	parsed = 1;
+}
+#endif
 
 void SIsectionSDT::parse(void)
 {
