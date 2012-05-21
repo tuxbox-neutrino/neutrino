@@ -624,7 +624,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 		icon_map[0x0D00] = std::make_pair(index++,"cw");
 		icon_map[0x0900] = std::make_pair(index  ,"nds");
 
-		for (it=icon_map.begin(); it!=icon_map.end(); it++) {
+		for (it=icon_map.begin(); it!=icon_map.end(); ++it) {
 			snprintf(buf, sizeof(buf), "%s_%s", (*it).second.second, icon);
 			frameBuffer->getIconSize(buf, &icon_sizeW[(*it).second.first], &icon_sizeH);
 		}
@@ -655,7 +655,6 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
 	int caids[] = { 0x600, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
-	int i = 0;
 
 	if (g_settings.casystem_display == 3)
 		return;
@@ -666,7 +665,6 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 
 	if (g_settings.casystem_display == 2) {
 		fta = (channel->camap.size() == 0);
-//		showOne_CAIcon(fta);
 		showOne_CAIcon();
 		return;
 	}
@@ -680,7 +678,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 			paintCA_bar(0,icon_space_offset);
 			icon_space_offset = 0;
 		}
-		for (i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
+		for (int i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
 			bool found = false;
 			for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
 				int caid = (*it) & 0xFF00;
