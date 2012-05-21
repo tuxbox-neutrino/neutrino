@@ -638,6 +638,9 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 	if (( caid & 0xFF00 ) == 0x1700)
 		caid = 0x0600;
 
+	if (icon_offset[icon_map[( caid & 0xFF00 )].first] == 0)
+		return;
+
 	if (g_settings.casystem_display == 0) {
 		px = endx - (icon_offset[icon_map[( caid & 0xFF00 )].first] - icon_space );
 	} else {
@@ -648,7 +651,11 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 	if (px) {
 		snprintf(buf, sizeof(buf), "%s_%s", icon_map[( caid & 0xFF00 )].second, icon);
-		frameBuffer->paintIcon(buf, px, py );
+		if ((px >= (endx-8)) || (px <= 0))
+			printf("#####[%s:%d] Error paint icon %s, px: %d,  py: %d, endx: %d, icon_offset: %d\n", 
+				__FUNCTION__, __LINE__, buf, px, py, endx, icon_offset[icon_map[( caid & 0xFF00 )].first]);
+		else
+			frameBuffer->paintIcon(buf, px, py);
 	}
 }
 
