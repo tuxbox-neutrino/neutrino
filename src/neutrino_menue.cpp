@@ -34,8 +34,6 @@
 #include <config.h>
 #endif
 
-//#define TEST_MENU
-
 #include "global.h"
 #include "neutrino.h"
 #include "mymenu.h"
@@ -74,9 +72,7 @@
 #include "gui/sleeptimer.h"
 #include "gui/software_update.h"
 #include <gui/streaminfo2.h>
-#ifdef TEST_MENU
 #include "gui/test_menu.h"
-#endif /*TEST_MENU*/
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
 #include <driver/record.h>
