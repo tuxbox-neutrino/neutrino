@@ -591,6 +591,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 	if(delete_all) {
 		system("rm -f /var/tuxbox/config/zapit/*.conf");
+		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
 		g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
