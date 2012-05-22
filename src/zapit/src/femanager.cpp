@@ -158,6 +158,7 @@ bool CFEManager::getSatelliteConfig(CFrontend * fe, sat_config_t &satconfig)
 bool CFEManager::loadSettings()
 {
 	config_exist = true;
+	configfile.clear();
 	if (!configfile.loadConfig(FECONFIGFILE)) {
 		WARN("%s not found", FECONFIGFILE);
 		config_exist = false;
@@ -187,6 +188,7 @@ bool CFEManager::loadSettings()
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
 		std::vector<int> satList = configfile.getInt32Vector(cfg_key);
 		satellite_map_t & satmap = fe->getSatellites();
+		satmap.clear();
 #if 0
 		for(unsigned int i = 0; i < satList.size(); i++) 
 			t_satellite_position position = satList[i];
