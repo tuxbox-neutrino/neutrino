@@ -36,6 +36,7 @@
 #include <eitd/edvbstring.h>
 
 #define SEC_SIZE 4096
+//#define SCAN_DEBUG
 
 fast_scan_operator_t fast_scan_operators [OPERATOR_MAX] = {
 	{ CD_OPERATOR_ID, 900, 901, (char *) "CanalDigitaal" },
@@ -269,8 +270,8 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 
 						std::map <t_channel_id, t_satellite_position>::iterator sIt = fast_services_sat.find(channel_id);
 						if(sIt != fast_services_sat.end()) {
-#if 0
 							satellitePosition = sIt->second;
+#if 0
 							sat_iterator_t sit = satellitePositions.find(satellitePosition);
 							if(sit != satellitePositions.end())
 								sit->second.have_channels = true;
