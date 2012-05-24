@@ -469,9 +469,11 @@ int CScanSetup::showFrontendSetup(int number)
 
 	fenumber = number;
 
+#if 0
+	itemsForAnyDiseqc.Clear();
 	itemsForAdvancedDiseqc.Clear();
 	itemsForNonAdvancedDiseqc.Clear();
-	itemsForAnyDiseqc.Clear();
+#endif
 
 	CFrontend * fe = CFEManager::getInstance()->getFE(number);
 	frontend_config_t & fe_config = fe->getConfig();
@@ -485,9 +487,9 @@ int CScanSetup::showFrontendSetup(int number)
 	setupMenu->addIntroItems();
 
 	CMenuOptionChooser * ojDiseqc	= new CMenuOptionChooser(LOCALE_SATSETUP_DISEQC, (int *)&dmode, SATSETUP_DISEQC_OPTIONS, SATSETUP_DISEQC_OPTION_COUNT, allow_start, this, CRCInput::convertDigitToKey(shortcut++), "", true);
-	CMenuOptionNumberChooser * ojDiseqcRepeats = new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQCREPEAT, (int *)&fe_config.diseqcRepeats, (dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED), 0, 2, NULL);
+	/*CMenuOptionNumberChooser * */ ojDiseqcRepeats = new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQCREPEAT, (int *)&fe_config.diseqcRepeats, (dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED), 0, 2, NULL);
 
-	itemsForAnyDiseqc.Add(ojDiseqcRepeats);
+	//itemsForAnyDiseqc.Add(ojDiseqcRepeats);
 
 	setupMenu->addItem(ojDiseqc);
 	setupMenu->addItem(ojDiseqcRepeats);
@@ -701,10 +703,11 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t & satcon
 	if(!satconfig.use_usals)
 		all_usals = 0;
 
+#if 0
 	itemsForAnyDiseqc.Add(diseqc);
 	itemsForAdvancedDiseqc.Add(comm);
 	itemsForAdvancedDiseqc.Add(uncomm);
-
+#endif
 	//FIXME testing motor without DISEQC_ADVANCED
 	//itemsForAdvancedDiseqc.Add(motor);
 	//itemsForAdvancedDiseqc.Add(usals);
@@ -917,19 +920,28 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		//FIXME 2 frontends ??
 		fautoScanAll->setActive(dmode != NO_DISEQC);
 		if(dmode == NO_DISEQC) {
+			ojDiseqcRepeats->setActive(false);
+#if 0
+			itemsForAnyDiseqc.Activate(false);
 			itemsForAdvancedDiseqc.Activate(false);
 			itemsForNonAdvancedDiseqc.Activate(false);
-			itemsForAnyDiseqc.Activate(false);
+#endif
 		}
 		else if(dmode < DISEQC_ADVANCED) {
+			ojDiseqcRepeats->setActive(true);
+#if 0
+			itemsForAnyDiseqc.Activate(true);
 			itemsForAdvancedDiseqc.Activate(false);
 			itemsForNonAdvancedDiseqc.Activate(true);
-			itemsForAnyDiseqc.Activate(true);
+#endif
 		}
 		else if(dmode == DISEQC_ADVANCED) {
+			ojDiseqcRepeats->setActive(true);
+#if 0
+			itemsForAnyDiseqc.Activate(true);
 			itemsForAdvancedDiseqc.Activate(true);
 			itemsForNonAdvancedDiseqc.Activate(false);
-			itemsForAnyDiseqc.Activate(true);
+#endif
 		}
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		fe->setDiseqcType((diseqc_t) dmode);

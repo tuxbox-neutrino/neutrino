@@ -56,12 +56,14 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *fautoScanAll;
 		CMenuForwarder  *frontendSetup;
 		CMenuForwarder  *fsatSetup;
+		CMenuOptionNumberChooser * ojDiseqcRepeats;
 
 		/* dynamic frontend items to be enabled/disabled in notify */
+#if 0
 		CGenericMenuActivate itemsForAdvancedDiseqc;
 		CGenericMenuActivate itemsForNonAdvancedDiseqc;
 		CGenericMenuActivate itemsForAnyDiseqc;
-
+#endif
 		/* variables for selected frontend */
 		/* diseqc mode */
 		int dmode;
