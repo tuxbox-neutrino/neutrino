@@ -448,24 +448,23 @@ static void write_indexxml_footer(FILE *fd)
 void writeEventsToFile(char *epgdir)
 {
 	FILE * indexfile = NULL;
-	FILE * eventfile =NULL;
-	char filename[100] = "";
-	char tmpname[100] = "";
+	FILE * eventfile = NULL;
+	std::string filename("");
+	std::string tmpname("");
 	char eventname[17] = "";
 	t_original_network_id onid = 0;
 	t_transport_stream_id tsid = 0;
 	t_service_id sid = 0;
 	deleteOldfileEvents(epgdir);
 
+	tmpname  = (std::string)epgdir + "/index.tmp";
 
-	sprintf(tmpname, "%s/index.tmp", epgdir);
-
-	if (!(indexfile = fopen(tmpname, "w"))) {
-		printf("[sectionsd] unable to open %s for writing\n", tmpname);
+	if (!(indexfile = fopen(tmpname.c_str(), "w"))) {
+		printf("[sectionsd] unable to open %s for writing\n", tmpname.c_str());
 		return;
 	}
 
-	printf("[sectionsd] Writing Information to file: %s\n", tmpname);
+	printf("[sectionsd] Writing Information to file: %s\n", tmpname.c_str());
 
 	write_index_xml_header(indexfile);
 
@@ -483,8 +482,8 @@ void writeEventsToFile(char *epgdir)
 			tsid = (*e)->transport_stream_id;
 			sid = (*e)->service_id;
 			snprintf(eventname, 17, "%04x%04x%04x.xml", onid, tsid, sid);
-			sprintf(filename, "%s/%s", epgdir, eventname);
-			if (!(eventfile = fopen(filename, "w"))) {
+			filename  = (std::string)epgdir + "/" + (std::string)eventname;
+			if (!(eventfile = fopen(filename.c_str(), "w"))) {
 				goto _done;
 			}
 			fprintf(indexfile, "\t<eventfile name=\"%s\"/>\n", eventname);
@@ -501,9 +500,9 @@ _done:
 
 	printf("[sectionsd] Writing Information finished\n");
 
-	sprintf(filename, "%s/index.xml", epgdir);
+	filename  = (std::string)epgdir + "/index.xml";
 
-	rename(tmpname, filename);
+	rename(tmpname.c_str(), filename.c_str());
 
 	return ;
 }

@@ -1177,14 +1177,12 @@ static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength
 	sendEmptyResponse(connfd, NULL, 0);
 	if ((!reader_ready) || (dataLength > 100)){
 		eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
-		return;	  
+		return;
 	}
-	char epgdir[100] = "";
 
-	strncpy(epgdir, data, dataLength);
-	epgdir[dataLength] = '\0';
+	data[dataLength] = '\0';
 
-	writeEventsToFile(epgdir);
+	writeEventsToFile(data);
 
 	eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
 }
