@@ -1000,9 +1000,9 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		SendCmdReady(connfd);
 #endif
 		DBG("[zapit] sending EVT_SERVICES_CHANGED\n");
+  	        SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 		live_fe->setTsidOnid(0);
 		ZapIt(live_channel_id, current_is_nvod);
-  	        SendEvent(CZapitClient::EVT_SERVICES_CHANGED);
 		//SendEvent(CZapitClient::EVT_BOUQUETS_CHANGED);
   	        break;
   	}
