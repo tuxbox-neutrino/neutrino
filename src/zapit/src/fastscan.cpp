@@ -82,6 +82,7 @@ void CServiceScan::InitFastscanLnb(int id)
 	satmap[235].configured = 1;
 	satmap[282].configured = 1;
 	frontend->setSatellites(satmap);
+	frontend->setDiseqcType(DISEQC_1_0);
 	CFEManager::getInstance()->saveSettings();
 	SetFrontend(192);
 }
