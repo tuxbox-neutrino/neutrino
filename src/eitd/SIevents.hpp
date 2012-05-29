@@ -32,6 +32,8 @@
 #include <dvbsi++/event_information_section.h>
 #include "edvbstring.h"
 
+//#define USE_ITEM_DESCRIPTION
+
 struct eit_event {
 	unsigned event_id_hi                    : 8;
 	unsigned event_id_lo                    : 8;
@@ -358,7 +360,7 @@ class SIevent
 		t_original_network_id original_network_id;
 		t_transport_stream_id transport_stream_id;
 		unsigned short eventID;
-		time_t vps;
+		//time_t vps;
 		unsigned char table_id;
 		unsigned char version;
 
@@ -367,8 +369,10 @@ class SIevent
 		SIlinkage_descs linkage_descs;
 		SItimes times;
 
+#ifdef USE_ITEM_DESCRIPTION
 		std::string itemDescription; // Aus dem Extended Descriptor
 		std::string item; // Aus dem Extended Descriptor
+#endif
 		std::string contentClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
 		std::string userClassification; // Aus dem Content Descriptor, als String, da mehrere vorkommen koennen
 
@@ -378,7 +382,7 @@ class SIevent
 			original_network_id = 0;
 			transport_stream_id = 0;
 			eventID    = 0;
-			vps = 0;
+			//vps = 0;
 			table_id = 0xFF; /* 0xFF means "not set" */
 			version = 0xFF;
 			running = false;

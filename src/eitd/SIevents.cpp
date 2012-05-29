@@ -144,7 +144,7 @@ void SIevent::parse(Event &event)
 			std::string lang = d->getIso639LanguageCode();
 			std::transform(lang.begin(), lang.end(), lang.begin(), tolower);
 			int table = getCountryCodeDefaultMapping(lang);
-
+#ifdef USE_ITEM_DESCRIPTION
 			const ExtendedEventList *itemlist = d->getItems();
 			for (ExtendedEventConstIterator it = itemlist->begin(); it != itemlist->end(); ++it) {
 				itemDescription.append(stringDVBUTF8((*it)->getItemDescription(), table, tsidonid));
@@ -152,6 +152,7 @@ void SIevent::parse(Event &event)
 				item.append(stringDVBUTF8((*it)->getItem(), table, tsidonid));
 				item.append("\n");
 			}
+#endif
 			appendExtendedText(lang, stringDVBUTF8(d->getText(), table, tsidonid));
 		}
 		else if(dtype == CONTENT_DESCRIPTOR) {
@@ -275,15 +276,19 @@ void SIevent::parseExtendedEventDescriptor(const uint8_t *buf, unsigned maxlen)
 
         unsigned char *items=(unsigned char *)(buf+sizeof(struct descr_extended_event_header));
         while(items < (unsigned char *)(buf + sizeof(struct descr_extended_event_header) + evt->length_of_items)) {
+#ifdef USE_ITEM_DESCRIPTION
                 if(*items) {
                         itemDescription.append(convertDVBUTF8((const char *)(items+1), min(maxlen-(items+1-buf), *items), table, tsidonid));
                         itemDescription.append("\n");
                 }
+#endif
                 items+=1+*items;
+#ifdef USE_ITEM_DESCRIPTION
                 if(*items) {
                         item.append(convertDVBUTF8((const char *)(items+1), min(maxlen-(items+1-buf), *items), table, tsidonid));
                         item.append("\n");
                 }
+#endif
                 items+=1+*items;
         }
         if(*items) 
@@ -475,6 +480,7 @@ int SIevent::saveXML2(FILE *file) const
 			fprintf(file, "\"/>\n");
 		}
 	}
+#ifdef USE_ITEM_DESCRIPTION
 	if(item.length()) {
 		fprintf(file, "\t\t\t<item string=\"");
 		saveStringToXMLfile(file, item.c_str());
@@ -485,6 +491,7 @@ int SIevent::saveXML2(FILE *file) const
 		saveStringToXMLfile(file, itemDescription.c_str());
 		fprintf(file, "\"/>\n");
 	}
+#endif
 	for (std::map<std::string, std::string>::const_iterator
 			i = langExtendedText.begin() ;
 			i != langExtendedText.end() ;
@@ -516,11 +523,12 @@ void SIevent::dump(void) const
 	if (service_id)
 		printf("Service-ID: %hu\n", service_id);
 	printf("Event-ID: %hu\n", eventID);
+#ifdef USE_ITEM_DESCRIPTION
 	if(item.length())
 		printf("Item: %s\n", item.c_str());
 	if(itemDescription.length())
 		printf("Item-Description: %s\n", itemDescription.c_str());
-
+#endif
 	for (std::map<std::string, std::string>::const_iterator it = langName.begin() ;
 			it != langName.end() ; ++it)
 		printf("Name (%s): %s\n", it->first.c_str(), it->second.c_str());

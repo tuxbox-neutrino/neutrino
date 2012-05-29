@@ -349,9 +349,11 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 	if ((already_exists) && (SIlanguage::getMode() == CSectionsdClient::LANGUAGE_MODE_OFF)) {
 		si->second->contentClassification = evt.contentClassification;
 		si->second->userClassification = evt.userClassification;
+#ifdef USE_ITEM_DESCRIPTION
 		si->second->itemDescription = evt.itemDescription;
 		si->second->item = evt.item;
-		si->second->vps = evt.vps;
+#endif
+		//si->second->vps = evt.vps;
 		if ((evt.getExtendedText().length() > 0) && !evt.times.empty() &&
 				(evt.times.begin()->startzeit < zeit + secondsExtendedTextCache))
 			si->second->setExtendedText("OFF",evt.getExtendedText().c_str());
