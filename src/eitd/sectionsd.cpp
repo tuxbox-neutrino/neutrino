@@ -36,22 +36,10 @@
 #include <pthread.h>
 #include <errno.h>
 #include <signal.h>
-
-#include <set>
-#include <map>
-#include <algorithm>
-#include <string>
-#include <limits>
-
-#include <sys/wait.h>
 #include <sys/time.h>
 
 #include <connection/basicsocket.h>
 #include <connection/basicserver.h>
-
-#include <xmltree/xmlinterface.h>
-#include <configfile.h>
-#include <zapit/client/zapittools.h>
 
 #include <sectionsdclient/sectionsdMsg.h>
 #include <sectionsdclient/sectionsdclient.h>
@@ -75,6 +63,7 @@
 static bool sectionsd_ready = false;
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
+static bool notify_complete = true;
 
 /* period to remove old events */
 #define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
@@ -1516,10 +1505,6 @@ void CSectionThread::run()
 			sendToSleepNow = false;
 		}
 
-#if 0
-		int rc = getSection(static_buf, timeoutInMSeconds, timeoutsDMX);
-		processSection(rc);
-#endif
 		processSection();
 
 		time_t zeit = time_monotonic();
@@ -1562,7 +1547,7 @@ bool CEventsThread::addEvents()
 	if (!eit.is_parsed())
 		return false;
 
-	dprintf("[eitThread] adding %d events [table 0x%x] (begin)\n", eit.events().size(), eit.getTableId());
+	dprintf("[%s] adding %d events (begin)\n", name.c_str(), eit.events().size());
 	time_t zeit = time(NULL);
 
 	for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
@@ -1650,6 +1635,8 @@ void CEitThread::beforeSleep()
 	writeLockMessaging();
 	messaging_zap_detected = false;
 	unlockMessaging();
+	if(notify_complete)
+		system("/var/tuxbox/config/epgdone.sh");
 }
 
 /********************************************************************************/
