@@ -1650,7 +1650,6 @@ CCNThread::CCNThread()
 
 	updating = false;
 	eitDmx = new cDemux(0);
-	eitDmx->Open(DMX_PSI_CHANNEL);
 }
 
 /* CN thread hooks */
@@ -1693,6 +1692,8 @@ void CCNThread::beforeWait()
 	filter[3] = (eit_version << 1) | 0x01;
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
+
+	eitDmx->Open(DMX_PSI_CHANNEL);
 	eitDmx->sectionFilter(0x12, filter, mask, 4, 0 /*timeout*/, mode);
 }
 
@@ -1701,7 +1702,7 @@ void CCNThread::afterWait()
 	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
 	if (updating) {
 		updating = false;
-		eitDmx->Stop();
+		eitDmx->Close();
 	}
 }
 
