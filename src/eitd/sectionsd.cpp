@@ -63,7 +63,7 @@
 static bool sectionsd_ready = false;
 /*static*/ bool reader_ready = true;
 static unsigned int max_events;
-static bool notify_complete = true;
+static bool notify_complete = false;
 
 /* period to remove old events */
 #define HOUSEKEEPING_SLEEP (5 * 60) // sleep 5 minutes
