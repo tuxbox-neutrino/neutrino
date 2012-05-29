@@ -369,11 +369,16 @@ void *insertEventsfromFile(void * data)
 					c.componentType = xmlGetNumericAttribute(node, "type", 16);
 					c.componentTag = xmlGetNumericAttribute(node, "tag", 16);
 					c.component = std::string(xmlGetAttribute(node, "text"));
-					e.components.insert(c);
+					//e.components.insert(c);
+					e.components.push_back(c);
 					node = node->xmlNextNode;
 				}
 				while (xmlGetNextOccurence(node, "parental_rating") != NULL) {
+#if 0
 					e.ratings.insert(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
+								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
+#endif
+					e.ratings.push_back(SIparentalRating(std::string(ZapitTools::UTF8_to_Latin1(xmlGetAttribute(node, "country"))),
 								(unsigned char) xmlGetNumericAttribute(node, "rating", 10)));
 					node = node->xmlNextNode;
 				}

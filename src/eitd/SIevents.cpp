@@ -176,14 +176,16 @@ void SIevent::parse(Event &event)
 			std::transform(lang.begin(), lang.end(), lang.begin(), tolower);
 			int table = getCountryCodeDefaultMapping(lang);
 			c.component = stringDVBUTF8(d->getText(), table, tsidonid);
-			components.insert(c);
+			//components.insert(c);
+			components.push_back(c);
 		}
 		else if(dtype == PARENTAL_RATING_DESCRIPTOR) {
 			const ParentalRatingDescriptor *d = (ParentalRatingDescriptor*) *dit;
 			const ParentalRatingList *plist = d->getParentalRatings();
 			for (ParentalRatingConstIterator it = plist->begin(); it != plist->end(); ++it) {
 				SIparentalRating p((*it)->getCountryCode(), (*it)->getRating());
-				ratings.insert(p);
+				//ratings.insert(p);
+				ratings.push_back(p);
 			}
 		}
 		else if(dtype == LINKAGE_DESCRIPTOR) {
@@ -312,7 +314,8 @@ void SIevent::parseContentDescriptor(const uint8_t *buf, unsigned maxlen)
 void SIevent::parseComponentDescriptor(const uint8_t *buf, unsigned maxlen)
 {
 	if(maxlen>=sizeof(struct descr_component_header))
-		components.insert(SIcomponent((const struct descr_component_header *)buf));
+		components.push_back(SIcomponent((const struct descr_component_header *)buf));
+		//components.insert(SIcomponent((const struct descr_component_header *)buf));
 }
 
 void SIevent::parseParentalRatingDescriptor(const uint8_t *buf, unsigned maxlen)
@@ -322,7 +325,8 @@ void SIevent::parseParentalRatingDescriptor(const uint8_t *buf, unsigned maxlen)
                 return;
         const uint8_t *s=buf+sizeof(struct descr_generic_header);
         while(s<buf+sizeof(struct descr_generic_header)+cont->descriptor_length-4) {
-                ratings.insert(SIparentalRating(std::string((const char *)s, 3), *(s+3)));
+                //ratings.insert(SIparentalRating(std::string((const char *)s, 3), *(s+3)));
+                ratings.push_back(SIparentalRating(std::string((const char *)s, 3), *(s+3)));
                 s+=4;
         }
 }
@@ -336,7 +340,7 @@ void SIevent::parseLinkageDescriptor(const uint8_t *buf, unsigned maxlen)
 
 char SIevent::getFSK() const
 {
-	for (SIparentalRatings::iterator it = ratings.begin(); it != ratings.end(); ++it)
+	for (SIparentalRatings::const_iterator it = ratings.begin(); it != ratings.end(); ++it)
 	{
 		if (it->countryCode == "DEU")
 		{

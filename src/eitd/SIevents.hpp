@@ -224,7 +224,8 @@ class SIcomponent
 		}
 };
 
-typedef std::multiset <SIcomponent, std::less<SIcomponent> > SIcomponents;
+//typedef std::multiset <SIcomponent, std::less<SIcomponent> > SIcomponents;
+typedef std::vector <SIcomponent> SIcomponents;
 
 // Fuer for_each
 struct printSIcomponent : public std::unary_function<class SIcomponent, void>
@@ -272,7 +273,8 @@ class SIparentalRating
 				(countryCode != p.countryCode);
 		}
 };
-typedef std::set <SIparentalRating, std::less<SIparentalRating> > SIparentalRatings;
+//typedef std::set <SIparentalRating, std::less<SIparentalRating> > SIparentalRatings;
+typedef std::vector <SIparentalRating> SIparentalRatings;
 
 // Fuer for_each
 struct printSIparentalRating : public std::unary_function<SIparentalRating, void>
