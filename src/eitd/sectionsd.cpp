@@ -111,6 +111,7 @@ std::string		epg_dir("");
 /* messaging_current_servicekey does probably not need locking, since it is
    changed from one place */
 static t_channel_id    messaging_current_servicekey = 0;
+static t_channel_id    current_channel_id = 0;
 static bool channel_is_blacklisted = false;
 
 bool timeset = false;
@@ -876,20 +877,19 @@ static void commandPauseScanning(int connfd, char *data, const unsigned dataLeng
 
 static void commandserviceChanged(int connfd, char *data, const unsigned dataLength)
 {
-	t_channel_id uniqueServiceKey = 0;
-
 	sendEmptyResponse(connfd, NULL, 0);
 	if (dataLength != sizeof(sectionsd::commandSetServiceChanged))
-		goto out;
+		return;
 
-	uniqueServiceKey = (((sectionsd::commandSetServiceChanged *)data)->channel_id);
-	uniqueServiceKey &= 0xFFFFFFFFFFFFULL;
+	t_channel_id uniqueServiceKey = (((sectionsd::commandSetServiceChanged *)data)->channel_id);
 
 	xprintf("[sectionsd] commandserviceChanged: Service change to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 
 	static t_channel_id time_trigger_last = 0;
 
-	if (messaging_current_servicekey != uniqueServiceKey) {
+	if (current_channel_id != uniqueServiceKey) {
+		current_channel_id = uniqueServiceKey;
+
 		dvb_time_update = !checkNoDVBTimelist(uniqueServiceKey);
 		dprintf("[sectionsd] commandserviceChanged: DVB time update is %s\n", dvb_time_update ? "allowed" : "blocked!");
 
@@ -904,7 +904,7 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 		unlockEvents();
 
 		writeLockMessaging();
-		messaging_current_servicekey = uniqueServiceKey;
+		messaging_current_servicekey = uniqueServiceKey & 0xFFFFFFFFFFFFULL;
 		messaging_have_CN = 0x00;
 		messaging_got_CN = 0x00;
 		messaging_zap_detected = true;
@@ -926,8 +926,6 @@ static void commandserviceChanged(int connfd, char *data, const unsigned dataLen
 	else
 		dprintf("[sectionsd] commandserviceChanged: no change...\n");
 
-out:
-	//sendEmptyResponse(connfd, NULL, 0);
 	xprintf("[sectionsd] commandserviceChanged: Service changed to " PRINTF_CHANNEL_ID_TYPE "\n\n", uniqueServiceKey);
 }
 
