@@ -257,5 +257,5 @@ bool CLangSelectNotifier::changeNotify(const neutrino_locale_t, void *)
 	//if(found)
 		sectionsd_set_languages(v_languages);
 	
-	return true;
+	return false;
 }
