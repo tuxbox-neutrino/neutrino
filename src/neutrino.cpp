@@ -1884,6 +1884,8 @@ TIMER_START();
 
 	InitTimerdClient();
 
+	g_volume = CVolume::getInstance();
+
 	if (show_startwizard) {
 		hintBox->hide();
 		CStartUpWizard startwizard;
@@ -1903,7 +1905,6 @@ TIMER_START();
 	hdd->exec(NULL, "");
 	delete hdd;
 
-	g_volume = CVolume::getInstance();
 	cCA::GetInstance()->Ready(true);
 	InitZapper();
 
