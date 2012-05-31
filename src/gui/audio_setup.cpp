@@ -214,14 +214,14 @@ CTruVolumeNotifier::CTruVolumeNotifier(CMenuOptionChooser* o1, CMenuOptionChoose
 bool CTruVolumeNotifier::changeNotify(const neutrino_locale_t, void * data)
 {
 	int active = (*(int *)data);
-	
+
 	for (int i = 0; i < 2; i++)
 		toDisable_oj[i]->setActive(active);
-	
+
 	toDisable_nj->setActive(active);
-	
+
 	audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
-  
-   return true;
+
+	return false;
 }
 
