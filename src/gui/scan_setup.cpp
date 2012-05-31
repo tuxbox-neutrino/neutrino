@@ -958,7 +958,7 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		if (r_system == DVB_S) //sat
 			fillSatSelect();
 	}
-	return true;
+	return false;
 }
 
 void CScanSetup::updateManualSettings()
