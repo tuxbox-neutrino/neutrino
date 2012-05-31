@@ -171,8 +171,6 @@ int CRecordSetup::showRecordSetup()
 {
 	//menue init
 
-	RecordingSafetyNotifier = new CRecordingSafetyNotifier;
-	APIDNotifier = new CRecAPIDSettingsNotifier;
 	CMenuWidget* recordingSettings = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_RECORDSETUP);
 
 	//apply settings
@@ -215,8 +213,6 @@ int CRecordSetup::showRecordSetup()
 
 	int res = recordingSettings->exec(NULL, "");
 	delete recordingSettings;
-	delete RecordingSafetyNotifier;
-	delete APIDNotifier;
 	return res;
 }
 
@@ -229,11 +225,11 @@ void CRecordSetup::showRecordTimerSetup(CMenuWidget *menu_timersettings)
 	sprintf(g_settings.record_safety_time_after, "%02d", post/60);
 
 	//start 
-	CStringInput * timerBefore = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, g_settings.record_safety_time_before, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_2,"0123456789 ", RecordingSafetyNotifier);
+	CStringInput * timerBefore = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, g_settings.record_safety_time_before, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE_HINT_2,"0123456789 ", this);
 	CMenuForwarder *fTimerBefore = new CMenuDForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE, true, g_settings.record_safety_time_before, timerBefore);
 
 	//end
-	CStringInput * timerAfter = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, g_settings.record_safety_time_after, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_2,"0123456789 ", RecordingSafetyNotifier);
+	CStringInput * timerAfter = new CStringInput(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, g_settings.record_safety_time_after, 2, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_1, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER_HINT_2,"0123456789 ", this);
 	CMenuForwarder *fTimerAfter = new CMenuDForwarder(LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER, true, g_settings.record_safety_time_after, timerAfter);
 
 	//announce
@@ -258,9 +254,9 @@ void CRecordSetup::showRecordAudioSetup(CMenuWidget *menu_audiosettings)
 	g_settings.recording_audio_pids_ac3 = ( g_settings.recording_audio_pids_default & TIMERD_APIDS_AC3 ) ? 1 : 0 ;
 
 	//audio pids
-	CMenuOptionChooser* aoj1 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &g_settings.recording_audio_pids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, APIDNotifier);
-	CMenuOptionChooser* aoj2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &g_settings.recording_audio_pids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, APIDNotifier);
-	CMenuOptionChooser* aoj3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &g_settings.recording_audio_pids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, APIDNotifier);
+	CMenuOptionChooser* aoj1 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_STD, &g_settings.recording_audio_pids_std, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, this);
+	CMenuOptionChooser* aoj2 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_ALT, &g_settings.recording_audio_pids_alt, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, this);
+	CMenuOptionChooser* aoj3 = new CMenuOptionChooser(LOCALE_RECORDINGMENU_APIDS_AC3, &g_settings.recording_audio_pids_ac3, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true, this);
 
 	menu_audiosettings->addIntroItems(LOCALE_RECORDINGMENU_APIDS);
 	menu_audiosettings->addItem(aoj1);
@@ -283,4 +279,19 @@ void CRecordSetup::showRecordTimeShiftSetup(CMenuWidget *menu_ts)
 		menu_ts->addItem(new CMenuOptionChooser(LOCALE_EXTRA_AUTO_DELETE, &g_settings.auto_delete, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 		menu_ts->addItem(new CMenuOptionChooser(LOCALE_EXTRA_TEMP_TIMESHIFT, &g_settings.temp_timeshift, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	}
+}
+
+bool CRecordSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
+{
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_BEFORE) ||
+			ARE_LOCALES_EQUAL(OptionName, LOCALE_TIMERSETTINGS_RECORD_SAFETY_TIME_AFTER)) {
+		g_Timerd->setRecordingSafety(atoi(g_settings.record_safety_time_before)*60, atoi(g_settings.record_safety_time_after)*60);
+	} else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_STD) ||
+			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_ALT) ||
+			ARE_LOCALES_EQUAL(OptionName, LOCALE_RECORDINGMENU_APIDS_AC3)) {
+		g_settings.recording_audio_pids_default = ( (g_settings.recording_audio_pids_std ? TIMERD_APIDS_STD : 0) |
+				(g_settings.recording_audio_pids_alt ? TIMERD_APIDS_ALT : 0) |
+				(g_settings.recording_audio_pids_ac3 ? TIMERD_APIDS_AC3 : 0));
+	}
+	return false;
 }

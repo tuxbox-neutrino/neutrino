@@ -36,12 +36,10 @@
 
 #include <string>
 
-class CRecordSetup : public CMenuTarget
+class CRecordSetup : public CMenuTarget, public CChangeObserver
 {
 	private:
 		int width;
-		CRecordingSafetyNotifier *RecordingSafetyNotifier;
-		CRecAPIDSettingsNotifier * APIDNotifier;
 
 		int showRecordSetup();
 		void showRecordTimerSetup(CMenuWidget *menu_timersettings);
@@ -52,7 +50,7 @@ class CRecordSetup : public CMenuTarget
 		CRecordSetup();
 		~CRecordSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
-
 
 #endif
