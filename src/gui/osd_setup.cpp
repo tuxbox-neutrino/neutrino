@@ -57,6 +57,8 @@
 
 #include <system/debug.h>
 
+extern CRemoteControl * g_RemoteControl;
+
 static CTimingSettingsNotifier timingsettingsnotifier;
 
 extern const char * locale_real_names[];
@@ -68,7 +70,6 @@ COsdSetup::COsdSetup(bool wizard_mode)
 	colorSetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
 
 	fontsizenotifier = new CFontSizeNotifier;
-	radiotextNotifier = NULL;
 	osd_menu = NULL;
 
 	is_wizard = wizard_mode;
@@ -385,8 +386,6 @@ int COsdSetup::showOsdSetup()
 	osd_menu = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP);
 	osd_menu->setWizardMode(is_wizard);
 
- 	radiotextNotifier = new CRadiotextNotifier();
-
 	//menu colors
 	CMenuWidget osd_menu_colors(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_MENUCOLORS);
 
@@ -427,8 +426,6 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem( new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::RC_3));
 
 	//monitor
- 	//CScreenPresetNotifier * presetNotify = new CScreenPresetNotifier();
-	//osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, presetNotify));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_OSD_PRESET, &g_settings.screen_preset, OSD_PRESET_OPTIONS, OSD_PRESET_OPTIONS_COUNT, true, this));
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
@@ -446,7 +443,6 @@ int COsdSetup::showOsdSetup()
 	int res = osd_menu->exec(NULL, "");
 
 	delete osd_menu;
-	delete radiotextNotifier;
 	return res;
 }
 
@@ -624,7 +620,7 @@ void COsdSetup::showOsdInfobarSetup(CMenuWidget *menu_infobar)
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW_TUNER, &g_settings.infobar_show_tuner, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_SHOW, &g_settings.infobar_show, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS, &g_settings.colored_events_infobar, OPTIONS_COLORED_EVENTS_OPTIONS, OPTIONS_COLORED_EVENTS_OPTION_COUNT, true));
- 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, radiotextNotifier));
+ 	menu_infobar->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_RADIOTEXT, &g_settings.radiotext_enable, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 }
 
 //channellist
@@ -651,7 +647,7 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		if (g_InfoViewer == NULL)
 			g_InfoViewer = new CInfoViewer;
 		g_InfoViewer->changePB();
-		return true;
+		return false;
 	}
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_COLORMENU_OSD_PRESET)) {
 		int preset = * (int *) data;
@@ -671,6 +667,19 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 	    (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_ROUNDED_CORNERS))) {
 		CVolume::getInstance()->Init();
 		return true;
+	}
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_RADIOTEXT)) {
+		if (g_settings.radiotext_enable) {
+			if (g_Radiotext == NULL)
+				g_Radiotext = new CRadioText;
+			if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
+				g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
+		} else {
+			if (g_Radiotext)
+				g_Radiotext->radiotext_stop();
+			delete g_Radiotext;
+			g_Radiotext = NULL;
+		}
 	}
 	return false;
 }

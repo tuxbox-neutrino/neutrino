@@ -45,7 +45,6 @@ class COsdSetup : public CMenuTarget, public CChangeObserver
 	private:
 		CColorSetupNotifier *colorSetupNotifier;
 		CFontSizeNotifier *fontsizenotifier;
-		CRadiotextNotifier *radiotextNotifier;
 		CMenuWidget *osd_menu;
 
 		int width;
