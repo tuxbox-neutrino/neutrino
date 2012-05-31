@@ -603,7 +603,7 @@ bool CNetworkSetup::changeNotify(const neutrino_locale_t locale, void * Data)
 		for(int i = 0; i < ecnt; i++)
 			dhcpDisable[i]->setActive(CNetworkConfig::getInstance()->inet_static);
 	}
-	return true;
+	return false;
 }
 
 //sets menu mode to "wizard" or "default"
