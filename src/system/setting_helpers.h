@@ -64,12 +64,6 @@ class COnOffNotifier : public CChangeObserver
                 bool changeNotify(const neutrino_locale_t, void *Data);
 };
 
-class CRecordingSafetyNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
 class CMiscNotifier : public CChangeObserver
 {
 	private:
@@ -77,18 +71,6 @@ class CMiscNotifier : public CChangeObserver
 	public:
 		CMiscNotifier( CMenuItem*, CMenuItem* );
 		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-class CLcdNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-class CPauseSectionsdNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void * Data);
 };
 
 class CSectionsdConfigNotifier : public CChangeObserver
@@ -120,18 +102,6 @@ class CAudioSetupNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
 };
 
-class CKeySetupNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-class CIPChangeNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void * Data);
-};
-
 class CTimingSettingsNotifier : public CChangeObserver
 {
 	public:
@@ -144,19 +114,12 @@ class CFontSizeNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t, void *);
 };
 
-class CRecAPIDSettingsNotifier : public CChangeObserver
-{
-	public:
-	bool changeNotify(const neutrino_locale_t OptionName, void*);
-};
-
 class CSubtitleChangeExec : public CMenuTarget
 {
 	public:
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-void showSubchan(const std::string & subChannelName);
 class CNVODChangeExec : public CMenuTarget
 {
 	public:
@@ -176,11 +139,6 @@ class CMoviePluginChangeExec : public CMenuTarget
 };
 
 class COnekeyPluginChangeExec : public CMenuTarget
-{
-	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
-class CUCodeCheckExec : public CMenuTarget
 {
 	public:
 		int exec(CMenuTarget* parent, const std::string & actionKey);
@@ -212,23 +170,11 @@ class CCpuFreqNotifier : public CChangeObserver
 public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
-#if 0
-class CScreenPresetNotifier : public CChangeObserver
-{
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
-};
-#endif
+
 class CAutoModeNotifier : public CChangeObserver
 {
 public:
         bool changeNotify(const neutrino_locale_t, void * data);
-};
-
-class CRadiotextNotifier : public CChangeObserver
-{
-	public:
-		 bool changeNotify(const neutrino_locale_t, void * Data);
 };
 
 #endif

@@ -92,6 +92,7 @@ extern cDemux *pcrDemux;
 
 extern "C" int pinghost( const char *hostname );
 
+// gui/moviebrowser.cpp
 COnOffNotifier::COnOffNotifier( CMenuItem* a1,CMenuItem* a2,CMenuItem* a3,CMenuItem* a4,CMenuItem* a5)
 {
         number = 0;
@@ -117,12 +118,6 @@ bool COnOffNotifier::changeNotify(const neutrino_locale_t, void *Data)
    return true;
 }
 
-bool CRecordingSafetyNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	g_Timerd->setRecordingSafety(atoi(g_settings.record_safety_time_before)*60, atoi(g_settings.record_safety_time_after)*60);
-   return true;
-}
-
 //used in gui/miscsettings_menu.cpp
 CMiscNotifier::CMiscNotifier( CMenuItem* i1, CMenuItem* i2)
 {
@@ -136,45 +131,10 @@ bool CMiscNotifier::changeNotify(const neutrino_locale_t, void *)
    return true;
 }
 
-bool CLcdNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	CVFD::getInstance()->setlcdparameter();
-	//CLCD::getInstance()->setAutoDimm(g_settings.lcd_setting[SNeutrinoSettings::LCD_AUTODIMM]);
-	return true;
-}
-
-bool CPauseSectionsdNotifier::changeNotify(const neutrino_locale_t, void * Data)
-{
-	g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);
-
-	return true;
-}
-
 bool CSectionsdConfigNotifier::changeNotify(const neutrino_locale_t, void *)
 {
         CNeutrinoApp::getInstance()->SendSectionsdConfig();
         return true;
-}
-
-bool CRadiotextNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	if (g_settings.radiotext_enable)
-	{
-		if (g_Radiotext == NULL)
-			g_Radiotext = new CRadioText;
-		if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
-			g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
-	}
-	else
-	{
-		// stop radiotext PES decoding
-		if (g_Radiotext)
-			g_Radiotext->radiotext_stop();
-		delete g_Radiotext;
-		g_Radiotext = NULL;
-	}
-
-	return true;
 }
 
 bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
@@ -290,24 +250,6 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 	return true;
 }
 
-//FIXME
-#define IOC_IR_SET_F_DELAY      _IOW(0xDD,  5, unsigned int)            /* set the delay time before the first repetition */
-#define IOC_IR_SET_X_DELAY      _IOW(0xDD,  6, unsigned int)            /* set the delay time between all other repetitions */
-//used ./gui/keybind_setup.cpp
-bool CKeySetupNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	unsigned int fdelay = atoi(g_settings.repeat_blocker);
-	unsigned int xdelay = atoi(g_settings.repeat_genericblocker);
-
-	g_RCInput->repeat_block = fdelay * 1000;
-	g_RCInput->repeat_block_generic = xdelay * 1000;
-
-	int fd = g_RCInput->getFileHandle();
-	ioctl(fd, IOC_IR_SET_F_DELAY, fdelay);
-	ioctl(fd, IOC_IR_SET_X_DELAY, xdelay);
-	return false;
-}
-
 // used in ./gui/osd_setup.cpp:
 bool CTimingSettingsNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
 {
@@ -335,14 +277,6 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CVolume::getInstance()->Init();
 	/* recalculate infoclock */
 	CInfoClock::getInstance()->Init();
-	return true;
-}
-
-bool CRecAPIDSettingsNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	g_settings.recording_audio_pids_default = ( (g_settings.recording_audio_pids_std ? TIMERD_APIDS_STD : 0) |
-						  (g_settings.recording_audio_pids_alt ? TIMERD_APIDS_ALT : 0) |
-						  (g_settings.recording_audio_pids_ac3 ? TIMERD_APIDS_AC3 : 0));
 	return true;
 }
 
@@ -441,40 +375,6 @@ int COnekeyPluginChangeExec::exec(CMenuTarget* parent, const std::string & actio
 			g_settings.onekey_plugin=g_PluginList->getName(sel);
 	}
 	return menu_return::RETURN_EXIT;
-}
-
-int CUCodeCheckExec::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
-{
-#if 0
-	std::string text;
-	char res[60];
-
-	text = g_Locale->getText(LOCALE_UCODECHECK_AVIA500);
-	text += ": ";
-	checkFile((char *) UCODEDIR "/avia500.ux", (char*) &res);
-	text += res;
-	text += '\n';
-	text += g_Locale->getText(LOCALE_UCODECHECK_AVIA600);
-	text += ": ";
-	checkFile(UCODEDIR "/avia600.ux", (char*) &res);
-	text += res;
-	text += '\n';
-	text += g_Locale->getText(LOCALE_UCODECHECK_UCODE);
-	text += ": ";
-	checkFile(UCODEDIR "/ucode.bin", (char*) &res);
-	if (strcmp("not found", res) == 0)
-		text += "ucode_0014 (built-in)";
-	else
-		text += res;
-	text += '\n';
-	text += g_Locale->getText(LOCALE_UCODECHECK_CAM_ALPHA);
-	text += ": ";
-	checkFile(UCODEDIR "/cam-alpha.bin", (char*) &res);
-	text += res;
-
-	ShowMsgUTF(LOCALE_UCODECHECK_HEAD, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
-#endif
-	return 1;
 }
 
 long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
@@ -649,21 +549,6 @@ extern cCpuFreqManager * cpuFreq;
 	cpuFreq->SetCpuFreq(freq);
 	return true;
 }
-
-#if 0
-bool CScreenPresetNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
-{
-	int preset = * (int *) data;
-printf("CScreenPresetNotifier::changeNotify preset %d (setting %d)\n", preset, g_settings.screen_preset);
-
-	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
-	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
-	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
-	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
-	CFrameBuffer::getInstance()->Clear();
-	return true;
-}
-#endif
 
 extern CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[];
 bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * /* data */)
