@@ -115,7 +115,7 @@ bool COnOffNotifier::changeNotify(const neutrino_locale_t, void *Data)
       for (int i=0; i<number ; i++)
         toDisable[i]->setActive(true);
    }
-   return true;
+   return false;
 }
 
 //used in gui/miscsettings_menu.cpp
@@ -128,13 +128,13 @@ bool CMiscNotifier::changeNotify(const neutrino_locale_t, void *)
 {
    toDisable[0]->setActive(!g_settings.shutdown_real);
    toDisable[1]->setActive(!g_settings.shutdown_real);
-   return true;
+   return false;
 }
 
 bool CSectionsdConfigNotifier::changeNotify(const neutrino_locale_t, void *)
 {
         CNeutrinoApp::getInstance()->SendSectionsdConfig();
-        return true;
+        return false;
 }
 
 bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
@@ -474,7 +474,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 		setenv("TZ", cmd.c_str(), 1);
 	}
 
-	return true;
+	return false;
 }
 
 extern Zapit_config zapitCfg;
@@ -537,7 +537,7 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 		perror("IOC_CONTROL_PWM_SPEED");
 		return false;
 	}
-	return true;
+	return false;
 }
 
 bool CCpuFreqNotifier::changeNotify(const neutrino_locale_t, void * data)
@@ -549,7 +549,7 @@ extern cCpuFreqManager * cpuFreq;
 	freq *= 1000*1000;
 
 	cpuFreq->SetCpuFreq(freq);
-	return true;
+	return false;
 }
 
 extern CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[];
@@ -564,7 +564,7 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
 	}
 	videoDecoder->SetAutoModes(modes);
-	return true;
+	return false;
 }
 
 int safe_mkdir(char * path)
