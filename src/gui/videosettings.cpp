@@ -299,12 +299,13 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 	}
 }
 
-bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *data)
+bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
+#if 0
 	int val = 0;
 	if(data)
 		val = * (int *) data;
-
+#endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_ANALOG_MODE))
 	{
 		videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
@@ -336,7 +337,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *data
 	{
 		setupVideoSystem(true/*ask*/);
 	}
-#if 1
+#if 0
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
 	{
 		videoDecoder->SetControl(VIDEO_CONTROL_CONTRAST, val);
@@ -358,7 +359,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *data
 		videoDecoder->SetControl(VIDEO_CONTROL_HUE, val);
 	}
 #endif
-	return true;
+	return false;
 }
 
 
