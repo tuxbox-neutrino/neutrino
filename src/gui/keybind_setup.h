@@ -39,7 +39,7 @@
 
 #include <string>
 
-class CKeybindSetup : public CMenuTarget
+class CKeybindSetup : public CMenuTarget, public CChangeObserver
 {
 	public:	
 		enum keynames 
@@ -82,7 +82,6 @@ class CKeybindSetup : public CMenuTarget
 
 	private:
 		CFrameBuffer *frameBuffer;
-		CKeySetupNotifier      *keySetupNotifier;
 		CKeyChooser *keychooser[KEYBINDS_COUNT];
 		int width;
 
@@ -97,8 +96,8 @@ class CKeybindSetup : public CMenuTarget
 		CKeybindSetup();
 		~CKeybindSetup();
 		int exec(CMenuTarget* parent, const std::string & actionKey);
+		bool changeNotify(const neutrino_locale_t OptionName, void * data);
 };
-
 
 #endif
 		

@@ -68,15 +68,13 @@
 
 CKeybindSetup::CKeybindSetup()
 {
-	keySetupNotifier = new CKeySetupNotifier;
-	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+	changeNotify(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, NULL);
 
 	width = w_max (40, 10);
 }
 
 CKeybindSetup::~CKeybindSetup()
 {
-	delete keySetupNotifier;
 }
 
 int CKeybindSetup::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -218,10 +216,8 @@ int CKeybindSetup::showKeySetup()
 	keySettings->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVEKEYS, true, NULL, this, "savekeys", CRCInput::convertDigitToKey(shortcut++)));
 
 	//rc tuning
-	CStringInput keySettings_repeat_genericblocker(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, g_settings.repeat_genericblocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", keySetupNotifier);
-	CStringInput keySettings_repeatBlocker(LOCALE_KEYBINDINGMENU_REPEATBLOCK, g_settings.repeat_blocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", keySetupNotifier);
-
-	keySetupNotifier->changeNotify(NONEXISTANT_LOCALE, NULL);
+	CStringInput keySettings_repeat_genericblocker(LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC, g_settings.repeat_genericblocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", this);
+	CStringInput keySettings_repeatBlocker(LOCALE_KEYBINDINGMENU_REPEATBLOCK, g_settings.repeat_blocker, 3, LOCALE_REPEATBLOCKER_HINT_1, LOCALE_REPEATBLOCKER_HINT_2, "0123456789 ", this);
 
 	keySettings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_KEYBINDINGMENU_RC));
 	if (RC_HW_SELECT)
@@ -323,3 +319,19 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 		bindSettings_mplayer->addItem(new CMenuDForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]));
 }
 
+bool CKeybindSetup::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
+{
+	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCKGENERIC) ||
+			ARE_LOCALES_EQUAL(OptionName, LOCALE_KEYBINDINGMENU_REPEATBLOCK)) {
+		unsigned int fdelay = atoi(g_settings.repeat_blocker);
+		unsigned int xdelay = atoi(g_settings.repeat_genericblocker);
+
+		g_RCInput->repeat_block = fdelay * 1000;
+		g_RCInput->repeat_block_generic = xdelay * 1000;
+
+		int fd = g_RCInput->getFileHandle();
+		ioctl(fd, IOC_IR_SET_F_DELAY, fdelay);
+		ioctl(fd, IOC_IR_SET_X_DELAY, xdelay);
+	}
+	return false;
+}
