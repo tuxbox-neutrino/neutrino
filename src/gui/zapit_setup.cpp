@@ -86,7 +86,7 @@ bool CZapitSetup::changeNotify(const neutrino_locale_t OptionName, void *)
 		zapit2->setActive(!g_settings.uselastchannel);
 	}
 
-	return true;
+	return false;
 }
 
 //select menu
