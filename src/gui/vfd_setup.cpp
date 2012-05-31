@@ -193,5 +193,5 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data *
 	{
 		CVFD::getInstance()->setled();
 	}
-	return true;
+	return false;
 }
