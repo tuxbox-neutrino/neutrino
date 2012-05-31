@@ -131,6 +131,6 @@ bool CCECSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/
 		videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
 	}
 
-	return true;
+	return false;
 }
 
