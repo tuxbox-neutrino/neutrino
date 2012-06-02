@@ -79,10 +79,12 @@ CInfoViewerBB::CInfoViewerBB()
 	scrambledNoSig		= false;
 	scrambledNoSigSave	= false;
 	scrambledT		= 0;
+#if 0
 	if(!scrambledT) {
 		pthread_create(&scrambledT, NULL, scrambledThread, (void*) this) ;
 		pthread_detach(scrambledT);
 	}
+#endif
 	Init();
 }
 
@@ -366,6 +368,7 @@ void CInfoViewerBB::paintshowButtonBar()
 		tmp_bbButtonInfoText[i] = "";
 	}
 	g_InfoViewer->sec_timer_id = g_RCInput->addTimer(1*1000*1000, false);
+
 	if (g_settings.casystem_display < 2)
 		paintCA_bar(0,0);
 
@@ -381,7 +384,11 @@ void CInfoViewerBB::paintshowButtonBar()
 	showIcon_VTXT();
 	showIcon_DD();
 	showIcon_16_9();
+#if 0
 	scrambledCheck(true);
+#endif
+	showIcon_CA_Status(0);
+	showIcon_Resolution();
 	showIcon_Tuner();
 	showSysfsHdd();
 }
@@ -441,7 +448,7 @@ void CInfoViewerBB::showIcon_16_9()
 	if (!is_visible)
 		return;
 	if ((g_InfoViewer->aspectRatio == 0) || ( g_RemoteControl->current_PIDs.PIDs.vpid == 0 ) || (g_InfoViewer->aspectRatio != videoDecoder->getAspectRatio())) {
-		if ( g_RemoteControl->current_PIDs.PIDs.vpid > 0 ) {
+		if (g_InfoViewer->chanready && g_RemoteControl->current_PIDs.PIDs.vpid > 0 ) {
 			g_InfoViewer->aspectRatio = videoDecoder->getAspectRatio();
 		}
 		else
@@ -456,7 +463,12 @@ void CInfoViewerBB::showIcon_Resolution()
 	if ((!is_visible) || (g_settings.infobar_show_res == 2)) //show resolution icon is off
 		return;
 	const char *icon_name = NULL;
-	if ((scrambledNoSig) || ((!fta) && (scrambledErr))) {
+#if 0
+	if ((scrambledNoSig) || ((!fta) && (scrambledErr)))
+#else
+	if (!g_InfoViewer->chanready || videoDecoder->getBlank())
+#endif
+	{
 		icon_name = NEUTRINO_ICON_RESOLUTION_000;
 	} else {
 		int xres, yres, framerate;
@@ -635,25 +647,24 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 			}
 		}
 	}
-	if (( caid & 0xFF00 ) == 0x1700)
-		caid = 0x0600;
+	caid &= 0xFF00;
 
-	if (icon_offset[icon_map[( caid & 0xFF00 )].first] == 0)
+	if (icon_offset[icon_map[caid].first] == 0)
 		return;
 
 	if (g_settings.casystem_display == 0) {
-		px = endx - (icon_offset[icon_map[( caid & 0xFF00 )].first] - icon_space );
+		px = endx - (icon_offset[icon_map[caid].first] - icon_space );
 	} else {
-		icon_space_offset += icon_sizeW[icon_map[( caid & 0xFF00 )].first];
+		icon_space_offset += icon_sizeW[icon_map[caid].first];
 		px = endx - icon_space_offset;
 		icon_space_offset += 4;
 	}
 
 	if (px) {
-		snprintf(buf, sizeof(buf), "%s_%s", icon_map[( caid & 0xFF00 )].second, icon);
+		snprintf(buf, sizeof(buf), "%s_%s", icon_map[caid].second, icon);
 		if ((px >= (endx-8)) || (px <= 0))
 			printf("#####[%s:%d] Error paint icon %s, px: %d,  py: %d, endx: %d, icon_offset: %d\n", 
-				__FUNCTION__, __LINE__, buf, px, py, endx, icon_offset[icon_map[( caid & 0xFF00 )].first]);
+				__FUNCTION__, __LINE__, buf, px, py, endx, icon_offset[icon_map[caid].first]);
 		else
 			frameBuffer->paintIcon(buf, px, py);
 	}
@@ -662,9 +673,25 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
 	int caids[] = { 0x600, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
+	const char * white = (char *) "white";
+	const char * yellow = (char *) "yellow";
+	int icon_space_offset = 0;
 
 	if (g_settings.casystem_display == 3)
 		return;
+
+	if(!g_InfoViewer->chanready) {
+		if (g_settings.casystem_display == 2) {
+			fta = true;
+			showOne_CAIcon();
+		}
+		else if(g_settings.casystem_display == 0) {
+			for (int i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
+				paint_ca_icons(caids[i], (char *) white, icon_space_offset);
+			}
+		}
+		return;
+	}
 
 	CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
 	if(!channel)
@@ -676,15 +703,14 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 		return;
 	}
 
-	const char * white = (char *) "white";
-	const char * yellow = (char *) "yellow";
-	static int icon_space_offset = 0;
-
 	if(!notfirst) {
+#if 0
+		static int icon_space_offset = 0;
 		if ((g_settings.casystem_display == 1) && (icon_space_offset)) {
 			paintCA_bar(0,icon_space_offset);
 			icon_space_offset = 0;
 		}
+#endif
 		for (int i = 0; i < (int)(sizeof(caids)/sizeof(int)); i++) {
 			bool found = false;
 			for(casys_map_iterator_t it = channel->camap.begin(); it != channel->camap.end(); ++it) {
