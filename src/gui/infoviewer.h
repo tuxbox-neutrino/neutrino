@@ -162,7 +162,7 @@ class CInfoViewer
 	CSectionsdClient::CurrentNextInfo getEPG(const t_channel_id for_channel_id, CSectionsdClient::CurrentNextInfo &info);
 	
 	void	showSubchan();
-	void	Set_CA_Status(int Status);
+	//void	Set_CA_Status(int Status);
 	
 	int     handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data);
 	void    clearVirtualZapMode() {virtual_zap_mode = false;}

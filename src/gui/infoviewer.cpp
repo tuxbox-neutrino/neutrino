@@ -787,7 +787,7 @@ void CInfoViewer::loop(bool show_dot)
 				showRadiotext();
 
 			infoViewerBB->showIcon_16_9();
-			infoViewerBB->showIcon_CA_Status(0);
+			//infoViewerBB->showIcon_CA_Status(0);
 			infoViewerBB->showIcon_Resolution();
 		} else if ((g_settings.mode_left_right_key_tv == SNeutrinoSettings::VZAP) && ((msg == CRCInput::RC_right) || (msg == CRCInput::RC_left ))) {
 			virtual_zap_mode = true;
@@ -1143,7 +1143,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 			if (is_visible && showButtonBar) {
 				infoViewerBB->showIcon_VTXT();
 				infoViewerBB->showIcon_SubT();
-				infoViewerBB->showIcon_CA_Status(0);
+				//infoViewerBB->showIcon_CA_Status(0);
 				infoViewerBB->showIcon_Resolution();
 				infoViewerBB->showIcon_Tuner();
 			}
@@ -1156,7 +1156,9 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_ID) {
 		//chanready = 1;
 		showSNR ();
-		Set_CA_Status (data);
+		if (is_visible && showButtonBar)
+			infoViewerBB->showIcon_CA_Status(0);
+		//Set_CA_Status (data);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_TIMER) {
 		if (data == fader.GetTimer()) {
@@ -1236,7 +1238,9 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 	} else if (msg == NeutrinoMessages::EVT_TIMESET) {
 		gotTime = true;
 		return messages_return::handled;
-	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_CLEAR) {
+	}
+#if 0
+	else if (msg == NeutrinoMessages::EVT_ZAP_CA_CLEAR) {
 		Set_CA_Status (false);
 		return messages_return::handled;
 	} else if (msg == NeutrinoMessages::EVT_ZAP_CA_LOCK) {
@@ -1246,7 +1250,7 @@ int CInfoViewer::handleMsg (const neutrino_msg_t msg, neutrino_msg_data_t data)
 		Set_CA_Status (false);
 		return messages_return::handled;
 	}
-
+#endif
 	return messages_return::unhandled;
 }
 
@@ -1707,12 +1711,13 @@ void CInfoViewer::killTitle()
 	showButtonBar = false;
 }
 
+#if 0
 void CInfoViewer::Set_CA_Status (int /*Status*/)
 {
 	if (is_visible && showButtonBar)
 		infoViewerBB->showIcon_CA_Status(1);
 }
-
+#endif
 /******************************************************************************
 returns mode of painted channel logo,
 0 = no logo painted
