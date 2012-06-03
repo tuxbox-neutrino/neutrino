@@ -190,6 +190,9 @@ CVolume        * g_volume;
 bool parentallocked = false;
 static char **global_argv;
 
+/* hack until we have real platform abstraction... */
+static bool can_deepstandby = false;
+
 extern const char * locale_real_names[]; /* #include <system/locals_intern.h> */
 
 // USERMENU
@@ -214,6 +217,13 @@ static void initGlobals(void)
 	g_CamHandler 	= NULL;
 	g_Radiotext     = NULL;
 	g_volume	= NULL;
+
+#if HAVE_SPARK_HARDWARE
+	/* spark has revision == 1 like tripledragon for now */
+	can_deepstandby = true;
+#else
+	can_deepstandby = (cs_get_revision() > 7);
+#endif
 }
 
 /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -410,7 +420,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
         strcpy(g_settings.shutdown_count, configfile.getString("shutdown_count","0").c_str());
 
 	strcpy(g_settings.shutdown_min, "000");
-	if (cs_get_revision() > 7 || cs_get_revision() == 1)
+	if (can_deepstandby || cs_get_revision() == 1)
 		strcpy(g_settings.shutdown_min, configfile.getString("shutdown_min","180").c_str());
 
 	g_settings.infobar_sat_display   = configfile.getBool("infobar_sat_display"  , true );
@@ -1936,7 +1946,7 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
 	RealRun(personalize.getWidget(0)/**main**/);
 
-	ExitRun(true, (cs_get_revision() > 7));
+	ExitRun(true, can_deepstandby);
 
 	return 0;
 }
@@ -2760,11 +2770,11 @@ _repeat:
 				return messages_return::handled;
 #endif
 				printf("NeutrinoMessages::SLEEPTIMER: shutdown\n");
-				ExitRun(true, (cs_get_revision() > 7));
+				ExitRun(true, can_deepstandby);
 			}
 		}
 		if(g_settings.shutdown_real)
-			ExitRun(true, (cs_get_revision() > 7));
+			ExitRun(true, can_deepstandby);
 		else
 			standbyMode( true );
 		return messages_return::handled;
@@ -2802,7 +2812,7 @@ _repeat:
 	}
 	else if( msg == NeutrinoMessages::SHUTDOWN ) {
 		if(!skipShutdownTimer) {
-			ExitRun(true, (cs_get_revision() > 7));
+			ExitRun(true, can_deepstandby);
 		}
 		else {
 			skipShutdownTimer=false;
@@ -2935,6 +2945,7 @@ extern bool timer_is_rec;//timermanager.cpp
 
 void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 {
+	printf("[neutrino] %s retcode: %d can_deep: %d\n", __func__, retcode, can_deepstandby);
 	bool do_shutdown = true;
 
 	CRecordManager::getInstance()->StopAutoRecord();
@@ -3109,6 +3120,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//CVFD::getInstance()->ShowText(g_Locale->getText(LOCALE_MAINMENU_REBOOT));
 			stop_video();
 
+			printf("[neutrino] This is the end. exiting with code %d\n", retcode);
 #if 0 /* FIXME this next hack to test, until we find real crash on exit reason */
 			system("/etc/init.d/rcK");
 			system("/bin/sync");
