@@ -175,6 +175,22 @@ class CMenuSeparator : public CMenuItem
 		void setString(const std::string& text);
 };
 
+class CNonLocalizedMenuSeparator : public CMenuSeparator
+{
+	const char * the_text;
+
+public:
+	CNonLocalizedMenuSeparator(const char * ptext, const neutrino_locale_t Text1) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text1)
+	{
+		the_text = ptext;
+	}
+
+	virtual const char * getString(void)
+	{
+		return the_text;
+	}
+};
+
 class CMenuForwarder : public CMenuItem
 {
 	const char *        option;
