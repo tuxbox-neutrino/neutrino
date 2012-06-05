@@ -577,7 +577,7 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 			}
 		}
 	}
-	return true;
+	return false;
 }
 
 //shows a short help message
@@ -912,7 +912,7 @@ bool CUserMenuNotifier::changeNotify(const neutrino_locale_t, void *)
 	toDisable[0]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON]);
 	toDisable[1]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON]);
    
-   return true;
+   return false;
 }
 
 //helper class to enable/disable pin setup
