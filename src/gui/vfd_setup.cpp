@@ -76,7 +76,7 @@ int CVfdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 		CVFD::getInstance()->setBrightness(brightness);
 		CVFD::getInstance()->setBrightnessStandby(brightnessstandby);
 		CVFD::getInstance()->setBrightnessDeepStandby(brightnessdeepstandby);
-		return menu_return::RETURN_REPAINT;;
+		return menu_return::RETURN_REPAINT;
 	}
 
 	int res = showSetup();
