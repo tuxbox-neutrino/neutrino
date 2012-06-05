@@ -1548,7 +1548,7 @@ bool CEventsThread::addEvents()
 	dprintf("[%s] adding %d events (begin)\n", name.c_str(), eit.events().size());
 	time_t zeit = time(NULL);
 
-	for (SIevents::iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
+	for (SIevents::const_iterator e = eit.events().begin(); e != eit.events().end(); ++e) {
 		if (!(e->times.empty())) {
 			if ( ( e->times.begin()->startzeit < zeit + secondsToCache ) &&
 					( ( e->times.begin()->startzeit + (long)e->times.begin()->dauer ) > zeit - oldEventsAre ) )

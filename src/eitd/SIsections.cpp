@@ -68,7 +68,8 @@ void SIsectionEIT::parse(void)
 		e.version = version;
 
 		e.parse(event);
-		evts.insert(e);
+		//evts.insert(e);
+		evts.push_back(e);
 	}
 	parsed = 1;
 }
@@ -106,7 +107,8 @@ void SIsectionEIT::parse(void)
 		e.version = version_number;
 		descriptors_loop_length = sizeof(struct eit_event) + ((evt->descriptors_loop_length_hi << 8) | evt->descriptors_loop_length_lo);
 		e.parseDescriptors(actPos, min((unsigned)(bufEnd - actPos), descriptors_loop_length));
-		evts.insert(e);
+		//evts.insert(e);
+		evts.push_back(e);
 		actPos += descriptors_loop_length;
 	}
 	parsed = 1;

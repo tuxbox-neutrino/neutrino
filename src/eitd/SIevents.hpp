@@ -431,7 +431,8 @@ class SIevent
 		void dumpSmall(void) const; // dumps the event to stdout (not all information)
 };
 
-typedef std::set <SIevent, std::less<SIevent> > SIevents;
+//typedef std::set <SIevent, std::less<SIevent> > SIevents;
+typedef std::vector <SIevent> SIevents;
 
 // Fuer for_each
 struct printSIevent : public std::unary_function<SIevent, void>
