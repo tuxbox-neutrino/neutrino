@@ -42,7 +42,7 @@
 #include "dmx.h"
 #include "debug.h"
 
-#define DEBUG_MUTEX 1
+//#define DEBUG_MUTEX 1
 //#define DEBUG_DEMUX 1 // debug start/close/change
 //#define DEBUG_CACHED_SECTIONS 1
 //#define DEBUG_COMPLETE_SECTIONS 1
@@ -120,7 +120,7 @@ void DMX::closefd(void)
 #endif
 	if (isOpen())
 	{
-		dmx->Close();
+		dmx->Stop();
 		fd = -1;
 	}
 }
@@ -484,8 +484,8 @@ int DMX::immediate_start(void)
 
 	if(dmx == NULL) {
 		dmx = new cDemux(dmx_num);
+		dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
 	}
-	dmx->Open(DMX_PSI_CHANNEL, NULL, dmxBufferSizeInKB*1024UL);
 	fd = 1;
 
 	/* setfilter() only if this is no dummy filter... */
