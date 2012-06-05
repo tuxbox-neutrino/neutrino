@@ -1456,7 +1456,23 @@ int CMenuOptionChooser::getWidth(void)
 CMenuOptionStringChooser::CMenuOptionStringChooser(const neutrino_locale_t OptionName, char* OptionValue, bool Active, CChangeObserver* Observ, const neutrino_msg_t DirectKey, const std::string & IconName, bool Pulldown)
 {
 	height      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
-	optionName  = OptionName;
+	optionNameString  = g_Locale->getText(OptionName);
+	optionName        = OptionName;
+	active      = Active;
+	optionValue = OptionValue;
+	observ      = Observ;
+
+	directKey         = DirectKey;
+	iconName          = IconName;
+	can_arrow = true;
+	pulldown = Pulldown;
+}
+
+CMenuOptionStringChooser::CMenuOptionStringChooser(const char* OptionName, char* OptionValue, bool Active, CChangeObserver* Observ, const neutrino_msg_t DirectKey, const std::string & IconName, bool Pulldown)
+{
+	height      = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	optionNameString  = OptionName;
+	optionName        = NONEXISTANT_LOCALE;
 	active      = Active;
 	optionValue = OptionValue;
 	observ      = Observ;
@@ -1495,7 +1511,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 		if (parent)
 			parent->hide();
 
-		CMenuWidget* menu = new CMenuWidget(optionName, NEUTRINO_ICON_SETTINGS);
+		CMenuWidget* menu = new CMenuWidget(optionNameString.c_str(), NEUTRINO_ICON_SETTINGS);
 		menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 		//if(parent) menu->move(20, 0);
 		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
@@ -1544,7 +1560,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 
 int CMenuOptionStringChooser::paint( bool selected )
 {
-	const char * l_optionName = g_Locale->getText(optionName);
+	const char * l_optionName = optionNameString.c_str();
 	
 	//paint item
 	prepareItem(selected, height);
