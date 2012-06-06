@@ -358,7 +358,6 @@ extra.latitude Breitengrad
 extra.loadconfig Neutrino-Einstellungen: Laden von
 extra.loadkeys Lade Tastenbelegung von
 extra.lodirection Längengrad-Ausrichtung
-extra.logo Logonummer
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
@@ -369,8 +368,6 @@ extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
 extra.saveconfig Neutrino-Einstellungen: Sichern als
 extra.savekeys Speichere Tastenbelegung als
-extra.scan_fast Schnell
-extra.scan_full Total
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus Kanal
@@ -400,11 +397,9 @@ extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout (1=10ms)
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
-extra.zapit_menu Zapit-Einstellungen
 extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
-extra.zapit_write_names Schreibe Kanalname
 fan_speed CPU-Lüftergeschwindigkeit
 favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment...
 favorites.bouquetname Meine Favoriten
@@ -1023,7 +1018,6 @@ personalize.button_red Rot
 personalize.button_yellow Gelb
 personalize.disabled deaktiviert
 personalize.enabled aktiviert
-personalize.features Erweiterungen
 personalize.head Menüs anpassen
 personalize.help Hilfe
 personalize.help_line1 Die Personalisierung ermöglicht es, die wichtigsten
@@ -1045,7 +1039,6 @@ personalize.pinhint Personalisierungs PIN Code eingeben
 personalize.pinprotect ja
 personalize.pinstatus mit PIN
 personalize.plugins Plugins
-personalize.setupmenuwithpin Einstellungen-Menü mit PIN
 personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
 personalize.usermenu_show_cancel Zeige Schalter "Abbrechen" 
 personalize.visible sichtbar

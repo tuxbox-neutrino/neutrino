@@ -358,7 +358,6 @@ extra.latitude Latitude
 extra.loadconfig Neutrino-Settings: Load from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
-extra.logo Logo number
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
 extra.north North
@@ -369,8 +368,6 @@ extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
 extra.saveconfig Neutrino-Settings: Save as
 extra.savekeys Save keys as
-extra.scan_fast Fast
-extra.scan_full Full
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
 extra.sms_channel sms-mode channel
@@ -400,11 +397,9 @@ extra.zap_cycle Zap cycle
 extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
 extra.zapit_hvoltage 18V for rotor moving 
 extra.zapit_make_bouquet Make Remaining Channels list
-extra.zapit_menu Zapit options
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
-extra.zapit_write_names Write channel names
 fan_speed CPU Fan speed
 favorites.addchannel The current channel will be added \nto the bouquet "My Favorites". \n This will take a few seconds...
 favorites.bouquetname My Favorites
@@ -1023,7 +1018,6 @@ personalize.button_red red
 personalize.button_yellow yellow
 personalize.disabled Disabled
 personalize.enabled Enabled
-personalize.features Features menue
 personalize.head Personalization
 personalize.help Help
 personalize.help_line1 Personalization makes it possible to adapt the most
@@ -1045,7 +1039,6 @@ personalize.pinhint Enter the Personalization PIN Code
 personalize.pinprotect Yes
 personalize.pinstatus Require PIN
 personalize.plugins Plugins
-personalize.setupmenuwithpin Settings Menu with PIN
 personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
