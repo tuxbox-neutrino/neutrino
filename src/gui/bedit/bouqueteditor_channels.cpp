@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2011 CoolStream International Ltd
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -244,6 +246,28 @@ void CBEChannelWidget::hide()
 	clearItem2DetailsLine ();
 }
 
+void CBEChannelWidget::updateSelection(unsigned int newpos)
+{
+        if(newpos == selected)
+                return;
+
+        unsigned int prev_selected = selected;
+        selected = newpos;
+
+        if (state == beDefault) {
+                unsigned int oldliststart = liststart;
+                liststart = (selected/listmaxshow)*listmaxshow;
+                if(oldliststart!=liststart) {
+                        paint();
+                } else {
+                        paintItem(prev_selected - liststart);
+                        paintItem(selected - liststart);
+                }
+        } else {
+                internalMoveChannel(prev_selected, selected);
+        }
+}
+
 int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
 	neutrino_msg_t      msg;
@@ -295,88 +319,41 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		}
 		else if (msg==CRCInput::RC_up || msg==(neutrino_msg_t)g_settings.key_channelList_pageup)
 		{
-			if (!(Channels->empty()))
-			{
-				int step = 0;
-				int prev_selected = selected;
+			if (!(Channels->empty())) {
+                                int step = (msg == (neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+                                int new_selected = selected - step;
 
-				step = (msg==(neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-				selected -= step;
-#if 0
-				if((prev_selected-step) < 0)		// because of uint
-				{
-					selected = Channels->size() - 1;
-				}
-#endif
-				if((prev_selected-step) < 0) {
-					if(prev_selected != 0 && step != 1)
-						selected = 0;
-					else
-						selected = Channels->size() - 1;
-				}
-				if (state == beDefault)
-				{
-					paintItem(prev_selected - liststart);
-					unsigned int oldliststart = liststart;
-					liststart = (selected/listmaxshow)*listmaxshow;
-					if(oldliststart!=liststart)
-					{
-						paint();
-					}
-					else
-					{
-						paintItem(selected - liststart);
-					}
-				}
-				else if (state == beMoving)
-				{
-					internalMoveChannel(prev_selected, selected);
-				}
+                                if (new_selected < 0) {
+                                        if (selected != 0 && step != 1)
+                                                new_selected = 0;
+                                        else
+                                                new_selected = Channels->size() - 1;
+                                }
+                                updateSelection(new_selected);
 			}
 		}
 		else if (msg==CRCInput::RC_down || msg==(neutrino_msg_t)g_settings.key_channelList_pagedown)
 		{
-			unsigned int step = 0;
-			unsigned int prev_selected = selected;
-
-			step = (msg==(neutrino_msg_t)g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-#if 0
-			if(selected >= Channels->size())
-			{
-				if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Channels->size() / listmaxshow) + 1) * listmaxshow))) ? (Channels->size() - 1) : 0;
-			}
-#endif
-			if(selected >= Channels->size()) {
-				if((Channels->size() - listmaxshow -1 < prev_selected) && (prev_selected != (Channels->size() - 1)) && (step != 1))
-					selected = Channels->size() - 1;
-				else if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Channels->size() / listmaxshow)+1) * listmaxshow))) ? (Channels->size() - 1) : 0;
-			}
-			if (state == beDefault)
-			{
-				paintItem(prev_selected - liststart);
-				unsigned int oldliststart = liststart;
-				liststart = (selected/listmaxshow)*listmaxshow;
-				if(oldliststart!=liststart)
-				{
-					paint();
-				}
-				else
-				{
-					paintItem(selected - liststart);
-				}
-			}
-			else if (state == beMoving)
-			{
-				internalMoveChannel(prev_selected, selected);
-			}
+                        if (!(Channels->empty())) {
+                                int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+                                int new_selected = selected + step;
+                                if (new_selected >= (int) Channels->size()) {
+                                        if ((Channels->size() - listmaxshow -1 < selected) && (selected != (Channels->size() - 1)) && (step != 1))
+                                                new_selected = Channels->size() - 1;
+                                        else if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
+                                                new_selected = 0;
+                                        else
+                                                new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((Channels->size() / listmaxshow)+1) * listmaxshow))) ? (Channels->size() - 1) : 0;
+                                }
+                                updateSelection(new_selected);
+                        }
 		}
+                else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
+                        if (!(Channels->empty())) {
+                                int new_selected = msg == (neutrino_msg_t) g_settings.key_list_start ? 0 : Channels->size() - 1;
+                                updateSelection(new_selected);
+                        }
+                }
 		else if(msg==CRCInput::RC_red)
 		{
 			if (state == beDefault)
