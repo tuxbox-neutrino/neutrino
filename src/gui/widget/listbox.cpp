@@ -145,6 +145,24 @@ void CListBox::paintItem(unsigned int /*itemNr*/, int paintNr, bool pselected)
 	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x + 10, ypos+ fheight, width-20, "demo", color);
 }
 
+void CListBox::updateSelection(unsigned int newpos)
+{
+	if(newpos == selected)
+		return;
+
+	unsigned int prev_selected = selected;
+	selected = newpos;
+
+	unsigned int oldliststart = liststart;
+	liststart = (selected/listmaxshow)*listmaxshow;
+	if(oldliststart!=liststart) {
+		paint();
+	} else {
+		paintItem(prev_selected - liststart);
+		paintItem(selected - liststart);
+	}
+}
+
 int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
 	neutrino_msg_t      msg;
@@ -176,67 +194,38 @@ int CListBox::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 		else if (msg == CRCInput::RC_up || (int) msg == g_settings.key_channelList_pageup)
 		{
 			if(getItemCount()!=0) {
-				int step = 0;
-				int prev_selected = selected;
+				int step = (msg == (neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+				int new_selected = selected - step;
 
-				step = ((int) msg == g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-				selected -= step;
-
-				if((prev_selected-step) < 0) {
-					if(prev_selected != 0 && step != 1)
-						selected = 0;
+				if (new_selected < 0) {
+					if (selected != 0 && step != 1)
+						new_selected = 0;
 					else
-						selected = getItemCount() - 1;
+						new_selected = getItemCount() - 1;
 				}
-
-#if 0
-				if((prev_selected-step) < 0)            // because of uint
-					selected = getItemCount() - 1;
-#endif
-				paintItem(prev_selected - liststart);
-				unsigned int oldliststart = liststart;
-				liststart = (selected/listmaxshow)*listmaxshow;
-
-				if(oldliststart!=liststart)
-					paint();
-				else
-					paintItem(selected - liststart);
+				updateSelection(new_selected);
 			}
 		}
 		else if (msg == CRCInput::RC_down || (int) msg == g_settings.key_channelList_pagedown)
 		{
 			if(getItemCount()!=0) {
-				unsigned int step = 0;
-				unsigned int prev_selected = selected;
-
-				step = ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-				selected += step;
-
-				if(selected >= getItemCount()) {
-					if((getItemCount() - listmaxshow -1 < prev_selected) && (prev_selected != (getItemCount() - 1)) && (step != 1))
-						selected = getItemCount() - 1;
+				int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+				int new_selected = selected + step;
+				if (new_selected >= (int) getItemCount()) {
+					if ((getItemCount() - listmaxshow -1 < selected) && (selected != (getItemCount() - 1)) && (step != 1))
+						new_selected = getItemCount() - 1;
 					else if (((getItemCount() / listmaxshow) + 1) * listmaxshow == getItemCount() + listmaxshow) // last page has full entries
-						selected = 0;
+						new_selected = 0;
 					else
-						selected = ((step == listmaxshow) && (selected < (((getItemCount() / listmaxshow)+1) * listmaxshow))) ? (getItemCount() - 1) : 0;
+						new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((getItemCount() / listmaxshow)+1) * listmaxshow))) ? (getItemCount() - 1) : 0;
 				}
-
-#if 0
-				if(selected >= getItemCount()) {
-					if (((getItemCount() / listmaxshow) + 1) * listmaxshow == getItemCount() + listmaxshow) // last page has full entries
-						selected = 0;
-					else
-						selected = ((step == listmaxshow) && (selected < (((getItemCount() / listmaxshow) + 1) * listmaxshow))) ? (getItemCount() - 1) : 0;
-				}
-#endif
-
-				paintItem(prev_selected - liststart);
-				unsigned int oldliststart = liststart;
-				liststart = (selected/listmaxshow)*listmaxshow;
-				if(oldliststart!=liststart)
-					paint();
-				else
-					paintItem(selected - liststart);
+				updateSelection(new_selected);
+			}
+		}
+		else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
+			if (getItemCount()) {
+				int new_selected = msg == (neutrino_msg_t) g_settings.key_list_start ? 0 : getItemCount() - 1;
+				updateSelection(new_selected);
 			}
 		}
 		else if( msg ==CRCInput::RC_ok)
