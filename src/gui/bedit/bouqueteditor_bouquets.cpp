@@ -52,7 +52,6 @@ extern CBouquetManager *g_bouquetManager;
 
 CBEBouquetWidget::CBEBouquetWidget()
 {
-	int icol_w, icol_h;
 	frameBuffer = CFrameBuffer::getInstance();
 	iconoffset = 0;
 	origPosition = 0;
@@ -63,29 +62,10 @@ CBEBouquetWidget::CBEBouquetWidget()
 	height = 0;
 	x = 0;
 	y = 0;
-
-	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8;
-
-	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
-	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
-	iheight = std::max(fheight, icol_h+2);
-	iconoffset = std::max(iconoffset, icol_w);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icol_w, &icol_h);
-	iheight = std::max(iheight, icol_h+2);
-	iconoffset = std::max(iconoffset, icol_w);
-
-	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN, &icol_w, &icol_h);
-	iheight = std::max(iheight, icol_h+2);
-	iconoffset = std::max(iconoffset, icol_w);
-
 	selected = 0;
 	liststart = 0;
 	state = beDefault;
 	blueFunction = beRename;
-	Bouquets = &g_bouquetManager->Bouquets;
 }
 
 void CBEBouquetWidget::paintItem(int pos)
@@ -119,7 +99,6 @@ void CBEBouquetWidget::paintItem(int pos)
 		if ((*Bouquets)[current]->bHidden)
 			frameBuffer->paintIcon(NEUTRINO_ICON_HIDDEN, x + 10, ypos, iheight);
 
-		//g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+68, ypos+ fheight, width-68, (*Bouquets)[current]->Name, color, 0, true);
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+iconoffset+20, ypos + iheight - (iheight-fheight)/2, width-iconoffset-20, (*Bouquets)[current]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[current]->Name, color, 0, true);
 	}
 }
@@ -170,15 +149,8 @@ void CBEBouquetWidget::paintFoot()
 	const neutrino_locale_t button_ids[] = {LOCALE_BOUQUETEDITOR_RENAME,LOCALE_BOUQUETEDITOR_HIDE,LOCALE_BOUQUETEDITOR_LOCK};
 	const std::vector<neutrino_locale_t> buttonID_rest (button_ids, button_ids + sizeof(button_ids) / sizeof(neutrino_locale_t) );
 
-//	fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
-
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_RED, &icol_w, &icol_h);
-/*	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8*//*std::max(fh, icol_h+4)*/;
 	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_MENU, &icol_w, &h2);
-// 	ButtonHeight = std::max(ButtonHeight, h2+4);
-
-// 	frameBuffer->paintBoxRel(x,y+height, width,ButtonHeight, COL_MENUHEAD_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
-	//frameBuffer->paintHLine(x, x+width,  y, COL_INFOBAR_SHADOW_PLUS_0);
 
 	switch( blueFunction)
 	{
@@ -201,6 +173,28 @@ void CBEBouquetWidget::hide()
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+ButtonHeight);
 }
 
+void CBEBouquetWidget::updateSelection(unsigned int newpos)
+{
+	if(newpos == selected)
+		return;
+
+	unsigned int prev_selected = selected;
+	selected = newpos;
+
+	if (state == beDefault) {
+		unsigned int oldliststart = liststart;
+		liststart = (selected/listmaxshow)*listmaxshow;
+		if(oldliststart!=liststart) {
+			paint();
+		} else {
+			paintItem(prev_selected - liststart);
+			paintItem(selected - liststart);
+		}
+	} else {
+		internalMoveBouquet(prev_selected, selected);
+	}
+}
+
 int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
 {
 	neutrino_msg_t      msg;
@@ -210,6 +204,23 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 
 	if (parent)
 		parent->hide();
+
+	ButtonHeight = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight()+8;
+	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
+	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
+
+	int icol_w, icol_h;
+	frameBuffer->getIconSize(NEUTRINO_ICON_BUTTON_YELLOW, &icol_w, &icol_h);
+	iheight = std::max(fheight, icol_h+2);
+	iconoffset = std::max(iconoffset, icol_w);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_LOCK, &icol_w, &icol_h);
+	iheight = std::max(iheight, icol_h+2);
+	iconoffset = std::max(iconoffset, icol_w);
+
+	frameBuffer->getIconSize(NEUTRINO_ICON_HIDDEN, &icol_w, &icol_h);
+	iheight = std::max(iheight, icol_h+2);
+	iconoffset = std::max(iconoffset, icol_w);
 
 	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getWidth();
 	int fh = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
@@ -273,96 +284,41 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 				cancelMoveBouquet();
 			}
 		}
-		//
-		// -- For more convenience: include browsing of list (paging)  (rasc, 2002-04-02)
-		// -- The keys should be configurable. Problem is: red/green key, which is the
-		// -- default in neutrino is used as a function key here... so use left/right
-		//
 		else if (msg==CRCInput::RC_up || msg==(neutrino_msg_t)g_settings.key_channelList_pageup)
 		{
-			if (!(Bouquets->empty()))
-			{
-				int step = 0;
-				int prev_selected = selected;
+			if (!(Bouquets->empty())) {
+				int step = (msg == (neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+				int new_selected = selected - step;
 
-				step = (msg == (neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-				selected -= step;
-
-				if((prev_selected-step) < 0) {
-					if(prev_selected != 0 && step != 1)
-						selected = 0;
+				if (new_selected < 0) {
+					if (selected != 0 && step != 1)
+						new_selected = 0;
 					else
-						selected = Bouquets->size() - 1;
+						new_selected = Bouquets->size() - 1;
 				}
-#if 0
-				if((prev_selected-step) < 0)		// because of uint
-				{
-					selected = Bouquets->size()-1;
-				}
-#endif
-
-				if (state == beDefault)
-				{
-					paintItem(prev_selected - liststart);
-					unsigned int oldliststart = liststart;
-					liststart = (selected/listmaxshow)*listmaxshow;
-					if(oldliststart!=liststart)
-					{
-						paint();
-					}
-					else
-					{
-						paintItem(selected - liststart);
-					}
-				}
-				else if (state == beMoving)
-				{
-					internalMoveBouquet(prev_selected, selected);
-				}
+				updateSelection(new_selected);
 			}
 		}
 		else if (msg==CRCInput::RC_down || msg==(neutrino_msg_t)g_settings.key_channelList_pagedown)
 		{
-			unsigned int step = 0;
-			unsigned int prev_selected = selected;
-
-			step = (msg == (neutrino_msg_t)g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-
-			if(selected >= Bouquets->size()) {
-				if((Bouquets->size() - listmaxshow -1 < prev_selected) && (prev_selected != (Bouquets->size() - 1)) && (step != 1))
-					selected = Bouquets->size() - 1;
-				else if (((Bouquets->size() / listmaxshow) + 1) * listmaxshow == Bouquets->size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Bouquets->size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets->size() - 1) : 0;
-			}
-#if 0
-			if(selected >= Bouquets->size())
-			{
-				if (((Bouquets->size() / listmaxshow) + 1) * listmaxshow == Bouquets->size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Bouquets->size() / listmaxshow) + 1) * listmaxshow))) ? (Bouquets->size() - 1) : 0;
-			}
-#endif
-			if (state == beDefault)
-			{
-				paintItem(prev_selected - liststart);
-				unsigned int oldliststart = liststart;
-				liststart = (selected/listmaxshow)*listmaxshow;
-				if(oldliststart!=liststart)
-				{
-					paint();
+			if (!(Bouquets->empty())) {
+				int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+				int new_selected = selected + step;
+				if (new_selected >= (int) Bouquets->size()) {
+					if ((Bouquets->size() - listmaxshow -1 < selected) && (selected != (Bouquets->size() - 1)) && (step != 1))
+						new_selected = Bouquets->size() - 1;
+					else if (((Bouquets->size() / listmaxshow) + 1) * listmaxshow == Bouquets->size() + listmaxshow) // last page has full entries
+						new_selected = 0;
+					else
+						new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((Bouquets->size() / listmaxshow)+1) * listmaxshow))) ? (Bouquets->size() - 1) : 0;
 				}
-				else
-				{
-					paintItem(selected - liststart);
-				}
+				updateSelection(new_selected);
 			}
-			else if (state == beMoving)
-			{
-				internalMoveBouquet(prev_selected, selected);
+		}
+		else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
+			if (!(Bouquets->empty())) {
+				int new_selected = msg == (neutrino_msg_t) g_settings.key_list_start ? 0 : Bouquets->size() - 1;
+				updateSelection(new_selected);
 			}
 		}
 		else if(msg==CRCInput::RC_red)
@@ -427,7 +383,6 @@ int CBEBouquetWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 			{
 				if (selected < Bouquets->size()) /* Bouquets->size() might be 0 */
 				{
-					//CBEChannelWidget* channelWidget = new CBEChannelWidget((*Bouquets)[selected]->Name, selected);
 					CBEChannelWidget* channelWidget = new CBEChannelWidget((*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, selected);
 					channelWidget->exec( this, "");
 					if (channelWidget->hasChanged())
@@ -477,9 +432,6 @@ void CBEBouquetWidget::deleteBouquet()
 	if (ShowMsgUTF(LOCALE_FILEBROWSER_DELETE, (*Bouquets)[selected]->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : (*Bouquets)[selected]->Name, CMessageBox::mbrNo, CMessageBox::mbYes|CMessageBox::mbNo)!=CMessageBox::mbrYes)
 		return;
 
-	//g_Zapit->deleteBouquet(selected);
-	//Bouquets.clear();
-	//g_Zapit->getBouquets(Bouquets, true, true);
 	g_bouquetManager->deleteBouquet(selected);
 	Bouquets = &g_bouquetManager->Bouquets;
 	if (selected >= Bouquets->size())
@@ -493,9 +445,6 @@ void CBEBouquetWidget::addBouquet()
 	std::string newName = inputName("", LOCALE_BOUQUETEDITOR_BOUQUETNAME);
 	if (!(newName.empty()))
 	{
-		//g_Zapit->addBouquet(ZapitTools::Latin1_to_UTF8(newName.c_str()).c_str());
-		//Bouquets.clear();
-		//g_Zapit->getBouquets(Bouquets, true, true);
 		g_bouquetManager->addBouquet(newName, true);
 		Bouquets = &g_bouquetManager->Bouquets;
 		selected = Bouquets->empty() ? 0 : (Bouquets->size() - 1);
@@ -518,9 +467,6 @@ void CBEBouquetWidget::finishMoveBouquet()
 	state = beDefault;
 	if (newPosition != origPosition)
 	{
-		//g_Zapit->moveBouquet(origPosition, newPosition);
-		//Bouquets.clear();
-		//g_Zapit->getBouquets(Bouquets, true, true);
 		Bouquets = &g_bouquetManager->Bouquets;
 		bouquetsChanged = true;
 	}
@@ -539,24 +485,9 @@ void CBEBouquetWidget::internalMoveBouquet( unsigned int fromPosition, unsigned 
 	if ( (int) toPosition == -1 ) return;
 	if ( toPosition == Bouquets->size()) return;
 
-	//g_Zapit->moveBouquet(fromPosition, toPosition);
 	g_bouquetManager->moveBouquet(fromPosition, toPosition);
 	Bouquets = &g_bouquetManager->Bouquets;
 	bouquetsChanged = true;
-#if 0
-	CZapitClient::responseGetBouquets Bouquet = Bouquets[fromPosition];
-	if (fromPosition < toPosition)
-	{
-		for (unsigned int i=fromPosition; i<toPosition; i++)
-			Bouquets[i] = Bouquets[i+1];
-	}
-	else if (fromPosition > toPosition)
-	{
-		for (unsigned int i=fromPosition; i>toPosition; i--)
-			Bouquets[i] = Bouquets[i-1];
-	}
-	Bouquets[toPosition] = Bouquet;
-#endif
 	selected = toPosition;
 	newPosition = toPosition;
 	paint();
@@ -570,13 +501,8 @@ void CBEBouquetWidget::renameBouquet()
 	std::string newName = inputName((*Bouquets)[selected]->Name.c_str(), LOCALE_BOUQUETEDITOR_NEWBOUQUETNAME);
 	if (newName != (*Bouquets)[selected]->Name)
 	{
-		//g_Zapit->renameBouquet(selected, ZapitTools::Latin1_to_UTF8(newName.c_str()).c_str());
-		//Bouquets.clear();
-		//g_Zapit->getBouquets(Bouquets, true, true);
-
 		g_bouquetManager->Bouquets[selected]->Name = newName;
 		g_bouquetManager->Bouquets[selected]->bUser = true;
-		//Bouquets = &g_bouquetManager->Bouquets;
 		bouquetsChanged = true;
 	}
 	paintHead();
@@ -588,7 +514,6 @@ void CBEBouquetWidget::switchHideBouquet()
 {
 	bouquetsChanged = true;
 	(*Bouquets)[selected]->bHidden = !(*Bouquets)[selected]->bHidden;
-	//g_Zapit->setBouquetHidden(selected, Bouquets[selected].hidden);
 	paint();
 }
 
@@ -596,7 +521,6 @@ void CBEBouquetWidget::switchLockBouquet()
 {
 	bouquetsChanged = true;
 	(*Bouquets)[selected]->bLocked = !(*Bouquets)[selected]->bLocked;
-	//g_Zapit->setBouquetLock(selected, Bouquets[selected].locked);
 	paint();
 }
 

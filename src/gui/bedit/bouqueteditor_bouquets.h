@@ -95,6 +95,7 @@ class CBEBouquetWidget : public CMenuWidget
 		void paintHead();
 		void paintFoot();
 		void hide();
+		void updateSelection(unsigned int newpos);
 
 		void deleteBouquet();
 		void addBouquet();
