@@ -63,6 +63,33 @@
 #include <mymenu.h>
 #include <driver/screen_max.h>
 
+#define HDD_NOISE_OPTION_COUNT 4
+const CMenuOptionChooser::keyval HDD_NOISE_OPTIONS[HDD_NOISE_OPTION_COUNT] =
+{
+	{ 0,   LOCALE_OPTIONS_OFF },
+	{ 128, LOCALE_HDD_SLOW },
+	{ 190, LOCALE_HDD_MIDDLE },
+	{ 254, LOCALE_HDD_FAST }
+};
+
+#define HDD_FILESYS_OPTION_COUNT 3
+const CMenuOptionChooser::keyval HDD_FILESYS_OPTIONS[HDD_FILESYS_OPTION_COUNT] =
+{
+	{ 0, LOCALE_HDD_EXT3 },
+	{ 1, LOCALE_HDD_REISER },
+	{ 2, LOCALE_OPTIONS_OFF }
+};
+#define HDD_SLEEP_OPTION_COUNT 7
+const CMenuOptionChooser::keyval HDD_SLEEP_OPTIONS[HDD_SLEEP_OPTION_COUNT] =
+{
+	{ 0,   LOCALE_OPTIONS_OFF },
+	{ 12,  LOCALE_HDD_1MIN },
+	{ 60,  LOCALE_HDD_5MIN },
+	{ 120, LOCALE_HDD_10MIN },
+	{ 240, LOCALE_HDD_20MIN },
+	{ 241, LOCALE_HDD_30MIN },
+	{ 242, LOCALE_HDD_60MIN }
+};
 
 static int my_filter(const struct dirent * dent)
 {

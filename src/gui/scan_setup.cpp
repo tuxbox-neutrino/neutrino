@@ -38,7 +38,6 @@
 #include <mymenu.h>
 #include <neutrino_menue.h>
 
-
 #include "gui/scan.h"
 #include "gui/scan_setup.h"
 #include "gui/motorcontrol.h"
@@ -153,6 +152,20 @@ const CMenuOptionChooser::keyval SATSETUP_SCANTP_POL[SATSETUP_SCANTP_POL_COUNT] 
 	{ 1, LOCALE_EXTRA_TP_POL_V },
 	{ 2, LOCALE_EXTRA_TP_POL_L },
 	{ 3, LOCALE_EXTRA_TP_POL_R }
+};
+
+#define OPTIONS_SOUTH0_NORTH1_OPTION_COUNT 2
+const CMenuOptionChooser::keyval OPTIONS_SOUTH0_NORTH1_OPTIONS[OPTIONS_SOUTH0_NORTH1_OPTION_COUNT] =
+{
+	{ 0, LOCALE_EXTRA_SOUTH },
+	{ 1, LOCALE_EXTRA_NORTH }
+};
+
+#define OPTIONS_EAST0_WEST1_OPTION_COUNT 2
+const CMenuOptionChooser::keyval OPTIONS_EAST0_WEST1_OPTIONS[OPTIONS_EAST0_WEST1_OPTION_COUNT] =
+{
+	{ 0, LOCALE_EXTRA_EAST },
+	{ 1, LOCALE_EXTRA_WEST }
 };
 
 #if 0
