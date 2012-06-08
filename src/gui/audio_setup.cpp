@@ -104,11 +104,17 @@ const CMenuOptionChooser::keyval AUDIOMENU_AVSYNC_OPTIONS[AUDIOMENU_AVSYNC_OPTIO
 	{ 2, LOCALE_AUDIOMENU_AVSYNC_AM }
 };
 
+#ifdef HAVE_SPARK_HARDWARE
+#define AUDIOMENU_HDMI_DD_OPTION_COUNT 2
+#else
 #define AUDIOMENU_HDMI_DD_OPTION_COUNT 3
+#endif
 const CMenuOptionChooser::keyval AUDIOMENU_HDMI_DD_OPTIONS[AUDIOMENU_HDMI_DD_OPTION_COUNT] =
 {
 	{ HDMI_ENCODED_OFF,		LOCALE_OPTIONS_OFF		},
+#ifndef HAVE_SPARK_HARDWARE
 	{ HDMI_ENCODED_AUTO,		LOCALE_AUDIOMENU_HDMI_DD_AUTO	},
+#endif
 	{ HDMI_ENCODED_FORCED,		LOCALE_AUDIOMENU_HDMI_DD_FORCE	}
 };
 
@@ -138,7 +144,9 @@ int CAudioSetup::showAudioSetup()
 	CMenuOptionChooser *as_oj_dd_hdmi = NULL;
 	/* system_rev == 0x01 is a hack: no Coolstream box has this value, but libtriple
 	   defines it for the Tripledragon, so 0x01 identifies the TD. */
+#ifndef HAVE_SPARK_HARDWARE
 	if (system_rev != 0x01)
+#endif
 		as_oj_dd_hdmi = new CMenuOptionChooser(LOCALE_AUDIOMENU_HDMI_DD, &g_settings.hdmi_dd, AUDIOMENU_HDMI_DD_OPTIONS, AUDIOMENU_HDMI_DD_OPTION_COUNT, true, audioSetupNotifier);
 	
 	//dd via spdif
@@ -178,7 +186,9 @@ int CAudioSetup::showAudioSetup()
 	audioSettings->addItem(as_oj_analogmode);
 	audioSettings->addItem(GenericMenuSeparatorLine);
 	//---------------------------------------------------------
+#ifndef HAVE_SPARK_HARDWARE
 	if (system_rev != 0x01)
+#endif
 		audioSettings->addItem(as_oj_dd_hdmi);
 	audioSettings->addItem(as_oj_dd_spdif);
 	audioSettings->addItem(as_oj_ddsubchn);
