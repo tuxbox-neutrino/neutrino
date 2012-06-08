@@ -4608,7 +4608,6 @@ static void *insertEventsfromFile(void *)
 #define gettid() ((pid_t)syscall(SYS_gettid))
 	/* renice epg-reader process  to 19 */
 	int ret = setpriority(PRIO_PROCESS, gettid(), 19);
-	xprintf("%s setprio ret = %d tid = %d pri = %d\n", ret, gettid(), getpriority(PRIO_PROCESS, gettid()));
 
 	struct stat buf;
 	indexname = epg_dir + "index.tmp";
