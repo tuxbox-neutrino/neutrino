@@ -502,6 +502,7 @@ const char * locale_real_names[] =
 	"flashupdate.reallyflashmtd",
 	"flashupdate.savesuccess",
 	"flashupdate.selectimage",
+	"flashupdate.settings",
 	"flashupdate.squashfs.noversion",
 	"flashupdate.titlereadflash",
 	"flashupdate.titlewriteflash",
