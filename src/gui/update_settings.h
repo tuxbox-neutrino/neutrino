@@ -35,7 +35,12 @@
 #include <gui/widget/menue.h>
 
 #include "gui/update.h"
+
+// #define USE_SMS_INPUT
+
+#ifdef USE_SMS_INPUT
 #include "gui/widget/stringinput.h"
+#endif
 
 #include <string>
 
@@ -56,7 +61,9 @@ class CUpdateSettings : public CMenuTarget
 		int initMenu();
 		
 		CFlashExpert *fe;
+#ifdef USE_SMS_INPUT
 		CStringInputSMS *input_url_file;
+#endif
 	
 	public:	
 		CUpdateSettings();

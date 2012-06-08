@@ -46,12 +46,16 @@
 CUpdateSettings::CUpdateSettings()
 {
 	width = w_max (40, 10);
-	input_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""�$%&/()=?-. ");
+#ifdef USE_SMS_INPUT
+	input_url_file = new CStringInputSMS(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_url_file, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789!""$%&/()=?-. ");
+#endif
 }
 
 CUpdateSettings::~CUpdateSettings()
 {
+#ifdef USE_SMS_INPUT
 	delete input_url_file;
+#endif
 }
 
 #define FLASHUPDATE_UPDATEMODE_OPTION_COUNT 2
@@ -76,6 +80,20 @@ int CUpdateSettings::exec(CMenuTarget* parent, const std::string &actionKey)
 		
 		return res;
 	}
+#ifndef USE_SMS_INPUT
+	else if(actionKey == "select_url_config_file"){
+		CFileBrowser 	fileBrowser;
+		CFileFilter 	fileFilter;
+		
+		fileFilter.addFilter("conf");
+		fileFilter.addFilter("urls");
+		fileBrowser.Filter = &fileFilter;
+ 		if (fileBrowser.exec("/var/etc") == true)
+			strncpy(g_settings.softupdate_url_file, fileBrowser.getSelectedFile()->Name.c_str(), 31);
+		
+		return res;
+	}
+#endif
 	
 	res = initMenu();
 	return res;
@@ -88,17 +106,21 @@ int CUpdateSettings::initMenu()
 	
 	w_upsettings.addIntroItems(LOCALE_FLASHUPDATE_SETTINGS);
 	
-	CMenuForwarder * fw_url_input = new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_mode, g_settings.softupdate_url_file, input_url_file, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	CMenuForwarder * fw_update_dir = new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, !g_settings.softupdate_mode, g_settings.update_dir , this, "update_dir", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+#ifdef USE_SMS_INPUT
+	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_mode, g_settings.softupdate_url_file, input_url_file, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+#else
+	CMenuForwarder * fw_url 	= new CMenuForwarder(LOCALE_FLASHUPDATE_URL_FILE, g_settings.softupdate_mode, g_settings.softupdate_url_file, this, "select_url_config_file", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+#endif
+	CMenuForwarder * fw_update_dir 	= new CMenuForwarder(LOCALE_EXTRA_UPDATE_DIR, !g_settings.softupdate_mode, g_settings.update_dir , this, "update_dir", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	
-	CUrlConfigSetupNotifier url_setup_notifier(fw_url_input, fw_update_dir);
+	CUrlConfigSetupNotifier url_setup_notifier(fw_url, fw_update_dir);
 	
-	CMenuOptionChooser *oj_mode = new CMenuOptionChooser(LOCALE_FLASHUPDATE_UPDATEMODE, &g_settings.softupdate_mode, FLASHUPDATE_UPDATEMODE_OPTIONS, FLASHUPDATE_UPDATEMODE_OPTION_COUNT, true, &url_setup_notifier);
+	CMenuOptionChooser *oj_mode 	= new CMenuOptionChooser(LOCALE_FLASHUPDATE_UPDATEMODE, &g_settings.softupdate_mode, FLASHUPDATE_UPDATEMODE_OPTIONS, FLASHUPDATE_UPDATEMODE_OPTION_COUNT, true, &url_setup_notifier);
 	
 	w_upsettings.addItem(oj_mode);
 	w_upsettings.addItem(GenericMenuSeparatorLine);
 	w_upsettings.addItem(fw_update_dir);
-	w_upsettings.addItem(fw_url_input);
+	w_upsettings.addItem(fw_url);
 	
 	int res = w_upsettings.exec (NULL, "");
 	
