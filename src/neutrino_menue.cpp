@@ -70,7 +70,7 @@
 #include "gui/scan_setup.h"
 #include "gui/settings_manager.h"
 #include "gui/sleeptimer.h"
-#include "gui/software_update.h"
+#include "gui/update_menue.h"
 #include <gui/streaminfo2.h>
 #include "gui/test_menu.h"
 #include "gui/update.h"

@@ -439,7 +439,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 		}
 		deleteEvent(e->uniqueKey());
 		readLockEvents();
-		if (mySIeventsOrderUniqueKey.size() >= max_events) {
+		if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events && max_events != 0 ) {
 			MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
@@ -557,7 +557,7 @@ static void addNVODevent(const SIevent &evt)
 	// mehrere Events mit gleicher ID sind, diese vorher loeschen
 	deleteEvent(e->uniqueKey());
 	readLockEvents();
-	if (mySIeventsOrderUniqueKey.size() >= max_events) {
+	if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events  && max_events != 0 ) {
 		//TODO: Set Old Events to 0 if limit is reached...
 		MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 			mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();

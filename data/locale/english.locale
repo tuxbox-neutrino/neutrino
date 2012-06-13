@@ -389,7 +389,7 @@ extra.tp_pol_h H
 extra.tp_pol_l L
 extra.tp_pol_r R
 extra.tp_rate Symbol rate
-extra.update_dir Directory for updates
+extra.update_dir Local update directory
 extra.use_gotoxx Use gotoXX
 extra.volume_pos Volumebar
 extra.west West
@@ -434,7 +434,7 @@ filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash reading
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open mtd-device
-flashupdate.checkupdate search for new version
+flashupdate.checkupdate Check for updates
 flashupdate.currentversion_sep Current version
 flashupdate.currentversiondate Date
 flashupdate.currentversiontime Time
@@ -475,12 +475,13 @@ flashupdate.ready ready
 flashupdate.reallyflashmtd Do you really want to flash?\n\nIf a error occurs or the image is not\nvalid, the box will not boot after flashing.\n\nImagename: %s\nTarget: %s
 flashupdate.savesuccess The image was successfully saved \nunder %s.
 flashupdate.selectimage Available Images/Files
+flashupdate.settings Update settings
 flashupdate.squashfs.noversion SquashFS version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
-flashupdate.updatemode_manual manual (ftp)
+flashupdate.updatemode_manual from local update directory
 flashupdate.url_file config file
 flashupdate.versioncheck checking version
 flashupdate.writeflash Write whole image

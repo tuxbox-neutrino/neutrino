@@ -389,7 +389,7 @@ extra.tp_pol_h H
 extra.tp_pol_l L
 extra.tp_pol_r R
 extra.tp_rate Symbolrate
-extra.update_dir Update-Verzeichnis
+extra.update_dir Lokales Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.volume_pos Lautstärkeanzeige
 extra.west Westen
@@ -434,7 +434,7 @@ filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
-flashupdate.checkupdate nach neuer Version suchen
+flashupdate.checkupdate Nach Updates suchen
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit
@@ -475,13 +475,14 @@ flashupdate.ready fertig
 flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\nFalls ein Fehler auftritt oder das Image nicht\nfunktionfähig ist, wird Ihre Box nicht mehr booten.\n\nImagename: %s\nZiel: %s
 flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
 flashupdate.selectimage Verfügbare Images/Files
+flashupdate.settings Update-Einstellungen
 flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
 flashupdate.updatemode Updatemodus
 flashupdate.updatemode_internet Internet
-flashupdate.updatemode_manual manuell (ftp)
-flashupdate.url_file Konfigfile
+flashupdate.updatemode_manual von lokalem Update-Verzeichnis 
+flashupdate.url_file Internet Konfigurations-Datei
 flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
 flashupdate.writeflashmtd einzelne Partition einspielen

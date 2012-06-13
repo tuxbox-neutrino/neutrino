@@ -672,7 +672,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
-	int caids[] = { 0x600, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
+	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
 	int icon_space_offset = 0;
