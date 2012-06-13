@@ -2135,6 +2135,7 @@ void CZapit::run()
 	CFEManager::getInstance()->saveSettings(true);
 
 	//CServiceManager::getInstance()->SaveMotorPositions();
+	CServiceManager::getInstance()->SaveServices(true, true);
 
 	SdtMonitor.Stop();
 	INFO("shutdown started");
