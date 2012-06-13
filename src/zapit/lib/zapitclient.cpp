@@ -392,6 +392,7 @@ bool CZapitClient::getBouquetChannels(const unsigned int bouquet, BouquetChannel
 	return return_value;
 }
 
+#if 0
 bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChannelList& channels, channelsMode mode, const bool /*utf_encoded*/)
 {
 	bool                                      return_value;
@@ -405,6 +406,7 @@ bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChann
 	close_connection();
 	return return_value;
 }
+#endif
 /* gets all channels */
 bool CZapitClient::getChannels( BouquetChannelList& channels, channelsMode mode, channelsOrder order, const bool utf_encoded)
 {
