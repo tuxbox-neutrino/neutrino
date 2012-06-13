@@ -1883,7 +1883,7 @@ void CInfoViewer::showEpgInfo()   //message on event change
 	}
 }
 
-
+#if 0
 int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*actionkey*/)
 {
 	int res = menu_return::RETURN_EXIT_ALL;
@@ -1903,3 +1903,4 @@ int CInfoViewerHandler::exec (CMenuTarget * parent, const std::string & /*action
 
 	return res;
 }
+#endif
