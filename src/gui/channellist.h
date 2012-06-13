@@ -120,7 +120,7 @@ public:
 	const char         * getName                   (void) const {
 		return name.c_str();
 	};
-	const std::string &  getActiveChannelName      (void) const; // UTF-8
+	const std::string    getActiveChannelName      (void) const; // UTF-8
 	t_satellite_position getActiveSatellitePosition(void) const;
 	int                  getActiveChannelNumber    (void) const;
 	t_channel_id         getActiveChannel_ChannelID(void) const;

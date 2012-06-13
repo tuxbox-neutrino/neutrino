@@ -251,10 +251,10 @@ int CChannelList::getKey(int id)
 
 static const std::string empty_string;
 
-const std::string & CChannelList::getActiveChannelName(void) const
+const std::string CChannelList::getActiveChannelName(void) const
 {
 	if (selected < chanlist.size())
-		return chanlist[selected]->name;
+		return chanlist[selected]->getName();
 	else
 		return empty_string;
 }
@@ -614,7 +614,7 @@ int CChannelList::show()
 		else if ((msg == CRCInput::RC_red) || (msg == CRCInput::RC_epg)) {
 			hide();
 
-			if ( g_EventList->exec(chanlist[selected]->channel_id, chanlist[selected]->name) == menu_return::RETURN_EXIT_ALL) {
+			if ( g_EventList->exec(chanlist[selected]->channel_id, chanlist[selected]->getName()) == menu_return::RETURN_EXIT_ALL) {
 				res = -2;
 				loop = false;
 			}
@@ -752,17 +752,17 @@ int CChannelList::show()
 				if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_nokey) {
 					uint32_t i;
 					for(i = selected+1; i < chanlist.size(); i++) {
-						char firstCharOfTitle = chanlist[i]->name.c_str()[0];
+						char firstCharOfTitle = chanlist[i]->getName().c_str()[0];
 						if(tolower(firstCharOfTitle) == smsKey) {
-							//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
+							//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->getName().c_str());
 							break;
 						}
 					}
 					if(i >= chanlist.size()) {
 						for(i = 0; i < chanlist.size(); i++) {
-							char firstCharOfTitle = chanlist[i]->name.c_str()[0];
+							char firstCharOfTitle = chanlist[i]->getName().c_str()[0];
 							if(tolower(firstCharOfTitle) == smsKey) {
-								//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
+								//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->getName().c_str());
 								break;
 							}
 						}
@@ -1116,7 +1116,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 	if (tuned < chanlist.size() && chanlist[tuned]->last_unlocked_time != 0)
 		chanlist[tuned]->last_unlocked_time = time_monotonic();
 
-	printf("**************************** CChannelList::zapToChannel me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, channel->name.c_str(), channel->channel_id);
+	printf("**************************** CChannelList::zapToChannel me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, channel->getName().c_str(), channel->channel_id);
 	if(tuned < chanlist.size())
 		selected_chid = chanlist[tuned]->getChannelID();
 
@@ -1128,7 +1128,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 		}
 
 		selected_chid = channel->getChannelID();
-		g_RemoteControl->zapTo_ChannelID(channel->getChannelID(), channel->name, !channel->bAlwaysLocked);
+		g_RemoteControl->zapTo_ChannelID(channel->getChannelID(), channel->getName(), !channel->bAlwaysLocked);
 		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(channel->getChannelID());
 	}
 	if(!this->new_mode_active) {
@@ -1601,7 +1601,7 @@ void CChannelList::showChannelLogo()
 		frameBuffer->paintBoxRel(x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
 
 		std::string lname;
-		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)) {
+		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->getName(), lname, &logo_w, &logo_h)) {
 			if((logo_h > theight) || (logo_w > logo_w_max))
 				g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, theight);
 			g_PicViewer->DisplayImage(lname, x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h);
@@ -1815,9 +1815,9 @@ void CChannelList::paintItem(int pos)
 
 		int l=0;
 		if (this->historyMode)
-			l = snprintf(nameAndDescription, sizeof(nameAndDescription), ": %d %s", chan->number, chan->name.c_str());
+			l = snprintf(nameAndDescription, sizeof(nameAndDescription), ": %d %s", chan->number, chan->getName().c_str());
 		else
-			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->name.c_str());
+			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
 		CProgressBar pb(false); /* never colored */
 		int pb_space = prg_offset - title_offset;
@@ -1901,10 +1901,10 @@ void CChannelList::paintItem(int pos)
 		if (curr == selected) {
 			if (!(chan->currentEvent.description.empty())) {
 				snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s",
-					 chan->name.c_str(), p_event->description.c_str());
+					 chan->getName().c_str(), p_event->description.c_str());
 				CVFD::getInstance()->showMenuText(0, nameAndDescription, -1, true); // UTF-8
 			} else
-				CVFD::getInstance()->showMenuText(0, chan->name.c_str(), -1, true); // UTF-8
+				CVFD::getInstance()->showMenuText(0, chan->getName().c_str(), -1, true); // UTF-8
 		}
 	}
 }
