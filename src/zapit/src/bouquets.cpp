@@ -158,6 +158,7 @@ void CZapitBouquet::moveService(const unsigned int oldPosition, const unsigned i
 	}
 }
 
+#if 0
 size_t CZapitBouquet::recModeRadioSize(const transponder_id_t transponder_id)
 {
 	size_t size = 0;
@@ -179,6 +180,7 @@ size_t CZapitBouquet::recModeTVSize(const transponder_id_t transponder_id)
 
 	return size;
 }
+#endif
 
 CBouquetManager::~CBouquetManager()
 {
@@ -673,6 +675,7 @@ CBouquetManager::ChannelIterator CBouquetManager::ChannelIterator::FindChannelNr
 	return (*this);
 }
 
+#if 0
 int CBouquetManager::ChannelIterator::getLowestChannelNumberWithChannelID(const t_channel_id channel_id)
 {
 	int i = 0;
@@ -684,6 +687,7 @@ int CBouquetManager::ChannelIterator::getLowestChannelNumberWithChannelID(const 
 			    //return i;
 	return -1; // not found
 }
+#endif
 
 int CBouquetManager::ChannelIterator::getNrofFirstChannelofBouquet(const unsigned int bouquet_nr)
 {
