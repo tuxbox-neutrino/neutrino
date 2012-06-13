@@ -910,7 +910,7 @@ void CScanSetup::saveScanSetup()
 	if(!scansettings.saveSettings(NEUTRINO_SCAN_SETTINGS_FILE))
 		dprintf(DEBUG_NORMAL, "error while saving scan-settings!\n");
 
-	CServiceManager::getInstance()->SaveMotorPositions();
+	//CServiceManager::getInstance()->SaveMotorPositions();
 	zapitCfg.gotoXXLatitude = strtod(zapit_lat, NULL);
 	zapitCfg.gotoXXLongitude = strtod(zapit_long, NULL);
 

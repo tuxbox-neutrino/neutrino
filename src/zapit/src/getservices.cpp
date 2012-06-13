@@ -542,6 +542,7 @@ int CServiceManager::LoadMotorPositions(void)
 
 void CServiceManager::SaveMotorPositions()
 {
+#if 0
 	FILE * fd;
 	sat_iterator_t sit;
 	printf("[getservices] saving motor positions...\n");
@@ -559,6 +560,7 @@ void CServiceManager::SaveMotorPositions()
 	}
 	fdatasync(fileno(fd));
 	fclose(fd);
+#endif
 }
 
 bool CServiceManager::InitSatPosition(t_satellite_position position, char * name, bool force)

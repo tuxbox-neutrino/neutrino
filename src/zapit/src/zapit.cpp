@@ -2134,7 +2134,7 @@ void CZapit::run()
 	StopPlayBack(true);
 	CFEManager::getInstance()->saveSettings(true);
 
-	CServiceManager::getInstance()->SaveMotorPositions();
+	//CServiceManager::getInstance()->SaveMotorPositions();
 
 	SdtMonitor.Stop();
 	INFO("shutdown started");
