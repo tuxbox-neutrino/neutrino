@@ -35,7 +35,6 @@
 
 
 #include "osd_setup.h"
-#include "alphasetup.h"
 #include "themes.h"
 #include "screensetup.h"
 #include "osdlang_setup.h"
