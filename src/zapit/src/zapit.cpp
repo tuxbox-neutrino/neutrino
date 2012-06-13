@@ -145,18 +145,6 @@ void CZapit::SendEvent(const unsigned int eventID, const void* eventbody, const 
 void CZapit::SaveSettings(bool write)
 {
 	if (current_channel) {
-#if 0
-		// now save the lowest channel number with the current channel_id
-		int c = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).getLowestChannelNumberWithChannelID(current_channel->getChannelID());
-//printf("LAST CHAN %d !!!!!!!!!!!\n\n\n", c);
-		//FIXME save last TV/RADIO channel id, always ?
-		if (c >= 0) {
-			if ((currentMode & RADIO_MODE))
-				lastChannelRadio = c;
-			else
-				lastChannelTV = c;
-		}
-#endif
 		if ((currentMode & RADIO_MODE))
 			lastChannelRadio = current_channel->getChannelID();
 		else
@@ -924,13 +912,14 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		sendBouquetChannels(connfd, msgGetBouquetChannels.bouquet, msgGetBouquetChannels.mode, false); // bouquet & channel number are already starting at 0!
 		break;
 	}
+#if 0
 	case CZapitMessages::CMD_GET_BOUQUET_NCHANNELS: {
 		CZapitMessages::commandGetBouquetChannels msgGetBouquetChannels;
 		CBasicServer::receive_data(connfd, &msgGetBouquetChannels, sizeof(msgGetBouquetChannels));
 		sendBouquetChannels(connfd, msgGetBouquetChannels.bouquet, msgGetBouquetChannels.mode, true); // bouquet & channel number are already starting at 0!
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_GET_CHANNELS: {
 		CZapitMessages::commandGetChannels msgGetChannels;
 		CBasicServer::receive_data(connfd, &msgGetChannels, sizeof(msgGetChannels));
