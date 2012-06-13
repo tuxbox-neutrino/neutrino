@@ -550,8 +550,6 @@ const char * locale_real_names[] =
 	"fontsize.menu",
 	"fontsize.menu_info",
 	"fontsize.menu_title",
-	"gtxalpha.alpha1",
-	"gtxalpha.alpha2",
 	"hdd_10min",
 	"hdd_1min",
 	"hdd_20min",

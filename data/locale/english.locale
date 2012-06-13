@@ -523,8 +523,6 @@ fontsize.infobar_small Small
 fontsize.menu Menutext
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
-gtxalpha.alpha1 Alpha 1
-gtxalpha.alpha2 Alpha 2
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
