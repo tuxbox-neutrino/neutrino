@@ -23,7 +23,6 @@
 #include <unistd.h>
 
 #include <zapit/client/zapitclient.h>
-#include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/settings.h>
 #include <zapit/types.h>
