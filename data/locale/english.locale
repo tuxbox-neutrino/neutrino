@@ -633,7 +633,6 @@ lcd_info_line_clock clock
 lcdcontroler.brightness normal Brightness
 lcdcontroler.brightnessdeepstandby DeepStandby Brightness
 lcdcontroler.brightnessstandby Standby Brightness
-lcdcontroler.contrast Contrast
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD Settings

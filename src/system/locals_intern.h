@@ -660,7 +660,6 @@ const char * locale_real_names[] =
 	"lcdcontroler.brightness",
 	"lcdcontroler.brightnessdeepstandby",
 	"lcdcontroler.brightnessstandby",
-	"lcdcontroler.contrast",
 	"lcdmenu.dim_brightness",
 	"lcdmenu.dim_time",
 	"lcdmenu.head",
