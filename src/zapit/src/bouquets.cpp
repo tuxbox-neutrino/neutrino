@@ -33,7 +33,6 @@
 #include <zapit/bouquets.h>
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
-#include <zapit/sdt.h>
 #include <zapit/settings.h>
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
