@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include <dmx.h>
-#include <zapit/cam.h>
+#include <zapit/capmt.h>
 #include <zapit/zapit.h>
 
 
