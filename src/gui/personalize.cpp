@@ -168,7 +168,6 @@
 #include <gui/widget/helpbox.h>
 #include "widget/messagebox.h"
 #include "widget/hintbox.h"
-#include "widget/lcdcontroler.h"
 #include "widget/keychooser.h"
 #include "color.h"
 #include "personalize.h"
