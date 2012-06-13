@@ -51,7 +51,7 @@
 
 #include <driver/record.h>
 #include <ca_cs.h>
-#include <zapit/cam.h>
+#include <zapit/capmt.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
 #include <zapit/zapit.h>
