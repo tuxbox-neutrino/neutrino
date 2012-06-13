@@ -26,7 +26,6 @@
 
 #include <eventserver.h>
 
-#include <zapit/descriptors.h>
 #include <zapit/types.h>
 #include <xmltree/xmlinterface.h>
 #include <zapit/channel.h>
