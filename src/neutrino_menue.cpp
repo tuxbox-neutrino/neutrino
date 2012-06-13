@@ -48,7 +48,6 @@
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
 #include "gui/dboxinfo.h"
-#include "gui/epg_menu.h"
 #include <gui/epgplus.h>
 #include "gui/favorites.h"
 #include "gui/hdd_menu.h"
