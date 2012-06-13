@@ -31,7 +31,6 @@
 #include <math.h>
 
 #include <zapit/debug.h>
-#include <zapit/cam.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
 #include <zapit/zapit.h>
