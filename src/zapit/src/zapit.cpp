@@ -38,7 +38,7 @@
 #endif
 
 /* zapit headers */
-#include <zapit/cam.h>
+#include <zapit/capmt.h>
 #include <zapit/client/msgtypes.h>
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
