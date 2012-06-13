@@ -1412,7 +1412,6 @@ const char * locale_real_names[] =
 	"videomenu.brightness",
 	"videomenu.cinch",
 	"videomenu.contrast",
-	"videomenu.csync",
 	"videomenu.dbdr",
 	"videomenu.dbdr_both",
 	"videomenu.dbdr_deblock",

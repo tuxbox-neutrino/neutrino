@@ -1385,7 +1385,6 @@ videomenu.auto Auto
 videomenu.brightness Brightness
 videomenu.cinch Cinch
 videomenu.contrast Contrast
-videomenu.csync sync correction
 videomenu.dbdr MPEG2 de-block/de-ring
 videomenu.dbdr_both de-block+de-ring
 videomenu.dbdr_deblock de-block
