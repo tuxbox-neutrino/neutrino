@@ -51,7 +51,6 @@
 #include <driver/framebuffer.h>
 #include <driver/rcinput.h>
 #include <driver/shutdown_count.h>
-#include <driver/stream2file.h>
 #include <driver/record.h>
 #include <driver/screenshot.h>
 #include <driver/volume.h>

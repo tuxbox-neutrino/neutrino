@@ -46,7 +46,6 @@
 
 //#include <libcramfs.h>
 
-#include <driver/encoding.h>
 #include <global.h>
 
 

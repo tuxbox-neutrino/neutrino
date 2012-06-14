@@ -39,7 +39,6 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>

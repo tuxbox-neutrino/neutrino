@@ -35,7 +35,6 @@
 
 #include <driver/rcinput.h>
 #include <driver/abstime.h>
-#include <driver/stream2file.h>
 
 #include <stdio.h>
 #include <asm/types.h>
@@ -1143,6 +1142,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_NEUTRINO)
 					{
+#if 0
 						if ((emsg.eventID == NeutrinoMessages::EVT_RECORDING_ENDED) &&
 								(read_bytes == sizeof(stream2file_status2_t)))
 						{
@@ -1150,6 +1150,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 							*data = (neutrino_msg_data_t) p;
 							dont_delete_p = true;
 						}
+#endif
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_GENERIC_INPUT_EVENT_PROVIDER)
 					{

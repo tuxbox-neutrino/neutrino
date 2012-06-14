@@ -40,8 +40,6 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 
-#include <driver/encoding.h>
-
 #include <algorithm>
 #include <iostream>
 #include <cctype>
@@ -62,8 +60,6 @@
 #ifndef NEW_LIBCURL
 #include <curl/types.h>
 #endif
-
-#include <driver/encoding.h>
 
 #include <xmltree/xmlinterface.h>
 

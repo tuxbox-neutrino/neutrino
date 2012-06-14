@@ -39,7 +39,6 @@
 #include <neutrino.h>
 #include <gui/infoviewer.h>
 
-#include <driver/encoding.h>
 #include <driver/record.h>
 #include <driver/abstime.h>
 #include "libdvbsub/dvbsub.h"

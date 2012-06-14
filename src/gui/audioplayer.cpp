@@ -42,7 +42,6 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/audioplay.h>

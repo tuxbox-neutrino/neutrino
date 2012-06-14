@@ -52,7 +52,6 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <driver/encoding.h>
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 
