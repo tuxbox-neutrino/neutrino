@@ -783,26 +783,24 @@ int CAudioPlayerGui::show()
 			{
 				//printf("select by name\n");
 				unsigned char smsKey = 0;
+				int w = 0;
 				do
 				{
 					smsKey = m_SMSKeyInput.handleMsg(msg);
 					//printf("  new key: %c", smsKey);
-					g_RCInput->getMsg_ms(&msg, &data, AUDIOPLAYERGUI_SMSKEY_TIMEOUT - 200);
-
-
 					/* show a hint box with current char (too slow at the moment?)*/
-#if 1
 					char selectedKey[1];
 					sprintf(selectedKey,"%c",smsKey);
 					int x1=(g_settings.screen_EndX- g_settings.screen_StartX)/2 + g_settings.screen_StartX-50;
 					int y1=(g_settings.screen_EndY- g_settings.screen_StartY)/2 + g_settings.screen_StartY;
 					int h = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight();
-					int w = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(selectedKey);
-					m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_MENUCONTENT_PLUS_6);
-					m_frameBuffer->paintBoxRel(x1 - 4, y1 - h - 3, w +  8, h +  6, COL_MENUCONTENTSELECTED_PLUS_0);
+					w = std::max(w, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(selectedKey));
+					m_frameBuffer->paintBoxRel(x1 - 7, y1 - h - 5, w + 14, h + 10, COL_MENUCONTENT_PLUS_6, RADIUS_SMALL);
+					m_frameBuffer->paintBoxRel(x1 - 4, y1 - h - 3, w +  8, h +  6, COL_MENUCONTENTSELECTED_PLUS_0, RADIUS_SMALL);
 					g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]
-					->RenderString(x1,y1,w+1,selectedKey,COL_MENUCONTENTSELECTED,0);
-#endif
+						->RenderString(x1,y1,w+1,selectedKey,COL_MENUCONTENTSELECTED,0);
+
+					g_RCInput->getMsg_ms(&msg, &data, AUDIOPLAYERGUI_SMSKEY_TIMEOUT - 200);
 
 				} while (CRCInput::isNumeric(msg) && !(m_playlist.empty()));
 
@@ -811,8 +809,8 @@ int CAudioPlayerGui::show()
 				{
 					//printf("selected key: %c\n",smsKey);
 					selectTitle(smsKey);
-					update = true;
 				}
+				update = true;
 				m_SMSKeyInput.resetOldKey();
 			}
 			else
