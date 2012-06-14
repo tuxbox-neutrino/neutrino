@@ -1881,11 +1881,12 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	// paint Line if detail info (and not valid list pos)
 	if (!m_playlist.empty() && (pos >= 0))
 	{
+		int fh = m_info_height > RADIUS_MID*2 ? m_info_height - RADIUS_MID*2 : m_info_height;
 		// 1. col thick line
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos1, 4, m_fheight, col2, c_rad_small, CORNER_LEFT);
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 3, ypos1, 8, m_fheight, col1, c_rad_small, CORNER_LEFT); // item marker
 
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2, 4, m_info_height, col1);
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 4, fh /*m_info_height*/, col1);
 
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 4, ypos2a - ypos1a, col1);
 
@@ -1893,7 +1894,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos2a, 12, 4, col1);
 
 		// 2. col small line
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2, 1, m_info_height, col2);
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 1, fh /*m_info_height*/, col2);
 
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 1, ypos2a - ypos1a + 4, col2);
 
@@ -1901,14 +1902,9 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 12, ypos2a,  8, 1, col2);
 
 		// -- small Frame around infobox
-		m_frameBuffer->paintBoxRel(m_x,			ypos2			, 2	 	, m_info_height	, col1);
-		m_frameBuffer->paintBoxRel(m_x + m_width - 2,	ypos2			, 2		, m_info_height	, col1);
-		m_frameBuffer->paintBoxRel(m_x,			ypos2			, m_width -2	, 2		, col1);
-		m_frameBuffer->paintBoxRel(m_x,			ypos2 + m_info_height -2, m_width -2	, 2		, col1);
-		//		m_frameBuffer->paintBoxRel(m_x, ypos2, m_width, m_info_height, col1);
-
+		m_frameBuffer->paintBoxFrame(m_x, ypos2, m_width, m_info_height, 2, col1, RADIUS_MID);
 		// paint id3 infobox
-		m_frameBuffer->paintBoxRel(m_x + 2, ypos2 + 2 , m_width - 4, m_info_height - 4, COL_MENUCONTENTDARK_PLUS_0);
+		m_frameBuffer->paintBoxRel(m_x + 2, ypos2 + 2 , m_width - 4, m_info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_MID);
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
 				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK, 0, true); // UTF-8
 		std::string tmp;
