@@ -607,6 +607,8 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 
 void CFlashExpert::showMTDSelector(const std::string & actionkey)
 {
+	int shortcut = 0;
+
 	mn_widget_id_t widget_id = NO_WIDGET_ID;
 	if (actionkey == "readmtd")
 		widget_id = MN_WIDGET_ID_MTDREAD_SELECTOR;
@@ -625,7 +627,7 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		if ((actionkey == "writemtd") && (lx == 0))
 			enabled = false;
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
-		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey));
+		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
 	mtdselector->exec(NULL,"");
 	delete mtdselector;

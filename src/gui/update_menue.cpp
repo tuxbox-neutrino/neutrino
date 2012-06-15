@@ -101,6 +101,6 @@ void CSoftwareUpdate::showSoftwareUpdateExpert(CMenuWidget *w_mtd_expert)
 {
 	w_mtd_expert->addIntroItems();
 		
-	w_mtd_expert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_READFLASHMTD , true, NULL, fe, "readflashmtd" ));
-	w_mtd_expert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_WRITEFLASHMTD, true, NULL, fe, "writeflashmtd"));
+	w_mtd_expert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_READFLASHMTD , true, NULL, fe, "readflashmtd" , CRCInput::RC_red  , NEUTRINO_ICON_BUTTON_RED));
+	w_mtd_expert->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_WRITEFLASHMTD, true, NULL, fe, "writeflashmtd", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 }
