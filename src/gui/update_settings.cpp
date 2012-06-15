@@ -117,7 +117,7 @@ int CUpdateSettings::initMenu()
 	
 	CMenuOptionChooser *oj_mode 	= new CMenuOptionChooser(LOCALE_FLASHUPDATE_UPDATEMODE, &g_settings.softupdate_mode, FLASHUPDATE_UPDATEMODE_OPTIONS, FLASHUPDATE_UPDATEMODE_OPTION_COUNT, true, &url_setup_notifier);
 	
-	w_upsettings.addItem(oj_mode);
+	w_upsettings.addItem(oj_mode, true);
 	w_upsettings.addItem(GenericMenuSeparatorLine);
 	w_upsettings.addItem(fw_update_dir);
 	w_upsettings.addItem(fw_url);
