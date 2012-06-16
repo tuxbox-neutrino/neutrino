@@ -539,7 +539,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 #endif
 	while(1) {
 		timer_id = 0;
-		if ( timers.size()> 0 )
+		if ( !timers.empty() )
 		{
 #ifdef USE_GETTIMEOFDAY
 			gettimeofday( &tv, NULL );

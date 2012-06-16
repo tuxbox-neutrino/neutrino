@@ -159,7 +159,7 @@ void CyParser::cgi(CyhookHandler *hh) {
 	bool ydebug = false;
 	std::string htmlfilename, yresult, ycmd;
 
-	if (hh->ParamList.size() > 0) {
+	if ( !hh->ParamList.empty() ) {
 		if (hh->ParamList["tmpl"] != "") // for GET and POST
 			htmlfilename = hh->ParamList["tmpl"];
 		else

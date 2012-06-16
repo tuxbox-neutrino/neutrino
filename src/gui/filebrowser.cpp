@@ -986,7 +986,7 @@ bool CFileBrowser::exec(const char * const dirname)
 			}
 			else
 #endif
-			if (selections.size() > 0)
+			if (!selections.empty())
 			{
 				ChangeDir("..",selections.back());
 				selections.pop_back();
@@ -1046,7 +1046,7 @@ bool CFileBrowser::exec(const char * const dirname)
 					else
 #endif
 					{
-						if (selections.size() > 0)
+						if ( !selections.empty() )
 						{
 							ChangeDir("..",selections.back());
 							selections.pop_back();

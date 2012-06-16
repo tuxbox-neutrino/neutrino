@@ -83,7 +83,7 @@ void CBEBouquetWidget::paintItem(int pos)
 	} else {
 		bool has_channels = true;
 		if(current < Bouquets->size())
-			has_channels = ((*Bouquets)[current]->tvChannels.size() > 0) || ((*Bouquets)[current]->radioChannels.size() > 0);
+			has_channels = (!(*Bouquets)[current]->tvChannels.empty() ) || (!(*Bouquets)[current]->radioChannels.empty());
 		color   = has_channels ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
 		bgcolor = has_channels ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);

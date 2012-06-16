@@ -893,7 +893,7 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 			info2 = epgdata.info2;
 
 			recMovieInfo->parentalLockAge = epgdata.fsk;
-			if(epgdata.contentClassification.size() > 0 )
+			if( !epgdata.contentClassification.empty() )
 				recMovieInfo->genreMajor = epgdata.contentClassification[0];
 
 			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
@@ -947,7 +947,7 @@ std::string CVCRControl::CFileAndServerDevice::getMovieInfoString(const CVCRComm
 		}
 	}
 	/* FIXME sometimes no apid in xml ?? */
-	if(recMovieInfo->audioPids.empty() && allpids.APIDs.size()) {
+	if(recMovieInfo->audioPids.empty() && !allpids.APIDs.empty()) {
 		int i = 0;
 		audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 		audio_pids.epgAudioPidName = ZapitTools::UTF8_to_UTF8XML(g_RemoteControl->current_PIDs.APIDs[i].desc);

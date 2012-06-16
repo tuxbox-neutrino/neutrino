@@ -700,7 +700,7 @@ int CChannelList::show()
 			}
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
-			if (bouquetList->Bouquets.size() > 0) {
+			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
 				if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
@@ -1421,7 +1421,7 @@ void CChannelList::virtual_zap_mode(bool up)
 
 void CChannelList::quickZap(int key, bool /* cycle */)
 {
-	if(chanlist.size() == 0)
+	if(chanlist.empty())
 		return;
 
 	unsigned int sl = selected;

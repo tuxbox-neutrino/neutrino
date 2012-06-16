@@ -539,7 +539,7 @@ bool CServiceScan::ScanProviders()
 			break;
 		}
 
-		if(scanBouquetManager->Bouquets.size() > 0) {
+		if( !scanBouquetManager->Bouquets.empty() ) {
 			scanBouquetManager->saveBouquets(bouquetMode, spI->second.c_str());
 		}
 		scanBouquetManager->clearAll();

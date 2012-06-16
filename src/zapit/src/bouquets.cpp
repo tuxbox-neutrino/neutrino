@@ -274,7 +274,7 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 			delete (*it);
 			Bouquets.erase(it);
 		}
-		if(Bouquets.size() > 0)
+		if( !Bouquets.empty() )
 			Bouquets[0]->Name = providerName;
 	}
 
@@ -443,7 +443,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	sort(unusedChannels.begin(), unusedChannels.end(), CmpChannelByChName());
 
 	// TODO: use locales
-	remainChannels = addBouquet((Bouquets.size() == 0) ? "All Channels" : "Other", false); // UTF-8 encoded
+	remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
 	remainChannels->bOther = true;
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {

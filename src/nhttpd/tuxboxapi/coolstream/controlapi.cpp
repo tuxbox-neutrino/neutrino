@@ -136,7 +136,7 @@ THandleStatus CControlAPI::Hook_SendResponse(CyhookHandler *hh)
 void CControlAPI::compatibility_Timer(CyhookHandler *hh)
 {
 	log_level_printf(4,"CControlAPI Compatibility Timer Start url:%s\n",hh->UrlData["url"].c_str());
-	if(NeutrinoAPI->Timerd->isTimerdAvailable() && hh->ParamList.size() > 0)
+	if(NeutrinoAPI->Timerd->isTimerdAvailable() && !hh->ParamList.empty() )
 	{
 		if(hh->ParamList["action"] == "remove")
 		{

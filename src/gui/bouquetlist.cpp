@@ -224,7 +224,7 @@ int CBouquetList::doMenu()
 	CZapitBouquet * tmp, * zapitBouquet;
 	ZapitChannelList* channels;
 
-	if(!Bouquets.size() || g_settings.minimode)
+	if(Bouquets.empty() || g_settings.minimode)
 		return 0;
 
 	zapitBouquet = Bouquets[selected]->zapitBouquet;
@@ -383,7 +383,7 @@ int CBouquetList::show(bool bShowChannelList)
 				return -3;
 			}
 		}
-		else if(Bouquets.size() == 0)
+		else if(Bouquets.empty())
 			continue; //FIXME msgs not forwarded to neutrino !!
 		else if ( msg == CRCInput::RC_setup) {
 			int ret = doMenu();
@@ -593,7 +593,7 @@ void CBouquetList::paint()
 {
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
-	int bsize = Bouquets.size() > 0 ? Bouquets.size() : 1;
+	int bsize = Bouquets.empty() ? 1 : Bouquets.size();
 
 	if(lastnum<10)
 		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0");
@@ -610,7 +610,7 @@ void CBouquetList::paint()
 
 	::paintButtons(x, y + (height - footerHeight), width, sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons, footerHeight);
 
-	if(Bouquets.size())
+	if(!Bouquets.empty())
 	{
 		for(unsigned int count=0;count<listmaxshow;count++) {
 			paintItem(count);

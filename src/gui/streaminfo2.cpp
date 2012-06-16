@@ -801,7 +801,7 @@ int CStreamInfo2::ts_setup ()
 	unsigned short vpid, apid = 0;
 
 	vpid = g_RemoteControl->current_PIDs.PIDs.vpid;
-	if(g_RemoteControl->current_PIDs.APIDs.size() > 0)
+	if( !g_RemoteControl->current_PIDs.APIDs.empty() )
 		apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;
 
 	if(vpid == 0 && apid == 0)

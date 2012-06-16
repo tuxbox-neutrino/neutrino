@@ -225,7 +225,7 @@ bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list, int flags)
 				((flags == 0) || (it->second.flags & flags)))
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllTvChannels(ZapitChannelList &list, int flags)
@@ -236,7 +236,7 @@ bool CServiceManager::GetAllTvChannels(ZapitChannelList &list, int flags)
 				((flags == 0) || (it->second.flags & flags)))
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
@@ -246,7 +246,7 @@ bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
 		if (it->second.isHD())
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
@@ -256,7 +256,7 @@ bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
 		if (it->second.has_bouquet == false)
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position)
@@ -266,7 +266,7 @@ bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellit
 		if(it->second.getSatellitePosition() == position)
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid)
@@ -276,7 +276,7 @@ bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transpon
 		if(it->second.getTransponderId() == tpid)
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 std::string CServiceManager::GetServiceName(t_channel_id channel_id)
