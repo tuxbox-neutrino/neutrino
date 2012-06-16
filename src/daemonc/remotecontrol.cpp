@@ -631,11 +631,11 @@ const std::string & CRemoteControl::setSubChannel(const int numSub, const bool f
 
 const std::string & CRemoteControl::subChannelUp(void)
 {
-	//return setSubChannel((subChannels.size() == 0) ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
+	//return setSubChannel((subChannels.empty()) ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
  	// if there are any NVOD/subchannels switch these else switch audio channel (if any)
   	if ( !subChannels.empty() || !g_settings.audiochannel_up_down_enable)
   	{
-  		return setSubChannel((subChannels.size() == 0) ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
+  		return setSubChannel( subChannels.empty() ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
   	}
   	else
   	{

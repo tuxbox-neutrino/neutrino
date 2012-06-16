@@ -628,7 +628,7 @@ CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const 
 {
 	Owner = owner;
 	tv = TV;
-	if (Owner->Bouquets.size() == 0)
+	if (Owner->Bouquets.empty())
 		c = -2;
 	else {
 		b = 0;
@@ -644,7 +644,7 @@ CBouquetManager::ChannelIterator CBouquetManager::ChannelIterator::operator ++(i
 		c++;
 		if ((unsigned int) c >= getBouquet()->size()) {
 			for (b++; b < Owner->Bouquets.size(); b++)
-				if (getBouquet()->size() != 0) {
+				if ( !getBouquet()->empty() ) {
 					c = 0;
 					goto end;
 				}

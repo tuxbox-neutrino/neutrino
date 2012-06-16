@@ -678,7 +678,7 @@ int CChannelList::show()
 			actzap = updateSelection(new_selected);
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up) {
-			if (bouquetList->Bouquets.size() > 0) {
+			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
 				if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {

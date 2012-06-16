@@ -390,7 +390,7 @@ void CControlAPI::ExecCGI(CyhookHandler *hh)
 		hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 	else
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
-	if (hh->ParamList.size() > 0)
+	if ( !hh->ParamList.empty() )
 	{
 		script = hh->ParamList["1"];
 		unsigned int len = hh->ParamList.size();
