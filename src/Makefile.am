@@ -83,6 +83,7 @@ neutrino_LDADD = \
 	@LIBCS_LIBS@ \
 	@AVFORMAT_LIBS@ \
 	@AVUTIL_LIBS@ \
+	@AVCODEC_LIBS@ \
 	$(FLACLIBS) \
 	$(VORBISLIBS) \
 	-lungif \
