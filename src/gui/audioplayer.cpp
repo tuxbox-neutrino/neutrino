@@ -1294,6 +1294,7 @@ bool CAudioPlayerGui::openFilebrowser(void)
 				std::string sPath = files->Name.substr(0, files->Name.rfind('/'));
 				std::ifstream infile;
 				char cLine[256];
+				char name[255] = { 0 };
 				infile.open(files->Name.c_str(), std::ifstream::in);
 				while (infile.good())
 				{
@@ -1301,12 +1302,16 @@ bool CAudioPlayerGui::openFilebrowser(void)
 					// remove CR
 					if (cLine[strlen(cLine)-1]=='\r')
 						cLine[strlen(cLine)-1]=0;
+					int duration;
+					sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &duration, name);
 					if (strlen(cLine) > 0 && cLine[0]!='#')
 					{
 						char *url = strstr(cLine, "http://");
 						if (url != NULL) {
 							if (strstr(url, ".m3u") || strstr(url, ".pls"))
 								processPlaylistUrl(url);
+							else
+								addUrl2Playlist(url, name, duration);
 						} else if ((url = strstr(cLine, "icy://")) != NULL) {
 							addUrl2Playlist(url);
 						} else if ((url = strstr(cLine, "scast:://")) != NULL) {
