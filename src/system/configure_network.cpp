@@ -217,24 +217,26 @@ void CNetworkConfig::commitConfig(void)
 
 int mysystem(char * cmd, char * arg1, char * arg2)
 {
-        int pid, i;
-        switch (pid = fork())
-        {
-                case -1: /* can't fork */
-                        perror("fork");
-                        return -1;
+        int i;
+	pid_t pid;
+	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
+	switch (pid = vfork())
+	{
+		case -1: /* can't fork */
+			perror("vfork");
+			return -1;
 
-                case 0: /* child process */
-                        for(i = 3; i < 256; i++)
+		case 0: /* child process */
+			for(i = 3; i < maxfd; i++)
                                 close(i);
-                        if(execlp(cmd, cmd, arg1, arg2, NULL))
-                        {
-                                perror("exec");
-                        }
-                        exit(0);
-                default: /* parent returns to calling process */
-                        break;
-        }
+			if(execlp(cmd, cmd, arg1, arg2, NULL))
+			{
+				perror("exec");
+			}
+			exit(0);
+		default: /* parent returns to calling process */
+			break;
+	}
 	waitpid(pid, 0, 0);
 	return 0;
 }
