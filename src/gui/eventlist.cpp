@@ -230,7 +230,7 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 		current_event++;
 	}
 
-	if ( evtlist.size() == 0 )
+	if ( evtlist.empty() )
 	{
 		CChannelEvent evt;
 
@@ -1066,7 +1066,7 @@ bool CNeutrinoEventList::findEvents(void)
 		}
 		if(evtlist.empty())
 		{
-			if ( evtlist.size() == 0 )
+			if ( evtlist.empty() )
 			{
 				CChannelEvent evt;
 				//evt.description = m_search_keyword + ": " + g_Locale->getText(LOCALE_EPGVIEWER_NOTFOUND);

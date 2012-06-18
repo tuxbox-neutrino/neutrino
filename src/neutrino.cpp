@@ -1239,7 +1239,7 @@ void CNeutrinoApp::channelsInit(bool bOnly)
 		satellite_map_t satlist = CServiceManager::getInstance()->SatelliteList();
 		for(sit = satlist.begin(); sit != satlist.end(); sit++) {
 			CServiceManager::getInstance()->GetAllSatelliteChannels(zapitList, sit->first);
-			if(!zapitList.size())
+			if( zapitList.empty() )
 				continue;
 
 			tvi = 0, ri = 0;
@@ -2044,7 +2044,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 				switchTvRadioMode(); //used with defined rc key TODO: do we really need this, because we already have a specified key on the remote control
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_up ) {
-				if(g_RemoteControl->subChannels.size() > 0) {
+				if( !g_RemoteControl->subChannels.empty() ) {
 					StopSubtitles();
 					g_RemoteControl->subChannelUp();
 					g_InfoViewer->showSubchan();
@@ -2058,7 +2058,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					quickZap( msg );
 			}
 			else if( msg == (neutrino_msg_t) g_settings.key_subchannel_down ) {
-				if(g_RemoteControl->subChannels.size()> 0) {
+				if( !g_RemoteControl->subChannels.empty() ) {
 					StopSubtitles();
 					g_RemoteControl->subChannelDown();
 					g_InfoViewer->showSubchan();
@@ -2290,7 +2290,7 @@ _show:
 //_show:
 			if(msg == CRCInput::RC_ok)
 			{
-				if(bouquetList->Bouquets.size() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
+				if( !bouquetList->Bouquets.empty() && bouquetList->Bouquets[old_b]->channelList->getSize() > 0)
 					nNewChannel = bouquetList->Bouquets[old_b]->channelList->exec();//with ZAP!
 				else
 					nNewChannel = bouquetList->exec(true);
@@ -2626,7 +2626,7 @@ _repeat:
 			tmpTimerList.clear();
 			tmpTimerdClient.getTimerList( tmpTimerList );
 
-			if(tmpTimerList.size() > 0) {
+			if( !tmpTimerList.empty() ) {
 				sort( tmpTimerList.begin(), tmpTimerList.end() );
 
 				CTimerd::responseGetTimer &timer = tmpTimerList[0];

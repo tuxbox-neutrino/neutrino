@@ -69,7 +69,7 @@ bool CFEManager::Init()
 		}
 	}
 	INFO("found %d frontends\n", femap.size());
-	if(femap.size() == 0)
+	if( femap.empty() )
 		return false;
 #if 0
 	if(femap.size() == 1)

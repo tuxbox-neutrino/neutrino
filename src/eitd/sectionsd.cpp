@@ -1825,7 +1825,7 @@ static bool addService(const SIservice &s, const int is_actual)
 		mySIservicesOrderUniqueKey.insert(std::make_pair(sptr->uniqueKey(), sptr));
 		unlockServices();
 
-		if (sptr->nvods.size())
+		if (!sptr->nvods.empty())
 		{
 			writeLockServices();
 			mySIservicesNVODorderUniqueKey.insert(std::make_pair(sptr->uniqueKey(), sptr));
@@ -2700,7 +2700,7 @@ bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSect
 	{
 		dprintf("NVODServices: %u\n", si->second->nvods.size());
 
-		if (si->second->nvods.size()) {
+		if (!si->second->nvods.empty()) {
 			for (SInvodReferences::iterator ni = si->second->nvods.begin(); ni != si->second->nvods.end(); ++ni) {
 				SItime zeitEvt1(0, 0);
 				findActualSIeventForServiceUniqueKey(ni->uniqueKey(), zeitEvt1, 15*60);

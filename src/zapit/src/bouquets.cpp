@@ -275,7 +275,7 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 			delete (*it);
 			Bouquets.erase(it);
 		}
-		if(Bouquets.size() > 0)
+		if( !Bouquets.empty() )
 			Bouquets[0]->Name = providerName;
 	}
 
@@ -444,7 +444,7 @@ void CBouquetManager::makeRemainingChannelsBouquet(void)
 	sort(unusedChannels.begin(), unusedChannels.end(), CmpChannelByChName());
 
 	// TODO: use locales
-	remainChannels = addBouquet((Bouquets.size() == 0) ? "All Channels" : "Other", false); // UTF-8 encoded
+	remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
 	remainChannels->bOther = true;
 
 	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
@@ -629,7 +629,7 @@ CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const 
 {
 	Owner = owner;
 	tv = TV;
-	if (Owner->Bouquets.size() == 0)
+	if (Owner->Bouquets.empty())
 		c = -2;
 	else {
 		b = 0;
@@ -645,7 +645,7 @@ CBouquetManager::ChannelIterator CBouquetManager::ChannelIterator::operator ++(i
 		c++;
 		if ((unsigned int) c >= getBouquet()->size()) {
 			for (b++; b < Owner->Bouquets.size(); b++)
-				if (getBouquet()->size() != 0) {
+				if ( !getBouquet()->empty() ) {
 					c = 0;
 					goto end;
 				}

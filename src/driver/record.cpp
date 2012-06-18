@@ -522,7 +522,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			info2 = epgdata.info2;
 
 			recMovieInfo->parentalLockAge = epgdata.fsk;
-			if(epgdata.contentClassification.size() > 0 )
+			if( !epgdata.contentClassification.empty() )
 				recMovieInfo->genreMajor = epgdata.contentClassification[0];
 
 			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
@@ -555,7 +555,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		}
 	}
 	/* FIXME sometimes no apid in xml ?? */
-	if(recMovieInfo->audioPids.empty() && allpids.APIDs.size()) {
+	if(recMovieInfo->audioPids.empty() && !allpids.APIDs.empty()) {
 		int i = 0;
 		audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 		audio_pids.epgAudioPidName = g_RemoteControl->current_PIDs.APIDs[i].desc;
@@ -791,7 +791,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 
 #if 1 // FIXME test
 	StopSectionsd = false;
-	if(recmap.size())
+	if( !recmap.empty() )
 		StopSectionsd = true;
 #endif
 	RunStartScript();
@@ -922,7 +922,7 @@ void CRecordManager::StartNextRecording()
 	for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 		bool tested = true;
 		eventinfo = *it;
-		if(recmap.size() > 0) {
+		if( !recmap.empty() ) {
 			CRecordInstance * inst = FindInstance(eventinfo->channel_id);
 			/* same channel recording and not auto - skip */
 			if(inst && !inst->Timeshift())
@@ -958,7 +958,7 @@ bool CRecordManager::RecordingStatus(const t_channel_id channel_id)
 		CRecordInstance * inst = FindInstance(channel_id);
 		ret = (inst != NULL);
 	} else
-		ret = recmap.size() != 0;
+		ret = !recmap.empty();
 
 	mutex.unlock();
 	return ret;
@@ -1464,7 +1464,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
 
-	if(last_mode == NeutrinoMessages::mode_standby && !recmap.size())
+	if(last_mode == NeutrinoMessages::mode_standby && recmap.empty())
 		g_Zapit->setStandby(false); // this zap to live_channel_id
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -1546,7 +1546,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 
 void CRecordManager::RestoreNeutrino(void)
 {
-	if(recmap.size())
+	if(!recmap.empty())
 		return;
 
 	/* after this zapit send EVT_RECORDMODE_DEACTIVATED, so neutrino getting NeutrinoMessages::EVT_RECORDMODE */

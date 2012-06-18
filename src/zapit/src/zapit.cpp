@@ -1029,7 +1029,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 			CBasicServer::receive_data(connfd, &TP, sizeof(TP));
 			sig_delay = 0;
 			TP.feparams.inversion = INVERSION_AUTO;
-			const char *name = scanProviders.size() > 0  ? scanProviders.begin()->second.c_str() : "unknown";
+			const char *name = scanProviders.empty() ? "unknown" : scanProviders.begin()->second.c_str();
 
 			switch (live_fe->getInfo()->type) {
 			case FE_QPSK:

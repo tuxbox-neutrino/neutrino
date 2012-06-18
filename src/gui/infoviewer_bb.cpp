@@ -223,7 +223,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			if (g_RemoteControl->current_PIDs.APIDs.size() > 0) {
+			if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
 				if (text.empty())
 					text = g_RemoteControl->current_PIDs.APIDs[selected].desc;
@@ -698,7 +698,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 		return;
 
 	if (g_settings.casystem_display == 2) {
-		fta = (channel->camap.size() == 0);
+		fta = channel->camap.empty();
 		showOne_CAIcon();
 		return;
 	}

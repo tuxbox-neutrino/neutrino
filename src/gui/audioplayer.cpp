@@ -581,7 +581,7 @@ int CAudioPlayerGui::show()
 						//stop(); // Stop if song is deleted, next song will be startet automat.
 					}
 					if (m_selected >= m_playlist.size())
-						m_selected = m_playlist.size() == 0 ? m_playlist.size() : m_playlist.size() - 1;
+						m_selected = m_playlist.empty() ? m_playlist.size() : m_playlist.size() - 1;
 					update = true;
 				}
 			}
@@ -2462,7 +2462,7 @@ void CAudioPlayerGui::removeFromPlaylist(long pos)
 			item->second.erase(pos);
 
 			// delete empty entries
-			if (item->second.size() == 0)
+			if (item->second.empty())
 			{
 				m_title2Pos.erase(item);
 			}
@@ -2522,7 +2522,7 @@ void CAudioPlayerGui::selectTitle(unsigned char selectionChar)
 		}
 		else
 		{
-			if (it->second.size() > 0)
+			if ( !it->second.empty() )
 			{
 				i = *(it->second.begin());
 				//printf("using begin i: %ld\n",i);

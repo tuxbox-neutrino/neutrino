@@ -318,7 +318,7 @@ int CNFSUmountGui::menu()
 			umountMenu.addItem(forwarder);
 		}
 	}
-	if(infos.size() > 0)
+	if( !infos.empty() )
 		return umountMenu.exec(this,"");
 	else
 		return menu_return::RETURN_REPAINT;
