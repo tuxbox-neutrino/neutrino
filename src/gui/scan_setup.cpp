@@ -618,7 +618,7 @@ void CScanSetup::fillSatSelect()
 		if(CFEManager::getInstance()->getMode() != CFEManager::FE_MODE_ALONE)
 			break;
 	}
-	if(!sfound && satpos.size()) {
+	if(!sfound && !satpos.empty()) {
 		tmpit = satpos.begin();
 		std::string satname = CServiceManager::getInstance()->GetSatelliteName(*tmpit);
 		snprintf(scansettings.satNameNoDiseqc, sizeof(scansettings.satNameNoDiseqc), "%s", satname.c_str());
@@ -649,7 +649,7 @@ void CScanSetup::fillCableSelect()
 
 		dprintf(DEBUG_DEBUG, "got scanprovider (cable): %s\n", sit->second.name.c_str());
 	}
-	if (!sfound && satmap.size()) {
+	if (!sfound && !satmap.empty()) {
 		sat_iterator_t sit = satmap.begin();
 		snprintf(scansettings.satNameNoDiseqc, sizeof(scansettings.satNameNoDiseqc), "%s", sit->second.name.c_str());
 	}
@@ -678,7 +678,7 @@ int CScanSetup::showScanMenuSatFind()
 		feSatSelect->addOption(satname.c_str());
 		if (!sfound && strcmp(scansettings.satNameNoDiseqc, satname.c_str()) == 0)
 			sfound = true;
-		if (!sfound && !firstname.size())
+		if (!sfound && firstname.empty())
 			firstname = satname;
 		count++;
 	}

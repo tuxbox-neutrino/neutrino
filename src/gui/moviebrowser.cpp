@@ -2086,8 +2086,8 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
 
 			m_vMovieInfo.erase( (std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
 			TRACE("List size: %d\n", m_vMovieInfo.size());
-			//if(m_vMovieInfo.size() == 0) fileInfoStale();
-			//if(m_vMovieInfo.size() == 0) onSetGUIWindow(m_settings.gui);
+			//if(m_vMovieInfo.empty()) fileInfoStale();
+			//if(m_vMovieInfo.empty()) onSetGUIWindow(m_settings.gui);
 			updateSerienames();
 			refreshBrowserList();
 			refreshLastPlayList();
@@ -2399,7 +2399,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 
 	TRACE("[mb] Dir%d, Files:%d \r\n",m_dirNames.size(),m_vMovieInfo.size());
 	/*
-	   if(m_vMovieInfo.size() == 0)
+	   if(m_vMovieInfo.empty())
 	   {
 	   std::string msg = g_Locale->getText(LOCALE_MOVIEBROWSER_ERROR_NO_MOVIES);
 	   DisplayErrorMessage(msg.c_str());
