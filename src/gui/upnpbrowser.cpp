@@ -389,7 +389,7 @@ void CUpnpBrowserGui::selectDevice()
 	m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 	scanBox->hide();
 
-	if (!m_devices.size())
+	if (m_devices.empty())
 	{
 		ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		delete scanBox;
@@ -456,7 +456,7 @@ void CUpnpBrowserGui::selectDevice()
 #endif
 			m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 			scanBox->hide();
-			if (!m_devices.size())
+			if (m_devices.empty())
 			{
 				ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 				delete scanBox;

@@ -1473,7 +1473,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
 			printf("%s zapTo_record channel_id %llx\n", __FUNCTION__, channel_id);
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
-		} else if(recmap.size()) {
+		} else if(!recmap.empty()) {
 			ret = false;
 		} else {
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {

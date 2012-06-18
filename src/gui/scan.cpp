@@ -253,7 +253,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)scansettings.bouquetMode);
 
 	/* send satellite list to zapit */
-	if(satList.size())
+	if(!satList.empty())
 		g_Zapit->setScanSatelliteList( satList);
 
 	tuned = -1;
