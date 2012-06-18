@@ -6,7 +6,7 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
-
+	Copyright (C) 2008-2012 Stefan Seyfried
 
 	License: GPL
 
@@ -79,7 +79,7 @@ typedef enum
 #include <configfile.h>
 #include <pthread.h>
 
-#ifndef  HAVE_SPARK_HARDWARE
+#ifdef HAVE_TRIPLEDRAGON
 #include <lcddisplay/fontrenderer.h>
 
 
@@ -117,7 +117,7 @@ class CLCD
 
 
 	private:
-#ifndef HAVE_SPARK_HARDWARE
+#ifdef HAVE_TRIPLEDRAGON
 		class FontsDef
 		{
 			public:

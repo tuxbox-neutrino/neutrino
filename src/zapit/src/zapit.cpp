@@ -4,6 +4,7 @@
  * zapit - d-box2 linux project
  *
  * (C) 2001, 2002 by Philipp Leusmann <faralla@berlios.de>
+ * (C) 2007-2012 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1792,6 +1793,32 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 	videoDecoder->SetStreamType((VIDEO_FORMAT)thisChannel->type);
 //	videoDecoder->SetSync(VIDEO_PLAY_MOTION);
 
+#if HAVE_AZBOX_HARDWARE
+	if (have_audio) {
+		audioDemux->pesFilter(thisChannel->getAudioPid());
+	}
+	/* select audio output and start audio */
+	if (have_audio) {
+		SetAudioStreamType(thisChannel->getAudioChannel()->audioChannelType);
+		audioDemux->Start();
+		audioDecoder->Start();
+	}
+	if (have_video) {
+		videoDemux->pesFilter(thisChannel->getVideoPid());
+	}
+	/* start video */
+	if (have_video) {
+		videoDemux->Start();
+		videoDecoder->Start(0, thisChannel->getPcrPid(), thisChannel->getVideoPid());
+	}
+	if (have_pcr) {
+		pcrDemux->pesFilter(thisChannel->getPcrPid());
+	}
+	if (have_pcr) {
+		printf("[zapit] starting PCR 0x%X\n", thisChannel->getPcrPid());
+		pcrDemux->Start();
+	}
+#else
 	if (have_pcr) {
 		pcrDemux->pesFilter(thisChannel->getPcrPid());
 	}
@@ -1830,6 +1857,7 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 	if(have_teletext)
 		videoDecoder->StartVBI(thisChannel->getTeletextPid());
 #endif
+#endif
 	playing = true;
 
 	return true;
@@ -1850,9 +1878,15 @@ bool CZapit::StopPlayBack(bool send_pmt)
 	if (playbackStopForced)
 		return false;
 
+#if HAVE_AZBOX_HARDWARE
+	pcrDemux->Stop();
+	audioDemux->Stop();
+	videoDemux->Stop();
+#else
 	videoDemux->Stop();
 	audioDemux->Stop();
 	pcrDemux->Stop();
+#endif
 	audioDecoder->Stop();
 
 	/* hack. if standby, dont blank video -> for paused timeshift */

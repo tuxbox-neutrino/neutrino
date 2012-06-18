@@ -4,6 +4,8 @@
   Copyright (C) 2001 Steffen Hehn 'McClean'
   Homepage: http://dbox.cyberphoria.org/
 
+  Copyright (C) 2007-2012 Stefan Seyfried
+
   Kommentar:
 
   Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -47,6 +49,9 @@
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 3
 #endif
 #if HAVE_SPARK_HARDWARE
+#define VIDEOMENU_VIDEOMODE_OPTION_COUNT 9
+#endif
+#if HAVE_AZBOX_HARDWARE
 #define VIDEOMENU_VIDEOMODE_OPTION_COUNT 9
 #endif
 
@@ -495,7 +500,7 @@ struct SNeutrinoSettings
 		LCD_SHOW_VOLUME        ,
 		LCD_AUTODIMM           ,
 		LCD_DEEPSTANDBY_BRIGHTNESS,
-#if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE
+#if HAVE_TRIPLEDRAGON || USE_STB_HAL
 		LCD_EPGMODE            ,
 #endif
 		LCD_SETTING_COUNT

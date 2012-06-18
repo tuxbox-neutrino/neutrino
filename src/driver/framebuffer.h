@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2007-2012 Stefan Seyfried
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -234,6 +236,9 @@ class CFrameBuffer
 
 #if HAVE_SPARK_HARDWARE
 		void mark(int x, int y, int dx, int dy);
+		void blit(void);
+#elif HAVE_AZBOX_HARDWARE
+		void mark(int, int, int, int) {};
 		void blit(void);
 #else
 		void mark(int, int, int, int) {};

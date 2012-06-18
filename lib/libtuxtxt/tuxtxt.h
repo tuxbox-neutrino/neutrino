@@ -12,6 +12,8 @@
  *              ported 2006 to Dreambox 7025 / 32Bit framebuffer              *
  *                   by Seddi <seddi@i-have-a-dreambox.com>                   *
  *                                                                            *
+ *                                                                            *
+ *      ported to Tripledragon, SPARK and AZbox 2010-2012 Stefan Seyfried     *
  ******************************************************************************/
 
 #define TUXTXT_CFG_STANDALONE 0  // 1:plugin only 0:use library
@@ -33,7 +35,7 @@
 #include <linux/input.h>
 
 #ifndef NEW_CST_KERNEL
-#include <linux/videodev.h>
+//#include <linux/videodev.h>
 #endif
 
 #include <sys/ioctl.h>

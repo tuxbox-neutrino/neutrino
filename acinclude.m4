@@ -389,9 +389,9 @@ AC_SUBST(CATALOGS)
 
 AC_DEFUN([TUXBOX_BOXTYPE],[
 AC_ARG_WITH(boxtype,
-	[  --with-boxtype          valid values: dbox2,tripledragon,dreambox,ipbox,coolstream,generic],
+	[  --with-boxtype          valid values: dbox2,tripledragon,dreambox,ipbox,coolstream,spark,azbox,generic],
 	[case "${withval}" in
-		dbox2|dreambox|ipbox|tripledragon|coolstream|spark|generic)
+		dbox2|dreambox|ipbox|tripledragon|coolstream|spark|azbox|generic)
 			BOXTYPE="$withval"
 			;;
 		dm*)
@@ -431,6 +431,7 @@ AC_ARG_WITH(boxmodel,
 AC_SUBST(BOXTYPE)
 AC_SUBST(BOXMODEL)
 
+AM_CONDITIONAL(BOXTYPE_AZBOX, test "$BOXTYPE" = "azbox")
 AM_CONDITIONAL(BOXTYPE_DBOX2, test "$BOXTYPE" = "dbox2")
 AM_CONDITIONAL(BOXTYPE_TRIPLE, test "$BOXTYPE" = "tripledragon")
 AM_CONDITIONAL(BOXTYPE_DREAMBOX, test "$BOXTYPE" = "dreambox")
@@ -452,6 +453,8 @@ AM_CONDITIONAL(BOXMODEL_IP400,test "$BOXMODEL" = "ip400")
 
 if test "$BOXTYPE" = "dbox2"; then
 	AC_DEFINE(HAVE_DBOX_HARDWARE, 1, [building for a dbox2])
+elif test "$BOXTYPE" = "azbox"; then
+	AC_DEFINE(HAVE_AZBOX_HARDWARE, 1, [building for an azbox])
 elif test "$BOXTYPE" = "tripledragon"; then
 	AC_DEFINE(HAVE_TRIPLEDRAGON, 1, [building for a tripledragon])
 elif test "$BOXTYPE" = "dreambox"; then

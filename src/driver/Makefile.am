@@ -59,6 +59,10 @@ if BOXTYPE_SPARK
 libneutrino_driver_a_SOURCES += \
 	spark_led.cpp
 endif
+if BOXTYPE_AZBOX
+libneutrino_driver_a_SOURCES += \
+	spark_led.cpp
+endif
 if USE_STB_HAL
 INCLUDES += \
 	-I$(STB_HAL_INC) \
