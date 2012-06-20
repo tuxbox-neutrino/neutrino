@@ -40,7 +40,8 @@
 
 #include <dirent.h>
 #include <dlfcn.h>
-#include <spawn.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -93,7 +94,7 @@ int CPlugins::find_plugin(const std::string & filename)
 bool CPlugins::pluginfile_exists(const std::string & filename)
 {
 	struct stat stat_buf;
-	if(stat(filename.c_str(), &stat_buf) == 0)
+	if(::stat(filename.c_str(), &stat_buf) == 0)
 	{
 		return true;
 	} else
@@ -324,7 +325,6 @@ void CPlugins::startScriptPlugin(int number)
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
-#if 0
 	FILE *f = popen(script,"r");
 	if (f != NULL)
 	{
@@ -343,39 +343,6 @@ void CPlugins::startScriptPlugin(int number)
 	{
 		printf("[CPlugins] can't execute %s\n",script);
 	}
-#else
-	int out[2], in[2];
-	int pid,i;
-	const int buf_size=1024;
-	char*  spawnedArgs[] = { (char *)"/bin/sh", (char *)0 };
-	char buf[buf_size];
-	memset(buf,0, buf_size);
-	posix_spawn_file_actions_t action;
-
-	pipe(out);
-	pipe(in);
-
-	posix_spawn_file_actions_init(&action);
-	posix_spawn_file_actions_adddup2(&action, out[0], 0);
-	posix_spawn_file_actions_addclose(&action, out[1]);
-
-	posix_spawn_file_actions_adddup2(&action, in[1], 1);
-	posix_spawn_file_actions_addclose(&action, in[0]);
- 
-	posix_spawnp(&pid, spawnedArgs[0], &action, NULL, spawnedArgs, NULL);
-
-	close(out[0]);
-	close(in[1]);
-
-	write(out[1], plugin_list[number].pluginfile.c_str(), plugin_list[number].pluginfile.size());
-	close(out[1]);
-
-
-	while ( (i = read(in[0], buf, buf_size)) != 0 ) {  
-		scriptOutput += buf;
-		memset(buf,0, buf_size);
-	}
-#endif
 }
 
 int mysystem(char * cmd, char * arg1, char * arg2);
