@@ -117,6 +117,7 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("mp4");
 	tsfilefilter.addFilter("mov");
 	tsfilefilter.addFilter("m3u");
+	tsfilefilter.addFilter("pls");
 
 	if (strlen(g_settings.network_nfs_moviedir) != 0)
 		Path_local = g_settings.network_nfs_moviedir;
@@ -372,7 +373,8 @@ bool CMoviePlayerGui::SelectFile()
 							if (url != NULL) {
 								printf("name %s [%d] url: %s\n", name, duration, url);
 								full_name = url;
-								file_name = name;
+								if(strlen(name))
+									file_name = name;
 							}
 						}
 					}
@@ -423,7 +425,6 @@ void CMoviePlayerGui::PlayFile(void)
 		duration = p_movie_info->length * 60 * 1000;
 
 	file_prozent = 0;
-//full_name = "http://172.16.1.1:49152/content/media/object_id/7/res_id/0/ext/file.avi";
 	if(!playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration)) {
 		playback->Close();
 	} else {
