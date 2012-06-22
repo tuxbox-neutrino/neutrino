@@ -28,28 +28,31 @@
 #include <zapit/types.h>
 #include <zapit/channel.h>
 #include <zapit/satconfig.h>
+#include <zapit/frontend_types.h>
 #include <map>
 
-#define FEC_S2_QPSK_1_2 (fe_code_rate_t)(FEC_AUTO+1)		//10
-#define FEC_S2_QPSK_2_3 (fe_code_rate_t)(FEC_S2_QPSK_1_2+1)	//11
-#define FEC_S2_QPSK_3_4 (fe_code_rate_t)(FEC_S2_QPSK_2_3+1)	//12
-#define FEC_S2_QPSK_5_6 (fe_code_rate_t)(FEC_S2_QPSK_3_4+1)	//13
-#define FEC_S2_QPSK_7_8 (fe_code_rate_t)(FEC_S2_QPSK_5_6+1)	//14
-#define FEC_S2_QPSK_8_9 (fe_code_rate_t)(FEC_S2_QPSK_7_8+1)	//15
-#define FEC_S2_QPSK_3_5 (fe_code_rate_t)(FEC_S2_QPSK_8_9+1)	//16
-#define FEC_S2_QPSK_4_5 (fe_code_rate_t)(FEC_S2_QPSK_3_5+1)	//17
-#define FEC_S2_QPSK_9_10 (fe_code_rate_t)(FEC_S2_QPSK_4_5+1)	//18
+#define FEC_S2_QPSK_BASE (fe_code_rate_t)(FEC_AUTO+1)
+#define FEC_S2_QPSK_1_2 (fe_code_rate_t)(FEC_S2_QPSK_BASE+0)	//10
+#define FEC_S2_QPSK_2_3 (fe_code_rate_t)(FEC_S2_QPSK_BASE+1)	//11
+#define FEC_S2_QPSK_3_4 (fe_code_rate_t)(FEC_S2_QPSK_BASE+2)	//12
+#define FEC_S2_QPSK_5_6 (fe_code_rate_t)(FEC_S2_QPSK_BASE+3)	//13
+#define FEC_S2_QPSK_7_8 (fe_code_rate_t)(FEC_S2_QPSK_BASE+4)	//14
+#define FEC_S2_QPSK_8_9 (fe_code_rate_t)(FEC_S2_QPSK_BASE+5)	//15
+#define FEC_S2_QPSK_3_5 (fe_code_rate_t)(FEC_S2_QPSK_BASE+6)	//16
+#define FEC_S2_QPSK_4_5 (fe_code_rate_t)(FEC_S2_QPSK_BASE+7)	//17
+#define FEC_S2_QPSK_9_10 (fe_code_rate_t)(FEC_S2_QPSK_BASE+8)	//18
 
-#define FEC_S2_8PSK_1_2 (fe_code_rate_t)(FEC_S2_QPSK_9_10+1)	//19
-#define FEC_S2_8PSK_2_3 (fe_code_rate_t)(FEC_S2_8PSK_1_2+1)	//20
-#define FEC_S2_8PSK_3_4 (fe_code_rate_t)(FEC_S2_8PSK_2_3+1)	//21
-#define FEC_S2_8PSK_5_6 (fe_code_rate_t)(FEC_S2_8PSK_3_4+1)	//22
-#define FEC_S2_8PSK_7_8 (fe_code_rate_t)(FEC_S2_8PSK_5_6+1)	//23
-#define FEC_S2_8PSK_8_9 (fe_code_rate_t)(FEC_S2_8PSK_7_8+1)	//24
-#define FEC_S2_8PSK_3_5 (fe_code_rate_t)(FEC_S2_8PSK_8_9+1)	//25
-#define FEC_S2_8PSK_4_5 (fe_code_rate_t)(FEC_S2_8PSK_3_5+1)	//26
-#define FEC_S2_8PSK_9_10 (fe_code_rate_t)(FEC_S2_8PSK_4_5+1)	//27
-#define FEC_S2_AUTO      (fe_code_rate_t)(FEC_S2_8PSK_9_10+1)	//28
+#define FEC_S2_8PSK_BASE (fe_code_rate_t)(FEC_S2_QPSK_9_10+1)
+#define FEC_S2_8PSK_1_2 (fe_code_rate_t)(FEC_S2_8PSK_BASE+0)	//19
+#define FEC_S2_8PSK_2_3 (fe_code_rate_t)(FEC_S2_8PSK_BASE+1)	//20
+#define FEC_S2_8PSK_3_4 (fe_code_rate_t)(FEC_S2_8PSK_BASE+2)	//21
+#define FEC_S2_8PSK_5_6 (fe_code_rate_t)(FEC_S2_8PSK_BASE+3)	//22
+#define FEC_S2_8PSK_7_8 (fe_code_rate_t)(FEC_S2_8PSK_BASE+4)	//23
+#define FEC_S2_8PSK_8_9 (fe_code_rate_t)(FEC_S2_8PSK_BASE+5)	//24
+#define FEC_S2_8PSK_3_5 (fe_code_rate_t)(FEC_S2_8PSK_BASE+6)	//25
+#define FEC_S2_8PSK_4_5 (fe_code_rate_t)(FEC_S2_8PSK_BASE+7)	//26
+#define FEC_S2_8PSK_9_10 (fe_code_rate_t)(FEC_S2_8PSK_BASE+8)	//27
+#define FEC_S2_AUTO      (fe_code_rate_t)(FEC_S2_8PSK_BASE+9)	//28
 
 static inline fe_modulation_t dvbs_get_modulation(fe_code_rate_t fec)
 {
@@ -75,20 +78,9 @@ static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 		return ROLLOFF_35;
 }
 
-typedef struct dvb_frontend_parameters FrontendParameters;
-
 #define MAX_LNBS	64	/* due to Diseqc 1.1  (2003-01-10 rasc) */
 
 class CFEManager;
-
-typedef struct frontend_config {
-	int diseqcRepeats;
-	int diseqcType;
-	int uni_scr;
-	int uni_qrg;
-	int motorRotationSpeed;
-	int highVoltage;
-} frontend_config_t;
 
 class CFrontend
 {
@@ -133,14 +125,14 @@ class CFrontend
 		int32_t lnbSwitch;
 		/* current Transponderdata */
 		TP_params currentTransponder;
-		struct dvb_frontend_parameters curfe;
+		FrontendParameters curfe;
 		bool slave;
 		int fenumber;
 		bool standby;
-		bool buildProperties(const dvb_frontend_parameters*, struct dtv_properties &);
+		bool buildProperties(const FrontendParameters*, struct dtv_properties &);
 
 		uint32_t			getDiseqcReply(const int timeout_ms) const;
-		struct dvb_frontend_parameters	getFrontend(void) const;
+		FrontendParameters		getFrontend(void) const;
 		void				secResetOverload(void);
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
 		void				secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms);
@@ -152,7 +144,7 @@ class CFrontend
 		void				sendDiseqcStandby(void);
 		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd);
 		void				sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms);
-		int				setFrontend(const struct dvb_frontend_parameters *feparams, bool nowait = false);
+		int				setFrontend(const FrontendParameters *feparams, bool nowait = false);
 		void				setSec(const uint8_t sat_no, const uint8_t pol, const bool high_band);
 		void				set12V(bool enable);
 		void				reset(void);
@@ -168,7 +160,7 @@ class CFrontend
 		uint8_t				getDiseqcPosition(void) const		{ return currentTransponder.diseqc; }
 		uint8_t				getDiseqcRepeats(void) const		{ return config.diseqcRepeats; }
 		diseqc_t			getDiseqcType(void) const		{ return (diseqc_t) config.diseqcType; }
-		uint32_t			getFrequency(void) const		{ return curfe.frequency; }
+		uint32_t			getFrequency(void) const		{ return curfe.dvb_feparams.frequency; }
 		bool				getHighBand()				{ return (int) getFrequency() >= lnbSwitch; }
 		static fe_modulation_t		getModulation(const uint8_t modulation);
 		uint8_t				getPolarization(void) const;
@@ -203,7 +195,7 @@ class CFrontend
 		void				setConfig(frontend_config_t cfg) { setDiseqcType((diseqc_t) cfg.diseqcType); config = cfg; };
 
 		int				setParameters(TP_params *TP, bool nowait = 0);
-		int				tuneFrequency (struct dvb_frontend_parameters * feparams, uint8_t polarization, bool nowait = false);
+		int				tuneFrequency (FrontendParameters * feparams, uint8_t polarization, bool nowait = false);
 		const TP_params*		getParameters(void) const { return &currentTransponder; };
 		struct dvb_frontend_event*	setParametersResponse(TP_params *TP);
 		void				setCurrentSatellitePosition(int32_t satellitePosition) {currentSatellitePosition = satellitePosition; }

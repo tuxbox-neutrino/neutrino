@@ -983,18 +983,18 @@ void CScanSetup::updateManualSettings()
 		transponder_list_t::iterator tI;
 		tI = transponders.find(channel->getTransponderId());
 		if(tI != transponders.end()) {
-			sprintf(scansettings.TP_freq, "%d", tI->second.feparams.frequency);
+			sprintf(scansettings.TP_freq, "%d", tI->second.feparams.dvb_feparams.frequency);
 			CFrontend * frontend = CFEManager::getInstance()->getLiveFE();
 			switch (frontend->getInfo()->type) {
 				case FE_QPSK:
-					sprintf(scansettings.TP_rate, "%d", tI->second.feparams.u.qpsk.symbol_rate);
-					scansettings.TP_fec = tI->second.feparams.u.qpsk.fec_inner;
+					sprintf(scansettings.TP_rate, "%d", tI->second.feparams.dvb_feparams.u.qpsk.symbol_rate);
+					scansettings.TP_fec = tI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
 					scansettings.TP_pol = tI->second.polarization;
 					break;
 				case FE_QAM:
-					sprintf(scansettings.TP_rate, "%d", tI->second.feparams.u.qam.symbol_rate);
-					scansettings.TP_fec = tI->second.feparams.u.qam.fec_inner;
-					scansettings.TP_mod = tI->second.feparams.u.qam.modulation;
+					sprintf(scansettings.TP_rate, "%d", tI->second.feparams.dvb_feparams.u.qam.symbol_rate);
+					scansettings.TP_fec = tI->second.feparams.dvb_feparams.u.qam.fec_inner;
+					scansettings.TP_mod = tI->second.feparams.dvb_feparams.u.qam.modulation;
 					break;
 				case FE_OFDM:
 				case FE_ATSC:
@@ -1070,21 +1070,21 @@ int CTPSelectHandler::exec(CMenuTarget* parent, const std::string &/*actionkey*/
 
 		tmpI = tmplist.find(select);
 
-		printf("CTPSelectHandler::exec: selected TP: freq %d pol %d SR %d\n", tmpI->second.feparams.frequency,
-		       tmpI->second.polarization, tmpI->second.feparams.u.qpsk.symbol_rate);
+		printf("CTPSelectHandler::exec: selected TP: freq %d pol %d SR %d\n", tmpI->second.feparams.dvb_feparams.frequency,
+		       tmpI->second.polarization, tmpI->second.feparams.dvb_feparams.u.qpsk.symbol_rate);
 
-		sprintf(scansettings.TP_freq, "%d", tmpI->second.feparams.frequency);
+		sprintf(scansettings.TP_freq, "%d", tmpI->second.feparams.dvb_feparams.frequency);
 
 		switch (frontend->getInfo()->type) {
 			case FE_QPSK:
-				sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qpsk.symbol_rate);
-				scansettings.TP_fec = tmpI->second.feparams.u.qpsk.fec_inner;
+				sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.dvb_feparams.u.qpsk.symbol_rate);
+				scansettings.TP_fec = tmpI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
 				scansettings.TP_pol = tmpI->second.polarization;
 				break;
 			case FE_QAM:
-				sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.u.qam.symbol_rate);
-				scansettings.TP_fec = tmpI->second.feparams.u.qam.fec_inner;
-				scansettings.TP_mod = tmpI->second.feparams.u.qam.modulation;
+				sprintf(scansettings.TP_rate, "%d", tmpI->second.feparams.dvb_feparams.u.qam.symbol_rate);
+				scansettings.TP_fec = tmpI->second.feparams.dvb_feparams.u.qam.fec_inner;
+				scansettings.TP_mod = tmpI->second.feparams.dvb_feparams.u.qam.modulation;
 				break;
 			case FE_OFDM:
 			case FE_ATSC:

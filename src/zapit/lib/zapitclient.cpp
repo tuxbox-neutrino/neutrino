@@ -30,7 +30,7 @@
 /* libevent */
 #include <eventserver.h>
 
-
+#include <zapit/client/zapittypes.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/client/msgtypes.h>
 #include <zapit/client/zapittools.h>
