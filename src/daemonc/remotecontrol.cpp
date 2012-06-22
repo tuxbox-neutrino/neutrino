@@ -453,7 +453,7 @@ void CRemoteControl::getNVODs()
 void CRemoteControl::processAPIDnames()
 {
 	has_unresolved_ctags= false;
-	has_ac3 = false; //FIXME what this variable suppoused to do ?? seems unused
+	has_ac3 = false; //use in infoviewer
 	int pref_found = -1;
 	int pref_ac3_found = -1;
 	int pref_idx = -1;
