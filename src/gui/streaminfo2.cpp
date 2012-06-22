@@ -583,7 +583,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	ypos += iheight;
 
 	scaling = 27000;
-	if (t.type == FE_QPSK && t.feparams.u.qpsk.fec_inner < FEC_S2_QPSK_1_2)
+	if (t.type == FE_QPSK && t.feparams.dvb_feparams.u.qpsk.fec_inner < FEC_S2_QPSK_1_2)
 		scaling = 15000;
 
 	sprintf (buf, "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));

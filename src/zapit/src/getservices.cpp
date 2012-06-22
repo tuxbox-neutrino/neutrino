@@ -298,31 +298,31 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 
 		t_transport_stream_id transport_stream_id = xmlGetNumericAttribute(node, "id", 16);
 		t_original_network_id original_network_id = xmlGetNumericAttribute(node, "on", 16);
-		feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
-		feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
+		feparams.dvb_feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
+		feparams.dvb_feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
 
 		if(cable) {
-			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
-			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
-			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
+			feparams.dvb_feparams.u.qam.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
+			feparams.dvb_feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
+			feparams.dvb_feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
 
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
+			if (feparams.dvb_feparams.frequency > 1000*1000)
+				feparams.dvb_feparams.frequency = feparams.dvb_feparams.frequency/1000; //transponderlist was read from tuxbox
 		} else {
-			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
-			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
+			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
+			feparams.dvb_feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
 
 			polarization = xmlGetNumericAttribute(node, "pol", 0);
 
-			if(feparams.u.qpsk.symbol_rate < 50000)
-				feparams.u.qpsk.symbol_rate = feparams.u.qpsk.symbol_rate * 1000;
+			if(feparams.dvb_feparams.u.qpsk.symbol_rate < 50000)
+				feparams.dvb_feparams.u.qpsk.symbol_rate = feparams.dvb_feparams.u.qpsk.symbol_rate * 1000;
 
-			if(feparams.frequency < 20000) 
-				feparams.frequency = feparams.frequency*1000;
+			if(feparams.dvb_feparams.frequency < 20000)
+				feparams.dvb_feparams.frequency = feparams.dvb_feparams.frequency*1000;
 			else
-				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+				feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, cable);
+		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, cable);
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		transponder t(frontendType, tid, feparams, polarization);
@@ -465,18 +465,18 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 	while ((tps = xmlGetNextOccurence(tps, "transponder")) != NULL) {
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
 
-		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
-		feparams.inversion = INVERSION_AUTO;
+		feparams.dvb_feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
+		feparams.dvb_feparams.inversion = INVERSION_AUTO;
 
 		if (fType == FE_QAM) {
-			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
-			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(tps, "fec_inner", 0);
-			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, "modulation", 0);
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
+			feparams.dvb_feparams.u.qam.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
+			feparams.dvb_feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(tps, "fec_inner", 0);
+			feparams.dvb_feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, "modulation", 0);
+			if (feparams.dvb_feparams.frequency > 1000*1000)
+				feparams.dvb_feparams.frequency=feparams.dvb_feparams.frequency/1000; //transponderlist was read from tuxbox
 		}
 		else if (fType == FE_QPSK) {
-			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
+			feparams.dvb_feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
 			polarization = xmlGetNumericAttribute(tps, "polarization", 0);
 			uint8_t system = xmlGetNumericAttribute(tps, "system", 0);
 			uint8_t modulation = xmlGetNumericAttribute(tps, "modulation", 0);
@@ -484,10 +484,10 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			xml_fec = CFrontend::getCodeRate(xml_fec, system);
 			if(modulation == 2 && ((fe_code_rate_t) xml_fec != FEC_AUTO))
 				xml_fec += 9;
-			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
-			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
+			feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, fType == FE_QAM);
+		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, fType == FE_QAM);
 		polarization &= 7;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);

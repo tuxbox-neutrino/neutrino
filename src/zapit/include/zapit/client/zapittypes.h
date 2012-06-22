@@ -29,7 +29,7 @@
 #include <string>
 #include <map>
 #include <zapit/types.h>
-#include <linux/dvb/frontend.h>
+#include <zapit/frontend_types.h>
 
 /* diseqc types */
 typedef enum {
@@ -91,7 +91,7 @@ typedef struct TP_parameter
 	uint8_t polarization;
 	uint8_t diseqc;
 	int scan_mode;
-	struct dvb_frontend_parameters feparams;
+	FrontendParameters feparams;
 } TP_params;
 
 #endif /* __zapittypes_h__ */
