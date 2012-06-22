@@ -763,6 +763,7 @@ const char * locale_real_names[] =
 	"miscsettings.infobar_logo_hdd_dir",
 	"miscsettings.infobar_sat_display",
 	"miscsettings.infobar_show",
+	"miscsettings.infobar_show_dd_available",
 	"miscsettings.infobar_show_res",
 	"miscsettings.infobar_show_res_simple",
 	"miscsettings.infobar_show_sysfs_hdd",

@@ -76,6 +76,7 @@ struct SNeutrinoSettings
 	int infobar_show_sysfs_hdd;
 	int infobar_show_res;
 	int infobar_show_tuner;
+	int infobar_show_dd_available;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;

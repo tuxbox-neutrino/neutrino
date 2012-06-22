@@ -420,8 +420,8 @@ void CInfoViewerBB::showIcon_DD()
 	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) && 
 	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
 		dd_icon = NEUTRINO_ICON_DD;
-	else
-		dd_icon = (g_RemoteControl->has_ac3) ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
+	else 
+		dd_icon = (g_settings.infobar_show_dd_available && g_RemoteControl->has_ac3) ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
 
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
 }
