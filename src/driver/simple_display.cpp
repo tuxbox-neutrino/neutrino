@@ -1,5 +1,5 @@
 /*
-	Routines to drive the SPARK boxes' 4 digit LED display
+	Routines to drive simple one-line text or SPARK's 4 digit LED display
 
 	(C) 2012 Stefan Seyfried
 
@@ -51,7 +51,7 @@ static inline int dev_open()
 {
 	int fd = open("/dev/vfd", O_RDWR);
 	if (fd < 0)
-		fprintf(stderr, "[neutrino] spark_led: open /dev/vfd: %m\n");
+		fprintf(stderr, "[neutrino] simple_display: open " DISPLAY_DEV ": %m\n");
 	return fd;
 }
 
@@ -61,7 +61,7 @@ static void display(const char *s, bool update_timestamp = true)
 	int len = strlen(s);
 	if (fd < 0)
 		return;
-printf("spark_led:%s '%s'\n", __func__, s);
+printf("%s '%s'\n", __func__, s);
 	write(fd, s, len);
 	close(fd);
 	if (update_timestamp)
@@ -131,7 +131,7 @@ void CLCD::setled(int red, int green)
 	if (fd < 0)
 		return;
 
-printf("spark_led:%s red:%d green:%d\n", __func__, red, green);
+printf("%s red:%d green:%d\n", __func__, red, green);
 
 	for (i = 0; i < 2; i++)
 	{
@@ -140,7 +140,7 @@ printf("spark_led:%s red:%d green:%d\n", __func__, red, green);
 		d.u.led.led_nr = i;
 		d.u.led.on = leds[i];
 		if (ioctl(fd, VFDSETLED, &d) < 0)
-			fprintf(stderr, "[neutrino] spark_led setled VFDSETLED: %m\n");
+			fprintf(stderr, "[neutrino] %s setled VFDSETLED: %m\n", __func__);
 	}
 	close(fd);
 }
@@ -243,7 +243,6 @@ void CLCD::showAudioProgress(const char, bool)
 void CLCD::setMode(const MODES m, const char * const)
 {
 	mode = m;
-printf("spark_led:%s %d\n", __func__, (int)m);
 
 	switch (m) {
 	case MODE_TVRADIO:
@@ -265,7 +264,6 @@ printf("spark_led:%s %d\n", __func__, (int)m);
 		showclock = true;
 		showTime();
 	}
-printf("spark_led:%s %d end\n", __func__, (int)m);
 }
 
 void CLCD::setBrightness(int)
