@@ -34,8 +34,16 @@
 #include <unistd.h>
 //#include <math.h>
 #include <sys/stat.h>
-
+#if HAVE_SPARK_HARDWARE
 #include "spark_led.h"
+#define DISPLAY_DEV "/dev/vfd"
+#define DISPLAY_LEN 4
+#endif
+#if HAVE_AZBOX_HARDWARE
+#define DISPLAY_DEV "/proc/vfd"
+#define LED_DEV "/proc/led"
+#define DISPLAY_LEN 8
+#endif
 
 static char volume = 0;
 //static char percent = 0;
@@ -49,11 +57,21 @@ static bool led_g = false;
 
 static inline int dev_open()
 {
-	int fd = open("/dev/vfd", O_RDWR);
+	int fd = open(DISPLAY_DEV, O_RDWR);
 	if (fd < 0)
 		fprintf(stderr, "[neutrino] simple_display: open " DISPLAY_DEV ": %m\n");
 	return fd;
 }
+
+#if HAVE_AZBOX_HARDWARE
+static inline int led_open()
+{
+	int fd = open(LED_DEV, O_RDWR);
+	if (fd < 0)
+		fprintf(stderr, "[neutrino] simple_display: open " LED_DEV ": %m\n");
+	return fd;
+}
+#endif
 
 static void display(const char *s, bool update_timestamp = true)
 {
@@ -69,7 +87,7 @@ printf("%s '%s'\n", __func__, s);
 		last_display = time(NULL);
 		/* increase timeout to ensure that everything is displayed
 		 * the driver displays 5 characters per second */
-		if (len > 4)
+		if (len > DISPLAY_LEN)
 			last_display += (len - 4) / 5;
 	}
 }
@@ -122,6 +140,7 @@ void CLCD::showServicename(std::string, bool)
 {
 }
 
+#if HAVE_SPARK_HARDWARE
 void CLCD::setled(int red, int green)
 {
 	struct aotom_ioctl_data d;
@@ -144,6 +163,34 @@ printf("%s red:%d green:%d\n", __func__, red, green);
 	}
 	close(fd);
 }
+#elif HAVE_AZBOX_HARDWARE
+void CLCD::setled(int red, int green)
+{
+	static unsigned char col = '0'; /* need to remember the state. 1 == blue, 2 == red */
+	int leds[3] = { -1, green, red };
+	int i;
+	char s[3];
+	int fd = led_open();
+	if (fd < 0)
+		return;
+	for (i = 1; i <= 2; i++)
+	{
+		if (leds[i] == -1)	/* don't touch */
+			continue;
+		col &= ~(i);		/* clear the bit... */
+		if (leds[i])
+			col |= i;	/* ...and set it again */
+	}
+	sprintf(s, "%c\n", col);
+	write(fd, s, 3);
+	close(fd);
+	//printf("%s(%d, %d): %c\n", __func__, red, green, col);
+}
+#else
+void CLCD::setled(int /*red*/, int /*green*/)
+{
+}
+#endif
 
 void CLCD::showTime(bool force)
 {
@@ -164,7 +211,7 @@ void CLCD::showTime(bool force)
 	}
 	else if (power && (force || (showclock && (now - last_display) > 4)))
 	{
-		char timestr[5];
+		char timestr[DISPLAY_LEN];
 		struct tm *t;
 		static int hour = 0, minute = 0;
 
@@ -172,7 +219,10 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
-			sprintf(timestr, "%02d%02d", hour, minute);
+			if (DISPLAY_LEN < 5)
+				sprintf(timestr, "%02d%02d", hour, minute);
+			else	/* pad with spaces on the left side to center the time string */
+				sprintf(timestr, "%*s%02d:%02d",(DISPLAY_LEN - 5)/2, "", hour, minute);
 			display(timestr, false);
 			last_display = 0;
 		}
@@ -196,24 +246,26 @@ void CLCD::showRCLock(int)
  * to force an update => inverted logic! */
 void CLCD::showVolume(const char vol, const bool update)
 {
-	char s[5];
+	char s[32];
+	const int type = (DISPLAY_LEN < 5);
+	const char *vol_fmt[] = { "Vol:%3d%%", "%4d" };
+	const char *mutestr[] = { "Vol:MUTE", "mute" };
 	if (vol == volume && update)
 		return;
-
 	volume = vol;
 	/* char is unsigned, so vol is never < 0 */
 	if (volume > 100)
 		volume = 100;
 
 	if (muted)
-		strcpy(s, "mute");
+		strcpy(s, mutestr[type]);
 	else
-		sprintf(s, "%4d", volume);
+		sprintf(s, vol_fmt[type], volume);
 
 	display(s);
 }
 
-void CLCD::showPercentOver(const unsigned char perc, const bool /*perform_update*/, const MODES)
+void CLCD::showPercentOver(const unsigned char /*perc*/, const bool /*perform_update*/, const MODES)
 {
 }
 
@@ -225,7 +277,7 @@ void CLCD::showMenuText(const int, const char *text, const int, const bool)
 	display_text[sizeof(display_text) - 1] = '\0';
 }
 
-void CLCD::showAudioTrack(const std::string &, const std::string & title, const std::string &)
+void CLCD::showAudioTrack(const std::string &, const std::string & /*title*/, const std::string &)
 {
 	if (mode != MODE_AUDIO)
 		return;
@@ -325,6 +377,7 @@ void CLCD::Unlock()
 {
 }
 
+#if HAVE_SPARK_HARDWARE
 void CLCD::Clear()
 {
 	int fd = dev_open();
@@ -336,6 +389,13 @@ void CLCD::Clear()
 	close(fd);
 printf("spark_led:%s\n", __func__);
 }
+#endif
+#if HAVE_AZBOX_HARDWARE
+void CLCD::Clear()
+{
+	display(" ", false);
+}
+#endif
 
 void CLCD::ShowIcon(vfd_icon i, bool on)
 {
