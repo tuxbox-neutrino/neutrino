@@ -132,7 +132,7 @@ void CNeutrinoApp::InitMenuMain()
 	dprintf(DEBUG_DEBUG, "init mainmenue\n");
 	
 	unsigned int system_rev = cs_get_revision();
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 	system_rev = 8; // :-)
 #endif
 	

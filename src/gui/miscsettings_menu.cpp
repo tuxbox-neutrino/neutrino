@@ -171,7 +171,7 @@ int CMiscMenue::showMiscSettingsMenu()
 	misc_menue->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
 	//energy, shutdown
-#ifndef HAVE_SPARK_HARDWARE
+#if !defined(HAVE_SPARK_HARDWARE) && !defined(HAVE_AZBOX_HARDWARE)
 	if(cs_get_revision() > 7)
 #endif
 	{

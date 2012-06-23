@@ -218,7 +218,7 @@ static void initGlobals(void)
 	g_Radiotext     = NULL;
 	g_volume	= NULL;
 
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 	/* spark has revision == 1 like tripledragon for now */
 	can_deepstandby = true;
 #else
@@ -655,7 +655,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 #if HAVE_TRIPLEDRAGON
 	g_settings.screen_preset = 0; /* does not make sense to have two configurations for that... */
 #endif
-#if HAVE_SPARK_HARDWARE
+#if HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 	g_settings.screen_preset = 1; /* spark is now always using 1280x720 framebuffer */
 #endif
 	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
