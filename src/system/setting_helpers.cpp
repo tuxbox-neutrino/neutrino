@@ -1062,7 +1062,8 @@ int check_dir(const char * newdir)
 			case 0x858458f6: 	/*ramfs*/
 				return 0;//ok
 			default:
-				fprintf( stderr,"%s Unknow File system type: %i\n",newdir ,s.f_type);
+				fprintf(stderr, "%s(%s): Unknown File system type: 0x%lx\n",
+						__func__, newdir, s.f_type);
 				break;
 		}
 	}
