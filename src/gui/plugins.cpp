@@ -40,6 +40,8 @@
 
 #include <dirent.h>
 #include <dlfcn.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -91,10 +93,9 @@ int CPlugins::find_plugin(const std::string & filename)
 
 bool CPlugins::pluginfile_exists(const std::string & filename)
 {
-	FILE *file = fopen(filename.c_str(),"r");
-	if (file != NULL)
+	struct stat stat_buf;
+	if(::stat(filename.c_str(), &stat_buf) == 0)
 	{
-		fclose(file);
 		return true;
 	} else
 	{
@@ -324,7 +325,6 @@ void CPlugins::startScriptPlugin(int number)
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
-
 	FILE *f = popen(script,"r");
 	if (f != NULL)
 	{

@@ -736,6 +736,7 @@ miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo Verz.
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
+miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
 miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
 miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)

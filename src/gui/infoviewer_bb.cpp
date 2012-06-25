@@ -163,7 +163,8 @@ void CInfoViewerBB::getBBIconInfo()
 			break;
 #endif
 		case CInfoViewerBB::ICON_DD:
-			iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
+			if( g_settings.infobar_show_dd_available )
+				iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_16_9:  //no radio
 			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
@@ -414,14 +415,14 @@ void CInfoViewerBB::showIcon_VTXT()
 
 void CInfoViewerBB::showIcon_DD()
 {
-	if (!is_visible)
+	if (!is_visible || !g_settings.infobar_show_dd_available)
 		return;
 	std::string dd_icon;
 	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) && 
 	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
 		dd_icon = NEUTRINO_ICON_DD;
-	else
-		dd_icon = (g_RemoteControl->has_ac3) ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
+	else 
+		dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
 
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
 }
