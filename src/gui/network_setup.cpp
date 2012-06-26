@@ -44,6 +44,8 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/messagebox.h>
 
+#include <gui/network_service.h>
+
 #include <global.h>
 #include <neutrino.h>
 #include <mymenu.h>
@@ -320,6 +322,10 @@ int CNetworkSetup::showNetworkSetup()
 	//proxyserver submenu
 	CProxySetup proxy(LOCALE_MAINSETTINGS_NETWORK);
 	networkSettings->addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_PROXYSERVER_SEP, true, NULL, &proxy, NULL, CRCInput::RC_0, NEUTRINO_ICON_BUTTON_0));
+
+	//services
+	CNetworkServiceSetup services;
+	networkSettings->addItem(new CMenuForwarder(LOCALE_NETWORKMENU_SERVICES, true, NULL, &services, NULL, CRCInput::RC_1, NEUTRINO_ICON_BUTTON_1));
 
 	int ret = 0;
 	while(true) {
