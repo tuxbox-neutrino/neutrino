@@ -979,6 +979,7 @@ const char * locale_real_names[] =
 	"networkmenu.password",
 	"networkmenu.reset_settings_now",
 	"networkmenu.select_if",
+	"networkmenu.services",
 	"networkmenu.setupnow",
 	"networkmenu.setuponstartup",
 	"networkmenu.show",

@@ -952,6 +952,7 @@ networkmenu.ntptitle Time-Syncronisation
 networkmenu.password Key
 networkmenu.reset_settings_now Do you want restore the previous settings?
 networkmenu.select_if Interface
+networkmenu.services Network services
 networkmenu.setupnow Apply network settings now
 networkmenu.setuponstartup Setup network on startup
 networkmenu.show Show active Network settings
