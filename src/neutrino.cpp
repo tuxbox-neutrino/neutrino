@@ -701,8 +701,6 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.StartChannelRadio = configfile.getString("startchannelradio","");
 	g_settings.startchanneltv_id =  configfile.getInt64("startchanneltv_id", 0);
 	g_settings.startchannelradio_id =  configfile.getInt64("startchannelradio_id", 0);
-	g_settings.startchanneltv_nr =  configfile.getInt32("startchanneltv_nr", 0);
-	g_settings.startchannelradio_nr =  configfile.getInt32("startchannelradio_nr", 0);
 	g_settings.uselastchannel         = configfile.getInt32("uselastchannel" , 1);
 
 
@@ -1105,8 +1103,6 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setString( "startchannelradio", g_settings.StartChannelRadio );
 	configfile.setInt64("startchanneltv_id", g_settings.startchanneltv_id);
 	configfile.setInt64("startchannelradio_id", g_settings.startchannelradio_id);
-	configfile.setInt32("startchanneltv_nr", g_settings.startchanneltv_nr);
-	configfile.setInt32("startchannelradio_nr", g_settings.startchannelradio_nr);
 	configfile.setInt32("uselastchannel", g_settings.uselastchannel);
 
 	// USERMENU
@@ -1762,8 +1758,6 @@ TIMER_START();
 	Z_start_arg ZapStart_arg;
 	ZapStart_arg.startchanneltv_id = g_settings.startchanneltv_id;
 	ZapStart_arg.startchannelradio_id = g_settings.startchannelradio_id;
-	ZapStart_arg.startchanneltv_nr = g_settings.startchanneltv_nr;
-	ZapStart_arg.startchannelradio_nr = g_settings.startchannelradio_nr;
 	ZapStart_arg.uselastchannel = g_settings.uselastchannel;
 	ZapStart_arg.video_mode = g_settings.video_Mode;
 	ZapStart_arg.ci_clock = g_settings.ci_clock;

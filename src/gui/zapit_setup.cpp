@@ -129,13 +129,11 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 		{
 			g_settings.StartChannelTV = actionKey.substr(actionKey.find_first_of("#")+1);
 			g_settings.startchanneltv_id = channel_id;
-			g_settings.startchanneltv_nr = cnr-1;
 		}
 		else if (strncmp(actionKey.c_str(), "ZCR:", 4) == 0)//...radio
 		{
 			g_settings.StartChannelRadio = actionKey.substr(actionKey.find_first_of("#")+1);
 			g_settings.startchannelradio_id= channel_id;
-			g_settings.startchannelradio_nr = cnr-1;
 		}
 
 		// ...leave bouquet/channel menu and show a refreshed zapit menu with current start channel(s)

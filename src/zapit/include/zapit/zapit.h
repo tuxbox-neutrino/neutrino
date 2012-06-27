@@ -31,8 +31,6 @@ typedef struct ZAPIT_start_arg
 {
         t_channel_id startchanneltv_id;
         t_channel_id startchannelradio_id;
-        int startchanneltv_nr;
-        int startchannelradio_nr;
         int uselastchannel;
         int video_mode;
         int ci_clock;
