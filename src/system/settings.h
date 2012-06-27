@@ -538,7 +538,6 @@ struct SNeutrinoSettings
 	int uselastchannel;
 
 	int	power_standby;
-	int	emlog;
 	int	rotor_swap;
 	int	hdd_sleep;
 	int	hdd_noise;

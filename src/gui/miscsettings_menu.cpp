@@ -319,15 +319,3 @@ void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
 }
 #endif /*CPU_FREQ*/
-
-#if 0
-//emlog
-void CMiscMenue::showMiscSettingsMenuEmLog(CMenuWidget *ms_emlog)
-{
-	ms_emlog->addIntroItems(LOCALE_MISCSETTINGS_DRIVER_BOOT);
-	if (access("/var/tuxbox/emlog", F_OK) == 0)
-		g_settings.emlog = 1;
-	ms_emlog->addItem(new CMenuOptionChooser(LOCALE_EXTRA_USELOG, &g_settings.emlog, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, new CLogChangeNotifier));
-}
-#endif
-
