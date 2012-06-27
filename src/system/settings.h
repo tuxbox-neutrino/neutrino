@@ -545,7 +545,6 @@ struct SNeutrinoSettings
 	int	hdd_sleep;
 	int	hdd_noise;
 	int	hdd_fs;
-	int	logo_num;
 	int	zap_cycle;
 	int	sms_channel;
 	char	font_file[100];
