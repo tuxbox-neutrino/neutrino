@@ -404,6 +404,7 @@ int CNeutrinoApp::loadSetup(const char * fname)
 	g_settings.scrambled_message = configfile.getBool("scrambled_message", true );
 	g_settings.volume_pos = configfile.getInt32("volume_pos", 0 );
 	g_settings.menu_pos = configfile.getInt32("menu_pos", CMenuWidget::MENU_POS_CENTER);
+	g_settings.show_menu_hints = configfile.getBool("show_menu_hints", true);
 	g_settings.infobar_show_sysfs_hdd   = configfile.getBool("infobar_show_sysfs_hdd"  , true );
 	g_settings.show_mute_icon = configfile.getInt32("show_mute_icon" ,0);
 	g_settings.infobar_show_res = configfile.getInt32("infobar_show_res", 0 );
@@ -845,6 +846,7 @@ void CNeutrinoApp::saveSetup(const char * fname)
 	configfile.setBool("scrambled_message"  , g_settings.scrambled_message  );
 	configfile.setInt32("volume_pos"  , g_settings.volume_pos  );
 	configfile.setInt32("menu_pos" , g_settings.menu_pos);
+	configfile.setBool("show_menu_hints" , g_settings.show_menu_hints);
 	configfile.setInt32("infobar_show_sysfs_hdd"  , g_settings.infobar_show_sysfs_hdd  );
 	configfile.setInt32("show_mute_icon"   , g_settings.show_mute_icon);
 	configfile.setInt32("infobar_show_res"  , g_settings.infobar_show_res  );

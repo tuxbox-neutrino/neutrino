@@ -73,6 +73,7 @@ struct SNeutrinoSettings
 	int volume_pos;
 	int show_mute_icon;
 	int menu_pos;
+	int show_menu_hints;
 	int infobar_show_sysfs_hdd;
 	int infobar_show_res;
 	int infobar_show_tuner;

@@ -435,6 +435,8 @@ int COsdSetup::showOsdSetup()
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_VOLUME_POS, &g_settings.volume_pos, VOLUMEBAR_DISP_POS_OPTIONS, VOLUMEBAR_DISP_POS_OPTIONS_COUNT, true, this));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_SHOW_MUTE_ICON, &g_settings.show_mute_icon, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_SETTINGS_MENU_POS, &g_settings.menu_pos, MENU_DISP_POS_OPTIONS, MENU_DISP_POS_OPTIONS_COUNT, true, this));
+	int show_hints = g_settings.show_menu_hints;
+	osd_menu->addItem(new CMenuOptionChooser(LOCALE_SETTINGS_MENU_HINTS, &show_hints, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_COLORMENU_FADE, &g_settings.widget_fade, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true ));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_EXTRA_BIGWINDOWS, &g_settings.big_windows, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
 	osd_menu->addItem(new CMenuOptionChooser(LOCALE_PROGRESSBAR_COLOR, &g_settings.progressbar_color, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
@@ -640,6 +642,12 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		return true;
 	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_POS)) {
 		osd_menu->hide();
+		return true;
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_SETTINGS_MENU_HINTS)) {
+		/* change option after hide, to let hide clear hint */
+		osd_menu->hide();
+		g_settings.show_menu_hints = * (int*) data;
 		return true;
 	}
 	else if((ARE_LOCALES_EQUAL(OptionName, LOCALE_MISCSETTINGS_INFOBAR_CASYSTEM_DISPLAY)) ||
