@@ -324,8 +324,8 @@ _repeat:
 	if (flags & (SCAN_NIT/*|SCAN_LOGICAL_NUMBERS*/) && !nit_logical_map.empty()) {
 		std::string pname = networkName;
 		INFO("network [%s] %d logical channels (%d hd)\n", pname.c_str(), nit_logical_map.size(), nit_hd_logical_map.size());
-		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
 		g_bouquetManager->loadBouquets(true);
+		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
 		CZapitBouquet* bouquet;
 		int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
 		if (bouquetId == -1)
