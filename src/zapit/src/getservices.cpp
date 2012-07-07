@@ -28,6 +28,7 @@
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 //#define SAVE_DEBUG
 

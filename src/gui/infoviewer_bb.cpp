@@ -43,6 +43,7 @@
 #include <sys/param.h>
 #include <time.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <global.h>
 #include <neutrino.h>

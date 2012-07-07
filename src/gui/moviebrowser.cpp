@@ -59,14 +59,15 @@
 #include <sys/stat.h>
 #include <gui/nfs.h>
 #include "neutrino.h"
-#include <gui/widget/stringinput.h>
 #include <sys/vfs.h> // for statfs
-#include <gui/widget/icons.h>
 #include <sys/mount.h>
 #include <utime.h>
+#include <unistd.h>
+#include <gui/widget/icons.h>
 #include <gui/widget/progressbar.h>
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
+#include <gui/widget/stringinput.h>
 #include <driver/record.h>
 
 extern CPictureViewer * g_PicViewer;

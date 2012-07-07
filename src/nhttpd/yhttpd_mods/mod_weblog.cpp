@@ -8,6 +8,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "mod_weblog.h"
 #include "helper.h"
