@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	(C) 2008-2012 Stefan Seyfried
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -688,7 +690,7 @@ void CRemoteControl::startvideo()
 	{
 		is_video_started= true;
 		//g_Zapit->startPlayBack();
-		g_Zapit->unlockPlayBack();
+		g_Zapit->unlockPlayBack(false);
 	}
 }
 
@@ -700,9 +702,9 @@ void CRemoteControl::stopvideo()
 #if HAVE_TRIPLEDRAGON
 		/* we need stopPlayback to blank video,
 		   lockPlayback prevents it from being inadvertently starting */
-		g_Zapit->stopPlayBack();
+		g_Zapit->stopPlayBack(false);
 #endif
-		g_Zapit->lockPlayBack();
+		g_Zapit->lockPlayBack(false);
 	}
 }
 

@@ -481,10 +481,10 @@ class CZapitClient:public CBasicClient
 	/****************************************/
 
 	void setStandby(const bool enable);
-	void startPlayBack();
-	void stopPlayBack();
-	void lockPlayBack();
-	void unlockPlayBack();
+	void startPlayBack(const bool sendpmt = false);
+	void stopPlayBack(const bool sendpmt = false);
+	void lockPlayBack(const bool sendpmt = true);
+	void unlockPlayBack(const bool sendpmt = true);
 	bool tune_TP(TP_params TP);
 	bool isPlayBackActive();
 	void setDisplayFormat(const video_display_format_t mode);

@@ -4,6 +4,7 @@
  * Zapit client interface - DBoxII-Project
  *
  * (C) 2002 by thegoodguy <thegoodguy@berlios.de> & the DBoxII-Project
+ * (C) 2007-2012 Stefan Seyfried
  *
  * License: GPL
  *
@@ -935,30 +936,38 @@ void CZapitClient::setVideoSystem(int video_system)
 }
 
 
-void CZapitClient::startPlayBack()
+void CZapitClient::startPlayBack(const bool sendpmt)
 {
-	send(CZapitMessages::CMD_SB_START_PLAYBACK);
+	CZapitMessages::commandBoolean msg;
+	msg.truefalse = sendpmt;
+	send(CZapitMessages::CMD_SB_START_PLAYBACK, (char*)&msg, sizeof(msg));
 	close_connection();
 }
 
-void CZapitClient::stopPlayBack()
+void CZapitClient::stopPlayBack(const bool sendpmt)
 {
-	send(CZapitMessages::CMD_SB_STOP_PLAYBACK);
+	CZapitMessages::commandBoolean msg;
+	msg.truefalse = sendpmt;
+	send(CZapitMessages::CMD_SB_STOP_PLAYBACK, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
 }
 
-void CZapitClient::lockPlayBack()
+void CZapitClient::lockPlayBack(const bool sendpmt)
 {
-	send(CZapitMessages::CMD_SB_LOCK_PLAYBACK);
+	CZapitMessages::commandBoolean msg;
+	msg.truefalse = sendpmt;
+	send(CZapitMessages::CMD_SB_LOCK_PLAYBACK, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
 }
-void CZapitClient::unlockPlayBack()
+void CZapitClient::unlockPlayBack(const bool sendpmt)
 {
-	send(CZapitMessages::CMD_SB_UNLOCK_PLAYBACK);
+	CZapitMessages::commandBoolean msg;
+	msg.truefalse = sendpmt;
+	send(CZapitMessages::CMD_SB_UNLOCK_PLAYBACK, (char*)&msg, sizeof(msg));
 	CZapitMessages::responseCmd response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();

@@ -1333,32 +1333,51 @@ printf("[zapit] TP_id %d freq %d rate %d fec %d pol %d\n", TP.TP_id, TP.feparams
         }
 
 	case CZapitMessages::CMD_SB_START_PLAYBACK:
+	{
+		CZapitMessages::commandBoolean msgBool;
+		CBasicServer::receive_data(connfd, &msgBool, sizeof(msgBool));
 		//playbackStopForced = false;
 		StartPlayBack(current_channel);
+		if (msgBool.truefalse)
+			SendPMT();
 		break;
+	}
 
 	case CZapitMessages::CMD_SB_STOP_PLAYBACK:
-		StopPlayBack(false);
+	{
+		CZapitMessages::commandBoolean msgBool;
+		CBasicServer::receive_data(connfd, &msgBool, sizeof(msgBool));
+		StopPlayBack(msgBool.truefalse);
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
+	}
 
 	case CZapitMessages::CMD_SB_LOCK_PLAYBACK:
+	{
+		CZapitMessages::commandBoolean msgBool;
+		CBasicServer::receive_data(connfd, &msgBool, sizeof(msgBool));
 		/* hack. if standby true, dont blank video */
 		standby = true;
-		StopPlayBack(true);
+		StopPlayBack(msgBool.truefalse);
 		standby = false;
 		playbackStopForced = true;
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
+	}
 	case CZapitMessages::CMD_SB_UNLOCK_PLAYBACK:
+	{
+		CZapitMessages::commandBoolean msgBool;
+		CBasicServer::receive_data(connfd, &msgBool, sizeof(msgBool));
 		playbackStopForced = false;
 		StartPlayBack(current_channel);
-		SendPMT();
+		if (msgBool.truefalse)
+			SendPMT();
 		response.cmd = CZapitMessages::CMD_READY;
 		CBasicServer::send_data(connfd, &response, sizeof(response));
 		break;
+	}
 	case CZapitMessages::CMD_SET_DISPLAY_FORMAT: {
 		CZapitMessages::commandInt msg;
 		CBasicServer::receive_data(connfd, &msg, sizeof(msg));
