@@ -35,7 +35,7 @@
 //#include <math.h>
 #include <sys/stat.h>
 #if HAVE_SPARK_HARDWARE
-#include "spark_led.h"
+#include <aotom_main.h>
 #define DISPLAY_DEV "/dev/vfd"
 #define DISPLAY_LEN 4
 #endif
@@ -219,11 +219,31 @@ void CLCD::showTime(bool force)
 		if (force || last_display || (hour != t->tm_hour) || (minute != t->tm_min)) {
 			hour = t->tm_hour;
 			minute = t->tm_min;
-			if (DISPLAY_LEN < 5)
-				sprintf(timestr, "%02d%02d", hour, minute);
-			else	/* pad with spaces on the left side to center the time string */
-				sprintf(timestr, "%*s%02d:%02d",(DISPLAY_LEN - 5)/2, "", hour, minute);
-			display(timestr, false);
+#if HAVE_SPARK_HARDWARE
+			now += t->tm_gmtoff;
+			int fd = dev_open();
+#if 0 /* VFDSETTIME is broken and too complicated anyway -> use VFDSETTIME2 */
+			int mjd = 40587 + now  / 86400; /* 1970-01-01 is mjd 40587 */
+			struct aotom_ioctl_data d;
+			d.u.time.time[0] = mjd >> 8;
+			d.u.time.time[1] = mjd & 0xff;
+			d.u.time.time[2] = hour;
+			d.u.time.time[3] = minute;
+			d.u.time.time[4] = t->tm_sec;
+			int ret = ioctl(fd, VFDSETTIME, &d);
+#else
+			int ret = ioctl(fd, VFDSETTIME2, &now);
+#endif
+			close(fd);
+			if (ret < 0)
+#endif
+			{
+				if (DISPLAY_LEN < 5)
+					sprintf(timestr, "%02d%02d", hour, minute);
+				else	/* pad with spaces on the left side to center the time string */
+					sprintf(timestr, "%*s%02d:%02d",(DISPLAY_LEN - 5)/2, "", hour, minute);
+				display(timestr, false);
+			}
 			last_display = 0;
 		}
 	}
