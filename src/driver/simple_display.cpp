@@ -211,7 +211,7 @@ void CLCD::showTime(bool force)
 	}
 	else if (power && (force || (showclock && (now - last_display) > 4)))
 	{
-		char timestr[DISPLAY_LEN];
+		char timestr[DISPLAY_LEN + 1];
 		struct tm *t;
 		static int hour = 0, minute = 0;
 
