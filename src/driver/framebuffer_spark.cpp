@@ -459,30 +459,28 @@ void CFrameBuffer::setTransparency( int /*tr*/ )
 {
 }
 
-void CFrameBuffer::setBlendMode(uint8_t /*mode*/)
+/* original interfaceL: 1 == pixel alpha, 2 == global alpha premultiplied */
+void CFrameBuffer::setBlendMode(uint8_t mode)
 {
-#if 0
-	//g.use_global_alpha = (mode == 2); /* 1 == pixel alpha, 2 == global alpha */
-	if (ioctl(fd, FBIO_SETBLENDMODE, mode))
-		printf("FBIO_SETBLENDMODE failed.\n");
-#endif
+	/* mode = 1 => reset to no extra transparency */
+	if (mode == 1)
+		setBlendLevel(0);
 }
 
-void CFrameBuffer::setBlendLevel(int /*level*/)
+/* level = 100 -> transparent, level = 0 -> nontransperent */
+void CFrameBuffer::setBlendLevel(int level)
 {
-#if 0
-	//printf("CFrameBuffer::setBlendLevel %d\n", level);
-	unsigned char value = 0xFF;
-	if((level >= 0) && (level <= 100))
-		value = convertSetupAlpha2Alpha(level);
-
-	if (ioctl(fd, FBIO_SETOPACITY, value))
-		printf("FBIO_SETOPACITY failed.\n");
-#if 1
-       if(level == 100) // TODO: sucks.
-               usleep(20000);
-#endif
-#endif
+	struct stmfbio_var_screeninfo_ex v;
+	memset(&v, 0, sizeof(v));
+	/* set to 0 already...
+	v.layerid = 0;
+	v.activate = STMFBIO_ACTIVATE_IMMEDIATE; // == 0
+	v.premultiplied_alpha = 0;
+	 */
+	v.caps = STMFBIO_VAR_CAPS_OPACITY | STMFBIO_VAR_CAPS_PREMULTIPLIED;
+	v.opacity = 0xff - (level * 0xff / 100);
+	if (ioctl(fd, STMFBIO_SET_VAR_SCREENINFO_EX, &v) < 0)
+		perror("[fb:setBlendLevel] STMFBIO");
 }
 
 void CFrameBuffer::setAlphaFade(int in, int num, int tr)
