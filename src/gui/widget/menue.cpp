@@ -1069,7 +1069,7 @@ void CMenuWidget::paintHint(int pos)
 
 	if (hint_painted) {
 		/* clear line box */
-		frameBuffer->paintBackgroundBoxRel(xpos, y, ConnectLineBox_Width, height+hint_height+rad);
+		frameBuffer->paintBackgroundBoxRel(xpos, y+SHADOW_OFFSET, ConnectLineBox_Width, height+hint_height+rad);
 		/* clear info box */
 		frameBuffer->paintBackgroundBoxRel(x, ypos2, iwidth, hint_height);
 
