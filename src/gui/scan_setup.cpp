@@ -368,7 +368,7 @@ int CScanSetup::showScanMenu()
 		//diseqc type
 		ojDiseqcRepeats	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQCREPEAT, (int *)&scansettings.diseqcRepeat, (dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED), 0, 2, NULL);
 
-		satNotify->addItem(1, ojDiseqcRepeats);
+		satNotify->addItem(2, ojDiseqcRepeats);
 		//--------------------------------------------------------------
 		//add diseqc items
 		settings->addItem(ojDiseqc);
