@@ -42,16 +42,18 @@ struct network_service
 	std::string name;
 	std::string cmd;
 	std::string options;
+	neutrino_locale_t hint;
+	std::string icon;
 	int enabled;
 };
 
 #define SERVICE_COUNT 4
 static struct network_service services[SERVICE_COUNT] =
 {
-	{ "FTP", "vsftpd", "", 0 },
-	{ "Telnet", "telnetd", "-l/bin/login", 0 },
-	{ "DjMount", "djmount", "-o iocharset=utf8 /media/00upnp/", 0 },
-	{ "uShare", "ushare", "-D", 0 }
+	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_TELNET, "", 0 },
+	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_FTPD, "", 0 },
+	{ "DjMount", "djmount", "-o iocharset=utf8 /media/00upnp/", LOCALE_MENU_HINT_NET_DJMOUNT, "", 0 },
+	{ "uShare", "ushare", "-D", LOCALE_MENU_HINT_NET_USHARE, "", 0 }
 };
 
 CNetworkService::CNetworkService(std::string cmd, std::string opts)
@@ -142,7 +144,9 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 	for(unsigned i = 0; i < SERVICE_COUNT; i++) {
 		items[i] = new CNetworkService(services[i].cmd, services[i].options);
 		services[i].enabled = items[i]->Enabled();
-		setup->addItem(new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, items[i], CRCInput::convertDigitToKey(shortcut++), ""));
+		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, items[i], CRCInput::convertDigitToKey(shortcut++), "");
+		mc->setHint(services[i].icon, services[i].hint);
+		setup->addItem(mc);
 	}
 
 	int res = setup->exec (NULL, "");
