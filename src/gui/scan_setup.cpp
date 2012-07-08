@@ -452,6 +452,7 @@ int CScanSetup::showScanMenu()
 	}
 #endif /*ENABLE_FASTSCAN*/
 	
+	satNotify->changeNotify(NONEXISTANT_LOCALE, (int *)&scansettings.diseqcMode);
 	int res = settings->exec(NULL, "");
 	settings->hide();
 	selected = settings->getSelected();
