@@ -166,6 +166,71 @@
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_ACTIVE "mute_zap_green"
 #define NEUTRINO_ICON_BUTTON_MUTE_ZAP_INACTIVE "mute_zap_gray"
 
+/* menu hints */
+#define NEUTRINO_ICON_HINT_BACK	"hint_back"
+/* main menu */
+#define NEUTRINO_ICON_HINT_TVMODE	"hint_tvmode"
+#define NEUTRINO_ICON_HINT_RADIOMODE	"hint_radiomode"
+#define NEUTRINO_ICON_HINT_TIMERS	"hint_timers"
+#define NEUTRINO_ICON_HINT_MEDIA	"hint_media"
+#define NEUTRINO_ICON_HINT_GAMES	"hint_games"
+#define NEUTRINO_ICON_HINT_SCRIPTS	"hint_scripts"
+#define NEUTRINO_ICON_HINT_SETTINGS	"hint_settings"
+#define NEUTRINO_ICON_HINT_SERVICE	"hint_service"
+#define NEUTRINO_ICON_HINT_SLEEPTIMER	"hint_sleeptimer"
+#define NEUTRINO_ICON_HINT_REBOOT	"hint_reboot"
+#define NEUTRINO_ICON_HINT_SHUTDOWN	"hint_shutdown"
+#define NEUTRINO_ICON_HINT_INFO		"hint_info"
+#define NEUTRINO_ICON_HINT_CI		"hint_ci"
+/* media */
+#define NEUTRINO_ICON_HINT_APLAY	"hint_aplay"
+#define NEUTRINO_ICON_HINT_INET_RADIO	"hint_inetradio"
+#define NEUTRINO_ICON_HINT_MOVIE	"hint_movie"
+#define NEUTRINO_ICON_HINT_PICVIEW	"hint_picview"
+
+#define NEUTRINO_ICON_HINT_MB		"hint_mb"
+#define NEUTRINO_ICON_HINT_FILEPLAY	"hint_fileplay"
+
+/* settings */
+#define NEUTRINO_ICON_HINT_SAVE_SETTINGS	"hint_save"
+#define NEUTRINO_ICON_HINT_MANAGE_SETTINGS	"hint_manage"
+#define NEUTRINO_ICON_HINT_PERSONALIZE	"hint_personalize"
+#define NEUTRINO_ICON_HINT_EXTENDED	"hint_extended"
+#define NEUTRINO_ICON_HINT_VIDEO	"hint_video"
+#define NEUTRINO_ICON_HINT_AUDIO	"hint_audio"
+#define NEUTRINO_ICON_HINT_PROTECTION	"hint_protection"
+#define NEUTRINO_ICON_HINT_NETWORK	"hint_network"
+#define NEUTRINO_ICON_HINT_RECORDING	"hint_recording"
+#define NEUTRINO_ICON_HINT_LANGUAGE	"hint_language"
+#define NEUTRINO_ICON_HINT_OSD		"hint_osd"
+#define NEUTRINO_ICON_HINT_VFD		"hint_vfd"
+#define NEUTRINO_ICON_HINT_HDD		"hint_hdd"
+#define NEUTRINO_ICON_HINT_KEYS		"hint_keys"
+#define NEUTRINO_ICON_HINT_A_PIC	"hint_a_pic"
+
+#define NEUTRINO_ICON_HINT_COLORS	"hint_colors"
+#define NEUTRINO_ICON_HINT_FONTS	"hint_fonts"
+
+/* service */
+#define NEUTRINO_ICON_HINT_SERVICE_SCAN	"hint_scan"
+#define NEUTRINO_ICON_HINT_RELOAD_CHANNELS	"hint_reload"
+#define NEUTRINO_ICON_HINT_BEDIT	"hint_bedit"
+#define NEUTRINO_ICON_HINT_DELETE_CHANNELS	"hint_delete"
+#define NEUTRINO_ICON_HINT_SOFT_RESTART	"hint_restart"
+#define NEUTRINO_ICON_HINT_SW_UPDATE	"hint_swupdate"
+
+/* info */
+#define NEUTRINO_ICON_HINT_IMAGEINFO	"hint_imageinfo"
+#define NEUTRINO_ICON_HINT_DBOXINFO	"hint_dboxinfo"
+#define NEUTRINO_ICON_HINT_STREAMINFO	"hint_streaminfo"
+
+/* settings manager */
+#define NEUTRINO_ICON_HINT_RESET	"hint_reset"
+#define NEUTRINO_ICON_HINT_SAVEAS	"hint_saveas"
+#define NEUTRINO_ICON_HINT_LOAD		"hint_load"
+#define NEUTRINO_ICON_HINT_BACKUP	"hint_backup"
+#define NEUTRINO_ICON_HINT_RESTORE	"hint_restore"
+#define NEUTRINO_ICON_HINT_FACTORY	"hint_factory"
 
 /* misc */
 
