@@ -34,6 +34,7 @@
 #include <driver/screen_max.h>
 
 #include <system/debug.h>
+#include <unistd.h>
 
 #define TOUCH_BASE "/var/etc/."
 
