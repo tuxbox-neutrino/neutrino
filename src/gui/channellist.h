@@ -96,6 +96,7 @@ private:
 	void hide();
 	void showChannelLogo();
 	void calcSize();
+	std::string   MaxChanNr();
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );

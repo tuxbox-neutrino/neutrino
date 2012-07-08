@@ -23,6 +23,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>          /* u_char */
 #include <string.h>
+#include <unistd.h>
 #include "configure_network.h"
 #include "libnet.h"             /* netGetNameserver, netSetNameserver   */
 #include "network_interfaces.h" /* getInetAttributes, setInetAttributes */

@@ -75,6 +75,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <unistd.h>
 
 #if 0
 #ifdef ENABLE_LIRC

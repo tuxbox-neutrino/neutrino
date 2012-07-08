@@ -11,6 +11,7 @@
 // C
 #include <cstdlib>
 #include <cstring>
+#include <unistd.h>
 
 // C++
 #include <string>

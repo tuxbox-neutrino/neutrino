@@ -30,6 +30,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <poll.h>
 #include "upnpclient.h"
 #include <algorithm>

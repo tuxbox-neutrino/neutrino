@@ -40,6 +40,7 @@
 #include <gui/plugins.h>
 #include <driver/screenshot.h>
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/timeb.h>

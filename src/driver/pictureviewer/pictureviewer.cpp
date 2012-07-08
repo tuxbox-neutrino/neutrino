@@ -5,7 +5,7 @@
 #include "pv_config.h"
 #include "driver/framebuffer.h"
 
-
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -587,7 +587,7 @@ fb_pixel_t * CPictureViewer::int_getImage(const std::string & name, int *width, 
 		if (buffer == NULL)
 		{
 		  	printf("%s: Error: malloc\n", mode_str.c_str());
-		  	return false;
+		  	return 0;
 		}
 #ifdef FBV_SUPPORT_PNG
 		if ((name.find(".png") == (name.length() - 4)) && (fh_png_id(name.c_str())))
