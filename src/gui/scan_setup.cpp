@@ -9,6 +9,8 @@
 	Copyright (C) 2011 T. Graf 'dbt'
 	Homepage: http://www.dbox2-tuning.net/
 
+	Copyright (C) 2011-2012 Stefan Seyfried
+
 	License: GPL
 
 	This program is free software; you can redistribute it and/or modify
@@ -551,6 +553,9 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat)
 	CMenuOptionNumberChooser	*diseqc	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_DISEQC_INPUT, &sit->second.diseqc, ((dmode != NO_DISEQC) && (dmode != DISEQC_ADVANCED)), -1, 15, NULL, 1, -1, LOCALE_OPTIONS_OFF);
 	CMenuOptionNumberChooser	*comm 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_COMM_INPUT, &sit->second.commited, dmode == DISEQC_ADVANCED, -1, 15, NULL, 1, -1, LOCALE_OPTIONS_OFF);
 	CMenuOptionNumberChooser	*uncomm = new CMenuOptionNumberChooser(LOCALE_SATSETUP_UNCOMM_INPUT, &sit->second.uncommited, dmode == DISEQC_ADVANCED, -1, 15, NULL, 1, -1, LOCALE_OPTIONS_OFF);
+	CMenuOptionNumberChooser	*uniscr = new CMenuOptionNumberChooser(LOCALE_UNICABLE_SCR, &sit->second.unicable_scr, true, -1, 7, NULL, 0, -1, LOCALE_OPTIONS_OFF);
+	CIntInput			*uniqrg = new CIntInput(LOCALE_UNICABLE_QRG, (int&) sit->second.unicable_qrg, 4, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
+	CMenuOptionNumberChooser	*unilnb = new CMenuOptionNumberChooser(LOCALE_UNICABLE_LNB, &sit->second.unicable_lnb, true, 0, 1);
 	//CMenuOptionNumberChooser	*motor 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_MOTOR_POS, &sit->second.motor_position, dmode == DISEQC_ADVANCED, 0, 64, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 	CMenuOptionNumberChooser	*motor 	= new CMenuOptionNumberChooser(LOCALE_SATSETUP_MOTOR_POS, &sit->second.motor_position, true, 0, 64, NULL, 0, 0, LOCALE_OPTIONS_OFF);
 	//CMenuOptionChooser		*usals 	= new CMenuOptionChooser(LOCALE_EXTRA_USE_GOTOXX,  &sit->second.use_usals, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, dmode == DISEQC_ADVANCED);
@@ -572,6 +577,9 @@ void CScanSetup::addScanMenuTempSat(CMenuWidget *temp_sat)
 	temp_sat->addItem(diseqc);
 	temp_sat->addItem(comm);
 	temp_sat->addItem(uncomm);
+	temp_sat->addItem(uniscr);
+	temp_sat->addItem(new CMenuForwarder(LOCALE_UNICABLE_QRG, true, uniqrg->getValue(), uniqrg));
+	temp_sat->addItem(unilnb);
 	temp_sat->addItem(motor);
 	temp_sat->addItem(usals);	
 	temp_sat->addItem(new CMenuForwarder(LOCALE_SATSETUP_LOFL, true, lofL->getValue(), lofL));

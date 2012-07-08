@@ -1338,6 +1338,9 @@ timing.infobar_movieplayer Infobar (Filmwiedergabe)
 timing.infobar_radio Infobar (Radiobetrieb)
 timing.menu Menü
 timing.numericzap Umschalten mit Zifferntasten
+unicable.lnb Unicable Eingang
+unicable.qrg Unicable Frequenz
+unicable.scr Unicable SCR
 upnpbrowser.head UPnP Browser
 upnpbrowser.noservers Kein UPnP-Server gefunden
 upnpbrowser.rescan Neue Suche
