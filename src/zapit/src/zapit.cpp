@@ -475,8 +475,18 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	printf("[zapit] zap to %s (%llx)\n", current_channel->getName().c_str(), live_channel_id);
 
+	/* retry tuning twice when using unicable */
+	int retry = (CFrontend::getInstance()->getUniSCR() >= 0) * 2;
+ again:
 	if(!TuneChannel(newchannel, transponder_change))
-		return false;
+	{
+		if (retry < 1)
+			return false;
+		printf("[zapit] %s:1 unicable retry tuning %d\n", __func__, retry);
+		CFrontend::getInstance()->tuned = false;
+		retry--;
+		goto again;
+	}
 
 	if (current_channel->getServiceType() == ST_NVOD_REFERENCE_SERVICE) {
 		current_is_nvod = true;
@@ -497,6 +507,13 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 #endif
 
 	failed = !ParsePatPmt(current_channel);
+
+	if (failed && retry > 0) {
+		printf("[zapit] %s:2 unicable retry tuning %d\n", __func__, retry);
+		CFrontend::getInstance()->tuned = false;
+		retry--;
+		goto again;
+	}
 
 	if ((!failed) && (current_channel->getAudioPid() == 0) && (current_channel->getVideoPid() == 0)) {
 		printf("[zapit] neither audio nor video pid found\n");
@@ -535,17 +552,35 @@ bool CZapit::ZapForRecord(const t_channel_id channel_id)
 {
 	CZapitChannel* newchannel;
 	bool transponder_change;
+	/* retry tuning twice when using unicable */
+	int retry = (CFrontend::getInstance()->getUniSCR() >= 0) * 2;
 
 	if((newchannel = CServiceManager::getInstance()->FindChannel(channel_id)) == NULL) {
 		printf("zapit_to_record: channel_id " PRINTF_CHANNEL_ID_TYPE " not found", channel_id);
 		return false;
 	}
+ again:
 	printf("%s: %s (%llx)\n", __FUNCTION__, newchannel->getName().c_str(), channel_id);
 	if(!TuneChannel(newchannel, transponder_change))
-		return false;
+	{
+		if (retry < 1)
+			return false;
+		printf("[zapit] %s:1 unicable retry tuning %d\n", __func__, retry);
+		CFrontend::getInstance()->tuned = false;
+		retry--;
+		goto again;
+	}
+
 
 	if(!ParsePatPmt(newchannel))
-		return false;
+	{
+		if (retry < 1)
+			return false;
+		printf("[zapit] %s:2 unicable retry tuning %d\n", __func__, retry);
+		CFrontend::getInstance()->tuned = false;
+		retry--;
+		goto again;
+	}
 
 	return true;
 }
