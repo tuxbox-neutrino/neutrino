@@ -393,12 +393,16 @@ int COsdSetup::showOsdSetup()
 
 	//item menu colors
 	showOsdMenueColorSetup(&osd_menu_colors);
-	osd_menu->addItem(new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, &osd_menu_colors, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_COLORMENU_MENUCOLORS, true, NULL, &osd_menu_colors, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf->setHint("", LOCALE_MENU_HINT_COLORS);
+	osd_menu->addItem(mf);
 
 	//fonts
 	CMenuWidget osd_menu_fonts(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_COLORS, width, MN_WIDGET_ID_OSDSETUP_FONT);
 	showOsdFontSizeSetup(&osd_menu_fonts);
-	osd_menu->addItem(new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, &osd_menu_fonts, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+	mf = new CMenuForwarder(LOCALE_FONTMENU_HEAD, true, NULL, &osd_menu_fonts, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf->setHint("", LOCALE_MENU_HINT_FONTS);
+	osd_menu->addItem(mf);
 
 	//timeouts
 	CMenuWidget osd_menu_timing(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_TIMEOUT);
@@ -452,7 +456,9 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 {
 	menu_colors->addIntroItems(LOCALE_COLORMENU_MENUCOLORS);
 
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, new CThemes(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED) );
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_COLORMENU_THEMESELECT, true, NULL, new CThemes(), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf->setHint("", LOCALE_MENU_HINT_THEME);
+	menu_colors->addItem(mf);
 
 	CColorChooser* chHeadcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.menu_Head_red, &g_settings.menu_Head_green, &g_settings.menu_Head_blue,
 			&g_settings.menu_Head_alpha, colorSetupNotifier);
@@ -470,18 +476,43 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 			&g_settings.menu_Content_inactive_alpha, colorSetupNotifier);
 	CColorChooser* chContentInactiveTextcolor = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR, &g_settings.menu_Content_inactive_Text_red, &g_settings.menu_Content_inactive_Text_green, &g_settings.menu_Content_inactive_Text_blue,
 			NULL, colorSetupNotifier);
+
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chHeadcolor ));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chHeadTextcolor ));
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chHeadcolor );
+	mf->setHint("", LOCALE_MENU_HINT_HEAD_BACKGROUND);
+	menu_colors->addItem(mf);
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chHeadTextcolor );
+	mf->setHint("", LOCALE_MENU_HINT_HEAD_TEXTCOLOR);
+	menu_colors->addItem(mf);
+
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUCONTENT));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentcolor ));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentTextcolor ));
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentcolor );
+	mf->setHint("", LOCALE_MENU_HINT_CONTENT_BACKGROUND);
+	menu_colors->addItem(mf);
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentTextcolor );
+	mf->setHint("", LOCALE_MENU_HINT_CONTENT_TEXTCOLOR);
+	menu_colors->addItem(mf);
+
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUCONTENT_INACTIVE));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentInactivecolor ));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentInactiveTextcolor));
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentInactivecolor );
+	mf->setHint("", LOCALE_MENU_HINT_INACTIVE_BACKGROUND);
+	menu_colors->addItem(mf);
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentInactiveTextcolor);
+	mf->setHint("", LOCALE_MENU_HINT_INACTIVE_TEXTCOLOR);
+	menu_colors->addItem(mf);
+
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUCONTENT_SELECTED));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentSelectedcolor ));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentSelectedTextcolor ));
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentSelectedcolor );
+	mf->setHint("", LOCALE_MENU_HINT_SELECTED_BACKGROUND);
+	menu_colors->addItem(mf);
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentSelectedTextcolor );
+	mf->setHint("", LOCALE_MENU_HINT_SELECTED_TEXTCOLOR);
+	menu_colors->addItem(mf);
 
 	CColorChooser* chInfobarcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.infobar_red, 
 			&g_settings.infobar_green, &g_settings.infobar_blue, &g_settings.infobar_alpha, colorSetupNotifier);
@@ -489,14 +520,21 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 			&g_settings.infobar_Text_green, &g_settings.infobar_Text_blue, NULL, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORSTATUSBAR_TEXT));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chInfobarcolor ));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chInfobarTextcolor ));
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chInfobarcolor );
+	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_BACKGROUND);
+	menu_colors->addItem(mf);
+
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chInfobarTextcolor );
+	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_TEXTCOLOR);
+	menu_colors->addItem(mf);
 
 	CColorChooser* chColored_Events = new CColorChooser(LOCALE_COLORMENU_TEXTCOLOR,	&g_settings.colored_events_red,
 			&g_settings.colored_events_green, &g_settings.colored_events_blue, NULL, colorSetupNotifier);
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_MISCSETTINGS_INFOBAR_COLORED_EVENTS));
-	menu_colors->addItem( new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chColored_Events ));
+	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chColored_Events );
+	mf->setHint("", LOCALE_MENU_HINT_EVENT_TEXTCOLOR);
+	menu_colors->addItem(mf);
 }
 
 /* for font size setup */
