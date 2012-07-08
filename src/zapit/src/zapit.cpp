@@ -186,9 +186,6 @@ void CZapit::SaveSettings(bool write, bool write_a)
 		configfile.setInt32("repeatUsals", config.repeatUsals);
 		configfile.setInt32("scanSDT", config.scanSDT);
 
-		configfile.setInt32("uni_scr", config.uni_scr);
-		configfile.setInt32("uni_qrg", config.uni_qrg);
-
 		configfile.setInt32("cam_ci", cam_ci);
 
 #if 0 // unused
@@ -267,9 +264,6 @@ void CZapit::LoadSettings()
 
 	config.scanSDT				= configfile.getInt32("scanSDT", 0);
 
-	config.uni_scr				= configfile.getInt32("uni_scr", -1);
-	config.uni_qrg				= configfile.getInt32("uni_qrg", 0);
-
 	cam_ci					= configfile.getInt32("cam_ci", 2);
 
 	diseqcType				= (diseqc_t)configfile.getInt32("diseqcType", NO_DISEQC);
@@ -300,7 +294,6 @@ void CZapit::ConfigFrontend()
 	CFrontend::getInstance()->configUsals(config.gotoXXLatitude, config.gotoXXLongitude,
 		config.gotoXXLaDirection, config.gotoXXLoDirection, config.repeatUsals);
 	CFrontend::getInstance()->configRotor(config.motorRotationSpeed, config.highVoltage);
-	CFrontend::getInstance()->configUnicable(config.uni_scr, config.uni_qrg);
 }
 
 void CZapit::SendPMT(bool forupdate)

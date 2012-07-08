@@ -3,6 +3,8 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
+ * (C) 2007-2012 Stefan Seyfried
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -170,7 +172,8 @@ CFrontend::CFrontend(int Number, int Adapter)
 	currentTransponder.diseqc		= 255;
 
 	uni_scr = -1;       /* the unicable SCR address,     -1 == no unicable */
-	uni_qrg = 0;        /* the unicable frequency in MHz, 0 == from spec */
+	uni_qrg = 0;        /* the unicable frequency in MHz */
+	uni_lnb = 0;        /* for two-position switches */
 
 	feTimeout = 40;
 	highVoltage = false;
@@ -698,7 +701,7 @@ bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, 
 		cmdseq.props[FREQUENCY].u.data = sendEN50494TuningCommand(feparams->frequency,
 							currentToneMode == SEC_TONE_ON,
 							currentVoltage == SEC_VOLTAGE_18,
-							0); /* bank 0/1, like mini-diseqc a/b, not impl.*/
+							uni_lnb);
 
 	cmdseq.num	+= nrOfProps;
 
@@ -980,6 +983,11 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 	if (currentSatellitePosition != satellitePosition)
 #endif
 		setLnbOffsets(sit->second.lnbOffsetLow, sit->second.lnbOffsetHigh, sit->second.lnbSwitch);
+	/* unicable */
+	uni_scr = sit->second.unicable_scr;
+	uni_qrg = sit->second.unicable_qrg;
+	uni_lnb = sit->second.unicable_lnb;
+
 	if (diseqcType != DISEQC_ADVANCED) {
 		setDiseqc(sit->second.diseqc, polarization, frequency);
 		return;
@@ -1001,12 +1009,7 @@ void CFrontend::setInput(t_satellite_position satellitePosition, uint32_t freque
 uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int high_band,
 					     const int horizontal, const int bank)
 {
-	uint32_t uni_qrgs[] = { 1284, 1400, 1516, 1632, 1748, 1864, 1980, 2096 };
-	uint32_t bpf;
-	if (uni_qrg == 0)
-		bpf = uni_qrgs[uni_scr];
-	else
-		bpf = uni_qrg;
+	uint32_t bpf = uni_qrg;
 
 	struct dvb_diseqc_master_cmd cmd = {
 		{0xe0, 0x10, 0x5a, 0x00, 0x00, 0x00}, 5
@@ -1014,7 +1017,7 @@ uint32_t CFrontend::sendEN50494TuningCommand(const uint32_t frequency, const int
 	unsigned int t = (frequency / 1000 + bpf + 2) / 4 - 350;
 	if (t < 1024 && uni_scr >= 0 && uni_scr < 8)
 	{
-		fprintf(stderr, "VOLT18=%d TONE_ON=%d, freq=%d bpf=%d ret=%d\n", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, (t + 350) * 4000 - frequency);
+		fprintf(stderr, "[unicable] VOLT18=%d TONE_ON=%d, freq=%d bpf=%d uni_scr=%d bank=%d ret=%d\n", currentVoltage == SEC_VOLTAGE_18, currentToneMode == SEC_TONE_ON, frequency, bpf, uni_scr, bank, (t + 350) * 4000 - frequency);
 		cmd.msg[3] = (t >> 8)		|	/* highest 3 bits of t */
 			     (uni_scr << 5)	|	/* adress */
 			     (bank << 4)	|	/* not implemented yet */

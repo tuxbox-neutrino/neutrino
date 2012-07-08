@@ -16,6 +16,9 @@ typedef struct sat_config {
 	int have_channels;
 	t_satellite_position position;
 	int input;
+	int unicable_scr;
+	int unicable_qrg;
+	int unicable_lnb;
 } sat_config_t;
 
 typedef enum diseqc_cmd_order {

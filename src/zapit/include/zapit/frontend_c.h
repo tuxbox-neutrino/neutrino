@@ -109,7 +109,8 @@ class CFrontend
 
 		/* variables for EN 50494 (a.k.a Unicable) */
 		int uni_scr;       /* the unicable SCR address,     -1 == no unicable */
-		int uni_qrg;        /* the unicable frequency in MHz, 0 == from spec */
+		int uni_qrg;       /* the unicable frequency in MHz */
+		int uni_lnb;       /* the input (0/1) of a twin-position switch */
 
 		int motorRotationSpeed; //in 0.1 degrees per second
 		bool highVoltage;
@@ -192,7 +193,6 @@ class CFrontend
 						};
 		void				configRotor(int _motorRotationSpeed, bool _highVoltage)
 							{ motorRotationSpeed = _motorRotationSpeed; highVoltage = _highVoltage; };
-		void				configUnicable(int scr, int qrg) { uni_scr = scr; uni_qrg = qrg; };
 
 		int				setParameters(TP_params *TP, bool nowait = 0);
 		int				tuneFrequency (struct dvb_frontend_parameters * feparams, uint8_t polarization, bool nowait = false);
