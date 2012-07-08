@@ -141,7 +141,19 @@ bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarizat
 				return false;
 		}
 	}
-	return CFrontend::getInstance()->tuneFrequency(feparams, polarization, false);
+	/* for unicable, retry tuning two times before assuming it failed */
+	int retry = (CFrontend::getInstance()->getUniSCR() >= 0) * 2 + 1;
+	do {
+		ret = CFrontend::getInstance()->tuneFrequency(feparams, polarization, false);
+		if (ret)
+			return true;
+		if (abort_scan)
+			break;
+		retry--;
+		if (retry)
+			printf("[unicable] [scan] retrying tune, retry=%d\n", retry);
+	} while (retry > 0);
+	return false;
 }
 
 bool CServiceScan::AddTransponder(transponder_id_t TsidOnid, FrontendParameters *feparams, uint8_t polarity, bool fromnit)
