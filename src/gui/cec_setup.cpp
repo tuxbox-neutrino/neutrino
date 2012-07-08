@@ -66,9 +66,9 @@ int CCECSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 
 	if (parent)
 		parent->hide();
-	
+
 	res = showMenu();
-	
+
 	return res;
 }
 
@@ -86,26 +86,29 @@ int CCECSetup::showMenu()
 	//menue init
 	CMenuWidget *cec = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_CEC);
 	cec->addIntroItems(LOCALE_VIDEOMENU_HDMI_CEC);
-	
+
 	//cec
 	CMenuOptionChooser *cec_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_MODE, &g_settings.hdmi_cec_mode, VIDEOMENU_HDMI_CEC_MODE_OPTIONS, VIDEOMENU_HDMI_CEC_MODE_OPTION_COUNT, true, this);
+	cec_ch->setHint("", LOCALE_MENU_HINT_CEC_MODE);
 	cec1 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_VIEW_ON, &g_settings.hdmi_cec_view_on, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
+	cec1->setHint("", LOCALE_MENU_HINT_CEC_VIEW_ON);
 	cec2 = new CMenuOptionChooser(LOCALE_VIDEOMENU_HDMI_CEC_STANDBY, &g_settings.hdmi_cec_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, g_settings.hdmi_cec_mode != VIDEO_HDMI_CEC_MODE_OFF, this);
-	
+	cec2->setHint("", LOCALE_MENU_HINT_CEC_STANDBY);
+
 	cec->addItem(cec_ch);
 	cec->addItem(GenericMenuSeparatorLine);
 	//-------------------------------------------------------
 	cec->addItem(cec1);
 	cec->addItem(cec2);
-	
+
 	int res = cec->exec(NULL, "");
 	delete cec;
-	
+
 	return res;
 }
 
-void CCECSetup::setCECSettings()	
-{	
+void CCECSetup::setCECSettings()
+{
 	printf("[neutrino CEC Settings] %s init CEC settings...\n", __FUNCTION__);
 	videoDecoder->SetCECAutoStandby(g_settings.hdmi_cec_standby == 1);
 	videoDecoder->SetCECAutoView(g_settings.hdmi_cec_view_on == 1);
