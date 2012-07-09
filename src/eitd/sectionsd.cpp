@@ -997,7 +997,7 @@ static void commandDumpStatusInformation(int /*connfd*/, char* /*data*/, const u
 		 //    resourceUsage.ru_maxrss, resourceUsage.ru_ixrss, resourceUsage.ru_idrss, resourceUsage.ru_isrss,
 		);
 	printf("%s\n", stati);
-	malloc_stats();
+	malloc_stats(NULL);
 	return ;
 }
 
@@ -1123,7 +1123,7 @@ static void FreeMemory()
 
 	unlockEvents();
 
-	malloc_stats();
+	malloc_stats(NULL);
 	xprintf("[sectionsd] free memory done\n");
 	//wakeupAll(); //FIXME should we re-start eit here ?
 }
@@ -1907,7 +1907,7 @@ static void print_meminfo(void)
 	if (!sections_debug)
 		return;
 
-	malloc_stats();
+	malloc_stats(NULL);
 }
 
 //---------------------------------------------------------------------

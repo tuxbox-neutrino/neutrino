@@ -71,7 +71,7 @@ typedef struct cs_audio_caps {
 class cAudio {
 private:
 	CS_AUDIO_PDATA	*privateData;
-	unsigned int		cEncodedDataOnSPDIF, cEncodedDataOnHDMI;
+	//unsigned int		cEncodedDataOnSPDIF, cEncodedDataOnHDMI;
 	bool			muted;
 
 	AUDIO_FORMAT		streamType;
@@ -148,6 +148,7 @@ public:
 	bool GetHdmiAudioCaps(cs_audio_caps_t &caps);
 	bool IsHdmiAudioFormatSupported(HDMI_AUDIO_FORMAT format);
 	void SetHdmiDD(HDMI_ENCODED_MODE type);
+	bool IsHdmiDTSSupported(void);
 };
 
 #endif //__AUDIO_CS_H_
