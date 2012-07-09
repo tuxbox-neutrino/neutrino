@@ -876,6 +876,8 @@ void CMenuWidget::paint()
 		corners = g_settings.rounded_corners;
 		if(!g_settings.rounded_corners){
 			frameBuffer->paintBackgroundBoxRel(x, y+full_height-hint_height, full_width, CORNER_RADIUS_LARGE-2+SHADOW_OFFSET);
+		}else{
+			frameBuffer->paintBackgroundBoxRel(x, y, full_width, CORNER_RADIUS_LARGE-2+SHADOW_OFFSET);
 		}
 	}
 
