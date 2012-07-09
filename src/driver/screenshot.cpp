@@ -39,6 +39,7 @@
 #include <gui/widget/messagebox.h>
 #include <daemonc/remotecontrol.h>
 #include <zapit/debug.h>
+#include <zapit/getservices.h>
 
 #include <video.h>
 #include <cs_api.h>
@@ -359,7 +360,7 @@ void CScreenShot::MakeFileName(const t_channel_id channel_id)
 	snprintf(fname, sizeof(fname), "%s/", g_settings.screenshot_dir.c_str());
 	pos = strlen(fname);
 
-	channel_name = g_Zapit->getChannelName(channel_id);
+	channel_name = CServiceManager::getInstance()->GetServiceName(channel_id);
 	if (!(channel_name.empty())) {
 		strcpy(&(fname[pos]), UTF8_TO_FILESYSTEM_ENCODING(channel_name.c_str()));
 		ZapitTools::replace_char(&fname[pos]);

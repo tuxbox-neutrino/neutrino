@@ -62,10 +62,10 @@ int CFavorites::addChannelToFavorites(bool show_list)
 	//const char * fav_bouquetname;
 	int          status = 0;
 
-
+#if 0
 	// no bouquet-List?  do nothing
 	if (!bouquetList) return status;
-
+#endif
 	if(show_list)
 	{
 		bouquet_id = bouquetList->exec(false);
@@ -120,11 +120,12 @@ int CFavorites::exec(CMenuTarget* parent, const std::string & actionKey)
 	if (parent)
 		parent->hide();
 
+#if 0
 	if (!bouquetList) {
 		ShowLocalizedMessage(LOCALE_FAVORITES_BOUQUETNAME, LOCALE_FAVORITES_NOBOUQUETS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		return res;
 	}
-
+#endif
 
 	CHintBox* hintBox = new CHintBox(LOCALE_FAVORITES_BOUQUETNAME, g_Locale->getText(LOCALE_FAVORITES_ADDCHANNEL), 380); // UTF-8
 	if(!show_list)

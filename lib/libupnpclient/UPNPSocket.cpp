@@ -30,6 +30,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <poll.h>
 #include <errno.h>
 #include "upnpclient.h"
@@ -140,7 +141,7 @@ std::vector<CUPnPDevice> CUPnPSocket::Discover(std::string service)
 				if (line.substr(0,7) == "http://")
 				{
 					std::vector<CUPnPDevice>::iterator i;
-					for (i=devices.begin(); i != devices.end(); i++)
+					for (i=devices.begin(); i != devices.end(); ++i)
 						if (line == i->descurl)
 							goto found;
 					try

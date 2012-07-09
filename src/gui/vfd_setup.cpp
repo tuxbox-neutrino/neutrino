@@ -114,17 +114,16 @@ int CVfdSetup::showSetup()
 	vfds->addIntroItems(LOCALE_LCDMENU_HEAD);
 
 	//vfd brightness menu
-	CMenuWidget* lcd_sliders = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
-	showBrightnessSetup(lcd_sliders);
-	vfds->addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, lcd_sliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CMenuWidget lcd_sliders(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD,width, MN_WIDGET_ID_VFDSETUP_LCD_SLIDERS);
+	showBrightnessSetup(&lcd_sliders);
+	vfds->addItem(new CMenuForwarder(LOCALE_LCDMENU_LCDCONTROLER, vfd_enabled, NULL, &lcd_sliders, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
 	
 	//led menu
-	CMenuWidget * ledMenu = NULL;
 	if(cs_get_revision() > 7) 
 	{
- 		ledMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_LED_SETUP);
+ 		CMenuWidget * ledMenu = new CMenuWidget(LOCALE_LCDMENU_HEAD, NEUTRINO_ICON_LCD, width, MN_WIDGET_ID_VFDSETUP_LED_SETUP);
 		showLedSetup(ledMenu);
-		vfds->addItem(new CMenuForwarder(LOCALE_LEDCONTROLER_MENU, true, NULL, ledMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+		vfds->addItem(new CMenuDForwarder(LOCALE_LEDCONTROLER_MENU, true, NULL, ledMenu, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
 	}
 
 	vfds->addItem(GenericMenuSeparatorLine);
@@ -136,8 +135,7 @@ int CVfdSetup::showSetup()
 	vfds->addItem(lcd_clock_channelname_menu);
 	
 	int res = vfds->exec(NULL, "");
-	vfds->hide();
-	
+
 	delete vfds;
 	return res;
 }
@@ -166,7 +164,7 @@ void CVfdSetup::showBrightnessSetup(CMenuWidget *mn_widget)
 void CVfdSetup::showLedSetup(CMenuWidget *mn_led_widget)
 {
 	mn_led_widget->addIntroItems(LOCALE_LEDCONTROLER_MENU);
-	mn_led_widget->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_TV, &g_settings.led_tv_mode, LEDMENU_OPTIONS, LEDMENU_OPTION_COUNT, true, new CLedControlNotifier()));
+	mn_led_widget->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_TV, &g_settings.led_tv_mode, LEDMENU_OPTIONS, LEDMENU_OPTION_COUNT, true, this));
 	mn_led_widget->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_STANDBY, &g_settings.led_standby_mode, LEDMENU_OPTIONS, LEDMENU_OPTION_COUNT, true));
 	mn_led_widget->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_DEEPSTANDBY, &g_settings.led_deep_mode, LEDMENU_OPTIONS, LEDMENU_OPTION_COUNT, true));
 	mn_led_widget->addItem(new CMenuOptionChooser(LOCALE_LEDCONTROLER_MODE_RECORD, &g_settings.led_rec_mode, LEDMENU_OPTIONS, LEDMENU_OPTION_COUNT, true));
@@ -191,5 +189,9 @@ bool CVfdSetup::changeNotify(const neutrino_locale_t OptionName, void */* data *
 	{
 		CVFD::getInstance()->setBrightnessDeepStandby(brightnessdeepstandby);
 	}
-	return true;
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_LEDCONTROLER_MODE_TV))
+	{
+		CVFD::getInstance()->setled();
+	}
+	return false;
 }

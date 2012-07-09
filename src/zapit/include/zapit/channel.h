@@ -29,9 +29,9 @@
 #include <cstdlib>
 #include <xmltree/xmlinterface.h>
 #include <sectionsdclient/sectionsdclient.h>
+#include <set>
 
 /* zapit */
-#include "ci.h"
 #include "types.h"
 //#include <zapit/audio.h>
 
@@ -108,6 +108,9 @@ class CZapitAudioChannel
 
 class CChannelList;
 
+typedef std::set<int> casys_map_t;
+typedef casys_map_t::iterator casys_map_iterator_t;
+
 class CZapitChannel
 {
 	private:
@@ -123,7 +126,7 @@ class CZapitChannel
 		unsigned short			teletextPid;
 		unsigned short			videoPid;
 		unsigned short			audioPid;
-		unsigned short			privatePid;
+		/*unsigned short			privatePid;*/
 
 		/* set true when pids are set up */
 		bool				pidsFlag;
@@ -145,9 +148,10 @@ class CZapitChannel
 		unsigned char			serviceType;
 
 		/* the conditional access program map table of this channel */
-		CCaPmt * 			caPmt;
+		//CCaPmt * 			caPmt;
 		unsigned char			* rawPmt;
 		int				pmtLen;
+		uint8_t				pmt_version;
 
 		/* from neutrino CChannel class */
 		uint64_t			last_unlocked_EPGid;
@@ -155,9 +159,19 @@ class CZapitChannel
 
 		std::string			ttx_language_code;
 
+		uint8_t				record_demux;
+
+		void				Init();
 		friend class CChannelList;
 
 	public:
+		typedef enum channel_flags {
+			NEW		= 0x01,
+			REMOVED		= 0x02,
+			UPDATED		= 0x04
+		} channel_flags_t;
+		casys_map_t			camap;
+
 		bool				bAlwaysLocked;
 
 		int				number;
@@ -167,9 +181,12 @@ class CZapitChannel
 		unsigned char			scrambled;
 		char *				pname;
 		bool				has_bouquet;
+		uint8_t				polarization;
+		int				flags;
 
 		/* constructor, desctructor */
 		CZapitChannel(const std::string & p_name, t_service_id p_sid, t_transport_stream_id p_tsid, t_original_network_id p_onid, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t freq);
+		CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq);
 		~CZapitChannel(void);
 
 		/* get methods - read only variables */
@@ -179,12 +196,12 @@ class CZapitChannel
 		unsigned char        	getServiceType(bool real=false);
 		bool			isHD();
 		t_channel_id         	getChannelID(void)         	const { return channel_id; }
-		transponder_id_t        getTransponderId(void)          const { return CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition,original_network_id,transport_stream_id); }
+		transponder_id_t        getTransponderId(void)          const { return CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id); }
 		freq_id_t		getFreqId()			const { return freq; }
 
 
 		/* get methods - read and write variables */
-		const std::string	getName(void)			const { return name; }
+		const std::string&	getName(void)			const { return name; }
 		t_satellite_position	getSatellitePosition(void)	const { return satellitePosition; }
 		unsigned char 		getAudioChannelCount(void)	{ return audioChannels.size(); }
 		unsigned short		getPcrPid(void)			{ return pcrPid; }
@@ -192,11 +209,12 @@ class CZapitChannel
 		unsigned short		getTeletextPid(void)		{ return teletextPid; }
 		const char *		getTeletextLang(void)		{ return ttx_language_code.c_str(); }
 		unsigned short		getVideoPid(void)		{ return videoPid; }
-		unsigned short		getPrivatePid(void)		{ return privatePid; }
+		/*unsigned short		getPrivatePid(void)		{ return privatePid; }*/
 		unsigned short		getPreAudioPid(void)		{ return audioPid; }
 		bool			getPidsFlag(void)		{ return pidsFlag; }
-		CCaPmt *		getCaPmt(void)			{ return caPmt; }
+		//CCaPmt *		getCaPmt(void)			{ return caPmt; }
 		unsigned char *		getRawPmt(int &len)		{ len = pmtLen; return rawPmt; };
+		uint8_t			getPmtVersion(void)		{ return pmt_version; };
 
 		CZapitAudioChannel * 	getAudioChannel(unsigned char index = 0xFF);
 		unsigned short 		getAudioPid(unsigned char index = 0xFF);
@@ -211,12 +229,13 @@ class CZapitChannel
 		void setPcrPid(unsigned short pPcrPid)			{ pcrPid = pPcrPid; }
 		void setPmtPid(unsigned short pPmtPid)			{ pmtPid = pPmtPid; }
 		void setTeletextPid(unsigned short pTeletextPid)	{ teletextPid = pTeletextPid; }
-		void setTeletextLang(char * lang)			{ ttx_language_code = lang; };
+		void setTeletextLang(std::string lang)			{ ttx_language_code = lang; };
 		void setVideoPid(unsigned short pVideoPid)		{ videoPid = pVideoPid; }
 		void setAudioPid(unsigned short pAudioPid)		{ audioPid = pAudioPid; }
-		void setPrivatePid(unsigned short pPrivatePid)		{ privatePid = pPrivatePid; }
+		/*void setPrivatePid(unsigned short pPrivatePid)		{ privatePid = pPrivatePid; }*/
 		void setPidsFlag(void)					{ pidsFlag = true; }
-		void setCaPmt(CCaPmt *pCaPmt);
+		//void setCaPmt(CCaPmt *pCaPmt);
+		void setPmtVersion(uint8_t version)			{ pmt_version = version; }
 		void setRawPmt(unsigned char * pmt, int len = 0);
 		/* cleanup methods */
 		void resetPids(void);
@@ -232,6 +251,70 @@ class CZapitChannel
 
 		void dumpServiceXml(FILE * fd, const char * action = NULL);
 		void dumpBouquetXml(FILE * fd);
+		void setRecordDemux(int num) { record_demux = num; };
+		int  getRecordDemux() { return record_demux; };
+		static t_channel_id makeChannelId(t_satellite_position sat, freq_id_t freq,
+				t_transport_stream_id tsid, t_original_network_id onid, t_service_id sid)
+		{
+			return (((uint64_t)(sat+freq*4) << 48) | ((uint64_t) tsid << 32) | ((uint64_t)onid << 16) | (uint64_t)sid);
+		};
 };
+
+struct CmpChannelBySat: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+{
+	static bool comparetolower(const char a, const char b)
+	{
+		return tolower(a) < tolower(b);
+	};
+
+	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+	{
+		if(c1->getSatellitePosition() == c2->getSatellitePosition())
+			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
+		else
+			return c1->getSatellitePosition() < c2->getSatellitePosition();
+		;
+	};
+};
+
+struct CmpChannelByFreq: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+{
+	static bool comparetolower(const char a, const char b)
+	{
+		return tolower(a) < tolower(b);
+	};
+
+	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+	{
+		if(c1->getFreqId() == c2->getFreqId())
+			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
+		else
+			return c1->getFreqId() < c2->getFreqId();
+		;
+	};
+};
+
+struct CmpChannelByChName: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+{
+	static bool comparetolower(const char a, const char b)
+	{
+		return tolower(a) < tolower(b);
+	};
+
+	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+	{
+		return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
+	};
+};
+
+struct CmpChannelByChNum: public std::binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
+{
+	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
+	{
+		return c1->number < c2->number;
+		;
+	};
+};
+
 
 #endif /* __zapit_channel_h__ */

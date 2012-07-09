@@ -40,8 +40,6 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 
-#include <driver/encoding.h>
-
 #include <algorithm>
 #include <iostream>
 #include <cctype>
@@ -49,6 +47,7 @@
 #include <global.h>
 #include <neutrino.h>
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
@@ -62,8 +61,6 @@
 #ifndef NEW_LIBCURL
 #include <curl/types.h>
 #endif
-
-#include <driver/encoding.h>
 
 #include <xmltree/xmlinterface.h>
 
@@ -986,7 +983,7 @@ bool CFileBrowser::exec(const char * const dirname)
 			}
 			else
 #endif
-			if (selections.size() > 0)
+			if (!selections.empty())
 			{
 				ChangeDir("..",selections.back());
 				selections.pop_back();
@@ -1046,7 +1043,7 @@ bool CFileBrowser::exec(const char * const dirname)
 					else
 #endif
 					{
-						if (selections.size() > 0)
+						if ( !selections.empty() )
 						{
 							ChangeDir("..",selections.back());
 							selections.pop_back();

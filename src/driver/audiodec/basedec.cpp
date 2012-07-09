@@ -27,12 +27,6 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-
-#include <basedec.h>
-#include <cdrdec.h>
-#include <mp3dec.h>
-#include <oggdec.h>
-#include <wavdec.h>
 #ifdef ENABLE_FLAC
 #include <flacdec.h>
 #endif
@@ -40,13 +34,19 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
-#include <driver/netfile.h>
 
 #include <driver/audioplay.h> // for ShoutcastCallback()
 
 #include <global.h>
 #include <neutrino.h>
 #include <zapit/client/zapittools.h>
+
+#include "basedec.h"
+#include "cdrdec.h"
+#include "mp3dec.h"
+#include "oggdec.h"
+#include "wavdec.h"
+#include <driver/netfile.h>
 
 unsigned int CBaseDec::mSamplerate=0;
 

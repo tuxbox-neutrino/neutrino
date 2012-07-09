@@ -43,7 +43,6 @@
 #include <xmltree.h>
 #include <upnpclient.h>
 
-#include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/audioplay.h>
@@ -390,7 +389,7 @@ void CUpnpBrowserGui::selectDevice()
 	m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 	scanBox->hide();
 
-	if (!m_devices.size())
+	if (m_devices.empty())
 	{
 		ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 		delete scanBox;
@@ -457,7 +456,7 @@ void CUpnpBrowserGui::selectDevice()
 #endif
 			m_devices = m_socket->Discover("urn:schemas-upnp-org:service:ContentDirectory:1");
 			scanBox->hide();
-			if (!m_devices.size())
+			if (m_devices.empty())
 			{
 				ShowLocalizedMessage(LOCALE_MESSAGEBOX_INFO, LOCALE_UPNPBROWSER_NOSERVERS, CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_INFO);
 				delete scanBox;
@@ -502,9 +501,6 @@ void CUpnpBrowserGui::playnext(void)
 		std::list<UPnPAttribute>::iterator i;
 		std::stringstream sindex;
 		std::vector<UPnPEntry> *entries = NULL;
-		bool rfound = false;
-		bool nfound = false;
-		bool tfound = false;
 
 		sindex << m_playid;
 		attribs.push_back(UPnPAttribute("ObjectID", m_playfolder));
@@ -527,7 +523,7 @@ void CUpnpBrowserGui::playnext(void)
 		}
 #endif
 		results=m_devices[m_selecteddevice].SendSOAP("urn:schemas-upnp-org:service:ContentDirectory:1", "Browse", attribs);
-		for (i=results.begin(); i!=results.end(); i++)
+		for (i=results.begin(); i!=results.end(); ++i)
 		{
 			if (i->first=="NumberReturned")
 			{
@@ -536,16 +532,13 @@ void CUpnpBrowserGui::playnext(void)
 					m_folderplay = false;
 					return;
 				}
-				nfound=true;
 			}
 			if (i->first=="TotalMatches")
 			{
-				tfound=true;
 			}
 			if (i->first=="Result")
 			{
 				entries=decodeResult(i->second);
-				rfound=true;
 			}
 		}
 		m_playid++;
@@ -644,7 +637,7 @@ bool CUpnpBrowserGui::selectItem(std::string id)
 			}
 #endif
 			results=m_devices[m_selecteddevice].SendSOAP("urn:schemas-upnp-org:service:ContentDirectory:1", "Browse", attribs);
-			for (i=results.begin(); i!=results.end(); i++)
+			for (i=results.begin(); i!=results.end(); ++i)
 			{
 				if (i->first=="NumberReturned")
 				{

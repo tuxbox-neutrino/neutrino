@@ -40,6 +40,7 @@
 #include <gui/plugins.h>
 #include <driver/screenshot.h>
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/timeb.h>
@@ -47,6 +48,9 @@
 #include <video.h>
 #include "libtuxtxt/teletext.h"
 #include <zapit/zapit.h>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 //extern CPlugins *g_PluginList;
 #if HAVE_TRIPLEDRAGON
@@ -113,6 +117,8 @@ void CMoviePlayerGui::Init(void)
 	tsfilefilter.addFilter("m2ts");
 	tsfilefilter.addFilter("mp4");
 	tsfilefilter.addFilter("mov");
+	tsfilefilter.addFilter("m3u");
+	tsfilefilter.addFilter("pls");
 
 	if (strlen(g_settings.network_nfs_moviedir) != 0)
 		Path_local = g_settings.network_nfs_moviedir;
@@ -292,6 +298,7 @@ bool CMoviePlayerGui::SelectFile()
 
 	is_file_player = false;
 	p_movie_info = NULL;
+	file_name = "";
 
 	printf("CMoviePlayerGui::SelectFile: isBookmark %d timeshift %d isMovieBrowser %d\n", isBookmark, timeshift, isMovieBrowser);
 	if (has_hdd)
@@ -348,10 +355,35 @@ bool CMoviePlayerGui::SelectFile()
 				is_file_player = true;
 				full_name = file->Name.c_str();
 				ret = true;
+				if(file->getType() == CFile::FILE_PLAYLIST) {
+					std::ifstream infile;
+					char cLine[256];
+					char name[255] = { 0 };
+					infile.open(file->Name.c_str(), std::ifstream::in);
+					while (infile.good())
+					{
+						infile.getline(cLine, 255);
+						if (cLine[strlen(cLine)-1]=='\r')
+							cLine[strlen(cLine)-1]=0;
+
+						int duration;
+						sscanf(cLine, "#EXTINF:%d,%[^\n]\n", &duration, name);
+						if (strlen(cLine) > 0 && cLine[0]!='#')
+						{
+							char *url = strstr(cLine, "http://");
+							if (url != NULL) {
+								printf("name %s [%d] url: %s\n", name, duration, url);
+								full_name = url;
+								if(strlen(name))
+									file_name = name;
+							}
+						}
+					}
+				}
 			}
 		}
 	}
-	if(ret) {
+	if(ret && file_name.empty()) {
 		std::string::size_type pos = full_name.find_last_of('/');
 		if(pos != std::string::npos) {
 			file_name = full_name.substr(pos+1);

@@ -194,6 +194,10 @@ bouqueteditor.savingchanges Saving changes. Please wait ...
 bouqueteditor.switch add/remove
 bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
+bouquetname.hdtv HD channels
+bouquetname.new New channels
+bouquetname.other Unknown provider
+bouquetname.removed Removed channels
 cablesetup.provider cable provider
 channellist.current_tp Current transponder
 channellist.edit Edit
@@ -205,16 +209,24 @@ channellist.foot Channel Information
 channellist.foot_freq Sat/Freq Info
 channellist.foot_next next Event
 channellist.foot_off off
+channellist.foot_sort_alpha sorted[alpha]
+channellist.foot_sort_freq sorted[freq]
+channellist.foot_sort_sat sorted[sat]
 channellist.head All Services
 channellist.history History
+channellist.keep_numbers Persistent channel numbers
 channellist.make_hdlist Create list of HD channels
+channellist.make_newlist Create list of new channels
+channellist.make_removedlist Create list of removed channels
 channellist.new_zap_mode Quickzap in list
 channellist.nonefound No channels were found!\nPlease execute a scan\n(MENU-key -> service)
 channellist.provs Providers
 channellist.recording_not_possible Recording not possible!
+channellist.reset_flags Reset 'new' channel flag
 channellist.sats Satellites
 channellist.since since
 channellist.start starts
+ci.clock CI clock (Mhz)
 ci.empty No CAM in slot
 ci.init_failed CAM init failed
 ci.init_ok CAM init complete
@@ -343,10 +355,9 @@ extra.key_timeshift Timeshift
 extra.key_unlock Unlock key
 extra.ladirection LaDirection
 extra.latitude Latitude
-extra.loadconfig Neutrino-Settings: Load from
+extra.loadconfig Neutrino-HD Settings: Load from
 extra.loadkeys Load keys from
 extra.lodirection LoDirection
-extra.logo Logo number
 extra.longitude Longitude
 extra.menu_left_exit "Left" = menu back
 extra.north North
@@ -355,10 +366,8 @@ extra.rotor_swap Swap rotor east/west
 extra.rounded_corners Shape of corners
 extra.rounded_corners_off angular
 extra.rounded_corners_on rounded
-extra.saveconfig Neutrino-Settings: Save as
+extra.saveconfig Neutrino-HD Settings: Save as
 extra.savekeys Save keys as
-extra.scan_fast Fast
-extra.scan_full Full
 extra.scrambled_message Scrambled Message
 extra.show_mute_icon mute-icon at volume 0
 extra.sms_channel sms-mode channel
@@ -377,8 +386,10 @@ extra.tp_mod_32 QAM/32
 extra.tp_mod_64 QAM/64
 extra.tp_pol Polarization
 extra.tp_pol_h H
+extra.tp_pol_l L
+extra.tp_pol_r R
 extra.tp_rate Symbol rate
-extra.update_dir Directory for updates
+extra.update_dir Local update directory
 extra.use_gotoxx Use gotoXX
 extra.volume_pos Volumebar
 extra.west West
@@ -386,11 +397,9 @@ extra.zap_cycle Zap cycle
 extra.zapit_fe_timeout Tune timeout (1 = 10 msec)
 extra.zapit_hvoltage 18V for rotor moving 
 extra.zapit_make_bouquet Make Remaining Channels list
-extra.zapit_menu Zapit options
 extra.zapit_motor_speed Motor moving speed (10 = 1deg/sec)
 extra.zapit_scanpids Scan/Use pids
 extra.zapit_sdt_changed Channels changed, reload settings.
-extra.zapit_write_names Write channel names
 fan_speed CPU Fan speed
 favorites.addchannel The current channel will be added \nto the bouquet "My Favorites". \n This will take a few seconds...
 favorites.bouquetname My Favorites
@@ -425,7 +434,7 @@ filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash reading
 flashupdate.cantopenfile can't open file
 flashupdate.cantopenmtd can't open mtd-device
-flashupdate.checkupdate search for new version
+flashupdate.checkupdate Check for updates
 flashupdate.currentversion_sep Current version
 flashupdate.currentversiondate Date
 flashupdate.currentversiontime Time
@@ -466,12 +475,13 @@ flashupdate.ready ready
 flashupdate.reallyflashmtd Do you really want to flash?\n\nIf a error occurs or the image is not\nvalid, the box will not boot after flashing.\n\nImagename: %s\nTarget: %s
 flashupdate.savesuccess The image was successfully saved \nunder %s.
 flashupdate.selectimage Available Images/Files
+flashupdate.settings Update settings
 flashupdate.squashfs.noversion SquashFS version checks are currently only supported when updating over the web.\nAre you sure that you wish to install this image?
 flashupdate.titlereadflash Reading Flash
 flashupdate.titlewriteflash Writing Flash
 flashupdate.updatemode Updatemode
 flashupdate.updatemode_internet internet
-flashupdate.updatemode_manual manual (ftp)
+flashupdate.updatemode_manual from local update directory
 flashupdate.url_file config file
 flashupdate.versioncheck checking version
 flashupdate.writeflash Write whole image
@@ -513,8 +523,6 @@ fontsize.infobar_small Small
 fontsize.menu Menutext
 fontsize.menu_info Menu Info
 fontsize.menu_title Menu Title
-gtxalpha.alpha1 Alpha 1
-gtxalpha.alpha2 Alpha 2
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -625,7 +633,6 @@ lcd_info_line_clock clock
 lcdcontroler.brightness normal Brightness
 lcdcontroler.brightnessdeepstandby DeepStandby Brightness
 lcdcontroler.brightnessstandby Standby Brightness
-lcdcontroler.contrast Contrast
 lcdmenu.dim_brightness Brightness after dim timeout
 lcdmenu.dim_time Dim timeout
 lcdmenu.head VFD Settings
@@ -680,6 +687,208 @@ mainsettings.timezone Timezone
 mainsettings.video Video
 menu.back Back
 menu.cancel Cancel
+
+menu.hint_back Return to previous menu\nPress menu key to close all menus
+menu.hint_tvmode Switch box to TV mode
+menu.hint_radiomode Switch box to radio mode
+menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
+menu.hint_media Play movies, audio files\nWatch pictures
+menu.hint_games Show list of installed games
+menu.hint_scripts Run scripts
+menu.hint_settings Configure Neutrino-HD\nNetwork, audio, video, OSD and more
+menu.hint_service Tuner setup, service scan,\nbouquet editor, software upgrade
+menu.hint_sleeptimer Set timer to put your box\nin sleep mode
+menu.hint_reboot Reboot box\nNo confirmation
+menu.hint_shutdown Put your box in deep standby mode\nNo confirmation
+menu.hint_info Information about image, box cpu and storage,\nstream information
+menu.hint_ci Conditional access menu\nto setup your CI CAM or embeded Conax card
+
+menu.hint_aplay Audio player
+menu.hint_inet_radio Internet radio
+menu.hint_movie Play movies
+menu.hint_picview View pictures
+menu.hint_mb Your recordings
+menu.hint_fileplay Play various video files
+
+menu.hint_save_settings Save all settings to flash
+menu.hint_manage_settings Backup, restore, revert to defaults\nFactory box reset
+menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
+menu.hint_extended Power saving, EPG save/load options\nHDMI-CEC, Start channel, zap options
+menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
+menu.hint_audio Audio output, DD\nSRS True volume options
+menu.hint_protection Protect content by PIN code\nDefault PIN 0000
+menu.hint_network IP address, gateway, DNS, Time sync\nNetwork shares and services
+menu.hint_recording Recording and timeshift options\nTimers safety, audio pids options
+menu.hint_language OSD language, timezone\nPreffered audio and subtitles languages
+menu.hint_osd Colors, fonts, screen size\nGUI look and feel options
+menu.hint_vfd Frontpanel LEDS, VFD options
+menu.hint_hdd Format / check hard disk drive
+menu.hint_keys Remote control repeat rate\nEdit key bindings
+menu.hint_a_pic Configure audio player and picture viewer
+
+menu.hint_service_scan Tuner setup, service scan
+menu.hint_reload_channels Reload channels from flash
+menu.hint_bedit Edit favorites and bouquets
+menu.hint_delete_channels Remove all channels
+menu.hint_soft_restart Restart Neutrino-HD without reboot
+menu.hint_reload_plugins Reload plugins from flash
+menu.hint_sw_update Update software
+
+menu.hint_imageinfo Information about installed software
+menu.hint_dboxinfo Information about box cpu and storage
+menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
+
+menu.hint_reset Reset Neutrino-HD GUI settings to defaults\nTuner config and channels not affected
+menu.hint_saveas Save Neutrino-HD GUI settings to file
+menu.hint_load Load Neutrino-HD GUI settings from file
+menu.hint_backup Backup configs and channels to selected dir
+menu.hint_restore Restore files from selected backup
+menu.hint_factory Reset box to factory state\nBox will reboot after reset
+
+menu.hint_misc_general Start to standby, cache teletext, swp rotor\nplugin hdd dir
+menu.hint_misc_energy Enable soft-standby, delayed shutdown\ninactivity timers
+menu.hint_misc_epg Save/load EPG options, EPG cache options\nEPG save directory
+menu.hint_misc_filebrowser Filesystem encoding, file rights\ndeny directory leave
+menu.hint_misc_cec HDMI-CEC Options
+menu.hint_misc_channellist HD/New/Removed channel lists\nZap cycle
+menu.hint_misc_zapit Initial TV/Radio channels
+
+menu.hint_start_tostandby Enter standby mode after boot
+menu.hint_cache_txt Start teletext caching after channel switch
+menu.hint_fan_speed Control fan speed
+menu.hint_rotor_swap Swap rotor east/west directions\nin motor control
+menu.hint_plugins_hdd_dir Select directory to load\nplugins from
+
+menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
+menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more than 1 second
+menu.hint_shutdown_count Time to put box in deep-standby\nfrom soft-standby mode
+menu.hint_inact_timer Shutdown box after inactivity
+
+menu.hint_epg_save Save cached EPG to harddisk or usb flash\nand load it after boot
+menu.hint_epg_cache Maximum days to cache for future events
+menu.hint_epg_extendedcache Maximum hours to cache extended\nevents descriptions
+menu.hint_epg_old_events Hours after event end time to consider\nevent old and remove it from cache
+menu.hint_epg_max_events Maximum events to cache. After reaching limit\nEPG cache will remove future events
+menu.hint_epg_dir Select directory on harddisk or usb flash\nto save EPG.
+
+menu.hint_filesystem_is_utf8 Filebrowser filesystem encoding
+menu.hint_filebrowser_showrights Show file permissions in file browser
+menu.hint_filebrowser_denydirectoryleave Deny filebrowser to leave initial directory
+
+menu.hint_make_hdlist Auto-create HD channel list based on\nchannel type and name
+menu.hint_make_newlist Create list of recently added channels
+menu.hint_make_removedlist Create list of recently removed channels
+menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
+menu.hint_zap_cycle When swithing channels, stay in current bouquet
+menu.hint_new_zap_mode Allow channel switch while browsing\n(toggle mode with 'mute' in channel list)
+
+menu.hint_cec_mode CEC mode
+menu.hint_cec_view_on CEC view ON
+menu.hint_cec_standby CEC standby
+
+menu.hint_last_use Start box on last used channel
+menu.hint_last_tv Start box on selected channel\nif last mode is TV
+menu.hint_last_radio Start box on selected channel\nif last mode is Radio
+
+menu.hint_video_analog_mode Select analog output mode\nfor SCART and CINCH connectors
+menu.hint_video_scart_mode Select analog output mode for SCART connectors
+menu.hint_video_cinch_mode Select analog output mode for\ncomposite video out
+menu.hint_video_43mode Display mode for 4:3 content\non 16:9 TV
+menu.hint_video_format TV aspect ratio
+menu.hint_video_mode HDMI output video mode
+menu.hint_video_dbdr MPEG2 enhancement filters
+menu.hint_video_modes VF key will cycle between enabled modes 
+
+menu.hint_audio_analog_mode Select audio channel to use\nstereo, mono-left, mono-right
+menu.hint_audio_dd Auto-switch to DolbyDigital audio pid,\nif available
+menu.hint_audio_hdmi_dd DolbyDigital over HDMI: off - decoded\nauto  if supported by device, force
+menu.hint_audio_spdif_dd DolbyDigital over optical output
+menu.hint_audio_avsync A/V sync
+menu.hint_audio_volstep Volume +/- keys increase/decrease step
+menu.hint_audio_srs SRS TruVolume control volume jumps\nat content changes
+menu.hint_audio_srs_algo Amount of control, light or normal
+menu.hint_audio_srs_nmgr Noise manager
+menu.hint_audio_srs_volume Reference level to maintain
+
+menu.hint_parentallock_promt Configure when Neutrino-HD will ask you\nfor PIN code
+menu.hint_parentallock_lockage Select age allowed to watch
+menu.hint_parentallock_changepin Change PIN code
+
+menu.hint_net_setupnow Apply current settings
+menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
+menu.hint_net_show Show current network settings
+menu.hint_net_if Select interface to config
+menu.hint_net_setuponstartup Start network at boot time
+menu.hint_net_dhcp Use DHCP server to auto-configure
+menu.hint_net_hostname Change your box hostname
+menu.hint_net_ipaddress Enter your box IP address
+menu.hint_net_netmask Enter network mask\nif unsure, use 255.255.255.0
+menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
+menu.hint_net_gateway Enter gateway/router IP address
+menu.hint_net_nameserver Enter name server (DNS) IP address
+menu.hint_net_ssid Enter SSID of wireless network\nyou want to connect to
+menu.hint_net_pass Enter passkey (WPA-PSK)
+menu.hint_net_ntp Configure time sync
+menu.hint_net_mount Configure, mount and un-mount network shares\nNFS and CIFS supported
+menu.hint_net_nfs_mount Configure and mount network shares
+menu.hint_net_nfs_umount Un-mount mounted shares
+menu.hint_net_ntpenable Enable time sync using NTP protocol\nIf NTP sync not successfull, DVB will be used
+menu.hint_net_ntpserver Enter NTP server name
+menu.hint_net_ntprefresh Time sync interval
+menu.hint_net_proxy If you use proxy to access internet\nconfigure it here for online software update
+menu.hint_net_proxyserver Proxy server name
+menu.hint_net_proxyuser Proxy user name\nif authorization required
+menu.hint_net_proxypass Proxy user password\nif authorization required
+menu.hint_net_services Configure network services:\nTelnet, ftp, uPnp
+menu.hint_net_telnet Enable telnet login to your box
+menu.hint_net_ftpd Enable file transfer using FTP
+menu.hint_net_djmount mount uPnp devices as filesystem\nunder /media/00upnp
+menu.hint_net_ushare Share connected HDD over uPnp
+
+menu.hint_record_apply Apply record options
+menu.hint_record_dir Select directory to store recordings
+menu.hint_record_chandir Create directory with name of channel\nto store recording
+menu.hint_record_time Record time before stop when\nusing direct record with record button
+menu.hint_record_end Stop direct record after max. time\nor after current event end time
+menu.hint_record_timeshift Configure timeshift options
+menu.hint_record_timer Configure record by timer options
+menu.hint_record_apids Configure audio pids to record
+menu.hint_record_timebefore Start record before event start\nin minutes
+menu.hint_record_timeafter Stop record after event end\nin minutes
+menu.hint_record_zap Switch to channel to be recorded\nat record announce
+menu.hint_record_zap_pre_time For ZapTo timers, switch channel\nbefore event start, in minutes
+menu.hint_record_apid_std Record first audio pid
+menu.hint_record_apid_alt Record alternative non-AC3 audio pids
+menu.hint_record_apid_ac3 Record AC3 audio pids
+menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
+menu.hint_record_timeshift_pause Start timeshift playback in paused mode
+menu.hint_record_timeshift_auto Auto start timeshift after channel switch, in seconds
+menu.hint_record_timeshift_delete Delete timeshift files after timeshift stop
+menu.hint_record_timeshift_temp If off, timeshift started as\nany direct record
+
+menu.hint_osd_language Select OSD language
+menu.hint_timezone Select your timezone
+menu.hint_lang_pref Configure preferred audio, EPG\nand subtitle languages
+menu.hint_auto_lang Auto-switch audio to preferred language
+menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
+menu.hint_auto_subs Auto-start subtitles for preferred language
+menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
+
+menu.hint_colors Configure GUI colors
+menu.hint_theme Select Select pre-defined color theme\nSave or load theme from files
+menu.hint_head_back Change GUI title background color
+menu.hint_head_textcolor Change GUI window title text color
+menu.hint_content_back Change GUI window background color
+menu.hint_content_textcolor Change GUI window text color
+menu.hint_inactive_back Change inactive item background color
+menu.hint_inactive_textcolor Change inactive item text color
+menu.hint_selected_back Change selected item background color
+menu.hint_selected_text Change selected item text color
+menu.hint_infobar_back Change infobar background color
+menu.hint_infobar_textcolor Change infobar text color
+menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
+menu.hint_fonts Configure GUI fonts and font sizes
+
 menu.next Next (press Menu to quit)
 messagebox.back Back
 messagebox.cancel Cancel
@@ -729,9 +938,11 @@ miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo dir
 miscsettings.infobar_sat_display Satellite display on infobar
 miscsettings.infobar_show show Info on EPG change
+miscsettings.infobar_show_dd_available show DD availability
 miscsettings.infobar_show_res show resolution on infobar
 miscsettings.infobar_show_res_simple simple
-miscsettings.infobar_show_var_hdd Fill level (var & hdd )
+miscsettings.infobar_show_sysfs_hdd Fill level (sysFS & hdd)
+miscsettings.infobar_show_tuner Display active tuner
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count In standby, switch off after
 miscsettings.shutdown_count_hint1 time (in minutes) to switch from standby
@@ -943,12 +1154,13 @@ networkmenu.ntptitle Time-Syncronisation
 networkmenu.password Key
 networkmenu.reset_settings_now Do you want restore the previous settings?
 networkmenu.select_if Interface
+networkmenu.services Network services
 networkmenu.setupnow Apply network settings now
 networkmenu.setuponstartup Setup network on startup
 networkmenu.show Show active Network settings
 networkmenu.ssid Network name
 networkmenu.test Test network now
-neutrino_starting Neutrino starting...
+neutrino_starting Neutrino-HD starting...
 nfs.alreadymounted directory already mounted
 nfs.automount Mount on startup
 nfs.dir directory/share
@@ -1008,7 +1220,6 @@ personalize.button_red red
 personalize.button_yellow yellow
 personalize.disabled Disabled
 personalize.enabled Enabled
-personalize.features Features menue
 personalize.head Personalization
 personalize.help Help
 personalize.help_line1 Personalization makes it possible to adapt the most
@@ -1030,7 +1241,6 @@ personalize.pinhint Enter the Personalization PIN Code
 personalize.pinprotect Yes
 personalize.pinstatus Require PIN
 personalize.plugins Plugins
-personalize.setupmenuwithpin Settings Menu with PIN
 personalize.usermenu_preferred_buttons Assigning of preferred keys
 personalize.usermenu_show_cancel Show "Cancel"-Button
 personalize.visible Visible
@@ -1118,6 +1328,7 @@ reset_confirm Are you sure ?
 reset_settings Reset settings to defaults
 satsetup.auto_scan Auto-Scan selected %s
 satsetup.auto_scan_all Auto-Scan multiple Satellites
+satsetup.cable_nid Network ID
 satsetup.comm_input Commited input
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
@@ -1139,18 +1350,28 @@ satsetup.fastscan_prov_telesat TéléSAT
 satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd SD only
 satsetup.fastscan_type Scan type
+satsetup.fe_mode Tuner mode
+satsetup.fe_mode_alone independent
+satsetup.fe_mode_loop loop
+satsetup.fe_mode_single single
+satsetup.fe_mode_twin twin
+satsetup.fe_setup Setup tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB switch Offset
+satsetup.logical_numbers Use logical numbers
 satsetup.manual_scan Manual frequency scan
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor position
 satsetup.nodiseqc no DiSEqC
+satsetup.reset_numbers Reset channel numbers
 satsetup.sat_setup Setup satellites input / LNB
 satsetup.satellite Satellite
+satsetup.select_sat Select satellites
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommited input
 satsetup.usals_repeat USALS command repeat
+satsetup.use_bat Use BAT
 satsetup.use_fta_flag just free Channels
 satsetup.use_nit Use NIT
 satsetup.use_usals Use usals for all
@@ -1216,9 +1437,10 @@ servicemenu.update Software Update
 settings.backup Image-Settings: Backup
 settings.backup_failed Backup failed!
 settings.help Help
+settings.menu_hints Show menu hints
 settings.menu_pos Menu position
-settings.missingoptionsconffile The neutrino-settings have been updated.\nNew Options will be set to default.
-settings.noconffile No neutrino-settings found.\nUsing defaults.
+settings.missingoptionsconffile The Neutrino-HD settings have been updated.\nNew Options will be set to default.
+settings.noconffile No Neutrino-HD settings found.\nUsing defaults.
 settings.pos_bottom_left bottom left
 settings.pos_bottom_right bottom right
 settings.pos_default_center top center
@@ -1246,7 +1468,7 @@ streaminfo.head Stream-Information
 streaminfo.not_available not available
 streaminfo.resolution Resolution
 streaminfo.signal Receipt signal
-streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino.
+streaming.busy One or several recording processes are active.\nIf you encounter this message and no recording is active, please restart Neutrino-HD.
 streaming.dir_not_writable The recording directory is not writable.\nRecording will not work.
 streaming.write_error The recording was aborted,\nsince an error occured during the writing process.
 stringinput.caps caps / no caps
@@ -1367,7 +1589,6 @@ videomenu.auto Auto
 videomenu.brightness Brightness
 videomenu.cinch Cinch
 videomenu.contrast Contrast
-videomenu.csync sync correction
 videomenu.dbdr MPEG2 de-block/de-ring
 videomenu.dbdr_both de-block+de-ring
 videomenu.dbdr_deblock de-block

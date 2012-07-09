@@ -95,7 +95,7 @@ bool CConfigFile::saveConfig(const char * const filename)
 
 	if (configFile != NULL)
 	{
-		for (ConfigDataMap::const_iterator it = configData.begin(); it != configData.end(); it++)
+		for (ConfigDataMap::const_iterator it = configData.begin(); it != configData.end(); ++it)
 		{
 			configFile << it->first << "=" << it->second << std::endl;
 		}
@@ -391,8 +391,10 @@ void CConfigFile::setInt32Vector(const std::string & key, const std::vector<int3
 
 	for (std::vector<int32_t>::const_iterator it = vec.begin(); ; )
 	{
+		if (it == vec.end())
+			break;
 		s << (*it);
-		it++;
+		++it;
 		if (it == vec.end())
 			break;
 		s << delimiter;
@@ -406,8 +408,10 @@ void CConfigFile::setStringVector(const std::string & key, const std::vector<std
 
 	for (std::vector<std::string>::const_iterator it = vec.begin(); ; )
 	{
+		if (it == vec.end())
+			break;
 		configData[key] += *it;
-		it++;
+		++it;
 		if (it == vec.end())
 			break;
 		configData[key] += delimiter;

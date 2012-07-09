@@ -194,6 +194,10 @@ bouqueteditor.savingchanges Änderungen werden gespeichert. Bitte warten ...
 bouqueteditor.switch Kanal aufnehmen/entfernen
 bouqueteditor.switchmode TV/Radio
 bouquetlist.head Bouquets
+bouquetname.hdtv HD Kanäle
+bouquetname.new Neue Kanäle
+bouquetname.other Unbekannter Provider
+bouquetname.removed Gelöschte Kanäle
 cablesetup.provider Kabelanbieter
 channellist.current_tp Aktueller Transponder
 channellist.edit Bearbeiten
@@ -205,16 +209,24 @@ channellist.foot Kanalinformationen
 channellist.foot_freq Tuning-Parameter
 channellist.foot_next Nachfolgesendung
 channellist.foot_off aus
+channellist.foot_sort_alpha Sortiert[alpha]
+channellist.foot_sort_freq Sortiert[freq]
+channellist.foot_sort_sat Sortiert[sat]
 channellist.head Alle Kanäle
 channellist.history Verlauf
-channellist.make_hdlist Erzeuge "HD"- Bouquet
+channellist.keep_numbers Dauerhafte Kanalnummern
+channellist.make_hdlist Erzeuge Bouquet mit HD-Kanälen
+channellist.make_newlist Erzeuge Bouquet mit neuen Kanälen
+channellist.make_removedlist Erzeuge Bouquet mit gelöschten Kanälen
 channellist.new_zap_mode Quickzap in Liste
 channellist.nonefound Es wurden keine Kanäle gefunden!\nFühren Sie bitte eine Kanalsuche durch\n(MENU-Taste -> Service)
 channellist.provs Anbieter
 channellist.recording_not_possible Aufnahme nicht möglich!
+channellist.reset_flags Entferne Kanal-Markierung "Neu"
 channellist.sats Satelliten
 channellist.since seit
 channellist.start Start
+ci.clock CI Takt (Mhz)
 ci.empty Kein CAM im Slot
 ci.init_failed CAM-Init fehlgeschlagen
 ci.init_ok CAM-Init beendet
@@ -234,7 +246,7 @@ colorchooser.red rot
 colormenu.background Hintergrundfarbe
 colormenu.contrast_fonts Schriftkontrast
 colormenu.fade Menüs faden
-colormenu.font Neutrino Schriftart
+colormenu.font Neutrino-HD Schriftart
 colormenu.font_ttx Teletext Schriftart
 colormenu.hd_preset LCD
 colormenu.menucolors Menüfarben
@@ -343,10 +355,9 @@ extra.key_timeshift Timeshift
 extra.key_unlock Entsperrtaste
 extra.ladirection Breitengrad-Ausrichtung
 extra.latitude Breitengrad
-extra.loadconfig Neutrino-Einstellungen: Laden von
+extra.loadconfig Neutrino-HD Einstellungen: Laden von
 extra.loadkeys Lade Tastenbelegung von
 extra.lodirection Längengrad-Ausrichtung
-extra.logo Logonummer
 extra.longitude Längengrad
 extra.menu_left_exit "links" = Menü zurück
 extra.north Norden
@@ -355,10 +366,8 @@ extra.rotor_swap Rotor dreht Ost/West
 extra.rounded_corners Eckendarstellung
 extra.rounded_corners_off eckig
 extra.rounded_corners_on abgerundet
-extra.saveconfig Neutrino-Einstellungen: Sichern als
+extra.saveconfig Neutrino-HD Einstellungen: Sichern als
 extra.savekeys Speichere Tastenbelegung als
-extra.scan_fast Schnell
-extra.scan_full Total
 extra.scrambled_message Verschlüsselung melden
 extra.show_mute_icon Mute-Icon bei Lautstärke 0
 extra.sms_channel SMS-Modus Kanal
@@ -377,8 +386,10 @@ extra.tp_mod_32 QAM/32
 extra.tp_mod_64 QAM/64
 extra.tp_pol Polarisation
 extra.tp_pol_h H
+extra.tp_pol_l L
+extra.tp_pol_r R
 extra.tp_rate Symbolrate
-extra.update_dir Update-Verzeichnis
+extra.update_dir Lokales Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
 extra.volume_pos Lautstärkeanzeige
 extra.west Westen
@@ -386,11 +397,9 @@ extra.zap_cycle Zap nur in Bouquet
 extra.zapit_fe_timeout Tuning Timeout (1=10ms)
 extra.zapit_hvoltage High (13.5/ 18.5) Voltage
 extra.zapit_make_bouquet Kanalliste auffüllen
-extra.zapit_menu Zapit-Einstellungen
 extra.zapit_motor_speed Rotor Drehzeit (10 = 1°/ sec)
 extra.zapit_scanpids PIDs scannen/nutzen
 extra.zapit_sdt_changed Kanalliste wird neu geladen.
-extra.zapit_write_names Schreibe Kanalname
 fan_speed CPU-Lüftergeschwindigkeit
 favorites.addchannel Der aktuelle Kanal wird dem Bouquet \n"Meine Favoriten" hinzugefügt. \nDie Speicherung benötigt einen Moment...
 favorites.bouquetname Meine Favoriten
@@ -425,7 +434,7 @@ filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
-flashupdate.checkupdate nach neuer Version suchen
+flashupdate.checkupdate Nach Updates suchen
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit
@@ -466,13 +475,14 @@ flashupdate.ready fertig
 flashupdate.reallyflashmtd Wollen Sie den Flashvorgang wirklich durchführen?\n\nFalls ein Fehler auftritt oder das Image nicht\nfunktionfähig ist, wird Ihre Box nicht mehr booten.\n\nImagename: %s\nZiel: %s
 flashupdate.savesuccess Das Image wurde erfolgreich unter dem\nDateinamen %s gespeichert.
 flashupdate.selectimage Verfügbare Images/Files
+flashupdate.settings Update-Einstellungen
 flashupdate.squashfs.noversion Bei Updates werden Versionsüberprüfungen derzeit nur über Web-Updates unterstützt.\nWollen Sie das ausgewählte Image wirklich installieren?
 flashupdate.titlereadflash Flash auslesen
 flashupdate.titlewriteflash Flash schreiben
 flashupdate.updatemode Updatemodus
 flashupdate.updatemode_internet Internet
-flashupdate.updatemode_manual manuell (ftp)
-flashupdate.url_file Konfigfile
+flashupdate.updatemode_manual von lokalem Update-Verzeichnis 
+flashupdate.url_file Internet Konfigurations-Datei
 flashupdate.versioncheck Versionsüberprüfung
 flashupdate.writeflash ganzes Flashimage einspielen
 flashupdate.writeflashmtd einzelne Partition einspielen
@@ -513,8 +523,6 @@ fontsize.infobar_small Klein
 fontsize.menu Menütext
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
-gtxalpha.alpha1 Alpha 1
-gtxalpha.alpha2 Alpha 2
 hdd_10min 10 min.
 hdd_1min 1 min.
 hdd_20min 20 min.
@@ -593,7 +601,7 @@ keybindingmenu.mode_left_right_key_tv_zap Umschalten
 keybindingmenu.modechange Moduswechsel
 keybindingmenu.pagedown Seite weiter
 keybindingmenu.pageup Seite zurück
-keybindingmenu.poweroff Umschalter
+keybindingmenu.poweroff Standby EIN/AUS
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.remotecontrol_hardware Hardware
 keybindingmenu.remotecontrol_hardware_coolstream Coolstream
@@ -625,7 +633,6 @@ lcd_info_line_clock Uhrzeit
 lcdcontroler.brightness normale
 lcdcontroler.brightnessdeepstandby Deep-Standby
 lcdcontroler.brightnessstandby Standby
-lcdcontroler.contrast Kontrast
 lcdmenu.dim_brightness nach Dimm-Timeout
 lcdmenu.dim_time Dimm-Timeout
 lcdmenu.head VFD Einstellungen
@@ -729,9 +736,11 @@ miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo Verz.
 miscsettings.infobar_sat_display Kabel-/Satellitenanbieter
 miscsettings.infobar_show Info bei EPG Änderungen
+miscsettings.infobar_show_dd_available DD-Verfügbarkeit anzeigen
 miscsettings.infobar_show_res Auflösung anzeigen
 miscsettings.infobar_show_res_simple einfach
-miscsettings.infobar_show_var_hdd Füllstandanzeige (var & hdd)
+miscsettings.infobar_show_sysfs_hdd Füllstandanzeige (sysFS & hdd)
+miscsettings.infobar_show_tuner Aktiven Tuner anzeigen
 miscsettings.radiotext Radiotext
 miscsettings.shutdown_count Komplett ausschalten nach
 miscsettings.shutdown_count_hint1 Zeit (in Minuten), nach der vom Standby in
@@ -948,7 +957,7 @@ networkmenu.setuponstartup Beim Start Netzwerk setzen
 networkmenu.show Aktive Einstellungen zeigen
 networkmenu.ssid Netzwerkname
 networkmenu.test Netzwerk testen
-neutrino_starting Neutrino wird gestartet...
+neutrino_starting Neutrino-HD wird gestartet...
 nfs.alreadymounted Verzeichnis bereits gemountet.
 nfs.automount Beim Start mounten
 nfs.dir Verzeichnis/Freigabe
@@ -1008,7 +1017,6 @@ personalize.button_red Rot
 personalize.button_yellow Gelb
 personalize.disabled deaktiviert
 personalize.enabled aktiviert
-personalize.features Erweiterungen
 personalize.head Menüs anpassen
 personalize.help Hilfe
 personalize.help_line1 Die Personalisierung ermöglicht es, die wichtigsten
@@ -1030,7 +1038,6 @@ personalize.pinhint Personalisierungs PIN Code eingeben
 personalize.pinprotect ja
 personalize.pinstatus mit PIN
 personalize.plugins Plugins
-personalize.setupmenuwithpin Einstellungen-Menü mit PIN
 personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
 personalize.usermenu_show_cancel Zeige Schalter "Abbrechen" 
 personalize.visible sichtbar
@@ -1118,6 +1125,7 @@ reset_confirm Sind Sie sich sicher?
 reset_settings Einstellungen auf Standardwerte
 satsetup.auto_scan Automatisch einen gewählten %s
 satsetup.auto_scan_all Automatisch alle Satelliten
+satsetup.cable_nid Netzwerk ID
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
 satsetup.diseqc10 DiSEqC 1.0
@@ -1139,18 +1147,28 @@ satsetup.fastscan_prov_telesat TéléSAT
 satsetup.fastscan_prov_tvv TV Vlaanderen
 satsetup.fastscan_sd nur SD
 satsetup.fastscan_type Scantyp
+satsetup.fe_mode Tuner Modus
+satsetup.fe_mode_alone independent
+satsetup.fe_mode_loop loop
+satsetup.fe_mode_single single
+satsetup.fe_mode_twin twin
+satsetup.fe_setup Setup tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
+satsetup.logical_numbers Nutze logische Nummern
 satsetup.manual_scan Manueller Frequenzscan
 satsetup.minidiseqc Mini-DiSEqC
 satsetup.motor_pos Rotor-Position
 satsetup.nodiseqc Kein DiSEqC
+satsetup.reset_numbers Reset Kanalnummern
 satsetup.sat_setup LNB-Konfiguration
 satsetup.satellite Satellit
+satsetup.select_sat Auswahl Satellit
 satsetup.smatvremote SMATV Remote Tuning
 satsetup.uncomm_input Uncommitted
 satsetup.usals_repeat USALS wiederholen
+satsetup.use_bat Benutze BAT
 satsetup.use_fta_flag nur FTA Kanäle
 satsetup.use_nit Auswertung NIT
 satsetup.use_usals Benutze USALS
@@ -1208,8 +1226,8 @@ servicemenu.head Service
 servicemenu.imageinfo Imageinfo
 servicemenu.reload Kanallisten neu laden
 servicemenu.reload_hint Kanallisten werden neu geladen,\nbitte warten...
-servicemenu.restart Neutrino neu starten
-servicemenu.restart_hint Neutrino wird neu gestartet...
+servicemenu.restart Neutrino-HD neu starten
+servicemenu.restart_hint Neutrino-HD wird neu gestartet...
 servicemenu.restart_refused_recording Aufnahme läuft. Neustart nicht möglich.
 servicemenu.scants Kanalsuche
 servicemenu.update Software-Aktualisierung
@@ -1217,8 +1235,8 @@ settings.backup Image-Einstellungen: Sichern
 settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
 settings.menu_pos Menüposition
-settings.missingoptionsconffile Die Neutrino-Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
-settings.noconffile Die Neutrino-Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
+settings.missingoptionsconffile Die Neutrino-HD Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
+settings.noconffile Die Neutrino-HD Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
 settings.pos_bottom_left unten links
 settings.pos_bottom_right unten rechts
 settings.pos_default_center oben Mitte
@@ -1246,7 +1264,7 @@ streaminfo.head Tech. Information
 streaminfo.not_available nicht verfügbar
 streaminfo.resolution Auflösung
 streaminfo.signal Empfangssignal
-streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart von Neutrino Abhilfe.
+streaming.busy Ein oder mehrere Aufnahmeprozesse sind aktiv.\nSollte die Aufnahme eigentlich beendet sein,\nschafft ein Neustart von Neutrino-HD Abhilfe.
 streaming.dir_not_writable Das Aufnahmeverzeichnis ist nicht beschreibbar.\nAufnahmen sind daher nicht möglich.
 streaming.write_error Die Aufnahme wurde leider abgebrochen,\nda ein Fehler beim Schreiben der Daten auftrat.
 stringinput.caps Groß-/Kleinbuchstaben
@@ -1367,7 +1385,6 @@ videomenu.auto Automatisch
 videomenu.brightness Helligkeit
 videomenu.cinch Cinch
 videomenu.contrast Kontrast
-videomenu.csync Sync.-Korrektur
 videomenu.dbdr MPEG2 Filter
 videomenu.dbdr_both deBlock & deRing
 videomenu.dbdr_deblock deBlock

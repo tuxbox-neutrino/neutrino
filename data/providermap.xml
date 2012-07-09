@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zapit>
+	<TS id="03F0" on="0001" name="Digital+" />
+	<TS id="03F8" on="0001" name="Digital+" />
+	<TS id="0404" on="0001" name="Digital+" />
+	<TS id="0408" on="0001" name="Digital+" />
+	<TS id="040A" on="0001" name="Digital+" />
+	<TS id="040E" on="0001" name="Digital+" />
+	<TS id="0412" on="0001" name="Digital+" />
+	<TS id="0414" on="0001" name="Digital+" />
+	<TS id="0416" on="0001" name="Digital+" />
+	<TS id="041A" on="0001" name="Digital+" />
+	<TS id="041E" on="0001" name="Digital+" />
+	<TS id="0420" on="0001" name="Digital+" />
+	<TS id="0422" on="0001" name="Digital+" />
+	<TS id="0424" on="0001" name="Digital+" />
+	<TS id="0428" on="0001" name="Digital+" />
+	<TS name="AB" newname="AB SAT" />
+	<TS name="ABSAT" newname="AB SAT" />
+	<TS name="ARABSAT" newname="AB SAT" />
+	<TS name="Arqiv" newname="Arqiva" />
+	<TS name="ATV+" newname="ATV" />
+	<TS name="BBC" newname="BBC World Service" />
+	<TS name="Canaaldigitaal" newname="CanalDigitaal" />
+	<TS name="Canaldigitaal" newname="CanalDigitaal" />
+	<TS name="CANALDIGITAAL" newname="CanalDigitaal" />
+	<TS name="CSAT" newname="CanalSat France" />
+	<TS name="Cyfrowy Polsat S.A" newname="Cyfrowy Polsat" />
+	<TS name="Cyfrowy Polsat S.A." newname="Cyfrowy Polsat" />
+	<TS name="Cyfrowy Polsat SA" newname="Cyfrowy Polsat" />
+	<TS name="Du" newname="Dubai" />
+	<TS name="du" newname="Dubai" />
+	<TS name="Globecast" newname="GlobeCast" />
+	<TS name="Globecast Italia" newname="GlobeCast" />
+	<TS name="GlobeCast France" newname="GlobeCast" />
+	<TS name="GlobeCast Asia" newname="GlobeCast" />
+	<TS name="EUTELSAT" newname="Eutelsat" />
+	<TS name="MEDIA BRODCAST" newname="Media Broadcast" />
+	<TS name="MEDIA Broadcast" newname="Media Broadcast" />
+	<TS name="MEDIA BROADCAST" newname="Media Broadcast" />
+	<TS name="Netmed" newname="NetMed" />
+	<TS name="OVERON" newname="Overon" />
+	<TS name="Rai" newname="RAI" />
+	<TS name="RRsat" newname="RRSat" />
+	<TS name="SES ASTRA" newname="SES Astra" />
+	<TS name="SKY" newname="Sky" />
+	<TS name="Telewizja Polska SA" newname="Telewizja Polska" />
+	<TS name="TVP" newname="Telewizja Polska" />
+</zapit>

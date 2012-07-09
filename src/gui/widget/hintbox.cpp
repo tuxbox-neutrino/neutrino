@@ -120,7 +120,7 @@ void CHintBox::init(const char * const Caption, const char * const Text, const i
 	if (nw > width)
 		width = nw;
 
-	for (std::vector<char *>::const_iterator it = line.begin(); it != line.end(); it++)
+	for (std::vector<char *>::const_iterator it = line.begin(); it != line.end(); ++it)
 	{
 		int w = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getRenderWidth(*it, true); // UTF-8
 		maxLineWidth = std::max(maxLineWidth, w);
@@ -201,7 +201,7 @@ void CHintBox::refresh(void)
 	int count = entries_per_page;
 	int ypos  = theight + (fheight >> 1);
 
-	for (std::vector<char *>::const_iterator it = line.begin() + (entries_per_page * current_page); ((it != line.end()) && (count > 0)); it++, count--)
+	for (std::vector<char *>::const_iterator it = line.begin() + (entries_per_page * current_page); ((it != line.end()) && (count > 0)); ++it, count--)
 		window->RenderString(g_Font[SNeutrinoSettings::FONT_TYPE_MENU], textStartX, (ypos += fheight), width, *it, (CFBWindow::color_t)COL_MENUCONTENT, 0, true); // UTF-8
 
 	if (entries_per_page < line.size())

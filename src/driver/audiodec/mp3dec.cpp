@@ -43,7 +43,6 @@
 #include <string.h>
 #include <errno.h>
 #include <string>
-#include <driver/audiodec/mp3dec.h>
 #include <linux/soundcard.h>
 #include <assert.h>
 #include <cmath>
@@ -52,8 +51,9 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <driver/netfile.h>
 #include <zapit/include/audio.h>
+#include "mp3dec.h"
+#include <driver/netfile.h>
 
 extern cAudio * audioDecoder;
 

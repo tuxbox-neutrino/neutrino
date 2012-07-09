@@ -7,6 +7,8 @@
 #include <cstdarg>
 #include <cstdio>
 #include <errno.h>
+#include <unistd.h>
+
 // c++
 #include <string.h>
 // system

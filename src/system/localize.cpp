@@ -99,10 +99,16 @@ CLocaleManager::CLocaleManager()
 CLocaleManager::~CLocaleManager()
 {
 	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
-		if (localeData[j] != locale_real_names[j])
+		if (localeData[j] != locale_real_names[j] && localeData[j] != defaultData[j])
 			::free(localeData[j]);
 
-	delete localeData;
+	delete[] localeData;
+
+	for (unsigned j = 0; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
+		if (defaultData[j] != locale_real_names[j])
+			::free(defaultData[j]);
+
+	delete[] defaultData;
 }
 
 const char * path[2] = {"/var/tuxbox/config/locale/", DATADIR "/neutrino/locale/"};
@@ -149,13 +155,14 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 		}
 	}
 
-	char buf[1000];
+	char *buf=NULL;
+	size_t len = 0;
 
 	i = 1;
 
 	while(!feof(fd))
 	{
-		if(fgets(buf,sizeof(buf),fd)!=NULL)
+		if(getline(&buf, &len, fd)!=-1)
 		{
 			char * val    = NULL;
 			char * tmpptr = buf;
@@ -203,6 +210,9 @@ CLocaleManager::loadLocale_ret_t CLocaleManager::loadLocale(const char * const l
 		}
 	}
 	fclose(fd);
+	if(buf)
+		free(buf);
+
 	for (unsigned j = 1; j < (sizeof(locale_real_names)/sizeof(const char *)); j++)
 		if (loadData[j] == locale_real_names[j])
 		{

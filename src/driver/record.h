@@ -35,6 +35,7 @@
 #include <gui/movieinfo.h>
 #include <zapit/channel.h>
 #include <zapit/client/zapittools.h>
+#include <zapit/femanager.h>
 
 #if HAVE_COOL_HARDWARE
 #include <record_cs.h>
@@ -63,7 +64,7 @@ enum record_error_msg_t
         RECORD_BUSY			= -1,
         RECORD_INVALID_DIRECTORY	= -2,
         RECORD_INVALID_CHANNEL		= -3,
-        RECORD_FAILURE			= -4,
+        RECORD_FAILURE			= -4
 };
 
 class CRecordInstance
@@ -123,6 +124,8 @@ class CRecordInstance
 		bool Timeshift() { return autoshift; };
 		int tshift_mode;
 		void SetStopMessage(const char* text) {rec_stop_msg = text;} ;
+
+		CFrontend *	frontend;
 };
 
 typedef std::map<t_channel_id, CRecordInstance*> recmap_t;
@@ -164,7 +167,7 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 			RECMODE_OFF = 0,
 			RECMODE_REC = 1,
 			RECMODE_TSHIFT = 2,
-			RECMODE_REC_TSHIFT = 3,
+			RECMODE_REC_TSHIFT = 3
 		};
 		
 		CRecordManager();

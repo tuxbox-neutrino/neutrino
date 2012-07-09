@@ -36,7 +36,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <basedec.h>
 #include <driver/audiometadata.h>
 #ifdef USE_TREMOR
 #include <tremor/ogg.h>
@@ -45,6 +44,8 @@
 #include <ogg/ogg.h>
 #include <vorbis/vorbisfile.h>
 #endif
+
+#include "basedec.h"
 
 #define DECODE_SLOTS 30
 

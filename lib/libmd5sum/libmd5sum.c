@@ -1,15 +1,14 @@
-#include "libmd5sum.h"
-#include <sys/types.h>
-#include <error.h>
-
 #ifdef HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#include "md5.h"
-#include "getline.h"
+#include <sys/types.h>
+#include <error.h>
 #include <errno.h>
 #include <string.h>
+
+#include "libmd5sum.h"
+#include "md5.h"
+#include "getline.h"
 
 #define STREQ(a, b) (strcmp ((a), (b)) == 0)
 

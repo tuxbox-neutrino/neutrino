@@ -57,6 +57,7 @@ class CChannelList
 private:
 	CFrameBuffer		*frameBuffer;
 	unsigned int		selected, selected_in_new_mode;
+	unsigned int		tuned;
 	t_channel_id		selected_chid;
 	CLastChannel		lastChList;
 	unsigned int		liststart;
@@ -88,12 +89,14 @@ private:
 	void clearItem2DetailsLine ();
 	void paintItem2DetailsLine (int pos, int ch_index);
 	void paintItem(int pos);
+	bool updateSelection(int newpos);
 	void paint();
 	void paintHead();
 	void paintButtonBar(bool is_current);
 	void hide();
 	void showChannelLogo();
 	void calcSize();
+	std::string   MaxChanNr();
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
@@ -118,13 +121,14 @@ public:
 	const char         * getName                   (void) const {
 		return name.c_str();
 	};
-	const std::string &  getActiveChannelName      (void) const; // UTF-8
+	const std::string    getActiveChannelName      (void) const; // UTF-8
 	t_satellite_position getActiveSatellitePosition(void) const;
 	int                  getActiveChannelNumber    (void) const;
 	t_channel_id         getActiveChannel_ChannelID(void) const;
+	CZapitChannel*	     getActiveChannel	       (void) const;
 
 	void zapTo(int pos, bool forceStoreToLastChannels = false);
-	void NewZap(t_channel_id channel_id);
+	void zapToChannel(CZapitChannel *channel);
 	void virtual_zap_mode(bool up);
 	bool zapTo_ChannelID(const t_channel_id channel_id);
 	bool adjustToChannelID(const t_channel_id channel_id, bool bToo = true);
@@ -143,14 +147,17 @@ public:
 	int getSize() const;
 	int getSelectedChannelIndex() const;
 	void setSize(int newsize);
-	unsigned int		tuned;
 	int doChannelMenu(void);
 	void SortAlpha(void);
 	void SortSat(void);
 	void SortTP(void);
 	void ClearList(void);
-	bool SameTP(t_channel_id channel_id = 0);
+	bool SameTP(t_channel_id channel_id);
+	bool SameTP(CZapitChannel * channel = NULL);
 	CLastChannel & getLastChannels() { return lastChList; }
+	bool showEmptyError();
+	int getSelected() { return selected; }
+	CZapitChannel* getPrevNextChannel(int key, unsigned int &sl);
 	//friend class CZapitChannel;
 };
 #endif

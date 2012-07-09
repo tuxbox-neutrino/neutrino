@@ -62,18 +62,18 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	printf("[neutrino] CSettingsManager %s: init...\n",__FUNCTION__);
 	int   res = menu_return::RETURN_REPAINT;
-		
+
 	if (parent)
 		parent->hide();
-	
+
 	CFileBrowser fileBrowser;
 	CFileFilter fileFilter;
-	
-	if(actionKey == "loadconfig") 
+
+	if(actionKey == "loadconfig")
 	{
 		fileFilter.addFilter("conf");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/var/tuxbox/config") == true) 
+		if (fileBrowser.exec("/var/tuxbox/config") == true)
 		{
 			CNeutrinoApp::getInstance()->loadSetup(fileBrowser.getSelectedFile()->Name.c_str());
 			CColorSetupNotifier *colorSetupNotifier = new CColorSetupNotifier;
@@ -84,10 +84,10 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
-	else if(actionKey == "saveconfig") 
+	else if(actionKey == "saveconfig")
 	{
 		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/var/tuxbox") == true) 
+		if (fileBrowser.exec("/var/tuxbox") == true)
 		{
 			char  fname[256] = "neutrino.conf", sname[256];
 			CStringInputSMS * sms = new CStringInputSMS(LOCALE_EXTRA_SAVECONFIG, fname, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789. ");
@@ -99,33 +99,33 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
-	else if(actionKey == "backup") 
+	else if(actionKey == "backup")
 	{
 		fileBrowser.Dir_Mode = true;
-		if (fileBrowser.exec("/media") == true) 
+		if (fileBrowser.exec("/media") == true)
 		{
 			char  fname[256];
 			struct statfs s;
 			int ret = ::statfs(fileBrowser.getSelectedFile()->Name.c_str(), &s);
 			if(ret == 0 && s.f_type != 0x72b6L) /*jffs2*/
-			{ 
+			{
 				sprintf(fname, "/bin/backup.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
 				printf("backup: executing [%s]\n", fname);
 				system(fname);
-			} 
+			}
 			else
 				ShowMsgUTF(LOCALE_MESSAGEBOX_ERROR, g_Locale->getText(LOCALE_SETTINGS_BACKUP_FAILED),CMessageBox::mbrBack, CMessageBox::mbBack, NEUTRINO_ICON_ERROR);
 		}
 		return res;
 	}
-	else if(actionKey == "restore") 
+	else if(actionKey == "restore")
 	{
 		fileFilter.addFilter("tar");
 		fileBrowser.Filter = &fileFilter;
-		if (fileBrowser.exec("/media") == true) 
+		if (fileBrowser.exec("/media") == true)
 		{
 			int result = ShowMsgUTF(LOCALE_SETTINGS_RESTORE, g_Locale->getText(LOCALE_SETTINGS_RESTORE_WARN), CMessageBox::mbrNo, CMessageBox::mbYes | CMessageBox::mbNo);
-			if(result == CMessageBox::mbrYes) 
+			if(result == CMessageBox::mbrYes)
 			{
 				char  fname[256];
 				sprintf(fname, "/bin/restore.sh %s", fileBrowser.getSelectedFile()->Name.c_str());
@@ -135,7 +135,7 @@ int CSettingsManager::exec(CMenuTarget* parent, const std::string &actionKey)
 		}
 		return res;
 	}
-	
+
 	res = showMenu();
 
 	return res;
@@ -147,21 +147,40 @@ int CSettingsManager::showMenu()
 
 	CDataResetNotifier * resetNotifier = new CDataResetNotifier();
 
-	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_MANAGE, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
-	mset->addIntroItems();
+	CMenuWidget * mset = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_SETTINGS_MNGR);
+	mset->addIntroItems(LOCALE_MAINSETTINGS_MANAGE);
 
-	mset->addItem(new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier, 	"settings", 	CRCInput::RC_recall));// FIXME: RC-button RECALL is broken
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_RESET_SETTINGS,   true, NULL, resetNotifier,    "settings",     CRCInput::RC_recall);
+	mf->setHint(NEUTRINO_ICON_HINT_RESET, LOCALE_MENU_HINT_RESET); // FIXME: RC-button RECALL is broken
+	mset->addItem(mf);
+
 	mset->addItem(GenericMenuSeparatorLine);
-	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, 	"saveconfig", 	CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	mset->addItem(new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, 	"loadconfig", 	CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+
+	mf = new CMenuForwarder(LOCALE_EXTRA_SAVECONFIG, true, NULL, this, "saveconfig", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf->setHint(NEUTRINO_ICON_HINT_SAVEAS, LOCALE_MENU_HINT_SAVEAS);
+	mset->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_EXTRA_LOADCONFIG, true, NULL, this, "loadconfig", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf->setHint(NEUTRINO_ICON_HINT_LOAD, LOCALE_MENU_HINT_LOAD);
+	mset->addItem(mf);
+
 	mset->addItem(GenericMenuSeparatorLine);
-	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_BACKUP,  true, NULL, this, 	"backup", 	CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
-	mset->addItem(new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, 	"restore", 	CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+
+	mf = new CMenuForwarder(LOCALE_SETTINGS_BACKUP, true, NULL, this, "backup",  CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf->setHint(NEUTRINO_ICON_HINT_BACKUP, LOCALE_MENU_HINT_BACKUP);
+	mset->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_SETTINGS_RESTORE, true, NULL, this, "restore", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf->setHint(NEUTRINO_ICON_HINT_RESTORE, LOCALE_MENU_HINT_RESTORE);
+	mset->addItem(mf);
+
 	mset->addItem(GenericMenuSeparatorLine);
-	mset->addItem(new CMenuForwarder(LOCALE_RESET_ALL,   true, NULL, resetNotifier, 	"all", 		CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER));
-		
+
+	mf = new CMenuForwarder(LOCALE_RESET_ALL, true, NULL, resetNotifier, "all", CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER);
+	mf->setHint(NEUTRINO_ICON_HINT_FACTORY, LOCALE_MENU_HINT_FACTORY);
+	mset->addItem(mf);
+
 	int res = mset->exec(NULL, "");
-	mset->hide();
 	delete resetNotifier;
 	delete mset;
 	return res;

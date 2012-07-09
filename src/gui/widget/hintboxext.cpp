@@ -85,10 +85,10 @@ CHintBoxExt::~CHintBoxExt(void)
 		// content has been set using "m_message" so we are responsible to 
 		// delete it
 		for (ContentLines::iterator it = m_lines.begin();
-			 it != m_lines.end(); it++)
+			 it != m_lines.end(); ++it)
 		{
 			for (std::vector<Drawable*>::iterator it2 = it->begin();
-				 it2 != it->end(); it2++)
+				 it2 != it->end(); ++it2)
 			{
 				//(*it2)->print();
 				delete *it2;
@@ -116,13 +116,13 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 	int maxWidth = m_width > 0 ? m_width : 0;
 	int maxOverallHeight = 0;
 	m_startEntryOfPage.push_back(0);
-	for (ContentLines::iterator it = m_lines.begin(); it!=m_lines.end(); it++)
+	for (ContentLines::iterator it = m_lines.begin(); it!=m_lines.end(); ++it)
 	{
 		bool pagebreak = false;
 		int maxHeight = 0;
 		int lineWidth = 0;
 		for (std::vector<Drawable*>::iterator item = it->begin();
-			 item != it->end(); item++) {
+			 item != it->end(); ++item) {
 			if ((*item)->getHeight() > maxHeight)
 				maxHeight = (*item)->getHeight();
 			lineWidth += (*item)->getWidth();
@@ -258,26 +258,33 @@ void CHintBoxExt::refresh(bool toround)
 // 		it != m_startEntryOfPage.end();it++) {
 // 		printf(" %d",*it);
 // 	}
-// 	printf("\n current page: %d",m_currentPage);
-// 	printf("von %d bis %d\n",m_startEntryOfPage[m_currentPage],m_startEntryOfPage[m_currentPage+1]-1);
+// 	printf("\n current page: %d lines %d ",m_currentPage, m_lines.size());
+// 	printf("start %d bis %d\n",m_startEntryOfPage[m_currentPage],m_startEntryOfPage[m_currentPage+1]-1);
 
+#if 0
 	for (ContentLines::iterator it = m_lines.begin() + m_startEntryOfPage[m_currentPage];
 		 it != m_lines.begin() + m_startEntryOfPage[m_currentPage+1]
-			 && it != m_lines.end(); it++)
+			 && it != m_lines.end(); ++it)
+#endif
+	for (int count = 0; count < (int) m_lines.size(); count++)
 	{
-		int xPos = textStartX;
-		int maxHeight = 0;
-		for (std::vector<Drawable*>::iterator d = it->begin();d!=it->end();d++)
+		if ((count >= m_startEntryOfPage[m_currentPage]) &&
+				(count < m_startEntryOfPage[m_currentPage+1]))
 		{
-// 			(*d)->print();
-// 			printf("\n");
-			//(*d)->draw(m_window,xPos,yPos,m_width);
-  			(*d)->draw(m_window,xPos,yPos,m_width-20);
-			xPos += (*d)->getWidth() + 20;
-			if ((*d)->getHeight() > maxHeight)
-				maxHeight = (*d)->getHeight();
+			int xPos = textStartX;
+			int maxHeight = 0;
+			for (std::vector<Drawable*>::iterator d = m_lines[count].begin(); d != m_lines[count].end(); ++d)
+			{
+				// 			(*d)->print();
+				// 			printf("\n");
+				//(*d)->draw(m_window,xPos,yPos,m_width);
+				(*d)->draw(m_window,xPos,yPos,m_width-20);
+				xPos += (*d)->getWidth() + 20;
+				if ((*d)->getHeight() > maxHeight)
+					maxHeight = (*d)->getHeight();
+			}
+			yPos += maxHeight;
 		}
-		yPos += maxHeight;
 	}
 
 	if (has_scrollbar()) 

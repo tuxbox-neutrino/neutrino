@@ -30,10 +30,8 @@
 
 #include <sstream>
 
-#include <timermanager.h>
 #include <timerdclient/timerdclient.h>
 #include <timerdclient/timerdmsg.h>
-#include <debug.h>
 #include <sectionsdclient/sectionsdclient.h>
 #if HAVE_COOL_HARDWARE
 #include <coolstream/cs_vfd.h>
@@ -41,6 +39,9 @@
 
 #include <vector>
 #include <cstdlib>
+
+#include "debug.h"
+#include "timermanager.h"
 
 #ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
 #define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
@@ -54,6 +55,9 @@ time_t timer_minutes;
 bool timer_is_rec;
 bool timer_wakeup;
 static pthread_mutex_t tm_eventsMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventList &eList, char search = 0, std::string search_text = "");
+bool sectionsd_getEPGidShort(event_id_t epgID, CShortEPGData * epgdata);
 
 //------------------------------------------------------------
 CTimerManager::CTimerManager()
@@ -152,7 +156,7 @@ void* CTimerManager::timerThread(void *arg)
 			pthread_mutex_lock(&tm_eventsMutex);
 
 			CTimerEventMap::iterator pos = timerManager->events.begin();
-			for(;pos != timerManager->events.end();pos++)
+			for(;pos != timerManager->events.end();++pos)
 			{
 				event = pos->second;
 				dprintf("checking event: %03d\n",event->eventID);
@@ -208,8 +212,10 @@ void* CTimerManager::timerThread(void *arg)
 						pos->second->printEvent();
 					dprintf("\n");
 					delete pos->second;										// delete event
-					timerManager->events.erase(pos);				// remove from list
+					timerManager->events.erase(pos++);				// remove from list
 					timerManager->m_saveEvents = true;
+					if(pos == timerManager->events.end())
+						break;
 				}
 			}
 			pthread_mutex_unlock(&tm_eventsMutex);
@@ -235,7 +241,7 @@ CTimerEvent* CTimerManager::getNextEvent()
 	pthread_mutex_lock(&tm_eventsMutex);
 	CTimerEvent *erg = events[0];
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos!=events.end();pos++)
+	for(;pos!=events.end();++pos)
 	{
 		if(pos->second <= erg)
 		{
@@ -312,7 +318,7 @@ bool CTimerManager::listEvents(CTimerEventMap &Events)
 	pthread_mutex_lock(&tm_eventsMutex);
 
 	Events.clear();
-	for (CTimerEventMap::iterator pos = events.begin(); pos != events.end(); pos++)
+	for (CTimerEventMap::iterator pos = events.begin(); pos != events.end(); ++pos)
 	{
 		pos->second->Refresh();
 		Events[pos->second->eventID] = pos->second;
@@ -673,7 +679,7 @@ void CTimerManager::saveEventsToConfig()
 	config.clear();
 	dprintf("save %d events to config ...\n", events.size());
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos != events.end();pos++)
+	for(;pos != events.end();++pos)
 	{
 		CTimerEvent *event = pos->second;
 		dprintf("event #%d\n",event->eventID);
@@ -720,7 +726,7 @@ bool CTimerManager::shutdown()
 	}
 
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos != events.end();pos++)
+	for(;pos != events.end();++pos)
 	{
 		CTimerEvent *event = pos->second;
 		dprintf("shutdown: timer type %d state %d announceTime: %ld\n", event->eventType, event->eventState, event->announceTime);
@@ -760,7 +766,7 @@ void CTimerManager::shutdownOnWakeup(int currEventID)
 	pthread_mutex_lock(&tm_eventsMutex);
 
 	CTimerEventMap::iterator pos = events.begin();
-	for(;pos != events.end();pos++)
+	for(;pos != events.end();++pos)
 	{
 		CTimerEvent *event = pos->second;
 		if((event->eventType == CTimerd::TIMER_RECORD ||
@@ -1140,11 +1146,11 @@ CTimerEvent_Record::CTimerEvent_Record(time_t announce_Time, time_t alarm_Time, 
 	eventInfo.channel_id = channel_id;
 	eventInfo.apids = apids;
 	recordingDir = recDir;
-	CSectionsdClient sdc;
 	epgTitle="";
 	CShortEPGData epgdata;
-	if (sdc.getEPGidShort(epgID, &epgdata))
+	if (sectionsd_getEPGidShort(epgID, &epgdata))
 		epgTitle=epgdata.title;
+
 }
 //------------------------------------------------------------
 CTimerEvent_Record::CTimerEvent_Record(CConfigFile *config, int iId):
@@ -1249,8 +1255,9 @@ void CTimerEvent_Record::Reschedule()
 //------------------------------------------------------------
 void CTimerEvent_Record::getEpgId()
 {
-	CSectionsdClient sdc;
-	CChannelEventList evtlist = sdc.getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL);
+	//TODO: Record/Zapto getEpgId code almost identical !
+	CChannelEventList evtlist;
+	sectionsd_getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
 	// we check for a time in the middle of the recording
 	time_t check_time=alarmTime/2 + stopTime/2;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
@@ -1265,7 +1272,7 @@ void CTimerEvent_Record::getEpgId()
 	if(eventInfo.epgID != 0)
 	{
 		CShortEPGData epgdata;
-		if (sdc.getEPGidShort(eventInfo.epgID, &epgdata))
+		if (sectionsd_getEPGidShort(eventInfo.epgID, &epgdata))
 			epgTitle=epgdata.title;
 	}
 }
@@ -1296,8 +1303,9 @@ void CTimerEvent_Zapto::fireEvent()
 //------------------------------------------------------------
 void CTimerEvent_Zapto::getEpgId()
 {
-	CSectionsdClient sdc;
-	CChannelEventList evtlist = sdc.getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL);
+	//TODO: Record/Zapto getEpgId code almost identical !
+	CChannelEventList evtlist;
+	sectionsd_getEventsServiceKey(eventInfo.channel_id &0xFFFFFFFFFFFFULL, evtlist);
 	// we check for a time 5 min after zap
 	time_t check_time=alarmTime + 300;
 	for ( CChannelEventList::iterator e= evtlist.begin(); e != evtlist.end(); ++e )
@@ -1312,8 +1320,8 @@ void CTimerEvent_Zapto::getEpgId()
 	if(eventInfo.epgID != 0)
 	{
 		CShortEPGData epgdata;
-		if (sdc.getEPGidShort(eventInfo.epgID, &epgdata))
-			epgTitle=epgdata.title; 
+		if (sectionsd_getEPGidShort(eventInfo.epgID, &epgdata))
+			epgTitle=epgdata.title;
 	}
 }
 //=============================================================

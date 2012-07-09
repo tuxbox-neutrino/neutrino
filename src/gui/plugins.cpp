@@ -33,8 +33,6 @@
 #include <config.h>
 #endif
 
-#include <gui/plugins.h>
-
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -42,8 +40,11 @@
 
 #include <dirent.h>
 #include <dlfcn.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <unistd.h>
+#include <stdio.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
@@ -52,6 +53,7 @@
 
 #include <zapit/client/zapittools.h>
 
+#include "plugins.h"
 /* for alexW images with old drivers:
  * #define USE_VBI_INTERFACE 1
  */
@@ -70,7 +72,8 @@ extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
 CPlugins::CPlugins()
 {
-	
+	frameBuffer = NULL;
+	number_of_plugins = 0;
 }
 
 bool CPlugins::plugin_exists(const std::string & filename)
@@ -90,10 +93,9 @@ int CPlugins::find_plugin(const std::string & filename)
 
 bool CPlugins::pluginfile_exists(const std::string & filename)
 {
-	FILE *file = fopen(filename.c_str(),"r");
-	if (file != NULL)
+	struct stat stat_buf;
+	if(::stat(filename.c_str(), &stat_buf) == 0)
 	{
-		fclose(file);
 		return true;
 	} else
 	{
@@ -107,6 +109,9 @@ void CPlugins::scanDir(const char *dir)
 	std::string fname;
 
 	int number_of_files = scandir(dir, &namelist, 0, alphasort);
+
+	if(number_of_files < 0)
+		return;
 
 	for (int i = 0; i < number_of_files; i++)
 	{
@@ -147,7 +152,9 @@ void CPlugins::scanDir(const char *dir)
 				}
 			}
 		}
+		free(namelist[i]);
 	}
+	free(namelist);
 }
 
 void CPlugins::loadPlugins()
@@ -210,10 +217,6 @@ bool CPlugins::parseCfg(plugin *plugin_data)
 		else if (cmd == "pluginversion")
 		{
 			plugin_data->key = atoi(parm.c_str());
-		}
-		else if (cmd == "pluginversion")
-		{
-			plugin_data->version = atoi(parm.c_str());
 		}
 		else if (cmd == "name")
 		{
@@ -322,16 +325,19 @@ void CPlugins::startScriptPlugin(int number)
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
-
 	FILE *f = popen(script,"r");
 	if (f != NULL)
 	{
-		char output[1024];
-		while (fgets(output,1024,f))
+		char *output=NULL;
+		size_t len = 0;
+		while (( getline(&output, &len, f)) != -1)
+
 		{
 			scriptOutput += output;
 		}
 		pclose(f);
+		if(output)
+			free(output);
 	}
 	else
 	{
@@ -597,7 +603,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 bool CPlugins::hasPlugin(CPlugins::p_type_t type)
 {
 	for (std::vector<plugin>::iterator it=plugin_list.begin();
-			it!=plugin_list.end(); it++)
+			it!=plugin_list.end(); ++it)
 	{
 		if (it->type == type && !it->hide)
 			return true;

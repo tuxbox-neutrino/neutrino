@@ -615,7 +615,7 @@ int main (int argc, char** argv)
 			zapit.getChannels(channels);
 
 			std::vector<CZapitClient::responseGetBouquetChannels>::const_iterator ch_resp;
-			for (ch_resp = channels.begin(), channel = 1; ch_resp != channels.end(); ch_resp++, channel++)
+			for (ch_resp = channels.begin(), channel = 1; ch_resp != channels.end(); ch_resp++, ++channel)
 			{
 				if (!strcasecmp(ch_resp->name, channelName))
 				{
@@ -641,7 +641,7 @@ int main (int argc, char** argv)
 
 				zapit.getBouquets(bouquets, false);
 
-				for (b_resp = bouquets.begin(); b_resp != bouquets.end(); b_resp++)
+				for (b_resp = bouquets.begin(); b_resp != bouquets.end(); ++b_resp)
 					std::cout << (b_resp->bouquet_nr + 1) << ": " << b_resp->name << std::endl;
 
 				return 0;
@@ -651,7 +651,7 @@ int main (int argc, char** argv)
 			if (!channel)
 			{
 				std::vector<CZapitClient::responseGetBouquetChannels>::const_iterator ch_resp;
-				for (ch_resp = channels.begin(), channel = 1; ch_resp != channels.end(); ch_resp++, channel++)
+				for (ch_resp = channels.begin(), channel = 1; ch_resp != channels.end(); ch_resp++, ++channel)
 					//std::cout << channel << ": " << ch_resp->name << ": " << ch_resp->channel_id<< std::endl;
 					printf("%3d: %s (%04x)\n", channel, ch_resp->name, (short) (ch_resp->channel_id &0xFFFF));
 				return 0;

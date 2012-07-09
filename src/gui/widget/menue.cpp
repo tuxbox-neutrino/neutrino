@@ -1,27 +1,17 @@
 /*
-	$port: menue.cpp,v 1.178 2010/12/08 19:49:30 tuxbox-cvs Exp $
-
 	Neutrino-GUI  -   DBoxII-Project
 
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
 	(C) 2008, 2009 Stefan Seyfried
+	Copyright (C) 2012 CoolStream International Ltd
 
-	Kommentar:
-
-	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
-	Aufbau und auch den Ausbaumoeglichkeiten gut aussehen. Neutrino basiert
-	auf der Client-Server Idee, diese GUI ist also von der direkten DBox-
-	Steuerung getrennt. Diese wird dann von Daemons uebernommen.
-
-
-	License: GPL
+	License: GPLv2
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	the Free Software Foundation
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -73,6 +63,7 @@ CMenuItem::CMenuItem()
 	can_arrow = false;
 	used = false;
 	icon_frame_w = 10;
+	hint = NONEXISTANT_LOCALE;
 }
 
 void CMenuItem::init(const int X, const int Y, const int DX, const int OFFX)
@@ -280,7 +271,7 @@ CMenuGlobal::CMenuGlobal()
 CMenuGlobal::~CMenuGlobal()
 {
 	v_selected.clear();
-};
+}
 
 //Note: use only singleton to create an instance in the constructor or init handler of menu widget
 CMenuGlobal* CMenuGlobal::getInstance()
@@ -370,6 +361,9 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	fade 		= true;
 	savescreen	= false;
 	background	= NULL;
+	has_hints	= false;
+	hint_painted	= false;
+	hint_height	= 0;
 }
 
 void CMenuWidget::move(int xoff, int yoff)
@@ -503,6 +497,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
+	GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
 	if(savescreen) {
 		calcSize();
 		saveScreen();
@@ -599,6 +594,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
 									items[selected]->paint( false );
 									item->paint( true );
+									paintHint(pos);
 									selected = pos;
 								} else {
 									selected=pos;
@@ -633,6 +629,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 									items[selected]->paint( false );
 									//select new
 									item->paint( true );
+									paintHint(pos);
 									selected = pos;
 								} else {
 									selected=pos;
@@ -695,6 +692,11 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 						retval = menu_return::RETURN_EXIT_ALL;
 					}
 					break;
+				case (CRCInput::RC_help):
+					hide();
+					g_settings.show_menu_hints = !g_settings.show_menu_hints;
+					paint();
+					break;
 
 				default:
 					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
@@ -747,8 +749,10 @@ void CMenuWidget::hide()
 	//frameBuffer->paintBackgroundBoxRel(x, y, width+15+SHADOW_OFFSET,height+10+SHADOW_OFFSET);
 	if(savescreen && background)
 		restoreScreen();//FIXME
-	else
+	else {
 		frameBuffer->paintBackgroundBoxRel(x, y, full_width, full_height);
+		paintHint(-1);
+	}
 
 	/* setActive() paints item for hidden parent menu, if called from child menu */
 	for (unsigned int count = 0; count < items.size(); count++) 
@@ -760,9 +764,6 @@ void CMenuWidget::calcSize()
 	if (name != NONEXISTANT_LOCALE)
 		nameString = g_Locale->getText(name);
 
-	/* set the max height to 9/10 of usable screen height
-	   debatable, if the callers need a possibility to set this */
-	height = frameBuffer->getScreenHeight() / 20 * 18; /* make sure its a multiple of 2 */
 	width = min_width;
 
 	int wi, hi;
@@ -778,7 +779,24 @@ void CMenuWidget::calcSize()
 		int tmpw = items[i]->getWidth() + 10 + 10 + wi; /* 10 pixels to the left and right of the text */
 		if (tmpw > width)
 			width = tmpw;
+
+		if(g_settings.show_menu_hints && (!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE)) {
+			has_hints = true;
+		}
 	}
+	hint_height = 0;
+	if(g_settings.show_menu_hints && has_hints) {
+		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+		hint_height = 10 + 2*fheight;
+		/* assuming all hint icons has the same size ! */
+		int iw, ih;
+		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &iw, &ih);
+		if(hint_height < (ih+10))
+			hint_height = ih+10;
+	}
+	/* set the max height to 9/10 of usable screen height
+	   debatable, if the callers need a possibility to set this */
+	height = (frameBuffer->getScreenHeight() - hint_height) / 20 * 18; /* make sure its a multiple of 2 */
 
 	if(height > ((int)frameBuffer->getScreenHeight() - 10))
 		height = frameBuffer->getScreenHeight() - 10;
@@ -796,13 +814,14 @@ void CMenuWidget::calcSize()
 	total_pages=1;
 	for (unsigned int i= 0; i< items.size(); i++) {
 		int item_height=items[i]->getHeight();
-		itemHeightTotal+=item_height;
 		heightCurrPage+=item_height;
 		if(heightCurrPage > (height-hheight)) {
 			page_start.push_back(i);
 			total_pages++;
 			heightCurrPage=item_height;
 		}
+		if(total_pages == 1)
+			itemHeightTotal+=item_height;
 	}
 	page_start.push_back(items.size());
 
@@ -837,7 +856,7 @@ void CMenuWidget::calcSize()
 		sb_width=15;
 
 	full_width = width+sb_width+SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE-2+SHADOW_OFFSET;
+	full_height = height+RADIUS_LARGE-2+SHADOW_OFFSET+hint_height;
 
 	setMenuPos(width - sb_width);
 }
@@ -850,6 +869,14 @@ void CMenuWidget::paint()
 		saveScreen();
 #endif
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
+	//clear backround on corners switch
+	static bool corners = g_settings.rounded_corners;
+	if(g_settings.rounded_corners != corners){
+		corners = g_settings.rounded_corners;
+		if(!g_settings.rounded_corners){
+			frameBuffer->paintBackgroundBoxRel(x, y+full_height, full_width, CORNER_RADIUS_LARGE-2+SHADOW_OFFSET);
+		}
+	}
 
 	//paint shadow and backround
 	int rad = RADIUS_LARGE-2;
@@ -874,19 +901,17 @@ void CMenuWidget::paint()
 
 void CMenuWidget::setMenuPos(const int& menu_width)
 {
-	int mn_width = menu_width;
-	
 	int scr_x = frameBuffer->getScreenX();
 	int scr_y = frameBuffer->getScreenY();
 	int scr_w = frameBuffer->getScreenWidth();
 	int scr_h = frameBuffer->getScreenHeight();
-	
+
 	//configured positions 
 	switch(g_settings.menu_pos) 
 	{
 		case MENU_POS_CENTER:
-			x = offx + scr_x + ((scr_w - mn_width ) >> 1 );
-			y = offy + scr_y + ((scr_h - height) >> 1 );
+			x = offx + scr_x + ((scr_w - menu_width ) >> 1 );
+			y = offy + scr_y + ((scr_h - height - hint_height) >> 1 );
 			break;
 			
 		case MENU_POS_TOP_LEFT: 
@@ -896,17 +921,17 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 			
 		case MENU_POS_TOP_RIGHT: 
 			y = offy + scr_y + 10;
-			x = offx + scr_x + scr_w - mn_width - 10;
+			x = offx + scr_x + scr_w - menu_width - 10;
 			break;
 			
 		case MENU_POS_BOTTOM_LEFT: 
-			y = offy + scr_y + scr_h - height - 10;
+			y = offy + scr_y + scr_h - height - hint_height - 10;
 			x = offx + scr_x + 10;
 			break;
 			
 		case MENU_POS_BOTTOM_RIGHT: 
-			y = offy + scr_y + scr_h - height - 10;
-			x = offx + scr_x + scr_w - mn_width - 10;
+			y = offy + scr_y + scr_h - height - hint_height - 10;
+			x = offx + scr_x + scr_w - menu_width - 10;
 			break;
 	}
 }
@@ -942,12 +967,15 @@ void CMenuWidget::paintItems()
 			item->init(x, ypos, width, iconOffset);
 			if( (item->isSelectable()) && (selected==-1) )
 			{		
+				paintHint(count);
 				ypos = item->paint(true);
 				selected = count;
 			}
 			else
 			{
 				bool sel = selected==((signed int) count) ;
+				if(sel)
+					paintHint(count);
 				ypos = item->paint(sel);
 			}
 		}
@@ -1016,10 +1044,115 @@ void CMenuWidget::restoreScreen()
 void CMenuWidget::enableSaveScreen(bool enable)
 {
 	savescreen = enable;
-	if(!enable && background) {
+	if (!enable && background) {
 		delete[] background;
 		background = NULL;
 	}
+}
+
+void CMenuWidget::paintHint(int pos)
+{
+#define ConnectLineBox_Width    16
+	if (!g_settings.show_menu_hints)
+		return;
+
+	if (pos < 0 && !hint_painted)
+		return;
+
+	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
+	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
+	int rad = RADIUS_LARGE;
+
+	int xpos  = x - ConnectLineBox_Width;
+	int ypos2 = y + height + rad + SHADOW_OFFSET;
+	int iwidth = width+sb_width+SHADOW_OFFSET;
+
+	if (hint_painted) {
+		/* clear line box */
+		frameBuffer->paintBackgroundBoxRel(xpos, y, ConnectLineBox_Width, height+hint_height+rad);
+		/* clear info box */
+		frameBuffer->paintBackgroundBoxRel(x, ypos2, iwidth, hint_height);
+
+		hint_painted = false;
+	}
+	if (pos < 0)
+		return;
+
+	CMenuItem* item = items[pos];
+printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
+
+	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE)
+		return;
+
+	hint_painted = true;
+
+	int iheight = item->getHeight();
+
+	int ypos1 = item->getYPosition();
+	int ypos1a = ypos1 + (iheight/2)-2;
+	int ypos2a = ypos2 + (hint_height/2)-2;
+
+	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
+	int imarkh = iheight/2;
+	int imarkoff = iheight/4;
+
+	/* horizontal item mark - */
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+imarkoff, 4, imarkh,     col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+imarkoff, 1, imarkh,     col2);
+
+	/* horizontal info mark - */
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+rad, 4,  markh, col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+rad, 1 , markh, col2);
+
+	/* vertical connect line [ */
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 4, ypos2a-ypos1a, col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 1, ypos2a-ypos1a+4, col2);
+
+	/* vertical item line | */
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12, 4, col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12, 1, col2);
+
+	/* vertical info line | */
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12, 4, col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8, 1, col2);
+#if 0
+	/* box shadow */
+	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, ypos2+SHADOW_OFFSET, width + sb_width, hint_height, COL_MENUCONTENTDARK_PLUS_0, rad);
+#endif
+	/* box frame and fill */
+	frameBuffer->paintBoxFrame(x, ypos2, iwidth, hint_height, 2, col1, rad);
+	/* box frame and fill */
+	frameBuffer->paintBoxRel(x+2, ypos2+2, iwidth-4, hint_height-4, COL_MENUCONTENTDARK_PLUS_0, rad);
+
+	int offset = 10;
+	if (!item->hintIcon.empty()) {
+		int iw, ih;
+		frameBuffer->getIconSize(item->hintIcon.c_str(), &iw, &ih);
+		if (iw && ih) {
+			int ix = x + offset;
+			int iy = ypos2 + (hint_height - ih)/2;
+			frameBuffer->paintIcon(item->hintIcon.c_str(), ix, iy);
+			offset += iw + 10;
+		}
+	}
+	if (item->hint == NONEXISTANT_LOCALE)
+		return;
+
+	int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+
+	std::string str1, str2;
+	std::string str = g_Locale->getText(item->hint);
+	std::string::size_type spos = str.find_first_of("\n");
+	if (spos != std::string::npos) {
+		str1 = str.substr(0, spos);
+		str2 = str.substr(spos+1);
+	} else {
+		str1 = str;
+	}
+	if (!str1.empty())
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+offset, ypos2+5+fheight, iwidth-4-offset, str1, COL_MENUCONTENT, 0, true); // UTF-8
+	if (!str2.empty())
+		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+offset, ypos2+5+fheight*2, iwidth-4-offset, str2, COL_MENUCONTENT, 0, true); // UTF-8
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -1201,7 +1334,9 @@ int CMenuOptionChooser::exec(CMenuTarget*)
 		int select = -1;
 		char cnt[5];
 		CMenuWidget* menu = new CMenuWidget(optionNameString.c_str(), NEUTRINO_ICON_SETTINGS);
-		menu->addIntroItems();
+		/* FIXME: BACK button with hints enabled - parent menu getting holes, possible solution
+		 * to hide parent, or add hints ? */
+		menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 // 		menu->move(20, 0);
 		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 		for(unsigned int count = 0; count < number_of_options; count++) 
@@ -1360,7 +1495,7 @@ int CMenuOptionStringChooser::exec(CMenuTarget* parent)
 			parent->hide();
 
 		CMenuWidget* menu = new CMenuWidget(optionName, NEUTRINO_ICON_SETTINGS);
-		menu->addIntroItems();
+		menu->addIntroItems(NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 		//if(parent) menu->move(20, 0);
 		CMenuSelectorTarget * selector = new CMenuSelectorTarget(&select);
 		for(unsigned int count = 0; count < options.size(); count++) 
@@ -1437,38 +1572,14 @@ CMenuOptionLanguageChooser::CMenuOptionLanguageChooser(char* OptionValue, CChang
 
 CMenuOptionLanguageChooser::~CMenuOptionLanguageChooser()
 {
-	options.clear();
-}
-
-void CMenuOptionLanguageChooser::addOption(const char * const value)
-{
-	options.push_back(std::string(value));
 }
 
 int CMenuOptionLanguageChooser::exec(CMenuTarget*)
 {
-	bool wantsRepaint = false;
-
-	//select value
-	for(unsigned int count = 0; count < options.size(); count++)
-	{
-		if (strcmp(options[count].c_str(), optionValue) == 0)
-		{
-			strcpy(g_settings.language, options[(count + 1) % options.size()].c_str());
-			break;
-		}
-	}
-
-	paint(true);
+	strncpy(g_settings.language, optionValue.c_str(), sizeof(g_settings.language));
 	if(observ)
-	{
-		wantsRepaint = observ->changeNotify(LOCALE_LANGUAGESETUP_SELECT, optionValue);
-	}
+		observ->changeNotify(LOCALE_LANGUAGESETUP_SELECT, (void *) optionValue.c_str());
 	return menu_return::RETURN_EXIT;
-	if ( wantsRepaint )
-		return menu_return::RETURN_REPAINT;
-	else
-		return menu_return::RETURN_NONE;
 }
 
 int CMenuOptionLanguageChooser::paint( bool selected )
@@ -1481,19 +1592,14 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 	paintItemButton(selected, height, iconName);
 	
 	//convert first letter to large
-	string s_optionValue = static_cast<std::string> (optionValue);
-	string ts = s_optionValue.substr(0, 1);
-	string s(ts);
-	s = toupper(s_optionValue[0]);
-	s_optionValue.replace(0, 1, s);
-	
+	std::string s_optionValue = optionValue;
+	if(!s_optionValue.empty())
+		s_optionValue[0] = toupper(s_optionValue[0]);
 	//paint text
 	paintItemCaption(selected, height , s_optionValue.c_str());
 
 	return y+height;
 }
-
-
 
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
@@ -1611,6 +1717,20 @@ int CMenuForwarder::paint(bool selected)
 	return y+ height;
 }
 
+CMenuDForwarder::CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+	: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
+{
+}
+
+CMenuDForwarder::CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+	: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
+{
+}
+
+CMenuDForwarder::~CMenuDForwarder()
+{
+	delete jumpTarget;
+}
 
 //-------------------------------------------------------------------------------------------------------------------------------
 const char * CMenuForwarderNonLocalized::getName(void)

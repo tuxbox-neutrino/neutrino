@@ -185,6 +185,8 @@ install_DATA = \
 	suomi.png \
 	svenska.png \
 	timer.png \
+	tuner_1.png \
+	tuner_2.png \
 	up.png \
 	upnp.png \
 	via_green.png \

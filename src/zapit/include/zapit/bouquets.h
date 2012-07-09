@@ -28,12 +28,14 @@ typedef ZapitChannelList::iterator zapit_list_it_t;
 
 class CZapitBouquet
 {
- public:
+	public:
+
 	std::string Name;
 	bool        bHidden;
 	bool        bLocked;
 	bool        bUser;
 	bool        bFav;
+	bool        bOther;
 	t_satellite_position satellitePosition;
 
 	ZapitChannelList radioChannels;
@@ -45,11 +47,13 @@ class CZapitBouquet
 
 	void removeService(CZapitChannel* oldChannel);
 	void removeService(const t_channel_id channel_id, unsigned char serviceType = ST_RESERVED) { removeService(getChannelByChannelID(channel_id, serviceType)); }
-	
+
 	void moveService (const unsigned int oldPosition, const unsigned int newPosition, const unsigned char serviceType);
-	
+
+#if 0
 	size_t recModeRadioSize(const transponder_id_t transponder_id);
 	size_t recModeTVSize   (const transponder_id_t transponder_id);
+#endif
 	CZapitChannel* getChannelByChannelID(const t_channel_id channel_id, const unsigned char serviceType = ST_RESERVED);
 	void sortBouquet(void);
 	void sortBouquetByNumber(void);
@@ -73,6 +77,7 @@ class CBouquetManager
 
 	public:
 		CBouquetManager() { remainChannels = NULL; };
+		~CBouquetManager();
 		class ChannelIterator
 		{
 			private:
@@ -86,7 +91,7 @@ class CBouquetManager
 				ChannelIterator operator ++(int);
 				CZapitChannel* operator *();
 				ChannelIterator FindChannelNr(const unsigned int channel);
-				int getLowestChannelNumberWithChannelID(const t_channel_id channel_id);
+				//int getLowestChannelNumberWithChannelID(const t_channel_id channel_id);
 				int getNrofFirstChannelofBouquet(const unsigned int bouquet_nr);
 				bool EndOfChannels() { return (c == -2); };
 		};
@@ -123,18 +128,6 @@ class CBouquetManager
  * Hence we need a compare function that considers the whole unicode charset.
  * For instance all countless variants of the letter a have to be regarded as the same letter.
  */
-struct CmpChannelByChName: public binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
-{
-	static bool comparetolower(const char a, const char b)
-		{
-			return tolower(a) < tolower(b);
-		};
-
-	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
-		{
-			return std::lexicographical_compare(c1->getName().begin(), c1->getName().end(), c2->getName().begin(), c2->getName().end(), comparetolower);
-		};
-};
 
 struct CmpBouquetByChName: public binary_function <const CZapitBouquet * const, const CZapitBouquet * const, bool>
 {
@@ -148,15 +141,6 @@ struct CmpBouquetByChName: public binary_function <const CZapitBouquet * const, 
 			return std::lexicographical_compare(c1->Name.begin(), c1->Name.end(), c2->Name.begin(), c2->Name.end(), comparetolower);
 			//return strcasecmp(c1->Name.c_str(), c2->Name.c_str());
 		};
-};
-
-struct CmpChannelByChNum: public binary_function <const CZapitChannel * const, const CZapitChannel * const, bool>
-{
-	bool operator() (const CZapitChannel * const c1, const CZapitChannel * const c2)
-	{
-		return c1->number < c2->number;
-		;
-	};
 };
 
 #endif /* __bouquets_h__ */

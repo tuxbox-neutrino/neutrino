@@ -163,7 +163,7 @@ void CBookmarkManager::writeBookmarkFile() {
 
 	printf("CBookmarkManager: Writing bookmark file\n");
 
-	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); it++)
+	for (std::vector<CBookmark>::const_iterator it = bookmarks.begin(); it != bookmarks.end(); ++it)
 	{
 		std::string tmp = bookmarkstring;
 		tmp += "name";
@@ -244,7 +244,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 		listmaxshow=bookmarks.size();
 		height = theight+0+listmaxshow*fheight*2;	// recalc height
 	}
-	if (selected==bookmarks.size() && !(bookmarks.empty()))
+	if (!(bookmarks.empty() && selected==bookmarks.size()))
 	{
 		selected=bookmarks.size()-1;
 		liststart = (selected/listmaxshow)*listmaxshow;

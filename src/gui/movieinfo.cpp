@@ -48,6 +48,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <gui/widget/msgbox.h>
 #include <gui/movieinfo.h>
@@ -182,7 +183,7 @@ bool CMovieInfo::encodeMovieInfoXml(std::string * extMessage, MI_MOVIE_INFO * mo
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_MODE, movie_info->epgMode);	//%d
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_VIDEOPID, movie_info->epgVideoPid);	//%u
 	XML_ADD_TAG_UNSIGNED(*extMessage, MI_XML_TAG_VIDEOTYPE, movie_info->VideoType);	//%u
-	if (movie_info->audioPids.size() > 0) {
+	if ( !movie_info->audioPids.empty() ) {
 		//*extMessage +=        "\t\t<"MI_XML_TAG_AUDIOPIDS" selected=\"";
 		//sprintf(tmp, "%u", movie_info->audioPids[0].epgAudioPid); //pids.APIDs[i].pid);
 		//*extMessage += tmp;
@@ -426,7 +427,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 	print_buffer += "\n";
 	print_buffer += movie_info.epgInfo2;
 
-	if (movie_info.productionCountry.size() != 0 || movie_info.productionDate != 0) {
+	if ( !movie_info.productionCountry.empty() || movie_info.productionDate != 0) {
 		print_buffer += "\n";
 		print_buffer += movie_info.productionCountry;
 		print_buffer += " ";
@@ -468,7 +469,7 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 		snprintf(date_char, 12, "%3d", movie_info.length);
 		print_buffer += date_char;
 	}
-	if (movie_info.audioPids.size() != 0) {
+	if ( !movie_info.audioPids.empty() ) {
 		print_buffer += "\n";
 		print_buffer += g_Locale->getText(LOCALE_MOVIEBROWSER_INFO_AUDIO);
 		print_buffer += ": ";
@@ -828,7 +829,7 @@ bool CMovieInfo::addNewBookmark(MI_MOVIE_INFO * movie_info, MI_BOOKMARK & new_bo
 				movie_info->bookmarks.user[i].pos = new_bookmark.pos;
 				movie_info->bookmarks.user[i].length = new_bookmark.length;
 				//if(movie_info->bookmarks.user[i].name.empty())
-				if (movie_info->bookmarks.user[i].name.size() == 0) {
+				if (movie_info->bookmarks.user[i].name.empty() ) {
 					if (new_bookmark.length == 0)
 						movie_info->bookmarks.user[i].name = g_Locale->getText(LOCALE_MOVIEBROWSER_BOOK_NEW);
 					if (new_bookmark.length < 0)

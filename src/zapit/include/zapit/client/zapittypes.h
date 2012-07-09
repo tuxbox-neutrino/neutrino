@@ -25,46 +25,11 @@
 #ifndef __zapittypes_h__
 #define __zapittypes_h__
 
-
-#include <zapit/types.h>
 #include <inttypes.h>
 #include <string>
 #include <map>
-#include <linux/dvb/frontend.h>
-
-typedef uint16_t t_service_id;
-#define SCANF_SERVICE_ID_TYPE "%hx"
-
-typedef uint16_t t_original_network_id;
-#define SCANF_ORIGINAL_NETWORK_ID_TYPE "%hx"
-
-typedef uint16_t t_transport_stream_id;
-#define SCANF_TRANSPORT_STREAM_ID_TYPE "%hx"
-
-typedef int16_t t_satellite_position;
-#define SCANF_SATELLITE_POSITION_TYPE "%hd"
-
-typedef uint16_t t_network_id;
-//Introduced by Nirvana 11/05. Didn't check if there are similar types
-typedef uint16_t t_bouquet_id;
-//Introduced by Nirvana 11/05. Didn't check if there are similar types
-typedef uint32_t t_transponder_id;
-#define CREATE_TRANSPONDER_ID_FROM_ORIGINALNETWORK_TRANSPORTSTREAM_ID(original_network_id,transport_stream_id) ((((t_original_network_id) original_network_id) << 16) | (t_transport_stream_id) transport_stream_id)
-
-/* unique channel identification */
-typedef uint64_t t_channel_id;
-#define CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service_id,original_network_id,transport_stream_id) ((((t_channel_id)transport_stream_id) << 32) | (((t_channel_id)original_network_id) << 16) | (t_channel_id)service_id)
-#define CREATE_CHANNEL_ID CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(service_id, original_network_id, transport_stream_id)
-#define GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(channel_id) ((t_original_network_id)((channel_id) >> 16))
-#define GET_SERVICE_ID_FROM_CHANNEL_ID(channel_id) ((t_service_id)(channel_id))
-#define PRINTF_CHANNEL_ID_TYPE "%16llx"
-#define PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS "%llx"
-#define SCANF_CHANNEL_ID_TYPE "%llx"
-
-#define CREATE_CHANNEL_ID64 (((uint64_t)(satellitePosition+freq*4) << 48) | ((uint64_t) transport_stream_id << 32) | ((uint64_t)original_network_id << 16) | (uint64_t)service_id)
-//#define CREATE_CHANNEL_ID64 CREATE_CHANNEL_ID_FROM_64(satellitePosition, service_id, original_network_id, transport_stream_id)
-
-#define SAME_TRANSPONDER(id1, id2) ((id1 >> 16) == (id2 >> 16))
+#include <zapit/types.h>
+#include <zapit/frontend_types.h>
 
 /* diseqc types */
 typedef enum {
@@ -126,64 +91,7 @@ typedef struct TP_parameter
 	uint8_t polarization;
 	uint8_t diseqc;
 	int scan_mode;
-	struct dvb_frontend_parameters feparams;
+	FrontendParameters feparams;
 } TP_params;
-
-/* complete channel-parameters in a struct */
-typedef struct Channel_parameter
-{
-	std::string name;
-	t_service_id service_id;
-	t_transport_stream_id transport_stream_id;
-	t_original_network_id original_network_id;
-	unsigned char service_type;
-	uint32_t TP_id;					/* diseqc<<24 | feparams->frequency>>8 */
-} CH_params;
-
-/* complete zapit start thread-parameters in a struct */
-typedef struct ZAPIT_start_arg
-{
-	t_channel_id startchanneltv_id;
-	t_channel_id startchannelradio_id;
-	int startchanneltv_nr;
-	int startchannelradio_nr;
-	int uselastchannel;
-	int video_mode;
-} Z_start_arg;
-
-typedef struct TP_map
-{
-	TP_params TP;
-	TP_map(const TP_params p_TP)
-	{
-		TP = p_TP;
-	}
-} t_transponder;
-
-#define MAX_LNB 64 
-typedef struct Zapit_config {
-	int motorRotationSpeed;
-	int writeChannelsNames;
-	int makeRemainingChannelsBouquet;
-	int saveLastChannel;
-	int rezapTimeout;
-	int feTimeout;
-	int fastZap;
-	int sortNames;
-	int highVoltage;
-	int scanPids;
-	int scanSDT;
-	int useGotoXX;
-	int gotoXXLaDirection;
-	int gotoXXLoDirection;
-	int repeatUsals;
-	double gotoXXLatitude;
-	double gotoXXLongitude;
-	int uni_scr;
-	int uni_qrg;
-} t_zapit_config;
-
-typedef std::map <uint32_t, TP_map> TP_map_t;
-typedef std::map <uint32_t, TP_map>::iterator TP_iterator;
 
 #endif /* __zapittypes_h__ */

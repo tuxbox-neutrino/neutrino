@@ -169,7 +169,7 @@ int fh_crw_load(const char *filename,unsigned char **buffer,int* xp,int* /*yp*/)
 	struct jpeg_decompress_struct *ciptr;
 	struct r_crw_jpeg_error_mgr emgr;
 	unsigned char *bp;
-	int px,py,c,x=*xp;
+	int px/*,py*/,c,x=*xp;
 	FILE *fh;
 	JSAMPLE *lb;
 
@@ -204,7 +204,7 @@ int fh_crw_load(const char *filename,unsigned char **buffer,int* xp,int* /*yp*/)
 
 	jpeg_start_decompress(ciptr);
 
-	px=ciptr->output_width; py=ciptr->output_height;
+	px=ciptr->output_width; //py=ciptr->output_height;
 	c=ciptr->output_components;
 
 
@@ -234,7 +234,7 @@ int fh_crw_getsize(const char *filename,int *x,int *y, int wanted_width, int wan
 	struct jpeg_decompress_struct *ciptr;
 	struct r_crw_jpeg_error_mgr emgr;
 
-	int px,py,c;
+	int px,py/*,c*/;
 	FILE *fh;
 
 	ciptr=&cinfo;
@@ -271,7 +271,7 @@ int fh_crw_getsize(const char *filename,int *x,int *y, int wanted_width, int wan
 
 	jpeg_start_decompress(ciptr);
 	px=ciptr->output_width; py=ciptr->output_height;
-	c=ciptr->output_components;
+//	c=ciptr->output_components;
 	*x=px; *y=py;
 //	jpeg_finish_decompress(ciptr);
 	jpeg_destroy_decompress(ciptr);

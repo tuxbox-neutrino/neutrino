@@ -174,13 +174,9 @@ class CSectionsdClient : private CBasicClient
 
 	bool getIsTimeSet();
 
-//	void setEventsAreOldInMinutes(const unsigned short minutes);
-
 	void setPauseScanning(const bool doPause);
 
 	bool getIsScanningActive();
-
-	void setPauseSorting(const bool doPause);
 
 	void setServiceChanged(const t_channel_id channel_id, const bool requestEvent);
 
@@ -197,8 +193,6 @@ class CSectionsdClient : private CBasicClient
 	bool getEPGidShort(const event_id_t eventid, CShortEPGData * epgdata);
 
 	void setPrivatePid(const unsigned short pid);
-
-//	void setSectionsdScanMode(const int scanMode);
 
 	void freeMemory();
 

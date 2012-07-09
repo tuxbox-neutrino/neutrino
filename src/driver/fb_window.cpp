@@ -30,13 +30,6 @@
 #include <driver/fontrenderer.h>
 #include <driver/framebuffer.h>
 
-class CPrivateData
-{
- public:
-	CFrameBuffer * frameBuffer;
-	fb_pixel_t       * Background;
-};
-
 CFBWindow::CFBWindow(const int _x, const int _y, const int _dx, const int _dy)
 {
 	x  = _x ;
@@ -44,35 +37,28 @@ CFBWindow::CFBWindow(const int _x, const int _y, const int _dx, const int _dy)
 	dx = _dx;
 	dy = _dy;
 
-	private_data = (void *) new CPrivateData;
-	((CPrivateData *)private_data)->frameBuffer = CFrameBuffer::getInstance();
-	((CPrivateData *)private_data)->Background = new fb_pixel_t [_dx * _dy];
-	if (((CPrivateData *)private_data)->Background != NULL)
-		((CPrivateData *)private_data)->frameBuffer->SaveScreen(_x, _y, _dx, _dy, (fb_pixel_t *)((CPrivateData *)private_data)->Background);
+	frameBuffer = CFrameBuffer::getInstance();
+	Background = new fb_pixel_t [_dx * _dy];
+	if (Background != NULL)
+		frameBuffer->SaveScreen(_x, _y, _dx, _dy, Background);
 
 }
 
 CFBWindow::~CFBWindow(void)
 {
-	if (private_data != NULL)
-	{
-		if (((CPrivateData *)private_data)->Background != NULL)
-			((CPrivateData *)private_data)->frameBuffer->RestoreScreen(x, y, dx, dy, (fb_pixel_t *)((CPrivateData *)private_data)->Background);
-		
-		delete ((CPrivateData *)private_data)->Background;
-		delete ((CPrivateData *)private_data);
-		private_data = NULL;
-	}
+	if (Background != NULL)
+		frameBuffer->RestoreScreen(x, y, dx, dy, Background);
+	delete[] Background;
 }
 
 void CFBWindow::paintBoxRel(const int _x, const int _y, const int _dx, const int _dy, const color_t _col, int radius, int type)
 {
-	((CPrivateData *)private_data)->frameBuffer->paintBoxRel(x + _x, y + _y, _dx, _dy, _col, radius, type);
+	frameBuffer->paintBoxRel(x + _x, y + _y, _dx, _dy, _col, radius, type);
 }
 
 bool CFBWindow::paintIcon(const char * const _filename, const int _x, const int _y, const int _h, const color_t _offset)
 {
-	((CPrivateData *)private_data)->frameBuffer->paintIcon(_filename, x + _x, y + _y, _h, _offset);
+	frameBuffer->paintIcon(_filename, x + _x, y + _y, _h, _offset);
 	return 0;
 }
 

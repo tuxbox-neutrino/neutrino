@@ -67,7 +67,7 @@ std::list<UPnPAttribute> CUPnPService::SendSOAP(std::string action, std::list<UP
 		post << "/>";
 	} else {
 		post << ">";
-		for (i = attribs.begin(); i != attribs.end(); i++)
+		for (i = attribs.begin(); i != attribs.end(); ++i)
 		{
 			if (i->second == "")
 				post << "<" << i->first << "/>";

@@ -70,6 +70,11 @@ int main(int argc, char** argv)
 		if (!strcmp(argv[i], "--dump")) {
 			client.dumpStatus();
 		}
+		else
+		if (!strcmp(argv[i], "--freemem")) {
+			printf("Removing all cached epg...\n");
+			client.freeMemory();
+		}
 	}
 
 	return 0;

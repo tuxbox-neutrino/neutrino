@@ -1,12 +1,13 @@
 /*
- * $Id: pat.h,v 1.18 2003/01/30 17:21:16 obi Exp $
+ * Neutrino-GUI  -   DBoxII-Project
  *
- * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
+ * Copyright (C) 2011 CoolStream International Ltd
+ *
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,11 +23,31 @@
 #ifndef __zapit_pat_h__
 #define __zapit_pat_h__
 
-#include "channel.h"
+#include <zapit/channel.h>
+#include <dmx.h>
 
-int parse_pat(CZapitChannel * const channel);
-int scan_parse_pat( std::vector<std::pair<int,int> > &sidpmt );
-int parse_pat(void);
-int pat_get_pmt_pid (CZapitChannel * const channel);
+#define PAT_SECTION_SIZE 1024
+
+typedef std::map<int,int> sidpmt_map_t;
+typedef sidpmt_map_t::iterator sidpmt_map_iterator_t;
+typedef std::pair<int,int> sidpmt_map_pair_t;
+
+class CPat
+{
+	private:
+		cDemux * dmx;
+		int dmxnum;
+		bool parsed;
+		sidpmt_map_t sidpmt;
+
+	public:
+		CPat(int dnum = 0);
+		~CPat();
+		void Reset();
+		bool Parse();
+		unsigned short GetPmtPid(t_service_id sid);
+		bool Parse(CZapitChannel * const channel);
+		sidpmt_map_t &getSids() { return sidpmt; };
+};
 
 #endif /* __zapit_pat_h__ */

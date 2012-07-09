@@ -112,7 +112,6 @@ bool CUserMenu::showUserMenu(int button)
 
 	// define classes
 	CFavorites* tmpFavorites                                = NULL;
-	CPauseSectionsdNotifier* tmpPauseSectionsdNotifier      = NULL;
 	CAudioSelectMenuHandler* tmpAudioSelectMenuHandler      = NULL;
 	CMenuWidget* tmpNVODSelector                            = NULL;
 	CSubChannelSelectMenu subchanselect;
@@ -247,9 +246,8 @@ bool CUserMenu::showUserMenu(int button)
 			menu_prev = SNeutrinoSettings::ITEM_EPG_MISC;
 			dummy = g_Sectionsd->getIsScanningActive();
 			//dummy = sectionsd_scanning;
-			tmpPauseSectionsdNotifier = new CPauseSectionsdNotifier;
 			keyhelper.get(&key,&icon);
-			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, tmpPauseSectionsdNotifier , key, icon );
+			menu_item = new CMenuOptionChooser(LOCALE_MAINMENU_PAUSESECTIONSD, &dummy, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this , key, icon );
 			menu->addItem(menu_item, false);
 			menu_items++;
 			keyhelper.get(&key,&icon);
@@ -441,7 +439,6 @@ bool CUserMenu::showUserMenu(int button)
 
 	// clear the heap
 	if (tmpFavorites)                delete tmpFavorites;
-	if (tmpPauseSectionsdNotifier)   delete tmpPauseSectionsdNotifier;
 	if (tmpAudioSelectMenuHandler)   delete tmpAudioSelectMenuHandler;
 	if (tmpNVODSelector)             delete tmpNVODSelector;
 	if (streamInfo)                  delete streamInfo;
@@ -462,7 +459,7 @@ bool CUserMenu::showUserMenu(int button)
 /**************************************************************************************
 *          changeNotify - features menu recording start / stop                        *
 **************************************************************************************/
-bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * /*Data*/)
+bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * Data)
 {
 	bool res = !CRecordManager::getInstance()->RecordingStatus() ? false:true;
 		
@@ -474,6 +471,8 @@ bool CUserMenu::changeNotify(const neutrino_locale_t OptionName, void * /*Data*/
 			res = false;
 		else
 			res = true;
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_MAINMENU_PAUSESECTIONSD)) {
+		g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);
 	}
 	
 	return res;

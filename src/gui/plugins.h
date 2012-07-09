@@ -87,7 +87,6 @@ class CPlugins
 			}
 		};
 
-		int fb, rc, lcd, pid;
 		int number_of_plugins;
 
 		std::vector<plugin> plugin_list;

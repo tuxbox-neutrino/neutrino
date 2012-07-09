@@ -39,7 +39,6 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -144,6 +143,8 @@ bool CFlashUpdate::selectHttpImage(void)
 	int selected = -1, listWidth = w_max (80, 10);
 	int curVer, newVer, newfound = 0;
 
+	std::vector<CUpdateMenuTarget*> update_t_list;
+
 	CConfigFile _configfile('\t');
 	const char * versionString = (_configfile.loadConfig("/.version")) ? (_configfile.getString( "version", "????????????????").c_str()) : "????????????????";
 	installedVersion = versionString;
@@ -235,7 +236,9 @@ bool CFlashUpdate::selectHttpImage(void)
 				descriptions.push_back(description); /* workaround since CMenuForwarder does not store the Option String itself */
 
 				//SelectionWidget.addItem(new CMenuForwarderNonLocalized(names[i].c_str(), enabled, descriptions[i].c_str(), new CUpdateMenuTarget(i, &selected)));
-				SelectionWidget.addItem(new CMenuForwarderNonLocalized(descriptions[i].c_str(), enabled, names[i].c_str(), new CUpdateMenuTarget(i, &selected)));
+				CUpdateMenuTarget * up = new CUpdateMenuTarget(i, &selected);
+				update_t_list.push_back(up);
+				SelectionWidget.addItem(new CMenuForwarderNonLocalized(descriptions[i].c_str(), enabled, names[i].c_str(), up));
 				i++;
 			}
 		}
@@ -254,6 +257,9 @@ bool CFlashUpdate::selectHttpImage(void)
 		ShowMsgUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FLASHUPDATE_NEW_NOTFOUND), CMessageBox::mbrOk, CMessageBox::mbOk, NEUTRINO_ICON_INFO);
 
 	SelectionWidget.exec(NULL, "");
+
+	for (std::vector<CUpdateMenuTarget*>::iterator it = update_t_list.begin(); it != update_t_list.end(); ++it)
+		delete (*it);
 
 	if (selected == -1)
 		return false;
@@ -600,6 +606,8 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 
 void CFlashExpert::showMTDSelector(const std::string & actionkey)
 {
+	int shortcut = 0;
+
 	mn_widget_id_t widget_id = NO_WIDGET_ID;
 	if (actionkey == "readmtd")
 		widget_id = MN_WIDGET_ID_MTDREAD_SELECTOR;
@@ -618,7 +626,7 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		if ((actionkey == "writemtd") && (lx == 0))
 			enabled = false;
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
-		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey));
+		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
 	mtdselector->exec(NULL,"");
 	delete mtdselector;

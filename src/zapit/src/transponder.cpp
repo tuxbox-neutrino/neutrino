@@ -1,12 +1,11 @@
 /*
- * $Id: transponder.cpp,v 1.6 2002/10/12 23:14:20 obi Exp $
+ * Copyright (C) 2012 CoolStream International Ltd
  *
- * (C) 2002 by Steffen Hehn "McClean" <McClean@tuxbox.org>
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,122 +18,145 @@
  *
  */
 
-
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <sys/poll.h>
-#include <sys/time.h>
-#include <unistd.h>
-#include <stdint.h>
+#include <stdlib.h>
 #include <zapit/transponder.h>
+#include <zapit/frontend_c.h>
+#include <zapit/debug.h>
 
-
-CTransponder::CTransponder()
+transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const FrontendParameters p_feparams, const uint8_t p_polarization)
 {
-	frequency = 0;
-	modulation = 0;
-	symbolrate = 0;
-	polarisation = 0;
-	innerFec = 0;
-	diseqc = 0;
-	inversion = 0;
-	originalNetworkId = 0;
-	transportStreamId = 0;
+	transponder_id      = t_id;
+	transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_TRANSPONDER_ID(t_id);
+	original_network_id = GET_ORIGINAL_NETWORK_ID_FROM_TRANSPONDER_ID(t_id);
+	feparams            = p_feparams;
+	polarization        = p_polarization;
 	updated = 0;
+	satellitePosition   = GET_SATELLITEPOSITION_FROM_TRANSPONDER_ID(transponder_id);
+	if (satellitePosition & 0xF000)
+		satellitePosition = -(satellitePosition & 0xFFF);
+	else
+		satellitePosition = satellitePosition & 0xFFF;
+	type = fType;
 }
 
-unsigned int CTransponder::getFrequency()
+transponder::transponder()
 {
-	return frequency;
+	memset(&feparams, 0, sizeof(FrontendParameters));
+	transponder_id	= 0;
+	transport_stream_id = 0;
+	original_network_id = 0;
+	polarization = 0;
+	satellitePosition = 0;
+	type = FE_QPSK;
 }
 
-void CTransponder::setFrequency(unsigned int ifrequency)
+bool transponder::operator==(const transponder& t) const
 {
-	frequency = ifrequency;
+	return (
+			(satellitePosition == t.satellitePosition) &&
+			//(transport_stream_id == t.transport_stream_id) &&
+			//(original_network_id == t.original_network_id) &&
+			((polarization & 1) == (t.polarization & 1)) &&
+			(abs((int) feparams.dvb_feparams.frequency - (int)t.feparams.dvb_feparams.frequency) <= 3000)
+	       );
 }
 
-unsigned char CTransponder::getModulation()
+bool transponder::compare(const transponder& t) const
 {
-	return modulation;
+	bool ret = false;
+	const struct dvb_frontend_parameters *dvb_feparams1 = &feparams.dvb_feparams;
+	const struct dvb_frontend_parameters *dvb_feparams2 = &t.feparams.dvb_feparams;
+
+	if (type == FE_QAM) {
+		ret = (
+				(t == (*this)) &&
+				(dvb_feparams1->u.qam.symbol_rate == dvb_feparams2->u.qam.symbol_rate) &&
+				(dvb_feparams1->u.qam.fec_inner == dvb_feparams2->u.qam.fec_inner ||
+				 dvb_feparams1->u.qam.fec_inner == FEC_AUTO || dvb_feparams2->u.qam.fec_inner == FEC_AUTO) &&
+				(dvb_feparams1->u.qam.modulation == dvb_feparams2->u.qam.modulation ||
+				 dvb_feparams1->u.qam.modulation == QAM_AUTO || dvb_feparams2->u.qam.modulation == QAM_AUTO)
+		      );
+	} else {
+		ret = (
+				(t == (*this)) &&
+				(dvb_feparams1->u.qpsk.symbol_rate == dvb_feparams2->u.qpsk.symbol_rate) &&
+				(dvb_feparams1->u.qpsk.fec_inner == dvb_feparams2->u.qpsk.fec_inner ||
+				 dvb_feparams1->u.qpsk.fec_inner == FEC_AUTO || dvb_feparams2->u.qpsk.fec_inner == FEC_AUTO)
+		      );
+	}
+	return ret;
 }
 
-void CTransponder::setModulation(unsigned char cmodulation)
+void transponder::dumpServiceXml(FILE * fd)
 {
-	modulation = cmodulation;
+	struct dvb_frontend_parameters *dvb_feparams = &feparams.dvb_feparams;
+
+	if (type == FE_QAM) {
+		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" mod=\"%hu\">\n",
+				transport_stream_id, original_network_id,
+				dvb_feparams->frequency, dvb_feparams->inversion,
+				dvb_feparams->u.qam.symbol_rate, dvb_feparams->u.qam.fec_inner,
+				dvb_feparams->u.qam.modulation);
+
+	} else {
+		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
+				transport_stream_id, original_network_id,
+				dvb_feparams->frequency, dvb_feparams->inversion,
+				dvb_feparams->u.qpsk.symbol_rate, dvb_feparams->u.qpsk.fec_inner,
+				polarization);
+	}
 }
 
-unsigned int CTransponder::getSymbolrate()
+void transponder::dump(std::string label) 
 {
-	return symbolrate;
+	struct dvb_frontend_parameters *dvb_feparams = &feparams.dvb_feparams;
+
+	if (type == FE_QAM)
+		printf("%s tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
+				transponder_id, dvb_feparams->frequency, dvb_feparams->u.qam.symbol_rate,
+				dvb_feparams->u.qam.fec_inner, dvb_feparams->u.qam.modulation);
+	else
+		printf("%s tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
+				transponder_id, dvb_feparams->frequency, dvb_feparams->u.qpsk.symbol_rate,
+				dvb_feparams->u.qpsk.fec_inner, polarization);
 }
 
-void CTransponder::setSymbolrate(unsigned int isymbolrate)
+void transponder::ddump(std::string label) 
 {
-	symbolrate = isymbolrate;
+	if (zapit_debug)
+		dump(label);
 }
 
-unsigned char CTransponder::getPolarisation()
+char transponder::pol(unsigned char p)
 {
-	return polarisation;
+	if (p == 0)
+		return 'H';
+	else if (p == 1)
+		return 'V';
+	else if (p == 2)
+		return 'L';
+	else
+		return 'R';
 }
 
-void CTransponder::setPolarisation(unsigned char cpolarisation)
+std::string transponder::description()
 {
-	polarisation = cpolarisation;
-}
+	char buf[128] = {0};
+	char * f, *s, *m;
+	struct dvb_frontend_parameters *dvb_feparams = &feparams.dvb_feparams;
 
-unsigned char CTransponder::getDiseqc()
-{
-	return diseqc;
+	switch(type) {
+		case FE_QPSK:
+			CFrontend::getDelSys(type, dvb_feparams->u.qpsk.fec_inner, dvbs_get_modulation(dvb_feparams->u.qpsk.fec_inner),  f, s, m);
+			snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", dvb_feparams->frequency/1000, pol(polarization), dvb_feparams->u.qpsk.symbol_rate/1000, f, s, m);
+			break;
+		case FE_QAM:
+			CFrontend::getDelSys(type, dvb_feparams->u.qam.fec_inner, dvb_feparams->u.qam.modulation, f, s, m);
+			snprintf(buf, sizeof(buf), "%d %d %s %s %s ", dvb_feparams->frequency/1000, dvb_feparams->u.qam.symbol_rate/1000, f, s, m);
+			break;
+		case FE_OFDM:
+		case FE_ATSC:
+			break;
+	}
+	return std::string(buf);
 }
-
-void CTransponder::setDiseqc(unsigned char cdiseqc)
-{
-	diseqc = cdiseqc;
-}
-
-unsigned char CTransponder::getInnerFec()
-{
-	return innerFec;
-}
-
-void CTransponder::setInnerFec(unsigned char cinnerFec)
-{
-	innerFec = cinnerFec;
-}
-
-unsigned char CTransponder::getInversion()
-{
-	return inversion;
-}
-
-void CTransponder::setInversion(unsigned char cinversion)
-{
-	inversion = cinversion;
-}
-
-unsigned short CTransponder::getOriginalNetworkId()
-{
-	return originalNetworkId;
-}
-
-void CTransponder::setOriginalNetworkId(unsigned short soriginalNetworkId)
-{
-	originalNetworkId = soriginalNetworkId;
-}
-
-unsigned short CTransponder::getTransportStreamId()
-{
-	return transportStreamId;
-}
-
-void CTransponder::setTransportStreamId(unsigned short stransportStreamId)
-{
-	transportStreamId = stransportStreamId;
-}
-
-unsigned int CTransponder::getTsidOnid()
-{
-	return (transportStreamId << 16) | originalNetworkId;
-}
-

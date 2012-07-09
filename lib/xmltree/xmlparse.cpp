@@ -392,7 +392,8 @@ long XML_Parser::GetCurrentByteIndex()
 
 int XML_Parser::GetCurrentLineNumber()
 {
-	if (eventPtr)
+	/* at EOF positionPtr point to input, while eventPtr not updated -- focus */
+	if (eventPtr && (positionPtr < eventPtr))
 	{
 		XmlUpdatePosition(encoding, positionPtr, eventPtr, &position);
 		positionPtr=eventPtr;

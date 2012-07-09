@@ -33,31 +33,49 @@ CZapitChannel::CZapitChannel(const std::string & p_name, t_service_id p_sid, t_t
 	satellitePosition = p_satellite_position;
 	freq = p_freq;
 	channel_id = CREATE_CHANNEL_ID64;
-	caPmt = NULL;
+	Init();
+//printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
+}
+
+CZapitChannel::CZapitChannel(const std::string & p_name, t_channel_id p_channel_id, unsigned char p_service_type, t_satellite_position p_satellite_position, freq_id_t p_freq)
+{
+	name = p_name;
+	channel_id = p_channel_id;
+	service_id = GET_SERVICE_ID_FROM_CHANNEL_ID(channel_id);
+	transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_CHANNEL_ID(channel_id);
+	original_network_id = GET_ORIGINAL_NETWORK_ID_FROM_CHANNEL_ID(channel_id);
+	serviceType = p_service_type;
+	satellitePosition = p_satellite_position;
+	freq = p_freq;
+	Init();
+}
+
+void CZapitChannel::Init()
+{
+	//caPmt = NULL;
 	rawPmt = NULL;
 	type = 0;
 	number = 0;
 	scrambled = 0;
 	pname = NULL;
-	//currentEvent = NULL;
 	pmtPid = 0;
 	resetPids();
 	ttx_language_code = "";
 	last_unlocked_EPGid = 0;
 	last_unlocked_time = 0;
 	has_bouquet = false;
-//printf("NEW CHANNEL %s %x\n", name.c_str(), (int) this);
+	record_demux = 2;
+	polarization = 0;
+	flags = 0;
 }
 
 CZapitChannel::~CZapitChannel(void)
 {
 //printf("DEL CHANNEL %s %x subs %d\n", name.c_str(), (int) this, getSubtitleCount());
 	resetPids();
-	setCaPmt(NULL);
+	//setCaPmt(NULL);
 	setRawPmt(NULL);
-
-	//if(currentEvent)
-	//	delete currentEvent;
+	camap.clear();
 }
 
 CZapitAudioChannel *CZapitChannel::getAudioChannel(unsigned char index)
@@ -88,7 +106,7 @@ int CZapitChannel::addAudioChannel(const unsigned short pid, const CZapitAudioCh
 {
 	std::vector <CZapitAudioChannel *>::iterator aI;
 
-	for (aI = audioChannels.begin(); aI != audioChannels.end(); aI++)
+	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI)
 		if ((* aI)->pid == pid) {
 			(* aI)->description = description;
                         (* aI)->audioChannelType = audioChannelType;
@@ -108,7 +126,7 @@ void CZapitChannel::resetPids(void)
 {
 	std::vector<CZapitAudioChannel *>::iterator aI;
 
-	for (aI = audioChannels.begin(); aI != audioChannels.end(); aI++) {
+	for (aI = audioChannels.begin(); aI != audioChannels.end(); ++aI) {
 		delete *aI;
 	}
 
@@ -121,10 +139,10 @@ void CZapitChannel::resetPids(void)
 	videoPid = 0;
 	audioPid = 0;
 
-	privatePid = 0;
+	/*privatePid = 0;*/
 	pidsFlag = false;
         std::vector<CZapitAbsSub *>::iterator subI;
-        for (subI = channelSubs.begin(); subI != channelSubs.end(); subI++){
+        for (subI = channelSubs.begin(); subI != channelSubs.end(); ++subI){
             delete *subI;
         }
         channelSubs.clear();
@@ -136,7 +154,8 @@ unsigned char CZapitChannel::getServiceType(bool real)
 	if(real)
 		return serviceType; 
 	else
-		return serviceType == 2 ? 2 : 1;	
+		return serviceType == ST_DIGITAL_RADIO_SOUND_SERVICE ?
+			ST_DIGITAL_RADIO_SOUND_SERVICE : ST_DIGITAL_TELEVISION_SERVICE;	
 }
 
 bool CZapitChannel::isHD()
@@ -145,7 +164,7 @@ bool CZapitChannel::isHD()
 		case 0x11: case 0x19:
 //printf("[zapit] HD channel: %s type 0x%X\n", name.c_str(), serviceType);
 			return true;
-		case 0x1: {
+		case ST_DIGITAL_TELEVISION_SERVICE: {
 				  char * temp = (char *) name.c_str();
 				  int len = name.size();
 				  if((len > 1) && temp[len-2] == 'H' && temp[len-1] == 'D') {
@@ -154,7 +173,7 @@ bool CZapitChannel::isHD()
 				  }
 				  return false;
 			  }
-		case 0x2:
+		case ST_DIGITAL_RADIO_SOUND_SERVICE:
 			return false;
 		default:
 			//printf("[zapit] Unknown channel type 0x%X name %s !!!!!!\n", serviceType, name.c_str());
@@ -170,7 +189,7 @@ void CZapitChannel::addTTXSubtitle(const unsigned int pid, const std::string lan
 
 printf("[subtitle] TTXSub: PID=0x%04x, lang=%3.3s, page=%1X%02X\n", pid, langCode.c_str(), mag_nr, page_number);
 	std::vector<CZapitAbsSub*>::iterator subI;
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();subI++){
+	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
 		if ((*subI)->thisSubType==CZapitAbsSub::TTX){
 			tmpSub=reinterpret_cast<CZapitTTXSub*>(*subI);
 			if (tmpSub->ISO639_language_code == langCode) {
@@ -205,7 +224,7 @@ void CZapitChannel::addDVBSubtitle(const unsigned int pid, const std::string lan
 	CZapitDVBSub* tmpSub = 0;
 	std::vector<CZapitAbsSub*>::iterator subI;
 printf("[subtitles] DVBSub: PID=0x%04x, lang=%3.3s, cpageid=%04x, apageid=%04x\n", pid, langCode.c_str(), composition_page_id, ancillary_page_id);
-	for (subI=channelSubs.begin(); subI!=channelSubs.end();subI++){
+	for (subI=channelSubs.begin(); subI!=channelSubs.end();++subI){
 		if ((*subI)->thisSubType==CZapitAbsSub::DVB){
 			tmpSub=reinterpret_cast<CZapitDVBSub*>(*subI);
 			if (tmpSub->ISO639_language_code==langCode) {
@@ -263,12 +282,14 @@ int CZapitChannel::getChannelSubIndex(void)
     return currentSub < getSubtitleCount() ? currentSub : -1;
 }
 
+#if 0
 void CZapitChannel::setCaPmt(CCaPmt *pCaPmt)
 { 
 	if(caPmt)
 		delete caPmt;
 	caPmt = pCaPmt; 
 }
+#endif
 
 void CZapitChannel::setRawPmt(unsigned char * pmt, int len)
 {
@@ -281,20 +302,20 @@ void CZapitChannel::setRawPmt(unsigned char * pmt, int len)
 void CZapitChannel::dumpServiceXml(FILE * fd, const char * action)
 {
 	if(action) {
-		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n", action,
+		fprintf(fd, "\t\t\t<S action=\"%s\" i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n", action,
 				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-				getServiceType(), scrambled);
+				getServiceType(), scrambled, number, flags);
 
 	} else if(getPidsFlag()) {
-		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\"/>\n",
+		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" v=\"%x\" a=\"%x\" p=\"%x\" pmt=\"%x\" tx=\"%x\" t=\"%x\" vt=\"%d\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
 				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
 				getVideoPid(), getPreAudioPid(),
 				getPcrPid(), getPmtPid(), getTeletextPid(),
-				getServiceType(true), type, scrambled);
+				getServiceType(true), type, scrambled, number, flags);
 	} else {
-		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\"/>\n",
+		fprintf(fd, "\t\t\t<S i=\"%04x\" n=\"%s\" t=\"%x\" s=\"%d\" num=\"%d\" f=\"%d\"/>\n",
 				getServiceId(), convert_UTF8_To_UTF8_XML(getName().c_str()).c_str(),
-				getServiceType(true), scrambled);
+				getServiceType(true), scrambled, number, flags);
 	}
 }
 

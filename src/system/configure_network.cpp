@@ -23,6 +23,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>          /* u_char */
 #include <string.h>
+#include <unistd.h>
 #include "configure_network.h"
 #include "libnet.h"             /* netGetNameserver, netSetNameserver   */
 #include "network_interfaces.h" /* getInetAttributes, setInetAttributes */
@@ -39,6 +40,11 @@ CNetworkConfig::CNetworkConfig()
 	netGetNameserver(our_nameserver);
 	nameserver = our_nameserver;
 	ifname = "eth0";
+	orig_automatic_start = false;
+	orig_inet_static = false;
+	automatic_start = false;
+	inet_static = false;
+	wireless = false;
 }
 
 CNetworkConfig* CNetworkConfig::getInstance()
@@ -212,24 +218,26 @@ void CNetworkConfig::commitConfig(void)
 
 int mysystem(char * cmd, char * arg1, char * arg2)
 {
-        int pid, i;
-        switch (pid = fork())
-        {
-                case -1: /* can't fork */
-                        perror("fork");
-                        return -1;
+        int i;
+	pid_t pid;
+	int maxfd = getdtablesize();// sysconf(_SC_OPEN_MAX);
+	switch (pid = vfork())
+	{
+		case -1: /* can't fork */
+			perror("vfork");
+			return -1;
 
-                case 0: /* child process */
-                        for(i = 3; i < 256; i++)
+		case 0: /* child process */
+			for(i = 3; i < maxfd; i++)
                                 close(i);
-                        if(execlp(cmd, cmd, arg1, arg2, NULL))
-                        {
-                                perror("exec");
-                        }
-                        exit(0);
-                default: /* parent returns to calling process */
-                        break;
-        }
+			if(execlp(cmd, cmd, arg1, arg2, NULL))
+			{
+				perror("exec");
+			}
+			exit(0);
+		default: /* parent returns to calling process */
+			break;
+	}
 	waitpid(pid, 0, 0);
 	return 0;
 }

@@ -44,6 +44,7 @@
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 #include <zapit/satconfig.h>
+#include <zapit/getservices.h>
 
 #include <algorithm>
 #include <sstream>
@@ -360,7 +361,7 @@ void EpgPlus::ChannelEntry::init()
 EpgPlus::ChannelEntry::~ChannelEntry()
 {
 	for (TCChannelEventEntries::iterator It = this->channelEventEntries.begin();
-			It != this->channelEventEntries.end(); It++) {
+			It != this->channelEventEntries.end(); ++It) {
 		delete *It;
 	}
 	this->channelEventEntries.clear();
@@ -396,10 +397,9 @@ void EpgPlus::ChannelEntry::paint (bool isSelected, time_t selectedTime)
 		if(this->channel->pname) {
 			this->footer->setBouquetChannelName(this->channel->pname, this->channel->getName());
 		} else {
-			sat_iterator_t sit = satellitePositions.find(this->channel->getSatellitePosition());
-			if(sit != satellitePositions.end()) {
-				this->footer->setBouquetChannelName(sit->second.name, this->channel->getName());
-			}
+			this->footer->setBouquetChannelName(
+					CServiceManager::getInstance()->GetSatelliteName(this->channel->getSatellitePosition()),
+					this->channel->getName());
 		}
 	}
 	// paint the separation line
@@ -527,7 +527,7 @@ void sectionsd_getEventsServiceKey(t_channel_id serviceUniqueKey, CChannelEventL
 void EpgPlus::createChannelEntries (int selectedChannelEntryIndex)
 {
 	for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
-			It != this->displayedChannelEntries.end(); It++) {
+			It != this->displayedChannelEntries.end(); ++It) {
 		delete *It;
 	}
 	this->displayedChannelEntries.clear();
@@ -881,7 +881,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				this->paint();
 			}
 			if (msg == CRCInput::RC_yellow) {
-				if (bouquetList->Bouquets.size() > 0) {
+				if (!bouquetList->Bouquets.empty()) {
 					bool found = true;
 					uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
 //printf("**************************** EpgPlus::exec current bouquet %d new %d\n", bouquetList->getActiveBouquetNumber(), nNext);
@@ -908,7 +908,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				}
 			}
 			else if (msg == CRCInput::RC_green) {
-				if (bouquetList->Bouquets.size() > 0) {
+				if (!bouquetList->Bouquets.empty()) {
 					bool found = true;
 					int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
 					if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
@@ -1001,10 +1001,13 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 			else if (msg == (neutrino_msg_t) CRCInput::RC_red) {
 				CMenuWidget menuWidgetActions(LOCALE_EPGPLUS_ACTIONS, NEUTRINO_ICON_FEATURES);
 				menuWidgetActions.enableFade(false);
+				MenuTargetAddRecordTimer record(this);
+				MenuTargetRefreshEpg refresh(this);
+				MenuTargetAddReminder remind(this);
 				if (!g_settings.minimode)
-					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, new MenuTargetAddRecordTimer (this), NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, new MenuTargetRefreshEpg (this), NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
-				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, new MenuTargetAddReminder (this), NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), false);
+					menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_RECORD, true, NULL, &record, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REFRESH_EPG, true, NULL, &refresh, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN), false);
+				menuWidgetActions.addItem (new CMenuForwarder (LOCALE_EPGPLUS_REMIND, true, NULL, &remind, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW), false);
 
 				menuWidgetActions.exec (NULL, "");
 
@@ -1163,7 +1166,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 	}
 	while (this->refreshAll);
 	for (TChannelEntries::iterator It = this->displayedChannelEntries.begin();
-			It != this->displayedChannelEntries.end(); It++) {
+			It != this->displayedChannelEntries.end(); ++It) {
 		delete *It;
 	}
 	this->displayedChannelEntries.clear();
@@ -1260,7 +1263,7 @@ int CEPGplusHandler::exec (CMenuTarget * parent, const std::string & /*actionKey
 	//channelList = CNeutrinoApp::getInstance()->channelList;
 	int bnum = bouquetList->getActiveBouquetNumber();
 	current_bouquet = bnum;
-	if(bouquetList->Bouquets.size() && bouquetList->Bouquets[bnum]->channelList->getSize() > 0)
+	if(!bouquetList->Bouquets.empty() && bouquetList->Bouquets[bnum]->channelList->getSize() > 0)
 		channelList = bouquetList->Bouquets[bnum]->channelList;
 	else
 		channelList = CNeutrinoApp::getInstance()->channelList;

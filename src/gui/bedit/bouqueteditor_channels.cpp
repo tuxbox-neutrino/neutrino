@@ -4,6 +4,8 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Homepage: http://dbox.cyberphoria.org/
 
+	Copyright (C) 2011 CoolStream International Ltd
+
 	Kommentar:
 
 	Diese GUI wurde von Grund auf neu programmiert und sollte nun vom
@@ -37,19 +39,19 @@
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
 
-#include <gui/bedit/bouqueteditor_channels.h>
+#include "bouqueteditor_channels.h"
 
 #include <global.h>
 #include <neutrino.h>
 
 #include <driver/fontrenderer.h>
 #include <driver/screen_max.h>
-#include <gui/bedit/bouqueteditor_chanselect.h>
+#include "bouqueteditor_chanselect.h"
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 
 #include <zapit/getservices.h>
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
 
 #include <zapit/client/zapitclient.h>
 extern CBouquetManager *g_bouquetManager;
@@ -60,6 +62,16 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	frameBuffer = CFrameBuffer::getInstance();
 	selected = 0;
 	iconoffset = 0;
+	origPosition = 0;
+	newPosition = 0;
+	listmaxshow = 0;
+	numwidth = 0;
+	info_height = 0;
+	channelsChanged = false;
+	width = 0;
+	height = 0;
+	x = 0;
+	y = 0;
 
 	theight     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	fheight     = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->getHeight();
@@ -172,46 +184,17 @@ void CBEChannelWidget::paintFoot()
 
 void CBEChannelWidget::paintDetails(int index)
 {
-	char buf[128] = {0};
-	int len = 0;
+	std::string satname = CServiceManager::getInstance()->GetSatelliteName((*Channels)[index]->getSatellitePosition());
+	transponder t;
+	CServiceManager::getInstance()->GetTransponder((*Channels)[index]->getTransponderId(), t);
+	std::string desc = t.description();
+	if((*Channels)[index]->pname)
+		desc = desc + " (" + std::string((*Channels)[index]->pname) + ")";
+	else    
+		desc = desc + " (" + satname + ")";
 
-	transponder_id_t ct = (*Channels)[index]->getTransponderId();
-	transponder_list_t::iterator tpI = transponders.find(ct);
-	sat_iterator_t sit = satellitePositions.find((*Channels)[index]->getSatellitePosition());
-
-	len = snprintf(buf, sizeof(buf), "%d ", (*Channels)[index]->getFreqId());
-
-	if(tpI != transponders.end()) {
-		char * f, *s, *m;
-		switch(CFrontend::getInstance()->getInfo()->type)
-		{
-			case FE_QPSK:
-				CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qpsk.fec_inner, dvbs_get_modulation(tpI->second.feparams.u.qpsk.fec_inner),  f, s, m);
-				len += snprintf(&buf[len], sizeof(buf) - len, "%c %d %s %s %s ", tpI->second.polarization ? 'V' : 'H', tpI->second.feparams.u.qpsk.symbol_rate/1000, f, s, m);
-				break;
-			case FE_QAM:
-				CFrontend::getInstance()->getDelSys(tpI->second.feparams.u.qam.fec_inner, tpI->second.feparams.u.qam.modulation, f, s, m);
-				len += snprintf(&buf[len], sizeof(buf) - len, "%d %s %s %s ", tpI->second.feparams.u.qam.symbol_rate/1000, f, s, m);
-				break;
-			case FE_OFDM:
-			case FE_ATSC:
-				break;
-		}
-	}
-
-	if((*Channels)[index]->pname) {
-		snprintf(&buf[len], sizeof(buf) - len, "(%s)", (*Channels)[index]->pname);
-	}
-	else {
-		if(sit != satellitePositions.end()) {
-			snprintf(&buf[len], sizeof(buf) - len, "(%s)", sit->second.name.c_str());
-		}
-	}
-
-	if(sit != satellitePositions.end()) {
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  sit->second.name.c_str(), COL_MENUCONTENTDARK, 0, true);
-	}
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight, width - 30, buf, COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 }
 
 void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
@@ -261,6 +244,28 @@ void CBEChannelWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight+info_height);
 	clearItem2DetailsLine ();
+}
+
+void CBEChannelWidget::updateSelection(unsigned int newpos)
+{
+        if(newpos == selected)
+                return;
+
+        unsigned int prev_selected = selected;
+        selected = newpos;
+
+        if (state == beDefault) {
+                unsigned int oldliststart = liststart;
+                liststart = (selected/listmaxshow)*listmaxshow;
+                if(oldliststart!=liststart) {
+                        paint();
+                } else {
+                        paintItem(prev_selected - liststart);
+                        paintItem(selected - liststart);
+                }
+        } else {
+                internalMoveChannel(prev_selected, selected);
+        }
 }
 
 int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*/)
@@ -314,88 +319,41 @@ int CBEChannelWidget::exec(CMenuTarget* parent, const std::string & /*actionKey*
 		}
 		else if (msg==CRCInput::RC_up || msg==(neutrino_msg_t)g_settings.key_channelList_pageup)
 		{
-			if (!(Channels->empty()))
-			{
-				int step = 0;
-				int prev_selected = selected;
+			if (!(Channels->empty())) {
+                                int step = (msg == (neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
+                                int new_selected = selected - step;
 
-				step = (msg==(neutrino_msg_t)g_settings.key_channelList_pageup) ? listmaxshow : 1;  // browse or step 1
-				selected -= step;
-#if 0
-				if((prev_selected-step) < 0)		// because of uint
-				{
-					selected = Channels->size() - 1;
-				}
-#endif
-				if((prev_selected-step) < 0) {
-					if(prev_selected != 0 && step != 1)
-						selected = 0;
-					else
-						selected = Channels->size() - 1;
-				}
-				if (state == beDefault)
-				{
-					paintItem(prev_selected - liststart);
-					unsigned int oldliststart = liststart;
-					liststart = (selected/listmaxshow)*listmaxshow;
-					if(oldliststart!=liststart)
-					{
-						paint();
-					}
-					else
-					{
-						paintItem(selected - liststart);
-					}
-				}
-				else if (state == beMoving)
-				{
-					internalMoveChannel(prev_selected, selected);
-				}
+                                if (new_selected < 0) {
+                                        if (selected != 0 && step != 1)
+                                                new_selected = 0;
+                                        else
+                                                new_selected = Channels->size() - 1;
+                                }
+                                updateSelection(new_selected);
 			}
 		}
 		else if (msg==CRCInput::RC_down || msg==(neutrino_msg_t)g_settings.key_channelList_pagedown)
 		{
-			unsigned int step = 0;
-			unsigned int prev_selected = selected;
-
-			step = (msg==(neutrino_msg_t)g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
-			selected += step;
-#if 0
-			if(selected >= Channels->size())
-			{
-				if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Channels->size() / listmaxshow) + 1) * listmaxshow))) ? (Channels->size() - 1) : 0;
-			}
-#endif
-			if(selected >= Channels->size()) {
-				if((Channels->size() - listmaxshow -1 < prev_selected) && (prev_selected != (Channels->size() - 1)) && (step != 1))
-					selected = Channels->size() - 1;
-				else if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
-					selected = 0;
-				else
-					selected = ((step == listmaxshow) && (selected < (((Channels->size() / listmaxshow)+1) * listmaxshow))) ? (Channels->size() - 1) : 0;
-			}
-			if (state == beDefault)
-			{
-				paintItem(prev_selected - liststart);
-				unsigned int oldliststart = liststart;
-				liststart = (selected/listmaxshow)*listmaxshow;
-				if(oldliststart!=liststart)
-				{
-					paint();
-				}
-				else
-				{
-					paintItem(selected - liststart);
-				}
-			}
-			else if (state == beMoving)
-			{
-				internalMoveChannel(prev_selected, selected);
-			}
+                        if (!(Channels->empty())) {
+                                int step =  ((int) msg == g_settings.key_channelList_pagedown) ? listmaxshow : 1;  // browse or step 1
+                                int new_selected = selected + step;
+                                if (new_selected >= (int) Channels->size()) {
+                                        if ((Channels->size() - listmaxshow -1 < selected) && (selected != (Channels->size() - 1)) && (step != 1))
+                                                new_selected = Channels->size() - 1;
+                                        else if (((Channels->size() / listmaxshow) + 1) * listmaxshow == Channels->size() + listmaxshow) // last page has full entries
+                                                new_selected = 0;
+                                        else
+                                                new_selected = ((step == (int) listmaxshow) && (new_selected < (int) (((Channels->size() / listmaxshow)+1) * listmaxshow))) ? (Channels->size() - 1) : 0;
+                                }
+                                updateSelection(new_selected);
+                        }
 		}
+                else if (msg == (neutrino_msg_t) g_settings.key_list_start || msg == (neutrino_msg_t) g_settings.key_list_end) {
+                        if (!(Channels->empty())) {
+                                int new_selected = msg == (neutrino_msg_t) g_settings.key_list_start ? 0 : Channels->size() - 1;
+                                updateSelection(new_selected);
+                        }
+                }
 		else if(msg==CRCInput::RC_red)
 		{
 			if (state == beDefault)

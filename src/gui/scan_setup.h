@@ -35,7 +35,7 @@
 
 #include <system/setting_helpers.h>
 #include <system/settings.h>
-
+#include <zapit/satconfig.h>
 
 #include <string>
 
@@ -43,39 +43,56 @@
 
 #define ENABLE_FASTSCAN //don't define this to remove fast scan menu
 
-class CScanSetup : public CMenuTarget
+class CScanSetup : public CMenuTarget, public CChangeObserver
 {
 	protected:
 		int width;
 	
 	private:
-		CSatelliteSetupNotifier 	*satNotify;
-		CAllUsalsNotifier 		*usalsNotify;
-		
 		CMenuOptionStringChooser 	*satSelect;
-		
+		CMenuWidget			*satOnOff;
+
+		/* global items to be enabled/disabled in notify */
+		CMenuForwarder  *fautoScanAll;
+		CMenuForwarder  *frontendSetup;
+		CMenuForwarder  *fsatSetup;
+		CMenuOptionNumberChooser * ojDiseqcRepeats;
+
+		/* dynamic frontend items to be enabled/disabled in notify */
+#if 0
+		CGenericMenuActivate itemsForAdvancedDiseqc;
+		CGenericMenuActivate itemsForNonAdvancedDiseqc;
+		CGenericMenuActivate itemsForAnyDiseqc;
+#endif
+		/* variables for selected frontend */
+		/* diseqc mode */
+		int dmode;
+		int fenumber;
+
+		/* flag to allow any operations which can damage recordings */
+		bool allow_start;
+
 		bool is_wizard;
 		
-		int selected;
-		int dmode;
-		int sfound;
 		int fec_count;
 		int freq_length;
 		int r_system;
-		bool allow_start;
-		
+		int femode;
+
 		neutrino_locale_t satprov_locale;
-		
+
 		uint getSatMenuListWidth();
-		
+
 		int showScanMenu();
-		
-		void addScanMenuLnbSetup(CMenuWidget *sat_setup);
-		void addScanMenuProvider(CMenuWidget *provider_setup);
-		void addScanMenuSatFind(CMenuWidget *sat_findMenu);
- 		void addScanMenuSatOnOff(CMenuWidget *sat_OnOff);
- 		void addScanMenuTempSat(CMenuWidget *temp_sat);
- 		void addScanMenuMotorMenu(CMenuWidget *motor_Menu);
+
+		int showFrontendSetup(int number);
+		int showScanMenuLnbSetup();
+		int showScanMenuSatFind();
+		void fillSatSelect();
+		void fillCableSelect();
+
+		void addScanMenuFrontendSetup(CMenuWidget *settings);
+ 		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
  		void addScanMenuManualScan(CMenuWidget *manual_Scan);
  		void addScanMenuAutoScanAll(CMenuWidget *auto_ScanAll);
 #ifdef ENABLE_FASTSCAN
@@ -84,29 +101,31 @@ class CScanSetup : public CMenuTarget
  		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
-		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1);
-		
+		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1, bool manual = false);
+
 		void saveScanSetup();
 
+		CScanSetup(bool wizard_mode = SCAN_SETUP_MODE_WIZARD_NO);
 	public:	
 		enum SCAN_SETUP_MODE
 		{
 			SCAN_SETUP_MODE_WIZARD_NO   = 0,
 			SCAN_SETUP_MODE_WIZARD   = 1
 		};
-		
-		CScanSetup(bool wizard_mode = SCAN_SETUP_MODE_WIZARD_NO);
+
 		~CScanSetup();
-		
+
 		static CScanSetup* getInstance();
-		
+
 		bool getWizardMode() {return is_wizard;};
 		void setWizardMode(bool mode);
+		void updateManualSettings();
 
 		int exec(CMenuTarget* parent, const std::string & actionKey = "");
+		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 };
 
-class CTPSelectHandler : public CScanSetup
+class CTPSelectHandler : public CMenuTarget //CScanSetup
 {
 	public:
 		int exec(CMenuTarget* parent,  const std::string &actionkey);

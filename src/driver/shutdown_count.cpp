@@ -34,6 +34,7 @@
 
 #include <sys/timeb.h>
 #include <time.h>
+#include <unistd.h>
 
 
 SHTDCNT::SHTDCNT()

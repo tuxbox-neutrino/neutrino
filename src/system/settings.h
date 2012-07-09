@@ -73,8 +73,11 @@ struct SNeutrinoSettings
 	int volume_pos;
 	int show_mute_icon;
 	int menu_pos;
-	int infobar_show_var_hdd;
+	int show_menu_hints;
+	int infobar_show_sysfs_hdd;
 	int infobar_show_res;
+	int infobar_show_tuner;
+	int infobar_show_dd_available;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
@@ -97,10 +100,14 @@ struct SNeutrinoSettings
 	int cpufreq;
 	int standby_cpufreq;
 	int make_hd_list;
+	int make_new_list;
+	int make_removed_list;
+	int keep_channel_numbers;
 	int avsync;
 	int clockrec;
 	int rounded_corners;
 	int ci_standby_reset;
+	int ci_clock;
 	int radiotext_enable;
 	
 	//vcr
@@ -407,7 +414,7 @@ struct SNeutrinoSettings
 	int channellist_extended;
 	int channellist_foot;
 	int channellist_new_zap_mode;
-
+	int channellist_sort_mode;
 	char repeat_blocker[4];
 	char repeat_genericblocker[4];
 	int remote_control_hardware;
@@ -529,17 +536,13 @@ struct SNeutrinoSettings
 	std::string StartChannelRadio;
 	t_channel_id startchanneltv_id;
 	t_channel_id startchannelradio_id;
-	int startchanneltv_nr;
-	int startchannelradio_nr;
 	int uselastchannel;
 
 	int	power_standby;
-	int	emlog;
 	int	rotor_swap;
 	int	hdd_sleep;
 	int	hdd_noise;
 	int	hdd_fs;
-	int	logo_num;
 	int	zap_cycle;
 	int	sms_channel;
 	char	font_file[100];
@@ -663,13 +666,15 @@ public:
 	CConfigFile	configfile;
 	int		bouquetMode;
 	int		scanType;
-	int		diseqcMode;
-	uint32_t	diseqcRepeat;
+
 	char                      satNameNoDiseqc[50];
 	delivery_system_t         delivery_system;
-	int		scanSectionsd;
-	int		scan_mode;
+	int		scan_nit;
+	int		scan_nit_manual;
+	int		scan_bat;
 	int		scan_fta_flag;
+	int		scan_reset_numbers;
+	int		scan_logical_numbers;
 	int		TP_fec;
 	int		TP_pol;
 	int		TP_mod;
@@ -677,10 +682,11 @@ public:
 	char		TP_rate[9];
 	int		fast_type;
 	int		fast_op;
+	int		cable_nid;
 
 	CScanSettings();
 
-	void useDefaults(const delivery_system_t _delivery_system);
+	//void useDefaults(const delivery_system_t _delivery_system);
 	bool loadSettings(const char * const fileName, const delivery_system_t _delivery_system);
 	bool saveSettings(const char * const fileName);
 };

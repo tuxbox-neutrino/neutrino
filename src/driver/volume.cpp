@@ -105,7 +105,7 @@ void CVolume::Init()
 		progress_h	= std::max(icon_h, digit_h) - 2*pB;
 		vbar_w 		+= digit_w;
 	}
-
+	delete g_volscale;
 	g_volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
 
 	// mute icon
