@@ -71,7 +71,7 @@ class CRecordInstance
 {
 	private:
 		typedef struct {
-			unsigned short apid;
+			uint32_t apid;
 			unsigned int index;//FIXME not used ?
 			bool ac3;
 		} APIDDesc;

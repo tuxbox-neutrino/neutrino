@@ -34,7 +34,7 @@ class CLastChannel
 		{
 			int             channel;
 			t_channel_id channel_id;
-			unsigned long   timestamp;
+			long int   timestamp;
 			int channel_mode;
 		};
 
