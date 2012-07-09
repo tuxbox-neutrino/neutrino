@@ -80,6 +80,7 @@ typedef struct font_sizes_groups
 	const unsigned int                          count;
 	const SNeutrinoSettings::FONT_TYPES * const content;
 	const char * const                          actionkey;
+	const neutrino_locale_t hint;
 } font_sizes_groups_struct;
 
 class CNeutrinoApp : public CMenuTarget, CChangeObserver

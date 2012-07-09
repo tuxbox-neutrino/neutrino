@@ -888,6 +888,32 @@ menu.hint_infobar_back Change infobar background color
 menu.hint_infobar_textcolor Change infobar text color
 menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
 menu.hint_fonts Configure GUI fonts and font sizes
+menu.hint_font_gui Select font file to use for GUI
+menu.hint_font_ttx Select font file to use for teletext
+menu.hint_contrast_fonts Make fonts contrast (do not blend with background)
+menu.hint_font_scaling Set global vertical and horizontal\nGUI font scaling
+menu.hint_menu_fonts Change menu font sizes
+menu.hint_channellist_fonts Change channel list font sizes
+menu.hint_eventlist_fonts Change event list font sizes
+menu.hint_epg_fonts Change EPG details window font sizes
+menu.hint_infobar_fonts Change infobar font sizes
+menu.hint_gamelist_fonts Change games and scripts list font sizes
+menu.hint_timeouts Configure time to hide GUI windows\nin seconds
+menu.hint_screen_setup Configure screen margins
+menu.hint_infobar_setup Configure infobar options
+menu.hint_channellist_setup Configure channe list GUI options
+menu.hint_screenshot_setup Configure screenshots options
+menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
+menu.hint_rounded_corners Draw round or rectangular windows corners 
+menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
+menu.hint_subchannel_pos Select subchannels menu position
+menu.hint_volume_pos Select volume indicator position
+menu.hint_show_mute_icon Show mute icon, when volume set to 0
+menu.hint_menu_pos Select menu position
+menu.hint_menu_hints Show this hints.i Also you can switch\nit any time using 'help' button
+menu.hint_fade Fade GUI windows
+menu.hint_bigwindows Always show big epg detail window\nelse 'info' button switch big font + window size
+menu.hint_progressbar_color Show colored progress bars
 
 menu.next Next (press Menu to quit)
 messagebox.back Back
