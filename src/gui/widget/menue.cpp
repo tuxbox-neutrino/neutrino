@@ -870,6 +870,7 @@ void CMenuWidget::paint()
 		saveScreen();
 #endif
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
+#if 0
 	//clear backround on corners switch
 	static bool corners = g_settings.rounded_corners;
 	if(g_settings.rounded_corners != corners){
@@ -880,7 +881,7 @@ void CMenuWidget::paint()
 			frameBuffer->paintBackgroundBoxRel(x, y, full_width, CORNER_RADIUS_LARGE-2+SHADOW_OFFSET);
 		}
 	}
-
+#endif
 	//paint shadow and backround
 	int rad = RADIUS_LARGE-2;
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET ,y + SHADOW_OFFSET ,width + sb_width ,height + rad ,COL_MENUCONTENTDARK_PLUS_0 ,rad);

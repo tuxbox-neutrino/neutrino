@@ -445,7 +445,8 @@ int COsdSetup::showOsdSetup()
 
 	osd_menu->addItem(GenericMenuSeparatorLine);
 	// corners
-	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &g_settings.rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
+	int rounded_corners = g_settings.rounded_corners;
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_ROUNDED_CORNERS, &rounded_corners, MENU_CORNERSETTINGS_TYPE_OPTIONS, MENU_CORNERSETTINGS_TYPE_OPTION_COUNT, true, this);
 	mc->setHint("", LOCALE_MENU_HINT_ROUNDED_CORNERS);
 	osd_menu->addItem(mc);
 
@@ -776,8 +777,13 @@ bool COsdSetup::changeNotify(const neutrino_locale_t OptionName, void * data)
 		g_InfoViewer->changePB();
 		return true;
 	}
-	else if ((ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_POS)) || 
-	    (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_ROUNDED_CORNERS))) {
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_VOLUME_POS)) {
+		CVolume::getInstance()->Init();
+		return false;
+	}
+	else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_EXTRA_ROUNDED_CORNERS)) {
+		osd_menu->hide();
+		g_settings.rounded_corners = * (int*) data;
 		CVolume::getInstance()->Init();
 		return true;
 	}
