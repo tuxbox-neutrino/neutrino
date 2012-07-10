@@ -3,6 +3,7 @@
  *
  * (C) 2002 by Andreas Oberritter <obi@tuxbox.org>
  * (C) 2002 by Frank Bormann <happydude@berlios.de>
+ * (C) 2007-2012 Stefan Seyfried
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -173,13 +174,12 @@ printf("[pmt] teletext type %d mag %d page %d lang %s\n", teletext_type, teletex
 					unsigned char fieldCount1=descriptor_length/8;
 					for (unsigned char fIdx=0;fIdx<fieldCount1;fIdx++){
 						char tmpLang[4];
-						memmove(tmpLang,&buffer[pos + 8*fIdx + 2],3);
+						const unsigned char *p = buffer + pos + 8 * fIdx;
+						memmove(tmpLang, p + 2, 3);
 						tmpLang[3] = '\0';
-						unsigned char subtitling_type=buffer[pos+8*fIdx+5];
-						unsigned short composition_page_id=
-							*((unsigned short*)(&buffer[pos + 8*fIdx + 6]));
-						unsigned short ancillary_page_id=
-							*((unsigned short*)(&buffer[pos + 8*fIdx + 8]));
+						unsigned char subtitling_type = p[5];
+						unsigned short composition_page_id = (p[6] << 8 | p[7]);
+						unsigned short ancillary_page_id = (p[8] << 8 | p[9]);
 						channel->addDVBSubtitle(esInfo->elementary_PID,tmpLang,subtitling_type,composition_page_id,ancillary_page_id);
 					}
 					descramble = true;//FIXME MGM / 10E scrambling subtitles ?
