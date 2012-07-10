@@ -687,6 +687,213 @@ mainsettings.timezone Zeitzone
 mainsettings.video Video
 menu.back Zurück
 menu.cancel Abbrechen
+menu.hint_a_pic Konfigurieren Sie den Audio-Player und Bildbetrachter
+menu.hint_aplay Audioplayer
+menu.hint_audio Audio-Ausgang, DD\nSRS True Volume Optionen
+menu.hint_audio_analog_mode Hier wird festgelegt, ob auf dem analogen Ausgang ein Stereo-,\nMono-Links- oder Mono-Rechts-Signal ausgegeben werden soll
+menu.hint_audio_avsync Diese Funktion synchronisiert Bild und Ton
+menu.hint_audio_dd Ist diese Option auf ein, wird automatisch auf Dolby Digital Ton\numgeschaltet, sobald dieser bei einem Sender verfügbar ist
+menu.hint_audio_hdmi_dd Bei aktiver Option wird über den HDMI-Ausgang\nDolby-Digital-Ton ausgegeben
+menu.hint_audio_spdif_dd Bei aktiver Option wird über den optischen Ausgang\n(S/PDIF) Dolby-Digital-Ton ausgegeben
+menu.hint_audio_srs Hier wird SRS TruVolume an oder abgeschaltet\nbei inhaltlichen Änderungen
+menu.hint_audio_srs_algo Mögliche Betriebsarten, einfach oder normal
+menu.hint_audio_srs_nmgr Schaltet diese Option an oder aus
+menu.hint_audio_srs_volume Hier kann die Referenzlautstärke festgelegt werden
+menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke\nimmer schrittweise nach diesen Wert geändert
+menu.hint_auto_lang Auto-switch audio to preferred language
+menu.hint_auto_subs Auto-start subtitles for preferred language
+menu.hint_back Zurück zum vorherigen Menü\nDrücken der Menütaste schließt alle Menüs
+menu.hint_backup Sichern der Konfigurationen und Kanäle in ein Verzeichnis
+menu.hint_bedit Bearbeiten der Favoriten und der Bouquets
+menu.hint_bigwindows Always show big epg detail window\nelse 'info' button switch big font + window size
+menu.hint_cache_txt Startet das Zwischenspeichern des Teletext nach\nKanalwechsel
+menu.hint_cec_mode CEC-Mode
+menu.hint_cec_standby CEC-Standby
+menu.hint_cec_view_on CEC view ON
+menu.hint_channellist_fonts Change channel list font sizes
+menu.hint_channellist_setup Configure channe list GUI options
+menu.hint_ci Conditional-Access-Menü zum Einrichten\nIhres CI-CAM oder eingebetteten Conax-Karte
+menu.hint_colors Configure GUI colors
+menu.hint_content_back Change GUI window background color
+menu.hint_content_textcolor Change GUI window text color
+menu.hint_contrast_fonts Make fonts contrast (do not blend with background)
+menu.hint_dboxinfo Informationen über CPU und Speicher der Box
+menu.hint_delete_channels Löschen aller Kanale
+menu.hint_epg_cache Maximum in Tagen zukünftiger EPG-Daten
+menu.hint_epg_dir Speicherverzeichnis auf der Harddsk oder einen USB-Stick\nzum speichern von EPG-Daten
+menu.hint_epg_extendedcache Maximum in Stunden, die die EPG-Daten zwischengespeichert\nwerden bzw. der Event-Beschreibungen
+menu.hint_epg_fonts Change EPG details window font sizes
+menu.hint_epg_max_events Maximum an Events im Zwischenspeicher. Nach Erreichen der\nGrenze werden EPG-Daten für zukünftige gelöscht
+menu.hint_epg_old_events EPG im Speicher behalten in Stunden,\nauch wenn es veraltert ist
+menu.hint_epg_save Speichert die EPG-Daten auf einer Harddisk oder USB-Stick\nund läd es nach einen Neustart
+menu.hint_event_textcolor Change event color for colored-event options\nin channel list and infobar
+menu.hint_eventlist_fonts Change event list font sizes
+menu.hint_extended Energiespar-, EPG-Speicher- / Lade-Optionen\nHDMI-CEC, Startkanal, Zap-Optionen
+menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen\nBox wird nach einem Reset neu gestartet
+menu.hint_fade Fade GUI windows
+menu.hint_fan_speed Steuerung der Lüftergeschwindigkeit für den CPU
+menu.hint_filebrowser_denydirectoryleave Startverzeichnes auf absolut setzen
+menu.hint_filebrowser_showrights Anzeige der Dateirechte der Deiteinen im Filebrowser
+menu.hint_fileplay Spielen Sie verschiedene Video-Dateien
+menu.hint_filesystem_is_utf8 Kodierung für Unicode-Zeichen im Filebrowser
+menu.hint_font_gui Select font file to use for GUI
+menu.hint_font_scaling Set global vertical and horizontal\nGUI font scaling
+menu.hint_font_ttx Select font file to use for teletext
+menu.hint_fonts Configure GUI fonts and font sizes
+menu.hint_gamelist_fonts Change games and scripts list font sizes
+menu.hint_games Zeige Liste der installierten Spiele
+menu.hint_hdd Formatierung / Festplatte überprüfen
+menu.hint_head_back Change GUI title background color
+menu.hint_head_textcolor Change GUI window title text color
+menu.hint_imageinfo Informationen über die installierte Software
+menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Deep-Standby
+menu.hint_inactive_back Change inactive item background color
+menu.hint_inactive_textcolor Change inactive item text color
+menu.hint_inet_radio Internetradio
+menu.hint_info Informationen über Image, CPU und Speicher,\nStream-Information
+menu.hint_infobar_back Change infobar background color
+menu.hint_infobar_fonts Change infobar font sizes
+menu.hint_infobar_setup Configure infobar options
+menu.hint_infobar_textcolor Change infobar text color
+menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte\nKanalnummern zugewiesen
+menu.hint_keys Fernbedienungs Wiederholrate\nTastenbelegungen bearbeiten
+menu.hint_lang_pref Configure preferred audio, EPG\nand subtitle languages
+menu.hint_language OSD Sprache, Zeitzone\nbevorzugte Audio und Untertitel Sprachen
+menu.hint_last_radio In dieser Menüzeile muss der gewünschte\nStart-Radio-Sender eingestellt werden
+menu.hint_last_tv In dieser Menüzeile muss der gewünschte\nStart-TV-Sender eingestellt werden
+menu.hint_last_use Speichert den aktuellen Kanal beim herunterfahren der Box
+menu.hint_load Laden der Neutrino-HD-Einstellungen aus einer Datei
+menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens "HD" erzeugt\nin dem alle HD Sender zusammengefasst sind
+menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens\n"neue Kanäle" erzeugt
+menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens\n"gelöschte Kanäle" erzeugt
+menu.hint_manage_settings sichern, wiederherstellen, zurück auf die \nStandardwerte, Auslieferungszustand herstellen
+menu.hint_mb Ihre Aufnahmen
+menu.hint_media Abspielen von Filmen, Audiodateien\nbetrachten Sie Bilder
+menu.hint_menu_fonts Change menu font sizes
+menu.hint_menu_hints Show this hints.i Also you can switch\nit any time using 'help' button
+menu.hint_menu_pos Select menu position
+menu.hint_misc_cec HDMI-CEC Optionen
+menu.hint_misc_channellist Erweiterte Einstellungen für die Kanallisten\nZappingeinstellungen
+menu.hint_misc_energy Energie- und Softstandby-Optionen, verzögertes Ausschalten\nsetzen bzw. ändern des Inaktivitätstimers
+menu.hint_misc_epg EPG Sicherrungs- und Ladenoptionen, EPG-Einstellungen\nSicherungsverzeichnis für EPG-Daten
+menu.hint_misc_filebrowser Dateisystem, Dateirechte anzeigen im Dateibrowser\nStartverzeichnisoptionen
+menu.hint_misc_general Standby-, Teletext-, Rotor-Einstellungen\nPluginverzeichnis auf der HDD
+menu.hint_misc_zapit Behandlung der Start-TV/Start-Radio Kanäle
+menu.hint_movie Wiedergabe von Filmen
+menu.hint_net_broadcast Enter broadcast address\nif unsure, use IP address with last .255
+menu.hint_net_dhcp Use DHCP server to auto-configure
+menu.hint_net_djmount mount uPnp devices as filesystem\nunder /media/00upnp
+menu.hint_net_ftpd Enable file transfer using FTP
+menu.hint_net_gateway Enter gateway/router IP address
+menu.hint_net_hostname Change your box hostname
+menu.hint_net_if Select interface to config
+menu.hint_net_ipaddress Enter your box IP address
+menu.hint_net_mount Configure, mount and un-mount network shares\nNFS and CIFS supported
+menu.hint_net_nameserver Enter name server (DNS) IP address
+menu.hint_net_netmask Enter network mask\nif unsure, use 255.255.255.0
+menu.hint_net_nfs_mount Configure and mount network shares
+menu.hint_net_nfs_umount Un-mount mounted shares
+menu.hint_net_ntp Configure time sync
+menu.hint_net_ntpenable Enable time sync using NTP protocol\nIf NTP sync not successfull, DVB will be used
+menu.hint_net_ntprefresh Time sync interval
+menu.hint_net_ntpserver Enter NTP server name
+menu.hint_net_pass Enter passkey (WPA-PSK)
+menu.hint_net_proxy If you use proxy to access internet\nconfigure it here for online software update
+menu.hint_net_proxypass Proxy user password\nif authorization required
+menu.hint_net_proxyserver Proxy server name
+menu.hint_net_proxyuser Proxy user name\nif authorization required
+menu.hint_net_services Configure network services:\nTelnet, ftp, uPnp
+menu.hint_net_setupnow Apply current settings
+menu.hint_net_setuponstartup Start network at boot time
+menu.hint_net_show Show current network settings
+menu.hint_net_ssid Enter SSID of wireless network\nyou want to connect to
+menu.hint_net_telnet Enable telnet login to your box
+menu.hint_net_test Test network connection: ping gateway,\n name server and external IP
+menu.hint_net_ushare Share connected HDD over uPnp
+menu.hint_network IP-Adresse, Gateway, DNS-, Time-Sync\nNetzwerk-Freigaben und Dienste
+menu.hint_new_zap_mode Aktiviert Quickzap in der Kanalliste. Nach Betätigen der Mute-\nTaste wird mit den Hoch/Runter Tasten der Sender umgeschaltet 
+menu.hint_osd Farben, Schriftarten, Anzeigegröße\nGUI Ansichtsoptionen
+menu.hint_osd_language Select OSD language
+menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
+menu.hint_parentallock_changepin Change PIN code
+menu.hint_parentallock_lockage Select age allowed to watch
+menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN code
+menu.hint_personalize aktivieren, deaktivieren, schützen von Menüpunkten\nkonfigurieren der Farb-Tasten in den Benutzermenüs
+menu.hint_picview Bilder anzeigen
+menu.hint_plugins_hdd_dir Auswahl des Verzeichnisses zum laden von Plugins\n auf der HDD
+menu.hint_pref_lang Select preferred audio and EPG language\nselect 'none' to disable
+menu.hint_pref_subs Select preferred subtitle language\nselect 'none' to disable
+menu.hint_progressbar_color Show colored progress bars
+menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
+menu.hint_radiomode schaltet zum Radio-Modus
+menu.hint_reboot Rebootet die Box\nohne Bestätigung
+menu.hint_record_apid_ac3 Record AC3 audio pids
+menu.hint_record_apid_alt Record alternative non-AC3 audio pids
+menu.hint_record_apid_std Record first audio pid
+menu.hint_record_apids Configure audio pids to record
+menu.hint_record_apply Apply record options
+menu.hint_record_chandir Create directory with name of channel\nto store recording
+menu.hint_record_dir Select directory to store recordings
+menu.hint_record_end Stop direct record after max. time\nor after current event end time
+menu.hint_record_tdir Select directory to save timeshift recordings\nin temporary timeshift mode
+menu.hint_record_time Record time before stop when\nusing direct record with record button
+menu.hint_record_timeafter Stop record after event end\nin minutes
+menu.hint_record_timebefore Start record before event start\nin minutes
+menu.hint_record_timer Configure record by timer options
+menu.hint_record_timeshift Configure timeshift options
+menu.hint_record_timeshift_auto Auto start timeshift after channel switch, in seconds
+menu.hint_record_timeshift_delete Delete timeshift files after timeshift stop
+menu.hint_record_timeshift_pause Start timeshift playback in paused mode
+menu.hint_record_timeshift_temp If off, timeshift started as\nany direct record
+menu.hint_record_zap Switch to channel to be recorded\nat record announce
+menu.hint_record_zap_pre_time For ZapTo timers, switch channel\nbefore event start, in minutes
+menu.hint_recording Aufnahme- und Timeshift-Optionen\nTimer Optionen, Audio-PIDs Optionen
+menu.hint_reload_channels Kanallisten neu laden\nKanallisten aktualisieren
+menu.hint_reload_plugins Plugins neu laden\nPlugin-Liste aktualisieren
+menu.hint_reset Zurücksetzen von Neutrino-HD-Einstellungen auf Standardwerte\nTuner Einstellungen und Kanäle bleiben erhalten
+menu.hint_restore Wiederherstellen von Dateien aus ausgewählten Verzeichnis
+menu.hint_rotor_swap Tauschen der Rotordrehrichtung Ost/West\nim Motorsetup
+menu.hint_rounded_corners Draw round or rectangular windows corners 
+menu.hint_save_settings Speichern Sie alle Einstellungen im Image
+menu.hint_saveas Speichern der Neutrino-HD-Einstellungen in eine Datei
+menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
+menu.hint_screen_setup Configure screen margins
+menu.hint_screenshot_setup Configure screenshots options
+menu.hint_scripts Skripts ausführen
+menu.hint_selected_back Change selected item background color
+menu.hint_selected_text Change selected item text color
+menu.hint_service Kanalsuche, Senderscan,\nBouquet-Verwaltung, Software-Aktualisierung
+menu.hint_service_scan Tuner-Einstellungen, Service-Scan
+menu.hint_settings konfigurieren von Neutrino-HD\nNetzwerk, Video, Audio, OSD und mehr
+menu.hint_show_mute_icon Show mute icon, when volume set to 0
+menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus\noder schaltet die Box komplett aus
+menu.hint_shutdown_count Die Zeit zum Deep-Standby,\nwenn die Box im Soft-Standby-Mode ist
+menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn der Powerknopf\nlänger als 1 Sekunde betätigt wird
+menu.hint_shutdown_real Aktivieren des Soft-Standby-Modus, wenn diese Option\ndeaktiviert ist, geht die Box in den Deep-Standby
+menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren\ndie Box geht dann in den Standby-Modus
+menu.hint_soft_restart Neustarten von Neutrino-HD ohne zu Rebooten
+menu.hint_start_tostandby Aktiviert den Standby-Modus nach dem Booten
+menu.hint_streaminfo aktuelle Sender-Informationen: PIDs, SNR-Verhältnis\nBitrate grafisch
+menu.hint_subchannel_pos Select subchannels menu position
+menu.hint_sw_update Neutrino-HD auf Software-Update überprüfen\nImage sichern und wiederherstellen
+menu.hint_theme Select Select pre-defined color theme\nSave or load theme from files
+menu.hint_timeouts Configure time to hide GUI windows\nin seconds
+menu.hint_timers Hinzufügen / Entfernen / Bearbeiten geplanter\nAufnahme, Meldungen etc.
+menu.hint_timezone Select your timezone
+menu.hint_tvmode Schaltet zum TV-Modus
+menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
+menu.hint_vfd Frontpanel LED's, VFD Optionen
+menu.hint_video Video-Ausgang, Auflösung, Format\nSeitenverhältnise, Modus-Schalter Optionen
+menu.hint_video_43mode Anzeigemodus für 4:3-Inhalte auf 16:9 TV's
+menu.hint_video_analog_mode Wählen Sie den Analogausgang Modus\nfür den SCART und CINCH Anschluss
+menu.hint_video_cinch_mode Wählen Sie den Analogausgang Modus\nfür den Composite Video Ausgang
+menu.hint_video_dbdr Verwendeter MPEG2 Filter
+menu.hint_video_format Diese Option aktiviert das "Bildschirmformat"\nauf das Format Deines Fernsehgerätes
+menu.hint_video_mode Definiert in welchen Videoformat das Bild über den\nHDMI-Ausgang ausgegeben wird
+menu.hint_video_modes Definiert welche Videosysteme mit der VF-Taste\nder Fernbedienung ausgewählt werden können
+menu.hint_video_scart_mode Wählen Sie den Analogausgang Modus\nfür den SCART Ausgang
+menu.hint_volume_pos Select volume indicator position
+menu.hint_zap_cycle Dadurch wird nur innerhalb des aktiven Bouquets gezappt
 menu.next Weiter (Menü zum Beenden)
 messagebox.back Zurück
 messagebox.cancel Abbruch
@@ -952,6 +1159,7 @@ networkmenu.ntptitle Zeitsynchronisation
 networkmenu.password Passwort (PSK)
 networkmenu.reset_settings_now Sollen die vorherigen Einstellungen \nwieder hergestellt werden?
 networkmenu.select_if Schnittstelle
+networkmenu.services Netzwerkservice
 networkmenu.setupnow Einstellungen jetzt zuweisen
 networkmenu.setuponstartup Beim Start Netzwerk setzen
 networkmenu.show Aktive Einstellungen zeigen
@@ -1234,6 +1442,7 @@ servicemenu.update Software-Aktualisierung
 settings.backup Image-Einstellungen: Sichern
 settings.backup_failed Sicherung fehlgeschlagen!
 settings.help Hilfe
+settings.menu_hints Menühinweise anzeigen
 settings.menu_pos Menüposition
 settings.missingoptionsconffile Die Neutrino-HD Einstellungen wurden erweitert.\nDie neuen Werte werden auf Standard gesetzt.
 settings.noconffile Die Neutrino-HD Einstellungen wurden nicht\ngefunden. Es werden Standardwerte benutzt.
