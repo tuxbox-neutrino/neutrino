@@ -1142,7 +1142,8 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	if (item->hint == NONEXISTANT_LOCALE)
 		return;
 
-	int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+	int HintFont = SNeutrinoSettings::FONT_TYPE_MENU_INFO;
+	int fheight = g_Font[HintFont]->getHeight();
 
 	std::string str1, str2;
 	std::string str = g_Locale->getText(item->hint);
@@ -1150,13 +1151,61 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	if (spos != std::string::npos) {
 		str1 = str.substr(0, spos);
 		str2 = str.substr(spos+1);
-	} else {
-		str1 = str;
 	}
-	if (!str1.empty())
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+offset, ypos2+5+fheight, iwidth-4-offset, str1, COL_MENUCONTENT, 0, true); // UTF-8
-	if (!str2.empty())
-		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(x+offset, ypos2+5+fheight*2, iwidth-4-offset, str2, COL_MENUCONTENT, 0, true); // UTF-8
+	else
+		str1 = str;
+
+	if ((!str1.empty()) || (!str1.empty())) {
+		int wBox = iwidth - 6 - offset;
+		int wStr1 = 0, wStr2 = 0;
+		if (!str1.empty())
+			wStr1 = g_Font[HintFont]->getRenderWidth(str1);
+		if (!str2.empty())
+			wStr2 = g_Font[HintFont]->getRenderWidth(str2);
+		if ((wStr1 > wBox) || (wStr2 > wBox)) {
+			str = g_Locale->getText(item->hint);
+			// replace "\n" with " "
+			spos = str.find_first_of("\n");
+			if (spos != std::string::npos)
+				str.replace(spos, 1, " ");
+			spos = str.length();
+			if (spos >= 1) {
+				std::string BreakChars = "+-/";
+				str1 = str;
+				wStr1 = g_Font[HintFont]->getRenderWidth(str1);
+				int count = 0;
+				std::string bChar;
+				while (wStr1 > wBox) {
+					spos = str1.find_last_of(BreakChars + " ");
+					if (spos != std::string::npos) {
+						str1 = str1.substr(0, spos+1);
+						// Last delimiter remember if it's not a whitespace
+						size_t len = str1.length();
+						size_t spos2 = str1.find_last_of(BreakChars);
+						if (len == spos2+1)
+							bChar = str1.substr(spos2, spos2+1);
+						else
+							bChar = "";
+						// Remove last delimiter
+						str1 = str1.substr(0, spos);
+					}
+					// Width of string with delimiter
+					wStr1 = g_Font[HintFont]->getRenderWidth(str1 + bChar);
+					count++;
+					if (count > 20)
+						break;
+				}
+				// Last delimiter append again
+				str1 += bChar;
+				str2 = str.substr(spos+1);
+			}
+		}
+		ypos2 += (hint_height-fheight*2)/2;
+		if (!str1.empty())
+			g_Font[HintFont]->RenderString(x+offset, ypos2+fheight, wBox, str1, COL_MENUCONTENT, 0, true); // UTF-8
+		if (!str2.empty())
+			g_Font[HintFont]->RenderString(x+offset, ypos2+fheight*2, wBox, str2, COL_MENUCONTENT, 0, true); // UTF-8
+	}
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
