@@ -1892,15 +1892,15 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 4, fh /*m_info_height*/, col1);
 
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 4, ypos2a - ypos1a, col1);
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a+1, 4, ypos2a - ypos1a-1, col1);
 
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 12, 4, col1);
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos2a, 12, 4, col1);
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 15, ypos1a, 11, 4, col1);
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 15, ypos2a, 11, 4, col1);
 
 		// 2. col small line
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 1, fh /*m_info_height*/, col2);
 
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 1, ypos2a - ypos1a + 4, col2);
+		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a+1, 1, ypos2a - ypos1a + 4-1, col2);
 
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 12, 1, col2);
 		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 12, ypos2a,  8, 1, col2);
