@@ -521,6 +521,7 @@ fontsize.infobar_info Info
 fontsize.infobar_number Nummer
 fontsize.infobar_small Klein
 fontsize.menu Menütext
+fontsize.menu_hint Menühinweise
 fontsize.menu_info Menüinfo
 fontsize.menu_title Menütitel
 hdd_10min 10 min.

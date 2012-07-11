@@ -548,6 +548,7 @@ const char * locale_real_names[] =
 	"fontsize.infobar_number",
 	"fontsize.infobar_small",
 	"fontsize.menu",
+	"fontsize.menu_hint",
 	"fontsize.menu_info",
 	"fontsize.menu_title",
 	"hdd_10min",

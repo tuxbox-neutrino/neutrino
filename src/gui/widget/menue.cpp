@@ -1141,7 +1141,7 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	if (item->hint == NONEXISTANT_LOCALE)
 		return;
 
-	int HintFont = SNeutrinoSettings::FONT_TYPE_MENU_INFO;
+	int HintFont = SNeutrinoSettings::FONT_TYPE_MENU_HINT;
 	int fheight = g_Font[HintFont]->getHeight();
 
 	std::string str1, str2;

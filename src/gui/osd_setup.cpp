@@ -121,17 +121,18 @@ const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
 	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
 };
 
-const SNeutrinoSettings::FONT_TYPES other_font_sizes[4] =
+const SNeutrinoSettings::FONT_TYPES other_font_sizes[5] =
 {
 	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
 	SNeutrinoSettings::FONT_TYPE_MENU,
 	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
+	SNeutrinoSettings::FONT_TYPE_MENU_HINT,
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
 };
 
 font_sizes_groups font_sizes_groups[6] =
 {
-	{LOCALE_FONTMENU_MENU       , 4, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
+	{LOCALE_FONTMENU_MENU       , 5, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
 	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
@@ -166,7 +167,8 @@ font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1}
+	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_MENU_HINT          ,  16, FONT_STYLE_REGULAR, 0}
 };
 
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
