@@ -1109,15 +1109,15 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+rad, 1 , markh, col2);
 
 	/* vertical connect line [ */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 4, ypos2a-ypos1a, col1);
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 1, ypos2a-ypos1a+4, col2);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a+1, 4, ypos2a-ypos1a-1, col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a+1, 1, ypos2a-ypos1a+4-1, col2);
 
 	/* vertical item line | */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12, 4, col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 11, 4, col1);
 	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12, 1, col2);
 
 	/* vertical info line | */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12, 4, col1);
+	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos2a, 11, 4, col1);
 	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8, 1, col2);
 #if 0
 	/* box shadow */
