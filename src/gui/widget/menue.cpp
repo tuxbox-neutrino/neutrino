@@ -1069,13 +1069,13 @@ void CMenuWidget::paintHint(int pos)
 
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos2 = y + height + rad + SHADOW_OFFSET;
-	int iwidth = width+sb_width+SHADOW_OFFSET;
+	int iwidth = width+sb_width;
 
 	if (hint_painted) {
 		/* clear line box */
 		frameBuffer->paintBackgroundBoxRel(xpos, y+SHADOW_OFFSET, ConnectLineBox_Width, height+hint_height+rad);
 		/* clear info box */
-		frameBuffer->paintBackgroundBoxRel(x, ypos2, iwidth, hint_height);
+		frameBuffer->paintBackgroundBoxRel(x, ypos2, iwidth+SHADOW_OFFSET, hint_height+SHADOW_OFFSET);
 
 		hint_painted = false;
 	}
@@ -1119,10 +1119,9 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	/* vertical info line | */
 	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos2a, 11, 4, col1);
 	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8, 1, col2);
-#if 0
+
 	/* box shadow */
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, ypos2+SHADOW_OFFSET, width + sb_width, hint_height, COL_MENUCONTENTDARK_PLUS_0, rad);
-#endif
 	/* box frame and fill */
 	frameBuffer->paintBoxFrame(x, ypos2, iwidth, hint_height, 2, col1, rad);
 	/* box frame and fill */
