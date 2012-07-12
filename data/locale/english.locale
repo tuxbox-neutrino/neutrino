@@ -642,7 +642,7 @@ lcdmenu.statusline.both volume / playtime
 lcdmenu.statusline.playtime playtime
 lcdmenu.statusline.volume volume
 ledcontroler.blink Blink in deep standby, if timer set
-ledcontroler.menu Power Button LED�s
+ledcontroler.menu Power Button LEDs
 ledcontroler.mode.deepstandby Deep Standby
 ledcontroler.mode.record Blinke in Record
 ledcontroler.mode.standby Standby
@@ -901,8 +901,33 @@ menu.hint_gamelist_fonts Change games and scripts list font sizes
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
 menu.hint_screen_setup Configure screen margins
 menu.hint_infobar_setup Configure infobar options
+menu.hint_infobar_casys On: display all with colored active, mini: single\nlocked icon, descreet: all active ca-sys
+menu.hint_infobar_logo Logo / signal options
+menu.hint_infobar_logo_dir Select directory to search for channels logo
+menu.hint_infobar_sat Show current satellite or cable provider
+menu.hint_infobar_filesys Show flash and HDD used space levels
+menu.hint_infobar_res Show channel resolution icons
+menu.hint_infobar_dd Show DD icon
+menu.hint_infobar_tuner Show active tuner number icon
+menu.hint_infobar_onepg Show infobar on current EPG event change
+menu.hint_infobar_colored_event Use different color for current or next event
+menu.hint_infobar_radiotext Show radiotext window
+
 menu.hint_channellist_setup Configure channe list GUI options
+menu.hint_channellist_epg_align EPG event align
+menu.hint_channellist_extended Show current event progress bar
+menu.hint_channellist_foot Show additional information\nin bottom box
+menu.hint_channellist_colored Use different color for current or next event
+
 menu.hint_screenshot_setup Configure screenshots options
+menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
+menu.hint_screenshot_format File format to save screenshot
+menu.hint_screenshot_dir Select directory to save screenshots
+menu.hint_screenshot_res Screenshot size: current channel's video size\nor OSD size (1280x720)
+menu.hint_screenshot_video Include live video in screenshot
+menu.hint_screenshot_scale For video+OSD screenshots, scale to video size
+menu.hint_screenshot_cover ON: When playing record, overwrite single\nscreenshot to show inside MovieBrowser
+
 menu.hint_osd_preset Pre-configured screen margins for CRT and LCD TV
 menu.hint_rounded_corners Draw round or rectangular windows corners 
 menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
@@ -910,10 +935,34 @@ menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_volume_pos Select volume indicator position
 menu.hint_show_mute_icon Show mute icon, when volume set to 0
 menu.hint_menu_pos Select menu position
-menu.hint_menu_hints Show this hints.i Also you can switch\nit any time using 'help' button
+menu.hint_menu_hints Show this hints. Also you can switch\nit any time using 'help' button
 menu.hint_fade Fade GUI windows
 menu.hint_bigwindows Always show big epg detail window\nelse 'info' button switch big font + window size
 menu.hint_progressbar_color Show colored progress bars
+
+menu.hint_vfd_brightness_setup Configure frontpanel display brightness\nfor different modes
+menu.hint_vfd_brightness Working brightness 
+menu.hint_vfd_brightnessstandby Brightness in soft-standby mode
+menu.hint_vfd_brightnessdeepstandby Brightness in deep-standby mode
+menu.hint_vfd_brightnessdim Auto-dim brightness
+menu.hint_vfd_dimtime Auto-dim time, in seconds
+menu.hint_vfd_defaults Restore default brightness values
+menu.hint_vfd_statusline Choose what to display in short\nVFD status line
+menu.hint_vfd_infoline Choose what to display in main VFD line
+menu.hint_power_leds Configure power-button LEDs behavior
+menu.hint_leds_tv Working LEDs state
+menu.hint_leds_standby LEDs state in soft-standby mode
+menu.hint_leds_deepstandby LEDs state in deeps-standby mode
+menu.hint_leds_record LEDs state when box recording
+menu.hint_leds_blink Blink LEDS in deep-standby
+
+menu.hint_hdd_apply Apply sleep/noise parameters
+menu.hint_hdd_sleep Select time to stop hdd on inactivity
+menu.hint_hdd_noise Set Automatic Acoustic Management\nnot all drives support this
+menu.hint_hdd_tools Initialize HDD, check filesystem
+menu.hint_hdd_format Create HDD partition and format it
+menu.hint_hdd_check Check filesystem (fsck)
+menu.hint_hdd_not_found No hdd found
 
 menu.next Next (press Menu to quit)
 messagebox.back Back
@@ -954,12 +1003,12 @@ miscsettings.infobar_casystem_mini mini
 miscsettings.infobar_casystem_mode discreet
 miscsettings.infobar_colored_events Program colored
 miscsettings.infobar_disp_0 without Logo
-miscsettings.infobar_disp_1 Logo 1
-miscsettings.infobar_disp_2 Logo 2
-miscsettings.infobar_disp_3 Logo 3
-miscsettings.infobar_disp_4 Logo 4
-miscsettings.infobar_disp_5 Logo 5
-miscsettings.infobar_disp_6 Logo 6
+miscsettings.infobar_disp_1 Logo in number box
+miscsettings.infobar_disp_2 Logo+channel number
+miscsettings.infobar_disp_3 Logo+channel name+signal
+miscsettings.infobar_disp_4 Logo+channel name/number
+miscsettings.infobar_disp_5 Logo+signal
+miscsettings.infobar_disp_6 Logo+channel number+signal
 miscsettings.infobar_disp_log Logo
 miscsettings.infobar_logo_hdd_dir Logo dir
 miscsettings.infobar_sat_display Satellite display on infobar
