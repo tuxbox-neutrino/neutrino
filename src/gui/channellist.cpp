@@ -1579,16 +1579,16 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 1,info_height-14, col2);
 
 			/* vertical connect line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a+1, 4,ypos2a-ypos1a-1, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a+1, 1,ypos2a-ypos1a+4-1, col2);
+			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 3,ypos2a-ypos1a+3, col1);
+			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16+3, ypos1a+3, 1,ypos2a-ypos1a-3, col2);
 
 			/* vertical item line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos1a, 11,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,1, col2);
+			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,3, col1);
+			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16+3, ypos1a+3, 12-3,1, col2);
 
 			/* vertical info line */
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-15, ypos2a, 11,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,1, col2);
+			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,3, col1);
+			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a+3, 12,1, col2);
 
 //			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, RADIUS_LARGE);
 			frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
