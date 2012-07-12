@@ -68,6 +68,7 @@ CVFD::CVFD()
 	text[0] = 0;
 	clearClock = 0;
 	mode = MODE_TVRADIO;
+	switch_name_time_cnt = 0;
 }
 
 CVFD::~CVFD()
@@ -88,7 +89,7 @@ CVFD* CVFD::getInstance()
 void CVFD::count_down() {
 	if (timeout_cnt > 0) {
 		timeout_cnt--;
-		if (timeout_cnt == 0) {
+		if (timeout_cnt == 0 ) {
 			if (g_settings.lcd_setting_dim_brightness > -1) {
 				// save lcd brightness, setBrightness() changes global setting
 				int b = g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS];
@@ -96,6 +97,14 @@ void CVFD::count_down() {
 				g_settings.lcd_setting[SNeutrinoSettings::LCD_BRIGHTNESS] = b;
 			} else {
 				setPower(0);
+			}
+		}
+	}
+	if (g_settings.lcd_info_line && switch_name_time_cnt > 0) {
+	  switch_name_time_cnt--;
+		if (switch_name_time_cnt == 0) {
+			if (g_settings.lcd_setting_dim_brightness > -1) {
+				CVFD::getInstance()->showTime(true);
 			}
 		}
 	}
@@ -110,6 +119,9 @@ void CVFD::wake_up() {
 	}
 	else
 		setPower(1);
+	if(g_settings.lcd_info_line){
+		switch_name_time_cnt = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + 10;
+	}
 }
 
 void* CVFD::TimeThread(void *)
@@ -288,7 +300,7 @@ void CVFD::showTime(bool force)
 
 			ftime(&tm);
 			t = localtime(&tm.time);
-			if(force || ((hour != t->tm_hour) || (minute != t->tm_min))) {
+			if(force || ( switch_name_time_cnt == 0 && ((hour != t->tm_hour) || (minute != t->tm_min))) ) {
 				hour = t->tm_hour;
 				minute = t->tm_min;
 				strftime(timestr, 20, "%H:%M", t);
@@ -495,7 +507,7 @@ void CVFD::setMode(const MODES m, const char * const title)
 		showServicename(servicename);
 		showclock = true;
 		if(g_settings.lcd_info_line)
-			showTime();      /* "showclock = true;" implies that "showTime();" does a "displayUpdate();" */
+			switch_name_time_cnt = g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] + 10;
 		break;
 	case MODE_AUDIO:
 	{
