@@ -121,17 +121,18 @@ const SNeutrinoSettings::FONT_TYPES gamelist_font_sizes[2] =
 	SNeutrinoSettings::FONT_TYPE_GAMELIST_ITEMSMALL
 };
 
-const SNeutrinoSettings::FONT_TYPES other_font_sizes[4] =
+const SNeutrinoSettings::FONT_TYPES other_font_sizes[5] =
 {
 	SNeutrinoSettings::FONT_TYPE_MENU_TITLE,
 	SNeutrinoSettings::FONT_TYPE_MENU,
 	SNeutrinoSettings::FONT_TYPE_MENU_INFO,
+	SNeutrinoSettings::FONT_TYPE_MENU_HINT,
 	SNeutrinoSettings::FONT_TYPE_FILEBROWSER_ITEM
 };
 
 font_sizes_groups font_sizes_groups[6] =
 {
-	{LOCALE_FONTMENU_MENU       , 4, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
+	{LOCALE_FONTMENU_MENU       , 5, other_font_sizes      , "fontsize.doth", LOCALE_MENU_HINT_MENU_FONTS },
 	{LOCALE_FONTMENU_CHANNELLIST, 4, channellist_font_sizes, "fontsize.dcha", LOCALE_MENU_HINT_CHANNELLIST_FONTS },
 	{LOCALE_FONTMENU_EVENTLIST  , 4, eventlist_font_sizes  , "fontsize.deve", LOCALE_MENU_HINT_EVENTLIST_FONTS },
 	{LOCALE_FONTMENU_EPG        , 4, epg_font_sizes        , "fontsize.depg", LOCALE_MENU_HINT_EPG_FONTS },
@@ -166,7 +167,8 @@ font_sizes_struct neutrino_font[FONT_TYPE_COUNT] =
 	{LOCALE_FONTSIZE_INFOBAR_CHANNAME   ,  30, FONT_STYLE_BOLD   , 0},
 	{LOCALE_FONTSIZE_INFOBAR_INFO       ,  20, FONT_STYLE_REGULAR, 1},
 	{LOCALE_FONTSIZE_INFOBAR_SMALL      ,  14, FONT_STYLE_REGULAR, 1},
-	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1}
+	{LOCALE_FONTSIZE_FILEBROWSER_ITEM   ,  16, FONT_STYLE_BOLD   , 1},
+	{LOCALE_FONTSIZE_MENU_HINT          ,  16, FONT_STYLE_REGULAR, 0}
 };
 
 int COsdSetup::exec(CMenuTarget* parent, const std::string &actionKey)
@@ -457,7 +459,7 @@ int COsdSetup::showOsdSetup()
 
 	// subchannel menu position
 	mc = new CMenuOptionChooser(LOCALE_INFOVIEWER_SUBCHAN_DISP_POS, &g_settings.infobar_subchan_disp_pos, INFOBAR_SUBCHAN_DISP_POS_OPTIONS, INFOBAR_SUBCHAN_DISP_POS_OPTIONS_COUNT, true);
-	mc->setHint("", LOCALE_MENU_HINT_SUBCHAN_POS);
+	mc->setHint("", LOCALE_MENU_HINT_SUBCHANNEL_POS);
 	osd_menu->addItem(mc);
 
 	// volume position
@@ -531,7 +533,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUHEAD));
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chHeadcolor );
-	mf->setHint("", LOCALE_MENU_HINT_HEAD_BACKGROUND);
+	mf->setHint("", LOCALE_MENU_HINT_HEAD_BACK);
 	menu_colors->addItem(mf);
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chHeadTextcolor );
@@ -540,7 +542,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUCONTENT));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentcolor );
-	mf->setHint("", LOCALE_MENU_HINT_CONTENT_BACKGROUND);
+	mf->setHint("", LOCALE_MENU_HINT_CONTENT_BACK);
 	menu_colors->addItem(mf);
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentTextcolor );
@@ -549,7 +551,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUCONTENT_INACTIVE));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentInactivecolor );
-	mf->setHint("", LOCALE_MENU_HINT_INACTIVE_BACKGROUND);
+	mf->setHint("", LOCALE_MENU_HINT_INACTIVE_BACK);
 	menu_colors->addItem(mf);
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentInactiveTextcolor);
@@ -558,11 +560,11 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORMENUSETUP_MENUCONTENT_SELECTED));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chContentSelectedcolor );
-	mf->setHint("", LOCALE_MENU_HINT_SELECTED_BACKGROUND);
+	mf->setHint("", LOCALE_MENU_HINT_SELECTED_BACK);
 	menu_colors->addItem(mf);
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chContentSelectedTextcolor );
-	mf->setHint("", LOCALE_MENU_HINT_SELECTED_TEXTCOLOR);
+	mf->setHint("", LOCALE_MENU_HINT_SELECTED_TEXT);
 	menu_colors->addItem(mf);
 
 	CColorChooser* chInfobarcolor = new CColorChooser(LOCALE_COLORMENU_BACKGROUND, &g_settings.infobar_red,
@@ -572,7 +574,7 @@ void COsdSetup::showOsdMenueColorSetup(CMenuWidget *menu_colors)
 
 	menu_colors->addItem( new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_COLORSTATUSBAR_TEXT));
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_BACKGROUND, true, NULL, chInfobarcolor );
-	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_BACKGROUND);
+	mf->setHint("", LOCALE_MENU_HINT_INFOBAR_BACK);
 	menu_colors->addItem(mf);
 
 	mf = new CMenuDForwarder(LOCALE_COLORMENU_TEXTCOLOR, true, NULL, chInfobarTextcolor );
