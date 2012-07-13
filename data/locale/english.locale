@@ -985,6 +985,20 @@ menu.hint_key_plugin Assign button to start selected plugin\nwhile playing recor
 menu.hint_key_unlock Assign button to unlock box if locked\nTo unlock press 'red', then in next 5 seconds this key
 menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
 
+menu.hint_audioplayer_order Change playlist sort order
+menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
+menu.hint_audioplayer_title Enable SMS-style title search in playlist
+menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
+menu.hint_audioplayer_playlist Show playlist items
+menu.hint_audioplayer_screensaver Set screensaver timeout, in minutes
+menu.hint_audioplayer_highprio Increase playback priority
+menu.hint_audioplayer_defdir Default audioplayer directory
+menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
+
+menu.hint_pictureviewer_scaling Picture scaling algorithm
+menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
+menu.hint_pictureviewer_defdir Default picture viewer directory
+
 menu.next Next (press Menu to quit)
 messagebox.back Back
 messagebox.cancel Cancel
