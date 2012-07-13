@@ -142,10 +142,48 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 
 	CNetworkService * items[SERVICE_COUNT];
 
+	//telnetd used inetd
+	bool useinetd = false;
+	char line[256];
+	
+	FILE* fd = fopen("/etc/inetd.conf", "r");
+	    if(fd)
+	    {
+		while(!feof(fd))
+		{
+			fgets(line, 255, fd);
+			{
+				if (strstr(line, "telnetd") != NULL)
+				{
+					useinetd = true;
+					break;
+				}
+			}
+		}
+		fclose(fd);
+	    }
+
+	//set active when found
+	int active;
+		
 	for(unsigned i = 0; i < SERVICE_COUNT; i++) {
 		items[i] = new CNetworkService(services[i].cmd, services[i].options);
 		services[i].enabled = items[i]->Enabled();
-		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, items[i], CRCInput::convertDigitToKey(shortcut++), "");
+
+		std::string execute1 = "/bin/" + services[i].cmd;
+		std::string execute2 = "/sbin/" + services[i].cmd;
+
+		active = false;
+		if ( !(access(execute1.c_str(), F_OK)) || !(access(execute2.c_str(), F_OK)) )
+			active = true;
+			
+		if ( (services[i].name == "Telnet") && useinetd)
+			active = false;
+		
+		CMenuOptionChooser * mc = new CMenuOptionChooser(services[i].name.c_str(), &services[i].enabled, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, active, items[i], CRCInput::convertDigitToKey(shortcut), "");
+		if (active)
+			shortcut++;
+
 		mc->setHint(services[i].icon, services[i].hint);
 		setup->addItem(mc);
 	}
