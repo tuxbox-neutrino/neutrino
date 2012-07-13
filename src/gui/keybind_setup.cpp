@@ -348,9 +348,10 @@ void CKeybindSetup::showKeyBindModeSetup(CMenuWidget *bindSettings_modes)
 void CKeybindSetup::showKeyBindChannellistSetup(CMenuWidget *bindSettings_chlist)
 {
 	bindSettings_chlist->addIntroItems(LOCALE_KEYBINDINGMENU_CHANNELLIST);
+#if 0
 	CMenuOptionChooser *oj = new CMenuOptionChooser(LOCALE_KEYBINDINGMENU_BOUQUETHANDLING, &g_settings.bouquetlist_mode, KEYBINDINGMENU_BOUQUETHANDLING_OPTIONS, KEYBINDINGMENU_BOUQUETHANDLING_OPTION_COUNT, true );
 	bindSettings_chlist->addItem(oj);
-
+#endif
 	for (int i = KEY_PAGE_UP; i <= KEY_CURRENT_TRANSPONDER; i++) {
 		CMenuForwarder * mf = new CMenuDForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
@@ -377,7 +378,7 @@ void CKeybindSetup::showKeyBindMovieplayerSetup(CMenuWidget *bindSettings_mplaye
 {
 	bindSettings_mplayer->addIntroItems(LOCALE_MAINMENU_MOVIEPLAYER);
 
-	for (int i = MPKEY_REWIND; i <= MPKEY_PLUGIN; i++) {
+	for (int i = MPKEY_REWIND; i < MPKEY_PLUGIN; i++) {
 		CMenuForwarder * mf = new CMenuDForwarder(key_settings[i].keydescription, true, keychooser[i]->getKeyName(), keychooser[i]);
 		mf->setHint("", key_settings[i].hint);
 		bindSettings_mplayer->addItem(mf);
