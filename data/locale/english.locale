@@ -938,6 +938,53 @@ menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
 menu.hint_volume_pos Select volume indicator position
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
+
+menu.hint_key_binding Re-define keys used for common operations
+menu.hint_key_load Load keybindings from file
+menu.hint_key_save Save keybindings to file
+menu.hint_key_hardware Change remote control type
+menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
+menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
+menu.hint_key_modechange Change TV/Radio mode and standby keys
+menu.hint_key_channellist Configure keybingdings for channel list
+menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
+menu.hint_key_movieplayer Configure keybingdings for movie player
+menu.hint_key_left_exit Allow return to previous menu with 'left' key
+menu.hint_key_audio On: 'audio' button start show audio-play menu\nOff: 'audio' button show Audio selection
+menu.hint_key_right Select 'right' function in live TV/Radio mode
+menu.hint_key_tvradiomode Assign button to switch TV <> Radio mode
+menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
+menu.hint_key_pageup Assign button to show previous items page
+menu.hint_key_pagedown Assign button to show next items page
+menu.hint_key_list_start Assign button to go to list start
+menu.hint_key_list_end Assign button to go do list end
+menu.hint_key_cancel Assign button to close GUI window
+menu.hint_key_sort Assign button to change channel list sort order
+menu.hint_key_addrecord Assign button to add record timer\nfrom event list
+menu.hint_key_addremind Assign button to add zap timer\nfrom event list
+menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
+menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
+menu.hint_key_transponder Assign button to show channel list\nfor current transponder
+menu.hint_key_channel_sms If enabled, numeric buttons in channel list\nused to search channel in SMS style
+menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
+menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
+menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
+menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
+menu.hint_key_history Assign button to show channel\nchannel switch history
+menu.hint_key_lastchannel Assign button for fast zap to\nprevious channel in history
+menu.hint_key_mprewind Assign button to rewind record playback
+menu.hint_key_mpforward Assign button to fast forward record playback
+menu.hint_key_mppause Assign button to pause record/file playback
+menu.hint_key_mpstop Assign button to stop record/file playback
+menu.hint_key_mpplay Assign button to resume record/file playback
+menu.hint_key_mpaudio Assign button to show audio selection\nin record/file playback mode
+menu.hint_key_mptime Assign button to show play time\nleft time
+menu.hint_key_mpbookmark Assign button to create bookmark\nwhile playing record
+menu.hint_key_mptimeshift Assign button to start timeshift
+menu.hint_key_plugin Assign button to start selected plugin\nwhile playing record/file
+menu.hint_key_unlock Assign button to unlock box if locked\nTo unlock press 'red', then in next 5 seconds this key
+menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
+
 menu.next Next (press Menu to quit)
 messagebox.back Back
 messagebox.cancel Cancel
