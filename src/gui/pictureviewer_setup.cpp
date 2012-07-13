@@ -33,7 +33,6 @@
 #include <config.h>
 #endif
 
-
 #include "gui/pictureviewer_setup.h"
 
 #include <global.h>
@@ -82,10 +81,9 @@ int CPictureViewerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	res = showPictureViewerSetup();
-	
+
 	return res;
 }
-
 
 #define PICTUREVIEWER_SCALING_OPTION_COUNT 3
 const CMenuOptionChooser::keyval PICTUREVIEWER_SCALING_OPTIONS[PICTUREVIEWER_SCALING_OPTION_COUNT] =
@@ -95,21 +93,27 @@ const CMenuOptionChooser::keyval PICTUREVIEWER_SCALING_OPTIONS[PICTUREVIEWER_SCA
 	{ CPictureViewer::NONE  , LOCALE_PICTUREVIEWER_RESIZE_NONE          }
 };
 
-
 /*shows the picviewer setup menue*/
 int CPictureViewerSetup::showPictureViewerSetup()
 {
-
 	CMenuWidget* picviewsetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_PVIEWERSETUP);
 
 	// intros: back ande save
 	picviewsetup->addIntroItems(LOCALE_PICTUREVIEWER_HEAD);
 
-	picviewsetup->addItem(new CMenuOptionChooser(LOCALE_PICTUREVIEWER_SCALING  , &g_settings.picviewer_scaling     , PICTUREVIEWER_SCALING_OPTIONS  , PICTUREVIEWER_SCALING_OPTION_COUNT  , true ));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_PICTUREVIEWER_SCALING, &g_settings.picviewer_scaling, PICTUREVIEWER_SCALING_OPTIONS, PICTUREVIEWER_SCALING_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_SCALING);
+	picviewsetup->addItem(mc);
+
 	CStringInput pic_timeout(LOCALE_PICTUREVIEWER_SLIDE_TIME, g_settings.picviewer_slide_time, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ");
-	picviewsetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_SLIDE_TIME, true, g_settings.picviewer_slide_time, &pic_timeout));
-	picviewsetup->addItem(new CMenuForwarder(LOCALE_PICTUREVIEWER_DEFDIR, true, g_settings.network_nfs_picturedir, this, "picturedir"));
-	
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PICTUREVIEWER_SLIDE_TIME, true, g_settings.picviewer_slide_time, &pic_timeout);
+	mf->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_SLIDE_TIME);
+	picviewsetup->addItem(mf);
+
+	mf = new CMenuForwarder(LOCALE_PICTUREVIEWER_DEFDIR, true, g_settings.network_nfs_picturedir, this, "picturedir");
+	mf->setHint("", LOCALE_MENU_HINT_PICTUREVIEWER_DEFDIR);
+	picviewsetup->addItem(mf);
+
 	int res = picviewsetup->exec(NULL, "");
 	delete picviewsetup;
 	return res;
