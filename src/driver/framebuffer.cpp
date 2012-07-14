@@ -1279,6 +1279,8 @@ void CFrameBuffer::paintPixel(const int x, const int y, const fb_pixel_t col)
 	#ifdef USE_NEVIS_GXA
 	paintHLineRel(x, 1, y, col);
 	#else
+	if (x > xRes || y > yRes || x < 0 || y < 0)
+		return;
 	fb_pixel_t * pos = getFrameBufferPointer();
 	pos += (stride / sizeof(fb_pixel_t)) * y;
 	pos += x;
