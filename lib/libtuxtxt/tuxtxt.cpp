@@ -200,6 +200,9 @@ int toptext_getnext(int startpage, int up, int findgroup)
 	nextgrp = nextblk = 0;
 	current = startpage;
 
+	if (startpage == 0)
+		return 0;
+
 	do {
 		if (up)
 			tuxtxt_next_dec(&current);
@@ -5499,7 +5502,7 @@ void CreateLine25()
 		showlink(3, next_100);
 	}
 
-	if (//tuxtxt_cache.bttok &&
+	if (tuxtxt_cache.bttok &&
 		 screenmode == 1) /* TOP-Info present, divided screen -> create TOP overview */
 	{
 		char line[TOPMENUCHARS];
