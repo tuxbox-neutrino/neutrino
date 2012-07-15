@@ -53,7 +53,7 @@ CVfdSetup::CVfdSetup()
 {
 	width = w_max (40, 10);
 	dim_time = NULL;
-	vfd_enabled = true; //(cs_get_revision() != 10);
+	vfd_enabled = (cs_get_revision() != 10);
 }
 
 CVfdSetup::~CVfdSetup()
