@@ -1773,10 +1773,10 @@ fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms
 		dprintf(DEBUG_NORMAL, "Loading of scan settings failed. Using defaults.\n");
 	}
 fprintf(stderr, "[neutrino start] %d  -> %5ld ms\n", __LINE__, time_monotonic_ms() - starttime);
-#if HAVE_TRIPLEDRAGON
-	/* only SAT-hd1 before rev 8 has fan, rev 1 is TD (compat hack) */
-	g_info.has_fan = (cs_get_revision() > 1 && cs_get_revision() < 8 && g_info.delivery_system == DVB_S);
+#if !HAVE_COOL_HARDWARE
+	g_info.has_fan = 0;
 #else
+	/* only SAT-hd1 before rev 8 has fan */
 	g_info.has_fan = (cs_get_revision()  < 8 && g_info.delivery_system == DVB_S);
 #endif
 
