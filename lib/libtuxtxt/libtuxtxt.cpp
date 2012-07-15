@@ -37,6 +37,8 @@ int tuxtxt_init()
 	tuxtxt_cache.vtxtpid = -1;
 	tuxtxt_cache.thread_id = 0;
 	tuxtxt_cache.dmx = -1;
+	/* not sure if this is correct here... */
+	tuxtxt_cache.page = 0x100;
 	return 1;//tuxtxt_init_demuxer();
 }
 
