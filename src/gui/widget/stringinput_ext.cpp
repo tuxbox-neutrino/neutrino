@@ -116,13 +116,21 @@ void CExtendedInput::calculateDialog()
 
 	hintPosY = height -10;
 
-	if (hint_1 != NONEXISTANT_LOCALE)
+	if (hint_1 != NONEXISTANT_LOCALE) {
 		height += iheight;
-	if (hint_2 != NONEXISTANT_LOCALE)
+		int hw =  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_1), true);
+		if(width < hw + 40)
+			width = hw + 40;
+	}
+	if (hint_2 != NONEXISTANT_LOCALE) {
 		height += iheight;
+		int hw =  g_Font[SNeutrinoSettings::FONT_TYPE_MENU_INFO]->getRenderWidth(g_Locale->getText(hint_2), true);
+		if(width < hw)
+			width = hw;
+	}
 
-	x = ((frameBuffer->getScreenWidth() - width)>>1);
-	y = ((frameBuffer->getScreenHeight() - height)>>1);
+	x = frameBuffer->getScreenX() + ((frameBuffer->getScreenWidth() - width)>>1);
+	y = frameBuffer->getScreenY() + ((frameBuffer->getScreenHeight() - height)>>1);
 
 	hintPosY += y;
 }
