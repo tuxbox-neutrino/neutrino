@@ -93,7 +93,6 @@ class CMenuItem
 		bool           	active;
 		neutrino_msg_t 	directKey;
 		neutrino_msg_t 	msg;
-		bool		can_arrow;
 		std::string    	iconName;
 		std::string    	selected_iconName;
 		std::string    	iconName_Info_right;

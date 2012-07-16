@@ -61,7 +61,6 @@ CMenuItem::CMenuItem()
 	directKey = CRCInput::RC_nokey;
 	iconName = "";
 	iconName_Info_right = "";
-	can_arrow = false;
 	used = false;
 	icon_frame_w = 10;
 	hint = NONEXISTANT_LOCALE;
@@ -509,7 +508,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		
 	do {
 		if(hasItem() && selected >= 0 && (int)items.size() > selected )
-			bAllowRepeatLR = items[selected]->can_arrow;
+			bAllowRepeatLR = items[selected]->isMenueOptionChooser(); //can_arrow;
 
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, bAllowRepeatLR);
 
@@ -643,12 +642,13 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 					break;
 				case (CRCInput::RC_left):
 					{
-						CMenuItem* itemX = items[selected];
-						int menu_left_exit = (itemX->isMenueOptionChooser() == 1) ? 0 : g_settings.menu_left_exit;
-						if ((hasItem() && (selected < 0 || !items[selected]->can_arrow)) ||
-							menu_left_exit) {
-							msg = CRCInput::RC_timeout;
-							break;
+						if(hasItem() && selected > -1 && (int)items.size() > selected) {
+							CMenuItem* itemX = items[selected];
+							if (!itemX->isMenueOptionChooser()) {
+								if (g_settings.menu_left_exit)
+									msg = CRCInput::RC_timeout;
+								break;
+							}
 						}
 					}
 				case (CRCInput::RC_right):
@@ -1224,7 +1224,6 @@ CMenuOptionNumberChooser::CMenuOptionNumberChooser(const neutrino_locale_t name,
 	localized_value_name = special_value_name;
 	
 	optionString         = non_localized_name;
-	can_arrow	= true;
 	observ = Observ;
 	slider_on = sliderOn;
 }
@@ -1288,7 +1287,6 @@ CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int *
 	observ            = Observ;
 	directKey         = DirectKey;
 	iconName          = IconName;
-	can_arrow	= true;
 	pulldown = Pulldown;
 	for (unsigned int i = 0; i < number_of_options; i++)
 	{
@@ -1311,7 +1309,6 @@ CMenuOptionChooser::CMenuOptionChooser(const char* OptionName, int * const Optio
 	observ            = Observ;
 	directKey         = DirectKey;
 	iconName          = IconName;
-	can_arrow	= true;
 	pulldown = Pulldown;
 	for (unsigned int i = 0; i < number_of_options; i++)
 	{
@@ -1336,7 +1333,6 @@ CMenuOptionChooser::CMenuOptionChooser(const neutrino_locale_t OptionName, int *
 	observ            = Observ;
 	directKey         = DirectKey;
 	iconName          = IconName;
-	can_arrow	= true;
 	pulldown = Pulldown;
 	for (unsigned int i = 0; i < number_of_options; i++)
 		options.push_back(Options[i]);
@@ -1355,7 +1351,6 @@ CMenuOptionChooser::CMenuOptionChooser(const char* OptionName, int * const Optio
 	observ            = Observ;
 	directKey         = DirectKey;
 	iconName          = IconName;
-	can_arrow	= true;
 	pulldown = Pulldown;
 	for (unsigned int i = 0; i < number_of_options; i++)
 		options.push_back(Options[i]);
@@ -1515,7 +1510,6 @@ CMenuOptionStringChooser::CMenuOptionStringChooser(const neutrino_locale_t Optio
 
 	directKey         = DirectKey;
 	iconName          = IconName;
-	can_arrow = true;
 	pulldown = Pulldown;
 }
 
@@ -1530,7 +1524,6 @@ CMenuOptionStringChooser::CMenuOptionStringChooser(const char* OptionName, char*
 
 	directKey         = DirectKey;
 	iconName          = IconName;
-	can_arrow = true;
 	pulldown = Pulldown;
 }
 
