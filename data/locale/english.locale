@@ -577,7 +577,7 @@ infoviewer.subchan_infobar Full infobar
 infoviewer.subservice Subservices
 infoviewer.waittime Waiting for time...
 ipsetup.hint_1 Use 0..9, or use Up/Down,
-ipsetup.hint_2 OK saves, LAME! aborts
+ipsetup.hint_2 OK saves, Exit aborts
 keybindingmenu.addrecord add record timer
 keybindingmenu.addremind add zapto timer
 keybindingmenu.allchannels_on_ok all-services
