@@ -787,7 +787,7 @@ void CMenuWidget::calcSize()
 	}
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
-		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
+		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
 		hint_height = 10 + 2*fheight;
 		/* assuming all hint icons has the same size ! */
 		int iw, ih;
