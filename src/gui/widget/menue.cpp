@@ -35,7 +35,7 @@
 #include <driver/screen_max.h>
 
 #include <gui/widget/stringinput.h>
-#include <gui/widget/components.h>
+
 #include <global.h>
 #include <neutrino.h>
 #include <neutrino_menue.h>
@@ -323,6 +323,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
+	details_line = NULL;
 	 
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
@@ -391,6 +392,7 @@ CMenuWidget::~CMenuWidget()
 	page_start.clear();
 #endif
 	resetWidget(true);
+	delete details_line;
 }
 
 void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
@@ -1076,8 +1078,9 @@ void CMenuWidget::paintHint(int pos)
 	int iwidth = width+sb_width;
 
 	if (hint_painted) {
-		/* clear line box */
-		frameBuffer->paintBackgroundBoxRel(xpos, y+SHADOW_OFFSET, ConnectLineBox_Width, height+hint_height+rad);
+		/* clear detailsline line */
+		if (details_line != NULL)
+			details_line->hide();
 		/* clear info box */
 		frameBuffer->paintBackgroundBoxRel(x, ypos2, iwidth+SHADOW_OFFSET, hint_height+SHADOW_OFFSET);
 
@@ -1102,8 +1105,12 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	int ypos2a = ypos2 + (hint_height/2)-2;
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
-	CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, imarkh, markh);
-	details_line.paint();
+	
+	if (details_line == NULL)
+		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
+	else
+		details_line->setYPos(ypos1a);
+	details_line->paint();
 
 	/* box shadow */
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, ypos2+SHADOW_OFFSET, width + sb_width, hint_height, COL_MENUCONTENTDARK_PLUS_0, rad);
