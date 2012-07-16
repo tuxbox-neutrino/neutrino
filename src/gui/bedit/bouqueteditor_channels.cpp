@@ -38,7 +38,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-
+#include <gui/widget/components.h>
 #include "bouqueteditor_channels.h"
 
 #include <global.h>
@@ -207,7 +207,6 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
 
 	// Clear
 	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
@@ -215,23 +214,12 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0)
 	{
-		int fh = fheight > 10 ? fheight - 10: 5;
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 4, fh,     col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 1, fh,     col2);
+		//details line
+		CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+		details_line.paint();
 
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 4,info_height-14, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 1,info_height-14, col2);
-
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 3,ypos2a-ypos1a+3, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16+3, ypos1a+3, 1,ypos2a-ypos1a-3, col2);
-
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,3, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16+3, ypos1a+3, 12-3,1, col2);
-
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,3, col1);
-		frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a+3, 12,1, col2);
-
-		frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
+		//info box frame
+ 		frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
 	}
 }
 

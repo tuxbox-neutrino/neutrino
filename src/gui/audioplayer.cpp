@@ -65,6 +65,7 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
+#include <gui/widget/components.h>
 
 #include <system/settings.h>
 #include <xmltree/xmlinterface.h>
@@ -1874,36 +1875,17 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	int ypos1a = ypos1 + (m_fheight / 2) - 2;
 	int ypos2a = ypos2 + (m_info_height / 2) - 2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
-	int c_rad_small = RADIUS_SMALL;
-
 
 	// Clear
 	m_frameBuffer->paintBackgroundBoxRel(xpos - 1, m_y + m_title_height, ConnectLineBox_Width + 1,
 					     m_height - m_title_height);
 
-	// paint Line if detail info (and not valid list pos)
+	// paint Line if detail info (and not valid list pos) and info box
 	if (!m_playlist.empty() && (pos >= 0))
 	{
-		int fh = m_info_height > RADIUS_MID*2 ? m_info_height - RADIUS_MID*2 : m_info_height;
-		// 1. col thick line
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos1, 4, m_fheight, col2, c_rad_small, CORNER_LEFT);
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 3, ypos1, 8, m_fheight, col1, c_rad_small, CORNER_LEFT); // item marker
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 4, fh /*m_info_height*/, col1);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 3, ypos2a - ypos1a+3, col1);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos1a, 12, 3, col1);
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos2a, 12, 3, col1);
-
-		// 2. col small line
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 4, ypos2+RADIUS_MID, 1, fh /*m_info_height*/, col2);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16+3, ypos1a+3, 1, ypos2a - ypos1a-3, col2);
-
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16+3, ypos1a+3, 12-3, 1, col2);
-		m_frameBuffer->paintBoxRel(xpos + ConnectLineBox_Width - 16, ypos2a+3,  12, 1, col2);
+		//details line
+		CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, m_fheight/2+1, m_fheight);
+		details_line.paint();
 
 		// -- small Frame around infobox
 		m_frameBuffer->paintBoxFrame(m_x, ypos2, m_width, m_info_height, 2, col1, RADIUS_MID);
