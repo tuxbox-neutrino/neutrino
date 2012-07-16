@@ -806,7 +806,7 @@ const char * locale_real_names[] =
 	"menu.hint_infobar_fonts",
 	"menu.hint_infobar_logo",
 	"menu.hint_infobar_logo_dir",
-	"menu.hint_infobar_onepg",
+	"menu.hint_infobar_on_epg",
 	"menu.hint_infobar_radiotext",
 	"menu.hint_infobar_res",
 	"menu.hint_infobar_sat",

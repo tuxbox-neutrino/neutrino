@@ -51,8 +51,8 @@ struct network_service
 #define SERVICE_COUNT 4
 static struct network_service services[SERVICE_COUNT] =
 {
-	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_TELNET, "", 0 },
-	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_FTPD, "", 0 },
+	{ "FTP", "vsftpd", "", LOCALE_MENU_HINT_NET_FTPD, "", 0 },
+	{ "Telnet", "telnetd", "-l/bin/login", LOCALE_MENU_HINT_NET_TELNET, "", 0 },
 	{ "DjMount", "djmount", "-o iocharset=utf8 /media/00upnp/", LOCALE_MENU_HINT_NET_DJMOUNT, "", 0 },
 	{ "uShare", "ushare", "-D", LOCALE_MENU_HINT_NET_USHARE, "", 0 }
 };
@@ -144,16 +144,17 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 
 	//telnetd used inetd
 	bool useinetd = false;
-	char line[256];
-	
+	char *buf=NULL;
+	size_t len = 0;
+
 	FILE* fd = fopen("/etc/inetd.conf", "r");
 	    if(fd)
 	    {
 		while(!feof(fd))
 		{
-			fgets(line, 255, fd);
+			if(getline(&buf, &len, fd)!=-1)
 			{
-				if (strstr(line, "telnetd") != NULL)
+				if (strstr(buf, "telnetd") != NULL)
 				{
 					useinetd = true;
 					break;
@@ -161,10 +162,12 @@ int CNetworkServiceSetup::showNetworkServiceSetup()
 			}
 		}
 		fclose(fd);
+		if(buf)
+			free(buf);
 	    }
 
 	//set active when found
-	int active;
+	bool active;
 		
 	for(unsigned i = 0; i < SERVICE_COUNT; i++) {
 		items[i] = new CNetworkService(services[i].cmd, services[i].options);
