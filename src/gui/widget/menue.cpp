@@ -534,69 +534,49 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 
-		if (!handled) {
-			switch (msg) {
-				case (NeutrinoMessages::EVT_TIMER):
-					if(data == fader.GetTimer()) {
-						if(fader.Fade())
-							msg = CRCInput::RC_timeout;
-					} else {
-						if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
-							retval = menu_return::RETURN_EXIT_ALL;
-							msg = CRCInput::RC_timeout;
-						}
+		if (handled)
+			continue;
+
+		switch (msg) {
+			case (NeutrinoMessages::EVT_TIMER):
+				if(data == fader.GetTimer()) {
+					if(fader.Fade())
+						msg = CRCInput::RC_timeout;
+				} else {
+					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+						retval = menu_return::RETURN_EXIT_ALL;
+						msg = CRCInput::RC_timeout;
 					}
-					break;
-				case (CRCInput::RC_page_up) :
-				case (CRCInput::RC_page_down) :
-					if(msg==CRCInput::RC_page_up) {
-						if(current_page) {
-							pos = (int) page_start[current_page] - 1;
-							for (unsigned int count=pos ; count > 0; count--) {
-								CMenuItem* item = items[pos];
-								if ( item->isSelectable() ) {
-									if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
-										items[selected]->paint( false );
-										item->paint( true );
-										selected = pos;
-									} else {
-										selected=pos;
-										paintItems();
-									}
-									break;
-								}
-								pos--;
-							}
-						} else {
-							pos = 0;
-							for (unsigned int count=0; count < items.size(); count++) {
-								CMenuItem* item = items[pos];
-								if ( item->isSelectable() ) {
-									if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
-										items[selected]->paint( false );
-										item->paint( true );
-										selected = pos;
-									} else {
-										selected=pos;
-										paintItems();
-									}
-									break;
-								}
-								pos++;
-							}
-						}
-					}
-					else if(msg==CRCInput::RC_page_down) {
-						pos = (int) page_start[current_page + 1];// - 1;
-						if(pos >= (int) items.size())
-							pos = items.size()-1;
-						for (unsigned int count=pos ; count < items.size(); count++) {
+				}
+				break;
+			case (CRCInput::RC_page_up) :
+			case (CRCInput::RC_page_down) :
+				if(msg==CRCInput::RC_page_up) {
+					if(current_page) {
+						pos = (int) page_start[current_page] - 1;
+						for (unsigned int count=pos ; count > 0; count--) {
 							CMenuItem* item = items[pos];
 							if ( item->isSelectable() ) {
 								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
 									items[selected]->paint( false );
 									item->paint( true );
-									paintHint(pos);
+									selected = pos;
+								} else {
+									selected=pos;
+									paintItems();
+								}
+								break;
+							}
+							pos--;
+						}
+					} else {
+						pos = 0;
+						for (unsigned int count=0; count < items.size(); count++) {
+							CMenuItem* item = items[pos];
+							if ( item->isSelectable() ) {
+								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
+									items[selected]->paint( false );
+									item->paint( true );
 									selected = pos;
 								} else {
 									selected=pos;
@@ -607,121 +587,142 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 							pos++;
 						}
 					}
-					break;
-				case (CRCInput::RC_up) :
-				case (CRCInput::RC_down) :
-					{
-						//search next / prev selectable item
-						for (unsigned int count=1; count< items.size(); count++) {
-							if (msg==CRCInput::RC_up) {
-								pos = selected - count;
-								if ( pos < 0 )
-									pos += items.size();
-							}
-							else if(msg==CRCInput::RC_down) {
-								pos = (selected+ count)%items.size();
-							}
-
-							CMenuItem* item = items[pos];
-
-							if ( item->isSelectable() ) {
-								if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page]))
-								{ // Item is currently on screen
-									//clear prev. selected
-									items[selected]->paint( false );
-									//select new
-									item->paint( true );
-									paintHint(pos);
-									selected = pos;
-								} else {
-									selected=pos;
-									paintItems();
-								}
-								break;
-							}
-						}
-					}
-					break;
-				case (CRCInput::RC_left):
-					{
-						if(hasItem() && selected > -1 && (int)items.size() > selected) {
-							CMenuItem* itemX = items[selected];
-							if (!itemX->isMenueOptionChooser()) {
-								if (g_settings.menu_left_exit)
-									msg = CRCInput::RC_timeout;
-								break;
-							}
-						}
-					}
-				case (CRCInput::RC_right):
-				case (CRCInput::RC_ok):
-					{
-						if(hasItem() && selected > -1 && (int)items.size() > selected) {
-							//exec this item...
-							CMenuItem* item = items[selected];
-							item->msg = msg;
-							fader.Stop();
-							int rv = item->exec( this );
-							switch ( rv ) {
-								case menu_return::RETURN_EXIT_ALL:
-									retval = menu_return::RETURN_EXIT_ALL;
-								case menu_return::RETURN_EXIT:
-									msg = CRCInput::RC_timeout;
-									break;
-								case menu_return::RETURN_REPAINT:
-								case menu_return::RETURN_EXIT_REPAINT:
-									if (fade && washidden)
-										fader.StartFadeIn();
-									paint();
-									break;
-							}
-						} else
-							msg = CRCInput::RC_timeout;
-					}
-					break;
-
-				case (CRCInput::RC_home):
-					exit_pressed = true;
-					msg = CRCInput::RC_timeout;
-					break;
-				case (CRCInput::RC_timeout):
-					break;
-
-				case (CRCInput::RC_sat):
-				case (CRCInput::RC_favorites):
-					g_RCInput->postMsg (msg, 0);
-				//close any menue on dbox-key
-				case (CRCInput::RC_setup):
-					{
-						msg = CRCInput::RC_timeout;
-						retval = menu_return::RETURN_EXIT_ALL;
-					}
-					break;
-				case (CRCInput::RC_help):
-					hide();
-					g_settings.show_menu_hints = !g_settings.show_menu_hints;
-					paint();
-					break;
-
-				default:
-					if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
-						retval = menu_return::RETURN_EXIT_ALL;
-						msg = CRCInput::RC_timeout;
-					}
-			}
-			if(msg == CRCInput::RC_timeout) {
-				if(fade && fader.StartFadeOut()) {
-					timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
-					msg = 0;
-					continue;
 				}
-			}
+				else if(msg==CRCInput::RC_page_down) {
+					pos = (int) page_start[current_page + 1];// - 1;
+					if(pos >= (int) items.size())
+						pos = items.size()-1;
+					for (unsigned int count=pos ; count < items.size(); count++) {
+						CMenuItem* item = items[pos];
+						if ( item->isSelectable() ) {
+							if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page])) {
+								items[selected]->paint( false );
+								item->paint( true );
+								paintHint(pos);
+								selected = pos;
+							} else {
+								selected=pos;
+								paintItems();
+							}
+							break;
+						}
+						pos++;
+					}
+				}
+				break;
+			case (CRCInput::RC_up) :
+			case (CRCInput::RC_down) :
+				{
+					//search next / prev selectable item
+					for (unsigned int count=1; count< items.size(); count++) {
+						if (msg==CRCInput::RC_up) {
+							pos = selected - count;
+							if ( pos < 0 )
+								pos += items.size();
+						}
+						else if(msg==CRCInput::RC_down) {
+							pos = (selected+ count)%items.size();
+						}
 
-			if ( msg <= CRCInput::RC_MaxRC )
-			{
-				// recalculate timeout for RC-keys
-				timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
+						CMenuItem* item = items[pos];
+
+						if ( item->isSelectable() ) {
+							if ((pos < (int)page_start[current_page + 1]) && (pos >= (int)page_start[current_page]))
+							{ // Item is currently on screen
+								//clear prev. selected
+								items[selected]->paint( false );
+								//select new
+								item->paint( true );
+								paintHint(pos);
+								selected = pos;
+							} else {
+								selected=pos;
+								paintItems();
+							}
+							break;
+						}
+					}
+				}
+				break;
+			case (CRCInput::RC_left):
+				{
+					if(hasItem() && selected > -1 && (int)items.size() > selected) {
+						CMenuItem* itemX = items[selected];
+						if (!itemX->isMenueOptionChooser()) {
+							if (g_settings.menu_left_exit)
+								msg = CRCInput::RC_timeout;
+							break;
+						}
+					}
+				}
+			case (CRCInput::RC_right):
+			case (CRCInput::RC_ok):
+				{
+					if(hasItem() && selected > -1 && (int)items.size() > selected) {
+						//exec this item...
+						CMenuItem* item = items[selected];
+						item->msg = msg;
+						fader.Stop();
+						int rv = item->exec( this );
+						switch ( rv ) {
+							case menu_return::RETURN_EXIT_ALL:
+								retval = menu_return::RETURN_EXIT_ALL;
+							case menu_return::RETURN_EXIT:
+								msg = CRCInput::RC_timeout;
+								break;
+							case menu_return::RETURN_REPAINT:
+							case menu_return::RETURN_EXIT_REPAINT:
+								if (fade && washidden)
+									fader.StartFadeIn();
+								paint();
+								break;
+						}
+					} else
+						msg = CRCInput::RC_timeout;
+				}
+				break;
+
+			case (CRCInput::RC_home):
+				exit_pressed = true;
+				msg = CRCInput::RC_timeout;
+				break;
+			case (CRCInput::RC_timeout):
+				break;
+
+			case (CRCInput::RC_sat):
+			case (CRCInput::RC_favorites):
+				g_RCInput->postMsg (msg, 0);
+				//close any menue on dbox-key
+			case (CRCInput::RC_setup):
+				{
+					msg = CRCInput::RC_timeout;
+					retval = menu_return::RETURN_EXIT_ALL;
+				}
+				break;
+			case (CRCInput::RC_help):
+				hide();
+				g_settings.show_menu_hints = !g_settings.show_menu_hints;
+				paint();
+				break;
+
+			default:
+				if ( CNeutrinoApp::getInstance()->handleMsg( msg, data ) & messages_return::cancel_all ) {
+					retval = menu_return::RETURN_EXIT_ALL;
+					msg = CRCInput::RC_timeout;
+				}
+		}
+		if(msg == CRCInput::RC_timeout) {
+			if(fade && fader.StartFadeOut()) {
+				timeoutEnd = CRCInput::calcTimeoutEnd( 1 );
+				msg = 0;
+				continue;
 			}
+		}
+
+		if ( msg <= CRCInput::RC_MaxRC )
+		{
+			// recalculate timeout for RC-keys
+			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
 		}
 	}
 	while ( msg!=CRCInput::RC_timeout );
