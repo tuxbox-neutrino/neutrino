@@ -58,12 +58,6 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *fsatSetup;
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
 
-		/* dynamic frontend items to be enabled/disabled in notify */
-#if 0
-		CGenericMenuActivate itemsForAdvancedDiseqc;
-		CGenericMenuActivate itemsForNonAdvancedDiseqc;
-		CGenericMenuActivate itemsForAnyDiseqc;
-#endif
 		/* variables for selected frontend */
 		/* diseqc mode */
 		int dmode;
@@ -130,6 +124,4 @@ class CTPSelectHandler : public CMenuTarget //CScanSetup
 	public:
 		int exec(CMenuTarget* parent,  const std::string &actionkey);
 };
-
-
 #endif
