@@ -454,6 +454,7 @@ class CMenuWidget : public CMenuTarget
 		bool		     exit_pressed;
 		bool		     from_wizard;
 		bool		     fade;
+		bool		     washidden;
 
 		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();

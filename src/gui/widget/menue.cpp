@@ -670,6 +670,8 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 									break;
 								case menu_return::RETURN_REPAINT:
 								case menu_return::RETURN_EXIT_REPAINT:
+									if (fade && washidden)
+										fader.StartFadeIn();
 									paint();
 									break;
 							}
@@ -761,6 +763,7 @@ void CMenuWidget::hide()
 	for (unsigned int count = 0; count < items.size(); count++) 
 		items[count]->init(-1, 0, 0, 0);
 	hint_painted	= false;
+	washidden = true;
 }
 
 void CMenuWidget::calcSize()
@@ -903,6 +906,7 @@ void CMenuWidget::paint()
 
 	item_start_y = y+hheight;
 	paintItems();
+	washidden = false;
 }
 
 void CMenuWidget::setMenuPos(const int& menu_width)
