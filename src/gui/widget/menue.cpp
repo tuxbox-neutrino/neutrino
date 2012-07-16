@@ -43,6 +43,8 @@
 
 #include <cctype>
 
+#define ConnectLineBox_Width    16
+
 /* the following generic menu items are integrated into multiple menus at the same time */
 CMenuSeparator CGenericMenuSeparator;
 CMenuSeparator CGenericMenuSeparatorLine(CMenuSeparator::LINE);
@@ -758,6 +760,7 @@ void CMenuWidget::hide()
 	/* setActive() paints item for hidden parent menu, if called from child menu */
 	for (unsigned int count = 0; count < items.size(); count++) 
 		items[count]->init(-1, 0, 0, 0);
+	hint_painted	= false;
 }
 
 void CMenuWidget::calcSize()
@@ -856,8 +859,8 @@ void CMenuWidget::calcSize()
 	if(total_pages > 1)
 		sb_width=15;
 
-	full_width = width+sb_width+SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE-2+SHADOW_OFFSET+hint_height;
+	full_width = ConnectLineBox_Width+width+sb_width+SHADOW_OFFSET;
+	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2+hint_height;
 
 	setMenuPos(width - sb_width);
 }
@@ -883,10 +886,9 @@ void CMenuWidget::paint()
 	}
 #endif
 	//paint shadow and backround
-	int rad = RADIUS_LARGE-2;
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET ,y + SHADOW_OFFSET ,width + sb_width ,height + rad ,COL_MENUCONTENTDARK_PLUS_0 ,rad);
-	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,height + rad ,COL_MENUCONTENT_PLUS_0 ,rad);
-	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,hheight ,COL_MENUHEAD_PLUS_0 ,rad, CORNER_TOP);
+	frameBuffer->paintBoxRel(x+SHADOW_OFFSET ,y + SHADOW_OFFSET ,width + sb_width ,height + RADIUS_LARGE ,COL_MENUCONTENTDARK_PLUS_0 ,RADIUS_LARGE);
+	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,height + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE);
+	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,hheight ,COL_MENUHEAD_PLUS_0 ,RADIUS_LARGE, CORNER_TOP);
 
 	//paint menu head
 	int HeadiconOffset = 0;
@@ -1030,14 +1032,14 @@ void CMenuWidget::saveScreen()
 
 	background = new fb_pixel_t [full_width * full_height];
 	if(background)
-		frameBuffer->SaveScreen(x, y, full_width, full_height, background);
+		frameBuffer->SaveScreen(x-ConnectLineBox_Width, y, full_width, full_height, background);
 }
 
 void CMenuWidget::restoreScreen()
 {
 	if(background) {
 		if(savescreen)
-			frameBuffer->RestoreScreen(x, y, full_width, full_height, background);
+			frameBuffer->RestoreScreen(x-ConnectLineBox_Width, y, full_width, full_height, background);
 #if 0
 		delete[] background;
 		background = NULL;
@@ -1056,7 +1058,6 @@ void CMenuWidget::enableSaveScreen(bool enable)
 
 void CMenuWidget::paintHint(int pos)
 {
-#define ConnectLineBox_Width    16
 	if (!g_settings.show_menu_hints)
 		return;
 
