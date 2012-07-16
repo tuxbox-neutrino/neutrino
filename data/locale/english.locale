@@ -695,6 +695,15 @@ menu.hint_audio Audio output, DD\nSRS True volume options
 menu.hint_audio_avsync A/V sync
 menu.hint_audio_dd Auto-switch to DolbyDigital audio pid,\nif available
 menu.hint_audio_hdmi_dd DolbyDigital over HDMI: off - decoded\nauto  if supported by device, force
+menu.hint_audioplayer_defdir Default audioplayer directory
+menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
+menu.hint_audioplayer_highprio Increase playback priority
+menu.hint_audioplayer_order Change playlist sort order
+menu.hint_audioplayer_playlist Show playlist items
+menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
+menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
+menu.hint_audioplayer_screensaver Set screensaver timeout, in minutes
+menu.hint_audioplayer_title Enable SMS-style title search in playlist
 menu.hint_audio_spdif_dd DolbyDigital over optical output
 menu.hint_audio_srs_algo Amount of control, light or normal
 menu.hint_audio_srs_nmgr Noise manager
@@ -778,7 +787,52 @@ menu.hint_infobar_textcolor Change infobar text color
 menu.hint_infobar_tuner Show active tuner number icon
 menu.hint_info Information about image, box cpu and storage,\nstream information
 menu.hint_keep_numbers Keep channel numbers over next scans\nand bouquets editing
+menu.hint_key_addrecord Assign button to add record timer\nfrom event list
+menu.hint_key_addremind Assign button to add zap timer\nfrom event list
+menu.hint_key_audio On: 'audio' button start show audio-play menu\nOff: 'audio' button show Audio selection
+menu.hint_key_binding Re-define keys used for common operations
+menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
+menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
+menu.hint_key_cancel Assign button to close GUI window
+menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
+menu.hint_key_channellist Configure keybingdings for channel list
+menu.hint_key_channel_sms If enabled, numeric buttons in channel list\nused to search channel in SMS style
+menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
+menu.hint_key_hardware Change remote control type
+menu.hint_key_history Assign button to show channel\nchannel switch history
+menu.hint_key_lastchannel Assign button for fast zap to\nprevious channel in history
+menu.hint_key_left_exit Allow return to previous menu with 'left' key
+menu.hint_key_list_end Assign button to go do list end
+menu.hint_key_list_start Assign button to go to list start
+menu.hint_key_load Load keybindings from file
+menu.hint_key_modechange Change TV/Radio mode and standby keys
+menu.hint_key_movieplayer Configure keybingdings for movie player
+menu.hint_key_mpaudio Assign button to show audio selection\nin record/file playback mode
+menu.hint_key_mpbookmark Assign button to create bookmark\nwhile playing record
+menu.hint_key_mpforward Assign button to fast forward record playback
+menu.hint_key_mppause Assign button to pause record/file playback
+menu.hint_key_mpplay Assign button to resume record/file playback
+menu.hint_key_mpplugin Assign button to start selected plugin\nwhile playing record/file
+menu.hint_key_mprewind Assign button to rewind record playback
+menu.hint_key_mpstop Assign button to stop record/file playback
+menu.hint_key_mptime Assign button to show play time\nleft time
+menu.hint_key_mptimeshift Assign button to start timeshift
+menu.hint_key_pagedown Assign button to show next items page
+menu.hint_key_pageup Assign button to show previous items page
+menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
+menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
+menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
+menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
+menu.hint_key_right Select 'right' function in live TV/Radio mode
+menu.hint_key_save Save keybindings to file
+menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
+menu.hint_key_sort Assign button to change channel list sort order
 menu.hint_keys Remote control repeat rate\nEdit key bindings
+menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
+menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
+menu.hint_key_transponder Assign button to show channel list\nfor current transponder
+menu.hint_key_tvradiomode Assign button to switch TV <> Radio mode
+menu.hint_key_unlock Assign button to unlock box if locked\nTo unlock press 'red', then in next 5 seconds this key
 menu.hint_lang_pref Configure preferred audio, EPG\nand subtitle languages
 menu.hint_language OSD language, timezone\nPreffered audio and subtitles languages
 menu.hint_last_radio Start box on selected channel\nif last mode is Radio
@@ -846,6 +900,9 @@ menu.hint_parentallock_changepin Change PIN code
 menu.hint_parentallock_lockage Select age allowed to watch
 menu.hint_parentallock_prompt Configure when Neutrino-HD will ask you\nfor PIN code
 menu.hint_personalize Enable, disable or Protect menu items\nConfigure color-buttons user menus
+menu.hint_pictureviewer_defdir Default picture viewer directory
+menu.hint_pictureviewer_scaling Picture scaling algorithm
+menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
 menu.hint_picview View pictures
 menu.hint_plugins_hdd_dir Select directory to load\nplugins from
 menu.hint_power_leds Configure power-button LEDs behavior
@@ -884,6 +941,60 @@ menu.hint_rotor_swap Swap rotor east/west directions\nin motor control
 menu.hint_rounded_corners Draw round or rectangular windows corners 
 menu.hint_saveas Save Neutrino-HD GUI settings to file
 menu.hint_save_settings Save all settings to flash
+menu.hint_scan_autoall Scan several selected providers at once
+menu.hint_scan_autoall_select Add selected satellites to scan
+menu.hint_scan_auto Auto-scan selected provider
+menu.hint_scan_bouquet Update: add to current bouquets, erase:\nremove old bouquets, leave: dont add or change
+menu.hint_scan_cable Select cable network to scan
+menu.hint_scan_commited Select commited input for\nthis satellite
+menu.hint_scan_diseqcrepeat Diseqc repeat for cascaded switches
+menu.hint_scan_diseqc Select diseqc switch input for\nthis satellite
+menu.hint_scan_diseqctype Select your diseqc switch protocol\nwith 'advanced' you can use uncommited switches
+menu.hint_scan_fast CanalDigitaal/TéléSAT/TV Vlaanderen provider scan\nWARNING: diseqc config will be overwritten
+menu.hint_scan_fastprov Select provider to scan
+menu.hint_scan_fasttype Select fast scan type
+menu.hint_scan_fec Select transponder FEC
+menu.hint_scan_femode Select second tuner connection type
+menu.hint_scan_fesetup Configure tuner(s)
+menu.hint_scan_fetimeout Time to wait for signal, in 1/10 of second
+menu.hint_scan_freq Enter transponder frequency
+menu.hint_scan_fta Add only free-to-air (not-scrambled) channels
+menu.hint_scan_ladirection Select latitude direction
+menu.hint_scan_latitude Enter your latitude
+menu.hint_scan_lnbconfig Configure LNB parameters for this satellite
+menu.hint_scan_lodirection Select longtitude direction
+menu.hint_scan_lofh High banb LNB frequency
+menu.hint_scan_lofl Low band LNB frequency
+menu.hint_scan_lofs Band switch LNB frequency
+menu.hint_scan_longtitude Enter your longtitude
+menu.hint_scan_manual Manual transponder scan using\nselected parameters
+menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_motorpos Select stored position number for\nthis satellite
+menu.hint_scan_motor_speed Rotor moving speed in 1/10 degree\nper second
+menu.hint_scan_nid Enter decimal network ID
+menu.hint_scan_nit Add transpoders from network information
+menu.hint_scan_pids Scan and save audio/video/PMT PIDs
+menu.hint_scan_pol Select transponder polarization
+menu.hint_scan_rate Enter transponder symbol rate
+menu.hint_scan_reset_numbers Reset exising channel numbers\nand re-number channels after scan
+menu.hint_scan_satadd Add satellites for this frontend
+menu.hint_scan_satellite Select satellite to scan
+menu.hint_scan_satenable Enable satellite for this frontend
+menu.hint_scan_satfind Satellite finder: manually drive your rotor\nto setup stored positions
+menu.hint_scan_satfind_start Start Satellite finder
+menu.hint_scan_satscan Scan selected satellite
+menu.hint_scan_satselect Select satellite
+menu.hint_scan_satsetup Configure satellites options
+menu.hint_scan_savesettings Save tuner config and scan settings\nAlso saved, if you start service scan
+menu.hint_scan_scantype Select, which channel types to scan
+menu.hint_scan_setup_fe Configure selected frontend options
+menu.hint_scan_start Start scan. You can use 'exit' button to stop
+menu.hint_scan_test Test signal for this transponder
+menu.hint_scan_tpselect Select transponder to scan
+menu.hint_scan_uncommited Select uncommited input for\nthis satellite
+menu.hint_scan_usalsall Set/unset usals flag for all satellites
+menu.hint_scan_usals_repeat Repeat usals move rotor commands\nif you expirience unstable rotor move
+menu.hint_scan_useusals Use USALS for\nthis satellite
 menu.hint_scrambled_message Show scrambled message, when channel cannot be decoded
 menu.hint_screen_setup Configure screen margins
 menu.hint_screenshot_count When no GUI on screen, you can save 1-5\nscreenshot serie
@@ -938,67 +1049,6 @@ menu.hint_video_scart_mode Select analog output mode for SCART connectors
 menu.hint_video Video output, resolution, format\nAspect ratio, fast mode switch options
 menu.hint_volume_pos Select volume indicator position
 menu.hint_zap_cycle When swithing channels, stay in current bouquet
-
-menu.hint_key_binding Re-define keys used for common operations
-menu.hint_key_load Load keybindings from file
-menu.hint_key_save Save keybindings to file
-menu.hint_key_hardware Change remote control type
-menu.hint_key_repeatblock Delay after button press and before\nfirst key repeat
-menu.hint_key_repeatblockgeneric Delay between key repeats\nwhile button pressed
-menu.hint_key_modechange Change TV/Radio mode and standby keys
-menu.hint_key_channellist Configure keybingdings for channel list
-menu.hint_key_quickzap Configure keybingdings for quick\nchannel switch
-menu.hint_key_movieplayer Configure keybingdings for movie player
-menu.hint_key_left_exit Allow return to previous menu with 'left' key
-menu.hint_key_audio On: 'audio' button start show audio-play menu\nOff: 'audio' button show Audio selection
-menu.hint_key_right Select 'right' function in live TV/Radio mode
-menu.hint_key_tvradiomode Assign button to switch TV <> Radio mode
-menu.hint_key_poweroff Assign button to switch power state\n (standby/deepstandby <-> running)
-menu.hint_key_pageup Assign button to show previous items page
-menu.hint_key_pagedown Assign button to show next items page
-menu.hint_key_list_start Assign button to go to list start
-menu.hint_key_list_end Assign button to go do list end
-menu.hint_key_cancel Assign button to close GUI window
-menu.hint_key_sort Assign button to change channel list sort order
-menu.hint_key_addrecord Assign button to add record timer\nfrom event list
-menu.hint_key_addremind Assign button to add zap timer\nfrom event list
-menu.hint_key_bouquetup Assign button to switch channel list\nto next bouquet
-menu.hint_key_bouquetdown Assign button to switch channel list\nto previous bouquet
-menu.hint_key_transponder Assign button to show channel list\nfor current transponder
-menu.hint_key_channel_sms If enabled, numeric buttons in channel list\nused to search channel in SMS style
-menu.hint_key_channelup Assign button for fast switch to next\nchannel in channel list
-menu.hint_key_channeldown Assign button for fast switch to previous\nchannel in channel list
-menu.hint_key_subchannelup Assign button for fast switch\n to next subchannel
-menu.hint_key_subchanneldown Assign button for fast switch\n to previous subchannel
-menu.hint_key_history Assign button to show channel\nchannel switch history
-menu.hint_key_lastchannel Assign button for fast zap to\nprevious channel in history
-menu.hint_key_mprewind Assign button to rewind record playback
-menu.hint_key_mpforward Assign button to fast forward record playback
-menu.hint_key_mppause Assign button to pause record/file playback
-menu.hint_key_mpstop Assign button to stop record/file playback
-menu.hint_key_mpplay Assign button to resume record/file playback
-menu.hint_key_mpaudio Assign button to show audio selection\nin record/file playback mode
-menu.hint_key_mptime Assign button to show play time\nleft time
-menu.hint_key_mpbookmark Assign button to create bookmark\nwhile playing record
-menu.hint_key_mptimeshift Assign button to start timeshift
-menu.hint_key_plugin Assign button to start selected plugin\nwhile playing record/file
-menu.hint_key_unlock Assign button to unlock box if locked\nTo unlock press 'red', then in next 5 seconds this key
-menu.hint_key_screenshot Assign button to save GUI and/or TV screenshot
-
-menu.hint_audioplayer_order Change playlist sort order
-menu.hint_audioplayer_follow Move playlist selected pointer\nto current playing song
-menu.hint_audioplayer_title Enable SMS-style title search in playlist
-menu.hint_audioplayer_repeat Enable playlist repeat when end of list reached
-menu.hint_audioplayer_playlist Show playlist items
-menu.hint_audioplayer_screensaver Set screensaver timeout, in minutes
-menu.hint_audioplayer_highprio Increase playback priority
-menu.hint_audioplayer_defdir Default audioplayer directory
-menu.hint_audioplayer_sc_metadata Enable streaming audio metadata parsing
-
-menu.hint_pictureviewer_scaling Picture scaling algorithm
-menu.hint_pictureviewer_slide_time Slideshow interval, in seconds
-menu.hint_pictureviewer_defdir Default picture viewer directory
-
 menu.next Next (press Menu to quit)
 messagebox.back Back
 messagebox.cancel Cancel
