@@ -872,6 +872,7 @@ int COsdSetup::showContextChanlistMenu()
 
 	CMenuWidget * menu_chanlist = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width);
 	menu_chanlist->enableSaveScreen(true);
+	menu_chanlist->enableFade(false);
 	menu_chanlist->setSelected(cselected);
 
 	menu_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
@@ -883,6 +884,7 @@ int COsdSetup::showContextChanlistMenu()
 
 	CMenuWidget *fontSettingsSubMenu = new CMenuWidget(LOCALE_FONTMENU_HEAD, NEUTRINO_ICON_KEYBINDING);
 	fontSettingsSubMenu->enableSaveScreen(true);
+	fontSettingsSubMenu->enableFade(false);
 
 	int i = 1;
 	fontSettingsSubMenu->addIntroItems(font_sizes_groups[i].groupname, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
