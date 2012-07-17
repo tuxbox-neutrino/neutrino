@@ -215,8 +215,8 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0)
 	{
 		//details line
-		CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
-		details_line.paint();
+		CComponentsDetailLine dline(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+		dline.paint();
 
 		//info box frame
  		frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
