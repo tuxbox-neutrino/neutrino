@@ -60,9 +60,7 @@ class CComponentsDetailLine : public CComponents
 
 		void paint();
 		void hide();
-		void setWidth(const int& w){width = w;};
 		void setColor(fb_pixel_t color1, fb_pixel_t color2){col1 = color1; col2 = color2;};
-// 		void setYPosTop(const int& y_pos_top){y = y_pos_top;}; //same like setYpos()val)
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
 };
 
