@@ -323,6 +323,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
+	details_line = NULL;
 	 
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
@@ -391,6 +392,7 @@ CMenuWidget::~CMenuWidget()
 	page_start.clear();
 #endif
 	resetWidget(true);
+	delete details_line;
 }
 
 void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
@@ -1070,7 +1072,6 @@ void CMenuWidget::paintHint(int pos)
 		return;
 
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
 	int rad = RADIUS_LARGE;
 
 	int xpos  = x - ConnectLineBox_Width;
@@ -1078,8 +1079,9 @@ void CMenuWidget::paintHint(int pos)
 	int iwidth = width+sb_width;
 
 	if (hint_painted) {
-		/* clear line box */
-		frameBuffer->paintBackgroundBoxRel(xpos, y+SHADOW_OFFSET, ConnectLineBox_Width, height+hint_height+rad);
+		/* clear detailsline line */
+		if (details_line != NULL)
+			details_line->hide();
 		/* clear info box */
 		frameBuffer->paintBackgroundBoxRel(x, ypos2, iwidth+SHADOW_OFFSET, hint_height+SHADOW_OFFSET);
 
@@ -1098,33 +1100,18 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 
 	int iheight = item->getHeight();
 
+	//details line
 	int ypos1 = item->getYPosition();
 	int ypos1a = ypos1 + (iheight/2)-2;
 	int ypos2a = ypos2 + (hint_height/2)-2;
-
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
-	int imarkoff = iheight/4;
-
-	/* horizontal item mark - */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+imarkoff, 4, imarkh,     col1);
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+imarkoff, 1, imarkh,     col2);
-
-	/* horizontal info mark - */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+rad, 4,  markh, col1);
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+rad, 1 , markh, col2);
-
-	/* vertical connect line [ */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 3, ypos2a-ypos1a+3, col1);
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16+3, ypos1a+3, 1, ypos2a-ypos1a-3, col2);
-
-	/* vertical item line | */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12, 3, col1);
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16+3, ypos1a+3, 12-3, 1, col2);
-
-	/* vertical info line | */
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12, 3, col1);
-	frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a+3, 12, 1, col2);
+	
+	if (details_line == NULL)
+		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
+	else
+		details_line->setYPos(ypos1a);
+	details_line->paint();
 
 	/* box shadow */
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, ypos2+SHADOW_OFFSET, width + sb_width, hint_height, COL_MENUCONTENTDARK_PLUS_0, rad);

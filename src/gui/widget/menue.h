@@ -41,6 +41,7 @@
 #include <system/localize.h>
 #include <gui/widget/icons.h>
 #include <gui/color.h>
+#include <gui/widget/components.h>
 
 #include <string>
 #include <vector>
@@ -422,6 +423,7 @@ class CMenuWidget : public CMenuTarget
 	private: 
 		mn_widget_id_t 		widget_index;
 		CMenuGlobal		*mglobal;
+		CComponentsDetailLine	*details_line;
 	protected:
 		std::string		nameString;
 		neutrino_locale_t       name;
