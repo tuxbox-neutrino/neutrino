@@ -41,11 +41,15 @@ CComponents::CComponents(const int x_pos, const int y_pos, const int h, const in
 	height = h;
 	width = w;
 	frameBuffer = CFrameBuffer::getInstance();	
+	bg_buf = NULL;
 }
 
 CComponents::~CComponents()
 {
-	
+	if (bg_buf) {
+		delete[] bg_buf;
+		bg_buf = NULL;
+	}
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -123,3 +127,51 @@ void CComponentsDetailLine::hide()
 	col2 = c_tmp2;
 }
 
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsInfoBox
+CComponentsInfoBox::CComponentsInfoBox(	const int x_pos, const int y_pos, const int width_, const int height_, bool shadow_,
+					fb_pixel_t color1, fb_pixel_t color2, fb_pixel_t color3)
+{
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= width_;
+	height	 	= height_;
+	rad 		= RADIUS_LARGE;
+	shadow		= shadow_;
+	bg_saved	= false;
+
+	col_frame 	= color1;
+	col_body	= color2;
+	col_shadow	= color3;
+	bg_buf 		= new fb_pixel_t[(width+SHADOW_OFFSET) * (height+SHADOW_OFFSET)];
+}
+
+void CComponentsInfoBox::paint(int rad_)
+{
+	rad = rad_;
+	if ((bg_buf != NULL) && (!bg_saved)) {
+		frameBuffer->SaveScreen(x, y, width+SHADOW_OFFSET, height+SHADOW_OFFSET, bg_buf);
+		bg_saved = true;
+	}
+
+	/* box shadow */
+	if (shadow)
+		frameBuffer->paintBoxRel(x+SHADOW_OFFSET, y+SHADOW_OFFSET, width, height, col_shadow, rad);
+	/* box frame */
+//	frameBuffer->paintBoxFrame(x, y, width, height, 2, col_frame, rad);
+	frameBuffer->paintBoxRel(x, y, width, height, col_frame, rad);
+	/* box fill */
+	frameBuffer->paintBoxRel(x+2, y+2, width-4, height-4, col_body, rad);
+}
+
+void CComponentsInfoBox::hide(bool full)
+{
+	if (full) {
+		if (bg_buf != NULL)
+			frameBuffer->RestoreScreen(x, y, width+SHADOW_OFFSET, height+SHADOW_OFFSET, bg_buf);
+		else
+			frameBuffer->paintBackgroundBoxRel(x, y, width+SHADOW_OFFSET, height+SHADOW_OFFSET);
+	}
+	else
+		frameBuffer->paintBoxRel(x+2, y+2, width-4, height-4, col_body, rad);
+}

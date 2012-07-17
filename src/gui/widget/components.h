@@ -34,6 +34,7 @@ class CComponents
 {
 	protected:
 		int x, y, height, width;
+		fb_pixel_t *bg_buf;
 		CFrameBuffer * frameBuffer;
 
 
@@ -62,6 +63,24 @@ class CComponentsDetailLine : public CComponents
 		void hide();
 		void setColor(fb_pixel_t color1, fb_pixel_t color2){col1 = color1; col2 = color2;};
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
+};
+
+class CComponentsInfoBox : public CComponents
+{
+	private:
+		int width, height, rad;
+		fb_pixel_t col_frame, col_body, col_shadow;
+		bool shadow, bg_saved;
+
+	public:
+		CComponentsInfoBox(	const int x_pos, const int y_pos, const int width_, const int height_, bool shadow_ = true,
+					fb_pixel_t color1 = COL_MENUCONTENT_PLUS_6, 
+					fb_pixel_t color2 = COL_MENUCONTENTDARK_PLUS_0, 
+					fb_pixel_t color3 = COL_MENUCONTENTDARK_PLUS_0);
+
+		void paint(int rad_);
+		void hide(bool full = false);
+		void setColor(fb_pixel_t color1, fb_pixel_t color2, fb_pixel_t color3){col_frame = color1; col_body = color2; col_shadow = color3;};
 };
 
 #endif
