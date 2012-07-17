@@ -300,6 +300,7 @@ CMenuWidget::CMenuWidget()
 	savescreen	= false;
 	background	= NULL;
 	preselected 	= -1;
+	details_line = NULL;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
@@ -512,27 +513,27 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 		
 	do {
 		if(hasItem() && selected >= 0 && (int)items.size() > selected )
-			bAllowRepeatLR = items[selected]->isMenueOptionChooser(); //can_arrow;
+			bAllowRepeatLR = items[selected]->isMenueOptionChooser();
 
 		g_RCInput->getMsgAbsoluteTimeout(&msg, &data, &timeoutEnd, bAllowRepeatLR);
 
+		int handled= false;
 		if ( msg <= CRCInput::RC_MaxRC ) {
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_MENU] == 0 ? 0xFFFF : g_settings.timing[SNeutrinoSettings::TIMING_MENU]);
-		}
-		int handled= false;
 
-		for (unsigned int i= 0; i< items.size(); i++) {
-			CMenuItem* titem = items[i];
-			if ((titem->directKey != CRCInput::RC_nokey) && (titem->directKey == msg)) {
-				if (titem->isSelectable()) {
-					items[selected]->paint( false );
-					selected= i;
-					msg= CRCInput::RC_ok;
-				} else {
-					// swallow-key...
-					handled= true;
+			for (unsigned int i= 0; i< items.size(); i++) {
+				CMenuItem* titem = items[i];
+				if ((titem->directKey != CRCInput::RC_nokey) && (titem->directKey == msg)) {
+					if (titem->isSelectable()) {
+						items[selected]->paint( false );
+						selected= i;
+						msg= CRCInput::RC_ok;
+					} else {
+						// swallow-key...
+						handled= true;
+					}
+					break;
 				}
-				break;
 			}
 		}
 
