@@ -259,7 +259,7 @@ colormenusetup.menucontent Fensterinhalt
 colormenusetup.menucontent_inactive Fensterinhalt deaktiviert
 colormenusetup.menucontent_selected Fensterinhalt selektiert
 colormenusetup.menuhead Titelleiste
-colorstatusbar.text Statusbalken
+colorstatusbar.text Infobar
 colorthememenu.head Theme auswählen
 colorthememenu.head2 Themes laden
 colorthememenu.name Themename
