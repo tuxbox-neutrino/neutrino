@@ -63,6 +63,7 @@ class CComponentsDetailLine : public CComponents
 		void hide();
 		void setColor(fb_pixel_t color1, fb_pixel_t color2){col1 = color1; col2 = color2;};
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
+		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
 };
 
 class CComponentsInfoBox : public CComponents

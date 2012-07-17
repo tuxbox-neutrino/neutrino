@@ -1113,8 +1113,12 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	
 	if (details_line == NULL)
 		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
-	else
+	else {
+		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
+		details_line->setYPosDown(ypos2a);
+		details_line->setHMarkDown(markh);
+	}
 	details_line->paint();
 
 	if (info_box == NULL)
