@@ -1055,7 +1055,7 @@ void CMenuWidget::paintHint(int pos)
 	if (hint_painted) {
 		/* clear detailsline line */
 		if (details_line != NULL)
-			details_line->hide();
+			details_line->restore();
 		/* clear info box */
 		if (info_box != NULL)
 			info_box->hide((pos == -1) ? true : false);
@@ -1084,9 +1084,9 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
 	
-	if (details_line == NULL)
+	if (details_line == NULL){
 		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
-	else {
+	}else{
 		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
 		details_line->setYPosDown(ypos2a);
