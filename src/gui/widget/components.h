@@ -43,10 +43,8 @@ class CComponents
 
 		virtual void setXPos(const int& xpos){x = xpos;};
 		virtual void setYPos(const int& ypos){y = ypos;};
-		virtual void setHeight(const int& h){width = h;};
-		virtual void setWidth(const int& w){height = w;};
-
-
+		virtual void setHeight(const int& h){height = h;};
+		virtual void setWidth(const int& w){width = w;};
 };
 
 class CComponentsDetailLine : public CComponents
