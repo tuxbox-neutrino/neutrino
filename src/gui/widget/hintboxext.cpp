@@ -191,6 +191,13 @@ void CHintBoxExt::init(const neutrino_locale_t Caption, const int Width, const c
 
 	if (nw > m_width)
 		m_width = nw;
+
+	/* if the output does not fit, make sure we at least
+	 * stay inside the screen... */
+	m_width = w_max(m_width ,SHADOW_OFFSET);
+	if (maxLineWidth + scrollWidth > m_width)
+		maxLineWidth = m_width - scrollWidth;
+
 	textStartX = (m_width - scrollWidth - maxLineWidth) / 2;
 
 	m_window = NULL;
