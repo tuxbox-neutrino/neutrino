@@ -378,20 +378,6 @@ void CMenuWidget::move(int xoff, int yoff)
 
 CMenuWidget::~CMenuWidget()
 {
-#if 0
-	for(unsigned int count=0;count<items.size();count++) {
-		CMenuItem * item = items[count];
-		if ((item != GenericMenuSeparator) &&
-		    (item != GenericMenuSeparatorLine) &&
-		    (item != GenericMenuBack) &&
-		    (item != GenericMenuCancel)){
-			delete item;
-		}
-	}
-	
-	items.clear();
-	page_start.clear();
-#endif
 	resetWidget(true);
 	delete details_line;
 }
@@ -755,7 +741,6 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 
 void CMenuWidget::hide()
 {
-	//frameBuffer->paintBackgroundBoxRel(x, y, width+15+SHADOW_OFFSET,height+10+SHADOW_OFFSET);
 	if(savescreen && background)
 		restoreScreen();//FIXME
 	else {
@@ -875,27 +860,14 @@ void CMenuWidget::calcSize()
 void CMenuWidget::paint()
 {
 	calcSize();
-#if 0
-	if(save)
-		saveScreen();
-#endif
-	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, nameString.c_str());
-#if 0
-	//clear backround on corners switch
-	static bool corners = g_settings.rounded_corners;
-	if(g_settings.rounded_corners != corners){
-		corners = g_settings.rounded_corners;
-		if(!g_settings.rounded_corners){
-			frameBuffer->paintBackgroundBoxRel(x, y+full_height-hint_height, full_width, CORNER_RADIUS_LARGE-2+SHADOW_OFFSET);
-		}else{
-			frameBuffer->paintBackgroundBoxRel(x, y, full_width, CORNER_RADIUS_LARGE-2+SHADOW_OFFSET);
-		}
-	}
-#endif
-	//paint shadow and backround
+	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8 /*, nameString.c_str()*/);
+
+	// paint shadow
 	frameBuffer->paintBoxRel(x+SHADOW_OFFSET ,y + SHADOW_OFFSET ,width + sb_width ,height + RADIUS_LARGE ,COL_MENUCONTENTDARK_PLUS_0 ,RADIUS_LARGE);
-	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,height + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE);
+	// paint head
 	frameBuffer->paintBoxRel(x ,y ,width + sb_width ,hheight ,COL_MENUHEAD_PLUS_0 ,RADIUS_LARGE, CORNER_TOP);
+	// paint background
+	frameBuffer->paintBoxRel(x ,y+hheight, width + sb_width, height-hheight + RADIUS_LARGE ,COL_MENUCONTENT_PLUS_0 ,RADIUS_LARGE, CORNER_BOTTOM);
 
 	//paint menu head
 	int HeadiconOffset = 0;
@@ -1048,10 +1020,6 @@ void CMenuWidget::restoreScreen()
 	if(background) {
 		if(savescreen)
 			frameBuffer->RestoreScreen(x-ConnectLineBox_Width, y, full_width, full_height, background);
-#if 0
-		delete[] background;
-		background = NULL;
-#endif
 	}
 }
 
