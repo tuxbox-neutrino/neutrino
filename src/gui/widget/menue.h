@@ -424,6 +424,8 @@ class CMenuWidget : public CMenuTarget
 		mn_widget_id_t 		widget_index;
 		CMenuGlobal		*mglobal;
 		CComponentsDetailLine	*details_line;
+		CComponentsInfoBox	*info_box;
+
 	protected:
 		std::string		nameString;
 		neutrino_locale_t       name;

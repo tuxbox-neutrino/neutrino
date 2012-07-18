@@ -325,6 +325,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
 	details_line = NULL;
+	info_box = NULL;
 	 
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
@@ -380,6 +381,7 @@ CMenuWidget::~CMenuWidget()
 {
 	resetWidget(true);
 	delete details_line;
+	delete info_box;
 }
 
 void CMenuWidget::addItem(CMenuItem* menuItem, const bool defaultselected)
@@ -1040,7 +1042,6 @@ void CMenuWidget::paintHint(int pos)
 	if (pos < 0 && !hint_painted)
 		return;
 
-	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
 	int rad = RADIUS_LARGE;
 
 	int xpos  = x - ConnectLineBox_Width;
@@ -1052,8 +1053,8 @@ void CMenuWidget::paintHint(int pos)
 		if (details_line != NULL)
 			details_line->hide();
 		/* clear info box */
-		frameBuffer->paintBackgroundBoxRel(x, ypos2, iwidth+SHADOW_OFFSET, hint_height+SHADOW_OFFSET);
-
+		if (info_box != NULL)
+			info_box->hide((pos == -1) ? true : false);
 		hint_painted = false;
 	}
 	if (pos < 0)
@@ -1062,8 +1063,11 @@ void CMenuWidget::paintHint(int pos)
 	CMenuItem* item = items[pos];
 printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
 
-	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE)
+	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
+		if (info_box != NULL)
+			info_box->hide(true);
 		return;
+	}
 
 	hint_painted = true;
 
@@ -1078,16 +1082,21 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	
 	if (details_line == NULL)
 		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
-	else
+	else {
+		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
+		details_line->setYPosDown(ypos2a);
+		details_line->setHMarkDown(markh);
+	}
 	details_line->paint();
 
-	/* box shadow */
-	frameBuffer->paintBoxRel(x+SHADOW_OFFSET, ypos2+SHADOW_OFFSET, width + sb_width, hint_height, COL_MENUCONTENTDARK_PLUS_0, rad);
-	/* box frame and fill */
-	frameBuffer->paintBoxFrame(x, ypos2, iwidth, hint_height, 2, col1, rad);
-	/* box frame and fill */
-	frameBuffer->paintBoxRel(x+2, ypos2+2, iwidth-4, hint_height-4, COL_MENUCONTENTDARK_PLUS_0, rad);
+	if (info_box == NULL)
+		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height);
+	else {
+		info_box->setXPos(x);
+		info_box->setYPos(ypos2);
+	}
+	info_box->paint(rad);
 
 	int offset = 10;
 	if (!item->hintIcon.empty()) {
