@@ -38,7 +38,7 @@
 #include <gui/widget/buttons.h>
 #include <gui/widget/icons.h>
 #include <gui/widget/messagebox.h>
-#include <gui/widget/components.h>
+
 #include "bouqueteditor_channels.h"
 
 #include <global.h>
@@ -87,6 +87,13 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	caption = Caption;
 	bouquet = Bouquet;
 	mode = CZapitClient::MODE_TV;
+	dline = NULL;
+	Channels = NULL;
+}
+
+CBEChannelWidget::~CBEChannelWidget()
+{
+	delete dline;
 }
 
 void CBEChannelWidget::paintItem(int pos)
@@ -208,15 +215,17 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
 
-	// Clear
-	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
+	// clear details line
+	if (dline != NULL)
+		dline->hide();
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0)
 	{
-		//details line
-		CComponentsDetailLine dline(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
-		dline.paint();
+		if (dline == NULL)
+			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+		dline->setYPos(ypos1a);
+		dline->paint();
 
 		//info box frame
  		frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
@@ -225,7 +234,8 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 void CBEChannelWidget::clearItem2DetailsLine ()
 {
-	paintItem2DetailsLine (-1, 0);
+	if (dline != NULL)
+		dline->hide();
 }
 
 void CBEChannelWidget::hide()
