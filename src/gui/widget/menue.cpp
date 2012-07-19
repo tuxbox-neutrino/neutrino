@@ -691,9 +691,12 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				}
 				break;
 			case (CRCInput::RC_help):
-				hide();
+				// FIXME should we switch hints in menu without hints ?
+				if (has_hints)
+					hide();
 				g_settings.show_menu_hints = !g_settings.show_menu_hints;
-				paint();
+				if (has_hints)
+					paint();
 				break;
 
 			default:
@@ -778,7 +781,7 @@ void CMenuWidget::calcSize()
 		if (tmpw > width)
 			width = tmpw;
 
-		if(g_settings.show_menu_hints && (!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE)) {
+		if(!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE) {
 			has_hints = true;
 		}
 	}
