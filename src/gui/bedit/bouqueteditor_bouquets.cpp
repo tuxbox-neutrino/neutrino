@@ -66,6 +66,11 @@ CBEBouquetWidget::CBEBouquetWidget()
 	liststart = 0;
 	state = beDefault;
 	blueFunction = beRename;
+	Bouquets = NULL;
+	iheight = 0;
+	ButtonHeight = 0;
+	fheight = 0;
+	theight = 0;
 }
 
 void CBEBouquetWidget::paintItem(int pos)
