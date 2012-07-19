@@ -104,7 +104,7 @@ install_DATA = \
 	hint_swupdate.png \
 	hint_timers.png \
 	hint_tvmode.png \
-	hint_tvradio_switch \
+	hint_tvradio_switch.png \
 	hint_vfd.png \
 	hint_video.png \
 	home.png \
