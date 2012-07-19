@@ -301,6 +301,7 @@ CMenuWidget::CMenuWidget()
 	background	= NULL;
 	preselected 	= -1;
 	details_line = NULL;
+	info_box = NULL;
 }
 
 CMenuWidget::CMenuWidget(const neutrino_locale_t Name, const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index)
