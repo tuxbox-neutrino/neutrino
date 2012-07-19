@@ -29,14 +29,32 @@
 #include <driver/framebuffer.h>
 #include <gui/color.h>
 #include <gui/customcolor.h>
+#include <vector>
+
+//required typedefs
+typedef struct comp_fbdata_t
+{
+	int x;
+	int y;
+	int dx;
+	int dy;
+	fb_pixel_t color;
+	int r;
+	void * data;
+	fb_pixel_t* pixbuf;
+	bool is_frame;
+	int frame_thickness;
+} comp_fbdata_struct_t;
 
 class CComponents
 {
 	protected:
-		int x, y, height, width;
-		fb_pixel_t *bg_buf;
+		int x, y, height, width, sw;
 		CFrameBuffer * frameBuffer;
+		std::vector<comp_fbdata_t> v_screen_val;
 
+		void paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg = true);
+		void clear();
 
 	public:
 		CComponents(const int x_pos = 0, const int y_pos = 0, const int h = 0, const int w = 0);
@@ -46,22 +64,24 @@ class CComponents
 		virtual void setYPos(const int& ypos){y = ypos;};
 		virtual void setHeight(const int& h){height = h;};
 		virtual void setWidth(const int& w){width = w;};
+		virtual void restore();
 };
 
 class CComponentsDetailLine : public CComponents
 {
 	private:
-		int thickness, y_down, h_mark_top, h_mark_down, offs_up, offs_down;
-		fb_pixel_t	col1, col2;
+		int thickness, y_down, h_mark_top, h_mark_down;
+		fb_pixel_t	col_line, col_shadow;
 
 	public:
 		CComponentsDetailLine(	const int x_pos,const int y_pos_top, const int y_pos_down,
 					const int h_mark_up =16 , const int h_mark_down = 16,
-					fb_pixel_t color1 = COL_MENUCONTENT_PLUS_6, fb_pixel_t color2 = COL_MENUCONTENTDARK_PLUS_0);
+					fb_pixel_t color_line = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		~CComponentsDetailLine();
 
-		void paint();
+		void paint(bool do_save_bg = true);
 		void hide();
-		void setColor(fb_pixel_t color1, fb_pixel_t color2){col1 = color1; col2 = color2;};
+		void setColor(fb_pixel_t color_line, fb_pixel_t color_shadow){col_line = color_line; col_shadow = color_shadow;};
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
 };
@@ -69,19 +89,18 @@ class CComponentsDetailLine : public CComponents
 class CComponentsInfoBox : public CComponents
 {
 	private:
-		int width, height, rad;
+		int rad,fr_thickness;
+		bool shadow;
 		fb_pixel_t col_frame, col_body, col_shadow;
-		bool shadow, bg_saved;
 
 	public:
-		CComponentsInfoBox(	const int x_pos, const int y_pos, const int width_, const int height_, bool shadow_ = true,
-					fb_pixel_t color1 = COL_MENUCONTENT_PLUS_6, 
-					fb_pixel_t color2 = COL_MENUCONTENTDARK_PLUS_0, 
-					fb_pixel_t color3 = COL_MENUCONTENTDARK_PLUS_0);
+		CComponentsInfoBox(	const int x_pos, const int y_pos, const int h, const int w,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENTDARK_PLUS_0,fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
+					bool has_shadow = true);
 
-		void paint(int rad_);
-		void hide(bool full = false);
-		void setColor(fb_pixel_t color1, fb_pixel_t color2, fb_pixel_t color3){col_frame = color1; col_body = color2; col_shadow = color3;};
+		void paint(bool do_save_bg = true);
+		void hide();
+		void setColor(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
 };
 
 #endif

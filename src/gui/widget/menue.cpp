@@ -1058,7 +1058,7 @@ void CMenuWidget::paintHint(int pos)
 			details_line->restore();
 		/* clear info box */
 		if (info_box != NULL)
-			info_box->hide((pos == -1) ? true : false);
+			pos == -1 ? info_box->hide() : info_box->restore();
 		hint_painted = false;
 	}
 	if (pos < 0)
@@ -1069,7 +1069,7 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
 		if (info_box != NULL)
-			info_box->hide(true);
+			info_box->hide();
 		return;
 	}
 
@@ -1080,7 +1080,7 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	//details line
 	int ypos1 = item->getYPosition();
 	int ypos1a = ypos1 + (iheight/2)-2;
-	int ypos2a = ypos2 + (hint_height/2)-2;
+	int ypos2a = ypos2 + (hint_height/2);
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
 	
@@ -1090,17 +1090,18 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
 		details_line->setYPosDown(ypos2a);
-		details_line->setHMarkDown(markh);
+ 		details_line->setHMarkDown(markh);
 	}
 	details_line->paint();
 
 	if (info_box == NULL)
-		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height);
+		info_box = new CComponentsInfoBox(x, ypos2, hint_height, iwidth);
 	else {
 		info_box->setXPos(x);
 		info_box->setYPos(ypos2);
+		info_box->setWidth(iwidth);
 	}
-	info_box->paint(rad);
+	info_box->paint();
 
 	int offset = 10;
 	if (!item->hintIcon.empty()) {
