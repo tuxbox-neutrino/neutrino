@@ -31,7 +31,7 @@
 
 #include <string>
 
-class CListBox : public CMenuWidget
+class CListBox : public CMenuTarget
 {
 	protected:
 		CFrameBuffer*	frameBuffer;
