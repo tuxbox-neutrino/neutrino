@@ -3113,7 +3113,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	CMenuWidgetSelection startPosSelectionMenu(LOCALE_MOVIEBROWSER_HEAD , NEUTRINO_ICON_MOVIEPLAYER);
 	startPosSelectionMenu.enableFade(false);
 
-	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD);
+	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	if(m_movieSelectionHandler->bookmarks.start != 0)
 	{
