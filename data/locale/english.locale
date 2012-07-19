@@ -1022,7 +1022,7 @@ menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
 menu.hint_subchannel_pos Select subchannels menu position
 menu.hint_sw_update Update software
-menu.hint_theme Select Select pre-defined color theme\nSave or load theme from files
+menu.hint_theme Select pre-defined color theme\nSave or load theme from files
 menu.hint_timeouts Configure time to hide GUI windows\nin seconds
 menu.hint_timers Add/Remove/Edit scheduled\nrecording, reminders etc.
 menu.hint_timezone Select your timezone

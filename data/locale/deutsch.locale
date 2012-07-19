@@ -695,6 +695,12 @@ menu.hint_audio_analog_mode Hier wird festgelegt, ob auf dem analogen Ausgang ei
 menu.hint_audio_avsync Diese Funktion synchronisiert Bild und Ton
 menu.hint_audio_dd Ist diese Option auf ein, wird automatisch auf Dolby Digital Ton\numgeschaltet, sobald dieser bei einem Sender verfügbar ist
 menu.hint_audio_hdmi_dd Bei aktiver Option wird über den HDMI-Ausgang\nDolby Digital Ton ausgegeben
+menu.hint_audio_spdif_dd Bei aktiver Option wird über den optischen Ausgang\n(S/PDIF) Dolby Digital Ton ausgegeben
+menu.hint_audio_srs Hier wird SRS TruVolume an oder abgeschaltet\nbei inhaltlichen Änderungen
+menu.hint_audio_srs_algo Mögliche Betriebsarten, einfach oder normal
+menu.hint_audio_srs_nmgr Schaltet diese Option an oder aus
+menu.hint_audio_srs_volume Hier kann die Referenzlautstärke festgelegt werden
+menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke\nimmer schrittweise nach diesen Wert geändert
 menu.hint_audioplayer_defdir Hier wählen Sie das Startverzeichnis für den Audioplayer
 menu.hint_audioplayer_follow Das Selektieren eines aktuellen Titel in der Playliste zulassen
 menu.hint_audioplayer_highprio Erhöhen Sie die Priorität der Wiedergabe
@@ -704,12 +710,6 @@ menu.hint_audioplayer_repeat Aktiviert die Wiederholung der Playliste,\nwenn das
 menu.hint_audioplayer_sc_metadata Aktiviert das Anzeigen der Audio-Metadaten
 menu.hint_audioplayer_screensaver Aktiviert den Bildschirmschoner in Minuten
 menu.hint_audioplayer_title Aktivieren Sie die Titelsuche (SMS-Stil) in der Playliste
-menu.hint_audio_spdif_dd Bei aktiver Option wird über den optischen Ausgang\n(S/PDIF) Dolby Digital Ton ausgegeben
-menu.hint_audio_srs Hier wird SRS TruVolume an oder abgeschaltet\nbei inhaltlichen Änderungen
-menu.hint_audio_srs_algo Mögliche Betriebsarten, einfach oder normal
-menu.hint_audio_srs_nmgr Schaltet diese Option an oder aus
-menu.hint_audio_srs_volume Hier kann die Referenzlautstärke festgelegt werden
-menu.hint_audio_volstep Beim Betätigen der Lautstärketasten wird die Lautstärke\nimmer schrittweise nach diesen Wert geändert
 menu.hint_auto_lang Hier können Sie wählen, ob automatisch Ihre bevorzugte Tonspur gewählt wird,\nwenn vorhanden
 menu.hint_auto_subs Automatische Anzeige der Untertitel in Ihrer bevorzugten Sprache
 menu.hint_back Zurück zum vorherigen Menü,\ndrücken der Menütaste schließt alle Menüs
@@ -720,17 +720,28 @@ menu.hint_cache_txt Startet das Zwischenspeichern des Teletext nach\nKanalwechse
 menu.hint_cec_mode CEC-Modus
 menu.hint_cec_standby CEC-Standby
 menu.hint_cec_view_on CEC view ON
+menu.hint_channellist_colored Definiert ob die aktuelle oder nächste Sendung in einer anderen Farbe dargestellt werden soll
+menu.hint_channellist_epg_align Hier kann man festlegen, wie der Text für das EPG in der Liste\nrechts vom Programmnamen ausgerichtet wird
+menu.hint_channellist_extended Bei aktivierter Funktion wird vor dem Sendernamen ein Balken eingeblendet,\nder den Sendungsfortschritt anzeigt
+menu.hint_channellist_fonts Ändern Sie in der Kanalliste die Schriftgrößen
+menu.hint_channellist_foot Definiert welche Informationen im unteren Sendungsfenster angezeigt werden sollen
 menu.hint_channellist_setup Hier können Sie Anzeigeoptionen für die Kanalliste auswählen
 menu.hint_ci Conditional-Access-Menü zum Einrichten\nIhres CI-Moduls oder der eingebetteten Conax-Karte
 menu.hint_colors Konfigurieren Sie die Menü-Farben
+menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
+menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
+menu.hint_contrast_fonts Wählen Sie mehr Schriftkontrast (absetzen vom Hintergrund)
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box
 menu.hint_delete_channels Löschen aller Kanale
 menu.hint_epg_cache Maximum in Tagen zukünftiger EPG-Daten
 menu.hint_epg_dir Speicherverzeichnis auf der Festplatte oder einen USB-Stick\nzum speichern von EPG-Daten
 menu.hint_epg_extendedcache Maximum in Stunden, die die EPG-Daten zwischengespeichert\nwerden bzw. der Event-Beschreibungen
+menu.hint_epg_fonts Ändern Sie für die EPG-Details die Schriftgrößen
 menu.hint_epg_max_events Maximum an Events im Zwischenspeicher. Nach Erreichen der\nGrenze werden EPG-Daten für zukünftige gelöscht
 menu.hint_epg_old_events EPG im Speicher behalten in Stunden,\nauch wenn es veraltet ist
 menu.hint_epg_save Speichert die EPG-Daten auf einer Harddisk oder USB-Stick\nund läd es nach einen Neustart
+menu.hint_event_textcolor Ändern Sie die Event-Farbe für farbige Event-Optionen in Kanalliste und Infobar
+menu.hint_eventlist_fonts Ändern Sie in der Event-Liste die Schriftgrößen
 menu.hint_extended Energiespar-, EPG-Speicher- / Lade-Optionen,\nHDMI-CEC, Startkanal, Zap-Optionen
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen\nBox wird nach einem Reset neu gestartet
 menu.hint_fade Bei aktivierter Funktion werden die Menüfenster\n"weich" ein- bzw. ausgeblendet
@@ -739,14 +750,42 @@ menu.hint_filebrowser_denydirectoryleave Verhindert das Verlassen des Startverze
 menu.hint_filebrowser_showrights Anzeige der Dateirechte der Dateien im Filebrowser
 menu.hint_fileplay Spielen Sie verschiedene Video-Dateien
 menu.hint_filesystem_is_utf8 Kodierung für Unicode-Zeichen im Filebrowser
-menu.hint_fonts Konfigurieren Sie die Menü-Schriftart und -Größen
+menu.hint_font_gui Wählen Sie die Schriftart aus Schriftart-Dateien, um diese für die Menüs zu verwenden
+menu.hint_font_scaling Legen Sie global die vertikale und horizontale Skalierung der Menüschrift fest
+menu.hint_font_ttx Wählen Sie Schriftart aus Schriftart-Dateien, um diese für den Teletext zu verwenden
+menu.hint_fonts Konfigurieren Sie die Menü-Schriftart und Schriftgrößen
+menu.hint_gamelist_fonts Ändern Sie für die Spiele- und Script-Liste die Schriftgrößen
 menu.hint_games Zeige Liste der installierten Spiele
 menu.hint_hdd Formatierung und Prüfung der Festplatte
+menu.hint_hdd_apply Die veränderten Einstellungen zum Sleep- und Akustik-Modus werden übernommen
+menu.hint_hdd_check Überprüft das Dateisystem und führt gegebenfalls eine Reparatur durch (fsck)
+menu.hint_hdd_format Erstellt eine HDD-Partition und formatiert diese
+menu.hint_hdd_noise Hier können Parameter für Automatic Acoustic Management gesetzt werden,\nnicht alle Laufwerke unterstützen diese Funktion
+menu.hint_hdd_sleep Dieser Wert definiert nach wie viel Minuten die Festplatte bei Inaktivität in den Sleep-Modus geschaltet wird
+menu.hint_hdd_tools Hier können Sie die gefundenen Festplatten formatieren bzw. das Dateisystem überprüfen
+menu.hint_head_back Ändern Sie die Titel-Hintergrundfarbe
+menu.hint_head_textcolor Ändern Sie die Titel-Textfarbe
 menu.hint_imageinfo Informationen über die installierte Software
 menu.hint_inact_timer Ausschalten der Box nach Inaktivität in Minuten,\ndie Box geht automatisch in den Deep-Standby
+menu.hint_inactive_back Ändern Sie die Hintergrundfarbe für deaktivierte Fensterinhalte
+menu.hint_inactive_textcolor Ändern Sie die Textfarbe für deaktivierte Fensterinhalte
 menu.hint_inet_radio Internetradio
-menu.hint_infobar_setup Hier können Sie die Anzeigeoptionen für die Infobar auswählen
 menu.hint_info Informationen über Image, CPU und Arbeitsspeicher,\nStream-Information
+menu.hint_infobar_back Ändern Sie die Hintergrundfarbe für die Infobar
+menu.hint_infobar_casys ein: zeigt alle Aktiven farbig, Mini: einzelnes Symbol ob gespeert, Diskret: alle Aktiven CA-Systeme
+menu.hint_infobar_colored_event Verwenden Sie unterschiedliche Farben für die aktuelle oder nächste Sendung in der Infobar
+menu.hint_infobar_dd Zeigt ein Dolby Digital Icon bei Verfügbarkeit
+menu.hint_infobar_filesys Zeigen den vom Flash- und einer HDD verwendeten Speicherplatz
+menu.hint_infobar_fonts Ändern Sie in der Infobar die Schriftgrößen
+menu.hint_infobar_logo Logo- und Signal-Optionen
+menu.hint_infobar_logo_dir Hier wählen Sie das Verzeichnis für die Senderlogos
+menu.hint_infobar_on_epg Zeigt einen Hinweis bei EPG-Änderungen
+menu.hint_infobar_radiotext Zeigt Radiotext in einen Fenster, wenn verfügbar
+menu.hint_infobar_res Zeige die gesendete Auflösung in Symbolen
+menu.hint_infobar_sat Zeigt die aktuellen Satelliten- oder Kabel-Provider
+menu.hint_infobar_setup Hier können Sie die Anzeigeoptionen für die Infobar auswählen
+menu.hint_infobar_textcolor Ändern Sie die Textfarbe für die Infobar
+menu.hint_infobar_tuner Zeigt den aktiven Tuner als Nummernicon
 menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte\nKanalnummern zugewiesen
 menu.hint_keys Fernbedienungs-Wiederholrate\nund Tastenbelegungen bearbeiten
 menu.hint_lang_pref Wählen Sie ihre bevorzugten Audio-Sprachen, EPG\nund Untertitel-Sprachen
@@ -766,6 +805,7 @@ menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens\n"gelö
 menu.hint_manage_settings Sichern, Wiederherstellen, zurück auf\nStandardwerte, Auslieferungszustand herstellen
 menu.hint_mb Ihre Aufnahmen
 menu.hint_media Abspielen von Filmen, Audiodateien\nbetrachten Sie Bilder
+menu.hint_menu_fonts Ändern Sie im Menü die Schriftgrößen
 menu.hint_menu_hints Zeigt Ihnen Hinweise zu den Menüpunkten an,\nbei Deaktivierung erreichen Sie es jederzeit auch mit der Taste 'Hilfe'
 menu.hint_menu_pos Hier können Sie die Anzeigeposition der OSD-Menüs festlegen
 menu.hint_misc_cec HDMI-CEC Optionen
@@ -854,14 +894,23 @@ menu.hint_reset Zurücksetzen von Neutrino-HD-Einstellungen auf Standardwerte\nT
 menu.hint_restore Wiederherstellen von vorher erstellten Sicherungen
 menu.hint_rotor_swap Tauschen der Rotordrehrichtung Ost/West\nim Motorsetup
 menu.hint_rounded_corners Aktiviert die Darstellung abgerundeter Ecken für die OSD-Menüs 
-menu.hint_saveas Speichern der Neutrino-HD-Einstellungen in eine Datei
 menu.hint_save_settings Speichern Sie alle Einstellungen im Image
+menu.hint_saveas Speichern der Neutrino-HD-Einstellungen in eine Datei
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung,\nwenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
+menu.hint_screenshot_count Hier können Sie wählen, wie viele Screenshots (1-5) erstellt werden sollen
+menu.hint_screenshot_cover ein: Bei der Wiedergabe von Aufnahmen ein Video-Screenshot erstellen\nfür die Vorschau im Moviebrowser
+menu.hint_screenshot_dir Hier wählen Sie das Verzeichnis zum speichern der Screenshots
+menu.hint_screenshot_format Wählen Sie das Dateiformat zum speichern der Screenshots
+menu.hint_screenshot_res Screenshot Größe: aktuelle TV-Auflösung oder OSD-Größe (1280x720)
+menu.hint_screenshot_scale Für Video + OSD Screenshots, Skalierung auf Video-Größe
 menu.hint_screenshot_setup Hier können Sie die Optionen zum erstellen von Screenshots einrichten
+menu.hint_screenshot_video Diese Funktion übernimmt das Live-Bild in den Screenshot als Hintergrund
 menu.hint_scripts Skripts ausführen
-menu.hint_service_scan Tuner-Einstellungen, Service-Scan
+menu.hint_selected_back Ändern Sie die Hintergrundfarbe für selektierte Fensterinhalte
+menu.hint_selected_text Ändern Sie die Textfarbe für selektierte Fensterinhalte
 menu.hint_service Kanalsuche, Senderscan,\nBouquet-Verwaltung, Software-Aktualisierung
+menu.hint_service_scan Tuner-Einstellungen, Service-Scan
 menu.hint_settings Konfigurieren von Neutrino-HD.\nNetzwerk, Video, Audio, OSD und mehr
 menu.hint_show_mute_icon Definiert ob beim Lautstärkewert 0 das Mute-Icon eingeblendet werden soll
 menu.hint_shutdown Setzen Sie Ihre Box in den Standby-Modus\noder schalten Sie die Box komplett aus
@@ -874,19 +923,20 @@ menu.hint_start_tostandby Aktiviert den Standby-Modus nach dem starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen: PIDs, SNR-Verhältnis\nBitrate grafisch
 menu.hint_subchannel_pos Hier können Sie die Anzeigeposition der Untertitel auswählen
 menu.hint_sw_update Neutrino-HD auf Software-Update überprüfen\nImage sichern und wiederherstellen
-menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden\ndie Menüs oder Infofenster sich automatisch schließen
+menu.hint_theme Wählen Sie vordefiniertes Farbschema, Speichern oder Laden Sie Theme aus Filen
+menu.hint_timeouts Gibt an, nach welcher Zeit in Sekunden die Menüs oder\nInfofenster sich automatisch schließen (0 deaktiviert)
 menu.hint_timers Hinzufügen / Entfernen / Bearbeiten geplanter\nAufnahme, Meldungen etc.
 menu.hint_timezone Wählen Sie ihre Zeitzone aus
 menu.hint_tvmode Schaltet zum TV-Modus
 menu.hint_tvradio_switch Schaltet zwischen TV- und Radio-Modus um
+menu.hint_vfd Frontpanel Power-LEDs und VFD Optionen
+menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb 
+menu.hint_vfd_brightness_setup Konfiguriert die Displayhelligkeit des Frontpanels für verschiedene Modi
 menu.hint_vfd_brightnessdeepstandby Definiert die Helligkeit, wenn sich der Receiver im Deep-Standby befindet
 menu.hint_vfd_brightnessdim Definiert den Wert für das dimmen des Display nach Ablauf der eingestellten Zeit
-menu.hint_vfd_brightness_setup Konfiguriert die Displayhelligkeit des Frontpanels für verschiedene Modi
 menu.hint_vfd_brightnessstandby Definiert die Helligkeit, wenn sich der Receiver im Standby befindet
-menu.hint_vfd_brightness Definiert die Helligkeit im TV-Betrieb 
 menu.hint_vfd_defaults Setzt die Standardeinstellungen für die Helligkeitswerte
 menu.hint_vfd_dimtime Hier kann in Sekunden eingegeben werden,\nwann sich das Display automatisch auf den gewünschten Wert dimmt
-menu.hint_vfd Frontpanel Power-LEDs und VFD Optionen
 menu.hint_vfd_infoline Wählen Sie, was in der Infozeile angezeigt werden soll
 menu.hint_vfd_statusline Wählen Sie, was in der Statuszeile angezeigt werden soll
 menu.hint_video Video-Ausgang, Auflösung, Format,\nSeitenverhältnise, Modus-Schalter Optionen
