@@ -140,7 +140,7 @@ void CNeutrinoApp::InitMenuMain()
 
 	//tv <-> radio toggle
 	CMenuForwarder *tvradio_switch = new CMenuForwarder(LOCALE_MAINMENU_TVRADIO_SWITCH, true, NULL, this, "tv_radio_switch", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
-	tvradio_switch->setHint("", LOCALE_MENU_HINT_TVRADIO_SWITCH);
+	tvradio_switch->setHint(NEUTRINO_ICON_HINT_TVRADIO_SWITCH, LOCALE_MENU_HINT_TVRADIO_SWITCH);
 	personalize.addItem(MENU_MAIN, tvradio_switch, &g_settings.personalize[SNeutrinoSettings::P_MAIN_TV_RADIO_MODE]);
 
 	//tv-mode
