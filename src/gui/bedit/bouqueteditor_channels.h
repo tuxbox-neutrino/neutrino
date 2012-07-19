@@ -42,7 +42,7 @@
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 
-class CBEChannelWidget : public CMenuWidget
+class CBEChannelWidget : public CMenuTarget
 {
 
 	private:
