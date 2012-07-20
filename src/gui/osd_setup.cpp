@@ -38,7 +38,6 @@
 #include "themes.h"
 #include "screensetup.h"
 #include "osdlang_setup.h"
-#include "themes.h"
 #include "filebrowser.h"
 
 #include <global.h>
