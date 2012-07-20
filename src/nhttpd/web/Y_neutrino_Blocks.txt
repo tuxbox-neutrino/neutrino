@@ -1297,7 +1297,7 @@ start-block~neutrino_form-data_audioplayer
 			</tr>
 			<tr>
 				<td>{=L:set.ap.start_dir=}</td>
-				<td><input type="text" name="audioplayer_audioplayerdir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;audioplayer_audioplayerdir~cache=}" /></td>
+				<td><input type="text" name="network_nfs_audioplayerdir" size="20" value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_audioplayerdir~cache=}" /></td>
 			</tr>
 			<tr>
 				<td>{=L:set.ap.parse_shoutcast=}</td>
@@ -1352,7 +1352,7 @@ start-block~neutrino_audioplayer_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_show_playlist;{=audioplayer_show_playlist=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_screensaver;{=audioplayer_screensaver=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_highprio;{=audioplayer_highprio=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_audioplayerdir;{=audioplayer_audioplayerdir=}~cache=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_audioplayerdir;{=network_nfs_audioplayerdir=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;audioplayer_enable_sc_metadata;{=audioplayer_enable_sc_metadata=}~save=}
 end-block~neutrino_audioplayer_save_settings
 
