@@ -44,6 +44,7 @@
 #include <cctype>
 
 #define ConnectLineBox_Width    16
+#define INFO_BOX_Y_OFFSET	2
 
 /* the following generic menu items are integrated into multiple menus at the same time */
 CMenuSeparator CGenericMenuSeparator;
@@ -858,7 +859,7 @@ void CMenuWidget::calcSize()
 		sb_width=15;
 
 	full_width = ConnectLineBox_Width+width+sb_width+SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2+hint_height;
+	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2+hint_height+INFO_BOX_Y_OFFSET;
 
 	setMenuPos(width - sb_width);
 }
@@ -1049,7 +1050,7 @@ void CMenuWidget::paintHint(int pos)
 	int rad = RADIUS_LARGE;
 
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + rad + SHADOW_OFFSET + 2;
+	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
 	int iwidth = width+sb_width;
 
 	if (hint_painted) {
@@ -1081,7 +1082,7 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	//details line
 	int ypos1 = item->getYPosition();
 	int ypos1a = ypos1 + (iheight/2)-2;
-	int ypos2a = ypos2 + (hint_height/2)-2;
+	int ypos2a = ypos2 + (hint_height/2) - INFO_BOX_Y_OFFSET;
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
 	
