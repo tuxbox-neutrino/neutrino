@@ -9,7 +9,7 @@ function do_submit()
 	else if (document.f.R1[1].checked == true)
 		_url="/control/exec?Y_Tools&zapit_upload&services.xml";
 	else if (document.f.R1[2].checked == true)
-		_url="/control/exec?Y_Tools&zapit_upload&bouquets.xml";
+		_url="/control/exec?Y_Tools&zapit_upload&ubouquets.xml";
 	else if (document.f.R1[3].checked == true)
 		_url="/control/exec?Y_Tools&zapit_upload&myservices.xml";
 	else
