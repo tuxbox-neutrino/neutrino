@@ -58,8 +58,8 @@ function init(){
 			~
 				<li><a target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
 				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:set.menue.webserver=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_zapit.yhtm">{=L:set.menue.zapit=}</a></li>
+			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 				<li><a target="work" href="Y_Settings_ucodes.yhtm">{=L:set.menue.ucodes=}</a></li>
 				<li><a target="work" href="Y_Tools_Bootlogo.yhtm">{=L:set.menue.boot_logo=}</a></li>
 			~=}
