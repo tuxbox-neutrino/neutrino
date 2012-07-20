@@ -732,7 +732,7 @@ menu.hint_content_back Ändern Sie die Hintergrundfarbe für den Fensterinhalt
 menu.hint_content_textcolor Ändern Sie die Textfarbe für den Fensterinhalt
 menu.hint_contrast_fonts Wählen Sie mehr Schriftkontrast (absetzen vom Hintergrund)
 menu.hint_dboxinfo Informationen über CPU und Arbeitsspeicher der Box
-menu.hint_delete_channels Löschen aller Kanale
+menu.hint_delete_channels Löschen aller Kanäle
 menu.hint_epg_cache Maximum in Tagen zukünftiger EPG-Daten
 menu.hint_epg_dir Speicherverzeichnis auf der Festplatte oder einen USB-Stick\nzum speichern von EPG-Daten
 menu.hint_epg_extendedcache Maximum in Stunden, die die EPG-Daten zwischengespeichert\nwerden bzw. der Event-Beschreibungen
@@ -896,6 +896,60 @@ menu.hint_rotor_swap Tauschen der Rotordrehrichtung Ost/West\nim Motorsetup
 menu.hint_rounded_corners Aktiviert die Darstellung abgerundeter Ecken für die OSD-Menüs 
 menu.hint_save_settings Speichern Sie alle Einstellungen im Image
 menu.hint_saveas Speichern der Neutrino-HD-Einstellungen in eine Datei
+menu.hint_scan_auto Auto-Scan ausgewählter Anbieter
+menu.hint_scan_autoall Scannen Sie ihre ausgewählten Anbieter auf einmal
+menu.hint_scan_autoall_select Nur in ausgewählten Satelliten scannen
+menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: Neue werden in "Andere" angefügt
+menu.hint_scan_cable Wählen Sie ihr Kabelnetz zum scannen
+menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
+menu.hint_scan_diseqc Wählen Sie DiSEqC-Schalter-Eingangssignal für diesen Satelliten
+menu.hint_scan_diseqcrepeat Diseqc Wiederholungen für kaskadierte Schaltungen,\nnutzen Sie die links/rechs Tasten
+menu.hint_scan_diseqctype Wählen Sie ihr DiSEqC-Protokoll\nmit "Erweitert" können Sie ihre Anlage einbinden
+menu.hint_scan_fast Schnell-Scan eines ausgewählten Anbieters\nWARNUNG: DiSEqC-Config wird überschrieben
+menu.hint_scan_fastprov Wählen Sie einen Anbieter (Provider) zum scannen
+menu.hint_scan_fasttype Wählen Sie das Sendeformat
+menu.hint_scan_fec Wählen Sie eine Transponder-FEC
+menu.hint_scan_femode Wählen Sie den Verbindungstyp für den zweiten Tuner
+menu.hint_scan_fesetup Konfigurieren des oder der Tuner
+menu.hint_scan_fetimeout Zeit bis zum warten des Signal, in 1/10 Sekunden,\nbenutzen Sie die links/rechts Tasten
+menu.hint_scan_freq Geben Sie eine Transponder-Frequenz ein
+menu.hint_scan_fta Lassen Sie nur frei empfangbare (nicht-verschlüsselte) Programme suchen
+menu.hint_scan_ladirection Wählen Sie ihre Breitengrad-Ausrichtung
+menu.hint_scan_latitude Geben Sie ihren Breitengrad ein
+menu.hint_scan_lnbconfig Konfigurieren Sie LNB-Parameter für diesen Satelliten
+menu.hint_scan_lodirection Wählen Sie ihre Längengrad-Ausrichtung
+menu.hint_scan_lofh High-Banb LNB-Frequenz
+menu.hint_scan_lofl Low-Band LNB-Frequenz
+menu.hint_scan_lofs LNB-Band-Umschalter Frequenz
+menu.hint_scan_longtitude Geben Sie ihren Längengrad ein
+menu.hint_scan_manual Manueller Transponder-Scan mit ausgewählten Parametern
+menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
+menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten
+menu.hint_scan_nid Hier können Sie ihre Kabelnetzwerk-Id in dezimal eingeben
+menu.hint_scan_nit Hier kann man Transponder über gesendete NIT-Daten (Network Information Table) hinzufügen lassen
+menu.hint_scan_pids Scant und speichert auch nur Audio / Video / PMT PIDs
+menu.hint_scan_pol Wählen Sie eine Transponder-Polarisation
+menu.hint_scan_rate Geben Sie eine Transponder-Symbolrate ein
+menu.hint_scan_reset_numbers Zurücksetzen der existierender Kanalnummern und Umnummerierung nach einen Scan
+menu.hint_scan_satadd Wählen Sie ihre verfügbaren Satelliten hier aus, für Ihren Anschluß
+menu.hint_scan_satellite Wählen Sie die Satelliten zum scannen
+menu.hint_scan_satenable Aktivieren Sie diesen Satelliten für ihre Anlage zum scannen
+menu.hint_scan_satfind Sat-Finder: fahren Sie manuell Ihre Rotor-Positionen durch
+menu.hint_scan_satfind_start Startet den Satellitenfinder für die Signalstärke
+menu.hint_scan_satscan Scant den ausgewählten Satelliten
+menu.hint_scan_satselect Ausgewählter Satellit
+menu.hint_scan_satsetup Hier können Sie ihre gewählten Satelitten sehen und das LNB konfigurieren
+menu.hint_scan_savesettings Speichert die Tuner-Config und Scan-Einstellungen,\ndiese bleiben dann erhalten für einen neuen Service-Scan
+menu.hint_scan_scantype Wählen Sie, welche Kanal-Typen Sie scannen möchten
+menu.hint_scan_setup_fe Konfigurieren Sie ihre ausgewählten Tuner
+menu.hint_scan_start Startet die Kanalsuche mit den angegebenen Parametern.\nMit der 'EXIT' Taste kann man abbrechen
+menu.hint_scan_test Testen Sie das Signal für diesen Transponder
+menu.hint_scan_tpselect Wählen Sie einen einzelnen Transponder zum scannen
+menu.hint_scan_uncommited Wählen Sie nicht festgeschriebene Angaben für diesen Satelliten
+menu.hint_scan_usals_repeat Hier können Sie die USALS-Wiederholungen eingeben für den Rotor
+menu.hint_scan_usalsall Setzen oder entfernen Sie USALS-Merker für alle Satelliten
+menu.hint_scan_useusals Verwenden Sie USALS für diesen Satelitten
 menu.hint_scrambled_message Bei aktivierter Option erscheint eine Meldung,\nwenn ein verschlüsselter Sender nicht entschlüsselt werden kann
 menu.hint_screen_setup Konfigurieren Sie den Bildschirmbereich für die Menüanzeige
 menu.hint_screenshot_count Hier können Sie wählen, wie viele Screenshots (1-5) erstellt werden sollen
@@ -1416,7 +1470,7 @@ satsetup.fe_mode_alone independent
 satsetup.fe_mode_loop loop
 satsetup.fe_mode_single single
 satsetup.fe_mode_twin twin
-satsetup.fe_setup Setup tuner
+satsetup.fe_setup Setup Tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
