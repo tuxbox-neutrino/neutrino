@@ -1583,3 +1583,52 @@ start-block~neutrino_esound_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;esound_port;{=esound_port=}=}
 
 end-block~neutrino_esound_save_settings
+
+# ------- list possible directorys for records
+start-block~neutrino_list_record_dirs
+<select name="rec_dir" id="rec_dir" class="y_live_button">
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir~open=}" selected="selected">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_recordingdir~cache=}
+	</option>
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_0~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_0~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_0~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_1~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_1~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_1~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_2~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_2~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_2~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_3~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_3~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_3~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_4~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_4~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_4~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_5~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_5~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_5~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_6~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_6~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_6~cache=}
+	</option>
+	=}
+	{=if-empty:{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_7~cache=}~~
+	<option value="{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_7~cache=}">
+		{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_local_dir_7~cache=}
+	</option>
+	=}
+</select>
+end-block~neutrino_list_record_dirs
