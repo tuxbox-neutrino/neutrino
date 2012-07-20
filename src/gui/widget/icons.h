@@ -169,6 +169,7 @@
 /* menu hints */
 #define NEUTRINO_ICON_HINT_BACK	"hint_back"
 /* main menu */
+#define NEUTRINO_ICON_HINT_TVRADIO_SWITCH	"hint_tvradio_switch"
 #define NEUTRINO_ICON_HINT_TVMODE	"hint_tvmode"
 #define NEUTRINO_ICON_HINT_RADIOMODE	"hint_radiomode"
 #define NEUTRINO_ICON_HINT_TIMERS	"hint_timers"
