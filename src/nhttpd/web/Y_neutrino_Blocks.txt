@@ -324,142 +324,17 @@ start-block~neutrino_form-data_movieplayer
 	<div class="work_box_body">
 	<form name="f" class="y_form" action="/y/cgi">
 		<table cellspacing="0" border="0" cellpadding="2" width="100%">
-			<tr><td colspan="2" class="y_form_header">{=L:set.mp.sources=}</td></tr>
-			<tr class="s">
-				<td width="35%">{=L:set.mp.streamingserver=}</td>
-				<td>
-					<input type="radio" name="streaming_type" value="0" onchange="change_streaming_type()"/>{=L:off=}&nbsp;
-					<input type="radio" name="streaming_type" value="1" onchange="change_streaming_type()"/>{=L:on=}
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.streamingserver_ip=}</td>
-				<td>
-					<input type="text" name="streaming_server_ip" size="20" title="server ip (xxx.xxx.xxx.xxx)"/>
-					<input type="hidden" name="h_streaming_server_ip"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.streamingserver_port=}</td>
-				<td>
-					<input type="text" name="streaming_server_port" size="5" maxlength="5" title="port"/>
-					<input type="hidden" name="h_streaming_server_port"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.dvd_device=}</td>
-				<td>
-					<input type="text" name="streaming_server_cddrive" size="10" title="DVD drive on server"/>
-					<input type="hidden" name="h_streaming_server_cddrive"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.vlc_dir=}</td>
-				<td>
-					<input type="text" name="streaming_server_startdir" size="40" />
-					<input type="hidden" name="h_streaming_server_startdir"/>
-				</td>
-			</tr>
-			<tr><td colspan="2" class="y_form_header">{=L:set.mp.transcoding=}</td></tr>
-			<tr>
-				<td>{=L:set.mp.video_datarate=}</td>
-				<td>
-					<input type="text" name="streaming_videorate" size="6"/>
-					<input type="hidden" name="h_streaming_videorate"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.transcode=}</td>
-				<td>
-					<input type="radio" name="streaming_force_transcode_video" value="0"/>{=L:off=}&nbsp;
-					<input type="radio" name="streaming_force_transcode_video" value="1"/>{=L:on=}
-					<input type="hidden" name="h_streaming_force_transcode_video"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.video_codec=}</td>
-				<td>
-					<select name="streaming_transcode_video_codec" >
-					<option value="0" selected="selected">MPEG1</option>
-					<option value="1">MPEG2</option>
-					</select>
-					<input type="hidden" name="h_streaming_transcode_video_codec"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.resolution=}</td>
-				<td>
-					<select name="streaming_resolution">
-					<option value="0" selected="selected">352 x 288</option>
-					<option value="1">352 x 576</option>
-					<option value="2">480 x 576</option>
-					<option value="3">704 x 576</option>
-					</select>
-					<input type="hidden" name="h_streaming_resolution"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.audio_datarate=}</td>
-				<td>
-					<input type="text" name="streaming_audiorate" size="6"/>
-					<input type="hidden" name="h_streaming_audiorate"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.transcode_audio=}</td>
-				<td>
-					<input type="radio" name="streaming_transcode_audio" value="0"/>{=L:off=}&nbsp;
-					<input type="radio" name="streaming_transcode_audio" value="1"/>{=L:on=}
-					<input type="hidden" name="h_streaming_transcode_audio"/>
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.force_ac3=}</td>
-				<td>
-					<input type="radio" name="streaming_force_avi_rawaudio" value="0"/>{=L:off=}&nbsp;
-					<input type="radio" name="streaming_force_avi_rawaudio" value="1"/>{=L:on=}
-					<input type="hidden" name="h_streaming_force_avi_rawaudio"/>
-				</td>
-			</tr>
 			<tr><td colspan="2" class="y_form_header">{=L:set.mp.player=}</td></tr>
 			<tr>
 				<td>{=L:set.mp.start_directory=}</td>
-				<td><input type="text" name="streaming_moviedir" size="40" /></td>
-			</tr>
-			<tr>
-				<td width="35%">{=L:set.rec.epg_sectionsd=}</td>
-				<td>
-					<select name="stopsectionsd_mp">
-					<option value="0" selected="selected">{=L:set.rec.dont_stop=}</option>
-					<option value="1">{=L:set.rec.stop=}</option>
-					<option value="2">{=L:set.rec.restart=}</option>
-					</select>&nbsp;({=L:set.mp.only_movieplayer=})
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.used_buffer=}</td>
-				<td>
-					<input type="radio" name="streaming_use_buffer" value="0" title="WabberQueue: off"/>{=L:off=}&nbsp;
-					<input type="radio" name="streaming_use_buffer" value="1" title="WabberQueue: on"/>{=L:on=}&nbsp;&nbsp;{=L:set.mp.only_movieplayer=}
-				</td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.number_buffersegments=}</td>
-				<td><input type="text" name="streaming_buffer_segment_size" size="2" maxlength="2" /><span style="position:absolute; left:424px;">({=L:set.mp.only_movieplayer=})</span></td>
-			</tr>
-			<tr>
-				<td>{=L:set.mp.picture_in_browser=}</td>
-				<td>
-					<input type="radio" name="streaming_show_tv_in_browser" value="0"/>{=L:off=}&nbsp;
-					<input type="radio" name="streaming_show_tv_in_browser" value="1"/>{=L:on=}
-				</td>
+				<td><input type="text" name="network_nfs_moviedir" size="40" /></td>
 			</tr>
 		</table>
 		<br/>
 		<input type="hidden" name="tmpl" value="Y_Settings_neutrino_forms.yhtm"/>
 		<input type="hidden" name="execute" value="include-block:Y_neutrino_Blocks.txt;neutrino_movieplayer_save_settings;nix"/>
 		<input type="hidden" name="form" value="{=form=}"/>
-		<button type="button" ytype="save" title="{=L:save_values_desc=}s" onclick="do_submit()">{=L:save=}</button>
+		<button type="button" ytype="save" title="{=L:save_values_desc=}" onclick="do_submit()">{=L:save=}</button>
 		&nbsp;<button type="button" ytype="refresh" onclick="dbox_reload_neutrino()">{=L:set.reload_neutrino=}</button>
 		&nbsp;<a href="javascript:top.top_main.prim_menu.nav('info', 'Y_Info_Help.yhtm');" class="inlink">{=L:help=}</a>
 	</form>
@@ -470,80 +345,11 @@ start-block~neutrino_form-data_movieplayer
 function form_init()
 {
 	var val = "";
-	obj_set_radio_value('streaming_type', "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_type;0~open=}");
-
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_ip~cache=}";
-		document.f.streaming_server_ip.value = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_port;8080~cache=}";
-		document.f.streaming_server_port.value = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_cddrive;D:~cache=}";
-		document.f.streaming_server_cddrive.value = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_server_startdir;C:/Movies~cache=}";
-		document.f.streaming_server_startdir.value = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_videorate;1000~cache=}";
-		document.f.streaming_videorate.value = val;
-
-	obj_set_radio_value('streaming_force_transcode_video', "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_force_transcode_video;0~cache=}");
-
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_transcode_video_codec;0~cache=}";
-		document.f.streaming_transcode_video_codec.selectedIndex = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_resolution;0~cache=}";
-		document.f.streaming_resolution.selectedIndex = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_audiorate;192~cache=}";
-		document.f.streaming_audiorate.value = val;
-
-	obj_set_radio_value('streaming_transcode_audio', "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_transcode_audio;0~cache=}");
-	obj_set_radio_value('streaming_force_avi_rawaudio', "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_force_avi_rawaudio;0~cache=}");
-
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_moviedir~cache=}";	
-		document.f.streaming_moviedir.value = val;
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_stopsectionsd;1~cache=}";
-		document.f.stopsectionsd_mp.selectedIndex = val;
-
-	obj_set_radio_value('streaming_use_buffer', "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_use_buffer;1~cache=}");
-
-	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_buffer_segment_size;24~cache=}";
-		document.f.streaming_buffer_segment_size.value = val;
-
-	obj_set_radio_value('streaming_show_tv_in_browser', "{=ini-get:/var/tuxbox/config/neutrino.conf;streaming_show_tv_in_browser;0~cache=}");
-	change_streaming_type();
-}
-function change_streaming_type()
-{
-	var vis = document.f.streaming_type[0].checked;
-
-	document.f.streaming_server_ip.disabled = vis;
-	document.f.streaming_server_port.disabled = vis;
-	document.f.streaming_server_cddrive.disabled = vis;
-	document.f.streaming_server_startdir.disabled = vis;
-	document.f.streaming_videorate.disabled = vis;
-	document.f.streaming_force_transcode_video[0].disabled = vis;
-	document.f.streaming_force_transcode_video[1].disabled = vis;
-	document.f.streaming_transcode_video_codec.disabled = vis;
-	document.f.streaming_resolution.disabled = vis;
-	document.f.streaming_audiorate.disabled = vis;
-	document.f.streaming_transcode_audio[0].disabled = vis;
-	document.f.streaming_transcode_audio[1].disabled = vis;
-	document.f.streaming_force_avi_rawaudio[0].disabled = vis;
-	document.f.streaming_force_avi_rawaudio[1].disabled = vis;
-}
-function set_hidden_values()
-{
-	document.f.h_streaming_server_ip.value = document.f.streaming_server_ip.value;
-	document.f.h_streaming_server_port.value = document.f.streaming_server_port.value;
-	document.f.h_streaming_server_cddrive.value = document.f.streaming_server_cddrive.value;
-	document.f.h_streaming_server_startdir.value = document.f.streaming_server_startdir.value;
-	document.f.h_streaming_videorate.value = document.f.streaming_videorate.value;
-	document.f.h_streaming_force_transcode_video.value = obj_get_radio_value("streaming_force_transcode_video");
-	document.f.h_streaming_transcode_video_codec.value = document.f.streaming_transcode_video_codec.selectedIndex;
-	document.f.h_streaming_resolution.value = document.f.streaming_resolution.selectedIndex;
-	document.f.h_streaming_audiorate.value = document.f.streaming_audiorate.value;
-	document.f.h_streaming_transcode_audio.value = obj_get_radio_value("streaming_transcode_audio");
-	document.f.h_streaming_force_avi_rawaudio.value = obj_get_radio_value("streaming_force_avi_rawaudio");
+	val = "{=ini-get:/var/tuxbox/config/neutrino.conf;network_nfs_moviedir~open=}";	
+		document.f.network_nfs_moviedir.value = val;
 }
 function do_submit()
 {
-	set_hidden_values();
 	show_waitbox(true);
 	document.f.submit();
 }
@@ -554,23 +360,7 @@ end-block~neutrino_form-data_movieplayer
 
 # ------- yWeb save Settings
 start-block~neutrino_movieplayer_save_settings
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_type;{=streaming_type=}~open=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_ip;{=h_streaming_server_ip=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_port;{=h_streaming_server_port=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_cddrive;{=h_streaming_server_cddrive=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_server_startdir;{=h_streaming_server_startdir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_videorate;{=h_streaming_videorate=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_force_transcode_video;{=h_streaming_force_transcode_video=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_transcode_video_codec;{=h_streaming_transcode_video_codec=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_resolution;{=h_streaming_resolution=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_audiorate;{=h_streaming_audiorate=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_transcode_audio;{=h_streaming_transcode_audio=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_force_avi_rawaudio;{=h_streaming_force_avi_rawaudio=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_moviedir;{=streaming_moviedir=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_stopsectionsd;{=stopsectionsd_mp=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_use_buffer;{=streaming_use_buffer=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_buffer_segment_size;{=streaming_buffer_segment_size=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;streaming_show_tv_in_browser;{=streaming_show_tv_in_browser=}~save=}
+{=ini-set:/var/tuxbox/config/neutrino.conf;network_nfs_moviedir;{=network_nfs_moviedir=}=}
 
 end-block~neutrino_movieplayer_save_settings
 
