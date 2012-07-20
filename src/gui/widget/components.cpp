@@ -52,22 +52,30 @@ CComponents::~CComponents()
 	clear();
 }
 
-
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg)
 {
-	for(int i=0; i< items_count ;i++){
-		if (do_save_bg){
-			fbdata[i].pixbuf = new fb_pixel_t[fbdata[i].dx * fbdata[i].dy];
-			frameBuffer->SaveScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].pixbuf);
-		}
+	int i;
+	for(i=0; i< items_count ;i++){
+		if (do_save_bg)
+			fbdata[i].pixbuf = saveScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
 		v_screen_val.push_back(fbdata[i]);
+	}
 
+	for(i=0; i< items_count ;i++){
 		if (fbdata[i].is_frame)
 			frameBuffer->paintBoxFrame(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].frame_thickness, fbdata[i].color, fbdata[i].r);
 		else
 			frameBuffer->paintBoxRel(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].color, fbdata[i].r);
 	}
+}
+
+//screen area save
+inline fb_pixel_t* CComponents::saveScreen(int ax, int ay, int dx, int dy)
+{
+	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
+	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
+	return pixbuf;
 }
 
 //restore screen
@@ -184,7 +192,7 @@ void CComponentsDetailLine::hide()
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox
-CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int h, const int w, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow, bool has_shadow)
+CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int h, const int w, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	x 		= x_pos;
 	y 		= y_pos;
@@ -196,6 +204,8 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	fr_thickness	= 2;
+	bg_saved	= false;
+	v_infobox_val.clear();
 }
 
 #define INFOBOX_ITEMS_COUNT 3	
@@ -207,11 +217,40 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	comp_fbdata_t fbdata[INFOBOX_ITEMS_COUNT] =
 	{
 		{x+SHADOW_OFFSET,	y+SHADOW_OFFSET, 	width, 			height, 		col_shadow, 	rad, NULL, NULL, false, 0},
-		{x, 			y, 			width, 			height, 		col_frame, 	rad, NULL, NULL, true, fr_thickness},
+		{x, 			y, 			width, 			height, 		col_frame, 	rad, NULL, NULL, false, 0},
 		{x+fr_thickness,	y+fr_thickness, 	width-2*fr_thickness, 	height-2*fr_thickness, 	col_body, 	rad, NULL, NULL, false, 0},
 	};
 
-	paintFbItems(fbdata, INFOBOX_ITEMS_COUNT, do_save_bg);
+	int start = (shadow) ? 0 : 1;
+	if (do_save_bg) {
+		if (!bg_saved) {
+			v_infobox_val.clear();
+			for(int i = start; i < INFOBOX_ITEMS_COUNT; i++) {
+				fbdata[i].pixbuf = saveScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
+				v_infobox_val.push_back(fbdata[i]);
+				fbdata[i].pixbuf = NULL;
+			}
+			bg_saved = true;
+		}
+	}
+
+	paintFbItems((comp_fbdata_t*)&fbdata[start], INFOBOX_ITEMS_COUNT - start, false);
+}
+
+//restore infobox
+void CComponentsInfoBox::restore(bool clear_)
+{
+	if (!v_infobox_val.empty()) {
+		for(size_t i =0; i< v_infobox_val.size() ;i++) {
+			if (v_infobox_val[i].pixbuf != NULL) {
+				frameBuffer->RestoreScreen(v_infobox_val[i].x, v_infobox_val[i].y, v_infobox_val[i].dx, v_infobox_val[i].dy, v_infobox_val[i].pixbuf);
+				if (clear_)
+					delete[] v_infobox_val[i].pixbuf;
+			}
+		}
+	if (clear_)
+		v_infobox_val.clear();
+	}
 }
 
 void CComponentsInfoBox::hide()
@@ -231,4 +270,3 @@ void CComponentsInfoBox::hide()
 	col_shadow = c_tmp2;
 	col_frame = c_tmp3;
 }
-

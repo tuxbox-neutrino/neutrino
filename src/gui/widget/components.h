@@ -54,6 +54,7 @@ class CComponents
 		std::vector<comp_fbdata_t> v_screen_val;
 
 		void paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg = true);
+		fb_pixel_t* saveScreen(int ax, int ay, int dx, int dy);
 		void clear();
 
 	public:
@@ -92,14 +93,16 @@ class CComponentsInfoBox : public CComponents
 		int rad,fr_thickness;
 		bool shadow;
 		fb_pixel_t col_frame, col_body, col_shadow;
+		bool bg_saved;
+		std::vector<comp_fbdata_t> v_infobox_val;
 
 	public:
-		CComponentsInfoBox(	const int x_pos, const int y_pos, const int h, const int w,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENTDARK_PLUS_0,fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0,
-					bool has_shadow = true);
+		CComponentsInfoBox(	const int x_pos, const int y_pos, const int h, const int w, bool has_shadow = true, 
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENTDARK_PLUS_0,fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		void paint(bool do_save_bg = true);
 		void hide();
+		void restore(bool clear_);
 		void setColor(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
 };
 

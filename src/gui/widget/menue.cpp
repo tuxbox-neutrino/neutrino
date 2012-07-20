@@ -1049,7 +1049,7 @@ void CMenuWidget::paintHint(int pos)
 	int rad = RADIUS_LARGE;
 
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + rad + SHADOW_OFFSET;
+	int ypos2 = y + height + rad + SHADOW_OFFSET + 2;
 	int iwidth = width+sb_width;
 
 	if (hint_painted) {
@@ -1058,7 +1058,8 @@ void CMenuWidget::paintHint(int pos)
 			details_line->restore();
 		/* clear info box */
 		if (info_box != NULL)
-			pos == -1 ? info_box->hide() : info_box->restore();
+			if (pos == -1)
+				info_box->restore(true);
 		hint_painted = false;
 	}
 	if (pos < 0)
@@ -1069,7 +1070,7 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
 		if (info_box != NULL)
-			info_box->hide();
+			info_box->restore(false);
 		return;
 	}
 
@@ -1080,7 +1081,7 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	//details line
 	int ypos1 = item->getYPosition();
 	int ypos1a = ypos1 + (iheight/2)-2;
-	int ypos2a = ypos2 + (hint_height/2);
+	int ypos2a = ypos2 + (hint_height/2)-2;
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
 	
