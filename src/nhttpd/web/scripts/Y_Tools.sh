@@ -179,13 +179,6 @@ bootlogo_lcd_upload()
 	y_format_message_html
 }
 # -----------------------------------------------------------
-ucodes_upload()
-{
-	msg="$1 hochgeladen<br><a href='/Y_Settings_ucodes.htm'><u>next file</u></a>"
-	upload_copy "$y_path_ucodes/$1"
-	y_format_message_html
-}
-# -----------------------------------------------------------
 zapit_upload()
 {
 	msg="$1 hochgeladen<br><a href='/Y_Settings_zapit.yhtm'><u>next file</u></a>"
@@ -545,7 +538,6 @@ case "$1" in
 	image_delete)			image_delete_download_page ;;
 	bootlogo_upload)		bootlogo_upload ;;
 	bootlogo_lcd_upload)	bootlogo_lcd_upload ;;
-	ucodes_upload)			ucodes_upload $2 ;;
 	zapit_upload)			zapit_upload $2 ;;
 	kernel-stack)			msg=`dmesg`; y_format_message_html ;;
 	ps)						msg=`ps`; y_format_message_html ;;

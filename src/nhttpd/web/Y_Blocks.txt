@@ -151,7 +151,6 @@ start-block~personalize_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_getplugins;{=p_getplugins=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_restart;{=p_restart=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_epgrestart;{=p_epgrestart=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_ucodecheck;{=p_ucodecheck=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_chan_epg_stat;{=p_chan_epg_stat=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_imageinfo;{=p_imageinfo=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_update;{=p_update=}~cache=}

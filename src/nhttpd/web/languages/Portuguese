@@ -222,7 +222,6 @@ set.sync_with_neutrino=Sincronização com Neutrino
 
 =======Definições General & Menu
 set.menue.webserver=Webserver
-set.menue.ucodes=Ucodes
 set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Definições do Programador
 set.menue.zapit=Zapit

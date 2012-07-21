@@ -51,7 +51,6 @@ function init(){
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.webserver=}</li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.zapit=}</li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.ucodes=}</li>
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.boot_logo=}</li>
 			~=}
 				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.timer_settings=}</a></li>
@@ -60,7 +59,6 @@ function init(){
 				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:set.menue.webserver=}</a></li>
 				<li><a target="work" href="Y_Settings_zapit.yhtm">{=L:set.menue.zapit=}</a></li>
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_ucodes.yhtm">{=L:set.menue.ucodes=}</a></li>
 				<li><a target="work" href="Y_Tools_Bootlogo.yhtm">{=L:set.menue.boot_logo=}</a></li>
 			~=}
 			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~

@@ -126,25 +126,6 @@ function do_check(){
 		=}
 	~=}
 
-
-	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-	/*ucodes*/
-	{=if-file-exists:/var/tuxbox/ucodes/avia500.ux~
-		sLog_addRow(sLog_body, "green", "Ucodes: avia500.ux found", "ok");
-	~
-		sLog_addRow(sLog_body, "yellow", "Ucodes: avia500.ux not found. "+wiki_url("Ucodes"), "notice");
-	=}
-	{=if-file-exists:/var/tuxbox/ucodes/avia600.ux~
-		sLog_addRow(sLog_body, "green", "Ucodes: avia600.ux found", "ok");
-	~
-		sLog_addRow(sLog_body, "yellow", "Ucodes: avia600.ux not found. "+wiki_url("Ucodes"), "notice");
-	=}
-	{=if-file-exists:/var/tuxbox/ucodes/cam-alpha.bin~
-		sLog_addRow(sLog_body, "green", "Ucodes: cam-alpha found", "ok");
-	~
-		sLog_addRow(sLog_body, "red", "Ucodes: cam-alpha not found. "+wiki_url("Ucodes"), "failed");
-	=}
-	~=}
 	do_stop();
 }
 //]]>
