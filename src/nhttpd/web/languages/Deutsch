@@ -49,7 +49,8 @@ tag=Bezeichnung
 empty=leer
 check=prüfen
 help=Hilfe
-restriced_by_management_ip=Zugriff verwert wg. ManagementIP
+attention=Achtung!
+restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung
@@ -372,6 +373,13 @@ set.timer.klack.url=Persönliche RSS TV-Planer URL
 set.timer.klack.security_code_desc=Klack Sicherheits Code
 set.timer.klack.security_code=Sicherheits Code
 set.timer.channel_name_replacelist=Sendernamen-Ersetzungsliste
+
+========Settings Backup/Restore
+set.settings.backup=Sichern
+set.settings.backup_desc=Sichern Ihrer Einstellungen
+set.settings.restore=Wiederherstellen
+set.settings.restore_desc=Hochladen und wiederherstellen einer vorher erstellten Sicherung. Ihre Box startet danach neu.
+set.settings.warning=Sichern &amp; Wiederherstellen ist nur bei einem gleichen Image mit gleichem Entwicklungsstand sinnvoll.
 
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen

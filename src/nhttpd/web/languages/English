@@ -49,6 +49,7 @@ tag=Tag
 empty=empty
 check=check
 help=Help
+attention=Attention!
 restriced_by_management_ip=restricted by ManagementIP
 
 #========= MAIN Menue
@@ -375,6 +376,13 @@ set.timer.klack.url=Personal RSS TV-Planer URL
 set.timer.klack.security_code_desc=your klack security code to get your data without login
 set.timer.klack.security_code=Security Code
 set.timer.channel_name_replacelist=Channel name replace list
+
+========Settings Backup/Restore
+set.settings.backup=Backup
+set.settings.backup_desc=Backup your settings
+set.settings.restore=Restore
+set.settings.restore_desc=Upload and restore your settings. Your STB will reboot.
+set.settings.warning=Backup & Restore is only useful for the same image with the same level of development. 
 
 ============ Tools Info
 tools.info.show_messages=Kernel Messages

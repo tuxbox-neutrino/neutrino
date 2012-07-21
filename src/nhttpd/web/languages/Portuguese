@@ -49,6 +49,7 @@ tag=Tag
 empty=vazio
 check=verificar
 help=Ajuda
+attention=Attention!
 restriced_by_management_ip=restringido pela Gestão de IP
 
 #========= Menu Principal
@@ -370,6 +371,13 @@ set.ap.screensaver=Screen saver (min, 0=desligado)
 set.ap.decode_priority=Prioridade de decodificação
 set.ap.start_dir=Diretório de Início
 set.ap.parse_shoutcast=Shoutcast Meta-Data
+
+========Settings Backup/Restore
+set.settings.backup=Backup
+set.settings.backup_desc=Backup your settings
+set.settings.restore=Restore
+set.settings.restore_desc=Upload and restore your settings. Your STB will reboot.
+set.settings.warning=Backup & Restore is only useful for the same image with the same level of development. 
 
 ============ Ferramentas de Informação
 tools.info.show_messages=Mensagens do Kernel

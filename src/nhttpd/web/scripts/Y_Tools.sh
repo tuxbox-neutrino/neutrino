@@ -486,35 +486,25 @@ do_fbshot_clear()
 # -----------------------------------------------------------
 do_settings_backup_restore()
 {
-	workdir="$y_path_tmp/y_save_settings"
-	yI_Version="0.1"
+	now=$(date +%Y-%m-%d_%H-%M-%S)
+	workdir="$y_path_tmp/y_save_settings/$now"
 	case "$1" in
 		backup)
-		mkdir $workdir >/dev/null
-		cp -r $y_path_config $workdir >/dev/null
-		t=`date +%y%m%d_%H%M%S`
-		filename="$y_path_tmp/y_Save_Settings_$t.tar"
-		cd $workdir
-		tar -cvf $filename ./*  >/dev/null
-		rm -r $workdir  >/dev/null
-		echo "$filename"
+			rm -rf $workdir
+			mkdir -p $workdir
+			/bin/backup.sh $workdir >/dev/null
+			filename=$(ls -1 -tr $workdir/settings_* | tail -1)
+			echo "$filename"
 		;;
 
 		restore)
-		msg="restore settings"
-		if [ -s "$y_upload_file" ]
-		then
-			# unpack /tmp/upload.tmp
-			cd $y_path_tmp
-			tar -xf "$y_upload_file"
-			rm $y_upload_file
-			cp -rf ./config /var/tuxbox/
-			rm -r ./config
-			msg="$msg ok"
-		else
-			msg="$msg error: no upload file"
-		fi
-		y_format_message_html
+			if [ -s "$y_upload_file" ]
+			then
+				msg=$(/bin/restore.sh "$y_upload_file")
+			else
+				msg="error: no upload file"
+			fi
+			y_format_message_html
 		;;
 	esac
 }
