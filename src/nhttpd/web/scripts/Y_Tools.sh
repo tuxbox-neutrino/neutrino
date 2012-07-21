@@ -188,7 +188,7 @@ ucodes_upload()
 # -----------------------------------------------------------
 zapit_upload()
 {
-	msg="$1 hochgeladen<br><a href='/Y_Settings_zapit.htm'><u>next file</u></a>"
+	msg="$1 hochgeladen<br><a href='/Y_Settings_zapit.yhtm'><u>next file</u></a>"
 	upload_copy "$y_path_zapit/$1"
 	y_format_message_html
 }
