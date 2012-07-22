@@ -140,6 +140,8 @@ class CAudioPlayerGui : public CMenuTarget
 	bool          m_screensaver;
 	bool          m_inetmode;
 	uint32_t       stimer;
+	CComponentsDetailLine *dline;
+	CComponentsInfoBox *ibox;
 
 	SMSKeyInput    m_SMSKeyInput;
 
