@@ -192,7 +192,7 @@ void CComponentsDetailLine::hide()
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox
-CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int h, const int w, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	x 		= x_pos;
 	y 		= y_pos;

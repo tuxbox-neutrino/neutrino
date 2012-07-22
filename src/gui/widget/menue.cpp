@@ -44,7 +44,6 @@
 #include <cctype>
 
 #define ConnectLineBox_Width    16
-#define INFO_BOX_Y_OFFSET	2
 
 /* the following generic menu items are integrated into multiple menus at the same time */
 CMenuSeparator CGenericMenuSeparator;
@@ -1097,7 +1096,7 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	details_line->paint();
 
 	if (info_box == NULL)
-		info_box = new CComponentsInfoBox(x, ypos2, hint_height, iwidth);
+		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height);
 	else {
 		info_box->setXPos(x);
 		info_box->setYPos(ypos2);

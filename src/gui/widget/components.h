@@ -87,6 +87,7 @@ class CComponentsDetailLine : public CComponents
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
 };
 
+#define INFO_BOX_Y_OFFSET	2
 class CComponentsInfoBox : public CComponents
 {
 	private:
@@ -97,7 +98,7 @@ class CComponentsInfoBox : public CComponents
 		std::vector<comp_fbdata_t> v_infobox_val;
 
 	public:
-		CComponentsInfoBox(	const int x_pos, const int y_pos, const int h, const int w, bool has_shadow = true, 
+		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = true, 
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENTDARK_PLUS_0,fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		void paint(bool do_save_bg = true);
