@@ -49,6 +49,7 @@ class CBEChannelSelectWidget : public CListBox
 		CZapitClient::channelsMode mode;
 		bool isChannelInBouquet( int index);
 		CComponentsDetailLine *dline;
+		CComponentsInfoBox *ibox;
 
 		uint	getItemCount();
 		void paintItem(uint32_t itemNr, int paintNr, bool selected);

@@ -48,6 +48,7 @@ class CBEChannelWidget : public CMenuTarget
 	private:
 		CFrameBuffer	*frameBuffer;
 		CComponentsDetailLine *dline;
+		CComponentsInfoBox *ibox;
 		
 		enum state_
 		{

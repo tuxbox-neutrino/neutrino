@@ -74,6 +74,7 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsi
 	liststart = 0;
 	bouquetChannels = NULL;
 	dline = NULL;
+	ibox = NULL;
 }
 
 CBEChannelSelectWidget::~CBEChannelSelectWidget()
@@ -82,6 +83,10 @@ CBEChannelSelectWidget::~CBEChannelSelectWidget()
 	if (dline != NULL)
 		dline->hide();
 	delete dline;
+	// clear infobox
+	if (ibox != NULL)
+		ibox->hide();
+	delete ibox;
 }
 
 uint	CBEChannelSelectWidget::getItemCount()
@@ -115,7 +120,6 @@ void CBEChannelSelectWidget::paintItem(uint32_t itemNr, int paintNr, bool pselec
 		color   = COL_MENUCONTENTSELECTED;
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 
-		frameBuffer->paintBoxRel(x+2, y + height + 2, width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);
 		if(itemNr < getItemCount()) {
 			paintItem2DetailsLine (paintNr, itemNr);
 			paintDetails(itemNr);
@@ -218,8 +222,8 @@ void CBEChannelSelectWidget::paintDetails(int index)
 	else
 		desc = desc + " (" + satname + ")";
 
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight+INFO_BOX_Y_OFFSET, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
+	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+INFO_BOX_Y_OFFSET, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
 }
 
 void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
@@ -228,14 +232,17 @@ void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
-	int ypos2 = y + height;
+	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
-	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
 
 	// clear details line
 	if (dline != NULL)
 		dline->hide();
+
+	// clear infobox
+	if (ibox != NULL)
+		ibox->hide();
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0)
@@ -243,10 +250,12 @@ void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
-		dline->paint();
+		dline->paint(false);
 
-		//info box frame
-		frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
+		//infobox
+		if (ibox == NULL)
+			ibox = new CComponentsInfoBox(x, ypos2, width, info_height, false);
+		ibox->paint(false);
 	}
 }
 
