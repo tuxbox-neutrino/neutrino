@@ -65,7 +65,6 @@
 #include <gui/widget/hintbox.h>
 #include <gui/widget/stringinput.h>
 #include <gui/widget/stringinput_ext.h>
-#include <gui/widget/components.h>
 
 #include <system/settings.h>
 #include <xmltree/xmlinterface.h>
@@ -1874,14 +1873,14 @@ void CAudioPlayerGui::clearItemID3DetailsLine ()
 void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 {
 	int xpos  = m_x - ConnectLineBox_Width;
-	int ypos1 = m_y + m_title_height + m_theight+ 0 + pos*m_fheight;
-	int ypos2 = m_y + (m_height - m_info_height);
+	int ypos1 = m_y + m_title_height + m_theight+ 0 + pos*m_fheight + INFO_BOX_Y_OFFSET;
+	int ypos2 = m_y + (m_height - m_info_height) + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (m_fheight / 2) - 2;
 	int ypos2a = ypos2 + (m_info_height / 2) - 2;
 
-	// Clear
-	m_frameBuffer->paintBackgroundBoxRel(xpos - 1, m_y + m_title_height, ConnectLineBox_Width + 1,
-					     m_height - m_title_height);
+	// clear details line
+	if (dline != NULL)
+		dline->hide();
 
 	// paint Line if detail info (and not valid list pos) and info box
 	if (!m_playlist.empty() && (pos >= 0))
@@ -1890,7 +1889,7 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, m_fheight/2+1, m_fheight);
 		dline->setYPos(ypos1a);
-		dline->paint(false);
+		dline->paint();
 
 		// paint id3 infobox
 		if (ibox == NULL)

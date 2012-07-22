@@ -37,6 +37,7 @@
 #include "driver/framebuffer.h"
 #include "driver/audiofile.h"
 #include "gui/filebrowser.h"
+#include "gui/widget/components.h"
 #include "gui/widget/menue.h"
 
 #include <xmltree/xmlinterface.h>
