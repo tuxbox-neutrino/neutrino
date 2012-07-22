@@ -83,7 +83,7 @@ class CRemoteControl
 public:
 	t_channel_id                  current_channel_id;
 	uint64_t		      current_EPGid;
-	uint64_t                      next_EPGid;
+	//uint64_t                      next_EPGid;
 	CZapitClient::responseGetPIDs current_PIDs;
 
 	// APID - Details

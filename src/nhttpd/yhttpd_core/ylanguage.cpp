@@ -7,10 +7,11 @@
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
+#include <unistd.h>
 
 // yhttpd
-#include "yconfig.h"
-#include "yhttpd.h"
+#include <yconfig.h>
+#include <yhttpd.h>
 #include "ytypes_globals.h"
 #include "ylanguage.h"
 #include "yconnection.h"

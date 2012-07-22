@@ -117,6 +117,5 @@ void CParentalSetup::showParentalSetup()
 	plock->addItem( new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget));
 
 	plock->exec(NULL, "");
-	plock->hide();
 	delete plock;
 }

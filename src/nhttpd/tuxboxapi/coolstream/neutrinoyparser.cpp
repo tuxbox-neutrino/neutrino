@@ -38,6 +38,7 @@ bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSect
 void sectionsd_getCurrentNextServiceKey(t_channel_id uniqueServiceKey, CSectionsdClient::responseGetCurrentNextInfoChannelID& current_next );
 bool sectionsd_getComponentTagsUniqueKey(const event_id_t uniqueKey, CSectionsdClient::ComponentTagList& tags);
 bool sectionsd_getActualEPGServiceKey(const t_channel_id uniqueServiceKey, CEPGData * epgdata);
+bool sectionsd_getEPGid(const event_id_t epgID, const time_t startzeit, CEPGData * epgdata);
 //=============================================================================
 // Constructor & Destructor & Initialization
 //=============================================================================
@@ -96,7 +97,8 @@ THandleStatus CNeutrinoYParser::Hook_ReadConfig(CConfigFile *Config, CStringList
 		Config->setInt32("configfile.version", CONF_VERSION);
 		Config->saveConfig(HTTPD_CONFIGFILE);
 	}
-	std::string logo = ConfigList["TUXBOX_LOGOS_URL"];
+	//std::string logo = 
+	ConfigList["TUXBOX_LOGOS_URL"];
 	return HANDLED_CONTINUE;
 }
 
@@ -398,7 +400,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 			{
 				CZapitClient::subServiceList subServiceList;
 
-				for (CSectionsdClient::NVODTimesList::iterator ni = nvod_list.begin(); ni != nvod_list.end(); ni++)
+				for (CSectionsdClient::NVODTimesList::iterator ni = nvod_list.begin(); ni != nvod_list.end(); ++ni)
 				{
 					CZapitClient::commandAddSubServices cmd;
 					CEPGData epg;
@@ -408,7 +410,7 @@ std::string CNeutrinoYParser::func_get_bouquets_with_epg(CyhookHandler *hh, std:
 					cmd.service_id = ntohs(ni->service_id);
 					cmd.transport_stream_id = ntohs(ni->transport_stream_id);
 
-					t_channel_id channel_id = CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(cmd.service_id, cmd.original_network_id, cmd.transport_stream_id);
+					t_channel_id channel_id = CREATE_CHANNEL_ID(cmd.service_id, cmd.original_network_id, cmd.transport_stream_id);
 
 					timestr = timeString(ni->zeit.startzeit); // FIXME: time is wrong (at least on little endian)!
 					sectionsd_getActualEPGServiceKey(channel_id&0xFFFFFFFFFFFFULL, &epg); // FIXME: der scheissendreck geht nit!!!
@@ -577,7 +579,7 @@ std::string  CNeutrinoYParser::func_get_audio_pids_as_dropdown(CyhookHandler *, 
 	if(eit_not_ok)
 	{
 		unsigned short i = 0;
-		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); it++)
+		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); ++it)
 		{
 			if(!(init_iso))
 			{
@@ -743,7 +745,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 	int i = 1;
 	char classname= 'a';
 	CTimerd::TimerList::iterator timer = timerlist.begin();
-	for(; timer != timerlist.end();timer++)
+	for(; timer != timerlist.end();++timer)
 	{
 		classname = (i++&1)?'a':'b';
 
@@ -781,7 +783,7 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 			{
 				sAddData = NeutrinoAPI->GetServiceName(timer->channel_id);
 				if (sAddData.empty())
-					sAddData = NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
+					sAddData = CServiceManager::getInstance()->IsChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
 
 				if( timer->apids != TIMERD_APIDS_CONF)
 				{
@@ -808,9 +810,8 @@ std::string  CNeutrinoYParser::func_get_timer_list(CyhookHandler *, std::string 
 				}
 				if(timer->epgID!=0)
 				{
-					CSectionsdClient sdc;
 					CEPGData epgdata;
-					if (sdc.getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+					if (sectionsd_getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
 						sAddData+="<br/>" + epgdata.title;
 					else
 						sAddData+=std::string("<br/>")+timer->epgTitle;

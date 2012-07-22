@@ -46,7 +46,7 @@ prepare_radio()
 # -----------------------------------
 # Main
 # -----------------------------------
-echo "$1" >/tmp/debug.txt
+# echo "$1" >/tmp/debug.txt
 echo "$*"
 case "$1" in
 	zapto)

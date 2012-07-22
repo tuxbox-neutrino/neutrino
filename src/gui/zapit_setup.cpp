@@ -68,12 +68,13 @@ void CZapitSetup::showMenu()
 
 	//zapit
 	zapit->addItem(new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CSelectChannelWidget select;
+
 	zapit->addItem(GenericMenuSeparatorLine);
-	zapit->addItem(zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, new CSelectChannelWidget(), "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
-	zapit->addItem(zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, new CSelectChannelWidget(), "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
+	zapit->addItem(zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
+	zapit->addItem(zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
 
 	zapit->exec(NULL, "");
-	zapit->hide();
 	delete zapit;
 }
 
@@ -85,7 +86,7 @@ bool CZapitSetup::changeNotify(const neutrino_locale_t OptionName, void *)
 		zapit2->setActive(!g_settings.uselastchannel);
 	}
 
-	return true;
+	return false;
 }
 
 //select menu
@@ -128,13 +129,11 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 		{
 			g_settings.StartChannelTV = actionKey.substr(actionKey.find_first_of("#")+1);
 			g_settings.startchanneltv_id = channel_id;
-			g_settings.startchanneltv_nr = cnr-1;
 		}
 		else if (strncmp(actionKey.c_str(), "ZCR:", 4) == 0)//...radio
 		{
 			g_settings.StartChannelRadio = actionKey.substr(actionKey.find_first_of("#")+1);
 			g_settings.startchannelradio_id= channel_id;
-			g_settings.startchannelradio_nr = cnr-1;
 		}
 
 		// ...leave bouquet/channel menu and show a refreshed zapit menu with current start channel(s)
@@ -173,7 +172,6 @@ void CSelectChannelWidget::InitZapitChannelHelper(CZapitClient::channelsMode mod
 		}
 	}
 	mctv.exec (NULL, "");
-	mctv.hide ();
 
 	// delete dynamic created objects
 	for(unsigned int count=0;count<toDelete.size();count++)

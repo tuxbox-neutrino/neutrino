@@ -46,7 +46,6 @@
 #include <daemonc/remotecontrol.h>    /* st_rmsg      */
 #include <gui/personalize.h>
 #include <gui/user_menue.h>
-#include <zapit/client/zapitclient.h>
 
 #include <string>
 
@@ -116,20 +115,18 @@ private:
 	int				lastChannelMode;
 	struct timeval                  standby_pressed_at;
 
-	CZapitClient::responseGetLastChannel    firstchannel;
-	st_rmsg				sendmessage;
-
 	int				current_muted;
 
 	bool				skipShutdownTimer;
 	bool 				pbBlinkChange;
+
+	int tvsort[LIST_MODE_LAST];
+	int radiosort[LIST_MODE_LAST];
+
 	CColorSetupNotifier		*colorSetupNotifier;
 	CMoviePluginChangeExec 		*MoviePluginChanger;
-	COnekeyPluginChangeExec		*OnekeyPluginChanger;
-	CIPChangeNotifier		*MyIPChanger;
 
 	void SDT_ReloadChannels();
-	void firstChannel();
 	void setupNetwork( bool force= false );
 	void setupNFS();
 
@@ -142,15 +139,19 @@ private:
 	void ExitRun(const bool write_si = true, int retcode = 0);
 	void RealRun(CMenuWidget &mainSettings);
 	void InitZapper();
-	
+	void InitTimerdClient();
+	void InitZapitClient();
+	void InitSectiondClient();
+
 	//menues
 	void InitMenu();
  	void InitMenuMain();
 	void InitMenuSettings();
 	void InitMenuService();
-		
+
 	void SetupFrameBuffer();
 	void CmdParser(int argc, char **argv);
+	void Cleanup();
 	CNeutrinoApp();
 
 public:
@@ -211,12 +212,14 @@ public:
 	bool isMuted() {return current_muted; }
 	void setCurrentMuted(int m) { current_muted = m; }
 	int recordingstatus;
+	void MakeSectionsdConfig(CSectionsdClient::epg_config& config);
 	void SendSectionsdConfig(void);
 	int GetChannelMode(void) {
 		return lastChannelMode;
 	};
 	void SetChannelMode(int mode);
 	void quickZap(int msg);
+	void numericZap(int msg);
 	void StopSubtitles();
 	void StartSubtitles(bool show = true);
 	void SelectSubtitles();

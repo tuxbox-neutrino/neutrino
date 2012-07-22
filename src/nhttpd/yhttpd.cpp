@@ -14,12 +14,12 @@
 
 // yhttpd
 #include "yconfig.h"
-#include "ylogging.h"
-#include "ylanguage.h"
-#include "yhook.h"
+#include <ylogging.h>
+#include <ylanguage.h>
+#include <yhook.h>
 
 #ifdef Y_CONFIG_USE_YPARSER
-#include "mod_yparser.h"
+#include <mod_yparser.h>
 static CyParser yParser;
 #endif
 

@@ -161,7 +161,6 @@ int CSettingsManager::showMenu()
 	mset->addItem(new CMenuForwarder(LOCALE_RESET_ALL,   true, NULL, resetNotifier, 	"all", 		CRCInput::RC_standby, NEUTRINO_ICON_BUTTON_POWER));
 		
 	int res = mset->exec(NULL, "");
-	mset->hide();
 	delete resetNotifier;
 	delete mset;
 	return res;

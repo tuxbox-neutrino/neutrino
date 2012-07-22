@@ -280,7 +280,7 @@ CMenuGlobal::CMenuGlobal()
 CMenuGlobal::~CMenuGlobal()
 {
 	v_selected.clear();
-};
+}
 
 //Note: use only singleton to create an instance in the constructor or init handler of menu widget
 CMenuGlobal* CMenuGlobal::getInstance()
@@ -1441,38 +1441,14 @@ CMenuOptionLanguageChooser::CMenuOptionLanguageChooser(char* OptionValue, CChang
 
 CMenuOptionLanguageChooser::~CMenuOptionLanguageChooser()
 {
-	options.clear();
-}
-
-void CMenuOptionLanguageChooser::addOption(const char * const value)
-{
-	options.push_back(std::string(value));
 }
 
 int CMenuOptionLanguageChooser::exec(CMenuTarget*)
 {
-	bool wantsRepaint = false;
-
-	//select value
-	for(unsigned int count = 0; count < options.size(); count++)
-	{
-		if (strcmp(options[count].c_str(), optionValue) == 0)
-		{
-			strcpy(g_settings.language, options[(count + 1) % options.size()].c_str());
-			break;
-		}
-	}
-
-	paint(true);
+	strncpy(g_settings.language, optionValue.c_str(), sizeof(g_settings.language));
 	if(observ)
-	{
-		wantsRepaint = observ->changeNotify(LOCALE_LANGUAGESETUP_SELECT, optionValue);
-	}
+		observ->changeNotify(LOCALE_LANGUAGESETUP_SELECT, (void *) optionValue.c_str());
 	return menu_return::RETURN_EXIT;
-	if ( wantsRepaint )
-		return menu_return::RETURN_REPAINT;
-	else
-		return menu_return::RETURN_NONE;
 }
 
 int CMenuOptionLanguageChooser::paint( bool selected )
@@ -1485,19 +1461,14 @@ int CMenuOptionLanguageChooser::paint( bool selected )
 	paintItemButton(selected, height, iconName);
 	
 	//convert first letter to large
-	string s_optionValue = static_cast<std::string> (optionValue);
-	string ts = s_optionValue.substr(0, 1);
-	string s(ts);
-	s = toupper(s_optionValue[0]);
-	s_optionValue.replace(0, 1, s);
-	
+	std::string s_optionValue = optionValue;
+	if(!s_optionValue.empty())
+		s_optionValue[0] = toupper(s_optionValue[0]);
 	//paint text
 	paintItemCaption(selected, height , s_optionValue.c_str());
 
 	return y+height;
 }
-
-
 
 //-------------------------------------------------------------------------------------------------------------------------------
 CMenuForwarder::CMenuForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
@@ -1615,6 +1586,20 @@ int CMenuForwarder::paint(bool selected)
 	return y+ height;
 }
 
+CMenuDForwarder::CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const char * const Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+	: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
+{
+}
+
+CMenuDForwarder::CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target, const char * const ActionKey, neutrino_msg_t DirectKey, const char * const IconName, const char * const IconName_Info_right)
+	: CMenuForwarder(Text, Active, Option, Target, ActionKey, DirectKey, IconName, IconName_Info_right)
+{
+}
+
+CMenuDForwarder::~CMenuDForwarder()
+{
+	delete jumpTarget;
+}
 
 //-------------------------------------------------------------------------------------------------------------------------------
 const char * CMenuForwarderNonLocalized::getName(void)

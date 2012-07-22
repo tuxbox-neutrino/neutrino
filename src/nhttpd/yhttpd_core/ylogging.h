@@ -8,7 +8,7 @@
 // system
 #include <pthread.h>
 // yhttpd
-#include "yconfig.h"
+#include <yconfig.h>
 
 // forward declaration
 class CWebserverConnection;

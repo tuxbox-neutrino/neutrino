@@ -24,6 +24,7 @@ INSTALL
 *.lo
 *.a
 *.la
+.*.swp
 
 ### binaries that fall out of the build
 lib/sectionsdclient/sectionsdcontrol
@@ -31,3 +32,5 @@ src/neutrino
 src/nhttpd/web/*.js.gz
 src/zapit/src/pzapit
 src/zapit/src/udpstreampes
+src/drivertool
+src/gui/svn_version.h

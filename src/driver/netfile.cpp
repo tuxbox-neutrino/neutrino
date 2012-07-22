@@ -1021,7 +1021,7 @@ FILE *f_open(const char *filename, const char *acctype)
 
 		case MODE_PLS:	{
 			char *ptr2, /*buf[4096], use local buf from function */ servers[25][1024];
-			int rval, retries = retry_num;
+			int /*rval,*/ retries = retry_num;
 			ptr = NULL;
 
 			/* fetch the playlist from the shoutcast directory with our own */
@@ -1037,7 +1037,7 @@ FILE *f_open(const char *filename, const char *acctype)
 					/* operating system because we don't need/want stream caching for */
 					/* this operation */
 
-					rval = fread(buf, sizeof(char), 4096, fd);
+					/*rval =*/ fread(buf, sizeof(char), 4096, fd);
 					f_close(fd);
 
 					ptr = strstr(buf, "http://");

@@ -534,7 +534,7 @@ restart_neutrino()
 # Main
 # -----------------------------------------------------------
 #debug
-echo "call:$*" >> "/tmp/debug.txt"
+# echo "call:$*" >> "/tmp/debug.txt"
 case "$1" in
 	skin_set)				skin_set $2 ;;
 	skin_get)				skin_get ;;

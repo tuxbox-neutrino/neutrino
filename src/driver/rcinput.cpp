@@ -34,14 +34,13 @@
 #endif
 
 #include <driver/rcinput.h>
-#include <driver/stream2file.h>
+#include <driver/abstime.h>
 
 #include <stdio.h>
 #include <asm/types.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/time.h>
-//#define RCDEBUG
 #include <utime.h>
 #include <stdlib.h>
 #ifdef KEYBOARD_INSTEAD_OF_REMOTE_CONTROL
@@ -62,11 +61,17 @@
 #include <neutrino.h>
 #include <cs_api.h>
 
+//#define RCDEBUG
+//#define USE_GETTIMEOFDAY
+
+#define ENABLE_REPEAT_CHECK
+
 #if HAVE_SPARK_HARDWARE
 /* this relies on event0 being the AOTOM frontpanel driver device
  * TODO: what if another input device is present? */
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
 #else
+//const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir", "/dev/input/event0"};
 const char * const RC_EVENT_DEVICE[NUMBER_OF_EVENT_DEVICES] = {"/dev/input/nevis_ir"};
 #endif
 typedef struct input_event t_input_event;
@@ -347,13 +352,15 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 	return res;
 }
 
-
 int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 {
+#ifdef USE_GETTIMEOFDAY
 	struct timeval tv;
-
 	gettimeofday( &tv, NULL );
 	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
+#else
+	uint64_t timeNow = time_monotonic_us();
+#endif
 
 	timer _newtimer;
 	if (!oneshot)
@@ -380,6 +387,7 @@ int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 	return _newtimer.id;
 }
 
+#ifdef USE_GETTIMEOFDAY
 int CRCInput::addTimer(struct timeval Timeout)
 {
 	uint64_t timesout = (uint64_t) Timeout.tv_usec + (uint64_t)((uint64_t) Timeout.tv_sec * (uint64_t) 1000000);
@@ -390,6 +398,7 @@ int CRCInput::addTimer(const time_t *Timeout)
 {
 	return addTimer( (uint64_t)*Timeout* (uint64_t) 1000000, true, false );
 }
+#endif
 
 void CRCInput::killTimer(uint32_t &id)
 {
@@ -409,13 +418,14 @@ void CRCInput::killTimer(uint32_t &id)
 
 int CRCInput::checkTimers()
 {
-	struct timeval tv;
 	int _id = 0;
-
+#ifdef USE_GETTIMEOFDAY
+	struct timeval tv;
 	gettimeofday( &tv, NULL );
 	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-
-
+#else
+	uint64_t timeNow = time_monotonic_us();
+#endif
 	std::vector<timer>::iterator e;
 	for ( e= timers.begin(); e!= timers.end(); ++e )
 		if ( e->times_out< timeNow+ 2000 )
@@ -455,41 +465,46 @@ int CRCInput::checkTimers()
 
 int64_t CRCInput::calcTimeoutEnd(const int timeout_in_seconds)
 {
+#ifdef USE_GETTIMEOFDAY
 	struct timeval tv;
-
 	gettimeofday(&tv, NULL);
-
 	return (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec + (uint64_t)timeout_in_seconds) * (uint64_t) 1000000;
+#else
+	return time_monotonic_us() + ((uint64_t)timeout_in_seconds * (uint64_t) 1000000);
+#endif
 }
 
 int64_t CRCInput::calcTimeoutEnd_MS(const int timeout_in_milliseconds)
 {
+#ifdef USE_GETTIMEOFDAY
 	struct timeval tv;
-
 	gettimeofday(&tv, NULL);
-
 	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-
+#else
+	uint64_t timeNow = time_monotonic_us();
+#endif
 	return ( timeNow + timeout_in_milliseconds * 1000 );
 }
 
-
 void CRCInput::getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t *TimeoutEnd, bool bAllowRepeatLR)
 {
+#ifdef USE_GETTIMEOFDAY
 	struct timeval tv;
-
 	gettimeofday( &tv, NULL );
 	uint64_t timeNow = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-
+#else
+	uint64_t timeNow = time_monotonic_us();
+#endif
 	uint64_t diff;
 
 	if ( *TimeoutEnd < timeNow+ 100 )
 		diff = 100;  // Minimum Differenz...
 	else
 		diff = ( *TimeoutEnd - timeNow );
+
 //printf("CRCInput::getMsgAbsoluteTimeout diff %llx TimeoutEnd %llx now %llx\n", diff, *TimeoutEnd, timeNow);
 	getMsg_us( msg, data, diff, bAllowRepeatLR );
-
+#ifdef USE_GETTIMEOFDAY
 	if ( *msg == NeutrinoMessages::EVT_TIMESET )
 	{
 		// recalculate timeout....
@@ -498,6 +513,7 @@ void CRCInput::getMsgAbsoluteTimeout(neutrino_msg_t * msg, neutrino_msg_data_t *
 
 		//printf("[getMsgAbsoluteTimeout]: EVT_TIMESET - recalculate timeout\n%llx/%llx - %llx/%llx\n", timeNow, *(int64_t*) *data, *TimeoutEnd, ta );
 	}
+#endif
 }
 
 void CRCInput::getMsg(neutrino_msg_t * msg, neutrino_msg_data_t * data, int Timeout, bool bAllowRepeatLR)
@@ -510,16 +526,16 @@ void CRCInput::getMsg_ms(neutrino_msg_t * msg, neutrino_msg_data_t * data, int T
 	getMsg_us(msg, data, (uint64_t) Timeout * 1000, bAllowRepeatLR);
 }
 
-#define ENABLE_REPEAT_CHECK
 void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint64_t Timeout, bool bAllowRepeatLR)
 {
 	static uint64_t last_keypress = 0ULL;
-	uint64_t getKeyBegin;
+	//uint64_t getKeyBegin;
 
 	//static __u16 rc_last_key =  KEY_MAX;
 	static __u16 rc_last_repeat_key =  KEY_MAX;
 
-	struct timeval tv, tvselect;
+	struct timeval tv;
+	struct timeval tvselect;
 	uint64_t InitialTimeout = Timeout;
 	int64_t targetTimeout;
 
@@ -540,18 +556,25 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 	}
 
 	// wiederholung reinmachen - dass wirklich die ganze zeit bis timeout gewartet wird!
+#ifdef USE_GETTIMEOFDAY
 	gettimeofday( &tv, NULL );
-	getKeyBegin = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-
+	uint64_t getKeyBegin = (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
+#else
+	uint64_t getKeyBegin = time_monotonic_us();
+#endif
 	while(1) {
 		/* we later check for ev.type = EV_SYN which is 0x00, so set something invalid here... */
 		memset(&ev, 0, sizeof(ev));
 		ev.type = EV_MAX;
 		timer_id = 0;
-		if ( timers.size()> 0 )
+		if ( !timers.empty() )
 		{
+#ifdef USE_GETTIMEOFDAY
 			gettimeofday( &tv, NULL );
 			uint64_t t_n= (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
+#else
+			uint64_t t_n = time_monotonic_us();
+#endif
 			if ( timers[0].times_out< t_n )
 			{
 				timer_id = checkTimers();
@@ -868,6 +891,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 						{
 							case CSectionsdClient::EVT_TIMESET:
 							{
+#if 0
 								struct timeval ltv;
 								gettimeofday(&ltv, NULL);
 								int64_t timeOld = ltv.tv_usec + ltv.tv_sec * (int64_t)1000000;
@@ -875,7 +899,8 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								if (dvbtime) {
 									printf("[neutrino] timeset event. ");
 									time_t difftime = dvbtime - ltv.tv_sec;
-									if (abs(difftime) > 120) {
+									if (abs(difftime) > 120) 
+									{
 										printf("difference is %ld s, stepping...\n", difftime);
 										if (stime(&dvbtime))
 											perror("stime");
@@ -896,14 +921,18 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 								delete[] p;//new [] delete []
 								p = new unsigned char[sizeof(int64_t)];
 								*(int64_t*) p = timeNew - timeOld;
-
+#endif
+								printf("[neutrino] CSectionsdClient::EVT_TIMESET: timediff %lld\n", *(int64_t*) p);
+								/* FIXME what this code really do ? */
 								if ((int64_t)last_keypress > *(int64_t*)p)
-								last_keypress += *(int64_t *)p;
+									last_keypress += *(int64_t *)p;
 
+#ifdef USE_GETTIMEOFDAY
 								// Timer anpassen
 								for(std::vector<timer>::iterator e = timers.begin(); e != timers.end(); ++e)
 									if (e->correct_time)
 										e->times_out+= *(int64_t*) p;
+#endif
 								*msg          = NeutrinoMessages::EVT_TIMESET;
 								*data         = (neutrino_msg_data_t) p;
 								dont_delete_p = true;
@@ -915,16 +944,18 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								*data         = (neutrino_msg_data_t) p;
 								dont_delete_p = true;
 								break;
+							case CSectionsdClient::EVT_WRITE_SI_FINISHED:
+								*msg          = NeutrinoMessages::EVT_SI_FINISHED;
+								*data         = 0;
+								break;
+#if 0
 							case CSectionsdClient::EVT_SERVICES_UPDATE:
 								*msg          = NeutrinoMessages::EVT_SERVICES_UPD;
 								*data         = 0;
 								break;
 							case CSectionsdClient::EVT_BOUQUETS_UPDATE:
 								break;
-							case CSectionsdClient::EVT_WRITE_SI_FINISHED:
-								*msg          = NeutrinoMessages::EVT_SI_FINISHED;
-								*data         = 0;
-								break;
+#endif
 							default:
 								printf("[neutrino] event INITID_SECTIONSD - unknown eventID 0x%x\n",  emsg.eventID );
 						}
@@ -1045,6 +1076,10 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 								*msg          = NeutrinoMessages::EVT_PMT_CHANGED;
 								*data = (neutrino_msg_data_t) p;
 								break;
+							case CZapitClient::EVT_TUNE_COMPLETE:
+								*msg          = NeutrinoMessages::EVT_TUNE_COMPLETE;
+								*data = (neutrino_msg_data_t) p;
+								break;
 							default:
 								printf("[neutrino] event INITID_ZAPIT - unknown eventID 0x%x\n",  emsg.eventID );
 						}
@@ -1136,6 +1171,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_NEUTRINO)
 					{
+#if 0
 						if ((emsg.eventID == NeutrinoMessages::EVT_RECORDING_ENDED) &&
 								(read_bytes == sizeof(stream2file_status2_t)))
 						{
@@ -1143,6 +1179,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 							*data = (neutrino_msg_data_t) p;
 							dont_delete_p = true;
 						}
+#endif
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_GENERIC_INPUT_EVENT_PROVIDER)
 					{
@@ -1297,8 +1334,12 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 		else
 		{
 			//timeout neu kalkulieren
+#ifdef USE_GETTIMEOFDAY
 			gettimeofday( &tv, NULL );
 			int64_t getKeyNow = (int64_t) tv.tv_usec + (int64_t)((int64_t) tv.tv_sec * (int64_t) 1000000);
+#else
+			int64_t getKeyNow = time_monotonic_us();
+#endif
 			int64_t diff = (getKeyNow - getKeyBegin);
 			if( Timeout <= (uint64_t) diff )
 			{

@@ -33,7 +33,6 @@
 #include <zapit/bouquets.h>
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
-#include <zapit/sdt.h>
 #include <zapit/settings.h>
 #include <zapit/zapit.h>
 #include <xmlinterface.h>
@@ -152,11 +151,13 @@ void CZapitBouquet::moveService(const unsigned int oldPosition, const unsigned i
 		CZapitChannel* tmp = *it;
 		channels->erase(it);
 
-		advance(it, newPosition - oldPosition);
+		it = channels->begin();
+		advance(it, newPosition);
 		channels->insert(it, tmp);
 	}
 }
 
+#if 0
 size_t CZapitBouquet::recModeRadioSize(const transponder_id_t transponder_id)
 {
 	size_t size = 0;
@@ -177,6 +178,12 @@ size_t CZapitBouquet::recModeTVSize(const transponder_id_t transponder_id)
 			size++;
 
 	return size;
+}
+#endif
+
+CBouquetManager::~CBouquetManager()
+{
+	clearAll();
 }
 
 void CBouquetManager::writeBouquetHeader(FILE * bouq_fd, uint32_t i, const char * bouquetName)
@@ -268,7 +275,7 @@ void CBouquetManager::saveBouquets(const CZapitClient::bouquetMode bouquetMode, 
 			delete (*it);
 			Bouquets.erase(it);
 		}
-		if(Bouquets.size() > 0)
+		if( !Bouquets.empty() )
 			Bouquets[0]->Name = providerName;
 	}
 
@@ -355,7 +362,11 @@ void CBouquetManager::parseBouquetsXml(const char *fname, bool bUser)
 				if(freq > 20000)
 					freq = freq/1000;
 
-				CZapitChannel* chan = CServiceManager::getInstance()->FindChannel(CREATE_CHANNEL_ID64);
+				CZapitChannel* chan;
+				if(bUser)
+					chan = CServiceManager::getInstance()->FindChannel48(CREATE_CHANNEL_ID64);
+				else
+					chan = CServiceManager::getInstance()->FindChannel(CREATE_CHANNEL_ID64);
 				if (chan != NULL) {
 					DBG("%04x %04x %04x %s\n", transport_stream_id, original_network_id, service_id, xmlGetAttribute(channel_node, "n"));
 #if 0
@@ -403,33 +414,40 @@ void CBouquetManager::renumChannels(ZapitChannelList &list, int & counter, char 
 		if(!(*it)->pname && pname)
 			(*it)->pname = pname;
 
-		(*it)->has_bouquet = true;
+		if ((*it)->pname)
+			(*it)->has_bouquet = true;
 	}
 }
 
 void CBouquetManager::makeRemainingChannelsBouquet(void)
 {
 	ZapitChannelList unusedChannels;
-	bool tomake = CZapit::getInstance()->makeRemainingChannelsBouquet();
+	//FIXME services loaded before config.
+	//bool tomake = CZapit::getInstance()->makeRemainingChannelsBouquet();
 
 	/* reset channel number and has_bouquet flag */
 	CServiceManager::getInstance()->ResetChannelNumbers();
 
-	int i = 1, j = 1;
-	for (vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); it++) {
+	//int i = 1, j = 1;
+	int i = CServiceManager::getInstance()->GetMaxNumber(false);
+	int j = CServiceManager::getInstance()->GetMaxNumber(true);
+	/* FIXME temp debug */
+	printf("############## CBouquetManager::makeRemainingChannelsBouquet: numbers start at: tv %d radio %d ############\n", i, j);
+	for (vector<CZapitBouquet*>::const_iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
 		renumChannels((*it)->tvChannels, i, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 		renumChannels((*it)->radioChannels, j, (*it)->bUser ? NULL : (char *) (*it)->Name.c_str());
 	}
 
-	if(!tomake || CServiceManager::getInstance()->GetAllUnusedChannels(unusedChannels) == false)
+	if(/*!tomake ||*/ CServiceManager::getInstance()->GetAllUnusedChannels(unusedChannels) == false)
 		return;
 
 	sort(unusedChannels.begin(), unusedChannels.end(), CmpChannelByChName());
 
 	// TODO: use locales
-	remainChannels = addBouquet((Bouquets.size() == 0) ? "All Channels" : "Other", false); // UTF-8 encoded
+	remainChannels = addBouquet( Bouquets.empty()  ? "All Channels" : "Other", false); // UTF-8 encoded
+	remainChannels->bOther = true;
 
-	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); it++) {
+	for (ZapitChannelList::const_iterator it = unusedChannels.begin(); it != unusedChannels.end(); ++it) {
 		remainChannels->addService(*it);
 	}
 
@@ -452,11 +470,12 @@ CZapitBouquet* CBouquetManager::addBouquet(const std::string & name, bool ub, bo
 	CZapitBouquet* newBouquet = new CZapitBouquet(myfav ? "favorites" : name);
 	newBouquet->bUser = ub;
 	newBouquet->bFav = myfav;
+	newBouquet->bOther = false;
 
 //printf("CBouquetManager::addBouquet: %s, user %s\n", name.c_str(), ub ? "YES" : "NO");
 	if(ub) {
 		BouquetList::iterator it;
-		for(it = Bouquets.begin(); it != Bouquets.end(); it++)
+		for(it = Bouquets.begin(); it != Bouquets.end(); ++it)
 			if(!(*it)->bUser)
 				break;
 		Bouquets.insert(it, newBouquet);
@@ -483,6 +502,7 @@ void CBouquetManager::deleteBouquet(const CZapitBouquet* bouquet)
 	}
 }
 
+#if 0
 int str_compare_withoutspace(char const *s1, char const *s2)
 {
 	int cmp_result = 0;
@@ -496,6 +516,8 @@ int str_compare_withoutspace(char const *s1, char const *s2)
 	}
 	return cmp_result;
 } 
+#endif
+
 // -- Find Bouquet-Name, if BQ exists   (2002-04-02 rasc)
 // -- Return: Bouqet-ID (found: 0..n)  or -1 (Bouquet does not exist)
 int CBouquetManager::existsBouquet(char const * const name)
@@ -506,6 +528,7 @@ int CBouquetManager::existsBouquet(char const * const name)
 		{
 			return (int)i;
 		}
+#if 0
 		else if (strcasecmp(Bouquets[i]->Name.c_str(), name)==0)
 		{
 			int lower1 = 0, lower2 =  0;
@@ -543,6 +566,7 @@ int CBouquetManager::existsBouquet(char const * const name)
 			}
 			return (int)i;
 		}
+#endif
 	}
 	return -1;
 }
@@ -586,7 +610,8 @@ void CBouquetManager::moveBouquet(const unsigned int oldId, const unsigned int n
 		CZapitBouquet* tmp = *it;
 		Bouquets.erase(it);
 
-		advance(it, newId - oldId);
+		it = Bouquets.begin();
+		advance(it, newId);
 		Bouquets.insert(it, tmp);
 	}
 }
@@ -604,7 +629,7 @@ CBouquetManager::ChannelIterator::ChannelIterator(CBouquetManager* owner, const 
 {
 	Owner = owner;
 	tv = TV;
-	if (Owner->Bouquets.size() == 0)
+	if (Owner->Bouquets.empty())
 		c = -2;
 	else {
 		b = 0;
@@ -620,7 +645,7 @@ CBouquetManager::ChannelIterator CBouquetManager::ChannelIterator::operator ++(i
 		c++;
 		if ((unsigned int) c >= getBouquet()->size()) {
 			for (b++; b < Owner->Bouquets.size(); b++)
-				if (getBouquet()->size() != 0) {
+				if ( !getBouquet()->empty() ) {
 					c = 0;
 					goto end;
 				}
@@ -649,6 +674,7 @@ CBouquetManager::ChannelIterator CBouquetManager::ChannelIterator::FindChannelNr
 	return (*this);
 }
 
+#if 0
 int CBouquetManager::ChannelIterator::getLowestChannelNumberWithChannelID(const t_channel_id channel_id)
 {
 	int i = 0;
@@ -660,6 +686,7 @@ int CBouquetManager::ChannelIterator::getLowestChannelNumberWithChannelID(const 
 			    //return i;
 	return -1; // not found
 }
+#endif
 
 int CBouquetManager::ChannelIterator::getNrofFirstChannelofBouquet(const unsigned int bouquet_nr)
 {

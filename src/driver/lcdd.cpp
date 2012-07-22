@@ -1241,7 +1241,7 @@ void CLCD::showFilelist(int flist_pos,CFileList* flist,const char * const mainDi
 		
 	if (mode == MODE_FILEBROWSER && 
 	    m_fileList != NULL &&
-	    m_fileList->size() > 0)
+	    !m_fileList->empty() )
 	{    
 		
 		printf("[lcdd] FileList:OK\n");

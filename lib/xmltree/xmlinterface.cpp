@@ -40,7 +40,7 @@
 #include <libxml/parser.h>
 #include <libxml/parserInternals.h>
 #else  /* USE_LIBXML */
-#include <xmltok.h>
+#include "xmltok.h"
 #endif /* USE_LIBXML */
 
 
@@ -114,7 +114,8 @@ std::string convert_UTF8_To_UTF8_XML(const char* s)
 			r += "&apos;";
 			break;
 		default:
-			r += *s;
+			if ((unsigned char)*s >= 32)
+				r += *s;
 		}
 		s++;
 	}

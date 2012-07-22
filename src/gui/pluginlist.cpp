@@ -52,12 +52,12 @@
 
 #include <global.h>
 #include <neutrino.h>
-#include <plugins.h>
-#include <driver/encoding.h>
 #include <driver/screen_max.h>
 #include <driver/fade.h>
 
 #include <zapit/client/zapittools.h>
+
+#include "plugins.h"
 
 /* for alexW images with old drivers:
  * #define USE_VBI_INTERFACE 1

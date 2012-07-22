@@ -52,7 +52,7 @@
 
 #include <driver/record.h>
 #include <ca_cs.h>
-#include <zapit/cam.h>
+#include <zapit/capmt.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
 #include <zapit/zapit.h>
@@ -130,6 +130,7 @@ bool CRecordInstance::SaveXml()
 
 void CRecordInstance::WaitRecMsg(time_t StartTime, time_t WaitTime)
 {
+	return;
 	while (time(0) < StartTime + WaitTime)
 		usleep(100000);
 }
@@ -171,7 +172,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &
 		apids[numpids++] = allpids.PIDs.pmtpid;
 
 	if(record == NULL)
-		record = new cRecord(RECORD_DEMUX);
+		record = new cRecord(channel->getRecordDemux() /*RECORD_DEMUX*/);
 
 	record->Open();
 
@@ -185,6 +186,9 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &
 		return RECORD_FAILURE;
 	}
 
+	if(!autoshift)
+		CFEManager::getInstance()->lockFrontend(frontend);//FIXME testing
+
 	start_time = time(0);
 	SaveXml();
 
@@ -193,7 +197,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &
 	int len;
 	unsigned char * pmt = channel->getRawPmt(len);
 	cCA * ca = cCA::GetInstance();
-	ca->SendPMT(DEMUX_SOURCE_2, pmt, len);
+	ca->SendPMT(channel->getRecordDemux() /*DEMUX_SOURCE_2*/, pmt, len);
 
 	//CVFD::getInstance()->ShowIcon(VFD_ICON_CAM1, true);
 	WaitRecMsg(msg_start_time, 2);
@@ -223,6 +227,9 @@ bool CRecordInstance::Stop(bool remove_event)
 	printf("%s: channel %llx recording_id %d\n", __FUNCTION__, channel_id, recording_id);
 	SaveXml();
 	record->Stop();
+
+	if(!autoshift)
+		CFEManager::getInstance()->unlockFrontend(frontend);//FIXME testing
 
         CCamManager::getInstance()->Stop(channel_id, CCamManager::RECORD);
 
@@ -272,7 +279,7 @@ bool CRecordInstance::Update()
 	GetPids(channel);
 	FilterPids(apid_list);
 
-	for(it = apid_list.begin(); it != apid_list.end(); it++) {
+	for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 		bool found = false;
 		for(unsigned int i = 0; i < numpids; i++) {
 			if(apids[i] == it->apid) {
@@ -438,11 +445,9 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
         }
         if (apidmode & TIMERD_APIDS_ALT) {
                 uint32_t apid_min=UINT_MAX;
-                uint32_t apid_min_idx=0;
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
                         if (allpids.APIDs[i].pid < apid_min && !allpids.APIDs[i].is_ac3) {
                                 apid_min = allpids.APIDs[i].pid;
-                                apid_min_idx = i;
                         }
                 }
                 for(unsigned int i = 0; i < allpids.APIDs.size(); i++) {
@@ -491,7 +496,7 @@ void CRecordInstance::FilterPids(APIDList & apid_list)
                         APIDDesc a = {apid_min, apid_min_idx, false};
                         apid_list.push_back(a);
                 }
-                for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); it++)
+                for(APIDList::iterator it = apid_list.begin(); it != apid_list.end(); ++it)
                         printf("Record APID 0x%X %d\n",it->apid, it->ac3);
         }
 }
@@ -518,7 +523,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 			info2 = epgdata.info2;
 
 			recMovieInfo->parentalLockAge = epgdata.fsk;
-			if(epgdata.contentClassification.size() > 0 )
+			if( !epgdata.contentClassification.empty() )
 				recMovieInfo->genreMajor = epgdata.contentClassification[0];
 
 			recMovieInfo->length = epgdata.epg_times.dauer	/ 60;
@@ -540,7 +545,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	EPG_AUDIO_PIDS audio_pids;
 	APIDList::iterator it;
 	for(unsigned int i= 0; i< allpids.APIDs.size(); i++) {
-		for(it = apid_list.begin(); it != apid_list.end(); it++) {
+		for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 			if(allpids.APIDs[i].pid == it->apid) {
 				audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 				audio_pids.epgAudioPidName = g_RemoteControl->current_PIDs.APIDs[i].desc;
@@ -551,7 +556,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		}
 	}
 	/* FIXME sometimes no apid in xml ?? */
-	if(recMovieInfo->audioPids.empty() && allpids.APIDs.size()) {
+	if(recMovieInfo->audioPids.empty() && !allpids.APIDs.empty()) {
 		int i = 0;
 		audio_pids.epgAudioPid = allpids.APIDs[i].pid;
 		audio_pids.epgAudioPidName = g_RemoteControl->current_PIDs.APIDs[i].desc;
@@ -779,17 +784,15 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	 * neutrino check if this channel_id already recording, may be not needed */
 	bool direct_record = timeshift || strlen(eventinfo->recordingDir) == 0;
 
-	int mode = g_Zapit->isChannelTVChannel(eventinfo->channel_id) ? NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
-
-	printf("%s channel_id %llx epg: %llx, apidmode 0x%X mode %d\n", __FUNCTION__,
-	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids, mode);
+	printf("%s channel_id %llx epg: %llx, apidmode 0x%X\n", __FUNCTION__,
+	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
 	if(!CheckRecording(eventinfo))
 		return false;
 
 #if 1 // FIXME test
 	StopSectionsd = false;
-	if(recmap.size())
+	if( !recmap.empty() )
 		StopSectionsd = true;
 #endif
 	RunStartScript();
@@ -807,7 +810,13 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			nextmap.push_back((CTimerd::RecordingInfo *)evt);
 		}
 	} else if(recmap.size() < RECORD_MAX_COUNT) {
-		if(CutBackNeutrino(eventinfo->channel_id, mode)) {
+#if 1//FIXME test
+		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
+		CFrontend * frontend = CFEManager::getInstance()->allocateFE(channel);
+		int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
+			NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
+#endif
+		if(frontend && CutBackNeutrino(eventinfo->channel_id, mode)) {
 			std::string newdir;
 			if(dir && strlen(dir))
 				newdir = std::string(dir);
@@ -819,6 +828,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			if (inst == NULL)
 				inst = new CRecordInstance(eventinfo, newdir, timeshift, StreamVTxtPid, StreamPmtPid);
 
+			inst->frontend = frontend;
 			error_msg = inst->Record();
 			if(error_msg == RECORD_OK) {
 				recmap.insert(std::pair<t_channel_id, CRecordInstance*>(eventinfo->channel_id, inst));
@@ -913,7 +923,7 @@ void CRecordManager::StartNextRecording()
 	for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
 		bool tested = true;
 		eventinfo = *it;
-		if(recmap.size() > 0) {
+		if( !recmap.empty() ) {
 			CRecordInstance * inst = FindInstance(eventinfo->channel_id);
 			/* same channel recording and not auto - skip */
 			if(inst && !inst->Timeshift())
@@ -949,7 +959,7 @@ bool CRecordManager::RecordingStatus(const t_channel_id channel_id)
 		CRecordInstance * inst = FindInstance(channel_id);
 		ret = (inst != NULL);
 	} else
-		ret = recmap.size() != 0;
+		ret = !recmap.empty();
 
 	mutex.unlock();
 	return ret;
@@ -1455,20 +1465,21 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
 
-	if(last_mode == NeutrinoMessages::mode_standby && !recmap.size())
+	if(last_mode == NeutrinoMessages::mode_standby && recmap.empty())
 		g_Zapit->setStandby(false); // this zap to live_channel_id
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+#if 0
 	if(live_channel_id != channel_id) {
 		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
 			printf("%s zapTo_record channel_id %llx\n", __FUNCTION__, channel_id);
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
-		} else if(recmap.size()) {
+		} else if(!recmap.empty()) {
 			ret = false;
 		} else {
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
-				// Wenn wir im Standby waren, dann brauchen wir fürs streamen nicht aufwachen...
+				// When we were on standby, then we need not wake up for streaming
 				if(last_mode == NeutrinoMessages::mode_standby)
 					CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
 			}
@@ -1483,7 +1494,36 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 		if(!ret)
 			printf("%s: failed to change channel\n", __FUNCTION__);
 	}
+#endif
 
+	bool mode_changed = false;
+	if(live_channel_id != channel_id) {
+		bool found = false;
+		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
+			found = true;
+		} else {
+			for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+				if(SAME_TRANSPONDER(it->first, channel_id)) {
+					found = true;
+					break;
+				}
+			}
+		}
+		if(found) {
+			ret = g_Zapit->zapTo_record(channel_id) > 0;
+			printf("%s found same tp, zapTo_record channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
+		}
+		else {
+			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
+			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
+				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
+				mode_changed = true;
+			}
+
+			ret = g_Zapit->zapTo_serviceID(channel_id) > 0;
+			printf("%s zapTo_serviceID channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
+		}
+	}
 	if(ret) {
 		if(StopSectionsd) {
 			printf("%s: g_Sectionsd->setPauseScanning(true)\n", __FUNCTION__);
@@ -1495,13 +1535,19 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 		if(last_mode == NeutrinoMessages::mode_standby)
 			g_Zapit->stopPlayBack();
 	}
+	if(last_mode == NeutrinoMessages::mode_standby) {
+		//CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
+		g_RCInput->postMsg( NeutrinoMessages::CHANGEMODE , last_mode);
+	} else if(!ret && mode_changed /*mode != last_mode*/)
+		CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , last_mode);
+
 	printf("%s channel_id %llx mode %d : result %s\n", __FUNCTION__, channel_id, mode, ret ? "OK" : "BAD");
 	return ret;
 }
 
 void CRecordManager::RestoreNeutrino(void)
 {
-	if(recmap.size())
+	if(!recmap.empty())
 		return;
 
 	/* after this zapit send EVT_RECORDMODE_DEACTIVATED, so neutrino getting NeutrinoMessages::EVT_RECORDMODE */

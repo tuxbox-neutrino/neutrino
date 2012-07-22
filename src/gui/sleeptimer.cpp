@@ -84,7 +84,6 @@ int CSleepTimerWidget::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 	int ret = inbox->exec (NULL, "");
 
-	inbox->hide ();
 	delete inbox;
 
 	/* exit pressed, cancel timer setup */

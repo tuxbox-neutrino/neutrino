@@ -31,7 +31,7 @@
 
 #include "eventserver.h"
 
-void CEventServer::registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string udsName)
+void CEventServer::registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string &udsName)
 {
 	strcpy(eventData[eventID][ClientID].udsName, udsName.c_str());
 }
@@ -64,7 +64,7 @@ void CEventServer::sendEvent(const unsigned int eventID, const initiators initia
 {
 	eventClientMap notifyClients = eventData[eventID];
 
-	for(eventClientMap::iterator pos = notifyClients.begin(); pos != notifyClients.end(); pos++)
+	for(eventClientMap::iterator pos = notifyClients.begin(); pos != notifyClients.end(); ++pos)
 	{
 		//allen clients ein event schicken
 		eventClient client = pos->second;

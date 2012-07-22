@@ -68,7 +68,7 @@ class CEventServer
 		unsigned int dataSize;
 	};
 
-	void registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string udsName);
+	void registerEvent2(const unsigned int eventID, const unsigned int ClientID, const std::string &udsName);
 	void registerEvent(const int fd);
 	void unRegisterEvent2(const unsigned int eventID, const unsigned int ClientID);
 	void unRegisterEvent(const int fd);

@@ -23,23 +23,19 @@
 #include <unistd.h>
 
 #include <zapit/client/zapitclient.h>
-#include <zapit/getservices.h>
-#include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/settings.h>
 #include <zapit/types.h>
-#include <zapit/frontend_c.h>
 #include <zapit/dvbstring.h>
-#include <zapit/fastscan.h>
 #include <zapit/satconfig.h>
 #include <zapit/scan.h>
-#include <zapit/frontend_c.h>
 #include <zapit/zapit.h>
 #include <dmx.h>
 #include <math.h>
-#include <sectionsd/edvbstring.h>
+#include <eitd/edvbstring.h>
 
 #define SEC_SIZE 4096
+//#define SCAN_DEBUG
 
 fast_scan_operator_t fast_scan_operators [OPERATOR_MAX] = {
 	{ CD_OPERATOR_ID, 900, 901, (char *) "CanalDigitaal" },
@@ -54,26 +50,40 @@ extern transponder_list_t transponders; //  defined in zapit.cpp
 
 void CServiceScan::InitFastscanLnb(int id)
 {
-	CServiceManager::getInstance()->InitSatPosition(192);
-	CServiceManager::getInstance()->InitSatPosition(235);
-	CServiceManager::getInstance()->InitSatPosition(282);
-	CServiceManager::getInstance()->InitSatPosition(130);
+	CServiceManager::getInstance()->InitSatPosition(192, NULL, true);
+	CServiceManager::getInstance()->InitSatPosition(235, NULL, true);
+	CServiceManager::getInstance()->InitSatPosition(282, NULL, true);
+	CServiceManager::getInstance()->InitSatPosition(130, NULL, true);
+	satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
+
+	frontend = CFEManager::getInstance()->getFE(0);
+	//frontend->setSatellites(satmap);
+	//satmap = frontend->getSatellites();
+
 	switch(id) {
 		default:
 		case CD_OPERATOR_ID:
 		case OPERATOR_TVV:
-			satellitePositions[192].diseqc = 0;
-			satellitePositions[235].diseqc = 1;
-			satellitePositions[282].diseqc = 2;
-			satellitePositions[130].diseqc = 3;
+			satmap[192].diseqc = 0;
+			satmap[235].diseqc = 1;
+			satmap[282].diseqc = 2;
+			satmap[130].diseqc = 3;
 			break;
 		case OPERATOR_TELESAT:
-			satellitePositions[130].diseqc = 0;
-			satellitePositions[192].diseqc = 1;
-			satellitePositions[235].diseqc = 2;
-			satellitePositions[282].diseqc = 3;
+			satmap[130].diseqc = 0;
+			satmap[192].diseqc = 1;
+			satmap[235].diseqc = 2;
+			satmap[282].diseqc = 3;
 			break;
 	}
+	satmap[130].configured = 1;
+	satmap[192].configured = 1;
+	satmap[235].configured = 1;
+	satmap[282].configured = 1;
+	frontend->setSatellites(satmap);
+	frontend->setDiseqcType(DISEQC_1_0);
+	CFEManager::getInstance()->saveSettings();
+	SetFrontend(192);
 }
 
 bool CServiceScan::ScanFast()
@@ -100,9 +110,9 @@ bool CServiceScan::ScanFast()
 
 	printf("[fast scan] scaning operator %d for %s channels\n", op->id, type == FAST_SCAN_SD ? "SD" : type == FAST_SCAN_HD ? "HD" : "All");
 
-	feparams.frequency = 12515000;
-	feparams.u.qpsk.symbol_rate = 22000000;
-	feparams.u.qpsk.fec_inner = FEC_5_6;
+	feparams.dvb_feparams.frequency = 12515000;
+	feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
+	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
 	polarization = 0;
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
@@ -146,7 +156,7 @@ bool CServiceScan::ScanFast()
 		myZapitClient.reloadCurrentServices();
 	} else {
 		Cleanup(false);
-		CFrontend::getInstance()->setTsidOnid(0);
+		frontend->setTsidOnid(0);
 		//zapit(live_channel_id, 0);
 	}
 	fast_services_sat.clear();
@@ -261,9 +271,11 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						std::map <t_channel_id, t_satellite_position>::iterator sIt = fast_services_sat.find(channel_id);
 						if(sIt != fast_services_sat.end()) {
 							satellitePosition = sIt->second;
+#if 0
 							sat_iterator_t sit = satellitePositions.find(satellitePosition);
 							if(sit != satellitePositions.end())
 								sit->second.have_channels = true;
+#endif
 						}
 
 						std::map <t_channel_id, freq_id_t>::iterator fIt = fast_services_freq.find(channel_id);
@@ -274,38 +286,14 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						if(nIt != fast_services_number.end())
 							num = nIt->second;
 
-						//std::string providerName = CDVBString((const char*)&(dbuf[4]), service_provider_name_length).getContent();
-						//std::string serviceName  = CDVBString((const char*)&(dbuf[4 + service_provider_name_length + 1]), (2 + dbuf[1]) - (4 + service_provider_name_length + 1)).getContent();
-
 						std::string providerName = convertDVBUTF8((const char*)&(dbuf[4]), service_provider_name_length, 1, 1);
 						std::string serviceName  = convertDVBUTF8((const char*)&(dbuf[4 + service_provider_name_length + 1]), service_name_length, 1, 1);
 						
-						CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_PROVIDER, (void *) providerName.c_str(), providerName.length() + 1);
 #ifdef SCAN_DEBUG
 						printf("[FST] #%04d at %04d: net %04x tp %04x sid %04x v %04x a %04x pcr %04x frq %05d type %d prov [%s] name [%s]\n", num, satellitePosition, original_network_id, transport_stream_id, service_id, video_pid, audio_pid, pcr_pid, freq, service_type, providerName.c_str(), serviceName.c_str());
 #endif
-						found_channels ++;
-						CZapit::getInstance()->SendEvent ( CZapitClient::EVT_SCAN_NUM_CHANNELS, &found_channels, sizeof(found_channels));
-						switch (service_type) {
-							case ST_DIGITAL_TELEVISION_SERVICE:
-								found_tv_chans++;
-								CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_FOUND_TV_CHAN, &found_tv_chans, sizeof(found_tv_chans));
-								break;
-							case ST_DIGITAL_RADIO_SOUND_SERVICE:
-								found_radio_chans++;
-								CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_FOUND_RADIO_CHAN, &found_radio_chans, sizeof(found_radio_chans));
-								break;
-							case ST_NVOD_REFERENCE_SERVICE:
-							case ST_NVOD_TIME_SHIFTED_SERVICE:
-							case ST_DATA_BROADCAST_SERVICE:
-							case ST_RCS_MAP:
-							case ST_RCS_FLS:
-							default:
-								found_data_chans++;
-								CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_FOUND_DATA_CHAN, &found_data_chans, sizeof(found_data_chans));
-								break;
-						}
-						CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) serviceName.c_str(), serviceName.length() + 1);
+						ChannelFound(service_type, providerName, serviceName);
+
 						channel_id = CREATE_CHANNEL_ID64;
 
 						CZapitChannel * newchannel;
@@ -314,9 +302,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						if(newchannel == NULL) {
 							newchannel = new CZapitChannel (
 									serviceName,
-									service_id,
-									transport_stream_id,
-									original_network_id,
+									channel_id,
 									service_type,
 									satellitePosition,
 									freq
@@ -332,7 +318,7 @@ bool CServiceScan::ParseFst(unsigned short pid, fast_scan_operator_t * op)
 						newchannel->number = num;
 
 						char pname[100];
-						if (CFrontend::getInstance()->getInfo()->type == FE_QPSK)
+						if (frontend->getInfo()->type == FE_QPSK)
 							snprintf(pname, 100, "[%c%03d.%d] %s", satellitePosition > 0? 'E' : 'W', abs(satellitePosition)/10, abs(satellitePosition)%10, providerName.c_str());
 						else
 							snprintf(pname, 100, "%s", providerName.c_str());
@@ -491,21 +477,12 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 							stiterator stI;
 
 							process_satellite_delivery_system_descriptor(buffer + pos2, &feparams, &polarization, &satellitePosition);
-							freq = feparams.frequency / 1000;
-							TsidOnid = CREATE_TRANSPONDER_ID_FROM_SATELLITEPOSITION_ORIGINALNETWORK_TRANSPORTSTREAM_ID(freq, satellitePosition, original_network_id, transport_stream_id);
+							freq = feparams.dvb_feparams.frequency / 1000;
+							TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, original_network_id, transport_stream_id);
 							stI = transponders.find(TsidOnid);
 							if(stI == transponders.end()) {
-								transponders.insert (
-										std::pair <transponder_id_t, transponder> (
-											TsidOnid,
-											transponder (
-												transport_stream_id,
-												feparams,
-												polarization,
-												original_network_id
-												)
-											)
-										);
+								transponder t(frontendType, TsidOnid, feparams, polarization);
+								transponders.insert(transponder_pair_t(TsidOnid, t));
 							}
 							found_transponders++;
 							//CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_NUM_TRANSPONDERS,
@@ -531,12 +508,12 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 				}
 			}
 			std::map <t_channel_id, t_satellite_position>::iterator sIt = fast_services_sat.begin();
-			for(; sIt != fast_services_sat.end(); sIt++)
+			for(; sIt != fast_services_sat.end(); ++sIt)
 				if(sIt->second == 0)
 					sIt->second = satellitePosition;
 
 			std::map <t_channel_id, freq_id_t>::iterator fIt = fast_services_freq.begin();
-			for(; fIt != fast_services_freq.end(); fIt++)
+			for(; fIt != fast_services_freq.end(); ++fIt)
 				if(fIt->second == 0)
 					fIt->second = freq;
 		}
@@ -578,9 +555,9 @@ void CServiceScan::process_service_list_descriptor(const unsigned char * const b
 void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned char * const buffer, FrontendParameters * feparams, uint8_t * polarization, t_satellite_position * satellitePosition)
 {
         stiterator tI;
-        int modulationSystem, modulationType, rollOff, fec_inner;
+        int modulationSystem, modulationType, /*rollOff,*/ fec_inner;
 
-        feparams->frequency = (
+        feparams->dvb_feparams.frequency = (
                  ((buffer[2] >> 4)      * 100000000) +
                  ((buffer[2] & 0x0F)    * 10000000) +
                  ((buffer[3] >> 4)      * 1000000) +
@@ -597,13 +574,13 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
                  ((buffer[7] >> 4)      * 10) +
                  ((buffer[7] & 0x0F)    * 1)
 	);
-        feparams->inversion = INVERSION_AUTO;
+        feparams->dvb_feparams.inversion = INVERSION_AUTO;
 
-        rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
+        //rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
         modulationSystem = (buffer[8] >> 2) & 0x01; // 1= DVB_S2
         modulationType = (buffer[8]) & 0x03; // 1=QPSK, 2=M8PSK
 
-        feparams->u.qpsk.symbol_rate = (
+        feparams->dvb_feparams.u.qpsk.symbol_rate = (
                  ((buffer[9] >> 4)      * 100000000) +
                  ((buffer[9] & 0x0F)    * 10000000) +
                  ((buffer[10] >> 4)     * 1000000) +
@@ -617,19 +594,19 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
         if(modulationType == 2)
                 fec_inner += 9;
 
-        feparams->u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
+        feparams->dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
 
         * polarization = (buffer[8] >> 5) & 0x03;
 
         /* workarounds for braindead broadcasters (e.g. on Telstar 12 at 15.0W) */
-        if (feparams->frequency >= 100000000)
-                feparams->frequency /= 10;
-        if (feparams->u.qpsk.symbol_rate >= 50000000)
-                feparams->u.qpsk.symbol_rate /= 10;
+        if (feparams->dvb_feparams.frequency >= 100000000)
+                feparams->dvb_feparams.frequency /= 10;
+        if (feparams->dvb_feparams.u.qpsk.symbol_rate >= 50000000)
+                feparams->dvb_feparams.u.qpsk.symbol_rate /= 10;
 
-        feparams->frequency = (int) 1000 * (int) round ((double) feparams->frequency / (double) 1000);
+        feparams->dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams->dvb_feparams.frequency / (double) 1000);
 
 #ifdef SCAN_DEBUG
-	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->frequency, feparams->u.qpsk.symbol_rate, fec_inner, * polarization);
+	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->dvb_feparams.frequency, feparams->dvb_feparams.u.qpsk.symbol_rate, fec_inner, * polarization);
 #endif
 }

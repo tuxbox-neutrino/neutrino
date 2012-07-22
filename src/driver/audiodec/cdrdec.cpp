@@ -32,7 +32,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <cdrdec.h>
+#include "cdrdec.h"
 
 CCdrDec* CCdrDec::getInstance()
 {

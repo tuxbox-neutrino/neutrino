@@ -48,10 +48,10 @@ Helpbox::Helpbox()
 Helpbox::~Helpbox()
 {
   	for (ContentLines::iterator it = m_lines.begin();
-  		 it != m_lines.end(); it++)
+  		 it != m_lines.end(); ++it)
  	{
  		for (std::vector<Drawable*>::iterator it2 = it->begin();
- 			 it2 != it->end(); it2++)
+ 			 it2 != it->end(); ++it2)
  		{
  			delete *it2;
  		}

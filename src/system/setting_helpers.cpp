@@ -92,160 +92,7 @@ extern cDemux *pcrDemux;
 
 extern "C" int pinghost( const char *hostname );
 
-CSatelliteSetupNotifier::CSatelliteSetupNotifier()
-{
-}
-
-/* items1 enabled for advanced diseqc settings, items2 for diseqc != NO_DISEQC, items3 disabled for NO_DISEQC */
-bool CSatelliteSetupNotifier::changeNotify(const neutrino_locale_t, void * Data)
-{
-	std::vector<CMenuItem*>::iterator it;
-	int type = *((int*) Data);
-
-	if (type == NO_DISEQC) {
-		for(it = items1.begin(); it != items1.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(false);
-		}
-		for(it = items2.begin(); it != items2.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(false);
-		}
-		for(it = items3.begin(); it != items3.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(false);
-		}
-	}
-	else if(type < DISEQC_ADVANCED) {
-		for(it = items1.begin(); it != items1.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(false);
-		}
-		for(it = items2.begin(); it != items2.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(true);
-		}
-		for(it = items3.begin(); it != items3.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(true);
-		}
-	}
-	else if(type == DISEQC_ADVANCED) {
-		for(it = items1.begin(); it != items1.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(true);
-		}
-		for(it = items2.begin(); it != items2.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(false);
-		}
-		for(it = items3.begin(); it != items3.end(); it++) {
-			//(*it)->init(-1, 0, 0, 0);
-			(*it)->setActive(true);
-		}
-	}
-	g_Zapit->setDiseqcType((diseqc_t) type);
-	g_Zapit->setDiseqcRepeat( CNeutrinoApp::getInstance()->getScanSettings().diseqcRepeat);
-	return true;
-}
-
-void CSatelliteSetupNotifier::addItem(int list, CMenuItem* item)
-{
-	switch(list) {
-		case 0:
-			items1.push_back(item);
-			break;
-		case 1:
-			items2.push_back(item);
-			break;
-		case 2:
-			items3.push_back(item);
-			break;
-		default:
-			break;
-	}
-}
-
-bool CSatDiseqcNotifier::changeNotify(const neutrino_locale_t, void * Data)
-{
-	if (*((int*) Data) == NO_DISEQC)
-	{
-		satMenu->setActive(true);
-		extMenu->setActive(false);
-		extMotorMenu->setActive(false);
-		repeatMenu->init(-1, 0, 0, 0);
-		repeatMenu->setActive(false);
-		motorControl->setActive(false);
-	}
-	else
-	if (*((int*) Data) == DISEQC_1_2)
-	{
-		satMenu->setActive(true);
-		extMenu->setActive(true);
-		extMotorMenu->setActive(true);
-		repeatMenu->init(-1, 0, 0, 0);
-		repeatMenu->setActive(true);
-		motorControl->setActive(true);
-	}
-	else
-	{
-		satMenu->setActive(true);
-		extMenu->setActive(true);
-		extMotorMenu->setActive(false);
-		repeatMenu->init(-1, 0, 0, 0);
-		repeatMenu->setActive((*((int*) Data) != DISEQC_1_0));
-		motorControl->setActive(false);
-	}
-	g_Zapit->setDiseqcType( *((diseqc_t*) Data) );
-	g_Zapit->setDiseqcRepeat( CNeutrinoApp::getInstance()->getScanSettings().diseqcRepeat);
-	return true;
-}
-
-CTP_scanNotifier::CTP_scanNotifier(CMenuOptionChooser* i1, CMenuOptionChooser* i2, CMenuForwarder* i3, CMenuForwarder* i4)
-{
-	toDisable1[0]=i1;
-	toDisable1[1]=i2;
-	toDisable2[0]=i3;
-	toDisable2[1]=i4;
-}
-
-bool CTP_scanNotifier::changeNotify(const neutrino_locale_t, void * Data)
-{
-	int val = *((int*) Data);
-//printf("CTP_scanNotifier::changeNotify: data %d\n", val);
-//FIXME: test
-	//bool set_true_false=CNeutrinoApp::getInstance()->getScanSettings().TP_scan;
-	bool set_true_false = (val == 2);
-	for (int i=0; i<2; i++)
-	{
-		toDisable1[i]->setActive(set_true_false);
-		toDisable2[i]->setActive(set_true_false);
-	}
-	return true;
-}
-
-#if 0 // not used
-CDHCPNotifier::CDHCPNotifier( CMenuForwarder* a1, CMenuForwarder* a2, CMenuForwarder* a3, CMenuForwarder* a4, CMenuForwarder* a5, CMenuForwarder* a6)
-{
-	toDisable[0] = a1;
-	toDisable[1] = a2;
-	toDisable[2] = a3;
-	toDisable[3] = a4;
-	toDisable[4] = a5;
-	toEnable[0] = a6;
-}
-
-
-bool CDHCPNotifier::changeNotify(const neutrino_locale_t, void * data)
-{
-	CNetworkConfig::getInstance()->inet_static = ((*(int*)(data)) == 0);
-	for(int x=0;x<5;x++)
-		toDisable[x]->setActive(CNetworkConfig::getInstance()->inet_static);
-
-	toEnable[0]->setActive(!CNetworkConfig::getInstance()->inet_static);
-	return true;
-}
-#endif
+// gui/moviebrowser.cpp
 COnOffNotifier::COnOffNotifier( CMenuItem* a1,CMenuItem* a2,CMenuItem* a3,CMenuItem* a4,CMenuItem* a5)
 {
         number = 0;
@@ -268,15 +115,10 @@ bool COnOffNotifier::changeNotify(const neutrino_locale_t, void *Data)
       for (int i=0; i<number ; i++)
         toDisable[i]->setActive(true);
    }
-   return true;
+   return false;
 }
 
-bool CRecordingSafetyNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	g_Timerd->setRecordingSafety(atoi(g_settings.record_safety_time_before)*60, atoi(g_settings.record_safety_time_after)*60);
-   return true;
-}
-
+//used in gui/miscsettings_menu.cpp
 CMiscNotifier::CMiscNotifier( CMenuItem* i1, CMenuItem* i2)
 {
    toDisable[0]=i1;
@@ -286,48 +128,13 @@ bool CMiscNotifier::changeNotify(const neutrino_locale_t, void *)
 {
    toDisable[0]->setActive(!g_settings.shutdown_real);
    toDisable[1]->setActive(!g_settings.shutdown_real);
-   return true;
-}
-
-bool CLcdNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	CVFD::getInstance()->setlcdparameter();
-	//CLCD::getInstance()->setAutoDimm(g_settings.lcd_setting[SNeutrinoSettings::LCD_AUTODIMM]);
-	return true;
-}
-
-bool CPauseSectionsdNotifier::changeNotify(const neutrino_locale_t, void * Data)
-{
-	g_Sectionsd->setPauseScanning((*((int *)Data)) == 0);
-
-	return true;
+   return false;
 }
 
 bool CSectionsdConfigNotifier::changeNotify(const neutrino_locale_t, void *)
 {
         CNeutrinoApp::getInstance()->SendSectionsdConfig();
-        return true;
-}
-
-bool CRadiotextNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	if (g_settings.radiotext_enable)
-	{
-		if (g_Radiotext == NULL)
-			g_Radiotext = new CRadioText;
-		if (g_Radiotext && ((CNeutrinoApp::getInstance()->getMode()) == NeutrinoMessages::mode_radio))
-			g_Radiotext->setPid(g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid);
-	}
-	else
-	{
-		// stop radiotext PES decoding
-		if (g_Radiotext)
-			g_Radiotext->radiotext_stop();
-		delete g_Radiotext;
-		g_Radiotext = NULL;
-	}
-
-	return true;
+        return false;
 }
 
 bool CTouchFileNotifier::changeNotify(const neutrino_locale_t, void * data)
@@ -437,67 +244,15 @@ bool CAudioSetupNotifier::changeNotify(const neutrino_locale_t OptionName, void 
 	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIOMENU_CLOCKREC)) {
 		//.Clock recovery enable/disable
 		// FIXME add code here.
-	} else { // FIXME atm used for SRS
+	} else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_ALGO) ||
+			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_NMGR) ||
+			ARE_LOCALES_EQUAL(OptionName, LOCALE_AUDIO_SRS_VOLUME)) {
 		audioDecoder->SetSRS(g_settings.srs_enable, g_settings.srs_nmgr_enable, g_settings.srs_algo, g_settings.srs_ref_volume);
 	}
-	return true;
-}
-
-//FIXME
-#define IOC_IR_SET_F_DELAY      _IOW(0xDD,  5, unsigned int)            /* set the delay time before the first repetition */
-#define IOC_IR_SET_X_DELAY      _IOW(0xDD,  6, unsigned int)            /* set the delay time between all other repetitions */
-
-bool CKeySetupNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	unsigned int fdelay = atoi(g_settings.repeat_blocker);
-	unsigned int xdelay = atoi(g_settings.repeat_genericblocker);
-
-	g_RCInput->repeat_block = fdelay * 1000;
-	g_RCInput->repeat_block_generic = xdelay * 1000;
-
-	int fd = g_RCInput->getFileHandle();
-#ifdef HAVE_COOL_HARDWARE
-	ioctl(fd, IOC_IR_SET_F_DELAY, fdelay);
-	ioctl(fd, IOC_IR_SET_X_DELAY, xdelay);
-#else
-	/* if we have a good input device, we don't need the private ioctl above */
-	struct input_event ie;
-	ie.type = EV_REP;
-	/* increase by 10 ms to trick the repeat checker code in the
-	 * rcinput loop into accepting the key event... */
-	ie.value = fdelay + 10;
-	ie.code = REP_DELAY;
-	if (write(fd, &ie, sizeof(ie)) == -1)
-		perror("CKeySetupNotifier::changeNotify REP_DELAY");
-
-	ie.value = xdelay + 10;
-	ie.code = REP_PERIOD;
-	if (write(fd, &ie, sizeof(ie)) == -1)
-		perror("CKeySetupNotifier::changeNotify REP_PERIOD");
-#endif
 	return false;
 }
 
-#if 0 // not used
-bool CIPChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
-{
-	char ip[16];
-	unsigned char _ip[4];
-	sscanf((char*) Data, "%hhu.%hhu.%hhu.%hhu", &_ip[0], &_ip[1], &_ip[2], &_ip[3]);
-
-	sprintf(ip, "%hhu.%hhu.%hhu.255", _ip[0], _ip[1], _ip[2]);
-	CNetworkConfig::getInstance()->broadcast = ip;
-
-	CNetworkConfig::getInstance()->netmask = (_ip[0] == 10) ? "255.0.0.0" : "255.255.255.0";
-
-	sprintf(ip, "%hhu.%hhu.%hhu.1", _ip[0], _ip[1], _ip[2]);
-	CNetworkConfig::getInstance()->nameserver = ip;
-	CNetworkConfig::getInstance()->gateway = ip;
-
-	return true;
-}
-#endif
-
+// used in ./gui/osd_setup.cpp:
 bool CTimingSettingsNotifier::changeNotify(const neutrino_locale_t OptionName, void *)
 {
 	for (int i = 0; i < SNeutrinoSettings::TIMING_SETTING_COUNT; i++)
@@ -511,6 +266,7 @@ bool CTimingSettingsNotifier::changeNotify(const neutrino_locale_t OptionName, v
 	return false;
 }
 
+// used in ./gui/osd_setup.cpp:
 bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	CHintBox hintBox(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_FONTSIZE_HINT)); // UTF-8
@@ -523,14 +279,6 @@ bool CFontSizeNotifier::changeNotify(const neutrino_locale_t, void *)
 	CVolume::getInstance()->Init();
 	/* recalculate infoclock */
 	CInfoClock::getInstance()->Init();
-	return true;
-}
-
-bool CRecAPIDSettingsNotifier::changeNotify(const neutrino_locale_t, void *)
-{
-	g_settings.recording_audio_pids_default = ( (g_settings.recording_audio_pids_std ? TIMERD_APIDS_STD : 0) |
-						  (g_settings.recording_audio_pids_alt ? TIMERD_APIDS_ALT : 0) |
-						  (g_settings.recording_audio_pids_ac3 ? TIMERD_APIDS_AC3 : 0));
 	return true;
 }
 
@@ -631,40 +379,6 @@ int COnekeyPluginChangeExec::exec(CMenuTarget* parent, const std::string & actio
 	return menu_return::RETURN_EXIT;
 }
 
-int CUCodeCheckExec::exec(CMenuTarget* /*parent*/, const std::string & /*actionKey*/)
-{
-#if 0
-	std::string text;
-	char res[60];
-
-	text = g_Locale->getText(LOCALE_UCODECHECK_AVIA500);
-	text += ": ";
-	checkFile((char *) UCODEDIR "/avia500.ux", (char*) &res);
-	text += res;
-	text += '\n';
-	text += g_Locale->getText(LOCALE_UCODECHECK_AVIA600);
-	text += ": ";
-	checkFile(UCODEDIR "/avia600.ux", (char*) &res);
-	text += res;
-	text += '\n';
-	text += g_Locale->getText(LOCALE_UCODECHECK_UCODE);
-	text += ": ";
-	checkFile(UCODEDIR "/ucode.bin", (char*) &res);
-	if (strcmp("not found", res) == 0)
-		text += "ucode_0014 (built-in)";
-	else
-		text += res;
-	text += '\n';
-	text += g_Locale->getText(LOCALE_UCODECHECK_CAM_ALPHA);
-	text += ": ";
-	checkFile(UCODEDIR "/cam-alpha.bin", (char*) &res);
-	text += res;
-
-	ShowMsgUTF(LOCALE_UCODECHECK_HEAD, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
-#endif
-	return 1;
-}
-
 long CNetAdapter::mac_addr_sys ( u_char *addr) //only for function getMacAddr()
 {
 	struct ifreq ifr;
@@ -729,138 +443,6 @@ std::string CNetAdapter::getMacAddr(void)
 	}
 }
 
-#if 0 // not used, moved to gui/network_setup.cpp
-const char * mypinghost(const char * const host)
-{
-	int retvalue = pinghost(host);
-	switch (retvalue)
-	{
-		case 1: return (g_Locale->getText(LOCALE_PING_OK));
-		case 0: return (g_Locale->getText(LOCALE_PING_UNREACHABLE));
-		case -1: return (g_Locale->getText(LOCALE_PING_PROTOCOL));
-		case -2: return (g_Locale->getText(LOCALE_PING_SOCKET));
-	}
-	return "";
-}
-
-
-void testNetworkSettings(const char* ip, const char* netmask, const char* broadcast, const char* gateway, const char* nameserver, bool ip_static)
-{
-	char our_ip[16];
-	char our_mask[16];
-	char our_broadcast[16];
-	char our_gateway[16];
-	char our_nameserver[16];
-	std::string text, ethID, testsite;
-	//set default testdomain and wiki-IP
-	std::string defaultsite = "www.google.de", wiki_IP = "89.31.143.1";
-	
-	//set physical adress
-	static CNetAdapter netadapter; ethID=netadapter.getMacAddr();
-	
-	//get www-domain testsite from /.version 	
-	CConfigFile config('\t');
-	config.loadConfig("/.version");
-	testsite = config.getString("homepage",defaultsite);	
-	testsite.replace( 0, testsite.find("www",0), "" );
-	
-	//use default testdomain if testsite missing
-	if (testsite.length()==0) testsite = defaultsite; 
-
-	if (ip_static) 
-	{
-		strcpy(our_ip, ip);
-		strcpy(our_mask, netmask);
-		strcpy(our_broadcast, broadcast);
-		strcpy(our_gateway, gateway);
-		strcpy(our_nameserver, nameserver);
-	}
-	else 
-	{
-	  	char eth[] = "eth0";
-		netGetIP(eth, our_ip, our_mask, our_broadcast);
-		netGetDefaultRoute(our_gateway);
-		netGetNameserver(our_nameserver);
-	}
-	
-	printf("testNw IP: %s\n", our_ip);
-	printf("testNw MAC-address: %s\n", ethID.c_str());
-	printf("testNw Netmask: %s\n", our_mask);
-	printf("testNw Broadcast: %s\n", our_broadcast);
-	printf("testNw Gateway: %s\n", our_gateway);
-	printf("testNw Nameserver: %s\n", our_nameserver);
-	printf("testNw Testsite %s\n", testsite.c_str());
- 
-	if (our_ip[0] == 0) 
-	{
-		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE_NETWORK);
-	}
-	else
-	{
-		text = "Box: " + ethID + "\n    ";
-			text += (std::string)our_ip + " " + (std::string)mypinghost(our_ip);
-			text += "\n";
-		text += g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY);
-			text += " (Router)\n    ";
-			text += (std::string)our_gateway + " " +(std::string)mypinghost(our_gateway);
-			text += "\n";
- 		text += g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER);
-			text += "\n    ";
-			text += (std::string)our_nameserver + " " + (std::string)mypinghost(our_nameserver);
-			text += "\n";
-		text += "wiki.neutrino-hd.de:\n    ";
-			text += "via IP (" + wiki_IP + "): " + (std::string)mypinghost(wiki_IP.c_str());
-			text += ":\n    ";
-		if (1 == pinghost(our_nameserver))
-		{
-			text += "via DNS: " + (std::string)mypinghost("wiki.neutrino-hd.de");
-			text += "\n";
-			text += testsite + ":\n    ";
-			text += "via DNS: " +  (std::string)mypinghost(testsite.c_str()) + ":\n";
-		}
-	}
-	
-	ShowMsgUTF(LOCALE_NETWORKMENU_TEST, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
-}
-
-void showCurrentNetworkSettings()
-{
-	char ip[16];
-	char mask[16];
-	char broadcast[16];
-	char router[16];
-	char nameserver[16];
-	std::string text;
-	char eth[] = "eth0";
-	netGetIP(eth, ip, mask, broadcast);
-	if (ip[0] == 0) {
-		text = g_Locale->getText(LOCALE_NETWORKMENU_INACTIVE_NETWORK);
-	}
-	else {
-		netGetNameserver(nameserver);
-		netGetDefaultRoute(router);
-		CNetworkConfig  networkConfig;
-		std::string dhcp = networkConfig.inet_static ? g_Locale->getText(LOCALE_OPTIONS_OFF) : g_Locale->getText(LOCALE_OPTIONS_ON);
-
-		text = (std::string)g_Locale->getText(LOCALE_NETWORKMENU_DHCP) + ": " + dhcp + '\n'
-				  + g_Locale->getText(LOCALE_NETWORKMENU_IPADDRESS ) + ": " + ip + '\n'
-				  + g_Locale->getText(LOCALE_NETWORKMENU_NETMASK   ) + ": " + mask + '\n'
-				  + g_Locale->getText(LOCALE_NETWORKMENU_BROADCAST ) + ": " + broadcast + '\n'
-				  + g_Locale->getText(LOCALE_NETWORKMENU_NAMESERVER) + ": " + nameserver + '\n'
-				  + g_Locale->getText(LOCALE_NETWORKMENU_GATEWAY   ) + ": " + router;
-	}
-	ShowMsgUTF(LOCALE_NETWORKMENU_SHOW, text, CMessageBox::mbrBack, CMessageBox::mbBack); // UTF-8
-}
-#endif
-
-uint64_t getcurrenttime()
-{
-	struct timeval tv;
-	gettimeofday( &tv, NULL );
-	return (uint64_t) tv.tv_usec + (uint64_t)((uint64_t) tv.tv_sec * (uint64_t) 1000000);
-}
-
-
 bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 {
 	bool found = false;
@@ -896,7 +478,7 @@ bool CTZChangeNotifier::changeNotify(const neutrino_locale_t, void * Data)
 		setenv("TZ", cmd.c_str(), 1);
 	}
 
-	return true;
+	return false;
 }
 
 extern Zapit_config zapitCfg;
@@ -915,6 +497,7 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 
 	if(delete_all) {
 		system("rm -f /var/tuxbox/config/zapit/*.conf");
+		CServiceManager::getInstance()->SatelliteList().clear();
 		CZapit::getInstance()->LoadSettings();
 		CZapit::getInstance()->GetConfig(zapitCfg);
 		g_RCInput->postMsg( NeutrinoMessages::REBOOT, 0);
@@ -940,12 +523,6 @@ int CDataResetNotifier::exec(CMenuTarget* /*parent*/, const std::string& actionK
 	return ret;
 }
 
-bool CLedControlNotifier::changeNotify(const neutrino_locale_t, void* /*data*/)
-{
-	CVFD::getInstance()->setled();
-	return true;
-}
-
 #if HAVE_COOL_HARDWARE
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 {
@@ -965,12 +542,12 @@ bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void * data)
 		perror("IOC_CONTROL_PWM_SPEED");
 		return false;
 	}
-	return true;
+	return false;
 }
 #else
 bool CFanControlNotifier::changeNotify(const neutrino_locale_t, void *)
 {
-	return true;
+	return false;
 }
 #endif
 
@@ -983,34 +560,7 @@ extern cCpuFreqManager * cpuFreq;
 	freq *= 1000*1000;
 
 	cpuFreq->SetCpuFreq(freq);
-	return true;
-}
-
-#if 0
-bool CScreenPresetNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
-{
-	int preset = * (int *) data;
-printf("CScreenPresetNotifier::changeNotify preset %d (setting %d)\n", preset, g_settings.screen_preset);
-
-	g_settings.screen_StartX = g_settings.screen_preset ? g_settings.screen_StartX_lcd : g_settings.screen_StartX_crt;
-	g_settings.screen_StartY = g_settings.screen_preset ? g_settings.screen_StartY_lcd : g_settings.screen_StartY_crt;
-	g_settings.screen_EndX = g_settings.screen_preset ? g_settings.screen_EndX_lcd : g_settings.screen_EndX_crt;
-	g_settings.screen_EndY = g_settings.screen_preset ? g_settings.screen_EndY_lcd : g_settings.screen_EndY_crt;
-	CFrameBuffer::getInstance()->Clear();
-	return true;
-}
-#endif
-bool CAllUsalsNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, void * data)
-{
-	int onoff = * (int *) data;
-printf("CAllUsalsNotifier::changeNotify: %s\n", onoff ? "ON" : "OFF");
-
-	sat_iterator_t sit;
-
-	for (sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
-		sit->second.use_usals = onoff;
-	}
-	return true;
+	return false;
 }
 
 extern CMenuOptionChooser::keyval_ext VIDEOMENU_VIDEOMODE_OPTIONS[];
@@ -1025,7 +575,7 @@ bool CAutoModeNotifier::changeNotify(const neutrino_locale_t /*OptionName*/, voi
 		modes[VIDEOMENU_VIDEOMODE_OPTIONS[i].key] = g_settings.enabled_video_modes[i];
 	}
 	videoDecoder->SetAutoModes(modes);
-	return true;
+	return false;
 }
 
 int safe_mkdir(char * path)
@@ -1069,5 +619,3 @@ int check_dir(const char * newdir)
 	}
 	return 1;	// error
 }
-
-

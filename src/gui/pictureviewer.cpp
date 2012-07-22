@@ -63,6 +63,7 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include <video.h>
 extern cVideo * videoDecoder;
@@ -394,7 +395,7 @@ int CPictureViewerGui::show()
 				{
 					Path = filebrowser.getCurrentDir();
 					CFileList::const_iterator files = filebrowser.getSelectedFiles().begin();
-					for (; files != filebrowser.getSelectedFiles().end(); files++)
+					for (; files != filebrowser.getSelectedFiles().end(); ++files)
 					{
 						if (files->getType() == CFile::FILE_PICTURE)
 						{
@@ -431,16 +432,19 @@ int CPictureViewerGui::show()
 		}
 		else if (msg==CRCInput::RC_blue)
 		{
-			if ((m_state == MENU) && (!playlist.empty()))
+			if(!playlist.empty())
 			{
-				m_time=(long)time(NULL);
-				view(selected);
-				m_state=SLIDESHOW;
-			} else {
-				if (m_state == SLIDESHOW)
-					m_state = VIEW;
-				else
-					m_state = SLIDESHOW;
+				if (m_state == MENU)
+				{
+					m_time=(long)time(NULL);
+					view(selected);
+					m_state=SLIDESHOW;
+				} else {
+					if (m_state == SLIDESHOW)
+						m_state = VIEW;
+					else
+						m_state = SLIDESHOW;
+				}
 			}
 		}
 		else if (msg==CRCInput::RC_help)

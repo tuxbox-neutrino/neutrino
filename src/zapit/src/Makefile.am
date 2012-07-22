@@ -1,8 +1,10 @@
 AM_CPPFLAGS = -fno-rtti -fno-exceptions
 
 INCLUDES = \
-	-I$(top_srcdir)/src/zapit/include \
+	-I$(top_builddir) \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/src/zapit/include \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/connection \
@@ -25,9 +27,9 @@ noinst_LIBRARIES = libzapit.a
 
 libzapit_a_SOURCES = \
 	bouquets.cpp channel.cpp dvbstring.cpp getservices.cpp \
-	scan.cpp zapit.cpp cam.cpp ci.cpp frontend.cpp \
-	descriptors.cpp nit.cpp pat.cpp pmt.cpp sdt.cpp
-#	fastscan.cpp
+	transponder.cpp scan.cpp zapit.cpp capmt.cpp frontend.cpp femanager.cpp \
+	pat.cpp scanpmt.cpp scansdt.cpp scannit.cpp scanbat.cpp
+#	pat.cpp scanpmt.cpp fastscan.cpp scansdt.cpp scannit.cpp scanbat.cpp
 
 bin_PROGRAMS = pzapit
 sbin_PROGRAMS = udpstreampes

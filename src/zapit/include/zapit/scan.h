@@ -1,5 +1,22 @@
 /*
- *  $Id: scan.h,v 1.26 2003/03/14 07:31:50 obi Exp $
+        Neutrino-GUI  -   DBoxII-Project
+
+        Copyright (C) 2011 CoolStream International Ltd
+
+        License: GPLv2
+
+        This program is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program; if not, write to the Free Software
+        Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 #ifndef __scan_h__
@@ -11,7 +28,7 @@
 #include <map>
 #include <string>
 
-#include <zapit/frontend_c.h>
+#include <zapit/femanager.h>
 #include <zapit/getservices.h>
 //#include <zapit/fastscan.h>
 #include "bouquets.h"
@@ -27,6 +44,18 @@ class CServiceScan : public OpenThreads::Thread
 			SCAN_TRANSPONDER,
 //			SCAN_FAST
 		} scan_type_t;
+		typedef enum scan_flags {
+			SCAN_NIT		= 0x01,
+			SCAN_BAT		= 0x02,
+			SCAN_FTA		= 0x04,
+			SCAN_RESET_NUMBERS	= 0x08,
+			SCAN_LOGICAL_NUMBERS	= 0x10,
+			SCAN_TV			= 0x20,
+			SCAN_RADIO		= 0x40,
+			SCAN_TVRADIO		= 0x60,
+			SCAN_DATA		= 0x80,
+			SCAN_ALL		= 0xE0
+		} scan_flags_t;
 
 	private:
 		bool started;
@@ -34,8 +63,10 @@ class CServiceScan : public OpenThreads::Thread
 		bool cable;
 		bool abort_scan;
 		scan_type_t scan_mode;
-		bool scan_nit;
+		int flags;
 		void * scan_arg;
+		bool satHaveChannels;
+		fe_type_t frontendType;
 
 		uint32_t fake_tid, fake_nid;
 		uint32_t found_transponders;
@@ -45,23 +76,31 @@ class CServiceScan : public OpenThreads::Thread
 		uint32_t found_radio_chans;
 		uint32_t found_data_chans;
 		uint32_t failed_transponders;
+		unsigned short cable_nid;
 
 		short curr_sat;
 
-		std::map <transponder_id_t, transponder> scantransponders;   // TP list to scan
-		std::map <transponder_id_t, transponder> scanedtransponders; // TP list for current scan
-		std::map <transponder_id_t, transponder> nittransponders;
+		transponder_list_t scantransponders;   // list to scan
+		transponder_list_t scanedtransponders; // successfully scanned
+		transponder_list_t failedtransponders; // failed to tune
+		transponder_list_t nittransponders;    // transponders from NIT
 		std::map <t_channel_id, uint8_t> service_types;
 
-		bool AddTransponder(xmlNodePtr transponder, uint8_t diseqc_pos, t_satellite_position satellitePosition);
-		bool ScanProvider(xmlNodePtr search, t_satellite_position satellitePosition, uint8_t diseqc_pos);
+		bool ScanProvider(t_satellite_position satellitePosition);
 		void Cleanup(const bool success);
 		bool tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition);
+		void SendTransponderInfo(transponder &t);
 		bool ReadNitSdt(t_satellite_position satellitePosition);
+		bool AddFromNit();
 		void FixServiceTypes();
 
+		void CheckSatelliteChannels(t_satellite_position satellitePosition);
 		bool ScanTransponder();
 		bool ScanProviders();
+		void SaveServices();
+		void CleanAllMaps();
+		bool ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, struct dvb_frontend_parameters * feparams, uint8_t polarization);
+
 #if 0
 		/* fast scan */
 		std::map <t_channel_id, t_satellite_position> fast_services_sat;
@@ -78,6 +117,7 @@ class CServiceScan : public OpenThreads::Thread
 #endif
 		void run();
 
+		CFrontend * frontend;
 		static CServiceScan * scan;
 		CServiceScan();
 
@@ -96,8 +136,15 @@ class CServiceScan : public OpenThreads::Thread
 		void Abort() { abort_scan = 1; };
 		bool Aborted() { return abort_scan; };
 
+		bool SetFrontend(t_satellite_position satellitePosition);
+		CFrontend * GetFrontend() { return frontend; };
+
 		uint32_t & FoundTransponders() { return found_transponders; };
 		uint32_t & FoundChannels() { return found_channels; };
+		void SetCableNID(unsigned short nid) { cable_nid = nid; }
+		bool isFtaOnly() { return flags & SCAN_FTA; }
+		int GetFlags() { return flags; }
+		bool SatHaveChannels() { return satHaveChannels; }
 };
 
 #endif /* __scan_h__ */

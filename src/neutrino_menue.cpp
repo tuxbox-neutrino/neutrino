@@ -34,8 +34,6 @@
 #include <config.h>
 #endif
 
-//#define TEST_MENU
-
 #include "global.h"
 #include "neutrino.h"
 #include "mymenu.h"
@@ -50,7 +48,6 @@
 #include "gui/bouquetlist.h"
 #include "gui/cam_menu.h"
 #include "gui/dboxinfo.h"
-#include "gui/epg_menu.h"
 #include <gui/epgplus.h>
 #include "gui/favorites.h"
 #include "gui/hdd_menu.h"
@@ -72,11 +69,9 @@
 #include "gui/scan_setup.h"
 #include "gui/settings_manager.h"
 #include "gui/sleeptimer.h"
-#include "gui/software_update.h"
+#include "gui/update_menue.h"
 #include <gui/streaminfo2.h>
-#ifdef TEST_MENU
 #include "gui/test_menu.h"
-#endif /*TEST_MENU*/
 #include "gui/update.h"
 #include "gui/vfd_setup.h"
 #include <driver/record.h>

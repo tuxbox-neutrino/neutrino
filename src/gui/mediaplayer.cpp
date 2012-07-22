@@ -227,7 +227,6 @@ int CMediaPlayerMenu::initMenuMedia(CMenuWidget *m, CPersonalizeGui *p)
 		personalize->addPersonalizedItems();
 		
 		res = media->exec(NULL, "");
-		media->hide();
 		delete media;
 		delete personalize;
 

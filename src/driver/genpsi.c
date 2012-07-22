@@ -194,7 +194,7 @@ static int copy_template(uint8_t *dst, uint8_t *src, int len)
 }
 int genpsi(int fd2)
 {
-	int  bytes = 0;
+//	int  bytes = 0;
 	uint8_t   pkt[SIZE_TS_PKT];
 	int       i, data_len, patch_len, ofs;
 
@@ -234,13 +234,13 @@ int genpsi(int fd2)
 //-- calculate CRC --
 	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
 //-- write TS packet --
-	bytes += write(fd2, pkt, SIZE_TS_PKT);
+	/*bytes +=*/ write(fd2, pkt, SIZE_TS_PKT);
 //-- (II) build PAT --
 	data_len = COPY_TEMPLATE(pkt, pkt_pat);
 //-- calculate CRC --
 	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
 //-- write TS packet --
-	bytes += write(fd2, pkt, SIZE_TS_PKT);
+	/*bytes +=*/ write(fd2, pkt, SIZE_TS_PKT);
 
 //-- (III) build PMT --
 	data_len = COPY_TEMPLATE(pkt, pkt_pmt);
@@ -274,7 +274,7 @@ int genpsi(int fd2)
 //-- calculate CRC --
 	calc_crc32psi(&pkt[data_len], &pkt[OFS_HDR_2], data_len-OFS_HDR_2 );
 //-- write TS packet --
-	bytes += write(fd2, pkt, SIZE_TS_PKT);
+	/*bytes +=*/ write(fd2, pkt, SIZE_TS_PKT);
 //-- finish --
 	avPids.vpid=0;
 	avPids.nba=0;

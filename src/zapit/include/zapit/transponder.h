@@ -1,12 +1,11 @@
 /*
- * $Id: transponder.h,v 1.6 2003/05/28 13:41:37 digi_casi Exp $
+ * Copyright (C) 2012 CoolStream International Ltd
  *
- * (C) 2002 by Steffen Hehn "McClean" <McClean@tuxbox.org>
+ * License: GPLv2
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * the Free Software Foundation;
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,63 +18,41 @@
  *
  */
 
-#ifndef __transponder_h__
-#define __transponder_h__
+#ifndef _TRANSPONDER_H_
+#define _TRANSPONDER_H_
 
+#include <zapit/types.h>
+#include <zapit/frontend_types.h>
+#include <string>
+#include <map>
 
-
-class CTransponder
+class transponder
 {
-	private:
-		unsigned int	frequency;
-		unsigned char	modulation;
-		unsigned int	symbolrate;
-		unsigned char	polarisation;
-		unsigned char	innerFec;
-		unsigned char	diseqc;
-		unsigned char	inversion;
+public:
+	t_transport_stream_id transport_stream_id;
+	t_original_network_id original_network_id;
+	transponder_id_t transponder_id;
+	t_satellite_position satellitePosition;
+	uint8_t type;
 
-		unsigned short	originalNetworkId;
-		unsigned short	transportStreamId;
-		int32_t		satellitePosition;
+	FrontendParameters feparams;
+	unsigned char polarization;
+	bool updated;
 
-	public:
+	transponder(fe_type_t fType, const transponder_id_t t_id, const FrontendParameters p_feparams, const uint8_t p_polarization = 0);
+	transponder();
 
-		CTransponder();
-
-		unsigned int getFrequency();
-		void setFrequency(unsigned int);
-
-		unsigned char getModulation();
-		void setModulation(unsigned char);
-
-		unsigned int getSymbolrate();
-		void setSymbolrate(unsigned int);
-
-		unsigned char getPolarisation();
-		void setPolarisation(unsigned char);
-
-		unsigned char getDiseqc();
-		void setDiseqc(unsigned char);
-
-		unsigned char getInnerFec();
-		void setInnerFec(unsigned char);
-
-		unsigned char getInversion();
-		void setInversion(unsigned char);
-
-		unsigned short getOriginalNetworkId();
-		void setOriginalNetworkId(unsigned short);
-
-		unsigned short getTransportStreamId();
-		void setTransportStreamId(unsigned short);
-		
-		int32_t getSatellitePosition();
-		void setSatellitePosition(int32_t);
-
-		unsigned int getTsidOnid();
-		uint64_t getSposTsidOnid();
-		bool updated;
+	bool operator==(const transponder& t) const;
+	bool compare (const transponder& t) const;
+	void dumpServiceXml(FILE * fd);
+	void dump(std::string label = "tp");
+	void ddump(std::string label = "tp");
+	static char pol(unsigned char pol);
+	std::string description();
 };
 
-#endif /* __transponder_h__ */
+typedef std::map <transponder_id_t, transponder> transponder_list_t;
+typedef std::map <transponder_id_t, transponder>::iterator stiterator;
+typedef std::pair<transponder_id_t, transponder> transponder_pair_t;
+
+#endif

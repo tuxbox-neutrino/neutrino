@@ -21,7 +21,7 @@ Contributor(s):
 #include <stdlib.h>
 #include <string.h>
 
-#include "xmldef.h"
+#include <xmldef.h>
 #include "hashtab.h"
 
 #ifdef XML_UNICODE

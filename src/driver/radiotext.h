@@ -58,7 +58,7 @@
 #include <vdr/receiver.h>
 #endif
 
-#include <dmx_cs.h>
+#include <dmx.h>
 
 //#define ENABLE_RASS
 

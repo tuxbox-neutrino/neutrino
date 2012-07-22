@@ -138,7 +138,7 @@ THandleStatus CControlAPI::Hook_SendResponse(CyhookHandler *hh)
 void CControlAPI::compatibility_Timer(CyhookHandler *hh)
 {
 	log_level_printf(4,"CControlAPI Compatibility Timer Start url:%s\n",hh->UrlData["url"].c_str());
-	if(NeutrinoAPI->Timerd->isTimerdAvailable() && hh->ParamList.size() > 0)
+	if(NeutrinoAPI->Timerd->isTimerdAvailable() && !hh->ParamList.empty() )
 	{
 		if(hh->ParamList["action"] == "remove")
 		{
@@ -241,7 +241,7 @@ void CControlAPI::Execute(CyhookHandler *hh)
 	{
 		dprintf("Execute CGI : %s\n",filename.c_str());
 		for(CStringList::iterator it = hh->ParamList.begin() ;
-				it != hh->ParamList.end() ; it++)
+				it != hh->ParamList.end() ; ++it)
 			dprintf("  Parameter %s : %s\n",it->first.c_str(), it->second.c_str());
 	}
 
@@ -394,7 +394,7 @@ void CControlAPI::ExecCGI(CyhookHandler *hh)
 		hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 	else
 		hh->SetHeader(HTTP_OK, "text/plain; charset=UTF-8");
-	if (hh->ParamList.size() > 0)
+	if ( !hh->ParamList.empty() )
 	{
 		script = hh->ParamList["1"];
 		unsigned int len = hh->ParamList.size();
@@ -761,6 +761,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 		hh->SendError();
 		return;
 	}
+#if 0
 	unsigned int repeat = 1;
 	unsigned int delay = 250;
 	if (hh->ParamList["delay"] != "")
@@ -769,7 +770,7 @@ void CControlAPI::RCEmCGI(CyhookHandler *hh) {
 		repeat = atoi(hh->ParamList["duration"].c_str()) * 1000 / delay;
 	if (hh->ParamList["repeat"] != "")
 		repeat = atoi(hh->ParamList["repeat"].c_str());
-
+#endif
 	int evd = open(EVENTDEV, O_RDWR);
 	if (evd < 0) {
 		hh->SendError();
@@ -1210,7 +1211,7 @@ std::string CControlAPI::channelEPGformated(CyhookHandler *hh, int bouquetnr, t_
 	int i = 0;
 	CChannelEventList::iterator eventIterator;
 	bool isFirstLine = true;
-	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, i++) {
+	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); ++eventIterator, i++) {
 		if ((max != -1 && i >= max) || (stoptime != -1 && eventIterator->startTime >= stoptime))
 			break;
 		std::string prog = "";
@@ -1418,7 +1419,7 @@ void CControlAPI::EpgCGI(CyhookHandler *hh) {
 		sscanf(hh->ParamList["id"].c_str(), SCANF_CHANNEL_ID_TYPE, &channel_id);
 		sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 		CChannelEventList::iterator eventIterator;
-		for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++) {
+		for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); ++eventIterator) {
 			CShortEPGData epg;
 			if (sectionsd_getEPGidShort(eventIterator->eventID, &epg)) {
 				hh->printf("%llu %ld %d\n", eventIterator->eventID, eventIterator->startTime, eventIterator->duration);
@@ -1519,7 +1520,7 @@ void CControlAPI::ZaptoCGI(CyhookHandler *hh)
 				for(unsigned int i=0; i< desc.size(); i++)
 				{
 					t_channel_id sub_channel_id =
-						CREATE_CHANNEL_ID_FROM_SERVICE_ORIGINALNETWORK_TRANSPORTSTREAM_ID(
+						CREATE_CHANNEL_ID(
 							desc[i].serviceId, desc[i].originalNetworkId, desc[i].transportStreamId);
 					hh->printf(PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS
 						   " %s\n",
@@ -1587,11 +1588,11 @@ void CControlAPI::LCDAction(CyhookHandler *hh)
 //-------------------------------------------------------------------------
 void CControlAPI::SendEventList(CyhookHandler *hh, t_channel_id channel_id)
 {
-	int pos;
+	int pos = 0;
 	sectionsd_getEventsServiceKey(channel_id, NeutrinoAPI->eList);
 	CChannelEventList::iterator eventIterator;
 
-	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); eventIterator++, pos++)
+	for (eventIterator = NeutrinoAPI->eList.begin(); eventIterator != NeutrinoAPI->eList.end(); ++eventIterator, pos++)
 		hh->printf("%llu %ld %d %s\n", eventIterator->eventID, eventIterator->startTime, eventIterator->duration, eventIterator->description.c_str());
 }
 
@@ -1685,7 +1686,7 @@ void CControlAPI::SendAllCurrentVAPid(CyhookHandler *hh)
 	if(eit_not_ok)
 	{
 		unsigned short i = 0;
-		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); it++)
+		for (CZapitClient::APIDList::iterator it = pids.APIDs.begin(); it!=pids.APIDs.end(); ++it)
 		{
 			if(!(init_iso))
 			{
@@ -1718,7 +1719,7 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 
 	CTimerd::TimerList::iterator timer = timerlist.begin();
 
-	for(; timer != timerlist.end(); timer++)
+	for(; timer != timerlist.end(); ++timer)
 	{
 		// Add Data
 		char zAddData[22+1] = { 0 };
@@ -1736,7 +1737,8 @@ void CControlAPI::SendTimers(CyhookHandler *hh)
 			{
 				strncpy(zAddData, NeutrinoAPI->GetServiceName(timer->channel_id).c_str(), 22);
 				if (zAddData[0] == 0)
-					strcpy(zAddData, NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel");
+					strcpy(zAddData, CServiceManager::getInstance()->IsChannelTVChannel(timer->channel_id) ?
+							"Unknown TV-Channel" : "Unknown Radio-Channel");
 			}
 			else
 				sprintf(zAddData, PRINTF_CHANNEL_ID_TYPE_NO_LEADING_ZEROS, timer->channel_id);
@@ -1800,7 +1802,7 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 	sort(timerlist.begin(), timerlist.end());		// sort timer
 	CTimerd::TimerList::iterator timer = timerlist.begin();
 
-	std::string xml_response = "";
+//	std::string xml_response = "";
 	hh->SetHeader(HTTP_OK, "text/xml; charset=UTF-8");
 	hh->WriteLn("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	hh->WriteLn("<timer>\n");
@@ -1819,7 +1821,7 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 	// start timer list
 	hh->WriteLn("\t<timer_list>\n");
 
-	for(; timer != timerlist.end(); timer++)
+	for(; timer != timerlist.end(); ++timer)
 	{
 		hh->WriteLn("\t\t<timer>\n");
 		hh->printf("\t\t\t<type>%s</type>\n",(NeutrinoAPI->timerEventType2Str(timer->eventType)).c_str());
@@ -1894,14 +1896,13 @@ void CControlAPI::SendTimersXML(CyhookHandler *hh)
 		// channel infos
 		std::string channel_name = NeutrinoAPI->GetServiceName(timer->channel_id);
 		if (channel_name.empty())
-			channel_name = NeutrinoAPI->Zapit->isChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
+			channel_name = CServiceManager::getInstance()->IsChannelTVChannel(timer->channel_id) ? "Unknown TV-Channel" : "Unknown Radio-Channel";
 
 		// epg title
 		std::string title = timer->epgTitle;
 		if(timer->epgID!=0) {
-			CSectionsdClient sdc;
 			CEPGData epgdata;
-			if (sdc.getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
+			if (sectionsd_getEPGid(timer->epgID, timer->epg_starttime, &epgdata))
 				title = epgdata.title;
 		}
 
@@ -2328,7 +2329,7 @@ void CControlAPI::doNewTimer(CyhookHandler *hh)
 				real_alarmTimeT -= pre;
 			}
 
-			for(; timer != timerlist.end(); timer++)
+			for(; timer != timerlist.end(); ++timer)
 				if(timer->alarmTime == real_alarmTimeT)
 				{
 					NeutrinoAPI->Timerd->removeTimerEvent(timer->eventID);
@@ -2438,7 +2439,7 @@ void CControlAPI::changeBouquetCGI(CyhookHandler *hh)
 		CZapitClient::BouquetChannelList BChannelList;
 		NeutrinoAPI->Zapit->getBouquetChannels(selected - 1, BChannelList, CZapitClient::MODE_CURRENT, true);
 		CZapitClient::BouquetChannelList::iterator channels = BChannelList.begin();
-		for(; channels != BChannelList.end(); channels++)
+		for(; channels != BChannelList.end(); ++channels)
 		{
 			NeutrinoAPI->Zapit->removeChannelFromBouquet(selected - 1, channels->channel_id);
 		}
@@ -2619,7 +2620,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 		if (load) {	// get and output list
 			conf = Config->getConfigDataMap();
 			ConfigDataMap::iterator it, end, start;
-			for (start = conf.begin(), it=start, end = conf.end(); it != end; it++) {
+			for (start = conf.begin(), it=start, end = conf.end(); it != end; ++it) {
 				std::string key = it->first;
 				replace(key, ".", "_dot_");
 				replace(key, "-", "_bind_");
@@ -2635,7 +2636,7 @@ void CControlAPI::ConfigCGI(CyhookHandler *hh) {
 			}
 		}
 		else { // set values and save list
-			for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); it++) {
+			for (CStringList::iterator it = hh->ParamList.begin(); it != hh->ParamList.end(); ++it) {
 				std::string key = it->first;
 				replace(key, "_dot_", ".");
 				replace(key, "_bind_", "-");

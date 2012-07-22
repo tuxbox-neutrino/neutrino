@@ -222,7 +222,7 @@ int CVideoSettings::showVideoSetup()
 	CMenuWidget * videosetup = new CMenuWidget(LOCALE_MAINSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width);
 	videosetup->setSelected(selected);
 	videosetup->setWizardMode(is_wizard);
-	
+
 	//analog options
 	unsigned int system_rev = cs_get_revision();
 	CMenuOptionChooser * vs_analg_ch = NULL; 
@@ -236,40 +236,39 @@ int CVideoSettings::showVideoSetup()
 	{
 		if(system_rev != 10)
 			vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_SCART_OPTION_COUNT, true, this);
-		
+
 		vs_chinch_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_CINCH, &g_settings.analog_mode2, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTIONS, VIDEOMENU_VIDEOSIGNAL_HD1PLUS_CINCH_OPTION_COUNT, true, this);
 	}
 	else if (system_rev == 0x01) /* TRIPLEDRAGON hack... :-) */
 	{
 		vs_scart_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_SCART, &g_settings.analog_mode1, VIDEOMENU_VIDEOSIGNAL_TD_OPTIONS, VIDEOMENU_VIDEOSIGNAL_TD_OPTION_COUNT, true, this);
 	}
-	
+
 	//4:3 mode
 	CMenuOptionChooser * vs_43mode_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_43MODE, &g_settings.video_43mode, VIDEOMENU_43MODE_OPTIONS, VIDEOMENU_43MODE_OPTION_COUNT, true, this);
-	
+
 	//display format
- 	CMenuOptionChooser * vs_dispformat_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOFORMAT, &g_settings.video_Format, VIDEOMENU_VIDEOFORMAT_OPTIONS, VIDEOMENU_VIDEOFORMAT_OPTION_COUNT, true, this);
-	
+	CMenuOptionChooser * vs_dispformat_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOFORMAT, &g_settings.video_Format, VIDEOMENU_VIDEOFORMAT_OPTIONS, VIDEOMENU_VIDEOFORMAT_OPTION_COUNT, true, this);
+
 	//video system
 	CMenuOptionChooser * vs_videomodes_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_VIDEOMODE, &g_settings.video_Mode, VIDEOMENU_VIDEOMODE_OPTIONS, VIDEOMENU_VIDEOMODE_OPTION_COUNT, true, this, CRCInput::RC_nokey, "", true);
-	
+
 	//dbdr options
 	CMenuOptionChooser * vs_dbdropt_ch = new CMenuOptionChooser(LOCALE_VIDEOMENU_DBDR, &g_settings.video_dbdr, VIDEOMENU_DBDR_OPTIONS, VIDEOMENU_DBDR_OPTION_COUNT, true, this);
-	
+
 	//video system modes submenue
-	CMenuWidget *videomodes = NULL;
+	CMenuWidget videomodes(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
+	CAutoModeNotifier anotify;
 	CMenuForwarder *vs_videomodes_fw = NULL;
 	if (system_rev != 0x01) /* Tripledragon */
 	{
-		videomodes = new CMenuWidget(LOCALE_MAINSETTINGS_VIDEO, NEUTRINO_ICON_SETTINGS);
-		videomodes->addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
-		
-		CAutoModeNotifier * anotify = new CAutoModeNotifier();
-		for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
-			videomodes->addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, anotify));
-		anotify->changeNotify(NONEXISTANT_LOCALE, 0);
+		videomodes.addIntroItems(LOCALE_VIDEOMENU_ENABLED_MODES);
 
-		vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
+		for (int i = 0; i < VIDEOMENU_VIDEOMODE_OPTION_COUNT; i++)
+			videomodes.addItem(new CMenuOptionChooser(VIDEOMENU_VIDEOMODE_OPTIONS[i].valname, &g_settings.enabled_video_modes[i], OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, &anotify));
+		//anotify.changeNotify(NONEXISTANT_LOCALE, 0);
+
+		vs_videomodes_fw = new CMenuForwarder(LOCALE_VIDEOMENU_ENABLED_MODES, true, NULL, &videomodes, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED );
 	}
 
 	//---------------------------------------
@@ -293,10 +292,9 @@ int CVideoSettings::showVideoSetup()
 		videosetup->addItem(vs_videomodes_fw);	  //video modes submenue
 	}
 
- 	int res = videosetup->exec(NULL, "");
- 	videosetup->hide();
+	int res = videosetup->exec(NULL, "");
 	selected = videosetup->getSelected();
- 	delete videosetup;
+	delete videosetup;
 	return res;
 }
 
@@ -326,9 +324,8 @@ void CVideoSettings::setVideoSettings()
 	videoDecoder->setAspectRatio(g_settings.video_Format, g_settings.video_43mode);
 
 	videoDecoder->SetDBDR(g_settings.video_dbdr);
-	CAutoModeNotifier * anotify = new CAutoModeNotifier();
-	anotify->changeNotify(NONEXISTANT_LOCALE, 0);
-	delete anotify;
+	CAutoModeNotifier anotify;
+	anotify.changeNotify(NONEXISTANT_LOCALE, 0);
 }
 
 void CVideoSettings::setupVideoSystem(bool do_ask)
@@ -352,12 +349,13 @@ void CVideoSettings::setupVideoSystem(bool do_ask)
 	}
 }
 
-bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *data)
+bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void * /* data */)
 {
+#if 0
 	int val = 0;
 	if(data)
 		val = * (int *) data;
-
+#endif
 	if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_ANALOG_MODE))
 	{
 		videoDecoder->SetVideoMode((analog_mode_t) g_settings.analog_mode1);
@@ -389,7 +387,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *data
 	{
 		setupVideoSystem(true/*ask*/);
 	}
-#if 1
+#if 0
         else if (ARE_LOCALES_EQUAL(OptionName, LOCALE_VIDEOMENU_CONTRAST))
 	{
 		videoDecoder->SetControl(VIDEO_CONTROL_CONTRAST, val);
@@ -411,7 +409,7 @@ bool CVideoSettings::changeNotify(const neutrino_locale_t OptionName, void *data
 		videoDecoder->SetControl(VIDEO_CONTROL_HUE, val);
 	}
 #endif
-	return true;
+	return false;
 }
 
 

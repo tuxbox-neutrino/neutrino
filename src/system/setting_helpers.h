@@ -37,55 +37,21 @@
 
 #include <string>
 
-uint64_t getcurrenttime();
-
-class CSatelliteSetupNotifier : public CChangeObserver
+class CGenericMenuActivate
 {
 	private:
-		std::vector<CMenuItem*> items1;
-		std::vector<CMenuItem*> items2;
-		std::vector<CMenuItem*> items3;
+		std::vector<CMenuItem*> items;
 	public:
-		CSatelliteSetupNotifier();
-		void addItem(int list, CMenuItem* item);
-		bool changeNotify(const neutrino_locale_t, void * Data);
-};
+		CGenericMenuActivate()		{};
+		~CGenericMenuActivate()		{ items.clear(); };
 
-class CSatDiseqcNotifier : public CChangeObserver
-{
-	private:
-		CMenuItem* satMenu;
-		CMenuItem* extMenu;
-		CMenuItem* extMotorMenu;
-		CMenuItem* repeatMenu;
-		CMenuItem* motorControl;
-	protected:
-		CSatDiseqcNotifier( ) : CChangeObserver(){};  // prevent calling constructor without data we need
-	public:
-		CSatDiseqcNotifier( CMenuItem* SatMenu, CMenuItem* ExtMenu, CMenuItem* ExtMotorMenu, CMenuItem* RepeatMenu, CMenuItem* MotorControl) : CChangeObserver()
-		{ satMenu = SatMenu; extMenu = ExtMenu; extMotorMenu = ExtMotorMenu; repeatMenu = RepeatMenu; motorControl = MotorControl;};
-		bool changeNotify(const neutrino_locale_t, void * Data);
-};
-
-class CTP_scanNotifier : public CChangeObserver
-{
-	private:
-		CMenuOptionChooser* toDisable1[2];
-		CMenuForwarder* toDisable2[2];
-
-	public:
-		CTP_scanNotifier(CMenuOptionChooser*, CMenuOptionChooser*, CMenuForwarder*, CMenuForwarder*);
-		bool changeNotify(const neutrino_locale_t, void * Data);
-};
-
-class CDHCPNotifier : public CChangeObserver
-{
-	private:
-		CMenuForwarder* toDisable[5];
-		CMenuForwarder* toEnable[1];
-	public:
-		CDHCPNotifier( CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*, CMenuForwarder*);
-		bool changeNotify(const neutrino_locale_t, void * data);
+		void Add(CMenuItem* item)	{ items.push_back(item); }
+		void Clear()			{ items.clear(); }
+		void Activate(bool enable)
+		{
+			for(std::vector<CMenuItem*>::iterator it = items.begin(); it != items.end(); it++)
+				(*it)->setActive(enable);
+		}
 };
 
 class COnOffNotifier : public CChangeObserver
@@ -98,12 +64,6 @@ class COnOffNotifier : public CChangeObserver
                 bool changeNotify(const neutrino_locale_t, void *Data);
 };
 
-class CRecordingSafetyNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
 class CMiscNotifier : public CChangeObserver
 {
 	private:
@@ -111,18 +71,6 @@ class CMiscNotifier : public CChangeObserver
 	public:
 		CMiscNotifier( CMenuItem*, CMenuItem* );
 		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-class CLcdNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-class CPauseSectionsdNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void * Data);
 };
 
 class CSectionsdConfigNotifier : public CChangeObserver
@@ -154,18 +102,6 @@ class CAudioSetupNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t OptionName, void *);
 };
 
-class CKeySetupNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void *);
-};
-
-class CIPChangeNotifier : public CChangeObserver
-{
-	public:
-		bool changeNotify(const neutrino_locale_t, void * Data);
-};
-
 class CTimingSettingsNotifier : public CChangeObserver
 {
 	public:
@@ -178,19 +114,12 @@ class CFontSizeNotifier : public CChangeObserver
 		bool changeNotify(const neutrino_locale_t, void *);
 };
 
-class CRecAPIDSettingsNotifier : public CChangeObserver
-{
-	public:
-	bool changeNotify(const neutrino_locale_t OptionName, void*);
-};
-
 class CSubtitleChangeExec : public CMenuTarget
 {
 	public:
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
 
-void showSubchan(const std::string & subChannelName);
 class CNVODChangeExec : public CMenuTarget
 {
 	public:
@@ -214,17 +143,9 @@ class COnekeyPluginChangeExec : public CMenuTarget
 	public:
 		int exec(CMenuTarget* parent, const std::string & actionKey);
 };
-class CUCodeCheckExec : public CMenuTarget
-{
-	public:
-		int exec(CMenuTarget* parent, const std::string & actionKey);
-};
 
-void testNetworkSettings(const char* ip, const char* netmask, const char* broadcast, const char* gateway, const char* nameserver, bool dhcp);
-void showCurrentNetworkSettings();
 int safe_mkdir(char * path);
 int check_dir(const char * newdir);
-
 
 class CTZChangeNotifier : public CChangeObserver
 {
@@ -236,12 +157,6 @@ class CDataResetNotifier : public CMenuTarget
 {
 public:
         int exec(CMenuTarget* parent, const std::string& actionKey);
-};
-
-class CLedControlNotifier : public CChangeObserver
-{
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
 };
 
 class CFanControlNotifier : public CChangeObserver
@@ -256,29 +171,10 @@ public:
         bool changeNotify(const neutrino_locale_t, void * data);
 };
 
-#if 0
-class CScreenPresetNotifier : public CChangeObserver
-{
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
-};
-#endif
-class CAllUsalsNotifier : public CChangeObserver
-{
-public:
-        bool changeNotify(const neutrino_locale_t, void * data);
-};
-
 class CAutoModeNotifier : public CChangeObserver
 {
 public:
         bool changeNotify(const neutrino_locale_t, void * data);
-};
-
-class CRadiotextNotifier : public CChangeObserver
-{
-	public:
-		 bool changeNotify(const neutrino_locale_t, void * Data);
 };
 
 #endif

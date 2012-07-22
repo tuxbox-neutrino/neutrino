@@ -427,7 +427,7 @@ fprintf(stderr, "MEC=0x%02x DSN=0x%02x PSN=0x%02x MEL=%02d STATUS=0x%02x MFL=%02
 		RTP_TToggle = 0x03;		// Bit 0/1 = Title/Artist
 		RT_MsgShow = true;
 		S_RtOsd = 1;
-		RT_Info = (RT_Info > 0) ? : 1;
+		RT_Info = (RT_Info > 0) ? RT_Info : 1;
 		RadioStatusMsg();
 	}
 

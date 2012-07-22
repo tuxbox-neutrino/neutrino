@@ -32,33 +32,27 @@
 */
 
 
-#include <zapit/client/zapitclient.h>
-
-#ifdef HAVE_CONTROLD
-#include <controldclient/controldclient.h>
-#endif
 #include <sectionsdclient/sectionsdclient.h>
 #include <timerdclient/timerdclient.h>
 
-#include "driver/fontrenderer.h"
-#include "driver/rcinput.h"
-#include "driver/radiotext.h"
+#include <driver/fontrenderer.h>
+#include <driver/rcinput.h>
+#include <driver/radiotext.h>
 #if HAVE_COOL_HARDWARE
-#include "driver/vfd.h"
-#include "driver/rfmod.h"
+#include <driver/vfd.h>
 #endif
 #if HAVE_TRIPLEDRAGON || HAVE_SPARK_HARDWARE || HAVE_AZBOX_HARDWARE
 #include "driver/lcdd.h"
 #define CVFD CLCD
 #endif
 
-#include "system/localize.h"
-#include "system/settings.h"
+#include <system/localize.h>
+#include <system/settings.h>
 
-#include "gui/epgview.h"
-#include "gui/infoviewer.h"
-#include "gui/eventlist.h"
-#include "gui/videosettings.h"
+#include <gui/epgview.h>
+#include <gui/infoviewer.h>
+#include <gui/eventlist.h>
+#include <gui/videosettings.h>
 
 
 #ifndef NEUTRINO_CPP
@@ -97,12 +91,9 @@ NEUTRINO_CPP  CRCInput		*g_RCInput;
 
 NEUTRINO_CPP  CEpgData		*g_EpgData;
 NEUTRINO_CPP  CInfoViewer	*g_InfoViewer;
-NEUTRINO_CPP  EventList		*g_EventList;
+NEUTRINO_CPP  CNeutrinoEventList		*g_EventList;
 
 NEUTRINO_CPP CLocaleManager	*g_Locale;
-#if HAVE_COOL_HARDWARE
-NEUTRINO_CPP RFmod		*g_RFmod;
-#endif
 NEUTRINO_CPP CVideoSettings	*g_videoSettings;
 NEUTRINO_CPP CRadioText		*g_Radiotext;
 

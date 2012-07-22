@@ -168,7 +168,6 @@
 #include <gui/widget/helpbox.h>
 #include "widget/messagebox.h"
 #include "widget/hintbox.h"
-#include "widget/lcdcontroler.h"
 #include "widget/keychooser.h"
 #include "color.h"
 #include "personalize.h"
@@ -236,7 +235,7 @@ int CPersonalizeGui::exec(CMenuTarget* parent, const string & actionKey)
 		
 		if(actionKey == a_key) 
 		{                                     				// Personalize options menu
-			ShowMenuOptions(i);
+			res = ShowMenuOptions(i);
 			return res;
 		}
 	}
@@ -324,7 +323,6 @@ int CPersonalizeGui::ShowPersonalizationMenu()
 	pMenu->addItem(new CMenuForwarder(LOCALE_PERSONALIZE_HELP, true, NULL, this, "personalize_help", CRCInput::RC_help, NEUTRINO_ICON_BUTTON_HELP));
 	
 	int res = pMenu->exec(NULL, "");
-	pMenu->hide();
 	delete pMenu;
 	delete uMenu;
 	delete pinChangeWidget;
@@ -440,7 +438,7 @@ void CPersonalizeGui::ShowPluginMenu(CMenuWidget* p_widget)
 
 //Here we give the user the option to enable, disable, or PIN protect items on the Main Menu.
 //We also provide a means of PIN protecting the menu itself.
-void CPersonalizeGui::ShowMenuOptions(const int& widget)
+int CPersonalizeGui::ShowMenuOptions(const int& widget)
 {
 	string mn_name = v_widget[widget]->getName();
 	printf("[neutrino-personalize] exec %s...\n", __FUNCTION__);
@@ -516,10 +514,9 @@ void CPersonalizeGui::ShowMenuOptions(const int& widget)
 		
 	}
 	options_count = pm->getItemsCount();
-	pm->exec (NULL, "");
-	pm->hide ();
+	int res = pm->exec (NULL, "");
 	delete pm;
-
+	return res;
 }
 
 //returns true, if found an observer item
@@ -719,13 +716,13 @@ void CPersonalizeGui::addSeparator(const int& widget_id, const neutrino_locale_t
 //expands with parameter within you can show or hide this item in personalize options
 void CPersonalizeGui::addSeparator(CMenuWidget &widget, const neutrino_locale_t locale_text, const int& item_mode)
 {
-	menu_item_t to_add_sep[2] = {	{&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode, NULL}, 
-					{&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode, NULL}};
-	
-	if (locale_text == NONEXISTANT_LOCALE)
-		v_item.push_back(to_add_sep[0]);
-	else
-		v_item.push_back(to_add_sep[1]);
+	if (locale_text == NONEXISTANT_LOCALE) {
+		menu_item_t to_add_sep = {&widget, GenericMenuSeparatorLine, false, locale_text, NULL, item_mode, NULL};
+		v_item.push_back(to_add_sep);
+	} else {
+		menu_item_t to_add_sep = {&widget, new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, locale_text), false, locale_text, NULL, item_mode, NULL};
+		v_item.push_back(to_add_sep);
+	}
 }
 
 //returns available count of personalized item for definied widget

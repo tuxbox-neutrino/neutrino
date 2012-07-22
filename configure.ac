@@ -1,5 +1,5 @@
 AC_INIT(tuxbox-neutrino,1.0.1)
-AM_INIT_AUTOMAKE(tuxbox-neutrino,1.0.1)
+AM_INIT_AUTOMAKE([1.0.1 nostdinc])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 
 TUXBOX_APPS
@@ -126,6 +126,9 @@ if test "$STB_HAL_INC"; then
 	AC_DEFINE(USE_STB_HAL, 1,[use libstb-hal])
 fi
 
+AC_ARG_ENABLE(cleanup,
+	[  --enable-cleanup                  enable cleanup on exit],
+	[AC_DEFINE(EXIT_CLEANUP,1,[enable cleanup on exit])])
 
 AC_CHECK_HEADERS(coolstream/nevis_ir.h)
 
@@ -198,7 +201,7 @@ data/lcd/clock/Makefile
 data/locale/Makefile
 data/scripts/Makefile
 data/themes/Makefile
-src/sectionsd/Makefile
+src/eitd/Makefile
 src/timerd/Makefile
 src/zapit/Makefile
 src/zapit/lib/Makefile

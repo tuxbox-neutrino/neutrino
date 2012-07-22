@@ -31,7 +31,7 @@
 /* libevent */
 #include <eventserver.h>
 
-
+#include <zapit/client/zapittypes.h>
 #include <zapit/client/zapitclient.h>
 #include <zapit/client/msgtypes.h>
 #include <zapit/client/zapittools.h>
@@ -107,18 +107,21 @@ CZapitClient::CCurrentServiceInfo CZapitClient::getCurrentServiceInfo()
 	return response;
 }
 
-void CZapitClient::getLastChannel(unsigned int &channumber, char &mode)
+#if 0
+void CZapitClient::getLastChannel(t_channel_id &channel_id, int &mode)
 {
 	send(CZapitMessages::CMD_GET_LAST_CHANNEL);
 
 	CZapitClient::responseGetLastChannel response;
 	CBasicClient::receive_data((char* )&response, sizeof(response));
-	channumber = response.channelNumber + 1;
+	channel_id = response.channel_id;
 	mode = response.mode;
 
 	close_connection();
 }
+#endif
 
+#if 0
 int32_t CZapitClient::getCurrentSatellitePosition(void)
 {
 	send(CZapitMessages::CMD_GET_CURRENT_SATELLITE_POSITION);
@@ -129,6 +132,7 @@ int32_t CZapitClient::getCurrentSatellitePosition(void)
 	close_connection();
 	return response;
 }
+#endif
 
 void CZapitClient::setAudioChannel(const unsigned int channel)
 {
@@ -389,6 +393,7 @@ bool CZapitClient::getBouquetChannels(const unsigned int bouquet, BouquetChannel
 	return return_value;
 }
 
+#if 0
 bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChannelList& channels, channelsMode mode, const bool /*utf_encoded*/)
 {
 	bool                                      return_value;
@@ -402,6 +407,7 @@ bool CZapitClient::getBouquetNChannels(const unsigned int bouquet, BouquetNChann
 	close_connection();
 	return return_value;
 }
+#endif
 /* gets all channels */
 bool CZapitClient::getChannels( BouquetChannelList& channels, channelsMode mode, channelsOrder order, const bool utf_encoded)
 {
@@ -432,6 +438,7 @@ std::string CZapitClient::getChannelName(const t_channel_id channel_id)
 	return std::string(response.name);
 }
 
+#if 0
 /* is channel a TV channel ? */
 bool CZapitClient::isChannelTVChannel(const t_channel_id channel_id)
 {
@@ -442,7 +449,7 @@ bool CZapitClient::isChannelTVChannel(const t_channel_id channel_id)
 	close_connection();
 	return response.status;
 }
-
+#endif
 
 
 
@@ -586,6 +593,7 @@ bool CZapitClient::stopScan()
         close_connection();
         return reply;
 }
+#if 0
 bool CZapitClient::setConfig(Zapit_config Cfg)
 {
         //bool reply = send(CZapitMessages::CMD_LOADCONFIG);
@@ -599,6 +607,7 @@ void CZapitClient::getConfig (Zapit_config * Cfg)
 	CBasicClient::receive_data((char *) Cfg, sizeof(Zapit_config));
 	close_connection();
 }
+#endif
 bool CZapitClient::Rezap()
 {
         bool reply = send(CZapitMessages::CMD_REZAP);
@@ -672,6 +681,7 @@ void CZapitClient::setScanSatelliteList( ScanSatelliteList& satelliteList )
 	close_connection();
 }
 
+#if 0
 /* tell zapit stored satellite positions in diseqc 1.2 motor */
 void CZapitClient::setScanMotorPosList( ScanMotorPosList& motorPosList )
 {
@@ -683,6 +693,7 @@ void CZapitClient::setScanMotorPosList( ScanMotorPosList& motorPosList )
 	}
 	close_connection();
 }
+#endif
 
 /* set diseqcType*/
 void CZapitClient::setDiseqcType(const diseqc_t diseqc)
@@ -705,13 +716,15 @@ void CZapitClient::setScanBouquetMode(const bouquetMode mode)
 	close_connection();
 }
 
+#if 0
 /* set Scan-TYpe for channelsearch */
 void CZapitClient::setScanType(const scanType mode)
 {
 	send(CZapitMessages::CMD_SCANSETTYPE, (const char *) & mode, sizeof(mode));
   	close_connection();
 }
-
+#endif
+#if 0
 //
 // -- query Frontend Signal parameters
 //
@@ -728,7 +741,7 @@ void CZapitClient::getFESignal (struct responseFESignal &f)
 
 	close_connection();
 }
-
+#endif
 
 /***********************************************/
 /*                                             */
@@ -800,6 +813,7 @@ signed int CZapitClient::existsBouquet(const char * const name)
 	return response.number;
 }
 
+#if 0
 // -- check if Channel already is in Bouquet
 // -- Return: true/false
 /* bouquets are numbered starting at 0 */
@@ -817,9 +831,9 @@ bool CZapitClient::existsChannelInBouquet(const unsigned int bouquet, const t_ch
 	close_connection();
 	return (unsigned int) response.status;
 }
+#endif
 
-
-
+#if 0
 /* moves a channel of a bouquet from one position to another, channel lists begin at position=1*/
 /* bouquets are numbered starting at 0 */
 void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsigned int newPos, channelsMode mode)
@@ -835,6 +849,7 @@ void CZapitClient::moveChannel( unsigned int bouquet, unsigned int oldPos, unsig
 
 	close_connection();
 }
+#endif
 
 /* adds a channel at the end of then channel list to specified bouquet */
 /* same channels can be in more than one bouquet */
@@ -935,7 +950,6 @@ void CZapitClient::setVideoSystem(int video_system)
 	close_connection();
 }
 
-
 void CZapitClient::startPlayBack(const bool sendpmt)
 {
 	CZapitMessages::commandBoolean msg;
@@ -972,6 +986,7 @@ void CZapitClient::unlockPlayBack(const bool sendpmt)
 	CBasicClient::receive_data((char* )&response, sizeof(response));
 	close_connection();
 }
+
 bool CZapitClient::isPlayBackActive()
 {
 	send(CZapitMessages::CMD_SB_GET_PLAYBACK_ACTIVE);
@@ -982,7 +997,7 @@ bool CZapitClient::isPlayBackActive()
 	close_connection();
 	return response.activated;
 }
-
+#if 0
 void CZapitClient::setDisplayFormat(const video_display_format_t format)
 {
 	CZapitMessages::commandInt msg;
@@ -990,7 +1005,7 @@ void CZapitClient::setDisplayFormat(const video_display_format_t format)
 	send(CZapitMessages::CMD_SET_DISPLAY_FORMAT, (char*)&msg, sizeof(msg));
 	close_connection();
 }
-
+#endif
 void CZapitClient::setAudioMode(const int mode)
 {
 	CZapitMessages::commandInt msg;
@@ -999,6 +1014,7 @@ void CZapitClient::setAudioMode(const int mode)
 	close_connection();
 }
 
+#if 0
 void CZapitClient::getAudioMode(int * mode)
 {
         CZapitMessages::commandInt msg;
@@ -1007,7 +1023,7 @@ void CZapitClient::getAudioMode(int * mode)
         * mode = msg.val;
         close_connection();
 }
-
+#endif
 void CZapitClient::setRecordMode(const bool activate)
 {
 	CZapitMessages::commandSetRecordMode msg;

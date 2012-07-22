@@ -34,11 +34,12 @@
 #include <cstring>
 #include <errno.h>
 #include <unistd.h>
-#include <wavdec.h>
 #include <sstream>
 #include <driver/audioplay.h>
 #include <linux/soundcard.h>
 #include <zapit/include/audio.h>
+
+#include "wavdec.h"
 
 extern cAudio * audioDecoder;
 
@@ -51,18 +52,18 @@ extern cAudio * audioDecoder;
 struct WavHeader
 {
 	char  ChunkID[4];
-	int   ChunkSize;
+//	int   ChunkSize;
 	char  Format[4];
-	char  Subchunk1ID[4];
-	int   Subchunk1Size;
+//	char  Subchunk1ID[4];
+//	int   Subchunk1Size;
 	short AudioFormat;
 	short NumChannels;
 	int   SampleRate;
 	int   ByteRate;
-	short BlockAlign;
+//	short BlockAlign;
 	short BitsPerSample;
-	char  Subchunk2ID[4];
-	int   Subchunk2Size;
+//	char  Subchunk2ID[4];
+//	int   Subchunk2Size;
 } __attribute__ ((packed));
 
 int endianTest=1;
@@ -90,12 +91,12 @@ CBaseDec::RetCode CWavDec::Decoder(FILE *in, int /*OutputFd*/, State* state, CAu
 		return Status;
 	}
 	fseek(in, header_size, SEEK_SET);
-	int fmt;
+//	int fmt;
 	switch(mBitsPerSample)
 	{
-		case 8  : fmt = AFMT_U8;
+		case 8  : //fmt = AFMT_U8;
 			break;
-		case 16 : fmt = header_size == 0 ? AFMT_S16_BE : AFMT_S16_LE;
+		case 16 : //fmt = header_size == 0 ? AFMT_S16_BE : AFMT_S16_LE;
 			break;
 		default:
 			printf("%s: wrong bits per sample (%d)\n", ProgName, mBitsPerSample);

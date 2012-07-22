@@ -3,6 +3,8 @@
  *
  * (C) 2002-2003 Andreas Oberritter <obi@tuxbox.org>
  *
+ * Copyright (C) 2011 CoolStream International Ltd
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -23,30 +25,34 @@
 #define __zapit_frontend_h__
 
 #include <inttypes.h>
-#include "types.h"
-#include "channel.h"
+#include <zapit/types.h>
+#include <zapit/channel.h>
+#include <zapit/satconfig.h>
+#include <zapit/frontend_types.h>
 #include <map>
 
-#define FEC_S2_QPSK_1_2 (fe_code_rate_t)(FEC_AUTO+1)		//10
-#define FEC_S2_QPSK_2_3 (fe_code_rate_t)(FEC_S2_QPSK_1_2+1)	//11
-#define FEC_S2_QPSK_3_4 (fe_code_rate_t)(FEC_S2_QPSK_2_3+1)	//12
-#define FEC_S2_QPSK_5_6 (fe_code_rate_t)(FEC_S2_QPSK_3_4+1)	//13
-#define FEC_S2_QPSK_7_8 (fe_code_rate_t)(FEC_S2_QPSK_5_6+1)	//14
-#define FEC_S2_QPSK_8_9 (fe_code_rate_t)(FEC_S2_QPSK_7_8+1)	//15
-#define FEC_S2_QPSK_3_5 (fe_code_rate_t)(FEC_S2_QPSK_8_9+1)	//16
-#define FEC_S2_QPSK_4_5 (fe_code_rate_t)(FEC_S2_QPSK_3_5+1)	//17
-#define FEC_S2_QPSK_9_10 (fe_code_rate_t)(FEC_S2_QPSK_4_5+1)	//18
+#define FEC_S2_QPSK_BASE (fe_code_rate_t)(FEC_AUTO+1)
+#define FEC_S2_QPSK_1_2 (fe_code_rate_t)(FEC_S2_QPSK_BASE+0)	//10
+#define FEC_S2_QPSK_2_3 (fe_code_rate_t)(FEC_S2_QPSK_BASE+1)	//11
+#define FEC_S2_QPSK_3_4 (fe_code_rate_t)(FEC_S2_QPSK_BASE+2)	//12
+#define FEC_S2_QPSK_5_6 (fe_code_rate_t)(FEC_S2_QPSK_BASE+3)	//13
+#define FEC_S2_QPSK_7_8 (fe_code_rate_t)(FEC_S2_QPSK_BASE+4)	//14
+#define FEC_S2_QPSK_8_9 (fe_code_rate_t)(FEC_S2_QPSK_BASE+5)	//15
+#define FEC_S2_QPSK_3_5 (fe_code_rate_t)(FEC_S2_QPSK_BASE+6)	//16
+#define FEC_S2_QPSK_4_5 (fe_code_rate_t)(FEC_S2_QPSK_BASE+7)	//17
+#define FEC_S2_QPSK_9_10 (fe_code_rate_t)(FEC_S2_QPSK_BASE+8)	//18
 
-#define FEC_S2_8PSK_1_2 (fe_code_rate_t)(FEC_S2_QPSK_9_10+1)	//19
-#define FEC_S2_8PSK_2_3 (fe_code_rate_t)(FEC_S2_8PSK_1_2+1)	//20
-#define FEC_S2_8PSK_3_4 (fe_code_rate_t)(FEC_S2_8PSK_2_3+1)	//21
-#define FEC_S2_8PSK_5_6 (fe_code_rate_t)(FEC_S2_8PSK_3_4+1)	//22
-#define FEC_S2_8PSK_7_8 (fe_code_rate_t)(FEC_S2_8PSK_5_6+1)	//23
-#define FEC_S2_8PSK_8_9 (fe_code_rate_t)(FEC_S2_8PSK_7_8+1)	//24
-#define FEC_S2_8PSK_3_5 (fe_code_rate_t)(FEC_S2_8PSK_8_9+1)	//25
-#define FEC_S2_8PSK_4_5 (fe_code_rate_t)(FEC_S2_8PSK_3_5+1)	//26
-#define FEC_S2_8PSK_9_10 (fe_code_rate_t)(FEC_S2_8PSK_4_5+1)	//27
-#define FEC_S2_AUTO      (fe_code_rate_t)(FEC_S2_8PSK_9_10+1)	//28
+#define FEC_S2_8PSK_BASE (fe_code_rate_t)(FEC_S2_QPSK_9_10+1)
+#define FEC_S2_8PSK_1_2 (fe_code_rate_t)(FEC_S2_8PSK_BASE+0)	//19
+#define FEC_S2_8PSK_2_3 (fe_code_rate_t)(FEC_S2_8PSK_BASE+1)	//20
+#define FEC_S2_8PSK_3_4 (fe_code_rate_t)(FEC_S2_8PSK_BASE+2)	//21
+#define FEC_S2_8PSK_5_6 (fe_code_rate_t)(FEC_S2_8PSK_BASE+3)	//22
+#define FEC_S2_8PSK_7_8 (fe_code_rate_t)(FEC_S2_8PSK_BASE+4)	//23
+#define FEC_S2_8PSK_8_9 (fe_code_rate_t)(FEC_S2_8PSK_BASE+5)	//24
+#define FEC_S2_8PSK_3_5 (fe_code_rate_t)(FEC_S2_8PSK_BASE+6)	//25
+#define FEC_S2_8PSK_4_5 (fe_code_rate_t)(FEC_S2_8PSK_BASE+7)	//26
+#define FEC_S2_8PSK_9_10 (fe_code_rate_t)(FEC_S2_8PSK_BASE+8)	//27
+#define FEC_S2_AUTO      (fe_code_rate_t)(FEC_S2_8PSK_BASE+9)	//28
 
 static inline fe_modulation_t dvbs_get_modulation(fe_code_rate_t fec)
 {
@@ -72,13 +78,9 @@ static inline fe_rolloff_t dvbs_get_rolloff(fe_delivery_system_t delsys)
 		return ROLLOFF_35;
 }
 
-typedef struct dvb_frontend_parameters FrontendParameters;
-
 #define MAX_LNBS	64	/* due to Diseqc 1.1  (2003-01-10 rasc) */
 
-class CFrontend;
-typedef std::map<unsigned short, CFrontend*> fe_map_t;
-typedef fe_map_t::iterator fe_map_iterator_t;
+class CFEManager;
 
 class CFrontend
 {
@@ -90,7 +92,7 @@ class CFrontend
 		/* current adapter where this frontend is on */
 		int adapter;
 		/* current frontend instance */
-		static CFrontend *currentFe;
+		//static CFrontend *currentFe;
 		bool locked;
 		/* information about the used frontend type */
 		struct dvb_frontend_info info;
@@ -100,20 +102,13 @@ class CFrontend
 		fe_sec_voltage_t currentVoltage;
 		/* current satellite position */
 		int32_t currentSatellitePosition;
+		/* rotor satellite position */
+		int32_t rotorSatellitePosition;
 
 		/* SETTINGS */
-		/* how often to repeat DiSEqC 1.1 commands */
-		uint8_t diseqcRepeats;
-		/* DiSEqC type of attached hardware */
-		diseqc_t diseqcType;
+		frontend_config_t config;
 
-		/* variables for EN 50494 (a.k.a Unicable) */
-		int uni_scr;       /* the unicable SCR address,     -1 == no unicable */
-		int uni_qrg;       /* the unicable frequency in MHz */
-		int uni_lnb;       /* the input (0/1) of a twin-position switch */
-
-		int motorRotationSpeed; //in 0.1 degrees per second
-		bool highVoltage;
+		satellite_map_t satellites;
 
 		double gotoXXLatitude, gotoXXLongitude;
 		int gotoXXLaDirection, gotoXXLoDirection;
@@ -128,14 +123,14 @@ class CFrontend
 		int32_t lnbSwitch;
 		/* current Transponderdata */
 		TP_params currentTransponder;
-		struct dvb_frontend_parameters curfe;
+		FrontendParameters curfe;
 		bool slave;
 		int fenumber;
 		bool standby;
-		bool buildProperties(const dvb_frontend_parameters*, struct dtv_properties &);
+		bool buildProperties(const FrontendParameters*, struct dtv_properties &);
 
 		uint32_t			getDiseqcReply(const int timeout_ms) const;
-		struct dvb_frontend_parameters	getFrontend(void) const;
+		FrontendParameters		getFrontend(void) const;
 		void				secResetOverload(void);
 		void				secSetTone(const fe_sec_tone_mode_t mode, const uint32_t ms);
 		void				secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms);
@@ -147,27 +142,28 @@ class CFrontend
 		void				sendDiseqcStandby(void);
 		void				sendDiseqcZeroByteCommand(const uint8_t frm, const uint8_t addr, const uint8_t cmd);
 		void				sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms);
-		int				setFrontend(const struct dvb_frontend_parameters *feparams, bool nowait = false);
+		int				setFrontend(const FrontendParameters *feparams, bool nowait = false);
 		void				setSec(const uint8_t sat_no, const uint8_t pol, const bool high_band);
 		void				set12V(bool enable);
 		void				reset(void);
 		/* Private constructor */
 		CFrontend(int Number = 0, int Adapter = 0);
 
+		//static CFrontend *getInstance(int Number = 0, int Adapter = 0);
 		friend class CFEManager;
 	public:
 		/* tuning finished flag */
 		bool tuned;
 
 		~CFrontend(void);
-		static CFrontend *getInstance(int Number = 0, int Adapter = 0);
 
 		static fe_code_rate_t		getCodeRate(const uint8_t fec_inner, int system = 0);
 		uint8_t				getDiseqcPosition(void) const		{ return currentTransponder.diseqc; }
-		uint8_t				getDiseqcRepeats(void) const		{ return diseqcRepeats; }
-		diseqc_t			getDiseqcType(void) const		{ return diseqcType; }
-		int				getUniSCR(void) const			{ return uni_scr; }
-		uint32_t			getFrequency(void) const;
+		uint8_t				getDiseqcRepeats(void) const		{ return config.diseqcRepeats; }
+		diseqc_t			getDiseqcType(void) const		{ return (diseqc_t) config.diseqcType; }
+		int				getUniSCR(void) const			{ return config.uni_scr; }
+		uint32_t			getFrequency(void) const		{ return curfe.dvb_feparams.frequency; }
+		bool				getHighBand()				{ return (int) getFrequency() >= lnbSwitch; }
 		static fe_modulation_t		getModulation(const uint8_t modulation);
 		uint8_t				getPolarization(void) const;
 		const struct dvb_frontend_info *getInfo(void) const			{ return &info; };
@@ -180,8 +176,9 @@ class CFrontend
 		void				getDelSys(int f, int m, char * &fec, char * &sys, char * &mod);
 
 		int32_t				getCurrentSatellitePosition() { return currentSatellitePosition; }
+		int32_t				getRotorSatellitePosition() { return rotorSatellitePosition; }
 
-		void				setDiseqcRepeats(const uint8_t repeats)	{ diseqcRepeats = repeats; }
+		void				setDiseqcRepeats(const uint8_t repeats)	{ config.diseqcRepeats = repeats; }
 		void				setDiseqcType(const diseqc_t type);
 		void				setTimeout(int timeout) { feTimeout = timeout; };
 		void				configUsals(double Latitude, double Longitude, int LaDirection, int LoDirection, bool _repeatUsals)
@@ -193,13 +190,17 @@ class CFrontend
 							repeatUsals = _repeatUsals;
 						};
 		void				configRotor(int _motorRotationSpeed, bool _highVoltage)
-							{ motorRotationSpeed = _motorRotationSpeed; highVoltage = _highVoltage; };
+							{ config.motorRotationSpeed = _motorRotationSpeed; config.highVoltage = _highVoltage; };
+
+		frontend_config_t&		getConfig() { return config; };
+		void				setConfig(frontend_config_t cfg) { setDiseqcType((diseqc_t) cfg.diseqcType); config = cfg; };
 
 		int				setParameters(TP_params *TP, bool nowait = 0);
-		int				tuneFrequency (struct dvb_frontend_parameters * feparams, uint8_t polarization, bool nowait = false);
+		int				tuneFrequency (FrontendParameters * feparams, uint8_t polarization, bool nowait = false);
 		const TP_params*		getParameters(void) const { return &currentTransponder; };
 		struct dvb_frontend_event*	setParametersResponse(TP_params *TP);
 		void				setCurrentSatellitePosition(int32_t satellitePosition) {currentSatellitePosition = satellitePosition; }
+		void				setRotorSatellitePosition(int32_t satellitePosition) {rotorSatellitePosition = satellitePosition; }
 
 		void				positionMotor(uint8_t motorPosition);
 		void				sendMotorCommand(uint8_t cmdtype, uint8_t address, uint8_t command, uint8_t num_parameters, uint8_t parameter1, uint8_t parameter2, int repeat = 0);
@@ -210,24 +211,32 @@ class CFrontend
 
 		fe_code_rate_t 			getCFEC ();
 		transponder_id_t		getTsidOnid() { return currentTransponder.TP_id; }
+		bool				sameTsidOnid(transponder_id_t tpid)
+						{
+							return (currentTransponder.TP_id == 0)
+								|| (tpid == currentTransponder.TP_id);
+						}
 		void 				setTsidOnid(transponder_id_t newid)  { currentTransponder.TP_id = newid; }
 		uint32_t 			getRate ();
 
 		bool				Open();
 		void				Close();
-		void				Lock() { locked = true; };
-		void				Unlock() { locked = false; };
+		void				Lock();
+		void				Unlock();
 
 		bool sendUncommittedSwitchesCommand(int input);
 		bool setInput(CZapitChannel *channel, bool nvod);
 		void setInput(t_satellite_position satellitePosition, uint32_t frequency, uint8_t polarization);
 		bool setDiseqcSimple(int sat_no, const uint8_t pol, const uint32_t frequency);
 		void setDiseqc(int sat_no, const uint8_t pol, const uint32_t frequency);
-		void setMasterSlave(bool _slave) { slave = _slave; };
+		void setMasterSlave(bool _slave);
 		int driveToSatellitePosition(t_satellite_position satellitePosition, bool from_scan = false);
 		void setLnbOffsets(int32_t _lnbOffsetLow, int32_t _lnbOffsetHigh, int32_t _lnbSwitch);
 		struct dvb_frontend_event getEvent(void);
-		bool				Locked() { return locked; };
+		bool				Locked() { return usecount; };
+		satellite_map_t &		getSatellites() { return satellites; }
+		void				setSatellites(satellite_map_t satmap) { satellites = satmap; }
+		int				getNumber() { return fenumber; };
+		static void			getDelSys(uint8_t type, int f, int m, char * &fec, char * &sys, char * &mod);
 };
-
 #endif /* __zapit_frontend_h__ */

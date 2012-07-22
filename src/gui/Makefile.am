@@ -15,17 +15,18 @@ noinst_HEADERS = svn_version.h
 SUBDIRS = widget bedit
 
 INCLUDES = \
-	-I$(top_srcdir)/daemons \
+	-I$(top_builddir) \
+	-I$(top_srcdir) \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/src/zapit/include \
+	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/lib/libeventserver \
 	-I$(top_srcdir)/lib/libnet \
 	-I$(top_srcdir)/lib/libconfigfile \
 	-I$(top_srcdir)/lib/xmltree \
 	-I$(top_srcdir)/lib/libupnpclient \
 	@CURL_CFLAGS@ \
-	@FREETYPE_CFLAGS@ \
-	-I$(top_srcdir)/lib 
+	@FREETYPE_CFLAGS@
 
 if BOXTYPE_COOL
 INCLUDES += -I$(top_srcdir)/lib/libcoolstream
@@ -59,6 +60,7 @@ libneutrino_gui_a_SOURCES = \
 	imageinfo.cpp \
 	info_menue.cpp \
 	infoviewer.cpp \
+	infoviewer_bb.cpp \
 	keybind_setup.cpp \
 	mediaplayer.cpp \
 	mediaplayer_setup.cpp \
@@ -84,7 +86,6 @@ libneutrino_gui_a_SOURCES = \
 	screensetup.cpp \
 	settings_manager.cpp \
 	sleeptimer.cpp \
-	software_update.cpp \
 	start_wizard.cpp \
 	streaminfo2.cpp \
 	subchannel_select.cpp \
@@ -92,11 +93,14 @@ libneutrino_gui_a_SOURCES = \
 	themes.cpp \
 	timeosd.cpp \
 	update.cpp \
+	update_menue.cpp \
+	update_settings.cpp \
 	user_menue.cpp \
 	user_menue_setup.cpp \
 	vfd_setup.cpp \
 	videosettings.cpp \
-	zapit_setup.cpp
+	zapit_setup.cpp \
+	network_service.cpp
 
 libneutrino_gui2_a_SOURCES = \
 	cam_menu.cpp \

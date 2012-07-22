@@ -174,10 +174,10 @@ class CMenuForwarder : public CMenuItem
 {
 	const char *        option;
 	const std::string * option_string;
-	CMenuTarget *       jumpTarget;
 	std::string         actionKey;
 
  protected:
+	CMenuTarget *       jumpTarget;
 	neutrino_locale_t text;
 
 	virtual const char * getOption(void);
@@ -205,6 +205,15 @@ class CMenuForwarder : public CMenuItem
 		{
 			return active;
 		}
+};
+
+class CMenuDForwarder : public CMenuForwarder
+{
+ public:
+	CMenuDForwarder(const neutrino_locale_t Text, const bool Active=true, const char * const Option=NULL, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL);
+	CMenuDForwarder(const neutrino_locale_t Text, const bool Active, const std::string &Option, CMenuTarget* Target=NULL, const char * const ActionKey = NULL, const neutrino_msg_t DirectKey = CRCInput::RC_nokey, const char * const IconName = NULL, const char * const IconName_Info_right = NULL);
+
+	~CMenuDForwarder();
 };
 
 class CMenuForwarderNonLocalized : public CMenuForwarder
@@ -353,15 +362,13 @@ class CMenuOptionStringChooser : public CMenuItem
 class CMenuOptionLanguageChooser : public CMenuItem
 {
 		int                      height;
-		char *                   optionValue;
-		std::vector<std::string> options;
+		std::string		 optionValue;
 		CChangeObserver *        observ;
 
 	public:
 		CMenuOptionLanguageChooser(char* OptionValue, CChangeObserver* Observ = NULL, const char * const IconName = NULL);
 		~CMenuOptionLanguageChooser();
 
-		void addOption(const char * value);
 		int paint(bool selected);
 		int getHeight(void) const
 		{
@@ -442,7 +449,7 @@ class CMenuWidget : public CMenuTarget
 			BTN_TYPE_BACK =		0,
 			BTN_TYPE_CANCEL =	1,
 			BTN_TYPE_NEXT =		3,
-			BTN_TYPE_NO =		-1,
+			BTN_TYPE_NO =		-1
 		};
 		virtual void addIntroItems(neutrino_locale_t subhead_text = NONEXISTANT_LOCALE, neutrino_locale_t section_text = NONEXISTANT_LOCALE, int buttontype = BTN_TYPE_BACK );
 		bool hasItem();
@@ -469,7 +476,7 @@ class CMenuWidget : public CMenuTarget
 			MENU_POS_TOP_LEFT	,
 			MENU_POS_TOP_RIGHT	,
 			MENU_POS_BOTTOM_LEFT	,
-			MENU_POS_BOTTOM_RIGHT	,
+			MENU_POS_BOTTOM_RIGHT
 		};
 };
 

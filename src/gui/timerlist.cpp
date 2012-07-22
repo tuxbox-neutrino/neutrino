@@ -40,7 +40,6 @@
 
 #include <daemonc/remotecontrol.h>
 
-#include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -67,11 +66,9 @@
 #include <global.h>
 #include <neutrino.h>
 
-#include <zapit/client/zapitclient.h>
-#include <zapit/client/zapittools.h>
-
-#include <zapit/channel.h>
+#include <zapit/getservices.h>
 #include <zapit/bouquets.h>
+
 extern CBouquetManager *g_bouquetManager;
 
 #include <string.h>
@@ -420,7 +417,7 @@ void CTimerList::updateEvents(void)
 	Timer->getTimerList (timerlist);
 	//Remove last deleted event from List
 	CTimerd::TimerList::iterator timer = timerlist.begin();
-	for (; timer != timerlist.end(); timer++)
+	for (; timer != timerlist.end(); ++timer)
 	{
 		if (timer->eventID==skipEventID)
 		{
@@ -963,8 +960,7 @@ std::string CTimerList::convertTimerRepeat2String(const CTimerd::CTimerEventRepe
 
 std::string CTimerList::convertChannelId2String(const t_channel_id id) // UTF-8
 {
-	//CZapitClient Zapit;
-	std::string name = g_Zapit->getChannelName(id); // UTF-8
+	std::string name = CServiceManager::getInstance()->GetServiceName(id);
 	if (name.empty())
 		name = g_Locale->getText(LOCALE_TIMERLIST_PROGRAM_UNKNOWN);
 
@@ -1223,7 +1219,7 @@ bool askUserOnTimerConflict(time_t announceTime, time_t stopTime)
 	std::string timerbuf = g_Locale->getText(LOCALE_TIMERLIST_OVERLAPPING_TIMER);
 	timerbuf += "\n";
 	for (CTimerd::TimerList::iterator it = overlappingTimers.begin();
-			it != overlappingTimers.end(); it++)
+			it != overlappingTimers.end(); ++it)
 	{
 		timerbuf += CTimerList::convertTimerType2String(it->eventType);
 		timerbuf += " (";

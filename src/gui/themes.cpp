@@ -134,6 +134,7 @@ void CThemes::readThemes(CMenuWidget &themes)
 						oj = new CMenuForwarderNonLocalized((char*)file, true, "", this, file);
 					themes.addItem( oj );
 				}
+				free(themelist[count]);
 			}
 			free(themelist);
 		}
@@ -153,8 +154,8 @@ int CThemes::Show()
 	
 	readThemes(themes);
 
-	CStringInputSMS *nameInput = new CStringInputSMS(LOCALE_COLORTHEMEMENU_NAME, &file_name, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789- ");
-	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, nameInput, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	CStringInputSMS nameInput(LOCALE_COLORTHEMEMENU_NAME, &file_name, 30, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789- ");
+	CMenuForwarder *m1 = new CMenuForwarder(LOCALE_COLORTHEMEMENU_SAVE, true , NULL, &nameInput, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 
 	// Don't show SAVE if UserDir does'nt exist
 	if ( access(USERDIR, F_OK) != 0 ) { // check for existance
@@ -173,7 +174,6 @@ int CThemes::Show()
 	}
 
 	int res = themes.exec(NULL, "");
-	themes.hide();
 
 	if (file_name.length() > 1) {
 		saveFile((char*)((std::string)USERDIR + file_name + FILE_PREFIX).c_str());

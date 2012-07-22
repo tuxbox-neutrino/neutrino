@@ -72,7 +72,7 @@ CBouquetList::CBouquetList(const char * const Name)
 
 CBouquetList::~CBouquetList()
 {
-        for (std::vector<CBouquet *>::iterator it = Bouquets.begin(); it != Bouquets.end(); it++) {
+        for (std::vector<CBouquet *>::iterator it = Bouquets.begin(); it != Bouquets.end(); ++it) {
                	delete (*it);
         }
 	Bouquets.clear();
@@ -81,7 +81,15 @@ CBouquetList::~CBouquetList()
 CBouquet* CBouquetList::addBouquet(CZapitBouquet * zapitBouquet)
 {
 	int BouquetKey= Bouquets.size();//FIXME not used ?
-	CBouquet* tmp = new CBouquet(BouquetKey, zapitBouquet->bFav ? g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME) : zapitBouquet->Name.c_str(), zapitBouquet->bLocked);
+	const char * bname;
+	if (zapitBouquet->bFav)
+		bname = g_Locale->getText(LOCALE_FAVORITES_BOUQUETNAME);
+	else if (zapitBouquet->bOther)
+		bname = g_Locale->getText(LOCALE_BOUQUETNAME_OTHER);
+	else
+		bname = zapitBouquet->Name.c_str();
+
+	CBouquet* tmp = new CBouquet(BouquetKey, bname, zapitBouquet->bLocked);
 	tmp->zapitBouquet = zapitBouquet;
 	Bouquets.push_back(tmp);
 	return tmp;
@@ -216,7 +224,7 @@ int CBouquetList::doMenu()
 	CZapitBouquet * tmp, * zapitBouquet;
 	ZapitChannelList* channels;
 
-	if(!Bouquets.size() || g_settings.minimode)
+	if(Bouquets.empty() || g_settings.minimode)
 		return 0;
 
 	zapitBouquet = Bouquets[selected]->zapitBouquet;
@@ -376,7 +384,7 @@ int CBouquetList::show(bool bShowChannelList)
 				return -3;
 			}
 		}
-		else if(Bouquets.size() == 0)
+		else if(Bouquets.empty())
 			continue; //FIXME msgs not forwarded to neutrino !!
 		else if ( msg == CRCInput::RC_setup) {
 			int ret = doMenu();
@@ -588,7 +596,7 @@ void CBouquetList::paint()
 {
 	liststart = (selected/listmaxshow)*listmaxshow;
 	int lastnum =  liststart + listmaxshow;
-	int bsize = Bouquets.size() > 0 ? Bouquets.size() : 1;
+	int bsize = Bouquets.empty() ? 1 : Bouquets.size();
 
 	if(lastnum<10)
 		numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth("0");
@@ -605,7 +613,7 @@ void CBouquetList::paint()
 
 	::paintButtons(x, y + (height - footerHeight), width, sizeof(CBouquetListButtons)/sizeof(CBouquetListButtons[0]), CBouquetListButtons, width, footerHeight);
 
-	if(Bouquets.size())
+	if(!Bouquets.empty())
 	{
 		for(unsigned int count=0;count<listmaxshow;count++) {
 			paintItem(count);

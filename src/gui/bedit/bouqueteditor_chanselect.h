@@ -60,8 +60,6 @@ class CBEChannelSelectWidget : public CListBox
 		int	info_height;
 
 	public:
-		//CZapitClient::BouquetChannelList	Channels;        // list of all channels
-		//CZapitClient::BouquetChannelList	bouquetChannels; // list of chans that are currently selected
 		ZapitChannelList Channels;
 		ZapitChannelList * bouquetChannels;
 

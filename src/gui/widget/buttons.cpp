@@ -144,7 +144,7 @@ int paintButtons(	const int &x,
 		if (fwidth[i])
 			count_items++;
 	}
-	
+
 	//calculate button heigth
 	h_button = std::max(h_max_icon, h_max_text); //calculate optimal button height
 	
@@ -189,7 +189,7 @@ int paintButtons(	const int &x,
 			caption = alt_buttontext; //...with an alternate buttontext
 		else
 			caption = buttontext[j];
-		
+
 		const char * icon = content[j].button ? content[j].button : "";
 
 		// calculate baseline startposition of icon and text in y

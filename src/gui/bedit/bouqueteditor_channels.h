@@ -69,7 +69,6 @@ class CBEChannelWidget : public CMenuWidget
 		int			footerHeight;
 		int			info_height;
 
-		int 			ButtonHeight;
 		std::string		caption;
 		bool			channelsChanged;
 
@@ -90,6 +89,7 @@ class CBEChannelWidget : public CMenuWidget
 		void paintHead();
 		void paintFoot();
 		void hide();
+		void updateSelection(unsigned int newpos);
 
 		void deleteChannel();
 		void addChannel();

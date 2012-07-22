@@ -13,7 +13,7 @@
 #include <netinet/tcp.h>
 #include <sys/socket.h>
 
-#include "yconfig.h"
+#include <yconfig.h>
 #include "ytypes_globals.h"
 
 #ifdef Y_CONFIG_USE_OPEN_SSL

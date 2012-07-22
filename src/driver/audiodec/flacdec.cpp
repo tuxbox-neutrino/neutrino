@@ -38,9 +38,9 @@
 #include <linux/soundcard.h>
 #include <algorithm>
 #include <sstream>
-#include <driver/netfile.h>
 
 #include <zapit/include/audio.h>
+#include <driver/netfile.h>
 extern cAudio *audioDecoder;
 
 #define ProgName "FlacDec"

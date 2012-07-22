@@ -81,7 +81,7 @@ void CExtendedInput::Init(void)
 
 CExtendedInput::~CExtendedInput()
 {
-	for (std::vector<CExtendedInput_Item*>::iterator it = inputFields.begin(); it < inputFields.end(); it++)
+	for (std::vector<CExtendedInput_Item*>::iterator it = inputFields.begin(); it < inputFields.end(); ++it)
 		delete *it;
 }
 
