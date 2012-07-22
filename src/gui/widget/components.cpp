@@ -204,7 +204,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	fr_thickness	= 2;
-	bg_saved	= false;
+	firstPaint	= true;
 	v_infobox_val.clear();
 }
 
@@ -221,20 +221,22 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		{x+fr_thickness,	y+fr_thickness, 	width-2*fr_thickness, 	height-2*fr_thickness, 	col_body, 	rad, NULL, NULL, false, 0},
 	};
 
-	int start = (shadow) ? 0 : 1;
-	if (do_save_bg) {
-		if (!bg_saved) {
+	if (firstPaint) {
+		int start = (shadow) ? 0 : 1;
+		if (do_save_bg) {
 			v_infobox_val.clear();
 			for(int i = start; i < INFOBOX_ITEMS_COUNT; i++) {
 				fbdata[i].pixbuf = saveScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
 				v_infobox_val.push_back(fbdata[i]);
 				fbdata[i].pixbuf = NULL;
 			}
-			bg_saved = true;
 		}
+		paintFbItems((comp_fbdata_t*)&fbdata[start], INFOBOX_ITEMS_COUNT - start, false);
+		firstPaint = false;
 	}
-
-	paintFbItems((comp_fbdata_t*)&fbdata[start], INFOBOX_ITEMS_COUNT - start, false);
+	else
+		// paint body only
+		paintFbItems((comp_fbdata_t*)&fbdata[INFOBOX_ITEMS_COUNT - 1], 1, false);
 }
 
 //restore infobox
@@ -248,8 +250,10 @@ void CComponentsInfoBox::restore(bool clear_)
 					delete[] v_infobox_val[i].pixbuf;
 			}
 		}
-	if (clear_)
-		v_infobox_val.clear();
+		if (clear_) {
+			v_infobox_val.clear();
+			firstPaint = true;
+		}
 	}
 }
 

@@ -93,7 +93,7 @@ class CComponentsInfoBox : public CComponents
 		int rad,fr_thickness;
 		bool shadow;
 		fb_pixel_t col_frame, col_body, col_shadow;
-		bool bg_saved;
+		bool firstPaint;
 		std::vector<comp_fbdata_t> v_infobox_val;
 
 	public:
