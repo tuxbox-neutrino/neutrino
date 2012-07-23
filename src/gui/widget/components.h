@@ -101,7 +101,7 @@ class CComponentsInfoBox : public CComponents
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = true, 
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENTDARK_PLUS_0,fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
-		void paint(bool do_save_bg = true);
+		void paint(bool do_save_bg = true, bool fullPaint = false);
 		void hide();
 		void restore(bool clear_);
 		void setColor(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};

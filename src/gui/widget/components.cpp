@@ -209,7 +209,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 }
 
 #define INFOBOX_ITEMS_COUNT 3	
-void CComponentsInfoBox::paint(bool do_save_bg)
+void CComponentsInfoBox::paint(bool do_save_bg, bool fullPaint)
 {
 	clear();
 	rad = RADIUS_LARGE;
@@ -221,8 +221,8 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 		{x+fr_thickness,	y+fr_thickness, 	width-2*fr_thickness, 	height-2*fr_thickness, 	col_body, 	rad, NULL, NULL, false, 0},
 	};
 
+	int start = (shadow) ? 0 : 1;
 	if (firstPaint) {
-		int start = (shadow) ? 0 : 1;
 		if (do_save_bg) {
 			v_infobox_val.clear();
 			for(int i = start; i < INFOBOX_ITEMS_COUNT; i++) {
@@ -231,12 +231,18 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 				fbdata[i].pixbuf = NULL;
 			}
 		}
+		// paint infobox full
 		paintFbItems((comp_fbdata_t*)&fbdata[start], INFOBOX_ITEMS_COUNT - start, false);
 		firstPaint = false;
 	}
-	else
-		// paint body only
-		paintFbItems((comp_fbdata_t*)&fbdata[INFOBOX_ITEMS_COUNT - 1], 1, false);
+	else {
+		if (fullPaint)
+			// paint infobox full
+			paintFbItems((comp_fbdata_t*)&fbdata[start], INFOBOX_ITEMS_COUNT - start, false);
+		else
+			// paint body only
+			paintFbItems((comp_fbdata_t*)&fbdata[INFOBOX_ITEMS_COUNT - 1], 1, false);
+	}
 }
 
 //restore infobox
