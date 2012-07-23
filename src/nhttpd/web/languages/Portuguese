@@ -50,6 +50,7 @@ empty=vazio
 check=verificar
 help=Ajuda
 attention=Attention!
+directory=Diretório
 restriced_by_management_ip=restringido pela Gestão de IP
 
 #========= Menu Principal
@@ -272,10 +273,11 @@ set.rec.audio_channels=Canais Audio
 set.rec.audio_standard=Gravar audio em modo standard
 set.rec.audio_alternate=Gravar audio em modo alternativo
 set.rec.audio_ac3=Gravar audio ac3
+set.rec.channeldir=Save in channeldir
+set.rec.epg_end=Recording until end of EPG-time
+set.rec.recordtime=Tempo de gravação na hora
 set.rec.timeshift_desc=Timeshift(pausar Tv ao vivo)
-set.rec.timeshift.directory=Diretório
-set.rec.timeshift.recordtime=Tempo de gravação na hora
-set.rec.timeshift.pause=Pausa
+set.rec.timeshift.pause=Start with pause-key
 set.rec.timeshift.auto_record=Gravação automática (em Sec, 0=desactivada)
 set.rec.timeshift.auto_delete=Eliminação automática
 set.rec.timeshift.tmp_timeshift=Timeshift temporário
