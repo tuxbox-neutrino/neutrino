@@ -1066,7 +1066,7 @@ void CMenuWidget::paintHint(int pos)
 		return;
 
 	CMenuItem* item = items[pos];
-printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
+//printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
 
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
 		if (info_box != NULL)
