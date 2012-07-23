@@ -1882,6 +1882,10 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 	if (dline != NULL)
 		dline->hide();
 
+	// clear infobox
+	if (ibox != NULL)
+		ibox->hide();
+
 	// paint Line if detail info (and not valid list pos) and info box
 	if (!m_playlist.empty() && (pos >= 0))
 	{
@@ -1894,7 +1898,8 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 		// paint id3 infobox
 		if (ibox == NULL)
 			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height, false);
-		ibox->paint(false);
+		ibox->setYPos(ypos2);
+		ibox->paint(false, true);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
 				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK, 0, true); // UTF-8
