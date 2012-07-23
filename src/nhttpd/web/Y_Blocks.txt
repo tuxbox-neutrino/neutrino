@@ -468,7 +468,7 @@ end-block~frame_ext
 # ------- Lay-Frame Info-Menu
 start-block~frame_info
 {=var-set:sec_menu=Y_Info_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_About.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_info
 
