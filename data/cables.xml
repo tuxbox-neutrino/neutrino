@@ -35,6 +35,7 @@
 		<transponder frequency="674000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
