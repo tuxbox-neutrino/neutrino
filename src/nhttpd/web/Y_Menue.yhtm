@@ -98,7 +98,7 @@ function vlc() {
 		<table border="0" width="100%">
 		<tr>
 			<td width="150" id="prim">
-				<span style="font-size: 8pt;position:relative;left:45px;top:10px;">{=L:main.version=} {=ini-get:Y_Version.txt;version=}</span>
+				<span style="font-size: 8pt;position:relative;left:45px;top:10px;">v{=ini-get:{=var-get:vf=};version=}</span>
 			</td>
 			<td>
 				<ul id="menu_prim" class="y_menu_prim">
