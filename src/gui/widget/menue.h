@@ -462,6 +462,7 @@ class CMenuWidget : public CMenuTarget
 
 		void Init(const std::string & Icon, const int mwidth, const mn_widget_id_t &w_index);
 		virtual void paintItems();
+		void checkHints();
 		void calcSize();
 		void saveScreen();
 		void restoreScreen();

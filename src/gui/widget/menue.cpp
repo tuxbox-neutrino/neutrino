@@ -491,7 +491,11 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 			}
 		}
 	}
-	GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
+	checkHints();
+	if (has_hints)
+		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+
 	if(savescreen) {
 		calcSize();
 		saveScreen();
@@ -666,6 +670,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 							case menu_return::RETURN_EXIT_REPAINT:
 								if (fade && washidden)
 									fader.StartFadeIn();
+								checkHints();
 								paint();
 								break;
 						}
@@ -693,6 +698,7 @@ int CMenuWidget::exec(CMenuTarget* parent, const std::string &)
 				break;
 			case (CRCInput::RC_help):
 				// FIXME should we switch hints in menu without hints ?
+				checkHints();
 				if (has_hints)
 					hide();
 				g_settings.show_menu_hints = !g_settings.show_menu_hints;
@@ -761,6 +767,19 @@ void CMenuWidget::hide()
 	washidden = true;
 }
 
+void CMenuWidget::checkHints()
+{
+	GenericMenuBack->setHint("", NONEXISTANT_LOCALE);
+	for (unsigned int i= 0; i< items.size(); i++) {
+		if(!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE) {
+			has_hints = true;
+			break;
+		}
+	}
+	if (has_hints)
+		GenericMenuBack->setHint(NEUTRINO_ICON_HINT_BACK, LOCALE_MENU_HINT_BACK);
+}
+
 void CMenuWidget::calcSize()
 {
 	if (name != NONEXISTANT_LOCALE)
@@ -781,10 +800,11 @@ void CMenuWidget::calcSize()
 		int tmpw = items[i]->getWidth() + 10 + 10 + wi; /* 10 pixels to the left and right of the text */
 		if (tmpw > width)
 			width = tmpw;
-
+#if 0
 		if(!items[i]->hintIcon.empty() || items[i]->hint != NONEXISTANT_LOCALE) {
 			has_hints = true;
 		}
+#endif
 	}
 	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
