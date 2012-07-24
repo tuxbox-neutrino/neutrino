@@ -49,6 +49,7 @@ tag=Tag
 empty=vazio
 check=verificar
 help=Ajuda
+directory=Diretório
 restriced_by_management_ip=restringido pela Gestão de IP
 
 #========= Menu Principal
@@ -222,7 +223,6 @@ set.sync_with_neutrino=Sincronização com Neutrino
 
 =======Definições General & Menu
 set.menue.webserver=Webserver
-set.menue.ucodes=Ucodes
 set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Definições do Programador
 set.menue.zapit=Zapit
@@ -272,10 +272,8 @@ set.rec.audio_channels=Canais Audio
 set.rec.audio_standard=Gravar audio em modo standard
 set.rec.audio_alternate=Gravar audio em modo alternativo
 set.rec.audio_ac3=Gravar audio ac3
+set.rec.recordtime=Tempo de gravação na hora
 set.rec.timeshift_desc=Timeshift(pausar Tv ao vivo)
-set.rec.timeshift.directory=Diretório
-set.rec.timeshift.recordtime=Tempo de gravação na hora
-set.rec.timeshift.pause=Pausa
 set.rec.timeshift.auto_record=Gravação automática (em Sec, 0=desactivada)
 set.rec.timeshift.auto_delete=Eliminação automática
 set.rec.timeshift.tmp_timeshift=Timeshift temporário

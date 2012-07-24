@@ -49,6 +49,8 @@ tag=Tag
 empty=empty
 check=check
 help=Help
+attention=Attention!
+directory=Directory
 restriced_by_management_ip=restricted by ManagementIP
 
 #========= MAIN Menue
@@ -218,7 +220,6 @@ set.sync_with_neutrino=Synchronization with Neutrino
 
 =======Settings General & Menue
 set.menue.webserver=Webserver
-set.menue.ucodes=Ucodes
 set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Timer Settings
 set.menue.zapit=Zapit
@@ -267,10 +268,11 @@ set.rec.audio_channels=Audio channels
 set.rec.audio_standard=Record standard audio channel
 set.rec.audio_alternate=Record alternate audio channel
 set.rec.audio_ac3=Record ac3 audio channel
+set.rec.channeldir=Save in channeldir
+set.rec.epg_end=Recording until end of EPG-time
+set.rec.recordtime=Recording time in hours
 set.rec.timeshift_desc=Timeshift
-set.rec.timeshift.directory=Directory
-set.rec.timeshift.recordtime=Recording time in hours
-set.rec.timeshift.pause=Pause
+set.rec.timeshift.pause=Start with pause-key
 set.rec.timeshift.auto_record=Autom. Recording (in Sec, 0=deactivate)
 set.rec.timeshift.auto_delete=Automatic deletion
 set.rec.timeshift.tmp_timeshift=Temporaly timeshift
@@ -376,6 +378,13 @@ set.timer.klack.url=Personal RSS TV-Planer URL
 set.timer.klack.security_code_desc=your klack security code to get your data without login
 set.timer.klack.security_code=Security Code
 set.timer.channel_name_replacelist=Channel name replace list
+
+========Settings Backup/Restore
+set.settings.backup=Backup
+set.settings.backup_desc=Backup your settings
+set.settings.restore=Restore
+set.settings.restore_desc=Upload and restore your settings. Your STB will reboot.
+set.settings.warning=Backup & Restore is only useful for the same image with the same level of development. 
 
 ============ Tools Info
 tools.info.show_messages=Kernel Messages

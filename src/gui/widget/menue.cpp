@@ -858,7 +858,7 @@ void CMenuWidget::calcSize()
 		sb_width=15;
 
 	full_width = ConnectLineBox_Width+width+sb_width+SHADOW_OFFSET;
-	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2+hint_height;
+	full_height = height+RADIUS_LARGE+SHADOW_OFFSET*2+hint_height+INFO_BOX_Y_OFFSET;
 
 	setMenuPos(width - sb_width);
 }
@@ -1049,27 +1049,28 @@ void CMenuWidget::paintHint(int pos)
 	int rad = RADIUS_LARGE;
 
 	int xpos  = x - ConnectLineBox_Width;
-	int ypos2 = y + height + rad + SHADOW_OFFSET;
+	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
 	int iwidth = width+sb_width;
 
 	if (hint_painted) {
 		/* clear detailsline line */
 		if (details_line != NULL)
-			details_line->hide();
+			details_line->restore();
 		/* clear info box */
 		if (info_box != NULL)
-			info_box->hide((pos == -1) ? true : false);
+			if (pos == -1)
+				info_box->restore(true);
 		hint_painted = false;
 	}
 	if (pos < 0)
 		return;
 
 	CMenuItem* item = items[pos];
-printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
+//printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
 
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
 		if (info_box != NULL)
-			info_box->hide(true);
+			info_box->restore(false);
 		return;
 	}
 
@@ -1080,17 +1081,17 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	//details line
 	int ypos1 = item->getYPosition();
 	int ypos1a = ypos1 + (iheight/2)-2;
-	int ypos2a = ypos2 + (hint_height/2)-2;
+	int ypos2a = ypos2 + (hint_height/2) - INFO_BOX_Y_OFFSET;
 	int markh = hint_height > rad*2 ? hint_height - rad*2 : hint_height;
 	int imarkh = iheight/2+1;
 	
-	if (details_line == NULL)
+	if (details_line == NULL){
 		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
-	else {
+	}else{
 		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
 		details_line->setYPosDown(ypos2a);
-		details_line->setHMarkDown(markh);
+ 		details_line->setHMarkDown(markh);
 	}
 	details_line->paint();
 
@@ -1099,8 +1100,9 @@ printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText
 	else {
 		info_box->setXPos(x);
 		info_box->setYPos(ypos2);
+		info_box->setWidth(iwidth);
 	}
-	info_box->paint(rad);
+	info_box->paint();
 
 	int offset = 10;
 	if (!item->hintIcon.empty()) {

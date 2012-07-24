@@ -71,6 +71,7 @@ struct SNeutrinoSettings
 	int casystem_display;
 	int scrambled_message;
 	int volume_pos;
+	int volume_digits;
 	int show_mute_icon;
 	int menu_pos;
 	int show_menu_hints;

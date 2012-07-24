@@ -391,6 +391,7 @@ extra.tp_pol_r R
 extra.tp_rate Symbolrate
 extra.update_dir Lokales Update-Verzeichnis
 extra.use_gotoxx Benutze gotoXX
+extra.volume_digits Lautstärkeanzeige Ziffern
 extra.volume_pos Lautstärkeanzeige
 extra.west Westen
 extra.zap_cycle Zap nur in Bouquet
@@ -606,7 +607,7 @@ keybindingmenu.poweroff Standby EIN/AUS
 keybindingmenu.quickzap Schnellumschaltung
 keybindingmenu.remotecontrol_hardware Hardware
 keybindingmenu.remotecontrol_hardware_coolstream Coolstream
-keybindingmenu.remotecontrol_hardware_dbox d-box Nokia (alt)
+keybindingmenu.remotecontrol_hardware_dbox DBox Nokia (alt)
 keybindingmenu.remotecontrol_hardware_msg_part1 Die Fernbedienung wurde von '
 keybindingmenu.remotecontrol_hardware_msg_part2 ' auf '
 keybindingmenu.remotecontrol_hardware_msg_part3 ' geändert.\nIst dies korrekt?\nBitte die Auswahl innerhalb 15 Sekunden mit der neuen Fernbedienung\nbestätigen. Ansonsten wird die Auswahl zurückgesetzt.
@@ -744,7 +745,7 @@ menu.hint_event_textcolor Ändern Sie die Event-Farbe für farbige Event-Optione
 menu.hint_eventlist_fonts Ändern Sie in der Event-Liste die Schriftgrößen
 menu.hint_extended Energiespar-, EPG-Speicher- / Lade-Optionen,\nHDMI-CEC, Startkanal, Zap-Optionen
 menu.hint_factory Zurücksetzen der Box auf Werkseinstellungen\nBox wird nach einem Reset neu gestartet
-menu.hint_fade Bei aktivierter Funktion werden die Menüfenster\n"weich" ein- bzw. ausgeblendet
+menu.hint_fade Bei aktivierter Funktion werden die Menüfenster\n'weich' ein- bzw. ausgeblendet
 menu.hint_fan_speed Steuerung der Lüftergeschwindigkeit für die CPU
 menu.hint_filebrowser_denydirectoryleave Verhindert das Verlassen des Startverzeichnisses
 menu.hint_filebrowser_showrights Anzeige der Dateirechte der Dateien im Filebrowser
@@ -787,6 +788,51 @@ menu.hint_infobar_setup Hier können Sie die Anzeigeoptionen für die Infobar au
 menu.hint_infobar_textcolor Ändern Sie die Textfarbe für die Infobar
 menu.hint_infobar_tuner Zeigt den aktiven Tuner als Nummernicon
 menu.hint_keep_numbers Mit der Aktivierung werden den Sendern feste/dauerhafte\nKanalnummern zugewiesen
+menu.hint_key_addrecord Weisen Sie eine Taste für das starten und makieren von Aufnahmen im EPG zu
+menu.hint_key_addremind Weisen Sie eine Taste für das Umschalten im EPG über den Timer zu
+menu.hint_key_audio ein: 'Audio' Taste startet das Audioplayer-Menü\naus: 'Audio' Taste startet die Auswahl der Tonspuren
+menu.hint_key_binding In diesem Menü können Einstellungen für die Tasten der Fernbedienung angepasst werden
+menu.hint_key_bouquetdown Weisen Sie eine Taste für das zurückblättern in den Bouquet zu
+menu.hint_key_bouquetup Weisen Sie eine Taste für das vorblättern in den Bouquet zu
+menu.hint_key_cancel Weisen Sie eine Taste für das schließen der Menüe zu
+menu.hint_key_channel_sms Wenn es aktiviert ist, können Sie die Nummern-Tasten in der Kanalliste nutzen,\num im SMS-Style zu suchen
+menu.hint_key_channeldown Weisen Sie eine Taste für das runterschalten in der Kanalliste zu
+menu.hint_key_channellist Konfigurieren Sie die Tastenbelegung für die Kanalliste
+menu.hint_key_channelup Weisen Sie eine Taste für das hochschalten in der Kanalliste zu
+menu.hint_key_hardware Hier wird definiert welchen Fernbedienungstyp Sie verwenden möchten,\ndie Bestätigung erfolgt mit der Ausgewählten
+menu.hint_key_history Hier können Sie eine Taste für das Anzeigen der letzten Programme,\ndie Sie schauten definieren (History-Liste)
+menu.hint_key_lastchannel Hier können Sie eine Taste definieren, der in den letzten Kanal zurückschaltet aus der History-Liste
+menu.hint_key_left_exit Weisen Sie der 'links' Taste für das wechseln in den Menüe zu
+menu.hint_key_list_end Weisen Sie eine Taste für den Wechsel zum 'Listenende' zu
+menu.hint_key_list_start Weisen Sie eine Taste für den Wechsel zum 'Listenanfang' zu
+menu.hint_key_load Laden Sie definierte Tastenbelegungen aus einer Datei
+menu.hint_key_modechange Wählen Sie eine Taste für den wechseln in den TV/Radio Modus und für den Standby
+menu.hint_key_movieplayer Konfigurieren Sie die Tastenbelegung für den Movieplayer
+menu.hint_key_mpaudio Weisen Sie eine Taste zu um die Tonspuren in ihren Aufnahmen zu wechseln
+menu.hint_key_mpbookmark Weisen Sie eine Taste um 'Merker' in ihren Aufnahmen für den Neustart zu setzen
+menu.hint_key_mpforward Weisen Sie eine Taste zum vorspulen in ihren Aufnahmen zu
+menu.hint_key_mppause Weisen Sie eine Taste zum pausieren der Wiedergabe zu
+menu.hint_key_mpplay Weisen Sie eine Taste zu, um die Wiedergabe zu starten
+menu.hint_key_mpplugin Weisen Sie eine Taste zu um ein Plugin zu starten,\nwenn ihre Wiedergabe läuft
+menu.hint_key_mprewind Weisen Sie eine Taste zum zurückspulen in ihren Aufnahmen zu
+menu.hint_key_mpstop Weisen Sie eine Taste zum beenden der Wiedergabe zu
+menu.hint_key_mptime Weisen Sie eine Taste für die Zeitanzeige in ihren Aufnahmen zu,\nSpielzeit und verbleibene Zeit
+menu.hint_key_mptimeshift Weisen Sie eine Taste für das starten von Timeshift zu
+menu.hint_key_pagedown Weisen Sie eine Taste für 'Seite weiter' zu
+menu.hint_key_pageup Weisen Sie eine Taste für 'Seite zurück' zu
+menu.hint_key_poweroff Wählen Sie eine Taste für den Standby\nund für das Verhalten für Standby und Deep-Standby
+menu.hint_key_quickzap Konfigurieren Sie die Tastenbelegung für die Schnellumschaltung
+menu.hint_key_repeatblock Die Verzögerung nach Tastendruck,\nauf den die Box reagieren soll
+menu.hint_key_repeatblockgeneric Die Verzögerung zwischen Tastewiederholungen,\nauf die die Box reagieren soll
+menu.hint_key_right Wählen Sie die Funktion für die 'links/rechts' Tasten aus im TV/Radio Modus
+menu.hint_key_save Speichern Sie Tastenbelegungen als Datei in einer Config
+menu.hint_key_screenshot Weisen Sie eine Taste zu, um Menü- und/oder TV-Screenshots zu speichern
+menu.hint_key_sort Weisen Sie eine Taste für das sortieren in der Kanalliste zu
+menu.hint_key_subchanneldown Weisen Sie eine Taste für das zurückschalten in den Unterkanälen zu
+menu.hint_key_subchannelup Weisen Sie eine Taste für das weiterschalten in den Unterkanälen zu
+menu.hint_key_transponder Weisen Sie eine Taste für das Anzeigen der Transponder in der Kanalliste zu
+menu.hint_key_tvradiomode Wählen Sie eine Taste für das umschalten zwischen TV <> Radio Modus
+menu.hint_key_unlock Weisen Sie eine Taste zum entriegeln zu,\nbetätigen Sie die 'rote' Taste und diese für 5 Sekunden
 menu.hint_keys Fernbedienungs-Wiederholrate\nund Tastenbelegungen bearbeiten
 menu.hint_lang_pref Wählen Sie ihre bevorzugten Audio-Sprachen, EPG\nund Untertitel-Sprachen
 menu.hint_language OSD Sprache, Zeitzone\nbevorzugte Audio und Untertitel Sprachen
@@ -799,9 +845,9 @@ menu.hint_leds_record Definiert ob die Power-LEDs blinken,\nwenn eine Aufnahme a
 menu.hint_leds_standby Definiert den Status der Power-LEDs im Standby
 menu.hint_leds_tv Definiert den Status der Power-LEDs im TV-Betrieb
 menu.hint_load Laden der Neutrino-HD-Einstellungen aus einer Datei
-menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens "HD" erzeugt\nin dem alle HD Sender zusammengefasst sind
-menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens\n"neue Kanäle" erzeugt
-menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens\n"gelöschte Kanäle" erzeugt
+menu.hint_make_hdlist Bei aktiver Option wird ein Bouquet namens 'HD' erzeugt\nin dem alle HD Sender zusammengefasst sind
+menu.hint_make_newlist Nach einer Kanalsuche wird ein Bouquet namens\n'neue Kanäle' erzeugt
+menu.hint_make_removedlist Nach einer Kanalsuche wird ein Bouquet namens\n'gelöschte Kanäle' erzeugt
 menu.hint_manage_settings Sichern, Wiederherstellen, zurück auf\nStandardwerte, Auslieferungszustand herstellen
 menu.hint_mb Ihre Aufnahmen
 menu.hint_media Abspielen von Filmen, Audiodateien\nbetrachten Sie Bilder
@@ -867,9 +913,9 @@ menu.hint_progressbar_color Bei aktivierter Option werden alle Fortschrittsbalke
 menu.hint_protection Schützen Sie Inhalte per PIN-Code\nStandard-PIN ist 0000
 menu.hint_radiomode Schaltet zum Radio-Modus
 menu.hint_reboot Startet die Box neu.\nOhne Bestätigung
-menu.hint_record_apid_ac3 Schließt bei einer Aufnahme die durch den Sender definierte "Dolby Digital Tonspur"\nin die Aufnahme ein, sofern diese vorhanden ist
+menu.hint_record_apid_ac3 Schließt bei einer Aufnahme die durch den Sender definierte 'Dolby Digital Tonspur'\nin die Aufnahme ein, sofern diese vorhanden ist
 menu.hint_record_apid_alt Sind weitere Tonspuren verfügbar, dann können diese hiermit bei einer\nAufnahme entsprechend ein- bzw. ausgeschlossen werden
-menu.hint_record_apid_std Schließt bei einer Aufnahme die durch den Sender definierte "Standard Tonspur"\nin die Aufnahme ein, bzw. schließt diese aus
+menu.hint_record_apid_std Schließt bei einer Aufnahme die durch den Sender definierte 'Standard Tonspur'\nin die Aufnahme ein, bzw. schließt diese aus
 menu.hint_record_apids Konfigurieren Sie die Tonspuren für die Aufnahme
 menu.hint_record_apply Hiermit werden die Aufnahmeoptionen übernommen
 menu.hint_record_chandir Diese Option speichert Aufnahmen mit dem Namen des Kanals\nin ein eigenes Verzeichnis
@@ -899,12 +945,12 @@ menu.hint_saveas Speichern der Neutrino-HD-Einstellungen in eine Datei
 menu.hint_scan_auto Auto-Scan ausgewählter Anbieter
 menu.hint_scan_autoall Scannen Sie ihre ausgewählten Anbieter auf einmal
 menu.hint_scan_autoall_select Nur in ausgewählten Satelliten scannen
-menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: Neue werden in "Andere" angefügt
+menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: Neue werden in 'Andere' angefügt
 menu.hint_scan_cable Wählen Sie ihr Kabelnetz zum scannen
 menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
 menu.hint_scan_diseqc Wählen Sie DiSEqC-Schalter-Eingangssignal für diesen Satelliten
 menu.hint_scan_diseqcrepeat Diseqc Wiederholungen für kaskadierte Schaltungen,\nnutzen Sie die links/rechs Tasten
-menu.hint_scan_diseqctype Wählen Sie ihr DiSEqC-Protokoll\nmit "Erweitert" können Sie ihre Anlage einbinden
+menu.hint_scan_diseqctype Wählen Sie ihr DiSEqC-Protokoll\nmit 'Erweitert' können Sie ihre Anlage einbinden
 menu.hint_scan_fast Schnell-Scan eines ausgewählten Anbieters\nWARNUNG: DiSEqC-Config wird überschrieben
 menu.hint_scan_fastprov Wählen Sie einen Anbieter (Provider) zum scannen
 menu.hint_scan_fasttype Wählen Sie das Sendeformat
@@ -998,10 +1044,11 @@ menu.hint_video_43mode Anzeigemodus für 4:3-Inhalte auf 16:9 TVs
 menu.hint_video_analog_mode Wählen Sie den Analogausgang Modus\nfür den SCART und CINCH Anschluss
 menu.hint_video_cinch_mode Wählen Sie den Analogausgang Modus\nfür den Composite Video Ausgang
 menu.hint_video_dbdr Verwendeter MPEG2 Filter
-menu.hint_video_format Diese Option aktiviert das "Bildschirmformat"\nauf das Format Ihres Fernsehgerätes
+menu.hint_video_format Diese Option aktiviert das 'Bildschirmformat'\nauf das Format Ihres Fernsehgerätes
 menu.hint_video_mode Definiert in welchen Videoformat das Bild über den\nHDMI-Ausgang ausgegeben wird
 menu.hint_video_modes Definiert welche Videosysteme mit der VF-Taste\nder Fernbedienung ausgewählt werden können
 menu.hint_video_scart_mode Wählen Sie den Analogausgang Modus\nfür den SCART Ausgang
+menu.hint_volume_digits Zifferndarstellung der Lautstärkeanzeige ein/ausschalten
 menu.hint_volume_pos Hier können Sie die Anzeigeposition der Lautstärkeanzeige auswählen
 menu.hint_zap_cycle Dadurch wird nur innerhalb des aktiven Bouquets gezappt
 menu.next Weiter (Menü zum Beenden)
@@ -1357,7 +1404,7 @@ personalize.pinprotect ja
 personalize.pinstatus mit PIN
 personalize.plugins Plugins
 personalize.usermenu_preferred_buttons Bevorzugte Tasten zuweisen
-personalize.usermenu_show_cancel Zeige Schalter "Abbrechen" 
+personalize.usermenu_show_cancel Zeige Schalter "Abbrechen"
 personalize.visible sichtbar
 pictureviewer.defdir Start-Verz.
 pictureviewer.head Bildbetrachter

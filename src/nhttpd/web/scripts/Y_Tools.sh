@@ -179,13 +179,6 @@ bootlogo_lcd_upload()
 	y_format_message_html
 }
 # -----------------------------------------------------------
-ucodes_upload()
-{
-	msg="$1 hochgeladen<br><a href='/Y_Settings_ucodes.htm'><u>next file</u></a>"
-	upload_copy "$y_path_ucodes/$1"
-	y_format_message_html
-}
-# -----------------------------------------------------------
 zapit_upload()
 {
 	msg="$1 hochgeladen<br><a href='/Y_Settings_zapit.yhtm'><u>next file</u></a>"
@@ -493,35 +486,25 @@ do_fbshot_clear()
 # -----------------------------------------------------------
 do_settings_backup_restore()
 {
-	workdir="$y_path_tmp/y_save_settings"
-	yI_Version="0.1"
+	now=$(date +%Y-%m-%d_%H-%M-%S)
+	workdir="$y_path_tmp/y_save_settings/$now"
 	case "$1" in
 		backup)
-		mkdir $workdir >/dev/null
-		cp -r $y_path_config $workdir >/dev/null
-		t=`date +%y%m%d_%H%M%S`
-		filename="$y_path_tmp/y_Save_Settings_$t.tar"
-		cd $workdir
-		tar -cvf $filename ./*  >/dev/null
-		rm -r $workdir  >/dev/null
-		echo "$filename"
+			rm -rf $workdir
+			mkdir -p $workdir
+			/bin/backup.sh $workdir >/dev/null
+			filename=$(ls -1 -tr $workdir/settings_* | tail -1)
+			echo "$filename"
 		;;
 
 		restore)
-		msg="restore settings"
-		if [ -s "$y_upload_file" ]
-		then
-			# unpack /tmp/upload.tmp
-			cd $y_path_tmp
-			tar -xf "$y_upload_file"
-			rm $y_upload_file
-			cp -rf ./config /var/tuxbox/
-			rm -r ./config
-			msg="$msg ok"
-		else
-			msg="$msg error: no upload file"
-		fi
-		y_format_message_html
+			if [ -s "$y_upload_file" ]
+			then
+				msg=$(/bin/restore.sh "$y_upload_file")
+			else
+				msg="error: no upload file"
+			fi
+			y_format_message_html
 		;;
 	esac
 }
@@ -545,7 +528,6 @@ case "$1" in
 	image_delete)			image_delete_download_page ;;
 	bootlogo_upload)		bootlogo_upload ;;
 	bootlogo_lcd_upload)	bootlogo_lcd_upload ;;
-	ucodes_upload)			ucodes_upload $2 ;;
 	zapit_upload)			zapit_upload $2 ;;
 	kernel-stack)			msg=`dmesg`; y_format_message_html ;;
 	ps)						msg=`ps`; y_format_message_html ;;

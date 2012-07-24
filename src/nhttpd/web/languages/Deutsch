@@ -49,7 +49,9 @@ tag=Bezeichnung
 empty=leer
 check=prüfen
 help=Hilfe
-restriced_by_management_ip=Zugriff verwert wg. ManagementIP
+attention=Achtung!
+directory=Verzeichnis
+restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung
@@ -215,7 +217,6 @@ set.sync_with_neutrino=Zur Synchronisation mit Neutrino
 
 ========Settings General & Menue
 set.menue.webserver=Webserver
-set.menue.ucodes=Ucodes
 set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Timer Einstellungen
 set.menue.zapit=Zapit
@@ -264,10 +265,11 @@ set.rec.audio_channels=Tonspuren
 set.rec.audio_standard=Standard Tonspur aufnehmen
 set.rec.audio_alternate=Alternative Tonspur aufnehmen
 set.rec.audio_ac3=AC3 Tonspuren aufnehmen
+set.rec.channeldir=Speichere im Kanalverzeichnis
+set.rec.epg_end=Aufnahme nur bis EPG-Ende
+set.rec.recordtime=Aufnahmezeit in Stunden
 set.rec.timeshift_desc=Timeshift
-set.rec.timeshift.directory=Verzeichnis
-set.rec.timeshift.recordtime=Aufnahmezeit in Stunden
-set.rec.timeshift.pause=Pause
+set.rec.timeshift.pause=Start mit Pause-Taste
 set.rec.timeshift.auto_record=Autom. Aufnahme (in Sek, 0=deaktiviert)
 set.rec.timeshift.auto_delete=Automatisches Löschen
 set.rec.timeshift.tmp_timeshift=Temporäres timeshift
@@ -373,6 +375,13 @@ set.timer.klack.url=Persönliche RSS TV-Planer URL
 set.timer.klack.security_code_desc=Klack Sicherheits Code
 set.timer.klack.security_code=Sicherheits Code
 set.timer.channel_name_replacelist=Sendernamen-Ersetzungsliste
+
+========Settings Backup/Restore
+set.settings.backup=Sichern
+set.settings.backup_desc=Sichern Ihrer Einstellungen
+set.settings.restore=Wiederherstellen
+set.settings.restore_desc=Hochladen und wiederherstellen einer vorher erstellten Sicherung. Ihre Box startet danach neu.
+set.settings.warning=Sichern &amp; Wiederherstellen ist nur bei einem gleichen Image mit gleichem Entwicklungsstand sinnvoll.
 
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen
