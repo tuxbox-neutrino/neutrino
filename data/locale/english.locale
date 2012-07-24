@@ -967,7 +967,7 @@ menu.hint_scan_lodirection Select longtitude direction
 menu.hint_scan_lofh High banb LNB frequency
 menu.hint_scan_lofl Low band LNB frequency
 menu.hint_scan_lofs Band switch LNB frequency
-menu.hint_scan_longtitude Enter your longtitude
+menu.hint_scan_longitude Enter your longtitude
 menu.hint_scan_manual Manual transponder scan using\nselected parameters
 menu.hint_scan_mod Select transponder modulation
 menu.hint_scan_motorpos Select stored position number for\nthis satellite

@@ -994,7 +994,7 @@ const char * locale_real_names[] =
 	"menu.hint_scan_lofh",
 	"menu.hint_scan_lofl",
 	"menu.hint_scan_lofs",
-	"menu.hint_scan_longtitude",
+	"menu.hint_scan_longitude",
 	"menu.hint_scan_manual",
 	"menu.hint_scan_mod",
 	"menu.hint_scan_motorpos",

@@ -967,7 +967,7 @@ menu.hint_scan_lodirection Wählen Sie ihre Längengrad-Ausrichtung
 menu.hint_scan_lofh High-Banb LNB-Frequenz
 menu.hint_scan_lofl Low-Band LNB-Frequenz
 menu.hint_scan_lofs LNB-Band-Umschalter Frequenz
-menu.hint_scan_longtitude Geben Sie ihren Längengrad ein
+menu.hint_scan_longitude Geben Sie ihren Längengrad ein
 menu.hint_scan_manual Manueller Transponder-Scan mit ausgewählten Parametern
 menu.hint_scan_mod Select transponder modulation
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
