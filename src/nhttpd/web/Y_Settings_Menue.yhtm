@@ -13,7 +13,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_general').insert({'bottom':el}); 
+		$('secmenu_general').insert({'bottom':el});
 	});
 	var menu=ext.select_menu('settings_neutrino');
 	menu.each(function(e){
@@ -23,7 +23,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_neutrino').insert({'bottom':el}); 
+		$('secmenu_neutrino').insert({'bottom':el});
 	});
 	var menu=ext.select_menu('settings_plugins');
 	menu.each(function(e){
@@ -33,7 +33,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_plugins').insert({'bottom':el}); 
+		$('secmenu_plugins').insert({'bottom':el});
 	});
 }
 </script>

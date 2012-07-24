@@ -29,19 +29,19 @@ function do_submit() {
 			</tr>
 			<tr>
 				<td>{=L:set.timer.password=}</td>
-				<td><input type="password" name="tvinfo_password" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_password=}"/><br/><br/></td>
+				<td><input type="password" name="tvinfo_password" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;tvinfo_password=}"/></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="y_form_header">klack.de (V2)</td>
 			</tr>
 			<tr>
 				<td>{=L:set.timer.klack.url=}</td>
-				<td><input type="text" name="klack_url" size="60" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}"/><br/>
-				{=L:set.timer.klack.url_desc=}</br></td>
+				<td><input type="text" name="klack_url" size="60" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_url=}"/>
+				<br/>{=L:set.timer.klack.url_desc=}</td>
 			</tr>
 			<tr>
 				<td>{=L:set.timer.klack.security_code=}</td>
-				<td><input type="password" name="klack_securitycode" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_securitycode=}" title="{=L:set.timer.klack.security_code_desc=}"/><br/><br/></td>
+				<td><input type="password" name="klack_securitycode" size="15" value="{=ini-get:/var/tuxbox/config/Y-Web.conf;klack_securitycode=}" title="{=L:set.timer.klack.security_code_desc=}"/></td>
 			</tr>
 			<tr>
 				<td colspan="2" class="y_form_header">{=L:set.timer.channel_name_replacelist=}</td>

@@ -384,7 +384,7 @@ start-block~frame_main
 {=include-block:Y_Blocks.txt;frame_head=}
 <title>yWeb</title>
 </head>
-	<frameset rows="60,*" frameborder="0" framespacing="0">
+	<frameset rows="70,*" frameborder="0" framespacing="0">
 	<frame name="prim_menu" src="Y_Menue.yhtm" scrolling="no"  marginwidth="0" marginheight="0" frameborder="0" noresize="noresize" />
 	<frame name="base" src="Y_Dyn_Pages.yhtm?page=frame_boxcontrol"  marginwidth="0" marginheight="0" frameborder="0" style="height:100%"; />
 </frameset>
