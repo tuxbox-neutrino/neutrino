@@ -103,7 +103,7 @@ class CComponentsInfoBox : public CComponents
 
 		void paint(bool do_save_bg = true, bool fullPaint = false);
 		void hide();
-		void restore(bool clear_);
+		void restore(bool clear_ = true);
 		void setColor(fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow){col_frame = color_frame; col_body = color_body; col_shadow = color_shadow;};
 };
 
