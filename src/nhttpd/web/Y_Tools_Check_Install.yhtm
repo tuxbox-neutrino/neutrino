@@ -94,37 +94,37 @@ function do_check(){
 		sLog_addRow(sLog_body, "green", "Programs: dboxshot is installed at: {=var-get:dboxshot=}. Remote &amp; OSD is enabled.", "ok");
 	=}
 
-	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-		{=var-set:fcp={=if-file-exists:/sbin/fcp~/sbin/fcp~{=if-file-exists:/var/bin/fcp~/var/bin/fcp~{=if-file-exists:/bin/fcp~/bin/fcp~false=}=}=}=}
-		{=if-equal:{=var-get:fcp=}~false~
-			sLog_addRow(sLog_body, "red", "Programs: fcp is not installed. Image flashing is disabled. "+y_url("Help-Tools-Image"), "failed");
-		~
-			sLog_addRow(sLog_body, "green", "Programs: fcp is installed at: {=var-get:fcp=}. Image flashing is enabled.", "ok");
-		=}
-	~=}
+{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+	{=var-set:fcp={=if-file-exists:/sbin/fcp~/sbin/fcp~{=if-file-exists:/var/bin/fcp~/var/bin/fcp~{=if-file-exists:/bin/fcp~/bin/fcp~false=}=}=}=}
+	{=if-equal:{=var-get:fcp=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: fcp is not installed. Image flashing is disabled. "+y_url("Help-Tools-Image"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: fcp is installed at: {=var-get:fcp=}. Image flashing is enabled.", "ok");
+	=}
+~=}
 	
-	{=var-set:ether-wake={=if-equal:{=global-var-get:boxtype=}~coolstream~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}~{=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~=}=}=}=}
+	{=var-set:ether-wake={=if-file-exists:/bin/ether-wake~/bin/ether-wake~{=if-file-exists:/var/bin/ether-wake~/var/bin/ether-wake~false=}=}=}
 	{=if-equal:{=var-get:ether-wake=}~false~
 		sLog_addRow(sLog_body, "red", "Programs: ether-wake is not installed. Wake on LAN is disabled. "+y_url("Help-Tools-Wake_on_LAN"), "failed");
 	~
 		sLog_addRow(sLog_body, "green", "Programs: ether-wake is installed at: {=var-get:ether-wake=}. Wake on LAN is enabled.", "ok");
 	=}
-	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-		/*automount*/
-		{=var-set:automount={=if-file-exists:/sbin/automount~/sbin/automount~{=if-file-exists:/var/bin/automount~/var/bin/automount~false=}=}=}
-		{=if-equal:{=var-get:automount=}~false~
-			sLog_addRow(sLog_body, "red", "Programs: automount is not installed. AutoMount is disabled. "+y_url("Help-Tools-AutoMount"), "failed");
-		~
-			sLog_addRow(sLog_body, "green", "Programs: automount is installed at: {=var-get:automount=}. AutoMount is enabled.", "ok");
-		=}
-		/* udp */
-		{=var-set:udpstreamts={=if-file-exists:/sbin/udpstreamts~/sbin/udpstreamts~{=if-file-exists:/var/bin/udpstreamts~/var/bin/udpstreamts~false=}=}=}
-		{=if-equal:{=var-get:udpstreamts=}~false~
-			sLog_addRow(sLog_body, "red", "Programs: udpstreamts is not installed. udp-streaming is disabled. "+y_url("Help-Live_Timer-UDP_Streaming"), "failed");
-		~
-			sLog_addRow(sLog_body, "green", "Programs: udpstreamts is installed at: {=var-get:udpstreamts=}. udp-streaming is enabled.", "ok");
-		=}
-	~=}
+{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+	/*automount*/
+	{=var-set:automount={=if-file-exists:/sbin/automount~/sbin/automount~{=if-file-exists:/var/bin/automount~/var/bin/automount~false=}=}=}
+	{=if-equal:{=var-get:automount=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: automount is not installed. AutoMount is disabled. "+y_url("Help-Tools-AutoMount"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: automount is installed at: {=var-get:automount=}. AutoMount is enabled.", "ok");
+	=}
+	/* udp */
+	{=var-set:udpstreamts={=if-file-exists:/sbin/udpstreamts~/sbin/udpstreamts~{=if-file-exists:/var/bin/udpstreamts~/var/bin/udpstreamts~false=}=}=}
+	{=if-equal:{=var-get:udpstreamts=}~false~
+		sLog_addRow(sLog_body, "red", "Programs: udpstreamts is not installed. udp-streaming is disabled. "+y_url("Help-Live_Timer-UDP_Streaming"), "failed");
+	~
+		sLog_addRow(sLog_body, "green", "Programs: udpstreamts is installed at: {=var-get:udpstreamts=}. udp-streaming is enabled.", "ok");
+	=}
+~=}
 
 	do_stop();
 }

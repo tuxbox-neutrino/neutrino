@@ -210,6 +210,11 @@ start-block~management_check_bottom
 =}
 end-block~management_check_bottom
 
+# ------- Managemant Link
+start-block~management_link
+<a {=if-empty:{=var-get:management=}~class="restricted" title="{=L:restriced_by_management_ip=}" href="javascript:void(0);"~title="{=var-get:m_link_desc=}" href="{=var-get:m_link_href=}" target="work"=}>{=var-get:m_link_text=}</a>
+end-block~management_link
+
 # ------- Snip: Wait Message Layer-div hidden
 start-block~snip_wait
 <div class="y_wait_box" id="wait">

@@ -223,7 +223,6 @@ set.sync_with_neutrino=Sincronização com Neutrino
 
 =======Definições General & Menu
 set.menue.webserver=Webserver
-set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Definições do Programador
 set.menue.zapit=Zapit
 set.menue.backup_restore=Backup &amp; Restore
@@ -409,6 +408,7 @@ tools.path=Path
 tools.command=Comando_Shell
 tools.cmd.enter_command=escrever comando para executar
 tools.cmd.execute_command=execute comando shell
+tools.boot_logo=Boot Logo
 
 =========== Menu LIVE
 live.heading=Live/Timer

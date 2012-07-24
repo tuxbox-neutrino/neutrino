@@ -36,8 +36,8 @@ function volumen_set(_volumen){
 }
 function set_mute_button(){
 	var status = loadSyncURL("/control/volume?status");
-	$('btMute').update( (status==1)? "&nbsp;<img src=\"/images/volumeunmute.png\">&nbsp;": "&nbsp;<img src=\"/images/volumemute.png\">&nbsp;");
-	return status;	
+	$('btMute').update( (status==1) ? "<img src=\"/images/volumeunmute.png\">" : "<img src=\"/images/volumemute.png\">");
+	return status;
 }
 function toggle_mute(){
 	var status = loadSyncURL("/control/volume?status");
@@ -64,7 +64,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu').insert({'bottom':el}); 
+		$('secmenu_boxcontrol').insert({'bottom':el});
 	});
 	
 }
@@ -79,31 +79,45 @@ function init(){
 	<div class="y_menu_sec_box_head"><h2>{=L:main.boxcontrol=}</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec">
-			<ul id="secmenu">
-				<li><a target="work" title="{=L:bc.menue.bouquets_desc=}" href="Y_Boxcontrol_Bouquets.yhtm">{=L:bc.menue.bouquets=}</a></li>
-				<li><a target="work" title="{=L:bc.menue.control_desc=}" href="Y_Tools_Boxcontrol.yhtm">{=L:bc.menue.control=}</a></li>
-				<li><a target="work" title="{=L:bc.menue.messages_desc=}" href="Y_Boxcontrol_Messages.yhtm">{=L:bc.menue.messages=}</a></li>
-				<li><a target="work" title="{=L:bc.menue.remote_desc=}" href="Y_Tools_Rcsim.yhtm">{=L:bc.menue.remote=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				{=if-equal:{=var-get:lcshot=}~true~
-				<li><a target="work" title="{=L:bc.menue.lcd_screenshot_desc=}" href="Y_Tools_lcshot.yhtm">{=L:bc.menue.lcd_screenshot=}</a></li>
-				~
-				<li class="disabled" title="{=L:bc.menue.lcd_screenshot_desc_ni=}">{=L:bc.menue.lcd_screenshot=}</li>
-				=}
-			~=}
-				{=if-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" title="{=L:bc.menue.tv_screenshot_desc=}" href="Y_Tools_tvshot.yhtm">{=L:bc.menue.tv_screenshot=}</a></li>
+			<ul id="secmenu_boxcontrol">
+				<li>
+					<a target="work" title="{=L:bc.menue.bouquets_desc=}" href="Y_Boxcontrol_Bouquets.yhtm">{=L:bc.menue.bouquets=}</a>
+				</li>
+				<li>
+					<a target="work" title="{=L:bc.menue.control_desc=}" href="Y_Tools_Boxcontrol.yhtm">{=L:bc.menue.control=}</a>
+				</li>
+				<li>
+					<a target="work" title="{=L:bc.menue.messages_desc=}" href="Y_Boxcontrol_Messages.yhtm">{=L:bc.menue.messages=}</a>
+				</li>
+				<li>
+					<a target="work" title="{=L:bc.menue.remote_desc=}" href="Y_Tools_Rcsim.yhtm">{=L:bc.menue.remote=}</a>
+				</li>
+				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li>
+					{=if-equal:{=var-get:lcshot=}~true~
+					<a target="work" title="{=L:bc.menue.lcd_screenshot_desc=}" href="Y_Tools_lcshot.yhtm">{=L:bc.menue.lcd_screenshot=}</a>
+					~
+					<a href="javascript:void(0)" class="disabled" title="{=L:bc.menue.lcd_screenshot_desc_ni=}">{=L:bc.menue.lcd_screenshot=}</a>
+					=}
+				</li>
 				~=}
-				{=if-equal:{=var-get:fbshot=}~true~
-				<li><a target="work" title="{=L:bc.menue.osd_screenshot_desc=}" href="Y_Tools_fbshot.yhtm">{=L:bc.menue.osd_screenshot=}</a></li>
-				~
-				<li class="disabled" title="{=L:bc.menue.osd_screenshot_desc_ni=}">{=L:bc.menue.osd_screenshot=}</li>
-				=}
-				{=if-equal:{=var-get:dboxshot=}~true~
-				<li><a target="work" title="{=L:bc.menue.remote_osd_desc=}" href="Y_Tools_remote_osd.yhtm">{=L:bc.menue.remote_osd=}</a></li>
-				~
-				<li class="disabled" title="{=L:bc.menue.remote_osd_desc_ni=}">{=L:bc.menue.remote_osd=}</li>
-				=}
+				<li>
+					<a target="work" title="{=L:bc.menue.tv_screenshot_desc=}" href="Y_Tools_tvshot.yhtm">{=L:bc.menue.tv_screenshot=}</a>
+				</li>
+				<li>
+					{=if-equal:{=var-get:fbshot=}~true~
+					<a target="work" title="{=L:bc.menue.osd_screenshot_desc=}" href="Y_Tools_fbshot.yhtm">{=L:bc.menue.osd_screenshot=}</a>
+					~
+					<a href="javascript:void(0)" class="disabled" title="{=L:bc.menue.osd_screenshot_desc_ni=}">{=L:bc.menue.osd_screenshot=}</a>
+					=}
+				</li>
+				<li>
+					{=if-equal:{=var-get:dboxshot=}~true~
+					<a target="work" title="{=L:bc.menue.remote_osd_desc=}" href="Y_Tools_remote_osd.yhtm">{=L:bc.menue.remote_osd=}</a>
+					~
+					<a href="javascript:void(0)" class="disabled" title="{=L:bc.menue.remote_osd_desc_ni=}">{=L:bc.menue.remote_osd=}</a>
+					=}
+				</li>
 			</ul>
 		</div>
 	</div>
@@ -119,15 +133,31 @@ function init(){
 			</tr>
 			</table>
 			<br/>
-			<span title="{=L:bc.menue.decrease_volume=}">
-				<a href="javascript:volumen_set(g_volumen-10);"><img src="/images/volumedown.png">&nbsp;</a></span>
-			<span title="{=L:bc.menue.increase_volume=}">
-				<a href="javascript:volumen_set(g_volumen+10);"><img src="/images/volumeup.png"></a></span>
-			<span title="{=L:bc.menue.mute_volume=}">
-				<a id="btMute" href="javascript:toggle_mute();">&nbsp;<img src="/images/volumemute.png">&nbsp;</a></span>
-<!--			<br/><br/>-->
-			<span title="{=L:bc.menue.switch_to_tv=}"><a href="javascript:set_mode('tv');"><img src="/images/live.gif">&nbsp;</a></span>
-			<span title="{=L:bc.menue.switch_to_radio=}"><a href="javascript:set_mode('radio');">&nbsp;<img src="/images/radio.png"></a></span>
+			<span class="control_icon" title="{=L:bc.menue.decrease_volume=}">
+				<a href="javascript:volumen_set(g_volumen-10);">
+					<img src="/images/volumedown.png">
+				</a>
+			</span>
+			<span class="control_icon" title="{=L:bc.menue.increase_volume=}">
+				<a href="javascript:volumen_set(g_volumen+10);">
+					<img src="/images/volumeup.png">
+				</a>
+			</span>
+			<span class="control_icon" title="{=L:bc.menue.mute_volume=}">
+				<a id="btMute" href="javascript:toggle_mute();">
+					<img src="/images/volumemute.png">
+				</a>
+			</span>
+			<span class="control_icon" title="{=L:bc.menue.switch_to_tv=}">
+				<a href="javascript:set_mode('tv');">
+					<img src="/images/live.gif">
+				</a>
+			</span>
+			<span class="control_icon" title="{=L:bc.menue.switch_to_radio=}">
+				<a href="javascript:set_mode('radio');">
+					<img src="/images/radio.png">
+				</a>
+			</span>
 		</center>
 	</div>
 </div>
@@ -137,7 +167,9 @@ function init(){
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec">
 			<ul>
-				<li><a target="_top" title="{=L:bc.menue.webinf_slavebox=}" href="http://{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}/">{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}</a></li>
+				<li>
+					<a target="_top" title="{=L:bc.menue.webinf_slavebox=}" href="http://{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}/">{=ini-get:/var/tuxbox/config/Y-Web.conf;slavebox=}</a>
+				</li>
 			</ul>
 		</div>
 	</div>
