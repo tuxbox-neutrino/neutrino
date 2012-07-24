@@ -1672,8 +1672,6 @@ void CCNThread::beforeWait()
 	if (updating || eit_version == 0xff)
 		return;
 
-	updating = true;
-
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 	unsigned char mode[DMX_FILTER_SIZE];
@@ -1693,17 +1691,22 @@ void CCNThread::beforeWait()
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
 
+	update_mutex.lock();
 	eitDmx->Open(DMX_PSI_CHANNEL);
 	eitDmx->sectionFilter(0x12, filter, mask, 4, 0 /*timeout*/, mode);
+	updating = true;
+	update_mutex.unlock();
 }
 
 void CCNThread::afterWait()
 {
 	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
+	update_mutex.lock();
 	if (updating) {
 		updating = false;
 		eitDmx->Close();
 	}
+	update_mutex.unlock();
 }
 
 void CCNThread::beforeSleep()
@@ -1743,11 +1746,16 @@ void CCNThread::processSection()
 /* CN specific functions */
 bool CCNThread::checkUpdate()
 {
-	if (!updating)
-		return false;
-
 	unsigned char buf[MAX_SECTION_LENGTH];
+
+	update_mutex.lock();
+	if (!updating) {
+		update_mutex.unlock();
+		return false;
+	}
+
 	int ret = eitDmx->Read(buf, MAX_SECTION_LENGTH, 10);
+	update_mutex.unlock();
 
 	if (ret > 0) {
 		LongSection section(buf);
