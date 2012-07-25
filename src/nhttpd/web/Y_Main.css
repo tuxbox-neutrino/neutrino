@@ -48,20 +48,20 @@ button[ytype="edit"]{background-image:url(/images/modify.png);}
 button[ytype="flash"]{background-image:url(/images/flash.png);}
 
 button[ytype="no"] {
-	height: 21px;
 	padding-left: 5px
 }
 
 /*TODO: input file*/
 button,input[type="button"],input[type="submit"]/*,input[type="file"],input[type="file"] > input[type="button"],input[type="file"] > input[type="text"]*/ {
+	height: 22px;
 	border: 1px solid #888888;
 	background-color: transparent;
+	border-radius: 3px;
 }
 button:hover,input[type="button"]:hover,input[type="submit"]:hover/*,input[type="file"]:hover*/ {
 	position:relative;
 	left:1px;
 	top:1px;
-	border: 1px solid #888888;
 }
 div {
 	margin:0;
@@ -394,12 +394,10 @@ tr {
 	width: 100%;
 }
 .y_live_button {
-/*	font-size: 8pt;
-	height: 22px;*/
 	padding: 0;
 	color: #555555;
 	margin:0;
-
+	border: 0 none;
 }
 .y_live_bouquets
 {
