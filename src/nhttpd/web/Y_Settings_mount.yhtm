@@ -32,7 +32,6 @@ function do_submit()
 				<td>
 					<input type="radio" name="type" value="0"/>NFS&nbsp;
 					<input type="radio" name="type" value="1"/>CIFS&nbsp;
-					<input type="radio" name="type" value="2"/>FTPFS
 				</td>
 			</tr>
 			<tr>
