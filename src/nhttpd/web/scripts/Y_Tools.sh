@@ -613,15 +613,6 @@ case "$1" in
 		cat /tmp/$2
 		;;
 
-	standby_status)
-		status=`switch -s|grep "FNC: 0"`
-		if [ "$status" = "" ]
-		then
-			echo "off"
-		else
-			echo "on"
-		fi
-		;;
 	mtd_space|var_space)
 		df | while read fs rest; do
 			case ${fs:0:3} in

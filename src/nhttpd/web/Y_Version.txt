@@ -1,4 +1,4 @@
-version=2.8.0.23
+version=2.8.0.24
 date=25.07.2012
 type=Release
 info=Port Coolstream
