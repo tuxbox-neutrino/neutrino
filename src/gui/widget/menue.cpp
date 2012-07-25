@@ -1079,7 +1079,7 @@ void CMenuWidget::paintHint(int pos)
 		/* clear info box */
 		if (info_box != NULL)
 			if (pos == -1)
-				info_box->restore(true);
+				info_box->restore();
 		hint_painted = false;
 	}
 	if (pos < 0)
@@ -1090,7 +1090,7 @@ void CMenuWidget::paintHint(int pos)
 
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
 		if (info_box != NULL)
-			info_box->restore(false);
+			info_box->restore();
 		return;
 	}
 
