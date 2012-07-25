@@ -398,11 +398,11 @@ tools.info.version=Version
 
 ============ Tools yInstaller
 tools.yinstaller.no_file_given=No file given!
-tools.yinstaller.space.var=Space in /var total
-tools.yinstaller.space.used=k used
-tools.yinstaller.space.free=k free
-tools.yinstaller.space.percentage=k percentage used
-tools.yinstaller.not_determine=Can not determine free space. /var is no partition! JFFS2, YADD or USB?
+tools.yinstaller.space.mtd=Space total
+tools.yinstaller.space.used=used
+tools.yinstaller.space.free=free
+tools.yinstaller.space.percentage=percentage used
+tools.yinstaller.not_determine=Can not determine free space.
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-File
 tools.yinstaller.upload_install=upload and install

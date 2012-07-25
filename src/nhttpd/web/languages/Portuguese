@@ -382,11 +382,11 @@ tools.info.version=Versão
 
 ============ Ferramentas yInstaller
 tools.yinstaller.no_file_given=Nenhum ficheiro selecionado!
-tools.yinstaller.space.var=Total de Espaço em /var
-tools.yinstaller.space.used=k usados
-tools.yinstaller.space.free=k livres
-tools.yinstaller.space.percentage=k percentagem usada
-tools.yinstaller.not_determine=Sem puder determinar o espaço livre. /var não é uma partição! JFFS2, YADD ou USB?
+tools.yinstaller.space.mtd=Total de espaço
+tools.yinstaller.space.used=usados
+tools.yinstaller.space.free=livres
+tools.yinstaller.space.percentage=percentagem usada
+tools.yinstaller.not_determine=Sem puder determinar o espaço livre.
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-Ficheiro
 tools.yinstaller.upload_install=upload e instalar

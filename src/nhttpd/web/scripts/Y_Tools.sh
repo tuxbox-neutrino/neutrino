@@ -622,8 +622,15 @@ case "$1" in
 			echo "on"
 		fi
 		;;
-	var_space)
-		df |grep mtd2
+	mtd_space|var_space)
+		df | while read fs rest; do
+			case ${fs:0:3} in
+				mtd)
+					echo "$fs" "$rest"
+					break
+				;;
+			esac
+		done
 		;;
 	tmp_space)
 		df /tmp|grep /tmp
