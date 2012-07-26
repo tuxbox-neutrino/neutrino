@@ -353,6 +353,7 @@ std::string CyParser::cgi_cmd_parsing(CyhookHandler *hh,
 
 //-----------------------------------------------------------------------------
 // ycgi : cmd executing
+//	comment:<y-comment>~<html-comment>
 //	script:<scriptname without .sh>
 //	include:<filename>
 //	func:<funcname> (funcname to be implemented in CyParser::YWeb_cgi_func)
@@ -377,7 +378,13 @@ std::string CyParser::YWeb_cgi_cmd(CyhookHandler *hh, std::string ycmd) {
 	if (ySplitString(ycmd, ":", ycmd_type, ycmd_name)) {
 		if (ycmd_type == "L")
 			yresult = CLanguage::getInstance()->getTranslation(ycmd_name);
-		else if (ycmd_type == "script")
+		else if (ycmd_type == "comment") {
+			std::string comment_y, comment_html;
+			if (ySplitString(ycmd_name, "~", comment_y, comment_html)) {
+				if (comment_html != "")
+					yresult = "<!-- " + comment_html + " -->";
+			}
+		} else if (ycmd_type == "script")
 			yresult = YexecuteScript(hh, ycmd_name);
 		else if (ycmd_type == "if-empty") {
 			std::string if_value, if_then, if_else;
