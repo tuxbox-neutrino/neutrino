@@ -1509,14 +1509,42 @@ void CFrameBuffer::displayRGB(unsigned char *rgbbuff, int x_size, int y_size, in
 void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long color)
 {
 //printf ("[fb - blitRect]: x=%d, y=%d, width=%d, height=%d\n", x, y, width, height);
-	if (width == 0 || height == 0)
+	if (width <= 0 || height <= 0)
 		return;
 
-	if (x + width > (int)xRes) {
+	/* maybe we should just return instead of fixing this up... */
+	if (x < 0) {
+		fprintf(stderr, "[neutrino] fb::%s: x < 0 (%d)\n", __func__, x);
+		width += x;
+		if (width <= 0)
+			return;
+		x = 0;
+	}
+
+	if (y < 0) {
+		fprintf(stderr, "[neutrino] fb::%s: y < 0 (%d)\n", __func__, y);
+		height += y;
+		if (height <= 0)
+			return;
+		y = 0;
+	}
+
+	int right = x + width;
+	int bottom = y + height;
+
+	if (right > (int)xRes) {
+		if (x >= (int)xRes) {
+			fprintf(stderr, "[neutrino] fb::%s: x >= xRes (%d > %d)\n", __func__, x, xRes);
+			return;
+		}
 		fprintf(stderr, "[neutrino] fb::%s: x + w > xRes! (%d+%d > %d)\n", __func__, x, width, xRes);
 		width = xRes - x;
 	}
-	if (y + height > (int)yRes) {
+	if (bottom > (int)yRes) {
+		if (y >= (int)yRes) {
+			fprintf(stderr, "[neutrino] fb::%s: y >= yRes (%d > %d)\n", __func__, y, yRes);
+			return;
+		}
 		fprintf(stderr, "[neutrino] fb::%s: y + h > yRes! (%d+%d > %d)\n", __func__, y, height, yRes);
 		height = yRes - y;
 	}
@@ -1530,8 +1558,8 @@ void CFrameBuffer::blitRect(int x, int y, int width, int height, unsigned long c
 
 	bltData.dst_left   = x;
 	bltData.dst_top    = y;
-	bltData.dst_right  = x + width;
-	bltData.dst_bottom = y + height;
+	bltData.dst_right  = right;
+	bltData.dst_bottom = bottom;
 
 	bltData.dstFormat  = SURF_ARGB8888;
 	bltData.srcFormat  = SURF_ARGB8888;
