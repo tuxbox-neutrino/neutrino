@@ -843,7 +843,7 @@ void CMenuWidget::calcSize()
 	full_width = width+sb_width+SHADOW_OFFSET;
 	full_height = height+RADIUS_LARGE-2+SHADOW_OFFSET;
 
-	setMenuPos(width - sb_width);
+	setMenuPos(full_width);
 }
 
 void CMenuWidget::paint()
@@ -890,7 +890,7 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 	{
 		case MENU_POS_CENTER:
 			x = offx + scr_x + ((scr_w - mn_width ) >> 1 );
-			y = offy + scr_y + ((scr_h - height) >> 1 );
+			y = offy + scr_y + ((scr_h - full_height) >> 1 );
 			break;
 			
 		case MENU_POS_TOP_LEFT: 
@@ -900,17 +900,17 @@ void CMenuWidget::setMenuPos(const int& menu_width)
 			
 		case MENU_POS_TOP_RIGHT: 
 			y = offy + scr_y + 10;
-			x = offx + scr_x + scr_w - mn_width - 10;
+			x = /*offx +*/ scr_x + scr_w - mn_width - 10;
 			break;
 			
 		case MENU_POS_BOTTOM_LEFT: 
-			y = offy + scr_y + scr_h - height - 10;
+			y = /*offy +*/ scr_y + scr_h - full_height - 10;
 			x = offx + scr_x + 10;
 			break;
 			
 		case MENU_POS_BOTTOM_RIGHT: 
-			y = offy + scr_y + scr_h - height - 10;
-			x = offx + scr_x + scr_w - mn_width - 10;
+			y = /*offy +*/ scr_y + scr_h - full_height - 10;
+			x = /*offx +*/ scr_x + scr_w - mn_width - 10;
 			break;
 	}
 }
