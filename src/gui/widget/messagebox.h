@@ -56,7 +56,7 @@ class CMessageBox : public CHintBoxExt
 	int  mbBtnAlign;
 	int  ButtonSpacing, ButtonDistance;
 	int  fh, i_maxw;
-	int  b_height, b_width, bb_height, bb_width;
+	int  b_height, b_width, bb_width;
 	int ButtonCount;
 
 	void paintButtons();

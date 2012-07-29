@@ -65,8 +65,7 @@ void CMessageBox::Init(const CMessageBox::result_ Default, const uint32_t ShowBu
 	}
 	fh                     = g_Font[SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL]->getHeight();
 	b_height               = std::max(fh, ih) + 8 + (RADIUS_LARGE / 2);
-	bb_height              = b_height + fh/2 + ButtonSpacing;
-	m_height               += bb_height;
+	m_bbheight             = b_height + fh/2 + ButtonSpacing;
 	result                 = Default;
 	b_width                = getButtonWidth();
 	if (ShowButtons        & CMessageBox::mbBtnAlignCenter1)
@@ -101,10 +100,14 @@ void CMessageBox::Init(const CMessageBox::result_ Default, const uint32_t ShowBu
 	ButtonDistance = ButtonSpacing;
 	bb_width = b_width * ButtonCount + ButtonDistance * (ButtonCount - 1);
 	if(bb_width > m_width)
-		m_width = bb_width;
+		m_width = bb_width; /* FIXME: what if bigger than screen area? */
 	else
 		if (mbBtnAlign == CMessageBox::mbBtnAlignCenter1)
 			ButtonDistance = (m_width - b_width * ButtonCount) / (ButtonCount + 1);
+
+	/* this is ugly: re-init (CHintBoxExt) to recalculate the number of lines and pages */
+	init(m_caption, m_width, m_iconfile == "" ? NULL : m_iconfile.c_str());
+	m_height += m_bbheight;
 }
 
 void CMessageBox::returnDefaultValueOnTimeout(bool returnDefault)
@@ -138,9 +141,9 @@ void CMessageBox::paintButtons()
 	else if (mbBtnAlign == CMessageBox::mbBtnAlignRight)
 		xpos = m_width - bb_width - ButtonSpacing;
 
-	int ypos = (m_height - bb_height) + fh/2;
+	int ypos = (m_height - m_bbheight) + fh/2;
 
-	m_window->paintBoxRel(0, m_height - bb_height, m_width, bb_height, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
+	m_window->paintBoxRel(0, m_height - m_bbheight, m_width, m_bbheight, COL_MENUCONTENT_PLUS_0, RADIUS_LARGE, CORNER_BOTTOM);
 
 	i = 0;
 	if (showbuttons & mbYes) {
