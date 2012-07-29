@@ -36,7 +36,6 @@
 #include <audio_cs.h>
 #include <system/settings.h>
 #include <daemonc/remotecontrol.h>
-#include <driver/framebuffer.h>
 #include <driver/volume.h>
 #include <zapit/zapit.h>
 
@@ -44,14 +43,13 @@
 #include <gui/widget/progressbar.h>
 #endif
 
-CFrameBuffer * frameBuffer;
 extern CRemoteControl * g_RemoteControl;
 extern cAudio * audioDecoder;
-static CProgressBar *g_volscale = NULL;
 
 CVolume::CVolume()
 {
 	frameBuffer	= CFrameBuffer::getInstance();
+	volscale 	= NULL;
 #if 0
 	g_Zapit		= new CZapitClient;
 	g_RCInput	= new CRCInput;
@@ -71,8 +69,7 @@ CVolume::CVolume()
 
 CVolume::~CVolume()
 {
-	if (g_volscale)
-		delete g_volscale;
+	delete volscale;
 }
 
 void CVolume::Init()
@@ -82,7 +79,7 @@ void CVolume::Init()
 	int faktor_h	= 18; // scale * 10
 	int clock_height= 0;
 	int clock_width = 0;
-	int x_corr 	= 0;
+	
 	pB		= 2; // progress border
 	spacer		= 8;
 
@@ -108,8 +105,9 @@ void CVolume::Init()
 		progress_h	= std::max(icon_h, digit_h) - 2*pB;
 		vbar_w 		+= digit_w;
 	}
-	delete g_volscale;
-	g_volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
+	if (volscale)
+		delete volscale;
+	volscale 	= new CProgressBar(true, progress_w, progress_h, 50, 100, 80, true);
 
 	// mute icon
 	mute_icon_dx 	= 0;
@@ -143,7 +141,8 @@ void CVolume::Init()
 //printf("\n##### [volume.cpp Zeile %d] mute_ax %d, mute_dx %d\n \n", __LINE__, mute_ax, mute_dx);
 	switch (g_settings.volume_pos)
 	{
-		case 0:// upper right
+		case 0:{// upper right
+			int x_corr 	= 0;
 			if (( neutrino->getMode() != CNeutrinoApp::mode_scart ) && ( neutrino->getMode() != CNeutrinoApp::mode_audio) && ( neutrino->getMode() != CNeutrinoApp::mode_pic)) {
 				if ((neutrino->isMuted()) && (!g_settings.mode_clock))
 					x_corr = mute_dx + spacer;
@@ -152,6 +151,7 @@ void CVolume::Init()
 			}
 			x = sw - vbar_w - x_corr;
 			break;
+		}
 		case 1:// upper left
 			break;
 		case 2:// bottom left
@@ -251,7 +251,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 		// volume icon
 		frameBuffer->paintIcon(NEUTRINO_ICON_VOLUME, icon_x, icon_y, 0, colBar);
 
-		g_volscale->reset();
+		volscale->reset();
 		refreshVolumebar(vol);
 	}
 
@@ -357,7 +357,7 @@ void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowa
 void CVolume::refreshVolumebar(int current_volume)
 {
 	// progressbar
-	g_volscale->paintProgressBar2(progress_x, progress_y, current_volume);
+	volscale->paintProgressBar2(progress_x, progress_y, current_volume);
 	if (paintDigits) {
 		// shadow for erase digits
 		if (paintShadow)

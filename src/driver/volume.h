@@ -28,11 +28,15 @@
 #ifndef __CVOLUME__
 #define __CVOLUME__
 
+#include <driver/framebuffer.h>
+
 #define ROUNDED g_settings.rounded_corners ? vbar_h/2 : 0
 
 class CVolume : public CChangeObserver
 {
 	private:
+		CFrameBuffer * frameBuffer;
+		CProgressBar *volscale;
 		void refreshVolumebar(int current_volume);
 
 		int x, y, sy, sw, sh;
@@ -55,7 +59,7 @@ class CVolume : public CChangeObserver
 		CVolume();
 		~CVolume();
 		static CVolume* getInstance();
-
+		
 		int spacer, mute_dx;
 		void Init();
 		void AudioMute(int newValue, bool isEvent= false);
