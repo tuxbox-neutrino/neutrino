@@ -33,17 +33,16 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+#include <neutrino.h>
+#include <mymenu.h>
+#include <neutrino_menue.h>
 
 #include "osd_setup.h"
 #include "themes.h"
 #include "screensetup.h"
 #include "osdlang_setup.h"
 #include "filebrowser.h"
-
-#include <global.h>
-#include <neutrino.h>
-#include <mymenu.h>
-#include <neutrino_menue.h>
 
 #include <gui/widget/icons.h>
 #include <gui/widget/colorchooser.h>
@@ -434,7 +433,7 @@ int COsdSetup::showOsdSetup()
 
 	//screenshot
 	CMenuWidget osd_menu_screenshot(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_OSDSETUP_SCREENSHOT);
-	showOsdScreenshottSetup(&osd_menu_screenshot);
+	showOsdScreenShotSetup(&osd_menu_screenshot);
 	mf = new CMenuForwarder(LOCALE_SCREENSHOT_MENU, true, NULL, &osd_menu_screenshot, NULL, CRCInput::RC_3);
 	mf->setHint("", LOCALE_MENU_HINT_SCREENSHOT_SETUP);
 	osd_menu->addItem(mf);
@@ -923,7 +922,7 @@ const CMenuOptionChooser::keyval SCREENSHOT_OPTIONS[SCREENSHOT_OPTION_COUNT] =
 	{ 1, LOCALE_SCREENSHOT_OSD   }
 };
 
-void COsdSetup::showOsdScreenshottSetup(CMenuWidget *menu_screenshot)
+void COsdSetup::showOsdScreenShotSetup(CMenuWidget *menu_screenshot)
 {
 	menu_screenshot->addIntroItems(LOCALE_SCREENSHOT_MENU);
 	if((uint)g_settings.key_screenshot == CRCInput::RC_nokey)
