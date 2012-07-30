@@ -33,19 +33,26 @@
 #include "cc.h"
 
 
+using namespace std;
 
-
-
-//basic class CComponents
-CComponents::CComponents(const int x_pos, const int y_pos, const int h, const int w)
+//abstract basic class CComponents
+CComponents::CComponents()
 {
-	x = x_pos;
-	y = y_pos;
-	height = h;
-	width = w;
-	sw = 0; //shadow width
+	//basic CComponents
+	x = 0;
+	y = 0;
+	height 		= CC_HEIGHT_MIN;
+	width 		= CC_WIDTH_MIN;
+	col_body 	= COL_MENUCONTENT;
+	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
+	col_frame 	= COL_MENUCONTENT_PLUS_6;
+	corner_type 	= CORNER_ALL;
+	shadow		= CC_SHADOW_OFF;
+	shadow_w	= SHADOW_OFFSET;
+	firstPaint	= true;
 	frameBuffer = CFrameBuffer::getInstance();
-	v_screen_val.clear();
+	v_fbdata.clear();
+	saved_screen	= NULL;
 }
 
 CComponents::~CComponents()
@@ -56,64 +63,189 @@ CComponents::~CComponents()
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg)
 {
-	int i;
-	for(i=0; i< items_count ;i++){
-		if (do_save_bg)
-			fbdata[i].pixbuf = saveScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
-		v_screen_val.push_back(fbdata[i]);
-	}
-
-	for(i=0; i< items_count ;i++){
-		if (fbdata[i].is_frame)
-			frameBuffer->paintBoxFrame(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].frame_thickness, fbdata[i].color, fbdata[i].r);
-		else
-			frameBuffer->paintBoxRel(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].color, fbdata[i].r);
+	for(int i=0; i< items_count ;i++){
+		int fbtype = fbdata[i].fbdata_type;
+		
+		if (firstPaint){
+			
+			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
+				fbdata[i].pixbuf = saved_screen = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
+			v_fbdata.push_back(fbdata[i]);
+			
+			//ensure painting of all line fb items with saved screens
+			if (fbtype == CC_FBDATA_TYPE_LINE)
+				firstPaint = true;
+			else
+				firstPaint = false;
+		}
+		if (fbtype != CC_FBDATA_TYPE_BGSCREEN){
+			if (fbtype == CC_FBDATA_TYPE_FRAME && fbdata[i].frame_thickness > 0)
+				frameBuffer->paintBoxFrame(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].frame_thickness, fbdata[i].color, fbdata[i].r);
+			else
+				frameBuffer->paintBoxRel(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].color, fbdata[i].r, corner_type);
+		}
 	}
 }
 
 //screen area save
-inline fb_pixel_t* CComponents::saveScreen(int ax, int ay, int dx, int dy)
+inline fb_pixel_t* CComponents::getScreen(int ax, int ay, int dx, int dy)
 {
 	fb_pixel_t* pixbuf = new fb_pixel_t[dx * dy];
 	frameBuffer->SaveScreen(ax, ay, dx, dy, pixbuf);
 	return pixbuf;
 }
 
-//restore screen
-inline void CComponents::restore()
+//restore screen from buffer
+inline void CComponents::hide()
 {
-	for(size_t i =0; i< v_screen_val.size() ;i++) {
-		if (v_screen_val[i].pixbuf != NULL){
-			frameBuffer->RestoreScreen(v_screen_val[i].x, v_screen_val[i].y, v_screen_val[i].dx, v_screen_val[i].dy, v_screen_val[i].pixbuf);
-			delete[] v_screen_val[i].pixbuf;
+	for(size_t i =0; i< v_fbdata.size() ;i++) {
+		if (v_fbdata[i].pixbuf != NULL){
+			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
+			delete[] v_fbdata[i].pixbuf;
+			v_fbdata[i].pixbuf = NULL;
 		}
 	}
-	v_screen_val.clear();
+	v_fbdata.clear();
 }
 
 //clean old screen buffer
 inline void CComponents::clear()
 {
-	for(size_t i =0; i< v_screen_val.size() ;i++)
-		if (v_screen_val[i].pixbuf != NULL)
-			delete[] v_screen_val[i].pixbuf;
-	v_screen_val.clear();
+	for(size_t i =0; i< v_fbdata.size() ;i++)
+		if (v_fbdata[i].pixbuf != NULL)
+			delete[] v_fbdata[i].pixbuf;
+	v_fbdata.clear();
+}
+
+
+//-------------------------------------------------------------------------------------------------------
+//abstract sub class CComponentsContainer from CComponents
+CComponentsContainer::CComponentsContainer()
+{
+	//CComponentsContainer
+	corner_rad	= 0;
+	fr_thickness	= 2;
+}
+
+// 	 y
+// 	x+------f-r-a-m-e-------+
+// 	 |			|
+//     height	  body		|
+// 	 |			|
+// 	 +--------width---------+
+
+
+void CComponentsContainer::paint(bool do_save_bg)
+{
+	int items_cnt = 0;
+ 	clear();
+	
+	int sw = shadow ? shadow_w : 0;
+	int th = fr_thickness;
+	
+	comp_fbdata_t fbdata[] =
+	{
+		{CC_FBDATA_TYPE_BGSCREEN, 	x,	y, 	width+sw, 	height+sw, 	0, 		0, 		0, 	NULL,	NULL},
+		{CC_FBDATA_TYPE_SHADOW, 	x+sw,	y+sw, 	width, 		height, 	col_shadow, 	corner_rad, 	0, 	NULL,	NULL},
+		{CC_FBDATA_TYPE_FRAME, 		x, 	y, 	width, 		height, 	col_frame, 	corner_rad, 	th, 	NULL,	NULL},
+		{CC_FBDATA_TYPE_BOX, 		x+th,	y+th, 	width-2*th, 	height-2*th, 	col_body, 	corner_rad-th,  0, 	NULL,	NULL},
+	};
+	
+	items_cnt = sizeof(fbdata) / sizeof(fbdata[0]);
+	
+	if (firstPaint && do_save_bg)	{
+		for(int i=0; i<items_cnt; i++){
+			if (fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
+				fbdata[i].pixbuf = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
+				break;
+			}
+		}
+	}
+	
+	paintFbItems(fbdata, items_cnt, do_save_bg);
+}
+
+//restore last saved screen behind form box,
+//Do use parameter 'no restore' to override temporarly the restore funtionality.
+//This could help to avoid ugly flicker efffects if it is necessary e.g. on often repaints, without changed contents.
+void CComponentsContainer::hide(bool no_restore)
+{
+	if (no_restore)
+		return;
+	
+	for(size_t i =0; i< v_fbdata.size() ;i++) {
+		if (v_fbdata[i].pixbuf != NULL && v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN)
+			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
+		delete[] v_fbdata[i].pixbuf;
+	}
+	v_fbdata.clear();
+	firstPaint = true;
+}
+
+//hide rendered objects
+void CComponentsContainer::paintBackground()
+{
+	//save current colors
+	fb_pixel_t c_tmp1, c_tmp2, c_tmp3;
+	c_tmp1 = col_body;
+	c_tmp2 = col_shadow;
+	c_tmp3 = col_frame;
+
+	//set background color
+	col_body = col_frame = col_shadow = COL_BACKGROUND;
+
+	//paint with background and restore last used colors
+	paint(CC_SAVE_SCREEN_NO);
+	col_body = c_tmp1;
+	col_shadow = c_tmp2;
+	col_frame = c_tmp3;
+	firstPaint = true;
 }
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsDetailLine
+//sub class CComponentsInfoBox from CComponentsContainer
+CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	//CComponents
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height	 	= h;
+	shadow		= has_shadow;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	firstPaint	= true;
+	v_fbdata.clear();
+	
+	//CComponentsContainer
+	corner_rad	= RADIUS_LARGE;
+	fr_thickness	= 2;
+}
+
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsDetailLine from CComponents
 CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_top, const int y_pos_down, const int h_mark_top_, const int h_mark_down_, fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
+	//CComponents
 	x 		= x_pos;
-	width 		= 16;
-	thickness 	= 4;
-	sw		= 1; //shadow width
 	y 		= y_pos_top;
+	width 		= CC_WIDTH_MIN;
+	col_shadow	= color_shadow;
+	col_body	= color_line;
+// 	col_frame	= COL_BACKGROUND; // not used in this class
+//	shadow		= CC_SHADOW_OFF; // not used in this class
+	shadow_w	= 1;
+	firstPaint	= true;
+	v_fbdata.clear();
+
+	//CComponentsDetailLine
 	y_down 		= y_pos_down;
 	h_mark_top 	= h_mark_top_;
 	h_mark_down 	= h_mark_down_;
-	col_line 	= color_line;
-	col_shadow	= color_shadow;
+	thickness 	= 4;
 }
 
 CComponentsDetailLine::~CComponentsDetailLine()
@@ -136,148 +268,65 @@ CComponentsDetailLine::~CComponentsDetailLine()
 //		y_down
 
 
-#define DLINE_ITEMS_COUNT 12
-//paint details line with current parameters 
+//paint details line with current parameters
 void CComponentsDetailLine::paint(bool do_save_bg)
 {
+	int items_cnt = 0;
+	
 	clear();
-
+	
 	int y_mark_top = y-h_mark_top/2+thickness/2;
 	int y_mark_down = y_down-h_mark_down/2+thickness/2;
+
+	int sw = shadow_w;
 	
-	comp_fbdata_t fbdata[DLINE_ITEMS_COUNT] =
+	comp_fbdata_t fbdata[] =
 	{
 		/* vertical item mark | */
-		{x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_line, 	0, NULL, NULL, false, 0},
-		{x+width-sw,		y_mark_top, 		sw, 			h_mark_top, 		col_shadow, 	0, NULL, NULL, false, 0},
-		{x+width-thickness-sw,	y_mark_top+h_mark_top, 	thickness+sw, 		sw	, 		col_shadow, 	0, NULL, NULL, false, 0},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw, 	y_mark_top, 		thickness, 		h_mark_top, 		col_body, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_top, 		sw, 			h_mark_top, 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_top+h_mark_top, 	thickness+sw, 		sw	, 		col_shadow, 	0, 0, NULL, NULL},
 		
 		/* horizontal item line - */
-		{x, 			y,			width-thickness-sw,	thickness, 		col_line, 	0, NULL, NULL, false, 0},
-		{x+thickness,		y+thickness,		width-2*thickness-sw,	sw, 			col_shadow, 	0, NULL, NULL, false, 0},
+		{CC_FBDATA_TYPE_LINE, x, 			y,			width-thickness-sw,	thickness, 		col_body, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+thickness,		y+thickness,		width-2*thickness-sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
 		
 		/* vertical connect line [ */
-		{x,			y+thickness, 		thickness, 		y_down-y-thickness, 	col_line, 	0, NULL, NULL, false, 0},
-		{x+thickness,		y+thickness+sw,		sw, 			y_down-y-thickness-sw,	col_shadow, 	0, NULL, NULL, false, 0},
+		{CC_FBDATA_TYPE_LINE, x,			y+thickness, 		thickness, 		y_down-y-thickness, 	col_body, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+thickness,		y+thickness+sw,		sw, 			y_down-y-thickness-sw,	col_shadow, 	0, 0, NULL, NULL},
 		
 		/* horizontal info line - */
-		{x,			y_down, 		width-thickness-sw, 	thickness, 		col_line, 	0, NULL, NULL, false, 0},
-		{x,			y_down+thickness, 	width-thickness-sw,	sw, 			col_shadow, 	0, NULL, NULL, false, 0},
+		{CC_FBDATA_TYPE_LINE, x,			y_down, 		width-thickness-sw, 	thickness, 		col_body, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x,			y_down+thickness, 	width-thickness-sw,	sw, 			col_shadow, 	0, 0, NULL, NULL},
 		
 		/* vertical info mark | */
-		{x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_line, 	0, NULL, NULL, false, 0},
-		{x+width-sw,		y_mark_down, 		sw, 			h_mark_down, 		col_shadow, 	0, NULL, NULL, false, 0},
-		{x+width-thickness-sw,	y_mark_down+h_mark_down,thickness+sw, 		sw,	 		col_shadow, 	0, NULL, NULL, false, 0},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down, 		thickness, 		h_mark_down, 		col_body, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-sw,		y_mark_down, 		sw, 			h_mark_down, 		col_shadow, 	0, 0, NULL, NULL},
+		{CC_FBDATA_TYPE_LINE, x+width-thickness-sw,	y_mark_down+h_mark_down,thickness+sw, 		sw,	 		col_shadow, 	0, 0, NULL, NULL},
 	};
 	
-	paintFbItems(fbdata, DLINE_ITEMS_COUNT, do_save_bg);
+	items_cnt = sizeof(fbdata) / sizeof(fbdata[0]);
+	
+	paintFbItems(fbdata, items_cnt, do_save_bg);
 }
 
-//remove painted lines from screen
-void CComponentsDetailLine::hide()
+//remove painted fb items from screen
+void CComponentsDetailLine::paintBackground()
 {
-	//caching current colors
+	//save current colors
 	fb_pixel_t c_tmp1, c_tmp2;
-	c_tmp1 = col_line;
-	c_tmp2 = col_shadow;
-	
-	//set background color
-	col_line = col_shadow = COL_BACKGROUND;
-	
-	//paint with background and restore, set last used colors
-	paint(false);
-	col_line = c_tmp1;
-	col_shadow = c_tmp2;
-}
-
-
-//-------------------------------------------------------------------------------------------------------
-//sub class CComponentsInfoBox
-CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
-{
-	x 		= x_pos;
-	y 		= y_pos;
-	width 		= w;
-	height	 	= h;
-	rad 		= 0;
-	shadow		= has_shadow;
-	col_frame 	= color_frame;
-	col_body	= color_body;
-	col_shadow	= color_shadow;
-	fr_thickness	= 2;
-	firstPaint	= true;
-	v_infobox_val.clear();
-}
-
-#define INFOBOX_ITEMS_COUNT 3	
-void CComponentsInfoBox::paint(bool do_save_bg, bool fullPaint)
-{
-	clear();
-	rad = RADIUS_LARGE;
-
-	comp_fbdata_t fbdata[INFOBOX_ITEMS_COUNT] =
-	{
-		{x+SHADOW_OFFSET,	y+SHADOW_OFFSET, 	width, 			height, 		col_shadow, 	rad, NULL, NULL, false, 0},
-		{x, 			y, 			width, 			height, 		col_frame, 	rad, NULL, NULL, false, 0},
-		{x+fr_thickness,	y+fr_thickness, 	width-2*fr_thickness, 	height-2*fr_thickness, 	col_body, 	rad, NULL, NULL, false, 0},
-	};
-
-	int start = (shadow) ? 0 : 1;
-	if (firstPaint) {
-		if (do_save_bg) {
-			v_infobox_val.clear();
-			for(int i = start; i < INFOBOX_ITEMS_COUNT; i++) {
-				fbdata[i].pixbuf = saveScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
-				v_infobox_val.push_back(fbdata[i]);
-				fbdata[i].pixbuf = NULL;
-			}
-		}
-		// paint infobox full
-		paintFbItems((comp_fbdata_t*)&fbdata[start], INFOBOX_ITEMS_COUNT - start, false);
-		firstPaint = false;
-	}
-	else {
-		if (fullPaint)
-			// paint infobox full
-			paintFbItems((comp_fbdata_t*)&fbdata[start], INFOBOX_ITEMS_COUNT - start, false);
-		else
-			// paint body only
-			paintFbItems((comp_fbdata_t*)&fbdata[INFOBOX_ITEMS_COUNT - 1], 1, false);
-	}
-}
-
-//restore infobox
-void CComponentsInfoBox::restore(bool clear_)
-{
-	if (!v_infobox_val.empty()) {
-		for(size_t i =0; i< v_infobox_val.size() ;i++) {
-			if (v_infobox_val[i].pixbuf != NULL) {
-				frameBuffer->RestoreScreen(v_infobox_val[i].x, v_infobox_val[i].y, v_infobox_val[i].dx, v_infobox_val[i].dy, v_infobox_val[i].pixbuf);
-				if (clear_)
-					delete[] v_infobox_val[i].pixbuf;
-			}
-		}
-		if (clear_) {
-			v_infobox_val.clear();
-			firstPaint = true;
-		}
-	}
-}
-
-void CComponentsInfoBox::hide()
-{
-	//caching current colors
-	fb_pixel_t c_tmp1, c_tmp2, c_tmp3;
 	c_tmp1 = col_body;
 	c_tmp2 = col_shadow;
-	c_tmp3 = col_frame;
 
 	//set background color
-	col_body = col_frame = col_shadow = COL_BACKGROUND;
+	col_body = col_shadow = COL_BACKGROUND;
 
 	//paint with background and restore, set last used colors
-	paint(false, true);
+	paint(CC_SAVE_SCREEN_NO);
 	col_body = c_tmp1;
 	col_shadow = c_tmp2;
-	col_frame = c_tmp3;
+	firstPaint = true;
 }
+
+
+
