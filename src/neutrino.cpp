@@ -1719,7 +1719,42 @@ void CNeutrinoApp::InitSectiondClient()
 	g_Sectionsd->registerEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, 222, NEUTRINO_UDS_NAME);
 }
 
-extern bool timer_wakeup;//timermanager.cpp
+#if HAVE_COOL_HARDWARE
+#include <coolstream/cs_vfd.h>
+#endif
+
+void wake_up( bool &wakeup)
+{
+#if HAVE_COOL_HARDWARE
+#ifndef FP_IOCTL_CLEAR_WAKEUP_TIMER
+#define FP_IOCTL_CLEAR_WAKEUP_TIMER 10
+#endif
+
+#define FP_IOCTL_SET_RTC         0x101
+#define FP_IOCTL_GET_RTC         0x102
+
+	int fd = open("/dev/display", O_RDONLY);
+	if (fd < 0) {
+		perror("/dev/display");
+	} else {
+		wakeup_data_t wk;
+		memset(&wk, 0, sizeof(wk));
+		int ret = ioctl(fd, IOC_VFD_GET_WAKEUP, &wk);
+		if(ret >= 0)
+			wakeup = ((wk.source == WAKEUP_SOURCE_TIMER) /* || (wk.source == WAKEUP_SOURCE_PWLOST)*/);
+		close(fd);
+	}
+	printf("[timerd] wakeup from standby: %s\n", wakeup ? "yes" : "no");
+	if(!wakeup){
+		const char *neutrino_leave_deepstandby_script = CONFIGDIR "/deepstandby.off";
+		printf("[%s] executing %s\n",__FILE__ ,neutrino_leave_deepstandby_script);
+		if (system(neutrino_leave_deepstandby_script) != 0)
+			perror( neutrino_leave_deepstandby_script );
+	}
+#endif
+
+}
+
 int CNeutrinoApp::run(int argc, char **argv)
 {
 	CmdParser(argc, argv);
@@ -1788,7 +1823,9 @@ TIMER_START();
 	g_Zapit->setStandby(false);
 
 	//timer start
-	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) NULL);
+	bool timer_wakeup = false;
+	wake_up( timer_wakeup );
+	pthread_create (&timer_thread, NULL, timerd_main_thread, (void *) timer_wakeup);
 
 	init_cec_setting = true;
 	if(!(g_settings.shutdown_timer_record_type && timer_wakeup && g_settings.hdmi_cec_mode)){
