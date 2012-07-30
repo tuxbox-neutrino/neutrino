@@ -219,7 +219,7 @@ void CHintBoxExt::paint(bool toround)
 	}
 
 	m_window = new CFBWindow(getScreenStartX(m_width + SHADOW_OFFSET),
-				 getScreenStartY(m_height + SHADOW_OFFSET) / 2,
+				 getScreenStartY(m_height + SHADOW_OFFSET),
 				 m_width + SHADOW_OFFSET,
 				 m_height + SHADOW_OFFSET);
 
