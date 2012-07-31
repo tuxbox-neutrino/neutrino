@@ -159,6 +159,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		scan_flags |= CServiceScan::SCAN_RESET_NUMBERS;
 	if(scansettings.scan_logical_numbers)
 		scan_flags |= CServiceScan::SCAN_LOGICAL_NUMBERS;
+	if(scansettings.scan_logical_hd)
+		scan_flags |= CServiceScan::SCAN_LOGICAL_HD;
 
 	/* channel types to scan, TV/RADIO/ALL */
 	scan_flags |= scansettings.scanType;
