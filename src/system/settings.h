@@ -677,6 +677,7 @@ public:
 	int		scan_fta_flag;
 	int		scan_reset_numbers;
 	int		scan_logical_numbers;
+	int		scan_logical_hd;
 	int		TP_fec;
 	int		TP_pol;
 	int		TP_mod;
