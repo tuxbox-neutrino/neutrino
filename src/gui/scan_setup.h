@@ -32,6 +32,7 @@
 
 #include <gui/widget/menue.h>
 #include <gui/widget/icons.h>
+#include <gui/widget/stringinput_ext.h>
 
 #include <system/setting_helpers.h>
 #include <system/settings.h>
@@ -57,6 +58,8 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		CMenuForwarder  *frontendSetup;
 		CMenuForwarder  *fsatSetup;
 		CMenuOptionNumberChooser * ojDiseqcRepeats;
+		CIntInput * nid;
+		CMenuOptionChooser * lcnhd;
 
 		/* variables for selected frontend */
 		/* diseqc mode */
@@ -82,8 +85,8 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
 		int showFrontendSetup(int number);
 		int showScanMenuLnbSetup();
 		int showScanMenuSatFind();
-		void fillSatSelect();
-		void fillCableSelect();
+		void fillSatSelect(CMenuOptionStringChooser *select);
+		void fillCableSelect(CMenuOptionStringChooser *select);
 
 		void addScanMenuFrontendSetup(CMenuWidget *settings);
  		void addScanMenuTempSat(CMenuWidget *temp_sat, sat_config_t &satconfig);
@@ -93,6 +96,7 @@ class CScanSetup : public CMenuTarget, public CChangeObserver
  		void addScanMenuFastScan(CMenuWidget *fast_ScanMenu);
 #endif
  		void addScanMenuAutoScan(CMenuWidget *auto_Scan);
+		void addScanMenuCable(CMenuWidget *menu);
 
 		int addScanOptionsItems(CMenuWidget *options_menu, const int &shortcut = 1);
 		int addListFlagsItems(CMenuWidget *listflags_menu, const int &shortcut = 1, bool manual = false);

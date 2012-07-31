@@ -45,7 +45,6 @@
 
 #include "gui/widget/hintbox.h"
 #include "gui/widget/stringinput.h"
-#include "gui/widget/stringinput_ext.h"
 
 #include <driver/screen_max.h>
 #include <driver/framebuffer.h>
@@ -221,6 +220,7 @@ CScanSetup::CScanSetup(bool wizard_mode)
 
 	satSelect 	= NULL;
 	frontendSetup	= NULL;
+	nid		= NULL;
 }
 
 CScanSetup* CScanSetup::getInstance()
@@ -281,6 +281,21 @@ int CScanSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	//starting scan
+	if(actionKey=="cable") {
+		printf("[neutrino] CScanSetup::%s: simple cable scan\n", __FUNCTION__);
+		saveScanSetup();
+		/* for simple cable scan, force some options */
+		scansettings.scan_reset_numbers = 0;
+		scansettings.scan_nit_manual = 1;
+		scansettings.scan_fta_flag = 0;
+		if (scansettings.scan_logical_numbers) {
+			g_settings.keep_channel_numbers = 1;
+			CServiceManager::getInstance()->KeepNumbers(g_settings.keep_channel_numbers);
+		}
+		CScanTs scanTs;
+		scanTs.exec(NULL, "manual");
+		return res;
+	}
 	std::string scants_key[] = {"all", "manual", "test", "fast", "auto"/*doesn't exists in CScanTs!*/};
 
 	for (uint i=0; i< (sizeof(scants_key)/sizeof(scants_key[0])); i++)
@@ -363,7 +378,7 @@ int CScanSetup::showScanMenu()
 	settings->addItem(mc);
 
 	//sat/provider selector
-	satSelect = new CMenuOptionStringChooser(satprov_locale, scansettings.satNameNoDiseqc, true, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	satSelect = new CMenuOptionStringChooser(satprov_locale, scansettings.satNameNoDiseqc, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 	satOnOff = new CMenuWidget(satprov_locale, NEUTRINO_ICON_SETTINGS, width);
 
 	if (r_system == DVB_S) //sat
@@ -376,7 +391,7 @@ int CScanSetup::showScanMenu()
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_FESETUP);
 		settings->addItem(mf);
 		/* add configured satellites to satSelect */
-		fillSatSelect();
+		fillSatSelect(satSelect);
 	}
 	else if (r_system == DVB_C) //cable
 	{
@@ -384,7 +399,7 @@ int CScanSetup::showScanMenu()
 		//--------------------------------------------------------------
 		settings->addItem(GenericMenuSeparatorLine);
 		//--------------------------------------------------------------
-		fillCableSelect();
+		fillCableSelect(satSelect);
 		//tune timeout
 		CMenuOptionNumberChooser * nc = new CMenuOptionNumberChooser(LOCALE_EXTRA_ZAPIT_FE_TIMEOUT, (int *)&zapitCfg.feTimeout, true, 6, 100);
 		nc->setHint("", LOCALE_MENU_HINT_SCAN_FETIMEOUT);
@@ -395,6 +410,7 @@ int CScanSetup::showScanMenu()
 			mc->setHint("", LOCALE_MENU_HINT_SCAN_FEMODE);
 			settings->addItem(mc);
 		}
+		nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 	}
 	//--------------------------------------------------------------
 	settings->addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_SCANTS_PREVERENCES_SCAN));
@@ -438,12 +454,21 @@ int CScanSetup::showScanMenu()
 		settings->addItem(mf);
 #endif /*ENABLE_FASTSCAN*/
 	}
+	else if (r_system == DVB_C) //cable
+	{
+		CMenuWidget * cableScan = new CMenuWidget(LOCALE_SATSETUP_CABLE, NEUTRINO_ICON_SETTINGS, w/*width*/, MN_WIDGET_ID_SCAN_CABLE_SCAN);
+		addScanMenuCable(cableScan);
+		CMenuForwarder * fcableScan = new CMenuDForwarder(LOCALE_SATSETUP_CABLE, true, NULL, cableScan, "", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+		fcableScan->setHint("", LOCALE_MENU_HINT_SCAN_CABLE_SIMPLE);
+		settings->addItem(fcableScan);
+	}
 
 	int res = settings->exec(NULL, "");
 
 	//delete satSelect;
 	delete satOnOff;
 	delete settings;
+	delete nid;
 	return res;
 }
 
@@ -577,7 +602,7 @@ int CScanSetup::showFrontendSetup(int number)
 	feselected = setupMenu->getSelected();
 
 	/* add configured satellites to satSelect in case they changed */
-	fillSatSelect();
+	fillSatSelect(satSelect);
 
 	delete setupMenu;
 	return res;
@@ -635,12 +660,12 @@ int CScanSetup::showScanMenuLnbSetup()
 	return res;
 }
 
-void CScanSetup::fillSatSelect()
+void CScanSetup::fillSatSelect(CMenuOptionStringChooser * select)
 {
 	std::set<int> satpos;
 	std::set<int>::iterator tmpit;
 
-	satSelect->removeOptions();
+	select->removeOptions();
 
 	satOnOff->resetWidget(true);
 	satOnOff->addIntroItems();
@@ -654,7 +679,7 @@ void CScanSetup::fillSatSelect()
 			tmpit = satpos.find(sit->first);
 			if(sit->second.configured && tmpit == satpos.end()) {
 				std::string satname = CServiceManager::getInstance()->GetSatelliteName(sit->first);
-				satSelect->addOption(satname.c_str());
+				select->addOption(satname.c_str());
 				satpos.insert(sit->first);
 
 				if (!sfound && strcmp(scansettings.satNameNoDiseqc, satname.c_str()) == 0)
@@ -681,7 +706,7 @@ void CScanSetup::fillSatSelect()
 }
 
 //init cable provider menu
-void CScanSetup::fillCableSelect()
+void CScanSetup::fillCableSelect(CMenuOptionStringChooser * select)
 {
 	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
 	//don't misunderstand the name "satSelect", in this context it's actually for cable providers
@@ -690,7 +715,7 @@ void CScanSetup::fillCableSelect()
 	for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); sit++)
 	{
 		printf("Adding cable menu for %s position %d\n", sit->second.name.c_str(), sit->first);
-		satSelect->addOption(sit->second.name.c_str());
+		select->addOption(sit->second.name.c_str());
 
 		if (!sfound && strcmp(scansettings.satNameNoDiseqc, sit->second.name.c_str()) == 0)
 			sfound = true;
@@ -808,8 +833,11 @@ void CScanSetup::addScanMenuManualScan(CMenuWidget *manual_Scan)
 	//----------------------------------------------------------------------
 	manual_Scan->addItem(satSelect);
 	if (r_system == DVB_C)  { //cable
+#if 0
 		CIntInput* nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 		mf = new CMenuDForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
+#endif
+		mf = new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
 		manual_Scan->addItem(mf);
 	}
@@ -901,8 +929,11 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 
 	auto_Scan->addItem(satSelect);
 	if (r_system == DVB_C)  { //cable
+#if 0
 		CIntInput* nid = new CIntInput(LOCALE_SATSETUP_CABLE_NID, (int&) scansettings.cable_nid, 5, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE);
 		mf = new CMenuDForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
+#endif
+		mf = new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
 		mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
 		auto_Scan->addItem(mf);
 	}
@@ -914,6 +945,63 @@ void CScanSetup::addScanMenuAutoScan(CMenuWidget *auto_Scan)
 	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "auto", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
 	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
 	auto_Scan->addItem(mf);
+}
+
+//init simple cable scan menu
+void CScanSetup::addScanMenuCable(CMenuWidget *menu)
+{
+	printf("[neutrino] CScanSetup call %s...\n", __FUNCTION__);
+	int shortCut = 1;
+	CMenuForwarder * mf;
+
+	menu->addIntroItems();
+	//----------------------------------------------------------------------
+	CMenuOptionStringChooser * select = new CMenuOptionStringChooser(satprov_locale, scansettings.satNameNoDiseqc, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
+	fillCableSelect(select);
+	menu->addItem(select);
+
+	mf = new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_NID);
+	menu->addItem(mf);
+
+	mf = new CMenuDForwarder(LOCALE_SCANTS_SELECT_TP, true, NULL, new CTPSelectHandler(), "test", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_TPSELECT);
+	menu->addItem(mf);
+
+	menu->addItem(GenericMenuSeparatorLine);
+
+	CStringInput		*freq	= new CStringInput(LOCALE_EXTRA_TP_FREQ, (char *) scansettings.TP_freq, freq_length, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+	CMenuForwarder		*Freq 	= new CMenuDForwarder(LOCALE_EXTRA_TP_FREQ, true, scansettings.TP_freq, freq, "", CRCInput::convertDigitToKey(shortCut++));
+	Freq->setHint("", LOCALE_MENU_HINT_SCAN_FREQ);
+
+	CStringInput		*rate 	= new CStringInput(LOCALE_EXTRA_TP_RATE, (char *) scansettings.TP_rate, 8, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789");
+	CMenuForwarder		*Rate 	= new CMenuDForwarder(LOCALE_EXTRA_TP_RATE, true, scansettings.TP_rate, rate, "", CRCInput::convertDigitToKey(shortCut++));
+	Rate->setHint("", LOCALE_MENU_HINT_SCAN_RATE);
+
+	CMenuOptionChooser * mod_pol = new CMenuOptionChooser(LOCALE_EXTRA_TP_MOD, (int *)&scansettings.TP_mod, SATSETUP_SCANTP_MOD, SATSETUP_SCANTP_MOD_COUNT, true, NULL, CRCInput::convertDigitToKey(shortCut++));
+	mod_pol->setHint("", LOCALE_MENU_HINT_SCAN_MOD);
+
+	menu->addItem(Freq);
+	menu->addItem(Rate);
+	menu->addItem(mod_pol);
+
+	CMenuOptionChooser *lcn  = new CMenuOptionChooser(LOCALE_SATSETUP_LOGICAL_NUMBERS, (int *)&scansettings.scan_logical_numbers, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::convertDigitToKey(shortCut++));
+	lcn->setHint("", LOCALE_MENU_HINT_SCAN_LOGICAL);
+	menu->addItem(lcn);
+
+	lcnhd  = new CMenuOptionChooser(LOCALE_SATSETUP_LOGICAL_HD, (int *)&scansettings.scan_logical_hd, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, scansettings.scan_logical_numbers, NULL, CRCInput::convertDigitToKey(shortCut++));
+	lcnhd->setHint("", LOCALE_MENU_HINT_SCAN_LOGICAL_HD);
+	menu->addItem(lcnhd);
+
+	menu->addItem(GenericMenuSeparatorLine);
+#if 0
+	mf = new CMenuForwarder(LOCALE_SCANTS_TEST, allow_start, NULL, this, "test", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_TEST);
+	menu->addItem(mf);
+#endif
+	mf = new CMenuForwarder(LOCALE_SCANTS_STARTNOW, allow_start, NULL, this, "cable", CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf->setHint("", LOCALE_MENU_HINT_SCAN_START);
+	menu->addItem(mf);
 }
 
 //create scan options items
@@ -1012,6 +1100,8 @@ void CScanSetup::saveScanSetup()
 
 bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*/)
 {
+	bool ret = false;
+
 	if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_USE_USALS)) {
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		printf("[neutrino] CScanSetup::%s: all usals %d \n", __FUNCTION__, all_usals);
@@ -1026,27 +1116,12 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		fautoScanAll->setActive(dmode != NO_DISEQC);
 		if(dmode == NO_DISEQC) {
 			ojDiseqcRepeats->setActive(false);
-#if 0
-			itemsForAnyDiseqc.Activate(false);
-			itemsForAdvancedDiseqc.Activate(false);
-			itemsForNonAdvancedDiseqc.Activate(false);
-#endif
 		}
 		else if(dmode < DISEQC_ADVANCED) {
 			ojDiseqcRepeats->setActive(true);
-#if 0
-			itemsForAnyDiseqc.Activate(true);
-			itemsForAdvancedDiseqc.Activate(false);
-			itemsForNonAdvancedDiseqc.Activate(true);
-#endif
 		}
 		else if(dmode == DISEQC_ADVANCED) {
 			ojDiseqcRepeats->setActive(true);
-#if 0
-			itemsForAnyDiseqc.Activate(true);
-			itemsForAdvancedDiseqc.Activate(true);
-			itemsForNonAdvancedDiseqc.Activate(false);
-#endif
 		}
 		CFrontend * fe = CFEManager::getInstance()->getFE(fenumber);
 		fe->setDiseqcType((diseqc_t) dmode);
@@ -1061,9 +1136,29 @@ bool CScanSetup::changeNotify(const neutrino_locale_t OptionName, void * /*data*
 		if(femode !=  CFEManager::FE_MODE_ALONE)
 			CFEManager::getInstance()->saveSettings(true);
 		if (r_system == DVB_S) //sat
-			fillSatSelect();
+			fillSatSelect(satSelect);
 	}
-	return false;
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_CABLESETUP_PROVIDER)) {
+		printf("[neutrino] CScanSetup::%s: new provider: [%s]\n", __FUNCTION__, scansettings.satNameNoDiseqc);
+		satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
+		for (sat_iterator_t sit = satmap.begin(); sit != satmap.end(); sit++)
+		{
+			if (strcmp(scansettings.satNameNoDiseqc, sit->second.name.c_str()) == 0) {
+				if(sit->second.cable_nid > 0) {
+					scansettings.cable_nid = sit->second.cable_nid;
+					nid->updateValue();
+					ret = true;
+				}
+
+				break;
+			}
+		}
+	}
+	else if(ARE_LOCALES_EQUAL(OptionName, LOCALE_SATSETUP_LOGICAL_NUMBERS)) {
+printf("[neutrino] CScanSetup::%s: logical numbers %d\n", __FUNCTION__, scansettings.scan_logical_numbers);
+		lcnhd->setActive(scansettings.scan_logical_numbers);
+	}
+	return ret;
 }
 
 void CScanSetup::updateManualSettings()
