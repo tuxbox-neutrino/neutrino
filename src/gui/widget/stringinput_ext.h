@@ -226,8 +226,7 @@ class CIntInput : public CExtendedInput
 		char* getValue() {
 			return myValueStringOutput;
 		}
+		void updateValue() { onBeforeExec(); }
 };
-
-
 
 #endif
