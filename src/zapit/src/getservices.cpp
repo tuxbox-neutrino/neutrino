@@ -580,6 +580,7 @@ bool CServiceManager::InitSatPosition(t_satellite_position position, char * name
 		satellitePositions[position].use_usals = 0;
 		satellitePositions[position].input = 0;
 		satellitePositions[position].configured = 0;
+		satellitePositions[position].cable_nid = 0;
 		if(name)
 			satellitePositions[position].name = name;
 		return true;
@@ -624,6 +625,7 @@ bool CServiceManager::LoadServices(bool only_current)
 			} else if(!(strcmp(xmlGetName(search), "cable"))) {
 				char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name);
+				satellitePositions[position].cable_nid = xmlGetNumericAttribute(search, "nid", 0);
 			}
 			ParseSatTransponders(frontendType, search, position);
 			position++;
