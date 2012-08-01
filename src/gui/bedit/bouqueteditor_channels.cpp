@@ -236,7 +236,7 @@ void CBEChannelWidget::clearItem2DetailsLine()
 
 void CBEChannelWidget::hide()
 {
-	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight+info_height);
+	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight);
 	clearItem2DetailsLine ();
 }
 
