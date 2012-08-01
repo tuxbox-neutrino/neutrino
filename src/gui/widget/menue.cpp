@@ -1145,6 +1145,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setYPos(ypos2);
 		info_box->setWidth(iwidth);
 		info_box->setColor(COL_MENUCONTENT_PLUS_6, COL_MENUCONTENTDARK_PLUS_0, COL_MENUCONTENTDARK_PLUS_0);
+		info_box->setCornerRadius(RADIUS_LARGE);
 	}
 	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
 	info_box->paint(savescreen, true);
