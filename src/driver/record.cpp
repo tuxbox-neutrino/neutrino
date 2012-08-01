@@ -295,7 +295,7 @@ bool CRecordInstance::Update()
 					EPG_AUDIO_PIDS audio_pids;
 
 					audio_pids.epgAudioPid = allpids.APIDs[i].pid;
-					audio_pids.epgAudioPidName = g_RemoteControl->current_PIDs.APIDs.empty() ? allpids.APIDs[i].desc : g_RemoteControl->current_PIDs.APIDs[i].desc;
+					audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
 					audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : 0;
 					audio_pids.selected = 0;
 					recMovieInfo->audioPids.push_back(audio_pids);
@@ -547,7 +547,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 		for(it = apid_list.begin(); it != apid_list.end(); ++it) {
 			if(allpids.APIDs[i].pid == it->apid) {
 				audio_pids.epgAudioPid = allpids.APIDs[i].pid;
-				audio_pids.epgAudioPidName = g_RemoteControl->current_PIDs.APIDs.empty() ? allpids.APIDs[i].desc : g_RemoteControl->current_PIDs.APIDs[i].desc;
+				audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
 				audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : 0;
 				audio_pids.selected = (audio_pids.epgAudioPid == channel->getAudioPid()) ? 1 : 0;
 				recMovieInfo->audioPids.push_back(audio_pids);
@@ -558,7 +558,7 @@ void CRecordInstance::FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis
 	if(recMovieInfo->audioPids.empty() && !allpids.APIDs.empty()) {
 		int i = 0;
 		audio_pids.epgAudioPid = allpids.APIDs[i].pid;
-		audio_pids.epgAudioPidName = g_RemoteControl->current_PIDs.APIDs.empty() ? allpids.APIDs[i].desc : g_RemoteControl->current_PIDs.APIDs[i].desc;
+		audio_pids.epgAudioPidName = allpids.APIDs[i].desc;
 		audio_pids.atype = allpids.APIDs[i].is_ac3 ? 1 : allpids.APIDs[i].is_aac ? 5 : 0;
 		audio_pids.selected = 1;
 		recMovieInfo->audioPids.push_back(audio_pids);
