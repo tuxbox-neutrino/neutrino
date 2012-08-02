@@ -175,7 +175,7 @@ record_error_msg_t CRecordInstance::Start(CZapitChannel * channel /*, APIDList &
 
 	record->Open();
 
-	if(!record->Start(fd, (unsigned short ) allpids.PIDs.vpid, (unsigned short *) apids, numpids)) {
+	if(!record->Start(fd, (unsigned short ) allpids.PIDs.vpid, (unsigned short *) apids, numpids, channel_id)) {
 		/* Stop do close fd */
 		record->Stop();
 		delete record;
@@ -1193,59 +1193,7 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			CMessageBox::mbrYes, CMessageBox::mbYes | CMessageBox::mbNo, NULL, 450, 30, false) == CMessageBox::mbrYes)
 		{
 			snprintf(rec_msg1, sizeof(rec_msg1)-1, "%s", g_Locale->getText(LOCALE_RECORDINGMENU_MULTIMENU_INFO_STOP_ALL));
-// focus: i think no sense for 2 loops, because this code run in the same thread as neutrino,
-// so neutrino dont have a chance to handle RECORD_STOP before this function returns
-#if 0 
-			int i = 0;
-			int recording_ids[RECORD_MAX_COUNT];
-			t_channel_id channel_ids[RECORD_MAX_COUNT];
-			t_channel_id channel_id;
-			recmap_iterator_t it;
 
-			mutex.lock();
-			for(it = recmap.begin(); it != recmap.end(); it++)
-			{
-				recording_ids[i] = 0;
-				channel_id = it->first;
-				CRecordInstance * inst = it->second;
-				
-				snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records-i, records);
-				inst-> SetStopMessage(rec_msg);
-				
-				if(inst)
-				{
-					channel_ids[i] = channel_id;
-					recording_ids[i] = inst->GetRecordingId();
-					printf("CRecordManager::exec(ExitAll line %d) found channel %llx recording_id %d\n", __LINE__, channel_ids[i], recording_ids[i]);
-					i++;
-				}
-				if (i >= RECORD_MAX_COUNT)
-					break;
-			}
-			mutex.unlock();
-			if (i > 0 && i < RECORD_MAX_COUNT)
-			{
-				for(int i2 = 0; i2 < i; i2++)
-				{
-					mutex.lock();
-					CRecordInstance * inst = FindInstance(channel_ids[i2]);
-					
-					snprintf(rec_msg, sizeof(rec_msg)-1, rec_msg1, records-i2, records);
-					inst-> SetStopMessage(rec_msg);
-					
-					if(inst == NULL || recording_ids[i2] != inst->GetRecordingId())
-					{
-						printf("CRecordManager::exec(ExitAll line %d) channel %llx event id %d not found\n", __LINE__, channel_ids[i2], recording_ids[i2]);
-					}else
-					{
-						usleep(500000);
-						printf("CRecordManager::exec(ExitAll line %d) stop channel %llx recording_id %d\n", __LINE__, channel_ids[i2], recording_ids[i2]);
-						g_Timerd->stopTimerEvent(recording_ids[i2]);
-					}
-					mutex.unlock();
-				}
-			}
-#endif
 			int i = 0;
 			mutex.lock();
 			for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
@@ -1468,32 +1416,6 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 		g_Zapit->setStandby(false); // this zap to live_channel_id
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-#if 0
-	if(live_channel_id != channel_id) {
-		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
-			printf("%s zapTo_record channel_id %llx\n", __FUNCTION__, channel_id);
-			ret = g_Zapit->zapTo_record(channel_id) > 0;
-		} else if(!recmap.empty()) {
-			ret = false;
-		} else {
-			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
-				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
-				// When we were on standby, then we need not wake up for streaming
-				if(last_mode == NeutrinoMessages::mode_standby)
-					CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , NeutrinoMessages::mode_standby);
-			}
-			ret = g_Zapit->zapTo_serviceID(channel_id) > 0;
-			printf("%s zapTo_serviceID channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
-
-			if(!ret)
-				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , last_mode);
-			else if(last_mode == NeutrinoMessages::mode_standby)
-				g_Zapit->stopPlayBack();
-		}
-		if(!ret)
-			printf("%s: failed to change channel\n", __FUNCTION__);
-	}
-#endif
 
 	bool mode_changed = false;
 	if(live_channel_id != channel_id) {
@@ -1552,17 +1474,6 @@ void CRecordManager::RestoreNeutrino(void)
 	/* after this zapit send EVT_RECORDMODE_DEACTIVATED, so neutrino getting NeutrinoMessages::EVT_RECORDMODE */
 	g_Zapit->setRecordMode( false );
 
-#if 0
-	/* if current mode not standby and current mode not mode saved at record start
-	 * and mode saved not standby - switch to saved mode.
-	 * Sounds wrong, because user can switch between radio and tv while record in progress ? */
-
-	if(CNeutrinoApp::getInstance()->getMode() != last_mode &&
-	   CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby &&
-	   last_mode != NeutrinoMessages::mode_standby)
-		if(!autoshift) 
-			g_RCInput->postMsg( NeutrinoMessages::CHANGEMODE , last_mode);
-#endif
 	if((CNeutrinoApp::getInstance()->getMode() != NeutrinoMessages::mode_standby) && StopSectionsd)
 		g_Sectionsd->setPauseScanning(false);
 }
