@@ -947,6 +947,7 @@ menu.hint_scan_autoall Scannen Sie ihre ausgewählten Anbieter auf einmal
 menu.hint_scan_autoall_select Nur in ausgewählten Satelliten scannen
 menu.hint_scan_bouquet erneuern: hinzufügen zu den Bouquets, löschen: entfernt alte Bouquets, nicht ändern: Neue werden in 'Andere' angefügt
 menu.hint_scan_cable Wählen Sie ihr Kabelnetz zum scannen
+menu.hint_scan_cable_simple Kabel-Scan mit optionaler Anbieter- und Kanal-Nummerierung
 menu.hint_scan_commited Wählen Sie ihre Einstellungen für diesen Satelliten
 menu.hint_scan_diseqc Wählen Sie DiSEqC-Schalter-Eingangssignal für diesen Satelliten
 menu.hint_scan_diseqcrepeat Diseqc Wiederholungen für kaskadierte Schaltungen,\nnutzen Sie die links/rechs Tasten
@@ -967,6 +968,8 @@ menu.hint_scan_lodirection Wählen Sie ihre Längengrad-Ausrichtung
 menu.hint_scan_lofh High-Banb LNB-Frequenz
 menu.hint_scan_lofl Low-Band LNB-Frequenz
 menu.hint_scan_lofs LNB-Band-Umschalter Frequenz
+menu.hint_scan_logical Verwenden Sie die Anbieter Kanal-Nummerierung
+menu.hint_scan_logical_hd Wenn sowohl der Kanal in SD und in HD verfügbar ist,\nwird HD nach oben in der Liste gesetzt
 menu.hint_scan_longitude Geben Sie ihren Längengrad ein
 menu.hint_scan_manual Manueller Transponder-Scan mit ausgewählten Parametern
 menu.hint_scan_mod Select transponder modulation
@@ -1490,6 +1493,7 @@ reset_confirm Sind Sie sich sicher?
 reset_settings Einstellungen auf Standardwerte
 satsetup.auto_scan Automatisch einen gewählten %s
 satsetup.auto_scan_all Automatisch alle Satelliten
+satsetup.cable Kabel-Scan
 satsetup.cable_nid Netzwerk ID
 satsetup.comm_input Committed Input
 satsetup.diseqc DiSEqC
@@ -1521,6 +1525,7 @@ satsetup.fe_setup Setup Tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
+satsetup.logical_hd Bevorzugete HD-Kanäle
 satsetup.logical_numbers Nutze logische Nummern
 satsetup.manual_scan Manueller Frequenzscan
 satsetup.minidiseqc Mini-DiSEqC
