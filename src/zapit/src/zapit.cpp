@@ -317,9 +317,6 @@ void CZapit::SendPMT(bool forupdate)
 		return;
 
 	CCamManager::getInstance()->Start(current_channel->getChannelID(), CCamManager::PLAY, forupdate);
-	int len;
-	unsigned char * pmt = current_channel->getRawPmt(len);
-	ca->SendPMT(DEMUX_SOURCE_0, pmt, len);
 }
 
 void CZapit::SaveChannelPids(CZapitChannel* channel)
@@ -397,43 +394,28 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 
 bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change)
 {
-	//CFrontend * frontend = CFEManager::getInstance()->allocateFE(channel);
-	if(frontend == NULL) {
-		ERROR("Cannot get frontend\n");
-		return false;
-	}
-	transponder_change = false;
-#if 0
-	if (!(currentMode & RECORD_MODE)) 
-#endif
-	{
-		transponder_change = frontend->setInput(channel, current_is_nvod);
-		if(transponder_change && !current_is_nvod) {
-			int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
-			if(waitForMotor > 0) {
-				printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
-				SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
-				for(int i = 0; i < waitForMotor; i++) {
-					sleep(1);
-					if(abort_zapit) {
-						abort_zapit = 0;
-						return false;
-					}
+	transponder_change = frontend->setInput(channel, current_is_nvod);
+	if(transponder_change && !current_is_nvod) {
+		int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
+		if(waitForMotor > 0) {
+			printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
+			SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
+			for(int i = 0; i < waitForMotor; i++) {
+				sleep(1);
+				if(abort_zapit) {
+					abort_zapit = 0;
+					return false;
 				}
 			}
 		}
+	}
 
-		/* if channel's transponder does not match frontend's tuned transponder ... */
-		if (transponder_change /* || current_is_nvod*/) {
-			if (frontend->tuneChannel(channel, current_is_nvod) == false) {
-				return false;
-			}
+	/* if channel's transponder does not match frontend's tuned transponder ... */
+	if (transponder_change /* || current_is_nvod*/) {
+		if (frontend->tuneChannel(channel, current_is_nvod) == false) {
+			return false;
 		}
-	} 
-#if 0
-	else if(!SAME_TRANSPONDER(channel->getChannelID(), live_channel_id))
-		return false;
-#endif
+	}
 	return true;
 }
 
@@ -488,7 +470,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	pmt_stop_update_filter(&pmt_update_fd);
 
-	ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_CI);
 	StopPlayBack(!forupdate);
 
 	if(!forupdate && current_channel)
@@ -679,11 +660,6 @@ void CZapit::SetRecordMode(bool enable)
 		event = CZapitClient::EVT_RECORDMODE_ACTIVATED;
 	} else {
 		currentMode &= ~RECORD_MODE;
-
-		int demux = 2;
-		if(current_channel)
-			demux = current_channel->getRecordDemux();
-		ca->SendPMT(demux /*DEMUX_SOURCE_2*/, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
 		event = CZapitClient::EVT_RECORDMODE_DEACTIVATED;
 	}
 	SendEvent(event);
@@ -1803,17 +1779,9 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 
 bool CZapit::StopPlayBack(bool send_pmt)
 {
-#if 1
-	if(send_pmt) {
+	if(send_pmt)
 		CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
-		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
-	}
-#endif
-#if 0
-	if (send_pmt && !(currentMode & RECORD_MODE)) 
-		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
-	CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
-#endif
+
 	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);
 
 	if (!playing)
