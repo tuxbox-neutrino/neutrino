@@ -1930,9 +1930,9 @@ void CAudioPlayerGui::paintItemID3DetailsLine (int pos)
 
 		// paint id3 infobox
 		if (ibox == NULL)
-			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height, false);
+			ibox = new CComponentsInfoBox(m_x, ypos2, m_width, m_info_height, CC_SHADOW_OFF);
 		ibox->setYPos(ypos2);
-		ibox->paint(false, true);
+		ibox->paint(false);
 
 		g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->RenderString(m_x + 10, ypos2 + 2 + 1*m_fheight, m_width- 80,
 				m_playlist[m_selected].MetaData.title, COL_MENUCONTENTDARK, 0, true); // UTF-8
