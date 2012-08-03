@@ -1105,12 +1105,9 @@ void CMenuWidget::paintHint(int pos)
 		if (details_line)
 			details_line->hide();
 		/* clear info box */
-		if (info_box)
-			info_box->hide(hint_painted);
+		if ((info_box) && (pos == -1))
+			info_box->hide(true);
 		hint_painted = false;
-	}
-	else if (info_box){
-		info_box->hide(hint_painted);
 	}
 	if (pos < 0)
 		return;
@@ -1124,7 +1121,7 @@ void CMenuWidget::paintHint(int pos)
 			if (savescreen)
 #endif
 		if (info_box)
-			info_box->hide();
+			info_box->hide(false);	
 #if 0				
 				info_box->restore();
 			else

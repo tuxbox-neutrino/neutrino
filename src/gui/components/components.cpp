@@ -32,6 +32,9 @@
 #include <neutrino.h>
 #include "cc.h"
 
+#include <video.h>
+
+extern cVideo * videoDecoder;
 
 using namespace std;
 
@@ -39,37 +42,65 @@ using namespace std;
 CComponents::CComponents()
 {
 	//basic CComponents
-	x = 0;
-	y = 0;
-	height 		= CC_HEIGHT_MIN;
-	width 		= CC_WIDTH_MIN;
-	col_body 	= COL_MENUCONTENT;
-	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
-	col_frame 	= COL_MENUCONTENT_PLUS_6;
-	corner_type 	= CORNER_ALL;
-	shadow		= CC_SHADOW_OFF;
-	shadow_w	= SHADOW_OFFSET;
-	firstPaint	= true;
-	frameBuffer = CFrameBuffer::getInstance();
+	x = saved_screen.x 	= 0;
+	y = saved_screen.y 	= 0;
+	height 			= saved_screen.dy = CC_HEIGHT_MIN;
+	width 			= saved_screen.dx = CC_WIDTH_MIN;
+	
+	col_body 		= COL_MENUCONTENT_PLUS_0;
+	col_shadow 		= COL_MENUCONTENTDARK_PLUS_0;
+	col_frame 		= COL_MENUCONTENT_PLUS_6;
+	corner_type 		= CORNER_ALL;
+	shadow			= CC_SHADOW_OFF;
+	shadow_w		= SHADOW_OFFSET;
+	
+	firstPaint		= true;
+	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
-	saved_screen	= NULL;
+	bgMode 			= CC_BGMODE_STANDARD;
+	saved_screen.pixbuf 	= NULL;
 }
 
 CComponents::~CComponents()
 {
+	hide();
+	if (saved_screen.pixbuf)
+		delete[] saved_screen.pixbuf;
 	clear();
 }
 
 //paint framebuffer stuff and fill buffer
 void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg)
 {
+	if (firstPaint && do_save_bg)	{
+		for(int i=0; i<items_count; i++){
+			if (fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
+				//printf("\n#####[%s - %d] firstPaint: %d, fbdata_type: %d\n \n", __FUNCTION__, __LINE__, firstPaint, fbdata[i].fbdata_type);
+				if (bgMode == CC_BGMODE_PERMANENT) {
+					saved_screen.x = fbdata[i].x;
+					saved_screen.y = fbdata[i].y;
+					saved_screen.dx = fbdata[i].dx;
+					saved_screen.dy = fbdata[i].dy;
+					if (saved_screen.pixbuf)
+						delete[] saved_screen.pixbuf;
+					saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
+				}
+				else {
+					fbdata[i].pixbuf = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
+				}
+				firstPaint = false;
+				break;
+			}
+		}
+	}
+	
 	for(int i=0; i< items_count ;i++){
 		int fbtype = fbdata[i].fbdata_type;
 		
 		if (firstPaint){
 			
 			if (do_save_bg && fbtype == CC_FBDATA_TYPE_LINE)
-				fbdata[i].pixbuf = saved_screen = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
+				fbdata[i].pixbuf = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
 			v_fbdata.push_back(fbdata[i]);
 			
 			//ensure painting of all line fb items with saved screens
@@ -81,6 +112,8 @@ void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_co
 		if (fbtype != CC_FBDATA_TYPE_BGSCREEN){
 			if (fbtype == CC_FBDATA_TYPE_FRAME && fbdata[i].frame_thickness > 0)
 				frameBuffer->paintBoxFrame(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].frame_thickness, fbdata[i].color, fbdata[i].r);
+			else if (fbtype == CC_FBDATA_TYPE_BACKGROUND)
+				frameBuffer->paintBackgroundBoxRel(x, y, fbdata[i].dx, fbdata[i].dy);
 			else
 				frameBuffer->paintBoxRel(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy, fbdata[i].color, fbdata[i].r, corner_type);
 		}
@@ -135,10 +168,9 @@ CComponentsContainer::CComponentsContainer()
 // 	 +--------width---------+
 
 
-void CComponentsContainer::paint(bool do_save_bg)
+void CComponentsContainer::paintInit(bool do_save_bg)
 {
-	int items_cnt = 0;
- 	clear();
+	clear();
 	
 	int sw = shadow ? shadow_w : 0;
 	int th = fr_thickness;
@@ -151,39 +183,53 @@ void CComponentsContainer::paint(bool do_save_bg)
 		{CC_FBDATA_TYPE_BOX, 		x+th,	y+th, 	width-2*th, 	height-2*th, 	col_body, 	corner_rad-th,  0, 	NULL,	NULL},
 	};
 	
-	items_cnt = sizeof(fbdata) / sizeof(fbdata[0]);
-	
-	if (firstPaint && do_save_bg)	{
-		for(int i=0; i<items_cnt; i++){
-			if (fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN){
-				fbdata[i].pixbuf = getScreen(fbdata[i].x, fbdata[i].y, fbdata[i].dx, fbdata[i].dy);
-				break;
-			}
-		}
-	}
+	int items_cnt = sizeof(fbdata) / sizeof(fbdata[0]);
 	
 	paintFbItems(fbdata, items_cnt, do_save_bg);
+}
+
+void CComponentsContainer::paint(bool do_save_bg)
+{
+	paintInit(do_save_bg);
 }
 
 //restore last saved screen behind form box,
 //Do use parameter 'no restore' to override temporarly the restore funtionality.
 //This could help to avoid ugly flicker efffects if it is necessary e.g. on often repaints, without changed contents.
-void CComponentsContainer::hide(bool no_restore)
+void CComponentsContainer::hideContainer(bool no_restore)
 {
-	if (no_restore)
-		return;
-	
-	for(size_t i =0; i< v_fbdata.size() ;i++) {
-		if (v_fbdata[i].pixbuf != NULL && v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN)
-			frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
-		delete[] v_fbdata[i].pixbuf;
+	if (bgMode == CC_BGMODE_PERMANENT) {
+		if (saved_screen.pixbuf) {
+			frameBuffer->RestoreScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy, saved_screen.pixbuf);
+			if (no_restore) {
+				delete[] saved_screen.pixbuf;
+				saved_screen.pixbuf = NULL;
+				firstPaint = true;
+			}
+		}
 	}
-	v_fbdata.clear();
-	firstPaint = true;
+	else {
+		if (no_restore)
+			return;
+
+		for(size_t i =0; i< v_fbdata.size() ;i++) {
+			if (v_fbdata[i].pixbuf != NULL && v_fbdata[i].fbdata_type == CC_FBDATA_TYPE_BGSCREEN)
+				frameBuffer->RestoreScreen(v_fbdata[i].x, v_fbdata[i].y, v_fbdata[i].dx, v_fbdata[i].dy, v_fbdata[i].pixbuf);
+			delete[] v_fbdata[i].pixbuf;
+		}
+		v_fbdata.clear();
+		firstPaint = true;
+	}
 }
 
+void CComponentsContainer::hide(bool no_restore)
+{
+	hideContainer(no_restore);
+}
+
+
 //hide rendered objects
-void CComponentsContainer::paintBackground()
+void CComponentsContainer::kill()
 {
 	//save current colors
 	fb_pixel_t c_tmp1, c_tmp2, c_tmp3;
@@ -202,6 +248,16 @@ void CComponentsContainer::paintBackground()
 	firstPaint = true;
 }
 
+//synchronize colors for forms
+//This is usefull if the system colors are changed during runtime
+//so you can ensure correct applied system colors in relevant objects with unchanged instances.
+void CComponentsContainer::syncSysColors()
+{
+	col_body 	= COL_MENUCONTENT_PLUS_0;
+	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
+	col_frame 	= COL_MENUCONTENT_PLUS_6;
+}
+
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox from CComponentsContainer
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
@@ -218,11 +274,73 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	col_shadow	= color_shadow;
 	firstPaint	= true;
 	v_fbdata.clear();
+	bgMode 		= CC_BGMODE_PERMANENT;
 	
 	//CComponentsContainer
 	corner_rad	= RADIUS_LARGE;
 	fr_thickness	= 2;
 }
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsShapeSquare from CComponentsContainer
+CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	//CComponents
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= w;
+	height	 	= h;
+	shadow		= has_shadow;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	firstPaint	= true;
+	v_fbdata.clear();
+	bgMode 		= CC_BGMODE_PERMANENT;
+
+	//CComponentsContainer
+	corner_rad	= 0;
+	fr_thickness	= 0;
+}
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsShapeCircle from CComponentsContainer
+CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+{
+	//CComponentsShapeCircle
+	d 		= diam;
+	
+	//CComponents
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= d;
+	height	 	= d;
+	shadow		= has_shadow;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= color_frame;
+	col_body	= color_body;
+	col_shadow	= color_shadow;
+	firstPaint	= true;
+	v_fbdata.clear();
+	bgMode 		= CC_BGMODE_PERMANENT;
+
+	//CComponentsContainer
+	corner_rad	= d/2;
+	fr_thickness	= 0;
+}
+
+// 	 y
+// 	x+	 -	 +
+// 
+// 
+// 
+// 	 |----d-i-a-m----|
+// 
+// 
+// 
+// 	 +	 -	 +
 
 
 //-------------------------------------------------------------------------------------------------------
@@ -250,6 +368,7 @@ CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_to
 
 CComponentsDetailLine::~CComponentsDetailLine()
 {
+	hide(); //restore background
 	clear();
 }
 
@@ -311,7 +430,7 @@ void CComponentsDetailLine::paint(bool do_save_bg)
 }
 
 //remove painted fb items from screen
-void CComponentsDetailLine::paintBackground()
+void CComponentsDetailLine::kill()
 {
 	//save current colors
 	fb_pixel_t c_tmp1, c_tmp2;
@@ -328,5 +447,62 @@ void CComponentsDetailLine::paintBackground()
 	firstPaint = true;
 }
 
+//synchronize colors for details line
+//This is usefull if the system colors are changed during runtime
+//so you can ensure correct applied system colors in relevant objects with unchanged instances.
+void CComponentsDetailLine::syncSysColors()
+{
+	col_body 	= COL_MENUCONTENT_PLUS_6;
+	col_shadow 	= COL_MENUCONTENTDARK_PLUS_0;
+}
 
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsPIP from CComponentsContainer
+CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow)
+{
+	//CComponentsPIP
+	screen_w = frameBuffer->getScreenWidth(true);
+	screen_h = frameBuffer->getScreenHeight(true);
+
+	//CComponents
+	x 		= x_pos;
+	y 		= y_pos;
+	width 		= percent*screen_w/100;
+	height	 	= percent*screen_h/100;
+	shadow		= has_shadow;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= COL_BACKGROUND;
+	col_body	= COL_BACKGROUND;
+	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
+	firstPaint	= true;
+	v_fbdata.clear();
+	bgMode 		= CC_BGMODE_PERMANENT;
+	
+	//CComponentsContainer
+	corner_rad	= 0;
+	fr_thickness	= 0;
+}
+
+CComponentsPIP::~CComponentsPIP()
+{
+	hide();
+// 	if (saved_screen.pixbuf)
+// 		delete[] saved_screen.pixbuf;
+	clear();
+	videoDecoder->Pig(-1, -1, -1, -1);
+}
+
+void CComponentsPIP::paint(bool do_save_bg)
+{
+	paintInit(do_save_bg);
+	videoDecoder->Pig(x+fr_thickness, y+fr_thickness, width-2*fr_thickness, height-2*fr_thickness, screen_w, screen_h);
+}
+
+
+void CComponentsPIP::hide(bool no_restore)
+{
+	hideContainer(no_restore);
+	videoDecoder->Pig(-1, -1, -1, -1);
+}
 
