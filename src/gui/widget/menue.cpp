@@ -1079,7 +1079,7 @@ void CMenuWidget::paintHint(int pos)
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
 	int iwidth = width+sb_width;
-
+#if 0
 	if (hint_painted) {
 		/* clear detailsline line */
 		// TODO CComponents::hide with param restore ? or auto (if it have saved screens) ?
@@ -1099,6 +1099,18 @@ void CMenuWidget::paintHint(int pos)
 			}
 		}
 		hint_painted = false;
+#endif
+	if (hint_painted) {
+		/* clear detailsline line */
+		if (details_line)
+			details_line->hide();
+		/* clear info box */
+		if (info_box)
+			info_box->hide(hint_painted);
+		hint_painted = false;
+	}
+	else if (info_box){
+		info_box->hide(hint_painted);
 	}
 	if (pos < 0)
 		return;
@@ -1107,12 +1119,18 @@ void CMenuWidget::paintHint(int pos)
 //printf("paintHint: icon %s text %s\n", item->hintIcon.c_str(), g_Locale->getText(item->hint));
 
 	if (item->hintIcon.empty() && item->hint == NONEXISTANT_LOCALE) {
+#if 0
 		if (info_box != NULL) {
 			if (savescreen)
+#endif
+		if (info_box)
+			info_box->hide();
+#if 0				
 				info_box->restore();
 			else
 				info_box->hide();
 		}
+#endif
 		return;
 	}
 
