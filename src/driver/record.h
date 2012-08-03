@@ -4,12 +4,11 @@
 	Copyright (C) 2001 Steffen Hehn 'McClean'
 	Copyright (C) 2011 CoolStream International Ltd
 
-	License: GPL
+	License: GPLv2
 
 	This program is free software; you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+	the Free Software Foundation;
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -105,7 +104,7 @@ class CRecordInstance
 		void FillMovieInfo(CZapitChannel * channel, APIDList & apid_lis);
 		record_error_msg_t MakeFileName(CZapitChannel * channel);
 		bool SaveXml();
-		record_error_msg_t Start(CZapitChannel * channel /*, APIDList &apid_list*/);
+		record_error_msg_t Start(CZapitChannel * channel);
 		void WaitRecMsg(time_t StartTime, time_t WaitTime);
 	public:		
 		CRecordInstance(const CTimerd::RecordingInfo * const eventinfo, std::string &dir, bool timeshift = false, bool stream_vtxt_pid = false, bool stream_pmt_pid = false);
@@ -117,6 +116,7 @@ class CRecordInstance
 
 		void SetRecordingId(int id) { recording_id = id; };
 		int GetRecordingId(void) { return recording_id; };
+		t_channel_id GetChannelId(void) { return channel_id; };
 		std::string GetEpgTitle(void) { return epgTitle; };
 		MI_MOVIE_INFO * GetMovieInfo(void) { return recMovieInfo; };
 		void GetRecordString(std::string& str);
@@ -128,7 +128,8 @@ class CRecordInstance
 		CFrontend *	frontend;
 };
 
-typedef std::map<t_channel_id, CRecordInstance*> recmap_t;
+typedef std::pair<int, CRecordInstance*> recmap_pair_t;
+typedef std::map<int, CRecordInstance*> recmap_t;
 typedef recmap_t::iterator recmap_iterator_t;
 
 typedef std::list<CTimerd::RecordingInfo *> nextmap_t;
@@ -158,7 +159,9 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool CheckRecording(const CTimerd::RecordingInfo * const eventinfo);
 		void StartNextRecording();
 		void StopPostProcess();
+		void StopInstance(CRecordInstance * inst, bool remove_event = true);
 		CRecordInstance * FindInstance(t_channel_id);
+		CRecordInstance * FindInstanceID(int recid);
 		void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
@@ -181,7 +184,7 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool Stop(const CTimerd::RecordingStopInfo * recinfo); 
 		bool Update(const t_channel_id channel_id);
 		bool ShowMenu(void);
-		bool AskToStop(const t_channel_id channel_id);
+		bool AskToStop(const t_channel_id channel_id, const int recid = 0);
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
 		bool StartAutoRecord();
 		bool StopAutoRecord();
