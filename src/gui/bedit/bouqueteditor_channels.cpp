@@ -229,9 +229,9 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 void CBEChannelWidget::clearItem2DetailsLine()
 {
 	if (dline != NULL)
-		dline->hide();
+		dline->paintBackground(); //kill details line
 	if (ibox != NULL)
-		ibox->hide();
+		ibox->paintBackground(); //kill info box
 }
 
 void CBEChannelWidget::hide()

@@ -80,11 +80,11 @@ CBEChannelSelectWidget::~CBEChannelSelectWidget()
 {
 	// clear details line
 	if (dline != NULL)
-		dline->hide();
+		dline->paintBackground();
 	delete dline;
 	// clear infobox
 	if (ibox != NULL)
-		ibox->hide();
+		ibox->paintBackground();
 	delete ibox;
 }
 
@@ -237,7 +237,7 @@ void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 
 	// clear details line
 	if (dline != NULL)
-		dline->hide();
+		dline->paintBackground();
 
 	// clear infobox
 	if (ibox != NULL)
