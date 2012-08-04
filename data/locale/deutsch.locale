@@ -968,11 +968,11 @@ menu.hint_scan_lodirection Wählen Sie ihre Längengrad-Ausrichtung
 menu.hint_scan_lofh High-Banb LNB-Frequenz
 menu.hint_scan_lofl Low-Band LNB-Frequenz
 menu.hint_scan_lofs LNB-Band-Umschalter Frequenz
-menu.hint_scan_logical Verwenden Sie die Anbieter Kanal-Nummerierung
-menu.hint_scan_logical_hd Wenn sowohl der Kanal in SD und in HD verfügbar ist,\nwird HD nach oben in der Liste gesetzt
+menu.hint_scan_logical Verwenden Sie die Kanal-Nummerierung des Anbieters
+menu.hint_scan_logical_hd Wenn der Kanal in SD und in HD verfügbar ist,\nwird HD nach oben in der Liste gesetzt
 menu.hint_scan_longitude Geben Sie ihren Längengrad ein
 menu.hint_scan_manual Manueller Transponder-Scan mit ausgewählten Parametern
-menu.hint_scan_mod Select transponder modulation
+menu.hint_scan_mod Wählen Sie eine Transponder-Modulation
 menu.hint_scan_motor_speed Rotor-Bewegungsgeschwindigkeit in 1/10 Grad pro Sekunde
 menu.hint_scan_motorpos Wählen Sie eine gespeicherten Positions-Nummer für diesen Satelliten
 menu.hint_scan_nid Hier können Sie ihre Kabelnetzwerk-Id in dezimal eingeben
@@ -1525,7 +1525,7 @@ satsetup.fe_setup Setup Tuner
 satsetup.lofh LNB High Offset
 satsetup.lofl LNB Low Offset
 satsetup.lofs LNB Switch Offset
-satsetup.logical_hd Bevorzugete HD-Kanäle
+satsetup.logical_hd HD-Kanäle bevorzugen
 satsetup.logical_numbers Nutze logische Nummern
 satsetup.manual_scan Manueller Frequenzscan
 satsetup.minidiseqc Mini-DiSEqC
