@@ -178,11 +178,11 @@ void netGetDefaultRoute( char *ip )
 	fclose(fp);
 }
 
-static	char	dombuf[256];
 static	char	hostbuf[256];
-static	char	domis=0;
 static	char	hostis=0;
 #if 0 
+static	char	dombuf[256];
+static	char	domis=0;
 //never used
 char	*netGetDomainname( void )
 {
