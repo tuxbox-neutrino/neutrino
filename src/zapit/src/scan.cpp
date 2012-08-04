@@ -625,7 +625,8 @@ bool CServiceScan::ScanTransponder()
 
 	return (found_channels != 0);
 }
-
+#if 0 
+//never used
 bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, struct dvb_frontend_parameters * feparams, uint8_t polarization)
 {
 	bool ret = false;
@@ -643,7 +644,7 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 	}
 	return ret;
 }
-
+#endif
 void CServiceScan::SendTransponderInfo(transponder &t)
 {
 	uint32_t  actual_freq = t.feparams.dvb_feparams.frequency;

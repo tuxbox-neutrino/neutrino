@@ -3841,7 +3841,8 @@ int find_gop(unsigned char *buf, int r)
 	}
 	return -1;
 }
-
+#if 0 
+//never used
 off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize)
 {
 	off64_t cur = lseek64 (fd, 0, SEEK_CUR);
@@ -3852,7 +3853,7 @@ off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize)
 	else
 		return size;
 }
-
+#endif
 #define PSI_SIZE 188*3
 static int read_psi(char * spart, unsigned char * buf)
 {

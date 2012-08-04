@@ -375,6 +375,8 @@ CChannelEventList CSectionsdClient::getChannelEvents(const bool tv_mode, t_chann
 	 3: keyword search in EPG description (INFO2)
   In case of a match, the EPG event is added to the Eventlist eList.
   */
+#if 0 
+//never used
 bool CSectionsdClient::getEventsServiceKeySearchAdd(CChannelEventList& eList,const t_channel_id channel_id,char search_typ,std::string& search_text)
 {
 	int nBufSize=0;
@@ -435,7 +437,7 @@ bool CSectionsdClient::getEventsServiceKeySearchAdd(CChannelEventList& eList,con
 	close_connection();
 	return true;
 }
-
+#endif
 CChannelEventList CSectionsdClient::getEventsServiceKey(const t_channel_id channel_id)
 {
 	CChannelEventList eList;
@@ -479,6 +481,8 @@ CChannelEventList CSectionsdClient::getEventsServiceKey(const t_channel_id chann
 	close_connection();
 	return eList;
 }
+#if 0 
+//never used
 void showhexdumpa (char *label, unsigned char * from, int len)
 {
   int i, j, k;
@@ -519,7 +523,7 @@ void showhexdumpa (char *label, unsigned char * from, int len)
   }
   printf ("\n");
 }
-
+#endif
 // 21.07.2005 - rainerk
 // Convert line-terminated extended events to vector of strings
 char * CSectionsdClient::parseExtendedEvents(char * dp, CEPGData * epgdata) {

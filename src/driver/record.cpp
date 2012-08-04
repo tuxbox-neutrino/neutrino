@@ -1546,7 +1546,7 @@ bool CRecordManager::changeNotify(const neutrino_locale_t OptionName, void * /*d
 	}
 	return ret;
 }
-
+#if 0
 /* this is saved copy of neutrino code which seems was not used for some time */
 bool CRecordManager::ChooseRecDir(std::string &dir)
 {
@@ -1575,7 +1575,7 @@ bool CRecordManager::ChooseRecDir(std::string &dir)
 	}
 	return doRecord;
 }
-
+#endif
 bool CRecordManager::MountDirectory(const char *recordingDir)
 {
 	bool ret = true;

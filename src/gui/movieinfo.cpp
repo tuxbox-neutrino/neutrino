@@ -321,6 +321,8 @@ bool CMovieInfo::loadMovieInfo(MI_MOVIE_INFO * movie_info, CFile * file)
 /************************************************************************
 
 ************************************************************************/
+#if 0 
+//never used
 bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 {
 #ifndef XMLTREE_LIB
@@ -413,7 +415,7 @@ bool CMovieInfo::parseXmlTree(char */*text*/, MI_MOVIE_INFO * /*movie_info*/)
 #endif /* XMLTREE_LIB */
 	return (true);
 }
-
+#endif
 /************************************************************************
 
 ************************************************************************/
@@ -513,6 +515,8 @@ void CMovieInfo::showMovieInfo(MI_MOVIE_INFO & movie_info)
 /************************************************************************
 
 ************************************************************************/
+#if 0 
+//never used
 void CMovieInfo::printDebugMovieInfo(MI_MOVIE_INFO & movie_info)
 {
 	TRACE(" FileName: %s", movie_info.file.Name.c_str());
@@ -561,7 +565,7 @@ void CMovieInfo::printDebugMovieInfo(MI_MOVIE_INFO & movie_info)
 		}
 	}
 }
-
+#endif
 /************************************************************************
 
 ************************************************************************/

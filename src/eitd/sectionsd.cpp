@@ -150,12 +150,12 @@ inline void readLockServices(void)
 {
 	pthread_rwlock_rdlock(&servicesLock);
 }
-
+#ifdef ENABLE_SDT
 inline void writeLockServices(void)
 {
 	pthread_rwlock_wrlock(&servicesLock);
 }
-
+#endif
 inline void unlockServices(void)
 {
 	pthread_rwlock_unlock(&servicesLock);
