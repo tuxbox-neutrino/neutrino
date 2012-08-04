@@ -883,8 +883,6 @@ bool CRecordManager::StartAutoRecord()
 
 bool CRecordManager::StopAutoRecord()
 {
-	bool found = false;
-
 	printf("%s: autoshift %d\n", __FUNCTION__, autoshift);
 
 	g_RCInput->killTimer (shift_timer);
@@ -893,24 +891,26 @@ bool CRecordManager::StopAutoRecord()
 		return false;
 
 	mutex.lock();
-	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	CRecordInstance * inst = FindInstance(live_channel_id);
-	if(inst && inst->Timeshift())
-		found = true;
+	CRecordInstance * inst = NULL;
+	for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+		if (it->second->Timeshift()) {
+			inst = it->second;
+			break;
+		}
+	}
+	if (inst)
+		StopInstance(inst);
+
 	mutex.unlock();
 
-	if(found) {
-		Stop(live_channel_id);
-		autoshift = false;
-	}
-
-	return found;
+	return (inst != NULL);
 }
 
 bool CRecordManager::CheckRecording(const CTimerd::RecordingInfo * const eventinfo)
 {
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	if((eventinfo->channel_id == live_channel_id) || !SAME_TRANSPONDER(eventinfo->channel_id, live_channel_id))
+	/* FIXME check if frontend used for timeshift the same and will zap ?? */
+	if(/*(eventinfo->channel_id == live_channel_id) ||*/ !SAME_TRANSPONDER(eventinfo->channel_id, live_channel_id))
 		StopAutoRecord();
 
 	return true;
@@ -923,8 +923,9 @@ void CRecordManager::StartNextRecording()
 	printf("%s: pending count %d\n", __FUNCTION__, nextmap.size());
 
 	for(nextmap_iterator_t it = nextmap.begin(); it != nextmap.end(); it++) {
-		bool tested = true;
 		eventinfo = *it;
+#if 0
+		bool tested = true;
 		if( !recmap.empty() ) {
 			CRecordInstance * inst = FindInstance(eventinfo->channel_id);
 			/* same channel recording and not auto - skip */
@@ -936,16 +937,22 @@ void CRecordManager::StartNextRecording()
 			else {
 				/* there are some recordings, test any (first) for now */
 				recmap_iterator_t fit = recmap.begin();
-				t_channel_id channel_id = fit->first;
+				t_channel_id channel_id = fit->second->GetChannelId();
 				tested = (SAME_TRANSPONDER(channel_id, eventinfo->channel_id));
 			}
 		}
-		if(tested) {
+		if(tested) 
+#endif
+		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
+		if (channel && CFEManager::getInstance()->canTune(channel))
+		{
 			//MountDirectory(eventinfo->recordingDir);//FIXME in old neutrino startNextRecording commented
 			bool ret = Record(eventinfo);
 			if(ret) {
-				it = nextmap.erase(it);
 				delete[] (unsigned char *) eventinfo;
+				it = nextmap.erase(it++);
+				if (it == nextmap.end())
+					break;
 			}
 		}
 	}
@@ -986,7 +993,7 @@ bool CRecordManager::SameTransponder(const t_channel_id channel_id)
 			same = true;
 		else {
 			recmap_iterator_t fit = recmap.begin();
-			t_channel_id id = fit->first;
+			t_channel_id id = fit->second->GetChannelId();
 			same = (SAME_TRANSPONDER(channel_id, id));
 		}
 	}
@@ -996,8 +1003,9 @@ bool CRecordManager::SameTransponder(const t_channel_id channel_id)
 
 void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 {
-	inst->Stop(remove_event);
+	/* first erase - then stop, because Stop() reset recording_id to 0 */
 	recmap.erase(inst->GetRecordingId());
+	inst->Stop(remove_event);
 
 	if(inst->Timeshift())
 		autoshift = false;
@@ -1200,7 +1208,6 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 			mutex.lock();
 			for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++)
 			{
-				//t_channel_id channel_id = it->first;
 				CRecordInstance * inst = it->second;
 				t_channel_id channel_id = inst->GetChannelId();
 
@@ -1294,10 +1301,9 @@ bool CRecordManager::ShowMenu(void)
 
 		int i = 0 , shortcut = 1;
 		for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
-			t_channel_id channel_id = it->first;
 			CRecordInstance * inst = it->second;
 
-			channel_ids[i] = channel_id;
+			channel_ids[i] = inst->GetChannelId();
 			recording_ids[i] = inst->GetRecordingId();
 
 			std::string title;
@@ -1443,7 +1449,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 			found = true;
 		} else {
 			for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
-				if(SAME_TRANSPONDER(it->first, channel_id)) {
+				if(SAME_TRANSPONDER(it->second->GetChannelId(), channel_id)) {
 					found = true;
 					break;
 				}
