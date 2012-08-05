@@ -820,7 +820,7 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 		int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
 			NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
 
-		if(frontend && CutBackNeutrino(eventinfo->channel_id, mode)) {
+		if(frontend && CutBackNeutrino(eventinfo->channel_id, mode, frontend)) {
 			std::string newdir;
 			if(dir && strlen(dir))
 				newdir = std::string(dir);
@@ -1430,7 +1430,7 @@ bool CRecordManager::RunStopScript(void)
  * if zap ok
  * 	set record mode
  */
-bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mode)
+bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mode, CFrontend *frontend)
 {
 	bool ret = true;
 	printf("%s channel_id %llx mode %d\n", __FUNCTION__, channel_id, mode);
@@ -1441,9 +1441,11 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 		g_Zapit->setStandby(false); // this zap to live_channel_id
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
 
 	bool mode_changed = false;
 	if(live_channel_id != channel_id) {
+#if 0
 		bool found = false;
 		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
 			found = true;
@@ -1455,6 +1457,10 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 				}
 			}
 		}
+#endif
+		/* FIXME if we here, allocateFE was successful, full zapTo_serviceID 
+		 * needed, if record frontend same as live, and its on different TP */
+		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, channel_id);
 		if(found) {
 			ret = g_Zapit->zapTo_record(channel_id) > 0;
 			printf("%s found same tp, zapTo_record channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
