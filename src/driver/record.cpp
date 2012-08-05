@@ -815,7 +815,18 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 #endif
 	if(recmap.size() < RECORD_MAX_COUNT) {
 		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
+
+		/* first try to get frontend for record with locked live */
+		CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
+		bool unlock = true;
+		CFEManager::getInstance()->lockFrontend(live_fe);
 		CFrontend * frontend = CFEManager::getInstance()->allocateFE(channel);
+		if (frontend == NULL) {
+			/* no frontend, try again with unlocked live */
+			unlock = false;
+			CFEManager::getInstance()->unlockFrontend(live_fe);
+			frontend = CFEManager::getInstance()->allocateFE(channel);
+		}
 
 		int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
 			NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
@@ -849,6 +860,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			printf("%s add %llx : %s to pending\n", __FUNCTION__, evt->channel_id, evt->epgTitle);
 			nextmap.push_back((CTimerd::RecordingInfo *)evt);
 		}
+		if (unlock)
+			CFEManager::getInstance()->unlockFrontend(live_fe);
 	} else
 		error_msg = RECORD_BUSY;
 
