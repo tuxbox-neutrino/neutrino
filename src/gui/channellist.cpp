@@ -585,6 +585,7 @@ int CChannelList::show()
 				loop=false;
 		}
 		else if( msg == CRCInput::RC_record) { //start direct recording from channellist 
+#if 0
 			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
 			{
 				printf("[neutrino channellist] start direct recording...\n");
@@ -601,7 +602,17 @@ int CChannelList::show()
 				}
 					
 			}		
+#endif
+			if(SameTP()) {
+				printf("[neutrino channellist] start direct recording...\n");
+				hide();
+				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
+					paintHead();
+					paint();
+				} else
+					loop=false;
 				
+			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
 			if(CRecordManager::getInstance()->RecordingStatus())
