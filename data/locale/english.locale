@@ -223,6 +223,7 @@ EPGPlus.stretch_mode Stretch Mode
 EPGPlus.swap_mode swap mode
 EPGPlus.view_mode view mode
 epgviewer.More_Screenings More Screenings on this Channel
+epgviewer.More_Screenings_short More Screenings
 epgviewer.nodetailed No detailed informations available
 epgviewer.notfound no epg found
 eventfinder.head Search in EPG

@@ -592,10 +592,12 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 
 	// -- display more screenings on the same channel
 	// -- 2002-05-03 rasc
+	has_follow_screenings = false;
 	if (hasFollowScreenings(channel_id, epgData.title)) {
 		processTextToArray(""); // UTF-8
 		processTextToArray(std::string(g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS)) + ':'); // UTF-8
 		FollowScreenings(channel_id, epgData.title);
+		has_follow_screenings = true;
 	}
 
 	COSDFader fader(g_settings.menu_Content_alpha);
@@ -847,7 +849,24 @@ int CEpgData::show(const t_channel_id channel_id, uint64_t a_id, time_t* a_start
 					printf("timerd not available\n");
 				break;
 			}
+			case CRCInput::RC_blue:
+			{	
+				if(!followlist.empty()){
+					hide();
+					CNeutrinoEventList     *ee;
+					ee = new CNeutrinoEventList;
+					ee->exec(channel_id, g_Locale->getText(LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT),"","",followlist); // UTF-8
+					delete ee;
 
+					if (!bigFonts && g_settings.bigFonts) {
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO1]->getSize() * BIG_FONT_FAKTOR));
+						g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->setSize((int)(g_Font[SNeutrinoSettings::FONT_TYPE_EPG_INFO2]->getSize() * BIG_FONT_FAKTOR));
+					}
+					bigFonts = g_settings.bigFonts;
+					show(channel_id,epgData.eventID,&epgData.epg_times.startzeit,false);
+				}
+				break;
+			}
 			case CRCInput::RC_info:
 			case CRCInput::RC_help:
 				bigFonts = bigFonts ? false : true;
@@ -1072,7 +1091,9 @@ int CEpgData::FollowScreenings (const t_channel_id /*channel_id*/, const std::st
 const struct button_label EpgButtons[] =
 {
 	{ NEUTRINO_ICON_BUTTON_RED   , LOCALE_TIMERBAR_RECORDEVENT },
-	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERBAR_CHANNELSWITCH }
+	{ NEUTRINO_ICON_BUTTON_YELLOW, LOCALE_TIMERBAR_CHANNELSWITCH },
+	{ NEUTRINO_ICON_BUTTON_BLUE, LOCALE_EPGVIEWER_MORE_SCREENINGS_SHORT }
+
 };
 
 void CEpgData::showTimerEventBar (bool pshow)
@@ -1097,9 +1118,9 @@ void CEpgData::showTimerEventBar (bool pshow)
 	frameBuffer->paintBoxRel(sx,y,ox,h, COL_INFOBAR_SHADOW_PLUS_1, RADIUS_LARGE, CORNER_BOTTOM);//round
 
 	if (g_settings.recording_type != CNeutrinoApp::RECORDING_OFF)
-		::paintButtons(x, y, 0, 2, EpgButtons, h);
+		::paintButtons(x, y, 0, has_follow_screenings ? 3:2, EpgButtons, h);
 	else
-		::paintButtons(x, y, 0, 1, &EpgButtons[1], h);
+		::paintButtons(x, y, 0, has_follow_screenings ? 2:1, &EpgButtons[1], h);
 
 #if 0
 	// Button: Timer Record & Channelswitch

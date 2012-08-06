@@ -299,6 +299,7 @@ epgextended.presenter Moderator
 epgextended.year_of_production Produktionsjahr
 epglist.noevents Keine EPG-Information verfügbar.
 epgviewer.More_Screenings Weitere Termine auf diesem Kanal
+epgviewer.More_Screenings_short Weitere Termine
 epgviewer.nodetailed Keine ausführlichen Informationen verfügbar
 epgviewer.notfound Keine Programminformationen (EPG) gefunden
 eventfinder.head EPG-Suche

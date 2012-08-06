@@ -248,12 +248,12 @@ void CNeutrinoEventList::readEvents(const t_channel_id channel_id)
 }
 
 
-int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& channelname, const std::string& channelname_prev, const std::string& channelname_next) // UTF-8
+int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& channelname, const std::string& channelname_prev, const std::string& channelname_next,const CChannelEventList &followlist) // UTF-8
 {
 	neutrino_msg_t      msg;
 	neutrino_msg_data_t data;
 	bool in_search = false;
-
+	showfollow = false;
 	// Calculate iheight
 	struct button_label tmp_button[1] = { { NEUTRINO_ICON_BUTTON_RED, NONEXISTANT_LOCALE } };
 	iheight = ::paintButtons(0, 0, 0, 1, tmp_button, 0, 0, false, COL_INFOBAR_SHADOW, NULL, 0, false);
@@ -300,8 +300,13 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 
 	COSDFader fader(g_settings.menu_Content_alpha);
 	fader.StartFadeIn();
-
-	readEvents(channel_id);
+	if(!followlist.empty()){
+		insert_iterator <std::vector<CChannelEvent> >ii(evtlist,evtlist.begin());
+		copy(followlist.begin(), followlist.end(), ii);
+		showfollow = true;
+	}else{
+		readEvents(channel_id);
+	}
 	UpdateTimerList();
 
 	if(channelname_prev.empty(), channelname_next.empty()){
@@ -385,7 +390,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 			showFunctionBar(paint_buttonbar, channel_id);
 		}
 		//sort
-		else if (msg == (neutrino_msg_t)g_settings.key_channelList_sort)
+		else if (!showfollow && (msg == (neutrino_msg_t)g_settings.key_channelList_sort))
 		{
 			uint64_t selected_id = evtlist[selected].eventID;
 			if(sort_mode==0)
@@ -635,7 +640,7 @@ int CNeutrinoEventList::exec(const t_channel_id channel_id, const std::string& c
 				}
 			}
 		}
-		else if ( msg==CRCInput::RC_green )
+		else if (!showfollow  && ( msg==CRCInput::RC_green ))
 		{
 			in_search = findEvents();
 			timeoutEnd = CRCInput::calcTimeoutEnd(g_settings.timing[SNeutrinoSettings::TIMING_EPG]);
@@ -938,11 +943,12 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 			bx+=w_button+4;
 		}
 	}
-	
-	// Button: Search
-	FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_SECOND_BUTTON, EventListSecondButton), FunctionBarHeight);
-	bx+=w_button+4;
 
+	if(!showfollow){
+		// Button: Search
+		FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_SECOND_BUTTON, EventListSecondButton), FunctionBarHeight);
+		bx+=w_button+4;
+	}
 	// Button: Timer Channelswitch
 	if ((uint) g_settings.key_channelList_addremind != CRCInput::RC_nokey) {
 		if (!g_settings.minimode) {
@@ -961,14 +967,15 @@ void  CNeutrinoEventList::showFunctionBar (bool show, t_channel_id channel_id)
 		FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListThirdButton), FunctionBarHeight);
 		bx+=w_button+4;
 	}
-
-	// Button: Event Re-Sort
-	if ((uint) g_settings.key_channelList_sort != CRCInput::RC_nokey) {
-		// FIXME : display other icons depending on g_settings.key_channelList_sort
-		keyhelper.get(&dummy, &icon, g_settings.key_channelList_sort);
-		EventListFourthButton[0].button = icon;
-		FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListFourthButton), FunctionBarHeight);
-// 		bx+=w_button+4;
+	if(!showfollow){
+		// Button: Event Re-Sort
+		if ((uint) g_settings.key_channelList_sort != CRCInput::RC_nokey) {
+			// FIXME : display other icons depending on g_settings.key_channelList_sort
+			keyhelper.get(&dummy, &icon, g_settings.key_channelList_sort);
+			EventListFourthButton[0].button = icon;
+			FunctionBarHeight = std::max(::paintButtons(bx, by, w_button, NUM_EVENTLIST_THIRD_BUTTON, EventListFourthButton), FunctionBarHeight);
+// 			bx+=w_button+4;
+		}
 	}
 }
 

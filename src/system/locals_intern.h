@@ -250,6 +250,7 @@ const char * locale_real_names[] =
 	"EPGPlus.swap_mode",
 	"EPGPlus.view_mode",
 	"epgviewer.More_Screenings",
+	"epgviewer.More_Screenings_short",
 	"epgviewer.nodetailed",
 	"epgviewer.notfound",
 	"eventfinder.head",
