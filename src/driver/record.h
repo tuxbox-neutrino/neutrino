@@ -135,7 +135,7 @@ typedef recmap_t::iterator recmap_iterator_t;
 typedef std::list<CTimerd::RecordingInfo *> nextmap_t;
 typedef nextmap_t::iterator nextmap_iterator_t;
 
-class CRecordManager : public CMenuTarget, public CChangeObserver
+class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 {
 	private:
 		static CRecordManager *  manager;
@@ -208,17 +208,19 @@ class CRecordManager : public CMenuTarget, public CChangeObserver
 		bool Timeshift() { return (autoshift || shift_timer); };
 		bool SameTransponder(const t_channel_id channel_id);
 		int  handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
-		// old code
-		bool ChooseRecDir(std::string &dir);
-		bool MountDirectory(const char *recordingDir);
 		// mimic old behavior for start/stop menu option chooser, still actual ?
-		int recordingstatus;
-		bool doGuiRecord();
-		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
 		int GetRecordCount() { return recmap.size(); };
 		bool IsTimeshift(t_channel_id channel_id=0);
 		void StartTimeshift();
 		int GetRecordMode(const t_channel_id channel_id=0);
 		bool IsFileRecord(std::string file);
+		// old code
+#if 0
+		bool MountDirectory(const char *recordingDir);
+		bool ChooseRecDir(std::string &dir);
+		int recordingstatus;
+		bool doGuiRecord();
+		bool changeNotify(const neutrino_locale_t OptionName, void * /*data*/);
+#endif
 };
 #endif

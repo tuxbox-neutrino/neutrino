@@ -658,7 +658,7 @@ CRecordManager::CRecordManager()
 	StreamVTxtPid = false;
 	StreamPmtPid = false;
 	StopSectionsd = false;
-	recordingstatus = 0;
+	//recordingstatus = 0;
 	recmap.clear();
 	nextmap.clear();
 	autoshift = false;
@@ -848,10 +848,12 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 				recmap.insert(recmap_pair_t(inst->GetRecordingId(), inst));
 				if(timeshift)
 					autoshift = true;
+#if 0
 				// mimic old behavior for start/stop menu option chooser, still actual ?
 				t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 				if(eventinfo->channel_id == live_channel_id)
 					recordingstatus = 1;
+#endif
 			} else {
 				delete inst;
 			}
@@ -929,7 +931,6 @@ bool CRecordManager::CheckRecording(const CTimerd::RecordingInfo * const eventin
 	return true;
 }
 
-/* FIXME no check for multi-tuner */
 void CRecordManager::StartNextRecording()
 {
 	CTimerd::RecordingInfo * eventinfo = NULL;
@@ -1023,10 +1024,11 @@ void CRecordManager::StopInstance(CRecordInstance * inst, bool remove_event)
 	if(inst->Timeshift())
 		autoshift = false;
 
+#if 0
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 	if(inst->GetChannelId() == live_channel_id)
 		recordingstatus = 0;
-
+#endif
 	delete inst;
 }
 
@@ -1058,7 +1060,6 @@ bool CRecordManager::Stop(const CTimerd::RecordingStopInfo * recinfo)
 
 	mutex.lock();
 
-	//CRecordInstance * inst = FindInstance(recinfo->channel_id);
 	CRecordInstance * inst = FindInstanceID(recinfo->eventID);
 	if(inst != NULL && recinfo->eventID == inst->GetRecordingId()) {
 		StopInstance(inst, false);
@@ -1239,8 +1240,6 @@ int CRecordManager::exec(CMenuTarget* parent, const std::string & actionKey )
 		printf("[neutrino] direct record\n");
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 
-		//if(!CRecordManager::getInstance()->RecordingStatus(live_channel_id))
-		
 		bool tostart = true;
 		CRecordInstance * inst = FindInstance(live_channel_id);
 		if (inst) {
@@ -1362,7 +1361,6 @@ bool CRecordManager::ShowMenu(void)
 	if (select >= 0 && select < RECORD_MAX_COUNT) {
 		/* in theory, timer event can expire while we in menu ? lock and check again */
 		mutex.lock();
-		//CRecordInstance * inst = FindInstance(channel_ids[select]);
 		CRecordInstance * inst = FindInstanceID(recording_ids[select]);
 		if(inst == NULL || recording_ids[select] != inst->GetRecordingId()) {
 			printf("%s: channel %llx event id %d not found\n", __FUNCTION__, channel_ids[select], recording_ids[select]);
@@ -1370,7 +1368,6 @@ bool CRecordManager::ShowMenu(void)
 			return false;
 		}
 		mutex.unlock();
-		//return Stop(channel_ids[select]);
 		return AskToStop(channel_ids[select], recording_ids[select]);
 	}
 	return false;
@@ -1522,6 +1519,21 @@ void CRecordManager::RestoreNeutrino(void)
 		g_Sectionsd->setPauseScanning(false);
 }
 
+bool CRecordManager::IsFileRecord(std::string file)
+{
+	mutex.lock();
+	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+		CRecordInstance * inst = it->second;
+		if ((((std::string)inst->GetFileName()) + ".ts") == file) {
+			mutex.unlock();
+			return true;
+		}
+	}
+	mutex.unlock();
+	return false;
+}
+
+#if 0
 /* should return true, if recordingstatus changed in this function ? */
 bool CRecordManager::doGuiRecord()
 {
@@ -1571,6 +1583,7 @@ bool CRecordManager::changeNotify(const neutrino_locale_t OptionName, void * /*d
 	}
 	return ret;
 }
+#endif
 #if 0
 /* this is saved copy of neutrino code which seems was not used for some time */
 bool CRecordManager::ChooseRecDir(std::string &dir)
@@ -1600,7 +1613,7 @@ bool CRecordManager::ChooseRecDir(std::string &dir)
 	}
 	return doRecord;
 }
-#endif
+
 bool CRecordManager::MountDirectory(const char *recordingDir)
 {
 	bool ret = true;
@@ -1636,20 +1649,7 @@ bool CRecordManager::MountDirectory(const char *recordingDir)
 
 	return ret;
 }
-
-bool CRecordManager::IsFileRecord(std::string file)
-{
-	mutex.lock();
-	for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
-		CRecordInstance * inst = it->second;
-		if ((((std::string)inst->GetFileName()) + ".ts") == file) {
-			mutex.unlock();
-			return true;
-		}
-	}
-	mutex.unlock();
-	return false;
-}
+#endif
 
 #if 0 // not used, saved in case we needed it
 extern bool autoshift_delete;
