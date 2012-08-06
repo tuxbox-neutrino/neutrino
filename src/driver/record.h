@@ -187,7 +187,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool AskToStop(const t_channel_id channel_id, const int recid = 0);
 		int  exec(CMenuTarget* parent, const std::string & actionKey);
 		bool StartAutoRecord();
-		bool StopAutoRecord();
+		bool StopAutoRecord(bool lock = true);
 
 		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id);
 		const std::string GetFileName(const t_channel_id channel_id);

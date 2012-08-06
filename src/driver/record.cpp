@@ -790,8 +790,10 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	printf("%s channel_id %llx epg: %llx, apidmode 0x%X\n", __FUNCTION__,
 	       eventinfo->channel_id, eventinfo->epgID, eventinfo->apids);
 
+#if 0
 	if(!CheckRecording(eventinfo))
 		return false;
+#endif
 
 #if 1 // FIXME test
 	StopSectionsd = false;
@@ -896,7 +898,7 @@ bool CRecordManager::StartAutoRecord()
 	return Record(live_channel_id, TimeshiftDirectory.c_str(), true);
 }
 
-bool CRecordManager::StopAutoRecord()
+bool CRecordManager::StopAutoRecord(bool lock)
 {
 	printf("%s: autoshift %d\n", __FUNCTION__, autoshift);
 
@@ -905,7 +907,8 @@ bool CRecordManager::StopAutoRecord()
 	if(!autoshift)
 		return false;
 
-	mutex.lock();
+	if (lock)
+		mutex.lock();
 	CRecordInstance * inst = NULL;
 	for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
 		if (it->second->Timeshift()) {
@@ -916,11 +919,13 @@ bool CRecordManager::StopAutoRecord()
 	if (inst)
 		StopInstance(inst);
 
-	mutex.unlock();
+	if (lock)
+		mutex.unlock();
 
 	return (inst != NULL);
 }
 
+#if 0
 bool CRecordManager::CheckRecording(const CTimerd::RecordingInfo * const eventinfo)
 {
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
@@ -930,6 +935,7 @@ bool CRecordManager::CheckRecording(const CTimerd::RecordingInfo * const eventin
 
 	return true;
 }
+#endif
 
 void CRecordManager::StartNextRecording()
 {
@@ -1477,6 +1483,7 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 		}
 		else {
 			printf("%s mode %d last_mode %d getLastMode %d\n", __FUNCTION__, mode, last_mode, CNeutrinoApp::getInstance()->getLastMode());
+			StopAutoRecord(false);
 			if (mode != last_mode && (last_mode != NeutrinoMessages::mode_standby || mode != CNeutrinoApp::getInstance()->getLastMode())) {
 				CNeutrinoApp::getInstance()->handleMsg( NeutrinoMessages::CHANGEMODE , mode | NeutrinoMessages::norezap );
 				mode_changed = true;
