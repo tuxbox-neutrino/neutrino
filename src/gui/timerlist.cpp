@@ -588,6 +588,7 @@ int CTimerList::show()
 		{
 			update=true;
 		}
+#if 0
 		else if ((msg==CRCInput::RC_blue)||
 				(CRCInput::isNumeric(msg)) )
 		{
@@ -595,6 +596,7 @@ int CTimerList::show()
 			g_RCInput->postMsg( msg, data );
 			loop=false;
 		}
+#endif
 		else if (msg==CRCInput::RC_setup)
 		{
 			res=menu_return::RETURN_EXIT_ALL;
