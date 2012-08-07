@@ -852,24 +852,8 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 	} else
 #endif
 	if(recmap.size() < RECORD_MAX_COUNT) {
-		CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(eventinfo->channel_id);
-
-		/* first try to get frontend for record with locked live */
-		CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
-		bool unlock = true;
-		CFEManager::getInstance()->lockFrontend(live_fe);
-		CFrontend * frontend = CFEManager::getInstance()->allocateFE(channel);
-		if (frontend == NULL) {
-			/* no frontend, try again with unlocked live */
-			unlock = false;
-			CFEManager::getInstance()->unlockFrontend(live_fe);
-			frontend = CFEManager::getInstance()->allocateFE(channel);
-		}
-
-		int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
-			NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
-
-		if(frontend && CutBackNeutrino(eventinfo->channel_id, mode, frontend)) {
+		CFrontend * frontend = NULL;
+		if(CutBackNeutrino(eventinfo->channel_id, frontend)) {
 			std::string newdir;
 			if(dir && strlen(dir))
 				newdir = std::string(dir);
@@ -900,8 +884,6 @@ bool CRecordManager::Record(const CTimerd::RecordingInfo * const eventinfo, cons
 			printf("%s add %llx : %s to pending\n", __FUNCTION__, evt->channel_id, evt->epgTitle);
 			nextmap.push_back((CTimerd::RecordingInfo *)evt);
 		}
-		if (unlock)
-			CFEManager::getInstance()->unlockFrontend(live_fe);
 	} else
 		error_msg = RECORD_BUSY;
 
@@ -1493,35 +1475,42 @@ bool CRecordManager::RunStopScript(void)
  * if zap ok
  * 	set record mode
  */
-bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mode, CFrontend *frontend)
+bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * &frontend)
 {
 	bool ret = true;
+	CZapitChannel * channel = CServiceManager::getInstance()->FindChannel(channel_id);
+	if (!channel)
+		return false;
+
+	int mode = channel->getServiceType() != ST_DIGITAL_RADIO_SOUND_SERVICE ?
+		NeutrinoMessages::mode_tv : NeutrinoMessages::mode_radio;
+
 	printf("%s channel_id %llx mode %d\n", __FUNCTION__, channel_id, mode);
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
-
 	if(last_mode == NeutrinoMessages::mode_standby && recmap.empty())
 		g_Zapit->setStandby(false); // this zap to live_channel_id
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
 
 	bool mode_changed = false;
+	CFrontend *live_fe = CZapit::getInstance()->GetLiveFrontend();
+	frontend = live_fe;
 	if(live_channel_id != channel_id) {
-#if 0
-		bool found = false;
-		if(SAME_TRANSPONDER(live_channel_id, channel_id)) {
-			found = true;
-		} else {
-			for(recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
-				if(SAME_TRANSPONDER(it->second->GetChannelId(), channel_id)) {
-					found = true;
-					break;
-				}
-			}
+		/* first try to get frontend for record with locked live */
+		bool unlock = true;
+		CFEManager::getInstance()->lockFrontend(live_fe);
+		frontend = CFEManager::getInstance()->allocateFE(channel);
+		if (frontend == NULL) {
+			/* no frontend, try again with unlocked live */
+			unlock = false;
+			CFEManager::getInstance()->unlockFrontend(live_fe);
+			frontend = CFEManager::getInstance()->allocateFE(channel);
 		}
-#endif
-		/* FIXME if we here, allocateFE was successful, full zapTo_serviceID 
+		if (frontend == NULL)
+			return false;
+
+		/* if allocateFE was successful, full zapTo_serviceID 
 		 * needed, if record frontend same as live, and its on different TP */
 		bool found = (live_fe != frontend) || SAME_TRANSPONDER(live_channel_id, channel_id);
 		if(found) {
@@ -1539,6 +1528,8 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, const int mo
 			ret = g_Zapit->zapTo_serviceID(channel_id) > 0;
 			printf("%s zapTo_serviceID channel_id %llx result %d\n", __FUNCTION__, channel_id, ret);
 		}
+		if (unlock)
+			CFEManager::getInstance()->unlockFrontend(live_fe);
 	}
 	if(ret) {
 		if(StopSectionsd) {
