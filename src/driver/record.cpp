@@ -709,14 +709,27 @@ CRecordInstance * CRecordManager::FindInstanceID(int recid)
 	return NULL;
 }
 
-MI_MOVIE_INFO * CRecordManager::GetMovieInfo(t_channel_id channel_id)
+CRecordInstance * CRecordManager::FindTimeshift()
+{
+	for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+		if (it->second->Timeshift())
+			return it->second;
+	}
+	return NULL;
+}
+
+MI_MOVIE_INFO * CRecordManager::GetMovieInfo(t_channel_id channel_id, bool timeshift)
 {
 	//FIXME copy MI_MOVIE_INFO ?
 	MI_MOVIE_INFO * mi = NULL;
 
 	mutex.lock();
-	CRecordInstance * inst = FindInstance(channel_id);
-	if(inst)
+	CRecordInstance * inst = NULL;
+	if (timeshift)
+		inst = FindTimeshift();
+	if (inst == NULL)
+		inst = FindInstance(channel_id);
+	if (inst)
 		mi = inst->GetMovieInfo();
 	mutex.unlock();
 	return mi;
@@ -731,8 +744,10 @@ const std::string CRecordManager::GetFileName(t_channel_id channel_id)
 	return filename;
 }
 
+/* return record mode mask, for channel_id not 0, or global */
 int CRecordManager::GetRecordMode(const t_channel_id channel_id)
 {
+#if 0
 	if (RecordingStatus(channel_id) || IsTimeshift(channel_id))
 	{
 		if (RecordingStatus(channel_id) && !IsTimeshift(channel_id))
@@ -753,6 +768,27 @@ int CRecordManager::GetRecordMode(const t_channel_id channel_id)
 		}
 	}
 	return RECMODE_OFF;
+#endif
+	int recmode = RECMODE_OFF;
+	mutex.lock();
+	if (channel_id == 0) {
+		/* we can have only one timeshift instance, if there are more - some is record */
+		if ((!autoshift && !recmap.empty()) || recmap.size() > 1)
+			recmode |= RECMODE_REC;
+		if (autoshift)
+			recmode |= RECMODE_TSHIFT;
+	} else {
+		for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
+			if (it->second->GetChannelId() == channel_id) {
+				if (it->second->Timeshift())
+					recmode |= RECMODE_TSHIFT;
+				else
+					recmode |= RECMODE_REC;
+			}
+		}
+	}
+	mutex.unlock();
+	return recmode;
 }
 
 bool CRecordManager::Record(const t_channel_id channel_id, const char * dir, bool timeshift)
@@ -909,13 +945,8 @@ bool CRecordManager::StopAutoRecord(bool lock)
 
 	if (lock)
 		mutex.lock();
-	CRecordInstance * inst = NULL;
-	for (recmap_iterator_t it = recmap.begin(); it != recmap.end(); it++) {
-		if (it->second->Timeshift()) {
-			inst = it->second;
-			break;
-		}
-	}
+
+	CRecordInstance * inst = FindTimeshift();
 	if (inst)
 		StopInstance(inst);
 
@@ -978,6 +1009,7 @@ void CRecordManager::StartNextRecording()
 	}
 }
 
+/* return true, if there are any recording running for this channel id, or global if id is 0 */
 bool CRecordManager::RecordingStatus(const t_channel_id channel_id)
 {
 	bool ret = false;
@@ -1176,9 +1208,10 @@ void CRecordManager::StartTimeshift()
 {
 	if(g_RemoteControl->is_video_started)
 	{
-		std::string tmode;
+		std::string tmode = "ptimeshift"; // already recording, pause
 		bool res = true;
 		t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
+#if 0
 		if(RecordingStatus(live_channel_id))
 		{
 			tmode = "ptimeshift"; // already recording, pause
@@ -1197,6 +1230,19 @@ void CRecordManager::StartTimeshift()
 			}
 			tmode = "timeshift"; // record just started
 		}
+#endif
+		/* start temporary timeshift if enabled and not running, but dont start second record */
+		if (g_settings.temp_timeshift) {
+			if (!FindTimeshift()) {
+				res = StartAutoRecord();
+				tmode = "timeshift"; // record just started
+			}
+		}
+		else if (!RecordingStatus(live_channel_id)) {
+			res = Record(live_channel_id);
+			tmode = "timeshift"; // record just started
+		}
+
 		if(res)
 		{
 			CMoviePlayerGui::getInstance().exec(NULL, tmode);
@@ -1328,7 +1374,8 @@ bool CRecordManager::ShowMenu(void)
 			inst->GetRecordString(title);
 
 			const char* mode_icon = NULL;
-			if (inst->tshift_mode)
+			//if (inst->tshift_mode)
+			if (inst->Timeshift())
 				mode_icon = NEUTRINO_ICON_AUTO_SHIFT;
 
 			sprintf(cnt, "%d", i);

@@ -162,6 +162,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		void StopInstance(CRecordInstance * inst, bool remove_event = true);
 		CRecordInstance * FindInstance(t_channel_id);
 		CRecordInstance * FindInstanceID(int recid);
+		CRecordInstance * FindTimeshift();
 		void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
@@ -189,7 +190,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool StartAutoRecord();
 		bool StopAutoRecord(bool lock = true);
 
-		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id);
+		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
 		const std::string GetFileName(const t_channel_id channel_id);
 
 		bool RunStartScript(void);
