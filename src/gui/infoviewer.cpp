@@ -251,20 +251,26 @@ void CInfoViewer::paintTime (bool show_dot, bool firstPaint)
 void CInfoViewer::showRecordIcon (const bool show)
 {
 	CRecordManager * crm		= CRecordManager::getInstance();
-	int rec_mode 			= crm->GetRecordMode();
 	
-	recordModeActive		= rec_mode != CRecordManager::RECMODE_OFF; 
+	recordModeActive		= crm->RecordingStatus();
+	/* FIXME if record or timeshift stopped while infobar visible, artifacts */
 	if (recordModeActive)
 	{
 		std::string Icon_Rec = NEUTRINO_ICON_REC_GRAY, Icon_Ts = NEUTRINO_ICON_AUTO_SHIFT_GRAY;
-
 		t_channel_id cci	= g_RemoteControl->current_channel_id;
-		bool status_ts		= crm->GetRecordMode(cci) == CRecordManager::RECMODE_TSHIFT;
-		bool status_rec		= crm->GetRecordMode(cci) == CRecordManager::RECMODE_REC && !status_ts;
-		if (status_ts)
+
+		/* global record mode */
+		int rec_mode 		= crm->GetRecordMode();
+		/* channel record mode */
+		int ccrec_mode 		= crm->GetRecordMode(cci);
+
+		/* set 'active' icons for current channel */
+		if (ccrec_mode & CRecordManager::RECMODE_TSHIFT)
 			Icon_Ts		= NEUTRINO_ICON_AUTO_SHIFT;
-		if (status_rec)
+
+		if (ccrec_mode & CRecordManager::RECMODE_REC)
 			Icon_Rec	= NEUTRINO_ICON_REC;
+
 		int records		= crm->GetRecordCount();
 		
 		const int radius = RADIUS_MIN;
@@ -800,14 +806,19 @@ void CInfoViewer::loop(bool show_dot)
 		} else if (!fileplay && !CMoviePlayerGui::getInstance().timeshift) {
 			CNeutrinoApp *neutrino = CNeutrinoApp::getInstance ();
 			if ((msg == (neutrino_msg_t) g_settings.key_quickzap_up) || (msg == (neutrino_msg_t) g_settings.key_quickzap_down) || (msg == CRCInput::RC_0) || (msg == NeutrinoMessages::SHOW_INFOBAR)) {
-				if ((g_settings.radiotext_enable) && (CNeutrinoApp::getInstance()->getMode() == NeutrinoMessages::mode_radio))
+				hideIt = false; // default
+				if ((g_settings.radiotext_enable) && (neutrino->getMode() == NeutrinoMessages::mode_radio))
 					hideIt =  true;
-				else
-					hideIt = false;
+
 				int rec_mode = CRecordManager::getInstance()->GetRecordMode();
+#if 0
 				if ((rec_mode == CRecordManager::RECMODE_REC) || (rec_mode == CRecordManager::RECMODE_REC_TSHIFT))
 					hideIt = true;
-				//hideIt = (g_settings.timing[SNeutrinoSettings::TIMING_INFOBAR] == 0) ? true : false;
+#endif
+				/* hide, if record (not timeshift only) is running -> neutrino will show channel list */
+				if (rec_mode & CRecordManager::RECMODE_REC)
+					hideIt = true;
+
 				g_RCInput->postMsg (msg, data);
 				res = messages_return::cancel_info;
 			} else if (msg == NeutrinoMessages::EVT_TIMESET) {
