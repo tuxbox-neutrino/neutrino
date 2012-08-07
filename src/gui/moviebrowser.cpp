@@ -2884,7 +2884,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 
     if(movie_info != NULL)
     {
-        strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE);
+        strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE-1);
         snprintf(size,BUFFER_SIZE,"%5llu",movie_info->file.Size>>20);
     }
 
@@ -3448,7 +3448,7 @@ CMenuSelector::CMenuSelector(const char * OptionName, const bool Active , std::s
     height     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
     optionValueString = &OptionValue;
     optionName =        OptionName;
-    strncpy(buffer,OptionValue.c_str(),BUFFER_MAX);
+    strncpy(buffer,OptionValue.c_str(),BUFFER_MAX-1);
     buffer[BUFFER_MAX-1] = 0;// terminate string
     optionValue =       buffer;
     active =            Active;

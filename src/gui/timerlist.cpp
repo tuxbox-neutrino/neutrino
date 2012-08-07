@@ -327,7 +327,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 				recinfo.recordingSafety = false;
 
 				timerNew.announceTime-= 120; // 2 more mins for rec timer
-				strncpy(recinfo.recordingDir,timerNew.recordingDir,sizeof(recinfo.recordingDir));
+				strncpy(recinfo.recordingDir,timerNew.recordingDir,sizeof(recinfo.recordingDir)-1);
 				data = &recinfo;
 			} else
 				data= &eventinfo;
@@ -364,7 +364,7 @@ int CTimerList::exec(CMenuTarget* parent, const std::string & actionKey)
 		       "%n",
 		       &timerNew.channel_id,
 		       &delta);
-		strncpy(timerNew_channel_name, &(key[3 + delta + 1]), 30);
+		strncpy(timerNew_channel_name, &(key[3 + delta + 1]), 29);
 		g_RCInput->postMsg(CRCInput::RC_timeout, 0); // leave underlying menu also
 		g_RCInput->postMsg(CRCInput::RC_timeout, 0); // leave underlying menu also
 		return menu_return::RETURN_EXIT;
@@ -1052,7 +1052,7 @@ int CTimerList::modifyTimer()
 //printf("TIMER: rec dir %s len %s\n", timer->recordingDir, strlen(timer->recordingDir));
 
 	if (!strlen(timer->recordingDir))
-		strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir,sizeof(timer->recordingDir));
+		strncpy(timer->recordingDir,g_settings.network_nfs_recordingdir,sizeof(timer->recordingDir)-1);
 
 	bool recDirEnabled = (timer->eventType == CTimerd::TIMER_RECORD) && (g_settings.recording_type == RECORDING_FILE);
 	CMenuForwarder* m6 = new CMenuForwarder(LOCALE_TIMERLIST_RECORDING_DIR, recDirEnabled, timer->recordingDir, this, "rec_dir1", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
@@ -1102,7 +1102,7 @@ int CTimerList::newTimer()
 	timerNew.channel_id = 0;
 	strcpy(timerNew.message, "");
 	timerNew_standby_on =false;
-	strncpy(timerNew.recordingDir,g_settings.network_nfs_recordingdir,sizeof(timerNew.recordingDir));
+	strncpy(timerNew.recordingDir,g_settings.network_nfs_recordingdir,sizeof(timerNew.recordingDir)-1);
 
 
 	CMenuWidget timerSettings(LOCALE_TIMERLIST_MENUNEW, NEUTRINO_ICON_SETTINGS);

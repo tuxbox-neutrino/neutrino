@@ -83,7 +83,7 @@ bool CMovieInfo::convertTs2XmlName(char *char_filename, int size)
 	bool result = false;
 	std::string filename = char_filename;
 	if (convertTs2XmlName(&filename) == true) {
-		strncpy(char_filename, filename.c_str(), size);
+		strncpy(char_filename, filename.c_str(), size-1);
 		char_filename[size - 1] = 0;
 		result = true;
 	}

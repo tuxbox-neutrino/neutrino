@@ -1634,7 +1634,7 @@ CMenuOptionLanguageChooser::~CMenuOptionLanguageChooser()
 
 int CMenuOptionLanguageChooser::exec(CMenuTarget*)
 {
-	strncpy(g_settings.language, optionValue.c_str(), sizeof(g_settings.language));
+	strncpy(g_settings.language, optionValue.c_str(), sizeof(g_settings.language)-1);
 	if(observ)
 		observ->changeNotify(LOCALE_LANGUAGESETUP_SELECT, (void *) optionValue.c_str());
 	return menu_return::RETURN_EXIT;
