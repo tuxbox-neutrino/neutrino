@@ -615,7 +615,7 @@ int CChannelList::show()
 			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
-			if(CRecordManager::getInstance()->RecordingStatus())
+			if(CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id))
 			{
 				if (CRecordManager::getInstance()->AskToStop(chanlist[selected]->channel_id))
 				{
@@ -1747,6 +1747,7 @@ void CChannelList::paintItem(int pos)
 
 		if (pos == 0)
 		{
+			/* FIXME move to calcSize() ? */
 			int w_max, w_min, h;
 			ChannelList_Rec = 0;
 			int recmode_icon_max = CRecordManager::RECMODE_REC, recmode_icon_min = CRecordManager::RECMODE_TSHIFT;
@@ -1763,11 +1764,11 @@ void CChannelList::paintItem(int pos)
 			for (uint32_t i = 0; i < chanlist.size(); i++)
 			{
 				rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[i]->channel_id);
-				if (rec_mode == recmode_icon_max)
+				if (rec_mode & recmode_icon_max)
 				{
 					ChannelList_Rec = w_max;
 					break;
-				} else if (rec_mode == recmode_icon_min)
+				} else if (rec_mode & recmode_icon_min)
 					ChannelList_Rec = w_min;
 			}
 			if (ChannelList_Rec > 0)
@@ -1779,9 +1780,9 @@ void CChannelList::paintItem(int pos)
 		
 		//set recording icon
 		const char * rec_icon = "";
-		if (rec_mode == CRecordManager::RECMODE_REC)
+		if (rec_mode & CRecordManager::RECMODE_REC)
 			rec_icon = NEUTRINO_ICON_REC;
-		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
 			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
 	
 		//calculating icons
@@ -1797,7 +1798,6 @@ void CChannelList::paintItem(int pos)
 				r_icon_x = r_icon_x - s_icon_w;
 		
  		//paint recording icon
- 		//bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
 		if (rec_mode != CRecordManager::RECMODE_OFF)
 			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		
