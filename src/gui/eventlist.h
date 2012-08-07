@@ -118,13 +118,13 @@ class CNeutrinoEventList
 	int timerPost;
 	void UpdateTimerList(void);
 	bool HasTimerConflicts(time_t starttime, time_t duration, event_id_t * epg_ID);
-	
+	bool showfollow;
 	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
 	
 	public:
 		CNeutrinoEventList();
 		~CNeutrinoEventList();
-		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = ""); // UTF-8
+		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = "", const CChannelEventList &followlist = CChannelEventList ()); // UTF-8
 };
 
 class CEventListHandler : public CMenuTarget
