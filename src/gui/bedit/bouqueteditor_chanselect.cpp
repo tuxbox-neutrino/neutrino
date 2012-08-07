@@ -78,13 +78,7 @@ CBEChannelSelectWidget::CBEChannelSelectWidget(const std::string & Caption, unsi
 
 CBEChannelSelectWidget::~CBEChannelSelectWidget()
 {
-	// clear details line
-	if (dline != NULL)
-		dline->paintBackground();
 	delete dline;
-	// clear infobox
-	if (ibox != NULL)
-		ibox->paintBackground();
 	delete ibox;
 }
 
@@ -236,11 +230,11 @@ void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos2a = ypos2 + (info_height/2)-2;
 
 	// clear details line
-	if (dline != NULL)
-		dline->paintBackground();
+	if (dline)
+		dline->hide();
 
 	// clear infobox
-	if (ibox != NULL)
+	if (ibox)
 		ibox->hide();
 
 	// paint Line if detail info (and not valid list pos)
@@ -249,7 +243,7 @@ void CBEChannelSelectWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
-		dline->paint(false);
+		dline->paint(true);
 
 		//infobox
 		if (ibox == NULL)
