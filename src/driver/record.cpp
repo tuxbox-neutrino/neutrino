@@ -735,10 +735,15 @@ MI_MOVIE_INFO * CRecordManager::GetMovieInfo(t_channel_id channel_id, bool times
 	return mi;
 }
 
-const std::string CRecordManager::GetFileName(t_channel_id channel_id)
+const std::string CRecordManager::GetFileName(t_channel_id channel_id, bool timeshift)
 {
 	std::string filename;
-	CRecordInstance * inst = FindInstance(channel_id);
+	CRecordInstance * inst = NULL;
+	if (timeshift)
+		inst = FindTimeshift();
+	if (inst == NULL)
+		inst = FindInstance(channel_id);
+
 	if(inst)
 		filename = inst->GetFileName();
 	return filename;
@@ -1147,6 +1152,7 @@ int CRecordManager::handleMsg(const neutrino_msg_t msg, neutrino_msg_data_t data
 	return messages_return::unhandled;
 }
 
+#if 0
 bool CRecordManager::IsTimeshift(t_channel_id channel_id)
 {
 	bool ret = false;
@@ -1185,6 +1191,7 @@ void CRecordManager::SetTimeshiftMode(CRecordInstance * inst, int mode)
 	if (inst)
 		inst->tshift_mode = mode;
 }
+#endif
 
 void CRecordManager::StartTimeshift()
 {
@@ -1326,11 +1333,13 @@ bool CRecordManager::ShowMenu(void)
 
 	// Record / Timeshift
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
-	bool status_ts		= IsTimeshift(live_channel_id);
-	bool status_rec		= RecordingStatus(live_channel_id) && !status_ts;
+
+	int rec_mode		= GetRecordMode(live_channel_id);
+	bool status_ts		= rec_mode & RECMODE_TSHIFT;
+	//bool status_rec		= rec_mode & RECMODE_REC;
 
 	//record item
-	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, (!status_rec && !status_ts), NULL,
+	iteml = new CMenuForwarder(LOCALE_RECORDINGMENU_MULTIMENU_REC_AKT, true /*!status_rec*/, NULL,
 			this, "Record", CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
 	//if no recordings are running, set the focus to the record menu item
 	menu.addItem(iteml, rec_count == 0 ? true: false);
@@ -1488,8 +1497,11 @@ bool CRecordManager::CutBackNeutrino(const t_channel_id channel_id, CFrontend * 
 	printf("%s channel_id %llx mode %d\n", __FUNCTION__, channel_id, mode);
 
 	last_mode = CNeutrinoApp::getInstance()->getMode();
-	if(last_mode == NeutrinoMessages::mode_standby && recmap.empty())
+	if(last_mode == NeutrinoMessages::mode_standby && recmap.empty()) {
 		g_Zapit->setStandby(false); // this zap to live_channel_id
+		/* wait for zapit wakeup */
+		g_Zapit->getMode();
+	}
 
 	t_channel_id live_channel_id = CZapit::getInstance()->GetCurrentChannelID();
 

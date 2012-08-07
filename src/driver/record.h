@@ -163,7 +163,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		CRecordInstance * FindInstance(t_channel_id);
 		CRecordInstance * FindInstanceID(int recid);
 		CRecordInstance * FindTimeshift();
-		void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
+		//void SetTimeshiftMode(CRecordInstance * inst=NULL, int mode=TSHIFT_MODE_OFF);
 
 	public:
 		enum record_modes_t
@@ -191,7 +191,7 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		bool StopAutoRecord(bool lock = true);
 
 		MI_MOVIE_INFO * GetMovieInfo(const t_channel_id channel_id, bool timeshift = true);
-		const std::string GetFileName(const t_channel_id channel_id);
+		const std::string GetFileName(const t_channel_id channel_id, bool timeshift = true);
 
 		bool RunStartScript(void);
 		bool RunStopScript(void);
@@ -211,12 +211,12 @@ class CRecordManager : public CMenuTarget /*, public CChangeObserver*/
 		int  handleMsg(const neutrino_msg_t _msg, neutrino_msg_data_t data);
 		// mimic old behavior for start/stop menu option chooser, still actual ?
 		int GetRecordCount() { return recmap.size(); };
-		bool IsTimeshift(t_channel_id channel_id=0);
 		void StartTimeshift();
 		int GetRecordMode(const t_channel_id channel_id=0);
 		bool IsFileRecord(std::string file);
 		// old code
 #if 0
+		bool IsTimeshift(t_channel_id channel_id=0);
 		bool MountDirectory(const char *recordingDir);
 		bool ChooseRecDir(std::string &dir);
 		int recordingstatus;
