@@ -95,6 +95,8 @@ private:
 
 	int info_height;
 	int ChannelList_Rec;
+	CComponentsDetailLine *dline;
+	CComponentsInfoBox *ibox;
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();

@@ -115,6 +115,8 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	theight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE]->getHeight();
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
+	dline = NULL;
+	ibox = NULL;
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -122,6 +124,8 @@ CChannelList::~CChannelList()
 {
 //printf("************ DELETE LIST %s : %x\n", name.c_str(), this);fflush(stdout);
 	chanlist.clear();
+	delete dline;
+	delete ibox;
 }
 
 void CChannelList::ClearList(void)
@@ -1525,7 +1529,11 @@ void CChannelList::paintDetails(int index)
 		p_event = &chanlist[index]->currentEvent;
 	}
 
-	frameBuffer->paintBoxRel(x+2, y + height + 2, full_width-4, info_height - 4, COL_MENUCONTENTDARK_PLUS_0, RADIUS_LARGE);//round
+	//infobox
+	if (ibox == NULL)
+		ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height, false);
+	ibox->setCornerRadius(RADIUS_LARGE);
+	ibox->paint(false);
 
 	if (!p_event->description.empty()) {
 		char cNoch[50] = {0}; // UTF-8
@@ -1624,7 +1632,8 @@ void CChannelList::paintDetails(int index)
 
 void CChannelList::clearItem2DetailsLine()
 {
-	paintItem2DetailsLine (-1);
+	if (dline)
+		dline->kill(); //kill details line
 }
 
 void CChannelList::paintItem2DetailsLine (int pos)
@@ -1634,20 +1643,19 @@ void CChannelList::paintItem2DetailsLine (int pos)
 	int ypos2 = y + height;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
-	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
 	// Clear
-	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
+	if (dline)
+		dline->hide();
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
 		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
 		{
-			//details line
-			CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
-			details_line.paint();
-
-			//info box frame
-			frameBuffer->paintBoxFrame(x, ypos2, full_width, info_height, 2, col1, RADIUS_LARGE);
+			if (dline == NULL)
+				dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			dline->setYPos(ypos1a);
+			dline->setHMarkDown(info_height-RADIUS_LARGE*2); //required if user has changed osd-settings (corner mode)
+			dline->paint();
 		}
 	}
 }
