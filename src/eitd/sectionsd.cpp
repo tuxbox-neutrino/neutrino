@@ -1164,7 +1164,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength)
 {
 	sendEmptyResponse(connfd, NULL, 0);
-	if ((!reader_ready) || (dataLength > 100)){
+	if (mySIeventsOrderUniqueKey.empty() || (!reader_ready) || (dataLength > 100)){
 		eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
 		return;
 	}
