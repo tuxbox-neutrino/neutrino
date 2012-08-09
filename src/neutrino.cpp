@@ -2007,7 +2007,7 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 	}
 	g_RCInput->clearRCMsg();
 	if(g_settings.power_standby || init_cec_setting)
-		standbyMode(true);
+		standbyMode(true, true);
 
 	InfoClock = CInfoClock::getInstance();
 	if(g_settings.mode_clock)
@@ -2926,7 +2926,6 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 			//SDTreloadChannels = false;
 		}
 
-		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
 		delete CRecordManager::getInstance();
 
@@ -2940,6 +2939,7 @@ void CNeutrinoApp::ExitRun(const bool /*write_si*/, int retcode)
 		if(g_settings.epg_save /* && timeset && g_Sectionsd->getIsTimeSet ()*/) {
 			saveEpg(true);// true CVFD::MODE_SHUTDOWN
 		}
+		CVFD::getInstance()->setMode(CVFD::MODE_SHUTDOWN);
 
 		stop_daemons(true /*retcode*/);//need here for timer_is_rec before saveSetup
 		g_settings.shutdown_timer_record_type = timer_is_rec;
@@ -3178,7 +3178,7 @@ void CNeutrinoApp::scartMode( bool bOnOff )
 	}
 }
 
-void CNeutrinoApp::standbyMode( bool bOnOff )
+void CNeutrinoApp::standbyMode( bool bOnOff, bool fromDeepStandby )
 {
 	static bool wasshift = false;
 	INFO("%s", bOnOff ? "ON" : "OFF" );
@@ -3211,9 +3211,9 @@ void CNeutrinoApp::standbyMode( bool bOnOff )
 		g_Sectionsd->setPauseScanning(true);
 		g_Sectionsd->setServiceChanged(0, false);
 
-		if(!CRecordManager::getInstance()->RecordingStatus()) {
+		if(!CRecordManager::getInstance()->RecordingStatus() ) {
 			//only save epg when not recording
-			if(g_settings.epg_save) {
+			if(g_settings.epg_save && !fromDeepStandby) {
 				saveEpg(false);//false CVFD::MODE_STANDBY
 			}
 		}
