@@ -436,7 +436,8 @@ filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
-flashupdate.checkupdate Nach Updates suchen
+flashupdate.checkupdate_internet Online nach Updates suchen
+flashupdate.checkupdate_local Lokales Update
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit

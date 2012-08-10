@@ -51,11 +51,13 @@ CSoftwareUpdate::CSoftwareUpdate()
 {
 	width = w_max (40, 10);
 	fe = new CFlashExpert();
+	update_item = NULL;
 }
 
 CSoftwareUpdate::~CSoftwareUpdate()
 {
 	delete fe;
+	delete update_item;
 }
 
 int CSoftwareUpdate::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
@@ -79,19 +81,21 @@ int CSoftwareUpdate::showSoftwareUpdate()
 	
 	//flashing
 	CFlashUpdate flash;
-	softUpdate.addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_CHECKUPDATE, true, NULL, &flash, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
-	
+	neutrino_locale_t up_text = (g_settings.softupdate_mode == 0) ? LOCALE_FLASHUPDATE_CHECKUPDATE_LOCAL : LOCALE_FLASHUPDATE_CHECKUPDATE_INTERNET;
+	update_item = new CMenuForwarder(up_text, true, NULL, &flash, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	softUpdate.addItem(update_item);
+
+	//settings
+	CUpdateSettings update_settings(update_item);
+	softUpdate.addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+
+	softUpdate.addItem(GenericMenuSeparatorLine);
+
 	//expert-functions
 	CMenuWidget mtdexpert(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, NEUTRINO_ICON_UPDATE, width, MN_WIDGET_ID_MTDEXPERT);
 	showSoftwareUpdateExpert(&mtdexpert); 
-	softUpdate.addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
-	
-	softUpdate.addItem(GenericMenuSeparatorLine);
-	
-	//settings
-	CUpdateSettings update_settings;
-	softUpdate.addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_SETTINGS, true, NULL, &update_settings, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
-	
+	softUpdate.addItem(new CMenuForwarder(LOCALE_FLASHUPDATE_EXPERTFUNCTIONS, true, NULL, &mtdexpert, NULL, CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW));
+
 	int res = softUpdate.exec (NULL, "");
 	return res;
 }
