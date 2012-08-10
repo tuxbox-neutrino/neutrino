@@ -1456,9 +1456,9 @@ rclock.lockmsg Die Fernbedienung der Coolstream wird gesperrt.\n Um die Sperre a
 rclock.menueadd FB sperren
 rclock.title Fernbedienung sperren
 rclock.unlockmsg Fernbedienung reaktiviert...
-recording.is_running Aufzeichung auf diesem Kanal läuft bereits!
-recording.start Starte Aufzeichnung, bitte warten...!
-recording.stop Beende Aufzeichnung, bitte warten...!
+recording.is_running Folgende Aufnahme läuft bereits! Neue Aufnahme starten?
+recording.start Starte Aufnahme, bitte warten...!
+recording.stop Beende Aufnahme, bitte warten...!
 recordingmenu.apids Tonspuren
 recordingmenu.apids_ac3 AC3 Tonspuren aufnehmen
 recordingmenu.apids_alt Alternative Tonspuren aufn.
@@ -1479,7 +1479,7 @@ recordingmenu.record_is_not_running Keine laufende Aufnahme verfügbar!
 recordingmenu.record_is_running Aufnahme läuft!
 recordingmenu.save_in_channeldir Speichere im Kanalverzeichnis
 recordingmenu.server Server
-recordingmenu.server_mac Mac Adresse
+recordingmenu.server_mac MAC-Adresse
 recordingmenu.setupnow Einstellungen jetzt übernehmen
 recordingmenu.timeshift Timeshift
 recordingmenu.tsdir Timeshift Aufnahmeverzeichnis
