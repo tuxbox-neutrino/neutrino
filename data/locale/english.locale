@@ -1024,6 +1024,11 @@ menu.hint_shutdown_rcdelay Enable deep-standby, if power button\npressed more th
 menu.hint_shutdown_real Enable soft-standby mode\nIf disabled, power button put box to deep-standby
 menu.hint_sleeptimer Set timer to put your box\nin sleep mode
 menu.hint_soft_restart Restart Neutrino-HD without reboot
+menu.hint_softupdate_check In the Internet or local check for available updates
+menu.hint_softupdate_expert Separate partitions from the flash read / write to the flash
+menu.hint_softupdate_expert_read Separate partitions (U-Boot, Splash, Kernel, SystemFS) from the flash read
+menu.hint_softupdate_expert_write Separate partitions (Splash, Kernel, SystemFS) write to the flash
+menu.hint_softupdate_settings Update mode, the local directory and the configuration file to set
 menu.hint_start_tostandby Enter standby mode after boot
 menu.hint_streaminfo Current channel info: pids, signal and noise ratio\nBitrate graphs
 menu.hint_subchannel_pos Select subchannels menu position
