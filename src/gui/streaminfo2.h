@@ -26,6 +26,7 @@
 #include <gui/widget/menue.h>
 
 #include <driver/framebuffer.h>
+#include <gui/widget/components.h>
 #include <gui/widget/progressbar.h>
 #include <zapit/femanager.h>
 
@@ -36,6 +37,7 @@ class CStreamInfo2 : public CMenuTarget
 
 		CFrameBuffer	*frameBuffer;
 		CFrontend	*frontend;
+		CComponentsPIP  * pip;
 		int x;
 		int y;
 		int width;
@@ -90,7 +92,6 @@ class CStreamInfo2 : public CMenuTarget
 		int ts_close();
 
 		void paint(int mode);
-		void paint_pig(int x, int y, int w, int h);
 		void paint_techinfo(int x, int y);
 		void paintCASystem(int xpos, int ypos);
 		void paint_signal_fe_box(int x, int y, int w, int h);

@@ -28,6 +28,8 @@
 #include <gui/widget/menue.h>
 #include <system/localize.h>
 #include <driver/framebuffer.h>
+#include <gui/widget/components.h>
+
 
 class CImageInfo : public CMenuTarget
 {
@@ -35,6 +37,7 @@ class CImageInfo : public CMenuTarget
 		void Init(void);
 		CConfigFile     * configfile;
 		CFrameBuffer	*frameBuffer;
+		CComponentsPIP  * pip;
 		int x;
 		int y;
 		int ypos;
@@ -53,7 +56,6 @@ class CImageInfo : public CMenuTarget
 		int font_small;
 
 		void paint();
-		void paint_pig(int x, int y, int w, int h);
 		void paintLine(int xpos, int font, const char* text);
 
 	public:

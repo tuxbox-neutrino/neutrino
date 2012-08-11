@@ -42,7 +42,6 @@
 #include "git_version.h"
 #define GIT_DESC "GIT Desc.:"
 #define GIT_REV "GIT Build:"
-extern cVideo * videoDecoder;
 
 extern CRemoteControl * g_RemoteControl; /* neutrino.cpp */
 
@@ -66,7 +65,7 @@ static const neutrino_locale_t info_items[8] =
 void CImageInfo::Init(void)
 {
 	frameBuffer = CFrameBuffer::getInstance();
-
+	pip        = NULL;
 	font_head   = SNeutrinoSettings::FONT_TYPE_INFOBAR_CHANNAME;;
 	font_small  = SNeutrinoSettings::FONT_TYPE_INFOBAR_SMALL;
 	font_info   = SNeutrinoSettings::FONT_TYPE_MENU;
@@ -105,7 +104,7 @@ void CImageInfo::Init(void)
 
 CImageInfo::~CImageInfo()
 {
-	videoDecoder->Pig(-1, -1, -1, -1);
+	delete pip;
 }
 
 int CImageInfo::exec(CMenuTarget* parent, const std::string &)
@@ -121,11 +120,7 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 	paint();
 
-	//paint_pig( width-170, y, 215, 170);
-	paint_pig (width - width/3 - 10, y + 10, width/3, height/3);
-
 	neutrino_msg_t msg;
-
 	while (1)
 	{
 		neutrino_msg_data_t data;
@@ -159,16 +154,8 @@ int CImageInfo::exec(CMenuTarget* parent, const std::string &)
 
 void CImageInfo::hide()
 {
-	//frameBuffer->paintBackgroundBoxRel(0,0, max_width,max_height);
+	pip->hide(true);
 	frameBuffer->paintBackground();
-	videoDecoder->Pig(-1, -1, -1, -1);
-}
-
-void CImageInfo::paint_pig(int px, int py, int w, int h)
-{
-	//frameBuffer->paintBoxRel(px,py,w,h, COL_BACKGROUND);
-	frameBuffer->paintBackgroundBoxRel(px,py,w,h);
-	videoDecoder->Pig(px, py, w, h, frameBuffer->getScreenWidth(true), frameBuffer->getScreenHeight(true));
 }
 
 void CImageInfo::paintLine(int xpos, int font, const char* text)
@@ -189,9 +176,7 @@ void CImageInfo::paint()
 
 	head_string = g_Locale->getText(LOCALE_IMAGEINFO_HEAD);
 	CVFD::getInstance()->setMode(CVFD::MODE_MENU_UTF8, head_string);
-
-	//frameBuffer->paintBoxRel(0, 0, max_width, max_height, COL_MENUHEAD_PLUS_0);
-	frameBuffer->paintBoxRel(0, 0, max_width, max_height, COL_INFOBAR_PLUS_0);
+ 	frameBuffer->paintBoxRel(0, 0, max_width, max_height, COL_INFOBAR_PLUS_0);
 	g_Font[font_head]->RenderString(xpos, ypos+ hheight+1, width, head_string, COL_MENUHEAD, 0, true);
 
 	ypos += hheight;
@@ -250,7 +235,7 @@ void CImageInfo::paint()
 	paintLine(xpos    , font_info, GIT_REV);
 #endif
 	paintLine(xpos+offset, font_info, builddate );
-	
+
 	ypos += iheight;
 	paintLine(xpos    , font_info, g_Locale->getText(LOCALE_IMAGEINFO_CREATOR));
 	paintLine(xpos+offset, font_info, creator);
@@ -300,4 +285,8 @@ void CImageInfo::paint()
 
 	ypos+= sheight;
 	paintLine(xpos+offset, font_small, "Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.");
+
+	if (pip == NULL)
+		pip = new CComponentsPIP(width-width/3-10, y+10, 30);
+	pip->paint();
 }
