@@ -436,7 +436,8 @@ filesystem.is.utf8.option.utf8 UTF-8
 flashupdate.actionreadflash lese Flash
 flashupdate.cantopenfile kann Datei nicht öffnen
 flashupdate.cantopenmtd kann das MTD-Device nicht öffnen
-flashupdate.checkupdate Nach Updates suchen
+flashupdate.checkupdate_internet Online nach Updates suchen
+flashupdate.checkupdate_local Lokales Update
 flashupdate.currentversion_sep Installierte Version
 flashupdate.currentversiondate Datum
 flashupdate.currentversiontime Uhrzeit
@@ -1023,6 +1024,11 @@ menu.hint_shutdown_rcdelay Aktiviert den Deep-Standby, wenn der Powerknopf\nlän
 menu.hint_shutdown_real Aktivieren des Soft-Standby-Modus, wenn diese Option\ndeaktiviert ist, geht die Box in den Deep-Standby
 menu.hint_sleeptimer Zeitschaltuhr auf Ihrer Box aktivieren.\nDie Box geht dann in den Standby-Modus
 menu.hint_soft_restart Neustarten von Neutrino-HD ohne zu Rebooten
+menu.hint_softupdate_check Im Internet oder lokal nach verfügbaren Updates suchen
+menu.hint_softupdate_expert Einzelne Partitionen aus dem Flash lesen / in den Flash schreiben
+menu.hint_softupdate_expert_read Einzelne Partitionen (U-Boot, Splash, Kernel, SystemFS) aus dem Flash lesen
+menu.hint_softupdate_expert_write Einzelne Partitionen (Splash, Kernel, SystemFS) in den Flash schreiben
+menu.hint_softupdate_settings Den Updatemodus, das lokale Verzeichnis und die Konfigurationsdatei festlegen
 menu.hint_start_tostandby Aktiviert den Standby-Modus nach dem starten der Box
 menu.hint_streaminfo Aktuelle Sender-Informationen: PIDs, SNR-Verhältnis\nBitrate grafisch
 menu.hint_subchannel_pos Hier können Sie die Anzeigeposition der Untertitel auswählen

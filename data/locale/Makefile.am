@@ -26,6 +26,7 @@ locals: sort-locals locals.h locals_intern.h install-locals
 sort-locals: $(top_srcdir)/data/locale/deutsch.locale $(top_srcdir)/data/locale/english.locale
 	cat $(top_srcdir)/data/locale/deutsch.locale | LC_ALL=C sort | uniq > deutsch.locale
 	cat $(top_srcdir)/data/locale/english.locale | LC_ALL=C sort | uniq > english.locale
+	cp -f deutsch.locale english.locale $(top_srcdir)/data/locale
 
 ordercheck: $(top_srcdir)/data/locale/deutsch.locale
 	cut -d' ' -f1 $(top_srcdir)/data/locale/deutsch.locale | LC_ALL=C sort | uniq > /tmp/log
