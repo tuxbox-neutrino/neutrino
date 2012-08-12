@@ -958,6 +958,7 @@ void CScanSetup::addScanMenuCable(CMenuWidget *menu)
 	//----------------------------------------------------------------------
 	CMenuOptionStringChooser * select = new CMenuOptionStringChooser(satprov_locale, scansettings.satNameNoDiseqc, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED, true);
 	fillCableSelect(select);
+	select->setHint("", LOCALE_MENU_HINT_SCAN_CABLE);
 	menu->addItem(select);
 
 	mf = new CMenuForwarder(LOCALE_SATSETUP_CABLE_NID, true, nid->getValue(), nid);
