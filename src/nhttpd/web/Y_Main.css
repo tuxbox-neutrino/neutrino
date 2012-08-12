@@ -168,7 +168,7 @@ tr {
 }
 /* secondary Navigation */
 .y_menu_sec_box {
-	margin: 0 5px 5px;
+	margin: 0 0 5px 5px;
 	padding: 0;
 	font-size: 100.01%;
 	border: 1px solid #a0a0a0;
@@ -249,7 +249,7 @@ tr {
 
 /*work*/
 .work_box {
-	margin: 0 5px 5px 0;
+	margin: 0 5px 5px 5px;
 	padding: 0;
 	font-size: 100.01%;
 	border: 1px solid #a0a0a0;
