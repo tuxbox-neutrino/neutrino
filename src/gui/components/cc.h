@@ -58,8 +58,7 @@ typedef enum
 	CC_FBDATA_TYPE_BACKGROUND,
 
 	CC_FBDATA_TYPES
-}
-FBDATA_TYPES;
+}FBDATA_TYPES;
 
 typedef struct comp_screen_data_t
 {
@@ -76,8 +75,18 @@ typedef enum
 	CC_BGMODE_PERMANENT,
 
 	CC_BGMODE_TYPES
-}
-BGMODE_TYPES;
+}BGMODE_TYPES;
+
+//align types
+enum
+{
+	CC_ALIGN_RIGHT 		= 0,
+	CC_ALIGN_LEFT 		= 1,
+	CC_ALIGN_TOP 		= 2,
+	CC_ALIGN_BOTTOM 	= 4,
+	CC_ALIGN_HOR_CENTER	= 8,
+	CC_ALIGN_VER_CENTER	= 16
+};
 
 #define CC_WIDTH_MIN		16
 #define CC_HEIGHT_MIN		16
@@ -116,6 +125,7 @@ class CComponents
 		inline virtual int getYPos(){return y;};
 		inline virtual int getHeight(){return height;};
 		inline virtual int getWidth(){return width;};
+		inline virtual void getDimensions(int* xpos, int* ypos, int* w, int* h){*xpos=x; *ypos=y; *w=width; *h=height;};
 		
 ///		set colors: Possible color values are defined in "gui/color.h" and "gui/customcolor.h"
 		inline virtual void setColorFrame(fb_pixel_t color){col_frame = color;};
@@ -167,7 +177,7 @@ class CComponentsShapeCircle : public CComponentsContainer
 	public:
 		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam, bool has_shadow = CC_SHADOW_ON,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-
+					
 		void setDiam(const int& diam){d=width=height=diam, corner_rad=d/2;};
 		int getDiam(){return d;};
 };
@@ -186,7 +196,7 @@ class CComponentsPIP : public CComponentsContainer
 	public:
 		CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow = CC_SHADOW_OFF);
 		~CComponentsPIP();
-
+		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void hide(bool no_restore = false);
 };
@@ -203,11 +213,36 @@ class CComponentsDetailLine : public CComponents
 		~CComponentsDetailLine();
 		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-  		void kill();
+		void kill();
 		void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
 		void syncSysColors();
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
+};
+
+class CComponentsPicture : public CComponentsContainer
+{
+	private:
+		std::string pic_name;
+		unsigned char pic_offset;
+		bool pic_paint, pic_paintBg, pic_painted, do_paint;
+		int pic_align, pic_x, pic_y, pic_width, pic_height;
+
+		void initDimensions();
+		
+	public:
+		CComponentsPicture( 	const int x_pos, const int y_pos, const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		void setPictureOffset(const unsigned char offset){pic_offset = offset;};
+		void setPicturePaint(bool paint_p){pic_paint = paint_p;};
+		void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
+		void setPicture(const std::string& picture_name);
+		void setPictureAlign(const int alignment);
+		
+		bool isPainted(){return pic_painted;};
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
+		
 };
 
 #endif

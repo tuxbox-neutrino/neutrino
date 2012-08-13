@@ -506,3 +506,102 @@ void CComponentsPIP::hide(bool no_restore)
 	videoDecoder->Pig(-1, -1, -1, -1);
 }
 
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsPicture from CComponentsContainer
+CComponentsPicture::CComponentsPicture(	int x_pos, int y_pos, const string& picture_name, const int alignment, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+{
+	//CComponentsPicture
+	pic_name 	= picture_name;
+	pic_align	= alignment;
+	pic_offset	= 1;
+	pic_paint	= true;
+	pic_paintBg	= false;
+	pic_painted	= false;
+	do_paint	= false;
+	if (pic_name.empty())
+	pic_width = pic_height = 0;
+	
+	//CComponents
+	x = pic_x	= x_pos;
+	y = pic_y	= y_pos;
+	height		= 0;
+	width 		= 0;
+	shadow		= has_shadow;
+	shadow_w	= SHADOW_OFFSET;
+	col_frame 	= color_frame;
+	col_body	= color_background;
+	col_shadow	= color_shadow;
+	firstPaint	= true;
+	v_fbdata.clear();
+	bgMode 		= CC_BGMODE_PERMANENT;
+	
+	//CComponentsContainer
+	corner_rad	= 0;
+	fr_thickness	= 0;
+	
+	initDimensions();
+}
+
+
+void CComponentsPicture::setPicture(const std::string& picture_name)
+{
+	pic_name = picture_name;
+	initDimensions();
+}
+
+
+void CComponentsPicture::setPictureAlign(const int alignment)
+{
+	pic_align	= alignment;
+	initDimensions();
+}
+
+
+void CComponentsPicture::initDimensions()
+{
+	if (pic_name.empty()){
+		printf("CComponentsPicture: %s no picture file defined !\n", __FUNCTION__);
+		pic_width = pic_height = 0;
+		return;
+	}
+	
+	frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
+	
+	pic_x += fr_thickness;
+	pic_y += fr_thickness;
+	
+	if (pic_height>0 && pic_width>0){
+		if (pic_align & CC_ALIGN_LEFT)
+			pic_x = x+fr_thickness;
+		if (pic_align & CC_ALIGN_RIGHT)
+			pic_x = x+width-pic_width-fr_thickness;
+		if (pic_align & CC_ALIGN_TOP)
+			pic_y = y+fr_thickness;
+		if (pic_align & CC_ALIGN_BOTTOM)
+			pic_y = y+height-pic_height-fr_thickness;
+		if (pic_align & CC_ALIGN_HOR_CENTER)
+			pic_x = x+width/2-pic_width/2;
+		if (pic_align & CC_ALIGN_VER_CENTER)
+			pic_y = y+height/2-pic_height/2;
+		
+		do_paint = true;
+	}
+	
+	width = max(pic_width, width);
+	height = max(pic_height, height);
+}
+
+void CComponentsPicture::paint(bool do_save_bg)
+{
+	pic_painted = false;
+	initDimensions();
+	
+	if (do_paint){	
+		paintInit(do_save_bg);
+		pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0, pic_offset, pic_paint, pic_paintBg, col_body);
+		do_paint = false;
+	}
+}
+
