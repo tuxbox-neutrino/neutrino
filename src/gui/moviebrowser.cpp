@@ -47,6 +47,8 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+
 #include <algorithm>
 #include <cstdlib>
 #include "moviebrowser.h"

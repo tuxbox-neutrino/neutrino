@@ -46,6 +46,8 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>

@@ -55,6 +55,8 @@
 #include <config.h>
 #endif
 
+#include <global.h>
+
 #include "textbox.h"
 #include <gui/widget/icons.h>
 
