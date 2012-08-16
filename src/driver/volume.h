@@ -30,7 +30,7 @@
 
 #define ROUNDED g_settings.rounded_corners ? vbar_h/2 : 0
 
-class CVolume
+class CVolume : public CChangeObserver
 {
 	private:
 		void refreshVolumebar(int current_volume);
@@ -47,6 +47,9 @@ class CVolume
 		int rounded;
 		int m_mode;
 		bool paintShadow, paintDigits, MuteIconFrame;
+		/* volume adjustment variables */
+		t_channel_id channel_id;
+		int apid;
 
 	public:
 		CVolume();
@@ -60,7 +63,10 @@ class CVolume
 		void setVolume(const neutrino_msg_t key, const bool bDoPaint = true, bool nowait = false);
 		int getStartPosTop(){ return sy; }
 		int getEndPosRight(){ return sw; }
-};
 
+		void SetCurrentPid(int pid) { apid = pid; }
+		void SetCurrentChannel(t_channel_id id) { channel_id = id; }
+		bool changeNotify(const neutrino_locale_t OptionName, void *);
+};
 
 #endif // __CVOLUME__

@@ -38,6 +38,7 @@
 #include <daemonc/remotecontrol.h>
 #include <driver/framebuffer.h>
 #include <driver/volume.h>
+#include <zapit/zapit.h>
 
 #if HAVE_COOL_HARDWARE
 #include <gui/widget/progressbar.h>
@@ -62,6 +63,8 @@ CVolume::CVolume()
 	ShadowOffset	= 4;
 	mute_ay		= 0;
 	m_mode 		= CNeutrinoApp::getInstance()->getMode();
+	channel_id	= 0;
+	apid		= 0;
 
 	Init();
 }
@@ -212,7 +215,8 @@ void CVolume::AudioMute(int newValue, bool isEvent)
 
 void CVolume::setvol(int vol)
 {
-	audioDecoder->setVolume(vol, vol);
+	//audioDecoder->setVolume(vol, vol);
+	CZapit::getInstance()->SetVolume(vol);
 }
 
 void CVolume::setVolume(const neutrino_msg_t key, const bool bDoPaint, bool nowait)
@@ -365,4 +369,22 @@ void CVolume::refreshVolumebar(int current_volume)
 		snprintf(buff, 4, "%3d", current_volume);
 		g_Font[VolumeFont]->RenderString(digit_x, digit_y, digit_w, buff, colContent);	
 	}
+}
+
+bool CVolume::changeNotify(const neutrino_locale_t OptionName, void * data)
+{
+	bool ret = false;
+	if (ARE_LOCALES_EQUAL(OptionName, NONEXISTANT_LOCALE)) {
+		int percent = *(int *) data;
+		int vol =  CZapit::getInstance()->GetVolume();
+		/* keep resulting volume = (vol * percent)/100 not more than 115 */
+		if (vol * percent > 11500)
+			percent = 11500 / vol;
+
+		printf("CVolume::changeNotify: percent %d\n", percent);
+		CZapit::getInstance()->SetPidVolume(channel_id, apid, percent);
+		CZapit::getInstance()->SetVolumePercent(percent);
+		*(int *) data = percent;
+	}
+	return ret;
 }
