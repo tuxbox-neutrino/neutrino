@@ -260,25 +260,78 @@ void CComponentsContainer::syncSysColors()
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox from CComponentsContainer
-CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
+				       const char* info_text, const int mode, Font* font_text,
+				       bool has_shadow,
+				       fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
+	//CComponentsInfoBox
+	text 		= info_text;
+	text_mode	= mode;
+	font		= font_text;
+
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
 	height	 	= h;
 	shadow		= has_shadow;
-	shadow_w	= SHADOW_OFFSET;
 	col_frame 	= color_frame;
 	col_body	= color_body;
 	col_shadow	= color_shadow;
-	firstPaint	= true;
-	v_fbdata.clear();
-	bgMode 		= CC_BGMODE_PERMANENT;
 	
+	initVarInfobox();
+}
+
+CComponentsInfoBox::~CComponentsInfoBox()
+{
+
+	hide();
+//	if (saved_screen.pixbuf)
+//		delete[] saved_screen.pixbuf;
+	delete textbox;
+	delete box;
+	clear();
+}
+
+void CComponentsInfoBox::initVarInfobox()
+{
 	//CComponentsContainer
 	corner_rad	= RADIUS_LARGE;
 	fr_thickness	= 2;
+	
+	//CComponents
+	firstPaint	= true;
+	v_fbdata.clear();
+	bgMode 		= CC_BGMODE_PERMANENT;
+	shadow_w	= SHADOW_OFFSET;
+	
+	//CComponentsInfoBox
+	box		= NULL;
+	textbox 	= NULL;
+	
+}
+
+void CComponentsInfoBox::setText(neutrino_locale_t locale_text, int mode, Font* font_text)
+{
+	text = g_Locale->getText(locale_text);
+	text_mode = mode;
+	font = font_text;
+}
+
+void CComponentsInfoBox::paintText()
+{	
+	box = new CBox( x+fr_thickness, y+fr_thickness, width-2*fr_thickness, height-2*fr_thickness);
+	textbox = new CTextBox(text, font, text_mode, box, col_body);
+	textbox->enableBackgroundPaint(false);
+	textbox->paint();
+}
+
+void CComponentsInfoBox::paint(bool do_save_bg)
+{
+	paintInit(do_save_bg);
+	if (text != NULL)
+		paintText();
 }
 
 //-------------------------------------------------------------------------------------------------------

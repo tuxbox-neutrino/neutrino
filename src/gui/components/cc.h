@@ -29,6 +29,7 @@
 #include <driver/framebuffer.h>
 #include <gui/color.h>
 #include <gui/customcolor.h>
+#include "textbox.h"
 #include <vector>
 #include <string>
 
@@ -165,9 +166,30 @@ class CComponentsContainer : public CComponents
 #define INFO_BOX_Y_OFFSET	2
 class CComponentsInfoBox : public CComponentsContainer
 {
+	private:
+		const char* text;
+		int text_mode; //see textbox.h for possible modes
+		Font* font;
+		CBox * box;
+		CTextBox * textbox;
+		
+		void paintText();
+		void initVarInfobox();
+		
 	public:
-		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h, bool has_shadow = CC_SHADOW_ON,
+		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
+					const char* info_text = NULL, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+					
+		~CComponentsInfoBox();
+		
+		void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; text_mode = mode, font = font_text;};
+		void setText(const std::string info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, font = font_text;};
+		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
+		void setTextMode(const int mode){text_mode = mode;};
+		void setTextFont(Font* font_text){font = font_text;};
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
 class CComponentsShapeCircle : public CComponentsContainer
