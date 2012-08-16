@@ -125,6 +125,7 @@ audiomenu.pref_subs Prefered subtitle language
 audiomenu.pref_subs_head Subtitle language preferences
 audiomenu.spdif_dd Encoded DD on SPDIF
 audiomenu.stereo stereo
+audiomenu.volume_adjust Volume adjustment, in %
 audiomenu.volume_step Volume step
 audioplayer.add Add
 audioplayer.add_ic Icecast
