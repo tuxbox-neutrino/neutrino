@@ -1531,7 +1531,7 @@ void CChannelList::paintDetails(int index)
 
 	//infobox
 	if (ibox == NULL)
-		ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height, false);
+		ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height);
 	ibox->setCornerRadius(RADIUS_LARGE);
 	ibox->paint(false);
 
