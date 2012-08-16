@@ -125,6 +125,7 @@ audiomenu.pref_subs Sprache
 audiomenu.pref_subs_head Untertitelwahl
 audiomenu.spdif_dd Dolby Digital über S/PDIF
 audiomenu.stereo stereo
+audiomenu.volume_adjust Lautstärke ändern, in %
 audiomenu.volume_step Lautstärke Schrittweite
 audioplayer.add Hinzufügen
 audioplayer.add_ic Icecast
