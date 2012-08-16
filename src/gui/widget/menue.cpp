@@ -1165,6 +1165,7 @@ void CMenuWidget::paintHint(int pos)
 		info_box->setWidth(iwidth);
 		info_box->setCornerRadius(RADIUS_LARGE);
 		info_box->syncSysColors();
+		info_box->setShadowOnOff(CC_SHADOW_ON);
 	}
 #if 0	
 	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
