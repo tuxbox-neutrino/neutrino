@@ -608,7 +608,7 @@ int find_next_char(char to_find, char *text, int start_pos, int end_pos)
 		_pos_ += sizeof(_tag_) ;\
 		int pos_prev = _pos_;\
 		while(_pos_ < bytes && _text_[_pos_] != '<' ) pos++;\
-		_dest_ = atoll(&_text_[pos_prev]);\
+		_dest_ = strtoull(&_text_[pos_prev], NULL, 10); /*atoll(&_text_[pos_prev]);*/\
 		continue;\
 	}
 
