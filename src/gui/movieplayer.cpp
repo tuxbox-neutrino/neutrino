@@ -39,6 +39,7 @@
 #include <gui/infoclock.h>
 #include <gui/plugins.h>
 #include <driver/screenshot.h>
+#include <driver/volume.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -422,8 +423,11 @@ void CMoviePlayerGui::PlayFile(void)
 
 	printf("IS FILE PLAYER: %s\n", is_file_player ?  "true": "false" );
 
-	if(p_movie_info != NULL)
+	if(p_movie_info != NULL) {
 		duration = p_movie_info->length * 60 * 1000;
+		int percent = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, currentapid, currentac3 == 1);
+		CZapit::getInstance()->SetVolumePercent(percent);
+	}
 
 	file_prozent = 0;
 	if(!playback->Start((char *) full_name.c_str(), vpid, vtype, currentapid, currentac3, duration)) {
@@ -785,6 +789,21 @@ void CMoviePlayerGui::selectAudioPid(bool file_player)
 		sprintf(cnt, "%d", count);
 		CMenuForwarderNonLocalized * item = new CMenuForwarderNonLocalized(apidtitle.c_str(), enabled, NULL, selector, cnt, CRCInput::convertDigitToKey(count + 1));
 		APIDSelector.addItem(item, defpid);
+	}
+
+	if (p_movie_info) {
+		APIDSelector.addItem(new CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, LOCALE_AUDIOMENU_VOLUME_ADJUST));
+
+		CVolume::getInstance()->SetCurrentChannel(p_movie_info->epgId);
+		CVolume::getInstance()->SetCurrentPid(currentapid);
+		int percent[numpida];
+		for (uint i=0; i < numpida; i++) {
+			percent[i] = CZapit::getInstance()->GetPidVolume(p_movie_info->epgId, apids[i], ac3flags[i]);
+			APIDSelector.addItem(new CMenuOptionNumberChooser(NONEXISTANT_LOCALE, &percent[i],
+						currentapid == apids[i],
+						0, 999, CVolume::getInstance(), 0, 0, NONEXISTANT_LOCALE,
+						g_RemoteControl->current_PIDs.APIDs[i].desc));
+		}
 	}
 
 	APIDSelector.exec(NULL, "");
