@@ -263,12 +263,14 @@ void CComponentsContainer::syncSysColors()
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
 				       const char* info_text, const int mode, Font* font_text,
 				       bool has_shadow,
-				       fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
+				       fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
 	//CComponentsInfoBox
+	initVarInfobox();
 	text 		= info_text;
 	text_mode	= mode;
 	font		= font_text;
+	col_text	= color_text;
 
 	//CComponents
 	x 		= x_pos;
@@ -280,7 +282,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	col_body	= color_body;
 	col_shadow	= color_shadow;
 	
-	initVarInfobox();
+	
 }
 
 CComponentsInfoBox::~CComponentsInfoBox()
@@ -313,6 +315,7 @@ void CComponentsInfoBox::initVarInfobox()
 	pic 		= NULL;
 	pic_name	= "";
 	x_text		= x;
+	x_offset	= 10;
 	
 }
 
@@ -325,31 +328,63 @@ void CComponentsInfoBox::setText(neutrino_locale_t locale_text, int mode, Font* 
 
 void CComponentsInfoBox::paintPicture()
 {
+	//init and set icon paint position
 	if (pic == NULL)
-		pic = new CComponentsPicture(x+fr_thickness+corner_rad, y+fr_thickness+corner_rad, "");
+		pic = new CComponentsPicture(x+fr_thickness+x_offset, y+fr_thickness/*+y_offset*/, "");
+	pic->setXPos(x+fr_thickness+x_offset);
+	pic->setYPos(y+fr_thickness);
+
+	//define icon
 	pic->setPicture(pic_name);
-	int pic_w = pic->getWidth();
-	pic->setHeight(height-2*fr_thickness-2*corner_rad);
+
+	//fit icon into infobox
+	pic->setHeight(height-2*fr_thickness);
 	pic->setColorBody(col_body);
+	
 	pic->paint();
-	if (pic->isPainted())
-		x_text = x+fr_thickness+pic_w+corner_rad;
 }
 
 void CComponentsInfoBox::paintText()
-{	
-	box = new CBox( x_text+fr_thickness, y+fr_thickness, width-2*fr_thickness-(x_text-x), height-2*fr_thickness);
-	textbox = new CTextBox(text, font, text_mode, box, col_body);
+{
+	if (box == NULL)
+		box = new CBox();
+	
+	//define text x position
+	x_text = x+fr_thickness+x_offset;
+	if (pic->isPainted()){
+		int pic_w = pic->getWidth();
+		x_text += pic_w+x_offset;
+	}	
+
+	box->iX = x_text;
+	box->iY = y+fr_thickness;
+
+	//text width and height
+	box->iWidth = width-2*fr_thickness-(x_text-x);
+	box->iHeight = height-2*fr_thickness;
+
+	//init textbox
+	if (textbox == NULL)
+		textbox = new CTextBox(text, font, text_mode, box, col_body);
+
+	//set properties
+	textbox->movePosition(box->iX, box->iY);
+	textbox->setTextColor(col_text);
 	textbox->enableBackgroundPaint(false);
-	textbox->paint();
+
+	//set text
+	string new_text = static_cast <string> (text);
+	if (textbox->setText(&new_text))
+		textbox->paint();
 }
 
 void CComponentsInfoBox::paint(bool do_save_bg)
 {
 	paintInit(do_save_bg);
 	paintPicture();
-	if (text != NULL)
+	if (text)
 		paintText();
+	text = NULL;
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -632,13 +667,14 @@ void CComponentsPicture::setPictureAlign(const int alignment)
 
 void CComponentsPicture::initDimensions()
 {
-	if (pic_name.empty()){
-		printf("CComponentsPicture: %s no picture file defined !\n", __FUNCTION__);
-		pic_width = pic_height = 0;
-		return;
-	}
+	pic_width = pic_height = 0;
+	pic_painted = false;
+	do_paint = false;
 	
 	frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
+	
+	if (pic_width == 0 || pic_height == 0)
+		printf("CComponentsPicture: %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
 	
 	pic_x += fr_thickness;
 	pic_y += fr_thickness;
@@ -659,18 +695,18 @@ void CComponentsPicture::initDimensions()
 		
 		do_paint = true;
 	}
-	
-	width = max(pic_width, width);
-	height = max(pic_height, height);
+
+	int sw = (shadow ? shadow_w :0);
+	width = max(pic_width, width)  + sw ;
+	height = max(pic_height, height)  + sw ;
 }
 
 void CComponentsPicture::paint(bool do_save_bg)
 {
-	pic_painted = false;
 	initDimensions();
+	paintInit(do_save_bg);
 	
-	if (do_paint){	
-		paintInit(do_save_bg);
+	if (do_paint){
 		pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0, pic_offset, pic_paint, pic_paintBg, col_body);
 		do_paint = false;
 	}
