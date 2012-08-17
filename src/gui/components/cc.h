@@ -162,6 +162,30 @@ class CComponentsContainer : public CComponents
 		virtual void syncSysColors();
 };
 
+class CComponentsPicture : public CComponentsContainer
+{
+	private:
+		std::string pic_name;
+		unsigned char pic_offset;
+		bool pic_paint, pic_paintBg, pic_painted, do_paint;
+		int pic_align, pic_x, pic_y, pic_width, pic_height;
+
+		void initDimensions();
+
+	public:
+		CComponentsPicture( 	const int x_pos, const int y_pos, const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		void setPictureOffset(const unsigned char offset){pic_offset = offset;};
+		void setPicturePaint(bool paint_p){pic_paint = paint_p;};
+		void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
+		void setPicture(const std::string& picture_name);
+		void setPictureAlign(const int alignment);
+
+		bool isPainted(){return pic_painted;};
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+		void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
+
+};
 
 #define INFO_BOX_Y_OFFSET	2
 class CComponentsInfoBox : public CComponentsContainer
@@ -169,28 +193,34 @@ class CComponentsInfoBox : public CComponentsContainer
 	private:
 		const char* text;
 		int text_mode; //see textbox.h for possible modes
+		int x_text;
 		Font* font;
 		CBox * box;
 		CTextBox * textbox;
-		
+		CComponentsPicture * pic;
+
+		void paintPicture();
 		void paintText();
 		void initVarInfobox();
-		
+		std::string pic_name;
+
 	public:
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
-					const char* info_text = NULL, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
+					const char* info_text = NULL, const int mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-					
+
 		~CComponentsInfoBox();
-		
+
 		void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; text_mode = mode, font = font_text;};
-		void setText(const std::string info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, font = font_text;};
+		void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, font = font_text;};
 		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		void setTextMode(const int mode){text_mode = mode;};
 		void setTextFont(Font* font_text){font = font_text;};
+		void setPicture(const std::string& picture_name){pic_name = picture_name;};
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
+
 
 class CComponentsShapeCircle : public CComponentsContainer
 {
@@ -240,31 +270,6 @@ class CComponentsDetailLine : public CComponents
 		void syncSysColors();
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
-};
-
-class CComponentsPicture : public CComponentsContainer
-{
-	private:
-		std::string pic_name;
-		unsigned char pic_offset;
-		bool pic_paint, pic_paintBg, pic_painted, do_paint;
-		int pic_align, pic_x, pic_y, pic_width, pic_height;
-
-		void initDimensions();
-		
-	public:
-		CComponentsPicture( 	const int x_pos, const int y_pos, const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
-					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		void setPictureOffset(const unsigned char offset){pic_offset = offset;};
-		void setPicturePaint(bool paint_p){pic_paint = paint_p;};
-		void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
-		void setPicture(const std::string& picture_name);
-		void setPictureAlign(const int alignment);
-		
-		bool isPainted(){return pic_painted;};
-		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
-		
 };
 
 #endif

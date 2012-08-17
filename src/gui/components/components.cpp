@@ -291,6 +291,7 @@ CComponentsInfoBox::~CComponentsInfoBox()
 //		delete[] saved_screen.pixbuf;
 	delete textbox;
 	delete box;
+	delete pic;
 	clear();
 }
 
@@ -309,6 +310,9 @@ void CComponentsInfoBox::initVarInfobox()
 	//CComponentsInfoBox
 	box		= NULL;
 	textbox 	= NULL;
+	pic 		= NULL;
+	pic_name	= "";
+	x_text		= x;
 	
 }
 
@@ -319,9 +323,22 @@ void CComponentsInfoBox::setText(neutrino_locale_t locale_text, int mode, Font* 
 	font = font_text;
 }
 
+void CComponentsInfoBox::paintPicture()
+{
+	if (pic == NULL)
+		pic = new CComponentsPicture(x+fr_thickness+corner_rad, y+fr_thickness+corner_rad, "");
+	pic->setPicture(pic_name);
+	int pic_w = pic->getWidth();
+	pic->setHeight(height-2*fr_thickness-2*corner_rad);
+	pic->setColorBody(col_body);
+	pic->paint();
+	if (pic->isPainted())
+		x_text = x+fr_thickness+pic_w+corner_rad;
+}
+
 void CComponentsInfoBox::paintText()
 {	
-	box = new CBox( x+fr_thickness, y+fr_thickness, width-2*fr_thickness, height-2*fr_thickness);
+	box = new CBox( x_text+fr_thickness, y+fr_thickness, width-2*fr_thickness-(x_text-x), height-2*fr_thickness);
 	textbox = new CTextBox(text, font, text_mode, box, col_body);
 	textbox->enableBackgroundPaint(false);
 	textbox->paint();
@@ -330,6 +347,7 @@ void CComponentsInfoBox::paintText()
 void CComponentsInfoBox::paint(bool do_save_bg)
 {
 	paintInit(do_save_bg);
+	paintPicture();
 	if (text != NULL)
 		paintText();
 }
@@ -574,7 +592,7 @@ CComponentsPicture::CComponentsPicture(	int x_pos, int y_pos, const string& pict
 	pic_painted	= false;
 	do_paint	= false;
 	if (pic_name.empty())
-	pic_width = pic_height = 0;
+		pic_width = pic_height = 0;
 	
 	//CComponents
 	x = pic_x	= x_pos;
