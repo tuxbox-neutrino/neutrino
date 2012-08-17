@@ -138,7 +138,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 	for(sit = satellitePositions.begin(); sit != satellitePositions.end(); sit++) {
 		if(!strcmp(sit->second.name.c_str(),scansettings.satNameNoDiseqc)) {
 			sat.position = sit->first;
-			strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
+			strncpy(sat.satName, scansettings.satNameNoDiseqc, 49);
 			satList.push_back(sat);
 			if(sit->second.motor_position)
 				motorPosition = sit->second.motor_position;
@@ -148,7 +148,7 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
 #endif
        	/* send satellite list to zapit */
 	sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
-	strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
+	strncpy(sat.satName, scansettings.satNameNoDiseqc, 49);
 	satList.push_back(sat);
 
 	satellite_map_t & satmap = frontend->getSatellites();
@@ -162,9 +162,9 @@ int CMotorControl::exec(CMenuTarget* parent, const std::string &)
        	g_Zapit->setScanSatelliteList( satList);
 	CZapit::getInstance()->SetLiveFrontend(frontend);
 
-	TP.feparams.frequency = atoi(scansettings.TP_freq);
-	TP.feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
-	TP.feparams.u.qpsk.fec_inner = (fe_code_rate_t)scansettings.TP_fec;
+	TP.feparams.dvb_feparams.frequency = atoi(scansettings.TP_freq);
+	TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
+	TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t)scansettings.TP_fec;
 	TP.polarization = scansettings.TP_pol;
 
 	g_Zapit->tune_TP(TP);

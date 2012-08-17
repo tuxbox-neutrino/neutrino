@@ -66,6 +66,11 @@ CBEBouquetWidget::CBEBouquetWidget()
 	liststart = 0;
 	state = beDefault;
 	blueFunction = beRename;
+	Bouquets = NULL;
+	iheight = 0;
+	ButtonHeight = 0;
+	fheight = 0;
+	theight = 0;
 }
 
 void CBEBouquetWidget::paintItem(int pos)
@@ -83,7 +88,7 @@ void CBEBouquetWidget::paintItem(int pos)
 	} else {
 		bool has_channels = true;
 		if(current < Bouquets->size())
-			has_channels = ((*Bouquets)[current]->tvChannels.size() > 0) || ((*Bouquets)[current]->radioChannels.size() > 0);
+			has_channels = (!(*Bouquets)[current]->tvChannels.empty() ) || (!(*Bouquets)[current]->radioChannels.empty());
 		color   = has_channels ? COL_MENUCONTENT : COL_MENUCONTENTINACTIVE;
 		bgcolor = has_channels ? COL_MENUCONTENT_PLUS_0 : COL_MENUCONTENTINACTIVE_PLUS_0;
 		frameBuffer->paintBoxRel(x,ypos, width- 15, iheight, bgcolor);
@@ -528,7 +533,7 @@ std::string CBEBouquetWidget::inputName(const char * const defaultName, const ne
 {
 	char Name[30];
 
-	strncpy(Name, defaultName, 30);
+	strncpy(Name, defaultName, sizeof(Name)-1);
 
 	CStringInputSMS * nameInput = new CStringInputSMS(caption, Name, 29, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "abcdefghijklmnopqrstuvwxyz0123456789-.,:|!?/ ");
 	nameInput->exec(this, "");

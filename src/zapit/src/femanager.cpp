@@ -31,7 +31,6 @@
 #include <math.h>
 
 #include <zapit/debug.h>
-#include <zapit/cam.h>
 #include <zapit/channel.h>
 #include <zapit/getservices.h>
 #include <zapit/zapit.h>
@@ -70,7 +69,7 @@ bool CFEManager::Init()
 		}
 	}
 	INFO("found %d frontends\n", femap.size());
-	if(femap.size() == 0)
+	if( femap.empty() )
 		return false;
 #if 0
 	if(femap.size() == 1)
@@ -186,10 +185,10 @@ bool CFEManager::loadSettings()
 
 		char cfg_key[81];
 		sprintf(cfg_key, "fe%d_satellites", fe->fenumber);
-		std::vector<int> satList = configfile.getInt32Vector(cfg_key);
 		satellite_map_t & satmap = fe->getSatellites();
 		satmap.clear();
 #if 0
+		std::vector<int> satList = configfile.getInt32Vector(cfg_key);
 		for(unsigned int i = 0; i < satList.size(); i++) 
 			t_satellite_position position = satList[i];
 #endif
@@ -317,7 +316,8 @@ CFrontend * CFEManager::getFE(int index)
 	INFO("Frontend #%d not found", index);
 	return NULL;
 }
-
+#if 0 
+//never used
 transponder * CFEManager::getChannelTransponder(CZapitChannel * channel)
 {
 	transponder_list_t::iterator tpI = transponders.find(channel->getTransponderId());
@@ -327,6 +327,7 @@ transponder * CFEManager::getChannelTransponder(CZapitChannel * channel)
 	INFO("Transponder %llx not found", channel->getTransponderId());
 	return NULL;
 }
+#endif
 
 /* try to find fe with same tid, or unlocked. fe with same tid is preffered */
 CFrontend * CFEManager::findFrontend(CZapitChannel * channel)

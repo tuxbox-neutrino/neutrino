@@ -28,6 +28,7 @@
 #include <xmlinterface.h>
 #include <math.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 //#define SAVE_DEBUG
 
@@ -78,7 +79,8 @@ bool CServiceManager::ParseScanXml(void)
 	}
 	return (scanInputParser != NULL);
 }
-
+#if 0 
+//never used
 xmlDocPtr CServiceManager::ScanXml()
 {
 	if(!scanInputParser)
@@ -86,7 +88,7 @@ xmlDocPtr CServiceManager::ScanXml()
 
 	return scanInputParser;
 }
-
+#endif
 bool CServiceManager::AddChannel(CZapitChannel * &channel)
 {
 	channel_insert_res_t ret = allchans.insert (
@@ -159,12 +161,13 @@ void CServiceManager::RemoveAllChannels()
 {
 	allchans.clear();
 }
-
+#if 0 
+//never used
 void CServiceManager::RemoveNVODChannels()
 {
 	nvodchannels.clear();
 }
-
+#endif
 void CServiceManager::RemoveCurrentChannels()
 {
 	curchans.clear();
@@ -225,7 +228,7 @@ bool CServiceManager::GetAllRadioChannels(ZapitChannelList &list, int flags)
 				((flags == 0) || (it->second.flags & flags)))
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllTvChannels(ZapitChannelList &list, int flags)
@@ -236,7 +239,7 @@ bool CServiceManager::GetAllTvChannels(ZapitChannelList &list, int flags)
 				((flags == 0) || (it->second.flags & flags)))
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
@@ -246,7 +249,7 @@ bool CServiceManager::GetAllHDChannels(ZapitChannelList &list)
 		if (it->second.isHD())
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
@@ -256,7 +259,7 @@ bool CServiceManager::GetAllUnusedChannels(ZapitChannelList &list)
 		if (it->second.has_bouquet == false)
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellite_position position)
@@ -266,7 +269,7 @@ bool CServiceManager::GetAllSatelliteChannels(ZapitChannelList &list, t_satellit
 		if(it->second.getSatellitePosition() == position)
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transponder_id_t tpid)
@@ -276,7 +279,7 @@ bool CServiceManager::GetAllTransponderChannels(ZapitChannelList &list, transpon
 		if(it->second.getTransponderId() == tpid)
 			list.push_back(&(it->second));
 	}
-	return (list.size() != 0);
+	return (!list.empty());
 }
 
 std::string CServiceManager::GetServiceName(t_channel_id channel_id)
@@ -298,31 +301,31 @@ void CServiceManager::ParseTransponders(xmlNodePtr node, t_satellite_position sa
 
 		t_transport_stream_id transport_stream_id = xmlGetNumericAttribute(node, "id", 16);
 		t_original_network_id original_network_id = xmlGetNumericAttribute(node, "on", 16);
-		feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
-		feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
+		feparams.dvb_feparams.frequency = xmlGetNumericAttribute(node, "frq", 0);
+		feparams.dvb_feparams.inversion = (fe_spectral_inversion) xmlGetNumericAttribute(node, "inv", 0);
 
 		if(cable) {
-			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
-			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
-			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
+			feparams.dvb_feparams.u.qam.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
+			feparams.dvb_feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
+			feparams.dvb_feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(node, "mod", 0);
 
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency = feparams.frequency/1000; //transponderlist was read from tuxbox
+			if (feparams.dvb_feparams.frequency > 1000*1000)
+				feparams.dvb_feparams.frequency = feparams.dvb_feparams.frequency/1000; //transponderlist was read from tuxbox
 		} else {
-			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
-			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
+			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(node, "fec", 0);
+			feparams.dvb_feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(node, "sr", 0);
 
 			polarization = xmlGetNumericAttribute(node, "pol", 0);
 
-			if(feparams.u.qpsk.symbol_rate < 50000)
-				feparams.u.qpsk.symbol_rate = feparams.u.qpsk.symbol_rate * 1000;
+			if(feparams.dvb_feparams.u.qpsk.symbol_rate < 50000)
+				feparams.dvb_feparams.u.qpsk.symbol_rate = feparams.dvb_feparams.u.qpsk.symbol_rate * 1000;
 
-			if(feparams.frequency < 20000) 
-				feparams.frequency = feparams.frequency*1000;
+			if(feparams.dvb_feparams.frequency < 20000)
+				feparams.dvb_feparams.frequency = feparams.dvb_feparams.frequency*1000;
 			else
-				feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+				feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, cable);
+		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, cable);
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition,original_network_id,transport_stream_id);
 		transponder t(frontendType, tid, feparams, polarization);
@@ -465,18 +468,18 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 	while ((tps = xmlGetNextOccurence(tps, "transponder")) != NULL) {
 		memset(&feparams, 0x00, sizeof(FrontendParameters));
 
-		feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
-		feparams.inversion = INVERSION_AUTO;
+		feparams.dvb_feparams.frequency = xmlGetNumericAttribute(tps, "frequency", 0);
+		feparams.dvb_feparams.inversion = INVERSION_AUTO;
 
 		if (fType == FE_QAM) {
-			feparams.u.qam.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
-			feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(tps, "fec_inner", 0);
-			feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, "modulation", 0);
-			if (feparams.frequency > 1000*1000)
-				feparams.frequency=feparams.frequency/1000; //transponderlist was read from tuxbox
+			feparams.dvb_feparams.u.qam.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
+			feparams.dvb_feparams.u.qam.fec_inner = (fe_code_rate_t) xmlGetNumericAttribute(tps, "fec_inner", 0);
+			feparams.dvb_feparams.u.qam.modulation = (fe_modulation_t) xmlGetNumericAttribute(tps, "modulation", 0);
+			if (feparams.dvb_feparams.frequency > 1000*1000)
+				feparams.dvb_feparams.frequency=feparams.dvb_feparams.frequency/1000; //transponderlist was read from tuxbox
 		}
 		else if (fType == FE_QPSK) {
-			feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
+			feparams.dvb_feparams.u.qpsk.symbol_rate = xmlGetNumericAttribute(tps, "symbol_rate", 0);
 			polarization = xmlGetNumericAttribute(tps, "polarization", 0);
 			uint8_t system = xmlGetNumericAttribute(tps, "system", 0);
 			uint8_t modulation = xmlGetNumericAttribute(tps, "modulation", 0);
@@ -484,10 +487,10 @@ void CServiceManager::ParseSatTransponders(fe_type_t fType, xmlNodePtr search, t
 			xml_fec = CFrontend::getCodeRate(xml_fec, system);
 			if(modulation == 2 && ((fe_code_rate_t) xml_fec != FEC_AUTO))
 				xml_fec += 9;
-			feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
-			feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+			feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) xml_fec;
+			feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
 		}
-		freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, fType == FE_QAM);
+		freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, fType == FE_QAM);
 		polarization &= 7;
 
 		transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
@@ -539,7 +542,8 @@ int CServiceManager::LoadMotorPositions(void)
 
 	return 0;
 }
-
+#if 0 
+//never used
 void CServiceManager::SaveMotorPositions()
 {
 	FILE * fd;
@@ -560,7 +564,7 @@ void CServiceManager::SaveMotorPositions()
 	fdatasync(fileno(fd));
 	fclose(fd);
 }
-
+#endif
 bool CServiceManager::InitSatPosition(t_satellite_position position, char * name, bool force)
 {
 	if(force || (satellitePositions.find(position) == satellitePositions.end())) {
@@ -577,6 +581,7 @@ bool CServiceManager::InitSatPosition(t_satellite_position position, char * name
 		satellitePositions[position].use_usals = 0;
 		satellitePositions[position].input = 0;
 		satellitePositions[position].configured = 0;
+		satellitePositions[position].cable_nid = 0;
 		if(name)
 			satellitePositions[position].name = name;
 		return true;
@@ -621,6 +626,7 @@ bool CServiceManager::LoadServices(bool only_current)
 			} else if(!(strcmp(xmlGetName(search), "cable"))) {
 				char * name = xmlGetAttribute(search, "name");
 				InitSatPosition(position, name);
+				satellitePositions[position].cable_nid = xmlGetNumericAttribute(search, "nid", 0);
 			}
 			ParseSatTransponders(frontendType, search, position);
 			position++;
@@ -1021,7 +1027,8 @@ bool CServiceManager::ReplaceProviderName(std::string &name, t_transport_stream_
 	}
 	return false;
 }
-
+#if 0 
+//never used
 int CServiceManager::GetFreeNumber(bool radio)
 {
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
@@ -1035,7 +1042,7 @@ int CServiceManager::GetFreeNumber(bool radio)
 		}
 	}
 }
-
+#endif
 int CServiceManager::GetMaxNumber(bool radio)
 {
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
@@ -1047,7 +1054,8 @@ int CServiceManager::GetMaxNumber(bool radio)
 	}
 	return i+1;
 }
-
+#if 0 
+//never used
 void CServiceManager::FreeNumber(int number, bool radio)
 {
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
@@ -1059,7 +1067,7 @@ void CServiceManager::UseNumber(int number, bool radio)
 	service_number_map_t * channel_numbers = radio ? &radio_numbers : &tv_numbers;
 	channel_numbers->insert(number);
 }
-
+#endif
 bool CServiceManager::GetTransponder(transponder_id_t tid, transponder &t)
 {
 	stiterator tI = transponders.find(tid);

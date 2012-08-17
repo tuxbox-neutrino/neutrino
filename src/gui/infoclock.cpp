@@ -9,6 +9,7 @@
 
 #include <sys/timeb.h>
 #include <time.h>
+#include <unistd.h>
 #include <sys/param.h>
 #include <driver/volume.h>
 #include <gui/infoclock.h>

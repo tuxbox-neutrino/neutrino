@@ -171,7 +171,7 @@ class CInfoViewer
 	void    Init(void);
 	bool    SDT_freq_update;
 };
-
+#if 0
 class CInfoViewerHandler : public CMenuTarget
 {
 	public:
@@ -179,4 +179,5 @@ class CInfoViewerHandler : public CMenuTarget
 		int  doMenu();
 
 };
+#endif
 #endif

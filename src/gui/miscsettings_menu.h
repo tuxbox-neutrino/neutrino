@@ -54,9 +54,6 @@ class CMiscMenue : public CMenuTarget
 #ifdef CPU_FREQ
 		void showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu);
 #endif /*CPU_FREQ*/
-#if 0
-		void showMiscSettingsMenuEmLog(CMenuWidget *ms_emlog);
-#endif
 	public:
 		CMiscMenue();
 		~CMiscMenue();

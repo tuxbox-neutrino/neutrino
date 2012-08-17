@@ -63,6 +63,7 @@ class CCam : public CBasicClient
 			CAPMT_UPDATE	= 0x05
 		};
 		CCam();
+		virtual ~CCam() {};
 		bool sendMessage(const char * const data, const size_t length, bool update = false);
 		bool makeCaPmt(CZapitChannel * channel, uint8_t list = CAPMT_ONLY, const CaIdVector &caids = CaIdVector());
 		bool setCaPmt(bool update = false);

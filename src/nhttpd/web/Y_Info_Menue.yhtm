@@ -13,7 +13,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu').insert({'bottom':el}); 
+		$('secmenu_info').insert({'bottom':el});
 	});
 }
 </script>
@@ -24,14 +24,18 @@ function init(){
 	<div class="y_menu_sec_box_head"><h2>{=L:main.info=}</h2></div>
 	<div class="y_menu_sec_box_body">
 		<div class="y_menu_sec">
-			<ul id="secmenu">
-				<li><a target="work" href="Y_About.yhtm">{=L:info.About=}</a></li>
-				<li><a target="work" href="Y_Info_Help.yhtm">{=L:info.help=}</a></li>
-			{=if-empty:{=var-get:management=}~
-				<li class="disabled" >{=L:info.check_for_updates=}</li>
-			~
-				<li><a target="work" href="Y_Info_Updates.yhtm">{=L:info.check_for_updates=}</a></li>
-			=}
+			<ul id="secmenu_info">
+				<li>
+					<a target="work" href="Y_About.yhtm">{=L:info.About=}</a>
+				</li>
+				<li>
+					<a target="work" href="Y_Info_Help.yhtm">{=L:info.help=}</a>
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Info_Updates.yhtm=}
+					{=var-set:m_link_text={=L:info.check_for_updates=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 			</ul>
 		</div>
 

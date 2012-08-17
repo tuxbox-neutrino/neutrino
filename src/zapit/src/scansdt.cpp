@@ -22,7 +22,6 @@
 #include <unistd.h>
 
 /* zapit */
-#include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/scansdt.h>
 #include <zapit/scanpmt.h>

@@ -23,7 +23,6 @@
 #include <unistd.h>
 
 #include <zapit/client/zapitclient.h>
-#include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/settings.h>
 #include <zapit/types.h>
@@ -111,9 +110,9 @@ bool CServiceScan::ScanFast()
 
 	printf("[fast scan] scaning operator %d for %s channels\n", op->id, type == FAST_SCAN_SD ? "SD" : type == FAST_SCAN_HD ? "HD" : "All");
 
-	feparams.frequency = 12515000;
-	feparams.u.qpsk.symbol_rate = 22000000;
-	feparams.u.qpsk.fec_inner = FEC_5_6;
+	feparams.dvb_feparams.frequency = 12515000;
+	feparams.dvb_feparams.u.qpsk.symbol_rate = 22000000;
+	feparams.dvb_feparams.u.qpsk.fec_inner = FEC_5_6;
 	polarization = 0;
 
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, op->name, strlen(op->name)+1);
@@ -478,7 +477,7 @@ bool CServiceScan::ParseFnt(unsigned short pid, unsigned short operator_id)
 							stiterator stI;
 
 							process_satellite_delivery_system_descriptor(buffer + pos2, &feparams, &polarization, &satellitePosition);
-							freq = feparams.frequency / 1000;
+							freq = feparams.dvb_feparams.frequency / 1000;
 							TsidOnid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, original_network_id, transport_stream_id);
 							stI = transponders.find(TsidOnid);
 							if(stI == transponders.end()) {
@@ -558,7 +557,7 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
         stiterator tI;
         int modulationSystem, modulationType, /*rollOff,*/ fec_inner;
 
-        feparams->frequency = (
+        feparams->dvb_feparams.frequency = (
                  ((buffer[2] >> 4)      * 100000000) +
                  ((buffer[2] & 0x0F)    * 10000000) +
                  ((buffer[3] >> 4)      * 1000000) +
@@ -575,13 +574,13 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
                  ((buffer[7] >> 4)      * 10) +
                  ((buffer[7] & 0x0F)    * 1)
 	);
-        feparams->inversion = INVERSION_AUTO;
+        feparams->dvb_feparams.inversion = INVERSION_AUTO;
 
         //rollOff = (buffer[8] >> 4) & 0x03; //alpha_0_35, alpha_0_25, alpha_0_20, alpha_auto
         modulationSystem = (buffer[8] >> 2) & 0x01; // 1= DVB_S2
         modulationType = (buffer[8]) & 0x03; // 1=QPSK, 2=M8PSK
 
-        feparams->u.qpsk.symbol_rate = (
+        feparams->dvb_feparams.u.qpsk.symbol_rate = (
                  ((buffer[9] >> 4)      * 100000000) +
                  ((buffer[9] & 0x0F)    * 10000000) +
                  ((buffer[10] >> 4)     * 1000000) +
@@ -595,19 +594,19 @@ void CServiceScan::process_satellite_delivery_system_descriptor(const unsigned c
         if(modulationType == 2)
                 fec_inner += 9;
 
-        feparams->u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
+        feparams->dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
 
         * polarization = (buffer[8] >> 5) & 0x03;
 
         /* workarounds for braindead broadcasters (e.g. on Telstar 12 at 15.0W) */
-        if (feparams->frequency >= 100000000)
-                feparams->frequency /= 10;
-        if (feparams->u.qpsk.symbol_rate >= 50000000)
-                feparams->u.qpsk.symbol_rate /= 10;
+        if (feparams->dvb_feparams.frequency >= 100000000)
+                feparams->dvb_feparams.frequency /= 10;
+        if (feparams->dvb_feparams.u.qpsk.symbol_rate >= 50000000)
+                feparams->dvb_feparams.u.qpsk.symbol_rate /= 10;
 
-        feparams->frequency = (int) 1000 * (int) round ((double) feparams->frequency / (double) 1000);
+        feparams->dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams->dvb_feparams.frequency / (double) 1000);
 
 #ifdef SCAN_DEBUG
-	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->frequency, feparams->u.qpsk.symbol_rate, fec_inner, * polarization);
+	printf("[FNT] new TP: sat %d freq %d SR %d fec %d pol %d\n", *satellitePosition, feparams->dvb_feparams.frequency, feparams->dvb_feparams.u.qpsk.symbol_rate, fec_inner, * polarization);
 #endif
 }

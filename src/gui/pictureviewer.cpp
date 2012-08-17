@@ -63,6 +63,7 @@
 #include <algorithm>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include <video.h>
 extern cVideo * videoDecoder;

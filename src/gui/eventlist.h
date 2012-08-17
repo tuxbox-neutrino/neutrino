@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 
@@ -117,13 +118,13 @@ class CNeutrinoEventList
 	int timerPost;
 	void UpdateTimerList(void);
 	bool HasTimerConflicts(time_t starttime, time_t duration, event_id_t * epg_ID);
-	
+	bool showfollow;
 	CTimerd::CTimerEventTypes isScheduled(t_channel_id channel_id, CChannelEvent * event, int * tID = NULL);
 	
 	public:
 		CNeutrinoEventList();
 		~CNeutrinoEventList();
-		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = ""); // UTF-8
+		int exec(const t_channel_id channel_id, const std::string& channelname, const std::string& prev = "", const std::string&  next = "", const CChannelEventList &followlist = CChannelEventList ()); // UTF-8
 };
 
 class CEventListHandler : public CMenuTarget

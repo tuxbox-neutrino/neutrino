@@ -7,7 +7,7 @@ function rcsim(_key) {
 	$('statusline').show();
 	$('buttons').hide();
 	dbox_rcsim(_key);
-	window.setTimeout("do_dboxshot()",50);
+	window.setTimeout("do_dboxshot()",750);
 }
 function do_dboxshot(){
 	var res = dbox_exec_tools("fbshot fb /tmp/a.png");

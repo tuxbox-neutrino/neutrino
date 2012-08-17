@@ -132,7 +132,7 @@ void CServiceScan::CleanAllMaps()
 
 bool CServiceScan::tuneFrequency(FrontendParameters *feparams, uint8_t polarization, t_satellite_position satellitePosition)
 {
-	frontend->setInput(satellitePosition, feparams->frequency, polarization);
+	frontend->setInput(satellitePosition, feparams->dvb_feparams.frequency, polarization);
 	int ret = frontend->driveToSatellitePosition(satellitePosition, false); //true);
 	if(ret > 0) {
 		printf("[scan] waiting %d seconds for motor to turn satellite dish.\n", ret);
@@ -268,7 +268,7 @@ _repeat:
 			}
 		}
 
-		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.frequency, cable);
+		freq_id_t freq = CREATE_FREQ_ID(tI->second.feparams.dvb_feparams.frequency, cable);
 
 		CNit nit(satellitePosition, freq, cable_nid);
 		if(flags & SCAN_NIT)
@@ -321,11 +321,11 @@ _repeat:
 	if((flags & SCAN_NIT) && AddFromNit())
 		goto _repeat;
 
-	if (flags & (SCAN_NIT/*|SCAN_LOGICAL_NUMBERS*/) && !nit_logical_map.empty()) {
+	if ((flags & SCAN_LOGICAL_NUMBERS /*(SCAN_NIT|SCAN_LOGICAL_NUMBERS)*/) && !nit_logical_map.empty()) {
 		std::string pname = networkName;
 		INFO("network [%s] %d logical channels (%d hd)\n", pname.c_str(), nit_logical_map.size(), nit_hd_logical_map.size());
-		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
 		g_bouquetManager->loadBouquets(true);
+		CServiceManager::getInstance()->ResetChannelNumbers(true, true);
 		CZapitBouquet* bouquet;
 		int bouquetId = g_bouquetManager->existsUBouquet(pname.c_str());
 		if (bouquetId == -1)
@@ -333,13 +333,15 @@ _repeat:
 		else
 			bouquet = g_bouquetManager->Bouquets[bouquetId];
 
-		for(channel_number_map_t::iterator cit = nit_hd_logical_map.begin(); cit != nit_hd_logical_map.end(); ++cit) {
-			//nit_logical_map.erase(cit->first);
-			CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(cit->first);
-			if (channel) {
-				channel->number = cit->second;
-				if (!bouquet->getChannelByChannelID(channel->getChannelID()))
-					bouquet->addService(channel);
+		if (flags & SCAN_LOGICAL_HD) {
+			for(channel_number_map_t::iterator cit = nit_hd_logical_map.begin(); cit != nit_hd_logical_map.end(); ++cit) {
+				//nit_logical_map.erase(cit->first);
+				CZapitChannel * channel = CServiceManager::getInstance()->FindChannel48(cit->first);
+				if (channel) {
+					channel->number = cit->second;
+					if (!bouquet->getChannelByChannelID(channel->getChannelID()))
+						bouquet->addService(channel);
+				}
 			}
 		}
 		for(channel_number_map_t::iterator cit = nit_logical_map.begin(); cit != nit_logical_map.end(); ++cit) {
@@ -539,7 +541,7 @@ bool CServiceScan::ScanProviders()
 			break;
 		}
 
-		if(scanBouquetManager->Bouquets.size() > 0) {
+		if( !scanBouquetManager->Bouquets.empty() ) {
 			scanBouquetManager->saveBouquets(bouquetMode, spI->second.c_str());
 		}
 		scanBouquetManager->clearAll();
@@ -581,13 +583,13 @@ bool CServiceScan::ScanTransponder()
 	printf("[scan] scanning sat %s position %d\n", providerName.c_str(), satellitePosition);
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SATELLITE, providerName.c_str(), providerName.size()+1);
 	
-	TP->feparams.inversion = INVERSION_AUTO;
+	TP->feparams.dvb_feparams.inversion = INVERSION_AUTO;
 
 	flags = TP->scan_mode;
 	printf("[scan] NIT %s, fta only: %s, satellites %s\n", flags & SCAN_NIT ? "yes" : "no",
 			flags & SCAN_FTA ? "yes" : "no", scanProviders.size() == 1 ? "single" : "multi");
 
-	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.frequency, cable);
+	freq_id_t freq = CREATE_FREQ_ID(TP->feparams.dvb_feparams.frequency, cable);
 
 	fake_tid++; fake_nid++;
 	transponder_id_t tid = CREATE_TRANSPONDER_ID64(freq, satellitePosition, fake_nid, fake_tid);
@@ -623,13 +625,14 @@ bool CServiceScan::ScanTransponder()
 
 	return (found_channels != 0);
 }
-
+#if 0 
+//never used
 bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position satellitePosition, struct dvb_frontend_parameters * feparams, uint8_t polarization)
 {
 	bool ret = false;
 	for (transponder_list_t::iterator tI = transponders.begin(); tI != transponders.end(); ++tI) {
 		if (tI->second.satellitePosition == satellitePosition) {
-			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.frequency, cable);
+			freq_id_t newfreq = CREATE_FREQ_ID(tI->second.feparams.dvb_feparams.frequency, cable);
 			if (freq == newfreq) {
 				memcpy(&tI->second.feparams, feparams, sizeof(struct dvb_frontend_parameters));
 				tI->second.polarization = polarization;
@@ -641,10 +644,10 @@ bool CServiceScan::ReplaceTransponderParams(freq_id_t freq, t_satellite_position
 	}
 	return ret;
 }
-
+#endif
 void CServiceScan::SendTransponderInfo(transponder &t)
 {
-	uint32_t  actual_freq = t.feparams.frequency;
+	uint32_t  actual_freq = t.feparams.dvb_feparams.frequency;
 	if (!cable)
 		actual_freq /= 1000;
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCY, &actual_freq,sizeof(actual_freq));
@@ -654,7 +657,7 @@ void CServiceScan::SendTransponderInfo(transponder &t)
 	CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_SERVICENAME, (void *) " ", 2);
 
 	if (!cable) {
-		uint32_t actual_polarisation = ((t.feparams.u.qpsk.symbol_rate/1000) << 16) | (t.feparams.u.qpsk.fec_inner << 8) | (uint)t.polarization;
+		uint32_t actual_polarisation = ((t.feparams.dvb_feparams.u.qpsk.symbol_rate/1000) << 16) | (t.feparams.dvb_feparams.u.qpsk.fec_inner << 8) | (uint)t.polarization;
 		CZapit::getInstance()->SendEvent(CZapitClient::EVT_SCAN_REPORT_FREQUENCYP, &actual_polarisation,sizeof(actual_polarisation));
 	}
 }

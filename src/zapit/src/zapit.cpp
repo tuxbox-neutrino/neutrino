@@ -38,7 +38,7 @@
 #endif
 
 /* zapit headers */
-#include <zapit/cam.h>
+#include <zapit/capmt.h>
 #include <zapit/client/msgtypes.h>
 #include <zapit/debug.h>
 #include <zapit/getservices.h>
@@ -145,18 +145,6 @@ void CZapit::SendEvent(const unsigned int eventID, const void* eventbody, const 
 void CZapit::SaveSettings(bool write)
 {
 	if (current_channel) {
-#if 0
-		// now save the lowest channel number with the current channel_id
-		int c = ((currentMode & RADIO_MODE) ? g_bouquetManager->radioChannelsBegin() : g_bouquetManager->tvChannelsBegin()).getLowestChannelNumberWithChannelID(current_channel->getChannelID());
-//printf("LAST CHAN %d !!!!!!!!!!!\n\n\n", c);
-		//FIXME save last TV/RADIO channel id, always ?
-		if (c >= 0) {
-			if ((currentMode & RADIO_MODE))
-				lastChannelRadio = c;
-			else
-				lastChannelTV = c;
-		}
-#endif
 		if ((currentMode & RADIO_MODE))
 			lastChannelRadio = current_channel->getChannelID();
 		else
@@ -329,9 +317,6 @@ void CZapit::SendPMT(bool forupdate)
 		return;
 
 	CCamManager::getInstance()->Start(current_channel->getChannelID(), CCamManager::PLAY, forupdate);
-	int len;
-	unsigned char * pmt = current_channel->getRawPmt(len);
-	ca->SendPMT(DEMUX_SOURCE_0, pmt, len);
 }
 
 void CZapit::SaveChannelPids(CZapitChannel* channel)
@@ -409,43 +394,28 @@ audio_map_set_t * CZapit::GetSavedPids(const t_channel_id channel_id)
 
 bool CZapit::TuneChannel(CFrontend * frontend, CZapitChannel * channel, bool &transponder_change)
 {
-	//CFrontend * frontend = CFEManager::getInstance()->allocateFE(channel);
-	if(frontend == NULL) {
-		ERROR("Cannot get frontend\n");
-		return false;
-	}
-	transponder_change = false;
-#if 0
-	if (!(currentMode & RECORD_MODE)) 
-#endif
-	{
-		transponder_change = frontend->setInput(channel, current_is_nvod);
-		if(transponder_change && !current_is_nvod) {
-			int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
-			if(waitForMotor > 0) {
-				printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
-				SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
-				for(int i = 0; i < waitForMotor; i++) {
-					sleep(1);
-					if(abort_zapit) {
-						abort_zapit = 0;
-						return false;
-					}
+	transponder_change = frontend->setInput(channel, current_is_nvod);
+	if(transponder_change && !current_is_nvod) {
+		int waitForMotor = frontend->driveToSatellitePosition(channel->getSatellitePosition());
+		if(waitForMotor > 0) {
+			printf("[zapit] waiting %d seconds for motor to turn satellite dish.\n", waitForMotor);
+			SendEvent(CZapitClient::EVT_ZAP_MOTOR, &waitForMotor, sizeof(waitForMotor));
+			for(int i = 0; i < waitForMotor; i++) {
+				sleep(1);
+				if(abort_zapit) {
+					abort_zapit = 0;
+					return false;
 				}
 			}
 		}
+	}
 
-		/* if channel's transponder does not match frontend's tuned transponder ... */
-		if (transponder_change /* || current_is_nvod*/) {
-			if (frontend->tuneChannel(channel, current_is_nvod) == false) {
-				return false;
-			}
+	/* if channel's transponder does not match frontend's tuned transponder ... */
+	if (transponder_change /* || current_is_nvod*/) {
+		if (frontend->tuneChannel(channel, current_is_nvod) == false) {
+			return false;
 		}
-	} 
-#if 0
-	else if(!SAME_TRANSPONDER(channel->getChannelID(), live_channel_id))
-		return false;
-#endif
+	}
 	return true;
 }
 
@@ -500,7 +470,6 @@ bool CZapit::ZapIt(const t_channel_id channel_id, bool forupdate, bool startplay
 
 	pmt_stop_update_filter(&pmt_update_fd);
 
-	ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_CI);
 	StopPlayBack(!forupdate);
 
 	if(!forupdate && current_channel)
@@ -691,11 +660,6 @@ void CZapit::SetRecordMode(bool enable)
 		event = CZapitClient::EVT_RECORDMODE_ACTIVATED;
 	} else {
 		currentMode &= ~RECORD_MODE;
-
-		int demux = 2;
-		if(current_channel)
-			demux = current_channel->getRecordDemux();
-		ca->SendPMT(demux /*DEMUX_SOURCE_2*/, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
 		event = CZapitClient::EVT_RECORDMODE_DEACTIVATED;
 	}
 	SendEvent(event);
@@ -924,13 +888,14 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		sendBouquetChannels(connfd, msgGetBouquetChannels.bouquet, msgGetBouquetChannels.mode, false); // bouquet & channel number are already starting at 0!
 		break;
 	}
+#if 0
 	case CZapitMessages::CMD_GET_BOUQUET_NCHANNELS: {
 		CZapitMessages::commandGetBouquetChannels msgGetBouquetChannels;
 		CBasicServer::receive_data(connfd, &msgGetBouquetChannels, sizeof(msgGetBouquetChannels));
 		sendBouquetChannels(connfd, msgGetBouquetChannels.bouquet, msgGetBouquetChannels.mode, true); // bouquet & channel number are already starting at 0!
 		break;
 	}
-
+#endif
 	case CZapitMessages::CMD_GET_CHANNELS: {
 		CZapitMessages::commandGetChannels msgGetChannels;
 		CBasicServer::receive_data(connfd, &msgGetChannels, sizeof(msgGetChannels));
@@ -946,7 +911,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 		CZapitChannel * channel = (requested_channel_id == 0) ? current_channel :
 			CServiceManager::getInstance()->FindChannel(requested_channel_id);
 		if(channel) {
-			strncpy(response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE);
+			strncpy(response.name, channel->getName().c_str(), CHANNEL_NAME_SIZE-1);
 			response.name[CHANNEL_NAME_SIZE-1] = 0;
 		}
                 CBasicServer::send_data(connfd, &response, sizeof(response));
@@ -1039,21 +1004,21 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
         case CZapitMessages::CMD_TUNE_TP: {
 			CBasicServer::receive_data(connfd, &TP, sizeof(TP));
 			sig_delay = 0;
-			TP.feparams.inversion = INVERSION_AUTO;
-			const char *name = scanProviders.size() > 0  ? scanProviders.begin()->second.c_str() : "unknown";
+			TP.feparams.dvb_feparams.inversion = INVERSION_AUTO;
+			const char *name = scanProviders.empty() ? "unknown" : scanProviders.begin()->second.c_str();
 
 			switch (live_fe->getInfo()->type) {
 			case FE_QPSK:
 			case FE_OFDM: {
 				//FIXME check scanProviders.size() !
 				t_satellite_position satellitePosition = scanProviders.begin()->first;
-				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
-				live_fe->setInput(satellitePosition, TP.feparams.frequency,  TP.polarization);
+				printf("[zapit] tune to sat %s freq %d rate %d fec %d pol %d\n", name, TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qpsk.symbol_rate, TP.feparams.dvb_feparams.u.qpsk.fec_inner, TP.polarization);
+				live_fe->setInput(satellitePosition, TP.feparams.dvb_feparams.frequency,  TP.polarization);
 				live_fe->driveToSatellitePosition(satellitePosition);
 				break;
 			}
 			case FE_QAM:
-				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.frequency, TP.feparams.u.qam.symbol_rate, TP.feparams.u.qam.fec_inner);
+				printf("[zapit] tune to cable %s freq %d rate %d fec %d\n", name, TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qam.symbol_rate, TP.feparams.dvb_feparams.u.qam.fec_inner);
 				break;
 			default:
 				WARN("Unknown type %d", live_fe->getInfo()->type);
@@ -1088,7 +1053,7 @@ bool CZapit::ParseCommand(CBasicMessage::Header &rmsg, int connfd)
 
 		satellite_map_t satmap = CServiceManager::getInstance()->SatelliteList();
 		for(sat_iterator_t sit = satmap.begin(); sit != satmap.end(); sit++) {
-			strncpy(sat.satName, sit->second.name.c_str(), 50);
+			strncpy(sat.satName, sit->second.name.c_str(), 49);
 			sat.satName[49] = 0;
 			sat.satPosition = sit->first;
 			sat.motorPosition = sit->second.motor_position;
@@ -1596,7 +1561,7 @@ void CZapit::sendAPIDs(int connfd)
 	for (uint32_t  i = 0; i < current_channel->getAudioChannelCount(); i++) {
 		CZapitClient::responseGetAPIDs response;
 		response.pid = current_channel->getAudioPid(i);
-		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN);
+		strncpy(response.desc, current_channel->getAudioChannel(i)->description.c_str(), DESC_MAX_LEN-1);
 		response.is_ac3 = response.is_aac = 0;
 		if (current_channel->getAudioChannel(i)->audioChannelType == CZapitAudioChannel::AC3) {
 			response.is_ac3 = 1;
@@ -1632,7 +1597,7 @@ void CZapit::internalSendChannels(int connfd, ZapitChannelList* channels, const 
 			}
 		} else {
 			CZapitClient::responseGetBouquetChannels response;
-			strncpy(response.name, ((*channels)[i]->getName()).c_str(), CHANNEL_NAME_SIZE);
+			strncpy(response.name, ((*channels)[i]->getName()).c_str(), CHANNEL_NAME_SIZE-1);
 			response.name[CHANNEL_NAME_SIZE-1] = 0;
 			//printf("internalSendChannels: name %s\n", response.name);
 			response.satellitePosition = (*channels)[i]->getSatellitePosition();
@@ -1675,7 +1640,7 @@ void CZapit::sendBouquets(int connfd, const bool emptyBouquetsToo, CZapitClient:
                       ((curMode & TV_MODE) && !g_bouquetManager->Bouquets[i]->tvChannels.empty()))))
 		{
 			msgBouquet.bouquet_nr = i;
-			strncpy(msgBouquet.name, g_bouquetManager->Bouquets[i]->Name.c_str(), 30);
+			strncpy(msgBouquet.name, g_bouquetManager->Bouquets[i]->Name.c_str(), 29);
 			msgBouquet.name[29] = 0;
 			msgBouquet.locked     = g_bouquetManager->Bouquets[i]->bLocked;
 			msgBouquet.hidden     = g_bouquetManager->Bouquets[i]->bHidden;
@@ -1814,17 +1779,9 @@ bool CZapit::StartPlayBack(CZapitChannel *thisChannel)
 
 bool CZapit::StopPlayBack(bool send_pmt)
 {
-#if 1
-	if(send_pmt) {
+	if(send_pmt)
 		CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
-		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
-	}
-#endif
-#if 0
-	if (send_pmt && !(currentMode & RECORD_MODE)) 
-		ca->SendPMT(0, (unsigned char*) "", 0, CA_SLOT_TYPE_SMARTCARD);
-	CCamManager::getInstance()->Stop(live_channel_id, CCamManager::PLAY);
-#endif
+
 	INFO("standby %d playing %d forced %d", standby, playing, playbackStopForced);
 
 	if (!playing)
@@ -2134,7 +2091,8 @@ void CZapit::run()
 	StopPlayBack(true);
 	CFEManager::getInstance()->saveSettings(true);
 
-	CServiceManager::getInstance()->SaveMotorPositions();
+	//CServiceManager::getInstance()->SaveMotorPositions();
+	CServiceManager::getInstance()->SaveServices(true, true);
 
 	SdtMonitor.Stop();
 	INFO("shutdown started");
@@ -2175,13 +2133,14 @@ void CZapit::SetConfig(Zapit_config * Cfg)
 	SaveSettings(true);
 	ConfigFrontend();
 }
-
+#if 0 
+//never used
 void CZapit::SendConfig(int connfd)
 {
 	printf("[zapit] %s...\n", __FUNCTION__);
 	CBasicServer::send_data(connfd, &config, sizeof(config));
 }
-
+#endif
 void CZapit::GetConfig(Zapit_config &Cfg)
 {
 	printf("[zapit] %s...\n", __FUNCTION__);

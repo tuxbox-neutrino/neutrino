@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the 
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -39,7 +40,6 @@
 #include <neutrino.h>
 #include <neutrino_menue.h>
 
-#include <driver/encoding.h>
 #include <driver/fontrenderer.h>
 #include <driver/rcinput.h>
 #include <driver/screen_max.h>
@@ -115,22 +115,6 @@ public:
 		}
 };
 
-
-class CNonLocalizedMenuSeparator : public CMenuSeparator
-{
-	const char * the_text;
-
-public:
-	CNonLocalizedMenuSeparator(const char * ptext, const neutrino_locale_t Text1) : CMenuSeparator(CMenuSeparator::LINE | CMenuSeparator::STRING, Text1)
-		{
-			the_text = ptext;
-		}
-
-	virtual const char * getString(void)
-		{
-			return the_text;
-		}
-};
 //#define DEBUG
 bool CFlashUpdate::selectHttpImage(void)
 {
@@ -607,6 +591,8 @@ void CFlashExpert::writemtd(const std::string & filename, int mtdNumber)
 
 void CFlashExpert::showMTDSelector(const std::string & actionkey)
 {
+	int shortcut = 0;
+
 	mn_widget_id_t widget_id = NO_WIDGET_ID;
 	if (actionkey == "readmtd")
 		widget_id = MN_WIDGET_ID_MTDREAD_SELECTOR;
@@ -625,7 +611,7 @@ void CFlashExpert::showMTDSelector(const std::string & actionkey)
 		if ((actionkey == "writemtd") && (lx == 0))
 			enabled = false;
 		sprintf(sActionKey, "%s%d", actionkey.c_str(), lx);
-		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey));
+		mtdselector->addItem(new CMenuForwarderNonLocalized(mtdInfo->getMTDName(lx).c_str(), enabled, NULL, this, sActionKey, CRCInput::convertDigitToKey(shortcut++)));
 	}
 	mtdselector->exec(NULL,"");
 	delete mtdselector;

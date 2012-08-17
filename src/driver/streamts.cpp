@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include <dmx.h>
-#include <zapit/cam.h>
+#include <zapit/capmt.h>
 #include <zapit/zapit.h>
 
 
@@ -208,8 +208,6 @@ void streamts_main_thread(void * /*data*/)
 			if (pfd[i].revents & (POLLIN | POLLPRI | POLLHUP | POLLRDHUP)) {
 				printf("fd %d has events %x\n", pfd[i].fd, pfd[i].revents);
 				if (pfd[i].fd == listenfd) {
-					if(connfd >= 0)
-						close(connfd);
 					connfd = accept (listenfd, (struct sockaddr *) &servaddr, (socklen_t *) & clilen);
 					printf("new connection, fd %d\n", connfd);
 					if(connfd < 0) {
@@ -315,7 +313,14 @@ void * streamts_live_thread(void *data)
 
 	if(demuxfd_count == 0) {
 		printf("No pids!\n");
-		return 0;
+		CZapitChannel * channel = CZapit::getInstance()->GetCurrentChannel();
+		if(!channel)
+			return 0;
+		pids[demuxfd_count++] = 0;
+		pids[demuxfd_count++] = channel->getPmtPid();
+		pids[demuxfd_count++] = channel->getVideoPid();
+		for (int i = 0; i <  channel->getAudioChannelCount(); i++)
+			pids[demuxfd_count++] = channel->getAudioChannel(i)->pid;
 	}
 
 	buf = (unsigned char *) malloc(IN_SIZE);
@@ -352,7 +357,8 @@ void * streamts_live_thread(void *data)
 	close(fd);
 	return 0;
 }
-
+#if 0 
+//never used
 void streamts_file_thread(void *data)
 {
 	int dvrfd;
@@ -453,3 +459,4 @@ void streamts_file_thread(void *data)
 
 	return;
 }
+#endif

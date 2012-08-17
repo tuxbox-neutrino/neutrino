@@ -561,7 +561,8 @@ void SIevent::dump(void) const
 	for_each(ratings.begin(), ratings.end(), printSIparentalRating());
 	for_each(linkage_descs.begin(), linkage_descs.end(), printSIlinkage());
 }
-
+#if 0 
+//never used
 void SIevent::dumpSmall(void) const
 {
 	for (std::map<std::string, std::string>::const_iterator it = langName.begin() ;
@@ -578,3 +579,4 @@ void SIevent::dumpSmall(void) const
 	for_each(ratings.begin(), ratings.end(), printSIparentalRating());
 	for_each(linkage_descs.begin(), linkage_descs.end(), printSIlinkage());
 }
+#endif

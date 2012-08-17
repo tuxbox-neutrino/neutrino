@@ -39,7 +39,6 @@
 #include <neutrino.h>
 #include <gui/infoviewer.h>
 
-#include <driver/encoding.h>
 #include <driver/record.h>
 #include <driver/abstime.h>
 #include "libdvbsub/dvbsub.h"
@@ -367,7 +366,7 @@ printf("CRemoteControl::handleMsg: EVT_TUNE_COMPLETE (%016llx)\n", chid);
 void CRemoteControl::getSubChannels()
 {
 //printf("[neutrino] getSubChannels, current_EPGid %llx\n", current_EPGid);
-	if ( subChannels.size() == 0 )
+	if ( subChannels.empty() )
 	{
 		CSectionsdClient::LinkageDescriptorList	linkedServices;
 		//if ( g_Sectionsd->getLinkageDescriptorsUniqueKey( current_EPGid, linkedServices ) )
@@ -401,7 +400,7 @@ void CRemoteControl::getSubChannels()
 void CRemoteControl::getNVODs()
 {
 //printf("[neutrino] getNVODs, current_EPGid %llx\n", current_EPGid);
-	if ( subChannels.size() == 0 )
+	if ( subChannels.empty() )
 	{
 		CSectionsdClient::NVODTimesList	NVODs;
 		//if ( g_Sectionsd->getNVODTimesServiceKey( current_channel_id & 0xFFFFFFFFFFFFULL, NVODs ) )
@@ -454,7 +453,7 @@ void CRemoteControl::getNVODs()
 void CRemoteControl::processAPIDnames()
 {
 	has_unresolved_ctags= false;
-	has_ac3 = false; //FIXME what this variable suppoused to do ?? seems unused
+	has_ac3 = false; //use in infoviewer
 	int pref_found = -1;
 	int pref_ac3_found = -1;
 	int pref_idx = -1;
@@ -521,13 +520,13 @@ void CRemoteControl::processAPIDnames()
 		if ( current_PIDs.APIDs[count].is_ac3 )
 		{
 			if(!strstr(current_PIDs.APIDs[count].desc, " (AC3)"))
-				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
+				strncat(current_PIDs.APIDs[count].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 			has_ac3 = true;
 			if(g_settings.audio_DolbyDigital && (ac3_found < 0))
 				ac3_found = count;
 		}
 		else if (current_PIDs.APIDs[count].is_aac &&  !strstr(current_PIDs.APIDs[count].desc, " (AAC)"))
-			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc));
+			strncat(current_PIDs.APIDs[count].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[count].desc)-1);
 	}
 
 	if ( has_unresolved_ctags )
@@ -549,11 +548,11 @@ void CRemoteControl::processAPIDnames()
 							// workaround for buggy ZDF ctags / or buggy sectionsd/drivers , who knows...
 							if(!tags[i].component.empty())
 							{
-								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN);
+								strncpy(current_PIDs.APIDs[j].desc, tags[i].component.c_str(), DESC_MAX_LEN-1);
 								if (current_PIDs.APIDs[j].is_ac3 &&  !strstr(current_PIDs.APIDs[j].desc, " (AC3)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc));
+									strncat(current_PIDs.APIDs[j].desc, " (AC3)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 								else if (current_PIDs.APIDs[j].is_aac &&  !strstr(current_PIDs.APIDs[j].desc, " (AAC)"))
-									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc));
+									strncat(current_PIDs.APIDs[j].desc, " (AAC)", DESC_MAX_LEN - strlen(current_PIDs.APIDs[j].desc)-1);
 							}
 							current_PIDs.APIDs[j].component_tag = -1;
 							break;
@@ -631,15 +630,15 @@ const std::string & CRemoteControl::setSubChannel(const int numSub, const bool f
 
 const std::string & CRemoteControl::subChannelUp(void)
 {
-	//return setSubChannel((subChannels.size() == 0) ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
+	//return setSubChannel((subChannels.empty()) ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
  	// if there are any NVOD/subchannels switch these else switch audio channel (if any)
-  	if (subChannels.size() > 0 || !g_settings.audiochannel_up_down_enable)
+  	if ( !subChannels.empty() || !g_settings.audiochannel_up_down_enable)
   	{
-  		return setSubChannel((subChannels.size() == 0) ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
+  		return setSubChannel( subChannels.empty() ? -1 : (int)((selected_subchannel + 1) % subChannels.size()));
   	}
   	else
   	{
-  		if (current_PIDs.APIDs.size() > 0)
+  		if ( !current_PIDs.APIDs.empty() )
   		{
   			setAPID((current_PIDs.PIDs.selected_apid + 1) % current_PIDs.APIDs.size());
   		}
@@ -651,13 +650,13 @@ const std::string & CRemoteControl::subChannelDown(void)
 {
 	//return setSubChannel((selected_subchannel <= 0) ? (subChannels.size() - 1) : (selected_subchannel - 1));
 	// if there are any NVOD/subchannels switch these else switch audio channel (if any)
-  	if (subChannels.size() > 0 || !g_settings.audiochannel_up_down_enable)
+  	if ( !subChannels.empty() || !g_settings.audiochannel_up_down_enable)
   	{
   		return setSubChannel((selected_subchannel <= 0) ? (subChannels.size() - 1) : (selected_subchannel - 1));
   	}
   	else
   	{
-  		if (current_PIDs.APIDs.size() > 0)
+  		if ( !current_PIDs.APIDs.empty() )
   		{
   			if (current_PIDs.PIDs.selected_apid <= 0)
   				setAPID(current_PIDs.APIDs.size() - 1);

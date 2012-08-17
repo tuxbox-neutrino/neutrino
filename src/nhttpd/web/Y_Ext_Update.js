@@ -156,19 +156,21 @@ function do_set_updates2(){
 }
 var avaiable=0;
 function show_free(){
-	var res=dbox_exec_tools("var_space");
+	var res=dbox_exec_tools("mtd_space");
 	var Ausdruck = /([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*)[ ]*([^ ]*).*$/;
 	Ausdruck.exec(res);
+	var mtd = RegExp.$1;
 	var total = RegExp.$2;
 	var used = RegExp.$3;
 	avaiable = RegExp.$4;
 	var percentage = RegExp.$5;
+	var mtpt = RegExp.$6;
 	if (total != "") {
-		str = "Sapce in /var Total: " + total + "k used: " + used + "k Free: " + avaiable + "k part used: " + percentage;
+		str = "Space in " + mtd + " (mounted on " + mtpt + ") Total: " + total + "kB; Used: " + used + "kB; Free: " + avaiable + "kB (" + percentage + ")";
 		$('avaiable').update(avaiable);
 	}
 	else 
-		str = "Can not determine free space /var is no partition! JFFS2 oder YADD?";
+		str = "Can not determine free space.";
 	$("free").update(str);
 }
 /*uninstall*/

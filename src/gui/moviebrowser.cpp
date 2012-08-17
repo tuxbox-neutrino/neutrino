@@ -59,14 +59,15 @@
 #include <sys/stat.h>
 #include <gui/nfs.h>
 #include "neutrino.h"
-#include <gui/widget/stringinput.h>
 #include <sys/vfs.h> // for statfs
-#include <gui/widget/icons.h>
 #include <sys/mount.h>
 #include <utime.h>
+#include <unistd.h>
+#include <gui/widget/icons.h>
 #include <gui/widget/progressbar.h>
 #include <gui/pictureviewer.h>
 #include <gui/customcolor.h>
+#include <gui/widget/stringinput.h>
 #include <driver/record.h>
 
 extern CPictureViewer * g_PicViewer;
@@ -1206,7 +1207,7 @@ void CMovieBrowser::refreshMovieInfo(void)
 {
 //TRACE("[mb]->refreshMovieInfo m_vMovieInfo.size %d\n", m_vMovieInfo.size());
 	std::string emptytext = " ";
-	if(m_vMovieInfo.size() <= 0) {
+	if(m_vMovieInfo.empty()) {
 		if(m_pcInfo != NULL)
 			m_pcInfo->setText(&emptytext);
 		return;
@@ -1286,7 +1287,7 @@ void CMovieBrowser::info_hdd_level(bool paint_hdd)
 }
 void CMovieBrowser::refreshLCD(void)
 {
-	if(m_vMovieInfo.size() <= 0) return;
+	if(m_vMovieInfo.empty()) return;
 
 	//CVFD * lcd = CVFD::getInstance();
 	if(m_movieSelectionHandler == NULL)
@@ -1313,7 +1314,7 @@ void CMovieBrowser::refreshFilterList(void)
 	m_FilterLines.rowWidth[0] = 100;
 	m_FilterLines.lineHeader[0]= "";
 
-	if(m_vMovieInfo.size() <= 0)
+	if(m_vMovieInfo.empty())
 		return; // exit here if nothing else is to do
 
 	if(m_settings.filter.item == MB_INFO_MAX_NUMBER)
@@ -1389,7 +1390,7 @@ void CMovieBrowser::refreshLastPlayList(void) //P2
 	}
 	m_vHandlePlayList.clear();
 
-	if(m_vMovieInfo.size() <= 0) {
+	if(m_vMovieInfo.empty()) {
 		if(m_pcLastPlay != NULL)
 			m_pcLastPlay->setLines(&m_playListLines);
 		return; // exit here if nothing else is to do
@@ -1447,7 +1448,7 @@ void CMovieBrowser::refreshLastRecordList(void) //P2
 	}
 	m_vHandleRecordList.clear();
 
-	if(m_vMovieInfo.size() <= 0) {
+	if(m_vMovieInfo.empty()) {
 		if(m_pcLastRecord != NULL)
 			m_pcLastRecord->setLines(&m_recordListLines);
 		return; // exit here if nothing else is to do
@@ -1506,7 +1507,7 @@ void CMovieBrowser::refreshBrowserList(void) //P1
 	}
 	m_vHandleBrowserList.clear();
 
-	if(m_vMovieInfo.size() <= 0)
+	if(m_vMovieInfo.empty())
 	{
 		m_currentBrowserSelection = 0;
 		m_movieSelectionHandler = NULL;
@@ -1727,7 +1728,7 @@ bool CMovieBrowser::onButtonPressMainFrame(neutrino_msg_t msg)
 	}
 	else if (msg == CRCInput::RC_spkr)
 	{
-		if ((m_vMovieInfo.size() > 0) && (m_movieSelectionHandler != NULL) && (IsRecord == false))
+		if ((!m_vMovieInfo.empty()) && (m_movieSelectionHandler != NULL) && (IsRecord == false))
 		 	onDeleteFile(*m_movieSelectionHandler);
 	}
 	else if (msg == CRCInput::RC_help || msg == CRCInput::RC_info)
@@ -2086,8 +2087,8 @@ void CMovieBrowser::onDeleteFile(MI_MOVIE_INFO& movieSelectionHandler)
 
 			m_vMovieInfo.erase( (std::vector<MI_MOVIE_INFO>::iterator)&movieSelectionHandler);
 			TRACE("List size: %d\n", m_vMovieInfo.size());
-			//if(m_vMovieInfo.size() == 0) fileInfoStale();
-			//if(m_vMovieInfo.size() == 0) onSetGUIWindow(m_settings.gui);
+			//if(m_vMovieInfo.empty()) fileInfoStale();
+			//if(m_vMovieInfo.empty()) onSetGUIWindow(m_settings.gui);
 			updateSerienames();
 			refreshBrowserList();
 			refreshLastPlayList();
@@ -2318,7 +2319,7 @@ void CMovieBrowser::onSetFocusNext(void)
 bool CMovieBrowser::onSortMovieInfoHandleList(std::vector<MI_MOVIE_INFO*>& handle_list, MB_INFO_ITEM sort_item, MB_DIRECTION direction)
 {
 	//TRACE("sort: %d\r\n",direction);
-	if(handle_list.size() <= 0)
+	if(handle_list.empty())
 	    return (false); // nothing to sort, return immedately
 	if(sortBy[sort_item] == NULL)
 	    return (false);
@@ -2399,7 +2400,7 @@ void CMovieBrowser::loadAllTsFileNamesFromStorage(void)
 
 	TRACE("[mb] Dir%d, Files:%d \r\n",m_dirNames.size(),m_vMovieInfo.size());
 	/*
-	   if(m_vMovieInfo.size() == 0)
+	   if(m_vMovieInfo.empty())
 	   {
 	   std::string msg = g_Locale->getText(LOCALE_MOVIEBROWSER_ERROR_NO_MOVIES);
 	   DisplayErrorMessage(msg.c_str());
@@ -2575,23 +2576,23 @@ bool CMovieBrowser::delFile_vlc(CFile& /*file*/)
 bool CMovieBrowser::delFile_std(CFile& file)
 {
 	bool result = true;
-	char buf[FILENAME_MAX]={0};
-        snprintf(buf,sizeof(buf), "nice -n 20 rm -f \"%s\" &", file.Name.c_str());
-	system(buf);
+	int errno = unlink(file.Name.c_str());
 	TRACE("  delete file: %s\r\n",file.Name.c_str());
+	if(errno)
+	  result = false;
 	return(result);
 }
 
 void CMovieBrowser::updateMovieSelection(void)
 {
     //TRACE("[mb]->updateMovieSelection %d\r\n",m_windowFocus);
-	if (m_vMovieInfo.size() == 0) return;
+	if (m_vMovieInfo.empty()) return;
 	bool new_selection = false;
 
 	unsigned int old_movie_selection;
 	if(m_windowFocus == MB_FOCUS_BROWSER)
 	{
-		if(m_vHandleBrowserList.size() == 0)
+		if(m_vHandleBrowserList.empty())
 		{
 			// There are no elements in the Filebrowser, clear all handles
 			m_currentBrowserSelection = 0;
@@ -2612,7 +2613,7 @@ void CMovieBrowser::updateMovieSelection(void)
 	}
 	else if(m_windowFocus == MB_FOCUS_LAST_PLAY)
 	{
-		if(m_vHandlePlayList.size() == 0)
+		if(m_vHandlePlayList.empty())
 		{
 			// There are no elements in the Filebrowser, clear all handles
 			m_currentPlaySelection = 0;
@@ -2633,7 +2634,7 @@ void CMovieBrowser::updateMovieSelection(void)
 	}
 	else if(m_windowFocus == MB_FOCUS_LAST_RECORD)
 	{
-		if(m_vHandleRecordList.size() == 0)
+		if(m_vHandleRecordList.empty())
 		{
 			// There are no elements in the Filebrowser, clear all handles
 			m_currentRecordSelection = 0;
@@ -2666,7 +2667,7 @@ void CMovieBrowser::updateMovieSelection(void)
 void CMovieBrowser::updateFilterSelection(void)
 {
 	//TRACE("[mb]->updateFilterSelection \r\n");
-	if(m_FilterLines.lineArray[0].size() == 0) return;
+	if(m_FilterLines.lineArray[0].empty()) return;
 
 	bool result = true;
 	int selected_line = m_pcFilter->getSelectedLine();
@@ -2883,7 +2884,7 @@ int CMovieBrowser::showMovieInfoMenu(MI_MOVIE_INFO* movie_info)
 
     if(movie_info != NULL)
     {
-        strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE);
+        strncpy(dirItNr, m_dirNames[movie_info->dirItNr].c_str(),BUFFER_SIZE-1);
         snprintf(size,BUFFER_SIZE,"%5llu",movie_info->file.Size>>20);
     }
 
@@ -3112,7 +3113,7 @@ int CMovieBrowser::showStartPosSelectionMenu(void) // P2
 	CMenuWidgetSelection startPosSelectionMenu(LOCALE_MOVIEBROWSER_HEAD , NEUTRINO_ICON_MOVIEPLAYER);
 	startPosSelectionMenu.enableFade(false);
 
-	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD);
+	startPosSelectionMenu.addIntroItems(LOCALE_MOVIEBROWSER_START_HEAD, NONEXISTANT_LOCALE, CMenuWidget::BTN_TYPE_CANCEL);
 
 	if(m_movieSelectionHandler->bookmarks.start != 0)
 	{
@@ -3214,7 +3215,7 @@ bool CMovieBrowser::getMovieInfoItem(MI_MOVIE_INFO& movie_info, MB_INFO_ITEM ite
 			*item_string = movie_info.file.getFileName();
 			break;
 		case MB_INFO_FILEPATH: 				// 		= 1,
-			if(m_dirNames.size() > 0)
+			if(!m_dirNames.empty())
 				*item_string = m_dirNames[movie_info.dirItNr];
 			break;
 		case MB_INFO_TITLE: 				// 		= 2,
@@ -3447,7 +3448,7 @@ CMenuSelector::CMenuSelector(const char * OptionName, const bool Active , std::s
     height     = g_Font[SNeutrinoSettings::FONT_TYPE_MENU]->getHeight();
     optionValueString = &OptionValue;
     optionName =        OptionName;
-    strncpy(buffer,OptionValue.c_str(),BUFFER_MAX);
+    strncpy(buffer,OptionValue.c_str(),BUFFER_MAX-1);
     buffer[BUFFER_MAX-1] = 0;// terminate string
     optionValue =       buffer;
     active =            Active;
@@ -3557,7 +3558,7 @@ CDirMenu::CDirMenu(std::vector<MB_DIR>* dir_list)
         {
             std::string tmp = g_settings.network_nfs_local_dir[nfs];
             int result = -1;
-	    if(tmp.size())
+	    if(!tmp.empty())
 		result = (*dirList)[i].name.compare( 0,tmp.size(),tmp) ;
 printf("[CDirMenu] (nfs%d) %s == (mb%d) %s (%d)\n",nfs,g_settings.network_nfs_local_dir[nfs],i,(*dirList)[i].name.c_str(),result);
 
@@ -3840,7 +3841,8 @@ int find_gop(unsigned char *buf, int r)
 	}
 	return -1;
 }
-
+#if 0 
+//never used
 off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize)
 {
 	off64_t cur = lseek64 (fd, 0, SEEK_CUR);
@@ -3851,7 +3853,7 @@ off64_t fake_read(int fd, unsigned char *buf, size_t size, off64_t fsize)
 	else
 		return size;
 }
-
+#endif
 #define PSI_SIZE 188*3
 static int read_psi(char * spart, unsigned char * buf)
 {

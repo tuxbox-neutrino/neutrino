@@ -49,6 +49,8 @@ tag=Tag
 empty=empty
 check=check
 help=Help
+attention=Attention!
+directory=Directory
 restriced_by_management_ip=restricted by ManagementIP
 
 #========= MAIN Menue
@@ -105,17 +107,13 @@ bc.menue.volumen_display=volumen display
 bc.control.freemem=FreeMem
 bc.control.lock=lock
 bc.control.unlock=unlock
-bc.control.lcd_unlock=LCD unlock
 bc.control.standby_mode=standby mode
 bc.control.recording_mode=recording mode
 bc.control.box=box
 bc.control.remote=remote
 bc.control.playback=playback
 bc.control.epg_sectiond=EPG Sectiond
-bc.control.spts=SPTS
 bc.control.live_lock=live lock
-bc.control.optical_output=optical output
-bc.control.esound_server=ESound Server
 bc.control.reboot.ask=Really restart the Box?
 bc.control.reboot=reboot
 bc.control.shutdown.ask=Really shutdown the Box?
@@ -218,8 +216,6 @@ set.sync_with_neutrino=Synchronization with Neutrino
 
 =======Settings General & Menue
 set.menue.webserver=Webserver
-set.menue.ucodes=Ucodes
-set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Timer Settings
 set.menue.zapit=Zapit
 set.menue.backup_restore=Backup &amp; Restore
@@ -267,10 +263,11 @@ set.rec.audio_channels=Audio channels
 set.rec.audio_standard=Record standard audio channel
 set.rec.audio_alternate=Record alternate audio channel
 set.rec.audio_ac3=Record ac3 audio channel
+set.rec.channeldir=Save in channeldir
+set.rec.epg_end=Recording until end of EPG-time
+set.rec.recordtime=Recording time in hours
 set.rec.timeshift_desc=Timeshift
-set.rec.timeshift.directory=Directory
-set.rec.timeshift.recordtime=Recording time in hours
-set.rec.timeshift.pause=Pause
+set.rec.timeshift.pause=Start with pause-key
 set.rec.timeshift.auto_record=Autom. Recording (in Sec, 0=deactivate)
 set.rec.timeshift.auto_delete=Automatic deletion
 set.rec.timeshift.tmp_timeshift=Temporaly timeshift
@@ -377,6 +374,13 @@ set.timer.klack.security_code_desc=your klack security code to get your data wit
 set.timer.klack.security_code=Security Code
 set.timer.channel_name_replacelist=Channel name replace list
 
+========Settings Backup/Restore
+set.settings.backup=Backup
+set.settings.backup_desc=Backup your settings
+set.settings.restore=Restore
+set.settings.restore_desc=Upload and restore your settings. Your STB will reboot.
+set.settings.warning=Backup & Restore is only useful for the same image with the same level of development. 
+
 ============ Tools Info
 tools.info.show_messages=Kernel Messages
 tools.info.processes=Processes
@@ -390,11 +394,11 @@ tools.info.version=Version
 
 ============ Tools yInstaller
 tools.yinstaller.no_file_given=No file given!
-tools.yinstaller.space.var=Space in /var total
-tools.yinstaller.space.used=k used
-tools.yinstaller.space.free=k free
-tools.yinstaller.space.percentage=k percentage used
-tools.yinstaller.not_determine=Can not determine free space. /var is no partition! JFFS2, YADD or USB?
+tools.yinstaller.space.mtd=Space total
+tools.yinstaller.space.used=used
+tools.yinstaller.space.free=free
+tools.yinstaller.space.percentage=percentage used
+tools.yinstaller.not_determine=Can not determine free space.
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-File
 tools.yinstaller.upload_install=upload and install
@@ -416,6 +420,7 @@ tools.path=Path
 tools.command=Command
 tools.cmd.enter_command=enter command to execute
 tools.cmd.execute_command=execute shell command
+tools.boot_logo=Boot Logo
 
 =========== LIVE Menue
 live.heading=Live/Timer

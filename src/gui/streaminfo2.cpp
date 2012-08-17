@@ -501,7 +501,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			sprintf (buf, "20:9");
 			break;
 		default:
-			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_ARATIO_UNKNOWN), sizeof (buf));
+			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_ARATIO_UNKNOWN), sizeof (buf)-1);
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
 
@@ -535,7 +535,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 			snprintf (buf,sizeof(buf), "60fps");
 			break;
 		default:
-			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf));
+			strncpy (buf, g_Locale->getText (LOCALE_STREAMINFO_FRAMERATE_UNKNOWN), sizeof (buf)-1);
 			break;
 	}
 	g_Font[font_info]->RenderString (xpos+spaceoffset, ypos, box_width, buf, COL_INFOBAR, 0, true);	// UTF-8
@@ -583,7 +583,7 @@ void CStreamInfo2::paint_techinfo(int xpos, int ypos)
 	ypos += iheight;
 
 	scaling = 27000;
-	if (t.type == FE_QPSK && t.feparams.u.qpsk.fec_inner < FEC_S2_QPSK_1_2)
+	if (t.type == FE_QPSK && t.feparams.dvb_feparams.u.qpsk.fec_inner < FEC_S2_QPSK_1_2)
 		scaling = 15000;
 
 	sprintf (buf, "%s",g_Locale->getText (LOCALE_SCANTS_FREQDATA));
@@ -801,7 +801,7 @@ int CStreamInfo2::ts_setup ()
 	unsigned short vpid, apid = 0;
 
 	vpid = g_RemoteControl->current_PIDs.PIDs.vpid;
-	if(g_RemoteControl->current_PIDs.APIDs.size() > 0)
+	if( !g_RemoteControl->current_PIDs.APIDs.empty() )
 		apid = g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].pid;
 
 	if(vpid == 0 && apid == 0)

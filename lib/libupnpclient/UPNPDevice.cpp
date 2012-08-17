@@ -30,6 +30,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <poll.h>
 #include "upnpclient.h"
 #include <algorithm>
@@ -387,7 +388,7 @@ std::string CUPnPDevice::HTTP(std::string url, std::string post, std::string act
 	}
 	path = url.substr(pos2);
 
-	if (post.size())
+	if (!post.empty())
 		command << "POST " << path << " HTTP/1.0\r\n";
 	else
 		command << "GET " << path << " HTTP/1.0\r\n";
@@ -397,18 +398,18 @@ std::string CUPnPDevice::HTTP(std::string url, std::string post, std::string act
 	command << "Accept: text/xml\r\n";
 	command << "Connection: Close\r\n";
 
-	if (post.size())
+	if (!post.empty())
 	{
 		command << "Content-Length: " << post.size() << "\r\n";
 		command << "Content-Type: text/xml\r\n";
 	}
 
-	if (action.size())
+	if (!action.empty())
 		command << "SOAPAction: \"" << action << "\"\r\n";
 
 	command << "\r\n";
 
-	if (post.size())
+	if (!post.empty())
 		command << post;
 
 	t_socket = socket(PF_INET, SOCK_STREAM, 0);

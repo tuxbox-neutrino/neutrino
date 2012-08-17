@@ -13,7 +13,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_general').insert({'bottom':el}); 
+		$('secmenu_general').insert({'bottom':el});
 	});
 	var menu=ext.select_menu('settings_neutrino');
 	menu.each(function(e){
@@ -23,7 +23,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_neutrino').insert({'bottom':el}); 
+		$('secmenu_neutrino').insert({'bottom':el});
 	});
 	var menu=ext.select_menu('settings_plugins');
 	menu.each(function(e){
@@ -33,7 +33,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_plugins').insert({'bottom':el}); 
+		$('secmenu_plugins').insert({'bottom':el});
 	});
 }
 </script>
@@ -46,103 +46,123 @@ function init(){
 		<div class="y_menu_sec_section">{=L:general=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_general">
-			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">yWeb</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.webserver=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.zapit=}</li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.ucodes=}</li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.boot_logo=}</li>
-			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.timer_settings=}</a></li>
-			~
-				<li><a target="work" href="Y_Settings_yWeb.yhtm">yWeb</a></li>
-				<li><a target="work" href="Y_Settings_nhttpd.yhtm">{=L:set.menue.webserver=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_zapit.yhtm">{=L:set.menue.zapit=}</a></li>
-				<li><a target="work" href="Y_Settings_ucodes.yhtm">{=L:set.menue.ucodes=}</a></li>
-				<li><a target="work" href="Y_Tools_Bootlogo.yhtm">{=L:set.menue.boot_logo=}</a></li>
-			~=}
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_Backup.yhtm">{=L:set.menue.backup_restore=}</a></li>
-			~=}
-				<li><a target="work" href="Y_Settings_Timer.yhtm">{=L:set.menue.timer_settings=}</a></li>
-			=}	
+				<li>
+					{=var-set:m_link_href=Y_Settings_yWeb.yhtm=}
+					{=var-set:m_link_text=yWeb=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_nhttpd.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.webserver=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_zapit.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.zapit=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_Backup.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.backup_restore=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_Timer.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.timer_settings=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 				<!--<li><a title="change layout skin" target="work" href="Y_Settings_Skin.yhtm">Skins</a></li>-->
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">Neutrino</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_neutrino">
-			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.bouquet_editor=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.video_audio=}</a></li>
-			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.parental=}</a></li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.recording=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.direct_recording=}</a></li>
-			=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.audio_player=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.esound_server=}</a></li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.movieplayer=}</a></li>
-			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.pictureviewer=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.lcd_display=}</a></li>
-			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.key_settings=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.boot_options=}</a></li>
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.others=}</a></li>
-			~=}
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">{=L:set.menue.peronalization=}</li>
-			~
-				<li><a target="work" href="Y_Boxcontrol_Bouquet_Editor_Main.yhtm">{=L:set.menue.bouquet_editor=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_video_audio.yhtm">{=L:set.menue.video_audio=}</a></li>
-			~=}
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental">{=L:set.menue.parental=}</a></li>
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record">{=L:set.menue.recording=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording">{=L:set.menue.direct_recording=}</a></li>
-			=}
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer">{=L:set.menue.audio_player=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound">{=L:set.menue.esound_server=}</a></li>
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer">{=L:set.menue.movieplayer=}</a></li>
-			~=}
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer">{=L:set.menue.pictureviewer=}</a></li>
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_lcd.yhtm">{=L:set.menue.lcd_display=}</a></li>
-			~=}
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_buttons.yhtm">{=L:set.menue.key_settings=}</a></li>
-			~=}
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions">{=L:set.menue.boot_options=}</a></li>
-				<li><a target="work" href="Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse">{=L:set.menue.others=}</a></li>
-			~=}
-			{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
-				<li><a target="work" href="Y_Settings_personalize.yhtm">{=L:set.menue.peronalization=}</a></li>
-			~=}
-			=}
+				<li>
+					{=var-set:m_link_href=Y_Boxcontrol_Bouquet_Editor_Main.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.bouquet_editor=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_parental=}
+					{=var-set:m_link_text={=L:set.menue.parental=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_record=}
+					{=var-set:m_link_text={=L:set.menue.recording=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_movieplayer=}
+					{=var-set:m_link_text={=L:set.menue.movieplayer=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_audioplayer=}
+					{=var-set:m_link_text={=L:set.menue.audio_player=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_pictureviewer=}
+					{=var-set:m_link_text={=L:set.menue.pictureviewer=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+				<li>
+					{=var-set:m_link_href=Y_Settings_video_audio.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.video_audio=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_esound=}
+					{=var-set:m_link_text={=L:set.menue.esound_server=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_direct_recording=}
+					{=var-set:m_link_text={=L:set.menue.direct_recording=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_lcd.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.lcd_display=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_buttons.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.key_settings=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_bootoptions=}
+					{=var-set:m_link_text={=L:set.menue.boot_options=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_neutrino_forms.yhtm?form=neutrino_form-data_diverse=}
+					{=var-set:m_link_text={=L:set.menue.others=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				<li>
+					{=var-set:m_link_href=Y_Settings_personalize.yhtm=}
+					{=var-set:m_link_text={=L:set.menue.peronalization=}=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
+				~=}
 			</ul>
 		</div>
-	{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
+		{=if-not-equal:{=global-var-get:boxtype=}~coolstream~
 		<div class="y_menu_sec_section">{=L:plugins=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_plugins">
-			{=if-empty:{=var-get:management=}~
-				<li class="disabled" title="{=L:restriced_by_management_ip=}">VNC</li>
-			~
-				<li><a target="work" href="Y_Settings_VNC.yhtm">VNC</a></li>
-			=}
+				<li>
+					{=var-set:m_link_href=Y_Settings_VNC.yhtm=}
+					{=var-set:m_link_text=VNC=}
+					{=include-block:Y_Blocks.txt;management_link=}
+				</li>
 			</ul>
 		</div>
-	~=}
+		~=}
 	</div>
 </div>
 

@@ -40,7 +40,6 @@
 #include <driver/radiotext.h>
 #if HAVE_COOL_HARDWARE
 #include <driver/vfd.h>
-#include <driver/rfmod.h>
 #endif
 #if HAVE_TRIPLEDRAGON
 #include <driver/lcdd.h>
@@ -95,9 +94,6 @@ NEUTRINO_CPP  CInfoViewer	*g_InfoViewer;
 NEUTRINO_CPP  CNeutrinoEventList		*g_EventList;
 
 NEUTRINO_CPP CLocaleManager	*g_Locale;
-#if HAVE_COOL_HARDWARE
-NEUTRINO_CPP RFmod		*g_RFmod;
-#endif
 NEUTRINO_CPP CVideoSettings	*g_videoSettings;
 NEUTRINO_CPP CRadioText		*g_Radiotext;
 

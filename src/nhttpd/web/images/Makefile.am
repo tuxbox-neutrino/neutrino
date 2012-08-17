@@ -11,8 +11,6 @@ install_DATA =	accept.png \
 		arrowup.png \
 		audiobar.gif \
 		blank.gif \
-		body-trans-l.gif \
-		body-trans-r.gif \
 		check_green.gif \
 		chmod.gif \
 		comment.gif \
@@ -41,12 +39,6 @@ install_DATA =	accept.png \
 		ftype_link.gif \
 		fullscreen.png \
 		hd1.jpg \
-		head-blue-l.gif \
-		head-blue-r.gif \
-		head-orange-l.gif \
-		head-orange-r.gif \
-		head-trans-l.gif \
-		head-trans-r.gif \
 		help.gif \
 		help_white.gif \
 		hidden.gif \

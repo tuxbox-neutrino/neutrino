@@ -51,7 +51,7 @@ public:
 	virtual void onBouquetsChanged() {};
 };
 
-class CBEBouquetWidget : public CMenuWidget
+class CBEBouquetWidget : public CMenuTarget
 {
 
 	private:

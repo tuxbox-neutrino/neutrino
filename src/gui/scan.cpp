@@ -97,14 +97,14 @@ void CScanTs::prev_next_TP( bool up)
 	/* FIXME transponders with duplicate frequency skipped */
 	if(up) {
 		for (tI = select_transponders.begin(); tI != select_transponders.end(); ++tI) {
-			if(tI->second.feparams.frequency > TP.feparams.frequency){
+			if(tI->second.feparams.dvb_feparams.frequency > TP.feparams.dvb_feparams.frequency){
 				next_tp = true;
 				break;
 			}
 		}
 	} else {
 		for ( tI=select_transponders.end() ; tI != select_transponders.begin(); --tI ) {
-			if(tI->second.feparams.frequency < TP.feparams.frequency) {
+			if(tI->second.feparams.dvb_feparams.frequency < TP.feparams.dvb_feparams.frequency) {
 				next_tp = true;
 				break;
 			}
@@ -112,15 +112,15 @@ void CScanTs::prev_next_TP( bool up)
 	}
 
 	if(next_tp) {
-		TP.feparams.frequency = tI->second.feparams.frequency;
+		TP.feparams.dvb_feparams.frequency = tI->second.feparams.dvb_feparams.frequency;
 		if(g_info.delivery_system == DVB_S) {
-			TP.feparams.u.qpsk.symbol_rate = tI->second.feparams.u.qpsk.symbol_rate;
-			TP.feparams.u.qpsk.fec_inner =   tI->second.feparams.u.qpsk.fec_inner;
+			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = tI->second.feparams.dvb_feparams.u.qpsk.symbol_rate;
+			TP.feparams.dvb_feparams.u.qpsk.fec_inner =   tI->second.feparams.dvb_feparams.u.qpsk.fec_inner;
 			TP.polarization = tI->second.polarization;
 		} else {
-			TP.feparams.u.qam.symbol_rate	= tI->second.feparams.u.qam.symbol_rate;
-			TP.feparams.u.qam.fec_inner	= tI->second.feparams.u.qam.fec_inner;
-			TP.feparams.u.qam.modulation	= tI->second.feparams.u.qam.modulation;
+			TP.feparams.dvb_feparams.u.qam.symbol_rate	= tI->second.feparams.dvb_feparams.u.qam.symbol_rate;
+			TP.feparams.dvb_feparams.u.qam.fec_inner	= tI->second.feparams.dvb_feparams.u.qam.fec_inner;
+			TP.feparams.dvb_feparams.u.qam.modulation	= tI->second.feparams.dvb_feparams.u.qam.modulation;
 		}
 		testFunc();
 	}
@@ -134,8 +134,8 @@ void CScanTs::testFunc()
 
 	CFrontend * frontend = CServiceScan::getInstance()->GetFrontend();
 	if(frontend->getInfo()->type == FE_QPSK) {
-		frontend->getDelSys(TP.feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.u.qpsk.fec_inner), f, s, m);
-		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.frequency/1000, transponder::pol(TP.polarization), TP.feparams.u.qpsk.symbol_rate/1000, f, s, m);
+		frontend->getDelSys(TP.feparams.dvb_feparams.u.qpsk.fec_inner, dvbs_get_modulation((fe_code_rate_t)TP.feparams.dvb_feparams.u.qpsk.fec_inner), f, s, m);
+		snprintf(buffer,sizeof(buffer), "%u %c %d %s %s %s", TP.feparams.dvb_feparams.frequency/1000, transponder::pol(TP.polarization), TP.feparams.dvb_feparams.u.qpsk.symbol_rate/1000, f, s, m);
 	} else if(frontend->getInfo()->type == FE_QAM) {
 		frontend->getDelSys(scansettings.TP_fec, scansettings.TP_mod, f, s, m);
 		snprintf(buffer,sizeof(buffer), "%u %d %s %s %s", atoi(scansettings.TP_freq)/1000, atoi(scansettings.TP_rate)/1000, f, s, m);
@@ -159,6 +159,8 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		scan_flags |= CServiceScan::SCAN_RESET_NUMBERS;
 	if(scansettings.scan_logical_numbers)
 		scan_flags |= CServiceScan::SCAN_LOGICAL_NUMBERS;
+	if(scansettings.scan_logical_hd)
+		scan_flags |= CServiceScan::SCAN_LOGICAL_HD;
 
 	/* channel types to scan, TV/RADIO/ALL */
 	scan_flags |= scansettings.scanType;
@@ -205,17 +207,17 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 		if(scansettings.scan_nit_manual)
 			scan_flags |= CServiceScan::SCAN_NIT;
 		TP.scan_mode = scan_flags;
-		TP.feparams.frequency = atoi(scansettings.TP_freq);
+		TP.feparams.dvb_feparams.frequency = atoi(scansettings.TP_freq);
 		if(g_info.delivery_system == DVB_S) {
-			TP.feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
-			TP.feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.TP_fec;
+			TP.feparams.dvb_feparams.u.qpsk.symbol_rate = atoi(scansettings.TP_rate);
+			TP.feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) scansettings.TP_fec;
 			TP.polarization = scansettings.TP_pol;
 		} else {
-			TP.feparams.u.qam.symbol_rate	= atoi(scansettings.TP_rate);
-			TP.feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.TP_fec;
-			TP.feparams.u.qam.modulation	= (fe_modulation_t) scansettings.TP_mod;
+			TP.feparams.dvb_feparams.u.qam.symbol_rate	= atoi(scansettings.TP_rate);
+			TP.feparams.dvb_feparams.u.qam.fec_inner	= (fe_code_rate_t)scansettings.TP_fec;
+			TP.feparams.dvb_feparams.u.qam.modulation	= (fe_modulation_t) scansettings.TP_mod;
 		}
-		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.frequency, TP.feparams.u.qpsk.symbol_rate, TP.feparams.u.qpsk.fec_inner, TP.polarization);
+		//printf("[neutrino] freq %d rate %d fec %d pol %d\n", TP.feparams.dvb_feparams.frequency, TP.feparams.dvb_feparams.u.qpsk.symbol_rate, TP.feparams.dvb_feparams.u.qpsk.fec_inner, TP.polarization);
 	} else {
 		if(scansettings.scan_nit)
 			scan_flags |= CServiceScan::SCAN_NIT;
@@ -230,14 +232,14 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	}
 	else if(manual || !scan_all) {
 		sat.position = CServiceManager::getInstance()->GetSatellitePosition(scansettings.satNameNoDiseqc);
-		strncpy(sat.satName, scansettings.satNameNoDiseqc, 50);
+		strncpy(sat.satName, scansettings.satNameNoDiseqc, 49);
 		satList.push_back(sat);
 	} else {
 		satellite_map_t & satmap = CServiceManager::getInstance()->SatelliteList();
 		for(sit = satmap.begin(); sit != satmap.end(); ++sit) {
 			if(sit->second.use_in_scan) {
 				sat.position = sit->first;
-				strncpy(sat.satName, sit->second.name.c_str(), 50);
+				strncpy(sat.satName, sit->second.name.c_str(), 49);
 				satList.push_back(sat);
 			}
 		}
@@ -253,7 +255,7 @@ int CScanTs::exec(CMenuTarget* /*parent*/, const std::string & actionKey)
 	g_Zapit->setScanBouquetMode( (CZapitClient::bouquetMode)scansettings.bouquetMode);
 
 	/* send satellite list to zapit */
-	if(satList.size())
+	if(!satList.empty())
 		g_Zapit->setScanSatelliteList( satList);
 
 	tuned = -1;

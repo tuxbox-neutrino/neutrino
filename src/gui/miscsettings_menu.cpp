@@ -66,7 +66,6 @@ CMiscMenue::~CMiscMenue()
 
 }
 
-
 int CMiscMenue::exec(CMenuTarget* parent, const std::string &actionKey)
 {
 	printf("init extended settings menu...\n");
@@ -169,40 +168,54 @@ int CMiscMenue::showMiscSettingsMenu()
 	//general
 	CMenuWidget misc_menue_general(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_GENERAL);
 	showMiscSettingsMenuGeneral(&misc_menue_general);
-	misc_menue.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, &misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_MISCSETTINGS_GENERAL, true, NULL, &misc_menue_general, NULL, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mf->setHint("", LOCALE_MENU_HINT_MISC_GENERAL);
+	misc_menue.addItem(mf);
 
 	//energy, shutdown
 	if(cs_get_revision() > 7)
 	{
 		CMenuWidget *misc_menue_energy = new CMenuWidget(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_ENERGY);
 		showMiscSettingsMenuEnergy(misc_menue_energy);
-		misc_menue.addItem(new CMenuDForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, misc_menue_energy, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN));
+		mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_ENERGY, true, NULL, misc_menue_energy, NULL, CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN);
+		mf->setHint("", LOCALE_MENU_HINT_MISC_ENERGY);
+		misc_menue.addItem(mf);
 	}
 
 	//epg
 	CMenuWidget misc_menue_epg(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_EPG);
 	showMiscSettingsMenuEpg(&misc_menue_epg);
-	misc_menue.addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, &misc_menue_epg, NULL, CRCInput::RC_yellow,NEUTRINO_ICON_BUTTON_YELLOW));
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_HEAD, true, NULL, &misc_menue_epg, NULL, CRCInput::RC_yellow,NEUTRINO_ICON_BUTTON_YELLOW);
+	mf->setHint("", LOCALE_MENU_HINT_MISC_EPG);
+	misc_menue.addItem(mf);
 
 	//filebrowser settings
 	CMenuWidget misc_menue_fbrowser(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_FILEBROWSER);
 	showMiscSettingsMenuFBrowser(&misc_menue_fbrowser);
-	misc_menue.addItem( new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, &misc_menue_fbrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE));
+	mf = new CMenuForwarder(LOCALE_FILEBROWSER_HEAD, true, NULL, &misc_menue_fbrowser, NULL, CRCInput::RC_blue, NEUTRINO_ICON_BUTTON_BLUE);
+	mf->setHint("", LOCALE_MENU_HINT_MISC_FILEBROWSER);
+	misc_menue.addItem(mf);
 
 	misc_menue.addItem(GenericMenuSeparatorLine);
 
 	//cec settings
 	CCECSetup cecsetup;
-	misc_menue.addItem(new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, &cecsetup, NULL, CRCInput::RC_1));
+	mf = new CMenuForwarder(LOCALE_VIDEOMENU_HDMI_CEC, true, NULL, &cecsetup, NULL, CRCInput::RC_1);
+	mf->setHint("", LOCALE_MENU_HINT_MISC_CEC);
+	misc_menue.addItem(mf);
 
 	//channellist
 	CMenuWidget misc_menue_chanlist(LOCALE_MISCSETTINGS_HEAD, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_MISCSETUP_CHANNELLIST);
 	showMiscSettingsMenuChanlist(&misc_menue_chanlist);
-	misc_menue.addItem( new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, &misc_menue_chanlist, NULL, CRCInput::RC_2));
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_CHANNELLIST, true, NULL, &misc_menue_chanlist, NULL, CRCInput::RC_2);
+	mf->setHint("", LOCALE_MENU_HINT_MISC_CHANNELLIST);
+	misc_menue.addItem(mf);
 
 	//start channels
 	CZapitSetup zapitsetup;
-	misc_menue.addItem(new CMenuForwarder(LOCALE_ZAPITSETUP_HEAD, true, NULL, &zapitsetup, NULL, CRCInput::RC_3));
+	mf = new CMenuForwarder(LOCALE_ZAPITSETUP_HEAD, true, NULL, &zapitsetup, NULL, CRCInput::RC_3);
+	mf->setHint("", LOCALE_MENU_HINT_MISC_ZAPIT);
+	misc_menue.addItem(mf);
 
 #ifdef CPU_FREQ
 	//CPU
@@ -224,22 +237,34 @@ void CMiscMenue::showMiscSettingsMenuGeneral(CMenuWidget *ms_general)
 	ms_general->addIntroItems(LOCALE_MISCSETTINGS_GENERAL);
 
 	//standby after boot
-	ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_START_TOSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_EXTRA_START_TOSTANDBY, &g_settings.power_standby, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_START_TOSTANDBY);
+	ms_general->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_CACHE_TXT,  (int *)&g_settings.cacheTXT, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_CACHE_TXT);
+	ms_general->addItem(mc);
 
 	//fan speed
 	if (g_info.has_fan)
 	{
-		ms_general->addItem(new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF) );
+		CMenuOptionNumberChooser * mn = new CMenuOptionNumberChooser(LOCALE_FAN_SPEED, &g_settings.fan_speed, true, 1, 14, fanNotifier, 0, 0, LOCALE_OPTIONS_OFF);
+		mn->setHint("", LOCALE_MENU_HINT_FAN_SPEED);
+		ms_general->addItem(mn);
 		fanNotifier->changeNotify(NONEXISTANT_LOCALE, (void*) &g_settings.fan_speed);
 	}
 
 	//rotor
 	//don't show rotor settings on cable box
-	if (g_info.delivery_system == DVB_S)
-		ms_general->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	if (g_info.delivery_system == DVB_S) {
+		mc = new CMenuOptionChooser(LOCALE_EXTRA_ROTOR_SWAP, &g_settings.rotor_swap, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+		mc->setHint("", LOCALE_MENU_HINT_ROTOR_SWAP);
+		ms_general->addItem(mc);
+	}
 
-	ms_general->addItem(new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir"));
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PLUGINS_HDD_DIR, true, g_settings.plugin_hdd_dir, this, "plugin_dir");
+	mf->setHint("", LOCALE_MENU_HINT_PLUGINS_HDD_DIR);
+	ms_general->addItem(mf);
 #ifdef ONE_KEY_PLUGIN
 	ms_general->addItem(new CMenuForwarder(LOCALE_EXTRA_KEY_PLUGIN, true, g_settings.onekey_plugin,this,"onekeyplugin"));
 #endif /*ONE_KEY_PLUGIN*/
@@ -251,16 +276,24 @@ void CMiscMenue::showMiscSettingsMenuEnergy(CMenuWidget *ms_energy)
 	ms_energy->addIntroItems(LOCALE_MISCSETTINGS_ENERGY);
 
 	CMenuOptionChooser *m1 = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL_RCDELAY, &g_settings.shutdown_real_rcdelay, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, !g_settings.shutdown_real);
+	m1->setHint("", LOCALE_MENU_HINT_SHUTDOWN_RCDELAY);
 
 	CStringInput * miscSettings_shutdown_count = new CStringInput(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, g_settings.shutdown_count, 3, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT1, LOCALE_MISCSETTINGS_SHUTDOWN_COUNT_HINT2, "0123456789 ");
 	CMenuForwarder *m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SHUTDOWN_COUNT, !g_settings.shutdown_real, g_settings.shutdown_count, miscSettings_shutdown_count);
+	m2->setHint("", LOCALE_MENU_HINT_SHUTDOWN_COUNT);
 
 	miscNotifier = new CMiscNotifier( m1, m2 );
 
-	ms_energy->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_SHUTDOWN_REAL, &g_settings.shutdown_real, OPTIONS_OFF1_ON0_OPTIONS, OPTIONS_OFF1_ON0_OPTION_COUNT, true, miscNotifier);
+	mc->setHint("", LOCALE_MENU_HINT_SHUTDOWN_REAL);
+
+	ms_energy->addItem(mc);
 	ms_energy->addItem(m1);
 	ms_energy->addItem(m2);
-	ms_energy->addItem(new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent"));
+
+	m2 = new CMenuDForwarder(LOCALE_MISCSETTINGS_SLEEPTIMER, true, g_settings.shutdown_min, new CSleepTimerWidget, "permanent");
+	m2->setHint("", LOCALE_MENU_HINT_INACT_TIMER);
+	ms_energy->addItem(m2);
 }
 
 //EPG settings
@@ -268,21 +301,33 @@ void CMiscMenue::showMiscSettingsMenuEpg(CMenuWidget *ms_epg)
 {
 	ms_epg->addIntroItems(LOCALE_MISCSETTINGS_EPG_HEAD);
 
-	ms_epg->addItem(new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_MISCSETTINGS_EPG_SAVE, &g_settings.epg_save, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_EPG_SAVE);
+	ms_epg->addItem(mc);
 
 	CStringInput * miscSettings_epg_cache = new CStringInput(LOCALE_MISCSETTINGS_EPG_CACHE, &g_settings.epg_cache, 2,LOCALE_MISCSETTINGS_EPG_CACHE_HINT1, LOCALE_MISCSETTINGS_EPG_CACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	ms_epg->addItem(new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, g_settings.epg_cache, miscSettings_epg_cache));
+	CMenuForwarder * mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_CACHE, true, g_settings.epg_cache, miscSettings_epg_cache);
+	mf->setHint("", LOCALE_MENU_HINT_EPG_CACHE);
+	ms_epg->addItem(mf);
 
 	CStringInput * miscSettings_epg_cache_e = new CStringInput(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, &g_settings.epg_extendedcache, 3,LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT1, LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	ms_epg->addItem(new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, g_settings.epg_extendedcache, miscSettings_epg_cache_e));
+	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_EXTENDEDCACHE, true, g_settings.epg_extendedcache, miscSettings_epg_cache_e);
+	mf->setHint("", LOCALE_MENU_HINT_EPG_EXTENDEDCACHE);
+	ms_epg->addItem(mf);
 
 	CStringInput * miscSettings_epg_old_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, &g_settings.epg_old_events, 3,LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_OLD_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	ms_epg->addItem(new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, g_settings.epg_old_events, miscSettings_epg_old_events));
+	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_OLD_EVENTS, true, g_settings.epg_old_events, miscSettings_epg_old_events);
+	mf->setHint("", LOCALE_MENU_HINT_EPG_OLD_EVENTS);
+	ms_epg->addItem(mf);
 
 	CStringInput * miscSettings_epg_max_events = new CStringInput(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, &g_settings.epg_max_events, 6,LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT1, LOCALE_MISCSETTINGS_EPG_MAX_EVENTS_HINT2 , "0123456789 ", sectionsdConfigNotifier);
-	ms_epg->addItem(new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, g_settings.epg_max_events, miscSettings_epg_max_events));
+	mf = new CMenuDForwarder(LOCALE_MISCSETTINGS_EPG_MAX_EVENTS, true, g_settings.epg_max_events, miscSettings_epg_max_events);
+	mf->setHint("", LOCALE_MENU_HINT_EPG_MAX_EVENTS);
+	ms_epg->addItem(mf);
 
-	ms_epg->addItem(new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, true, g_settings.epg_dir, this, "epgdir"));
+	mf = new CMenuForwarder(LOCALE_MISCSETTINGS_EPG_DIR, true, g_settings.epg_dir, this, "epgdir");
+	mf->setHint("", LOCALE_MENU_HINT_EPG_DIR);
+	ms_epg->addItem(mf);
 }
 
 //filebrowser settings
@@ -290,9 +335,17 @@ void CMiscMenue::showMiscSettingsMenuFBrowser(CMenuWidget *ms_fbrowser)
 {
 	ms_fbrowser->addIntroItems(LOCALE_FILEBROWSER_HEAD);
 
-	ms_fbrowser->addItem(new CMenuOptionChooser(LOCALE_FILESYSTEM_IS_UTF8            , &g_settings.filesystem_is_utf8            , MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS, MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT, true ));
-	ms_fbrowser->addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_SHOWRIGHTS        , &g_settings.filebrowser_showrights        , MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true ));
-	ms_fbrowser->addItem(new CMenuOptionChooser(LOCALE_FILEBROWSER_DENYDIRECTORYLEAVE, &g_settings.filebrowser_denydirectoryleave, MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true ));
+	CMenuOptionChooser * mc;
+	mc = new CMenuOptionChooser(LOCALE_FILESYSTEM_IS_UTF8            , &g_settings.filesystem_is_utf8            , MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTIONS, MISCSETTINGS_FILESYSTEM_IS_UTF8_OPTION_COUNT, true );
+	mc->setHint("", LOCALE_MENU_HINT_FILESYSTEM_IS_UTF8);
+	ms_fbrowser->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_FILEBROWSER_SHOWRIGHTS        , &g_settings.filebrowser_showrights        , MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true );
+	mc->setHint("", LOCALE_MENU_HINT_FILEBROWSER_SHOWRIGHTS);
+	ms_fbrowser->addItem(mc);
+	mc = new CMenuOptionChooser(LOCALE_FILEBROWSER_DENYDIRECTORYLEAVE, &g_settings.filebrowser_denydirectoryleave, MESSAGEBOX_NO_YES_OPTIONS              , MESSAGEBOX_NO_YES_OPTION_COUNT              , true );
+	mc->setHint("", LOCALE_MENU_HINT_FILEBROWSER_DENYDIRECTORYLEAVE);
+	ms_fbrowser->addItem(mc);
 }
 
 //channellist
@@ -300,12 +353,30 @@ void CMiscMenue::showMiscSettingsMenuChanlist(CMenuWidget *ms_chanlist)
 {
 	ms_chanlist->addIntroItems(LOCALE_MISCSETTINGS_CHANNELLIST);
 
-	ms_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_HDLIST ,     &g_settings.make_hd_list            , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	ms_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_NEWLIST,     &g_settings.make_new_list           , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	ms_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_REMOVEDLIST, &g_settings.make_removed_list       , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	ms_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_KEEP_NUMBERS,     &g_settings.keep_channel_numbers    , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	ms_chanlist->addItem(new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE         ,     &g_settings.zap_cycle               , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true));
-	ms_chanlist->addItem(new CMenuOptionChooser(LOCALE_CHANNELLIST_NEW_ZAP_MODE,     &g_settings.channellist_new_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true ));
+	CMenuOptionChooser * mc;
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_HDLIST ,     &g_settings.make_hd_list            , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_MAKE_HDLIST);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_NEWLIST,     &g_settings.make_new_list           , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_MAKE_NEWLIST);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_MAKE_REMOVEDLIST, &g_settings.make_removed_list       , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_MAKE_REMOVEDLIST);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_KEEP_NUMBERS,     &g_settings.keep_channel_numbers    , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_KEEP_NUMBERS);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_EXTRA_ZAP_CYCLE         ,     &g_settings.zap_cycle               , OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_ZAP_CYCLE);
+	ms_chanlist->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_CHANNELLIST_NEW_ZAP_MODE,     &g_settings.channellist_new_zap_mode, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true );
+	mc->setHint("", LOCALE_MENU_HINT_NEW_ZAP_MODE);
+	ms_chanlist->addItem(mc);
 }
 
 #ifdef CPU_FREQ
@@ -319,15 +390,3 @@ void CMiscMenue::showMiscSettingsMenuCPUFreq(CMenuWidget *ms_cpu)
 	ms_cpu->addItem(new CMenuOptionChooser(LOCALE_CPU_FREQ_STANDBY, &g_settings.standby_cpufreq, CPU_FREQ_OPTIONS, CPU_FREQ_OPTION_COUNT, true));
 }
 #endif /*CPU_FREQ*/
-
-#if 0
-//emlog
-void CMiscMenue::showMiscSettingsMenuEmLog(CMenuWidget *ms_emlog)
-{
-	ms_emlog->addIntroItems(LOCALE_MISCSETTINGS_DRIVER_BOOT);
-	if (access("/var/tuxbox/emlog", F_OK) == 0)
-		g_settings.emlog = 1;
-	ms_emlog->addItem(new CMenuOptionChooser(LOCALE_EXTRA_USELOG, &g_settings.emlog, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, new CLogChangeNotifier));
-}
-#endif
-

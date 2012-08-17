@@ -16,19 +16,19 @@ url=URL
 server=Server
 refreshing=aktualisieren ...
 refresh=Aktualisieren
-record=aufnehmen
-zap=umschalten
-lookup=nachschlagen
-save_values_desc=senden und speichern der Werte
+record=Aufnehmen
+zap=Umschalten
+lookup=Nachschlagen
+save_values_desc=Senden und Speichern der Werte
 save_values=Werte werden übernommen ...
 administration=Administration
 normal=Normal
 management=Management
 uninstaller=Deinstallation
-send=senden
-save=speichern
+send=Senden
+save=Speichern
 save_all=Alle &Auml;nderungen speichern
-cancel=abbrechen
+cancel=Abbrechen
 answer=Antwort
 reboot=Neustart
 shutdown=Ausschalten
@@ -47,9 +47,11 @@ description=Beschreibung
 color=Farbe
 tag=Bezeichnung
 empty=leer
-check=prüfen
+check=Prüfen
 help=Hilfe
-restriced_by_management_ip=Zugriff verwert wg. ManagementIP
+attention=Achtung!
+directory=Verzeichnis
+restriced_by_management_ip=Zugriff verwehrt wg. ManagementIP
 
 # ==========Main Menue
 main.boxcontrol=Boxsteuerung
@@ -103,17 +105,13 @@ bc.menue.volumen_display=Lautstärke Anzeige
 bc.control.freemem=FreeMem
 bc.control.lock=sperren
 bc.control.unlock=freigeben
-bc.control.lcd_unlock=LCD freigeben
 bc.control.standby_mode=Standby Modus
 bc.control.recording_mode=Aufnahmemodus
 bc.control.box=Box
 bc.control.remote=Fernbedienung
 bc.control.playback=Abspielen
 bc.control.epg_sectiond=EPG Sectiond
-bc.control.spts=SPTS
 bc.control.live_lock=Live sperren
-bc.control.optical_output=Optischer Ausgang
-bc.control.esound_server=ESound Server
 bc.control.reboot.ask=Box wirklich neu starten?
 bc.control.reboot=Neustart
 bc.control.shutdown.ask=Box wirklich ausschalten?
@@ -215,8 +213,6 @@ set.sync_with_neutrino=Zur Synchronisation mit Neutrino
 
 ========Settings General & Menue
 set.menue.webserver=Webserver
-set.menue.ucodes=Ucodes
-set.menue.boot_logo=Boot Logo
 set.menue.timer_settings=Timer Einstellungen
 set.menue.zapit=Zapit
 set.menue.backup_restore=Sichern und Wiederherstellen
@@ -264,10 +260,11 @@ set.rec.audio_channels=Tonspuren
 set.rec.audio_standard=Standard Tonspur aufnehmen
 set.rec.audio_alternate=Alternative Tonspur aufnehmen
 set.rec.audio_ac3=AC3 Tonspuren aufnehmen
+set.rec.channeldir=Speichere im Kanalverzeichnis
+set.rec.epg_end=Aufnahme nur bis EPG-Ende
+set.rec.recordtime=Aufnahmezeit in Stunden
 set.rec.timeshift_desc=Timeshift
-set.rec.timeshift.directory=Verzeichnis
-set.rec.timeshift.recordtime=Aufnahmezeit in Stunden
-set.rec.timeshift.pause=Pause
+set.rec.timeshift.pause=Start mit Pause-Taste
 set.rec.timeshift.auto_record=Autom. Aufnahme (in Sek, 0=deaktiviert)
 set.rec.timeshift.auto_delete=Automatisches Löschen
 set.rec.timeshift.tmp_timeshift=Temporäres timeshift
@@ -365,14 +362,21 @@ set.ap.start_dir=Start-Verzeichnis
 set.ap.parse_shoutcast=Shoutcast Meta-Daten
 
 ========Settings Timer
-set.timer.header=Timer Settings
+set.timer.header=Timer Einstellungen
 set.timer.username=Benutzername
 set.timer.password=Passwort
-set.timer.klack.url_desc=("&" wir beim Speichern zu ";" konvertiert)
+set.timer.klack.url_desc=("&" wird beim Speichern zu ";" konvertiert)
 set.timer.klack.url=Persönliche RSS TV-Planer URL
 set.timer.klack.security_code_desc=Klack Sicherheits Code
 set.timer.klack.security_code=Sicherheits Code
 set.timer.channel_name_replacelist=Sendernamen-Ersetzungsliste
+
+========Settings Backup/Restore
+set.settings.backup=Sichern
+set.settings.backup_desc=Sichern Ihrer Einstellungen
+set.settings.restore=Wiederherstellen
+set.settings.restore_desc=Hochladen und wiederherstellen einer vorher erstellten Sicherung. Ihre Box startet danach neu.
+set.settings.warning=Sichern &amp; Wiederherstellen ist nur bei einem gleichen Image mit gleichem Entwicklungsstand sinnvoll.
 
 ============ Tools Info
 tools.info.show_messages=Kernel Meldungen
@@ -387,11 +391,11 @@ tools.info.version=Version
 
 ============ Tools yInstaller
 tools.yinstaller.no_file_given=Keine Datei angegeben!
-tools.yinstaller.space.var=Platz in /var Gesamt
-tools.yinstaller.space.used=k Benutzt
-tools.yinstaller.space.free=k Frei
-tools.yinstaller.space.percentage=k Anteil benutzt
-tools.yinstaller.not_determine=Kann freien Speicherplatz nicht ermitteln /var ist keine Partition! JFFS2 oder YADD?
+tools.yinstaller.space.mtd=Platz gesamt
+tools.yinstaller.space.used=Benutzt
+tools.yinstaller.space.free=Frei
+tools.yinstaller.space.percentage=Anteil benutzt
+tools.yinstaller.not_determine=Kann freien Speicherplatz nicht ermitteln.
 tools.yinstaller.head=yInstaller
 tools.yinstaller.tar_file=tar-Datei
 tools.yinstaller.upload_install=hochladen und installieren
@@ -413,6 +417,7 @@ tools.path=Verzeichnis
 tools.command=Kommando
 tools.cmd.enter_command=Auszuführendes Kommando eingeben
 tools.cmd.execute_command=Kommando ausführen
+tools.boot_logo=Boot Logo
 
 =========== LIVE Menue
 live.heading=Live/Timer

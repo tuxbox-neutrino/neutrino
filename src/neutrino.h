@@ -80,6 +80,7 @@ typedef struct font_sizes_groups
 	const unsigned int                          count;
 	const SNeutrinoSettings::FONT_TYPES * const content;
 	const char * const                          actionkey;
+	const neutrino_locale_t hint;
 } font_sizes_groups_struct;
 
 class CNeutrinoApp : public CMenuTarget, CChangeObserver
@@ -133,7 +134,7 @@ private:
 	void tvMode( bool rezap = true );
 	void radioMode( bool rezap = true );
 	void scartMode( bool bOnOff );
-	void standbyMode( bool bOnOff );
+	void standbyMode( bool bOnOff, bool fromDeepStandby = false );
 	void saveEpg(bool cvfd_mode);
 
 	void ExitRun(const bool write_si = true, int retcode = 0);

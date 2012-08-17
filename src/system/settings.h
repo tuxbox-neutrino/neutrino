@@ -71,11 +71,14 @@ struct SNeutrinoSettings
 	int casystem_display;
 	int scrambled_message;
 	int volume_pos;
+	int volume_digits;
 	int show_mute_icon;
 	int menu_pos;
+	int show_menu_hints;
 	int infobar_show_sysfs_hdd;
 	int infobar_show_res;
 	int infobar_show_tuner;
+	int infobar_show_dd_available;
 	//audio
 	int audio_AnalogMode;
 	int audio_DolbyDigital;
@@ -454,7 +457,7 @@ struct SNeutrinoSettings
 
 
 	// Font sizes
-#define FONT_TYPE_COUNT 22
+#define FONT_TYPE_COUNT 23
 	enum FONT_TYPES {
 		FONT_TYPE_MENU                =  0,
 		FONT_TYPE_MENU_TITLE          =  1,
@@ -477,7 +480,8 @@ struct SNeutrinoSettings
 		FONT_TYPE_INFOBAR_CHANNAME    = 18,
 		FONT_TYPE_INFOBAR_INFO        = 19,
 		FONT_TYPE_INFOBAR_SMALL       = 20,
-		FONT_TYPE_FILEBROWSER_ITEM    = 21
+		FONT_TYPE_FILEBROWSER_ITEM    = 21,
+		FONT_TYPE_MENU_HINT           = 22
 	};
 
 	// lcdd
@@ -534,17 +538,13 @@ struct SNeutrinoSettings
 	std::string StartChannelRadio;
 	t_channel_id startchanneltv_id;
 	t_channel_id startchannelradio_id;
-	int startchanneltv_nr;
-	int startchannelradio_nr;
 	int uselastchannel;
 
 	int	power_standby;
-	int	emlog;
 	int	rotor_swap;
 	int	hdd_sleep;
 	int	hdd_noise;
 	int	hdd_fs;
-	int	logo_num;
 	int	zap_cycle;
 	int	sms_channel;
 	char	font_file[100];
@@ -677,6 +677,7 @@ public:
 	int		scan_fta_flag;
 	int		scan_reset_numbers;
 	int		scan_logical_numbers;
+	int		scan_logical_hd;
 	int		TP_fec;
 	int		TP_pol;
 	int		TP_mod;

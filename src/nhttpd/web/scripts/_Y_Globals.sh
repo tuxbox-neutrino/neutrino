@@ -19,7 +19,6 @@ y_path_scripts="$y_path_httpd/scripts"
 y_path_usrbin="/var/bin"
 y_path_config="/var/tuxbox/config"
 y_path_tmp="/tmp"
-y_path_ucodes="/var/tuxbox/ucodes"
 y_path_zapit="/var/tuxbox/config/zapit"
 
 y_path_plugin_tuxnew="/var/tuxbox/config/tuxnews"

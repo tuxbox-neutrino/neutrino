@@ -41,6 +41,7 @@ class CTimerdClient:private CBasicClient
 	virtual const          char * getSocketName() const;
 
  public:
+		virtual ~CTimerdClient() {};
 		enum events
 		{
 			EVT_SHUTDOWN = 1,

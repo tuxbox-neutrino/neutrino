@@ -35,7 +35,6 @@
 
 #include <driver/rcinput.h>
 #include <driver/abstime.h>
-#include <driver/stream2file.h>
 
 #include <stdio.h>
 #include <asm/types.h>
@@ -285,7 +284,8 @@ void CRCInput::restartInput()
 	close();
 	open();
 }
-
+#if 0 
+//never used
 int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 {
 	neutrino_msg_t      msg;
@@ -336,6 +336,7 @@ int CRCInput::messageLoop( bool anyKeyCancels, int timeout )
 	}
 	return res;
 }
+#endif
 
 int CRCInput::addTimer(uint64_t Interval, bool oneshot, bool correct_time )
 {
@@ -539,7 +540,7 @@ void CRCInput::getMsg_us(neutrino_msg_t * msg, neutrino_msg_data_t * data, uint6
 #endif
 	while(1) {
 		timer_id = 0;
-		if ( timers.size()> 0 )
+		if ( !timers.empty() )
 		{
 #ifdef USE_GETTIMEOFDAY
 			gettimeofday( &tv, NULL );
@@ -1143,6 +1144,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_NEUTRINO)
 					{
+#if 0
 						if ((emsg.eventID == NeutrinoMessages::EVT_RECORDING_ENDED) &&
 								(read_bytes == sizeof(stream2file_status2_t)))
 						{
@@ -1150,6 +1152,7 @@ printf("[neutrino] CSectionsdClient::EVT_GOT_CN_EPG\n");
 							*data = (neutrino_msg_data_t) p;
 							dont_delete_p = true;
 						}
+#endif
 					}
 					else if (emsg.initiatorID == CEventServer::INITID_GENERIC_INPUT_EVENT_PROVIDER)
 					{
@@ -1556,7 +1559,8 @@ void CRCInput::close_click()
 void CRCInput::open_click()
 {
 }
-
+#if 0 
+//never used
 void CRCInput::reset_dsp(int /*rate*/)
 {
 }
@@ -1564,7 +1568,7 @@ void CRCInput::reset_dsp(int /*rate*/)
 void CRCInput::set_dsp()
 {
 }
-
+#endif
 void CRCInput::play_click()
 {
 }

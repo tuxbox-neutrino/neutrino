@@ -5,6 +5,7 @@
 /*                                                                             */
 /* (C) 2008 CoolStream International                                           */
 /*                                                                             */
+/* $Id::                                                                     $ */
 /*******************************************************************************/
 #ifndef __RECORD_CS_H_
 #define __RECORD_CS_H_
@@ -17,9 +18,7 @@ class cRecord {
 private:
 	cRecordData * rd;
 	bool enabled;
-	int num_apids;
 	int unit;
-	int nRecordFD;
 
 public:
 	cRecord(int num = 0);
@@ -27,11 +26,9 @@ public:
 
 	bool Open();
 	void Close(void);
-	bool Start(int fd, unsigned short vpid, unsigned short * apids, int numapids);
+	bool Start(int fd, unsigned short vpid, unsigned short * apids, int numapids, uint64_t chid);
 	bool Stop(void);
 	bool AddPid(unsigned short pid);
-	/* not tested */
-	bool ChangePids(unsigned short vpid, unsigned short * apids, int numapids);
 };
 
 #endif // __RECORD_CS_H_

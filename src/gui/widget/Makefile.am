@@ -22,13 +22,13 @@ noinst_LIBRARIES = libneutrino_gui_widget.a libneutrino_gui_widget2.a
 libneutrino_gui_widget_a_SOURCES = \
 	buttons.cpp \
 	colorchooser.cpp \
+	components.cpp \
 	drawable.cpp \
 	helpbox.cpp \
 	hintbox.cpp \
 	hintboxext.cpp \
 	keychooser.cpp \
 	listbox.cpp \
-	listbox_legacy.cpp \
 	listframe.cpp \
 	menue.cpp \
 	messagebox.cpp \

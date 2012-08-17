@@ -25,8 +25,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -54,6 +55,7 @@
 #include <gui/widget/menue.h>
 #include <gui/widget/messagebox.h>
 #include <gui/widget/progressbar.h>
+#include <gui/widget/components.h>
 #include <gui/osd_setup.h>
 
 #include <system/settings.h>
@@ -251,10 +253,10 @@ int CChannelList::getKey(int id)
 
 static const std::string empty_string;
 
-const std::string & CChannelList::getActiveChannelName(void) const
+const std::string CChannelList::getActiveChannelName(void) const
 {
 	if (selected < chanlist.size())
-		return chanlist[selected]->name;
+		return chanlist[selected]->getName();
 	else
 		return empty_string;
 }
@@ -583,6 +585,7 @@ int CChannelList::show()
 				loop=false;
 		}
 		else if( msg == CRCInput::RC_record) { //start direct recording from channellist 
+#if 0
 			if(!CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id)) 
 			{
 				printf("[neutrino channellist] start direct recording...\n");
@@ -599,10 +602,20 @@ int CChannelList::show()
 				}
 					
 			}		
+#endif
+			if(SameTP()) {
+				printf("[neutrino channellist] start direct recording...\n");
+				hide();
+				if (!CRecordManager::getInstance()->Record(chanlist[selected]->channel_id)) {
+					paintHead();
+					paint();
+				} else
+					loop=false;
 				
+			}
 		}
 		else if( msg == CRCInput::RC_stop ) { //stopp recording
-			if(CRecordManager::getInstance()->RecordingStatus())
+			if(CRecordManager::getInstance()->RecordingStatus(chanlist[selected]->channel_id))
 			{
 				if (CRecordManager::getInstance()->AskToStop(chanlist[selected]->channel_id))
 				{
@@ -614,7 +627,7 @@ int CChannelList::show()
 		else if ((msg == CRCInput::RC_red) || (msg == CRCInput::RC_epg)) {
 			hide();
 
-			if ( g_EventList->exec(chanlist[selected]->channel_id, chanlist[selected]->name) == menu_return::RETURN_EXIT_ALL) {
+			if ( g_EventList->exec(chanlist[selected]->channel_id, chanlist[selected]->getName()) == menu_return::RETURN_EXIT_ALL) {
 				res = -2;
 				loop = false;
 			}
@@ -678,7 +691,7 @@ int CChannelList::show()
 			actzap = updateSelection(new_selected);
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_up) {
-			if (bouquetList->Bouquets.size() > 0) {
+			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
 				if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
@@ -700,7 +713,7 @@ int CChannelList::show()
 			}
 		}
 		else if (msg == (neutrino_msg_t)g_settings.key_bouquet_down) {
-			if (bouquetList->Bouquets.size() > 0) {
+			if (!bouquetList->Bouquets.empty()) {
 				bool found = true;
 				int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
 				if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
@@ -752,17 +765,17 @@ int CChannelList::show()
 				if (msg == CRCInput::RC_timeout || msg == CRCInput::RC_nokey) {
 					uint32_t i;
 					for(i = selected+1; i < chanlist.size(); i++) {
-						char firstCharOfTitle = chanlist[i]->name.c_str()[0];
+						char firstCharOfTitle = chanlist[i]->getName().c_str()[0];
 						if(tolower(firstCharOfTitle) == smsKey) {
-							//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
+							//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->getName().c_str());
 							break;
 						}
 					}
 					if(i >= chanlist.size()) {
 						for(i = 0; i < chanlist.size(); i++) {
-							char firstCharOfTitle = chanlist[i]->name.c_str()[0];
+							char firstCharOfTitle = chanlist[i]->getName().c_str()[0];
 							if(tolower(firstCharOfTitle) == smsKey) {
-								//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->name.c_str());
+								//printf("SMS chan found was= %d selected= %d i= %d %s\n", was_sms, selected, i, chanlist[i]->channel->getName().c_str());
 								break;
 							}
 						}
@@ -844,10 +857,6 @@ int CChannelList::show()
 		res = bouquetList->exec(true);
 		printf("CChannelList:: bouquetList->exec res %d\n", res);
 	}
-#if 0
-	/* FIXME call this somewhere after show */
-	CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
-#endif
 	this->new_mode_active = 0;
 
 	if(NeutrinoMessages::mode_ts == CNeutrinoApp::getInstance()->getMode())
@@ -1116,7 +1125,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 	if (tuned < chanlist.size() && chanlist[tuned]->last_unlocked_time != 0)
 		chanlist[tuned]->last_unlocked_time = time_monotonic();
 
-	printf("**************************** CChannelList::zapToChannel me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, channel->name.c_str(), channel->channel_id);
+	printf("**************************** CChannelList::zapToChannel me %p %s tuned %d new %s -> %llx\n", this, name.c_str(), tuned, channel->getName().c_str(), channel->channel_id);
 	if(tuned < chanlist.size())
 		selected_chid = chanlist[tuned]->getChannelID();
 
@@ -1128,7 +1137,7 @@ void CChannelList::zapToChannel(CZapitChannel *channel)
 		}
 
 		selected_chid = channel->getChannelID();
-		g_RemoteControl->zapTo_ChannelID(channel->getChannelID(), channel->name, !channel->bAlwaysLocked);
+		g_RemoteControl->zapTo_ChannelID(channel->getChannelID(), channel->getName(), !channel->bAlwaysLocked);
 		CNeutrinoApp::getInstance()->channelList->adjustToChannelID(channel->getChannelID());
 	}
 	if(!this->new_mode_active) {
@@ -1186,6 +1195,7 @@ int CChannelList::numericZap(int key)
 				channelList->adjustToChannelID(orgList->getActiveChannel_ChannelID(), false);
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
 			delete channelList;
 			return res;
@@ -1204,13 +1214,15 @@ int CChannelList::numericZap(int key)
 			if (channelList->getSize() != 0) {
 				this->frameBuffer->paintBackground();
 				res = channelList->exec();
+				CVFD::getInstance()->setMode(CVFD::MODE_TVRADIO);
 			}
 			delete channelList;
 		}
 		return res;
 	}
-
-	int sx = 4 * g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(widest_number) + 14;
+	size_t  maxchansize = MaxChanNr().size();
+	int fw = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getRenderWidth(widest_number);
+	int sx = maxchansize * fw + (fw/2);
 	int sy = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->getHeight() + 6;
 
 	int ox = frameBuffer->getScreenX() + (frameBuffer->getScreenWidth() - sx)/2;
@@ -1225,14 +1237,14 @@ int CChannelList::numericZap(int key)
 	while(1) {
 		if (lastchan != chn) {
 			snprintf((char*) &valstr, sizeof(valstr), "%d", chn);
-			while(strlen(valstr) < 4)
-				strcat(valstr,"-");   //"_"
 
+			while(strlen(valstr) < maxchansize)
+				strcat(valstr,"-");   //"_"
 			frameBuffer->paintBoxRel(ox, oy, sx, sy, COL_INFOBAR_PLUS_0);
 
-			for (int i = 3; i >= 0; i--) {
+			for (int i = maxchansize-1; i >= 0; i--) {
 				valstr[i+ 1] = 0;
-				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(ox+7+ i*((sx-14)>>2), oy+sy-3, sx, &valstr[i], COL_INFOBAR);
+				g_Font[SNeutrinoSettings::FONT_TYPE_CHANNEL_NUM_ZAP]->RenderString(ox+fw/3+ i*fw, oy+sy-3, sx, &valstr[i], COL_INFOBAR);
 			}
 
 			showInfo(chn);
@@ -1421,7 +1433,7 @@ void CChannelList::virtual_zap_mode(bool up)
 
 void CChannelList::quickZap(int key, bool /* cycle */)
 {
-	if(chanlist.size() == 0)
+	if(chanlist.empty())
 		return;
 
 	unsigned int sl = selected;
@@ -1560,7 +1572,6 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
-	fb_pixel_t col2 = COL_MENUCONTENT_PLUS_1;
 
 	// Clear
 	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
@@ -1569,25 +1580,12 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
 		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
 		{
-			int fh = fheight > 10 ? fheight - 10: 5;
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 4, fh,     col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos1+5, 1, fh,     col2);
+			//details line
+			CComponentsDetailLine details_line(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
+			details_line.paint();
 
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 4,info_height-14, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-4, ypos2+7, 1,info_height-14, col2);
-
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 4,ypos2a-ypos1a, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 1,ypos2a-ypos1a+4, col2);
-
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos1a, 12,1, col2);
-
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-16, ypos2a, 12,4, col1);
-			frameBuffer->paintBoxRel(xpos+ConnectLineBox_Width-12, ypos2a, 8,1, col2);
-
-//			frameBuffer->paintBoxRel(x, ypos2, width, info_height, col1, RADIUS_LARGE);
+			//info box frame
 			frameBuffer->paintBoxFrame(x, ypos2, width, info_height, 2, col1, RADIUS_LARGE);
-
 		}
 	}
 }
@@ -1601,7 +1599,7 @@ void CChannelList::showChannelLogo()
 		frameBuffer->paintBoxRel(x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h, COL_MENUHEAD_PLUS_0);
 
 		std::string lname;
-		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->name, lname, &logo_w, &logo_h)) {
+		if(g_PicViewer->GetLogoName(chanlist[selected]->channel_id, chanlist[selected]->getName(), lname, &logo_w, &logo_h)) {
 			if((logo_h > theight) || (logo_w > logo_w_max))
 				g_PicViewer->rescaleImageDimensions(&logo_w, &logo_h, logo_w_max, theight);
 			g_PicViewer->DisplayImage(lname, x + width - logo_off - logo_w, y+(theight-logo_h)/2, logo_w, logo_h);
@@ -1749,6 +1747,7 @@ void CChannelList::paintItem(int pos)
 
 		if (pos == 0)
 		{
+			/* FIXME move to calcSize() ? */
 			int w_max, w_min, h;
 			ChannelList_Rec = 0;
 			int recmode_icon_max = CRecordManager::RECMODE_REC, recmode_icon_min = CRecordManager::RECMODE_TSHIFT;
@@ -1765,11 +1764,11 @@ void CChannelList::paintItem(int pos)
 			for (uint32_t i = 0; i < chanlist.size(); i++)
 			{
 				rec_mode = CRecordManager::getInstance()->GetRecordMode(chanlist[i]->channel_id);
-				if (rec_mode == recmode_icon_max)
+				if (rec_mode & recmode_icon_max)
 				{
 					ChannelList_Rec = w_max;
 					break;
-				} else if (rec_mode == recmode_icon_min)
+				} else if (rec_mode & recmode_icon_min)
 					ChannelList_Rec = w_min;
 			}
 			if (ChannelList_Rec > 0)
@@ -1781,9 +1780,9 @@ void CChannelList::paintItem(int pos)
 		
 		//set recording icon
 		const char * rec_icon = "";
-		if (rec_mode == CRecordManager::RECMODE_REC)
+		if (rec_mode & CRecordManager::RECMODE_REC)
 			rec_icon = NEUTRINO_ICON_REC;
-		else if (rec_mode == CRecordManager::RECMODE_TSHIFT)
+		else if (rec_mode & CRecordManager::RECMODE_TSHIFT)
 			rec_icon = NEUTRINO_ICON_AUTO_SHIFT;
 	
 		//calculating icons
@@ -1799,7 +1798,6 @@ void CChannelList::paintItem(int pos)
 				r_icon_x = r_icon_x - s_icon_w;
 		
  		//paint recording icon
- 		//bool do_rec = CRecordManager::getInstance()->RecordingStatus(chanlist[curr]->channel_id);
 		if (rec_mode != CRecordManager::RECMODE_OFF)
 			frameBuffer->paintIcon(rec_icon, r_icon_x - r_icon_w, ypos, fheight);//ypos + (fheight - 16)/2);
 		
@@ -1815,9 +1813,9 @@ void CChannelList::paintItem(int pos)
 
 		int l=0;
 		if (this->historyMode)
-			l = snprintf(nameAndDescription, sizeof(nameAndDescription), ": %d %s", chan->number, chan->name.c_str());
+			l = snprintf(nameAndDescription, sizeof(nameAndDescription), ": %d %s", chan->number, chan->getName().c_str());
 		else
-			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->name.c_str());
+			l = snprintf(nameAndDescription, sizeof(nameAndDescription), "%s", chan->getName().c_str());
 
 		CProgressBar pb(false); /* never colored */
 		int pb_space = prg_offset - title_offset;
@@ -1901,10 +1899,10 @@ void CChannelList::paintItem(int pos)
 		if (curr == selected) {
 			if (!(chan->currentEvent.description.empty())) {
 				snprintf(nameAndDescription, sizeof(nameAndDescription), "%s - %s",
-					 chan->name.c_str(), p_event->description.c_str());
+					 chan->getName().c_str(), p_event->description.c_str());
 				CVFD::getInstance()->showMenuText(0, nameAndDescription, -1, true); // UTF-8
 			} else
-				CVFD::getInstance()->showMenuText(0, chan->name.c_str(), -1, true); // UTF-8
+				CVFD::getInstance()->showMenuText(0, chan->getName().c_str(), -1, true); // UTF-8
 		}
 	}
 }
@@ -1955,17 +1953,7 @@ void CChannelList::paintHead()
 
 void CChannelList::paint()
 {
-	zapit_list_it_t chan_it;
-	std::stringstream ss;
-	std::string chan_width;
-	int chan_nr_max = 1;
-	unsigned int nr = 0;
-	for (chan_it=chanlist.begin(); chan_it!=chanlist.end(); ++chan_it) {
-		chan_nr_max = std::max(chan_nr_max, chanlist[nr++]->number);
-	}
-	ss << chan_nr_max;
-	ss >> chan_width;
-	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(chan_width.c_str());
+	numwidth = g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_NUMBER]->getRenderWidth(MaxChanNr().c_str());
 
 	liststart = (selected/listmaxshow)*listmaxshow;
 	updateEvents(this->historyMode ? 0:liststart, this->historyMode ? 0:(liststart + listmaxshow));
@@ -2028,4 +2016,18 @@ bool CChannelList::SameTP(CZapitChannel * channel)
 		iscurrent = CFEManager::getInstance()->canTune(channel);
 	}
 	return iscurrent;
+}
+std::string  CChannelList::MaxChanNr()
+{
+	zapit_list_it_t chan_it;
+	std::stringstream ss;
+	std::string maxchansize;
+	int chan_nr_max = 1;
+	unsigned int nr = 0;
+	for (chan_it=chanlist.begin(); chan_it!=chanlist.end(); ++chan_it) {
+		chan_nr_max = std::max(chan_nr_max, chanlist[nr++]->number);
+	}
+	ss << chan_nr_max;
+	ss >> maxchansize;
+	return maxchansize;
 }

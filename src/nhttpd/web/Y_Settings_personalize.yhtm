@@ -49,7 +49,6 @@ function do_init()
 	obj_set_radio_value('p_getplugins', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_getplugins;1~cache=}");
 	obj_set_radio_value('p_restart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_restart;1~cache=}");
 	obj_set_radio_value('p_epgrestart', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_epgrestart;1~cache=}");
-	obj_set_radio_value('p_ucodecheck', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_ucodecheck;1~cache=}");
 	obj_set_radio_value('p_chan_epg_stat', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_chan_epg_stat;1~cache=}");
 	obj_set_radio_value('p_imageinfo', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_imageinfo;1~cache=}");
 	obj_set_radio_value('p_update', "{=ini-get:/var/tuxbox/config/neutrino.conf;personalize_update;1~cache=}");
@@ -322,13 +321,6 @@ function do_init()
 					<input type="radio" name="p_epgrestart" value="0"/>nicht sichtbar&nbsp;
 					<input type="radio" name="p_epgrestart" value="1"/>sichtbar&nbsp;
 					<input type="radio" name="p_epgrestart" value="2"/>PIN
-				</td>
-			</tr>
-			<tr><td>Ucodes &uuml;berpr&uuml;fen</td>
-				<td>
-					<input type="radio" name="p_ucodecheck" value="0"/>nicht sichtbar&nbsp;
-					<input type="radio" name="p_ucodecheck" value="1"/>sichtbar&nbsp;
-					<input type="radio" name="p_ucodecheck" value="2"/>PIN
 				</td>
 			</tr>
 			<tr><td>Sender/EPG Statistik</td>

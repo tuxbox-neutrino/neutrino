@@ -40,6 +40,8 @@
 
 #include <dirent.h>
 #include <dlfcn.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -91,10 +93,9 @@ int CPlugins::find_plugin(const std::string & filename)
 
 bool CPlugins::pluginfile_exists(const std::string & filename)
 {
-	FILE *file = fopen(filename.c_str(),"r");
-	if (file != NULL)
+	struct stat stat_buf;
+	if(::stat(filename.c_str(), &stat_buf) == 0)
 	{
-		fclose(file);
 		return true;
 	} else
 	{
@@ -324,7 +325,6 @@ void CPlugins::startScriptPlugin(int number)
 		       script, plugin_list[number].cfgfile.c_str());
 		return;
 	}
-
 	FILE *f = popen(script,"r");
 	if (f != NULL)
 	{
@@ -345,7 +345,7 @@ void CPlugins::startScriptPlugin(int number)
 	}
 }
 
-int mysystem(char * cmd, char * arg1, char * arg2);
+int mysystem(const char * cmd,const char * arg1,const char * arg2);
 void CPlugins::startPlugin(int number,int /*param*/)
 {
 	// always delete old output
@@ -592,7 +592,7 @@ void CPlugins::startPlugin(int number,int /*param*/)
 	g_RCInput->stopInput();
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	printf("Starting %s\n", plugin_list[number].pluginfile.c_str());
-	mysystem((char *) plugin_list[number].pluginfile.c_str(), NULL, NULL);
+	mysystem(plugin_list[number].pluginfile.c_str(), NULL, NULL);
 	//frameBuffer->setMode(720, 576, 8 * sizeof(fb_pixel_t));
 	frameBuffer->paintBackground();
 	g_RCInput->restartInput();

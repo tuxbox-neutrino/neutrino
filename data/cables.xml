@@ -35,6 +35,7 @@
 		<transponder frequency="674000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="682000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="690000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+		<transponder frequency="698000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="706000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="714000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 	</cable>
@@ -1352,5 +1353,8 @@
 		<transponder frequency="666000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="850000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
 		<transponder frequency="858000" symbol_rate="6900000" fec_inner="0" modulation="5"/>
+	</cable>
+	<cable name="Ziggo Groningen" satfeed="true" flags="9" nid="9700">
+		<transponder frequency="369000" symbol_rate="6875000" fec_inner="0" modulation="3"/>
 	</cable>
 </cables>

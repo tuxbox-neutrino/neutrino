@@ -219,13 +219,13 @@ private:
 	bool              m_isTimeSet;
 	int               m_extraTimeStart;
 	int               m_extraTimeEnd;
-	char 		  wakeup;
 
 	CTimerManager();
 	static void* timerThread(void *arg);
 	CTimerEvent			*nextEvent();
 public:
 
+	bool 		  wakeup;
 
 	static CTimerManager* getInstance();
 

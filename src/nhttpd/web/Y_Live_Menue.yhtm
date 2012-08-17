@@ -30,7 +30,17 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_live').insert({'bottom':el}); 
+		$('secmenu_live').insert({'bottom':el});
+	});
+	var menu=ext.select_menu('epg');
+	menu.each(function(e){
+		var el=new Element('li').update(
+			new Element('a', {'target':'work',
+				'title': e.get('desc'),
+				'href': e.get('file')
+			}).update("-"+e.get('menuitem'))
+		);
+		$('secmenu_epg').insert({'bottom':el});
 	});
 	var menu=ext.select_menu('timer');
 	menu.each(function(e){
@@ -40,7 +50,7 @@ function init(){
 				'href': e.get('file')
 			}).update("-"+e.get('menuitem'))
 		);
-		$('secmenu_timer').insert({'bottom':el}); 
+		$('secmenu_timer').insert({'bottom':el});
 	});
 }
 //]]>
@@ -55,33 +65,38 @@ function init(){
 		<div class="y_menu_sec">
 			<ul id="secmenu_live">
 				<li>
-					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
-						<td><a target="work" href="Y_LiveViewFull.yhtm?mode=tv&amp;typ=live">{=L:live.tv=}</a></td>
-						<td align="right"><a title="{=L:live.tv_popup_desc=}LiveTV (popup)" href="javascript:go_live_popup_tv()"><img src="/images/popup.png"/></a></td>
-					</tr></table>
+					<a target="work" href="Y_LiveViewFull.yhtm?mode=tv&amp;typ=live">{=L:live.tv=}</a>
+					<a class="y_menu_popup_link" title="{=L:live.tv_popup_desc=}" href="javascript:go_live_popup_tv()"><img src="/images/popup.png"/></a>
 				</li>
 				<li>
-					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
-						<td><a target="work" href="Y_LiveViewFull.yhtm?mode=radio&amp;typ=live">{=L:live.radio=}</a></td>
-						<td align="right"><a title="{=L:live.radio_popup_desc=}" href="javascript:go_live_popup_radio()"><img src="/images/popup.png"/></a></td>
-					</tr></table>
+					<a target="work" href="Y_LiveViewFull.yhtm?mode=radio&amp;typ=live">{=L:live.radio=}</a>
+					<a class="y_menu_popup_link" title="{=L:live.radio_popup_desc=}" href="javascript:go_live_popup_radio()"><img src="/images/popup.png"/></a>
 				</li>
 				<!-- <li><a target="work" title="use LiveView with 2 boxes" href="Y_Live_DoubleView.yhtm">{=L:live.double_view=}</a></li> -->
+			</ul>
+		</div>
+		<div class="y_menu_sec_section">{=L:live.epg=}</div>
+		<div class="y_menu_sec">
+			<ul id="secmenu_epg">
+				<li>
+					<a target="work" href="Y_Boxcontrol_Bouquets.yhtm">{=L:live.epg=}</a>
+
+				</li>
+				<li>
+					<a target="work" href="Y_EPG_Plus.yhtm">{=L:live.epg_plus=}</a>
+					<a class="y_menu_popup_link" title="{=L:live.epg_plus_popup_desc=}" href="javascript:epg_plus_popup()"><img src="/images/popup.png"/></a>
+				</li>
 			</ul>
 		</div>
 		<div class="y_menu_sec_section">{=L:live.timer=}</div>
 		<div class="y_menu_sec">
 			<ul id="secmenu_timer">
-				<li><a target="work" href="Y_Timer_List.yhtm">{=L:live.timer=}</a></li>
-				<li><a target="work" href="Y_Boxcontrol_Bouquets.yhtm">{=L:live.epg=}</a></li>
 				<li>
-					<table class="y_invisible_table" cellspacing="0" cellpadding="0" style="width:100%; padding-right:15px;margin:0"><tr>
-						<td><a target="work" href="Y_EPG_Plus.yhtm">{=L:live.epg_plus=}</a></td>
-						<td align="right"><a title="{=L:live.epg_plus_popup_desc=}" href="javascript:epg_plus_popup()"><img src="/images/popup.png"/></a></td>
-					</tr></table>
+					<a target="work" href="Y_Timer_List.yhtm">{=L:live.timer=}</a>
 				</li>
-				<li><a target="work" href="Y_Tools_Timer_Sync.yhtm">{=L:live.timer_sync=}</a></li>
-				<!--<li><a target="work" title="recorder" href="Y_Blank.yhtm">Recorder</a></li>-->
+				<li>
+					<a target="work" href="Y_Tools_Timer_Sync.yhtm">{=L:live.timer_sync=}</a>
+				</li>
 			</ul>
 		</div>
 	</div>

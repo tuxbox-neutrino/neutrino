@@ -43,6 +43,7 @@
 #include <sys/param.h>
 #include <time.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -163,7 +164,8 @@ void CInfoViewerBB::getBBIconInfo()
 			break;
 #endif
 		case CInfoViewerBB::ICON_DD:
-			iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
+			if( g_settings.infobar_show_dd_available )
+				iconView = checkBBIcon(NEUTRINO_ICON_DD, &w, &h);
 			break;
 		case CInfoViewerBB::ICON_16_9:  //no radio
 			if (neutrino->getMode() != NeutrinoMessages::mode_radio)
@@ -223,7 +225,7 @@ void CInfoViewerBB::getBBButtonInfo()
 			text = g_settings.usermenu_text[SNeutrinoSettings::BUTTON_GREEN];
 			if (text == g_Locale->getText(LOCALE_AUDIOSELECTMENUE_HEAD))
 				text = "";
-			if (g_RemoteControl->current_PIDs.APIDs.size() > 0) {
+			if (!g_RemoteControl->current_PIDs.APIDs.empty()) {
 				int selected = g_RemoteControl->current_PIDs.PIDs.selected_apid;
 				if (text.empty())
 					text = g_RemoteControl->current_PIDs.APIDs[selected].desc;
@@ -414,14 +416,14 @@ void CInfoViewerBB::showIcon_VTXT()
 
 void CInfoViewerBB::showIcon_DD()
 {
-	if (!is_visible)
+	if (!is_visible || !g_settings.infobar_show_dd_available)
 		return;
 	std::string dd_icon;
 	if ((g_RemoteControl->current_PIDs.PIDs.selected_apid < g_RemoteControl->current_PIDs.APIDs.size()) && 
 	    (g_RemoteControl->current_PIDs.APIDs[g_RemoteControl->current_PIDs.PIDs.selected_apid].is_ac3))
 		dd_icon = NEUTRINO_ICON_DD;
-	else
-		dd_icon = (g_RemoteControl->has_ac3) ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
+	else 
+		dd_icon = g_RemoteControl->has_ac3 ? NEUTRINO_ICON_DD_AVAIL : NEUTRINO_ICON_DD_GREY;
 
 	showBBIcons(CInfoViewerBB::ICON_DD, dd_icon);
 }
@@ -672,7 +674,7 @@ void CInfoViewerBB::paint_ca_icons(int caid, char * icon, int &icon_space_offset
 
 void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 {
-	int caids[] = { 0x600, 0x0100, 0x0500, 0x1800, 0xB00, 0xD00, 0x900, 0x2600, 0x4a00, 0x0E00 };
+	int caids[] = {  0x900, 0xD00, 0xB00, 0x1800, 0x0500, 0x0100, 0x600,  0x2600, 0x4a00, 0x0E00 };
 	const char * white = (char *) "white";
 	const char * yellow = (char *) "yellow";
 	int icon_space_offset = 0;
@@ -698,7 +700,7 @@ void CInfoViewerBB::showIcon_CA_Status(int notfirst)
 		return;
 
 	if (g_settings.casystem_display == 2) {
-		fta = (channel->camap.size() == 0);
+		fta = channel->camap.empty();
 		showOne_CAIcon();
 		return;
 	}

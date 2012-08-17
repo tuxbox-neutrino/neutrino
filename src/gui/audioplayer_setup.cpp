@@ -82,7 +82,7 @@ int CAudioPlayerSetup::exec(CMenuTarget* parent, const std::string &actionKey)
 	}
 
 	res = showAudioPlayerSetup();
-	
+
 	return res;
 }
 
@@ -98,25 +98,53 @@ const CMenuOptionChooser::keyval AUDIOPLAYER_DISPLAY_ORDER_OPTIONS[AUDIOPLAYER_D
 /*shows the audio setup menue*/
 int CAudioPlayerSetup::showAudioPlayerSetup()
 {
+	CMenuOptionChooser * mc;
+	CMenuForwarder * mf;
+
 	CMenuWidget* audioplayerSetup = new CMenuWidget(LOCALE_MAINMENU_SETTINGS, NEUTRINO_ICON_SETTINGS, width, MN_WIDGET_ID_AUDIOSETUP);
 
 	audioplayerSetup->addIntroItems(LOCALE_AUDIOPLAYER_NAME);
 
-	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_DISPLAY_ORDER, &g_settings.audioplayer_display     , AUDIOPLAYER_DISPLAY_ORDER_OPTIONS, AUDIOPLAYER_DISPLAY_ORDER_OPTION_COUNT, true ));
-	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_FOLLOW       , &g_settings.audioplayer_follow      , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
-	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SELECT_TITLE_BY_NAME       , &g_settings.audioplayer_select_title_by_name      , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
-	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_REPEAT_ON       , &g_settings.audioplayer_repeat_on      , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
-	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SHOW_PLAYLIST, &g_settings.audioplayer_show_playlist, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true ));
+	// display order
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_DISPLAY_ORDER, &g_settings.audioplayer_display, AUDIOPLAYER_DISPLAY_ORDER_OPTIONS, AUDIOPLAYER_DISPLAY_ORDER_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_ORDER);
+	audioplayerSetup->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_FOLLOW, &g_settings.audioplayer_follow, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_FOLLOW);
+	audioplayerSetup->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SELECT_TITLE_BY_NAME, &g_settings.audioplayer_select_title_by_name, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_TITLE);
+	audioplayerSetup->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_REPEAT_ON, &g_settings.audioplayer_repeat_on, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_REPEAT);
+	audioplayerSetup->addItem(mc);
+
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SHOW_PLAYLIST, &g_settings.audioplayer_show_playlist, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_PLAYLIST);
+	audioplayerSetup->addItem(mc);
 
 	CStringInput audio_screensaver(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, g_settings.audioplayer_screensaver, 2, NONEXISTANT_LOCALE, NONEXISTANT_LOCALE, "0123456789 ");
-	audioplayerSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, true, g_settings.audioplayer_screensaver, &audio_screensaver));
+	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_SCREENSAVER_TIMEOUT, true, g_settings.audioplayer_screensaver, &audio_screensaver);
+	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SCREENSAVER);
+	audioplayerSetup->addItem(mf);
 
-	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO     , &g_settings.audioplayer_highprio    , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
-
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_HIGHPRIO, &g_settings.audioplayer_highprio, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true );
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_HIGHPRIO);
+	audioplayerSetup->addItem(mc);
+#if 0
 	if (CVFD::getInstance()->has_lcd) //FIXME
 		audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_SPECTRUM     , &g_settings.spectrum    , MESSAGEBOX_NO_YES_OPTIONS      , MESSAGEBOX_NO_YES_OPTION_COUNT      , true ));
-	audioplayerSetup->addItem(new CMenuForwarder(LOCALE_AUDIOPLAYER_DEFDIR, true, g_settings.network_nfs_audioplayerdir, this, "audioplayerdir"));
-	audioplayerSetup->addItem(new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true ));
+#endif
+	mf = new CMenuForwarder(LOCALE_AUDIOPLAYER_DEFDIR, true, g_settings.network_nfs_audioplayerdir, this, "audioplayerdir");
+	mf->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_DEFDIR);
+	audioplayerSetup->addItem(mf);
+
+	mc = new CMenuOptionChooser(LOCALE_AUDIOPLAYER_ENABLE_SC_METADATA, &g_settings.audioplayer_enable_sc_metadata, MESSAGEBOX_NO_YES_OPTIONS, MESSAGEBOX_NO_YES_OPTION_COUNT, true);
+	mc->setHint("", LOCALE_MENU_HINT_AUDIOPLAYER_SC_METADATA);
+	audioplayerSetup->addItem(mc);
 
 	int res = audioplayerSetup->exec (NULL, "");
 	delete audioplayerSetup;

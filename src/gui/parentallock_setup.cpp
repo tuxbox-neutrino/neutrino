@@ -23,8 +23,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the 
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 
 */
 
@@ -56,10 +57,10 @@ int CParentalSetup::exec(CMenuTarget* parent, const std::string &/*actionKey*/)
 
 	if (parent)
 		parent->hide();
-	
+
 	if (check())
 		showParentalSetup();
-		
+
 	return res;
 }
 
@@ -99,12 +100,19 @@ void CParentalSetup::showParentalSetup()
 	// intros
 	plock->addIntroItems();
 
-	plock->addItem(new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked));
+	CMenuOptionChooser * mc;
+	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_PROMPT , &g_settings.parentallock_prompt , PARENTALLOCK_PROMPT_OPTIONS, PARENTALLOCK_PROMPT_OPTION_COUNT , !parentallocked);
+	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_PROMPT);
+	plock->addItem(mc);
 
-	plock->addItem(new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked));
+	mc = new CMenuOptionChooser(LOCALE_PARENTALLOCK_LOCKAGE, &g_settings.parentallock_lockage, PARENTALLOCK_LOCKAGE_OPTIONS, PARENTALLOCK_LOCKAGE_OPTION_COUNT, !parentallocked);
+	mc->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_LOCKAGE);
+	plock->addItem(mc);
 
 	CPINChangeWidget pinChangeWidget(LOCALE_PARENTALLOCK_CHANGEPIN, g_settings.parentallock_pincode, 4, LOCALE_PARENTALLOCK_CHANGEPIN_HINT1);
-	plock->addItem( new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget));
+	CMenuForwarder * mf = new CMenuForwarder(LOCALE_PARENTALLOCK_CHANGEPIN, true, g_settings.parentallock_pincode, &pinChangeWidget);
+	mf->setHint("", LOCALE_MENU_HINT_PARENTALLOCK_CHANGEPIN);
+	plock->addItem(mf);
 
 	plock->exec(NULL, "");
 	delete plock;

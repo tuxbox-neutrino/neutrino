@@ -23,7 +23,7 @@
 #include <zapit/frontend_c.h>
 #include <zapit/debug.h>
 
-transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization)
+transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const FrontendParameters p_feparams, const uint8_t p_polarization)
 {
 	transponder_id      = t_id;
 	transport_stream_id = GET_TRANSPORT_STREAM_ID_FROM_TRANSPONDER_ID(t_id);
@@ -41,7 +41,7 @@ transponder::transponder(fe_type_t fType, const transponder_id_t t_id, const str
 
 transponder::transponder()
 {
-	memset(&feparams, 0, sizeof(struct dvb_frontend_parameters));
+	memset(&feparams, 0, sizeof(FrontendParameters));
 	transponder_id	= 0;
 	transport_stream_id = 0;
 	original_network_id = 0;
@@ -57,28 +57,31 @@ bool transponder::operator==(const transponder& t) const
 			//(transport_stream_id == t.transport_stream_id) &&
 			//(original_network_id == t.original_network_id) &&
 			((polarization & 1) == (t.polarization & 1)) &&
-			(abs((int) feparams.frequency - (int)t.feparams.frequency) <= 3000)
+			(abs((int) feparams.dvb_feparams.frequency - (int)t.feparams.dvb_feparams.frequency) <= 3000)
 	       );
 }
 
 bool transponder::compare(const transponder& t) const
 {
 	bool ret = false;
+	const struct dvb_frontend_parameters *dvb_feparams1 = &feparams.dvb_feparams;
+	const struct dvb_frontend_parameters *dvb_feparams2 = &t.feparams.dvb_feparams;
+
 	if (type == FE_QAM) {
 		ret = (
 				(t == (*this)) &&
-				(feparams.u.qam.symbol_rate == t.feparams.u.qam.symbol_rate) &&
-				(feparams.u.qam.fec_inner == t.feparams.u.qam.fec_inner ||
-				 feparams.u.qam.fec_inner == FEC_AUTO || t.feparams.u.qam.fec_inner == FEC_AUTO) &&
-				(feparams.u.qam.modulation == t.feparams.u.qam.modulation ||
-				 feparams.u.qam.modulation == QAM_AUTO || t.feparams.u.qam.modulation == QAM_AUTO)
+				(dvb_feparams1->u.qam.symbol_rate == dvb_feparams2->u.qam.symbol_rate) &&
+				(dvb_feparams1->u.qam.fec_inner == dvb_feparams2->u.qam.fec_inner ||
+				 dvb_feparams1->u.qam.fec_inner == FEC_AUTO || dvb_feparams2->u.qam.fec_inner == FEC_AUTO) &&
+				(dvb_feparams1->u.qam.modulation == dvb_feparams2->u.qam.modulation ||
+				 dvb_feparams1->u.qam.modulation == QAM_AUTO || dvb_feparams2->u.qam.modulation == QAM_AUTO)
 		      );
 	} else {
 		ret = (
 				(t == (*this)) &&
-				(feparams.u.qpsk.symbol_rate == t.feparams.u.qpsk.symbol_rate) &&
-				(feparams.u.qpsk.fec_inner == t.feparams.u.qpsk.fec_inner ||
-				 feparams.u.qpsk.fec_inner == FEC_AUTO || t.feparams.u.qpsk.fec_inner == FEC_AUTO)
+				(dvb_feparams1->u.qpsk.symbol_rate == dvb_feparams2->u.qpsk.symbol_rate) &&
+				(dvb_feparams1->u.qpsk.fec_inner == dvb_feparams2->u.qpsk.fec_inner ||
+				 dvb_feparams1->u.qpsk.fec_inner == FEC_AUTO || dvb_feparams2->u.qpsk.fec_inner == FEC_AUTO)
 		      );
 	}
 	return ret;
@@ -86,40 +89,45 @@ bool transponder::compare(const transponder& t) const
 
 void transponder::dumpServiceXml(FILE * fd)
 {
+	struct dvb_frontend_parameters *dvb_feparams = &feparams.dvb_feparams;
+
 	if (type == FE_QAM) {
 		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" mod=\"%hu\">\n",
 				transport_stream_id, original_network_id,
-				feparams.frequency, feparams.inversion,
-				feparams.u.qam.symbol_rate, feparams.u.qam.fec_inner,
-				feparams.u.qam.modulation);
+				dvb_feparams->frequency, dvb_feparams->inversion,
+				dvb_feparams->u.qam.symbol_rate, dvb_feparams->u.qam.fec_inner,
+				dvb_feparams->u.qam.modulation);
 
 	} else {
 		fprintf(fd, "\t\t<TS id=\"%04x\" on=\"%04x\" frq=\"%u\" inv=\"%hu\" sr=\"%u\" fec=\"%hu\" pol=\"%hu\">\n",
 				transport_stream_id, original_network_id,
-				feparams.frequency, feparams.inversion,
-				feparams.u.qpsk.symbol_rate, feparams.u.qpsk.fec_inner,
+				dvb_feparams->frequency, dvb_feparams->inversion,
+				dvb_feparams->u.qpsk.symbol_rate, dvb_feparams->u.qpsk.fec_inner,
 				polarization);
 	}
 }
 
 void transponder::dump(std::string label) 
 {
+	struct dvb_frontend_parameters *dvb_feparams = &feparams.dvb_feparams;
+
 	if (type == FE_QAM)
 		printf("%s tp-id %016llx freq %d rate %d fec %d mod %d\n", label.c_str(),
-				transponder_id, feparams.frequency, feparams.u.qam.symbol_rate,
-				feparams.u.qam.fec_inner, feparams.u.qam.modulation);
+				transponder_id, dvb_feparams->frequency, dvb_feparams->u.qam.symbol_rate,
+				dvb_feparams->u.qam.fec_inner, dvb_feparams->u.qam.modulation);
 	else
 		printf("%s tp-id %016llx freq %d rate %d fec %d pol %d\n", label.c_str(),
-				transponder_id, feparams.frequency, feparams.u.qpsk.symbol_rate,
-				feparams.u.qpsk.fec_inner, polarization);
+				transponder_id, dvb_feparams->frequency, dvb_feparams->u.qpsk.symbol_rate,
+				dvb_feparams->u.qpsk.fec_inner, polarization);
 }
-
+#if 0 
+//never used
 void transponder::ddump(std::string label) 
 {
 	if (zapit_debug)
 		dump(label);
 }
-
+#endif
 char transponder::pol(unsigned char p)
 {
 	if (p == 0)
@@ -136,14 +144,16 @@ std::string transponder::description()
 {
 	char buf[128] = {0};
 	char * f, *s, *m;
+	struct dvb_frontend_parameters *dvb_feparams = &feparams.dvb_feparams;
+
 	switch(type) {
 		case FE_QPSK:
-			CFrontend::getDelSys(type, feparams.u.qpsk.fec_inner, dvbs_get_modulation(feparams.u.qpsk.fec_inner),  f, s, m);
-			snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", feparams.frequency/1000, pol(polarization), feparams.u.qpsk.symbol_rate/1000, f, s, m);
+			CFrontend::getDelSys(type, dvb_feparams->u.qpsk.fec_inner, dvbs_get_modulation(dvb_feparams->u.qpsk.fec_inner),  f, s, m);
+			snprintf(buf, sizeof(buf), "%d %c %d %s %s %s ", dvb_feparams->frequency/1000, pol(polarization), dvb_feparams->u.qpsk.symbol_rate/1000, f, s, m);
 			break;
 		case FE_QAM:
-			CFrontend::getDelSys(type, feparams.u.qam.fec_inner, feparams.u.qam.modulation, f, s, m);
-			snprintf(buf, sizeof(buf), "%d %d %s %s %s ", feparams.frequency/1000, feparams.u.qam.symbol_rate/1000, f, s, m);
+			CFrontend::getDelSys(type, dvb_feparams->u.qam.fec_inner, dvb_feparams->u.qam.modulation, f, s, m);
+			snprintf(buf, sizeof(buf), "%d %d %s %s %s ", dvb_feparams->frequency/1000, dvb_feparams->u.qam.symbol_rate/1000, f, s, m);
 			break;
 		case FE_OFDM:
 		case FE_ATSC:

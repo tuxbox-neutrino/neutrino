@@ -168,7 +168,6 @@
 #include <gui/widget/helpbox.h>
 #include "widget/messagebox.h"
 #include "widget/hintbox.h"
-#include "widget/lcdcontroler.h"
 #include "widget/keychooser.h"
 #include "color.h"
 #include "personalize.h"
@@ -578,7 +577,7 @@ bool CPersonalizeGui::changeNotify(const neutrino_locale_t locale, void *data)
 			}
 		}
 	}
-	return true;
+	return false;
 }
 
 //shows a short help message
@@ -808,7 +807,8 @@ void CPersonalizeGui::addPersonalizedItems()
 											
 				//convert item to locked forwarder and use generated pin mode for usage as ask parameter 
 				v_item[i].menuItem = new CLockedMenuForwarder(fw->getTextLocale(), g_settings.personalize_pincode, use_pin, fw->active, NULL, fw->getTarget(), fw->getActionKey().c_str(), d_key, fw->iconName.c_str(), lock_icon);
-				
+				v_item[i].menuItem->hintIcon = fw->hintIcon;
+				v_item[i].menuItem->hint = fw->hint;
 				//add item if it's set to visible or pin protected and allow to add an forwarder as next
 				if (v_item[i].menuItem->active && (p_mode != PERSONALIZE_MODE_NOTVISIBLE || i_mode == PERSONALIZE_SHOW_AS_ACCESS_OPTION))
 				{
@@ -912,7 +912,7 @@ bool CUserMenuNotifier::changeNotify(const neutrino_locale_t, void *)
 	toDisable[0]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON]);
 	toDisable[1]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON]);
    
-   return true;
+   return false;
 }
 
 //helper class to enable/disable pin setup

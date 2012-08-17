@@ -881,7 +881,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				this->paint();
 			}
 			if (msg == CRCInput::RC_yellow) {
-				if (bouquetList->Bouquets.size() > 0) {
+				if (!bouquetList->Bouquets.empty()) {
 					bool found = true;
 					uint32_t nNext = (bouquetList->getActiveBouquetNumber()+1) % bouquetList->Bouquets.size();
 //printf("**************************** EpgPlus::exec current bouquet %d new %d\n", bouquetList->getActiveBouquetNumber(), nNext);
@@ -908,7 +908,7 @@ int EpgPlus::exec (CChannelList * pchannelList, int selectedChannelIndex, CBouqu
 				}
 			}
 			else if (msg == CRCInput::RC_green) {
-				if (bouquetList->Bouquets.size() > 0) {
+				if (!bouquetList->Bouquets.empty()) {
 					bool found = true;
 					int nNext = (bouquetList->getActiveBouquetNumber()+bouquetList->Bouquets.size()-1) % bouquetList->Bouquets.size();
 					if(bouquetList->Bouquets[nNext]->channelList->getSize() <= 0) {
@@ -1263,7 +1263,7 @@ int CEPGplusHandler::exec (CMenuTarget * parent, const std::string & /*actionKey
 	//channelList = CNeutrinoApp::getInstance()->channelList;
 	int bnum = bouquetList->getActiveBouquetNumber();
 	current_bouquet = bnum;
-	if(bouquetList->Bouquets.size() && bouquetList->Bouquets[bnum]->channelList->getSize() > 0)
+	if(!bouquetList->Bouquets.empty() && bouquetList->Bouquets[bnum]->channelList->getSize() > 0)
 		channelList = bouquetList->Bouquets[bnum]->channelList;
 	else
 		channelList = CNeutrinoApp::getInstance()->channelList;

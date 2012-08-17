@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <unistd.h>
 
 /*
  * Known bugs:

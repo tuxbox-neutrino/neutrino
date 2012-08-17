@@ -28,8 +28,9 @@
 	GNU General Public License for more details.
 
 	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+	along with this program; if not, write to the
+	Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+	Boston, MA  02110-1301, USA.
 */
 
 #include <driver/framebuffer.h>
@@ -96,6 +97,7 @@ private:
 	void hide();
 	void showChannelLogo();
 	void calcSize();
+	std::string   MaxChanNr();
 
 public:
 	CChannelList(const char * const Name, bool historyMode = false, bool _vlist = false, bool new_mode_active = false );
@@ -120,7 +122,7 @@ public:
 	const char         * getName                   (void) const {
 		return name.c_str();
 	};
-	const std::string &  getActiveChannelName      (void) const; // UTF-8
+	const std::string    getActiveChannelName      (void) const; // UTF-8
 	t_satellite_position getActiveSatellitePosition(void) const;
 	int                  getActiveChannelNumber    (void) const;
 	t_channel_id         getActiveChannel_ChannelID(void) const;

@@ -90,7 +90,8 @@ int CBookmarkManager::createBookmark (const std::string & url, const std::string
 }
 
 //------------------------------------------------------------------------
-
+#if 0 
+//never used
 void CBookmarkManager::removeBookmark (unsigned int index) {
 	std::vector<CBookmark>::iterator p = bookmarks.begin()+index;
 	bookmarks.erase(p);
@@ -115,7 +116,7 @@ void CBookmarkManager::renameBookmark (unsigned int index) {
 		bookmarksmodified=true;
 	}
 }
-
+#endif
 #define BOOKMARKSTRINGLENGTH (10 + 1)
 #define BOOKMARKSTRINGMODIFICATIONPOINT 8
 const char * const BOOKMARKSTRING = "bookmark0.";
@@ -195,7 +196,8 @@ CBookmarkManager::~CBookmarkManager () {
 }
 
 //------------------------------------------------------------------------
-
+#if 0 
+//never used
 int CBookmarkManager::getBookmarkCount(void) const {
 	return bookmarks.size();
 }
@@ -205,7 +207,7 @@ int CBookmarkManager::getBookmarkCount(void) const {
 int CBookmarkManager::getMaxBookmarkCount(void) const {
 	return MAXBOOKMARKS;
 }
-
+#endif
 //------------------------------------------------------------------------
 
 void CBookmarkManager::flush() {
@@ -215,7 +217,8 @@ void CBookmarkManager::flush() {
 }
 
 //------------------------------------------------------------------------
-
+#if 0 
+//never used
 const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 {
 	if (parent)
@@ -244,7 +247,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 		listmaxshow=bookmarks.size();
 		height = theight+0+listmaxshow*fheight*2;	// recalc height
 	}
-	if (selected==bookmarks.size() && !(bookmarks.empty()))
+	if ((!bookmarks.empty() && selected==bookmarks.size()))
 	{
 		selected=bookmarks.size()-1;
 		liststart = (selected/listmaxshow)*listmaxshow;
@@ -360,7 +363,7 @@ const CBookmark * CBookmarkManager::getBookmark(CMenuTarget* parent)
 	else
 		return NULL;
 }
-
+#endif
 //------------------------------------------------------------------------
 void CBookmarkManager::paintItem(int pos)
 {

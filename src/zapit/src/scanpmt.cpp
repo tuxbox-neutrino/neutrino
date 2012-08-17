@@ -23,7 +23,6 @@
 
 /* zapit */
 #include <zapit/settings.h>
-#include <zapit/descriptors.h>
 #include <zapit/debug.h>
 #include <zapit/scanpmt.h>
 #include <zapit/scan.h>

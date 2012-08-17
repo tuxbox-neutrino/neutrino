@@ -21,6 +21,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <errno.h>
+#include <unistd.h>
+
 // system
 #include <fcntl.h>
 #include <sys/socket.h>

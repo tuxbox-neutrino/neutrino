@@ -67,12 +67,20 @@ void CZapitSetup::showMenu()
 	zapit->addIntroItems(LOCALE_ZAPITSETUP_INFO);
 
 	//zapit
-	zapit->addItem(new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED));
+	CMenuOptionChooser * mc = new CMenuOptionChooser(LOCALE_ZAPITSETUP_LAST_USE, &g_settings.uselastchannel, OPTIONS_OFF0_ON1_OPTIONS, OPTIONS_OFF0_ON1_OPTION_COUNT, true, this, CRCInput::RC_red, NEUTRINO_ICON_BUTTON_RED);
+	mc->setHint("", LOCALE_MENU_HINT_LAST_USE);
+	zapit->addItem(mc);
 	CSelectChannelWidget select;
 
 	zapit->addItem(GenericMenuSeparatorLine);
-	zapit->addItem(zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN ));
-	zapit->addItem(zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW ));
+
+	zapit1 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_TV    , !g_settings.uselastchannel, g_settings.StartChannelTV, &select, "tv", CRCInput::RC_green, NEUTRINO_ICON_BUTTON_GREEN );
+	zapit1->setHint("", LOCALE_MENU_HINT_LAST_TV);
+	zapit->addItem(zapit1);
+
+	zapit2 = new CMenuForwarder(LOCALE_ZAPITSETUP_LAST_RADIO , !g_settings.uselastchannel, g_settings.StartChannelRadio, &select, "radio", CRCInput::RC_yellow, NEUTRINO_ICON_BUTTON_YELLOW );
+	zapit2->setHint("", LOCALE_MENU_HINT_LAST_RADIO);
+	zapit->addItem(zapit2);
 
 	zapit->exec(NULL, "");
 	delete zapit;
@@ -129,13 +137,11 @@ int CSelectChannelWidget::exec(CMenuTarget* parent, const std::string& actionKey
 		{
 			g_settings.StartChannelTV = actionKey.substr(actionKey.find_first_of("#")+1);
 			g_settings.startchanneltv_id = channel_id;
-			g_settings.startchanneltv_nr = cnr-1;
 		}
 		else if (strncmp(actionKey.c_str(), "ZCR:", 4) == 0)//...radio
 		{
 			g_settings.StartChannelRadio = actionKey.substr(actionKey.find_first_of("#")+1);
 			g_settings.startchannelradio_id= channel_id;
-			g_settings.startchannelradio_nr = cnr-1;
 		}
 
 		// ...leave bouquet/channel menu and show a refreshed zapit menu with current start channel(s)

@@ -151,7 +151,6 @@ start-block~personalize_save_settings
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_getplugins;{=p_getplugins=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_restart;{=p_restart=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_epgrestart;{=p_epgrestart=}~cache=}
-{=ini-set:/var/tuxbox/config/neutrino.conf;personalize_ucodecheck;{=p_ucodecheck=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_chan_epg_stat;{=p_chan_epg_stat=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_imageinfo;{=p_imageinfo=}~cache=}
 {=ini-set:/var/tuxbox/config/neutrino.conf;personalize_update;{=p_update=}~cache=}
@@ -210,6 +209,11 @@ end-block~management_check_top
 start-block~management_check_bottom
 =}
 end-block~management_check_bottom
+
+# ------- Managemant Link
+start-block~management_link
+<a {=if-empty:{=var-get:management=}~class="restricted" title="{=L:restriced_by_management_ip=}" href="javascript:void(0);"~title="{=var-get:m_link_desc=}" href="{=var-get:m_link_href=}" target="work"=}>{=var-get:m_link_text=}</a>
+end-block~management_link
 
 # ------- Snip: Wait Message Layer-div hidden
 start-block~snip_wait
@@ -380,7 +384,7 @@ start-block~frame_main
 {=include-block:Y_Blocks.txt;frame_head=}
 <title>yWeb</title>
 </head>
-	<frameset rows="60,*" frameborder="0" framespacing="0">
+	<frameset rows="70,*" frameborder="0" framespacing="0">
 	<frame name="prim_menu" src="Y_Menue.yhtm" scrolling="no"  marginwidth="0" marginheight="0" frameborder="0" noresize="noresize" />
 	<frame name="base" src="Y_Dyn_Pages.yhtm?page=frame_boxcontrol"  marginwidth="0" marginheight="0" frameborder="0" style="height:100%"; />
 </frameset>
@@ -469,7 +473,7 @@ end-block~frame_ext
 # ------- Lay-Frame Info-Menu
 start-block~frame_info
 {=var-set:sec_menu=Y_Info_Menue.yhtm=}
-{=var-set:work=Y_blank.htm=}
+{=var-set:work=Y_About.yhtm=}
 {=include-block:Y_Blocks.txt;frame_secondary=}
 end-block~frame_info
 

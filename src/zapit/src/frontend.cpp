@@ -163,15 +163,15 @@ CFrontend::CFrontend(int Number, int Adapter)
 
 
 	memset(&curfe, 0, sizeof(curfe));
-	curfe.u.qpsk.fec_inner = FEC_3_4;
-	curfe.u.qam.fec_inner = FEC_3_4;
-	curfe.u.qam.modulation = QAM_64;
+	curfe.dvb_feparams.u.qpsk.fec_inner	= FEC_3_4;
+	curfe.dvb_feparams.u.qam.fec_inner	= FEC_3_4;
+	curfe.dvb_feparams.u.qam.modulation	= QAM_64;
 
 	tuned					= false;
 	uncommitedInput				= 255;
 	diseqc					= 255;
 	currentTransponder.polarization		= 1;
-	currentTransponder.feparams.frequency	= 0;
+	currentTransponder.feparams.dvb_feparams.frequency	= 0;
 	currentTransponder.TP_id		= 0;
 	currentTransponder.diseqc		= 255;
 
@@ -294,9 +294,9 @@ void CFrontend::Unlock()
 fe_code_rate_t CFrontend::getCFEC()
 {
 	if (info.type == FE_QPSK) {
-		return curfe.u.qpsk.fec_inner;
+		return curfe.dvb_feparams.u.qpsk.fec_inner;
 	} else {
-		return curfe.u.qam.fec_inner;
+		return curfe.dvb_feparams.u.qam.fec_inner;
 	}
 }
 
@@ -381,9 +381,9 @@ uint8_t CFrontend::getPolarization(void) const
 uint32_t CFrontend::getRate()
 {
 	if (info.type == FE_QPSK) {
-		return curfe.u.qpsk.symbol_rate;
+		return curfe.dvb_feparams.u.qpsk.symbol_rate;
 	} else {
-		return curfe.u.qam.symbol_rate;
+		return curfe.dvb_feparams.u.qam.symbol_rate;
 	}
 }
 
@@ -399,12 +399,13 @@ fe_status_t CFrontend::getStatus(void) const
 	return status;
 #endif
 }
-
-struct dvb_frontend_parameters CFrontend::getFrontend(void) const
+#if 0 
+//never used
+FrontendParameters CFrontend::getFrontend(void) const
 {
 	return currentTransponder.feparams;
 }
-
+#endif
 uint32_t CFrontend::getBitErrorRate(void) const
 {
 	uint32_t ber = 0;
@@ -427,7 +428,8 @@ uint16_t CFrontend::getSignalNoiseRatio(void) const
 	fop(ioctl, FE_READ_SNR, &snr);
 	return snr;
 }
-
+#if 0 
+//never used
 uint32_t CFrontend::getUncorrectedBlocks(void) const
 {
 	uint32_t blocks = 0;
@@ -435,7 +437,7 @@ uint32_t CFrontend::getUncorrectedBlocks(void) const
 
 	return blocks;
 }
-
+#endif
 struct dvb_frontend_event CFrontend::getEvent(void)
 {
 	struct dvb_frontend_event event;
@@ -607,7 +609,7 @@ void CFrontend::getDelSys(uint8_t type, int f, int m, char *&fec, char *&sys, ch
 	}
 }
 
-bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, struct dtv_properties& cmdseq)
+bool CFrontend::buildProperties(const FrontendParameters *feparams, struct dtv_properties& cmdseq)
 {
 	fe_delivery_system delsys = SYS_DVBS;
 	fe_modulation_t modulation = QPSK;
@@ -619,14 +621,14 @@ bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, 
 	/* Decode the needed settings */
 	switch (info.type) {
 	case FE_QPSK:
-		fec_inner = feparams->u.qpsk.fec_inner;
+		fec_inner = feparams->dvb_feparams.u.qpsk.fec_inner;
 		delsys = dvbs_get_delsys(fec_inner);
 		modulation = dvbs_get_modulation(fec_inner);
 		rolloff = dvbs_get_rolloff(delsys);
 		break;
 	case FE_QAM:
-		fec_inner = feparams->u.qam.fec_inner;
-		modulation = feparams->u.qam.modulation;
+		fec_inner = feparams->dvb_feparams.u.qam.fec_inner;
+		modulation = feparams->dvb_feparams.u.qam.modulation;
 		delsys = SYS_DVBC_ANNEX_AC;
 		break;
 	default:
@@ -715,15 +717,15 @@ bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, 
 			memcpy(cmdseq.props, dvbs_cmdargs, sizeof(dvbs_cmdargs));
 			nrOfProps	= FE_DVBS_PROPS;
 		}
-		cmdseq.props[FREQUENCY].u.data	= feparams->frequency;
-		cmdseq.props[SYMBOL_RATE].u.data= feparams->u.qpsk.symbol_rate;
+		cmdseq.props[FREQUENCY].u.data	= feparams->dvb_feparams.frequency;
+		cmdseq.props[SYMBOL_RATE].u.data= feparams->dvb_feparams.u.qpsk.symbol_rate;
 		cmdseq.props[INNER_FEC].u.data	= fec; /*_inner*/ ;
 		break;
 	case FE_QAM:
 		memcpy(cmdseq.props, dvbc_cmdargs, sizeof(dvbc_cmdargs));
-		cmdseq.props[FREQUENCY].u.data	= feparams->frequency;
+		cmdseq.props[FREQUENCY].u.data	= feparams->dvb_feparams.frequency;
 		cmdseq.props[MODULATION].u.data	= modulation;
-		cmdseq.props[SYMBOL_RATE].u.data= feparams->u.qam.symbol_rate;
+		cmdseq.props[SYMBOL_RATE].u.data= feparams->dvb_feparams.u.qam.symbol_rate;
 		cmdseq.props[INNER_FEC].u.data	= fec_inner;
 		nrOfProps			= FE_DVBC_PROPS;
 		break;
@@ -734,7 +736,7 @@ bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, 
 
 
 	if (config.uni_scr >= 0)
-		cmdseq.props[FREQUENCY].u.data = sendEN50494TuningCommand(feparams->frequency,
+		cmdseq.props[FREQUENCY].u.data = sendEN50494TuningCommand(feparams->dvb_feparams.frequency,
 							currentToneMode == SEC_TONE_ON,
 							currentVoltage == SEC_VOLTAGE_18,
 							0); /* bank 0/1, like mini-diseqc a/b, not impl.*/
@@ -744,7 +746,7 @@ bool CFrontend::buildProperties(const struct dvb_frontend_parameters *feparams, 
 	return true;
 }
 
-int CFrontend::setFrontend(const struct dvb_frontend_parameters *feparams, bool /*nowait*/)
+int CFrontend::setFrontend(const FrontendParameters *feparams, bool /*nowait*/)
 {
 	struct dtv_property cmdargs[FE_COMMON_PROPS + FE_DVBS2_PROPS]; // WARNING: increase when needed more space
 	struct dtv_properties cmdseq;
@@ -849,11 +851,12 @@ void CFrontend::secSetVoltage(const fe_sec_voltage_t voltage, const uint32_t ms)
 		usleep(1000 * ms);	// FIXME : is needed ?
 	}
 }
-
+#if 0 
+//never used
 void CFrontend::secResetOverload(void)
 {
 }
-
+#endif
 void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const uint32_t ms)
 {
 	printf("[fe%d] Diseqc cmd: ", fenumber);
@@ -865,12 +868,13 @@ void CFrontend::sendDiseqcCommand(const struct dvb_diseqc_master_cmd *cmd, const
 	if (fop(ioctl, FE_DISEQC_SEND_MASTER_CMD, cmd) == 0)
 		usleep(1000 * ms);
 }
-
+#if 0 
+//never used
 uint32_t CFrontend::getDiseqcReply(const int /*timeout_ms*/) const
 {
 	return 0;
 }
-
+#endif
 void CFrontend::sendToneBurst(const fe_sec_mini_cmd_t burst, const uint32_t ms)
 {
 	if (slave || info.type != FE_QPSK)
@@ -1020,7 +1024,7 @@ bool CFrontend::setInput(CZapitChannel * channel, bool nvod)
 	currentTransponder.TP_id = tpI->first;
 
 	currentSatellitePosition = channel->getSatellitePosition();
-	setInput(channel->getSatellitePosition(), tpI->second.feparams.frequency, tpI->second.polarization);
+	setInput(channel->getSatellitePosition(), tpI->second.feparams.dvb_feparams.frequency, tpI->second.polarization);
 	return true;
 }
 
@@ -1094,7 +1098,8 @@ bool CFrontend::tuneChannel(CZapitChannel * /*channel*/, bool /*nvod*/)
 		return false;
 	return tuneFrequency(&transponder->second.feparams, transponder->second.polarization, false);
 }
-
+#if 0 
+//never used
 bool CFrontend::retuneTP(bool nowait)
 {
 	/* used in pip only atm */
@@ -1107,11 +1112,11 @@ bool CFrontend::retuneChannel(void)
 	setFrontend(&currentTransponder.feparams);
 	return 0;
 }
-
+#endif
 int CFrontend::tuneFrequency(FrontendParameters * feparams, uint8_t polarization, bool nowait)
 {
 	TP_params TP;
-	//printf("[fe%d] tune to frequency %d pol %s srate %d\n", fenumber, feparams->frequency, polarization ? "Vertical/Right" : "Horizontal/Left", feparams->u.qpsk.symbol_rate);
+	//printf("[fe%d] tune to frequency %d pol %s srate %d\n", fenumber, feparams->dvb_feparams.frequency, polarization ? "Vertical/Right" : "Horizontal/Left", feparams->dvb_feparams.u.qpsk.symbol_rate);
 
 	memmove(&curfe, feparams, sizeof(struct dvb_frontend_parameters));
 	memmove(&TP.feparams, feparams, sizeof(struct dvb_frontend_parameters));
@@ -1129,7 +1134,7 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 	/* Copy the data for local use */
 	currTP		= *TP;
 	feparams	= &currTP.feparams;
-	freq		= (int) feparams->frequency;
+	freq		= (int) feparams->dvb_feparams.frequency;
 	char * f, *s, *m;
 
 	if (info.type == FE_QPSK) {
@@ -1143,35 +1148,35 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 			freq_offset = lnbOffsetHigh;
 		}
 
-		feparams->frequency = abs(freq - freq_offset);
+		feparams->dvb_feparams.frequency = abs(freq - freq_offset);
 		setSec(TP->diseqc, TP->polarization, high_band);
-		getDelSys(feparams->u.qpsk.fec_inner, dvbs_get_modulation(feparams->u.qpsk.fec_inner),  f, s, m);
+		getDelSys(feparams->dvb_feparams.u.qpsk.fec_inner, dvbs_get_modulation(feparams->dvb_feparams.u.qpsk.fec_inner),  f, s, m);
 	} else if (info.type == FE_QAM) {
 		if (freq < 1000*1000)
-			feparams->frequency = freq * 1000;
-		getDelSys(feparams->u.qam.fec_inner,feparams->u.qam.modulation, f, s, m);
+			feparams->dvb_feparams.frequency = freq * 1000;
+		getDelSys(feparams->dvb_feparams.u.qam.fec_inner,feparams->dvb_feparams.u.qam.modulation, f, s, m);
 #if 0
-		switch (TP->feparams.inversion) {
+		switch (TP->feparams.dvb_feparams.inversion) {
 		case INVERSION_OFF:
-			TP->feparams.inversion = INVERSION_ON;
+			TP->feparams.dvb_feparams.inversion = INVERSION_ON;
 			break;
 		case INVERSION_ON:
 		default:
-			TP->feparams.inversion = INVERSION_OFF;
+			TP->feparams.dvb_feparams.inversion = INVERSION_OFF;
 			break;
 		}
 #endif
 	}
 
-	//printf("[fe%d] tuner to frequency %d (offset %d timeout %d)\n", fenumber, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
-	//printf("[fe%d] tune to frequency %d (tuner %d offset %d timeout %d)\n", fenumber, freq, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
+	//printf("[fe%d] tuner to frequency %d (offset %d timeout %d)\n", fenumber, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
+	//printf("[fe%d] tune to frequency %d (tuner %d offset %d timeout %d)\n", fenumber, freq, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	printf("[fe%d] tune to %d %s %s %s %s srate %d (tuner %d offset %d timeout %d)\n", fenumber, freq, s, m, f,
-			TP->polarization ? "V/R" : "H/L", feparams->u.qpsk.symbol_rate, feparams->frequency, freq_offset, TIMEOUT_MAX_MS);
+			TP->polarization ? "V/R" : "H/L", feparams->dvb_feparams.u.qpsk.symbol_rate, feparams->dvb_feparams.frequency, freq_offset, TIMEOUT_MAX_MS);
 	setFrontend(feparams);
 
 #if 0
 	if (tuned) {
-		ret = diff(event.parameters.frequency, TP->feparams.frequency);
+		ret = diff(event.parameters.frequency, TP->feparams.dvb_feparams.frequency);
 		/* if everything went ok, then it is a good idea to copy the real
 		 * frontend parameters, so we can update the service list, if it differs.
 		 * TODO: set a flag to indicate a change in the service list */
@@ -1184,7 +1189,7 @@ int CFrontend::setParameters(TP_params *TP, bool /*nowait*/)
 	 * because they are used for the channel list and were given
 	 * to this method as a pointer */
 	if (info.type == FE_QPSK)
-		TP->feparams.frequency += freq_offset;
+		TP->feparams.dvb_feparams.frequency += freq_offset;
 #endif
 
 	return tuned;

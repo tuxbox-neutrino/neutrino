@@ -303,21 +303,59 @@ bool CNit::ParseSatelliteDescriptor(SatelliteDeliverySystemDescriptor * sd, Tran
 	}
 
 	uint8_t polarization = sd->getPolarization();
+	uint8_t modulation = sd->getModulation();
+	uint8_t modulation_system = sd->getModulationSystem();
 
 	FrontendParameters feparams;
 
-	feparams.inversion = INVERSION_AUTO;
-	feparams.frequency = sd->getFrequency() * 10;
-	feparams.u.qpsk.symbol_rate = sd->getSymbolRate() * 100;
+	switch (modulation_system) {
+	case 0: // DVB-S
+		feparams.delsys = SYS_DVBS;
+		// Hack for APSTAR 138E, 8PSK signalled but delsys set to DVB-S
+		if (modulation == 2)
+			feparams.delsys = SYS_DVBS2;
+		break;
+	case 1: // DVB-S2
+		feparams.delsys = SYS_DVBS2;
+		break;
+	default:
+#ifdef DEBUG_NIT
+		printf("NIT: undefined modulation system %08x\n", modulation_system;
+#endif
+		feparams.delsys = SYS_UNDEFINED;
+		break;
+	}
+
+	feparams.dvb_feparams.inversion = INVERSION_AUTO;
+	feparams.dvb_feparams.frequency = sd->getFrequency() * 10;
+	feparams.dvb_feparams.u.qpsk.symbol_rate = sd->getSymbolRate() * 100;
 
 	int fec_inner = CFrontend::getCodeRate(sd->getFecInner(), sd->getModulationSystem());
-	if(sd->getModulation() == 2 && ((fe_code_rate_t) fec_inner != FEC_AUTO))
-		fec_inner += 9;
+	if(sd->getModulation() == 2 && ((fe_code_rate_t) fec_inner != FEC_AUTO)) {
+		if (sd->getModulationSystem() != 1)
+			fec_inner = (fec_inner - 1) + FEC_S2_8PSK_BASE;
+		else
+			fec_inner += 9;
+	}
 
-	feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
-	feparams.frequency = (int) 1000 * (int) round ((double) feparams.frequency / (double) 1000);
+	// Set the roll-off
+	switch (sd->getRollOff()) {
+	case 0:
+	default:
+		feparams.rolloff = ROLLOFF_35;
+		break;
+	case 1:
+		feparams.rolloff = ROLLOFF_25;
+		break;
+	case 2:
+		feparams.rolloff = ROLLOFF_20;
+		break;
+	}
 
-	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, false);
+	feparams.dvb_feparams.u.qpsk.fec_inner = (fe_code_rate_t) fec_inner;
+	feparams.dvb_feparams.frequency = (int) 1000 * (int) round ((double) feparams.dvb_feparams.frequency / (double) 1000);
+
+	freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, false);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 
@@ -333,16 +371,16 @@ bool CNit::ParseCableDescriptor(CableDeliverySystemDescriptor * sd, TransportStr
 
 	FrontendParameters feparams;
 
-	feparams.inversion = INVERSION_AUTO;
-	feparams.frequency = sd->getFrequency() * 100;
-	feparams.u.qam.symbol_rate = sd->getSymbolRate() * 100;
-	feparams.u.qam.fec_inner = CFrontend::getCodeRate(sd->getFecInner());
-	feparams.u.qam.modulation = CFrontend::getModulation(sd->getModulation());
+	feparams.dvb_feparams.inversion = INVERSION_AUTO;
+	feparams.dvb_feparams.frequency = sd->getFrequency() * 100;
+	feparams.dvb_feparams.u.qam.symbol_rate = sd->getSymbolRate() * 100;
+	feparams.dvb_feparams.u.qam.fec_inner = CFrontend::getCodeRate(sd->getFecInner());
+	feparams.dvb_feparams.u.qam.modulation = CFrontend::getModulation(sd->getModulation());
 
-	if(feparams.frequency > 1000*1000)
-		feparams.frequency /= 1000;
+	if(feparams.dvb_feparams.frequency > 1000*1000)
+		feparams.dvb_feparams.frequency /= 1000;
 
-	freq_id_t freq = CREATE_FREQ_ID(feparams.frequency, true);
+	freq_id_t freq = CREATE_FREQ_ID(feparams.dvb_feparams.frequency, true);
 	transponder_id_t TsidOnid = CREATE_TRANSPONDER_ID64(
 			freq, satellitePosition, tsinfo->getOriginalNetworkId(), tsinfo->getTransportStreamId());
 

@@ -247,7 +247,7 @@ int CTimerdClient::addTimerEvent( CTimerd::CTimerEventTypes evType, void* data, 
 		//printf("[CTimerdClient] checking for overlapping timers\n");
 		CTimerd::TimerList overlappingTimer;
 		overlappingTimer = getOverlappingTimers(alarmtime, stoptime);
-		if (overlappingTimer.size() > 0)
+		if (!overlappingTimer.empty())
 		{
 			// timerd starts eventID at 0 so we can return -1
 			return -1;

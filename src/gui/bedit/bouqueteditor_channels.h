@@ -35,20 +35,21 @@
 
 #include <driver/framebuffer.h>
 #include <gui/widget/menue.h>
-
+#include <gui/widget/components.h>
 #include <zapit/client/zapitclient.h>
 
 #include <string>
 #include <zapit/channel.h>
 #include <zapit/bouquets.h>
 
-class CBEChannelWidget : public CMenuWidget
+class CBEChannelWidget : public CMenuTarget
 {
 
 	private:
-	
 		CFrameBuffer	*frameBuffer;
-	
+		CComponentsDetailLine *dline;
+		CComponentsInfoBox *ibox;
+		
 		enum state_
 		{
 			beDefault,
@@ -100,6 +101,7 @@ class CBEChannelWidget : public CMenuWidget
 
 	public:
 		CBEChannelWidget( const std::string & Caption, unsigned int Bouquet);
+		~CBEChannelWidget();
 
 		//CZapitClient::BouquetChannelList	Channels;
 		ZapitChannelList * Channels;

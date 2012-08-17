@@ -11,18 +11,12 @@
 # -----------------------------------------------------------
 live_lock()
 {
-	if [ "$boxtype" != "coolstream" ]; then
-		call_webserver "control/lcd?lock=1&clear=1&rect=10,10,110,50,1,0&xpos=20&ypos=27&size=22&font=2&text=%20%20%20%20yWeb%0A%20%20LiveView&update=1" >/dev/null
-	fi
 	call_webserver "control/rc?lock" >/dev/null
 	call_webserver "control/zapto?stopplayback" >/dev/null
 }
 # -----------------------------------------------------------
 live_unlock()
 {
-	if [ "$boxtype" != "coolstream" ]; then
-		call_webserver "control/lcd?lock=0" >/dev/null
-	fi
 	call_webserver "control/rc?unlock"  >/dev/null
 	call_webserver "control/zapto?startplayback" >/dev/null
 }

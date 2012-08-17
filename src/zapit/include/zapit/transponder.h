@@ -21,8 +21,8 @@
 #ifndef _TRANSPONDER_H_
 #define _TRANSPONDER_H_
 
-#include <linux/dvb/frontend.h>
 #include <zapit/types.h>
+#include <zapit/frontend_types.h>
 #include <string>
 #include <map>
 
@@ -35,11 +35,11 @@ public:
 	t_satellite_position satellitePosition;
 	uint8_t type;
 
-	struct dvb_frontend_parameters feparams;
+	FrontendParameters feparams;
 	unsigned char polarization;
 	bool updated;
 
-	transponder(fe_type_t fType, const transponder_id_t t_id, const struct dvb_frontend_parameters p_feparams, const uint8_t p_polarization = 0);
+	transponder(fe_type_t fType, const transponder_id_t t_id, const FrontendParameters p_feparams, const uint8_t p_polarization = 0);
 	transponder();
 
 	bool operator==(const transponder& t) const;

@@ -251,6 +251,7 @@ class CCNThread : public CEventsThread
 		void cleanup();
 
 		/* CN-specific */
+		OpenThreads::Mutex update_mutex;
 		bool	updating;
 		cDemux * eitDmx;
 

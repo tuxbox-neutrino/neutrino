@@ -126,6 +126,8 @@ void CScreenShot::run()
 }
 
 /* save file in sync mode, return true if save ok, or false */
+#if 0 
+//never used
 bool CScreenShot::StartSync()
 {
 	bool ret = false;
@@ -136,7 +138,7 @@ bool CScreenShot::StartSync()
 	printf("CScreenShot::StartSync: %s finished: %d\n", filename.c_str(), ret);
 	return ret;
 }
-
+#endif
 /* save file in selected format, free data received from video decoder */
 bool CScreenShot::SaveFile()
 {

@@ -150,12 +150,12 @@ inline void readLockServices(void)
 {
 	pthread_rwlock_rdlock(&servicesLock);
 }
-
+#ifdef ENABLE_SDT
 inline void writeLockServices(void)
 {
 	pthread_rwlock_wrlock(&servicesLock);
 }
-
+#endif
 inline void unlockServices(void)
 {
 	pthread_rwlock_unlock(&servicesLock);
@@ -215,7 +215,7 @@ static bool deleteEvent(const event_id_t uniqueKey)
 	MySIeventsOrderUniqueKey::iterator e = mySIeventsOrderUniqueKey.find(uniqueKey);
 
 	if (e != mySIeventsOrderUniqueKey.end()) {
-		if (e->second->times.size()) {
+		if (!e->second->times.empty()) {
 			mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.erase(e->second);
 			mySIeventsOrderServiceUniqueKeyFirstStartTimeEventUniqueKey.erase(e->second);
 		}
@@ -439,7 +439,7 @@ xprintf("addEvent: current %016llx event %016llx running %d messaging_got_CN %d\
 		}
 		deleteEvent(e->uniqueKey());
 		readLockEvents();
-		if (mySIeventsOrderUniqueKey.size() >= max_events) {
+		if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events && max_events != 0 ) {
 			MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 				mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.begin();
 
@@ -557,7 +557,7 @@ static void addNVODevent(const SIevent &evt)
 	// mehrere Events mit gleicher ID sind, diese vorher loeschen
 	deleteEvent(e->uniqueKey());
 	readLockEvents();
-	if (mySIeventsOrderUniqueKey.size() >= max_events) {
+	if ( !mySIeventsOrderUniqueKey.empty() && mySIeventsOrderUniqueKey.size() >= max_events  && max_events != 0 ) {
 		//TODO: Set Old Events to 0 if limit is reached...
 		MySIeventsOrderFirstEndTimeServiceIDEventUniqueKey::iterator lastEvent =
 			mySIeventsOrderFirstEndTimeServiceIDEventUniqueKey.end();
@@ -1164,7 +1164,7 @@ static void commandReadSIfromXML(int connfd, char *data, const unsigned dataLeng
 static void commandWriteSI2XML(int connfd, char *data, const unsigned dataLength)
 {
 	sendEmptyResponse(connfd, NULL, 0);
-	if ((!reader_ready) || (dataLength > 100)){
+	if (mySIeventsOrderUniqueKey.empty() || (!reader_ready) || (dataLength > 100)){
 		eventServer->sendEvent(CSectionsdClient::EVT_WRITE_SI_FINISHED, CEventServer::INITID_SECTIONSD);
 		return;
 	}
@@ -1672,8 +1672,6 @@ void CCNThread::beforeWait()
 	if (updating || eit_version == 0xff)
 		return;
 
-	updating = true;
-
 	unsigned char filter[DMX_FILTER_SIZE];
 	unsigned char mask[DMX_FILTER_SIZE];
 	unsigned char mode[DMX_FILTER_SIZE];
@@ -1693,17 +1691,22 @@ void CCNThread::beforeWait()
 	mask[3] = (0x1F << 1) | 0x01;
 	mode[3] = 0x1F << 1;
 
+	update_mutex.lock();
 	eitDmx->Open(DMX_PSI_CHANNEL);
 	eitDmx->sectionFilter(0x12, filter, mask, 4, 0 /*timeout*/, mode);
+	updating = true;
+	update_mutex.unlock();
 }
 
 void CCNThread::afterWait()
 {
 	xprintf("%s: stop eit update filter (%s)\n", name.c_str(), updating ? "active" : "not active");
+	update_mutex.lock();
 	if (updating) {
 		updating = false;
 		eitDmx->Close();
 	}
+	update_mutex.unlock();
 }
 
 void CCNThread::beforeSleep()
@@ -1743,11 +1746,16 @@ void CCNThread::processSection()
 /* CN specific functions */
 bool CCNThread::checkUpdate()
 {
-	if (!updating)
-		return false;
-
 	unsigned char buf[MAX_SECTION_LENGTH];
+
+	update_mutex.lock();
+	if (!updating) {
+		update_mutex.unlock();
+		return false;
+	}
+
 	int ret = eitDmx->Read(buf, MAX_SECTION_LENGTH, 10);
+	update_mutex.unlock();
 
 	if (ret > 0) {
 		LongSection section(buf);
@@ -1825,7 +1833,7 @@ static bool addService(const SIservice &s, const int is_actual)
 		mySIservicesOrderUniqueKey.insert(std::make_pair(sptr->uniqueKey(), sptr));
 		unlockServices();
 
-		if (sptr->nvods.size())
+		if (!sptr->nvods.empty())
 		{
 			writeLockServices();
 			mySIservicesNVODorderUniqueKey.insert(std::make_pair(sptr->uniqueKey(), sptr));
@@ -2700,7 +2708,7 @@ bool sectionsd_getNVODTimesServiceKey(const t_channel_id uniqueServiceKey, CSect
 	{
 		dprintf("NVODServices: %u\n", si->second->nvods.size());
 
-		if (si->second->nvods.size()) {
+		if (!si->second->nvods.empty()) {
 			for (SInvodReferences::iterator ni = si->second->nvods.begin(); ni != si->second->nvods.end(); ++ni) {
 				SItime zeitEvt1(0, 0);
 				findActualSIeventForServiceUniqueKey(ni->uniqueKey(), zeitEvt1, 15*60);
