@@ -1574,7 +1574,7 @@ void CChannelList::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	fb_pixel_t col1 = COL_MENUCONTENT_PLUS_6;
 
 	// Clear
-	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height);
+	frameBuffer->paintBackgroundBoxRel(xpos,y, ConnectLineBox_Width, height+info_height + 1);
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
