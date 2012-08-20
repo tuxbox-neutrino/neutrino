@@ -1157,15 +1157,9 @@ void CMenuWidget::paintHint(int pos)
 	details_line->paint(savescreen);
 #endif
 
-	// remove line breaks
-	std::string str = g_Locale->getText(item->hint);
-	std::string::size_type spos = str.find_first_of("\n");
-	while (spos != std::string::npos) {
-		str.replace(spos, 1, " ");
-		spos = str.find_first_of("\n");
-	}
-
 	//init infobox
+	std::string str = g_Locale->getText(item->hint);
+	info_box->removeLineBreaks(str);
 	if (info_box == NULL)
 		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height, str.c_str(), CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 	else{
