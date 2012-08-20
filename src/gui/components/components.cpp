@@ -364,27 +364,25 @@ void CComponentsInfoBox::paintText()
 	box->iHeight = height-2*fr_thickness;
 
 	//init textbox
-	if (textbox == NULL)
+	if (textbox == NULL) {
 		textbox = new CTextBox(text, font, text_mode, box, col_body);
+		textbox->setTextBorderWidth(0);
+		textbox->enableBackgroundPaint(false);
+	}
 
 	//set properties
-	textbox->setTextBorderWidth(0);
+	textbox->setTextFont(font);
 	textbox->movePosition(box->iX, box->iY);
 	textbox->setTextColor(col_text);
-	textbox->enableBackgroundPaint(false);
 
 	//set text
-//	string new_text = static_cast <string> (text);
-//	if (textbox->setText(&text))
+	string new_text = static_cast <string> (text);
+	if (textbox->setText(&new_text))
 		textbox->paint();
 }
 
 void CComponentsInfoBox::paint(bool do_save_bg)
 {
-	if (textbox) {
-		delete textbox;
-		textbox = NULL;
-	}
 	paintInit(do_save_bg);
 	paintPicture();
 	if (text)
