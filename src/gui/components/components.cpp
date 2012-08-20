@@ -368,18 +368,23 @@ void CComponentsInfoBox::paintText()
 		textbox = new CTextBox(text, font, text_mode, box, col_body);
 
 	//set properties
+	textbox->setTextBorderWidth(0);
 	textbox->movePosition(box->iX, box->iY);
 	textbox->setTextColor(col_text);
 	textbox->enableBackgroundPaint(false);
 
 	//set text
-	string new_text = static_cast <string> (text);
-	if (textbox->setText(&new_text))
+//	string new_text = static_cast <string> (text);
+//	if (textbox->setText(&text))
 		textbox->paint();
 }
 
 void CComponentsInfoBox::paint(bool do_save_bg)
 {
+	if (textbox) {
+		delete textbox;
+		textbox = NULL;
+	}
 	paintInit(do_save_bg);
 	paintPicture();
 	if (text)

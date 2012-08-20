@@ -207,15 +207,15 @@ class CComponentsInfoBox : public CComponentsContainer
 		fb_pixel_t col_text;
 	public:
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
-					const char* info_text = NULL, const int mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, Font* font_text = NULL,
+					const char* info_text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_text = COL_MENUCONTENT, fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 
 		~CComponentsInfoBox();
 
-		void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, Font* font_text = NULL){text = info_text; text_mode = mode, font = font_text;};
-		void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, font = font_text;};
-		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH, Font* font_text = NULL);
+		void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; text_mode = mode, font = font_text;};
+		void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, font = font_text;};
+		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
 		void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
 		void setTextFont(Font* font_text){font = font_text;};
 		void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
