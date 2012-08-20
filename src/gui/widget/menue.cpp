@@ -814,10 +814,11 @@ void CMenuWidget::calcSize()
 		}
 #endif
 	}
-	hint_height = 70; //TODO: rework calculation of hint_height
+	hint_height = 0;
 	if(g_settings.show_menu_hints && has_hints) {
+		hint_height = 60; //TODO: rework calculation of hint_height
 		int fheight = g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]->getHeight();
-		int h_tmp = 10 + 2*fheight;
+		int h_tmp = 16 + 2*fheight;
 		/* assuming all hint icons has the same size ! */
 		int iw, ih;
 		frameBuffer->getIconSize(NEUTRINO_ICON_HINT_TVMODE, &iw, &ih);
@@ -1075,7 +1076,7 @@ void CMenuWidget::paintHint(int pos)
 		return;
 	
 	int rad = RADIUS_LARGE;
-	
+
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos2 = y + height + rad + SHADOW_OFFSET + INFO_BOX_Y_OFFSET;
 	int iwidth = width+sb_width;
@@ -1155,15 +1156,23 @@ void CMenuWidget::paintHint(int pos)
 #if 0
 	details_line->paint(savescreen);
 #endif
-	
+
+	// remove line breaks
+	std::string str = g_Locale->getText(item->hint);
+	std::string::size_type spos = str.find_first_of("\n");
+	while (spos != std::string::npos) {
+		str.replace(spos, 1, " ");
+		spos = str.find_first_of("\n");
+	}
+
 	//init infobox
 	if (info_box == NULL)
-		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height, g_Locale->getText(item->hint), CTextBox::AUTO_WIDTH | CTextBox::AUTO_HIGH/*, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]*/);
+		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height, str.c_str(), CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 	else{
 		info_box->setXPos(x);
 		info_box->setYPos(ypos2);
 		info_box->setWidth(iwidth);
-		info_box->setText(g_Locale->getText(item->hint));
+		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 
 	}
 	info_box->setCornerRadius(RADIUS_LARGE);
