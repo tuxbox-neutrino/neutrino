@@ -390,6 +390,15 @@ void CComponentsInfoBox::paint(bool do_save_bg)
 	text = NULL;
 }
 
+void CComponentsInfoBox::removeLineBreaks(std::string& str)
+{
+	std::string::size_type spos = str.find_first_of("\r\n");
+	while (spos != std::string::npos) {
+		str.replace(spos, 1, " ");
+		spos = str.find_first_of("\r\n");
+	}
+}
+
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsShapeSquare from CComponentsContainer
 CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)

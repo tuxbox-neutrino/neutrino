@@ -221,7 +221,8 @@ class CComponentsInfoBox : public CComponentsContainer
 		void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
 		void setSpaceOffset(const int offset){x_offset = offset;};
 		void setPicture(const std::string& picture_name){pic_name = picture_name;};
-		
+		void removeLineBreaks(std::string& str);
+
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 };
 
