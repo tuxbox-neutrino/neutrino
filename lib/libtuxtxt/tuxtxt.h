@@ -32,10 +32,6 @@
 
 #include <linux/input.h>
 
-#ifndef NEW_CST_KERNEL
-#include <linux/videodev.h>
-#endif
-
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 
