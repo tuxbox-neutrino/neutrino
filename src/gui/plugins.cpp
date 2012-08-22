@@ -49,6 +49,7 @@
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <signal.h>
+#include <errno.h>
 
 #include <global.h>
 #include <neutrino.h>
@@ -316,7 +317,6 @@ void CPlugins::startPlugin(const char * const name)
 		printf("[CPlugins] could not find %s\n", name);
 
 }
-       #include <errno.h>
 
 FILE* popen2( pid_t& pid, const char *cmdstring, const char *type) {
 	int     pfd[2] ={-1,-1};
