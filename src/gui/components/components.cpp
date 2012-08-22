@@ -481,24 +481,47 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsDetailLine from CComponents
+CComponentsDetailLine::CComponentsDetailLine()
+{
+	initVar();
+	
+	//CComponents
+	x 		= 0;
+	y 		= 0;
+	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
+	col_body	= COL_MENUCONTENT_PLUS_6;
+	
+	//CComponentsDetailLine
+	y_down 		= 0;
+	h_mark_top 	= CC_HEIGHT_MIN;
+	h_mark_down 	= CC_HEIGHT_MIN;
+}
+
 CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_top, const int y_pos_down, const int h_mark_top_, const int h_mark_down_, fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
+	initVar();
+	
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos_top;
-	width 		= CC_WIDTH_MIN;
 	col_shadow	= color_shadow;
 	col_body	= color_line;
-// 	col_frame	= COL_BACKGROUND; // not used in this class
-//	shadow		= CC_SHADOW_OFF; // not used in this class
-	shadow_w	= 1;
-	firstPaint	= true;
-	v_fbdata.clear();
-
+	
 	//CComponentsDetailLine
 	y_down 		= y_pos_down;
 	h_mark_top 	= h_mark_top_;
 	h_mark_down 	= h_mark_down_;
+}
+
+void CComponentsDetailLine::initVar()
+{
+	//CComponents
+	shadow_w	= 1;
+	firstPaint	= true;
+	v_fbdata.clear();
+	width 		= CC_WIDTH_MIN;
+	
+	//CComponentsDetailLine
 	thickness 	= 4;
 }
 

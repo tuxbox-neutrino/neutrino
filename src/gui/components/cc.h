@@ -259,14 +259,18 @@ class CComponentsPIP : public CComponentsContainer
 		void hide(bool no_restore = false);
 };
 
+
 class CComponentsDetailLine : public CComponents
 {
 	private:
 		int thickness, y_down, h_mark_top, h_mark_down;
+
+		void initVar();
 	
 	public:
+		CComponentsDetailLine();
 		CComponentsDetailLine(	const int x_pos,const int y_pos_top, const int y_pos_down,
-					const int h_mark_up =16 , const int h_mark_down = 16,
+					const int h_mark_up = CC_HEIGHT_MIN , const int h_mark_down = CC_HEIGHT_MIN,
 					fb_pixel_t color_line = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		~CComponentsDetailLine();
 		
@@ -275,6 +279,7 @@ class CComponentsDetailLine : public CComponents
 		void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
 		void syncSysColors();
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
+		void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
 };
 
