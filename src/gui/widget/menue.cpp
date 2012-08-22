@@ -325,7 +325,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
 	details_line = NULL;
-	info_box = NULL;
+	info_box = new CComponentsInfoBox();
 	
 	//handle select values
 	if(w_index > MN_WIDGET_ID_MAX){
@@ -1159,20 +1159,14 @@ void CMenuWidget::paintHint(int pos)
 
 	//init infobox
 	std::string str = g_Locale->getText(item->hint);
-	info_box->removeLineBreaks(str);
-	if (info_box == NULL)
-		info_box = new CComponentsInfoBox(x, ypos2, iwidth, hint_height, str.c_str(), CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
-	else{
-		info_box->setXPos(x);
-		info_box->setYPos(ypos2);
-		info_box->setWidth(iwidth);
+	if (info_box){
+		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
+		info_box->removeLineBreaks(str);
 		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
-
-	}
-	info_box->setCornerRadius(RADIUS_LARGE);
-	info_box->syncSysColors();
-	info_box->setShadowOnOff(CC_SHADOW_ON);
-	info_box->setPicture(item->hintIcon);
+		info_box->setCornerRadius(RADIUS_LARGE);
+		info_box->syncSysColors();
+		info_box->setShadowOnOff(CC_SHADOW_ON);
+		info_box->setPicture(item->hintIcon);
 #if 0	
 	/* force full paint - menu-over i.e. option chooser with pulldown can overwrite */
 	info_box->paint(savescreen, true);
