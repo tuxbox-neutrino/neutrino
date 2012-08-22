@@ -206,6 +206,7 @@ class CComponentsInfoBox : public CComponentsContainer
 		std::string pic_name;
 		fb_pixel_t col_text;
 	public:
+		CComponentsInfoBox();
 		CComponentsInfoBox(	const int x_pos, const int y_pos, const int w, const int h,
 					const char* info_text = "", const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL,
 					bool has_shadow = CC_SHADOW_OFF,

@@ -260,6 +260,26 @@ void CComponentsContainer::syncSysColors()
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsInfoBox from CComponentsContainer
+CComponentsInfoBox::CComponentsInfoBox()
+{
+	//CComponentsInfoBox
+	initVarInfobox();
+	text 		= NULL;
+	text_mode	= CTextBox::AUTO_WIDTH;
+	font		= NULL;
+	col_text	= COL_MENUCONTENT;
+	
+	//CComponents
+	x 		= 0;
+	y 		= 0;
+	width 		= 120;
+	height	 	= 240;
+	shadow		= CC_SHADOW_OFF;
+	col_frame 	= COL_MENUCONTENT_PLUS_6;
+	col_body	= COL_MENUCONTENT_PLUS_0;
+	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
+}
+
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
 				       const char* info_text, const int mode, Font* font_text,
 				       bool has_shadow,
@@ -271,7 +291,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	text_mode	= mode;
 	font		= font_text;
 	col_text	= color_text;
-
+	
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
@@ -280,9 +300,7 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	shadow		= has_shadow;
 	col_frame 	= color_frame;
 	col_body	= color_body;
-	col_shadow	= color_shadow;
-	
-	
+	col_shadow	= color_shadow;	
 }
 
 CComponentsInfoBox::~CComponentsInfoBox()
