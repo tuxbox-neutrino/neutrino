@@ -324,7 +324,7 @@ void CMenuWidget::Init(const std::string & Icon, const int mwidth, const mn_widg
 	mglobal = CMenuGlobal::getInstance(); //create CMenuGlobal instance only here
         frameBuffer = CFrameBuffer::getInstance();
         iconfile = Icon;
-	details_line = NULL;
+	details_line = new CComponentsDetailLine();
 	info_box = new CComponentsInfoBox();
 	
 	//handle select values
@@ -1144,15 +1144,13 @@ void CMenuWidget::paintHint(int pos)
 	int imarkh = iheight/2+1;
 	
 	//init details line
-	if (details_line == NULL)
-		details_line = new CComponentsDetailLine(xpos, ypos1a, ypos2a, imarkh, markh);
-	else{
+	if (details_line){
 		details_line->setXPos(xpos);
 		details_line->setYPos(ypos1a);
 		details_line->setYPosDown(ypos2a);
+		details_line->setHMarkTop(imarkh);
 		details_line->setHMarkDown(markh);
-	}
-	details_line->syncSysColors();
+		details_line->syncSysColors();
 #if 0
 	details_line->paint(savescreen);
 #endif
