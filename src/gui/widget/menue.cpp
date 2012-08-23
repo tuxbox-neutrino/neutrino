@@ -1159,6 +1159,7 @@ void CMenuWidget::paintHint(int pos)
 	std::string str = g_Locale->getText(item->hint);
 	if (info_box){
 		info_box->setDimensionsAll(x, ypos2, iwidth, hint_height);
+		info_box->setFrameThickness(2);
 		info_box->removeLineBreaks(str);
 		info_box->setText(str, CTextBox::AUTO_WIDTH, g_Font[SNeutrinoSettings::FONT_TYPE_MENU_HINT]);
 		info_box->setCornerRadius(RADIUS_LARGE);
