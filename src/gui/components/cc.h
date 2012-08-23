@@ -107,10 +107,12 @@ class CComponents
 		bool	firstPaint, shadow;
 		BGMODE_TYPES bgMode;
 		
+		void initVarBasic();
 		void paintFbItems(struct comp_fbdata_t * fbdata, const int items_count, bool do_save_bg = true);
 		fb_pixel_t* getScreen(int ax, int ay, int dx, int dy);
 		comp_screen_data_t saved_screen;
 		
+		void clearSavedScreen();
 		void clear();
 	public:
 		CComponents();
@@ -144,6 +146,7 @@ class CComponentsContainer : public CComponents
 		int corner_rad, fr_thickness;
 		void hideContainer(bool no_restore = false);
 		void paintInit(bool do_save_bg);
+		void initVarContainer();
 		
 	public:
 		CComponentsContainer();
@@ -170,7 +173,7 @@ class CComponentsPicture : public CComponentsContainer
 		bool pic_paint, pic_paintBg, pic_painted, do_paint;
 		int pic_align, pic_x, pic_y, pic_width, pic_height;
 
-		void initDimensions();
+		void initVarPicture();
 
 	public:
 		CComponentsPicture( 	const int x_pos, const int y_pos, const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
@@ -265,7 +268,7 @@ class CComponentsDetailLine : public CComponents
 	private:
 		int thickness, y_down, h_mark_top, h_mark_down;
 
-		void initVar();
+		void initVarDline();
 	
 	public:
 		CComponentsDetailLine();

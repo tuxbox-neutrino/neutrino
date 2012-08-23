@@ -41,32 +41,41 @@ using namespace std;
 //abstract basic class CComponents
 CComponents::CComponents()
 {
-	//basic CComponents
+	initVarBasic();
+}
+
+CComponents::~CComponents()
+{
+	hide();
+	clearSavedScreen();
+	clear();
+}
+
+void CComponents::clearSavedScreen()
+{
+	if (saved_screen.pixbuf)
+		delete[] saved_screen.pixbuf;
+}
+
+void CComponents::initVarBasic()
+{
 	x = saved_screen.x 	= 0;
 	y = saved_screen.y 	= 0;
 	height 			= saved_screen.dy = CC_HEIGHT_MIN;
 	width 			= saved_screen.dx = CC_WIDTH_MIN;
-	
+
 	col_body 		= COL_MENUCONTENT_PLUS_0;
 	col_shadow 		= COL_MENUCONTENTDARK_PLUS_0;
 	col_frame 		= COL_MENUCONTENT_PLUS_6;
 	corner_type 		= CORNER_ALL;
 	shadow			= CC_SHADOW_OFF;
 	shadow_w		= SHADOW_OFFSET;
-	
+
 	firstPaint		= true;
 	frameBuffer 		= CFrameBuffer::getInstance();
 	v_fbdata.clear();
 	bgMode 			= CC_BGMODE_STANDARD;
 	saved_screen.pixbuf 	= NULL;
-}
-
-CComponents::~CComponents()
-{
-	hide();
-	if (saved_screen.pixbuf)
-		delete[] saved_screen.pixbuf;
-	clear();
 }
 
 //paint framebuffer stuff and fill buffer
@@ -81,8 +90,7 @@ void CComponents::paintFbItems(struct comp_fbdata_t * fbdata, const int items_co
 					saved_screen.y = fbdata[i].y;
 					saved_screen.dx = fbdata[i].dx;
 					saved_screen.dy = fbdata[i].dy;
-					if (saved_screen.pixbuf)
-						delete[] saved_screen.pixbuf;
+					clearSavedScreen();
 					saved_screen.pixbuf = getScreen(saved_screen.x, saved_screen.y, saved_screen.dx, saved_screen.dy);
 				}
 				else {
@@ -156,8 +164,7 @@ inline void CComponents::clear()
 CComponentsContainer::CComponentsContainer()
 {
 	//CComponentsContainer
-	corner_rad	= 0;
-	fr_thickness	= 2;
+	initVarContainer();
 }
 
 // 	 y
@@ -167,6 +174,15 @@ CComponentsContainer::CComponentsContainer()
 // 	 |			|
 // 	 +--------width---------+
 
+void CComponentsContainer::initVarContainer()
+{
+	//CComponents
+	initVarBasic();
+	
+	//ComponentsContainer
+	corner_rad	= 0;
+	fr_thickness	= 0;
+}
 
 void CComponentsContainer::paintInit(bool do_save_bg)
 {
@@ -262,22 +278,15 @@ void CComponentsContainer::syncSysColors()
 //sub class CComponentsInfoBox from CComponentsContainer
 CComponentsInfoBox::CComponentsInfoBox()
 {
+	//CComponents, ComponentsContainer
+	initVarContainer();
+	
 	//CComponentsInfoBox
 	initVarInfobox();
 	text 		= NULL;
 	text_mode	= CTextBox::AUTO_WIDTH;
 	font		= NULL;
 	col_text	= COL_MENUCONTENT;
-	
-	//CComponents
-	x 		= 0;
-	y 		= 0;
-	width 		= 120;
-	height	 	= 240;
-	shadow		= CC_SHADOW_OFF;
-	col_frame 	= COL_MENUCONTENT_PLUS_6;
-	col_body	= COL_MENUCONTENT_PLUS_0;
-	col_shadow	= COL_MENUCONTENTDARK_PLUS_0;
 }
 
 CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const int w, const int h,
@@ -285,14 +294,9 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 				       bool has_shadow,
 				       fb_pixel_t color_text, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponentsInfoBox
-	initVarInfobox();
-	text 		= info_text;
-	text_mode	= mode;
-	font		= font_text;
-	col_text	= color_text;
+	//CComponents, ComponentsContainer
+	initVarContainer();
 	
-	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -300,15 +304,20 @@ CComponentsInfoBox::CComponentsInfoBox(const int x_pos, const int y_pos, const i
 	shadow		= has_shadow;
 	col_frame 	= color_frame;
 	col_body	= color_body;
-	col_shadow	= color_shadow;	
+	col_shadow	= color_shadow;
+	
+	//CComponentsInfoBox
+	initVarInfobox();
+	text 		= info_text;
+	text_mode	= mode;
+	font		= font_text;
+	col_text	= color_text;
 }
 
 CComponentsInfoBox::~CComponentsInfoBox()
 {
-
 	hide();
-//	if (saved_screen.pixbuf)
-//		delete[] saved_screen.pixbuf;
+	clearSavedScreen();
 	delete textbox;
 	delete box;
 	delete pic;
@@ -317,15 +326,8 @@ CComponentsInfoBox::~CComponentsInfoBox()
 
 void CComponentsInfoBox::initVarInfobox()
 {
-	//CComponentsContainer
-	corner_rad	= RADIUS_LARGE;
-	fr_thickness	= 2;
-	
-	//CComponents
-	firstPaint	= true;
-	v_fbdata.clear();
-	bgMode 		= CC_BGMODE_PERMANENT;
-	shadow_w	= SHADOW_OFFSET;
+	//CComponents, ComponentsContainer
+	initVarContainer();
 	
 	//CComponentsInfoBox
 	box		= NULL;
@@ -421,7 +423,9 @@ void CComponentsInfoBox::removeLineBreaks(std::string& str)
 //sub class CComponentsShapeSquare from CComponentsContainer
 CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos, const int w, const int h, bool has_shadow, fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponents
+	//ComponentsContainer
+	initVarContainer();
+	
 	x 		= x_pos;
 	y 		= y_pos;
 	width 		= w;
@@ -435,9 +439,7 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
 
-	//CComponentsContainer
-	corner_rad	= 0;
-	fr_thickness	= 0;
+
 }
 
 //-------------------------------------------------------------------------------------------------------
@@ -445,9 +447,9 @@ CComponentsShapeSquare::CComponentsShapeSquare(const int x_pos, const int y_pos,
 CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_body, fb_pixel_t color_shadow)
 {
-	//CComponentsShapeCircle
-	d 		= diam;
-	
+	//CComponents, CComponentsContainer
+	initVarContainer();
+
 	//CComponents
 	x 		= x_pos;
 	y 		= y_pos;
@@ -461,10 +463,12 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 	firstPaint	= true;
 	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
-
+	
+	//CComponentsShapeCircle
+	d 		= diam;
+	
 	//CComponentsContainer
 	corner_rad	= d/2;
-	fr_thickness	= 0;
 }
 
 // 	 y
@@ -483,7 +487,7 @@ CComponentsShapeCircle::CComponentsShapeCircle(	int x_pos, int y_pos, int diam, 
 //sub class CComponentsDetailLine from CComponents
 CComponentsDetailLine::CComponentsDetailLine()
 {
-	initVar();
+	initVarDline();
 	
 	//CComponents
 	x 		= 0;
@@ -499,7 +503,7 @@ CComponentsDetailLine::CComponentsDetailLine()
 
 CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_top, const int y_pos_down, const int h_mark_top_, const int h_mark_down_, fb_pixel_t color_line, fb_pixel_t color_shadow)
 {
-	initVar();
+	initVarDline();
 	
 	//CComponents
 	x 		= x_pos;
@@ -513,13 +517,12 @@ CComponentsDetailLine::CComponentsDetailLine(const int x_pos, const int y_pos_to
 	h_mark_down 	= h_mark_down_;
 }
 
-void CComponentsDetailLine::initVar()
+void CComponentsDetailLine::initVarDline()
 {
 	//CComponents
+	initVarBasic();
+	
 	shadow_w	= 1;
-	firstPaint	= true;
-	v_fbdata.clear();
-	width 		= CC_WIDTH_MIN;
 	
 	//CComponentsDetailLine
 	thickness 	= 4;
@@ -620,6 +623,9 @@ void CComponentsDetailLine::syncSysColors()
 //sub class CComponentsPIP from CComponentsContainer
 CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int percent, bool has_shadow)
 {
+	//CComponents, CComponentsContainer
+	initVarContainer();
+	
 	//CComponentsPIP
 	screen_w = frameBuffer->getScreenWidth(true);
 	screen_h = frameBuffer->getScreenHeight(true);
@@ -637,17 +643,12 @@ CComponentsPIP::CComponentsPIP(	const int x_pos, const int y_pos, const int perc
 	firstPaint	= true;
 	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
-	
-	//CComponentsContainer
-	corner_rad	= 0;
-	fr_thickness	= 0;
 }
 
 CComponentsPIP::~CComponentsPIP()
 {
 	hide();
-// 	if (saved_screen.pixbuf)
-// 		delete[] saved_screen.pixbuf;
+	clearSavedScreen();
 	clear();
 	videoDecoder->Pig(-1, -1, -1, -1);
 }
@@ -671,6 +672,9 @@ void CComponentsPIP::hide(bool no_restore)
 CComponentsPicture::CComponentsPicture(	int x_pos, int y_pos, const string& picture_name, const int alignment, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
+	//CComponents, CComponentsContainer
+	initVarContainer();
+	
 	//CComponentsPicture
 	pic_name 	= picture_name;
 	pic_align	= alignment;
@@ -696,29 +700,25 @@ CComponentsPicture::CComponentsPicture(	int x_pos, int y_pos, const string& pict
 	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
 	
-	//CComponentsContainer
-	corner_rad	= 0;
-	fr_thickness	= 0;
-	
-	initDimensions();
+	initVarPicture();
 }
 
 
 void CComponentsPicture::setPicture(const std::string& picture_name)
 {
 	pic_name = picture_name;
-	initDimensions();
+	initVarPicture();
 }
 
 
 void CComponentsPicture::setPictureAlign(const int alignment)
 {
 	pic_align	= alignment;
-	initDimensions();
+	initVarPicture();
 }
 
 
-void CComponentsPicture::initDimensions()
+void CComponentsPicture::initVarPicture()
 {
 	pic_width = pic_height = 0;
 	pic_painted = false;
@@ -756,7 +756,7 @@ void CComponentsPicture::initDimensions()
 
 void CComponentsPicture::paint(bool do_save_bg)
 {
-	initDimensions();
+	initVarPicture();
 	paintInit(do_save_bg);
 	
 	if (do_paint){
