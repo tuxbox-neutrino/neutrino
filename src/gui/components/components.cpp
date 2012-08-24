@@ -800,3 +800,295 @@ void CComponentsPicture::paint(bool do_save_bg)
 		do_paint = false;
 	}
 }
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsTitlebar from CComponentsContainer
+CComponentsTitlebar::CComponentsTitlebar(	const int x_pos, const int y_pos, const int w, const int h,
+						fb_pixel_t /*color_text*/, fb_pixel_t /*color_body*/)
+{
+	//CComponents, CComponentsContainer
+	initVarContainer();
+
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	height		= h;
+	width 		= w;
+	shadow		= 0;
+	shadow_w	= 0;
+//	col_body	= color_body;
+	col_body 	= COL_MENUHEAD_PLUS_0;
+	firstPaint	= true;
+	v_fbdata.clear();
+	bgMode 		= CC_BGMODE_PERMANENT;
+	corner_type 	= CORNER_TOP;
+	corner_rad	= RADIUS_LARGE;
+
+	//CComponentsTitlebar
+//	col_text 	= color_text;
+	col_text 	= COL_MENUHEAD;
+	hSpacer 	= 2;
+	hOffset 	= 4;
+	vOffset 	= 1;
+	digit_h		= 0;
+	digit_offset	= 0;
+//	font		= NULL;
+	font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	paintElements 	= true;
+	v_element_data.clear();
+}
+
+CComponentsTitlebar::~CComponentsTitlebar()
+{
+	clearElements();
+}
+
+void CComponentsTitlebar::clearElements()
+{
+	for(size_t i = 0; i < v_element_data.size(); i++) {
+		switch (v_element_data[i].type) {
+			case CC_TITLEBAR_ICON:
+			case CC_TITLEBAR_PICTURE:
+				if (v_element_data[i].handler1 != NULL)
+					delete static_cast<CComponentsPicture*>(v_element_data[i].handler1);
+				break;
+			case CC_TITLEBAR_TEXT:
+				if (v_element_data[i].handler1 != NULL)
+					delete static_cast<CBox*>(v_element_data[i].handler1);
+				if (v_element_data[i].handler2 != NULL)
+					delete static_cast<CTextBox*>(v_element_data[i].handler2);
+				break;
+			default:
+				break;
+		}
+	}
+	v_element_data.clear();
+}
+
+size_t CComponentsTitlebar::addLogoOrText(int align, const std::string& logo, const std::string& text)
+{
+	comp_element_data_t data;
+
+	data.align 	= align;
+	data.x 		= x;
+	data.y 		= y;
+	data.width 	= 0;
+	data.height 	= 0;
+	data.handler1 	= NULL;
+	data.handler2 	= NULL;
+
+	if (access(logo.c_str(), R_OK) == 0) {
+		// logo OK
+		g_PicViewer->getSize(logo.c_str(), &data.width, &data.height);
+		data.type 	= CC_TITLEBAR_PICTURE;
+		data.element 	= logo;
+	}
+	else {
+		// no logo
+		if (font != NULL)
+			data.height = font->getHeight();
+		data.type 	= CC_TITLEBAR_TEXT;
+		data.element 	= text;
+	}
+	v_element_data.push_back(data);
+	return v_element_data.size()-1;
+}
+
+size_t CComponentsTitlebar::addElement(int align, int type, const std::string& element)
+{
+	comp_element_data_t data;
+
+	data.type 	= type;
+	data.align 	= align;
+	data.element 	= element;
+	data.x 		= x;
+	data.y 		= y;
+	data.width 	= 0;
+	data.height 	= 0;
+	data.handler1 	= NULL;
+	data.handler2 	= NULL;
+
+	switch (type)
+	{
+		case CC_TITLEBAR_ICON:
+			frameBuffer->getIconSize(element.c_str(), &data.width, &data.height);
+			break;
+		case CC_TITLEBAR_PICTURE:
+			g_PicViewer->getSize(element.c_str(), &data.width, &data.height);
+			break;
+		case CC_TITLEBAR_TEXT:
+			if (font != NULL)
+				data.height = font->getHeight();
+			break;
+		case CC_TITLEBAR_CLOCK: {
+			if (!g_Sectionsd->getIsTimeSet())
+				break;
+			if (font != NULL) {
+				char timestr[10] = {0};
+				time_t now = time(NULL);
+				struct tm *tm = localtime(&now);
+				strftime(timestr, sizeof(timestr)-1, "%H:%M", tm);
+
+				digit_h = font->getDigitHeight();
+				digit_offset = font->getDigitOffset();
+				data.height = digit_h + (int)((float)digit_offset*1.5);
+//				data.width = font->getRenderWidth(widest_number)*4 + font->getRenderWidth(":");
+				data.width = font->getRenderWidth(timestr);
+				data.element = timestr;
+			}
+		}
+			break;
+		default:
+			break;
+	}
+	v_element_data.push_back(data);
+	return v_element_data.size()-1;
+}
+
+void CComponentsTitlebar::calculateElements()
+{
+#define FIRST_ELEMENT_INIT 10000
+	if (v_element_data.empty())
+		return;
+
+	int hMax = 0;
+	bool has_TextElement		= false;
+	size_t firstElementLeft 	= FIRST_ELEMENT_INIT;
+	size_t firstElementRight	= FIRST_ELEMENT_INIT;
+	size_t prevElementLeft 		= 0;
+	size_t prevElementRight 	= 0;
+	size_t i;
+
+	// Calculate largest height without CC_TITLEBAR_PICTURE
+	for (i = 0; i < v_element_data.size(); i++) {
+		if ((firstElementLeft == FIRST_ELEMENT_INIT) && (v_element_data[i].align == CC_ALIGN_LEFT))
+			firstElementLeft = i;
+		if ((firstElementRight == FIRST_ELEMENT_INIT) && (v_element_data[i].align == CC_ALIGN_RIGHT))
+			firstElementRight = i;
+		if (v_element_data[i].type != CC_TITLEBAR_PICTURE)
+			hMax = max(v_element_data[i].height, hMax);
+		if (v_element_data[i].type == CC_TITLEBAR_TEXT)
+			has_TextElement = true;
+	}
+	if (!has_TextElement)
+		hMax = max(font->getHeight(), hMax);
+
+	// Calculate logo
+	for (i = 0; i < v_element_data.size(); i++) {
+		if (v_element_data[i].type == CC_TITLEBAR_PICTURE) {
+			if((v_element_data[i].width > width/4) || (v_element_data[i].height > hMax))
+				g_PicViewer->rescaleImageDimensions(&v_element_data[i].width, &v_element_data[i].height, width/4, hMax);
+		}
+	}
+
+	// x-positions calculate
+	for (i = 0; i < v_element_data.size(); i++) {
+		if (firstElementLeft == i){
+			prevElementLeft = i;
+			v_element_data[i].x += hOffset + corner_rad/2;
+		}
+		else if (firstElementRight == i){
+			prevElementRight = i;
+			v_element_data[i].x += width - v_element_data[i].width - hOffset - corner_rad/2;
+		}
+		else {
+			if (v_element_data[i].align == CC_ALIGN_LEFT) {
+				// left elements
+				v_element_data[i].x = v_element_data[prevElementLeft].x + v_element_data[prevElementLeft].width + hSpacer;
+				prevElementLeft = i;
+			}
+			else {
+				// right elements
+				v_element_data[i].x = v_element_data[prevElementRight].x - v_element_data[i].width - hSpacer;
+				prevElementRight = i;
+			}
+		}
+	}
+
+	// text width calculate
+	int allWidth = 0;
+	for (i = 0; i < v_element_data.size(); i++) {
+		if (v_element_data[i].type != CC_TITLEBAR_TEXT)
+			allWidth += v_element_data[i].width + hSpacer;
+	}
+	for (i = 0; i < v_element_data.size(); i++) {
+		if (v_element_data[i].type == CC_TITLEBAR_TEXT) {
+			v_element_data[i].width = width - (allWidth + 2*hSpacer);
+			break;
+		}
+	}
+
+	// y-positions calculate
+	height = hMax + 2*vOffset;
+	for (i = 0; i < v_element_data.size(); i++) {
+		v_element_data[i].y = y + (height - v_element_data[i].height) / 2;
+		if (v_element_data[i].type == CC_TITLEBAR_TEXT)
+			v_element_data[i].y += v_element_data[i].height + v_element_data[i].height/14;
+		if (v_element_data[i].type == CC_TITLEBAR_CLOCK)
+			v_element_data[i].y += v_element_data[i].height + digit_offset/4;
+	}
+}
+
+void CComponentsTitlebar::paint(bool do_save_bg)
+{
+	// paint background
+	paintInit(do_save_bg);
+
+	if ((v_element_data.empty()) || (!paintElements))
+		return;
+
+	// paint elements
+	size_t i;
+	CComponentsPicture* pic = NULL;
+	for (i = 0; i < v_element_data.size(); i++) {
+		switch (v_element_data[i].type) {
+			case CC_TITLEBAR_ICON:
+				if (v_element_data[i].handler1 == NULL) {
+					pic = new CComponentsPicture(v_element_data[i].x, v_element_data[i].y, v_element_data[i].element);
+					v_element_data[i].handler1 = (void*)pic;
+				}
+				else
+					pic = static_cast<CComponentsPicture*>(v_element_data[i].handler1);
+				paintPic(pic);
+				break;
+			case CC_TITLEBAR_PICTURE:
+				if (v_element_data[i].handler1 == NULL) {
+					pic = new CComponentsPicture(	v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
+									v_element_data[i].height, v_element_data[i].element);
+					v_element_data[i].handler1 = (void*)pic;
+				}
+				else
+					pic = static_cast<CComponentsPicture*>(v_element_data[i].handler1);
+				paintPic(pic);
+				break;
+			case CC_TITLEBAR_TEXT:
+				font->RenderString(	v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
+							v_element_data[i].element.c_str(), col_text, 0, true);
+				break;
+			case CC_TITLEBAR_CLOCK:
+				font->RenderString(	v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
+							v_element_data[i].element.c_str(), col_text);
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+void CComponentsTitlebar::clearTitlebar()
+{
+	clearElements();
+	paintElements = false;
+	paint(false);
+	paintElements = true;
+}
+
+void CComponentsTitlebar::paintPic(CComponentsPicture* pic)
+{
+	int pw, ph;
+	pic->getPictureSize(&pw, &ph);
+	pic->setHeight(ph);
+	pic->setWidth(pw);
+	pic->setColorBody(col_body);
+	pic->paint();
+}

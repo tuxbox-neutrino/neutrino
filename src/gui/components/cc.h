@@ -95,6 +95,27 @@ enum
 	CC_PIC_IMAGE
 };
 
+enum
+{
+	CC_TITLEBAR_ICON,
+	CC_TITLEBAR_PICTURE,
+	CC_TITLEBAR_TEXT,
+	CC_TITLEBAR_CLOCK
+};
+
+typedef struct comp_element_data_t
+{
+	int		type;
+	int		align;
+	std::string	element;
+	int		x;
+	int		y;
+	int		width;
+	int		height;
+	void*		handler1;
+	void*		handler2;
+}comp_element_data_struct_t;
+
 #define CC_WIDTH_MIN		16
 #define CC_HEIGHT_MIN		16
 #define CC_SHADOW_ON 		true
@@ -297,6 +318,38 @@ class CComponentsDetailLine : public CComponents
 		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
 		void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
+};
+
+class CComponentsTitlebar : public CComponentsContainer
+{
+	private:
+		int hSpacer;
+		int hOffset;
+		int vOffset;
+		int digit_offset, digit_h;
+		Font* font;
+		bool paintElements;
+		fb_pixel_t col_text, col_body;
+		
+		void clearElements();
+		void paintPic(CComponentsPicture* pic);
+	public:
+		CComponentsTitlebar(	const int x_pos, const int y_pos, const int w, const int h,
+					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
+
+		~CComponentsTitlebar();
+
+		std::vector<comp_element_data_t> v_element_data;
+
+		void setTextFont(Font* font_text){font = font_text;};
+		void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
+
+		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
+
+		size_t addElement(int align, int type, const std::string& element="");
+		size_t addLogoOrText(int align, const std::string& logo, const std::string& text);
+		void calculateElements();
+		void clearTitlebar();
 };
 
 #endif
