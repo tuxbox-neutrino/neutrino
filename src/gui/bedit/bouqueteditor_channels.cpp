@@ -84,7 +84,7 @@ CBEChannelWidget::CBEChannelWidget(const std::string & Caption, unsigned int Bou
 	bouquet = Bouquet;
 	mode = CZapitClient::MODE_TV;
 	dline = NULL;
-	ibox = NULL;
+	ibox = new CComponentsInfoBox();
 	Channels = NULL;
 }
 
@@ -209,7 +209,8 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
 
-	clearItem2DetailsLine();
+	if (dline)
+		dline->kill(); //kill details line
 
 	// paint Line if detail info (and not valid list pos)
 	if (pos >= 0)
@@ -220,9 +221,18 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 		dline->paint();
 
 		//infobox
-		if (ibox == NULL)
-			ibox = new CComponentsInfoBox(x, ypos2, width, info_height);
+		if (ibox){
+			ibox->setDimensionsAll(x, ypos2, width, info_height);
+			ibox->setFrameThickness(2);
+#if 0			
 		ibox->paint(false,true);
+#endif
+			ibox->setCornerRadius(RADIUS_LARGE);
+			ibox->syncSysColors();
+			ibox->setShadowOnOff(CC_SHADOW_OFF);
+		}
+
+		ibox->paint(false);	
 	}
 }
 
@@ -237,7 +247,7 @@ void CBEChannelWidget::clearItem2DetailsLine()
 void CBEChannelWidget::hide()
 {
 	frameBuffer->paintBackgroundBoxRel(x,y, width,height+footerHeight);
-	clearItem2DetailsLine ();
+ 	clearItem2DetailsLine ();
 }
 
 void CBEChannelWidget::updateSelection(unsigned int newpos)
