@@ -31,10 +31,12 @@
 #include <global.h>
 #include <neutrino.h>
 #include "cc.h"
+#include <driver/pictureviewer/pictureviewer.h>
 
 #include <video.h>
 
 extern cVideo * videoDecoder;
+extern CPictureViewer * g_PicViewer;
 
 using namespace std;
 
@@ -669,8 +671,34 @@ void CComponentsPIP::hide(bool no_restore)
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsPicture from CComponentsContainer
-CComponentsPicture::CComponentsPicture(	int x_pos, int y_pos, const string& picture_name, const int alignment, bool has_shadow,
+CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos,
+					const std::string& picture_name, const int alignment, bool has_shadow,
 					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+{
+	init(x_pos, y_pos, picture_name, alignment, has_shadow, color_frame, color_background, color_shadow);
+
+	maxWidth	= 0;
+	maxHeight	= 0;
+	picMode		= CC_PIC_ICON;
+
+	initVarPicture();
+}
+
+CComponentsPicture::CComponentsPicture(	const int x_pos, const int y_pos, const int w_max, const int h_max,
+					const std::string& picture_name, const int alignment, bool has_shadow,
+					fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
+{
+	init(x_pos, y_pos, picture_name, alignment, has_shadow, color_frame, color_background, color_shadow);
+
+	maxWidth	= w_max;
+	maxHeight	= h_max;
+	picMode		= CC_PIC_IMAGE;
+
+	initVarPicture();
+}
+
+void CComponentsPicture::init(	int x_pos, int y_pos, const string& picture_name, const int alignment, bool has_shadow,
+				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow)
 {
 	//CComponents, CComponentsContainer
 	initVarContainer();
@@ -699,10 +727,7 @@ CComponentsPicture::CComponentsPicture(	int x_pos, int y_pos, const string& pict
 	firstPaint	= true;
 	v_fbdata.clear();
 	bgMode 		= CC_BGMODE_PERMANENT;
-	
-	initVarPicture();
 }
-
 
 void CComponentsPicture::setPicture(const std::string& picture_name)
 {
@@ -723,15 +748,21 @@ void CComponentsPicture::initVarPicture()
 	pic_width = pic_height = 0;
 	pic_painted = false;
 	do_paint = false;
-	
-	frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
+
+	if (picMode == CC_PIC_ICON)
+		frameBuffer->getIconSize(pic_name.c_str(), &pic_width, &pic_height);
+	else {
+		g_PicViewer->getSize(pic_name.c_str(), &pic_width, &pic_height);
+		if((pic_width > maxWidth) || (pic_height > maxHeight))
+			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, maxWidth, maxHeight);
+	}
 	
 	if (pic_width == 0 || pic_height == 0)
 		printf("CComponentsPicture: %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
 	
 	pic_x += fr_thickness;
 	pic_y += fr_thickness;
-	
+
 	if (pic_height>0 && pic_width>0){
 		if (pic_align & CC_ALIGN_LEFT)
 			pic_x = x+fr_thickness;
@@ -760,8 +791,10 @@ void CComponentsPicture::paint(bool do_save_bg)
 	paintInit(do_save_bg);
 	
 	if (do_paint){
-		pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0, pic_offset, pic_paint, pic_paintBg, col_body);
+		if (picMode == CC_PIC_ICON)
+			pic_painted = frameBuffer->paintIcon(pic_name, pic_x, pic_y, 0, pic_offset, pic_paint, pic_paintBg, col_body);
+		else
+			pic_painted = g_PicViewer->DisplayImage(pic_name, pic_x, pic_y, pic_width, pic_height);
 		do_paint = false;
 	}
 }
-

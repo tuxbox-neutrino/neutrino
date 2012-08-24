@@ -89,6 +89,12 @@ enum
 	CC_ALIGN_VER_CENTER	= 16
 };
 
+enum
+{
+	CC_PIC_ICON,
+	CC_PIC_IMAGE
+};
+
 #define CC_WIDTH_MIN		16
 #define CC_HEIGHT_MIN		16
 #define CC_SHADOW_ON 		true
@@ -172,11 +178,18 @@ class CComponentsPicture : public CComponentsContainer
 		unsigned char pic_offset;
 		bool pic_paint, pic_paintBg, pic_painted, do_paint;
 		int pic_align, pic_x, pic_y, pic_width, pic_height;
+		int maxWidth, maxHeight, picMode;
 
 		void initVarPicture();
+		void init(	const int x_pos, const int y_pos, const std::string& picture_name, const int alignment, bool has_shadow,
+				fb_pixel_t color_frame, fb_pixel_t color_background, fb_pixel_t color_shadow);
 
 	public:
-		CComponentsPicture( 	const int x_pos, const int y_pos, const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
+		CComponentsPicture( 	const int x_pos, const int y_pos,
+					const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
+					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
+		CComponentsPicture( 	const int x_pos, const int y_pos, const int w_max, const int h_max,
+					const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 		void setPictureOffset(const unsigned char offset){pic_offset = offset;};
 		void setPicturePaint(bool paint_p){pic_paint = paint_p;};
