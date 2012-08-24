@@ -106,7 +106,7 @@ void CBEChannelWidget::paintItem(int pos)
 		bgcolor = COL_MENUCONTENTSELECTED_PLUS_0;
 
 		if(current < Channels->size()) {
-			paintItem2DetailsLine (pos, current);
+			initItem2DetailsLine (pos, current);
 			paintDetails(current);
 		}
 	
@@ -184,22 +184,37 @@ void CBEChannelWidget::paintFoot()
 	::paintButtons(x, y + (height-footerHeight), width, 4, CBEChannelWidgetButtons, footerHeight);
 }
 
-void CBEChannelWidget::paintDetails(int index)
+std::string CBEChannelWidget::getInfoText(int index)
 {
+	std::string res = "";
+	
 	std::string satname = CServiceManager::getInstance()->GetSatelliteName((*Channels)[index]->getSatellitePosition());
 	transponder t;
 	CServiceManager::getInstance()->GetTransponder((*Channels)[index]->getTransponderId(), t);
 	std::string desc = t.description();
 	if((*Channels)[index]->pname)
 		desc = desc + " (" + std::string((*Channels)[index]->pname) + ")";
-	else    
+	else
 		desc = desc + " (" + satname + ")";
-
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ fheight+INFO_BOX_Y_OFFSET, width - 30,  satname.c_str(), COL_MENUCONTENTDARK, 0, true);
-	g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 2*fheight+INFO_BOX_Y_OFFSET, width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+	
+	res = satname + "\n" + desc;
+	
+	return res;
 }
 
-void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
+void CBEChannelWidget::paintDetails(int index)
+{
+	//details line
+	dline->paint();
+	
+	std::string str = getInfoText(index);
+	
+	//info box
+	ibox->setText(str, CTextBox::AUTO_WIDTH | CTextBox::NO_AUTO_LINEBREAK, g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]);
+	ibox->paint(false);
+}
+
+void CBEChannelWidget::initItem2DetailsLine (int pos, int /*ch_index*/)
 {
 #define ConnectLineBox_Width	16
 
@@ -208,18 +223,17 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
-
+	
 	if (dline)
 		dline->kill(); //kill details line
-
-	// paint Line if detail info (and not valid list pos)
+		
+	// init Line if detail info (and not valid list pos)
 	if (pos >= 0)
 	{
 		if (dline == NULL)
 			dline = new CComponentsDetailLine(xpos, ypos1a, ypos2a, fheight/2+1, info_height-RADIUS_LARGE*2);
 		dline->setYPos(ypos1a);
-		dline->paint();
-
+		
 		//infobox
 		if (ibox){
 			ibox->setDimensionsAll(x, ypos2, width, info_height);
@@ -228,11 +242,8 @@ void CBEChannelWidget::paintItem2DetailsLine (int pos, int /*ch_index*/)
 		ibox->paint(false,true);
 #endif
 			ibox->setCornerRadius(RADIUS_LARGE);
-			ibox->syncSysColors();
 			ibox->setShadowOnOff(CC_SHADOW_OFF);
 		}
-
-		ibox->paint(false);	
 	}
 }
 
