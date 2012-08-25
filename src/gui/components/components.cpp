@@ -757,12 +757,14 @@ void CComponentsPicture::initVarPicture()
 			g_PicViewer->rescaleImageDimensions(&pic_width, &pic_height, maxWidth, maxHeight);
 	}
 	
+#ifdef DEBUG	
 	if (pic_width == 0 || pic_height == 0)
 		printf("CComponentsPicture: %s file: %s, no icon dimensions found! width = %d, height = %d\n", __FUNCTION__, pic_name.c_str(),  pic_width, pic_height);
-	
+#endif
+
 	pic_x += fr_thickness;
 	pic_y += fr_thickness;
-
+	
 	if (pic_height>0 && pic_width>0){
 		if (pic_align & CC_ALIGN_LEFT)
 			pic_x = x+fr_thickness;
