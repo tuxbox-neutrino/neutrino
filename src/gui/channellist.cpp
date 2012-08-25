@@ -116,7 +116,7 @@ CChannelList::CChannelList(const char * const pName, bool phistoryMode, bool _vl
 	previous_channellist_additional = -1;
 	eventFont = SNeutrinoSettings::FONT_TYPE_CHANNELLIST_EVENT;
 	dline = NULL;
-	ibox = NULL;
+	ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height);
 //printf("************ NEW LIST %s : %x\n", name.c_str(), (int) this);fflush(stdout);
 }
 
@@ -1523,16 +1523,12 @@ void CChannelList::paintDetails(int index)
 	if (g_settings.colored_events_channellist == 2)
 		colored_event_N = true;
 
-	if (displayNext) {
+	if (displayNext)
 		p_event = &chanlist[index]->nextEvent;
-	} else {
+	else
 		p_event = &chanlist[index]->currentEvent;
-	}
 
 	//infobox
-	if (ibox == NULL)
-		ibox = new CComponentsInfoBox(x, y + height + 2, width, info_height);
-	ibox->setCornerRadius(RADIUS_LARGE);
 	ibox->paint(false);
 
 	if (!p_event->description.empty()) {
@@ -1640,15 +1636,14 @@ void CChannelList::paintItem2DetailsLine (int pos)
 {
 	int xpos  = x - ConnectLineBox_Width;
 	int ypos1 = y + theight+0 + pos*fheight;
-	int ypos2 = y + height;
+	int ypos2 = y + height + INFO_BOX_Y_OFFSET;
 	int ypos1a = ypos1 + (fheight/2)-2;
 	int ypos2a = ypos2 + (info_height/2)-2;
-	// Clear
 	if (dline)
-		dline->hide();
+		dline->kill(); //kill details line
 
-	// paint Line if detail info (and not valid list pos)
-	if (pos >= 0) { //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
+	// init Line if detail info (and not valid list pos)
+	if (pos >= 0){ //pos >= 0 &&  chanlist[ch_index]->currentEvent.description != "") {
 		if(1) // FIXME why -> ? (!g_settings.channellist_extended)
 		{
 			if (dline == NULL)
@@ -1656,6 +1651,15 @@ void CChannelList::paintItem2DetailsLine (int pos)
 			dline->setYPos(ypos1a);
 			dline->setHMarkDown(info_height-RADIUS_LARGE*2); //required if user has changed osd-settings (corner mode)
 			dline->paint();
+		}
+
+		//infobox
+		if (ibox){
+			ibox->setDimensionsAll(x, ypos2, width, info_height);
+			ibox->setFrameThickness(2);
+			ibox->setCornerRadius(RADIUS_LARGE);
+			ibox->setShadowOnOff(CC_SHADOW_OFF);
+			ibox->syncSysColors();
 		}
 	}
 }
