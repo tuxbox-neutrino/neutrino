@@ -867,7 +867,7 @@ menu.hint_misc_zapit Behandlung der Start-TV/Start-Radio Kanäle
 menu.hint_movie Wiedergabe von Filmen
 menu.hint_net_broadcast Hier können Sie die Broadcast-Adresse ändern,\nwenn Sie unsicher sind, verwenden Sie zuletzt .255
 menu.hint_net_dhcp Verwenden Sie einen DHCP-Server für die automatische\nKonfiguration können Sie es hier einstellen
-menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem\nunter / media/00upnp
+menu.hint_net_djmount Mountet UPnP-Geräte als Dateisystem\nunter /media/00upnp
 menu.hint_net_ftpd Aktivieren Sie die Dateiübertragung über FTP
 menu.hint_net_gateway Hier können Sie die Gateway-Adresse des Routers eingeben
 menu.hint_net_hostname Hier kann man den Hostnamen der Box ändern
