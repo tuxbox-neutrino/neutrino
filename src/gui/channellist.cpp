@@ -1511,6 +1511,20 @@ void CChannelList::quickZap(int key, bool /* cycle */)
 	g_RCInput->clearRCMsg(); //FIXME test for n.103
 }
 
+std::string CChannelList::getInfoTextTransponder(int index)
+{
+	transponder t;
+	CServiceManager::getInstance()->GetTransponder(chanlist[index]->getTransponderId(), t);
+	
+	std::string desc = t.description();
+	if(chanlist[index]->pname)
+		desc = desc + " (" + std::string(chanlist[index]->pname) + ")";
+	else
+		desc = desc + " (" + CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()) + ")";
+	
+	return desc;
+}
+
 void CChannelList::paintDetails(int index)
 {
 	CChannelEvent *p_event = NULL;
@@ -1596,16 +1610,8 @@ void CChannelList::paintDetails(int index)
 		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST_DESCR]->RenderString(x+ full_width- 10- noch_len, y+ height+ 5+ 2* fheight, noch_len, cNoch, colored_event_C ? COL_COLORED_EVENTS_CHANNELLIST : COL_MENUCONTENTDARK, 0, true); // UTF-8
 	}
 	if(g_settings.channellist_foot == 0) {
-		transponder t;
-		CServiceManager::getInstance()->GetTransponder(chanlist[index]->getTransponderId(), t);
-
-		std::string desc = t.description();
-		if(chanlist[index]->pname)
-			desc = desc + " (" + std::string(chanlist[index]->pname) + ")";
-		else
-			desc = desc + " (" + CServiceManager::getInstance()->GetSatelliteName(chanlist[index]->getSatellitePosition()) + ")";
-
-		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, full_width - 30, desc.c_str(), COL_MENUCONTENTDARK, 0, true);
+		std::string transp_info = getInfoTextTransponder(index);
+		g_Font[SNeutrinoSettings::FONT_TYPE_CHANNELLIST]->RenderString(x+ 10, y+ height+ 5+ 3*fheight, width - 30, transp_info.c_str(), COL_MENUCONTENTDARK, 0, true);
 	}
 	else if( !displayNext && g_settings.channellist_foot == 1) { // next Event
 		char buf[128] = {0};

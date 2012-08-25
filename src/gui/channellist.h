@@ -110,6 +110,7 @@ private:
 	void showChannelLogo();
 	void calcSize();
 	std::string   MaxChanNr();
+	std::string   getInfoTextTransponder(int index);
 	void paint_pig(int x, int y, int w, int h);
     void paint_events(int index);
     CChannelEventList	evtlist;
