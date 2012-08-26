@@ -97,10 +97,10 @@ enum
 
 enum
 {
-	CC_TITLEBAR_ICON,
-	CC_TITLEBAR_PICTURE,
-	CC_TITLEBAR_TEXT,
-	CC_TITLEBAR_CLOCK
+	CC_ITEMBOX_ICON,
+	CC_ITEMBOX_PICTURE,
+	CC_ITEMBOX_TEXT,
+	CC_ITEMBOX_CLOCK
 };
 
 typedef struct comp_element_data_t
@@ -320,6 +320,7 @@ class CComponentsDetailLine : public CComponents
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
 };
 
+#define FIRST_ELEMENT_INIT 10000
 class CComponentsItemBox : public CComponentsContainer
 {
 	protected:
@@ -328,13 +329,22 @@ class CComponentsItemBox : public CComponentsContainer
 		int vOffset;
 		int digit_offset, digit_h;
 		bool paintElements;
+		bool onlyOneTextElement;
 		fb_pixel_t col_text;
 		Font* font_text;
+		int hMax;
+		bool has_TextElement;
+		size_t firstElementLeft;
+		size_t firstElementRight;
+		size_t prevElementLeft;
+		size_t prevElementRight;
 		std::vector<comp_element_data_t> v_element_data;
 
 		void clearElements();
 		void paintPic(CComponentsPicture* pic);
 		void initVarItemBox();
+		void calculateElementsInitPart1();
+		void calculateElementsInitPart2();
 
 	public:
 		CComponentsItemBox();
@@ -345,9 +355,8 @@ class CComponentsItemBox : public CComponentsContainer
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
-		virtual size_t addElement(int align, int type, const std::string& element="");
-		virtual size_t addLogoOrText(int align, const std::string& logo, const std::string& text);
-		virtual void calculateElements();
+		virtual bool addElement(int align, int type, const std::string& element="", size_t *index=NULL);
+		virtual bool addLogoOrText(int align, const std::string& logo, const std::string& text, size_t *index=NULL);
 		virtual void clearTitlebar();
 
 };
@@ -357,6 +366,7 @@ class CComponentsTitleBar : public CComponentsItemBox
 	public:
 		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h,
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
+		void calculateElements();
 					
 };
 

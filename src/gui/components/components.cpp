@@ -824,14 +824,21 @@ void CComponentsItemBox::initVarItemBox()
 	initVarContainer();
 
 	//CComponentsItemBox
-	col_text 	= COL_MENUCONTENT;
-	hSpacer 	= 2;
-	hOffset 	= 4;
-	vOffset 	= 1;
-	digit_h		= 0;
-	digit_offset	= 0;
-	font_text	= NULL;
-	paintElements 	= true;
+	col_text 		= COL_MENUCONTENT;
+	hSpacer 		= 2;
+	hOffset 		= 4;
+	vOffset 		= 1;
+	digit_h			= 0;
+	digit_offset		= 0;
+	font_text		= NULL;
+	paintElements 		= true;
+	hMax 			= 0;
+	has_TextElement		= false;
+	firstElementLeft 	= FIRST_ELEMENT_INIT;
+	firstElementRight	= FIRST_ELEMENT_INIT;
+	prevElementLeft 	= 0;
+	prevElementRight 	= 0;
+	onlyOneTextElement	= false;
 	v_element_data.clear();
 }
 
@@ -839,12 +846,12 @@ void CComponentsItemBox::clearElements()
 {
 	for(size_t i = 0; i < v_element_data.size(); i++) {
 		switch (v_element_data[i].type) {
-			case CC_TITLEBAR_ICON:
-			case CC_TITLEBAR_PICTURE:
+			case CC_ITEMBOX_ICON:
+			case CC_ITEMBOX_PICTURE:
 				if (v_element_data[i].handler1 != NULL)
 					delete static_cast<CComponentsPicture*>(v_element_data[i].handler1);
 				break;
-			case CC_TITLEBAR_TEXT:
+			case CC_ITEMBOX_TEXT:
 				if (v_element_data[i].handler1 != NULL)
 					delete static_cast<CBox*>(v_element_data[i].handler1);
 				if (v_element_data[i].handler2 != NULL)
@@ -857,9 +864,10 @@ void CComponentsItemBox::clearElements()
 	v_element_data.clear();
 }
 
-size_t CComponentsItemBox::addLogoOrText(int align, const std::string& logo, const std::string& text)
+bool CComponentsItemBox::addLogoOrText(int align, const std::string& logo, const std::string& text, size_t *index)
 {
 	comp_element_data_t data;
+	int dx=0, dy=0;
 
 	data.align 	= align;
 	data.x 		= x;
@@ -869,26 +877,56 @@ size_t CComponentsItemBox::addLogoOrText(int align, const std::string& logo, con
 	data.handler1 	= NULL;
 	data.handler2 	= NULL;
 
-	if (access(logo.c_str(), R_OK) == 0) {
+	g_PicViewer->getSize(logo.c_str(), &dx, &dy);
+	if ((dx != 0) && (dy != 0)) {
 		// logo OK
-		g_PicViewer->getSize(logo.c_str(), &data.width, &data.height);
-		data.type 	= CC_TITLEBAR_PICTURE;
+		data.type 	= CC_ITEMBOX_PICTURE;
 		data.element 	= logo;
 	}
 	else {
 		// no logo
+		if ((text == "") || ((onlyOneTextElement) && (has_TextElement)))
+			return false;
+		else
+			has_TextElement = true;
 		if (font_text != NULL)
 			data.height = font_text->getHeight();
-		data.type 	= CC_TITLEBAR_TEXT;
+		data.type 	= CC_ITEMBOX_TEXT;
 		data.element 	= text;
 	}
+
 	v_element_data.push_back(data);
-	return v_element_data.size()-1;
+	if (index != NULL)
+		*index = v_element_data.size()-1;
+	return true;
 }
 
-size_t CComponentsItemBox::addElement(int align, int type, const std::string& element)
+bool CComponentsItemBox::addElement(int align, int type, const std::string& element, size_t *index)
 {
 	comp_element_data_t data;
+	int dx=0, dy=0;
+
+	switch (type)
+	{
+		case CC_ITEMBOX_ICON:
+			frameBuffer->getIconSize(element.c_str(), &dx, &dy);
+			if ((dx == 0) || (dy == 0))
+				return false;
+			break;
+		case CC_ITEMBOX_PICTURE:
+			g_PicViewer->getSize(element.c_str(), &dx, &dy);
+			if ((dx == 0) || (dy == 0))
+				return false;
+			break;
+		case CC_ITEMBOX_TEXT:
+			if ((element == "") || ((onlyOneTextElement) && (has_TextElement)))
+				return false;
+			else
+				has_TextElement = true;
+			break;
+		default:
+			break;
+	}
 
 	data.type 	= type;
 	data.align 	= align;
@@ -900,80 +938,81 @@ size_t CComponentsItemBox::addElement(int align, int type, const std::string& el
 	data.handler1 	= NULL;
 	data.handler2 	= NULL;
 
-	switch (type)
-	{
-		case CC_TITLEBAR_ICON:
-			frameBuffer->getIconSize(element.c_str(), &data.width, &data.height);
-			break;
-		case CC_TITLEBAR_PICTURE:
-			g_PicViewer->getSize(element.c_str(), &data.width, &data.height);
-			break;
-		case CC_TITLEBAR_TEXT:
-			if (font_text != NULL)
-				data.height = font_text->getHeight();
-			break;
-		case CC_TITLEBAR_CLOCK: {
-			if (!g_Sectionsd->getIsTimeSet())
-				break;
-			if (font_text != NULL) {
-				char timestr[10] = {0};
-				time_t now = time(NULL);
-				struct tm *tm = localtime(&now);
-				strftime(timestr, sizeof(timestr)-1, "%H:%M", tm);
-
-				digit_h = font_text->getDigitHeight();
-				digit_offset = font_text->getDigitOffset();
-				data.height = digit_h + (int)((float)digit_offset*1.5);
-//				data.width = font_text->getRenderWidth(widest_number)*4 + font_text->getRenderWidth(":");
-				data.width = font_text->getRenderWidth(timestr);
-				data.element = timestr;
-			}
-		}
-			break;
-		default:
-			break;
-	}
 	v_element_data.push_back(data);
-	return v_element_data.size()-1;
+	if (index != NULL)
+		*index = v_element_data.size()-1;
+	return true;
 }
 
-void CComponentsItemBox::calculateElements()
+void CComponentsItemBox::calculateElementsInitPart1()
 {
-#define FIRST_ELEMENT_INIT 10000
-	if (v_element_data.empty())
-		return;
-
-	int hMax = 0;
-	bool has_TextElement		= false;
-	size_t firstElementLeft 	= FIRST_ELEMENT_INIT;
-	size_t firstElementRight	= FIRST_ELEMENT_INIT;
-	size_t prevElementLeft 		= 0;
-	size_t prevElementRight 	= 0;
 	size_t i;
 
-	// Calculate largest height without CC_TITLEBAR_PICTURE
+	// Set element size
+	for (i = 0; i < v_element_data.size(); i++) {
+		switch (v_element_data[i].type)
+		{
+			case CC_ITEMBOX_ICON:
+				frameBuffer->getIconSize(v_element_data[i].element.c_str(), &v_element_data[i].width, &v_element_data[i].height);
+				break;
+			case CC_ITEMBOX_PICTURE:
+				g_PicViewer->getSize(v_element_data[i].element.c_str(), &v_element_data[i].width, &v_element_data[i].height);
+				break;
+			case CC_ITEMBOX_TEXT:
+				if (font_text != NULL)
+					v_element_data[i].height = font_text->getHeight();
+				break;
+			case CC_ITEMBOX_CLOCK: {
+				if (!g_Sectionsd->getIsTimeSet())
+					break;
+				if (font_text != NULL) {
+					char timestr[10] = {0};
+					time_t now = time(NULL);
+					struct tm *tm = localtime(&now);
+					strftime(timestr, sizeof(timestr)-1, "%H:%M", tm);
+
+					digit_h = font_text->getDigitHeight();
+					digit_offset = font_text->getDigitOffset();
+					v_element_data[i].height = digit_h + (int)((float)digit_offset*1.5);
+//					v_element_data[i].width = font_text->getRenderWidth(widest_number)*4 + font->getRenderWidth(":");
+					v_element_data[i].width = font_text->getRenderWidth(timestr);
+					v_element_data[i].element = timestr;
+				}
+			}
+				break;
+			default:
+				break;
+		}
+	}
+
+	// Calculate largest height without CC_ITEMBOX_PICTURE
 	for (i = 0; i < v_element_data.size(); i++) {
 		if ((firstElementLeft == FIRST_ELEMENT_INIT) && (v_element_data[i].align == CC_ALIGN_LEFT))
 			firstElementLeft = i;
 		if ((firstElementRight == FIRST_ELEMENT_INIT) && (v_element_data[i].align == CC_ALIGN_RIGHT))
 			firstElementRight = i;
-		if (v_element_data[i].type != CC_TITLEBAR_PICTURE)
+		if (v_element_data[i].type != CC_ITEMBOX_PICTURE)
 			hMax = max(v_element_data[i].height, hMax);
-		if (v_element_data[i].type == CC_TITLEBAR_TEXT)
-			has_TextElement = true;
 	}
 	if (!has_TextElement)
 		hMax = max(font_text->getHeight(), hMax);
+}
 
-	// Calculate logo
+void CComponentsItemBox::calculateElementsInitPart2()
+{
+	size_t i;
+
+	// Calculate y-positions
+	height = hMax + 2*vOffset;
 	for (i = 0; i < v_element_data.size(); i++) {
-		if (v_element_data[i].type == CC_TITLEBAR_PICTURE) {
-			if((v_element_data[i].width > width/4) || (v_element_data[i].height > hMax))
-				g_PicViewer->rescaleImageDimensions(&v_element_data[i].width, &v_element_data[i].height, width/4, hMax);
-		}
+		v_element_data[i].y = y + (height - v_element_data[i].height) / 2;
+		if (v_element_data[i].type == CC_ITEMBOX_TEXT)
+			v_element_data[i].y += v_element_data[i].height + v_element_data[i].height/14;
+		if (v_element_data[i].type == CC_ITEMBOX_CLOCK)
+			v_element_data[i].y += v_element_data[i].height + digit_offset/4;
 	}
 
-	// x-positions calculate
+	// Calculate x-positions
 	for (i = 0; i < v_element_data.size(); i++) {
 		if (firstElementLeft == i){
 			prevElementLeft = i;
@@ -996,29 +1035,6 @@ void CComponentsItemBox::calculateElements()
 			}
 		}
 	}
-
-	// text width calculate
-	int allWidth = 0;
-	for (i = 0; i < v_element_data.size(); i++) {
-		if (v_element_data[i].type != CC_TITLEBAR_TEXT)
-			allWidth += v_element_data[i].width + hSpacer;
-	}
-	for (i = 0; i < v_element_data.size(); i++) {
-		if (v_element_data[i].type == CC_TITLEBAR_TEXT) {
-			v_element_data[i].width = width - (allWidth + 2*hSpacer);
-			break;
-		}
-	}
-
-	// y-positions calculate
-	height = hMax + 2*vOffset;
-	for (i = 0; i < v_element_data.size(); i++) {
-		v_element_data[i].y = y + (height - v_element_data[i].height) / 2;
-		if (v_element_data[i].type == CC_TITLEBAR_TEXT)
-			v_element_data[i].y += v_element_data[i].height + v_element_data[i].height/14;
-		if (v_element_data[i].type == CC_TITLEBAR_CLOCK)
-			v_element_data[i].y += v_element_data[i].height + digit_offset/4;
-	}
 }
 
 void CComponentsItemBox::paint(bool do_save_bg)
@@ -1034,7 +1050,7 @@ void CComponentsItemBox::paint(bool do_save_bg)
 	CComponentsPicture* pic = NULL;
 	for (i = 0; i < v_element_data.size(); i++) {
 		switch (v_element_data[i].type) {
-			case CC_TITLEBAR_ICON:
+			case CC_ITEMBOX_ICON:
 				if (v_element_data[i].handler1 == NULL) {
 					pic = new CComponentsPicture(v_element_data[i].x, v_element_data[i].y, v_element_data[i].element);
 					v_element_data[i].handler1 = (void*)pic;
@@ -1043,7 +1059,7 @@ void CComponentsItemBox::paint(bool do_save_bg)
 					pic = static_cast<CComponentsPicture*>(v_element_data[i].handler1);
 				paintPic(pic);
 				break;
-			case CC_TITLEBAR_PICTURE:
+			case CC_ITEMBOX_PICTURE:
 				if (v_element_data[i].handler1 == NULL) {
 					pic = new CComponentsPicture(	v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
 									v_element_data[i].height, v_element_data[i].element);
@@ -1053,11 +1069,11 @@ void CComponentsItemBox::paint(bool do_save_bg)
 					pic = static_cast<CComponentsPicture*>(v_element_data[i].handler1);
 				paintPic(pic);
 				break;
-			case CC_TITLEBAR_TEXT:
+			case CC_ITEMBOX_TEXT:
 				font_text->RenderString(v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
 							v_element_data[i].element.c_str(), col_text, 0, true);
 				break;
-			case CC_TITLEBAR_CLOCK:
+			case CC_ITEMBOX_CLOCK:
 				font_text->RenderString(v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
 							v_element_data[i].element.c_str(), col_text);
 				break;
@@ -1092,6 +1108,7 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 {
 	//CComponentsItemBox
 	initVarItemBox();
+	onlyOneTextElement	= true;
 	
 	//CComponents
 	x		= x_pos;
@@ -1105,6 +1122,40 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	//CComponentsTitleBar
 	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	col_text 	= color_text;
-//	col_text 	= COL_MENUHEAD;
 }
 
+
+void CComponentsTitleBar::calculateElements()
+{
+#define LOGO_MAX_WIDTH width/4
+
+	if (v_element_data.empty())
+		return;
+
+	size_t i;
+
+	calculateElementsInitPart1();
+
+	// Calculate logo
+	for (i = 0; i < v_element_data.size(); i++) {
+		if (v_element_data[i].type == CC_ITEMBOX_PICTURE) {
+			if((v_element_data[i].width > LOGO_MAX_WIDTH) || (v_element_data[i].height > hMax))
+				g_PicViewer->rescaleImageDimensions(&v_element_data[i].width, &v_element_data[i].height, LOGO_MAX_WIDTH, hMax);
+		}
+	}
+
+	// Calculate text width
+	int allWidth = 0;
+	for (i = 0; i < v_element_data.size(); i++) {
+		if (v_element_data[i].type != CC_ITEMBOX_TEXT)
+			allWidth += v_element_data[i].width + hSpacer;
+	}
+	for (i = 0; i < v_element_data.size(); i++) {
+		if (v_element_data[i].type == CC_ITEMBOX_TEXT) {
+			v_element_data[i].width = width - (allWidth + 2*hSpacer);
+			break;
+		}
+	}
+
+	calculateElementsInitPart2();
+}
