@@ -814,7 +814,6 @@ CComponentsTitlebar::CComponentsTitlebar(	const int x_pos, const int y_pos, cons
 	y 		= y_pos;
 	height		= h;
 	width 		= w;
-	shadow		= 0;
 	shadow_w	= 0;
 //	col_body	= color_body;
 	col_body 	= COL_MENUHEAD_PLUS_0;
