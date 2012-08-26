@@ -802,47 +802,40 @@ void CComponentsPicture::paint(bool do_save_bg)
 }
 
 //-------------------------------------------------------------------------------------------------------
-//sub class CComponentsTitlebar from CComponentsContainer
-CComponentsTitlebar::CComponentsTitlebar(	const int x_pos, const int y_pos, const int w, const int h,
-						fb_pixel_t /*color_text*/, fb_pixel_t /*color_body*/)
+//sub class CComponentsItemBox from CComponentsContainer
+CComponentsItemBox::CComponentsItemBox(	/*const int x_pos, const int y_pos, const int w, const int h,
+						fb_pixel_t color_text, fb_pixel_t color_body*/)
+{
+	//CComponentsItemBox
+	initVarItemBox();
+}
+
+CComponentsItemBox::~CComponentsItemBox()
+{
+	hide();
+	clearElements();
+	clearSavedScreen();
+	clear();
+}
+
+void CComponentsItemBox::initVarItemBox()
 {
 	//CComponents, CComponentsContainer
 	initVarContainer();
 
-	//CComponents
-	x		= x_pos;
-	y 		= y_pos;
-	height		= h;
-	width 		= w;
-	shadow_w	= 0;
-//	col_body	= color_body;
-	col_body 	= COL_MENUHEAD_PLUS_0;
-	firstPaint	= true;
-	v_fbdata.clear();
-	bgMode 		= CC_BGMODE_PERMANENT;
-	corner_type 	= CORNER_TOP;
-	corner_rad	= RADIUS_LARGE;
-
-	//CComponentsTitlebar
-//	col_text 	= color_text;
-	col_text 	= COL_MENUHEAD;
+	//CComponentsItemBox
+	col_text 	= COL_MENUCONTENT;
 	hSpacer 	= 2;
 	hOffset 	= 4;
 	vOffset 	= 1;
 	digit_h		= 0;
 	digit_offset	= 0;
-//	font		= NULL;
-	font 		= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	font_text	= NULL;
 	paintElements 	= true;
 	v_element_data.clear();
 }
 
-CComponentsTitlebar::~CComponentsTitlebar()
-{
-	clearElements();
-}
-
-void CComponentsTitlebar::clearElements()
+void CComponentsItemBox::clearElements()
 {
 	for(size_t i = 0; i < v_element_data.size(); i++) {
 		switch (v_element_data[i].type) {
@@ -864,7 +857,7 @@ void CComponentsTitlebar::clearElements()
 	v_element_data.clear();
 }
 
-size_t CComponentsTitlebar::addLogoOrText(int align, const std::string& logo, const std::string& text)
+size_t CComponentsItemBox::addLogoOrText(int align, const std::string& logo, const std::string& text)
 {
 	comp_element_data_t data;
 
@@ -884,8 +877,8 @@ size_t CComponentsTitlebar::addLogoOrText(int align, const std::string& logo, co
 	}
 	else {
 		// no logo
-		if (font != NULL)
-			data.height = font->getHeight();
+		if (font_text != NULL)
+			data.height = font_text->getHeight();
 		data.type 	= CC_TITLEBAR_TEXT;
 		data.element 	= text;
 	}
@@ -893,7 +886,7 @@ size_t CComponentsTitlebar::addLogoOrText(int align, const std::string& logo, co
 	return v_element_data.size()-1;
 }
 
-size_t CComponentsTitlebar::addElement(int align, int type, const std::string& element)
+size_t CComponentsItemBox::addElement(int align, int type, const std::string& element)
 {
 	comp_element_data_t data;
 
@@ -916,23 +909,23 @@ size_t CComponentsTitlebar::addElement(int align, int type, const std::string& e
 			g_PicViewer->getSize(element.c_str(), &data.width, &data.height);
 			break;
 		case CC_TITLEBAR_TEXT:
-			if (font != NULL)
-				data.height = font->getHeight();
+			if (font_text != NULL)
+				data.height = font_text->getHeight();
 			break;
 		case CC_TITLEBAR_CLOCK: {
 			if (!g_Sectionsd->getIsTimeSet())
 				break;
-			if (font != NULL) {
+			if (font_text != NULL) {
 				char timestr[10] = {0};
 				time_t now = time(NULL);
 				struct tm *tm = localtime(&now);
 				strftime(timestr, sizeof(timestr)-1, "%H:%M", tm);
 
-				digit_h = font->getDigitHeight();
-				digit_offset = font->getDigitOffset();
+				digit_h = font_text->getDigitHeight();
+				digit_offset = font_text->getDigitOffset();
 				data.height = digit_h + (int)((float)digit_offset*1.5);
-//				data.width = font->getRenderWidth(widest_number)*4 + font->getRenderWidth(":");
-				data.width = font->getRenderWidth(timestr);
+//				data.width = font_text->getRenderWidth(widest_number)*4 + font_text->getRenderWidth(":");
+				data.width = font_text->getRenderWidth(timestr);
 				data.element = timestr;
 			}
 		}
@@ -944,7 +937,7 @@ size_t CComponentsTitlebar::addElement(int align, int type, const std::string& e
 	return v_element_data.size()-1;
 }
 
-void CComponentsTitlebar::calculateElements()
+void CComponentsItemBox::calculateElements()
 {
 #define FIRST_ELEMENT_INIT 10000
 	if (v_element_data.empty())
@@ -970,7 +963,7 @@ void CComponentsTitlebar::calculateElements()
 			has_TextElement = true;
 	}
 	if (!has_TextElement)
-		hMax = max(font->getHeight(), hMax);
+		hMax = max(font_text->getHeight(), hMax);
 
 	// Calculate logo
 	for (i = 0; i < v_element_data.size(); i++) {
@@ -1028,7 +1021,7 @@ void CComponentsTitlebar::calculateElements()
 	}
 }
 
-void CComponentsTitlebar::paint(bool do_save_bg)
+void CComponentsItemBox::paint(bool do_save_bg)
 {
 	// paint background
 	paintInit(do_save_bg);
@@ -1061,11 +1054,11 @@ void CComponentsTitlebar::paint(bool do_save_bg)
 				paintPic(pic);
 				break;
 			case CC_TITLEBAR_TEXT:
-				font->RenderString(	v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
+				font_text->RenderString(v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
 							v_element_data[i].element.c_str(), col_text, 0, true);
 				break;
 			case CC_TITLEBAR_CLOCK:
-				font->RenderString(	v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
+				font_text->RenderString(v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
 							v_element_data[i].element.c_str(), col_text);
 				break;
 			default:
@@ -1074,7 +1067,7 @@ void CComponentsTitlebar::paint(bool do_save_bg)
 	}
 }
 
-void CComponentsTitlebar::clearTitlebar()
+void CComponentsItemBox::clearTitlebar()
 {
 	clearElements();
 	paintElements = false;
@@ -1082,7 +1075,7 @@ void CComponentsTitlebar::clearTitlebar()
 	paintElements = true;
 }
 
-void CComponentsTitlebar::paintPic(CComponentsPicture* pic)
+void CComponentsItemBox::paintPic(CComponentsPicture* pic)
 {
 	int pw, ph;
 	pic->getPictureSize(&pw, &ph);
@@ -1091,3 +1084,27 @@ void CComponentsTitlebar::paintPic(CComponentsPicture* pic)
 	pic->setColorBody(col_body);
 	pic->paint();
 }
+
+//-------------------------------------------------------------------------------------------------------
+//sub class CComponentsTitleBar from CComponentsItemBox
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h,
+					fb_pixel_t color_text, fb_pixel_t color_body)
+{
+	//CComponentsItemBox
+	initVarItemBox();
+	
+	//CComponents
+	x		= x_pos;
+	y 		= y_pos;
+	height		= h;
+	width 		= w;
+	col_body	= color_body;
+	corner_type 	= CORNER_TOP;
+	corner_rad	= RADIUS_LARGE;
+
+	//CComponentsTitleBar
+	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	col_text 	= color_text;
+//	col_text 	= COL_MENUHEAD;
+}
+

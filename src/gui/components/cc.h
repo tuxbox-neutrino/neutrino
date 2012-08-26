@@ -320,36 +320,44 @@ class CComponentsDetailLine : public CComponents
 		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
 };
 
-class CComponentsTitlebar : public CComponentsContainer
+class CComponentsItemBox : public CComponentsContainer
 {
-	private:
+	protected:
 		int hSpacer;
 		int hOffset;
 		int vOffset;
 		int digit_offset, digit_h;
-		Font* font;
 		bool paintElements;
 		fb_pixel_t col_text;
-		
-		void clearElements();
-		void paintPic(CComponentsPicture* pic);
-	public:
-		CComponentsTitlebar(	const int x_pos, const int y_pos, const int w, const int h,
-					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
-
-		~CComponentsTitlebar();
-
+		Font* font_text;
 		std::vector<comp_element_data_t> v_element_data;
 
-		void setTextFont(Font* font_text){font = font_text;};
+		void clearElements();
+		void paintPic(CComponentsPicture* pic);
+		void initVarItemBox();
+
+	public:
+		CComponentsItemBox();
+		virtual ~CComponentsItemBox();
+
+		void setTextFont(Font* font){font_text = font;};
 		void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
-		size_t addElement(int align, int type, const std::string& element="");
-		size_t addLogoOrText(int align, const std::string& logo, const std::string& text);
-		void calculateElements();
-		void clearTitlebar();
+		virtual size_t addElement(int align, int type, const std::string& element="");
+		virtual size_t addLogoOrText(int align, const std::string& logo, const std::string& text);
+		virtual void calculateElements();
+		virtual void clearTitlebar();
+
+};
+
+class CComponentsTitleBar : public CComponentsItemBox
+{
+	public:
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h,
+					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
+					
 };
 
 #endif
