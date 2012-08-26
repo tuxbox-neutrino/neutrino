@@ -329,7 +329,7 @@ class CComponentsTitlebar : public CComponentsContainer
 		int digit_offset, digit_h;
 		Font* font;
 		bool paintElements;
-		fb_pixel_t col_text, col_body;
+		fb_pixel_t col_text;
 		
 		void clearElements();
 		void paintPic(CComponentsPicture* pic);
