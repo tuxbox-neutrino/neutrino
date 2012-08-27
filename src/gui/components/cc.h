@@ -212,15 +212,15 @@ class CComponentsPicture : public CComponentsContainer
 		CComponentsPicture( 	const int x_pos, const int y_pos, const int w_max, const int h_max,
 					const std::string& picture_name, const int alignment = CC_ALIGN_HOR_CENTER | CC_ALIGN_VER_CENTER, bool has_shadow = CC_SHADOW_OFF,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_background = 0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
-		void setPictureOffset(const unsigned char offset){pic_offset = offset;};
-		void setPicturePaint(bool paint_p){pic_paint = paint_p;};
-		void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
-		void setPicture(const std::string& picture_name);
+		inline void setPictureOffset(const unsigned char offset){pic_offset = offset;};
+		inline void setPicturePaint(bool paint_p){pic_paint = paint_p;};
+		inline void setPicturePaintBackground(bool paintBg){pic_paintBg = paintBg;};
+		inline void setPicture(const std::string& picture_name);
 		void setPictureAlign(const int alignment);
 		
-		bool isPainted(){return pic_painted;};
+		inline bool isPainted(){return pic_painted;};
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
-		void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
+		inline void getPictureSize(int *pwidth, int *pheight){*pwidth=pic_width; *pheight=pic_height;};
 
 };
 
@@ -251,14 +251,14 @@ class CComponentsInfoBox : public CComponentsContainer
 
 		~CComponentsInfoBox();
 
-		void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; text_mode = mode, font = font_text;};
-		void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, font = font_text;};
+		inline void setText(const char* info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text; text_mode = mode, font = font_text;};
+		inline void setText(const std::string& info_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL){text = info_text.c_str(); text_mode = mode, font = font_text;};
 		void setText(neutrino_locale_t locale_text, const int mode = CTextBox::AUTO_WIDTH, Font* font_text = NULL);
-		void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
-		void setTextFont(Font* font_text){font = font_text;};
-		void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
-		void setSpaceOffset(const int offset){x_offset = offset;};
-		void setPicture(const std::string& picture_name){pic_name = picture_name;};
+		inline void setTextMode(const int mode){text_mode = mode;};//see textbox.h for possible modes
+		inline void setTextFont(Font* font_text){font = font_text;};
+		inline void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
+		inline void setSpaceOffset(const int offset){x_offset = offset;};
+		inline void setPicture(const std::string& picture_name){pic_name = picture_name;};
 		void removeLineBreaks(std::string& str);
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
@@ -273,8 +273,8 @@ class CComponentsShapeCircle : public CComponentsContainer
 		CComponentsShapeCircle(	const int x_pos, const int y_pos, const int diam, bool has_shadow = CC_SHADOW_ON,
 					fb_pixel_t color_frame = COL_MENUCONTENT_PLUS_6, fb_pixel_t color_body = COL_MENUCONTENT_PLUS_0, fb_pixel_t color_shadow = COL_MENUCONTENTDARK_PLUS_0);
 					
-		void setDiam(const int& diam){d=width=height=diam, corner_rad=d/2;};
-		int getDiam(){return d;};
+		inline void setDiam(const int& diam){d=width=height=diam, corner_rad=d/2;};
+		inline int getDiam(){return d;};
 };
 
 class CComponentsShapeSquare : public CComponentsContainer
@@ -313,11 +313,11 @@ class CComponentsDetailLine : public CComponents
 		
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 		void kill();
-		void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
+		inline void setColors(fb_pixel_t color_line, fb_pixel_t color_shadow){col_body = color_line; col_shadow = color_shadow;};
 		void syncSysColors();
-		void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
-		void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
-		void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
+		inline void setYPosDown(const int& y_pos_down){y_down = y_pos_down;};
+		inline void setHMarkTop(const int& h_mark_top_){h_mark_top = h_mark_top_;};
+		inline void setHMarkDown(const int& h_mark_down_){h_mark_down = h_mark_down_;};
 };
 
 #define FIRST_ELEMENT_INIT 10000
@@ -350,8 +350,8 @@ class CComponentsItemBox : public CComponentsContainer
 		CComponentsItemBox();
 		virtual ~CComponentsItemBox();
 
-		void setTextFont(Font* font){font_text = font;};
-		void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
+		inline virtual void setTextFont(Font* font){font_text = font;};
+		inline virtual void setTextColor(fb_pixel_t color_text){ col_text = color_text;};
 
 		void paint(bool do_save_bg = CC_SAVE_SCREEN_YES);
 
