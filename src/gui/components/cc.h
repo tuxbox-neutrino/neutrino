@@ -366,6 +366,7 @@ class CComponentsTitleBar : public CComponentsItemBox
 	public:
 		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h,
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
+
 		void calculateElements();
 					
 };

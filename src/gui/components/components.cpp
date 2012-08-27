@@ -1006,8 +1006,6 @@ void CComponentsItemBox::calculateElementsInitPart2()
 	height = hMax + 2*vOffset;
 	for (i = 0; i < v_element_data.size(); i++) {
 		v_element_data[i].y = y + (height - v_element_data[i].height) / 2;
-		if (v_element_data[i].type == CC_ITEMBOX_TEXT)
-			v_element_data[i].y += v_element_data[i].height + v_element_data[i].height/14;
 		if (v_element_data[i].type == CC_ITEMBOX_CLOCK)
 			v_element_data[i].y += v_element_data[i].height + digit_offset/4;
 	}
@@ -1048,6 +1046,8 @@ void CComponentsItemBox::paint(bool do_save_bg)
 	// paint elements
 	size_t i;
 	CComponentsPicture* pic = NULL;
+	CBox* box = NULL;
+	CTextBox* textbox = NULL;
 	for (i = 0; i < v_element_data.size(); i++) {
 		switch (v_element_data[i].type) {
 			case CC_ITEMBOX_ICON:
@@ -1070,8 +1070,29 @@ void CComponentsItemBox::paint(bool do_save_bg)
 				paintPic(pic);
 				break;
 			case CC_ITEMBOX_TEXT:
-				font_text->RenderString(v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
-							v_element_data[i].element.c_str(), col_text, 0, true);
+				if (v_element_data[i].handler1 == NULL) {
+					box = new CBox();
+					v_element_data[i].handler1 = (void*)box;
+				}
+				else
+					box = static_cast<CBox*>(v_element_data[i].handler1);
+				box->iX      = v_element_data[i].x;
+				box->iY      = v_element_data[i].y;
+				box->iWidth  = v_element_data[i].width;
+				box->iHeight = v_element_data[i].height;
+				if (v_element_data[i].handler2 == NULL) {
+					textbox = new CTextBox(v_element_data[i].element.c_str(), font_text, CTextBox::AUTO_WIDTH|CTextBox::AUTO_HIGH, box, col_body);
+					v_element_data[i].handler2 = (void*)textbox;
+				}
+				else
+					textbox = static_cast<CTextBox*>(v_element_data[i].handler2);
+				textbox->setTextBorderWidth(0);
+				textbox->enableBackgroundPaint(false);
+				textbox->setTextFont(font_text);
+				textbox->movePosition(box->iX, box->iY);
+				textbox->setTextColor(col_text);
+				if (textbox->setText(&v_element_data[i].element))
+					textbox->paint();
 				break;
 			case CC_ITEMBOX_CLOCK:
 				font_text->RenderString(v_element_data[i].x, v_element_data[i].y, v_element_data[i].width, 
@@ -1153,6 +1174,11 @@ void CComponentsTitleBar::calculateElements()
 	for (i = 0; i < v_element_data.size(); i++) {
 		if (v_element_data[i].type == CC_ITEMBOX_TEXT) {
 			v_element_data[i].width = width - (allWidth + 2*hSpacer);
+			// If text is too long, number of rows = 2
+			if (font_text->getRenderWidth(v_element_data[i].element) > v_element_data[i].width) {
+				v_element_data[i].height = font_text->getHeight() * 2;
+				hMax = max(v_element_data[i].height, hMax);
+			}
 			break;
 		}
 	}
