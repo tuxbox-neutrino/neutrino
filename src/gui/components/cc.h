@@ -343,8 +343,8 @@ class CComponentsItemBox : public CComponentsContainer
 		void clearElements();
 		void paintPic(CComponentsPicture* pic);
 		void initVarItemBox();
-		void calculateElementsInitPart1();
-		void calculateElementsInitPart2();
+		void calSizeOfElements();
+		void calPositionOfElements();
 
 	public:
 		CComponentsItemBox();

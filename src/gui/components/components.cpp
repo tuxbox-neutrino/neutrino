@@ -943,7 +943,7 @@ bool CComponentsItemBox::addElement(int align, int type, const std::string& elem
 	return true;
 }
 
-void CComponentsItemBox::calculateElementsInitPart1()
+void CComponentsItemBox::calSizeOfElements()
 {
 	size_t i;
 
@@ -995,7 +995,7 @@ void CComponentsItemBox::calculateElementsInitPart1()
 	}
 }
 
-void CComponentsItemBox::calculateElementsInitPart2()
+void CComponentsItemBox::calPositionOfElements()
 {
 	size_t i;
 
@@ -1152,7 +1152,7 @@ void CComponentsTitleBar::calculateElements()
 
 	size_t i;
 
-	calculateElementsInitPart1();
+	calSizeOfElements();
 
 	// hMax correction if no text element.
 	if (!has_TextElement)
@@ -1184,5 +1184,5 @@ void CComponentsTitleBar::calculateElements()
 		}
 	}
 
-	calculateElementsInitPart2();
+	calPositionOfElements();
 }
