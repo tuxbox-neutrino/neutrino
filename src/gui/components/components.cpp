@@ -803,8 +803,7 @@ void CComponentsPicture::paint(bool do_save_bg)
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsItemBox from CComponentsContainer
-CComponentsItemBox::CComponentsItemBox(	/*const int x_pos, const int y_pos, const int w, const int h,
-						fb_pixel_t color_text, fb_pixel_t color_body*/)
+CComponentsItemBox::CComponentsItemBox()
 {
 	//CComponentsItemBox
 	initVarItemBox();
