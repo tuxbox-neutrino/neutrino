@@ -1011,11 +1011,11 @@ void CComponentsItemBox::calPositionOfElements()
 	for (i = 0; i < v_element_data.size(); i++) {
 		if (firstElementLeft == i){
 			prevElementLeft = i;
-			v_element_data[i].x += hOffset + corner_rad/2;
+			v_element_data[i].x = x + hOffset + corner_rad/2;
 		}
 		else if (firstElementRight == i){
 			prevElementRight = i;
-			v_element_data[i].x += width - v_element_data[i].width - hOffset - corner_rad/2;
+			v_element_data[i].x = x + width - v_element_data[i].width - hOffset - corner_rad/2;
 		}
 		else {
 			if (v_element_data[i].align == CC_ALIGN_LEFT) {
