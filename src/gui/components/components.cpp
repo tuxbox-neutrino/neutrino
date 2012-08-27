@@ -994,8 +994,6 @@ void CComponentsItemBox::calculateElementsInitPart1()
 		if (v_element_data[i].type != CC_ITEMBOX_PICTURE)
 			hMax = max(v_element_data[i].height, hMax);
 	}
-	if (!has_TextElement)
-		hMax = max(font_text->getHeight(), hMax);
 }
 
 void CComponentsItemBox::calculateElementsInitPart2()
@@ -1156,6 +1154,10 @@ void CComponentsTitleBar::calculateElements()
 	size_t i;
 
 	calculateElementsInitPart1();
+
+	// hMax correction if no text element.
+	if (!has_TextElement)
+		hMax = max(font_text->getHeight(), hMax);
 
 	// Calculate logo
 	for (i = 0; i < v_element_data.size(); i++) {
