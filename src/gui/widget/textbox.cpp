@@ -222,7 +222,7 @@ void CTextBox::reSizeMainFrameWidth(int textWidth)
 
 void CTextBox::reSizeMainFrameHeight(int textHeight)
 {
-	TRACE("[CTextBox]->ReSizeMainFrameHeight: %d, current: %d\r\n",textHeight,m_cFrameTextRel.iHeight);
+	//TRACE("[CTextBox]->ReSizeMainFrameHeight: %d, current: %d\r\n",textHeight,m_cFrameTextRel.iHeight);
 
 	int iNewWindowHeight =	textHeight + 2*text_border_width;
 
