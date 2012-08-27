@@ -1121,12 +1121,17 @@ void CComponentsItemBox::paintPic(CComponentsPicture* pic)
 
 //-------------------------------------------------------------------------------------------------------
 //sub class CComponentsTitleBar from CComponentsItemBox
-CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h,
+CComponentsTitleBar::CComponentsTitleBar()
+{
+	//CComponentsTitleBar
+	initVarTitleBar();
+}
+
+CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const int w, const int h, const char* text,
 					fb_pixel_t color_text, fb_pixel_t color_body)
 {
 	//CComponentsItemBox
-	initVarItemBox();
-	onlyOneTextElement	= true;
+	initVarTitleBar();
 	
 	//CComponents
 	x		= x_pos;
@@ -1134,12 +1139,35 @@ CComponentsTitleBar::CComponentsTitleBar(const int x_pos, const int y_pos, const
 	height		= h;
 	width 		= w;
 	col_body	= color_body;
-	corner_type 	= CORNER_TOP;
-	corner_rad	= RADIUS_LARGE;
-
+	
 	//CComponentsTitleBar
 	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
 	col_text 	= color_text;
+	
+	if (text) {
+		addElement	(CC_ALIGN_LEFT, CC_ITEMBOX_TEXT, text);
+		calculateElements();
+	}
+}
+
+
+void CComponentsTitleBar::initVarTitleBar()
+{
+	//CComponentsItemBox
+	initVarItemBox();
+	onlyOneTextElement	= true;
+	
+	font_text	= g_Font[SNeutrinoSettings::FONT_TYPE_MENU_TITLE];
+	col_text 	= COL_MENUHEAD;
+	
+	//CComponents
+	x		= 0;
+	y 		= 0;
+	height		= font_text->getHeight() + 2*hSpacer;
+	width 		= frameBuffer->getScreenWidth(true);;
+	col_body	= COL_MENUHEAD_PLUS_0;
+	corner_type 	= CORNER_TOP;
+	corner_rad	= RADIUS_LARGE;
 }
 
 

@@ -363,8 +363,12 @@ class CComponentsItemBox : public CComponentsContainer
 
 class CComponentsTitleBar : public CComponentsItemBox
 {
+	private:
+		void initVarTitleBar();
+	
 	public:
-		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h,
+		CComponentsTitleBar();
+		CComponentsTitleBar(	const int x_pos, const int y_pos, const int w, const int h, const char* text = NULL,
 					fb_pixel_t color_text = COL_MENUHEAD, fb_pixel_t color_body = COL_MENUHEAD_PLUS_0);
 
 		void calculateElements();
