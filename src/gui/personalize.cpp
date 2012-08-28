@@ -396,9 +396,14 @@ void CPersonalizeGui::ShowUserMenu(CMenuWidget* p_widget, vector<CUserMenuSetup*
 	CMenuForwarder *fw_fkeys = new CMenuForwarder(LOCALE_PERSONALIZE_USERMENU_PREFERRED_BUTTONS, true, NULL, fkeyMenu, NULL, CRCInput::RC_1);
 #endif	
 	//enable/disable epg/features
-	user_menu_notifier = new CUserMenuNotifier(v_umenu_fw[0], v_umenu_fw[3]);
+
+	user_menu_notifier = new CUserMenuNotifier(v_umenu_fw[0], v_umenu_fw[1], v_umenu_fw[2], v_umenu_fw[3]);
 	//red 
 	p_widget->addItem(new CMenuOptionChooser(usermenu[0].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, user_menu_notifier));/*LOCALE_INFOVIEWER_EVENTLIST*/
+	//green 
+	p_widget->addItem(new CMenuOptionChooser(usermenu[1].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_GREEN_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, user_menu_notifier));
+	//yellow 
+	p_widget->addItem(new CMenuOptionChooser(usermenu[2].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_YELLOW_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, user_menu_notifier));
 	//blue 
 	p_widget->addItem(new CMenuOptionChooser(usermenu[3].menue_title, &g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON], PERSONALIZE_ACTIVE_MODE_OPTIONS, PERSONALIZE_ACTIVE_MODE_MAX, true, user_menu_notifier));/*LOCALE_INFOVIEWER_STREAMINFO*/
 	
@@ -901,18 +906,22 @@ void CPersonalizeGui::restoreSettings()
 
 
 //helper class to enable/disable some items in usermenu setup
-CUserMenuNotifier::CUserMenuNotifier( CMenuItem* i1, CMenuItem* i2)
+CUserMenuNotifier::CUserMenuNotifier( CMenuItem* i1, CMenuItem* i2, CMenuItem *i3, CMenuItem *i4)
 {
-   toDisable[0]=i1;
-   toDisable[1]=i2;
+	toDisable[0]=i1;
+	toDisable[1]=i2;
+	toDisable[2]=i3;
+	toDisable[3]=i4;
 }
 
 bool CUserMenuNotifier::changeNotify(const neutrino_locale_t, void *)
 {
 	toDisable[0]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_RED_BUTTON]);
-	toDisable[1]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON]);
-   
-   return false;
+	toDisable[1]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_GREEN_BUTTON]);
+	toDisable[2]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_YELLOW_BUTTON]);
+	toDisable[3]->setActive(g_settings.personalize[SNeutrinoSettings::P_MAIN_BLUE_BUTTON]);
+	
+	return false;
 }
 
 //helper class to enable/disable pin setup

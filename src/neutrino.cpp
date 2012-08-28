@@ -2117,6 +2117,33 @@ void CNeutrinoApp::RealRun(CMenuWidget &mainMenu)
 					else
 						ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
 			}
+			else if ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player)
+			{
+				StopSubtitles();
+				usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+				StartSubtitles();
+			}
+			else if( msg == CRCInput::RC_green)
+			{
+				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_GREEN_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)
+				{
+					StopSubtitles();
+					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_GREEN);
+					StartSubtitles();
+				}
+				else
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
+			}
+			else if( msg == CRCInput::RC_yellow ) {       // NVODs
+				if (g_settings.personalize[SNeutrinoSettings::P_MAIN_YELLOW_BUTTON] == CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED)
+				{
+					StopSubtitles();
+					usermenu.showUserMenu(SNeutrinoSettings::BUTTON_YELLOW);
+					StartSubtitles();
+				}
+				else
+					ShowHintUTF(LOCALE_MESSAGEBOX_INFO, g_Locale->getText(LOCALE_PERSONALIZE_MENUDISABLEDHINT),450, 10);				
+			}
 			else if( (msg == CRCInput::RC_green) || ((msg == CRCInput::RC_audio) && !g_settings.audio_run_player) )
 			{
 				StopSubtitles();

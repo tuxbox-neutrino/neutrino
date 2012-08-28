@@ -142,9 +142,11 @@ struct SNeutrinoSettings
 		
 		//user menu
 		P_MAIN_BLUE_BUTTON,
- 		P_MAIN_RED_BUTTON,
- 		
- 		//main menu
+		P_MAIN_YELLOW_BUTTON,
+		P_MAIN_GREEN_BUTTON,
+		P_MAIN_RED_BUTTON,
+		
+		//main menu
 		P_MAIN_TV_MODE,
 		P_MAIN_TV_RADIO_MODE, //togglemode
 		P_MAIN_RADIO_MODE,

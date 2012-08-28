@@ -35,6 +35,8 @@ const struct personalize_settings_t personalize_settings[SNeutrinoSettings::P_SE
 	
 	//user menu
 	{"personalize_bluebutton"		, CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED}, // features
+	{"personalize_yellowbutton"		, CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED}, // features
+	{"personalize_greenbutton"		, CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED}, // features
 	{"personalize_redbutton"		, CPersonalizeGui::PERSONALIZE_ACTIVE_MODE_ENABLED}, // epg/info
 	
 	//main menu
