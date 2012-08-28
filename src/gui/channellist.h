@@ -97,6 +97,8 @@ private:
 	int ChannelList_Rec;
 	CComponentsDetailLine *dline;
 	CComponentsInfoBox *ibox;
+	CComponentsTitleBar* clHead;
+	size_t indexLogo;
 
 	void paintDetails(int index);
 	void clearItem2DetailsLine ();
